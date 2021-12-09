@@ -1,91 +1,91 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 21C2CC433EF
-	for <virtualization@archiver.kernel.org>; Thu,  9 Dec 2021 01:33:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B686FC433EF
+	for <virtualization@archiver.kernel.org>; Thu,  9 Dec 2021 01:35:40 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 9DC07401A3;
-	Thu,  9 Dec 2021 01:33:16 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 50A66606F9;
+	Thu,  9 Dec 2021 01:35:40 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id OTdAD-lN6Xbc; Thu,  9 Dec 2021 01:33:15 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 36FA7401B1;
-	Thu,  9 Dec 2021 01:33:15 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 1NNAnAorkLuE; Thu,  9 Dec 2021 01:35:39 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id DFDEB6069D;
+	Thu,  9 Dec 2021 01:35:38 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0BEC0C002F;
-	Thu,  9 Dec 2021 01:33:15 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 659B1C0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A0774C0030;
+	Thu,  9 Dec 2021 01:35:38 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4BDCEC0012
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Dec 2021 01:33:13 +0000 (UTC)
+ Thu,  9 Dec 2021 01:35:37 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 3D28F401B1
+ by smtp3.osuosl.org (Postfix) with ESMTP id 6CE5760649
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Dec 2021 01:33:13 +0000 (UTC)
+ Thu,  9 Dec 2021 01:35:33 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id nrf7FR6hi_cU
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id B_6fJauoImjf
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Dec 2021 01:33:12 +0000 (UTC)
+ Thu,  9 Dec 2021 01:35:32 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 76E1F401A3
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 00E2E6069D
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Dec 2021 01:33:12 +0000 (UTC)
+ Thu,  9 Dec 2021 01:35:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1639013590;
+ s=mimecast20190719; t=1639013731;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=/au0VW0wAExMZ4vn/Bx8IxSlAKlCAT2/4s6CN6RIj4A=;
- b=fvtNk+MXIl6Xm94KKp2Fo18b4eGIw/uWVrAuIuq9as4r+R5gK5x9ZYvElN5E8swAuppVYd
- S/A4rNozE71wtHcFU+p//GdPKHeT8mmulcWIeMqWqk5msJsuQ5DLup7BknN4EpyFoZvwga
- R2gs1KhHK5LyPvMLpYPnkjbX+TWauB4=
-Received: from mail-lj1-f197.google.com (mail-lj1-f197.google.com
- [209.85.208.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=taLsr6fO/b7Rc0RnBuLY7aJzAZILfwkPOs7gjAn2N7s=;
+ b=Jm8iFtmTZwkTyL9Hv39oR1TuyZ78KmOz6xD2NJFSUMqFuM264uqX3hZrjZ9lIGxNEqO8cZ
+ +JgophBWFaDBE7N49GqbdqeWcBjKXI5rzw39ieTVGBlpaybBeuFIM55xBFZNdsXv+eQgAO
+ 6X8qDXnj4dVvF8lvvh5Chek8hnt/M7A=
+Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
+ [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-182-w-yee11AODGzmspNgDfIow-1; Wed, 08 Dec 2021 20:33:09 -0500
-X-MC-Unique: w-yee11AODGzmspNgDfIow-1
-Received: by mail-lj1-f197.google.com with SMTP id
- 83-20020a2e0556000000b00218db3260bdso1242630ljf.9
+ us-mta-253-v68Cm7cUP86aEvfh5r1okw-1; Wed, 08 Dec 2021 20:35:27 -0500
+X-MC-Unique: v68Cm7cUP86aEvfh5r1okw-1
+Received: by mail-lf1-f71.google.com with SMTP id
+ k32-20020a0565123da000b0041643c6a467so1904074lfv.5
  for <virtualization@lists.linux-foundation.org>;
- Wed, 08 Dec 2021 17:33:09 -0800 (PST)
+ Wed, 08 Dec 2021 17:35:27 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=/au0VW0wAExMZ4vn/Bx8IxSlAKlCAT2/4s6CN6RIj4A=;
- b=oRNyCNWx8LIvQZu4mAVcCOIPxD9C7nDmE1mFXE2sTIdktY1ymI/kycdz1v91NXd+ym
- hAtWMF+jVHD5hwQrohACOJLHgw0X6IBmvNTsoba863VbEPirpXsDUpYxKLsPE9ofa3ps
- Ymi5ktx9IzfPvPQa89sckT5fySqB9cE7FWhX5bXtGE5rpUdg3I3xVENwO+SpAtKrGvMQ
- N/bEt3irC3SolTP8Kjg9dR7qy8oiAFGZYQDw2k4UhZ8AdysBFvXgnwOXHAHVQ2uRX+hA
- N/ggOfHhvV+CFj0BIAlMMS/hZ3eyzl9sQQDQI6o4ffTojMO7cU4SyAuNkqYYZRyHw+Fx
- V9PQ==
-X-Gm-Message-State: AOAM533iM4zYiB7GTlDxgTsiOsLO54OdJLZAvxmTuCJkeBISSu7KevYZ
- yY2Xa4D/vHewZEEUMVNVRaT58j4zvbBMqjgj55oKfm/2ZOBzcOUe3BFk46iV6tAFAXwVK0LDNc8
- lnX+oH6b+jmWvLBkMrtxmLluDA8jM3G/6LMXiSswLkXF/emPJS5dy/LtJhA==
-X-Received: by 2002:a2e:9f55:: with SMTP id v21mr3099113ljk.420.1639013588039; 
- Wed, 08 Dec 2021 17:33:08 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJw9TIw97IDz1kTMGFm4/WfgNr13bxFC2QWir9Lu5dBhoF7DJZIPEMJbCSwnNHaVGu6he9vtyKqqUpoOUjTDKro=
-X-Received: by 2002:a2e:9f55:: with SMTP id v21mr3099088ljk.420.1639013587840; 
- Wed, 08 Dec 2021 17:33:07 -0800 (PST)
+ bh=taLsr6fO/b7Rc0RnBuLY7aJzAZILfwkPOs7gjAn2N7s=;
+ b=RXunzQAuB69wgiTCebg6qAKV3iR47AaYCkof7a6OrAz6qmF+L8WDWlJqta4fBNN+W6
+ y0O63kpRfHMyXMs7JZwsFbMb3UecmNS8+kqZuicpadpZtHcdZrOUFLURu3miK4kJQMrR
+ pCl+bT+nAPgaf4/tUv+OdY42r3OSMmFdPxnx0bf1BUrUmiL5NA7S4NBkYVsAHU7FCYK4
+ KGFBV/bGnz6382X0vYDdLmSuFvh69KzFsnXBuIprB3jJDI7G2XOYjQ3wC76OUw0hpEz7
+ QBY+3CAKrvL9MDzKS+NZFP75wqFIeznRgPsuPU4NtNenoeLAr3sChyxUVKVNNPDIU1Am
+ Y/Ug==
+X-Gm-Message-State: AOAM533bFrtZAULu5NDOlMlOqpi1dxvz+2DAmOAPnp952x4/j5espluI
+ TNsE6NUljZsO92SOX3K596Lwm4iy2ogyAxl/Wuz9wbvQumrViVFZU0oWN14xSEuPhcxa0EH6W+6
+ 7heHQ47IeOvy78FLO2ZYIBCMyeBKqldcmGg84I+EFHg5pU5fWEXRXEX7UEQ==
+X-Received: by 2002:ac2:518b:: with SMTP id u11mr3008658lfi.498.1639013726210; 
+ Wed, 08 Dec 2021 17:35:26 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzY9akOQhW4ssd9sAvc3Qxcr0Vx9o1aqV2KvSjIFRnMDVo1+Rr55t1tNde+8JKmATWSznqtDZPb48hVY0j8oJU=
+X-Received: by 2002:ac2:518b:: with SMTP id u11mr3008642lfi.498.1639013726019; 
+ Wed, 08 Dec 2021 17:35:26 -0800 (PST)
 MIME-Version: 1.0
 References: <20211207024510.23292-1-michael.christie@oracle.com>
- <20211207024510.23292-2-michael.christie@oracle.com>
- <CACGkMEskNm079dzOaxNOFA6_K4r-9=hAs8VXcxqi4SKDKtozsQ@mail.gmail.com>
- <6726418f-c9ae-04ba-eae4-0f36f048dff5@oracle.com>
-In-Reply-To: <6726418f-c9ae-04ba-eae4-0f36f048dff5@oracle.com>
+ <20211207024510.23292-7-michael.christie@oracle.com>
+ <CACGkMEtsMauWPP5zQQg0Z09A-jDVPcsoHTEAksy94aYbpZ0huA@mail.gmail.com>
+ <e739499f-dbb1-f249-4c36-969dd810eb5c@oracle.com>
+In-Reply-To: <e739499f-dbb1-f249-4c36-969dd810eb5c@oracle.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 9 Dec 2021 09:32:56 +0800
-Message-ID: <CACGkMEucoBD5XsP8Yrp=SeZA9QsyJa0FJ62k+7Ph7Zmpu1RgRw@mail.gmail.com>
-Subject: Re: [PATCH 1/7] vhost: get rid of vhost_poll_flush() wrapper
+Date: Thu, 9 Dec 2021 09:35:15 +0800
+Message-ID: <CACGkMEsfML6Pytn_QaZ7nt6f=DsMoe55eb++XgqBE3P7q-0dcg@mail.gmail.com>
+Subject: Re: [PATCH 6/7] vhost-scsi: drop flush after vhost_dev_cleanup
 To: Mike Christie <michael.christie@oracle.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
@@ -110,54 +110,70 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Dec 9, 2021 at 12:41 AM Mike Christie
+On Thu, Dec 9, 2021 at 12:45 AM Mike Christie
 <michael.christie@oracle.com> wrote:
 >
-> On 12/7/21 9:49 PM, Jason Wang wrote:
+> On 12/7/21 10:07 PM, Jason Wang wrote:
 > > On Tue, Dec 7, 2021 at 10:45 AM Mike Christie
 > > <michael.christie@oracle.com> wrote:
 > >>
-> >> vhost_poll_flush() is a simple wrapper around vhost_work_dev_flush().
-> >> It gives wrong impression that we are doing some work over vhost_poll,
-> >> while in fact it flushes vhost_poll->dev.
-> >
-> > This "problem" is a byproduct of 7235acdb1144 ("vhost: simplify work flushing").
-> >
-> > Before that we indeed have per poll flush flush.
-> >
-> >> It only complicate understanding of the code and leads to mistakes
-> >> like flushing the same vhost_dev several times in a row.
+> >> The flush after vhost_dev_cleanup is not needed because:
 > >>
-> >> Just remove vhost_poll_flush() and call vhost_work_dev_flush() directly.
+> >> 1. It doesn't do anything. vhost_dev_cleanup will stop the worker thread
+> >> so the flush call will just return since the worker has not device.
+> >>
+> >> 2. It's not needed for the re-queue case. vhost_scsi_evt_handle_kick grabs
+> >> the mutex and if the backend is NULL will return without queueing a work.
+> >> vhost_scsi_clear_endpoint will set the backend to NULL under the vq->mutex
+> >> then drops the mutex and does a flush. So we know when
+> >> vhost_scsi_clear_endpoint has dropped the mutex after clearing the backend
+> >> no evt related work will be able to requeue. The flush would then make sure
+> >> any queued evts are run and return.
 > >
-> > Not a native speaker but since we don't have an per work flush, is it
-> > better to rename this simply as vhost_flush()?
+> > What happens if a kick after vhost_scsi_clear_endpoint() but before
+> > vhost_dev_stop()?
+>
+> vhost_dev_stop also does a flush, so:
+>
+> 1. The kick handler would see the backend is null and return immediately.
+> 2. The flush in vhost_dev_stop would wait for those kicks in #1 to complete.
+
+You are right.
+
+So
+
+Acked-by: Jason Wang <jasowang@redhat.com>
+
+>
+>
 > >
->
-> What about vhost_dev_flush?
->
-> For the existing naming when we have a function exported we tend to have
-> "vhost_" then the object/struct it works on then the action.
->
-> For work we have:
->
-> vhost_work_queue/init
->
-> (we also have vhost_has_work which doesn't follow that pattern but
-> would sound strange as vhost_work_has so ignore that one).
->
-> For dev operations we have:
->
-> vhost_dev_reset_owner/set_owner/has_owner/cleanup/init
->
-> For the flush operation I wanted it to reflect it flushed all work
-> on the device, so I mashed up the work and dev naming above and
-> I agree it's a little strange.
-
-It looks fine to me.
-
-Thanks
-
+> > Is this safe or the kthread_stop() in vhost_dev_cleanup() makes us safe?
+> >
+> > Thanks
+> >
+> >>
+> >> Signed-off-by: Mike Christie <michael.christie@oracle.com>
+> >> ---
+> >>  drivers/vhost/scsi.c | 2 --
+> >>  1 file changed, 2 deletions(-)
+> >>
+> >> diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+> >> index 532e204f2b1b..94535c813ef7 100644
+> >> --- a/drivers/vhost/scsi.c
+> >> +++ b/drivers/vhost/scsi.c
+> >> @@ -1827,8 +1827,6 @@ static int vhost_scsi_release(struct inode *inode, struct file *f)
+> >>         vhost_scsi_clear_endpoint(vs, &t);
+> >>         vhost_dev_stop(&vs->dev);
+> >>         vhost_dev_cleanup(&vs->dev);
+> >> -       /* Jobs can re-queue themselves in evt kick handler. Do extra flush. */
+> >> -       vhost_scsi_flush(vs);
+> >>         kfree(vs->dev.vqs);
+> >>         kvfree(vs);
+> >>         return 0;
+> >> --
+> >> 2.25.1
+> >>
+> >
 >
 
 _______________________________________________
