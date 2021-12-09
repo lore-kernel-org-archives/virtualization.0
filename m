@@ -4,110 +4,101 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 443F4C433EF
-	for <virtualization@archiver.kernel.org>; Thu,  9 Dec 2021 06:50:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id EACD2C433EF
+	for <virtualization@archiver.kernel.org>; Thu,  9 Dec 2021 06:56:02 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id E147781815;
-	Thu,  9 Dec 2021 06:50:53 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 9A37381BE3;
+	Thu,  9 Dec 2021 06:56:02 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id is-3WSaDAkue; Thu,  9 Dec 2021 06:50:52 +0000 (UTC)
+	with ESMTP id pRMHhVy94lsY; Thu,  9 Dec 2021 06:56:01 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 4C98C81839;
-	Thu,  9 Dec 2021 06:50:52 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 1070A81839;
+	Thu,  9 Dec 2021 06:56:00 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1BB59C002F;
-	Thu,  9 Dec 2021 06:50:52 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E56A4C002F;
+	Thu,  9 Dec 2021 06:56:00 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 9D66DC0012
+ by lists.linuxfoundation.org (Postfix) with ESMTP id EF340C0012
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Dec 2021 06:50:50 +0000 (UTC)
+ Thu,  9 Dec 2021 06:55:59 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 7CEC760762
+ by smtp3.osuosl.org (Postfix) with ESMTP id CE5CE60769
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Dec 2021 06:50:50 +0000 (UTC)
+ Thu,  9 Dec 2021 06:55:59 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp3.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id PlS_pzwU_GF4
+ with ESMTP id pYb4zT1PD2ES
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Dec 2021 06:50:49 +0000 (UTC)
+ Thu,  9 Dec 2021 06:55:59 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id A061A6074A
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 0582C6074A
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Dec 2021 06:50:49 +0000 (UTC)
+ Thu,  9 Dec 2021 06:55:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1639032648;
+ s=mimecast20190719; t=1639032957;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=6LAHz5kErPapNWfxXhwQx55INnfEr0AqVPAKYpcd50M=;
- b=fvwKo2IpDZQ7zjv9UPeOOUY0WFC7bG8WS8ykk5CUM49t8SAjeCDnT9fqfl2skhQk1QNeZX
- EWdKYumAoI8e+Q+Uz3byLgQDKXXAsKCY0bwPOMlg+lRzThNlRlnCNGDCO8B05ZPoINcYbb
- oEl8D7aPSu9qcPdszFDHpP1pF2ve26o=
+ bh=/fb62qxVVfvgceW+7mro5MbYtbA/njW6uOUzofuzKQ0=;
+ b=UxFqxRvhXqyOcAKDfeSZkzHInE3CqoJixcBoQvKLX0BH9MzwYwSJ/DQkxvEoEK/OWH0qGn
+ KAWfxAiwCCg5BKxZLZ1WZwEBrSTKY8aMHXmYUyA5yWrbuPO959l2XmDG0WX4tiVp5nb0ej
+ SHCh01oe2Z/86Y/9ydX6V2v9wIVQX1o=
 Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
  [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-156-wEUYqgapPQioN4AeVQ1O0w-1; Thu, 09 Dec 2021 01:50:47 -0500
-X-MC-Unique: wEUYqgapPQioN4AeVQ1O0w-1
+ us-mta-417-6TPGVHlqNfmabqHFhyynmg-1; Thu, 09 Dec 2021 01:55:55 -0500
+X-MC-Unique: 6TPGVHlqNfmabqHFhyynmg-1
 Received: by mail-wm1-f70.google.com with SMTP id
- z138-20020a1c7e90000000b003319c5f9164so4371545wmc.7
+ ay34-20020a05600c1e2200b00337fd217772so2056528wmb.4
  for <virtualization@lists.linux-foundation.org>;
- Wed, 08 Dec 2021 22:50:46 -0800 (PST)
+ Wed, 08 Dec 2021 22:55:55 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:content-transfer-encoding
- :in-reply-to;
- bh=6LAHz5kErPapNWfxXhwQx55INnfEr0AqVPAKYpcd50M=;
- b=5F6kU+7C8JFxjzJtcrvkE1bIaxOqIVtKgWu1mC3S1aiXL0Ku1ViHbTFFUKS3D2txGU
- OtmqczAB2g8AIiNEZUvQRl0+ySkALv8r6Gx2XrAQHfd5x85lCC7XjtCX00HxlP2wts2L
- lsKmrmWbLUqLuVJ/3RyMzeuu6O/dYDBlWFH8juq/KmxFJz75qswrltiIgMi/msv0ImHf
- zwbuBv5k0xd2g9U9JNhczdASHpZDBFwJ0fuB6MnBg/Mb12tqF6v8KNS9hdZr97iQsSac
- 0bE/kGgLU0e+YxJHiFzex5SRLVGLFPSJPP4io8wdaVnkh+1zL+M6wZtk0Qu13XMu3HcX
- u6Qw==
-X-Gm-Message-State: AOAM530qpFvRg7Jpk/k5FlRTC/r9HkHEMp/wCP/JihOyBgKQHpwlD0Q8
- tH8lD5+EZNpB6XSweZLvSFEmn4o64A5peX+Xqsyd5Em2il3IjNTGDSgXo5Yb/UgFx+JTN5ZBv7k
- HA8pEOToF4wejUEmIxqh2N/jRFvET67xIZ4a0lQrL7Q==
-X-Received: by 2002:a05:600c:3846:: with SMTP id
- s6mr4633732wmr.55.1639032645935; 
- Wed, 08 Dec 2021 22:50:45 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJzSQ+7SMkZksR/bTLJct8C9fLmx9Vp5o7BoLkjtzqV7OcXLbEsNhmbI6mVp9yFbg0JoJgwiNw==
-X-Received: by 2002:a05:600c:3846:: with SMTP id
- s6mr4633709wmr.55.1639032645732; 
- Wed, 08 Dec 2021 22:50:45 -0800 (PST)
+ :mime-version:content-disposition:in-reply-to;
+ bh=/fb62qxVVfvgceW+7mro5MbYtbA/njW6uOUzofuzKQ0=;
+ b=4M13yCEhMPfqXUMc8sOnE94xbf91Uiks9lOH1+ul2v+TGFSHf/8pMkywZwk+LHW2Ln
+ TmMrf7H2V2Nmv8lvGbhDIQLxQ6iMsZuAudExQtWlVr5f3U3E6VhohGxuZ2w/cliTvoMN
+ 7rc6le/oDHxmVWiAwsQaVnqd4tpMAaDH9vLagAWEsQ8x+omn0H3qMiFr0t/XaritgB+t
+ 1heSORkBoUg6BSYCmy/kwlZJ1JophzChBKcbpBXei68qyBTHlSTz0PTw1v40wzaYCHAP
+ g356jPfrWTy1dsHxrBqV+W4DdcGHkZC1Q6vLFmL+nwvsUpPdjq+bndMTiattBfUDfDxg
+ BtWQ==
+X-Gm-Message-State: AOAM530g3e27OT81zSMoBpBe3W5kpHsUI7rXjHGIiVsrdu5FAooQfYjT
+ E2gJV3lcQ63nm/Tj6UZoT3LpTzw3FfUGZfIaDpfwKzU2XjB6OEbxJc46v8RQI5Bqm2I+sQVHis9
+ sAdLxJ4BvRTOZ47U3TsS4Y75w1+4UcSA/p9tVyf5hnQ==
+X-Received: by 2002:a7b:c1cb:: with SMTP id a11mr4835613wmj.30.1639032954445; 
+ Wed, 08 Dec 2021 22:55:54 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxFjgkHORRhDzdGFhtR2vh0mcJ117Rtzn0FOi+3LPmzp4mLAvIEY2WhtWYopTY+U6sr6lywbQ==
+X-Received: by 2002:a7b:c1cb:: with SMTP id a11mr4835591wmj.30.1639032954203; 
+ Wed, 08 Dec 2021 22:55:54 -0800 (PST)
 Received: from redhat.com ([2.55.18.120])
- by smtp.gmail.com with ESMTPSA id h27sm8754726wmc.43.2021.12.08.22.50.43
+ by smtp.gmail.com with ESMTPSA id l26sm4927855wms.15.2021.12.08.22.55.52
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 08 Dec 2021 22:50:44 -0800 (PST)
-Date: Thu, 9 Dec 2021 01:50:41 -0500
+ Wed, 08 Dec 2021 22:55:53 -0800 (PST)
+Date: Thu, 9 Dec 2021 01:55:50 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: =?utf-8?B?546L6LSH?= <yun.wang@linux.alibaba.com>
-Subject: Re: [RFC PATCH] virtio: make sure legacy pci device gain 32bit-pfn vq
-Message-ID: <20211209014044-mutt-send-email-mst@kernel.org>
-References: <b50fff4d-9f05-76b3-eba7-91241c351751@linux.alibaba.com>
- <20211207031217-mutt-send-email-mst@kernel.org>
- <8bbfd029-d969-4632-cb8e-482481d65a2f@linux.alibaba.com>
- <20211208021947-mutt-send-email-mst@kernel.org>
- <dfb712d7-1186-1496-9fcc-a72e23c3409b@linux.alibaba.com>
- <20211208191239-mutt-send-email-mst@kernel.org>
- <67f08ec2-4121-d025-013d-915ee23ca369@linux.alibaba.com>
+To: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH V2] virtio-mmio: harden interrupt
+Message-ID: <20211209015205-mutt-send-email-mst@kernel.org>
+References: <20211126044102.18374-1-jasowang@redhat.com>
+ <20211208151801-mutt-send-email-mst@kernel.org>
+ <CACGkMEs-ah8VAULcDumPH_u9C2DZQh9SKJ_2bykX5aBCTxnwsA@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <67f08ec2-4121-d025-013d-915ee23ca369@linux.alibaba.com>
+In-Reply-To: <CACGkMEs-ah8VAULcDumPH_u9C2DZQh9SKJ_2bykX5aBCTxnwsA@mail.gmail.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: open list <linux-kernel@vger.kernel.org>,
- "open list:VIRTIO CORE AND NET DRIVERS"
- <virtualization@lists.linux-foundation.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+ virtualization <virtualization@lists.linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,92 +110,157 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gVGh1LCBEZWMgMDksIDIwMjEgYXQgMTE6MDA6NTVBTSArMDgwMCwg546L6LSHIHdyb3RlOgo+
-IAo+IAo+IOWcqCAyMDIxLzEyLzkg5LiK5Y2IODoxOSwgTWljaGFlbCBTLiBUc2lya2luIOWGmemB
-kzoKPiBbc25pcF0KPiA+ID4gPiA+ID4gPiAKPiA+ID4gPiA+IEhpLCBNaWNoYWVsCj4gPiA+ID4g
-PiAKPiA+ID4gPiA+IFRoYW5rcyBmb3IgdGhlIGNvbW1lbnQsIHVuZm9ydHVuYXRlbHkgbW9kaWZ5
-IGRldmljZSBpcyBub3QgYW4gb3B0aW9uIGZvciB1cwo+ID4gPiA+ID4gOi0oCj4gPiA+ID4gPiAK
-PiA+ID4gPiA+IElzIHRoZXJlIGFueSBpZGVhIG9uIGhvdyB0byBzb2x2ZSB0aGlzIGlzc3VlIHBy
-b3Blcmx5Pwo+ID4gPiA+ID4gCj4gPiA+ID4gPiBSZWdhcmRzLAo+ID4gPiA+ID4gTWljaGFlbCBX
-YW5nCj4gPiA+ID4gCj4gPiA+ID4gQnkgdGhlIHdheSwgdGhlcmUgaXMgYSBidWcgaW4gdGhlIGVy
-cm9yIG1lc3NhZ2UuIFdhbnQgdG8gZml4IHRoYXQ/Cj4gPiA+IAo+ID4gPiBDb3VsZCB5b3UgcGxl
-YXNlIHByb3ZpZGUgbW9yZSBkZXRhaWwgYWJvdXQgdGhlIGJ1Zz8gV2UnZCBsaWtlIHRvIGhlbHAg
-Zml4aW5nCj4gPiA+IGl0IDotKQo+ID4gPiAKPiA+ID4gQmVzaWRlcywgSSd2ZSBjaGVja2VkIHRo
-YXQgcGF0Y2ggYnV0IGl0IGNhbid0IGFkZHJlc3Mgb3VyIGlzc3VlLCB3ZSBhY3R1YWxseQo+ID4g
-PiBoYXZlIHRoaXMgbGVnYWN5IHBjaSBkZXZpY2Ugb24gYXJtIHBsYXRmb3JtLCBhbmQgdGhlIG1l
-bW9yeSBsYXlvdXQgaXMKPiA+ID4gdW5mcmllbmRseSBzaW5jZSBhbGxvY2F0aW9uIHJhcmVseSBw
-cm92aWRpbmcgcGFnZS1hZGRyZXNzIGJlbG93IDQ0Yml0LCB3ZQo+ID4gPiB1bmRlcnN0YW5kIHRo
-ZSB2aXJ0aW8taW9tbXUgY2FzZSBzaG91bGQgbm90IGRvIGZvcmNlIGRtYSwgd2hpbGUgd2UgZG9u
-J3QKPiA+ID4gaGF2ZSB0aGF0IHNvIGl0J3MganVzdCB3b3JraW5nIGZpbmUuCj4gPiA+IAo+ID4g
-PiBSZWdhcmRzLAo+ID4gPiBNaWNoYWVsIFdhbmcKPiA+IAo+ID4gQlRXIGlzIGl0IGp1c3QgdGhl
-IHJpbmcgdGhhdCdzIGF0IGlzc3VlPwo+IAo+IFllcywgdGhlIGRtYSBhZGRyZXNzIGZvciByaW5n
-IGFsbG9jYXRlZCBhcyBwYWdlIGNhbid0IGZpdCB0aGUgcmVxdWlyZW1lbnQuCj4gCj4gPiBGaWd1
-cmluZyBvdXQgd2UgaGF2ZSB0aGlzIHByb2JsZW1hdGljIGNvbmZpZyBhbmQgdGhlbiBhbGxvY2F0
-aW5nIGp1c3QKPiA+IHRoZSByaW5nIGZyb20gY29oZXJlbnQgbWVtb3J5IHNlZW1zIG1vcmUgcGFs
-YXRhYmxlLgo+IAo+IEFncmVlLCBJJ20gYWxzbyB3b25kZXJpbmcgd2h5IGNhbid0IHdlIGZvcmNl
-IGFsbG9jIDQ0Yml0LXBmbiBwYWdlIHRvIGZpdCB0aGUKPiByZXF1aXJlbWVudD8gSSBtZWFuIGlm
-IHRoZXJlIGFyZSBzdWNoIHBhZ2VzLCB3ZSBzaG91bGQgdXNlIHRoZW0gZmlyc3RseSBhcwo+IGRt
-YSBhZGRyZXNzIGZvciBsZWdhY3kgZGV2aWNlcywgYW5kIG9ubHkgZmFpbCB3aGVuIHRoZXJlIGFy
-ZSBubyBzdWNoIHBhZ2VzCj4gYXQgYWxsLCBidXQgY2FuJ3QgZmluZCBleGlzdGluZyBBUEkgdG8g
-YWxsb2MgcGFnZSB3aXRoIHN1Y2ggcmVxdWlyZW1lbnQuLi4KPiBhbnl3YXkuCj4gCj4gPiAKPiA+
-IEJ1dCBwbGVhc2Ugbm90ZSB3ZSBzdGlsbCBuZWVkIHRvIGRldGVjdCBjb25maWcgd2l0aCBhIHZp
-cnR1YWwgaW9tbXUgKGNhbgo+ID4gYmUgYW55IGtpbmQgbm90IGp1c3QgdmlydGlvLWlvbW11LCBz
-bW11LCB2dGQgYXJlIGFsbCBhZmZlY3RlZCkgYW5kCj4gPiBkaXNhYmxlIHRoZSBoYWNrcy4gVGhp
-cyBpcyB3aGF0IHRoZSBuZXcgRE1BIEFQSSBJIHN1Z2dlc3RlZCB3b3VsZCBkby4KPiAKPiBGYWly
-IGVub3VnaCwgYW55IG1vcmUgZGV0YWlscyBhYm91dCB0aGUgZGVzaWduIG9mIG5ldyBBUEk/Cj4g
-Cj4gUmVnYXJkcywKPiBNaWNoYWVsIFdhbmcKCgpUaGUgaWRlYSB3YXMgdGhhdCBvbiBzb21lIHN5
-c3RlbXMgYW55IERNQSBhZGRyZXNzIGlzIGFsc28gYQpwaHlzaWNhbCBhZGRyZXNzIChhcyBpbiB0
-aGUgY2FzZSBvZiBlLmcuIGJvdW5jZSBidWZmZXJzKSBhbmQKdGhlbiBpdCBjYW4gYmUgdXNlZCB3
-aXRob3V0IFZJUlRJT19GX0FDQ0VTU19QTEFURk9STS4KCj4gCj4gPiAKPiA+IAo+ID4gPiA+IAo+
-ID4gPiA+IAo+ID4gPiA+ID4gPiAKPiA+ID4gPiA+ID4gPiAtLS0KPiA+ID4gPiA+ID4gPiAgICAg
-ZHJpdmVycy92aXJ0aW8vdmlydGlvX3BjaV9sZWdhY3kuYyB8IDEwICsrKysrKysrKysKPiA+ID4g
-PiA+ID4gPiAgICAgZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYyAgICAgICB8ICAzICsrKwo+
-ID4gPiA+ID4gPiA+ICAgICBpbmNsdWRlL2xpbnV4L3ZpcnRpby5oICAgICAgICAgICAgIHwgIDEg
-Kwo+ID4gPiA+ID4gPiA+ICAgICAzIGZpbGVzIGNoYW5nZWQsIDE0IGluc2VydGlvbnMoKykKPiA+
-ID4gPiA+ID4gPiAKPiA+ID4gPiA+ID4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aXJ0aW8vdmly
-dGlvX3BjaV9sZWdhY3kuYwo+ID4gPiA+ID4gPiA+IGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX3Bj
-aV9sZWdhY3kuYwo+ID4gPiA+ID4gPiA+IGluZGV4IGQ2MmU5ODMuLjExZjJlYmYgMTAwNjQ0Cj4g
-PiA+ID4gPiA+ID4gLS0tIGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX3BjaV9sZWdhY3kuYwo+ID4g
-PiA+ID4gPiA+ICsrKyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19wY2lfbGVnYWN5LmMKPiA+ID4g
-PiA+ID4gPiBAQCAtMjYzLDYgKzI2MywxNiBAQCBpbnQgdmlydGlvX3BjaV9sZWdhY3lfcHJvYmUo
-c3RydWN0IHZpcnRpb19wY2lfZGV2aWNlCj4gPiA+ID4gPiA+ID4gKnZwX2RldikKPiA+ID4gPiA+
-ID4gPiAgICAgCXZwX2Rldi0+c2V0dXBfdnEgPSBzZXR1cF92cTsKPiA+ID4gPiA+ID4gPiAgICAg
-CXZwX2Rldi0+ZGVsX3ZxID0gZGVsX3ZxOwo+ID4gPiA+ID4gPiA+IAo+ID4gPiA+ID4gPiA+ICsJ
-LyoKPiA+ID4gPiA+ID4gPiArCSAqIFRoZSBsZWdhY3kgcGNpIGRldmljZSByZXF1cmUgMzJiaXQt
-cGZuIHZxLAo+ID4gPiA+ID4gPiA+ICsJICogb3Igc2V0dXBfdnEoKSB3aWxsIGZhaWxlZC4KPiA+
-ID4gPiA+ID4gPiArCSAqCj4gPiA+ID4gPiA+ID4gKwkgKiBUaHVzIHdlIG1ha2Ugc3VyZSB2cmlu
-Z191c2VfZG1hX2FwaSgpIHdpbGwKPiA+ID4gPiA+ID4gPiArCSAqIHJldHVybiB0cnVlIGR1cmlu
-ZyB0aGUgYWxsb2NhdGlvbiBieSBtYXJraW5nCj4gPiA+ID4gPiA+ID4gKwkgKiBmb3JjZV9kbWEg
-aGVyZS4KPiA+ID4gPiA+ID4gPiArCSAqLwo+ID4gPiA+ID4gPiA+ICsJdnBfZGV2LT52ZGV2LmZv
-cmNlX2RtYSA9IHRydWU7Cj4gPiA+ID4gPiA+ID4gKwo+ID4gPiA+ID4gPiA+ICAgICAJcmV0dXJu
-IDA7Cj4gPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+ID4gICAgIGVycl9pb21hcDoKPiA+ID4gPiA+
-ID4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYyBiL2RyaXZlcnMv
-dmlydGlvL3ZpcnRpb19yaW5nLmMKPiA+ID4gPiA+ID4gPiBpbmRleCAzMDM1YmI2Li42NTYyZTAx
-IDEwMDY0NAo+ID4gPiA+ID4gPiA+IC0tLSBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMK
-PiA+ID4gPiA+ID4gPiArKysgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jCj4gPiA+ID4g
-PiA+ID4gQEAgLTI0NSw2ICsyNDUsOSBAQCBzdGF0aWMgaW5saW5lIGJvb2wgdmlydHF1ZXVlX3Vz
-ZV9pbmRpcmVjdChzdHJ1Y3QKPiA+ID4gPiA+ID4gPiB2aXJ0cXVldWUgKl92cSwKPiA+ID4gPiA+
-ID4gPiAKPiA+ID4gPiA+ID4gPiAgICAgc3RhdGljIGJvb2wgdnJpbmdfdXNlX2RtYV9hcGkoc3Ry
-dWN0IHZpcnRpb19kZXZpY2UgKnZkZXYpCj4gPiA+ID4gPiA+ID4gICAgIHsKPiA+ID4gPiA+ID4g
-PiArCWlmICh2ZGV2LT5mb3JjZV9kbWEpCj4gPiA+ID4gPiA+ID4gKwkJcmV0dXJuIHRydWU7Cj4g
-PiA+ID4gPiA+ID4gKwo+ID4gPiA+ID4gPiA+ICAgICAJaWYgKCF2aXJ0aW9faGFzX2RtYV9xdWly
-ayh2ZGV2KSkKPiA+ID4gPiA+ID4gPiAgICAgCQlyZXR1cm4gdHJ1ZTsKPiA+ID4gPiA+ID4gPiAK
-PiA+ID4gPiA+ID4gPiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS9saW51eC92aXJ0aW8uaCBiL2luY2x1
-ZGUvbGludXgvdmlydGlvLmgKPiA+ID4gPiA+ID4gPiBpbmRleCA0MWVkYmMwLi5hNGViMjlkIDEw
-MDY0NAo+ID4gPiA+ID4gPiA+IC0tLSBhL2luY2x1ZGUvbGludXgvdmlydGlvLmgKPiA+ID4gPiA+
-ID4gPiArKysgYi9pbmNsdWRlL2xpbnV4L3ZpcnRpby5oCj4gPiA+ID4gPiA+ID4gQEAgLTEwOSw2
-ICsxMDksNyBAQCBzdHJ1Y3QgdmlydGlvX2RldmljZSB7Cj4gPiA+ID4gPiA+ID4gICAgIAlib29s
-IGZhaWxlZDsKPiA+ID4gPiA+ID4gPiAgICAgCWJvb2wgY29uZmlnX2VuYWJsZWQ7Cj4gPiA+ID4g
-PiA+ID4gICAgIAlib29sIGNvbmZpZ19jaGFuZ2VfcGVuZGluZzsKPiA+ID4gPiA+ID4gPiArCWJv
-b2wgZm9yY2VfZG1hOwo+ID4gPiA+ID4gPiA+ICAgICAJc3BpbmxvY2tfdCBjb25maWdfbG9jazsK
-PiA+ID4gPiA+ID4gPiAgICAgCXNwaW5sb2NrX3QgdnFzX2xpc3RfbG9jazsgLyogUHJvdGVjdHMg
-VlFzIGxpc3QgYWNjZXNzICovCj4gPiA+ID4gPiA+ID4gICAgIAlzdHJ1Y3QgZGV2aWNlIGRldjsK
-PiA+ID4gPiA+ID4gPiAtLSAKPiA+ID4gPiA+ID4gPiAxLjguMy4xCgpfX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxp
-c3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0
-cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Thu, Dec 09, 2021 at 10:06:34AM +0800, Jason Wang wrote:
+> On Thu, Dec 9, 2021 at 4:27 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+> >
+> > On Fri, Nov 26, 2021 at 12:41:02PM +0800, Jason Wang wrote:
+> > > This patch tries to make sure the virtio interrupt handler for MMIO
+> > > won't be called after a reset and before virtio_device_ready(). We
+> > > can't use IRQF_NO_AUTOEN since we're using shared interrupt
+> > > (IRQF_SHARED). So this patch tracks the interrupt enabling status in a
+> > > new intr_soft_enabled variable and toggle it during in
+> > > vm_disable/enable_interrupts(). The MMIO interrupt handler will check
+> > > intr_soft_enabled before processing the actual interrupt.
+> > >
+> > > Signed-off-by: Jason Wang <jasowang@redhat.com>
+> > > ---
+> > > Changes since V1:
+> > > - Silent compling warnings
+> > >  drivers/virtio/virtio_mmio.c | 37 ++++++++++++++++++++++++++++++++++++
+> > >  1 file changed, 37 insertions(+)
+> > >
+> > > diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+> > > index 56128b9c46eb..c517afdd2cc5 100644
+> > > --- a/drivers/virtio/virtio_mmio.c
+> > > +++ b/drivers/virtio/virtio_mmio.c
+> > > @@ -90,6 +90,7 @@ struct virtio_mmio_device {
+> > >       /* a list of queues so we can dispatch IRQs */
+> > >       spinlock_t lock;
+> > >       struct list_head virtqueues;
+> > > +     bool intr_soft_enabled;
+> > >  };
+> > >
+> > >  struct virtio_mmio_vq_info {
+> > > @@ -100,7 +101,37 @@ struct virtio_mmio_vq_info {
+> > >       struct list_head node;
+> > >  };
+> > >
+> > > +/* disable irq handlers */
+> > > +static void vm_disable_cbs(struct virtio_device *vdev)
+> > > +{
+> > > +     struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
+> > > +     int irq = platform_get_irq(vm_dev->pdev, 0);
+> > >
+> > > +     /*
+> > > +      * The below synchronize() guarantees that any
+> > > +      * interrupt for this line arriving after
+> > > +      * synchronize_irq() has completed is guaranteed to see
+> > > +      * intx_soft_enabled == false.
+> > > +      */
+> > > +     WRITE_ONCE(vm_dev->intr_soft_enabled, false);
+> > > +     synchronize_irq(irq);
+> > > +}
+> > > +
+> > > +/* enable irq handlers */
+> > > +static void vm_enable_cbs(struct virtio_device *vdev)
+> > > +{
+> > > +     struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
+> > > +     int irq = platform_get_irq(vm_dev->pdev, 0);
+> > > +
+> > > +     disable_irq(irq);
+> > > +     /*
+> > > +      * The above disable_irq() provides TSO ordering and
+> > > +      * as such promotes the below store to store-release.
+> > > +      */
+> > > +     WRITE_ONCE(vm_dev->intr_soft_enabled, true);
+> > > +     enable_irq(irq);
+> > > +     return;
+> > > +}
+> > >
+> > >  /* Configuration interface */
+> > >
+> > > @@ -262,6 +293,8 @@ static void vm_reset(struct virtio_device *vdev)
+> > >
+> > >       /* 0 status means a reset. */
+> > >       writel(0, vm_dev->base + VIRTIO_MMIO_STATUS);
+> >
+> > There was a discussion about reading status to make sure it is clear.
+> > The spec says we should, this can't hurt as a further hardening measure.
+> > In fact, let's do it in the core maybe? Spec says it applies to all
+> > devices ...
+> 
+> We can do that, but I'm not sure if we break some existing device.
+
+Hmm. Have anything specific in mind?
+
+> >
+> > > +     /* Disable VQ/configuration callbacks. */
+> > > +     vm_disable_cbs(vdev);
+> > >  }
+> > >
+> > >
+> > > @@ -288,6 +321,9 @@ static irqreturn_t vm_interrupt(int irq, void *opaque)
+> > >       unsigned long flags;
+> > >       irqreturn_t ret = IRQ_NONE;
+> > >
+> > > +     if (!READ_ONCE(vm_dev->intr_soft_enabled))
+> > > +             return IRQ_NONE;
+> > > +
+> >
+> > So if the write is seen before reset happened (should not happen, but we
+> > are talking a buggy device) then it won't be acknowledged and device
+> > will keep pulling the interrupt. I think as long as we are hardening
+> > this, let's go the full mile and try to avoid DoS if we can, do the
+> > check before invoking the callback, but do not skip the read.
+> > Whether to still return IRQ_NONE is a good question.
+> 
+> Did you mean something like this:
+> 
+>         /* Read and acknowledge interrupts */
+>         status = readl(vm_dev->base + VIRTIO_MMIO_INTERRUPT_STATUS);
+>         writel(status, vm_dev->base + VIRTIO_MMIO_INTERRUPT_ACK);
+> 
+>         if (status)
+>                 ret = IRQ_HANDLED;
+> 
+>        if (!READ_ONCE(vm_dev->intr_soft_enabled))
+>                return ret;
+> 
+> Thanks
+
+Maybe. Or is
+
+        if (!READ_ONCE(vm_dev->intr_soft_enabled))
+                return IRQ_NONE;
+
+better here?
+
+
+> >
+> >
+> >
+> >
+> > >       /* Read and acknowledge interrupts */
+> > >       status = readl(vm_dev->base + VIRTIO_MMIO_INTERRUPT_STATUS);
+> > >       writel(status, vm_dev->base + VIRTIO_MMIO_INTERRUPT_ACK);
+> > > @@ -529,6 +565,7 @@ static bool vm_get_shm_region(struct virtio_device *vdev,
+> > >  }
+> > >
+> > >  static const struct virtio_config_ops virtio_mmio_config_ops = {
+> > > +     .enable_cbs     = vm_enable_cbs,
+> > >       .get            = vm_get,
+> > >       .set            = vm_set,
+> > >       .generation     = vm_generation,
+> > > --
+> > > 2.25.1
+> >
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
