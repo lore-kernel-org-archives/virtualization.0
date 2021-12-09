@@ -1,100 +1,102 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id F0419C433F5
-	for <virtualization@archiver.kernel.org>; Thu,  9 Dec 2021 07:57:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 19E09C433EF
+	for <virtualization@archiver.kernel.org>; Thu,  9 Dec 2021 08:17:41 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id ADAD9409C2;
-	Thu,  9 Dec 2021 07:57:47 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id A1BEF60625;
+	Thu,  9 Dec 2021 08:17:41 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Txp4teWqrNtc; Thu,  9 Dec 2021 07:57:46 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id XLhLiW9qphNk; Thu,  9 Dec 2021 08:17:40 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 0EDA4409B4;
-	Thu,  9 Dec 2021 07:57:45 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 3361F6060D;
+	Thu,  9 Dec 2021 08:17:40 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C29AAC001E;
-	Thu,  9 Dec 2021 07:57:45 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 793B7C0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E2593C002F;
+	Thu,  9 Dec 2021 08:17:39 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1F0EAC0012
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Dec 2021 07:57:44 +0000 (UTC)
+ Thu,  9 Dec 2021 08:17:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 66BC36076C
+ by smtp3.osuosl.org (Postfix) with ESMTP id 19E7E6060E
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Dec 2021 07:57:44 +0000 (UTC)
+ Thu,  9 Dec 2021 08:17:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id fOq3hbOOZzyk
+ with ESMTP id KRPFBGf0tqQS
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Dec 2021 07:57:43 +0000 (UTC)
+ Thu,  9 Dec 2021 08:17:37 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 8AB0A60769
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 5661C6060D
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Dec 2021 07:57:43 +0000 (UTC)
+ Thu,  9 Dec 2021 08:17:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1639036662;
+ s=mimecast20190719; t=1639037856;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=OCchJqXlkcPKFU5BGgoX3zpc0zrMK5iqRL4iPWX0udg=;
- b=Puf2zSZwQpI/Ojmd0fz8hyuyeFwrs/zrW7MmlnwPc/U3OC/UYgml96DQuVwMGttrMcAfY2
- 3sYPXZCsvCKBqbwfJC08AOhwGdynBWVvtu8MSmMgTSdFrJNuciEryRXQY2Dn7vTMR+AMGD
- RzU19tISXvpsD7PGMdreeO7gCHlJBxc=
-Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
- [209.85.167.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=CoqlXz+XTUYv5ZjNBiCBQeJAtLMf5ExriHqWts5k1Ts=;
+ b=UNvfp5bbdT2ByfAVnHSnaoUIIGhXtAe8B6HC9CNGqwOaNpzi/BSn+LFgdq84xpX0wLAOSG
+ 63fYqkyDR8PAeM149v8Ka2IMZEjGuSlPlpU0dL6tVLlQ4/zR2P8FgV7S98MrA0Yg6MAXLj
+ 75xGqX4KL7kEJOj72QRo8lZpY796D+o=
+Received: from mail-lj1-f197.google.com (mail-lj1-f197.google.com
+ [209.85.208.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-324-xFgAlmaGPA6zgdXQZRW1qA-1; Thu, 09 Dec 2021 02:57:41 -0500
-X-MC-Unique: xFgAlmaGPA6zgdXQZRW1qA-1
-Received: by mail-lf1-f72.google.com with SMTP id
- s11-20020a195e0b000000b0041c0a47fb77so2292165lfb.20
+ us-mta-394-h7TOIJugM6eP3Oy_rbNnJg-1; Thu, 09 Dec 2021 03:17:35 -0500
+X-MC-Unique: h7TOIJugM6eP3Oy_rbNnJg-1
+Received: by mail-lj1-f197.google.com with SMTP id
+ t25-20020a2e8e79000000b0021b5c659213so1523962ljk.10
  for <virtualization@lists.linux-foundation.org>;
- Wed, 08 Dec 2021 23:57:41 -0800 (PST)
+ Thu, 09 Dec 2021 00:17:34 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=OCchJqXlkcPKFU5BGgoX3zpc0zrMK5iqRL4iPWX0udg=;
- b=vTW0RQyAONggRSzUutm1Ggh5lqejRXx+RlZws8EemeWy6WI0ksTJls2ID06L8XlYEi
- xcSrwY0dwatyUsfwTbXvFIB7CVC8GFXNOl3C/OgKJbZcHpQw++zi06Zl1ghk6YlroVHC
- PBH105Y6itKQhjupi8rcoT/IvDfq4/d7RVrFX1VTONMYON7nG/9gnRol2oa5pRyaGeko
- Lgn3FXyvkMOh8+25uACJH67h50Rfw29cS6F+w0Cdm0+2JdkSnWSVM3DMCZ4gfqLRFDle
- pG2BllXFhTUYoq44eo3TLp8rGjkXFVswPdaoR/uBmNdyQOrvYlbRc77zGGyqFHfFMANX
- SdHw==
-X-Gm-Message-State: AOAM533//tL/l51wRrO7Xi2AQ3N2yMN+THZUg2jny8bRAO9NsKnKR7Xy
- L8O9BrNEIjngU36XOTdfJ1kZ8JpW5jHOII9LE14AzXObd4rS+d1EMgLxCOwb/Y6tsjxAmIfe08J
- 6B3vC571lYj6I86mzuzSaI7OgbgKgid6NMnmb/DrnC1ubp2kydRWKI147pQ==
-X-Received: by 2002:a2e:915a:: with SMTP id q26mr4464191ljg.277.1639036659850; 
- Wed, 08 Dec 2021 23:57:39 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwlrR2u2AzX8ydVKKQ6AlXap6y6RZ+sD0Jjw3+YUukSsKKUjBU09U/YBMhNgB1VKj/LJTNTrklmuM7IzfjUSkY=
-X-Received: by 2002:a2e:915a:: with SMTP id q26mr4464165ljg.277.1639036659555; 
- Wed, 08 Dec 2021 23:57:39 -0800 (PST)
+ bh=CoqlXz+XTUYv5ZjNBiCBQeJAtLMf5ExriHqWts5k1Ts=;
+ b=gWgF0tjMPrtatj2q2ThOA98IL0zP8phOUX1wXxukKHpK6PMYURnBWuS+uaxfHZFhW/
+ RmB1+lN8/Fw8tp2yYJFxtEbPhQH3tw/HKHuafphUN4ruWpvp0S7iUrsWluWAY4W8sqjK
+ mIVycjbSIPk9kPTISZKJpq1QYtCVpCUsjHF+vwH5d+b7ugqd33AcOqHENkW5NY7n9rid
+ gM/x3xhRbS/7vxoSeS1WuVID9+AqycYoT1gVVxoDRT4d/jZCCTY4b9gPapxKZwa+kMq7
+ P/zW0UkWapa4rMrFmR8EvhAW+Nesm71d544ujbfpi+N6S1HurlSob3umtBgkkLIyTPfg
+ 2woQ==
+X-Gm-Message-State: AOAM530DsA2bCTlIWkbwDfY5P+6PJG8xsXo8HBtIK9Rd7djqZKiDgS4U
+ VOT7ZQEZl7lZQGR/yz/JJHZHe7Ux2WtMOS8v6ApXB+Tk0wpKR3DbGLPz9i3aZBIQPOwj6vBaFwd
+ cMWet0Lf/O6zPU7vF9zjzjgiNwKD/Lf7itGr/REp+uc9NAgpoT32r6W4cjw==
+X-Received: by 2002:a2e:8507:: with SMTP id j7mr4720221lji.307.1639037853316; 
+ Thu, 09 Dec 2021 00:17:33 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwm18eFUPqsnPZ1BkWzWp/n0sDJAHsregrS0z1QN/WlTURgBlbFLgYuwZcDMQ7yPJczQXErRU3Gbdc9IPq6N+U=
+X-Received: by 2002:a2e:8507:: with SMTP id j7mr4720198lji.307.1639037853061; 
+ Thu, 09 Dec 2021 00:17:33 -0800 (PST)
 MIME-Version: 1.0
-References: <20211126044102.18374-1-jasowang@redhat.com>
- <20211208151801-mutt-send-email-mst@kernel.org>
- <CACGkMEs-ah8VAULcDumPH_u9C2DZQh9SKJ_2bykX5aBCTxnwsA@mail.gmail.com>
- <20211209015205-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20211209015205-mutt-send-email-mst@kernel.org>
+References: <20211208201430.73720-1-elic@nvidia.com>
+ <20211208201430.73720-7-elic@nvidia.com>
+ <CACGkMEvgiT8wCmBdyapdu+G04ceRzpG+witM0MPrVbErFiSLkg@mail.gmail.com>
+ <20211209070904.GE108239@mtl-vdi-166.wap.labs.mlnx>
+ <CACGkMEsy=bS8AWtoLhxG3ddA_egC3pde1yMd2m56GY9nqAp5Jw@mail.gmail.com>
+ <20211209080414.GA110931@mtl-vdi-166.wap.labs.mlnx>
+In-Reply-To: <20211209080414.GA110931@mtl-vdi-166.wap.labs.mlnx>
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 9 Dec 2021 15:57:28 +0800
-Message-ID: <CACGkMEu89hnGKgQBSuwCA1FPkwpFyXX-MTsuHwUu3vEP2p-EVw@mail.gmail.com>
-Subject: Re: [PATCH V2] virtio-mmio: harden interrupt
-To: "Michael S. Tsirkin" <mst@redhat.com>
+Date: Thu, 9 Dec 2021 16:17:22 +0800
+Message-ID: <CACGkMEuVdP7PTS=Rr+zriBVbWtWgzHa2zHkE1Vfr-CYKSsWjvQ@mail.gmail.com>
+Subject: Re: [PATCH v1 6/7] vdpa: Add support for querying control virtqueue
+ index
+To: Eli Cohen <elic@nvidia.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>
+Cc: Laurent Vivier <lvivier@redhat.com>, mst <mst@redhat.com>,
+ virtualization <virtualization@lists.linux-foundation.org>,
+ eperezma <eperezma@redhat.com>, Si-Wei Liu <si-wei.liu@oracle.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -111,160 +113,148 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Dec 9, 2021 at 2:55 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+On Thu, Dec 9, 2021 at 4:04 PM Eli Cohen <elic@nvidia.com> wrote:
 >
-> On Thu, Dec 09, 2021 at 10:06:34AM +0800, Jason Wang wrote:
-> > On Thu, Dec 9, 2021 at 4:27 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+> On Thu, Dec 09, 2021 at 03:55:48PM +0800, Jason Wang wrote:
+> > On Thu, Dec 9, 2021 at 3:09 PM Eli Cohen <elic@nvidia.com> wrote:
 > > >
-> > > On Fri, Nov 26, 2021 at 12:41:02PM +0800, Jason Wang wrote:
-> > > > This patch tries to make sure the virtio interrupt handler for MMIO
-> > > > won't be called after a reset and before virtio_device_ready(). We
-> > > > can't use IRQF_NO_AUTOEN since we're using shared interrupt
-> > > > (IRQF_SHARED). So this patch tracks the interrupt enabling status in a
-> > > > new intr_soft_enabled variable and toggle it during in
-> > > > vm_disable/enable_interrupts(). The MMIO interrupt handler will check
-> > > > intr_soft_enabled before processing the actual interrupt.
+> > > On Thu, Dec 09, 2021 at 01:44:56PM +0800, Jason Wang wrote:
+> > > > On Thu, Dec 9, 2021 at 4:15 AM Eli Cohen <elic@nvidia.com> wrote:
+> > > > >
+> > > > > Add netlink attribute and callback function to query the control VQ
+> > > > > index of a device.
+> > > > >
+> > > > > Example:
+> > > > >
+> > > > > $ vdpa dev config show vdpa-a
+> > > > >   vdpa-a: mac 00:00:00:00:88:88 link up link_announce false max_vq_pairs 5 \
+> > > > >   mtu 9000 ctrl_vq_idx 10
 > > > >
-> > > > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > > > ---
-> > > > Changes since V1:
-> > > > - Silent compling warnings
-> > > >  drivers/virtio/virtio_mmio.c | 37 ++++++++++++++++++++++++++++++++++++
-> > > >  1 file changed, 37 insertions(+)
 > > > >
-> > > > diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-> > > > index 56128b9c46eb..c517afdd2cc5 100644
-> > > > --- a/drivers/virtio/virtio_mmio.c
-> > > > +++ b/drivers/virtio/virtio_mmio.c
-> > > > @@ -90,6 +90,7 @@ struct virtio_mmio_device {
-> > > >       /* a list of queues so we can dispatch IRQs */
-> > > >       spinlock_t lock;
-> > > >       struct list_head virtqueues;
-> > > > +     bool intr_soft_enabled;
-> > > >  };
-> > > >
-> > > >  struct virtio_mmio_vq_info {
-> > > > @@ -100,7 +101,37 @@ struct virtio_mmio_vq_info {
-> > > >       struct list_head node;
-> > > >  };
-> > > >
-> > > > +/* disable irq handlers */
-> > > > +static void vm_disable_cbs(struct virtio_device *vdev)
-> > > > +{
-> > > > +     struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
-> > > > +     int irq = platform_get_irq(vm_dev->pdev, 0);
-> > > >
-> > > > +     /*
-> > > > +      * The below synchronize() guarantees that any
-> > > > +      * interrupt for this line arriving after
-> > > > +      * synchronize_irq() has completed is guaranteed to see
-> > > > +      * intx_soft_enabled == false.
-> > > > +      */
-> > > > +     WRITE_ONCE(vm_dev->intr_soft_enabled, false);
-> > > > +     synchronize_irq(irq);
-> > > > +}
-> > > > +
-> > > > +/* enable irq handlers */
-> > > > +static void vm_enable_cbs(struct virtio_device *vdev)
-> > > > +{
-> > > > +     struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
-> > > > +     int irq = platform_get_irq(vm_dev->pdev, 0);
-> > > > +
-> > > > +     disable_irq(irq);
-> > > > +     /*
-> > > > +      * The above disable_irq() provides TSO ordering and
-> > > > +      * as such promotes the below store to store-release.
-> > > > +      */
-> > > > +     WRITE_ONCE(vm_dev->intr_soft_enabled, true);
-> > > > +     enable_irq(irq);
-> > > > +     return;
-> > > > +}
-> > > >
-> > > >  /* Configuration interface */
-> > > >
-> > > > @@ -262,6 +293,8 @@ static void vm_reset(struct virtio_device *vdev)
-> > > >
-> > > >       /* 0 status means a reset. */
-> > > >       writel(0, vm_dev->base + VIRTIO_MMIO_STATUS);
-> > >
-> > > There was a discussion about reading status to make sure it is clear.
-> > > The spec says we should, this can't hurt as a further hardening measure.
-> > > In fact, let's do it in the core maybe? Spec says it applies to all
-> > > devices ...
+> > > > I still wonder about the motivation for this.
+> > > To be able to show the stats for CVQ.
 > >
-> > We can do that, but I'm not sure if we break some existing device.
+> > Right.
+> >
+> > >
+> > > > And as discussed, the
+> > > > ctrl_vq_idx varies depending on whether MQ is negotiated.
+> > >
+> > > I handle this according to the spec and it depends on MQ.
+> >
+> > Yes, but there could be a chance that the cvq index changes after the
+> > vdpa dev config show.
+> >
 >
-> Hmm. Have anything specific in mind?
+> It depends on:
+> VIRTIO_NET_F_CTRL_VQ
+> VIRTIO_NET_F_MQ
+>
+> which can change only if the features are re-negotiated and that happens
+> on driver in itialization.
+>
+> And on max_virtqueue_pairs which is also set at driver initialization.
+>
+> So I don't see any real issue here. Am I missing something?
 
-No, I can send a patch to do that.
+No. I meant technically there could be a re-negotiation that happens
+in the middle:
 
->
-> > >
-> > > > +     /* Disable VQ/configuration callbacks. */
-> > > > +     vm_disable_cbs(vdev);
-> > > >  }
-> > > >
-> > > >
-> > > > @@ -288,6 +321,9 @@ static irqreturn_t vm_interrupt(int irq, void *opaque)
-> > > >       unsigned long flags;
-> > > >       irqreturn_t ret = IRQ_NONE;
-> > > >
-> > > > +     if (!READ_ONCE(vm_dev->intr_soft_enabled))
-> > > > +             return IRQ_NONE;
-> > > > +
-> > >
-> > > So if the write is seen before reset happened (should not happen, but we
-> > > are talking a buggy device) then it won't be acknowledged and device
-> > > will keep pulling the interrupt. I think as long as we are hardening
-> > > this, let's go the full mile and try to avoid DoS if we can, do the
-> > > check before invoking the callback, but do not skip the read.
-> > > Whether to still return IRQ_NONE is a good question.
-> >
-> > Did you mean something like this:
-> >
-> >         /* Read and acknowledge interrupts */
-> >         status = readl(vm_dev->base + VIRTIO_MMIO_INTERRUPT_STATUS);
-> >         writel(status, vm_dev->base + VIRTIO_MMIO_INTERRUPT_ACK);
-> >
-> >         if (status)
-> >                 ret = IRQ_HANDLED;
-> >
-> >        if (!READ_ONCE(vm_dev->intr_soft_enabled))
-> >                return ret;
-> >
-> > Thanks
->
-> Maybe. Or is
->
->         if (!READ_ONCE(vm_dev->intr_soft_enabled))
->                 return IRQ_NONE;
->
-> better here?
+1) vdpa dev config show
+2) feature renegotiation which change the cvq index
+3) getting cvq stats
 
-Yes, I just paste part of the code, the ret is initialized to IRQ_NONE.
+So the cvq index might be changed. E.g it could be changed from a cvq
+to a rx queue. It might be easier to make the get index and stats
+atomic.
 
 Thanks
 
 >
->
+> > Thanks
+> >
 > > >
-> > >
-> > >
-> > >
-> > > >       /* Read and acknowledge interrupts */
-> > > >       status = readl(vm_dev->base + VIRTIO_MMIO_INTERRUPT_STATUS);
-> > > >       writel(status, vm_dev->base + VIRTIO_MMIO_INTERRUPT_ACK);
-> > > > @@ -529,6 +565,7 @@ static bool vm_get_shm_region(struct virtio_device *vdev,
-> > > >  }
 > > > >
-> > > >  static const struct virtio_config_ops virtio_mmio_config_ops = {
-> > > > +     .enable_cbs     = vm_enable_cbs,
-> > > >       .get            = vm_get,
-> > > >       .set            = vm_set,
-> > > >       .generation     = vm_generation,
-> > > > --
-> > > > 2.25.1
+> > > > Thanks
+> > > >
+> > > > >
+> > > > > Signed-off-by: Eli Cohen <elic@nvidia.com>
+> > > > > ---
+> > > > > v0 -> v1:
+> > > > > 1. Use logic defined in the spec to deduce virtqueue index.
+> > > > >
+> > > > >  drivers/vdpa/vdpa.c       | 25 +++++++++++++++++++++++++
+> > > > >  include/uapi/linux/vdpa.h |  1 +
+> > > > >  2 files changed, 26 insertions(+)
+> > > > >
+> > > > > diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
+> > > > > index 3bf016e03512..b4d4b8a7ca4e 100644
+> > > > > --- a/drivers/vdpa/vdpa.c
+> > > > > +++ b/drivers/vdpa/vdpa.c
+> > > > > @@ -712,6 +712,27 @@ static int vdpa_nl_cmd_dev_get_dumpit(struct sk_buff *msg, struct netlink_callba
+> > > > >         return msg->len;
+> > > > >  }
+> > > > >
+> > > > > +static int vdpa_dev_net_ctrl_vq_fill(struct vdpa_device *vdev,
+> > > > > +                                    struct sk_buff *msg,
+> > > > > +                                    struct virtio_net_config *config,
+> > > > > +                                    u64 features)
+> > > > > +{
+> > > > > +       u16 N;
+> > > > > +
+> > > > > +       /* control VQ index, if available, is deduced according to the logic
+> > > > > +        * described in the virtio spec in section 5.1.2
+> > > > > +        */
+> > > > > +       if (!(features & BIT_ULL(VIRTIO_NET_F_CTRL_VQ)))
+> > > > > +               return 0;
+> > > > > +
+> > > > > +       if (features & BIT_ULL(VIRTIO_NET_F_MQ))
+> > > > > +               N = le16_to_cpu(config->max_virtqueue_pairs);
+> > > > > +       else
+> > > > > +               N = 1;
+> > > > > +
+> > > > > +       return nla_put_u16(msg, VDPA_ATTR_DEV_CTRL_VQ_IDX, 2 * N);
+> > > > > +}
+> > > > > +
+> > > > >  static int vdpa_dev_net_mq_config_fill(struct vdpa_device *vdev,
+> > > > >                                        struct sk_buff *msg, u64 features,
+> > > > >                                        const struct virtio_net_config *config)
+> > > > > @@ -730,6 +751,7 @@ static int vdpa_dev_net_config_fill(struct vdpa_device *vdev, struct sk_buff *ms
+> > > > >         struct virtio_net_config config = {};
+> > > > >         u64 features;
+> > > > >         u16 val_u16;
+> > > > > +       int err;
+> > > > >
+> > > > >         vdpa_get_config(vdev, 0, &config, sizeof(config));
+> > > > >
+> > > > > @@ -746,6 +768,9 @@ static int vdpa_dev_net_config_fill(struct vdpa_device *vdev, struct sk_buff *ms
+> > > > >                 return -EMSGSIZE;
+> > > > >
+> > > > >         features = vdev->config->get_driver_features(vdev);
+> > > > > +       err = vdpa_dev_net_ctrl_vq_fill(vdev, msg, &config, features);
+> > > > > +       if (err)
+> > > > > +               return err;
+> > > > >
+> > > > >         return vdpa_dev_net_mq_config_fill(vdev, msg, features, &config);
+> > > > >  }
+> > > > > diff --git a/include/uapi/linux/vdpa.h b/include/uapi/linux/vdpa.h
+> > > > > index a252f06f9dfd..2e3a7f89f42d 100644
+> > > > > --- a/include/uapi/linux/vdpa.h
+> > > > > +++ b/include/uapi/linux/vdpa.h
+> > > > > @@ -34,6 +34,7 @@ enum vdpa_attr {
+> > > > >         VDPA_ATTR_DEV_MAX_VQS,                  /* u32 */
+> > > > >         VDPA_ATTR_DEV_MAX_VQ_SIZE,              /* u16 */
+> > > > >         VDPA_ATTR_DEV_MIN_VQ_SIZE,              /* u16 */
+> > > > > +       VDPA_ATTR_DEV_CTRL_VQ_IDX,              /* u16 */
+> > > > >
+> > > > >         VDPA_ATTR_DEV_NET_CFG_MACADDR,          /* binary */
+> > > > >         VDPA_ATTR_DEV_NET_STATUS,               /* u8 */
+> > > > > --
+> > > > > 2.33.1
+> > > > >
+> > > >
 > > >
+> >
 >
 
 _______________________________________________
