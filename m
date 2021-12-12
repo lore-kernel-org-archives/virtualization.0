@@ -4,82 +4,81 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B1558C433FE
-	for <virtualization@archiver.kernel.org>; Sun, 12 Dec 2021 14:44:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C59D0C433EF
+	for <virtualization@archiver.kernel.org>; Sun, 12 Dec 2021 14:48:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 4586940227;
-	Sun, 12 Dec 2021 14:44:41 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 61122404CF;
+	Sun, 12 Dec 2021 14:48:20 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id BAPpUcPxiFy7; Sun, 12 Dec 2021 14:44:40 +0000 (UTC)
+	with ESMTP id 8GAJpwVZ6ylx; Sun, 12 Dec 2021 14:48:19 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 7EA0D40131;
-	Sun, 12 Dec 2021 14:44:39 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id A68A14014E;
+	Sun, 12 Dec 2021 14:48:18 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4750EC002F;
-	Sun, 12 Dec 2021 14:44:39 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 86796C002F;
+	Sun, 12 Dec 2021 14:48:18 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 813D5C0012
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E7428C0012
  for <virtualization@lists.linux-foundation.org>;
- Sun, 12 Dec 2021 14:44:38 +0000 (UTC)
+ Sun, 12 Dec 2021 14:48:16 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 61F1682640
+ by smtp1.osuosl.org (Postfix) with ESMTP id D456A85A09
  for <virtualization@lists.linux-foundation.org>;
- Sun, 12 Dec 2021 14:44:38 +0000 (UTC)
+ Sun, 12 Dec 2021 14:48:16 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp1.osuosl.org (amavisd-new);
  dkim=pass (2048-bit key) header.d=intel-com.20210112.gappssmtp.com
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id s3b2Pt2czUvR
+ with ESMTP id uPaSRfPXEwuN
  for <virtualization@lists.linux-foundation.org>;
- Sun, 12 Dec 2021 14:44:37 +0000 (UTC)
+ Sun, 12 Dec 2021 14:48:16 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com
- [IPv6:2607:f8b0:4864:20::62c])
- by smtp1.osuosl.org (Postfix) with ESMTPS id B402282628
+Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com
+ [IPv6:2607:f8b0:4864:20::633])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 3C30B85A08
  for <virtualization@lists.linux-foundation.org>;
- Sun, 12 Dec 2021 14:44:37 +0000 (UTC)
-Received: by mail-pl1-x62c.google.com with SMTP id u17so9441545plg.9
+ Sun, 12 Dec 2021 14:48:16 +0000 (UTC)
+Received: by mail-pl1-x633.google.com with SMTP id o14so9453578plg.5
  for <virtualization@lists.linux-foundation.org>;
- Sun, 12 Dec 2021 06:44:37 -0800 (PST)
+ Sun, 12 Dec 2021 06:48:16 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=intel-com.20210112.gappssmtp.com; s=20210112;
  h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=agYW6DcaeuP+q4nan8V1VqgSNwzlJAeR6akaOZ2DEVE=;
- b=NhXgmEqiOO3TDAnM/oJYTe308BJdK34sJJBFru0szdBrVWgK9AoytL660B82dxWuHq
- Uk1WbiFnBpVzFZVCeNGfGlbraNzlE4y4q2b1Akd3exuclDWE56luAHTvH2uhmcv65HA/
- ZJO7p6YmjOOvQtXVf/jhtCiSdGV6YElJuPbrFu+mPyonxBMAO3PjGgZBXtY/J3piabR2
- 34gwJnZUYWxDqlZKkERQCyAsIpvU6mlsyr8rrU8NEZpCpRRe7fPvv/9QSvYT9hweUYit
- rvMtfYbrkepesOsTejX8oKII9/8TKssEO0lrGkjJE1lymRG4b95lITyRik0ePoOzEmRj
- eI2w==
+ :cc; bh=J9eKyZRQJSa64buH1DnQ8o+5rJ2t1cRqyeDbRJ50KfQ=;
+ b=BprTLS3JetufOXTjqHMIZ/doR1eF8o+RmR7bZ7L4z15WiJgnpRWJwDkBTdGNGjaZZh
+ k791N8rn8M1nGukIBM0xkL+jUt9xHCli2JTS9SXSjS3f4Pmzj7Sgo1CIKmefKtGP2+uA
+ q7WpW6T/3voza1lQqczSWvsmL4Vo1EIU1tV/pkPEEuGx1NlIYnmbpB/v/2WUGzMfPo0r
+ Dsjtbq3uJZOagSXvLRO6UjzrRcuUysaiCiUjlkQkDw3+XSk1wMtVRCs4tYB2Kqlt9qGS
+ KiffM8gWtpSqBx3vHTMci0xdj+SJno2xOEq74AViKGVCG09ZdRqE4mRRhbW5pXji54QD
+ /ZSw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=agYW6DcaeuP+q4nan8V1VqgSNwzlJAeR6akaOZ2DEVE=;
- b=59+ermuaS0jfv/9pw3ajSYjSaCpqp5CLiClpFYnTbX3ieUBXCmW5HbQE2kbyLnphHW
- wofXSNxWTUUdacXcQwgO76jqfXOA19QFNhPg/mLn7u1+0o6oCirQ1bC7FQ4nPe7BSj3z
- suSaSagBsx/I7utmSW1t9ZIh6Fnwc9Lck5Q1wOrkBGWvjMH4rhVe4kryTeh5RnFQL621
- iKXwNsvQZHaSbmWdsUaS+KhRGc8b9XXphjd7bZBTMdCc99d8fytzFFKgK2i7SoWMRWrS
- /tgZdRa6huPL/UTS3ctcku440KK7zBmXC/AVPjwHSSgGDOdRm0rEBqMbWq7wLbs0VOcA
- i1Jg==
-X-Gm-Message-State: AOAM530tLeWJgytPhI0bV9Z1BLhpV9b2XqnJ2U+BGx+bexk/R3VwWPAK
- HUbqKFWeScCPx0bYAot2o6d4TGmPnyu5RvsV+9V+gg==
-X-Google-Smtp-Source: ABdhPJwLj56PBRqvGExnBUnnCkX5apEf9je516CrVNM0D8M9K2XSCF8Su7nlWxjv1JO1vwplQ6ww7tAn0NH7STTpMKQ=
+ bh=J9eKyZRQJSa64buH1DnQ8o+5rJ2t1cRqyeDbRJ50KfQ=;
+ b=FJ+AGodJiH7X/P6U74YZ+GAPc5jRc8dw9P2IGszaPL81Bgb2Y+V+NjGqnKxgZIhHN2
+ kLqo1W0nP30XnihDzbRdPbGiWUWwZORLWRg8vpoD6OH1sIh2bm0BTof44mhtCJKynu7X
+ ncFObx4yZ8LAC7sxcZS+KmnOqO2t8vUDfhVw5iW0+wUoYeWYeVWcMp6+0xStRAfoPm81
+ HVsX4R74DP8RqHdtScXEN6SfFYDKM0s8YKchoP5QyrwJEsTpnMXICDKqzMq3jreFfqbZ
+ S+snzljw9lbWzf2bLQVnuWfbTqM9pwqfo9cm+ABzAVWm4SNYD3xGhwtal53e4FkXBSmI
+ yRVw==
+X-Gm-Message-State: AOAM532nrEqM/HejoYrmecyOON0FEXOx54HNFudxAZK5UN5H6gZ9bT0N
+ i6/uJYnlHfe6uXj9cRqfxBpDP0/kS5USc2wMnQG5ag==
+X-Google-Smtp-Source: ABdhPJwABq62IFvC8Je+2tS1umh6MzmN/dQD3sgNomHUgnGTTqTS7vmAyUKH5BeY5i5mGqV95jTqKs6LCe1lv/XJ4YM=
 X-Received: by 2002:a17:902:7fcd:b0:142:8ab3:ec0e with SMTP id
- t13-20020a1709027fcd00b001428ab3ec0emr88249325plb.4.1639320277138; Sun, 12
- Dec 2021 06:44:37 -0800 (PST)
+ t13-20020a1709027fcd00b001428ab3ec0emr88266767plb.4.1639320495664; Sun, 12
+ Dec 2021 06:48:15 -0800 (PST)
 MIME-Version: 1.0
 References: <20211209063828.18944-1-hch@lst.de>
- <20211209063828.18944-5-hch@lst.de> <YbNhPXBg7G/ridkV@redhat.com>
-In-Reply-To: <YbNhPXBg7G/ridkV@redhat.com>
+ <20211209063828.18944-6-hch@lst.de> <YbNejVRF5NQB0r83@redhat.com>
+In-Reply-To: <YbNejVRF5NQB0r83@redhat.com>
 From: Dan Williams <dan.j.williams@intel.com>
-Date: Sun, 12 Dec 2021 06:44:26 -0800
-Message-ID: <CAPcyv4g4_yFqDeS+pnAZOxcB=Ua+iArK5mqn0iMG4PX6oL=F_A@mail.gmail.com>
-Subject: Re: [PATCH 4/5] dax: remove the copy_from_iter and copy_to_iter
- methods
+Date: Sun, 12 Dec 2021 06:48:05 -0800
+Message-ID: <CAPcyv4i_HdnMcq6MmDMt-a5p=ojh_vsoAiES0vUYEh7HvC1O-A@mail.gmail.com>
+Subject: Re: [PATCH 5/5] dax: always use _copy_mc_to_iter in dax_copy_to_iter
 To: Vivek Goyal <vgoyal@redhat.com>
 Cc: Linux NVDIMM <nvdimm@lists.linux.dev>,
  linux-s390 <linux-s390@vger.kernel.org>, Dave Jiang <dave.jiang@intel.com>,
@@ -108,102 +107,107 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Dec 10, 2021 at 6:17 AM Vivek Goyal <vgoyal@redhat.com> wrote:
+On Fri, Dec 10, 2021 at 6:05 AM Vivek Goyal <vgoyal@redhat.com> wrote:
 >
-> On Thu, Dec 09, 2021 at 07:38:27AM +0100, Christoph Hellwig wrote:
-> > These methods indirect the actual DAX read/write path.  In the end pmem
-> > uses magic flush and mc safe variants and fuse and dcssblk use plain ones
-> > while device mapper picks redirects to the underlying device.
-> >
-> > Add set_dax_virtual() and set_dax_nomcsafe() APIs for fuse to skip these
-> > special variants, then use them everywhere as they fall back to the plain
-> > ones on s390 anyway and remove an indirect call from the read/write path
-> > as well as a lot of boilerplate code.
-> >
-> > Signed-off-by: Christoph Hellwig <hch@lst.de>
-> > ---
-> >  drivers/dax/super.c           | 36 ++++++++++++++--
-> >  drivers/md/dm-linear.c        | 20 ---------
-> >  drivers/md/dm-log-writes.c    | 80 -----------------------------------
-> >  drivers/md/dm-stripe.c        | 20 ---------
-> >  drivers/md/dm.c               | 50 ----------------------
-> >  drivers/nvdimm/pmem.c         | 20 ---------
-> >  drivers/s390/block/dcssblk.c  | 14 ------
-> >  fs/dax.c                      |  5 ---
-> >  fs/fuse/virtio_fs.c           | 19 +--------
-> >  include/linux/dax.h           |  9 ++--
-> >  include/linux/device-mapper.h |  4 --
-> >  11 files changed, 37 insertions(+), 240 deletions(-)
-> >
+> On Thu, Dec 09, 2021 at 07:38:28AM +0100, Christoph Hellwig wrote:
+> > While using the MC-safe copy routines is rather pointless on a virtual device
+> > like virtiofs,
 >
-> [..]
-> > diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-> > index 5c03a0364a9bb..754319ce2a29b 100644
-> > --- a/fs/fuse/virtio_fs.c
-> > +++ b/fs/fuse/virtio_fs.c
-> > @@ -753,20 +753,6 @@ static long virtio_fs_direct_access(struct dax_device *dax_dev, pgoff_t pgoff,
-> >       return nr_pages > max_nr_pages ? max_nr_pages : nr_pages;
-> >  }
-> >
-> > -static size_t virtio_fs_copy_from_iter(struct dax_device *dax_dev,
-> > -                                    pgoff_t pgoff, void *addr,
-> > -                                    size_t bytes, struct iov_iter *i)
-> > -{
-> > -     return copy_from_iter(addr, bytes, i);
-> > -}
-> > -
-> > -static size_t virtio_fs_copy_to_iter(struct dax_device *dax_dev,
-> > -                                    pgoff_t pgoff, void *addr,
-> > -                                    size_t bytes, struct iov_iter *i)
-> > -{
-> > -     return copy_to_iter(addr, bytes, i);
-> > -}
-> > -
-> >  static int virtio_fs_zero_page_range(struct dax_device *dax_dev,
-> >                                    pgoff_t pgoff, size_t nr_pages)
-> >  {
-> > @@ -783,8 +769,6 @@ static int virtio_fs_zero_page_range(struct dax_device *dax_dev,
-> >
-> >  static const struct dax_operations virtio_fs_dax_ops = {
-> >       .direct_access = virtio_fs_direct_access,
-> > -     .copy_from_iter = virtio_fs_copy_from_iter,
-> > -     .copy_to_iter = virtio_fs_copy_to_iter,
-> >       .zero_page_range = virtio_fs_zero_page_range,
-> >  };
-> >
-> > @@ -853,7 +837,8 @@ static int virtio_fs_setup_dax(struct virtio_device *vdev, struct virtio_fs *fs)
-> >       fs->dax_dev = alloc_dax(fs, &virtio_fs_dax_ops);
-> >       if (IS_ERR(fs->dax_dev))
-> >               return PTR_ERR(fs->dax_dev);
-> > -
-> > +     set_dax_cached(fs->dax_dev);
+> I was wondering about that. Is it completely pointless.
 >
-> Looks good to me from virtiofs point of view.
+> Typically we are just mapping host page cache into qemu address space.
+> That shows as virtiofs device pfn in guest and that pfn is mapped into
+> guest application address space in mmap() call.
 >
-> Reviewed-by: Vivek Goyal <vgoyal@redhat.com>
->
-> Going forward, I am wondering should virtiofs use flushcache version as
-> well. What if host filesystem is using DAX and mapping persistent memory
-> pfn directly into qemu address space. I have never tested that.
->
-> Right now we are relying on applications to do fsync/msync on virtiofs
-> for data persistence.
+> Given on host its DRAM, so I would not expect machine check on load side
+> so there was no need to use machine check safe variant.
 
-This sounds like it would need coordination with a paravirtualized
-driver that can indicate whether the host side is pmem or not, like
-the virtio_pmem driver. However, if the guest sends any fsync/msync
-you would still need to go explicitly cache flush any dirty page
-because you can't necessarily trust that the guest did that already.
+That's a broken assumption, DRAM experiences multi-bit ECC errors.
+Machine checks, data aborts, etc existed before PMEM.
 
+>  But what if host
+> filesystem is on persistent memory and using DAX. In that case load in
+> guest can trigger a machine check. Not sure if that machine check will
+> actually travel into the guest and unblock read() operation or not.
 >
-> > +     set_dax_nomcsafe(fs->dax_dev);
-> >       return devm_add_action_or_reset(&vdev->dev, virtio_fs_cleanup_dax,
-> >                                       fs->dax_dev);
-> >  }
+> But this sounds like a good change from virtiofs point of view, anyway.
 >
 > Thanks
 > Vivek
 >
+>
+> > it also isn't harmful at all.  So just use _copy_mc_to_iter
+> > unconditionally to simplify the code.
+> >
+> > Signed-off-by: Christoph Hellwig <hch@lst.de>
+> > ---
+> >  drivers/dax/super.c | 10 ----------
+> >  fs/fuse/virtio_fs.c |  1 -
+> >  include/linux/dax.h |  1 -
+> >  3 files changed, 12 deletions(-)
+> >
+> > diff --git a/drivers/dax/super.c b/drivers/dax/super.c
+> > index ff676a07480c8..fe783234ca669 100644
+> > --- a/drivers/dax/super.c
+> > +++ b/drivers/dax/super.c
+> > @@ -107,8 +107,6 @@ enum dax_device_flags {
+> >       DAXDEV_SYNC,
+> >       /* do not use uncached operations to write data */
+> >       DAXDEV_CACHED,
+> > -     /* do not use mcsafe operations to read data */
+> > -     DAXDEV_NOMCSAFE,
+> >  };
+> >
+> >  /**
+> > @@ -171,8 +169,6 @@ size_t dax_copy_to_iter(struct dax_device *dax_dev, pgoff_t pgoff, void *addr,
+> >        * via access_ok() in vfs_red, so use the 'no check' version to bypass
+> >        * the HARDENED_USERCOPY overhead.
+> >        */
+> > -     if (test_bit(DAXDEV_NOMCSAFE, &dax_dev->flags))
+> > -             return _copy_to_iter(addr, bytes, i);
+> >       return _copy_mc_to_iter(addr, bytes, i);
+> >  }
+> >
+> > @@ -242,12 +238,6 @@ void set_dax_cached(struct dax_device *dax_dev)
+> >  }
+> >  EXPORT_SYMBOL_GPL(set_dax_cached);
+> >
+> > -void set_dax_nomcsafe(struct dax_device *dax_dev)
+> > -{
+> > -     set_bit(DAXDEV_NOMCSAFE, &dax_dev->flags);
+> > -}
+> > -EXPORT_SYMBOL_GPL(set_dax_nomcsafe);
+> > -
+> >  bool dax_alive(struct dax_device *dax_dev)
+> >  {
+> >       lockdep_assert_held(&dax_srcu);
+> > diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+> > index 754319ce2a29b..d9c20b148ac19 100644
+> > --- a/fs/fuse/virtio_fs.c
+> > +++ b/fs/fuse/virtio_fs.c
+> > @@ -838,7 +838,6 @@ static int virtio_fs_setup_dax(struct virtio_device *vdev, struct virtio_fs *fs)
+> >       if (IS_ERR(fs->dax_dev))
+> >               return PTR_ERR(fs->dax_dev);
+> >       set_dax_cached(fs->dax_dev);
+> > -     set_dax_nomcsafe(fs->dax_dev);
+> >       return devm_add_action_or_reset(&vdev->dev, virtio_fs_cleanup_dax,
+> >                                       fs->dax_dev);
+> >  }
+> > diff --git a/include/linux/dax.h b/include/linux/dax.h
+> > index d22cbf03d37d2..d267331bc37e7 100644
+> > --- a/include/linux/dax.h
+> > +++ b/include/linux/dax.h
+> > @@ -90,7 +90,6 @@ static inline bool daxdev_mapping_supported(struct vm_area_struct *vma,
+> >  #endif
+> >
+> >  void set_dax_cached(struct dax_device *dax_dev);
+> > -void set_dax_nomcsafe(struct dax_device *dax_dev);
+> >
+> >  struct writeback_control;
+> >  #if defined(CONFIG_BLOCK) && defined(CONFIG_FS_DAX)
+> > --
+> > 2.30.2
+> >
 >
 _______________________________________________
 Virtualization mailing list
