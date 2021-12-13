@@ -1,57 +1,57 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E3FE9C433EF
-	for <virtualization@archiver.kernel.org>; Mon, 13 Dec 2021 08:24:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id EA182C433F5
+	for <virtualization@archiver.kernel.org>; Mon, 13 Dec 2021 08:27:23 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 9286D60EF1;
-	Mon, 13 Dec 2021 08:24:28 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 8845D401D6;
+	Mon, 13 Dec 2021 08:27:23 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ogeK3Od4vnCd; Mon, 13 Dec 2021 08:24:28 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id fStXlzuNI0l9; Mon, 13 Dec 2021 08:27:22 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 5C48460ED3;
-	Mon, 13 Dec 2021 08:24:27 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id DC4D74011D;
+	Mon, 13 Dec 2021 08:27:21 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 42437C002F;
-	Mon, 13 Dec 2021 08:24:27 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1BAA7C0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id BAEE2C002F;
+	Mon, 13 Dec 2021 08:27:21 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 51E11C0012
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Dec 2021 08:24:25 +0000 (UTC)
+ Mon, 13 Dec 2021 08:27:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id ED21440162
+ by smtp2.osuosl.org (Postfix) with ESMTP id 35A2A401D6
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Dec 2021 08:24:24 +0000 (UTC)
+ Mon, 13 Dec 2021 08:27:20 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id NqmL7uwYmVde
+ with ESMTP id Ln71CwhR3taj
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Dec 2021 08:24:24 +0000 (UTC)
+ Mon, 13 Dec 2021 08:27:19 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from verein.lst.de (verein.lst.de [213.95.11.211])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 415B14011D
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 789454011D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Dec 2021 08:24:24 +0000 (UTC)
+ Mon, 13 Dec 2021 08:27:19 +0000 (UTC)
 Received: by verein.lst.de (Postfix, from userid 2407)
- id 60ABF68BFE; Mon, 13 Dec 2021 09:24:20 +0100 (CET)
-Date: Mon, 13 Dec 2021 09:24:20 +0100
+ id 8C12868BFE; Mon, 13 Dec 2021 09:27:15 +0100 (CET)
+Date: Mon, 13 Dec 2021 09:27:15 +0100
 From: Christoph Hellwig <hch@lst.de>
 To: Dan Williams <dan.j.williams@intel.com>
-Subject: Re: [PATCH 4/5] dax: remove the copy_from_iter and copy_to_iter
- methods
-Message-ID: <20211213082420.GC21462@lst.de>
+Subject: Re: [PATCH 1/5] uio: remove copy_from_iter_flushcache() and
+ copy_mc_to_iter()
+Message-ID: <20211213082715.GD21462@lst.de>
 References: <20211209063828.18944-1-hch@lst.de>
- <20211209063828.18944-5-hch@lst.de>
- <CAPcyv4gZjkVW0vwNLChXCCBVF8CsSZityzSVmcGAk79-mt9yOw@mail.gmail.com>
+ <20211209063828.18944-2-hch@lst.de>
+ <CAPcyv4gwfVi389e+cES=E6O13+y36OffZPCe+iZguCT_gpjmZA@mail.gmail.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <CAPcyv4gZjkVW0vwNLChXCCBVF8CsSZityzSVmcGAk79-mt9yOw@mail.gmail.com>
+In-Reply-To: <CAPcyv4gwfVi389e+cES=E6O13+y36OffZPCe+iZguCT_gpjmZA@mail.gmail.com>
 User-Agent: Mutt/1.5.17 (2007-11-01)
 Cc: Linux NVDIMM <nvdimm@lists.linux.dev>,
  linux-s390 <linux-s390@vger.kernel.org>, Dave Jiang <dave.jiang@intel.com>,
@@ -80,29 +80,20 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sun, Dec 12, 2021 at 06:39:16AM -0800, Dan Williams wrote:
-> >         /* flag to check if device supports synchronous flush */
-> >         DAXDEV_SYNC,
-> > +       /* do not use uncached operations to write data */
-> > +       DAXDEV_CACHED,
-> > +       /* do not use mcsafe operations to read data */
-> > +       DAXDEV_NOMCSAFE,
+On Sun, Dec 12, 2021 at 06:22:20AM -0800, Dan Williams wrote:
+> > - * Use the 'no check' versions of copy_from_iter_flushcache() and
+> > - * copy_mc_to_iter() to bypass HARDENED_USERCOPY overhead. Bounds
+> > + * Use the 'no check' versions of _copy_from_iter_flushcache() and
+> > + * _copy_mc_to_iter() to bypass HARDENED_USERCOPY overhead. Bounds
+> >   * checking, both file offset and device offset, is handled by
+> >   * dax_iomap_actor()
+> >   */
 > 
-> Linus did not like the mcsafe name, and this brings it back. Let's
-> flip the polarity to positively indicate which routine to use, and to
-> match the 'nofault' style which says "copy and handle faults".
-> 
-> /* do not leave the caches dirty after writes */
-> DAXDEV_NOCACHE
-> 
-> /* handle CPU fetch exceptions during reads */
-> DAXDEV_NOMC
-> 
-> ...and then flip the use cases around.
+> This comment change does not make sense since it is saying why pmem is
+> using the "_" versions. However, I assume this whole comment goes away
+> in a later patch.
 
-Sure we can do that.  But let's finish the discussion if we actually
-need the virtiofs special casing, as it seems pretty fishy in many
-aspects.
+It does not go away in this series.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
