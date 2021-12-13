@@ -4,182 +4,181 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A40F7C433F5
-	for <virtualization@archiver.kernel.org>; Mon, 13 Dec 2021 23:49:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E7C70C433F5
+	for <virtualization@archiver.kernel.org>; Mon, 13 Dec 2021 23:51:04 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 1A65E401C1;
-	Mon, 13 Dec 2021 23:49:33 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 805F5402FF;
+	Mon, 13 Dec 2021 23:51:04 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 6J2Vlax2ebPg; Mon, 13 Dec 2021 23:49:32 +0000 (UTC)
+	with ESMTP id VrOowKnR6gMu; Mon, 13 Dec 2021 23:51:03 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id B2DFE401BF;
-	Mon, 13 Dec 2021 23:49:31 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 28F8B401C4;
+	Mon, 13 Dec 2021 23:51:03 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 83DC0C001E;
-	Mon, 13 Dec 2021 23:49:31 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B6763C0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id EE66AC001E;
+	Mon, 13 Dec 2021 23:51:02 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 44B54C0012
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Dec 2021 23:49:29 +0000 (UTC)
+ Mon, 13 Dec 2021 23:51:02 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id AFFF6403A4
+ by smtp3.osuosl.org (Postfix) with ESMTP id 40CCF60B5E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Dec 2021 23:49:29 +0000 (UTC)
+ Mon, 13 Dec 2021 23:51:02 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=oracle.com header.b="aJv604WI";
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=oracle.com header.b="HLOkYMKe";
  dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
- header.b="VXo7YX1q"
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id h8MMBfaWUOri
+ header.b="zUPK7hRS"
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id j0-NzCWHVSRS
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Dec 2021 23:49:28 +0000 (UTC)
+ Mon, 13 Dec 2021 23:51:01 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com
  [205.220.165.32])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 46EF54013D
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 82A4F60B1E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Dec 2021 23:49:28 +0000 (UTC)
+ Mon, 13 Dec 2021 23:51:01 +0000 (UTC)
 Received: from pps.filterd (m0246629.ppops.net [127.0.0.1])
- by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1BDLIK64005529; 
- Mon, 13 Dec 2021 23:49:27 GMT
+ by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1BDLKo0h005506; 
+ Mon, 13 Dec 2021 23:50:59 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
  h=message-id : date :
  subject : to : cc : references : from : in-reply-to : content-type :
  content-transfer-encoding : mime-version; s=corp-2021-07-09;
- bh=lYgarocRLlj5KK9+lNxyAEDj+TS6SmRlmedj1A58hqw=;
- b=aJv604WIyOZrdy4kbg4l2Ml4ZCzfBq4g12D4BERzOmLdWGuC6ePY0whnGF/jPRE31Dax
- 1M3WORslyNLo1dT6YQC0QPzVD++6R7NvQtAOMsY2Nyg+mJlhMdOGJdBWj+SaMGXBHC6c
- ECS8hij4G9bWCnIVmVOkPORtTEtf/Q0Q9lJGjrQ6qZQKn6VzTReH8f/mNrmuEoiuq5pC
- wRTyK/EA+pRUMh+ZtyaBaJoika6y5VZCuqTp00rBfFi+1P7eZk4hIHBnVfhZcNC7sAmS
- /4e+aEzlT6vi47o69zEr57KB50EaBEn8mOR+dJFd603mVWkp4ODlrN3+HM1alwTpwzTa aA== 
-Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
- by mx0b-00069f02.pphosted.com with ESMTP id 3cx56u1ybg-1
+ bh=axJqbUQju2734I5/NBHs6qUTYcCcUr5ULJYMiB8OYY4=;
+ b=HLOkYMKe2PYZ9nRJw3F/l9w7BhSsBUsrIavjMmbPfFnU6A5/m8WBBuzMZgBfAKhcKRjO
+ iEPe4v6KBTZg04K7WYthasUlwHPhf1jbUhp/XjG6/Y5h706b4HOnwFM4fjaEjuRyycKQ
+ uyZ5xJdyUK3rtA0GLL6Lg/GC0xiNUfmOjpMSdbC9xz3JemmlDu8QwxvZtmZFNoig3aBR
+ vSkAnyOlTN20dq1vFfXJd2gFpj2NZbs48bR1o2JgEXlZi+HV+9RJBM0YUJC18Oy9jM1J
+ Jilq/mHLpVWASAHDVoQO7pDc45Puf8ikxhx9B3JsRU0E/bijrpS5tZM2ea0QEvLKC06G aw== 
+Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
+ by mx0b-00069f02.pphosted.com with ESMTP id 3cx56u1ycv-1
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Mon, 13 Dec 2021 23:49:26 +0000
-Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
- by aserp3020.oracle.com (8.16.1.2/8.16.1.2) with SMTP id 1BDNkR1q096672;
- Mon, 13 Dec 2021 23:49:25 GMT
-Received: from nam10-bn7-obe.outbound.protection.outlook.com
- (mail-bn7nam10lp2106.outbound.protection.outlook.com [104.47.70.106])
- by aserp3020.oracle.com with ESMTP id 3cvkt3q6m5-1
+ Mon, 13 Dec 2021 23:50:59 +0000
+Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
+ by userp3020.oracle.com (8.16.1.2/8.16.1.2) with SMTP id 1BDNj2xL123262;
+ Mon, 13 Dec 2021 23:50:58 GMT
+Received: from nam04-mw2-obe.outbound.protection.outlook.com
+ (mail-mw2nam08lp2170.outbound.protection.outlook.com [104.47.73.170])
+ by userp3020.oracle.com with ESMTP id 3cvnenx8r0-1
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Mon, 13 Dec 2021 23:49:25 +0000
+ Mon, 13 Dec 2021 23:50:58 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=dShd6+I60Snii/+o88xvwwVpK0/ZaCGGtSrDA8JyGZnyyG+auwgzrWosqkXMh1NW+thldwbjpYjrngg71rZKrOl3jNup9iQBqYjr1kJvZXMVaXQkRigw80amDtuE5M7njh1SB7L6oDsG2l1nLM5EJi8Gf1avVqihRxH2dFG/zKf4OJpxon6tSXe8ApKCiFL4W0fXAxGGZ+XkfxqdsppAhIc+tjifIF8IxY9tdzCqXjSta748hKmQE5CCDcAGLwHHC8K2JKOQi7wNxuBMN4xcB5qvzw0VP1NOFjSQ/DFXoejdoIMV5EHOIYCNlGTqBeJY47hLOQvSFPLNkx7Y50xSRg==
+ b=ew5su+SxuhQtm5P1QAYRmo1SU3zGkrAUTrtx40/uQZor3oIyVakoZbBRKgV787Ea6ddpsc1QPUl6ctLiUfsnA4R7/Rb9YqWight3cLRV6BG/1uTSSaU/nqjTniYarYFUaYM4j/xl/GKjDltflZDSWx784IjHM9ovPIUEsApXhyeyeIij9bedSHU2raJ/hrvlmDQUDtRDkTLIuzoS1K3gDdstimLXKMLNk9la/O/JMUKkiIZT1ur5djG6tuSvMLy5zejs7IzModUtm0oB9bOAAnbzBTe/kYHNWyeiSao3Cib+ISostIWTCfYpntNp/2+/eNGP+wvIjZzcQx5bFc/V3w==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=lYgarocRLlj5KK9+lNxyAEDj+TS6SmRlmedj1A58hqw=;
- b=LFNA0tys8XdqkIaEIbse6XLzPZflPPrN27lDI6ARXHhibcU4btlTzSlLR1NI69evkEPUiNIUPKWXGAwn1IJz/mqswpu05SZc/PocJx03Jy0N+Fi8HxMMOdj6UT7L4xLV7x1fWP+4vjsU44Xn3dH7lTVGJgc/IH1FswKhBtRxbUqHTGQkNSdnV1VEl5v9wUXMJC7UOzO2j6XYFAhluK6/If5PtEJzt3v3A2Bbw8xPXeUIIGLC4/6RpFwY0rRQ0SSdx7cXncUCGGHRifWj2maWzkPtO5MyKW4yoewAGorNCbq0xQifGaKMn5tbyEf8+UxZ+zwziw5GF+Mf9XOULO2G2w==
+ bh=axJqbUQju2734I5/NBHs6qUTYcCcUr5ULJYMiB8OYY4=;
+ b=S5UEv6W78j2sI9NM9C2X7X2cE+sKdNjL/QZUWLPT7zGn0ecKk6Ahk4JIU1bIpKcZtDrh0FY8KO72ydupFG+7X/LFdxjWLlXg2CC+qpBo5++QQ2CbDHzZv7Xl1I/uAX1e+ciDiyKGdEl4buiKo0YXubvsUFzuiLCVU85k9OU06na4BaWjn14Z6ysGNB0Oso2CJR+jUXJ+lNOfWSCbVNcOX94B/Y8FynS39fXRxa0PwWw/mVWmBhPbGmBwIdhucWaokQ6yau3hdEvOgSvHVD+SSbN0/gBXHHTAe1vMr1qkOVyABbFwbl5hvcIlOkwPIeEd7WftHZoNHDRIz7aDUnzh/w==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
  dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=lYgarocRLlj5KK9+lNxyAEDj+TS6SmRlmedj1A58hqw=;
- b=VXo7YX1q3q4+4wrRw4qXUNcUf/a5XSl1AJY0pcwQcoCPqg6WaiLzfizmmZ3eHcIigXESc51raE3p1NvsEzZg/vn6Et04j3A8FwhlIhWolslRJRmvQ1FbaakcTL9+lTZBBD+mzSdR6N6YIOUQXQRl2rHfSNPRtROzGNwnq8xN3L4=
+ bh=axJqbUQju2734I5/NBHs6qUTYcCcUr5ULJYMiB8OYY4=;
+ b=zUPK7hRSyhOchYpiR0j14zkKUw3fMIZTvCPb90V4BD4HSIhCSAk4yzeP0lNL49ABXbyECmVTuf0ELGz+t8s0HzV5YIHsfhTaTr3xJOwUY2F2jm1b5N8lKTCVjBUx7LH55t/fkZlppU6LdSi8JmZ9qcRnLp7ij30N50gUxQkdfnI=
 Received: from BYAPR10MB3287.namprd10.prod.outlook.com (2603:10b6:a03:15c::11)
- by SJ0PR10MB5615.namprd10.prod.outlook.com (2603:10b6:a03:3d0::15)
+ by SJ0PR10MB4477.namprd10.prod.outlook.com (2603:10b6:a03:2df::10)
  with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4778.16; Mon, 13 Dec
- 2021 23:49:24 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4778.17; Mon, 13 Dec
+ 2021 23:50:55 +0000
 Received: from BYAPR10MB3287.namprd10.prod.outlook.com
  ([fe80::7c7e:4a5e:24e0:309d]) by BYAPR10MB3287.namprd10.prod.outlook.com
  ([fe80::7c7e:4a5e:24e0:309d%3]) with mapi id 15.20.4778.017; Mon, 13 Dec 2021
- 23:49:23 +0000
-Message-ID: <b74e89ae-ce6c-fdf8-768e-00b4e3776f2b@oracle.com>
-Date: Mon, 13 Dec 2021 15:49:17 -0800
+ 23:50:55 +0000
+Message-ID: <aa58ee17-4768-0724-4e22-af2fd2eff646@oracle.com>
+Date: Mon, 13 Dec 2021 15:50:50 -0800
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
  Thunderbird/91.3.2
-Subject: Re: [PATCH v2 07/10] vdpa: Add support for returning device
- configuration information
+Subject: Re: [PATCH v2 09/10] vdpa: Support reporting max device virtqueues
 Content-Language: en-US
 To: Eli Cohen <elic@nvidia.com>, mst@redhat.com, jasowang@redhat.com,
  virtualization@lists.linux-foundation.org
 References: <20211213144258.179984-1-elic@nvidia.com>
- <20211213144258.179984-8-elic@nvidia.com>
+ <20211213144258.179984-10-elic@nvidia.com>
 From: Si-Wei Liu <si-wei.liu@oracle.com>
 Organization: Oracle Corporation
-In-Reply-To: <20211213144258.179984-8-elic@nvidia.com>
-X-ClientProxiedBy: SJ0PR13CA0198.namprd13.prod.outlook.com
- (2603:10b6:a03:2c3::23) To BYAPR10MB3287.namprd10.prod.outlook.com
+In-Reply-To: <20211213144258.179984-10-elic@nvidia.com>
+X-ClientProxiedBy: SN7PR04CA0219.namprd04.prod.outlook.com
+ (2603:10b6:806:127::14) To BYAPR10MB3287.namprd10.prod.outlook.com
  (2603:10b6:a03:15c::11)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 055c7137-2885-4bd9-0900-08d9be9330a7
-X-MS-TrafficTypeDiagnostic: SJ0PR10MB5615:EE_
-X-Microsoft-Antispam-PRVS: <SJ0PR10MB5615E78BB962085072ADEE23B1749@SJ0PR10MB5615.namprd10.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:2512;
+X-MS-Office365-Filtering-Correlation-Id: cef9b8bf-a4b8-4a8d-4622-08d9be936770
+X-MS-TrafficTypeDiagnostic: SJ0PR10MB4477:EE_
+X-Microsoft-Antispam-PRVS: <SJ0PR10MB4477484D1CDEB9D118E2BBA5B1749@SJ0PR10MB4477.namprd10.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:1303;
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: BtH59NTyuaujozBF6yEvX9fGTxgNb1oCNMHMoSCs4H4L8VuRP7ExdGDphUA/5gIxzIx8FGSGXv2t+BlCZd/JfuqpfxoNnLc8sQWUgPWaGp4hnfqvWP/reYgSXg1FqVJ4I03pBfRh3zUfdzm4C3oHxiYZL4xVTq5E/awKU7wiaVrBGZQAB31VY31XxCnAz3udg9J4yBKcH31DCGVQXJCkE/CG8r7fkkItPc4wN31cPxOVPgCFeEsqZ6YAyE3YTnyEaRJgKPF9KgFRF/1i2u2AriHBDb93rZk9LHHXWKelj0pieRwqPTQqtRntxUPEMcnWecXzM6NnhaA81xS+WX00KFWeiB807Y5GutQDM2jqvqQ+yXt0agKnaOhlW7u5grRQri8wc3LbOpuLgvsyiaKAx5IR1wpgYIlLM0CCdLdEQGYkFvcdSIDGAibdxRB8Pqd/8vNk2lF+3xcmsn45u7VhV/jIbXudbjlOB/w1VQPWIj7w5McAoqubxU6tgVKQmTSMbewRlCoBDjQZge8BBk6SECwOOQCtAWJg/yzEyZISgqWSuoOpDhJm1wLkPzmedl2Bxemf4Gm3h6vcHqoKa7eRu1XSGBjTPPwHLyZ47jySUxKOowQ8ryWpBW40CVofbI24cW/NMr5UmmjGa8ebLG6ayErriWoKYh6CBo59a6yTAi/AMpodbZQ8+jgc2r6jp9FGmAqwJSeWMev3XaQtK6imCpTRHNjAUoFzXKG/hM1umQc=
+X-Microsoft-Antispam-Message-Info: Q0XKBWj9qTSj/qFzsC+7wUsf2wWVtfNnn5/ScV9HAwW7JVvEFNeCuzUZ/E79RfACwq8Mt6PdEZs5e+mfxZaMT06FM7qjpNRkNvElyEThDlqL8jJk3bpaGXJedJpfkW3RY18fTYx6zDxZoRbWmmlIJiAgDtCePJFSAO7txfBDOWuzhDnjUKCmol9AAWWP9SZeS4e9TixlI6a/+Rr4dLd5mznaT2xgFBrICbNeC5BUfJMbt4vmCfbjoELCV5wguaD+TA0E2ggxG5Re3+xAa/PLXPY03G9qYJ8+lPnm97crhjlwOKXU6i7hrcGr0QKEFOXI9pPJpLlvSwu9wRFiIcURbBlyfSG3vZtYCLyDegBh3MoGXh3ZsoZTwrvr9qdBAu2LcO/ZUjW6gkAabmdcj3DJ70uCTIUDQObF69bOD8ibR1PbyYMNW/TcrPTOCH7fTCQiYbUsgW5zjAcXND4ieCUzdhbwtng1ZrP0tWFVLSL/y4hEhfYBvZgI2hpFn/NmDp7lNFMvBD7k/26T6UVu9vcrJn8KJ3IBzh7wl7mFkwNxUrz9hC0nqb3oUdViGbbUsbuab956hVI+0O4yy966fBmiiBT0JcbZ5qDzgP2j968WwqSZ1hZrq5eGlc8Utzimrpc6UOu2vz8O7YIYxuhYHvLZGURRIbH+3Egy9Y6xuJQU1V/YWgjyHmntWVJvhn7gZo0vA6+b58ukyM+E9AvY4QOSodXrMM+nav5AlYo0YE4F930=
 X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
  IPV:NLI; SFV:NSPM; H:BYAPR10MB3287.namprd10.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(366004)(26005)(2906002)(5660300002)(66556008)(31696002)(66476007)(2616005)(186003)(6512007)(86362001)(66946007)(31686004)(6486002)(508600001)(36756003)(6666004)(6506007)(316002)(4326008)(8676002)(53546011)(38100700002)(8936002)(36916002)(43740500002)(45980500001);
+ SFS:(366004)(316002)(8676002)(8936002)(2906002)(66476007)(5660300002)(2616005)(6512007)(86362001)(6486002)(83380400001)(31686004)(4326008)(6666004)(508600001)(53546011)(38100700002)(186003)(36916002)(36756003)(6506007)(26005)(66556008)(66946007)(31696002)(45980500001)(43740500002);
  DIR:OUT; SFP:1101; 
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?SWQrY3BFZlcxWENaUmtORUhMTm5lRnhha2tvOEJ5aEV1TTROZEZzeUtrU29P?=
- =?utf-8?B?ejd3NzFsU0FJWmtRTnpPYWV1djlmSzQ0MyswWHRreGpkUE1udjZhc2FyY04r?=
- =?utf-8?B?YXJnT3JwY3M2TVp2aXgwQWdNd2JScW9HdFZoUWZ0dlBiK1VTZmZudXlOUWpT?=
- =?utf-8?B?RmVSdDVBeWhSLzZlQVhnaUdXMi9EWFliZithczhlSG54M2NOdUZKd3Yrdm9l?=
- =?utf-8?B?Qm9BR2VuVFBOcEVBZ0hyM1RReHdsdWlCT2lrQTZBWEdtVlptYndYMG9lWm9E?=
- =?utf-8?B?U0FobTJLM28ydmk1SXl5YS81SXhuRmlCelJkaUxndmk0aloyVGZJRHJ0NmUr?=
- =?utf-8?B?bE1UQkplRXVUekg3UlpHYkJEL0x4d0Fwck1ldnlINXRqYnFmV3hHeHN0WnhG?=
- =?utf-8?B?RXFmWWRFMlV2NFlMbDJ4L2g0Nms5c2NaSExLQ29iYWprVjhKY2xpTEpVSVEx?=
- =?utf-8?B?UHhUQ0g2Qm5EWEhpT2Q3ZEFjUGNrbWxXRmJRMlBWb01FUGkzcXF4N08vbE4x?=
- =?utf-8?B?RWlOS295TkFSWlN3KzcwZGVBWjJuM0lBbHV4QVdEeWtyQ1ZyODBoMzUrTEli?=
- =?utf-8?B?Sk5BOHppd1hHdGpLZ3JPa0NNMk1qSHVUWW5Ca0xnaVB1SE8vbmxpcTN2RTNL?=
- =?utf-8?B?YUdJRmdQdXZhSXE3V0pXZmg3VU9yTFRPZFliUUd0cjltMjVlZlBxTU03Rzdo?=
- =?utf-8?B?RnBoU2dqV2N4dkF3ekgxbXpYQ1AvOE9ObHdad0gvRVJRakVHNks2ajlwa2Fk?=
- =?utf-8?B?Z2tkUnVmUTNSWmFueHRIUUZBdVlwZU1vZjBsdVp6d2JkYXE5SVA5RlJOVmVL?=
- =?utf-8?B?eTFLdVEzZENlYkx2UmhXbGZJSDU0WjY4NlcyZ1ZPNGlXTTJQZElhMVVLZFBm?=
- =?utf-8?B?WXJPUDk2V2hkRDdsMWlxaWhkTWdVZkE3TzZQUlhxMjFIWjhjb3E3NGlSWjNn?=
- =?utf-8?B?K0d4UjFUWUFQMXVDSUlmcU5zTURybnZCT1JuVEx3em9QVGpiVGt1VDdMN1FV?=
- =?utf-8?B?K0RSd25MVTZPb2JKRFg0QmxzMnJ0UFJ2SVBUSnBzTzdvbG9Eamo5eVpNcVIz?=
- =?utf-8?B?am11bk9ucnpKZW8veUJRS2pudjVQc2NGR2hoTXlpc3RoMUljZzlFMGo0NDJy?=
- =?utf-8?B?MkUwMGxXMWVFcHBWSzJDemNLWVV3bFhXQ3pGS0pGUHVBUzB5ZXYxbklPdXVt?=
- =?utf-8?B?UFQydjVxU2hLT1V2a1RBNHVTaGhrMVIxbnVOTUhxVzZOcWxqZXRrNVZMVHNO?=
- =?utf-8?B?eS9tNlRWdElZS2psYVc5MXd4Z3N6WkhCNkUvU25ibUkrRTlNSE1QUGpoL0Nj?=
- =?utf-8?B?UHJnT3lFdC9PR2dPYXZIQkZiNzBBUmliemZMTkxhazJoc01Lb2hnNjA3YlVH?=
- =?utf-8?B?c0FIZHdYNG1jaEEzeUlxdzJWaUJUUFgxNjdZVUhWemNVdWNiZnZjTW05YlJy?=
- =?utf-8?B?eEhhVXZQVFgrMlpiVVNVclFISE10N3Q0YitqM2cweTBMcjFOdVN2UEoyQmZP?=
- =?utf-8?B?SlBPaUlud1ppWHIwa1lMdWxLUlJjT0dpTjl6bG8rZUF0T1V0UDRsRnBSVGtY?=
- =?utf-8?B?akczSytYd1ZkL3A1UFJvVUF2NU12RTIvbDluMjNPK2pSUWZyZ0RxTHJYTWda?=
- =?utf-8?B?amltWlArWXdkODBOZDRBSGIydVkwcERraXViYThMN28wWkRyNG05empUMjFm?=
- =?utf-8?B?ZngremNWZnJ6NXBVdGUwR3NpTDU0dGdWV0dKdnBCMTRsT2gxSkdpdEFRWDFa?=
- =?utf-8?B?NTkxam5ZR1hUaDM0RFhXWUM0SFFjTExIb1NaSkdnVmR4djUydlF1cFdSQktj?=
- =?utf-8?B?VkQvcW1tTCtuNHcvblhHL1VuNFBYMjMxTHlYekI4cElrY0ptT0NoTlBVQ2N5?=
- =?utf-8?B?cTl3WGJzZkd4dzl5bTcydzJhRVJCRzdUbzQyTDZROXlCNG1ZT3EwODJCU1hm?=
- =?utf-8?B?K3ZKSmY5cXFpVUovYVdWaG5vUzdPUHN3Wk9qdHFXaGV6TUtaK0NWcWpCcFJ3?=
- =?utf-8?B?ZitXWjlpUGx6NXMxaEFQOFY2YjNYVFN6aUlFMitzLzFzU21jeWtxY20wNVdH?=
- =?utf-8?B?MWhqRXp1Vmx5T3BvYkYyTE5Jd3lFV0ZjRFlPRitaVEsvL3h0cmNBMFg1dlF1?=
- =?utf-8?B?R3ByV3lCMmtINHBhS3AvUXA4QmRNTExiQVI1WkxFSkgrK1pqK3B1U2hxeVFN?=
- =?utf-8?Q?6/HsGrvf46IEMabIRHVbwb8=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?V2F0RWQvbEl6Y25yeHlrVzRMRk9jM2xYSkw0WDdvZ0JOczU4dGFoaGsyVGYx?=
+ =?utf-8?B?SVVBQWNsc1RzT1BHbHFFOFNiaWI3WVJDczgwZHcyU0haTFhrU2pCV20rZ3Bv?=
+ =?utf-8?B?alFGZndUTWNRVXJVRk1pUTk1aUx0VFY0ODAxQlFsNmdFN0dvc3FsVTl1SzV0?=
+ =?utf-8?B?NkpGMytqbFlhSXA5VzdYMUIzSFlyNTBLSWFnYWk0NjJ3SXd1UWdXcDBJMFBN?=
+ =?utf-8?B?ZzVVYUxLZjJOSmVvYWR2OXd4cFBEZmZNNlZxRTE3L0lmQVZMZW9odWdzdjl6?=
+ =?utf-8?B?eVUrRWZ1dms4SzJUNXdYam1jSVJJcWc1Vmh3ZWpDLzlIeWdrZFRzVGM3eWpv?=
+ =?utf-8?B?aGd0WXRCdHJMdmdhQ3RRcE8yMUFOSWhMVlNFNjZVZHZLN3V6c0NKTUpqL3N3?=
+ =?utf-8?B?STh2V1lLZEdlLzBhNXJ5TzdSRXZLWndGbzJRSVBRbFZOSkYyYkMvQkdHNVFz?=
+ =?utf-8?B?SUZYSGJtL0hFWXp2OEhSNU9USUI4RFpkRk5MQUlwVnBaNElJQWhZNitQWWJa?=
+ =?utf-8?B?ckhTcnNOUWgzQnJRU0JQeHJmdE5GY3FiTGkydmd0YlFnbFdUYVhSUXRPcjl0?=
+ =?utf-8?B?TzVIdzVrQUp1ZHR6SU0vNGdFNkQ5aElvTnp1NitkUDhsUXVvdE84TDI2cGkv?=
+ =?utf-8?B?dDdqTDBBTVhaUHRwcTJPeVJ3VlkyeFFwWUsvT0pZNE5IK2ZlZkVYN1BBdGhy?=
+ =?utf-8?B?SDVvU3lnZnpjcmRJWHpkVnBqeHZwdDMyRHkvVzEva3NrWEZFRGpZOWZIVVdR?=
+ =?utf-8?B?NVBDN21CV0h3UndkaXpPWkZ2aEdua2c4L0JzUllXcE5vL2Z0T0E4MkxPYUlw?=
+ =?utf-8?B?SWVVUVA3Z1lkT3VYbDNrd2NpSzhGRXRWVTZld3JucnJ2RVp1RklYcURwZVp3?=
+ =?utf-8?B?L3E5ZnFOR2pYYjJTbVhIL3RxRXN6NElpV3JKcjZLYUFzWUdSd2RKaG1DYUhS?=
+ =?utf-8?B?dysyd2VtMHVPSFNpZ1lNdGZ6UzN4Zk10U2dDdW44aTBydUhIaTFnUjRjVENx?=
+ =?utf-8?B?a2hyK2dHT2tIUkpYM2oxRUc3eHdybjVRYmNDUXNTaDQxTmc2T2JWalRUU0pk?=
+ =?utf-8?B?SERZTXdzUGdjUjlZMitacFhEWjFFNldaS3p2Q3pkczU0ZGc4K1kzQ2x6eEtp?=
+ =?utf-8?B?bE5jUXR1UHdnS1dqbG5zWFhTamtmY0tCbUZUOXY4akZkMmFjNUJFVkR2SVlB?=
+ =?utf-8?B?V1V0S29lQnlsQS9vVWcwT0xiUENoeFk2Rkc4T0k4QUtwbnUvRjBzZlZXOFNh?=
+ =?utf-8?B?aEZ6bEZ1ODBudGw4RlB1NWEzTHBDNUZsazNUeUY5RTRtSmY3MkJTT0xSMENp?=
+ =?utf-8?B?S3NQYXBhWXhmaTM5NThXM0hsaWJhT3VPWXRla2g3VXJDRzhCRTMxQnEwTnhr?=
+ =?utf-8?B?NHpsWWxISDNZb3BVRnlheG16dnEzajNvdWE2amE5VDcyMnJRR2tFM1o2RVdo?=
+ =?utf-8?B?bW1rZXlIcXVIYWZXVm5OUEN4RDk0SHlUYlJ5NjRKbUZDbnZPakNMMTU0MTFo?=
+ =?utf-8?B?TU5VbmtocnBrelhWUHRqSkhLOER5OVVTdXQxeWtQRUFHclR0MER2UHhkM2U0?=
+ =?utf-8?B?QUt5N2NIeFBnQlp0MnBnYzlUbWg0SlJvVEJXOTdWM2UzR3NCQTJISDdPSHF6?=
+ =?utf-8?B?ZG14YzhueUMwTEZMZ0lNNkpEUHpUN1VKalpkUkpLK0lSWnNBOFhCeWtFTXVq?=
+ =?utf-8?B?WTlkWXhVa2JhUDg2MW11RGVwUnRIY015cDFhRDkyRldmbC9ySHB6RVlPajRi?=
+ =?utf-8?B?UlE4RGNzOC8zM0ZaYWRZUFhNQlpSOWt2bmdocXVUaFpTa2JyUUJFYklJbmw2?=
+ =?utf-8?B?bEt1RGZ0bzBEdEJ5b0hUTHNJQ0MxV1I3OXh3MWZXUDBuQ200ZzV5VzkvNlMw?=
+ =?utf-8?B?Zk0wdmxPbFlFOE5UQjVDSC92YVRYeU1Gd2hLYTFjelNOaU1yQTBScjE0VlU2?=
+ =?utf-8?B?V1F3Tnh1N0Z4clJ6WjhVTFZ3SjJMZE9yTFEzamE5MCtjUkZqSWVmcGF1YnZp?=
+ =?utf-8?B?VGR0WERvQ3JLK3FFRW9VUDRxTnozMzNtUW1SWkYwdjdMNVBMNUZSeS9ROGVX?=
+ =?utf-8?B?QmlsNUxDK0I4REVrN25VYmduL3dUZnR0YlB2OFJUTE9yR3NGWnJUUVU1d3R3?=
+ =?utf-8?B?SnBhOUhVYk0waUtnbHZNQkxvL1I4dE9mMlNIR1FUb1VxZVFBUXEyRHdWYks5?=
+ =?utf-8?Q?RA1QrDnDJ5D17MrbUZSmstE=3D?=
 X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 055c7137-2885-4bd9-0900-08d9be9330a7
+X-MS-Exchange-CrossTenant-Network-Message-Id: cef9b8bf-a4b8-4a8d-4622-08d9be936770
 X-MS-Exchange-CrossTenant-AuthSource: BYAPR10MB3287.namprd10.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Dec 2021 23:49:23.8640 (UTC)
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Dec 2021 23:50:55.7954 (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 0c1aGm0/3ftXedALL6PEmpPs8M+Z4J23mVCFPaMIa+KSoedINSsYD0aGmO5THNVrv8q/7rIw3aKGN2hZOkFWVg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR10MB5615
+X-MS-Exchange-CrossTenant-UserPrincipalName: 7PpL6zlflGCHrKLOSGJ+OPDPUwSNci6W01WkJ+7oShZj2eEkn4xUyMc3zbtoHPfBV64J1QTYE5rQTxGLdKDO9w==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR10MB4477
 X-Proofpoint-Virus-Version: vendor=nai engine=6300 definitions=10197
  signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0
- adultscore=0 suspectscore=0
- mlxlogscore=999 phishscore=0 malwarescore=0 bulkscore=0 mlxscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2110150000
- definitions=main-2112130139
-X-Proofpoint-ORIG-GUID: 0wLkn6KclGDTYKUkfaKSJ-4PXGWphXLv
-X-Proofpoint-GUID: 0wLkn6KclGDTYKUkfaKSJ-4PXGWphXLv
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0
+ adultscore=0
+ malwarescore=0 bulkscore=0 spamscore=0 mlxlogscore=999 mlxscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2112130139
+X-Proofpoint-ORIG-GUID: Hdmwtsdr5vSI5Qicr3_trTIBVBevNhyG
+X-Proofpoint-GUID: Hdmwtsdr5vSI5Qicr3_trTIBVBevNhyG
 Cc: lvivier@redhat.com, eperezma@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
@@ -200,95 +199,59 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 
 On 12/13/2021 6:42 AM, Eli Cohen wrote:
-> Add netlink attribute to store flags indicating current state of the
-> device.
-> In addition, introduce a flag to indicate whether control virtqueue is
-> used.
+> Add max_supported_vqs field to struct vdpa_mgmt_dev. Upstream drivers
+> need to feel this value according to the device capabilities.
 >
-> This indication can be retrieved by:
+> This value is reported back in a netlink message when showing a device.
 >
-> vdpa dev config show vdpa-a
-> vdpa-a: mac 00:00:00:00:88:88 link up link_announce false max_vq_pairs 1
-> 	mtu 1500 ctrl_vq yes
+> Example:
+>
+> $ vdpa dev show
+> vdpa-a: type network mgmtdev auxiliary/mlx5_core.sf.1 vendor_id 5555 \
+> 	max_vqp 3 max_vq_size 256 max_supported_vqs 256
 >
 > Signed-off-by: Eli Cohen <elic@nvidia.com>
->
-> ----
-> V1 -> V2
-> Patch was changed to return only an indication of ctrl VQ
 > ---
->   drivers/vdpa/vdpa.c       | 17 +++++++++++++++++
->   include/uapi/linux/vdpa.h |  8 ++++++++
->   2 files changed, 25 insertions(+)
+>   drivers/vdpa/vdpa.c       | 2 ++
+>   include/linux/vdpa.h      | 1 +
+>   include/uapi/linux/vdpa.h | 1 +
+>   3 files changed, 4 insertions(+)
 >
 > diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
-> index 7b7bef7673b4..130a8d4aeaed 100644
+> index 130a8d4aeaed..b9dd693146be 100644
 > --- a/drivers/vdpa/vdpa.c
 > +++ b/drivers/vdpa/vdpa.c
-> @@ -787,6 +787,19 @@ static int vdpa_nl_cmd_dev_get_dumpit(struct sk_buff *msg, struct netlink_callba
->   	return msg->len;
->   }
+> @@ -695,6 +695,8 @@ vdpa_dev_fill(struct vdpa_device *vdev, struct sk_buff *msg, u32 portid, u32 seq
+>   		goto msg_err;
+>   	if (nla_put_u16(msg, VDPA_ATTR_DEV_MIN_VQ_SIZE, min_vq_size))
+>   		goto msg_err;
+> +	if (nla_put_u16(msg, VDPA_ATTR_DEV_MAX_DEV_VQS, vdev->mdev->max_supported_vqs))
+> +		goto msg_err;
 >   
-> +static int vdpa_dev_net_ctrl_vq_fill(struct vdpa_device *vdev,
-> +				     struct sk_buff *msg,
-> +				     struct virtio_net_config *config,
-> +				     u64 features)
-> +{
-> +	if (!(features & BIT_ULL(VIRTIO_NET_F_CTRL_VQ)))
-> +		return 0;
-> +
-> +	/* currently the only flag can be returned */
-> +	return nla_put_u64_64bit(msg, VDPA_ATTR_DEV_FLAGS,
-> +				 BIT_ULL(VDPA_DEV_ATTR_CVQ), VDPA_ATTR_PAD);
-> +}
-> +
->   static int vdpa_dev_net_mq_config_fill(struct vdpa_device *vdev,
->   				       struct sk_buff *msg, u64 features,
->   				       const struct virtio_net_config *config)
-> @@ -805,6 +818,7 @@ static int vdpa_dev_net_config_fill(struct vdpa_device *vdev, struct sk_buff *ms
->   	struct virtio_net_config config = {};
->   	u64 features;
->   	u16 val_u16;
-> +	int err;
->   
->   	vdpa_get_config(vdev, 0, &config, sizeof(config));
->   
-> @@ -821,6 +835,9 @@ static int vdpa_dev_net_config_fill(struct vdpa_device *vdev, struct sk_buff *ms
->   		return -EMSGSIZE;
->   
->   	features = vdev->config->get_driver_features(vdev);
-> +	err = vdpa_dev_net_ctrl_vq_fill(vdev, msg, &config, features);
-> +	if (err)
-> +		return err;
->   
->   	return vdpa_dev_net_mq_config_fill(vdev, msg, features, &config);
->   }
-> diff --git a/include/uapi/linux/vdpa.h b/include/uapi/linux/vdpa.h
-> index a252f06f9dfd..23b854e3e5e2 100644
-> --- a/include/uapi/linux/vdpa.h
-> +++ b/include/uapi/linux/vdpa.h
-> @@ -20,9 +20,16 @@ enum vdpa_command {
->   	VDPA_CMD_DEV_CONFIG_GET,	/* can dump */
+>   	genlmsg_end(msg, hdr);
+>   	return 0;
+> diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
+> index 9245dfbf1b08..72ea8ad7ba21 100644
+> --- a/include/linux/vdpa.h
+> +++ b/include/linux/vdpa.h
+> @@ -444,6 +444,7 @@ struct vdpa_mgmt_dev {
+>   	const struct vdpa_mgmtdev_ops *ops;
+>   	const struct virtio_device_id *id_table;
+>   	u64 config_attr_mask;
+> +	u16 max_supported_vqs;
+>   	struct list_head list;
 >   };
 >   
-> +enum {
-> +	VDPA_DEV_ATTR_CVQ,
-> +};
-> +
->   enum vdpa_attr {
->   	VDPA_ATTR_UNSPEC,
->   
-> +	/* Pad attribute for 64b alignment */
-> +	VDPA_ATTR_PAD = VDPA_ATTR_UNSPEC,
-> +
->   	/* bus name (optional) + dev name together make the parent device handle */
->   	VDPA_ATTR_MGMTDEV_BUS_NAME,		/* string */
->   	VDPA_ATTR_MGMTDEV_DEV_NAME,		/* string */
-> @@ -34,6 +41,7 @@ enum vdpa_attr {
->   	VDPA_ATTR_DEV_MAX_VQS,			/* u32 */
+> diff --git a/include/uapi/linux/vdpa.h b/include/uapi/linux/vdpa.h
+> index 23b854e3e5e2..1b758d77e228 100644
+> --- a/include/uapi/linux/vdpa.h
+> +++ b/include/uapi/linux/vdpa.h
+> @@ -42,6 +42,7 @@ enum vdpa_attr {
 >   	VDPA_ATTR_DEV_MAX_VQ_SIZE,		/* u16 */
 >   	VDPA_ATTR_DEV_MIN_VQ_SIZE,		/* u16 */
-> +	VDPA_ATTR_DEV_FLAGS,			/* u64 */
+>   	VDPA_ATTR_DEV_FLAGS,			/* u64 */
+> +	VDPA_ATTR_DEV_MAX_DEV_VQS,		/* u16 */
+
 Adding new attr here would break existing userspace that is compiled 
 with the older value. Need to append to the end.
 
