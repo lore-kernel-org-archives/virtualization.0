@@ -1,110 +1,97 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id DAE43C433F5
-	for <virtualization@archiver.kernel.org>; Mon, 13 Dec 2021 10:44:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7C7DBC433EF
+	for <virtualization@archiver.kernel.org>; Mon, 13 Dec 2021 16:18:02 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 7390A409A2;
-	Mon, 13 Dec 2021 10:44:21 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 1CEFA6F480;
+	Mon, 13 Dec 2021 16:18:02 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id tpqQuin39igC; Mon, 13 Dec 2021 10:44:20 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 154D54099D;
-	Mon, 13 Dec 2021 10:44:20 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E09F6C001E;
-	Mon, 13 Dec 2021 10:44:19 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E66B7C0012
- for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Dec 2021 10:44:18 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id D440060F30
- for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Dec 2021 10:44:18 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id SbTb1HhD8y7c
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 7syyig8VJZl6; Mon, 13 Dec 2021 16:18:01 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 8103E60F48;
+	Mon, 13 Dec 2021 16:18:00 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 56D47C001E;
+	Mon, 13 Dec 2021 16:18:00 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3595DC0012
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Dec 2021 10:44:17 +0000 (UTC)
+ Mon, 13 Dec 2021 16:17:59 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 23D2D85AC7
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 13 Dec 2021 16:17:59 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id d-GqWwxQlc1L
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 13 Dec 2021 16:17:58 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id AE8D060F07
+ by smtp1.osuosl.org (Postfix) with ESMTPS id EF78680D64
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Dec 2021 10:44:17 +0000 (UTC)
+ Mon, 13 Dec 2021 16:17:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1639392256;
+ s=mimecast20190719; t=1639412276;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=SHL+BcRj/pmK+hyLHDbkPYvC+IuJaADgZcfi3kBucvo=;
- b=T2f6ML266JmCizc1hiVnlvZTQy8Gu2R7gQQ1Qt7PNgZsD0P1eJUN3IeDJl4G3Pf6iIQkEL
- Zzf/3KpLTgullAXBb13ypLESUz+6l+c28TSda4pfD7tXHyz4eJ8ocljbw3kP8QAVrI1eBA
- 72TWDVR46KTMfZX2l+IBz5Jrk5aUbwU=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=Zgm1TTb9mRYOZNW01H/VVMVpM00k6pLnOlu/2f/Ro58=;
+ b=WnmaUglzoLzdxuZ96EwWe7IZtxLCvK2wo4qW3SyU1tIFUhQ7+FTLvLXYT4AVfwkluHm8so
+ 03t7+oOMiBDm5QL1RITfDeJhJWUe1PgVY93/VIQyWFGzu18V1LkMsVx8+ViTaxiAMdKxyE
+ JiEkqb04btwbSIy0IcZCoxUFuF3zlQQ=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-486-eFf2tbtsM-6VS8xCVJ-CKg-1; Mon, 13 Dec 2021 05:44:15 -0500
-X-MC-Unique: eFf2tbtsM-6VS8xCVJ-CKg-1
-Received: by mail-ed1-f70.google.com with SMTP id
- p4-20020aa7d304000000b003e7ef120a37so13473121edq.16
- for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Dec 2021 02:44:15 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:content-transfer-encoding
- :in-reply-to;
- bh=SHL+BcRj/pmK+hyLHDbkPYvC+IuJaADgZcfi3kBucvo=;
- b=X1U0cUTGfzQEBxr92Mr4DT6Xe/etfmHYIDq/pPnwfhbgxxQh+S7Fln00lEPoDP2/tF
- V1msnpNJBbR/yXLSfGMFPUxOgv3J5X5YggtqBtDOO/nhx0MMdjxOX1HqkJ1eSfK8qdlR
- Xk/uSfwRMJorP4xXA3RjbyfSZSRYQ6NSfu8BFcyfLr1tsJ8LkykK3q/FT5iZ3Ua5AkG8
- dQc8x89OTZ40tCXJR2RJrE4xWYevyu+Iz7J06hymkPBpD8hqL1tx0t225mrzfHMboMDy
- RO+qCIG186ZKS9JZbl/jnN3XqYJt+kpNpJ4AJjpvjnIxmJWcb9K9WQwAfrOUZVU0B7ZB
- IeRA==
-X-Gm-Message-State: AOAM532tsAq64rVqyqIq5WMY1yPRYTRe8Kaq+311Cipe0lm88r/E33yk
- 2kqr1TLA4PHeB8EFcCJWx7nCh8lzCoPE7biLcyT4TROrWfk2vJNWfK+YR824G5FhUGZPXOC6e2i
- rrjKTIzJBcIK9Xi/ZAOolBW9cBe4QVmTrhHQt21qEFw==
-X-Received: by 2002:a05:6402:3459:: with SMTP id
- l25mr64590643edc.137.1639392254392; 
- Mon, 13 Dec 2021 02:44:14 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxNOaEpqXN+b3HAuKmJouNEtF+PGIf4t0ZSl55UBSuLUkEDHpoVO/YC9kejLGFYbRvvWZpNHg==
-X-Received: by 2002:a05:6402:3459:: with SMTP id
- l25mr64590503edc.137.1639392253233; 
- Mon, 13 Dec 2021 02:44:13 -0800 (PST)
-Received: from redhat.com ([2.55.148.125])
- by smtp.gmail.com with ESMTPSA id cw5sm5741448ejc.74.2021.12.13.02.44.11
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 13 Dec 2021 02:44:12 -0800 (PST)
-Date: Mon, 13 Dec 2021 05:44:09 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Marcel Holtmann <marcel@holtmann.org>
-Subject: Re: [PATCH] Bluetooth: virtio_bt: fix device removal
-Message-ID: <20211213054357-mutt-send-email-mst@kernel.org>
-References: <20211125174200.133230-1-mst@redhat.com>
- <F52F65FE-6A07-486B-8E84-684ED85709E9@holtmann.org>
- <20211209162149-mutt-send-email-mst@kernel.org>
+ us-mta-56-Xi8VqCsjNuuM18ClmLa9mw-1; Mon, 13 Dec 2021 11:17:53 -0500
+X-MC-Unique: Xi8VqCsjNuuM18ClmLa9mw-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com
+ [10.5.11.12])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B8D261015DA0;
+ Mon, 13 Dec 2021 16:17:51 +0000 (UTC)
+Received: from horse.redhat.com (unknown [10.22.17.75])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 5A17260C9F;
+ Mon, 13 Dec 2021 16:17:50 +0000 (UTC)
+Received: by horse.redhat.com (Postfix, from userid 10451)
+ id D90BB2209DD; Mon, 13 Dec 2021 11:17:49 -0500 (EST)
+Date: Mon, 13 Dec 2021 11:17:49 -0500
+From: Vivek Goyal <vgoyal@redhat.com>
+To: Dan Williams <dan.j.williams@intel.com>
+Subject: Re: [PATCH 4/5] dax: remove the copy_from_iter and copy_to_iter
+ methods
+Message-ID: <YbdyLc+V1xyp8sc5@redhat.com>
+References: <20211209063828.18944-1-hch@lst.de>
+ <20211209063828.18944-5-hch@lst.de> <YbNhPXBg7G/ridkV@redhat.com>
+ <CAPcyv4g4_yFqDeS+pnAZOxcB=Ua+iArK5mqn0iMG4PX6oL=F_A@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20211209162149-mutt-send-email-mst@kernel.org>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: linux-bluetooth@vger.kernel.org, virtualization@lists.linux-foundation.org,
- Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
- Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
- Johan Hedberg <johan.hedberg@gmail.com>
+In-Reply-To: <CAPcyv4g4_yFqDeS+pnAZOxcB=Ua+iArK5mqn0iMG4PX6oL=F_A@mail.gmail.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+Cc: Linux NVDIMM <nvdimm@lists.linux.dev>,
+ linux-s390 <linux-s390@vger.kernel.org>, Dave Jiang <dave.jiang@intel.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, Mike Snitzer <snitzer@redhat.com>,
+ Miklos Szeredi <miklos@szeredi.hu>, Vishal Verma <vishal.l.verma@intel.com>,
+ Heiko Carstens <hca@linux.ibm.com>,
+ "Dr. David Alan Gilbert" <dgilbert@redhat.com>,
+ Matthew Wilcox <willy@infradead.org>,
+ virtualization@lists.linux-foundation.org,
+ Christian Borntraeger <borntraeger@de.ibm.com>,
+ device-mapper development <dm-devel@redhat.com>,
+ Stefan Hajnoczi <stefanha@redhat.com>,
+ linux-fsdevel <linux-fsdevel@vger.kernel.org>, Ira Weiny <ira.weiny@intel.com>,
+ Christoph Hellwig <hch@lst.de>, Alasdair Kergon <agk@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -116,40 +103,131 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gVGh1LCBEZWMgMDksIDIwMjEgYXQgMDQ6MjI6NThQTSAtMDUwMCwgTWljaGFlbCBTLiBUc2ly
-a2luIHdyb3RlOgo+IE9uIFRodSwgTm92IDI1LCAyMDIxIGF0IDA5OjAyOjAxUE0gKzAxMDAsIE1h
-cmNlbCBIb2x0bWFubiB3cm90ZToKPiA+IEhpIE1pY2hhZWwsCj4gPiAKPiA+ID4gRGV2aWNlIHJl
-bW92YWwgaXMgY2xlYXJseSBvdXQgb2YgdmlydGlvIHNwZWM6IGl0IGF0dGVtcHRzIHRvIHJlbW92
-ZQo+ID4gPiB1bnVzZWQgYnVmZmVycyBmcm9tIGEgVlEgYmVmb3JlIGludm9raW5nIGRldmljZSBy
-ZXNldC4gVG8gZml4LCBtYWtlCj4gPiA+IG9wZW4vY2xvc2UgTk9QcyBhbmQgZG8gYWxsIGNsZWFu
-dXAvc2V0dXAgaW4gcHJvYmUvcmVtb3ZlLgo+ID4gCj4gPiBzbyB0aGUgdmlydGJ0X3tvcGVuLGNs
-b3NlfSBhcyBOT1AgaXMgbm90IHJlYWxseSB3aGF0IGEgZHJpdmVyIGlzIHN1cHBvc2UKPiA+IHRv
-IGJlIGRvaW5nLiBUaGVzZSBhcmUgdHJhbnNwb3J0IGVuYWJsZS9kaXNhYmxlIGNhbGxiYWNrcyBm
-cm9tIHRoZSBCVAo+ID4gQ29yZSB0b3dhcmRzIHRoZSBkcml2ZXIuIEl0IG1hcHMgdG8gYSBkZXZp
-Y2UgYmVpbmcgZW5hYmxlZC9kaXNhYmxlZCBieQo+ID4gc29tZXRoaW5nIGxpa2UgYmx1ZXRvb3Ro
-ZCBmb3IgZXhhbXBsZS4gU28gaWYgZGlzYWJsZWQsIEkgZXhwZWN0IHRoYXQgbm8KPiA+IHJlc291
-cmNlcy9xdWV1ZXMgYXJlIGluIHVzZS4KPiA+IAo+ID4gTWF5YmUgSSBtaXN1bmRlcnN0YW5kIHRo
-ZSB2aXJ0aW8gc3BlYyBpbiB0aGF0IHJlZ2FyZCwgYnV0IEkgd291bGQgbGlrZQo+ID4gdG8ga2Vl
-cCB0aGlzIGZ1bmRhbWVudGFsIGNvbmNlcHQgb2YgYSBCbHVldG9vdGggZHJpdmVyLiBJdCBkb2Vz
-IHdvcmsKPiA+IHdpdGggYWxsIG90aGVyIHRyYW5zcG9ydHMgbGlrZSBVU0IsIFNESU8sIFVBUlQg
-ZXRjLgo+ID4gCj4gPiA+IFRoZSBjb3N0IGhlcmUgaXMgYSBzaW5nbGUgc2tiIHdhc3RlZCBvbiBh
-biB1bnVzZWQgYnQgZGV2aWNlIC0gd2hpY2gKPiA+ID4gc2VlbXMgbW9kZXN0Lgo+ID4gCj4gPiBU
-aGVyZSBzaG91bGQgYmUgbm8gYnVmZmVyIHVzZWQgaWYgdGhlIGRldmljZSBpcyBwb3dlcmVkIG9m
-Zi4gV2UgYWxzbyBkb27igJl0Cj4gPiBoYXZlIGFueSBVU0IgVVJCcyBpbi1mbGlnaHQgaWYgdGhl
-IHRyYW5zcG9ydCBpcyBub3QgYWN0aXZlLgo+ID4gCj4gPiA+IE5COiB3aXRoIHRoaXMgZml4IGlu
-IHBsYWNlIGRyaXZlciBzdGlsbCBzdWZmZXJzIGZyb20gYSByYWNlIGNvbmRpdGlvbiBpZgo+ID4g
-PiBhbiBpbnRlcnJ1cHQgdHJpZ2dlcnMgd2hpbGUgZGV2aWNlIGlzIGJlaW5nIHJlc2V0LiBXb3Jr
-IG9uIGEgZml4IGZvcgo+ID4gPiB0aGF0IGlzc3VlIGlzIGluIHByb2dyZXNzLgo+ID4gCj4gPiBJ
-biB0aGUgdmlydGJ0X2Nsb3NlKCkgY2FsbGJhY2sgd2Ugc2hvdWxkIGRlYWN0aXZhdGUgYWxsIGlu
-dGVycnVwdHMuCj4gPiAKPiA+IFJlZ2FyZHMKPiA+IAo+ID4gTWFyY2VsCj4gCj4gU28gTWFyY2Vs
-LCBkbyBJIHJlYWQgaXQgcmlnaHQgdGhhdCB5b3UgYXJlIHdvcmtpbmcgb24gYSBmaXgKPiBhbmQg
-SSBjYW4gZHJvcCB0aGlzIHBhdGNoIGZvciBub3c/CgpwaW5nCgo+IC0tIAo+IE1TVAoKX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24g
-bWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0
-dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxp
-emF0aW9u
+On Sun, Dec 12, 2021 at 06:44:26AM -0800, Dan Williams wrote:
+> On Fri, Dec 10, 2021 at 6:17 AM Vivek Goyal <vgoyal@redhat.com> wrote:
+> >
+> > On Thu, Dec 09, 2021 at 07:38:27AM +0100, Christoph Hellwig wrote:
+> > > These methods indirect the actual DAX read/write path.  In the end pmem
+> > > uses magic flush and mc safe variants and fuse and dcssblk use plain ones
+> > > while device mapper picks redirects to the underlying device.
+> > >
+> > > Add set_dax_virtual() and set_dax_nomcsafe() APIs for fuse to skip these
+> > > special variants, then use them everywhere as they fall back to the plain
+> > > ones on s390 anyway and remove an indirect call from the read/write path
+> > > as well as a lot of boilerplate code.
+> > >
+> > > Signed-off-by: Christoph Hellwig <hch@lst.de>
+> > > ---
+> > >  drivers/dax/super.c           | 36 ++++++++++++++--
+> > >  drivers/md/dm-linear.c        | 20 ---------
+> > >  drivers/md/dm-log-writes.c    | 80 -----------------------------------
+> > >  drivers/md/dm-stripe.c        | 20 ---------
+> > >  drivers/md/dm.c               | 50 ----------------------
+> > >  drivers/nvdimm/pmem.c         | 20 ---------
+> > >  drivers/s390/block/dcssblk.c  | 14 ------
+> > >  fs/dax.c                      |  5 ---
+> > >  fs/fuse/virtio_fs.c           | 19 +--------
+> > >  include/linux/dax.h           |  9 ++--
+> > >  include/linux/device-mapper.h |  4 --
+> > >  11 files changed, 37 insertions(+), 240 deletions(-)
+> > >
+> >
+> > [..]
+> > > diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+> > > index 5c03a0364a9bb..754319ce2a29b 100644
+> > > --- a/fs/fuse/virtio_fs.c
+> > > +++ b/fs/fuse/virtio_fs.c
+> > > @@ -753,20 +753,6 @@ static long virtio_fs_direct_access(struct dax_device *dax_dev, pgoff_t pgoff,
+> > >       return nr_pages > max_nr_pages ? max_nr_pages : nr_pages;
+> > >  }
+> > >
+> > > -static size_t virtio_fs_copy_from_iter(struct dax_device *dax_dev,
+> > > -                                    pgoff_t pgoff, void *addr,
+> > > -                                    size_t bytes, struct iov_iter *i)
+> > > -{
+> > > -     return copy_from_iter(addr, bytes, i);
+> > > -}
+> > > -
+> > > -static size_t virtio_fs_copy_to_iter(struct dax_device *dax_dev,
+> > > -                                    pgoff_t pgoff, void *addr,
+> > > -                                    size_t bytes, struct iov_iter *i)
+> > > -{
+> > > -     return copy_to_iter(addr, bytes, i);
+> > > -}
+> > > -
+> > >  static int virtio_fs_zero_page_range(struct dax_device *dax_dev,
+> > >                                    pgoff_t pgoff, size_t nr_pages)
+> > >  {
+> > > @@ -783,8 +769,6 @@ static int virtio_fs_zero_page_range(struct dax_device *dax_dev,
+> > >
+> > >  static const struct dax_operations virtio_fs_dax_ops = {
+> > >       .direct_access = virtio_fs_direct_access,
+> > > -     .copy_from_iter = virtio_fs_copy_from_iter,
+> > > -     .copy_to_iter = virtio_fs_copy_to_iter,
+> > >       .zero_page_range = virtio_fs_zero_page_range,
+> > >  };
+> > >
+> > > @@ -853,7 +837,8 @@ static int virtio_fs_setup_dax(struct virtio_device *vdev, struct virtio_fs *fs)
+> > >       fs->dax_dev = alloc_dax(fs, &virtio_fs_dax_ops);
+> > >       if (IS_ERR(fs->dax_dev))
+> > >               return PTR_ERR(fs->dax_dev);
+> > > -
+> > > +     set_dax_cached(fs->dax_dev);
+> >
+> > Looks good to me from virtiofs point of view.
+> >
+> > Reviewed-by: Vivek Goyal <vgoyal@redhat.com>
+> >
+> > Going forward, I am wondering should virtiofs use flushcache version as
+> > well. What if host filesystem is using DAX and mapping persistent memory
+> > pfn directly into qemu address space. I have never tested that.
+> >
+> > Right now we are relying on applications to do fsync/msync on virtiofs
+> > for data persistence.
+> 
+> This sounds like it would need coordination with a paravirtualized
+> driver that can indicate whether the host side is pmem or not, like
+> the virtio_pmem driver.
+
+Agreed. Let me check the details of virtio_pmem driver.
+
+> However, if the guest sends any fsync/msync
+> you would still need to go explicitly cache flush any dirty page
+> because you can't necessarily trust that the guest did that already.
+
+So host dax functionality will already take care of that, IIUC, right?
+I see a dax_flush() call in dax_writeback_one(). I am assuming that's
+the will take care of flushing dirty pages when guest issues
+fsync()/msync(). So probably don't have to do anything extra here.
+
+I think qemu should map files using MAP_SYNC though in this case though.
+Any read/writes to virtiofs files will turn into host file load/store
+operations. So flushcache in guest makes more sense with MAP_SYNC which
+should make sure any filesystem metadata will already persist after
+fault completion. And later guest can do writes followed by flush and
+ensure data persists too.
+
+IOW, I probably only need to do following.
+
+- In virtiofs virtual device, add a notion of kind of dax window or memory
+  it supports. So may be some kind of "writethrough" property of virtiofs
+  dax cache.
+
+- Use this property in virtiofs driver to decide whether to use 
+  plain copy_from_iter() or _copy_from_iter_flushcache().
+
+- qemu should use mmap(MAP_SYNC) if host filesystem is on persistent
+  memory.
+
+Thanks
+Vivek
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
