@@ -1,91 +1,96 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9A4D3C433EF
-	for <virtualization@archiver.kernel.org>; Tue, 14 Dec 2021 08:54:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 30EB4C433FE
+	for <virtualization@archiver.kernel.org>; Tue, 14 Dec 2021 08:56:41 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 3CBE5400C9;
-	Tue, 14 Dec 2021 08:54:10 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id C258860B8A;
+	Tue, 14 Dec 2021 08:56:40 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id amymTxmoTQkc; Tue, 14 Dec 2021 08:54:09 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id DFFAF408AE;
-	Tue, 14 Dec 2021 08:54:08 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 6ivfwMwkWpi5; Tue, 14 Dec 2021 08:56:40 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 5A11C60797;
+	Tue, 14 Dec 2021 08:56:39 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C791EC001E;
-	Tue, 14 Dec 2021 08:54:08 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A9770C0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3977AC001E;
+	Tue, 14 Dec 2021 08:56:39 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7FEF8C0012
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Dec 2021 08:54:07 +0000 (UTC)
+ Tue, 14 Dec 2021 08:56:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 96BF6408A6
+ by smtp2.osuosl.org (Postfix) with ESMTP id 5D2084025F
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Dec 2021 08:54:07 +0000 (UTC)
+ Tue, 14 Dec 2021 08:56:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id vfv-GE5Jj1wL
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id wfytiYvFeH-9
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Dec 2021 08:54:06 +0000 (UTC)
+ Tue, 14 Dec 2021 08:56:37 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 9CF2F408A5
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 5F73240143
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Dec 2021 08:54:06 +0000 (UTC)
+ Tue, 14 Dec 2021 08:56:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1639472045;
+ s=mimecast20190719; t=1639472196;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=4rDCqkzm5FMCVzwWtkuVrcioU48JxJsL0fZLEwqlTu0=;
- b=Eo1Uud201eK2T2Tw5Nm1+LSrE5kwTzb4yockAwq8VvIZXdSvVdQOqp3T5l0ik/Xz0pyD+a
- LT7S8ezfLRsyQyJdeTs0CH6ZOKmKfXuevAT6YmA3WbO7eUth4ujFyltiIKGHzbzACksaJV
- l6mtzvXyV3dI+FipRdjFYtkVhVTbSPw=
-Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
- [209.85.167.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=YmDRLpBJs4q4cxy4prp52SmUhvjWrMXUMhOtIrTRw2s=;
+ b=EkU+vllKfepqGLgn3I9g90VZP2GaNvSuVWgulbA5qnnOMr+qmhVp5fXRg5gDznKUxARTj9
+ WDhtiy6GXJ+fhnPJ2w1lnmeMVXNe+omKxoqtP4OoMlaVl1HZJxqirjEfC0SLs5lGvUtYay
+ JWJdrnEXydpG9JRcjCaa90C/cuz2tAo=
+Received: from mail-lj1-f197.google.com (mail-lj1-f197.google.com
+ [209.85.208.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-353-bi-SmuunOqCD0amdhljNZw-1; Tue, 14 Dec 2021 03:54:02 -0500
-X-MC-Unique: bi-SmuunOqCD0amdhljNZw-1
-Received: by mail-lf1-f72.google.com with SMTP id
- d2-20020a0565123d0200b0040370d0d2fbso8684066lfv.23
+ us-mta-482-f4zWoZe3O4-DAnUdLT6tVw-1; Tue, 14 Dec 2021 03:56:34 -0500
+X-MC-Unique: f4zWoZe3O4-DAnUdLT6tVw-1
+Received: by mail-lj1-f197.google.com with SMTP id
+ bn28-20020a05651c179c00b002222b4cc6d8so4451448ljb.0
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Dec 2021 00:54:02 -0800 (PST)
+ Tue, 14 Dec 2021 00:56:34 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=4rDCqkzm5FMCVzwWtkuVrcioU48JxJsL0fZLEwqlTu0=;
- b=a6xEhD6lG5fO/MJoja4LCZ9w4IcqmumesvPca541Cg6ZEVXGVLjut+YncPLTpTmkRS
- KwnAmNnKQ6FZRc33QDkS1IvofIO/X3Kp6r9p1qBHfCVfz1LG9dTr6r6sxyEFm3nb8VE8
- SaVCOpOhdDLmigbPGuMftKdvkIEYW4F3tLtZCh2V2zpHu+6Wc5BBKVK+hDYeEbXjSVdc
- Xe+0j9RpS6tRs4J9s+c36uNbL0iYtbeFE6ty9WCXoOcTGwLDfVcFsuFcN8F013w6EsRN
- TUyhCGJvhSmBWKcTGXg4yS8+lhv6CKd33yA3UiQ7uzsrhdat8B/07OjYXgp4BM2/HCKD
- Zygg==
-X-Gm-Message-State: AOAM533RkTRRluyrBP0uyJKr2OIQzAboJZjbGASDCvPmtLwv9x/wGFCc
- cBM98XKogHCAV7S1Q/sA3+6YvufkyMhkK7HyP7upvULm5bVHPET266XQ4kBk4dGTrQTRo8ZJ5wk
- nQYJ8W+zf5DRe1G8flko/F2NQstP6gW5v0G6cE1lGq5OnXhkj1310lP2ygw==
-X-Received: by 2002:ac2:50c6:: with SMTP id h6mr3738301lfm.580.1639472040734; 
- Tue, 14 Dec 2021 00:54:00 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxYtZF4h4Ft6XY4UD3XOg+jnRnwqZFOjkVQlLjZhWbCaAEg2FrWuCngcAtItbeZmGPBmo2sxFw1TDlaD/YZo4U=
-X-Received: by 2002:ac2:50c6:: with SMTP id h6mr3738280lfm.580.1639472040529; 
- Tue, 14 Dec 2021 00:54:00 -0800 (PST)
+ bh=YmDRLpBJs4q4cxy4prp52SmUhvjWrMXUMhOtIrTRw2s=;
+ b=LsjUJEAwD7WfPvMtN4F8wjEsNJS5HJZdWeSjpkyWlQkOR8pA4KZeLTpsKrKb0tNkKx
+ IjAnoB92ZIlUlkZ/uZYUujjJsUQYU7H9LHiw/ZUyE0S3Q2sCVVqJ4iphCN/Yc0b1UXXJ
+ iEHUgYOvcit4VP8uJ3B5YJDob+fDtjfxlCFc+Kpqq2hfCgKnITfepfaM+mdCajP1RIKn
+ KtNgGfJHlZFzQ9p6PtWdOV7Dgf3Ickfm9f/BchH5vCfCAPSJk1Ho8Bj9+rLAWFSO5l1P
+ xzlbGpgfTITnc/i2vDeJRVfziZoU5OnSzuuP2nzvuVKLyuS+l9ggNO3A9ZHQanskJ16j
+ EtIA==
+X-Gm-Message-State: AOAM532QlApDvEUr5KlvfFtudN/FB7Boin+JtHO43cawJ7i5FH79NAHq
+ DeB6XENL3u1Y3NcqpvEbXnuoAqZRYAHmfO20gC2aIKbllAzWtGQE8dwjvYy0uZUy7wFz+Il7o2v
+ aYhiMgSbGBqsaKq3dSQSb6nF9X9wTTx7QwD9k5jTpVYV+BDE9OjkbBb/dNQ==
+X-Received: by 2002:a05:6512:3987:: with SMTP id
+ j7mr3519751lfu.199.1639472193436; 
+ Tue, 14 Dec 2021 00:56:33 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJx7YLg7agiqKLaZ+u9wsEsrAW8C5//en/ChkWAqOGB+4w+Fv40nL1NQIHs/RTFQ7r6la1/0slUXxw0o610a0zU=
+X-Received: by 2002:a05:6512:3987:: with SMTP id
+ j7mr3519737lfu.199.1639472193220; 
+ Tue, 14 Dec 2021 00:56:33 -0800 (PST)
 MIME-Version: 1.0
 References: <20211213144258.179984-1-elic@nvidia.com>
- <CACGkMEtrpx-cEzRZUWJQ91DrwxYQJZqvjWmVAZ=YJX8oFVH2bQ@mail.gmail.com>
- <20211214073141.GC89087@mtl-vdi-166.wap.labs.mlnx>
-In-Reply-To: <20211214073141.GC89087@mtl-vdi-166.wap.labs.mlnx>
+ <20211213144258.179984-8-elic@nvidia.com>
+ <CACGkMEvwt0+hOHu9eHUnV-CL5WgcF+kiD86gGwvU13XwtH_i2w@mail.gmail.com>
+ <20211214071713.GB89087@mtl-vdi-166.wap.labs.mlnx>
+In-Reply-To: <20211214071713.GB89087@mtl-vdi-166.wap.labs.mlnx>
 From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 14 Dec 2021 16:53:49 +0800
-Message-ID: <CACGkMEtDUw+COR5UnVDeu4Nf+9b-Uf78zfZujXew16y2cV2uOA@mail.gmail.com>
-Subject: Re: [PATCH v2 00/10] Allow for configuring max number of virtqueue
- pairs
+Date: Tue, 14 Dec 2021 16:56:22 +0800
+Message-ID: <CACGkMEvL_3R-9ps1mFX7KpMEG3hevSzGMA5PDT+v4+VZ=gnnwQ@mail.gmail.com>
+Subject: Re: [PATCH v2 07/10] vdpa: Add support for returning device
+ configuration information
 To: Eli Cohen <elic@nvidia.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
@@ -110,90 +115,121 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Dec 14, 2021 at 3:32 PM Eli Cohen <elic@nvidia.com> wrote:
+On Tue, Dec 14, 2021 at 3:17 PM Eli Cohen <elic@nvidia.com> wrote:
 >
-> On Tue, Dec 14, 2021 at 11:17:00AM +0800, Jason Wang wrote:
+> On Tue, Dec 14, 2021 at 12:05:38PM +0800, Jason Wang wrote:
 > > On Mon, Dec 13, 2021 at 10:43 PM Eli Cohen <elic@nvidia.com> wrote:
 > > >
-> > > Allow the user to configure the max number of virtqueue pairs for a vdpa
-> > > instance. The user can then control the actual number of virtqueue pairs
-> > > using ethtool.
+> > > Add netlink attribute to store flags indicating current state of the
+> > > device.
+> > > In addition, introduce a flag to indicate whether control virtqueue is
+> > > used.
 > > >
-> > > Example, set number of VQPs to 2:
-> > > $ ethtool -L ens1 combined 2
+> > > This indication can be retrieved by:
 > > >
-> > > A user can check the max supported virtqueues for a management device by
-> > > runnig:
-> > >
-> > > vdpa dev show
-> > >     vdpa-a: type network mgmtdev auxiliary/mlx5_core.sf.1 vendor_id 5555 \
-> > >             max_vqp 3 max_vq_size 256 max_supported_vqs 256
+> > > vdpa dev config show vdpa-a
+> > > vdpa-a: mac 00:00:00:00:88:88 link up link_announce false max_vq_pairs 1
+> > >         mtu 1500 ctrl_vq yes
 > >
-> > I think the maxsupported_vqs should be an odd number since it should
-> > contain control vq.
+> > I think the cvq is kind of duplicated with the driver features?
 >
-> I was thinking we should report data virtqueues. If some upstream driver
-> or device does not support CVQ, this should still be an even number.
+> We don't pass to userspace the driver features. The availablity of CVQ
+> is passed trough a new bit mask field that encodes (currently) just the
+> availablity of CVQ.
 >
-> Moreover, if we want to include the CVQ, we might want to indicate that
-> explicitly.
+> Are you suggesting the return the entire set of negotiated features and
+> let user space decode that?
 
-Can we expose driver features in this case?
+Yes, I think that can simplify things and save a lot of effort.
 
 Thanks
 
 >
 > >
-> > >
-> > > and refer to this value when adding a device.
-> > >
-> > > To create a device with a max of 5 VQPs:
-> > > vdpa dev add name vdpa-a mgmtdev auxiliary/mlx5_core.sf.1 max_vqp 5
-> >
-> > A question, consider the parent support both net and block, if user use
-> >
-> > vdpa dev add name vdpa-a mgmtdev auxiliary/mlx5_core.sf.1
-> >
-> > How do we know it's a net or block device? Or do you expect some block
-> > specific attributes to be added?
-> >
 > > Thanks
 > >
 > > >
-> > > V1 -> V2:
-> > > 1. Do not return the index of the control VQ. Instead return an
-> > >    indication if Ctrl VQ was negotiated.
-> > > 2. Do not returen conig information if FEATURES_OK is not set to avoid
-> > >    reporting out of sync information.
-> > > 3. Minor fixes as described by the individual patches
-> > > 4. Add patches to return the max virtqueues a device is capable of
-> > >    supporting.
+> > > Signed-off-by: Eli Cohen <elic@nvidia.com>
 > > >
-> > > Eli Cohen (10):
-> > >   vdpa: Provide interface to read driver features
-> > >   vdpa/mlx5: Distribute RX virtqueues in RQT object
-> > >   vdpa: Read device configuration only if FEATURES_OK
-> > >   vdpa: Allow to configure max data virtqueues
-> > >   vdpa/mlx5: Fix config_attr_mask assignment
-> > >   vdpa/mlx5: Support configuring max data virtqueue pairs
-> > >   vdpa: Add support for returning device configuration information
-> > >   vdpa/mlx5: Restore cur_num_vqs in case of failure in change_num_qps()
-> > >   vdpa: Support reporting max device virtqueues
-> > >   vdpa/mlx5: Configure max supported virtqueues
+> > > ----
+> > > V1 -> V2
+> > > Patch was changed to return only an indication of ctrl VQ
+> > > ---
+> > >  drivers/vdpa/vdpa.c       | 17 +++++++++++++++++
+> > >  include/uapi/linux/vdpa.h |  8 ++++++++
+> > >  2 files changed, 25 insertions(+)
 > > >
-> > >  drivers/vdpa/alibaba/eni_vdpa.c    | 16 +++--
-> > >  drivers/vdpa/ifcvf/ifcvf_main.c    | 16 +++--
-> > >  drivers/vdpa/mlx5/net/mlx5_vnet.c  | 94 +++++++++++++++++-------------
-> > >  drivers/vdpa/vdpa.c                | 42 ++++++++++++-
-> > >  drivers/vdpa/vdpa_sim/vdpa_sim.c   | 21 +++++--
-> > >  drivers/vdpa/vdpa_user/vduse_dev.c | 16 +++--
-> > >  drivers/vdpa/virtio_pci/vp_vdpa.c  | 16 +++--
-> > >  drivers/vhost/vdpa.c               |  2 +-
-> > >  drivers/virtio/virtio_vdpa.c       |  2 +-
-> > >  include/linux/vdpa.h               | 16 +++--
-> > >  include/uapi/linux/vdpa.h          |  9 +++
-> > >  11 files changed, 178 insertions(+), 72 deletions(-)
+> > > diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
+> > > index 7b7bef7673b4..130a8d4aeaed 100644
+> > > --- a/drivers/vdpa/vdpa.c
+> > > +++ b/drivers/vdpa/vdpa.c
+> > > @@ -787,6 +787,19 @@ static int vdpa_nl_cmd_dev_get_dumpit(struct sk_buff *msg, struct netlink_callba
+> > >         return msg->len;
+> > >  }
 > > >
+> > > +static int vdpa_dev_net_ctrl_vq_fill(struct vdpa_device *vdev,
+> > > +                                    struct sk_buff *msg,
+> > > +                                    struct virtio_net_config *config,
+> > > +                                    u64 features)
+> > > +{
+> > > +       if (!(features & BIT_ULL(VIRTIO_NET_F_CTRL_VQ)))
+> > > +               return 0;
+> > > +
+> > > +       /* currently the only flag can be returned */
+> > > +       return nla_put_u64_64bit(msg, VDPA_ATTR_DEV_FLAGS,
+> > > +                                BIT_ULL(VDPA_DEV_ATTR_CVQ), VDPA_ATTR_PAD);
+> > > +}
+> > > +
+> > >  static int vdpa_dev_net_mq_config_fill(struct vdpa_device *vdev,
+> > >                                        struct sk_buff *msg, u64 features,
+> > >                                        const struct virtio_net_config *config)
+> > > @@ -805,6 +818,7 @@ static int vdpa_dev_net_config_fill(struct vdpa_device *vdev, struct sk_buff *ms
+> > >         struct virtio_net_config config = {};
+> > >         u64 features;
+> > >         u16 val_u16;
+> > > +       int err;
+> > >
+> > >         vdpa_get_config(vdev, 0, &config, sizeof(config));
+> > >
+> > > @@ -821,6 +835,9 @@ static int vdpa_dev_net_config_fill(struct vdpa_device *vdev, struct sk_buff *ms
+> > >                 return -EMSGSIZE;
+> > >
+> > >         features = vdev->config->get_driver_features(vdev);
+> > > +       err = vdpa_dev_net_ctrl_vq_fill(vdev, msg, &config, features);
+> > > +       if (err)
+> > > +               return err;
+> > >
+> > >         return vdpa_dev_net_mq_config_fill(vdev, msg, features, &config);
+> > >  }
+> > > diff --git a/include/uapi/linux/vdpa.h b/include/uapi/linux/vdpa.h
+> > > index a252f06f9dfd..23b854e3e5e2 100644
+> > > --- a/include/uapi/linux/vdpa.h
+> > > +++ b/include/uapi/linux/vdpa.h
+> > > @@ -20,9 +20,16 @@ enum vdpa_command {
+> > >         VDPA_CMD_DEV_CONFIG_GET,        /* can dump */
+> > >  };
+> > >
+> > > +enum {
+> > > +       VDPA_DEV_ATTR_CVQ,
+> > > +};
+> > > +
+> > >  enum vdpa_attr {
+> > >         VDPA_ATTR_UNSPEC,
+> > >
+> > > +       /* Pad attribute for 64b alignment */
+> > > +       VDPA_ATTR_PAD = VDPA_ATTR_UNSPEC,
+> > > +
+> > >         /* bus name (optional) + dev name together make the parent device handle */
+> > >         VDPA_ATTR_MGMTDEV_BUS_NAME,             /* string */
+> > >         VDPA_ATTR_MGMTDEV_DEV_NAME,             /* string */
+> > > @@ -34,6 +41,7 @@ enum vdpa_attr {
+> > >         VDPA_ATTR_DEV_MAX_VQS,                  /* u32 */
+> > >         VDPA_ATTR_DEV_MAX_VQ_SIZE,              /* u16 */
+> > >         VDPA_ATTR_DEV_MIN_VQ_SIZE,              /* u16 */
+> > > +       VDPA_ATTR_DEV_FLAGS,                    /* u64 */
+> > >
+> > >         VDPA_ATTR_DEV_NET_CFG_MACADDR,          /* binary */
+> > >         VDPA_ATTR_DEV_NET_STATUS,               /* u8 */
 > > > --
 > > > 2.33.1
 > > >
