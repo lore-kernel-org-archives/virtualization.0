@@ -4,94 +4,100 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 78217C433F5
-	for <virtualization@archiver.kernel.org>; Tue, 14 Dec 2021 20:33:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2F4B9C433FE
+	for <virtualization@archiver.kernel.org>; Tue, 14 Dec 2021 23:26:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 069848142F;
-	Tue, 14 Dec 2021 20:33:26 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id BB237813DB;
+	Tue, 14 Dec 2021 23:26:50 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id lcj3U9PAAuwa; Tue, 14 Dec 2021 20:33:25 +0000 (UTC)
+	with ESMTP id FgVV_Iw2WEPx; Tue, 14 Dec 2021 23:26:50 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 7B16581403;
-	Tue, 14 Dec 2021 20:33:24 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 8044181379;
+	Tue, 14 Dec 2021 23:26:49 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 51070C001E;
-	Tue, 14 Dec 2021 20:33:24 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 44BB0C002F;
+	Tue, 14 Dec 2021 23:26:49 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id BD5A4C0012
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 51AE1C0012
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Dec 2021 20:33:22 +0000 (UTC)
+ Tue, 14 Dec 2021 23:26:48 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 92706405F4
+ by smtp2.osuosl.org (Postfix) with ESMTP id 362FB4027A
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Dec 2021 20:33:22 +0000 (UTC)
+ Tue, 14 Dec 2021 23:26:48 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp2.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id E2FEWIFqU5bt
+ with ESMTP id vnNjWi-OCYq9
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Dec 2021 20:33:21 +0000 (UTC)
+ Tue, 14 Dec 2021 23:26:47 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 32072405ED
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 2FDE640179
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Dec 2021 20:33:20 +0000 (UTC)
+ Tue, 14 Dec 2021 23:26:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1639513999;
+ s=mimecast20190719; t=1639524405;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=r6UEz37RENDqZc874C7RATl7+g+LJCAFHhK7C3YHwPU=;
- b=MKRHbdnXL0+a8dN0cn7ewZCAVGaW+NSuIOlCWoAoI1ax3tnXnVoNtkRsIxMOhxKVcVqTLK
- 4dd+DRNChkgXHaAn3euFsrWwFOahW7XtzfEffDOUw7ollPQ/9DZkWEiSZRRiSox8Cbs4xu
- 5o8yRVbpQRDRJxhgHYIsVBzXolB22uA=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=LDA9jVOy/ZRGCA3pqs+Olfx4vK3cOd0BCYRpSVgNd3U=;
+ b=gUujYyJvPIi5+p4RcZkgRxrDhGXzW/l73WEIFA/dtQ77ZqENG5WOPbV9H8F5uC5vcnJx91
+ GrRY4M+BMQl9yfQLbiml0YFqtiGR1RPhB/ANkWplI3f+dZjPHGIklKIBFQ7ikVqSNwctm1
+ f+BEPOI7rRZa73lEIfXKKnErbWXYO7c=
+Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
+ [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-599-e3Qt5gtLO6ShEmU376si3A-1; Tue, 14 Dec 2021 15:33:16 -0500
-X-MC-Unique: e3Qt5gtLO6ShEmU376si3A-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com
- [10.5.11.23])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 0A0E51006AA0;
- Tue, 14 Dec 2021 20:33:14 +0000 (UTC)
-Received: from horse.redhat.com (unknown [10.22.33.95])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 6E3C422DFC;
- Tue, 14 Dec 2021 20:32:44 +0000 (UTC)
-Received: by horse.redhat.com (Postfix, from userid 10451)
- id EB1B82233DF; Tue, 14 Dec 2021 15:32:43 -0500 (EST)
-Date: Tue, 14 Dec 2021 15:32:43 -0500
-From: Vivek Goyal <vgoyal@redhat.com>
-To: Dan Williams <dan.j.williams@intel.com>
-Subject: Re: [PATCH 4/5] dax: remove the copy_from_iter and copy_to_iter
- methods
-Message-ID: <Ybj/azxrUyU4PZEr@redhat.com>
-References: <20211209063828.18944-1-hch@lst.de>
- <20211209063828.18944-5-hch@lst.de> <YbNhPXBg7G/ridkV@redhat.com>
- <CAPcyv4g4_yFqDeS+pnAZOxcB=Ua+iArK5mqn0iMG4PX6oL=F_A@mail.gmail.com>
- <20211213082318.GB21462@lst.de> <YbiosqZoG8e6rDkj@redhat.com>
- <CAPcyv4hFjKsPrPTB4NtLHiY8gyaELz9+45N1OFj3hz+uJ=9JnA@mail.gmail.com>
+ us-mta-454-uqtYK4jLMaiWOI61ejoM7Q-1; Tue, 14 Dec 2021 18:26:44 -0500
+X-MC-Unique: uqtYK4jLMaiWOI61ejoM7Q-1
+Received: by mail-ed1-f69.google.com with SMTP id
+ w18-20020a056402071200b003e61cbafdb4so18426572edx.4
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 14 Dec 2021 15:26:44 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=LDA9jVOy/ZRGCA3pqs+Olfx4vK3cOd0BCYRpSVgNd3U=;
+ b=aXp4UB/3ySl+7EYi1AuCPQxcofxVijp/1JzM9KUF+kL2JYbtMDWYzCydtvXht3wOpz
+ UMLdHaKDc3eDuUjcwMF91ebnUj7Bit6gNPv/uWTwR+zgY8Gu76YvWsBCWvymrc4h1wIl
+ iX3Z5eO6DMQuG3bmoHLqESx9gFZFfyobIfhrySiIDbsSYN1/h4igrJOUDXp47UxJy5Qg
+ tNhVP2NmHOsUlzox4faPY5/DC1Obg6mhwl6dB8YhvA67w9sRejBLB2OznZQUkbOIcWhO
+ Ce/9Q4OscKO1vWrWQ61S/lPSw5msUsKBFWRcT7nLkAI2cCWx41IsS9do9YqnflZtYiWv
+ woaA==
+X-Gm-Message-State: AOAM530FtMShXJ9j1prItRu4GbNWGhkIWb3/zdBEZavWtz9ncMFOe7nf
+ ftShZYDYPhT8NxMfB2lWectfbhiabAnPyEFJ2lmZ1n12yjnMNqqzLXoCPxXdi4es2GfktYHXFOa
+ RrpBVlJ5ai3JfTxKGN8aC6gbN+6TyXcWVlpnABYjUhA==
+X-Received: by 2002:a17:907:8a13:: with SMTP id
+ sc19mr8319058ejc.130.1639524403064; 
+ Tue, 14 Dec 2021 15:26:43 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxY9VeEUwbwOQjfz6ubzWVYWdjmxkerIQ6XgtO+Jvoh1RAxswqJWM3ChpSChcFlpxDXjdGQtw==
+X-Received: by 2002:a17:907:8a13:: with SMTP id
+ sc19mr8319045ejc.130.1639524402869; 
+ Tue, 14 Dec 2021 15:26:42 -0800 (PST)
+Received: from redhat.com ([2.55.154.189])
+ by smtp.gmail.com with ESMTPSA id d18sm90019edj.23.2021.12.14.15.26.41
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 14 Dec 2021 15:26:42 -0800 (PST)
+Date: Tue, 14 Dec 2021 18:26:39 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Mikhail Golubev <Mikhail.Golubev@opensynergy.com>
+Subject: Re: [RFC PATCH] virtio: do not reset stateful devices on resume
+Message-ID: <20211214182611-mutt-send-email-mst@kernel.org>
+References: <20211214163249.GA253555@opensynergy.com>
 MIME-Version: 1.0
+In-Reply-To: <20211214163249.GA253555@opensynergy.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-In-Reply-To: <CAPcyv4hFjKsPrPTB4NtLHiY8gyaELz9+45N1OFj3hz+uJ=9JnA@mail.gmail.com>
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-Cc: Linux NVDIMM <nvdimm@lists.linux.dev>,
- linux-s390 <linux-s390@vger.kernel.org>, Dave Jiang <dave.jiang@intel.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Mike Snitzer <snitzer@redhat.com>,
- Miklos Szeredi <miklos@szeredi.hu>, Vishal Verma <vishal.l.verma@intel.com>,
- Heiko Carstens <hca@linux.ibm.com>, Matthew Wilcox <willy@infradead.org>,
- virtualization@lists.linux-foundation.org,
- Christian Borntraeger <borntraeger@de.ibm.com>,
- device-mapper development <dm-devel@redhat.com>,
- Stefan Hajnoczi <stefanha@redhat.com>,
- linux-fsdevel <linux-fsdevel@vger.kernel.org>, Ira Weiny <ira.weiny@intel.com>,
- Christoph Hellwig <hch@lst.de>, Alasdair Kergon <agk@redhat.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -108,94 +114,54 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Dec 14, 2021 at 08:41:30AM -0800, Dan Williams wrote:
-> On Tue, Dec 14, 2021 at 6:23 AM Vivek Goyal <vgoyal@redhat.com> wrote:
-> >
-> > On Mon, Dec 13, 2021 at 09:23:18AM +0100, Christoph Hellwig wrote:
-> > > On Sun, Dec 12, 2021 at 06:44:26AM -0800, Dan Williams wrote:
-> > > > On Fri, Dec 10, 2021 at 6:17 AM Vivek Goyal <vgoyal@redhat.com> wrote:
-> > > > > Going forward, I am wondering should virtiofs use flushcache version as
-> > > > > well. What if host filesystem is using DAX and mapping persistent memory
-> > > > > pfn directly into qemu address space. I have never tested that.
-> > > > >
-> > > > > Right now we are relying on applications to do fsync/msync on virtiofs
-> > > > > for data persistence.
-> > > >
-> > > > This sounds like it would need coordination with a paravirtualized
-> > > > driver that can indicate whether the host side is pmem or not, like
-> > > > the virtio_pmem driver. However, if the guest sends any fsync/msync
-> > > > you would still need to go explicitly cache flush any dirty page
-> > > > because you can't necessarily trust that the guest did that already.
-> > >
-> > > Do we?  The application can't really know what backend it is on, so
-> > > it sounds like the current virtiofs implementation doesn't really, does it?
-> >
-> > Agreed that application does not know what backend it is on. So virtiofs
-> > just offers regular posix API where applications have to do fsync/msync
-> > for data persistence. No support for mmap(MAP_SYNC). We don't offer persistent
-> > memory programming model on virtiofs. That's not the expectation. DAX
-> > is used only to bypass guest page cache.
-> >
-> > With this assumption, I think we might not have to use flushcache version
-> > at all even if shared filesystem is on persistent memory on host.
-> >
-> > - We mmap() host files into qemu address space. So any dax store in virtiofs
-> >   should make corresponding pages dirty in page cache on host and when
-> >   and fsync()/msync() comes later, it should flush all the data to PMEM.
-> >
-> > - In case of file extending writes, virtiofs falls back to regular
-> >   FUSE_WRITE path (and not use DAX), and in that case host pmem driver
-> >   should make sure writes are flushed to pmem immediately.
-> >
-> > Are there any other path I am missing. If not, looks like we might not
-> > have to use flushcache version in virtiofs at all as long as we are not
-> > offering guest applications user space flushes and MAP_SYNC support.
-> >
-> > We still might have to use machine check safe variant though as loads
-> > might generate synchronous machine check. What's not clear to me is
-> > that if this MC safe variant should be used only in case of PMEM or
-> > should it be used in case of non-PMEM as well.
+On Tue, Dec 14, 2021 at 05:33:05PM +0100, Mikhail Golubev wrote:
+> From: Anton Yakovlev <Anton.Yakovlev@opensynergy.com>
 > 
-> It should be used on any memory address that can throw exception on
-> load, which is any physical address, in paths that can tolerate
-> memcpy() returning an error code, most I/O paths, and can tolerate
-> slower copy performance on older platforms that do not support MC
-> recovery with fast string operations, to date that's only PMEM users.
+> We assume that stateful devices can maintain their state while
+> suspended. And for this reason they don't have a freeze callback. If
+> such a device is reset during resume, the device state/context will be
+> lost on the device side. And the virtual device will stop working.
+> 
+> Signed-off-by: Anton Yakovlev <Anton.Yakovlev@opensynergy.com>
+> Signed-off-by: Mikhail Golubev <mikhail.golubev@opensynergy.com>
 
-Ok, So basically latest cpus can do fast string operations with MC
-recovery so that using MC safe variant is not a problem.
+A bit more specific? Which configs does this patch fix?
 
-Then there is range of cpus which can do MC recovery but do slower
-versions of memcpy and that's where the issue is.
-
-So if we knew that virtiofs dax window is backed by a pmem device
-then we should always use MC safe variant. Even if it means paying
-the price of slow version for the sake of correctness. 
-
-But if we are not using pmem on host, then there is no point in
-using MC safe variant.
-
-IOW.
-
-	if (virtiofs_backed_by_pmem) {
-		use_mc_safe_version
-	else
-		use_non_mc_safe_version
-	}
-
-Now question is, how do we know if virtiofs dax window is backed by
-a pmem or not. I checked virtio_pmem driver and that does not seem
-to communicate anything like that. It just communicates start of the
-range and size of range, nothing else.
-
-I don't have full handle on stack of modules of virtio_pmem, but my guess
-is it probably is using MC safe version always (because it does not
-know anthing about the backing storage).
-
-/me will definitely like to pay penalty of slower memcpy if virtiofs
-device is not backed by a pmem.
-
-Vivek
+> ---
+>  drivers/virtio/virtio.c | 8 ++++++++
+>  1 file changed, 8 insertions(+)
+> 
+> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> index 236081afe9a2..defa15b56eb8 100644
+> --- a/drivers/virtio/virtio.c
+> +++ b/drivers/virtio/virtio.c
+> @@ -472,6 +472,13 @@ int virtio_device_restore(struct virtio_device *dev)
+>  	struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
+>  	int ret;
+>  
+> +	/* Short path for stateful devices. Here we assume that if the device
+> +	 * does not have a freeze callback, its state was not changed when
+> +	 * suspended.
+> +	 */
+> +	if (drv && !drv->freeze)
+> +		goto on_config_enable;
+> +
+>  	/* We always start by resetting the device, in case a previous
+>  	 * driver messed it up. */
+>  	dev->config->reset(dev);
+> @@ -503,6 +510,7 @@ int virtio_device_restore(struct virtio_device *dev)
+>  	/* Finally, tell the device we're all set */
+>  	virtio_add_status(dev, VIRTIO_CONFIG_S_DRIVER_OK);
+>  
+> +on_config_enable:
+>  	virtio_config_enable(dev);
+>  
+>  	return 0;
+> -- 
+> 2.34.1
+> 
+> 
+> -- 
 
 _______________________________________________
 Virtualization mailing list
