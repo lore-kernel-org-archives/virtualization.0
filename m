@@ -1,70 +1,72 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 074A2C433F5
-	for <virtualization@archiver.kernel.org>; Tue, 21 Dec 2021 01:58:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 18E09C433EF
+	for <virtualization@archiver.kernel.org>; Tue, 21 Dec 2021 01:59:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 59499409C9;
-	Tue, 21 Dec 2021 01:58:47 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 8EA2640929;
+	Tue, 21 Dec 2021 01:59:55 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id q-j84W4wXGfi; Tue, 21 Dec 2021 01:58:46 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id BF7FB40129;
-	Tue, 21 Dec 2021 01:58:45 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id mU5wKEfezMHa; Tue, 21 Dec 2021 01:59:54 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 276CF4090E;
+	Tue, 21 Dec 2021 01:59:54 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 998B8C001E;
-	Tue, 21 Dec 2021 01:58:45 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A843FC0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id F40B3C001E;
+	Tue, 21 Dec 2021 01:59:53 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E7066C0012
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Dec 2021 01:58:44 +0000 (UTC)
+ Tue, 21 Dec 2021 01:59:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 8188A409BD
+ by smtp3.osuosl.org (Postfix) with ESMTP id C707E60692
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Dec 2021 01:58:44 +0000 (UTC)
+ Tue, 21 Dec 2021 01:59:51 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 4mA_oX2jg2b2
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=kernel.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id YyGYormkNZ_i
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Dec 2021 01:58:43 +0000 (UTC)
+ Tue, 21 Dec 2021 01:59:51 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 2F68240129
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 3BDF26064D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Dec 2021 01:58:43 +0000 (UTC)
+ Tue, 21 Dec 2021 01:59:51 +0000 (UTC)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by ams.source.kernel.org (Postfix) with ESMTPS id 46D20B8110B;
- Tue, 21 Dec 2021 01:58:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10FC0C36AEA;
- Tue, 21 Dec 2021 01:58:37 +0000 (UTC)
+ by dfw.source.kernel.org (Postfix) with ESMTPS id ECE3B61166;
+ Tue, 21 Dec 2021 01:59:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B7A3C36AEB;
+ Tue, 21 Dec 2021 01:59:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1640051919;
- bh=i5NdvtJkmeX104ODEzdrBY1EYBH6FWDEKFIIEEhroZ0=;
+ s=k20201202; t=1640051989;
+ bh=+31zAUEqLZ4p24DVIeYtdQ9QUYg7k8xqpKZZRE+cjjE=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=iqyNH4gIOdq8Bn3lBJsfQZmNYDHlIS2rbi4BwsJLZBSi3myck1v6Pi55L/qBtSQAx
- SR3V2jANl9EThRd+eWC0s1x3S1UuwOqUdaxvTvoHHuyJ2/jtkQwY3x5Ou6fKKR7Pi9
- IeKOweltyZRGXcIj/f5WkjsU0u0zHBa1ka1P3ui0e5j62IllHfO/KCrJi6G4nqA6cJ
- fvhmqkQo6dB0AUN2ZLZ+titrMFL82xAM44FCSbLY0LKUAtURcW9M5pjaDHwzcB67aJ
- pdUjeeOObXbZLCcHJ2zyo9WBukrBfzKLnMO9HNNqSAudGU38V+scXGBXyySqRr80h6
- vO/JUo+Ot7Bfw==
+ b=mrQ08xn+AqWnvTEmOZzwRfLhIH7McrMszdA789U2HplUiYcWVnD2HJz/F2r0RV+Av
+ X2U/jN7caLrjcQcYSaYWrLrfdosDSaHdiEa6iFmh2x4Ng/jtYrMZvSFaXHFIVb1EG0
+ M98wPJpiRwZChyrFbCTCI0tOEOf2+J7jIcgyBn2mYDVqWFUdEEqij6p9DClgplplvd
+ +EfgRyY1uTw0JYKZI/4GLpgl9GEnhgVmnS7iOxshWhpxhqpezypA9Mb6blMoXwyrzE
+ BjCagMVjyUZX6dPxo60Jemi8lBlZbR+qvGOIWK385xjDxRmT4AXAIOKro3c+qFCzhP
+ yS4kzMigl5QMA==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 22/29] virtio_net: fix rx_drops stat for small
+Subject: [PATCH AUTOSEL 5.10 17/19] virtio_net: fix rx_drops stat for small
  pkts
-Date: Mon, 20 Dec 2021 20:57:43 -0500
-Message-Id: <20211221015751.116328-22-sashal@kernel.org>
+Date: Mon, 20 Dec 2021 20:59:12 -0500
+Message-Id: <20211221015914.116767-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211221015751.116328-1-sashal@kernel.org>
-References: <20211221015751.116328-1-sashal@kernel.org>
+In-Reply-To: <20211221015914.116767-1-sashal@kernel.org>
+References: <20211221015914.116767-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -105,10 +107,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 4ad25a8b0870c..1231b48f7183e 100644
+index cbe47eed7cc3c..3ba289b695f04 100644
 --- a/drivers/net/virtio_net.c
 +++ b/drivers/net/virtio_net.c
-@@ -730,7 +730,7 @@ static struct sk_buff *receive_small(struct net_device *dev,
+@@ -697,7 +697,7 @@ static struct sk_buff *receive_small(struct net_device *dev,
  		pr_debug("%s: rx error: len %u exceeds max size %d\n",
  			 dev->name, len, GOOD_PACKET_LEN);
  		dev->stats.rx_length_errors++;
@@ -117,7 +119,7 @@ index 4ad25a8b0870c..1231b48f7183e 100644
  	}
  	rcu_read_lock();
  	xdp_prog = rcu_dereference(rq->xdp_prog);
-@@ -815,10 +815,8 @@ static struct sk_buff *receive_small(struct net_device *dev,
+@@ -782,10 +782,8 @@ static struct sk_buff *receive_small(struct net_device *dev,
  	rcu_read_unlock();
  
  	skb = build_skb(buf, buflen);
@@ -129,7 +131,7 @@ index 4ad25a8b0870c..1231b48f7183e 100644
  	skb_reserve(skb, headroom - delta);
  	skb_put(skb, len);
  	if (!xdp_prog) {
-@@ -829,13 +827,12 @@ static struct sk_buff *receive_small(struct net_device *dev,
+@@ -796,13 +794,12 @@ static struct sk_buff *receive_small(struct net_device *dev,
  	if (metasize)
  		skb_metadata_set(skb, metasize);
  
