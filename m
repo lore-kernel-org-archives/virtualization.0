@@ -4,85 +4,99 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3C956C433EF
-	for <virtualization@archiver.kernel.org>; Wed, 22 Dec 2021 11:20:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 26E09C433F5
+	for <virtualization@archiver.kernel.org>; Wed, 22 Dec 2021 17:18:59 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 82E6A4047F;
-	Wed, 22 Dec 2021 11:20:05 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id B214240273;
+	Wed, 22 Dec 2021 17:18:58 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id CbfKBFlI4331; Wed, 22 Dec 2021 11:20:04 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id D923740153;
-	Wed, 22 Dec 2021 11:20:03 +0000 (UTC)
+	with ESMTP id neJtsbHTe1tN; Wed, 22 Dec 2021 17:18:57 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 0FED44098A;
+	Wed, 22 Dec 2021 17:18:57 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id AC5EDC001E;
-	Wed, 22 Dec 2021 11:20:03 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7F938C0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CFC8FC001E;
+	Wed, 22 Dec 2021 17:18:56 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6F315C0012
  for <virtualization@lists.linux-foundation.org>;
- Wed, 22 Dec 2021 11:20:02 +0000 (UTC)
+ Wed, 22 Dec 2021 17:18:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 57D52415ED
+ by smtp3.osuosl.org (Postfix) with ESMTP id 47ACA60FCE
  for <virtualization@lists.linux-foundation.org>;
- Wed, 22 Dec 2021 11:20:02 +0000 (UTC)
+ Wed, 22 Dec 2021 17:18:55 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=intel.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id dhPHWQ2vBVc7
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=ziepe.ca
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id qYanLYvOfXfL
  for <virtualization@lists.linux-foundation.org>;
- Wed, 22 Dec 2021 11:20:01 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
- by smtp4.osuosl.org (Postfix) with ESMTPS id A2461415E9
+ Wed, 22 Dec 2021 17:18:54 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-qk1-x735.google.com (mail-qk1-x735.google.com
+ [IPv6:2607:f8b0:4864:20::735])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 575E660E61
  for <virtualization@lists.linux-foundation.org>;
- Wed, 22 Dec 2021 11:20:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
- d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1640172001; x=1671708001;
- h=date:from:to:cc:subject:message-id:references:
- mime-version:in-reply-to;
- bh=6+4R+FyB099Qr49bH3/1NFQGuuybyBlmj9/KUyRv5pE=;
- b=KUvAkD2dBUfsdSJb1mKBq3NSWLz2U7vqab7xUriGTBuvtzj2+XRkwfSR
- uj2+sz5kLxZSPyOwuf1HnufntQ2RW6lVixaSIIiWUaQL/jydxOTTrjqZ2
- DFyZtbxM28Dm2VVba3RxmtrpKww4N6VKTIZdNHukzxvCdnHdLTQjinnTk
- 5usMOBKLbmZMotsxyRW5XXE8P6yEHxJuUIRl0buoweiJyxiKqNlo8Eria
- gXTLGLKuJSR6sSF5ZB1+K/X6B3XRkOrTLCe7/hdN8q+YU5KDK+Cr+9/B/
- /2km40F/OqSA/HG8hu87JPEMKuYN/RO9GO4POSnG50PdUxATgOOa8sKPa A==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10205"; a="239350769"
-X-IronPort-AV: E=Sophos;i="5.88,226,1635231600"; d="scan'208";a="239350769"
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
- by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 22 Dec 2021 03:20:00 -0800
-X-IronPort-AV: E=Sophos;i="5.88,226,1635231600"; d="scan'208";a="484727047"
-Received: from smile.fi.intel.com ([10.237.72.61])
- by orsmga002-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 22 Dec 2021 03:19:55 -0800
-Received: from andy by smile.fi.intel.com with local (Exim 4.95)
- (envelope-from <andriy.shevchenko@linux.intel.com>)
- id 1mzzdd-000jnv-Iv; Wed, 22 Dec 2021 13:18:29 +0200
-Date: Wed, 22 Dec 2021 13:18:29 +0200
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+ Wed, 22 Dec 2021 17:18:54 +0000 (UTC)
+Received: by mail-qk1-x735.google.com with SMTP id i187so842536qkf.5
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 22 Dec 2021 09:18:54 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ziepe.ca; s=google;
+ h=date:from:to:cc:subject:message-id:references:mime-version
+ :content-disposition:in-reply-to;
+ bh=/L5NSqmnmp0JrNCe4jEZo1LjnyYAG3Zj1ZGvlLyNRww=;
+ b=LXqfRFsU799kS6etQx2wny/MKAWaffuWQk76RfpfJW+3X5OCImXg1Dp90Y0mRBI1EG
+ WNjZzNDzZKIcmS8X1m46mdALXkuotSNdEczKGUd/PBewYiLrbLh2zbN/CaonWPBMBbDx
+ LHnygp0gSkx2zU/yGMCtl+rcj3S3J3Cw2iqmWXTzbF9xYnXxu99hrM6LBcYVQrggMDeJ
+ 2E+MC79QzCOqtuTTypNlhmVcPYm8OP5ZRavMcgb9yx/5gpRRO0HB1BziVlKih5ozJC/8
+ M0ic/La1wfEsbcI58LTI+gJPcyj/M/6EKryf3RVyZBHv/tF5fEsE7drF8k3qsF+r9v3q
+ +Ryg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=/L5NSqmnmp0JrNCe4jEZo1LjnyYAG3Zj1ZGvlLyNRww=;
+ b=L69d2kanc73y1Ix49CpDleasdPMg6SDx4uoRG+/tjoGjKvEIMattKSR7YuPEA1TDPD
+ 9DvbZcOvEIukw/I8idR1az44STEAucB4IXf2k9Rp0fudMbLtcj8udLO4u/x+ez4QbzDf
+ N8cry+Bium5kPaQE/9ZY3PX0PKvlAhyHfeWu2fHLn08WTpxGzluaPZobm/3usMZrSdNR
+ qDbZyRioF+ggSMH9oOizH1X72lmU5l8ORkQnN9cBsT4WgAMPdBNNOJ+CDEbVRgAqByO8
+ 4VTP3B3eL1RxT2terWNfpsEy+lHVGibxd+sZd3T+5o56mZE2Qx3A3P81BcxOkD3EQzZf
+ WVXA==
+X-Gm-Message-State: AOAM5326k/lrRvNoYceXwjubhTbzS2rt23Xrs02/MhlRmYudsiYQdCaO
+ LUpg2L6bCuVQFBdiWmCoW1pQ/Q==
+X-Google-Smtp-Source: ABdhPJwP5NJyymLKCRDlLyH4OX0k1lbimBfGNffLbMt6CEmyfRjzYEMg0Rxlwp8mOtStmN8qCKq7rQ==
+X-Received: by 2002:ae9:df87:: with SMTP id t129mr2774584qkf.67.1640193533176; 
+ Wed, 22 Dec 2021 09:18:53 -0800 (PST)
+Received: from ziepe.ca
+ (hlfxns017vw-142-162-113-129.dhcp-dynamic.fibreop.ns.bellaliant.net.
+ [142.162.113.129])
+ by smtp.gmail.com with ESMTPSA id de33sm2244073qkb.5.2021.12.22.09.18.52
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 22 Dec 2021 09:18:52 -0800 (PST)
+Received: from jgg by mlx with local (Exim 4.94) (envelope-from <jgg@ziepe.ca>)
+ id 1n05GN-007SI7-Km; Wed, 22 Dec 2021 13:18:51 -0400
+Date: Wed, 22 Dec 2021 13:18:51 -0400
+From: Jason Gunthorpe <jgg@ziepe.ca>
 To: "David E. Box" <david.e.box@linux.intel.com>
-Subject: Re: [PATCH 2/4] soundwire: intel: Use auxiliary_device driver data
- helpers
-Message-ID: <YcMJhXQNXabezOya@smile.fi.intel.com>
+Subject: Re: [PATCH 0/4] driver_core: Auxiliary drvdata helper cleanup
+Message-ID: <20211222171851.GO6467@ziepe.ca>
 References: <20211221235852.323752-1-david.e.box@linux.intel.com>
- <20211221235852.323752-3-david.e.box@linux.intel.com>
+ <20211222000905.GN6467@ziepe.ca>
+ <35bca887e697597f7b3e1944b3dd7347c6defca1.camel@linux.intel.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20211221235852.323752-3-david.e.box@linux.intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-Cc: alsa-devel@alsa-project.org, pierre-louis.bossart@linux.intel.com,
- hdegoede@redhat.com, mustafa.ismail@intel.com, leon@kernel.org, mst@redhat.com,
- linux-rdma@vger.kernel.org, gregkh@linuxfoundation.org, vkoul@kernel.org,
- davem@davemloft.net, jgg@ziepe.ca, dledford@redhat.com,
+In-Reply-To: <35bca887e697597f7b3e1944b3dd7347c6defca1.camel@linux.intel.com>
+Cc: pierre-louis.bossart@linux.intel.com, alsa-devel@alsa-project.org,
+ mustafa.ismail@intel.com, leon@kernel.org, mst@redhat.com,
+ linux-rdma@vger.kernel.org, gregkh@linuxfoundation.org,
+ virtualization@lists.linux-foundation.org, vkoul@kernel.org,
+ davem@davemloft.net, hdegoede@redhat.com, dledford@redhat.com,
  yung-chuan.liao@linux.intel.com, netdev@vger.kernel.org, kuba@kernel.org,
- virtualization@lists.linux-foundation.org, shiraz.saleem@intel.com,
- saeedm@nvidia.com, linux-kernel@vger.kernel.org
+ andriy.shevchenko@linux.intel.com, shiraz.saleem@intel.com, saeedm@nvidia.com,
+ linux-kernel@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -99,79 +113,51 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Dec 21, 2021 at 03:58:50PM -0800, David E. Box wrote:
-> Use auxiliary_get_drvdata and auxiliary_set_drvdata helpers.
-
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-
-> Signed-off-by: David E. Box <david.e.box@linux.intel.com>
-> ---
->  drivers/soundwire/intel.c      | 8 ++++----
->  drivers/soundwire/intel_init.c | 2 +-
->  2 files changed, 5 insertions(+), 5 deletions(-)
+On Tue, Dec 21, 2021 at 04:48:17PM -0800, David E. Box wrote:
+> On Tue, 2021-12-21 at 20:09 -0400, Jason Gunthorpe wrote:
+> > On Tue, Dec 21, 2021 at 03:58:48PM -0800, David E. Box wrote:
+> > > Depends on "driver core: auxiliary bus: Add driver data helpers" patch [1].
+> > > Applies the helpers to all auxiliary device drivers using
+> > > dev_(get/set)_drvdata. Drivers were found using the following search:
+> > > 
+> > >     grep -lr "struct auxiliary_device" $(grep -lr "drvdata" .)
+> > > 
+> > > Changes were build tested using the following configs:
+> > > 
+> > >     vdpa/mlx5:       CONFIG_MLX5_VDPA_NET
+> > >     net/mlx53:       CONFIG_MLX5_CORE_EN
+> > >     soundwire/intel: CONFIG_SOUNDWIRE_INTEL
+> > >     RDAM/irdma:      CONFIG_INFINIBAND_IRDMA
+> > >                      CONFIG_MLX5_INFINIBAND
+> > > 
+> > > [1] https://www.spinics.net/lists/platform-driver-x86/msg29940.html 
+> > 
+> > I have to say I don't really find this to be a big readability
+> > improvement.
 > 
-> diff --git a/drivers/soundwire/intel.c b/drivers/soundwire/intel.c
-> index 78037ffdb09b..d082d18e41a9 100644
-> --- a/drivers/soundwire/intel.c
-> +++ b/drivers/soundwire/intel.c
-> @@ -1293,7 +1293,7 @@ static int intel_link_probe(struct auxiliary_device *auxdev,
->  	bus->ops = &sdw_intel_ops;
->  
->  	/* set driver data, accessed by snd_soc_dai_get_drvdata() */
-> -	dev_set_drvdata(dev, cdns);
-> +	auxiliary_set_drvdata(auxdev, cdns);
->  
->  	/* use generic bandwidth allocation algorithm */
->  	sdw->cdns.bus.compute_params = sdw_compute_params;
-> @@ -1321,7 +1321,7 @@ int intel_link_startup(struct auxiliary_device *auxdev)
->  {
->  	struct sdw_cdns_stream_config config;
->  	struct device *dev = &auxdev->dev;
-> -	struct sdw_cdns *cdns = dev_get_drvdata(dev);
-> +	struct sdw_cdns *cdns = auxiliary_get_drvdata(auxdev);
->  	struct sdw_intel *sdw = cdns_to_intel(cdns);
->  	struct sdw_bus *bus = &cdns->bus;
->  	int link_flags;
-> @@ -1463,7 +1463,7 @@ int intel_link_startup(struct auxiliary_device *auxdev)
->  static void intel_link_remove(struct auxiliary_device *auxdev)
->  {
->  	struct device *dev = &auxdev->dev;
-> -	struct sdw_cdns *cdns = dev_get_drvdata(dev);
-> +	struct sdw_cdns *cdns = auxiliary_get_drvdata(auxdev);
->  	struct sdw_intel *sdw = cdns_to_intel(cdns);
->  	struct sdw_bus *bus = &cdns->bus;
->  
-> @@ -1488,7 +1488,7 @@ int intel_link_process_wakeen_event(struct auxiliary_device *auxdev)
->  	void __iomem *shim;
->  	u16 wake_sts;
->  
-> -	sdw = dev_get_drvdata(dev);
-> +	sdw = auxiliary_get_drvdata(auxdev);
->  	bus = &sdw->cdns.bus;
->  
->  	if (bus->prop.hw_disabled || !sdw->startup_done) {
-> diff --git a/drivers/soundwire/intel_init.c b/drivers/soundwire/intel_init.c
-> index e329022e1669..d99807765dfe 100644
-> --- a/drivers/soundwire/intel_init.c
-> +++ b/drivers/soundwire/intel_init.c
-> @@ -244,7 +244,7 @@ static struct sdw_intel_ctx
->  			goto err;
->  
->  		link = &ldev->link_res;
-> -		link->cdns = dev_get_drvdata(&ldev->auxdev.dev);
-> +		link->cdns = auxiliary_get_drvdata(&ldev->auxdev);
->  
->  		if (!link->cdns) {
->  			dev_err(&adev->dev, "failed to get link->cdns\n");
-> -- 
-> 2.25.1
-> 
+> I should have referenced the thread [1] discussing the benefit of this change
+> since the question was asked and answered already. The idea is that drivers
+> shouldn't have to touch the device API directly if they are already using a
+> higher level core API (auxiliary bus) that can do that on its behalf.
 
--- 
-With Best Regards,
-Andy Shevchenko
+Driver writers should rarely use the auxilary device type directly, the
+should always immediately container_of it to their proper derived
+type.
 
+> > Also, what use is 'to_auxiliary_dev()' ? I didn't see any users added..
+>
+> This was not added by that patch.
 
+It was added by the referenced patch, and seems totally pointless cut
+and paste, again because nothing should be using the auxiliary_device
+type for anything more than container_of'ing to their own type.
+
+We've been ripping out bus specific APIs in favour of generic ones
+(see the work on the DMA API for instance) so this whole concept seems
+regressive, particularly when applied to auxiliary bus which does not
+have an API of its own.
+
+Jason
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
