@@ -1,104 +1,99 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7BC21C433F5
-	for <virtualization@archiver.kernel.org>; Tue, 21 Dec 2021 09:02:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id CE68EC433F5
+	for <virtualization@archiver.kernel.org>; Wed, 22 Dec 2021 00:09:14 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 095AF40907;
-	Tue, 21 Dec 2021 09:02:40 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 457E840A71;
+	Wed, 22 Dec 2021 00:09:14 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id t5Zt0r9yEwCz; Tue, 21 Dec 2021 09:02:39 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 8F1F240909;
-	Tue, 21 Dec 2021 09:02:38 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 00XL_TD7N19K; Wed, 22 Dec 2021 00:09:13 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 8322040124;
+	Wed, 22 Dec 2021 00:09:12 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 49E12C001E;
-	Tue, 21 Dec 2021 09:02:38 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6B503C0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 676C3C001E;
+	Wed, 22 Dec 2021 00:09:12 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 458D6C0012
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Dec 2021 09:02:36 +0000 (UTC)
+ Wed, 22 Dec 2021 00:09:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 58B6B60D70
+ by smtp4.osuosl.org (Postfix) with ESMTP id 3B065410E1
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Dec 2021 09:02:36 +0000 (UTC)
+ Wed, 22 Dec 2021 00:09:10 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 5-IkyYMqKZR5
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=ziepe.ca
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id plF9V-L0X0ju
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Dec 2021 09:02:35 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 0A13460A97
+ Wed, 22 Dec 2021 00:09:08 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-qk1-x729.google.com (mail-qk1-x729.google.com
+ [IPv6:2607:f8b0:4864:20::729])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id CD27D40940
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Dec 2021 09:02:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1640077353;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=qF7c5WRQK3kgT2I3qpX7xNt19cSGSHA3QxXq86S3fRE=;
- b=K7+t0KkzQwJ3WRtYZlOUQfiseMsPSvvaNAdUE58RRpOHHcFpRUv+b9CZtKc9CE2J3uPf3I
- CY9K1MbTioyqoH2dE/a7eU8je8q2vum8XhJMjPr96iIfeC8Iu/8jd3AwjiU14gj4lGpqDD
- NwIPDluQ+3/rB+iMOCnMjiVqZAP7CEk=
-Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
- [209.85.167.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-8-TZVIAvoMO0mlhAWgyCRqug-1; Tue, 21 Dec 2021 04:02:32 -0500
-X-MC-Unique: TZVIAvoMO0mlhAWgyCRqug-1
-Received: by mail-lf1-f72.google.com with SMTP id
- a28-20020ac2505c000000b0042524c397cfso5893385lfm.1
+ Wed, 22 Dec 2021 00:09:07 +0000 (UTC)
+Received: by mail-qk1-x729.google.com with SMTP id l11so676681qke.11
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Dec 2021 01:02:32 -0800 (PST)
+ Tue, 21 Dec 2021 16:09:07 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ziepe.ca; s=google;
+ h=date:from:to:cc:subject:message-id:references:mime-version
+ :content-disposition:in-reply-to;
+ bh=p6IPtjYLk9ApU3C7Ntq5pzotDKFMZC8bLzlwMwv2DHo=;
+ b=gdeWu7dcldq1KRDtXrK466kfK8ZpHrcRgPVzyQPYoZHEx9qR5NNRQnXdVTPhjY05pS
+ VX54P/WP7bBdN0Y2YviUR+IzQczADq36rQPDvSeBSlR5CzNBM9hnUWmpeLwh1zOgIfG4
+ T1ItolfMfK71PTBrsf594uOVGuRXfsMiL7rUYjcaQdrzDkXfR72il5m2jMYTcW+/hd/4
+ pJXYLsW1GpV4xGgUZjfQk/9GLjuyd3LG4uiIxEhBeAPgio5IpswJHOM1wzN1JoffZwqF
+ 0w74l8kyv5Y2z+6wvMkdK3wXIuGOEzR/6OvL6lryE3Ism03q74Y3rB7rEvGeBhEU3L/r
+ JRSw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=qF7c5WRQK3kgT2I3qpX7xNt19cSGSHA3QxXq86S3fRE=;
- b=HRpMQXJBQ3j9oNzVdfehFN+7nWQVnQLBvhWPVtwedQeduESdp+yFq2oV1Z+Yi/0Tz/
- nXOcrdgT2n+Eh1rsdPfk0QJZwoY0+Zg1YLlv9C6pfXytOq2ylqGCXiGQXwSbAdAT+pdF
- 1jbPphzN1HlRA5l+6GdWRjyKj55z2+HIw6U+WuWBAJyBxC8aGXeeGnS1z8e1es1b2XyV
- gSCvMHIB4bs2UjwPwAeIfJFYPaIUtTK5mFweigdeAcPrpoAZ9sWdwMDKI/J0iNGRIlJl
- t376R7mxayo0j4C6rRoZ6raL+6UjVuFRcPqtTa+1bYTiLJzY9feaWuuqQ3WukmT8RA1g
- fAZA==
-X-Gm-Message-State: AOAM530qUhEognMovQtTqTOh8SCcllJFVm8rLi4rKqmy77wdKxv8Hg95
- 9BskcoYKXqH9uIjw5j9B7hk/gp794UgrDUkiqldJdleEb1M1swndUxUWhT3tQSNhil43uX5kI3q
- uBL8H12z0k06ACclN9o+DCEeIl9JelsT9jAQ0F3Mqu/5/6L3A+MNa51l0VQ==
-X-Received: by 2002:a2e:b742:: with SMTP id k2mr1843903ljo.107.1640077351048; 
- Tue, 21 Dec 2021 01:02:31 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJx3QunXzdzBGtTrzD8Gli6LyMoPQ1BHfh8aBm6YLjaZaGKE75OWABALCq23KGpSoqUF+ZTdK2TWWXVaR+5XR7g=
-X-Received: by 2002:a2e:b742:: with SMTP id k2mr1843888ljo.107.1640077350800; 
- Tue, 21 Dec 2021 01:02:30 -0800 (PST)
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=p6IPtjYLk9ApU3C7Ntq5pzotDKFMZC8bLzlwMwv2DHo=;
+ b=A0SD8O4XySCmnw5eYPFn5rYGGSWek4dod2NbGonx6bYNLMb8zvnnwtMJXhAWxESxjD
+ GUaOd/lyQlKx0b1ADSV2q5DFi2w06UWyX/BAHAMEtV70C0fntLh97H+3g0Ec+Qndr2TF
+ oDEF2RXqkO5hAloBAB+RaPa8nE19wpptVL04UNxHCX8Mh9t4LzotaC90plkvJsVUizfY
+ sLMzneKj7jZKuwhiYgWsKQu2iS3+F4pdX9ZHNZwixjPgHQf6vO2rXO//UGmJVkK3MuSS
+ EINkS1+EDcGYdzALJ/fxOyO5yDEvX56H6r+6u5xXSrwTR6LRVZ34CSZfoekuVfjCFCu5
+ 6EcQ==
+X-Gm-Message-State: AOAM531meETsRfa/k0vVzLB4nRr1DbtNlA7Fm+iIWBIT5xJsquFhxKlv
+ 25tE39BFcR1tOtgWfxiNhquYWw==
+X-Google-Smtp-Source: ABdhPJxZLJ+lxeM7m6HgpAAgvnFViXb+v/+egaiwjU9Z/pHPuR+zNWgaBbyZ73XdGEkhpy4k4oD6XA==
+X-Received: by 2002:a05:620a:4687:: with SMTP id
+ bq7mr553892qkb.231.1640131746529; 
+ Tue, 21 Dec 2021 16:09:06 -0800 (PST)
+Received: from ziepe.ca ([206.223.160.26])
+ by smtp.gmail.com with ESMTPSA id h2sm457177qkn.136.2021.12.21.16.09.06
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 21 Dec 2021 16:09:06 -0800 (PST)
+Received: from jgg by mlx with local (Exim 4.94) (envelope-from <jgg@ziepe.ca>)
+ id 1mzpBp-007GVm-3o; Tue, 21 Dec 2021 20:09:05 -0400
+Date: Tue, 21 Dec 2021 20:09:05 -0400
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: "David E. Box" <david.e.box@linux.intel.com>
+Subject: Re: [PATCH 0/4] driver_core: Auxiliary drvdata helper cleanup
+Message-ID: <20211222000905.GN6467@ziepe.ca>
+References: <20211221235852.323752-1-david.e.box@linux.intel.com>
 MIME-Version: 1.0
-References: <20211219140236.27479-1-elic@nvidia.com>
- <20211219140236.27479-4-elic@nvidia.com>
- <CACGkMEsjmOBAW9t__=o=jeKA6f8inr3D6CVidoSc3wjX9DE5Lw@mail.gmail.com>
- <20211221061646.GA165503@mtl-vdi-166.wap.labs.mlnx>
- <CACGkMEsEMT=oDTwynjj+-zZK8gvrsynz4Hre0EahD4vYG=L+DQ@mail.gmail.com>
- <20211221090040.GA170055@mtl-vdi-166.wap.labs.mlnx>
-In-Reply-To: <20211221090040.GA170055@mtl-vdi-166.wap.labs.mlnx>
-From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 21 Dec 2021 17:02:19 +0800
-Message-ID: <CACGkMEsr4_jPyCrCq1ocB7EkChbHxfe_xqZZBh9Zqm_HC1yqDw@mail.gmail.com>
-Subject: Re: [PATCH v3 03/10] vdpa: Read device configuration only if
- FEATURES_OKg
-To: Eli Cohen <elic@nvidia.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: Laurent Vivier <lvivier@redhat.com>, mst <mst@redhat.com>,
- virtualization <virtualization@lists.linux-foundation.org>,
- eperezma <eperezma@redhat.com>, Si-Wei Liu <si-wei.liu@oracle.com>
+Content-Disposition: inline
+In-Reply-To: <20211221235852.323752-1-david.e.box@linux.intel.com>
+Cc: pierre-louis.bossart@linux.intel.com, alsa-devel@alsa-project.org,
+ mustafa.ismail@intel.com, leon@kernel.org, mst@redhat.com,
+ linux-rdma@vger.kernel.org, gregkh@linuxfoundation.org,
+ virtualization@lists.linux-foundation.org, vkoul@kernel.org,
+ davem@davemloft.net, hdegoede@redhat.com, dledford@redhat.com,
+ yung-chuan.liao@linux.intel.com, netdev@vger.kernel.org, kuba@kernel.org,
+ andriy.shevchenko@linux.intel.com, shiraz.saleem@intel.com, saeedm@nvidia.com,
+ linux-kernel@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -115,91 +110,29 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Dec 21, 2021 at 5:00 PM Eli Cohen <elic@nvidia.com> wrote:
->
-> On Tue, Dec 21, 2021 at 03:51:47PM +0800, Jason Wang wrote:
-> > On Tue, Dec 21, 2021 at 2:17 PM Eli Cohen <elic@nvidia.com> wrote:
-> > >
-> > > On Tue, Dec 21, 2021 at 01:51:32PM +0800, Jason Wang wrote:
-> > > > On Sun, Dec 19, 2021 at 10:03 PM Eli Cohen <elic@nvidia.com> wrote:
-> > > > >
-> > > > > Avoid reading device configuration during feature negotiation. Read
-> > > > > device status and verify that VIRTIO_CONFIG_S_FEATURES_OK is set.
-> > > > > Otherwise, return -EAGAIN.
-> > > > >
-> > > > > Signed-off-by: Eli Cohen <elic@nvidia.com>
-> > > > > ---
-> > > > >  drivers/vdpa/vdpa.c | 7 +++++++
-> > > > >  1 file changed, 7 insertions(+)
-> > > > >
-> > > > > diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
-> > > > > index 42d71d60d5dc..5749cf0a1500 100644
-> > > > > --- a/drivers/vdpa/vdpa.c
-> > > > > +++ b/drivers/vdpa/vdpa.c
-> > > > > @@ -819,8 +819,15 @@ vdpa_dev_config_fill(struct vdpa_device *vdev, struct sk_buff *msg, u32 portid,
-> > > > >  {
-> > > > >         u32 device_id;
-> > > > >         void *hdr;
-> > > > > +       u8 status;
-> > > > >         int err;
-> > > > >
-> > > > > +       status = vdev->config->get_status(vdev);
-> > > > > +       if (!(status & VIRTIO_CONFIG_S_FEATURES_OK)) {
-> > > > > +               NL_SET_ERR_MSG_MOD(extack, "Features negotiation not completed");
-> > > > > +               return -EAGAIN;
-> > > > > +       }
-> > > > > +
-> > > >
-> > > > I wonder how we synchronize this with set_status(), set/get_config()?
-> > > >
-> > >
-> > > Not sure why set/get_config() is related to this.
-> >
-> > I think guest may trigger set_config() while we are at
-> > vdpa_dev_config_fill(), this will lead to inconsistent values.
-> >
-> > > How about each upstream driver will take care to have a lock that
-> > > serializes set_status() with get_driver_features() to guarantee that we
-> > > always provide valid features?
-> >
-> > Yes and it looks like we've already had a per device cf_mutex, how
-> > about simply use this?
->
-> Maybe do it in one place. For example, for vhost, in
-> drivers/vhost/vdpa.c:
->
-> mutex_lock(&vdpa->cf_mutex);
-> ops->set_status(vdpa, status);
-> mutex_unlock(&vdpa->cf_mutex);
->
-> same for drivers/virtio/virtio_vdpa.c
->
-> OVerall, set_status, get_status, set_config, get_config should be
-> protected.
+On Tue, Dec 21, 2021 at 03:58:48PM -0800, David E. Box wrote:
+> Depends on "driver core: auxiliary bus: Add driver data helpers" patch [1].
+> Applies the helpers to all auxiliary device drivers using
+> dev_(get/set)_drvdata. Drivers were found using the following search:
+> 
+>     grep -lr "struct auxiliary_device" $(grep -lr "drvdata" .)
+> 
+> Changes were build tested using the following configs:
+> 
+>     vdpa/mlx5:       CONFIG_MLX5_VDPA_NET
+>     net/mlx53:       CONFIG_MLX5_CORE_EN
+>     soundwire/intel: CONFIG_SOUNDWIRE_INTEL
+>     RDAM/irdma:      CONFIG_INFINIBAND_IRDMA
+>                      CONFIG_MLX5_INFINIBAND
+> 
+> [1] https://www.spinics.net/lists/platform-driver-x86/msg29940.html 
 
-Yes, maybe we can introduce new helpers in vdpa.c.
+I have to say I don't really find this to be a big readability
+improvement.
 
-Thanks
+Also, what use is 'to_auxiliary_dev()' ? I didn't see any users added..
 
->
->
-> >
-> > Thanks
-> >
-> > >
-> > > > Thanks
-> > > >
-> > > > >         hdr = genlmsg_put(msg, portid, seq, &vdpa_nl_family, flags,
-> > > > >                           VDPA_CMD_DEV_CONFIG_GET);
-> > > > >         if (!hdr)
-> > > > > --
-> > > > > 2.34.1
-> > > > >
-> > > >
-> > >
-> >
->
-
+Jason
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
