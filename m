@@ -1,91 +1,100 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4EB33C433F5
-	for <virtualization@archiver.kernel.org>; Thu, 23 Dec 2021 05:19:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 17550C4332F
+	for <virtualization@archiver.kernel.org>; Thu, 23 Dec 2021 05:59:06 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id CB6CA81457;
-	Thu, 23 Dec 2021 05:19:25 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 8E84B405BE;
+	Thu, 23 Dec 2021 05:59:06 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ZOekB1ZE7luz; Thu, 23 Dec 2021 05:19:24 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 6bYAFjjTJdgL; Thu, 23 Dec 2021 05:59:05 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 4E7D5818B5;
-	Thu, 23 Dec 2021 05:19:24 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 0660A400AF;
+	Thu, 23 Dec 2021 05:59:04 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1F9D3C001E;
-	Thu, 23 Dec 2021 05:19:24 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CC7AFC001E;
+	Thu, 23 Dec 2021 05:59:04 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 35F44C0012
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0F47EC0012
  for <virtualization@lists.linux-foundation.org>;
- Thu, 23 Dec 2021 05:19:22 +0000 (UTC)
+ Thu, 23 Dec 2021 05:59:03 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 2ACC6408CA
+ by smtp4.osuosl.org (Postfix) with ESMTP id 03E5A40936
  for <virtualization@lists.linux-foundation.org>;
- Thu, 23 Dec 2021 05:19:22 +0000 (UTC)
+ Thu, 23 Dec 2021 05:59:03 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id nhQPNRnRtLl1
+ with ESMTP id hGrj0IWRElJO
  for <virtualization@lists.linux-foundation.org>;
- Thu, 23 Dec 2021 05:19:21 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from out01.mta.xmission.com (out01.mta.xmission.com [166.70.13.231])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 265AD408C2
+ Thu, 23 Dec 2021 05:59:01 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id B8B3740930
  for <virtualization@lists.linux-foundation.org>;
- Thu, 23 Dec 2021 05:19:21 +0000 (UTC)
-Received: from in01.mta.xmission.com ([166.70.13.51]:52660)
- by out01.mta.xmission.com with esmtps (TLS1.3) tls
- TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 (Exim 4.93)
- (envelope-from <ebiederm@xmission.com>)
- id 1n0GVa-008s6y-V9; Wed, 22 Dec 2021 22:19:19 -0700
-Received: from ip68-110-24-146.om.om.cox.net ([68.110.24.146]:48308
- helo=email.froward.int.ebiederm.org.xmission.com)
- by in01.mta.xmission.com with esmtpsa (TLS1.3) tls
- TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 (Exim 4.93)
- (envelope-from <ebiederm@xmission.com>)
- id 1n0GVZ-006UxB-M1; Wed, 22 Dec 2021 22:19:18 -0700
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Linus Torvalds <torvalds@linux-foundation.org>
-References: <87a6ha4zsd.fsf@email.froward.int.ebiederm.org>
- <20211208202532.16409-9-ebiederm@xmission.com>
- <YcNsG0Lp94V13whH@archlinux-ax161>
- <87zgoswkym.fsf@email.froward.int.ebiederm.org>
- <YcNyjxac3wlKPywk@archlinux-ax161>
- <87pmpow7ga.fsf@email.froward.int.ebiederm.org>
- <CAHk-=wgtFAA9SbVYg0gR1tqPMC17-NYcs0GQkaYg1bGhh1uJQQ@mail.gmail.com>
- <87o858uh80.fsf@email.froward.int.ebiederm.org>
-Date: Wed, 22 Dec 2021 23:19:11 -0600
-In-Reply-To: <87o858uh80.fsf@email.froward.int.ebiederm.org> (Eric
- W. Biederman's message of "Wed, 22 Dec 2021 21:34:39 -0600")
-Message-ID: <87a6grvqy8.fsf_-_@email.froward.int.ebiederm.org>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
+ Thu, 23 Dec 2021 05:59:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1640239140;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=eP5DWolnVEj7zO24iHvs8bq5q4izn4uLMYYf6eLn4i0=;
+ b=XvYAOk2A12rReilZ+lcRPS767nl+l++VyFgU0cr9nlkFDJEAv9VeHXMyj7BNsSAG9bHV2F
+ 8/+7cfftCDQ7IcVnUryzDuFRDf+alqdIjQKajMFRlQ/55nidNgiI2lGGrbUieCKY50aoNU
+ vaavkZIXw49Ta1u8h6Clcwm1Ww1J958=
+Received: from mail-lj1-f197.google.com (mail-lj1-f197.google.com
+ [209.85.208.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-111-v1pvmpZuMjCc9_UCycoOtA-1; Thu, 23 Dec 2021 00:58:59 -0500
+X-MC-Unique: v1pvmpZuMjCc9_UCycoOtA-1
+Received: by mail-lj1-f197.google.com with SMTP id
+ i123-20020a2e2281000000b0021cfde1fa8eso1008959lji.7
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 22 Dec 2021 21:58:58 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=eP5DWolnVEj7zO24iHvs8bq5q4izn4uLMYYf6eLn4i0=;
+ b=1JTMgDoDrsIVutpyQKOL3XiEq9QT/Y6HqUYpB+KhwgipMw1ujIqdW2i8VvYILVkK0f
+ J6VIVRlduPfw65HkC07sgHzQieISexBShLV1G7sheVEj8dDEYFLMBzuTYZI7kwMFWyYN
+ h4iQ4/0tGdJhAl80a9td/NwfeC1AJsAesi+hc4enXHueUBOK9IaThPJfhMT2aK/+0w/C
+ xRjRsvOO4moVp6aZROt+GNj6l8lZu+B+jaLofFRoRmSmuw+ePyk3hprRU1r4+eqb3X/r
+ samOIeSuegyq+oHS0viktjFous+l3142TNmGY5C2CFpHQCMFQUCth2bJ65rOD1iQVNfV
+ O1gw==
+X-Gm-Message-State: AOAM532babMBtk7b3Xk2Z6+fhIoF+JyOB1fWP7bdz4od13miR963VXim
+ ItPkEtgacCbdwaO2niTcnpVzADyluJcqrzE7fVbeG+6w2lpLCXU2ukofdCiljo0veB2RG2Ad/CD
+ r/byRB6s7ana+X1689U8wfH9JBcqNfh3h90sy9F/YvazdO1RgHPv7I5KcQw==
+X-Received: by 2002:a05:6512:108b:: with SMTP id
+ j11mr769776lfg.629.1640239137629; 
+ Wed, 22 Dec 2021 21:58:57 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJze+1MRfxRzVt2CRB2uJgLx/trRKa/yExHXWTRkPp/1cU/SLHMDcUhLNuYita2ff2D4n+sLWZqCbiovDS0Kl8I=
+X-Received: by 2002:a05:6512:108b:: with SMTP id
+ j11mr769767lfg.629.1640239137443; 
+ Wed, 22 Dec 2021 21:58:57 -0800 (PST)
 MIME-Version: 1.0
-X-XM-SPF: eid=1n0GVZ-006UxB-M1; ; ;
- mid=<87a6grvqy8.fsf_-_@email.froward.int.ebiederm.org>; ; ;
- hst=in01.mta.xmission.com; ; ; ip=68.110.24.146; ; ; frm=ebiederm@xmission.com;
- ; ; spf=neutral
-X-XM-AID: U2FsdGVkX1+HFx38QTkf+5DclzITyFX/fVSaoUkHAVM=
-X-SA-Exim-Connect-IP: 68.110.24.146
-X-SA-Exim-Mail-From: ebiederm@xmission.com
-Subject: [PATCH] kthread: Generalize pf_io_worker so it can point to struct
- kthread
-X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
-X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
-Cc: linux-arch <linux-arch@vger.kernel.org>, axboe@kernel.dk,
- Kees Cook <keescook@chromium.org>, Vasily Gorbik <gor@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>,
- Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
- Oleg Nesterov <oleg@redhat.com>, Nathan Chancellor <nathan@kernel.org>,
- Christian Borntraeger <borntraeger@de.ibm.com>, Kyle Huey <me@kylehuey.com>,
- Al Viro <viro@zeniv.linux.org.uk>, Martin Schwidefsky <schwidefsky@de.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- virtualization@lists.linux-foundation.org, Alexey Gladkov <legion@kernel.org>,
- christian.brauner@ubuntu.com
+References: <20211222112014.87394-1-flyingpeng@tencent.com>
+In-Reply-To: <20211222112014.87394-1-flyingpeng@tencent.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 23 Dec 2021 13:58:46 +0800
+Message-ID: <CACGkMEszTmn1nO=qkzqGawtjq1f6AJK_U63Tw96+PU02C3Cdew@mail.gmail.com>
+Subject: Re: [PATCH] virtio/virtio_pci_legacy_dev: ensure the correct return
+ value
+To: Peng Hao <flyingpenghao@gmail.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: virtualization <virtualization@lists.linux-foundation.org>,
+ linux-kernel <linux-kernel@vger.kernel.org>, mst <mst@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -102,196 +111,37 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+On Wed, Dec 22, 2021 at 7:21 PM Peng Hao <flyingpenghao@gmail.com> wrote:
+>
+> When pci_iomap return NULL, the return value is zero.
+>
+> Signed-off-by: Peng Hao <flyingpeng@tencent.com>
+> ---
 
-The point of using set_child_tid to hold the kthread pointer was that
-it already did what is necessary.  There are now restrictions on when
-set_child_tid can be initialized and when set_child_tid can be used in
-schedule_tail.  Which indicates that continuing to use set_child_tid
-to hold the kthread pointer is a bad idea.
+Acked-by: Jason Wang <jasowang@redhat.com>
 
-Instead of continuing to use the set_child_tid field of task_struct
-generalize the pf_io_worker field of task_struct and use it to hold
-the kthread pointer.
-
-Rename pf_io_worker (which is a void * pointer) to worker_private so
-it can be used to store kthreads struct kthread pointer.  Update the
-kthread code to store the kthread pointer in the worker_private field.
-Remove the places where set_child_tid had to be dealt with carefully
-because kthreads also used it.
-
-Link: https://lkml.kernel.org/r/CAHk-=wgtFAA9SbVYg0gR1tqPMC17-NYcs0GQkaYg1bGhh1uJQQ@mail.gmail.com
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
----
-
-I looked again and the vhost_worker changes do not generalize
-pf_io_worker, and as pf_io_worker is already a void * it is easy to
-generalize.  So I just did that.
-
-Unless someone spots a problem I will add this to my signal-for-v5.17
-branch in linux-next, as this seems much less error prone than using
-set_child_tid.
-
- fs/io-wq.c            |  6 +++---
- fs/io-wq.h            |  2 +-
- include/linux/sched.h |  4 ++--
- kernel/fork.c         |  8 +-------
- kernel/kthread.c      | 14 +++++---------
- kernel/sched/core.c   |  2 +-
- 6 files changed, 13 insertions(+), 23 deletions(-)
-
-diff --git a/fs/io-wq.c b/fs/io-wq.c
-index 88202de519f6..e4fc7384b40c 100644
---- a/fs/io-wq.c
-+++ b/fs/io-wq.c
-@@ -657,7 +657,7 @@ static int io_wqe_worker(void *data)
-  */
- void io_wq_worker_running(struct task_struct *tsk)
- {
--	struct io_worker *worker = tsk->pf_io_worker;
-+	struct io_worker *worker = tsk->worker_private;
- 
- 	if (!worker)
- 		return;
-@@ -675,7 +675,7 @@ void io_wq_worker_running(struct task_struct *tsk)
-  */
- void io_wq_worker_sleeping(struct task_struct *tsk)
- {
--	struct io_worker *worker = tsk->pf_io_worker;
-+	struct io_worker *worker = tsk->worker_private;
- 
- 	if (!worker)
- 		return;
-@@ -694,7 +694,7 @@ void io_wq_worker_sleeping(struct task_struct *tsk)
- static void io_init_new_worker(struct io_wqe *wqe, struct io_worker *worker,
- 			       struct task_struct *tsk)
- {
--	tsk->pf_io_worker = worker;
-+	tsk->worker_private = worker;
- 	worker->task = tsk;
- 	set_cpus_allowed_ptr(tsk, wqe->cpu_mask);
- 	tsk->flags |= PF_NO_SETAFFINITY;
-diff --git a/fs/io-wq.h b/fs/io-wq.h
-index 41bf37674a49..c7c23947cbcd 100644
---- a/fs/io-wq.h
-+++ b/fs/io-wq.h
-@@ -200,6 +200,6 @@ static inline void io_wq_worker_running(struct task_struct *tsk)
- static inline bool io_wq_current_is_worker(void)
- {
- 	return in_task() && (current->flags & PF_IO_WORKER) &&
--		current->pf_io_worker;
-+		current->worker_private;
- }
- #endif
-diff --git a/include/linux/sched.h b/include/linux/sched.h
-index 78c351e35fec..52f2fdffa3ab 100644
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -987,8 +987,8 @@ struct task_struct {
- 	/* CLONE_CHILD_CLEARTID: */
- 	int __user			*clear_child_tid;
- 
--	/* PF_IO_WORKER */
--	void				*pf_io_worker;
-+	/* PF_KTHREAD | PF_IO_WORKER */
-+	void				*worker_private;
- 
- 	u64				utime;
- 	u64				stime;
-diff --git a/kernel/fork.c b/kernel/fork.c
-index 0816be1bb044..6f0293cb29c9 100644
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -950,7 +950,7 @@ static struct task_struct *dup_task_struct(struct task_struct *orig, int node)
- 	tsk->splice_pipe = NULL;
- 	tsk->task_frag.page = NULL;
- 	tsk->wake_q.next = NULL;
--	tsk->pf_io_worker = NULL;
-+	tsk->worker_private = NULL;
- 
- 	account_kernel_stack(tsk, 1);
- 
-@@ -2032,12 +2032,6 @@ static __latent_entropy struct task_struct *copy_process(
- 		siginitsetinv(&p->blocked, sigmask(SIGKILL)|sigmask(SIGSTOP));
- 	}
- 
--	/*
--	 * This _must_ happen before we call free_task(), i.e. before we jump
--	 * to any of the bad_fork_* labels. This is to avoid freeing
--	 * p->set_child_tid which is (ab)used as a kthread's data pointer for
--	 * kernel threads (PF_KTHREAD).
--	 */
- 	p->set_child_tid = (clone_flags & CLONE_CHILD_SETTID) ? args->child_tid : NULL;
- 	/*
- 	 * Clear TID on mm_release()?
-diff --git a/kernel/kthread.c b/kernel/kthread.c
-index c14707d15341..261a3c3b9c6c 100644
---- a/kernel/kthread.c
-+++ b/kernel/kthread.c
-@@ -72,7 +72,7 @@ enum KTHREAD_BITS {
- static inline struct kthread *to_kthread(struct task_struct *k)
- {
- 	WARN_ON(!(k->flags & PF_KTHREAD));
--	return (__force void *)k->set_child_tid;
-+	return k->worker_private;
- }
- 
- /*
-@@ -80,7 +80,7 @@ static inline struct kthread *to_kthread(struct task_struct *k)
-  *
-  * Per construction; when:
-  *
-- *   (p->flags & PF_KTHREAD) && p->set_child_tid
-+ *   (p->flags & PF_KTHREAD) && p->worker_private
-  *
-  * the task is both a kthread and struct kthread is persistent. However
-  * PF_KTHREAD on it's own is not, kernel_thread() can exec() (See umh.c and
-@@ -88,7 +88,7 @@ static inline struct kthread *to_kthread(struct task_struct *k)
-  */
- static inline struct kthread *__to_kthread(struct task_struct *p)
- {
--	void *kthread = (__force void *)p->set_child_tid;
-+	void *kthread = p->worker_private;
- 	if (kthread && !(p->flags & PF_KTHREAD))
- 		kthread = NULL;
- 	return kthread;
-@@ -109,11 +109,7 @@ bool set_kthread_struct(struct task_struct *p)
- 	init_completion(&kthread->parked);
- 	p->vfork_done = &kthread->exited;
- 
--	/*
--	 * We abuse ->set_child_tid to avoid the new member and because it
--	 * can't be wrongly copied by copy_process().
--	 */
--	p->set_child_tid = (__force void __user *)kthread;
-+	p->worker_private = kthread;
- 	return true;
- }
- 
-@@ -128,7 +124,7 @@ void free_kthread_struct(struct task_struct *k)
- #ifdef CONFIG_BLK_CGROUP
- 	WARN_ON_ONCE(kthread && kthread->blkcg_css);
- #endif
--	k->set_child_tid = (__force void __user *)NULL;
-+	k->worker_private = NULL;
- 	kfree(kthread);
- }
- 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index d8adbea77be1..ee222b89c692 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -4908,7 +4908,7 @@ asmlinkage __visible void schedule_tail(struct task_struct *prev)
- 	finish_task_switch(prev);
- 	preempt_enable();
- 
--	if (!(current->flags & PF_KTHREAD) && current->set_child_tid)
-+	if (current->set_child_tid)
- 		put_user(task_pid_vnr(current), current->set_child_tid);
- 
- 	calculate_sigpending();
--- 
-2.29.2
+>  drivers/virtio/virtio_pci_legacy_dev.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/virtio/virtio_pci_legacy_dev.c b/drivers/virtio/virtio_pci_legacy_dev.c
+> index 9b97680dd02b..677d1f68bc9b 100644
+> --- a/drivers/virtio/virtio_pci_legacy_dev.c
+> +++ b/drivers/virtio/virtio_pci_legacy_dev.c
+> @@ -45,8 +45,10 @@ int vp_legacy_probe(struct virtio_pci_legacy_device *ldev)
+>                 return rc;
+>
+>         ldev->ioaddr = pci_iomap(pci_dev, 0, 0);
+> -       if (!ldev->ioaddr)
+> +       if (!ldev->ioaddr) {
+> +               rc = -EIO;
+>                 goto err_iomap;
+> +       }
+>
+>         ldev->isr = ldev->ioaddr + VIRTIO_PCI_ISR;
+>
+> --
+> 2.27.0
+>
 
 _______________________________________________
 Virtualization mailing list
