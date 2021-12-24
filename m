@@ -1,75 +1,73 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 82AE5C433F5
-	for <virtualization@archiver.kernel.org>; Fri, 24 Dec 2021 07:02:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 09619C433F5
+	for <virtualization@archiver.kernel.org>; Fri, 24 Dec 2021 07:13:13 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 0A2B28174C;
-	Fri, 24 Dec 2021 07:02:29 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id TWiNtb-R6UUN; Fri, 24 Dec 2021 07:02:28 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id B0E5181516;
-	Fri, 24 Dec 2021 07:02:27 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 88505C002F;
-	Fri, 24 Dec 2021 07:02:27 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D2930C0012
- for <virtualization@lists.linux-foundation.org>;
- Fri, 24 Dec 2021 07:02:25 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id B21C240140
- for <virtualization@lists.linux-foundation.org>;
- Fri, 24 Dec 2021 07:02:25 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 95FC240150;
+	Fri, 24 Dec 2021 07:13:13 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id oD6a47ss89H0
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ePsTYX0bfsRd; Fri, 24 Dec 2021 07:13:12 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 0291640140;
+	Fri, 24 Dec 2021 07:13:12 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id BB7CCC001E;
+	Fri, 24 Dec 2021 07:13:11 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0AC7FC0012
  for <virtualization@lists.linux-foundation.org>;
- Fri, 24 Dec 2021 07:02:24 +0000 (UTC)
-X-Greylist: delayed 23:19:12 by SQLgrey-1.8.0
-Received: from mxct.zte.com.cn (mxct.zte.com.cn [183.62.165.209])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 997AA40142
+ Fri, 24 Dec 2021 07:13:10 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp4.osuosl.org (Postfix) with ESMTP id DD2E340914
  for <virtualization@lists.linux-foundation.org>;
- Fri, 24 Dec 2021 07:02:23 +0000 (UTC)
-Received: from mse-fl2.zte.com.cn (unknown [10.30.14.239])
+ Fri, 24 Dec 2021 07:13:09 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 5G_QokGqnAtr
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 24 Dec 2021 07:13:09 +0000 (UTC)
+X-Greylist: delayed 23:29:50 by SQLgrey-1.8.0
+Received: from mxhk.zte.com.cn (mxhk.zte.com.cn [63.216.63.35])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id D0BD14090E
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 24 Dec 2021 07:13:08 +0000 (UTC)
+Received: from mse-fl1.zte.com.cn (unknown [10.30.14.238])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by mxct.zte.com.cn (FangMail) with ESMTPS id 4JKyfy1F2vz6Djlm;
- Fri, 24 Dec 2021 15:02:18 +0800 (CST)
+ by mxhk.zte.com.cn (FangMail) with ESMTPS id 4JKyvP70Xyz4yjZ8;
+ Fri, 24 Dec 2021 15:13:05 +0800 (CST)
 Received: from kjyxapp05.zte.com.cn ([10.30.12.204])
- by mse-fl2.zte.com.cn with SMTP id 1BO72Fft053843;
- Fri, 24 Dec 2021 15:02:15 +0800 (GMT-8)
+ by mse-fl1.zte.com.cn with SMTP id 1BO7CqRn066889;
+ Fri, 24 Dec 2021 15:12:52 +0800 (GMT-8)
  (envelope-from wang.yi59@zte.com.cn)
-Received: from mapi (kjyxapp02[null]) by mapi (Zmail) with MAPI id mid14;
- Fri, 24 Dec 2021 15:02:15 +0800 (CST)
-Date: Fri, 24 Dec 2021 15:02:15 +0800 (CST)
-X-Zmail-TransId: 2b0461c57077c091c710
-X-Mailer: Zmail v1.0
-Message-ID: <202112241502155477712@zte.com.cn>
-In-Reply-To: <20211223105950.ovywoj6v3aooh2v5@steredhat>
-References: 20211223073145.35363-1-wang.yi59@zte.com.cn,
- 20211223105950.ovywoj6v3aooh2v5@steredhat
-Mime-Version: 1.0
-From: <wang.yi59@zte.com.cn>
-To: <sgarzare@redhat.com>
-Subject: =?UTF-8?B?UmU6W1BBVENIXSB2ZHBhOiByZWdpc3Qgdmhvc3QtdmRwYSBkZXYgY2xhc3M=?=
-X-MAIL: mse-fl2.zte.com.cn 1BO72Fft053843
+Received: from fox-cloudhost8.localdomain (unknown [10.234.72.110])
+ by smtp (Zmail) with SMTP; Fri, 24 Dec 2021 15:12:52 +0800
+X-Zmail-TransId: 3e8861c572f3016-f9693
+From: Yi Wang <wang.yi59@zte.com.cn>
+To: mst@redhat.com
+Subject: [PATCH v2] vdpa: regist vhost-vdpa dev class
+Date: Fri, 24 Dec 2021 15:04:04 +0800
+Message-Id: <20211224070404.54840-1-wang.yi59@zte.com.cn>
+X-Mailer: git-send-email 2.33.0.rc0.dirty
+MIME-Version: 1.0
+X-MAIL: mse-fl1.zte.com.cn 1BO7CqRn066889
 X-Fangmail-Gw-Spam-Type: 0
-X-FangMail-Miltered: at cgslv5.04-192.168.251.13.novalocal with ID
- 61C5707A.000 by FangMail milter!
-X-FangMail-Envelope: 1640329338/4JKyfy1F2vz6Djlm/61C5707A.000/10.30.14.239/[10.30.14.239]/mse-fl2.zte.com.cn/<wang.yi59@zte.com.cn>
+X-FangMail-Miltered: at cgslv5.04-192.168.250.138.novalocal with ID
+ 61C57301.000 by FangMail milter!
+X-FangMail-Envelope: 1640329986/4JKyvP70Xyz4yjZ8/61C57301.000/10.30.14.238/[10.30.14.238]/mse-fl1.zte.com.cn/<wang.yi59@zte.com.cn>
 X-Fangmail-Anti-Spam-Filtered: true
-X-Fangmail-MID-QID: 61C5707A.000/4JKyfy1F2vz6Djlm
-Cc: zhang.min9@zte.com.cn, wang.liang82@zte.com.cn, kvm@vger.kernel.org,
- mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, xue.zhihong@zte.com.cn
+X-Fangmail-MID-QID: 61C57301.000/4JKyvP70Xyz4yjZ8
+Cc: wang.yi59@zte.com.cn, Zhang Min <zhang.min9@zte.com.cn>,
+ wang.liang82@zte.com.cn, kvm@vger.kernel.org, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ xue.zhihong@zte.com.cn
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -86,66 +84,71 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Stefano,
+From: Zhang Min <zhang.min9@zte.com.cn>
 
-Thanks for your quick reply and review, :)
+Some applications like kata-containers need to acquire MAJOR/MINOR/DEVNAME
+for devInfo [1], so regist vhost-vdpa dev class to expose uevent.
 
-> On Thu, Dec 23, 2021 at 03:31:45PM +0800, Yi Wang wrote:
-> >From: Zhang Min <zhang.min9@zte.com.cn>
-> >
-> >Some applications like kata-containers need to acquire MAJOR/MINOR/DEVNAME
-> >for devInfo [1], so regist vhost-vdpa dev class to expose uevent.
-> >
-> >1. https://github.com/kata-containers/kata-containers/blob/main/src/runtime/virtcontainers/device/config/config.go
-> >
-> >Signed-off-by: Zhang Min <zhang.min9@zte.com.cn>
-> >Signed-off-by: Yi Wang <wang.yi59@zte.com.cn>
-> >---
-> > drivers/vhost/vdpa.c | 12 ++++++++++++
-> > 1 file changed, 12 insertions(+)
-> >
-> >diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-> >index fb41db3da611..90fbad93e7a2 100644
-> >--- a/drivers/vhost/vdpa.c
-> >+++ b/drivers/vhost/vdpa.c
+1. https://github.com/kata-containers/kata-containers/blob/main/src/runtime/virtcontainers/device/config/config.go
 
-..
+Signed-off-by: Zhang Min <zhang.min9@zte.com.cn>
+Signed-off-by: Yi Wang <wang.yi59@zte.com.cn>
+---
+v2: remove redundant vhost_vdpa_class reset and pr_warn, adjust location
+    of *vhost_vdpa_class impl and class_destroy.
 
-> >+    vhost_vdpa_class = class_create(THIS_MODULE, "vhost-vdpa");
-> >+    if (IS_ERR(vhost_vdpa_class)) {
-> >+        r = PTR_ERR(vhost_vdpa_class);
-> >+        pr_warn("vhost vdpa class create error %d,  maybe mod reinserted\n", r);
->                                                            ^
-> double space.
-> 
-> I'm not a native speaker, but I would rephrase the second part to "maybe 
-> the module is already loaded"
-> 
-> >+        vhost_vdpa_class = NULL;
-> >+        return r;
-> >+    }
-> >+
-> >     r = alloc_chrdev_region(&vhost_vdpa_major, 0, VHOST_VDPA_DEV_MAX,
-> >                 "vhost-vdpa");
-> >     if (r)
-> >@@ -1111,6 +1121,7 @@ static int __init vhost_vdpa_init(void)
-> > err_vdpa_register_driver:
-> >     unregister_chrdev_region(vhost_vdpa_major, VHOST_VDPA_DEV_MAX);
-> > err_alloc_chrdev:
-> >+    class_destroy(vhost_vdpa_class);
-> 
-> Should we set `vhost_vdpa_class` to NULL here?
-> 
-> If yes, maybe better to add a new label, and a goto in the 
-> `class_create` error handling.
+ drivers/vhost/vdpa.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-Yes, reset to NULL is unnecessary, and pr_warn will not be reached when module
-is already loaded, so it's no need too.
-There will be a v2 patch which simply return PTR_ERR(vhost_vdpa_class);
-Other suggestions are also accepted. 
-
-> >     return r;
-> > }
+diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+index e3c4f059b21a..55e966c508c8 100644
+--- a/drivers/vhost/vdpa.c
++++ b/drivers/vhost/vdpa.c
+@@ -53,6 +53,7 @@ struct vhost_vdpa {
+ static DEFINE_IDA(vhost_vdpa_ida);
+ 
+ static dev_t vhost_vdpa_major;
++static struct class *vhost_vdpa_class;
+ 
+ static void handle_vq_kick(struct vhost_work *work)
+ {
+@@ -1140,6 +1141,7 @@ static int vhost_vdpa_probe(struct vdpa_device *vdpa)
+ 	v->dev.release = vhost_vdpa_release_dev;
+ 	v->dev.parent = &vdpa->dev;
+ 	v->dev.devt = MKDEV(MAJOR(vhost_vdpa_major), minor);
++	v->dev.class = vhost_vdpa_class;
+ 	v->vqs = kmalloc_array(v->nvqs, sizeof(struct vhost_virtqueue),
+ 			       GFP_KERNEL);
+ 	if (!v->vqs) {
+@@ -1197,6 +1199,10 @@ static int __init vhost_vdpa_init(void)
+ {
+ 	int r;
+ 
++	vhost_vdpa_class = class_create(THIS_MODULE, "vhost-vdpa");
++	if (IS_ERR(vhost_vdpa_class))
++		return PTR_ERR(vhost_vdpa_class);
++
+ 	r = alloc_chrdev_region(&vhost_vdpa_major, 0, VHOST_VDPA_DEV_MAX,
+ 				"vhost-vdpa");
+ 	if (r)
+@@ -1211,6 +1217,7 @@ static int __init vhost_vdpa_init(void)
+ err_vdpa_register_driver:
+ 	unregister_chrdev_region(vhost_vdpa_major, VHOST_VDPA_DEV_MAX);
+ err_alloc_chrdev:
++	class_destroy(vhost_vdpa_class);
+ 	return r;
+ }
+ module_init(vhost_vdpa_init);
+@@ -1219,6 +1226,7 @@ static void __exit vhost_vdpa_exit(void)
+ {
+ 	vdpa_unregister_driver(&vhost_vdpa_driver);
+ 	unregister_chrdev_region(vhost_vdpa_major, VHOST_VDPA_DEV_MAX);
++	class_destroy(vhost_vdpa_class);
+ }
+ module_exit(vhost_vdpa_exit);
+ 
+-- 
+2.27.0
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
