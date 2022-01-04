@@ -4,99 +4,96 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0EF89C433F5
-	for <virtualization@archiver.kernel.org>; Tue,  4 Jan 2022 02:43:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 77570C433F5
+	for <virtualization@archiver.kernel.org>; Tue,  4 Jan 2022 03:42:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 9617A4021F;
-	Tue,  4 Jan 2022 02:43:46 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 00B1A401CE;
+	Tue,  4 Jan 2022 03:42:21 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id VejsGzp_VLjC; Tue,  4 Jan 2022 02:43:45 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 45689403EC;
-	Tue,  4 Jan 2022 02:43:45 +0000 (UTC)
+	with ESMTP id cjFHqgKEPqVV; Tue,  4 Jan 2022 03:42:20 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 989154018B;
+	Tue,  4 Jan 2022 03:42:19 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 18885C002F;
-	Tue,  4 Jan 2022 02:43:45 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4E118C001E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7ACB9C0030;
+	Tue,  4 Jan 2022 03:42:19 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E2929C001E
  for <virtualization@lists.linux-foundation.org>;
- Tue,  4 Jan 2022 02:43:43 +0000 (UTC)
+ Tue,  4 Jan 2022 03:42:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 356AD400F5
+ by smtp2.osuosl.org (Postfix) with ESMTP id CEC83400F5
  for <virtualization@lists.linux-foundation.org>;
- Tue,  4 Jan 2022 02:43:43 +0000 (UTC)
+ Tue,  4 Jan 2022 03:42:17 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp2.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 1rjx3yuVEfGY
+ with ESMTP id 8hBVBk3jXAJ7
  for <virtualization@lists.linux-foundation.org>;
- Tue,  4 Jan 2022 02:43:42 +0000 (UTC)
+ Tue,  4 Jan 2022 03:42:17 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id D7964400BA
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 11218400BA
  for <virtualization@lists.linux-foundation.org>;
- Tue,  4 Jan 2022 02:43:41 +0000 (UTC)
+ Tue,  4 Jan 2022 03:42:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1641264220;
+ s=mimecast20190719; t=1641267735;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=xBslvMS7j+OctKnC0vneQW1w3vJZ3surxo53C/HUGEM=;
- b=TmTbyQzK12Nud+Q/IKdpAnQa0fZJ9lGHb5KuhYQQ0+eCnhzSU+ge+s063V1wmatDFqUwF2
- EeNPMgtd29SnhEU47np0E0ioy6BsjE3qy1K4lddvEjFsJgBeE5NZu89CRUysfpreoa8ltj
- zrjyNxzhzsiixIj8gn8vz1TuV9bDjb4=
-Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
- [209.85.167.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=SwFXhGn57Ik/8yv+mERRlVV9PBTKn9DgoCqspftrb0U=;
+ b=a8pJqXHPzDmTB6PBuBnPCPBYPUIkfewqfGlMHZqXtDM+f2GJ4b/0Kn9iQhToWzJIusdOAp
+ 8nla3y5ZbYd0MEOfioO7ZljY4SgUFLXahA78b3jWVmws3m+4P00vysqiKxoaGbwpATGGiX
+ mnX1+09FlqnGMiH3dJXihGLJQIk/Ey0=
+Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
+ [209.85.167.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-86-Dl5cg9BZPAa4moMTVh3l1w-1; Mon, 03 Jan 2022 21:43:37 -0500
-X-MC-Unique: Dl5cg9BZPAa4moMTVh3l1w-1
-Received: by mail-lf1-f70.google.com with SMTP id
- b19-20020ac24113000000b004297f324073so4833657lfi.8
+ us-mta-517-QGp3HS3_P_2iwbS_z6Fpqg-1; Mon, 03 Jan 2022 22:42:14 -0500
+X-MC-Unique: QGp3HS3_P_2iwbS_z6Fpqg-1
+Received: by mail-lf1-f72.google.com with SMTP id
+ t196-20020a19c3cd000000b0042a2598bebaso2990052lff.2
  for <virtualization@lists.linux-foundation.org>;
- Mon, 03 Jan 2022 18:43:37 -0800 (PST)
+ Mon, 03 Jan 2022 19:42:14 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=xBslvMS7j+OctKnC0vneQW1w3vJZ3surxo53C/HUGEM=;
- b=qLoTYhLFBAM48VtcfOjj+eRhX/31iOMTkZbl8BP11J85lWxal0Uil0QeS3b9C0IBqb
- 34GyE19EpBga4PFxW101vQZ8IfCLX7zt/wPUxBQV7ef0M1UGDEujsgh5yGGMIn2DgiFD
- 9PkyEEKckyUMV7tzLudaBaWRF/YG999r7rhzB+Izs6d4SUcMeYcyOuY7h7HyqcAwuoN+
- +7/mxcWw1TdhIp9KynQODCpWmMKxGHoS+vms54GQOdhW7U/4YYUTUyJygL/1Df/lY93P
- 2yeLy4oaOuLsKpCUhgssRel/nesV7OKsWp9akrT4DZ4sQEJaBzi1zNk/hHnbrDdGYDVu
- vLRQ==
-X-Gm-Message-State: AOAM530iRhVR60hNLnCduyfVkigyUV8Fh5BWKI0t7VGSWReEbKWjlzVh
- eASqoQf9///NrMBvFtQQvrY/NGXuSMg1rT4DSH4VhZZmZWdDLuvquY1iUzthtxJWT+UZTnVO4mc
- m8Tip8zUOWx9ymx3lr9v+34VqxnOCB8fVrnAnkD+B7VKBC5+rPOyZhhW/sg==
-X-Received: by 2002:a2e:9183:: with SMTP id f3mr38554764ljg.277.1641264216408; 
- Mon, 03 Jan 2022 18:43:36 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwDbiCQYGh9CsuhsNELkivaGuy6UvE67yd+cdY22itZ/NeBscfWPAKaNz7nsrSrObNqVuf/rYup8jrDIjAPQl8=
-X-Received: by 2002:a2e:9183:: with SMTP id f3mr38554748ljg.277.1641264216229; 
- Mon, 03 Jan 2022 18:43:36 -0800 (PST)
+ bh=SwFXhGn57Ik/8yv+mERRlVV9PBTKn9DgoCqspftrb0U=;
+ b=LmjNqAJoPpvzX9B2Wp71vDlSZ9I0+HdnHCS9YN4XaKedHUbHiR9/S+q3ohTe+35+9G
+ EN1Nj2YouyZNItS85JgKKCeVDveT/JHJgwKBaaxlDHpgeGUk2RwSNWPkS22NDHBOtGFq
+ 7vvwOIPwl7/Qwgm58WrOUsLiTEqikdTqNOgO8vQm7gxm4oYgV4XzoTE7FW5mPlfAj6QI
+ TGaL82qwIzNKZpQrg9JI+X8f5SN9hAUfPL8o2yIoJdjz7d2KQ9hRFpCUuzEOAdg6ONCD
+ vc03fU4WlT1XsnfSen3jF+jE42Pnd78IbGzB9DwUI0cHT9UvYqgkNk42nJRGbv35uKCJ
+ JRiA==
+X-Gm-Message-State: AOAM533/uHgmHXnL/zaRYcii2ZvZX5Rj/n2ddA516sys15Rm/BQmdRV0
+ rANnH1Y8HM20XVyuv9TBg/C9whj5rSD8Cbt/Uho+80wLNbIv6xpXQGh8/lGPpHi5aKBFDIqCMiM
+ q17agCRlFemLFiG+7qo3eBh44gkKgMBUXn17rYeeDK8vdWm9bZSjE5Ks0Kw==
+X-Received: by 2002:a05:651c:1a0d:: with SMTP id
+ by13mr31580403ljb.107.1641267733037; 
+ Mon, 03 Jan 2022 19:42:13 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJx90ph1BuLv80bniEX7O6j0IQH75tTw6Q0lIGjPvVyZoAE/LEns1b2VVRYEkf3ISCOL4yV/IMQfDl7AdFba/cw=
+X-Received: by 2002:a05:651c:1a0d:: with SMTP id
+ by13mr31580400ljb.107.1641267732858; 
+ Mon, 03 Jan 2022 19:42:12 -0800 (PST)
 MIME-Version: 1.0
-References: <20211230142024.142979-1-elic@nvidia.com>
- <PH0PR12MB54817F9FCB3549B1677C8012DC459@PH0PR12MB5481.namprd12.prod.outlook.com>
-In-Reply-To: <PH0PR12MB54817F9FCB3549B1677C8012DC459@PH0PR12MB5481.namprd12.prod.outlook.com>
+References: <20211224101007.1635703-1-jiasheng@iscas.ac.cn>
+In-Reply-To: <20211224101007.1635703-1-jiasheng@iscas.ac.cn>
 From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 4 Jan 2022 10:43:25 +0800
-Message-ID: <CACGkMEss0L9=PgT197mwPh-kFyKxnWLrtL-ypJ1doCGmJXVcyQ@mail.gmail.com>
-Subject: Re: [PATCH] vdpa/mlx5: Fix wrong configuration of virtio_version_1_0
-To: Parav Pandit <parav@nvidia.com>
+Date: Tue, 4 Jan 2022 11:42:01 +0800
+Message-ID: <CACGkMEuTn4uaS5dfudF-X-Y0Rw0wH9VXcTkVsZJ_TUtxXGMBVw@mail.gmail.com>
+Subject: Re: [PATCH] virtio_ring: Check null pointer
+To: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: "lvivier@redhat.com" <lvivier@redhat.com>,
- "mst@redhat.com" <mst@redhat.com>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- "eperezma@redhat.com" <eperezma@redhat.com>,
- "si-wei.liu@oracle.com" <si-wei.liu@oracle.com>, Eli Cohen <elic@nvidia.com>
+Cc: virtualization <virtualization@lists.linux-foundation.org>,
+ linux-kernel <linux-kernel@vger.kernel.org>, mst <mst@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -113,45 +110,45 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Dec 30, 2021 at 10:49 PM Parav Pandit <parav@nvidia.com> wrote:
+On Fri, Dec 24, 2021 at 6:10 PM Jiasheng Jiang <jiasheng@iscas.ac.cn> wrote:
 >
+> As the alloc_indirect_packed() returns kmalloc_array() that could
+> allocation fail and return null pointer, it should be check in order to
+> prevent the dereference of null pointer.
 >
-> > From: Eli Cohen <elic@nvidia.com>
-> > Sent: Thursday, December 30, 2021 7:50 PM
-> >
-> > Remove overriding of virtio_version_1_0 which forced the virtqueue object to
-> > version 1.
-> >
-> > Fixes: 1a86b377aa21 ("vdpa/mlx5: Add VDPA driver for supported mlx5
-> > devices")
-> > Signed-off-by: Eli Cohen <elic@nvidia.com>
-> > ---
-> >  drivers/vdpa/mlx5/net/mlx5_vnet.c | 2 --
-> >  1 file changed, 2 deletions(-)
-> >
-> > diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> > b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> > index 1eb473cb9d4d..e946a36bf7ee 100644
-> > --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> > +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> > @@ -871,8 +871,6 @@ static int create_virtqueue(struct mlx5_vdpa_net
-> > *ndev, struct mlx5_vdpa_virtque
-> >       MLX5_SET(virtio_q, vq_ctx, umem_3_id, mvq->umem3.id);
-> >       MLX5_SET(virtio_q, vq_ctx, umem_3_size, mvq->umem3.size);
-> >       MLX5_SET(virtio_q, vq_ctx, pd, ndev->mvdev.res.pdn);
-> > -     if (MLX5_CAP_DEV_VDPA_EMULATION(ndev->mvdev.mdev,
-> > eth_frame_offload_type))
-> > -             MLX5_SET(virtio_q, vq_ctx, virtio_version_1_0, 1);
-> >
-> >       err = mlx5_cmd_exec(ndev->mvdev.mdev, in, inlen, out, sizeof(out));
-> >       if (err)
-> > --
-> > 2.34.1
+> Fixes: 1ce9e6055fa0 ("virtio_ring: introduce packed ring support")
+> Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+> ---
+>  drivers/virtio/virtio_ring.c | 5 +++++
+>  1 file changed, 5 insertions(+)
 >
-> Reviewed-by: Parav Pandit <parav@nvidia.com>
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index 71e16b53e9c1..30fd925165ac 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -991,7 +991,12 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
+>         dma_addr_t addr;
 >
+>         head = vq->packed.next_avail_idx;
+> +
+
+Unnecessary changes.
+
+Other than this:
 
 Acked-by: Jason Wang <jasowang@redhat.com>
+
+>         desc = alloc_indirect_packed(total_sg, gfp);
+> +       if (!desc) {
+> +               END_USE(vq);
+> +               return -ENOMEM;
+> +       }
+>
+>         if (unlikely(vq->vq.num_free < 1)) {
+>                 pr_debug("Can't add buf len 1 - avail = 0\n");
+> --
+> 2.25.1
+>
 
 _______________________________________________
 Virtualization mailing list
