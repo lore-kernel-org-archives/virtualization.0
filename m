@@ -4,57 +4,68 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 23C95C433F5
-	for <virtualization@archiver.kernel.org>; Fri,  7 Jan 2022 06:33:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1FE4BC433F5
+	for <virtualization@archiver.kernel.org>; Fri,  7 Jan 2022 11:21:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id D58316FC81;
-	Fri,  7 Jan 2022 06:33:21 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id B06B76FC3A;
+	Fri,  7 Jan 2022 11:21:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id K6w3pdnomUBm; Fri,  7 Jan 2022 06:33:20 +0000 (UTC)
+	with ESMTP id qEK8CnKG3z84; Fri,  7 Jan 2022 11:21:28 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 248906FC79;
-	Fri,  7 Jan 2022 06:33:20 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id B5DB860E1D;
+	Fri,  7 Jan 2022 11:21:27 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 00E67C006F;
-	Fri,  7 Jan 2022 06:33:20 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 98A11C0030;
+	Fri,  7 Jan 2022 11:21:27 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 39B6FC0071
+ by lists.linuxfoundation.org (Postfix) with ESMTP id AB20BC001E
  for <virtualization@lists.linux-foundation.org>;
- Fri,  7 Jan 2022 06:33:17 +0000 (UTC)
+ Fri,  7 Jan 2022 11:21:25 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id ED2BB42959
+ by smtp4.osuosl.org (Postfix) with ESMTP id 8BBAD40872
  for <virtualization@lists.linux-foundation.org>;
- Fri,  7 Jan 2022 06:33:16 +0000 (UTC)
+ Fri,  7 Jan 2022 11:21:25 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=linuxfoundation.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id JzhNyvofTow3
+ with ESMTP id XwUwx-mBl-uv
  for <virtualization@lists.linux-foundation.org>;
- Fri,  7 Jan 2022 06:33:16 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from out30-42.freemail.mail.aliyun.com
- (out30-42.freemail.mail.aliyun.com [115.124.30.42])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 7BC4942954
+ Fri,  7 Jan 2022 11:21:24 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 5D37640438
  for <virtualization@lists.linux-foundation.org>;
- Fri,  7 Jan 2022 06:33:15 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R381e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e01424; MF=xuanzhuo@linux.alibaba.com;
- NM=1; PH=DS; RN=3; SR=0; TI=SMTPD_---0V19LP-f_1641537188; 
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0V19LP-f_1641537188) by smtp.aliyun-inc.com(127.0.0.1);
- Fri, 07 Jan 2022 14:33:09 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: virtualization@lists.linux-foundation.org
-Subject: [PATCH 3/6] virtio: packed: alloc indirect desc with extra
-Date: Fri,  7 Jan 2022 14:33:03 +0800
-Message-Id: <20220107063306.23240-4-xuanzhuo@linux.alibaba.com>
-X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20220107063306.23240-1-xuanzhuo@linux.alibaba.com>
-References: <20220107063306.23240-1-xuanzhuo@linux.alibaba.com>
+ Fri,  7 Jan 2022 11:21:24 +0000 (UTC)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by ams.source.kernel.org (Postfix) with ESMTPS id 90631B8239A;
+ Fri,  7 Jan 2022 11:21:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9D1EC36AE9;
+ Fri,  7 Jan 2022 11:21:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+ s=korg; t=1641554480;
+ bh=TIKtwdLyiyF92hZb62dr30nuCXc4HPQXsYaVnDcJ4x4=;
+ h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+ b=CuAL9VN6zqyqXY+fhFVSHaJNBpCgh94g7Lt/kLqqYtkizgUYHSKbZ2kfq9Sh7p/3m
+ VZiA7ZPHq5UteS+GtUp7r1oIeHn9pWoweEV9a0PO38smNTdn8lVVLzolRYOc5AGelZ
+ 3nZWnebCr4V+5MeVtKKUwBhZIfUapu3ZX3aYr8yM=
+Date: Fri, 7 Jan 2022 12:21:13 +0100
+From: Greg KH <gregkh@linuxfoundation.org>
+To: Yang Wei <albin.yangwei@alibaba-inc.com>
+Subject: Re: [PATCH 4.9] virtio_pci: Support surprise removal of virtio pci
+ device
+Message-ID: <YdgiKa9YLXrWVfxZ@kroah.com>
+References: <20220107085128.100165-1-albin.yangwei@alibaba-inc.com>
 MIME-Version: 1.0
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20220107085128.100165-1-albin.yangwei@alibaba-inc.com>
+Cc: yang.wei@linux.alibaba.com, virtualization@lists.linux-foundation.org,
+ stable@vger.kernel.org, mst@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -71,236 +82,86 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-In the scenario where indirect is not used, each desc corresponds to an
-extra, which is used to record information such as dma, flags, and
-next.
+On Fri, Jan 07, 2022 at 04:51:28PM +0800, Yang Wei wrote:
+> From: Parav Pandit <parav@nvidia.com>
+> 
+> commit 43bb40c5b92659966bdf4bfe584fde0a3575a049 upstream.
+> 
+> When a virtio pci device undergo surprise removal (aka async removal in
+> PCIe spec), mark the device as broken so that any upper layer drivers can
+> abort any outstanding operation.
+> 
+> When a virtio net pci device undergo surprise removal which is used by a
+> NetworkManager, a below call trace was observed.
+> 
+> kernel:watchdog: BUG: soft lockup - CPU#1 stuck for 26s! [kworker/1:1:27059]
+> watchdog: BUG: soft lockup - CPU#1 stuck for 52s! [kworker/1:1:27059]
+> CPU: 1 PID: 27059 Comm: kworker/1:1 Tainted: G S      W I  L    5.13.0-hotplug+ #8
+> Hardware name: Dell Inc. PowerEdge R640/0H28RR, BIOS 2.9.4 11/06/2020
+> Workqueue: events linkwatch_event
+> RIP: 0010:virtnet_send_command+0xfc/0x150 [virtio_net]
+> Call Trace:
+>  virtnet_set_rx_mode+0xcf/0x2a7 [virtio_net]
+>  ? __hw_addr_create_ex+0x85/0xc0
+>  __dev_mc_add+0x72/0x80
+>  igmp6_group_added+0xa7/0xd0
+>  ipv6_mc_up+0x3c/0x60
+>  ipv6_find_idev+0x36/0x80
+>  addrconf_add_dev+0x1e/0xa0
+>  addrconf_dev_config+0x71/0x130
+>  addrconf_notify+0x1f5/0xb40
+>  ? rtnl_is_locked+0x11/0x20
+>  ? __switch_to_asm+0x42/0x70
+>  ? finish_task_switch+0xaf/0x2c0
+>  ? raw_notifier_call_chain+0x3e/0x50
+>  raw_notifier_call_chain+0x3e/0x50
+>  netdev_state_change+0x67/0x90
+>  linkwatch_do_dev+0x3c/0x50
+>  __linkwatch_run_queue+0xd2/0x220
+>  linkwatch_event+0x21/0x30
+>  process_one_work+0x1c8/0x370
+>  worker_thread+0x30/0x380
+>  ? process_one_work+0x370/0x370
+>  kthread+0x118/0x140
+>  ? set_kthread_struct+0x40/0x40
+>  ret_from_fork+0x1f/0x30
+> 
+> Hence, add the ability to abort the command on surprise removal
+> which prevents infinite loop and system lockup.
+> 
+> Signed-off-by: Parav Pandit <parav@nvidia.com>
+> Link: https://lore.kernel.org/r/20210721142648.1525924-5-parav@nvidia.com
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> Signed-off-by: Yang Wei <yang.wei@linux.alibaba.com>
+> ---
+>  drivers/virtio/virtio_pci_common.c | 7 +++++++
+>  1 file changed, 7 insertions(+)
+> 
+> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+> index d9a905827967..37e3ba5dadf6 100644
+> --- a/drivers/virtio/virtio_pci_common.c
+> +++ b/drivers/virtio/virtio_pci_common.c
+> @@ -547,6 +547,13 @@ static void virtio_pci_remove(struct pci_dev *pci_dev)
+>  	struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
+>  	struct device *dev = get_device(&vp_dev->vdev.dev);
+>  
+> +	/*
+> +	 * Device is marked broken on surprise removal so that virtio upper
+> +	 * layers can abort any ongoing operation.
+> +	 */
+> +	if (!pci_device_is_present(pci_dev))
+> +		virtio_break_device(&vp_dev->vdev);
+> +
+>  	unregister_virtio_device(&vp_dev->vdev);
+>  
+>  	if (vp_dev->ioaddr)
+> -- 
+> 2.19.1.6.gb485710b
+> 
 
-In the scenario of using indirect, the assigned desc does not have the
-corresponding extra record dma information, and the dma information must
-be obtained from the desc when unmap.
+Both patches now queued up, thanks.
 
-This patch allocates the corresponding extra array when indirect desc is
-allocated. This has these advantages:
-1. Record the dma information of desc, no need to read desc when unmap
-2. It will be more convenient and unified in processing
-3. Some additional information can be recorded in extra, which will be
-   used in subsequent patches.
-
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
----
- drivers/virtio/virtio_ring.c | 100 +++++++++++++++++------------------
- 1 file changed, 49 insertions(+), 51 deletions(-)
-
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 64b4d2b03016..7420741cb750 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -78,6 +78,11 @@ struct vring_indirect_split {
- 	struct vring_desc desc[];
- };
- 
-+struct vring_indirect_packed {
-+	struct vring_desc_extra *extra;
-+	struct vring_packed_desc desc[];
-+};
-+
- struct vring_desc_state_split {
- 	void *data;			/* Data for callback. */
- 	struct vring_indirect_split *in;/* Indirect descriptor, if any. */
-@@ -85,7 +90,7 @@ struct vring_desc_state_split {
- 
- struct vring_desc_state_packed {
- 	void *data;			/* Data for callback. */
--	struct vring_packed_desc *indir_desc; /* Indirect descriptor, if any. */
-+	struct vring_indirect_packed *in; /* Indirect descriptor, if any. */
- 	u16 num;			/* Descriptor list length. */
- 	u16 last;			/* The last desc state in a list. */
- };
-@@ -992,35 +997,11 @@ static void vring_unmap_extra_packed(const struct vring_virtqueue *vq,
- 	}
- }
- 
--static void vring_unmap_desc_packed(const struct vring_virtqueue *vq,
--				   struct vring_packed_desc *desc)
--{
--	u16 flags;
--
--	if (!vq->use_dma_api)
--		return;
--
--	flags = le16_to_cpu(desc->flags);
--
--	if (flags & VRING_DESC_F_INDIRECT) {
--		dma_unmap_single(vring_dma_dev(vq),
--				 le64_to_cpu(desc->addr),
--				 le32_to_cpu(desc->len),
--				 (flags & VRING_DESC_F_WRITE) ?
--				 DMA_FROM_DEVICE : DMA_TO_DEVICE);
--	} else {
--		dma_unmap_page(vring_dma_dev(vq),
--			       le64_to_cpu(desc->addr),
--			       le32_to_cpu(desc->len),
--			       (flags & VRING_DESC_F_WRITE) ?
--			       DMA_FROM_DEVICE : DMA_TO_DEVICE);
--	}
--}
--
--static struct vring_packed_desc *alloc_indirect_packed(unsigned int total_sg,
--						       gfp_t gfp)
-+static struct vring_indirect_packed *alloc_indirect_packed(unsigned int total_sg,
-+							   gfp_t gfp)
- {
--	struct vring_packed_desc *desc;
-+	struct vring_indirect_packed *in;
-+	int size;
- 
- 	/*
- 	 * We require lowmem mappings for the descriptors because
-@@ -1029,9 +1010,16 @@ static struct vring_packed_desc *alloc_indirect_packed(unsigned int total_sg,
- 	 */
- 	gfp &= ~__GFP_HIGHMEM;
- 
--	desc = kmalloc_array(total_sg, sizeof(struct vring_packed_desc), gfp);
-+	size = sizeof(struct vring_packed_desc) + sizeof(struct vring_desc_extra);
-+	size = size * total_sg + sizeof(*in);
-+
-+	in = kmalloc(size, gfp);
-+	if (!in)
-+		return NULL;
- 
--	return desc;
-+	in->extra = (struct vring_desc_extra *)(in->desc + total_sg);
-+
-+	return in;
- }
- 
- static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
-@@ -1042,20 +1030,22 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
- 					 void *data,
- 					 gfp_t gfp)
- {
-+	struct vring_indirect_packed *in;
- 	struct vring_packed_desc *desc;
-+	struct vring_desc_extra *extra;
- 	struct scatterlist *sg;
- 	unsigned int i, n, err_idx;
--	u16 head, id;
-+	u16 head, id, flags;
- 	dma_addr_t addr;
- 
- 	head = vq->packed.next_avail_idx;
--	desc = alloc_indirect_packed(total_sg, gfp);
--	if (!desc)
-+	in = alloc_indirect_packed(total_sg, gfp);
-+	if (!in)
- 		return -ENOMEM;
- 
- 	if (unlikely(vq->vq.num_free < 1)) {
- 		pr_debug("Can't add buf len 1 - avail = 0\n");
--		kfree(desc);
-+		kfree(in);
- 		END_USE(vq);
- 		return -ENOSPC;
- 	}
-@@ -1071,16 +1061,24 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
- 			if (vring_mapping_error(vq, addr))
- 				goto unmap_release;
- 
--			desc[i].flags = cpu_to_le16(n < out_sgs ?
--						0 : VRING_DESC_F_WRITE);
--			desc[i].addr = cpu_to_le64(addr);
--			desc[i].len = cpu_to_le32(sg->length);
-+			flags = n < out_sgs ?  0 : VRING_DESC_F_WRITE;
-+
-+			desc = in->desc + i;
-+			desc->flags = cpu_to_le16(flags);
-+			desc->addr = cpu_to_le64(addr);
-+			desc->len = cpu_to_le32(sg->length);
-+
-+			extra = in->extra + i;
-+			extra->addr  = addr;
-+			extra->len   = sg->length;
-+			extra->flags = flags;
-+
- 			i++;
- 		}
- 	}
- 
- 	/* Now that the indirect table is filled in, map it. */
--	addr = vring_map_single(vq, desc,
-+	addr = vring_map_single(vq, in->desc,
- 			total_sg * sizeof(struct vring_packed_desc),
- 			DMA_TO_DEVICE);
- 	if (vring_mapping_error(vq, addr))
-@@ -1126,7 +1124,7 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
- 	/* Store token and indirect buffer state. */
- 	vq->packed.desc_state[id].num = 1;
- 	vq->packed.desc_state[id].data = data;
--	vq->packed.desc_state[id].indir_desc = desc;
-+	vq->packed.desc_state[id].in = in;
- 	vq->packed.desc_state[id].last = id;
- 
- 	vq->num_added += 1;
-@@ -1140,9 +1138,9 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
- 	err_idx = i;
- 
- 	for (i = 0; i < err_idx; i++)
--		vring_unmap_desc_packed(vq, &desc[i]);
-+		vring_unmap_extra_packed(vq, in->extra + i);
- 
--	kfree(desc);
-+	kfree(in);
- 
- 	END_USE(vq);
- 	return -ENOMEM;
-@@ -1259,7 +1257,7 @@ static inline int virtqueue_add_packed(struct virtqueue *_vq,
- 	/* Store token. */
- 	vq->packed.desc_state[id].num = descs_used;
- 	vq->packed.desc_state[id].data = data;
--	vq->packed.desc_state[id].indir_desc = ctx;
-+	vq->packed.desc_state[id].in = ctx;
- 	vq->packed.desc_state[id].last = prev;
- 
- 	/*
-@@ -1350,7 +1348,7 @@ static void detach_buf_packed(struct vring_virtqueue *vq,
- 			      unsigned int id, void **ctx)
- {
- 	struct vring_desc_state_packed *state = NULL;
--	struct vring_packed_desc *desc;
-+	struct vring_indirect_packed *in;
- 	unsigned int i, curr;
- 
- 	state = &vq->packed.desc_state[id];
-@@ -1375,20 +1373,20 @@ static void detach_buf_packed(struct vring_virtqueue *vq,
- 		u32 len;
- 
- 		/* Free the indirect table, if any, now that it's unmapped. */
--		desc = state->indir_desc;
--		if (!desc)
-+		in = state->in;
-+		if (!in)
- 			return;
- 
- 		if (vq->use_dma_api) {
- 			len = vq->packed.desc_extra[id].len;
- 			for (i = 0; i < len / sizeof(struct vring_packed_desc);
- 					i++)
--				vring_unmap_desc_packed(vq, &desc[i]);
-+				vring_unmap_extra_packed(vq, in->extra + i);
- 		}
--		kfree(desc);
--		state->indir_desc = NULL;
-+		kfree(in);
-+		state->in = NULL;
- 	} else if (ctx) {
--		*ctx = state->indir_desc;
-+		*ctx = state->in;
- 	}
- }
- 
--- 
-2.31.0
-
+greg k-h
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
