@@ -1,90 +1,98 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C839CC433EF
-	for <virtualization@archiver.kernel.org>; Fri,  7 Jan 2022 21:19:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 506A0C433F5
+	for <virtualization@archiver.kernel.org>; Fri,  7 Jan 2022 23:35:02 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 71C68424C1;
-	Fri,  7 Jan 2022 21:19:33 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id E2C1981B17;
+	Fri,  7 Jan 2022 23:35:01 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id JFTYlQJOFYWj; Fri,  7 Jan 2022 21:19:31 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 38DF240010;
-	Fri,  7 Jan 2022 21:19:31 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id qO9fHRGTjkkp; Fri,  7 Jan 2022 23:34:59 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 8B5CC81A6F;
+	Fri,  7 Jan 2022 23:34:58 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E9DC9C0030;
-	Fri,  7 Jan 2022 21:19:30 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 710B1C001E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 685CAC0030;
+	Fri,  7 Jan 2022 23:34:58 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 80087C001E
  for <virtualization@lists.linux-foundation.org>;
- Fri,  7 Jan 2022 21:19:29 +0000 (UTC)
+ Fri,  7 Jan 2022 23:34:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 58B64429D0
+ by smtp3.osuosl.org (Postfix) with ESMTP id 5988D607A1
  for <virtualization@lists.linux-foundation.org>;
- Fri,  7 Jan 2022 21:19:29 +0000 (UTC)
+ Fri,  7 Jan 2022 23:34:56 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=vt-edu.20210112.gappssmtp.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 5WGDfUYMGXbG
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=chromium.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id e-kwQvqnTIBS
  for <virtualization@lists.linux-foundation.org>;
- Fri,  7 Jan 2022 21:19:28 +0000 (UTC)
+ Fri,  7 Jan 2022 23:34:54 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-lf1-x129.google.com (mail-lf1-x129.google.com
- [IPv6:2a00:1450:4864:20::129])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 3068642986
+Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com
+ [IPv6:2a00:1450:4864:20::535])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 3932860797
  for <virtualization@lists.linux-foundation.org>;
- Fri,  7 Jan 2022 21:19:28 +0000 (UTC)
-Received: by mail-lf1-x129.google.com with SMTP id r4so20002805lfe.7
+ Fri,  7 Jan 2022 23:34:54 +0000 (UTC)
+Received: by mail-ed1-x535.google.com with SMTP id q25so19208713edb.2
  for <virtualization@lists.linux-foundation.org>;
- Fri, 07 Jan 2022 13:19:28 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=vt-edu.20210112.gappssmtp.com; s=20210112;
- h=mime-version:from:date:message-id:subject:to;
- bh=SwcWUjfUQ3E3da8RvoOeTiWNFas/x2OMl3d/t623Jts=;
- b=D+hm7QLiV5837lIvTKqyUppm4Vg0LX5hZ0KuMBBNOVsyH0jBT015DNOnu4c2dzoGsY
- Kt+zDAPslpErT3n6hdulJq8y+8gxT1AecB0TBlfO7/iNzZIWhh/DvEdjKlm54aeg43/A
- CJQpNw72v4eLUAWzq+AqVTmGr78+1lqlPYGEDKnl6r6HJeBhz1+JulBbFW4DQXFECkhj
- F9pbZ2vZnqv1LN1ZqyRQ4eXQm85/EIOwDnCTuhm8B2N7SeYZE+tp3tPbN7/HIyxmTgBC
- fMzMp4dhzsyraPd17GEeSgG83dYgFGWSCb5M+eQkduJME2KJUU/Tsvdtdag/yFOKVdbf
- eDKw==
+ Fri, 07 Jan 2022 15:34:54 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=chromium.org; s=google;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=6RfbULMQmWmI8HuUvl95Pjwv+4zm3q8U8akXNuzZLEg=;
+ b=RGMCxHiZetzlQvKF2rsRndOID7+6Rmk9zDeA5A0s7bkW3YTvMYXdRn2nn/bxkYFIcM
+ QDyBuXLNTr2ri3J119Hpet5XmWpxnsAYs98RyVbsqaCsg0rOm502dHJscJ9grwtCLM0D
+ Zfqbjcr/kXXb8rnKx5uX2qcVS+eEvmrjfBd9A=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
- bh=SwcWUjfUQ3E3da8RvoOeTiWNFas/x2OMl3d/t623Jts=;
- b=sBVnXozLv0+GdT2LPTGH3PRu8dXUSif69Kq92jZ2Kv31YZ0fAHeU/UCyquW0Wn4QEb
- WNXutTdK4wui+7w2K+XqIl1l1J1r5i/D9tpPkwzgJjIN5gJsquQOMt9X3JqkCZvoGD2W
- 1+iACVQfFy/LwIrWGocIXEL5ViHDXsaIl5G2A0gXxQo8ioWQXPEbeY7hu+GywiJafn49
- N+Ny+FcxKfy4E8O/YpcfSuzGGnKt1Z/SDPrQJTg7sJc0ZI+1EoSiul19JRjD8/OcV9gV
- Vz0sTk9gqmSspNHtivDzCT8i8X66p/8r7dj+wPdB+obybNPNpmCNVbdSifHG81YcsvBv
- uTbQ==
-X-Gm-Message-State: AOAM531kKeoOcJ8auXrmdIO8d23bLjawrRI/L4rHrqO0gpigOB3qROND
- d6U6jkp6KD47BFeDf+wnvr96jbs4LOT3Qrl/gvRaWA==
-X-Google-Smtp-Source: ABdhPJywdCOhXGvmbF7Vy67DQIQiNtGUgSnxkmVaqQVPy1Fq63q4sbj1/ntQIrMPT2W9GXOxe3PySomKfFwYajOnVIs=
-X-Received: by 2002:a05:6512:22c6:: with SMTP id
- g6mr48401119lfu.632.1641590366007; 
- Fri, 07 Jan 2022 13:19:26 -0800 (PST)
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=6RfbULMQmWmI8HuUvl95Pjwv+4zm3q8U8akXNuzZLEg=;
+ b=OOG/w1ARmNp4tnteY/0cojfGe8dkvOW2Szi4RDL1Zp34bYW4pouxchYVoCwX7NlAl6
+ QCHFNPQS/ktGtr124xOh1m/mlvK+5/5Nxe1GnBgAyfsVuLEHYqt40F4z01Go9Jsx8+SO
+ oOVAu7qiJAEctLWHsHBHiTHiwSpbBkgpUpzdKg953Cz9y8KrKeabxVylEApT6MHBpUyn
+ 77k8ityyg1etBICcBk/52JpgSEM6cedKeh4PzaORMhceEBKMxw2IwqpYVrkk9P8F8BNU
+ ZA56G1JCX1K2sOECqmofwsyPDobR+YQYJqmgDn6gtbYKsdosZAxtb9DMlsFim9L/8Dy5
+ pcDQ==
+X-Gm-Message-State: AOAM531H+fmn47S69zt6jd5EuNhZgHnWL+mBq8RRJ+3seCBsPI0nqzKa
+ owNC6NsWRewZ9MtKIOcbOFzAiir1ikn/BQ==
+X-Google-Smtp-Source: ABdhPJz6/6HBVQnFnIwmZ+MAxe1RWjJ2Ji0jo9NOCNXWzndKMwVYa+RrzoX3DdHVH2KgMfx6SSiLKA==
+X-Received: by 2002:a05:6402:11c9:: with SMTP id
+ j9mr62758612edw.411.1641598491901; 
+ Fri, 07 Jan 2022 15:34:51 -0800 (PST)
+Received: from mail-wr1-f42.google.com (mail-wr1-f42.google.com.
+ [209.85.221.42])
+ by smtp.gmail.com with ESMTPSA id s3sm18273ejs.145.2022.01.07.15.34.51
+ for <virtualization@lists.linux-foundation.org>
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Fri, 07 Jan 2022 15:34:51 -0800 (PST)
+Received: by mail-wr1-f42.google.com with SMTP id r9so12095383wrg.0
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 07 Jan 2022 15:34:51 -0800 (PST)
+X-Received: by 2002:a05:6000:1567:: with SMTP id
+ 7mr56873454wrz.513.1641598490665; 
+ Fri, 07 Jan 2022 15:34:50 -0800 (PST)
 MIME-Version: 1.0
-From: Ali Anwar <ali@vt.edu>
-Date: Fri, 7 Jan 2022 16:19:14 -0500
-Message-ID: <CA+Vr5cs=noNXHzcSnxvKfBrfbke85qRDu-Ta8O1fsvCcHFSD7g@mail.gmail.com>
-Subject: Call for Workshops: ACM HPDC 2022 (The 31th International Symposium
- on High-Performance Parallel and Distributed Computing)
-To: tci-announce@computer.org, tcde-announce@computer.org, 
- tcpp-announce@computer.org, tcbis-announce@computer.org, 
- "HPC-MEMBERS@listserv.acm.org" <HPC-MEMBERS@listserv.acm.org>, 
- sc-workshop-attendee-cfp@group.supercomputing.org, 
- hpc-india@mailman.serc.iisc.in, hipeac.publicity@lists.ugent.be, 
- sigops-announce@listserv.acm.org, publicity@hipeac.net, 
- htcondor-users@cs.wisc.edu, dbworld@cs.wisc.edu, 
- virtualization@lists.linux-foundation.org, users@planet-lab.org, 
- infodir_sigcomm@acm.org, sigplan-l@acm.uiuc.edu
+References: <20211222072649.18169-1-linmq006@gmail.com>
+In-Reply-To: <20211222072649.18169-1-linmq006@gmail.com>
+From: Gurchetan Singh <gurchetansingh@chromium.org>
+Date: Fri, 7 Jan 2022 15:34:38 -0800
+X-Gmail-Original-Message-ID: <CAAfnVBn-VFzjQ8A+mYJF9=O-NeSFRS+4j36bBPohBD5QBzLf4g@mail.gmail.com>
+Message-ID: <CAAfnVBn-VFzjQ8A+mYJF9=O-NeSFRS+4j36bBPohBD5QBzLf4g@mail.gmail.com>
+Subject: Re: [PATCH] drm/virtio: Fix NULL vs IS_ERR checking in
+ virtio_gpu_object_shmem_init
+To: Miaoqian Lin <linmq006@gmail.com>
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>,
+ ML dri-devel <dri-devel@lists.freedesktop.org>,
+ "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>,
+ Daniel Vetter <daniel@ffwll.ch>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -96,143 +104,112 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============7611248823848865206=="
+Content-Type: multipart/mixed; boundary="===============2328568357335527918=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
---===============7611248823848865206==
-Content-Type: multipart/alternative; boundary="000000000000a2140905d5048a4b"
+--===============2328568357335527918==
+Content-Type: multipart/alternative; boundary="000000000000e70cda05d5066ed0"
 
---000000000000a2140905d5048a4b
+--000000000000e70cda05d5066ed0
 Content-Type: text/plain; charset="UTF-8"
 
-Call for Workshops
+On Tue, Dec 21, 2021 at 11:26 PM Miaoqian Lin <linmq006@gmail.com> wrote:
 
-The 31th International ACM Symposium on High-Performance Parallel and
-Distributed Computing (HPDC'22)
-Minneapolis, Minnesota, United States, June 30 - July 1, 2022
+> Since drm_prime_pages_to_sg() function return error pointers.
+> The drm_gem_shmem_get_sg_table() function returns error pointers too.
+> Using IS_ERR() to check the return value to fix this.
+>
+> Fixes: f651c8b05542("drm/virtio: factor out the sg_table from
+> virtio_gpu_object")
+> Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+>
 
-Overview
-The organizers of the 31st International ACM Symposium on High-Performance
-Parallel and Distributed Computing (HPDC'22) call for proposals for
-Workshops to be held with the main conference.
-The HPDC Workshops provide forums for discussion among researchers and
-practitioners on focused topics and/or emerging research areas relevant to
-HPC and distributed computing.
-Workshops typically include some combination of invited talks,
-peer-reviewed papers, panel discussions, and work-in-progress talks.
-Proposers should design workshops for approximately 20-40 participants,
-lasting either one full day or one-half day, depending on interest and
-space constraints. Proposals for workshops on new topics are welcome, as
-are proposals to continue previously successful workshops. Tutorials that
-would provide attendees with an interactive learning experience will be
-given special consideration in acceptance. HPDC workshop proceedings will
-be published by ACM in the HPDC proceedings companion book.
+Reviewed-by: Gurchetan Singh <gurchetansingh@chromium.org>
 
-Proposal Submission
-To Submit: Please email your proposal to Ivy Peng (peng8@llnl.gov) with the
-title "HPDC'22 Workshop Proposal"
 
-Formatting Guidelines
-Workshop proposals should be formatted as a single PDF document of 2-4
-pages, describing the following:
-> The full name and acronym of the workshop
-> Whether the workshop is planned for one full day or one half day
-> A description of the theme and its key topics
-> A description of the relevance to HPDC
-> The structure of the workshop (peer-reviewed articles, invited articles,
-invited talks, panels, etc.)
-> Proposed names for invited speakers and panelists and their impacts on
-the topics discussed at the workshop
-> A tentative list of program committee members (optional)
-> Details of the review process leading to acceptance to present at the
-workshop
-> If the workshop will have a call for papers, a tentative version of such
-CFP (optional)
-> If the workshop is going to have published papers, the type of papers to
-be accepted and their length
-> A summary of the intended audience
-> A plan for attracting submissions and attendees to the workshop
-> A plan for in-person + hybrid option
-> A brief biographical information on the workshop organizers
-> Data about previous editions of the workshop including attendance, number
-of papers submitted and accepted
+> ---
+>  drivers/gpu/drm/virtio/virtgpu_object.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c
+> b/drivers/gpu/drm/virtio/virtgpu_object.c
+> index f648b0e24447..8bb80289672c 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_object.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_object.c
+> @@ -168,9 +168,9 @@ static int virtio_gpu_object_shmem_init(struct
+> virtio_gpu_device *vgdev,
+>          * since virtio_gpu doesn't support dma-buf import from other
+> devices.
+>          */
+>         shmem->pages = drm_gem_shmem_get_sg_table(&bo->base.base);
+> -       if (!shmem->pages) {
+> +       if (IS_ERR(shmem->pages)) {
+>                 drm_gem_shmem_unpin(&bo->base.base);
+> -               return -EINVAL;
+> +               return PTR_ERR(shmem->pages);
+>         }
+>
+>         if (use_dma_api) {
+> --
+> 2.17.1
+>
+>
 
-Accepted workshops will need to be ready to set up a website and, if a
-paper submission process with peer review is going to be used, provide the
-submission link.
-
-Important Dates
-Deadline for Workshop Proposals: January 15, 2022
-Notification of Workshop Acceptance: January 31, 2022
-Workshop Submission Deadlines: Late March, 2022*
-Camera-Ready Deadline: Early May, 2022**
-Workshop Dates: June 30 - July 1, 2022
-
-* could change slightly, to allow for the flow of borderline articles from
-main conference to workshops
-** could change slightly, to synchronize with the main conference
-proceedings
-
-Workshops Chair:
-Ivy B. Peng, Lawrence Livermore National Laboratory (email:peng8@llnl.gov).
-
---000000000000a2140905d5048a4b
+--000000000000e70cda05d5066ed0
 Content-Type: text/html; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-<div dir=3D"ltr">Call for Workshops<br><br>The 31th International ACM Sympo=
-sium on High-Performance Parallel and Distributed Computing (HPDC&#39;22)<b=
-r>Minneapolis, Minnesota, United States, June 30 - July 1, 2022<br><br>Over=
-view<br>The organizers of the 31st International ACM Symposium on High-Perf=
-ormance Parallel and Distributed Computing (HPDC&#39;22) call for proposals=
- for Workshops to be held with the main conference.<br>The HPDC Workshops p=
-rovide forums for discussion among researchers and practitioners on focused=
- topics and/or emerging research areas relevant to HPC and distributed comp=
-uting.<br>Workshops typically include some combination of invited talks, pe=
-er-reviewed papers, panel discussions, and work-in-progress talks. Proposer=
-s should design workshops for approximately 20-40 participants, lasting eit=
-her one full day or one-half day, depending on interest and space constrain=
-ts. Proposals for workshops on new topics are welcome, as are proposals to =
-continue previously successful workshops. Tutorials that would provide atte=
-ndees with an interactive learning experience will be given special conside=
-ration in acceptance. HPDC workshop proceedings will be published by ACM in=
- the HPDC proceedings companion book.<br><br>Proposal Submission<br>To Subm=
-it: Please email your proposal to Ivy Peng (<a href=3D"mailto:peng8@llnl.go=
-v" target=3D"_blank">peng8@llnl.gov</a>) with the title &quot;HPDC&#39;22 W=
-orkshop Proposal&quot;<br><br>Formatting Guidelines<br>Workshop proposals s=
-hould be formatted as a single PDF document of 2-4 pages, describing the fo=
-llowing:<br>&gt; The full name and acronym of the workshop<br>&gt; Whether =
-the workshop is planned for one full day or one half day<br>&gt; A descript=
-ion of the theme and its key topics<br>&gt; A description of the relevance =
-to HPDC<br>&gt; The structure of the workshop (peer-reviewed articles, invi=
-ted articles, invited talks, panels, etc.)<br>&gt; Proposed names for invit=
-ed speakers and panelists and their impacts on the topics discussed at the =
-workshop<br>&gt; A tentative list of program committee members (optional)<b=
-r>&gt; Details of the review process leading to acceptance to present at th=
-e workshop<br>&gt; If the workshop will have a call for papers, a tentative=
- version of such CFP (optional)<br>&gt; If the workshop is going to have pu=
-blished papers, the type of papers to be accepted and their length<br>&gt; =
-A summary of the intended audience<br>&gt; A plan for attracting submission=
-s and attendees to the workshop<br>&gt; A plan for in-person + hybrid optio=
-n<br>&gt; A brief biographical information on the workshop organizers<br>&g=
-t; Data about previous editions of the workshop including attendance, numbe=
-r of papers submitted and accepted<br><br>Accepted workshops will need to b=
-e ready to set up a website and, if a paper submission process with peer re=
-view is going to be used, provide the submission link.<br><br>Important Dat=
-es<br>Deadline for Workshop Proposals: January 15, 2022<br>Notification of =
-Workshop Acceptance: January 31, 2022<br>Workshop Submission Deadlines: Lat=
-e March, 2022*<br>Camera-Ready Deadline: Early May, 2022**<br>Workshop Date=
-s: June 30 - July 1, 2022<br><br>* could change slightly, to allow for the =
-flow of borderline articles from main conference to workshops<br>** could c=
-hange slightly, to synchronize with the main conference proceedings<br><br>=
-Workshops Chair:<br>Ivy B. Peng, Lawrence Livermore National Laboratory (<a=
- href=3D"mailto:email%3Apeng8@llnl.gov" target=3D"_blank">email:peng8@llnl.=
-gov</a>).=C2=A0<br></div>
+<div dir=3D"ltr"><div dir=3D"ltr"><br></div><br><div class=3D"gmail_quote">=
+<div dir=3D"ltr" class=3D"gmail_attr">On Tue, Dec 21, 2021 at 11:26 PM Miao=
+qian Lin &lt;<a href=3D"mailto:linmq006@gmail.com">linmq006@gmail.com</a>&g=
+t; wrote:<br></div><blockquote class=3D"gmail_quote" style=3D"margin:0px 0p=
+x 0px 0.8ex;border-left:1px solid rgb(204,204,204);padding-left:1ex">Since =
+drm_prime_pages_to_sg() function return error pointers.<br>
+The drm_gem_shmem_get_sg_table() function returns error pointers too.<br>
+Using IS_ERR() to check the return value to fix this.<br>
+<br>
+Fixes: f651c8b05542(&quot;drm/virtio: factor out the sg_table from virtio_g=
+pu_object&quot;)<br>
+Signed-off-by: Miaoqian Lin &lt;<a href=3D"mailto:linmq006@gmail.com" targe=
+t=3D"_blank">linmq006@gmail.com</a>&gt;<br></blockquote><div><br></div>Revi=
+ewed-by: Gurchetan Singh &lt;<a href=3D"mailto:gurchetansingh@chromium.org"=
+>gurchetansingh@chromium.org</a>&gt;<br><div>=C2=A0<br></div><blockquote cl=
+ass=3D"gmail_quote" style=3D"margin:0px 0px 0px 0.8ex;border-left:1px solid=
+ rgb(204,204,204);padding-left:1ex">
+---<br>
+=C2=A0drivers/gpu/drm/virtio/virtgpu_object.c | 4 ++--<br>
+=C2=A01 file changed, 2 insertions(+), 2 deletions(-)<br>
+<br>
+diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virt=
+io/virtgpu_object.c<br>
+index f648b0e24447..8bb80289672c 100644<br>
+--- a/drivers/gpu/drm/virtio/virtgpu_object.c<br>
++++ b/drivers/gpu/drm/virtio/virtgpu_object.c<br>
+@@ -168,9 +168,9 @@ static int virtio_gpu_object_shmem_init(struct virtio_g=
+pu_device *vgdev,<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0* since virtio_gpu doesn&#39;t support dm=
+a-buf import from other devices.<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0*/<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 shmem-&gt;pages =3D drm_gem_shmem_get_sg_table(=
+&amp;bo-&gt;base.base);<br>
+-=C2=A0 =C2=A0 =C2=A0 =C2=A0if (!shmem-&gt;pages) {<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0if (IS_ERR(shmem-&gt;pages)) {<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 drm_gem_shmem_unpin=
+(&amp;bo-&gt;base.base);<br>
+-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0return -EINVAL;<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0return PTR_ERR(shme=
+m-&gt;pages);<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 }<br>
+<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 if (use_dma_api) {<br>
+-- <br>
+2.17.1<br>
+<br></blockquote><div><br></div><div>=C2=A0</div></div></div>
 
---000000000000a2140905d5048a4b--
+--000000000000e70cda05d5066ed0--
 
---===============7611248823848865206==
+--===============2328568357335527918==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -242,4 +219,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============7611248823848865206==--
+--===============2328568357335527918==--
