@@ -4,102 +4,85 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 670F8C433F5
-	for <virtualization@archiver.kernel.org>; Sun,  9 Jan 2022 15:56:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9A8E6C433EF
+	for <virtualization@archiver.kernel.org>; Sun,  9 Jan 2022 21:07:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id E8DFB402D4;
-	Sun,  9 Jan 2022 15:56:21 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 2957C40877;
+	Sun,  9 Jan 2022 21:07:21 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id a3BFtr72Vo5H; Sun,  9 Jan 2022 15:56:21 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 6020E402CE;
-	Sun,  9 Jan 2022 15:56:20 +0000 (UTC)
+	with ESMTP id ewmVa_QXFMR5; Sun,  9 Jan 2022 21:07:20 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id D3367402D7;
+	Sun,  9 Jan 2022 21:07:19 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 438EBC0030;
-	Sun,  9 Jan 2022 15:56:20 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 053E4C001E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A4B3BC0031;
+	Sun,  9 Jan 2022 21:07:19 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3A3D6C001E
  for <virtualization@lists.linux-foundation.org>;
- Sun,  9 Jan 2022 15:56:19 +0000 (UTC)
+ Sun,  9 Jan 2022 21:07:18 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id D6F7040130
+ by smtp4.osuosl.org (Postfix) with ESMTP id 131B1402D7
  for <virtualization@lists.linux-foundation.org>;
- Sun,  9 Jan 2022 15:56:18 +0000 (UTC)
+ Sun,  9 Jan 2022 21:07:18 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id JNDTd9ERbliM
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id oG7QZEKx1cO8
  for <virtualization@lists.linux-foundation.org>;
- Sun,  9 Jan 2022 15:56:17 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 8A3E4400CD
+ Sun,  9 Jan 2022 21:07:17 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-lf1-x12e.google.com (mail-lf1-x12e.google.com
+ [IPv6:2a00:1450:4864:20::12e])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 51DEF402D4
  for <virtualization@lists.linux-foundation.org>;
- Sun,  9 Jan 2022 15:56:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1641743775;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=J7V1ZXHLUPXbLKGQxjrSNZfe50jHyedl6dKQf1BF2XY=;
- b=VC4UKt+2OTZBO+XvZOhdDFe2TL5Y9I1h6azIohiu6SSTxI1F/rU14sMixvdheK7quU+556
- C/hrWydaM3D7+FzUqakvwqABaxiTHTUy1hvu1DsLdEz1WerWbnvYuCQX7VZhrpqG7XhwCz
- hvaO3gbGiCoYB165Il7pxOa34jGgX20=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-673-MTHJetccNVyRq-teKgqhbA-1; Sun, 09 Jan 2022 10:56:04 -0500
-X-MC-Unique: MTHJetccNVyRq-teKgqhbA-1
-Received: by mail-wm1-f71.google.com with SMTP id
- r65-20020a1c4444000000b003478a458f01so3841135wma.4
+ Sun,  9 Jan 2022 21:07:17 +0000 (UTC)
+Received: by mail-lf1-x12e.google.com with SMTP id s30so9673930lfo.7
  for <virtualization@lists.linux-foundation.org>;
- Sun, 09 Jan 2022 07:56:04 -0800 (PST)
+ Sun, 09 Jan 2022 13:07:17 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=daynix-com.20210112.gappssmtp.com; s=20210112;
+ h=from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=esg4bn7G0jMIkn6seqDEuQvZNEfKaqIXGyIwMWcVDh0=;
+ b=B1de/dpBwPvfubE+v3OaTkKnDg55HGFm13nmRzKKZ4yE9ozwtfZOAkNGm4dzpB5j9c
+ 1DCpFubLzTK+G20mk26Z2odim8dMS2HWjpzQ6pmPUV5mGeuwgYPhIC+jN7YCykPe36UF
+ qIJNSMdz7AhP8MVNWPr0qK6JvWnA7kWUROWTwl5SHoBHabURvVNETBRTXTiBgwKki1cV
+ LqBsjPMxkFHhySkGCw6nvq48vLOnqkJLxThjAW1EtNbp5za3Hwh9t3LZFE3lSuxzzHjZ
+ 7z1wNYfglyK3+bsSgHVPtTHHkTNliWt60z3dXX1S+8AFLUlpjfRJOqU5v9kS21Cqmwxn
+ peTQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=J7V1ZXHLUPXbLKGQxjrSNZfe50jHyedl6dKQf1BF2XY=;
- b=5G+6B9qE+kBOwjHvlwkqKuuRaKXKujXwNuzi7Q/aHmlnnDAVuC8uo5M0/Ofcfv4f1M
- vOcKtjq/VVQVloZSa+AS4lfHEVrIFxsb/rmyh5QD0TV/7rEmIbiVJ/1CGEQyMmEpRVlO
- U1ytUnkYbkqAk1sRI7TJjHGZE7enSJ3UUD8zO4ytDBLeIKfaCgfJIxAWtRQjtv8ZSojF
- B8IHprX61AlutVqiNYeNpHKIHM1HJ6jhICox5EcTcDbqhH7bk5sdn2x6EMvdtbFNcsz5
- CKH7gTDEF/gpe8FQITMHHB/GjluHtBheNhLN3jfRhHDofBKestkgd/KcQsxef5Jlk6k0
- FnHQ==
-X-Gm-Message-State: AOAM5301m1e/8aYsIGYzfAv1OwXMZdL8JBesNwKs4jyHuc1GwXNIQfh4
- wtdIAbFjJpA4MaXEPtTmk2nH1ObAbH2bUWYRjbIagPwo4x8dyhMNR8zwNSdNejLhtrQygkRVD2i
- +s9xPNtG5zIBmR8SkqdJWBFYvbuq1DBgYi43cxGnJpg==
-X-Received: by 2002:a7b:c7da:: with SMTP id z26mr12392521wmk.52.1641743763212; 
- Sun, 09 Jan 2022 07:56:03 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwNEi79CRxQjFDs1Tr8AJ4vn/QoN3V9wwHj33+A6h0wLfeFHwE/3phbm0G7DptlIOkNkq64eA==
-X-Received: by 2002:a7b:c7da:: with SMTP id z26mr12392505wmk.52.1641743762966; 
- Sun, 09 Jan 2022 07:56:02 -0800 (PST)
-Received: from redhat.com ([2a03:c5c0:107e:c07a:cd29:1c16:894b:6b07])
- by smtp.gmail.com with ESMTPSA id c8sm4697313wmq.34.2022.01.09.07.56.01
+ h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=esg4bn7G0jMIkn6seqDEuQvZNEfKaqIXGyIwMWcVDh0=;
+ b=jkVxRE0Z0nP7XtYYy5WqYNHfOwUWvLEC9RpUsetAkL6vaY8aADAYqoQ2h+N2ZF7G5S
+ jWNS5Hq2ORsDz9q6rnkZlvPVqJ3R3FRMovIVTFxPC5f9ncvzJ1lKItvQK00ZqgCWIA4m
+ hm6AYN90GgqENsMK339FSzW12hO2ICyQan7TD7djAJ+x2smy2JEKU7KPDTdFvRroC5EX
+ 3qRf+gm9BEVVKm4XkkN8M32pn9EqlQVqcmm5ibbUkGB+Z/DBDukScNDAmGV7wQY2KnJy
+ JTHT001IiCtGy2p2bt21mLJyw0nUkMNL40TRe+F0wSKxQD/hXw7/pN7RkBXEH4DaO2GV
+ tMyw==
+X-Gm-Message-State: AOAM530hMPlpp9OcLwssDwROFgsdPDKUYEc8obN7sUEyct2Mq/RzpLRO
+ cM/RSUW7PgQlI79NuUlZ3U1ZBg==
+X-Google-Smtp-Source: ABdhPJxH3Js0nW5RBZ54Ll58iBo6WDg8zPSOgnp1ipujtGCBK7qTeTiBQQjXzcujKxks1yxE5fCT/w==
+X-Received: by 2002:a2e:b907:: with SMTP id b7mr46119133ljb.167.1641762435212; 
+ Sun, 09 Jan 2022 13:07:15 -0800 (PST)
+Received: from navi.cosmonova.net.ua ([95.67.24.131])
+ by smtp.gmail.com with ESMTPSA id p17sm766129lfu.233.2022.01.09.13.07.14
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sun, 09 Jan 2022 07:56:02 -0800 (PST)
-Date: Sun, 9 Jan 2022 10:55:59 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: kernel test robot <lkp@intel.com>
-Subject: Re: [mst-vhost:vhost 30/44]
- drivers/vdpa/mlx5/net/mlx5_vnet.c:1247:23: sparse: sparse: cast to
- restricted __le16
-Message-ID: <20220109105546-mutt-send-email-mst@kernel.org>
-References: <202201082258.aKRHnaJX-lkp@intel.com>
+ Sun, 09 Jan 2022 13:07:14 -0800 (PST)
+From: Andrew Melnychenko <andrew@daynix.com>
+To: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ linux-kernel@vger.kernel.org, davem@davemloft.net, kuba@kernel.org,
+ jasowang@redhat.com, mst@redhat.com
+Subject: [PATCH 0/4] RSS support for VirtioNet.
+Date: Sun,  9 Jan 2022 23:06:55 +0200
+Message-Id: <20220109210659.2866740-1-andrew@daynix.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-In-Reply-To: <202201082258.aKRHnaJX-lkp@intel.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: netdev@vger.kernel.org, Eli Cohen <elic@nvidia.com>,
- kbuild-all@lists.01.org, kvm@vger.kernel.org,
- virtualization@lists.linux-foundation.org
+Cc: yan@daynix.com, yuri.benditovich@daynix.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -116,86 +99,34 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sat, Jan 08, 2022 at 10:48:34PM +0800, kernel test robot wrote:
-> tree:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost
-> head:   008842b2060c14544ff452483ffd2241d145c7b2
-> commit: 7620d51af29aa1c5d32150db2ac4b6187ef8af3a [30/44] vdpa/mlx5: Support configuring max data virtqueue
-> config: powerpc-allmodconfig (https://download.01.org/0day-ci/archive/20220108/202201082258.aKRHnaJX-lkp@intel.com/config)
-> compiler: powerpc-linux-gcc (GCC) 11.2.0
-> reproduce:
->         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
->         chmod +x ~/bin/make.cross
->         # apt-get install sparse
->         # sparse version: v0.6.4-dirty
->         # https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git/commit/?id=7620d51af29aa1c5d32150db2ac4b6187ef8af3a
->         git remote add mst-vhost https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git
->         git fetch --no-tags mst-vhost vhost
->         git checkout 7620d51af29aa1c5d32150db2ac4b6187ef8af3a
->         # save the config file to linux build tree
->         mkdir build_dir
->         COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-11.2.0 make.cross C=1 CF='-fdiagnostic-prefix -D__CHECK_ENDIAN__' O=build_dir ARCH=powerpc SHELL=/bin/bash drivers/vdpa/mlx5/
-> 
-> If you fix the issue, kindly add following tag as appropriate
-> Reported-by: kernel test robot <lkp@intel.com>
-> 
-> 
-> sparse warnings: (new ones prefixed by >>)
-> >> drivers/vdpa/mlx5/net/mlx5_vnet.c:1247:23: sparse: sparse: cast to restricted __le16
-> >> drivers/vdpa/mlx5/net/mlx5_vnet.c:1247:23: sparse: sparse: cast from restricted __virtio16
-> 
-> vim +1247 drivers/vdpa/mlx5/net/mlx5_vnet.c
+Virtio-net supports "hardware" RSS with toeplitz key.
+Also, it allows receiving calculated hash in vheader
+that may be used with RPS.
+Added ethtools callbacks to manipulate RSS.
 
-Eli? I sent a patch for this - ack?
+Technically hash calculation may be set only for
+SRC+DST and SRC+DST+PORTSRC+PORTDST hashflows.
+The completely disabling hash calculation for TCP or UDP
+would disable hash calculation for IP.
 
->   1232	
->   1233	static int create_rqt(struct mlx5_vdpa_net *ndev)
->   1234	{
->   1235		__be32 *list;
->   1236		int max_rqt;
->   1237		void *rqtc;
->   1238		int inlen;
->   1239		void *in;
->   1240		int i, j;
->   1241		int err;
->   1242		int num;
->   1243	
->   1244		if (!(ndev->mvdev.actual_features & BIT_ULL(VIRTIO_NET_F_MQ)))
->   1245			num = 1;
->   1246		else
-> > 1247			num = le16_to_cpu(ndev->config.max_virtqueue_pairs);
->   1248	
->   1249		max_rqt = min_t(int, roundup_pow_of_two(num),
->   1250				1 << MLX5_CAP_GEN(ndev->mvdev.mdev, log_max_rqt_size));
->   1251		if (max_rqt < 1)
->   1252			return -EOPNOTSUPP;
->   1253	
->   1254		inlen = MLX5_ST_SZ_BYTES(create_rqt_in) + max_rqt * MLX5_ST_SZ_BYTES(rq_num);
->   1255		in = kzalloc(inlen, GFP_KERNEL);
->   1256		if (!in)
->   1257			return -ENOMEM;
->   1258	
->   1259		MLX5_SET(create_rqt_in, in, uid, ndev->mvdev.res.uid);
->   1260		rqtc = MLX5_ADDR_OF(create_rqt_in, in, rqt_context);
->   1261	
->   1262		MLX5_SET(rqtc, rqtc, list_q_type, MLX5_RQTC_LIST_Q_TYPE_VIRTIO_NET_Q);
->   1263		MLX5_SET(rqtc, rqtc, rqt_max_size, max_rqt);
->   1264		list = MLX5_ADDR_OF(rqtc, rqtc, rq_num[0]);
->   1265		for (i = 0, j = 0; i < max_rqt; i++, j += 2)
->   1266			list[i] = cpu_to_be32(ndev->vqs[j % (2 * num)].virtq_id);
->   1267	
->   1268		MLX5_SET(rqtc, rqtc, rqt_actual_size, max_rqt);
->   1269		err = mlx5_vdpa_create_rqt(&ndev->mvdev, in, inlen, &ndev->res.rqtn);
->   1270		kfree(in);
->   1271		if (err)
->   1272			return err;
->   1273	
->   1274		return 0;
->   1275	}
->   1276	
-> 
-> ---
-> 0-DAY CI Kernel Test Service, Intel Corporation
-> https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
+RSS/RXHASH is disabled by default.
+
+Changes since rfc:
+* code refactored
+* patches reformatted
+* added feature validation
+
+Andrew Melnychenko (4):
+  drivers/net/virtio_net: Fixed padded vheader to use v1 with hash.
+  drivers/net/virtio_net: Added basic RSS support.
+  drivers/net/virtio_net: Added RSS hash report.
+  drivers/net/virtio_net: Added RSS hash report control.
+
+ drivers/net/virtio_net.c | 404 +++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 390 insertions(+), 14 deletions(-)
+
+-- 
+2.34.1
 
 _______________________________________________
 Virtualization mailing list
