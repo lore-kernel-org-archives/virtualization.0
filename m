@@ -1,82 +1,105 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5F6C8C433F5
-	for <virtualization@archiver.kernel.org>; Mon, 10 Jan 2022 13:26:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8FF6DC433F5
+	for <virtualization@archiver.kernel.org>; Mon, 10 Jan 2022 13:50:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id E905980C50;
-	Mon, 10 Jan 2022 13:26:27 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 22C3D4092E;
+	Mon, 10 Jan 2022 13:50:21 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id H6bOcOn07a6Z; Mon, 10 Jan 2022 13:26:27 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 9966880C3A;
-	Mon, 10 Jan 2022 13:26:26 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id fZrsdsmoeb6c; Mon, 10 Jan 2022 13:50:20 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id AEF2F4091A;
+	Mon, 10 Jan 2022 13:50:19 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 59304C002F;
-	Mon, 10 Jan 2022 13:26:26 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 5A8CAC001E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 87E51C002F;
+	Mon, 10 Jan 2022 13:50:19 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id CCBC2C001E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Jan 2022 13:26:24 +0000 (UTC)
+ Mon, 10 Jan 2022 13:50:18 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 47FC3405FA
+ by smtp3.osuosl.org (Postfix) with ESMTP id BB0EC60B9E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Jan 2022 13:26:24 +0000 (UTC)
+ Mon, 10 Jan 2022 13:50:18 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=suse.com
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id TEzomz5ujBxU
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id z6WLzZe7sfkI
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Jan 2022 13:26:22 +0000 (UTC)
+ Mon, 10 Jan 2022 13:50:17 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
- by smtp2.osuosl.org (Postfix) with ESMTPS id F39D5404B9
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id C1E7360ACB
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Jan 2022 13:26:21 +0000 (UTC)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by smtp-out2.suse.de (Postfix) with ESMTPS id 4480B1F393;
- Mon, 10 Jan 2022 13:26:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
- t=1641821179; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
+ Mon, 10 Jan 2022 13:50:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1641822615;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=ftxPvsH76ioXgVxK0RuQ2MYRZhERKsXUjEq/6uad5p0=;
- b=Hc0Aw7SyPuCEr9lTcpX3kY3HvnqDItKmAsdn5uNZRrOrk09w4qdatULzMvg6OpFMrBc3db
- a9mBcN+qykn//0ZN4P5p7MC5Ix6aq18eWGCQJ7xO4TrBrYwDsilp36rXFnWLW2T23TLkGD
- xsElvUyoLx23d+TLVryVmnONMgvFgEI=
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 1DC3313AFD;
- Mon, 10 Jan 2022 13:26:19 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
- by imap2.suse-dmz.suse.de with ESMTPSA id i7fgBfsz3GEvNgAAMHmgww
- (envelope-from <jgross@suse.com>); Mon, 10 Jan 2022 13:26:19 +0000
-Subject: Re: [PATCH] x86/paravirt: use %rip-relative addressing in hook calls
-To: Jan Beulich <jbeulich@suse.com>, Thomas Gleixner <tglx@linutronix.de>
-References: <b8192e8a-13ef-6ac6-6364-8ba58992cd1d@suse.com>
- <ba01c739-cda3-cc39-af5b-225d20c20a1e@suse.com>
- <1ef292aa-9107-4e79-9e60-75887bc04dd3@suse.com>
- <764eb4c1-0839-b7da-1c7f-837380fa39fd@suse.com>
-Message-ID: <46270efe-df82-8d95-8b6b-4603f5be7b60@suse.com>
-Date: Mon, 10 Jan 2022 14:26:18 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.12.0
+ bh=nM4W5742079GwSmsTVW9tzOQqEKVJffYutWnxAvkb6c=;
+ b=Oc8QKyopqnyQKjiYrz7TXVFfJpo4i3f6xEF6Pc/pJFW12sGfgxSeerRJ+wKTud4taagPGs
+ pQjAdz3mS9QHbh0LPkLljz4aeCHzFcL3+lp7nPmUCZg4HYsbJ55J/ZEoZ+JkzYWNzlfDCS
+ JxS/BqReHLOeWOT6HUYYGLVqS5K5amM=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-588-dSlHQxw_MnOFJJYkDgWYKA-1; Mon, 10 Jan 2022 08:50:13 -0500
+X-MC-Unique: dSlHQxw_MnOFJJYkDgWYKA-1
+Received: by mail-wm1-f72.google.com with SMTP id
+ e19-20020a05600c4e5300b003458be97976so5029541wmq.7
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 10 Jan 2022 05:50:13 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=nM4W5742079GwSmsTVW9tzOQqEKVJffYutWnxAvkb6c=;
+ b=hzfd62LejPriy27pL2BNl5b5c/HAHLLAMGBkgIR9HFUqRsLIYZls6oLOp07upnvxJi
+ ZmHSIupJ4dZ3czEcWJU9+ZuMHYXEW7F0XPPqb2YO2LUTdEGPrQcLkWdoutTrgkTrtsZi
+ WkTYMjs8WGeosV41nYDjw0g0lVRLrLx9QobfRsIhotbzkkZhOf3TaA14AU1TzqxTaz6w
+ JrQsJaH9Si+dH4a0aJgzgiAMSN3IGhebnRxdmOBn7N3rX1gSrkNhCqRj7Yh53zgV9HUN
+ qp5K52YfMnoog+kc7yu26T/xhWKG4cQQbsDMFd2mHbtVTMXC2+diFmJtENHB/IPT5xDO
+ diAQ==
+X-Gm-Message-State: AOAM533nXaZZ6ohuiEXBtqD/ETESOo9z37q749MxvAcavLmH9/4x8Vmu
+ qLbKmWKLGVK2ZuIOvFi0CPDhQ1jERzg7i27CmNeXEfsnfbNJlVvDrIeuVK+i8BsQN1YVQirqNPm
+ 2oTOZpkLT2aXcgRzVu8+jmqVdRPf1mUAnclCHZQMOfg==
+X-Received: by 2002:a05:600c:298:: with SMTP id
+ 24mr4440798wmk.75.1641822612542; 
+ Mon, 10 Jan 2022 05:50:12 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzDZrwf8gxn4CRtPv8dEC4rvt772IpQ5Vzt7WD+T7EHwb5/d7rvGJopurL47V72dfeARvQ9jA==
+X-Received: by 2002:a05:600c:298:: with SMTP id
+ 24mr4440781wmk.75.1641822612292; 
+ Mon, 10 Jan 2022 05:50:12 -0800 (PST)
+Received: from redhat.com ([2.55.13.160])
+ by smtp.gmail.com with ESMTPSA id b1sm7261162wrd.92.2022.01.10.05.50.10
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 10 Jan 2022 05:50:11 -0800 (PST)
+Date: Mon, 10 Jan 2022 08:50:08 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH v3 0/3] virtio support cache indirect desc
+Message-ID: <20220110084054-mutt-send-email-mst@kernel.org>
+References: <20220106072615-mutt-send-email-mst@kernel.org>
+ <1641473339.4832802-1-xuanzhuo@linux.alibaba.com>
 MIME-Version: 1.0
-In-Reply-To: <764eb4c1-0839-b7da-1c7f-837380fa39fd@suse.com>
-Cc: "VMware, Inc." <pv-drivers@vmware.com>, X86 ML <x86@kernel.org>,
- Linux Virtualization <virtualization@lists.linux-foundation.org>
+In-Reply-To: <1641473339.4832802-1-xuanzhuo@linux.alibaba.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+ Jakub Kicinski <kuba@kernel.org>, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -88,208 +111,115 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Juergen Gross via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Juergen Gross <jgross@suse.com>
-Content-Type: multipart/mixed; boundary="===============0233113070434271099=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============0233113070434271099==
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="dL7UcAgxXI3Idr5fqaBSKODHC8rWP2kta"
+On Thu, Jan 06, 2022 at 08:48:59PM +0800, Xuan Zhuo wrote:
+> On Thu, 6 Jan 2022 07:28:31 -0500, Michael S. Tsirkin <mst@redhat.com> wrote:
+> > On Fri, Oct 29, 2021 at 02:28:11PM +0800, Xuan Zhuo wrote:
+> > > If the VIRTIO_RING_F_INDIRECT_DESC negotiation succeeds, and the number
+> > > of sgs used for sending packets is greater than 1. We must constantly
+> > > call __kmalloc/kfree to allocate/release desc.
+> >
+> >
+> > So where is this going? I really like the performance boost. My concern
+> > is that if guest spans NUMA nodes and when handler switches from
+> > node to another this will keep reusing the cache from
+> > the old node. A bunch of ways were suggested to address this, but
+> > even just making the cache per numa node would help.
+> >
+> 
+> In fact, this is the problem I encountered in implementing virtio-net to support
+> xdp socket. With virtqueue reset[0] has been merged into virtio spec. I
+> am completing this series of work. My plan is:
+> 
+> 1. virtio support advance dma
+> 2. linux kernel/qemu support virtqueue reset
+> 3. virtio-net support AF_XDP
+> 4. virtio support cache indirect desc
+> 
+> [0]: https://github.com/oasis-tcs/virtio-spec/issues/124
+> 
+> Thanks.
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---dL7UcAgxXI3Idr5fqaBSKODHC8rWP2kta
-Content-Type: multipart/mixed; boundary="JSi4spfwlIzt3bFOiIyGqM2DyNMIa1uEU";
- protected-headers="v1"
-From: Juergen Gross <jgross@suse.com>
-To: Jan Beulich <jbeulich@suse.com>, Thomas Gleixner <tglx@linutronix.de>
-Cc: "VMware, Inc." <pv-drivers@vmware.com>,
- Linux Virtualization <virtualization@lists.linux-foundation.org>,
- X86 ML <x86@kernel.org>
-Message-ID: <46270efe-df82-8d95-8b6b-4603f5be7b60@suse.com>
-Subject: Re: [PATCH] x86/paravirt: use %rip-relative addressing in hook calls
-References: <b8192e8a-13ef-6ac6-6364-8ba58992cd1d@suse.com>
- <ba01c739-cda3-cc39-af5b-225d20c20a1e@suse.com>
- <1ef292aa-9107-4e79-9e60-75887bc04dd3@suse.com>
- <764eb4c1-0839-b7da-1c7f-837380fa39fd@suse.com>
-In-Reply-To: <764eb4c1-0839-b7da-1c7f-837380fa39fd@suse.com>
+OK it's up to you how to prioritize your work.
+An idea though: isn't there a way to reduce the use of indirect?
+Even with all the caching, it is surely not free.
+We made it work better in the past with:
 
---JSi4spfwlIzt3bFOiIyGqM2DyNMIa1uEU
-Content-Type: multipart/mixed;
- boundary="------------0E23FCBBCD10651422B7DDF8"
-Content-Language: en-US
+commit e7428e95a06fb516fac1308bd0e176e27c0b9287
+    ("virtio-net: put virtio-net header inline with data"). 
+and
+commit 6ebbc1a6383fe78be3c0961d1475043ac6cc2542
+    virtio-net: Set needed_headroom for virtio-net when VIRTIO_F_ANY_LAYOUT is true
 
-This is a multi-part message in MIME format.
---------------0E23FCBBCD10651422B7DDF8
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-
-On 23.11.21 10:52, Juergen Gross via Virtualization wrote:
-> On 23.11.21 10:29, Jan Beulich wrote:
->> On 05.10.2021 09:43, Juergen Gross wrote:
->>> On 30.09.21 14:40, Jan Beulich via Virtualization wrote:
->>>> While using a plain (constant) address works, its use needlessly=20
->>>> invokes
->>>> a SIB addressing mode, making every call site one byte larger than
->>>> necessary. Instead of using an "i" constraint with address-of operat=
-or
->>>> and a 'c' operand modifier, simply use an ordinary "m" constraint,=20
->>>> which
->>>> the 64-bit compiler will translate to %rip-relative addressing. This=
-=20
->>>> way
->>>> we also tell the compiler the truth about operand usage - the memory=
-
->>>> location gets actually read, after all.
->>>>
->>>> 32-bit code generation is unaffected by the change.
->>>>
->>>> Signed-off-by: Jan Beulich <jbeulich@suse.com>
->>>
->>> Reviewed-by: Juergen Gross <jgross@suse.com>
->>
->> Thanks. I notice this wasn't part of your 5.16-rc1 pull request, nor
->> did it make it into Linus'es tree via any other route. May I ask what
->> the plans here are?
->=20
-> I CC-ed you on the related mail I sent to the x86 maintainers:
->=20
-> "Re: Which tree for paravirt related patches?" on Nov 4th, and Thomas
-> Gleixner promised to look at your patch. Adding him to this response
-> again in order to remind him.
-
-Thomas, another ping. Didn't you want to take this patch more than a
-month ago? Cc-ing the other x86 maintainers, too.
+can't something similar be done for XDP?
 
 
-Juergen
 
---------------0E23FCBBCD10651422B7DDF8
-Content-Type: application/pgp-keys;
- name="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Transfer-Encoding: quoted-printable
-Content-Description: OpenPGP public key
-Content-Disposition: attachment;
- filename="OpenPGP_0xB0DE9DD628BF132F.asc"
+Another idea is to skip indirect even with s/g as number of outstanding
+entries is small. The difficulty with this approach is that it has
+to be tested across a large number of configurations, including
+storage to make sure we don't cause regressions, unless we
+are very conservative and only make a small % of entries direct.
+Will doing that still help? It looks attractive on paper:
+if guest starts outpacing host and ring begins to fill
+up to more than say 10% then we switch to allocating indirect
+entries which slows guest down.
 
------BEGIN PGP PUBLIC KEY BLOCK-----
 
-xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOBy=
-cWx
-w3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJvedYm8O=
-f8Z
-d621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJNwQpd369y=
-9bf
-IhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvxXP3FAp2pkW0xq=
-G7/
-377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEBAAHNHEp1ZXJnZW4gR=
-3Jv
-c3MgPGpnQHBmdXBmLm5ldD7CwHkEEwECACMFAlOMcBYCGwMHCwkIBwMCAQYVCAIJCgsEFgIDA=
-QIe
-AQIXgAAKCRCw3p3WKL8TL0KdB/93FcIZ3GCNwFU0u3EjNbNjmXBKDY4FUGNQH2lvWAUy+dnyT=
-hpw
-dtF/jQ6j9RwE8VP0+NXcYpGJDWlNb9/JmYqLiX2Q3TyevpB0CA3dbBQp0OW0fgCetToGIQrg0=
-MbD
-1C/sEOv8Mr4NAfbauXjZlvTj30H2jO0u+6WGM6nHwbh2l5O8ZiHkH32iaSTfN7Eu5RnNVUJbv=
-oPH
-Z8SlM4KWm8rG+lIkGurqqu5gu8q8ZMKdsdGC4bBxdQKDKHEFExLJK/nRPFmAuGlId1E3fe10v=
-5QL
-+qHI3EIPtyfE7i9Hz6rVwi7lWKgh7pe0ZvatAudZ+JNIlBKptb64FaiIOAWDCx1SzR9KdWVyZ=
-2Vu
-IEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+wsB5BBMBAgAjBQJTjHCvAhsDBwsJCAcDAgEGFQgCC=
-QoL
-BBYCAwECHgECF4AACgkQsN6d1ii/Ey/HmQf/RtI7kv5A2PS4RF7HoZhPVPogNVbC4YA6lW7Dr=
-Wf0
-teC0RR3MzXfy6pJ+7KLgkqMlrAbN/8Dvjoz78X+5vhH/rDLa9BuZQlhFmvcGtCF8eR0T1v0nC=
-/nu
-AFVGy+67q2DH8As3KPu0344TBDpAvr2uYM4tSqxK4DURx5INz4ZZ0WNFHcqsfvlGJALDeE0Lh=
-ITT
-d9jLzdDad1pQSToCnLl6SBJZjDOX9QQcyUigZFtCXFst4dlsvddrxyqT1f17+2cFSdu7+ynLm=
-XBK
-7abQ3rwJY8SbRO2iRulogc5vr/RLMMlscDAiDkaFQWLoqHHOdfO9rURssHNN8WkMnQfvUewRz=
-80h
-SnVlcmdlbiBHcm9zcyA8amdyb3NzQG5vdmVsbC5jb20+wsB5BBMBAgAjBQJTjHDXAhsDBwsJC=
-AcD
-AgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey8PUQf/ehmgCI9jB9hlgexLvgOtf7PJn=
-FOX
-gMLdBQgBlVPO3/D9R8LtF9DBAFPNhlrsfIG/SqICoRCqUcJ96Pn3P7UUinFG/I0ECGF4EvTE1=
-jnD
-kfJZr6jrbjgyoZHiw/4BNwSTL9rWASyLgqlA8u1mf+c2yUwcGhgkRAd1gOwungxcwzwqgljf0=
-N51
-N5JfVRHRtyfwq/ge+YEkDGcTU6Y0sPOuj4Dyfm8fJzdfHNQsWq3PnczLVELStJNdapwPOoE+l=
-otu
-fe3AM2vAEYJ9rTz3Cki4JFUsgLkHFqGZarrPGi1eyQcXeluldO3m91NK/1xMI3/+8jbO0tsn1=
-tqS
-EUGIJi7ox80eSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1c2UuZGU+wsB5BBMBAgAjBQJTjHDrA=
-hsD
-BwsJCAcDAgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey+LhQf9GL45eU5vOowA2u5N3=
-g3O
-ZUEBmDHVVbqMtzwlmNC4k9Kx39r5s2vcFl4tXqW7g9/ViXYuiDXb0RfUpZiIUW89siKrkzmQ5=
-dM7
-wRqzgJpJwK8Bn2MIxAKArekWpiCKvBOB/Cc+3EXE78XdlxLyOi/NrmSGRIov0karw2RzMNOu5=
-D+j
-LRZQd1Sv27AR+IP3I8U4aqnhLpwhK7MEy9oCILlgZ1QZe49kpcumcZKORmzBTNh30FVKK1Evm=
-V2x
-AKDoaEOgQB4iFQLhJCdP1I5aSgM5IVFdn7v5YgEYuJYx37IoN1EblHI//x/e2AaIHpzK5h88N=
-Eaw
-QsaNRpNSrcfbFmAg987ATQRTjHAWAQgAyzH6AOODMBjgfWE9VeCgsrwH3exNAU32gLq2xvjpW=
-nHI
-s98ndPUDpnoxWQugJ6MpMncr0xSwFmHEgnSEjK/PAjppgmyc57BwKII3sV4on+gDVFJR6Y8ZR=
-wgn
-BC5mVM6JjQ5xDk8WRXljExRfUX9pNhdE5eBOZJrDRoLUmmjDtKzWaDhIg/+1Hzz93X4fCQkNV=
-bVF
-LELU9bMaLPBG/x5q4iYZ2k2ex6d47YE1ZFdMm6YBYMOljGkZKwYde5ldM9mo45mmwe0icXKLk=
-pEd
-IXKTZeKDO+Hdv1aqFuAcccTg9RXDQjmwhC3yEmrmcfl0+rPghO0Iv3OOImwTEe4co3c1mwARA=
-QAB
-wsBfBBgBAgAJBQJTjHAWAhsMAAoJELDendYovxMvQ/gH/1ha96vm4P/L+bQpJwrZ/dneZcmEw=
-Tbe
-8YFsw2V/Buv6Z4Mysln3nQK5ZadD534CF7TDVft7fC4tU4PONxF5D+/tvgkPfDAfF77zy2AH1=
-vJz
-Q1fOU8lYFpZXTXIHb+559UqvIB8AdgR3SAJGHHt4RKA0F7f5ipYBBrC6cyXJyyoprT10EMvU8=
-VGi
-wXvTyJz3fjoYsdFzpWPlJEBRMedCot60g5dmbdrZ5DWClAr0yau47zpWj3enf1tLWaqcsuylW=
-svi
-uGjKGw7KHQd3bxALOknAp4dN3QwBYCKuZ7AddY9yjynVaD5X7nF9nO5BjR/i1DG86lem3iBDX=
-zXs
-ZDn8R38=3D
-=3D2wuH
------END PGP PUBLIC KEY BLOCK-----
 
---------------0E23FCBBCD10651422B7DDF8--
-
---JSi4spfwlIzt3bFOiIyGqM2DyNMIa1uEU--
-
---dL7UcAgxXI3Idr5fqaBSKODHC8rWP2kta
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
-
------BEGIN PGP SIGNATURE-----
-
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmHcM/oFAwAAAAAACgkQsN6d1ii/Ey/y
-tQf+LiJBBa3oyNWJwxFTbMX112uSDXd1mlehMSNY/jNBdev5foHf5vZfETwBZaO2F15Si6kf9Zm7
-6go8tcyPOn9qFTwh1Nd7mLFgP/soLH+BW/Q43ydy2xotRXoVVfsTFThKtpFdRrIfjKMytoV3xxot
-o/qVLDY2TQ3bNIF48msPPHiGDQnQedxeY0LLuK3QTEFklnkChw6IvZ+niRQQRTeLA8W4umwqc5We
-ZLcOtBMORtOIpJsbnSY+hyngGQhO7s/+HXthi5IoeXEmpVJL9+1ZTkvQ/3t1Nec3GSJAdAhVkTBL
-4Hwcbprf1S5dF/Sfd/xd/jx2+hB2uCnxMj2Pk3OsgA==
-=GViA
------END PGP SIGNATURE-----
-
---dL7UcAgxXI3Idr5fqaBSKODHC8rWP2kta--
-
---===============0233113070434271099==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+> >
+> > > In the case of extremely fast package delivery, the overhead cannot be
+> > > ignored:
+> > >
+> > >   27.46%  [kernel]  [k] virtqueue_add
+> > >   16.66%  [kernel]  [k] detach_buf_split
+> > >   16.51%  [kernel]  [k] virtnet_xsk_xmit
+> > >   14.04%  [kernel]  [k] virtqueue_add_outbuf
+> > >    5.18%  [kernel]  [k] __kmalloc
+> > >    4.08%  [kernel]  [k] kfree
+> > >    2.80%  [kernel]  [k] virtqueue_get_buf_ctx
+> > >    2.22%  [kernel]  [k] xsk_tx_peek_desc
+> > >    2.08%  [kernel]  [k] memset_erms
+> > >    0.83%  [kernel]  [k] virtqueue_kick_prepare
+> > >    0.76%  [kernel]  [k] virtnet_xsk_run
+> > >    0.62%  [kernel]  [k] __free_old_xmit_ptr
+> > >    0.60%  [kernel]  [k] vring_map_one_sg
+> > >    0.53%  [kernel]  [k] native_apic_mem_write
+> > >    0.46%  [kernel]  [k] sg_next
+> > >    0.43%  [kernel]  [k] sg_init_table
+> > >    0.41%  [kernel]  [k] kmalloc_slab
+> > >
+> > > This patch adds a cache function to virtio to cache these allocated indirect
+> > > desc instead of constantly allocating and releasing desc.
+> > >
+> > > v3:
+> > >   pre-allocate per buffer indirect descriptors array
+> > >
+> > > v2:
+> > >   use struct list_head to cache the desc
+> > >
+> > > *** BLURB HERE ***
+> > >
+> > > Xuan Zhuo (3):
+> > >   virtio: cache indirect desc for split
+> > >   virtio: cache indirect desc for packed
+> > >   virtio-net: enable virtio desc cache
+> > >
+> > >  drivers/net/virtio_net.c     |  11 +++
+> > >  drivers/virtio/virtio.c      |   6 ++
+> > >  drivers/virtio/virtio_ring.c | 131 ++++++++++++++++++++++++++++++-----
+> > >  include/linux/virtio.h       |  14 ++++
+> > >  4 files changed, 145 insertions(+), 17 deletions(-)
+> > >
+> > > --
+> > > 2.31.0
+> >
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0233113070434271099==--
