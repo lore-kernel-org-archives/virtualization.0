@@ -1,58 +1,101 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 923B1C433F5
-	for <virtualization@archiver.kernel.org>; Mon, 10 Jan 2022 07:31:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id DD719C433F5
+	for <virtualization@archiver.kernel.org>; Mon, 10 Jan 2022 07:41:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 44866813A9;
-	Mon, 10 Jan 2022 07:31:30 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 8C7E160C00;
+	Mon, 10 Jan 2022 07:41:46 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Se7mFkgWRCen; Mon, 10 Jan 2022 07:31:29 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id B282981382;
-	Mon, 10 Jan 2022 07:31:28 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 8BFRlLmS4in7; Mon, 10 Jan 2022 07:41:45 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 363B9607D1;
+	Mon, 10 Jan 2022 07:41:45 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 89FC8C0030;
-	Mon, 10 Jan 2022 07:31:28 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 74150C001E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0767EC0030;
+	Mon, 10 Jan 2022 07:41:45 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A27F2C001E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Jan 2022 07:31:27 +0000 (UTC)
+ Mon, 10 Jan 2022 07:41:43 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 49FCA400BF
+ by smtp1.osuosl.org (Postfix) with ESMTP id 8E884813A9
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Jan 2022 07:31:27 +0000 (UTC)
+ Mon, 10 Jan 2022 07:41:43 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id fgFbwz0eatWz
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 5e3fXcqYDhzP
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Jan 2022 07:31:26 +0000 (UTC)
+ Mon, 10 Jan 2022 07:41:43 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from out30-56.freemail.mail.aliyun.com
- (out30-56.freemail.mail.aliyun.com [115.124.30.56])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 0170040004
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id CAF7381375
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Jan 2022 07:31:25 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R211e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04394; MF=xuanzhuo@linux.alibaba.com;
- NM=1; PH=DS; RN=3; SR=0; TI=SMTPD_---0V1OfcTA_1641799881; 
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0V1OfcTA_1641799881) by smtp.aliyun-inc.com(127.0.0.1);
- Mon, 10 Jan 2022 15:31:21 +0800
+ Mon, 10 Jan 2022 07:41:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1641800501;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=bqt+SxB0DkxPbDtF18iXkH6TYZVZxdgpeWCI/zHaJdw=;
+ b=EdHkfkvSrJ1dIn0+VH466a3FfapceCLtzMJtMYbw5EHFODD2joO5deiGyCNFANZsJ6sfX6
+ IdkEPC0t2JdxhWwpk+Na/YzpjtbUpyES8dR8iOm6jtCjPev4pGFWnM2q4OpEVmeXN0WuQm
+ 4aalcQ2eXE615vtQ9ypV++fG7BTWhDE=
+Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
+ [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-652-bvyQFBUvNtC3wa8O93c1xQ-1; Mon, 10 Jan 2022 02:41:40 -0500
+X-MC-Unique: bvyQFBUvNtC3wa8O93c1xQ-1
+Received: by mail-lf1-f71.google.com with SMTP id
+ bq6-20020a056512150600b0041bf41f5437so6013489lfb.17
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 09 Jan 2022 23:41:40 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc:content-transfer-encoding;
+ bh=bqt+SxB0DkxPbDtF18iXkH6TYZVZxdgpeWCI/zHaJdw=;
+ b=6p3kJeNsPeK4Ky6QuqakfEby0VOqCCUF2DQTQWOGgj9atCm8eDtfcx2wJkrI8KJxb8
+ Y32vSflBDD51P747SodF8bTA7zlDsHtrBx1b8+9Lt7t9l3H8qg/+wlzQ9AHbecK/UQC1
+ i41JNQp4HTFAgSR7zI+FiRAH48MqixcmEJXW1netG3g1IEyMsq47lGqBAT8DDPR9mG/x
+ J38twRpSwPOGFe+d6ug3O1btSGQ/8lplLswTpns//Bd7mDnvuE8J7DAosSUlv7wwhVjj
+ z3rzZZvIo4HAoUx11j45FuUHaeSR4NLnKM3OjOYPEXdV/rerEWlmV/C2ByRps/HsTMiC
+ devA==
+X-Gm-Message-State: AOAM533IW6bVITI7isWgLglTlhhfURHObu+ZH5OoxaP8m96kYRlsoZcx
+ AnUTTsOjJ2wgAvaSLAG2hKHALZiCAwA7A/J+FhBog1lInIp7Fln0ntLULs1+pQdNV937BB3UC5f
+ 7jQqNlccd7hbB8lZGzuZvrRR7cxWJcZJ1ocNit/HMhiuVPIfKIo+oU732iQ==
+X-Received: by 2002:a05:6512:230f:: with SMTP id
+ o15mr61331810lfu.348.1641800498954; 
+ Sun, 09 Jan 2022 23:41:38 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxZ6MssEqU7H/Y0PFqiyzrvnTPfOApHjJUIezxSaHtd6Oj3c+RXhNJBBNuuHkcw0bB+d/a7ikIUOGKIcPwJUZ0=
+X-Received: by 2002:a05:6512:230f:: with SMTP id
+ o15mr61331801lfu.348.1641800498778; 
+ Sun, 09 Jan 2022 23:41:38 -0800 (PST)
 MIME-Version: 1.0
-message-id: <1641799490.6420898-3-xuanzhuo@linux.alibaba.com>
-subject: Re: [PATCH 6/6] virtio: add api virtio_dma_map() for advance dma
-date: Mon, 10 Jan 2022 15:24:50 +0800
-from: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-to: Michael S. Tsirkin <mst@redhat.com>
-in-reply-to: <20220110020739-mutt-send-email-mst@kernel.org>
-Cc: virtualization@lists.linux-foundation.org
+References: <c649faa9-aa1f-e5ff-a448-0abce38eeff9@redhat.com>
+ <1641799153.8704977-1-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <1641799153.8704977-1-xuanzhuo@linux.alibaba.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 10 Jan 2022 15:41:27 +0800
+Message-ID: <CACGkMEsV-GLLUmTnBHBUou_2+urkpaV4A54cD8wwoH-6eoer=w@mail.gmail.com>
+Subject: Re: [PATCH 2/6] virtio: split: alloc indirect desc with extra
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: virtualization <virtualization@lists.linux-foundation.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -64,136 +107,40 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, 10 Jan 2022 02:12:23 -0500, Michael S. Tsirkin <mst@redhat.com> wrote:
-> On Fri, Jan 07, 2022 at 02:33:06PM +0800, Xuan Zhuo wrote:
-> > Added virtio_dma_map() to map DMA addresses for virtual memory in
-> > advance. The purpose of adding this function is to check
-> > vring_use_dma_api() for virtio dma operation and get vdev->dev.parent as
-> > the parameter of dma_map_page().
-> >
-> > Added virtio_dma_unmap() for unmap DMA address.
-> >
-> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
->
->
-> OK but where are the users for this new API?
-
-My subsequent patch set (virtio net supports AF_XDP) will use this API.
-
->
->
-> > ---
-> >  drivers/virtio/virtio_ring.c | 47 ++++++++++++++++++++++++++++++++++++
-> >  include/linux/virtio.h       |  9 +++++++
-> >  2 files changed, 56 insertions(+)
-> >
-> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> > index e165bc2e1344..f4a0fb85df27 100644
-> > --- a/drivers/virtio/virtio_ring.c
-> > +++ b/drivers/virtio/virtio_ring.c
-> > @@ -2472,4 +2472,51 @@ const struct vring *virtqueue_get_vring(struct virtqueue *vq)
-> >  }
-> >  EXPORT_SYMBOL_GPL(virtqueue_get_vring);
-> >
-> > +/**
-> > + * virtio_dma_map - get the DMA addr of the memory for virtio device
-> > + * @vdev: virtio device
-> > + * @page: the page of the memory to DMA
-> > + * @offset: the offset of the memory inside page
-> > + * @length: memory length
-> > + * @dir: DMA direction
-> > + *
-> > + * Returns the DMA addr. Zero means error.
->
-> Should not drivers use a variant of dma_mapping_error to check?
-
-The purpose of this is to wrap vdev->dev.parent. Otherwise, the driver will
-directly access vdev->dev.parent.
-
->
-> > + */
-> > +dma_addr_t virtio_dma_map(struct virtio_device *vdev,
-> > +			  struct page *page, size_t offset,
-> > +			  unsigned int length,
-> > +			  enum dma_data_direction dir)
-> > +{
-> > +	dma_addr_t addr;
-> > +
-> > +	if (!vring_use_dma_api(vdev))
-> > +		return page_to_phys(page) + offset;
-> > +
-> > +	addr = dma_map_page(vdev->dev.parent, page, offset, length, dir);
-> > +
-> > +	if (dma_mapping_error(vdev->dev.parent, addr))
-> > +		return 0;
-> > +
-> > +	return addr;
-> > +}
-> > +EXPORT_SYMBOL_GPL(virtio_dma_map);
->
->
-> Yes it's 0, but you should really use DMA_MAPPING_ERROR.
-
-Yes, I should use DMA_MAPPING_ERROR.
-
-Thanks.
-
-
->
-> > +
-> > +/**
-> > + * virtio_dma_unmap - unmap DMA addr
-> > + * @vdev: virtio device
-> > + * @dma: DMA address
-> > + * @length: memory length
-> > + * @dir: DMA direction
-> > + */
-> > +void virtio_dma_unmap(struct virtio_device *vdev,
-> > +		      dma_addr_t dma, unsigned int length,
-> > +		      enum dma_data_direction dir)
-> > +{
-> > +	if (!vring_use_dma_api(vdev))
-> > +		return;
-> > +
-> > +	dma_unmap_page(vdev->dev.parent, dma, length, dir);
-> > +}
-> > +EXPORT_SYMBOL_GPL(virtio_dma_unmap);
-> > +
-> >  MODULE_LICENSE("GPL");
-> > diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-> > index 41edbc01ffa4..6e6c6e18ecf8 100644
-> > --- a/include/linux/virtio.h
-> > +++ b/include/linux/virtio.h
-> > @@ -9,6 +9,7 @@
-> >  #include <linux/device.h>
-> >  #include <linux/mod_devicetable.h>
-> >  #include <linux/gfp.h>
-> > +#include <linux/dma-mapping.h>
-> >
-> >  /**
-> >   * virtqueue - a queue to register buffers for sending or receiving.
-> > @@ -195,4 +196,12 @@ void unregister_virtio_driver(struct virtio_driver *drv);
-> >  #define module_virtio_driver(__virtio_driver) \
-> >  	module_driver(__virtio_driver, register_virtio_driver, \
-> >  			unregister_virtio_driver)
-> > +
-> > +dma_addr_t virtio_dma_map(struct virtio_device *vdev,
-> > +			  struct page *page, size_t offset,
-> > +			  unsigned int length,
-> > +			  enum dma_data_direction dir);
-> > +void virtio_dma_unmap(struct virtio_device *vdev,
-> > +		      dma_addr_t dma, unsigned int length,
-> > +		      enum dma_data_direction dir);
-> >  #endif /* _LINUX_VIRTIO_H */
-> > --
-> > 2.31.0
->
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gTW9uLCBKYW4gMTAsIDIwMjIgYXQgMzoyNCBQTSBYdWFuIFpodW8gPHh1YW56aHVvQGxpbnV4
+LmFsaWJhYmEuY29tPiB3cm90ZToKPgo+IE9uIE1vbiwgMTAgSmFuIDIwMjIgMTQ6NDM6MzkgKzA4
+MDAsIEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+IHdyb3RlOgo+ID4KPiA+IOWcqCAy
+MDIyLzEvNyDkuIvljYgyOjMzLCBYdWFuIFpodW8g5YaZ6YGTOgo+ID4gPiBJbiB0aGUgc2NlbmFy
+aW8gd2hlcmUgaW5kaXJlY3QgaXMgbm90IHVzZWQsIGVhY2ggZGVzYyBjb3JyZXNwb25kcyB0byBh
+bgo+ID4gPiBleHRyYSwgd2hpY2ggaXMgdXNlZCB0byByZWNvcmQgaW5mb3JtYXRpb24gc3VjaCBh
+cyBkbWEsIGZsYWdzLCBhbmQKPiA+ID4gbmV4dC4KPiA+ID4KPiA+ID4gSW4gdGhlIHNjZW5hcmlv
+IG9mIHVzaW5nIGluZGlyZWN0LCB0aGUgYXNzaWduZWQgZGVzYyBkb2VzIG5vdCBoYXZlIHRoZQo+
+ID4gPiBjb3JyZXNwb25kaW5nIGV4dHJhIHJlY29yZCBkbWEgaW5mb3JtYXRpb24sIGFuZCB0aGUg
+ZG1hIGluZm9ybWF0aW9uIG11c3QKPiA+ID4gYmUgb2J0YWluZWQgZnJvbSB0aGUgZGVzYyB3aGVu
+IHVubWFwLgo+ID4gPgo+ID4gPiBUaGlzIHBhdGNoIGFsbG9jYXRlcyB0aGUgY29ycmVzcG9uZGlu
+ZyBleHRyYSBhcnJheSB3aGVuIGluZGlyZWN0IGRlc2MgaXMKPiA+ID4gYWxsb2NhdGVkLiBUaGlz
+IGhhcyB0aGVzZSBhZHZhbnRhZ2VzOgo+ID4gPiAxLiBSZWNvcmQgdGhlIGRtYSBpbmZvcm1hdGlv
+biBvZiBkZXNjLCBubyBuZWVkIHRvIHJlYWQgZGVzYyB3aGVuIHVubWFwCj4gPiA+IDIuIEl0IHdp
+bGwgYmUgbW9yZSBjb252ZW5pZW50IGFuZCB1bmlmaWVkIGluIHByb2Nlc3NpbmcKPiA+ID4gMy4g
+U29tZSBhZGRpdGlvbmFsIGluZm9ybWF0aW9uIGNhbiBiZSByZWNvcmRlZCBpbiBleHRyYSwgd2hp
+Y2ggd2lsbCBiZQo+ID4gPiAgICAgdXNlZCBpbiBzdWJzZXF1ZW50IHBhdGNoZXMuCj4gPgo+ID4K
+PiA+IFR3byBxdWVzdGlvbnM6Cj4gPgo+ID4gMSkgSXMgdGhlcmUgYW55IHBlcmZvcm1hbmNlIG51
+bWJlciBmb3IgdGhpcyBjaGFuZ2U/IEkgZ3Vlc3MgaXQgZ2l2ZXMKPiA+IG1vcmUgc3RyZXNzIG9u
+IHRoZSBjYWNoZS4KPgo+IEkgd2lsbCBhZGQgcGVyZm9ybWFuY2UgdGVzdCBkYXRhIGluIHRoZSBu
+ZXh0IHZlcnNpb24uCj4KPiA+IDIpIElzIHRoZXJlIGEgcmVxdWlyZW1lbnQgdG8gbWl4IHRoZSBw
+cmUgbWFwcGVkIHNnIHdpdGggdW5tYXBwZWQgc2c/IElmCj4gPiBub3QsIGEgcGVyIHZpcnRxdWV1
+ZSBmbGFnIGxvb2tzIHN1ZmZpY2llbnQKPgo+IFRoZXJlIGlzIHRoaXMgcmVxdWlyZW1lbnQuIEZv
+ciBleGFtcGxlLCBpbiB0aGUgY2FzZSBvZiBBRl9YRFAsIGEgcGF0Y2tldAo+IGNvbnRhaW5zIHR3
+byBwYXJ0cywgb25lIGlzIHZpcnRpb19uZXRfaGRyLCBhbmQgdGhlIG90aGVyIGlzIHRoZSBhY3R1
+YWwgZGF0YQo+IHBhY2tldCBmcm9tIEFGX1hEUC4gVGhlIGZvcm1lciBpcyB1bm1hcHBlZCBzZywg
+YW5kIHRoZSBsYXR0ZXIgaXMgcHJlIG1hcHBlZCBzZy4KCkFueSBjaGFuY2UgdG8gbWFwIHZpcnRp
+b19uZXRfaGRyKCkgbWFudWFsbHkgYnkgQUZfWERQIHJvdXRpbmUgaW4gdGhpcyBjYXNlPwoKVGhh
+bmtzCgo+Cj4gVGhhbmtzLgo+Cj4gPgo+ID4gVGhhbmtzCj4gPgo+ID4KPgoKX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGlu
+ZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8v
+bGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
