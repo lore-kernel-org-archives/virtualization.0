@@ -1,104 +1,110 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 977FEC433EF
-	for <virtualization@archiver.kernel.org>; Mon, 10 Jan 2022 10:06:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3FDA9C433EF
+	for <virtualization@archiver.kernel.org>; Mon, 10 Jan 2022 12:57:13 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 2870F408B7;
-	Mon, 10 Jan 2022 10:06:39 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id D9C2B405F6;
+	Mon, 10 Jan 2022 12:57:12 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id uScQ3Z05qw48; Mon, 10 Jan 2022 10:06:38 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id A77F34088F;
-	Mon, 10 Jan 2022 10:06:37 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 09eplm6IJ9AY; Mon, 10 Jan 2022 12:57:11 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id A9ECD405F1;
+	Mon, 10 Jan 2022 12:57:10 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 671E3C0030;
-	Mon, 10 Jan 2022 10:06:37 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8EFC1C0030;
+	Mon, 10 Jan 2022 12:57:10 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id EC3E9C001E
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 25A40C001E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Jan 2022 10:06:35 +0000 (UTC)
+ Mon, 10 Jan 2022 12:57:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id CAE4D408AD
+ by smtp4.osuosl.org (Postfix) with ESMTP id 073AB40157
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Jan 2022 10:06:35 +0000 (UTC)
+ Mon, 10 Jan 2022 12:57:10 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 9lYSrKUn4y9n
+ with ESMTP id s2qA1CFhLsbj
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Jan 2022 10:06:35 +0000 (UTC)
+ Mon, 10 Jan 2022 12:57:06 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id E03AA4088F
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 4B6B4401D5
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Jan 2022 10:06:34 +0000 (UTC)
+ Mon, 10 Jan 2022 12:57:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1641809193;
+ s=mimecast20190719; t=1641819425;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=HesmnWxg1xJeBVtRyG77TZ9HBhzyRJZQ+LajAsWmBaw=;
- b=XJ5ajLiuK9Qfvod+ZgIQ6jd7A4bnADsZ6jY1uWq+x+3LPXAKfgK7rJaDQPeewkMsSf3H2S
- 2RIOkn6q5yl3V/Hjymc4pFmJhOh5GVpNTDpSaAwOVnXYQJoIeMEFRhtlB2J0QEAMNBRY6+
- YnVoF8fkGrpZM2OCMcOhvrfuZbTawa0=
-Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
- [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=AVvp/Hc7qPRUEz7YJl4ozj14nYLlyYVQtjr0ms9L8NQ=;
+ b=LHUUjPqEC2DQUTAsDejkUVSCUfOmF8WlC9vrF75NVLQokA+JSrw3RcmXygeS+vnahqMW91
+ uR5vBGtmLsx/ooDQkSl4bWn4QKofIJYh2kMtLFsKDIh2ux7S1AnqLJzrNYySXlrdUSg3mo
+ azdNrZZJ4yFgTyx2jZvjVkxVdHYFHos=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-284-AnZT9qX3NTKKLDxXs9yqgQ-1; Mon, 10 Jan 2022 05:06:32 -0500
-X-MC-Unique: AnZT9qX3NTKKLDxXs9yqgQ-1
-Received: by mail-ed1-f72.google.com with SMTP id
- w6-20020a05640234c600b003f916e1b615so9687748edc.17
+ us-mta-416-RLDlN6TSOIa1_x4RhCKdaw-1; Mon, 10 Jan 2022 07:56:57 -0500
+X-MC-Unique: RLDlN6TSOIa1_x4RhCKdaw-1
+Received: by mail-wr1-f71.google.com with SMTP id
+ q16-20020adfbb90000000b001a4838099baso4136180wrg.10
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Jan 2022 02:06:32 -0800 (PST)
+ Mon, 10 Jan 2022 04:56:56 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:content-transfer-encoding
- :in-reply-to;
- bh=HesmnWxg1xJeBVtRyG77TZ9HBhzyRJZQ+LajAsWmBaw=;
- b=JV9izfsjgkSfTar0o72zqapB+/vsDiJd24mwNq1sUutLWP//xEZyrE+YtyKhiwbP87
- 3h/j61FePWUtnY9lfd58sAEO3uiXCaXtTlVvYqDhePNjOqIIEPGnIA7K8sqTl9J9ZbX+
- k7deBk3NiJtgvA0tCC4ozlruVy5WhQpsTitQt0UCwSbWtz7mdvuU5dY4itBPv2F7hZE7
- TBAqvETfR22NFEsHfHOUGKWZA4kdhufrKz0kpiCKxKGiCCGvI7uz79/BRVCHWjz++L0s
- cnQmpy07NTdCZ/aYBa+oQGdlAu6CoBIU59KVfN+tSYDfbxgYaTyQ/0WaklPRr7FWYeg2
- sLqg==
-X-Gm-Message-State: AOAM5303daULVnrPqDTVMGK1oTyBNd4cUG4Zxv/b8YdMPulNli1x/g99
- 0Txadockz+l329l+5oCGuEkxB3f+x64EGzq0inKc2+Wd8/C7YbE2pgSO7/mku4DPk54gcO560dU
- zEAmp5C0pYpVxe3ovHQg+VYPwm0JQj8voHBQTlyq3Mw==
-X-Received: by 2002:a17:907:86ab:: with SMTP id
- qa43mr59644123ejc.583.1641809191165; 
- Mon, 10 Jan 2022 02:06:31 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJx+6Kuwoxbck4lXYbwF+9bmBWmPXTMMjz65i9g7ygHswL2OcGIUQUpkxyrwNO5wTGKeFEZzrg==
-X-Received: by 2002:a17:907:86ab:: with SMTP id
- qa43mr59644114ejc.583.1641809190948; 
- Mon, 10 Jan 2022 02:06:30 -0800 (PST)
-Received: from redhat.com ([2a03:c5c0:107d:b60c:c297:16fe:7528:e989])
- by smtp.gmail.com with ESMTPSA id s20sm3342081edd.41.2022.01.10.02.06.29
+ :mime-version:content-disposition:in-reply-to;
+ bh=AVvp/Hc7qPRUEz7YJl4ozj14nYLlyYVQtjr0ms9L8NQ=;
+ b=v6AVZlQ0HXkpRm0K3gRduGSWdC6cRRd1HSvsDitm4byt7k7dtf1NNGeio+YF6tyzxs
+ 3krwS8TDX06VFlO87lsgEV0zcrVdUfxe3ONuUrDGM8Qzg1mchR17y53gqsFy2RhuqMMs
+ ZxAYOltd7bf4lenWFeo75k4rwzGbZ4CjnZUWseoI7mVda65lGN2EILtPWioHLCn5GakC
+ r3YKNGVp7YiyT0JgGJqVK0rcTMg6ycqXh9c2TIWK4bEdUqq3XFYzvi0ypqtKXhZFyvrL
+ WbtpqGPuewxrbl1pIt127SX40agOkJLg0bU3w0VCiSQvPLvqc/mSJxcbz3rYjHB72nl2
+ skpQ==
+X-Gm-Message-State: AOAM531TTc8EWoTxxmvrU7VREw6HwHjgizlf3VsS83defSbA26toFWgk
+ 04mILGv/d3iD9Bn0YDgBkr6uNJW8eP3mUUzDq8OIj2KrAifSNNTd74dpDwL0KlC7mzSdS8lvWzX
+ A8pxV+olCsyykj9vGXROOt1r5hzRQydwEGUMPlXWgWg==
+X-Received: by 2002:a5d:6811:: with SMTP id w17mr1492951wru.443.1641819415869; 
+ Mon, 10 Jan 2022 04:56:55 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwdbhYXvkJBaz3bkMPO/rSfqHXfqP57/N68w5WuSlZAf8/gWErxx+H35vqh9TdefF+KiFBoKA==
+X-Received: by 2002:a5d:6811:: with SMTP id w17mr1492925wru.443.1641819415636; 
+ Mon, 10 Jan 2022 04:56:55 -0800 (PST)
+Received: from redhat.com ([2.55.13.160])
+ by smtp.gmail.com with ESMTPSA id g6sm6862655wri.67.2022.01.10.04.56.51
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 10 Jan 2022 02:06:30 -0800 (PST)
-Date: Mon, 10 Jan 2022 05:06:27 -0500
+ Mon, 10 Jan 2022 04:56:55 -0800 (PST)
+Date: Mon, 10 Jan 2022 07:56:49 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH 2/6] virtio: split: alloc indirect desc with extra
-Message-ID: <20220110050531-mutt-send-email-mst@kernel.org>
-References: <20220110044217-mutt-send-email-mst@kernel.org>
- <1641808716.6985362-1-xuanzhuo@linux.alibaba.com>
+To: Xie Yongji <xieyongji@bytedance.com>
+Subject: Re: [PATCH v12 00/13] Introduce VDUSE - vDPA Device in Userspace
+Message-ID: <20220110075546-mutt-send-email-mst@kernel.org>
+References: <20210830141737.181-1-xieyongji@bytedance.com>
 MIME-Version: 1.0
-In-Reply-To: <1641808716.6985362-1-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20210830141737.181-1-xieyongji@bytedance.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: virtualization <virtualization@lists.linux-foundation.org>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ christian.brauner@canonical.com, will@kernel.org, corbet@lwn.net,
+ joro@8bytes.org, willy@infradead.org, hch@infradead.org,
+ dan.carpenter@oracle.com, john.garry@huawei.com, xiaodong.liu@intel.com,
+ linux-fsdevel@vger.kernel.org, viro@zeniv.linux.org.uk, stefanha@redhat.com,
+ songmuchun@bytedance.com, axboe@kernel.dk, zhe.he@windriver.com,
+ gregkh@linuxfoundation.org, rdunlap@infradead.org,
+ linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, bcrl@kvack.org,
+ netdev@vger.kernel.org, joe@perches.com, robin.murphy@arm.com,
+ mika.penttila@nextfour.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -110,92 +116,248 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gTW9uLCBKYW4gMTAsIDIwMjIgYXQgMDU6NTg6MzZQTSArMDgwMCwgWHVhbiBaaHVvIHdyb3Rl
-Ogo+IE9uIE1vbiwgMTAgSmFuIDIwMjIgMDQ6NDk6MjUgLTA1MDAsIE1pY2hhZWwgUy4gVHNpcmtp
-biA8bXN0QHJlZGhhdC5jb20+IHdyb3RlOgo+ID4gT24gTW9uLCBKYW4gMTAsIDIwMjIgYXQgMDU6
-MjM6MTNQTSArMDgwMCwgWHVhbiBaaHVvIHdyb3RlOgo+ID4gPiBPbiBNb24sIDEwIEphbiAyMDIy
-IDE2OjU0OjU4ICswODAwLCBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPiB3cm90ZToK
-PiA+ID4gPiBPbiBNb24sIEphbiAxMCwgMjAyMiBhdCAzOjU5IFBNIFh1YW4gWmh1byA8eHVhbnpo
-dW9AbGludXguYWxpYmFiYS5jb20+IHdyb3RlOgo+ID4gPiA+ID4KPiA+ID4gPiA+IE9uIE1vbiwg
-MTAgSmFuIDIwMjIgMTU6NDE6MjcgKzA4MDAsIEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5j
-b20+IHdyb3RlOgo+ID4gPiA+ID4gPiBPbiBNb24sIEphbiAxMCwgMjAyMiBhdCAzOjI0IFBNIFh1
-YW4gWmh1byA8eHVhbnpodW9AbGludXguYWxpYmFiYS5jb20+IHdyb3RlOgo+ID4gPiA+ID4gPiA+
-Cj4gPiA+ID4gPiA+ID4gT24gTW9uLCAxMCBKYW4gMjAyMiAxNDo0MzozOSArMDgwMCwgSmFzb24g
-V2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4gd3JvdGU6Cj4gPiA+ID4gPiA+ID4gPgo+ID4gPiA+
-ID4gPiA+ID4g5ZyoIDIwMjIvMS83IOS4i+WNiDI6MzMsIFh1YW4gWmh1byDlhpnpgZM6Cj4gPiA+
-ID4gPiA+ID4gPiA+IEluIHRoZSBzY2VuYXJpbyB3aGVyZSBpbmRpcmVjdCBpcyBub3QgdXNlZCwg
-ZWFjaCBkZXNjIGNvcnJlc3BvbmRzIHRvIGFuCj4gPiA+ID4gPiA+ID4gPiA+IGV4dHJhLCB3aGlj
-aCBpcyB1c2VkIHRvIHJlY29yZCBpbmZvcm1hdGlvbiBzdWNoIGFzIGRtYSwgZmxhZ3MsIGFuZAo+
-ID4gPiA+ID4gPiA+ID4gPiBuZXh0Lgo+ID4gPiA+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiA+ID4g
-PiBJbiB0aGUgc2NlbmFyaW8gb2YgdXNpbmcgaW5kaXJlY3QsIHRoZSBhc3NpZ25lZCBkZXNjIGRv
-ZXMgbm90IGhhdmUgdGhlCj4gPiA+ID4gPiA+ID4gPiA+IGNvcnJlc3BvbmRpbmcgZXh0cmEgcmVj
-b3JkIGRtYSBpbmZvcm1hdGlvbiwgYW5kIHRoZSBkbWEgaW5mb3JtYXRpb24gbXVzdAo+ID4gPiA+
-ID4gPiA+ID4gPiBiZSBvYnRhaW5lZCBmcm9tIHRoZSBkZXNjIHdoZW4gdW5tYXAuCj4gPiA+ID4g
-PiA+ID4gPiA+Cj4gPiA+ID4gPiA+ID4gPiA+IFRoaXMgcGF0Y2ggYWxsb2NhdGVzIHRoZSBjb3Jy
-ZXNwb25kaW5nIGV4dHJhIGFycmF5IHdoZW4gaW5kaXJlY3QgZGVzYyBpcwo+ID4gPiA+ID4gPiA+
-ID4gPiBhbGxvY2F0ZWQuIFRoaXMgaGFzIHRoZXNlIGFkdmFudGFnZXM6Cj4gPiA+ID4gPiA+ID4g
-PiA+IDEuIFJlY29yZCB0aGUgZG1hIGluZm9ybWF0aW9uIG9mIGRlc2MsIG5vIG5lZWQgdG8gcmVh
-ZCBkZXNjIHdoZW4gdW5tYXAKPiA+ID4gPiA+ID4gPiA+ID4gMi4gSXQgd2lsbCBiZSBtb3JlIGNv
-bnZlbmllbnQgYW5kIHVuaWZpZWQgaW4gcHJvY2Vzc2luZwo+ID4gPiA+ID4gPiA+ID4gPiAzLiBT
-b21lIGFkZGl0aW9uYWwgaW5mb3JtYXRpb24gY2FuIGJlIHJlY29yZGVkIGluIGV4dHJhLCB3aGlj
-aCB3aWxsIGJlCj4gPiA+ID4gPiA+ID4gPiA+ICAgICB1c2VkIGluIHN1YnNlcXVlbnQgcGF0Y2hl
-cy4KPiA+ID4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiA+ID4gVHdvIHF1
-ZXN0aW9uczoKPiA+ID4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+ID4gPiAxKSBJcyB0aGVyZSBhbnkg
-cGVyZm9ybWFuY2UgbnVtYmVyIGZvciB0aGlzIGNoYW5nZT8gSSBndWVzcyBpdCBnaXZlcwo+ID4g
-PiA+ID4gPiA+ID4gbW9yZSBzdHJlc3Mgb24gdGhlIGNhY2hlLgo+ID4gPiA+ID4gPiA+Cj4gPiA+
-ID4gPiA+ID4gSSB3aWxsIGFkZCBwZXJmb3JtYW5jZSB0ZXN0IGRhdGEgaW4gdGhlIG5leHQgdmVy
-c2lvbi4KPiA+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiA+ID4gMikgSXMgdGhlcmUgYSByZXF1aXJl
-bWVudCB0byBtaXggdGhlIHByZSBtYXBwZWQgc2cgd2l0aCB1bm1hcHBlZCBzZz8gSWYKPiA+ID4g
-PiA+ID4gPiA+IG5vdCwgYSBwZXIgdmlydHF1ZXVlIGZsYWcgbG9va3Mgc3VmZmljaWVudAo+ID4g
-PiA+ID4gPiA+Cj4gPiA+ID4gPiA+ID4gVGhlcmUgaXMgdGhpcyByZXF1aXJlbWVudC4gRm9yIGV4
-YW1wbGUsIGluIHRoZSBjYXNlIG9mIEFGX1hEUCwgYSBwYXRja2V0Cj4gPiA+ID4gPiA+ID4gY29u
-dGFpbnMgdHdvIHBhcnRzLCBvbmUgaXMgdmlydGlvX25ldF9oZHIsIGFuZCB0aGUgb3RoZXIgaXMg
-dGhlIGFjdHVhbCBkYXRhCj4gPiA+ID4gPiA+ID4gcGFja2V0IGZyb20gQUZfWERQLiBUaGUgZm9y
-bWVyIGlzIHVubWFwcGVkIHNnLCBhbmQgdGhlIGxhdHRlciBpcyBwcmUgbWFwcGVkIHNnLgo+ID4g
-PiA+ID4gPgo+ID4gPiA+ID4gPiBBbnkgY2hhbmNlIHRvIG1hcCB2aXJ0aW9fbmV0X2hkcigpIG1h
-bnVhbGx5IGJ5IEFGX1hEUCByb3V0aW5lIGluIHRoaXMgY2FzZT8KPiA+ID4gPiA+Cj4gPiA+ID4g
-PiBXZWxsLCBpdCBpcyBpbmRlZWQgcG9zc2libGUgdG8gZG8gc28uIEluIHRoZSBpbmRpcmVjdCBz
-Y2VuYXJpbywgd2UgY2FuIHJlY29yZCBpdAo+ID4gPiA+ID4gaW4gdnJpbmctPnNwbGl0LmRlc2Nf
-ZXh0cmFbaGVhZF0uZmxhZ3MKPiA+ID4gPiA+Cj4gPiA+ID4gPiBUaGVuIHdlIGhhdmUgdG8gYWdy
-ZWUgdGhhdCB0aGVyZSBjYW4gYmUgbm8gbWl4ZWQgc2l0dWF0aW9uLgo+ID4gPiA+Cj4gPiA+ID4g
-SSB0aGluayBpdCB3b3VsZCBiZSBlYXNpZXIgYW5kIGxlc3MgcGVyZm9ybWFuY2UgcmVncmVzc2lv
-biBpZiB3ZSBkb24ndAo+ID4gPiA+IGRvIGh1Z2UgY2hhbmdlcyBpbiB0aGUgY29yZSB1bmxlc3Mg
-aXQncyBhIG11c3QuCj4gPiA+ID4KPiA+ID4KPiA+ID4gT2ssIEkgcGxhbiB0byBhZGQgdHdvIG5l
-dyBpbnRlcmZhY2UgdmlydHF1ZXVlX2FkZF9vdXRidWZfZmxhZygpLAo+ID4gPiB2aXJ0cXVldWVf
-YWRkX2luYnVmX2ZsYWcoKSBwYXNzIGEgZmxhZyBwYXJhbWV0ZXIgdG8gdmlydHF1ZXVlX2FkZCgp
-IHRvCj4gPiA+IG1hcmsgc2dzIGFkZHIgaXMgcHJlZG1hLgo+ID4KPiA+IEkgd291bGQgbWF5YmUg
-anVzdCBkbyBhIHZhcmlhbnQgd29ya2luZyB3aXRoIG1hcHBlZCBTR3MuCj4gCj4gRG8geW91IG1l
-YW4gdmlydHF1ZXVlX2FkZF9pbmJ1Zl9kbWEoKSwgdmlydHF1ZXVlX2FkZF9vdXRidWZfZG1hKCk/
-CgpGb3IgZXhhbXBsZS4gSGF2ZW4ndCB0aG91Z2h0IGFib3V0IHRoZSBiZXN0IG5hbWUgeWV0LgoK
-PiA+Cj4gPiA+IEkgZG9uJ3Qgd2FudCB0byB1c2Ugc2ctPmRtYV9hZGRyZXNzLCBzbyB3ZSBoYXZl
-IHRvIGNoZWNrIHdoZXRoZXIgZWFjaCBzZyB1c2VzCj4gPiA+IGRtYV9hZGRyZXNzLiBJZiBpdCBp
-cyBub3QgdW5pZmllZCwgd2Ugd2lsbCBhbHNvIGhhbmRsZSBleGNlcHRpb24uCj4gPiA+Cj4gPiA+
-ID4gQnR3LCBJIGZvcmdvdCB0aGUgY29uY2x1c2lvbiBvZiB0aGUgbGFzdCBBRl9YRFAgc2VyaWVz
-LiBXaHkgaXMgaXQKPiA+ID4gPiBiZXR0ZXIgdG8gY2hhbmdlIHZpcnRpb19yaW5nIGluc3RlYWQg
-b2YgQUZfWERQICh3aGljaCBzZWVtcyBlYXNpZXIpLgo+ID4gPgo+ID4gPiBSZWdhcmRpbmcgdGhp
-cyBxdWVzdGlvbiwgSSdtIGd1ZXNzaW5nIHlvdSBtZWFuIHRvIG1ha2UgQUZfWERQIG5vdCB1c2Ug
-RE1BCj4gPiA+IGFkZHJlc3Nlcz8gSW5zdGVhZCBwYXNzIHZpcnR1YWwgYWRkcmVzc2VzIHRvIHZp
-cnRpby4KPiA+ID4KPiA+ID4gSXQgd291bGQgY2VydGFpbmx5IGJlIHNpbXBsZXIsIGJ1dCBJIHRo
-aW5rIHRoZXJlIGlzIGEgcGVyZm9ybWFuY2UgZ2FpbiBpbiBkb2luZwo+ID4gPiB0aGUgRE1BIG1h
-cHBpbmcgYWhlYWQgb2YgdGltZS4KPiA+ID4KPiA+ID4gVGhhbmtzLgo+ID4KPiA+IFRoYXQgd291
-bGQgYXQgbGVhc3QgaW4gcGFydCBkZXBlbmQgb24gd2hldGhlciBETUEgbWFwcGluZyBpcyBldmVu
-dHVhbGx5IHVzZWQgOykKPiAKPiBZZXMsIHNvbWUgb2YgdGhlIHNjZW5hcmlvcyBJIHRlc3RlZCB0
-aGF0IGFjdHVhbGx5IHJlcXVpcmUgZG1hIHdpbGwgZ2V0Cj4gcGVyZm9ybWFuY2UgaW1wcm92ZW1l
-bnRzLiBeX14KPiAKPiAKPiA+IFRlc3RpbmcgdGhlIGFjdHVhbCBnYWluIGJlZm9yZSB3ZSBpbnRy
-b2R1Y2UgY29tcGxleGl0eSBhbmQgaW5jbHVkaW5nCj4gPiB0aGF0IGluZm8gaW4gdGhlIGNvbW1p
-dCBsb2cgaXMgbm90IGEgYmFkIGlkZWEuCj4gCj4gSSB3aWxsIGJyaW5nIHRoaXMgcGFydCBvZiB0
-aGUgZGF0YSBpbiB0aGUgbmV4dCB2ZXJzaW9uLgo+IAo+IFRoYW5rcy4KPiAKPiAKPiA+Cj4gPiA+
-Cj4gPiA+ID4KPiA+ID4gPiBUaGFua3MKPiA+ID4gPgo+ID4gPiA+ID4KPiA+ID4gPiA+IFRoYW5r
-cy4KPiA+ID4gPiA+Cj4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+IFRoYW5rcwo+ID4gPiA+ID4gPgo+
-ID4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+ID4gVGhhbmtzLgo+ID4gPiA+ID4gPiA+Cj4gPiA+ID4g
-PiA+ID4gPgo+ID4gPiA+ID4gPiA+ID4gVGhhbmtzCj4gPiA+ID4gPiA+ID4gPgo+ID4gPiA+ID4g
-PiA+ID4KPiA+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPgo+ID4gPiA+ID4KPiA+ID4gPgo+ID4KCl9f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0
-aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9y
-ZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0
-dWFsaXphdGlvbg==
+On Mon, Aug 30, 2021 at 10:17:24PM +0800, Xie Yongji wrote:
+> This series introduces a framework that makes it possible to implement
+> software-emulated vDPA devices in userspace. And to make the device
+> emulation more secure, the emulated vDPA device's control path is handled
+> in the kernel and only the data path is implemented in the userspace.
+> 
+> Since the emuldated vDPA device's control path is handled in the kernel,
+> a message mechnism is introduced to make userspace be aware of the data
+> path related changes. Userspace can use read()/write() to receive/reply
+> the control messages.
+> 
+> In the data path, the core is mapping dma buffer into VDUSE daemon's
+> address space, which can be implemented in different ways depending on
+> the vdpa bus to which the vDPA device is attached.
+> 
+> In virtio-vdpa case, we implements a MMU-based software IOTLB with
+> bounce-buffering mechanism to achieve that. And in vhost-vdpa case, the dma
+> buffer is reside in a userspace memory region which can be shared to the
+> VDUSE userspace processs via transferring the shmfd.
+> 
+> The details and our user case is shown below:
+> 
+> ------------------------    -------------------------   ----------------------------------------------
+> |            Container |    |              QEMU(VM) |   |                               VDUSE daemon |
+> |       ---------      |    |  -------------------  |   | ------------------------- ---------------- |
+> |       |dev/vdx|      |    |  |/dev/vhost-vdpa-x|  |   | | vDPA device emulation | | block driver | |
+> ------------+-----------     -----------+------------   -------------+----------------------+---------
+>             |                           |                            |                      |
+>             |                           |                            |                      |
+> ------------+---------------------------+----------------------------+----------------------+---------
+> |    | block device |           |  vhost device |            | vduse driver |          | TCP/IP |    |
+> |    -------+--------           --------+--------            -------+--------          -----+----    |
+> |           |                           |                           |                       |        |
+> | ----------+----------       ----------+-----------         -------+-------                |        |
+> | | virtio-blk driver |       |  vhost-vdpa driver |         | vdpa device |                |        |
+> | ----------+----------       ----------+-----------         -------+-------                |        |
+> |           |      virtio bus           |                           |                       |        |
+> |   --------+----+-----------           |                           |                       |        |
+> |                |                      |                           |                       |        |
+> |      ----------+----------            |                           |                       |        |
+> |      | virtio-blk device |            |                           |                       |        |
+> |      ----------+----------            |                           |                       |        |
+> |                |                      |                           |                       |        |
+> |     -----------+-----------           |                           |                       |        |
+> |     |  virtio-vdpa driver |           |                           |                       |        |
+> |     -----------+-----------           |                           |                       |        |
+> |                |                      |                           |    vdpa bus           |        |
+> |     -----------+----------------------+---------------------------+------------           |        |
+> |                                                                                        ---+---     |
+> -----------------------------------------------------------------------------------------| NIC |------
+>                                                                                          ---+---
+>                                                                                             |
+>                                                                                    ---------+---------
+>                                                                                    | Remote Storages |
+>                                                                                    -------------------
+> 
+> We make use of it to implement a block device connecting to
+> our distributed storage, which can be used both in containers and
+> VMs. Thus, we can have an unified technology stack in this two cases.
+> 
+> To test it with null-blk:
+> 
+>   $ qemu-storage-daemon \
+>       --chardev socket,id=charmonitor,path=/tmp/qmp.sock,server,nowait \
+>       --monitor chardev=charmonitor \
+>       --blockdev driver=host_device,cache.direct=on,aio=native,filename=/dev/nullb0,node-name=disk0 \
+>       --export type=vduse-blk,id=test,node-name=disk0,writable=on,name=vduse-null,num-queues=16,queue-size=128
+> 
+> The qemu-storage-daemon can be found at https://github.com/bytedance/qemu/tree/vduse
+
+It's been half a year - any plans to upstream this?
+I'm beginning to worry I made a mistake merging this
+with the module being unused by major userspace ...
+
+> To make the userspace VDUSE processes such as qemu-storage-daemon able
+> to be run by an unprivileged user. We limit the supported device type
+> to virtio block device currently. The support for other device types
+> can be added after the security issue of corresponding device driver
+> is clarified or fixed in the future.
+> 
+> Future work:
+>   - Improve performance
+>   - Userspace library (find a way to reuse device emulation code in qemu/rust-vmm)
+>   - Support more device types
+> 
+> V11 to V12:
+> - Rebased to vhost.git
+> - Add reset support for all vdpa drivers
+> - Remove the dependency on other patches
+> - Export eventfd_wake_count
+> - Use workqueue for virtqueue kicking in some cases
+> 
+> V10 to V11:
+> - Rebased to newest kernel tree
+> - Add a device attribute for message timeout
+> - Add check for the reserved field of some structures
+> - Add a reset callback in vdpa_config_ops and handle it in VDUSE case
+> - Remove the patches that handle virtio-vdpa reset failure
+> - Document the structures in include/uapi/linux/vduse.h using kernel doc
+> - Add the reserved field for struct vduse_vq_config
+> 
+> V9 to V10:
+> - Forbid some userspace operations after a timeout
+> - Rename VDUSE_DEV_INJECT_IRQ to VDUSE_DEV_INJECT_CONFIG_IRQ
+> - Use fixed bounce buffer size
+> - Fix more code indentation issues in include/linux/vdpa.h
+> - Remove the section describing bounce-buffer mechanism in documentation
+> - Fix some commit logs and documentation
+> 
+> V8 to V9:
+> - Add VDUSE_SET_STATUS message to replace VDUSE_START/STOP_DATAPLANE messages
+> - Support packed virtqueue state
+> - Handle the reset failure in both virtio-vdpa and vhost-vdpa cases
+> - Add more details in documentation
+> - Remove VDUSE_REQ_FLAGS_NO_REPLY flag
+> - Add VDUSE_VQ_SETUP ioctl to support per-vq configuration
+> - Separate config interrupt injecting out of config update
+> - Flush kworker for interrupt inject during resetting
+> - Validate the config_size in .get_config()
+> 
+> V7 to V8:
+> - Rebased to newest kernel tree
+> - Rework VDUSE driver to handle the device's control path in kernel
+> - Limit the supported device type to virtio block device
+> - Export free_iova_fast()
+> - Remove the virtio-blk and virtio-scsi patches (will send them alone)
+> - Remove all module parameters
+> - Use the same MAJOR for both control device and VDUSE devices
+> - Avoid eventfd cleanup in vduse_dev_release()
+> 
+> V6 to V7:
+> - Export alloc_iova_fast()
+> - Add get_config_size() callback
+> - Add some patches to avoid trusting virtio devices
+> - Add limited device emulation
+> - Add some documents
+> - Use workqueue to inject config irq
+> - Add parameter on vq irq injecting
+> - Rename vduse_domain_get_mapping_page() to vduse_domain_get_coherent_page()
+> - Add WARN_ON() to catch message failure
+> - Add some padding/reserved fields to uAPI structure
+> - Fix some bugs
+> - Rebase to vhost.git
+> 
+> V5 to V6:
+> - Export receive_fd() instead of __receive_fd()
+> - Factor out the unmapping logic of pa and va separatedly
+> - Remove the logic of bounce page allocation in page fault handler
+> - Use PAGE_SIZE as IOVA allocation granule
+> - Add EPOLLOUT support
+> - Enable setting API version in userspace
+> - Fix some bugs
+> 
+> V4 to V5:
+> - Remove the patch for irq binding
+> - Use a single IOTLB for all types of mapping
+> - Factor out vhost_vdpa_pa_map()
+> - Add some sample codes in document
+> - Use receice_fd_user() to pass file descriptor
+> - Fix some bugs
+> 
+> V3 to V4:
+> - Rebase to vhost.git
+> - Split some patches
+> - Add some documents
+> - Use ioctl to inject interrupt rather than eventfd
+> - Enable config interrupt support
+> - Support binding irq to the specified cpu
+> - Add two module parameter to limit bounce/iova size
+> - Create char device rather than anon inode per vduse
+> - Reuse vhost IOTLB for iova domain
+> - Rework the message mechnism in control path
+> 
+> V2 to V3:
+> - Rework the MMU-based IOMMU driver
+> - Use the iova domain as iova allocator instead of genpool
+> - Support transferring vma->vm_file in vhost-vdpa
+> - Add SVA support in vhost-vdpa
+> - Remove the patches on bounce pages reclaim
+> 
+> V1 to V2:
+> - Add vhost-vdpa support
+> - Add some documents
+> - Based on the vdpa management tool
+> - Introduce a workqueue for irq injection
+> - Replace interval tree with array map to store the iova_map
+> 
+> Xie Yongji (13):
+>   iova: Export alloc_iova_fast() and free_iova_fast()
+>   eventfd: Export eventfd_wake_count to modules
+>   file: Export receive_fd() to modules
+>   vdpa: Fix some coding style issues
+>   vdpa: Add reset callback in vdpa_config_ops
+>   vhost-vdpa: Handle the failure of vdpa_reset()
+>   vhost-iotlb: Add an opaque pointer for vhost IOTLB
+>   vdpa: Add an opaque pointer for vdpa_config_ops.dma_map()
+>   vdpa: factor out vhost_vdpa_pa_map() and vhost_vdpa_pa_unmap()
+>   vdpa: Support transferring virtual addressing during DMA mapping
+>   vduse: Implement an MMU-based software IOTLB
+>   vduse: Introduce VDUSE - vDPA Device in Userspace
+>   Documentation: Add documentation for VDUSE
+> 
+>  Documentation/userspace-api/index.rst              |    1 +
+>  Documentation/userspace-api/ioctl/ioctl-number.rst |    1 +
+>  Documentation/userspace-api/vduse.rst              |  233 +++
+>  drivers/iommu/iova.c                               |    2 +
+>  drivers/vdpa/Kconfig                               |   10 +
+>  drivers/vdpa/Makefile                              |    1 +
+>  drivers/vdpa/ifcvf/ifcvf_main.c                    |   37 +-
+>  drivers/vdpa/mlx5/net/mlx5_vnet.c                  |   42 +-
+>  drivers/vdpa/vdpa.c                                |    9 +-
+>  drivers/vdpa/vdpa_sim/vdpa_sim.c                   |   26 +-
+>  drivers/vdpa/vdpa_user/Makefile                    |    5 +
+>  drivers/vdpa/vdpa_user/iova_domain.c               |  545 +++++++
+>  drivers/vdpa/vdpa_user/iova_domain.h               |   73 +
+>  drivers/vdpa/vdpa_user/vduse_dev.c                 | 1641 ++++++++++++++++++++
+>  drivers/vdpa/virtio_pci/vp_vdpa.c                  |   17 +-
+>  drivers/vhost/iotlb.c                              |   20 +-
+>  drivers/vhost/vdpa.c                               |  168 +-
+>  fs/eventfd.c                                       |    1 +
+>  fs/file.c                                          |    6 +
+>  include/linux/file.h                               |    7 +-
+>  include/linux/vdpa.h                               |   62 +-
+>  include/linux/vhost_iotlb.h                        |    3 +
+>  include/uapi/linux/vduse.h                         |  306 ++++
+>  23 files changed, 3112 insertions(+), 104 deletions(-)
+>  create mode 100644 Documentation/userspace-api/vduse.rst
+>  create mode 100644 drivers/vdpa/vdpa_user/Makefile
+>  create mode 100644 drivers/vdpa/vdpa_user/iova_domain.c
+>  create mode 100644 drivers/vdpa/vdpa_user/iova_domain.h
+>  create mode 100644 drivers/vdpa/vdpa_user/vduse_dev.c
+>  create mode 100644 include/uapi/linux/vduse.h
+> 
+> -- 
+> 2.11.0
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
