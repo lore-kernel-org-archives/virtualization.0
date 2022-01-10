@@ -4,100 +4,101 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9F0C3C433F5
-	for <virtualization@archiver.kernel.org>; Mon, 10 Jan 2022 07:09:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 37258C433F5
+	for <virtualization@archiver.kernel.org>; Mon, 10 Jan 2022 07:13:00 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 4A47F8270B;
-	Mon, 10 Jan 2022 07:09:47 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id C2CDC824B4;
+	Mon, 10 Jan 2022 07:12:59 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id EpfS9--q6Yyl; Mon, 10 Jan 2022 07:09:46 +0000 (UTC)
+	with ESMTP id 910oMSdQxQuZ; Mon, 10 Jan 2022 07:12:59 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id CC4688142C;
-	Mon, 10 Jan 2022 07:09:45 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 65B6F8141A;
+	Mon, 10 Jan 2022 07:12:58 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A0FDBC0030;
-	Mon, 10 Jan 2022 07:09:45 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6B5D6C001E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 434F8C0030;
+	Mon, 10 Jan 2022 07:12:58 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3B3F4C001E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Jan 2022 07:09:44 +0000 (UTC)
+ Mon, 10 Jan 2022 07:12:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 3FEB54031D
+ by smtp3.osuosl.org (Postfix) with ESMTP id 181BC60C01
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Jan 2022 07:09:44 +0000 (UTC)
+ Mon, 10 Jan 2022 07:12:56 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id vmrfojQrj7n4
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id f3lK6A_-t2Bp
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Jan 2022 07:09:43 +0000 (UTC)
+ Mon, 10 Jan 2022 07:12:55 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 2213440122
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 62F0360AB1
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Jan 2022 07:09:42 +0000 (UTC)
+ Mon, 10 Jan 2022 07:12:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1641798582;
+ s=mimecast20190719; t=1641798774;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=khXMCb/zP3DiYZRD+QYDFLLcwfNZJzMICOVfIgRXvCE=;
- b=Lxcyjin8R4uSAUS2MGvHjdYGMFa8qwRt9CxVKjOzn610pqjFyHH2UxmbcDXhCJlioZRIA3
- KkZLJSkqd6FdIJ3PUi81vzfGRBGrkMvhg2BVkKpNoG8UIPNYiSnFJYDxIc0xiyC4KHbh8i
- L/JquE0uR/AxAfP6ch3BXFv9A7i30uM=
-Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
- [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=wVDsDvt3aInCP5/DiyTU8VlQMgkXFVxLACSN7sUhxd4=;
+ b=Tb/0Juz7VkfwLw6N3VBoAHWsaWyPdRyb2QmobHXgkkrwvjL+xqgeqXq3xSVCJpM/Cf4NTL
+ vTMSlpTdR/M1HLiBlQUDq8KUM2FpwMKGLQYUNhrjP6NUPCGvD8CxWaA6fEyPkpus04IXaA
+ ME7XWawIjPtGvx2drrj8FBgMZH5M0WY=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-594-j4OE8ZKCPUe6CnEP-4N8hw-1; Mon, 10 Jan 2022 02:09:41 -0500
-X-MC-Unique: j4OE8ZKCPUe6CnEP-4N8hw-1
-Received: by mail-lf1-f71.google.com with SMTP id
- d8-20020ac241c8000000b0042aa94a6454so5950981lfi.8
+ us-mta-407-MZymLkEHMNCpb6tZbao2VA-1; Mon, 10 Jan 2022 02:12:29 -0500
+X-MC-Unique: MZymLkEHMNCpb6tZbao2VA-1
+Received: by mail-wm1-f72.google.com with SMTP id
+ n3-20020a05600c3b8300b00345c3fc40b0so8411796wms.3
  for <virtualization@lists.linux-foundation.org>;
- Sun, 09 Jan 2022 23:09:40 -0800 (PST)
+ Sun, 09 Jan 2022 23:12:28 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=khXMCb/zP3DiYZRD+QYDFLLcwfNZJzMICOVfIgRXvCE=;
- b=WV5rbt0scD5fHwKK4AaFCclC62sZQvCIRZBOTW0ID4rhG7s63qLsJO+D3B7/YCHXGk
- yzXJD//ql7stQat5gW5dfaDUWioSibWQdcqwHDhzcfVWZAEeSIF7QrpCWqLKYJXSyj3i
- hii0p/EBa56EJw3yBuAtUPZqHhX9lYWuVPI7E4lJ1fochtI+zfTTanW1Wb78XnWc/Ta/
- btm8W9q9hJLq2n2djJm6vPKXELED/RN004ETDmkxK9yxX6xLEF3PcDOyddeLHS7sweNu
- +7dQUdo5SckpYkxGALIgNfOZGPynEi7DKtz/TvM6w7Ybjf5iUKNqNRE3BMdkGAAoCR1v
- gDBA==
-X-Gm-Message-State: AOAM533XgLzgwAE6tIT7nUEGFh3LVI52O0GwX0MzjnGTsaruQxYAj7l5
- BZs1JNhKF9YP/W2Q02PiezMc/hT2Eb7N8m9gzYWg1drmnp5WI+uSCtoZmXLU6VBAaRDEenVY4lC
- U9Fq5BdTmQz7PFrggD4Fw0btNq/hzmwRUghTem2n6gjcrbpnHUf2SI9cspg==
-X-Received: by 2002:a05:6512:68a:: with SMTP id
- t10mr66605307lfe.84.1641798579510; 
- Sun, 09 Jan 2022 23:09:39 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJyK5zE3siWJObTixHuz5qhmoUe/RAT5nvZPxMuf36KANXyLIZ1c6QWbf9gsHL4YietOGlzrEJTxUghvpZgNym0=
-X-Received: by 2002:a05:6512:68a:: with SMTP id
- t10mr66605287lfe.84.1641798579235; 
- Sun, 09 Jan 2022 23:09:39 -0800 (PST)
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=wVDsDvt3aInCP5/DiyTU8VlQMgkXFVxLACSN7sUhxd4=;
+ b=jGdM20fzVh+MsvFNrZ1EY9p9wvVjIm1SNyddYRoI7SZfd8kXy6E6hO5U/fJoLHuBIH
+ 3KJ0hjkFyVo97BxexQdWRxF3aswhu3HT0DdyxLLXbE2b1Yi411CrcmPyJmCRat1DUa/B
+ LtnlAseTcXMN/Wb6XOPJT+uJVI1zm19fsciOi5vna6L+quDlImZvysNXRPYULWCncTxe
+ JEzSpDgL7ptMpvioJXy2vvEew+CahzZDoXjGujkAVpdSNk/N4XJOgXf9yqZR/geDzh++
+ GoqaZse1tk0t1eJNItzlG8SGJaRVF7sxbXhsCD9+DIKwMWlN5w1Tp8nxJN/BCSS52Lhv
+ aSGw==
+X-Gm-Message-State: AOAM531f3y7z6nj1ukuUQTNFsQGjWqiV1O0hdji4XGGEv/EVNqsuJxZJ
+ KmYNc2PF7ZgnizSrzFBuCzm3WJOmkvZeVeDkF/jW4AErSnfetu9APLZvAKlOfJr+FnTjbQAve6J
+ blCJ4GoU9nMa+aCZmRIWkfWCotk2StLpMfQn53UsWwA==
+X-Received: by 2002:a1c:a5c2:: with SMTP id
+ o185mr13042881wme.177.1641798747436; 
+ Sun, 09 Jan 2022 23:12:27 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzsG+kIRwOA3uVyiZoFEEGAHDWXHsMPlWM2l7JspRKap1oAjlEfzpK3BYugoPIKNVNYzaO1Sg==
+X-Received: by 2002:a1c:a5c2:: with SMTP id
+ o185mr13042870wme.177.1641798747246; 
+ Sun, 09 Jan 2022 23:12:27 -0800 (PST)
+Received: from redhat.com ([2a03:c5c0:107d:b60c:c297:16fe:7528:e989])
+ by smtp.gmail.com with ESMTPSA id y8sm5728689wma.19.2022.01.09.23.12.25
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Sun, 09 Jan 2022 23:12:26 -0800 (PST)
+Date: Mon, 10 Jan 2022 02:12:23 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH 6/6] virtio: add api virtio_dma_map() for advance dma
+Message-ID: <20220110020739-mutt-send-email-mst@kernel.org>
+References: <20220107063306.23240-1-xuanzhuo@linux.alibaba.com>
+ <20220107063306.23240-7-xuanzhuo@linux.alibaba.com>
 MIME-Version: 1.0
-References: <20220105114646.577224-1-elic@nvidia.com>
- <20220110020122-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20220110020122-mutt-send-email-mst@kernel.org>
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 10 Jan 2022 15:09:28 +0800
-Message-ID: <CACGkMEtQdGHf8D1S8PBZ6b32q-gchfhSH-1SuXyvHfRg+CpnLw@mail.gmail.com>
-Subject: Re: [PATCH v7 00/14] Allow for configuring max number of virtqueue
- pairs
-To: "Michael S. Tsirkin" <mst@redhat.com>
+In-Reply-To: <20220107063306.23240-7-xuanzhuo@linux.alibaba.com>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: Laurent Vivier <lvivier@redhat.com>,
- virtualization <virtualization@lists.linux-foundation.org>,
- eperezma <eperezma@redhat.com>, Si-Wei Liu <si-wei.liu@oracle.com>,
- Eli Cohen <elic@nvidia.com>
+Content-Disposition: inline
+Cc: virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -114,88 +115,115 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Jan 10, 2022 at 3:04 PM Michael S. Tsirkin <mst@redhat.com> wrote:
->
-> On Wed, Jan 05, 2022 at 01:46:32PM +0200, Eli Cohen wrote:
-> > Allow the user to configure the max number of virtqueue pairs for a vdpa
-> > instance. The user can then control the actual number of virtqueue pairs
-> > using ethtool.
->
-> So I put a version of this in linux-next, but I had to squash in
-> some bugfixes, and resolve some conflicts. Eli, please take a look
-> and let me know whether it looks sane. If not pls post a new
-> version.
-> Jason, what is your take on merging this now? Si-wei here seems to want
-> to defer, but OTOH it's up to v7 already, most patches are acked and
-> most comments look like minor improvement suggestions to me.
+On Fri, Jan 07, 2022 at 02:33:06PM +0800, Xuan Zhuo wrote:
+> Added virtio_dma_map() to map DMA addresses for virtual memory in
+> advance. The purpose of adding this function is to check
+> vring_use_dma_api() for virtio dma operation and get vdev->dev.parent as
+> the parameter of dma_map_page().
+> 
+> Added virtio_dma_unmap() for unmap DMA address.
+> 
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
-I think we can merge them and send patches on top to fix issues if needed.
 
-Thanks
+OK but where are the users for this new API?
 
->
-> > Example, set number of VQPs to 2:
-> > $ ethtool -L ens1 combined 2
-> >
-> > A user can check the max supported virtqueues for a management device by
-> > running:
-> >
-> > $ $ vdpa mgmtdev show
-> >     auxiliary/mlx5_core.sf.1:
-> >       supported_classes net
-> >       max_supported_vqs 257
-> >       dev_features CSUM GUEST_CSUM MTU HOST_TSO4 HOST_TSO6 STATUS CTRL_VQ MQ \
-> >                    CTRL_MAC_ADDR VERSION_1 ACCESS_PLATFORM
-> >
-> > and refer to this value when adding a device.
-> >
-> > To create a device with a max of 5 VQPs:
-> > vdpa dev add name vdpa-a mgmtdev auxiliary/mlx5_core.sf.1 max_vqp 5
-> >
-> > Please note that for patches that were changed I removed "Reviewed-by"
-> > and "Acked-by".
-> >
-> > v6 -> v7:
-> > 1. Make use of cf_mutex for serializing netlink set/get with other
-> > calls.
-> > 2. Some fixes (See in each patch)
-> > 3. Add patch for vdpa_sim to report supported features
-> > 4. "Reviewed-by" and "Acked-by" removed from patch 0007 since it had
-> > slightly changed.
-> >
-> > Eli Cohen (14):
-> >   vdpa: Provide interface to read driver features
-> >   vdpa/mlx5: Distribute RX virtqueues in RQT object
-> >   vdpa: Sync calls set/get config/status with cf_mutex
-> >   vdpa: Read device configuration only if FEATURES_OK
-> >   vdpa: Allow to configure max data virtqueues
-> >   vdpa/mlx5: Fix config_attr_mask assignment
-> >   vdpa/mlx5: Support configuring max data virtqueue
-> >   vdpa: Add support for returning device configuration information
-> >   vdpa/mlx5: Restore cur_num_vqs in case of failure in change_num_qps()
-> >   vdpa: Support reporting max device capabilities
-> >   vdpa/mlx5: Report max device capabilities
-> >   vdpa/vdpa_sim: Configure max supported virtqueues
-> >   vdpa: Use BIT_ULL for bit operations
-> >   vdpa/vdpa_sim_net: Report max device capabilities
-> >
-> >  drivers/vdpa/alibaba/eni_vdpa.c      |  16 +++-
-> >  drivers/vdpa/ifcvf/ifcvf_main.c      |  16 +++-
-> >  drivers/vdpa/mlx5/net/mlx5_vnet.c    | 134 ++++++++++++++++-----------
-> >  drivers/vdpa/vdpa.c                  | 100 ++++++++++++++++----
-> >  drivers/vdpa/vdpa_sim/vdpa_sim.c     |  21 +++--
-> >  drivers/vdpa/vdpa_sim/vdpa_sim_net.c |   2 +
-> >  drivers/vdpa/vdpa_user/vduse_dev.c   |  16 +++-
-> >  drivers/vdpa/virtio_pci/vp_vdpa.c    |  16 +++-
-> >  drivers/vhost/vdpa.c                 |  11 +--
-> >  drivers/virtio/virtio_vdpa.c         |   7 +-
-> >  include/linux/vdpa.h                 |  36 +++++--
-> >  include/uapi/linux/vdpa.h            |   6 ++
-> >  12 files changed, 271 insertions(+), 110 deletions(-)
-> >
-> > --
-> > 2.34.1
->
+
+> ---
+>  drivers/virtio/virtio_ring.c | 47 ++++++++++++++++++++++++++++++++++++
+>  include/linux/virtio.h       |  9 +++++++
+>  2 files changed, 56 insertions(+)
+> 
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index e165bc2e1344..f4a0fb85df27 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -2472,4 +2472,51 @@ const struct vring *virtqueue_get_vring(struct virtqueue *vq)
+>  }
+>  EXPORT_SYMBOL_GPL(virtqueue_get_vring);
+>  
+> +/**
+> + * virtio_dma_map - get the DMA addr of the memory for virtio device
+> + * @vdev: virtio device
+> + * @page: the page of the memory to DMA
+> + * @offset: the offset of the memory inside page
+> + * @length: memory length
+> + * @dir: DMA direction
+> + *
+> + * Returns the DMA addr. Zero means error.
+
+Should not drivers use a variant of dma_mapping_error to check?
+
+> + */
+> +dma_addr_t virtio_dma_map(struct virtio_device *vdev,
+> +			  struct page *page, size_t offset,
+> +			  unsigned int length,
+> +			  enum dma_data_direction dir)
+> +{
+> +	dma_addr_t addr;
+> +
+> +	if (!vring_use_dma_api(vdev))
+> +		return page_to_phys(page) + offset;
+> +
+> +	addr = dma_map_page(vdev->dev.parent, page, offset, length, dir);
+> +
+> +	if (dma_mapping_error(vdev->dev.parent, addr))
+> +		return 0;
+> +
+> +	return addr;
+> +}
+> +EXPORT_SYMBOL_GPL(virtio_dma_map);
+
+
+Yes it's 0, but you should really use DMA_MAPPING_ERROR.
+
+> +
+> +/**
+> + * virtio_dma_unmap - unmap DMA addr
+> + * @vdev: virtio device
+> + * @dma: DMA address
+> + * @length: memory length
+> + * @dir: DMA direction
+> + */
+> +void virtio_dma_unmap(struct virtio_device *vdev,
+> +		      dma_addr_t dma, unsigned int length,
+> +		      enum dma_data_direction dir)
+> +{
+> +	if (!vring_use_dma_api(vdev))
+> +		return;
+> +
+> +	dma_unmap_page(vdev->dev.parent, dma, length, dir);
+> +}
+> +EXPORT_SYMBOL_GPL(virtio_dma_unmap);
+> +
+>  MODULE_LICENSE("GPL");
+> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+> index 41edbc01ffa4..6e6c6e18ecf8 100644
+> --- a/include/linux/virtio.h
+> +++ b/include/linux/virtio.h
+> @@ -9,6 +9,7 @@
+>  #include <linux/device.h>
+>  #include <linux/mod_devicetable.h>
+>  #include <linux/gfp.h>
+> +#include <linux/dma-mapping.h>
+>  
+>  /**
+>   * virtqueue - a queue to register buffers for sending or receiving.
+> @@ -195,4 +196,12 @@ void unregister_virtio_driver(struct virtio_driver *drv);
+>  #define module_virtio_driver(__virtio_driver) \
+>  	module_driver(__virtio_driver, register_virtio_driver, \
+>  			unregister_virtio_driver)
+> +
+> +dma_addr_t virtio_dma_map(struct virtio_device *vdev,
+> +			  struct page *page, size_t offset,
+> +			  unsigned int length,
+> +			  enum dma_data_direction dir);
+> +void virtio_dma_unmap(struct virtio_device *vdev,
+> +		      dma_addr_t dma, unsigned int length,
+> +		      enum dma_data_direction dir);
+>  #endif /* _LINUX_VIRTIO_H */
+> -- 
+> 2.31.0
 
 _______________________________________________
 Virtualization mailing list
