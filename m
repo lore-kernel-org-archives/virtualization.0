@@ -1,106 +1,185 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B5D0EC433EF
-	for <virtualization@archiver.kernel.org>; Tue, 11 Jan 2022 16:54:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8B9A8C433EF
+	for <virtualization@archiver.kernel.org>; Tue, 11 Jan 2022 21:46:26 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 538AD60E98;
-	Tue, 11 Jan 2022 16:54:35 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 26BF64016A;
+	Tue, 11 Jan 2022 21:46:26 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id UUszDsCA72EI; Tue, 11 Jan 2022 16:54:34 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id IGLub936Dm3L; Tue, 11 Jan 2022 21:46:24 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id E913860E8F;
-	Tue, 11 Jan 2022 16:54:33 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 4836A4018D;
+	Tue, 11 Jan 2022 21:46:24 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id BD222C002F;
-	Tue, 11 Jan 2022 16:54:33 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1BD21C001E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 21964C0030;
+	Tue, 11 Jan 2022 21:46:24 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id AFE04C001E
  for <virtualization@lists.linux-foundation.org>;
- Tue, 11 Jan 2022 16:54:32 +0000 (UTC)
+ Tue, 11 Jan 2022 21:46:22 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 09D8F81D4F
+ by smtp4.osuosl.org (Postfix) with ESMTP id 9EBA64161E
  for <virtualization@lists.linux-foundation.org>;
- Tue, 11 Jan 2022 16:54:32 +0000 (UTC)
+ Tue, 11 Jan 2022 21:46:22 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id eyImXnpoqgGe
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=oracle.com header.b="t9pRe2wY";
+ dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
+ header.b="reLp/AiO"
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 2YNfk_X41Lkz
  for <virtualization@lists.linux-foundation.org>;
- Tue, 11 Jan 2022 16:54:30 +0000 (UTC)
+ Tue, 11 Jan 2022 21:46:21 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id BE71C81BB2
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com
+ [205.220.165.32])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id A38ED4161D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 11 Jan 2022 16:54:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1641920069;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=BS2c0kmuzOx/lsNyYPfwTxQigdp6Fcgt6qDOyFgpphA=;
- b=Z2c3HjvovwvCGSwleF3L8e/7O34lxu6LBsq98xVzfdvNh4ryb73cJkDLj9WF3XLFth8Drg
- Z6+/dWM0yMP8vY9Ll87mkrCN1kHWgzFn1jkpBv7zyDVa3OuALxY554X0czs3gAEzD7g5IE
- xqRKA+Y6h97gDamfE8OAU3VkYx9npDk=
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
- [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-587-CysEDZ_cPGypbU9ZXC3RKg-1; Tue, 11 Jan 2022 11:54:22 -0500
-X-MC-Unique: CysEDZ_cPGypbU9ZXC3RKg-1
-Received: by mail-ed1-f71.google.com with SMTP id
- s7-20020a056402520700b003f841380832so13867003edd.5
- for <virtualization@lists.linux-foundation.org>;
- Tue, 11 Jan 2022 08:54:21 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=BS2c0kmuzOx/lsNyYPfwTxQigdp6Fcgt6qDOyFgpphA=;
- b=WEZaM6UQVmF7NkSschWtiN2i5qGNX0Lr0ZwgJdTl8NcOXRgzO2UAQzxvn6FqPXmlgv
- +QhYGujS+a2Pi/rDOlJxe6e45HK5HidEUnJX3V9Bi7XjAi4MriWSySkEIXTrrqSocurO
- vAo955oxpwZU5TVUSx6oeDeRbo3l1mK1SqzZlTq4uRdJVytlIPxAXM11StXcgVXLBknT
- 63VylnZCOpwSzH63dC4dmxUiSPVTdwv7SIKIsVk9t8wEY/W7/EisIsITSkB1lPp8l5wq
- Z9e42FZw+CerGXupsIsZEUTlwmsKGWVBNFkQgXZPvPjQOldlZeWWCSjm7/gML81HK/vP
- b1RA==
-X-Gm-Message-State: AOAM533j20mb09OZe0NLaUWTvRogMAOtOXLGO5+KquZDhE2NA0fPyMpo
- /zoDJI08p6rze8c2d/EH8x3VM8nujw2Ep1QnwlwMmg+NcmsFNhFdUwRelt8cfHzQjD/xB375H92
- xh/kJ5om45e4j/2ftv+3v26nNME1slS3po7JARq3Vfg==
-X-Received: by 2002:a17:906:a01a:: with SMTP id
- p26mr4317648ejy.441.1641920060692; 
- Tue, 11 Jan 2022 08:54:20 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwWcnHGClz5IqRCCLuorrmFayDZCy4UmEr8dymqkBvsiNUwFV6DPxGjTmhINYQpQ74n/OwvQA==
-X-Received: by 2002:a17:906:a01a:: with SMTP id
- p26mr4317630ejy.441.1641920060450; 
- Tue, 11 Jan 2022 08:54:20 -0800 (PST)
-Received: from redhat.com ([2.55.5.100])
- by smtp.gmail.com with ESMTPSA id p25sm5220376edw.75.2022.01.11.08.54.18
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 11 Jan 2022 08:54:19 -0800 (PST)
-Date: Tue, 11 Jan 2022 11:54:16 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Eli Cohen <elic@nvidia.com>
-Subject: Re: [PATCH 2/4] vdpa/mlx5: Fix is_index_valid() to refer to features
-Message-ID: <20220111115311-mutt-send-email-mst@kernel.org>
-References: <20220111072253.101884-1-elic@nvidia.com>
- <20220111105509-mutt-send-email-mst@kernel.org>
- <20220111160357.GA168085@mtl-vdi-166.wap.labs.mlnx>
+ Tue, 11 Jan 2022 21:46:21 +0000 (UTC)
+Received: from pps.filterd (m0246629.ppops.net [127.0.0.1])
+ by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20BJNw7b028126; 
+ Tue, 11 Jan 2022 21:46:20 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+ h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=corp-2021-07-09;
+ bh=5heCg/ae19Hr/1NIviNwtFyUHYNPe1ae2DSCkJc89H0=;
+ b=t9pRe2wY3Dj6OuIliqKXPKf5dJlYNyjnAmDVfNklE3dYT00Ty5t9TfcMxhB0vPNniYpu
+ faBcNmCkrlLQjpn9egt1+w8rvgVmP8wxJdr71K/Ow1sm2cvCLHhTTbEcz83J+9mpj2xq
+ R/A2fjlNNcWGQ6jser13SWWEDoixB5q8h44DCclthBtNMxg2sh1aUO2nDUOJvNFBaiq7
+ ZqvBG5+EUXbMrmVJZkp9ShIAB+BV0MVuqWjCIEy4k3dayhkJXydqaCVjLBfcRTnX2ulS
+ 4KEYTA5mpJJsvC0XLsVWbJd4/djhoXspAaIgI0E+Cm/+czgbxUBIV6wdkvIpLrCLzTX5 Cw== 
+Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
+ by mx0b-00069f02.pphosted.com with ESMTP id 3dgn74ca50-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Tue, 11 Jan 2022 21:46:20 +0000
+Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
+ by aserp3030.oracle.com (8.16.1.2/8.16.1.2) with SMTP id 20BLeUAa102779;
+ Tue, 11 Jan 2022 21:46:19 GMT
+Received: from nam12-bn8-obe.outbound.protection.outlook.com
+ (mail-bn8nam12lp2171.outbound.protection.outlook.com [104.47.55.171])
+ by aserp3030.oracle.com with ESMTP id 3df0nekpm2-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Tue, 11 Jan 2022 21:46:18 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=fcysGbfE5PYn69SmKw2pkvZrFZ7ZUoOeItRExPgGOnrvyD36V225DjayIZfNErqMCdRY/cNgHc+01+TUP7FYQwzHIKBF7m9G3iELl+xLkkFCvR0jdEt2bFyGqHzZJopK1OFnQvDOBUZKgVMbtaMzvjAugLezOvIh96j1QWfMyOJyLop6I4aUu36HtFJ7MnYMvOToq66HuG2tem2/A31n0kqR2qtnjXbhvnsk+xX/yjfRYOtX35n2zwJVBPnxnqyrW0LfuUjWFP7VC98xd4fldlDhpnQMPs+YRQAsaLRAgXD3XpHB/1T02ehZeOYH88KJg8xxXRRxJbNyelew1q3vPA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=5heCg/ae19Hr/1NIviNwtFyUHYNPe1ae2DSCkJc89H0=;
+ b=PVdjoxnhM2Z9JrfxNT+4l5NLBdDm5n5DVPldo4nJ0zhRXLW43GRLBsQMXf/lkHKQ/st6OU6YnNKLJbw5+e1KY2nyGNje9mvVhRBdBHILihKb5wuGbdrAkusp0xoCz1G9CW0AZRrcBFke3+/S2r0Fnr7/E76A3ty67o9hrKf169Ns9rpHYk4JU8UlHoMaoXxlty0BJA9/7y+sjMMfhwX7U1tXoqlzJGC7KUEjae+rLb2CmPZvfyWfgHv9bZgUcJHHDoDgY/Ct2e/WL8OmRiZHqYsfYN3fzVfgYfCrYnNRv2M0n4cNLjkUg/h1DlOy/6UfjSeYh1dj9hdLzR7c0J1TYQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=5heCg/ae19Hr/1NIviNwtFyUHYNPe1ae2DSCkJc89H0=;
+ b=reLp/AiOn7apzDfj4koLt7XF5OgzqrYZyMUffocRzqDh96RJO0Y9XxaIRVN2yRAN2N1hg0cDeI1ZTFWZ+rHxwzXxgu52VxyAYZ5Fms+dxV0MQfMyx+oLG7vCWKuM7wOhCasvebwrA8MyImBd1uFDhWMQinWaRdVVieegav8b36U=
+Received: from BYAPR10MB3287.namprd10.prod.outlook.com (2603:10b6:a03:15c::11)
+ by SJ0PR10MB4672.namprd10.prod.outlook.com (2603:10b6:a03:2af::6)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4867.7; Tue, 11 Jan
+ 2022 21:46:16 +0000
+Received: from BYAPR10MB3287.namprd10.prod.outlook.com
+ ([fe80::2939:d1bd:67c8:4f25]) by BYAPR10MB3287.namprd10.prod.outlook.com
+ ([fe80::2939:d1bd:67c8:4f25%5]) with mapi id 15.20.4867.012; Tue, 11 Jan 2022
+ 21:46:16 +0000
+Message-ID: <bbcf2b15-c911-a969-957d-428538fe92bf@oracle.com>
+Date: Tue, 11 Jan 2022 13:46:09 -0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.4.1
+Subject: Re: [PATCH 1/4] vdpa: Avoid taking cf_mutex lock on get status
+Content-Language: en-US
+To: Eli Cohen <elic@nvidia.com>, mst@redhat.com, jasowang@redhat.com,
+ virtualization@lists.linux-foundation.org
+References: <20220111183400.38418-1-elic@nvidia.com>
+ <20220111183400.38418-2-elic@nvidia.com>
+From: Si-Wei Liu <si-wei.liu@oracle.com>
+Organization: Oracle Corporation
+In-Reply-To: <20220111183400.38418-2-elic@nvidia.com>
+X-ClientProxiedBy: SN7PR04CA0075.namprd04.prod.outlook.com
+ (2603:10b6:806:121::20) To BYAPR10MB3287.namprd10.prod.outlook.com
+ (2603:10b6:a03:15c::11)
 MIME-Version: 1.0
-In-Reply-To: <20220111160357.GA168085@mtl-vdi-166.wap.labs.mlnx>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: lvivier@redhat.com, virtualization@lists.linux-foundation.org,
- eperezma@redhat.com, si-wei.liu@oracle.com
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: d03bfe4a-e82c-4a3c-aab9-08d9d54bcb92
+X-MS-TrafficTypeDiagnostic: SJ0PR10MB4672:EE_
+X-Microsoft-Antispam-PRVS: <SJ0PR10MB46728DE910D1B8059DD4E04CB1519@SJ0PR10MB4672.namprd10.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:341;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: jONpBY3I/hxvxwV96uw3N7tbkGvgJxITa2eGDLXsqC0m/owu0UPGwc5a/u0toG5TmsHcnqGE2/mQJ1w8lVMUc+7zGQ4CDizm6IwlM5/IWj7PAEizqgUxDMS2DqrcF1ZD9YrGJUlCZymo4bTeEDPX9yaRqzWLaQKuAVc5/MVed/8yU1Pe/pgBTC4dILeH/7ioEhImqIj0IGNfn2ha+XxItjZaKo++oOJNRyWtaItdDN6tRawqJYedcpE1BtOH2Z0TPg4yW0DcKnE1G8Cy2HuyKZ1ry+/TxAmQNbEmuc432mVhd5b2L3w8tWMtzvaDaYr5jQYm1h1zRTfASP2eEWrzSyQCtWScHj71W/X0V2IFHREYIzQYyOMLSpUZ4cAPRXpdkdnku0gKMUso6XR+/rhIh9brumNhjk6sXZ2z3jBIrVnZ7c9UNUFy+YWCendXCXbNsFFDz8tUxP2hGe8Us90xfn8GHMJzxzUdZafarBhRaVctjso6ItTgXlTngcab9YlXdBUF4n+oMOCeLlFCGkSOCITf9IMVtZmPDpEbhlchzUaoT+teUpUMztkhFKhPni4ZP2uWIbWfBNSoK4Y9D4IqSjRYIgLPqpitmpJgjet7aKRa3sSt5EMKNRC/67AD8zvOvBjj4lCVOagKi21G1Ql6zk+pCT9uBqVrmllNDS1wFFZsUuvXKiiX3OoiSbcCgXUXVGQYQTNk66cVhz/iXWbGEDb9dJ2pOBQr1/t4FABjfO8=
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:BYAPR10MB3287.namprd10.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(366004)(86362001)(6666004)(186003)(26005)(2616005)(66556008)(66476007)(66946007)(508600001)(2906002)(38100700002)(6506007)(53546011)(36756003)(6512007)(36916002)(83380400001)(316002)(31696002)(31686004)(5660300002)(4326008)(8936002)(6486002)(8676002)(43740500002)(45980500001);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?Y3RQTnFSLzg4TjBGb04zYkVEV1pNTjlvdWNTOW9FSDMxYkdNT1NwOUVZKzF3?=
+ =?utf-8?B?R3BmOG9vSlcyNjMxeXZpWUtiTVdOOHhVWnJ2RWhpS2x6aXZsZmk1WnFsMER4?=
+ =?utf-8?B?Qmt6Wld4d240RE5QdFFKWmlPZm9VeDR4VEtxeG9KTEM5Q0VSLzBlcjRwU3Jx?=
+ =?utf-8?B?SVBKZEZGRFd0QVhtNDhuT0VwR1JhNGY4TmVzVWh0TjRDWVFxOUIwaVVONWJp?=
+ =?utf-8?B?dys0N1hZOFhhYWtOc2Vueml0NE1Nd1IvMTJDaXhoNU9URFBrRzcxdHNBbWw1?=
+ =?utf-8?B?T0dXU2dUR3pibkNkdjVLdU9yK3R0YzQwYU5ndE9obVU5MHlyZ2FuaDhNOUt4?=
+ =?utf-8?B?eXU2WVhSaHRidHQ4TWIxdFFFSmxQalRGVFVrM3B5WU5PWXh4eVMvRE1JV3dx?=
+ =?utf-8?B?Y2hWZzV2ZU54a2EwWk9vWUNpWVhDUFVXbzlYaGNUbjk3MkpvbEJDVWhvaHRR?=
+ =?utf-8?B?anl1T0tha1h5OXIwOW1NbGhudUxQeG8wdDJIc05lKzlsQVpJWWpBdGF0Q2s4?=
+ =?utf-8?B?bEV4ck5KY2dyL2JzdnRORG5HbDNpSEZaN1BhVHhWcEp5ekNvOCtVOTVNYnRD?=
+ =?utf-8?B?eFJ4OEQwcDhDcmd5U2JEbzVsSjBNTExEOWlaS0M2NWhzU3FQY2dOUmUxWFcv?=
+ =?utf-8?B?RlBpODlpMkJ1dno4UzJLRFQwRjIxamZkN01ZMTBEclVYclc3S25LbVAyQ3cx?=
+ =?utf-8?B?WVZnNFBkLzBQNFI0NkRyMmxlYy81enJJRXVNWXV0OTUzZ0xlMDBuSTNleDRC?=
+ =?utf-8?B?WkZ3bHNiQ1hMS3NBRWpVMjF3eENjaXpUcXd1SzNvZ2djU1k5NkNqK3V4RkZL?=
+ =?utf-8?B?MjRWbUVCaWVlekR4SXloMmlpamgzOTR0bVd2aytWa1dJZmpFaVYvcWZzUkZK?=
+ =?utf-8?B?Y3RvWVovck9RMEs3Y2ZhcmpGV1hYTFdka2d5d2swZnpPS2dtSmVRemlhRUJs?=
+ =?utf-8?B?dUdrQ3FoeFVQb2d4MkV6WmFWenBVdWxxSktNZkdaVjAzYnhUQmRaWndCK2Rk?=
+ =?utf-8?B?cklNMkZCekRjRkhBb0EwLyt4T2FiOEh6bUdhTVZTUiticmt1Z1M3YlM0cTdR?=
+ =?utf-8?B?Z3A1WEJoSVNmaW5Fb29RWTFXaXVFYWYrb2E0ZzhYUiswNkhDZ0JvV2I5NFRI?=
+ =?utf-8?B?KzBTOHJTTFkraVpJSDROQ0k4K2lDOGxDWlVwRXo5RDhLT0ZlVUZyWDZ3Ylla?=
+ =?utf-8?B?a0dIeWJFRlNCUHQ3aXlhSnNWSlFQRTI5WWpqNEo1L0pBdU9LcGpTeVZJdnZJ?=
+ =?utf-8?B?MDFJaWIwZmJGcmhlL0UzMGw4YjJvWmtPdTZrTGZ4M2Q5ZlhmTjkwZE43UW84?=
+ =?utf-8?B?R21pZXJwa3hVenJaQ2c5d3oxbTkyWCs0aGc2RUV0V095UTc2RTFPNmMvWHo4?=
+ =?utf-8?B?MTJmb1k5dkJxdFE2T0xUYTZaeHF4eXV1Q3Nja25GcjU5Mit6TGZHUitiQXZW?=
+ =?utf-8?B?YmtxR0NGek0zTGoxa2xqWmZQbW5UUTUveGl3cktOaTVoR1Azc0QxQzBpMFdD?=
+ =?utf-8?B?K3kyUldHWVQ0bDM5MjdOWWxMRVR4bnVWb09yTk1oQXA5MWttZjlhU3NCRmMy?=
+ =?utf-8?B?MytjWFJlRDllMkxqMm40aWlMbjZVUXBJNGVtWjVWRVJOS1NsSWNJQ2RGaUl2?=
+ =?utf-8?B?anpQTDdObnhoR20yTEMvMk9mTVJJS29MWjlxQzUyNmtyVkZvbHBRcklnNmZj?=
+ =?utf-8?B?dnJOUFdUelI3NCtsZ1dGSU5jMTROWFF1cDgrUm93RXRXbURoem1CaENxa2Fo?=
+ =?utf-8?B?N29YdkplNHJHQVpwZ05BS0hFYVp6MGxtVlhJakUweXhSU08wdysxNE9mZUdx?=
+ =?utf-8?B?Uk1JN0FjYVJTVVhlRDRkdHgvMy85T0szSEFxc2M1VjY4VWl0WE1BZExGeXpz?=
+ =?utf-8?B?QktJTG5DbFptaHBMVnV6eWhrdk53VDF4WXhuQlVrS3NpWHRoRFUrVGxoU3Vl?=
+ =?utf-8?B?dGJETU10RnpQK1VMSDQwR2diWTlsaHpHMTVVL1g0KzJkS2gvNUx6REkvRUww?=
+ =?utf-8?B?OXFJMStOaUx0OHRtVUZBcDFodFVkaEZoVThvVHgycitCc3NkUTBNUFBlOE1G?=
+ =?utf-8?B?WFd2cGRYOTFkMDgwRm1SUmNLQksrREZNYmIzejJmSmM3ZnlLT0poMkFLNFFs?=
+ =?utf-8?B?WU5JMWo2YzJuK0l1ellRSExLMC9tWTNBdHlnTE9kWGRjVmJxb25ZdzZDSGNx?=
+ =?utf-8?Q?9m6mJN5/IKhhBQF8IYz9OWs=3D?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: d03bfe4a-e82c-4a3c-aab9-08d9d54bcb92
+X-MS-Exchange-CrossTenant-AuthSource: BYAPR10MB3287.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 11 Jan 2022 21:46:16.6629 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: FFLYV+4qs5VDofpWlpVagpgp6P0Lb/SevUzZeQRbasJQa7quzVGycfV+29q3Qo2646IPf8g/wY4rwG22LKZmBA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR10MB4672
+X-Proofpoint-Virus-Version: vendor=nai engine=6300 definitions=10224
+ signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999
+ bulkscore=0 spamscore=0
+ phishscore=0 adultscore=0 suspectscore=0 mlxscore=0 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2110150000
+ definitions=main-2201110112
+X-Proofpoint-ORIG-GUID: LM5b-GeHmyV_WTBzq7SN6-tydEihOXEJ
+X-Proofpoint-GUID: LM5b-GeHmyV_WTBzq7SN6-tydEihOXEJ
+Cc: lvivier@redhat.com, eperezma@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -112,66 +191,85 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Jan 11, 2022 at 06:03:57PM +0200, Eli Cohen wrote:
-> On Tue, Jan 11, 2022 at 10:57:57AM -0500, Michael S. Tsirkin wrote:
-> > On Tue, Jan 11, 2022 at 09:22:53AM +0200, Eli Cohen wrote:
-> > > Make sure the decision whether an index received trough a callback is
-> > 
-> > through
-> 
-> Wil fix.
-> 
-> > 
-> > > valid or not consults the negotiated features.
-> > > 
-> > > Signed-off-by: Eli Cohen <elic@nvidia.com>
-> > 
-> > Which commit does this fix?
-> 
-> No specific commit. It's just that I get called for VQ rellated
-> callbacks (e.g. get_vq_state), after the device has been reset. So this
-> patch provides protection against such cases. I hit this issue while
-> testing locally.
 
-To include in the commit log then.
-The point of providing the fixes tag with the commit is that it's
-then easier to figure out how do changes interact with each other.
 
-> > 
-> > > ---
-> > >  drivers/vdpa/mlx5/net/mlx5_vnet.c | 10 +++++++---
-> > >  1 file changed, 7 insertions(+), 3 deletions(-)
-> > > 
-> > > diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> > > index d1ff65065fb1..9eacfdb48434 100644
-> > > --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> > > +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> > > @@ -133,10 +133,14 @@ struct mlx5_vdpa_virtqueue {
-> > >  
-> > >  static bool is_index_valid(struct mlx5_vdpa_dev *mvdev, u16 idx)
-> > >  {
-> > > -	if (unlikely(idx > mvdev->max_idx))
-> > > -		return false;
-> > > +	if (!(mvdev->actual_features & BIT_ULL(VIRTIO_NET_F_MQ))) {
-> > > +		if (!(mvdev->actual_features & BIT_ULL(VIRTIO_NET_F_CTRL_VQ)))
-> > > +			return idx < 2;
-> > > +		else
-> > > +			return idx < 3;
-> > > +	}
-> > >  
-> > > -	return true;
-> > > +	return idx <= mvdev->max_idx;
-> > >  }
-> > >  
-> > >  struct mlx5_vdpa_net {
-> > > -- 
-> > > 2.34.1
-> > 
+On 1/11/2022 10:33 AM, Eli Cohen wrote:
+> Avoid the wrapper holding cf_mutex since it is not protecting anything.
+> To avoid confusion and unnecessary overhead incurred by it, remove.
+>
+> Fixes: f489f27bc0ab ("vdpa: Sync calls set/get config/status with cf_mutex")
+> Signed-off-by: Eli Cohen <elic@nvidia.com>
+Reviewed-by: Si-Wei Liu<si-wei.liu@oracle.com>
+> ---
+>   drivers/vdpa/vdpa.c  | 11 -----------
+>   drivers/vhost/vdpa.c |  5 +++--
+>   include/linux/vdpa.h |  1 -
+>   3 files changed, 3 insertions(+), 14 deletions(-)
+>
+> diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
+> index 4380367d00b5..9846c9de4bfa 100644
+> --- a/drivers/vdpa/vdpa.c
+> +++ b/drivers/vdpa/vdpa.c
+> @@ -21,17 +21,6 @@ static LIST_HEAD(mdev_head);
+>   static DEFINE_MUTEX(vdpa_dev_mutex);
+>   static DEFINE_IDA(vdpa_index_ida);
+>   
+> -u8 vdpa_get_status(struct vdpa_device *vdev)
+> -{
+> -	u8 status;
+> -
+> -	mutex_lock(&vdev->cf_mutex);
+> -	status = vdev->config->get_status(vdev);
+> -	mutex_unlock(&vdev->cf_mutex);
+> -	return status;
+> -}
+> -EXPORT_SYMBOL(vdpa_get_status);
+> -
+>   void vdpa_set_status(struct vdpa_device *vdev, u8 status)
+>   {
+>   	mutex_lock(&vdev->cf_mutex);
+> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+> index 6e7edaf2472b..0ed6cbadb52d 100644
+> --- a/drivers/vhost/vdpa.c
+> +++ b/drivers/vhost/vdpa.c
+> @@ -142,9 +142,10 @@ static long vhost_vdpa_get_device_id(struct vhost_vdpa *v, u8 __user *argp)
+>   static long vhost_vdpa_get_status(struct vhost_vdpa *v, u8 __user *statusp)
+>   {
+>   	struct vdpa_device *vdpa = v->vdpa;
+> +	const struct vdpa_config_ops *ops = vdpa->config;
+>   	u8 status;
+>   
+> -	status = vdpa_get_status(vdpa);
+> +	status = ops->get_status(vdpa);
+>   
+>   	if (copy_to_user(statusp, &status, sizeof(status)))
+>   		return -EFAULT;
+> @@ -163,7 +164,7 @@ static long vhost_vdpa_set_status(struct vhost_vdpa *v, u8 __user *statusp)
+>   	if (copy_from_user(&status, statusp, sizeof(status)))
+>   		return -EFAULT;
+>   
+> -	status_old = vdpa_get_status(vdpa);
+> +	status_old = ops->get_status(vdpa);
+>   
+>   	/*
+>   	 * Userspace shouldn't remove status bits unless reset the
+> diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
+> index a6047fd6cf12..2de442ececae 100644
+> --- a/include/linux/vdpa.h
+> +++ b/include/linux/vdpa.h
+> @@ -421,7 +421,6 @@ void vdpa_get_config(struct vdpa_device *vdev, unsigned int offset,
+>   		     void *buf, unsigned int len);
+>   void vdpa_set_config(struct vdpa_device *dev, unsigned int offset,
+>   		     const void *buf, unsigned int length);
+> -u8 vdpa_get_status(struct vdpa_device *vdev);
+>   void vdpa_set_status(struct vdpa_device *vdev, u8 status);
+>   
+>   /**
 
 _______________________________________________
 Virtualization mailing list
