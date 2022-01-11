@@ -4,57 +4,104 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 78231C433F5
-	for <virtualization@archiver.kernel.org>; Tue, 11 Jan 2022 08:41:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1BF63C433EF
+	for <virtualization@archiver.kernel.org>; Tue, 11 Jan 2022 08:52:36 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 092C683E23;
-	Tue, 11 Jan 2022 08:41:07 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id A174F82668;
+	Tue, 11 Jan 2022 08:52:36 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id SjlEdCeYyoYw; Tue, 11 Jan 2022 08:41:06 +0000 (UTC)
+	with ESMTP id jPUHDtUi0h6B; Tue, 11 Jan 2022 08:52:33 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 97A8683E1E;
-	Tue, 11 Jan 2022 08:41:05 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 3E14A82446;
+	Tue, 11 Jan 2022 08:52:33 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 48F5FC002F;
-	Tue, 11 Jan 2022 08:41:05 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 79AB5C001E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 20CA7C002F;
+	Tue, 11 Jan 2022 08:52:33 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 88DD8C001E
  for <virtualization@lists.linux-foundation.org>;
- Tue, 11 Jan 2022 08:41:03 +0000 (UTC)
+ Tue, 11 Jan 2022 08:52:31 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 6A24483E1F
+ by smtp2.osuosl.org (Postfix) with ESMTP id 65EDF40435
  for <virtualization@lists.linux-foundation.org>;
- Tue, 11 Jan 2022 08:41:03 +0000 (UTC)
+ Tue, 11 Jan 2022 08:52:31 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id PwKadvG0bnH8
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=suse.de header.b="BDstn9Ow";
+ dkim=neutral reason="invalid (unsupported algorithm ed25519-sha256)"
+ header.d=suse.de header.b="sIkNVIWk"
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id PCJwEOzcK-67
  for <virtualization@lists.linux-foundation.org>;
- Tue, 11 Jan 2022 08:41:02 +0000 (UTC)
+ Tue, 11 Jan 2022 08:52:28 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from out30-133.freemail.mail.aliyun.com
- (out30-133.freemail.mail.aliyun.com [115.124.30.133])
- by smtp1.osuosl.org (Postfix) with ESMTPS id BF8A383E1E
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 5A7B640143
  for <virtualization@lists.linux-foundation.org>;
- Tue, 11 Jan 2022 08:41:01 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R521e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04394; MF=xuanzhuo@linux.alibaba.com;
- NM=1; PH=DS; RN=4; SR=0; TI=SMTPD_---0V1YjoDL_1641890457; 
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0V1YjoDL_1641890457) by smtp.aliyun-inc.com(127.0.0.1);
- Tue, 11 Jan 2022 16:40:58 +0800
+ Tue, 11 Jan 2022 08:52:28 +0000 (UTC)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by smtp-out1.suse.de (Postfix) with ESMTPS id 98259212BC;
+ Tue, 11 Jan 2022 08:52:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+ t=1641891145; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=YdaLao7sQ3hp1ENT2rZBs8PXqqa7MrZLMaEIV3+L2Xg=;
+ b=BDstn9Ow4SqDmeTH8JIYqALqmOJbrqtstIvb5BcMVNSs/2RXNdBHphZ5UeWEuf2PxEjxSw
+ yI4C1kfimD9nSiitIzkvKBoDp+5XsIjRl/EUpIroQRCgUEp5aLROrIzS4JzgrXwtauPygS
+ WjieWG9nI0JugOk27OovFfBdq30UPas=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+ s=susede2_ed25519; t=1641891145;
+ h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=YdaLao7sQ3hp1ENT2rZBs8PXqqa7MrZLMaEIV3+L2Xg=;
+ b=sIkNVIWkxtPOYsf7ynPgvm0ueGFZomFUft1rVquFSLcjVkJfPM2dsJxScR2jJxc10OWY1b
+ 03kmNKOxM1hlIbAg==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id F066313AC9;
+ Tue, 11 Jan 2022 08:52:24 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+ by imap2.suse-dmz.suse.de with ESMTPSA id tkCNOUhF3WGCIgAAMHmgww
+ (envelope-from <tzimmermann@suse.de>); Tue, 11 Jan 2022 08:52:24 +0000
+Message-ID: <1a5bd538-063b-c2cf-bb3e-96a6fdb0da0f@suse.de>
+Date: Tue, 11 Jan 2022 09:52:24 +0100
 MIME-Version: 1.0
-message-id: <1641889780.2494113-1-xuanzhuo@linux.alibaba.com>
-subject: Re: RE: [PATCH 0/6] virtio: support advance DMA
-date: Tue, 11 Jan 2022 16:29:40 +0800
-from: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-to: Jason Wang <jasowang@redhat.com>
-in-reply-to: <CACGkMEv1p=tM-YNM0nKTDxQCOkaL-9xVji8K76fJxMwwwYHkJg@mail.gmail.com>
-Cc: "Michael S.Tsirkin" <mst@redhat.com>,
- Magnus Karlsson <magnus.karlsson@intel.com>,
- virtualization <virtualization@lists.linux-foundation.org>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.4.1
+Subject: Re: [PATCH v3 00/10] drm: Make drivers to honour the nomodeset
+ parameter
+Content-Language: en-US
+To: Javier Martinez Canillas <javierm@redhat.com>,
+ linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org
+References: <20211222082831.196562-1-javierm@redhat.com>
+From: Thomas Zimmermann <tzimmermann@suse.de>
+In-Reply-To: <20211222082831.196562-1-javierm@redhat.com>
+Cc: linux-doc@vger.kernel.org, David Airlie <airlied@linux.ie>,
+ Liviu Dudau <liviu.dudau@arm.com>, virtualization@lists.linux-foundation.org,
+ Mihail Atanassov <mihail.atanassov@arm.com>,
+ Fabio Estevam <festevam@gmail.com>, Jonathan Corbet <corbet@lwn.net>,
+ Xinliang Liu <xinliang.liu@linaro.org>,
+ Xinwei Kong <kong.kongxinwei@hisilicon.com>,
+ "James \(Qian\) Wang" <james.qian.wang@arm.com>,
+ NXP Linux Team <linux-imx@nxp.com>, Dave Airlie <airlied@redhat.com>,
+ Pengutronix Kernel Team <kernel@pengutronix.de>,
+ Chen Feng <puck.chen@hisilicon.com>, Sascha Hauer <s.hauer@pengutronix.de>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, John Stultz <john.stultz@linaro.org>,
+ Laurentiu Palcu <laurentiu.palcu@oss.nxp.com>, Daniel Vetter <daniel@ffwll.ch>,
+ linux-arm-kernel@lists.infradead.org, Philipp Zabel <p.zabel@pengutronix.de>,
+ Tian Tao <tiantao6@hisilicon.com>, Shawn Guo <shawnguo@kernel.org>,
+ Brian Starkey <brian.starkey@arm.com>, Lucas Stach <l.stach@pengutronix.de>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -66,138 +113,158 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============7058988528147762319=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, 11 Jan 2022 16:25:44 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> On Tue, Jan 11, 2022 at 4:17 PM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
-> >
-> > On Tue, 11 Jan 2022 08:04:05 +0000, Karlsson, Magnus <magnus.karlsson@intel.com> wrote:
-> > >
-> > >
-> > > > -----Original Message-----
-> > > > From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > > Sent: Tuesday, January 11, 2022 7:17 AM
-> > > > To: Jason Wang <jasowang@redhat.com>
-> > > > Cc: virtualization <virtualization@lists.linux-foundation.org>; Michael S.Tsirkin
-> > > > <mst@redhat.com>; Karlsson, Magnus <magnus.karlsson@intel.com>
-> > > > Subject: Re: [PATCH 0/6] virtio: support advance DMA
-> > > >
-> > > > On Tue, 11 Jan 2022 10:54:45 +0800, Jason Wang <jasowang@redhat.com>
-> > > > wrote:
-> > > > > On Mon, Jan 10, 2022 at 5:59 PM Michael S. Tsirkin <mst@redhat.com>
-> > > > wrote:
-> > > > > >
-> > > > > > On Fri, Jan 07, 2022 at 02:33:00PM +0800, Xuan Zhuo wrote:
-> > > > > > > virtqueue_add() only supports virtual addresses, dma is completed
-> > > > > > > in virtqueue_add().
-> > > > > > >
-> > > > > > > In some scenarios (such as the AF_XDP scenario), DMA is completed
-> > > > > > > in advance, so it is necessary for us to support passing the DMA address
-> > > > to virtqueue_add().
-> > > > > > >
-> > > > > > > This patch set stipulates that if sg->dma_address is not NULL, use
-> > > > > > > this address as the DMA address. And record this information in
-> > > > > > > extra->flags, which can be skipped when executing dma unmap.
-> > > > > > >
-> > > > > > >     extra->flags |= VRING_DESC_F_PREDMA;
-> > > > > > >
-> > > > > > > But the indirect desc does not have a corresponding extra, so the
-> > > > > > > second and third patches of this patch set are to allocate the
-> > > > > > > corresponding extra while allocating the indirect desc. Each desc
-> > > > > > > must have a corresponding extra because it is possible in an sgs
-> > > > > > > some are advance DMA, while others are virtual addresses. So we must
-> > > > allocate an extra for each indirect desc.
-> > > > > >
-> > > > > >
-> > > > > > I didn't realize AF_XDP didn't have space to stuff the header into.
-> > > > > > Jason, is that expected?
-> > > > >
-> > > > > I might be wrong but it looks to me AF_XDP allows to reserve
-> > > > > sufficient headroom via xdp_umem_reg_v1.
-> > > > >
-> > > >
-> > > > I understand that there is a headroom for receiving packages, which can be
-> > > > used to put virtio headers. But there is no headroom defined in the direction
-> > > > of sending packages. I hope Magnus Karlsson can help confirm whether
-> > > > there is any misunderstanding.
-> > >
-> > > You can specify the amount of headroom you want on Tx by adjusting the "addr" field in the descriptor of the Tx ring. If your chunk starts at address X in the umem and you want 128 bytes of headroom, just write your packet into X+128 and put that address into the Tx descriptor. Will this solve your problem? If not, what would you need from AF_XDP to make it work?
-> > >
-> > > On Rx, there is always 256 bytes worth of headroom as specified by XDP. If you need extra, you can set the headroom variable when you register the umem.
-> >
-> > The driver of virtio net, when passing the packet to the hardware, should add a
-> > virtnet hdr (12 bytes) in front of the packet. Both rx and tx should add such a
-> > header. AF_XDP has a space of 256 bytes in the rx process. We can reuse this
-> > space. The direction of AF_XDP tx has no such regulation.
-> >
-> > The method you mentioned requires user cooperation, which is not a good method
-> > for driver implementation.
->
-> This will result in a non-portable userspace program. I wonder why TX
-> has become a problem here actually, anyhow we can use a dedicated sg
-> for vnet hdr? And if we packed all vnet headers in an array it will
-> give less performance impact.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--===============7058988528147762319==
+Content-Language: en-US
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------S57LvTDmYkVbG2Rpo7NPhccF"
 
-There is no problem in implementation, there are two performance points:
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------S57LvTDmYkVbG2Rpo7NPhccF
+Content-Type: multipart/mixed; boundary="------------iunzZnus0OOvar6uRVQ63mo9";
+ protected-headers="v1"
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: Javier Martinez Canillas <javierm@redhat.com>,
+ linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org
+Cc: Brian Starkey <brian.starkey@arm.com>, Chen Feng
+ <puck.chen@hisilicon.com>, Daniel Vetter <daniel@ffwll.ch>,
+ Dave Airlie <airlied@redhat.com>, David Airlie <airlied@linux.ie>,
+ Fabio Estevam <festevam@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ "James (Qian) Wang" <james.qian.wang@arm.com>,
+ John Stultz <john.stultz@linaro.org>, Jonathan Corbet <corbet@lwn.net>,
+ Laurentiu Palcu <laurentiu.palcu@oss.nxp.com>,
+ Liviu Dudau <liviu.dudau@arm.com>, Lucas Stach <l.stach@pengutronix.de>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>,
+ Mihail Atanassov <mihail.atanassov@arm.com>,
+ NXP Linux Team <linux-imx@nxp.com>,
+ Pengutronix Kernel Team <kernel@pengutronix.de>,
+ Philipp Zabel <p.zabel@pengutronix.de>, Sascha Hauer
+ <s.hauer@pengutronix.de>, Shawn Guo <shawnguo@kernel.org>,
+ Tian Tao <tiantao6@hisilicon.com>, Xinliang Liu <xinliang.liu@linaro.org>,
+ Xinwei Kong <kong.kongxinwei@hisilicon.com>,
+ linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org,
+ virtualization@lists.linux-foundation.org
+Message-ID: <1a5bd538-063b-c2cf-bb3e-96a6fdb0da0f@suse.de>
+Subject: Re: [PATCH v3 00/10] drm: Make drivers to honour the nomodeset
+ parameter
+References: <20211222082831.196562-1-javierm@redhat.com>
+In-Reply-To: <20211222082831.196562-1-javierm@redhat.com>
 
-1. vnet hdr and packet are not connected memory
-2. use indirect or occupy two desc.
+--------------iunzZnus0OOvar6uRVQ63mo9
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
-By the way, @Karlsson, Magnus, due to the peculiarity of virtio, the DMA
-implementation of virtio needs to call the specialized API of virtio (see the
-last patch of this patch set). I am thinking about how xsk can support this:
+SGkNCg0KcGF0Y2hlcyA2IHRvIDEwIGFyZQ0KDQpBY2tlZC1ieTogVGhvbWFzIFppbW1lcm1h
+bm4gPHR6aW1tZXJtYW5uQHN1c2UuZGU+DQoNCkJlc3QgcmVnYXJkcw0KVGhvbWFzDQoNCkFt
+IDIyLjEyLjIxIHVtIDA5OjI4IHNjaHJpZWIgSmF2aWVyIE1hcnRpbmV6IENhbmlsbGFzOg0K
+PiBUaGUgbm9tb2Rlc2V0IGtlcm5lbCBjb21tYW5kIGxpbmUgcGFyYW1ldGVyIGlzIHVzZWQg
+dG8gcHJldmVudCB0aGUgS01TL0RSTQ0KPiBkcml2ZXJzIHRvIGJlIHJlZ2lzdGVyZWQvcHJv
+YmVkLiBCdXQgb25seSBhIGZldyBkcml2ZXJzIGltcGxlbWVudCBzdXBwb3J0DQo+IGZvciB0
+aGlzIGFuZCBtb3N0IERSTSBkcml2ZXJzIGp1c3QgaWdub3JlIGl0Lg0KPiANCj4gVGhpcyBw
+YXRjaCBzZXJpZXMgaXMgYSB2MyB0byBtYWtlIERSTSBkcml2ZXJzIHRvIGhvbm91ciBub21v
+ZGVzZXQuIEl0IGlzDQo+IHBvc3RlZCBhcyBzZXBhcmF0ZSBwYXRjaGVzIHRvIG1ha2UgZWFz
+aWVyIGZvciBkcml2ZXJzIG1haW50YWluZXJzIHRvIGFjaw0KPiBvciBwaWNrIHRoZW0gaW5k
+ZXBlbmRlbnRseSBhdCB0aGVpciBvd24gcGFjZS4NCj4gDQo+IFRoZSBkcm1fbW9kdWxlX3tw
+Y2kscGxhdGZvcm19X2RyaXZlcigpIGhlbHBlciBtYWNyb3MgYXJlIGFkZGVkLCB3aGljaCBh
+cmUNCj4ganVzdCB3cmFwcGVycyBhcm91bmQgbW9kdWxlX3twY2kscGxhdGZvcm19X2RyaXZl
+cigpIGJ1dCBhZGRpbmcgYSBjaGVjayBmb3INCj4gZHJtX2Zpcm13YXJlX2RyaXZlcnNfb25s
+eSgpIGFuZCByZXR1cm5pbmcgLUVOT0RFViBpZiB0aGF0IGlzIHRydWUuDQo+IA0KPiBQQ0kg
+YW5kIHBsYXRmb3JtIERSTSBkcml2ZXJzIGFyZSB0aGVuIG1vZGlmaWVkIGluIHRoZSBmb2xs
+b3dpbmcgcGF0Y2hlcyB0bw0KPiBtYWtlIHVzZSBvZiB0aG9zZSBtYWNyb3MuDQo+IA0KPiBP
+bmx5IEtNUyBkcml2ZXJzIHdpbGwgYmUgcG9ydGVkIHRvIHVzZSB0aGVzZSBuZXcgbWFjcm9z
+LCBhbmQgb25seSBmb3IgUENJDQo+IGFuZCBwbGF0Zm9ybSBEUk0gZHJpdmVycy4gQSBmb2xs
+b3ctdXAgc2VyaWVzIG1pZ2h0IGRvIHRoZSBzYW1lIGZvciBkcml2ZXJzDQo+IHRoYXQgYXJl
+IHJlbmRlcmluZy1vbmx5IGFuZCBmb3IgVVNCL1NQSS9JMkMgZGV2aWNlcywgYnV0IGl0IHdp
+bGwgbmVlZCBtb3JlDQo+IGRpc2N1c3Npb24gdG8gYWdyZWUgd2hldGhlciB0aGF0J3MgZGVz
+aXJhYmxlIG9yIG5vdC4NCj4gDQo+IE5vdCBhbGwgZHJpdmVycyB3ZXJlIHBvc3RlZCBpbiB2
+MyB0byBhdm9pZCBmbG9vZGluZyB0aGUgbGlzdCB3aXRoIHRvbyBtYW55DQo+IHBhdGNoZXMu
+IEknbSBvbmx5IGluY2x1ZGluZyB0aGUgcGF0Y2hlcyBhZGRpbmcgdGhlIG1hY3JvcyBhbmQg
+c29tZSBwYXRjaGVzDQo+IGFzIGFuIGV4YW1wbGUgb2YgdGhlaXIgdXNhZ2UuDQo+IA0KPiBJ
+J3ZlIGJ1aWx0IHRlc3RlZCB3aXRoICdtYWtlIGFsbG1vZGNvbmZpZyAmJiBtYWtlIE09ZHJp
+dmVycy9ncHUvZHJtJyBidXQgSQ0KPiBkb24ndCBoYXZlIGhhcmR3YXJlIHRvIHRlc3QgdGhl
+IGRyaXZlcnMsIHNvIHJldmlldy90ZXN0aW5nIGlzIGFwcHJlY2lhdGVkLg0KPiANCj4gQmVz
+dCByZWdhcmRzLA0KPiBKYXZpZXINCj4gDQo+IENoYW5nZXMgaW4gdjM6DQo+IC0gSW5jbHVk
+ZSBUaG9tYXMgWmltbWVybWFubidzIHBhdGNoZXMgaW4gdGhlIHNlcmllcyBhbmQgcmViYXNl
+IG9uIHRvcC4NCj4gLSBBZGQgY29sbGVjdGVkIEFja2VkLWJ5IHRhZ3MgZnJvbSB2Mi4NCj4g
+DQo+IENoYW5nZXMgaW4gdjI6DQo+IC0gQWRkIGRybV9tb2R1bGVfe3BjaSxwbGF0Zm9ybX1f
+ZHJpdmVyKCkgbWFjcm9zIGFuZCBwdXQgdGhlIGNoZWNrIHRoZXJlDQo+ICAgIChUaG9tYXMg
+WmltbWVybWFubikuDQo+IC0gVXNlIHRoZSBkcm1fbW9kdWxlXypfZHJpdmVyKCkgbWFjcm9z
+IGlmIHBvc3NpYmxlIChUaG9tYXMgWmltbWVybWFubikuDQo+IC0gTGVhdmUgdGhlIERSTSBk
+cml2ZXJzIHRoYXQgZG9uJ3Qgc2V0IHRoZSBEUklWRVJfTU9ERVNFVCBkcml2ZXIgZmVhdHVy
+ZQ0KPiAgICAoTHVjYXMgU3RhY2gpLg0KPiAtIExlYXZlIFVTQi9TUEkvSTJDIGRyaXZlcnMg
+YW5kIG9ubHkgaW5jbHVkZSBQQ0kgYW5kIHBsYXRmb3JtIG9uZXMNCj4gICAgKE5vcmFsZiBU
+csO4bm5lcykuDQo+IC0gQWRkIGNvbGxlY3RlZCBSZXZpZXdlZC1ieSB0YWdzDQo+IA0KPiBK
+YXZpZXIgTWFydGluZXogQ2FuaWxsYXMgKDUpOg0KPiAgICBkcm06IFByb3ZpZGUgcGxhdGZv
+cm0gbW9kdWxlLWluaXQgbWFjcm8NCj4gICAgZHJtL2lteC9kY3NzOiBSZXBsYWNlIG1vZHVs
+ZSBpbml0aWFsaXphdGlvbiB3aXRoIERSTSBoZWxwZXJzDQo+ICAgIGRybS9rb21lZGE6IFJl
+cGxhY2UgbW9kdWxlIGluaXRpYWxpemF0aW9uIHdpdGggRFJNIGhlbHBlcnMNCj4gICAgZHJt
+L2FybS9oZGxjZDogUmVwbGFjZSBtb2R1bGUgaW5pdGlhbGl6YXRpb24gd2l0aCBEUk0gaGVs
+cGVycw0KPiAgICBkcm0vbWFsaWRwOiBSZXBsYWNlIG1vZHVsZSBpbml0aWFsaXphdGlvbiB3
+aXRoIERSTSBoZWxwZXJzDQo+IA0KPiBUaG9tYXMgWmltbWVybWFubiAoNSk6DQo+ICAgIGRy
+bTogUHJvdmlkZSBQQ0kgbW9kdWxlLWluaXQgbWFjcm9zDQo+ICAgIGRybS9hc3Q6IFJlcGxh
+Y2UgbW9kdWxlLWluaXQgYm9pbGVyLXBsYXRlIGNvZGUgd2l0aCBEUk0gaGVscGVycw0KPiAg
+ICBkcm0vYm9jaHM6IFJlcGxhY2UgbW9kdWxlLWluaXQgYm9pbGVyLXBsYXRlIGNvZGUgd2l0
+aCBEUk0gaGVscGVycw0KPiAgICBkcm0vY2lycnVzOiBSZXBsYWNlIG1vZHVsZS1pbml0IGJv
+aWxlci1wbGF0ZSBjb2RlIHdpdGggRFJNIGhlbHBlcnMNCj4gICAgZHJtL2hpc2lsaWNvbi9o
+aWJtYzogUmVwbGFjZSBtb2R1bGUgaW5pdGlhbGl6YXRpb24gd2l0aCBEUk0gaGVscGVycw0K
+PiANCj4gICBEb2N1bWVudGF0aW9uL2dwdS9kcm0taW50ZXJuYWxzLnJzdCAgICAgICAgICAg
+fCAgIDYgKw0KPiAgIC4uLi9ncHUvZHJtL2FybS9kaXNwbGF5L2tvbWVkYS9rb21lZGFfZHJ2
+LmMgICB8ICAgMyArLQ0KPiAgIGRyaXZlcnMvZ3B1L2RybS9hcm0vaGRsY2RfZHJ2LmMgICAg
+ICAgICAgICAgICB8ICAgMyArLQ0KPiAgIGRyaXZlcnMvZ3B1L2RybS9hcm0vbWFsaWRwX2Ry
+di5jICAgICAgICAgICAgICB8ICAgMyArLQ0KPiAgIGRyaXZlcnMvZ3B1L2RybS9hc3QvYXN0
+X2Rydi5jICAgICAgICAgICAgICAgICB8ICAxOCArLS0NCj4gICAuLi4vZ3B1L2RybS9oaXNp
+bGljb24vaGlibWMvaGlibWNfZHJtX2Rydi5jICAgfCAgIDMgKy0NCj4gICBkcml2ZXJzL2dw
+dS9kcm0vaW14L2Rjc3MvZGNzcy1kcnYuYyAgICAgICAgICAgfCAgIDMgKy0NCj4gICBkcml2
+ZXJzL2dwdS9kcm0vdGlueS9ib2Nocy5jICAgICAgICAgICAgICAgICAgfCAgMjAgKy0tDQo+
+ICAgZHJpdmVycy9ncHUvZHJtL3RpbnkvY2lycnVzLmMgICAgICAgICAgICAgICAgIHwgIDE3
+ICstLQ0KPiAgIGluY2x1ZGUvZHJtL2RybV9tb2R1bGUuaCAgICAgICAgICAgICAgICAgICAg
+ICB8IDEyNSArKysrKysrKysrKysrKysrKysNCj4gICAxMCBmaWxlcyBjaGFuZ2VkLCAxNDcg
+aW5zZXJ0aW9ucygrKSwgNTQgZGVsZXRpb25zKC0pDQo+ICAgY3JlYXRlIG1vZGUgMTAwNjQ0
+IGluY2x1ZGUvZHJtL2RybV9tb2R1bGUuaA0KPiANCg0KLS0gDQpUaG9tYXMgWmltbWVybWFu
+bg0KR3JhcGhpY3MgRHJpdmVyIERldmVsb3Blcg0KU1VTRSBTb2Z0d2FyZSBTb2x1dGlvbnMg
+R2VybWFueSBHbWJIDQpNYXhmZWxkc3RyLiA1LCA5MDQwOSBOw7xybmJlcmcsIEdlcm1hbnkN
+CihIUkIgMzY4MDksIEFHIE7DvHJuYmVyZykNCkdlc2Now6RmdHNmw7xocmVyOiBJdm8gVG90
+ZXYNCg==
 
-1. Pass callback to xsk (must pass multiple callbacks including map, unmap, map sync...)
-2. xsk judges that it is virtio, and specifically calls virtio's DMA api
+--------------iunzZnus0OOvar6uRVQ63mo9--
 
-Which one do you think is more suitable?
+--------------S57LvTDmYkVbG2Rpo7NPhccF
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
 
-Thanks.
+-----BEGIN PGP SIGNATURE-----
 
->
-> Thanks
->
-> >
-> > Thanks.
-> >
-> > >
-> > > > It would be best if we could not use indirect.
-> > > >
-> > > > Thanks.
-> > > >
-> > > > > > It would be best to fix that, performance is best if header is
-> > > > > > linear with the data ...
-> > > > >
-> > > > > This looks like a must otherwise we may meet trouble in zerocopy receive.
-> > > > >
-> > > > > Thanks
-> > > > >
-> > > > > > Or maybe we can reduce the use of indirect somewhat, at least while
-> > > > > > the ring is mostly empty?
-> > > > > >
-> > > > > > > Xuan Zhuo (6):
-> > > > > > >   virtio: rename vring_unmap_state_packed() to
-> > > > > > >     vring_unmap_extra_packed()
-> > > > > > >   virtio: split: alloc indirect desc with extra
-> > > > > > >   virtio: packed: alloc indirect desc with extra
-> > > > > > >   virtio: split: virtqueue_add_split() support dma address
-> > > > > > >   virtio: packed: virtqueue_add_packed() support dma address
-> > > > > > >   virtio: add api virtio_dma_map() for advance dma
-> > > > > > >
-> > > > > > >  drivers/virtio/virtio_ring.c | 387 ++++++++++++++++++++---------------
-> > > > > > >  include/linux/virtio.h       |   9 +
-> > > > > > >  2 files changed, 232 insertions(+), 164 deletions(-)
-> > > > > > >
-> > > > > > > --
-> > > > > > > 2.31.0
-> > > > > >
-> > > > >
-> >
->
+wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmHdRUgFAwAAAAAACgkQlh/E3EQov+An
+yw/+PqLQFIu9LBnng6lhUGfNB5ZqConOgdctjJWhLNtpFI/AHcnly8Qnqqjoo2va2Z7LwDPhOTxZ
+avQYDTjyJGTTvMTuTq7PCx+mJdgHIv/xRFN46VX/bmHQBKPgUlz9zW99HZUrIJeliSE5AWmIto15
+tfP7yj/1/ABelQGCofNYJIqPqNkxLJ2GedY8SVY0hPQfpR+ZijWEgo65PxkhW82N3qyUJI74+00w
+q4UWcP3/jnTo7Ag9jXfjZZRutE5Pl69lcvKAgBZJx8ehXFU9Hpc9DpCoSXpIK/yoKrxECQ8x9e6H
+3DNR1ey/wHxRGCPNR+d/OI9ugH2ZtZuW3oXCx4WzEBp8oLSFHLIifreH1y/Fu181cghfnjn+FYHn
+PMYhCGZjpOefYEdVCN8FQzbzO4Cgidit5dQYLKkx/YExe8q+d36sA7GODaKCvyg/zEVqrnVf2WjQ
+wIxtelo4lyYZQdpX662RB+Fm5qpOBn9G7S4uIOwCBMw7RS3WDmCtFJ3zGe+qlwJzl2Rez1N8VuIU
+wbejrZO5lC6VPPOrozFyLHJL2hJJc4q5fODYLnmHpyF3gMNH0rEpR6//DY62y1wY+C2+2NU0P5Bt
+ghPKFt/AdTyKdfZXWrxxYeTP3CUUG2/D3hpG7LuVf1HbfrI6on4rL6kqv2fPu/6c0RmMU6HLuR2J
+I0I=
+=dCKg
+-----END PGP SIGNATURE-----
+
+--------------S57LvTDmYkVbG2Rpo7NPhccF--
+
+--===============7058988528147762319==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============7058988528147762319==--
