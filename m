@@ -1,93 +1,91 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B978CC433EF
-	for <virtualization@archiver.kernel.org>; Wed, 12 Jan 2022 02:32:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 22D80C433EF
+	for <virtualization@archiver.kernel.org>; Wed, 12 Jan 2022 02:34:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 612146FB76;
-	Wed, 12 Jan 2022 02:32:37 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id B86264288B;
+	Wed, 12 Jan 2022 02:34:56 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id mZUMJDDeHdch; Wed, 12 Jan 2022 02:32:36 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id md1GXh4uX-sG; Wed, 12 Jan 2022 02:34:56 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id F159D6FB71;
-	Wed, 12 Jan 2022 02:32:35 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 741AB42886;
+	Wed, 12 Jan 2022 02:34:55 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id BFB9DC002F;
-	Wed, 12 Jan 2022 02:32:35 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4952CC001E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4ABC4C002F;
+	Wed, 12 Jan 2022 02:34:55 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 91852C001E
  for <virtualization@lists.linux-foundation.org>;
- Wed, 12 Jan 2022 02:32:35 +0000 (UTC)
+ Wed, 12 Jan 2022 02:34:54 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 2F3C440937
+ by smtp2.osuosl.org (Postfix) with ESMTP id 7E72540937
  for <virtualization@lists.linux-foundation.org>;
- Wed, 12 Jan 2022 02:32:35 +0000 (UTC)
+ Wed, 12 Jan 2022 02:34:54 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp2.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 3fEc7Ft8Jq8F
+ with ESMTP id GKmo8QHnU3A8
  for <virtualization@lists.linux-foundation.org>;
- Wed, 12 Jan 2022 02:32:34 +0000 (UTC)
+ Wed, 12 Jan 2022 02:34:53 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 4789540924
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 9F85F40924
  for <virtualization@lists.linux-foundation.org>;
- Wed, 12 Jan 2022 02:32:34 +0000 (UTC)
+ Wed, 12 Jan 2022 02:34:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1641954753;
+ s=mimecast20190719; t=1641954892;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=TDRQOQGXgkIHiJO2AyKEniNSDBr94TNpRwIlvxr1KG8=;
- b=gvCYXFwgkExRtk4a4isNYyFcfCVTzlCUvXSykdZrPi28vwtjOGSPSwWUEfCBoD7Kb0RSId
- vfKdiUJy1DLkIsY//ZHJGuXiIWMODHLxdMh/bWTOTggNfLlROpuZkworY8mst1xor/Ywgm
- 9bAo17M8mw5H87aDsDVTxVHOWWf2TgM=
+ bh=rJ7Tqm/ydIVHzOTArHLGWyexjU4+EfM8kItXP8w0p4E=;
+ b=TjvVe7qzy7S7GCcFspwzJ1n8BfaIui4MHkEOLFkAB98N2q76FHvID+5yFUJ/yEO+BQM0YN
+ xsqIOJcRFLKR4BebI+FGjBbJ8BKV1WWTPtayi0o+duzGjpCAlUluqVIojdMZkOxGvSOTu0
+ rInFkODWY+xspMdxI5pnHajxBWtKRiw=
 Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
  [209.85.167.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-620-q9HBtewTNR-tiWbt-xTziw-1; Tue, 11 Jan 2022 21:32:32 -0500
-X-MC-Unique: q9HBtewTNR-tiWbt-xTziw-1
+ us-mta-6-Qn8TxoaCP0m5DGD0KOwrXQ-1; Tue, 11 Jan 2022 21:34:51 -0500
+X-MC-Unique: Qn8TxoaCP0m5DGD0KOwrXQ-1
 Received: by mail-lf1-f69.google.com with SMTP id
- d25-20020a194f19000000b0042b469bd916so617055lfb.21
+ d25-20020a194f19000000b0042b469bd916so620670lfb.21
  for <virtualization@lists.linux-foundation.org>;
- Tue, 11 Jan 2022 18:32:31 -0800 (PST)
+ Tue, 11 Jan 2022 18:34:51 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=TDRQOQGXgkIHiJO2AyKEniNSDBr94TNpRwIlvxr1KG8=;
- b=VQIMJgR5pfuwdUNWjhTyhB8PC9NueMeQn9p7l1PXPNf4CIwuyeocvY8m3nfyVmIpmZ
- sKqY1rbtVXTJp9CLdMhTPL7fc5FzYdy9Yp8nAmzTQS+qVUR+1SfSRZqAdjdfm7cMKWgb
- VJeFHkmO0xrRAihCJYScX/DuY0X4BA+8W0KkkryU+mX/VMai4Ad2MXcGEYIGTq53oJdg
- 8PgR4qima6U56CRWGRt/Mwf+vMn42w7V1xyS1qKf23sbLz8zQxJ4LFlo5/43jmww9LQD
- 4JJANV9TgSrgQmetvUFKUZ5h2TutvMtiSd23TpdqCV8ImvKzi0peZ/IhcDSv9g1nMMVH
- TT+A==
-X-Gm-Message-State: AOAM533XrMjCKHd8he6o8ctKat5fvZLQcIn56bZPo9Xjj9vIiUpkrSsC
- 8lvzoYP3m0uOoavrWtqc/l3ucQEIJat0VpWS6ZmRze4e4ZtrUHxcAD3ilry5+of8FYS9ktgzZSI
- FQDcHHhHNg2xLGvSAIkOcU1pLksoGSlayN3vUrZGB2a9O8iqE+qhz5325cA==
-X-Received: by 2002:a05:6512:214f:: with SMTP id
- s15mr5344379lfr.199.1641954750639; 
- Tue, 11 Jan 2022 18:32:30 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJygZze6hgTsOkRBmTgMcF1L3IiSxU5B3aXF8CWlvWSZPINrtqUyzzrqz1Y/TGBhrVhyJj0RNA73FdAy2ieujBU=
-X-Received: by 2002:a05:6512:214f:: with SMTP id
- s15mr5344365lfr.199.1641954750457; 
- Tue, 11 Jan 2022 18:32:30 -0800 (PST)
+ bh=rJ7Tqm/ydIVHzOTArHLGWyexjU4+EfM8kItXP8w0p4E=;
+ b=VKzcTYZ52YvBmKronFF67k69i+FM7w7TxK8VyBTby1AwKi+X3ewp6VKbxvxi4NAxAl
+ 7y2uRl6pSM2pZWbd3slJSJzog7TwxWLMw09Vq7ptVwimTC+cleTTwltXGVKlqbKf95Ut
+ kpTB/sRpbq5iewUG0Bh/lFnJ+fF2HAEdqZo2znqLWJHQ700G7adLQcCTxNIIpSYYHevQ
+ TR+M5WGoACjvnrEbdv+PlbuBm6ADpAl2KfGnsody0hS5M89Wph/MorfIqJ5ExUxDslxe
+ M7Fej1acSy44I8aq+UHdc9C0P2R/ZgZ7I3Fy9I3cq/buacNVHC/kPkcNDWxlebFWnYXE
+ vang==
+X-Gm-Message-State: AOAM532/iMEaFgd7vcomV08dzeYl0WrgFl8DMM1A2U7ZDYLalCOUsCKd
+ L6OLoDll+3RnA+w1WtRFk3gsJfzKZjF3nkEElAML+VWRNu+kv/lbX8oxo8BgKVZi+vJwXTU4kpd
+ q7U9eNNBrXXN2ZqD9JTjdH+eRtdSZRjJbAKGhhnPwfNtRXO+xwGtaAVM03Q==
+X-Received: by 2002:a19:f705:: with SMTP id z5mr5277447lfe.580.1641954890127; 
+ Tue, 11 Jan 2022 18:34:50 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxMAx55K4LgWep1Ey6Ohbpnuo9MfAKGuRGWVUgSuAVrLEWOlHNiRGZdkbf5qSaCAih8htiN47TVrkQAVptqpOY=
+X-Received: by 2002:a19:f705:: with SMTP id z5mr5277436lfe.580.1641954889952; 
+ Tue, 11 Jan 2022 18:34:49 -0800 (PST)
 MIME-Version: 1.0
 References: <20220111183400.38418-1-elic@nvidia.com>
- <20220111183400.38418-2-elic@nvidia.com>
-In-Reply-To: <20220111183400.38418-2-elic@nvidia.com>
+ <20220111183400.38418-3-elic@nvidia.com>
+In-Reply-To: <20220111183400.38418-3-elic@nvidia.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 12 Jan 2022 10:32:19 +0800
-Message-ID: <CACGkMEvARfUX5F7i8_wfs+PNUzN9XtptfRr0jBLSJ34ddYNLzA@mail.gmail.com>
-Subject: Re: [PATCH 1/4] vdpa: Avoid taking cf_mutex lock on get status
+Date: Wed, 12 Jan 2022 10:34:39 +0800
+Message-ID: <CACGkMEuE7gfDTX+ADNd8DTGvm4Vvypei=CO=0FSqjdGZ1n5Acw@mail.gmail.com>
+Subject: Re: [PATCH 2/4] vdpa: Protect vdpa reset with cf_mutex
 To: Eli Cohen <elic@nvidia.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
@@ -114,79 +112,38 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 On Wed, Jan 12, 2022 at 2:34 AM Eli Cohen <elic@nvidia.com> wrote:
 >
-> Avoid the wrapper holding cf_mutex since it is not protecting anything.
-> To avoid confusion and unnecessary overhead incurred by it, remove.
+> Call reset using the wrapper function vdpa_reset() to make sure the
+> operation is serialized with cf_mutex.
 >
-> Fixes: f489f27bc0ab ("vdpa: Sync calls set/get config/status with cf_mutex")
+> This comes to protect from the following possible scenario:
+>
+> vhost_vdpa_set_status() could call the reset op. Since the call is not
+> protected by cf_mutex, a netlink thread calling vdpa_dev_config_fill
+> could get passed the VIRTIO_CONFIG_S_FEATURES_OK check in
+> vdpa_dev_config_fill() and end up reporting wrong features.
+>
+> Fixes: 5f6e85953d8f ("vdpa: Read device configuration only if FEATURES_OK")
 > Signed-off-by: Eli Cohen <elic@nvidia.com>
 
 Acked-by: Jason Wang <jasowang@redhat.com>
 
 > ---
->  drivers/vdpa/vdpa.c  | 11 -----------
->  drivers/vhost/vdpa.c |  5 +++--
->  include/linux/vdpa.h |  1 -
->  3 files changed, 3 insertions(+), 14 deletions(-)
+>  drivers/vhost/vdpa.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 >
-> diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
-> index 4380367d00b5..9846c9de4bfa 100644
-> --- a/drivers/vdpa/vdpa.c
-> +++ b/drivers/vdpa/vdpa.c
-> @@ -21,17 +21,6 @@ static LIST_HEAD(mdev_head);
->  static DEFINE_MUTEX(vdpa_dev_mutex);
->  static DEFINE_IDA(vdpa_index_ida);
->
-> -u8 vdpa_get_status(struct vdpa_device *vdev)
-> -{
-> -       u8 status;
-> -
-> -       mutex_lock(&vdev->cf_mutex);
-> -       status = vdev->config->get_status(vdev);
-> -       mutex_unlock(&vdev->cf_mutex);
-> -       return status;
-> -}
-> -EXPORT_SYMBOL(vdpa_get_status);
-> -
->  void vdpa_set_status(struct vdpa_device *vdev, u8 status)
->  {
->         mutex_lock(&vdev->cf_mutex);
 > diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-> index 6e7edaf2472b..0ed6cbadb52d 100644
+> index 0ed6cbadb52d..851539807bc9 100644
 > --- a/drivers/vhost/vdpa.c
 > +++ b/drivers/vhost/vdpa.c
-> @@ -142,9 +142,10 @@ static long vhost_vdpa_get_device_id(struct vhost_vdpa *v, u8 __user *argp)
->  static long vhost_vdpa_get_status(struct vhost_vdpa *v, u8 __user *statusp)
->  {
->         struct vdpa_device *vdpa = v->vdpa;
-> +       const struct vdpa_config_ops *ops = vdpa->config;
->         u8 status;
+> @@ -178,7 +178,7 @@ static long vhost_vdpa_set_status(struct vhost_vdpa *v, u8 __user *statusp)
+>                         vhost_vdpa_unsetup_vq_irq(v, i);
 >
-> -       status = vdpa_get_status(vdpa);
-> +       status = ops->get_status(vdpa);
->
->         if (copy_to_user(statusp, &status, sizeof(status)))
->                 return -EFAULT;
-> @@ -163,7 +164,7 @@ static long vhost_vdpa_set_status(struct vhost_vdpa *v, u8 __user *statusp)
->         if (copy_from_user(&status, statusp, sizeof(status)))
->                 return -EFAULT;
->
-> -       status_old = vdpa_get_status(vdpa);
-> +       status_old = ops->get_status(vdpa);
->
->         /*
->          * Userspace shouldn't remove status bits unless reset the
-> diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
-> index a6047fd6cf12..2de442ececae 100644
-> --- a/include/linux/vdpa.h
-> +++ b/include/linux/vdpa.h
-> @@ -421,7 +421,6 @@ void vdpa_get_config(struct vdpa_device *vdev, unsigned int offset,
->                      void *buf, unsigned int len);
->  void vdpa_set_config(struct vdpa_device *dev, unsigned int offset,
->                      const void *buf, unsigned int length);
-> -u8 vdpa_get_status(struct vdpa_device *vdev);
->  void vdpa_set_status(struct vdpa_device *vdev, u8 status);
->
->  /**
+>         if (status == 0) {
+> -               ret = ops->reset(vdpa);
+> +               ret = vdpa_reset(vdpa);
+>                 if (ret)
+>                         return ret;
+>         } else
 > --
 > 2.34.1
 >
