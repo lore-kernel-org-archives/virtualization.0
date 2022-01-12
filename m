@@ -1,91 +1,91 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id CF3D9C433EF
-	for <virtualization@archiver.kernel.org>; Wed, 12 Jan 2022 02:35:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9F0BFC433F5
+	for <virtualization@archiver.kernel.org>; Wed, 12 Jan 2022 02:35:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 71A5B40924;
-	Wed, 12 Jan 2022 02:35:29 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 40D2F60D6A;
+	Wed, 12 Jan 2022 02:35:57 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 11wLowoRl9Td; Wed, 12 Jan 2022 02:35:28 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id B8F6C40939;
-	Wed, 12 Jan 2022 02:35:27 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 3AZvqJc6DAUH; Wed, 12 Jan 2022 02:35:56 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id E6C1260D6B;
+	Wed, 12 Jan 2022 02:35:55 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 9429AC002F;
-	Wed, 12 Jan 2022 02:35:27 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 5B754C001E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CB8ABC002F;
+	Wed, 12 Jan 2022 02:35:55 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 99F29C001E
  for <virtualization@lists.linux-foundation.org>;
- Wed, 12 Jan 2022 02:35:26 +0000 (UTC)
+ Wed, 12 Jan 2022 02:35:54 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 3A8F483F09
+ by smtp1.osuosl.org (Postfix) with ESMTP id 87BF483F0C
  for <virtualization@lists.linux-foundation.org>;
- Wed, 12 Jan 2022 02:35:26 +0000 (UTC)
+ Wed, 12 Jan 2022 02:35:54 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp1.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 2enRnwjlTkYT
+ with ESMTP id gaNAdFD1dCCB
  for <virtualization@lists.linux-foundation.org>;
- Wed, 12 Jan 2022 02:35:25 +0000 (UTC)
+ Wed, 12 Jan 2022 02:35:53 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 8004083F08
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id C40F583F08
  for <virtualization@lists.linux-foundation.org>;
- Wed, 12 Jan 2022 02:35:25 +0000 (UTC)
+ Wed, 12 Jan 2022 02:35:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1641954924;
+ s=mimecast20190719; t=1641954952;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=p9JZnnhK2vlfStgckjEq3pwHsmac9WX4pj5kmY0eIc4=;
- b=U+wpv/ApkgHB7wlgCVPQBbquI3IbKz3Ul5m9g7k0P7ADee+gzozXVBF/gbIBf8XWyAxNFt
- S/bMNsBoHxm9uqeIum24mEVyltHqDzJXJNbCYLJh8cD1I7S6nU+/ow7LVawgKmQZq+i1w/
- ZBCwggfTT5tfPCeEL7g6t9E0Aapo6oQ=
+ bh=sIC7TYQzsseQ071TF8U6TIksEQCxg2/pSXZlTIi0JIg=;
+ b=UBeuruvWwor2p4s4CUL7I9p0Zwug9wBI9rGizMgSuVVPiYxPLvprXoaXTzzkXh5me25Ke7
+ fSmNBNfJdOrVCLlvpXByCQJ7kiZlAIgBaInzRVhYReglTTeITZsU8B2WpTJPofHnCwrhK0
+ p0m8x1V6Ie3eACnODc1gQqX/QHc7gWM=
 Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
  [209.85.167.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-446-qdOuxliMOO6tDXBJIV4MBA-1; Tue, 11 Jan 2022 21:35:21 -0500
-X-MC-Unique: qdOuxliMOO6tDXBJIV4MBA-1
+ us-mta-533-QP6mcBXgM6qfe28_3w7giQ-1; Tue, 11 Jan 2022 21:35:51 -0500
+X-MC-Unique: QP6mcBXgM6qfe28_3w7giQ-1
 Received: by mail-lf1-f72.google.com with SMTP id
- v7-20020a056512048700b0042d99b3a962so615612lfq.23
+ d34-20020a0565123d2200b0042ed74cbf6aso132742lfv.11
  for <virtualization@lists.linux-foundation.org>;
- Tue, 11 Jan 2022 18:35:20 -0800 (PST)
+ Tue, 11 Jan 2022 18:35:51 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=p9JZnnhK2vlfStgckjEq3pwHsmac9WX4pj5kmY0eIc4=;
- b=vILbdUMSpFX+5lgDpvL27HQ+LUs7eLEp0U8MKDHxlTr/hQ6lznZpuiuXIFv4EvWcsG
- 0KluemoEVZIHuGo2n+FLHF4gUa6n02lQuMdsw0QQiJMru7UHhQy/eMGkus7hRKCccLjE
- mxYM4OyNX/oCIFe8dE4GDuVhVDa5tAS/pka/CBrhfsICkt22QDfsF/LehqWS+BJQMz8o
- RdJNGca6NiEdiumab0y0eD8GpEKmXKjZAwRUC8rcwLkfDOEc2v0sr7wdujsvaivqxdde
- KPb/tyJbtyosYuWIQ5MD0O4o7hMzdp7v0KXGdgpSOfLvR6dlmnR+5FcfQAnolNMRwaBP
- rmEg==
-X-Gm-Message-State: AOAM531zZ8gFXPbG5p/yth8Yu20wmX15J4iZphV026D6Bfp41Lb1Nb9J
- n7XPrZNzu4Qo2OMW9+lUCQMVRL318zy4/5K3Jziu5PwxeWNPc1d4nq+T2sNNQJEKc0vsJB/HBSd
- 6PUuzcoGqrzyf9WmzSx3I+czmWN6OSOnc37sB7Ihq9DoyEcgmQewOWPOzvA==
-X-Received: by 2002:a2e:b791:: with SMTP id n17mr4750582ljo.307.1641954919517; 
- Tue, 11 Jan 2022 18:35:19 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJw69A9oJBNrY3fnjH3prBtSTXXi+ZShpFK+Pj4DkGsUUEVNppewHWoCXntdcGQ6eRw3+xyOn3ybU0CTGCH4Z3A=
-X-Received: by 2002:a2e:b791:: with SMTP id n17mr4750574ljo.307.1641954919337; 
- Tue, 11 Jan 2022 18:35:19 -0800 (PST)
+ bh=sIC7TYQzsseQ071TF8U6TIksEQCxg2/pSXZlTIi0JIg=;
+ b=IXZFoYMJuIkMu0YrqK1zwZGDSk0nFigHAn8xZS2REG4eNZMmkbcGIeSBcuS7biJC+m
+ HtT8usWhPoKdyq/glns1tKgkFUrA0Xb/31rJR5PmYfCA38lWKNgc0qhvcHZYJ5/1rPG8
+ sET55CgJB3j9noT68U6ZQDRs3tV8IdgOwqhyM2WXrI9OE4r6sizrK9jkEP+lHjd/ifzx
+ ACfFy1XoE7JF2ntewGKUWIm28j2qGafv98yqXwoc5i31U7JuInc+YW/lL4L24MoJVzE2
+ NO/Oc2PcMjEAkcTYYawQocQpbumWfHbPsLYTR3XEiVH4KwU8q+71FU6DhwAz8TktROC5
+ zOiw==
+X-Gm-Message-State: AOAM533u/+cWygaJadn+W0HY/+NerMsj9fJnCZT9iq3Q1QdYNBy8+c4o
+ mNbpYTkitvuj6gcdGbif+3QRYoFcH7iZa9ABsZrnB/nCuCvJBmB+awoO/m3k0ae1wMgR0YWyPYu
+ MkwK39IKxck6n+YiyLJLT0JiGXEe71HrA/xy7obnbkHU7EczHrKShRwwiyw==
+X-Received: by 2002:a2e:a177:: with SMTP id u23mr4813092ljl.217.1641954949941; 
+ Tue, 11 Jan 2022 18:35:49 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJw08lRNYxdjos4K/wWVJASU5zgSq4DYVtanzX/zxdxSLOwVIi1IllI1/0q8wRer7Y2LdlvvCljm6bc0A2Fuzg8=
+X-Received: by 2002:a2e:a177:: with SMTP id u23mr4813076ljl.217.1641954949740; 
+ Tue, 11 Jan 2022 18:35:49 -0800 (PST)
 MIME-Version: 1.0
 References: <20220111183400.38418-1-elic@nvidia.com>
- <20220111183400.38418-4-elic@nvidia.com>
-In-Reply-To: <20220111183400.38418-4-elic@nvidia.com>
+ <20220111183400.38418-5-elic@nvidia.com>
+In-Reply-To: <20220111183400.38418-5-elic@nvidia.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 12 Jan 2022 10:35:08 +0800
-Message-ID: <CACGkMEuxjmYhy1QfoWb8S-S4-CfijLxs=21_F_Jv486otdUG=g@mail.gmail.com>
-Subject: Re: [PATCH 3/4] vdpa/mlx5: Fix is_index_valid() to refer to features
+Date: Wed, 12 Jan 2022 10:35:38 +0800
+Message-ID: <CACGkMEthoRMfiL-6_2So---L_BGMJaGV1PfHuyWsTiMhje8RnA@mail.gmail.com>
+Subject: Re: [PATCH 4/4] vdpa/mlx5: Fix tracking of current number of VQs
 To: Eli Cohen <elic@nvidia.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
@@ -112,47 +112,70 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 On Wed, Jan 12, 2022 at 2:34 AM Eli Cohen <elic@nvidia.com> wrote:
 >
-> Make sure the decision whether an index received through a callback is
-> valid or not consults the negotiated features.
+> Modify the code such that ndev->cur_num_vqs better reflects the actual
+> number of data virtqueues. The value can be accurately realized after
+> features have been negotiated.
 >
-> The motivation for this was due to a case encountered where I shut down
-> the VM. After the reset operation was called features were already
-> clear, I got get_vq_state() call which caused out array bounds
-> access since is_index_valid() reported the index value.
+> This is to prevent possible failures when modifying the RQT object if
+> the cur_num_vqs bears invalid value.
 >
-> So this is more of not hit a bug since the call shouldn't have been made
-> first place.
+> No issue was actually encountered but this also makes the code more
+> readable.
 >
+> Fixes: c5a5cd3d3217 ("vdpa/mlx5: Support configuring max data virtqueue")
 > Signed-off-by: Eli Cohen <elic@nvidia.com>
 
 Acked-by: Jason Wang <jasowang@redhat.com>
 
 > ---
->  drivers/vdpa/mlx5/net/mlx5_vnet.c | 10 +++++++---
->  1 file changed, 7 insertions(+), 3 deletions(-)
+>  drivers/vdpa/mlx5/net/mlx5_vnet.c | 12 ++++++++----
+>  1 file changed, 8 insertions(+), 4 deletions(-)
 >
 > diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> index d1ff65065fb1..9eacfdb48434 100644
+> index 9eacfdb48434..b53603d94082 100644
 > --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
 > +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> @@ -133,10 +133,14 @@ struct mlx5_vdpa_virtqueue {
+> @@ -1246,8 +1246,7 @@ static int create_rqt(struct mlx5_vdpa_net *ndev)
+>         if (!(ndev->mvdev.actual_features & BIT_ULL(VIRTIO_NET_F_MQ)))
+>                 num = 1;
+>         else
+> -               num = mlx5vdpa16_to_cpu(&ndev->mvdev,
+> -                                       ndev->config.max_virtqueue_pairs);
+> +               num = ndev->cur_num_vqs / 2;
 >
->  static bool is_index_valid(struct mlx5_vdpa_dev *mvdev, u16 idx)
->  {
-> -       if (unlikely(idx > mvdev->max_idx))
-> -               return false;
-> +       if (!(mvdev->actual_features & BIT_ULL(VIRTIO_NET_F_MQ))) {
-> +               if (!(mvdev->actual_features & BIT_ULL(VIRTIO_NET_F_CTRL_VQ)))
-> +                       return idx < 2;
-> +               else
-> +                       return idx < 3;
-> +       }
+>         max_rqt = min_t(int, roundup_pow_of_two(num),
+>                         1 << MLX5_CAP_GEN(ndev->mvdev.mdev, log_max_rqt_size));
+> @@ -1983,6 +1982,11 @@ static int mlx5_vdpa_set_driver_features(struct vdpa_device *vdev, u64 features)
+>                 return err;
 >
-> -       return true;
-> +       return idx <= mvdev->max_idx;
+>         ndev->mvdev.actual_features = features & ndev->mvdev.mlx_features;
+> +       if (ndev->mvdev.actual_features & BIT_ULL(VIRTIO_NET_F_MQ))
+> +               ndev->cur_num_vqs = 2 * mlx5vdpa16_to_cpu(mvdev, ndev->config.max_virtqueue_pairs);
+> +       else
+> +               ndev->cur_num_vqs = 2;
+> +
+>         update_cvq_info(mvdev);
+>         return err;
 >  }
+> @@ -2233,6 +2237,7 @@ static int mlx5_vdpa_reset(struct vdpa_device *vdev)
+>         clear_vqs_ready(ndev);
+>         mlx5_vdpa_destroy_mr(&ndev->mvdev);
+>         ndev->mvdev.status = 0;
+> +       ndev->cur_num_vqs = 0;
+>         memset(ndev->event_cbs, 0, sizeof(*ndev->event_cbs) * (mvdev->max_vqs + 1));
+>         ndev->mvdev.actual_features = 0;
+>         ++mvdev->generation;
+> @@ -2641,9 +2646,8 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name,
 >
->  struct mlx5_vdpa_net {
+>         ndev->nb.notifier_call = event_handler;
+>         mlx5_notifier_register(mdev, &ndev->nb);
+> -       ndev->cur_num_vqs = 2 * mlx5_vdpa_max_qps(max_vqs);
+>         mvdev->vdev.mdev = &mgtdev->mgtdev;
+> -       err = _vdpa_register_device(&mvdev->vdev, ndev->cur_num_vqs + 1);
+> +       err = _vdpa_register_device(&mvdev->vdev, 2 * mlx5_vdpa_max_qps(max_vqs) + 1);
+>         if (err)
+>                 goto err_reg;
+>
 > --
 > 2.34.1
 >
