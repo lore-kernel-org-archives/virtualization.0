@@ -1,104 +1,117 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2B326C433EF
-	for <virtualization@archiver.kernel.org>; Thu, 13 Jan 2022 07:03:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 21B02C433EF
+	for <virtualization@archiver.kernel.org>; Thu, 13 Jan 2022 12:28:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id C0FD760F38;
-	Thu, 13 Jan 2022 07:03:18 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 8EC3F404BB;
+	Thu, 13 Jan 2022 12:28:21 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id aIDi5izQ9Elk; Thu, 13 Jan 2022 07:03:18 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 3EA9960BE6;
-	Thu, 13 Jan 2022 07:03:17 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id V-8JrtaJbO1O; Thu, 13 Jan 2022 12:28:20 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id DEC6640124;
+	Thu, 13 Jan 2022 12:28:19 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 166E8C002F;
-	Thu, 13 Jan 2022 07:03:17 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0B24CC001E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id BBE57C002F;
+	Thu, 13 Jan 2022 12:28:19 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3D8EBC001E
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jan 2022 07:03:16 +0000 (UTC)
+ Thu, 13 Jan 2022 12:28:18 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id D118240650
+ by smtp1.osuosl.org (Postfix) with ESMTP id 3991D84B67
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jan 2022 07:03:15 +0000 (UTC)
+ Thu, 13 Jan 2022 12:28:18 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id XBL0px1LJqxR
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id O8Egs1iUVvHs
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jan 2022 07:03:15 +0000 (UTC)
+ Thu, 13 Jan 2022 12:28:17 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 33DCB40544
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 06ED984B5B
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jan 2022 07:03:14 +0000 (UTC)
+ Thu, 13 Jan 2022 12:28:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1642057394;
+ s=mimecast20190719; t=1642076895;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=0DzGLZtoe9PbhWfFi6edUudRLxvAzmMgAEADf3eZSOU=;
- b=edblW4d4U9S/8ypJmU0pn4ixV6/xE0FTsQALOaPXjkaW8JipWIgyUoWIFHsCdOV09Hm4BE
- 6yu10x/oIedmxTPZ6aW7Em1ZEOe5wSRY3NFgtthdB1wfsekiK1Hhe8zKVNdctPJPJA5av+
- Pjdmx197Xhz9KAJ9TSewLWivapm0sHg=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=hnfVK2fyY9BtL+cahlLSPFYi/lDkJGG3ZpACsVHPbRc=;
+ b=Ip5xELiBEHUKiYPVrIoC3pU9Z/VdsZP/Ndu+CaLS8NmmuiBVqmYRtTKxh3ZOzKgeBK4ZD9
+ BXrdIpcfU8xyXxGzWOgybyIE+Y+4OksWe8NbK0Msw89j4cz5Y6M/+Ci7etCjwj3F2Hu668
+ NWVtjvQupIg2STvodZ0P/ecMKizzKR4=
+Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
+ [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-347-eOF-1-YxNt2elbA89W0rhg-1; Thu, 13 Jan 2022 02:03:11 -0500
-X-MC-Unique: eOF-1-YxNt2elbA89W0rhg-1
-Received: by mail-ed1-f70.google.com with SMTP id
- o20-20020a056402439400b003f83cf1e472so4462545edc.18
+ us-mta-550-xLTKyTb4PfuHduIH3KJY6Q-1; Thu, 13 Jan 2022 07:28:14 -0500
+X-MC-Unique: xLTKyTb4PfuHduIH3KJY6Q-1
+Received: by mail-ed1-f69.google.com with SMTP id
+ g2-20020a056402424200b003f8ee03207eso5222682edb.7
  for <virtualization@lists.linux-foundation.org>;
- Wed, 12 Jan 2022 23:03:11 -0800 (PST)
+ Thu, 13 Jan 2022 04:28:14 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=0DzGLZtoe9PbhWfFi6edUudRLxvAzmMgAEADf3eZSOU=;
- b=pHyxBRW7+i8ckWC6Ufy5y7J1+mhCjUp1Vv72kLAhxYFWyORkaBURRErfoYrSERcVd1
- L2QqW1mLe4mEgod7Be1yvYTi9rszWHNrp/U2Dr20dBUu9/sfqukm4n1I6Uoa7Xqh6W8C
- n7JVyUCzoKwduFsFWCFIyKZ4YxEKsL3zHHio0kHM0Gpa4v3PxWWm6VHGX2SKV3LDUdpI
- OyOTJIUuNXaER+C+LHAkg8M3quZp7tNZ1aZoZv9O2nA+MD0hELITNey5ehLrCCq7sy87
- D8gZiv29M9bO9fEA9duSFUaGJwwSc4wV9KXdBZvCarSFF5Tb4GXv+Pm2Xkyj8VzM+5sO
- w+mQ==
-X-Gm-Message-State: AOAM532qSvcthEz425jHwPLQsGumq4a9xhUGxFQuZ03X2YFiqY7kEISz
- LDQ9BU4gJcQRJoLfXiXoSzKf/MwZe7ECbyTmEEBvCbZnHbr5dYKO8RDm3vp4FRycDCJQ5s9ugal
- eIm/LalX2KkugzvohkOFYMLaYyoMFDy8TZ8Y6p3BPjQ==
-X-Received: by 2002:a17:907:3e96:: with SMTP id
- hs22mr2379697ejc.743.1642057390412; 
- Wed, 12 Jan 2022 23:03:10 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJznsrinbUvJIEnjlftNmW9HV2V6CeseH8omCCYpSfc3MmwDgsDlki7npfWSf15SeoVqHdDpHQ==
-X-Received: by 2002:a17:907:3e96:: with SMTP id
- hs22mr2379688ejc.743.1642057390272; 
- Wed, 12 Jan 2022 23:03:10 -0800 (PST)
-Received: from redhat.com ([2.55.6.51])
- by smtp.gmail.com with ESMTPSA id ne41sm560111ejc.121.2022.01.12.23.03.08
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 12 Jan 2022 23:03:09 -0800 (PST)
-Date: Thu, 13 Jan 2022 02:03:06 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Si-Wei Liu <si-wei.liu@oracle.com>
-Subject: Re: [PATCH 0/3] fixes for mlx5_vdpa multiqueue support
-Message-ID: <20220113020125-mutt-send-email-mst@kernel.org>
-References: <1642050651-16197-1-git-send-email-si-wei.liu@oracle.com>
+ h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+ :content-language:to:cc:references:from:organization:in-reply-to
+ :content-transfer-encoding;
+ bh=hnfVK2fyY9BtL+cahlLSPFYi/lDkJGG3ZpACsVHPbRc=;
+ b=GCu3xXoTMVFFKMZXSw+x80oVl4WCeYukmWEQaF7bTthaMSNax4fKDmAWazxYfBUOra
+ JjsN7tMVZ+U5nP/nmJJQTpOsGAUE4o0VZ6418C1hc4atKRbPVP7IhvOEQ4BNOQwk3/el
+ 69HATy3lOorvnat0xASxZjVdaDGKo4dKdO1HTS7leHt1vCcKi2Jt1j92d3t5nLbaL+fc
+ LdIMxOkiIJHBwNq+mDaSdhPf0XEwG8qaRB7XDT38Y0oVYGZe0kBQQn+tTfN6ZJWXaL4t
+ O4l48z5UyveOb5CtUhtghD5d5OeCQFpegYCDyQ/owih8LE6EpgDQg7OMJQN5gGI1uffn
+ dnvA==
+X-Gm-Message-State: AOAM530kuWvcQ7ZAi5TjF7bngLa3t8NlEO4V5AXV8LlseVIMQA6GWAZ2
+ 8uwuFrKVwSeO1o2Zk4pqii9ZennLjpbyqOTKiKS63Lig7xEkoi2dQVqarlzqUD65H3IJhN91ium
+ npAk8VWqDTkcZ82mBCVU+ZVQmrcEOW3RL6by3rqf4aw==
+X-Received: by 2002:a50:8d16:: with SMTP id s22mr3857836eds.141.1642076893404; 
+ Thu, 13 Jan 2022 04:28:13 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJyzDUme++gR+E7EfrqgLj1iyeR0r4RpB81KvaPod0mEHW3Q7ncqa9lY+1sUM8bAVvrgQ/bdNg==
+X-Received: by 2002:a50:8d16:: with SMTP id s22mr3857806eds.141.1642076893116; 
+ Thu, 13 Jan 2022 04:28:13 -0800 (PST)
+Received: from ?IPV6:2003:cb:c703:e200:8511:ed0f:ac2c:42f7?
+ (p200300cbc703e2008511ed0fac2c42f7.dip0.t-ipconnect.de.
+ [2003:cb:c703:e200:8511:ed0f:ac2c:42f7])
+ by smtp.gmail.com with ESMTPSA id la21sm830830ejc.137.2022.01.13.04.28.11
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Thu, 13 Jan 2022 04:28:12 -0800 (PST)
+Message-ID: <ae2862a0-c39c-ed2f-23fe-510c6c2fad5c@redhat.com>
+Date: Thu, 13 Jan 2022 13:28:11 +0100
 MIME-Version: 1.0
-In-Reply-To: <1642050651-16197-1-git-send-email-si-wei.liu@oracle.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.4.0
+Subject: Re: [RFC PATCH v3 1/8] mm: page_alloc: avoid merging non-fallbackable
+ pageblocks with others.
+To: Mike Rapoport <rppt@kernel.org>
+References: <20220105214756.91065-1-zi.yan@sent.com>
+ <20220105214756.91065-2-zi.yan@sent.com>
+ <7dc078ef-70f4-159e-b928-34f0fb0ffaea@redhat.com>
+ <YeAO0vtyjWWMRliF@kernel.org>
+From: David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+In-Reply-To: <YeAO0vtyjWWMRliF@kernel.org>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=david@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: lvivier@redhat.com, virtualization@lists.linux-foundation.org,
- eperezma@redhat.com, elic@nvidia.com
+Content-Language: en-US
+Cc: Mel Gorman <mgorman@techsingularity.net>, Eric Ren <renzhengeek@gmail.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ linux-mm@kvack.org, iommu@lists.linux-foundation.org, Zi Yan <ziy@nvidia.com>,
+ Robin Murphy <robin.murphy@arm.com>, Christoph Hellwig <hch@lst.de>,
+ Vlastimil Babka <vbabka@suse.cz>, Marek Szyprowski <m.szyprowski@samsung.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -115,36 +128,65 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Jan 13, 2022 at 12:10:48AM -0500, Si-Wei Liu wrote:
-> This patchset contains the fixes for a few issues uncovered during the
-> review for the "Allow for configuring max number of virtqueue pairs"
-> series.
+On 13.01.22 12:36, Mike Rapoport wrote:
+> On Wed, Jan 12, 2022 at 11:54:49AM +0100, David Hildenbrand wrote:
+>> On 05.01.22 22:47, Zi Yan wrote:
+>>> From: Zi Yan <ziy@nvidia.com>
+>>>
+>>> This is done in addition to MIGRATE_ISOLATE pageblock merge avoidance.
+>>> It prepares for the upcoming removal of the MAX_ORDER-1 alignment
+>>> requirement for CMA and alloc_contig_range().
+>>>
+>>> MIGRARTE_HIGHATOMIC should not merge with other migratetypes like
+>>> MIGRATE_ISOLATE and MIGRARTE_CMA[1], so this commit prevents that too.
+>>> Also add MIGRARTE_HIGHATOMIC to fallbacks array for completeness.
+>>>
+>>> [1] https://lore.kernel.org/linux-mm/20211130100853.GP3366@techsingularity.net/
+>>>
+>>> Signed-off-by: Zi Yan <ziy@nvidia.com>
+>>> ---
+>>>  include/linux/mmzone.h |  6 ++++++
+>>>  mm/page_alloc.c        | 28 ++++++++++++++++++----------
+>>>  2 files changed, 24 insertions(+), 10 deletions(-)
+>>>
 > 
-> It is based on Eli's fixes:
-> 2e4cda633a22 ("vdpa/mlx5: Fix tracking of current number of VQs")
-> in the vhost tree.
+> ...
+> 
+>>> @@ -3545,8 +3553,8 @@ int __isolate_free_page(struct page *page, unsigned int order)
+>>>  		struct page *endpage = page + (1 << order) - 1;
+>>>  		for (; page < endpage; page += pageblock_nr_pages) {
+>>>  			int mt = get_pageblock_migratetype(page);
+>>> -			if (!is_migrate_isolate(mt) && !is_migrate_cma(mt)
+>>> -			    && !is_migrate_highatomic(mt))
+>>> +			/* Only change normal pageblock */
+>>> +			if (migratetype_has_fallback(mt))
+>>>  				set_pageblock_migratetype(page,
+>>>  							  MIGRATE_MOVABLE);
+>>>  		}
+>>
+>> That part is a nice cleanup IMHO. Although the "has fallback" part is a
+>> bit imprecise. "migratetype_is_mergable()" might be a bit clearer.
+>> ideally "migratetype_is_mergable_with_other_types()". Can we come up
+>> with a nice name for that?
+> 
+> migratetype_is_mergable() kinda implies "_with_other_types", no?
+> 
+> I like migratetype_is_mergable() more than _has_fallback().
+> 
+> My $0.02 to bikeshedding :)
 
-It's really cleanups more than fixes. I'm not sure about the
-code changes (the vdpa change looks ok, mlx5 ones need review
-by nvidia folks) but from documentation POV this patchset needs
-more work.
+:)
 
+Yeah, for me migratetype_is_mergable() would also be good enough. I
+think I was at first thinking one could mistake it with a dedicated
+migratetype. But such functions are historically called
 
-> 
-> Si-Wei Liu (3):
->   vdpa: factor out vdpa_set_features_unlocked for vdpa internal use
->   vdpa/mlx5: set_features should nack MQ if no CTRL_VQ
->   vdpa/mlx5: validate the queue pair value from driver
-> 
->  drivers/vdpa/mlx5/net/mlx5_vnet.c | 26 +++++++++++++++++++++++---
->  drivers/vdpa/vdpa.c               |  2 +-
->  drivers/vhost/vdpa.c              |  2 +-
->  drivers/virtio/virtio_vdpa.c      |  2 +-
->  include/linux/vdpa.h              | 18 ++++++++++++------
->  5 files changed, 38 insertions(+), 12 deletions(-)
-> 
-> -- 
-> 1.8.3.1
+is_migrate_cma/is_migrate_cma/....
+
+-- 
+Thanks,
+
+David / dhildenb
 
 _______________________________________________
 Virtualization mailing list
