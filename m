@@ -1,120 +1,104 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0F9CFC433EF
-	for <virtualization@archiver.kernel.org>; Thu, 13 Jan 2022 15:50:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 533F1C4332F
+	for <virtualization@archiver.kernel.org>; Thu, 13 Jan 2022 16:05:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id B3D726FC51;
-	Thu, 13 Jan 2022 15:50:47 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id E4600400D9;
+	Thu, 13 Jan 2022 16:05:55 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 9ooTzv89L7CV; Thu, 13 Jan 2022 15:50:47 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 678BC6FC4A;
-	Thu, 13 Jan 2022 15:50:46 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D2648C006F;
-	Thu, 13 Jan 2022 15:50:45 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 51A3CC001E
- for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jan 2022 15:50:45 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 3E30440901
- for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jan 2022 15:50:45 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id UUzWGZiugbEv
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id FIMiymKOgbF0; Thu, 13 Jan 2022 16:05:54 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 2DE8F40133;
+	Thu, 13 Jan 2022 16:05:54 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E0616C002F;
+	Thu, 13 Jan 2022 16:05:53 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2BC6AC001E
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jan 2022 15:50:43 +0000 (UTC)
+ Thu, 13 Jan 2022 16:05:53 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 1371C60B14
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 13 Jan 2022 16:05:53 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id dPqQDFULoWif
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 13 Jan 2022 16:05:52 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id E3EAA405E9
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 7459C6076A
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jan 2022 15:50:42 +0000 (UTC)
+ Thu, 13 Jan 2022 16:05:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1642089041;
+ s=mimecast20190719; t=1642089951;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=0RQ3puUcYuHO/5UfsU4Xhhp2Gu/t2oxOAbK9fU144eE=;
- b=RwcpVaOQpoP3+Jj5f1l3w6B8jXiSIQ40wz45tKZzM54sRhUJyTkeYAENGk7VoN7J0yQnwq
- Rf7o4qiSSmFyQd2XwCKgivDua/xvusrPRcoYdu2yFKgYHuZSMsx7vyKYWlBUWmi2Pp7qax
- GejVf5xk6yZ70cHIDzqdmSENEPQ84e0=
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
- [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=pMP5V6IIJzefWd2gyk8a8aMEx8ssEhjQKcu5NcxyEzo=;
+ b=K8xQl/r+1LF/7EPH8DRguyoZFZQVJbbdHkylrvnFtoJr7Sh3QiKsyoCbyxf38nyObHT0yk
+ X8G4SX8lQ9BzPQDy+Hu4uW8iiJJ2BzqOap4mJot5xg3rSYgZwcVqmmQHiAxE+Ft/cWH8cW
+ RrkdeGxTwm4Lb4G84mUN4w/r7fMkdDA=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-159-S3KrJ8P-M-igwDIsjHPbog-1; Thu, 13 Jan 2022 10:50:40 -0500
-X-MC-Unique: S3KrJ8P-M-igwDIsjHPbog-1
-Received: by mail-ed1-f71.google.com with SMTP id
- x11-20020aa7d38b000000b004004e4fc8fdso3202274edq.6
+ us-mta-301-2AuvKbIXNKiJYyvpAV-Wpg-1; Thu, 13 Jan 2022 11:05:49 -0500
+X-MC-Unique: 2AuvKbIXNKiJYyvpAV-Wpg-1
+Received: by mail-ed1-f70.google.com with SMTP id
+ h11-20020a05640250cb00b003fa024f87c2so5791689edb.4
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jan 2022 07:50:40 -0800 (PST)
+ Thu, 13 Jan 2022 08:05:49 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
- :content-language:to:cc:references:from:organization:in-reply-to
- :content-transfer-encoding;
- bh=0RQ3puUcYuHO/5UfsU4Xhhp2Gu/t2oxOAbK9fU144eE=;
- b=Gj6vqvIoNBQkeptb8J1Mw24vsLHCbArKDRNx2Ppz5cdPL+NGphAMFBgQUyX1ZITnJn
- OvqeHV6Ou3lfCxXPgwaq/l4rgkS5G0oDrekNDBmf7fVC4XmAyWXnOW98IIk1DUUPmzuq
- ewCFWtQVCU4PmjhTcWUEmRmW/tpoYWvm8OUHEgPnGOrnN8RWbKfZMs1qvKjHVqtHhD55
- 5cnEV1vjwFzIwFrer9S6oIzgXbYliLe2pTjQQGDMsmIglocH6R7k1TdF0mxityxSNyn6
- SycWkCiCatUAVEb59vsyfIihotU19wguJ7ifpT4dHasWS4a9FdsCa0RaX0h3hHr8OIEi
- 38oQ==
-X-Gm-Message-State: AOAM530PowueRekTqOt+MuYKrEcsFfU8WemOqPU5KEVR9V6Osw5mEtIW
- uFWppX2DuN8yR7hYM7lgkEmepYSMvuzXwc5+1tXoy3DkFvjjTpeBqAcJhMFkj9amgYjM0cpT5AP
- P9V4aRiJwDX/4dxupwK/bP1upN4l9ThXFvwu+9/F/ng==
-X-Received: by 2002:a05:6402:3588:: with SMTP id
- y8mr4824684edc.147.1642089039283; 
- Thu, 13 Jan 2022 07:50:39 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwNFlqW+90z8MqJGfmQJtPI4aVOG3CgxuC8pcaaa86GGnEzwNl0A4gvDtrNM26vya8mfn/rVA==
-X-Received: by 2002:a05:6402:3588:: with SMTP id
- y8mr4824671edc.147.1642089039121; 
- Thu, 13 Jan 2022 07:50:39 -0800 (PST)
-Received: from ?IPV6:2003:cb:c703:e200:8511:ed0f:ac2c:42f7?
- (p200300cbc703e2008511ed0fac2c42f7.dip0.t-ipconnect.de.
- [2003:cb:c703:e200:8511:ed0f:ac2c:42f7])
- by smtp.gmail.com with ESMTPSA id qw4sm1026745ejc.55.2022.01.13.07.50.32
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Thu, 13 Jan 2022 07:50:38 -0800 (PST)
-Message-ID: <5da2e9ae-24bc-a146-053d-a43063bad73e@redhat.com>
-Date: Thu, 13 Jan 2022 16:50:29 +0100
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=pMP5V6IIJzefWd2gyk8a8aMEx8ssEhjQKcu5NcxyEzo=;
+ b=PwtQTTPEfRPv6G4ZmVjTKCwiVTfeHcK/3UQJKKvMiTCOEZSxeL3RNJIs6WdRNsckyG
+ sn1mMze7foVv4FgHr9vjWGa35ibnxiIAexghWRiQgPt2La0CMP57CheO74ELZnNTqHM9
+ N37orUaF/GMLC92OU9XSZLnsEwfjnYe/h9j5Na/6mZ5/pgpboFCj+gfuQfP7CGgDKY+q
+ WiaaQUnnCY7iO2D7bnw5+wEw05FF+Fj7xJ6GIdxWui60KSgnxJJ0r3vF0Jmm1hWx9XkS
+ Es1tNmS/r60q/XgAcQ/7z8EUSf+ApNQV+W7S7F4AyBPp9VKi0KvJM+eV4URgp0UseSXg
+ aGIw==
+X-Gm-Message-State: AOAM530ff9Aao08A9ggxAny9YLMoZSH9tpciK+EAVSMeLw0CTr6J5B56
+ IJisepmpRQ1WeW8phPsX2KpyjI64SN6eAsfmgn0bcKAyjsmgIWzIHDp5y4wNHdcAmQtTzL/+Bmm
+ uOBmKWrw+JtTKoUhKIU7bqCPCR9fMVVEvUHllLMOhng==
+X-Received: by 2002:aa7:df18:: with SMTP id c24mr4817278edy.164.1642089948518; 
+ Thu, 13 Jan 2022 08:05:48 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJy3pzQgWFbNJYbAAeR1DJUYSp+AERU5tSgP/iptt6EhUsQbH6QvqAghcwb32Rc2kr3RUAkf/Q==
+X-Received: by 2002:aa7:df18:: with SMTP id c24mr4817254edy.164.1642089948288; 
+ Thu, 13 Jan 2022 08:05:48 -0800 (PST)
+Received: from redhat.com ([2.55.154.210])
+ by smtp.gmail.com with ESMTPSA id z16sm1438618edm.49.2022.01.13.08.05.46
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 13 Jan 2022 08:05:47 -0800 (PST)
+Date: Thu, 13 Jan 2022 11:05:44 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [RFC PATCH] vhost: cache avail index in vhost_enable_notify()
+Message-ID: <20220113110506-mutt-send-email-mst@kernel.org>
+References: <20220113145642.205388-1-sgarzare@redhat.com>
+ <20220113101922-mutt-send-email-mst@kernel.org>
+ <20220113154301.qd3ayuhrcjnsaim7@steredhat>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.4.0
-Subject: Re: [RFC PATCH v3 3/8] mm: migrate: allocate the right size of non
- hugetlb or THP compound pages.
-To: Zi Yan <ziy@nvidia.com>
-References: <20220105214756.91065-1-zi.yan@sent.com>
- <20220105214756.91065-4-zi.yan@sent.com>
- <970ca2a4-416d-7e8f-37c7-510c5b050f4b@redhat.com>
- <15E26B9B-8AE2-4916-94E7-D0BBB2491B1B@nvidia.com>
-From: David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-In-Reply-To: <15E26B9B-8AE2-4916-94E7-D0BBB2491B1B@nvidia.com>
+In-Reply-To: <20220113154301.qd3ayuhrcjnsaim7@steredhat>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=david@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Cc: Mel Gorman <mgorman@techsingularity.net>,
- Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- linux-mm@kvack.org, iommu@lists.linux-foundation.org,
- Eric Ren <renzhengeek@gmail.com>, Robin Murphy <robin.murphy@arm.com>,
- Christoph Hellwig <hch@lst.de>, Vlastimil Babka <vbabka@suse.cz>,
- Marek Szyprowski <m.szyprowski@samsung.com>
+Content-Disposition: inline
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, stefanha@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -131,47 +115,37 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 13.01.22 16:46, Zi Yan wrote:
-> On 12 Jan 2022, at 6:04, David Hildenbrand wrote:
+On Thu, Jan 13, 2022 at 04:44:47PM +0100, Stefano Garzarella wrote:
+> On Thu, Jan 13, 2022 at 10:19:46AM -0500, Michael S. Tsirkin wrote:
+> > On Thu, Jan 13, 2022 at 03:56:42PM +0100, Stefano Garzarella wrote:
+> > > In vhost_enable_notify() we enable the notifications and we read
+> > > the avail index to check if new buffers have become available in
+> > > the meantime. In this case, the device would go to re-read avail
+> > > index to access the descriptor.
+> > > 
+> > > As we already do in other place, we can cache the value in `avail_idx`
+> > > and compare it with `last_avail_idx` to check if there are new
+> > > buffers available.
+> > > 
+> > > Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+> > 
+> > I guess we can ... but what's the point?
+> > 
 > 
->> On 05.01.22 22:47, Zi Yan wrote:
->>> From: Zi Yan <ziy@nvidia.com>
->>>
->>> alloc_migration_target() is used by alloc_contig_range() and non-LRU
->>> movable compound pages can be migrated. Current code does not allocate the
->>> right page size for such pages. Check THP precisely using
->>> is_transparent_huge() and add allocation support for non-LRU compound
->>> pages.
->>
->> IIRC, we don't have any non-lru migratable pages that are coumpound
->> pages. Read: not used and not supported :)
+> That without this patch if avail index is new, then device when will call
+> vhost_get_vq_desc() will find old value in cache and will read it again.
 > 
-> OK, but nothing prevents one writing a driver that allocates compound
-> pages and provides address_space->migratepage() and address_space->isolate_page().
+> With this patch we also do the same path and update the cache every time we
+> read avail index.
 > 
-> Actually, to test this series, I write a kernel module that allocates
-> an order-10 page, gives it a fake address_space with migratepage() and
-> isolate_page(), __SetPageMovable() on it, then call alloc_contig_range()
-> on the page range. Apparently, my kernel module is not supported by
-> the kernel, thus, I added this patch.
+> I marked it RFC because I don't know if it's worth it :-)
 > 
-> Do you have an alternative test to my kernel module, so that I do not
-> even need this patch myself?
-> 
->> Why is this required in the context of this series?
-> 
-> It might not be required. I will drop it.
+> Stefano
 
-That's why I think it would be best dropping it. If you need it in
-different context, better submit it in different context.
-
-Makes this series easier to digest :)
-
+Pls include info like this in commit log. Thanks!
 
 -- 
-Thanks,
-
-David / dhildenb
+MST
 
 _______________________________________________
 Virtualization mailing list
