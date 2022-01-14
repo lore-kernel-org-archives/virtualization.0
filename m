@@ -1,117 +1,100 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7C183C433F5
-	for <virtualization@archiver.kernel.org>; Fri, 14 Jan 2022 13:44:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id DFB66C433EF
+	for <virtualization@archiver.kernel.org>; Fri, 14 Jan 2022 19:57:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 0024860F35;
-	Fri, 14 Jan 2022 13:44:42 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 78448402D1;
+	Fri, 14 Jan 2022 19:57:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id mZoI88vY0ouw; Fri, 14 Jan 2022 13:44:42 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id A846960B56;
-	Fri, 14 Jan 2022 13:44:41 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Z2fhvkcKsy-V; Fri, 14 Jan 2022 19:57:28 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 1C07441574;
+	Fri, 14 Jan 2022 19:57:28 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2C549C0072;
-	Fri, 14 Jan 2022 13:44:41 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 84E06C001E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E426AC002F;
+	Fri, 14 Jan 2022 19:57:27 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 367C4C001E
  for <virtualization@lists.linux-foundation.org>;
- Fri, 14 Jan 2022 13:44:39 +0000 (UTC)
+ Fri, 14 Jan 2022 19:57:25 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 7F9FC402EB
+ by smtp4.osuosl.org (Postfix) with ESMTP id 1E09241583
  for <virtualization@lists.linux-foundation.org>;
- Fri, 14 Jan 2022 13:44:39 +0000 (UTC)
+ Fri, 14 Jan 2022 19:57:25 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ckbQDveAr-6N
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id lP657seLQg6W
  for <virtualization@lists.linux-foundation.org>;
- Fri, 14 Jan 2022 13:44:38 +0000 (UTC)
+ Fri, 14 Jan 2022 19:57:23 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 63841404FD
+ by smtp4.osuosl.org (Postfix) with ESMTPS id CA78341574
  for <virtualization@lists.linux-foundation.org>;
- Fri, 14 Jan 2022 13:44:38 +0000 (UTC)
+ Fri, 14 Jan 2022 19:57:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1642167877;
+ s=mimecast20190719; t=1642190242;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=nfjFLSHiBQKga3FwXwxrCNc9DhWW0rRljO+uSdIGNDI=;
- b=eSlalJItA1fAVeZ4lPifC1zKADSLB1XFI24QmLbj/CORxM2iHCkLA/C9iltecnBJ2jvxbV
- iJ7kVrleBjitaKDkAL+9D7B2XjeuUNWqmSLgOZ4WsU+N/XTLkihUEiQ4q/ogWLOqzu9gze
- seFz3ufpxA2CKQ+kvZU75+eYUTRf7Es=
-Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
- [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+ bh=jBT/nNeSa+Ii/P6rldCEBEg5crRoFIcXmmoQTy71T4A=;
+ b=EwvQNmFefyXVQYIA2J7yXYTKBlrVAw5ZV5QnLcc7RxuAGs586S3JtAHNv0BvYCB5IeODJ2
+ ato4lWW/ETcQSivKn+RCtyfbZiYIVZRRHRkt3lUHViv/Q6Vs77qomjTX3WUi42RDZb6L9T
+ T9he2cv0+qmswMgGh/K9dCaRrnu5dPk=
+Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
+ [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-149-sJMrKaoiPoqGhj_ZBvTqXw-1; Fri, 14 Jan 2022 08:44:36 -0500
-X-MC-Unique: sJMrKaoiPoqGhj_ZBvTqXw-1
-Received: by mail-ed1-f72.google.com with SMTP id
- m8-20020a056402510800b003f9d22c4d48so8370186edd.21
+ us-mta-573-C_-jl74oOPe8IvLu4TVvtg-1; Fri, 14 Jan 2022 14:57:21 -0500
+X-MC-Unique: C_-jl74oOPe8IvLu4TVvtg-1
+Received: by mail-ed1-f71.google.com with SMTP id
+ l10-20020a056402124a00b0040186fbe40dso466847edw.7
  for <virtualization@lists.linux-foundation.org>;
- Fri, 14 Jan 2022 05:44:35 -0800 (PST)
+ Fri, 14 Jan 2022 11:57:20 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
- :content-language:to:cc:references:from:organization:in-reply-to
- :content-transfer-encoding;
- bh=nfjFLSHiBQKga3FwXwxrCNc9DhWW0rRljO+uSdIGNDI=;
- b=avZOTaNihsjEsOtasP2xvLySnE52QT1wSad3Br3lyll7h406FUdk13Uaca1rhvtcme
- HmjGjoc8SBzsOI5hRt/zC75HKudDlB88k9W5kpQ/IlS/oL9G10hmBM7zQP0kVTHKinv1
- iTRjatyuJfOmdJN1JhOGl+8Zrsoz9w0pYNc1h3whGhXaURs1N4xAOnwhWU9wtOkgZHu7
- gQ9xjLEej0Rt3XMIsfzGUAF8ZC2RaOHdkgtFQNh+QHhc/JKeCID3eY6+17rJqCBFPMpn
- DFLvGrMhWzJZ8oprOkAVi8KfThISKFquXXTLbrhCfFnn+t6D25tdlynDw8/mo/RZhwz0
- bPYw==
-X-Gm-Message-State: AOAM532Z223b18VbzahR4zUT5xCYogQyeQDngF+t+s3kP7t+auAMljUX
- vRSPXxAaQ7oao9+9pZG7+XdNYcOYWiQRXAN+Ij40bxvDSF6prMtGXnSuUmguTYqiSXRz76FBaB/
- Y2BDGKEx8/Lpr4AK2+NB/NOGJdEnLziY8EtXuee788Q==
-X-Received: by 2002:a05:6402:1008:: with SMTP id
- c8mr9115183edu.114.1642167874595; 
- Fri, 14 Jan 2022 05:44:34 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJx5OFak9AC/l+A6gU6QqTI2K9zWFX8t7yOZXV50BOSN3qj9pr1cdJHhBXdsT7LCgDNpLjpiDw==
-X-Received: by 2002:a05:6402:1008:: with SMTP id
- c8mr9115163edu.114.1642167874354; 
- Fri, 14 Jan 2022 05:44:34 -0800 (PST)
-Received: from ?IPV6:2003:cb:c701:9d00:ff87:1c9b:108a:9702?
- (p200300cbc7019d00ff871c9b108a9702.dip0.t-ipconnect.de.
- [2003:cb:c701:9d00:ff87:1c9b:108a:9702])
- by smtp.gmail.com with ESMTPSA id 10sm1861145ejy.174.2022.01.14.05.44.33
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Fri, 14 Jan 2022 05:44:33 -0800 (PST)
-Message-ID: <60778775-b5f5-0837-092f-9911cec84854@redhat.com>
-Date: Fri, 14 Jan 2022 14:44:33 +0100
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+ :content-disposition;
+ bh=jBT/nNeSa+Ii/P6rldCEBEg5crRoFIcXmmoQTy71T4A=;
+ b=T5lxypxG7LoudqwLDv58UDMemXhh67PVg6XALpWOh84JiycTKMRiHT06VA2CZm1GTl
+ kKzFOW5lbSGK4w+VAUPoGg2sCLydokSDs6gOx6LFyy/5Jk7GqtTE2E1ORJRhh45vZpJb
+ wctD/+/lT/1TVWNvyiH9/mIDzDXC4eVKcbjrDCAaJbQWd4V0R2BonH/dOsb/vcwSUQ0X
+ wF1OdDJoSI/MKSTSOFOh9yRSro0ebrWTzVqrpGNtvvCg5hZEoNPy3Nq26Fgp3WmF8ASS
+ CowyH7w/xQg96+JKpWsAIcbLd1kMl3Zl6MBhw+Jxb+7dm8SaG2RJL0CHFUh8+2E7Qyml
+ SImQ==
+X-Gm-Message-State: AOAM531oSsbYfIZXQLbRo3S7LxVTXuHXYFOO/R6+uHNQC9kBEoDvtAcX
+ iFwQxnvA2OEJpaeb7gP9QZwcKYOvgChpjzlHc6tOR6hdIdpYx86+ljE0g9HcF+Pj31CaoiL46ND
+ XoQdEkI3BcqkySrG1Ia+ZbGlbpTlBDvHMcXZpSXfFSA==
+X-Received: by 2002:a05:6402:27d1:: with SMTP id
+ c17mr10169356ede.128.1642190240047; 
+ Fri, 14 Jan 2022 11:57:20 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxkD8j7cTwK4rTOGXJcnDS2Znn/r1A0C96Nzycv1PW0gtcGx4Q/58wmzs1emQigbpUXzSB24w==
+X-Received: by 2002:a05:6402:27d1:: with SMTP id
+ c17mr10169348ede.128.1642190239850; 
+ Fri, 14 Jan 2022 11:57:19 -0800 (PST)
+Received: from redhat.com ([2.55.154.210])
+ by smtp.gmail.com with ESMTPSA id c19sm2688490ede.47.2022.01.14.11.57.18
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Fri, 14 Jan 2022 11:57:19 -0800 (PST)
+Date: Fri, 14 Jan 2022 14:57:16 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] virtio: unexport virtio_finalize_features
+Message-ID: <20220114195710.149933-1-mst@redhat.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.4.0
-Subject: Re: [RFC PATCH v3 7/8] drivers: virtio_mem: use pageblock size as the
- minimum virtio_mem size.
-To: Zi Yan <ziy@nvidia.com>, linux-mm@kvack.org
-References: <20220105214756.91065-1-zi.yan@sent.com>
- <20220105214756.91065-8-zi.yan@sent.com>
-From: David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-In-Reply-To: <20220105214756.91065-8-zi.yan@sent.com>
+X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
+X-Mutt-Fcc: =sent
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=david@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Cc: Mel Gorman <mgorman@techsingularity.net>,
- Michael Ellerman <mpe@ellerman.id.au>, Robin Murphy <robin.murphy@arm.com>,
- linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org,
- Eric Ren <renzhengeek@gmail.com>, virtualization@lists.linux-foundation.org,
- linuxppc-dev@lists.ozlabs.org, Christoph Hellwig <hch@lst.de>,
- Vlastimil Babka <vbabka@suse.cz>, Marek Szyprowski <m.szyprowski@samsung.com>
+Content-Disposition: inline
+Cc: virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -128,33 +111,50 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 05.01.22 22:47, Zi Yan wrote:
-> From: Zi Yan <ziy@nvidia.com>
-> 
-> alloc_contig_range() now only needs to be aligned to pageblock_order,
-> drop virtio_mem size requirement that it needs to be the max of
-> pageblock_order and MAX_ORDER.
-> 
-> Signed-off-by: Zi Yan <ziy@nvidia.com>
-> ---
->  drivers/virtio/virtio_mem.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
-> index a6a78685cfbe..2664dc16d0f9 100644
-> --- a/drivers/virtio/virtio_mem.c
-> +++ b/drivers/virtio/virtio_mem.c
-> @@ -2481,8 +2481,7 @@ static int virtio_mem_init_hotplug(struct virtio_mem *vm)
->  	 * - Is required for now for alloc_contig_range() to work reliably -
->  	 *   it doesn't properly handle smaller granularity on ZONE_NORMAL.
->  	 */
+virtio_finalize_features is only used internally within virtio.
+No reason to export it.
 
-Please also update this comment.
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/virtio/virtio.c | 3 +--
+ include/linux/virtio.h  | 1 -
+ 2 files changed, 1 insertion(+), 3 deletions(-)
 
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index 00ac9db792a4..d891b0a354b0 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -166,7 +166,7 @@ void virtio_add_status(struct virtio_device *dev, unsigned int status)
+ }
+ EXPORT_SYMBOL_GPL(virtio_add_status);
+ 
+-int virtio_finalize_features(struct virtio_device *dev)
++static int virtio_finalize_features(struct virtio_device *dev)
+ {
+ 	int ret = dev->config->finalize_features(dev);
+ 	unsigned status;
+@@ -202,7 +202,6 @@ int virtio_finalize_features(struct virtio_device *dev)
+ 	}
+ 	return 0;
+ }
+-EXPORT_SYMBOL_GPL(virtio_finalize_features);
+ 
+ void virtio_reset_device(struct virtio_device *dev)
+ {
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index 72292a62cd90..5464f398912a 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -133,7 +133,6 @@ bool is_virtio_device(struct device *dev);
+ void virtio_break_device(struct virtio_device *dev);
+ 
+ void virtio_config_changed(struct virtio_device *dev);
+-int virtio_finalize_features(struct virtio_device *dev);
+ #ifdef CONFIG_PM_SLEEP
+ int virtio_device_freeze(struct virtio_device *dev);
+ int virtio_device_restore(struct virtio_device *dev);
 -- 
-Thanks,
-
-David / dhildenb
+MST
 
 _______________________________________________
 Virtualization mailing list
