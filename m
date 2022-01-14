@@ -1,104 +1,102 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 533F1C4332F
-	for <virtualization@archiver.kernel.org>; Thu, 13 Jan 2022 16:05:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 355A2C433F5
+	for <virtualization@archiver.kernel.org>; Fri, 14 Jan 2022 06:08:49 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id E4600400D9;
-	Thu, 13 Jan 2022 16:05:55 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id BCC2384D3F;
+	Fri, 14 Jan 2022 06:08:48 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id FIMiymKOgbF0; Thu, 13 Jan 2022 16:05:54 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 2DE8F40133;
-	Thu, 13 Jan 2022 16:05:54 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id iBWAP8rBTAhK; Fri, 14 Jan 2022 06:08:47 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id BD86C84D3B;
+	Fri, 14 Jan 2022 06:08:46 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E0616C002F;
-	Thu, 13 Jan 2022 16:05:53 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 9C13FC0030;
+	Fri, 14 Jan 2022 06:08:46 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 2BC6AC001E
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2964EC001E
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jan 2022 16:05:53 +0000 (UTC)
+ Fri, 14 Jan 2022 06:08:45 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 1371C60B14
+ by smtp3.osuosl.org (Postfix) with ESMTP id 0FD9E6FC7A
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jan 2022 16:05:53 +0000 (UTC)
+ Fri, 14 Jan 2022 06:08:45 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp3.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id dPqQDFULoWif
+ with ESMTP id NYGA3302ZZaO
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jan 2022 16:05:52 +0000 (UTC)
+ Fri, 14 Jan 2022 06:08:44 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 7459C6076A
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id F355F60AAC
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jan 2022 16:05:52 +0000 (UTC)
+ Fri, 14 Jan 2022 06:08:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1642089951;
+ s=mimecast20190719; t=1642140522;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=pMP5V6IIJzefWd2gyk8a8aMEx8ssEhjQKcu5NcxyEzo=;
- b=K8xQl/r+1LF/7EPH8DRguyoZFZQVJbbdHkylrvnFtoJr7Sh3QiKsyoCbyxf38nyObHT0yk
- X8G4SX8lQ9BzPQDy+Hu4uW8iiJJ2BzqOap4mJot5xg3rSYgZwcVqmmQHiAxE+Ft/cWH8cW
- RrkdeGxTwm4Lb4G84mUN4w/r7fMkdDA=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=RcHQ4+Zlxmp91107kcUXsQ7A+H/nshf0iNiIKM59kWk=;
+ b=MESPste0WfvhNE1zHOLqMmts3M2c8/wP4eWESQKqgITPKIWoCjmDF4pTl6/BEhhdA1WXbe
+ VIkdPAm0sNB5BT+z2O5eaDP0bujb08BisFRlluFV4/EucsDW0vXhmyU7+nFmh6xpamClOE
+ kyjIwlDc5nBM4TPbPiuy8miZcKz68Vs=
+Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
+ [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-301-2AuvKbIXNKiJYyvpAV-Wpg-1; Thu, 13 Jan 2022 11:05:49 -0500
-X-MC-Unique: 2AuvKbIXNKiJYyvpAV-Wpg-1
-Received: by mail-ed1-f70.google.com with SMTP id
- h11-20020a05640250cb00b003fa024f87c2so5791689edb.4
+ us-mta-548-VWQXfFqRPR290tOmG4acCw-1; Fri, 14 Jan 2022 01:08:38 -0500
+X-MC-Unique: VWQXfFqRPR290tOmG4acCw-1
+Received: by mail-lf1-f71.google.com with SMTP id
+ v12-20020ac2558c000000b0042c81cc06afso5539472lfg.3
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jan 2022 08:05:49 -0800 (PST)
+ Thu, 13 Jan 2022 22:08:38 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=pMP5V6IIJzefWd2gyk8a8aMEx8ssEhjQKcu5NcxyEzo=;
- b=PwtQTTPEfRPv6G4ZmVjTKCwiVTfeHcK/3UQJKKvMiTCOEZSxeL3RNJIs6WdRNsckyG
- sn1mMze7foVv4FgHr9vjWGa35ibnxiIAexghWRiQgPt2La0CMP57CheO74ELZnNTqHM9
- N37orUaF/GMLC92OU9XSZLnsEwfjnYe/h9j5Na/6mZ5/pgpboFCj+gfuQfP7CGgDKY+q
- WiaaQUnnCY7iO2D7bnw5+wEw05FF+Fj7xJ6GIdxWui60KSgnxJJ0r3vF0Jmm1hWx9XkS
- Es1tNmS/r60q/XgAcQ/7z8EUSf+ApNQV+W7S7F4AyBPp9VKi0KvJM+eV4URgp0UseSXg
- aGIw==
-X-Gm-Message-State: AOAM530ff9Aao08A9ggxAny9YLMoZSH9tpciK+EAVSMeLw0CTr6J5B56
- IJisepmpRQ1WeW8phPsX2KpyjI64SN6eAsfmgn0bcKAyjsmgIWzIHDp5y4wNHdcAmQtTzL/+Bmm
- uOBmKWrw+JtTKoUhKIU7bqCPCR9fMVVEvUHllLMOhng==
-X-Received: by 2002:aa7:df18:: with SMTP id c24mr4817278edy.164.1642089948518; 
- Thu, 13 Jan 2022 08:05:48 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJy3pzQgWFbNJYbAAeR1DJUYSp+AERU5tSgP/iptt6EhUsQbH6QvqAghcwb32Rc2kr3RUAkf/Q==
-X-Received: by 2002:aa7:df18:: with SMTP id c24mr4817254edy.164.1642089948288; 
- Thu, 13 Jan 2022 08:05:48 -0800 (PST)
-Received: from redhat.com ([2.55.154.210])
- by smtp.gmail.com with ESMTPSA id z16sm1438618edm.49.2022.01.13.08.05.46
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 13 Jan 2022 08:05:47 -0800 (PST)
-Date: Thu, 13 Jan 2022 11:05:44 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [RFC PATCH] vhost: cache avail index in vhost_enable_notify()
-Message-ID: <20220113110506-mutt-send-email-mst@kernel.org>
-References: <20220113145642.205388-1-sgarzare@redhat.com>
- <20220113101922-mutt-send-email-mst@kernel.org>
- <20220113154301.qd3ayuhrcjnsaim7@steredhat>
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=RcHQ4+Zlxmp91107kcUXsQ7A+H/nshf0iNiIKM59kWk=;
+ b=ZeTdPrwtQHjDPIfhxTTLDCcJp3GyW++Wf1wGEH94TA4JkmChY3wbG/GF94e55rCUcx
+ rkBaF97GcYKz6vs8ZxcJEz8SFxURDh8qpPuet78vKN67Xvq9ZTQNPoHUsxrbiZ3H9fJz
+ KffkX7gCeRWnIHPVTnDkn3ZZilnO96d2kYYT2piSKDWh8ijqRNYRCyO3ihP49l+HJocY
+ X3134klw2PN84nyAeonupvHaQZnfJNOmEeQATm9pfgX17zoaUKPCHCQ5H1qZPgH8CBFY
+ xfJJ6badR6a7NmPB/745BTgtlcsKUmbbWIOWlbD0UI/yK3fZB186qfRNrHs5CWorTbLy
+ JT6Q==
+X-Gm-Message-State: AOAM532cpDYxk7pY4eLv1qN6a8Aicf/6v991ZMRZirY0Vyjc+te7fD2M
+ 3SZji04Ah5B6ozhkya6IU6Hql/xltpb6Wbdd/SE9ouFPQxwFPsBcpIyvqiGSkOd7pl14Ouc0Alq
+ oW+b0vCrzER4QOaemSlEjNXkIvISgzNIp0itQKM8j75kICDapt6mq1qWBag==
+X-Received: by 2002:a05:6512:3b0a:: with SMTP id
+ f10mr2766012lfv.629.1642140516989; 
+ Thu, 13 Jan 2022 22:08:36 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwN/botfZCaCaAAz6XQzLOwJ8W0MT4Nz5I6tWkG6u4NWmo3gmFwHfeJxlFxZfpDLx+rdBiqLXj0L1FbLWgiaZY=
+X-Received: by 2002:a05:6512:3b0a:: with SMTP id
+ f10mr2765998lfv.629.1642140516832; 
+ Thu, 13 Jan 2022 22:08:36 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20220113154301.qd3ayuhrcjnsaim7@steredhat>
+References: <1642050651-16197-1-git-send-email-si-wei.liu@oracle.com>
+ <1642050651-16197-3-git-send-email-si-wei.liu@oracle.com>
+ <20220113080914.GB1312@mtl-vdi-166.wap.labs.mlnx>
+In-Reply-To: <20220113080914.GB1312@mtl-vdi-166.wap.labs.mlnx>
+From: Jason Wang <jasowang@redhat.com>
+Date: Fri, 14 Jan 2022 14:08:26 +0800
+Message-ID: <CACGkMEuMmqoZ4f9s4dULa9=rvgGtL6wXejGDZ1giTsZ7aA=p=g@mail.gmail.com>
+Subject: Re: [PATCH 2/3] vdpa/mlx5: set_features should nack MQ if no CTRL_VQ
+To: Eli Cohen <elic@nvidia.com>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, stefanha@redhat.com
+Cc: Laurent Vivier <lvivier@redhat.com>, mst <mst@redhat.com>,
+ virtualization <virtualization@lists.linux-foundation.org>,
+ eperezma <eperezma@redhat.com>, Si-Wei Liu <si-wei.liu@oracle.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -115,37 +113,73 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Jan 13, 2022 at 04:44:47PM +0100, Stefano Garzarella wrote:
-> On Thu, Jan 13, 2022 at 10:19:46AM -0500, Michael S. Tsirkin wrote:
-> > On Thu, Jan 13, 2022 at 03:56:42PM +0100, Stefano Garzarella wrote:
-> > > In vhost_enable_notify() we enable the notifications and we read
-> > > the avail index to check if new buffers have become available in
-> > > the meantime. In this case, the device would go to re-read avail
-> > > index to access the descriptor.
-> > > 
-> > > As we already do in other place, we can cache the value in `avail_idx`
-> > > and compare it with `last_avail_idx` to check if there are new
-> > > buffers available.
-> > > 
-> > > Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-> > 
-> > I guess we can ... but what's the point?
-> > 
-> 
-> That without this patch if avail index is new, then device when will call
-> vhost_get_vq_desc() will find old value in cache and will read it again.
-> 
-> With this patch we also do the same path and update the cache every time we
-> read avail index.
-> 
-> I marked it RFC because I don't know if it's worth it :-)
-> 
-> Stefano
+On Thu, Jan 13, 2022 at 4:09 PM Eli Cohen <elic@nvidia.com> wrote:
+>
+> On Thu, Jan 13, 2022 at 12:10:50AM -0500, Si-Wei Liu wrote:
+> > Made corresponding change per spec:
+> >
+> > The device MUST NOT offer a feature which requires another feature
+> > which was not offered.
+> >
+> > Fixes: 52893733f2c5 ("vdpa/mlx5: Add multiqueue support")
+> > Signed-off-by: Si-Wei Liu<si-wei.liu@oracle.com>
+> > ---
+> >  drivers/vdpa/mlx5/net/mlx5_vnet.c | 16 +++++++++++++---
+> >  1 file changed, 13 insertions(+), 3 deletions(-)
+> >
+> > diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> > index b53603d..46d4deb 100644
+> > --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> > +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> > @@ -1897,11 +1897,21 @@ static u64 mlx5_vdpa_get_device_features(struct vdpa_device *vdev)
+> >       return ndev->mvdev.mlx_features;
+> >  }
+> >
+> > -static int verify_min_features(struct mlx5_vdpa_dev *mvdev, u64 features)
+> > +static int verify_driver_features(struct mlx5_vdpa_dev *mvdev, u64 *features)
+> >  {
+> > -     if (!(features & BIT_ULL(VIRTIO_F_ACCESS_PLATFORM)))
+> > +     /* minimum features to expect */
+> > +     if (!(*features & BIT_ULL(VIRTIO_F_ACCESS_PLATFORM)))
+> >               return -EOPNOTSUPP;
+> >
+> > +     /* Double check features combination sent down by the driver.
+> > +      * NACK invalid feature due to the absence of depended feature.
+> > +      * Driver is expected to re-read the negotiated features once
+> > +      * return from set_driver_features.
+> > +      */
+> > +     if ((*features & (BIT_ULL(VIRTIO_NET_F_MQ) | BIT_ULL(VIRTIO_NET_F_CTRL_VQ))) ==
+> > +            BIT_ULL(VIRTIO_NET_F_MQ))
+> > +             *features &= ~BIT_ULL(VIRTIO_NET_F_MQ);
+>
+> I would not expect this kind check to be enforced in vhost_vdpa and
+> apply to all drivers.
 
-Pls include info like this in commit log. Thanks!
+We want to make vhost_vdpa type agnostic to make it simple and clean.
+So there's no type specific code there. So my understanding is that,
+if this is the mandate behavior of the device, it needs to be done at
+device level (mlx5_vdpa) right now.
 
--- 
-MST
+Thanks
+
+>
+> > +
+> >       return 0;
+> >  }
+> >
+> > @@ -1977,7 +1987,7 @@ static int mlx5_vdpa_set_driver_features(struct vdpa_device *vdev, u64 features)
+> >
+> >       print_features(mvdev, features, true);
+> >
+> > -     err = verify_min_features(mvdev, features);
+> > +     err = verify_driver_features(mvdev, &features);
+> >       if (err)
+> >               return err;
+> >
+> > --
+> > 1.8.3.1
+> >
+>
 
 _______________________________________________
 Virtualization mailing list
