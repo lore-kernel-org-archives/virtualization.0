@@ -1,105 +1,106 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 243E5C433F5
-	for <virtualization@archiver.kernel.org>; Fri, 14 Jan 2022 12:54:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 39234C4332F
+	for <virtualization@archiver.kernel.org>; Fri, 14 Jan 2022 13:38:37 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id B585B4168B;
-	Fri, 14 Jan 2022 12:54:05 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id BC77184C48;
+	Fri, 14 Jan 2022 13:38:36 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id vF9mLNti0yUV; Fri, 14 Jan 2022 12:54:04 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 124404034F;
-	Fri, 14 Jan 2022 12:54:04 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id QDxFsJF9IDAT; Fri, 14 Jan 2022 13:38:36 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 502CA832DC;
+	Fri, 14 Jan 2022 13:38:35 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D3122C0030;
-	Fri, 14 Jan 2022 12:54:03 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 5DFF9C001E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 136AFC002F;
+	Fri, 14 Jan 2022 13:38:35 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 979F5C001E
  for <virtualization@lists.linux-foundation.org>;
- Fri, 14 Jan 2022 12:54:03 +0000 (UTC)
+ Fri, 14 Jan 2022 13:38:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 542B84067C
+ by smtp3.osuosl.org (Postfix) with ESMTP id 8560260B4D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 14 Jan 2022 12:54:03 +0000 (UTC)
+ Fri, 14 Jan 2022 13:38:33 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 1rWJsST9SBQJ
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 3aIw8NUJJObt
  for <virtualization@lists.linux-foundation.org>;
- Fri, 14 Jan 2022 12:54:02 +0000 (UTC)
+ Fri, 14 Jan 2022 13:38:33 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 1A7804034F
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id CDC8E60B4B
  for <virtualization@lists.linux-foundation.org>;
- Fri, 14 Jan 2022 12:54:01 +0000 (UTC)
+ Fri, 14 Jan 2022 13:38:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1642164840;
+ s=mimecast20190719; t=1642167511;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=ptcxbmDhNHAam6/ZOOq/pD2mlDBGNl+RhNAPKypGuLo=;
- b=P71CZ+nU8U5bePRPRUAyypIFnqFS1QFsOfd5XxEDhCyM9zavtFhHl6hyu86X6qk69e/Q5m
- 4bkYr2et6OZNneNe+mZRkWUau+XGEMFfgrIDP9zA/ACyEHMZfPmPfFv2Cy0lrGBFswpqvi
- VPtJbCykIdpsjHJDw2rmfHaClGnr8qg=
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
- [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=YhO8ftDsk4+jW9Ti1jjOdqgLJ1dfN2h8UN/qErYWEn4=;
+ b=eqA6B3a5PWfUoSYxM4GrzF1IpSaoyDFfOsvUWLD/kJR1lBGnqpTde7QtSGc/1tE2f/xp+B
+ w93Odnziw/vjvJ0NqWgzu+2GXFjtG2oi6F21vIlHsSYhQF/6PcgWbBlAPhbAy7oTbTX7vt
+ /lpULM5b94ndDWWFNNa9jnIe15fKJOg=
+Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
+ [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-527-9kXn7bFbMmeTjQcvHvxLmg-1; Fri, 14 Jan 2022 07:53:57 -0500
-X-MC-Unique: 9kXn7bFbMmeTjQcvHvxLmg-1
-Received: by mail-ed1-f69.google.com with SMTP id
- z10-20020a05640235ca00b003f8efab3342so8300053edc.2
+ us-mta-446-qzXnneLZPEW5kp-JsBUVVw-1; Fri, 14 Jan 2022 08:38:30 -0500
+X-MC-Unique: qzXnneLZPEW5kp-JsBUVVw-1
+Received: by mail-pj1-f70.google.com with SMTP id
+ i2-20020a17090a4b8200b001b426d8be4eso4130849pjh.4
  for <virtualization@lists.linux-foundation.org>;
- Fri, 14 Jan 2022 04:53:57 -0800 (PST)
+ Fri, 14 Jan 2022 05:38:30 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=ptcxbmDhNHAam6/ZOOq/pD2mlDBGNl+RhNAPKypGuLo=;
- b=UUSAyYDKYE0XautLUaHKsxZvnwa4qyW771pDjPybEpzNDEeGv5Z7gniCYOykCuezA8
- Qsv21Pw0rme+jeBYdMYQcCwd9sB5AGUzoLQeMb2Pj57eEO1HGbdK8GAa7pz1BlAa1Wmk
- NQiv8Da6chnODgr8I8heeQZp/Ktl6TmvFKsACsY2xprVphXd6zdRg59MiiN5ZS3zUEvj
- RJ5AnFsNCTqn8ra+JH3yPo5Ox1F02inc0K1g/I483k8eaCunQsVtL8HZl8o/7ulBIqvA
- 5nz++GanDA4rJN+bKGowvIJHs0dRECizkzmGyiMqOCT4Ccz+2XOLqyGUfzIHGb9mSyJg
- goIQ==
-X-Gm-Message-State: AOAM530cbLqJ5t97SieAIK+iJio7WoL5Q8tmEo0nD0r/MhIw2cACUXkI
- jJ6+v8OPffXJcAKH08ylmw+qAFDBb1YIVPCzyQk/K+JRRa28Ofm3m5AVY3V1iEKR2cwFL+TV7FL
- X19zSmf1QP32CgZhpNdq1RYivfLVYUwUfbvNDE9e/2w==
-X-Received: by 2002:a05:6402:4c5:: with SMTP id
- n5mr8834324edw.122.1642164836388; 
- Fri, 14 Jan 2022 04:53:56 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxzRlTVN4D9RIPOjbUkjJ6UZvAgSAci4zg/t/t4tdPVWcWZG5SicadQ0FsqRC/z3EnUNYaNwQ==
-X-Received: by 2002:a05:6402:4c5:: with SMTP id
- n5mr8834309edw.122.1642164836134; 
- Fri, 14 Jan 2022 04:53:56 -0800 (PST)
-Received: from redhat.com ([2.55.154.210])
- by smtp.gmail.com with ESMTPSA id h13sm2370063edl.96.2022.01.14.04.53.54
+ bh=YhO8ftDsk4+jW9Ti1jjOdqgLJ1dfN2h8UN/qErYWEn4=;
+ b=UyVf5cviO3mZQU1lzffEpfgpO6Aofdaewyu/J5vgOBiQtReRa5X48RWhpcl4DF5pPt
+ iiNgolnS2aF/29d638U3PRAqBxiv/iMqX6NiVmCY/Jnpr3ljrTrWR/mMzTMPfcxviUEu
+ soY5WqpwIVJrnqusfYMMZFuSuiTQZ84VWy1mrQbKznW0QGmVdi3aAIXiQ3S5AL6J6HUF
+ uDaE2cTuak+ZGO2VIYmCnX1chlJsqzuNayU95G7SF0nIQp9K8XEarhNRjC59DTzsR3aY
+ 6pVvO9JbMHU/V5ldG0f7kNoGFh4ANQcykzbZ+m2/AoVAHsh06/wucA7eGZmoQWPi807H
+ vsHw==
+X-Gm-Message-State: AOAM531Qe755Pj3wRwEye81x/c3GkIzoIswPT1TG85X1tMBNq8kFz6CW
+ o6UhUQNLMITzb2JBkLBoL0rboCOLQNvT5Op/B74kYJB6cnAvsZpN6AqgFUj+Ho6EIsjQDqPEeHT
+ 7A5F/orXo93u6rKcMxT+2YvkbLaIHa9JDFkNNgGLdLw==
+X-Received: by 2002:a17:902:a502:b0:149:c5a5:5329 with SMTP id
+ s2-20020a170902a50200b00149c5a55329mr9559626plq.164.1642167509365; 
+ Fri, 14 Jan 2022 05:38:29 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxILsnBPX9TsvIa9qO8Uq+U+Jo4SOThql41KRmDC+m0uXyl0MuvIPYYRITKGIUaFyG3qpSUrA==
+X-Received: by 2002:a17:902:a502:b0:149:c5a5:5329 with SMTP id
+ s2-20020a170902a50200b00149c5a55329mr9559603plq.164.1642167509120; 
+ Fri, 14 Jan 2022 05:38:29 -0800 (PST)
+Received: from steredhat (host-95-238-125-214.retail.telecomitalia.it.
+ [95.238.125.214])
+ by smtp.gmail.com with ESMTPSA id g7sm5820333pfu.61.2022.01.14.05.38.23
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 14 Jan 2022 04:53:55 -0800 (PST)
-Date: Fri, 14 Jan 2022 07:53:52 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Si-Wei Liu <si-wei.liu@oracle.com>
-Subject: Re: [PATCH 2/3] vdpa/mlx5: set_features should nack MQ if no CTRL_VQ
-Message-ID: <20220114074855-mutt-send-email-mst@kernel.org>
-References: <1642050651-16197-1-git-send-email-si-wei.liu@oracle.com>
- <1642050651-16197-3-git-send-email-si-wei.liu@oracle.com>
- <20220113014704-mutt-send-email-mst@kernel.org>
- <5d0e9db9-5649-6afc-f7d0-9723cddd59b0@oracle.com>
+ Fri, 14 Jan 2022 05:38:28 -0800 (PST)
+Date: Fri, 14 Jan 2022 14:38:16 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v1] vhost: cache avail index in vhost_enable_notify()
+Message-ID: <20220114133816.7niyaqygvdveddmi@steredhat>
+References: <20220114090508.36416-1-sgarzare@redhat.com>
+ <20220114074454-mutt-send-email-mst@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <5d0e9db9-5649-6afc-f7d0-9723cddd59b0@oracle.com>
+In-Reply-To: <20220114074454-mutt-send-email-mst@kernel.org>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: lvivier@redhat.com, virtualization@lists.linux-foundation.org,
- eperezma@redhat.com, elic@nvidia.com
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, stefanha@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -111,158 +112,43 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Jan 14, 2022 at 12:51:55AM -0800, Si-Wei Liu wrote:
-> 
-> 
-> On 1/12/2022 10:57 PM, Michael S. Tsirkin wrote:
-> > On Thu, Jan 13, 2022 at 12:10:50AM -0500, Si-Wei Liu wrote:
-> > > Made corresponding change per spec:
-> > 
-> > > The device MUST NOT offer a feature which requires another feature
-> > > which was not offered.
-> > Says nothing about the driver though, and you seem to be
-> > doing things to driver features?
-> Yes, it's about validation for driver features, though the spec doesn't have
-> clear way how to deal with this situation. I guess this in reality leaves
-> quite some space for the implementation. To step back, in recent days with
-> latent spec revision for feature negotiation due to endianness and MTU
-> validation, what do we expect device to work if the driver is not compliant
-> and comes up with invalid features set? To clear a subset of driver features
-> unsupported by the device, such that driver may figure out by reading it
-> from device config space later on? Or fail the entire features and have
-> driver to re-try a different setting? Do you feel its possible for device to
-> clear a subset of invalid or unsupported features sent down by the driver,
-> which may allow driver continue to work without having to fail the entire
-> feature negotiation?
-> 
-> The current userspace implementation in qemu may filter out invalid features
-> from driver by clearing a subset and tailor it to fit what host/device can
-> offer. I thought it should be safe to follow the existing practice. That way
-> guest driver can get know of the effective features during feature
-> negotiation, or after features_ok is set (that's what I call by "re-read" of
-> features, sorry if I used the wrong term). Did I miss something? I can
-> definitely add more explanation for the motivation, remove the reference to
-> spec and delete the Fixes tag to avoid confusions. Do you think this would
-> work?
-> 
-> Another option would be just return failure for the set_driver_features()
-> call when seeing (MQ && !CTRL_VQ). Simple enough and easy to implement.
-> Efficient to indicate which individual feature is failing? Probably not,
-> driver has to retry a few times using binary search to know.
-> 
-> > pls explain the motivation. which config are you trying to
-> > fix what is current and expected behaviour.
-> The current mq code for mlx5_vdpa driver is written in the assumption that
-> MQ must come together with CTRL_VQ. I would like to point out that right now
-> there's nowhere in the host side even QEMU to guarantee this assumption
-> would hold. Were there a malicious driver sending down MQ without CTRL_VQ,
-> it would compromise various spots such as is_index_valid() and
-> is_ctrl_vq_idx(). This doesn't end up with immediate panic or security
-> loophole in the host currently, but still the chance for this being taken
-> advantage of is not zero, especially when future code change is involved.
-> You can say it's code cleanup, but the added check helps harden the crispy
-> assumption and assures peace of mind.
+On Fri, Jan 14, 2022 at 07:45:35AM -0500, Michael S. Tsirkin wrote:
+>On Fri, Jan 14, 2022 at 10:05:08AM +0100, Stefano Garzarella wrote:
+>> In vhost_enable_notify() we enable the notifications and we read
+>> the avail index to check if new buffers have become available in
+>> the meantime.
+>>
+>> We are not caching the avail index, so when the device will call
+>> vhost_get_vq_desc(), it will find the old value in the cache and
+>> it will read the avail index again.
+>>
+>> It would be better to refresh the cache every time we read avail
+>> index, so let's change vhost_enable_notify() caching the value in
+>> `avail_idx` and compare it with `last_avail_idx` to check if there
+>> are new buffers available.
+>>
+>> Anyway, we don't expect a significant performance boost because
+>> the above path is not very common, indeed vhost_enable_notify()
+>> is often called with unlikely(), expecting that avail index has
+>> not been updated.
+>>
+>> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+>
+>... and can in theory even hurt due to an extra memory write.
+>So ... performance test restults pls?
 
-I think that right now the right thing to do is to validate untrusted
-input and fail invalid operations.
-The spec does say "VIRTIO_NET_F_MQ Requires VIRTIO_NET_F_CTRL_VQ".
-If there are existing legacy drivers
-violating some rules, then we should consider working around that (and
-maybe documenting that in the spec in the legacy section).
+Right, could be.
 
+I'll run some perf test with vsock, about net, do you have a test suite 
+or common step to follow to test it?
 
-> > 
-> > > Fixes: 52893733f2c5 ("vdpa/mlx5: Add multiqueue support")
-> > 
-> > It's all theoretical right? Fixes really means
-> > "if you have commit ABC then you should pick this one up".
-> > not really appropriate for theoretical fixes.
-> Yeah. This was discovered in code review. Didn't see a real issue. I can
-> remove the tag.
-> 
-> -Siwei
-> > 
-> > > Signed-off-by: Si-Wei Liu<si-wei.liu@oracle.com>
-> > > ---
-> > >   drivers/vdpa/mlx5/net/mlx5_vnet.c | 16 +++++++++++++---
-> > >   1 file changed, 13 insertions(+), 3 deletions(-)
-> > > 
-> > > diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> > > index b53603d..46d4deb 100644
-> > > --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> > > +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> > > @@ -1897,11 +1897,21 @@ static u64 mlx5_vdpa_get_device_features(struct vdpa_device *vdev)
-> > >   	return ndev->mvdev.mlx_features;
-> > >   }
-> > > -static int verify_min_features(struct mlx5_vdpa_dev *mvdev, u64 features)
-> > > +static int verify_driver_features(struct mlx5_vdpa_dev *mvdev, u64 *features)
-> > 
-> > Good rename actually but document in commit log with an
-> > explanation.
-> > 
-> > >   {
-> > > -	if (!(features & BIT_ULL(VIRTIO_F_ACCESS_PLATFORM)))
-> > > +	/* minimum features to expect */
-> > > +	if (!(*features & BIT_ULL(VIRTIO_F_ACCESS_PLATFORM)))
-> > >   		return -EOPNOTSUPP;
-> > > +	/* Double check features combination sent down by the driver.
-> > > +	 * NACK invalid feature due to the absence of depended feature.
-> > Pls rewrite this to make it grammatical.  There's no NACK in spec. What
-> > does this do? Fails to set FEATURES_OK?
-> > 
-> > > +	 * Driver is expected to re-read the negotiated features once
-> > > +	 * return from set_driver_features.
-> > once return is ungrammatical. What to say here depends on what
-> > you mean by this, so I'm not sure.
-> > 
-> > 
-> > Here's text from spec:
-> > 
-> > \item\label{itm:General Initialization And Device Operation /
-> > Device Initialization / Read feature bits} Read device feature bits, and write the subset of feature bits
-> >     understood by the OS and driver to the device.  During this step the
-> >     driver MAY read (but MUST NOT write) the device-specific configuration fields to check that it can support the device before accepting it.
-> > 
-> > \item\label{itm:General Initialization And Device Operation / Device Initialization / Set FEATURES-OK} Set the FEATURES_OK status bit.  The driver MUST NOT accept
-> >     new feature bits after this step.
-> > 
-> > \item\label{itm:General Initialization And Device Operation / Device Initialization / Re-read FEATURES-OK} Re-read \field{device status} to ensure the FEATURES_OK bit is still
-> >     set: otherwise, the device does not support our subset of features
-> >     and the device is unusable.
-> > 
-> > \item\label{itm:General Initialization And Device Operation / Device Initialization / Device-specific Setup} Perform device-specific setup, including discovery of virtqueues for the
-> >     device, optional per-bus setup, reading and possibly writing the
-> >     device's virtio configuration space, and population of virtqueues.
-> > 
-> > does not seem to talk about re-reading features.
-> > What did I miss?
-> > 
-> > 
-> > > +	 */
-> > 
-> > This comment confuses more than it clarifies. I would
-> > - quote the spec
-> > - explain why does code do what it does specifically for these features
-> > 
-> > > +	if ((*features & (BIT_ULL(VIRTIO_NET_F_MQ) | BIT_ULL(VIRTIO_NET_F_CTRL_VQ))) ==
-> > > +            BIT_ULL(VIRTIO_NET_F_MQ))
-> > > +		*features &= ~BIT_ULL(VIRTIO_NET_F_MQ);
-> > > +
-> > >   	return 0;
-> > >   }
-> > > @@ -1977,7 +1987,7 @@ static int mlx5_vdpa_set_driver_features(struct vdpa_device *vdev, u64 features)
-> > >   	print_features(mvdev, features, true);
-> > > -	err = verify_min_features(mvdev, features);
-> > > +	err = verify_driver_features(mvdev, &features);
-> > >   	if (err)
-> > >   		return err;
-> > > -- 
-> > > 1.8.3.1
+Thanks,
+Stefano
 
 _______________________________________________
 Virtualization mailing list
