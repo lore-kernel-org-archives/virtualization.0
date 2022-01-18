@@ -4,112 +4,113 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5CAE6C433FE
-	for <virtualization@archiver.kernel.org>; Tue, 18 Jan 2022 12:49:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 55B31C433F5
+	for <virtualization@archiver.kernel.org>; Tue, 18 Jan 2022 14:44:08 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id E06DA401AE;
-	Tue, 18 Jan 2022 12:49:08 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id E9573401A1;
+	Tue, 18 Jan 2022 14:44:07 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id VL3ar9hzHP7a; Tue, 18 Jan 2022 12:49:07 +0000 (UTC)
+	with ESMTP id XMEnlZKQvwwq; Tue, 18 Jan 2022 14:44:06 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 1A20440147;
-	Tue, 18 Jan 2022 12:49:07 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 120DF4012E;
+	Tue, 18 Jan 2022 14:44:06 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E6D2FC0039;
-	Tue, 18 Jan 2022 12:49:06 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E53D9C0039;
+	Tue, 18 Jan 2022 14:44:05 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E3210C002F
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A0703C002F
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Jan 2022 12:49:05 +0000 (UTC)
+ Tue, 18 Jan 2022 14:44:04 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id C42B260AF4
+ by smtp3.osuosl.org (Postfix) with ESMTP id 8D3D860D93
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Jan 2022 12:49:05 +0000 (UTC)
+ Tue, 18 Jan 2022 14:44:04 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp3.osuosl.org (amavisd-new);
  dkim=pass (2048-bit key) header.d=ibm.com
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id q_NU2kC3hKDb
+ with ESMTP id 99o1UWS4vRbe
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Jan 2022 12:49:05 +0000 (UTC)
+ Tue, 18 Jan 2022 14:44:03 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com
  [148.163.156.1])
- by smtp3.osuosl.org (Postfix) with ESMTPS id EBB4360AEA
+ by smtp3.osuosl.org (Postfix) with ESMTPS id A789260B2D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Jan 2022 12:49:04 +0000 (UTC)
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
- by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20IC7hqD016559; 
- Tue, 18 Jan 2022 12:49:03 GMT
+ Tue, 18 Jan 2022 14:44:03 +0000 (UTC)
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+ by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20IEMRpn024777; 
+ Tue, 18 Jan 2022 14:44:02 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com;
  h=date : from : to : cc :
  subject : message-id : in-reply-to : references : mime-version :
  content-type : content-transfer-encoding; s=pp1;
- bh=7zk+7nKCLi9ENWrIDerU8vUeqRDxwurdAz2k0Ew1qF4=;
- b=remzBvhSJOgBcBGIWMGUbbKxxnGtIZygt4s7WCdF/qSbB3yKWfghGslJ8vKEgCUzAzHf
- UCAnxFAn+6QWKgP8kkfJNKbDmNi3lnaV3UZ1TvojBiy+Cl18pFV/GvmnZ5xROtDdHstZ
- 6Ok3j9cNOtsA+OSZmshvTsRhnCx0KznWK3IZAgjOdIZS7yMhyWGArd/4+VcjLwaBs2/Q
- Sze3v/bcazZiUIG+/+/yn3AURCxJPhpCzV51DW9P+cbSyLxU0qj/pDXJlJczeE/rX3Tm
- PseZ29iQfl/BilnUcPDIz3vpIpY+ScLm/vBwAt82cUl5TqWoa4lXMw7FkfkTn7BoVQ1p Yw== 
+ bh=1lJnqhwM1+tr5KTlncLpJJm5BB2RC5le3gmZHwzunt4=;
+ b=sUfciZ4Dl/bRjzFyuB3++U0REQbqEmlJIVgL4u92nyBFTJUxDl5VxhRO9P35nA/gP84D
+ XtgFMiKSPkeAixpgyGbGO+pTPPeEo45pao+dIhmDadPJhTAJorlUjBUR02sObJattzrn
+ gePcYgJliFyV0kj4fF7eu5WjWyhdrhSsib9npjIdpdPATjbLCFp3aqbFQM90tbZCL4Pt
+ NLqnlH/OGLQ4VhaaALZaM6QktZtkHYViwvehaFwY3DN5EwX2hziD/eGt3l1xjun668ab
+ HCJRlg4QtFceRLaX81NXJ7cuNLletUrD8yuSOSHb03fId7mfEOhRyYMo2ukgtYg68gVh FQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
- by mx0a-001b2d01.pphosted.com with ESMTP id 3dntgf57pg-1
+ by mx0a-001b2d01.pphosted.com with ESMTP id 3dnucf7jdy-1
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Tue, 18 Jan 2022 12:49:03 +0000
-Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
- by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20IClku1025136;
- Tue, 18 Jan 2022 12:49:02 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com
- [169.51.49.98])
- by mx0a-001b2d01.pphosted.com with ESMTP id 3dntgf57ng-1
+ Tue, 18 Jan 2022 14:44:02 +0000
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+ by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20IENMQU027058;
+ Tue, 18 Jan 2022 14:44:01 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com
+ [169.51.49.99])
+ by mx0a-001b2d01.pphosted.com with ESMTP id 3dnucf7jd7-1
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Tue, 18 Jan 2022 12:49:02 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
- by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20ICle8p025377;
- Tue, 18 Jan 2022 12:49:00 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com
- (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
- by ppma03ams.nl.ibm.com with ESMTP id 3dknw9mauf-1
+ Tue, 18 Jan 2022 14:44:01 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+ by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20IEhhw3025307;
+ Tue, 18 Jan 2022 14:43:59 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com
+ (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+ by ppma04ams.nl.ibm.com with ESMTP id 3dknw95dhp-1
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Tue, 18 Jan 2022 12:49:00 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
- by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id
- 20ICmwiB41615830
+ Tue, 18 Jan 2022 14:43:59 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com
+ (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+ by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id
+ 20IEhvcm15466800
  (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Tue, 18 Jan 2022 12:48:58 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
- by IMSVA (Postfix) with ESMTP id 1AFC742078;
- Tue, 18 Jan 2022 12:48:58 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
- by IMSVA (Postfix) with ESMTP id A7DE142047;
- Tue, 18 Jan 2022 12:48:57 +0000 (GMT)
+ Tue, 18 Jan 2022 14:43:57 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+ by IMSVA (Postfix) with ESMTP id F2903A4064;
+ Tue, 18 Jan 2022 14:43:56 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+ by IMSVA (Postfix) with ESMTP id 94CA1A4068;
+ Tue, 18 Jan 2022 14:43:56 +0000 (GMT)
 Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.88.172])
- by d06av24.portsmouth.uk.ibm.com (Postfix) with SMTP;
- Tue, 18 Jan 2022 12:48:57 +0000 (GMT)
-Date: Tue, 18 Jan 2022 13:48:55 +0100
+ by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with SMTP;
+ Tue, 18 Jan 2022 14:43:56 +0000 (GMT)
+Date: Tue, 18 Jan 2022 15:43:50 +0100
 From: Halil Pasic <pasic@linux.ibm.com>
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH] virtio: acknowledge all features before access
-Message-ID: <20220118134855.3e8cbce5.pasic@linux.ibm.com>
+Message-ID: <20220118154350.1ff3fa3f.pasic@linux.ibm.com>
 In-Reply-To: <20220114200744.150325-1-mst@redhat.com>
 References: <20220114200744.150325-1-mst@redhat.com>
 Organization: IBM
 X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: LgdXokpGAwTbj_bO38sN3_CjlvHbFl0p
-X-Proofpoint-ORIG-GUID: a3jZiu96mqtM74oEA5U3sDEb_0Bwm1nf
+X-Proofpoint-GUID: kJ3nbY0auipyvV-x0q_V7hmbrEoUnCQi
+X-Proofpoint-ORIG-GUID: Vfuu9T5QB6apaiNjkcv4i__tF9wZ_KWI
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2022-01-18_03,2022-01-18_01,2021-12-02_01
+ definitions=2022-01-18_04,2022-01-18_01,2021-12-02_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1011 mlxscore=0
- spamscore=0 priorityscore=1501 suspectscore=0 bulkscore=0 adultscore=0
- impostorscore=0 mlxlogscore=999 lowpriorityscore=0 phishscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2201180077
+ malwarescore=0 suspectscore=0
+ mlxlogscore=999 phishscore=0 lowpriorityscore=0 spamscore=0 bulkscore=0
+ impostorscore=0 adultscore=0 mlxscore=0 priorityscore=1501 clxscore=1015
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2110150000
+ definitions=main-2201180089
 Cc: Cornelia Huck <cohuck@redhat.com>, linux-kernel@vger.kernel.org,
  stable@vger.kernel.org, virtualization@lists.linux-foundation.org,
  Halil Pasic <pasic@linux.ibm.com>
@@ -144,10 +145,32 @@ On Fri, 14 Jan 2022 15:09:14 -0500
 > is a partial fix: guests should not access config space
 > without acknowledging features since otherwise we'll never
 > be able to change the config space format.
+
+I agree with that. The crux is what does "acknowledge features" exactly
+mean. Is it "write features" or "complete the feature negotiation,
+including setting FEATURES_OK".
+
+My understanding is, that we should not rely on that the device is
+going to act according to the negotiated feature set unless FEATURES_OK
+was set successfully.
+
+That would mean, that this change ain't guaranteed to help with the
+stated problem. We simply don't know if the fact that features
+were written is going to have a side-effect or not. Also see below.
+
 > 
 > As a side effect, this also reduces the amount of hypervisor accesses -
 > we now only acknowledge features once unless we are clearing any
 > features when validating.
+
+My understanding is that this patch basically does for all the features,
+what commit 2f9a174f918e ("virtio: write back F_VERSION_1 before
+validate") did only for F_VERSION_1 and under certain conditions to
+be minimally invasive.
+
+I don't like when s390 is the oddball, so I'm very happy to see us
+moving away from that.
+
 > 
 > Cc: stable@vger.kernel.org
 > Fixes: 404123c2db79 ("virtio: allow drivers to validate features")
@@ -160,18 +183,11 @@ On Fri, 14 Jan 2022 15:09:14 -0500
 > today I finally thought of something I am happy with.
 > Pls let me know what you think. Testing on big endian would
 > also be much appreciated!
- 
-Hi Michael!
 
-I was just about to have a look into this. But it does not apply
-cleanly to Linus master (fetched a couple of minutes ago). I also tride
-with d9679d0013a66849~1 but no luck. What is a suitable base for this
-patch?
+Thanks! I will first provide some comments, and I intend to come back
+with the test results later.
 
-Regards,
-Halil
-
-
+> 
 >  drivers/virtio/virtio.c | 31 +++++++++++++++++--------------
 >  1 file changed, 17 insertions(+), 14 deletions(-)
 > 
@@ -216,6 +232,21 @@ Halil
 >  			__virtio_set_bit(dev, i);
 >  
 > +	err = dev->config->finalize_features(dev);
+
+A side note: config->finalize_features() ain't the best name for what the
+thing does. After config->finalize_features() the features are not final.
+Unlike after virtio_finalize_features(). IMHO filter_and_write_features()
+would be a more accurate, although longer name.
+
+After this point, the features aren't final yet, and one can not say
+that a some feature X has been negotiated. But with regards to features,
+the spec does not really consider this limbo state.
+
+Should this change? Do we want to say: the device SHOULD pick up, and
+act upon the new features *before* FEATURES_OK is set?
+
+...
+
 > +	if (err)
 > +		goto err;
 > +
@@ -223,17 +254,38 @@ Halil
 > +		u64 features = dev->features;
 > +
 >  		err = drv->validate(dev);
+
+... Consider the "we would like to introduce a new config space format"
+example. Here, I guess we would like to use the new format. But let's say
+_F_CFG_FMT_V2 aint negotiated yet. So to be sure about the format, we
+would need to specify, that the behavior of the device needs to change
+after the feature has been written, but before FEATURES_OK is set, at
+least for _F_CFG_FMT_V2.
+
+Please also consider the QEMU implementation of the vhost-user stuff. We
+push the features to the back-end only when FEATURES_OK status is
+written.
+
+
 >  		if (err)
 >  			goto err;
 > +
 > +		if (features != dev->features) {
 > +			err = dev->config->finalize_features(dev);
+
+It is fine to call it again, because the features aren't finalized yet.
+And re-doing any transport-level filtering and validation is fine as
+well.
+
 > +			if (err)
 > +				goto err;
 > +		}
 >  	}
 >  
 >  	err = virtio_finalize_features(dev);
+
+Here the features are finally negotiated and final.
+
 > @@ -495,6 +494,10 @@ int virtio_device_restore(struct virtio_device *dev)
 >  	/* We have a driver! */
 >  	virtio_add_status(dev, VIRTIO_CONFIG_S_DRIVER);
@@ -243,6 +295,16 @@ Halil
 > +		goto err;
 > +
 >  	ret = virtio_finalize_features(dev);
+
+Looks a little weird, because virtio_finalize_features() used to include
+filter + write + set FEATURES_OK. But it ain't too bad.
+
+Better names would benefit readability though, if we can come up with
+some.
+
+Regards,
+Halil
+
 >  	if (ret)
 >  		goto err;
 
