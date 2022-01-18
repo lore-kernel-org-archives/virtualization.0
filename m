@@ -1,79 +1,83 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D34D6C433EF
-	for <virtualization@archiver.kernel.org>; Tue, 18 Jan 2022 01:34:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0B083C4332F
+	for <virtualization@archiver.kernel.org>; Tue, 18 Jan 2022 02:24:25 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 572BC40012;
-	Tue, 18 Jan 2022 01:34:56 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 8B61760C26;
+	Tue, 18 Jan 2022 02:24:25 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id bx6O2okBp_VO; Tue, 18 Jan 2022 01:34:55 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id C292D400AB;
-	Tue, 18 Jan 2022 01:34:54 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 8S7G7daL3643; Tue, 18 Jan 2022 02:24:24 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 1A86560C12;
+	Tue, 18 Jan 2022 02:24:24 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 7BEF1C0039;
-	Tue, 18 Jan 2022 01:34:54 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D67BDC0031;
+	Tue, 18 Jan 2022 02:24:23 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 30AF1C002F
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1A90CC002F
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Jan 2022 01:34:53 +0000 (UTC)
+ Tue, 18 Jan 2022 02:24:22 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 099F9400AB
+ by smtp2.osuosl.org (Postfix) with ESMTP id F4177404C5
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Jan 2022 01:34:53 +0000 (UTC)
+ Tue, 18 Jan 2022 02:24:21 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=kernel.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id uZfEB-lV0Z5Y
+ with ESMTP id 4r94jN6kWcdT
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Jan 2022 01:34:50 +0000 (UTC)
+ Tue, 18 Jan 2022 02:24:20 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id F144040012
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 6127A40329
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Jan 2022 01:34:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1642469688;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding;
- bh=iw6gZA/Ubxgua8sUm6BJOb3R/rdAvTK6ZPxUDv9BXJQ=;
- b=ZicwNn3pmFQevcfMg23OjmDmwoOm9FCrK88AY2IhxN+pE01ipYZTKi1Y6bZAbIc6dmDweW
- yqD27lF2rf+bN7MmSFfDpWeYRvr5YyoLMZM33kKSWLs8KAzxTXY0otwuOSfM/dReUykFwn
- Lmqiy+domARHwkydXuJly8Q/tSfJ78w=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-280-eEzooBaQM6ut9HExSNGQCw-1; Mon, 17 Jan 2022 20:34:45 -0500
-X-MC-Unique: eEzooBaQM6ut9HExSNGQCw-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com
- [10.5.11.11])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ Tue, 18 Jan 2022 02:24:20 +0000 (UTC)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 606E71083F60;
- Tue, 18 Jan 2022 01:34:44 +0000 (UTC)
-Received: from gshan.redhat.com (ovpn-12-68.pek2.redhat.com [10.72.12.68])
- by smtp.corp.redhat.com (Postfix) with ESMTPS id C9A4A60BD8;
- Tue, 18 Jan 2022 01:34:38 +0000 (UTC)
-From: Gavin Shan <gshan@redhat.com>
-To: virtualization@lists.linux-foundation.org
-Subject: [PATCH] drivers/virtio: Enable virtio mem for ARM64
-Date: Tue, 18 Jan 2022 09:34:31 +0800
-Message-Id: <20220118013431.167347-1-gshan@redhat.com>
+ by ams.source.kernel.org (Postfix) with ESMTPS id 62E7FB8124B;
+ Tue, 18 Jan 2022 02:24:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33DB8C36AE3;
+ Tue, 18 Jan 2022 02:24:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1642472655;
+ bh=XqqZhZVVlX5olFQFKA/GsYEKRETBxCwomFV/uenBILs=;
+ h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+ b=BGVFh2tySH9nEeZYyR+9KsagDxtV+Bd0Q5DPS5eCkZb1EAw960+t7uGZ06cX+p+G+
+ RCBchiiu0fyZ/av6QV8Jso1PPlDfJFQj93IsYxN5vu0pqvWH9oAcYdNv7vVfKyFtDJ
+ e2Zlxd4XsdQ56z1Wgg6rE5oq17vxcHD3YCF2VMVactKQcRBfuU1LXugR1BdWxJRatb
+ ckdGSBltqeJq/866CJ5LGzVuyAvVm1EQkYskzX7G1SmDNfO89EZk+hnIbXTnx+encc
+ Oy4+0yoccVGyCNdL2b0uQBBlR12Xi1oL+hH8eJW73j1O6RhlSRWHMSykILk5xUfssw
+ dq5R5qOJwnqCw==
+From: Sasha Levin <sashal@kernel.org>
+To: linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.16 088/217] drm: Return error codes from struct
+ drm_driver.gem_create_object
+Date: Mon, 17 Jan 2022 21:17:31 -0500
+Message-Id: <20220118021940.1942199-88-sashal@kernel.org>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220118021940.1942199-1-sashal@kernel.org>
+References: <20220118021940.1942199-1-sashal@kernel.org>
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=gshan@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: shan.gavin@gmail.com
+X-stable: review
+X-Patchwork-Hint: Ignore
+Cc: Sasha Levin <sashal@kernel.org>, robh@kernel.org, daniel@ffwll.ch,
+ tomeu.vizoso@collabora.com, emma@anholt.net, airlied@linux.ie,
+ dri-devel@lists.freedesktop.org, maarten.lankhorst@linux.intel.com,
+ mripard@kernel.org, Steven Price <steven.price@arm.com>,
+ lima@lists.freedesktop.org, Maxime Ripard <maxime@cerno.tech>,
+ Thomas Zimmermann <tzimmermann@suse.de>,
+ virtualization@lists.linux-foundation.org, lee.jones@linaro.org,
+ yuq825@gmail.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -90,30 +94,202 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This enables virtio-mem device support by allowing to enable the
-corresponding kernel config option (CONFIG_VIRTIO_MEM) on the
-architecture.
+From: Thomas Zimmermann <tzimmermann@suse.de>
 
-Signed-off-by: Gavin Shan <gshan@redhat.com>
+[ Upstream commit 4ff22f487f8c26b99cbe1678344595734c001a39 ]
+
+GEM helper libraries use struct drm_driver.gem_create_object to let
+drivers override GEM object allocation. On failure, the call returns
+NULL.
+
+Change the semantics to make the calls return a pointer-encoded error.
+This aligns the callback with its callers. Fixes the ingenic driver,
+which already returns an error pointer.
+
+Also update the callers to handle the involved types more strictly.
+
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Reviewed-by: Steven Price <steven.price@arm.com>
+Acked-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211130095255.26710-1-tzimmermann@suse.de
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/virtio/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/drm_gem_cma_helper.c    | 17 ++++++++++-------
+ drivers/gpu/drm/drm_gem_shmem_helper.c  | 17 ++++++++++-------
+ drivers/gpu/drm/drm_gem_vram_helper.c   |  4 ++--
+ drivers/gpu/drm/lima/lima_gem.c         |  2 +-
+ drivers/gpu/drm/panfrost/panfrost_gem.c |  2 +-
+ drivers/gpu/drm/v3d/v3d_bo.c            |  4 ++--
+ drivers/gpu/drm/vgem/vgem_drv.c         |  2 +-
+ drivers/gpu/drm/virtio/virtgpu_object.c |  2 +-
+ include/drm/drm_drv.h                   |  5 +++--
+ 9 files changed, 31 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
-index 34f80b7a8a64..bf3f6ebdaa3b 100644
---- a/drivers/virtio/Kconfig
-+++ b/drivers/virtio/Kconfig
-@@ -106,7 +106,7 @@ config VIRTIO_BALLOON
- config VIRTIO_MEM
- 	tristate "Virtio mem driver"
- 	default m
--	depends on X86_64
-+	depends on X86_64 || ARM64
- 	depends on VIRTIO
- 	depends on MEMORY_HOTPLUG
- 	depends on MEMORY_HOTREMOVE
+diff --git a/drivers/gpu/drm/drm_gem_cma_helper.c b/drivers/gpu/drm/drm_gem_cma_helper.c
+index 9d05674550a4f..1e7e8cd64cb58 100644
+--- a/drivers/gpu/drm/drm_gem_cma_helper.c
++++ b/drivers/gpu/drm/drm_gem_cma_helper.c
+@@ -62,18 +62,21 @@ __drm_gem_cma_create(struct drm_device *drm, size_t size, bool private)
+ 	struct drm_gem_object *gem_obj;
+ 	int ret = 0;
+ 
+-	if (drm->driver->gem_create_object)
++	if (drm->driver->gem_create_object) {
+ 		gem_obj = drm->driver->gem_create_object(drm, size);
+-	else
+-		gem_obj = kzalloc(sizeof(*cma_obj), GFP_KERNEL);
+-	if (!gem_obj)
+-		return ERR_PTR(-ENOMEM);
++		if (IS_ERR(gem_obj))
++			return ERR_CAST(gem_obj);
++		cma_obj = to_drm_gem_cma_obj(gem_obj);
++	} else {
++		cma_obj = kzalloc(sizeof(*cma_obj), GFP_KERNEL);
++		if (!cma_obj)
++			return ERR_PTR(-ENOMEM);
++		gem_obj = &cma_obj->base;
++	}
+ 
+ 	if (!gem_obj->funcs)
+ 		gem_obj->funcs = &drm_gem_cma_default_funcs;
+ 
+-	cma_obj = container_of(gem_obj, struct drm_gem_cma_object, base);
+-
+ 	if (private) {
+ 		drm_gem_private_object_init(drm, gem_obj, size);
+ 
+diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
+index bca0de92802ef..fe157bf278347 100644
+--- a/drivers/gpu/drm/drm_gem_shmem_helper.c
++++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
+@@ -51,14 +51,17 @@ __drm_gem_shmem_create(struct drm_device *dev, size_t size, bool private)
+ 
+ 	size = PAGE_ALIGN(size);
+ 
+-	if (dev->driver->gem_create_object)
++	if (dev->driver->gem_create_object) {
+ 		obj = dev->driver->gem_create_object(dev, size);
+-	else
+-		obj = kzalloc(sizeof(*shmem), GFP_KERNEL);
+-	if (!obj)
+-		return ERR_PTR(-ENOMEM);
+-
+-	shmem = to_drm_gem_shmem_obj(obj);
++		if (IS_ERR(obj))
++			return ERR_CAST(obj);
++		shmem = to_drm_gem_shmem_obj(obj);
++	} else {
++		shmem = kzalloc(sizeof(*shmem), GFP_KERNEL);
++		if (!shmem)
++			return ERR_PTR(-ENOMEM);
++		obj = &shmem->base;
++	}
+ 
+ 	if (!obj->funcs)
+ 		obj->funcs = &drm_gem_shmem_funcs;
+diff --git a/drivers/gpu/drm/drm_gem_vram_helper.c b/drivers/gpu/drm/drm_gem_vram_helper.c
+index bfa386b981346..3f00192215d11 100644
+--- a/drivers/gpu/drm/drm_gem_vram_helper.c
++++ b/drivers/gpu/drm/drm_gem_vram_helper.c
+@@ -197,8 +197,8 @@ struct drm_gem_vram_object *drm_gem_vram_create(struct drm_device *dev,
+ 
+ 	if (dev->driver->gem_create_object) {
+ 		gem = dev->driver->gem_create_object(dev, size);
+-		if (!gem)
+-			return ERR_PTR(-ENOMEM);
++		if (IS_ERR(gem))
++			return ERR_CAST(gem);
+ 		gbo = drm_gem_vram_of_gem(gem);
+ 	} else {
+ 		gbo = kzalloc(sizeof(*gbo), GFP_KERNEL);
+diff --git a/drivers/gpu/drm/lima/lima_gem.c b/drivers/gpu/drm/lima/lima_gem.c
+index 640acc060467c..54823bd701a4b 100644
+--- a/drivers/gpu/drm/lima/lima_gem.c
++++ b/drivers/gpu/drm/lima/lima_gem.c
+@@ -221,7 +221,7 @@ struct drm_gem_object *lima_gem_create_object(struct drm_device *dev, size_t siz
+ 
+ 	bo = kzalloc(sizeof(*bo), GFP_KERNEL);
+ 	if (!bo)
+-		return NULL;
++		return ERR_PTR(-ENOMEM);
+ 
+ 	mutex_init(&bo->lock);
+ 	INIT_LIST_HEAD(&bo->va);
+diff --git a/drivers/gpu/drm/panfrost/panfrost_gem.c b/drivers/gpu/drm/panfrost/panfrost_gem.c
+index 23377481f4e31..39ac031548954 100644
+--- a/drivers/gpu/drm/panfrost/panfrost_gem.c
++++ b/drivers/gpu/drm/panfrost/panfrost_gem.c
+@@ -221,7 +221,7 @@ struct drm_gem_object *panfrost_gem_create_object(struct drm_device *dev, size_t
+ 
+ 	obj = kzalloc(sizeof(*obj), GFP_KERNEL);
+ 	if (!obj)
+-		return NULL;
++		return ERR_PTR(-ENOMEM);
+ 
+ 	INIT_LIST_HEAD(&obj->mappings.list);
+ 	mutex_init(&obj->mappings.lock);
+diff --git a/drivers/gpu/drm/v3d/v3d_bo.c b/drivers/gpu/drm/v3d/v3d_bo.c
+index 6a8731ab9d7d0..9a1a92782524c 100644
+--- a/drivers/gpu/drm/v3d/v3d_bo.c
++++ b/drivers/gpu/drm/v3d/v3d_bo.c
+@@ -70,11 +70,11 @@ struct drm_gem_object *v3d_create_object(struct drm_device *dev, size_t size)
+ 	struct drm_gem_object *obj;
+ 
+ 	if (size == 0)
+-		return NULL;
++		return ERR_PTR(-EINVAL);
+ 
+ 	bo = kzalloc(sizeof(*bo), GFP_KERNEL);
+ 	if (!bo)
+-		return NULL;
++		return ERR_PTR(-ENOMEM);
+ 	obj = &bo->base.base;
+ 
+ 	obj->funcs = &v3d_gem_funcs;
+diff --git a/drivers/gpu/drm/vgem/vgem_drv.c b/drivers/gpu/drm/vgem/vgem_drv.c
+index a87eafa89e9f4..c5e3e54577377 100644
+--- a/drivers/gpu/drm/vgem/vgem_drv.c
++++ b/drivers/gpu/drm/vgem/vgem_drv.c
+@@ -97,7 +97,7 @@ static struct drm_gem_object *vgem_gem_create_object(struct drm_device *dev, siz
+ 
+ 	obj = kzalloc(sizeof(*obj), GFP_KERNEL);
+ 	if (!obj)
+-		return NULL;
++		return ERR_PTR(-ENOMEM);
+ 
+ 	/*
+ 	 * vgem doesn't have any begin/end cpu access ioctls, therefore must use
+diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
+index f648b0e24447b..4749c9303de05 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_object.c
++++ b/drivers/gpu/drm/virtio/virtgpu_object.c
+@@ -140,7 +140,7 @@ struct drm_gem_object *virtio_gpu_create_object(struct drm_device *dev,
+ 
+ 	shmem = kzalloc(sizeof(*shmem), GFP_KERNEL);
+ 	if (!shmem)
+-		return NULL;
++		return ERR_PTR(-ENOMEM);
+ 
+ 	dshmem = &shmem->base.base;
+ 	dshmem->base.funcs = &virtio_gpu_shmem_funcs;
+diff --git a/include/drm/drm_drv.h b/include/drm/drm_drv.h
+index 0cd95953cdf55..96c264c4be4fe 100644
+--- a/include/drm/drm_drv.h
++++ b/include/drm/drm_drv.h
+@@ -291,8 +291,9 @@ struct drm_driver {
+ 	/**
+ 	 * @gem_create_object: constructor for gem objects
+ 	 *
+-	 * Hook for allocating the GEM object struct, for use by the CMA and
+-	 * SHMEM GEM helpers.
++	 * Hook for allocating the GEM object struct, for use by the CMA
++	 * and SHMEM GEM helpers. Returns a GEM object on success, or an
++	 * ERR_PTR()-encoded error code otherwise.
+ 	 */
+ 	struct drm_gem_object *(*gem_create_object)(struct drm_device *dev,
+ 						    size_t size);
 -- 
-2.23.0
+2.34.1
 
 _______________________________________________
 Virtualization mailing list
