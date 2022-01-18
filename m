@@ -4,89 +4,106 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B5A35C433FE
-	for <virtualization@archiver.kernel.org>; Tue, 18 Jan 2022 08:29:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2421DC433EF
+	for <virtualization@archiver.kernel.org>; Tue, 18 Jan 2022 08:38:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 48ACA408DA;
-	Tue, 18 Jan 2022 08:29:19 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id A7E32408DA;
+	Tue, 18 Jan 2022 08:38:33 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id v0WtNOrjzaCW; Tue, 18 Jan 2022 08:29:18 +0000 (UTC)
+	with ESMTP id 2Ogt0DWhusDy; Tue, 18 Jan 2022 08:38:32 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id E95A6408DD;
-	Tue, 18 Jan 2022 08:29:17 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 37BEC408DD;
+	Tue, 18 Jan 2022 08:38:32 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 91335C0039;
-	Tue, 18 Jan 2022 08:29:17 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 65291C002F
+	by lists.linuxfoundation.org (Postfix) with ESMTP id DFAD5C0039;
+	Tue, 18 Jan 2022 08:38:31 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B4E14C002F
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Jan 2022 08:29:16 +0000 (UTC)
+ Tue, 18 Jan 2022 08:38:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 4711840438
+ by smtp3.osuosl.org (Postfix) with ESMTP id 8D05560D6A
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Jan 2022 08:29:16 +0000 (UTC)
+ Tue, 18 Jan 2022 08:38:30 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=kernel.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id COU4FtiJODvp
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id KBcpPyHAatFV
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Jan 2022 08:29:15 +0000 (UTC)
+ Tue, 18 Jan 2022 08:38:28 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from ams.source.kernel.org (ams.source.kernel.org
- [IPv6:2604:1380:4601:e00::1])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 30C5E40286
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 7CB0860D69
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Jan 2022 08:29:15 +0000 (UTC)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by ams.source.kernel.org (Postfix) with ESMTPS id 95B96B812A5;
- Tue, 18 Jan 2022 08:29:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 63F39C340E6;
- Tue, 18 Jan 2022 08:29:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1642494551;
- bh=ngfco9m5RC6ysn8lXvCShk4RMg7ryZFXstNW7rRs70s=;
- h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
- b=nhcZgJJAwlftay688HihdC7itWdxDr1blrDcqAzbPX8/Tf1XL53dPiTw7SG4tEGiq
- xtQ64e+0ILBF2cQkrSFPxdskWGLfLtxblp4HlLrPb8rnYkvyA88XyKevOyx8zVl2CX
- 05YezsFNGU6h31ts6oB7zVpNZuAOZf1YA7JA7FAiG/wjznYGkCjh+9Um/wOVhbV+cm
- 7G/ulkcgLqx33iBFCWBuxPLwk8HAkgy3GY/frWa62qHTYNy7+vd54qXonLtynKhgwQ
- bkEMvKrquMmQs97IJO1EI4YVhSvyt5rOmUzUPhoRNmNonbnGw64NwvHz/pGLu8Crnb
- JEsI7gXa4NW+Q==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org
- (localhost.localdomain [127.0.0.1])
- by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id
- 4F20FF60797; Tue, 18 Jan 2022 08:29:11 +0000 (UTC)
-Subject: Re: [GIT PULL v2] virtio,vdpa,qemu_fw_cfg: features, cleanups, fixes
-From: pr-tracker-bot@kernel.org
-In-Reply-To: <20220114185734-mutt-send-email-mst@kernel.org>
-References: <20220114185734-mutt-send-email-mst@kernel.org>
-X-PR-Tracked-List-Id: Linux virtualization
- <virtualization.lists.linux-foundation.org>
-X-PR-Tracked-Message-Id: <20220114185734-mutt-send-email-mst@kernel.org>
-X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-X-PR-Tracked-Commit-Id: b03fc43e73877e180c1803a33aea3e7396642367
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 3bf6a9e36e441714928d73a5adbc59562eb7ef19
-Message-Id: <164249455131.3500.5357538951870066126.pr-tracker-bot@kernel.org>
-Date: Tue, 18 Jan 2022 08:29:11 +0000
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: yun.wang@linux.alibaba.com, kvm@vger.kernel.org, mst@redhat.com,
- trix@redhat.com, flyingpeng@tencent.com,
- virtualization@lists.linux-foundation.org, elic@nvidia.com,
- guanjun@linux.alibaba.com, lkp@intel.com, xianting.tian@linux.alibaba.com,
- eperezma@redhat.com, luolikang@nsfocus.com, wu000273@umn.edu,
- lvivier@redhat.com, keescook@chromium.org, somlo@cmu.edu, jiasheng@iscas.ac.cn,
- johan@kernel.org, christophe.jaillet@wanadoo.fr, flyingpenghao@gmail.com,
- dapeng1.mi@intel.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- labbott@kernel.org, gregkh@linuxfoundation.org, lingshan.zhu@intel.com,
- Linus Torvalds <torvalds@linux-foundation.org>
+ Tue, 18 Jan 2022 08:38:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1642495106;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=0iRNkibkhXodBDsNyGIHnIIBvejLu1ysleOeboUpiz8=;
+ b=WlBMqYc1KpILTp90N+y0Wq2TTujX1ypr5866y13OldqNjX+0GcGapdKzgUiPiQa/sJDYtE
+ zrexMgBwudEcLjlhKdx3fa3pjEngxxlbIVLawAN1K1Xl+f+to4629+2GShxj6oz5m4iHqR
+ q/uMvY0c+IBna7dM/0CyPj94TOorc1A=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-638-TLHV4a6VPDWk2DyB3zBbUw-1; Tue, 18 Jan 2022 03:38:24 -0500
+X-MC-Unique: TLHV4a6VPDWk2DyB3zBbUw-1
+Received: by mail-ed1-f72.google.com with SMTP id
+ s9-20020aa7d789000000b004021d03e2dfso6083423edq.18
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 18 Jan 2022 00:38:24 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:message-id:date:mime-version:user-agent
+ :content-language:to:cc:references:from:organization:subject
+ :in-reply-to:content-transfer-encoding;
+ bh=0iRNkibkhXodBDsNyGIHnIIBvejLu1ysleOeboUpiz8=;
+ b=mik/tXfIReCHCx2AUZylWHWI4lf4TL6BWjHUhAeOHPkaykWy4e2I60zUKXeqfyvIYp
+ rxdO7DpRNm3SaBLqgoHdVbAkSeVr4gxBiZQy+joWAxomxEavBYr/l+A3vqgWMI02BKIJ
+ 1zU9BROoQ+xnf3yWdSva4scWNhSDVwKpUKbslHg2sRk7eO5YpgIRM5oe/utVVJJgUPLw
+ tsvs50dR6YujCs2KwaHKyFcps+tmWJeuiFuuYmxO5+qWoTsz2znpsRhsC9iaP50U+res
+ YAPWwB598+PG7tsZOwvEQucFwDY9GsyPNWqPAp2sy2euck+Qiem1bAjOHJ9xxPdO/6dR
+ p9Uw==
+X-Gm-Message-State: AOAM5324SSj7HftdpGe5Cjm+dvhaWNQbtxAtWyX8T4ojBXgWiD8Wr2hA
+ vHs9jvWP+1Bwi+qZEa4cPcX1pws4nWIXoaU7UJ4gPrAOKb74d3ZKh47BkVaAGUM56zgAlGFVgE6
+ lO8iBTHA0n+I1XJ5SRqvhQoWRLvZfpqBx7kzzBYyLeQ==
+X-Received: by 2002:aa7:c79a:: with SMTP id n26mr18006539eds.350.1642495103231; 
+ Tue, 18 Jan 2022 00:38:23 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwGWfHNyyyhH1BL7uKc7knrncBIRd2dEONU5PVnA443woEu855mFoClmmk3extL/YzdtzxFOA==
+X-Received: by 2002:aa7:c79a:: with SMTP id n26mr18006526eds.350.1642495103032; 
+ Tue, 18 Jan 2022 00:38:23 -0800 (PST)
+Received: from ?IPV6:2003:cb:c70c:2500:5b4d:fa8e:5311:1e28?
+ (p200300cbc70c25005b4dfa8e53111e28.dip0.t-ipconnect.de.
+ [2003:cb:c70c:2500:5b4d:fa8e:5311:1e28])
+ by smtp.gmail.com with ESMTPSA id gv35sm1890371ejc.122.2022.01.18.00.38.22
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Tue, 18 Jan 2022 00:38:22 -0800 (PST)
+Message-ID: <4fe8127e-6e24-64bd-c53b-bf4ffa15b4b4@redhat.com>
+Date: Tue, 18 Jan 2022 09:38:21 +0100
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.4.0
+To: Gavin Shan <gshan@redhat.com>, virtualization@lists.linux-foundation.org
+References: <20220118013431.167347-1-gshan@redhat.com>
+From: David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+Subject: Re: [PATCH] drivers/virtio: Enable virtio mem for ARM64
+In-Reply-To: <20220118013431.167347-1-gshan@redhat.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=david@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, shan.gavin@gmail.com,
+ Jonathan Cameron <Jonathan.Cameron@huawei.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -98,24 +115,65 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-The pull request you sent on Fri, 14 Jan 2022 18:57:34 -0500:
+On 18.01.22 02:34, Gavin Shan wrote:
+> This enables virtio-mem device support by allowing to enable the
+> corresponding kernel config option (CONFIG_VIRTIO_MEM) on the
+> architecture.
+> 
+> Signed-off-by: Gavin Shan <gshan@redhat.com>
+> ---
+>  drivers/virtio/Kconfig | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
+> index 34f80b7a8a64..bf3f6ebdaa3b 100644
+> --- a/drivers/virtio/Kconfig
+> +++ b/drivers/virtio/Kconfig
+> @@ -106,7 +106,7 @@ config VIRTIO_BALLOON
+>  config VIRTIO_MEM
+>  	tristate "Virtio mem driver"
+>  	default m
+> -	depends on X86_64
+> +	depends on X86_64 || ARM64
+>  	depends on VIRTIO
+>  	depends on MEMORY_HOTPLUG
+>  	depends on MEMORY_HOTREMOVE
 
-> https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+With MEMBLOCK_DRIVER_MANAGED in place upstream, kexec should be fine.
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/3bf6a9e36e441714928d73a5adbc59562eb7ef19
 
-Thank you!
+Can you adjust/rephrase the comment as well? Like
+
+diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
+index 34f80b7a8a64..88028ca01c8f 100644
+--- a/drivers/virtio/Kconfig
++++ b/drivers/virtio/Kconfig
+@@ -116,8 +116,9 @@ config VIRTIO_MEM
+         This driver provides access to virtio-mem paravirtualized memory
+         devices, allowing to hotplug and hotunplug memory.
+ 
+-        This driver was only tested under x86-64, but should theoretically
+-        work on all architectures that support memory hotplug and hotremove.
++        This driver was only tested under x86-64 and arm64, but should
++        theoretically work on all architectures that support memory hotplug and
++        hotremove.
+ 
+         If unsure, say M.
+ 
+
+
+Acked-by: David Hildenbrand <david@redhat.com>
 
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+Thanks,
+
+David / dhildenb
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
