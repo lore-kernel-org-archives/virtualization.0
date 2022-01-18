@@ -1,113 +1,118 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 64BCAC433EF
-	for <virtualization@archiver.kernel.org>; Tue, 18 Jan 2022 10:49:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5CAE6C433FE
+	for <virtualization@archiver.kernel.org>; Tue, 18 Jan 2022 12:49:09 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 0B12860D7F;
-	Tue, 18 Jan 2022 10:49:08 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id E06DA401AE;
+	Tue, 18 Jan 2022 12:49:08 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id G-pCqwzuVWKc; Tue, 18 Jan 2022 10:49:07 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 9F57A60D7B;
-	Tue, 18 Jan 2022 10:49:06 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 75B57C0039;
-	Tue, 18 Jan 2022 10:49:06 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7C023C002F
- for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Jan 2022 10:49:05 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 68C1D400C6
- for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Jan 2022 10:49:05 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id zqTZQQ8u1hth
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id VL3ar9hzHP7a; Tue, 18 Jan 2022 12:49:07 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 1A20440147;
+	Tue, 18 Jan 2022 12:49:07 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E6D2FC0039;
+	Tue, 18 Jan 2022 12:49:06 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E3210C002F
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Jan 2022 10:49:04 +0000 (UTC)
+ Tue, 18 Jan 2022 12:49:05 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id C42B260AF4
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 18 Jan 2022 12:49:05 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=ibm.com
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id q_NU2kC3hKDb
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 18 Jan 2022 12:49:05 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 814BA405EC
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com
+ [148.163.156.1])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id EBB4360AEA
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Jan 2022 10:49:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1642502943;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=lkqm1p+o0L8V/MwAjXFvYiWEzassQNie9wlusNTXpbI=;
- b=J0VAwoJpn3F0r021/UrMus0Ob7W4ehQH4SCjdMGgioz7ih0fJBlu2ZTCuO45pu3+X8sQaS
- kNJHIBE1JaHnDX+0yjDSHa6Tus2wQW7RJC9FHmMXNuaUb3QTZQRw4wr/5PsmrZX4VxIx97
- zyU7+T7dHamYt/mNILgM94HglT5Kw3M=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-297-lmmEqjqbMDCwuVaAGw7SgA-1; Tue, 18 Jan 2022 05:49:02 -0500
-X-MC-Unique: lmmEqjqbMDCwuVaAGw7SgA-1
-Received: by mail-wm1-f70.google.com with SMTP id
- r131-20020a1c4489000000b0034d5c66d8f5so756515wma.5
- for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Jan 2022 02:49:01 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
- :content-language:to:cc:references:from:organization:in-reply-to
- :content-transfer-encoding;
- bh=lkqm1p+o0L8V/MwAjXFvYiWEzassQNie9wlusNTXpbI=;
- b=zh/BDMshAaw23ZcgjA/IiqOES/NaHc7340GI/duYyKt9Ex0oI24/k91Gj5N45PO7fx
- 6jLTQDqt+bEQ1GpGr1gpD/ddIq6du8DAdVym4syeDg/IIhxCa33j2mTVYMbd4Rf7GsvE
- pW5xhY4uf5yAgTVU5Mh1wh8tdffe+stULDq2JMk1UWwuNI/9PFdPaEoQSt/F+6cBth/u
- uraFfXxeKMU0g4D3NJrpnFuQ02Aw7thlnxRcxOUcJm/EOpo08oxr6GmwL14eq2Z0Bx7N
- OErLxtEmlPBk2mz+AML7i+0tAdkHxmjbYjubgqAq4TtVjqzAH7TIxOhbsIhhCE/pd8y3
- LClQ==
-X-Gm-Message-State: AOAM533xVBoqWvS++Olijo+Dyre7P9lnNYb4iyBLYsqAfeO2VVL1gJtK
- BmW8vW9Fhhprpga7wXz7nrIdJrLOhvvL00dmYs7PM0h2AxI4NbAp7hCjEIK0KP5tAvs6nyBN5kq
- plK+1e4HzpDV5PcvZ3jaMKp1U6UyDB8a/GrhbgckUkg==
-X-Received: by 2002:a05:6000:1885:: with SMTP id
- a5mr23204978wri.588.1642502941053; 
- Tue, 18 Jan 2022 02:49:01 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxvDplgxKiyIsiEvkUKA+DBk+Xj7oVKM1NVeYGaWAiNp+aMGfvSAYD73zv5J6nH0Y0hHMeFtA==
-X-Received: by 2002:a05:6000:1885:: with SMTP id
- a5mr23204964wri.588.1642502940868; 
- Tue, 18 Jan 2022 02:49:00 -0800 (PST)
-Received: from ?IPV6:2003:cb:c70c:2500:5b4d:fa8e:5311:1e28?
- (p200300cbc70c25005b4dfa8e53111e28.dip0.t-ipconnect.de.
- [2003:cb:c70c:2500:5b4d:fa8e:5311:1e28])
- by smtp.gmail.com with ESMTPSA id o4sm2734099wmq.41.2022.01.18.02.49.00
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Tue, 18 Jan 2022 02:49:00 -0800 (PST)
-Message-ID: <14fa24d9-8147-25a5-7f5c-d8ac403f3fd8@redhat.com>
-Date: Tue, 18 Jan 2022 11:48:59 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.4.0
-Subject: Re: [PATCH] drivers/virtio: Enable virtio mem for ARM64
+ Tue, 18 Jan 2022 12:49:04 +0000 (UTC)
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+ by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20IC7hqD016559; 
+ Tue, 18 Jan 2022 12:49:03 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com;
+ h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=7zk+7nKCLi9ENWrIDerU8vUeqRDxwurdAz2k0Ew1qF4=;
+ b=remzBvhSJOgBcBGIWMGUbbKxxnGtIZygt4s7WCdF/qSbB3yKWfghGslJ8vKEgCUzAzHf
+ UCAnxFAn+6QWKgP8kkfJNKbDmNi3lnaV3UZ1TvojBiy+Cl18pFV/GvmnZ5xROtDdHstZ
+ 6Ok3j9cNOtsA+OSZmshvTsRhnCx0KznWK3IZAgjOdIZS7yMhyWGArd/4+VcjLwaBs2/Q
+ Sze3v/bcazZiUIG+/+/yn3AURCxJPhpCzV51DW9P+cbSyLxU0qj/pDXJlJczeE/rX3Tm
+ PseZ29iQfl/BilnUcPDIz3vpIpY+ScLm/vBwAt82cUl5TqWoa4lXMw7FkfkTn7BoVQ1p Yw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+ by mx0a-001b2d01.pphosted.com with ESMTP id 3dntgf57pg-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+ Tue, 18 Jan 2022 12:49:03 +0000
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+ by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20IClku1025136;
+ Tue, 18 Jan 2022 12:49:02 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com
+ [169.51.49.98])
+ by mx0a-001b2d01.pphosted.com with ESMTP id 3dntgf57ng-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+ Tue, 18 Jan 2022 12:49:02 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+ by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20ICle8p025377;
+ Tue, 18 Jan 2022 12:49:00 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com
+ (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+ by ppma03ams.nl.ibm.com with ESMTP id 3dknw9mauf-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+ Tue, 18 Jan 2022 12:49:00 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+ by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id
+ 20ICmwiB41615830
+ (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Tue, 18 Jan 2022 12:48:58 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+ by IMSVA (Postfix) with ESMTP id 1AFC742078;
+ Tue, 18 Jan 2022 12:48:58 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+ by IMSVA (Postfix) with ESMTP id A7DE142047;
+ Tue, 18 Jan 2022 12:48:57 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.88.172])
+ by d06av24.portsmouth.uk.ibm.com (Postfix) with SMTP;
+ Tue, 18 Jan 2022 12:48:57 +0000 (GMT)
+Date: Tue, 18 Jan 2022 13:48:55 +0100
+From: Halil Pasic <pasic@linux.ibm.com>
 To: "Michael S. Tsirkin" <mst@redhat.com>
-References: <20220118013431.167347-1-gshan@redhat.com>
- <4fe8127e-6e24-64bd-c53b-bf4ffa15b4b4@redhat.com>
- <20220118054210-mutt-send-email-mst@kernel.org>
-From: David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-In-Reply-To: <20220118054210-mutt-send-email-mst@kernel.org>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=david@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Cc: Jonathan Cameron <Jonathan.Cameron@huawei.com>, shan.gavin@gmail.com,
- virtualization@lists.linux-foundation.org
+Subject: Re: [PATCH] virtio: acknowledge all features before access
+Message-ID: <20220118134855.3e8cbce5.pasic@linux.ibm.com>
+In-Reply-To: <20220114200744.150325-1-mst@redhat.com>
+References: <20220114200744.150325-1-mst@redhat.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+MIME-Version: 1.0
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: LgdXokpGAwTbj_bO38sN3_CjlvHbFl0p
+X-Proofpoint-ORIG-GUID: a3jZiu96mqtM74oEA5U3sDEb_0Bwm1nf
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-01-18_03,2022-01-18_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1011 mlxscore=0
+ spamscore=0 priorityscore=1501 suspectscore=0 bulkscore=0 adultscore=0
+ impostorscore=0 mlxlogscore=999 lowpriorityscore=0 phishscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2201180077
+Cc: Cornelia Huck <cohuck@redhat.com>, linux-kernel@vger.kernel.org,
+ stable@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ Halil Pasic <pasic@linux.ibm.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -124,70 +129,122 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 18.01.22 11:43, Michael S. Tsirkin wrote:
-> On Tue, Jan 18, 2022 at 09:38:21AM +0100, David Hildenbrand wrote:
->> On 18.01.22 02:34, Gavin Shan wrote:
->>> This enables virtio-mem device support by allowing to enable the
->>> corresponding kernel config option (CONFIG_VIRTIO_MEM) on the
->>> architecture.
->>>
->>> Signed-off-by: Gavin Shan <gshan@redhat.com>
->>> ---
->>>  drivers/virtio/Kconfig | 2 +-
->>>  1 file changed, 1 insertion(+), 1 deletion(-)
->>>
->>> diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
->>> index 34f80b7a8a64..bf3f6ebdaa3b 100644
->>> --- a/drivers/virtio/Kconfig
->>> +++ b/drivers/virtio/Kconfig
->>> @@ -106,7 +106,7 @@ config VIRTIO_BALLOON
->>>  config VIRTIO_MEM
->>>  	tristate "Virtio mem driver"
->>>  	default m
->>> -	depends on X86_64
->>> +	depends on X86_64 || ARM64
->>>  	depends on VIRTIO
->>>  	depends on MEMORY_HOTPLUG
->>>  	depends on MEMORY_HOTREMOVE
->>
->> With MEMBLOCK_DRIVER_MANAGED in place upstream, kexec should be fine.
->>
->>
->> Can you adjust/rephrase the comment as well? Like
->>
->> diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
->> index 34f80b7a8a64..88028ca01c8f 100644
->> --- a/drivers/virtio/Kconfig
->> +++ b/drivers/virtio/Kconfig
->> @@ -116,8 +116,9 @@ config VIRTIO_MEM
->>          This driver provides access to virtio-mem paravirtualized memory
->>          devices, allowing to hotplug and hotunplug memory.
->>  
->> -        This driver was only tested under x86-64, but should theoretically
->> -        work on all architectures that support memory hotplug and hotremove.
->> +        This driver was only tested under x86-64 and arm64, but should
->> +        theoretically work on all architectures that support memory hotplug and
->> +        hotremove.
->>  
->>          If unsure, say M.
->>  
->>
->>
->> Acked-by: David Hildenbrand <david@redhat.com>
+On Fri, 14 Jan 2022 15:09:14 -0500
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
+
+> The feature negotiation was designed in a way that
+> makes it possible for devices to know which config
+> fields will be accessed by drivers.
 > 
-> with this:
-> Acked-by: Michael S. Tsirkin <mst@redhat.com>
+> This is broken since commit 404123c2db79 ("virtio: allow drivers to
+> validate features") with fallout in at least block and net.
+> We have a partial work-around in commit 2f9a174f918e ("virtio: write
+> back F_VERSION_1 before validate") which at least lets devices
+> find out which format should config space have, but this
+> is a partial fix: guests should not access config space
+> without acknowledging features since otherwise we'll never
+> be able to change the config space format.
 > 
-> I guess I will merge this? It's a small change so - let's go for this
-> release straight away?
+> As a side effect, this also reduces the amount of hypervisor accesses -
+> we now only acknowledge features once unless we are clearing any
+> features when validating.
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 404123c2db79 ("virtio: allow drivers to validate features")
+> Fixes: 2f9a174f918e ("virtio: write back F_VERSION_1 before validate")
+> Cc: "Halil Pasic" <pasic@linux.ibm.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+> 
+> Halil, I thought hard about our situation with transitional and
+> today I finally thought of something I am happy with.
+> Pls let me know what you think. Testing on big endian would
+> also be much appreciated!
+ 
+Hi Michael!
 
-Yes, no need to wait for the next cycle.
+I was just about to have a look into this. But it does not apply
+cleanly to Linus master (fetched a couple of minutes ago). I also tride
+with d9679d0013a66849~1 but no luck. What is a suitable base for this
+patch?
+
+Regards,
+Halil
 
 
--- 
-Thanks,
-
-David / dhildenb
+>  drivers/virtio/virtio.c | 31 +++++++++++++++++--------------
+>  1 file changed, 17 insertions(+), 14 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> index d891b0a354b0..2ed6e2451fd8 100644
+> --- a/drivers/virtio/virtio.c
+> +++ b/drivers/virtio/virtio.c
+> @@ -168,12 +168,10 @@ EXPORT_SYMBOL_GPL(virtio_add_status);
+>  
+>  static int virtio_finalize_features(struct virtio_device *dev)
+>  {
+> -	int ret = dev->config->finalize_features(dev);
+>  	unsigned status;
+> +	int ret;
+>  
+>  	might_sleep();
+> -	if (ret)
+> -		return ret;
+>  
+>  	ret = arch_has_restricted_virtio_memory_access();
+>  	if (ret) {
+> @@ -244,17 +242,6 @@ static int virtio_dev_probe(struct device *_d)
+>  		driver_features_legacy = driver_features;
+>  	}
+>  
+> -	/*
+> -	 * Some devices detect legacy solely via F_VERSION_1. Write
+> -	 * F_VERSION_1 to force LE config space accesses before FEATURES_OK for
+> -	 * these when needed.
+> -	 */
+> -	if (drv->validate && !virtio_legacy_is_little_endian()
+> -			  && device_features & BIT_ULL(VIRTIO_F_VERSION_1)) {
+> -		dev->features = BIT_ULL(VIRTIO_F_VERSION_1);
+> -		dev->config->finalize_features(dev);
+> -	}
+> -
+>  	if (device_features & (1ULL << VIRTIO_F_VERSION_1))
+>  		dev->features = driver_features & device_features;
+>  	else
+> @@ -265,10 +252,22 @@ static int virtio_dev_probe(struct device *_d)
+>  		if (device_features & (1ULL << i))
+>  			__virtio_set_bit(dev, i);
+>  
+> +	err = dev->config->finalize_features(dev);
+> +	if (err)
+> +		goto err;
+> +
+>  	if (drv->validate) {
+> +		u64 features = dev->features;
+> +
+>  		err = drv->validate(dev);
+>  		if (err)
+>  			goto err;
+> +
+> +		if (features != dev->features) {
+> +			err = dev->config->finalize_features(dev);
+> +			if (err)
+> +				goto err;
+> +		}
+>  	}
+>  
+>  	err = virtio_finalize_features(dev);
+> @@ -495,6 +494,10 @@ int virtio_device_restore(struct virtio_device *dev)
+>  	/* We have a driver! */
+>  	virtio_add_status(dev, VIRTIO_CONFIG_S_DRIVER);
+>  
+> +	ret = dev->config->finalize_features(dev);
+> +	if (ret)
+> +		goto err;
+> +
+>  	ret = virtio_finalize_features(dev);
+>  	if (ret)
+>  		goto err;
 
 _______________________________________________
 Virtualization mailing list
