@@ -1,85 +1,82 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 57B31C433F5
-	for <virtualization@archiver.kernel.org>; Tue, 18 Jan 2022 19:12:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6060BC433EF
+	for <virtualization@archiver.kernel.org>; Wed, 19 Jan 2022 01:06:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id E0DEB60E57;
-	Tue, 18 Jan 2022 19:12:42 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id D335C410D4;
+	Wed, 19 Jan 2022 01:06:33 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Gb9T-VT__XYp; Tue, 18 Jan 2022 19:12:42 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id rpzM7zepvxDa; Wed, 19 Jan 2022 01:06:33 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 7E3DB60E60;
-	Tue, 18 Jan 2022 19:12:41 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 90BD8409BA;
+	Wed, 19 Jan 2022 01:06:32 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5506AC0031;
-	Tue, 18 Jan 2022 19:12:41 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 643A6C0031;
+	Wed, 19 Jan 2022 01:06:32 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 376EAC002F
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0F469C002F
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Jan 2022 19:12:40 +0000 (UTC)
+ Wed, 19 Jan 2022 01:06:31 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 1649D60E57
+ by smtp3.osuosl.org (Postfix) with ESMTP id F08A560E5C
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Jan 2022 19:12:40 +0000 (UTC)
+ Wed, 19 Jan 2022 01:06:30 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id rf8gE4mLgFOg
+ with ESMTP id kViA41Vq3Z7z
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Jan 2022 19:12:39 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from out03.mta.xmission.com (out03.mta.xmission.com [166.70.13.233])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 7D10960E5C
+ Wed, 19 Jan 2022 01:06:30 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 22EE060E4B
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Jan 2022 19:12:39 +0000 (UTC)
-Received: from in01.mta.xmission.com ([166.70.13.51]:46696)
- by out03.mta.xmission.com with esmtps (TLS1.3) tls
- TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 (Exim 4.93)
- (envelope-from <ebiederm@xmission.com>)
- id 1n9tuF-007YVI-6b; Tue, 18 Jan 2022 12:12:35 -0700
-Received: from ip68-110-24-146.om.om.cox.net ([68.110.24.146]:33802
- helo=email.froward.int.ebiederm.org.xmission.com)
- by in01.mta.xmission.com with esmtpsa (TLS1.3) tls
- TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 (Exim 4.93)
- (envelope-from <ebiederm@xmission.com>)
- id 1n9tuE-007hWo-1S; Tue, 18 Jan 2022 12:12:34 -0700
-From: "Eric W. Biederman" <ebiederm@xmission.com>
-To: Mike Christie <michael.christie@oracle.com>
-References: <20211129194707.5863-1-michael.christie@oracle.com>
- <87tuf79gni.fsf@email.froward.int.ebiederm.org>
- <a171238e-d731-1c22-af72-0f7faf7f4bea@oracle.com>
- <87tuf11oe6.fsf@email.froward.int.ebiederm.org>
- <a3bd6fe7-1775-6fdd-3a02-e779c4d4e498@oracle.com>
- <87pmpoxzuf.fsf@email.froward.int.ebiederm.org>
- <783145b7-243b-b85e-e274-44ef6c0696b9@oracle.com>
- <874k62b76d.fsf@email.froward.int.ebiederm.org>
- <68ba89ae-108e-c14a-02a0-db72b169c9b1@oracle.com>
-Date: Tue, 18 Jan 2022 13:12:26 -0600
-In-Reply-To: <68ba89ae-108e-c14a-02a0-db72b169c9b1@oracle.com> (Mike
- Christie's message of "Tue, 18 Jan 2022 12:51:27 -0600")
-Message-ID: <87a6fs3lk5.fsf@email.froward.int.ebiederm.org>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
+ Wed, 19 Jan 2022 01:06:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1642554388;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding;
+ bh=ImiqTxopVLTtvSM55Cynu1Q1h7pH3jQwIeRhaY7hQ3w=;
+ b=SYVFSJ6Fyc8s1aQFJUvfOorNCEMDqrLhJ7uddGRqxtrsWVAq4nYb7uUHoo7qBZsOV/R1jE
+ CGgG718gXwX8QDBBg8jwda2YkeRFfphA2+K1vcKEo0KDtMrQw12DqxIpPIyrUldsppb/F6
+ oHmyvzFFt7rfKW1MnkyKGAv5Isgo6kQ=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-47-EfUcQnguNzuSVIiYGC-5rg-1; Tue, 18 Jan 2022 20:06:25 -0500
+X-MC-Unique: EfUcQnguNzuSVIiYGC-5rg-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com
+ [10.5.11.16])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A45F8814243;
+ Wed, 19 Jan 2022 01:06:23 +0000 (UTC)
+Received: from gshan.redhat.com (ovpn-12-147.pek2.redhat.com [10.72.12.147])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id 83C0E5C25D;
+ Wed, 19 Jan 2022 01:06:07 +0000 (UTC)
+From: Gavin Shan <gshan@redhat.com>
+To: virtualization@lists.linux-foundation.org
+Subject: [PATCH v3] drivers/virtio: Enable virtio mem for ARM64
+Date: Wed, 19 Jan 2022 09:05:51 +0800
+Message-Id: <20220119010551.181405-1-gshan@redhat.com>
 MIME-Version: 1.0
-X-XM-SPF: eid=1n9tuE-007hWo-1S; ; ;
- mid=<87a6fs3lk5.fsf@email.froward.int.ebiederm.org>; ; ;
- hst=in01.mta.xmission.com; ; ; ip=68.110.24.146; ; ; frm=ebiederm@xmission.com;
- ; ; spf=neutral
-X-XM-AID: U2FsdGVkX1/xrXBIFZmCO/AVkFA8G1d01MrUM6jLen4=
-X-SA-Exim-Connect-IP: 68.110.24.146
-X-SA-Exim-Mail-From: ebiederm@xmission.com
-Subject: Re: [PATCH V6 01/10] Use copy_process in vhost layer
-X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
-X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
-Cc: axboe@kernel.dk, hdanton@sina.com, mst@redhat.com,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- hch@infradead.org, vverma@digitalocean.com, geert@linux-m68k.org,
- stefanha@redhat.com, christian.brauner@ubuntu.com
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=gshan@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: Jonathan.Cameron@huawei.com, mst@redhat.com, shan.gavin@gmail.com,
+ linux-arm-kernel@lists.infradead.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -96,73 +93,48 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Mike Christie <michael.christie@oracle.com> writes:
+This enables virtio-mem device support by allowing to enable the
+corresponding kernel config option (CONFIG_VIRTIO_MEM) on the
+architecture.
 
-> On 1/17/22 11:31 AM, Eric W. Biederman wrote:
->> Mike Christie <michael.christie@oracle.com> writes:
->> 
->>> On 12/22/21 12:24 PM, Eric W. Biederman wrote:
->>>> All I am certain of is that you need to set
->>>> "args->exit_signal = -1;".  This prevents having to play games with
->>>> do_notify_parent.
->>>
->>> Hi Eric,
->>>
->>> I have all your review comments handled except this one. It's looking like it's
->>> more difficult than just setting the exit_signal=-1, so I wanted to check that
->>> I understood you.
->> 
->> [snip problems with exit_signal = -1]
->> 
->>>
->>> What do you think?
->> 
->> I was wrong.  I appear to have confused the thread and the non-thread
->> cases.
->> 
->> Perhaps I meant "args->exit_signal = 0".  That looks like
->> do_notify_parent won't send it, and thread_group_leader continues to do
->> the right thing.
->
-> That doesn't work too. exit_notify will call do_notify_parent but 
-> our parent, qemu, does not ignore SIGCHILD so we will not drop
-> down in into this chunk:
->
->         psig = tsk->parent->sighand;
->         spin_lock_irqsave(&psig->siglock, flags);
->         if (!tsk->ptrace && sig == SIGCHLD &&
->             (psig->action[SIGCHLD-1].sa.sa_handler == SIG_IGN ||
->              (psig->action[SIGCHLD-1].sa.sa_flags & SA_NOCLDWAIT))) {
->
-> do_notify_parent will return false and so autoreap in exit_notify will
-> be false.
+Signed-off-by: Gavin Shan <gshan@redhat.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+---
+v3: Pick ack-by tags from Jonathan and Michael
+---
+ drivers/virtio/Kconfig | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-Bah good point.  We won't send the signal but you won't autoreap either.
+diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
+index 34f80b7a8a64..74c8b0c7bc33 100644
+--- a/drivers/virtio/Kconfig
++++ b/drivers/virtio/Kconfig
+@@ -106,7 +106,7 @@ config VIRTIO_BALLOON
+ config VIRTIO_MEM
+ 	tristate "Virtio mem driver"
+ 	default m
+-	depends on X86_64
++	depends on X86_64 || ARM64
+ 	depends on VIRTIO
+ 	depends on MEMORY_HOTPLUG
+ 	depends on MEMORY_HOTREMOVE
+@@ -116,8 +116,9 @@ config VIRTIO_MEM
+ 	 This driver provides access to virtio-mem paravirtualized memory
+ 	 devices, allowing to hotplug and hotunplug memory.
+ 
+-	 This driver was only tested under x86-64, but should theoretically
+-	 work on all architectures that support memory hotplug and hotremove.
++	 This driver was only tested under x86-64 and arm64, but should
++	 theoretically work on all architectures that support memory hotplug
++	 and hotremove.
+ 
+ 	 If unsure, say M.
+ 
+-- 
+2.23.0
 
-I think we could legitimately change this bit:
-
-	/*
-	 * Send with __send_signal as si_pid and si_uid are in the
-	 * parent's namespaces.
-	 */
-	if (valid_signal(sig) && sig)
-		__send_signal(sig, &info, tsk->parent, PIDTYPE_TGID, false);
-
-To add:
-	else
-        	/* We don't notify the parent so just autoreap */
-        	autoreap = true;
-
-
-I expect we could make that change all on it's own, it sort of breaks my
-head that requesting not signaling a parent does not also trigger
-autoreap behavior.
-
-We certainly need some mechanism to trigger autoreap behavior or the
-technical details of being an extra thread of the process need to be
-solved.
-
-Eric
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
