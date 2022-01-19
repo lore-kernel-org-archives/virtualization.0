@@ -1,97 +1,98 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 06745C433F5
-	for <virtualization@archiver.kernel.org>; Wed, 19 Jan 2022 02:45:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9FCFBC433F5
+	for <virtualization@archiver.kernel.org>; Wed, 19 Jan 2022 02:52:53 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id ABFB2819F3;
-	Wed, 19 Jan 2022 02:45:22 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 5FC4840201;
+	Wed, 19 Jan 2022 02:52:53 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Z73MBGMJUyJh; Wed, 19 Jan 2022 02:45:21 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 4630A81376;
-	Wed, 19 Jan 2022 02:45:21 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id GOBw5i66ha9j; Wed, 19 Jan 2022 02:52:52 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id E7DE04093A;
+	Wed, 19 Jan 2022 02:52:51 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 19F45C0039;
-	Wed, 19 Jan 2022 02:45:21 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D4D63C002F
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 9D855C0077;
+	Wed, 19 Jan 2022 02:52:51 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B470EC002F
  for <virtualization@lists.linux-foundation.org>;
- Wed, 19 Jan 2022 02:45:19 +0000 (UTC)
+ Wed, 19 Jan 2022 02:52:50 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id AE74B60E8A
+ by smtp4.osuosl.org (Postfix) with ESMTP id 93E514099D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 19 Jan 2022 02:45:19 +0000 (UTC)
+ Wed, 19 Jan 2022 02:52:50 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 2kpyCALeRlUA
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id PanjcVo3fBjf
  for <virtualization@lists.linux-foundation.org>;
- Wed, 19 Jan 2022 02:45:18 +0000 (UTC)
+ Wed, 19 Jan 2022 02:52:49 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 7D1BE60E80
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id C904D4093A
  for <virtualization@lists.linux-foundation.org>;
- Wed, 19 Jan 2022 02:45:18 +0000 (UTC)
+ Wed, 19 Jan 2022 02:52:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1642560317;
+ s=mimecast20190719; t=1642560768;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=2QbQg6mxiZtW68ExHgyVdc/QMifv6KYOVGiXP5EWIls=;
- b=YJoLfA/rvI57FrBPt1NlOJ5OJ8wSWZAuB/cHlxPXyntHblWZJLEip03e0dXgTg9YZyLGoU
- OR0SD74FsHuCioYdkBQq8xJOD8YemvOIajLS2zkMfr0lbDm4AQMgwsIULCFuZAXSEc2pb0
- ro+6vCg6XW4MVgVnqOq971xGfbHnL90=
-Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
- [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=gHpnsn2NkfuadkUJHw0pU0DVjGRpoEK47XlUcu+C1CQ=;
+ b=IGkvmr5yPN2Rl3aqhW1Urk/XQMosCmOAD7vso67cDEZo+INSdENuNgEIhNDpdXP7HApOmm
+ KBMA407t8RyUQ1PrZfPc2Bdh35BcGw16w7DTFBb3iYIEWQhRgUJfeYkG4Eh1jYvXyRRwtK
+ QhGp515KZ1AxMItSS7Ioc0+e2C0d4FQ=
+Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
+ [209.85.167.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-271-hxIEA44dMu2E0x2kdHboQA-1; Tue, 18 Jan 2022 21:45:15 -0500
-X-MC-Unique: hxIEA44dMu2E0x2kdHboQA-1
-Received: by mail-lf1-f71.google.com with SMTP id
- u26-20020a056512041a00b0042fcdc4f7baso532724lfk.16
+ us-mta-524-n4aMRm5BO8u-KBi2-pKSSQ-1; Tue, 18 Jan 2022 21:52:47 -0500
+X-MC-Unique: n4aMRm5BO8u-KBi2-pKSSQ-1
+Received: by mail-lf1-f69.google.com with SMTP id
+ p17-20020ac246d1000000b0042fcd89952bso541488lfo.15
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Jan 2022 18:45:15 -0800 (PST)
+ Tue, 18 Jan 2022 18:52:47 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=2QbQg6mxiZtW68ExHgyVdc/QMifv6KYOVGiXP5EWIls=;
- b=U9mu9ogPAyu1ByqIRLp/AWq8uvJT8c1Qw6NtDYA7f98AD1KhIxyz+T7VWEQtKneCKa
- d8d30ZnpgYmTbMGhJ7lzyt+hi9Z6Una74oMNed4n+HCEhH/ahdiuISf/riKMXwzrRnR/
- 2QOYYqtpnPj4NmTNM+Yx1hN2QVJiXuQN45NRiCvAxjnoieU9umExDSTGi2Rx+L/FIE68
- rx61lTIJoDx6vy+7FyiQcnBftFX/H/FapF6PatOqDSHvGTOCrRUjsV4p6ne0HjGOy1gT
- cO0yDSeXZK03j8AcLI2aUxKbTcOlv0AuTtDerFW/mH90sZPo7vav4N+kxUzTSWHYJ/F1
- LOGw==
-X-Gm-Message-State: AOAM530daEedDXaA07LeSfTqrVRsoV+h7XIDq56L8Ac94IBfiK/SIN4n
- fw0KGnmzLe2eBXM9VLw30jz3IQMWTQZ2+pA54NdEbe/lgKtukEKdLR/7Uu2OVe3Xcqupm6nuii2
- 86zXrp26UhTCDgS6qoybsqxuXTEhIVn3LD3H/zPeReHWV0TKBHtn0OAlBpQ==
-X-Received: by 2002:a2e:9843:: with SMTP id e3mr21777391ljj.277.1642560314292; 
- Tue, 18 Jan 2022 18:45:14 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJzB9BW6WWCim9vDYU4kum1F16AkR869KEeJaKkIEYwrn5RQkE5MqxGYI12cabpygmhempbvUOpSdSvSn6zf90Q=
-X-Received: by 2002:a2e:9843:: with SMTP id e3mr21777377ljj.277.1642560314113; 
- Tue, 18 Jan 2022 18:45:14 -0800 (PST)
+ bh=gHpnsn2NkfuadkUJHw0pU0DVjGRpoEK47XlUcu+C1CQ=;
+ b=jZbKZDTLirKAFXPBQWnCXVqMv//gVGpTIo4izmwBmNZBILNuL59ck6YCGwhSOI6uMQ
+ bOnvZR2jKjP2qP33SiarwcHGVD1XaH6y0Hp3kefq50EhboMNpSsf4Zlm6kdAsGcCQgvK
+ MSMaVE9QAe1BiGCgKIO10E98CYbPTy4DGaVB6c+cEbyY1Fv8Al81h0eBCEyhfuL/zRiU
+ XXhl8wbdQXMffHVg8zeFK6EVXb2NzhLlGbsLl/qNj7EFQhPH0sTVRxqPYUyfegAT/Erw
+ h8lGwhZh+M2OX9SzqUFifbc1wofMC4EUSO9R7aJhc+UobMWGm6s/WHF9Gv4ho9mR7p3f
+ S6cQ==
+X-Gm-Message-State: AOAM530X8AfJqgitmjrHneBIp09D5VTdybctPX8OnV0s9D8E+nczRv0y
+ L6u0xmstYkXQiAk31ix+QtjpXNGjyDLilJN+eTM4Zos6GDXCOOmYv6TpU6uvV7Uq57ze8cPOg0x
+ qluzBtNvTynpeQIJDsE9uhTynKwMUiv170Ke0opegy1eAhB07SAJVNG77rg==
+X-Received: by 2002:a05:6512:3b0a:: with SMTP id
+ f10mr21391222lfv.629.1642560765724; 
+ Tue, 18 Jan 2022 18:52:45 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwjlx7+UrF3gEdPjwx5nPlNnkZuqvs+mcSd1Q1R7MKLtS3Xz3+7MscCitPjBMwKq2CO18iBS+jjgO+0dejml+8=
+X-Received: by 2002:a05:6512:3b0a:: with SMTP id
+ f10mr21391207lfv.629.1642560765492; 
+ Tue, 18 Jan 2022 18:52:45 -0800 (PST)
 MIME-Version: 1.0
-References: <20220118150631.167015-1-sgarzare@redhat.com>
-In-Reply-To: <20220118150631.167015-1-sgarzare@redhat.com>
+References: <20220118170225.30620-1-mst@redhat.com>
+ <20220118170225.30620-2-mst@redhat.com>
+In-Reply-To: <20220118170225.30620-2-mst@redhat.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 19 Jan 2022 10:45:03 +0800
-Message-ID: <CACGkMEtrH5dy7WxqEg7vNARUu3tsYZBtP8MX7a60VR+ZyWvVrw@mail.gmail.com>
-Subject: Re: [PATCH] tools/virtio: fix virtio_test execution
-To: Stefano Garzarella <sgarzare@redhat.com>
+Date: Wed, 19 Jan 2022 10:52:34 +0800
+Message-ID: <CACGkMEt-Q7baDDUM8aC_Lki1aeO36xi02AE7kEapi5NVqkGErg@mail.gmail.com>
+Subject: Re: [PATCH v2 2/2] virtio: acknowledge all features before access
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
- linux-kernel <linux-kernel@vger.kernel.org>,
+Cc: Halil Pasic <pasic@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>,
+ linux-kernel <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
  virtualization <virtualization@lists.linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
@@ -109,35 +110,158 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Jan 18, 2022 at 11:06 PM Stefano Garzarella <sgarzare@redhat.com> wrote:
+On Wed, Jan 19, 2022 at 1:04 AM Michael S. Tsirkin <mst@redhat.com> wrote:
 >
-> virtio_test hangs on __vring_new_virtqueue() because `vqs_list_lock`
-> is not initialized.
+> The feature negotiation was designed in a way that
+> makes it possible for devices to know which config
+> fields will be accessed by drivers.
 >
-> Let's initialize it in vdev_info_init().
->
-> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+> This is broken since commit 404123c2db79 ("virtio: allow drivers to
+> validate features") with fallout in at least block and net.  We have a
+> partial work-around in commit 2f9a174f918e ("virtio: write back
+> F_VERSION_1 before validate") which at least lets devices find out which
+> format should config space have, but this is a partial fix: guests
+> should not access config space without acknowledging features since
+> otherwise we'll never be able to change the config space format.
+
+So I guess this is for this part of the spec 3.1.1:
+
+"""
+4. Read device feature bits, and write the subset of feature bits
+understood by the OS and driver to the device. During this step the
+driver MAY read (but MUST NOT write) the device-specific configuration
+fields to check that it can support the device before accepting it.
+"""
+
+If it is, is this better to quote in the change log?
+
+Other than this,
 
 Acked-by: Jason Wang <jasowang@redhat.com>
 
-> ---
->  tools/virtio/virtio_test.c | 1 +
->  1 file changed, 1 insertion(+)
 >
-> diff --git a/tools/virtio/virtio_test.c b/tools/virtio/virtio_test.c
-> index cb3f29c09aff..23f142af544a 100644
-> --- a/tools/virtio/virtio_test.c
-> +++ b/tools/virtio/virtio_test.c
-> @@ -130,6 +130,7 @@ static void vdev_info_init(struct vdev_info* dev, unsigned long long features)
->         memset(dev, 0, sizeof *dev);
->         dev->vdev.features = features;
->         INIT_LIST_HEAD(&dev->vdev.vqs);
-> +       spin_lock_init(&dev->vdev.vqs_list_lock);
->         dev->buf_size = 1024;
->         dev->buf = malloc(dev->buf_size);
->         assert(dev->buf);
+> To fix, split finalize_features from virtio_finalize_features and
+> call finalize_features with all feature bits before validation,
+> and then - if validation changed any bits - once again after.
+>
+> Since virtio_finalize_features no longer writes out features
+> rename it to virtio_features_ok - since that is what it does:
+> checks that features are ok with the device.
+>
+> As a side effect, this also reduces the amount of hypervisor accesses -
+> we now only acknowledge features once unless we are clearing any
+> features when validating (which is uncommon).
+>
+> Cc: stable@vger.kernel.org
+> Fixes: 404123c2db79 ("virtio: allow drivers to validate features")
+> Fixes: 2f9a174f918e ("virtio: write back F_VERSION_1 before validate")
+> Cc: "Halil Pasic" <pasic@linux.ibm.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+>
+> fixup! virtio: acknowledge all features before access
+> ---
+>  drivers/virtio/virtio.c       | 39 ++++++++++++++++++++---------------
+>  include/linux/virtio_config.h |  3 ++-
+>  2 files changed, 24 insertions(+), 18 deletions(-)
+>
+> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> index d891b0a354b0..d6396be0ea83 100644
+> --- a/drivers/virtio/virtio.c
+> +++ b/drivers/virtio/virtio.c
+> @@ -166,14 +166,13 @@ void virtio_add_status(struct virtio_device *dev, unsigned int status)
+>  }
+>  EXPORT_SYMBOL_GPL(virtio_add_status);
+>
+> -static int virtio_finalize_features(struct virtio_device *dev)
+> +/* Do some validation, then set FEATURES_OK */
+> +static int virtio_features_ok(struct virtio_device *dev)
+>  {
+> -       int ret = dev->config->finalize_features(dev);
+>         unsigned status;
+> +       int ret;
+>
+>         might_sleep();
+> -       if (ret)
+> -               return ret;
+>
+>         ret = arch_has_restricted_virtio_memory_access();
+>         if (ret) {
+> @@ -244,17 +243,6 @@ static int virtio_dev_probe(struct device *_d)
+>                 driver_features_legacy = driver_features;
+>         }
+>
+> -       /*
+> -        * Some devices detect legacy solely via F_VERSION_1. Write
+> -        * F_VERSION_1 to force LE config space accesses before FEATURES_OK for
+> -        * these when needed.
+> -        */
+> -       if (drv->validate && !virtio_legacy_is_little_endian()
+> -                         && device_features & BIT_ULL(VIRTIO_F_VERSION_1)) {
+> -               dev->features = BIT_ULL(VIRTIO_F_VERSION_1);
+> -               dev->config->finalize_features(dev);
+> -       }
+> -
+>         if (device_features & (1ULL << VIRTIO_F_VERSION_1))
+>                 dev->features = driver_features & device_features;
+>         else
+> @@ -265,13 +253,26 @@ static int virtio_dev_probe(struct device *_d)
+>                 if (device_features & (1ULL << i))
+>                         __virtio_set_bit(dev, i);
+>
+> +       err = dev->config->finalize_features(dev);
+> +       if (err)
+> +               goto err;
+> +
+>         if (drv->validate) {
+> +               u64 features = dev->features;
+> +
+>                 err = drv->validate(dev);
+>                 if (err)
+>                         goto err;
+> +
+> +               /* Did validation change any features? Then write them again. */
+> +               if (features != dev->features) {
+> +                       err = dev->config->finalize_features(dev);
+> +                       if (err)
+> +                               goto err;
+> +               }
+>         }
+>
+> -       err = virtio_finalize_features(dev);
+> +       err = virtio_features_ok(dev);
+>         if (err)
+>                 goto err;
+>
+> @@ -495,7 +496,11 @@ int virtio_device_restore(struct virtio_device *dev)
+>         /* We have a driver! */
+>         virtio_add_status(dev, VIRTIO_CONFIG_S_DRIVER);
+>
+> -       ret = virtio_finalize_features(dev);
+> +       ret = dev->config->finalize_features(dev);
+> +       if (ret)
+> +               goto err;
+> +
+> +       ret = virtio_features_ok(dev);
+>         if (ret)
+>                 goto err;
+>
+> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+> index 4d107ad31149..dafdc7f48c01 100644
+> --- a/include/linux/virtio_config.h
+> +++ b/include/linux/virtio_config.h
+> @@ -64,8 +64,9 @@ struct virtio_shm_region {
+>   *     Returns the first 64 feature bits (all we currently need).
+>   * @finalize_features: confirm what device features we'll be using.
+>   *     vdev: the virtio_device
+> - *     This gives the final feature bits for the device: it can change
+> + *     This sends the driver feature bits to the device: it can change
+>   *     the dev->feature bits if it wants.
+> + * Note: despite the name this can be called any number of times.
+>   *     Returns 0 on success or error status
+>   * @bus_name: return the bus name associated with the device (optional)
+>   *     vdev: the virtio_device
 > --
-> 2.31.1
+> MST
 >
 
 _______________________________________________
