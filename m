@@ -4,107 +4,110 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 81484C433FE
-	for <virtualization@archiver.kernel.org>; Thu, 20 Jan 2022 16:56:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E108BC433F5
+	for <virtualization@archiver.kernel.org>; Thu, 20 Jan 2022 20:39:27 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 1E18760AD3;
-	Thu, 20 Jan 2022 16:56:12 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 6DB6060C21;
+	Thu, 20 Jan 2022 20:39:27 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 5jPyLJx_gV24; Thu, 20 Jan 2022 16:56:11 +0000 (UTC)
+	with ESMTP id fPJtKhOm-MWb; Thu, 20 Jan 2022 20:39:26 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 8E0EF60A8F;
-	Thu, 20 Jan 2022 16:56:10 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id CBA4460B02;
+	Thu, 20 Jan 2022 20:39:25 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4C83BC0039;
-	Thu, 20 Jan 2022 16:56:10 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8142CC002F
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A521AC0039;
+	Thu, 20 Jan 2022 20:39:25 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E8833C002F
  for <virtualization@lists.linux-foundation.org>;
- Thu, 20 Jan 2022 16:56:09 +0000 (UTC)
+ Thu, 20 Jan 2022 20:39:23 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 7C400415D3
+ by smtp1.osuosl.org (Postfix) with ESMTP id D6B8F81319
  for <virtualization@lists.linux-foundation.org>;
- Thu, 20 Jan 2022 16:56:09 +0000 (UTC)
+ Thu, 20 Jan 2022 20:39:23 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 4Lu6WQrSspfM
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Y9i9J_nFj4_i
  for <virtualization@lists.linux-foundation.org>;
- Thu, 20 Jan 2022 16:56:08 +0000 (UTC)
+ Thu, 20 Jan 2022 20:39:23 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 9EB7341528
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id DF86E81318
  for <virtualization@lists.linux-foundation.org>;
- Thu, 20 Jan 2022 16:56:08 +0000 (UTC)
+ Thu, 20 Jan 2022 20:39:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1642697767;
+ s=mimecast20190719; t=1642711161;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=8mR9FRdz8I70HhOfwdXd7Kde0lgoBA3u1XOQMHhojHo=;
- b=UshQ8b68zAw9ofgGpCHj078SpJH/EQZ/JeQQ6R/58GSE0bT4wsHnZDHgfsYpuS5woOpvp8
- SG9rWJ4/XDeRLSy8x7Wtr0+LczLPotfBOsdUNe9n9XVHW3NaRtgqwfw1ZQkXLK6hXadxVt
- jSTE3k5MYciNct5vj0I1zIfNlY0RKng=
+ bh=ntrYMeN6pl5yWZvzZ3V4QM6g66eYCG9Ga0nZ73KJC1k=;
+ b=VOXlGQ32H+sc4UreuTLXfdFhhfhZev2Vnt/3tEjLmUe7OZ9adCFh/WEQM0hk7uqG9E29eC
+ xzcNqxZojyaygK8HIhNGNQ9a3xTzGM9VDdWxhGEEUvtN3HZsgZECp8QocfvxLTExPKAWvL
+ COl5F2ogCSG9UH4b/RydZqIaHE2QVqQ=
 Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
  [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-665-uIMakynJOtyOIVdimNa3Lw-1; Thu, 20 Jan 2022 11:56:06 -0500
-X-MC-Unique: uIMakynJOtyOIVdimNa3Lw-1
+ us-mta-290-SKPau_cwMxyBcEiXMjHBcA-1; Thu, 20 Jan 2022 15:39:20 -0500
+X-MC-Unique: SKPau_cwMxyBcEiXMjHBcA-1
 Received: by mail-wm1-f72.google.com with SMTP id
- v185-20020a1cacc2000000b0034906580813so7287109wme.1
+ g80-20020a1c9d53000000b0034da9d62199so1425790wme.7
  for <virtualization@lists.linux-foundation.org>;
- Thu, 20 Jan 2022 08:56:05 -0800 (PST)
+ Thu, 20 Jan 2022 12:39:20 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=8mR9FRdz8I70HhOfwdXd7Kde0lgoBA3u1XOQMHhojHo=;
- b=dL61IEp4lF0tHVfCL4ybrTjQndp4vmScJ7J6DnxQuyl9xxJ7mYzUTLcn8A047oN18s
- S3fTsdkGsCFXpR25nc6SPkcF3CtmYxRugTEeFJ261wQk0FEZ3y0/QOfIDTXvWxpI1hFG
- jYo9zpVQpXQrVldfI5K5ad+z2+5KlrOc6Q9WXrQSQA88CTQAYsdPYQskNDLpC76qoaH0
- YRohWDwhKklE4q14Uuzrszo8VCp0jUsk8PSIgZPJWbM0Dcrk1CPQ7dgGV66e6ZGtmKOY
- CauLVUHnmmHbwOZiPpuZdIl3tNkS01opTmscIlWy7dg96t/IcZyxP18PJffkZAr7Zx7t
- 26UQ==
-X-Gm-Message-State: AOAM531TOGGgmqP1d0IYm/UoGhu61GR0P17WgNwBMj/tw0ELm1dOCelx
- V+KQst7+M5d/wdl5mMEQaLa/4/xtwyYYm3f9HnTJMW7L3pX1piu+HPIHRTZiBUAkZkPwY2hO9o7
- AeqRxO9OPbS/ya1FzPg11DcU1n9nB0REm5Ii9U0Ch2w==
-X-Received: by 2002:a05:600c:4fd4:: with SMTP id
- o20mr9720476wmq.155.1642697764855; 
- Thu, 20 Jan 2022 08:56:04 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJz602JhtDTuZNmSMn/pluyt75fBTOcXq6oo9TvSS1+J7M5aQjpPqI7Y4TSrYEBGLNgdGX93aA==
-X-Received: by 2002:a05:600c:4fd4:: with SMTP id
- o20mr9720458wmq.155.1642697764623; 
- Thu, 20 Jan 2022 08:56:04 -0800 (PST)
-Received: from redhat.com ([2.55.158.216])
- by smtp.gmail.com with ESMTPSA id l13sm4525133wry.87.2022.01.20.08.56.02
+ bh=ntrYMeN6pl5yWZvzZ3V4QM6g66eYCG9Ga0nZ73KJC1k=;
+ b=KQa/p+4oDnl9lZsUX80TeuKPTbwUgu3smbVV7NXqgFanX6OY7lDhdu/WZvpVZSHHhB
+ B+7abHfw0CQIeJe3OlfiNh7JbE7BWKOmuC7M1lq0rn0u9KfjgIcP667RUZDe6wCd7S+U
+ waMe+ymGarJV/MpmWu/lv5lX9e9OHJo02B1yqXdrPYDvnRqIgtp9eHk7NUGbcAOy7lr8
+ wNSHx8RfsljjzMNyu4wV1Ppyr/eXNJeZnh5t2mSU4EaRxZ3winP2kde+wyBSRztfBUCX
+ DmMSwFOFI7nX0ZYOQCFV5y9gN0WbYQ6AsLnupiMDAPzvD9CAuep3zyz0CipzS3behj7b
+ flkw==
+X-Gm-Message-State: AOAM533swOVrbqbwanaeUNZCaDBw/xvcN5jM3y+sJjVbDDbevl7VypIR
+ W+mXJyiO4SwxmWEfgKWwVWdGOrggjjRYjrqoTzSfCAI/u8VA4cxGE0PmC/W0+Hl3Y+smTxEK5kl
+ bBshK/eehiH255Xa4zGj4LehJsvz4nqS2z1l+GsGGwA==
+X-Received: by 2002:a05:600c:b58:: with SMTP id
+ k24mr10696400wmr.47.1642711159205; 
+ Thu, 20 Jan 2022 12:39:19 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJyEU3AJ1MJ37HmYik7y2xEv9ymA+ChFMYK53evSZLFYotO4fNcJ7hcEvE9AiCo/v2DXA2gnCg==
+X-Received: by 2002:a05:600c:b58:: with SMTP id
+ k24mr10696382wmr.47.1642711158959; 
+ Thu, 20 Jan 2022 12:39:18 -0800 (PST)
+Received: from redhat.com ([2.55.159.47])
+ by smtp.gmail.com with ESMTPSA id u9sm8250777wmc.11.2022.01.20.12.39.14
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 20 Jan 2022 08:56:03 -0800 (PST)
-Date: Thu, 20 Jan 2022 11:55:53 -0500
+ Thu, 20 Jan 2022 12:39:17 -0800 (PST)
+Date: Thu, 20 Jan 2022 15:39:12 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [PATCH v1] vhost: cache avail index in vhost_enable_notify()
-Message-ID: <20220120115520-mutt-send-email-mst@kernel.org>
-References: <20220114090508.36416-1-sgarzare@redhat.com>
- <20220114074454-mutt-send-email-mst@kernel.org>
- <20220114133816.7niyaqygvdveddmi@steredhat>
- <20220114084016-mutt-send-email-mst@kernel.org>
- <CAGxU2F7r6cH9Ywygv1QNxKyfyn=yGoDPNDQ-tHkeFMUcbpfXYA@mail.gmail.com>
+To: Peter Hilber <peter.hilber@opensynergy.com>
+Subject: Re: [PATCH v9 09/11] firmware: arm_scmi: Add atomic mode support to
+ virtio transport
+Message-ID: <20220120150418-mutt-send-email-mst@kernel.org>
+References: <20211220195646.44498-10-cristian.marussi@arm.com>
+ <20211221140027.41524-1-cristian.marussi@arm.com>
+ <f231094a-6f34-3dc1-237d-97218e8fde91@opensynergy.com>
+ <20220119122338.GE6113@e120937-lin>
+ <2f1ea794-a0b9-2099-edc0-b2aeb3ca6b92@opensynergy.com>
 MIME-Version: 1.0
-In-Reply-To: <CAGxU2F7r6cH9Ywygv1QNxKyfyn=yGoDPNDQ-tHkeFMUcbpfXYA@mail.gmail.com>
+In-Reply-To: <2f1ea794-a0b9-2099-edc0-b2aeb3ca6b92@opensynergy.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: kvm <kvm@vger.kernel.org>, netdev <netdev@vger.kernel.org>,
- kernel list <linux-kernel@vger.kernel.org>,
- Linux Virtualization <virtualization@lists.linux-foundation.org>,
- Stefan Hajnoczi <stefanha@redhat.com>
+Cc: f.fainelli@gmail.com, vincent.guittot@linaro.org,
+ igor.skalkin@opensynergy.com, sudeep.holla@arm.com,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ Cristian Marussi <cristian.marussi@arm.com>, james.quinlan@broadcom.com,
+ Jonathan.Cameron@huawei.com, souvik.chakravarty@arm.com,
+ etienne.carriere@linaro.org, linux-arm-kernel@lists.infradead.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -121,136 +124,143 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Jan 20, 2022 at 04:08:39PM +0100, Stefano Garzarella wrote:
-> On Fri, Jan 14, 2022 at 2:40 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> >
-> > On Fri, Jan 14, 2022 at 02:38:16PM +0100, Stefano Garzarella wrote:
-> > > On Fri, Jan 14, 2022 at 07:45:35AM -0500, Michael S. Tsirkin wrote:
-> > > > On Fri, Jan 14, 2022 at 10:05:08AM +0100, Stefano Garzarella wrote:
-> > > > > In vhost_enable_notify() we enable the notifications and we read
-> > > > > the avail index to check if new buffers have become available in
-> > > > > the meantime.
-> > > > >
-> > > > > We are not caching the avail index, so when the device will call
-> > > > > vhost_get_vq_desc(), it will find the old value in the cache and
-> > > > > it will read the avail index again.
-> > > > >
-> > > > > It would be better to refresh the cache every time we read avail
-> > > > > index, so let's change vhost_enable_notify() caching the value in
-> > > > > `avail_idx` and compare it with `last_avail_idx` to check if there
-> > > > > are new buffers available.
-> > > > >
-> > > > > Anyway, we don't expect a significant performance boost because
-> > > > > the above path is not very common, indeed vhost_enable_notify()
-> > > > > is often called with unlikely(), expecting that avail index has
-> > > > > not been updated.
-> > > > >
-> > > > > Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-> > > >
-> > > > ... and can in theory even hurt due to an extra memory write.
-> > > > So ... performance test restults pls?
-> > >
-> > > Right, could be.
-> > >
-> > > I'll run some perf test with vsock, about net, do you have a test suite or
-> > > common step to follow to test it?
-> > >
-> > > Thanks,
-> > > Stefano
-> >
-> > You can use the vhost test as a unit test as well.
+On Thu, Jan 20, 2022 at 08:09:56PM +0100, Peter Hilber wrote:
+> On 19.01.22 13:23, Cristian Marussi wrote:
+> > On Tue, Jan 18, 2022 at 03:21:03PM +0100, Peter Hilber wrote:
+> >> On 21.12.21 15:00, Cristian Marussi wrote:
+> >>> Add support for .mark_txdone and .poll_done transport operations to SCMI
+> >>> VirtIO transport as pre-requisites to enable atomic operations.
+> >>>
+> >>> Add a Kernel configuration option to enable SCMI VirtIO transport polling
+> >>> and atomic mode for selected SCMI transactions while leaving it default
+> >>> disabled.
+> >>>
+> >>
+> >> Hi Cristian,
+> >>
+> >> thanks for the update. I have some more remarks inline below.
+> >>
+> > 
+> > Hi Peter,
+> > 
+> > thanks for your review, much appreciated, please see my replies online.
+> > 
+> >> My impression is that the virtio core does not expose helper functions suitable
+> >> to busy-poll for used buffers. But changing this might not be difficult. Maybe
+> >> more_used() from virtio_ring.c could be exposed via a wrapper?
+> >>
+> > 
+> > While I definitely agree that the virtio core support for polling is far from
+> > ideal, some support is provided and my point was at first to try implement SCMI
+> > virtio polling leveraging what we have now in the core and see if it was attainable
+> > (indeed I tried early in this series to avoid as a whole to have to support polling
+> > at the SCMI transport layer to attain SCMI cmds atomicity..but that was an ill
+> > attempt that led nowhere good...)
+> > 
+> > Btw, I was planning to post a new series next week (after merge-windows) with some
+> > fixes I did already, at this point I'll include also some fixes derived
+> > from some of your remarks.
+> > 
+> >> Best regards,
+> >>
+> >> Peter
+> >>
+> [snip]>>> + *
+> >>> + * Return: True once polling has successfully completed.
+> >>> + */
+> >>> +static bool virtio_poll_done(struct scmi_chan_info *cinfo,
+> >>> +			     struct scmi_xfer *xfer)
+> >>> +{
+> >>> +	bool pending, ret = false;
+> >>> +	unsigned int length, any_prefetched = 0;
+> >>> +	unsigned long flags;
+> >>> +	struct scmi_vio_msg *next_msg, *msg = xfer->priv;
+> >>> +	struct scmi_vio_channel *vioch = cinfo->transport_info;
+> >>> +
+> >>> +	if (!msg)
+> >>> +		return true;
+> >>> +
+> >>> +	spin_lock_irqsave(&msg->poll_lock, flags);
+> >>> +	/* Processed already by other polling loop on another CPU ? */
+> >>> +	if (msg->poll_idx == VIO_MSG_POLL_DONE) {
+> >>> +		spin_unlock_irqrestore(&msg->poll_lock, flags);
+> >>> +		return true;
+> >>> +	}
+> >>> +
+> >>> +	/* Has cmdq index moved at all ? */
+> >>> +	pending = virtqueue_poll(vioch->vqueue, msg->poll_idx);
+> >>
+> >> In my understanding, the polling comparison could still be subject to the ABA
+> >> problem when exactly 2**16 messages have been marked as used since
+> >> msg->poll_idx was set (unlikely scenario, granted).
+> >>
+> >> I think this would be a lot simpler if the virtio core exported some
+> >> concurrency-safe helper function for such polling (similar to more_used() from
+> >> virtio_ring.c), as discussed at the top.
+> > 
+> > So this is the main limitation indeed of the current implementation, I
+> > cannot distinguish if there was an exact full wrap and I'm reading the same
+> > last_idx as before but a whoppying 2**16 messages have instead gone through...
+> > 
+> > The tricky part seems to me here that even introducing dedicated helpers
+> > for polling in order to account for such wrapping (similar to more_used())
+> > those would be based by current VirtIO spec on a single bit wrap counter,
+> > so how do you discern if 2 whole wraps have happened (even more unlikely..) ?
+> > 
+> > Maybe I'm missing something though...
+> > 
 > 
-> Thanks for the advice, I did indeed use it!
+> In my understanding, there is no need to keep track of the old state. We
+> actually only want to check whether the device has marked any buffers as `used'
+> which we did not retrieve yet via virtqueue_get_buf_ctx().
 > 
-> I run virtio_test (with vhost_test.ko) using 64 as batch to increase the 
-> chance of the path being taken. (I changed bufs=0x1000000 in 
-> virtio_test.c to increase the duration).
+> This is what more_used() checks in my understanding. One would just need to
+> translate the external `struct virtqueue' param to the virtio_ring.c internal
+> representation `struct vring_virtqueue' and then call `more_used()'.
 > 
-> I used `perf stat` to take some numbers, running this command:
+> There would be no need to keep `poll_idx` then.
 > 
->    taskset -c 2 perf stat -r 10 --log-fd 1 -- ./virtio_test --batch=64
+> Best regards,
 > 
-> - Linux v5.16 without the patch applied
-> 
->  Performance counter stats for './virtio_test --batch=64' (10 runs):
-> 
->           2,791.70 msec task-clock                #    0.996 CPUs utilized            ( +-  0.36% )
->                 23      context-switches          #    8.209 /sec                     ( +-  2.75% )
->                  0      cpu-migrations            #    0.000 /sec
->                 79      page-faults               #   28.195 /sec                     ( +-  0.41% )
->      7,249,926,989      cycles                    #    2.587 GHz                      ( +-  0.36% )
->      7,711,999,656      instructions              #    1.06  insn per cycle           ( +-  1.08% )
->      1,838,436,806      branches                  #  656.134 M/sec                    ( +-  1.44% )
->          3,055,439      branch-misses             #    0.17% of all branches          ( +-  6.22% )
-> 
->             2.8024 +- 0.0100 seconds time elapsed  ( +-  0.36% )
-> 
-> - Linux v5.16 with this patch applied
-> 
->  Performance counter stats for './virtio_test --batch=64' (10 runs):
-> 
->           2,753.36 msec task-clock                #    0.998 CPUs utilized            ( +-  0.20% )
->                 24      context-switches          #    8.699 /sec                     ( +-  2.86% )
->                  0      cpu-migrations            #    0.000 /sec
->                 76      page-faults               #   27.545 /sec                     ( +-  0.56% )
->      7,150,358,721      cycles                    #    2.592 GHz                      ( +-  0.20% )
->      7,420,639,950      instructions              #    1.04  insn per cycle           ( +-  0.76% )
->      1,745,759,193      branches                  #  632.730 M/sec                    ( +-  1.03% )
->          3,022,508      branch-misses             #    0.17% of all branches          ( +-  3.24% )
-> 
->            2.75952 +- 0.00561 seconds time elapsed  ( +-  0.20% )
-> 
-> 
-> The difference seems minimal with a slight improvement.
-> 
-> To try to stress the patch more, I modified vhost_test.ko to call 
-> vhost_enable_notify()/vhost_disable_notify() on every cycle when calling 
-> vhost_get_vq_desc():
-> 
-> - Linux v5.16 modified without the patch applied
-> 
->  Performance counter stats for './virtio_test --batch=64' (10 runs):
-> 
->           4,126.66 msec task-clock                #    1.006 CPUs utilized            ( +-  0.25% )
->                 28      context-switches          #    6.826 /sec                     ( +-  3.41% )
->                  0      cpu-migrations            #    0.000 /sec
->                 85      page-faults               #   20.721 /sec                     ( +-  0.44% )
->     10,716,808,883      cycles                    #    2.612 GHz                      ( +-  0.25% )
->     11,804,381,462      instructions              #    1.11  insn per cycle           ( +-  0.86% )
->      3,138,813,438      branches                  #  765.153 M/sec                    ( +-  1.03% )
->         11,286,860      branch-misses             #    0.35% of all branches          ( +-  1.23% )
-> 
->             4.1027 +- 0.0103 seconds time elapsed  ( +-  0.25% )
-> 
-> - Linux v5.16 modified with this patch applied
-> 
->  Performance counter stats for './virtio_test --batch=64' (10 runs):
-> 
->           3,953.55 msec task-clock                #    1.001 CPUs utilized            ( +-  0.33% )
->                 29      context-switches          #    7.345 /sec                     ( +-  2.67% )
->                  0      cpu-migrations            #    0.000 /sec
->                 83      page-faults               #   21.021 /sec                     ( +-  0.65% )
->     10,267,242,653      cycles                    #    2.600 GHz                      ( +-  0.33% )
->      7,972,866,579      instructions              #    0.78  insn per cycle           ( +-  0.21% )
->      1,663,770,390      branches                  #  421.377 M/sec                    ( +-  0.45% )
->         16,986,093      branch-misses             #    1.02% of all branches          ( +-  0.47% )
-> 
->             3.9489 +- 0.0130 seconds time elapsed  ( +-  0.33% )
-> 
-> In this case the difference is bigger, with a reduction in execution 
-> time (3.7 %) and fewer branches and instructions. It should be the 
-> branch `if (vq->avail_idx == vq->last_avail_idx)` in vhost_get_vq_desc() 
-> that is not taken.
-> 
-> Should I resend the patch adding some more performance information?
-> 
-> Thanks,
-> Stefano
+> Peter
 
-Yea, pls do. You can just summarize it in a couple of lines.
+Not really, I don't think so.
 
--- 
-MST
+There's no magic in more_used. No synchronization happens.
+more_used is exactly like virtqueue_poll except
+you get to maintain your own index.
+
+As it is, it is quite possible to read the cached index,
+then another thread makes 2^16 bufs available, then device
+uses them all, and presto you get a false positive.
+
+I guess we can play with memory barriers such that cache
+read happens after the index read - but it seems that
+will just lead to the same wrap around problem
+in reverse. So IIUC it's quite a bit more involved than
+just translating structures.
+
+And yes, a more_used like API would remove the need to pass
+the index around, but it will also obscure the fact that
+there's internal state here and that it's inherently racy
+wrt wrap arounds. Whereas I'm happy to see that virtqueue_poll
+seems to have made it clear enough that people get it.
+
+
+It's not hard to handle wrap around in the driver if you like though:
+just have a 32 bit atomic counter and increment it each time you are
+going to make 2^16 buffers available. That gets you to 2^48 with an
+overhead of an atomic read and that should be enough short term. Make
+sure the cache line where you put the counter is not needed elsewhere -
+checking it in a tight loop with an atomic will force it to the local
+CPU. And if you are doing that virtqueue_poll will be enough.
+
+
+
+> 
+> > I'll have a though about this, but in my opinion this seems something so
+> > unlikely that we could live with it, for the moment at least...
+> > [snip]
 
 _______________________________________________
 Virtualization mailing list
