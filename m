@@ -1,113 +1,114 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5429BC433EF
-	for <virtualization@archiver.kernel.org>; Sun, 23 Jan 2022 22:40:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D7494C433FE
+	for <virtualization@archiver.kernel.org>; Mon, 24 Jan 2022 04:33:07 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id C66C781274;
-	Sun, 23 Jan 2022 22:40:24 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 3682960DB7;
+	Mon, 24 Jan 2022 04:33:07 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id vboAGNi45hDX; Sun, 23 Jan 2022 22:40:23 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 490D58126A;
-	Sun, 23 Jan 2022 22:40:23 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2A527C0031;
-	Sun, 23 Jan 2022 22:40:23 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 22E10C002F
- for <virtualization@lists.linux-foundation.org>;
- Sun, 23 Jan 2022 22:40:22 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 0A8A560DFF
- for <virtualization@lists.linux-foundation.org>;
- Sun, 23 Jan 2022 22:40:22 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id LWn0IugjtMcB
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id i-BJRsMCzXnY; Mon, 24 Jan 2022 04:33:06 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id D749060D73;
+	Mon, 24 Jan 2022 04:33:05 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 95D68C0031;
+	Mon, 24 Jan 2022 04:33:05 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A8A15C002F
  for <virtualization@lists.linux-foundation.org>;
- Sun, 23 Jan 2022 22:40:20 +0000 (UTC)
+ Mon, 24 Jan 2022 04:33:03 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 8F859824E3
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 24 Jan 2022 04:33:03 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id TkgbO-ng1agW
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 24 Jan 2022 04:33:02 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 6E38560DDF
+ by smtp1.osuosl.org (Postfix) with ESMTPS id DB401824CB
  for <virtualization@lists.linux-foundation.org>;
- Sun, 23 Jan 2022 22:40:20 +0000 (UTC)
+ Mon, 24 Jan 2022 04:33:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1642977619;
+ s=mimecast20190719; t=1642998780;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=0pIY2RGPU7KzoGfuQNFBNefJk1n5vPd00tDnIcgg4Dg=;
- b=YwxVEsV57fMrfv1SN5dH9IO4/3wPe25g1qxFG+X+pHW69XLqVrp5w3tSTkxcrtPKXbhrKk
- SmtKvNDoEy8BCsl7lOa7Ufp81Zpzge0kGtz+9O71TfwK4WmN5S8jq6KvnvdXGz6Dev4sBy
- /j4VepHmvxfDhbRo57Xd2gnXBdb4FWM=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=ywVkSjYqwGhEXuzDaFXOjbRRmnLvl8ZmyDiptv9Gj0o=;
+ b=Rb6SBG59Yyl6AWwqBwebj8tcEhZ99/HRO5NofXmLcUEas65iieVdfl5N4rfCA0tTRRdJpT
+ lWcyQo20Qxa8w44UDk7fJdmIFjOTKxpqPLGdbTOQFm2ujW81f4CzbOyVBBac82HR13njt7
+ QH8K6kwLDtd4Mh2V6mZczYHJ8/sxwcg=
+Received: from mail-pg1-f198.google.com (mail-pg1-f198.google.com
+ [209.85.215.198]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-456-4ztJ2dZnOEeFg-PEIUAtvw-1; Sun, 23 Jan 2022 17:40:17 -0500
-X-MC-Unique: 4ztJ2dZnOEeFg-PEIUAtvw-1
-Received: by mail-wm1-f72.google.com with SMTP id
- bg16-20020a05600c3c9000b0034bea12c043so13806912wmb.7
+ us-mta-196-dGihN4_tM8Cj0YGoes3dGw-1; Sun, 23 Jan 2022 23:32:58 -0500
+X-MC-Unique: dGihN4_tM8Cj0YGoes3dGw-1
+Received: by mail-pg1-f198.google.com with SMTP id
+ o20-20020a656a54000000b003441a994d60so9200311pgu.6
  for <virtualization@lists.linux-foundation.org>;
- Sun, 23 Jan 2022 14:40:17 -0800 (PST)
+ Sun, 23 Jan 2022 20:32:58 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=0pIY2RGPU7KzoGfuQNFBNefJk1n5vPd00tDnIcgg4Dg=;
- b=ECqQ5dHhtLd3wKnvZ7bis+AMIqFd/Sw8YijZhk9EzGRxLXKOkPD6b8o4CpVGIsW2wR
- sYlcsAOes5c4Vj0+IEYcvSONOCe541/rtMh17GH2gczuPJcqYHv+GJWp7dXOqRxJ9EKJ
- dzcwKPB+NXA+W1/2lJD+Eg5N9dv6NJ4TP2jJQyTh2LSQ8QgGEl1MFfAJHVf9ll6iQZ5L
- 3eXamWObrgWKpZi/xGUa/OU3VGeZPJYq+zMAc1q/rA+YrjmwneQn9CKm7zlxhkzYIrfW
- 0S2tlcG+2aZ9MIziOWrL5y5nsYHXGwe2OIyUZP98YiXBmgu+8pHX71BV6MO06vY8vW+9
- o9mg==
-X-Gm-Message-State: AOAM533EZLtvC1tR3Rhkaqhz+LzEbwet4bluX0uq98TpfZHfVWMbYWMy
- pbCAUr4xpJzKs9Y2AVj2cdcXb6xDrKBw1bICWrbyxRT00QBdQPNRb8rxdHnfITOY/sndBI7nj7G
- cqZd9CYcu06j3MFMq+/Qp2EMxlgyqsdcj91SXqbefzQ==
-X-Received: by 2002:a5d:4604:: with SMTP id t4mr3028639wrq.285.1642977616274; 
- Sun, 23 Jan 2022 14:40:16 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxjwwX6XBQA8gamPuGltOrFWIbtbUNwx90Lv8LABa1RXJtgWg+iT3fUgdTQUtIQR89XV0agPQ==
-X-Received: by 2002:a5d:4604:: with SMTP id t4mr3028621wrq.285.1642977616041; 
- Sun, 23 Jan 2022 14:40:16 -0800 (PST)
-Received: from redhat.com ([2a03:c5c0:107d:3855:f057:7883:a28a:5e3c])
- by smtp.gmail.com with ESMTPSA id i8sm19203233wry.45.2022.01.23.14.40.11
+ :mime-version:content-disposition:content-transfer-encoding
+ :in-reply-to;
+ bh=ywVkSjYqwGhEXuzDaFXOjbRRmnLvl8ZmyDiptv9Gj0o=;
+ b=iYUa107yMxRdVju/HL84sjFYvicLDGQjCb0c9IoBYHSYYE+UdGojnWAwARgZ/6S1sS
+ 5Vri2wkzUjiXyiGFdGlG4dkzQlBuJPAaGX5M1ge+ZKRgT3MHI4924s3YFjt45v1ZIfW6
+ oDEtwsUJbCc0xNJY72zJ7Y7L68Z9zM6+/nqEkLoxasxB/+0lzpZ01hWYIhU0y/KSkwJN
+ gFsLtp3Pba8omTUQbV2nFTLwlnDuevrDA0HHxcBXgCTa9kA+ncENngauWbfvvSdk8Q5b
+ cMfbd/Hj2R8WVo22vfAhCHp7uBjWO/qPUdQbSj/FHHSnRk/uDkELskjzOhg876SGaqvm
+ B3Hw==
+X-Gm-Message-State: AOAM531VAONGFX1LFrf75lq5EcYxryZqtO5NJuJduklqnc8TDnuNEjXi
+ Gi9b0ph/nBlPUV5c4w3qR05QCgYJ6Qn5cqglVmfMBB4yEW4mcLupETpK6TnsJAY3UbZk1ek5oop
+ uLcO/G/S90OiUmuKpDHc8TI7GE6RXjxW7xMC5xDdhrQ==
+X-Received: by 2002:a17:90a:de0f:: with SMTP id
+ m15mr239261pjv.86.1642998777724; 
+ Sun, 23 Jan 2022 20:32:57 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxmjGFIoJVqeqwAWMaE4+RtrcG9zQLuG9z0Loa5SLrS4BNNb3F3WCc9CHZeL4zodWm9EXdc1w==
+X-Received: by 2002:a17:90a:de0f:: with SMTP id
+ m15mr239234pjv.86.1642998777471; 
+ Sun, 23 Jan 2022 20:32:57 -0800 (PST)
+Received: from xz-m1.local ([94.177.118.73])
+ by smtp.gmail.com with ESMTPSA id g22sm14229089pfj.99.2022.01.23.20.32.49
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sun, 23 Jan 2022 14:40:15 -0800 (PST)
-Date: Sun, 23 Jan 2022 17:40:08 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Cristian Marussi <cristian.marussi@arm.com>
-Subject: Re: [PATCH v9 09/11] firmware: arm_scmi: Add atomic mode support to
- virtio transport
-Message-ID: <20220123172950-mutt-send-email-mst@kernel.org>
-References: <20211220195646.44498-10-cristian.marussi@arm.com>
- <20211221140027.41524-1-cristian.marussi@arm.com>
- <f231094a-6f34-3dc1-237d-97218e8fde91@opensynergy.com>
- <20220119122338.GE6113@e120937-lin>
- <2f1ea794-a0b9-2099-edc0-b2aeb3ca6b92@opensynergy.com>
- <20220120150418-mutt-send-email-mst@kernel.org>
- <20220123200254.GF6113@e120937-lin>
+ Sun, 23 Jan 2022 20:32:57 -0800 (PST)
+Date: Mon, 24 Jan 2022 12:32:47 +0800
+From: Peter Xu <peterx@redhat.com>
+To: Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>
+Subject: Re: [PATCH 21/31] util: Add iova_tree_alloc
+Message-ID: <Ye4r7tKFhP9VaT5/@xz-m1.local>
+References: <20220121202733.404989-1-eperezma@redhat.com>
+ <20220121202733.404989-22-eperezma@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20220123200254.GF6113@e120937-lin>
+In-Reply-To: <20220121202733.404989-22-eperezma@redhat.com>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=peterx@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: f.fainelli@gmail.com, vincent.guittot@linaro.org,
- igor.skalkin@opensynergy.com, sudeep.holla@arm.com,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- Peter Hilber <peter.hilber@opensynergy.com>, james.quinlan@broadcom.com,
- Jonathan.Cameron@huawei.com, souvik.chakravarty@arm.com,
- etienne.carriere@linaro.org, linux-arm-kernel@lists.infradead.org
+Cc: Laurent Vivier <lvivier@redhat.com>, Parav Pandit <parav@mellanox.com>,
+ Cindy Lu <lulu@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Richard Henderson <richard.henderson@linaro.org>, qemu-devel@nongnu.org,
+ Gautam Dawar <gdawar@xilinx.com>, Markus Armbruster <armbru@redhat.com>,
+ Eduardo Habkost <ehabkost@redhat.com>,
+ Harpreet Singh Anand <hanand@xilinx.com>, Xiao W Wang <xiao.w.wang@intel.com>,
+ Stefan Hajnoczi <stefanha@redhat.com>, Eli Cohen <eli@mellanox.com>,
+ Paolo Bonzini <pbonzini@redhat.com>, Zhu Lingshan <lingshan.zhu@intel.com>,
+ virtualization@lists.linux-foundation.org, Eric Blake <eblake@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,165 +120,43 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sun, Jan 23, 2022 at 08:02:54PM +0000, Cristian Marussi wrote:
-> I was thinking...keeping the current virtqueue_poll interface, since our
-> possible issue arises from the used_index wrapping around exactly on top
-> of the same polled index and given that currently the API returns an
-> unsigned "opaque" value really carrying just the 16-bit index (and possibly
-> the wrap bit as bit15 for packed vq) that is supposed to be fed back as
-> it is to the virtqueue_poll() function....
-> 
-> ...why don't we just keep an internal full fledged per-virtqueue wrap-counter
-> and return that as the MSB 16-bit of the opaque value returned by
-> virtqueue_prepare_enable_cb and then check it back in virtqueue_poll when the
-> opaque is fed back ? (filtering it out from the internal helpers machinery)
-> 
-> As in the example below the scissors.
-> 
-> I mean if the internal wrap count is at that point different from the
-> one provided to virtqueue_poll() via the opaque poll_idx value previously
-> provided, certainly there is something new to fetch without even looking
-> at the indexes: at the same time, exposing an opaque index built as
-> (wraps << 16 | idx) implicitly 'binds' each index to a specific
-> wrap-iteration, so they can be distiguished (..ok until the wrap-count
-> upper 16bit wraps too....but...)
-> 
-> I am not really extremely familiar with the internals of virtio so I
-> could be missing something obvious...feel free to insult me :P
-> 
-> (..and I have not made any perf measurements or consideration at this
-> point....nor considered the redundancy of the existent packed
-> used_wrap_counter bit...)
-> 
-> Thanks,
-> Cristian
-> 
-> ----
-> 
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index 00f64f2f8b72..bda6af121cd7 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -117,6 +117,8 @@ struct vring_virtqueue {
->         /* Last used index we've seen. */
->         u16 last_used_idx;
->  
-> +       u16 wraps;
-> +
->         /* Hint for event idx: already triggered no need to disable. */
->         bool event_triggered;
->  
-> @@ -806,6 +808,8 @@ static void *virtqueue_get_buf_ctx_split(struct virtqueue *_vq,
->         ret = vq->split.desc_state[i].data;
->         detach_buf_split(vq, i, ctx);
->         vq->last_used_idx++;
-> +       if (unlikely(!vq->last_used_idx))
-> +               vq->wraps++;
-
-I wonder whether
-               vq->wraps += !vq->last_used_idx;
-is faster or slower. No branch but OTOH a dependency.
-
-
->         /* If we expect an interrupt for the next entry, tell host
->          * by writing event index and flush out the write before
->          * the read in the next get_buf call. */
-> @@ -1508,6 +1512,7 @@ static void *virtqueue_get_buf_ctx_packed(struct virtqueue *_vq,
->         if (unlikely(vq->last_used_idx >= vq->packed.vring.num)) {
->                 vq->last_used_idx -= vq->packed.vring.num;
->                 vq->packed.used_wrap_counter ^= 1;
-> +               vq->wraps++;
->         }
->  
->         /*
-> @@ -1744,6 +1749,7 @@ static struct virtqueue *vring_create_virtqueue_packed(
->         vq->weak_barriers = weak_barriers;
->         vq->broken = false;
->         vq->last_used_idx = 0;
-> +       vq->wraps = 0;
->         vq->event_triggered = false;
->         vq->num_added = 0;
->         vq->packed_ring = true;
-> @@ -2092,13 +2098,17 @@ EXPORT_SYMBOL_GPL(virtqueue_disable_cb);
->   */
->  unsigned virtqueue_enable_cb_prepare(struct virtqueue *_vq)
->  {
-> +       unsigned last_used_idx;
->         struct vring_virtqueue *vq = to_vvq(_vq);
->  
->         if (vq->event_triggered)
->                 vq->event_triggered = false;
->  
-> -       return vq->packed_ring ? virtqueue_enable_cb_prepare_packed(_vq) :
-> -                                virtqueue_enable_cb_prepare_split(_vq);
-> +       last_used_idx = vq->packed_ring ?
-> +                       virtqueue_enable_cb_prepare_packed(_vq) :
-> +                       virtqueue_enable_cb_prepare_split(_vq);
-> +
-> +       return VRING_BUILD_OPAQUE(last_used_idx, vq->wraps);
->  }
->  EXPORT_SYMBOL_GPL(virtqueue_enable_cb_prepare);
->  
-> @@ -2118,9 +2128,13 @@ bool virtqueue_poll(struct virtqueue *_vq, unsigned last_used_idx)
->         if (unlikely(vq->broken))
->                 return false;
->  
-> +       if (unlikely(vq->wraps != VRING_GET_WRAPS(last_used_idx)))
-> +               return true;
-> +
->         virtio_mb(vq->weak_barriers);
-> -       return vq->packed_ring ? virtqueue_poll_packed(_vq, last_used_idx) :
-> -                                virtqueue_poll_split(_vq, last_used_idx);
-> +       return vq->packed_ring ?
-> +               virtqueue_poll_packed(_vq, VRING_GET_IDX(last_used_idx)) :
-> +                       virtqueue_poll_split(_vq, VRING_GET_IDX(last_used_idx));
->  }
->  EXPORT_SYMBOL_GPL(virtqueue_poll);
->  
-> @@ -2245,6 +2259,7 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
->         vq->weak_barriers = weak_barriers;
->         vq->broken = false;
->         vq->last_used_idx = 0;
-> +       vq->wraps = 0;
->         vq->event_triggered = false;
->         vq->num_added = 0;
->         vq->use_dma_api = vring_use_dma_api(vdev);
-> diff --git a/include/uapi/linux/virtio_ring.h b/include/uapi/linux/virtio_ring.h
-> index 476d3e5c0fe7..e6b03017ebd7 100644
-> --- a/include/uapi/linux/virtio_ring.h
-> +++ b/include/uapi/linux/virtio_ring.h
-> @@ -77,6 +77,17 @@
->   */
->  #define VRING_PACKED_EVENT_F_WRAP_CTR  15
->  
-> +#define VRING_IDX_MASK                                 GENMASK(15, 0)
-> +#define VRING_GET_IDX(opaque)                          \
-> +       ((u16)FIELD_GET(VRING_IDX_MASK, (opaque)))
-> +
-> +#define VRING_WRAPS_MASK                               GENMASK(31, 16)
-> +#define VRING_GET_WRAPS(opaque)                                \
-> +       ((u16)FIELD_GET(VRING_WRAPS_MASK, (opaque)))
-> +
-> +#define VRING_BUILD_OPAQUE(idx, wraps)                 \
-> +       (FIELD_PREP(VRING_WRAPS_MASK, (wraps)) | ((idx) & VRING_IDX_MASK))
-> +
->  /* We support indirect buffer descriptors */
->  #define VIRTIO_RING_F_INDIRECT_DESC    28
-
-Yea I think this patch increases the time it takes to wrap around from
-2^16 to 2^32 which seems good enough.
-Need some comments to explain the logic.
-Would be interesting to see perf data.
-
--- 
-MST
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gRnJpLCBKYW4gMjEsIDIwMjIgYXQgMDk6Mjc6MjNQTSArMDEwMCwgRXVnZW5pbyBQw6lyZXog
+d3JvdGU6Cj4gK2ludCBpb3ZhX3RyZWVfYWxsb2MoSU9WQVRyZWUgKnRyZWUsIERNQU1hcCAqbWFw
+LCBod2FkZHIgaW92YV9iZWdpbiwKPiArICAgICAgICAgICAgICAgICAgICBod2FkZHIgaW92YV9s
+YXN0KQo+ICt7Cj4gKyAgICBjb25zdCBETUFNYXBJbnRlcm5hbCAqbGFzdCwgKmk7Cj4gKwo+ICsg
+ICAgYXNzZXJ0KGlvdmFfYmVnaW4gPCBpb3ZhX2xhc3QpOwo+ICsKPiArICAgIC8qCj4gKyAgICAg
+KiBGaW5kIGEgdmFsaWQgaG9sZSBmb3IgdGhlIG1hcHBpbmcKPiArICAgICAqCj4gKyAgICAgKiBU
+T0RPOiBSZXBsYWNlIGFsbCB0aGlzIHdpdGggZ190cmVlX25vZGVfZmlyc3QvbmV4dC9sYXN0IHdo
+ZW4gYXZhaWxhYmxlCj4gKyAgICAgKiAoZnJvbSBnbGliIHNpbmNlIDIuNjgpLiBVc2luZyBhIHNl
+cHBhcmF0ZWQgUVRBSUxRIGNvbXBsaWNhdGVzIGNvZGUuCj4gKyAgICAgKgo+ICsgICAgICogVHJ5
+IHRvIGFsbG9jYXRlIGZpcnN0IGF0IHRoZSBlbmQgb2YgdGhlIGxpc3QuCj4gKyAgICAgKi8KPiAr
+ICAgIGxhc3QgPSBRVEFJTFFfTEFTVCgmdHJlZS0+bGlzdCk7Cj4gKyAgICBpZiAoaW92YV90cmVl
+X2FsbG9jX21hcF9pbl9ob2xlKGxhc3QsIE5VTEwsIGlvdmFfYmVnaW4sIGlvdmFfbGFzdCwKPiAr
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgbWFwLT5zaXplKSkgewo+ICsgICAg
+ICAgIGdvdG8gYWxsb2M7Cj4gKyAgICB9Cj4gKwo+ICsgICAgLyogTG9vayBmb3IgaW5uZXIgaG9s
+ZSAqLwo+ICsgICAgbGFzdCA9IE5VTEw7Cj4gKyAgICBmb3IgKGkgPSBRVEFJTFFfRklSU1QoJnRy
+ZWUtPmxpc3QpOyBpOwo+ICsgICAgICAgICBsYXN0ID0gaSwgaSA9IFFUQUlMUV9ORVhUKGksIGVu
+dHJ5KSkgewo+ICsgICAgICAgIGlmIChpb3ZhX3RyZWVfYWxsb2NfbWFwX2luX2hvbGUobGFzdCwg
+aSwgaW92YV9iZWdpbiwgaW92YV9sYXN0LAo+ICsgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgbWFwLT5zaXplKSkgewo+ICsgICAgICAgICAgICBnb3RvIGFsbG9jOwo+ICsg
+ICAgICAgIH0KPiArICAgIH0KPiArCj4gKyAgICByZXR1cm4gSU9WQV9FUlJfTk9NRU07Cj4gKwo+
+ICthbGxvYzoKPiArICAgIG1hcC0+aW92YSA9IGxhc3QgPyBsYXN0LT5tYXAuaW92YSArIGxhc3Qt
+Pm1hcC5zaXplICsgMSA6IGlvdmFfYmVnaW47Cj4gKyAgICByZXR1cm4gaW92YV90cmVlX2luc2Vy
+dCh0cmVlLCBtYXApOwo+ICt9CgpIaSwgRXVnZW5pbywKCkhhdmUgeW91IHRyaWVkIHdpdGggd2hh
+dCBKYXNvbiBzdWdnZXN0ZWQgcHJldmlvdXNseT8KCiAgaHR0cHM6Ly9sb3JlLmtlcm5lbC5vcmcv
+cWVtdS1kZXZlbC9DQUNHa01FdFpBUGQ5eFFUUF9SNHcyOTZOX1F6N1Z1VjFGTG5iNTQ0ZkVWb1lP
+MG9mK2dAbWFpbC5nbWFpbC5jb20vCgpUaGF0IHNvbHV0aW9uIHN0aWxsIHNvdW5kcyB2ZXJ5IHNl
+bnNpYmxlIHRvIG1lIGV2ZW4gd2l0aG91dCB0aGUgbmV3bHkKaW50cm9kdWNlZCBsaXN0IGluIHBy
+ZXZpb3VzIHR3byBwYXRjaGVzLgoKSU1ITyB3ZSBjb3VsZCBtb3ZlICJETUFNYXAgKnByZXZpb3Vz
+LCAqdGhpcyIgaW50byB0aGUgSU9WQVRyZWVBbGxvY0FyZ3MqCnN0dWN0dXJlIHRoYXQgd2FzIHBh
+c3NlZCBpbnRvIHRoZSB0cmF2ZXJzZSBmdW5jIHRob3VnaCwgc28gaXQnbGwgbmF0dXJhbGx5IHdv
+cmsKd2l0aCB0aHJlYWRpbmcuCgpPciBpcyB0aGVyZSBhbnkgYmxvY2tlciBmb3IgaXQ/CgpUaGFu
+a3MsCgotLSAKUGV0ZXIgWHUKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0
+cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcv
+bWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
