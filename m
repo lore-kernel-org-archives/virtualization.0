@@ -1,105 +1,103 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6DE52C433F5
-	for <virtualization@archiver.kernel.org>; Tue, 25 Jan 2022 17:56:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3B3D3C433FE
+	for <virtualization@archiver.kernel.org>; Tue, 25 Jan 2022 17:59:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 03A5582716;
-	Tue, 25 Jan 2022 17:56:20 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id BF0A34154A;
+	Tue, 25 Jan 2022 17:59:19 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 2NpMiUrDuVhK; Tue, 25 Jan 2022 17:56:19 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id LaOCgb6uKV1H; Tue, 25 Jan 2022 17:59:18 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 95B53825DC;
-	Tue, 25 Jan 2022 17:56:18 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 3F58F41524;
+	Tue, 25 Jan 2022 17:59:18 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 7A208C0039;
-	Tue, 25 Jan 2022 17:56:18 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 14C06C0039;
+	Tue, 25 Jan 2022 17:59:18 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7A63FC002F
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E88F2C002F
  for <virtualization@lists.linux-foundation.org>;
- Tue, 25 Jan 2022 17:56:17 +0000 (UTC)
+ Tue, 25 Jan 2022 17:59:16 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 7636241520
+ by smtp4.osuosl.org (Postfix) with ESMTP id D1FE241527
  for <virtualization@lists.linux-foundation.org>;
- Tue, 25 Jan 2022 17:56:17 +0000 (UTC)
+ Tue, 25 Jan 2022 17:59:16 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id AlTSJgjeTsrL
+ with ESMTP id WW99w72bCryo
  for <virtualization@lists.linux-foundation.org>;
- Tue, 25 Jan 2022 17:56:15 +0000 (UTC)
+ Tue, 25 Jan 2022 17:59:16 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 57F70410D0
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 2B16541524
  for <virtualization@lists.linux-foundation.org>;
- Tue, 25 Jan 2022 17:56:15 +0000 (UTC)
+ Tue, 25 Jan 2022 17:59:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1643133374;
+ s=mimecast20190719; t=1643133555;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=E6rxjsOhNxfEiaxINggrBA6x75JFuMQB6f2O2kbHXzE=;
- b=BXIzrEbjlwjxscJl0uWRCufAHy8cPOcPBVccwf7ZxM9Vy0E9ox0oHYavSq4U86wMexezxM
- dM4o3oGuxN/YBhLE+UnvweemQpjSpKvkeEvb2P56u8fG/PW0AF4914A8tsZD2yMGpp/5xl
- 1Tro+B8f0sLkVdYIEWP8tJhoaI95hmg=
-Received: from mail-ot1-f71.google.com (mail-ot1-f71.google.com
- [209.85.210.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=tQwnOxnoIr5kWKtczEX49APK7YeWZviqLQA1sp5peAU=;
+ b=QjHh+Hp8TizOE4FgVulGUllZmBkvmk5dtJVN74+84RUT7cKIdFXDrGu3PWSEh8P3NjJvs1
+ agTsfTuTjzioaRv+tQYvoONcr0Dkf9UJJ7WJ6rsj3GxLA7lanU+oCTkAw62tUHN+L19xFy
+ 6silaCCw/sO8Bru5wCqGg9JDsPrJNuw=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-553-LegWoehEN5ujvylBC79I9g-1; Tue, 25 Jan 2022 12:56:12 -0500
-X-MC-Unique: LegWoehEN5ujvylBC79I9g-1
-Received: by mail-ot1-f71.google.com with SMTP id
- h17-20020a9d7991000000b0059b4230fc63so13850804otm.13
+ us-mta-562-kVTVwGgbO8mNAWwgOSSLxg-1; Tue, 25 Jan 2022 12:59:13 -0500
+X-MC-Unique: kVTVwGgbO8mNAWwgOSSLxg-1
+Received: by mail-ed1-f70.google.com with SMTP id
+ h11-20020a05640250cb00b003fa024f87c2so15450767edb.4
  for <virtualization@lists.linux-foundation.org>;
- Tue, 25 Jan 2022 09:56:12 -0800 (PST)
+ Tue, 25 Jan 2022 09:59:13 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=E6rxjsOhNxfEiaxINggrBA6x75JFuMQB6f2O2kbHXzE=;
- b=G+rMBMgCl+64NwHJrEG/JHhnePXIjHHSavl1+WMoRgjXR6fcVpyyrxZG9nJyib0+Po
- xevco2AK8YfJ40dM2yyt6qsPVURjHWVAzlbMc+gVNcV3rLdjXM6Kxriqj6goMrSa3E3l
- P43LZ67v+D569fobqtUb1g/gyIsluuit1Q/dQPXSPxPfWwZCvwg40e0bmToMQ++lOFGx
- HlTjIE+DHAGYkBzsCtdpgzzzMVnJwDi7rz2Qu+NaJy0ivlrbOduxZaPvKtFYFHn2X3HX
- BLWv605P1Lr0aE7rcg90bMSZS72/uedcjvwXSa6A8UK0OhgjmXyajrLV+f6+JkFKNXHB
- 9lyw==
-X-Gm-Message-State: AOAM533ggsDvpt2YvOFUzSwlJGyGPsrs6F/7xbCXXCT7fjgv+Dx3ARpL
- +5nqjOvxN5+lngcHyyVpznIh7WnARgaWvarFlNw3PYm82tB4q/jSPIRqXxpcnhArhB6v15icmzh
- 2w6gq+jXMsh2Jsh2BQ6DVrEqQg3aQ54ITAUEiGKg+rQ==
-X-Received: by 2002:a4a:dd98:: with SMTP id h24mr2975786oov.73.1643133372054; 
- Tue, 25 Jan 2022 09:56:12 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxYU8KoqYoZGyScgfgxOyqhv/Nbcm50wK1ORJkXgLkUal4jqhtQ/iOtcNXKSPdPLYBPciII5g==
-X-Received: by 2002:a4a:dd98:: with SMTP id h24mr2975775oov.73.1643133371841; 
- Tue, 25 Jan 2022 09:56:11 -0800 (PST)
-Received: from optiplex-fbsd (c-73-182-255-193.hsd1.nh.comcast.net.
- [73.182.255.193])
- by smtp.gmail.com with ESMTPSA id a15sm8138436oil.13.2022.01.25.09.56.10
+ bh=tQwnOxnoIr5kWKtczEX49APK7YeWZviqLQA1sp5peAU=;
+ b=CQCx9/xfA1/iVFZyGSY92TrgepaxMToiEIa/h+/ac0axAXJkVJNXmUPk7RyiKERTfa
+ rFdYDpKXlS7qyV+pClIfM6eR1MYBzi7eQjU72y6RXRZ5Ycyd7YjhtF5oo4cBnKt5mj5c
+ ntskqCV/PJ1mGow7HpaIDe/gY3TitfKiVZH1924/wViNwdDZ5urCJ5BZ/avcrLDY626H
+ SNNcQopKrZd+RwAtQC2G02KR7Xfy61vPlPSRuxLSOUPbAv5AmKByhiTwuyijXYZFo8Gk
+ Jue69BWO87ANcvGeN0gbgBPXcIkZjZ1Tvy9Z9iRUhrFcBjk6+w12xqnZSI5cnpbbbPig
+ bw/w==
+X-Gm-Message-State: AOAM532l7aOuTFhqri2F7zvjuJeEoo1L+6uqLGiQ0KXgWl+ft5F/4nk0
+ 1ayX1Wl7vj/nQ2TM6LyHorstNTstn5nuTLGuMVuLtljcejH/ccw39t+VBnqf7nFGVusC360VGJz
+ 17AldKhef8Rsn/5jZyvyFaaUAzB9wZIJpPLKp+lWLUw==
+X-Received: by 2002:a17:907:72c4:: with SMTP id
+ du4mr9152820ejc.243.1643133552621; 
+ Tue, 25 Jan 2022 09:59:12 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJz7m6XPepvwD9UHHPdetVwWNbg/dFQ1MV8dbRVv9I9eBjYFCvpX/V21GrFvuzJV6aICXTe9mQ==
+X-Received: by 2002:a17:907:72c4:: with SMTP id
+ du4mr9152815ejc.243.1643133552428; 
+ Tue, 25 Jan 2022 09:59:12 -0800 (PST)
+Received: from redhat.com ([176.12.185.204])
+ by smtp.gmail.com with ESMTPSA id d5sm8562973edz.78.2022.01.25.09.59.10
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 25 Jan 2022 09:56:11 -0800 (PST)
-Date: Tue, 25 Jan 2022 12:56:08 -0500
-From: Rafael Aquini <aquini@redhat.com>
+ Tue, 25 Jan 2022 09:59:11 -0800 (PST)
+Date: Tue, 25 Jan 2022 12:59:08 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Miaohe Lin <linmiaohe@huawei.com>
 Subject: Re: [PATCH] mm/balloon_compaction: make balloon page compaction
  callbacks static
-Message-ID: <YfA5uLd8ftDxcIrG@optiplex-fbsd>
+Message-ID: <20220125125853-mutt-send-email-mst@kernel.org>
 References: <20220125132221.2220-1-linmiaohe@huawei.com>
 MIME-Version: 1.0
 In-Reply-To: <20220125132221.2220-1-linmiaohe@huawei.com>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=aquini@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: mst@redhat.com, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, linux-mm@kvack.org,
- akpm@linux-foundation.org
+Cc: linux-mm@kvack.org, akpm@linux-foundation.org,
+ virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -123,6 +121,11 @@ On Tue, Jan 25, 2022 at 09:22:21PM +0800, Miaohe Lin wrote:
 > the relevant code.
 > 
 > Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
+
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
+I'll queue this unless someone else does first.
+
 > ---
 >  include/linux/balloon_compaction.h | 22 ----------------------
 >  mm/balloon_compaction.c            |  6 +++---
@@ -201,9 +204,6 @@ On Tue, Jan 25, 2022 at 09:22:21PM +0800, Miaohe Lin wrote:
 >  {
 > -- 
 > 2.23.0
-> 
-> 
-Acked-by: Rafael Aquini <aquini@redhat.com>
 
 _______________________________________________
 Virtualization mailing list
