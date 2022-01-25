@@ -1,88 +1,87 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 102ADC4332F
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A3E79C433EF
 	for <virtualization@archiver.kernel.org>; Tue, 25 Jan 2022 08:47:32 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id A753C41788;
+	by smtp2.osuosl.org (Postfix) with ESMTP id 409FC40472;
 	Tue, 25 Jan 2022 08:47:32 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 5VzlCxARwYAq; Tue, 25 Jan 2022 08:47:31 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id yU3ukIjxehFZ; Tue, 25 Jan 2022 08:47:31 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 3552941784;
-	Tue, 25 Jan 2022 08:47:31 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4050AC0081;
+	by smtp2.osuosl.org (Postfix) with ESMTPS id BE98A40A95;
 	Tue, 25 Jan 2022 08:47:30 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D56AFC002F
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E9370C007F;
+	Tue, 25 Jan 2022 08:47:29 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id AECF1C002F
  for <virtualization@lists.linux-foundation.org>;
- Tue, 25 Jan 2022 08:47:28 +0000 (UTC)
+ Tue, 25 Jan 2022 08:47:27 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id B1FE560BDC
+ by smtp4.osuosl.org (Postfix) with ESMTP id 9CD474176C
  for <virtualization@lists.linux-foundation.org>;
- Tue, 25 Jan 2022 08:47:28 +0000 (UTC)
+ Tue, 25 Jan 2022 08:47:27 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
  dkim=pass (2048-bit key) header.d=daynix-com.20210112.gappssmtp.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id NpNXPzzKw1TT
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id QhEeM79Iw9q4
  for <virtualization@lists.linux-foundation.org>;
- Tue, 25 Jan 2022 08:47:27 +0000 (UTC)
+ Tue, 25 Jan 2022 08:47:25 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-lf1-x131.google.com (mail-lf1-x131.google.com
- [IPv6:2a00:1450:4864:20::131])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 6D47760B4F
+Received: from mail-lj1-x233.google.com (mail-lj1-x233.google.com
+ [IPv6:2a00:1450:4864:20::233])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 861B14175F
  for <virtualization@lists.linux-foundation.org>;
- Tue, 25 Jan 2022 08:47:27 +0000 (UTC)
-Received: by mail-lf1-x131.google.com with SMTP id u6so23608821lfm.10
+ Tue, 25 Jan 2022 08:47:25 +0000 (UTC)
+Received: by mail-lj1-x233.google.com with SMTP id q22so6967804ljh.7
  for <virtualization@lists.linux-foundation.org>;
- Tue, 25 Jan 2022 00:47:27 -0800 (PST)
+ Tue, 25 Jan 2022 00:47:25 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=daynix-com.20210112.gappssmtp.com; s=20210112;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=KADXDwPSZzBNJZyGOf6/RaxmVEZ0dcQMEj4ph2LZrIA=;
- b=E5N6rnfpLVuomzpKv7B2iO6tqIya1+zMB7j6sPn5f/I6ggTAaJqoDqBHwysCe4g6D6
- FFcao7hF04BWqCwu9s+U+g3GORW4cq8dmt4RqSXNaDPnA329ZI81GDO8lKVEe11XmxoQ
- qdqv+GI8VdBE3edikJPt8xXPZZ59+BR55A+ZXBmrAZ/XtcgN0qouXrcIbmYQCfYJ1juM
- 58JkfDeW2VsEdCxdU5Z8THlgm7GFAZOYY3Sv9b4Htj2gMJgKUTQkszP8lSJ24EnW4P4X
- GRkuYMYKrVRlJjnYxt6ud7UUwMM80YzgH3LH9zlOS/Gbh1c2aXETX6oG4qZtSPzLk19N
- KCZQ==
+ bh=UtVU5Ioannj5lFzXA15MNhoL0jZF5uZA66JN5wY/VHo=;
+ b=z1PVhkYnURa8uk4TdLAjmi4ey/+drh7NOxm8j5ND/n779yDew1YHn/TF1jSwclCBNz
+ aExTGYGyghejwUs2hNWH+nYD08V+6xE6xa9k3FvihZgFRyQhDqgUNyWRjKuGBUU2UwEH
+ q/SMJMs8GRd06V8oHMqLFnZsM74NV2Oc7IRvEkxixGzFVkyyLU8O7n5ef0vSET7gfXuv
+ Eaqko63J/8AeudSImrul4ef25S9Vtr6a4tHVIoxmzTvfuHzDeiBXBZXsB9SEbGiDs703
+ ChOXRRz2i7aT/wwqwgOrbR6ziolJ3xFET6e8Y6A2aFvx09YMk8ZoqJ7T6/usZsZeU/1C
+ nFUQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
  :references:mime-version:content-transfer-encoding;
- bh=KADXDwPSZzBNJZyGOf6/RaxmVEZ0dcQMEj4ph2LZrIA=;
- b=2mTLM3uigZ9C9UFOpsHpskg89py0ZsYD7W6vfVU1E2WLfFn6Zx5SUciNC/mIvpluTu
- Xnwh7DVP3eD3UAX8z6Y6V3SsrQUWeThtInDO/kyx2O3PAzIem5lc/fQYHONMxTlJQ9Mx
- y3t2cgucEJ/+G/f/3nl86GzNR0RYC7j/tjOQg8V1MZnYoRUJbDqpeQEX3kOZK8xorXlQ
- eb6lcN11eipz1SeTP+j0mnbon8fGkQioiqYI5awjUAlQ6AdPsE52v2VFnH23qEMqOjIT
- GqZsFyYHNW5xmSJGReki1uBJ7E3d33TQE1fws9S6XGaDTPlyCufwblc/VLhcgnBUpVIv
- 9kZQ==
-X-Gm-Message-State: AOAM533I/rhpP245RLCyXJmm9xCrx1p7uyCdD1cYHIDVVUTwP5F8seuH
- pERlTdf/TZtLBHLKOMIK2memOw==
-X-Google-Smtp-Source: ABdhPJxBOpDCi+HD+W7m+aCE1uJ74rL4NmI8ow4BsEsaN6ZHzn0gSv57q1zh/Uyab4PWRk17uBBwWA==
-X-Received: by 2002:a05:6512:3d0a:: with SMTP id
- d10mr2796243lfv.472.1643100445460; 
- Tue, 25 Jan 2022 00:47:25 -0800 (PST)
+ bh=UtVU5Ioannj5lFzXA15MNhoL0jZF5uZA66JN5wY/VHo=;
+ b=gs843fFS0AuhkVx8jqS9HweYKom0QyKWWwsyrFFgz1nQae3GiixZDGdXbibgQOli+d
+ jZaks5iw91zn+1GdA9bbhuM4mKH2bEaFADcZpzZSECQUBwAVHCRsyJyqpnrIa+/CQPr4
+ QF3v2DXdYFPWhlz0XlymJxrZHU9YcaO4E9OV4FA0k6qp4Sdb9BlKH+jv5DzjEZ7MASHx
+ nhDaJv7kM2FUXzz9+PA1HeHUmW8yTHZ5OUPguXbxyuTKEOJDVuc1ClZxR5+FzRECG7oO
+ wM7X37Ds4PjsqRi63lT5tNPl0g2W8NofXua78pRXeJWvkXxgbWZrbtj0TGOseDUPjjka
+ wVtw==
+X-Gm-Message-State: AOAM530LsY9Wgf/z/0tM5gdbhz43X0mhdiQq02bj9bev2lHAtV/eVnRi
+ OMkbnYmwAWd+Z14gw5l1S8T4U1O/HbWgC2E9l04=
+X-Google-Smtp-Source: ABdhPJwyonKvuxlj8x8ao+iZgQDBoPXfdR2ybG7ru6rdG/cLdX4fw/FgGqWs+2hNx2lMu2DLvmkRLA==
+X-Received: by 2002:a2e:9654:: with SMTP id z20mr14066133ljh.526.1643100443571; 
+ Tue, 25 Jan 2022 00:47:23 -0800 (PST)
 Received: from navi.cosmonova.net.ua ([95.67.24.131])
- by smtp.gmail.com with ESMTPSA id q5sm1418944lfe.279.2022.01.25.00.47.24
+ by smtp.gmail.com with ESMTPSA id q5sm1418944lfe.279.2022.01.25.00.47.22
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 25 Jan 2022 00:47:25 -0800 (PST)
+ Tue, 25 Jan 2022 00:47:23 -0800 (PST)
 From: Andrew Melnychenko <andrew@daynix.com>
 To: davem@davemloft.net, kuba@kernel.org, mst@redhat.com, jasowang@redhat.com,
  netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
  virtualization@lists.linux-foundation.org
-Subject: [RFC PATCH 5/5] drivers/net/virtio_net.c: Added USO support.
-Date: Tue, 25 Jan 2022 10:47:02 +0200
-Message-Id: <20220125084702.3636253-6-andrew@daynix.com>
+Subject: [RFC PATCH 3/5] uapi/linux/virtio_net.h: Added USO types.
+Date: Tue, 25 Jan 2022 10:47:00 +0200
+Message-Id: <20220125084702.3636253-4-andrew@daynix.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220125084702.3636253-1-andrew@daynix.com>
 References: <20220125084702.3636253-1-andrew@daynix.com>
@@ -104,86 +103,38 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Now, it possible to enable GSO_UDP_L4("tx-udp-segmentation") for VirtioNet.
+Added new GSO type for USO: VIRTIO_NET_HDR_GSO_UDP_L4.
+Feature VIRTIO_NET_F_HOST_USO allows to enable NETIF_F_GSO_UDP_L4.
+Separated VIRTIO_NET_F_GUEST_USO4 & VIRTIO_NET_F_GUEST_USO6 features
+required for Windows guests.
 
 Signed-off-by: Andrew Melnychenko <andrew@daynix.com>
 ---
- drivers/net/virtio_net.c | 22 ++++++++++++++++++----
- 1 file changed, 18 insertions(+), 4 deletions(-)
+ include/uapi/linux/virtio_net.h | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index a801ea40908f..a45eee022be4 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -60,13 +60,17 @@ static const unsigned long guest_offloads[] = {
- 	VIRTIO_NET_F_GUEST_TSO6,
- 	VIRTIO_NET_F_GUEST_ECN,
- 	VIRTIO_NET_F_GUEST_UFO,
--	VIRTIO_NET_F_GUEST_CSUM
-+	VIRTIO_NET_F_GUEST_CSUM,
-+	VIRTIO_NET_F_GUEST_USO4,
-+	VIRTIO_NET_F_GUEST_USO6
- };
+diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
+index 3f55a4215f11..620addc5767b 100644
+--- a/include/uapi/linux/virtio_net.h
++++ b/include/uapi/linux/virtio_net.h
+@@ -56,6 +56,9 @@
+ #define VIRTIO_NET_F_MQ	22	/* Device supports Receive Flow
+ 					 * Steering */
+ #define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
++#define VIRTIO_NET_F_GUEST_USO4	54	/* Guest can handle USOv4 in. */
++#define VIRTIO_NET_F_GUEST_USO6	55	/* Guest can handle USOv6 in. */
++#define VIRTIO_NET_F_HOST_USO	56	/* Host can handle USO in. */
  
- #define GUEST_OFFLOAD_GRO_HW_MASK ((1ULL << VIRTIO_NET_F_GUEST_TSO4) | \
- 				(1ULL << VIRTIO_NET_F_GUEST_TSO6) | \
- 				(1ULL << VIRTIO_NET_F_GUEST_ECN)  | \
--				(1ULL << VIRTIO_NET_F_GUEST_UFO))
-+				(1ULL << VIRTIO_NET_F_GUEST_UFO)  | \
-+				(1ULL << VIRTIO_NET_F_GUEST_USO4) | \
-+				(1ULL << VIRTIO_NET_F_GUEST_USO6))
- 
- struct virtnet_stat_desc {
- 	char desc[ETH_GSTRING_LEN];
-@@ -2530,7 +2534,9 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
- 	        virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_TSO6) ||
- 	        virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_ECN) ||
- 		virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_UFO) ||
--		virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_CSUM))) {
-+		virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_CSUM) ||
-+		virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_USO4) ||
-+		virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_USO6))) {
- 		NL_SET_ERR_MSG_MOD(extack, "Can't set XDP while host is implementing GRO_HW/CSUM, disable GRO_HW/CSUM first");
- 		return -EOPNOTSUPP;
- 	}
-@@ -3155,6 +3161,8 @@ static int virtnet_probe(struct virtio_device *vdev)
- 			dev->hw_features |= NETIF_F_TSO6;
- 		if (virtio_has_feature(vdev, VIRTIO_NET_F_HOST_ECN))
- 			dev->hw_features |= NETIF_F_TSO_ECN;
-+		if (virtio_has_feature(vdev, VIRTIO_NET_F_HOST_USO))
-+			dev->hw_features |= NETIF_F_GSO_UDP_L4;
- 
- 		dev->features |= NETIF_F_GSO_ROBUST;
- 
-@@ -3169,6 +3177,9 @@ static int virtnet_probe(struct virtio_device *vdev)
- 		dev->features |= NETIF_F_GRO_HW;
- 	if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS))
- 		dev->hw_features |= NETIF_F_GRO_HW;
-+	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_USO4) ||
-+	    virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_USO6))
-+		dev->hw_features |= NETIF_F_LRO;
- 
- 	dev->vlan_features = dev->features;
- 
-@@ -3200,7 +3211,9 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO4) ||
- 	    virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO6) ||
- 	    virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_ECN) ||
--	    virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_UFO))
-+	    virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_UFO) ||
-+	    virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_USO4) ||
-+	    virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_USO6))
- 		vi->big_packets = true;
- 
- 	if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF))
-@@ -3400,6 +3413,7 @@ static struct virtio_device_id id_table[] = {
- 	VIRTIO_NET_F_HOST_TSO4, VIRTIO_NET_F_HOST_UFO, VIRTIO_NET_F_HOST_TSO6, \
- 	VIRTIO_NET_F_HOST_ECN, VIRTIO_NET_F_GUEST_TSO4, VIRTIO_NET_F_GUEST_TSO6, \
- 	VIRTIO_NET_F_GUEST_ECN, VIRTIO_NET_F_GUEST_UFO, \
-+	VIRTIO_NET_F_HOST_USO, VIRTIO_NET_F_GUEST_USO4, VIRTIO_NET_F_GUEST_USO6, \
- 	VIRTIO_NET_F_MRG_RXBUF, VIRTIO_NET_F_STATUS, VIRTIO_NET_F_CTRL_VQ, \
- 	VIRTIO_NET_F_CTRL_RX, VIRTIO_NET_F_CTRL_VLAN, \
- 	VIRTIO_NET_F_GUEST_ANNOUNCE, VIRTIO_NET_F_MQ, \
+ #define VIRTIO_NET_F_HASH_REPORT  57	/* Supports hash report */
+ #define VIRTIO_NET_F_RSS	  60	/* Supports RSS RX steering */
+@@ -130,6 +133,7 @@ struct virtio_net_hdr_v1 {
+ #define VIRTIO_NET_HDR_GSO_TCPV4	1	/* GSO frame, IPv4 TCP (TSO) */
+ #define VIRTIO_NET_HDR_GSO_UDP		3	/* GSO frame, IPv4 UDP (UFO) */
+ #define VIRTIO_NET_HDR_GSO_TCPV6	4	/* GSO frame, IPv6 TCP */
++#define VIRTIO_NET_HDR_GSO_UDP_L4	5	/* GSO frame, IPv4 & IPv6 UDP (USO) */
+ #define VIRTIO_NET_HDR_GSO_ECN		0x80	/* TCP has ECN set */
+ 	__u8 gso_type;
+ 	__virtio16 hdr_len;	/* Ethernet + IP + tcp/udp hdrs */
 -- 
 2.34.1
 
