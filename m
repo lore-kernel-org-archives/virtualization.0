@@ -4,89 +4,101 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A3E79C433EF
-	for <virtualization@archiver.kernel.org>; Tue, 25 Jan 2022 08:47:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 678B6C433F5
+	for <virtualization@archiver.kernel.org>; Tue, 25 Jan 2022 11:14:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 409FC40472;
-	Tue, 25 Jan 2022 08:47:32 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id F09FB4063F;
+	Tue, 25 Jan 2022 11:14:33 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id yU3ukIjxehFZ; Tue, 25 Jan 2022 08:47:31 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id BE98A40A95;
-	Tue, 25 Jan 2022 08:47:30 +0000 (UTC)
+	with ESMTP id eLtfESeJqvPR; Tue, 25 Jan 2022 11:14:32 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 39C20403B8;
+	Tue, 25 Jan 2022 11:14:32 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E9370C007F;
-	Tue, 25 Jan 2022 08:47:29 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id AECF1C002F
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E8CFBC0039;
+	Tue, 25 Jan 2022 11:14:31 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0CEC9C002F
  for <virtualization@lists.linux-foundation.org>;
- Tue, 25 Jan 2022 08:47:27 +0000 (UTC)
+ Tue, 25 Jan 2022 11:14:31 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 9CD474176C
+ by smtp1.osuosl.org (Postfix) with ESMTP id EF2A283F9F
  for <virtualization@lists.linux-foundation.org>;
- Tue, 25 Jan 2022 08:47:27 +0000 (UTC)
+ Tue, 25 Jan 2022 11:14:30 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=daynix-com.20210112.gappssmtp.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id QhEeM79Iw9q4
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id dQbDDd2oZ9uy
  for <virtualization@lists.linux-foundation.org>;
- Tue, 25 Jan 2022 08:47:25 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-lj1-x233.google.com (mail-lj1-x233.google.com
- [IPv6:2a00:1450:4864:20::233])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 861B14175F
+ Tue, 25 Jan 2022 11:14:30 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 0824A83F9C
  for <virtualization@lists.linux-foundation.org>;
- Tue, 25 Jan 2022 08:47:25 +0000 (UTC)
-Received: by mail-lj1-x233.google.com with SMTP id q22so6967804ljh.7
+ Tue, 25 Jan 2022 11:14:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1643109268;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=Rvvfbm9DdsitiqMaGToeqN6bn83eZm9ryJcgfNBtuTE=;
+ b=iqnIRjWq82deHBv9kQWCm8DBUiqwWrgE050tBdianh7qzhq5WUwdlDYNskpVz2h3AD65Iw
+ /01qBKBQCZkJuberkglCVaCPnMKZTQNVaekkDxxNLo7UM3SNqH41YQYqZpTTQvCxq4yLtx
+ q31TxkqQfBdbe7ABhwxZUPLQN4YR/lg=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-575-lwIUc8qrMBCnrpLjnd-uHg-1; Tue, 25 Jan 2022 06:14:27 -0500
+X-MC-Unique: lwIUc8qrMBCnrpLjnd-uHg-1
+Received: by mail-wm1-f70.google.com with SMTP id
+ l20-20020a05600c1d1400b0034c29cad547so1084303wms.2
  for <virtualization@lists.linux-foundation.org>;
- Tue, 25 Jan 2022 00:47:25 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=daynix-com.20210112.gappssmtp.com; s=20210112;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:content-transfer-encoding;
- bh=UtVU5Ioannj5lFzXA15MNhoL0jZF5uZA66JN5wY/VHo=;
- b=z1PVhkYnURa8uk4TdLAjmi4ey/+drh7NOxm8j5ND/n779yDew1YHn/TF1jSwclCBNz
- aExTGYGyghejwUs2hNWH+nYD08V+6xE6xa9k3FvihZgFRyQhDqgUNyWRjKuGBUU2UwEH
- q/SMJMs8GRd06V8oHMqLFnZsM74NV2Oc7IRvEkxixGzFVkyyLU8O7n5ef0vSET7gfXuv
- Eaqko63J/8AeudSImrul4ef25S9Vtr6a4tHVIoxmzTvfuHzDeiBXBZXsB9SEbGiDs703
- ChOXRRz2i7aT/wwqwgOrbR6ziolJ3xFET6e8Y6A2aFvx09YMk8ZoqJ7T6/usZsZeU/1C
- nFUQ==
+ Tue, 25 Jan 2022 03:14:27 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
- :references:mime-version:content-transfer-encoding;
- bh=UtVU5Ioannj5lFzXA15MNhoL0jZF5uZA66JN5wY/VHo=;
- b=gs843fFS0AuhkVx8jqS9HweYKom0QyKWWwsyrFFgz1nQae3GiixZDGdXbibgQOli+d
- jZaks5iw91zn+1GdA9bbhuM4mKH2bEaFADcZpzZSECQUBwAVHCRsyJyqpnrIa+/CQPr4
- QF3v2DXdYFPWhlz0XlymJxrZHU9YcaO4E9OV4FA0k6qp4Sdb9BlKH+jv5DzjEZ7MASHx
- nhDaJv7kM2FUXzz9+PA1HeHUmW8yTHZ5OUPguXbxyuTKEOJDVuc1ClZxR5+FzRECG7oO
- wM7X37Ds4PjsqRi63lT5tNPl0g2W8NofXua78pRXeJWvkXxgbWZrbtj0TGOseDUPjjka
- wVtw==
-X-Gm-Message-State: AOAM530LsY9Wgf/z/0tM5gdbhz43X0mhdiQq02bj9bev2lHAtV/eVnRi
- OMkbnYmwAWd+Z14gw5l1S8T4U1O/HbWgC2E9l04=
-X-Google-Smtp-Source: ABdhPJwyonKvuxlj8x8ao+iZgQDBoPXfdR2ybG7ru6rdG/cLdX4fw/FgGqWs+2hNx2lMu2DLvmkRLA==
-X-Received: by 2002:a2e:9654:: with SMTP id z20mr14066133ljh.526.1643100443571; 
- Tue, 25 Jan 2022 00:47:23 -0800 (PST)
-Received: from navi.cosmonova.net.ua ([95.67.24.131])
- by smtp.gmail.com with ESMTPSA id q5sm1418944lfe.279.2022.01.25.00.47.22
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=Rvvfbm9DdsitiqMaGToeqN6bn83eZm9ryJcgfNBtuTE=;
+ b=ot9ePEbe4Cio54q0fd4RHqSg1KGdMfj4IlMX+oNRM4NycGl0FmRWAaTXLxR5gEBgKZ
+ nPqxupMSH+pJ1ChCCpW8c+LYHEM1ARsQcllnOfSuKQ5xaxsXRkMonejpmDz7sgxi3uut
+ awYaFz6WUwm4eKBJiQmugjMTjJM6/DCNsJs208dd3Ubro6YMSHhsg0GyqYyAU+c53nB+
+ F40pmKEM08kGfVqQwUHTwJV6DQMhCLDXoMCINpML4drp7w+h3kP1k2qoiUxnTy17pTWM
+ 4L9wrYG2lmiOBq1gNZSAK5Bef2O5Hi2IzZIqOsewy4KT5znEeu20kTwJGz+MXnVVdVhR
+ xDvw==
+X-Gm-Message-State: AOAM531A8ysq/Xphe7Y5m6Hlkyz25VTRbW57GQSUu3f9IzYz+MhiX85q
+ p/8mFaxMSp6zSewBrp5tXJiwATcjW4f+Q0PJ9HAcSs5nM3HQyOrZLcOidz3jgfmdyHpyJuFfCkv
+ xYUv+E90BwgyaZs5SMHkgv+jxiWzK57+z93aVjZL9RQ==
+X-Received: by 2002:adf:ebd2:: with SMTP id v18mr18147958wrn.502.1643109266376; 
+ Tue, 25 Jan 2022 03:14:26 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwe9f8UE+t1HaCGIVAqAvlkesdvDMkIgGHznqy4t0x7dqgJcd7Nmt776tM9Ir7lrl12OgiLkA==
+X-Received: by 2002:adf:ebd2:: with SMTP id v18mr18147939wrn.502.1643109266078; 
+ Tue, 25 Jan 2022 03:14:26 -0800 (PST)
+Received: from steredhat ([62.19.185.119])
+ by smtp.gmail.com with ESMTPSA id t14sm60428wmq.21.2022.01.25.03.14.24
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 25 Jan 2022 00:47:23 -0800 (PST)
-From: Andrew Melnychenko <andrew@daynix.com>
-To: davem@davemloft.net, kuba@kernel.org, mst@redhat.com, jasowang@redhat.com,
+ Tue, 25 Jan 2022 03:14:25 -0800 (PST)
+Date: Tue, 25 Jan 2022 12:14:22 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: Re: [PATCH v1] vhost: cache avail index in vhost_enable_notify()
+Message-ID: <20220125111422.tmsnk575jo7ckt46@steredhat>
+References: <20220114090508.36416-1-sgarzare@redhat.com>
+ <Ye6OJdi2M1EBx7b3@stefanha-x1.localdomain>
+MIME-Version: 1.0
+In-Reply-To: <Ye6OJdi2M1EBx7b3@stefanha-x1.localdomain>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
  netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
  virtualization@lists.linux-foundation.org
-Subject: [RFC PATCH 3/5] uapi/linux/virtio_net.h: Added USO types.
-Date: Tue, 25 Jan 2022 10:47:00 +0200
-Message-Id: <20220125084702.3636253-4-andrew@daynix.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220125084702.3636253-1-andrew@daynix.com>
-References: <20220125084702.3636253-1-andrew@daynix.com>
-MIME-Version: 1.0
-Cc: yan@daynix.com, yuri.benditovich@daynix.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -98,45 +110,79 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Added new GSO type for USO: VIRTIO_NET_HDR_GSO_UDP_L4.
-Feature VIRTIO_NET_F_HOST_USO allows to enable NETIF_F_GSO_UDP_L4.
-Separated VIRTIO_NET_F_GUEST_USO4 & VIRTIO_NET_F_GUEST_USO6 features
-required for Windows guests.
+On Mon, Jan 24, 2022 at 11:31:49AM +0000, Stefan Hajnoczi wrote:
+>On Fri, Jan 14, 2022 at 10:05:08AM +0100, Stefano Garzarella wrote:
+>> In vhost_enable_notify() we enable the notifications and we read
+>> the avail index to check if new buffers have become available in
+>> the meantime.
+>>
+>> We are not caching the avail index, so when the device will call
+>> vhost_get_vq_desc(), it will find the old value in the cache and
+>> it will read the avail index again.
+>
+>I think this wording is clearer because we do keep a cached the avail
+>index value, but the issue is we don't update it:
+>s/We are not caching the avail index/We do not update the cached avail
+>index value/
 
-Signed-off-by: Andrew Melnychenko <andrew@daynix.com>
----
- include/uapi/linux/virtio_net.h | 4 ++++
- 1 file changed, 4 insertions(+)
+I'll fix in v3.
+It seems I forgot to CC you on v2: 
+https://lore.kernel.org/virtualization/20220121153108.187291-1-sgarzare@redhat.com/
 
-diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
-index 3f55a4215f11..620addc5767b 100644
---- a/include/uapi/linux/virtio_net.h
-+++ b/include/uapi/linux/virtio_net.h
-@@ -56,6 +56,9 @@
- #define VIRTIO_NET_F_MQ	22	/* Device supports Receive Flow
- 					 * Steering */
- #define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
-+#define VIRTIO_NET_F_GUEST_USO4	54	/* Guest can handle USOv4 in. */
-+#define VIRTIO_NET_F_GUEST_USO6	55	/* Guest can handle USOv6 in. */
-+#define VIRTIO_NET_F_HOST_USO	56	/* Host can handle USO in. */
- 
- #define VIRTIO_NET_F_HASH_REPORT  57	/* Supports hash report */
- #define VIRTIO_NET_F_RSS	  60	/* Supports RSS RX steering */
-@@ -130,6 +133,7 @@ struct virtio_net_hdr_v1 {
- #define VIRTIO_NET_HDR_GSO_TCPV4	1	/* GSO frame, IPv4 TCP (TSO) */
- #define VIRTIO_NET_HDR_GSO_UDP		3	/* GSO frame, IPv4 UDP (UFO) */
- #define VIRTIO_NET_HDR_GSO_TCPV6	4	/* GSO frame, IPv6 TCP */
-+#define VIRTIO_NET_HDR_GSO_UDP_L4	5	/* GSO frame, IPv4 & IPv6 UDP (USO) */
- #define VIRTIO_NET_HDR_GSO_ECN		0x80	/* TCP has ECN set */
- 	__u8 gso_type;
- 	__virtio16 hdr_len;	/* Ethernet + IP + tcp/udp hdrs */
--- 
-2.34.1
+>
+>>
+>> It would be better to refresh the cache every time we read avail
+>> index, so let's change vhost_enable_notify() caching the value in
+>> `avail_idx` and compare it with `last_avail_idx` to check if there
+>> are new buffers available.
+>>
+>> Anyway, we don't expect a significant performance boost because
+>> the above path is not very common, indeed vhost_enable_notify()
+>> is often called with unlikely(), expecting that avail index has
+>> not been updated.
+>>
+>> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+>> ---
+>> v1:
+>> - improved the commit description [MST, Jason]
+>> ---
+>>  drivers/vhost/vhost.c | 3 ++-
+>>  1 file changed, 2 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+>> index 59edb5a1ffe2..07363dff559e 100644
+>> --- a/drivers/vhost/vhost.c
+>> +++ b/drivers/vhost/vhost.c
+>> @@ -2543,8 +2543,9 @@ bool vhost_enable_notify(struct vhost_dev *dev, 
+>> struct vhost_virtqueue *vq)
+>>  		       &vq->avail->idx, r);
+>>  		return false;
+>>  	}
+>> +	vq->avail_idx = vhost16_to_cpu(vq, avail_idx);
+>>
+>> -	return vhost16_to_cpu(vq, avail_idx) != vq->avail_idx;
+>> +	return vq->avail_idx != vq->last_avail_idx;
+>
+>vhost_vq_avail_empty() has a fast path that's missing in
+>vhost_enable_notify():
+>
+>  if (vq->avail_idx != vq->last_avail_idx)
+>      return false;
+
+Yep, I thought about that, but devices usually call 
+vhost_enable_notify() right when vq->avail_idx == vq->last_avail_idx, so 
+I don't know if it's an extra check for a branch that will never be 
+taken.
+
+Do you think it is better to add that check? (maybe with unlikely())
+
+Thanks,
+Stefano
 
 _______________________________________________
 Virtualization mailing list
