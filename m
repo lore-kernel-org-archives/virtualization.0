@@ -1,101 +1,99 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7A81FC63682
-	for <virtualization@archiver.kernel.org>; Wed, 26 Jan 2022 09:27:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1FC8FC3526D
+	for <virtualization@archiver.kernel.org>; Wed, 26 Jan 2022 14:14:15 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id E265640183;
-	Wed, 26 Jan 2022 09:27:33 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id A756441616;
+	Wed, 26 Jan 2022 14:14:14 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 7KR2XDLvP7Pw; Wed, 26 Jan 2022 09:27:32 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id KWCRMm3Wgcbb; Wed, 26 Jan 2022 14:14:13 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id EF7B040103;
-	Wed, 26 Jan 2022 09:27:31 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 4713740247;
+	Wed, 26 Jan 2022 14:14:13 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B8378C0031;
-	Wed, 26 Jan 2022 09:27:31 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 980D8C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 26CC0C0039;
+	Wed, 26 Jan 2022 14:14:13 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 52844C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 26 Jan 2022 09:27:30 +0000 (UTC)
+ Wed, 26 Jan 2022 14:14:12 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 75A7440183
+ by smtp4.osuosl.org (Postfix) with ESMTP id 2CA87415DF
  for <virtualization@lists.linux-foundation.org>;
- Wed, 26 Jan 2022 09:27:30 +0000 (UTC)
+ Wed, 26 Jan 2022 14:14:12 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ylAxF-Hz9lMp
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 7iuNjKYoVsq8
  for <virtualization@lists.linux-foundation.org>;
- Wed, 26 Jan 2022 09:27:28 +0000 (UTC)
+ Wed, 26 Jan 2022 14:14:11 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 3863C40103
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 8198740247
  for <virtualization@lists.linux-foundation.org>;
- Wed, 26 Jan 2022 09:27:28 +0000 (UTC)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by smtp-out1.suse.de (Postfix) with ESMTPS id 8BD54212BF;
- Wed, 26 Jan 2022 09:27:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
- t=1643189245; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
+ Wed, 26 Jan 2022 14:14:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1643206450;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=KYpEiGK3ZZrbGlIMn1GiimLekwuOkP30FhRWgFzfNL4=;
- b=KUrcZW+ZrP3PWs1LyFoOmANdJw2sANUUe/xOvO841e19zsRGMrBBr3/yXceRmChglTXu7K
- j7EDr7CNbv3L4xOWSrU2DDR11kUZvuxMMLkJBLMso6kwFM9sNkL8XRHnawtahVhu0RNpFT
- P+Aq7sNAD8s0hO0OtUuqsvHU4k0QIa8=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
- s=susede2_ed25519; t=1643189245;
- h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=KYpEiGK3ZZrbGlIMn1GiimLekwuOkP30FhRWgFzfNL4=;
- b=eYr7rT7lf9/jXwUJ98PIDo/BEVJVr14oyJxBGtdFFewNToNpRUVXbAWv+agYKUkvuwKGlY
- VN7deTaKrjC3WpAA==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id BBEBA13B2B;
- Wed, 26 Jan 2022 09:27:24 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
- by imap2.suse-dmz.suse.de with ESMTPSA id CNwsLPwT8WFmSQAAMHmgww
- (envelope-from <jroedel@suse.de>); Wed, 26 Jan 2022 09:27:24 +0000
-Date: Wed, 26 Jan 2022 10:27:23 +0100
-From: Joerg Roedel <jroedel@suse.de>
-To: Borislav Petkov <bp@alien8.de>
-Subject: Re: [PATCH v2 03/12] x86/sev: Save and print negotiated GHCB
- protocol version
-Message-ID: <YfET+7amPSKLnZWu@suse.de>
-References: <20210913155603.28383-1-joro@8bytes.org>
- <20210913155603.28383-4-joro@8bytes.org> <YYKcS2OIzAV+MTzr@zn.tnic>
+ bh=sIHOSHa8eGkKGGsPkDgJCA6OjwUd7QYCWYjmU+mG6O0=;
+ b=YjGsliaLe+GJEvnt/Y+5wUXLcVzxsSmrMS8pZV3zvBcqkq1CxptHcYqRMXwm/30ryL8NDR
+ KdmobClCuIx3EzHWBO9vyyhWCSkRGC6CoYMnche4CHXITN3jo1SGLPrlhPZ+g0MsuxLYtv
+ lrfG+0ktx1aRGfEJ9WxKKGSQmWQiSko=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-147-FdHl94vEMDifE0RlsgqgNA-1; Wed, 26 Jan 2022 09:14:09 -0500
+X-MC-Unique: FdHl94vEMDifE0RlsgqgNA-1
+Received: by mail-wr1-f72.google.com with SMTP id
+ c9-20020adfa709000000b001dde29c3202so502502wrd.22
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 26 Jan 2022 06:14:08 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=sIHOSHa8eGkKGGsPkDgJCA6OjwUd7QYCWYjmU+mG6O0=;
+ b=zB2kCuhtWkUnkkTjTdFQoZh8WXFpiELV53r/5Epqg8jq1c2T27fzdqL2HLTCdVcKn/
+ 5/URt7V/x88kle+OaeF2Ihs7mUT4FVrjBsBEphrpb+Arv6kvJBS8zVDnmENgCpv0+E4F
+ T/cFle3vlhkR3jdiMk+P/sb7fi49VTw0TlVhKxsmk69uzUFnCZtQnIaNW0fUiM+RlcXJ
+ ZR17MpNV8DVlK0UCskTLJPdSnKMP0FEoxQl12jZd2Pvr/U4n1YX2Sw2UD4ulMLENRV/C
+ NgdZ069lXAwUHMBBt3XKf18u6S5fw6B0XB5LBEj4M5mMVrqpYa/wtbYW7lormasaVxDn
+ gIEA==
+X-Gm-Message-State: AOAM532plU4/YPnhXjGAY4aygWab419eYConu70NYo6sVrKkM+heEhZd
+ uMtZW5QdTIg+UHt6yxpAgvKlAHYVIjFjWepTn8PKdVbYvu/rYAsdCrEhzfdZ8VLKK8e7EBPoGCS
+ AtAzXEBnjHbcb00K0HvrQ+kd5o2DsjwtW1Mn761XuTQ==
+X-Received: by 2002:a7b:c181:: with SMTP id y1mr7547569wmi.137.1643206447919; 
+ Wed, 26 Jan 2022 06:14:07 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJyxsuOF3MaH44FkbRm4WHcKCRq305PlEtcSv3SMmq9JgF98lmfEoXB0+wfRuQwNcMIKUfVgdQ==
+X-Received: by 2002:a7b:c181:: with SMTP id y1mr7547554wmi.137.1643206447732; 
+ Wed, 26 Jan 2022 06:14:07 -0800 (PST)
+Received: from redhat.com ([2.55.9.226])
+ by smtp.gmail.com with ESMTPSA id n14sm12369103wri.75.2022.01.26.06.14.05
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 26 Jan 2022 06:14:07 -0800 (PST)
+Date: Wed, 26 Jan 2022 09:14:03 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Zhu Lingshan <lingshan.zhu@intel.com>
+Subject: Re: [PATCH V3 0/4] vDPA/ifcvf: implement shared IRQ feature
+Message-ID: <20220126091329-mutt-send-email-mst@kernel.org>
+References: <20220126124912.90205-1-lingshan.zhu@intel.com>
 MIME-Version: 1.0
+In-Reply-To: <20220126124912.90205-1-lingshan.zhu@intel.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-In-Reply-To: <YYKcS2OIzAV+MTzr@zn.tnic>
-Cc: kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
- Dave Hansen <dave.hansen@linux.intel.com>,
- virtualization@lists.linux-foundation.org,
- Arvind Sankar <nivedita@alum.mit.edu>, hpa@zytor.com,
- Jiri Slaby <jslaby@suse.cz>, Joerg Roedel <joro@8bytes.org>, x86@kernel.org,
- David Rientjes <rientjes@google.com>, Masami Hiramatsu <mhiramat@kernel.org>,
- Martin Radev <martin.b.radev@gmail.com>,
- Tom Lendacky <thomas.lendacky@amd.com>, Kees Cook <keescook@chromium.org>,
- Cfir Cohen <cfir@google.com>, linux-coco@lists.linux.dev,
- Andy Lutomirski <luto@kernel.org>, Dan Williams <dan.j.williams@intel.com>,
- Juergen Gross <jgross@suse.com>, Mike Stunes <mstunes@vmware.com>,
- Sean Christopherson <seanjc@google.com>, kexec@lists.infradead.org,
- linux-kernel@vger.kernel.org, Eric Biederman <ebiederm@xmission.com>,
- Erdem Aktas <erdemaktas@google.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -107,45 +105,54 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Nov 03, 2021 at 03:27:23PM +0100, Borislav Petkov wrote:
-> On Mon, Sep 13, 2021 at 05:55:54PM +0200, Joerg Roedel wrote:
-> > From: Joerg Roedel <jroedel@suse.de>
-> > =
+On Wed, Jan 26, 2022 at 08:49:08PM +0800, Zhu Lingshan wrote:
+> It has been observed that on some platforms/devices, there may
+> not be enough MSI vectors for virtqueues and the config change.
+> Under such circumstances, the interrupt sources of a device
+> have to share vectors/IRQs.
+> 
+> This series implemented a shared IRQ feature for ifcvf.
+> 
+> Please help review.
 
-> > Save the results of the GHCB protocol negotiation into a data structure
-> > and print information about versions supported and used to the kernel
-> > log.
-> =
+Given the history, can you please report which tests
+were performed with this patchset? Which configs tested?
+Thanks?
 
-> Which is useful for?
-
-For easier debugging, I added a sentence about that to the changelog.
-
-> > +struct sev_ghcb_protocol_info {
-> =
-
-> Too long a name - ghcb_info is perfectly fine.
-
-Changed, thanks.
-
--- =
-
-J=F6rg R=F6del
-jroedel@suse.de
-
-SUSE Software Solutions Germany GmbH
-Maxfeldstr. 5
-90409 N=FCrnberg
-Germany
- =
-
-(HRB 36809, AG N=FCrnberg)
-Gesch=E4ftsf=FChrer: Ivo Totev
+> Changes from V2:
+> (1) Fix misuse of nvectors(in ifcvf_alloc_vectors return value)(Michael)
+> (2) Fix misuse of irq = get_vq_irq() in setup irqbypass(Michael)
+> (3) Coding style improvements(Michael)
+> (4) Better naming of device shared irq/shared vq irq
+> 
+> Changes from V1:
+> (1) Enable config interrupt when only one vector is allocated(Michael)
+> (2) Clean vectors/IRQs if failed to request config interrupt
+> since config interrupt is a must(Michael)
+> (3) Keep local vdpa_ops, disable irq_bypass by setting IRQ = -EINVAL
+> for shared IRQ case(Michael)
+> (4) Improvements on error messages(Michael)
+> (5) Squash functions implementation patches to the callers(Michael)
+> 
+> Zhu Lingshan (4):
+>   vDPA/ifcvf: implement IO read/write helpers in the header file
+>   vDPA/ifcvf: implement device MSIX vector allocator
+>   vhost_vdpa: don't setup irq offloading when irq_num < 0
+>   vDPA/ifcvf: implement shared IRQ feature
+> 
+>  drivers/vdpa/ifcvf/ifcvf_base.c |  67 +++-----
+>  drivers/vdpa/ifcvf/ifcvf_base.h |  60 +++++++-
+>  drivers/vdpa/ifcvf/ifcvf_main.c | 260 ++++++++++++++++++++++++++++----
+>  drivers/vhost/vdpa.c            |   4 +
+>  4 files changed, 312 insertions(+), 79 deletions(-)
+> 
+> -- 
+> 2.27.0
 
 _______________________________________________
 Virtualization mailing list
