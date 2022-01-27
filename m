@@ -1,54 +1,56 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 921B0C433EF
-	for <virtualization@archiver.kernel.org>; Thu, 27 Jan 2022 10:11:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 373E9C433FE
+	for <virtualization@archiver.kernel.org>; Thu, 27 Jan 2022 10:11:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 5188C84F13;
+	by smtp4.osuosl.org (Postfix) with ESMTP id D248F41B4B;
 	Thu, 27 Jan 2022 10:11:32 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id p0bha0oxm2VO; Thu, 27 Jan 2022 10:11:31 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id CE00D84F3A;
-	Thu, 27 Jan 2022 10:11:30 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 90A99C007A;
-	Thu, 27 Jan 2022 10:11:30 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4A18FC0031
- for <virtualization@lists.linux-foundation.org>;
- Thu, 27 Jan 2022 10:11:27 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 3888A41C5A
- for <virtualization@lists.linux-foundation.org>;
- Thu, 27 Jan 2022 10:11:27 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 7xqXs19JRQuo
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id h2_o7PHC6WNc; Thu, 27 Jan 2022 10:11:32 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 8171141C94;
+	Thu, 27 Jan 2022 10:11:31 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C515AC0031;
+	Thu, 27 Jan 2022 10:11:30 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4A161C007D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 27 Jan 2022 10:11:26 +0000 (UTC)
+ Thu, 27 Jan 2022 10:11:28 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 1E10B610B2
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 27 Jan 2022 10:11:28 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id lewz-SKK6mCq
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 27 Jan 2022 10:11:27 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 7685141C8F
+Received: from theia.8bytes.org (8bytes.org
+ [IPv6:2a01:238:4383:600:38bc:a715:4b6d:a889])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 43FE160F3B
  for <virtualization@lists.linux-foundation.org>;
- Thu, 27 Jan 2022 10:11:26 +0000 (UTC)
+ Thu, 27 Jan 2022 10:11:27 +0000 (UTC)
 Received: from cap.home.8bytes.org (p549ad610.dip0.t-ipconnect.de
  [84.154.214.16])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id ACFAC9DD;
- Thu, 27 Jan 2022 11:11:22 +0100 (CET)
+ by theia.8bytes.org (Postfix) with ESMTPSA id C1787DB2;
+ Thu, 27 Jan 2022 11:11:24 +0100 (CET)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v3 07/10] x86/sev: Use AP Jump Table blob to stop CPU
-Date: Thu, 27 Jan 2022 11:10:41 +0100
-Message-Id: <20220127101044.13803-8-joro@8bytes.org>
+Subject: [PATCH v3 10/10] x86/kexec/64: Support kexec under SEV-ES with AP
+ Jump Table Blob
+Date: Thu, 27 Jan 2022 11:10:44 +0100
+Message-Id: <20220127101044.13803-11-joro@8bytes.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220127101044.13803-1-joro@8bytes.org>
 References: <20220127101044.13803-1-joro@8bytes.org>
@@ -85,98 +87,84 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-To support kexec under SEV-ES the APs can't be parked with HLT. Upon
-wakeup the AP needs to find its way to execute at the reset vector set
-by the new kernel and in real-mode.
-
-This is what the AP jump table blob provides, so stop the APs the
-SEV-ES way by calling the AP-reset-hold VMGEXIT from the AP jump
-table.
+When the AP jump table blob is installed the kernel can hand over the
+APs from the old to the new kernel. Enable kexec when the AP jump
+table blob has been installed.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/include/asm/sev.h |  2 ++
- arch/x86/kernel/process.c  |  8 ++++++++
- arch/x86/kernel/sev.c      | 14 +++++++++++++-
- 3 files changed, 23 insertions(+), 1 deletion(-)
+ arch/x86/include/asm/sev.h         |  2 ++
+ arch/x86/kernel/machine_kexec_64.c |  3 ++-
+ arch/x86/kernel/sev.c              | 15 +++++++++++++++
+ 3 files changed, 19 insertions(+), 1 deletion(-)
 
 diff --git a/arch/x86/include/asm/sev.h b/arch/x86/include/asm/sev.h
-index 09eb2cc6f54f..e342dce3e7a1 100644
+index e342dce3e7a1..41e07d037b6e 100644
 --- a/arch/x86/include/asm/sev.h
 +++ b/arch/x86/include/asm/sev.h
-@@ -90,12 +90,14 @@ extern enum es_result sev_es_ghcb_hv_call(struct ghcb *ghcb,
- 					  struct es_em_ctxt *ctxt,
+@@ -91,6 +91,7 @@ extern enum es_result sev_es_ghcb_hv_call(struct ghcb *ghcb,
  					  u64 exit_code, u64 exit_info_1,
  					  u64 exit_info_2);
-+void sev_es_stop_this_cpu(void);
+ void sev_es_stop_this_cpu(void);
++bool sev_kexec_supported(void);
  #else
  static inline void sev_es_ist_enter(struct pt_regs *regs) { }
  static inline void sev_es_ist_exit(void) { }
- static inline int sev_es_setup_ap_jump_table(struct real_mode_header *rmh) { return 0; }
+@@ -98,6 +99,7 @@ static inline int sev_es_setup_ap_jump_table(struct real_mode_header *rmh) { ret
  static inline void sev_es_nmi_complete(void) { }
  static inline int sev_es_efi_map_ghcbs(pgd_t *pgd) { return 0; }
-+static inline void sev_es_stop_this_cpu(void) { }
+ static inline void sev_es_stop_this_cpu(void) { }
++static inline bool sev_kexec_supported(void) { return true; }
  #endif
  
  #endif
-diff --git a/arch/x86/kernel/process.c b/arch/x86/kernel/process.c
-index 81d8ef036637..09982f0fbb87 100644
---- a/arch/x86/kernel/process.c
-+++ b/arch/x86/kernel/process.c
-@@ -46,6 +46,7 @@
- #include <asm/proto.h>
- #include <asm/frame.h>
- #include <asm/unwind.h>
+diff --git a/arch/x86/kernel/machine_kexec_64.c b/arch/x86/kernel/machine_kexec_64.c
+index 5079a75f8944..c58808fe3fb5 100644
+--- a/arch/x86/kernel/machine_kexec_64.c
++++ b/arch/x86/kernel/machine_kexec_64.c
+@@ -27,6 +27,7 @@
+ #include <asm/kexec-bzimage64.h>
+ #include <asm/setup.h>
+ #include <asm/set_memory.h>
 +#include <asm/sev.h>
  
- #include "process.h"
+ #ifdef CONFIG_ACPI
+ /*
+@@ -271,7 +272,7 @@ static void load_segments(void)
  
-@@ -769,6 +770,13 @@ void stop_this_cpu(void *dummy)
- 	if (boot_cpu_has(X86_FEATURE_SME))
- 		native_wbinvd();
- 	for (;;) {
-+		/*
-+		 * SEV-ES guests need a special stop routine to support
-+		 * kexec. Try this first, if it fails the function will
-+		 * return and native_halt() is used.
-+		 */
-+		sev_es_stop_this_cpu();
-+
- 		/*
- 		 * Use native_halt() so that memory contents don't change
- 		 * (stack usage and variables) after possibly issuing the
+ static bool machine_kexec_supported(void)
+ {
+-	if (cc_platform_has(CC_ATTR_GUEST_STATE_ENCRYPT))
++	if (!sev_kexec_supported())
+ 		return false;
+ 
+ 	return true;
 diff --git a/arch/x86/kernel/sev.c b/arch/x86/kernel/sev.c
-index fcff39475fbe..71301016c3ea 100644
+index 1bced5b49150..17dcbcddd6ab 100644
 --- a/arch/x86/kernel/sev.c
 +++ b/arch/x86/kernel/sev.c
-@@ -673,7 +673,6 @@ static bool __init sev_es_setup_ghcb(void)
- 	return true;
+@@ -884,6 +884,21 @@ static int __init sev_setup_ap_jump_table(void)
  }
+ core_initcall(sev_setup_ap_jump_table);
  
--#ifdef CONFIG_HOTPLUG_CPU
- void __noreturn sev_jumptable_ap_park(void)
- {
- 	local_irq_disable();
-@@ -706,6 +705,19 @@ void __noreturn sev_jumptable_ap_park(void)
- }
- STACK_FRAME_NON_STANDARD(sev_jumptable_ap_park);
- 
-+void sev_es_stop_this_cpu(void)
++bool sev_kexec_supported(void)
 +{
-+	if (!static_branch_unlikely(&sev_es_enable_key))
-+		return;
++	if (!cc_platform_has(CC_ATTR_GUEST_STATE_ENCRYPT))
++		return true;
 +
-+	/* Only park in the AP jump table when the code has been installed */
-+	if (!sev_ap_jumptable_blob_installed)
-+		return;
-+
-+	sev_jumptable_ap_park();
++	/*
++	 * KEXEC with SEV-ES and more than one CPU is only supported
++	 * when the AP jump table is installed.
++	 */
++	if (num_possible_cpus() > 1)
++		return sev_ap_jumptable_blob_installed;
++	else
++		return true;
 +}
 +
-+#ifdef CONFIG_HOTPLUG_CPU
- static void sev_es_ap_hlt_loop(void)
+ static void __init alloc_runtime_data(int cpu)
  {
- 	struct ghcb_state state;
+ 	struct sev_es_runtime_data *data;
 -- 
 2.34.1
 
