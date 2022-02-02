@@ -4,27 +4,27 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 63C90C433EF
-	for <virtualization@archiver.kernel.org>; Wed,  2 Feb 2022 14:55:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 363C5C4332F
+	for <virtualization@archiver.kernel.org>; Wed,  2 Feb 2022 14:55:26 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id B4F9760FC1;
-	Wed,  2 Feb 2022 14:55:21 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id E04EA60FE7;
+	Wed,  2 Feb 2022 14:55:25 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 4wRH02oikFp3; Wed,  2 Feb 2022 14:55:21 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 5D8CB60FCD;
-	Wed,  2 Feb 2022 14:55:20 +0000 (UTC)
+	with ESMTP id spZcLglsb_uH; Wed,  2 Feb 2022 14:55:25 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 81BC460FDE;
+	Wed,  2 Feb 2022 14:55:24 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 33DCFC0079;
-	Wed,  2 Feb 2022 14:55:20 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A8FBAC0078;
+	Wed,  2 Feb 2022 14:55:23 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 15380C002D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 137F2C001A
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Feb 2022 14:55:19 +0000 (UTC)
+ Wed,  2 Feb 2022 14:55:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 0D6C0405B5
+ by smtp2.osuosl.org (Postfix) with ESMTP id 6C174404CD
  for <virtualization@lists.linux-foundation.org>;
  Wed,  2 Feb 2022 14:55:18 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
@@ -32,47 +32,46 @@ Authentication-Results: smtp2.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=vmware.com
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Wej5CgBQ1URh
+ with ESMTP id vT1SU3bBOfff
  for <virtualization@lists.linux-foundation.org>;
  Wed,  2 Feb 2022 14:55:16 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
 Received: from NAM10-DM6-obe.outbound.protection.outlook.com
  (mail-dm6nam10on2053.outbound.protection.outlook.com [40.107.93.53])
- by smtp2.osuosl.org (Postfix) with ESMTPS id EB1DF404CD
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 734D94058C
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Feb 2022 14:55:15 +0000 (UTC)
+ Wed,  2 Feb 2022 14:55:16 +0000 (UTC)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=oaUSbWkCxDRLAPUWyLgak8hs0g7k1+Cwafa04j0ZJyubpBtV4RdsLWUKHeUpNRlXl9K7I6cRdnGNK9PULXtdpvC95qkb4/g+JmmLHsqLh1VvNSqqaDMdxr2NOlLR1uWWmjzibQGJvHeCz9ers8LVC+to/EVO2b4le0HWcuK5aiIDDR3JiEAnfU+qsR+pK+ZcrYzOZCSMPUSGPFkG9NtSIe84YfAfQrGOoP2UvtKsGjZEvMPQUrA2AXKmjVS51aATpNwbGnCCe0gNMMVFk6cdgKPmtH4swltEWg8jas+wbeNE8Hi+udqWbS4//jx9n/IeGZrttVibrL4f1w2X6EJYMg==
+ b=exkbcWJJe2h1STt2t+pRnajSOEUtL6pDd8//jfb+4ymK4FgGxRPZNz2WhmgeKfh2T2z9wHZsXWdZZwvBYxmcyYW0/vXKaQVQmkTWijAkmdKNvZWJ0gtKZG3nDOgMohH5CGb0H4BAOAbzaan4jB9BaSxlGdxpBJglSPGfM3lv4/jfCDuglVORFqeFAhr+Y/swy513EP3CkcM5fb+gZXo8KBu5V9V7YEU7o0i3VJiex+0kAcU2gSQfK2iCc3kX8K5jxfwBmSIrtor/KYzGR8KW5wvWR6BPB5vzzbg6JXAxgP9v7bdM1Jz/NA7au02rEIAWmKOqfKqKSzPQ3OpkKlcNKg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=7W8TrdRp9GTsb3nOerdsmaGgiZw0iRhnUQ5vSw5s6Lw=;
- b=KgL65NDsYhJwuQPtwq7LWRXyz1t6XH8zI0lh1fZvUqDM4jn5r4IM8Uknt5flKysj8mGF5ICiLs1jihTTOD1XmX3Hk17tLGJ0l6pnrmmcmhs9TczuBtjPft8Wtf5ap6DWPyhQYsf3e7P0MZdnRsuPZVGLNc6f5xAymZie6e+BG+r810pPus+sSs6mZKC11Uc4L/gPtvy+6Qceo8TgO+RMKrj7cgcP6c1vgA3inCsNHEGKOTYngBrRAiY54r/G44X/e87+Sdgp3zTOuhBS9AnOPmjiO8oNdN8WZe4QI5gSMwHjkzf94ueqkezwCnkD7hiwNVY/47hsmSRNot32AKUecQ==
+ bh=26D7f31clRKoGd7hQIFPAj/GHByry7JUAE64TCDbyoo=;
+ b=iZduUMr84heHDs3ZXUwlHs8NO40p/uCPlREGPlmsQg19Ovp/eKcotDhPdFdK+IM+ValFhu4Ln+xE6qvoDL66kPiTMkUP3a/XlBuMITBeyvE1klcqV7IJoTDJV266o2kGStM1KNK8+jZRh9Xc3u3Qvba3eNemVv7SOuvqs4t8k3vLzT2CDV9oxq7G4BJZBvSVb42Icu/QZJ87u5I5dqMiu4f4ownEwmPf90QXTsFeRY8SI4Wty6qA5ghb4QvNBREsu2QXifArgh9Am07ycXfqpt3PWbZ22rd+tgw+oF+oK5BXpGDXZuXJYxtqgAEbcjqkEOL197GUwz+iKRJswbbPMg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
  dkim=none; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vmware.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=7W8TrdRp9GTsb3nOerdsmaGgiZw0iRhnUQ5vSw5s6Lw=;
- b=icqckl+jJOMjyswv1pMfUGp0NeFaXPuYaLccgXNjJsuVfEbyAVCgTPC/15Rwt7IYsEat93G7PRF/C7mdxF+xUwckfFo6GA/4M5VeuxBUM99q4tzBcQ/Y863euC6SXRmaNQgxcgm12K4xuID2U3++RO6NTYfOduUk931BkLjIM1U=
+ bh=26D7f31clRKoGd7hQIFPAj/GHByry7JUAE64TCDbyoo=;
+ b=bHRgzbWuTMB5yhdQXJvADNuTVq0LLW943oVk2psc6lCBRw7TU0U437IXbxzK41y74ycIhL0b9hceTssC+nZ+4l4C7b8kSOI5fB4lK8f7bv3Q+DGU8+f/KoF4OQDZAiwFTIYDydYCqw/NPgx2lilzNIMFRmZbdMXcNC4VdI03UaU=
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=vmware.com;
 Received: from BY3PR05MB8081.namprd05.prod.outlook.com (2603:10b6:a03:366::15)
  by BN6PR05MB2803.namprd05.prod.outlook.com (2603:10b6:404:2c::10)
  with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4975.5; Wed, 2 Feb
- 2022 14:55:13 +0000
+ 2022 14:55:14 +0000
 Received: from BY3PR05MB8081.namprd05.prod.outlook.com
  ([fe80::304c:2b94:4f26:a581]) by BY3PR05MB8081.namprd05.prod.outlook.com
  ([fe80::304c:2b94:4f26:a581%3]) with mapi id 15.20.4951.012; Wed, 2 Feb 2022
- 14:55:13 +0000
+ 14:55:14 +0000
 From: Jorgen Hansen <jhansen@vmware.com>
 To: linux-kernel@vger.kernel.org,
 	virtualization@lists.linux-foundation.org
-Subject: [PATCH 1/8] VMCI: dma dg: whitespace formatting change for vmci
- register defines
-Date: Wed,  2 Feb 2022 06:49:03 -0800
-Message-Id: <20220202144910.10349-2-jhansen@vmware.com>
+Subject: [PATCH 3/8] VMCI: dma dg: detect DMA datagram capability
+Date: Wed,  2 Feb 2022 06:49:05 -0800
+Message-Id: <20220202144910.10349-4-jhansen@vmware.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220202144910.10349-1-jhansen@vmware.com>
 References: <20220202144910.10349-1-jhansen@vmware.com>
@@ -81,58 +80,58 @@ X-ClientProxiedBy: SJ0PR03CA0362.namprd03.prod.outlook.com
  (2603:10b6:a03:366::15)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 1d77cb99-3167-44f1-b6ec-08d9e65c03e4
+X-MS-Office365-Filtering-Correlation-Id: 99a384e9-84ba-401b-0b99-08d9e65c0468
 X-MS-TrafficTypeDiagnostic: BN6PR05MB2803:EE_
 X-LD-Processed: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0,ExtAddr
 X-MS-Exchange-AtpMessageProperties: SA|SL
-X-Microsoft-Antispam-PRVS: <BN6PR05MB28032AC5F631AEBE960D34B9DA279@BN6PR05MB2803.namprd05.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:2657;
+X-Microsoft-Antispam-PRVS: <BN6PR05MB2803BE8C9DB3D1C1571F9210DA279@BN6PR05MB2803.namprd05.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:6108;
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: Q8BDzdeaWZYknG59jbHTd0Qsuo1lpJ294FB+Ve1ZJ5z30l9gE1nvI/wQTOE1cInJ9KIyKlwl064IN+9uwh5rCg3tWoPzWADaHHWU07APuyR1s0hxQYfe/m2u9LHbjczmVry9n6CpMesKPcXbHv54oFWV+swxJtFcF2chitSa4nT+Ac5M2NAiPbzSYGXI5CN8kZLxe4CRvRVoUWKY6Tk9CgJbT/Dqdi/vy2hAAmI4u9fFHQ+itHD3WvqDUgO2T32zSIkQrQYyVnecg3TArmUSfOAwQVVxPj369HVuPfEh93P5RyQ3qs83pt4KgpkdvEUwxUMRCornfkXihW7GVBl0mYTKzAgU7334SszvR59rhntKv3DUYRxt4V0sabsZ7irPHDG7RJqoIhAxSGRiP2q7DcH396c+ZY54BImHR5/rEF0N845/PQQtFJSgV4+teCcuwgCtkjzoVf129VMrvb/xD98sOxlHPKjDCQvDm11LFs/+g8M2ETiHbAjh5RQ02AscmPdeMxn/oplhc3ot+Wn6O4N32OoK4vum83Y2eljUJx2O38HqL3ptUDixXb5LGsJOzYL/RY6Z9HoQiLPjJYTVjudfwM4E6lbBij9Qon9ye9/ArAMsg1lMONzjBAU1zzdmnfMn53AhsJEWYRk4YnV+sLR1plee3ne5YTL4/3DcNgKf3duLTCG9zsizxOh/V6d0VQNtIJbY0VF7SqCckwHplQ==
+X-Microsoft-Antispam-Message-Info: Lb/e7+Uh2BJzPcH4O/2w/jm2xM2JeZdMI+0mqw2ftvsDrJ+9qzef9tXqRt/0K71VJChrZGhJyyUYae2jKJ8JHhC0vNg27moWgKbGXvRcDMZLCChXWYfKKJ6fSsQ+07RP2qb2w8hFMuP1IZR+PGfi7WrOHbkZ+TH6b324OgueuyiXafI8gnBL25DuxoyMtxu7OwkNGC1PlJPWU9s8WEduARbq7O1GmOdYWA2AhO8SablWmvBv2JTHdCt/F4bTF3JxY50FtMGmVIDzT6q5Dz9wCp9AqffacIxZ5N1B11s344wDv9axLmHgMoGhOK8djvRMZ58yHjMFsfBFM5Z/KI1BxpzP8TCk2P4wcgkoykx5LLnMty5OSSs8Df8szqpQnqKTw26lBb93dEMwZbkJAx0WoCfgu1r+qi9GVCOyiEJdxlUKljylK0WPJHqvIwCYilwgO/M7/IO2WhZ5C5xbzo1BtvtQ6EnvWTRtBOV6z8ouBU8EZ82DNDvpV5siEBzaho5B3ZcssEHz5PC30euLMfuxpF3DlCAwfamtM404kXxgOzKp9cET8SEfGlIAy8WAzU+12o/xb+uWwHoOj3rVbrIYBMBexbjAxYqwRRDH8ejbvNncC/9YMzlTxog44zaAc7tMMWyQL/YQdLcf6Dnc/eoZTGUZhH0GU3YTSh+nMEq6r3fFx70MdeLTsaZX2wkc7EtnCSqXXLmGQqRPks4UvUlXTQ==
 X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
  IPV:NLI; SFV:NSPM; H:BY3PR05MB8081.namprd05.prod.outlook.com; PTR:; CAT:NONE;
  SFS:(13230001)(4636009)(366004)(52116002)(316002)(6512007)(38100700002)(38350700002)(5660300002)(2616005)(8676002)(8936002)(54906003)(4326008)(66476007)(66556008)(66946007)(83380400001)(107886003)(508600001)(6486002)(86362001)(1076003)(36756003)(186003)(6506007)(26005)(2906002)(6666004);
  DIR:OUT; SFP:1101; 
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?k/okn7eB/TticUDgMdzkqy7OUwBSjBHxSv3bQDjwibg0swRkmLHZ2XeM/FAQ?=
- =?us-ascii?Q?Y0qh2fmMuVfaE9iXkgA/y9GyXYZwYi4yiU0kPDuIYQiK8FUDU2YJwJdhCxJ9?=
- =?us-ascii?Q?Y/K6r6o68Cn08ulqs0zxNVtlDHOwF1VZqmDg5cVKafC6lM8689EyyT1SL5Ec?=
- =?us-ascii?Q?cyQ5pjJ/ZaXqQ6DjaytXfuuZrwtfFXR8n2fs60lLgozeEk5iXFdJ+4NuKMBX?=
- =?us-ascii?Q?EOT3h1MOCXhAXBcs2VaSFVxLrujM+4jROGxdQZb6aHE0mcW2zgmdBUnFg1NJ?=
- =?us-ascii?Q?hIaWfdiswt2vIDTFdQwHRRty2R0We2iytA/0NPR/Ou9wBDAwBYR5m0pxeJgi?=
- =?us-ascii?Q?IXydpGXjDcEGHtP87QsNQ8KxqgoKBFwAH37kmHkqo+rho/2PUe9MAEMoXySR?=
- =?us-ascii?Q?T/weFZhatVT2KSL2xZ/EmPhElKtcfTAXU70b+MPCBRvSnEQRnqZX6+2CJjj3?=
- =?us-ascii?Q?8nMGGjlPldqYQAcaPKEy8ceP0csjGKwMmO1ACxdqKeUm43P57STB/20CjIN3?=
- =?us-ascii?Q?AD4cnxpZCLHCUVEatFuNHFmipy5G11bdaBTvXbpQ5DLJnaJh9f0pgPfPG9Rx?=
- =?us-ascii?Q?NOrezWV2cb9LW4qmsOwz4WnoM+c2XeNClru2F6BJCqN0Wkn+NcZ9cEx2kvcI?=
- =?us-ascii?Q?prvZsLNNq78GSFHfjzjyfjONR06EssSNuUPqSCb0tin3XvFa3jjLg1HkVWrl?=
- =?us-ascii?Q?9mr5RU2w/QnBePMXpRsujfmQ+Nx4JN3/z55VzV4dbuWBTMvhlQ71zeML4pM4?=
- =?us-ascii?Q?qErqWfckRSruapc/BPa0kwvUTYZyJ50Qq1ZUEe8xpmyHRSNqbikUygoepYSM?=
- =?us-ascii?Q?I+CV27q9y7G+sODa4m5gmriGo8fPU+iKSQOpoMYarURRLqvIHqVM+wTv3L5L?=
- =?us-ascii?Q?mA51z5NosxVzvPgfbWPWFigIFGBjvUz8dUakDVTVPUtOiShIENXY2FACi65x?=
- =?us-ascii?Q?YJ9v0UEJybd9eF7xTOvhmGHtsWXJ1uv4QjLFrt2FEy3x2GadibUQXiw1ZOPC?=
- =?us-ascii?Q?diVaM7cXPleeWfPAKipFh5oJj5wBof44FyfbD+sY0lfZDN3HhmAQHtLHp8HP?=
- =?us-ascii?Q?IKuar+ZB4gUX7+tEoaHOdrqBRCKOAVn+Iqr1ljZ6unXH98PgeqBPGp1mgDGd?=
- =?us-ascii?Q?B86tnEhIuLOERIfhLJAH3f9JBX1TaU1iv0Zx8putpCovs44FDfEk1kwqvESb?=
- =?us-ascii?Q?feAFUucFpT6PCBOHVrDRX/0mVL90VOkLemn0wRtEgFLtJ1CelS+Fr+t6D66x?=
- =?us-ascii?Q?ACML91GqH6EOsIwVbXDH3UUBdN0+olURjaXEAFuFZZU9W2wRYnf7lJffHz9z?=
- =?us-ascii?Q?g/zRwJStfrYRdsDeD9uCiFyzn2gKshxyRGO6bdL+9HGHiNUj9alKHWVCK6z/?=
- =?us-ascii?Q?NuseYLi0i4OP+ILVVqrvgF22RdiwmzXWVaVl84ZVCNqw74iotDIfdKgqHcJX?=
- =?us-ascii?Q?6CuIVbEQV/jotoqwfovraS3hb5wIV98D8OjOQXdC3pjj5J783Mxz21H4ptv0?=
- =?us-ascii?Q?A3eudthpMWaA3BgzO2GMpXlzfUc7OY5MAl28sq/g5okMh7keGetwQBNN1hSS?=
- =?us-ascii?Q?BPXU6iB1QMGxedDw4mz6x2gxZJwyN0yc4rdjmu6rjye6v3mDDgSPjgMG6anm?=
- =?us-ascii?Q?jRoY0Peeu/jtkiscvCndxiw=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?6T+SbrF/bnKMBYf/w/mSkhFapyrrHlP+C6kFMT5vISOQ34kwfLasZDcJdMbT?=
+ =?us-ascii?Q?tVvxSFd6vZURcm1GXvpJE6qrzT1ppFqOw/Y6dh9mDBpQL+XBQxOXNEoLJ7Nd?=
+ =?us-ascii?Q?TJgd5OSZ4DaJn43sxQQfep3ZhS6a27PftuAn7KjUg6JBXKtLrd0iFlM8QaIJ?=
+ =?us-ascii?Q?7AP2+7OH94H8yPK2Rr6eKo2n61JyxYLVrRKQBUsnAuis8iatEQfqUR1u/28g?=
+ =?us-ascii?Q?o9cDdf4IYqIuu67B5N7U3W6KasqYAdQDjepPYjmFFRY/n2XbUTyPheOtBFoN?=
+ =?us-ascii?Q?+1OFN5eNCIFzTXk2ewujr3nY0mfZ8roTRxB3As0xW21G3mbbHTPuJB6Ll/8F?=
+ =?us-ascii?Q?yxfFo8WltuX7kPWeJYeoRXcXdfFk1FlvDq89a8VYbhDlBh8am5ZG28Yt7cZU?=
+ =?us-ascii?Q?s4Qnbl0obNZZffPrgc1Qh7a1BwhZAXSAMIVms5Ci+4rmNryZBGqxlbLL8DmA?=
+ =?us-ascii?Q?B2tn7jfWo7ArpOqDDetAph7pJwXItD3T0yCs3E3GPVlussMTEgYqWKHgcp7M?=
+ =?us-ascii?Q?mj0paOhDmmIZPp+YZoX0dxTRzTrKbrVPnrUfxPolZoV85rIL8WiQtjd2yxtx?=
+ =?us-ascii?Q?E+3fEjDzrdupazPNMxBq7aCMwWo5xR75n1PSEFq5LySa737JIWhdc9qO8BJG?=
+ =?us-ascii?Q?S0OfyzfPHc3IH4BHEkl9Vs887kFXDUxvGudqOcXF96gckeDRvHYJaUoNmQkz?=
+ =?us-ascii?Q?xS/yjDIifVb0Ix0f4PKmtaxHrMzvaOO4lVboUk2jqEtufp9CLTR9/4y63o9C?=
+ =?us-ascii?Q?hEAMLAlQv1rV63MRwpSwdUJMHn7aTZn+Pgf9384MzWjCutyWVq0x3TvWIUMl?=
+ =?us-ascii?Q?OIfUL6uj3sP4NVoXA/6hOgyLBTQQ7BSwRH0HwO3lzXW4Qaf+2/bu/uoxVOcd?=
+ =?us-ascii?Q?5UOwXAfaXTT9ixwx7exsxtj1jCmAzsfrD9FE5cWxo9zX6eUdMKAp/V/1wNTR?=
+ =?us-ascii?Q?cALXIEurCPwxZTnOacIqrHZtOnlZhz4wmslPpEONFeOm/HyqCGM3EOSQ81VX?=
+ =?us-ascii?Q?ZUxx9K7iHCAkzukCqTrrDcA7KV0VDHeRR3pv102f5BbyAjEj6LtriIpT6myS?=
+ =?us-ascii?Q?LDxrzPqKtfZ+YCdUCJ1Rodeg1uiRotW3BsrnzwS9TrS7Z6eYnheIPyDTnXks?=
+ =?us-ascii?Q?tfx1wOZWnzhEzkMrcqN/Mm20yPfUsR+y4RJ6atiWiO27U8j5nwJrk9LKutEf?=
+ =?us-ascii?Q?ef5ZzWsv8KVtLgCVk7ZwqoyujPJ/DmbaFi1/v6oQC7HJE3qfvXWZu41+yn4v?=
+ =?us-ascii?Q?fy7UzZKEDkNjXk6Pstnv6Ok3GX62a9FwA9aAQ4R7SPEnBhQKaoPMAHwCUmid?=
+ =?us-ascii?Q?EWLcYUa78RvpB9nN6Mova94vT8QuU1/1jXxmV+lY0vRBlaUKBB2iataQhduv?=
+ =?us-ascii?Q?3Z9yDi/ik/EvLL3T21ZOuIQVGzpKF1IUwmBYJFbCXAmtUvVm77dNpmpfwsSN?=
+ =?us-ascii?Q?cU1i/tSe94ZQ5MdoPi6tpYS4A6+PF0hci7WTShfaIr4qROVKN51Qh0XWbe7I?=
+ =?us-ascii?Q?3axoZpHlKzo1gJhpm4ymVXO2fOl7ZRqIeQ0pvSXpy+TV5zIL57RKi5yzYsAf?=
+ =?us-ascii?Q?RRC9Q7C5xBJZ0iT8AnjZrfVg8iOgA6beK633Techp1H6S3OGSYxXJtJSMxJB?=
+ =?us-ascii?Q?gSZTdx2fJwnAvatawhc8AQE=3D?=
 X-OriginatorOrg: vmware.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 1d77cb99-3167-44f1-b6ec-08d9e65c03e4
+X-MS-Exchange-CrossTenant-Network-Message-Id: 99a384e9-84ba-401b-0b99-08d9e65c0468
 X-MS-Exchange-CrossTenant-AuthSource: BY3PR05MB8081.namprd05.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Feb 2022 14:55:12.9148 (UTC)
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Feb 2022 14:55:13.7454 (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: sjGOujsPwtN4FREheUxgW8u9C/hXD12+1j0hc610O7DYDjIPNJEKzze2Xb6OPAMksGn1IaXkkc3eTT9E+0KHmg==
+X-MS-Exchange-CrossTenant-UserPrincipalName: uZx6YUyyff4ZTtRy8lacz7n+w4OsMdQNTKVQnEgmGim3qdJZ5PteV3AfLnyhAfRTWEHFrw3hpuKb+xPbeZXU/g==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN6PR05MB2803
 Cc: pv-drivers@vmware.com, gregkh@linuxfoundation.org,
  Vishnu Dasa <vdasa@vmware.com>, Jorgen Hansen <jhansen@vmware.com>
@@ -152,44 +151,50 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Update formatting of existing register defines in preparation for
-adding additional register definitions for the VMCI device.
+Detect the VMCI DMA datagram capability, and if present, ack it
+to the device.
 
 Reviewed-by: Vishnu Dasa <vdasa@vmware.com>
 Signed-off-by: Jorgen Hansen <jhansen@vmware.com>
 ---
- include/linux/vmw_vmci_defs.h | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/misc/vmw_vmci/vmci_guest.c | 11 +++++++++++
+ include/linux/vmw_vmci_defs.h      |  1 +
+ 2 files changed, 12 insertions(+)
 
+diff --git a/drivers/misc/vmw_vmci/vmci_guest.c b/drivers/misc/vmw_vmci/vmci_guest.c
+index d00430e5aba3..4bd5891ff910 100644
+--- a/drivers/misc/vmw_vmci/vmci_guest.c
++++ b/drivers/misc/vmw_vmci/vmci_guest.c
+@@ -565,6 +565,17 @@ static int vmci_guest_probe_device(struct pci_dev *pdev,
+ 		}
+ 	}
+ 
++	if (mmio_base != NULL) {
++		if (capabilities & VMCI_CAPS_DMA_DATAGRAM) {
++			caps_in_use |= VMCI_CAPS_DMA_DATAGRAM;
++		} else {
++			dev_err(&pdev->dev,
++				"Missing capability: VMCI_CAPS_DMA_DATAGRAM\n");
++			error = -ENXIO;
++			goto err_free_data_buffer;
++		}
++	}
++
+ 	dev_info(&pdev->dev, "Using capabilities 0x%x\n", caps_in_use);
+ 
+ 	/* Let the host know which capabilities we intend to use. */
 diff --git a/include/linux/vmw_vmci_defs.h b/include/linux/vmw_vmci_defs.h
-index e36cb114c188..9911ecfc18ba 100644
+index 8fc00e2685cf..1ce2cffdc3ae 100644
 --- a/include/linux/vmw_vmci_defs.h
 +++ b/include/linux/vmw_vmci_defs.h
-@@ -12,15 +12,15 @@
- #include <linux/bits.h>
+@@ -39,6 +39,7 @@
+ #define VMCI_CAPS_DATAGRAM      BIT(2)
+ #define VMCI_CAPS_NOTIFICATIONS BIT(3)
+ #define VMCI_CAPS_PPN64         BIT(4)
++#define VMCI_CAPS_DMA_DATAGRAM  BIT(5)
  
- /* Register offsets. */
--#define VMCI_STATUS_ADDR      0x00
--#define VMCI_CONTROL_ADDR     0x04
--#define VMCI_ICR_ADDR	      0x08
--#define VMCI_IMR_ADDR         0x0c
--#define VMCI_DATA_OUT_ADDR    0x10
--#define VMCI_DATA_IN_ADDR     0x14
--#define VMCI_CAPS_ADDR        0x18
--#define VMCI_RESULT_LOW_ADDR  0x1c
--#define VMCI_RESULT_HIGH_ADDR 0x20
-+#define VMCI_STATUS_ADDR        0x00
-+#define VMCI_CONTROL_ADDR       0x04
-+#define VMCI_ICR_ADDR           0x08
-+#define VMCI_IMR_ADDR           0x0c
-+#define VMCI_DATA_OUT_ADDR      0x10
-+#define VMCI_DATA_IN_ADDR       0x14
-+#define VMCI_CAPS_ADDR          0x18
-+#define VMCI_RESULT_LOW_ADDR    0x1c
-+#define VMCI_RESULT_HIGH_ADDR   0x20
- 
- /* Max number of devices. */
- #define VMCI_MAX_DEVICES 1
+ /* Interrupt Cause register bits. */
+ #define VMCI_ICR_DATAGRAM      BIT(0)
 -- 
 2.25.1
 
