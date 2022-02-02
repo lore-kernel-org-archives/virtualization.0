@@ -1,82 +1,174 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 92711C433F5
-	for <virtualization@archiver.kernel.org>; Wed,  2 Feb 2022 17:27:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A9C6CC433F5
+	for <virtualization@archiver.kernel.org>; Wed,  2 Feb 2022 21:02:31 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 29B844158A;
-	Wed,  2 Feb 2022 17:27:26 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 434DB409E0;
+	Wed,  2 Feb 2022 21:02:31 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Aa-HaApoblA3; Wed,  2 Feb 2022 17:27:25 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id tM8LhAwDy3aT; Wed,  2 Feb 2022 21:02:29 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id B6D19415AC;
-	Wed,  2 Feb 2022 17:27:24 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 2575E40590;
+	Wed,  2 Feb 2022 21:02:29 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 88A75C000B;
-	Wed,  2 Feb 2022 17:27:24 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id EBC59C001A;
+	Wed,  2 Feb 2022 21:02:28 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id BBE49C0011
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3C09CC000B
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Feb 2022 17:27:22 +0000 (UTC)
+ Wed,  2 Feb 2022 21:02:28 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 9972760BEB
+ by smtp3.osuosl.org (Postfix) with ESMTP id 383D760BF5
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Feb 2022 17:27:22 +0000 (UTC)
+ Wed,  2 Feb 2022 21:02:28 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=intel.com
+ dkim=pass (2048-bit key) header.d=oracle.com header.b="IEi6dPby";
+ dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
+ header.b="YZRq8hmY"
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 5UTqZj6wiEzv
+ with ESMTP id MaxWznJ4V-_W
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Feb 2022 17:27:21 +0000 (UTC)
+ Wed,  2 Feb 2022 21:02:27 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 91F0760AEB
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com
+ [205.220.165.32])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 5C54660AEB
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Feb 2022 17:27:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
- d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1643822841; x=1675358841;
- h=date:from:to:cc:subject:message-id:references:
- mime-version:in-reply-to;
- bh=dE+VPeGUtHZgWsAhv02d/C3FztwU1vH8EMY00U1inVA=;
- b=Uss16xLahkrbsoR/H0FIQ7BViBsd3Ip3zRmXsf5T0dCB2NbX9tnZ5zYB
- GsWY8cW1CZvv0cjiYMN1ePDvZ1GHlmLdWuaPIiB/Mx6G0ldxzu1LUJy86
- Q7gjuvD54AupRlXZuJT6h34/xjbqOP0XmMuG2GLWk4nMZyuckA7ohLGze
- Ox36hsWdXT98dPyYw0tZzlk+HrX+P5iU6DNi4Gr7mnc2LifMKtYXsmBkE
- COT4B/JVmvhf+AIUT7cOlL9UXwGxfAll8UnL+De5sqXorVOOj5ffCYIMU
- hprT6hrwELm7XZQOUZHRGoIiULJXWm/sygDR/OqPKK26uSE31iNSgxHtJ g==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10246"; a="235375743"
-X-IronPort-AV: E=Sophos;i="5.88,337,1635231600"; d="scan'208";a="235375743"
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
- by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 02 Feb 2022 09:14:15 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.88,337,1635231600"; d="scan'208";a="534924090"
-Received: from lkp-server01.sh.intel.com (HELO 276f1b88eecb) ([10.239.97.150])
- by fmsmga007.fm.intel.com with ESMTP; 02 Feb 2022 09:14:10 -0800
-Received: from kbuild by 276f1b88eecb with local (Exim 4.92)
- (envelope-from <lkp@intel.com>)
- id 1nFJCr-000UsJ-Ni; Wed, 02 Feb 2022 17:14:09 +0000
-Date: Thu, 3 Feb 2022 01:14:01 +0800
-From: kernel test robot <lkp@intel.com>
-To: Jorgen Hansen <jhansen@vmware.com>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH 7/8] VMCI: dma dg: add support for DMA datagrams sends
-Message-ID: <202202030100.5Mr551y1-lkp@intel.com>
-References: <20220202144910.10349-8-jhansen@vmware.com>
+ Wed,  2 Feb 2022 21:02:27 +0000 (UTC)
+Received: from pps.filterd (m0246627.ppops.net [127.0.0.1])
+ by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 212KwoGp024812; 
+ Wed, 2 Feb 2022 21:02:21 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+ h=from : to : cc :
+ subject : date : message-id : in-reply-to : references :
+ content-transfer-encoding : content-type : mime-version;
+ s=corp-2021-07-09; bh=PXXdV0JicyRwxDzTfgVc9CnWFDR1h6e3mgSqpxLKbUs=;
+ b=IEi6dPbyTij8yamApfQjqbdp6BIGo+mOpnHQrw6xWTOy0TPdLELzjBik9fr4DwLn/Unh
+ 2bA7donjStZoiF4gwx0E7pZRfTwujQuG8Zl51W8pryAKYrV0wRpyAgnsC8ZaGNmYsTl4
+ R2pqjqWBP67NrEemKc1iaBJJ8kB8NSKwcwf090q/VwDgezqf9iX9QNNW5pSOVLrAeZqr
+ oeJXEFQ4mIRUqtD6tfwtUyJuO7DBl2iwVL+urJDllZFwlwIuEghkL8Qc5DPV/56+Kaq1
+ q4SsO9uWnsYMqVNVxjczs5+9oK9FPFcvxQDhdRQcmqiLX9hsh9yvPoclT7huxj7E3xOJ DA== 
+Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
+ by mx0b-00069f02.pphosted.com with ESMTP id 3dxjatyf0s-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Wed, 02 Feb 2022 21:02:20 +0000
+Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
+ by aserp3020.oracle.com (8.16.1.2/8.16.1.2) with SMTP id 212L1Eju021471;
+ Wed, 2 Feb 2022 21:02:19 GMT
+Received: from nam10-dm6-obe.outbound.protection.outlook.com
+ (mail-dm6nam10lp2105.outbound.protection.outlook.com [104.47.58.105])
+ by aserp3020.oracle.com with ESMTP id 3dvwd8xt3n-7
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Wed, 02 Feb 2022 21:02:19 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=PXXcW6Ps6lqJ1ndymDz+D4JFQxQe6QXGF1S5V+ArbDm/3iLUMwschKO/SiOOEOGL+TjQA5fF2OZgYy3/Y1Zk1VVsLHTMV1gyko7dT8yBp/8s8+VBpIu9oPQhWmQ4I6sZc2z9gy5YT2kZ3FeUMXHzqRV/3oeP1xEfFZ6K+B0IBPqDrbu8Pt7xHB9ZsT9QxDCm76nwvXQQ5H4zDMwwVYUGZCUFkXiSmnZkE6vDiFg0DzmUXxVOkJBS9REdg5n5Gbm+BDoN0mTWFUHnR4GciUk0yPNZTm8wL2Xtq2pmFVuG4RESQuTVzX5J6d55Z/8z+WfbNxN+izGy6mgiOQ4TCU6p6w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=PXXdV0JicyRwxDzTfgVc9CnWFDR1h6e3mgSqpxLKbUs=;
+ b=cNVWMZaAnceau4AIlMnpa3viPfFZfC9xfIrtR3RCtXjCAoAS/R/iAsqV/ndy+C7jBQ1xnlQWcsRRIvKxnUKawo5lp0sEdV72HBdPQJhD1tp8R//cIB0dMHAYvE3U9Ut0z/pw4OFbWtHOVykotGbea7j4XqoZ+od1BYR/xTGIE43I2aLOFrG2pI/+xymnuU+afjZm6HihhcyBbwrpwFy8Gpl55tNTlDy2g/PKtHLKg10KW60dvnCFHe4Mqa+x+7j8HAqjt7wIwv65NhoV+b1eyK9Xy1WhQtrleTssPzbcISqvNkHNo9oIiQ3lUIxAXJf7hYRp66rHnMDuRkEmyhKSvA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=PXXdV0JicyRwxDzTfgVc9CnWFDR1h6e3mgSqpxLKbUs=;
+ b=YZRq8hmYR8k//HH+D2CTxCLdsQHUWVfRsyMYCfKjJ4AQ1xub47lxy0bbIR1ygp4XFZrJvfqGG0UYCn2E61bHOIyQESc8QUvyHYXynaOBnIyahGHd+a8TgVfEg5cT1G88xSZjl+NcEaenPJrZ/jl/QpePYKE5451HB8ME9mD9Y90=
+Received: from DM5PR10MB1466.namprd10.prod.outlook.com (2603:10b6:3:b::7) by
+ MN2PR10MB4014.namprd10.prod.outlook.com (2603:10b6:208:182::25) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4930.17; Wed, 2 Feb
+ 2022 21:02:16 +0000
+Received: from DM5PR10MB1466.namprd10.prod.outlook.com
+ ([fe80::21b5:910:b965:9e6c]) by DM5PR10MB1466.namprd10.prod.outlook.com
+ ([fe80::21b5:910:b965:9e6c%6]) with mapi id 15.20.4930.022; Wed, 2 Feb 2022
+ 21:02:16 +0000
+From: Mike Christie <michael.christie@oracle.com>
+To: geert@linux-m68k.org, hdanton@sina.com, hch@infradead.org,
+ stefanha@redhat.com, jasowang@redhat.com, mst@redhat.com,
+ sgarzare@redhat.com, virtualization@lists.linux-foundation.org,
+ christian.brauner@ubuntu.com, axboe@kernel.dk, ebiederm@xmission.com,
+ linux-kernel@vger.kernel.org
+Subject: [PATCH 8/8] vhost: use vhost_tasks for worker threads
+Date: Wed,  2 Feb 2022 15:02:00 -0600
+Message-Id: <20220202210200.5235-9-michael.christie@oracle.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20220202210200.5235-1-michael.christie@oracle.com>
+References: <20220202210200.5235-1-michael.christie@oracle.com>
+X-ClientProxiedBy: DS7PR05CA0067.namprd05.prod.outlook.com
+ (2603:10b6:8:57::12) To DM5PR10MB1466.namprd10.prod.outlook.com
+ (2603:10b6:3:b::7)
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20220202144910.10349-8-jhansen@vmware.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-Cc: pv-drivers@vmware.com, gregkh@linuxfoundation.org, kbuild-all@lists.01.org,
- Vishnu Dasa <vdasa@vmware.com>, Jorgen Hansen <jhansen@vmware.com>
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 8be98cfe-3983-4109-a606-08d9e68f494a
+X-MS-TrafficTypeDiagnostic: MN2PR10MB4014:EE_
+X-Microsoft-Antispam-PRVS: <MN2PR10MB40143C7A50409775A83A66A7F1279@MN2PR10MB4014.namprd10.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:334;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: uGg6QqxstN6oT6xyjuMgvS+oDU30afnXw/9EF13gokgP74EL89bBUMC7pmBi9Iw89iNhPtV24VN2KkFvAVMblf04SzraPJrlvgsT82Fz8IrlQPNfz4R21qWH7oNNVID6ycYmsueQsNt6gseYu09jks55zeUoi23G4dqb9wF50YWk9ldC6SSCyu5EC9vcUiHt8pbq+r7aX9w1s3PW5anmcIyQf7lBKATYccZF7C76HbRZC7UUz/Xn4d8ZAnHXMGpixmQDu2skev3FdQet++u/eEK4BsTISjJr3DMGRaibGXilifS8AOFt/krgVNTpKtd/UjrngoU2DBDyat0rW/Lr/CQZjCP5VwJ6b3FGxQXdmZym6Zsov2XkaDkED1Y/w0di1s62JXzv5zwJBqXlrGkJ0fvqltGcG2UeFNHHrRG46jY9YUmwkqKpsIr/pZCuFhH8NWlo4oXMrm/ADacKySzAMuCocUY/ZovascOMsISI72qQPvZn3nvOv5zIIGsDfRnervTqJ6XOPzNy6hSxImK2fiVX8vn31kmX85zj/qnu1+LYoxokdE60kFBymTYJ4tfM5DY9J8J4F9r8AaKCwYPOrITdbj8qROhzfHwx+XAtkG+QfKPIcOCWm4759biaEJZQQsKN+Fl1k73O/W+MtTShK8dK7nWzXVOnSJDXXdQRowBdVqq3qNBihIH3a/Hs98KprcYRHpIY6nRNRgJHpCnkwxgIiof4+me1CB5MCDID3m8=
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:DM5PR10MB1466.namprd10.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230001)(366004)(83380400001)(6666004)(2906002)(107886003)(316002)(38100700002)(1076003)(38350700002)(5660300002)(186003)(26005)(2616005)(66556008)(4326008)(66476007)(7416002)(6506007)(66946007)(8676002)(52116002)(921005)(6486002)(8936002)(508600001)(6512007)(36756003)(86362001);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?0wnWS43h2mG1q1fa4+eoWG2QPojAAmFIjCCF5toV4RwuEsNRTLhQTxmmyWpS?=
+ =?us-ascii?Q?UsCipJMYzLpcDbM+DcHIVwoPKSwKGbG1yeHk55LXZY0RRz9IwB00Rjf0umy9?=
+ =?us-ascii?Q?QLudhW5SUAUWuhwtZAt/oJ4pC9B9+oP2MfwXRBBdf7+G7fZBwqHzTvUnfJzT?=
+ =?us-ascii?Q?istVwPEaCdsECmWGYPXxw+ixC1bX4fPooRTOGyPuazdyIh7yzLdkoXgBAXCb?=
+ =?us-ascii?Q?5W8HtWW+nUYBve4UAzx0joxh/NFydsSpVVaIicG3KUD2c+F4Y5OLHE9qUUel?=
+ =?us-ascii?Q?kgXDYyqy320Bkb5T0w6R+5wwb6Yi3Il5fAtjxQpWP1mlzd9pcqdBrgkNbHWu?=
+ =?us-ascii?Q?kwMZ597jCxUbkw1eNgtH6bdHPoZjxm8qNnmjvcdXt7F0VnyLzVZJs5WHSMSl?=
+ =?us-ascii?Q?HvNULq87pHd3S91UBWCn4ODiKUn1/7QO7rsnQxLYCJDp7hICUdkviHNRTrO6?=
+ =?us-ascii?Q?ZsjGkMw+6jhlB8M757iIMHP/Wq9zzJSGZsFmQ1LNjD7LcSEB5/sURAaacbff?=
+ =?us-ascii?Q?ZLkcx4yLHfCogdL0Icu8DhjQRUet4Rp9ft7ioEUOQ7r/UCi9S96uOo9WJQlo?=
+ =?us-ascii?Q?PbvIddWq/45gVer08dw3hQiFCPvfEqUUrqD5OmlmuVNnaGBmSu+t+geGCIWd?=
+ =?us-ascii?Q?piFI0JiWHIVHHLoUjAh41VZA2M2dbcsaud1klYlAIOoBzmG7pR0H+jzGVo6C?=
+ =?us-ascii?Q?Wv9bCthFpAD+7P7sVLNIyrvrXEhguBQhdvO68n4K127BDULhCbNEJCnxrrLG?=
+ =?us-ascii?Q?06ApJKnq+8Z6oYsFe8p6jRcET5rNIyJjeV1Uoe7RRtf1bG8HzCnfCFP1HQXi?=
+ =?us-ascii?Q?kClrrOrNcbdtcc/a5wyB+2W/DMyJ2kibgbAZRkY+6N7Eimd311uezblAPIhU?=
+ =?us-ascii?Q?iv82DqHMdGnnkYHLWmnECz/VeSVHjvJKHfxGHmkoPkTaf6PyNH03Mc8ZvsFN?=
+ =?us-ascii?Q?Ed7EJh4spZ8XgqbRLRAQWpYx8buMzkdvoR1/T5KAg9dRxHYC7KoiDDnbHLol?=
+ =?us-ascii?Q?8sxI4J71HNq/Qam1MEPHohbfH0k3+6Xp8vzsfyS502lGbj48hvDyQxDiK1En?=
+ =?us-ascii?Q?aHsrnkNAiQEk8hEkCFgp8vZP37MSbpGpMmnW4DKm50b8cMlXnVHa6t5Ua+74?=
+ =?us-ascii?Q?AvGOo9MxM1wBl3VibAURT467mFWZ1ew2IirU89FSOWzNray+A3lUSFhPHQh+?=
+ =?us-ascii?Q?X9kuLkcSTd+fLwhsxxhIryy70EVwcz7/2gEqOnE7o6HwilPTu8v6Ej6dJUKU?=
+ =?us-ascii?Q?pJROgkYSUqXmQ6jZ9/xfjtIjIvgRidRWYwPyTQircvplrZi+a7NflGwnCWIR?=
+ =?us-ascii?Q?ghGuK/Idxd/EA75ZSfMaYh9PWjTEdmOOTcvOjcxO7pV6LIBxy0sLHx7qU/Vp?=
+ =?us-ascii?Q?Vgh66ScrCEK8ap0X80lDESGfy9K+CNJy6/Dc9BLRxPPtqR38BuHyAv45/uoL?=
+ =?us-ascii?Q?g5N1CkRCgmxmrahHuzpYfs3FhHdL7uldkURDyhOzqpO5R3mkQqzbFj0r42kG?=
+ =?us-ascii?Q?OOMcSAVqHVPzqBaFGGv7iplAWHxoJudzmZEdGWTn9xm8/QTg5xRYWOIj+rHb?=
+ =?us-ascii?Q?i3nn34svnTP69eqpKjjOOWOqdR0nuchHqtD0tIwnIUDufLLqvYYOmPUVPI39?=
+ =?us-ascii?Q?GEJx1AqnQLu3qO9kbAgJPPafOST9Ozix/Ms/emv3W/3MzzgilMeFUHaTqf4o?=
+ =?us-ascii?Q?Gxlw8Q=3D=3D?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8be98cfe-3983-4109-a606-08d9e68f494a
+X-MS-Exchange-CrossTenant-AuthSource: DM5PR10MB1466.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Feb 2022 21:02:13.4914 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: Rdc9yuW8Exd0yIFJ1dDE3OJDJndzdq1lRDECtYqQepDhwRBz2DgARyUPMNHJ80Cl4oOG68BKVoUHZf1RI60gn0c7PkVaqWj97wVXFeCW/40=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR10MB4014
+X-Proofpoint-Virus-Version: vendor=nai engine=6300 definitions=10246
+ signatures=673430
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999
+ adultscore=0
+ suspectscore=0 malwarescore=0 bulkscore=0 mlxscore=0 spamscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2202020115
+X-Proofpoint-GUID: RvkaAtiCK5Bb6EJgJuCeAY2qLVq-qjA7
+X-Proofpoint-ORIG-GUID: RvkaAtiCK5Bb6EJgJuCeAY2qLVq-qjA7
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -93,92 +185,184 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Jorgen,
+For vhost workers we use the kthread API which inherit's its values from
+and checks against the kthreadd thread. This results in the wrong RLIMITs
+being checked, so while tools like libvirt try to control the number of
+threads based on the nproc rlimit setting we can end up creating more
+threads than the user wanted.
 
-I love your patch! Perhaps something to improve:
+This patch has us use the vhost_task helpers which will inherit its
+values/checks from the thread that owns the device similar to if we did
+a clone in userspace.
 
-[auto build test WARNING on char-misc/char-misc-testing]
-[also build test WARNING on linux/master linus/master v5.17-rc2 next-20220202]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch]
-
-url:    https://github.com/0day-ci/linux/commits/Jorgen-Hansen/VMCI-dma-dg-Add-support-for-DMA-datagrams/20220202-230034
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git 7ab004dbcbee38b8a70798835d3ffcd97a985a5e
-config: x86_64-allyesconfig (https://download.01.org/0day-ci/archive/20220203/202202030100.5Mr551y1-lkp@intel.com/config)
-compiler: gcc-9 (Debian 9.3.0-22) 9.3.0
-reproduce (this is a W=1 build):
-        # https://github.com/0day-ci/linux/commit/303777a2a8daa11d529827395318bb698ddee57e
-        git remote add linux-review https://github.com/0day-ci/linux
-        git fetch --no-tags linux-review Jorgen-Hansen/VMCI-dma-dg-Add-support-for-DMA-datagrams/20220202-230034
-        git checkout 303777a2a8daa11d529827395318bb698ddee57e
-        # save the config file to linux build tree
-        mkdir build_dir
-        make W=1 O=build_dir ARCH=x86_64 SHELL=/bin/bash drivers/misc/vmw_vmci/
-
-If you fix the issue, kindly add following tag as appropriate
-Reported-by: kernel test robot <lkp@intel.com>
-
-All warnings (new ones prefixed by >>):
-
-   drivers/misc/vmw_vmci/vmci_guest.c:103:14: warning: no previous prototype for 'vmci_read_reg' [-Wmissing-prototypes]
-     103 | unsigned int vmci_read_reg(struct vmci_guest_device *dev, u32 reg)
-         |              ^~~~~~~~~~~~~
-   drivers/misc/vmw_vmci/vmci_guest.c:110:6: warning: no previous prototype for 'vmci_write_reg' [-Wmissing-prototypes]
-     110 | void vmci_write_reg(struct vmci_guest_device *dev, u32 val, u32 reg)
-         |      ^~~~~~~~~~~~~~
->> drivers/misc/vmw_vmci/vmci_guest.c:118:5: warning: no previous prototype for 'vmci_write_data' [-Wmissing-prototypes]
-     118 | int vmci_write_data(struct vmci_guest_device *dev, struct vmci_datagram *dg)
-         |     ^~~~~~~~~~~~~~~
-
-
-vim +/vmci_write_data +118 drivers/misc/vmw_vmci/vmci_guest.c
-
-   117	
- > 118	int vmci_write_data(struct vmci_guest_device *dev, struct vmci_datagram *dg)
-   119	{
-   120		int result;
-   121	
-   122		if (dev->mmio_base != NULL) {
-   123			struct vmci_data_in_out_header *buffer_header = dev->tx_buffer;
-   124			u8 *dg_out_buffer = (u8 *)(buffer_header + 1);
-   125	
-   126			if (VMCI_DG_SIZE(dg) > VMCI_MAX_DG_SIZE)
-   127				return VMCI_ERROR_INVALID_ARGS;
-   128	
-   129			/*
-   130			 * Initialize send buffer with outgoing datagram
-   131			 * and set up header for inline data. Device will
-   132			 * not access buffer asynchronously - only after
-   133			 * the write to VMCI_DATA_OUT_LOW_ADDR.
-   134			 */
-   135			memcpy(dg_out_buffer, dg, VMCI_DG_SIZE(dg));
-   136			buffer_header->opcode = 0;
-   137			buffer_header->size = VMCI_DG_SIZE(dg);
-   138			buffer_header->busy = 1;
-   139	
-   140			vmci_write_reg(dev, lower_32_bits(dev->tx_buffer_base),
-   141				       VMCI_DATA_OUT_LOW_ADDR);
-   142	
-   143			/* Caller holds a spinlock, so cannot block. */
-   144			spin_until_cond(buffer_header->busy == 0);
-   145	
-   146			result = vmci_read_reg(vmci_dev_g, VMCI_RESULT_LOW_ADDR);
-   147			if (result == VMCI_SUCCESS)
-   148				result = (int)buffer_header->result;
-   149		} else {
-   150			iowrite8_rep(dev->iobase + VMCI_DATA_OUT_ADDR,
-   151				     dg, VMCI_DG_SIZE(dg));
-   152			result = vmci_read_reg(vmci_dev_g, VMCI_RESULT_LOW_ADDR);
-   153		}
-   154	
-   155		return result;
-   156	}
-   157	
-
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
 ---
-0-DAY CI Kernel Test Service, Intel Corporation
-https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
+ drivers/vhost/vhost.c | 58 ++++++++-----------------------------------
+ drivers/vhost/vhost.h |  4 +--
+ 2 files changed, 13 insertions(+), 49 deletions(-)
+
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index c9a1f706989c..ce356f5dc751 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -22,11 +22,11 @@
+ #include <linux/slab.h>
+ #include <linux/vmalloc.h>
+ #include <linux/kthread.h>
+-#include <linux/cgroup.h>
+ #include <linux/module.h>
+ #include <linux/sort.h>
+ #include <linux/sched/mm.h>
+ #include <linux/sched/signal.h>
++#include <linux/sched/vhost_task.h>
+ #include <linux/interval_tree_generic.h>
+ #include <linux/nospec.h>
+ #include <linux/kcov.h>
+@@ -264,7 +264,7 @@ void vhost_work_queue(struct vhost_dev *dev, struct vhost_work *work)
+ 		 * test_and_set_bit() implies a memory barrier.
+ 		 */
+ 		llist_add(&work->node, &dev->worker->work_list);
+-		wake_up_process(dev->worker->task);
++		wake_up_process(dev->worker->vtsk->task);
+ 	}
+ }
+ EXPORT_SYMBOL_GPL(vhost_work_queue);
+@@ -344,17 +344,14 @@ static void vhost_vq_reset(struct vhost_dev *dev,
+ static int vhost_worker(void *data)
+ {
+ 	struct vhost_worker *worker = data;
+-	struct vhost_dev *dev = worker->dev;
+ 	struct vhost_work *work, *work_next;
+ 	struct llist_node *node;
+ 
+-	kthread_use_mm(dev->mm);
+-
+ 	for (;;) {
+ 		/* mb paired w/ kthread_stop */
+ 		set_current_state(TASK_INTERRUPTIBLE);
+ 
+-		if (kthread_should_stop()) {
++		if (vhost_task_should_stop(worker->vtsk)) {
+ 			__set_current_state(TASK_RUNNING);
+ 			break;
+ 		}
+@@ -376,7 +373,7 @@ static int vhost_worker(void *data)
+ 				schedule();
+ 		}
+ 	}
+-	kthread_unuse_mm(dev->mm);
++
+ 	return 0;
+ }
+ 
+@@ -517,31 +514,6 @@ long vhost_dev_check_owner(struct vhost_dev *dev)
+ }
+ EXPORT_SYMBOL_GPL(vhost_dev_check_owner);
+ 
+-struct vhost_attach_cgroups_struct {
+-	struct vhost_work work;
+-	struct task_struct *owner;
+-	int ret;
+-};
+-
+-static void vhost_attach_cgroups_work(struct vhost_work *work)
+-{
+-	struct vhost_attach_cgroups_struct *s;
+-
+-	s = container_of(work, struct vhost_attach_cgroups_struct, work);
+-	s->ret = cgroup_attach_task_all(s->owner, current);
+-}
+-
+-static int vhost_attach_cgroups(struct vhost_dev *dev)
+-{
+-	struct vhost_attach_cgroups_struct attach;
+-
+-	attach.owner = current;
+-	vhost_work_init(&attach.work, vhost_attach_cgroups_work);
+-	vhost_work_queue(dev, &attach.work);
+-	vhost_work_dev_flush(dev);
+-	return attach.ret;
+-}
+-
+ /* Caller should have device mutex */
+ bool vhost_dev_has_owner(struct vhost_dev *dev)
+ {
+@@ -588,14 +560,14 @@ static void vhost_worker_free(struct vhost_dev *dev)
+ 
+ 	dev->worker = NULL;
+ 	WARN_ON(!llist_empty(&worker->work_list));
+-	kthread_stop(worker->task);
++	vhost_task_stop(worker->vtsk);
+ 	kfree(worker);
+ }
+ 
+ static int vhost_worker_create(struct vhost_dev *dev)
+ {
+ 	struct vhost_worker *worker;
+-	struct task_struct *task;
++	struct vhost_task *vtsk;
+ 	int ret;
+ 
+ 	worker = kzalloc(sizeof(*worker), GFP_KERNEL_ACCOUNT);
+@@ -603,27 +575,19 @@ static int vhost_worker_create(struct vhost_dev *dev)
+ 		return -ENOMEM;
+ 
+ 	dev->worker = worker;
+-	worker->dev = dev;
+ 	worker->kcov_handle = kcov_common_handle();
+ 	init_llist_head(&worker->work_list);
+ 
+-	task = kthread_create(vhost_worker, worker, "vhost-%d", current->pid);
+-	if (IS_ERR(task)) {
+-		ret = PTR_ERR(task);
++	vtsk = vhost_task_create(vhost_worker, worker, NUMA_NO_NODE);
++	if (!vtsk) {
++		ret = -ENOMEM;
+ 		goto free_worker;
+ 	}
+ 
+-	worker->task = task;
+-	wake_up_process(task); /* avoid contributing to loadavg */
+-
+-	ret = vhost_attach_cgroups(dev);
+-	if (ret)
+-		goto stop_worker;
+-
++	worker->vtsk = vtsk;
++	vhost_task_start(vtsk, "vhost-%d", current->pid);
+ 	return 0;
+ 
+-stop_worker:
+-	kthread_stop(worker->task);
+ free_worker:
+ 	kfree(worker);
+ 	dev->worker = NULL;
+diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+index 102ce25e4e13..c9f391326dd5 100644
+--- a/drivers/vhost/vhost.h
++++ b/drivers/vhost/vhost.h
+@@ -16,6 +16,7 @@
+ #include <linux/irqbypass.h>
+ 
+ struct vhost_work;
++struct vhost_task;
+ typedef void (*vhost_work_fn_t)(struct vhost_work *work);
+ 
+ #define VHOST_WORK_QUEUED 1
+@@ -26,9 +27,8 @@ struct vhost_work {
+ };
+ 
+ struct vhost_worker {
+-	struct task_struct	*task;
++	struct vhost_task	*vtsk;
+ 	struct llist_head	work_list;
+-	struct vhost_dev	*dev;
+ 	u64			kcov_handle;
+ };
+ 
+-- 
+2.25.1
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
