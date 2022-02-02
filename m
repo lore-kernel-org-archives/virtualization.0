@@ -1,75 +1,77 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id F00CCC433F5
-	for <virtualization@archiver.kernel.org>; Wed,  2 Feb 2022 14:55:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B1A42C433FE
+	for <virtualization@archiver.kernel.org>; Wed,  2 Feb 2022 14:55:27 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 68956408FC;
-	Wed,  2 Feb 2022 14:55:25 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 5D2FD416BA;
+	Wed,  2 Feb 2022 14:55:27 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 1pN5p9VB5BkO; Wed,  2 Feb 2022 14:55:24 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id iKvtZrZ-iQhu; Wed,  2 Feb 2022 14:55:26 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id AD80140594;
-	Wed,  2 Feb 2022 14:55:23 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id B8055416C7;
+	Wed,  2 Feb 2022 14:55:25 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 7396FC001A;
-	Wed,  2 Feb 2022 14:55:23 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7E782C002D;
+	Wed,  2 Feb 2022 14:55:25 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 17280C000B
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2E761C0084
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  2 Feb 2022 14:55:24 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id E4A44408FC
  for <virtualization@lists.linux-foundation.org>;
  Wed,  2 Feb 2022 14:55:20 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 51923400C6
- for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Feb 2022 14:55:18 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=vmware.com
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id EkcqvdXsYLtc
+ with ESMTP id YPkYBPN-Z7ev
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Feb 2022 14:55:17 +0000 (UTC)
+ Wed,  2 Feb 2022 14:55:19 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
 Received: from NAM10-DM6-obe.outbound.protection.outlook.com
- (mail-dm6nam10on2084.outbound.protection.outlook.com [40.107.93.84])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 6B0A440594
+ (mail-dm6nam10on2069.outbound.protection.outlook.com [40.107.93.69])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 945A7405B5
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Feb 2022 14:55:17 +0000 (UTC)
+ Wed,  2 Feb 2022 14:55:19 +0000 (UTC)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=cgAb1c5NJleAHT/6sQ7imVJhqljmYqpNkOTgcI5IuEvJKpobVjoVHhWhPDozwtP5W85LjRzTt1iuI9lIrpB5z4FG+fpxuNeBDiAogl7NlScfkTT1wnznA+pOmDV1rMwfjVG/Xegyi39AImpjclS11UdSyUl10iduV20c/o87BO29tGF/hg217Dxd14grgnZBouiaAQlI/41pAdA50q+5lMP/we7xVZ33xTm/mQDefJtIqtm6aOrwuCuuLiZsKlRv92buMtzH2HosM6WQRWJpKza9SizVQS/NjKkPJuquzj1z2UoK1sa6K0mt/LaS8Dlyk5u0GMQoVZWUNsVnLaw/mw==
+ b=N0Ygbf7dbxJspinRb/C2RYmVl596LjIr7sXelBpZ4qcAH3i4Hx5DK1JmJ/2GDh/vb9O7yTA/8W7RrpI/lusluIvBeAkPituv18jWre+hYwJQ7Me6lR++X3RpuyhSp43BTtclthTGJ2PkKgYgoS8sJOQRpKiuVvwvsDCzA0gYSgk9EoDvpfj5J/s361OcnK2nBUdjaJhYLRefaThMOGOvLXvKmYY6rLGnKWWf744PfirMaC3UX6Ks237dYXQMVMWeDPOY2SS7juv7SxHHGWSMhz4L6U/34E8EFy/E5sZINnFtMIfUZUIATMAPaZHIocrkH0gRwcBZn/P26ZqoJ+46iQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=/QvjxuDGjlrUjQ1bBMB/reSzLifwvi9HcpfcsmsAvlc=;
- b=ASzJunho/6xtOqdfNO6GiHPBnSXLq2uO26LYzkLslox+EYefqjFvN84T0CGhbQnweth6bcfM9u54V76Qs3IuognoicSJLctgGHhk7MHES7T3NNUyIUfqGCqG43YYVSvTbd9yfj0JslUQGp+KAzEycUQe+1cG8lB1CYcgEe6mazeytwvO9sMzouTc+UDjgFtKnqliu2ykdyhhWdGWY7D8mrEg4ypaG43+LkVWn/Oanrn6NuIt1YQWokb2xfrx2A5LRcFq0L/di72Gixi3tnzDfyQS5hQrRQqpMT5qciEkLA5zg14NwQqpV7AyENBUpZZGAIcwDNhFRPD1BDESSlNB4w==
+ bh=vJvZ4QzMdhb/lLZaDpx8KRU3rPrTwODkLDDkeLD39D0=;
+ b=NH3M+di1T4ZL6I0c2qEul5cHzAZr3aUIBgeBLFyeeeRpNvKFBqkh8bpdhHG+WzHGY3PbdHUQBDsRFZxUySupQG4LZvSKxD54pjkL95t3syUkGU92LjSp13AJeHR2d7kQiKUClsVruROu5hLxW2kXoQ3rv0CVAhgTl//2kyVlah756+Icw4Ww8VGxDDer8O3gVB+i3JLvsWhNV1pAd4MVfHr6fesyLP+oTAxm3mgNULE+lHorgYPV+6h+BhuwhlF10VZ6R1uLk0xdEVvfp/3idn0xC2LX1gKKQg4ZWfMB13/hcsOJZqcQzEHfBNsOG5h8jYH6Rra85Oz+bpNUjzz6Ug==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
  dkim=none; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vmware.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=/QvjxuDGjlrUjQ1bBMB/reSzLifwvi9HcpfcsmsAvlc=;
- b=F0AJyEjMklWHV4LYQNUHl39vWHR7bNAiVfHQoEiD3uxmzUbntWbC6heWDJ/tuuVRMSCKpMuLWopZFrx/kQpKoaMEG2eY2dUTAtVX07GCltMpPBxL1kI0NTmhXve+bXzrbzLiSEn6flQPUSetjjwqyffAXopKBlr5LsTr2CRPKgE=
+ bh=vJvZ4QzMdhb/lLZaDpx8KRU3rPrTwODkLDDkeLD39D0=;
+ b=OidWfKWLGdVkeHWUU6LkBIR+94an3i9b7BsBddlowzNMxAntvAvdjGUhwrq06g6LRsohmm5fzTnqpC9QAmXiGHr7ozJsooayOvaYciTTl3elupsgxTkL6qsW0YDfSwzCPp9vuQfAW+/1Eg2G9/ioJ1jfqKuuFsJRaM+lXPKjXvE=
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=vmware.com;
 Received: from BY3PR05MB8081.namprd05.prod.outlook.com (2603:10b6:a03:366::15)
  by BN6PR05MB2803.namprd05.prod.outlook.com (2603:10b6:404:2c::10)
  with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4975.5; Wed, 2 Feb
- 2022 14:55:15 +0000
+ 2022 14:55:17 +0000
 Received: from BY3PR05MB8081.namprd05.prod.outlook.com
  ([fe80::304c:2b94:4f26:a581]) by BY3PR05MB8081.namprd05.prod.outlook.com
  ([fe80::304c:2b94:4f26:a581%3]) with mapi id 15.20.4951.012; Wed, 2 Feb 2022
- 14:55:15 +0000
+ 14:55:17 +0000
 From: Jorgen Hansen <jhansen@vmware.com>
 To: linux-kernel@vger.kernel.org,
 	virtualization@lists.linux-foundation.org
-Subject: [PATCH 4/8] VMCI: dma dg: set OS page size
-Date: Wed,  2 Feb 2022 06:49:06 -0800
-Message-Id: <20220202144910.10349-5-jhansen@vmware.com>
+Subject: [PATCH 7/8] VMCI: dma dg: add support for DMA datagrams sends
+Date: Wed,  2 Feb 2022 06:49:09 -0800
+Message-Id: <20220202144910.10349-8-jhansen@vmware.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220202144910.10349-1-jhansen@vmware.com>
 References: <20220202144910.10349-1-jhansen@vmware.com>
@@ -78,58 +80,58 @@ X-ClientProxiedBy: SJ0PR03CA0362.namprd03.prod.outlook.com
  (2603:10b6:a03:366::15)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 7abfa5ac-2cbc-4f80-d252-08d9e65c04a3
+X-MS-Office365-Filtering-Correlation-Id: dfc32ec5-e64a-4300-e6be-08d9e65c0572
 X-MS-TrafficTypeDiagnostic: BN6PR05MB2803:EE_
 X-LD-Processed: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0,ExtAddr
 X-MS-Exchange-AtpMessageProperties: SA|SL
-X-Microsoft-Antispam-PRVS: <BN6PR05MB280300D614F5C89D607A0764DA279@BN6PR05MB2803.namprd05.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:6790;
+X-Microsoft-Antispam-PRVS: <BN6PR05MB2803D189B773913E2D694BC5DA279@BN6PR05MB2803.namprd05.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: rSRKbTucInnVYQ+k5Mj0/nLYMISFg2n1t3Rrjdaw/9Wo1KNFZVSMRU1BmEbSquuvjOrgKdzriROi4Ay0H+SsjebJ6iHGQVnjJo85KP0Li4r24gRM52QqIiFhq5XH8c9NO96twgKRw++aq4xly0PhaweGZZ/iJ99xIR0M+DOGk9NyfsCnhsouKL3Y+X3coVHrv0yt+vF4kMb+20VfyylEt323/WI5Gr5qqWrvPeObkYM8wmsTWyboQvzcoBRcLtpbGPMJpJoCXHtidPo/wcgNISACR7QeyO1zxrAaAfUI3IpUEyKaCr4Ucw2o9gui0t58yJfQNJM1fdRGXFoXSVVvNv0uKPBLDe9UigCazLeps8zsv8AQdzb89hz3hHENROl4VP1PAoCR5FJNnUPqjEYzhysyq7cA2EM9qOG0KAmAbdxU5/CKbVqPBtvi6cSUxFMHmQL81e5FIQ+v1G2Ofyp782rx2gPhySYjzLOpYgYkbLGY42+0D4Us4z3iiZGyttWHod9FJXSkH6HzYO9YKsyIjauD6wssnMm+euLY3CI0M5NBN+Is0/Z5OBsGafZTiI/gKgT29uoD15XjnAgWtS4NwyOQX5a+5a7UbCfkG+RgU7jpWwKyBA6MS3ClCTPKUG0d6flZ3KSKWw7PWfCxxqSHxXCc2X1GM1GNWzgdHMo1/s4VQiS6lbzGGzUpODkAVKPVPGSbYBSMnY+nh3vCM/e/Fw==
+X-Microsoft-Antispam-Message-Info: Fyc8UxgGdr131qMTIB5RFt6cQGsGfG1XX8MeIRFsgY4e8pfILD6i0LNnEHe+cvCYZmYIqBjZ5OyK9bTe2sKUhG1leYUAgBOpeskIj2Is+6T8xJdvdRpx0NT8XL+KiFONZUXByR83xoiYZ88hYjs8NTITv/rkVI2Gs+qlCty5AMs5qsQIK5UDLnvrrnzGhB/PxqckJxeNID7GNXRlSs9tIc0JaWyPXw/A8vgvVlVP78xJu4tiRqsx8OOVRDguEB4/4m+M/LfAvURRYSeJRQZRen0fTHQ8In1nqubLLulK8tUm1o+TC0d1WbXwMfZ/UqrUubRt8fhEQvrHOOeHSWhY0B+rTdlHezfvZGF55mehLAsSnuX6huA6dx9TUouT2wOTNxcG5Kfh1i0Lkd2tMyG3oPl4dNhZ/PIKK7E8X9Z6Vx0qHvq6QPa6TJ8YanLdlDSCUPXPHC7AJzfhIlQaTSHsBpXQ93rM/0/QjqAPiJQtT1J2egKWNQsjn5//LcexqkAxrcMJ/VcWsXhHyol0+04KcgD2IYS+Y4WgQjAV6e7g5G6dmfgC8II5UKf+u0iWqaSelvoSLUhIYtDmDdBUANQNriUBQ25tVMsi+bFN0QWnrdr+OYBrtTCZ0LbHWm5oKn/D0pll1BA1af/DtchCP+HWmWOriQ1FfPbKwmHl7jgf4NxJ7ddS9XLE88FQKOOeIP+YTF6g7NVEJUo5rC+Squ1bMA==
 X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
  IPV:NLI; SFV:NSPM; H:BY3PR05MB8081.namprd05.prod.outlook.com; PTR:; CAT:NONE;
  SFS:(13230001)(4636009)(366004)(52116002)(316002)(6512007)(38100700002)(38350700002)(5660300002)(2616005)(8676002)(8936002)(54906003)(4326008)(66476007)(66556008)(66946007)(83380400001)(107886003)(508600001)(6486002)(86362001)(1076003)(36756003)(186003)(6506007)(26005)(2906002)(6666004);
  DIR:OUT; SFP:1101; 
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?6oUUJiwdG9B0WjHt1bq1dvaIjZtqyttZu+GsejQRgG6+UzV+92Vd9wKKX9YV?=
- =?us-ascii?Q?U1Amj4OISxuQntN5dfTtwYEUdszfSesVZUvGseFOVIbfHcCkx4aXZDfkXcdb?=
- =?us-ascii?Q?xWQrwEwmDa8CqcyNZbA0d+GK0AxEOLj3NryuTW+AFQMorfecGJCdXD3cH0U7?=
- =?us-ascii?Q?J8JaZ5lF6Ejbz4Wdkktc00NOWsnJNsjx3HdrHPEQEStq1jIIDxDB8FJkI+Z9?=
- =?us-ascii?Q?0yke5WZEq3o0FJYfm3u8KFKXnq/uviJe/eG5ELWRneYXb8A9jKU44QHaH7hX?=
- =?us-ascii?Q?jwKP4MVq6M+PbetWZ+yTsJnWv0DSSerTAupp+Sxi89Ckqv9p+dyUU0zIXCFU?=
- =?us-ascii?Q?Wn4OSk8BzbjZqHqQOoM8sLDmkOA2eynVmGAyyvCzctvHe+dSy0Ot4l100pdX?=
- =?us-ascii?Q?LpbxQYnm6OLlsxDF/Vc+6UjhxnLx7EK3ByDSrFBg4T5gI2eEj205mfJ4gnI5?=
- =?us-ascii?Q?ePhxDa5CmF4ReiMql/2ZZUTuVFTTTPAqNNLZHe/5BHBZtI/hrQGwUdjwY//Q?=
- =?us-ascii?Q?9E0WmyBO4r/SxQ6VGU71MOfZhmxrTtgH43euVa8p84LFrQiUKeEiEYrlm0rX?=
- =?us-ascii?Q?EjThlpSyB+39qUzF9/iwyFXpSg6WuJ8WEZVIC0ZpqKCAY+9KBUD1dsgi61jY?=
- =?us-ascii?Q?iqU0aJmfG1xCUsvLRwxujUnVSx25BcUA0k+grIplWnqZgza5UK/DEvO6zu81?=
- =?us-ascii?Q?vuB31bYsCcYDjFGdlsB+YJYHuausMrbKOO5eBv0PXAUMYrtf7nUbEbIH9dsb?=
- =?us-ascii?Q?30R+xZJT1080dWSx8bNbBoW6h9TUfG4kRgTjONI3OAGlw1JgqNzBSoVWir3g?=
- =?us-ascii?Q?AoPLLTGMARZmb3/1GhPGDhHLGf4BKsUaCbDXc8BLBtv0s54UKTCYM9oJf9GO?=
- =?us-ascii?Q?RUgZ9IhkikJFqTFhnMAWJ78Wv83PaWpHxkDUEYCNYmx6Zev/G5yKV9F4V7WI?=
- =?us-ascii?Q?mOM6u1npezIctp5hmKo28RE7K8DvwL9pQ/0iezGNAYvfDAFOw89bFiUzBm5C?=
- =?us-ascii?Q?0Y2ESdnkB/yypbXMeAPtbawWR+JUicZo7/0KBHl6pwZzlBwu9sBmxQzMk/oz?=
- =?us-ascii?Q?a+hcHx+mdVemywwhfQLlRP/CcQwDoguRHen590azQCbOCFm6K814Nocl2NsP?=
- =?us-ascii?Q?dyLUT2dXN1sLn0tEmeGJaLJDUR+7Z+yhN8PpZn9hPm+gajKhAZ3gnrAHs2oq?=
- =?us-ascii?Q?n7HwgHxPgrwE+q4cSiBBWpEvA0u5GWNn5uOAiY5T6OPb3kx3aQpQUVfRZlnb?=
- =?us-ascii?Q?KC+oFgY3+nqyPXOYk0LiNU9QI933x1Uw05xC7RXMZn3rsIfdH+jWJzs1+BqV?=
- =?us-ascii?Q?HrNxNOmKu2YdvfQ2ukjTNqHW7V3lVwt3DJH9TYkMgLyAVHhj/ujOPTmnyALd?=
- =?us-ascii?Q?QTlW+TA8ZveNT9N4YB2bFUfn8o88/bFgDvvZX5GOIdynihJqJGN2eLU9MBzC?=
- =?us-ascii?Q?rmKbLfChKmzA51cs+1c/rCY8ixKH9GFj+IIteD7+2m6RHmjo1DHxvoXOdK16?=
- =?us-ascii?Q?d3i/zQ4tPP00ye73MZlRaf+n7r0hPwntJgDrgmlCWl6XRhYpaGrA8YB1yBtb?=
- =?us-ascii?Q?hJPPzBoZa8VDk/8aYoOJaCWJhylgraqsLGjy+k+cvNzuBrtP8gEgJfiNxbJn?=
- =?us-ascii?Q?209cILJcf853XDcmjYtJ5Xw=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?j0wh3MsHjDXKim2tdQ2Sl/G1Tp9GS9ewMZTGDup9vWgGRm3L7Pk8bd953NVA?=
+ =?us-ascii?Q?hmDjHV6McQlb27aH3ShYf+oLb7AFENx6pwtCoO0NhsVerOoAoHsD9qTvAvUh?=
+ =?us-ascii?Q?D94z9R6RN6dG9qsO/CT2bS89D/fLptNtw7quQNhcAcaEBJT78GJ0hJP9bsp8?=
+ =?us-ascii?Q?YE23ixXXoKSj7+jEOG+5MjEQNFqFVpfxHaZZ2mD/lb5T3X5yxmcX6Uq4Pifi?=
+ =?us-ascii?Q?luap/kWTOl0WXv8zvPWyY6Cp/bHlPNO8IvOnsgDTGDRAbXyItToG93Np56Y0?=
+ =?us-ascii?Q?Ridgr+j6GN9/QuA4RQqCAnCxyFImp+jlNJHYzi7wSjhvOsYqqft/iy3SH3VH?=
+ =?us-ascii?Q?nnLz4EybU4PRLQiYtoPBMkWu2q3vJBQVEgDFzs1fRB+649xy1zbt/MpJvVGH?=
+ =?us-ascii?Q?Gra7ykAdWRPCvhGtCqoupXvCybIzEf1JRFlijcQC/+8WLH9gGnUatCeYNpTm?=
+ =?us-ascii?Q?PouFqyxItC2ViVIVteXS+SxhKux8odo0uHb9mQh8ALcnoq+XfVfoqIzcH8BX?=
+ =?us-ascii?Q?d1z3HsvVgY8WmVlUo8FNn187ySMkSGnMu+dNcv4iw/D1KPdxbPUrizC8xEhi?=
+ =?us-ascii?Q?OkDKJjcLuapkW/gN2BSCcbWouwrrLgD3dO5GgtAbrY2AETc/HVtHF9amuvPM?=
+ =?us-ascii?Q?l8x5cassU8Wtxcl+F/gL5bVZrxhOwQ8wWHOGCmC7WsJ7ZX1gaJfcwL1yrUNP?=
+ =?us-ascii?Q?mr1lyzYS4j6Ii1Rr8v8FvZ4PaMYFeqRrHwayH4dpaKJd4Z7XxnSOYeIzq6nF?=
+ =?us-ascii?Q?t3mKXoPOxUY6Gya57OnyYxn1X4Vl+8VlplRKjd1Rqg5UORoQjwEfhgRw9NE7?=
+ =?us-ascii?Q?07uuAd4dicv6Yybkm9uu3afXJZKJ27JUfiz7VF4cNJ4QE5kEKAWWj9B3B/9+?=
+ =?us-ascii?Q?aLDZQkcr2cvrngDp2a7THuo8VKQBqY0m3Pp/Wzj8f65hROl7AZYMZwe5iYhz?=
+ =?us-ascii?Q?vsE1tikGx26aRyR3PlsOdR0Qaya65R2Fd3ASG7GXX+c7cZUwyeus4ufwe5Bo?=
+ =?us-ascii?Q?EnQH7mX2pTRCchKxbnkpdLzTgIpzl5OTDTXLN3kVykV0C2cRe3A15D6OziC1?=
+ =?us-ascii?Q?WMdctuekgefFJ3Sb1ZThwEIz58K8HalyI5iGxu8iw4pP7IXqUlqAvv0hw4qN?=
+ =?us-ascii?Q?6Qo1ZTUCwmFlyg6a1GAEVRbcNARXp2b54y/xogOoKcHvn1AZnVSpqJ7lNUlP?=
+ =?us-ascii?Q?yoXFhYU1SUfq4Vju8HnQ7Vyk0k2deW7nVKQaotRzUA6fxIe0y+QVetTyTm3y?=
+ =?us-ascii?Q?ErxdapI8Jq3RSahIGndjyYuAnXJwS2arszlB1+z7gtgR8DR5HWzna4p+xeMD?=
+ =?us-ascii?Q?bo7abuKGhErRCtxyUJerPQ/rjZXindqDTpvIr1f6Ul1xuh2sgNGTrShIYOFZ?=
+ =?us-ascii?Q?aSHbgjs+vJVN7sRTXfpGECcYWl5dcumQtCCtjh4JvVxILbxWwXCsizkqDnVO?=
+ =?us-ascii?Q?28RQH56Gj6ZUtPRmAaezO2Tsl7ET/dIWaO861Rd+Guyja9xwLF4PZbBv8ucP?=
+ =?us-ascii?Q?MmaPtnEcw057X4FYQtnpsU4GJfY5FripVLmzASYGVDHYgro1txzfx1kh4YdX?=
+ =?us-ascii?Q?nGOZZ0K+f4l53/N4v/uXbiREFWImxZq6pl7CViNmb3iXGMRoUBakwgaQI/0J?=
+ =?us-ascii?Q?F7t6+sfaq713zzo5OM6vyW0=3D?=
 X-OriginatorOrg: vmware.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 7abfa5ac-2cbc-4f80-d252-08d9e65c04a3
+X-MS-Exchange-CrossTenant-Network-Message-Id: dfc32ec5-e64a-4300-e6be-08d9e65c0572
 X-MS-Exchange-CrossTenant-AuthSource: BY3PR05MB8081.namprd05.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Feb 2022 14:55:14.2609 (UTC)
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Feb 2022 14:55:15.4943 (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: ycY4Kb9eGCC3Zz/s4/y43K8hhAsF40bt01P3P/Cpjnk9z9GnomSBk1q0Lciyyyu3Ikgksz0z5CBVywEsRbsHAA==
+X-MS-Exchange-CrossTenant-UserPrincipalName: woJqPWgh14EqXIG7tz1eESOUeT3NmIxpbvZgUmkb0fIHG4VLBOan/lpWkYT4QRFAs+nuz9WUlmY+5ROCeLriTQ==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN6PR05MB2803
 Cc: pv-drivers@vmware.com, gregkh@linuxfoundation.org,
  Vishnu Dasa <vdasa@vmware.com>, Jorgen Hansen <jhansen@vmware.com>
@@ -149,47 +151,138 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Tell the device the page size used by the OS.
+Use DMA based send operation from the transmit buffer instead of the
+iowrite8_rep based datagram send when DMA datagrams are supported.
+
+The outgoing datagram is sent as inline data in the VMCI transmit
+buffer. Once the header has been configured, the send is initiated
+by writing the lower 32 bit of the buffer base address to the
+VMCI_DATA_OUT_LOW_ADDR register. Only then will the device process
+the header and the datagram itself. Following that, the driver busy
+waits (it isn't possible to sleep on the send path) for the header
+busy flag to change - indicating that the send is complete.
 
 Reviewed-by: Vishnu Dasa <vdasa@vmware.com>
 Signed-off-by: Jorgen Hansen <jhansen@vmware.com>
 ---
- drivers/misc/vmw_vmci/vmci_guest.c | 9 +++++++++
- include/linux/vmw_vmci_defs.h      | 1 +
- 2 files changed, 10 insertions(+)
+ drivers/misc/vmw_vmci/vmci_guest.c | 44 ++++++++++++++++++++++++++++--
+ include/linux/vmw_vmci_defs.h      | 34 +++++++++++++++++++++++
+ 2 files changed, 76 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/misc/vmw_vmci/vmci_guest.c b/drivers/misc/vmw_vmci/vmci_guest.c
-index 4bd5891ff910..ec76661bde7e 100644
+index d0acb686b464..ca73a1913404 100644
 --- a/drivers/misc/vmw_vmci/vmci_guest.c
 +++ b/drivers/misc/vmw_vmci/vmci_guest.c
-@@ -581,6 +581,15 @@ static int vmci_guest_probe_device(struct pci_dev *pdev,
- 	/* Let the host know which capabilities we intend to use. */
- 	vmci_write_reg(vmci_dev, caps_in_use, VMCI_CAPS_ADDR);
+@@ -13,6 +13,7 @@
+ #include <linux/kernel.h>
+ #include <linux/mm.h>
+ #include <linux/module.h>
++#include <linux/processor.h>
+ #include <linux/sched.h>
+ #include <linux/slab.h>
+ #include <linux/init.h>
+@@ -114,6 +115,46 @@ void vmci_write_reg(struct vmci_guest_device *dev, u32 val, u32 reg)
+ 		iowrite32(val, dev->iobase + reg);
+ }
  
-+	if (caps_in_use & VMCI_CAPS_DMA_DATAGRAM) {
-+		uint32_t page_shift;
++int vmci_write_data(struct vmci_guest_device *dev, struct vmci_datagram *dg)
++{
++	int result;
 +
-+		/* Let the device know the size for pages passed down. */
-+		vmci_write_reg(vmci_dev, PAGE_SHIFT, VMCI_GUEST_PAGE_SHIFT);
-+		page_shift = vmci_read_reg(vmci_dev, VMCI_GUEST_PAGE_SHIFT);
-+		dev_info(&pdev->dev, "Using page shift %d\n", page_shift);
++	if (dev->mmio_base != NULL) {
++		struct vmci_data_in_out_header *buffer_header = dev->tx_buffer;
++		u8 *dg_out_buffer = (u8 *)(buffer_header + 1);
++
++		if (VMCI_DG_SIZE(dg) > VMCI_MAX_DG_SIZE)
++			return VMCI_ERROR_INVALID_ARGS;
++
++		/*
++		 * Initialize send buffer with outgoing datagram
++		 * and set up header for inline data. Device will
++		 * not access buffer asynchronously - only after
++		 * the write to VMCI_DATA_OUT_LOW_ADDR.
++		 */
++		memcpy(dg_out_buffer, dg, VMCI_DG_SIZE(dg));
++		buffer_header->opcode = 0;
++		buffer_header->size = VMCI_DG_SIZE(dg);
++		buffer_header->busy = 1;
++
++		vmci_write_reg(dev, lower_32_bits(dev->tx_buffer_base),
++			       VMCI_DATA_OUT_LOW_ADDR);
++
++		/* Caller holds a spinlock, so cannot block. */
++		spin_until_cond(buffer_header->busy == 0);
++
++		result = vmci_read_reg(vmci_dev_g, VMCI_RESULT_LOW_ADDR);
++		if (result == VMCI_SUCCESS)
++			result = (int)buffer_header->result;
++	} else {
++		iowrite8_rep(dev->iobase + VMCI_DATA_OUT_ADDR,
++			     dg, VMCI_DG_SIZE(dg));
++		result = vmci_read_reg(vmci_dev_g, VMCI_RESULT_LOW_ADDR);
 +	}
 +
- 	/* Set up global device so that we can start sending datagrams */
- 	spin_lock_irq(&vmci_dev_spinlock);
- 	vmci_dev_g = vmci_dev;
++	return result;
++}
++
+ /*
+  * VM to hypervisor call mechanism. We use the standard VMware naming
+  * convention since shared code is calling this function as well.
+@@ -139,8 +180,7 @@ int vmci_send_datagram(struct vmci_datagram *dg)
+ 	spin_lock_irqsave(&vmci_dev_spinlock, flags);
+ 
+ 	if (vmci_dev_g) {
+-		iowrite8_rep(vmci_dev_g->iobase + VMCI_DATA_OUT_ADDR,
+-			     dg, VMCI_DG_SIZE(dg));
++		vmci_write_data(vmci_dev_g, dg);
+ 		result = vmci_read_reg(vmci_dev_g, VMCI_RESULT_LOW_ADDR);
+ 	} else {
+ 		result = VMCI_ERROR_UNAVAILABLE;
 diff --git a/include/linux/vmw_vmci_defs.h b/include/linux/vmw_vmci_defs.h
-index 1ce2cffdc3ae..4167779469fd 100644
+index 8bc37d8244a8..6fb663b36f72 100644
 --- a/include/linux/vmw_vmci_defs.h
 +++ b/include/linux/vmw_vmci_defs.h
-@@ -21,6 +21,7 @@
- #define VMCI_CAPS_ADDR          0x18
- #define VMCI_RESULT_LOW_ADDR    0x1c
- #define VMCI_RESULT_HIGH_ADDR   0x20
-+#define VMCI_GUEST_PAGE_SHIFT   0x34
+@@ -110,6 +110,40 @@ enum {
+ #define VMCI_MMIO_ACCESS_OFFSET        ((size_t)(128 * 1024))
+ #define VMCI_MMIO_ACCESS_SIZE          ((size_t)(64 * 1024))
  
- /* Max number of devices. */
- #define VMCI_MAX_DEVICES 1
++/*
++ * For VMCI devices supporting the VMCI_CAPS_DMA_DATAGRAM capability, the
++ * sending and receiving of datagrams can be performed using DMA to/from
++ * a driver allocated buffer.
++ * Sending and receiving will be handled as follows:
++ * - when sending datagrams, the driver initializes the buffer where the
++ *   data part will refer to the outgoing VMCI datagram, sets the busy flag
++ *   to 1 and writes the address of the buffer to VMCI_DATA_OUT_HIGH_ADDR
++ *   and VMCI_DATA_OUT_LOW_ADDR. Writing to VMCI_DATA_OUT_LOW_ADDR triggers
++ *   the device processing of the buffer. When the device has processed the
++ *   buffer, it will write the result value to the buffer and then clear the
++ *   busy flag.
++ * - when receiving datagrams, the driver initializes the buffer where the
++ *   data part will describe the receive buffer, clears the busy flag and
++ *   writes the address of the buffer to VMCI_DATA_IN_HIGH_ADDR and
++ *   VMCI_DATA_IN_LOW_ADDR. Writing to VMCI_DATA_IN_LOW_ADDR triggers the
++ *   device processing of the buffer. The device will copy as many available
++ *   datagrams into the buffer as possible, and then sets the busy flag.
++ *   When the busy flag is set, the driver will process the datagrams in the
++ *   buffer.
++ */
++struct vmci_data_in_out_header {
++	uint32_t busy;
++	uint32_t opcode;
++	uint32_t size;
++	uint32_t rsvd;
++	uint64_t result;
++};
++
++struct vmci_sg_elem {
++	uint64_t addr;
++	uint64_t size;
++};
++
+ /*
+  * We have a fixed set of resource IDs available in the VMX.
+  * This allows us to have a very simple implementation since we statically
 -- 
 2.25.1
 
