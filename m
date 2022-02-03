@@ -1,81 +1,83 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3D9C2C433FE
-	for <virtualization@archiver.kernel.org>; Thu,  3 Feb 2022 00:18:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9B2B5C433EF
+	for <virtualization@archiver.kernel.org>; Thu,  3 Feb 2022 00:49:47 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id CFB6340442;
-	Thu,  3 Feb 2022 00:18:42 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 2003A40569;
+	Thu,  3 Feb 2022 00:49:47 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id IaCd1I2q39B9; Thu,  3 Feb 2022 00:18:41 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 3B2744047D;
-	Thu,  3 Feb 2022 00:18:41 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id P7J7UecNMi2z; Thu,  3 Feb 2022 00:49:43 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id C1992400E4;
+	Thu,  3 Feb 2022 00:49:42 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 10371C001A;
-	Thu,  3 Feb 2022 00:18:41 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 280C7C000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 75ECFC001A;
+	Thu,  3 Feb 2022 00:49:42 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E83ACC000B
  for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Feb 2022 00:18:40 +0000 (UTC)
+ Thu,  3 Feb 2022 00:49:40 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 03CD44047D
+ by smtp4.osuosl.org (Postfix) with ESMTP id E3D0140303
  for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Feb 2022 00:18:40 +0000 (UTC)
+ Thu,  3 Feb 2022 00:49:40 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=intel.com
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id zRBe7XNwKvoe
+ with ESMTP id Vv0bXItd1j04
  for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Feb 2022 00:18:38 +0000 (UTC)
+ Thu,  3 Feb 2022 00:49:39 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 1147C40442
+Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id A84BD402D8
  for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Feb 2022 00:18:37 +0000 (UTC)
+ Thu,  3 Feb 2022 00:49:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1643847518; x=1675383518;
+ t=1643849379; x=1675385379;
  h=date:from:to:cc:subject:message-id:references:
  mime-version:in-reply-to;
- bh=gshEpsZSJ7uuSyPCXlwkOTrGJ3TT3qAZaZ3s4pjWvEY=;
- b=g7jSOrQ5SLTjvz1d/EXXaqAnYECPr7DioYMUMKkX5jkLS0Tt8jTqgzUv
- ktormqWv2R5gyOmz/1d5iKybdaOuF+JThTedkKSHJUmIpA8mVIWX7PAH6
- rljV5rwBsrK5/BV8ffvosFC41vR6AZFECN4tz4FyCTHSzqDZ+9ynIzkrf
- ANZ5QUF7R4JD/CTMZYdqtfpL/WwTkiJ1taGWeR5dQT68PqekEL2QIdmzD
- u1M0XnQ8vySwaqD4GV9wPSzZB33zhzmbYz0YKEZLEGM/3bOlCoNGSmHIE
- nr0FQgP5AB5uidvX8h/jM9w4BPpCqBuBF+pQlZtkPDhucqQr6vbDjaBD8 Q==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10246"; a="246879599"
-X-IronPort-AV: E=Sophos;i="5.88,338,1635231600"; d="scan'208";a="246879599"
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
- by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 02 Feb 2022 16:18:37 -0800
+ bh=AVze6/yhOpIsiSvcvqZJsPmefQnSYgxJlx13mlvTxVY=;
+ b=W7Yk5AAhUqiowjyUozXMdGYawD4WQPn1UualBwqW5BdHvSC00DF9BhJm
+ 31yypdgPTTzD8Pr1Rbx03Fib6oW9OtgUy2j4QFZrg9wHLT2UwMyl/8+r2
+ BqUiGir5j1H/lWHqQxVfC+qRxxnS4thzNeYkvqd9YSlEpnfbRtoxZK5RF
+ 1FBCZ3Dtu7EBgnoSuUZYheQGFUz14GGxgFiqfvDVP8WnvtI9aoGffFjul
+ RlixNP/9WT1FHNKU6ig7sTbxvCMXfvqDxsx/QFjrBRDVjqFj2O4hMDoll
+ bFDaQfi/2ZMh8EHNpxKCB6aqE3i5841l0PThpqJxZngpsug3YyUeA5GDW w==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10246"; a="231616950"
+X-IronPort-AV: E=Sophos;i="5.88,338,1635231600"; d="scan'208";a="231616950"
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+ by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 02 Feb 2022 16:49:38 -0800
 X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.88,338,1635231600"; d="scan'208";a="483051021"
+X-IronPort-AV: E=Sophos;i="5.88,338,1635231600"; d="scan'208";a="631174148"
 Received: from lkp-server01.sh.intel.com (HELO 276f1b88eecb) ([10.239.97.150])
- by orsmga006.jf.intel.com with ESMTP; 02 Feb 2022 16:18:35 -0800
+ by orsmga004.jf.intel.com with ESMTP; 02 Feb 2022 16:49:35 -0800
 Received: from kbuild by 276f1b88eecb with local (Exim 4.92)
  (envelope-from <lkp@intel.com>)
- id 1nFPpa-000VJh-GG; Thu, 03 Feb 2022 00:18:34 +0000
-Date: Thu, 3 Feb 2022 08:18:21 +0800
+ id 1nFQJb-000VLl-79; Thu, 03 Feb 2022 00:49:35 +0000
+Date: Thu, 3 Feb 2022 08:48:54 +0800
 From: kernel test robot <lkp@intel.com>
 To: Jorgen Hansen <jhansen@vmware.com>, linux-kernel@vger.kernel.org,
  virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH 6/8] VMCI: dma dg: allocate send and receive buffers for
- DMA datagrams
-Message-ID: <202202030713.SJ9T0zv6-lkp@intel.com>
-References: <20220202144910.10349-7-jhansen@vmware.com>
+Subject: Re: [PATCH 7/8] VMCI: dma dg: add support for DMA datagrams sends
+Message-ID: <202202030803.BfgZqtfl-lkp@intel.com>
+References: <20220202144910.10349-8-jhansen@vmware.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20220202144910.10349-7-jhansen@vmware.com>
+In-Reply-To: <20220202144910.10349-8-jhansen@vmware.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
-Cc: pv-drivers@vmware.com, gregkh@linuxfoundation.org, kbuild-all@lists.01.org,
- Vishnu Dasa <vdasa@vmware.com>, Jorgen Hansen <jhansen@vmware.com>
+Cc: Vishnu Dasa <vdasa@vmware.com>, kbuild-all@lists.01.org,
+ pv-drivers@vmware.com, gregkh@linuxfoundation.org, llvm@lists.linux.dev,
+ Jorgen Hansen <jhansen@vmware.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -104,102 +106,99 @@ https://git-scm.com/docs/git-format-patch]
 
 url:    https://github.com/0day-ci/linux/commits/Jorgen-Hansen/VMCI-dma-dg-Add-support-for-DMA-datagrams/20220202-230034
 base:   https://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git 7ab004dbcbee38b8a70798835d3ffcd97a985a5e
-config: i386-randconfig-s002 (https://download.01.org/0day-ci/archive/20220203/202202030713.SJ9T0zv6-lkp@intel.com/config)
-compiler: gcc-9 (Debian 9.3.0-22) 9.3.0
-reproduce:
-        # apt-get install sparse
-        # sparse version: v0.6.4-dirty
-        # https://github.com/0day-ci/linux/commit/a5ca330527cc5a2ed5eba621707076ab15d856e5
+config: i386-randconfig-a013-20220131 (https://download.01.org/0day-ci/archive/20220203/202202030803.BfgZqtfl-lkp@intel.com/config)
+compiler: clang version 14.0.0 (https://github.com/llvm/llvm-project 6b1e844b69f15bb7dffaf9365cd2b355d2eb7579)
+reproduce (this is a W=1 build):
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        # https://github.com/0day-ci/linux/commit/303777a2a8daa11d529827395318bb698ddee57e
         git remote add linux-review https://github.com/0day-ci/linux
         git fetch --no-tags linux-review Jorgen-Hansen/VMCI-dma-dg-Add-support-for-DMA-datagrams/20220202-230034
-        git checkout a5ca330527cc5a2ed5eba621707076ab15d856e5
+        git checkout 303777a2a8daa11d529827395318bb698ddee57e
         # save the config file to linux build tree
         mkdir build_dir
-        make W=1 C=1 CF='-fdiagnostic-prefix -D__CHECK_ENDIAN__' O=build_dir ARCH=i386 SHELL=/bin/bash drivers/misc/vmw_vmci/
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross W=1 O=build_dir ARCH=i386 SHELL=/bin/bash drivers/misc/vmw_vmci/
 
 If you fix the issue, kindly add following tag as appropriate
 Reported-by: kernel test robot <lkp@intel.com>
 
+All warnings (new ones prefixed by >>):
 
-sparse warnings: (new ones prefixed by >>)
-   drivers/misc/vmw_vmci/vmci_guest.c:105:45: sparse: sparse: incorrect type in argument 1 (different address spaces) @@     expected void const volatile [noderef] __iomem *addr @@     got char * @@
-   drivers/misc/vmw_vmci/vmci_guest.c:105:45: sparse:     expected void const volatile [noderef] __iomem *addr
-   drivers/misc/vmw_vmci/vmci_guest.c:105:45: sparse:     got char *
-   drivers/misc/vmw_vmci/vmci_guest.c:102:14: sparse: sparse: symbol 'vmci_read_reg' was not declared. Should it be static?
-   drivers/misc/vmw_vmci/vmci_guest.c:112:44: sparse: sparse: incorrect type in argument 2 (different address spaces) @@     expected void volatile [noderef] __iomem *addr @@     got char * @@
-   drivers/misc/vmw_vmci/vmci_guest.c:112:44: sparse:     expected void volatile [noderef] __iomem *addr
-   drivers/misc/vmw_vmci/vmci_guest.c:112:44: sparse:     got char *
-   drivers/misc/vmw_vmci/vmci_guest.c:109:6: sparse: sparse: symbol 'vmci_write_reg' was not declared. Should it be static?
-   drivers/misc/vmw_vmci/vmci_guest.c:514:27: sparse: sparse: incorrect type in assignment (different address spaces) @@     expected char *mmio_base @@     got void [noderef] __iomem * @@
-   drivers/misc/vmw_vmci/vmci_guest.c:514:27: sparse:     expected char *mmio_base
-   drivers/misc/vmw_vmci/vmci_guest.c:514:27: sparse:     got void [noderef] __iomem *
->> drivers/misc/vmw_vmci/vmci_guest.c:869:43: sparse: sparse: incorrect type in argument 2 (different address spaces) @@     expected void [noderef] __iomem * @@     got char *mmio_base @@
-   drivers/misc/vmw_vmci/vmci_guest.c:869:43: sparse:     expected void [noderef] __iomem *
-   drivers/misc/vmw_vmci/vmci_guest.c:869:43: sparse:     got char *mmio_base
+   drivers/misc/vmw_vmci/vmci_guest.c:103:14: warning: no previous prototype for function 'vmci_read_reg' [-Wmissing-prototypes]
+   unsigned int vmci_read_reg(struct vmci_guest_device *dev, u32 reg)
+                ^
+   drivers/misc/vmw_vmci/vmci_guest.c:103:1: note: declare 'static' if the function is not intended to be used outside of this translation unit
+   unsigned int vmci_read_reg(struct vmci_guest_device *dev, u32 reg)
+   ^
+   static 
+   drivers/misc/vmw_vmci/vmci_guest.c:110:6: warning: no previous prototype for function 'vmci_write_reg' [-Wmissing-prototypes]
+   void vmci_write_reg(struct vmci_guest_device *dev, u32 val, u32 reg)
+        ^
+   drivers/misc/vmw_vmci/vmci_guest.c:110:1: note: declare 'static' if the function is not intended to be used outside of this translation unit
+   void vmci_write_reg(struct vmci_guest_device *dev, u32 val, u32 reg)
+   ^
+   static 
+>> drivers/misc/vmw_vmci/vmci_guest.c:118:5: warning: no previous prototype for function 'vmci_write_data' [-Wmissing-prototypes]
+   int vmci_write_data(struct vmci_guest_device *dev, struct vmci_datagram *dg)
+       ^
+   drivers/misc/vmw_vmci/vmci_guest.c:118:1: note: declare 'static' if the function is not intended to be used outside of this translation unit
+   int vmci_write_data(struct vmci_guest_device *dev, struct vmci_datagram *dg)
+   ^
+   static 
+   3 warnings generated.
 
-vim +869 drivers/misc/vmw_vmci/vmci_guest.c
 
-   813	
-   814	static void vmci_guest_remove_device(struct pci_dev *pdev)
-   815	{
-   816		struct vmci_guest_device *vmci_dev = pci_get_drvdata(pdev);
-   817		int vmci_err;
-   818	
-   819		dev_dbg(&pdev->dev, "Removing device\n");
-   820	
-   821		atomic_dec(&vmci_num_guest_devices);
-   822	
-   823		vmci_qp_guest_endpoints_exit();
-   824	
-   825		vmci_err = vmci_event_unsubscribe(ctx_update_sub_id);
-   826		if (vmci_err < VMCI_SUCCESS)
-   827			dev_warn(&pdev->dev,
-   828				 "Failed to unsubscribe from event (type=%d) with subscriber (ID=0x%x): %d\n",
-   829				 VMCI_EVENT_CTX_ID_UPDATE, ctx_update_sub_id, vmci_err);
-   830	
-   831		spin_lock_irq(&vmci_dev_spinlock);
-   832		vmci_dev_g = NULL;
-   833		vmci_pdev = NULL;
-   834		spin_unlock_irq(&vmci_dev_spinlock);
-   835	
-   836		dev_dbg(&pdev->dev, "Resetting vmci device\n");
-   837		vmci_write_reg(vmci_dev, VMCI_CONTROL_RESET, VMCI_CONTROL_ADDR);
-   838	
-   839		/*
-   840		 * Free IRQ and then disable MSI/MSI-X as appropriate.  For
-   841		 * MSI-X, we might have multiple vectors, each with their own
-   842		 * IRQ, which we must free too.
-   843		 */
-   844		if (vmci_dev->exclusive_vectors) {
-   845			free_irq(pci_irq_vector(pdev, 1), vmci_dev);
-   846			if (vmci_dev->mmio_base != NULL)
-   847				free_irq(pci_irq_vector(pdev, 2), vmci_dev);
-   848		}
-   849		free_irq(pci_irq_vector(pdev, 0), vmci_dev);
-   850		pci_free_irq_vectors(pdev);
-   851	
-   852		tasklet_kill(&vmci_dev->datagram_tasklet);
-   853		tasklet_kill(&vmci_dev->bm_tasklet);
-   854	
-   855		if (vmci_dev->notification_bitmap) {
-   856			/*
-   857			 * The device reset above cleared the bitmap state of the
-   858			 * device, so we can safely free it here.
-   859			 */
-   860	
-   861			dma_free_coherent(&pdev->dev, PAGE_SIZE,
-   862					  vmci_dev->notification_bitmap,
-   863					  vmci_dev->notification_base);
-   864		}
-   865	
-   866		vmci_free_dg_buffers(vmci_dev);
-   867	
-   868		if (vmci_dev->mmio_base != NULL)
- > 869			pci_iounmap(pdev, vmci_dev->mmio_base);
-   870	
-   871		/* The rest are managed resources and will be freed by PCI core */
-   872	}
-   873	
+vim +/vmci_write_data +118 drivers/misc/vmw_vmci/vmci_guest.c
+
+   109	
+ > 110	void vmci_write_reg(struct vmci_guest_device *dev, u32 val, u32 reg)
+   111	{
+   112		if (dev->mmio_base != NULL)
+   113			writel(val, dev->mmio_base + reg);
+   114		else
+   115			iowrite32(val, dev->iobase + reg);
+   116	}
+   117	
+ > 118	int vmci_write_data(struct vmci_guest_device *dev, struct vmci_datagram *dg)
+   119	{
+   120		int result;
+   121	
+   122		if (dev->mmio_base != NULL) {
+   123			struct vmci_data_in_out_header *buffer_header = dev->tx_buffer;
+   124			u8 *dg_out_buffer = (u8 *)(buffer_header + 1);
+   125	
+   126			if (VMCI_DG_SIZE(dg) > VMCI_MAX_DG_SIZE)
+   127				return VMCI_ERROR_INVALID_ARGS;
+   128	
+   129			/*
+   130			 * Initialize send buffer with outgoing datagram
+   131			 * and set up header for inline data. Device will
+   132			 * not access buffer asynchronously - only after
+   133			 * the write to VMCI_DATA_OUT_LOW_ADDR.
+   134			 */
+   135			memcpy(dg_out_buffer, dg, VMCI_DG_SIZE(dg));
+   136			buffer_header->opcode = 0;
+   137			buffer_header->size = VMCI_DG_SIZE(dg);
+   138			buffer_header->busy = 1;
+   139	
+   140			vmci_write_reg(dev, lower_32_bits(dev->tx_buffer_base),
+   141				       VMCI_DATA_OUT_LOW_ADDR);
+   142	
+   143			/* Caller holds a spinlock, so cannot block. */
+   144			spin_until_cond(buffer_header->busy == 0);
+   145	
+   146			result = vmci_read_reg(vmci_dev_g, VMCI_RESULT_LOW_ADDR);
+   147			if (result == VMCI_SUCCESS)
+   148				result = (int)buffer_header->result;
+   149		} else {
+   150			iowrite8_rep(dev->iobase + VMCI_DATA_OUT_ADDR,
+   151				     dg, VMCI_DG_SIZE(dg));
+   152			result = vmci_read_reg(vmci_dev_g, VMCI_RESULT_LOW_ADDR);
+   153		}
+   154	
+   155		return result;
+   156	}
+   157	
 
 ---
 0-DAY CI Kernel Test Service, Intel Corporation
