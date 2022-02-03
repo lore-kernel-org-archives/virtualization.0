@@ -4,135 +4,81 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E0770C433FE
-	for <virtualization@archiver.kernel.org>; Thu,  3 Feb 2022 13:18:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 24CEFC433F5
+	for <virtualization@archiver.kernel.org>; Thu,  3 Feb 2022 14:07:23 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 9B2B1416F3;
-	Thu,  3 Feb 2022 13:18:30 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id A7FD34164A;
+	Thu,  3 Feb 2022 14:07:23 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 16NX4i5uF8QT; Thu,  3 Feb 2022 13:18:29 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id A6D4141701;
-	Thu,  3 Feb 2022 13:18:28 +0000 (UTC)
+	with ESMTP id KViUB_J5qqXm; Thu,  3 Feb 2022 14:07:22 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 2D6A34156D;
+	Thu,  3 Feb 2022 14:07:22 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 7926BC0072;
-	Thu,  3 Feb 2022 13:18:28 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 16BF8C000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id F117BC001A;
+	Thu,  3 Feb 2022 14:07:21 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9B286C000B
  for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Feb 2022 13:18:27 +0000 (UTC)
+ Thu,  3 Feb 2022 14:07:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id D09F940229
+ by smtp2.osuosl.org (Postfix) with ESMTP id 734D6403C4
  for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Feb 2022 13:18:23 +0000 (UTC)
+ Thu,  3 Feb 2022 14:07:20 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 1qOrXKomDEiX
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=intel.com
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id v4pTTjNMEUNn
  for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Feb 2022 13:18:21 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from NAM11-DM6-obe.outbound.protection.outlook.com
- (mail-dm6nam11on2056.outbound.protection.outlook.com [40.107.223.56])
- by smtp4.osuosl.org (Postfix) with ESMTPS id E71894047D
+ Thu,  3 Feb 2022 14:07:19 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 31A78400CB
  for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Feb 2022 13:18:20 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Oc3mWvPnPBEiRJXwzrQ3kDBOBqw4bbm4iRdoPldYyHHMMW1i61ohKkH1GAf1y9BYjtaIHsdrjtabgyxhWeIsdfIXspyp8uqz4xEraota7ktzvULpdVXnmJ4dhzHQSYGXw2ohGzLFVWFswGwoxWur+86HkKC/livI8PW5iTE+RaF8QS/OjvoC1jp+3GMVRS1kSfeF7P+zEN15G8jK7zjNsS2Agt43p28vNvjoEqILY5P8MfeSvYq92qbuTykTdoTiK4+AC+3dESUpg5nG7I/tZ5UGk0WLBYY49OicesovyJ5nj5RNXcCIx7Mh7EFd+Re0l6X+fN5gR+pYPgf0W08UNw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=l4JBGf6X90A55/xzGIGCmoZWgEYQdX7TmRGB45StAIc=;
- b=IdVDZPiqZ6O0J/pqVZsOxQRKtNLI7vq4AtCfcOZgGgaY9nmnOSW4irMs2KipjzpwsFzIp2KTx0MIi3bpbVl31h3FGVcU6YPjUXxfqFoVBwOCWljMb4e+1E0fVxuy3xruVKLasomw/bnUo7WxulRqM9pQDK1do86YIwui+N5igC/iO9dVxPNEON+6hKFWAYsxAipMCxrbgHeEo0BEny8zDmA8+9FXeiNB1yTQyUnmorFWXOtjW//fkmGUOO0V1ZvCuT51sM65ynYjycXtbGa1BGUZSfSDMwfgnYJIv9s1PGPXBJCtmXgARPLFnA14s98MQpgXgWgS9W3LiAbX/9la5A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vmware.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=l4JBGf6X90A55/xzGIGCmoZWgEYQdX7TmRGB45StAIc=;
- b=FhA1d0T1DXP43jMuxRjLI5cHA09TxwQkBqczmkGEI6+JiC0sqE+pOW1M8wrmjG4GrUoC1/2JUnaua/+DrV3EUUD6Nvg7uw89LdF4qZSxsqlkz20F8oiwbrSXmtvCzhF3AC6gxGTy6ymu5V4/XUAUgjYIMfumFCP94tNeyxVRVBI=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=vmware.com;
-Received: from BY3PR05MB8081.namprd05.prod.outlook.com (2603:10b6:a03:366::15)
- by MN2PR05MB7150.namprd05.prod.outlook.com (2603:10b6:208:18b::10)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4951.5; Thu, 3 Feb
- 2022 13:18:19 +0000
-Received: from BY3PR05MB8081.namprd05.prod.outlook.com
- ([fe80::304c:2b94:4f26:a581]) by BY3PR05MB8081.namprd05.prod.outlook.com
- ([fe80::304c:2b94:4f26:a581%3]) with mapi id 15.20.4951.012; Thu, 3 Feb 2022
- 13:18:19 +0000
-From: Jorgen Hansen <jhansen@vmware.com>
-To: linux-kernel@vger.kernel.org,
-	virtualization@lists.linux-foundation.org
-Subject: [PATCH v2 7/8] VMCI: dma dg: add support for DMA datagrams sends
-Date: Thu,  3 Feb 2022 05:12:36 -0800
-Message-Id: <20220203131237.3380-8-jhansen@vmware.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220203131237.3380-1-jhansen@vmware.com>
-References: <20220203131237.3380-1-jhansen@vmware.com>
-X-ClientProxiedBy: BYAPR07CA0068.namprd07.prod.outlook.com
- (2603:10b6:a03:60::45) To BY3PR05MB8081.namprd05.prod.outlook.com
- (2603:10b6:a03:366::15)
+ Thu,  3 Feb 2022 14:07:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+ d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+ t=1643897239; x=1675433239;
+ h=date:from:to:cc:subject:message-id:references:
+ mime-version:in-reply-to;
+ bh=702J7Q3O9MB3N5M5D/Whhr+WZwWT6kJx5OA4E3h5p1E=;
+ b=Vefi2q2lfivtiK7eyilzc0UNR55NbfNpvbqZwGmWFV6rhE9I7t5ezxW0
+ 5j9/O0i7tMX6AkXHO+SNvThAle/h5sE1lg2EYif9SIndUOfBV4G1nYi4T
+ 52lb1gzVjxSA6m/dWdeM1PoJHd89wK6LRpNwix6vHxfDrj+q590tCV+Iz
+ +x355CFmCvRclXqAJvhxLY4orM17h8xDydvMHRTbVxEFdYI+IhIb7Yuhb
+ oKW/SA4fnCn7AVoO3lSP9FbdM7yzPHBVVZVBoFR9xMOQUu67d6UsWJTew
+ dNQQMfL+khYW07VBcYcomdWi9wvlGT6x9fN0tEwsFr7BtQ2k/Dvk6RqgA g==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10246"; a="334508479"
+X-IronPort-AV: E=Sophos;i="5.88,340,1635231600"; d="scan'208";a="334508479"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+ by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 03 Feb 2022 06:07:18 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.88,340,1635231600"; d="scan'208";a="483248171"
+Received: from lkp-server01.sh.intel.com (HELO 276f1b88eecb) ([10.239.97.150])
+ by orsmga006.jf.intel.com with ESMTP; 03 Feb 2022 06:07:15 -0800
+Received: from kbuild by 276f1b88eecb with local (Exim 4.92)
+ (envelope-from <lkp@intel.com>)
+ id 1nFclW-000WCU-Mi; Thu, 03 Feb 2022 14:07:14 +0000
+Date: Thu, 3 Feb 2022 22:06:53 +0800
+From: kernel test robot <lkp@intel.com>
+To: Mike Christie <michael.christie@oracle.com>, geert@linux-m68k.org,
+ hdanton@sina.com, hch@infradead.org, stefanha@redhat.com,
+ jasowang@redhat.com, mst@redhat.com, sgarzare@redhat.com,
+ virtualization@lists.linux-foundation.org,
+ christian.brauner@ubuntu.com, axboe@kernel.dk
+Subject: Re: [PATCH 6/8] vhost_task: Allow vhost layer to use copy_process
+Message-ID: <202202032131.gnmg7b6h-lkp@intel.com>
+References: <20220202210200.5235-7-michael.christie@oracle.com>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 34e4edb8-9050-414d-daa4-08d9e717a3a9
-X-MS-TrafficTypeDiagnostic: MN2PR05MB7150:EE_
-X-LD-Processed: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0,ExtAddr
-X-MS-Exchange-AtpMessageProperties: SA|SL
-X-Microsoft-Antispam-PRVS: <MN2PR05MB71501F656DB7090C1424F901DA289@MN2PR05MB7150.namprd05.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: QAjL9fTgOKROW3ME4pe8GY8pTZ6Eh9mMXuPWwX8HU2bELOy+wHI1r7Rv5ugeDQGh24Uyq76ECB9LtSVodKWfGxsBR6LFyHA37mE/C/1EfjG/sJnjaNFGCaDx+obPoVEqB/RzoZHGcWfApzJZuy/rDCZ5I1qr7OpMKEgXRmJLQp/aPTYquKuIQkmM6GHmI1DIGvPDSOxuv7Xm4cOzHbnAuBZAsYD6fIZtJAuBChcisbmL4HV3I5hbud0VbTlmB4x6Cmg+Ptew14crDkqvZwZJqR4GlBd2HMlWIppFzTFva7jDkbcBU+h8nGHb4qJQlCWJ5aUEb20vebxaJXiSMyKXtIDtYaOWP44BsCbFEOIUvFq6AhOVlZiUnVpu5nrzxIb9qd+ElqtUV8tWaCN+LfqQSTd8Dh+GGJGlj23bLm0XPB/7clLUQCsyHKKDmpFVrkusi9uwX7CNsCGRbZGP3Z2PIY22hxhSg2vpN369cQICLBGoX17lbYnF8e3u7ngLMCUiPDN/8u40MeoQ3is/Wdru+Ajbaw3BXev7PY6jNmm7gT3Frcb6eSEw9y9zHTgmRH6903ObT9nA8lwi4aK7YSWtf/IpfQPcTHLz+H3DSmVa3CZ6LySE4jEv6meW+sYUWXic6LhQFmu5tG4HkOXgX6CHvE8E3/6U9dv0PUXHG+gCFULHIohNr/4+tQx2Bt/DDs+/1o3b1RETVidnTMekkeftrw==
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:BY3PR05MB8081.namprd05.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230001)(4636009)(366004)(6486002)(8936002)(66556008)(8676002)(66476007)(5660300002)(4326008)(38350700002)(2616005)(52116002)(66946007)(36756003)(38100700002)(186003)(6506007)(26005)(2906002)(1076003)(83380400001)(107886003)(316002)(6666004)(54906003)(86362001)(6512007)(508600001);
- DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?pYcdKsqnPOHc12vmvh1LaHIuMM81aPT96DhL5jPtddl6ov4tCNnG+0AHK7Hx?=
- =?us-ascii?Q?nSZbA/NIlLwfXuc9xDkbrxbx48uQ7XfqEKPSn2ELqnuZJP3zsZ1sWPs5wU6E?=
- =?us-ascii?Q?u1Rb7JBqT6qXR38ILSMCHFj/yuc2UgUvYfWw7RtAzMXODfsqcC8kUV/xyP5g?=
- =?us-ascii?Q?HQ2W1aB5v53a+bsoim4rWMViyQKFnqWd21++hhZKn9j+IgCY0rdFXh7InZWf?=
- =?us-ascii?Q?BHKe5RwS0jrJHGrA831ktd8tbODBkIs8i5d7A729UK9O9EUt6PqWrY+60/A0?=
- =?us-ascii?Q?MzCi+cp9tXovLYPmZU7jbKcb3yatiQRAoj+BLD4VGG/LznnHalZFJI3ALkrv?=
- =?us-ascii?Q?ZX+CdN8xe2Niz8LOaKW3kgK0djK8/53spLP5iH72V3w+FXjvyAiZKqQ30EIa?=
- =?us-ascii?Q?D5CgWorwt5PanAq4Y37jsGYbeAPn88Idk90x5YLG64o18d5R6AOtvkoJFdL/?=
- =?us-ascii?Q?YWjMGSLz+T9gfrEQE16XCAu6z4CqZyFc7KIbT0E2L1xY6qjrs+82cr/5J3h7?=
- =?us-ascii?Q?741BS6ZKG6yOLgMwFW8tarB+VhltnB2rZUaYhOKn6sFgXau/wuLJsXOpmQvG?=
- =?us-ascii?Q?XgJbFyjirUG5/urvfxNUk0B1vA4BTXpvk3v/x8mwuwhFuPcuuYFJyN3o9Rkk?=
- =?us-ascii?Q?bN5wBd4cchdpJLU9ioOZZ1LjR4y8tdV+i1N2pPPqh1U8RnFS7HWLWoyk8vag?=
- =?us-ascii?Q?guwsfX6z51vEkVsTYm50aXFfh5zIGRB/U3w5GpmAxdr0prTnn84dLQBpY1Au?=
- =?us-ascii?Q?De5GQ0skDmCV0iBM7HvcKtgUWGjzO9NPC047xNpVj2OhxgKDmvlIRHJy0F13?=
- =?us-ascii?Q?7wdfKXxA9k13c0t2c1IzhtStSnzT3V/YYXZICACrmffZjq36GbnPGR2hT8Uw?=
- =?us-ascii?Q?yHEx3y2/zh3GNZRKPlpJh6h0wqcPzz2aKYhMpz5se1PI9LZv/ex8NTRExccA?=
- =?us-ascii?Q?Zq2OXNz0iQHsWQhbjGfQ9yQ/6mvj5L62pYhO1jVtG8rBYE0RiBjptrW6RwnH?=
- =?us-ascii?Q?h69wOzZiN2iy25hVop1J/emUiY9cfgL2GKqthGHccjvo+sEirIyswVG9ykOX?=
- =?us-ascii?Q?HzeZfB9UhN8OQQB3GtRv9kZwJcQK6lhxteoe0a/lipdzgos+lOdypY6Md2/Q?=
- =?us-ascii?Q?NU7MUjy4J7Ri+AyuNh+GJKOLn2nU8SO3udvBF5G1yDxADa1k84eHFre9gjJl?=
- =?us-ascii?Q?sGMg1mEgnfepSvB9CnA6u55x+HvB3KE2UwvHbmaBVfl7gqFVZ5otOMWlUjef?=
- =?us-ascii?Q?ltHUrOdbDuFbe/BHWXGGJ8+NGRb7hwZH0cPsWJ+uCoTZFWGshPAuJZjBPMQZ?=
- =?us-ascii?Q?E+1pvchJXfrloePvffEWIZUkAAeG7fYcKnaiYzH3tb65chLBJ5US2QlthRfP?=
- =?us-ascii?Q?N55UjVXiltg7+U8ekrWoKXmrM8gxnzyVFUSSYLnqIEH9hp7GLV5EyH01VQKV?=
- =?us-ascii?Q?2UZviwBua5/AlJbCXLZxDKedii1GpAlGUPCUIGq8kkoO/FErpnSFbz1VQ9ux?=
- =?us-ascii?Q?Lkkk9NliUNsVv1W0OMwwg6qshwA8nRYbpF13G/5w0kZd2sKm9vKj1Q/s/opp?=
- =?us-ascii?Q?LPp5+wQPcahOVcPFMPlxZBmxRRx8TwsCyb7aQr0gI/L8TTx+/bReCIbPxZcg?=
- =?us-ascii?Q?Y9Fjm0+anITUqhl4trkZKZs=3D?=
-X-OriginatorOrg: vmware.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 34e4edb8-9050-414d-daa4-08d9e717a3a9
-X-MS-Exchange-CrossTenant-AuthSource: BY3PR05MB8081.namprd05.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Feb 2022 13:18:16.8529 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: S5ZoJfRlUXR404TWQf/HkmLjL53OkMnFKGAPXBfY1cl9AAR8h8BO93Njj335ord7pMVEvDumo7w0XTf4Mpa/nA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR05MB7150
-Cc: pv-drivers@vmware.com, gregkh@linuxfoundation.org,
- Vishnu Dasa <vdasa@vmware.com>, Jorgen Hansen <jhansen@vmware.com>
+Content-Disposition: inline
+In-Reply-To: <20220202210200.5235-7-michael.christie@oracle.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+Cc: kbuild-all@lists.01.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -149,142 +95,96 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Use DMA based send operation from the transmit buffer instead of the
-iowrite8_rep based datagram send when DMA datagrams are supported.
+Hi Mike,
 
-The outgoing datagram is sent as inline data in the VMCI transmit
-buffer. Once the header has been configured, the send is initiated
-by writing the lower 32 bit of the buffer base address to the
-VMCI_DATA_OUT_LOW_ADDR register. Only then will the device process
-the header and the datagram itself. Following that, the driver busy
-waits (it isn't possible to sleep on the send path) for the header
-busy flag to change - indicating that the send is complete.
+Thank you for the patch! Perhaps something to improve:
 
-Reviewed-by: Vishnu Dasa <vdasa@vmware.com>
-Signed-off-by: Jorgen Hansen <jhansen@vmware.com>
+[auto build test WARNING on mst-vhost/linux-next]
+[also build test WARNING on tip/x86/core linus/master v5.17-rc2 next-20220203]
+[cannot apply to davem-sparc/master]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch]
+
+url:    https://github.com/0day-ci/linux/commits/Mike-Christie/Use-copy_process-in-vhost-layer/20220203-050454
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git linux-next
+config: sparc-randconfig-s032-20220130 (https://download.01.org/0day-ci/archive/20220203/202202032131.gnmg7b6h-lkp@intel.com/config)
+compiler: sparc-linux-gcc (GCC) 11.2.0
+reproduce:
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        # apt-get install sparse
+        # sparse version: v0.6.4-dirty
+        # https://github.com/0day-ci/linux/commit/2c7380ae8136c224f4c7074027303b97b0a0f84c
+        git remote add linux-review https://github.com/0day-ci/linux
+        git fetch --no-tags linux-review Mike-Christie/Use-copy_process-in-vhost-layer/20220203-050454
+        git checkout 2c7380ae8136c224f4c7074027303b97b0a0f84c
+        # save the config file to linux build tree
+        mkdir build_dir
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-11.2.0 make.cross C=1 CF='-fdiagnostic-prefix -D__CHECK_ENDIAN__' O=build_dir ARCH=sparc SHELL=/bin/bash
+
+If you fix the issue, kindly add following tag as appropriate
+Reported-by: kernel test robot <lkp@intel.com>
+
+
+sparse warnings: (new ones prefixed by >>)
+>> kernel/vhost_task.c:85:24: sparse: sparse: incorrect type in argument 1 (different base types) @@     expected unsigned int [usertype] size @@     got restricted gfp_t @@
+   kernel/vhost_task.c:85:24: sparse:     expected unsigned int [usertype] size
+   kernel/vhost_task.c:85:24: sparse:     got restricted gfp_t
+>> kernel/vhost_task.c:85:36: sparse: sparse: incorrect type in argument 2 (different base types) @@     expected restricted gfp_t [usertype] flags @@     got unsigned int @@
+   kernel/vhost_task.c:85:36: sparse:     expected restricted gfp_t [usertype] flags
+   kernel/vhost_task.c:85:36: sparse:     got unsigned int
+
+vim +85 kernel/vhost_task.c
+
+    62	
+    63	/**
+    64	 * vhost_task_create - create a copy of a process to be used by the kernel
+    65	 * @fn: thread stack
+    66	 * @arg: data to be passed to fn
+    67	 * @node: numa node to allocate task from
+    68	 *
+    69	 * This returns a specialized task for use by the vhost layer or NULL on
+    70	 * failure. The returned task is inactive, and the caller must fire it up
+    71	 * through vhost_task_start().
+    72	 */
+    73	struct vhost_task *vhost_task_create(int (*fn)(void *), void *arg, int node)
+    74	{
+    75		struct kernel_clone_args args = {
+    76			.flags		= CLONE_FS | CLONE_UNTRACED | CLONE_VM,
+    77			.exit_signal	= 0,
+    78			.stack		= (unsigned long)vhost_task_fn,
+    79			.worker_flags	= USER_WORKER | USER_WORKER_NO_FILES |
+    80					  USER_WORKER_SIG_IGN,
+    81		};
+    82		struct vhost_task *vtsk;
+    83		struct task_struct *tsk;
+    84	
+  > 85		vtsk = kzalloc(GFP_KERNEL, sizeof(*vtsk));
+    86		if (!vtsk)
+    87			return ERR_PTR(-ENOMEM);
+    88	
+    89		init_completion(&vtsk->exited);
+    90		vtsk->data = arg;
+    91		vtsk->fn = fn;
+    92		args.stack_size =  (unsigned long)vtsk;
+    93	
+    94		tsk = copy_process(NULL, 0, node, &args);
+    95		if (IS_ERR(tsk)) {
+    96			kfree(vtsk);
+    97			return NULL;
+    98		}
+    99	
+   100		vtsk->task = tsk;
+   101	
+   102		return vtsk;
+   103	}
+   104	EXPORT_SYMBOL_GPL(vhost_task_create);
+   105	
+
 ---
- drivers/misc/vmw_vmci/vmci_guest.c | 45 ++++++++++++++++++++++++++++--
- include/linux/vmw_vmci_defs.h      | 34 ++++++++++++++++++++++
- 2 files changed, 77 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/misc/vmw_vmci/vmci_guest.c b/drivers/misc/vmw_vmci/vmci_guest.c
-index c207ca2ca42e..ae2fd9c791d0 100644
---- a/drivers/misc/vmw_vmci/vmci_guest.c
-+++ b/drivers/misc/vmw_vmci/vmci_guest.c
-@@ -13,6 +13,7 @@
- #include <linux/kernel.h>
- #include <linux/mm.h>
- #include <linux/module.h>
-+#include <linux/processor.h>
- #include <linux/sched.h>
- #include <linux/slab.h>
- #include <linux/init.h>
-@@ -114,6 +115,47 @@ static void vmci_write_reg(struct vmci_guest_device *dev, u32 val, u32 reg)
- 		iowrite32(val, dev->iobase + reg);
- }
- 
-+static int vmci_write_data(struct vmci_guest_device *dev,
-+			   struct vmci_datagram *dg)
-+{
-+	int result;
-+
-+	if (dev->mmio_base != NULL) {
-+		struct vmci_data_in_out_header *buffer_header = dev->tx_buffer;
-+		u8 *dg_out_buffer = (u8 *)(buffer_header + 1);
-+
-+		if (VMCI_DG_SIZE(dg) > VMCI_MAX_DG_SIZE)
-+			return VMCI_ERROR_INVALID_ARGS;
-+
-+		/*
-+		 * Initialize send buffer with outgoing datagram
-+		 * and set up header for inline data. Device will
-+		 * not access buffer asynchronously - only after
-+		 * the write to VMCI_DATA_OUT_LOW_ADDR.
-+		 */
-+		memcpy(dg_out_buffer, dg, VMCI_DG_SIZE(dg));
-+		buffer_header->opcode = 0;
-+		buffer_header->size = VMCI_DG_SIZE(dg);
-+		buffer_header->busy = 1;
-+
-+		vmci_write_reg(dev, lower_32_bits(dev->tx_buffer_base),
-+			       VMCI_DATA_OUT_LOW_ADDR);
-+
-+		/* Caller holds a spinlock, so cannot block. */
-+		spin_until_cond(buffer_header->busy == 0);
-+
-+		result = vmci_read_reg(vmci_dev_g, VMCI_RESULT_LOW_ADDR);
-+		if (result == VMCI_SUCCESS)
-+			result = (int)buffer_header->result;
-+	} else {
-+		iowrite8_rep(dev->iobase + VMCI_DATA_OUT_ADDR,
-+			     dg, VMCI_DG_SIZE(dg));
-+		result = vmci_read_reg(vmci_dev_g, VMCI_RESULT_LOW_ADDR);
-+	}
-+
-+	return result;
-+}
-+
- /*
-  * VM to hypervisor call mechanism. We use the standard VMware naming
-  * convention since shared code is calling this function as well.
-@@ -139,8 +181,7 @@ int vmci_send_datagram(struct vmci_datagram *dg)
- 	spin_lock_irqsave(&vmci_dev_spinlock, flags);
- 
- 	if (vmci_dev_g) {
--		iowrite8_rep(vmci_dev_g->iobase + VMCI_DATA_OUT_ADDR,
--			     dg, VMCI_DG_SIZE(dg));
-+		vmci_write_data(vmci_dev_g, dg);
- 		result = vmci_read_reg(vmci_dev_g, VMCI_RESULT_LOW_ADDR);
- 	} else {
- 		result = VMCI_ERROR_UNAVAILABLE;
-diff --git a/include/linux/vmw_vmci_defs.h b/include/linux/vmw_vmci_defs.h
-index 8bc37d8244a8..6fb663b36f72 100644
---- a/include/linux/vmw_vmci_defs.h
-+++ b/include/linux/vmw_vmci_defs.h
-@@ -110,6 +110,40 @@ enum {
- #define VMCI_MMIO_ACCESS_OFFSET        ((size_t)(128 * 1024))
- #define VMCI_MMIO_ACCESS_SIZE          ((size_t)(64 * 1024))
- 
-+/*
-+ * For VMCI devices supporting the VMCI_CAPS_DMA_DATAGRAM capability, the
-+ * sending and receiving of datagrams can be performed using DMA to/from
-+ * a driver allocated buffer.
-+ * Sending and receiving will be handled as follows:
-+ * - when sending datagrams, the driver initializes the buffer where the
-+ *   data part will refer to the outgoing VMCI datagram, sets the busy flag
-+ *   to 1 and writes the address of the buffer to VMCI_DATA_OUT_HIGH_ADDR
-+ *   and VMCI_DATA_OUT_LOW_ADDR. Writing to VMCI_DATA_OUT_LOW_ADDR triggers
-+ *   the device processing of the buffer. When the device has processed the
-+ *   buffer, it will write the result value to the buffer and then clear the
-+ *   busy flag.
-+ * - when receiving datagrams, the driver initializes the buffer where the
-+ *   data part will describe the receive buffer, clears the busy flag and
-+ *   writes the address of the buffer to VMCI_DATA_IN_HIGH_ADDR and
-+ *   VMCI_DATA_IN_LOW_ADDR. Writing to VMCI_DATA_IN_LOW_ADDR triggers the
-+ *   device processing of the buffer. The device will copy as many available
-+ *   datagrams into the buffer as possible, and then sets the busy flag.
-+ *   When the busy flag is set, the driver will process the datagrams in the
-+ *   buffer.
-+ */
-+struct vmci_data_in_out_header {
-+	uint32_t busy;
-+	uint32_t opcode;
-+	uint32_t size;
-+	uint32_t rsvd;
-+	uint64_t result;
-+};
-+
-+struct vmci_sg_elem {
-+	uint64_t addr;
-+	uint64_t size;
-+};
-+
- /*
-  * We have a fixed set of resource IDs available in the VMX.
-  * This allows us to have a very simple implementation since we statically
--- 
-2.25.1
-
+0-DAY CI Kernel Test Service, Intel Corporation
+https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
