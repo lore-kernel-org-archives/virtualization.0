@@ -1,79 +1,78 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 00550C433EF
-	for <virtualization@archiver.kernel.org>; Mon,  7 Feb 2022 10:33:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 31258C433FE
+	for <virtualization@archiver.kernel.org>; Mon,  7 Feb 2022 10:33:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id AFE7940303;
-	Mon,  7 Feb 2022 10:33:44 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id D527A813DA;
+	Mon,  7 Feb 2022 10:33:45 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id iiGKofNUsGcE; Mon,  7 Feb 2022 10:33:43 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 4013C402C3;
-	Mon,  7 Feb 2022 10:33:43 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 4MqrZzz9qcQS; Mon,  7 Feb 2022 10:33:44 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 10F248142C;
+	Mon,  7 Feb 2022 10:33:44 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 233D6C0011;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7DF1AC0077;
 	Mon,  7 Feb 2022 10:33:43 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 2BD20C0077
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2EB7AC0078
  for <virtualization@lists.linux-foundation.org>;
  Mon,  7 Feb 2022 10:33:40 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 2CD0D40375
+ by smtp3.osuosl.org (Postfix) with ESMTP id BD63560B49
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  7 Feb 2022 10:33:39 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=vmware.com
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id lp8_mFvnOxFr
  for <virtualization@lists.linux-foundation.org>;
  Mon,  7 Feb 2022 10:33:38 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=vmware.com
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id U2voz6PgkQFq
- for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Feb 2022 10:33:37 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from NAM11-BN8-obe.outbound.protection.outlook.com
- (mail-bn8nam11on20630.outbound.protection.outlook.com
- [IPv6:2a01:111:f400:7eae::630])
- by smtp2.osuosl.org (Postfix) with ESMTPS id E6A024031F
+Received: from NAM12-MW2-obe.outbound.protection.outlook.com
+ (mail-mw2nam12on2061c.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:fe5a::61c])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id C58E760BD4
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Feb 2022 10:33:36 +0000 (UTC)
+ Mon,  7 Feb 2022 10:33:38 +0000 (UTC)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=kRawHoyHosdauFM+XavCqv7EA2JBQ3Zf3yXFGvzaWXi1hW6Rigk5SM/UZTT7akXGkO/bn7STrICGdynIYOQIyV41xZhRq3P3+Eoex3oJdRDsARf1tAIaXxoU0jshEhlK+WMqeTA2uM9veSM3av54elCKqJpQjb35qe4ktlVb/3yaMG1XWAOVhfdIKv8ZaSNDyYOUtXb4M4Kyf/6KNpNx7iRRu2Ec0imPS1qRi2qJlNZhkJuAXlfEb7RCmmAruCyxO8tnUjPsNv0SvC195oYTglrjOtQzOL2/Qk405GttdHzq8d62Cbj7hT70AaMVfxPR3XHCYxuWLMRpfo44Xer7GQ==
+ b=NZKuFe1BF5PFtEeOghkkb/ZLFG1URcj9ANRs/Z8OmrcDoJYXJNgAYxgBcijgZew8skJremrBMKj1iv6w8bZbeQ4CkYUS5xpji695pgWAcr5iPTbVvisNzF1JaBPSOW5F5LbRvODnssJpgN5FsfYg41HJGKmiYL0mctl+zRrva40ZFKyD4dCgXT+Fv8PoKP76NK9rQrimKwnbJa9rymQbABvVaH9rCK/2rCnGjENjllRnJ4Ltj4cNK0+7wx+eCJfGqO+vG/ZvW0+ziichVIeah8bfqX7AjZpfKz47/Yl8Ag79XlXGKqAVmRPw/nYDOM6G0ckkILhzaGm5uiXk0zQMpg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=SWWgiyEXtvHywOVrwYpmsnRT/ZkYYqMmG599OgRjx1E=;
- b=jrjAw5wyTP/mYxIXZ5IV24jRi6frI2v7xsdGbz4xSTY1tTGOVF16Ebc6dEk/DE7ADJWze5OF4UxKmgo+jFLLqUtsFsC9ddDvUhslFrikaZL2nnxJyEIZzpbsQ36/xu3Z7NNasTapz3NnZLzHd+adn6i2t/jL4ls/2jZ5dmhdgxPmvmW7ngeeMO3/833uxiaPyBFUzW8JRUWAS6BqDFCXOujWLMbE1ydx6iRR+ra8swB0JdCs+8tsktfbx/ijpaOsg05MQ0jpTF9cJ6Dj6G8Zzt6G6vDR4rSVFP6RNJ08cJiwyutn0egO/Z84awRdU8gJiO4JR/YsqzTxkiT26s0oBQ==
+ bh=LTPR4PJQUxJAlRnnK9reLeuWKUeOxXldnZbtGZ7GoEs=;
+ b=NpEwnTwUc27SiBJTuqkoJKMOEjFOpF2OXPCs0hagOHVrEZUke0Tq5am8t7rEH4lWS6lInCUjEBVSP5BBV6B7RT1FAonqLNBcl73e4qtOPT1yjnBVCTJbeGBlDRwbnYDEdvTHdhiUY1UMQvJJVil4bBpdl6G/NxHH1G579cmEpYFcyWqcuZLfaIEL1PwoSQAwHIMuOqmy3iNH62DjiFKLrL25lIckHcXglEpe8lrHQHBtLSDY7HNv+8iS/M51RsmYPfI2go1fYPg2Yt+ltX5aPw8t7SM+mrm3WRWkHDIornptucVqp94+gPSWSIp2JWvmpOId1gznP56ATRPGYpD8fw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
  dkim=none; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vmware.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=SWWgiyEXtvHywOVrwYpmsnRT/ZkYYqMmG599OgRjx1E=;
- b=na0u8kfWP37BB6NmGA856m9n+KaUxKmn+rC8+wuHyogITBGD5xMLt0T78+5tqTsKNkSUelGpoEU5KCTtUur43Hux7FoUlcohZ4uFs92piJyezreHB9mzFMWsx5OPNhqENK8/QUvvNAn3oEHpYdJOvyv7jXcM11rCUydP6lNga4k=
+ bh=LTPR4PJQUxJAlRnnK9reLeuWKUeOxXldnZbtGZ7GoEs=;
+ b=17pnKg+0X/9rg9O1MwQawj/VlEDGmJS3SVouQ6WyvNS2Pro5JebYxaOhAzRKPeMC25vQEJobtWM1JnXXGEpeDZVfnFQu4vEXMIaZjbkZtlTZ9f6hqEjzNQrvgXK5lFy0tiHDKRtksQd49PXHR927HPoluDBfi/16ycYytjhwIDk=
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=vmware.com;
 Received: from BY3PR05MB8081.namprd05.prod.outlook.com (2603:10b6:a03:366::15)
  by DM5PR0501MB3686.namprd05.prod.outlook.com (2603:10b6:4:7d::17)
  with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4975.10; Mon, 7 Feb
- 2022 10:33:35 +0000
+ 2022 10:33:36 +0000
 Received: from BY3PR05MB8081.namprd05.prod.outlook.com
  ([fe80::283c:d671:e4e5:31f8]) by BY3PR05MB8081.namprd05.prod.outlook.com
  ([fe80::283c:d671:e4e5:31f8%7]) with mapi id 15.20.4975.010; Mon, 7 Feb 2022
- 10:33:35 +0000
+ 10:33:36 +0000
 From: Jorgen Hansen <jhansen@vmware.com>
 To: linux-kernel@vger.kernel.org,
 	virtualization@lists.linux-foundation.org
-Subject: [PATCH v3 5/8] VMCI: dma dg: register dummy IRQ handlers for DMA
- datagrams
-Date: Mon,  7 Feb 2022 02:27:22 -0800
-Message-Id: <20220207102725.2742-6-jhansen@vmware.com>
+Subject: [PATCH v3 7/8] VMCI: dma dg: add support for DMA datagrams sends
+Date: Mon,  7 Feb 2022 02:27:24 -0800
+Message-Id: <20220207102725.2742-8-jhansen@vmware.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220207102725.2742-1-jhansen@vmware.com>
 References: <20220207102725.2742-1-jhansen@vmware.com>
@@ -82,58 +81,58 @@ X-ClientProxiedBy: BYAPR11CA0062.namprd11.prod.outlook.com
  (2603:10b6:a03:366::15)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: b1e3cadd-77ea-4723-09d0-08d9ea254ad8
+X-MS-Office365-Filtering-Correlation-Id: 7bd9af0b-8e43-4941-4b94-08d9ea254b62
 X-MS-TrafficTypeDiagnostic: DM5PR0501MB3686:EE_
 X-LD-Processed: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0,ExtAddr
 X-MS-Exchange-AtpMessageProperties: SA|SL
-X-Microsoft-Antispam-PRVS: <DM5PR0501MB3686878FCA952805AB3AC496DA2C9@DM5PR0501MB3686.namprd05.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:3826;
+X-Microsoft-Antispam-PRVS: <DM5PR0501MB368696AF0377B34F78B19514DA2C9@DM5PR0501MB3686.namprd05.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: GurQh5v6nj8r1IFTyWJmsyqhV/URooM0aTqH8+7mvVOIN5xkmowB7izqvNpHCEkkQvOt2flH4ocHlNW9oYYfNlIeCNkVVCGECbCXuevFg0NG0L5DZncHF/XW0dwZuZKfWK4RNCG7K0K+shw1xjlgor6KJnZ7vUEtHjXr6G6HcQeYmx7qWHJuP7rAV+edmx41/Vj0y5Zzrc0ky8q0yKvWX6ASldFhinb2DUkj6hhrum88wfDauiTvFWQXLlaUh+7N4VzM2N7Gp+MIGUEUvOwEAzKC9WB305/8NT2GLXQHxd2g+McwUl5ge8d3IHCOappPxAjtGADIVrwxdNmMeicYGNrX9I7NzCV56AAjrNnfuHFzqMlcvOhqZaqHakrkuVa5UATMdqw8SzfwIO7/C25nRpNWsyzhBuN3qDpbA6oTnyiSz53BhQhP3ZltqSkKj3dcSWvFaXm05kZ7ALwQ+AKIIrXcxfGl2FVhrDtT5iAsAhasmD8tWLi6C11Ab7GtGbvP+HPmLYdIQ8wtx9H7iU0Ejtf5AfaNW799ITakD7TYtyt6XXU/QNe+KL+JQwxiUHoEqjju9RjNXDYKmS4Cl3seeXlzbb3IhzkAKinLLTCe3j3eWJlgwh1RMKUXsBEiuVZzt38Dyq5ZbeiZkoXGPEUlb3NEdzfuk1D+1wrgQHxRqNpjxHRp2l+G5edVhQ9XAHUBQJ52tg8YVh/j/yC0vSit1vyUgAH6dLJPv26cfF1tSe9BU1zgRflxVhy+Gc0BKUBA
+X-Microsoft-Antispam-Message-Info: RAo+oDRqm8OlQxKK0vpnnHmv68avvfpPGhqvgm4FNW1xF2jh+4GHjburVSpt8WgH23QSgfc/ydMYFnLj/3ION2wENuvbjBdV25KDo7TczP2U6A2iRXyJXY739bx1b8e0Zk9Js+MYExxCyrkMFXDg1ZK+IZnX5nk/cjSY1MYl9FbbanAw+npFaRhuhMwQZ9MZv3TWi+9HbM1IFpkN5O0c8x5Rd8Felg4rsJH4LdWZxjxDvwgHVc/9uWTCugycIh6DFtfxYP5+/YhimIjkqWaxYbkIkUQujbCS1Z3X03Mz38zTjxtrqXytlDFfjc0ROhtS+fm4raYmraj/IEvFd8PkvXJR8WjfzDFNJeepYSKs5u5BCu2lSHKaQTcBi1ra1hd8KyxVBiWzTHFiluC/AXR4vUbPUl1r2sRkCBB/5RDARLF9GRfjcbEhMHEErFrBvZ9sQMdhgHznQQOHldl3hBUXdMMpd1erPt8oRk5EPelEgp3yEJMkp1Yv0NnKI1aGiLS2K69QOH55uz3vaGTU7dNcEwvFPIkd83czZUORydItprVBcYJAD5dFkV4bm64B5cD3re+mr4wG096Gus55KqTVKFi8Lx/z5GK3S9uUfkCVK3lWRnLhu0cxv6gey0mqJYD49oSiSWBoBWQFu3/0gfkHs8Ywo9yooY/4AoWGOz8IMs4qXnLkGRXPCwO6l6/+0soauZUWWvzYLokN+o/CgRgYCsRnTbETgfbrvG8D5CNABwfu+ZsZploo5lRKzBn5ppaB
 X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
  IPV:NLI; SFV:NSPM; H:BY3PR05MB8081.namprd05.prod.outlook.com; PTR:; CAT:NONE;
  SFS:(13230001)(4636009)(366004)(38350700002)(508600001)(6486002)(38100700002)(107886003)(52116002)(1076003)(8936002)(6512007)(36756003)(186003)(316002)(5660300002)(54906003)(6506007)(2616005)(2906002)(26005)(66556008)(66476007)(8676002)(4326008)(83380400001)(66946007)(6666004)(86362001);
  DIR:OUT; SFP:1101; 
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?sZ1Qy+amkcDouloXLKI/cz5i7ppnaSb8wcz+A14/u7f98/sDR9zcl0P7ga9F?=
- =?us-ascii?Q?XM6KgZQTCA4SSu6FZfqiG+foIJTwrDSHRIk9s4FIPtbsj5th2OHkRYVgBbzd?=
- =?us-ascii?Q?1KakDxw96cH56AhR5zNIG2f0dIbYbCcsEgAoy7mXLtsX6xEi7hMwmDzDl3um?=
- =?us-ascii?Q?noz6Ju091Y97PEMWHPMtT4YUT0aRc1D7RLUPdQ2p4YHZNkhRAFcA/fAZaP8L?=
- =?us-ascii?Q?P+s05dVRBFn2VA65OVdMjvYXhyxs/z35iT1g4Tv7Bhj+tlHYqO8gnsdl4aSJ?=
- =?us-ascii?Q?IWz6+K6TIo1z0UTIyjNxNL/h0iV7faDNPEJWEx7iAQY5g82cnXxGVLKWaODQ?=
- =?us-ascii?Q?hRyjErNpm59pcBdMDQFU5boYRvswUIEl4758NO2GdhrOp4XURcIQxx4lhzo/?=
- =?us-ascii?Q?R0nLRSDvIoeOpAigYEaMlYYuUKKUPkA9oF10Et2olN7tnZmiYlNd11vlXvrQ?=
- =?us-ascii?Q?4SH2wwV2awHTKHqb2zTNTOIQTvKGSPm9HG+jlWstogKpkCovSwOZBUzXbsBG?=
- =?us-ascii?Q?dY5XuSPc/jRpzI6iznV9NzZNWdFCaUM5umQf/laohBhNKg24czB/xQ2XhFoi?=
- =?us-ascii?Q?5uC6EaKDh1R9lp3WkecQAaco7ph40bocYDuBBGBfzmuzu7Zg0hDq6dw+SHAF?=
- =?us-ascii?Q?0tdg6FfUAU1Q55W7bj2/hr9CSRsuvT83H4z9ApikiSb73CxaVo8kcZsJ7eFE?=
- =?us-ascii?Q?+PRGxB1KzhiRFgL3aQ4lHsfKfUkybinuqVQ9f9wqgEoB8qVA5ZSthLy1+J5A?=
- =?us-ascii?Q?5uFdkDmiUV3t2Q1BgHaxIfTnKkva38q95geQkRVp3ZhpdtKxxTlhpj2noT/S?=
- =?us-ascii?Q?zIZoQZmoOqo2825B/QCgBsfUbH38O5ge7DxcoDAJwM2D++knaXUA84VN6kMS?=
- =?us-ascii?Q?j6pv/xtgIXCyinKQPsL3gZa9DXW0PqmpTy3uRCoV3ciEpuVtpJ3mT5M4r7CG?=
- =?us-ascii?Q?j9rypsYecoCp3Hi8k2P17ngAdhw6Q5lO4qTql8mA/jZ2YI4gJcQ7aGYfSV3V?=
- =?us-ascii?Q?qLFX72p/xYBeYTjOFhH/w5IGf21LZig+ml7fFB6dIn1IUJuZXhiB5v0VQ0Xr?=
- =?us-ascii?Q?jPXRDerf3nHod04Zi3gf3PqtnLw4sNZhYDmsvdsL88d9SEYtd5Oc6uh6i7Ts?=
- =?us-ascii?Q?RSEhkAt6CZTIIFYWf7jJjTzC3eT3tNqtfQFNGfSpNW/Gw1hg+dspeNb09yAM?=
- =?us-ascii?Q?BSLZyVVn/9/qEhamoRyIj0BaGtZF0PEO9sJypt7DG3knivaYygJn0JJXIF4f?=
- =?us-ascii?Q?Q9Vts2JoGFddev3x9pSs+MZ7DxBK5OE0Scm+gYDmQ8uB0bEHoSTdkFYPvKxj?=
- =?us-ascii?Q?v8Pk0mOrRY4hGyJvXp8wYS24P8d++m7Z6mgXPF7BSlTQvbZ/W/MO6JXeHQIX?=
- =?us-ascii?Q?v5aZOd2Vtngo1d6fEyd7hDRaKCWuf825pVtiWUUPMigBJ9D8MCzGvdJCdOHu?=
- =?us-ascii?Q?pD+eQ/hWMa8zALxsM5pZYo6F3gl5x6Y7+YN75WNHUDNsB+x6lL0b8M0LwECm?=
- =?us-ascii?Q?2YdKbxUc+XQUb5UiXUDL3nIqLurhRAdMQIdFnccb9s9ik+Fhym8z0HWerJPr?=
- =?us-ascii?Q?UW/6PiIL++IkweRU+jJVvoH2/mmreCown/3/bavf3vOo4x+85puVXr9x+V2Y?=
- =?us-ascii?Q?2NWOGJoAFevWmjmnA/hgr14=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?LNcZoZ6xAAu9E+HKgTv3+qmSeI45zOOrhOoor64vK+BuX7c8wCJbotzcfYFy?=
+ =?us-ascii?Q?v6BXF2fF67uZXQUKoNsQe9PcbOGyrAIsKsJG5+dYBSCHeENAHGwmn7vOE8fL?=
+ =?us-ascii?Q?p+2xxseVAWxUpMAWr8YkIcuB7zkWzUG7Wfr9vsQyRXo0DXftSlLY1FsVrxj+?=
+ =?us-ascii?Q?KOUvLnQZyPIsMsrgQq4yvhLH4kqh6uk6ahGFXUzW2VT71vM4+WKo+dl44/dd?=
+ =?us-ascii?Q?RMgiQ6l1txdgbCBWnor+a0/lDrrWgJ8tsgXkRho36UWC33p4YRD/wQbdNNmL?=
+ =?us-ascii?Q?/MalABoimxYhAXeC3SLCblu1LdxnQXCHofZvbFIca//tXfUXwScYFIOAjj7C?=
+ =?us-ascii?Q?KO3uZaWU2p6XOPMGMVTLM8aTmHbJ9M8suPEx/Y7fQxPKYR5OuJwewr7ZvIb2?=
+ =?us-ascii?Q?lsLNqdzdaa5eouK9KiAuLXgGwqt7mkpfWVXtFKhQ5VWmUiGovlY1sLHRXMSj?=
+ =?us-ascii?Q?HHCzQXvEvG9xbjxFRdCnguNIZEy5SCeXcMnsJPnshosSI74ikqfsnu6BJnwq?=
+ =?us-ascii?Q?roXB2RMrryYccZIu7KCveEYWgSrsxDCukNAh8LG6JdMkpj7Kx7iOLGGofQ0x?=
+ =?us-ascii?Q?pECzJ/WEcN6DH4K686RkEf582IXdJrKr57XeULdk/NIFZh6XhJCXSpTiGO0F?=
+ =?us-ascii?Q?43JrMqv9wx/9FxRF+vmqhE+5hnokjvnozGVzTLZAlPv9DIV3MDq3m/PygBxP?=
+ =?us-ascii?Q?AQWHwMoEU4F4XmxN5V8W2CHXJy9G7Mc2G7In0aOND9oVUxm7Bv51+O2vZx0a?=
+ =?us-ascii?Q?Q2rJ6tNzlRL07581YIl/AdZAONT6cZYxEXhmljSl6HsM0sR+LoihftBhngYz?=
+ =?us-ascii?Q?0G4xWppqwMbujKBAwYfpsVScl99QYrx9cTO6aNogYo5cBeC/Ca1gTrQRoffg?=
+ =?us-ascii?Q?23YsSgxlJVuGvXZz4WsSTUYjx8pRosnbASJKKIJbAv2MqlS8OFbDCvQJzwaP?=
+ =?us-ascii?Q?SV95wcNuK+tWneE2nkQUtLL7whfID3QhGwP/qhavMi9mWbDd+1ZAfEkSV1WB?=
+ =?us-ascii?Q?qgUGxiwsaAl6tSypNEPRArxL09AKFZszSBp2jAH1t4sJDsEo6zdDFfS/lrkx?=
+ =?us-ascii?Q?uhNIcwXBPuEJyylUm/yfva0MXUF464aulBqVg3pgTlpjtWIFt8JCpDUC7AOd?=
+ =?us-ascii?Q?eaBIjh4qiQiyR6hDKjxK3F8hzTwofhsqhuSLWPMJp55MYRz8Cx52/rdIJqPu?=
+ =?us-ascii?Q?M0Ag3w87o3sCTS8OP6n+vv5kjEfQ+E9TB5HLH3Ph+aRexq6foQEkJVUy6P47?=
+ =?us-ascii?Q?OFlkXOFx4hyDg2PPMffdGUyVJR36PrvFzcEJme0xQU65yYOoqFr9tBV1XY0E?=
+ =?us-ascii?Q?RGApXpqxbCf0P9ElWsybPm0S+vPHZS8Kr+GwQ5/xMaTU/dfMI/F0JQToQTp5?=
+ =?us-ascii?Q?pZsHjG75tBE4Cxdov5wuSPf3anInEsSwLe3t8rNOED3aLhbpmnTZ6ioo8+Ma?=
+ =?us-ascii?Q?FemAuVxymmYkv0exQJVIwBuEfGFeFQzmUVUAPKLBfo7A2L/6wMfDjsgKut/Z?=
+ =?us-ascii?Q?zi1/kgtMFJcBc9vpjubQ1F9a0Tt1M3ow4UrAK+kJCctTxF5kQjBjPWpTCxT4?=
+ =?us-ascii?Q?GfJoiqWjj23M5AgTkNpOt7Bg+S2+pslY1bvy3KKSaZ7SkGC5b3lboVQPwdlG?=
+ =?us-ascii?Q?GbivzufXeAL6czDBtdjpXhw=3D?=
 X-OriginatorOrg: vmware.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: b1e3cadd-77ea-4723-09d0-08d9ea254ad8
+X-MS-Exchange-CrossTenant-Network-Message-Id: 7bd9af0b-8e43-4941-4b94-08d9ea254b62
 X-MS-Exchange-CrossTenant-AuthSource: BY3PR05MB8081.namprd05.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Feb 2022 10:33:34.3903 (UTC)
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Feb 2022 10:33:35.2039 (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: CSPch3EXIzVg0CK1yD7ah9qYMzoAZovRbjK7Gr3vN3iJWh1qYRQIt8c+n6MVw2GkIRawWY3Jyl1fwhRyK21grA==
+X-MS-Exchange-CrossTenant-UserPrincipalName: e0uskUUx3V4M3YYJucKcSqQYV4nNR2BAV//lkdHpwtvq2Ef5N2niDdDvfSJXmup/CYEDeNR0rEROpIqFJALT5g==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR0501MB3686
 Cc: pv-drivers@vmware.com, gregkh@linuxfoundation.org,
  Vishnu Dasa <vdasa@vmware.com>, Jorgen Hansen <jhansen@vmware.com>
@@ -153,156 +152,139 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Register dummy interrupt handlers for DMA datagrams in preparation for
-DMA datagram receive operations.
+Use DMA based send operation from the transmit buffer instead of the
+iowrite8_rep based datagram send when DMA datagrams are supported.
+
+The outgoing datagram is sent as inline data in the VMCI transmit
+buffer. Once the header has been configured, the send is initiated
+by writing the lower 32 bit of the buffer base address to the
+VMCI_DATA_OUT_LOW_ADDR register. Only then will the device process
+the header and the datagram itself. Following that, the driver busy
+waits (it isn't possible to sleep on the send path) for the header
+busy flag to change - indicating that the send is complete.
 
 Reviewed-by: Vishnu Dasa <vdasa@vmware.com>
 Signed-off-by: Jorgen Hansen <jhansen@vmware.com>
 ---
- drivers/misc/vmw_vmci/vmci_guest.c | 42 +++++++++++++++++++++++++++---
- include/linux/vmw_vmci_defs.h      | 14 ++++++++--
- 2 files changed, 51 insertions(+), 5 deletions(-)
+ drivers/misc/vmw_vmci/vmci_guest.c | 45 ++++++++++++++++++++++++++++--
+ include/linux/vmw_vmci_defs.h      | 34 ++++++++++++++++++++++
+ 2 files changed, 77 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/misc/vmw_vmci/vmci_guest.c b/drivers/misc/vmw_vmci/vmci_guest.c
-index ced187e7ac08..acef19c562b3 100644
+index 36eade15ba87..bf524217914e 100644
 --- a/drivers/misc/vmw_vmci/vmci_guest.c
 +++ b/drivers/misc/vmw_vmci/vmci_guest.c
-@@ -414,6 +414,9 @@ static irqreturn_t vmci_interrupt(int irq, void *_dev)
- 			icr &= ~VMCI_ICR_NOTIFICATION;
- 		}
- 
-+		if (icr & VMCI_ICR_DMA_DATAGRAM)
-+			icr &= ~VMCI_ICR_DMA_DATAGRAM;
-+
- 		if (icr != 0)
- 			dev_warn(dev->dev,
- 				 "Ignoring unknown interrupt cause (%d)\n",
-@@ -438,6 +441,16 @@ static irqreturn_t vmci_interrupt_bm(int irq, void *_dev)
- 	return IRQ_HANDLED;
+@@ -13,6 +13,7 @@
+ #include <linux/kernel.h>
+ #include <linux/mm.h>
+ #include <linux/module.h>
++#include <linux/processor.h>
+ #include <linux/sched.h>
+ #include <linux/slab.h>
+ #include <linux/init.h>
+@@ -114,6 +115,47 @@ static void vmci_write_reg(struct vmci_guest_device *dev, u32 val, u32 reg)
+ 		iowrite32(val, dev->iobase + reg);
  }
  
-+/*
-+ * Interrupt handler for MSI-X interrupt vector VMCI_INTR_DMA_DATAGRAM,
-+ * which is for the completion of a DMA datagram send or receive operation.
-+ * Will only get called if we are using MSI-X with exclusive vectors.
-+ */
-+static irqreturn_t vmci_interrupt_dma_datagram(int irq, void *_dev)
++static int vmci_write_data(struct vmci_guest_device *dev,
++			   struct vmci_datagram *dg)
 +{
-+	return IRQ_HANDLED;
++	int result;
++
++	if (dev->mmio_base != NULL) {
++		struct vmci_data_in_out_header *buffer_header = dev->tx_buffer;
++		u8 *dg_out_buffer = (u8 *)(buffer_header + 1);
++
++		if (VMCI_DG_SIZE(dg) > VMCI_MAX_DG_SIZE)
++			return VMCI_ERROR_INVALID_ARGS;
++
++		/*
++		 * Initialize send buffer with outgoing datagram
++		 * and set up header for inline data. Device will
++		 * not access buffer asynchronously - only after
++		 * the write to VMCI_DATA_OUT_LOW_ADDR.
++		 */
++		memcpy(dg_out_buffer, dg, VMCI_DG_SIZE(dg));
++		buffer_header->opcode = 0;
++		buffer_header->size = VMCI_DG_SIZE(dg);
++		buffer_header->busy = 1;
++
++		vmci_write_reg(dev, lower_32_bits(dev->tx_buffer_base),
++			       VMCI_DATA_OUT_LOW_ADDR);
++
++		/* Caller holds a spinlock, so cannot block. */
++		spin_until_cond(buffer_header->busy == 0);
++
++		result = vmci_read_reg(vmci_dev_g, VMCI_RESULT_LOW_ADDR);
++		if (result == VMCI_SUCCESS)
++			result = (int)buffer_header->result;
++	} else {
++		iowrite8_rep(dev->iobase + VMCI_DATA_OUT_ADDR,
++			     dg, VMCI_DG_SIZE(dg));
++		result = vmci_read_reg(vmci_dev_g, VMCI_RESULT_LOW_ADDR);
++	}
++
++	return result;
 +}
 +
  /*
-  * Most of the initialization at module load time is done here.
-  */
-@@ -447,6 +460,7 @@ static int vmci_guest_probe_device(struct pci_dev *pdev,
- 	struct vmci_guest_device *vmci_dev;
- 	void __iomem *iobase = NULL;
- 	void __iomem *mmio_base = NULL;
-+	unsigned int num_irq_vectors;
- 	unsigned int capabilities;
- 	unsigned int caps_in_use;
- 	unsigned long cmd;
-@@ -627,8 +641,12 @@ static int vmci_guest_probe_device(struct pci_dev *pdev,
- 	 * Enable interrupts.  Try MSI-X first, then MSI, and then fallback on
- 	 * legacy interrupts.
- 	 */
--	error = pci_alloc_irq_vectors(pdev, VMCI_MAX_INTRS, VMCI_MAX_INTRS,
--			PCI_IRQ_MSIX);
-+	if (vmci_dev->mmio_base != NULL)
-+		num_irq_vectors = VMCI_MAX_INTRS;
-+	else
-+		num_irq_vectors = VMCI_MAX_INTRS_NOTIFICATION;
-+	error = pci_alloc_irq_vectors(pdev, num_irq_vectors, num_irq_vectors,
-+				      PCI_IRQ_MSIX);
- 	if (error < 0) {
- 		error = pci_alloc_irq_vectors(pdev, 1, 1,
- 				PCI_IRQ_MSIX | PCI_IRQ_MSI | PCI_IRQ_LEGACY);
-@@ -666,6 +684,17 @@ static int vmci_guest_probe_device(struct pci_dev *pdev,
- 				pci_irq_vector(pdev, 1), error);
- 			goto err_free_irq;
- 		}
-+		if (caps_in_use & VMCI_CAPS_DMA_DATAGRAM) {
-+			error = request_irq(pci_irq_vector(pdev, 2),
-+					    vmci_interrupt_dma_datagram,
-+					    0, KBUILD_MODNAME, vmci_dev);
-+			if (error) {
-+				dev_err(&pdev->dev,
-+					"Failed to allocate irq %u: %d\n",
-+					pci_irq_vector(pdev, 2), error);
-+				goto err_free_bm_irq;
-+			}
-+		}
- 	}
+  * VM to hypervisor call mechanism. We use the standard VMware naming
+  * convention since shared code is calling this function as well.
+@@ -139,8 +181,7 @@ int vmci_send_datagram(struct vmci_datagram *dg)
+ 	spin_lock_irqsave(&vmci_dev_spinlock, flags);
  
- 	dev_dbg(&pdev->dev, "Registered device\n");
-@@ -676,6 +705,8 @@ static int vmci_guest_probe_device(struct pci_dev *pdev,
- 	cmd = VMCI_IMR_DATAGRAM;
- 	if (caps_in_use & VMCI_CAPS_NOTIFICATIONS)
- 		cmd |= VMCI_IMR_NOTIFICATION;
-+	if (caps_in_use & VMCI_CAPS_DMA_DATAGRAM)
-+		cmd |= VMCI_IMR_DMA_DATAGRAM;
- 	vmci_write_reg(vmci_dev, cmd, VMCI_IMR_ADDR);
- 
- 	/* Enable interrupts. */
-@@ -686,6 +717,8 @@ static int vmci_guest_probe_device(struct pci_dev *pdev,
- 	vmci_call_vsock_callback(false);
- 	return 0;
- 
-+err_free_bm_irq:
-+	free_irq(pci_irq_vector(pdev, 1), vmci_dev);
- err_free_irq:
- 	free_irq(pci_irq_vector(pdev, 0), vmci_dev);
- 	tasklet_kill(&vmci_dev->datagram_tasklet);
-@@ -751,8 +784,11 @@ static void vmci_guest_remove_device(struct pci_dev *pdev)
- 	 * MSI-X, we might have multiple vectors, each with their own
- 	 * IRQ, which we must free too.
- 	 */
--	if (vmci_dev->exclusive_vectors)
-+	if (vmci_dev->exclusive_vectors) {
- 		free_irq(pci_irq_vector(pdev, 1), vmci_dev);
-+		if (vmci_dev->mmio_base != NULL)
-+			free_irq(pci_irq_vector(pdev, 2), vmci_dev);
-+	}
- 	free_irq(pci_irq_vector(pdev, 0), vmci_dev);
- 	pci_free_irq_vectors(pdev);
- 
+ 	if (vmci_dev_g) {
+-		iowrite8_rep(vmci_dev_g->iobase + VMCI_DATA_OUT_ADDR,
+-			     dg, VMCI_DG_SIZE(dg));
++		vmci_write_data(vmci_dev_g, dg);
+ 		result = vmci_read_reg(vmci_dev_g, VMCI_RESULT_LOW_ADDR);
+ 	} else {
+ 		result = VMCI_ERROR_UNAVAILABLE;
 diff --git a/include/linux/vmw_vmci_defs.h b/include/linux/vmw_vmci_defs.h
-index 4167779469fd..2b70c024dacb 100644
+index 8bc37d8244a8..6fb663b36f72 100644
 --- a/include/linux/vmw_vmci_defs.h
 +++ b/include/linux/vmw_vmci_defs.h
-@@ -45,13 +45,22 @@
- /* Interrupt Cause register bits. */
- #define VMCI_ICR_DATAGRAM      BIT(0)
- #define VMCI_ICR_NOTIFICATION  BIT(1)
-+#define VMCI_ICR_DMA_DATAGRAM  BIT(2)
+@@ -110,6 +110,40 @@ enum {
+ #define VMCI_MMIO_ACCESS_OFFSET        ((size_t)(128 * 1024))
+ #define VMCI_MMIO_ACCESS_SIZE          ((size_t)(64 * 1024))
  
- /* Interrupt Mask register bits. */
- #define VMCI_IMR_DATAGRAM      BIT(0)
- #define VMCI_IMR_NOTIFICATION  BIT(1)
-+#define VMCI_IMR_DMA_DATAGRAM  BIT(2)
- 
--/* Maximum MSI/MSI-X interrupt vectors in the device. */
--#define VMCI_MAX_INTRS 2
 +/*
-+ * Maximum MSI/MSI-X interrupt vectors in the device.
-+ * If VMCI_CAPS_DMA_DATAGRAM is supported by the device,
-+ * VMCI_MAX_INTRS_DMA_DATAGRAM vectors are available,
-+ * otherwise only VMCI_MAX_INTRS_NOTIFICATION.
++ * For VMCI devices supporting the VMCI_CAPS_DMA_DATAGRAM capability, the
++ * sending and receiving of datagrams can be performed using DMA to/from
++ * a driver allocated buffer.
++ * Sending and receiving will be handled as follows:
++ * - when sending datagrams, the driver initializes the buffer where the
++ *   data part will refer to the outgoing VMCI datagram, sets the busy flag
++ *   to 1 and writes the address of the buffer to VMCI_DATA_OUT_HIGH_ADDR
++ *   and VMCI_DATA_OUT_LOW_ADDR. Writing to VMCI_DATA_OUT_LOW_ADDR triggers
++ *   the device processing of the buffer. When the device has processed the
++ *   buffer, it will write the result value to the buffer and then clear the
++ *   busy flag.
++ * - when receiving datagrams, the driver initializes the buffer where the
++ *   data part will describe the receive buffer, clears the busy flag and
++ *   writes the address of the buffer to VMCI_DATA_IN_HIGH_ADDR and
++ *   VMCI_DATA_IN_LOW_ADDR. Writing to VMCI_DATA_IN_LOW_ADDR triggers the
++ *   device processing of the buffer. The device will copy as many available
++ *   datagrams into the buffer as possible, and then sets the busy flag.
++ *   When the busy flag is set, the driver will process the datagrams in the
++ *   buffer.
 + */
-+#define VMCI_MAX_INTRS_NOTIFICATION 2
-+#define VMCI_MAX_INTRS_DMA_DATAGRAM 3
-+#define VMCI_MAX_INTRS              VMCI_MAX_INTRS_DMA_DATAGRAM
- 
++struct vmci_data_in_out_header {
++	uint32_t busy;
++	uint32_t opcode;
++	uint32_t size;
++	uint32_t rsvd;
++	uint64_t result;
++};
++
++struct vmci_sg_elem {
++	uint64_t addr;
++	uint64_t size;
++};
++
  /*
-  * Supported interrupt vectors.  There is one for each ICR value above,
-@@ -60,6 +69,7 @@
- enum {
- 	VMCI_INTR_DATAGRAM = 0,
- 	VMCI_INTR_NOTIFICATION = 1,
-+	VMCI_INTR_DMA_DATAGRAM = 2,
- };
- 
- /*
+  * We have a fixed set of resource IDs available in the VMX.
+  * This allows us to have a very simple implementation since we statically
 -- 
 2.25.1
 
