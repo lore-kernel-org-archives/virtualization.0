@@ -4,59 +4,59 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9F69AC433F5
-	for <virtualization@archiver.kernel.org>; Wed,  9 Feb 2022 08:21:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id DA527C433F5
+	for <virtualization@archiver.kernel.org>; Wed,  9 Feb 2022 08:21:52 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 5ACFA415B2;
-	Wed,  9 Feb 2022 08:21:48 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 9DB9B415B9;
+	Wed,  9 Feb 2022 08:21:52 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id NDf8_RMnrv-l; Wed,  9 Feb 2022 08:21:47 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 0823A415AF;
-	Wed,  9 Feb 2022 08:21:46 +0000 (UTC)
+	with ESMTP id 1WCV0YeYi6rF; Wed,  9 Feb 2022 08:21:51 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 3816E415B0;
+	Wed,  9 Feb 2022 08:21:51 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D47CDC0011;
-	Wed,  9 Feb 2022 08:21:46 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 5469CC000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0F13BC0011;
+	Wed,  9 Feb 2022 08:21:51 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 01565C000B
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Feb 2022 08:21:46 +0000 (UTC)
+ Wed,  9 Feb 2022 08:21:50 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 2D456415AA
+ by smtp4.osuosl.org (Postfix) with ESMTP id E51D8415B6
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Feb 2022 08:21:46 +0000 (UTC)
+ Wed,  9 Feb 2022 08:21:49 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id PFOq4R6SY9tQ
+ with ESMTP id RW_72UeTf5wz
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Feb 2022 08:21:44 +0000 (UTC)
+ Wed,  9 Feb 2022 08:21:49 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from bombadil.infradead.org (bombadil.infradead.org
  [IPv6:2607:7c80:54:e::133])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 65648415AC
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 45513415B8
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Feb 2022 08:21:44 +0000 (UTC)
+ Wed,  9 Feb 2022 08:21:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
  MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
  :Reply-To:Content-Type:Content-ID:Content-Description;
- bh=HHdkFhXzph/YEDr3VFGzAg3QAN/EIa/uRvErt377FsM=; b=m90SK4+qB0m0qM/1gvmFRcpoBk
- 7xkl/6ZhQzPEMMhMgkW3o/YR9SPw5e2eceYuzRXjaGS3pg+GjQqpY8GFUe+SDEMOpIK1CJImXdztw
- VPltFGqo0r3vBV/EIJAjCVY0kfKCuJZiYrbx0DKHrMYLamfuhhVlAc6p7i/5qz2VW7iF1Ci7Znx7x
- 5KG8jVj1ZIrHKKz01jiR6W5REkN3ufdSbPzBb4UpQvx6tHqRL7ikHzBLEPodadD55U9W2wftu3DlS
- YzjO8f9EFrpkqzWEs1dA0ozYk7aUv5V3rHHbg6CM91VIwuuGFCE8bh9evedF9XStVxb+mvH16B/Lr
- kQ/jSH3w==;
+ bh=F2lIZdBncpE9NDo/cYhvW0BcY5k8p1Xy0zkeny0OuCE=; b=pm8/6EA1MklZpU91ac7ttgR1yv
+ iAfCmchEDh+O3/gwYXKpLpPMsl2q/V6G+Df+WJKA72rIpcKNiR7t4M3DBX99tiPC1A94F/OQAIzfj
+ ii6UisZBqnzWVLpgzoxAKknFdJEbj03W3INLbruwZ6VCzLlUElFxG05UNQy4Ys2ycsStkDggzrlku
+ /nFPUvV86l1axSa4JUkZ3yh/GKtKF5UXVjk4KEI8gIGzK0efZ7z6zg/Pmv8QRUYSWNekmU02F5mp1
+ K77f4vMG0I8emFqrR+tkvwQLzn12m7XsvUCYeOVEbzld+txku58ng5tOj5TOwlV10qa8uiAzUIvZ9
+ dHhpmhhQ==;
 Received: from [2001:4bb8:188:3efc:ea2:7599:7eeb:4b5a] (helo=localhost)
  by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1nHiEJ-00GbBn-Nu; Wed, 09 Feb 2022 08:21:36 +0000
+ id 1nHiEM-00GbCA-Cj; Wed, 09 Feb 2022 08:21:38 +0000
 From: Christoph Hellwig <hch@lst.de>
 To: Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4/5] memstick/mspro_block: simplify refcounting
-Date: Wed,  9 Feb 2022 09:21:19 +0100
-Message-Id: <20220209082121.2628452-5-hch@lst.de>
+Subject: [PATCH 5/5] virtio_blk: simplify refcounting
+Date: Wed,  9 Feb 2022 09:21:20 +0100
+Message-Id: <20220209082121.2628452-6-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20220209082121.2628452-1-hch@lst.de>
 References: <20220209082121.2628452-1-hch@lst.de>
@@ -83,110 +83,143 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Implement the ->free_disk method to free the msb_data structure only once
-the last gendisk reference goes away instead of keeping a local
+Implement the ->free_disk method to free the virtio_blk structure only
+once the last gendisk reference goes away instead of keeping a local
 refcount.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/memstick/core/mspro_block.c | 49 +++++------------------------
- 1 file changed, 7 insertions(+), 42 deletions(-)
+ drivers/block/virtio_blk.c | 74 +++++++++++---------------------------
+ 1 file changed, 21 insertions(+), 53 deletions(-)
 
-diff --git a/drivers/memstick/core/mspro_block.c b/drivers/memstick/core/mspro_block.c
-index 7ea312f0840e0..725ba74ded308 100644
---- a/drivers/memstick/core/mspro_block.c
-+++ b/drivers/memstick/core/mspro_block.c
-@@ -133,7 +133,6 @@ struct mspro_devinfo {
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index c443cd64fc9b4..05cc5451d6cc1 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -69,13 +69,6 @@ struct virtio_blk {
+ 	/* Process context for config space updates */
+ 	struct work_struct config_work;
  
- struct mspro_block_data {
- 	struct memstick_dev   *card;
--	unsigned int          usage_count;
- 	unsigned int          caps;
- 	struct gendisk        *disk;
- 	struct request_queue  *queue;
-@@ -178,48 +177,16 @@ static int mspro_block_complete_req(struct memstick_dev *card, int error);
+-	/*
+-	 * Tracks references from block_device_operations open/release and
+-	 * virtio_driver probe/remove so this object can be freed once no
+-	 * longer in use.
+-	 */
+-	refcount_t refs;
+-
+ 	/* What host tells us, plus 2 for header & tailer. */
+ 	unsigned int sg_elems;
  
- /*** Block device ***/
+@@ -391,43 +384,6 @@ static int virtblk_get_id(struct gendisk *disk, char *id_str)
+ 	return err;
+ }
  
--static int mspro_block_bd_open(struct block_device *bdev, fmode_t mode)
+-static void virtblk_get(struct virtio_blk *vblk)
 -{
--	struct gendisk *disk = bdev->bd_disk;
--	struct mspro_block_data *msb = disk->private_data;
--	int rc = -ENXIO;
--
--	mutex_lock(&mspro_block_disk_lock);
--
--	if (msb && msb->card)
--		msb->usage_count++;
--
--	mutex_unlock(&mspro_block_disk_lock);
--
--	return rc;
+-	refcount_inc(&vblk->refs);
 -}
 -
--
--static void mspro_block_disk_release(struct gendisk *disk)
-+static void mspro_block_bd_free_disk(struct gendisk *disk)
- {
- 	struct mspro_block_data *msb = disk->private_data;
- 	int disk_id = MINOR(disk_devt(disk)) >> MSPRO_BLOCK_PART_SHIFT;
- 
- 	mutex_lock(&mspro_block_disk_lock);
--
--	if (msb) {
--		if (msb->usage_count)
--			msb->usage_count--;
--
--		if (!msb->usage_count) {
--			kfree(msb);
--			disk->private_data = NULL;
--			idr_remove(&mspro_block_disk_idr, disk_id);
--			put_disk(disk);
--		}
+-static void virtblk_put(struct virtio_blk *vblk)
+-{
+-	if (refcount_dec_and_test(&vblk->refs)) {
+-		ida_simple_remove(&vd_index_ida, vblk->index);
+-		mutex_destroy(&vblk->vdev_mutex);
+-		kfree(vblk);
 -	}
--
-+	idr_remove(&mspro_block_disk_idr, disk_id);
- 	mutex_unlock(&mspro_block_disk_lock);
 -}
- 
--static void mspro_block_bd_release(struct gendisk *disk, fmode_t mode)
+-
+-static int virtblk_open(struct block_device *bd, fmode_t mode)
 -{
--	mspro_block_disk_release(disk);
-+	kfree(msb);
+-	struct virtio_blk *vblk = bd->bd_disk->private_data;
+-	int ret = 0;
+-
+-	mutex_lock(&vblk->vdev_mutex);
+-
+-	if (vblk->vdev)
+-		virtblk_get(vblk);
+-	else
+-		ret = -ENXIO;
+-
+-	mutex_unlock(&vblk->vdev_mutex);
+-	return ret;
+-}
+-
+-static void virtblk_release(struct gendisk *disk, fmode_t mode)
+-{
+-	struct virtio_blk *vblk = disk->private_data;
+-
+-	virtblk_put(vblk);
+-}
+-
+ /* We provide getgeo only to please some old bootloader/partitioning tools */
+ static int virtblk_getgeo(struct block_device *bd, struct hd_geometry *geo)
+ {
+@@ -460,11 +416,19 @@ static int virtblk_getgeo(struct block_device *bd, struct hd_geometry *geo)
+ 	return ret;
  }
  
- static int mspro_block_bd_getgeo(struct block_device *bdev,
-@@ -235,10 +202,9 @@ static int mspro_block_bd_getgeo(struct block_device *bdev,
- }
- 
- static const struct block_device_operations ms_block_bdops = {
--	.open    = mspro_block_bd_open,
--	.release = mspro_block_bd_release,
--	.getgeo  = mspro_block_bd_getgeo,
--	.owner   = THIS_MODULE
-+	.owner		= THIS_MODULE,
-+	.getgeo		= mspro_block_bd_getgeo,
-+	.free_disk	= mspro_block_bd_free_disk,
++static void virtblk_free_disk(struct gendisk *disk)
++{
++	struct virtio_blk *vblk = disk->private_data;
++
++	ida_simple_remove(&vd_index_ida, vblk->index);
++	mutex_destroy(&vblk->vdev_mutex);
++	kfree(vblk);
++}
++
+ static const struct block_device_operations virtblk_fops = {
+-	.owner  = THIS_MODULE,
+-	.open = virtblk_open,
+-	.release = virtblk_release,
+-	.getgeo = virtblk_getgeo,
++	.owner  	= THIS_MODULE,
++	.getgeo		= virtblk_getgeo,
++	.free_disk	= virtblk_free_disk,
  };
  
- /*** Information ***/
-@@ -1221,7 +1187,6 @@ static int mspro_block_init_disk(struct memstick_dev *card)
- 	msb->disk->first_minor = disk_id << MSPRO_BLOCK_PART_SHIFT;
- 	msb->disk->minors = 1 << MSPRO_BLOCK_PART_SHIFT;
- 	msb->disk->fops = &ms_block_bdops;
--	msb->usage_count = 1;
- 	msb->disk->private_data = msb;
+ static int index_to_minor(int index)
+@@ -791,8 +755,6 @@ static int virtblk_probe(struct virtio_device *vdev)
+ 		goto out_free_index;
+ 	}
  
- 	sprintf(msb->disk->disk_name, "mspblk%d", disk_id);
-@@ -1339,7 +1304,7 @@ static void mspro_block_remove(struct memstick_dev *card)
- 	mspro_block_data_clear(msb);
- 	mutex_unlock(&mspro_block_disk_lock);
+-	/* This reference is dropped in virtblk_remove(). */
+-	refcount_set(&vblk->refs, 1);
+ 	mutex_init(&vblk->vdev_mutex);
  
--	mspro_block_disk_release(msb->disk);
-+	put_disk(msb->disk);
- 	memstick_set_drvdata(card, NULL);
+ 	vblk->vdev = vdev;
+@@ -948,7 +910,13 @@ static int virtblk_probe(struct virtio_device *vdev)
+ 	return 0;
+ 
+ out_cleanup_disk:
+-	blk_cleanup_disk(vblk->disk);
++	blk_cleanup_queue(vblk->disk->queue);
++	blk_mq_free_tag_set(&vblk->tag_set);
++	vdev->config->del_vqs(vdev);
++	kfree(vblk->vqs);
++	put_disk(vblk->disk);
++	return err;
++
+ out_free_tags:
+ 	blk_mq_free_tag_set(&vblk->tag_set);
+ out_free_vq:
+@@ -970,7 +938,7 @@ static void virtblk_remove(struct virtio_device *vdev)
+ 	flush_work(&vblk->config_work);
+ 
+ 	del_gendisk(vblk->disk);
+-	blk_cleanup_disk(vblk->disk);
++	blk_cleanup_queue(vblk->disk->queue);
+ 	blk_mq_free_tag_set(&vblk->tag_set);
+ 
+ 	mutex_lock(&vblk->vdev_mutex);
+@@ -986,7 +954,7 @@ static void virtblk_remove(struct virtio_device *vdev)
+ 
+ 	mutex_unlock(&vblk->vdev_mutex);
+ 
+-	virtblk_put(vblk);
++	put_disk(vblk->disk);
  }
  
+ #ifdef CONFIG_PM_SLEEP
 -- 
 2.30.2
 
