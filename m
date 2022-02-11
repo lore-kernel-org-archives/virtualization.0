@@ -1,88 +1,90 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A1200C433FE
-	for <virtualization@archiver.kernel.org>; Fri, 11 Feb 2022 08:45:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D530FC433FE
+	for <virtualization@archiver.kernel.org>; Fri, 11 Feb 2022 08:45:15 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 511B361C13;
-	Fri, 11 Feb 2022 08:45:10 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 905BD82771;
+	Fri, 11 Feb 2022 08:45:15 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id lIommn15xCOM; Fri, 11 Feb 2022 08:45:09 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id EA20B60DC6;
-	Fri, 11 Feb 2022 08:45:08 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CA46DC001A;
-	Fri, 11 Feb 2022 08:45:08 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C5BE9C000B
- for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Feb 2022 08:45:07 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id AD7D881D4D
- for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Feb 2022 08:45:07 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=bytedance-com.20210112.gappssmtp.com
 Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id I_iJAjxZ7BLe
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id aU1R9iuu_tri; Fri, 11 Feb 2022 08:45:14 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 2277E81CE7;
+	Fri, 11 Feb 2022 08:45:14 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0651BC001A;
+	Fri, 11 Feb 2022 08:45:14 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 62E18C000B
  for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Feb 2022 08:45:06 +0000 (UTC)
+ Fri, 11 Feb 2022 08:45:12 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 41859400E6
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 11 Feb 2022 08:45:12 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=bytedance-com.20210112.gappssmtp.com
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 3OEFqTLjdFFB
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 11 Feb 2022 08:45:11 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com
- [IPv6:2607:f8b0:4864:20::632])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 9BD9681CE7
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com
+ [IPv6:2607:f8b0:4864:20::1036])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 2327C402F3
  for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Feb 2022 08:45:06 +0000 (UTC)
-Received: by mail-pl1-x632.google.com with SMTP id y17so4115358plg.7
+ Fri, 11 Feb 2022 08:45:10 +0000 (UTC)
+Received: by mail-pj1-x1036.google.com with SMTP id y9so7502085pjf.1
  for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Feb 2022 00:45:06 -0800 (PST)
+ Fri, 11 Feb 2022 00:45:10 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=bytedance-com.20210112.gappssmtp.com; s=20210112;
- h=from:to:cc:subject:date:message-id:mime-version
- :content-transfer-encoding;
- bh=PaB4eX5eIfNXcpFcbMwDNqkLnPT1dKU3PJWq0bzJplM=;
- b=YpWYXFjjs6RShsyABwDfvNm6jx79gmMxhaw1Fpaq+dJnqQXoCYTu2GmkSgtK8IZYXY
- ldohj3ygggnAWQK1+pJA3V4adQAXBiEp0ytiDNvAeVChe997HsHLoeN3u+h4vSOG9D1M
- o43M0/OhPBlte0SUrPcDRLxSeJ/S9VllFkQTzLBmwC1zbhC/2+XiI9zKYvm5b1CCBN3+
- AwzmtABTi/bzBfI9eKAijCHDVlELazxGygu5gV3p6iyoEsib1M41OqteIaqsa4z2AT6g
- maVOY4zLbvGkCzoEeYrOHIrAs15FYATsD6ndXrahQJOx7QCAJm29Ld3cdUoI+GX/YldI
- a/Tw==
+ h=from:to:cc:subject:date:message-id:in-reply-to:references
+ :mime-version:content-transfer-encoding;
+ bh=1YUUEgbKT5E8ArafBlTdhEpSwGDviZA6oIz5a+XwpPM=;
+ b=0oAjqplYNLMWICcrHeQjBdyutmnnlHMmThim5ZJF8kipGWzVHnNCy5Prycxm4OuZvp
+ JcNXCx6po3z1kHXAVdEEWRbGBksAMyNwzJoRs04r8PY8NiT+23idoQsS4eEn/z2ORiKv
+ 6ftzQN5tVH72P81P7NQ3cKgY0tT4SvOguNm9Matwnd5L83k7HsDoyjii35eIwFogbato
+ Tc7ZWif6dnotY903l4eu1E0AQqe1T2LNVO4zC7qqT1oNQbDw3I3fvWc+yb/yAU8rmqk4
+ 13x0u2/ubiVg/GVgontGpRVNdIZ0voPzXb3cJtu2IsqWCxGLDAZW8gs/6J5KEFqUk5Tu
+ Vs8A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
- :content-transfer-encoding;
- bh=PaB4eX5eIfNXcpFcbMwDNqkLnPT1dKU3PJWq0bzJplM=;
- b=te6BFQzaX4OG643acLYORpKmZPQzT9wyJ5x0ZHPK9qBI6ZPnlCpOBYb8GkhOTBgQx9
- Iki0/dQAnM/KCT8WygBJDG9YgB7Ex8HvOwhVVVANgln5H4LbEwB702FUaS/8cv4t41uM
- xsvwR1/h/teaZdLF+RYyuWOANPuPP2yQWWoFvV52BxVgCEgt6ck/w16QjJEM8n4LF8MH
- CqQG3evgzUEeyL3nuLyeRk+dUZp4gq7U79jBqBa3OToHO1Ho8FT3ErsO2HfHaVf7ezT4
- G8G4LqOg7z0S6BmwFM/sS8Y6g57wDgp7ydYSukUZp1ry3E3ZDMxg19lCF69NVcAR/e66
- lD4w==
-X-Gm-Message-State: AOAM533w61R6V59cpsFUVodjqXwDoIKCcn5MilPh6uPLfla5uFMyPs49
- E/INVPXBInreELczW74Sej5F3g==
-X-Google-Smtp-Source: ABdhPJw8xZ6h9/FQPj8RwTXVV6Zt8ueVO/BXP2VbGZMp+CjlsH2Wx34zZmbUYlsiJxVDnpE/0+of0A==
-X-Received: by 2002:a17:902:b493:: with SMTP id
- y19mr615916plr.97.1644569105992; 
- Fri, 11 Feb 2022 00:45:05 -0800 (PST)
+ h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+ :references:mime-version:content-transfer-encoding;
+ bh=1YUUEgbKT5E8ArafBlTdhEpSwGDviZA6oIz5a+XwpPM=;
+ b=YsUF4FCr8IqVi4PaYHhtaQ3tMwcDiG3OkELWMwIzkv4OdpRsK//OKCfFhOhOeFGemc
+ 8tXzm2T98Q9OT1Ba4oQgqYnwKJtRJr9/0GUExUXYTHKvJNzZNsKg8AKMTmqdRee0unRr
+ Y6CFG7wY2vgfxUD744uRFtOwTuEnmL1IXxGADma86CkJn014DUOfCAtdpLjqERZD/9+X
+ aJkX4D80z9KAP29ahvlv65agWAg0cDCxtp+Z/nGcA1iNvS7/dK12S4gOTDrIkf8nobk0
+ G1uhvwawL4rTs1jcplpkYC96+qUYihI1TITdqtU7mBYdc0GXl7ENndfV3x/LSdCt1uTg
+ 11Wg==
+X-Gm-Message-State: AOAM533dVlXVbF5x771tRX7SMIHb9tPx1XJxdPB5S4na8kmEisPrhwht
+ b+rZQsO5SptC2DUK0cXbUPYRdQ==
+X-Google-Smtp-Source: ABdhPJw0i8CweAp8N3HyYA7GXnJvxBIJPXb8oQ92581c5MIHS9NNqR0ydiY6heLawvan4w9U+B1r5w==
+X-Received: by 2002:a17:902:d707:: with SMTP id
+ w7mr450632ply.159.1644569110334; 
+ Fri, 11 Feb 2022 00:45:10 -0800 (PST)
 Received: from libai.bytedance.net ([61.120.150.72])
- by smtp.gmail.com with ESMTPSA id u7sm3832686pgc.93.2022.02.11.00.45.02
+ by smtp.gmail.com with ESMTPSA id u7sm3832686pgc.93.2022.02.11.00.45.06
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 11 Feb 2022 00:45:05 -0800 (PST)
+ Fri, 11 Feb 2022 00:45:09 -0800 (PST)
 From: zhenwei pi <pizhenwei@bytedance.com>
 To: arei.gonglei@huawei.com,
 	mst@redhat.com
-Subject: [PATCH v2 0/3] Support akcipher for virtio-crypto
-Date: Fri, 11 Feb 2022 16:43:32 +0800
-Message-Id: <20220211084335.1254281-1-pizhenwei@bytedance.com>
+Subject: [PATCH v2 1/3] virtio-crypto: header update
+Date: Fri, 11 Feb 2022 16:43:33 +0800
+Message-Id: <20220211084335.1254281-2-pizhenwei@bytedance.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20220211084335.1254281-1-pizhenwei@bytedance.com>
+References: <20220211084335.1254281-1-pizhenwei@bytedance.com>
 MIME-Version: 1.0
 Cc: helei.sig11@bytedance.com, qemu-devel@nongnu.org,
  zhenwei pi <pizhenwei@bytedance.com>,
@@ -104,43 +106,163 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-v1 -> v2:
-- Update virtio_crypto.h from v2 version of related kernel patch.
+Update header from linux, support akcipher service.
 
-v1:
-- Support akcipher for virtio-crypto.
-- Introduce akcipher class.
-- Introduce ASN1 decoder into QEMU.
-- Implement RSA backend by nettle/hogweed.
+Signed-off-by: lei he <helei.sig11@bytedance.com>
+Signed-off-by: zhenwei pi <pizhenwei@bytedance.com>
+---
+ .../standard-headers/linux/virtio_crypto.h    | 82 ++++++++++++++++++-
+ 1 file changed, 81 insertions(+), 1 deletion(-)
 
-Lei He (1):
-  crypto: Introduce RSA algorithm
-
-Zhenwei Pi (2):
-  virtio-crypto: header update
-  virtio_crypto: Support virtio crypto asym operation
-
- backends/cryptodev-builtin.c                  | 201 ++++++--
- backends/cryptodev-vhost-user.c               |  34 +-
- backends/cryptodev.c                          |  32 +-
- crypto/akcipher-nettle.c                      | 486 ++++++++++++++++++
- crypto/akcipher.c                             |  91 ++++
- crypto/asn1_decoder.c                         | 185 +++++++
- crypto/asn1_decoder.h                         |  42 ++
- crypto/meson.build                            |   4 +
- hw/virtio/virtio-crypto.c                     | 328 +++++++++---
- include/crypto/akcipher.h                     |  77 +++
- include/hw/virtio/virtio-crypto.h             |   5 +-
- .../standard-headers/linux/virtio_crypto.h    |  82 ++-
- include/sysemu/cryptodev.h                    |  88 +++-
- meson.build                                   |  11 +
- 14 files changed, 1518 insertions(+), 148 deletions(-)
- create mode 100644 crypto/akcipher-nettle.c
- create mode 100644 crypto/akcipher.c
- create mode 100644 crypto/asn1_decoder.c
- create mode 100644 crypto/asn1_decoder.h
- create mode 100644 include/crypto/akcipher.h
-
+diff --git a/include/standard-headers/linux/virtio_crypto.h b/include/standard-headers/linux/virtio_crypto.h
+index 5ff0b4ee59..68066dafb6 100644
+--- a/include/standard-headers/linux/virtio_crypto.h
++++ b/include/standard-headers/linux/virtio_crypto.h
+@@ -37,6 +37,7 @@
+ #define VIRTIO_CRYPTO_SERVICE_HASH   1
+ #define VIRTIO_CRYPTO_SERVICE_MAC    2
+ #define VIRTIO_CRYPTO_SERVICE_AEAD   3
++#define VIRTIO_CRYPTO_SERVICE_AKCIPHER 4
+ 
+ #define VIRTIO_CRYPTO_OPCODE(service, op)   (((service) << 8) | (op))
+ 
+@@ -57,6 +58,10 @@ struct virtio_crypto_ctrl_header {
+ 	   VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_AEAD, 0x02)
+ #define VIRTIO_CRYPTO_AEAD_DESTROY_SESSION \
+ 	   VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_AEAD, 0x03)
++#define VIRTIO_CRYPTO_AKCIPHER_CREATE_SESSION \
++	   VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_AKCIPHER, 0x04)
++#define VIRTIO_CRYPTO_AKCIPHER_DESTROY_SESSION \
++	   VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_AKCIPHER, 0x05)
+ 	uint32_t opcode;
+ 	uint32_t algo;
+ 	uint32_t flag;
+@@ -180,6 +185,58 @@ struct virtio_crypto_aead_create_session_req {
+ 	uint8_t padding[32];
+ };
+ 
++struct virtio_crypto_rsa_session_para {
++#define VIRTIO_CRYPTO_RSA_RAW_PADDING   0
++#define VIRTIO_CRYPTO_RSA_PKCS1_PADDING 1
++	uint32_t padding_algo;
++
++#define VIRTIO_CRYPTO_RSA_NO_HASH   0
++#define VIRTIO_CRYPTO_RSA_MD2       1
++#define VIRTIO_CRYPTO_RSA_MD3       2
++#define VIRTIO_CRYPTO_RSA_MD4       3
++#define VIRTIO_CRYPTO_RSA_MD5       4
++#define VIRTIO_CRYPTO_RSA_SHA1      5
++#define VIRTIO_CRYPTO_RSA_SHA256    6
++#define VIRTIO_CRYPTO_RSA_SHA384    7
++#define VIRTIO_CRYPTO_RSA_SHA512    8
++#define VIRTIO_CRYPTO_RSA_SHA224    9
++	uint32_t hash_algo;
++};
++
++struct virtio_crypto_ecdsa_session_para {
++#define VIRTIO_CRYPTO_CURVE_UNKNOWN   0
++#define VIRTIO_CRYPTO_CURVE_NIST_P192 1
++#define VIRTIO_CRYPTO_CURVE_NIST_P224 2
++#define VIRTIO_CRYPTO_CURVE_NIST_P256 3
++#define VIRTIO_CRYPTO_CURVE_NIST_P384 4
++#define VIRTIO_CRYPTO_CURVE_NIST_P521 5
++	uint32_t curve_id;
++	uint32_t padding;
++};
++
++struct virtio_crypto_akcipher_session_para {
++#define VIRTIO_CRYPTO_NO_AKCIPHER    0
++#define VIRTIO_CRYPTO_AKCIPHER_RSA   1
++#define VIRTIO_CRYPTO_AKCIPHER_DSA   2
++#define VIRTIO_CRYPTO_AKCIPHER_ECDSA 3
++	uint32_t algo;
++
++#define VIRTIO_CRYPTO_AKCIPHER_KEY_TYPE_PUBLIC  1
++#define VIRTIO_CRYPTO_AKCIPHER_KEY_TYPE_PRIVATE 2
++	uint32_t keytype;
++	uint32_t keylen;
++
++	union {
++		struct virtio_crypto_rsa_session_para rsa;
++		struct virtio_crypto_ecdsa_session_para ecdsa;
++	} u;
++};
++
++struct virtio_crypto_akcipher_create_session_req {
++	struct virtio_crypto_akcipher_session_para para;
++	uint8_t padding[36];
++};
++
+ struct virtio_crypto_alg_chain_session_para {
+ #define VIRTIO_CRYPTO_SYM_ALG_CHAIN_ORDER_HASH_THEN_CIPHER  1
+ #define VIRTIO_CRYPTO_SYM_ALG_CHAIN_ORDER_CIPHER_THEN_HASH  2
+@@ -247,6 +304,8 @@ struct virtio_crypto_op_ctrl_req {
+ 			mac_create_session;
+ 		struct virtio_crypto_aead_create_session_req
+ 			aead_create_session;
++		struct virtio_crypto_akcipher_create_session_req
++			akcipher_create_session;
+ 		struct virtio_crypto_destroy_session_req
+ 			destroy_session;
+ 		uint8_t padding[56];
+@@ -266,6 +325,14 @@ struct virtio_crypto_op_header {
+ 	VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_AEAD, 0x00)
+ #define VIRTIO_CRYPTO_AEAD_DECRYPT \
+ 	VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_AEAD, 0x01)
++#define VIRTIO_CRYPTO_AKCIPHER_ENCRYPT \
++	VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_AKCIPHER, 0x00)
++#define VIRTIO_CRYPTO_AKCIPHER_DECRYPT \
++	VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_AKCIPHER, 0x01)
++#define VIRTIO_CRYPTO_AKCIPHER_SIGN \
++	VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_AKCIPHER, 0x02)
++#define VIRTIO_CRYPTO_AKCIPHER_VERIFY \
++	VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_AKCIPHER, 0x03)
+ 	uint32_t opcode;
+ 	/* algo should be service-specific algorithms */
+ 	uint32_t algo;
+@@ -390,6 +457,16 @@ struct virtio_crypto_aead_data_req {
+ 	uint8_t padding[32];
+ };
+ 
++struct virtio_crypto_akcipher_para {
++	uint32_t src_data_len;
++	uint32_t dst_data_len;
++};
++
++struct virtio_crypto_akcipher_data_req {
++	struct virtio_crypto_akcipher_para para;
++	uint8_t padding[40];
++};
++
+ /* The request of the data virtqueue's packet */
+ struct virtio_crypto_op_data_req {
+ 	struct virtio_crypto_op_header header;
+@@ -399,6 +476,7 @@ struct virtio_crypto_op_data_req {
+ 		struct virtio_crypto_hash_data_req hash_req;
+ 		struct virtio_crypto_mac_data_req mac_req;
+ 		struct virtio_crypto_aead_data_req aead_req;
++		struct virtio_crypto_akcipher_data_req akcipher_req;
+ 		uint8_t padding[48];
+ 	} u;
+ };
+@@ -408,6 +486,8 @@ struct virtio_crypto_op_data_req {
+ #define VIRTIO_CRYPTO_BADMSG    2
+ #define VIRTIO_CRYPTO_NOTSUPP   3
+ #define VIRTIO_CRYPTO_INVSESS   4 /* Invalid session id */
++#define VIRTIO_CRYPTO_NOSPC     5 /* no free session ID */
++#define VIRTIO_CRYPTO_KEY_REJECTED 6 /* Signature verification failed */
+ 
+ /* The accelerator hardware is ready */
+ #define VIRTIO_CRYPTO_S_HW_READY  (1 << 0)
+@@ -438,7 +518,7 @@ struct virtio_crypto_config {
+ 	uint32_t max_cipher_key_len;
+ 	/* Maximum length of authenticated key */
+ 	uint32_t max_auth_key_len;
+-	uint32_t reserve;
++	uint32_t akcipher_algo;
+ 	/* Maximum size of each crypto request's content */
+ 	uint64_t max_size;
+ };
 -- 
 2.20.1
 
