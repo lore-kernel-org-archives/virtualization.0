@@ -4,88 +4,82 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8286AC433F5
-	for <virtualization@archiver.kernel.org>; Thu, 10 Feb 2022 23:48:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id CAAC7C4332F
+	for <virtualization@archiver.kernel.org>; Fri, 11 Feb 2022 02:36:14 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 29826812F2;
-	Thu, 10 Feb 2022 23:48:40 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 5A7B683089;
+	Fri, 11 Feb 2022 02:36:14 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id YlCV48W3CFIt; Thu, 10 Feb 2022 23:48:39 +0000 (UTC)
+	with ESMTP id SX52Mw6xtoTO; Fri, 11 Feb 2022 02:36:13 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id E8C2C81258;
-	Thu, 10 Feb 2022 23:48:38 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 1ED7A827C5;
+	Fri, 11 Feb 2022 02:36:13 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id BC274C001A;
-	Thu, 10 Feb 2022 23:48:38 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id ACF5CC000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E5C44C0011;
+	Fri, 11 Feb 2022 02:36:12 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3575AC000B
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Feb 2022 23:48:37 +0000 (UTC)
+ Fri, 11 Feb 2022 02:36:12 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 991C740291
+ by smtp4.osuosl.org (Postfix) with ESMTP id 1577241609
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Feb 2022 23:48:37 +0000 (UTC)
+ Fri, 11 Feb 2022 02:36:12 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=gmail.com
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id vsyGfwY8SPIT
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 3DweRaJfv_QX
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Feb 2022 23:48:34 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com
- [IPv6:2a00:1450:4864:20::52a])
- by smtp2.osuosl.org (Postfix) with ESMTPS id A623D40160
+ Fri, 11 Feb 2022 02:36:11 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 2403C41607
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Feb 2022 23:48:34 +0000 (UTC)
-Received: by mail-ed1-x52a.google.com with SMTP id u18so13715729edt.6
- for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Feb 2022 15:48:34 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=TmmqKhuTPY9owmmJ84jDjFdTO3yDaMpJkjT3FCR6jJc=;
- b=S/fCaC5/Hco3qfX4AibLzDFhvQGruPa7siKDOY9zUU4azDH4nVPNtPj5XkzHsFICPf
- 5u6g7TBeOuEoQCy9bW40cY/J/Gb6gyFdUbNHTgtWpwZttn1635B+HQW+5/SRDw1zuPST
- HYqz/QiCKEUVgR7xLpoiuzXAhIY4A5ns0L9do6soZF/g4YPlTNwHvDwPYbmtD+GyUwbz
- 9+5nBxWn1Y5zvV2JcbYcZfa0MFmhLD3ZU0oCGmYKD+6tUfxtJHPhZ/SoI9YEgR7lQwx4
- Tp14K/mjeImjt17NwRqszWh98SED/7CSveMxSk1mQDzgHlQajRXHnN7CTSBXLXq+BycF
- 2bKA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=TmmqKhuTPY9owmmJ84jDjFdTO3yDaMpJkjT3FCR6jJc=;
- b=Ik2Ml46XbkOXps1f1trBzBAMvn5FOREuUV5/cfCz2DXsKHOvAksTgQUnRcPXNVtQFf
- iRVRPKYh6+p6Wg3Pgzp/FcPePjMvqTFg/SvS6JCm9Nk07H7Fn0SL0lGCpf3Uc5899BDU
- 4Z2o1gBVRNpvSi79eGSup+4isWygR7zr/KbD6MFItxa5vJCGrd9QKHlwrFg0rQ4wU9Mm
- 70XqHE7qaJv8qmmdYWjWkUwOe4FdDcCKbZFB42nosGc0NqGZw0Em2InaExMjvjfSr4HJ
- KXN/K/u24mTnJDy6ota5RCOecW42+6iX07sr7UNU/moYwRvSukp/LtnkguA10GAhvbBw
- Ahzg==
-X-Gm-Message-State: AOAM531r3flI8pOs2zfaEtoMgUY9kAv8B6ooiG7D1KQHDbvbU5hYHg/V
- w3IWvz3RHkWHwJwHmlepi66uJUbwzdw0eqPwGA4=
-X-Google-Smtp-Source: ABdhPJzW1q6NHxslNvjiNTC3EI3YC5QZDvRheJ2DkNg8wG5kgPXRcPvXyCkHX7QvATaiqShBvyvJUA0GvesxrwIhJFY=
-X-Received: by 2002:aa7:d69a:: with SMTP id d26mr10757102edr.50.1644536912787; 
- Thu, 10 Feb 2022 15:48:32 -0800 (PST)
+ Fri, 11 Feb 2022 02:36:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1644546969;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=wUVqFARDBJNnBok2lT0WfqI736phrHJDPkbze9E0f/c=;
+ b=TyQmCgEEL+ScYvc9YS+/dNUvFexUKEZHNjP28eYiw61v6Sn7RDYDHId6MjWXAsJL4BdBfb
+ g/oKGlO1gOOQu4bM5bko6KSLQTp2jJJTog7GClX+S5XjOb0qbL+5yNyDllUQixm2Mbn9eT
+ qnuVxC1DS765KyArJkzmkKy9thq0C2Q=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-672-oQOwLwdgPe24Kq2cup0Gaw-1; Thu, 10 Feb 2022 21:36:06 -0500
+X-MC-Unique: oQOwLwdgPe24Kq2cup0Gaw-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com
+ [10.5.11.23])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 4DA80835B47;
+ Fri, 11 Feb 2022 02:36:05 +0000 (UTC)
+Received: from T590 (ovpn-8-26.pek2.redhat.com [10.72.8.26])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id EF608E2E8;
+ Fri, 11 Feb 2022 02:35:14 +0000 (UTC)
+Date: Fri, 11 Feb 2022 10:35:09 +0800
+From: Ming Lei <ming.lei@redhat.com>
+To: Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH 2/5] memstick/ms_block: simplify refcounting
+Message-ID: <YgXLXcwf8fLK3yti@T590>
+References: <20220209082121.2628452-1-hch@lst.de>
+ <20220209082121.2628452-3-hch@lst.de>
 MIME-Version: 1.0
-References: <20220209155634.3994-1-tzimmermann@suse.de>
-In-Reply-To: <20220209155634.3994-1-tzimmermann@suse.de>
-From: Chia-I Wu <olvaffe@gmail.com>
-Date: Thu, 10 Feb 2022 15:48:21 -0800
-Message-ID: <CAPaKu7T883JC0_KXhJcx7+cZrPdiv4XY=1gskBdQjYggw1c83w@mail.gmail.com>
-Subject: Re: [PATCH v2 0/2] drm/gem-shmem: Various improvements
-To: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: robh@kernel.org, emma@anholt.net, Tomeu Vizoso <tomeu.vizoso@collabora.com>,
- David Airlie <airlied@linux.ie>,
- ML dri-devel <dri-devel@lists.freedesktop.org>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, mripard@kernel.org,
- steven.price@arm.com, lima@lists.freedesktop.org, yuq825@gmail.com,
- Daniel Vetter <daniel@ffwll.ch>, Gurchetan Singh <gurchetansingh@chromium.org>,
- "open list:VIRTIO CORE,
- NET AND BLOCK DRIVERS" <virtualization@lists.linux-foundation.org>,
- Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
+Content-Disposition: inline
+In-Reply-To: <20220209082121.2628452-3-hch@lst.de>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+Cc: Jens Axboe <axboe@kernel.dk>, Maxim Levitsky <maximlevitsky@gmail.com>,
+ Alex Dubov <oakad@yahoo.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ linux-mmc@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ linux-block@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>,
+ Paolo Bonzini <pbonzini@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -102,31 +96,24 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Feb 9, 2022 at 7:56 AM Thomas Zimmermann <tzimmermann@suse.de> wrote:
->
-> Two patches for GEM's SHMEM-backed implementation.
->
-> v2:
->         * update drivers after vm_ops change
->
-> Thomas Zimmermann (2):
->   drm/gem-shmem: Set vm_ops in static initializer
->   drm/gem-shmem: Don't store mmap'ed buffers in core dumps
->
->  drivers/gpu/drm/drm_gem_shmem_helper.c  | 7 ++++---
->  drivers/gpu/drm/lima/lima_gem.c         | 1 +
->  drivers/gpu/drm/panfrost/panfrost_gem.c | 1 +
->  drivers/gpu/drm/v3d/v3d_bo.c            | 1 +
->  drivers/gpu/drm/virtio/virtgpu_object.c | 1 +
->  include/drm/drm_gem_shmem_helper.h      | 2 ++
->  6 files changed, 10 insertions(+), 3 deletions(-)
-Reviewed-by: Chia-I Wu <olvaffe@gmail.com>
+On Wed, Feb 09, 2022 at 09:21:17AM +0100, Christoph Hellwig wrote:
+> Implement the ->free_disk method to free the msb_data structure only once
+> the last gendisk reference goes away instead of keeping a local refcount.
+> 
 
+The approach looks good, just the error handling needs to be careful,
+such as, once driver data is bound to disk->private_data, the previous
+error handling code shouldn't touch/free the driver data any more. That
+said assigning disk->private_data implies driver data ownership transfer
+after this conversion.
 
->
-> --
-> 2.34.1
->
+Such as, in msb_init_disk(), once blk_cleanup_disk() is done, the code
+branch of out_release_id shouldn't be run; msb_probe() has the similar
+issue too.
+
+Thanks,
+Ming
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
