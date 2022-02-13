@@ -4,93 +4,91 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4C41CC433F5
-	for <virtualization@archiver.kernel.org>; Fri, 11 Feb 2022 08:45:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C5B80C433FE
+	for <virtualization@archiver.kernel.org>; Sun, 13 Feb 2022 17:01:58 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id F14C761C22;
-	Fri, 11 Feb 2022 08:45:25 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 5C02760B56;
+	Sun, 13 Feb 2022 17:01:58 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id iGiaE3u1piUq; Fri, 11 Feb 2022 08:45:24 +0000 (UTC)
+	with ESMTP id VlHBRM1lr6Wx; Sun, 13 Feb 2022 17:01:57 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id BA3C261C12;
-	Fri, 11 Feb 2022 08:45:23 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 9A31760B5D;
+	Sun, 13 Feb 2022 17:01:56 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A1D01C001A;
-	Fri, 11 Feb 2022 08:45:23 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 81DC8C000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 6C70DC001A;
+	Sun, 13 Feb 2022 17:01:56 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 147DFC000B
  for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Feb 2022 08:45:22 +0000 (UTC)
+ Sun, 13 Feb 2022 17:01:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 6A2E6402F7
+ by smtp4.osuosl.org (Postfix) with ESMTP id E4E2A40334
  for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Feb 2022 08:45:22 +0000 (UTC)
+ Sun, 13 Feb 2022 17:01:54 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=bytedance-com.20210112.gappssmtp.com
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 5dF5hHnrtuJE
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=daynix-com.20210112.gappssmtp.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id uAahNpJrDLIK
  for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Feb 2022 08:45:20 +0000 (UTC)
+ Sun, 13 Feb 2022 17:01:53 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com
- [IPv6:2607:f8b0:4864:20::102a])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 7D8FE402F3
+Received: from mail-oo1-xc2f.google.com (mail-oo1-xc2f.google.com
+ [IPv6:2607:f8b0:4864:20::c2f])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 979B940332
  for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Feb 2022 08:45:20 +0000 (UTC)
-Received: by mail-pj1-x102a.google.com with SMTP id
- c5-20020a17090a1d0500b001b904a7046dso9700699pjd.1
+ Sun, 13 Feb 2022 17:01:53 +0000 (UTC)
+Received: by mail-oo1-xc2f.google.com with SMTP id
+ u25-20020a4ad0d9000000b002e8d4370689so16711739oor.12
  for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Feb 2022 00:45:20 -0800 (PST)
+ Sun, 13 Feb 2022 09:01:53 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=bytedance-com.20210112.gappssmtp.com; s=20210112;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:content-transfer-encoding;
- bh=Rjy+Pjzbq+dYQIq1AR+HH/d8mACzYFtTZeGtK7gFiqQ=;
- b=DkN8kj+iU+Ul++cenRVYtYJgawC+n/UkNBb924tTkDzWS2HPyVMZ3mn09WTiyvq78s
- TM4XNqBPdg6/hkswpxEGKAm0HFkvJeq1An/Kxtp/9OmVBtivx8oFZqgqBppaww5FcH4Y
- k/8lNUVyFlS3yZTX+M7hgYTO/q6gfIl94Vr8nflz8PG4WJewOLT+0H5SflNmKzpr3JzC
- GbFWuRsXRvUnWrw66e2GXnCI9fRR+QoUJAjAu7XC4yIdc4qjpYHsSuMjD+UKgiANVJSr
- cgkPQI8X6HWzxfLZ8w9qiDNJw/eFeIPaDona8JuhK2OCLvBhYEJ4DtxfYTiRDk9gCfFz
- xFzw==
+ d=daynix-com.20210112.gappssmtp.com; s=20210112;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=C6XQmRPKZcpraoEuIziq1MNmXWVtnuKiUX2NaQjSZtk=;
+ b=KiqSnrtr+OrGFo53DUiWmFdVVdxk67G8laJZRA4EEawrat6KefCyDF31eedpcC40uZ
+ 8kpPx5h8ueSEPK6bQg3wCr62voLXt1jZhtIzwrUMNX+C04bXFo90AKx6D/46GmU6XP7I
+ ROiThHoyBp5xJanAuHbhg7izKZ6Q/wJjdjPp/pAoR3B78fqUjZKXzGiYKYN3fTjY52GY
+ vAmwg8dF/Bp9dL9aqiUD9N3Thok1EB3EfrvdP+qyt3iGQhKYwAMo7YT53T2KmH9zsn0o
+ W5/2GF0HTA7B05cVOSgyzQOzaqV4H5tY1BRndl6ZHfPV7fYcWEbOv2zLZQ0fxsvbym16
+ +G8A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
- :references:mime-version:content-transfer-encoding;
- bh=Rjy+Pjzbq+dYQIq1AR+HH/d8mACzYFtTZeGtK7gFiqQ=;
- b=zuki9CGrUYZzDvKpYTz/CpOab7DlE7XhPkp5NMbANN9z7fOA9dXIYsS8lHYufN3AMs
- hb27ql9nuWpt3TnXsWQdyZ7VvxQyt2mqkHf5qVEQ4eWdiI6yiuhPAJSlRYuvEjheAR8c
- pbbXYuxSEJzm8FrKScAIz9fVR6LXH86j5aKlaX1ly4lpaybLWcFYez023DUmIfOD6H9E
- XWuGhLQnxxFojEudEqLtMFDRdXUNSSuQ27MGBRohku3LsrjqzLPukXHCobUugwurihIl
- eRXnZOvXFrSes1Riex7d0WwXN3Ch146/H+RpzMCPQ6Z6q104llvNnxDItOiLZfHRZ6YY
- YDaQ==
-X-Gm-Message-State: AOAM532vwHSKXo4aS7LF73xg8SS0urbktvQpu4sHebYq8cziacMlaRzT
- stiepE5fXs7c50PB5ocLG5nPKg==
-X-Google-Smtp-Source: ABdhPJwL9NaT+InzK6v4M5Q4Lgp6b9PNWhBUrVgQTXB+GSK6etiyOUudwqhaxJVR6iv0pYq1yLBSEw==
-X-Received: by 2002:a17:90b:1a90:: with SMTP id
- ng16mr1563838pjb.72.1644569119810; 
- Fri, 11 Feb 2022 00:45:19 -0800 (PST)
-Received: from libai.bytedance.net ([61.120.150.72])
- by smtp.gmail.com with ESMTPSA id u7sm3832686pgc.93.2022.02.11.00.45.15
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 11 Feb 2022 00:45:18 -0800 (PST)
-From: zhenwei pi <pizhenwei@bytedance.com>
-To: arei.gonglei@huawei.com,
-	mst@redhat.com
-Subject: [PATCH v2 3/3] crypto: Introduce RSA algorithm
-Date: Fri, 11 Feb 2022 16:43:35 +0800
-Message-Id: <20220211084335.1254281-4-pizhenwei@bytedance.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220211084335.1254281-1-pizhenwei@bytedance.com>
-References: <20220211084335.1254281-1-pizhenwei@bytedance.com>
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=C6XQmRPKZcpraoEuIziq1MNmXWVtnuKiUX2NaQjSZtk=;
+ b=JP2w+o0na0PtETKeLgtfXeKdGQWfhN01uhQC/3g7+ay7hoYjVaOUuFO26gUN3u8Y8G
+ nRPub3tyVKyMYEepMiAVxoU28gP8ivZjez88R+GkiIy7V4hD5vVdNTbmqsMLO0RiDI23
+ HJKspj/zlzmTxmYK8xm7UyfXpffpDFRL0/rB1SD2B0Ob0U+y0KifnnlppA6lyec0PrlX
+ k3Ldb8t/v93NAeQohK9LJKUM9JR+GI6oItktKmEBM/N7+gz6y6CZc9CETUL1NeO1gyB6
+ tfv1vP4nGjYVkn/+zLVxtMCv1K0H6AtFt9tn3Z7L/NYLSCvMEwuUtifdrSB40vLjmeHw
+ VqPQ==
+X-Gm-Message-State: AOAM5316li4BXud1H5fVkZMGpUuvre4ApiJvpBbtuc/VWFRjUzHe0GZw
+ B6dovFrEQINCkUWtN9o3uhJ9Fyw5etbLYTx+R3rZ4g==
+X-Google-Smtp-Source: ABdhPJz9q7PUbqOJXinKPBNylNCiutxqQBV6rAfpz1/BKQxB7vgPMYG+8RPxbopnuucanHDqYbe9rJcUhvFlEsjNmNA=
+X-Received: by 2002:a05:6870:4727:: with SMTP id
+ b39mr456604oaq.29.1644771712299; 
+ Sun, 13 Feb 2022 09:01:52 -0800 (PST)
 MIME-Version: 1.0
-Cc: helei.sig11@bytedance.com, qemu-devel@nongnu.org,
- zhenwei pi <pizhenwei@bytedance.com>,
- virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org,
- herbert@gondor.apana.org.au
+References: <20220208181510.787069-1-andrew@daynix.com>
+ <20220208181510.787069-3-andrew@daynix.com>
+ <CA+FuTSfPq-052=D3GzibMjUNXEcHTz=p87vW_3qU0OH9dDHSPQ@mail.gmail.com>
+In-Reply-To: <CA+FuTSfPq-052=D3GzibMjUNXEcHTz=p87vW_3qU0OH9dDHSPQ@mail.gmail.com>
+From: Andrew Melnichenko <andrew@daynix.com>
+Date: Sun, 13 Feb 2022 19:01:39 +0200
+Message-ID: <CABcq3pFLXUMi3ctr6WyJMaXbPjKregTzQ2fG1fwDU7tvk2uRFg@mail.gmail.com>
+Subject: Re: [PATCH v3 2/4] drivers/net/virtio_net: Added basic RSS support.
+To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+ Network Development <netdev@vger.kernel.org>,
+ LKML <linux-kernel@vger.kernel.org>,
+ virtualization <virtualization@lists.linux-foundation.org>,
+ Yuri Benditovich <yuri.benditovich@daynix.com>,
+ Yan Vugenfirer <yan@daynix.com>, Jakub Kicinski <kuba@kernel.org>,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -107,894 +105,341 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Lei He <helei.sig11@bytedance.com>
+Hi all,
 
-Implement RSA algorithm by nettle hogweed, and apply it for
-virtio-crypto akcipher backend.
+On Tue, Feb 8, 2022 at 10:37 PM Willem de Bruijn
+<willemdebruijn.kernel@gmail.com> wrote:
+>
+> On Tue, Feb 8, 2022 at 1:19 PM Andrew Melnychenko <andrew@daynix.com> wrote:
+> >
+> > Added features for RSS.
+> > Added initialization, RXHASH feature and ethtool ops.
+> > By default RSS/RXHASH is disabled.
+> > Virtio RSS "IPv6 extensions" hashes disabled.
+> > Added ethtools ops to set key and indirection table.
+> >
+> > Signed-off-by: Andrew Melnychenko <andrew@daynix.com>
+> > ---
+> >  drivers/net/virtio_net.c | 191 +++++++++++++++++++++++++++++++++++++--
+> >  1 file changed, 185 insertions(+), 6 deletions(-)
+> >
+> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > index 1404e683a2fd..495aed524e33 100644
+> > --- a/drivers/net/virtio_net.c
+> > +++ b/drivers/net/virtio_net.c
+> > @@ -169,6 +169,24 @@ struct receive_queue {
+> >         struct xdp_rxq_info xdp_rxq;
+> >  };
+> >
+> > +/* This structure can contain rss message with maximum settings for indirection table and keysize
+> > + * Note, that default structure that describes RSS configuration virtio_net_rss_config
+> > + * contains same info but can't handle table values.
+> > + * In any case, structure would be passed to virtio hw through sg_buf split by parts
+> > + * because table sizes may be differ according to the device configuration.
+> > + */
+> > +#define VIRTIO_NET_RSS_MAX_KEY_SIZE     40
+>
+> Future proof, may want to support larger sizes.
+>
+> netdevice.h defines NETDEV_RSS_KEY_LEN at 52.
+>
+> tools/testing/selftests/net/toeplitz.c supports up to 60
 
-1, The self-test framework of crypto layer works fine in guest kernel
-2, Test with Linux guest(with asym support), the following script
-test(note that pkey_XXX is supported only in a newer version of keyutils):
-  - both public key & private key
-  - create/close session
-  - encrypt/decrypt/sign/verify basic driver operation
-  - also test with kernel crypto layer(pkey add/query)
+According to virtio specification, the length of the key is
+40bytes(and an indirection table is 128 entries max).
+So for now, we support a maximum of the spec regardless of what the
+kernel is capable of.
 
-All the cases work fine.
+>
+> > +#define VIRTIO_NET_RSS_MAX_TABLE_LEN    128
+> > +struct virtio_net_ctrl_rss {
+> > +       u32 hash_types;
+>
+> conversely, u32 is a bit extreme?
 
-rm -rf *.der *.pem *.pfx
-modprobe pkcs8_key_parser # if CONFIG_PKCS8_PRIVATE_KEY_PARSER=m
-rm -rf /tmp/data
-dd if=/dev/random of=/tmp/data count=1 bs=226
+No, the structure virtio_net_ctrl_rss is specified by the specification.
 
-openssl req -nodes -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -subj "/C=CN/ST=BJ/L=HD/O=qemu/OU=dev/CN=qemu/emailAddress=qemu@qemu.org"
-openssl pkcs8 -in key.pem -topk8 -nocrypt -outform DER -out key.der
-openssl x509 -in cert.pem -inform PEM -outform DER -out cert.der
+>
+> > +       u16 indirection_table_mask;
+> > +       u16 unclassified_queue;
+> > +       u16 indirection_table[VIRTIO_NET_RSS_MAX_TABLE_LEN];
+> > +       u16 max_tx_vq;
+> > +       u8 hash_key_length;
+> > +       u8 key[VIRTIO_NET_RSS_MAX_KEY_SIZE];
+> > +};
+> > +
+> >  /* Control VQ buffers: protected by the rtnl lock */
+> >  struct control_buf {
+> >         struct virtio_net_ctrl_hdr hdr;
+> > @@ -178,6 +196,7 @@ struct control_buf {
+> >         u8 allmulti;
+> >         __virtio16 vid;
+> >         __virtio64 offloads;
+> > +       struct virtio_net_ctrl_rss rss;
+> >  };
+> >
+> >  struct virtnet_info {
+> > @@ -206,6 +225,12 @@ struct virtnet_info {
+> >         /* Host will merge rx buffers for big packets (shake it! shake it!) */
+> >         bool mergeable_rx_bufs;
+> >
+> > +       /* Host supports rss and/or hash report */
+> > +       bool has_rss;
+> > +       u8 rss_key_size;
+> > +       u16 rss_indir_table_size;
+> > +       u32 rss_hash_types_supported;
+> > +
+> >         /* Has control virtqueue */
+> >         bool has_cvq;
+> >
+> > @@ -2184,6 +2209,56 @@ static void virtnet_get_ringparam(struct net_device *dev,
+> >         ring->tx_pending = ring->tx_max_pending;
+> >  }
+> >
+> > +static bool virtnet_commit_rss_command(struct virtnet_info *vi)
+> > +{
+> > +       struct net_device *dev = vi->dev;
+> > +       struct scatterlist sgs[4];
+> > +       unsigned int sg_buf_size;
+> > +
+> > +       /* prepare sgs */
+> > +       sg_init_table(sgs, 4);
+> > +
+> > +       sg_buf_size = offsetof(struct virtio_net_ctrl_rss, indirection_table);
+> > +       sg_set_buf(&sgs[0], &vi->ctrl->rss, sg_buf_size);
+> > +
+> > +       sg_buf_size = sizeof(uint16_t) * vi->rss_indir_table_size;
+> > +       sg_set_buf(&sgs[1], vi->ctrl->rss.indirection_table, sg_buf_size);
+> > +
+> > +       sg_buf_size = offsetof(struct virtio_net_ctrl_rss, key)
+> > +                       - offsetof(struct virtio_net_ctrl_rss, max_tx_vq);
+> > +       sg_set_buf(&sgs[2], &vi->ctrl->rss.max_tx_vq, sg_buf_size);
+> > +
+> > +       sg_buf_size = vi->rss_key_size;
+> > +       sg_set_buf(&sgs[3], vi->ctrl->rss.key, sg_buf_size);
+> > +
+> > +       if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_MQ,
+> > +                                 VIRTIO_NET_CTRL_MQ_RSS_CONFIG, sgs)) {
+> > +               dev_warn(&dev->dev, "VIRTIONET issue with committing RSS sgs\n");
+> > +               return false;
+> > +       }
+> > +       return true;
+> > +}
+> > +
+> > +static void virtnet_init_default_rss(struct virtnet_info *vi)
+> > +{
+> > +       u32 indir_val = 0;
+> > +       int i = 0;
+> > +
+> > +       vi->ctrl->rss.hash_types = vi->rss_hash_types_supported;
+> > +       vi->ctrl->rss.indirection_table_mask = vi->rss_indir_table_size - 1;
+>
+> Is table size always a power of two?
 
-PRIV_KEY_ID=`cat key.der | keyctl padd asymmetric test_priv_key @s`
-echo "priv key id = "$PRIV_KEY_ID
-PUB_KEY_ID=`cat cert.der | keyctl padd asymmetric test_pub_key @s`
-echo "pub key id = "$PUB_KEY_ID
+Yes, it should be.
 
-keyctl pkey_query $PRIV_KEY_ID 0
-keyctl pkey_query $PUB_KEY_ID 0
+>
+> > +       vi->ctrl->rss.unclassified_queue = 0;
+> > +
+> > +       for (; i < vi->rss_indir_table_size; ++i) {
+> > +               indir_val = ethtool_rxfh_indir_default(i, vi->curr_queue_pairs);
+> > +               vi->ctrl->rss.indirection_table[i] = indir_val;
+> > +       }
+> > +
+> > +       vi->ctrl->rss.max_tx_vq = vi->curr_queue_pairs;
+> > +       vi->ctrl->rss.hash_key_length = vi->rss_key_size;
+> > +
+> > +       netdev_rss_key_fill(vi->ctrl->rss.key, vi->rss_key_size);
+> > +}
+> > +
+> >
+> >  static void virtnet_get_drvinfo(struct net_device *dev,
+> >                                 struct ethtool_drvinfo *info)
+> > @@ -2412,6 +2487,71 @@ static void virtnet_update_settings(struct virtnet_info *vi)
+> >                 vi->duplex = duplex;
+> >  }
+> >
+> > +static u32 virtnet_get_rxfh_key_size(struct net_device *dev)
+> > +{
+> > +       return ((struct virtnet_info *)netdev_priv(dev))->rss_key_size;
+> > +}
+> > +
+> > +static u32 virtnet_get_rxfh_indir_size(struct net_device *dev)
+> > +{
+> > +       return ((struct virtnet_info *)netdev_priv(dev))->rss_indir_table_size;
+> > +}
+> > +
+> > +static int virtnet_get_rxfh(struct net_device *dev, u32 *indir, u8 *key, u8 *hfunc)
+> > +{
+> > +       struct virtnet_info *vi = netdev_priv(dev);
+> > +       int i;
+> > +
+> > +       if (indir) {
+> > +               for (i = 0; i < vi->rss_indir_table_size; ++i)
+> > +                       indir[i] = vi->ctrl->rss.indirection_table[i];
+> > +       }
+> > +
+> > +       if (key)
+> > +               memcpy(key, vi->ctrl->rss.key, vi->rss_key_size);
+> > +
+> > +       if (hfunc)
+> > +               *hfunc = ETH_RSS_HASH_TOP;
+> > +
+> > +       return 0;
+> > +}
+> > +
+> > +static int virtnet_set_rxfh(struct net_device *dev, const u32 *indir, const u8 *key, const u8 hfunc)
+> > +{
+> > +       struct virtnet_info *vi = netdev_priv(dev);
+> > +       int i;
+> > +
+> > +       if (hfunc != ETH_RSS_HASH_NO_CHANGE && hfunc != ETH_RSS_HASH_TOP)
+> > +               return -EOPNOTSUPP;
+> > +
+> > +       if (indir) {
+> > +               for (i = 0; i < vi->rss_indir_table_size; ++i)
+> > +                       vi->ctrl->rss.indirection_table[i] = indir[i];
+> > +       }
+> > +       if (key)
+> > +               memcpy(vi->ctrl->rss.key, key, vi->rss_key_size);
+> > +
+> > +       virtnet_commit_rss_command(vi);
+> > +
+> > +       return 0;
+> > +}
+> > +
+> > +static int virtnet_get_rxnfc(struct net_device *dev, struct ethtool_rxnfc *info, u32 *rule_locs)
+> > +{
+> > +       struct virtnet_info *vi = netdev_priv(dev);
+> > +       int rc = 0;
+> > +
+> > +       switch (info->cmd) {
+> > +       case ETHTOOL_GRXRINGS:
+> > +               info->data = vi->curr_queue_pairs;
+> > +               break;
+> > +       default:
+> > +               rc = -EOPNOTSUPP;
+> > +       }
+> > +
+> > +       return rc;
+> > +}
+> > +
+> >  static const struct ethtool_ops virtnet_ethtool_ops = {
+> >         .supported_coalesce_params = ETHTOOL_COALESCE_MAX_FRAMES,
+> >         .get_drvinfo = virtnet_get_drvinfo,
+> > @@ -2427,6 +2567,11 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
+> >         .set_link_ksettings = virtnet_set_link_ksettings,
+> >         .set_coalesce = virtnet_set_coalesce,
+> >         .get_coalesce = virtnet_get_coalesce,
+> > +       .get_rxfh_key_size = virtnet_get_rxfh_key_size,
+> > +       .get_rxfh_indir_size = virtnet_get_rxfh_indir_size,
+> > +       .get_rxfh = virtnet_get_rxfh,
+> > +       .set_rxfh = virtnet_set_rxfh,
+> > +       .get_rxnfc = virtnet_get_rxnfc,
+> >  };
+> >
+> >  static void virtnet_freeze_down(struct virtio_device *vdev)
+> > @@ -2679,6 +2824,16 @@ static int virtnet_set_features(struct net_device *dev,
+> >                 vi->guest_offloads = offloads;
+> >         }
+> >
+> > +       if ((dev->features ^ features) & NETIF_F_RXHASH) {
+> > +               if (features & NETIF_F_RXHASH)
+> > +                       vi->ctrl->rss.hash_types = vi->rss_hash_types_supported;
+> > +               else
+> > +                       vi->ctrl->rss.hash_types = VIRTIO_NET_HASH_REPORT_NONE;
+> > +
+> > +               if (!virtnet_commit_rss_command(vi))
+> > +                       return -EINVAL;
+> > +       }
+> > +
+> >         return 0;
+> >  }
+> >
+> > @@ -3073,6 +3228,8 @@ static bool virtnet_validate_features(struct virtio_device *vdev)
+> >                              "VIRTIO_NET_F_CTRL_VQ") ||
+> >              VIRTNET_FAIL_ON(vdev, VIRTIO_NET_F_MQ, "VIRTIO_NET_F_CTRL_VQ") ||
+> >              VIRTNET_FAIL_ON(vdev, VIRTIO_NET_F_CTRL_MAC_ADDR,
+> > +                            "VIRTIO_NET_F_CTRL_VQ") ||
+> > +            VIRTNET_FAIL_ON(vdev, VIRTIO_NET_F_RSS,
+> >                              "VIRTIO_NET_F_CTRL_VQ"))) {
+> >                 return false;
+> >         }
+> > @@ -3113,13 +3270,14 @@ static int virtnet_probe(struct virtio_device *vdev)
+> >         u16 max_queue_pairs;
+> >         int mtu;
+> >
+> > -       /* Find if host supports multiqueue virtio_net device */
+> > -       err = virtio_cread_feature(vdev, VIRTIO_NET_F_MQ,
+> > -                                  struct virtio_net_config,
+> > -                                  max_virtqueue_pairs, &max_queue_pairs);
+> > +       /* Find if host supports multiqueue/rss virtio_net device */
+> > +       max_queue_pairs = 1;
+> > +       if (virtio_has_feature(vdev, VIRTIO_NET_F_MQ) || virtio_has_feature(vdev, VIRTIO_NET_F_RSS))
+> > +               max_queue_pairs =
+> > +                    virtio_cread16(vdev, offsetof(struct virtio_net_config, max_virtqueue_pairs));
+>
+> Instead of testing either feature and treating them as somewhat equal,
+> shouldn't RSS be dependent on MQ?
 
-echo "Enc with priv key..."
-keyctl pkey_encrypt $PRIV_KEY_ID 0 /tmp/data enc=pkcs1 >/tmp/enc.priv
-echo "Dec with pub key..."
-keyctl pkey_decrypt $PRIV_KEY_ID 0 /tmp/enc.priv enc=pkcs1 >/tmp/dec
-cmp /tmp/data /tmp/dec
+No, RSS is dependent on CTRL_VQ. Technically RSS and MQ are similar features.
 
-echo "Sign with priv key..."
-keyctl pkey_sign $PRIV_KEY_ID 0 /tmp/data enc=pkcs1 hash=sha1 > /tmp/sig
-echo "Verify with pub key..."
-keyctl pkey_verify $PRIV_KEY_ID 0 /tmp/data /tmp/sig enc=pkcs1 hash=sha1
+>
+> >
+> >         /* We need at least 2 queue's */
+> > -       if (err || max_queue_pairs < VIRTIO_NET_CTRL_MQ_VQ_PAIRS_MIN ||
+> > +       if (max_queue_pairs < VIRTIO_NET_CTRL_MQ_VQ_PAIRS_MIN ||
+> >             max_queue_pairs > VIRTIO_NET_CTRL_MQ_VQ_PAIRS_MAX ||
+> >             !virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_VQ))
+> >                 max_queue_pairs = 1;
+> > @@ -3207,6 +3365,23 @@ static int virtnet_probe(struct virtio_device *vdev)
+> >         if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF))
+> >                 vi->mergeable_rx_bufs = true;
+> >
+> > +       if (virtio_has_feature(vdev, VIRTIO_NET_F_RSS)) {
+> > +               vi->has_rss = true;
+> > +               vi->rss_indir_table_size =
+> > +                       virtio_cread16(vdev, offsetof(struct virtio_net_config,
+> > +                               rss_max_indirection_table_length));
+> > +               vi->rss_key_size =
+> > +                       virtio_cread8(vdev, offsetof(struct virtio_net_config, rss_max_key_size));
+> > +
+> > +               vi->rss_hash_types_supported =
+> > +                   virtio_cread32(vdev, offsetof(struct virtio_net_config, supported_hash_types));
+> > +               vi->rss_hash_types_supported &=
+> > +                               ~(VIRTIO_NET_RSS_HASH_TYPE_IP_EX |
+> > +                                 VIRTIO_NET_RSS_HASH_TYPE_TCP_EX |
+> > +                                 VIRTIO_NET_RSS_HASH_TYPE_UDP_EX);
+> > +
+> > +               dev->hw_features |= NETIF_F_RXHASH;
+>
+> Only make the feature visible when the hash is actually reported in
+> the skb, patch 3.
 
-echo "Enc with pub key..."
-keyctl pkey_encrypt $PUB_KEY_ID 0 /tmp/data enc=pkcs1 >/tmp/enc.pub
-echo "Dec with priv key..."
-keyctl pkey_decrypt $PRIV_KEY_ID 0 /tmp/enc.pub enc=pkcs1 >/tmp/dec
-cmp /tmp/data /tmp/dec
+VirtioNET has two features: RSS(steering only) and hash(hash report in
+vnet header)
+Both features may be enabled/disabled separately:
+1. rss on and hash off - packets steered to the corresponding vqs
+2. rss off and hash on - packets steered by tap(like mq) but headers
+have properly calculated hash.
+3. rss on and hash on - packets steered to corresponding vqs and hash
+is present in the header.
 
-echo "Verify with pub key..."
-keyctl pkey_verify $PUB_KEY_ID 0 /tmp/data /tmp/sig enc=pkcs1 hash=sha1
+RXHASH feature allows the user to enable/disable the rss/hash(any combination).
+I think it's a good idea to leave RXHASH in patch 2/4 to give the user
+ability to manipulate the rss only feature.
+But, if you think that it requires to move it to the 3/4, I'll do it.
 
-Signed-off-by: zhenwei pi <pizhenwei@bytedance.com>
-Signed-off-by: lei he <helei.sig11@bytedance.com>
----
- crypto/akcipher-nettle.c | 486 +++++++++++++++++++++++++++++++++++++++
- crypto/akcipher.c        |  13 ++
- crypto/asn1_decoder.c    | 185 +++++++++++++++
- crypto/asn1_decoder.h    |  42 ++++
- crypto/meson.build       |   3 +
- meson.build              |  11 +
- 6 files changed, 740 insertions(+)
- create mode 100644 crypto/akcipher-nettle.c
- create mode 100644 crypto/asn1_decoder.c
- create mode 100644 crypto/asn1_decoder.h
+>
+> Also, clearly separate the feature patches (2) rss, (3) rxhash, (4)
+> rxhash config.
 
-diff --git a/crypto/akcipher-nettle.c b/crypto/akcipher-nettle.c
-new file mode 100644
-index 0000000000..6ac39e7abc
---- /dev/null
-+++ b/crypto/akcipher-nettle.c
-@@ -0,0 +1,486 @@
-+/*
-+ * QEMU Crypto akcipher algorithms
-+ *
-+ * Copyright (c) 2022 Bytedance
-+ * Author: lei he <helei.sig11@bytedance.com>
-+ *
-+ * This library is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU Lesser General Public
-+ * License as published by the Free Software Foundation; either
-+ * version 2.1 of the License, or (at your option) any later version.
-+ *
-+ * This library is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ * Lesser General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU Lesser General Public
-+ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
-+ *
-+ */
-+
-+#include <stdbool.h>
-+
-+#include <nettle/rsa.h>
-+
-+#include "asn1_decoder.h"
-+#include "crypto/akcipher.h"
-+#include "crypto/random.h"
-+#include "qemu/osdep.h"
-+#include "qapi/error.h"
-+#include "sysemu/cryptodev.h"
-+#include "standard-headers/linux/virtio_crypto.h"
-+
-+typedef struct QCryptoNettleRsa {
-+    QCryptoAkcipher akcipher;
-+    struct rsa_public_key pub;
-+    struct rsa_private_key priv;
-+    int padding_algo;
-+    int hash_algo;
-+} QCryptoNettleRsa;
-+
-+struct asn1_parse_ctx {
-+    const uint8_t *data;
-+    size_t dlen;
-+};
-+
-+static int extract_value(void *p, const uint8_t *data, size_t dlen)
-+{
-+    struct asn1_parse_ctx *ctx = (struct asn1_parse_ctx *)p;
-+    ctx->data = (uint8_t *)data;
-+    ctx->dlen = dlen;
-+
-+    return 0;
-+}
-+
-+static int extract_mpi(void *p, const uint8_t *data, size_t dlen)
-+{
-+    mpz_t *target = (mpz_t *)p;
-+    nettle_mpz_set_str_256_u(*target, dlen, data);
-+
-+    return 0;
-+}
-+
-+static QCryptoNettleRsa *qcrypto_nettle_rsa_malloc(void);
-+
-+static void qcrypto_nettle_rsa_destroy(void *ptr)
-+{
-+    QCryptoNettleRsa *rsa = (QCryptoNettleRsa *)ptr;
-+    if (!rsa) {
-+        return;
-+    }
-+
-+    rsa_public_key_clear(&rsa->pub);
-+    rsa_private_key_clear(&rsa->priv);
-+    g_free(rsa);
-+}
-+
-+static QCryptoAkcipher *qcrypto_nettle_new_rsa(bool private, const uint8_t *key,
-+                                               size_t keylen, void *para,
-+                                               int index,  Error **errp);
-+
-+QCryptoAkcipher *qcrypto_akcipher_nettle_new(uint32_t alg, bool private,
-+                                             const uint8_t *key,
-+                                             size_t keylen, void *para,
-+                                             int index, Error **errp);
-+
-+QCryptoAkcipher *qcrypto_akcipher_nettle_new(uint32_t alg, bool private,
-+                                             const uint8_t *key,
-+                                             size_t keylen, void *para,
-+                                             int index, Error **errp)
-+{
-+    switch (alg) {
-+    case VIRTIO_CRYPTO_AKCIPHER_RSA:
-+        return qcrypto_nettle_new_rsa(private, key, keylen, para, index, errp);
-+    default:
-+        error_setg(errp, "Unsupported algorithm: %u", alg);
-+        return NULL;
-+    }
-+
-+    return NULL;
-+}
-+
-+/*
-+ * Parse ber encoded rsa private key, asn1 schema:
-+ *        RsaPrivKey ::= SEQUENCE {
-+ *             version     INTEGER
-+ *             n           INTEGER
-+ *             e           INTEGER
-+ *             d           INTEGER
-+ *             p           INTEGER
-+ *             q           INTEGER
-+ *             e1          INTEGER
-+ *             e2          INTEGER
-+ *             u           INTEGER
-+ *         }
-+ */
-+static int parse_rsa_private_key(QCryptoNettleRsa *rsa,
-+                                 const uint8_t *key, size_t keylen)
-+{
-+    struct asn1_parse_ctx ctx;
-+
-+    if (ber_decode_seq(&key, &keylen, extract_value, &ctx) != 0 ||
-+        keylen != 0) {
-+        return -1;
-+    }
-+
-+    if (ber_decode_int(&ctx.data, &ctx.dlen, NULL, NULL) != 0 ||
-+        ber_decode_int(&ctx.data, &ctx.dlen, extract_mpi, &rsa->pub.n) != 0 ||
-+        ber_decode_int(&ctx.data, &ctx.dlen, extract_mpi, &rsa->pub.e) != 0 ||
-+        ber_decode_int(&ctx.data, &ctx.dlen, extract_mpi, &rsa->priv.d) != 0 ||
-+        ber_decode_int(&ctx.data, &ctx.dlen, extract_mpi, &rsa->priv.p) != 0 ||
-+        ber_decode_int(&ctx.data, &ctx.dlen, extract_mpi, &rsa->priv.q) != 0 ||
-+        ber_decode_int(&ctx.data, &ctx.dlen, extract_mpi, &rsa->priv.a) != 0 ||
-+        ber_decode_int(&ctx.data, &ctx.dlen, extract_mpi, &rsa->priv.b) != 0 ||
-+        ber_decode_int(&ctx.data, &ctx.dlen, extract_mpi, &rsa->priv.c) != 0 ||
-+        ctx.dlen != 0) {
-+        return -1;
-+    }
-+
-+    if (!rsa_public_key_prepare(&rsa->pub)) {
-+        return -1;
-+    }
-+
-+    /*
-+     * Since in the kernel's unit test, the p, q, a, b, c of some
-+     * private keys is 0, only the simplest length check is done here
-+     */
-+    rsa->priv.size = rsa->pub.size;
-+
-+    return 0;
-+}
-+
-+/*
-+ * Parse ber encoded rsa pubkey, asn1 schema:
-+ *        RsaPrivKey ::= SEQUENCE {
-+ *             n           INTEGER
-+ *             e           INTEGER
-+ *         }
-+ */
-+static int parse_rsa_public_key(QCryptoNettleRsa *rsa,
-+                                const uint8_t *key,
-+                                size_t keylen)
-+{
-+    struct asn1_parse_ctx ctx;
-+
-+    if (ber_decode_seq(&key, &keylen, extract_value, &ctx) != 0 ||
-+        keylen != 0) {
-+        return -1;
-+    }
-+
-+    if (ber_decode_int(&ctx.data, &ctx.dlen, extract_mpi, &rsa->pub.n) != 0 ||
-+        ber_decode_int(&ctx.data, &ctx.dlen, extract_mpi, &rsa->pub.e) != 0 ||
-+        ctx.dlen != 0) {
-+        return -1;
-+    }
-+
-+    if (!rsa_public_key_prepare(&rsa->pub)) {
-+        return -1;
-+    }
-+
-+    return 0;
-+}
-+
-+static QCryptoAkcipher *qcrypto_nettle_new_rsa(bool private, const uint8_t *key,
-+                                               size_t keylen, void *para,
-+                                               int index, Error **errp)
-+{
-+    QCryptoNettleRsa *rsa = qcrypto_nettle_rsa_malloc();
-+    CryptoDevBackendRsaPara *p = (CryptoDevBackendRsaPara *)para;
-+    rsa->padding_algo = p->padding_algo;
-+    rsa->hash_algo = p->hash_algo;
-+
-+    if (private && parse_rsa_private_key(rsa, key, keylen) == 0) {
-+        return (QCryptoAkcipher *)rsa;
-+    } else if (!private && parse_rsa_public_key(rsa, key, keylen) == 0) {
-+        return (QCryptoAkcipher *)rsa;
-+    }
-+
-+    qcrypto_nettle_rsa_destroy(rsa);
-+    error_setg(errp, "Failed to parse %s key", private ? "private" : "public");
-+
-+    return NULL;
-+}
-+
-+
-+/*
-+ * nettle does not provide RSA interfaces without padding,
-+ * here we implemented rsa algorithm with nettle/mpz.
-+ */
-+static int _rsa_enc_raw(QCryptoNettleRsa *rsa, const void *data,
-+                        size_t data_len, void *enc,
-+                        size_t enc_len, Error **errp)
-+{
-+    mpz_t m;
-+
-+    nettle_mpz_init_set_str_256_u(m, data_len, data);
-+    /* (1) Validate 0 <= m < n */
-+    if (mpz_cmp_ui(m, 0) < 0 || mpz_cmp(m, rsa->pub.n) >= 0) {
-+        error_setg(errp, "Failed to validate input data");
-+        return -VIRTIO_CRYPTO_BADMSG;
-+    }
-+
-+    /* (2) c = m ^ e mod n */
-+    mpz_powm(m, m, rsa->pub.e, rsa->pub.n);
-+    nettle_mpz_get_str_256(enc_len, (uint8_t *)enc, m);
-+
-+    mpz_clear(m);
-+
-+    return 0;
-+}
-+
-+static int _rsa_dec_raw(QCryptoNettleRsa *rsa,
-+                        const void *enc,
-+                        size_t enc_len,
-+                        void *data,
-+                        size_t data_len,
-+                        Error **errp)
-+{
-+    mpz_t c;
-+    nettle_mpz_init_set_str_256_u(c, enc_len, enc);
-+
-+    /* (1) Validate 0 <= c < n */
-+    if (mpz_cmp_ui(c, 0) < 0 || mpz_cmp(c, rsa->pub.n) >= 0) {
-+        error_setg(errp, "Failed to validate input data");
-+        return -VIRTIO_CRYPTO_BADMSG;
-+    }
-+
-+    /* (2) m = c ^ d mod n */
-+    mpz_powm(c, c, rsa->priv.d, rsa->pub.n);
-+    nettle_mpz_get_str_256(data_len, (uint8_t *)data, c);
-+    mpz_clear(c);
-+
-+    return 0;
-+}
-+
-+static void wrap_nettle_random_func(void *ctx, size_t len, uint8_t *out)
-+{
-+    /* TODO: check result */
-+    qcrypto_random_bytes(out, len, NULL);
-+}
-+
-+static int qcrypto_nettle_rsa_encrypt(QCryptoAkcipher *akcipher_driver,
-+                                      const void *data, size_t data_len,
-+                                      void *enc, size_t enc_len,
-+                                      Error **errp)
-+{
-+
-+    QCryptoNettleRsa *rsa =
-+        container_of(akcipher_driver, QCryptoNettleRsa, akcipher);
-+    mpz_t c;
-+    int enc_ret;
-+
-+    if (data_len > rsa->pub.size || enc_len < rsa->pub.size) {
-+        error_setg(errp, "Invalid buffer size");
-+        return -VIRTIO_CRYPTO_BADMSG;
-+    }
-+
-+    switch (rsa->padding_algo) {
-+    case VIRTIO_CRYPTO_RSA_RAW_PADDING:
-+        return _rsa_enc_raw(rsa, data, data_len, enc, enc_len, errp);
-+
-+    case VIRTIO_CRYPTO_RSA_PKCS1_PADDING:
-+        mpz_init(c);
-+        enc_ret = rsa_encrypt(&rsa->pub, NULL, wrap_nettle_random_func,
-+                              data_len, (uint8_t *)data, c);
-+        if (enc_ret != 1) {
-+            error_setg(errp, "Failed to encrypt");
-+        } else {
-+            nettle_mpz_get_str_256(enc_len, (uint8_t *)enc, c);
-+        }
-+        mpz_clear(c);
-+        return enc_ret == 1 ? 0 : -1;
-+
-+    default:
-+        error_setg(errp, "Unknown padding");
-+        return -VIRTIO_CRYPTO_NOTSUPP;
-+    }
-+
-+    return -1;
-+}
-+
-+static int qcrypto_nettle_rsa_decrypt(QCryptoAkcipher *akcipher,
-+                                      const void *enc, size_t enc_len,
-+                                      void *data, size_t data_len,
-+                                      Error **errp)
-+{
-+    QCryptoNettleRsa *rsa = container_of(akcipher, QCryptoNettleRsa, akcipher);
-+    mpz_t m;
-+    int dec_ret;
-+
-+    if (enc_len > rsa->priv.size || data_len < rsa->priv.size) {
-+        error_setg(errp, "Invalid buffer size");
-+        return -VIRTIO_CRYPTO_BADMSG;
-+    }
-+
-+    switch (rsa->padding_algo) {
-+    case VIRTIO_CRYPTO_RSA_RAW_PADDING:
-+        return _rsa_dec_raw(rsa, enc, enc_len, data, data_len, errp);
-+
-+    case VIRTIO_CRYPTO_RSA_PKCS1_PADDING:
-+        mpz_init(m);
-+        dec_ret = rsa_encrypt(&rsa->pub, NULL, wrap_nettle_random_func,
-+                              data_len, (uint8_t *)data, m);
-+        if (dec_ret != 1) {
-+            error_setg(errp, "Failed to encrypt");
-+        } else {
-+            nettle_mpz_get_str_256(data_len, (uint8_t *)data_len, m);
-+        }
-+        mpz_clear(m);
-+        return dec_ret == 1 ? 0 : -1;
-+
-+    default:
-+        error_setg(errp, "Unknown padding");
-+        return -VIRTIO_CRYPTO_NOTSUPP;
-+    }
-+
-+    return -1;
-+}
-+
-+
-+static int qcrypto_nettle_rsa_sign(QCryptoAkcipher *akcipher,
-+                                   const void *data, size_t data_len,
-+                                   void *sig, size_t sig_len, Error **errp)
-+{
-+    QCryptoNettleRsa *rsa = container_of(akcipher, QCryptoNettleRsa, akcipher);
-+    int ret;
-+    mpz_t s;
-+
-+    /*
-+     * The RSA algorithm cannot be used for signature/verification
-+     * without padding.
-+     */
-+    if (rsa->padding_algo == VIRTIO_CRYPTO_RSA_RAW_PADDING) {
-+        error_setg(errp, "Try to make signature without padding");
-+        return -VIRTIO_CRYPTO_NOTSUPP;
-+    }
-+
-+    if (data_len > rsa->priv.size || sig_len < rsa->priv.size) {
-+        error_setg(errp, "Invalid buffer size");
-+        return -VIRTIO_CRYPTO_BADMSG;
-+    }
-+
-+    mpz_init(s);
-+    switch (rsa->hash_algo) {
-+    case VIRTIO_CRYPTO_RSA_MD5:
-+        ret = rsa_md5_sign_digest(&rsa->priv, data, s);
-+        break;
-+
-+    case VIRTIO_CRYPTO_RSA_SHA1:
-+        ret = rsa_sha1_sign_digest(&rsa->priv, data, s);
-+        break;
-+
-+    case VIRTIO_CRYPTO_RSA_SHA256:
-+        ret = rsa_sha256_sign_digest(&rsa->priv, data, s);
-+        break;
-+
-+    case VIRTIO_CRYPTO_RSA_SHA512:
-+        ret = rsa_sha512_sign_digest(&rsa->priv, data, s);
-+        break;
-+
-+    default:
-+        error_setg(errp, "Unknown hash algorithm");
-+        ret = -VIRTIO_CRYPTO_NOTSUPP;
-+        goto clear;
-+    }
-+
-+    if (ret != 1) {
-+        error_setg(errp, "Failed to make signature");
-+        ret = -VIRTIO_CRYPTO_BADMSG;
-+        goto clear;
-+    }
-+    nettle_mpz_get_str_256(sig_len, (uint8_t *)sig, s);
-+    ret = 0;
-+
-+clear:
-+    mpz_clear(s);
-+
-+    return ret;
-+}
-+
-+static int qcrypto_nettle_rsa_verify(QCryptoAkcipher *akcipher,
-+                                     const void *sig, size_t sig_len,
-+                                     const void *data, size_t data_len,
-+                                     Error **errp)
-+{
-+    QCryptoNettleRsa *rsa = container_of(akcipher, QCryptoNettleRsa, akcipher);
-+
-+    int ret;
-+    mpz_t s;
-+
-+    /*
-+     * The RSA algorithm cannot be used for signature/verification
-+     * without padding.
-+     */
-+    if (rsa->padding_algo == VIRTIO_CRYPTO_RSA_RAW_PADDING) {
-+        error_setg(errp, "Operation not supported");
-+        return -1;
-+    }
-+    if (data_len > rsa->pub.size || sig_len < rsa->pub.size) {
-+        error_setg(errp, "Invalid buffer size");
-+        return -1;
-+    }
-+
-+    nettle_mpz_init_set_str_256_u(s, sig_len, sig);
-+    switch (rsa->hash_algo) {
-+    case VIRTIO_CRYPTO_RSA_MD5:
-+        ret = rsa_md5_verify_digest(&rsa->pub, data, s);
-+        break;
-+
-+    case VIRTIO_CRYPTO_RSA_SHA1:
-+        ret = rsa_sha1_verify_digest(&rsa->pub, data, s);
-+        break;
-+
-+    case VIRTIO_CRYPTO_RSA_SHA256:
-+        ret = rsa_sha256_verify_digest(&rsa->pub, data, s);
-+        break;
-+
-+    case VIRTIO_CRYPTO_RSA_SHA512:
-+        ret = rsa_sha512_verify_digest(&rsa->pub, data, s);
-+        break;
-+
-+    default:
-+        error_setg(errp, "Unknown hash algorithm");
-+        ret = -VIRTIO_CRYPTO_NOTSUPP;
-+        goto clear;
-+    }
-+
-+    if (ret != 1) {
-+        error_setg(errp, "Failed to verify");
-+        ret = -VIRTIO_CRYPTO_KEY_REJECTED;
-+        goto clear;
-+    }
-+    ret = 0;
-+
-+clear:
-+    mpz_clear(s);
-+
-+    return ret;
-+}
-+
-+static int qcrypto_nettle_rsa_free(struct QCryptoAkcipher *akcipher,
-+                                   Error **errp)
-+{
-+    qcrypto_nettle_rsa_destroy(akcipher);
-+
-+    return 0;
-+}
-+
-+QCryptoAkcipherDriver nettle_rsa = {
-+    .encrypt = qcrypto_nettle_rsa_encrypt,
-+    .decrypt = qcrypto_nettle_rsa_decrypt,
-+    .sign = qcrypto_nettle_rsa_sign,
-+    .verify = qcrypto_nettle_rsa_verify,
-+    .free = qcrypto_nettle_rsa_free,
-+};
-+
-+static QCryptoNettleRsa *qcrypto_nettle_rsa_malloc(void)
-+{
-+    QCryptoNettleRsa *rsa = g_malloc0(sizeof(QCryptoNettleRsa));
-+    memset(rsa, 0, sizeof(QCryptoNettleRsa));
-+    rsa->akcipher.driver = &nettle_rsa;
-+    rsa_public_key_init(&rsa->pub);
-+    rsa_private_key_init(&rsa->priv);
-+
-+    return rsa;
-+}
-diff --git a/crypto/akcipher.c b/crypto/akcipher.c
-index ac8d1c9bf1..f5bdc35e18 100644
---- a/crypto/akcipher.c
-+++ b/crypto/akcipher.c
-@@ -24,6 +24,12 @@
- #include "qapi/error.h"
- #include "crypto/akcipher.h"
- 
-+QCryptoAkcipher *qcrypto_akcipher_nettle_new(uint32_t alg, bool private,
-+                                             const uint8_t *key,
-+                                             size_t keylen,
-+                                             void *para,
-+                                             int index, Error **errp);
-+
- QCryptoAkcipher *qcrypto_akcipher_new(uint32_t alg, bool private,
-                                       const uint8_t *key, size_t keylen,
-                                       void *para,
-@@ -31,6 +37,13 @@ QCryptoAkcipher *qcrypto_akcipher_new(uint32_t alg, bool private,
- {
-     QCryptoAkcipher *akcipher = NULL;
- 
-+#ifdef CONFIG_HOGWEED
-+    akcipher = qcrypto_akcipher_nettle_new(alg, private, key, keylen,
-+                                           para, index, errp);
-+#else
-+    error_setg(errp, "qcrypto akcipher has no nettle/hogweed support");
-+#endif
-+
-     return akcipher;
- }
- 
-diff --git a/crypto/asn1_decoder.c b/crypto/asn1_decoder.c
-new file mode 100644
-index 0000000000..bfb145e84e
---- /dev/null
-+++ b/crypto/asn1_decoder.c
-@@ -0,0 +1,185 @@
-+/*
-+ * QEMU Crypto akcipher algorithms
-+ *
-+ * Copyright (c) 2022 Bytedance
-+ * Author: lei he <helei.sig11@bytedance.com>
-+ *
-+ * This library is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU Lesser General Public
-+ * License as published by the Free Software Foundation; either
-+ * version 2.1 of the License, or (at your option) any later version.
-+ *
-+ * This library is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ * Lesser General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU Lesser General Public
-+ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
-+ *
-+ */
-+
-+#include <stdint.h>
-+#include <stddef.h>
-+
-+#include "crypto/asn1_decoder.h"
-+
-+enum ber_type_tag {
-+    ber_type_tag_bool = 0x1,
-+    ber_type_tag_int = 0x2,
-+    ber_type_tag_bit_str = 0x3,
-+    ber_type_tag_oct_str = 0x4,
-+    ber_type_tag_oct_null = 0x5,
-+    ber_type_tag_oct_oid = 0x6,
-+    ber_type_tag_seq = 0x10,
-+    ber_type_tag_set = 0x11,
-+};
-+
-+#define BER_CONSTRUCTED_MASK 0x20
-+#define BER_SHORT_LEN_MASK 0x80
-+
-+static uint8_t ber_peek_byte(const uint8_t **data, size_t *dlen)
-+{
-+    return **data;
-+}
-+
-+static int invoke_callback(BerDecodeCb cb, void *ctx,
-+                           const uint8_t *value, size_t vlen)
-+{
-+    if (!cb) {
-+        return 0;
-+    }
-+
-+    return cb(ctx, value, vlen);
-+}
-+
-+static void ber_cut_nbytes(const uint8_t **data, size_t *dlen,
-+                           size_t nbytes)
-+{
-+    *data += nbytes;
-+    *dlen -= nbytes;
-+}
-+
-+static uint8_t ber_cut_byte(const uint8_t **data, size_t *dlen)
-+{
-+    uint8_t val = ber_peek_byte(data, dlen);
-+
-+    ber_cut_nbytes(data, dlen, 1);
-+
-+    return val;
-+}
-+
-+static int ber_extract_definite_data(const uint8_t **data, size_t *dlen,
-+                                     BerDecodeCb cb, void *ctx)
-+{
-+    const uint8_t *value;
-+    size_t vlen = 0;
-+    uint8_t byte_count = ber_cut_byte(data, dlen);
-+
-+    /* short format of definite-length */
-+    if (!(byte_count & BER_SHORT_LEN_MASK)) {
-+        if (byte_count > *dlen) {
-+            return -1;
-+        }
-+
-+        value = *data;
-+        vlen = byte_count;
-+        ber_cut_nbytes(data, dlen, vlen);
-+
-+        return invoke_callback(cb, ctx, value, vlen);
-+    }
-+
-+    /* Ignore highest bit */
-+    byte_count &= ~BER_SHORT_LEN_MASK;
-+
-+    /*
-+     * size_t is enough to express the length, although the ber encoding
-+     * standard supports larger length.
-+     */
-+    if (byte_count > sizeof(size_t)) {
-+        return -1;
-+    }
-+
-+    while (byte_count--) {
-+        vlen <<= 8;
-+        vlen += ber_cut_byte(data, dlen);
-+    }
-+
-+    if (vlen > *dlen) {
-+        return -1;
-+    }
-+
-+    value = *data;
-+    ber_cut_nbytes(data, dlen, vlen);
-+
-+    return invoke_callback(cb, ctx, value, vlen);
-+}
-+
-+static int ber_extract_undefinite_data(const uint8_t **data, size_t *dlen,
-+                                       BerDecodeCb cb, void *ctx)
-+{
-+    size_t vlen = 0;
-+    const uint8_t *value;
-+
-+    if (*dlen < 3) {
-+        return -1;
-+    }
-+
-+    /* skip undefinite-length-mask 0x80 */
-+    ber_cut_nbytes(data, dlen, 1);
-+
-+    value = *data;
-+    while (vlen < *dlen) {
-+        if ((*data)[vlen] != 0) {
-+            vlen++;
-+            continue;
-+        }
-+
-+        if (vlen + 1 < *dlen && (*data[vlen + 1] == 0)) {
-+            ber_cut_nbytes(data, dlen, vlen + 2);
-+            return invoke_callback(cb, ctx, value, vlen);
-+        }
-+
-+        vlen += 2;
-+    }
-+
-+    return -1;
-+}
-+
-+static int ber_extract_data(const uint8_t **data, size_t *dlen,
-+                            BerDecodeCb cb, void *ctx)
-+{
-+    uint8_t val = ber_peek_byte(data, dlen);
-+
-+    if (val == BER_SHORT_LEN_MASK) {
-+        return ber_extract_undefinite_data(data, dlen, cb, ctx);
-+    }
-+
-+    return ber_extract_definite_data(data, dlen, cb, ctx);
-+}
-+
-+int ber_decode_int(const uint8_t **data, size_t *dlen,
-+                   BerDecodeCb cb, void *ctx)
-+{
-+    uint8_t tag = ber_cut_byte(data, dlen);
-+
-+    /* INTEGER must encoded in primitive-form */
-+    if (tag != ber_type_tag_int) {
-+        return -1;
-+    }
-+
-+    return ber_extract_data(data, dlen, cb, ctx);
-+}
-+
-+int ber_decode_seq(const uint8_t **data, size_t *dlen,
-+                   BerDecodeCb cb, void *ctx)
-+{
-+    uint8_t val = ber_cut_byte(data, dlen);
-+
-+    /* SEQUENCE must use constructed form */
-+    if (val != (ber_type_tag_seq | BER_CONSTRUCTED_MASK)) {
-+        return -1;
-+    }
-+
-+    return ber_extract_data(data, dlen, cb, ctx);
-+}
-diff --git a/crypto/asn1_decoder.h b/crypto/asn1_decoder.h
-new file mode 100644
-index 0000000000..d33a7c81c4
---- /dev/null
-+++ b/crypto/asn1_decoder.h
-@@ -0,0 +1,42 @@
-+/*
-+ * QEMU Crypto akcipher algorithms
-+ *
-+ * Copyright (c) 2022 Bytedance
-+ * Author: lei he <helei.sig11@bytedance.com>
-+ *
-+ * This library is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU Lesser General Public
-+ * License as published by the Free Software Foundation; either
-+ * version 2.1 of the License, or (at your option) any later version.
-+ *
-+ * This library is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ * Lesser General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU Lesser General Public
-+ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
-+ *
-+ */
-+
-+#ifndef QCRYPTO_ASN1_DECODER_H
-+#define QCRYPTO_ASN1_DECODER_H
-+
-+/*
-+ *  ctx: user content.
-+ *  value: the starting address of |value| part of 'Tag-Length-Value' pattern.
-+ *  vlen: length of the |value|.
-+ */
-+typedef int (*BerDecodeCb) (void *ctx, const uint8_t *value, size_t vlen);
-+
-+int ber_decode_int(const uint8_t **data,
-+                   size_t *dlen,
-+                   BerDecodeCb cb,
-+                   void *ctx);
-+
-+int ber_decode_seq(const uint8_t **data,
-+                   size_t *dlen,
-+                   BerDecodeCb cb,
-+                   void *ctx);
-+
-+#endif  /* QCRYPTO_ASN1_DECODER_H */
-diff --git a/crypto/meson.build b/crypto/meson.build
-index 72b36f450a..28d14cb153 100644
---- a/crypto/meson.build
-+++ b/crypto/meson.build
-@@ -27,6 +27,9 @@ if nettle.found()
-   if xts == 'private'
-     crypto_ss.add(files('xts.c'))
-   endif
-+  if hogweed.found()
-+    crypto_ss.add(gmp, hogweed, files('akcipher-nettle.c', 'asn1_decoder.c'))
-+  endif
- elif gcrypt.found()
-   crypto_ss.add(gcrypt, files('hash-gcrypt.c', 'hmac-gcrypt.c', 'pbkdf-gcrypt.c'))
- elif gnutls_crypto.found()
-diff --git a/meson.build b/meson.build
-index 5f43355071..fdc7ffabef 100644
---- a/meson.build
-+++ b/meson.build
-@@ -1027,6 +1027,7 @@ endif
- # gcrypt over nettle for performance reasons.
- gcrypt = not_found
- nettle = not_found
-+hogweed = not_found
- xts = 'none'
- 
- if get_option('nettle').enabled() and get_option('gcrypt').enabled()
-@@ -1064,6 +1065,14 @@ if not gnutls_crypto.found()
-   endif
- endif
- 
-+gmp = dependency('gmp', required: false, method: 'pkg-config', kwargs: static_kwargs)
-+if nettle.found() and gmp.found()
-+  hogweed = dependency('hogweed', version: '>=3.4',
-+                       method: 'pkg-config',
-+                       required: get_option('nettle'),
-+                       kwargs: static_kwargs)
-+endif
-+
- gtk = not_found
- gtkx11 = not_found
- vte = not_found
-@@ -1516,6 +1525,7 @@ config_host_data.set('CONFIG_GNUTLS', gnutls.found())
- config_host_data.set('CONFIG_GNUTLS_CRYPTO', gnutls_crypto.found())
- config_host_data.set('CONFIG_GCRYPT', gcrypt.found())
- config_host_data.set('CONFIG_NETTLE', nettle.found())
-+config_host_data.set('CONFIG_HOGWEED', hogweed.found())
- config_host_data.set('CONFIG_QEMU_PRIVATE_XTS', xts == 'private')
- config_host_data.set('CONFIG_MALLOC_TRIM', has_malloc_trim)
- config_host_data.set('CONFIG_STATX', has_statx)
-@@ -3413,6 +3423,7 @@ summary_info += {'libgcrypt':         gcrypt}
- summary_info += {'nettle':            nettle}
- if nettle.found()
-    summary_info += {'  XTS':             xts != 'private'}
-+   summary_info += {'  hogweed':         hogweed.found()}
- endif
- summary_info += {'crypto afalg':      config_host.has_key('CONFIG_AF_ALG')}
- summary_info += {'rng-none':          config_host.has_key('CONFIG_RNG_NONE')}
--- 
-2.20.1
+Currently:
+Patch 2/4 - adds VirtioNet rss feature.
+Patch 3/4 - adds VirtioNet hash report feature.
+Patch 4/4 - adds the ability to manipulate supported hash types.
 
+Can you provide more detailed suggestions on how to move hunks?
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
