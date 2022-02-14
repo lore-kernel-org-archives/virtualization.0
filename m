@@ -1,56 +1,56 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4A927C43217
-	for <virtualization@archiver.kernel.org>; Mon, 14 Feb 2022 08:14:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 38B2BC4332F
+	for <virtualization@archiver.kernel.org>; Mon, 14 Feb 2022 08:14:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id D1A27404F6;
+	by smtp4.osuosl.org (Postfix) with ESMTP id F2FB7402C3;
 	Mon, 14 Feb 2022 08:14:56 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id fQ3wuOgCJGLQ; Mon, 14 Feb 2022 08:14:54 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 68FF440493;
-	Mon, 14 Feb 2022 08:14:53 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 8jLL22tu5z1J; Mon, 14 Feb 2022 08:14:56 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 7F1EE40509;
+	Mon, 14 Feb 2022 08:14:55 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 50739C0011;
-	Mon, 14 Feb 2022 08:14:53 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 73E16C000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 2E347C007E;
+	Mon, 14 Feb 2022 08:14:55 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 82502C0011
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Feb 2022 08:14:51 +0000 (UTC)
+ Mon, 14 Feb 2022 08:14:54 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 558338175A
+ by smtp3.osuosl.org (Postfix) with ESMTP id 7F4C160D6D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Feb 2022 08:14:51 +0000 (UTC)
+ Mon, 14 Feb 2022 08:14:54 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id NDfkM-AWMXD0
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 1DeDt_4lp8M6
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Feb 2022 08:14:50 +0000 (UTC)
+ Mon, 14 Feb 2022 08:14:54 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from out30-130.freemail.mail.aliyun.com
- (out30-130.freemail.mail.aliyun.com [115.124.30.130])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 7BF5481551
+Received: from out30-45.freemail.mail.aliyun.com
+ (out30-45.freemail.mail.aliyun.com [115.124.30.45])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id A069360D52
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Feb 2022 08:14:50 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R211e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04357; MF=xuanzhuo@linux.alibaba.com;
- NM=1; PH=DS; RN=11; SR=0; TI=SMTPD_---0V4Oo2CB_1644826468; 
+ Mon, 14 Feb 2022 08:14:53 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R141e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04426; MF=xuanzhuo@linux.alibaba.com;
+ NM=1; PH=DS; RN=11; SR=0; TI=SMTPD_---0V4NbDQ0_1644826474; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0V4Oo2CB_1644826468) by smtp.aliyun-inc.com(127.0.0.1);
- Mon, 14 Feb 2022 16:14:29 +0800
+ fp:SMTPD_---0V4NbDQ0_1644826474) by smtp.aliyun-inc.com(127.0.0.1);
+ Mon, 14 Feb 2022 16:14:34 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: virtualization@lists.linux-foundation.org,
 	netdev@vger.kernel.org
-Subject: [PATCH v5 11/22] virtio_pci: queue_reset: release vq by vp_dev->vqs
-Date: Mon, 14 Feb 2022 16:14:05 +0800
-Message-Id: <20220214081416.117695-12-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH v5 16/22] virtio_net: split free_unused_bufs()
+Date: Mon, 14 Feb 2022 16:14:10 +0800
+Message-Id: <20220214081416.117695-17-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20220214081416.117695-1-xuanzhuo@linux.alibaba.com>
 References: <20220214081416.117695-1-xuanzhuo@linux.alibaba.com>
@@ -77,92 +77,89 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-In the process of queue reset, vq leaves vdev->vqs, so the original
-processing logic may miss some vq. So modify the processing method of
-releasing vq. Release vq by listing vqs.
+This patch separates two functions for freeing sq buf and rq buf from
+free_unused_bufs().
+
+When supporting the enable/disable tx/rq queue in the future, it is
+necessary to support separate recovery of a sq buf or a rq buf.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 ---
- drivers/virtio/virtio_pci_common.c | 22 ++++++++++++++++++----
- drivers/virtio/virtio_pci_common.h |  2 ++
- 2 files changed, 20 insertions(+), 4 deletions(-)
+ drivers/net/virtio_net.c | 53 +++++++++++++++++++++++-----------------
+ 1 file changed, 31 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-index fdbde1db5ec5..6b2573ec1ae8 100644
---- a/drivers/virtio/virtio_pci_common.c
-+++ b/drivers/virtio/virtio_pci_common.c
-@@ -260,12 +260,20 @@ static void vp_del_vq(struct virtqueue *vq)
- void vp_del_vqs(struct virtio_device *vdev)
- {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
--	struct virtqueue *vq, *n;
--	int i;
-+	struct virtio_pci_vq_info *info;
-+	struct virtqueue *vq;
-+	int i, v;
-+
-+	for (i = 0; i < vp_dev->nvqs; ++i) {
-+
-+		info = vp_dev->vqs[i];
-+		if (!info)
-+			continue;
-+
-+		vq = info->vq;
- 
--	list_for_each_entry_safe(vq, n, &vdev->vqs, list) {
- 		if (vp_dev->per_vq_vectors) {
--			int v = vp_dev->vqs[vq->index]->msix_vector;
-+			v = info->msix_vector;
- 
- 			if (v != VIRTIO_MSI_NO_VECTOR) {
- 				int irq = pci_irq_vector(vp_dev->pci_dev, v);
-@@ -275,6 +283,7 @@ void vp_del_vqs(struct virtio_device *vdev)
- 			}
- 		}
- 		vp_del_vq(vq);
-+		vp_dev->vqs[i] = NULL;
- 	}
- 	vp_dev->per_vq_vectors = false;
- 
-@@ -308,6 +317,7 @@ void vp_del_vqs(struct virtio_device *vdev)
- 	vp_dev->msix_affinity_masks = NULL;
- 	kfree(vp_dev->vqs);
- 	vp_dev->vqs = NULL;
-+	vp_dev->nvqs = 0;
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index a801ea40908f..9a1445236e23 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -2804,36 +2804,45 @@ static void free_receive_page_frags(struct virtnet_info *vi)
+ 			put_page(vi->rq[i].alloc_frag.page);
  }
  
- static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned nvqs,
-@@ -324,6 +334,8 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned nvqs,
- 	if (!vp_dev->vqs)
- 		return -ENOMEM;
+-static void free_unused_bufs(struct virtnet_info *vi)
++static void virtnet_sq_free_unused_bufs(struct virtnet_info *vi,
++					struct send_queue *sq)
+ {
+ 	void *buf;
+-	int i;
  
-+	vp_dev->nvqs = nvqs;
-+
- 	if (per_vq_vectors) {
- 		/* Best option: one for change interrupt, one per vq. */
- 		nvectors = 1;
-@@ -395,6 +407,8 @@ static int vp_find_vqs_intx(struct virtio_device *vdev, unsigned nvqs,
- 	if (!vp_dev->vqs)
- 		return -ENOMEM;
+-	for (i = 0; i < vi->max_queue_pairs; i++) {
+-		struct virtqueue *vq = vi->sq[i].vq;
+-		while ((buf = virtqueue_detach_unused_buf(vq)) != NULL) {
+-			if (!is_xdp_frame(buf))
+-				dev_kfree_skb(buf);
+-			else
+-				xdp_return_frame(ptr_to_xdp(buf));
+-		}
++	while ((buf = virtqueue_detach_unused_buf(sq->vq)) != NULL) {
++		if (!is_xdp_frame(buf))
++			dev_kfree_skb(buf);
++		else
++			xdp_return_frame(ptr_to_xdp(buf));
+ 	}
++}
  
-+	vp_dev->nvqs = nvqs;
+-	for (i = 0; i < vi->max_queue_pairs; i++) {
+-		struct virtqueue *vq = vi->rq[i].vq;
+-
+-		while ((buf = virtqueue_detach_unused_buf(vq)) != NULL) {
+-			if (vi->mergeable_rx_bufs) {
+-				put_page(virt_to_head_page(buf));
+-			} else if (vi->big_packets) {
+-				give_pages(&vi->rq[i], buf);
+-			} else {
+-				put_page(virt_to_head_page(buf));
+-			}
+-		}
++static void virtnet_rq_free_unused_bufs(struct virtnet_info *vi,
++					struct receive_queue *rq)
++{
++	void *buf;
 +
- 	err = request_irq(vp_dev->pci_dev->irq, vp_interrupt, IRQF_SHARED,
- 			dev_name(&vdev->dev), vp_dev);
- 	if (err)
-diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
-index 23f6c5c678d5..392d990b7c73 100644
---- a/drivers/virtio/virtio_pci_common.h
-+++ b/drivers/virtio/virtio_pci_common.h
-@@ -60,6 +60,8 @@ struct virtio_pci_device {
- 	/* array of all queues for house-keeping */
- 	struct virtio_pci_vq_info **vqs;
++	while ((buf = virtqueue_detach_unused_buf(rq->vq)) != NULL) {
++		if (vi->mergeable_rx_bufs)
++			put_page(virt_to_head_page(buf));
++		else if (vi->big_packets)
++			give_pages(rq, buf);
++		else
++			put_page(virt_to_head_page(buf));
+ 	}
+ }
  
-+	u32 nvqs;
++static void free_unused_bufs(struct virtnet_info *vi)
++{
++	int i;
 +
- 	/* MSI-X support */
- 	int msix_enabled;
- 	int intx_enabled;
++	for (i = 0; i < vi->max_queue_pairs; i++)
++		virtnet_sq_free_unused_bufs(vi, vi->sq + i);
++
++	for (i = 0; i < vi->max_queue_pairs; i++)
++		virtnet_rq_free_unused_bufs(vi, vi->rq + i);
++}
++
+ static void virtnet_del_vqs(struct virtnet_info *vi)
+ {
+ 	struct virtio_device *vdev = vi->vdev;
 -- 
 2.31.0
 
