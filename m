@@ -1,57 +1,56 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4D72CC433FE
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 46385C433F5
 	for <virtualization@archiver.kernel.org>; Mon, 14 Feb 2022 08:14:59 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 3724740493;
-	Mon, 14 Feb 2022 08:14:57 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id c14DtfK76rG3; Mon, 14 Feb 2022 08:14:56 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 08CB2404F9;
-	Mon, 14 Feb 2022 08:14:54 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C630DC007A;
-	Mon, 14 Feb 2022 08:14:54 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8A622C0079
- for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Feb 2022 08:14:53 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 6C1328141C
- for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Feb 2022 08:14:53 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id D9A7781551;
+	Mon, 14 Feb 2022 08:14:58 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Ec-pOAC6G2Kd
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id PWHWYW3mWgc8; Mon, 14 Feb 2022 08:14:58 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 85BBC817AB;
+	Mon, 14 Feb 2022 08:14:57 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 6118AC0011;
+	Mon, 14 Feb 2022 08:14:57 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 81E01C000B
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Feb 2022 08:14:53 +0000 (UTC)
+ Mon, 14 Feb 2022 08:14:56 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 61684404D1
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 14 Feb 2022 08:14:56 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 678rC9YWO_cr
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 14 Feb 2022 08:14:55 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from out30-42.freemail.mail.aliyun.com
- (out30-42.freemail.mail.aliyun.com [115.124.30.42])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 954D98175B
+Received: from out30-45.freemail.mail.aliyun.com
+ (out30-45.freemail.mail.aliyun.com [115.124.30.45])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id E985C404F6
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Feb 2022 08:14:52 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R711e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04357; MF=xuanzhuo@linux.alibaba.com;
- NM=1; PH=DS; RN=11; SR=0; TI=SMTPD_---0V4OcHFK_1644826470; 
+ Mon, 14 Feb 2022 08:14:54 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R151e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04395; MF=xuanzhuo@linux.alibaba.com;
+ NM=1; PH=DS; RN=11; SR=0; TI=SMTPD_---0V4OcHGK_1644826476; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0V4OcHFK_1644826470) by smtp.aliyun-inc.com(127.0.0.1);
- Mon, 14 Feb 2022 16:14:31 +0800
+ fp:SMTPD_---0V4OcHGK_1644826476) by smtp.aliyun-inc.com(127.0.0.1);
+ Mon, 14 Feb 2022 16:14:36 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: virtualization@lists.linux-foundation.org,
 	netdev@vger.kernel.org
-Subject: [PATCH v5 13/22] virtio_pci: queue_reset: reserve vq->priv for
- re-enable queue
-Date: Mon, 14 Feb 2022 16:14:07 +0800
-Message-Id: <20220214081416.117695-14-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH v5 18/22] virtio: add helper virtqueue_get_vring_max_size()
+Date: Mon, 14 Feb 2022 16:14:12 +0800
+Message-Id: <20220214081416.117695-19-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20220214081416.117695-1-xuanzhuo@linux.alibaba.com>
 References: <20220214081416.117695-1-xuanzhuo@linux.alibaba.com>
@@ -78,58 +77,103 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Reserve vq->priv during reset. Prevent vp_modern_map_vq_notify() from
-being called repeatedly.
+Record the maximum queue num supported by the device.
 
-Only set vq->priv = NULL in normal setup virtqueue, and keep
-vq->priv in the process of re-enable queue.
+virtio-net can display the maximum (supported by hardware) ring size in
+ethtool -g eth0.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 ---
- drivers/virtio/virtio_pci_modern.c | 8 +++++---
- drivers/virtio/virtio_ring.c       | 2 ++
- 2 files changed, 7 insertions(+), 3 deletions(-)
+ drivers/virtio/virtio_mmio.c       |  2 ++
+ drivers/virtio/virtio_pci_legacy.c |  2 ++
+ drivers/virtio/virtio_pci_modern.c |  2 ++
+ drivers/virtio/virtio_ring.c       | 13 +++++++++++++
+ include/linux/virtio.h             |  2 ++
+ 5 files changed, 21 insertions(+)
 
+diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+index 56128b9c46eb..a41abc8051b9 100644
+--- a/drivers/virtio/virtio_mmio.c
++++ b/drivers/virtio/virtio_mmio.c
+@@ -390,6 +390,8 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned index,
+ 		goto error_new_virtqueue;
+ 	}
+ 
++	vq->num_max = num;
++
+ 	/* Activate the queue */
+ 	writel(virtqueue_get_vring_size(vq), vm_dev->base + VIRTIO_MMIO_QUEUE_NUM);
+ 	if (vm_dev->version == 1) {
+diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
+index 96ec2b04e97d..340149f6196d 100644
+--- a/drivers/virtio/virtio_pci_legacy.c
++++ b/drivers/virtio/virtio_pci_legacy.c
+@@ -135,6 +135,8 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
+ 	if (!vq)
+ 		return ERR_PTR(-ENOMEM);
+ 
++	vq->num_max = num;
++
+ 	q_pfn = virtqueue_get_desc_addr(vq) >> VIRTIO_PCI_QUEUE_ADDR_SHIFT;
+ 	if (q_pfn >> 32) {
+ 		dev_err(&vp_dev->pci_dev->dev,
 diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-index 5af82948f0ae..bed3e9b84272 100644
+index 7d28f4c36fc2..5811691a90ec 100644
 --- a/drivers/virtio/virtio_pci_modern.c
 +++ b/drivers/virtio/virtio_pci_modern.c
-@@ -224,10 +224,12 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
- 				virtqueue_get_avail_addr(vq),
- 				virtqueue_get_used_addr(vq));
+@@ -274,6 +274,8 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
+ 	if (!vq)
+ 		return ERR_PTR(-ENOMEM);
  
--	vq->priv = (void __force *)vp_modern_map_vq_notify(mdev, index, NULL);
- 	if (!vq->priv) {
--		err = -ENOMEM;
--		goto err_map_notify;
-+		vq->priv = (void __force *)vp_modern_map_vq_notify(mdev, index, NULL);
-+		if (!vq->priv) {
-+			err = -ENOMEM;
-+			goto err_map_notify;
-+		}
- 	}
- 
- 	if (msix_vec != VIRTIO_MSI_NO_VECTOR) {
++	vq->num_max = num;
++
+ 	/* activate the queue */
+ 	vp_modern_set_queue_size(mdev, index, virtqueue_get_vring_size(vq));
+ 	vp_modern_queue_address(mdev, index, virtqueue_get_desc_addr(vq),
 diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index b37753bdbbc4..6a892c8ea16e 100644
+index 6a892c8ea16e..1a123b5e5371 100644
 --- a/drivers/virtio/virtio_ring.c
 +++ b/drivers/virtio/virtio_ring.c
-@@ -1723,6 +1723,7 @@ static struct virtqueue *vring_create_virtqueue_packed(
+@@ -2447,6 +2447,19 @@ void vring_transport_features(struct virtio_device *vdev)
+ }
+ EXPORT_SYMBOL_GPL(vring_transport_features);
  
- 		vq->vq.callback = callback;
- 		vq->vq.name = name;
-+		vq->vq.priv = NULL;
- 		vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC) &&
- 			!context;
- 	}
-@@ -2211,6 +2212,7 @@ static int __vring_init_virtqueue(struct virtqueue *_vq,
- 	if (!reset) {
- 		vq->vq.callback = callback;
- 		vq->vq.name = name;
-+		vq->vq.priv = NULL;
- 		vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC) &&
- 			!context;
- 	}
++/**
++ * virtqueue_get_vring_max_size - return the max size of the virtqueue's vring
++ * @_vq: the struct virtqueue containing the vring of interest.
++ *
++ * Returns the max size of the vring.  This is mainly used for boasting to
++ * userspace.  Unlike other operations, this need not be serialized.
++ */
++unsigned int virtqueue_get_vring_max_size(struct virtqueue *_vq)
++{
++	return _vq->num_max;
++}
++EXPORT_SYMBOL_GPL(virtqueue_get_vring_max_size);
++
+ /**
+  * virtqueue_get_vring_size - return the size of the virtqueue's vring
+  * @_vq: the struct virtqueue containing the vring of interest.
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index cdb2a551257c..1153b093c53d 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -37,6 +37,7 @@ struct virtqueue {
+ 	struct virtio_device *vdev;
+ 	unsigned int index;
+ 	unsigned int num_free;
++	unsigned int num_max;
+ 	void *priv;
+ 	enum virtqueue_reset_stage reset;
+ };
+@@ -87,6 +88,7 @@ bool virtqueue_enable_cb_delayed(struct virtqueue *vq);
+ 
+ void *virtqueue_detach_unused_buf(struct virtqueue *vq);
+ 
++unsigned int virtqueue_get_vring_max_size(struct virtqueue *vq);
+ unsigned int virtqueue_get_vring_size(struct virtqueue *vq);
+ 
+ bool virtqueue_is_broken(struct virtqueue *vq);
 -- 
 2.31.0
 
