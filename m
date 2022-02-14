@@ -4,54 +4,54 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 99A1FC43219
-	for <virtualization@archiver.kernel.org>; Mon, 14 Feb 2022 08:14:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4199CC4167B
+	for <virtualization@archiver.kernel.org>; Mon, 14 Feb 2022 08:14:40 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 42014402BE;
+	by smtp4.osuosl.org (Postfix) with ESMTP id F1463402C2;
 	Mon, 14 Feb 2022 08:14:39 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id egjQAq7anl5H; Mon, 14 Feb 2022 08:14:38 +0000 (UTC)
+	with ESMTP id z7Gyg-IwF843; Mon, 14 Feb 2022 08:14:39 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id E6124400C8;
-	Mon, 14 Feb 2022 08:14:37 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 9E76D401E9;
+	Mon, 14 Feb 2022 08:14:38 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A2EBAC0011;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E2A26C0078;
 	Mon, 14 Feb 2022 08:14:37 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A83DFC000B
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id AAD93C000B
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Feb 2022 08:14:35 +0000 (UTC)
+ Mon, 14 Feb 2022 08:14:36 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id A2EBA40370
+ by smtp2.osuosl.org (Postfix) with ESMTP id 8AD4440370
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Feb 2022 08:14:35 +0000 (UTC)
+ Mon, 14 Feb 2022 08:14:36 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id WND9NBNw866c
+ with ESMTP id obpnZ4dTE96V
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 14 Feb 2022 08:14:32 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from out30-54.freemail.mail.aliyun.com
+ (out30-54.freemail.mail.aliyun.com [115.124.30.54])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id DA5CC401C5
  for <virtualization@lists.linux-foundation.org>;
  Mon, 14 Feb 2022 08:14:31 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from out30-42.freemail.mail.aliyun.com
- (out30-42.freemail.mail.aliyun.com [115.124.30.42])
- by smtp2.osuosl.org (Postfix) with ESMTPS id F1C084019E
- for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Feb 2022 08:14:30 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R431e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e01424; MF=xuanzhuo@linux.alibaba.com;
- NM=1; PH=DS; RN=11; SR=0; TI=SMTPD_---0V4OcHDO_1644826460; 
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R251e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04357; MF=xuanzhuo@linux.alibaba.com;
+ NM=1; PH=DS; RN=11; SR=0; TI=SMTPD_---0V4O5x7N_1644826457; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0V4OcHDO_1644826460) by smtp.aliyun-inc.com(127.0.0.1);
- Mon, 14 Feb 2022 16:14:21 +0800
+ fp:SMTPD_---0V4O5x7N_1644826457) by smtp.aliyun-inc.com(127.0.0.1);
+ Mon, 14 Feb 2022 16:14:18 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: virtualization@lists.linux-foundation.org,
 	netdev@vger.kernel.org
-Subject: [PATCH v5 04/22] virtio_ring: queue_reset: split: add
- __vring_init_virtqueue()
-Date: Mon, 14 Feb 2022 16:13:58 +0800
-Message-Id: <20220214081416.117695-5-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH v5 01/22] virtio_pci: struct virtio_pci_common_cfg add
+ queue_notify_data
+Date: Mon, 14 Feb 2022 16:13:55 +0800
+Message-Id: <20220214081416.117695-2-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20220214081416.117695-1-xuanzhuo@linux.alibaba.com>
 References: <20220214081416.117695-1-xuanzhuo@linux.alibaba.com>
@@ -78,98 +78,37 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Extract vq's initialization function __vring_init_virtqueue() from
-__vring_new_virtqueue()
+Add queue_notify_data in struct virtio_pci_common_cfg, which comes from
+here https://github.com/oasis-tcs/virtio-spec/issues/89
+
+For not breaks uABI, add a new struct virtio_pci_common_cfg_notify.
+
+Since I want to add queue_reset after queue_notify_data, I submitted
+this patch first.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 ---
- drivers/virtio/virtio_ring.c | 61 +++++++++++++++++++++++++-----------
- 1 file changed, 42 insertions(+), 19 deletions(-)
+ include/uapi/linux/virtio_pci.h | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 4f95d650b066..9cfbe45ab286 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -2169,23 +2169,17 @@ irqreturn_t vring_interrupt(int irq, void *_vq)
- EXPORT_SYMBOL_GPL(vring_interrupt);
+diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
+index 3a86f36d7e3d..22bec9bd0dfc 100644
+--- a/include/uapi/linux/virtio_pci.h
++++ b/include/uapi/linux/virtio_pci.h
+@@ -166,6 +166,13 @@ struct virtio_pci_common_cfg {
+ 	__le32 queue_used_hi;		/* read-write */
+ };
  
- /* Only available for split ring */
--struct virtqueue *__vring_new_virtqueue(unsigned int index,
--					struct vring vring,
--					struct virtio_device *vdev,
--					bool weak_barriers,
--					bool context,
--					bool (*notify)(struct virtqueue *),
--					void (*callback)(struct virtqueue *),
--					const char *name)
-+static int __vring_init_virtqueue(struct virtqueue *_vq,
-+				  unsigned int index,
-+				  struct vring vring,
-+				  struct virtio_device *vdev,
-+				  bool weak_barriers,
-+				  bool context,
-+				  bool (*notify)(struct virtqueue *),
-+				  void (*callback)(struct virtqueue *),
-+				  const char *name)
- {
--	struct vring_virtqueue *vq;
--
--	if (virtio_has_feature(vdev, VIRTIO_F_RING_PACKED))
--		return NULL;
--
--	vq = kmalloc(sizeof(*vq), GFP_KERNEL);
--	if (!vq)
--		return NULL;
-+	struct vring_virtqueue *vq = to_vvq(_vq);
- 
- 	vq->packed_ring = false;
- 	vq->vq.callback = callback;
-@@ -2245,13 +2239,42 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
- 	spin_lock(&vdev->vqs_list_lock);
- 	list_add_tail(&vq->vq.list, &vdev->vqs);
- 	spin_unlock(&vdev->vqs_list_lock);
--	return &vq->vq;
-+	return 0;
- 
- err_extra:
- 	kfree(vq->split.desc_state);
- err_state:
--	kfree(vq);
--	return NULL;
-+	return -ENOMEM;
-+}
++struct virtio_pci_common_cfg_notify {
++	struct virtio_pci_common_cfg cfg;
 +
-+struct virtqueue *__vring_new_virtqueue(unsigned int index,
-+					struct vring vring,
-+					struct virtio_device *vdev,
-+					bool weak_barriers,
-+					bool context,
-+					bool (*notify)(struct virtqueue *),
-+					void (*callback)(struct virtqueue *),
-+					const char *name)
-+{
-+	struct vring_virtqueue *vq;
-+	int err;
++	__le16 queue_notify_data;	/* read-write */
++	__le16 padding;
++};
 +
-+	if (virtio_has_feature(vdev, VIRTIO_F_RING_PACKED))
-+		return NULL;
-+
-+	vq = kmalloc(sizeof(*vq), GFP_KERNEL);
-+	if (!vq)
-+		return NULL;
-+
-+	err = __vring_init_virtqueue(&vq->vq, index, vring, vdev, weak_barriers,
-+				     context, notify, callback, name);
-+
-+	if (err) {
-+		kfree(vq);
-+		return NULL;
-+	}
-+
-+	return &vq->vq;
- }
- EXPORT_SYMBOL_GPL(__vring_new_virtqueue);
- 
+ /* Fields in VIRTIO_PCI_CAP_PCI_CFG: */
+ struct virtio_pci_cfg_cap {
+ 	struct virtio_pci_cap cap;
 -- 
 2.31.0
 
