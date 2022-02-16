@@ -1,93 +1,92 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 793E6C433F5
-	for <virtualization@archiver.kernel.org>; Wed, 16 Feb 2022 04:14:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 38C58C433FE
+	for <virtualization@archiver.kernel.org>; Wed, 16 Feb 2022 04:14:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 2F8264010E;
-	Wed, 16 Feb 2022 04:14:31 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id C8FED81A4E;
+	Wed, 16 Feb 2022 04:14:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id cxVG4g3btVCq; Wed, 16 Feb 2022 04:14:29 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 2BA4D40576;
-	Wed, 16 Feb 2022 04:14:29 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id JqOmhCUqIJNA; Wed, 16 Feb 2022 04:14:38 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 70EF080C52;
+	Wed, 16 Feb 2022 04:14:37 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1167CC001A;
-	Wed, 16 Feb 2022 04:14:29 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3A003C000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 491BCC001A;
+	Wed, 16 Feb 2022 04:14:37 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4A7DAC000B
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Feb 2022 04:14:28 +0000 (UTC)
+ Wed, 16 Feb 2022 04:14:36 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 26DC24163D
+ by smtp1.osuosl.org (Postfix) with ESMTP id 2B5F5817A4
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Feb 2022 04:14:28 +0000 (UTC)
+ Wed, 16 Feb 2022 04:14:36 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id T1HvAFuHzvRA
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id ReFPToyw5rzt
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Feb 2022 04:14:27 +0000 (UTC)
+ Wed, 16 Feb 2022 04:14:35 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id DBEDD415F7
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 715DC80C52
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Feb 2022 04:14:26 +0000 (UTC)
+ Wed, 16 Feb 2022 04:14:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1644984865;
+ s=mimecast20190719; t=1644984874;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=hkH+Fw1g25wmzz0motWkGyLx4yyB/LCgVvvS7rJG570=;
- b=A/N9hrY97BYkdFzmOIem7M0N8t/DWte4repdWcIlDQlSrmkggEqvAYYUMEXQTRg92cO2kO
- RPnA+2K4oRtf3tkoCt0d/Rr2zvexcy0RPFt5t6X2PY2J7YCkwqkSEXsJYcRbyCwHov9N1r
- Lz/z4xPxOPWqDYMCac5BNuk/wq5oswc=
-Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
- [209.85.208.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=E3b3uR5MMPzm1En/lQgKQ0CsRJyNewt+DAjMnvVIPGk=;
+ b=Jgeo1fyl45wlx7evaxOfYaDI3iqLo1UMa24bTZvKkYAZsmrF7szrULkTpS6G0XTY/wruAj
+ QYFy2TeNbCH7xZ6qx2JF1s/Vv9FEwhmhdluOcDF9GsOBPIQ13rSAkseDJEGnes4iB2N841
+ f2LU2rnoiJ828NWPMtIgLki1MH3VLDU=
+Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com
+ [209.85.208.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-511-gD-IRdiSPpyKrupFOlFKEw-1; Tue, 15 Feb 2022 23:14:24 -0500
-X-MC-Unique: gD-IRdiSPpyKrupFOlFKEw-1
-Received: by mail-lj1-f199.google.com with SMTP id
- m7-20020a2ea587000000b00244e2faf769so463714ljp.6
+ us-mta-205-zq_FzjMgOVK3wX5XAWOcsA-1; Tue, 15 Feb 2022 23:14:32 -0500
+X-MC-Unique: zq_FzjMgOVK3wX5XAWOcsA-1
+Received: by mail-lj1-f200.google.com with SMTP id
+ i10-20020a05651c120a00b00244c2eb1539so440896lja.21
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Feb 2022 20:14:23 -0800 (PST)
+ Tue, 15 Feb 2022 20:14:32 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=hkH+Fw1g25wmzz0motWkGyLx4yyB/LCgVvvS7rJG570=;
- b=c++Z/msdiZAS7ss8nAzpK53swNu+/6wEjd+PnFZFYc9S+WiFsX57nVwBlX6KIqq9dK
- Hn/HM5jWY11Kk5GEAO1mkBibAm9TaK8MyGMenXxGnWFyThFaQ1pKW8nIKM5wmdr70tB/
- Yr8fTfqCBmbrfpJrO3xCJSYIZ+fhQo30ZhsO/fTJ7oXHEVISFoI/R7ZEaGibDuSB65xY
- XisFUpTrygEMBP/F5XPVRIWIhcDUaPjM+o3sEi1zeRJNXIcxiEQdOcROlx9v/Z7BjWLd
- fEKN10dtYiLHL4APass2DfTETCYzzS3L41UstivhPfbfKZerJtyL6WuXRb+igyzth2vB
- p3kg==
-X-Gm-Message-State: AOAM530vggyIVQiUKr0fgbf2IYaNrIwzsV3KmYnAgiqbMcgV3qXZ16N8
- AKKxeg+HFTMG8JISxY6WqTDfNRe4MgASx/drinqKfw8xQi+iJXh6TMZUsrD3Xx08/UOz3KkiWan
- DyiP5sTSHjbQfIGzHjCf8SHrJouvHumpCR9y62ZmKYlnSHadZ1Cg3lKrWfg==
-X-Received: by 2002:a05:6512:3a81:b0:443:3ae7:33af with SMTP id
- q1-20020a0565123a8100b004433ae733afmr668254lfu.481.1644984862655; 
- Tue, 15 Feb 2022 20:14:22 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJzRVo50AruHxXqmY/yLBFDcf8ggmkJHeya3tApjNJhB/lsnGsPXpb51U/jfAQJfPXdJI1xKxTM3cZK1zkLozI0=
-X-Received: by 2002:a05:6512:3a81:b0:443:3ae7:33af with SMTP id
- q1-20020a0565123a8100b004433ae733afmr668246lfu.481.1644984862461; Tue, 15 Feb
- 2022 20:14:22 -0800 (PST)
+ bh=E3b3uR5MMPzm1En/lQgKQ0CsRJyNewt+DAjMnvVIPGk=;
+ b=i9hg6lvNQja8uEBxW+TqY8Q2gSh40PrxI2AVJLGUxZsCdwN2ZaOYIXtnwIopDAhae1
+ dgNL930ljiLHFmCYxF9gbnPLcVFmrIvFwOs5HX5Y+rzPXIDK/d/D3626rNV5igPsnymJ
+ AF9pcmXmS7KJgApX252zCCvWL1Djzr/D1lKSP/nIt0TDybP7PgfehwYM5jpHm3OlYG6M
+ VpnvGT8qoO7SO968z2ZD9Jj3Ko8f+CcrQ2toBxTZTgFQhczRUgoi5HtJnKPm8rYCNVGz
+ I0xm+ekpi2KkB3iGWj914i2ajRY/WfAwq+6Msft9BPshdMRffy8VzclpQTU3REfgIF/i
+ RUEw==
+X-Gm-Message-State: AOAM533jOxBJsPicou1JGlDl/HHWd61+gbFSAiKog2ayl+5Ur0TeLJtT
+ mfMTxSOJolsTk4m7fWxWsnuuoK7G1CDEGWmFHcM0sK5vs9VwsNOKnOSzxjkPbvL3tPiHrRydBbr
+ OHIwkVb5IpEmUsp2Ncn+I4lTta4XfTUh3m/SbJ2A3rWdN6tDv3FR0p1/PTw==
+X-Received: by 2002:a05:6512:2808:b0:43f:4baa:7e5f with SMTP id
+ cf8-20020a056512280800b0043f4baa7e5fmr679407lfb.498.1644984870821; 
+ Tue, 15 Feb 2022 20:14:30 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwvGQ/nnJgLPQUQhwuqE8vh7JijE6JMtt5Dan0917QmW8EwCohodifZ+blu+a5ngcwNhPqmxW/s7gwTwysBlsY=
+X-Received: by 2002:a05:6512:2808:b0:43f:4baa:7e5f with SMTP id
+ cf8-20020a056512280800b0043f4baa7e5fmr679397lfb.498.1644984870621; Tue, 15
+ Feb 2022 20:14:30 -0800 (PST)
 MIME-Version: 1.0
 References: <20220214081416.117695-1-xuanzhuo@linux.alibaba.com>
- <20220214081416.117695-18-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <20220214081416.117695-18-xuanzhuo@linux.alibaba.com>
+ <20220214081416.117695-7-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20220214081416.117695-7-xuanzhuo@linux.alibaba.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 16 Feb 2022 12:14:11 +0800
-Message-ID: <CACGkMEszV_sUt+7gpLJ=6S1Spa0RmY=Ck0_duEkGf6xKOPG+oQ@mail.gmail.com>
-Subject: Re: [PATCH v5 17/22] virtio_net: support rx/tx queue reset
+Date: Wed, 16 Feb 2022 12:14:19 +0800
+Message-ID: <CACGkMEt_WcAzcxYGyEvX8zATrbzxmMZzCJYhW_gsML0Ge5xvEA@mail.gmail.com>
+Subject: Re: [PATCH v5 06/22] virtio_ring: queue_reset: packed: support enable
+ reset queue
 To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
@@ -118,204 +117,108 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 On Mon, Feb 14, 2022 at 4:14 PM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
 >
-> This patch implements the reset function of the rx, tx queues.
+> The purpose of this patch is to make vring packed support re-enable reset
+> vq.
 >
-> Based on this function, it is possible to modify the ring num of the
-> queue. And quickly recycle the buffer in the queue.
+> Based on whether the incoming vq passed by vring_setup_virtqueue() is
+> NULL or not, distinguish whether it is a normal create virtqueue or
+> re-enable a reset queue.
 >
-> In the process of the queue disable, in theory, as long as virtio
-> supports queue reset, there will be no exceptions.
->
-> However, in the process of the queue enable, there may be exceptions due to
-> memory allocation.  In this case, vq is not available, but we still have
-> to execute napi_enable(). Because napi_disable is similar to a lock,
-> napi_enable must be called after calling napi_disable.
+> When re-enable a reset queue, reuse the original callback, name, indirect.
 >
 > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 > ---
->  drivers/net/virtio_net.c | 123 +++++++++++++++++++++++++++++++++++++++
->  1 file changed, 123 insertions(+)
+>  drivers/virtio/virtio_ring.c | 29 ++++++++++++++++++-----------
+>  1 file changed, 18 insertions(+), 11 deletions(-)
 >
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 9a1445236e23..a4ffd7cdf623 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -251,6 +251,11 @@ struct padded_vnet_hdr {
->         char padding[4];
->  };
->
-> +static void virtnet_sq_free_unused_bufs(struct virtnet_info *vi,
-> +                                       struct send_queue *sq);
-> +static void virtnet_rq_free_unused_bufs(struct virtnet_info *vi,
-> +                                       struct receive_queue *rq);
-> +
->  static bool is_xdp_frame(void *ptr)
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index 4639e1643c78..20659f7ca582 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -1683,7 +1683,8 @@ static struct virtqueue *vring_create_virtqueue_packed(
+>         bool context,
+>         bool (*notify)(struct virtqueue *),
+>         void (*callback)(struct virtqueue *),
+> -       const char *name)
+> +       const char *name,
+> +       struct virtqueue *_vq)
 >  {
->         return (unsigned long)ptr & VIRTIO_XDP_FLAG;
-> @@ -1369,6 +1374,9 @@ static void virtnet_napi_enable(struct virtqueue *vq, struct napi_struct *napi)
->  {
->         napi_enable(napi);
+>         struct vring_virtqueue *vq;
+>         struct vring_packed_desc *ring;
+> @@ -1713,13 +1714,20 @@ static struct virtqueue *vring_create_virtqueue_packed(
+>         if (!device)
+>                 goto err_device;
 >
-> +       if (vq->reset)
-> +               return;
+> -       vq = kmalloc(sizeof(*vq), GFP_KERNEL);
+> -       if (!vq)
+> -               goto err_vq;
+> +       if (_vq) {
+> +               vq = to_vvq(_vq);
+> +       } else {
+> +               vq = kmalloc(sizeof(*vq), GFP_KERNEL);
+> +               if (!vq)
+> +                       goto err_vq;
 > +
->         /* If all buffers were filled by other side before we napi_enabled, we
->          * won't get another interrupt, so process any outstanding packets now.
->          * Call local_bh_enable after to trigger softIRQ processing.
-> @@ -1413,6 +1421,10 @@ static void refill_work(struct work_struct *work)
->                 struct receive_queue *rq = &vi->rq[i];
->
->                 napi_disable(&rq->napi);
-> +               if (rq->vq->reset) {
-> +                       virtnet_napi_enable(rq->vq, &rq->napi);
-> +                       continue;
-> +               }
->                 still_empty = !try_fill_recv(vi, rq, GFP_KERNEL);
->                 virtnet_napi_enable(rq->vq, &rq->napi);
->
-> @@ -1523,6 +1535,9 @@ static void virtnet_poll_cleantx(struct receive_queue *rq)
->         if (!sq->napi.weight || is_xdp_raw_buffer_queue(vi, index))
->                 return;
->
-> +       if (sq->vq->reset)
-> +               return;
-> +
->         if (__netif_tx_trylock(txq)) {
->                 do {
->                         virtqueue_disable_cb(sq->vq);
-> @@ -1769,6 +1784,114 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
->         return NETDEV_TX_OK;
->  }
->
-> +static int virtnet_rx_vq_disable(struct virtnet_info *vi,
-> +                                struct receive_queue *rq)
-> +{
-> +       int err;
-> +
-> +       napi_disable(&rq->napi);
-> +
-> +       err = virtio_reset_vq(rq->vq);
-> +       if (err)
-> +               goto err;
-> +
-> +       virtnet_rq_free_unused_bufs(vi, rq);
-> +
-> +       vring_release_virtqueue(rq->vq);
-> +
-> +       return 0;
-> +
-> +err:
-> +       virtnet_napi_enable(rq->vq, &rq->napi);
-> +       return err;
-> +}
-> +
-> +static int virtnet_tx_vq_disable(struct virtnet_info *vi,
-> +                                struct send_queue *sq)
-> +{
-> +       struct netdev_queue *txq;
-> +       int err, qindex;
-> +
-> +       qindex = sq - vi->sq;
-> +
-> +       txq = netdev_get_tx_queue(vi->dev, qindex);
-> +       __netif_tx_lock_bh(txq);
-> +
-> +       netif_stop_subqueue(vi->dev, qindex);
-> +       virtnet_napi_tx_disable(&sq->napi);
-> +
-> +       err = virtio_reset_vq(sq->vq);
-> +       if (err) {
-> +               virtnet_napi_tx_enable(vi, sq->vq, &sq->napi);
-> +               netif_start_subqueue(vi->dev, qindex);
-> +
-> +               __netif_tx_unlock_bh(txq);
-> +               return err;
+> +               vq->vq.callback = callback;
+> +               vq->vq.name = name;
+> +               vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC) &&
+> +                       !context;
 > +       }
-> +       __netif_tx_unlock_bh(txq);
-> +
-> +       virtnet_sq_free_unused_bufs(vi, sq);
-> +
-> +       vring_release_virtqueue(sq->vq);
-> +
-> +       return 0;
-> +}
-> +
-> +static int virtnet_tx_vq_enable(struct virtnet_info *vi, struct send_queue *sq)
-> +{
-> +       int err;
-> +
-> +       err = virtio_enable_resetq(sq->vq);
-> +       if (!err)
-> +               netif_start_subqueue(vi->dev, sq - vi->sq);
-> +
-> +       virtnet_napi_tx_enable(vi, sq->vq, &sq->napi);
-> +
-> +       return err;
-> +}
-> +
-> +static int virtnet_rx_vq_enable(struct virtnet_info *vi,
-> +                               struct receive_queue *rq)
-> +{
-> +       int err;
 
-So the API should be design in a consistent way.
+The code looks tricky. Except for the memory we don't even need to
+touch any of the other attributes.
 
-In rx_vq_disable() we do:
+I'd suggest splitting out the vring allocation into a dedicated helper
+that could be called by both vring_create_queue_XXX and the enable()
+logic (and in the enable logic we don't even need to relocate if size
+is not changed).
 
-reset()
-detach_unused_bufs()
-vring_release_virtqueue()
+Thanks
 
-here it's better to exactly the reverse
-
-vring_attach_virtqueue() // this is the helper I guess in patch 5,
-reverse of the vring_release_virtqueue()
-try_refill_recv() // reverse of the detach_unused_bufs()
-enable_reset() // reverse of the reset
-
-So did for the tx (no need for refill in that case).
-
-> +
-> +       err = virtio_enable_resetq(rq->vq);
-> +
-> +       virtnet_napi_enable(rq->vq, &rq->napi);
-> +
-> +       return err;
-> +}
-> +
-> +static int virtnet_rx_vq_reset(struct virtnet_info *vi, int i)
-> +{
-> +       int err;
-> +
-> +       err = virtnet_rx_vq_disable(vi, vi->rq + i);
-> +       if (err)
-> +               return err;
-> +
-> +       err = virtnet_rx_vq_enable(vi, vi->rq + i);
-> +       if (err)
-> +               netdev_err(vi->dev,
-> +                          "enable rx reset vq fail: rx queue index: %d err: %d\n", i, err);
-> +       return err;
-> +}
-> +
-> +static int virtnet_tx_vq_reset(struct virtnet_info *vi, int i)
-> +{
-> +       int err;
-> +
-> +       err = virtnet_tx_vq_disable(vi, vi->sq + i);
-> +       if (err)
-> +               return err;
-> +
-> +       err = virtnet_tx_vq_enable(vi, vi->sq + i);
-> +       if (err)
-> +               netdev_err(vi->dev,
-> +                          "enable tx reset vq fail: tx queue index: %d err: %d\n", i, err);
-> +       return err;
-> +}
-> +
->  /*
->   * Send command via the control virtqueue and check status.  Commands
->   * supported by the hypervisor, as indicated by feature bits, should
+>
+> -       vq->vq.callback = callback;
+>         vq->vq.vdev = vdev;
+> -       vq->vq.name = name;
+>         vq->vq.num_free = num;
+>         vq->vq.index = index;
+>         vq->we_own_ring = true;
+> @@ -1736,8 +1744,6 @@ static struct virtqueue *vring_create_virtqueue_packed(
+>         vq->last_add_time_valid = false;
+>  #endif
+>
+> -       vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC) &&
+> -               !context;
+>         vq->event = virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX);
+>
+>         if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
+> @@ -1778,7 +1784,7 @@ static struct virtqueue *vring_create_virtqueue_packed(
+>                 goto err_desc_extra;
+>
+>         /* No callback?  Tell other side not to bother us. */
+> -       if (!callback) {
+> +       if (!vq->vq.callback) {
+>                 vq->packed.event_flags_shadow = VRING_PACKED_EVENT_FLAG_DISABLE;
+>                 vq->packed.vring.driver->flags =
+>                         cpu_to_le16(vq->packed.event_flags_shadow);
+> @@ -1792,7 +1798,8 @@ static struct virtqueue *vring_create_virtqueue_packed(
+>  err_desc_extra:
+>         kfree(vq->packed.desc_state);
+>  err_desc_state:
+> -       kfree(vq);
+> +       if (!_vq)
+> +               kfree(vq);
+>  err_vq:
+>         vring_free_queue(vdev, event_size_in_bytes, device, device_event_dma_addr);
+>  err_device:
+> @@ -2317,7 +2324,7 @@ struct virtqueue *vring_setup_virtqueue(
+>         if (virtio_has_feature(vdev, VIRTIO_F_RING_PACKED))
+>                 return vring_create_virtqueue_packed(index, num, vring_align,
+>                                 vdev, weak_barriers, may_reduce_num,
+> -                               context, notify, callback, name);
+> +                               context, notify, callback, name, vq);
+>
+>         return vring_create_virtqueue_split(index, num, vring_align,
+>                         vdev, weak_barriers, may_reduce_num,
 > --
 > 2.31.0
 >
