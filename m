@@ -1,107 +1,95 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 24213C433EF
-	for <virtualization@archiver.kernel.org>; Thu, 17 Feb 2022 14:30:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AAE26C433F5
+	for <virtualization@archiver.kernel.org>; Thu, 17 Feb 2022 19:02:41 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id B8CBC83F6F;
-	Thu, 17 Feb 2022 14:30:34 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 365BD41E6F;
+	Thu, 17 Feb 2022 19:02:41 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id oIFUqFT0iVCU; Thu, 17 Feb 2022 14:30:33 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 5031C83F68;
-	Thu, 17 Feb 2022 14:30:33 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 2Jy37quIqIPp; Thu, 17 Feb 2022 19:02:40 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 621B3402BC;
+	Thu, 17 Feb 2022 19:02:39 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 248F8C0011;
-	Thu, 17 Feb 2022 14:30:33 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 60D17C000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 36CD9C0011;
+	Thu, 17 Feb 2022 19:02:39 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A46DDC000B
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Feb 2022 14:30:31 +0000 (UTC)
+ Thu, 17 Feb 2022 19:02:37 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 4D4FE6F6D9
+ by smtp1.osuosl.org (Postfix) with ESMTP id 83F0F83F26
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Feb 2022 14:30:31 +0000 (UTC)
+ Thu, 17 Feb 2022 19:02:37 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id qFGI4vc5Nc7m
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=daynix-com.20210112.gappssmtp.com
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id lrJasaSaiq1w
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Feb 2022 14:30:30 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 8EEA160A6A
+ Thu, 17 Feb 2022 19:02:36 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-oi1-x22f.google.com (mail-oi1-x22f.google.com
+ [IPv6:2607:f8b0:4864:20::22f])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id A861F83F22
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Feb 2022 14:30:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1645108229;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=I8Mg0Zawzb8iLXTRP4iGXQx+ghVFngEDKpSNR36LONs=;
- b=BDb48vBo6Zv0DxhgvN9vtbkuxsUKUAhiVYvap0A+YDDmc7hGEu3ktRwZiQZgHWJpQRH8PF
- hnR/8x2YaI6XyFmrFvytPg4eMKTs2Uyzc4StlGukLwD9gCiy9VtcygV0lSC5RGuiUrSks2
- iOPIAbUtu0/wVT+I+OLqB0h3tv/gyjA=
-Received: from mail-qv1-f71.google.com (mail-qv1-f71.google.com
- [209.85.219.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-495-1kNDY8HlNk6Cc7tXCSvtOQ-1; Thu, 17 Feb 2022 09:30:28 -0500
-X-MC-Unique: 1kNDY8HlNk6Cc7tXCSvtOQ-1
-Received: by mail-qv1-f71.google.com with SMTP id
- hu9-20020a056214234900b0042c4017aeb3so5450784qvb.14
+ Thu, 17 Feb 2022 19:02:36 +0000 (UTC)
+Received: by mail-oi1-x22f.google.com with SMTP id q5so624410oij.6
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Feb 2022 06:30:28 -0800 (PST)
+ Thu, 17 Feb 2022 11:02:36 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=daynix-com.20210112.gappssmtp.com; s=20210112;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=eWO8Q+uI+0ihSwYJ6Zt8etN6DM2sOHrGeWR+2eej5uA=;
+ b=WsgCMHBjoWD30X7I4vRhE0Pyb2PhqNzgiAyBJMP/BkiSybh3YyMwvipCuNYRTtqwMl
+ 9WHavxlvXgBg6u3N5aJqaqF7mjPYlDpQ47T61l4kvfnD630VJ5R4Wzm+fxn43l50xexx
+ 5gZukb7zGHSFQVH9ltIMqBXY7KspA1S18cKiCMd0zCkcIDISEp6fsq6PT8ESKSpkeUU+
+ yzO4PrDjy9V5V2uF4g90P8Ykp+KU4AKTc/cgDIqJOPK7JzAYcZwCM8jr2Px04nduVVMo
+ hPXert3+N1Hm8tAQa67uO/rASwLG+LWOY4kZZK8poD6ygC7vlhXP8Iqh+hcoysC+1CEQ
+ k33A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=I8Mg0Zawzb8iLXTRP4iGXQx+ghVFngEDKpSNR36LONs=;
- b=KeiGQS4SHvG8Gzx2Mq6LnjLM2/IxZpVFef4DMSOHFQaK7Fw5U7X05xyXlz6XiiPZOy
- htSR/Txe0CRUEgl8ANOKFlNrTBkBRuQ5DL1JkU9/R09SzaIiO+/7gxfwRzvqdbgLcQp1
- lehXjhgdqY/CrAx/iMmb6i3HaokwWdB0iFDL7uF9zFGBw5lZ4lCln/OgnknPmJU/8dkN
- o5I8zSOz+oLtj7+IwkmJFHm5ejWzkrnm0R82v199BnnBScaJ4UhmUxHCZPH7iLNgjcyS
- v/1RHhiP5goXbZ93kXpNMofqebl4vzepcEG094oJh9x7UgKDjcKSUdVTPmR6/bh8JpCy
- W4iA==
-X-Gm-Message-State: AOAM533AHb/rW0Ie43W43esUbU7qh1nILv72uOfCZ1VlCUz98qk0X99x
- KfmP7pYcv07RJ/e4TV9tFYBFg5zjgjmIf23g0Nykf9dOEqL/p7EKj/iniNMttbbHdq1Q1seef6H
- PvB+IKa1Ag6K6/qkquf1LutrhnZEOzYNW09vNWZF1sA==
-X-Received: by 2002:a05:6214:e6e:b0:42c:47ae:3fc6 with SMTP id
- jz14-20020a0562140e6e00b0042c47ae3fc6mr2236847qvb.17.1645108227682; 
- Thu, 17 Feb 2022 06:30:27 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwOTVuqdLPw6ZhB/cmq9wC9kbP+29WSlDiHADWZpzLBvhvaL8RlSP+/TYxFvL4euXWKUsFqUA==
-X-Received: by 2002:a05:6214:e6e:b0:42c:47ae:3fc6 with SMTP id
- jz14-20020a0562140e6e00b0042c47ae3fc6mr2236825qvb.17.1645108227355; 
- Thu, 17 Feb 2022 06:30:27 -0800 (PST)
-Received: from sgarzare-redhat (host-95-248-229-156.retail.telecomitalia.it.
- [95.248.229.156])
- by smtp.gmail.com with ESMTPSA id bl34sm18072851qkb.15.2022.02.17.06.30.25
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 17 Feb 2022 06:30:26 -0800 (PST)
-Date: Thu, 17 Feb 2022 15:30:21 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Seth Forshee <sforshee@digitalocean.com>
-Subject: Re: [PATCH v2] vsock: remove vsock from connected table when connect
- is interrupted by a signal
-Message-ID: <20220217143021.ylu2ymjytrwdmwmu@sgarzare-redhat>
-References: <20220217141312.2297547-1-sforshee@digitalocean.com>
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=eWO8Q+uI+0ihSwYJ6Zt8etN6DM2sOHrGeWR+2eej5uA=;
+ b=jym7vZmeBCvh9T4iOdh/YNs6z3sIH3aGRFX9lbJb0HnLnvnprzZqy+VIgZgSvPnivP
+ 0KGVO0vGiemFTZM5VgtZUt/YyO/r2LVEWJLIW8YtbnyqvQukeUo21H1WAlt+J+5OHZ5D
+ O4lvsiZ49znn7DdAek5khxuwvZVHb9dhabPTTFpoGPi3QwNkb5rwH+1LCHEXvTJ0mP0s
+ KJ4z0rhu1cGkOygp+RpJKg6TNdaUbruqbjzddFX/ZCeU5yLsFNEtUjjJQGasdYfYPvEh
+ m4SQbnlsoFIVmRDxYXJYsTjPhbBZvTjNFhQUN72Ackejcft3YkzijoNROP+tmmoQpt3x
+ yK2Q==
+X-Gm-Message-State: AOAM53113/l3fSJ6GZUkFzZAPiZTBoY53v9yURylrDr00vn9OAImsW1k
+ yQBjrhK+OIWhHhldqECD0PHPpIh7IDOG+TJfRTVIHQ==
+X-Google-Smtp-Source: ABdhPJzl9kNKhILG8v7zritQHbJzshHEmz6JS+nWZBAN1tDVjRVOLX2ZZBrJPHsTSzu1JnaQAdFNGFv7ngSqEJdk99Y=
+X-Received: by 2002:a05:6808:2096:b0:2ca:f505:6358 with SMTP id
+ s22-20020a056808209600b002caf5056358mr3402657oiw.35.1645124555492; Thu, 17
+ Feb 2022 11:02:35 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20220217141312.2297547-1-sforshee@digitalocean.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
- "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org
+References: <20220208181510.787069-1-andrew@daynix.com>
+ <20220208181510.787069-3-andrew@daynix.com>
+ <CA+FuTSfPq-052=D3GzibMjUNXEcHTz=p87vW_3qU0OH9dDHSPQ@mail.gmail.com>
+ <CABcq3pFLXUMi3ctr6WyJMaXbPjKregTzQ2fG1fwDU7tvk2uRFg@mail.gmail.com>
+ <CA+FuTSfJS6b3ba7eW_u4TAHCq=ctpHDJUrb-Yc3iDwpJHHuBMw@mail.gmail.com>
+In-Reply-To: <CA+FuTSfJS6b3ba7eW_u4TAHCq=ctpHDJUrb-Yc3iDwpJHHuBMw@mail.gmail.com>
+From: Andrew Melnichenko <andrew@daynix.com>
+Date: Thu, 17 Feb 2022 21:02:24 +0200
+Message-ID: <CABcq3pE9ewELP0xW-BxFCjTUPBf9LFzmde4tMf1Szivb8nMp7g@mail.gmail.com>
+Subject: Re: [PATCH v3 2/4] drivers/net/virtio_net: Added basic RSS support.
+To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+ Network Development <netdev@vger.kernel.org>,
+ LKML <linux-kernel@vger.kernel.org>,
+ virtualization <virtualization@lists.linux-foundation.org>,
+ Yuri Benditovich <yuri.benditovich@daynix.com>,
+ Yan Vugenfirer <yan@daynix.com>, Jakub Kicinski <kuba@kernel.org>,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -113,55 +101,115 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Feb 17, 2022 at 08:13:12AM -0600, Seth Forshee wrote:
->vsock_connect() expects that the socket could already be in the
->TCP_ESTABLISHED state when the connecting task wakes up with a signal
->pending. If this happens the socket will be in the connected table, and
->it is not removed when the socket state is reset. In this situation it's
->common for the process to retry connect(), and if the connection is
->successful the socket will be added to the connected table a second
->time, corrupting the list.
->
->Prevent this by calling vsock_remove_connected() if a signal is received
->while waiting for a connection. This is harmless if the socket is not in
->the connected table, and if it is in the table then removing it will
->prevent list corruption from a double add.
->
->Note for backporting: this patch requires d5afa82c977e ("vsock: correct
->removal of socket from the list"), which is in all current stable trees
->except 4.9.y.
->
->Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
->Signed-off-by: Seth Forshee <sforshee@digitalocean.com>
->---
->v2: Add Fixes tag and backporting notes.
->---
-> net/vmw_vsock/af_vsock.c | 1 +
-> 1 file changed, 1 insertion(+)
->
->diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
->index 3235261f138d..38baeb189d4e 100644
->--- a/net/vmw_vsock/af_vsock.c
->+++ b/net/vmw_vsock/af_vsock.c
->@@ -1401,6 +1401,7 @@ static int vsock_connect(struct socket *sock, struct sockaddr *addr,
-> 			sk->sk_state = sk->sk_state == TCP_ESTABLISHED ? TCP_CLOSING : TCP_CLOSE;
-> 			sock->state = SS_UNCONNECTED;
-> 			vsock_transport_cancel_pkt(vsk);
->+			vsock_remove_connected(vsk);
-> 			goto out_wait;
-> 		} else if (timeout == 0) {
-> 			err = -ETIMEDOUT;
->-- 
->2.32.0
->
+Hi all,
 
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+On Mon, Feb 14, 2022 at 12:09 AM Willem de Bruijn
+<willemdebruijn.kernel@gmail.com> wrote:
+>
+> > > > @@ -3113,13 +3270,14 @@ static int virtnet_probe(struct virtio_device *vdev)
+> > > >         u16 max_queue_pairs;
+> > > >         int mtu;
+> > > >
+> > > > -       /* Find if host supports multiqueue virtio_net device */
+> > > > -       err = virtio_cread_feature(vdev, VIRTIO_NET_F_MQ,
+> > > > -                                  struct virtio_net_config,
+> > > > -                                  max_virtqueue_pairs, &max_queue_pairs);
+> > > > +       /* Find if host supports multiqueue/rss virtio_net device */
+> > > > +       max_queue_pairs = 1;
+> > > > +       if (virtio_has_feature(vdev, VIRTIO_NET_F_MQ) || virtio_has_feature(vdev, VIRTIO_NET_F_RSS))
+> > > > +               max_queue_pairs =
+> > > > +                    virtio_cread16(vdev, offsetof(struct virtio_net_config, max_virtqueue_pairs));
+> > >
+> > > Instead of testing either feature and treating them as somewhat equal,
+> > > shouldn't RSS be dependent on MQ?
+> >
+> > No, RSS is dependent on CTRL_VQ. Technically RSS and MQ are similar features.
+>
+> RSS depends on having multiple queues.
+>
+> What would enabling VIRTIO_NET_F_RSS without VIRTIO_NET_F_MQ do?
 
+RSS would work.
+
+According to virtio spec article 5.1.6.5.5:
+> A device MAY support one of these features or both. The driver MAY negotiate any set of these features
+> that the device supports.
+
+Also, in 5.1.3.1:
+> VIRTIO_NET_F_RSS Requires VIRTIO_NET_F_CTRL_VQ.
+
+>
+> > >
+> > > >
+> > > >         /* We need at least 2 queue's */
+> > > > -       if (err || max_queue_pairs < VIRTIO_NET_CTRL_MQ_VQ_PAIRS_MIN ||
+> > > > +       if (max_queue_pairs < VIRTIO_NET_CTRL_MQ_VQ_PAIRS_MIN ||
+> > > >             max_queue_pairs > VIRTIO_NET_CTRL_MQ_VQ_PAIRS_MAX ||
+> > > >             !virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_VQ))
+> > > >                 max_queue_pairs = 1;
+> > > > @@ -3207,6 +3365,23 @@ static int virtnet_probe(struct virtio_device *vdev)
+> > > >         if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF))
+> > > >                 vi->mergeable_rx_bufs = true;
+> > > >
+> > > > +       if (virtio_has_feature(vdev, VIRTIO_NET_F_RSS)) {
+> > > > +               vi->has_rss = true;
+> > > > +               vi->rss_indir_table_size =
+> > > > +                       virtio_cread16(vdev, offsetof(struct virtio_net_config,
+> > > > +                               rss_max_indirection_table_length));
+> > > > +               vi->rss_key_size =
+> > > > +                       virtio_cread8(vdev, offsetof(struct virtio_net_config, rss_max_key_size));
+> > > > +
+> > > > +               vi->rss_hash_types_supported =
+> > > > +                   virtio_cread32(vdev, offsetof(struct virtio_net_config, supported_hash_types));
+> > > > +               vi->rss_hash_types_supported &=
+> > > > +                               ~(VIRTIO_NET_RSS_HASH_TYPE_IP_EX |
+> > > > +                                 VIRTIO_NET_RSS_HASH_TYPE_TCP_EX |
+> > > > +                                 VIRTIO_NET_RSS_HASH_TYPE_UDP_EX);
+> > > > +
+> > > > +               dev->hw_features |= NETIF_F_RXHASH;
+> > >
+> > > Only make the feature visible when the hash is actually reported in
+> > > the skb, patch 3.
+> >
+> > VirtioNET has two features: RSS(steering only) and hash(hash report in
+> > vnet header)
+> > Both features may be enabled/disabled separately:
+> > 1. rss on and hash off - packets steered to the corresponding vqs
+> > 2. rss off and hash on - packets steered by tap(like mq) but headers
+> > have properly calculated hash.
+> > 3. rss on and hash on - packets steered to corresponding vqs and hash
+> > is present in the header.
+> >
+> > RXHASH feature allows the user to enable/disable the rss/hash(any combination).
+>
+> I find that confusing, but.. I see that there is prior art where some
+> drivers enable/disable entire RSS load balancing based on this flag.
+> So ok.
+>
+> > I think it's a good idea to leave RXHASH in patch 2/4 to give the user
+> > ability to manipulate the rss only feature.
+> > But, if you think that it requires to move it to the 3/4, I'll do it.
+> >
+> > >
+> > > Also, clearly separate the feature patches (2) rss, (3) rxhash, (4)
+> > > rxhash config.
+> >
+> > Currently:
+> > Patch 2/4 - adds VirtioNet rss feature.
+> > Patch 3/4 - adds VirtioNet hash report feature.
+> > Patch 4/4 - adds the ability to manipulate supported hash types.
+> >
+> > Can you provide more detailed suggestions on how to move hunks?
+>
+> I gave one in the follow-on patch, to which you responded. That's probably it.
+
+I'll add zero size table check and move hunk for padded header length
+from 3/4 to 1/4.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
