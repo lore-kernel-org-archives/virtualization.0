@@ -1,95 +1,109 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id AAE26C433F5
-	for <virtualization@archiver.kernel.org>; Thu, 17 Feb 2022 19:02:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id BEEFAC433F5
+	for <virtualization@archiver.kernel.org>; Thu, 17 Feb 2022 21:45:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 365BD41E6F;
-	Thu, 17 Feb 2022 19:02:41 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 538BC83DF8;
+	Thu, 17 Feb 2022 21:45:55 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 2Jy37quIqIPp; Thu, 17 Feb 2022 19:02:40 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 621B3402BC;
-	Thu, 17 Feb 2022 19:02:39 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 36CD9C0011;
-	Thu, 17 Feb 2022 19:02:39 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A46DDC000B
- for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Feb 2022 19:02:37 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 83F0F83F26
- for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Feb 2022 19:02:37 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=daynix-com.20210112.gappssmtp.com
 Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id lrJasaSaiq1w
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id RsEno_ISGXy9; Thu, 17 Feb 2022 21:45:54 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id BF8C581B35;
+	Thu, 17 Feb 2022 21:45:53 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 64FFBC0021;
+	Thu, 17 Feb 2022 21:45:53 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5F24DC000B
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Feb 2022 19:02:36 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-oi1-x22f.google.com (mail-oi1-x22f.google.com
- [IPv6:2607:f8b0:4864:20::22f])
- by smtp1.osuosl.org (Postfix) with ESMTPS id A861F83F22
+ Thu, 17 Feb 2022 21:45:52 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 3D47D6F6FE
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Feb 2022 19:02:36 +0000 (UTC)
-Received: by mail-oi1-x22f.google.com with SMTP id q5so624410oij.6
+ Thu, 17 Feb 2022 21:45:52 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id GMK74irRr1J0
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Feb 2022 11:02:36 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=daynix-com.20210112.gappssmtp.com; s=20210112;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=eWO8Q+uI+0ihSwYJ6Zt8etN6DM2sOHrGeWR+2eej5uA=;
- b=WsgCMHBjoWD30X7I4vRhE0Pyb2PhqNzgiAyBJMP/BkiSybh3YyMwvipCuNYRTtqwMl
- 9WHavxlvXgBg6u3N5aJqaqF7mjPYlDpQ47T61l4kvfnD630VJ5R4Wzm+fxn43l50xexx
- 5gZukb7zGHSFQVH9ltIMqBXY7KspA1S18cKiCMd0zCkcIDISEp6fsq6PT8ESKSpkeUU+
- yzO4PrDjy9V5V2uF4g90P8Ykp+KU4AKTc/cgDIqJOPK7JzAYcZwCM8jr2Px04nduVVMo
- hPXert3+N1Hm8tAQa67uO/rASwLG+LWOY4kZZK8poD6ygC7vlhXP8Iqh+hcoysC+1CEQ
- k33A==
+ Thu, 17 Feb 2022 21:45:51 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 6F2BE61C50
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 17 Feb 2022 21:45:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1645134350;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=nj4FalB6xoie1yj2BhEvitAxGiZEQy+yTjT2u4pERlM=;
+ b=e7joZCjavB92D2/odM62imLaN0matj94oyGxqE7K8EZSmjwuvEXH4JKdh0o0uy9WOHPvBP
+ eLbNMz+fNOe0EeePMMbJ0tMmLDTchdvU2KRKGewNNgpzg/0w3SYEmSm78YasK6z8vEbILW
+ HTIAa/gScqUdvzEbMXd1nkiMWbfXuoA=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-389-L5a2FpbtN4S3_nuwxzLDWw-1; Thu, 17 Feb 2022 16:45:49 -0500
+X-MC-Unique: L5a2FpbtN4S3_nuwxzLDWw-1
+Received: by mail-ed1-f72.google.com with SMTP id
+ g5-20020a056402090500b0040f28e1da47so4344810edz.8
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 17 Feb 2022 13:45:48 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=eWO8Q+uI+0ihSwYJ6Zt8etN6DM2sOHrGeWR+2eej5uA=;
- b=jym7vZmeBCvh9T4iOdh/YNs6z3sIH3aGRFX9lbJb0HnLnvnprzZqy+VIgZgSvPnivP
- 0KGVO0vGiemFTZM5VgtZUt/YyO/r2LVEWJLIW8YtbnyqvQukeUo21H1WAlt+J+5OHZ5D
- O4lvsiZ49znn7DdAek5khxuwvZVHb9dhabPTTFpoGPi3QwNkb5rwH+1LCHEXvTJ0mP0s
- KJ4z0rhu1cGkOygp+RpJKg6TNdaUbruqbjzddFX/ZCeU5yLsFNEtUjjJQGasdYfYPvEh
- m4SQbnlsoFIVmRDxYXJYsTjPhbBZvTjNFhQUN72Ackejcft3YkzijoNROP+tmmoQpt3x
- yK2Q==
-X-Gm-Message-State: AOAM53113/l3fSJ6GZUkFzZAPiZTBoY53v9yURylrDr00vn9OAImsW1k
- yQBjrhK+OIWhHhldqECD0PHPpIh7IDOG+TJfRTVIHQ==
-X-Google-Smtp-Source: ABdhPJzl9kNKhILG8v7zritQHbJzshHEmz6JS+nWZBAN1tDVjRVOLX2ZZBrJPHsTSzu1JnaQAdFNGFv7ngSqEJdk99Y=
-X-Received: by 2002:a05:6808:2096:b0:2ca:f505:6358 with SMTP id
- s22-20020a056808209600b002caf5056358mr3402657oiw.35.1645124555492; Thu, 17
- Feb 2022 11:02:35 -0800 (PST)
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=nj4FalB6xoie1yj2BhEvitAxGiZEQy+yTjT2u4pERlM=;
+ b=oS9bWoRROeE5q+mKhkz2hjaL3e2+/w7XeB0FeqRvBi662l1MSYCVAPZTVftKJHxjs5
+ YiHyj24vcJhWBqRpvrLm+XB7Jv+en/N2kfwJDJ2HLntsyfW0XfizcgoltEbbNh/8oDBW
+ 8QIkQ0ler7v7mBv0CHx1Fv3Lr6fPcUxnE7LKq/7ju6ZIA904EuIhkJKqGi4apSi4sk1X
+ TJ0rXu9YX+uNNeH64t7aCqcB0PbQX912pHK1CC0mrVj2Q6uIJIxWjjSCbeuDGW+7P0dY
+ yi0T+m1pk6t5jmqZNSZ8KjX6S1UQAXzi6XtnGn8s0v5AEVOl9Q0YwQbLCGMXerMG0NtO
+ ewPQ==
+X-Gm-Message-State: AOAM5314BnbIVoEkVc3dXRDwwPqo698Xip96mkuadrmHppY/N6WWjvPS
+ SX7O5uu9bWUgt1PqsCnrKeJk0iFF7N/7FPErMDdtqRhf9jmrWnHB8KCzl+H7gxAgYSJu8HhY1KF
+ +xo0K11GuFI2BgpZ6WSgywlKeYM/OMQPTotqWxdWA7g==
+X-Received: by 2002:a17:906:d977:b0:6ce:7097:b8ab with SMTP id
+ rp23-20020a170906d97700b006ce7097b8abmr3818000ejb.766.1645134347892; 
+ Thu, 17 Feb 2022 13:45:47 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzJazbRh9bE5kMHBhaitWBnbfRyqZ7X89hoRVLQ5975AFcbMobjPlecHxxnXrftMs1acIovdg==
+X-Received: by 2002:a17:906:d977:b0:6ce:7097:b8ab with SMTP id
+ rp23-20020a170906d97700b006ce7097b8abmr3817983ejb.766.1645134347621; 
+ Thu, 17 Feb 2022 13:45:47 -0800 (PST)
+Received: from redhat.com ([2.55.156.211])
+ by smtp.gmail.com with ESMTPSA id ek21sm3532878edb.27.2022.02.17.13.45.45
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 17 Feb 2022 13:45:46 -0800 (PST)
+Date: Thu, 17 Feb 2022 16:45:43 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Edward Cree <edward.cree@xilinx.com>
+Subject: Re: [PATCH] virtio: Add definition for VIRTIO_F_NOTIFICATION_DATA
+ feature flag
+Message-ID: <20220217164356-mutt-send-email-mst@kernel.org>
+References: <20220217095545.195426-1-elic@nvidia.com>
+ <20220217064512-mutt-send-email-mst@kernel.org>
+ <b52aebae-44c8-fb4a-f7f3-6da7cd4075fc@xilinx.com>
 MIME-Version: 1.0
-References: <20220208181510.787069-1-andrew@daynix.com>
- <20220208181510.787069-3-andrew@daynix.com>
- <CA+FuTSfPq-052=D3GzibMjUNXEcHTz=p87vW_3qU0OH9dDHSPQ@mail.gmail.com>
- <CABcq3pFLXUMi3ctr6WyJMaXbPjKregTzQ2fG1fwDU7tvk2uRFg@mail.gmail.com>
- <CA+FuTSfJS6b3ba7eW_u4TAHCq=ctpHDJUrb-Yc3iDwpJHHuBMw@mail.gmail.com>
-In-Reply-To: <CA+FuTSfJS6b3ba7eW_u4TAHCq=ctpHDJUrb-Yc3iDwpJHHuBMw@mail.gmail.com>
-From: Andrew Melnichenko <andrew@daynix.com>
-Date: Thu, 17 Feb 2022 21:02:24 +0200
-Message-ID: <CABcq3pE9ewELP0xW-BxFCjTUPBf9LFzmde4tMf1Szivb8nMp7g@mail.gmail.com>
-Subject: Re: [PATCH v3 2/4] drivers/net/virtio_net: Added basic RSS support.
-To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
- Network Development <netdev@vger.kernel.org>,
- LKML <linux-kernel@vger.kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>,
- Yuri Benditovich <yuri.benditovich@daynix.com>,
- Yan Vugenfirer <yan@daynix.com>, Jakub Kicinski <kuba@kernel.org>,
- "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <b52aebae-44c8-fb4a-f7f3-6da7cd4075fc@xilinx.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: lvivier@redhat.com, gdawar@xilinx.com,
+ virtualization@lists.linux-foundation.org, stephen@networkplumber.org,
+ eperezma@redhat.com, si-wei.liu@oracle.com, Eli Cohen <elic@nvidia.com>,
+ radovano@xilinx.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -106,110 +120,85 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi all,
+On Thu, Feb 17, 2022 at 06:22:25PM +0000, Edward Cree wrote:
+> On 17/02/2022 11:49, Michael S. Tsirkin wrote:
+> > On Thu, Feb 17, 2022 at 11:55:45AM +0200, Eli Cohen wrote:
+> >> This is required by iproute2 to display the capabilities of a vdpa based
+> >> virtio device.
+> >>
+> >> Previously, drivers/net/ethernet/sfc/mcdi_pcol.h made use of a private
+> >> definition of this flag. Modify the definition to rely on the new
+> >> generic definition.
+> >>
+> >> Signed-off-by: Eli Cohen <elic@nvidia.com>
+> >> ---
+> >>  drivers/net/ethernet/sfc/mcdi_pcol.h | 2 +-
+> >>  include/uapi/linux/virtio_config.h   | 6 ++++++
+> >>  2 files changed, 7 insertions(+), 1 deletion(-)
+> >>
+> >> diff --git a/drivers/net/ethernet/sfc/mcdi_pcol.h b/drivers/net/ethernet/sfc/mcdi_pcol.h
+> >> index d3fcbf930dba..2603e04dae06 100644
+> >> --- a/drivers/net/ethernet/sfc/mcdi_pcol.h
+> >> +++ b/drivers/net/ethernet/sfc/mcdi_pcol.h
+> >> @@ -21477,7 +21477,7 @@
+> >>  #define        VIRTIO_BLK_CONFIG_VIRTIO_F_SR_IOV_LBN 37
+> >>  #define        VIRTIO_BLK_CONFIG_VIRTIO_F_SR_IOV_WIDTH 1
+> >>  #define        VIRTIO_BLK_CONFIG_VIRTIO_F_NOTIFICATION_DATA_OFST 0
+> >> -#define        VIRTIO_BLK_CONFIG_VIRTIO_F_NOTIFICATION_DATA_LBN 38
+> >> +#define        VIRTIO_BLK_CONFIG_VIRTIO_F_NOTIFICATION_DATA_LBN VIRTIO_F_NOTIFICATION_DATA
+> >>  #define        VIRTIO_BLK_CONFIG_VIRTIO_F_NOTIFICATION_DATA_WIDTH 1
+> >>  #define       VIRTIO_BLK_CONFIG_FEATURES_LBN 0
+> >>  #define       VIRTIO_BLK_CONFIG_FEATURES_WIDTH 64
+> > 
+> > I don't think we need to bother with macros in mcdi_pcol.h - that header
+> > is generated by some kind of script, this probably is why it has
+> > all these macros that are otherwise unused.
+> > 
+> > Cc Edward Cree who added them - Edward, is there a way to
+> > get rid of VIRTIO_ macros inmcdi_pcol.h?
+> 
+> mcdi_pcol.h is indeed generated, and is shared with the MCPU firmware
+>  which implements the other side of the MCDI protocol, so I don't know
+>  whether we'd be able to carry these kind of changes; every difference
+>  between the upstream and internal/fw versions makes for ongoing
+>  maintenance pain.  (And obviously Linux' virtio_config.h isn't
+>  available to our firmware build.)
+> Do these macro definitions lead to any immediate conflicts (if both
+>  headers are included), or is it just the worry that conflicts could
+>  arise in the future since these #defines aren't EFX_ namespaced?
 
-On Mon, Feb 14, 2022 at 12:09 AM Willem de Bruijn
-<willemdebruijn.kernel@gmail.com> wrote:
->
-> > > > @@ -3113,13 +3270,14 @@ static int virtnet_probe(struct virtio_device *vdev)
-> > > >         u16 max_queue_pairs;
-> > > >         int mtu;
-> > > >
-> > > > -       /* Find if host supports multiqueue virtio_net device */
-> > > > -       err = virtio_cread_feature(vdev, VIRTIO_NET_F_MQ,
-> > > > -                                  struct virtio_net_config,
-> > > > -                                  max_virtqueue_pairs, &max_queue_pairs);
-> > > > +       /* Find if host supports multiqueue/rss virtio_net device */
-> > > > +       max_queue_pairs = 1;
-> > > > +       if (virtio_has_feature(vdev, VIRTIO_NET_F_MQ) || virtio_has_feature(vdev, VIRTIO_NET_F_RSS))
-> > > > +               max_queue_pairs =
-> > > > +                    virtio_cread16(vdev, offsetof(struct virtio_net_config, max_virtqueue_pairs));
-> > >
-> > > Instead of testing either feature and treating them as somewhat equal,
-> > > shouldn't RSS be dependent on MQ?
-> >
-> > No, RSS is dependent on CTRL_VQ. Technically RSS and MQ are similar features.
->
-> RSS depends on having multiple queues.
->
-> What would enabling VIRTIO_NET_F_RSS without VIRTIO_NET_F_MQ do?
+The latter. One simple way would be ifndef __KERNEL__ around virtio
+things in the header.
 
-RSS would work.
+> If the latter, I would be tempted to leave well alone for now; only
+>  sfc driver code is ever likely to #include mcdi_pcol.h, so a proper
+>  resolution can safely wait until sfc vDPA support is upstreamed.
+> CCing Aleksandar Radovanovic who originally added them internally, in
+>  case he has anything to add.  Also CCing Gautam Dawar who is working
+>  on vDPA support in the sfc driver.
+> 
+> -ed
+> 
+> > 
+> >> diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
+> >> index b5eda06f0d57..30eb76dcdcad 100644
+> >> --- a/include/uapi/linux/virtio_config.h
+> >> +++ b/include/uapi/linux/virtio_config.h
+> >> @@ -92,4 +92,10 @@
+> >>   * Does the device support Single Root I/O Virtualization?
+> >>   */
+> >>  #define VIRTIO_F_SR_IOV			37
+> >> +
+> >> +/* When negotiated, indicates that the driver can pass extra data beyond
+> >> + * virtqueue identification when sending notifications
+> >> + */
+> >> +#define VIRTIO_F_NOTIFICATION_DATA	38
+> >> +
+> >>  #endif /* _UAPI_LINUX_VIRTIO_CONFIG_H */
+> >> -- 
+> >> 2.32.0
+> > 
 
-According to virtio spec article 5.1.6.5.5:
-> A device MAY support one of these features or both. The driver MAY negotiate any set of these features
-> that the device supports.
-
-Also, in 5.1.3.1:
-> VIRTIO_NET_F_RSS Requires VIRTIO_NET_F_CTRL_VQ.
-
->
-> > >
-> > > >
-> > > >         /* We need at least 2 queue's */
-> > > > -       if (err || max_queue_pairs < VIRTIO_NET_CTRL_MQ_VQ_PAIRS_MIN ||
-> > > > +       if (max_queue_pairs < VIRTIO_NET_CTRL_MQ_VQ_PAIRS_MIN ||
-> > > >             max_queue_pairs > VIRTIO_NET_CTRL_MQ_VQ_PAIRS_MAX ||
-> > > >             !virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_VQ))
-> > > >                 max_queue_pairs = 1;
-> > > > @@ -3207,6 +3365,23 @@ static int virtnet_probe(struct virtio_device *vdev)
-> > > >         if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF))
-> > > >                 vi->mergeable_rx_bufs = true;
-> > > >
-> > > > +       if (virtio_has_feature(vdev, VIRTIO_NET_F_RSS)) {
-> > > > +               vi->has_rss = true;
-> > > > +               vi->rss_indir_table_size =
-> > > > +                       virtio_cread16(vdev, offsetof(struct virtio_net_config,
-> > > > +                               rss_max_indirection_table_length));
-> > > > +               vi->rss_key_size =
-> > > > +                       virtio_cread8(vdev, offsetof(struct virtio_net_config, rss_max_key_size));
-> > > > +
-> > > > +               vi->rss_hash_types_supported =
-> > > > +                   virtio_cread32(vdev, offsetof(struct virtio_net_config, supported_hash_types));
-> > > > +               vi->rss_hash_types_supported &=
-> > > > +                               ~(VIRTIO_NET_RSS_HASH_TYPE_IP_EX |
-> > > > +                                 VIRTIO_NET_RSS_HASH_TYPE_TCP_EX |
-> > > > +                                 VIRTIO_NET_RSS_HASH_TYPE_UDP_EX);
-> > > > +
-> > > > +               dev->hw_features |= NETIF_F_RXHASH;
-> > >
-> > > Only make the feature visible when the hash is actually reported in
-> > > the skb, patch 3.
-> >
-> > VirtioNET has two features: RSS(steering only) and hash(hash report in
-> > vnet header)
-> > Both features may be enabled/disabled separately:
-> > 1. rss on and hash off - packets steered to the corresponding vqs
-> > 2. rss off and hash on - packets steered by tap(like mq) but headers
-> > have properly calculated hash.
-> > 3. rss on and hash on - packets steered to corresponding vqs and hash
-> > is present in the header.
-> >
-> > RXHASH feature allows the user to enable/disable the rss/hash(any combination).
->
-> I find that confusing, but.. I see that there is prior art where some
-> drivers enable/disable entire RSS load balancing based on this flag.
-> So ok.
->
-> > I think it's a good idea to leave RXHASH in patch 2/4 to give the user
-> > ability to manipulate the rss only feature.
-> > But, if you think that it requires to move it to the 3/4, I'll do it.
-> >
-> > >
-> > > Also, clearly separate the feature patches (2) rss, (3) rxhash, (4)
-> > > rxhash config.
-> >
-> > Currently:
-> > Patch 2/4 - adds VirtioNet rss feature.
-> > Patch 3/4 - adds VirtioNet hash report feature.
-> > Patch 4/4 - adds the ability to manipulate supported hash types.
-> >
-> > Can you provide more detailed suggestions on how to move hunks?
->
-> I gave one in the follow-on patch, to which you responded. That's probably it.
-
-I'll add zero size table check and move hunk for padded header length
-from 3/4 to 1/4.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
