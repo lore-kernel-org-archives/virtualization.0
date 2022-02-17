@@ -1,110 +1,108 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9E61EC433FE
-	for <virtualization@archiver.kernel.org>; Thu, 17 Feb 2022 07:50:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 04F21C433FE
+	for <virtualization@archiver.kernel.org>; Thu, 17 Feb 2022 08:34:28 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 3C1E1417CB;
-	Thu, 17 Feb 2022 07:50:45 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 9DDC482A56;
+	Thu, 17 Feb 2022 08:34:28 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 18j00bJ3uNfi; Thu, 17 Feb 2022 07:50:44 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id TXRMC8YW-2Mf; Thu, 17 Feb 2022 08:34:27 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id B7603416BC;
-	Thu, 17 Feb 2022 07:50:43 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 410738284B;
+	Thu, 17 Feb 2022 08:34:27 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 74C67C002D;
-	Thu, 17 Feb 2022 07:50:43 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 07710C0011
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0C973C0011;
+	Thu, 17 Feb 2022 08:34:27 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B9B99C000B
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Feb 2022 07:50:42 +0000 (UTC)
+ Thu, 17 Feb 2022 08:34:25 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id E76E541E15
+ by smtp4.osuosl.org (Postfix) with ESMTP id A0DA0409C0
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Feb 2022 07:50:41 +0000 (UTC)
+ Thu, 17 Feb 2022 08:34:25 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Mw4FdaTdEtJl
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id wn_7Smq4REqo
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Feb 2022 07:50:40 +0000 (UTC)
+ Thu, 17 Feb 2022 08:34:25 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 6DAE541DF5
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id E32FE40995
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Feb 2022 07:50:40 +0000 (UTC)
+ Thu, 17 Feb 2022 08:34:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1645084239;
+ s=mimecast20190719; t=1645086863;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=w+SWlmqdTXW/vwpa/W1PTCZvRCAVwOXfVJtRO06yo4I=;
- b=ho7QwbmyVuIhelj0M8X4yRv8Fm34cn9sVwOBMbBrxDj01o4t4FrVWwJbZCKqv2OE1FmyAO
- NC2gLcYQrpzFsXgEHHvlYQhauCccjLwS6P/MCN4uiHGe7EwOaAaq7LLs8rkOVP3KzxBW/5
- j1pexuCy6PUJPg2ktD0UwVW+atlAE6Q=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=Hhpl+rzufZ4HpgJzL8RSu4UiBBIjnQJwZAboaAQxVZk=;
+ b=JLPKoBNMBZ04PZs36ZPLUmTI04olUKV6Tuam1EgUgH7D9uuVnwcut8N06csD+w8sy4uDF3
+ TRiL7Xvuz6NlhezHI/Qcl9ucBBSxa02i7r3OYiqlkDnFKplU6pZ2/QA7irp2+lEbThcghm
+ yXz+0qxg64Jr+EN4GUFPupxysXtobMQ=
+Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
+ [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-286-vYL8LN9eNaeHH25NBm2eTA-1; Thu, 17 Feb 2022 02:50:35 -0500
-X-MC-Unique: vYL8LN9eNaeHH25NBm2eTA-1
-Received: by mail-wm1-f71.google.com with SMTP id
- r16-20020a05600c2c5000b0037bb20c50b8so1314239wmg.3
+ us-mta-189-IGHeEJSePvCEv_RTxGxRNA-1; Thu, 17 Feb 2022 03:34:19 -0500
+X-MC-Unique: IGHeEJSePvCEv_RTxGxRNA-1
+Received: by mail-ed1-f69.google.com with SMTP id
+ k5-20020a508ac5000000b00408dec8390aso3065873edk.13
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Feb 2022 23:50:35 -0800 (PST)
+ Thu, 17 Feb 2022 00:34:19 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=w+SWlmqdTXW/vwpa/W1PTCZvRCAVwOXfVJtRO06yo4I=;
- b=uCYR28GI8lfHOj5YGZL8k6EiC9tvvuzGKQyNUzeMLd08l+9O7SQqswWbLk79lhgk8a
- +QLyX7pPfup7WTXTf/46MhJuXEuqA4aEfR1vNbKbO2NN6gKTqe4Ru8l7GBDuJP94Imxq
- Kx9cd6EGIUq9RQsgrDZ+xYTgPJ9hGFHxXCnRTgpz33OSsG2N/nq3hfsXMzSKe4UePVw2
- 2Tptv4SieUKQ8vbveesJXOKK/o8sziTzpl6rlZR8Boxvf0aX2TrgaNE66mthUUmkNhOd
- /VnDpoBdD4gxvnrnbJNvtTh65bD83pq9izE8an52TAsNuadsDnBjvoQL9XwnmJqNZcKx
- a0BA==
-X-Gm-Message-State: AOAM531SbR4Kpm1RVwVsd5OAxtZSi9/+JDhsA7K2zJZ3m1eDRHQWLDuA
- S8o7gFJYJ8WvvHUAuRHG+cGguoAuzrD1RuCbSRzfItNMsYruvWOGZ1OFbmD/tvAsFn1DnAPHedo
- 8vuMi7IvRXQbL7RPQssIpVRsvayxEYYwyQuD2IFcVvg==
-X-Received: by 2002:adf:9f42:0:b0:1e7:e751:9656 with SMTP id
- f2-20020adf9f42000000b001e7e7519656mr1268884wrg.590.1645084233485; 
- Wed, 16 Feb 2022 23:50:33 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJw57VwM/1catFUUkrmi2KhjRFil7J/w4QZrPWIsW6CqSvS4FYyAAEPbPH6XyQzZ/Q25yrD01w==
-X-Received: by 2002:adf:9f42:0:b0:1e7:e751:9656 with SMTP id
- f2-20020adf9f42000000b001e7e7519656mr1268862wrg.590.1645084233179; 
- Wed, 16 Feb 2022 23:50:33 -0800 (PST)
-Received: from redhat.com ([2.55.139.83])
- by smtp.gmail.com with ESMTPSA id g12sm469088wmq.28.2022.02.16.23.50.31
+ bh=Hhpl+rzufZ4HpgJzL8RSu4UiBBIjnQJwZAboaAQxVZk=;
+ b=Hu22SJLaLj8azE+5Q4qGzoI7dUsH9FnWNU3ybiP99uCXTlopBEPsBeph/7tIIwt2ay
+ U6VbQpveEwdfWCQWKbEAz+hIXifn8oMhISaVXTIaqYyLIuOEZVC+5TkFWrNW3RXm6qbD
+ yn9SMaKK/+peYC8Xgh1KPfbNuppuDWMLXknd+RF3sEyHj6pnE8T9Ywz38E5Y7eOD++mi
+ 1JjOt0e3YtEU3atpgHZ3z2Ol0CVVmxlr2SXndBKVWVb1hhQsVYI2nypWDQuwI3zEuwq0
+ JdRTnUrtjzDqF1m8KCHt54zFzKpeoDhdPjbQRpdjzz6eSv8x6YQlnVL1gVVsquLcvGAy
+ NZ7g==
+X-Gm-Message-State: AOAM5326hYRLEcUZnAj3MGRWyC1sMgzteRwXknoz1yI8o/0OsdSEFeia
+ O7Fy9gT8YYztPumTzKtdxWXM6PYgghqtvQtsGAkFtwHl6vFXnYli13DwguGmy6QO2JQG7mqpE/S
+ Dc2Qbnn/nm0Ld6MM+SX1A5akYg7b4Gtp38BxZEfodhw==
+X-Received: by 2002:a17:906:2bd7:b0:6cd:f89d:c828 with SMTP id
+ n23-20020a1709062bd700b006cdf89dc828mr1535792ejg.232.1645086858353; 
+ Thu, 17 Feb 2022 00:34:18 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzWeBziOjg1wr7D46Vg3PrFPzezNZQTlS0tbQ74/7RcIcGsZSR6aR8D0exZ1cCEkVQvZNAJMQ==
+X-Received: by 2002:a17:906:2bd7:b0:6cd:f89d:c828 with SMTP id
+ n23-20020a1709062bd700b006cdf89dc828mr1535783ejg.232.1645086858124; 
+ Thu, 17 Feb 2022 00:34:18 -0800 (PST)
+Received: from sgarzare-redhat (host-95-248-229-156.retail.telecomitalia.it.
+ [95.248.229.156])
+ by smtp.gmail.com with ESMTPSA id b4sm926960ejv.108.2022.02.17.00.34.17
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 16 Feb 2022 23:50:32 -0800 (PST)
-Date: Thu, 17 Feb 2022 02:50:29 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Subject: Re: [syzbot] WARNING in vhost_dev_cleanup (2)
-Message-ID: <20220217024359-mutt-send-email-mst@kernel.org>
-References: <0000000000006f656005d82d24e2@google.com>
- <CACGkMEsyWBBmx3g613tr97nidHd3-avMyO=WRxS8RpcEk7j2=A@mail.gmail.com>
- <20220217023550-mutt-send-email-mst@kernel.org>
- <CACGkMEtuL_4eRYYWd4aQj6rG=cJDQjjr86DWpid3o_N-6xvTWQ@mail.gmail.com>
+ Thu, 17 Feb 2022 00:34:17 -0800 (PST)
+Date: Thu, 17 Feb 2022 09:34:11 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Jakub Kicinski <kuba@kernel.org>, Seth Forshee <sforshee@digitalocean.com>
+Subject: Re: [PATCH] vsock: remove vsock from connected table when connect is
+ interrupted by a signal
+Message-ID: <20220217083411.rjb2em2vf6hcgo64@sgarzare-redhat>
+References: <20220216143222.1614690-1-sforshee@digitalocean.com>
+ <20220216161122.eacdfgljg2c6yeby@sgarzare-redhat>
+ <20220216201459.5a5b58e9@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEtuL_4eRYYWd4aQj6rG=cJDQjjr86DWpid3o_N-6xvTWQ@mail.gmail.com>
+In-Reply-To: <20220216201459.5a5b58e9@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 1
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
+X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: syzbot <syzbot+1e3ea63db39f2b4440e0@syzkaller.appspotmail.com>,
- kvm <kvm@vger.kernel.org>, netdev <netdev@vger.kernel.org>,
- syzkaller-bugs@googlegroups.com, linux-kernel <linux-kernel@vger.kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>,
- Stefan Hajnoczi <stefanha@redhat.com>
+Cc: netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -116,125 +114,78 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Feb 17, 2022 at 03:39:48PM +0800, Jason Wang wrote:
-> On Thu, Feb 17, 2022 at 3:36 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> >
-> > On Thu, Feb 17, 2022 at 03:34:13PM +0800, Jason Wang wrote:
-> > > On Thu, Feb 17, 2022 at 10:01 AM syzbot
-> > > <syzbot+1e3ea63db39f2b4440e0@syzkaller.appspotmail.com> wrote:
-> > > >
-> > > > Hello,
-> > > >
-> > > > syzbot found the following issue on:
-> > > >
-> > > > HEAD commit:    c5d9ae265b10 Merge tag 'for-linus' of git://git.kernel.org..
-> > > > git tree:       upstream
-> > > > console output: https://syzkaller.appspot.com/x/log.txt?x=132e687c700000
-> > > > kernel config:  https://syzkaller.appspot.com/x/.config?x=a78b064590b9f912
-> > > > dashboard link: https://syzkaller.appspot.com/bug?extid=1e3ea63db39f2b4440e0
-> > > > compiler:       gcc (Debian 10.2.1-6) 10.2.1 20210110, GNU ld (GNU Binutils for Debian) 2.35.2
-> > > >
-> > > > Unfortunately, I don't have any reproducer for this issue yet.
-> > > >
-> > > > IMPORTANT: if you fix the issue, please add the following tag to the commit:
-> > > > Reported-by: syzbot+1e3ea63db39f2b4440e0@syzkaller.appspotmail.com
-> > > >
-> > > > WARNING: CPU: 1 PID: 10828 at drivers/vhost/vhost.c:715 vhost_dev_cleanup+0x8b8/0xbc0 drivers/vhost/vhost.c:715
-> > > > Modules linked in:
-> > > > CPU: 0 PID: 10828 Comm: syz-executor.0 Not tainted 5.17.0-rc4-syzkaller-00051-gc5d9ae265b10 #0
-> > > > Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-> > > > RIP: 0010:vhost_dev_cleanup+0x8b8/0xbc0 drivers/vhost/vhost.c:715
-> > >
-> > > Probably a hint that we are missing a flush.
-> > >
-> > > Looking at vhost_vsock_stop() that is called by vhost_vsock_dev_release():
-> > >
-> > > static int vhost_vsock_stop(struct vhost_vsock *vsock)
-> > > {
-> > > size_t i;
-> > >         int ret;
-> > >
-> > >         mutex_lock(&vsock->dev.mutex);
-> > >
-> > >         ret = vhost_dev_check_owner(&vsock->dev);
-> > >         if (ret)
-> > >                 goto err;
-> > >
-> > > Where it could fail so the device is not actually stopped.
-> > >
-> > > I wonder if this is something related.
-> > >
-> > > Thanks
-> >
-> >
-> > But then if that is not the owner then no work should be running, right?
-> 
-> Could it be a buggy user space that passes the fd to another process
-> and changes the owner just before the mutex_lock() above?
-> 
-> Thanks
+On Wed, Feb 16, 2022 at 08:14:59PM -0800, Jakub Kicinski wrote:
+>On Wed, 16 Feb 2022 17:11:22 +0100 Stefano Garzarella wrote:
+>> On Wed, Feb 16, 2022 at 08:32:22AM -0600, Seth Forshee wrote:
+>> >vsock_connect() expects that the socket could already be in the
+>> >TCP_ESTABLISHED state when the connecting task wakes up with a signal
+>> >pending. If this happens the socket will be in the connected table, and
+>> >it is not removed when the socket state is reset. In this situation it's
+>> >common for the process to retry connect(), and if the connection is
+>> >successful the socket will be added to the connected table a second
+>> >time, corrupting the list.
+>> >
+>> >Prevent this by calling vsock_remove_connected() if a signal is received
+>> >while waiting for a connection. This is harmless if the socket is not in
+>> >the connected table, and if it is in the table then removing it will
+>> >prevent list corruption from a double add.
+>> >
+>> >Signed-off-by: Seth Forshee <sforshee@digitalocean.com>
+>> >---
+>> > net/vmw_vsock/af_vsock.c | 1 +
+>> > 1 file changed, 1 insertion(+)
+>> >
+>> >diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+>> >index 3235261f138d..38baeb189d4e 100644
+>> >--- a/net/vmw_vsock/af_vsock.c
+>> >+++ b/net/vmw_vsock/af_vsock.c
+>> >@@ -1401,6 +1401,7 @@ static int vsock_connect(struct socket *sock, struct sockaddr *addr,
+>> > 			sk->sk_state = sk->sk_state == TCP_ESTABLISHED ? TCP_CLOSING : TCP_CLOSE;
+>> > 			sock->state = SS_UNCONNECTED;
+>> > 			vsock_transport_cancel_pkt(vsk);
+>> >+			vsock_remove_connected(vsk);
+>> > 			goto out_wait;
+>> > 		} else if (timeout == 0) {
+>> > 			err = -ETIMEDOUT;
+>>
+>> Thanks for this fix! The patch LGTM:
+>>
+>> Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+>>
+>>
+>> @Dave, @Jakub, since we need this also in stable branches, I was going
+>> to suggest adding a Fixes tag, but I'm a little confused: the issue
+>> seems to have always been there, so from commit d021c344051a ("VSOCK:
+>> Introduce VM Sockets"), but to use vsock_remove_connected() as we are
+>> using in this patch, we really need commit d5afa82c977e ("vsock: correct
+>> removal of socket from the list").
+>>
+>> Commit d5afa82c977e was introduces in v5.3 and it was backported in
+>> v4.19 and v4.14, but not in v4.9.
+>> So if we want to backport this patch also for v4.9, I think we need
+>> commit d5afa82c977e as well.
+>
+>The fixes tag sounds good. Dunno what's the best way to handle this
+>case. We can add a mention of the dependency to the patch description.
+>Personally I'd keep things simple, add the Fixes tag and keep an eye
+>on the backports, if 4.9 doesn't get it - email Greg and explain.
+>
 
-Maybe, but can you be a bit more explicit? what is the set of
-conditions you see that can lead to this?
+Okay, I'll keep an eye on this patch for 4.9.
 
+@Seth, can you send a v2 mentioning the dependency with commit 
+d5afa82c977e ("vsock: correct removal of socket from the list") and 
+adding the following fixes tag?
 
-> >
-> >
-> > >
-> > > > Code: c7 85 90 01 00 00 00 00 00 00 e8 53 6e a2 fa 48 89 ef 48 83 c4 20 5b 5d 41 5c 41 5d 41 5e 41 5f e9 7d d6 ff ff e8 38 6e a2 fa <0f> 0b e9 46 ff ff ff 48 8b 7c 24 10 e8 87 00 ea fa e9 75 f7 ff ff
-> > > > RSP: 0018:ffffc9000fe6fa18 EFLAGS: 00010293
-> > > > RAX: 0000000000000000 RBX: dffffc0000000000 RCX: 0000000000000000
-> > > > RDX: ffff888021b63a00 RSI: ffffffff86d66fe8 RDI: ffff88801cc200b0
-> > > > RBP: ffff88801cc20000 R08: 0000000000000001 R09: 0000000000000001
-> > > > R10: ffffffff817f1e08 R11: 0000000000000000 R12: ffff88801cc200d0
-> > > > R13: ffff88801cc20120 R14: ffff88801cc200d0 R15: 0000000000000002
-> > > > FS:  0000000000000000(0000) GS:ffff8880b9c00000(0000) knlGS:0000000000000000
-> > > > CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> > > > CR2: 0000001b2de25000 CR3: 000000004c9cd000 CR4: 00000000003506f0
-> > > > DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-> > > > DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-> > > > Call Trace:
-> > > >  <TASK>
-> > > >  vhost_vsock_dev_release+0x36e/0x4b0 drivers/vhost/vsock.c:771
-> > > >  __fput+0x286/0x9f0 fs/file_table.c:313
-> > > >  task_work_run+0xdd/0x1a0 kernel/task_work.c:164
-> > > >  exit_task_work include/linux/task_work.h:32 [inline]
-> > > >  do_exit+0xb29/0x2a30 kernel/exit.c:806
-> > > >  do_group_exit+0xd2/0x2f0 kernel/exit.c:935
-> > > >  get_signal+0x45a/0x2490 kernel/signal.c:2863
-> > > >  arch_do_signal_or_restart+0x2a9/0x1c40 arch/x86/kernel/signal.c:868
-> > > >  handle_signal_work kernel/entry/common.c:148 [inline]
-> > > >  exit_to_user_mode_loop kernel/entry/common.c:172 [inline]
-> > > >  exit_to_user_mode_prepare+0x17d/0x290 kernel/entry/common.c:207
-> > > >  __syscall_exit_to_user_mode_work kernel/entry/common.c:289 [inline]
-> > > >  syscall_exit_to_user_mode+0x19/0x60 kernel/entry/common.c:300
-> > > >  do_syscall_64+0x42/0xb0 arch/x86/entry/common.c:86
-> > > >  entry_SYSCALL_64_after_hwframe+0x44/0xae
-> > > > RIP: 0033:0x7f4027a46481
-> > > > Code: Unable to access opcode bytes at RIP 0x7f4027a46457.
-> > > > RSP: 002b:00007f402808ba68 EFLAGS: 00000206 ORIG_RAX: 0000000000000038
-> > > > RAX: fffffffffffffffc RBX: 00007f402622e700 RCX: 00007f4027a46481
-> > > > RDX: 00007f402622e9d0 RSI: 00007f402622e2f0 RDI: 00000000003d0f00
-> > > > RBP: 00007f402808bcb0 R08: 00007f402622e700 R09: 00007f402622e700
-> > > > R10: 00007f402622e9d0 R11: 0000000000000206 R12: 00007f402808bb1e
-> > > > R13: 00007f402808bb1f R14: 00007f402622e300 R15: 0000000000022000
-> > > >  </TASK>
-> > > >
-> > > >
-> > > > ---
-> > > > This report is generated by a bot. It may contain errors.
-> > > > See https://goo.gl/tpsmEJ for more information about syzbot.
-> > > > syzbot engineers can be reached at syzkaller@googlegroups.com.
-> > > >
-> > > > syzbot will keep track of this issue. See:
-> > > > https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-> > > >
-> >
+     Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
+
+Thanks,
+Stefano
 
 _______________________________________________
 Virtualization mailing list
