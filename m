@@ -1,88 +1,193 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id F23B2C433FE
-	for <virtualization@archiver.kernel.org>; Fri, 18 Feb 2022 17:51:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9B954C4332F
+	for <virtualization@archiver.kernel.org>; Fri, 18 Feb 2022 17:53:54 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 88C9840360;
-	Fri, 18 Feb 2022 17:51:12 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 2ADC88131F;
+	Fri, 18 Feb 2022 17:53:54 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id QRDn3C2eflwp; Fri, 18 Feb 2022 17:51:11 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id A2DA440116;
-	Fri, 18 Feb 2022 17:51:10 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 5i696z1lJgrI; Fri, 18 Feb 2022 17:53:53 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 58DB281319;
+	Fri, 18 Feb 2022 17:53:52 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5E6A7C0011;
-	Fri, 18 Feb 2022 17:51:10 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3321CC0011;
+	Fri, 18 Feb 2022 17:53:52 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 9C8ACC000B
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 789F5C000B
  for <virtualization@lists.linux-foundation.org>;
- Fri, 18 Feb 2022 17:51:09 +0000 (UTC)
+ Fri, 18 Feb 2022 17:53:50 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 88EC840192
+ by smtp2.osuosl.org (Postfix) with ESMTP id 64011403A5
  for <virtualization@lists.linux-foundation.org>;
- Fri, 18 Feb 2022 17:51:09 +0000 (UTC)
+ Fri, 18 Feb 2022 17:53:50 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=oracle.com header.b="0zRYrD3u";
+ dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
+ header.b="LK5VSDmA"
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 90S9DBZ9u25o
+ with ESMTP id O_VI5gxzJMXs
  for <virtualization@lists.linux-foundation.org>;
- Fri, 18 Feb 2022 17:51:07 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com
- [IPv6:2a00:1450:4864:20::332])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 3B26840116
+ Fri, 18 Feb 2022 17:53:48 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com
+ [205.220.177.32])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 84BA040192
  for <virtualization@lists.linux-foundation.org>;
- Fri, 18 Feb 2022 17:51:07 +0000 (UTC)
-Received: by mail-wm1-x332.google.com with SMTP id
- bg21-20020a05600c3c9500b0035283e7a012so6980319wmb.0
- for <virtualization@lists.linux-foundation.org>;
- Fri, 18 Feb 2022 09:51:07 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=jE4Xp1Su1BAg5kbbWTHG1FN0oJ9hDn50nQE95kDMcIE=;
- b=MxLJUtFlCRDP8c5O9j7qn9H/9WVcYL4FTz/wJsj1nBC+8Eo7be0XNzCcMG7IFYF04X
- wfSyyZYpZtYVyyzKGH155eXDDEch6z2ZoqVYBAA3SNjeyUkC4u+Z5QXEW7dRRNTB7wpO
- 83YVexXJl0rD3c9EOSiO9DqUX53R0VSvbjAmJwKK2eZ0Tk+ckvUOAB97JrBBXmlVYZ8C
- 09uaJvKoUc721Z66ZJI17FbTVzKUlB70k1OuxB5g3t+2i3ZP6ETNDB3AQe1n/CVWhvIH
- k+/fbSZNULkJiP0rWzkJS+3+Q338dbHCs3yc4DyQviIXL1hYhDOe5uSZagoCIhgJ4Gvt
- Kbfw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=jE4Xp1Su1BAg5kbbWTHG1FN0oJ9hDn50nQE95kDMcIE=;
- b=j11JCSFsDe8G2hQT5MK3Wnv4dqV/YIsEC5O+J1w10MmJAmusmlwNZqVMOqLIUOvhEr
- baYePyDpc8sBr3g2NoueyahkpZD8LJiCViQCXc3S35kaqi4RCLE2tbtGuzJe/TwBU+gK
- 7pKzx4BzgCZQ69vitslpx+w1VH82KGammbiTjCVuVvLqd0cFZbOafFvvYxvwIll/V0j6
- Y4KEJ94fM69DM8UcO9i+8sw5U0MPCKsm05UKVwDdWUyWYeC3bgfLpMtg8x6QerLabePg
- WdMhe60wi+wOJicRnfWS2RrcLc+65OACIpATXUAZG4jR8m5ZNSmk8ADbBsKcYZUvYFDz
- qQCw==
-X-Gm-Message-State: AOAM5327E2EIuGwu/ubnDvGa9UmZHVs2re30O43bm/4jZEibLIxCArmR
- BHbuUBs1u8mkOwB3B2774FSfIlTHwHbDxVvdAuE=
-X-Google-Smtp-Source: ABdhPJx24uWpNh4PfLwgQ+xUx/EoND/HPGkbbfmZDRMurF3pbX/iA/d2w1P971ubT+7wz+S9OWfwFAODyX9SZVdqpFI=
-X-Received: by 2002:a7b:c409:0:b0:34d:4775:4961 with SMTP id
- k9-20020a7bc409000000b0034d47754961mr11458478wmi.44.1645206665172; Fri, 18
- Feb 2022 09:51:05 -0800 (PST)
+ Fri, 18 Feb 2022 17:53:48 +0000 (UTC)
+Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
+ by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21IFx4vB009851; 
+ Fri, 18 Feb 2022 17:53:47 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+ h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=corp-2021-07-09;
+ bh=/s4S2v0Hwmu15qc4HFVGhsN0MYs2UHafIMY/416VEOY=;
+ b=0zRYrD3u9ueS//GVQOojQMvfMCPfQfHdgWV8sFChWB+XnIfAfCNqmeKxciye4x4KPcUW
+ 4G1lLcMnZpaSfITRKU84HJlEJo+g0ZiXmWirFWm9TiTIegJp4mgOrj8IDuMPCFPzwAqD
+ q7OC5wGR09EjwlvTKkY/ZgQQc1g8nMBUhD66xOCWTXmRMIiQiwzUkjQMpTGcC1Q0kFDU
+ bcYUuh7NYb/Uu6eegSuBbbZcrXvVkoOSSm4vhcgqRmj/KJJwoW1//7Cr5Ly2RG05h0St
+ ZqDZCbELcjdRyEokK/QoYPSnO6brdFjQbaNfs8g/C73CIHrRywafspCGmIFMuprklsxW PQ== 
+Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
+ by mx0b-00069f02.pphosted.com with ESMTP id 3e8nkdtdc2-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Fri, 18 Feb 2022 17:53:46 +0000
+Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
+ by userp3020.oracle.com (8.16.1.2/8.16.1.2) with SMTP id 21IHVoTk146966;
+ Fri, 18 Feb 2022 17:53:45 GMT
+Received: from nam04-mw2-obe.outbound.protection.outlook.com
+ (mail-mw2nam08lp2174.outbound.protection.outlook.com [104.47.73.174])
+ by userp3020.oracle.com with ESMTP id 3e8n4xvr18-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Fri, 18 Feb 2022 17:53:45 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=ejo5iaF9NtRPjrJ/XmnUUdV9MyxbgnYnG7wkP0EqptAxcxf0VkdojRmiZG68NHGVvj7k5RFDYxPR1saNLVRDpnjQ++yFdWh2sEBckgI5GvfZDfb48uzbQ6HXe8lzvpjm0a3Uxg+XDdYpfzksvZsIOsjBVjJefxuiDi9JxiYx6XhJnVV46fslp3w0y73eSxYzVMLn2/BQ6U+RURjm16u1YCVGZQLgYo/3i3TT8nTj/iVAw13QX7+Owm0P8juVLlp1+ugf9czOEwJMvdjI/LRnHQLL2EnZRgSrUb9byaZ6INil1sFybBLiGQV7Mhdy52C4p3ccxVJ6vQXCMbSYJLPruw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=/s4S2v0Hwmu15qc4HFVGhsN0MYs2UHafIMY/416VEOY=;
+ b=X581JnZpAtzIm4kx+OQ9DjiyKg1DkbojWAf9APxd9tpsA6e3IOIesVxe+DsLXq67R6b/pux65kN6D4s53zMavP/kbfffmooV7by49Opnhmqt1gYbSPq+sAKD2wfT7+D+sDr1eE+CT0HKaboCpF8OjbYOIPTcjeCymmme2SjLB1BEm9qQtYG84rGZj5sgZVJeo7c/YntfOYz1VG+9Frml/X6j2aaqKe+zfSvX7v503JiCkBfApysLsR+dL2FibmVorgIVHRFodaxQMcYZn8VmBd1R8UIuyHJa+DXv4s5xh2M0caMUUkJ7jV5GtTwZ9i5CQxucayUtqDSDLcgMv1uerw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=/s4S2v0Hwmu15qc4HFVGhsN0MYs2UHafIMY/416VEOY=;
+ b=LK5VSDmAyZCUQp2EcOlbV8BOYPIPGDfNBgitHrxvj0aVlEDzcYo5VzXyBY1Ly655CkN68m2Miv+wxuiids+Dw8HOnCuqlmBwQnJMtxDKJH/ktUFp6jc53XDFdiz3BjS2SzACC+Q7ZNyPjYlczIHSN4HaGonwFnmilw0U5FtBxbE=
+Received: from CY4PR10MB1463.namprd10.prod.outlook.com (2603:10b6:903:2b::12)
+ by CH2PR10MB3752.namprd10.prod.outlook.com (2603:10b6:610:d::23) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4995.24; Fri, 18 Feb
+ 2022 17:53:42 +0000
+Received: from CY4PR10MB1463.namprd10.prod.outlook.com
+ ([fe80::6d8a:c366:d696:1f86]) by CY4PR10MB1463.namprd10.prod.outlook.com
+ ([fe80::6d8a:c366:d696:1f86%10]) with mapi id 15.20.4995.016; Fri, 18 Feb
+ 2022 17:53:42 +0000
+Message-ID: <0b2a5c63-024b-b7a5-e4d1-aa12390bdd38@oracle.com>
+Date: Fri, 18 Feb 2022 11:53:40 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.6.1
+Subject: Re: [syzbot] WARNING in vhost_dev_cleanup (2)
+Content-Language: en-US
+To: Stefano Garzarella <sgarzare@redhat.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>
+References: <0000000000006f656005d82d24e2@google.com>
+ <CACGkMEsyWBBmx3g613tr97nidHd3-avMyO=WRxS8RpcEk7j2=A@mail.gmail.com>
+ <20220217023550-mutt-send-email-mst@kernel.org>
+ <CACGkMEtuL_4eRYYWd4aQj6rG=cJDQjjr86DWpid3o_N-6xvTWQ@mail.gmail.com>
+ <20220217024359-mutt-send-email-mst@kernel.org>
+ <CAGxU2F7CjNu5Wxg3k1hQF8A8uRt-wKLjMW6TMjb+UVCF+MHZbw@mail.gmail.com>
+From: Mike Christie <michael.christie@oracle.com>
+In-Reply-To: <CAGxU2F7CjNu5Wxg3k1hQF8A8uRt-wKLjMW6TMjb+UVCF+MHZbw@mail.gmail.com>
+X-ClientProxiedBy: DS7PR03CA0014.namprd03.prod.outlook.com
+ (2603:10b6:5:3b8::19) To CY4PR10MB1463.namprd10.prod.outlook.com
+ (2603:10b6:903:2b::12)
 MIME-Version: 1.0
-References: <20220218155725.487785-1-robdclark@gmail.com>
- <CAPaKu7R+6g9XRzWPk-u0jKWa602z6CJVxhPqgjJPipzY=S-txA@mail.gmail.com>
-In-Reply-To: <CAPaKu7R+6g9XRzWPk-u0jKWa602z6CJVxhPqgjJPipzY=S-txA@mail.gmail.com>
-From: Rob Clark <robdclark@gmail.com>
-Date: Fri, 18 Feb 2022 09:51:25 -0800
-Message-ID: <CAF6AEGtrQ7rcK6sEbiaHa72cebGbrdS0RNS22T07XQwCM2sQ0g@mail.gmail.com>
-Subject: Re: [PATCH] drm/virtio: Add USE_INTERNAL blob flag
-To: Chia-I Wu <olvaffe@gmail.com>
-Cc: Rob Clark <robdclark@chromium.org>, David Airlie <airlied@linux.ie>,
- open list <linux-kernel@vger.kernel.org>,
- ML dri-devel <dri-devel@lists.freedesktop.org>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Daniel Vetter <daniel@ffwll.ch>,
- "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 3a719976-31c1-4e88-45d0-08d9f3079a15
+X-MS-TrafficTypeDiagnostic: CH2PR10MB3752:EE_
+X-Microsoft-Antispam-PRVS: <CH2PR10MB37524A704D36225987A7F8C7F1379@CH2PR10MB3752.namprd10.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:8882;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: C0+h/fcdxhefU5dGkHoEMdnKHm8s1jaUCFpUcpuGcxzQX+ee7SMDhnI/hTsdd0GcnlMbBqHFw+708uCbtVT/K0OfFY6C+VzcuoSD5TVW4/QveML5tCugHraE2reUKONXm26aRiufStiokWF6XEeLaeLUN0xo7YGPyDN8N8ZfXgmwpQZ7J/z8qbus8WQzhig1OAphPA5/l6iO8mH6h9nbZhWoKwqCIwJL+33Ovp3bP3CC3wQrP3821LEyb3zczUr8S/mKllh5jgCULX98ganf/MG/ZgnktBrpImW1rdw8R8A+ZTPoaoqkudpmRUy9U9pfhzQfYsG9SqxXM1GH5KhFMnwYlgy7DWC0MyXdfFc3M3eMspX+8kXHSjNDV89mlwlzwoyFDobzwYEt5skxCEal2JfEQSZYUMSQh5YvOauR8vG3o36cccxxr+vTQtzDWb5FJT6xJqabrvz2+e8RlLo0XCk9zEvbdgkSfxPBlXC18U0H2BRTggCIPhTRKG04bpFYsJPgiwZmaLFlJ9SXFktdnitPXtS4AGU1XCwBiPbgbCPN/Dsk+EI2zP4Q/SO9WWlPxj4NKsBXojFWWQbwkWN2myc6evoPPDBh42PDyDmkJzGOBqPMvy63gDjE8K9wWGH/hbfAEFJn3gonmHNF7VHDyLXff/D/QLb3P8idVE2QhGA0d0CMctfCBx6cgFZ5Z93RJWYqrDfTKsztctFRc0I956wc/B24Q70HSU1wBPv/I9tLqEu//SqZLGI7khkopP86/z0yVBB/6DmKEIgQEQckHTX2CMrfn9aGH5/q7k9DOMjbzZKgtN46SRsNkqRpelziPC3v7Y1PgKMpUBZ/wpKWH8nEkJf2rVAbCyu1Ct8yKFV7tj6h2OEX4m3J2oH790Yd
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:CY4PR10MB1463.namprd10.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230001)(366004)(8676002)(66556008)(66476007)(54906003)(110136005)(2616005)(4326008)(186003)(26005)(6506007)(53546011)(316002)(31686004)(66946007)(36756003)(83380400001)(6512007)(508600001)(5660300002)(6486002)(8936002)(966005)(45080400002)(2906002)(38100700002)(31696002)(86362001)(99710200001)(45980500001)(43740500002);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?VGplMGdpTTlvem1RcjRaZXRmbDZIVFZacUFlZVVuVkpPM1hBOENUanVCWjVZ?=
+ =?utf-8?B?VTB0RnBMRytxcnNzKzUwZlZtUWloWWJoMnVPdHpEcllEc0RnWWpHOCt4WGlZ?=
+ =?utf-8?B?UHQ3Q2RVTzNXLzJrN21laGdDRVRPWDVQVzdHRlpvZ0JNSGJ4eVlneHVqeFVv?=
+ =?utf-8?B?eFlPaE5Nc2lXRVFoL0p1Sy81MGRkSjM4SXZRQlY5RkxnTHJoY3N6dlVYUlNK?=
+ =?utf-8?B?SFdpVVhxQkR0SGNqd2JqaDRRdFhRRzVqNUNpVmFKaG1MT21KUXAzMWpxR1dL?=
+ =?utf-8?B?d2pMY24wWmR1R2xuNllubXF2N2cwbS9QMUJkSnhkNjkxUFlkRHlYTVlES1Vi?=
+ =?utf-8?B?UUc4L3Z4czFacnZlSE9CK0V0ZWNDNEEyK1pLb1U0VXZxZVhXMHpSc2F6VThO?=
+ =?utf-8?B?dXJTMzJsZUZTNVZkS0JHMGFUQ1U2Z2hDZGROTnVRMXJJbU92RFdSQm5mL3ZB?=
+ =?utf-8?B?RkhCY3llZG1YbzNudDVFUjFMQ0tKMjRIeThHTElHVm9NTW9HYndoaXh5Vitj?=
+ =?utf-8?B?eC9RWktZR1E1SGQwNDU4bDY1U1IzZU9zcDFFZnVxS3k3QmpRNnF1QnJaNlIr?=
+ =?utf-8?B?dTR5STNQeVI1clF4NU82NEwwMUFSZkk1VXRGRXh1YmFjRCtXamxFZzQxL2Nu?=
+ =?utf-8?B?QXJRTDhhc3lZRXFpenpISHdDUUZmUm1LUEUxZjVla0szQ083QmVhcTM1MDZi?=
+ =?utf-8?B?OXhJaHd0b0xMUy9sNkhIc2NLSXZZSlhodnowSGNMWXpwUnJURldxazUrVWpH?=
+ =?utf-8?B?UkVJQkQ3dUtDR1RtUTU3OG52RjJzU1hGRFpBK2JGZGRXUDNXRDh0eFpibEQz?=
+ =?utf-8?B?czlLNHByWENzeit1dUZBRDRrT0dudUZ1QkdyU2NCSDk4VkhWdG9JN2ZzQ0tr?=
+ =?utf-8?B?NHQwNVdoZFR0WTdUUDVyMU1PMEpIdGlVTXdEVDNGaGRSMmswR3BOMm5nVTgx?=
+ =?utf-8?B?U3cxbjlnSUZ6NCs4S2w1MExPZTNMSGRiMVJ3MC9LOEI3eVBYRm1iRzM2a0tD?=
+ =?utf-8?B?V2F5YWNKOG9mV050b2NvMzNrQkN6QmVnU29sVEpoRVpxVTFQNXJ6bVR6RXYz?=
+ =?utf-8?B?cXIwUG5mb2hDZVBlVWZXU2JzUDBxYW5xbUdRbElhcXFOenFCM3FiOUtLbGx5?=
+ =?utf-8?B?SU5jQmVwbm44TkNCQUNOb3kyNFN0alZPMFNyL1BVS1FaZ29VakhRbGc3WkZm?=
+ =?utf-8?B?aUFkbk0reVBhdDJoOGNLK1MyTFlwVVFrWVN1QW9seUlaSFJhQWUxbU5JZDJw?=
+ =?utf-8?B?SW5FOTV6cUZLa3RWL2xjQnJHU1YyNTc5MzgrMmR5TVU2K0E2Qk8zZmtCUUM5?=
+ =?utf-8?B?eFYzakNkQnRQa1BrRVRjRGtmTXZQR0h5MXhVRkFQa3pMUTgrcEV0STVhZ0J5?=
+ =?utf-8?B?QVl1ZG10S2JsWHlSOUoya1dHYmFYa3BBRFRhSXR0SjhnaGRoNzVZWGJzMTJX?=
+ =?utf-8?B?TGRyVk9ZMytsN0l5ZFN3a3JQaDcyRzZSYmp2TGYybXN4cmVaN1dQWVpuRjNQ?=
+ =?utf-8?B?NEkxVTdZcy8raFBualpid3NoQjU4Z0gvY211SDduUTlBL0RUR3ZLOUFrNHJq?=
+ =?utf-8?B?UVJkTEVPc2FzUzJTYkpMd1N2S2s1NVBPeXozYW9sNW1NQkRXWnhUdFRtZjRa?=
+ =?utf-8?B?bVA1Mm5JTktLRG0zUkxGRGhPZ0VQNTU1WXBFb0RVS3MyKzVsRDhOQU02cXpi?=
+ =?utf-8?B?YzVoSzdwZ09MaHlYYW9XeVpnVVk5cHNjVTRCTCtsbHB0QmtzMG9qdTFmbVN0?=
+ =?utf-8?B?WWp5dVV2ZVNDdnBockRsb2NwYlkyVzdsQ2FaNlNmYWZHZlRCdmt4UVZ0QnR1?=
+ =?utf-8?B?c1VHV3N2K1VCc0lYRUprbmoxZm1jYitwUEZCb3JnQmp3OXFPOGVpUHhWNXla?=
+ =?utf-8?B?cmtUM2RzZzhWS2tLSFlrOE4yV2Z2RWsvT0loV3Zna2tZZmd0SW1PLy9GRTBq?=
+ =?utf-8?B?T05PblYrNTQ4TXBhbUZ1TUppSmxyZEJaNU1jWitYOXVRWjVHaXRQcGQ1NHI3?=
+ =?utf-8?B?SmxkcVZCSEVTOWQ3c2JkbEpTZ3R4azB5VHNxRS9pSnZ5TjQrOHVJWDRZWTFO?=
+ =?utf-8?B?bnVQcWtkaU9mTzArR3ljWEZUQVJpcmRPV3VFYUROL3NLMGFrYVYxdDF5UzZL?=
+ =?utf-8?B?SEhHYjZhMVl3OGYzRFpVeUVwNS9sZ0xoSGtFek4zbnduTzNJYWJsN3A2QlJ0?=
+ =?utf-8?B?QWtodGF0NytsVGxrbE1hWFZpZFI0ZjU1NkZZSTJtNkFYejFFanFUbTlQTHND?=
+ =?utf-8?B?SG81STlmYlZtQ3llNmdsYzQ5c2x3PT0=?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 3a719976-31c1-4e88-45d0-08d9f3079a15
+X-MS-Exchange-CrossTenant-AuthSource: CY4PR10MB1463.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Feb 2022 17:53:42.7541 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: ii3TdP6ZGeDOAUN4yUs0SbYaaZTmvjIOQ70NQFVuOMnBehhFCSyfmqQetiNn+bt+h/PGDkjCR0R+ZwcQU0ZVAkrHpyPDWGQ929Ag4YnDV94=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH2PR10MB3752
+X-Proofpoint-Virus-Version: vendor=nai engine=6300 definitions=10262
+ signatures=677614
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0
+ suspectscore=0 spamscore=0
+ phishscore=0 bulkscore=0 mlxlogscore=999 mlxscore=0 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2201110000
+ definitions=main-2202180111
+X-Proofpoint-ORIG-GUID: yAvtOixVKS0fgyVEPhqaZP5EXLAO_9jP
+X-Proofpoint-GUID: yAvtOixVKS0fgyVEPhqaZP5EXLAO_9jP
+Cc: syzbot <syzbot+1e3ea63db39f2b4440e0@syzkaller.appspotmail.com>,
+ kvm <kvm@vger.kernel.org>, netdev <netdev@vger.kernel.org>,
+ syzkaller-bugs@googlegroups.com, linux-kernel <linux-kernel@vger.kernel.org>,
+ virtualization <virtualization@lists.linux-foundation.org>,
+ Stefan Hajnoczi <stefanha@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -99,90 +204,115 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Feb 18, 2022 at 8:42 AM Chia-I Wu <olvaffe@gmail.com> wrote:
->
-> On Fri, Feb 18, 2022 at 7:57 AM Rob Clark <robdclark@gmail.com> wrote:
-> >
-> > From: Rob Clark <robdclark@chromium.org>
-> >
-> > With native userspace drivers in guest, a lot of GEM objects need to be
-> > neither shared nor mappable.  And in fact making everything mappable
-> > and/or sharable results in unreasonably high fd usage in host VMM.
-> >
-> > Signed-off-by: Rob Clark <robdclark@chromium.org>
-> > ---
-> > This is for a thing I'm working on, a new virtgpu context type that
-> > allows for running native userspace driver in the guest, with a
-> > thin shim in the host VMM.  In this case, the guest has a lot of
-> > GEM buffer objects which need to be neither shared nor mappable.
-> >
-> > Alternative idea is to just drop the restriction that blob_flags
-> > be non-zero.  I'm ok with either approach.
-> Dropping the restriction sounds better to me.
->
-> What is the use case for such a resource?  Does the host need to know
-> such a resource exists?
+On 2/17/22 3:48 AM, Stefano Garzarella wrote:
+> 
+> On Thu, Feb 17, 2022 at 8:50 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+>>
+>> On Thu, Feb 17, 2022 at 03:39:48PM +0800, Jason Wang wrote:
+>>> On Thu, Feb 17, 2022 at 3:36 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+>>>>
+>>>> On Thu, Feb 17, 2022 at 03:34:13PM +0800, Jason Wang wrote:
+>>>>> On Thu, Feb 17, 2022 at 10:01 AM syzbot
+>>>>> <syzbot+1e3ea63db39f2b4440e0@syzkaller.appspotmail.com> wrote:
+>>>>>>
+>>>>>> Hello,
+>>>>>>
+>>>>>> syzbot found the following issue on:
+>>>>>>
+>>>>>> HEAD commit:    c5d9ae265b10 Merge tag 'for-linus' of git://git.kernel.org..
+>>>>>> git tree:       upstream
+>>>>>> console output: https://urldefense.com/v3/__https://syzkaller.appspot.com/x/log.txt?x=132e687c700000__;!!ACWV5N9M2RV99hQ!fLqQTyosTBm7FK50IVmo0ozZhsvUEPFCivEHFDGU3GjlAHDWl07UdOa-t9uf9YisMihn$ 
+>>>>>> kernel config:  https://urldefense.com/v3/__https://syzkaller.appspot.com/x/.config?x=a78b064590b9f912__;!!ACWV5N9M2RV99hQ!fLqQTyosTBm7FK50IVmo0ozZhsvUEPFCivEHFDGU3GjlAHDWl07UdOa-t9uf9RjOhplp$ 
+>>>>>> dashboard link: https://urldefense.com/v3/__https://syzkaller.appspot.com/bug?extid=1e3ea63db39f2b4440e0__;!!ACWV5N9M2RV99hQ!fLqQTyosTBm7FK50IVmo0ozZhsvUEPFCivEHFDGU3GjlAHDWl07UdOa-t9uf9bBf5tv0$ 
+>>>>>> compiler:       gcc (Debian 10.2.1-6) 10.2.1 20210110, GNU ld (GNU Binutils for Debian) 2.35.2
+>>>>>>
+>>>>>> Unfortunately, I don't have any reproducer for this issue yet.
+>>>>>>
+>>>>>> IMPORTANT: if you fix the issue, please add the following tag to the commit:
+>>>>>> Reported-by: syzbot+1e3ea63db39f2b4440e0@syzkaller.appspotmail.com
+>>>>>>
+>>>>>> WARNING: CPU: 1 PID: 10828 at drivers/vhost/vhost.c:715 vhost_dev_cleanup+0x8b8/0xbc0 drivers/vhost/vhost.c:715
+>>>>>> Modules linked in:
+>>>>>> CPU: 0 PID: 10828 Comm: syz-executor.0 Not tainted 5.17.0-rc4-syzkaller-00051-gc5d9ae265b10 #0
+>>>>>> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+>>>>>> RIP: 0010:vhost_dev_cleanup+0x8b8/0xbc0 drivers/vhost/vhost.c:715
+>>>>>
+>>>>> Probably a hint that we are missing a flush.
+>>>>>
+>>>>> Looking at vhost_vsock_stop() that is called by vhost_vsock_dev_release():
+>>>>>
+>>>>> static int vhost_vsock_stop(struct vhost_vsock *vsock)
+>>>>> {
+>>>>> size_t i;
+>>>>>         int ret;
+>>>>>
+>>>>>         mutex_lock(&vsock->dev.mutex);
+>>>>>
+>>>>>         ret = vhost_dev_check_owner(&vsock->dev);
+>>>>>         if (ret)
+>>>>>                 goto err;
+>>>>>
+>>>>> Where it could fail so the device is not actually stopped.
+>>>>>
+>>>>> I wonder if this is something related.
+>>>>>
+>>>>> Thanks
+>>>>
+>>>>
+>>>> But then if that is not the owner then no work should be running, right?
+>>>
+>>> Could it be a buggy user space that passes the fd to another process
+>>> and changes the owner just before the mutex_lock() above?
+>>>
+>>> Thanks
+>>
+>> Maybe, but can you be a bit more explicit? what is the set of
+>> conditions you see that can lead to this?
+> 
+> I think the issue could be in the vhost_vsock_stop() as Jason mentioned, 
+> but not related to fd passing, but related to the do_exit() function.
+> 
+> Looking the stack trace, we are in exit_task_work(), that is called 
+> after exit_mm(), so the vhost_dev_check_owner() can fail because 
+> current->mm should be NULL at that point.
+> 
+> It seems the fput work is queued by fput_many() in a worker queue, and 
+> in some cases (maybe a lot of files opened?) the work is still queued 
+> when we enter in do_exit().
+It normally happens if userspace doesn't do a close() when the VM
+is shutdown and instead let's the kernel's reaper code cleanup. The qemu
+vhost-scsi code doesn't do a close() during shutdown and so this is our
+normal code path. It also happens when something like qemu is not
+gracefully shutdown like during a crash.
 
-There are a bunch of use cases, some internal (like visibility stream
-buffers filled during binning pass and consumed during draw pass),
-some external (tiled and/or UBWC buffers are never accessed on the
-CPU).
+So fire up qemu, start IO, then crash it or kill 9 it while IO is still
+running and you can hit it.
 
-In theory, at least currently, drm/virtgpu does not need to know about
-them, but there are a lot of places in userspace that expect to have a
-gem handle.  Longer term, I think I want to extend virtgpu with
-MADVISE ioctl so we can track DONTNEED state in guest and only release
-buffers when host and/or guest is under memory pressure.  For that we
-will defn need guest side gem handles
+> 
+> That said, I don't know if we can simply remove that check in 
+> vhost_vsock_stop(), or check if current->mm is NULL, to understand if 
+> the process is exiting.
+> 
 
-BR,
--R
+Should the caller do the vhost_dev_check_owner or tell vhost_vsock_stop
+when to check?
 
-> >
-> >  drivers/gpu/drm/virtio/virtgpu_ioctl.c | 7 ++++++-
-> >  include/uapi/drm/virtgpu_drm.h         | 1 +
-> >  2 files changed, 7 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> > index 69f1952f3144..92e1ba6b8078 100644
-> > --- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> > +++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> > @@ -36,7 +36,8 @@
-> >
-> >  #define VIRTGPU_BLOB_FLAG_USE_MASK (VIRTGPU_BLOB_FLAG_USE_MAPPABLE | \
-> >                                     VIRTGPU_BLOB_FLAG_USE_SHAREABLE | \
-> > -                                   VIRTGPU_BLOB_FLAG_USE_CROSS_DEVICE)
-> > +                                   VIRTGPU_BLOB_FLAG_USE_CROSS_DEVICE | \
-> > +                                   VIRTGPU_BLOB_FLAG_USE_INTERNAL)
-> >
-> >  static int virtio_gpu_fence_event_create(struct drm_device *dev,
-> >                                          struct drm_file *file,
-> > @@ -662,6 +663,10 @@ static int verify_blob(struct virtio_gpu_device *vgdev,
-> >         params->size = rc_blob->size;
-> >         params->blob = true;
-> >         params->blob_flags = rc_blob->blob_flags;
-> > +
-> > +       /* USE_INTERNAL is local to guest kernel, don't past to host: */
-> > +       params->blob_flags &= ~VIRTGPU_BLOB_FLAG_USE_INTERNAL;
-> > +
-> >         return 0;
-> >  }
-> >
-> > diff --git a/include/uapi/drm/virtgpu_drm.h b/include/uapi/drm/virtgpu_drm.h
-> > index 0512fde5e697..62b7483e5c60 100644
-> > --- a/include/uapi/drm/virtgpu_drm.h
-> > +++ b/include/uapi/drm/virtgpu_drm.h
-> > @@ -163,6 +163,7 @@ struct drm_virtgpu_resource_create_blob {
-> >  #define VIRTGPU_BLOB_FLAG_USE_MAPPABLE     0x0001
-> >  #define VIRTGPU_BLOB_FLAG_USE_SHAREABLE    0x0002
-> >  #define VIRTGPU_BLOB_FLAG_USE_CROSS_DEVICE 0x0004
-> > +#define VIRTGPU_BLOB_FLAG_USE_INTERNAL     0x0008   /* not-mappable, not-shareable */
-> >         /* zero is invalid blob_mem */
-> >         __u32 blob_mem;
-> >         __u32 blob_flags;
-> > --
-> > 2.34.1
-> >
+- vhost_vsock_dev_ioctl always wants to check for ownership right?
+
+- For vhost_vsock_dev_release ownership doesn't matter because we
+always want to clean up or it doesn't hurt too much.
+
+For the case where we just do open then close and no ioctls then
+running vhost_vq_set_backend in vhost_vsock_stop is just a minor
+hit of extra work. If we've done ioctls, but are now in
+vhost_vsock_dev_release then we know for the graceful and ungraceful
+case that nothing is going to be accessing this device in the future
+and it's getting completely freed so we must completely clean it up.
+
+
+
+
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
