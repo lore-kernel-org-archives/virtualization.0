@@ -1,70 +1,116 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6CB5FC433EF
-	for <virtualization@archiver.kernel.org>; Mon, 21 Feb 2022 08:00:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7AF1AC433F5
+	for <virtualization@archiver.kernel.org>; Mon, 21 Feb 2022 10:05:16 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 13175408DC;
-	Mon, 21 Feb 2022 08:00:31 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id wDutS9BE7Uhx; Mon, 21 Feb 2022 08:00:30 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 6CAAD408E7;
-	Mon, 21 Feb 2022 08:00:29 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 310CEC0072;
-	Mon, 21 Feb 2022 08:00:29 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 18098C0035
- for <virtualization@lists.linux-foundation.org>;
- Mon, 21 Feb 2022 08:00:28 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id E8BCC813DC
- for <virtualization@lists.linux-foundation.org>;
- Mon, 21 Feb 2022 08:00:27 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 0D0F281431;
+	Mon, 21 Feb 2022 10:05:16 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id aiNycE2hrXtg
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ArpyKDIkBLJP; Mon, 21 Feb 2022 10:05:15 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 6CC8981422;
+	Mon, 21 Feb 2022 10:05:14 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 240FCC0021;
+	Mon, 21 Feb 2022 10:05:14 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 57935C0011
  for <virtualization@lists.linux-foundation.org>;
- Mon, 21 Feb 2022 08:00:25 +0000 (UTC)
+ Mon, 21 Feb 2022 10:05:12 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp4.osuosl.org (Postfix) with ESMTP id 37B74408C5
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 21 Feb 2022 10:05:12 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id gTCpk_ah9y1K
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 21 Feb 2022 10:05:11 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from out30-57.freemail.mail.aliyun.com
- (out30-57.freemail.mail.aliyun.com [115.124.30.57])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 3DC73813DF
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 27516408F0
  for <virtualization@lists.linux-foundation.org>;
- Mon, 21 Feb 2022 08:00:24 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R121e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=alimailimapcm10staff010182156082;
- MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=3; SR=0;
- TI=SMTPD_---0V52UO2V_1645430421; 
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0V52UO2V_1645430421) by smtp.aliyun-inc.com(127.0.0.1);
- Mon, 21 Feb 2022 16:00:21 +0800
-Message-ID: <1645429576.606734-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH v1 0/6] virtio: support advance DMA
-Date: Mon, 21 Feb 2022 15:46:16 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Jason Wang <jasowang@redhat.com>
-References: <20220210085124.15466-1-xuanzhuo@linux.alibaba.com>
- <CACGkMEtE+Bcdru43F5dOkMO1kDhUe19gKwaN4FqkztTCRXSjmw@mail.gmail.com>
- <1645174523.8877885-1-xuanzhuo@linux.alibaba.com>
- <CACGkMEv-rhha5WFg+ef181RR5xZmyHkNyfDdcPA=HoDFZ_-Oxg@mail.gmail.com>
- <1645414751.8578591-1-xuanzhuo@linux.alibaba.com>
- <CACGkMEts1ZCteMtqVotdQ5uo0OKBbyxwTuiWJRHcf553_Le2jQ@mail.gmail.com>
- <1645423146.5578375-2-xuanzhuo@linux.alibaba.com>
- <1645424291.1354678-4-xuanzhuo@linux.alibaba.com>
- <CACGkMEvsEVgGi4JXXVxm2jTGcmJwPu5EAVXtsJGCuv3f-b5U3w@mail.gmail.com>
- <1645425688.604067-5-xuanzhuo@linux.alibaba.com>
- <CACGkMEtcLdSomiLpjdZaHDzBjTr7qy9WnsvfEp18jLnuoPdy_Q@mail.gmail.com>
-In-Reply-To: <CACGkMEtcLdSomiLpjdZaHDzBjTr7qy9WnsvfEp18jLnuoPdy_Q@mail.gmail.com>
-Cc: virtualization <virtualization@lists.linux-foundation.org>,
- "Michael S. Tsirkin" <mst@redhat.com>
+ Mon, 21 Feb 2022 10:05:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1645437909;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=a7pC/8c3cMpM8i5986p+h+SJ6tgl0KTE+K3MKLjypsA=;
+ b=a+YHmvj2JkDz1PSk69CjjKZ63EWuVTDZKHGwVy0kIoBr3dK8gGqFdjBfAxfU05OKBHyxm4
+ EuiUPlSllFywGADvNUcxvqT/giAfnMflJMQBZk0A7JkRJ6pNXVrBKDTJLRwq5lr6YmZtQW
+ BEvi4tCTWoDMuA+xvu6LDRa9edZNecU=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-561-OC53FuTlMF2O0iXyBcZ-Kw-1; Mon, 21 Feb 2022 05:05:05 -0500
+X-MC-Unique: OC53FuTlMF2O0iXyBcZ-Kw-1
+Received: by mail-wr1-f72.google.com with SMTP id
+ p18-20020adfba92000000b001e8f7697cc7so5161158wrg.20
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 21 Feb 2022 02:05:05 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=a7pC/8c3cMpM8i5986p+h+SJ6tgl0KTE+K3MKLjypsA=;
+ b=nd/P21ayZhEzlEsQl8jPmiRxRyJNMQ0hMzAzAq44ZiChP4dcVaAv0mZOvsNCAEc7hd
+ JYrRcnrqBYtSQx0RcFDmxxQuM6RnPxkApeDHHFcYHuVRQJKJrLmNNZftGwhQ5tNwvxPp
+ qvf9Jv4gzMjk0HLsmKAP/w0+La3wgAWEkrh23jeKMHgxK78fUm47KtbS+kbR5PjSVT1l
+ mIdgwcCwaRt63vzTbxen8Q9lvC0UXEpqjR2J+bVdCwx114m580sYqepVDZYISf1IqrQW
+ jwS6EmFGGVRvIbpbxM80+EX4z5McJE8YiQZn9lFT6qNf4R3oovpOaIJ0QtiLwEIVC6YU
+ slsw==
+X-Gm-Message-State: AOAM531qMgklmL7QPxhOCz0waXX679mifgFogzctUUL+QgYN5HPCye9n
+ BvDa3xya268gz4ULV1xOX9rJ22PhVflV/BmnV1GJws8OEgNcGctUrcTRuyXsGakFmuuTaOguyYw
+ lNPDM56iBbViedXPdmH3KhVFc9vIGr3M1XUfJCEOYeA==
+X-Received: by 2002:adf:cf12:0:b0:1e3:25ac:7b25 with SMTP id
+ o18-20020adfcf12000000b001e325ac7b25mr15345143wrj.196.1645437904146; 
+ Mon, 21 Feb 2022 02:05:04 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwvL0v2ye0HlLbbizXym02UGy3yMeTg2IZU57hEMg6++fpRjZHeoaP1iJDYrJhnJl0FoOTdYg==
+X-Received: by 2002:adf:cf12:0:b0:1e3:25ac:7b25 with SMTP id
+ o18-20020adfcf12000000b001e325ac7b25mr15345112wrj.196.1645437903844; 
+ Mon, 21 Feb 2022 02:05:03 -0800 (PST)
+Received: from sgarzare-redhat (host-95-248-229-156.retail.telecomitalia.it.
+ [95.248.229.156])
+ by smtp.gmail.com with ESMTPSA id w18sm32300769wrl.62.2022.02.21.02.05.02
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 21 Feb 2022 02:05:03 -0800 (PST)
+Date: Mon, 21 Feb 2022 11:05:00 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Mike Christie <michael.christie@oracle.com>
+Subject: Re: [syzbot] WARNING in vhost_dev_cleanup (2)
+Message-ID: <20220221100500.2x3s2sddqahgdfyt@sgarzare-redhat>
+References: <0000000000006f656005d82d24e2@google.com>
+ <CACGkMEsyWBBmx3g613tr97nidHd3-avMyO=WRxS8RpcEk7j2=A@mail.gmail.com>
+ <20220217023550-mutt-send-email-mst@kernel.org>
+ <CACGkMEtuL_4eRYYWd4aQj6rG=cJDQjjr86DWpid3o_N-6xvTWQ@mail.gmail.com>
+ <20220217024359-mutt-send-email-mst@kernel.org>
+ <CAGxU2F7CjNu5Wxg3k1hQF8A8uRt-wKLjMW6TMjb+UVCF+MHZbw@mail.gmail.com>
+ <0b2a5c63-024b-b7a5-e4d1-aa12390bdd38@oracle.com>
+ <a5fca5da-c139-b9bb-1929-d7621c06163d@oracle.com>
+MIME-Version: 1.0
+In-Reply-To: <a5fca5da-c139-b9bb-1929-d7621c06163d@oracle.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
+X-Mimecast-Spam-Score: 1
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: syzbot <syzbot+1e3ea63db39f2b4440e0@syzkaller.appspotmail.com>,
+ kvm <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>,
+ netdev <netdev@vger.kernel.org>, syzkaller-bugs@googlegroups.com,
+ linux-kernel <linux-kernel@vger.kernel.org>,
+ virtualization <virtualization@lists.linux-foundation.org>,
+ Stefan Hajnoczi <stefanha@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -76,217 +122,149 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, 21 Feb 2022 14:55:43 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> On Mon, Feb 21, 2022 at 2:45 PM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
-> >
-> > On Mon, 21 Feb 2022 14:37:49 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> > > On Mon, Feb 21, 2022 at 2:20 PM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
-> > > >
-> > > > On Mon, 21 Feb 2022 13:59:06 +0800, Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
-> > > > > On Mon, 21 Feb 2022 11:53:33 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> > > > > > On Mon, Feb 21, 2022 at 11:46 AM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
-> > > > > > >
-> > > > > > > On Mon, 21 Feb 2022 11:32:52 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> > > > > > > > On Fri, Feb 18, 2022 at 5:00 PM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
-> > > > > > > > >
-> > > > > > > > > On Thu, 17 Feb 2022 15:19:44 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> > > > > > > > > > On Thu, Feb 10, 2022 at 4:51 PM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
-> > > > > > > > > > >
-> > > > > > > > > > > virtqueue_add() only supports virtual addresses, dma is completed in
-> > > > > > > > > > > virtqueue_add().
-> > > > > > > > > > >
-> > > > > > > > > > > In some scenarios (such as the AF_XDP scenario), DMA is completed in advance, so
-> > > > > > > > > > > it is necessary for us to support passing the DMA address to virtqueue_add().
-> > > > > > > > > >
-> > > > > > > > > > I'd suggest rename this feature as "unmanaged DMA".
-> > > > > > > > >
-> > > > > > > > > OK
-> > > > > > > > >
-> > > > > > > > > >
-> > > > > > > > > > >
-> > > > > > > > > > > Record this predma information in extra->flags, which can be skipped when
-> > > > > > > > > > > executing dma unmap.
-> > > > > > > > > >
-> > > > > > > > > > Question still, can we use per-virtqueue flag instead of per
-> > > > > > > > > > descriptor flag? If my memory is correct, the answer is yes in the
-> > > > > > > > > > discussion for the previous version.
-> > > > > > > > > >
-> > > > > > > > >
-> > > > > > > > > Yes.
-> > > > > > > > >
-> > > > > > > > > per-virtqueue? I guess it should be per-submit.
-> > > > > > > > >
-> > > > > > > > > This patch set only adds a flag to desc_extra[head].flags, so that we can know
-> > > > > > > > > if we need to unmap dma when we detach.
-> > > > > > > >
-> > > > > > > > I meant if we can manage to make it per virtqueue, there's no need to
-> > > > > > > > maintain per buffer flag.
-> > > > > > > >
-> > > > > > > > So we know something that needs to be mapped by virtio core itself,
-> > > > > > > > e.g the indirect page. Other than this, all the rest could be
-> > > > > > > > pre-mapped.
-> > > > > > > >
-> > > > > > > > For vnet header, it could be mapped by virtio-net which could be still
-> > > > > > > > treated as pre mapped DMA since it's not the virtio ring code.
-> > > > > > > >
-> > > > > > > > Anything I miss here?
-> > > > > > >
-> > > > > > > I guess, your understanding is that after the queue is reset, the queue is used
-> > > > > > > by xsk(AF_XDP), then all commits to this vq are premapped amd address.
-> > > > > > >
-> > > > > > > This is ok for rx.
-> > > > > > >
-> > > > > > > But for tx, just like XDP TX, although vq is used by xsk, the kernel also passes
-> > > > > > > skb to it at the same time. It is shared.
-> > > > > >
-> > > > > > Right.
-> > > > > >
-> > > > > > >
-> > > > > > > We can guarantee that the sg of the sgs submitted at one time uses the premapped
-> > > > > > > dma address or virtual address uniformly. It is not guaranteed that all the sgs
-> > > > > > > to the vq are uniform
-> > > > > >
-> > > > > > Sorry, I don't understand here. We can let virtio-net do the mapping
-> > > > > > even for TX, then from the virtio_ring point of view, it's still
-> > > > > > pre-mapped?
-> > > > > >
-> > > > >
-> > > > > Yes, we can do this. My previous thought was to keep the skb path unchanged.
-> > >
-> > > We can listen from Michael and others but I think it would be simpler.
-> > >
-> > > And we can even make the pre-mapped per driver. E.g for virtio-net we
-> > > just let the virtio-net driver do the DMA mapping. This allows us to
-> > > do a lot of optimizations (e.g page flip) as what other networking
-> > > drivers did.
-> > >
-> > > > >
-> > > > > Then we can make it clear that in the case of xsk, after completing the queue
-> > > > > reset, all the addresses submitted to virtio are the addresses of the completed
-> > > > > dma, including the skb case, the dma map operation must be completed first.
-> > > > >
-> > > > > In this case, I feel like we can do without this patch set.
-> > > >
-> > > > I originally thought that use_dma_api could be reused, but I found that this is
-> > > > not the case. The logic of sg_phys() does not meet our ideas. We still have a
-> > > > separate flag.
-> > >
-> > > Just to make sure I understand here, for this flag you mean
-> > >
-> > > 1) per buffer
-> > > 2) per virtqueue
-> > > or
-> > > 3) per device?
-> >
-> > To be honest, I haven't figured out what the advantage of the driver's own
-> > management of dma is. If it just implements AF_XDP, then per virtqueue should be
-> > fine.
+On Fri, Feb 18, 2022 at 12:23:10PM -0600, Mike Christie wrote:
+>On 2/18/22 11:53 AM, Mike Christie wrote:
+>> On 2/17/22 3:48 AM, Stefano Garzarella wrote:
+>>>
+>>> On Thu, Feb 17, 2022 at 8:50 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+>>>>
+>>>> On Thu, Feb 17, 2022 at 03:39:48PM +0800, Jason Wang wrote:
+>>>>> On Thu, Feb 17, 2022 at 3:36 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+>>>>>>
+>>>>>> On Thu, Feb 17, 2022 at 03:34:13PM +0800, Jason Wang wrote:
+>>>>>>> On Thu, Feb 17, 2022 at 10:01 AM syzbot
+>>>>>>> <syzbot+1e3ea63db39f2b4440e0@syzkaller.appspotmail.com> wrote:
+>>>>>>>>
+>>>>>>>> Hello,
+>>>>>>>>
+>>>>>>>> syzbot found the following issue on:
+>>>>>>>>
+>>>>>>>> HEAD commit:    c5d9ae265b10 Merge tag 'for-linus' of git://git.kernel.org..
+>>>>>>>> git tree:       upstream
+>>>>>>>> console output: https://urldefense.com/v3/__https://syzkaller.appspot.com/x/log.txt?x=132e687c700000__;!!ACWV5N9M2RV99hQ!fLqQTyosTBm7FK50IVmo0ozZhsvUEPFCivEHFDGU3GjlAHDWl07UdOa-t9uf9YisMihn$
+>>>>>>>> kernel config:  https://urldefense.com/v3/__https://syzkaller.appspot.com/x/.config?x=a78b064590b9f912__;!!ACWV5N9M2RV99hQ!fLqQTyosTBm7FK50IVmo0ozZhsvUEPFCivEHFDGU3GjlAHDWl07UdOa-t9uf9RjOhplp$
+>>>>>>>> dashboard link: https://urldefense.com/v3/__https://syzkaller.appspot.com/bug?extid=1e3ea63db39f2b4440e0__;!!ACWV5N9M2RV99hQ!fLqQTyosTBm7FK50IVmo0ozZhsvUEPFCivEHFDGU3GjlAHDWl07UdOa-t9uf9bBf5tv0$
+>>>>>>>> compiler:       gcc (Debian 10.2.1-6) 10.2.1 20210110, GNU ld (GNU Binutils for Debian) 2.35.2
+>>>>>>>>
+>>>>>>>> Unfortunately, I don't have any reproducer for this issue yet.
+>>>>>>>>
+>>>>>>>> IMPORTANT: if you fix the issue, please add the following tag to the commit:
+>>>>>>>> Reported-by: syzbot+1e3ea63db39f2b4440e0@syzkaller.appspotmail.com
+>>>>>>>>
+>>>>>>>> WARNING: CPU: 1 PID: 10828 at drivers/vhost/vhost.c:715 vhost_dev_cleanup+0x8b8/0xbc0 drivers/vhost/vhost.c:715
+>>>>>>>> Modules linked in:
+>>>>>>>> CPU: 0 PID: 10828 Comm: syz-executor.0 Not tainted 5.17.0-rc4-syzkaller-00051-gc5d9ae265b10 #0
+>>>>>>>> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+>>>>>>>> RIP: 0010:vhost_dev_cleanup+0x8b8/0xbc0 drivers/vhost/vhost.c:715
+>>>>>>>
+>>>>>>> Probably a hint that we are missing a flush.
+>>>>>>>
+>>>>>>> Looking at vhost_vsock_stop() that is called by vhost_vsock_dev_release():
+>>>>>>>
+>>>>>>> static int vhost_vsock_stop(struct vhost_vsock *vsock)
+>>>>>>> {
+>>>>>>> size_t i;
+>>>>>>>         int ret;
+>>>>>>>
+>>>>>>>         mutex_lock(&vsock->dev.mutex);
+>>>>>>>
+>>>>>>>         ret = vhost_dev_check_owner(&vsock->dev);
+>>>>>>>         if (ret)
+>>>>>>>                 goto err;
+>>>>>>>
+>>>>>>> Where it could fail so the device is not actually stopped.
+>>>>>>>
+>>>>>>> I wonder if this is something related.
+>>>>>>>
+>>>>>>> Thanks
+>>>>>>
+>>>>>>
+>>>>>> But then if that is not the owner then no work should be running, right?
+>>>>>
+>>>>> Could it be a buggy user space that passes the fd to another process
+>>>>> and changes the owner just before the mutex_lock() above?
+>>>>>
+>>>>> Thanks
+>>>>
+>>>> Maybe, but can you be a bit more explicit? what is the set of
+>>>> conditions you see that can lead to this?
+>>>
+>>> I think the issue could be in the vhost_vsock_stop() as Jason mentioned,
+>>> but not related to fd passing, but related to the do_exit() function.
+>>>
+>>> Looking the stack trace, we are in exit_task_work(), that is called
+>>> after exit_mm(), so the vhost_dev_check_owner() can fail because
+>>> current->mm should be NULL at that point.
+>>>
+>>> It seems the fput work is queued by fput_many() in a worker queue, and
+>>> in some cases (maybe a lot of files opened?) the work is still queued
+>>> when we enter in do_exit().
+>> It normally happens if userspace doesn't do a close() when the VM
 >
-> Haven't thought it deeply but generally it allows driver to do ad-hoc
-> optimizations on DMA mapping.
+>Just one clarification. I meant to say it "always" happens when userspace
+>doesn't do a close.
 >
-> But it should be also a question of complexity, if we don't see real
-> use case, we can choose the easier way. I thought using per virtqueue
-> or per device is simpler but I might be wrong. Most of ethernet driver
-> manage the DMA mapping by itself.
+>It doesn't have anything to do with lots of files or something like that.
+>We are actually running the vhost device's release function from
+>do_exit->task_work_run and so all those __fputs are done from something
+>like qemu's context (current == that process).
 >
-> >
-> > And if it's per device, then I feel like another interesting job. Is premapped
-> > dma address used by default?
+>We are *not* hitting the case:
 >
-> If we go with this way, it should be job of the driver to enable it or not.
+>do_exit->exit_files->put_files_struct->filp_close->fput->fput_many
 >
-> >
-> > Should I submit a patch set to make virtnet-net use the premapped dma address
-> > directly by default?
+>and then in there hitting the schedule_delayed_work path. For that
+>the last __fput would be done from a workqueue thread and so the current
+>pointer would point to a completely different thread.
 >
-> It might be a better idea if it's simpler. (I haven't saw a driver
-> that mixes the per-mapped DMA with the managed DMA)
+>
+>
+>> is shutdown and instead let's the kernel's reaper code cleanup. The qemu
+>> vhost-scsi code doesn't do a close() during shutdown and so this is our
+>> normal code path. It also happens when something like qemu is not
+>> gracefully shutdown like during a crash.
+>>
+>> So fire up qemu, start IO, then crash it or kill 9 it while IO is still
+>> running and you can hit it.
 
-I tried to implement this function. One of the problems encountered is that we
-need to save the dma address in virtnet for unmap. Especially in the case of
-xmit, one skb may have multiple dma addresses.
+Thank you very much for this detailed explanation!
 
-1. Let virtio return the addr of each desc when detached.
-2. Allocate a block of memory for each sq/rq to hold the dma address.
+>>
+>>>
+>>> That said, I don't know if we can simply remove that check in
+>>> vhost_vsock_stop(), or check if current->mm is NULL, to understand if
+>>> the process is exiting.
+>>>
+>>
+>> Should the caller do the vhost_dev_check_owner or tell vhost_vsock_stop
+>> when to check?
+>>
+>> - vhost_vsock_dev_ioctl always wants to check for ownership right?
+>>
+>> - For vhost_vsock_dev_release ownership doesn't matter because we
+>> always want to clean up or it doesn't hurt too much.
+>>
+>> For the case where we just do open then close and no ioctls then
+>> running vhost_vq_set_backend in vhost_vsock_stop is just a minor
+>> hit of extra work. If we've done ioctls, but are now in
+>> vhost_vsock_dev_release then we know for the graceful and ungraceful
+>> case that nothing is going to be accessing this device in the future
+>> and it's getting completely freed so we must completely clean it up.
 
-How do you think about this?
+Yep, I think the easiest way is to add a parameter to vhost_vsock_stop() 
+to tell when to call vhost_dev_check_owner() or not.  This is because 
+dev->mm is protected by dev->mutex, acquired in vhost_vsock_stop().
 
-Thanks.
+I will send a patch right away, it would be great if you can review.
 
->
-> Thanks
->
-> >
-> > Thanks.
-> >
-> >
-> > >
-> > > Thanks
-> > >
-> > > >
-> > > > Thanks.
-> > > >
-> > > > >
-> > > > > Thanks.
-> > > > >
-> > > > > > Thanks
-> > > > > >
-> > > > > > >
-> > > > > > > Thanks.
-> > > > > > >
-> > > > > > > >
-> > > > > > > > Thanks
-> > > > > > > >
-> > > > > > > >
-> > > > > > > > >
-> > > > > > > > > Thanks.
-> > > > > > > > >
-> > > > > > > > > > Thanks
-> > > > > > > > > >
-> > > > > > > > > > >
-> > > > > > > > > > > v1:
-> > > > > > > > > > >    1. All sgs requested at one time are required to be unified PREDMA, and several
-> > > > > > > > > > >       of them are not supported to be PREDMA
-> > > > > > > > > > >    2. virtio_dma_map() is removed from this patch set and will be submitted
-> > > > > > > > > > >       together with the next time AF_XDP supports virtio dma
-> > > > > > > > > > >    3. Added patch #2 #3 to remove the check for flags when performing unmap
-> > > > > > > > > > >       indirect desc
-> > > > > > > > > > >
-> > > > > > > > > > > Xuan Zhuo (6):
-> > > > > > > > > > >   virtio: rename vring_unmap_state_packed() to
-> > > > > > > > > > >     vring_unmap_extra_packed()
-> > > > > > > > > > >   virtio: remove flags check for unmap split indirect desc
-> > > > > > > > > > >   virtio: remove flags check for unmap packed indirect desc
-> > > > > > > > > > >   virtio: virtqueue_add() support predma
-> > > > > > > > > > >   virtio: split: virtqueue_add_split() support dma address
-> > > > > > > > > > >   virtio: packed: virtqueue_add_packed() support dma address
-> > > > > > > > > > >
-> > > > > > > > > > >  drivers/virtio/virtio_ring.c | 199 ++++++++++++++++++++++-------------
-> > > > > > > > > > >  1 file changed, 126 insertions(+), 73 deletions(-)
-> > > > > > > > > > >
-> > > > > > > > > > > --
-> > > > > > > > > > > 2.31.0
-> > > > > > > > > > >
-> > > > > > > > > >
-> > > > > > > > >
-> > > > > > > >
-> > > > > > >
-> > > > > >
-> > > > > _______________________________________________
-> > > > > Virtualization mailing list
-> > > > > Virtualization@lists.linux-foundation.org
-> > > > > https://lists.linuxfoundation.org/mailman/listinfo/virtualization
-> > > >
-> > >
-> >
->
+Thanks,
+Stefano
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
