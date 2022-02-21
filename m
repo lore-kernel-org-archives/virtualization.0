@@ -1,54 +1,53 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E8508C433F5
-	for <virtualization@archiver.kernel.org>; Mon, 21 Feb 2022 06:45:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id F0654C433F5
+	for <virtualization@archiver.kernel.org>; Mon, 21 Feb 2022 06:48:26 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 7779D404F0;
-	Mon, 21 Feb 2022 06:45:57 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 86A7D402B8;
+	Mon, 21 Feb 2022 06:48:26 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id jmzJYE_Ye-RR; Mon, 21 Feb 2022 06:45:56 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 7200F400D7;
-	Mon, 21 Feb 2022 06:45:55 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id etqTMZ4q5QUP; Mon, 21 Feb 2022 06:48:25 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 07F2340238;
+	Mon, 21 Feb 2022 06:48:24 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3A596C0021;
-	Mon, 21 Feb 2022 06:45:55 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B9BCAC0021;
+	Mon, 21 Feb 2022 06:48:24 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B339CC0011
+ by lists.linuxfoundation.org (Postfix) with ESMTP id AF112C0011
  for <virtualization@lists.linux-foundation.org>;
- Mon, 21 Feb 2022 06:45:53 +0000 (UTC)
+ Mon, 21 Feb 2022 06:48:23 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 9C65D60B99
+ by smtp3.osuosl.org (Postfix) with ESMTP id 87ED860BB1
  for <virtualization@lists.linux-foundation.org>;
- Mon, 21 Feb 2022 06:45:53 +0000 (UTC)
+ Mon, 21 Feb 2022 06:48:23 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id J_O2EvfB7Mxg
+ with ESMTP id Z3TUqwp1QXaX
  for <virtualization@lists.linux-foundation.org>;
- Mon, 21 Feb 2022 06:45:52 +0000 (UTC)
+ Mon, 21 Feb 2022 06:48:22 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from out30-56.freemail.mail.aliyun.com
- (out30-56.freemail.mail.aliyun.com [115.124.30.56])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 9C56060B44
+Received: from out30-57.freemail.mail.aliyun.com
+ (out30-57.freemail.mail.aliyun.com [115.124.30.57])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 7277B60B99
  for <virtualization@lists.linux-foundation.org>;
- Mon, 21 Feb 2022 06:45:51 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R161e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=alimailimapcm10staff010182156082;
- MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=3; SR=0;
- TI=SMTPD_---0V50WECi_1645425945; 
+ Mon, 21 Feb 2022 06:48:21 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R121e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04357; MF=xuanzhuo@linux.alibaba.com;
+ NM=1; PH=DS; RN=3; SR=0; TI=SMTPD_---0V50I9fu_1645426095; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0V50WECi_1645425945) by smtp.aliyun-inc.com(127.0.0.1);
- Mon, 21 Feb 2022 14:45:46 +0800
-Message-ID: <1645425688.604067-5-xuanzhuo@linux.alibaba.com>
+ fp:SMTPD_---0V50I9fu_1645426095) by smtp.aliyun-inc.com(127.0.0.1);
+ Mon, 21 Feb 2022 14:48:15 +0800
+Message-ID: <1645426008.0806975-6-xuanzhuo@linux.alibaba.com>
 Subject: Re: [PATCH v1 0/6] virtio: support advance DMA
-Date: Mon, 21 Feb 2022 14:41:28 +0800
+Date: Mon, 21 Feb 2022 14:46:48 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: Jason Wang <jasowang@redhat.com>
 References: <20220210085124.15466-1-xuanzhuo@linux.alibaba.com>
@@ -179,18 +178,12 @@ On Mon, 21 Feb 2022 14:37:49 +0800, Jason Wang <jasowang@redhat.com> wrote:
 > or
 > 3) per device?
 
-To be honest, I haven't figured out what the advantage of the driver's own
-management of dma is. If it just implements AF_XDP, then per virtqueue should be
-fine.
 
-And if it's per device, then I feel like another interesting job. Is premapped
-dma address used by default?
-
-Should I submit a patch set to make virtnet-net use the premapped dma address
-directly by default?
+As far as this question is concerned, I personally prefer per virtqueue. Because
+this will be more flexible. It is also very simple to implement per device based
+on this, as long as each vq is set to premapped mode.
 
 Thanks.
-
 
 >
 > Thanks
