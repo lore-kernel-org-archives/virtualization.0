@@ -1,101 +1,70 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D8B99C433F5
-	for <virtualization@archiver.kernel.org>; Mon, 21 Feb 2022 07:56:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6CB5FC433EF
+	for <virtualization@archiver.kernel.org>; Mon, 21 Feb 2022 08:00:31 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 5776960B99;
-	Mon, 21 Feb 2022 07:56:50 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 13175408DC;
+	Mon, 21 Feb 2022 08:00:31 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id OlVjfj3JEads; Mon, 21 Feb 2022 07:56:49 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id wDutS9BE7Uhx; Mon, 21 Feb 2022 08:00:30 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id F2AE160B44;
-	Mon, 21 Feb 2022 07:56:48 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 6CAAD408E7;
+	Mon, 21 Feb 2022 08:00:29 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C9D27C0033;
-	Mon, 21 Feb 2022 07:56:48 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4D1EDC001A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 310CEC0072;
+	Mon, 21 Feb 2022 08:00:29 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 18098C0035
  for <virtualization@lists.linux-foundation.org>;
- Mon, 21 Feb 2022 07:56:48 +0000 (UTC)
+ Mon, 21 Feb 2022 08:00:28 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 2D44181443
+ by smtp1.osuosl.org (Postfix) with ESMTP id E8BCC813DC
  for <virtualization@lists.linux-foundation.org>;
- Mon, 21 Feb 2022 07:56:48 +0000 (UTC)
+ Mon, 21 Feb 2022 08:00:27 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id h0xhT2OPfDEq
+ with ESMTP id aiNycE2hrXtg
  for <virtualization@lists.linux-foundation.org>;
- Mon, 21 Feb 2022 07:56:46 +0000 (UTC)
+ Mon, 21 Feb 2022 08:00:25 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 1527F81442
+Received: from out30-57.freemail.mail.aliyun.com
+ (out30-57.freemail.mail.aliyun.com [115.124.30.57])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 3DC73813DF
  for <virtualization@lists.linux-foundation.org>;
- Mon, 21 Feb 2022 07:56:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1645430204;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=iBw4eca/2ri514KH6J7gRLjfIuFxkyB+uZbTAnGGOyY=;
- b=TkYnFPO4IkSEcrI69mwUK7HsGjVLHdFoJzzzHS3eIrkcdNilb+AiAmtTJk2a0GR6S4JY6M
- olb0XwVo4pBGTfFxF+hMOZbMunq2GOyU5mHI7fYmp/w684U7J3wImm1HuMv3FtXEL+Gqxv
- bvkD9czQLdK9gxHBFP9upFARhJx0MZU=
-Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
- [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-342-Tto5fJNsPcyw8BtEqCwXwQ-1; Mon, 21 Feb 2022 02:56:43 -0500
-X-MC-Unique: Tto5fJNsPcyw8BtEqCwXwQ-1
-Received: by mail-lf1-f71.google.com with SMTP id
- w42-20020a0565120b2a00b00432f6a227e0so2338714lfu.3
- for <virtualization@lists.linux-foundation.org>;
- Sun, 20 Feb 2022 23:56:42 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=iBw4eca/2ri514KH6J7gRLjfIuFxkyB+uZbTAnGGOyY=;
- b=oEqLnn+ZkOGWArpDZB1J0MVPwLyIQ2PtvMIvxUxqAwbZO4fMsplOfjovXTyP5QuP3Z
- Bz6pYOb8pSQIQUhjRfKYAqW9vqtpx3gJKi8aZeLtpouUYyT7oZI02HJ9w+kNsnPs8WiY
- P9C9HsG9KyaIw+Kj+FXZh9tP7pM74TQmL+trRgWugzK+N8FsXPihhCW6tyII20NpB3qg
- NKTQYkps4PZbSuiTF3EvnL79RV2jUsUV3G23lOgj4GvOjMXDa287PvN1AoUGrGzY0jeE
- z/IU5BvgGLe+duPWe7zwBqFnpZHtUFhr4J8H8r07lXwZ9yilAedkxVL4YWF6fAVLQ8vy
- m6XA==
-X-Gm-Message-State: AOAM530iG4cn6HeB5Ko0o9p0tOq6tZQDyBaQ0vpZR3XJmEW0dbVv6o39
- ty9Ldw1g5IVhjaraCsjgvYdXe5QpkFZsv8p75CEIHkeJGWie7shjWSb8s48zW/hFiQ09l3J4ELC
- RTlPyKxEoR+je6qPm7vbZwv12sqZQs6HbSuccKyU+rhg6hZSCmgRL0nzs3w==
-X-Received: by 2002:a2e:bd03:0:b0:244:d446:27dc with SMTP id
- n3-20020a2ebd03000000b00244d44627dcmr13556128ljq.307.1645430201630; 
- Sun, 20 Feb 2022 23:56:41 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxfI65mgIz4pkVVi5lbHZtWOT6Zpk1e/JWrK+zV9T5uVl8cjvGGwGWi+coH2R6hx6x7Zhb4LSm68t8Y7Edr3rE=
-X-Received: by 2002:a2e:bd03:0:b0:244:d446:27dc with SMTP id
- n3-20020a2ebd03000000b00244d44627dcmr13556119ljq.307.1645430201411; Sun, 20
- Feb 2022 23:56:41 -0800 (PST)
-MIME-Version: 1.0
-References: <20220221072852.31820-1-mail@anirudhrb.com>
-In-Reply-To: <20220221072852.31820-1-mail@anirudhrb.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 21 Feb 2022 15:56:29 +0800
-Message-ID: <CACGkMEs6HLM3ok29rm4u=Tq2preno_60Z6cvKw2T7=nak2yzkQ@mail.gmail.com>
-Subject: Re: [PATCH] vhost: handle zero regions in vhost_set_memory
-To: Anirudh Rayabharam <mail@anirudhrb.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: kvm <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>,
- netdev <netdev@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>,
- syzbot+0abd373e2e50d704db87@syzkaller.appspotmail.com
+ Mon, 21 Feb 2022 08:00:24 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R121e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=alimailimapcm10staff010182156082;
+ MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=3; SR=0;
+ TI=SMTPD_---0V52UO2V_1645430421; 
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
+ fp:SMTPD_---0V52UO2V_1645430421) by smtp.aliyun-inc.com(127.0.0.1);
+ Mon, 21 Feb 2022 16:00:21 +0800
+Message-ID: <1645429576.606734-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH v1 0/6] virtio: support advance DMA
+Date: Mon, 21 Feb 2022 15:46:16 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Jason Wang <jasowang@redhat.com>
+References: <20220210085124.15466-1-xuanzhuo@linux.alibaba.com>
+ <CACGkMEtE+Bcdru43F5dOkMO1kDhUe19gKwaN4FqkztTCRXSjmw@mail.gmail.com>
+ <1645174523.8877885-1-xuanzhuo@linux.alibaba.com>
+ <CACGkMEv-rhha5WFg+ef181RR5xZmyHkNyfDdcPA=HoDFZ_-Oxg@mail.gmail.com>
+ <1645414751.8578591-1-xuanzhuo@linux.alibaba.com>
+ <CACGkMEts1ZCteMtqVotdQ5uo0OKBbyxwTuiWJRHcf553_Le2jQ@mail.gmail.com>
+ <1645423146.5578375-2-xuanzhuo@linux.alibaba.com>
+ <1645424291.1354678-4-xuanzhuo@linux.alibaba.com>
+ <CACGkMEvsEVgGi4JXXVxm2jTGcmJwPu5EAVXtsJGCuv3f-b5U3w@mail.gmail.com>
+ <1645425688.604067-5-xuanzhuo@linux.alibaba.com>
+ <CACGkMEtcLdSomiLpjdZaHDzBjTr7qy9WnsvfEp18jLnuoPdy_Q@mail.gmail.com>
+In-Reply-To: <CACGkMEtcLdSomiLpjdZaHDzBjTr7qy9WnsvfEp18jLnuoPdy_Q@mail.gmail.com>
+Cc: virtualization <virtualization@lists.linux-foundation.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -107,54 +76,217 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Feb 21, 2022 at 3:45 PM Anirudh Rayabharam <mail@anirudhrb.com> wrote:
+On Mon, 21 Feb 2022 14:55:43 +0800, Jason Wang <jasowang@redhat.com> wrote:
+> On Mon, Feb 21, 2022 at 2:45 PM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
+> >
+> > On Mon, 21 Feb 2022 14:37:49 +0800, Jason Wang <jasowang@redhat.com> wrote:
+> > > On Mon, Feb 21, 2022 at 2:20 PM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
+> > > >
+> > > > On Mon, 21 Feb 2022 13:59:06 +0800, Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
+> > > > > On Mon, 21 Feb 2022 11:53:33 +0800, Jason Wang <jasowang@redhat.com> wrote:
+> > > > > > On Mon, Feb 21, 2022 at 11:46 AM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
+> > > > > > >
+> > > > > > > On Mon, 21 Feb 2022 11:32:52 +0800, Jason Wang <jasowang@redhat.com> wrote:
+> > > > > > > > On Fri, Feb 18, 2022 at 5:00 PM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
+> > > > > > > > >
+> > > > > > > > > On Thu, 17 Feb 2022 15:19:44 +0800, Jason Wang <jasowang@redhat.com> wrote:
+> > > > > > > > > > On Thu, Feb 10, 2022 at 4:51 PM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
+> > > > > > > > > > >
+> > > > > > > > > > > virtqueue_add() only supports virtual addresses, dma is completed in
+> > > > > > > > > > > virtqueue_add().
+> > > > > > > > > > >
+> > > > > > > > > > > In some scenarios (such as the AF_XDP scenario), DMA is completed in advance, so
+> > > > > > > > > > > it is necessary for us to support passing the DMA address to virtqueue_add().
+> > > > > > > > > >
+> > > > > > > > > > I'd suggest rename this feature as "unmanaged DMA".
+> > > > > > > > >
+> > > > > > > > > OK
+> > > > > > > > >
+> > > > > > > > > >
+> > > > > > > > > > >
+> > > > > > > > > > > Record this predma information in extra->flags, which can be skipped when
+> > > > > > > > > > > executing dma unmap.
+> > > > > > > > > >
+> > > > > > > > > > Question still, can we use per-virtqueue flag instead of per
+> > > > > > > > > > descriptor flag? If my memory is correct, the answer is yes in the
+> > > > > > > > > > discussion for the previous version.
+> > > > > > > > > >
+> > > > > > > > >
+> > > > > > > > > Yes.
+> > > > > > > > >
+> > > > > > > > > per-virtqueue? I guess it should be per-submit.
+> > > > > > > > >
+> > > > > > > > > This patch set only adds a flag to desc_extra[head].flags, so that we can know
+> > > > > > > > > if we need to unmap dma when we detach.
+> > > > > > > >
+> > > > > > > > I meant if we can manage to make it per virtqueue, there's no need to
+> > > > > > > > maintain per buffer flag.
+> > > > > > > >
+> > > > > > > > So we know something that needs to be mapped by virtio core itself,
+> > > > > > > > e.g the indirect page. Other than this, all the rest could be
+> > > > > > > > pre-mapped.
+> > > > > > > >
+> > > > > > > > For vnet header, it could be mapped by virtio-net which could be still
+> > > > > > > > treated as pre mapped DMA since it's not the virtio ring code.
+> > > > > > > >
+> > > > > > > > Anything I miss here?
+> > > > > > >
+> > > > > > > I guess, your understanding is that after the queue is reset, the queue is used
+> > > > > > > by xsk(AF_XDP), then all commits to this vq are premapped amd address.
+> > > > > > >
+> > > > > > > This is ok for rx.
+> > > > > > >
+> > > > > > > But for tx, just like XDP TX, although vq is used by xsk, the kernel also passes
+> > > > > > > skb to it at the same time. It is shared.
+> > > > > >
+> > > > > > Right.
+> > > > > >
+> > > > > > >
+> > > > > > > We can guarantee that the sg of the sgs submitted at one time uses the premapped
+> > > > > > > dma address or virtual address uniformly. It is not guaranteed that all the sgs
+> > > > > > > to the vq are uniform
+> > > > > >
+> > > > > > Sorry, I don't understand here. We can let virtio-net do the mapping
+> > > > > > even for TX, then from the virtio_ring point of view, it's still
+> > > > > > pre-mapped?
+> > > > > >
+> > > > >
+> > > > > Yes, we can do this. My previous thought was to keep the skb path unchanged.
+> > >
+> > > We can listen from Michael and others but I think it would be simpler.
+> > >
+> > > And we can even make the pre-mapped per driver. E.g for virtio-net we
+> > > just let the virtio-net driver do the DMA mapping. This allows us to
+> > > do a lot of optimizations (e.g page flip) as what other networking
+> > > drivers did.
+> > >
+> > > > >
+> > > > > Then we can make it clear that in the case of xsk, after completing the queue
+> > > > > reset, all the addresses submitted to virtio are the addresses of the completed
+> > > > > dma, including the skb case, the dma map operation must be completed first.
+> > > > >
+> > > > > In this case, I feel like we can do without this patch set.
+> > > >
+> > > > I originally thought that use_dma_api could be reused, but I found that this is
+> > > > not the case. The logic of sg_phys() does not meet our ideas. We still have a
+> > > > separate flag.
+> > >
+> > > Just to make sure I understand here, for this flag you mean
+> > >
+> > > 1) per buffer
+> > > 2) per virtqueue
+> > > or
+> > > 3) per device?
+> >
+> > To be honest, I haven't figured out what the advantage of the driver's own
+> > management of dma is. If it just implements AF_XDP, then per virtqueue should be
+> > fine.
 >
-> Return early when userspace sends zero regions in the VHOST_SET_MEM_TABLE
-> ioctl.
+> Haven't thought it deeply but generally it allows driver to do ad-hoc
+> optimizations on DMA mapping.
 >
-> Otherwise, this causes an erroneous entry to be added to the iotlb. This
-> entry has a range size of 0 (due to u64 overflow). This then causes
-> iotlb_access_ok() to loop indefinitely resulting in a hung thread.
-> Syzbot has reported this here:
+> But it should be also a question of complexity, if we don't see real
+> use case, we can choose the easier way. I thought using per virtqueue
+> or per device is simpler but I might be wrong. Most of ethernet driver
+> manage the DMA mapping by itself.
+>
+> >
+> > And if it's per device, then I feel like another interesting job. Is premapped
+> > dma address used by default?
+>
+> If we go with this way, it should be job of the driver to enable it or not.
+>
+> >
+> > Should I submit a patch set to make virtnet-net use the premapped dma address
+> > directly by default?
+>
+> It might be a better idea if it's simpler. (I haven't saw a driver
+> that mixes the per-mapped DMA with the managed DMA)
 
-Interesting, I think iotlb_access_ok() won't be called for memory
-table entries, or anything I missed?
+I tried to implement this function. One of the problems encountered is that we
+need to save the dma address in virtnet for unmap. Especially in the case of
+xmit, one skb may have multiple dma addresses.
 
-(If this is not true, we need a kernel patch as well).
+1. Let virtio return the addr of each desc when detached.
+2. Allocate a block of memory for each sq/rq to hold the dma address.
 
-Thanks
+How do you think about this?
+
+Thanks.
 
 >
-> https://syzkaller.appspot.com/bug?extid=0abd373e2e50d704db87
+> Thanks
 >
-> Reported-and-tested-by: syzbot+0abd373e2e50d704db87@syzkaller.appspotmail.com
-> Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
-> ---
->  drivers/vhost/vhost.c | 2 ++
->  1 file changed, 2 insertions(+)
+> >
+> > Thanks.
+> >
+> >
+> > >
+> > > Thanks
+> > >
+> > > >
+> > > > Thanks.
+> > > >
+> > > > >
+> > > > > Thanks.
+> > > > >
+> > > > > > Thanks
+> > > > > >
+> > > > > > >
+> > > > > > > Thanks.
+> > > > > > >
+> > > > > > > >
+> > > > > > > > Thanks
+> > > > > > > >
+> > > > > > > >
+> > > > > > > > >
+> > > > > > > > > Thanks.
+> > > > > > > > >
+> > > > > > > > > > Thanks
+> > > > > > > > > >
+> > > > > > > > > > >
+> > > > > > > > > > > v1:
+> > > > > > > > > > >    1. All sgs requested at one time are required to be unified PREDMA, and several
+> > > > > > > > > > >       of them are not supported to be PREDMA
+> > > > > > > > > > >    2. virtio_dma_map() is removed from this patch set and will be submitted
+> > > > > > > > > > >       together with the next time AF_XDP supports virtio dma
+> > > > > > > > > > >    3. Added patch #2 #3 to remove the check for flags when performing unmap
+> > > > > > > > > > >       indirect desc
+> > > > > > > > > > >
+> > > > > > > > > > > Xuan Zhuo (6):
+> > > > > > > > > > >   virtio: rename vring_unmap_state_packed() to
+> > > > > > > > > > >     vring_unmap_extra_packed()
+> > > > > > > > > > >   virtio: remove flags check for unmap split indirect desc
+> > > > > > > > > > >   virtio: remove flags check for unmap packed indirect desc
+> > > > > > > > > > >   virtio: virtqueue_add() support predma
+> > > > > > > > > > >   virtio: split: virtqueue_add_split() support dma address
+> > > > > > > > > > >   virtio: packed: virtqueue_add_packed() support dma address
+> > > > > > > > > > >
+> > > > > > > > > > >  drivers/virtio/virtio_ring.c | 199 ++++++++++++++++++++++-------------
+> > > > > > > > > > >  1 file changed, 126 insertions(+), 73 deletions(-)
+> > > > > > > > > > >
+> > > > > > > > > > > --
+> > > > > > > > > > > 2.31.0
+> > > > > > > > > > >
+> > > > > > > > > >
+> > > > > > > > >
+> > > > > > > >
+> > > > > > >
+> > > > > >
+> > > > > _______________________________________________
+> > > > > Virtualization mailing list
+> > > > > Virtualization@lists.linux-foundation.org
+> > > > > https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+> > > >
+> > >
+> >
 >
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index 59edb5a1ffe2..821aba60eac2 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -1428,6 +1428,8 @@ static long vhost_set_memory(struct vhost_dev *d, struct vhost_memory __user *m)
->                 return -EFAULT;
->         if (mem.padding)
->                 return -EOPNOTSUPP;
-> +       if (mem.nregions == 0)
-> +               return 0;
->         if (mem.nregions > max_mem_regions)
->                 return -E2BIG;
->         newmem = kvzalloc(struct_size(newmem, regions, mem.nregions),
-> --
-> 2.35.1
->
-
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
