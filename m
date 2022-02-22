@@ -4,92 +4,102 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id F2F92C433FE
-	for <virtualization@archiver.kernel.org>; Tue, 22 Feb 2022 13:28:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id BDC09C4332F
+	for <virtualization@archiver.kernel.org>; Tue, 22 Feb 2022 14:05:01 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 88BFC60ED5;
-	Tue, 22 Feb 2022 13:28:36 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 5314460D5E;
+	Tue, 22 Feb 2022 14:05:01 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id nLo2qoQkuVTm; Tue, 22 Feb 2022 13:28:35 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 41DAF60BDF;
-	Tue, 22 Feb 2022 13:28:35 +0000 (UTC)
+	with ESMTP id hotdH1zvnVMx; Tue, 22 Feb 2022 14:05:00 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id C2DF1605A7;
+	Tue, 22 Feb 2022 14:04:59 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1D598C0021;
-	Tue, 22 Feb 2022 13:28:35 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 961B0C001A;
+	Tue, 22 Feb 2022 14:04:59 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3565BC0011
+ by lists.linuxfoundation.org (Postfix) with ESMTP id F0AB3C0011
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Feb 2022 13:28:34 +0000 (UTC)
+ Tue, 22 Feb 2022 14:04:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 31914401AF
+ by smtp2.osuosl.org (Postfix) with ESMTP id E4975402C3
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Feb 2022 13:28:34 +0000 (UTC)
+ Tue, 22 Feb 2022 14:04:57 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=daynix-com.20210112.gappssmtp.com
+ dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Y17n1WqHpgTn
+ with ESMTP id P_IwX9Judxrx
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Feb 2022 13:28:33 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-oo1-xc2e.google.com (mail-oo1-xc2e.google.com
- [IPv6:2607:f8b0:4864:20::c2e])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 58E3240155
+ Tue, 22 Feb 2022 14:04:56 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 4463340143
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Feb 2022 13:28:33 +0000 (UTC)
-Received: by mail-oo1-xc2e.google.com with SMTP id
- p206-20020a4a2fd7000000b0031bfec11983so17429454oop.13
+ Tue, 22 Feb 2022 14:04:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1645538694;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=+0qFceD01hVCN/fQNTDDfz9J6CvlRYxeXEgGXKvXoqM=;
+ b=g7arPT733wIlIvm1xIhkPotHbM3gxO2VOaQGe57alZLpWFTY01MjbAFesxLbxYTYHpTc02
+ P4KJGw/yU8oVfuNX8Gn31JElxApZXCF6mWC3lvbx2qmsTm/cTU2qn0bZKEyNHKhRFJDG+1
+ g2H3zHbvQtczeKil6pVwiw/PFc304iU=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-108-MYIA-teZMmKwo-6v4hikAA-1; Tue, 22 Feb 2022 09:04:52 -0500
+X-MC-Unique: MYIA-teZMmKwo-6v4hikAA-1
+Received: by mail-wm1-f72.google.com with SMTP id
+ g22-20020a1c4e16000000b0037bc7a977b3so2001535wmh.5
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Feb 2022 05:28:33 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=daynix-com.20210112.gappssmtp.com; s=20210112;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc:content-transfer-encoding;
- bh=fzMBwP75WQQgoD+zNIkqsOij+cNlqusgTrcCGxZOev8=;
- b=1Zped++JnCEHwnYfX2O6NeRvtPl1uSLkpHL/XdtZ2BtbYPwwJKLZTLbyJROHatwydz
- X8mW2vKD0i+rNC4HrUcTvcYsWWw6efa5jJoeQakp3pssD3FSctKo035W5jiN1G6qy4TM
- khdg5QrtZju4yBQ6bIbP+/WIg5KLXZQNrbGr4pqTtwezw9lo/eWBWlQFblWgkObZ5iTE
- bDe40ygooFQ63R4MdfpeTOXMbNg3vxFFCCfROjlOepX7FuOVVOxE6c+RlLEcqbJ3KfD2
- dJXdAgvdvPM6SASeFThANPgHEhovlCXfhK4Ajh1nebgYhhM/CFwAXem8WB9YK/43yZZT
- 8qUg==
+ Tue, 22 Feb 2022 06:04:51 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc:content-transfer-encoding;
- bh=fzMBwP75WQQgoD+zNIkqsOij+cNlqusgTrcCGxZOev8=;
- b=YItubUlHpQtXUM29nzXAcdVWu7QXWtknOy9j3ylecIPVlIncVdCzljvP+pMvQIzZYl
- vv/z1KS69i1mSlIoiHE2f/is/eXpt5Qgfg/M9kwbEHABTBvx7t85FMJI90yrj2jlktw9
- zcnPfoA04LCod3dj45QiCc7+L0aUuVH+XmmvKOKqVqwaYbifmJCBkNaFVDI9RBUnkNMo
- XjLZM+DZU5aqbqjMfk4e4ITOgWw2bJvygqq0uEhc2gTifVrVgPv/U+1KQa4wU5/P4kb2
- cAYj3fyAQVtoypMZtVqjP2lGzw4QFe7A9Z0yTgvHMYouhT6IIK3/EamVxie+Tpir61so
- tdSw==
-X-Gm-Message-State: AOAM531R7vCjX+VUKECqS7JjmsH1kqbwES34g03ZuhbzGzK1H4jwzGlb
- 6xFnAaFFPIydTjQmPMLk3mSIOshCj/1bKYM/j9ExnA==
-X-Google-Smtp-Source: ABdhPJzpBI0jL+29WueaOH07hF9lKt7ALfVIVHQ0laYJag6jVfXaNSqDIdsneAL5jOnrzJurx1xvKLrTy82D8UIjqTA=
-X-Received: by 2002:a05:6870:aa85:b0:d2:e462:7371 with SMTP id
- gr5-20020a056870aa8500b000d2e4627371mr1550136oab.29.1645536512289; Tue, 22
- Feb 2022 05:28:32 -0800 (PST)
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=+0qFceD01hVCN/fQNTDDfz9J6CvlRYxeXEgGXKvXoqM=;
+ b=1BBmGehSPag50tYUYyh5QUITn7oeUPPHdtfJGHavAxf3/5wfSnHrZ26Uh0ZxNzcLbB
+ AEVyTpLytzVrcG4/D8EZ9PCsHc89Pbtuz7BE0AsUNOZusC54o9ErjTP0aRQzWJkQMq9w
+ n8uJdo1oea7+GOR7FVhoigiXOrgma1Ty5AM7v8qoi+M4RsOVO4AWINmex13CbRpw7aD3
+ 0isy2DvHWrewGAoYN2mWO8oinR7A+G7ikvBPPcCJEBmK4YCPZaVmxDGVsaBEh2XbLLyM
+ Epg/eJTt6X5dTzam4gBWKMFLTYHFPnkPvbtgR4hRtNlCGAyXAvDoBIbrFSn+lpZBJze4
+ sH5Q==
+X-Gm-Message-State: AOAM532ly59XM6E3lcP7NgoPASeLEiNjE8ZgVSekSLzNMwzK+k6JVraJ
+ HsW/NmKH1ux2lxd8bb1DDFZPlsw8qkyuJAK3sj4P7BRKv/aZbFl5vKb1TNgSjySLiQMUDkoNroS
+ Ctn13ackLWmqHsxryvGbDzp7XIZZb/vIAiRJgqXL9gw==
+X-Received: by 2002:a1c:2904:0:b0:37b:ea53:4cbf with SMTP id
+ p4-20020a1c2904000000b0037bea534cbfmr3521211wmp.46.1645538690587; 
+ Tue, 22 Feb 2022 06:04:50 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxnqfwv3DyvbfLKFUSw1w02W2csoa49y5OZ11ejqp+BgbeoaU6MPpX2ME5lsWarq+vpSzVxjA==
+X-Received: by 2002:a1c:2904:0:b0:37b:ea53:4cbf with SMTP id
+ p4-20020a1c2904000000b0037bea534cbfmr3521190wmp.46.1645538690376; 
+ Tue, 22 Feb 2022 06:04:50 -0800 (PST)
+Received: from redhat.com ([2.55.129.240])
+ by smtp.gmail.com with ESMTPSA id j6sm41356042wrt.70.2022.02.22.06.04.48
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 22 Feb 2022 06:04:49 -0800 (PST)
+Date: Tue, 22 Feb 2022 09:04:46 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Anirudh Rayabharam <mail@anirudhrb.com>
+Subject: Re: [PATCH] vhost: validate range size before adding to iotlb
+Message-ID: <20220222090406-mutt-send-email-mst@kernel.org>
+References: <20220221195303.13560-1-mail@anirudhrb.com>
 MIME-Version: 1.0
-References: <20220125084702.3636253-1-andrew@daynix.com>
- <20220125084702.3636253-2-andrew@daynix.com>
- <06a90de0-57ae-9315-dc2c-03cc74b4ae0c@redhat.com>
-In-Reply-To: <06a90de0-57ae-9315-dc2c-03cc74b4ae0c@redhat.com>
-From: Andrew Melnichenko <andrew@daynix.com>
-Date: Tue, 22 Feb 2022 15:28:21 +0200
-Message-ID: <CABcq3pH7HnH_-nCHcX7eet_ouqocQEptp6A9GCbs3=9guArhPA@mail.gmail.com>
-Subject: Re: [RFC PATCH 1/5] uapi/linux/if_tun.h: Added new ioctl for tun/tap.
-To: Jason Wang <jasowang@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
- Network Development <netdev@vger.kernel.org>,
- LKML <linux-kernel@vger.kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>,
- Yuri Benditovich <yuri.benditovich@daynix.com>,
- Yan Vugenfirer <yan@daynix.com>, Jakub Kicinski <kuba@kernel.org>,
- "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20220221195303.13560-1-mail@anirudhrb.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org,
+ syzbot+0abd373e2e50d704db87@syzkaller.appspotmail.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -101,51 +111,74 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-SGkgYWxsLAoKT24gV2VkLCBGZWIgOSwgMjAyMiBhdCA2OjI2IEFNIEphc29uIFdhbmcgPGphc293
-YW5nQHJlZGhhdC5jb20+IHdyb3RlOgo+Cj4KPiDlnKggMjAyMi8xLzI1IOS4i+WNiDQ6NDYsIEFu
-ZHJldyBNZWxueWNoZW5rbyDlhpnpgZM6Cj4gPiBBZGRlZCBUVU5HRVRTVVBQT1JURURPRkZMT0FE
-UyB0aGF0IHNob3VsZCBhbGxvdwo+ID4gdG8gZ2V0IGJpdHMgb2Ygc3VwcG9ydGVkIG9mZmxvYWRz
-Lgo+Cj4KPiBTbyB3ZSBkb24ndCB1c2UgZGVkaWNhdGVkIGlvY3RscyBpbiB0aGUgcGFzdCwgaW5z
-dGVhZCwgd2UganVzdCBwcm9iaW5nCj4gYnkgY2hlY2tpbmcgdGhlIHJldHVybiB2YWx1ZSBvZiBU
-VU5TRVRPRkZMT0FEUy4KPgo+IEUuZyBxZW11IGhhcyB0aGUgZm9sbG93aW5nIGNvZGVzOgo+Cj4g
-aW50IHRhcF9wcm9iZV9oYXNfdWZvKGludCBmZCkKPiB7Cj4gICAgICB1bnNpZ25lZCBvZmZsb2Fk
-Owo+Cj4gICAgICBvZmZsb2FkID0gVFVOX0ZfQ1NVTSB8IFRVTl9GX1VGTzsKPgo+ICAgICAgaWYg
-KGlvY3RsKGZkLCBUVU5TRVRPRkZMT0FELCBvZmZsb2FkKSA8IDApCj4gICAgICAgICAgcmV0dXJu
-IDA7Cj4KPiAgICAgIHJldHVybiAxOwo+IH0KPgo+IEFueSByZWFzb24gd2UgY2FuJ3Qga2VlcCB1
-c2luZyB0aGF0Pwo+Cj4gVGhhbmtzCj4KCldlbGwsIGV2ZW4gaW4gdGhpcyBleGFtcGxlLiBUbyBj
-aGVjayB0aGUgdWZvIGZlYXR1cmUsIHdlIHRyeWluZyB0byBzZXQgaXQuCldoYXQgaWYgd2UgZG9u
-J3QgbmVlZCB0byAiZW5hYmxlIiBVRk8gYW5kL29yIGRvIG5vdCBjaGFuZ2UgaXRzIHN0YXRlPwpJ
-IHRoaW5rIGl0J3MgYSBnb29kIGlkZWEgdG8gaGF2ZSB0aGUgYWJpbGl0eSB0byBnZXQgc3VwcG9y
-dGVkIG9mZmxvYWRzCndpdGhvdXQgY2hhbmdpbmcgZGV2aWNlIGJlaGF2aW9yLgoKPgo+ID4gQWRk
-ZWQgMiBhZGRpdGlvbmFsIG9mZmxsb2FkcyBmb3IgVVNPKElQdjQgJiBJUHY2KS4KPiA+IFNlcGFy
-YXRlIG9mZmxvYWRzIGFyZSByZXF1aXJlZCBmb3IgV2luZG93cyBWTSBndWVzdHMsCj4gPiBnLmUu
-IFdpbmRvd3MgbWF5IHNldCBVU08gcnggb25seSBmb3IgSVB2NC4KPiA+Cj4gPiBTaWduZWQtb2Zm
-LWJ5OiBBbmRyZXcgTWVsbnljaGVua28gPGFuZHJld0BkYXluaXguY29tPgo+ID4gLS0tCj4gPiAg
-IGluY2x1ZGUvdWFwaS9saW51eC9pZl90dW4uaCB8IDMgKysrCj4gPiAgIDEgZmlsZSBjaGFuZ2Vk
-LCAzIGluc2VydGlvbnMoKykKPiA+Cj4gPiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS91YXBpL2xpbnV4
-L2lmX3R1bi5oIGIvaW5jbHVkZS91YXBpL2xpbnV4L2lmX3R1bi5oCj4gPiBpbmRleCA0NTRhZTMx
-YjkzYzcuLjA3NjgwZmFlNmUxOCAxMDA2NDQKPiA+IC0tLSBhL2luY2x1ZGUvdWFwaS9saW51eC9p
-Zl90dW4uaAo+ID4gKysrIGIvaW5jbHVkZS91YXBpL2xpbnV4L2lmX3R1bi5oCj4gPiBAQCAtNjEs
-NiArNjEsNyBAQAo+ID4gICAjZGVmaW5lIFRVTlNFVEZJTFRFUkVCUEYgX0lPUignVCcsIDIyNSwg
-aW50KQo+ID4gICAjZGVmaW5lIFRVTlNFVENBUlJJRVIgX0lPVygnVCcsIDIyNiwgaW50KQo+ID4g
-ICAjZGVmaW5lIFRVTkdFVERFVk5FVE5TIF9JTygnVCcsIDIyNykKPiA+ICsjZGVmaW5lIFRVTkdF
-VFNVUFBPUlRFRE9GRkxPQURTIF9JT1IoJ1QnLCAyMjgsIHVuc2lnbmVkIGludCkKPiA+Cj4gPiAg
-IC8qIFRVTlNFVElGRiBpZnIgZmxhZ3MgKi8KPiA+ICAgI2RlZmluZSBJRkZfVFVOICAgICAgICAg
-ICAgIDB4MDAwMQo+ID4gQEAgLTg4LDYgKzg5LDggQEAKPiA+ICAgI2RlZmluZSBUVU5fRl9UU082
-ICAweDA0ICAgIC8qIEkgY2FuIGhhbmRsZSBUU08gZm9yIElQdjYgcGFja2V0cyAqLwo+ID4gICAj
-ZGVmaW5lIFRVTl9GX1RTT19FQ04gICAgICAgMHgwOCAgICAvKiBJIGNhbiBoYW5kbGUgVFNPIHdp
-dGggRUNOIGJpdHMuICovCj4gPiAgICNkZWZpbmUgVFVOX0ZfVUZPICAgMHgxMCAgICAvKiBJIGNh
-biBoYW5kbGUgVUZPIHBhY2tldHMgKi8KPiA+ICsjZGVmaW5lIFRVTl9GX1VTTzQgICAweDIwICAg
-IC8qIEkgY2FuIGhhbmRsZSBVU08gZm9yIElQdjQgcGFja2V0cyAqLwo+ID4gKyNkZWZpbmUgVFVO
-X0ZfVVNPNiAgIDB4NDAgICAgLyogSSBjYW4gaGFuZGxlIFVTTyBmb3IgSVB2NiBwYWNrZXRzICov
-Cj4gPgo+ID4gICAvKiBQcm90b2NvbCBpbmZvIHByZXBlbmRlZCB0byB0aGUgcGFja2V0cyAod2hl
-biBJRkZfTk9fUEkgaXMgbm90IHNldCkgKi8KPiA+ICAgI2RlZmluZSBUVU5fUEtUX1NUUklQICAg
-ICAgIDB4MDAwMQo+Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51
-eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1h
-bi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Tue, Feb 22, 2022 at 01:23:03AM +0530, Anirudh Rayabharam wrote:
+> In vhost_iotlb_add_range_ctx(), validate the range size is non-zero
+> before proceeding with adding it to the iotlb.
+> 
+> Range size can overflow to 0 when start is 0 and last is (2^64 - 1).
+> One instance where it can happen is when userspace sends an IOTLB
+> message with iova=size=uaddr=0 (vhost_process_iotlb_msg). So, an
+> entry with size = 0, start = 0, last = (2^64 - 1) ends up in the
+> iotlb. Next time a packet is sent, iotlb_access_ok() loops
+> indefinitely due to that erroneous entry:
+> 
+> 	Call Trace:
+> 	 <TASK>
+> 	 iotlb_access_ok+0x21b/0x3e0 drivers/vhost/vhost.c:1340
+> 	 vq_meta_prefetch+0xbc/0x280 drivers/vhost/vhost.c:1366
+> 	 vhost_transport_do_send_pkt+0xe0/0xfd0 drivers/vhost/vsock.c:104
+> 	 vhost_worker+0x23d/0x3d0 drivers/vhost/vhost.c:372
+> 	 kthread+0x2e9/0x3a0 kernel/kthread.c:377
+> 	 ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:295
+> 	 </TASK>
+> 
+> Reported by syzbot at:
+> 	https://syzkaller.appspot.com/bug?extid=0abd373e2e50d704db87
+> 
+> Reported-by: syzbot+0abd373e2e50d704db87@syzkaller.appspotmail.com
+> Tested-by: syzbot+0abd373e2e50d704db87@syzkaller.appspotmail.com
+> Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
+> ---
+>  drivers/vhost/iotlb.c | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/vhost/iotlb.c b/drivers/vhost/iotlb.c
+> index 670d56c879e5..b9de74bd2f9c 100644
+> --- a/drivers/vhost/iotlb.c
+> +++ b/drivers/vhost/iotlb.c
+> @@ -53,8 +53,10 @@ int vhost_iotlb_add_range_ctx(struct vhost_iotlb *iotlb,
+>  			      void *opaque)
+>  {
+>  	struct vhost_iotlb_map *map;
+> +	u64 size = last - start + 1;
+>  
+> -	if (last < start)
+> +	// size can overflow to 0 when start is 0 and last is (2^64 - 1).
+
+Pls use the old-style /* */  comments.
+
+> +	if (last < start || size == 0)
+>  		return -EFAULT;
+>  
+>  	if (iotlb->limit &&
+> @@ -69,7 +71,7 @@ int vhost_iotlb_add_range_ctx(struct vhost_iotlb *iotlb,
+>  		return -ENOMEM;
+>  
+>  	map->start = start;
+> -	map->size = last - start + 1;
+> +	map->size = size;
+>  	map->last = last;
+>  	map->addr = addr;
+>  	map->perm = perm;
+> -- 
+> 2.35.1
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
