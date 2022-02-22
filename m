@@ -1,109 +1,174 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 45E52C433F5
-	for <virtualization@archiver.kernel.org>; Tue, 22 Feb 2022 09:47:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9121CC433EF
+	for <virtualization@archiver.kernel.org>; Tue, 22 Feb 2022 10:06:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id C8488817A9;
-	Tue, 22 Feb 2022 09:47:55 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 19F32402E1;
+	Tue, 22 Feb 2022 10:06:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id TIKJQlJ-mPko; Tue, 22 Feb 2022 09:47:55 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id pT-TGglv6aX0; Tue, 22 Feb 2022 10:06:28 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 5D40E812FA;
-	Tue, 22 Feb 2022 09:47:54 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 9DF13402E2;
+	Tue, 22 Feb 2022 10:06:27 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1BE28C0021;
-	Tue, 22 Feb 2022 09:47:54 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id EB121C0011
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 70C40C0021;
+	Tue, 22 Feb 2022 10:06:27 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A8082C0011
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Feb 2022 09:47:52 +0000 (UTC)
+ Tue, 22 Feb 2022 10:06:26 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id D73954019F
+ by smtp4.osuosl.org (Postfix) with ESMTP id 878C4402E2
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Feb 2022 09:47:52 +0000 (UTC)
+ Tue, 22 Feb 2022 10:06:26 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id HlJPUYI3Fc92
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 58A8PgQjNRWK
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Feb 2022 09:47:51 +0000 (UTC)
+ Tue, 22 Feb 2022 10:06:23 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 79DB340137
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com
+ [205.220.165.32])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 4E46E402E1
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Feb 2022 09:47:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1645523270;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding;
- bh=1vLjaLOpjM/maPs9UeQipZMtimlrY+ZZDRN/XdiV3h8=;
- b=LdS3lYp5h5MIcoLJE/PEfcaCIBtmlzmv3de/462QDPUMEZ4PCSVlJQ3iERyBk6kq8v77AW
- sMs4EG7sAvQLo+9yrTCkb3EP4+IpFC8PeXXhS/pb/rgpMVnIVP+R/lDz/CbjLfLQAFcA1i
- HDWplgfyTLnwezm4xHy3pCZT1SbSIqc=
-Received: from mail-qv1-f71.google.com (mail-qv1-f71.google.com
- [209.85.219.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-675-cUo8Q-74MNmuMgP1hb7-Ig-1; Tue, 22 Feb 2022 04:47:49 -0500
-X-MC-Unique: cUo8Q-74MNmuMgP1hb7-Ig-1
-Received: by mail-qv1-f71.google.com with SMTP id
- if3-20020a0562141c4300b0043147d6bacdso9752891qvb.13
- for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Feb 2022 01:47:49 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
- :content-transfer-encoding;
- bh=1vLjaLOpjM/maPs9UeQipZMtimlrY+ZZDRN/XdiV3h8=;
- b=3T1Km6QN40tpBCrK8FOKnGX2nBHfnmNWzzigN6DpveKf5oEcN0wwKr1xd+jkwAY1Ew
- vjniWF5ZqGpCsu7dvgsRZzZS9b7uohIFbsqiTtwZIidLzuhRklIosMANvZNO2BpMVXZP
- 0N7HyH6yk7CeaHoQtj1/2ABVcSVsCX/aRa2Lj5oo7TBnc3W3ULGtmgCRLKz9gY8GIDCY
- ld90ef+uOEYxwXXP2gnmXo5N/j4jHVMxrP1jDjmGS4lINJ7qm3lLiSJz84quB0vfejuP
- 0n8EshJYVbt8gSUmH5/H0RmkRYEN1vsbI+bUfQvS4YII4BsVcF3F3P2mnN+ZCOyl1m7a
- aCVg==
-X-Gm-Message-State: AOAM5306YEVuj2O1jhaJrZibysDXVIJNMB2GGG8Y+KzucTFu6RIsGFTB
- xGxxkMl77kIdshrBFIW1iPhVh3FKClzmPgFYU3d76xbduZY21PMxNJdeMym1E5fsbKIygUNIkDY
- rmPSYQIxfMkMn32YSVO1McgJV+2pGxSOQVRZ3tqHG4g==
-X-Received: by 2002:ac8:5f4c:0:b0:2d9:9327:1355 with SMTP id
- y12-20020ac85f4c000000b002d993271355mr21214797qta.518.1645523268797; 
- Tue, 22 Feb 2022 01:47:48 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJzLRApCkpCfkLM6BoxEEMUdWN7hRcfpssUWglONmZj/+bkfEiUyPxNFxljOVxDFiUxHMmgtfQ==
-X-Received: by 2002:ac8:5f4c:0:b0:2d9:9327:1355 with SMTP id
- y12-20020ac85f4c000000b002d993271355mr21214790qta.518.1645523268571; 
- Tue, 22 Feb 2022 01:47:48 -0800 (PST)
-Received: from step1.redhat.com (host-95-248-229-156.retail.telecomitalia.it.
- [95.248.229.156])
- by smtp.gmail.com with ESMTPSA id br35sm27922533qkb.118.2022.02.22.01.47.44
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 22 Feb 2022 01:47:47 -0800 (PST)
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v2] vhost/vsock: don't check owner in vhost_vsock_stop() while
- releasing
-Date: Tue, 22 Feb 2022 10:47:42 +0100
-Message-Id: <20220222094742.16359-1-sgarzare@redhat.com>
-X-Mailer: git-send-email 2.35.1
+ Tue, 22 Feb 2022 10:06:23 +0000 (UTC)
+Received: from pps.filterd (m0246629.ppops.net [127.0.0.1])
+ by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21M9lAgf014977; 
+ Tue, 22 Feb 2022 10:06:21 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+ h=date : from : to : cc
+ : subject : message-id : references : content-type : in-reply-to :
+ mime-version; s=corp-2021-07-09;
+ bh=8/hrRoganNJs6Gjak5/KUv3Jv++H3HSoYkONtjYh9Fs=;
+ b=llN0RRbtBsM5kDdbKWW1p7pwvVgXVoXb36Cl+p91bTkHEy225CYRqcFN66uMLF2AIZdW
+ eMDgECGjgKzTeKXeGGfEw5ReZUpMurafHa535Xs6gYluld9u2s7eqYAFjnfu4pWokQlr
+ Ohm+4+sO6j20IAkviHOqwGJzpi6cq49TDNNIdHXddjP0sh1SR/RGKk9rUfxgawD/U1zP
+ XiSnC65U7ewRnpg9eTFYfJSKcPZViwXIfrckcW9v12PzfVq6zgSEvsEQ5nf0oFbIpiZC
+ Afx+TsKr4J9LgxZwmvSLnJdNbaWLNePrbX4jxGhUL6+iw5BOJGqElYkechrd6klfdB54 iw== 
+Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
+ by mx0b-00069f02.pphosted.com with ESMTP id 3ect3cgmtd-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Tue, 22 Feb 2022 10:06:20 +0000
+Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
+ by aserp3030.oracle.com (8.16.1.2/8.16.1.2) with SMTP id 21MA0qmE030770;
+ Tue, 22 Feb 2022 10:06:19 GMT
+Received: from nam04-bn8-obe.outbound.protection.outlook.com
+ (mail-bn8nam08lp2044.outbound.protection.outlook.com [104.47.74.44])
+ by aserp3030.oracle.com with ESMTP id 3eapkfn1m0-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Tue, 22 Feb 2022 10:06:19 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=VHB2bLD71h1fAQlkgnS7snSbopLKCfGkcJ6/0MRcUTpSrcNwlqINt/0Y3ZU+6F78oSyfJQ3qunCMJwBsEPLqoDC7kpai4uZKbvkVi27AM91h3L6xm9oVr7rqXnHuXIK3msZb/BFJIKvdSxyhl0RUiZCMY6IsxvkFi1s0PwjJ1wku9WIAI3+2Qa4iD8t6FKY9/RF59Rxkdm1BSocfG4ef22/j3xKwc46ZRHrsacXu7TAQVbgyuuGsy/7Y3suVmYd3AlV21iPy0PwTcc6P8TGUWz5oxHPMYWJ7rkF6Y288Wa/HciVpHRGZZbWHPRvMIWw6tYvSH5Vx7IubCmAUxYUUSg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=8/hrRoganNJs6Gjak5/KUv3Jv++H3HSoYkONtjYh9Fs=;
+ b=hjwN9s1MCx84o8V5p/Bs8cHITNNQHhNYHvFHe5LHkWmDbf80Z9NJPLnZkfA6NEBD0B848WC4sQaGRfSnZcVkx0a44JiT+m4GcL4ix642JIkA/67iyOU9afGI3Nl3Bmqy6nJ3fkf7kbijAnO7UVql7G9RPuMNGntcth9dY2b5jvpx+T2PAEq+5WAbjrChFuz5rqRCHForCrzmp3w8AOI6hYICEPjil9anrvW01SsLy7pwkZmoHyOmPAvTTuJywoDEpWQ48IOtyA2WP7o04TCMUXyqXJBJLV0wcJ+MePK/CM/L0E3iTRM6ratx5rJrd1XaqCCODmmUK2ZeLJ92nRY0lQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=8/hrRoganNJs6Gjak5/KUv3Jv++H3HSoYkONtjYh9Fs=;
+ b=gordWc3roi8ovf8Fg8/NQzpBlAze2h6Y5is7d0Jn7CKdkhMk1OKanep/hkd5qjaYynE+noXzgVvQSqF680PFfPW+8qUlkGS4KGiKH8+rmk0uk8ULOLo/otJKUC3FEKx5UtKFbnKu1jglijDy+VmXGGEvh4Y0Jfp6RgOAnoSMqfI=
+Received: from MWHPR1001MB2365.namprd10.prod.outlook.com
+ (2603:10b6:301:2d::28) by BY5PR10MB4259.namprd10.prod.outlook.com
+ (2603:10b6:a03:212::21) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5017.21; Tue, 22 Feb
+ 2022 10:06:15 +0000
+Received: from MWHPR1001MB2365.namprd10.prod.outlook.com
+ ([fe80::2c3d:92b5:42b3:c1c5]) by MWHPR1001MB2365.namprd10.prod.outlook.com
+ ([fe80::2c3d:92b5:42b3:c1c5%4]) with mapi id 15.20.4995.027; Tue, 22 Feb 2022
+ 10:06:15 +0000
+Date: Tue, 22 Feb 2022 13:05:56 +0300
+From: Dan Carpenter <dan.carpenter@oracle.com>
+To: Anirudh Rayabharam <mail@anirudhrb.com>
+Subject: Re: [syzbot] INFO: task hung in vhost_work_dev_flush
+Message-ID: <20220222100556.GM3965@kadam>
+References: <00000000000057702a05d8532b18@google.com>
+ <CAGxU2F4nGWxG0wymrDZzd8Hwhm2=8syuEB3fLMd+t7bbN7qWrQ@mail.gmail.com>
+ <YhO1YL0A6OjtXmIy@anirudhrb.com>
+Content-Disposition: inline
+In-Reply-To: <YhO1YL0A6OjtXmIy@anirudhrb.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
+X-ClientProxiedBy: JNAP275CA0004.ZAFP275.PROD.OUTLOOK.COM (2603:1086:0:4c::9)
+ To MWHPR1001MB2365.namprd10.prod.outlook.com
+ (2603:10b6:301:2d::28)
 MIME-Version: 1.0
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: syzbot+1e3ea63db39f2b4440e0@syzkaller.appspotmail.com, kvm@vger.kernel.org,
- netdev@vger.kernel.org, syzbot+3140b17cb44a7b174008@syzkaller.appspotmail.com,
- linux-kernel@vger.kernel.org, stable@vger.kernel.org,
- virtualization@lists.linux-foundation.org,
- Anirudh Rayabharam <mail@anirudhrb.com>,
- Dan Carpenter <dan.carpenter@oracle.com>,
- Stefan Hajnoczi <stefanha@redhat.com>
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 043e446e-c799-4986-feb8-08d9f5eaf5cc
+X-MS-TrafficTypeDiagnostic: BY5PR10MB4259:EE_
+X-Microsoft-Antispam-PRVS: <BY5PR10MB42599E6C8BCD9807F834B1228E3B9@BY5PR10MB4259.namprd10.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: K/+nVKhVwPt+3mc6Pxdt/hvNZnHahiAf3NTws7pnwPsKK4ZMkP/MubwTNn1OZasp+9e7vcJQAMEJytByxPgiuaMHDMNotQot7LM6vp8zFmnrjane2u7SCLxZfh/8emqyI59IW74g8kuAotO+UVgbD6Y/hbCsyy4wlJShp3gb2gr6z6QvYinw/mCupKerI7rfe6Ow6MdJdOPn8MJXoBzVXJ9TrwRxCJDeN5tN8AFl9uGYl+XjA1/EqTHnzmQkAvbr627MoZVnEC3d4RAgME56JE4+lhyaln4V/8l7OZOKnwtkdO/uvEsNDyMrhATslQpFz4XxwevOEhRzcIMranXAGwCPIMjWL1B0yu1BO8mU2P/pBizg8QdcRnAarRzl3MIjcYPQeR/IfGyCLPCUl2VlnxuwqI53mUTIkzE21A3oQGMirD0q253XTvCatzjy2ekCVnS6NB82SHwHV19fWGkshr2wd0MYCLmwuFnHCo9pc5V0zIt/Dlcyba0M2JvsIA/idVHLx2vHhGAelTdBEDXaCfJu+E6EeDxseHNuTBCtQmynGYUsaSMVha7rGJv153hslSmHP9ZPejUIEykfC7/QA82amt61ul1vBr455J29NonU6gIZtdYPyP8JyiSEu6HjPLeFx1K/YOdxWUEBqpX4RBtg08DPeORbMyWhx+4w4S/3mlFfeTr7RPnXgVjuwR1yLnzzc6kQbpzm3NQtm9/UCgvNmJk5+PZVzCTaz4FhECLHxlAsYaRMoNK8kWeh2OSQZUMi2oBRPKARUOKCgH5puhJslE1T/xpobfmMdLp4ol49QgImeWWG6te2n2mIWAyAr/fElgRy9by69386zEr9kQ==
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:MWHPR1001MB2365.namprd10.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230001)(7916004)(366004)(38350700002)(38100700002)(4744005)(7416002)(44832011)(2906002)(33656002)(8936002)(5660300002)(9686003)(6512007)(6506007)(52116002)(1076003)(54906003)(316002)(6916009)(966005)(6486002)(508600001)(86362001)(33716001)(6666004)(8676002)(4326008)(26005)(186003)(66946007)(66556008)(66476007);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?tE12WDXtEnAjEg7ZcQZEC4IA5njNSLblU8+bAVvRlHfG3Q96YjrSvuxFdT/d?=
+ =?us-ascii?Q?MajVB6WRod/TO1XbCsXv7yL7OWyD4vxU7pXSK7igV9sEXwzloklLn1lnm127?=
+ =?us-ascii?Q?T5xMpMEkXY9KJt6RQi0hiom6PZHbLp6kJYERrHShBTvZsPehzqYf3DvLmC98?=
+ =?us-ascii?Q?EfZdINz7vUMRD7ixrA0WS3EFAmO76U6c93gMGJx8s6EZgqdJADBIn4V3JuiW?=
+ =?us-ascii?Q?tzNzDgqVcrhyP4sBcwXmX+sbgodY/x1XEj8931wzOLkG3VmohyfBseCpka9Z?=
+ =?us-ascii?Q?V0x4/Jz6HRBoXdLdZLt+fNsabbPvwfWeZT/6BB/rWw+GK9y7ftr64SpRJrY1?=
+ =?us-ascii?Q?71WQudDfOOO35beEnhJ34j3TTDK8qeRoI9/0T2bM3a9JMRI/kAYr2o1IrBtb?=
+ =?us-ascii?Q?24onwdie+2uJInMx9J8Y5NF2BqjG09bfQMO1YnhGvGxoJLUqDR7AKEG67dOs?=
+ =?us-ascii?Q?KdV2SiZMk4fbDTdiUDj/PbXBp+YCm2pFvfRlLKapPyMFCNSWBfaB5WCdbfwZ?=
+ =?us-ascii?Q?eyvcfihuxRiGKJ2EioLGbdfpccmA8fm3nwAXFVTwehhq67luCOTIAYw/OkHL?=
+ =?us-ascii?Q?N77j8r+L+4FawxPQU3gM5LTSyYJWyEEhScRYkxHuKd/tJH4voXF+p3PWsz/7?=
+ =?us-ascii?Q?AZTEC0cqzYrYo+L7PpTwt4cl0rHhZ/bD2YKey1pMpNKl4BT8e6QwwOJ13JFF?=
+ =?us-ascii?Q?C/Be6FU3KuEQdtZ5dyT2nO+vYKwa8PbRDNFYEz5S0AzG/o83XQK3skitUXWh?=
+ =?us-ascii?Q?j74y2TzxKISm7+oNxh2OuNqABUsh07oLExdVVKYZSFrCqMBCjyjGlYMxV77r?=
+ =?us-ascii?Q?fSPj6zdSYTk++vfV4aKGBKyR6IrpDhgNKOeCW6INX9iFsA4DHFttJtynqX/f?=
+ =?us-ascii?Q?x30kLcxE07FnVxX+x+p4gNIkDNiSmfoikGMBQAQ9IF+tzJI0IRrb5HZ0JzWe?=
+ =?us-ascii?Q?Qtn/oRdLuLSQ8SkiCvJYPngcbKl9Q4QS7f18SOiHpJe6oFWoW/cfkp97QFjn?=
+ =?us-ascii?Q?sWFeU7hqSbqI25vzaAwOgeOhZRpM4x6OzXjwDug6YrLBZ0fNe+D2pm02UMN1?=
+ =?us-ascii?Q?WQmcOl1lRbVbZ20O4wjo/SMx+GkxwiuB7Hut+7CU5BICu9VF8BpI4n7ofNtV?=
+ =?us-ascii?Q?bEXkQLvx+9s7DZfq18yVsuZ8S/mXqY4IIhUOZ0b5DlZHecQHdvjNnV94A+pC?=
+ =?us-ascii?Q?BrhXu0q/9epvGsaQiCBXyR95UaIzscv9EB2GOyx9CmvtHlQcSYfnPt0/lTJn?=
+ =?us-ascii?Q?Fwbhg+pv3bi5DklGtdixYbhK175p4O00RtE1AWxsTNXAamtel1jZ00fOdNGp?=
+ =?us-ascii?Q?jmn7J/xkWUD+EK+DP3a8V44mzRU+6LJ14CJMj9KJsyrL7nLeBKLNJQXkuAvz?=
+ =?us-ascii?Q?r983W0nuZOK3QdP+qtnpZkYWFBafc/4PTS9CJmkkzV3kGp3aq/JBepGVo2th?=
+ =?us-ascii?Q?DCRIR857xncM3w/MDKOGN/EVbFzBuYksHYJHpe+9X43aPJzHTe+75yiPSkRt?=
+ =?us-ascii?Q?Cwen7RJUiK/2ezYQiJXYphUgZkCUn3qYyIRY04DxrTHYXQnBfNSPaB2HC2Ai?=
+ =?us-ascii?Q?gIVHw5qxLS2QDpWppfr7qT6iv0NSyX4uuLXoLMrCxmAoFeB4jYeECsu3ZqTz?=
+ =?us-ascii?Q?MjZUlVN/hYM29kSa2TCX30v/L86JA82EcNzkiENg7H7qLHrKneEj4OteOolT?=
+ =?us-ascii?Q?M11p4w=3D=3D?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 043e446e-c799-4986-feb8-08d9f5eaf5cc
+X-MS-Exchange-CrossTenant-AuthSource: MWHPR1001MB2365.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 22 Feb 2022 10:06:15.0421 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 0SK1atSUoU/eqNVx+pOw6fNuQqSLBOhV2ZzOiGdKRjA9ZxGrfLu+JFk5H2wqu72jf4nxGcpFFrzvSsMKrXcJNbUvTInM5D4MyqhXkc+iNR8=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR10MB4259
+X-Proofpoint-Virus-Version: vendor=nai engine=6300 definitions=10265
+ signatures=677614
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0
+ suspectscore=0 mlxscore=0
+ spamscore=0 mlxlogscore=999 adultscore=0 phishscore=0 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2201110000
+ definitions=main-2202220058
+X-Proofpoint-ORIG-GUID: gsk5fkzTxHrQiUkqOgYHrsDue7DJbAwc
+X-Proofpoint-GUID: gsk5fkzTxHrQiUkqOgYHrsDue7DJbAwc
+Cc: kvm <kvm@vger.kernel.org>, Michael Tsirkin <mst@redhat.com>,
+ netdev <netdev@vger.kernel.org>, syzkaller-bugs@googlegroups.com,
+ kernel list <linux-kernel@vger.kernel.org>,
+ Linux Virtualization <virtualization@lists.linux-foundation.org>,
+ syzbot <syzbot+0abd373e2e50d704db87@syzkaller.appspotmail.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -120,90 +185,26 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-vhost_vsock_stop() calls vhost_dev_check_owner() to check the device
-ownership. It expects current->mm to be valid.
+On Mon, Feb 21, 2022 at 09:23:04PM +0530, Anirudh Rayabharam wrote:
+> On Mon, Feb 21, 2022 at 03:12:33PM +0100, Stefano Garzarella wrote:
+> > #syz test: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/
+> > f71077a4d84b
+> > 
+> > Patch sent upstream:
+> > https://lore.kernel.org/virtualization/20220221114916.107045-1-sgarzare@redhat.com/T/#u
+> 
+> I don't see how your patch fixes this issue. It looks unrelated. It is
+> surprising that syzbot is happy with it.
+> 
+> I have sent a patch for this issue here:
+> https://lore.kernel.org/lkml/20220221072852.31820-1-mail@anirudhrb.com/
 
-vhost_vsock_stop() is also called by vhost_vsock_dev_release() when
-the user has not done close(), so when we are in do_exit(). In this
-case current->mm is invalid and we're releasing the device, so we
-should clean it anyway.
+I wasted so much time trying to figure out what this patch fixes.  :P
 
-Let's check the owner only when vhost_vsock_stop() is called
-by an ioctl.
+(It doesn't fix anything).
 
-When invoked from release we can not fail so we don't check return
-code of vhost_vsock_stop(). We need to stop vsock even if it's not
-the owner.
-
-Fixes: 433fc58e6bf2 ("VSOCK: Introduce vhost_vsock.ko")
-Cc: stable@vger.kernel.org
-Reported-by: syzbot+1e3ea63db39f2b4440e0@syzkaller.appspotmail.com
-Reported-and-tested-by: syzbot+3140b17cb44a7b174008@syzkaller.appspotmail.com
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
----
-v2:
-- initialized `ret` in vhost_vsock_stop [Dan]
-- added comment about vhost_vsock_stop() calling in the code and an explanation
-  in the commit message [MST]
-
-v1: https://lore.kernel.org/virtualization/20220221114916.107045-1-sgarzare@redhat.com
----
- drivers/vhost/vsock.c | 21 ++++++++++++++-------
- 1 file changed, 14 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-index d6ca1c7ad513..37f0b4274113 100644
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -629,16 +629,18 @@ static int vhost_vsock_start(struct vhost_vsock *vsock)
- 	return ret;
- }
- 
--static int vhost_vsock_stop(struct vhost_vsock *vsock)
-+static int vhost_vsock_stop(struct vhost_vsock *vsock, bool check_owner)
- {
- 	size_t i;
--	int ret;
-+	int ret = 0;
- 
- 	mutex_lock(&vsock->dev.mutex);
- 
--	ret = vhost_dev_check_owner(&vsock->dev);
--	if (ret)
--		goto err;
-+	if (check_owner) {
-+		ret = vhost_dev_check_owner(&vsock->dev);
-+		if (ret)
-+			goto err;
-+	}
- 
- 	for (i = 0; i < ARRAY_SIZE(vsock->vqs); i++) {
- 		struct vhost_virtqueue *vq = &vsock->vqs[i];
-@@ -753,7 +755,12 @@ static int vhost_vsock_dev_release(struct inode *inode, struct file *file)
- 	 * inefficient.  Room for improvement here. */
- 	vsock_for_each_connected_socket(vhost_vsock_reset_orphans);
- 
--	vhost_vsock_stop(vsock);
-+	/* Don't check the owner, because we are in the release path, so we
-+	 * need to stop the vsock device in any case.
-+	 * vhost_vsock_stop() can not fail in this case, so we don't need to
-+	 * check the return code.
-+	 */
-+	vhost_vsock_stop(vsock, false);
- 	vhost_vsock_flush(vsock);
- 	vhost_dev_stop(&vsock->dev);
- 
-@@ -868,7 +875,7 @@ static long vhost_vsock_dev_ioctl(struct file *f, unsigned int ioctl,
- 		if (start)
- 			return vhost_vsock_start(vsock);
- 		else
--			return vhost_vsock_stop(vsock);
-+			return vhost_vsock_stop(vsock, true);
- 	case VHOST_GET_FEATURES:
- 		features = VHOST_VSOCK_FEATURES;
- 		if (copy_to_user(argp, &features, sizeof(features)))
--- 
-2.35.1
+regards,
+dan carpenter
 
 _______________________________________________
 Virtualization mailing list
