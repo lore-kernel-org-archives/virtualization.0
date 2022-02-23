@@ -1,71 +1,72 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E0FC9C433EF
-	for <virtualization@archiver.kernel.org>; Wed, 23 Feb 2022 21:51:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8A29FC433F5
+	for <virtualization@archiver.kernel.org>; Wed, 23 Feb 2022 21:53:50 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 8C254607FE;
-	Wed, 23 Feb 2022 21:51:26 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 1F90540911;
+	Wed, 23 Feb 2022 21:53:50 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 3jycR8WmqYWk; Wed, 23 Feb 2022 21:51:25 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 4771760B96;
-	Wed, 23 Feb 2022 21:51:25 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0174DC001A;
-	Wed, 23 Feb 2022 21:51:25 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id CA399C0011
- for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Feb 2022 21:51:22 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id AF41E4022E
- for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Feb 2022 21:51:22 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=kernel.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id l7RSqVpPkWcd
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id PeTOHlH1g9OF; Wed, 23 Feb 2022 21:53:49 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 5C8E1403B3;
+	Wed, 23 Feb 2022 21:53:48 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D8226C0077;
+	Wed, 23 Feb 2022 21:53:47 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 88BC3C0011
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Feb 2022 21:51:21 +0000 (UTC)
+ Wed, 23 Feb 2022 21:53:46 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp4.osuosl.org (Postfix) with ESMTP id 68954409AC
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 23 Feb 2022 21:53:46 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=kernel.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 8usjxhxcRLZw
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 23 Feb 2022 21:53:45 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 69C53400E4
+Received: from dfw.source.kernel.org (dfw.source.kernel.org
+ [IPv6:2604:1380:4641:c500::1])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id D6063401BB
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Feb 2022 21:51:21 +0000 (UTC)
+ Wed, 23 Feb 2022 21:53:45 +0000 (UTC)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by ams.source.kernel.org (Postfix) with ESMTPS id 539DEB81F56;
- Wed, 23 Feb 2022 21:51:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE649C340E7;
- Wed, 23 Feb 2022 21:51:16 +0000 (UTC)
+ by dfw.source.kernel.org (Postfix) with ESMTPS id B251261880;
+ Wed, 23 Feb 2022 21:53:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA655C340E7;
+ Wed, 23 Feb 2022 21:53:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1645653077;
- bh=EOsLY0xS49T9DSDZaspJWFLqMIPottB/vHuCZHn9gRc=;
+ s=k20201202; t=1645653224;
+ bh=soOvQYRaOyZB66UMOdZmvj155c4NjxblRTlsoz7NPWM=;
  h=Date:From:To:Cc:Subject:In-Reply-To:From;
- b=ahhwtyxMEpCMobEOsqsInnTB54HNvEQ6GtBmi9Pbads3CBGXv3HugVhnSog9F8o/e
- ivV0EdPE2BUK6TnJhBe3j+4lVCC9rXDQnkWsSLE39We5LPQwqxPigAexZ79Cnl3s4B
- rNHqXxjoVaHLCkU5BuV7KvHty99EiDdh+MAzrJt5TYIBMGr8EWMQY7h5KZZAO+881E
- 5r9UAiifkq5EzBV8uygdBejuW3dyuB89wAaBBP3+AJgQ/rXohe9dKeUnXP0zdTaFkk
- lfm1EHCugtgIzsLPpr5/CugEAZ9J1veD7nNl57sP6l07KQOXA5tmaKZkJScpcbJRHQ
- wWzvXTETPgAfQ==
-Date: Wed, 23 Feb 2022 15:51:15 -0600
+ b=Rnac7ap99w001yaIWWSDvCcMuzb4R6SAfj0LsDJC9di7qM+crR9k/cY2llxXgAVae
+ QFGtb0ad4PBYVxi75RirP6dccAvb/YLEB2wy3JjHbeXOkaqKgZeRRtd6yVF0yDH2bX
+ pz0IUI0hmSspHhbjKUCgtxSE6nrqvVWHeJgKFJeUrIJjpsFEqe/+RGrkNOuSHPKypb
+ 0ZwdJk12cdt9PAP1ZL3LN2+KDUA7YOVUwFJcLv7Qfag5C0QESOZ5SuSUXjDU+v8/sC
+ JSx3uLNr/O0Ox2z2I6BCIY2za2vtgmF4cDPdJ8NlSpe2wOyaPc+YlwVQ6ua50G6jz0
+ auUVVFaAiFa0w==
+Date: Wed, 23 Feb 2022 15:53:42 -0600
 From: Bjorn Helgaas <helgaas@kernel.org>
 To: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Subject: Re: [PATCH v2 05/11] pci: use helper for safer setting of
- driver_override
-Message-ID: <20220223215115.GA155125@bhelgaas>
+Subject: Re: [PATCH v2 01/11] driver: platform: add and use helper for safer
+ setting of driver_override
+Message-ID: <20220223215342.GA155282@bhelgaas>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20220223191310.347669-6-krzysztof.kozlowski@canonical.com>
+In-Reply-To: <20220223191310.347669-2-krzysztof.kozlowski@canonical.com>
 Cc: linux-hyperv@vger.kernel.org, Stuart Yoder <stuyoder@gmail.com>,
  "Rafael J. Wysocki" <rafael@kernel.org>, linux-pci@vger.kernel.org,
  linux-remoteproc@vger.kernel.org, alsa-devel@alsa-project.org,
@@ -106,72 +107,30 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-In subject, to match drivers/pci/ convention, do something like:
+On Wed, Feb 23, 2022 at 08:13:00PM +0100, Krzysztof Kozlowski wrote:
+> Several core drivers and buses expect that driver_override is a
+> dynamically allocated memory thus later they can kfree() it.
+> ...
 
-  PCI: Use driver_set_override() instead of open-coding
+> + * set_driver_override() - Helper to set or clear driver override.
 
-On Wed, Feb 23, 2022 at 08:13:04PM +0100, Krzysztof Kozlowski wrote:
-> Use a helper for seting driver_override to reduce amount of duplicated
-> code.
+Doesn't match actual function name.
 
-s/seting/setting/
+> + * @dev: Device to change
+> + * @override: Address of string to change (e.g. &device->driver_override);
+> + *            The contents will be freed and hold newly allocated override.
+> + * @s: NULL terminated string, new driver name to force a match, pass empty
+> + *     string to clear it
+> + *
+> + * Helper to setr or clear driver override in a device, intended for the cases
+> + * when the driver_override field is allocated by driver/bus code.
 
-> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-> ---
->  drivers/pci/pci-sysfs.c | 24 ++++--------------------
->  1 file changed, 4 insertions(+), 20 deletions(-)
-> 
-> diff --git a/drivers/pci/pci-sysfs.c b/drivers/pci/pci-sysfs.c
-> index 602f0fb0b007..16a163d4623e 100644
-> --- a/drivers/pci/pci-sysfs.c
-> +++ b/drivers/pci/pci-sysfs.c
-> @@ -567,31 +567,15 @@ static ssize_t driver_override_store(struct device *dev,
->  				     const char *buf, size_t count)
->  {
->  	struct pci_dev *pdev = to_pci_dev(dev);
-> -	char *driver_override, *old, *cp;
-> +	int ret;
->  
->  	/* We need to keep extra room for a newline */
->  	if (count >= (PAGE_SIZE - 1))
->  		return -EINVAL;
+s/setr/set/
 
-This check makes no sense in the new function.  Michael alluded to
-this as well.
-
-> -	driver_override = kstrndup(buf, count, GFP_KERNEL);
-> -	if (!driver_override)
-> -		return -ENOMEM;
-> -
-> -	cp = strchr(driver_override, '\n');
-> -	if (cp)
-> -		*cp = '\0';
-> -
-> -	device_lock(dev);
-> -	old = pdev->driver_override;
-> -	if (strlen(driver_override)) {
-> -		pdev->driver_override = driver_override;
-> -	} else {
-> -		kfree(driver_override);
-> -		pdev->driver_override = NULL;
-> -	}
-> -	device_unlock(dev);
-> -
-> -	kfree(old);
-> +	ret = driver_set_override(dev, &pdev->driver_override, buf);
-> +	if (ret)
-> +		return ret;
->  
->  	return count;
->  }
-> -- 
-> 2.32.0
-> 
-> 
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+> + * Returns: 0 on success or a negative error code on failure.
+> + */
+> +int driver_set_override(struct device *dev, char **override, const char *s)
+> +{
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
