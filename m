@@ -1,111 +1,175 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7904DC433EF
-	for <virtualization@archiver.kernel.org>; Fri, 25 Feb 2022 18:25:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 19455C433F5
+	for <virtualization@archiver.kernel.org>; Sun, 27 Feb 2022 15:53:09 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id BFF1740484;
-	Fri, 25 Feb 2022 18:25:27 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 9F705401F2;
+	Sun, 27 Feb 2022 15:53:09 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id xDHKWC_ykKKq; Fri, 25 Feb 2022 18:25:25 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 0EC7240323;
-	Fri, 25 Feb 2022 18:25:25 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CF276C0070;
-	Fri, 25 Feb 2022 18:25:24 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7D026C001A
- for <virtualization@lists.linux-foundation.org>;
- Fri, 25 Feb 2022 18:25:23 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 68F02408EE
- for <virtualization@lists.linux-foundation.org>;
- Fri, 25 Feb 2022 18:25:23 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id SjWoZaT8nJkC
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id lCUq1b3dap5j; Sun, 27 Feb 2022 15:53:08 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 3CBB4401E3;
+	Sun, 27 Feb 2022 15:53:08 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0DDFDC0033;
+	Sun, 27 Feb 2022 15:53:08 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3A346C001A
  for <virtualization@lists.linux-foundation.org>;
- Fri, 25 Feb 2022 18:25:22 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id E0F1E408E6
+ Sun, 27 Feb 2022 15:53:07 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 15DA581CA0
  for <virtualization@lists.linux-foundation.org>;
- Fri, 25 Feb 2022 18:25:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1645813520;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=wJUmzL6cjzVUtVOWwFY0p71jUm6NF80QB8+jDDkstEI=;
- b=enVKImUQJIbGRXupM7qEgK7DzQbjdHcRA3D/+lMh4R0rocNh+oivm6ZYSITFPRnQtT36Oy
- 4CTuHNTadnfwxOM82+6adi7iYzF4ZabVWiCWMMYBe0l/XyjkUxDqRaBGFSc5rMe8SaL3rU
- xdti+Z/R4DkP3gY5EpjlLLS3wA3bkdo=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-638-eP4f1Qx8N_eetSXiqQP5EA-1; Fri, 25 Feb 2022 13:25:17 -0500
-X-MC-Unique: eP4f1Qx8N_eetSXiqQP5EA-1
-Received: by mail-wr1-f70.google.com with SMTP id
- c5-20020adffb05000000b001edbbefe96dso1115251wrr.8
+ Sun, 27 Feb 2022 15:53:07 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=microsoft.com
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Jh__IVmhwDq6
  for <virtualization@lists.linux-foundation.org>;
- Fri, 25 Feb 2022 10:25:17 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=wJUmzL6cjzVUtVOWwFY0p71jUm6NF80QB8+jDDkstEI=;
- b=LSPvKOHPk7IvhwJfr39RDMWMsypMhp771XmeITjcEziDs7x32gg0ZLQtOK37UbttKT
- AeZPtBAyuwt9fb2N2COCmOcYsmDwNAagLzJlUzbaFqb2MZjOfPuHPu1rEOHgUc7olLHz
- uk6MpTgWZXf9xQM6JsF+Xz16cMAxSEg7TxcenKesJIQaRM8x/6sejnv20T9p/pUyik/C
- Tz5rlvOPmzhJ399pGRc7y+sl6MpZa+JRLUptese7MJf1IVkTs/amnMLQ4i8TIaGZzQbz
- kxrYvyfaD+S6ZFwqZjMexyjZuMfktFdQh0OVpJM76qap7EXNXmWzznfptWPjRkSI3PFu
- yslw==
-X-Gm-Message-State: AOAM533dd5ww3L3ZIkYJHpfcPUfG9VuYjFnDVSGijb1jvd3cb2tIWHoZ
- aCSIneo3dNjJCKRmwMSTyx29ml+PrT8+0j9NT6hBu42xKLbAgWtuoiTLZCqCu8VuIgZXX3hS13O
- gyXJ+NtRcEpRN8424+Avb23Q/pSdDeeEqDmQjdogmLw==
-X-Received: by 2002:a05:600c:3590:b0:34a:5f6:9e6 with SMTP id
- p16-20020a05600c359000b0034a05f609e6mr3862274wmq.182.1645813516074; 
- Fri, 25 Feb 2022 10:25:16 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJyDrC8FSsPSLgMPhm8mD/DAjo9CntPreULCTyAAKeyXsCdkoIz/+sBHnr1REDXKrhrLZbdWng==
-X-Received: by 2002:a05:600c:3590:b0:34a:5f6:9e6 with SMTP id
- p16-20020a05600c359000b0034a05f609e6mr3862258wmq.182.1645813515794; 
- Fri, 25 Feb 2022 10:25:15 -0800 (PST)
-Received: from redhat.com ([2.55.165.55]) by smtp.gmail.com with ESMTPSA id
- c14-20020a7bc84e000000b0038100c9a593sm8104653wml.45.2022.02.25.10.25.14
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 25 Feb 2022 10:25:15 -0800 (PST)
-Date: Fri, 25 Feb 2022 13:25:12 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Matthew Wilcox <willy@infradead.org>
-Subject: Re: [PATCH] tools/virtio: Test virtual address range detection
-Message-ID: <20220225132505-mutt-send-email-mst@kernel.org>
-References: <c1895bcc240d413ff067f982b6e653996ace9887.camel@infradead.org>
- <20220221170217.5bq7nhr3pvchku5x@sgarzare-redhat>
- <75d5002ad505b476c81c0b92c0d624824e93d6ac.camel@infradead.org>
- <20220222013121-mutt-send-email-mst@kernel.org>
- <8e60951973cab3a3d27a3c7f18d866cdb804e663.camel@infradead.org>
- <YhVvOsI0+xVAKHdr@casper.infradead.org>
- <Yhj6ap3uEl2xFE8G@casper.infradead.org>
+ Sun, 27 Feb 2022 15:53:06 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from NAM02-DM3-obe.outbound.protection.outlook.com
+ (mail-dm3nam07on2072c.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:7e83::72c])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id F180481C93
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 27 Feb 2022 15:53:05 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=jUvrZ1nf0JJxBcu1tV7NVbQVQnN2g0006IB+Y/xuFShH/ZMdZSteOsfKVc2tl3TlN4yQjt+N6Vp/8w7JMpvJPhcZhQwATG3a/5IdBkMH8XFd0UiUrOfkWrj2Tyjw4sPFWgcfOWTM0W1lhfqI9ufLASjdRiUagc36gdO7iyuYXOjhxhtpjTx0tnpvVuUPTZynID+RdkuYZVx0hsnl550Ykomg8G29WEKngy2CwdDy5PzbXO40kGScJHWmVvyv66TY7opd4/6QAw8L2V81D0vY3iWnkeU9qjOyiCDu1LZPGWljX/Jj986g2ZLsue5Ls7EFojkicbeBW+LrRUuTwEeLNA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=N5MpYU+R3yeg/GySAs2eiprasrvco6MaaLUf40Me7V0=;
+ b=RQEed/W3meB4gWNzSCaGas9uxrh6F65gR4Gst+BeRSukeG0eelYRYWROGskM4Ruij4X9wzvtm+PjlR49Xczg8LAxwmdKC8NqgCsznTNd6jBJuW/OUqFA5N+Km9/6cUD1YxmUDwOt48EFDus4+r3mJ2FP8UOBtZ/xu08+rMjxZ9qV9Z6fKNsm9J+FKVRW4euFA6P39BKoLWZ2Jp8+eC2BrCDoMPg4aAygYYSeLRTb1V1eIjekPMuTg59ITt68IZr4ylL06P2ts5E//KOX0k06XrZXozc0Dm7nKwWcPKTla7vxeEHUFz8g8nRO3INrMG6u86fVMIIi+krreawGSMyI9Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=microsoft.com; dmarc=pass action=none
+ header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=N5MpYU+R3yeg/GySAs2eiprasrvco6MaaLUf40Me7V0=;
+ b=Lu6BxTpYzyxeHyrDwyq9Jn4kyA7eBBksljkrGSRJtHFIbwqqDwnR3eMq42Q/J3NV+zwiKUDDnU7YGdViHPpJVuvRXHYlauPazeesrGWel8RWqDFyxGY0LMtvKcx71BaCDEWRmy1uiSfSq/I5kqRU0ItKmudYrE9DiV5gs42W6VY=
+Received: from MN0PR21MB3098.namprd21.prod.outlook.com (2603:10b6:208:376::14)
+ by MN0PR21MB3384.namprd21.prod.outlook.com (2603:10b6:208:380::21)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5061.3; Sun, 27 Feb
+ 2022 15:53:01 +0000
+Received: from MN0PR21MB3098.namprd21.prod.outlook.com
+ ([fe80::69f8:51be:b573:e70c]) by MN0PR21MB3098.namprd21.prod.outlook.com
+ ([fe80::69f8:51be:b573:e70c%5]) with mapi id 15.20.5038.006; Sun, 27 Feb 2022
+ 15:53:01 +0000
+To: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>, Greg
+ Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki"
+ <rafael@kernel.org>, Stuart Yoder <stuyoder@gmail.com>, Laurentiu Tudor
+ <laurentiu.tudor@nxp.com>, Abel Vesa <abel.vesa@nxp.com>, Shawn Guo
+ <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>, Fabio Estevam
+ <festevam@gmail.com>, KY Srinivasan <kys@microsoft.com>, Haiyang Zhang
+ <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu
+ <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>, Bjorn Helgaas
+ <bhelgaas@google.com>, Bjorn Andersson <bjorn.andersson@linaro.org>, Mathieu
+ Poirier <mathieu.poirier@linaro.org>, Vineeth Vijayan
+ <vneethv@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, Heiko
+ Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Alexander
+ Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger
+ <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Andy Gross
+ <agross@kernel.org>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+ Mark Brown <broonie@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Jason
+ Wang <jasowang@redhat.com>, "linux-kernel@vger.kernel.org"
+ <linux-kernel@vger.kernel.org>, "linux-clk@vger.kernel.org"
+ <linux-clk@vger.kernel.org>, NXP Linux Team <linux-imx@nxp.com>,
+ "linux-arm-kernel@lists.infradead.org"
+ <linux-arm-kernel@lists.infradead.org>, "linux-hyperv@vger.kernel.org"
+ <linux-hyperv@vger.kernel.org>, "linux-pci@vger.kernel.org"
+ <linux-pci@vger.kernel.org>, "linux-remoteproc@vger.kernel.org"
+ <linux-remoteproc@vger.kernel.org>, "linux-s390@vger.kernel.org"
+ <linux-s390@vger.kernel.org>, "linux-arm-msm@vger.kernel.org"
+ <linux-arm-msm@vger.kernel.org>, "alsa-devel@alsa-project.org"
+ <alsa-devel@alsa-project.org>, "linux-spi@vger.kernel.org"
+ <linux-spi@vger.kernel.org>, "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>, Linus Torvalds
+ <torvalds@linux-foundation.org>
+Subject: RE: [PATCH v3 04/11] hv: Use driver_set_override() instead of
+ open-coding
+Thread-Topic: [PATCH v3 04/11] hv: Use driver_set_override() instead of
+ open-coding
+Thread-Index: AQHYK+FckIRUQCAZmEqm74E1fgzZE6ynizFQ
+Date: Sun, 27 Feb 2022 15:53:00 +0000
+Message-ID: <MN0PR21MB30980EDB65A4CE643990635FD7009@MN0PR21MB3098.namprd21.prod.outlook.com>
+References: <20220227135214.145599-1-krzysztof.kozlowski@canonical.com>
+ <20220227135214.145599-5-krzysztof.kozlowski@canonical.com>
+In-Reply-To: <20220227135214.145599-5-krzysztof.kozlowski@canonical.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+msip_labels: MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=a42ede4f-4007-465b-a95d-466cf4e30263;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ContentBits=0;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Enabled=true;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Method=Standard;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Name=Internal;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2022-02-27T15:48:34Z;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SiteId=72f988bf-86f1-41af-91ab-2d7cd011db47;
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=microsoft.com;
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: f3d1ed8c-400e-4f68-96a6-08d9fa093b9d
+x-ms-traffictypediagnostic: MN0PR21MB3384:EE_
+x-ms-exchange-atpmessageproperties: SA|SL
+x-microsoft-antispam-prvs: <MN0PR21MB338498506434E964B2C21C4FD7009@MN0PR21MB3384.namprd21.prod.outlook.com>
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: 3DsZvhnJsgBy4hcyBdF24BcIqlIet8SDRZjzhA4we36uhLdNOL/qPAf0soespQmTKHh7k28ISobqQEPJO8Vsx0w9eNmLhNVoAlhOvkKZB2Ds1Mn/+B33wrSfIwyiTzwMK0jsEhAqj4nwFJGVKW6pgr7wj9VNFv27Sz2l5Z3LLP4gRDkO1mMWjAVgEui2hS/3fGd+nqxB3aJTdhLsbxmwOIJw1FwI/jQtZgzuxsWZAbvkszPE61uJCixjn4Y15waGdURkmSSzfoI7L9YH97335wlLdIXnd+1GgtkVjm4JUR6g8VIJNpTAuXsa9AiUstmgCugZyA/9t0Y02eVp7la/pop6re90EASQYDi3dj58rkPI5fodVfzLqidLyxrG2DoQGQvbPFUPqVRqFR7c6/5etf5r0GKSqwRd0I1WORd3sBn2twvOXUff+D+VHKntDJv732JTW0V6gsbcQMjXa8ESlNCSkkehC7fRH+aoDuoh5nvp+58oP1M4/wOESRSxTtUj3TzMU2GLJ8paoDvJMLtoUTIiX8teqYbHniWxjXqlsTXT/Zc1YrO7B3RQyH67WgAu4cDJWcBZM/z/k8ewLp3jb9lSDei7ulHoaXm/yn3qQ0TlU4oBARbzcICSjHZRIXsuaHzAUBLyfFYz3eLkmaTV85o5d1Ps3so8vVfabZOF36RI+mhq54s7RI+lLRAk5E7mTS37pgwae8yvIR5GowFJiUxTEJ3tbY7EEb/dVsCc6FxS/8TIEP4/fdRXQOfA/4v5GzlU3rhNN2P67FrSysTViw==
+x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:MN0PR21MB3098.namprd21.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230001)(4636009)(366004)(38100700002)(82950400001)(110136005)(921005)(9686003)(2906002)(316002)(38070700005)(86362001)(122000001)(186003)(508600001)(10290500003)(7416002)(7406005)(5660300002)(8990500004)(26005)(7696005)(6506007)(4326008)(71200400001)(55016003)(33656002)(82960400001)(83380400001)(8936002)(64756008)(8676002)(66946007)(66446008)(52536014)(66556008)(66476007)(76116006);
+ DIR:OUT; SFP:1102; 
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?kMgwLaTJkeBdNQmItVe396aKj14chfUmxXPbIae7fO/x3HRuDBvgIqjsF1vD?=
+ =?us-ascii?Q?PuUijf78zDjvl5wwHTNXWeYGOj12ok1O1o5XM+Si+PkDyl4WX4QaJzWQ+UMp?=
+ =?us-ascii?Q?whdFZzUTcDbHNqk3gUSfJbITSBt4G/PEm5MiQPRk5DfhcpknivaXCFIrmZBn?=
+ =?us-ascii?Q?1sSDPyGSuilnxISfU3z71DtWujsjyNXJN6pbdfSr3UoE8CdolQQ6G0jRFtsb?=
+ =?us-ascii?Q?qHZnaliTLNiN5jT057Kbxs5PUS7BCIs7XMPir0PpHDaMOhBoXm2WhNc/yabe?=
+ =?us-ascii?Q?nEq/GqsHia936CF/IUUmLN766yFLyucpfqN67d/ACrvIEQBAv32KoG9Tq7mZ?=
+ =?us-ascii?Q?Iql2TLw8vv1DndMhSp/kaXNmooYl3v2Xlop3YoBX0dm79vaENwaFXAR7jxtO?=
+ =?us-ascii?Q?BYpfSmuMq/11Wos9xuwxlZrgsmBXh8TP1+1W+9KjrRA90gkfB/wjL2j+Qe8M?=
+ =?us-ascii?Q?QXai++NRFkoML7mZP+/tdoaVysf1FGaQ4kH2B8klFZzfnyY4eh3NxIcdopCT?=
+ =?us-ascii?Q?2bkUCTLWjFet3+wKBBKYropHw4HTPuOpL4tpN917X6iz7PIbcN2vj/BpkTgu?=
+ =?us-ascii?Q?6D4uIe1KdvWptCZM9+Pc38M/nvilOKvsmtHvPKAd6S2r5L+BE3/BTzUNsPmU?=
+ =?us-ascii?Q?aEpowQh+EiZOfd9jSrA6Osd63ql5d0AEWEGL52rqNyjVZP8Z0qZ5aarLFIGc?=
+ =?us-ascii?Q?39+vaAgqTUP4Vb28frF0LDGTQSQzYia0Gi/v2NX55aRAXsB3xVl1nOQ97TjP?=
+ =?us-ascii?Q?DkI8197peAWtjDyU6rT2x5WwBOzuOljM1taSz+qgiRvO53Htf1wQIsxaEYQJ?=
+ =?us-ascii?Q?iiMQH/aFNTBzaYV7J4SyZHcTdDBKD9aRLTk+cIu3Adam3joPP7iEEJxZd7Bj?=
+ =?us-ascii?Q?ryBNpmPD5ToCdHQkJevjIJBB2Jj0GOVfYxL+SmiuVKs0hJ7jpn9nSGkj5nOp?=
+ =?us-ascii?Q?LUWhGIpVmu0C1tcX0LgfqtasbrWsTmdk9MNQIuLrVhwnVbIWWmmNai07QDuK?=
+ =?us-ascii?Q?DOwLAbYYcgeHFHScoXv/uR6iPyHSQQ+pRbjnGV5jTrYcXFYH/8lJ+ZL0Ellk?=
+ =?us-ascii?Q?gbS6t7hJEtKKabZjV0fT4Prq5OJ5wSFbkEwY64Yh9bbznxTYqz/saUrz8kCk?=
+ =?us-ascii?Q?OIN8EWLH7gcdRt6XWBxv51viHM1r+IIkF9Ie1KgNxYNPA+fXJ/Ih9muUYzS+?=
+ =?us-ascii?Q?IcVrsAfPT1+RwjHoj4ZkLgAN7A7XO8Z8xKZ4Q+O7v+N4ar18LqwZctLvEqXr?=
+ =?us-ascii?Q?x3vujWrpt/XDZ6LDWsGKt/jXbVXNVadgT1kELeQbAo6IpQNYvJGL/N4CeDiL?=
+ =?us-ascii?Q?DCllBpoGPatWZE6ivNCTKgil9FoYA+ZdPE+fW0Stun3lcraDQxdOJkhifo7f?=
+ =?us-ascii?Q?bdHi32JgMlZp4p+EPai2lw7cecM/3eU9Y15tKS8oxDh8SGVuwPrhS6/bRsLX?=
+ =?us-ascii?Q?gVdLPBnqZlZnEERqLAn9azgC7Mq+C8thiNOZEmYXuEK813vtfFLF2g=3D=3D?=
 MIME-Version: 1.0
-In-Reply-To: <Yhj6ap3uEl2xFE8G@casper.infradead.org>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: virtualization <virtualization@lists.linux-foundation.org>,
- David Woodhouse <dwmw2@infradead.org>,
- linux-kernel <linux-kernel@vger.kernel.org>
+X-OriginatorOrg: microsoft.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: MN0PR21MB3098.namprd21.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: f3d1ed8c-400e-4f68-96a6-08d9fa093b9d
+X-MS-Exchange-CrossTenant-originalarrivaltime: 27 Feb 2022 15:53:00.7669 (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: iDOXGdO1qmEgbik6eJDNhDD+uhSLmDsN42bfXfMe1dm2pt8yFJLKPqofVIHfDtR3qE+lQBwgCqkIanlTzNaMyvnaiNytkv7Uf5yywIOAowk=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN0PR21MB3384
+Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -117,78 +181,88 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+From: "Michael Kelley \(LINUX\) via Virtualization"
+ <virtualization@lists.linux-foundation.org>
+Reply-To: "Michael Kelley \(LINUX\)" <mikelley@microsoft.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Feb 25, 2022 at 03:48:58PM +0000, Matthew Wilcox wrote:
-> On Tue, Feb 22, 2022 at 11:18:18PM +0000, Matthew Wilcox wrote:
-> > On Tue, Feb 22, 2022 at 07:58:33AM +0000, David Woodhouse wrote:
-> > > On Tue, 2022-02-22 at 01:31 -0500, Michael S. Tsirkin wrote:
-> > > > On Mon, Feb 21, 2022 at 05:18:48PM +0000, David Woodhouse wrote:
-> > > > > 
-> > > > > [dwoodhou@i7 virtio]$ sudo ~/virtio_test
-> > > > > Detected virtual address range 0x1000-0x7ffffffff000
-> > > > > spurious wakeups: 0x0 started=0x100000 completed=0x100000
-> > > > > 
-> > > > > Although in some circumstances I also see a different build failure:
-> > > > > 
-> > > > > cc -g -O2 -Werror -Wno-maybe-uninitialized -Wall -I. -I../include/ -I ../../usr/include/ -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE -include ../../include/linux/kconfig.h   -c -o vringh_test.o vringh_test.c
-> > 
-> > Trying to test this myself ...
-> > 
-> > $ cd tools/virtio/
-> > $ make
-> > ...
-> > cc -lpthread  virtio_test.o virtio_ring.o   -o virtio_test
-> > /usr/bin/ld: virtio_ring.o: in function `spin_lock':
-> > /home/willy/kernel/folio/tools/virtio/./linux/spinlock.h:16: undefined reference to `pthread_spin_lock'
-> > 
-> > So this is not the only problem here?
-> > 
-> > > > > In file included from ./linux/uio.h:3,
-> > > > >                  from ./linux/../../../include/linux/vringh.h:15,
-> > > > >                  from ./linux/vringh.h:1,
-> > > > >                  from vringh_test.c:9:
-> > > > > ./linux/../../../include/linux/uio.h:10:10: fatal error: linux/mm_types.h: No such file or directory
-> > > > >    10 | #include <linux/mm_types.h>
-> > > > >       |          ^~~~~~~~~~~~~~~~~~
-> > > > > compilation terminated.
-> > > > > make: *** [<builtin>: vringh_test.o] Error 1
-> > > > 
-> > > > Which tree has this build failure? In mine linux/uio.h does not
-> > > > include linux/mm_types.h.
-> > > 
-> > > Strictly it's
-> > > https://git.infradead.org/users/dwmw2/linux.git/shortlog/refs/heads/xen-evtchn-kernel
-> > > but I'm sure my part isn't relevant; it's just v5.17-rc5.
-> > > 
-> > >  $ git blame include/linux/uio.h | grep mm_types.h
-> > > d9c19d32d86fa (Matthew Wilcox (Oracle) 2021-10-18 10:39:06 -0400  10) #include <linux/mm_types.h>
-> > >  $ git describe --tags d9c19d32d86fa
-> > > v5.16-rc4-37-gd9c19d32d86f
-> > 
-> > grr.  Originally, I had this doing a typebusting cast, but hch objected,
-> > so I had to include mm_types.h.  This should fix it ...
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com> Sent: Sunday, February 27, 2022 5:52 AM
 > 
-> ping?  Just noticed this one crop up in a "list of problems".  Should
-> I submit it myself?
+> Use a helper for seting driver_override to reduce amount of duplicated
+> code. Make the driver_override field const char, because it is not
+> modified by the core and it matches other subsystems.
+> 
+> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+> ---
+>  drivers/hv/vmbus_drv.c | 28 ++++------------------------
+>  include/linux/hyperv.h |  7 ++++++-
+>  2 files changed, 10 insertions(+), 25 deletions(-)
+> 
+> diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
+> index 12a2b37e87f3..a0ff4139c3d2 100644
+> --- a/drivers/hv/vmbus_drv.c
+> +++ b/drivers/hv/vmbus_drv.c
+> @@ -575,31 +575,11 @@ static ssize_t driver_override_store(struct device *dev,
+>  				     const char *buf, size_t count)
+>  {
+>  	struct hv_device *hv_dev = device_to_hv_device(dev);
+> -	char *driver_override, *old, *cp;
+> -
+> -	/* We need to keep extra room for a newline */
+> -	if (count >= (PAGE_SIZE - 1))
+> -		return -EINVAL;
+> -
+> -	driver_override = kstrndup(buf, count, GFP_KERNEL);
+> -	if (!driver_override)
+> -		return -ENOMEM;
+> -
+> -	cp = strchr(driver_override, '\n');
+> -	if (cp)
+> -		*cp = '\0';
+> -
+> -	device_lock(dev);
+> -	old = hv_dev->driver_override;
+> -	if (strlen(driver_override)) {
+> -		hv_dev->driver_override = driver_override;
+> -	} else {
+> -		kfree(driver_override);
+> -		hv_dev->driver_override = NULL;
+> -	}
+> -	device_unlock(dev);
+> +	int ret;
+> 
+> -	kfree(old);
+> +	ret = driver_set_override(dev, &hv_dev->driver_override, buf, count);
+> +	if (ret)
+> +		return ret;
+> 
+>  	return count;
+>  }
+> diff --git a/include/linux/hyperv.h b/include/linux/hyperv.h
+> index fe2e0179ed51..beea11874be2 100644
+> --- a/include/linux/hyperv.h
+> +++ b/include/linux/hyperv.h
+> @@ -1257,7 +1257,12 @@ struct hv_device {
+>  	u16 device_id;
+> 
+>  	struct device device;
+> -	char *driver_override; /* Driver name to force a match */
+> +	/*
+> +	 * Driver name to force a match.
+> +	 * Do not set directly, because core frees it.
+> +	 * Use driver_set_override() to set or clear it.
+> +	 */
+> +	const char *driver_override;
+> 
+>  	struct vmbus_channel *channel;
+>  	struct kset	     *channels_kset;
+> --
+> 2.32.0
 
-Pls do.
-
-> > $ git diff
-> > diff --git a/tools/virtio/linux/mm_types.h b/tools/virtio/linux/mm_types.h
-> > new file mode 100644
-> > index 000000000000..3b0fc9bc5b8f
-> > --- /dev/null
-> > +++ b/tools/virtio/linux/mm_types.h
-> > @@ -0,0 +1,3 @@
-> > +struct folio {
-> > +       struct page page;
-> > +};
-> > 
-> > At least, it makes it compile for me.
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
 
 _______________________________________________
 Virtualization mailing list
