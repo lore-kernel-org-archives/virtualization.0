@@ -1,81 +1,98 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8173DC433EF
-	for <virtualization@archiver.kernel.org>; Mon, 28 Feb 2022 10:52:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 34BF2C433F5
+	for <virtualization@archiver.kernel.org>; Mon, 28 Feb 2022 13:08:11 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 0E4BE817ED;
-	Mon, 28 Feb 2022 10:52:12 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id BF42D403D8;
+	Mon, 28 Feb 2022 13:08:10 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ld6ktcLNi5GB; Mon, 28 Feb 2022 10:52:11 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 9B191817B5;
-	Mon, 28 Feb 2022 10:52:10 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 6E1mLDnbxjKc; Mon, 28 Feb 2022 13:08:10 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 5A47D40259;
+	Mon, 28 Feb 2022 13:08:09 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6C68FC0033;
-	Mon, 28 Feb 2022 10:52:10 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id ACD3CC001A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 2EFE6C0077;
+	Mon, 28 Feb 2022 13:08:09 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A3770C001A
  for <virtualization@lists.linux-foundation.org>;
- Mon, 28 Feb 2022 10:52:08 +0000 (UTC)
+ Mon, 28 Feb 2022 13:08:07 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 8C6A1605AE
+ by smtp1.osuosl.org (Postfix) with ESMTP id 9883781A24
  for <virtualization@lists.linux-foundation.org>;
- Mon, 28 Feb 2022 10:52:08 +0000 (UTC)
+ Mon, 28 Feb 2022 13:08:07 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id wZgSKNdpAcYm
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=kernel.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id xdYze5utJCDA
  for <virtualization@lists.linux-foundation.org>;
- Mon, 28 Feb 2022 10:52:07 +0000 (UTC)
+ Mon, 28 Feb 2022 13:08:07 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 44191600B4
+Received: from ams.source.kernel.org (ams.source.kernel.org
+ [IPv6:2604:1380:4601:e00::1])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id C874081A1C
  for <virtualization@lists.linux-foundation.org>;
- Mon, 28 Feb 2022 10:52:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1646045525;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=IVYeDVfzq28sn8+/lq8Z6rjLomlALnQoJ59O71VHfzQ=;
- b=EhTInOkhnU/wnIENO0TgsgBtMuj23jdbyIL4rKq67DWHtv1KzCyyyEAD5FZwk+zbg+b3mX
- HkOMMAe1UkJxOoU3CWHVmmM7xTac0siLNjfdSgfWt2bUFNwHqg4X20WvA6Jgp5XJjvRPGg
- PY9j3UpWR02997hmTU3yNBQP/+Xtz/Q=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-92-q7kWgGG-NKuf4SMC_VkNLg-1; Mon, 28 Feb 2022 05:52:01 -0500
-X-MC-Unique: q7kWgGG-NKuf4SMC_VkNLg-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com
- [10.5.11.15])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ Mon, 28 Feb 2022 13:08:06 +0000 (UTC)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 499E651E0;
- Mon, 28 Feb 2022 10:52:00 +0000 (UTC)
-Received: from localhost (unknown [10.39.193.171])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 9241182E57;
- Mon, 28 Feb 2022 10:51:57 +0000 (UTC)
-Date: Mon, 28 Feb 2022 10:51:56 +0000
-From: Stefan Hajnoczi <stefanha@redhat.com>
-To: Akihiko Odaki <akihiko.odaki@gmail.com>
-Subject: Re: [PATCH] virtio-blk: Assign discard_granularity
-Message-ID: <YhypTNtWpcgh3gb2@stefanha-x1.localdomain>
-References: <20220224093802.11348-1-akihiko.odaki@gmail.com>
+ by ams.source.kernel.org (Postfix) with ESMTPS id 12319B8114E;
+ Mon, 28 Feb 2022 13:08:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4116C340EE;
+ Mon, 28 Feb 2022 13:07:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1646053683;
+ bh=xwpZD4gZhTKAz2WFv6X6JMrNMSyputHa5miIKZ7mnV4=;
+ h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+ b=FDHaYinVMNM6kACb7E2Qy0TXd85azTDlvzFKosdq2q5aXpNxj4+0bCHnUOyq7qvCX
+ SdYowwLghSSD7m9p89L9IHLNURvZvuumE6Vu3Y7iNzNocmQHWUzg83s0qB+weG5HB0
+ +kvmS/aLHNI/6Nqh49ZcJOvFivLCHBHTVfK80/WeRhDxjAD3RPcXkp71y1CkrubPcT
+ TYf9kmUe4enaJ9QLuu5EOG9nUHW7bKk6BlwMqnVjYo83gCrxYJUvbhawoVypGiHk6k
+ f1g5of4zmfYtpdOQJOHVTh9uxD0U5bue4hdKW1TR99VKgbXAKo0qKyQa7hTJW5HG6p
+ WxhALj7z+X8eQ==
+Date: Mon, 28 Feb 2022 13:07:52 +0000
+From: Mark Brown <broonie@kernel.org>
+To: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Subject: Re: [PATCH v3 07/11] spi: Use helper for safer setting of
+ driver_override
+Message-ID: <YhzJKKCxnx9DvliT@sirena.org.uk>
+References: <20220227135214.145599-1-krzysztof.kozlowski@canonical.com>
+ <20220227135329.145862-1-krzysztof.kozlowski@canonical.com>
 MIME-Version: 1.0
-In-Reply-To: <20220224093802.11348-1-akihiko.odaki@gmail.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-Cc: Jens Axboe <axboe@kernel.dk>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org,
- Paolo Bonzini <pbonzini@redhat.com>, Christoph Hellwig <hch@lst.de>
+In-Reply-To: <20220227135329.145862-1-krzysztof.kozlowski@canonical.com>
+X-Cookie: Killing turkeys causes winter.
+Cc: linux-hyperv@vger.kernel.org, Stuart Yoder <stuyoder@gmail.com>,
+ "Rafael J. Wysocki" <rafael@kernel.org>, linux-pci@vger.kernel.org,
+ linux-remoteproc@vger.kernel.org, alsa-devel@alsa-project.org,
+ Bjorn Andersson <bjorn.andersson@linaro.org>,
+ Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+ Vineeth Vijayan <vneethv@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>, Fabio Estevam <festevam@gmail.com>,
+ linux-clk@vger.kernel.org, linux-s390@vger.kernel.org,
+ Wei Liu <wei.liu@kernel.org>, Stephen Hemminger <sthemmin@microsoft.com>,
+ Abel Vesa <abel.vesa@nxp.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Dexuan Cui <decui@microsoft.com>,
+ Linus Torvalds <torvalds@linux-foundation.org>, Andy Gross <agross@kernel.org>,
+ NXP Linux Team <linux-imx@nxp.com>, Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, linux-arm-msm@vger.kernel.org,
+ Sascha Hauer <s.hauer@pengutronix.de>, linux-spi@vger.kernel.org,
+ Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+ Bjorn Helgaas <bhelgaas@google.com>, virtualization@lists.linux-foundation.org,
+ linux-arm-kernel@lists.infradead.org,
+ Laurentiu Tudor <laurentiu.tudor@nxp.com>,
+ Mathieu Poirier <mathieu.poirier@linaro.org>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Haiyang Zhang <haiyangz@microsoft.com>,
+ Peter Oberparleiter <oberpar@linux.ibm.com>, linux-kernel@vger.kernel.org,
+ Sven Schnelle <svens@linux.ibm.com>, Shawn Guo <shawnguo@kernel.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -87,79 +104,45 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============5755531925787025672=="
+Content-Type: multipart/mixed; boundary="===============1991664706284036876=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 
---===============5755531925787025672==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="o6KFt0EAQYlUHcer"
+--===============1991664706284036876==
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="IskqWBy0ijhzVzPO"
 Content-Disposition: inline
 
 
---o6KFt0EAQYlUHcer
+--IskqWBy0ijhzVzPO
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Thu, Feb 24, 2022 at 06:38:02PM +0900, Akihiko Odaki wrote:
-> Virtual I/O Device (VIRTIO) Version 1.1
-> https://docs.oasis-open.org/virtio/virtio/v1.1/csprd01/virtio-v1.1-csprd0=
-1.html
-> > discard_sector_alignment can be used by OS when splitting a request
-> > based on alignment.
->=20
-> According to Documentation/ABI/stable/sysfs-block, the corresponding
-> field in the kernel is, confusingly, discard_granularity, not
-> discard_alignment.
+On Sun, Feb 27, 2022 at 02:53:25PM +0100, Krzysztof Kozlowski wrote:
+> Use a helper for seting driver_override to reduce amount of duplicated
+> code.
 
-Good catch, struct virtio_blk_config->discard_sector_alignment is Linux
-q->limits.discard_granularity.
+Reviwed-by: Mark Brown <broonie@kernel.org>
 
->=20
-> Signed-off-by: Akihiko Odaki <akihiko.odaki@gmail.com>
-> ---
->  drivers/block/virtio_blk.c | 4 +---
->  1 file changed, 1 insertion(+), 3 deletions(-)
->=20
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index c443cd64fc9b..1fb3c89900e3 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-> @@ -913,11 +913,9 @@ static int virtblk_probe(struct virtio_device *vdev)
->  		blk_queue_io_opt(q, blk_size * opt_io_size);
-> =20
->  	if (virtio_has_feature(vdev, VIRTIO_BLK_F_DISCARD)) {
-> -		q->limits.discard_granularity =3D blk_size;
-> -
->  		virtio_cread(vdev, struct virtio_blk_config,
->  			     discard_sector_alignment, &v);
-> -		q->limits.discard_alignment =3D v ? v << SECTOR_SHIFT : 0;
-
-Should we use struct virtio_blk_config->topology.alignment_offset
-("offset of first aligned logical block" and used for Linux
-blk_queue_alignment_offset()) for q->limits.discard_alignment?
-
---o6KFt0EAQYlUHcer
+--IskqWBy0ijhzVzPO
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmIcqUsACgkQnKSrs4Gr
-c8gvvgf8CUBI66KzLI88mzNHI2Vrynk7iPeOE+nt95l0+w7br24PncTRvUQCHPko
-u1d/0UZcCsOAG9cW5CSwRRQedrVbCrhNaJm6KywnghK/41SCcMHDJEAwQNyX9GCy
-FvmYghT9oHxhkucTD91oVuD0Sk714G2ikPNleZmijh/+kn224gCy1eP/3/S/KWGr
-/edZF24TIDpujQNdR9emr+UF7eLoWBC3n/ldoDVU+fmgXaCIT2DjZXbsqiu6Cjir
-ytI7KakJsyjFuWMXTSEIg9RKV0GRJTj/YYLspFMNEDZGv2ikaMatl/MNxDNpDvln
-+bylNvU54z5CWo7wObRdwWmybWOTzw==
-=Ldv1
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmIcyScACgkQJNaLcl1U
+h9Ao0gf+JDpig6VFnyylTAGyA+EFJ7fmHFbvWhVF0t9hjFi5sLRAs8Z3+hLLKVej
+zLVg+PMT7lEK9f1Cya6K7+gCq6ukWeVmmFBvuEA5Mn++s0vTXTuvx7VPQ8I7paXG
+iePQNfdjxSxtdDUM+zinbF3mL8p4PcKUzqKlYEGeYvhxM2KxJx8a01GSsgKU1rNC
+8ynKO/iKprh+dyGZOBcXM/m3OJDmQ0YEQi9uVQFGaznJ/yE4YjoBnCc7gj7uF2gB
+3VAYxVi8Uj4ZMLOq0HPkR6QYxtneVT0Gly46I5Mg5BJZHdJ4yGkOOhaqZ0E4gwXI
+YsZPSj+FAaJ1fM7xBMDL23NN8cHicw==
+=Gb02
 -----END PGP SIGNATURE-----
 
---o6KFt0EAQYlUHcer--
+--IskqWBy0ijhzVzPO--
 
-
---===============5755531925787025672==
+--===============1991664706284036876==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -169,5 +152,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============5755531925787025672==--
-
+--===============1991664706284036876==--
