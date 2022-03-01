@@ -1,185 +1,79 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 22F90C433F5
-	for <virtualization@archiver.kernel.org>; Tue,  1 Mar 2022 01:13:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id CAF67C433F5
+	for <virtualization@archiver.kernel.org>; Tue,  1 Mar 2022 01:26:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id A761540602;
-	Tue,  1 Mar 2022 01:13:45 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 5CC0980D1B;
+	Tue,  1 Mar 2022 01:26:34 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id w_P09w8nJfAg; Tue,  1 Mar 2022 01:26:33 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id E1D0A8254A;
+	Tue,  1 Mar 2022 01:26:32 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B397CC0077;
+	Tue,  1 Mar 2022 01:26:32 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C4857C001A
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  1 Mar 2022 01:26:31 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id A3940403FD
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  1 Mar 2022 01:26:31 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id YSC1XcsOLB5n; Tue,  1 Mar 2022 01:13:42 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 5D6E3401CA;
-	Tue,  1 Mar 2022 01:13:41 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4035DC0077;
-	Tue,  1 Mar 2022 01:13:41 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 43869C001A
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id NWgOQr0WoLPP
  for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Mar 2022 01:13:40 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 31DD7812BA
+ Tue,  1 Mar 2022 01:26:30 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+Received: from mxhk.zte.com.cn (mxhk.zte.com.cn [63.216.63.35])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 6F60E401CA
  for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Mar 2022 01:13:40 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=oracle.com header.b="ZRozH0Pu";
- dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
- header.b="vZsLJvMh"
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id GW8avlkV8IzA
+ Tue,  1 Mar 2022 01:26:30 +0000 (UTC)
+Received: from mxct.zte.com.cn (unknown [192.168.251.13])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mxhk.zte.com.cn (FangMail) with ESMTPS id 4K702X5MLLzBH5DP
  for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Mar 2022 01:13:37 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com
- [205.220.177.32])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 1279781296
- for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Mar 2022 01:13:36 +0000 (UTC)
-Received: from pps.filterd (m0246630.ppops.net [127.0.0.1])
- by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21SLbqlQ009568; 
- Tue, 1 Mar 2022 01:13:24 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
- h=message-id : date :
- subject : from : to : references : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=corp-2021-07-09;
- bh=2HlA/MkBeyMmAXza7r8wQDGkcjEGujS3m8i7RNCSAp4=;
- b=ZRozH0PuRE8RupYbwD+7JxrLbV/StaYGr/UeFWXVHonVPrL4NR8Zt1Gxlk6gfQTXnACh
- QPM1qZzxQCNMbxPAcwSvqVutDnlRMx0mXsRetadqSt6oTFWAJuZYe8l84h7rTT6KYEVa
- fc+gl5Jtbf5t+hLo12NZyHTo8lKcV0eDgUppXSBno/ty59U9cfD4fgO+ClL1nEr/CIjt
- enROS8AmkBoCe6DWZcxtOoMivECrEgSSYUbnkfW85JYePcvcuJ+C0xAG2RKSXs2SSUU8
- 3TE1QLa+/NWN6u8kCPHrwMFFYiHpkPGxpSDP8araPKqjecFmd6ELx+uK273AcnKeZoP3 4Q== 
-Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
- by mx0b-00069f02.pphosted.com with ESMTP id 3efamcdusx-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Tue, 01 Mar 2022 01:13:24 +0000
-Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
- by userp3020.oracle.com (8.16.1.2/8.16.1.2) with SMTP id 22111Icp172748;
- Tue, 1 Mar 2022 01:13:23 GMT
-Received: from nam04-dm6-obe.outbound.protection.outlook.com
- (mail-dm6nam08lp2044.outbound.protection.outlook.com [104.47.73.44])
- by userp3020.oracle.com with ESMTP id 3efdnkq6d9-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Tue, 01 Mar 2022 01:13:22 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=niqHuoaxoH82lZBlUf/zWqdr8yk9B3yXxplSumJ7v/l8ZZ/C4r5PsnLMyq8OUclTNdO5qRmgC0GBp/zwxHSQ8fUa2M8sjo4B3PKcCfqLJt1uVw2PFGji+lmc4bmH0+CVQPqAAFmEMwbcEi+UU3Y3RfQUpLxrgyEENoxjNeA/RVUxpLOiLGqRVW7YkMJALjKImOW8elE+Ly+7yGZ10GeqHm4DeXWsmeftCK8L5XNc67b4O7JLphZ2CilvO/UqEPICTjLsOXMX/HhsG7aLo0E2btvCfErKrQBoiuarFLK7swvZPmSgP2Brp76iRe2L+/f+4hAvlijhHnvZr1MG/j1wNg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=2HlA/MkBeyMmAXza7r8wQDGkcjEGujS3m8i7RNCSAp4=;
- b=VIZTSwBbsnqrrkK+Z0W+Ucgm3+sTpBDlJrH57qRHU4g1Cub44xE1ek2siE6Je4UAGJ6fxgf+HRLYRlZEeyW9morIx+4bbbuwMhJoBooB1sarqTIl/AIVnPXpqax01GjsFGwuMTiOT2jml5ME7b0f/G2BaI12LM+Hll30gWlrshjXcpumZHnCQLQtv1CqRZx/WPGaW5byg2izpjK0FE6ytxbQPlYnD1HAV1S+L5hWyXSpdIiPk6I/F27Th4An7ZUCgkGzLDIpYbeGyIPWfRquJ1SDztk15lYv5izucrB6J/HmsTzGsmuHmHOpURVkJ7DWLGNX+n1V2UYJmLd4RNK2pg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=2HlA/MkBeyMmAXza7r8wQDGkcjEGujS3m8i7RNCSAp4=;
- b=vZsLJvMhAjADWdSiFXBdax6/MgL4gEVg+cXkTGY3TQOpIHsKx7eWQf7l/Hs0R2TUItZVSqXCifhlr6hVkCT9URvjaky126qphk/Xl4EV6l274+jkiry5eHHZq/M5hRX6NKS+lf3R7dDSKUelbmS+Ieig6Ihpmfh4Ti6U3wdWuAc=
-Received: from CY4PR10MB1463.namprd10.prod.outlook.com (2603:10b6:903:2b::12)
- by BYAPR10MB2504.namprd10.prod.outlook.com (2603:10b6:a02:b1::11)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5017.21; Tue, 1 Mar
- 2022 01:13:20 +0000
-Received: from CY4PR10MB1463.namprd10.prod.outlook.com
- ([fe80::6d8a:c366:d696:1f86]) by CY4PR10MB1463.namprd10.prod.outlook.com
- ([fe80::6d8a:c366:d696:1f86%10]) with mapi id 15.20.5017.027; Tue, 1 Mar 2022
- 01:13:20 +0000
-Message-ID: <e598fcf0-e858-db7d-5d8d-8da62ad1bf20@oracle.com>
-Date: Mon, 28 Feb 2022 19:13:17 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.6.1
-Subject: Re: [PATCH V8 0/8] Use copy_process in vhost layer
-Content-Language: en-US
-From: Mike Christie <michael.christie@oracle.com>
-To: geert@linux-m68k.org, hdanton@sina.com, hch@infradead.org,
- stefanha@redhat.com, jasowang@redhat.com, mst@redhat.com,
- sgarzare@redhat.com, virtualization@lists.linux-foundation.org,
- christian.brauner@ubuntu.com, axboe@kernel.dk, ebiederm@xmission.com,
- linux-kernel@vger.kernel.org
-References: <20220209232939.9169-1-michael.christie@oracle.com>
-In-Reply-To: <20220209232939.9169-1-michael.christie@oracle.com>
-X-ClientProxiedBy: DS7PR03CA0119.namprd03.prod.outlook.com
- (2603:10b6:5:3b7::34) To CY4PR10MB1463.namprd10.prod.outlook.com
- (2603:10b6:903:2b::12)
+ Tue,  1 Mar 2022 09:26:28 +0800 (CST)
+Received: from mse-fl2.zte.com.cn (unknown [10.30.14.239])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by mxct.zte.com.cn (FangMail) with ESMTPS id 4K702Q4kt9z8fkWd;
+ Tue,  1 Mar 2022 09:26:22 +0800 (CST)
+Received: from szxlzmapp05.zte.com.cn ([10.5.230.85])
+ by mse-fl2.zte.com.cn with SMTP id 2211Q6Ev061421;
+ Tue, 1 Mar 2022 09:26:07 +0800 (GMT-8)
+ (envelope-from wang.yi59@zte.com.cn)
+Received: from fox-cloudhost8.localdomain (unknown [10.234.72.110])
+ by smtp (Zmail) with SMTP; Tue, 1 Mar 2022 09:26:06 +0800
+X-Zmail-TransId: 3e81621d762e002-92466
+From: Yi Wang <wang.yi59@zte.com.cn>
+To: mst@redhat.com
+Subject: [PATCH] vdpa: fix use-after-free on vp_vdpa_remove
+Date: Tue,  1 Mar 2022 17:10:59 +0800
+Message-Id: <20220301091059.46869-1-wang.yi59@zte.com.cn>
+X-Mailer: git-send-email 2.33.0.rc0.dirty
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 8d4ff5d0-3f79-4a0d-ecd3-08d9fb20ac3c
-X-MS-TrafficTypeDiagnostic: BYAPR10MB2504:EE_
-X-Microsoft-Antispam-PRVS: <BYAPR10MB2504A6B78CD3EEA6C3C30797F1029@BYAPR10MB2504.namprd10.prod.outlook.com>
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 30gkkIW2EJYwIUNjsVu4SNVgY1z5mK1KUiN7xB4gWFP1g5PKhdn9MCwN8VTkXapTWKc0UBqfGysVHcqLz32MQD/odWLdZ0Z62qPdEZ4zqNVeb+ch7926hVaVBnCh9yjuuKtoP3UenCHuaYXBH+QzpLvtxbU+GBkHLVbH71Lrmwu1VxG+aqIH3KDJZWtEhC6M0i3DtVfudrYnG9UuO1cGi/URTdH7RFAFUaB5DlbIJm5W3xdzZOoE4zbVm7p8LjSFGr1nRxHjuZVeebYh66pia8jpW+mMqxoghJD/Uvw7nhF+CZlFwARP3VqghiixN7RmiufSvrUEpmqZ4SNn7qbzymM6jZ3nt5/W4X08JlU597MsOZHIdJIIv/GwZVB9+w5zP9KumlGJaQxnxWGWQObdz6e+jwcf2zaea//+FJBafZWauyiSOekhKuWykxvZ+RTtq+lv6baL55cmDfX8lP4KgVbykajmFVyKeutRFWzxgRlAJs5F4ZXYjIRLT3UIopHqujXWxFs6jEheHes/D8zPBeW7ZqlkxTV7k1oIfhFrxmfVVOc/3Lr5sQCb7qHNCdb8SBa5mWgbipv/k+jXHLPO9UkHJtQlUBQ00zapQZ1E7609hIAoohFH4pLR3lz4k/qfMSuO8JdKlwtQOTQ4DwR5vRRxInyPHvsYkzlp81RW0yz9Ym+zL7ljecWP7uQ4PSpwmP0OCIeiL9KFrLokln0CyVk1BD+lX2MquM5u8TFKXw2hw9nC6b4y6Eq8yBcr6EC0lqqKQ4Wz8Zz6CPMUtxfVmtvXv7wAbL6RQ9gtmjcnVSxCcvS05GFcCMx1HSt6gBvqb8LFfQwkIsuu3SNYZA848IJ/NDtgysvdZPhG3ju03vlcUYvcJDmtgO/N0qVRaPps
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:CY4PR10MB1463.namprd10.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230001)(366004)(7416002)(66476007)(2906002)(5660300002)(66556008)(66946007)(8676002)(8936002)(31696002)(86362001)(36756003)(38100700002)(31686004)(921005)(316002)(186003)(26005)(83380400001)(966005)(6486002)(508600001)(53546011)(6506007)(6512007)(6666004)(2616005)(43740500002)(45980500001);
- DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?QVRRczFHNXNYQmc4eGJjc0JEbkJFZEg2M3V0dks4MzFhWVZTaSsxQlg2Mkhz?=
- =?utf-8?B?Rit1dEwxbUlzRW1YcGg3aUFjWWR2VklNcDlyOTJTWHJiUld1aEVaTmd6b3ln?=
- =?utf-8?B?RHhIU0ZpeWZmSllwbE9pOFdNVitxVEN5Z0JFSTd5T005aDhyUlJ2bCtpSENz?=
- =?utf-8?B?SWZnK1BpQUdoRzBhQWVrQ3pQVHNZbzBPa056Y3d5NnI0MEFoNWJ5V2R4SVJ4?=
- =?utf-8?B?YjMrUXU3NHdxZ3FQWXFWemY5Z0UvMDZiWDE4MWp5OFRrdHF4empqc0lmL1p1?=
- =?utf-8?B?dlBETVJtbnAzT3VxNzRIMTVLYWhibmwwZG9BYjJYT1BhQjJ6VkIrNEpTUW1y?=
- =?utf-8?B?d09pYjBYYUpycFkvZ0RmRjRqK1VWSTZKZG52eHVseUJ3NmxTblM4bmR3dG9v?=
- =?utf-8?B?WGdIU2Z0RngxbWlwK0RKYnoxUXJKMzlNdHh2WENNQXRMam4yVktPSjBiREJK?=
- =?utf-8?B?dDhMYmdpcE1hNW5CeEdFTzFKOHkxRDl3TlN6ano4ZmpLTjFJamhJdFRHU3p4?=
- =?utf-8?B?dHQ0THpaYXc3UE16OHNIQWtESmNqb2tFRDZWclVNQkFHTWFjb3d2Q0YwQ1Rh?=
- =?utf-8?B?NzJlWE5ETXpiOUt4TW43TVZPeXQ0TkQ2SDVMNmxydnk2Qk5QSUQzelFDajJ1?=
- =?utf-8?B?UCtXL2tpUFljTmw2MUUxcXpIK2doa1hKbU1XemlRNXdnWUhydkNiT1R3S3Q3?=
- =?utf-8?B?UEpEdDVUQ01sTldHbkY3eGpQcitiWFM1b3g1c0JMQnlBYnMyU0ZRZlpaN01N?=
- =?utf-8?B?UEExekIvU1V4aGx4aTNMNERxWW9TNEU1VURaSksvYkFBckN4eHJFb0t3NFVM?=
- =?utf-8?B?dE5iUzZwclZkMWpoT0xmK1VEa1YrRngzVFRkNDRHTlNKUjI1NzRaZm1RU0Vx?=
- =?utf-8?B?ek9FTVJqMlZ2T0I3bnppSTlrRXgxT0VGcDFpcHh5eTVoVGtDYVZjQ1ZHOXN3?=
- =?utf-8?B?bUxOWEh0aWNETTAyNVY4dktqWGRmUGZBSlVQMUZDVVY5TTBMamJXSkJxdC91?=
- =?utf-8?B?ZEdCQlozY0x6SUdRTGdpdUJqU0lQektKWWZVRkxNdGluS1M2eFAydDZxeFU3?=
- =?utf-8?B?R2pMNGZnOTNYSFppT1VOUENtRmFzRkxReE1rWkNvb0RJQmtZRU8zNERJVkd5?=
- =?utf-8?B?V2RmT3dKdm5ON0VJcU94TW05SUcxdm9xSjhHM0QxVkp6alJURTZybmFNOXlB?=
- =?utf-8?B?dTJyUnh0aW5GMGV6VHdwYWJiUkdWZnRVQzBVdHNNWDVJQ0dXak5pY1d1YzBW?=
- =?utf-8?B?SjdKVW1SMHpXNHpNOVZrb3hMOTJGeUdvaWxqc1AyTDQwN0Nqb2hWby8wSzlu?=
- =?utf-8?B?dm1rblo4VUk2bERwOXVwajJ3TXhhbTZyK280WlFGVHNNN25pZVhvVGtGSTND?=
- =?utf-8?B?eDY0ZS93K3JXV2tKZEVCSmFoVUZxaTAxb2FPZkhVNDg2SnFBeklQT0F0Tm1q?=
- =?utf-8?B?Ym5TcUVWbk5ab2JESDhuV3RjcURudXpyNklialdobEJTWVVaa2FtRG9GQnR4?=
- =?utf-8?B?dERZcW00L1JLUURadDl1dytDYys1ZFFDdUtDVHRBN3VEVVpqSHJuUlhmYWVI?=
- =?utf-8?B?ZVZ5SjNqY0pwamlWb0xmUm5hRGtjMUcxWGgxblZTczZBaFM4U2o2ODJtS1Ry?=
- =?utf-8?B?QlgrbFlNdWRTb1dBRGY4MENWbUJOVGh4VjByam4wTG1DUnQ1YVRkdjN4TjF3?=
- =?utf-8?B?cjFvVGNEVlhPQmk5ekZ2M21pNlYzUDJNWTJ4U0RqZFoxQVVJZW1aSDFuNGV1?=
- =?utf-8?B?UHV3NVpZMWFSeXFtdVJPREtCRUtTMmZONVV5STlyVjVSckZyb2FpNDZHdmFo?=
- =?utf-8?B?dWFKaFloY3I4TE8wWHlYOGJ6dTRGUHhtRHpmV29COXAxM24vaXhuV2FrdHFO?=
- =?utf-8?B?K2pyQkRUUjVYOStSSVFxK0VieGxzVjlnZmNYZ3ptWjl2NzJnblF3R24zL3B2?=
- =?utf-8?B?bXNONENiQkZINE5aamlJL2tUWHJtYjlyeGdWc2JZSVBxNWF5T3NWVlBudEdL?=
- =?utf-8?B?VVRGcUc0UCtDeW9PWk1CaWdoZmF3RjluR1dkK0M3K20rSnZ0UC94R2ViTW1W?=
- =?utf-8?B?YjlvU1hZZlZtSW1CbjdnTjd0WkIxcXJQMzQ1RWwxQzF4NDRYWG5HU3haWXQ1?=
- =?utf-8?B?MkZTRFFOc05LTmlubFVTdkRwcy9LVGdGQjZveXVabThPcnpYWHpZZkhBR2dx?=
- =?utf-8?B?WitOTHQyb2FiWE80SEdMbkdDSmF1T1RIWmFvOUIzR243WHNCaVJVOHl0MU1n?=
- =?utf-8?B?V0FOa1JSRjBvVG92b2dGMHBDWGVBPT0=?=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 8d4ff5d0-3f79-4a0d-ecd3-08d9fb20ac3c
-X-MS-Exchange-CrossTenant-AuthSource: CY4PR10MB1463.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Mar 2022 01:13:19.9334 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: WK2xGr0OvxI7Rt/inpj2G7QuFwqQJH35ziWfsPTQ38aWKMLSjJpqLwdpZ8JBbNzdb9VKvJ7uRAiL78ww4XhKJHALUZs5ITMp7noyCk+VLNM=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR10MB2504
-X-Proofpoint-Virus-Version: vendor=nai engine=6300 definitions=10272
- signatures=684655
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999
- bulkscore=0
- adultscore=0 phishscore=0 spamscore=0 suspectscore=0 malwarescore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2201110000 definitions=main-2203010004
-X-Proofpoint-ORIG-GUID: Yii8R-QV1ygDLZ1tz5YtWi6D5iiwk4LM
-X-Proofpoint-GUID: Yii8R-QV1ygDLZ1tz5YtWi6D5iiwk4LM
+X-MAIL: mse-fl2.zte.com.cn 2211Q6Ev061421
+X-Fangmail-Gw-Spam-Type: 0
+X-FangMail-Miltered: at cgslv5.04-192.168.250.138.novalocal with ID
+ 621D7644.001 by FangMail milter!
+X-FangMail-Envelope: 1646097988/4K702X5MLLzBH5DP/621D7644.001/192.168.251.13/[192.168.251.13]/mxct.zte.com.cn/<wang.yi59@zte.com.cn>
+X-Fangmail-Anti-Spam-Filtered: true
+X-Fangmail-MID-QID: 621D7644.001/4K702X5MLLzBH5DP
+Cc: wang.yi59@zte.com.cn, Zhang Min <zhang.min9@zte.com.cn>,
+ wang.liang82@zte.com.cn, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, xieyongji@bytedance.com,
+ wuzongyong@linux.alibaba.com, xue.zhihong@zte.com.cn, elic@nvidia.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -196,91 +90,54 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Eric and Christian,
+From: Zhang Min <zhang.min9@zte.com.cn>
 
-The second patch now has a conflict with Linus's tree. I was going to
-rebase, but, I wanted to ping you guys to see if you have comments or
-issues?
+When vp_vdpa driver is unbind, vp_vdpa is freed in vdpa_unregister_device
+and then vp_vdpa->mdev.pci_dev is dereferenced in vp_modern_remove,
+triggering use-after-free.
 
+Call Trace of unbinding driver free vp_vdpa :
+do_syscall_64
+  vfs_write
+    kernfs_fop_write_iter
+      device_release_driver_internal
+        pci_device_remove
+          vp_vdpa_remove
+            vdpa_unregister_device
+              kobject_release
+                device_release
+                  kfree
 
-On 2/9/22 5:29 PM, Mike Christie wrote:
-> The following patches made over Linus's tree, allow the vhost layer to do
-> a copy_process on the thread that does the VHOST_SET_OWNER ioctl like how
-> io_uring does a copy_process against its userspace app. This allows the
-> vhost layer's worker threads to inherit cgroups, namespaces, address
-> space, etc and this worker thread will also be accounted for against that
-> owner/parent process's RLIMIT_NPROC limit.
-> 
-> If you are not familiar with qemu and vhost here is more detailed
-> problem description:
-> 
-> Qemu will create vhost devices in the kernel which perform network, SCSI,
-> etc IO and management operations from worker threads created by the
-> kthread API. Because the kthread API does a copy_process on the kthreadd
-> thread, the vhost layer has to use kthread_use_mm to access the Qemu
-> thread's memory and cgroup_attach_task_all to add itself to the Qemu
-> thread's cgroups.
-> 
-> The problem with this approach is that we then have to add new functions/
-> args/functionality for every thing we want to inherit. I started doing
-> that here:
-> 
-> https://lkml.org/lkml/2021/6/23/1233
-> 
-> for the RLIMIT_NPROC check, but it seems it might be easier to just
-> inherit everything from the beginning, becuase I'd need to do something
-> like that patch several times.
-> 
-> V8:
-> - Fix kzalloc GFP use.
-> - Fix email subject version number.
-> V7:
-> - Drop generic user_worker_* helpers and replace with vhost_task specific
->   ones.
-> - Drop autoreap patch. Use kernel_wait4 instead.
-> - Fix issue where vhost.ko could be removed while the worker function is
->   still running.
-> V6:
-> - Rename kernel_worker to user_worker and fix prefixes.
-> - Add better patch descriptions.
-> V5:
-> - Handle kbuild errors by building patchset against current kernel that
->   has all deps merged. Also add patch to remove create_io_thread code as
->   it's not used anymore.
-> - Rebase patchset against current kernel and handle a new vm PF_IO_WORKER
->   case added in 5.16-rc1.
-> - Add PF_USER_WORKER flag so we can check it later after the initial
->   thread creation for the wake up, vm and singal cses.
-> - Added patch to auto reap the worker thread.
-> V4:
-> - Drop NO_SIG patch and replaced with Christian's SIG_IGN patch.
-> - Merged Christian's kernel_worker_flags_valid helpers into patch 5 that
->   added the new kernel worker functions.
-> - Fixed extra "i" issue.
-> - Added PF_USER_WORKER flag and added check that kernel_worker_start users
->   had that flag set. Also dropped patches that passed worker flags to
->   copy_thread and replaced with PF_USER_WORKER check.
-> V3:
-> - Add parentheses in p->flag and work_flags check in copy_thread.
-> - Fix check in arm/arm64 which was doing the reverse of other archs
->   where it did likely(!flags) instead of unlikely(flags).
-> V2:
-> - Rename kernel_copy_process to kernel_worker.
-> - Instead of exporting functions, make kernel_worker() a proper
->   function/API that does common work for the caller.
-> - Instead of adding new fields to kernel_clone_args for each option
->   make it flag based similar to CLONE_*.
-> - Drop unused completion struct in vhost.
-> - Fix compile warnings by merging vhost cgroup cleanup patch and
->   vhost conversion patch.
-> 
-> 
-> 
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+Call Trace of dereference vp_vdpa->mdev.pci_dev:
+vp_modern_remove
+  pci_release_selected_regions
+    pci_release_region
+      pci_resource_len
+        pci_resource_end
+          (dev)->resource[(bar)].end
 
+Signed-off-by: Zhang Min <zhang.min9@zte.com.cn>
+Signed-off-by: Yi Wang <wang.yi59@zte.com.cn>
+---
+ drivers/vdpa/virtio_pci/vp_vdpa.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/vdpa/virtio_pci/vp_vdpa.c b/drivers/vdpa/virtio_pci/vp_vdpa.c
+index a57e381e830b..cce101e6a940 100644
+--- a/drivers/vdpa/virtio_pci/vp_vdpa.c
++++ b/drivers/vdpa/virtio_pci/vp_vdpa.c
+@@ -533,8 +533,8 @@ static void vp_vdpa_remove(struct pci_dev *pdev)
+ {
+ 	struct vp_vdpa *vp_vdpa = pci_get_drvdata(pdev);
+ 
+-	vdpa_unregister_device(&vp_vdpa->vdpa);
+ 	vp_modern_remove(&vp_vdpa->mdev);
++	vdpa_unregister_device(&vp_vdpa->vdpa);
+ }
+ 
+ static struct pci_driver vp_vdpa_driver = {
+-- 
+2.27.0
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
