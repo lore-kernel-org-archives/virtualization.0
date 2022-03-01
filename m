@@ -1,102 +1,177 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 788F2C433F5
-	for <virtualization@archiver.kernel.org>; Tue,  1 Mar 2022 15:43:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6B773C433EF
+	for <virtualization@archiver.kernel.org>; Tue,  1 Mar 2022 16:30:37 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 0AF9D60E5A;
-	Tue,  1 Mar 2022 15:43:19 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 0F3AD404B6;
+	Tue,  1 Mar 2022 16:30:37 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 6NqyV0SHS28y; Tue,  1 Mar 2022 15:43:18 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 83CEE605A0;
-	Tue,  1 Mar 2022 15:43:17 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id PpTILjQvOA0g; Tue,  1 Mar 2022 16:30:36 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id B576140047;
+	Tue,  1 Mar 2022 16:30:35 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 59BA5C0077;
-	Tue,  1 Mar 2022 15:43:17 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B1FF3C001A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8BDC7C0033;
+	Tue,  1 Mar 2022 16:30:35 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5289EC001A
  for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Mar 2022 15:43:15 +0000 (UTC)
+ Tue,  1 Mar 2022 16:30:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 9AC2560B2D
+ by smtp1.osuosl.org (Postfix) with ESMTP id 40E8881396
  for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Mar 2022 15:43:15 +0000 (UTC)
+ Tue,  1 Mar 2022 16:30:34 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ei0-TBYzp7Am
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=oracle.com header.b="kjUIvDFE";
+ dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
+ header.b="cn4gy8sk"
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id BlZwnch0e5bY
  for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Mar 2022 15:43:15 +0000 (UTC)
+ Tue,  1 Mar 2022 16:30:32 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id E2450605A0
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com
+ [205.220.177.32])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 0C61D81394
  for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Mar 2022 15:43:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1646149393;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=zi/rF6ZbstmVPPcLyO+lYHA/xLDgWYDmluRIslmEBwo=;
- b=UYavwnBf64MszjRAMIuiGMaj8lDjjCnSXRlLHYUMVDsNBtxEB+H8MxJQLS/S0lq8wkF8aq
- ouKmvwT+iO3xpTXoc0byfymDVtZPieXDgWV9TEr1G5TV2k/jIgt08OU8D+xjPTm8NAASEp
- LuuC3lcQGVeoipCPCpF2r5CRljVq/xA=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-489-E5LZgNk7ORue8Zq9gui5WA-1; Tue, 01 Mar 2022 10:43:12 -0500
-X-MC-Unique: E5LZgNk7ORue8Zq9gui5WA-1
-Received: by mail-wm1-f69.google.com with SMTP id
- ay7-20020a05600c1e0700b003813d7a7d03so1394587wmb.1
- for <virtualization@lists.linux-foundation.org>;
- Tue, 01 Mar 2022 07:43:12 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=zi/rF6ZbstmVPPcLyO+lYHA/xLDgWYDmluRIslmEBwo=;
- b=IOmUjvcvrtqFUCWzvE4oanpZUmYyLp0B6p4qk6VwJgde5TDmeBjayBPuNloYqDXb+G
- 7ozp41BqP22wEyXyJ0g/rRePVS8r+IwOVuME0Op33nqqDxnRu1olNqVJaNxOwLZj5nOt
- gF3rJDGIIKFYKD15zBJvySXYvLEejbX/BCk/gwq9Kx2lDH561pr/i715P508cPdyOm2r
- 34LPiCrNakpPdcjwa+J28foDtei7Qb1R+9vvaxDTaTU+EeUGoERojsFS2QbiMcb7e/57
- ZR1QbHi4c1olOUZswi0yTg9D36nBFslkGPbtktlHN9vupyZODRsHcwfL2l0XkVE2AaiY
- w5yA==
-X-Gm-Message-State: AOAM530vX6dzKphfdQduikdo49T9Ev1tHx1yKpSKK7EZtwU6JfL9ax2Y
- 2BDea1bcWB2ywTgRtGtAhjaijaq3v1xheLcf1X+vNoEbXCtyJconrxt5uRqbp5zTPBA5snmwiic
- WLHhhq+PKstjTAR9APH912UVzfadiwOeHINGgvLsKZQ==
-X-Received: by 2002:a5d:4578:0:b0:1ed:bf30:40f3 with SMTP id
- a24-20020a5d4578000000b001edbf3040f3mr20424544wrc.669.1646149391305; 
- Tue, 01 Mar 2022 07:43:11 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwRUwQD1hJ1u91M2fQsU2xg9R4HN5NlawjsdCEJ846aEK4fDF9wmsyllywQDwwFcvuwBhdJCQ==
-X-Received: by 2002:a5d:4578:0:b0:1ed:bf30:40f3 with SMTP id
- a24-20020a5d4578000000b001edbf3040f3mr20424527wrc.669.1646149391064; 
- Tue, 01 Mar 2022 07:43:11 -0800 (PST)
-Received: from redhat.com ([2.53.2.184]) by smtp.gmail.com with ESMTPSA id
- m62-20020a1c2641000000b00380d0cff5f3sm2966744wmm.8.2022.03.01.07.43.09
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 01 Mar 2022 07:43:10 -0800 (PST)
-Date: Tue, 1 Mar 2022 10:43:06 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Xie Yongji <xieyongji@bytedance.com>
-Subject: Re: [PATCH v2] virtio-blk: Remove BUG_ON() in virtio_queue_rq()
-Message-ID: <20220301104039-mutt-send-email-mst@kernel.org>
-References: <20220228065720.100-1-xieyongji@bytedance.com>
+ Tue,  1 Mar 2022 16:30:31 +0000 (UTC)
+Received: from pps.filterd (m0246630.ppops.net [127.0.0.1])
+ by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 221EConE021768; 
+ Tue, 1 Mar 2022 16:30:30 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+ h=to : cc : subject :
+ from : message-id : references : date : in-reply-to : content-type :
+ mime-version; s=corp-2021-07-09;
+ bh=yZFEYd5Fy6g9Lsnx1DIVUbNWknvqmQIqvSTFVD5qdDU=;
+ b=kjUIvDFEZxOYyX2oDRZ5ivScwG8a1XTcWFuHImOg/PHqrZRFYZscBN9EbVdo1iyZ6ZfJ
+ /eg32mqhZdPMn/jt1ax+A8awYb/D6G5l3N/48OV1fTduVANNIwn0fJFT4y+L5PHmIy8Q
+ s52gKrL60V+XwilS+7Xsqmr5Q9dbt38kDwRbJmlWDGrRvGOTWxnGDtpYDe2HoZVvKYjM
+ /wVDN6L610+vkdtszyu5lCq2As2TL7XBfnwqAjLKok5QB/QZ+EW12RoUsBhR8NTwvytI
+ O3TqHAmovL2v3+ig6ZYif06TgJcOn9CBAu8Ed3LRPH0v7ofm3vFJKxaHasOQXBRFU8vm /Q== 
+Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
+ by mx0b-00069f02.pphosted.com with ESMTP id 3ehdaysjnk-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Tue, 01 Mar 2022 16:30:29 +0000
+Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
+ by userp3030.oracle.com (8.16.1.2/8.16.1.2) with SMTP id 221GK7Js056858;
+ Tue, 1 Mar 2022 16:30:28 GMT
+Received: from nam12-mw2-obe.outbound.protection.outlook.com
+ (mail-mw2nam12lp2048.outbound.protection.outlook.com [104.47.66.48])
+ by userp3030.oracle.com with ESMTP id 3ef9axqm98-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Tue, 01 Mar 2022 16:30:28 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=HZ6T+mCjOIahHTvUTXLSdk+r34y4c9Zv8HtMqDaqakJ92Ln1rC7j5EhunrJweeDUoyRpDOlEBGmJJJfYmASxrORE9NJIKazspBrDz0cUokMnJmbXZXHbiHzCvccpFpLEFqDBpcNBvFhmz6eG9yoYgD4kQSDpR6F822NOUZ6itawvpcFlZJIedezS1CvOiJWaV9e/9G8QdCsL9CKY0YgEUhLJkwC3bv6XCNWU4TShUA6umawIKNKlPTd2VcGs/1ILkF9Y995ZHBD6URGRMxMacA7voDhGhwK0cxJSh6u+Dz6spO91LhrsLdb2B3SZaC9C+d7feDmi3OtnzoUtnTCHQA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=yZFEYd5Fy6g9Lsnx1DIVUbNWknvqmQIqvSTFVD5qdDU=;
+ b=nZB4ZVxQr7hq5eJ3CEnQ+dcfsr/Q86HCMXGWsAr/BKXZfs4+pzMvbTwanHMsMZ+RrNKewUqPxrrGiZrmYchBhDQyKSldbBIbMKfRCfrBxBPkog+FcYoTYswnkWmv2FW49rM8LgKikgeXTaaxg1rb7HglCzi8qLC1pwTSDghegq/nkkI7jCODzzBchaGqvgotIpr5Vf6sVH+S+6NdyXERfy7dMChWHuqEBL5guhVg2Ngurqgpaj7ZcxSBBlaYkL7swT66oy/5T5eQNPYLC1rFzH82ldZTE6vnw+vPYgJOvDKlLnMYPR0tYAucXMdpumYCdeGUQ4rZwJkUlJ4EIpZ6Kw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=yZFEYd5Fy6g9Lsnx1DIVUbNWknvqmQIqvSTFVD5qdDU=;
+ b=cn4gy8skyVFXGdzbpcJlyXfDCd8EOiqXK3kee+LNM6VLJgCgYJISkZhTw3AfVPqQPbKRV8zhGzilUDaEOYr5GklMrqdv1kMsWsxkQo22jJr6dSn9/lC5DuGHed0hhHoqgE2ick6xEpIzaFtXX/LUiH6AptKPzeCcSD2vfSjJcvY=
+Received: from PH0PR10MB4759.namprd10.prod.outlook.com (2603:10b6:510:3d::12)
+ by CY4PR10MB1862.namprd10.prod.outlook.com (2603:10b6:903:125::11)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5017.25; Tue, 1 Mar
+ 2022 16:30:25 +0000
+Received: from PH0PR10MB4759.namprd10.prod.outlook.com
+ ([fe80::180:b394:7d46:e1c0]) by PH0PR10MB4759.namprd10.prod.outlook.com
+ ([fe80::180:b394:7d46:e1c0%6]) with mapi id 15.20.5017.027; Tue, 1 Mar 2022
+ 16:30:25 +0000
+To: Akihiko Odaki <akihiko.odaki@gmail.com>
+Subject: Re: [PATCH] virtio-blk: Assign discard_granularity
+From: "Martin K. Petersen" <martin.petersen@oracle.com>
+Organization: Oracle Corporation
+Message-ID: <yq1k0dd4pde.fsf@ca-mkp.ca.oracle.com>
+References: <20220224093802.11348-1-akihiko.odaki@gmail.com>
+ <YhypTNtWpcgh3gb2@stefanha-x1.localdomain>
+ <e306700c-3153-9422-974c-1f5f10e232d6@gmail.com>
+Date: Tue, 01 Mar 2022 11:30:23 -0500
+In-Reply-To: <e306700c-3153-9422-974c-1f5f10e232d6@gmail.com> (Akihiko Odaki's
+ message of "Tue, 1 Mar 2022 14:43:55 +0900")
+X-ClientProxiedBy: SJ0PR03CA0331.namprd03.prod.outlook.com
+ (2603:10b6:a03:39c::6) To PH0PR10MB4759.namprd10.prod.outlook.com
+ (2603:10b6:510:3d::12)
 MIME-Version: 1.0
-In-Reply-To: <20220228065720.100-1-xieyongji@bytedance.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: axboe@kernel.dk, hch@infradead.org, linux-block@vger.kernel.org,
- virtualization@lists.linux-foundation.org
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: c83d37a5-722d-4190-2c3d-08d9fba0ca42
+X-MS-TrafficTypeDiagnostic: CY4PR10MB1862:EE_
+X-Microsoft-Antispam-PRVS: <CY4PR10MB1862400E19C03DC40084B94F8E029@CY4PR10MB1862.namprd10.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: eUa8QpazFh2SWGmCFN7mrSqNFPIYy9SY2Eg5fkDvrd1zIlz3wNfvivmO12/lx2BCPbq0T/aYA8rFIR3VyY3DB80JOYJ2s3TteV1Dg6LAuL+bbAVf8jWnQ7OiwGNnWGknucoIXT52fjY2kku9QUHf54+Lg1pVFLXzICeUTCoEIvBmxQmSp5o1I0yVDazgYbSAEeQ8MI5Lo876KmAM3EqHy6HVellW+ya6C8B04sjMUWsnTzXdOXWi2RJHl9VnHY06puQjP/R96pb1WWB1tnvYBtnjkRd3x07h8mRY+vfMS5QD0CFlyiCZstY3v0xxUmlOfuzvAiQTtnsBawAPg2L0Yix2zvMyGzC69LuekDO0RLVyTlxcC2wVwyjn0W7gyTeuLg5Fuw2tPceaxcb495GvjEQQZxtizCDJdwi+c5gWWDuj/MB2ahaDWt2500n1eqHIot0/Y2A5YxdNTIi0KIcWGfy+JdVxxLlQI8OHPbvdeq3FxunOjdtAB8nvHC9EPMWHdcTyxG/JfSCmFmPWYK9Wf+gPGsm0e9Q+9x6sN9TUvIzdRG/1MdgqW9vBO66mLAX8BaZMIOSXHCquKJWnFHSHllHNQ0VrBTXrby4FWEMUfhePOKJ8xzS1ybxJrjnG4QKauqj+N+T/hBmwd2z0w637M2ACfVzkAWf5HBtdOr1S6aQ1rz8QcEKfXdb8MBwX2iHwwA6oUDe4LSPYmCyiL7dc+w==
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:PH0PR10MB4759.namprd10.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230001)(366004)(86362001)(4744005)(8936002)(36916002)(316002)(52116002)(186003)(6506007)(26005)(6512007)(6916009)(54906003)(83380400001)(66556008)(4326008)(8676002)(66476007)(38350700002)(2906002)(508600001)(66946007)(6486002)(5660300002)(38100700002);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?pEaMEpxb6flHy1tRmh4WY81POADyAk0hFRU9wAv46s1RGe9pl6G/jsQw3/uR?=
+ =?us-ascii?Q?2Bg2egUQ9gdeognkKnEsY5KjTzjOs66C2q+Uw1NsjA+YZP9Bp0PRU6fUOf5/?=
+ =?us-ascii?Q?9CqDtW2nGjkA7SM66oTlI86oZiB2PfeFwH0y4E/FXTmeTh9Cg+P0XPOcEPc9?=
+ =?us-ascii?Q?fbLtAK81ENn5tA2LkJ+Q4pc4DkjYHGzL/LlwBcJfUqNYk90THS5TMDepbnPy?=
+ =?us-ascii?Q?dzNbJjNKI1atCwjZxD5+1uBUOAJYrfVTCPNvvs0KAfOLObOZv8Fuh4AaYbRC?=
+ =?us-ascii?Q?Sx+iZDmK4oQZfk2z5T0wHKIcKYKk/7XsYMTCguGIR9kkmAW+EjeA2qaVkLnu?=
+ =?us-ascii?Q?eby9hlTtCJTHDcz5/xDDvLnQ9uvsDdos3FgQ+GYUcnwLsfn83LtJgl80rWen?=
+ =?us-ascii?Q?J3MJekxnoIcyHK7f2/THNlyLLvNpjN8PKdEtFB0ROgD79K7arpFp6Xun1K4G?=
+ =?us-ascii?Q?ajapcmOupE3XXSeURpJFGnBbKGMxh17dbOW8ZhDjxLNlrQKb1VNX3vulXpNv?=
+ =?us-ascii?Q?oVltEbVdoZOPWOqRSIfOeE15X0roSBgnaDOcEtwrU9Rzzqar0VFATDa5mCdB?=
+ =?us-ascii?Q?NPO+tDmQjqWkQhvzvwkz0EXP29xxQP9FTnnReiqFduofXcAiSFWsnm5M/SRh?=
+ =?us-ascii?Q?2kXJoRxBnfst/eNY6JHbkmAJ5XwVJ5JATK+Mf5B/vjcZG6LGEPccvA0mJHP6?=
+ =?us-ascii?Q?vqvesy/nI9OFIY86j6sECOGVRpyz3L4azvBeVOCp0A91CErETcY2dOZ3Mkwd?=
+ =?us-ascii?Q?EYAKFPiUa3bRBYV6s6dpwPg6K/5XjXqxD2jpHZhtCRY+Rk0un/BYMMWEVXxX?=
+ =?us-ascii?Q?c7m0HWcsG+OUft2o9LxHOl68UV1uJ2CmCpns9Hkfd3XH6/z+5gzl0cETDeVk?=
+ =?us-ascii?Q?DSGh/bSTeYqD9d8+1jEFgoVX8xoiNpsYvHcA8uwQJlEz4GcxpDhRzjUiTPDD?=
+ =?us-ascii?Q?nrtVxgLGi30ZCCR+wc3GvxGI/Tnbs1m6FrqDhqYWahYL94npS2af2ZXPeGRw?=
+ =?us-ascii?Q?S8J+IWHUGe03PJQb7qGns7johtxqLjRNRyJ3W7XTswmWdUwDG5BEC1TyBEpZ?=
+ =?us-ascii?Q?nsW+BcQimpSVarXuHwNneRMQywNshNuxIArPVjjPH1TcQ+xBWXgTi5U6UEc5?=
+ =?us-ascii?Q?JAYxjJsZxpx7RYzEqvL9GxGcraLjXI4fdsf9Cj6IVSMCH7ewYfNaYQGa0/q2?=
+ =?us-ascii?Q?OjITzopoxAFhEDAwRuayZ/jgxH3sWnZ+zBreCvHO+1tCFZEL0oiTNZC3ciUf?=
+ =?us-ascii?Q?WRpjwzIwmNKHahL4lj7zswmwRr/k2HQ+BxrQ6FVyKf8/iw3tdMMc4+CPS52O?=
+ =?us-ascii?Q?H5bNdrT6h3o+4/4ySoBwWV6WKfzs1+cpfs1Jn8oMOd/ENLL6wxzKfq0qxj08?=
+ =?us-ascii?Q?QsEmLmD7YoWKli83QZw7ISu7/OBPQ81r7Ab1Nw4Eequ2c4tCDe1cEd42iP3W?=
+ =?us-ascii?Q?2hCSLh1PuRtAdt/0mdq1sOsjZxt/idQdOMd8SP0R4PozVEDBBK3X611sanyI?=
+ =?us-ascii?Q?yUKmG7Qn9QkNaohIu3Pyc2vvjjDkmckdn7C9w8CXCvX1nHO7+OFI7F3S7BDY?=
+ =?us-ascii?Q?6X1WQ1aPUo+alnhGxF1qQUlUPDArgjcO5sMAeBQo0lRu+4sOg3WLhtXqQXrk?=
+ =?us-ascii?Q?YhOJlbKrDT+gDAApCARspk1dbGfwIvBWdh0D1LgZPiV4rgaXk3iQXz/p2GZR?=
+ =?us-ascii?Q?v5LZbQ=3D=3D?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: c83d37a5-722d-4190-2c3d-08d9fba0ca42
+X-MS-Exchange-CrossTenant-AuthSource: PH0PR10MB4759.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Mar 2022 16:30:25.7871 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: m7EC1J0T6rOmelESaBcvnDWn12L3rMh+H3WmQKmQT6IYm01QDC7z6CGzm/vbPhLANa7XqWAXlf9clvVU4J2Rwpe0VYIgpEDy1en9AiqOEMM=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY4PR10MB1862
+X-Proofpoint-Virus-Version: vendor=nai engine=6300 definitions=10273
+ signatures=685966
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0
+ bulkscore=0 malwarescore=0
+ mlxscore=0 phishscore=0 suspectscore=0 adultscore=0 mlxlogscore=941
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2201110000
+ definitions=main-2203010087
+X-Proofpoint-GUID: pXB-YClmdUvMVhNIgwhqB0xpGp6ozR-F
+X-Proofpoint-ORIG-GUID: pXB-YClmdUvMVhNIgwhqB0xpGp6ozR-F
+Cc: Jens Axboe <axboe@kernel.dk>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org,
+ Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>,
+ Christoph Hellwig <hch@lst.de>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -113,83 +188,29 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Feb 28, 2022 at 02:57:20PM +0800, Xie Yongji wrote:
-> Currently we have a BUG_ON() to make sure the number of sg
-> list does not exceed queue_max_segments() in virtio_queue_rq().
-> However, the block layer uses queue_max_discard_segments()
-> instead of queue_max_segments() to limit the sg list for
-> discard requests. So the BUG_ON() might be triggered if
-> virtio-blk device reports a larger value for max discard
-> segment than queue_max_segments().
 
-Hmm the spec does not say what should happen if max_discard_seg
-exceeds seg_max. Is this the config you have in mind? how do you
-create it?
+Akihiko,
 
-> To fix it, let's simply
-> remove the BUG_ON() which has become unnecessary after commit
-> 02746e26c39e("virtio-blk: avoid preallocating big SGL for data").
-> And the unused vblk->sg_elems can also be removed together.
-> 
-> Fixes: 1f23816b8eb8 ("virtio_blk: add discard and write zeroes support")
-> Suggested-by: Christoph Hellwig <hch@infradead.org>
-> Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-> ---
->  drivers/block/virtio_blk.c | 10 +---------
->  1 file changed, 1 insertion(+), 9 deletions(-)
-> 
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index c443cd64fc9b..a43eb1813cec 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-> @@ -76,9 +76,6 @@ struct virtio_blk {
->  	 */
->  	refcount_t refs;
->  
-> -	/* What host tells us, plus 2 for header & tailer. */
-> -	unsigned int sg_elems;
-> -
->  	/* Ida index - used to track minor number allocations. */
->  	int index;
->  
-> @@ -322,8 +319,6 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
->  	blk_status_t status;
->  	int err;
->  
-> -	BUG_ON(req->nr_phys_segments + 2 > vblk->sg_elems);
-> -
->  	status = virtblk_setup_cmd(vblk->vdev, req, vbr);
->  	if (unlikely(status))
->  		return status;
-> @@ -783,8 +778,6 @@ static int virtblk_probe(struct virtio_device *vdev)
->  	/* Prevent integer overflows and honor max vq size */
->  	sg_elems = min_t(u32, sg_elems, VIRTIO_BLK_MAX_SG_ELEMS - 2);
->  
-> -	/* We need extra sg elements at head and tail. */
-> -	sg_elems += 2;
->  	vdev->priv = vblk = kmalloc(sizeof(*vblk), GFP_KERNEL);
->  	if (!vblk) {
->  		err = -ENOMEM;
-> @@ -796,7 +789,6 @@ static int virtblk_probe(struct virtio_device *vdev)
->  	mutex_init(&vblk->vdev_mutex);
->  
->  	vblk->vdev = vdev;
-> -	vblk->sg_elems = sg_elems;
->  
->  	INIT_WORK(&vblk->config_work, virtblk_config_changed_work);
->  
-> @@ -853,7 +845,7 @@ static int virtblk_probe(struct virtio_device *vdev)
->  		set_disk_ro(vblk->disk, 1);
->  
->  	/* We can handle whatever the host told us to handle. */
-> -	blk_queue_max_segments(q, vblk->sg_elems-2);
-> +	blk_queue_max_segments(q, sg_elems);
->  
->  	/* No real sector limit. */
->  	blk_queue_max_hw_sectors(q, -1U);
-> -- 
-> 2.20.1
+> I'd like to leave this patch as is since I cannot deny the possibility
+> that the host has a different alignment offset for discarding and
+> other operations.
 
+That's correct.
+
+SCSI explicitly reports separate values for physical block alignment and
+"discard" alignment. The queue limits reflect this distinction.
+
+While it is not super common for these two to be different, it does
+happen. There are several disk arrays that do not have an internal
+allocation unit (discard granularity) which is a power of two, for
+instance.
+
+I am not particularly happy that we have to deal with two distinct types
+of alignment in the stack but that is the reality of the hardware we
+have to support.
+
+-- 
+Martin K. Petersen	Oracle Linux Engineering
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
