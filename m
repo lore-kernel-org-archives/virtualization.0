@@ -1,98 +1,111 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8FE32C433F5
-	for <virtualization@archiver.kernel.org>; Wed,  2 Mar 2022 08:29:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B1054C433EF
+	for <virtualization@archiver.kernel.org>; Wed,  2 Mar 2022 09:18:28 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 2813B60BC3;
-	Wed,  2 Mar 2022 08:29:51 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 33EC540494;
+	Wed,  2 Mar 2022 09:18:28 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id geRBVYDiHSdJ; Wed,  2 Mar 2022 08:29:50 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 957FE607A4;
-	Wed,  2 Mar 2022 08:29:49 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 7936FC0012;
-	Wed,  2 Mar 2022 08:29:49 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B65FAC000B
- for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Mar 2022 08:29:47 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id A9993403C4
- for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Mar 2022 08:29:47 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=linaro.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id mLP-H2F4pVAR
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id cvNuKfnvXe21; Wed,  2 Mar 2022 09:18:27 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 6BF5B40395;
+	Wed,  2 Mar 2022 09:18:26 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3EA93C0082;
+	Wed,  2 Mar 2022 09:18:26 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A72B5C000B
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Mar 2022 08:29:46 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-wm1-x330.google.com (mail-wm1-x330.google.com
- [IPv6:2a00:1450:4864:20::330])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 1669240396
+ Wed,  2 Mar 2022 09:18:24 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp4.osuosl.org (Postfix) with ESMTP id 7D724401CD
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Mar 2022 08:29:46 +0000 (UTC)
-Received: by mail-wm1-x330.google.com with SMTP id
- p184-20020a1c29c1000000b0037f76d8b484so726947wmp.5
+ Wed,  2 Mar 2022 09:18:24 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id QwFw77ODZab4
  for <virtualization@lists.linux-foundation.org>;
- Wed, 02 Mar 2022 00:29:45 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:content-transfer-encoding:in-reply-to;
- bh=anfYM1xs0NBMLGEeqezGOYJl+MN+3QcGgOkQ0d7W1KU=;
- b=T250LPSLKUXQUaclMSeK0mZPrWImkaAZdf7+pxpZvYBVIjiMfRgaCAywrd9G1ZgB/0
- RPeRZER9ugo42HQs7vOFLBMSQPAOYqXg/oajPZgQ5ONy0UZDqxelCW0yWfe1ksHhPrcL
- P/a98j6H0buLuTut7KDXTAftRVTqbi5jMarQoWo0xKWi9Z3HP4a7XxZrRZ0rOP/uX4Az
- LLIvmIk/579eXMZTSFWGq2fEQFgW+uDPuDijzIupYzselXw2nRaSOd5AugqhhPqSZ3gc
- FEmfiAKLSrRBVcbA2KYP4MfAaSSA9cu4RGT+7dOnfaFc9d8vJLURer8fML3X+2CR2b/7
- ze5w==
+ Wed,  2 Mar 2022 09:18:22 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 5737B40186
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  2 Mar 2022 09:18:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1646212701;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=/k2VmYz+o3cpXUbtVkQoEKWCQmbl907XuCsT2KacOa0=;
+ b=gonmRGb/T1H/zDeYcb5H9+bENL5KQvtYJ6vOpFt4C1Y+Co1QP7btYbERw5Fmp58LJ4Np/3
+ 0SW3CC41L4K5p4esFVTk0JesGdrqLuQITCpwK0atNcWlOPKfehQFi/yW3l8NB4R5DtSp7M
+ EHtnubEbbil/scRIJDBINZL+F56VLqA=
+Received: from mail-qv1-f71.google.com (mail-qv1-f71.google.com
+ [209.85.219.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-623-54N1aOt3P_u128_b8WLBOg-1; Wed, 02 Mar 2022 04:18:18 -0500
+X-MC-Unique: 54N1aOt3P_u128_b8WLBOg-1
+Received: by mail-qv1-f71.google.com with SMTP id
+ a9-20020ad45c49000000b004352ae97476so19589qva.13
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 02 Mar 2022 01:18:18 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:content-transfer-encoding
- :in-reply-to;
- bh=anfYM1xs0NBMLGEeqezGOYJl+MN+3QcGgOkQ0d7W1KU=;
- b=uzKHHS4J8RrUIiTphRjBzGDH2hKGAbwrOs7q6sGsM5Z+wkWivwKu0lz85dhkEW4bDS
- EiignvM7hyGKI4lxOeZF6c58k7Rj8/waQ5EgqXR1qb3776cwORxUz/lzvrteWlUjnns5
- rc7odeIURJqrjcrkEYrBQGnfEUOXBDGNQDy5k41aYzwwlcaLFsLpoVtL/XUJZu/brVWL
- 2monaVstZsFX2SmWoEphPjeHKwMQtW6QP6zdkpNJgAGo9HOJ1R9Yj94a5bME2GA3t9Z6
- 4HhSznjpgb9NQtozWuTz8mjEEKYrbsfV2Olla9ki0wjKuHBIjyAUEw7x3btuj/IKnutp
- SP3g==
-X-Gm-Message-State: AOAM5325ATlIF0hSztNC28/Omh0iJ86cM6w8yUZhdXk+IXFAR7mOgsA6
- n0EU5Y17tP/bBRmMrdvAqJUQkw==
-X-Google-Smtp-Source: ABdhPJyejoqO4Ua2lw3doPCMFKI7AoknOX/n2Hq9a7QihlNIy2VB0jsIjJbRKAzoK9Beq8n1Bceu5Q==
-X-Received: by 2002:a1c:a915:0:b0:380:e3de:b78f with SMTP id
- s21-20020a1ca915000000b00380e3deb78fmr20356178wme.19.1646209784264; 
- Wed, 02 Mar 2022 00:29:44 -0800 (PST)
-Received: from google.com (cpc155339-bagu17-2-0-cust87.1-3.cable.virginm.net.
- [86.27.177.88]) by smtp.gmail.com with ESMTPSA id
- z16-20020a7bc7d0000000b00381004c643asm4689971wmk.30.2022.03.02.00.29.43
+ :mime-version:content-disposition:in-reply-to;
+ bh=/k2VmYz+o3cpXUbtVkQoEKWCQmbl907XuCsT2KacOa0=;
+ b=7lYYbtx/Qyy/PJnISkuNb6W0Oty/RvtM8k6YhZrnuUTLNpVBK/S3m/cfto32FTuIZw
+ /bupDZw0zWwVGK3RBqJlKlJVeywUSLygcsi4HeG8p155jDBcYCU2PUve0NRfkEzDRWyB
+ ry1ZFVXnKQJicGHMU61DPPxi8Ou2or8Xgx8lGRuYQss2pcrpw1UlVO/zPOAmkFnRJUiU
+ b49APM9+il41/UKj8+iXtL0aPqdtnmAYzEhaJF81X6xztZM8WqFfwer/T8OMRNeoCVC2
+ 064iEIp7E3Il11exm7tmH/Ey8wv21x9ZaVhgQs3eVnigVHaHYjeZrouKJqYNlW4W8hXT
+ imiQ==
+X-Gm-Message-State: AOAM531xUUxCCk5iAwq+BitTjHiOjUmZffbjSJyNSz6mMlu72xEAgRA3
+ +NXMuxcKcTxh+DRe3ngMS2ApxMqIpsI76kZCGJaCMhSd/J9gkF4XgeyDJK6C9TpQ626vHXC+HaN
+ B1OeGr+clZezlei0fipCVtgpwdXYX3tcA6yeqvMqEBQ==
+X-Received: by 2002:a0c:d991:0:b0:432:c0c0:a6c5 with SMTP id
+ y17-20020a0cd991000000b00432c0c0a6c5mr16665685qvj.23.1646212697392; 
+ Wed, 02 Mar 2022 01:18:17 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxjYadbC0ZzXIcUVFlYssKE6/+21ynY+c3z8ydk8SARiLY20dVrDd2uNAQv/wlX6S8u2FOpWQ==
+X-Received: by 2002:a0c:d991:0:b0:432:c0c0:a6c5 with SMTP id
+ y17-20020a0cd991000000b00432c0c0a6c5mr16665675qvj.23.1646212697118; 
+ Wed, 02 Mar 2022 01:18:17 -0800 (PST)
+Received: from sgarzare-redhat (host-95-248-229-156.retail.telecomitalia.it.
+ [95.248.229.156]) by smtp.gmail.com with ESMTPSA id
+ f7-20020a05622a104700b002d4b318692esm10885790qte.31.2022.03.02.01.18.14
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 02 Mar 2022 00:29:43 -0800 (PST)
-Date: Wed, 2 Mar 2022 08:29:41 +0000
-From: Lee Jones <lee.jones@linaro.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
+ Wed, 02 Mar 2022 01:18:16 -0800 (PST)
+Date: Wed, 2 Mar 2022 10:18:07 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Lee Jones <lee.jones@linaro.org>
 Subject: Re: [syzbot] kernel BUG in vhost_get_vq_desc
-Message-ID: <Yh8q9fzCQHW2qtIG@google.com>
+Message-ID: <20220302091807.uyo7ycd6yw6cx7hd@sgarzare-redhat>
 References: <00000000000070ac6505d7d9f7a8@google.com>
  <0000000000003b07b305d840b30f@google.com>
  <20220218063352-mutt-send-email-mst@kernel.org>
+ <Yh8q9fzCQHW2qtIG@google.com>
 MIME-Version: 1.0
+In-Reply-To: <Yh8q9fzCQHW2qtIG@google.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
+X-Mimecast-Spam-Score: 1
+X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-In-Reply-To: <20220218063352-mutt-send-email-mst@kernel.org>
 Cc: kvm@vger.kernel.org,
  syzbot <syzbot+3140b17cb44a7b174008@syzkaller.appspotmail.com>,
- netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+ netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
+ syzkaller-bugs@googlegroups.com, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -104,63 +117,75 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gRnJpLCAxOCBGZWIgMjAyMiwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgoKPiBPbiBUaHUs
-IEZlYiAxNywgMjAyMiBhdCAwNToyMToyMFBNIC0wODAwLCBzeXpib3Qgd3JvdGU6Cj4gPiBzeXpi
-b3QgaGFzIGZvdW5kIGEgcmVwcm9kdWNlciBmb3IgdGhlIGZvbGxvd2luZyBpc3N1ZSBvbjoKPiA+
-IAo+ID4gSEVBRCBjb21taXQ6ICAgIGY3MTA3N2E0ZDg0YiBNZXJnZSB0YWcgJ21tYy12NS4xNy1y
-YzEtMicgb2YgZ2l0Oi8vZ2l0Lmtlcm4uLgo+ID4gZ2l0IHRyZWU6ICAgICAgIHVwc3RyZWFtCj4g
-PiBjb25zb2xlIG91dHB1dDogaHR0cHM6Ly9zeXprYWxsZXIuYXBwc3BvdC5jb20veC9sb2cudHh0
-P3g9MTA0YzA0Y2E3MDAwMDAKPiA+IGtlcm5lbCBjb25maWc6ICBodHRwczovL3N5emthbGxlci5h
-cHBzcG90LmNvbS94Ly5jb25maWc/eD1hNzhiMDY0NTkwYjlmOTEyCj4gPiBkYXNoYm9hcmQgbGlu
-azogaHR0cHM6Ly9zeXprYWxsZXIuYXBwc3BvdC5jb20vYnVnP2V4dGlkPTMxNDBiMTdjYjQ0YTdi
-MTc0MDA4Cj4gPiBjb21waWxlcjogICAgICAgZ2NjIChEZWJpYW4gMTAuMi4xLTYpIDEwLjIuMSAy
-MDIxMDExMCwgR05VIGxkIChHTlUgQmludXRpbHMgZm9yIERlYmlhbikgMi4zNS4yCj4gPiBzeXog
-cmVwcm86ICAgICAgaHR0cHM6Ly9zeXprYWxsZXIuYXBwc3BvdC5jb20veC9yZXByby5zeXo/eD0x
-MzYyZTIzMjcwMDAwMAo+ID4gQyByZXByb2R1Y2VyOiAgIGh0dHBzOi8vc3l6a2FsbGVyLmFwcHNw
-b3QuY29tL3gvcmVwcm8uYz94PTExMzczYTZjNzAwMDAwCj4gPiAKPiA+IElNUE9SVEFOVDogaWYg
-eW91IGZpeCB0aGUgaXNzdWUsIHBsZWFzZSBhZGQgdGhlIGZvbGxvd2luZyB0YWcgdG8gdGhlIGNv
-bW1pdDoKPiA+IFJlcG9ydGVkLWJ5OiBzeXpib3QrMzE0MGIxN2NiNDRhN2IxNzQwMDhAc3l6a2Fs
-bGVyLmFwcHNwb3RtYWlsLmNvbQo+ID4gCj4gPiAtLS0tLS0tLS0tLS1bIGN1dCBoZXJlIF0tLS0t
-LS0tLS0tLS0KPiA+IGtlcm5lbCBCVUcgYXQgZHJpdmVycy92aG9zdC92aG9zdC5jOjIzMzUhCj4g
-PiBpbnZhbGlkIG9wY29kZTogMDAwMCBbIzFdIFBSRUVNUFQgU01QIEtBU0FOCj4gPiBDUFU6IDEg
-UElEOiAzNTk3IENvbW06IHZob3N0LTM1OTYgTm90IHRhaW50ZWQgNS4xNy4wLXJjNC1zeXprYWxs
-ZXItMDAwNTQtZ2Y3MTA3N2E0ZDg0YiAjMAo+ID4gSGFyZHdhcmUgbmFtZTogR29vZ2xlIEdvb2ds
-ZSBDb21wdXRlIEVuZ2luZS9Hb29nbGUgQ29tcHV0ZSBFbmdpbmUsIEJJT1MgR29vZ2xlIDAxLzAx
-LzIwMTEKPiA+IFJJUDogMDAxMDp2aG9zdF9nZXRfdnFfZGVzYysweDFkNDMvMHgyMmMwIGRyaXZl
-cnMvdmhvc3Qvdmhvc3QuYzoyMzM1Cj4gPiBDb2RlOiAwMCAwMCAwMCA0OCBjNyBjNiAyMCAyYyA5
-ZCA4YSA0OCBjNyBjNyA5OCBhNiA4ZSA4ZCA0OCA4OSBjYSA0OCBjMSBlMSAwNCA0OCAwMSBkOSBl
-OCBiNyA1OSAyOCBmZCBlOSA3NCBmZiBmZiBmZiBlOCA1ZCBjOCBhMSBmYSA8MGY+IDBiIGU4IDU2
-IGM4IGExIGZhIDQ4IDhiIDU0IDI0IDE4IDQ4IGI4IDAwIDAwIDAwIDAwIDAwIGZjIGZmIGRmCj4g
-PiBSU1A6IDAwMTg6ZmZmZmM5MDAwMWQxZmI4OCBFRkxBR1M6IDAwMDEwMjkzCj4gPiBSQVg6IDAw
-MDAwMDAwMDAwMDAwMDAgUkJYOiAwMDAwMDAwMDAwMDAwMDAxIFJDWDogMDAwMDAwMDAwMDAwMDAw
-MAo+ID4gUkRYOiBmZmZmODg4MDIzNGIwMDAwIFJTSTogZmZmZmZmZmY4NmQ3MTVjMyBSREk6IDAw
-MDAwMDAwMDAwMDAwMDMKPiA+IFJCUDogMDAwMDAwMDAwMDAwMDAwMCBSMDg6IDAwMDAwMDAwMDAw
-MDAwMDAgUjA5OiAwMDAwMDAwMDAwMDAwMDAxCj4gPiBSMTA6IGZmZmZmZmZmODZkNzA2YmMgUjEx
-OiAwMDAwMDAwMDAwMDAwMDAwIFIxMjogZmZmZjg4ODA3MmMyNGQ2OAo+ID4gUjEzOiAwMDAwMDAw
-MDAwMDAwMDAwIFIxNDogZGZmZmZjMDAwMDAwMDAwMCBSMTU6IGZmZmY4ODgwNzJjMjRiYjAKPiA+
-IEZTOiAgMDAwMDAwMDAwMDAwMDAwMCgwMDAwKSBHUzpmZmZmODg4MGI5ZDAwMDAwKDAwMDApIGtu
-bEdTOjAwMDAwMDAwMDAwMDAwMDAKPiA+IENTOiAgMDAxMCBEUzogMDAwMCBFUzogMDAwMCBDUjA6
-IDAwMDAwMDAwODAwNTAwMzMKPiA+IENSMjogMDAwMDAwMDAwMDAwMDAwMiBDUjM6IDAwMDAwMDAw
-NzkwMmMwMDAgQ1I0OiAwMDAwMDAwMDAwMzUwNmUwCj4gPiBEUjA6IDAwMDAwMDAwMDAwMDAwMDAg
-RFIxOiAwMDAwMDAwMDAwMDAwMDAwIERSMjogMDAwMDAwMDAwMDAwMDAwMAo+ID4gRFIzOiAwMDAw
-MDAwMDAwMDAwMDAwIERSNjogMDAwMDAwMDBmZmZlMGZmMCBEUjc6IDAwMDAwMDAwMDAwMDA0MDAK
-PiA+IENhbGwgVHJhY2U6Cj4gPiAgPFRBU0s+Cj4gPiAgdmhvc3RfdnNvY2tfaGFuZGxlX3R4X2tp
-Y2srMHgyNzcvMHhhMjAgZHJpdmVycy92aG9zdC92c29jay5jOjUyMgo+ID4gIHZob3N0X3dvcmtl
-cisweDIzZC8weDNkMCBkcml2ZXJzL3Zob3N0L3Zob3N0LmM6MzcyCj4gPiAga3RocmVhZCsweDJl
-OS8weDNhMCBrZXJuZWwva3RocmVhZC5jOjM3Nwo+ID4gIHJldF9mcm9tX2ZvcmsrMHgxZi8weDMw
-IGFyY2gveDg2L2VudHJ5L2VudHJ5XzY0LlM6Mjk1Cj4gCj4gSSBkb24ndCBzZWUgaG93IHRoaXMg
-Y2FuIHRyaWdnZXIgbm9ybWFsbHkgc28gSSdtIGFzc3VtaW5nCj4gYW5vdGhlciBjYXNlIG9mIHVz
-ZSBhZnRlciBmcmVlLgoKWWVzLCBleGFjdGx5LgoKSSBwYXRjaGVkIGl0LiAgUGxlYXNlIHNlZToK
-Cmh0dHBzOi8vbG9yZS5rZXJuZWwub3JnL2FsbC8yMDIyMDMwMjA3NTQyMS4yMTMxMjIxLTEtbGVl
-LmpvbmVzQGxpbmFyby5vcmcvVC8jdAoKLS0gCkxlZSBKb25lcyBb5p2O55C85pavXQpQcmluY2lw
-YWwgVGVjaG5pY2FsIExlYWQgLSBEZXZlbG9wZXIgU2VydmljZXMKTGluYXJvLm9yZyDilIIgT3Bl
-biBzb3VyY2Ugc29mdHdhcmUgZm9yIEFybSBTb0NzCkZvbGxvdyBMaW5hcm86IEZhY2Vib29rIHwg
-VHdpdHRlciB8IEJsb2cKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxp
-bnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWls
-bWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Wed, Mar 02, 2022 at 08:29:41AM +0000, Lee Jones wrote:
+>On Fri, 18 Feb 2022, Michael S. Tsirkin wrote:
+>
+>> On Thu, Feb 17, 2022 at 05:21:20PM -0800, syzbot wrote:
+>> > syzbot has found a reproducer for the following issue on:
+>> >
+>> > HEAD commit:    f71077a4d84b Merge tag 'mmc-v5.17-rc1-2' of git://git.kern..
+>> > git tree:       upstream
+>> > console output: https://syzkaller.appspot.com/x/log.txt?x=104c04ca700000
+>> > kernel config:  https://syzkaller.appspot.com/x/.config?x=a78b064590b9f912
+>> > dashboard link: https://syzkaller.appspot.com/bug?extid=3140b17cb44a7b174008
+>> > compiler:       gcc (Debian 10.2.1-6) 10.2.1 20210110, GNU ld (GNU Binutils for Debian) 2.35.2
+>> > syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=1362e232700000
+>> > C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=11373a6c700000
+>> >
+>> > IMPORTANT: if you fix the issue, please add the following tag to the commit:
+>> > Reported-by: syzbot+3140b17cb44a7b174008@syzkaller.appspotmail.com
+>> >
+>> > ------------[ cut here ]------------
+>> > kernel BUG at drivers/vhost/vhost.c:2335!
+>> > invalid opcode: 0000 [#1] PREEMPT SMP KASAN
+>> > CPU: 1 PID: 3597 Comm: vhost-3596 Not tainted 5.17.0-rc4-syzkaller-00054-gf71077a4d84b #0
+>> > Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+>> > RIP: 0010:vhost_get_vq_desc+0x1d43/0x22c0 drivers/vhost/vhost.c:2335
+>> > Code: 00 00 00 48 c7 c6 20 2c 9d 8a 48 c7 c7 98 a6 8e 8d 48 89 ca 48 c1 e1 04 48 01 d9 e8 b7 59 28 fd e9 74 ff ff ff e8 5d c8 a1 fa <0f> 0b e8 56 c8 a1 fa 48 8b 54 24 18 48 b8 00 00 00 00 00 fc ff df
+>> > RSP: 0018:ffffc90001d1fb88 EFLAGS: 00010293
+>> > RAX: 0000000000000000 RBX: 0000000000000001 RCX: 0000000000000000
+>> > RDX: ffff8880234b0000 RSI: ffffffff86d715c3 RDI: 0000000000000003
+>> > RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000001
+>> > R10: ffffffff86d706bc R11: 0000000000000000 R12: ffff888072c24d68
+>> > R13: 0000000000000000 R14: dffffc0000000000 R15: ffff888072c24bb0
+>> > FS:  0000000000000000(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
+>> > CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>> > CR2: 0000000000000002 CR3: 000000007902c000 CR4: 00000000003506e0
+>> > DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+>> > DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+>> > Call Trace:
+>> >  <TASK>
+>> >  vhost_vsock_handle_tx_kick+0x277/0xa20 drivers/vhost/vsock.c:522
+>> >  vhost_worker+0x23d/0x3d0 drivers/vhost/vhost.c:372
+>> >  kthread+0x2e9/0x3a0 kernel/kthread.c:377
+>> >  ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:295
+>>
+>> I don't see how this can trigger normally so I'm assuming
+>> another case of use after free.
+>
+>Yes, exactly.
+
+I think this issue is related to the issue fixed by this patch merged 
+some days ago upstream: 
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=a58da53ffd70294ebea8ecd0eb45fd0d74add9f9
+
+>
+>I patched it.  Please see:
+>
+>https://lore.kernel.org/all/20220302075421.2131221-1-lee.jones@linaro.org/T/#t
+>
+
+I'm not sure that patch is avoiding the issue. I'll reply to it.
+
+Thanks,
+Stefano
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
