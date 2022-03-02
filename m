@@ -1,108 +1,108 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9731AC433F5
-	for <virtualization@archiver.kernel.org>; Wed,  2 Mar 2022 13:33:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1CF2EC433F5
+	for <virtualization@archiver.kernel.org>; Wed,  2 Mar 2022 13:35:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 4E8FF40498;
-	Wed,  2 Mar 2022 13:33:16 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 9173760B78;
+	Wed,  2 Mar 2022 13:35:21 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id mb5LXeA1LFTZ; Wed,  2 Mar 2022 13:33:15 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 9668E4047F;
-	Wed,  2 Mar 2022 13:33:14 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id L9otQ7WYmR4D; Wed,  2 Mar 2022 13:35:20 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 222B560B50;
+	Wed,  2 Mar 2022 13:35:20 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4F702C0082;
-	Wed,  2 Mar 2022 13:33:14 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1BEAAC000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E55BDC0082;
+	Wed,  2 Mar 2022 13:35:19 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3E8CEC000B
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Mar 2022 13:33:13 +0000 (UTC)
+ Wed,  2 Mar 2022 13:35:19 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 0777C40184
+ by smtp4.osuosl.org (Postfix) with ESMTP id 1ECEC409A1
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Mar 2022 13:33:13 +0000 (UTC)
+ Wed,  2 Mar 2022 13:35:19 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id VJiluZxYeOtg
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id LW3sQkzanccB
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Mar 2022 13:33:12 +0000 (UTC)
+ Wed,  2 Mar 2022 13:35:18 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id EB8E84047F
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 2BD48409A0
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Mar 2022 13:33:11 +0000 (UTC)
+ Wed,  2 Mar 2022 13:35:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1646227990;
+ s=mimecast20190719; t=1646228117;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=DM/3qI59VEjTwy5btQ2SWKnDFr1qeE7i2m9AXknhXPo=;
- b=TC0KK+oygk3UNrVTQFj3HG93iNBc3foVENItUZnAAVxMe5NTvMykDHJ2KDYFB2ucA7LifF
- VdNVvtuvdzD6HMV4ob0kZsG8e5SuNT6M4whTqgB73u8oxJgH74BETIfCDjFNGOZbG+1B3I
- 3crOpiPIGKXQirp2PSaEYN5RoAuDHqg=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=XGrF2OvOB13H8iRdKK89NaWHd3b3kdRWqVVkxfYHHl8=;
+ b=RI4mYJmT3Ag+hpmLwatUIFZMP/krm0s5jkdMmF5GUQ+ihxDrZKu2McM3XXt46OckgramN3
+ O8lHTaYz4IlabNfsw6H+BcBTPk3LcoAylGawdaQ8otEQrIQkpjyc3sS8eAHi+MIgvRh+J9
+ akhf8L9XbfW/O91mgiO2yXVw3zhGbEE=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-640-4rQkSyGXMrqv2fO4GKMrGA-1; Wed, 02 Mar 2022 08:33:09 -0500
-X-MC-Unique: 4rQkSyGXMrqv2fO4GKMrGA-1
-Received: by mail-wr1-f71.google.com with SMTP id
- c5-20020adffb05000000b001edbbefe96dso649191wrr.8
+ us-mta-224-da2WBwUhNzKQvjgXokXz3A-1; Wed, 02 Mar 2022 08:35:14 -0500
+X-MC-Unique: da2WBwUhNzKQvjgXokXz3A-1
+Received: by mail-wm1-f70.google.com with SMTP id
+ j42-20020a05600c1c2a00b00381febe402eso1502417wms.0
  for <virtualization@lists.linux-foundation.org>;
- Wed, 02 Mar 2022 05:33:09 -0800 (PST)
+ Wed, 02 Mar 2022 05:35:13 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=DM/3qI59VEjTwy5btQ2SWKnDFr1qeE7i2m9AXknhXPo=;
- b=LlfD3lO3TstOM7idv36yfEX+D+kXfOCGUIB+NrWDRKr+k5dkVGz/4LW1+iNIwl0ZAX
- jth2O09SVmhwoFJjYluH3h1D8K0uCC0ZH2iK+54k0vScYS+PGVeutXMST9L3aPBPgMCU
- hF+mYI/WwXneClJ8Ft5aDsciO8jPMs+l5+FlW3B1b+GtdfHwXNFKmyOmaQeuBfAHtF/h
- 0YjUA4Mz3oUggxTxDMWkUSt7KXbs07yQJBB0mqz7CoMKNi+nkR8+iJJjeBSQL80MJ8Dq
- AC/e0c4KjfzERe69wKbWYa5cId4Kf7etTvMBPt325X/RLNKd1GDQWtrG0s2uaH0Cq/rR
- OdUA==
-X-Gm-Message-State: AOAM533jf04sdLIrKcs7ykhzwSvwwNk7ZXWqw2StI1EASAPDi5FA5mgT
- 41AvRS+6nSzveeFOgGU2JBjthJujdyllpHsvEzLdaCHKMy6p71+0V7/U1P/ETwsUD6q4B3BbSmX
- ePMuTAXYTmdJb2hjx3uR+RVExCwR+qwn60LpPRTWehw==
-X-Received: by 2002:adf:cd0d:0:b0:1f0:2250:79ab with SMTP id
- w13-20020adfcd0d000000b001f0225079abmr4570251wrm.623.1646227988549; 
- Wed, 02 Mar 2022 05:33:08 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJw1/y9vLbQLKO9lAkFtZhCNP7wUIUpr2SMNSaN+tGwRXdfW47JhUdC6qfbZRG3Rrwn/wCaqeQ==
-X-Received: by 2002:adf:cd0d:0:b0:1f0:2250:79ab with SMTP id
- w13-20020adfcd0d000000b001f0225079abmr4570229wrm.623.1646227988304; 
- Wed, 02 Mar 2022 05:33:08 -0800 (PST)
+ bh=XGrF2OvOB13H8iRdKK89NaWHd3b3kdRWqVVkxfYHHl8=;
+ b=mrGgdBGtXvHQ6uOLw2OzB6SdYEXn4NXIyyyFQ/NvelfvG7MPkf52f+RtfHulHpO7jS
+ oSiSB+77sJrAVBMIeriQSuHCJf8Q2cextYuOMtQ9tzz/wXDgMPWsuAUzYbYVOBliWIjq
+ Maz327jvhGAcIQ4fdqIHonxZJdz4/45Zo8bGbvlz82miduSThC9gcU4r70+VWJy0w0Oh
+ rbn0LCcfLL8eJU4NzwGek5EhbqMnp5+0f600mMrilVliIOorfi8ABqyuO2Lfvj+/eY+f
+ V5e99iD1mHrvAFV3t7vI6KxclPnCF8haypGwNvXqvjQzjV0+ko5P0BcGmjNEkm+YkFmr
+ ep6g==
+X-Gm-Message-State: AOAM533h+Rm/fkp4dv253G/EmLEFH2vP2qAsyUFgGYwYCRuQDp6LlMDZ
+ xuCovEMfaszzQAAx3fG7JnfifdNoQ3Un2hBpIkR05YpUEtB4mTC3O8FKfk6JynsmPEHGefotNxS
+ aQ9tNl1TGzXGlzRDxMUIHtrxufT92Gybztu35Ib3eWg==
+X-Received: by 2002:a5d:6083:0:b0:1ef:761f:521f with SMTP id
+ w3-20020a5d6083000000b001ef761f521fmr18980615wrt.238.1646228112084; 
+ Wed, 02 Mar 2022 05:35:12 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJySCve85nsCTXlx9aNBZP55c5oLeOj2XJY2HKDkxKXgqQ95h2DjvN7W+40S5rrP1rYGTiozEA==
+X-Received: by 2002:a5d:6083:0:b0:1ef:761f:521f with SMTP id
+ w3-20020a5d6083000000b001ef761f521fmr18980603wrt.238.1646228111870; 
+ Wed, 02 Mar 2022 05:35:11 -0800 (PST)
 Received: from redhat.com ([2a10:8006:355c:0:48d6:b937:2fb9:b7de])
  by smtp.gmail.com with ESMTPSA id
- v20-20020a7bcb54000000b0037fa63db8aasm5886078wmj.5.2022.03.02.05.33.06
+ u23-20020a7bcb17000000b0037bdfa1665asm7640945wmj.18.2022.03.02.05.35.10
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 02 Mar 2022 05:33:07 -0800 (PST)
-Date: Wed, 2 Mar 2022 08:33:04 -0500
+ Wed, 02 Mar 2022 05:35:11 -0800 (PST)
+Date: Wed, 2 Mar 2022 08:35:08 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Max Gurtovoy <mgurtovoy@nvidia.com>
-Subject: Re: [PATCH v2] virtio-blk: Remove BUG_ON() in virtio_queue_rq()
-Message-ID: <20220302083112-mutt-send-email-mst@kernel.org>
-References: <20220228065720.100-1-xieyongji@bytedance.com>
- <20220301104039-mutt-send-email-mst@kernel.org>
- <85e61a65-4f76-afc0-272f-3b13333349f1@nvidia.com>
- <20220302081542-mutt-send-email-mst@kernel.org>
- <bd53b0dc-bef6-cd1a-ac5c-68766089a619@nvidia.com>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH 1/1] vhost: Protect the virtqueue from being cleared
+ whilst still in use
+Message-ID: <20220302083413-mutt-send-email-mst@kernel.org>
+References: <20220302075421.2131221-1-lee.jones@linaro.org>
+ <20220302093446.pjq3djoqi434ehz4@sgarzare-redhat>
 MIME-Version: 1.0
-In-Reply-To: <bd53b0dc-bef6-cd1a-ac5c-68766089a619@nvidia.com>
+In-Reply-To: <20220302093446.pjq3djoqi434ehz4@sgarzare-redhat>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: axboe@kernel.dk, hch@infradead.org,
- virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org,
- Xie Yongji <xieyongji@bytedance.com>
+Cc: syzbot+adc3cb32385586bec859@syzkaller.appspotmail.com, kvm@vger.kernel.org,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, Lee Jones <lee.jones@linaro.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,103 +119,66 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Mar 02, 2022 at 03:24:51PM +0200, Max Gurtovoy wrote:
+On Wed, Mar 02, 2022 at 10:34:46AM +0100, Stefano Garzarella wrote:
+> On Wed, Mar 02, 2022 at 07:54:21AM +0000, Lee Jones wrote:
+> > vhost_vsock_handle_tx_kick() already holds the mutex during its call
+> > to vhost_get_vq_desc().  All we have to do is take the same lock
+> > during virtqueue clean-up and we mitigate the reported issues.
+> > 
+> > Link: https://syzkaller.appspot.com/bug?extid=279432d30d825e63ba00
 > 
-> On 3/2/2022 3:17 PM, Michael S. Tsirkin wrote:
-> > On Wed, Mar 02, 2022 at 11:51:27AM +0200, Max Gurtovoy wrote:
-> > > On 3/1/2022 5:43 PM, Michael S. Tsirkin wrote:
-> > > > On Mon, Feb 28, 2022 at 02:57:20PM +0800, Xie Yongji wrote:
-> > > > > Currently we have a BUG_ON() to make sure the number of sg
-> > > > > list does not exceed queue_max_segments() in virtio_queue_rq().
-> > > > > However, the block layer uses queue_max_discard_segments()
-> > > > > instead of queue_max_segments() to limit the sg list for
-> > > > > discard requests. So the BUG_ON() might be triggered if
-> > > > > virtio-blk device reports a larger value for max discard
-> > > > > segment than queue_max_segments().
-> > > > Hmm the spec does not say what should happen if max_discard_seg
-> > > > exceeds seg_max. Is this the config you have in mind? how do you
-> > > > create it?
-> > > I don't think it's hard to create it. Just change some registers in the
-> > > device.
-> > > 
-> > > But with the dynamic sgl allocation that I added recently, there is no
-> > > problem with this scenario.
-> > Well the problem is device says it can't handle such large descriptors,
-> > I guess it works anyway, but it seems scary.
+> This issue is similar to [1] that should be already fixed upstream by [2].
 > 
-> I don't follow.
+> However I think this patch would have prevented some issues, because
+> vhost_vq_reset() sets vq->private to NULL, preventing the worker from
+> running.
 > 
-> The only problem this patch solves is when a virtio blk device reports
-> larger value for max_discard_segments than max_segments.
+> Anyway I think that when we enter in vhost_dev_cleanup() the worker should
+> be already stopped, so it shouldn't be necessary to take the mutex. But in
+> order to prevent future issues maybe it's better to take them, so:
 > 
+> Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+> 
+> [1]
+> https://syzkaller.appspot.com/bug?id=993d8b5e64393ed9e6a70f9ae4de0119c605a822
+> [2] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=a58da53ffd70294ebea8ecd0eb45fd0d74add9f9
 
-No, the peroblem reported is when virtio blk device reports
-max_segments < 256 but not max_discard_segments.
-I would expect discard to follow max_segments restrictions then.
 
-> Probably no such devices, but we need to be prepared.
+Right. I want to queue this but I would like to get a warning
+so we can detect issues like [2] before they cause more issues.
 
-Right, question is how to handle this.
 
 > > 
-> > > This commit looks good to me, thanks Xie Yongji.
-> > > 
-> > > Reviewed-by: Max Gurtovoy <mgurtovoy@nvidia.com>
-> > > 
-> > > > > To fix it, let's simply
-> > > > > remove the BUG_ON() which has become unnecessary after commit
-> > > > > 02746e26c39e("virtio-blk: avoid preallocating big SGL for data").
-> > > > > And the unused vblk->sg_elems can also be removed together.
-> > > > > 
-> > > > > Fixes: 1f23816b8eb8 ("virtio_blk: add discard and write zeroes support")
-> > > > > Suggested-by: Christoph Hellwig <hch@infradead.org>
-> > > > > Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-> > > > > ---
-> > > > >    drivers/block/virtio_blk.c | 10 +---------
-> > > > >    1 file changed, 1 insertion(+), 9 deletions(-)
-> > > > > 
-> > > > > diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> > > > > index c443cd64fc9b..a43eb1813cec 100644
-> > > > > --- a/drivers/block/virtio_blk.c
-> > > > > +++ b/drivers/block/virtio_blk.c
-> > > > > @@ -76,9 +76,6 @@ struct virtio_blk {
-> > > > >    	 */
-> > > > >    	refcount_t refs;
-> > > > > -	/* What host tells us, plus 2 for header & tailer. */
-> > > > > -	unsigned int sg_elems;
-> > > > > -
-> > > > >    	/* Ida index - used to track minor number allocations. */
-> > > > >    	int index;
-> > > > > @@ -322,8 +319,6 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
-> > > > >    	blk_status_t status;
-> > > > >    	int err;
-> > > > > -	BUG_ON(req->nr_phys_segments + 2 > vblk->sg_elems);
-> > > > > -
-> > > > >    	status = virtblk_setup_cmd(vblk->vdev, req, vbr);
-> > > > >    	if (unlikely(status))
-> > > > >    		return status;
-> > > > > @@ -783,8 +778,6 @@ static int virtblk_probe(struct virtio_device *vdev)
-> > > > >    	/* Prevent integer overflows and honor max vq size */
-> > > > >    	sg_elems = min_t(u32, sg_elems, VIRTIO_BLK_MAX_SG_ELEMS - 2);
-> > > > > -	/* We need extra sg elements at head and tail. */
-> > > > > -	sg_elems += 2;
-> > > > >    	vdev->priv = vblk = kmalloc(sizeof(*vblk), GFP_KERNEL);
-> > > > >    	if (!vblk) {
-> > > > >    		err = -ENOMEM;
-> > > > > @@ -796,7 +789,6 @@ static int virtblk_probe(struct virtio_device *vdev)
-> > > > >    	mutex_init(&vblk->vdev_mutex);
-> > > > >    	vblk->vdev = vdev;
-> > > > > -	vblk->sg_elems = sg_elems;
-> > > > >    	INIT_WORK(&vblk->config_work, virtblk_config_changed_work);
-> > > > > @@ -853,7 +845,7 @@ static int virtblk_probe(struct virtio_device *vdev)
-> > > > >    		set_disk_ro(vblk->disk, 1);
-> > > > >    	/* We can handle whatever the host told us to handle. */
-> > > > > -	blk_queue_max_segments(q, vblk->sg_elems-2);
-> > > > > +	blk_queue_max_segments(q, sg_elems);
-> > > > >    	/* No real sector limit. */
-> > > > >    	blk_queue_max_hw_sectors(q, -1U);
-> > > > > -- 
-> > > > > 2.20.1
+> > Cc: <stable@vger.kernel.org>
+> > Reported-by: syzbot+adc3cb32385586bec859@syzkaller.appspotmail.com
+> > Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> > ---
+> > drivers/vhost/vhost.c | 2 ++
+> > 1 file changed, 2 insertions(+)
+> > 
+> > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> > index 59edb5a1ffe28..bbaff6a5e21b8 100644
+> > --- a/drivers/vhost/vhost.c
+> > +++ b/drivers/vhost/vhost.c
+> > @@ -693,6 +693,7 @@ void vhost_dev_cleanup(struct vhost_dev *dev)
+> > 	int i;
+> > 
+> > 	for (i = 0; i < dev->nvqs; ++i) {
+> > +		mutex_lock(&dev->vqs[i]->mutex);
+> > 		if (dev->vqs[i]->error_ctx)
+> > 			eventfd_ctx_put(dev->vqs[i]->error_ctx);
+> > 		if (dev->vqs[i]->kick)
+> > @@ -700,6 +701,7 @@ void vhost_dev_cleanup(struct vhost_dev *dev)
+> > 		if (dev->vqs[i]->call_ctx.ctx)
+> > 			eventfd_ctx_put(dev->vqs[i]->call_ctx.ctx);
+> > 		vhost_vq_reset(dev, dev->vqs[i]);
+> > +		mutex_unlock(&dev->vqs[i]->mutex);
+> > 	}
+> > 	vhost_dev_free_iovecs(dev);
+> > 	if (dev->log_ctx)
+> > -- 
+> > 2.35.1.574.g5d30c73bfb-goog
+> > 
 
 _______________________________________________
 Virtualization mailing list
