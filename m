@@ -1,101 +1,101 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 30178C433F5
-	for <virtualization@archiver.kernel.org>; Wed,  2 Mar 2022 16:10:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 672DCC433EF
+	for <virtualization@archiver.kernel.org>; Wed,  2 Mar 2022 16:19:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id BF77960F0A;
-	Wed,  2 Mar 2022 16:10:17 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 1309B4029F;
+	Wed,  2 Mar 2022 16:19:56 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id XMnMogk4EEme; Wed,  2 Mar 2022 16:10:16 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 1A37460F00;
-	Wed,  2 Mar 2022 16:10:16 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 4JNzsG8k2FTU; Wed,  2 Mar 2022 16:19:55 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 5E5B740283;
+	Wed,  2 Mar 2022 16:19:54 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E82F9C0012;
-	Wed,  2 Mar 2022 16:10:15 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 17E25C000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 218A9C0012;
+	Wed,  2 Mar 2022 16:19:54 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A26CCC000B
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Mar 2022 16:10:14 +0000 (UTC)
+ Wed,  2 Mar 2022 16:19:52 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id EA6A64012E
+ by smtp3.osuosl.org (Postfix) with ESMTP id 9059D60F00
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Mar 2022 16:10:13 +0000 (UTC)
+ Wed,  2 Mar 2022 16:19:52 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Z7wH7kdVP4Bv
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id JYKVrV1c5uDB
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Mar 2022 16:10:09 +0000 (UTC)
+ Wed,  2 Mar 2022 16:19:51 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 22DE340338
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 1B3DB60EAD
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Mar 2022 16:10:08 +0000 (UTC)
+ Wed,  2 Mar 2022 16:19:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1646237407;
+ s=mimecast20190719; t=1646237990;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=iKE6AnoGP3Aot9xy/kmkgJWY4yjZ3CKjtSDN3mcaSzc=;
- b=hGwJhUp5dx6KVmlLUkFNIIRjD+9lBed5NWvbQhs39azbzIN6DxQzzteCvMng666sTxUn2e
- d1pNPev6Ukyb+bEnFmiVgzrRSaXvZhh3dZ2j/Nb1t650iE6rn38SUBURvXyYSFa35MkTab
- oI96h+jbg0wkgWr3AfabgFBhUtw2W4o=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=0TcN936ibjjjSz3N4IrxQqexjoiDKIw/I9So92q/hiI=;
+ b=h2Kb8DyTSwDzzDfV0yqsuVnnoG6fRMBQ5fYwQwC074XNHtASmHKunLa7xmHswejW19Axgy
+ ij0xMPPSNft3zGJV2SitdSUq01w5fBSyihOFLuOcqOQBNFbaVvTpW0RDGrvFkmVftCqaZO
+ ZqWhhAbNOhiK3PCkq1A7UAXu/mjZn9w=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-610-l8OiSnkvOdio0V-IbEwhxA-1; Wed, 02 Mar 2022 11:10:06 -0500
-X-MC-Unique: l8OiSnkvOdio0V-IbEwhxA-1
-Received: by mail-wm1-f70.google.com with SMTP id
- 10-20020a1c020a000000b0037fae68fcc2so2078443wmc.8
+ us-mta-390-RkFBHMraO5y7s1aJ8SdhpA-1; Wed, 02 Mar 2022 11:19:46 -0500
+X-MC-Unique: RkFBHMraO5y7s1aJ8SdhpA-1
+Received: by mail-wm1-f71.google.com with SMTP id
+ r133-20020a1c448b000000b00385c3f3defaso271363wma.3
  for <virtualization@lists.linux-foundation.org>;
- Wed, 02 Mar 2022 08:10:06 -0800 (PST)
+ Wed, 02 Mar 2022 08:19:46 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=iKE6AnoGP3Aot9xy/kmkgJWY4yjZ3CKjtSDN3mcaSzc=;
- b=WMOv8t5JeNmqZMHk6BvbPmZ3RH67m9svCyatIdu/N/LXrete5bPFZY9g27ZP/xVL5l
- ulgmpjW6/1tAg8bbXiRO049uCC22oJjcm5bkSJoJAWKk4bizd7W4FYdmL5HNSo9LsdgR
- 8uEez6wMjQVR6m6XCMQy2ZrUjY+38c9S3opFUoeyOvjkJMRY9fK0yWiH6qzDVNPgLmCT
- p+DKnRP+wW5Ee4xxeQ1MjWsm2fwtpsNi6knWZgM8V5X64XiynIuoddHj8GWNOjPCi9IS
- 6p258hXugFmls1vKV92XORRdf7GIfOCI6S41M+qMF2QVAcgVRo7qQgvmVsf3nHjJKPD6
- vL4Q==
-X-Gm-Message-State: AOAM530ocZJP1S/McOQtFWqsfz01uSA9gCWIuUetVjBA9Vswc4yp/c+B
- TAyhRW9lq3Rinyjf8lJsjMy53N2K/i2+5BuSWEXsH3JByDIlpiZbBt1bI4coThlDdbcT5+vWDRD
- BPnLchWlKOaq7pDuLXciLT0wVp8esvsfFNyfyFWsbvA==
-X-Received: by 2002:a05:6000:178f:b0:1e6:f1ca:3f96 with SMTP id
- e15-20020a056000178f00b001e6f1ca3f96mr23948020wrg.145.1646237405403; 
- Wed, 02 Mar 2022 08:10:05 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJyEPY0Y0RzMMlLZ32IiPpkom1ZZvBUFr7PWwhPkr+LUu5df1umc2sow4FyWFzlNtVK2QnvNbg==
-X-Received: by 2002:a05:6000:178f:b0:1e6:f1ca:3f96 with SMTP id
- e15-20020a056000178f00b001e6f1ca3f96mr23948008wrg.145.1646237405131; 
- Wed, 02 Mar 2022 08:10:05 -0800 (PST)
+ bh=0TcN936ibjjjSz3N4IrxQqexjoiDKIw/I9So92q/hiI=;
+ b=ZkX/rVMFvgs6yUdDLaX7q84NL5YQPAwSSSSKWVn6DWl4K26PuFVJ+vc12yLUSeYS5i
+ R+fCCh4sxlOEzZHdnHa0a+YM+wQVY7VqEO/8jQDmvbOrIHn8SPH70wPIfbiQfaNmZXkY
+ eiPL9NUggufSAvww2ChJwYHy2yiqvndbe9JmXH3z8qpQOzkF9LXcDjC15gw7dZETKP8J
+ 6Cfo2jdflrfCWC7swTXc4PTiXkndLPFlfpqK3dppNd1RyidbcQ9M43WQw11cU+6JSEil
+ ls458rDlWnN7glC9VopVL/bFM8QkbxVaik2ZtqxS+Ckw80M5H9mutfAXDwG7PRQgPQYF
+ E+XQ==
+X-Gm-Message-State: AOAM532BY6yqevPOj8FkFxNb6loUr8eQWHPnDH84cR3Mqh9jxZxdhUoN
+ bW3N6l9eY2GFzW4wYMiwMK43yk3yB4Fgcc/yjuZIUgeWkx/5EtPR2E6SaLsYB/DVJiYN87kPWqv
+ eWrOMIxxLSKjmG3ULsKDMKSTfp32P1F+BzHPwiRcFGA==
+X-Received: by 2002:adf:d210:0:b0:1ef:ac39:43aa with SMTP id
+ j16-20020adfd210000000b001efac3943aamr12006098wrh.578.1646237985195; 
+ Wed, 02 Mar 2022 08:19:45 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJx/r821yYojyBlWkh9nD3hVMZPRJ7QfMFY/ntLjP1yGxg4FA2RrhyJz2jq4gxVuTIcBWmu7ug==
+X-Received: by 2002:adf:d210:0:b0:1ef:ac39:43aa with SMTP id
+ j16-20020adfd210000000b001efac3943aamr12006080wrh.578.1646237984891; 
+ Wed, 02 Mar 2022 08:19:44 -0800 (PST)
 Received: from sgarzare-redhat (host-95-248-229-156.retail.telecomitalia.it.
  [95.248.229.156]) by smtp.gmail.com with ESMTPSA id
- 11-20020a05600c26cb00b0037ff53511f2sm5694170wmv.31.2022.03.02.08.10.03
+ m11-20020adff38b000000b001ef879a5930sm13785837wro.61.2022.03.02.08.19.42
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 02 Mar 2022 08:10:04 -0800 (PST)
-Date: Wed, 2 Mar 2022 17:09:58 +0100
+ Wed, 02 Mar 2022 08:19:44 -0800 (PST)
+Date: Wed, 2 Mar 2022 17:19:40 +0100
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: beshleman.devbox@gmail.com
-Subject: Re: [virtio-comment] [PATCH v5 1/2] virtio-vsock: add description
- for datagram type
-Message-ID: <20220302160958.62s34i2n2tccsscz@sgarzare-redhat>
+Subject: Re: [virtio-comment] [PATCH v5 2/2] virtio-vsock: add mergeable
+ buffer feature bit
+Message-ID: <20220302161940.j76b6n3q6law2i22@sgarzare-redhat>
 References: <20210528040118.3253836-1-jiang.wang@bytedance.com>
  <20220224221547.2436395-1-beshleman.devbox@gmail.com>
- <20220224221547.2436395-2-beshleman.devbox@gmail.com>
+ <20220224221547.2436395-3-beshleman.devbox@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20220224221547.2436395-2-beshleman.devbox@gmail.com>
+In-Reply-To: <20220224221547.2436395-3-beshleman.devbox@gmail.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
 X-Mimecast-Spam-Score: 0
@@ -123,221 +123,190 @@ Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Bobby,
-Sorry for the delay, but I saw these patches today.
-Please, can you keep me in CC?
-
-On Thu, Feb 24, 2022 at 10:15:46PM +0000, beshleman.devbox@gmail.com wrote:
+On Thu, Feb 24, 2022 at 10:15:47PM +0000, beshleman.devbox@gmail.com wrote:
 >From: Jiang Wang <jiang.wang@bytedance.com>
 >
->Add supports for datagram type for virtio-vsock. Datagram
->sockets are connectionless and unreliable. To avoid contention
->with stream and other sockets, add two more virtqueues and
->a new feature bit to identify if those two new queues exist or not.
->
->Also add descriptions for resource management of datagram, which
->does not use the existing credit update mechanism associated with
->stream sockets.
+>Add support for mergeable buffers for virtio-vsock. Mergeable buffers
+>allow individual large packets to be spread across multiple buffers
+>while still using only a single packet header. This avoids
+>artificially restraining packet size to the size of a single
+>buffer and offers a performant fragmentation/defragmentation
+>scheme.
+
+We need this new functionality because we want to fragment a datagram 
+packet over multiple buffers, right?
+
+This reminded me that we don't have a maximum size for now, in this case 
+what would it be?
+
+Maybe it would be helpful to define it as Laura is planning to do here:
+https://lists.oasis-open.org/archives/virtio-comment/202202/msg00053.html
+
 >
 >Signed-off-by: Jiang Wang <jiang.wang@bytedance.com>
 >Signed-off-by: Bobby Eshleman <bobby.eshleman@bytedance.com>
 >---
->
->V2: Addressed the comments for the previous version.
->V3: Add description for the mergeable receive buffer.
->V4: Add a feature bit for stream and reserver a bit for seqpacket.
->    Fix mrg_rxbuf related sentences.
->V5: Rebase onto head (change to more nicely accompany seqpacket changes).
->    Remove statement about no feature bits being set (already made by seqpacket patches).
->    Clarify \field{type} declaration.
->    Use words "sender/receiver" instead of "tx/rx" for clarity, and other prose changes.
->    Directly state that full buffers result in dropped packets.
->    Change verbs to present tense.
->    Clarify if-else pairs (e.g., "If XYZ is negotiated" is followed by "If XYZ
->    is not negotiated" instead of "Otherwise").
->    Mergeable buffer changes are split off into a separate patch.
->
-> virtio-vsock.tex | 63 +++++++++++++++++++++++++++++++++++++++++++++++---------
-> 1 file changed, 53 insertions(+), 10 deletions(-)
+> virtio-vsock.tex | 76 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+> 1 file changed, 76 insertions(+)
 >
 >diff --git a/virtio-vsock.tex b/virtio-vsock.tex
->index d79984d..1a66a1b 100644
+>index 1a66a1b..bf44d5d 100644
 >--- a/virtio-vsock.tex
 >+++ b/virtio-vsock.tex
->@@ -9,11 +9,26 @@ \subsection{Device ID}\label{sec:Device Types / Socket Device / Device ID}
->
-> \subsection{Virtqueues}\label{sec:Device Types / Socket Device / Virtqueues}
-> \begin{description}
->-\item[0] rx
->-\item[1] tx
->+\item[0] stream rx
->+\item[1] stream tx
->+\item[2] datagram rx
->+\item[3] datagram tx
->+\item[4] event
->+\end{description}
->+The virtio socket device uses 5 queues if feature bit VIRTIO_VSOCK_F_DRGAM is set. Otherwise, it
->+only uses 3 queues, as the following.
-
-We are also adding a new flag (VIRTIO_VSOCK_F_NO_IMPLIED_STREAM) to
-provide the possibility to support for example only dgrams.
-
-So I think we should consider the case where we have only DGRAM queues
-(and it will be similar to the stream only case so 3 queues).
-
-Maybe we could describe this part better and say that if we have both
-STREAM (or SEQPACKET) and DGRAM set we have 5 queues, otherwise
-only 3 queues.
-
->+
->+\begin{description}
->+\item[0] stream rx
->+\item[1] stream tx
-> \item[2] event
-> \end{description}
->
->+When behavior differs between stream and datagram rx/tx virtqueues
->+their full names are used. Common behavior is simply described in
->+terms of rx/tx virtqueues and applies to both stream and datagram
->+virtqueues.
->+
-> \subsection{Feature bits}\label{sec:Device Types / Socket Device / Feature bits}
->
-> If no feature bit is set, only stream socket type is supported.
->@@ -23,6 +38,7 @@ \subsection{Feature bits}\label{sec:Device Types / Socket Device / Feature bits}
-> \begin{description}
+>@@ -39,6 +39,7 @@ \subsection{Feature bits}\label{sec:Device Types / Socket Device / Feature bits}
 > \item[VIRTIO_VSOCK_F_STREAM (0)] stream socket type is supported.
 > \item[VIRTIO_VSOCK_F_SEQPACKET (1)] seqpacket socket type is supported.
->+\item[VIRTIO_VSOCK_F_DGRAM (2)] datagram socket type is supported.
+> \item[VIRTIO_VSOCK_F_DGRAM (2)] datagram socket type is supported.
+>+\item[VIRTIO_VSOCK_F_MRG_RXBUF (3)] driver can merge receive buffers.
 > \end{description}
 >
 > \subsection{Device configuration layout}\label{sec:Device Types / Socket Device / Device configuration layout}
->@@ -109,6 +125,9 @@ \subsection{Device Operation}\label{sec:Device Types / Socket Device / Device Op
+>@@ -87,6 +88,8 @@ \subsection{Device Operation}\label{sec:Device Types / Socket Device / Device Op
 >
-> \subsubsection{Virtqueue Flow Control}\label{sec:Device Types / Socket Device / Device Operation / Virtqueue Flow Control}
+> Packets transmitted or received contain a header before the payload:
 >
->+Flow control applies to stream sockets; datagram sockets do not have
->+flow control.
+>+If feature VIRTIO_VSOCK_F_MRG_RXBUF is not negotiated, use the following header.
 >+
-> The tx virtqueue carries packets initiated by applications and replies to
-> received packets.  The rx virtqueue carries packets initiated by the device and
-> replies to previously transmitted packets.
->@@ -142,18 +161,22 @@ \subsubsection{Addressing}\label{sec:Device Types / Socket Device / Device Opera
-> consists of a (cid, port number) tuple. The header fields used for this are
-> \field{src_cid}, \field{src_port}, \field{dst_cid}, and \field{dst_port}.
->
->-Currently stream and seqpacket sockets are supported. \field{type} is 1 (VIRTIO_VSOCK_TYPE_STREAM)
->-for stream socket types, and 2 (VIRTIO_VSOCK_TYPE_SEQPACKET) for seqpacket socket types.
->+Currently stream, seqpacket, and dgram sockets are supported. \field{type} is 1 (VIRTIO_VSOCK_TYPE_STREAM)
->+for stream socket types, 2 (VIRTIO_VSOCK_TYPE_SEQPACKET) for seqpacket socket types, and 3 (VIRTIO_VSOCK_TYPE_DGRAM) for dgram socket types.
->
 > \begin{lstlisting}
-> #define VIRTIO_VSOCK_TYPE_STREAM    1
-> #define VIRTIO_VSOCK_TYPE_SEQPACKET 2
->+#define VIRTIO_VSOCK_TYPE_DGRAM     3
+> struct virtio_vsock_hdr {
+> 	le64 src_cid;
+>@@ -102,6 +105,15 @@ \subsection{Device Operation}\label{sec:Device Types / Socket Device / Device Op
+> };
 > \end{lstlisting}
 >
-> Stream sockets provide in-order, guaranteed, connection-oriented delivery
-> without message boundaries. Seqpacket sockets provide in-order, guaranteed,
-> connection-oriented delivery with message and record boundaries.
->
->+Datagram sockets provide unordered, unreliable, connectionless messages
->+with message boundaries and a maximum length.
+>+If feature VIRTIO_VSOCK_F_MRG_RXBUF is negotiated, use the following header.
+>+\begin{lstlisting}
+>+struct virtio_vsock_hdr_mrg_rxbuf {
+>+	struct virtio_vsock_hdr hdr;
+>+	le16 num_buffers;
+>+};
+>+\end{lstlisting}
 >+
-> \subsubsection{Buffer Space Management}\label{sec:Device Types / Socket Device / Device Operation / Buffer Space Management}
-> \field{buf_alloc} and \field{fwd_cnt} are used for buffer space management of
-> stream sockets. The guest and the device publish how much buffer space is
->@@ -170,7 +193,7 @@ \subsubsection{Buffer Space Management}\label{sec:Device Types / Socket Device /
-> u32 peer_free = peer_buf_alloc - (tx_cnt - peer_fwd_cnt);
-> \end{lstlisting}
+>+
+> The upper 32 bits of src_cid and dst_cid are reserved and zeroed.
 >
->-If there is insufficient buffer space, the sender waits until virtqueue buffers
->+For stream sockets, if there is insufficient buffer space, the sender waits until virtqueue buffers
-
-stream and seqpacket
-
-> are returned and checks \field{buf_alloc} and \field{fwd_cnt} again. Sending
-> the VIRTIO_VSOCK_OP_CREDIT_REQUEST packet queries how much buffer space is
-> available. The reply to this query is a VIRTIO_VSOCK_OP_CREDIT_UPDATE packet.
->@@ -178,22 +201,32 @@ \subsubsection{Buffer Space Management}\label{sec:Device Types / Socket Device /
-> previously receiving a VIRTIO_VSOCK_OP_CREDIT_REQUEST packet. This allows
-> communicating updates any time a change in buffer space occurs.
+> Most packets simply transfer data but control packets are also used for
+>@@ -207,6 +219,25 @@ \subsubsection{Buffer Space Management}\label{sec:Device Types / Socket Device /
+> virtqueue is full. For receivers, the packet is dropped if there is no space
+> in the receive buffer.
 >
->+Unlike stream sockets, dgram sockets do not use VIRTIO_VSOCK_OP_CREDIT_UPDATE
->+or VIRTIO_VSOCK_OP_CREDIT_REQUEST packets. The dgram buffer management is split
->+into two parts: senders and receivers. For senders, the packet is dropped if the
->+virtqueue is full. For receivers, the packet is dropped if there is no space
->+in the receive buffer.
+>+\drivernormative{\paragraph}{Device Operation: Buffer Space Management}{Device Types / Socket Device / Device Operation / Setting Up Receive Buffers}
+>+\begin{itemize}
+>+\item If VIRTIO_VSOCK_F_MRG_RXBUF is not negotiated, the driver SHOULD populate the datagram rx queue
+>+      with buffers of at least 4096 bytes.
+>+\item If VIRTIO_VSOCK_F_MRG_RXBUF is negotiated, each buffer MUST be at
+>+      least the size of the struct virtio_vsock_hdr_mgr_rxbuf.
+>+\end{itemize}
+>+
+>+\begin{note}
+>+Each buffer may be split across multiple descriptor elements.
+>+\end{note}
+>+
+>+\devicenormative{\paragraph}{Device Operation: Buffer Space Management}{Device Types / Socket Device / Device Operation / Setting Up Receive Buffers}
+>+The device MUST set \field{num_buffers} to the number of descriptors used when
+>+transmitting the packet.
+>+
+>+The device MUST use only a single descriptor if VIRTIO_VSOCK_F_MRG_RXBUF
+>+is not negotiated.
 >+
 > \drivernormative{\paragraph}{Device Operation: Buffer Space Management}{Device Types / Socket Device / Device Operation / Buffer Space Management}
->-VIRTIO_VSOCK_OP_RW data packets MUST only be transmitted when the peer has
->-sufficient free buffer space for the payload.
->+For stream sockets, VIRTIO_VSOCK_OP_RW data packets MUST only be transmitted when the peer has
-
-stream and seqpacket
-
->+sufficient free buffer space for the payload. For dgram sockets, VIRTIO_VSOCK_OP_RW data packets
->+MAY be transmitted when the peer rx buffer is full. Then the packet will be dropped by the peer,
->+and driver will not get any notification.
->
-> All packets associated with a stream flow MUST contain valid information in
-> \field{buf_alloc} and \field{fwd_cnt} fields.
->
-> \devicenormative{\paragraph}{Device Operation: Buffer Space Management}{Device Types / Socket Device / Device Operation / Buffer Space Management}
->-VIRTIO_VSOCK_OP_RW data packets MUST only be transmitted when the peer has
->-sufficient free buffer space for the payload.
->+For stream sockets, VIRTIO_VSOCK_OP_RW data packets MUST only be transmitted when the peer has
-
-stream and seqpacket
-
->+sufficient free buffer space for the payload. For dgram sockets, VIRTIO_VSOCK_OP_RW data packets
->+MAY be transmitted when the peer rx buffer is full. Then the packet will be dropped by the peer,
->+and the device will not get any notification.
->
-> All packets associated with a stream flow MUST contain valid information in
-> \field{buf_alloc} and \field{fwd_cnt} fields.
->
-> \subsubsection{Receive and Transmit}\label{sec:Device Types / Socket Device / Device Operation / Receive and Transmit}
->-The driver queues outgoing packets on the tx virtqueue and incoming packet
->+The driver queues outgoing packets on the tx virtqueue and allocates incoming packet
-
-Is this change related?
-
+> For stream sockets, VIRTIO_VSOCK_OP_RW data packets MUST only be transmitted when the peer has
+> sufficient free buffer space for the payload. For dgram sockets, VIRTIO_VSOCK_OP_RW data packets
+>@@ -229,6 +260,7 @@ \subsubsection{Receive and Transmit}\label{sec:Device Types / Socket Device / De
+> The driver queues outgoing packets on the tx virtqueue and allocates incoming packet
 > receive buffers on the rx virtqueue. Packets are of the following form:
 >
+>+If VIRTIO_VSOCK_F_MRG_RXBUF is not negotiated, use the following.
 > \begin{lstlisting}
->@@ -206,6 +239,8 @@ \subsubsection{Receive and Transmit}\label{sec:Device Types / Socket Device / De
+> struct virtio_vsock_packet {
+>     struct virtio_vsock_hdr hdr;
+>@@ -236,11 +268,42 @@ \subsubsection{Receive and 
+>Transmit}\label{sec:Device Types / Socket Device / De
+> };
+> \end{lstlisting}
+>
+>+If VIRTIO_VSOCK_F_MRG_RXBUF is negotiated, use the following form:
+>+\begin{lstlisting}
+>+struct virtio_vsock_packet_mrg_rxbuf {
+>+    struct virtio_vsock_hdr_mrg_rxbuf hdr;
+>+    u8 data[];
+>+};
+>+\end{lstlisting}
+>+
+>+
 > Virtqueue buffers for outgoing packets are read-only. Virtqueue buffers for
 > incoming packets are write-only.
 >
->+When transmitting packets to the device, \field{num_buffers} is not used.
+> When transmitting packets to the device, \field{num_buffers} is not used.
+>
+>+\begin{enumerate}
+>+\item \field{num_buffers} indicates how many descriptors
+>+  this packet is spread over (including this one).
+>+  This is valid only if VIRTIO_VSOCK_F_MRG_RXBUF is negotiated.
+>+  This allows receipt of large packets without having to allocate large
+>+  buffers: a packet that does not fit in a single buffer can flow
+>+  over to the next buffer, and so on. In this case, there will be
+>+  at least \field{num_buffers} used buffers in the virtqueue, and the device
+>+  chains them together to form a single packet in a way similar to
+>+  how it would store it in a single buffer spread over multiple
+>+  descriptors.
+>+  The other buffers will not begin with a struct virtio_vsock_hdr.
 >+
+>+  If VIRTIO_VSOCK_F_MRG_RXBUF is not negotiated, then only one
+>+  descriptor is used.
+>+
+>+\item If
+>+  \field{num_buffers} is one, then the entire packet will be
+>+  contained within this buffer, immediately following the struct
+>+  virtio_vsock_hdr.
+     ^
+Should it be virtio_vsock_hdr_mrg_rxbuf?
 
-Leftover? Perhaps it should go in patch 2.
-
+>+\end{enumerate}
+>+
 > \drivernormative{\paragraph}{Device Operation: Receive and Transmit}{Device Types / Socket Device / Device Operation / Receive and Transmit}
 >
 > The \field{guest_cid} configuration field MUST be used as the source CID when
->@@ -274,6 +309,14 @@ \subsubsection{Seqpacket Sockets}\label{sec:Device Types / Socket Device / Devic
-> #define VIRTIO_VSOCK_SEQ_EOR (1 << 1)
-> \end{lstlisting}
+>@@ -256,6 +319,19 @@ \subsubsection{Receive and Transmit}\label{sec:Device Types / Socket Device / De
+> A VIRTIO_VSOCK_OP_RST reply MUST be sent if a packet is received with an
+> unknown \field{type} value.
 >
->+\subsubsection{Datagram Sockets}\label{sec:Device Types / Socket Device / Device Operation / Datagram Sockets}
+>+If VIRTIO_VSOCK_F_MRG_RXBUF has been negotiated, the device MUST set
+>+\field{num_buffers} to indicate the number of buffers
+>+the packet (including the header) is spread over.
 >+
->+Datagram (dgram) sockets are connectionless and unreliable. The sender just sends
->+a message to the peer and hopes it will be delivered. A VIRTIO_VSOCK_OP_RST reply is sent if
->+a receiving socket does not exist on the destination.
->+If the transmission or receiving buffers are full, the packets
->+are dropped.
+>+If a receive packet is spread over multiple buffers, the device
+>+MUST use all buffers but the last (i.e. the first $\field{num_buffers} -
+>+1$ buffers) completely up to the full length of each buffer
+>+supplied by the driver.
 >+
-
-I'm not sure we should respond with RST if there's no socket bind on
-the port.
-
-What happens with UDP if we do a sendto to a closed port?
-
-Thanks,
-Stefano
+>+The device MUST use all buffers used by a single receive
+>+packet together, such that at least \field{num_buffers} are
+>+observed by driver as used.
+>+
+> \subsubsection{Stream Sockets}\label{sec:Device Types / Socket Device / Device Operation / Stream Sockets}
+>
+> Connections are established by sending a VIRTIO_VSOCK_OP_REQUEST packet. If a
+>-- 
+>2.11.0
+>
+>
+>This publicly archived list offers a means to provide input to the
+>OASIS Virtual I/O Device (VIRTIO) TC.
+>
+>In order to verify user consent to the Feedback License terms and
+>to minimize spam in the list archive, subscription is required
+>before posting.
+>
+>Subscribe: virtio-comment-subscribe@lists.oasis-open.org
+>Unsubscribe: virtio-comment-unsubscribe@lists.oasis-open.org
+>List help: virtio-comment-help@lists.oasis-open.org
+>List archive: https://lists.oasis-open.org/archives/virtio-comment/
+>Feedback License: https://www.oasis-open.org/who/ipr/feedback_license.pdf
+>List Guidelines: https://www.oasis-open.org/policies-guidelines/mailing-lists
+>Committee: https://www.oasis-open.org/committees/virtio/
+>Join OASIS: https://www.oasis-open.org/join/
+>
 
 _______________________________________________
 Virtualization mailing list
