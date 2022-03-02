@@ -1,109 +1,114 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 33F06C433EF
-	for <virtualization@archiver.kernel.org>; Wed,  2 Mar 2022 14:11:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 85237C433EF
+	for <virtualization@archiver.kernel.org>; Wed,  2 Mar 2022 14:15:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id C3C48817AD;
-	Wed,  2 Mar 2022 14:11:37 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 20AE260B3B;
+	Wed,  2 Mar 2022 14:15:56 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id k5YwNezJkGV8; Wed,  2 Mar 2022 14:11:37 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id qsHSzXis255a; Wed,  2 Mar 2022 14:15:54 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 80D7481764;
-	Wed,  2 Mar 2022 14:11:36 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 412C760A6B;
+	Wed,  2 Mar 2022 14:15:54 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 45906C0012;
-	Wed,  2 Mar 2022 14:11:36 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 178E4C000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 04990C0012;
+	Wed,  2 Mar 2022 14:15:54 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D3459C000B
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Mar 2022 14:11:35 +0000 (UTC)
+ Wed,  2 Mar 2022 14:15:52 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id EA5FC40492
+ by smtp1.osuosl.org (Postfix) with ESMTP id ABF2481772
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Mar 2022 14:11:34 +0000 (UTC)
+ Wed,  2 Mar 2022 14:15:52 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id FMEtzQ3GI4zP
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Dt1Kf_QClBP3
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Mar 2022 14:11:34 +0000 (UTC)
+ Wed,  2 Mar 2022 14:15:51 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id C8F254048A
+ by smtp1.osuosl.org (Postfix) with ESMTPS id B662C81454
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Mar 2022 14:11:33 +0000 (UTC)
+ Wed,  2 Mar 2022 14:15:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1646230292;
+ s=mimecast20190719; t=1646230550;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=Zki/Dz8/SB2dieRvsIUHk7QNqNrRAue+WSnk+jKK4oo=;
- b=XD8QbHf0TZQuSiinancoTUAergOvIy0SEatz1Filgtx18AL2gwGTp6JD9osiUAtAj2tHRB
- fmSs4M2GhrNu77gJAXn79LrKhEM2kB8xl7DSsIkOzzUP6ipiJL0luonHV7dwd9qAYdRjdh
- V6SuNhDcU5hJpGjUadeKVXzoCPtl1ow=
-Received: from mail-qt1-f200.google.com (mail-qt1-f200.google.com
- [209.85.160.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=2N/IlzGyjMOglJgTyOGfwxfmg2/yQAmnahVF4RnYydE=;
+ b=WQ+/vxiPPNgqYL4BKNejYCI/1c6wvAOO8ozNR8n15iTnkfL3NkB4rSvRMMKQUlioske7z1
+ kUCi5RFC2+G/VnA7REn9UJ5WJ8T2pI/0/f9O4TAb0bjxGbz8d1v70hni8u/cJggfTI7hxW
+ o4KE398drP+i+YwjtkNnkGRjGPBalEM=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-627-YPzjV3hqNwqz4sFA5XU38w-1; Wed, 02 Mar 2022 09:11:28 -0500
-X-MC-Unique: YPzjV3hqNwqz4sFA5XU38w-1
-Received: by mail-qt1-f200.google.com with SMTP id
- g6-20020ac87d06000000b002ddaaeacb91so1338195qtb.10
+ us-mta-615-e97IVfMgNg-Ih3fSyT0pYQ-1; Wed, 02 Mar 2022 09:15:49 -0500
+X-MC-Unique: e97IVfMgNg-Ih3fSyT0pYQ-1
+Received: by mail-wr1-f70.google.com with SMTP id
+ q12-20020adfbb8c000000b001ea938f79e9so676861wrg.23
  for <virtualization@lists.linux-foundation.org>;
- Wed, 02 Mar 2022 06:11:28 -0800 (PST)
+ Wed, 02 Mar 2022 06:15:49 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=Zki/Dz8/SB2dieRvsIUHk7QNqNrRAue+WSnk+jKK4oo=;
- b=6eKzXKeqKs5fpskXxSjwMm2QLuUA0cJxAQezuYOsniMgZQw0zTk4ipytIKOyIOg8O1
- /MDscDnX0vmGs6B9mU83YwFieeW+Iyy6JP/HUx2PXbHZqG/4Sp5ux2UG5S5UA1CfYK+K
- LC8PbuhZZPxLcnq2ccixkRWt80TB/H4wVsgKwwop7fCHwi3NQtDn523U3O9+7CPI188/
- rc3oREEQ0TfMUwcSobrXYkzKE92vr8BfrjiAc7MRj/QnmDXx7/K6DYcR5zo5eLOs9qdM
- Aju5uJ9wC9iZZUJdwpZSAm+sqZ3oTESHEmBEoFGeMu8DWxEyJBwil5B3HngZojcBiIFO
- 4FNQ==
-X-Gm-Message-State: AOAM5301xHn2K2QfVm2sUzjxE9yxoM1Evb2RTFznD94wxBx+rbGfIsYL
- 9YokUXgc0GO5o3YngUAErTd/JETCD0cTqLSi31hHX7SG1GIuXEhAfT7C/pZGy0aQaerW6BZpgt6
- RBl74DVlhTyV4xfwPpdgqpfKOVCS5IwIBorr8phoFqQ==
-X-Received: by 2002:ac8:7fca:0:b0:2de:8f3d:89be with SMTP id
- b10-20020ac87fca000000b002de8f3d89bemr24147747qtk.34.1646230287713; 
- Wed, 02 Mar 2022 06:11:27 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxZ7kQbxyiazMoeLWG0fZ0hHibPi3bReSoEzb74TshqNyIXX6z6vntalQDbAmbzJRmBH10EiA==
-X-Received: by 2002:ac8:7fca:0:b0:2de:8f3d:89be with SMTP id
- b10-20020ac87fca000000b002de8f3d89bemr24147720qtk.34.1646230287418; 
- Wed, 02 Mar 2022 06:11:27 -0800 (PST)
-Received: from sgarzare-redhat (host-95-248-229-156.retail.telecomitalia.it.
- [95.248.229.156]) by smtp.gmail.com with ESMTPSA id
- c18-20020ac87dd2000000b002dd53a5563dsm11954035qte.25.2022.03.02.06.11.24
+ :mime-version:content-disposition:content-transfer-encoding
+ :in-reply-to;
+ bh=2N/IlzGyjMOglJgTyOGfwxfmg2/yQAmnahVF4RnYydE=;
+ b=Zx7amKdZLb6fJAy8KGvMTYZ9MyKlXdfkw4vm7PcXxICSsGyZZTiauIDhsrDzP+TMWt
+ 6ulnzae2S+WQrwt90lWzA68TVuZ45N5LajyfevFysh0H97V06ZUD8nJhZWiZQUotmkC+
+ LeL0AxjLEtRYSb/hmjhZIaLGE7Xzy0NBycriy8wWxTEr5T5sWA1XA58a2CgChSvwjnbZ
+ bappehm9jCbYnf5wS7mSJQ7OLmBoexXsWdrNmWMkOCp/4e+v1mF2MTsyloZ+U3eF9j9H
+ Dl/tvTbJkvcBSSZXXnWp/ak9hmbPh6yr+jGEupU5402yM3Pc99QI5AgJEK6MDdqaMyYN
+ IXJA==
+X-Gm-Message-State: AOAM532Mbzql6nEnGsTYMLxyXzNCSOb4G1PB9NqcGMH62cEAXLMjdghc
+ HihndtwTf5MIWasuz7G5WKYSDoXSaYjoOvlDKFfiV4Mk0KpCaV34PFlX4Tvr4ch7+8nVhbVzuZP
+ Oxv/xF0iukVY4d5DK5VrqIGkTANgwqy4KoLcZJHKpgg==
+X-Received: by 2002:a05:6000:15cf:b0:1f0:44b9:b916 with SMTP id
+ y15-20020a05600015cf00b001f044b9b916mr1806328wry.86.1646230548432; 
+ Wed, 02 Mar 2022 06:15:48 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJze6YulJFuarXC9cemliWPtlNBmwiwnvxdYpuAHM3IqXDAykNjmrhcy744TOT0f+rdwqJ9aJQ==
+X-Received: by 2002:a05:6000:15cf:b0:1f0:44b9:b916 with SMTP id
+ y15-20020a05600015cf00b001f044b9b916mr1806308wry.86.1646230548113; 
+ Wed, 02 Mar 2022 06:15:48 -0800 (PST)
+Received: from redhat.com ([2a10:8006:355c:0:48d6:b937:2fb9:b7de])
+ by smtp.gmail.com with ESMTPSA id
+ k15-20020adff5cf000000b001e4b8fde355sm16619182wrp.73.2022.03.02.06.15.43
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 02 Mar 2022 06:11:26 -0800 (PST)
-Date: Wed, 2 Mar 2022 15:11:21 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 1/1] vhost: Protect the virtqueue from being cleared
- whilst still in use
-Message-ID: <20220302141121.sohhkhtiiaydlv47@sgarzare-redhat>
-References: <20220302075421.2131221-1-lee.jones@linaro.org>
- <20220302093446.pjq3djoqi434ehz4@sgarzare-redhat>
- <20220302083413-mutt-send-email-mst@kernel.org>
+ Wed, 02 Mar 2022 06:15:44 -0800 (PST)
+Date: Wed, 2 Mar 2022 09:15:41 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Max Gurtovoy <mgurtovoy@nvidia.com>
+Subject: Re: [PATCH v2] virtio-blk: Remove BUG_ON() in virtio_queue_rq()
+Message-ID: <20220302085132-mutt-send-email-mst@kernel.org>
+References: <20220228065720.100-1-xieyongji@bytedance.com>
+ <20220301104039-mutt-send-email-mst@kernel.org>
+ <85e61a65-4f76-afc0-272f-3b13333349f1@nvidia.com>
+ <20220302081542-mutt-send-email-mst@kernel.org>
+ <bd53b0dc-bef6-cd1a-ac5c-68766089a619@nvidia.com>
+ <20220302083112-mutt-send-email-mst@kernel.org>
+ <808fbd57-588d-03e3-2904-513f4bdcceaf@nvidia.com>
 MIME-Version: 1.0
-In-Reply-To: <20220302083413-mutt-send-email-mst@kernel.org>
+In-Reply-To: <808fbd57-588d-03e3-2904-513f4bdcceaf@nvidia.com>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: syzbot+adc3cb32385586bec859@syzkaller.appspotmail.com, kvm@vger.kernel.org,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org,
- virtualization@lists.linux-foundation.org, Lee Jones <lee.jones@linaro.org>
+Cc: axboe@kernel.dk, hch@infradead.org,
+ virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org,
+ Xie Yongji <xieyongji@bytedance.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -115,73 +120,177 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Mar 02, 2022 at 08:35:08AM -0500, Michael S. Tsirkin wrote:
->On Wed, Mar 02, 2022 at 10:34:46AM +0100, Stefano Garzarella wrote:
->> On Wed, Mar 02, 2022 at 07:54:21AM +0000, Lee Jones wrote:
->> > vhost_vsock_handle_tx_kick() already holds the mutex during its call
->> > to vhost_get_vq_desc().  All we have to do is take the same lock
->> > during virtqueue clean-up and we mitigate the reported issues.
->> >
->> > Link: https://syzkaller.appspot.com/bug?extid=279432d30d825e63ba00
->>
->> This issue is similar to [1] that should be already fixed upstream by [2].
->>
->> However I think this patch would have prevented some issues, because
->> vhost_vq_reset() sets vq->private to NULL, preventing the worker from
->> running.
->>
->> Anyway I think that when we enter in vhost_dev_cleanup() the worker should
->> be already stopped, so it shouldn't be necessary to take the mutex. But in
->> order to prevent future issues maybe it's better to take them, so:
->>
->> Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
->>
->> [1]
->> https://syzkaller.appspot.com/bug?id=993d8b5e64393ed9e6a70f9ae4de0119c605a822
->> [2] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=a58da53ffd70294ebea8ecd0eb45fd0d74add9f9
->
->
->Right. I want to queue this but I would like to get a warning
->so we can detect issues like [2] before they cause more issues.
+On Wed, Mar 02, 2022 at 03:45:10PM +0200, Max Gurtovoy wrote:
+> =
 
-I agree, what about moving the warning that we already have higher up, 
-right at the beginning of the function?
+> On 3/2/2022 3:33 PM, Michael S. Tsirkin wrote:
+> > On Wed, Mar 02, 2022 at 03:24:51PM +0200, Max Gurtovoy wrote:
+> > > On 3/2/2022 3:17 PM, Michael S. Tsirkin wrote:
+> > > > On Wed, Mar 02, 2022 at 11:51:27AM +0200, Max Gurtovoy wrote:
+> > > > > On 3/1/2022 5:43 PM, Michael S. Tsirkin wrote:
+> > > > > > On Mon, Feb 28, 2022 at 02:57:20PM +0800, Xie Yongji wrote:
+> > > > > > > Currently we have a BUG_ON() to make sure the number of sg
+> > > > > > > list does not exceed queue_max_segments() in virtio_queue_rq(=
+).
+> > > > > > > However, the block layer uses queue_max_discard_segments()
+> > > > > > > instead of queue_max_segments() to limit the sg list for
+> > > > > > > discard requests. So the BUG_ON() might be triggered if
+> > > > > > > virtio-blk device reports a larger value for max discard
+> > > > > > > segment than queue_max_segments().
+> > > > > > Hmm the spec does not say what should happen if max_discard_seg
+> > > > > > exceeds seg_max. Is this the config you have in mind? how do you
+> > > > > > create it?
+> > > > > I don't think it's hard to create it. Just change some registers =
+in the
+> > > > > device.
+> > > > > =
 
-I mean something like this:
+> > > > > But with the dynamic sgl allocation that I added recently, there =
+is no
+> > > > > problem with this scenario.
+> > > > Well the problem is device says it can't handle such large descript=
+ors,
+> > > > I guess it works anyway, but it seems scary.
+> > > I don't follow.
+> > > =
 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 59edb5a1ffe2..1721ff3f18c0 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -692,6 +692,8 @@ void vhost_dev_cleanup(struct vhost_dev *dev)
-  {
-         int i;
-  
-+       WARN_ON(!llist_empty(&dev->work_list));
-+
-         for (i = 0; i < dev->nvqs; ++i) {
-                 if (dev->vqs[i]->error_ctx)
-                         eventfd_ctx_put(dev->vqs[i]->error_ctx);
-@@ -712,7 +714,6 @@ void vhost_dev_cleanup(struct vhost_dev *dev)
-         dev->iotlb = NULL;
-         vhost_clear_msg(dev);
-         wake_up_interruptible_poll(&dev->wait, EPOLLIN | EPOLLRDNORM);
--       WARN_ON(!llist_empty(&dev->work_list));
-         if (dev->worker) {
-                 kthread_stop(dev->worker);
-                 dev->worker = NULL;
+> > > The only problem this patch solves is when a virtio blk device reports
+> > > larger value for max_discard_segments than max_segments.
+> > > =
+
+> > No, the peroblem reported is when virtio blk device reports
+> > max_segments < 256 but not max_discard_segments.
+> =
+
+> You mean the code will work in case device report max_discard_segments=A0=
+ >
+> max_segments ?
+> =
+
+> I don't think so.
+
+I think it's like this:
 
 
-And maybe we can also check vq->private and warn in the loop, because 
-the work_list may be empty if the device is doing nothing.
+        if (virtio_has_feature(vdev, VIRTIO_BLK_F_DISCARD)) {
 
-Thanks,
-Stefano
+		....
+
+                virtio_cread(vdev, struct virtio_blk_config, max_discard_se=
+g,
+                             &v);
+                blk_queue_max_discard_segments(q,
+                                               min_not_zero(v,
+                                                            MAX_DISCARD_SEG=
+MENTS));
+
+	}
+
+so, IIUC the case is of a device that sets max_discard_seg to 0.
+
+Which is kind of broken, but we handled this since 2018 so I guess
+we'll need to keep doing that.
+
+
+> This is exactly what Xie Yongji mention in the commit message and what I =
+was
+> seeing.
+> =
+
+> But the code will work if VIRTIO_BLK_F_DISCARD is not supported by the
+> device (even if max_segments < 256) , since blk layer set
+> queue_max_discard_segments =3D 1 in the initialization.
+> =
+
+> And the virtio-blk driver won't change it unless VIRTIO_BLK_F_DISCARD is
+> supported.
+> =
+
+> > I would expect discard to follow max_segments restrictions then.
+> > =
+
+> > > Probably no such devices, but we need to be prepared.
+> > Right, question is how to handle this.
+> > =
+
+> > > > > This commit looks good to me, thanks Xie Yongji.
+> > > > > =
+
+> > > > > Reviewed-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+> > > > > =
+
+> > > > > > > To fix it, let's simply
+> > > > > > > remove the BUG_ON() which has become unnecessary after commit
+> > > > > > > 02746e26c39e("virtio-blk: avoid preallocating big SGL for dat=
+a").
+> > > > > > > And the unused vblk->sg_elems can also be removed together.
+> > > > > > > =
+
+> > > > > > > Fixes: 1f23816b8eb8 ("virtio_blk: add discard and write zeroe=
+s support")
+> > > > > > > Suggested-by: Christoph Hellwig <hch@infradead.org>
+> > > > > > > Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
+> > > > > > > ---
+> > > > > > >     drivers/block/virtio_blk.c | 10 +---------
+> > > > > > >     1 file changed, 1 insertion(+), 9 deletions(-)
+> > > > > > > =
+
+> > > > > > > diff --git a/drivers/block/virtio_blk.c b/drivers/block/virti=
+o_blk.c
+> > > > > > > index c443cd64fc9b..a43eb1813cec 100644
+> > > > > > > --- a/drivers/block/virtio_blk.c
+> > > > > > > +++ b/drivers/block/virtio_blk.c
+> > > > > > > @@ -76,9 +76,6 @@ struct virtio_blk {
+> > > > > > >     	 */
+> > > > > > >     	refcount_t refs;
+> > > > > > > -	/* What host tells us, plus 2 for header & tailer. */
+> > > > > > > -	unsigned int sg_elems;
+> > > > > > > -
+> > > > > > >     	/* Ida index - used to track minor number allocations. */
+> > > > > > >     	int index;
+> > > > > > > @@ -322,8 +319,6 @@ static blk_status_t virtio_queue_rq(struc=
+t blk_mq_hw_ctx *hctx,
+> > > > > > >     	blk_status_t status;
+> > > > > > >     	int err;
+> > > > > > > -	BUG_ON(req->nr_phys_segments + 2 > vblk->sg_elems);
+> > > > > > > -
+> > > > > > >     	status =3D virtblk_setup_cmd(vblk->vdev, req, vbr);
+> > > > > > >     	if (unlikely(status))
+> > > > > > >     		return status;
+> > > > > > > @@ -783,8 +778,6 @@ static int virtblk_probe(struct virtio_de=
+vice *vdev)
+> > > > > > >     	/* Prevent integer overflows and honor max vq size */
+> > > > > > >     	sg_elems =3D min_t(u32, sg_elems, VIRTIO_BLK_MAX_SG_ELEM=
+S - 2);
+> > > > > > > -	/* We need extra sg elements at head and tail. */
+> > > > > > > -	sg_elems +=3D 2;
+> > > > > > >     	vdev->priv =3D vblk =3D kmalloc(sizeof(*vblk), GFP_KERNE=
+L);
+> > > > > > >     	if (!vblk) {
+> > > > > > >     		err =3D -ENOMEM;
+> > > > > > > @@ -796,7 +789,6 @@ static int virtblk_probe(struct virtio_de=
+vice *vdev)
+> > > > > > >     	mutex_init(&vblk->vdev_mutex);
+> > > > > > >     	vblk->vdev =3D vdev;
+> > > > > > > -	vblk->sg_elems =3D sg_elems;
+> > > > > > >     	INIT_WORK(&vblk->config_work, virtblk_config_changed_wor=
+k);
+> > > > > > > @@ -853,7 +845,7 @@ static int virtblk_probe(struct virtio_de=
+vice *vdev)
+> > > > > > >     		set_disk_ro(vblk->disk, 1);
+> > > > > > >     	/* We can handle whatever the host told us to handle. */
+> > > > > > > -	blk_queue_max_segments(q, vblk->sg_elems-2);
+> > > > > > > +	blk_queue_max_segments(q, sg_elems);
+> > > > > > >     	/* No real sector limit. */
+> > > > > > >     	blk_queue_max_hw_sectors(q, -1U);
+> > > > > > > -- =
+
+> > > > > > > 2.20.1
 
 _______________________________________________
 Virtualization mailing list
