@@ -1,75 +1,113 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 26C0CC433EF
-	for <virtualization@archiver.kernel.org>; Sat,  5 Mar 2022 07:12:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 95356C433F5
+	for <virtualization@archiver.kernel.org>; Sun,  6 Mar 2022 10:18:03 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id BD7DF60C2C;
-	Sat,  5 Mar 2022 07:12:52 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 12EEC81761;
+	Sun,  6 Mar 2022 10:18:03 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ZpahK_rI4mm0; Sat,  5 Mar 2022 07:12:52 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id WISf2FR_9jEI; Sun,  6 Mar 2022 10:18:02 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 5BF0860BB5;
-	Sat,  5 Mar 2022 07:12:51 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id A4A5481470;
+	Sun,  6 Mar 2022 10:18:01 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2721CC001D;
-	Sat,  5 Mar 2022 07:12:51 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 997C1C000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7F85BC001D;
+	Sun,  6 Mar 2022 10:18:01 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id DF8CEC000B
  for <virtualization@lists.linux-foundation.org>;
- Sat,  5 Mar 2022 07:12:49 +0000 (UTC)
+ Sun,  6 Mar 2022 10:17:59 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 799D960C2C
+ by smtp1.osuosl.org (Postfix) with ESMTP id B9C9881760
  for <virtualization@lists.linux-foundation.org>;
- Sat,  5 Mar 2022 07:12:49 +0000 (UTC)
+ Sun,  6 Mar 2022 10:17:59 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 79n1amb5ZfFk
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id f2vSzAWF1mOE
  for <virtualization@lists.linux-foundation.org>;
- Sat,  5 Mar 2022 07:12:48 +0000 (UTC)
+ Sun,  6 Mar 2022 10:17:58 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 54C4660BB5
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 93D6781470
  for <virtualization@lists.linux-foundation.org>;
- Sat,  5 Mar 2022 07:12:48 +0000 (UTC)
-Received: from kwepemi100011.china.huawei.com (unknown [172.30.72.57])
- by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4K9bQn3HShzbdy5;
- Sat,  5 Mar 2022 15:08:01 +0800 (CST)
-Received: from dggpemm500006.china.huawei.com (7.185.36.236) by
- kwepemi100011.china.huawei.com (7.221.188.134) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.21; Sat, 5 Mar 2022 15:12:44 +0800
-Received: from dggpemm500006.china.huawei.com ([7.185.36.236]) by
- dggpemm500006.china.huawei.com ([7.185.36.236]) with mapi id 15.01.2308.021;
- Sat, 5 Mar 2022 15:12:44 +0800
-To: zhenwei pi <pizhenwei@bytedance.com>, "mst@redhat.com" <mst@redhat.com>
-Subject: RE: [PATCH v3 4/4] virtio-crypto: rename skcipher algs
-Thread-Topic: [PATCH v3 4/4] virtio-crypto: rename skcipher algs
-Thread-Index: AQHYLeeTmt6j+2AYWUelmv+/IKlM8KywZOmg
-Date: Sat, 5 Mar 2022 07:12:44 +0000
-Message-ID: <7be43c7ef9414be98346af8f0b20f2d5@huawei.com>
-References: <20220302033917.1295334-1-pizhenwei@bytedance.com>
- <20220302033917.1295334-5-pizhenwei@bytedance.com>
-In-Reply-To: <20220302033917.1295334-5-pizhenwei@bytedance.com>
-Accept-Language: zh-CN, en-US
-Content-Language: zh-CN
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [10.174.149.11]
+ Sun,  6 Mar 2022 10:17:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1646561875;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=+HR3oYw2L0TBEEwKYGpSkfoswQiCxqqEEKf8dnKi9Lc=;
+ b=FYHotiiL9Zbjz2lKCRDxPPWOAJcVPftAX+x3m4rdUFhKhUcsjaD40DjYlYsqhk5ikP7ezR
+ Ck3c85Jescl9KJgLWPhqTNTDVYDCckdEvEBtNm5NBxq+SrC1rq7dqqPmkxiCtOlv46xjet
+ Yr8yOUSdOW/OKDswjFdAMrjLaFlYxog=
+Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
+ [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-471-KcyQ5FNwO4K_EQXxVxDgAg-1; Sun, 06 Mar 2022 05:17:53 -0500
+X-MC-Unique: KcyQ5FNwO4K_EQXxVxDgAg-1
+Received: by mail-ed1-f71.google.com with SMTP id
+ l14-20020a056402344e00b0041593c729adso6717517edc.18
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 06 Mar 2022 02:17:53 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=+HR3oYw2L0TBEEwKYGpSkfoswQiCxqqEEKf8dnKi9Lc=;
+ b=eHQKdygQIjo7hhkPkdq49irE2zRdPsQOQMqm5OvYmKf+cfVBdo34TUWVEdIPUDcMJE
+ jwaGj4GMWrBxTbTsLzf+sIt5Du7qJwEY/LS0D1knFJP+QuIweVFhJkNjDjdXdhOUzgxT
+ o6Ma6RwHwLTznN3TWmfFyegCBksGEZtjo569jRM8mpJGwLRYvAMYMGymSe3F07B3i8gi
+ JHXpk2YdUQOs3JplWNOw1xuZ3PJouLpkGaptHvUSPlbeUK/Bm8b2JKWZF4CAgrCyGrov
+ 7fqk5W34thb7LYeyYVb9rZPAeVtNSjnW8GeskhIcKEbKTvScZtOUaPoMo7DwkFfF+pN6
+ nNdg==
+X-Gm-Message-State: AOAM5324Av1hqBw6P9GwCDThmo8Cs/M4UV96mU1h9aw0ZotemWQT/fTb
+ ittPFZe+dFViXXUldF5NcEIa2IN7fjgTn0zdsN/WEPBYPl/+mMeYT9b3cqZLxk27hmPyV1zk3iU
+ aiC1wBVBLYATIyJkU9JGYneCImQrLUsN17Se4NBjqBA==
+X-Received: by 2002:aa7:cac8:0:b0:410:cc6c:6512 with SMTP id
+ l8-20020aa7cac8000000b00410cc6c6512mr6233408edt.408.1646561872613; 
+ Sun, 06 Mar 2022 02:17:52 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzC/SPxcRqLasrXClAamp+EBJRp7bCmy97E6mB34HSrfBRS9D8+XLdt1Qx+oSidKl7XdjTs/g==
+X-Received: by 2002:aa7:cac8:0:b0:410:cc6c:6512 with SMTP id
+ l8-20020aa7cac8000000b00410cc6c6512mr6233390edt.408.1646561872426; 
+ Sun, 06 Mar 2022 02:17:52 -0800 (PST)
+Received: from redhat.com ([2.52.16.157]) by smtp.gmail.com with ESMTPSA id
+ q18-20020a170906771200b006d2a835ac30sm3683042ejm.151.2022.03.06.02.17.48
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Sun, 06 Mar 2022 02:17:51 -0800 (PST)
+Date: Sun, 6 Mar 2022 05:17:45 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Bobby Eshleman <beshleman.devbox@gmail.com>
+Subject: Re: [virtio-comment] [PATCH v5 1/2] virtio-vsock: add description
+ for datagram type
+Message-ID: <20220306051658-mutt-send-email-mst@kernel.org>
+References: <20210528040118.3253836-1-jiang.wang@bytedance.com>
+ <20220224221547.2436395-1-beshleman.devbox@gmail.com>
+ <20220224221547.2436395-2-beshleman.devbox@gmail.com>
+ <20220302160958.62s34i2n2tccsscz@sgarzare-redhat>
+ <20220303032801.yvlfu5vqqibu7eyo@ip-10-100-118-60.ec2.internal>
+ <20220303021413-mutt-send-email-mst@kernel.org>
+ <20220304234315.ccyecxidyh5rfvw5@ip-10-100-118-60.ec2.internal>
 MIME-Version: 1.0
-X-CFilter-Loop: Reflected
-Cc: "helei.sig11@bytedance.com" <helei.sig11@bytedance.com>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>,
- "herbert@gondor.apana.org.au" <herbert@gondor.apana.org.au>
+In-Reply-To: <20220304234315.ccyecxidyh5rfvw5@ip-10-100-118-60.ec2.internal>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: cong.wang@bytedance.com, duanxiongchun@bytedance.com,
+ bobby.eshleman@bytedance.com, jiang.wang@bytedance.com, cohuck@redhat.com,
+ virtualization@lists.linux-foundation.org, xieyongji@bytedance.com,
+ chaiwen.cc@bytedance.com, stefanha@redhat.com,
+ virtio-comment@lists.oasis-open.org, asias@redhat.com,
+ arseny.krasnov@kaspersky.com, jhansen@vmware.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -81,141 +119,53 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: "Gonglei \(Arei\) via Virtualization"
- <virtualization@lists.linux-foundation.org>
-Reply-To: "Gonglei \(Arei\)" <arei.gonglei@huawei.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+On Sat, Mar 05, 2022 at 01:25:44AM +0000, Bobby Eshleman wrote:
+> On Thu, Mar 03, 2022 at 02:15:24AM -0500, Michael S. Tsirkin wrote:
+> > On Thu, Mar 03, 2022 at 03:29:31AM +0000, Bobby Eshleman wrote:
+> > > On Wed, Mar 02, 2022 at 05:09:58PM +0100, Stefano Garzarella wrote:
+> > > > Hi Bobby,
+> > > > Sorry for the delay, but I saw these patches today.
+> > > > Please, can you keep me in CC?
+> > > > 
+> > > 
+> > > Hey Stefano, sorry about that. I'm not sure how I lost your CC on this
+> > > one. I'll make sure you are there moving forward.
+> > > 
+> > > I want to mention that I'm taking a look at
+> > > https://gitlab.com/vsock/vsock/-/issues/1 in parallel with my dgram work
+> > > here. After sending out this series we noticed potential overlap between
+> > > the two issues. The additional dgram queues may become redundant if a
+> > > fairness mechanism that solves issue #1 above also applies to
+> > > connection-less protocols (similar to how the TC subsystem works). I've
+> > > just begun sorting out potential solutions so no hard results yet. Just
+> > > putting on your radar that the proposal here in v5 may be impacted if my
+> > > investigation into issue #1 yields something adequate.
+> > 
+> > 
+> > Well not mergeable, but datagram is upstream in Linux, is it not?
+> > So we do want it in the spec IMHO, even if in the future there
+> > will be a better protocol.
+> > 
+> 
+> As of right now, it is not upstream in Linux. The virtio transport just passes
+> -EOPNOTSUPP up the stack when the sock invokes it.
+> 
+> I think what you're thinking of is the vsock dgram in VMWare's vmci and
+> Hyper-V. They support dgrams, but are not compatible with virtio (e.g., don't
+> use virtqueues).
+> 
+> -Bobby
 
+Oh no, I was thinking about SEQPACKET actually. Which has the same issue
+I noted on another thread with memory accounting as datagram by the way.
 
-> -----Original Message-----
-> From: zhenwei pi [mailto:pizhenwei@bytedance.com]
-> Sent: Wednesday, March 2, 2022 11:39 AM
-> To: Gonglei (Arei) <arei.gonglei@huawei.com>; mst@redhat.com
-> Cc: jasowang@redhat.com; virtualization@lists.linux-foundation.org;
-> linux-crypto@vger.kernel.org; linux-kernel@vger.kernel.org;
-> herbert@gondor.apana.org.au; helei.sig11@bytedance.com; zhenwei pi
-> <pizhenwei@bytedance.com>
-> Subject: [PATCH v3 4/4] virtio-crypto: rename skcipher algs
-> 
-> Suggested by Gonglei, rename virtio_crypto_algs.c to
-> virtio_crypto_skcipher_algs.c. Also minor changes for function name.
-> Thus the function of source files get clear: skcipher services in
-> virtio_crypto_skcipher_algs.c and akcipher services in
-> virtio_crypto_akcipher_algs.c.
-> 
-> Signed-off-by: zhenwei pi <pizhenwei@bytedance.com>
-> ---
->  drivers/crypto/virtio/Makefile                            | 2 +-
->  drivers/crypto/virtio/virtio_crypto_common.h              | 4 ++--
->  drivers/crypto/virtio/virtio_crypto_mgr.c                 | 8 ++++----
->  ...virtio_crypto_algs.c => virtio_crypto_skcipher_algs.c} | 4 ++--
->  4 files changed, 9 insertions(+), 9 deletions(-)  rename
-> drivers/crypto/virtio/{virtio_crypto_algs.c => virtio_crypto_skcipher_algs.c}
-> (99%)
-> 
-
-Reviewed-by: Gonglei <arei.gonglei@huawei.com>
-
-Regards,
--Gonglei
-
-
-> diff --git a/drivers/crypto/virtio/Makefile b/drivers/crypto/virtio/Makefile index
-> f2b839473d61..bfa6cbae342e 100644
-> --- a/drivers/crypto/virtio/Makefile
-> +++ b/drivers/crypto/virtio/Makefile
-> @@ -1,7 +1,7 @@
->  # SPDX-License-Identifier: GPL-2.0
->  obj-$(CONFIG_CRYPTO_DEV_VIRTIO) += virtio_crypto.o  virtio_crypto-objs :=
-> \
-> -	virtio_crypto_algs.o \
-> +	virtio_crypto_skcipher_algs.o \
->  	virtio_crypto_akcipher_algs.o \
->  	virtio_crypto_mgr.o \
->  	virtio_crypto_core.o
-> diff --git a/drivers/crypto/virtio/virtio_crypto_common.h
-> b/drivers/crypto/virtio/virtio_crypto_common.h
-> index 214f9a6fcf84..e693d4ee83a6 100644
-> --- a/drivers/crypto/virtio/virtio_crypto_common.h
-> +++ b/drivers/crypto/virtio/virtio_crypto_common.h
-> @@ -130,8 +130,8 @@ static inline int virtio_crypto_get_current_node(void)
->  	return node;
->  }
-> 
-> -int virtio_crypto_algs_register(struct virtio_crypto *vcrypto); -void
-> virtio_crypto_algs_unregister(struct virtio_crypto *vcrypto);
-> +int virtio_crypto_skcipher_algs_register(struct virtio_crypto
-> +*vcrypto); void virtio_crypto_skcipher_algs_unregister(struct
-> +virtio_crypto *vcrypto);
->  int virtio_crypto_akcipher_algs_register(struct virtio_crypto *vcrypto);  void
-> virtio_crypto_akcipher_algs_unregister(struct virtio_crypto *vcrypto);
-> 
-> diff --git a/drivers/crypto/virtio/virtio_crypto_mgr.c
-> b/drivers/crypto/virtio/virtio_crypto_mgr.c
-> index 1cb92418b321..70e778aac0f2 100644
-> --- a/drivers/crypto/virtio/virtio_crypto_mgr.c
-> +++ b/drivers/crypto/virtio/virtio_crypto_mgr.c
-> @@ -237,14 +237,14 @@ struct virtio_crypto *virtcrypto_get_dev_node(int
-> node, uint32_t service,
->   */
->  int virtcrypto_dev_start(struct virtio_crypto *vcrypto)  {
-> -	if (virtio_crypto_algs_register(vcrypto)) {
-> -		pr_err("virtio_crypto: Failed to register crypto algs\n");
-> +	if (virtio_crypto_skcipher_algs_register(vcrypto)) {
-> +		pr_err("virtio_crypto: Failed to register crypto skcipher algs\n");
->  		return -EFAULT;
->  	}
-> 
->  	if (virtio_crypto_akcipher_algs_register(vcrypto)) {
->  		pr_err("virtio_crypto: Failed to register crypto akcipher algs\n");
-> -		virtio_crypto_algs_unregister(vcrypto);
-> +		virtio_crypto_skcipher_algs_unregister(vcrypto);
->  		return -EFAULT;
->  	}
-> 
-> @@ -263,7 +263,7 @@ int virtcrypto_dev_start(struct virtio_crypto *vcrypto)
->   */
->  void virtcrypto_dev_stop(struct virtio_crypto *vcrypto)  {
-> -	virtio_crypto_algs_unregister(vcrypto);
-> +	virtio_crypto_skcipher_algs_unregister(vcrypto);
->  	virtio_crypto_akcipher_algs_unregister(vcrypto);
->  }
-> 
-> diff --git a/drivers/crypto/virtio/virtio_crypto_algs.c
-> b/drivers/crypto/virtio/virtio_crypto_skcipher_algs.c
-> similarity index 99%
-> rename from drivers/crypto/virtio/virtio_crypto_algs.c
-> rename to drivers/crypto/virtio/virtio_crypto_skcipher_algs.c
-> index 583c0b535d13..a618c46a52b8 100644
-> --- a/drivers/crypto/virtio/virtio_crypto_algs.c
-> +++ b/drivers/crypto/virtio/virtio_crypto_skcipher_algs.c
-> @@ -613,7 +613,7 @@ static struct virtio_crypto_algo virtio_crypto_algs[] =
-> { {
->  	},
->  } };
-> 
-> -int virtio_crypto_algs_register(struct virtio_crypto *vcrypto)
-> +int virtio_crypto_skcipher_algs_register(struct virtio_crypto *vcrypto)
->  {
->  	int ret = 0;
->  	int i = 0;
-> @@ -644,7 +644,7 @@ int virtio_crypto_algs_register(struct virtio_crypto
-> *vcrypto)
->  	return ret;
->  }
-> 
-> -void virtio_crypto_algs_unregister(struct virtio_crypto *vcrypto)
-> +void virtio_crypto_skcipher_algs_unregister(struct virtio_crypto
-> +*vcrypto)
->  {
->  	int i = 0;
-> 
-> --
-> 2.20.1
+-- 
+MST
 
 _______________________________________________
 Virtualization mailing list
