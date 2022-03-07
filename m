@@ -1,70 +1,95 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 617ACC433EF
-	for <virtualization@archiver.kernel.org>; Mon,  7 Mar 2022 17:41:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1BBDDC433FE
+	for <virtualization@archiver.kernel.org>; Mon,  7 Mar 2022 19:18:04 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id D926F4032B;
-	Mon,  7 Mar 2022 17:41:23 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id AA62F401B6;
+	Mon,  7 Mar 2022 19:18:04 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id y3iOTUoRybaV; Mon,  7 Mar 2022 17:41:22 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id PuMC7Iatkx8T; Mon,  7 Mar 2022 19:18:03 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 4143F4000B;
-	Mon,  7 Mar 2022 17:41:22 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 545CA401BA;
+	Mon,  7 Mar 2022 19:18:03 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1FC93C001D;
-	Mon,  7 Mar 2022 17:41:22 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 12418C001D;
+	Mon,  7 Mar 2022 19:18:03 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 17E2BC000B
+ by lists.linuxfoundation.org (Postfix) with ESMTP id ECA4DC000B
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Mar 2022 17:41:20 +0000 (UTC)
+ Mon,  7 Mar 2022 19:18:01 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id ED3E881772
+ by smtp1.osuosl.org (Postfix) with ESMTP id C76DC82AC8
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Mar 2022 17:41:19 +0000 (UTC)
+ Mon,  7 Mar 2022 19:18:01 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=linaro.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ZHIVQVjEFt-F
+ with ESMTP id AsUwX45PPw4K
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Mar 2022 17:41:19 +0000 (UTC)
-X-Greylist: delayed 00:34:38 by SQLgrey-1.8.0
-Received: from outgoing-stata.csail.mit.edu (outgoing-stata.csail.mit.edu
- [128.30.2.210])
- by smtp1.osuosl.org (Postfix) with ESMTP id 3CBAC813F2
+ Mon,  7 Mar 2022 19:18:00 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-wm1-x32e.google.com (mail-wm1-x32e.google.com
+ [IPv6:2a00:1450:4864:20::32e])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 59C3882AA9
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Mar 2022 17:41:19 +0000 (UTC)
-Received: from [117.192.122.233] (helo=srivatsab-a02.vmware.com)
- by outgoing-stata.csail.mit.edu with esmtpsa (TLS1.2:RSA_AES_128_CBC_SHA1:128)
- (Exim 4.82) (envelope-from <srivatsa@csail.mit.edu>)
- id 1nRGog-000Ti1-FU; Mon, 07 Mar 2022 12:06:38 -0500
-To: jgross@suse.com, x86@kernel.org, pv-drivers@vmware.com,
- tglx@linutronix.de, bp@alien8.de
-References: <164574138686.654750.10250173565414769119.stgit@csail.mit.edu>
-From: "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>
-Subject: Re: [PATCH v5 0/3] Update VMware maintainer entries
-Message-ID: <b0a49148-de03-a591-0849-6bb7d8e8b659@csail.mit.edu>
-Date: Mon, 7 Mar 2022 22:36:23 +0530
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.12.0
+ Mon,  7 Mar 2022 19:18:00 +0000 (UTC)
+Received: by mail-wm1-x32e.google.com with SMTP id q20so7486395wmq.1
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 07 Mar 2022 11:18:00 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
+ h=from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=dbqVSaoeE145ys9uRLEZZR3pFJY2Pmc5WG68rQTUDjk=;
+ b=k5NesdgsXTht6dMH9Zs1gYWtYMsdq2oaoUryBtRQ299vTq+wKnD4nno1egKbIrBVvt
+ u37JkSvL43u/gPcfLHEvrdES3On3K8okyZKtK5x2IaGkdK0XOr7WB7zQ9Zcbj6CmcmdK
+ 9Q6QJ9Hpjk2XNo/+94qYcfJQzracg57M/trJW6e8B5gjvzvUh4ypNZwjQtF4ZxhHttPH
+ RY9eQVjhbBd/2+kGoSzknYgZXbhAs5GglyD9L3X75TZDWmEoUhXsoTT0NkLyTmW4h/na
+ S9CvMWfORnMzpWyVUpT8XabV69cJNTthtxd3VRYBNCWPUjkEEJsNFDT0CozCWgfN8F7p
+ NcRQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=dbqVSaoeE145ys9uRLEZZR3pFJY2Pmc5WG68rQTUDjk=;
+ b=6Ufx+Z7z08sg/dvtRia93hwvOg4hFK8RNn706RuC4RUD4bAuf2OKHg3acMzpOG3iUs
+ Cjh9sAuIfdiRkZQhfBvO3IVIzxLHxa/G8G4ZDPSsMxkPbeOUUT4OUBGshwL8n32NJbsl
+ pusM8eaOI18AICvxgv70r8hT/pozahr4yEyx1MnWYqsoXKy4niCgg72SWbU3jlO1UkET
+ xqI6SNkCciIX20sxNJvWmacLOpc1f5G5RkWgpwVwZoyB7iyOZtqhITitc4M6Obu0px31
+ vzWSz4rVXNC6oCftSTYhlxlNkbn/qzqlt0AxOYs2O+6cujH09NY+yNdeHPwRKFTA6/uc
+ G2ow==
+X-Gm-Message-State: AOAM533i/vHOzjw6eVZU8Igyhg5z7GOWguESBpx4WrBl4Fi6igtakFej
+ ub9+W7KHQrfspgQjX7a8tdHIog==
+X-Google-Smtp-Source: ABdhPJzlJiMYAf08xQYWLIojU4uURtjWC9ZBAz30RgCGZ9HLvlLDJ9lUmbZ5j3Q/JntOftXy/SgAdQ==
+X-Received: by 2002:a05:600c:4615:b0:386:9f67:8c63 with SMTP id
+ m21-20020a05600c461500b003869f678c63mr381658wmo.12.1646680678579; 
+ Mon, 07 Mar 2022 11:17:58 -0800 (PST)
+Received: from joneslee.c.googlers.com.com
+ (205.215.190.35.bc.googleusercontent.com. [35.190.215.205])
+ by smtp.gmail.com with ESMTPSA id
+ p15-20020a05600c1d8f00b003899d50f01csm200741wms.6.2022.03.07.11.17.58
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 07 Mar 2022 11:17:58 -0800 (PST)
+From: Lee Jones <lee.jones@linaro.org>
+To: lee.jones@linaro.org,
+	mst@redhat.com,
+	jasowang@redhat.com
+Subject: [PATCH 1/1] vhost: Protect the virtqueue from being cleared whilst
+ still in use
+Date: Mon,  7 Mar 2022 19:17:57 +0000
+Message-Id: <20220307191757.3177139-1-lee.jones@linaro.org>
+X-Mailer: git-send-email 2.35.1.616.g0bdcbb4464-goog
 MIME-Version: 1.0
-In-Reply-To: <164574138686.654750.10250173565414769119.stgit@csail.mit.edu>
-Content-Language: en-US
-Cc: keerthanak@vmware.com, Ronak Doshi <doshir@vmware.com>, anishs@vmware.com,
- linux-rdma@vger.kernel.org, netdev@vger.kernel.org,
- linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
- dri-devel@lists.freedesktop.org,
- Linux Virtualization <virtualization@lists.linux-foundation.org>,
- linux-scsi@vger.kernel.org, Vishal Bhakta <vbhakta@vmware.com>,
- Nadav Amit <namit@vmware.com>, kuba@kernel.org,
- Alexey Makhalov <amakhalov@vmware.com>, Joe Perches <joe@perches.com>,
- linux-graphics-maintainer@vmware.com, rostedt@goodmis.org,
- Zack Rusin <zackr@vmware.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org,
+ syzbot+adc3cb32385586bec859@syzkaller.appspotmail.com, stable@vger.kernel.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -81,52 +106,52 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-[+virtualization list, which I forgot to CC when posting v5]
+vhost_vsock_handle_tx_kick() already holds the mutex during its call
+to vhost_get_vq_desc().  All we have to do here is take the same lock
+during virtqueue clean-up and we mitigate the reported issues.
 
-Hi Thomas, other x86 maintainers,
+Also WARN() as a precautionary measure.  The purpose of this is to
+capture possible future race conditions which may pop up over time.
 
-On 2/25/22 2:23 PM, Srivatsa S. Bhat wrote:
-> This series updates a few maintainer entries for VMware-maintained
-> subsystems and cleans up references to VMware's private mailing lists
-> to make it clear that they are effectively email-aliases to reach out
-> to reviewers.
-> 
+Link: https://syzkaller.appspot.com/bug?extid=279432d30d825e63ba00
 
-Since this patchset got ACKs from the relevant subsystem maintainers,
-would you mind taking them through your tree, if this looks good to
-you too?
+Cc: <stable@vger.kernel.org>
+Reported-by: syzbot+adc3cb32385586bec859@syzkaller.appspotmail.com
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+---
+ drivers/vhost/vhost.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-Thank you!
-
-Regards,
-Srivatsa
-
-> Changes from v4->v5:
-> - Add Alexey as reviewer for paravirt ops.
-> 
-> Changes from v3->v4:
-> - Remove Cc: stable@vger.kernel.org from patches 1 and 2.
-> 
-> Changes from v1->v3:
-> - Add Zack as the named maintainer for vmmouse driver
-> - Use R: to denote email-aliases for VMware reviewers
-> 
-> Regards,
-> Srivatsa
-> VMware Photon OS
-> 
-> ---
-> 
-> Srivatsa S. Bhat (VMware) (3):
->       MAINTAINERS: Update maintainers for paravirt ops and VMware hypervisor interface
->       MAINTAINERS: Add Zack as maintainer of vmmouse driver
->       MAINTAINERS: Mark VMware mailing list entries as email aliases
-> 
-> 
->  MAINTAINERS | 31 ++++++++++++++++++-------------
->  1 file changed, 18 insertions(+), 13 deletions(-)
-> 
-
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 59edb5a1ffe28..ef7e371e3e649 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -693,6 +693,15 @@ void vhost_dev_cleanup(struct vhost_dev *dev)
+ 	int i;
+ 
+ 	for (i = 0; i < dev->nvqs; ++i) {
++		/* No workers should run here by design. However, races have
++		 * previously occurred where drivers have been unable to flush
++		 * all work properly prior to clean-up.  Without a successful
++		 * flush the guest will malfunction, but avoiding host memory
++		 * corruption in those cases does seem preferable.
++		 */
++		WARN_ON(mutex_is_locked(&dev->vqs[i]->mutex));
++
++		mutex_lock(&dev->vqs[i]->mutex);
+ 		if (dev->vqs[i]->error_ctx)
+ 			eventfd_ctx_put(dev->vqs[i]->error_ctx);
+ 		if (dev->vqs[i]->kick)
+@@ -700,6 +709,7 @@ void vhost_dev_cleanup(struct vhost_dev *dev)
+ 		if (dev->vqs[i]->call_ctx.ctx)
+ 			eventfd_ctx_put(dev->vqs[i]->call_ctx.ctx);
+ 		vhost_vq_reset(dev, dev->vqs[i]);
++		mutex_unlock(&dev->vqs[i]->mutex);
+ 	}
+ 	vhost_dev_free_iovecs(dev);
+ 	if (dev->log_ctx)
+-- 
+2.35.1.616.g0bdcbb4464-goog
 
 _______________________________________________
 Virtualization mailing list
