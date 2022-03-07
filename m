@@ -4,58 +4,91 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3FDDEC433F5
-	for <virtualization@archiver.kernel.org>; Mon,  7 Mar 2022 09:41:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id BA078C433EF
+	for <virtualization@archiver.kernel.org>; Mon,  7 Mar 2022 09:51:28 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id C318C60B8F;
-	Mon,  7 Mar 2022 09:41:00 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 5531360AC0;
+	Mon,  7 Mar 2022 09:51:28 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 1NTFYFkDAbMx; Mon,  7 Mar 2022 09:40:55 +0000 (UTC)
+	with ESMTP id xTvTeQcflB8Y; Mon,  7 Mar 2022 09:51:27 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id CD98260AC0;
-	Mon,  7 Mar 2022 09:40:54 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id F1C7560B17;
+	Mon,  7 Mar 2022 09:51:26 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8D7C9C001D;
-	Mon,  7 Mar 2022 09:40:54 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C62ADC001D;
+	Mon,  7 Mar 2022 09:51:26 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 63216C000B
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 81F17C000B
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Mar 2022 09:40:53 +0000 (UTC)
+ Mon,  7 Mar 2022 09:51:25 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 3EBD840991
+ by smtp4.osuosl.org (Postfix) with ESMTP id 5C27740991
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Mar 2022 09:40:53 +0000 (UTC)
+ Mon,  7 Mar 2022 09:51:25 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=infradead.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id VpSLyePpxkRF
+ with ESMTP id 3U-YDl10WOea
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Mar 2022 09:40:47 +0000 (UTC)
+ Mon,  7 Mar 2022 09:51:24 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from out30-42.freemail.mail.aliyun.com
- (out30-42.freemail.mail.aliyun.com [115.124.30.42])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 3034640943
+Received: from casper.infradead.org (casper.infradead.org
+ [IPv6:2001:8b0:10b:1236::1])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 2F6CB4047D
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Mar 2022 09:40:46 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R161e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04400; MF=xuanzhuo@linux.alibaba.com;
- NM=1; PH=DS; RN=7; SR=0; TI=SMTPD_---0V6UND1m_1646646042; 
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0V6UND1m_1646646042) by smtp.aliyun-inc.com(127.0.0.1);
- Mon, 07 Mar 2022 17:40:43 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: virtualization@lists.linux-foundation.org
-Subject: [PATCH vhost] virtio_net: fix build warnings
-Date: Mon,  7 Mar 2022 17:40:42 +0800
-Message-Id: <20220307094042.22180-1-xuanzhuo@linux.alibaba.com>
-X-Mailer: git-send-email 2.31.0
+ Mon,  7 Mar 2022 09:51:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+ References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+ Content-Transfer-Encoding:Content-ID:Content-Description;
+ bh=F33OJew4f+X9EGyrX9UFDzNmD+8SJD5GlTnGdBvVako=; b=l29VVU0vNjudQfmRlD//2Ai5r4
+ Rb+GvW9iJclOfRU4GCvEkvP37BglXQGkWNdbR9UtqNDH7Bd7uNMQTzk6GQO/3RrgBAK92YJPN+Gxz
+ hmdhnmemQGbjdAakq68Sl3xDp2W7oSx7yoYDF+U55QRcn1hqpaDZX/h1Zyw3Sv7rLP/+rdGyTBYZA
+ irmfqZgm8l2HmkKiZZ31K7VhEMil+fheol+qvc06hlmbEo4d8FiIGMLtmGd3lA47z7T/HYJz48Sge
+ QILp/zYvt2fLhpl9YQcEH7SYyGRpLEYHP4sDoMdMnAg5VRIOhIN4hykzWAtmP/fB3VicXW0j1V6fh
+ ioJsNaJw==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100]
+ helo=noisy.programming.kicks-ass.net)
+ by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+ id 1nRA16-00F53J-8g; Mon, 07 Mar 2022 09:51:00 +0000
+Received: from hirez.programming.kicks-ass.net
+ (hirez.programming.kicks-ass.net [192.168.1.225])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+ (Client did not present a certificate)
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 513993002BE;
+ Mon,  7 Mar 2022 10:50:57 +0100 (CET)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+ id EC3C92BA7BE19; Mon,  7 Mar 2022 10:50:56 +0100 (CET)
+Date: Mon, 7 Mar 2022 10:50:56 +0100
+From: Peter Zijlstra <peterz@infradead.org>
+To: Adrian Hunter <adrian.hunter@intel.com>
+Subject: Re: [PATCH V2 03/11] perf/x86: Add support for TSC in nanoseconds as
+ a perf event clock
+Message-ID: <YiXVgEk/1UClkygX@hirez.programming.kicks-ass.net>
+References: <20220214110914.268126-1-adrian.hunter@intel.com>
+ <20220214110914.268126-4-adrian.hunter@intel.com>
+ <YiIXFmA4vpcTSk2L@hirez.programming.kicks-ass.net>
+ <853ce127-25f0-d0fe-1d8f-0b0dd4f3ce71@intel.com>
 MIME-Version: 1.0
-X-Git-Hash: b3c21a590cee
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>,
- "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
- Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
+Content-Disposition: inline
+In-Reply-To: <853ce127-25f0-d0fe-1d8f-0b0dd4f3ce71@intel.com>
+Cc: kvm@vger.kernel.org,
+ Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>,
+ virtualization@lists.linux-foundation.org, H Peter Anvin <hpa@zytor.com>,
+ Jiri Olsa <jolsa@redhat.com>, sthemmin@microsoft.com, x86@kernel.org,
+ pv-drivers@vmware.com, Ingo Molnar <mingo@redhat.com>,
+ Suzuki K Poulose <suzuki.poulose@arm.com>,
+ Arnaldo Carvalho de Melo <acme@kernel.org>, Andrew.Cooper3@citrix.com,
+ Borislav Petkov <bp@alien8.de>, Thomas Gleixner <tglx@linutronix.de>,
+ jgross@suse.com, Mathieu Poirier <mathieu.poirier@linaro.org>,
+ seanjc@google.com, linux-kernel@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
+ pbonzini@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -72,63 +105,50 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-These warnings appear on some platforms (arm multi_v7_defconfig). This
-patch fixes these warnings.
+On Fri, Mar 04, 2022 at 08:27:45PM +0200, Adrian Hunter wrote:
+> On 04/03/2022 15:41, Peter Zijlstra wrote:
+> > On Mon, Feb 14, 2022 at 01:09:06PM +0200, Adrian Hunter wrote:
+> >> Currently, when Intel PT is used within a VM guest, it is not possible to
+> >> make use of TSC because perf clock is subject to paravirtualization.
+> > 
+> > Yeah, so how much of that still makes sense, or ever did? AFAIK the
+> > whole pv_clock thing is utter crazy. Should we not fix that instead?
+> 
+> Presumably pv_clock must work with different host operating systems.
+> Similarly, KVM must work with different guest operating systems.
+> Perhaps I'm wrong, but I imagine re-engineering time virtualization
+> might be a pretty big deal,  far exceeding the scope of these patches.
 
-drivers/net/virtio_net.c: In function 'virtnet_rx_vq_reset':
-drivers/net/virtio_net.c:1823:63: warning: format '%ld' expects argument of type 'long int', but argument 3 has type 'int' [-Wformat=]
- 1823 |                    "reset rx reset vq fail: rx queue index: %ld err: %d\n",
-      |                                                             ~~^
-      |                                                               |
-      |                                                               long int
-      |                                                             %d
- 1824 |                    rq - vi->rq, err);
-      |                    ~~~~~~~~~~~
-      |                       |
-      |                       int
-drivers/net/virtio_net.c: In function 'virtnet_tx_vq_reset':
-drivers/net/virtio_net.c:1873:63: warning: format '%ld' expects argument of type 'long int', but argument 3 has type 'int' [-Wformat=]
- 1873 |                    "reset tx reset vq fail: tx queue index: %ld err: %d\n",
-      |                                                             ~~^
-      |                                                               |
-      |                                                               long int
-      |                                                             %d
- 1874 |                    sq - vi->sq, err);
-      |                    ~~~~~~~~~~~
-      |                       |
-      |                       int
+I think not; on both counts. That is, I don't think it's going to be
+hard, and even it if were, it would still be the right thing to do.
 
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+We're not going to add interface just to work around a known broken
+piece of crap just because we don't want to fix it.
+
+So I'm thinking we should do the below and simply ignore any paravirt
+sched clock offered when there's ART on.
+
 ---
- drivers/net/virtio_net.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 1fa2d632a994..4d629d1ea894 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -1820,7 +1820,7 @@ static int virtnet_rx_vq_reset(struct virtnet_info *vi,
+diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
+index 4420499f7bb4..a1f179ed39bf 100644
+--- a/arch/x86/kernel/paravirt.c
++++ b/arch/x86/kernel/paravirt.c
+@@ -145,6 +145,15 @@ DEFINE_STATIC_CALL(pv_sched_clock, native_sched_clock);
  
- err:
- 	netdev_err(vi->dev,
--		   "reset rx reset vq fail: rx queue index: %ld err: %d\n",
-+		   "reset rx reset vq fail: rx queue index: %td err: %d\n",
- 		   rq - vi->rq, err);
- 	virtnet_napi_enable(rq->vq, &rq->napi);
- 	return err;
-@@ -1870,7 +1870,7 @@ static int virtnet_tx_vq_reset(struct virtnet_info *vi,
+ void paravirt_set_sched_clock(u64 (*func)(void))
+ {
++	/*
++	 * Anything with ART on promises to have sane TSC, otherwise the whole
++	 * ART thing is useless. In order to make ART useful for guests, we
++	 * should continue to use the TSC. As such, ignore any paravirt
++	 * muckery.
++	 */
++	if (cpu_feature_enabled(X86_FEATURE_ART))
++		return;
++
+ 	static_call_update(pv_sched_clock, func);
+ }
  
- err:
- 	netdev_err(vi->dev,
--		   "reset tx reset vq fail: tx queue index: %ld err: %d\n",
-+		   "reset tx reset vq fail: tx queue index: %td err: %d\n",
- 		   sq - vi->sq, err);
- 	virtnet_napi_tx_enable(vi, sq->vq, &sq->napi);
- 	return err;
--- 
-2.31.0
-
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
