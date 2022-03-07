@@ -1,97 +1,144 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B2E31C433F5
-	for <virtualization@archiver.kernel.org>; Mon,  7 Mar 2022 10:58:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 03535C433F5
+	for <virtualization@archiver.kernel.org>; Mon,  7 Mar 2022 11:03:14 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 6A4C240225;
-	Mon,  7 Mar 2022 10:58:29 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 97F9360E63;
+	Mon,  7 Mar 2022 11:03:14 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id T1m3xofennDe; Mon,  7 Mar 2022 10:58:27 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id anb64b8U8riT; Mon,  7 Mar 2022 11:03:13 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id C72F740204;
-	Mon,  7 Mar 2022 10:58:26 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id D4C2E60E72;
+	Mon,  7 Mar 2022 11:03:12 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 98052C0012;
-	Mon,  7 Mar 2022 10:58:26 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D3E73C000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 929C9C0012;
+	Mon,  7 Mar 2022 11:03:12 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 633D6C000B
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Mar 2022 10:58:24 +0000 (UTC)
+ Mon,  7 Mar 2022 11:03:11 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id AE40C81BB2
+ by smtp1.osuosl.org (Postfix) with ESMTP id 50CC781BB2
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Mar 2022 10:58:24 +0000 (UTC)
+ Mon,  7 Mar 2022 11:03:11 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=suse.com
+ dkim=pass (2048-bit key) header.d=nvidia.com
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 7kWdiJYTwiX2
+ with ESMTP id QVG4YAxdUY-V
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Mar 2022 10:58:24 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
- by smtp1.osuosl.org (Postfix) with ESMTPS id D028681BB0
+ Mon,  7 Mar 2022 11:03:10 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com
+ (mail-co1nam11on20630.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:7eab::630])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 1F1248138E
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Mar 2022 10:58:23 +0000 (UTC)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by smtp-out2.suse.de (Postfix) with ESMTPS id 2EB071F37D;
- Mon,  7 Mar 2022 10:58:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
- t=1646650701; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=iCHMjY+ZPjiNIpWBX9vPX8pxE8O3mm4NFvjAqDMCwDA=;
- b=ePF8+laPogCunbljm3E0kk+a6ExGKTEIKOO0gEUvMD3VvpUmfSWzK14c0pIWu9HNiI/NuE
- hH85ECjaSu03dKP+zoa7OYBNmJFcJe66TqL2taJ/1DBqC0O2uqvd3dY4Az4XoREjo2vQ0+
- GMvl0TMyFKG4cS6+IefvwRNqEMbV3gk=
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 7ABC013AD8;
- Mon,  7 Mar 2022 10:58:20 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
- by imap2.suse-dmz.suse.de with ESMTPSA id djM+HEzlJWJ5PAAAMHmgww
- (envelope-from <jgross@suse.com>); Mon, 07 Mar 2022 10:58:20 +0000
-Message-ID: <b3d6e048-6922-ce00-7c1f-3702695c2974@suse.com>
-Date: Mon, 7 Mar 2022 11:58:19 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH V2 03/11] perf/x86: Add support for TSC in nanoseconds as
- a perf event clock
+ Mon,  7 Mar 2022 11:03:10 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=CKlQndKpc6XZ/z9opgQKP+3GoXTGgKcZfZnP3SujciF1nDv0RTrbVZj1PIg10TKY93EbCZxbY32UvGfL1J32oMxIVdzNER9maSi56CspY64PAtryAcsvP9++mPqC5V2Bs1uXCF3ePH4NzpT89tQOHuWDN6A82cgMFdQP82nZyVUv/kjzdwSsoMPE2DjcJve0d4LCCwVNpWs3b3LnUatfNEVAfmOoofatR4OOUTwE3kIHSh22l65fnczuLmw7F6gLLtWltsUK1S5v2auPxI5QY3119BsWCOcN2yElb/2Z9YFbvYDCE616ZvaXweRebFgILnvpNaWFqs9gDdV9y6vY3A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=Y2acC0Y/fUCLbQ7T0HHNQEBe6UGrSTTbIbHvZ/I/7eM=;
+ b=PZfnU/KsYsFNOQVrWF/+qs1YqsrJ+rd5oxKjU2MKTKtrxPCJ9OG1IzxP5mfyGEDxV9e3yicnYGgHlWdCKNi1uxT+hakevFvIsjI45wYLK/6vai1N2HR2I+QiK6vXwZYZmWTOfwxYsRoOjiryk9g2ANnWK11eyocv79JVsd3hHsBAQ9QDn6zhalZhF14SodD1N3L+GoK4ELi8KH/WrH7M22SQ9SeUrj2ATsDyIL0Dlr34NIxQKCDf8KoSWVUs/jV+rxtE17CjctfeYCxoIvMqNwYZ6X9Fcs63Eh1efWr74+rrePdVHZpWjZuMTjJ/ioSEPTb8wvm/7XjqWb3M1drdqQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Y2acC0Y/fUCLbQ7T0HHNQEBe6UGrSTTbIbHvZ/I/7eM=;
+ b=GUYh1Kg+7VX2KeHnyVE5BfHO7f/jt1Mn03qbOdmLv4YtcHlReht9QJOGUvOb9d8Vs7flsbASluoVBwb/NLFUvu/gp2rAwu+JgsqiHF0mo0/VvZo8udGr56lpwbUN8iiG45Km7HorxcnIzQTFhzFmXCfhv37EPLndz1XMh8Sh2ivNv0xyZgHUxIG0n5YAOdkmPPf4VZT5s26nCudzUWYfPv9gALPzQx0Oq4NjZX2vyG7T3JyWB9U4eJesIZp72i7qs/I7UtfSrZKGkZq59qQ+lU3OVkw+SkRyLXhbMHpF7N4lb5DWReTJ8BIFuIRmyXhbv1QNNvKYtHjq3rhNEZ+xNQ==
+Received: from PH0PR12MB5481.namprd12.prod.outlook.com (2603:10b6:510:d4::15)
+ by BN8PR12MB4628.namprd12.prod.outlook.com (2603:10b6:408:a8::29)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5038.13; Mon, 7 Mar
+ 2022 11:03:06 +0000
+Received: from PH0PR12MB5481.namprd12.prod.outlook.com
+ ([fe80::8527:54fa:c63d:16b]) by PH0PR12MB5481.namprd12.prod.outlook.com
+ ([fe80::8527:54fa:c63d:16b%8]) with mapi id 15.20.5038.026; Mon, 7 Mar 2022
+ 11:03:06 +0000
+To: Eli Cohen <elic@nvidia.com>, "mst@redhat.com" <mst@redhat.com>,
+ "jasowang@redhat.com" <jasowang@redhat.com>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>, "si-wei.liu@oracle.com"
+ <si-wei.liu@oracle.com>, "eperezma@redhat.com" <eperezma@redhat.com>,
+ "amorenoz@redhat.com" <amorenoz@redhat.com>, "lvivier@redhat.com"
+ <lvivier@redhat.com>, "sgarzare@redhat.com" <sgarzare@redhat.com>
+Subject: RE: [PATCH v1 1/2] vdpa: Add support for querying vendor statistics
+Thread-Topic: [PATCH v1 1/2] vdpa: Add support for querying vendor statistics
+Thread-Index: AQHYIwtYQuHoqq6wH0ab3gBlI5UWKayz1/YA
+Date: Mon, 7 Mar 2022 11:03:06 +0000
+Message-ID: <PH0PR12MB5481F6D44451F01814470112DC089@PH0PR12MB5481.namprd12.prod.outlook.com>
+References: <20220216080022.56707-1-elic@nvidia.com>
+ <20220216080022.56707-2-elic@nvidia.com>
+In-Reply-To: <20220216080022.56707-2-elic@nvidia.com>
+Accept-Language: en-US
 Content-Language: en-US
-To: Peter Zijlstra <peterz@infradead.org>
-References: <20220214110914.268126-1-adrian.hunter@intel.com>
- <20220214110914.268126-4-adrian.hunter@intel.com>
- <YiIXFmA4vpcTSk2L@hirez.programming.kicks-ass.net>
- <853ce127-25f0-d0fe-1d8f-0b0dd4f3ce71@intel.com>
- <YiXVgEk/1UClkygX@hirez.programming.kicks-ass.net>
- <f40937c9-35f6-ce86-f07b-5cea09a963af@suse.com>
- <YiXgirw1kFOPgBgY@hirez.programming.kicks-ass.net>
-In-Reply-To: <YiXgirw1kFOPgBgY@hirez.programming.kicks-ass.net>
-Cc: kvm@vger.kernel.org,
- Alexander Shishkin <alexander.shishkin@linux.intel.com>,
- Dave Hansen <dave.hansen@linux.intel.com>,
- virtualization@lists.linux-foundation.org, H Peter Anvin <hpa@zytor.com>,
- Jiri Olsa <jolsa@redhat.com>, sthemmin@microsoft.com, x86@kernel.org,
- pv-drivers@vmware.com, Ingo Molnar <mingo@redhat.com>,
- Suzuki K Poulose <suzuki.poulose@arm.com>,
- Arnaldo Carvalho de Melo <acme@kernel.org>, Andrew.Cooper3@citrix.com,
- Borislav Petkov <bp@alien8.de>, Thomas Gleixner <tglx@linutronix.de>,
- Mathieu Poirier <mathieu.poirier@linaro.org>, seanjc@google.com,
- Adrian Hunter <adrian.hunter@intel.com>, linux-kernel@vger.kernel.org,
- Leo Yan <leo.yan@linaro.org>, pbonzini@redhat.com
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 35865b1a-591f-48c3-e38d-08da002a0f0e
+x-ms-traffictypediagnostic: BN8PR12MB4628:EE_
+x-microsoft-antispam-prvs: <BN8PR12MB4628AA5152E8966DB7BAF319DC089@BN8PR12MB4628.namprd12.prod.outlook.com>
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: sZUJOSB13qMsgmBw8zFmw8OS886gJFKEMXl5cV/M8/WCALIj6WnQQBJKIU5BJIwg8/VNp/6E2NbhKtUmnkFuUM/W4NrcTN2qskwci6uZSCQ6D9jfNaV2rOKKBh/3DHlsCJsa56fT/9tivPq+Nb2pGPz4fgVwUxGDWGzUdpgj2+uKRDcwf5Zv1u9QDphTARUVtz5u+V++xtoHzkN+bxpLaYw4+TTzdxuOWPri159Gqkv095zuJ2z65hVvySS2vtO+KLMhnZKZdHhnIN69lH25h0LGRN5CwaZTQE9aIyRy7gkVqlR0FsTzuq2n0d6XoOuhWbJ0P2Taa/fg2kfTIgqWTLEd2O9gSqkbrkQChsP2+fwp+Eq3QxCH+ImrhfECvcmI91i4XE8XTQWVXMD282zPvVXzoM4D8EU1N/oxTZDRVfjOapsB9gF8qnBYvDGfT211l2IJNmqye5PW7zJmMB7G1Vlq6xtkmO9qW77qyFB6+WK80oSId71FDPMHkp4vTkeJFQewTK3q5HKVt+HQBl1tUzd3HGux0W0kMB8XkikKWULmDWcD6jFO+vB9GKdpWGVyZ9GxnftAfZnfvqC3Zjz11sO/p0702AoVLWH135PLDWInfzSkaV91vp7U5sbUQSyHZdk9C9friWeWA5vmMvQQIU7GWODwag9LlHSH1+PlLlSRaMzRQmiMa86PxsNOecAuWVR2RKzsd19OkHj6SGqRhw==
+x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:PH0PR12MB5481.namprd12.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230001)(4636009)(366004)(6506007)(55016003)(71200400001)(38100700002)(7696005)(2906002)(83380400001)(38070700005)(33656002)(5660300002)(76116006)(316002)(26005)(66946007)(66556008)(9686003)(52536014)(8936002)(122000001)(86362001)(186003)(8676002)(110136005)(64756008)(508600001)(66476007)(66446008);
+ DIR:OUT; SFP:1101; 
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?SaL4c77mlM1ri80J1zrBUa1L++sTzsGOSOOd5fOVT5mjPff1ZTRnwh4z5Ml/?=
+ =?us-ascii?Q?kkWtm58sh6LnkvgkivBAItUOnabfPuT0SQeW/qC8Owezzani3r7FVOeFbfGS?=
+ =?us-ascii?Q?Kkr5kTIRho7ZWQ3S9a8t48LEbU//kpt4SFSjW4xIkitcuhaOy4fNoT12J3SA?=
+ =?us-ascii?Q?x+yfF81zLtO2Qj2z7xaNeWVZio7Pwp/+b9u5ZgvLpi6FjxefLF3rmy+cDYY5?=
+ =?us-ascii?Q?gRyaMDeSO/SPps0z9fDZLJlPk10uQnJDrfcuwh3+Qh5dzSiDgsUdhqMiMzW5?=
+ =?us-ascii?Q?lKAaTUQT7xK5gHvLQ1DUdEZdQBoKUUEwMWfxmFDNxf6pG7j0msHkUXhPbnt3?=
+ =?us-ascii?Q?8NY2DurB7yrDC3Blf+ZC7xnyIFgWYfeHY8I07WmWhU4Ht/yZtBSHx8luo06G?=
+ =?us-ascii?Q?I+d6vCTJoLqzdYsNO4rAvPV4elKYlsfDXwj2YXR20BHu9O0zyyMwzeRimVB3?=
+ =?us-ascii?Q?MO5hRPRoPuz6+jRyK9T1js/jgqo5TEVqI9QPqRyutsup8JiXtnuT+SCGTcw4?=
+ =?us-ascii?Q?JfmYAZ7mJXuJcyV7iLRWN+G6wR1feSjLfAi2cWf5hrREQnQYfyBeHl9SQyBY?=
+ =?us-ascii?Q?5QL3iDd/QWhHF/hRJKb2XQXkw9PbhN+PcCsJBRh88PbXfUXefymuEfBqxFs8?=
+ =?us-ascii?Q?v9YILWsmnGAVFg5opc59KyAcExdx5DNeeAtspHCLao7Gs5cdwoZL4O7DP1V0?=
+ =?us-ascii?Q?1HLnjRZku9T42bREQYFWC+E01pzjrz+b4qJhmILNG11MuK+jzbp27ECQnsyi?=
+ =?us-ascii?Q?PS1Ti401oA+PIiiFbOgWbzKnRzjmNBVoRuVg2Zb7ASigXR/hdatXfCrMR+zM?=
+ =?us-ascii?Q?1sZ+1kIrApMrRDRo0KtIl4Xp+4g65P0CbpMzpjFQEFJiFICJAdnKsCMAXHMO?=
+ =?us-ascii?Q?X4yO9uDhfk9EwFmtpjDnxSCyygZwAl7adghzzQQYB0CXoC2+mTh7ncUP/YaE?=
+ =?us-ascii?Q?ecTzOcR91hNWv+clzF4q0bfC10Mxhd7GuRt25fygt4V690YGGAoaYSJWQwgQ?=
+ =?us-ascii?Q?85N7y8w5JPSEQxAmRdejpffH2fvmrkeKr6ZM5dopIOMlwH+I/ZvMYUiJgpCK?=
+ =?us-ascii?Q?y5U0Ivy2/vJkJZRWXHwjsWxfDPqVqrYP1QDXkMA0xk8PfWs2AzisIhyd94Tr?=
+ =?us-ascii?Q?ChIWu6VqFhMogysqLQ3oeSn6bVFkXg/nI/Tgf32tmlTB+6FZbK42WrNv3W5S?=
+ =?us-ascii?Q?uFNkxUY2RtQXd+8bKF+og2+O5GK96vzMOlT62tRnvOw4DG98SC23CtlGJe/S?=
+ =?us-ascii?Q?c0NisgQsPLhLuSiHYZ9BP7GlF4fRoogKAW5dR7ZpEhSqoU+fUGTMpeSmlI2y?=
+ =?us-ascii?Q?IM4rZMLM2IvJjYUrsL0FFy1TLA7IUAcRmvS/AiCdeLxiY5MeYxnk8x3EuXFj?=
+ =?us-ascii?Q?9XMHlSmc0JzHdJs1MNDPC3w/NuveelsT3iGIU1KBbCwuW/YuQ0n5i1syJmxt?=
+ =?us-ascii?Q?cRMVDAPopZUxpIt5AqsdmdMOzwL9PwK50PEeo/Q1lvLRED5nCmWd41iebBxK?=
+ =?us-ascii?Q?66QTI7VutmpZtm1sbOxDDMsCc9sgkG2M4yLQOHqHJl6M4V1H4OiImPnalLOY?=
+ =?us-ascii?Q?Clw06g4smDg7CoIjmP5mss0tOdrVKs3u7z/jWysCDq18w6lJawI+VpNeMnav?=
+ =?us-ascii?Q?NA=3D=3D?=
+MIME-Version: 1.0
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB5481.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 35865b1a-591f-48c3-e38d-08da002a0f0e
+X-MS-Exchange-CrossTenant-originalarrivaltime: 07 Mar 2022 11:03:06.7138 (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 5hvmhhm8LzTikocWhaEoC46vjTlijE63UqFnmrlmUJ4tvb455vQdHrGkPVXZMYbtupuP8qUunKeG74JE6ioMeQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN8PR12MB4628
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -103,168 +150,128 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Juergen Gross via Virtualization
+From: Parav Pandit via Virtualization
  <virtualization@lists.linux-foundation.org>
-Reply-To: Juergen Gross <jgross@suse.com>
-Content-Type: multipart/mixed; boundary="===============9056114250645005507=="
+Reply-To: Parav Pandit <parav@nvidia.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============9056114250645005507==
-Content-Language: en-US
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------E3fHmzravdxJ5wg2RM8eMWCa"
+Hi Eli,
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------E3fHmzravdxJ5wg2RM8eMWCa
-Content-Type: multipart/mixed; boundary="------------i8OSTNlIs3fqr6qkIPVWLXyW";
- protected-headers="v1"
-From: Juergen Gross <jgross@suse.com>
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Adrian Hunter <adrian.hunter@intel.com>,
- Alexander Shishkin <alexander.shishkin@linux.intel.com>,
- Arnaldo Carvalho de Melo <acme@kernel.org>, Jiri Olsa <jolsa@redhat.com>,
- linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
- Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
- kvm@vger.kernel.org, H Peter Anvin <hpa@zytor.com>,
- Mathieu Poirier <mathieu.poirier@linaro.org>,
- Suzuki K Poulose <suzuki.poulose@arm.com>, Leo Yan <leo.yan@linaro.org>,
- sdeep@vmware.com, pv-drivers@vmware.com, pbonzini@redhat.com,
- seanjc@google.com, kys@microsoft.com, sthemmin@microsoft.com,
- virtualization@lists.linux-foundation.org, Andrew.Cooper3@citrix.com
-Message-ID: <b3d6e048-6922-ce00-7c1f-3702695c2974@suse.com>
-Subject: Re: [PATCH V2 03/11] perf/x86: Add support for TSC in nanoseconds as
- a perf event clock
-References: <20220214110914.268126-1-adrian.hunter@intel.com>
- <20220214110914.268126-4-adrian.hunter@intel.com>
- <YiIXFmA4vpcTSk2L@hirez.programming.kicks-ass.net>
- <853ce127-25f0-d0fe-1d8f-0b0dd4f3ce71@intel.com>
- <YiXVgEk/1UClkygX@hirez.programming.kicks-ass.net>
- <f40937c9-35f6-ce86-f07b-5cea09a963af@suse.com>
- <YiXgirw1kFOPgBgY@hirez.programming.kicks-ass.net>
-In-Reply-To: <YiXgirw1kFOPgBgY@hirez.programming.kicks-ass.net>
+Sorry for my so delayed response.
+Please see below. 
 
---------------i8OSTNlIs3fqr6qkIPVWLXyW
-Content-Type: multipart/mixed; boundary="------------hMbD6nOPQ14JFkw0B4c45F9t"
+> From: Eli Cohen <elic@nvidia.com>
+> Sent: Wednesday, February 16, 2022 1:30 PM
+> 
+> Allows to read vendor statistics of a vdpa device. The specific statistics data is
+> received by the upstream driver in the form of an (attribute name, attribute
+> value) pairs.
+> +static int vdpa_fill_stats_rec(struct vdpa_device *vdev, struct sk_buff *msg,
+> +			       struct genl_info *info, u32 index) {
+> +	int err;
+> +
+> +	if (nla_put_u32(msg, VDPA_ATTR_DEV_QUEUE_INDEX, index))
+> +		return -EMSGSIZE;
+> +
+> +	err = vdev->config->get_vendor_vq_stats(vdev, index, msg, info-
+> >extack);
 
---------------hMbD6nOPQ14JFkw0B4c45F9t
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+There is implicit assumption about placement of netlink attributes, like name1, value1, name2, value2 etc.
+Things can break here with such message framing in in place in the future.
 
-T24gMDcuMDMuMjIgMTE6MzgsIFBldGVyIFppamxzdHJhIHdyb3RlOg0KPiBPbiBNb24sIE1h
-ciAwNywgMjAyMiBhdCAxMTowNjo0NkFNICswMTAwLCBKdWVyZ2VuIEdyb3NzIHdyb3RlOg0K
-PiANCj4+PiBkaWZmIC0tZ2l0IGEvYXJjaC94ODYva2VybmVsL3BhcmF2aXJ0LmMgYi9hcmNo
-L3g4Ni9rZXJuZWwvcGFyYXZpcnQuYw0KPj4+IGluZGV4IDQ0MjA0OTlmN2JiNC4uYTFmMTc5
-ZWQzOWJmIDEwMDY0NA0KPj4+IC0tLSBhL2FyY2gveDg2L2tlcm5lbC9wYXJhdmlydC5jDQo+
-Pj4gKysrIGIvYXJjaC94ODYva2VybmVsL3BhcmF2aXJ0LmMNCj4+PiBAQCAtMTQ1LDYgKzE0
-NSwxNSBAQCBERUZJTkVfU1RBVElDX0NBTEwocHZfc2NoZWRfY2xvY2ssIG5hdGl2ZV9zY2hl
-ZF9jbG9jayk7DQo+Pj4gICAgdm9pZCBwYXJhdmlydF9zZXRfc2NoZWRfY2xvY2sodTY0ICgq
-ZnVuYykodm9pZCkpDQo+Pj4gICAgew0KPj4+ICsJLyoNCj4+PiArCSAqIEFueXRoaW5nIHdp
-dGggQVJUIG9uIHByb21pc2VzIHRvIGhhdmUgc2FuZSBUU0MsIG90aGVyd2lzZSB0aGUgd2hv
-bGUNCj4+PiArCSAqIEFSVCB0aGluZyBpcyB1c2VsZXNzLiBJbiBvcmRlciB0byBtYWtlIEFS
-VCB1c2VmdWwgZm9yIGd1ZXN0cywgd2UNCj4+PiArCSAqIHNob3VsZCBjb250aW51ZSB0byB1
-c2UgdGhlIFRTQy4gQXMgc3VjaCwgaWdub3JlIGFueSBwYXJhdmlydA0KPj4+ICsJICogbXVj
-a2VyeS4NCj4+PiArCSAqLw0KPj4+ICsJaWYgKGNwdV9mZWF0dXJlX2VuYWJsZWQoWDg2X0ZF
-QVRVUkVfQVJUKSkNCj4+PiArCQlyZXR1cm47DQo+Pj4gKw0KPj4+ICAgIAlzdGF0aWNfY2Fs
-bF91cGRhdGUocHZfc2NoZWRfY2xvY2ssIGZ1bmMpOw0KPj4+ICAgIH0NCj4+Pg0KPj4NCj4+
-IE5BSywgdGhpcyB3aWxsIGJyZWFrIGxpdmUgbWlncmF0aW9uIG9mIGEgZ3Vlc3QgY29taW5n
-IGZyb20gYSBob3N0DQo+PiB3aXRob3V0IHRoaXMgZmVhdHVyZS4NCj4gDQo+IEkgdGhvdWdo
-dCB0aGUgd2hvbGUgbGl2ZS1taWdyYXRpb24gbm9uc2Vuc2UgbWFkZSBzdXJlIHRvIGVxdWFs
-aXplIGNydWQNCj4gbGlrZSB0aGF0LiBUaGF0IGlzLCB0aGVuIGRvbid0IGV4cG9zZSBBUlQg
-dG8gdGhlIGd1ZXN0Lg0KDQpPaCwgcmlnaHQuIEkgbWFuYWdlZCB0byBjb25mdXNlIGhvc3Qt
-c2lkZSBhbmQgZ3Vlc3Qtc2lkZSB1c2FnZS4NCg0KU29ycnkgZm9yIHRoZSBub2lzZS4NCg0K
-DQpKdWVyZ2VuDQo=
---------------hMbD6nOPQ14JFkw0B4c45F9t
-Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Description: OpenPGP public key
-Content-Transfer-Encoding: quoted-printable
+Netlink has more generic way for addressing and avoiding above strict placement of fields etc.
 
------BEGIN PGP PUBLIC KEY BLOCK-----
+A more elegant way in kernel is to use nested and self-describing attributes.
+We also want to use standard netlink infra built in iproute2 to parse in generic way.
 
-xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjri
-oyspZKOBycWxw3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2
-kaV2KL9650I1SJvedYm8Of8Zd621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i
-1TXkH09XSSI8mEQ/ouNcMvIJNwQpd369y9bfIhWUiVXEK7MlRgUG6MvIj6Y3Am/B
-BLUVbDa4+gmzDC9ezlZkTZG2t14zWPvxXP3FAp2pkW0xqG7/377qptDmrk42GlSK
-N4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEBAAHNHEp1ZXJnZW4gR3Jvc3Mg
-PGpnQHBmdXBmLm5ldD7CwHkEEwECACMFAlOMcBYCGwMHCwkIBwMCAQYVCAIJCgsE
-FgIDAQIeAQIXgAAKCRCw3p3WKL8TL0KdB/93FcIZ3GCNwFU0u3EjNbNjmXBKDY4F
-UGNQH2lvWAUy+dnyThpwdtF/jQ6j9RwE8VP0+NXcYpGJDWlNb9/JmYqLiX2Q3Tye
-vpB0CA3dbBQp0OW0fgCetToGIQrg0MbD1C/sEOv8Mr4NAfbauXjZlvTj30H2jO0u
-+6WGM6nHwbh2l5O8ZiHkH32iaSTfN7Eu5RnNVUJbvoPHZ8SlM4KWm8rG+lIkGurq
-qu5gu8q8ZMKdsdGC4bBxdQKDKHEFExLJK/nRPFmAuGlId1E3fe10v5QL+qHI3EIP
-tyfE7i9Hz6rVwi7lWKgh7pe0ZvatAudZ+JNIlBKptb64FaiIOAWDCx1SzR9KdWVy
-Z2VuIEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+wsB5BBMBAgAjBQJTjHCvAhsDBwsJ
-CAcDAgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey/HmQf/RtI7kv5A2PS4
-RF7HoZhPVPogNVbC4YA6lW7DrWf0teC0RR3MzXfy6pJ+7KLgkqMlrAbN/8Dvjoz7
-8X+5vhH/rDLa9BuZQlhFmvcGtCF8eR0T1v0nC/nuAFVGy+67q2DH8As3KPu0344T
-BDpAvr2uYM4tSqxK4DURx5INz4ZZ0WNFHcqsfvlGJALDeE0LhITTd9jLzdDad1pQ
-SToCnLl6SBJZjDOX9QQcyUigZFtCXFst4dlsvddrxyqT1f17+2cFSdu7+ynLmXBK
-7abQ3rwJY8SbRO2iRulogc5vr/RLMMlscDAiDkaFQWLoqHHOdfO9rURssHNN8WkM
-nQfvUewRz80hSnVlcmdlbiBHcm9zcyA8amdyb3NzQG5vdmVsbC5jb20+wsB5BBMB
-AgAjBQJTjHDXAhsDBwsJCAcDAgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/
-Ey8PUQf/ehmgCI9jB9hlgexLvgOtf7PJnFOXgMLdBQgBlVPO3/D9R8LtF9DBAFPN
-hlrsfIG/SqICoRCqUcJ96Pn3P7UUinFG/I0ECGF4EvTE1jnDkfJZr6jrbjgyoZHi
-w/4BNwSTL9rWASyLgqlA8u1mf+c2yUwcGhgkRAd1gOwungxcwzwqgljf0N51N5Jf
-VRHRtyfwq/ge+YEkDGcTU6Y0sPOuj4Dyfm8fJzdfHNQsWq3PnczLVELStJNdapwP
-OoE+lotufe3AM2vAEYJ9rTz3Cki4JFUsgLkHFqGZarrPGi1eyQcXeluldO3m91NK
-/1xMI3/+8jbO0tsn1tqSEUGIJi7ox80eSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1
-c2UuZGU+wsB5BBMBAgAjBQJTjHDrAhsDBwsJCAcDAgEGFQgCCQoLBBYCAwECHgEC
-F4AACgkQsN6d1ii/Ey+LhQf9GL45eU5vOowA2u5N3g3OZUEBmDHVVbqMtzwlmNC4
-k9Kx39r5s2vcFl4tXqW7g9/ViXYuiDXb0RfUpZiIUW89siKrkzmQ5dM7wRqzgJpJ
-wK8Bn2MIxAKArekWpiCKvBOB/Cc+3EXE78XdlxLyOi/NrmSGRIov0karw2RzMNOu
-5D+jLRZQd1Sv27AR+IP3I8U4aqnhLpwhK7MEy9oCILlgZ1QZe49kpcumcZKORmzB
-TNh30FVKK1EvmV2xAKDoaEOgQB4iFQLhJCdP1I5aSgM5IVFdn7v5YgEYuJYx37Io
-N1EblHI//x/e2AaIHpzK5h88NEawQsaNRpNSrcfbFmAg987ATQRTjHAWAQgAyzH6
-AOODMBjgfWE9VeCgsrwH3exNAU32gLq2xvjpWnHIs98ndPUDpnoxWQugJ6MpMncr
-0xSwFmHEgnSEjK/PAjppgmyc57BwKII3sV4on+gDVFJR6Y8ZRwgnBC5mVM6JjQ5x
-Dk8WRXljExRfUX9pNhdE5eBOZJrDRoLUmmjDtKzWaDhIg/+1Hzz93X4fCQkNVbVF
-LELU9bMaLPBG/x5q4iYZ2k2ex6d47YE1ZFdMm6YBYMOljGkZKwYde5ldM9mo45mm
-we0icXKLkpEdIXKTZeKDO+Hdv1aqFuAcccTg9RXDQjmwhC3yEmrmcfl0+rPghO0I
-v3OOImwTEe4co3c1mwARAQABwsBfBBgBAgAJBQJTjHAWAhsMAAoJELDendYovxMv
-Q/gH/1ha96vm4P/L+bQpJwrZ/dneZcmEwTbe8YFsw2V/Buv6Z4Mysln3nQK5ZadD
-534CF7TDVft7fC4tU4PONxF5D+/tvgkPfDAfF77zy2AH1vJzQ1fOU8lYFpZXTXIH
-b+559UqvIB8AdgR3SAJGHHt4RKA0F7f5ipYBBrC6cyXJyyoprT10EMvU8VGiwXvT
-yJz3fjoYsdFzpWPlJEBRMedCot60g5dmbdrZ5DWClAr0yau47zpWj3enf1tLWaqc
-suylWsviuGjKGw7KHQd3bxALOknAp4dN3QwBYCKuZ7AddY9yjynVaD5X7nF9nO5B
-jR/i1DG86lem3iBDXzXsZDn8R38=3D
-=3D2wuH
------END PGP PUBLIC KEY BLOCK-----
+So please change it do like below.
+A bit long response, as it contains a pseudo code example.
+(ignored all error checks to keep code short)
 
---------------hMbD6nOPQ14JFkw0B4c45F9t--
+overview:
+---------------
+Each vendor stats entry is a nested entry.
+This nested entry contains: 
+a. stat name ("rx_desc", "cmpl_desc" etc)
+b. value of this variable as u64
 
---------------i8OSTNlIs3fqr6qkIPVWLXyW--
+All of these individual stats entry are put under a new vstats nested entry.
+This enables us to parse and reuse existing netlink interface for nested list of entries.
+Such as iproute2 mnl_attr_for_each_nested() API.
 
---------------E3fHmzravdxJ5wg2RM8eMWCa
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
+pseudo code:
+------------------
+enum {
+	[...]
+	VDPA_ATTR_VSTAT_LIST, /* nested, indicating list of vstat entries */
+	VDPA_ATTR_VSTAT_ENTRY, /* nested, indiating each vstat entry is self-contained */
+	VDPA_ATTR_VSTATS_ENTRY_NAME, /* string of the entry */
+	VDPA_ATTRS_VSTATS_ENTRY_DATA, /* u64 value of the entry */
+	MAX,
+}
 
------BEGIN PGP SIGNATURE-----
+/**
+ * vdpa_vstats_entry_fill - This is an API expose to vendor driver to fill the vendor specific stats
+ * A vendor driver should call this in a loop for all the valid vendor statistics entry for the specified queue.
+ * A vendor driver should call this API in the get_vendor_vq_stats() callback.
+ */
+int vdpa_vstats_entry_fill(struct sk_buff *msg, const struct vdpa_vstat_entry *entry, u32 q_index)
+{
+	/* created a nested attribute in a msg  for this entry */
+	vstats_nl_entry = nla_nest_start_noflag(msg, VDPA_ATTR_VSTAT_ENTRY);
 
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmIl5UsFAwAAAAAACgkQsN6d1ii/Ey+l
-nwf+P5PI/iiKDcEHE7/irYMs9uf9Oo2kAcgdy2+YvEEZXdsLTR4/v6y+ALFQAF940ROkKclH9Byf
-h8MIpq5zDbgYQUh8zGvJIrJVDaularN2ge8sUJxT1hMTNBC5ZssFKEWUFMzYEm7zXFhdWews+ptE
-bH95AJ/6NsXsVJ+KO3yU+SxDPfBmBs+rGIv61THrwGYiIDtwZD8Wqlq6C7oA1SYGFr5zAnO0UJ3J
-VF2g333pEzb7qOFbCQhKfF1M4Q9OzPpd4y/1B1MUuHhpGg+qay3TYVpoYurlx72piiqKC+iqf5It
-s1Tqp5TtA0zXw91OkKlttA6haoHUCHZeLJTScuR7qg==
-=ZJzJ
------END PGP SIGNATURE-----
+	/* now fill value of name + its value in it.
+	nla_put_string(msg, VDPA_ATTR_VSTATS_NAME, "string1);
+	nla_put_u64_64bit(msg, entry->val.u64);
 
---------------E3fHmzravdxJ5wg2RM8eMWCa--
+	/* end this entry nested attribute */
+	nla_nest_end(msg, vstats_nl_entry);
+	return 0;
+}
+EXPORT_SYMBOL(vdev_vstats_entry_fill);
 
---===============9056114250645005507==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+static int vdpa_vstat_fill(struct sk_buff *msg,
+			   const struct vdpa_vstat_entry *vstats, u32 q_index)
+{
+	int i = 0;
+	int ret;
+
+	hdr = genlmsg_put(msg, portid, seq, &vdpa_nl_family, flags, VDPA_CMD_DEV_VSTATS_GET);
+
+	/* put the device name also, so that same routine can work 
+	  * for the dumpit too in future for all the queues
+	  */
+	nla_put_string(msg, VDPA_ATTR_DEV_NAME, dev_name(&vdev->dev)));
+
+	nla_put_u32(msg, VDPA_ATTR_DEV_QUEUE_INDEX, index);
+
+	/* start list type to indicate that we will have list of nested */
+	vstats = nla_nest_start_noflag(msg, VDPA_ATTR_VSTAT_LIST);
+	
+	ret = vdev->config->get_vendor_vq_stats(msg, vdev, q_idx);
+	nla_nest_end(msg, vstats);
+
+	genlmsg_end(msg, hdr);
+}
+
+iproute2 to leverage mnl_attr_for_each_nested(), like below.
+
+vstats_show(...)
+{
+	mnl_attr_for_each_nested(cur_attr, nla_param[VDPA_ATTR_VSTAT_LIST]) {
+		vdpa_vstat_entry_parse(nl);
+}
+
+static vdpa_vstat_entry_parse(struct nlattr *nl)
+{
+	mnl_attr_parse_nested(nl, cb, nla_value);
+	/* get the value of each entry placed by driver */
+}
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============9056114250645005507==--
