@@ -1,119 +1,191 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D3471C433EF
-	for <virtualization@archiver.kernel.org>; Tue,  8 Mar 2022 06:03:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D1C6DC43219
+	for <virtualization@archiver.kernel.org>; Tue,  8 Mar 2022 06:16:14 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 68D788136B;
-	Tue,  8 Mar 2022 06:03:54 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 678EB408D1;
+	Tue,  8 Mar 2022 06:16:14 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id XVbdJoOUjKQX; Tue,  8 Mar 2022 06:03:53 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 3Sp5ruXskiF2; Tue,  8 Mar 2022 06:16:12 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 8C99881347;
-	Tue,  8 Mar 2022 06:03:52 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 0A71A4013D;
+	Tue,  8 Mar 2022 06:16:12 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 51C4CC001D;
-	Tue,  8 Mar 2022 06:03:52 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 46F6AC000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CE466C0012;
+	Tue,  8 Mar 2022 06:16:11 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0F571C000B
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Mar 2022 06:03:50 +0000 (UTC)
+ Tue,  8 Mar 2022 06:16:11 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 2264E40187
+ by smtp1.osuosl.org (Postfix) with ESMTP id EA7768138E
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Mar 2022 06:03:50 +0000 (UTC)
+ Tue,  8 Mar 2022 06:16:10 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id mpZGeqiApjPg
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=oracle.com header.b="NAkYuN8M";
+ dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
+ header.b="xcyUQVoF"
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Kk3wSxO55te1
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Mar 2022 06:03:48 +0000 (UTC)
+ Tue,  8 Mar 2022 06:16:07 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 4145340224
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com
+ [205.220.165.32])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id A1DE38137F
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Mar 2022 06:03:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1646719427;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=VU83dZnKZPta/H9zYCIBNWakn05U7VMVJ5YHTKaIloQ=;
- b=R/QilLzTkkj2iVi4mOsnFUECYMVWHD5NP3r5rIjYQUhXF+FUXvB1Kxx79bkbpBA36S174F
- bs0zjnubooV70fD2QlKxs3V3cYXez6kuBmMeuHcIxAdQNPdzs9D7Nxm/UX/itavtTaDnKZ
- Yn0UAkEze/f/w8+XOBrHKXhsVJxJ6/0=
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
- [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-360-XEzEakYDNFWQqJ9YAtvVTw-1; Tue, 08 Mar 2022 01:03:44 -0500
-X-MC-Unique: XEzEakYDNFWQqJ9YAtvVTw-1
-Received: by mail-pj1-f69.google.com with SMTP id
- e1-20020a17090a280100b001bf44b6d74bso1010475pjd.0
- for <virtualization@lists.linux-foundation.org>;
- Mon, 07 Mar 2022 22:03:43 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
- :content-language:to:cc:references:from:in-reply-to
- :content-transfer-encoding;
- bh=VU83dZnKZPta/H9zYCIBNWakn05U7VMVJ5YHTKaIloQ=;
- b=1czIleNmHhpU/c2vFDvBR8JBK5GuMcKfppV3QAW4WJIhrl7E3VFP3Hxn60XrUqWqAa
- YjsbSRcMx0O7q64+oxbqgYNHZw0gvbg60XckCD7OriKCiCdTGsWPE/xxIIvxY6rvBoGI
- cW408pmbSI9LepO8ZzGo0CpDjI45okmRGJNxgmd6LqDrdLMIYDsQFnlNNw3FSg0KeA4V
- My+5r33k6QYCgQzbKTA4TGJYSAtAM+h92A3v7BlP3OLXRmPzY89V7dwAnKz0DFYBol8y
- UpNQYVxbI4eocTekIqDT9JH0Qw8vvDg3hbbPN9Q1P/ufgmX+YZr/MkqlGzw5V0fQvK7r
- SGXg==
-X-Gm-Message-State: AOAM5311ZHwQPkR6cD/A1NxCfbh/9CB7BZ+cSEXrn2vkzIxqc5nHMCNG
- SOsFVIT2A0CpSPhTTKozvJr9aoMR3iQyxuUL+alh/bEw02yTo4X4gY75fP9ERUrym5ODUIamYWZ
- 1Y4gfkAB7k5/nnTSNj8irkAu/hyYJoplLEhIwE1/OqA==
-X-Received: by 2002:a17:90a:6393:b0:1bf:70e7:27d2 with SMTP id
- f19-20020a17090a639300b001bf70e727d2mr2957830pjj.1.1646719421370; 
- Mon, 07 Mar 2022 22:03:41 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJzmd6in8XvX3B2GzekSv+FCSi3GvVPhuAuNUQUFRK9BiH+vo2omLdbzYEU84oNZ1H2b+jjE0A==
-X-Received: by 2002:a17:90a:6393:b0:1bf:70e7:27d2 with SMTP id
- f19-20020a17090a639300b001bf70e727d2mr2957809pjj.1.1646719420978; 
- Mon, 07 Mar 2022 22:03:40 -0800 (PST)
-Received: from [10.72.13.77] ([209.132.188.80])
- by smtp.gmail.com with ESMTPSA id
- s1-20020a056a00178100b004f731a1a952sm792630pfg.168.2022.03.07.22.03.33
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Mon, 07 Mar 2022 22:03:40 -0800 (PST)
-Message-ID: <14d4fde4-6ea5-4805-b684-c33f6b448565@redhat.com>
-Date: Tue, 8 Mar 2022 14:03:32 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.6.1
-Subject: Re: [PATCH v5 00/15] vDPA shadow virtqueue
-To: qemu-devel@nongnu.org, "Michael S. Tsirkin" <mst@redhat.com>
-References: <20220307153334.3854134-1-eperezma@redhat.com>
-From: Jason Wang <jasowang@redhat.com>
-In-Reply-To: <20220307153334.3854134-1-eperezma@redhat.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
+ Tue,  8 Mar 2022 06:16:07 +0000 (UTC)
+Received: from pps.filterd (m0246627.ppops.net [127.0.0.1])
+ by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 2282WIbM022335; 
+ Tue, 8 Mar 2022 06:16:07 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+ h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=corp-2021-07-09;
+ bh=D32RYhuBpLITAtt+0ygw8NG55uey12ImUABaKFz/LZ8=;
+ b=NAkYuN8MZftgBP/yKn/KlcI0p5Ehw6vt94Frn3EXyJhcRqRnXtd+/CTGaJ8eE6r4FzL0
+ RpGGrt1YAmAoyBzsHVtrLxiqcX/+XFyAbDoutcOkmIsGvXBPyTOnk03Wtpeu4wA/h18y
+ rNfBnOvoeTyxTuyGjq/knZwpuBQiQvWt5z8Dro5egq/IoXVshHpG0alQcyX1H4l2uai/
+ Q+5xsKPw/bBf6jkOEwSq0eBW7xzZJp6/X7n+RsiNE1fMsbwTC5CDIIbmKScOR4bnTnmk
+ 2c1sAtWX89HWXM8oCiDSAB9dBqw4APRQDlNBDonouMmiAHAlzTigMVN2XP7S1tu4M3Nb zA== 
+Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
+ by mx0b-00069f02.pphosted.com with ESMTP id 3ekxf0p1g7-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Tue, 08 Mar 2022 06:16:06 +0000
+Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
+ by userp3020.oracle.com (8.16.1.2/8.16.1.2) with SMTP id 2286CNLI093091;
+ Tue, 8 Mar 2022 06:16:04 GMT
+Received: from nam11-co1-obe.outbound.protection.outlook.com
+ (mail-co1nam11lp2175.outbound.protection.outlook.com [104.47.56.175])
+ by userp3020.oracle.com with ESMTP id 3envvjye77-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Tue, 08 Mar 2022 06:16:04 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=H/s79JwRoqGdyey4FHymGBv+efqUFuZZRma5w3UnShYg2jYN1pkRnYXOwVyG1tfl/uwYll/R/vMB2ikjvkJ0qwwLYXDc0UD9HOxRxugBVbwYPaDnPAJZp4VhRdOULWQAvAzQVa7K5HD5b9R1McO20y4e5rYpewjt57pqaRJIET5eXn+TSvYfCdSQ8HlVNeT+t0jWZWcAhvQty5UEZb8RFJw780PNfSalsjPP2xq/5DK603sP7tLENWorj+R4yrl9Y8oU92eR+dL6X8jVbOJsT0b0ddoCrHlj+fJTLuMqVIChklW8CIxBuI1fqWUcFa8JDXnISKju8qgTar/klErtuA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=D32RYhuBpLITAtt+0ygw8NG55uey12ImUABaKFz/LZ8=;
+ b=EBe9ibBsrx0z3PsMD0jXOesBNqQkEssCL7hnYcJFrL4Rm1wvvkC0C7/V5EfxJMJYvE9y8isBCOOwMzvQpmU5MShRNTBvt9/RSdF03jtF9usRv1Sqv/IHTVT4p4Ol8+VJBwqXP8wOzReJpPJzI3JTAGMjRIGg4jgZQ4swgfJYAhwHSdtstlq+uWJBmGUfOzlBNTb1tpnN6OwJ39XaJ7zKBC7YgcQhe49V8Y1+4lkcSCz8OYmKZEEZPOzDQ1ua/cfJ/HKHzYZRpLOPrByNdFxR+oX5V/pHrPmaZlnGGU01wpW3xY108i4m2ZOmReXblCqPcHuwRbU8A+ibvaiQsE6soA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=D32RYhuBpLITAtt+0ygw8NG55uey12ImUABaKFz/LZ8=;
+ b=xcyUQVoFy61GeYf8+0LHVqr7RGuUfFJ41SsKDxyuXCgh26Pit3OM6aDako7S1ZXCexYspknS4PnMkuC0RanFi/sJqwXlVlnRgNFLqDNQ+TekUyezwPcuI5eqi7a7W0V7y1WGeUEpH8YLgkfcXqLq/L3k0bHXVGwnlqaFOmVOF14=
+Received: from BYAPR10MB3287.namprd10.prod.outlook.com (2603:10b6:a03:15c::11)
+ by MN2PR10MB3295.namprd10.prod.outlook.com (2603:10b6:208:12e::29)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5038.17; Tue, 8 Mar
+ 2022 06:16:00 +0000
+Received: from BYAPR10MB3287.namprd10.prod.outlook.com
+ ([fe80::e478:4b5e:50a8:7f96]) by BYAPR10MB3287.namprd10.prod.outlook.com
+ ([fe80::e478:4b5e:50a8:7f96%6]) with mapi id 15.20.5038.027; Tue, 8 Mar 2022
+ 06:16:00 +0000
+Message-ID: <6175d620-6be3-c249-5482-0a9448499e4a@oracle.com>
+Date: Mon, 7 Mar 2022 22:15:52 -0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.6.1
+Subject: Re: [PATCH v1 1/2] vdpa: Add support for querying vendor statistics
 Content-Language: en-US
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
- virtualization@lists.linux-foundation.org, Eli Cohen <eli@mellanox.com>,
- Eric Blake <eblake@redhat.com>, Eduardo Habkost <ehabkost@redhat.com>,
- Cindy Lu <lulu@redhat.com>, "Fangyi \(Eric\)" <eric.fangyi@huawei.com>,
- Markus Armbruster <armbru@redhat.com>, yebiaoxiang@huawei.com,
- =?UTF-8?Q?Eugenio_P=c3=a9rez?= <eperezma@redhat.com>,
- Liuxiangdong <liuxiangdong5@huawei.com>, Laurent Vivier <lvivier@redhat.com>,
- Parav Pandit <parav@mellanox.com>,
- Richard Henderson <richard.henderson@linaro.org>,
- Gautam Dawar <gdawar@xilinx.com>, Xiao W Wang <xiao.w.wang@intel.com>,
- Stefan Hajnoczi <stefanha@redhat.com>,
- Harpreet Singh Anand <hanand@xilinx.com>, Lingshan <lingshan.zhu@intel.com>
+To: Eli Cohen <elic@nvidia.com>
+References: <20220216080022.56707-1-elic@nvidia.com>
+ <20220216080022.56707-2-elic@nvidia.com>
+ <22f77b5c-2003-c963-24c9-fce9cb53160d@oracle.com>
+ <20220217064619.GB86497@mtl-vdi-166.wap.labs.mlnx>
+ <8e834c04-47d2-1286-117d-28caa3e84606@oracle.com>
+ <DM8PR12MB5400E80073521E898056578BAB089@DM8PR12MB5400.namprd12.prod.outlook.com>
+From: Si-Wei Liu <si-wei.liu@oracle.com>
+Organization: Oracle Corporation
+In-Reply-To: <DM8PR12MB5400E80073521E898056578BAB089@DM8PR12MB5400.namprd12.prod.outlook.com>
+X-ClientProxiedBy: DM5PR13CA0020.namprd13.prod.outlook.com
+ (2603:10b6:3:23::30) To BYAPR10MB3287.namprd10.prod.outlook.com
+ (2603:10b6:a03:15c::11)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: e9ecb107-736a-4e9a-ebf2-08da00cb1dbc
+X-MS-TrafficTypeDiagnostic: MN2PR10MB3295:EE_
+X-Microsoft-Antispam-PRVS: <MN2PR10MB3295B208C04CBA9A570F4774B1099@MN2PR10MB3295.namprd10.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: x5qdeLmvjz2AvYr6w7WK6C8QNLlfSM0nkyO7Agsor1cvnGA+86WFr3aS2spWcBqk6GlGtR3NvNGtRgPjg8Y00suuuOS7Pk4OYIMjSQ+BNr13FH0zYotG97OfA3yWzeiRPONjrxTs80RQUriWFDbXASE5/AmMJrPHUmrL700j1WY4cnw+Q++9vhGr5yBHLGkCMFucxUzr4Yi6bQbkxUkW+Xno5/iNQABUaUfuh131Tqbv3NXTTQQjqcOIRg7JUVNd7OX5QrEpvoVS9MtyU39lorSQGwOiz/M8LDTz1BTaaDlx6uY+poL78uDf5nkkumq75eRhmUvxJ8Z8E+A3GnPWP0C+wHDfZYeS23jOjexMjIdV6pUSvggo8I3a09BxRpT7c82zJLoHi6DyupCJVNC/O3Gb5EppWP0BlqZO1F3Jq6QKZsep9LDRGHBnY/NKNHIs7QcE0TQ+UxeSiD3CzGzA5V/fk6n+cSHLCchr6SvpTvcuCZ6HPTjWqS+R+I+OdfS/Pc8esikV70P5+ho2T+wLJDp1GnEYmICv+nufYU2n92FXTchf+9AecI8FQ8qWzptPXUoofPTz/BFpvEEwRk/fZXbQpH7typwVmJNM6r6jx8qKE95FMoqkBXx7VWmTEBQrAj06UpAeDuBJrWUvsypZXTLE0mJHOsrIMeNyhogm3MtSL6/owlINhH3pWSU/4TMg/nGkfQKX5Rxp1s4/lKSW1+wlvrN6LzWMknZrUmEu6Ic=
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:BYAPR10MB3287.namprd10.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230001)(366004)(508600001)(6486002)(31696002)(86362001)(83380400001)(2616005)(26005)(36916002)(6506007)(6512007)(6666004)(53546011)(2906002)(30864003)(4326008)(5660300002)(8676002)(66946007)(66476007)(66556008)(38100700002)(54906003)(316002)(31686004)(8936002)(36756003)(6916009)(186003)(43740500002)(45980500001);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?b0NQd3FjSGkxSFhFTEFwZG1neUQyNGpEdmVGNGRWSTlMbEI3ZTc0QnRHT2Q3?=
+ =?utf-8?B?ZlU1Q2lCbnhWWis4c3haUGEwMm1SZWRTT2JvRW5Md1hCNitYTlNUajFXQUti?=
+ =?utf-8?B?NE5GYkRod0Y3eHhPK3FScU5hRmtpNzJaL05IRHBxZGp3SHJ6NFZZU2E5bXVr?=
+ =?utf-8?B?WjRhWjNuMVhCM2FMc2RoeHgyRG83UFIrWFRNRWxIV1FzaGJ1NGNhdCtQR1Jh?=
+ =?utf-8?B?SUo1dGFMT3hHYWtvZUVjMEVaWGpvYkdzaTF1NVRmMTg0bGZTeis0bXBYUGda?=
+ =?utf-8?B?Wk8xdFFnQkJxYk5UdjFrb3dNRUI1UXduT2VTbVlCb0NGaTlpNFBlUzgyOEtB?=
+ =?utf-8?B?WmJpY3laUUhVMFlUaVdtWVJjQm05RmtNRVB3VDZXRS94ZmZYdmdURmJIYmov?=
+ =?utf-8?B?eEFOMk1JU1JPMFZienp0QXlTVFZ5SHBqOG8zSjZoR2NkYmhwOXZzOWRzZkFY?=
+ =?utf-8?B?aGRtallGcXpHNjdoeDViQXl6ckQyNFQyWjZiUURXYjFTYmFrdkFjT3ZzWVZF?=
+ =?utf-8?B?bEhKZXZVeDEvZ0Z3di9kQUlZMDk5cktpdGhLRDQrbWlCelRhUGkvL2cwMWs1?=
+ =?utf-8?B?WUlXblpxaFhTL0tmTUsyRzRmcEJSZGU4OE91NEdJK2tZaDRoTDFFY1VPQ2tm?=
+ =?utf-8?B?NEl3bmsyckJFRmNjakZyMkZhc0svNFZlU2c0V2N3WFgvU2dnc0lWdTV1c2gr?=
+ =?utf-8?B?LzRKSnZXQVZHbHErVnQyNTFXUVpLY2VWa09jQWsxbVRnMHNFNitVUEJrdlJx?=
+ =?utf-8?B?UGRENUEvNVNoZmtUeEd1eFduZUhJNGp3dWYvRWZwUkVFaDBtWTZKV0FEakZG?=
+ =?utf-8?B?M3Q4QXBhYmFJM0QyUE5jRzhRMFU4Q1kvN3FpSzJUM1RXTVVkelhRNjBBaDlx?=
+ =?utf-8?B?RXN0MmJVelVMOFpoeFZDaTFSRGpyMisyNndRQWlia1RNZERVSVRHSHZKVWIz?=
+ =?utf-8?B?K2xHMlBLTEl6bU5QSHJ1LzRxVWlJZkYxRUZUOTBmM3RKZGYyWU55M2FCbHEz?=
+ =?utf-8?B?UHFXM2l3TlFqcnR0cDZnOE45emFXb1lKdXM1SjgwNjNySGdSd3JnNDl5dDBJ?=
+ =?utf-8?B?Rk9VYkhYY0RoTjBWVnQ0Sk0va05UTEtvU0JVSU81dkxJa2p1aVlUNXg1SXZR?=
+ =?utf-8?B?Nk9FN0lBTlpZN1pIN1kvK0llc3kraWNCU05acXl5c3FYczhYVHJxQ2trZ1JI?=
+ =?utf-8?B?QUpBTWJCeVVTOEhpMzJjSmh5endwZm9nZ0pJeHN2bkltbFR6dStRYUpLN0Mr?=
+ =?utf-8?B?YkYxZ2VUSmdtdm9EZmRUTmU2eVpKK2N0azEwdnRMNUp1NVc1TzA3QTFHdXNa?=
+ =?utf-8?B?dE10dE1DUmZOWU9pc0xhZHM3elU0N0xrdEZxcStnOGVxTHcwOEZJeDVhV2s4?=
+ =?utf-8?B?cnhIR0RUNTErS3dQUlhjSVNJZTczc0tuSjc1M0ZEUFM5aUR0SFZ2NDJlNEVt?=
+ =?utf-8?B?a2dSRms1ZmdYYmRmTFB0dnNlTmpjWndMNXkxQmdUdlJLT0JtTkxnSkExRXR0?=
+ =?utf-8?B?QmNLVnhINjlXTysyUW9NSXZTQnJXZkgrQTlwZk9PdWQzTWlJZkI2cmdMUWpU?=
+ =?utf-8?B?L01EL0plWWMzNE4rYThPSExlTVlNZlVuT21OUVBTek9CSkpNZ0FGajY2TThU?=
+ =?utf-8?B?WUljUlZ5eWFxUUpDT2tNUkkrY2NybjRac2ZreDNvQTBDQ3laWkxmWTZ1Z3cz?=
+ =?utf-8?B?VU5WUWl4ZS9NbS8rRzM3cGNpSmQ4ZjZBbFlVbUtBMDNYWUlOU0hFK3JuNlNr?=
+ =?utf-8?B?QjFWSlg3NWFBTW55dWkrWVJiQ25rREZFalVWMytzRjRWU1p1d0dyZWhrbDlP?=
+ =?utf-8?B?d3pmcFZvYThuQ3F3UnBuSUgwckZYaUdqZ0x4ZWhsUFk5T1ZybGcvV211d0NG?=
+ =?utf-8?B?R1BPNVlYQnBNT2lPRHdQT2JNZnZCWnVMSHdlZW14cVd2U0lHcmRoUDdzSFlK?=
+ =?utf-8?B?Z3E2TkwrQUpJVi9lQ2lZMHEvK1IrZHQ5b1J0M1VkSHAyMHhsdGpEMCtWRUlQ?=
+ =?utf-8?B?ZzFnRU9zU3pXQkk3Tm5PSDJPd3JFRitqZytROE9NWkxmZ3BwcWxXckM2bzRL?=
+ =?utf-8?B?VFozUGMveFkzLzZ6MytzTXJIOGdwWG1mRFpKcTVieU05Nk56M2xiaDB5M1NU?=
+ =?utf-8?B?ckVGSFd4YmlyMXE3MEdxQlRuSGZaMklBOVNwbzcrYlExY1BsaTJUNXFZNUdH?=
+ =?utf-8?Q?tBlPCQmQzzx4iYFoYnQaB9A=3D?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: e9ecb107-736a-4e9a-ebf2-08da00cb1dbc
+X-MS-Exchange-CrossTenant-AuthSource: BYAPR10MB3287.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Mar 2022 06:16:00.6596 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: QXOW4xjX1bSmTx+Rjl0yXMp7YE1qO7aPl2otN988VzS8vfktq9GKvNVL3YTX1q8GvMSd0IS9OFG9Bm/oEfsWPA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR10MB3295
+X-Proofpoint-Virus-Version: vendor=nai engine=6300 definitions=10279
+ signatures=690470
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0
+ mlxlogscore=999 bulkscore=0
+ phishscore=0 malwarescore=0 suspectscore=0 mlxscore=0 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
+ definitions=main-2203080031
+X-Proofpoint-ORIG-GUID: -GHframFzRZl5B59-BVzISoQ-K7dHcsu
+X-Proofpoint-GUID: -GHframFzRZl5B59-BVzISoQ-K7dHcsu
+Cc: "lvivier@redhat.com" <lvivier@redhat.com>,
+ "mst@redhat.com" <mst@redhat.com>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ "eperezma@redhat.com" <eperezma@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -125,190 +197,379 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-CuWcqCAyMDIyLzMvNyDkuIvljYgxMTozMywgRXVnZW5pbyBQw6lyZXog5YaZ6YGTOgo+IFRoaXMg
-c2VyaWVzIGVuYWJsZSBzaGFkb3cgdmlydHF1ZXVlIChTVlEpIGZvciB2aG9zdC12ZHBhIGRldmlj
-ZXMuIFRoaXMKPiBpcyBpbnRlbmRlZCBhcyBhIG5ldyBtZXRob2Qgb2YgdHJhY2tpbmcgdGhlIG1l
-bW9yeSB0aGUgZGV2aWNlcyB0b3VjaAo+IGR1cmluZyBhIG1pZ3JhdGlvbiBwcm9jZXNzOiBJbnN0
-ZWFkIG9mIHJlbGF5IG9uIHZob3N0IGRldmljZSdzIGRpcnR5Cj4gbG9nZ2luZyBjYXBhYmlsaXR5
-LCBTVlEgaW50ZXJjZXB0cyB0aGUgVlEgZGF0YXBsYW5lIGZvcndhcmRpbmcgdGhlCj4gZGVzY3Jp
-cHRvcnMgYmV0d2VlbiBWTSBhbmQgZGV2aWNlLiBUaGlzIHdheSBxZW11IGlzIHRoZSBlZmZlY3Rp
-dmUKPiB3cml0ZXIgb2YgZ3Vlc3RzIG1lbW9yeSwgbGlrZSBpbiBxZW11J3MgdmlydGlvIGRldmlj
-ZSBvcGVyYXRpb24uCj4KPiBXaGVuIFNWUSBpcyBlbmFibGVkIHFlbXUgb2ZmZXJzIGEgbmV3IHZp
-cnR1YWwgYWRkcmVzcyBzcGFjZSB0byB0aGUKPiBkZXZpY2UgdG8gcmVhZCBhbmQgd3JpdGUgaW50
-bywgYW5kIGl0IG1hcHMgbmV3IHZyaW5ncyBhbmQgdGhlIGd1ZXN0Cj4gbWVtb3J5IGluIGl0LiBT
-VlEgYWxzbyBpbnRlcmNlcHRzIGtpY2tzIGFuZCBjYWxscyBiZXR3ZWVuIHRoZSBkZXZpY2UKPiBh
-bmQgdGhlIGd1ZXN0LiBVc2VkIGJ1ZmZlcnMgcmVsYXkgd291bGQgY2F1c2UgZGlydHkgbWVtb3J5
-IGJlaW5nCj4gdHJhY2tlZC4KPgo+IFRoaXMgZWZmZWN0aXZlbHkgbWVhbnMgdGhhdCB2RFBBIGRl
-dmljZSBwYXNzdGhyb3VnaCBpcyBpbnRlcmNlcHRlZCBieQo+IHFlbXUuIFdoaWxlIFNWUSBzaG91
-bGQgb25seSBiZSBlbmFibGVkIGF0IG1pZ3JhdGlvbiB0aW1lLCB0aGUgc3dpdGNoaW5nCj4gZnJv
-bSByZWd1bGFyIG1vZGUgdG8gU1ZRIG1vZGUgaXMgbGVmdCBmb3IgYSBmdXR1cmUgc2VyaWVzLgo+
-Cj4gSXQgaXMgYmFzZWQgb24gdGhlIGlkZWFzIG9mIERQREsgU1cgYXNzaXN0ZWQgTE0sIGluIHRo
-ZSBzZXJpZXMgb2YKPiBEUERLJ3MgaHR0cHM6Ly9wYXRjaHdvcmsuZHBkay5vcmcvY292ZXIvNDgz
-NzAvIC4gSG93ZXZlciwgdGhlc2UgZG9lcwo+IG5vdCBtYXAgdGhlIHNoYWRvdyB2cSBpbiBndWVz
-dCdzIFZBLCBidXQgaW4gcWVtdSdzLgo+Cj4gRm9yIHFlbXUgdG8gdXNlIHNoYWRvdyB2aXJ0cXVl
-dWVzIHRoZSBndWVzdCB2aXJ0aW8gZHJpdmVyIG11c3Qgbm90IHVzZQo+IGZlYXR1cmVzIGxpa2Ug
-ZXZlbnRfaWR4Lgo+Cj4gU1ZRIG5lZWRzIHRvIGJlIGVuYWJsZWQgd2l0aCBjbWRsaW5lOgo+Cj4g
-LW5ldGRldiB0eXBlPXZob3N0LXZkcGEsdmhvc3RkZXY9dmhvc3QtdmRwYS0wLGlkPXZob3N0LXZk
-cGEwLHN2cT1vbgo+Cj4gVGhlIGZpcnN0IHRocmVlIHBhdGNoZXMgZW5hYmxlcyBub3RpZmljYXRp
-b25zIGZvcndhcmRpbmcgd2l0aAo+IGFzc2lzdGFuY2Ugb2YgcWVtdS4gSXQncyBlYXN5IHRvIGVu
-YWJsZSBvbmx5IHRoaXMgaWYgdGhlIHJlbGV2YW50Cj4gY21kbGluZSBwYXJ0IG9mIHRoZSBsYXN0
-IHBhdGNoIGlzIGFwcGxpZWQgb24gdG9wIG9mIHRoZXNlLgo+Cj4gTmV4dCBmb3VyIHBhdGNoZXMg
-aW1wbGVtZW50IHRoZSBhY3R1YWwgYnVmZmVyIGZvcndhcmRpbmcuIEhvd2V2ZXIsCj4gYWRkcmVz
-cyBhcmUgbm90IHRyYW5zbGF0ZWQgZnJvbSBIVkEgc28gdGhleSB3aWxsIG5lZWQgYSBob3N0IGRl
-dmljZSB3aXRoCj4gYW4gaW9tbXUgYWxsb3dpbmcgdGhlbSB0byBhY2Nlc3MgYWxsIG9mIHRoZSBI
-VkEgcmFuZ2UuCj4KPiBUaGUgbGFzdCBwYXJ0IG9mIHRoZSBzZXJpZXMgdXNlcyBwcm9wZXJseSB0
-aGUgaG9zdCBpb21tdSwgc28gcWVtdQo+IGNyZWF0ZXMgYSBuZXcgaW92YSBhZGRyZXNzIHNwYWNl
-IGluIHRoZSBkZXZpY2UncyByYW5nZSBhbmQgdHJhbnNsYXRlcwo+IHRoZSBidWZmZXJzIGluIGl0
-LiBGaW5hbGx5LCBpdCBhZGRzIHRoZSBjbWRsaW5lIHBhcmFtZXRlci4KPgo+IFNvbWUgc2ltcGxl
-IHBlcmZvcm1hbmNlIHRlc3RzIHdpdGggbmV0cGVyZiB3ZXJlIGRvbmUuIFRoZXkgdXNlZCBhIG5l
-c3RlZAo+IGd1ZXN0IHdpdGggdnBfdmRwYSwgdmhvc3Qta2VybmVsIGF0IEwwIGhvc3QuIFN0YXJ0
-aW5nIHdpdGggbm8gc3ZxIGFuZCBhCj4gYmFzZWxpbmUgYXZlcmFnZSBvZiB+OTAwOS45Nk1icHM6
-Cj4gUmVjdiAgIFNlbmQgICAgU2VuZAo+IFNvY2tldCBTb2NrZXQgIE1lc3NhZ2UgIEVsYXBzZWQK
-PiBTaXplICAgU2l6ZSAgICBTaXplICAgICBUaW1lICAgICBUaHJvdWdocHV0Cj4gYnl0ZXMgIGJ5
-dGVzICAgYnl0ZXMgICAgc2Vjcy4gICAgMTBeNmJpdHMvc2VjCj4gMTMxMDcyICAxNjM4NCAgMTYz
-ODQgICAgMzAuMDEgICAgOTA2MS4wMwo+IDEzMTA3MiAgMTYzODQgIDE2Mzg0ICAgIDMwLjAxICAg
-IDg5NjIuOTQKPiAxMzEwNzIgIDE2Mzg0ICAxNjM4NCAgICAzMC4wMSAgICA5MDA1LjkyCj4KPiBU
-byBlbmFibGUgU1ZRIGJ1ZmZlcnMgZm9yd2FyZGluZyByZWR1Y2UgdGhyb3VnaHB1dCB0byBhYm91
-dAo+IFJlY3YgICBTZW5kICAgIFNlbmQKPiBTb2NrZXQgU29ja2V0ICBNZXNzYWdlICBFbGFwc2Vk
-Cj4gU2l6ZSAgIFNpemUgICAgU2l6ZSAgICAgVGltZSAgICAgVGhyb3VnaHB1dAo+IGJ5dGVzICBi
-eXRlcyAgIGJ5dGVzICAgIHNlY3MuICAgIDEwXjZiaXRzL3NlYwo+IDEzMTA3MiAgMTYzODQgIDE2
-Mzg0ICAgIDMwLjAxICAgIDc2ODkuNzIKPiAxMzEwNzIgIDE2Mzg0ICAxNjM4NCAgICAzMC4wMCAg
-ICA3NzUyLjA3Cj4gMTMxMDcyICAxNjM4NCAgMTYzODQgICAgMzAuMDEgICAgNzc1MC4zMAo+Cj4g
-SG93ZXZlciwgbWFueSBwZXJmb3JtYW5jZSBpbXByb3ZlbWVudHMgd2VyZSBsZWZ0IG91dCBvZiB0
-aGlzIHNlcmllcyBmb3IKPiBzaW1wbGljaXR5LCBzbyBkaWZmZXJlbmNlIHNob3VsZCBzaHJpbmsg
-aW4gdGhlIGZ1dHVyZS4KPgo+IENvbW1lbnRzIGFyZSB3ZWxjb21lLgoKCkhpIE1pY2hhZWw6CgpX
-aGF0IGRvIHlvdSB0aGluayBvZiB0aGlzIHNlcmllcz8gSXQgbG9va3MgZ29vZCB0byBtZSBhcyBh
-IHN0YXJ0LiBUaGUgCmZlYXR1cmUgY291bGQgb25seSBiZSBlbmFibGVkIGFzIGEgZGVkaWNhdGVk
-IHBhcmFtZXRlci4gSWYgeW91J3JlIG9rLCAKSSdkIHRyeSB0byBtYWtlIGl0IGZvciA3LjAuCgpU
-aGFua3MKCgo+Cj4gVE9ETyBvbiBmdXR1cmUgc2VyaWVzOgo+ICogRXZlbnQsIGluZGlyZWN0LCBw
-YWNrZWQsIGFuZCBvdGhlcnMgZmVhdHVyZXMgb2YgdmlydGlvLgo+ICogVG8gc3VwcG9ydCBkaWZm
-ZXJlbnQgc2V0IG9mIGZlYXR1cmVzIGJldHdlZW4gdGhlIGRldmljZTwtPlNWUSBhbmQgdGhlCj4g
-ICAgU1ZRPC0+Z3Vlc3QgY29tbXVuaWNhdGlvbi4KPiAqIFN1cHBvcnQgb2YgZGV2aWNlIGhvc3Qg
-bm90aWZpZXIgbWVtb3J5IHJlZ2lvbnMuCj4gKiBUbyBzZXBwYXJhdGUgYnVmZmVycyBmb3J3YXJk
-aW5nIGluIGl0cyBvd24gQUlPIGNvbnRleHQsIHNvIHdlIGNhbgo+ICAgIHRocm93IG1vcmUgdGhy
-ZWFkcyB0byB0aGF0IHRhc2sgYW5kIHdlIGRvbid0IG5lZWQgdG8gc3RvcCB0aGUgbWFpbgo+ICAg
-IGV2ZW50IGxvb3AuCj4gKiBTdXBwb3J0IG11bHRpcXVldWUgdmlydGlvLW5ldCB2ZHBhLgo+ICog
-UHJvcGVyIGRvY3VtZW50YXRpb24uCj4KPiBDaGFuZ2VzIGZyb20gdjQ6Cj4gKiBJdGVyYXRlIGlv
-dmEtPmh2YSB0cmVlIGluc3RlYWQgb24gbWFpbnRhaW4gb3duIHRyZWUgc28gd2Ugc3VwcG9ydCBI
-VkEKPiAgICBvdmVybGFwcy4KPiAqIEZpeDogRXJybm8gY29tcGxldGlvbiBhdCBmYWlsdXJlLgo+
-ICogUmVuYW1lIHgtc3ZxIHRvIHN2cSwgc28gY2hhbmdlcyB0byBzdGFibGUgZG9lcyBub3QgYWZm
-ZWN0IGNtZGxpbmUgcGFyYW1ldGVyLgo+Cj4gQ2hhbmdlcyBmcm9tIHYzOgo+ICogQWRkIEB1bnN0
-YWJsZSBmZWF0dXJlIHRvIE5ldGRldlZob3N0VkRQQU9wdGlvbnMueC1zdnEuCj4gKiBGaXggdW5j
-b21wbGV0ZSBtYXBwaW5nIChieSAxIGJ5dGUpIG9mIG1lbW9yeSByZWdpb25zIGlmIHN2cSBpcyBl
-bmFibGVkLgo+IHYzIGxpbms6Cj4gaHR0cHM6Ly9sb3JlLmtlcm5lbC5vcmcvcWVtdS1kZXZlbC8y
-MDIyMDMwMjIwMzAxMi4zNDc2ODM1LTEtZXBlcmV6bWFAcmVkaGF0LmNvbS8KPgo+IENoYW5nZXMg
-ZnJvbSB2MjoKPiAqIExlc3MgYXNzZXJ0aW9ucyBhbmQgbW9yZSBlcnJvciBoYW5kbGluZyBpbiBp
-b3ZhIHRyZWUgY29kZS4KPiAqIEJldHRlciBkb2N1bWVudGF0aW9uLCBib3RoIGZpeGluZyBlcnJv
-cnMgYW5kIG1ha2luZyBAcGFyYW06IGZvcm1hdAo+ICogSG9tb2dlbmVpemUgU1ZRIGF2YWlsX2lk
-eF9zaGFkb3cgYW5kIHNoYWRvd191c2VkX2lkeCB0byBtYWtlIHNoYWRvdyBhCj4gICAgcHJlZml4
-IGF0IGJvdGggdGltZXMuCj4gKiBGaXg6IEZvIG5vdCB1c2UgVmlydFF1ZXVlRWxlbWVudC0+bGVu
-IGZpZWxkLCB0cmFjayBzZXBhcmF0ZWRseS4KPiAqIFNwbGl0IHZob3N0X3N2cV97ZW5hYmxlLGRp
-c2FibGV9X25vdGlmaWNhdGlvbiwgc28gdGhlIGNvZGUgbG9va3MgbW9yZQo+ICAgIGxpa2UgdGhl
-IGtlcm5lbCBkcml2ZXIgY29kZS4KPiAqIFNtYWxsIGltcHJvdmVtZW50cy4KPiB2MiBsaW5rOgo+
-IGh0dHBzOi8vbG9yZS5rZXJuZWwub3JnL2FsbC9DQUphcXlXZlhIRTBDNTRSXy1PaXdKempDMGdQ
-cGtFM2VYMEw4QmVlWlhHbTFFUllQdEFAbWFpbC5nbWFpbC5jb20vCj4KPiBDaGFuZ2VzIGZyb20g
-djE6Cj4gKiBGZWF0dXJlIHNldCBhdCBkZXZpY2UtPlNWUSBpcyBub3cgdGhlIHNhbWUgYXMgU1ZR
-LT5ndWVzdC4KPiAqIFNpemUgb2YgU1ZRIGlzIG5vdCBtYXggYXZhaWxhYmxlIGRldmljZSBzaXpl
-IGFueW1vcmUsIGJ1dCBndWVzdCdzCj4gICAgbmVnb3RpYXRlZC4KPiAqIEFkZCBWSE9TVF9GSUxF
-X1VOQklORCBraWNrIGFuZCBjYWxsIGZkIHRyZWF0bWVudC4KPiAqIE1ha2UgU1ZRIGEgcHVibGlj
-IHN0cnVjdAo+ICogQ29tZSBiYWNrIHRvIHByZXZpb3VzIGFwcHJvYWNoIHRvIGlvdmEtdHJlZQo+
-ICogU29tZSBhc3NlcnRpb25zIGFyZSBub3cgZmFpbCBwYXRocy4gU29tZSBlcnJvcnMgYXJlIG5v
-dyBsb2dfZ3Vlc3QuCj4gKiBPbmx5IG1hc2sgX0ZfTE9HIGZlYXR1cmUgYXQgdmRwYV9zZXRfZmVh
-dHVyZXMgc3ZxIGVuYWJsZSBwYXRoLgo+ICogUmVmYWN0b3Igc29tZSBlcnJvcnMgYW5kIG1lc3Nh
-Z2VzLiBBZGQgbWlzc2luZyBlcnJvciB1bndpbmRpbmdzLgo+ICogQWRkIG1lbW9yeSBiYXJyaWVy
-IGF0IF9GX05PX05PVElGWSBzZXQuCj4gKiBTdG9wIGNoZWNraW5nIGZvciBmZWF0dXJlcyBmbGFn
-cyBvdXQgb2YgdHJhbnNwb3J0IHJhbmdlLgo+IHYxIGxpbms6Cj4gaHR0cHM6Ly9sb3JlLmtlcm5l
-bC5vcmcvdmlydHVhbGl6YXRpb24vN2Q4NmM3MTUtNmQ3MS04YTI3LTkxZjUtOGQ0N2I3MWUzMjAx
-QHJlZGhhdC5jb20vCj4KPiBDaGFuZ2VzIGZyb20gdjQgUkZDOgo+ICogU3VwcG9ydCBvZiBhbGxv
-Y2F0aW5nIC8gZnJlZWluZyBpb3ZhIHJhbmdlcyBpbiBJT1ZBIHRyZWUuIEV4dGVuZGluZwo+ICAg
-IGFscmVhZHkgcHJlc2VudCBpb3ZhLXRyZWUgZm9yIHRoYXQuCj4gKiBQcm9wZXIgdmFsaWRhdGlv
-biBvZiBndWVzdCBmZWF0dXJlcy4gTm93IFNWUSBjYW4gbmVnb3RpYXRlIGEKPiAgICBkaWZmZXJl
-bnQgc2V0IG9mIGZlYXR1cmVzIHdpdGggdGhlIGRldmljZSB3aGVuIGVuYWJsZWQuCj4gKiBTdXBw
-b3J0IG9mIGhvc3Qgbm90aWZpZXJzIG1lbW9yeSByZWdpb25zCj4gKiBIYW5kbGluZyBvZiBTVlEg
-ZnVsbCBxdWV1ZSBpbiBjYXNlIGd1ZXN0J3MgZGVzY3JpcHRvcnMgc3BhbiB0bwo+ICAgIGRpZmZl
-cmVudCBtZW1vcnkgcmVnaW9ucyAocWVtdSdzIFZBIGNodW5rcykuCj4gKiBGbHVzaCBwZW5kaW5n
-IHVzZWQgYnVmZmVycyBhdCBlbmQgb2YgU1ZRIG9wZXJhdGlvbi4KPiAqIFFNUCBjb21tYW5kIG5v
-dyBsb29rcyBieSBOZXRDbGllbnRTdGF0ZSBuYW1lLiBPdGhlciBkZXZpY2VzIHdpbGwgbmVlZAo+
-ICAgIHRvIGltcGxlbWVudCBpdCdzIHdheSB0byBlbmFibGUgdmRwYS4KPiAqIFJlbmFtZSBRTVAg
-Y29tbWFuZCB0byBzZXQsIHNvIGl0IGxvb2tzIG1vcmUgbGlrZSBhIHdheSBvZiB3b3JraW5nCj4g
-KiBCZXR0ZXIgdXNlIG9mIHFlbXUgZXJyb3Igc3lzdGVtCj4gKiBNYWtlIGEgZmV3IGFzc2VydGlv
-bnMgcHJvcGVyIGVycm9yLWhhbmRsaW5nIHBhdGhzLgo+ICogQWRkIG1vcmUgZG9jdW1lbnRhdGlv
-bgo+ICogTGVzcyBjb3VwbGluZyBvZiB2aXJ0aW8gLyB2aG9zdCwgdGhhdCBjb3VsZCBjYXVzZSBm
-cmljdGlvbiBvbiBjaGFuZ2VzCj4gKiBBZGRyZXNzZWQgbWFueSBvdGhlciBzbWFsbCBjb21tZW50
-cyBhbmQgc21hbGwgZml4ZXMuCj4KPiBDaGFuZ2VzIGZyb20gdjMgUkZDOgo+ICAgICogTW92ZSBl
-dmVyeXRoaW5nIHRvIHZob3N0LXZkcGEgYmFja2VuZC4gQSBiaWcgY2hhbmdlLCB0aGlzIGFsbG93
-ZWQKPiAgICAgIHNvbWUgY2xlYW51cCBidXQgbW9yZSBjb2RlIGhhcyBiZWVuIGFkZGVkIGluIG90
-aGVyIHBsYWNlcy4KPiAgICAqIE1vcmUgdXNlIG9mIGdsaWIgdXRpbGl0aWVzLCBlc3BlY2lhbGx5
-IHRvIG1hbmFnZSBtZW1vcnkuCj4gdjMgbGluazoKPiBodHRwczovL2xpc3RzLm5vbmdudS5vcmcv
-YXJjaGl2ZS9odG1sL3FlbXUtZGV2ZWwvMjAyMS0wNS9tc2cwNjAzMi5odG1sCj4KPiBDaGFuZ2Vz
-IGZyb20gdjIgUkZDOgo+ICAgICogQWRkaW5nIHZob3N0LXZkcGEgZGV2aWNlcyBzdXBwb3J0Cj4g
-ICAgKiBGaXhlZCBzb21lIG1lbW9yeSBsZWFrcyBwb2ludGVkIGJ5IGRpZmZlcmVudCBjb21tZW50
-cwo+IHYyIGxpbms6Cj4gaHR0cHM6Ly9saXN0cy5ub25nbnUub3JnL2FyY2hpdmUvaHRtbC9xZW11
-LWRldmVsLzIwMjEtMDMvbXNnMDU2MDAuaHRtbAo+Cj4gQ2hhbmdlcyBmcm9tIHYxIFJGQzoKPiAg
-ICAqIFVzZSBRTVAgaW5zdGVhZCBvZiBtaWdyYXRpb24gdG8gc3RhcnQgU1ZRIG1vZGUuCj4gICAg
-KiBPbmx5IGFjY2VwdGluZyBJT01NVSBkZXZpY2VzLCBjbG9zZXIgYmVoYXZpb3Igd2l0aCB0YXJn
-ZXQgZGV2aWNlcwo+ICAgICAgKHZEUEEpCj4gICAgKiBGaXggaW52YWxpZCBtYXNraW5nL3VubWFz
-a2luZyBvZiB2aG9zdCBjYWxsIGZkLgo+ICAgICogVXNlIG9mIHByb3BlciBtZXRob2RzIGZvciBz
-eW5jaHJvbml6YXRpb24uCj4gICAgKiBObyBuZWVkIHRvIG1vZGlmeSBWaXJ0SU8gZGV2aWNlIGNv
-ZGUsIGFsbCBvZiB0aGUgY2hhbmdlcyBhcmUKPiAgICAgIGNvbnRhaW5lZCBpbiB2aG9zdCBjb2Rl
-Lgo+ICAgICogRGVsZXRlIHN1cGVyZmx1b3VzIGNvZGUuCj4gICAgKiBBbiBpbnRlcm1lZGlhdGUg
-UkZDIHdhcyBzZW50IHdpdGggb25seSB0aGUgbm90aWZpY2F0aW9ucyBmb3J3YXJkaW5nCj4gICAg
-ICBjaGFuZ2VzLiBJdCBjYW4gYmUgc2VlbiBpbgo+ICAgICAgaHR0cHM6Ly9wYXRjaGV3Lm9yZy9R
-RU1VLzIwMjEwMTI5MjA1NDE1Ljg3NjI5MC0xLWVwZXJlem1hQHJlZGhhdC5jb20vCj4gdjEgbGlu
-azoKPiBodHRwczovL2xpc3RzLmdudS5vcmcvYXJjaGl2ZS9odG1sL3FlbXUtZGV2ZWwvMjAyMC0x
-MS9tc2cwNTM3Mi5odG1sCj4KPiBFdWdlbmlvIFDDqXJleiAoMjApOgo+ICAgICAgICB2aXJ0aW86
-IEFkZCBWSVJUSU9fRl9RVUVVRV9TVEFURQo+ICAgICAgICB2aXJ0aW8tbmV0OiBIb25vciBWSVJU
-SU9fQ09ORklHX1NfREVWSUNFX1NUT1BQRUQKPiAgICAgICAgdmlydGlvOiBBZGQgdmlydGlvX3F1
-ZXVlX2lzX2hvc3Rfbm90aWZpZXJfZW5hYmxlZAo+ICAgICAgICB2aG9zdDogTWFrZSB2aG9zdF92
-aXJ0cXVldWVfe3N0YXJ0LHN0b3B9IHB1YmxpYwo+ICAgICAgICB2aG9zdDogQWRkIHgtdmhvc3Qt
-ZW5hYmxlLXNoYWRvdy12cSBxbXAKPiAgICAgICAgdmhvc3Q6IEFkZCBWaG9zdFNoYWRvd1ZpcnRx
-dWV1ZQo+ICAgICAgICB2ZHBhOiBSZWdpc3RlciB2ZHBhIGRldmljZXMgaW4gYSBsaXN0Cj4gICAg
-ICAgIHZob3N0OiBSb3V0ZSBndWVzdC0+aG9zdCBub3RpZmljYXRpb24gdGhyb3VnaCBzaGFkb3cg
-dmlydHF1ZXVlCj4gICAgICAgIEFkZCB2aG9zdF9zdnFfZ2V0X3N2cV9jYWxsX25vdGlmaWVyCj4g
-ICAgICAgIEFkZCB2aG9zdF9zdnFfc2V0X2d1ZXN0X2NhbGxfbm90aWZpZXIKPiAgICAgICAgdmRw
-YTogU2F2ZSBjYWxsX2ZkIGluIHZob3N0LXZkcGEKPiAgICAgICAgdmhvc3QtdmRwYTogVGFrZSBp
-bnRvIGFjY291bnQgU1ZRIGluIHZob3N0X3ZkcGFfc2V0X3ZyaW5nX2NhbGwKPiAgICAgICAgdmhv
-c3Q6IFJvdXRlIGhvc3QtPmd1ZXN0IG5vdGlmaWNhdGlvbiB0aHJvdWdoIHNoYWRvdyB2aXJ0cXVl
-dWUKPiAgICAgICAgdmlydGlvOiBBZGQgdmhvc3Rfc2hhZG93X3ZxX2dldF92cmluZ19hZGRyCj4g
-ICAgICAgIHZkcGE6IFNhdmUgaG9zdCBhbmQgZ3Vlc3QgZmVhdHVyZXMKPiAgICAgICAgdmhvc3Q6
-IEFkZCB2aG9zdF9zdnFfdmFsaWRfZGV2aWNlX2ZlYXR1cmVzIHRvIHNoYWRvdyB2cQo+ICAgICAg
-ICB2aG9zdDogU2hhZG93IHZpcnRxdWV1ZSBidWZmZXJzIGZvcndhcmRpbmcKPiAgICAgICAgdmhv
-c3Q6IEFkZCBWaG9zdElPVkFUcmVlCj4gICAgICAgIHZob3N0OiBVc2UgYSB0cmVlIHRvIHN0b3Jl
-IG1lbW9yeSBtYXBwaW5ncwo+ICAgICAgICB2ZHBhOiBBZGQgY3VzdG9tIElPVExCIHRyYW5zbGF0
-aW9ucyB0byBTVlEKPgo+IEV1Z2VuaW8gUMOpcmV6ICgxNSk6Cj4gICAgdmhvc3Q6IEFkZCBWaG9z
-dFNoYWRvd1ZpcnRxdWV1ZQo+ICAgIHZob3N0OiBBZGQgU2hhZG93IFZpcnRRdWV1ZSBraWNrIGZv
-cndhcmRpbmcgY2FwYWJpbGl0aWVzCj4gICAgdmhvc3Q6IEFkZCBTaGFkb3cgVmlydFF1ZXVlIGNh
-bGwgZm9yd2FyZGluZyBjYXBhYmlsaXRpZXMKPiAgICB2aG9zdDogQWRkIHZob3N0X3N2cV92YWxp
-ZF9mZWF0dXJlcyB0byBzaGFkb3cgdnEKPiAgICB2aXJ0aW86IEFkZCB2aG9zdF9zdnFfZ2V0X3Zy
-aW5nX2FkZHIKPiAgICB2ZHBhOiBhZGFwdCB2aG9zdF9vcHMgY2FsbGJhY2tzIHRvIHN2cQo+ICAg
-IHZob3N0OiBTaGFkb3cgdmlydHF1ZXVlIGJ1ZmZlcnMgZm9yd2FyZGluZwo+ICAgIHV0aWw6IEFk
-ZCBpb3ZhX3RyZWVfYWxsb2NfbWFwCj4gICAgdXRpbDogYWRkIGlvdmFfdHJlZV9maW5kX2lvdmEK
-PiAgICB2aG9zdDogQWRkIFZob3N0SU9WQVRyZWUKPiAgICB2ZHBhOiBBZGQgY3VzdG9tIElPVExC
-IHRyYW5zbGF0aW9ucyB0byBTVlEKPiAgICB2ZHBhOiBBZGFwdCB2aG9zdF92ZHBhX2dldF92cmlu
-Z19iYXNlIHRvIFNWUQo+ICAgIHZkcGE6IE5ldmVyIHNldCBsb2dfYmFzZSBhZGRyIGlmIFNWUSBp
-cyBlbmFibGVkCj4gICAgdmRwYTogRXhwb3NlIFZIT1NUX0ZfTE9HX0FMTCBvbiBTVlEKPiAgICB2
-ZHBhOiBBZGQgeC1zdnEgdG8gTmV0ZGV2Vmhvc3RWRFBBT3B0aW9ucwo+Cj4gICBxYXBpL25ldC5q
-c29uICAgICAgICAgICAgICAgICAgICAgIHwgICA4ICstCj4gICBody92aXJ0aW8vdmhvc3QtaW92
-YS10cmVlLmggICAgICAgIHwgIDI3ICsrCj4gICBody92aXJ0aW8vdmhvc3Qtc2hhZG93LXZpcnRx
-dWV1ZS5oIHwgIDg3ICsrKysKPiAgIGluY2x1ZGUvaHcvdmlydGlvL3Zob3N0LXZkcGEuaCAgICAg
-fCAgIDggKwo+ICAgaW5jbHVkZS9xZW11L2lvdmEtdHJlZS5oICAgICAgICAgICB8ICAzOCArLQo+
-ICAgaHcvdmlydGlvL3Zob3N0LWlvdmEtdHJlZS5jICAgICAgICB8IDExMCArKysrKwo+ICAgaHcv
-dmlydGlvL3Zob3N0LXNoYWRvdy12aXJ0cXVldWUuYyB8IDYzNyArKysrKysrKysrKysrKysrKysr
-KysrKysrKysrKwo+ICAgaHcvdmlydGlvL3Zob3N0LXZkcGEuYyAgICAgICAgICAgICB8IDUyNSAr
-KysrKysrKysrKysrKysrKysrKysrKy0KPiAgIG5ldC92aG9zdC12ZHBhLmMgICAgICAgICAgICAg
-ICAgICAgfCAgNDggKystCj4gICB1dGlsL2lvdmEtdHJlZS5jICAgICAgICAgICAgICAgICAgIHwg
-MTY5ICsrKysrKysrCj4gICBody92aXJ0aW8vbWVzb24uYnVpbGQgICAgICAgICAgICAgIHwgICAy
-ICstCj4gICAxMSBmaWxlcyBjaGFuZ2VkLCAxNjMzIGluc2VydGlvbnMoKyksIDI2IGRlbGV0aW9u
-cygtKQo+ICAgY3JlYXRlIG1vZGUgMTAwNjQ0IGh3L3ZpcnRpby92aG9zdC1pb3ZhLXRyZWUuaAo+
-ICAgY3JlYXRlIG1vZGUgMTAwNjQ0IGh3L3ZpcnRpby92aG9zdC1zaGFkb3ctdmlydHF1ZXVlLmgK
-PiAgIGNyZWF0ZSBtb2RlIDEwMDY0NCBody92aXJ0aW8vdmhvc3QtaW92YS10cmVlLmMKPiAgIGNy
-ZWF0ZSBtb2RlIDEwMDY0NCBody92aXJ0aW8vdmhvc3Qtc2hhZG93LXZpcnRxdWV1ZS5jCj4KCl9f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0
-aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9y
-ZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0
-dWFsaXphdGlvbg==
+
+
+On 3/6/2022 11:57 PM, Eli Cohen wrote:
+>
+>> -----Original Message-----
+>> From: Si-Wei Liu <si-wei.liu@oracle.com>
+>> Sent: Saturday, March 5, 2022 12:34 AM
+>> To: Eli Cohen <elic@nvidia.com>
+>> Cc: mst@redhat.com; jasowang@redhat.com; virtualization@lists.linux-
+>> foundation.org; eperezma@redhat.com; amorenoz@redhat.com;
+>> lvivier@redhat.com; sgarzare@redhat.com; Parav Pandit <parav@nvidia.com>
+>> Subject: Re: [PATCH v1 1/2] vdpa: Add support for querying vendor statistics
+>>
+>> Sorry, I somehow missed this after my break. Please see comments in line.
+>>
+>> On 2/16/2022 10:46 PM, Eli Cohen wrote:
+>>> On Wed, Feb 16, 2022 at 10:49:26AM -0800, Si-Wei Liu wrote:
+>>>> On 2/16/2022 12:00 AM, Eli Cohen wrote:
+>>>>> Allows to read vendor statistics of a vdpa device. The specific
+>>>>> statistics data is received by the upstream driver in the form of an
+>>>>> (attribute name, attribute value) pairs.
+>>>>>
+>>>>> An example of statistics for mlx5_vdpa device are:
+>>>>>
+>>>>> received_desc - number of descriptors received by the virtqueue
+>>>>> completed_desc - number of descriptors completed by the virtqueue
+>>>>>
+>>>>> A descriptor using indirect buffers is still counted as 1. In
+>>>>> addition, N chained descriptors are counted correctly N times as one
+>> would expect.
+>>>>> A new callback was added to vdpa_config_ops which provides the means
+>>>>> for the vdpa driver to return statistics results.
+>>>>>
+>>>>> The interface allows for reading all the supported virtqueues,
+>>>>> including the control virtqueue if it exists.
+>>>>>
+>>>>> Below are some examples taken from mlx5_vdpa which are introduced in
+>>>>> the following patch:
+>>>>>
+>>>>> 1. Read statistics for the virtqueue at index 1
+>>>>>
+>>>>> $ vdpa dev vstats show vdpa-a qidx 1
+>>>>> vdpa-a:
+>>>>> queue_type tx queue_index 1 received_desc 3844836 completed_desc
+>>>>> 3844836
+>>>>>
+>>>>> 2. Read statistics for the virtqueue at index 32 $ vdpa dev vstats
+>>>>> show vdpa-a qidx 32
+>>>>> vdpa-a:
+>>>>> queue_type control_vq queue_index 32 received_desc 62 completed_desc
+>>>>> 62
+>>>>>
+>>>>> 3. Read statisitics for the virtqueue at index 0 with json output $
+>>>>> vdpa -j dev vstats show vdpa-a qidx 0 {"vstats":{"vdpa-a":{
+>>>>>
+>> "queue_type":"rx","queue_index":0,"name":"received_desc","value":417776,\
+>>>>>     "name":"completed_desc","value":417548}}}
+>>>>>
+>>>>> 4. Read statistics for the virtqueue at index 0 with preety json
+>>>>> output $ vdpa -jp dev vstats show vdpa-a qidx 0 {
+>>>>>        "vstats": {
+>>>>>            "vdpa-a": {
+>>>>>
+>>>>>                "queue_type": "rx",
+>>>> I wonder where this info can be inferred? I don't see relevant change
+>>>> in the patch series that helps gather the VDPA_ATTR_DEV_QUEUE_TYPE?
+>>>> Is this an arbitrary string defined by the vendor as well? If so, how
+>>>> does the user expect to consume it?
+>>> The queue tupe is deduced from the index and whether we have a
+>>> virtqueue. Even numbers are rx, odd numbers are tx and if there is
+>>> CVQ, the last one is CVQ.
+>> OK, then VDPA_ATTR_DEV_QUEUE_TYPE attribute introduced in this patch
+>> might not be useful at all?
+> Right, will remove.
+>
+>> And how do you determine in the vdpa tool if CVQ
+>> is negotiated or not?
+> I make a netlink call to get the same information as " vdpa dev config show" retrieves. I use the negotiated features to determine if a CVQ is available. If it is, the number of VQs equals the control VQ index. So there are two netlink calls under the hood.
+The lock vdpa_dev_mutex won't hold across the two separate netlink 
+calls, and it may end up with inconsistent state - theoretically things 
+could happen like that the first call gets CVQ negotiated, but the later 
+call for get_vendor_vq_stats() on the cvq might get -EINVAL due to 
+device reset. Can the negotiated status and stat query be done within 
+one single netlink call?
+
+What worried me is that the queue index being dynamic and depended on 
+negotiation status would make host admin user quite hard to follow. The 
+guest may or may not advertise F_MQ and/or F_CTRL_VQ across various 
+phases, e.g. firmware (UEFI), boot loader (grub) till OS driver is up 
+and running, which can be agnostic to host admin. For most of the part 
+it's not easy to script and predict the queue index which can change 
+from time to time. Can we define the order of host predictable queue 
+index, which is independent from any guest negotiated state?
+
+>
+>> Looks to me there are still some loose end I don't quite
+>> yet understand.
+>>
+>>
+>>>>>                "queue_index": 0,
+> I think this can be removed since the command is for a specific index.
+>
+>>>>>                "name": "received_desc",
+>>>>>                "value": 417776,
+>>>>>                "name": "completed_desc",
+>>>>>                "value": 417548
+>>>> Not for this kernel patch, but IMHO it's the best to put the name &
+>>>> value pairs in an array instead of flat entries in json's
+>>>> hash/dictionary. The hash entries can be re-ordered deliberately by
+>>>> external json parsing tool, ending up with inconsistent stat values.
+>> This comment is missed for some reason. Please change the example in the log
+>> if you agree to address it in vdpa tool. Or justify why keeping the order for json
+>> hash/dictionary is fine.
+> Sorry for skipping this comment.
+> Do you mean to present the information like:
+> "received_desc": 417776,
+> "completed_desc": 417548,
+I mean the following presentation:
+
+$ vdpa -jp dev vstats show vdpa-a qidx 0
+{
+     "vstats": {
+         "vdpa-a": {
+             "queue_stats": [{
+                 "queue_index": 0,
+                 "queue_type": "rx",
+                 "stat_name": [ "received_desc","completed_desc" ],
+                 "stat_value": [ 417776,417548 ],
+             }]
+         }
+     }
+}
+
+I think Parav had similar suggestion, too.
+
+Thanks,
+-Siwei
+
+>
+>> Thanks,
+>> -Siwei
+>>
+>>>> Thanks,
+>>>> -Siwei
+>>>>>            }
+>>>>>        }
+>>>>> }
+>>>>>
+>>>>> Signed-off-by: Eli Cohen <elic@nvidia.com>
+>>>>> ---
+>>>>>     drivers/vdpa/vdpa.c       | 129
+>> ++++++++++++++++++++++++++++++++++++++
+>>>>>     include/linux/vdpa.h      |   5 ++
+>>>>>     include/uapi/linux/vdpa.h |   7 +++
+>>>>>     3 files changed, 141 insertions(+)
+>>>>>
+>>>>> diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c index
+>>>>> 9846c9de4bfa..d0ff671baf88 100644
+>>>>> --- a/drivers/vdpa/vdpa.c
+>>>>> +++ b/drivers/vdpa/vdpa.c
+>>>>> @@ -909,6 +909,74 @@ vdpa_dev_config_fill(struct vdpa_device *vdev,
+>> struct sk_buff *msg, u32 portid,
+>>>>>     	return err;
+>>>>>     }
+>>>>> +static int vdpa_fill_stats_rec(struct vdpa_device *vdev, struct sk_buff
+>> *msg,
+>>>>> +			       struct genl_info *info, u32 index) {
+>>>>> +	int err;
+>>>>> +
+>>>>> +	if (nla_put_u32(msg, VDPA_ATTR_DEV_QUEUE_INDEX, index))
+>>>>> +		return -EMSGSIZE;
+>>>>> +
+>>>>> +	err = vdev->config->get_vendor_vq_stats(vdev, index, msg, info-
+>>> extack);
+>>>>> +	if (err)
+>>>>> +		return err;
+>>>>> +
+>>>>> +	return 0;
+>>>>> +}
+>>>>> +
+>>>>> +static int vendor_stats_fill(struct vdpa_device *vdev, struct sk_buff *msg,
+>>>>> +			     struct genl_info *info, u32 index) {
+>>>>> +	int err;
+>>>>> +
+>>>>> +	if (!vdev->config->get_vendor_vq_stats)
+>>>>> +		return -EOPNOTSUPP;
+>>>>> +
+>>>>> +	err = vdpa_fill_stats_rec(vdev, msg, info, index);
+>>>>> +	if (err)
+>>>>> +		return err;
+>>>>> +
+>>>>> +	return 0;
+>>>>> +}
+>>>>> +
+>>>>> +static int vdpa_dev_vendor_stats_fill(struct vdpa_device *vdev,
+>>>>> +				      struct sk_buff *msg,
+>>>>> +				      struct genl_info *info, u32 index) {
+>>>>> +	u32 device_id;
+>>>>> +	void *hdr;
+>>>>> +	int err;
+>>>>> +	u32 portid = info->snd_portid;
+>>>>> +	u32 seq = info->snd_seq;
+>>>>> +	u32 flags = 0;
+>>>>> +
+>>>>> +	hdr = genlmsg_put(msg, portid, seq, &vdpa_nl_family, flags,
+>>>>> +			  VDPA_CMD_DEV_VSTATS_GET);
+>>>>> +	if (!hdr)
+>>>>> +		return -EMSGSIZE;
+>>>>> +
+>>>>> +	if (nla_put_string(msg, VDPA_ATTR_DEV_NAME, dev_name(&vdev-
+>>> dev))) {
+>>>>> +		err = -EMSGSIZE;
+>>>>> +		goto undo_msg;
+>>>>> +	}
+>>>>> +
+>>>>> +	device_id = vdev->config->get_device_id(vdev);
+>>>>> +	if (nla_put_u32(msg, VDPA_ATTR_DEV_ID, device_id)) {
+>>>>> +		err = -EMSGSIZE;
+>>>>> +		goto undo_msg;
+>>>>> +	}
+>>>>> +
+>>>>> +	err = vendor_stats_fill(vdev, msg, info, index);
+>>>>> +
+>>>>> +	genlmsg_end(msg, hdr);
+>>>>> +
+>>>>> +	return err;
+>>>>> +
+>>>>> +undo_msg:
+>>>>> +	genlmsg_cancel(msg, hdr);
+>>>>> +	return err;
+>>>>> +}
+>>>>> +
+>>>>>     static int vdpa_nl_cmd_dev_config_get_doit(struct sk_buff *skb, struct
+>> genl_info *info)
+>>>>>     {
+>>>>>     	struct vdpa_device *vdev;
+>>>>> @@ -990,6 +1058,60 @@ vdpa_nl_cmd_dev_config_get_dumpit(struct
+>> sk_buff *msg, struct netlink_callback *
+>>>>>     	return msg->len;
+>>>>>     }
+>>>>> +static int vdpa_nl_cmd_dev_stats_get_doit(struct sk_buff *skb,
+>>>>> +					  struct genl_info *info)
+>>>>> +{
+>>>>> +	struct vdpa_device *vdev;
+>>>>> +	struct sk_buff *msg;
+>>>>> +	const char *devname;
+>>>>> +	struct device *dev;
+>>>>> +	u32 index;
+>>>>> +	int err;
+>>>>> +
+>>>>> +	if (!info->attrs[VDPA_ATTR_DEV_NAME])
+>>>>> +		return -EINVAL;
+>>>>> +
+>>>>> +	if (!info->attrs[VDPA_ATTR_DEV_QUEUE_INDEX])
+>>>>> +		return -EINVAL;
+>>>>> +
+>>>>> +	devname = nla_data(info->attrs[VDPA_ATTR_DEV_NAME]);
+>>>>> +	msg = nlmsg_new(NLMSG_DEFAULT_SIZE, GFP_KERNEL);
+>>>>> +	if (!msg)
+>>>>> +		return -ENOMEM;
+>>>>> +
+>>>>> +	index = nla_get_u32(info->attrs[VDPA_ATTR_DEV_QUEUE_INDEX]);
+>>>>> +	mutex_lock(&vdpa_dev_mutex);
+>>>>> +	dev = bus_find_device(&vdpa_bus, NULL, devname,
+>> vdpa_name_match);
+>>>>> +	if (!dev) {
+>>>>> +		NL_SET_ERR_MSG_MOD(info->extack, "device not found");
+>>>>> +		err = -ENODEV;
+>>>>> +		goto dev_err;
+>>>>> +	}
+>>>>> +	vdev = container_of(dev, struct vdpa_device, dev);
+>>>>> +	if (!vdev->mdev) {
+>>>>> +		NL_SET_ERR_MSG_MOD(info->extack, "unmanaged vdpa
+>> device");
+>>>>> +		err = -EINVAL;
+>>>>> +		goto mdev_err;
+>>>>> +	}
+>>>>> +	err = vdpa_dev_vendor_stats_fill(vdev, msg, info, index);
+>>>>> +	if (!err)
+>>>>> +		err = genlmsg_reply(msg, info);
+>>>>> +
+>>>>> +	put_device(dev);
+>>>>> +	mutex_unlock(&vdpa_dev_mutex);
+>>>>> +
+>>>>> +	if (err)
+>>>>> +		nlmsg_free(msg);
+>>>>> +
+>>>>> +	return err;
+>>>>> +
+>>>>> +mdev_err:
+>>>>> +	put_device(dev);
+>>>>> +dev_err:
+>>>>> +	mutex_unlock(&vdpa_dev_mutex);
+>>>>> +	return err;
+>>>>> +}
+>>>>> +
+>>>>>     static const struct nla_policy vdpa_nl_policy[VDPA_ATTR_MAX + 1] = {
+>>>>>     	[VDPA_ATTR_MGMTDEV_BUS_NAME] = { .type = NLA_NUL_STRING },
+>>>>>     	[VDPA_ATTR_MGMTDEV_DEV_NAME] = { .type = NLA_STRING }, @@ -
+>> 997,6
+>>>>> +1119,7 @@ static const struct nla_policy
+>> vdpa_nl_policy[VDPA_ATTR_MAX + 1] = {
+>>>>>     	[VDPA_ATTR_DEV_NET_CFG_MACADDR] = NLA_POLICY_ETH_ADDR,
+>>>>>     	/* virtio spec 1.1 section 5.1.4.1 for valid MTU range */
+>>>>>     	[VDPA_ATTR_DEV_NET_CFG_MTU] = NLA_POLICY_MIN(NLA_U16, 68),
+>>>>> +	[VDPA_ATTR_DEV_QUEUE_INDEX] = NLA_POLICY_RANGE(NLA_U32, 0,
+>> 65535),
+>>>>>     };
+>>>>>     static const struct genl_ops vdpa_nl_ops[] = { @@ -1030,6
+>>>>> +1153,12 @@ static const struct genl_ops vdpa_nl_ops[] = {
+>>>>>     		.doit = vdpa_nl_cmd_dev_config_get_doit,
+>>>>>     		.dumpit = vdpa_nl_cmd_dev_config_get_dumpit,
+>>>>>     	},
+>>>>> +	{
+>>>>> +		.cmd = VDPA_CMD_DEV_VSTATS_GET,
+>>>>> +		.validate = GENL_DONT_VALIDATE_STRICT |
+>> GENL_DONT_VALIDATE_DUMP,
+>>>>> +		.doit = vdpa_nl_cmd_dev_stats_get_doit,
+>>>>> +		.flags = GENL_ADMIN_PERM,
+>>>>> +	},
+>>>>>     };
+>>>>>     static struct genl_family vdpa_nl_family __ro_after_init = { diff
+>>>>> --git a/include/linux/vdpa.h b/include/linux/vdpa.h index
+>>>>> 2de442ececae..274203845cfc 100644
+>>>>> --- a/include/linux/vdpa.h
+>>>>> +++ b/include/linux/vdpa.h
+>>>>> @@ -275,6 +275,9 @@ struct vdpa_config_ops {
+>>>>>     			    const struct vdpa_vq_state *state);
+>>>>>     	int (*get_vq_state)(struct vdpa_device *vdev, u16 idx,
+>>>>>     			    struct vdpa_vq_state *state);
+>>>>> +	int (*get_vendor_vq_stats)(struct vdpa_device *vdev, u16 idx,
+>>>>> +				   struct sk_buff *msg,
+>>>>> +				   struct netlink_ext_ack *extack);
+>>>>>     	struct vdpa_notification_area
+>>>>>     	(*get_vq_notification)(struct vdpa_device *vdev, u16 idx);
+>>>>>     	/* vq irq is not expected to be changed once DRIVER_OK is set */
+>>>>> @@ -466,4 +469,6 @@ struct vdpa_mgmt_dev {
+>>>>>     int vdpa_mgmtdev_register(struct vdpa_mgmt_dev *mdev);
+>>>>>     void vdpa_mgmtdev_unregister(struct vdpa_mgmt_dev *mdev);
+>>>>> +#define VDPA_INVAL_QUEUE_INDEX 0xffff
+>>>>> +
+>>>>>     #endif /* _LINUX_VDPA_H */
+>>>>> diff --git a/include/uapi/linux/vdpa.h b/include/uapi/linux/vdpa.h
+>>>>> index 1061d8d2d09d..c5f229a41dc2 100644
+>>>>> --- a/include/uapi/linux/vdpa.h
+>>>>> +++ b/include/uapi/linux/vdpa.h
+>>>>> @@ -18,6 +18,7 @@ enum vdpa_command {
+>>>>>     	VDPA_CMD_DEV_DEL,
+>>>>>     	VDPA_CMD_DEV_GET,		/* can dump */
+>>>>>     	VDPA_CMD_DEV_CONFIG_GET,	/* can dump */
+>>>>> +	VDPA_CMD_DEV_VSTATS_GET,
+>>>>>     };
+>>>>>     enum vdpa_attr {
+>>>>> @@ -46,6 +47,12 @@ enum vdpa_attr {
+>>>>>     	VDPA_ATTR_DEV_NEGOTIATED_FEATURES,	/* u64 */
+>>>>>     	VDPA_ATTR_DEV_MGMTDEV_MAX_VQS,		/* u32 */
+>>>>>     	VDPA_ATTR_DEV_SUPPORTED_FEATURES,	/* u64 */
+>>>>> +
+>>>>> +	VDPA_ATTR_DEV_QUEUE_INDEX,              /* u16 */
+>>>>> +	VDPA_ATTR_DEV_QUEUE_TYPE,               /* string */
+>>>>> +	VDPA_ATTR_DEV_VENDOR_ATTR_NAME,		/* string */
+>>>>> +	VDPA_ATTR_DEV_VENDOR_ATTR_VALUE,        /* u64 */
+>>>>> +
+>>>>>     	/* new attributes must be added above here */
+>>>>>     	VDPA_ATTR_MAX,
+>>>>>     };
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
