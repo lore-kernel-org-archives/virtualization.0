@@ -1,56 +1,56 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 46A7EC433F5
-	for <virtualization@archiver.kernel.org>; Tue,  8 Mar 2022 12:36:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 44180C433FE
+	for <virtualization@archiver.kernel.org>; Tue,  8 Mar 2022 12:36:25 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id F2796610AE;
-	Tue,  8 Mar 2022 12:36:23 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 4XT6WP5bOUbe; Tue,  8 Mar 2022 12:36:23 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 70B1360FCB;
-	Tue,  8 Mar 2022 12:36:22 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 574BAC001D;
-	Tue,  8 Mar 2022 12:36:22 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 42A55C0073
- for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Mar 2022 12:36:21 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id DD0F741794
- for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Mar 2022 12:36:20 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 063B1417B9;
+	Tue,  8 Mar 2022 12:36:25 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 8zqGZhi9eQRZ
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id TjelffNiUD38; Tue,  8 Mar 2022 12:36:24 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id A91B7417B7;
+	Tue,  8 Mar 2022 12:36:23 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8FA40C001D;
+	Tue,  8 Mar 2022 12:36:23 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 30DA4C000B
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  8 Mar 2022 12:36:22 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 1FE3660FEE
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  8 Mar 2022 12:36:22 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 8K1DIpXBS_Ye
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  8 Mar 2022 12:36:21 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from out30-130.freemail.mail.aliyun.com
+ (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 2665660FCB
  for <virtualization@lists.linux-foundation.org>;
  Tue,  8 Mar 2022 12:36:20 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from out30-133.freemail.mail.aliyun.com
- (out30-133.freemail.mail.aliyun.com [115.124.30.133])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 83217417C3
- for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Mar 2022 12:36:19 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R151e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04423; MF=xuanzhuo@linux.alibaba.com;
- NM=1; PH=DS; RN=34; SR=0; TI=SMTPD_---0V6eSqDW_1646742970; 
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R201e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04400; MF=xuanzhuo@linux.alibaba.com;
+ NM=1; PH=DS; RN=34; SR=0; TI=SMTPD_---0V6ebqbY_1646742975; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0V6eSqDW_1646742970) by smtp.aliyun-inc.com(127.0.0.1);
- Tue, 08 Mar 2022 20:36:12 +0800
+ fp:SMTPD_---0V6ebqbY_1646742975) by smtp.aliyun-inc.com(127.0.0.1);
+ Tue, 08 Mar 2022 20:36:16 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: virtualization@lists.linux-foundation.org,
 	netdev@vger.kernel.org
-Subject: [PATCH v7 24/26] virtio_net: support rx/tx queue reset
-Date: Tue,  8 Mar 2022 20:35:16 +0800
-Message-Id: <20220308123518.33800-25-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH v7 26/26] virtio_net: support set_ringparam
+Date: Tue,  8 Mar 2022 20:35:18 +0800
+Message-Id: <20220308123518.33800-27-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20220308123518.33800-1-xuanzhuo@linux.alibaba.com>
 References: <20220308123518.33800-1-xuanzhuo@linux.alibaba.com>
@@ -90,170 +90,80 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This patch implements the reset function of the rx, tx queues.
+Support set_ringparam based on virtio queue reset.
 
-Based on this function, it is possible to modify the ring num of the
-queue. And quickly recycle the buffer in the queue.
-
-In the process of the queue disable, in theory, as long as virtio
-supports queue reset, there will be no exceptions.
-
-However, in the process of the queue enable, there may be exceptions due to
-memory allocation.  In this case, vq is not available, but we still have
-to execute napi_enable(). Because napi_disable is similar to a lock,
-napi_enable must be called after calling napi_disable.
+The rx,tx_pending required to be passed must be power of 2.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 ---
- drivers/net/virtio_net.c | 107 +++++++++++++++++++++++++++++++++++++++
- 1 file changed, 107 insertions(+)
+ drivers/net/virtio_net.c | 47 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 47 insertions(+)
 
 diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 409a8e180918..ffff323dcef0 100644
+index f1bdc6ce21c3..1fa2d632a994 100644
 --- a/drivers/net/virtio_net.c
 +++ b/drivers/net/virtio_net.c
-@@ -251,6 +251,11 @@ struct padded_vnet_hdr {
- 	char padding[4];
- };
- 
-+static void virtnet_sq_free_unused_bufs(struct virtnet_info *vi,
-+					struct send_queue *sq);
-+static void virtnet_rq_free_unused_bufs(struct virtnet_info *vi,
-+					struct receive_queue *rq);
-+
- static bool is_xdp_frame(void *ptr)
- {
- 	return (unsigned long)ptr & VIRTIO_XDP_FLAG;
-@@ -1369,6 +1374,9 @@ static void virtnet_napi_enable(struct virtqueue *vq, struct napi_struct *napi)
- {
- 	napi_enable(napi);
- 
-+	if (vq->reset)
-+		return;
-+
- 	/* If all buffers were filled by other side before we napi_enabled, we
- 	 * won't get another interrupt, so process any outstanding packets now.
- 	 * Call local_bh_enable after to trigger softIRQ processing.
-@@ -1413,6 +1421,10 @@ static void refill_work(struct work_struct *work)
- 		struct receive_queue *rq = &vi->rq[i];
- 
- 		napi_disable(&rq->napi);
-+		if (rq->vq->reset) {
-+			virtnet_napi_enable(rq->vq, &rq->napi);
-+			continue;
-+		}
- 		still_empty = !try_fill_recv(vi, rq, GFP_KERNEL);
- 		virtnet_napi_enable(rq->vq, &rq->napi);
- 
-@@ -1523,6 +1535,9 @@ static void virtnet_poll_cleantx(struct receive_queue *rq)
- 	if (!sq->napi.weight || is_xdp_raw_buffer_queue(vi, index))
- 		return;
- 
-+	if (sq->vq->reset)
-+		return;
-+
- 	if (__netif_tx_trylock(txq)) {
- 		do {
- 			virtqueue_disable_cb(sq->vq);
-@@ -1769,6 +1784,98 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
- 	return NETDEV_TX_OK;
+@@ -2290,6 +2290,52 @@ static void virtnet_get_ringparam(struct net_device *dev,
+ 	ring->tx_pending = virtqueue_get_vring_size(vi->sq[0].vq);
  }
  
-+static int virtnet_rx_vq_reset(struct virtnet_info *vi,
-+			       struct receive_queue *rq, u32 ring_num)
++static int virtnet_set_ringparam(struct net_device *dev,
++				 struct ethtool_ringparam *ring,
++				 struct kernel_ethtool_ringparam *kernel_ring,
++				 struct netlink_ext_ack *extack)
 +{
-+	int err;
++	struct virtnet_info *vi = netdev_priv(dev);
++	u32 rx_pending, tx_pending;
++	struct receive_queue *rq;
++	struct send_queue *sq;
++	int i, err;
 +
-+	/* stop napi */
-+	napi_disable(&rq->napi);
++	if (ring->rx_mini_pending || ring->rx_jumbo_pending)
++		return -EINVAL;
 +
-+	/* reset the queue */
-+	err = virtio_reset_vq(rq->vq);
-+	if (err)
-+		goto err;
++	rx_pending = virtqueue_get_vring_size(vi->rq[0].vq);
++	tx_pending = virtqueue_get_vring_size(vi->sq[0].vq);
 +
-+	/* free bufs */
-+	virtnet_rq_free_unused_bufs(vi, rq);
++	if (ring->rx_pending == rx_pending &&
++	    ring->tx_pending == tx_pending)
++		return 0;
 +
-+	/* reset vring. */
-+	err = virtqueue_reset_vring(rq->vq, ring_num);
-+	if (err)
-+		goto err;
++	if (ring->rx_pending > virtqueue_get_vring_max_size(vi->rq[0].vq))
++		return -EINVAL;
 +
-+	/* enable reset queue */
-+	err = virtio_enable_resetq(rq->vq);
-+	if (err)
-+		goto err;
++	if (ring->tx_pending > virtqueue_get_vring_max_size(vi->sq[0].vq))
++		return -EINVAL;
 +
-+	/* fill recv */
-+	if (!try_fill_recv(vi, rq, GFP_KERNEL))
-+		schedule_delayed_work(&vi->refill, 0);
++	for (i = 0; i < vi->max_queue_pairs; i++) {
++		rq = vi->rq + i;
++		sq = vi->sq + i;
 +
-+	/* enable napi */
-+	virtnet_napi_enable(rq->vq, &rq->napi);
-+	return 0;
++		if (ring->tx_pending != tx_pending) {
++			err = virtnet_tx_vq_reset(vi, sq, ring->tx_pending);
++			if (err)
++				return err;
++		}
 +
-+err:
-+	netdev_err(vi->dev,
-+		   "reset rx reset vq fail: rx queue index: %ld err: %d\n",
-+		   rq - vi->rq, err);
-+	virtnet_napi_enable(rq->vq, &rq->napi);
-+	return err;
-+}
-+
-+static int virtnet_tx_vq_reset(struct virtnet_info *vi,
-+			       struct send_queue *sq, u32 ring_num)
-+{
-+	struct netdev_queue *txq;
-+	int err, qindex;
-+
-+	qindex = sq - vi->sq;
-+
-+	txq = netdev_get_tx_queue(vi->dev, qindex);
-+	__netif_tx_lock_bh(txq);
-+
-+	/* stop tx queue and napi */
-+	netif_stop_subqueue(vi->dev, qindex);
-+	virtnet_napi_tx_disable(&sq->napi);
-+
-+	__netif_tx_unlock_bh(txq);
-+
-+	/* reset the queue */
-+	err = virtio_reset_vq(sq->vq);
-+	if (err) {
-+		netif_start_subqueue(vi->dev, qindex);
-+		goto err;
++		if (ring->rx_pending != rx_pending) {
++			err = virtnet_rx_vq_reset(vi, rq, ring->rx_pending);
++			if (err)
++				return err;
++		}
 +	}
 +
-+	/* free bufs */
-+	virtnet_sq_free_unused_bufs(vi, sq);
-+
-+	/* reset vring. */
-+	err = virtqueue_reset_vring(sq->vq, ring_num);
-+	if (err)
-+		goto err;
-+
-+	/* enable reset queue */
-+	err = virtio_enable_resetq(sq->vq);
-+	if (err)
-+		goto err;
-+
-+	/* start tx queue and napi */
-+	netif_start_subqueue(vi->dev, qindex);
-+	virtnet_napi_tx_enable(vi, sq->vq, &sq->napi);
 +	return 0;
-+
-+err:
-+	netdev_err(vi->dev,
-+		   "reset tx reset vq fail: tx queue index: %ld err: %d\n",
-+		   sq - vi->sq, err);
-+	virtnet_napi_tx_enable(vi, sq->vq, &sq->napi);
-+	return err;
 +}
-+
- /*
-  * Send command via the control virtqueue and check status.  Commands
-  * supported by the hypervisor, as indicated by feature bits, should
+ 
+ static void virtnet_get_drvinfo(struct net_device *dev,
+ 				struct ethtool_drvinfo *info)
+@@ -2523,6 +2569,7 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
+ 	.get_drvinfo = virtnet_get_drvinfo,
+ 	.get_link = ethtool_op_get_link,
+ 	.get_ringparam = virtnet_get_ringparam,
++	.set_ringparam = virtnet_set_ringparam,
+ 	.get_strings = virtnet_get_strings,
+ 	.get_sset_count = virtnet_get_sset_count,
+ 	.get_ethtool_stats = virtnet_get_ethtool_stats,
 -- 
 2.31.0
 
