@@ -4,102 +4,92 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 93E23C433F5
-	for <virtualization@archiver.kernel.org>; Tue,  8 Mar 2022 21:12:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AAAF5C433F5
+	for <virtualization@archiver.kernel.org>; Tue,  8 Mar 2022 22:24:01 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 1331A60B85;
-	Tue,  8 Mar 2022 21:12:56 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 3387260D96;
+	Tue,  8 Mar 2022 22:24:01 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id H7Q73zBFCUMJ; Tue,  8 Mar 2022 21:12:53 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id EB16C60E06;
-	Tue,  8 Mar 2022 21:12:52 +0000 (UTC)
+	with ESMTP id x_lHCttDJY_5; Tue,  8 Mar 2022 22:24:00 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 914DB60BDB;
+	Tue,  8 Mar 2022 22:23:59 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B1B85C001D;
-	Tue,  8 Mar 2022 21:12:52 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 70F2EC001D;
+	Tue,  8 Mar 2022 22:23:59 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 205D9C000B
+ by lists.linuxfoundation.org (Postfix) with ESMTP id F2C08C000B
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Mar 2022 21:12:51 +0000 (UTC)
+ Tue,  8 Mar 2022 22:23:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 17029417A4
+ by smtp4.osuosl.org (Postfix) with ESMTP id DAB0C40353
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Mar 2022 21:12:51 +0000 (UTC)
+ Tue,  8 Mar 2022 22:23:57 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
+ dkim=pass (2048-bit key) header.d=gmail.com
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 3-sJXvNTKEwd
+ with ESMTP id R26OOfhV0w4U
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Mar 2022 21:12:50 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 3FF5441767
+ Tue,  8 Mar 2022 22:23:56 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com
+ [IPv6:2a00:1450:4864:20::42a])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 6635A4032A
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Mar 2022 21:12:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1646773969;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=o7rskMpOUtPRm21R1L+M5BTZ0/kXolxQOCHs+VUDkYg=;
- b=WNTwPqUgX34VDEjA1Jj2YTQdufWO13Y+EuxB0Xid/kQTDXxkqinLMLoQxT1QzJPG9Cbw/J
- BmRzBqnvVf/n0fCkDXbXjaDLF5g4aMZT+jeYaKVpWtlfSQWhzs46OrvKtFvyrjebd5s6hK
- FTBUA6ND5HD7gm4/hCSMew6DmnOUE80=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-122-yxhGKyeaPjmUtC171_sgmA-1; Tue, 08 Mar 2022 16:12:48 -0500
-X-MC-Unique: yxhGKyeaPjmUtC171_sgmA-1
-Received: by mail-wm1-f69.google.com with SMTP id
- f189-20020a1c38c6000000b0037d1bee4847so1668865wma.9
+ Tue,  8 Mar 2022 22:23:56 +0000 (UTC)
+Received: by mail-wr1-x42a.google.com with SMTP id e24so251298wrc.10
  for <virtualization@lists.linux-foundation.org>;
- Tue, 08 Mar 2022 13:12:47 -0800 (PST)
+ Tue, 08 Mar 2022 14:23:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=VLNTenH17gTL++hzFtoUTNEHN+pSYqZsQ93MYsewbsE=;
+ b=B+Y+aj0Kp1KcmHD1TJUXHwyix6ApB1/FqwmXZGhx1wcc4TAOmxh9gxTlBgAGamLqPE
+ vpKcowdhEgZzk2U98r53D5Hy1Scrw6xH8PQcSydekPlZ5HI3qiA9pxOFbKVYi/9OQf1Z
+ 2z+/4YhPKMZ9oKQH20k7HP91wcJX8Isk8gqkO9jES0i3L0GPwD3p1LcGOB9U6h/BRgsQ
+ 8084feHyzqqtSFPTbppFkm13Ecg1wAy6AkYXNngnc+JaHTQVPUGmgGjdIb5GLtIM4Q/G
+ bFqhl4gpP3fujkTcmelxXGFmAibfXsgFjzDNGvuS4OkzK2lYWp6unZQFj+/yXcyvAvNf
+ Zjsg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=o7rskMpOUtPRm21R1L+M5BTZ0/kXolxQOCHs+VUDkYg=;
- b=LhBK1q4aIrNfTJAqvOzP6Hlymf66m5uLfHFCib5p27JF0HFoSN411+mPcrXugHUElO
- Esu/FE1Hkd7MAmLCAgpmNIil8oHkmcZh7Ljyh1h9SwKF4lL/DsXpEF7waC5TXYk44vjc
- 0jJFVMlNHPN5BMnxgs9kifh5DjLU145dkrZNV8u+OZrpXQurKjIom1NI0L3WBIYtoJii
- pdJT4C54WoXB7GIyaOkAaZHCiijycO+qlSIzSeLxTXCdH/h5QTmOIZeSUbC1FsrrYAuV
- RfYanNq2LnaccotPPjFKqArqKV9jOWke96UtOnqwwk79/9uUwvE/jIevmlzpCbIQrbbH
- sU4w==
-X-Gm-Message-State: AOAM532/xkYlG3+pcyFbpYlBjoLmmxU2XwMGRizVoX68zpztUegke1fH
- OkT3xnnnblzdhb/RrAR4xsJOBsCAGXKllwe32wLR3sMJostbfL+gb5wd5jXXjdBNLxqhz8KnK70
- DY0j6BhAU+ODEDx0IBKSutQxt3ImupZBh0XxpoLjofg==
-X-Received: by 2002:a05:600c:3552:b0:389:95b2:5f4a with SMTP id
- i18-20020a05600c355200b0038995b25f4amr947467wmq.24.1646773966833; 
- Tue, 08 Mar 2022 13:12:46 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJyi92ZKbMYeek4+BuLtBGmKMZo/pMCdGn7HyfqvI8yntVF5I5HjVRe+w8/RlZKLoqHhy9/qog==
-X-Received: by 2002:a05:600c:3552:b0:389:95b2:5f4a with SMTP id
- i18-20020a05600c355200b0038995b25f4amr947449wmq.24.1646773966581; 
- Tue, 08 Mar 2022 13:12:46 -0800 (PST)
-Received: from redhat.com ([2.55.46.250]) by smtp.gmail.com with ESMTPSA id
- a14-20020a05600c348e00b00389ab74c033sm18008wmq.4.2022.03.08.13.12.44
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 08 Mar 2022 13:12:45 -0800 (PST)
-Date: Tue, 8 Mar 2022 16:12:42 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Nathan Chancellor <nathan@kernel.org>
-Subject: Re: [PATCH -next] crypto: virtio - Select new dependencies
-Message-ID: <20220308161153-mutt-send-email-mst@kernel.org>
-References: <20220308205309.2192502-1-nathan@kernel.org>
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=VLNTenH17gTL++hzFtoUTNEHN+pSYqZsQ93MYsewbsE=;
+ b=lYV6c3U6DyOVvu1h+ipJPGETcMX6ijgHuIBvIgFrOvLae2A9XuCB0GFlPH1epuMlh9
+ rK59BNkbucQ9CiteIiAKF8o+FZt6vb54N+4Ws758wEG+VPSLtPD4neGnkYTqjjNVpGiw
+ Zg20GFHUrH1RDoEIk6Tn1CjAJsF2Hm4DRFq2WzBl5ZZvVLdXRehwIz+zxm2Uod/NFmNa
+ 1lCWFTiq0pMwgwn31fm3ole3YvXgl29cv1b4nFhJ3X/k0R7gHwcy7WXtroj78BzPmKbz
+ RgPYXFQOw/TWlwMwqt9OkWYxiSDKnHLGda/1tC/kdeeqjezCuSg1PJJsfdPcGV89QdXB
+ WCVQ==
+X-Gm-Message-State: AOAM530QY9vQHQA4/J/ygA7GiUxs5rqFcXl5Qs8CD6pjA6mUniUQ7PaD
+ sP66X/VOa5yYMSxWWWiUxH4hT0/Yp+Cc8xlM3rg=
+X-Google-Smtp-Source: ABdhPJyGuPzIrRNVs2k9a2b1qGUaqAliN4KUm5RnUtzkOdj1rRLWp/R6GjNYrs64hWACoBMY67pIWSlhNB+JjFA13n4=
+X-Received: by 2002:a05:6000:15c5:b0:1f1:e64d:e4c3 with SMTP id
+ y5-20020a05600015c500b001f1e64de4c3mr11545524wry.328.1646778234465; Tue, 08
+ Mar 2022 14:23:54 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20220308205309.2192502-1-nathan@kernel.org>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: lei he <helei.sig11@bytedance.com>, patches@lists.linux.dev,
- zhenwei pi <pizhenwei@bytedance.com>,
- virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org
+References: <20220308131725.60607-1-dmitry.osipenko@collabora.com>
+ <CAF6AEGt=aVJ9nR+Wv+bJEFZrn-cNOSNXG1TaJr=Cx-FTgutwKA@mail.gmail.com>
+ <d2290971-ea22-8203-631e-b896c76a994b@collabora.com>
+In-Reply-To: <d2290971-ea22-8203-631e-b896c76a994b@collabora.com>
+From: Rob Clark <robdclark@gmail.com>
+Date: Tue, 8 Mar 2022 14:24:22 -0800
+Message-ID: <CAF6AEGuR8B6z+z=VFQ6y01wbboYS_qpkghD1GYdLES_RZOW1wA@mail.gmail.com>
+Subject: Re: [PATCH v1 0/5] Add memory shrinker to VirtIO-GPU DRM driver
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Cc: Rob Clark <robdclark@chromium.org>, Gert Wollny <gert.wollny@collabora.com>,
+ Tomeu Vizoso <tomeu.vizoso@collabora.com>,
+ Gustavo Padovan <gustavo.padovan@collabora.com>,
+ David Airlie <airlied@linux.ie>,
+ Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+ dri-devel <dri-devel@lists.freedesktop.org>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Daniel Vetter <daniel@ffwll.ch>,
+ Dmitry Osipenko <digetx@gmail.com>,
+ "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>,
+ Chia-I Wu <olvaffe@gmail.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -116,51 +106,68 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Mar 08, 2022 at 01:53:09PM -0700, Nathan Chancellor wrote:
-> With ARCH=riscv defconfig, there are errors at link time:
-> 
->   virtio_crypto_akcipher_algs.c:(.text+0x3ea): undefined reference to `mpi_free'
->   virtio_crypto_akcipher_algs.c:(.text+0x48a): undefined reference to `rsa_parse_priv_key'
->   virtio_crypto_akcipher_algs.c:(.text+0x4bc): undefined reference to `rsa_parse_pub_key'
->   virtio_crypto_akcipher_algs.c:(.text+0x4d0): undefined reference to `mpi_read_raw_data'
->   virtio_crypto_akcipher_algs.c:(.text+0x960): undefined reference to `crypto_register_akcipher'
->   virtio_crypto_akcipher_algs.c:(.text+0xa3a): undefined reference to `crypto_unregister_akcipher'
-> 
-> The virtio crypto driver started making use of certain libraries and
-> algorithms without selecting them. Do so to fix these errors.
-> 
-> Fixes: 8a75f36b5d7a ("virtio-crypto: implement RSA algorithm")
-> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+On Tue, Mar 8, 2022 at 11:28 AM Dmitry Osipenko
+<dmitry.osipenko@collabora.com> wrote:
+>
+> On 3/8/22 19:29, Rob Clark wrote:
+> > On Tue, Mar 8, 2022 at 5:17 AM Dmitry Osipenko
+> > <dmitry.osipenko@collabora.com> wrote:
+> >>
+> >> Hello,
+> >>
+> >> This patchset introduces memory shrinker for the VirtIO-GPU DRM driver.
+> >> During OOM, the shrinker will release BOs that are marked as "not needed"
+> >> by userspace using the new madvise IOCTL. The userspace in this case is
+> >> the Mesa VirGL driver, it will mark the cached BOs as "not needed",
+> >> allowing kernel driver to release memory of the cached shmem BOs on lowmem
+> >> situations, preventing OOM kills.
+> >
+> > Will host memory pressure already trigger shrinker in guest?
+>
+> The host memory pressure won't trigger shrinker in guest here. This
+> series will help only with the memory pressure within the guest using a
+> usual "virgl context".
+>
+> Having a host shrinker in a case of "virgl contexts" should be a
+> difficult problem to solve.
 
-Thanks! I'll squash this into the original commit so we don't
-have a broken commit during bisect.
-zhenwei pi, ack pls?
+Hmm, I think we just need the balloon driver to trigger the shrinker
+in the guest kernel?  I suppose a driver like drm/virtio might want to
+differentiate between host and guest pressure (ie. consider only
+objects that have host vs guest storage), but even without that,
+freeing up memory in the guest when host is under memory pressure
+seems worthwhile.  Maybe I'm over-simplifying?
 
-> ---
->  drivers/crypto/virtio/Kconfig | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/drivers/crypto/virtio/Kconfig b/drivers/crypto/virtio/Kconfig
-> index b894e3a8be4f..5f8915f4a9ff 100644
-> --- a/drivers/crypto/virtio/Kconfig
-> +++ b/drivers/crypto/virtio/Kconfig
-> @@ -3,8 +3,11 @@ config CRYPTO_DEV_VIRTIO
->  	tristate "VirtIO crypto driver"
->  	depends on VIRTIO
->  	select CRYPTO_AEAD
-> +	select CRYPTO_AKCIPHER2
->  	select CRYPTO_SKCIPHER
->  	select CRYPTO_ENGINE
-> +	select CRYPTO_RSA
-> +	select MPILIB
->  	help
->  	  This driver provides support for virtio crypto device. If you
->  	  choose 'M' here, this module will be called virtio_crypto.
-> 
-> base-commit: c5f633abfd09491ae7ecbc7fcfca08332ad00a8b
-> -- 
-> 2.35.1
+> > This is
+> > something I'm quite interested in for "virtgpu native contexts" (ie.
+> > native guest driver with new context type sitting on top of virtgpu),
+>
+> In a case of "native contexts" it should be doable, at least I can't see
+> any obvious problems. The madvise invocations could be passed to the
+> host using a new virtio-gpu command by the guest's madvise IOCTL
+> handler, instead-of/in-addition-to handling madvise in the guest's
+> kernel, and that's it.
 
+I think we don't want to do that, because MADV:WILLNEED would be by
+far the most frequent guest<->host synchronous round trip.  So from
+that perspective tracking madvise state in guest kernel seems quite
+attractive.
+
+If we really can't track madvise state in the guest for dealing with
+host memory pressure, I think the better option is to introduce
+MADV:WILLNEED_REPLACE, ie. something to tell the host kernel that the
+buffer is needed but the previous contents are not (as long as the GPU
+VA remains the same).  With this the host could allocate new pages if
+needed, and the guest would not need to wait for a reply from host.
+
+> > since that isn't using host storage
+>
+> s/host/guest ?
+
+Yes, sorry, I meant that it is not using guest storage.
+
+BR,
+-R
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
