@@ -1,94 +1,94 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id AB79DC433EF
-	for <virtualization@archiver.kernel.org>; Tue,  8 Mar 2022 10:46:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 55915C433F5
+	for <virtualization@archiver.kernel.org>; Tue,  8 Mar 2022 10:48:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 3F07F60F3E;
-	Tue,  8 Mar 2022 10:46:25 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id E18EA400FD;
+	Tue,  8 Mar 2022 10:48:32 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ahfFkujCvTEA; Tue,  8 Mar 2022 10:46:24 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id iHjW5cCYzy7C; Tue,  8 Mar 2022 10:48:32 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id D899D60B33;
-	Tue,  8 Mar 2022 10:46:23 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 617EA40144;
+	Tue,  8 Mar 2022 10:48:31 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B7EADC001D;
-	Tue,  8 Mar 2022 10:46:23 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 22C89C001D;
+	Tue,  8 Mar 2022 10:48:31 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E26DDC000B
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E1CEEC000B
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Mar 2022 10:46:22 +0000 (UTC)
+ Tue,  8 Mar 2022 10:48:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id D12F4829DB
+ by smtp1.osuosl.org (Postfix) with ESMTP id BD97980ACA
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Mar 2022 10:46:22 +0000 (UTC)
+ Tue,  8 Mar 2022 10:48:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp1.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id nXfM7hKujtz4
+ with ESMTP id veo9jZk7CiGP
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Mar 2022 10:46:22 +0000 (UTC)
+ Tue,  8 Mar 2022 10:48:29 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 22C6682998
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 1FD25801CF
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Mar 2022 10:46:21 +0000 (UTC)
+ Tue,  8 Mar 2022 10:48:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1646736380;
+ s=mimecast20190719; t=1646736508;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=Ir4eth+8SXEAvu2iu7KvlL909Ar2sGBjZGhyG6OKBvE=;
- b=CQg4vXtHR0X7Qe9EID/xq9upILmwC3873HMND0HOxmPvdDZLaZYiJZ5/T29iVxf5wku7Py
- 3zAOTdOx5S9JXXYoJJgYJw9j+1WGdsp/LmaR4kHP0M3flwrSg6HQvwmVVzx1M0sMmoapOw
- HdWDDIDnz0HoKe1sVZRYpH6GYsejVy4=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=AnC9ehja7ZSJ6msiheS+nNacdW6wbFxQ3RGKfaD8O5k=;
+ b=ShBnyN1D6VcelytBsW4rQgLwQSSyX0+4tfUfhBsZWbib8OnPzPbE7D27f1aM3RQJ0sVB32
+ mSmWjOC8QFTAJwYu7+qdxgwr+EjD+qnVEftmBsONvM+NCsP5XAqz56NDWH0eDOi5XwswWV
+ 5AZg1ycsp0/CchzDsDEWgDwaVaNno44=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-440-w_OLgBmrP2evBBFZX-VD2Q-1; Tue, 08 Mar 2022 05:46:17 -0500
-X-MC-Unique: w_OLgBmrP2evBBFZX-VD2Q-1
-Received: by mail-ej1-f70.google.com with SMTP id
- m12-20020a1709062acc00b006cfc98179e2so8488254eje.6
+ us-mta-628-8QMF2BQdPR-iXgRYphtOeA-1; Tue, 08 Mar 2022 05:48:27 -0500
+X-MC-Unique: 8QMF2BQdPR-iXgRYphtOeA-1
+Received: by mail-ed1-f72.google.com with SMTP id
+ n11-20020a50cc4b000000b00415e939bf9eso8199180edi.22
  for <virtualization@lists.linux-foundation.org>;
- Tue, 08 Mar 2022 02:46:17 -0800 (PST)
+ Tue, 08 Mar 2022 02:48:26 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=Ir4eth+8SXEAvu2iu7KvlL909Ar2sGBjZGhyG6OKBvE=;
- b=IndHRhFhRsk5ZvgdCgxcUAAPqwbhp1ZXJ4Vv543gAbw/XiVVnfp3BuamBwO+Y96nuF
- PJmCzOjyYolrJXMRV5MQzZPkFGjFim6w0OLK3cgI5Z/TRkz0zqiz92XbEQs5ajJvFsL1
- UFIErttGh0CLDemVtyd+HOSPVVkpaIWqrrhW9wr4NqjKTkQnv8CvUgdPSwqBLx6lj52P
- q+6IFD+COk5lxfKvXNkdjYLzIwjGe3WzRpjKQe2gz5mHgn7c6VCcAFx/t9qn70DU8eTm
- ycbb1JVDaUupFLKryQVduiOEkC3Q7DPyZpQjIUEqg3Pyb2gn1Nb4QiP7EFELAfYeWc+d
- M6SQ==
-X-Gm-Message-State: AOAM5311X0QhEdFviAk3j7elgCRWCDfhu4aIn2qHJVWq0CVRMy+2CdQ2
- NHB3LqIslI2KeocE6Ejh8EQjU52yx7yGOHh2s/tRgwKb5mDY8KjDIHrO43PezmS4lMKuTYdyTuH
- FLyLBdY6Npfd/qiM4Zgo2QqapFCtnY203lLKY1cRmeA==
-X-Received: by 2002:aa7:c5d7:0:b0:415:ee77:d6f2 with SMTP id
- h23-20020aa7c5d7000000b00415ee77d6f2mr15566315eds.208.1646736376538; 
- Tue, 08 Mar 2022 02:46:16 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJztJ1XPjjMKydcCWNB4A1TRlRhUc+HOKibm3mmtdw3nibRNcdVRjv2cCSorjNhOwjHxV8IHxw==
-X-Received: by 2002:aa7:c5d7:0:b0:415:ee77:d6f2 with SMTP id
- h23-20020aa7c5d7000000b00415ee77d6f2mr15566287eds.208.1646736376326; 
- Tue, 08 Mar 2022 02:46:16 -0800 (PST)
+ bh=AnC9ehja7ZSJ6msiheS+nNacdW6wbFxQ3RGKfaD8O5k=;
+ b=6u0+vdDw0x0f/93SJ1o6MyOAVmQyJiH5d+u+hbmsWL1CLadPl2xs60pop6UFJxDqIb
+ 0dGQU5c/oK+ZENH4ukqedyL/Dtvymcr/8m5p7qhmF+GCzjgK24KQgQrGQmn6v/iLw+kL
+ GEhFnP4YWd6vr1WCHBbIXNNiyN6G4UFBDl13qYsTB1kYXVfsqxnZlGh9OCSwz62WGsZ4
+ ie9RBJmaP1BQgizcnYIHcebsImve170LiL9wzRZggVgyujN6b8eJWMZdETSQe3iAjBmS
+ DXuw8uiu/JxEMGsZvhJqiLGjGnYJ4ydKW0DiwJKq28jWCbkElncspY16jNGOmLFo/yu7
+ JEQw==
+X-Gm-Message-State: AOAM5327SeOlBlZ7Yitkt1pkJVmyGfsyOpoEjvUTj+t1fblY9Joy+CyP
+ o/DRhROU0s+be1MuDjZkGgdcrcL3EuWjlXQW4DLUIZh9eVQjec9BYt3oJgnDf0S7b3YKGU0OE2j
+ syC6ACbFndOsP5r8LgoOExVv3oo6oXAoNp2yHzenFYg==
+X-Received: by 2002:a17:907:2ce3:b0:6da:b9f4:c100 with SMTP id
+ hz3-20020a1709072ce300b006dab9f4c100mr12260272ejc.573.1646736505784; 
+ Tue, 08 Mar 2022 02:48:25 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJw73tUo/sc6bSY1rnt1E3h/MWEHU6Uwo/FK7zyJJjJIiZwAoLv6FB1YhFDm08NtbzewiVsZ2A==
+X-Received: by 2002:a17:907:2ce3:b0:6da:b9f4:c100 with SMTP id
+ hz3-20020a1709072ce300b006dab9f4c100mr12260238ejc.573.1646736505582; 
+ Tue, 08 Mar 2022 02:48:25 -0800 (PST)
 Received: from redhat.com ([2.55.138.228]) by smtp.gmail.com with ESMTPSA id
- u9-20020a170906124900b006ce88a505a1sm5851858eja.179.2022.03.08.02.46.12
+ r22-20020a17090638d600b006d584aaa9c9sm5700447ejd.133.2022.03.08.02.48.22
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 08 Mar 2022 02:46:15 -0800 (PST)
-Date: Tue, 8 Mar 2022 05:46:10 -0500
+ Tue, 08 Mar 2022 02:48:25 -0800 (PST)
+Date: Tue, 8 Mar 2022 05:48:20 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Jason Wang <jasowang@redhat.com>
 Subject: Re: [PATCH v5 00/15] vDPA shadow virtqueue
-Message-ID: <20220308054213-mutt-send-email-mst@kernel.org>
+Message-ID: <20220308054623-mutt-send-email-mst@kernel.org>
 References: <20220307153334.3854134-1-eperezma@redhat.com>
  <14d4fde4-6ea5-4805-b684-c33f6b448565@redhat.com>
  <20220308020348-mutt-send-email-mst@kernel.org>
@@ -134,19 +134,25 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 On Tue, Mar 08, 2022 at 04:20:53PM +0800, Jason Wang wrote:
-> Generally, yes.
+> > Not by itself but I'm not sure we can guarantee guest will not
+> > attempt to use the IOVA addresses we are reserving down
+> > the road.
+> 
+> The IOVA is allocated via the listeners and stored in the iova tree
+> per GPA range as IOVA->(GPA)->HVA.Guests will only see GPA, Qemu
+> virtio core see GPA to HVA mapping. And we do a reverse lookup to find
+> the HVA->IOVA we allocated previously.  So we have double check here:
+> 
+> 1) Qemu memory core to make sure the GPA that guest uses is valid
+> 2) the IOVA tree that guarantees there will be no HVA beyond what
+> guest can see is used
+> 
+> So technically, there's no way for the guest to use the IOVA address
+> allocated for the shadow virtqueue.
+> 
+> Thanks
 
-
-So generally I support the idea of merging code gradually.  And merging
-with an unstable flag to enable it is a reasonable way to do it.
-However we are half a day away from soft freeze, so this will just
-result in the feature getting to users in it's current not really
-useable form. If we just want to simplify upstreaming then
-merging patches 1-14 for now would be one way to do it.
-If you want to do it through your tree then ok
-
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-
+I mean, IOVA is programmed in the host hardware to translate to HPA, right?
 
 -- 
 MST
