@@ -4,54 +4,54 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8062BC41535
-	for <virtualization@archiver.kernel.org>; Tue,  8 Mar 2022 12:36:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B9888C43217
+	for <virtualization@archiver.kernel.org>; Tue,  8 Mar 2022 12:36:04 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 3D754417AF;
-	Tue,  8 Mar 2022 12:36:01 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 6F286417B2;
+	Tue,  8 Mar 2022 12:36:04 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id EnK33AYxWszf; Tue,  8 Mar 2022 12:36:00 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id C4FC54179F;
-	Tue,  8 Mar 2022 12:35:59 +0000 (UTC)
+	with ESMTP id QjesUOCQV5eU; Tue,  8 Mar 2022 12:36:03 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 0CF81417AB;
+	Tue,  8 Mar 2022 12:36:02 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 9A1C2C001D;
-	Tue,  8 Mar 2022 12:35:59 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 93885C0083
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D6D66C001D;
+	Tue,  8 Mar 2022 12:36:02 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D7F07C000B
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Mar 2022 12:35:58 +0000 (UTC)
+ Tue,  8 Mar 2022 12:36:00 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 7DA2784216
+ by smtp3.osuosl.org (Postfix) with ESMTP id C491A60FC9
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Mar 2022 12:35:58 +0000 (UTC)
+ Tue,  8 Mar 2022 12:36:00 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id G7Yjrljqx6zA
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Rn8f44rXByif
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Mar 2022 12:35:57 +0000 (UTC)
+ Tue,  8 Mar 2022 12:36:00 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from out30-45.freemail.mail.aliyun.com
- (out30-45.freemail.mail.aliyun.com [115.124.30.45])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 8B3F884213
+Received: from out30-44.freemail.mail.aliyun.com
+ (out30-44.freemail.mail.aliyun.com [115.124.30.44])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 868DE60FDD
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Mar 2022 12:35:57 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R221e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04423; MF=xuanzhuo@linux.alibaba.com;
- NM=1; PH=DS; RN=34; SR=0; TI=SMTPD_---0V6eQtax_1646742951; 
+ Tue,  8 Mar 2022 12:35:59 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R101e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e01424; MF=xuanzhuo@linux.alibaba.com;
+ NM=1; PH=DS; RN=34; SR=0; TI=SMTPD_---0V6ebqXo_1646742953; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0V6eQtax_1646742951) by smtp.aliyun-inc.com(127.0.0.1);
- Tue, 08 Mar 2022 20:35:52 +0800
+ fp:SMTPD_---0V6ebqXo_1646742953) by smtp.aliyun-inc.com(127.0.0.1);
+ Tue, 08 Mar 2022 20:35:54 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: virtualization@lists.linux-foundation.org,
 	netdev@vger.kernel.org
-Subject: [PATCH v7 15/26] virtio_pci: queue_reset: update struct
- virtio_pci_common_cfg and option functions
-Date: Tue,  8 Mar 2022 20:35:07 +0800
-Message-Id: <20220308123518.33800-16-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH v7 16/26] virtio_pci: queue_reset: extract the logic of active
+ vq for modern pci
+Date: Tue,  8 Mar 2022 20:35:08 +0800
+Message-Id: <20220308123518.33800-17-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20220308123518.33800-1-xuanzhuo@linux.alibaba.com>
 References: <20220308123518.33800-1-xuanzhuo@linux.alibaba.com>
@@ -91,101 +91,86 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Add queue_reset in virtio_pci_common_cfg, and add related operation
-functions.
-
-For not breaks uABI, add a new struct virtio_pci_common_cfg_reset.
+Introduce vp_active_vq() to configure vring to backend after vq attach
+vring. And configure vq vector if necessary.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 ---
- drivers/virtio/virtio_pci_modern_dev.c | 36 ++++++++++++++++++++++++++
- include/linux/virtio_pci_modern.h      |  2 ++
- include/uapi/linux/virtio_pci.h        |  7 +++++
- 3 files changed, 45 insertions(+)
+ drivers/virtio/virtio_pci_modern.c | 46 ++++++++++++++++++------------
+ 1 file changed, 28 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/virtio/virtio_pci_modern_dev.c b/drivers/virtio/virtio_pci_modern_dev.c
-index e8b3ff2b9fbc..8c74b00bc511 100644
---- a/drivers/virtio/virtio_pci_modern_dev.c
-+++ b/drivers/virtio/virtio_pci_modern_dev.c
-@@ -3,6 +3,7 @@
- #include <linux/virtio_pci_modern.h>
- #include <linux/module.h>
- #include <linux/pci.h>
-+#include <linux/delay.h>
- 
- /*
-  * vp_modern_map_capability - map a part of virtio pci capability
-@@ -463,6 +464,41 @@ void vp_modern_set_status(struct virtio_pci_modern_device *mdev,
+diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
+index 86d301f272b8..49a4493732cf 100644
+--- a/drivers/virtio/virtio_pci_modern.c
++++ b/drivers/virtio/virtio_pci_modern.c
+@@ -176,6 +176,29 @@ static void vp_reset(struct virtio_device *vdev)
+ 	vp_disable_cbs(vdev);
  }
- EXPORT_SYMBOL_GPL(vp_modern_set_status);
  
-+/*
-+ * vp_modern_get_queue_reset - get the queue reset status
-+ * @mdev: the modern virtio-pci device
-+ * @index: queue index
-+ */
-+int vp_modern_get_queue_reset(struct virtio_pci_modern_device *mdev, u16 index)
++static int vp_active_vq(struct virtqueue *vq, u16 msix_vec)
 +{
-+	struct virtio_pci_common_cfg_reset __iomem *cfg;
++	struct virtio_pci_device *vp_dev = to_vp_device(vq->vdev);
++	struct virtio_pci_modern_device *mdev = &vp_dev->mdev;
++	unsigned long index;
 +
-+	cfg = (struct virtio_pci_common_cfg_reset __iomem *)mdev->common;
++	index = vq->index;
 +
-+	vp_iowrite16(index, &cfg->cfg.queue_select);
-+	return vp_ioread16(&cfg->queue_reset);
++	/* activate the queue */
++	vp_modern_set_queue_size(mdev, index, virtqueue_get_vring_size(vq));
++	vp_modern_queue_address(mdev, index, virtqueue_get_desc_addr(vq),
++				virtqueue_get_avail_addr(vq),
++				virtqueue_get_used_addr(vq));
++
++	if (msix_vec != VIRTIO_MSI_NO_VECTOR) {
++		msix_vec = vp_modern_queue_vector(mdev, index, msix_vec);
++		if (msix_vec == VIRTIO_MSI_NO_VECTOR)
++			return -EBUSY;
++	}
++
++	return 0;
 +}
-+EXPORT_SYMBOL_GPL(vp_modern_get_queue_reset);
 +
-+/*
-+ * vp_modern_set_queue_reset - reset the queue
-+ * @mdev: the modern virtio-pci device
-+ * @index: queue index
-+ */
-+void vp_modern_set_queue_reset(struct virtio_pci_modern_device *mdev, u16 index)
-+{
-+	struct virtio_pci_common_cfg_reset __iomem *cfg;
-+
-+	cfg = (struct virtio_pci_common_cfg_reset __iomem *)mdev->common;
-+
-+	vp_iowrite16(index, &cfg->cfg.queue_select);
-+	vp_iowrite16(1, &cfg->queue_reset);
-+
-+	while (vp_ioread16(&cfg->queue_reset) != 1)
-+		msleep(1);
-+}
-+EXPORT_SYMBOL_GPL(vp_modern_set_queue_reset);
-+
- /*
-  * vp_modern_queue_vector - set the MSIX vector for a specific virtqueue
-  * @mdev: the modern virtio-pci device
-diff --git a/include/linux/virtio_pci_modern.h b/include/linux/virtio_pci_modern.h
-index eb2bd9b4077d..cc4154dd7b28 100644
---- a/include/linux/virtio_pci_modern.h
-+++ b/include/linux/virtio_pci_modern.h
-@@ -106,4 +106,6 @@ void __iomem * vp_modern_map_vq_notify(struct virtio_pci_modern_device *mdev,
- 				       u16 index, resource_size_t *pa);
- int vp_modern_probe(struct virtio_pci_modern_device *mdev);
- void vp_modern_remove(struct virtio_pci_modern_device *mdev);
-+int vp_modern_get_queue_reset(struct virtio_pci_modern_device *mdev, u16 index);
-+void vp_modern_set_queue_reset(struct virtio_pci_modern_device *mdev, u16 index);
- #endif
-diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
-index 22bec9bd0dfc..d9462efd6ce8 100644
---- a/include/uapi/linux/virtio_pci.h
-+++ b/include/uapi/linux/virtio_pci.h
-@@ -173,6 +173,13 @@ struct virtio_pci_common_cfg_notify {
- 	__le16 padding;
- };
+ static u16 vp_config_vector(struct virtio_pci_device *vp_dev, u16 vector)
+ {
+ 	return vp_modern_config_vector(&vp_dev->mdev, vector);
+@@ -220,32 +243,19 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
  
-+struct virtio_pci_common_cfg_reset {
-+	struct virtio_pci_common_cfg cfg;
-+
-+	__le16 queue_notify_data;	/* read-write */
-+	__le16 queue_reset;		/* read-write */
-+};
-+
- /* Fields in VIRTIO_PCI_CAP_PCI_CFG: */
- struct virtio_pci_cfg_cap {
- 	struct virtio_pci_cap cap;
+ 	vq->num_max = num;
+ 
+-	/* activate the queue */
+-	vp_modern_set_queue_size(mdev, index, virtqueue_get_vring_size(vq));
+-	vp_modern_queue_address(mdev, index, virtqueue_get_desc_addr(vq),
+-				virtqueue_get_avail_addr(vq),
+-				virtqueue_get_used_addr(vq));
++	err = vp_active_vq(vq, msix_vec);
++	if (err)
++		goto err;
+ 
+ 	vq->priv = (void __force *)vp_modern_map_vq_notify(mdev, index, NULL);
+ 	if (!vq->priv) {
+ 		err = -ENOMEM;
+-		goto err_map_notify;
+-	}
+-
+-	if (msix_vec != VIRTIO_MSI_NO_VECTOR) {
+-		msix_vec = vp_modern_queue_vector(mdev, index, msix_vec);
+-		if (msix_vec == VIRTIO_MSI_NO_VECTOR) {
+-			err = -EBUSY;
+-			goto err_assign_vector;
+-		}
++		goto err;
+ 	}
+ 
+ 	return vq;
+ 
+-err_assign_vector:
+-	if (!mdev->notify_base)
+-		pci_iounmap(mdev->pci_dev, (void __iomem __force *)vq->priv);
+-err_map_notify:
++err:
+ 	vring_del_virtqueue(vq);
+ 	return ERR_PTR(err);
+ }
 -- 
 2.31.0
 
