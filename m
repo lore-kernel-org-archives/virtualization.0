@@ -1,77 +1,117 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id DC3DFC433FE
-	for <virtualization@archiver.kernel.org>; Tue,  8 Mar 2022 07:05:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AEBCFC433EF
+	for <virtualization@archiver.kernel.org>; Tue,  8 Mar 2022 07:11:26 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 7BE2B60BB1;
-	Tue,  8 Mar 2022 07:05:49 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id x3FoEVqxjZ22; Tue,  8 Mar 2022 07:05:48 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id D028460C08;
-	Tue,  8 Mar 2022 07:05:47 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id AE320C0012;
-	Tue,  8 Mar 2022 07:05:47 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 61A3BC000B
- for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Mar 2022 07:05:45 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 494E84170E
- for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Mar 2022 07:05:45 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 53C1041719;
+	Tue,  8 Mar 2022 07:11:26 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id xtve9a3eNsom
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id sCeHlkNnqFCH; Tue,  8 Mar 2022 07:11:25 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id A13154170E;
+	Tue,  8 Mar 2022 07:11:24 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7161AC001D;
+	Tue,  8 Mar 2022 07:11:24 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3A83BC000B
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Mar 2022 07:05:44 +0000 (UTC)
+ Tue,  8 Mar 2022 07:11:23 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 1393960E87
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  8 Mar 2022 07:11:23 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id V2cSKn6ifs5U
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  8 Mar 2022 07:11:20 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from out30-43.freemail.mail.aliyun.com
- (out30-43.freemail.mail.aliyun.com [115.124.30.43])
- by smtp4.osuosl.org (Postfix) with ESMTPS id A91E841635
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id F206660D51
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Mar 2022 07:05:43 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R491e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e01424; MF=xuanzhuo@linux.alibaba.com;
- NM=1; PH=DS; RN=33; SR=0; TI=SMTPD_---0V6cqqVc_1646723135; 
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0V6cqqVc_1646723135) by smtp.aliyun-inc.com(127.0.0.1);
- Tue, 08 Mar 2022 15:05:36 +0800
-Message-ID: <1646722885.3801584-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH v6 06/26] virtio_ring: packed: extrace the logic of
- creating vring
-Date: Tue, 8 Mar 2022 15:01:25 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-References: <20220224081102.80224-1-xuanzhuo@linux.alibaba.com>
- <20220224081102.80224-7-xuanzhuo@linux.alibaba.com>
- <20220307171629-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20220307171629-mutt-send-email-mst@kernel.org>
-Cc: Vadim Pasternak <vadimp@nvidia.com>, linux-remoteproc@vger.kernel.org,
- Alexei Starovoitov <ast@kernel.org>, virtualization@lists.linux-foundation.org,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>, linux-s390@vger.kernel.org,
- Johannes Berg <johannes.berg@intel.com>,
- Daniel Borkmann <daniel@iogearbox.net>, Richard Weinberger <richard@nod.at>,
- Vincent Whitchurch <vincent.whitchurch@axis.com>,
- John Fastabend <john.fastabend@gmail.com>, Halil Pasic <pasic@linux.ibm.com>,
- Jakub Kicinski <kuba@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
- platform-driver-x86@vger.kernel.org, Jesper Dangaard Brouer <hawk@kernel.org>,
- Vasily Gorbik <gor@linux.ibm.com>, Jeff Dike <jdike@addtoit.com>,
- linux-um@lists.infradead.org, Mark Gross <markgross@kernel.org>,
- Hans de Goede <hdegoede@redhat.com>, kvm@vger.kernel.org,
- Bjorn Andersson <bjorn.andersson@linaro.org>,
- Mathieu Poirier <mathieu.poirier@linaro.org>, netdev@vger.kernel.org,
- Cornelia Huck <cohuck@redhat.com>, Sven Schnelle <svens@linux.ibm.com>,
- bpf@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
+ Tue,  8 Mar 2022 07:11:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1646723478;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=+iwzu3T7RwYxtxSAD6VTnDOy6y6KUvH/ouCPFrPXni4=;
+ b=XRprEBbmVEHsdO2o+x7KL5wcLdbtD8r3Tqhnap8o9wb0Ttx/5leiZcASBhrlJUcw8v0hV6
+ Z97ANaUwLduk2SHqYq5AwUgd0wTgUyT7DWridFSZAzS9pkZFG1Oqjhh25Xjr3BITGQT5WL
+ aOmUxHaZKwSco0aa0NpqGyVeNPiKPTU=
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
+ [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-439-DY95FBxFMGmyS7qfQvRIFQ-1; Tue, 08 Mar 2022 02:11:13 -0500
+X-MC-Unique: DY95FBxFMGmyS7qfQvRIFQ-1
+Received: by mail-ej1-f72.google.com with SMTP id
+ lf15-20020a170906ae4f00b006da86a43346so7029530ejb.14
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 07 Mar 2022 23:11:13 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:content-transfer-encoding
+ :in-reply-to;
+ bh=+iwzu3T7RwYxtxSAD6VTnDOy6y6KUvH/ouCPFrPXni4=;
+ b=lrbU58wwwMGM/fCXPfZAZYTtwpYMMVbAGYa0MAHh2xzJhmDjDQvsym7TUYRhVEfNI4
+ Qw+XEcMafUoTFjjZWXafyTHWuRY60z/uxQjjl4DFM2ztnzVZfzL7BNy5+cLJ45PfInqs
+ pg81osF1/5qpMCeM52JhHEltfHyNBfX9aRH6UflbKq7qZmGN8lLqXaw4ix0OARA7gaVC
+ i2/o2nR8lH2cqzu3TqTDFO4HENGtnyUaRDjLEhuSbZsDu2K4yao+QUzDrt+cIJL0DEzk
+ fNACj1ePZf46qgctVIpyN0YJbN+xJFozoeHSb4odUuUHTe6Hwq19ISoSeLJ6Qudoi4OX
+ xTfQ==
+X-Gm-Message-State: AOAM530MQqNpYsiLOYk8cqRJEbDvdquQlpSQnk+AmRF73kHYGPC5YZNg
+ a+/NuzcQJt8eTr1YvsmqTHpHhJK8iDBJY4j10pCHjG0DU/Aks+CUTVA9ikOduKUex2AzPAHEDGq
+ 70t6gZh1SRbsr2yrR1PEqhlMClRBS2zuxPHpy7Lz7aA==
+X-Received: by 2002:a17:906:8488:b0:6da:bebf:98b with SMTP id
+ m8-20020a170906848800b006dabebf098bmr12023407ejx.587.1646723472397; 
+ Mon, 07 Mar 2022 23:11:12 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJyhp4BvJtCXLM8Ph1eiUctmrc4v2MeGfJL63D9DyXGkus2R5A2uvR7y+pTHy19WNUItJX8uQw==
+X-Received: by 2002:a17:906:8488:b0:6da:bebf:98b with SMTP id
+ m8-20020a170906848800b006dabebf098bmr12023385ejx.587.1646723472029; 
+ Mon, 07 Mar 2022 23:11:12 -0800 (PST)
+Received: from redhat.com ([2.55.138.228]) by smtp.gmail.com with ESMTPSA id
+ h12-20020a1709060f4c00b006b4ec988cc3sm5474010ejj.4.2022.03.07.23.11.08
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 07 Mar 2022 23:11:11 -0800 (PST)
+Date: Tue, 8 Mar 2022 02:11:05 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH v5 00/15] vDPA shadow virtqueue
+Message-ID: <20220308020348-mutt-send-email-mst@kernel.org>
+References: <20220307153334.3854134-1-eperezma@redhat.com>
+ <14d4fde4-6ea5-4805-b684-c33f6b448565@redhat.com>
+MIME-Version: 1.0
+In-Reply-To: <14d4fde4-6ea5-4805-b684-c33f6b448565@redhat.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org,
+ Eli Cohen <eli@mellanox.com>, Eric Blake <eblake@redhat.com>,
+ Eduardo Habkost <ehabkost@redhat.com>, Cindy Lu <lulu@redhat.com>,
+ "Fangyi \(Eric\)" <eric.fangyi@huawei.com>,
+ Markus Armbruster <armbru@redhat.com>, yebiaoxiang@huawei.com,
+ Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+ Liuxiangdong <liuxiangdong5@huawei.com>, Laurent Vivier <lvivier@redhat.com>,
+ Parav Pandit <parav@mellanox.com>,
+ Richard Henderson <richard.henderson@linaro.org>,
+ Gautam Dawar <gdawar@xilinx.com>, Xiao W Wang <xiao.w.wang@intel.com>,
+ Stefan Hajnoczi <stefanha@redhat.com>,
+ Harpreet Singh Anand <hanand@xilinx.com>, Lingshan <lingshan.zhu@intel.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -83,236 +123,203 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, 7 Mar 2022 17:17:51 -0500, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> On Thu, Feb 24, 2022 at 04:10:42PM +0800, Xuan Zhuo wrote:
-> > Separate the logic of packed to create vring queue.
-> >
-> > For the convenience of passing parameters, add a structure
-> > vring_packed.
-> >
-> > This feature is required for subsequent virtuqueue reset vring.
-> >
-> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
->
-> Subject has a typo.
-
-I will fix it.
-
-> Besides:
->
-> > ---
-> >  drivers/virtio/virtio_ring.c | 121 ++++++++++++++++++++++++++---------
-> >  1 file changed, 92 insertions(+), 29 deletions(-)
-> >
-> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> > index dc6313b79305..41864c5e665f 100644
-> > --- a/drivers/virtio/virtio_ring.c
-> > +++ b/drivers/virtio/virtio_ring.c
-> > @@ -92,6 +92,18 @@ struct vring_split {
-> >  	struct vring vring;
-> >  };
-> >
-> > +struct vring_packed {
-> > +	u32 num;
-> > +	struct vring_packed_desc *ring;
-> > +	struct vring_packed_desc_event *driver;
-> > +	struct vring_packed_desc_event *device;
-> > +	dma_addr_t ring_dma_addr;
-> > +	dma_addr_t driver_event_dma_addr;
-> > +	dma_addr_t device_event_dma_addr;
-> > +	size_t ring_size_in_bytes;
-> > +	size_t event_size_in_bytes;
-> > +};
-> > +
-> >  struct vring_virtqueue {
-> >  	struct virtqueue vq;
-> >
-> > @@ -1683,45 +1695,101 @@ static struct vring_desc_extra *vring_alloc_desc_extra(struct vring_virtqueue *v
-> >  	return desc_extra;
-> >  }
-> >
-> > -static struct virtqueue *vring_create_virtqueue_packed(
-> > -	unsigned int index,
-> > -	unsigned int num,
-> > -	unsigned int vring_align,
-> > -	struct virtio_device *vdev,
-> > -	bool weak_barriers,
-> > -	bool may_reduce_num,
-> > -	bool context,
-> > -	bool (*notify)(struct virtqueue *),
-> > -	void (*callback)(struct virtqueue *),
-> > -	const char *name)
-> > +static void vring_free_vring_packed(struct vring_packed *vring,
-> > +				    struct virtio_device *vdev)
-> > +{
-> > +	dma_addr_t ring_dma_addr, driver_event_dma_addr, device_event_dma_addr;
-> > +	struct vring_packed_desc_event *driver, *device;
-> > +	size_t ring_size_in_bytes, event_size_in_bytes;
-> > +	struct vring_packed_desc *ring;
-> > +
-> > +	ring                  = vring->ring;
-> > +	driver                = vring->driver;
-> > +	device                = vring->device;
-> > +	ring_dma_addr         = vring->ring_size_in_bytes;
-> > +	event_size_in_bytes   = vring->event_size_in_bytes;
-> > +	ring_dma_addr         = vring->ring_dma_addr;
-> > +	driver_event_dma_addr = vring->driver_event_dma_addr;
-> > +	device_event_dma_addr = vring->device_event_dma_addr;
-> > +
-> > +	if (device)
-> > +		vring_free_queue(vdev, event_size_in_bytes, device, device_event_dma_addr);
-> > +
-> > +	if (driver)
-> > +		vring_free_queue(vdev, event_size_in_bytes, driver, driver_event_dma_addr);
-> > +
-> > +	if (ring)
-> > +		vring_free_queue(vdev, ring_size_in_bytes, ring, ring_dma_addr);
->
-> ring_size_in_bytes is uninitialized here.
->
-> Which begs the question how was this tested patchset generally and
-> this patch in particular.
-> Please add note on tested configurations and tests run to the patchset.
-
-Sorry, my environment is running in split mode. I did not retest the packed mode
-before sending patches. Because my dpdk vhost-user is not easy to use, I
-need to change the kernel of the host.
-
-I would like to ask if there are other lightweight environments that can be used
-to test packed mode.
-
-
-Thanks.
-
-
->
-> > +}
-> > +
-> > +static int vring_create_vring_packed(struct vring_packed *vring,
-> > +				    struct virtio_device *vdev,
-> > +				    u32 num)
-> >  {
-> > -	struct vring_virtqueue *vq;
-> >  	struct vring_packed_desc *ring;
-> >  	struct vring_packed_desc_event *driver, *device;
-> >  	dma_addr_t ring_dma_addr, driver_event_dma_addr, device_event_dma_addr;
-> >  	size_t ring_size_in_bytes, event_size_in_bytes;
-> >
-> > +	memset(vring, 0, sizeof(*vring));
-> > +
-> >  	ring_size_in_bytes = num * sizeof(struct vring_packed_desc);
-> >
-> >  	ring = vring_alloc_queue(vdev, ring_size_in_bytes,
-> >  				 &ring_dma_addr,
-> >  				 GFP_KERNEL|__GFP_NOWARN|__GFP_ZERO);
-> >  	if (!ring)
-> > -		goto err_ring;
-> > +		goto err;
-> > +
-> > +	vring->num = num;
-> > +	vring->ring = ring;
-> > +	vring->ring_size_in_bytes = ring_size_in_bytes;
-> > +	vring->ring_dma_addr = ring_dma_addr;
-> >
-> >  	event_size_in_bytes = sizeof(struct vring_packed_desc_event);
-> > +	vring->event_size_in_bytes = event_size_in_bytes;
-> >
-> >  	driver = vring_alloc_queue(vdev, event_size_in_bytes,
-> >  				   &driver_event_dma_addr,
-> >  				   GFP_KERNEL|__GFP_NOWARN|__GFP_ZERO);
-> >  	if (!driver)
-> > -		goto err_driver;
-> > +		goto err;
-> > +
-> > +	vring->driver = driver;
-> > +	vring->driver_event_dma_addr = driver_event_dma_addr;
-> >
-> >  	device = vring_alloc_queue(vdev, event_size_in_bytes,
-> >  				   &device_event_dma_addr,
-> >  				   GFP_KERNEL|__GFP_NOWARN|__GFP_ZERO);
-> >  	if (!device)
-> > -		goto err_device;
-> > +		goto err;
-> > +
-> > +	vring->device = device;
-> > +	vring->device_event_dma_addr = device_event_dma_addr;
-> > +	return 0;
-> > +
-> > +err:
-> > +	vring_free_vring_packed(vring, vdev);
-> > +	return -ENOMEM;
-> > +}
-> > +
-> > +static struct virtqueue *vring_create_virtqueue_packed(
-> > +	unsigned int index,
-> > +	unsigned int num,
-> > +	unsigned int vring_align,
-> > +	struct virtio_device *vdev,
-> > +	bool weak_barriers,
-> > +	bool may_reduce_num,
-> > +	bool context,
-> > +	bool (*notify)(struct virtqueue *),
-> > +	void (*callback)(struct virtqueue *),
-> > +	const char *name)
-> > +{
-> > +	struct vring_virtqueue *vq;
-> > +	struct vring_packed vring;
-> > +
-> > +	if (vring_create_vring_packed(&vring, vdev, num))
-> > +		goto err_vq;
-> >
-> >  	vq = kmalloc(sizeof(*vq), GFP_KERNEL);
-> >  	if (!vq)
-> > @@ -1753,17 +1821,17 @@ static struct virtqueue *vring_create_virtqueue_packed(
-> >  	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
-> >  		vq->weak_barriers = false;
-> >
-> > -	vq->packed.ring_dma_addr = ring_dma_addr;
-> > -	vq->packed.driver_event_dma_addr = driver_event_dma_addr;
-> > -	vq->packed.device_event_dma_addr = device_event_dma_addr;
-> > +	vq->packed.ring_dma_addr = vring.ring_dma_addr;
-> > +	vq->packed.driver_event_dma_addr = vring.driver_event_dma_addr;
-> > +	vq->packed.device_event_dma_addr = vring.device_event_dma_addr;
-> >
-> > -	vq->packed.ring_size_in_bytes = ring_size_in_bytes;
-> > -	vq->packed.event_size_in_bytes = event_size_in_bytes;
-> > +	vq->packed.ring_size_in_bytes = vring.ring_size_in_bytes;
-> > +	vq->packed.event_size_in_bytes = vring.event_size_in_bytes;
-> >
-> >  	vq->packed.vring.num = num;
-> > -	vq->packed.vring.desc = ring;
-> > -	vq->packed.vring.driver = driver;
-> > -	vq->packed.vring.device = device;
-> > +	vq->packed.vring.desc = vring.ring;
-> > +	vq->packed.vring.driver = vring.driver;
-> > +	vq->packed.vring.device = vring.device;
-> >
-> >  	vq->packed.next_avail_idx = 0;
-> >  	vq->packed.avail_wrap_counter = 1;
-> > @@ -1804,12 +1872,7 @@ static struct virtqueue *vring_create_virtqueue_packed(
-> >  err_desc_state:
-> >  	kfree(vq);
-> >  err_vq:
-> > -	vring_free_queue(vdev, event_size_in_bytes, device, device_event_dma_addr);
-> > -err_device:
-> > -	vring_free_queue(vdev, event_size_in_bytes, driver, driver_event_dma_addr);
-> > -err_driver:
-> > -	vring_free_queue(vdev, ring_size_in_bytes, ring, ring_dma_addr);
-> > -err_ring:
-> > +	vring_free_vring_packed(&vring, vdev);
-> >  	return NULL;
-> >  }
-> >
-> > --
-> > 2.31.0
->
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gVHVlLCBNYXIgMDgsIDIwMjIgYXQgMDI6MDM6MzJQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiDlnKggMjAyMi8zLzcg5LiL5Y2IMTE6MzMsIEV1Z2VuaW8gUMOpcmV6IOWGmemBkzoK
+PiA+IFRoaXMgc2VyaWVzIGVuYWJsZSBzaGFkb3cgdmlydHF1ZXVlIChTVlEpIGZvciB2aG9zdC12
+ZHBhIGRldmljZXMuIFRoaXMKPiA+IGlzIGludGVuZGVkIGFzIGEgbmV3IG1ldGhvZCBvZiB0cmFj
+a2luZyB0aGUgbWVtb3J5IHRoZSBkZXZpY2VzIHRvdWNoCj4gPiBkdXJpbmcgYSBtaWdyYXRpb24g
+cHJvY2VzczogSW5zdGVhZCBvZiByZWxheSBvbiB2aG9zdCBkZXZpY2UncyBkaXJ0eQo+ID4gbG9n
+Z2luZyBjYXBhYmlsaXR5LCBTVlEgaW50ZXJjZXB0cyB0aGUgVlEgZGF0YXBsYW5lIGZvcndhcmRp
+bmcgdGhlCj4gPiBkZXNjcmlwdG9ycyBiZXR3ZWVuIFZNIGFuZCBkZXZpY2UuIFRoaXMgd2F5IHFl
+bXUgaXMgdGhlIGVmZmVjdGl2ZQo+ID4gd3JpdGVyIG9mIGd1ZXN0cyBtZW1vcnksIGxpa2UgaW4g
+cWVtdSdzIHZpcnRpbyBkZXZpY2Ugb3BlcmF0aW9uLgo+ID4gCj4gPiBXaGVuIFNWUSBpcyBlbmFi
+bGVkIHFlbXUgb2ZmZXJzIGEgbmV3IHZpcnR1YWwgYWRkcmVzcyBzcGFjZSB0byB0aGUKPiA+IGRl
+dmljZSB0byByZWFkIGFuZCB3cml0ZSBpbnRvLCBhbmQgaXQgbWFwcyBuZXcgdnJpbmdzIGFuZCB0
+aGUgZ3Vlc3QKPiA+IG1lbW9yeSBpbiBpdC4gU1ZRIGFsc28gaW50ZXJjZXB0cyBraWNrcyBhbmQg
+Y2FsbHMgYmV0d2VlbiB0aGUgZGV2aWNlCj4gPiBhbmQgdGhlIGd1ZXN0LiBVc2VkIGJ1ZmZlcnMg
+cmVsYXkgd291bGQgY2F1c2UgZGlydHkgbWVtb3J5IGJlaW5nCj4gPiB0cmFja2VkLgo+ID4gCj4g
+PiBUaGlzIGVmZmVjdGl2ZWx5IG1lYW5zIHRoYXQgdkRQQSBkZXZpY2UgcGFzc3Rocm91Z2ggaXMg
+aW50ZXJjZXB0ZWQgYnkKPiA+IHFlbXUuIFdoaWxlIFNWUSBzaG91bGQgb25seSBiZSBlbmFibGVk
+IGF0IG1pZ3JhdGlvbiB0aW1lLCB0aGUgc3dpdGNoaW5nCj4gPiBmcm9tIHJlZ3VsYXIgbW9kZSB0
+byBTVlEgbW9kZSBpcyBsZWZ0IGZvciBhIGZ1dHVyZSBzZXJpZXMuCj4gPiAKPiA+IEl0IGlzIGJh
+c2VkIG9uIHRoZSBpZGVhcyBvZiBEUERLIFNXIGFzc2lzdGVkIExNLCBpbiB0aGUgc2VyaWVzIG9m
+Cj4gPiBEUERLJ3MgaHR0cHM6Ly9wYXRjaHdvcmsuZHBkay5vcmcvY292ZXIvNDgzNzAvIC4gSG93
+ZXZlciwgdGhlc2UgZG9lcwo+ID4gbm90IG1hcCB0aGUgc2hhZG93IHZxIGluIGd1ZXN0J3MgVkEs
+IGJ1dCBpbiBxZW11J3MuCj4gPiAKPiA+IEZvciBxZW11IHRvIHVzZSBzaGFkb3cgdmlydHF1ZXVl
+cyB0aGUgZ3Vlc3QgdmlydGlvIGRyaXZlciBtdXN0IG5vdCB1c2UKPiA+IGZlYXR1cmVzIGxpa2Ug
+ZXZlbnRfaWR4Lgo+ID4gCj4gPiBTVlEgbmVlZHMgdG8gYmUgZW5hYmxlZCB3aXRoIGNtZGxpbmU6
+Cj4gPiAKPiA+IC1uZXRkZXYgdHlwZT12aG9zdC12ZHBhLHZob3N0ZGV2PXZob3N0LXZkcGEtMCxp
+ZD12aG9zdC12ZHBhMCxzdnE9b24KCkEgc3RhYmxlIEFQSSBmb3IgYW4gaW5jb21wbGV0ZSBmZWF0
+dXJlIGlzIGEgcHJvYmxlbSBpbWhvLgoKCj4gPiAKPiA+IFRoZSBmaXJzdCB0aHJlZSBwYXRjaGVz
+IGVuYWJsZXMgbm90aWZpY2F0aW9ucyBmb3J3YXJkaW5nIHdpdGgKPiA+IGFzc2lzdGFuY2Ugb2Yg
+cWVtdS4gSXQncyBlYXN5IHRvIGVuYWJsZSBvbmx5IHRoaXMgaWYgdGhlIHJlbGV2YW50Cj4gPiBj
+bWRsaW5lIHBhcnQgb2YgdGhlIGxhc3QgcGF0Y2ggaXMgYXBwbGllZCBvbiB0b3Agb2YgdGhlc2Uu
+Cj4gPiAKPiA+IE5leHQgZm91ciBwYXRjaGVzIGltcGxlbWVudCB0aGUgYWN0dWFsIGJ1ZmZlciBm
+b3J3YXJkaW5nLiBIb3dldmVyLAo+ID4gYWRkcmVzcyBhcmUgbm90IHRyYW5zbGF0ZWQgZnJvbSBI
+VkEgc28gdGhleSB3aWxsIG5lZWQgYSBob3N0IGRldmljZSB3aXRoCj4gPiBhbiBpb21tdSBhbGxv
+d2luZyB0aGVtIHRvIGFjY2VzcyBhbGwgb2YgdGhlIEhWQSByYW5nZS4KPiA+IAo+ID4gVGhlIGxh
+c3QgcGFydCBvZiB0aGUgc2VyaWVzIHVzZXMgcHJvcGVybHkgdGhlIGhvc3QgaW9tbXUsIHNvIHFl
+bXUKPiA+IGNyZWF0ZXMgYSBuZXcgaW92YSBhZGRyZXNzIHNwYWNlIGluIHRoZSBkZXZpY2UncyBy
+YW5nZSBhbmQgdHJhbnNsYXRlcwo+ID4gdGhlIGJ1ZmZlcnMgaW4gaXQuIEZpbmFsbHksIGl0IGFk
+ZHMgdGhlIGNtZGxpbmUgcGFyYW1ldGVyLgo+ID4gCj4gPiBTb21lIHNpbXBsZSBwZXJmb3JtYW5j
+ZSB0ZXN0cyB3aXRoIG5ldHBlcmYgd2VyZSBkb25lLiBUaGV5IHVzZWQgYSBuZXN0ZWQKPiA+IGd1
+ZXN0IHdpdGggdnBfdmRwYSwgdmhvc3Qta2VybmVsIGF0IEwwIGhvc3QuIFN0YXJ0aW5nIHdpdGgg
+bm8gc3ZxIGFuZCBhCj4gPiBiYXNlbGluZSBhdmVyYWdlIG9mIH45MDA5Ljk2TWJwczoKPiA+IFJl
+Y3YgICBTZW5kICAgIFNlbmQKPiA+IFNvY2tldCBTb2NrZXQgIE1lc3NhZ2UgIEVsYXBzZWQKPiA+
+IFNpemUgICBTaXplICAgIFNpemUgICAgIFRpbWUgICAgIFRocm91Z2hwdXQKPiA+IGJ5dGVzICBi
+eXRlcyAgIGJ5dGVzICAgIHNlY3MuICAgIDEwXjZiaXRzL3NlYwo+ID4gMTMxMDcyICAxNjM4NCAg
+MTYzODQgICAgMzAuMDEgICAgOTA2MS4wMwo+ID4gMTMxMDcyICAxNjM4NCAgMTYzODQgICAgMzAu
+MDEgICAgODk2Mi45NAo+ID4gMTMxMDcyICAxNjM4NCAgMTYzODQgICAgMzAuMDEgICAgOTAwNS45
+Mgo+ID4gCj4gPiBUbyBlbmFibGUgU1ZRIGJ1ZmZlcnMgZm9yd2FyZGluZyByZWR1Y2UgdGhyb3Vn
+aHB1dCB0byBhYm91dAo+ID4gUmVjdiAgIFNlbmQgICAgU2VuZAo+ID4gU29ja2V0IFNvY2tldCAg
+TWVzc2FnZSAgRWxhcHNlZAo+ID4gU2l6ZSAgIFNpemUgICAgU2l6ZSAgICAgVGltZSAgICAgVGhy
+b3VnaHB1dAo+ID4gYnl0ZXMgIGJ5dGVzICAgYnl0ZXMgICAgc2Vjcy4gICAgMTBeNmJpdHMvc2Vj
+Cj4gPiAxMzEwNzIgIDE2Mzg0ICAxNjM4NCAgICAzMC4wMSAgICA3Njg5LjcyCj4gPiAxMzEwNzIg
+IDE2Mzg0ICAxNjM4NCAgICAzMC4wMCAgICA3NzUyLjA3Cj4gPiAxMzEwNzIgIDE2Mzg0ICAxNjM4
+NCAgICAzMC4wMSAgICA3NzUwLjMwCj4gPiAKPiA+IEhvd2V2ZXIsIG1hbnkgcGVyZm9ybWFuY2Ug
+aW1wcm92ZW1lbnRzIHdlcmUgbGVmdCBvdXQgb2YgdGhpcyBzZXJpZXMgZm9yCj4gPiBzaW1wbGlj
+aXR5LCBzbyBkaWZmZXJlbmNlIHNob3VsZCBzaHJpbmsgaW4gdGhlIGZ1dHVyZS4KPiA+IAo+ID4g
+Q29tbWVudHMgYXJlIHdlbGNvbWUuCj4gCj4gCj4gSGkgTWljaGFlbDoKPiAKPiBXaGF0IGRvIHlv
+dSB0aGluayBvZiB0aGlzIHNlcmllcz8gSXQgbG9va3MgZ29vZCB0byBtZSBhcyBhIHN0YXJ0LiBU
+aGUKPiBmZWF0dXJlIGNvdWxkIG9ubHkgYmUgZW5hYmxlZCBhcyBhIGRlZGljYXRlZCBwYXJhbWV0
+ZXIuIElmIHlvdSdyZSBvaywgSSdkCj4gdHJ5IHRvIG1ha2UgaXQgZm9yIDcuMC4KPiAKPiBUaGFu
+a3MKCldlbGwgdGhhdCdzIGN1dHRpbmcgaXQgYXdmdWxseSBjbG9zZSwgYW5kIGl0J3Mgbm90IHJl
+YWxseSB1c2VmdWwKYXQgdGhlIGN1cnJlbnQgc3RhZ2UsIGlzIGl0PwoKVGhlIElPVkEgdHJpY2sg
+ZG9lcyBub3QgZmVlbCBjb21wbGV0ZSBlaXRoZXIuCgo+IAo+ID4gCj4gPiBUT0RPIG9uIGZ1dHVy
+ZSBzZXJpZXM6Cj4gPiAqIEV2ZW50LCBpbmRpcmVjdCwgcGFja2VkLCBhbmQgb3RoZXJzIGZlYXR1
+cmVzIG9mIHZpcnRpby4KPiA+ICogVG8gc3VwcG9ydCBkaWZmZXJlbnQgc2V0IG9mIGZlYXR1cmVz
+IGJldHdlZW4gdGhlIGRldmljZTwtPlNWUSBhbmQgdGhlCj4gPiAgICBTVlE8LT5ndWVzdCBjb21t
+dW5pY2F0aW9uLgo+ID4gKiBTdXBwb3J0IG9mIGRldmljZSBob3N0IG5vdGlmaWVyIG1lbW9yeSBy
+ZWdpb25zLgo+ID4gKiBUbyBzZXBwYXJhdGUgYnVmZmVycyBmb3J3YXJkaW5nIGluIGl0cyBvd24g
+QUlPIGNvbnRleHQsIHNvIHdlIGNhbgo+ID4gICAgdGhyb3cgbW9yZSB0aHJlYWRzIHRvIHRoYXQg
+dGFzayBhbmQgd2UgZG9uJ3QgbmVlZCB0byBzdG9wIHRoZSBtYWluCj4gPiAgICBldmVudCBsb29w
+Lgo+ID4gKiBTdXBwb3J0IG11bHRpcXVldWUgdmlydGlvLW5ldCB2ZHBhLgo+ID4gKiBQcm9wZXIg
+ZG9jdW1lbnRhdGlvbi4KPiA+IAo+ID4gQ2hhbmdlcyBmcm9tIHY0Ogo+ID4gKiBJdGVyYXRlIGlv
+dmEtPmh2YSB0cmVlIGluc3RlYWQgb24gbWFpbnRhaW4gb3duIHRyZWUgc28gd2Ugc3VwcG9ydCBI
+VkEKPiA+ICAgIG92ZXJsYXBzLgo+ID4gKiBGaXg6IEVycm5vIGNvbXBsZXRpb24gYXQgZmFpbHVy
+ZS4KPiA+ICogUmVuYW1lIHgtc3ZxIHRvIHN2cSwgc28gY2hhbmdlcyB0byBzdGFibGUgZG9lcyBu
+b3QgYWZmZWN0IGNtZGxpbmUgcGFyYW1ldGVyLgo+ID4gCj4gPiBDaGFuZ2VzIGZyb20gdjM6Cj4g
+PiAqIEFkZCBAdW5zdGFibGUgZmVhdHVyZSB0byBOZXRkZXZWaG9zdFZEUEFPcHRpb25zLngtc3Zx
+Lgo+ID4gKiBGaXggdW5jb21wbGV0ZSBtYXBwaW5nIChieSAxIGJ5dGUpIG9mIG1lbW9yeSByZWdp
+b25zIGlmIHN2cSBpcyBlbmFibGVkLgo+ID4gdjMgbGluazoKPiA+IGh0dHBzOi8vbG9yZS5rZXJu
+ZWwub3JnL3FlbXUtZGV2ZWwvMjAyMjAzMDIyMDMwMTIuMzQ3NjgzNS0xLWVwZXJlem1hQHJlZGhh
+dC5jb20vCj4gPiAKPiA+IENoYW5nZXMgZnJvbSB2MjoKPiA+ICogTGVzcyBhc3NlcnRpb25zIGFu
+ZCBtb3JlIGVycm9yIGhhbmRsaW5nIGluIGlvdmEgdHJlZSBjb2RlLgo+ID4gKiBCZXR0ZXIgZG9j
+dW1lbnRhdGlvbiwgYm90aCBmaXhpbmcgZXJyb3JzIGFuZCBtYWtpbmcgQHBhcmFtOiBmb3JtYXQK
+PiA+ICogSG9tb2dlbmVpemUgU1ZRIGF2YWlsX2lkeF9zaGFkb3cgYW5kIHNoYWRvd191c2VkX2lk
+eCB0byBtYWtlIHNoYWRvdyBhCj4gPiAgICBwcmVmaXggYXQgYm90aCB0aW1lcy4KPiA+ICogRml4
+OiBGbyBub3QgdXNlIFZpcnRRdWV1ZUVsZW1lbnQtPmxlbiBmaWVsZCwgdHJhY2sgc2VwYXJhdGVk
+bHkuCj4gPiAqIFNwbGl0IHZob3N0X3N2cV97ZW5hYmxlLGRpc2FibGV9X25vdGlmaWNhdGlvbiwg
+c28gdGhlIGNvZGUgbG9va3MgbW9yZQo+ID4gICAgbGlrZSB0aGUga2VybmVsIGRyaXZlciBjb2Rl
+Lgo+ID4gKiBTbWFsbCBpbXByb3ZlbWVudHMuCj4gPiB2MiBsaW5rOgo+ID4gaHR0cHM6Ly9sb3Jl
+Lmtlcm5lbC5vcmcvYWxsL0NBSmFxeVdmWEhFMEM1NFJfLU9pd0p6akMwZ1Bwa0UzZVgwTDhCZWVa
+WEdtMUVSWVB0QUBtYWlsLmdtYWlsLmNvbS8KPiA+IAo+ID4gQ2hhbmdlcyBmcm9tIHYxOgo+ID4g
+KiBGZWF0dXJlIHNldCBhdCBkZXZpY2UtPlNWUSBpcyBub3cgdGhlIHNhbWUgYXMgU1ZRLT5ndWVz
+dC4KPiA+ICogU2l6ZSBvZiBTVlEgaXMgbm90IG1heCBhdmFpbGFibGUgZGV2aWNlIHNpemUgYW55
+bW9yZSwgYnV0IGd1ZXN0J3MKPiA+ICAgIG5lZ290aWF0ZWQuCj4gPiAqIEFkZCBWSE9TVF9GSUxF
+X1VOQklORCBraWNrIGFuZCBjYWxsIGZkIHRyZWF0bWVudC4KPiA+ICogTWFrZSBTVlEgYSBwdWJs
+aWMgc3RydWN0Cj4gPiAqIENvbWUgYmFjayB0byBwcmV2aW91cyBhcHByb2FjaCB0byBpb3ZhLXRy
+ZWUKPiA+ICogU29tZSBhc3NlcnRpb25zIGFyZSBub3cgZmFpbCBwYXRocy4gU29tZSBlcnJvcnMg
+YXJlIG5vdyBsb2dfZ3Vlc3QuCj4gPiAqIE9ubHkgbWFzayBfRl9MT0cgZmVhdHVyZSBhdCB2ZHBh
+X3NldF9mZWF0dXJlcyBzdnEgZW5hYmxlIHBhdGguCj4gPiAqIFJlZmFjdG9yIHNvbWUgZXJyb3Jz
+IGFuZCBtZXNzYWdlcy4gQWRkIG1pc3NpbmcgZXJyb3IgdW53aW5kaW5ncy4KPiA+ICogQWRkIG1l
+bW9yeSBiYXJyaWVyIGF0IF9GX05PX05PVElGWSBzZXQuCj4gPiAqIFN0b3AgY2hlY2tpbmcgZm9y
+IGZlYXR1cmVzIGZsYWdzIG91dCBvZiB0cmFuc3BvcnQgcmFuZ2UuCj4gPiB2MSBsaW5rOgo+ID4g
+aHR0cHM6Ly9sb3JlLmtlcm5lbC5vcmcvdmlydHVhbGl6YXRpb24vN2Q4NmM3MTUtNmQ3MS04YTI3
+LTkxZjUtOGQ0N2I3MWUzMjAxQHJlZGhhdC5jb20vCj4gPiAKPiA+IENoYW5nZXMgZnJvbSB2NCBS
+RkM6Cj4gPiAqIFN1cHBvcnQgb2YgYWxsb2NhdGluZyAvIGZyZWVpbmcgaW92YSByYW5nZXMgaW4g
+SU9WQSB0cmVlLiBFeHRlbmRpbmcKPiA+ICAgIGFscmVhZHkgcHJlc2VudCBpb3ZhLXRyZWUgZm9y
+IHRoYXQuCj4gPiAqIFByb3BlciB2YWxpZGF0aW9uIG9mIGd1ZXN0IGZlYXR1cmVzLiBOb3cgU1ZR
+IGNhbiBuZWdvdGlhdGUgYQo+ID4gICAgZGlmZmVyZW50IHNldCBvZiBmZWF0dXJlcyB3aXRoIHRo
+ZSBkZXZpY2Ugd2hlbiBlbmFibGVkLgo+ID4gKiBTdXBwb3J0IG9mIGhvc3Qgbm90aWZpZXJzIG1l
+bW9yeSByZWdpb25zCj4gPiAqIEhhbmRsaW5nIG9mIFNWUSBmdWxsIHF1ZXVlIGluIGNhc2UgZ3Vl
+c3QncyBkZXNjcmlwdG9ycyBzcGFuIHRvCj4gPiAgICBkaWZmZXJlbnQgbWVtb3J5IHJlZ2lvbnMg
+KHFlbXUncyBWQSBjaHVua3MpLgo+ID4gKiBGbHVzaCBwZW5kaW5nIHVzZWQgYnVmZmVycyBhdCBl
+bmQgb2YgU1ZRIG9wZXJhdGlvbi4KPiA+ICogUU1QIGNvbW1hbmQgbm93IGxvb2tzIGJ5IE5ldENs
+aWVudFN0YXRlIG5hbWUuIE90aGVyIGRldmljZXMgd2lsbCBuZWVkCj4gPiAgICB0byBpbXBsZW1l
+bnQgaXQncyB3YXkgdG8gZW5hYmxlIHZkcGEuCj4gPiAqIFJlbmFtZSBRTVAgY29tbWFuZCB0byBz
+ZXQsIHNvIGl0IGxvb2tzIG1vcmUgbGlrZSBhIHdheSBvZiB3b3JraW5nCj4gPiAqIEJldHRlciB1
+c2Ugb2YgcWVtdSBlcnJvciBzeXN0ZW0KPiA+ICogTWFrZSBhIGZldyBhc3NlcnRpb25zIHByb3Bl
+ciBlcnJvci1oYW5kbGluZyBwYXRocy4KPiA+ICogQWRkIG1vcmUgZG9jdW1lbnRhdGlvbgo+ID4g
+KiBMZXNzIGNvdXBsaW5nIG9mIHZpcnRpbyAvIHZob3N0LCB0aGF0IGNvdWxkIGNhdXNlIGZyaWN0
+aW9uIG9uIGNoYW5nZXMKPiA+ICogQWRkcmVzc2VkIG1hbnkgb3RoZXIgc21hbGwgY29tbWVudHMg
+YW5kIHNtYWxsIGZpeGVzLgo+ID4gCj4gPiBDaGFuZ2VzIGZyb20gdjMgUkZDOgo+ID4gICAgKiBN
+b3ZlIGV2ZXJ5dGhpbmcgdG8gdmhvc3QtdmRwYSBiYWNrZW5kLiBBIGJpZyBjaGFuZ2UsIHRoaXMg
+YWxsb3dlZAo+ID4gICAgICBzb21lIGNsZWFudXAgYnV0IG1vcmUgY29kZSBoYXMgYmVlbiBhZGRl
+ZCBpbiBvdGhlciBwbGFjZXMuCj4gPiAgICAqIE1vcmUgdXNlIG9mIGdsaWIgdXRpbGl0aWVzLCBl
+c3BlY2lhbGx5IHRvIG1hbmFnZSBtZW1vcnkuCj4gPiB2MyBsaW5rOgo+ID4gaHR0cHM6Ly9saXN0
+cy5ub25nbnUub3JnL2FyY2hpdmUvaHRtbC9xZW11LWRldmVsLzIwMjEtMDUvbXNnMDYwMzIuaHRt
+bAo+ID4gCj4gPiBDaGFuZ2VzIGZyb20gdjIgUkZDOgo+ID4gICAgKiBBZGRpbmcgdmhvc3QtdmRw
+YSBkZXZpY2VzIHN1cHBvcnQKPiA+ICAgICogRml4ZWQgc29tZSBtZW1vcnkgbGVha3MgcG9pbnRl
+ZCBieSBkaWZmZXJlbnQgY29tbWVudHMKPiA+IHYyIGxpbms6Cj4gPiBodHRwczovL2xpc3RzLm5v
+bmdudS5vcmcvYXJjaGl2ZS9odG1sL3FlbXUtZGV2ZWwvMjAyMS0wMy9tc2cwNTYwMC5odG1sCj4g
+PiAKPiA+IENoYW5nZXMgZnJvbSB2MSBSRkM6Cj4gPiAgICAqIFVzZSBRTVAgaW5zdGVhZCBvZiBt
+aWdyYXRpb24gdG8gc3RhcnQgU1ZRIG1vZGUuCj4gPiAgICAqIE9ubHkgYWNjZXB0aW5nIElPTU1V
+IGRldmljZXMsIGNsb3NlciBiZWhhdmlvciB3aXRoIHRhcmdldCBkZXZpY2VzCj4gPiAgICAgICh2
+RFBBKQo+ID4gICAgKiBGaXggaW52YWxpZCBtYXNraW5nL3VubWFza2luZyBvZiB2aG9zdCBjYWxs
+IGZkLgo+ID4gICAgKiBVc2Ugb2YgcHJvcGVyIG1ldGhvZHMgZm9yIHN5bmNocm9uaXphdGlvbi4K
+PiA+ICAgICogTm8gbmVlZCB0byBtb2RpZnkgVmlydElPIGRldmljZSBjb2RlLCBhbGwgb2YgdGhl
+IGNoYW5nZXMgYXJlCj4gPiAgICAgIGNvbnRhaW5lZCBpbiB2aG9zdCBjb2RlLgo+ID4gICAgKiBE
+ZWxldGUgc3VwZXJmbHVvdXMgY29kZS4KPiA+ICAgICogQW4gaW50ZXJtZWRpYXRlIFJGQyB3YXMg
+c2VudCB3aXRoIG9ubHkgdGhlIG5vdGlmaWNhdGlvbnMgZm9yd2FyZGluZwo+ID4gICAgICBjaGFu
+Z2VzLiBJdCBjYW4gYmUgc2VlbiBpbgo+ID4gICAgICBodHRwczovL3BhdGNoZXcub3JnL1FFTVUv
+MjAyMTAxMjkyMDU0MTUuODc2MjkwLTEtZXBlcmV6bWFAcmVkaGF0LmNvbS8KPiA+IHYxIGxpbms6
+Cj4gPiBodHRwczovL2xpc3RzLmdudS5vcmcvYXJjaGl2ZS9odG1sL3FlbXUtZGV2ZWwvMjAyMC0x
+MS9tc2cwNTM3Mi5odG1sCj4gPiAKPiA+IEV1Z2VuaW8gUMOpcmV6ICgyMCk6Cj4gPiAgICAgICAg
+dmlydGlvOiBBZGQgVklSVElPX0ZfUVVFVUVfU1RBVEUKPiA+ICAgICAgICB2aXJ0aW8tbmV0OiBI
+b25vciBWSVJUSU9fQ09ORklHX1NfREVWSUNFX1NUT1BQRUQKPiA+ICAgICAgICB2aXJ0aW86IEFk
+ZCB2aXJ0aW9fcXVldWVfaXNfaG9zdF9ub3RpZmllcl9lbmFibGVkCj4gPiAgICAgICAgdmhvc3Q6
+IE1ha2Ugdmhvc3RfdmlydHF1ZXVlX3tzdGFydCxzdG9wfSBwdWJsaWMKPiA+ICAgICAgICB2aG9z
+dDogQWRkIHgtdmhvc3QtZW5hYmxlLXNoYWRvdy12cSBxbXAKPiA+ICAgICAgICB2aG9zdDogQWRk
+IFZob3N0U2hhZG93VmlydHF1ZXVlCj4gPiAgICAgICAgdmRwYTogUmVnaXN0ZXIgdmRwYSBkZXZp
+Y2VzIGluIGEgbGlzdAo+ID4gICAgICAgIHZob3N0OiBSb3V0ZSBndWVzdC0+aG9zdCBub3RpZmlj
+YXRpb24gdGhyb3VnaCBzaGFkb3cgdmlydHF1ZXVlCj4gPiAgICAgICAgQWRkIHZob3N0X3N2cV9n
+ZXRfc3ZxX2NhbGxfbm90aWZpZXIKPiA+ICAgICAgICBBZGQgdmhvc3Rfc3ZxX3NldF9ndWVzdF9j
+YWxsX25vdGlmaWVyCj4gPiAgICAgICAgdmRwYTogU2F2ZSBjYWxsX2ZkIGluIHZob3N0LXZkcGEK
+PiA+ICAgICAgICB2aG9zdC12ZHBhOiBUYWtlIGludG8gYWNjb3VudCBTVlEgaW4gdmhvc3RfdmRw
+YV9zZXRfdnJpbmdfY2FsbAo+ID4gICAgICAgIHZob3N0OiBSb3V0ZSBob3N0LT5ndWVzdCBub3Rp
+ZmljYXRpb24gdGhyb3VnaCBzaGFkb3cgdmlydHF1ZXVlCj4gPiAgICAgICAgdmlydGlvOiBBZGQg
+dmhvc3Rfc2hhZG93X3ZxX2dldF92cmluZ19hZGRyCj4gPiAgICAgICAgdmRwYTogU2F2ZSBob3N0
+IGFuZCBndWVzdCBmZWF0dXJlcwo+ID4gICAgICAgIHZob3N0OiBBZGQgdmhvc3Rfc3ZxX3ZhbGlk
+X2RldmljZV9mZWF0dXJlcyB0byBzaGFkb3cgdnEKPiA+ICAgICAgICB2aG9zdDogU2hhZG93IHZp
+cnRxdWV1ZSBidWZmZXJzIGZvcndhcmRpbmcKPiA+ICAgICAgICB2aG9zdDogQWRkIFZob3N0SU9W
+QVRyZWUKPiA+ICAgICAgICB2aG9zdDogVXNlIGEgdHJlZSB0byBzdG9yZSBtZW1vcnkgbWFwcGlu
+Z3MKPiA+ICAgICAgICB2ZHBhOiBBZGQgY3VzdG9tIElPVExCIHRyYW5zbGF0aW9ucyB0byBTVlEK
+PiA+IAo+ID4gRXVnZW5pbyBQw6lyZXogKDE1KToKPiA+ICAgIHZob3N0OiBBZGQgVmhvc3RTaGFk
+b3dWaXJ0cXVldWUKPiA+ICAgIHZob3N0OiBBZGQgU2hhZG93IFZpcnRRdWV1ZSBraWNrIGZvcndh
+cmRpbmcgY2FwYWJpbGl0aWVzCj4gPiAgICB2aG9zdDogQWRkIFNoYWRvdyBWaXJ0UXVldWUgY2Fs
+bCBmb3J3YXJkaW5nIGNhcGFiaWxpdGllcwo+ID4gICAgdmhvc3Q6IEFkZCB2aG9zdF9zdnFfdmFs
+aWRfZmVhdHVyZXMgdG8gc2hhZG93IHZxCj4gPiAgICB2aXJ0aW86IEFkZCB2aG9zdF9zdnFfZ2V0
+X3ZyaW5nX2FkZHIKPiA+ICAgIHZkcGE6IGFkYXB0IHZob3N0X29wcyBjYWxsYmFja3MgdG8gc3Zx
+Cj4gPiAgICB2aG9zdDogU2hhZG93IHZpcnRxdWV1ZSBidWZmZXJzIGZvcndhcmRpbmcKPiA+ICAg
+IHV0aWw6IEFkZCBpb3ZhX3RyZWVfYWxsb2NfbWFwCj4gPiAgICB1dGlsOiBhZGQgaW92YV90cmVl
+X2ZpbmRfaW92YQo+ID4gICAgdmhvc3Q6IEFkZCBWaG9zdElPVkFUcmVlCj4gPiAgICB2ZHBhOiBB
+ZGQgY3VzdG9tIElPVExCIHRyYW5zbGF0aW9ucyB0byBTVlEKPiA+ICAgIHZkcGE6IEFkYXB0IHZo
+b3N0X3ZkcGFfZ2V0X3ZyaW5nX2Jhc2UgdG8gU1ZRCj4gPiAgICB2ZHBhOiBOZXZlciBzZXQgbG9n
+X2Jhc2UgYWRkciBpZiBTVlEgaXMgZW5hYmxlZAo+ID4gICAgdmRwYTogRXhwb3NlIFZIT1NUX0Zf
+TE9HX0FMTCBvbiBTVlEKPiA+ICAgIHZkcGE6IEFkZCB4LXN2cSB0byBOZXRkZXZWaG9zdFZEUEFP
+cHRpb25zCj4gPiAKPiA+ICAgcWFwaS9uZXQuanNvbiAgICAgICAgICAgICAgICAgICAgICB8ICAg
+OCArLQo+ID4gICBody92aXJ0aW8vdmhvc3QtaW92YS10cmVlLmggICAgICAgIHwgIDI3ICsrCj4g
+PiAgIGh3L3ZpcnRpby92aG9zdC1zaGFkb3ctdmlydHF1ZXVlLmggfCAgODcgKysrKwo+ID4gICBp
+bmNsdWRlL2h3L3ZpcnRpby92aG9zdC12ZHBhLmggICAgIHwgICA4ICsKPiA+ICAgaW5jbHVkZS9x
+ZW11L2lvdmEtdHJlZS5oICAgICAgICAgICB8ICAzOCArLQo+ID4gICBody92aXJ0aW8vdmhvc3Qt
+aW92YS10cmVlLmMgICAgICAgIHwgMTEwICsrKysrCj4gPiAgIGh3L3ZpcnRpby92aG9zdC1zaGFk
+b3ctdmlydHF1ZXVlLmMgfCA2MzcgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysKPiA+ICAg
+aHcvdmlydGlvL3Zob3N0LXZkcGEuYyAgICAgICAgICAgICB8IDUyNSArKysrKysrKysrKysrKysr
+KysrKysrKy0KPiA+ICAgbmV0L3Zob3N0LXZkcGEuYyAgICAgICAgICAgICAgICAgICB8ICA0OCAr
+Ky0KPiA+ICAgdXRpbC9pb3ZhLXRyZWUuYyAgICAgICAgICAgICAgICAgICB8IDE2OSArKysrKysr
+Kwo+ID4gICBody92aXJ0aW8vbWVzb24uYnVpbGQgICAgICAgICAgICAgIHwgICAyICstCj4gPiAg
+IDExIGZpbGVzIGNoYW5nZWQsIDE2MzMgaW5zZXJ0aW9ucygrKSwgMjYgZGVsZXRpb25zKC0pCj4g
+PiAgIGNyZWF0ZSBtb2RlIDEwMDY0NCBody92aXJ0aW8vdmhvc3QtaW92YS10cmVlLmgKPiA+ICAg
+Y3JlYXRlIG1vZGUgMTAwNjQ0IGh3L3ZpcnRpby92aG9zdC1zaGFkb3ctdmlydHF1ZXVlLmgKPiA+
+ICAgY3JlYXRlIG1vZGUgMTAwNjQ0IGh3L3ZpcnRpby92aG9zdC1pb3ZhLXRyZWUuYwo+ID4gICBj
+cmVhdGUgbW9kZSAxMDA2NDQgaHcvdmlydGlvL3Zob3N0LXNoYWRvdy12aXJ0cXVldWUuYwo+ID4g
+CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFs
+aXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlv
+bi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8v
+dmlydHVhbGl6YXRpb24=
