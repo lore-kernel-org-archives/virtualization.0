@@ -4,109 +4,76 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id DB069C433FE
-	for <virtualization@archiver.kernel.org>; Wed,  9 Mar 2022 12:30:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4D243C433F5
+	for <virtualization@archiver.kernel.org>; Wed,  9 Mar 2022 18:52:23 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 5A9AF60D4D;
-	Wed,  9 Mar 2022 12:30:48 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 067F4611A5;
+	Wed,  9 Mar 2022 18:52:23 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id iwIfoiGhh6dk; Wed,  9 Mar 2022 12:30:47 +0000 (UTC)
+	with ESMTP id VLe2ucJV4uzq; Wed,  9 Mar 2022 18:52:22 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id DB5E160C29;
-	Wed,  9 Mar 2022 12:30:46 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 9B55E60F85;
+	Wed,  9 Mar 2022 18:52:21 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A5A70C001D;
-	Wed,  9 Mar 2022 12:30:46 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0BCB9C000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 70819C001D;
+	Wed,  9 Mar 2022 18:52:21 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B83A6C000B
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Mar 2022 12:30:46 +0000 (UTC)
+ Wed,  9 Mar 2022 18:52:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id E921E41821
+ by smtp4.osuosl.org (Postfix) with ESMTP id A76CB416C7
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Mar 2022 12:30:45 +0000 (UTC)
+ Wed,  9 Mar 2022 18:52:20 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
+ dkim=pass (2048-bit key) header.d=kernel.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id g9cwjzEMEeQ5
+ with ESMTP id TVnGTHTABJ-W
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Mar 2022 12:30:44 +0000 (UTC)
+ Wed,  9 Mar 2022 18:52:19 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 7BE1841820
+Received: from dfw.source.kernel.org (dfw.source.kernel.org
+ [IPv6:2604:1380:4641:c500::1])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id B8C53416C4
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Mar 2022 12:30:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1646829043;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=rWD9XGlU43T/hPebWYiaS1wUvBoZOFcW/XaMqLKoWQI=;
- b=CUFODuCcdiA7avhUpyr7sPIhEKsIAUdSPtvjoayeEZ3AhnW9hS/agH/Jx988hxz+IhQFYG
- c30zBNKxjmzTyHlcreopbbznuYirgXr/9Jbg80HzAr+YxvYHntgjhRoF4QkDpOihNWGLPU
- H8lJ0z1PeXDJcfTSTFWR/ZznKclsrVk=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-505-Np61nPlZOWiAa7ZlJW6LpQ-1; Wed, 09 Mar 2022 07:30:42 -0500
-X-MC-Unique: Np61nPlZOWiAa7ZlJW6LpQ-1
-Received: by mail-wm1-f69.google.com with SMTP id
- c62-20020a1c3541000000b003815245c642so2527140wma.6
- for <virtualization@lists.linux-foundation.org>;
- Wed, 09 Mar 2022 04:30:41 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=rWD9XGlU43T/hPebWYiaS1wUvBoZOFcW/XaMqLKoWQI=;
- b=Drs4Tih/PcHXr6hRh7oWmvLz9nwqcpwquUSgN1ABslPK+nntsOj1VNXlRORJOAKmF7
- fxqvVzTqKwioeyNrDILY8u1n2aJxK/rraMrx2w+AueEi+HhB+3levp4yWyR6dbYmggPR
- Yl8rkYc/Mr5gTYklNiH8JyyQ6HY4CDxTuF+nnZEtz04jD5tGX1nUMSYoHU+DeVQbEnvJ
- t3ckBV1yFJ57Y9rlKEishzUQyjyefol9X6A+iHZ7bm6GlNDsj+CHtREjQewiykmns7Km
- bx7W9Re3lpr/NJHsXtAajlLbN1bzy12NucbqGgqzJag6R/JtHoy6nstaE6hjH/rnSr4P
- NClQ==
-X-Gm-Message-State: AOAM5310ilD0C9JuyoffJDyZrYa76FhDPyqE79PKaw1fAUuLcQB9QLsj
- vsrBV1p4m2VO5Z9QU2Ix/gXMqbTt/DoVbZydDJ2z91dVEATpjdgd0crvZa6z71pDfz+0oqSgkkW
- XPPo3noRVfr3x/g8u6h/QP+xV+K3UP5mvOmK2p9Y82Q==
-X-Received: by 2002:a05:600c:2c49:b0:384:7202:358e with SMTP id
- r9-20020a05600c2c4900b003847202358emr7429080wmg.108.1646829040670; 
- Wed, 09 Mar 2022 04:30:40 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwyqRzrqdmt6mSw8F1TISW3RDhJuVWNHY3lY/ou1l4KKPFruQUAGgW3P4b4WhUkqDohG+UKOA==
-X-Received: by 2002:a05:600c:2c49:b0:384:7202:358e with SMTP id
- r9-20020a05600c2c4900b003847202358emr7429060wmg.108.1646829040356; 
- Wed, 09 Mar 2022 04:30:40 -0800 (PST)
-Received: from redhat.com ([2.55.24.184]) by smtp.gmail.com with ESMTPSA id
- m18-20020a05600c3b1200b003899d242c3asm5123290wms.44.2022.03.09.04.30.36
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 09 Mar 2022 04:30:39 -0800 (PST)
-Date: Wed, 9 Mar 2022 07:30:34 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Marc Zyngier <maz@kernel.org>
-Subject: Re: [PATCH V3 05/10] virtio-pci: harden INTX interrupts
-Message-ID: <20220309071710-mutt-send-email-mst@kernel.org>
-References: <20211019070152.8236-1-jasowang@redhat.com>
- <20211019070152.8236-6-jasowang@redhat.com>
- <87wnh3z9nm.wl-maz@kernel.org>
- <20220309060703-mutt-send-email-mst@kernel.org>
- <87tuc7z5k9.wl-maz@kernel.org>
+ Wed,  9 Mar 2022 18:52:19 +0000 (UTC)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by dfw.source.kernel.org (Postfix) with ESMTPS id 94242617B2;
+ Wed,  9 Mar 2022 18:52:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C080C340E8;
+ Wed,  9 Mar 2022 18:52:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1646851938;
+ bh=+DArKuMQB9BQkZlj+Yn2vhSYyPx0dFjihiD/ugKfs0c=;
+ h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+ b=pNwOz/O350LawkZ11VLNBaL29p5mLGQfBB9ek/jPonM2muArkMoSvGSE2iq+2g12I
+ /nqelezUJclPT0eBHTnJmhXU1OqI+YF6Qcl9VhqiM75nq9nOXWVdaRfYTT/Gr6IzSk
+ H1U2gADjw9Z4EXphZxYh7qe4CIlRg8louWTLmzdaSNr4SF5WIpBooX1lVRvC9zNzSu
+ KDoNnpgnaS2sSB0TBKejk5kYdEJOBkBuejNt0/vQM5o2mfJEHtXtBp99L9LU9mHDjg
+ 6dfRL012U0mlSinfdHoag68biryeVsHI4846od/XzU7Gg7r66SOwpphjJ8se5mWsdk
+ j5pebiOooB5tA==
+Date: Wed, 9 Mar 2022 20:52:14 +0200
+From: Leon Romanovsky <leon@kernel.org>
+To: Greg KH <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH 1/1] vhost: Protect the virtqueue from being cleared
+ whilst still in use
+Message-ID: <Yij3XqLpOu18Kw8A@unreal>
+References: <20220307191757.3177139-1-lee.jones@linaro.org>
+ <YiZeB7l49KC2Y5Gz@kroah.com> <YicPXnNFHpoJHcUN@google.com>
+ <Yicalf1I6oBytbse@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <87tuc7z5k9.wl-maz@kernel.org>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: keirf@google.com, "Paul E . McKenney" <paulmck@kernel.org>,
- david.kaplan@amd.com, konrad.wilk@oracle.com,
- Peter Zijlstra <peterz@infradead.org>, f.hetzelt@tu-berlin.de,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>,
- Boqun Feng <boqun.feng@gmail.com>
+In-Reply-To: <Yicalf1I6oBytbse@kroah.com>
+Cc: syzbot+adc3cb32385586bec859@syzkaller.appspotmail.com, kvm@vger.kernel.org,
+ mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ stable@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ Lee Jones <lee.jones@linaro.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -123,142 +90,76 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Mar 09, 2022 at 12:14:14PM +0000, Marc Zyngier wrote:
-> On Wed, 09 Mar 2022 11:27:42 +0000,
-> "Michael S. Tsirkin" <mst@redhat.com> wrote:
+On Tue, Mar 08, 2022 at 09:57:57AM +0100, Greg KH wrote:
+> On Tue, Mar 08, 2022 at 08:10:06AM +0000, Lee Jones wrote:
+> > On Mon, 07 Mar 2022, Greg KH wrote:
 > > 
-> > On Wed, Mar 09, 2022 at 10:45:49AM +0000, Marc Zyngier wrote:
-> > > [Adding Will to check on my understanding of the interactions between
-> > >  spinlocks and WRITE_ONCE()]
-> > > 
-> > > On Tue, 19 Oct 2021 08:01:47 +0100,
-> > > Jason Wang <jasowang@redhat.com> wrote:
+> > > On Mon, Mar 07, 2022 at 07:17:57PM +0000, Lee Jones wrote:
+> > > > vhost_vsock_handle_tx_kick() already holds the mutex during its call
+> > > > to vhost_get_vq_desc().  All we have to do here is take the same lock
+> > > > during virtqueue clean-up and we mitigate the reported issues.
 > > > > 
-> > > > This patch tries to make sure the virtio interrupt handler for INTX
-> > > > won't be called after a reset and before virtio_device_ready(). We
-> > > > can't use IRQF_NO_AUTOEN since we're using shared interrupt
-> > > > (IRQF_SHARED). So this patch tracks the INTX enabling status in a new
-> > > > intx_soft_enabled variable and toggle it during in
-> > > > vp_disable/enable_vectors(). The INTX interrupt handler will check
-> > > > intx_soft_enabled before processing the actual interrupt.
+> > > > Also WARN() as a precautionary measure.  The purpose of this is to
+> > > > capture possible future race conditions which may pop up over time.
 > > > > 
-> > > > Cc: Boqun Feng <boqun.feng@gmail.com>
-> > > > Cc: Thomas Gleixner <tglx@linutronix.de>
-> > > > Cc: Peter Zijlstra <peterz@infradead.org>
-> > > > Cc: Paul E. McKenney <paulmck@kernel.org>
-> > > > Signed-off-by: Jason Wang <jasowang@redhat.com>
+> > > > Link: https://syzkaller.appspot.com/bug?extid=279432d30d825e63ba00
+> > > > 
+> > > > Cc: <stable@vger.kernel.org>
+> > > > Reported-by: syzbot+adc3cb32385586bec859@syzkaller.appspotmail.com
+> > > > Signed-off-by: Lee Jones <lee.jones@linaro.org>
 > > > > ---
-> > > >  drivers/virtio/virtio_pci_common.c | 23 +++++++++++++++++++++--
-> > > >  drivers/virtio/virtio_pci_common.h |  1 +
-> > > >  2 files changed, 22 insertions(+), 2 deletions(-)
+> > > >  drivers/vhost/vhost.c | 10 ++++++++++
+> > > >  1 file changed, 10 insertions(+)
 > > > > 
-> > > > diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-> > > > index 8d8f83aca721..1bce254a462a 100644
-> > > > --- a/drivers/virtio/virtio_pci_common.c
-> > > > +++ b/drivers/virtio/virtio_pci_common.c
-> > > > @@ -30,8 +30,16 @@ void vp_disable_cbs(struct virtio_device *vdev)
-> > > >  	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+> > > > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> > > > index 59edb5a1ffe28..ef7e371e3e649 100644
+> > > > --- a/drivers/vhost/vhost.c
+> > > > +++ b/drivers/vhost/vhost.c
+> > > > @@ -693,6 +693,15 @@ void vhost_dev_cleanup(struct vhost_dev *dev)
 > > > >  	int i;
 > > > >  
-> > > > -	if (vp_dev->intx_enabled)
-> > > > +	if (vp_dev->intx_enabled) {
-> > > > +		/*
-> > > > +		 * The below synchronize() guarantees that any
-> > > > +		 * interrupt for this line arriving after
-> > > > +		 * synchronize_irq() has completed is guaranteed to see
-> > > > +		 * intx_soft_enabled == false.
+> > > >  	for (i = 0; i < dev->nvqs; ++i) {
+> > > > +		/* No workers should run here by design. However, races have
+> > > > +		 * previously occurred where drivers have been unable to flush
+> > > > +		 * all work properly prior to clean-up.  Without a successful
+> > > > +		 * flush the guest will malfunction, but avoiding host memory
+> > > > +		 * corruption in those cases does seem preferable.
 > > > > +		 */
-> > > > +		WRITE_ONCE(vp_dev->intx_soft_enabled, false);
-> > > >  		synchronize_irq(vp_dev->pci_dev->irq);
-> > > > +	}
-> > > >  
-> > > >  	for (i = 0; i < vp_dev->msix_vectors; ++i)
-> > > >  		disable_irq(pci_irq_vector(vp_dev->pci_dev, i));
-> > > > @@ -43,8 +51,16 @@ void vp_enable_cbs(struct virtio_device *vdev)
-> > > >  	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-> > > >  	int i;
-> > > >  
-> > > > -	if (vp_dev->intx_enabled)
-> > > > +	if (vp_dev->intx_enabled) {
-> > > > +		disable_irq(vp_dev->pci_dev->irq);
-> > > > +		/*
-> > > > +		 * The above disable_irq() provides TSO ordering and
-> > > > +		 * as such promotes the below store to store-release.
-> > > > +		 */
-> > > > +		WRITE_ONCE(vp_dev->intx_soft_enabled, true);
+> > > > +		WARN_ON(mutex_is_locked(&dev->vqs[i]->mutex));
 > > > 
-> > > What do you mean by TSO here? AFAICT, the CPU is allowed hoist this
-> > > write up into the lock used by disable_irq(), as the unlock only has
-> > > release semantics. Is that what you are relying on? I don't see how
-> > > this upgrades WRITE_ONCE() to have release semantics.
+> > > So you are trading one syzbot triggered issue for another one in the
+> > > future?  :)
 > > > 
-> > > > +		enable_irq(vp_dev->pci_dev->irq);
-> > > 
-> > > Same thing does here: my understanding is that the write can be pushed
-> > > down into the lock, which has acquire semantics only.
-> > > 
-> > > Thanks,
-> > > 
-> > > 	M.
+> > > If this ever can happen, handle it, but don't log it with a WARN_ON() as
+> > > that will trigger the panic-on-warn boxes, as well as syzbot.  Unless
+> > > you want that to happen?
 > > 
-> > Overall I feel what we are doing here is very standard and should be
-> > pretty common for a driver that wants to be protected against a
-> > malicious device:
-> > 
-> > 
-> > 1- get IRQ
-> > 2- initialize device with IRQ
-> > 3- enable IRQ
-> > 
-> > Doing it in the core kernel helps make sure interrupts are
-> > not lost if they trigger during 2.
+> > No, Syzbot doesn't report warnings, only BUGs and memory corruption.
 > 
-> But this isn't the core kernel. You're doing that in some random
-> driver (and even more, only for the PCI version of that driver).
-
-
-Oh, I'm answering on the INTX patch. I was referring to the MSIX
-path actually. Yes INTX can not currently start in disabled state
-because it's shared.
-
-
-> > 
-> > Without core kernel support one has to refactor the driver along the lines of:
-> > 
-> > a- initialize driver
-> > b- get IRQ
-> > c- initialize device with IRQ
-> > 
-> > and this is often tricky especially if one wants to do things like
-> > discover device configuration and reconfigure the driver accordingly.
+> Has it changed?  Last I looked, it did trigger on WARN_* calls, which
+> has resulted in a huge number of kernel fixes because of that.
 > 
-> But this isn't what this patch is about, is it? You are just tracking
-> whether interrupts are enabled or not. To which my reply to you on the
-> previous patch still applies (this is the wrong place to track such
-> state).
-
-It's not that we care. What we need is to make sure that interrupts sent
-before driver is ready to accept them do not cause a callback.
-If there was a way to tell kernel "I'm ready to accept callbacks now"
-problem would be solved.
-
-
-
-> You also haven't answered my question: what are your ordering
-> expectations wrt the WRITE_ONCE() above? The comment says 'TSO', and I
-> don't really understand how this is enforced.
+> > > And what happens if the mutex is locked _RIGHT_ after you checked it?
+> > > You still have a race...
+> > 
+> > No, we miss a warning that one time.  Memory is still protected.
 > 
-> Thanks,
+> Then don't warn on something that doesn't matter.  This line can be
+> dropped as there's nothing anyone can do about it, right?
+
+Greg, at least two other reviewers said that this line shouldn't be at
+all.
+
+https://lore.kernel.org/all/CACGkMEsjmCNQPjxPjXL0WUfbMg8ARnumEp4yjUxqznMKR1nKSQ@mail.gmail.com/
+https://lore.kernel.org/all/YiG61RqXFvq%2Ft0fB@unreal/
+https://lore.kernel.org/all/YiETnIcfZCLb63oB@unreal/
+
+Thanks
+
 > 
-> 	M.
-
-It's based on Peter's suggestion:
-https://lore.kernel.org/r/YUCBZjjk77q8JS4f%40hirez.programming.kicks-ass.net
-
-
-> -- 
-> Without deviation from the norm, progress is not possible.
-
+> thanks,
+> 
+> greg k-h
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
