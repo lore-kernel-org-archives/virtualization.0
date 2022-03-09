@@ -1,89 +1,100 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D36C0C433F5
-	for <virtualization@archiver.kernel.org>; Wed,  9 Mar 2022 18:54:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 20647C433EF
+	for <virtualization@archiver.kernel.org>; Wed,  9 Mar 2022 19:28:13 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 8F267611B6;
-	Wed,  9 Mar 2022 18:54:45 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id C0E1540516;
+	Wed,  9 Mar 2022 19:28:12 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id p-QvD_0XUeeA; Wed,  9 Mar 2022 18:54:44 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 367B060F9D;
-	Wed,  9 Mar 2022 18:54:44 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0491BC001D;
-	Wed,  9 Mar 2022 18:54:44 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 75841C000B
- for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Mar 2022 18:54:42 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 54DBD4027A
- for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Mar 2022 18:54:42 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=vt-edu.20210112.gappssmtp.com
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id jBirok-3BQGN
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id y2bJxjWG1gAC; Wed,  9 Mar 2022 19:28:11 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 79DE040142;
+	Wed,  9 Mar 2022 19:28:10 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4C8B8C0012;
+	Wed,  9 Mar 2022 19:28:10 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3534AC000B
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Mar 2022 18:54:40 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-lj1-x22a.google.com (mail-lj1-x22a.google.com
- [IPv6:2a00:1450:4864:20::22a])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 8E231401B3
+ Wed,  9 Mar 2022 19:28:09 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp4.osuosl.org (Postfix) with ESMTP id 1E3214025D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Mar 2022 18:54:40 +0000 (UTC)
-Received: by mail-lj1-x22a.google.com with SMTP id r22so4560313ljd.4
+ Wed,  9 Mar 2022 19:28:09 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=suse.de header.b="b3Z3M399";
+ dkim=neutral reason="invalid (unsupported algorithm ed25519-sha256)"
+ header.d=suse.de header.b="nOFXmqBf"
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 1e1_ZErVJrWH
  for <virtualization@lists.linux-foundation.org>;
- Wed, 09 Mar 2022 10:54:40 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=vt-edu.20210112.gappssmtp.com; s=20210112;
- h=mime-version:from:date:message-id:subject:to;
- bh=II+hjCPZckoS4eTE5wCvAEDsXRUfZM8ViRYkshLuidM=;
- b=y5PXmxoBb7/M1XrbV8d2VaJwVkOZhBsgeMjSPMPmL4OjkGijrYSdMiC2lzTcEl9Jn/
- U27RHHJhviBPVDHvGLpWS521CixnKfZ9fFj2S0wH2Ys8k/ePZOiLsSj9wielCT+U+uUX
- UaOmpYNlJn86ucDMTlMgWz9SPHca8Z40bdguz8I/LXvGEk2l0YdNOTS6SWcYUyX1BNrx
- HrOqG0QHR6+8xDpkZnPHIcjPRiyw2SSBlswVoDkcC55R1yTeGtoo7K7N9JCdaJBgvwdu
- OaiC2/Q1l/12qDiuF2F3udFijltWJfVEPZHC+eUQ3xux0f4BE3kxm0/+WvaSMaXMv5NX
- y0fQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
- bh=II+hjCPZckoS4eTE5wCvAEDsXRUfZM8ViRYkshLuidM=;
- b=vvZ23XctWJ2w63FCGxByJMMU5AwRYxrifZvNWDjRRwUIbpbBTVAS7UvmbGq9zgCfaA
- uxezbieygFrgNmDbWXTL84PZtNKAs+oN8e3h4gXOoELroybUoMe8tLIIRRhQ3m8nj3Wq
- QAjNL0LVIQ7vnE6SvW93C9lZRfB21ej9nHEdaUYl23Frv/H6W6kywAGSwLzk9vRmdnaK
- ylby3A5FmlP1zc7PLkL1NuSV+rYtxbbX8BL4Dv50LTuJXIKmWNf5SzjU/THybkMby+yX
- kyQJZcji+0VO+tVoYc1zp4t8nNeUz+nPrtTP409vsuOqv2czv3gARopu3VwI9Pe81KnZ
- SiOA==
-X-Gm-Message-State: AOAM532WftaZGU8CbaI+sM+g12Gi6va58miTt4hvBpvj9gLdU46nqaW7
- PGqL6zNB45GNCTPejyXODCEYO/pFdOO9BoLfQRtlRw==
-X-Google-Smtp-Source: ABdhPJwASNTVdlEb6/P9x4je2gm+YN6nGoF0d1wiibmIDJtTx1Z8kuPiio0dWBgI8I6lm4mNOo1sStYaOH0ptqJPYnY=
-X-Received: by 2002:a2e:b896:0:b0:247:b65e:6f63 with SMTP id
- r22-20020a2eb896000000b00247b65e6f63mr642383ljp.66.1646852078373; Wed, 09 Mar
- 2022 10:54:38 -0800 (PST)
+ Wed,  9 Mar 2022 19:28:06 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 846BF4179D
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  9 Mar 2022 19:28:06 +0000 (UTC)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by smtp-out1.suse.de (Postfix) with ESMTPS id D4C8321117;
+ Wed,  9 Mar 2022 19:28:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+ t=1646854082; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=EBgd/kQM55+aKZyAxeZX48FkKVfo/mz5CTR5lRw9eKc=;
+ b=b3Z3M399AMh+GTSPcGUbXFhjUT60ZcnZGXo3ZwidAB2Na7GV2lWe7y6CQnjqN9QCUraFtC
+ kmMIH2GqDsK/+M4d77UvYJMdMic1Ds/bAscRHv+OmappmAs096Qlr09Exv3pt+gfeVfNL8
+ upzReRQE7qX0ExI5JafnRK6j3g2Qwbc=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+ s=susede2_ed25519; t=1646854082;
+ h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=EBgd/kQM55+aKZyAxeZX48FkKVfo/mz5CTR5lRw9eKc=;
+ b=nOFXmqBfiMmnupNjUk7t+uMDGgMsx/dslFxiJeSG1xw9ddpJVnlNHSzDrlfBRb0b6wL5Sh
+ Xia5h41juXNdSRCA==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 8AD0913D7C;
+ Wed,  9 Mar 2022 19:28:02 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+ by imap2.suse-dmz.suse.de with ESMTPSA id bdAuIML/KGINRQAAMHmgww
+ (envelope-from <tzimmermann@suse.de>); Wed, 09 Mar 2022 19:28:02 +0000
+Message-ID: <d1169f34-ccd8-299d-af1f-f45da37556db@suse.de>
+Date: Wed, 9 Mar 2022 20:28:01 +0100
 MIME-Version: 1.0
-From: Ali Anwar <ali@vt.edu>
-Date: Wed, 9 Mar 2022 13:54:01 -0500
-Message-ID: <CA+Vr5ct3KSXShZXRz+QS666QmToABT_=X83+pXYJWmF9ZCqNLg@mail.gmail.com>
-Subject: Call For Nominations: ACM HPDC Achievement Award 2022
-To: tci-announce@computer.org, tcde-announce@computer.org, 
- tcpp-announce@computer.org, tcbis-announce@computer.org, 
- "HPC-MEMBERS@listserv.acm.org" <HPC-MEMBERS@listserv.acm.org>, 
- sc-workshop-attendee-cfp@group.supercomputing.org, 
- hpc-india@mailman.serc.iisc.in, hipeac.publicity@lists.ugent.be, 
- sigops-announce@listserv.acm.org, publicity@hipeac.net, 
- htcondor-users@cs.wisc.edu, dbworld@cs.wisc.edu, 
- virtualization@lists.linux-foundation.org, users@planet-lab.org, 
- infodir_sigcomm@acm.org, sigplan-l@acm.uiuc.edu
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.6.1
+Subject: Re: [PATCH v1 0/5] Add memory shrinker to VirtIO-GPU DRM driver
+Content-Language: en-US
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ David Airlie <airlied@linux.ie>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
+ Daniel Almeida <daniel.almeida@collabora.com>,
+ Gert Wollny <gert.wollny@collabora.com>
+References: <20220308131725.60607-1-dmitry.osipenko@collabora.com>
+ <4ce1e172-799c-cba3-0a72-4a6fdf2c6d2f@suse.de>
+ <caa9a2ea-d1b4-fa96-0e90-37a89aa0c000@collabora.com>
+From: Thomas Zimmermann <tzimmermann@suse.de>
+In-Reply-To: <caa9a2ea-d1b4-fa96-0e90-37a89aa0c000@collabora.com>
+Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>, linux-kernel@vger.kernel.org,
+ dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
+ Gustavo Padovan <gustavo.padovan@collabora.com>,
+ Dmitry Osipenko <digetx@gmail.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -95,93 +106,119 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============6585887270972082092=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Call For Nominations: ACM HPDC Achievement Award 2022
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--===============6585887270972082092==
+Content-Language: en-US
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------0fZuqDyqCnXB5WEZyY7uvbDk"
 
-In 2012, HPDC established an annual achievement award, which is
-presented to an individual who has made long-lasting, influential
-contributions to the foundations or practice of the field of
-high-performance parallel and distributed computing (HPDC). These
-contributions may include one or more of the following:
-- conceptual advances that have influenced the design or operation of
-HPDC systems or applications;
-- innovative techniques or tools for the design or analysis of HPDC
-systems or applications;
-- the design, the implementation, and the deployment of innovative
-(components of) HPDC systems or applications;
-- the analysis of innovative (components of) HPDC systems or applications.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------0fZuqDyqCnXB5WEZyY7uvbDk
+Content-Type: multipart/mixed; boundary="------------oCd2skkQJSv6EnHzuN8xFK1Z";
+ protected-headers="v1"
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ David Airlie <airlied@linux.ie>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
+ Daniel Almeida <daniel.almeida@collabora.com>,
+ Gert Wollny <gert.wollny@collabora.com>
+Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org,
+ Gustavo Padovan <gustavo.padovan@collabora.com>,
+ dri-devel@lists.freedesktop.org, Dmitry Osipenko <digetx@gmail.com>
+Message-ID: <d1169f34-ccd8-299d-af1f-f45da37556db@suse.de>
+Subject: Re: [PATCH v1 0/5] Add memory shrinker to VirtIO-GPU DRM driver
+References: <20220308131725.60607-1-dmitry.osipenko@collabora.com>
+ <4ce1e172-799c-cba3-0a72-4a6fdf2c6d2f@suse.de>
+ <caa9a2ea-d1b4-fa96-0e90-37a89aa0c000@collabora.com>
+In-Reply-To: <caa9a2ea-d1b4-fa96-0e90-37a89aa0c000@collabora.com>
 
-In selecting the achievement award recipient, the Award Selection
-Committee will place particular emphasis on seminal contributions and
-a sustained record of high-impact in the field.
+--------------oCd2skkQJSv6EnHzuN8xFK1Z
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
-Past Winners:
-- 2021: Rosa Badia, for her innovations in parallel task-based
-programming models, workflow applications and systems, and leadership
-in the high performance computing research community.
-- 2020: No winner
-- 2019: Geoffrey Fox, for his foundational contributions to parallel
-computing, high-performance software, the interface between
-applications and systems, contributions to education, and outreach to
-underrepresented communities.
-- 2018: Satoshi Matsuoka, for his pioneering research in the design,
-implementation, and application of high performance systems and
-software tools for parallel and distributed systems.
-- 2017: David Abramson, for his pioneering research in the design,
-implementation, and application of high performance systems and
-software tools for parallel and distributed systems.
-- 2016: Jack Dongarra, for his long-standing and far-reaching
-contributions in high performance linear algebra and large-scale
-parallel and distributed computing.
-- 2015: Ewa Deelman, for her significant influence, contributions, and
-distinguished use of workflow systems in high-performance computing.
-- 2014: Rich Wolski, for pioneering and high-impact contributions to
-grid, cloud, and parallel computing.
-- 2013: Miron Livny, for his significant contribution and high impact
-in the area of high-throughput computing.
-- 2012: Ian Foster, for his initiative in the creation and development
-of grid computing and his significant contributions to
-high-performance distributed computing in support of the sciences.
+SGkNCg0KQW0gMDkuMDMuMjIgdW0gMTI6NTUgc2NocmllYiBEbWl0cnkgT3NpcGVua286DQo+
+IEhlbGxvLA0KPiANCj4gT24gMy85LzIyIDExOjU5LCBUaG9tYXMgWmltbWVybWFubiB3cm90
+ZToNCj4+IEhpDQo+Pg0KPj4gQW0gMDguMDMuMjIgdW0gMTQ6MTcgc2NocmllYiBEbWl0cnkg
+T3NpcGVua286DQo+Pj4gSGVsbG8sDQo+Pj4NCj4+PiBUaGlzIHBhdGNoc2V0IGludHJvZHVj
+ZXMgbWVtb3J5IHNocmlua2VyIGZvciB0aGUgVmlydElPLUdQVSBEUk0gZHJpdmVyLg0KPj4+
+IER1cmluZyBPT00sIHRoZSBzaHJpbmtlciB3aWxsIHJlbGVhc2UgQk9zIHRoYXQgYXJlIG1h
+cmtlZCBhcyAibm90IG5lZWRlZCINCj4+PiBieSB1c2Vyc3BhY2UgdXNpbmcgdGhlIG5ldyBt
+YWR2aXNlIElPQ1RMLiBUaGUgdXNlcnNwYWNlIGluIHRoaXMgY2FzZSBpcw0KPj4+IHRoZSBN
+ZXNhIFZpckdMIGRyaXZlciwgaXQgd2lsbCBtYXJrIHRoZSBjYWNoZWQgQk9zIGFzICJub3Qg
+bmVlZGVkIiwNCj4+PiBhbGxvd2luZyBrZXJuZWwgZHJpdmVyIHRvIHJlbGVhc2UgbWVtb3J5
+IG9mIHRoZSBjYWNoZWQgc2htZW0gQk9zIG9uDQo+Pj4gbG93bWVtDQo+Pj4gc2l0dWF0aW9u
+cywgcHJldmVudGluZyBPT00ga2lsbHMuDQo+Pg0KPj4gVmlydGlvLWdwdSBpcyBidWlsZCBv
+biB0b3Agb2YgR0VNIHNobWVtIGhlbHBlcnMuIEkgaGF2ZSBhIHByb3RvdHlwZQ0KPj4gcGF0
+Y2hzZXQgdGhhdCBhZGRzIGEgc2hyaW5rZXIgdG8gdGhlc2UgaGVscGVycy4gSWYgeW91IHdh
+bnQgdG8gZ28NCj4+IGZ1cnRoZXIsIHlvdSBjb3VsZCBpbXBsZW1lbnQgc29tZXRoaW5nIGxp
+a2UgdGhhdCBpbnN0ZWFkLiBQYW5mcm9zdCBhbmQNCj4+IGxpbWEgYWxzbyBoYXZlIHRoZWly
+IG93biBzaHJpbmtlciBhbmQgY291bGQgY2VydGFpbmx5IGJlIGNvbnZlcnRlZCB0bw0KPj4g
+dGhlIGdlbS1zaG1lbSBzaHJpbmtlci4NCj4gDQo+IEkgaGFkIGEgdGhvdWdodCB0aGF0IGl0
+IGNvdWxkIGJlIHBvc3NpYmxlIHRvIHVuaWZ5IHNocmlua2VycyBpbnRvIGENCj4gY29tbW9u
+IERSTSBmcmFtZXdvcmsuIENvdWxkIHlvdSBwbGVhc2UgZ2l2ZSBtZSBhIGxpbmsgdG8geW91
+cnMgcHJvdG90eXBlDQo+IHBhdGNoc2V0Pw0KDQpJIHVwbG9hZGVkIHRoZSBwYXRjaGVzIHRv
+DQoNCiANCmh0dHBzOi8vZ2l0bGFiLmZyZWVkZXNrdG9wLm9yZy90emltbWVybWFubi9saW51
+eC8tL2NvbW1pdHMvZ2VtLXNobWVtLWNhY2hlZC1tYXBwaW5ncw0KDQppdCdzIGluY29tcGxl
+dGUgYW5kIHVuLWRlYnVnZ2VkLCBidXQgaXQgc2hvd3Mgd2hhdCBuZWVkcyB0byBiZSBkb25l
+LiBJdCANCmhhcyB0aGUgaW5mcmFzdHJ1Y3R1cmUsIGJ1dCBsYWNrcyB0aGUgY2hhbmdlcyB0
+byB0aGUgR0VNIHNobWVtIGNvZGUuDQoNClRoZSByZWFzb24gZm9yIHRoaXMgd29yayBpcyB0
+byBrZWVwIEdFTSBzaG1lbSBwYWdlcyBtYXBwZWQgYW5kIGFsbG9jYXRlZCANCmV2ZW4gd2hp
+bGUgdGhlIEJPIGlzIG5laXRoZXIgbWFwcGVkIG5vciBwaW5uZWQuICBBcyBpdCBpcyBub3cs
+IEdFTSBTSE1FTSANCmNyZWF0ZXMgYW5kIHJlbGVhc2VzIHBhZ2VzIG9uIGVhY2ggcGluIGFu
+ZCB1bnBpbiwgYW5kIG1hcHMgYW5kIHVubWFwcyANCm1lbW9yeSByYW5nZXMgb24gZWFjaCB2
+bWFwIGFuZCB2dW5tYXAuICBJdCdzIGFsbCB3YXN0ZWZ1bC4gT25seSB0aGUgDQpmaXJzdCBw
+aW4gYW5kIHZtYXAgY2FsbHMgc2hvdWxkIGVzdGFibGlzaCBwYWdlcyBhbmQgbWFwcGluZ3Mg
+YW5kIG9ubHkgDQp0aGUgcHVyZ2UgYW5kIGZyZWUgZnVuY3Rpb25zIHNob3VsZCByZWxlYXNl
+IHRoZW0uDQoNClRoZSBwYXRjaHNldCBhZGRzIG5ldyBoZWxwZXJzIGZvciBCTyBwdXJnaW5n
+IHRvIHN0cnVjdCANCmRybV9nZW1fb2JqZWN0X2Z1bmNzLiBXaXRoIHRoaXMsIEkgdGhpbmsg
+aXQgbWlnaHQgYmUgcG9zc2libGUgdG8gaGF2ZSANCm9uZSBnbG9iYWwgRFJNIHNocmlua2Vy
+IGFuZCBsZXQgaXQgaGFuZGxlIGFsbCBCT3M7IGluZGVwZW5kZW50IG9mIGVhY2ggDQpCTydz
+IG1lbW9yeSBtYW5hZ2VyLg0KDQpCZXN0IHJlZ2FyZHMNClRob21hcw0KDQoNCi0tIA0KVGhv
+bWFzIFppbW1lcm1hbm4NCkdyYXBoaWNzIERyaXZlciBEZXZlbG9wZXINClNVU0UgU29mdHdh
+cmUgU29sdXRpb25zIEdlcm1hbnkgR21iSA0KTWF4ZmVsZHN0ci4gNSwgOTA0MDkgTsO8cm5i
+ZXJnLCBHZXJtYW55DQooSFJCIDM2ODA5LCBBRyBOw7xybmJlcmcpDQpHZXNjaMOkZnRzZsO8
+aHJlcjogSXZvIFRvdGV2DQo=
 
-Achievement Award Talk:
-The award will be presented at the 31st International Symposium on
-High-Performance Parallel and Distributed Computing in Minneapolis,
-Minnesota, United States, June 27 - July 1, 2022. The winner should be
-available to receive the award and present an achievement award talk
-at the conference.
+--------------oCd2skkQJSv6EnHzuN8xFK1Z--
 
-Nominations for the 2022 Award:
-Candidates may nominate a colleague by sending a letter in PDF form to
-dthain@nd.edu. Each nomination received will be retained and
-considered by the committee for three consecutive years. The letter of
-nomination should be about one page and contain:
-1. The nominee's current professional affiliation(s).
-2. A brief citation (thirty words or less) precisely stating the most
-salient reason(s) why the nominee is qualified for the award.
-3. A description of the technical contributions of the nominee and
-their significance and impact.
+--------------0fZuqDyqCnXB5WEZyY7uvbDk
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
 
-Important Dates:
-Nomination deadline: Wednesday, March 31th, 2022
+-----BEGIN PGP SIGNATURE-----
 
-2022 Award Selection Committee:
-- Rosa Badia
-- Jon Weissman
-- Abhishek Chandra
-- Ada Gavrilovska
-- Devesh Tiwari
-- Douglas Thain
+wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmIo/8EFAwAAAAAACgkQlh/E3EQov+B5
+Cg/8D7p/w31jtMqJdXvTfREicil4d2w52/vvgXkFNV6+5IoG0WCNVZ4aiTiws28X/ATH31KjS388
+3stbqkYxb1+Zui9tiXi2ciKBNc9ofNxeht/fpuP0vz0Xqigh0bYXPZmzLiDmwns7sXauMNML4cM1
+CqDnnwL+gjV/ZaowppqMgJqcB47k+SPURriV7ryLVb5Wc34MP3Qa3rbbOPm954y6bv1/W6zwIOAJ
+4Kpu5q6n0m4XWYV8rMVloIODbjm5yUcY0v/RolNfNEZICqDa82stzim8Co9JleplaUixuT7S3xX0
+enWNLyjzuzNz1m1AI64qTNXOwj8oa+Uu5H+rTXxA0+sT9kvZNad8NevS+buLiUEeF2pQullvY2Hh
+TVGmElsblRlDHKA6EpZKnCvjfxtXul1WuQHXAa3E+SX5MQAmWD08MaswNqMqSbzL/vE5lt7nR5yY
+ijCJoAylYpJ9esEkYc22++vvdDm5DMJP6Sto4/uCNIotmZmCOUWdDXb501ypJct8pJsgrMma0pKJ
+wAv8W3sCMHpUgpnB/of52Of7U7CPSe2CJrQ/7QUNRrCNSTp9lH8Ef1j9WxafqNlYJS+K850jOK4Y
+OVZWpm8L8iNpkv9mHd5O1qx6Hk2cjWop7BeSgs0o1u8qCi0KBZKfemMiacLpI8yiBaP60JyVFAsa
+rE8=
+=Wf5r
+-----END PGP SIGNATURE-----
 
-The award selection committee is chaired by a member of the HPDC
-steering committee and includes the General Chair(s) and the Program
-Committee Chair(s) of the current HPDC conference, and the previous
-year's award winner. An award committee member cannot be a nominator
-or be selected as the winner.
+--------------0fZuqDyqCnXB5WEZyY7uvbDk--
+
+--===============6585887270972082092==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============6585887270972082092==--
