@@ -1,77 +1,110 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 09DB2C4321E
-	for <virtualization@archiver.kernel.org>; Wed,  9 Mar 2022 10:20:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 62E46C433FE
+	for <virtualization@archiver.kernel.org>; Wed,  9 Mar 2022 11:27:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id AEB376109A;
-	Wed,  9 Mar 2022 10:20:46 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id CBE7B842AF;
+	Wed,  9 Mar 2022 11:27:56 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id cqgUK5X4ZrWD; Wed,  9 Mar 2022 10:20:45 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id GwvnoDieJUuK; Wed,  9 Mar 2022 11:27:56 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 27406610AE;
-	Wed,  9 Mar 2022 10:20:45 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 64E8F842AA;
+	Wed,  9 Mar 2022 11:27:55 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id EFA79C001D;
-	Wed,  9 Mar 2022 10:20:44 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 2D963C000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 15E98C0012;
+	Wed,  9 Mar 2022 11:27:55 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 93B91C000B
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Mar 2022 10:20:44 +0000 (UTC)
+ Wed,  9 Mar 2022 11:27:53 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 209C440159
+ by smtp4.osuosl.org (Postfix) with ESMTP id 6DB9F41696
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Mar 2022 10:20:44 +0000 (UTC)
+ Wed,  9 Mar 2022 11:27:53 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id m9VjimB7q7Wh
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id uulQDbyIpAv3
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Mar 2022 10:20:42 +0000 (UTC)
+ Wed,  9 Mar 2022 11:27:52 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from out199-14.us.a.mail.aliyun.com (out199-14.us.a.mail.aliyun.com
- [47.90.199.14])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 2B64C4002B
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 2117241695
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Mar 2022 10:20:41 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R161e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e01424; MF=xuanzhuo@linux.alibaba.com;
- NM=1; PH=DS; RN=33; SR=0; TI=SMTPD_---0V6jFsoZ_1646821234; 
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0V6jFsoZ_1646821234) by smtp.aliyun-inc.com(127.0.0.1);
- Wed, 09 Mar 2022 18:20:35 +0800
-Message-ID: <1646821007.3534708-15-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH v7 24/26] virtio_net: support rx/tx queue reset
-Date: Wed, 9 Mar 2022 18:16:47 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Jason Wang <jasowang@redhat.com>
-References: <20220308123518.33800-1-xuanzhuo@linux.alibaba.com>
- <20220308123518.33800-25-xuanzhuo@linux.alibaba.com>
- <7ff78ff8-bdd0-bb5e-1cea-cf1126226feb@redhat.com>
-In-Reply-To: <7ff78ff8-bdd0-bb5e-1cea-cf1126226feb@redhat.com>
-Cc: Vadim Pasternak <vadimp@nvidia.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- linux-remoteproc@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
- Bjorn Andersson <bjorn.andersson@linaro.org>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>, linux-s390@vger.kernel.org,
- Johannes Berg <johannes.berg@intel.com>,
- Daniel Borkmann <daniel@iogearbox.net>, Richard Weinberger <richard@nod.at>,
- Vincent Whitchurch <vincent.whitchurch@axis.com>,
- John Fastabend <john.fastabend@gmail.com>, Halil Pasic <pasic@linux.ibm.com>,
- Jakub Kicinski <kuba@kernel.org>, virtualization@lists.linux-foundation.org,
- Heiko Carstens <hca@linux.ibm.com>, Jesper Dangaard Brouer <hawk@kernel.org>,
- Vasily Gorbik <gor@linux.ibm.com>, Jeff Dike <jdike@addtoit.com>,
- linux-um@lists.infradead.org, Mark Gross <markgross@kernel.org>,
- Hans de Goede <hdegoede@redhat.com>, kvm@vger.kernel.org,
- platform-driver-x86@vger.kernel.org,
- Mathieu Poirier <mathieu.poirier@linaro.org>, netdev@vger.kernel.org,
- Cornelia Huck <cohuck@redhat.com>, Sven Schnelle <svens@linux.ibm.com>,
- bpf@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
+ Wed,  9 Mar 2022 11:27:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1646825270;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=r1dry0lyUeg8BL93lixPa+Zflu8wHHVu2YISeXmZ4Ik=;
+ b=F8980wOTFSqjcsTapQWENwRxhle6o4Rv5LBccf2TTPanIbp0vTkMRWHL6cS3Zm99WekC1F
+ nBSEbnnmVim3P2Kia2swpnG2eVM7TYD7VMrq5AsJ6JZ8WskbCyp+QS5CWv7g7VotcXh074
+ dA+lnrEz8kvUV9u/Y8VOrB6jS4nOj2o=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-622-MnezioUyOyyAqKpa8muQnw-1; Wed, 09 Mar 2022 06:27:48 -0500
+X-MC-Unique: MnezioUyOyyAqKpa8muQnw-1
+Received: by mail-wm1-f71.google.com with SMTP id
+ h206-20020a1c21d7000000b003552c13626cso2476626wmh.3
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 09 Mar 2022 03:27:48 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=r1dry0lyUeg8BL93lixPa+Zflu8wHHVu2YISeXmZ4Ik=;
+ b=6o2+KSzN3iOEie/Yl3PknHqnxAjXD1/i2TaBDOLmjo15DHcSuNQ1yqms5DDUGrJ7Ot
+ jPwRUMqY37CCcH2bJXHR0dOq4kqWVbQqZDj0k78ra6DjOIOlV6NeWUfw47bHrxfK9005
+ CO8A81VFeRGSJfQM5nLK5StUGEt6Er26OMAELHMXizhgxUOiw/j+lNSBS9uA7EzGpRiT
+ iDElr1oZXc2XwXOdDwgVYY4yFnDRQWfzUX5zMKG5iuDUOdH9NXi24hPgV5mlTFdZ939J
+ qEyTnH46yfpN588OWpkunALK5tdr9IEIjSr2xQgNgknpxR7DIhchmdcb40CEPDdAst7b
+ 7jwA==
+X-Gm-Message-State: AOAM530+cW70DsjiH9p35hWV1JKhaRGQiFfKt0XUPkHLC0a9jJs4VEWG
+ djxD201HpA58geOLtIvvrMJMTtoi3/CriC9wXim2SWgbjBWxdlVyapY6rtf5uvi+jlu/g5rAPph
+ hZyevIB4rlw9O/lxb/SRwY9RC0YK8HmxoBYXM/hRGIg==
+X-Received: by 2002:a5d:5850:0:b0:1f0:2d5b:dc35 with SMTP id
+ i16-20020a5d5850000000b001f02d5bdc35mr15385681wrf.344.1646825267359; 
+ Wed, 09 Mar 2022 03:27:47 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJx5EnTxMjHseQJzsLJ5Wu/dTwFF7Brw8lDvcPJ3itJlIDDt9Pu0F10asMB1wyA3mLuGf/VXjA==
+X-Received: by 2002:a5d:5850:0:b0:1f0:2d5b:dc35 with SMTP id
+ i16-20020a5d5850000000b001f02d5bdc35mr15385660wrf.344.1646825267128; 
+ Wed, 09 Mar 2022 03:27:47 -0800 (PST)
+Received: from redhat.com ([2.55.24.184]) by smtp.gmail.com with ESMTPSA id
+ q11-20020adfcd8b000000b001e320028660sm1387682wrj.92.2022.03.09.03.27.44
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 09 Mar 2022 03:27:46 -0800 (PST)
+Date: Wed, 9 Mar 2022 06:27:42 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Marc Zyngier <maz@kernel.org>
+Subject: Re: [PATCH V3 05/10] virtio-pci: harden INTX interrupts
+Message-ID: <20220309060703-mutt-send-email-mst@kernel.org>
+References: <20211019070152.8236-1-jasowang@redhat.com>
+ <20211019070152.8236-6-jasowang@redhat.com>
+ <87wnh3z9nm.wl-maz@kernel.org>
+MIME-Version: 1.0
+In-Reply-To: <87wnh3z9nm.wl-maz@kernel.org>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: keirf@google.com, "Paul E . McKenney" <paulmck@kernel.org>,
+ david.kaplan@amd.com, konrad.wilk@oracle.com,
+ Peter Zijlstra <peterz@infradead.org>, f.hetzelt@tu-berlin.de,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>,
+ Boqun Feng <boqun.feng@gmail.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -83,136 +116,111 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-U29ycnksIHRoZSBsYXN0IHJlcGx5IGVtYWlsIHdhcyB0b28gZmFzdCwgd2l0aCBzb21lIENoaW5l
-c2UgbWl4ZWQgaW4uIFNvIHNlbmQKYW5vdGhlciBlbWFpbC4KCk9uIFdlZCwgOSBNYXIgMjAyMiAx
-NzoxNDozNCArMDgwMCwgSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4gd3JvdGU6Cj4K
-PiDlnKggMjAyMi8zLzgg5LiL5Y2IODozNSwgWHVhbiBaaHVvIOWGmemBkzoKPiA+IFRoaXMgcGF0
-Y2ggaW1wbGVtZW50cyB0aGUgcmVzZXQgZnVuY3Rpb24gb2YgdGhlIHJ4LCB0eCBxdWV1ZXMuCj4g
-Pgo+ID4gQmFzZWQgb24gdGhpcyBmdW5jdGlvbiwgaXQgaXMgcG9zc2libGUgdG8gbW9kaWZ5IHRo
-ZSByaW5nIG51bSBvZiB0aGUKPiA+IHF1ZXVlLiBBbmQgcXVpY2tseSByZWN5Y2xlIHRoZSBidWZm
-ZXIgaW4gdGhlIHF1ZXVlLgo+ID4KPiA+IEluIHRoZSBwcm9jZXNzIG9mIHRoZSBxdWV1ZSBkaXNh
-YmxlLCBpbiB0aGVvcnksIGFzIGxvbmcgYXMgdmlydGlvCj4gPiBzdXBwb3J0cyBxdWV1ZSByZXNl
-dCwgdGhlcmUgd2lsbCBiZSBubyBleGNlcHRpb25zLgo+ID4KPiA+IEhvd2V2ZXIsIGluIHRoZSBw
-cm9jZXNzIG9mIHRoZSBxdWV1ZSBlbmFibGUsIHRoZXJlIG1heSBiZSBleGNlcHRpb25zIGR1ZSB0
-bwo+ID4gbWVtb3J5IGFsbG9jYXRpb24uICBJbiB0aGlzIGNhc2UsIHZxIGlzIG5vdCBhdmFpbGFi
-bGUsIGJ1dCB3ZSBzdGlsbCBoYXZlCj4gPiB0byBleGVjdXRlIG5hcGlfZW5hYmxlKCkuIEJlY2F1
-c2UgbmFwaV9kaXNhYmxlIGlzIHNpbWlsYXIgdG8gYSBsb2NrLAo+ID4gbmFwaV9lbmFibGUgbXVz
-dCBiZSBjYWxsZWQgYWZ0ZXIgY2FsbGluZyBuYXBpX2Rpc2FibGUuCj4gPgo+ID4gU2lnbmVkLW9m
-Zi1ieTogWHVhbiBaaHVvIDx4dWFuemh1b0BsaW51eC5hbGliYWJhLmNvbT4KPiA+IC0tLQo+ID4g
-ICBkcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMgfCAxMDcgKysrKysrKysrKysrKysrKysrKysrKysr
-KysrKysrKysrKysrKysrCj4gPiAgIDEgZmlsZSBjaGFuZ2VkLCAxMDcgaW5zZXJ0aW9ucygrKQo+
-ID4KPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMgYi9kcml2ZXJzL25l
-dC92aXJ0aW9fbmV0LmMKPiA+IGluZGV4IDQwOWE4ZTE4MDkxOC4uZmZmZjMyM2RjZWYwIDEwMDY0
-NAo+ID4gLS0tIGEvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4gPiArKysgYi9kcml2ZXJzL25l
-dC92aXJ0aW9fbmV0LmMKPiA+IEBAIC0yNTEsNiArMjUxLDExIEBAIHN0cnVjdCBwYWRkZWRfdm5l
-dF9oZHIgewo+ID4gICAJY2hhciBwYWRkaW5nWzRdOwo+ID4gICB9Owo+ID4KPiA+ICtzdGF0aWMg
-dm9pZCB2aXJ0bmV0X3NxX2ZyZWVfdW51c2VkX2J1ZnMoc3RydWN0IHZpcnRuZXRfaW5mbyAqdmks
-Cj4gPiArCQkJCQlzdHJ1Y3Qgc2VuZF9xdWV1ZSAqc3EpOwo+ID4gK3N0YXRpYyB2b2lkIHZpcnRu
-ZXRfcnFfZnJlZV91bnVzZWRfYnVmcyhzdHJ1Y3QgdmlydG5ldF9pbmZvICp2aSwKPiA+ICsJCQkJ
-CXN0cnVjdCByZWNlaXZlX3F1ZXVlICpycSk7Cj4gPiArCj4gPiAgIHN0YXRpYyBib29sIGlzX3hk
-cF9mcmFtZSh2b2lkICpwdHIpCj4gPiAgIHsKPiA+ICAgCXJldHVybiAodW5zaWduZWQgbG9uZylw
-dHIgJiBWSVJUSU9fWERQX0ZMQUc7Cj4gPiBAQCAtMTM2OSw2ICsxMzc0LDkgQEAgc3RhdGljIHZv
-aWQgdmlydG5ldF9uYXBpX2VuYWJsZShzdHJ1Y3QgdmlydHF1ZXVlICp2cSwgc3RydWN0IG5hcGlf
-c3RydWN0ICpuYXBpKQo+ID4gICB7Cj4gPiAgIAluYXBpX2VuYWJsZShuYXBpKTsKPiA+Cj4gPiAr
-CWlmICh2cS0+cmVzZXQpCj4gPiArCQlyZXR1cm47Cj4gPiArCj4KPgo+IExldCdzIFdBUk5fT05D
-RSgpIGhlcmU/Cj4KPgo+ID4gICAJLyogSWYgYWxsIGJ1ZmZlcnMgd2VyZSBmaWxsZWQgYnkgb3Ro
-ZXIgc2lkZSBiZWZvcmUgd2UgbmFwaV9lbmFibGVkLCB3ZQo+ID4gICAJICogd29uJ3QgZ2V0IGFu
-b3RoZXIgaW50ZXJydXB0LCBzbyBwcm9jZXNzIGFueSBvdXRzdGFuZGluZyBwYWNrZXRzIG5vdy4K
-PiA+ICAgCSAqIENhbGwgbG9jYWxfYmhfZW5hYmxlIGFmdGVyIHRvIHRyaWdnZXIgc29mdElSUSBw
-cm9jZXNzaW5nLgo+ID4gQEAgLTE0MTMsNiArMTQyMSwxMCBAQCBzdGF0aWMgdm9pZCByZWZpbGxf
-d29yayhzdHJ1Y3Qgd29ya19zdHJ1Y3QgKndvcmspCj4gPiAgIAkJc3RydWN0IHJlY2VpdmVfcXVl
-dWUgKnJxID0gJnZpLT5ycVtpXTsKPiA+Cj4gPiAgIAkJbmFwaV9kaXNhYmxlKCZycS0+bmFwaSk7
-Cj4gPiArCQlpZiAocnEtPnZxLT5yZXNldCkgewo+ID4gKwkJCXZpcnRuZXRfbmFwaV9lbmFibGUo
-cnEtPnZxLCAmcnEtPm5hcGkpOwo+ID4gKwkJCWNvbnRpbnVlOwo+ID4gKwkJfQo+Cj4KPiBUaGlz
-IHNlZW1zIHJhY3kgYW5kIGl0J3MgYSBoaW50IHRoYXQgd2UgbmVlZCBzeW5jIHdpdGggdGhlIHJl
-ZmlsbCB3b3JrCj4gZHVyaW5nIHJlc2V0IGxpa2Ugd2hhdCB3ZSBkaWQgaW4gdmlydG5ldF9jbG9z
-ZSgpOgo+Cj4gIMKgwqDCoMKgwqDCoMKgIC8qIE1ha2Ugc3VyZSByZWZpbGxfd29yayBkb2Vzbid0
-IHJlLWVuYWJsZSBuYXBpISAqLwo+ICDCoMKgwqDCoMKgwqDCoCBjYW5jZWxfZGVsYXllZF93b3Jr
-X3N5bmMoJnZpLT5yZWZpbGwpOwo+Cj4KPiA+ICAgCQlzdGlsbF9lbXB0eSA9ICF0cnlfZmlsbF9y
-ZWN2KHZpLCBycSwgR0ZQX0tFUk5FTCk7Cj4gPiAgIAkJdmlydG5ldF9uYXBpX2VuYWJsZShycS0+
-dnEsICZycS0+bmFwaSk7Cj4gPgo+ID4gQEAgLTE1MjMsNiArMTUzNSw5IEBAIHN0YXRpYyB2b2lk
-IHZpcnRuZXRfcG9sbF9jbGVhbnR4KHN0cnVjdCByZWNlaXZlX3F1ZXVlICpycSkKPiA+ICAgCWlm
-ICghc3EtPm5hcGkud2VpZ2h0IHx8IGlzX3hkcF9yYXdfYnVmZmVyX3F1ZXVlKHZpLCBpbmRleCkp
-Cj4gPiAgIAkJcmV0dXJuOwo+ID4KPiA+ICsJaWYgKHNxLT52cS0+cmVzZXQpCj4gPiArCQlyZXR1
-cm47Cj4KPgo+IEl0IGxvb2tzIHRvIG1lIHdlJ2QgYmV0dGVyIGVpdGhlciBXQVJOIG9yIGp1c3Qg
-cmVtb3ZlIHRoaXMuIFNpbmNlIGl0Cj4gbG9va3MgbGlrZSBhIHdvcmthcm91bmQgZm9yIHRoZSB1
-bi1zeW5jaHJvbml6ZWQgTkFQSSBzb21laG93LgoKRHVyaW5nIHRoZSByZXNldCBwcm9jZXNzLCBi
-b3RoIHJpbmcgcmVzZXQgYW5kIGVuYWJsZSBtYXkgZmFpbC4gSW4gdGhlIGNhc2Ugb2YKZmFpbHVy
-ZSwgdnEgd2lsbCBiZSB1bmF2YWlsYWJsZS4gQWxsIHRocmVlIGNhc2VzIHByZXZlbnQgdGhpcyBz
-aXR1YXRpb24uCgpFdmVuIGlmIGl0IGZhaWxzLCBuYXBpIHN0aWxsIG5lZWRzIHRvIGJlIGVuYWJs
-ZWQuIFRoaXMgaXMgdG8gcHJldmVudApuYXBpX2Rpc2FibGUgZnJvbSBiZWluZyBzdHVjayB3aGVu
-IHRoZSBuZXR3b3JrIGNhcmQgaXMgY2xvc2VkLgoKClNvIHRoZSBmaXJzdCBhbmQgc2Vjb25kIGNh
-c2VzIGFib3ZlIGFyZSB0aGF0IG5hcGkgaXMgZW5hYmxlZCwgYnV0IHZxIGhhcyBub3QKYmVlbiBy
-ZXNldCBzdWNjZXNzZnVsbHkgb3IgaXMgc3RpbGwgaW4gcmVzZXQuCgpBbmQgdGhlIHRoaXJkIGNh
-c2UgaXMgdG8gZGVhbCB3aXRoIHR4IGluIHJlc2V0LCBhbmQgcnggaXMgaW4gd29ya2luZyBzdGF0
-ZSwgdGhlbgpoZXJlIHdpbGwgYWNjZXNzIHRoZSB2cSBvZiBzcS4KCj4KPgo+ID4gKwo+ID4gICAJ
-aWYgKF9fbmV0aWZfdHhfdHJ5bG9jayh0eHEpKSB7Cj4gPiAgIAkJZG8gewo+ID4gICAJCQl2aXJ0
-cXVldWVfZGlzYWJsZV9jYihzcS0+dnEpOwo+ID4gQEAgLTE3NjksNiArMTc4NCw5OCBAQCBzdGF0
-aWMgbmV0ZGV2X3R4X3Qgc3RhcnRfeG1pdChzdHJ1Y3Qgc2tfYnVmZiAqc2tiLCBzdHJ1Y3QgbmV0
-X2RldmljZSAqZGV2KQo+ID4gICAJcmV0dXJuIE5FVERFVl9UWF9PSzsKPiA+ICAgfQo+ID4KPiA+
-ICtzdGF0aWMgaW50IHZpcnRuZXRfcnhfdnFfcmVzZXQoc3RydWN0IHZpcnRuZXRfaW5mbyAqdmks
-Cj4gPiArCQkJICAgICAgIHN0cnVjdCByZWNlaXZlX3F1ZXVlICpycSwgdTMyIHJpbmdfbnVtKQo+
-Cj4KPiBJdCdzIGJldHRlciB0byByZW5hbWUgdGhpcyBhcyB2aXJ0bmV0X3J4X3Jlc2l6ZSgpLgoK
-SSBkb24ndCB0aGluayByZXNpemUgaXMgZ29vZCBlbm91Z2gsIGJlY2F1c2UgSSB0aGluayByZXNp
-emUgaXMgYW4gZWZmZWN0IG9mCnJlc2V0LiBJbnNpZGUgYWZfeGRwLCB3ZSB3aWxsIGNhbGwgaXQg
-anVzdCB0byByZXNldCB0byBmcmVlIHRoZSBidWZmZXIgd2l0aG91dApyZXNpemUgd2l0aCByaW5n
-X251bSA9PSAwLgoKU28gdmlydG5ldF9yeF9yZXNldCgpIG1pZ2h0IGJlIGJldHRlci4KCgo+Cj4K
-PiA+ICt7Cj4gPiArCWludCBlcnI7Cj4gPiArCj4gPiArCS8qIHN0b3AgbmFwaSAqLwo+ID4gKwlu
-YXBpX2Rpc2FibGUoJnJxLT5uYXBpKTsKPiA+ICsKPgo+Cj4gSGVyZSwgYXMgZGlzY3Vzc2VkIGFi
-b3ZlLCB3ZSBuZWVkIHN5bmNocm9uaXplIHdpdGggdGhlIHJlZmlsbCB3b3JrLgo+Cj4KPiA+ICsJ
-LyogcmVzZXQgdGhlIHF1ZXVlICovCj4gPiArCWVyciA9IHZpcnRpb19yZXNldF92cShycS0+dnEp
-Owo+ID4gKwlpZiAoZXJyKQo+ID4gKwkJZ290byBlcnI7Cj4KPgo+IEJ0dywgbW9zdCBjb21tZW50
-IG9mIHRoaXMgZnVuY3Rpb24gc2VlbXMgdXNlbGVzcyBzaW5jZSBjb2RlIGFscmVhZHkKPiBleHBs
-YWluIHRoZW1zZWx2ZXMuCj4KCk9LLCBJIHdpbGwgcmVtb3ZlIHRoZXNlLgoKPgo+ID4gKwo+ID4g
-KwkvKiBmcmVlIGJ1ZnMgKi8KPiA+ICsJdmlydG5ldF9ycV9mcmVlX3VudXNlZF9idWZzKHZpLCBy
-cSk7Cj4gPiArCj4gPiArCS8qIHJlc2V0IHZyaW5nLiAqLwo+ID4gKwllcnIgPSB2aXJ0cXVldWVf
-cmVzZXRfdnJpbmcocnEtPnZxLCByaW5nX251bSk7Cj4gPiArCWlmIChlcnIpCj4gPiArCQlnb3Rv
-IGVycjsKPiA+ICsKPiA+ICsJLyogZW5hYmxlIHJlc2V0IHF1ZXVlICovCj4gPiArCWVyciA9IHZp
-cnRpb19lbmFibGVfcmVzZXRxKHJxLT52cSk7Cj4gPiArCWlmIChlcnIpCj4gPiArCQlnb3RvIGVy
-cjsKPiA+ICsKPiA+ICsJLyogZmlsbCByZWN2ICovCj4gPiArCWlmICghdHJ5X2ZpbGxfcmVjdih2
-aSwgcnEsIEdGUF9LRVJORUwpKQo+ID4gKwkJc2NoZWR1bGVfZGVsYXllZF93b3JrKCZ2aS0+cmVm
-aWxsLCAwKTsKPiA+ICsKPiA+ICsJLyogZW5hYmxlIG5hcGkgKi8KPiA+ICsJdmlydG5ldF9uYXBp
-X2VuYWJsZShycS0+dnEsICZycS0+bmFwaSk7Cj4gPiArCXJldHVybiAwOwo+ID4gKwo+ID4gK2Vy
-cjoKPiA+ICsJbmV0ZGV2X2Vycih2aS0+ZGV2LAo+ID4gKwkJICAgInJlc2V0IHJ4IHJlc2V0IHZx
-IGZhaWw6IHJ4IHF1ZXVlIGluZGV4OiAlbGQgZXJyOiAlZFxuIiwKPiA+ICsJCSAgIHJxIC0gdmkt
-PnJxLCBlcnIpOwo+ID4gKwl2aXJ0bmV0X25hcGlfZW5hYmxlKHJxLT52cSwgJnJxLT5uYXBpKTsK
-PiA+ICsJcmV0dXJuIGVycjsKPiA+ICt9Cj4gPiArCj4gPiArc3RhdGljIGludCB2aXJ0bmV0X3R4
-X3ZxX3Jlc2V0KHN0cnVjdCB2aXJ0bmV0X2luZm8gKnZpLAo+ID4gKwkJCSAgICAgICBzdHJ1Y3Qg
-c2VuZF9xdWV1ZSAqc3EsIHUzMiByaW5nX251bSkKPiA+ICt7Cj4KPgo+IEl0IGxvb2tzIHRvIG1l
-IGl0J3MgYmV0dGVyIHRvIHJlbmFtZSB0aGlzIGFzICJ2aXJ0bmV0X3J4X3Jlc2l6ZSgpIgo+Cj4K
-PiA+ICsJc3RydWN0IG5ldGRldl9xdWV1ZSAqdHhxOwo+ID4gKwlpbnQgZXJyLCBxaW5kZXg7Cj4g
-PiArCj4gPiArCXFpbmRleCA9IHNxIC0gdmktPnNxOwo+ID4gKwo+ID4gKwl0eHEgPSBuZXRkZXZf
-Z2V0X3R4X3F1ZXVlKHZpLT5kZXYsIHFpbmRleCk7Cj4gPiArCV9fbmV0aWZfdHhfbG9ja19iaCh0
-eHEpOwo+ID4gKwo+ID4gKwkvKiBzdG9wIHR4IHF1ZXVlIGFuZCBuYXBpICovCj4gPiArCW5ldGlm
-X3N0b3Bfc3VicXVldWUodmktPmRldiwgcWluZGV4KTsKPiA+ICsJdmlydG5ldF9uYXBpX3R4X2Rp
-c2FibGUoJnNxLT5uYXBpKTsKPgo+Cj4gVGhlcmUncyBubyBuZWVkIHRvIGhvbGQgdHggbG9jayBm
-b3IgbmFwaSBkaXNhYmxlLgoKVGhlIG1haW4gcHVycG9zZSBvZiB0eCBsb2NrIGlzIHRvIHdhaXQg
-Zm9yIG90aGVyIHhtaXQgY2FsbHMgdG8gZW5kLiBBbmQgc2V0Cm5ldGlmX3N0b3Bfc3VicXVldWUo
-KQoKVGhhbmtzLgoKPgo+IFRoYW5rcwo+Cj4KPiA+ICsKPiA+ICsJX19uZXRpZl90eF91bmxvY2tf
-YmgodHhxKTsKPiA+ICsKPiA+ICsJLyogcmVzZXQgdGhlIHF1ZXVlICovCj4gPiArCWVyciA9IHZp
-cnRpb19yZXNldF92cShzcS0+dnEpOwo+ID4gKwlpZiAoZXJyKSB7Cj4gPiArCQluZXRpZl9zdGFy
-dF9zdWJxdWV1ZSh2aS0+ZGV2LCBxaW5kZXgpOwo+ID4gKwkJZ290byBlcnI7Cj4gPiArCX0KPiA+
-ICsKPiA+ICsJLyogZnJlZSBidWZzICovCj4gPiArCXZpcnRuZXRfc3FfZnJlZV91bnVzZWRfYnVm
-cyh2aSwgc3EpOwo+ID4gKwo+ID4gKwkvKiByZXNldCB2cmluZy4gKi8KPiA+ICsJZXJyID0gdmly
-dHF1ZXVlX3Jlc2V0X3ZyaW5nKHNxLT52cSwgcmluZ19udW0pOwo+ID4gKwlpZiAoZXJyKQo+ID4g
-KwkJZ290byBlcnI7Cj4gPiArCj4gPiArCS8qIGVuYWJsZSByZXNldCBxdWV1ZSAqLwo+ID4gKwll
-cnIgPSB2aXJ0aW9fZW5hYmxlX3Jlc2V0cShzcS0+dnEpOwo+ID4gKwlpZiAoZXJyKQo+ID4gKwkJ
-Z290byBlcnI7Cj4gPiArCj4gPiArCS8qIHN0YXJ0IHR4IHF1ZXVlIGFuZCBuYXBpICovCj4gPiAr
-CW5ldGlmX3N0YXJ0X3N1YnF1ZXVlKHZpLT5kZXYsIHFpbmRleCk7Cj4gPiArCXZpcnRuZXRfbmFw
-aV90eF9lbmFibGUodmksIHNxLT52cSwgJnNxLT5uYXBpKTsKPiA+ICsJcmV0dXJuIDA7Cj4gPiAr
-Cj4gPiArZXJyOgo+ID4gKwluZXRkZXZfZXJyKHZpLT5kZXYsCj4gPiArCQkgICAicmVzZXQgdHgg
-cmVzZXQgdnEgZmFpbDogdHggcXVldWUgaW5kZXg6ICVsZCBlcnI6ICVkXG4iLAo+ID4gKwkJICAg
-c3EgLSB2aS0+c3EsIGVycik7Cj4gPiArCXZpcnRuZXRfbmFwaV90eF9lbmFibGUodmksIHNxLT52
-cSwgJnNxLT5uYXBpKTsKPiA+ICsJcmV0dXJuIGVycjsKPiA+ICt9Cj4gPiArCj4gPiAgIC8qCj4g
-PiAgICAqIFNlbmQgY29tbWFuZCB2aWEgdGhlIGNvbnRyb2wgdmlydHF1ZXVlIGFuZCBjaGVjayBz
-dGF0dXMuICBDb21tYW5kcwo+ID4gICAgKiBzdXBwb3J0ZWQgYnkgdGhlIGh5cGVydmlzb3IsIGFz
-IGluZGljYXRlZCBieSBmZWF0dXJlIGJpdHMsIHNob3VsZAo+Cl9fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApW
-aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxp
-bnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Wed, Mar 09, 2022 at 10:45:49AM +0000, Marc Zyngier wrote:
+> [Adding Will to check on my understanding of the interactions between
+>  spinlocks and WRITE_ONCE()]
+> 
+> On Tue, 19 Oct 2021 08:01:47 +0100,
+> Jason Wang <jasowang@redhat.com> wrote:
+> > 
+> > This patch tries to make sure the virtio interrupt handler for INTX
+> > won't be called after a reset and before virtio_device_ready(). We
+> > can't use IRQF_NO_AUTOEN since we're using shared interrupt
+> > (IRQF_SHARED). So this patch tracks the INTX enabling status in a new
+> > intx_soft_enabled variable and toggle it during in
+> > vp_disable/enable_vectors(). The INTX interrupt handler will check
+> > intx_soft_enabled before processing the actual interrupt.
+> > 
+> > Cc: Boqun Feng <boqun.feng@gmail.com>
+> > Cc: Thomas Gleixner <tglx@linutronix.de>
+> > Cc: Peter Zijlstra <peterz@infradead.org>
+> > Cc: Paul E. McKenney <paulmck@kernel.org>
+> > Signed-off-by: Jason Wang <jasowang@redhat.com>
+> > ---
+> >  drivers/virtio/virtio_pci_common.c | 23 +++++++++++++++++++++--
+> >  drivers/virtio/virtio_pci_common.h |  1 +
+> >  2 files changed, 22 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+> > index 8d8f83aca721..1bce254a462a 100644
+> > --- a/drivers/virtio/virtio_pci_common.c
+> > +++ b/drivers/virtio/virtio_pci_common.c
+> > @@ -30,8 +30,16 @@ void vp_disable_cbs(struct virtio_device *vdev)
+> >  	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+> >  	int i;
+> >  
+> > -	if (vp_dev->intx_enabled)
+> > +	if (vp_dev->intx_enabled) {
+> > +		/*
+> > +		 * The below synchronize() guarantees that any
+> > +		 * interrupt for this line arriving after
+> > +		 * synchronize_irq() has completed is guaranteed to see
+> > +		 * intx_soft_enabled == false.
+> > +		 */
+> > +		WRITE_ONCE(vp_dev->intx_soft_enabled, false);
+> >  		synchronize_irq(vp_dev->pci_dev->irq);
+> > +	}
+> >  
+> >  	for (i = 0; i < vp_dev->msix_vectors; ++i)
+> >  		disable_irq(pci_irq_vector(vp_dev->pci_dev, i));
+> > @@ -43,8 +51,16 @@ void vp_enable_cbs(struct virtio_device *vdev)
+> >  	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+> >  	int i;
+> >  
+> > -	if (vp_dev->intx_enabled)
+> > +	if (vp_dev->intx_enabled) {
+> > +		disable_irq(vp_dev->pci_dev->irq);
+> > +		/*
+> > +		 * The above disable_irq() provides TSO ordering and
+> > +		 * as such promotes the below store to store-release.
+> > +		 */
+> > +		WRITE_ONCE(vp_dev->intx_soft_enabled, true);
+> 
+> What do you mean by TSO here? AFAICT, the CPU is allowed hoist this
+> write up into the lock used by disable_irq(), as the unlock only has
+> release semantics. Is that what you are relying on? I don't see how
+> this upgrades WRITE_ONCE() to have release semantics.
+> 
+> > +		enable_irq(vp_dev->pci_dev->irq);
+> 
+> Same thing does here: my understanding is that the write can be pushed
+> down into the lock, which has acquire semantics only.
+> 
+> Thanks,
+> 
+> 	M.
+
+Overall I feel what we are doing here is very standard and should be
+pretty common for a driver that wants to be protected against a
+malicious device:
+
+
+1- get IRQ
+2- initialize device with IRQ
+3- enable IRQ
+
+Doing it in the core kernel helps make sure interrupts are
+not lost if they trigger during 2.
+
+Without core kernel support one has to refactor the driver along the lines of:
+
+a- initialize driver
+b- get IRQ
+c- initialize device with IRQ
+
+and this is often tricky especially if one wants to do things like
+discover device configuration and reconfigure the driver accordingly.
+
+
+> -- 
+> Without deviation from the norm, progress is not possible.
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
