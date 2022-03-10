@@ -1,78 +1,106 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 780D7C433EF
-	for <virtualization@archiver.kernel.org>; Thu, 10 Mar 2022 08:29:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 79D99C433F5
+	for <virtualization@archiver.kernel.org>; Thu, 10 Mar 2022 08:59:43 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id EB78040A04;
-	Thu, 10 Mar 2022 08:29:12 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 0BB398416D;
+	Thu, 10 Mar 2022 08:59:43 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id VtJhXnRfIeWn; Thu, 10 Mar 2022 08:29:11 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ymiVVkGg3sKw; Thu, 10 Mar 2022 08:59:42 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id A8B4B40112;
-	Thu, 10 Mar 2022 08:29:10 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 44D6983E75;
+	Thu, 10 Mar 2022 08:59:41 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 696DCC0012;
-	Thu, 10 Mar 2022 08:29:10 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 476BCC000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0BCFDC0012;
+	Thu, 10 Mar 2022 08:59:41 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 99D00C000B
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Mar 2022 08:29:08 +0000 (UTC)
+ Thu, 10 Mar 2022 08:59:40 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 2C740409E3
+ by smtp1.osuosl.org (Postfix) with ESMTP id 96DE284133
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Mar 2022 08:29:08 +0000 (UTC)
+ Thu, 10 Mar 2022 08:59:40 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id AGgbhPHWwKxL
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 7OTz6rniyZPm
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Mar 2022 08:29:06 +0000 (UTC)
+ Thu, 10 Mar 2022 08:59:39 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from out30-133.freemail.mail.aliyun.com
- (out30-133.freemail.mail.aliyun.com [115.124.30.133])
- by smtp2.osuosl.org (Postfix) with ESMTPS id D9DA240112
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 923F283E75
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Mar 2022 08:29:05 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R481e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04357; MF=xuanzhuo@linux.alibaba.com;
- NM=1; PH=DS; RN=33; SR=0; TI=SMTPD_---0V6neRLx_1646900938; 
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0V6neRLx_1646900938) by smtp.aliyun-inc.com(127.0.0.1);
- Thu, 10 Mar 2022 16:28:59 +0800
-Message-ID: <1646900411.6481435-2-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH v7 17/26] virtio_pci: queue_reset: support
- VIRTIO_F_RING_RESET
-Date: Thu, 10 Mar 2022 16:20:11 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Jason Wang <jasowang@redhat.com>
-References: <20220308123518.33800-1-xuanzhuo@linux.alibaba.com>
- <20220308123518.33800-18-xuanzhuo@linux.alibaba.com>
- <8b9d337d-71c2-07b4-8e65-6f83cf09bf7a@redhat.com>
-In-Reply-To: <8b9d337d-71c2-07b4-8e65-6f83cf09bf7a@redhat.com>
-Cc: Vadim Pasternak <vadimp@nvidia.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- linux-remoteproc@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
- Bjorn Andersson <bjorn.andersson@linaro.org>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>, linux-s390@vger.kernel.org,
- Johannes Berg <johannes.berg@intel.com>,
- Daniel Borkmann <daniel@iogearbox.net>, Richard Weinberger <richard@nod.at>,
- Vincent Whitchurch <vincent.whitchurch@axis.com>,
- John Fastabend <john.fastabend@gmail.com>, Halil Pasic <pasic@linux.ibm.com>,
- Jakub Kicinski <kuba@kernel.org>, virtualization@lists.linux-foundation.org,
- Heiko Carstens <hca@linux.ibm.com>, Jesper Dangaard Brouer <hawk@kernel.org>,
- Vasily Gorbik <gor@linux.ibm.com>, Jeff Dike <jdike@addtoit.com>,
- linux-um@lists.infradead.org, Mark Gross <markgross@kernel.org>,
- Hans de Goede <hdegoede@redhat.com>, kvm@vger.kernel.org,
- platform-driver-x86@vger.kernel.org,
- Mathieu Poirier <mathieu.poirier@linaro.org>, netdev@vger.kernel.org,
- Cornelia Huck <cohuck@redhat.com>, Sven Schnelle <svens@linux.ibm.com>,
- bpf@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
+ Thu, 10 Mar 2022 08:59:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1646902778;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=WQ/dYEhklhPcMo587rvR2qJ7KNlk74jXJG+JhU1AbRA=;
+ b=EEF3IHPlc7wrkuAk82fLGBbc1Uza0LHR9aI81WrljXO+4wQ/mapZ4DjXepTCglljb/yw6/
+ ni/piFF/CkX1LboEA09oPD8JnQibBUFR+1FgzxzIH7igxjxpG7GRQQguM4E3cMU8M4VAg1
+ AI5InYSPLlepfxXs4f8FpPVl3ni+4x0=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-278-bYfanafCPVCK0jSMSISlOw-1; Thu, 10 Mar 2022 03:59:36 -0500
+X-MC-Unique: bYfanafCPVCK0jSMSISlOw-1
+Received: by mail-ed1-f70.google.com with SMTP id
+ i5-20020a056402054500b00415ce7443f4so2750441edx.12
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 10 Mar 2022 00:59:35 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=WQ/dYEhklhPcMo587rvR2qJ7KNlk74jXJG+JhU1AbRA=;
+ b=kElvWjmN7NPooCMELdsA40xyE/ctaOtSm79rop49XUH8idFUJTFA3aDAA8x+WALbXV
+ D6nWx+tz4reJyKry4Tu0j8VyE9FWF9sxQbs+lMl3g1git25FFUS/3fO+Z8MUYWFjRQaX
+ +hTtM0Cbj8cOqu4b1eS0WLLbnzjYIzEnEdOAx7t8dRDylvGadcM0rf99KcD3sCyis5AW
+ eQ4Yr9XCHCruZZWvQAIj3IL06NPAj/QzRiC1WfpcAJSedz32MWU3dzsTMocSH5lDJSG7
+ g/O05t6KT9dpECH2RYQemF7hXlU95PIBYpV309/YupC5rZQYfL+UIw/fwlWV3dGAtM7y
+ h/7A==
+X-Gm-Message-State: AOAM531cQ6BVwKf1eZOWwjzyB591x8tedv3Eyqaf0uhjW77vAtRJegWJ
+ 0R8UUFUyzta9Qgt3OPeRzI00STNAwCjGDky9JU/iscVwqVStaYDtsJTyUqgM2AJZANoZy4QUeJu
+ Gh3QfiLxK6OwP0hNk1zVdXKKjiWQj3St8yWMM8RN4oQ==
+X-Received: by 2002:a17:907:2a53:b0:6ce:e4fe:3f92 with SMTP id
+ fe19-20020a1709072a5300b006cee4fe3f92mr3207209ejc.389.1646902774851; 
+ Thu, 10 Mar 2022 00:59:34 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJz3lIVlYhT5pB9vGmIIkaBIM5FzigFqHE7Plk2kLwaMt42aBHUIWqvpJN1SkNr5CjX+UXVYzg==
+X-Received: by 2002:a17:907:2a53:b0:6ce:e4fe:3f92 with SMTP id
+ fe19-20020a1709072a5300b006cee4fe3f92mr3207197ejc.389.1646902774597; 
+ Thu, 10 Mar 2022 00:59:34 -0800 (PST)
+Received: from sgarzare-redhat
+ (host-212-171-187-184.pool212171.interbusiness.it. [212.171.187.184])
+ by smtp.gmail.com with ESMTPSA id
+ n13-20020a1709062bcd00b006cf71d46a1csm1546859ejg.136.2022.03.10.00.59.33
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 10 Mar 2022 00:59:34 -0800 (PST)
+Date: Thu, 10 Mar 2022 09:59:31 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Jiyong Park <jiyong@google.com>
+Subject: Re: [PATCH] vhost/vsock: reset only the h2g connections upon release
+Message-ID: <20220310085931.cpgc2cv4yg7sd4vu@sgarzare-redhat>
+References: <20220310081854.2487280-1-jiyong@google.com>
+MIME-Version: 1.0
+In-Reply-To: <20220310081854.2487280-1-jiyong@google.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: adelva@google.com, kvm@vger.kernel.org,
+ "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ Stefan Hajnoczi <stefanha@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -84,139 +112,105 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gV2VkLCA5IE1hciAyMDIyIDE2OjU0OjEwICswODAwLCBKYXNvbiBXYW5nIDxqYXNvd2FuZ0By
-ZWRoYXQuY29tPiB3cm90ZToKPgo+IOWcqCAyMDIyLzMvOCDkuIvljYg4OjM1LCBYdWFuIFpodW8g
-5YaZ6YGTOgo+ID4gVGhpcyBwYXRjaCBpbXBsZW1lbnRzIHZpcnRpbyBwY2kgc3VwcG9ydCBmb3Ig
-UVVFVUUgUkVTRVQuCj4gPgo+ID4gUGVyZm9ybWluZyByZXNldCBvbiBhIHF1ZXVlIGlzIGRpdmlk
-ZWQgaW50byB0aGVzZSBzdGVwczoKPiA+Cj4gPiAgIDEuIHZpcnRpb19yZXNldF92cSgpICAgICAg
-ICAgICAgICAtIG5vdGlmeSB0aGUgZGV2aWNlIHRvIHJlc2V0IHRoZSBxdWV1ZQo+ID4gICAyLiB2
-aXJ0cXVldWVfZGV0YWNoX3VudXNlZF9idWYoKSAgLSByZWN5Y2xlIHRoZSBidWZmZXIgc3VibWl0
-dGVkCj4gPiAgIDMuIHZpcnRxdWV1ZV9yZXNldF92cmluZygpICAgICAgICAtIHJlc2V0IHRoZSB2
-cmluZyAobWF5IHJlLWFsbG9jKQo+ID4gICA0LiB2aXJ0aW9fZW5hYmxlX3Jlc2V0cSgpICAgICAg
-ICAgLSBtbWFwIHZyaW5nIHRvIGRldmljZSwgYW5kIGVuYWJsZSB0aGUgcXVldWUKPiA+Cj4gPiBU
-aGlzIHBhdGNoIGltcGxlbWVudHMgdmlydGlvX3Jlc2V0X3ZxKCksIHZpcnRpb19lbmFibGVfcmVz
-ZXRxKCkgaW4gdGhlCj4gPiBwY2kgc2NlbmFyaW8uCj4gPgo+ID4gU2lnbmVkLW9mZi1ieTogWHVh
-biBaaHVvIDx4dWFuemh1b0BsaW51eC5hbGliYWJhLmNvbT4KPiA+IC0tLQo+ID4gICBkcml2ZXJz
-L3ZpcnRpby92aXJ0aW9fcGNpX2NvbW1vbi5jIHwgIDggKy0tCj4gPiAgIGRyaXZlcnMvdmlydGlv
-L3ZpcnRpb19wY2lfbW9kZXJuLmMgfCA4MyArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysK
-PiA+ICAgMiBmaWxlcyBjaGFuZ2VkLCA4OCBpbnNlcnRpb25zKCspLCAzIGRlbGV0aW9ucygtKQo+
-ID4KPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNpX2NvbW1vbi5jIGIv
-ZHJpdmVycy92aXJ0aW8vdmlydGlvX3BjaV9jb21tb24uYwo+ID4gaW5kZXggZmRiZGUxZGI1ZWM1
-Li44NjNkM2E4YTA5NTYgMTAwNjQ0Cj4gPiAtLS0gYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNp
-X2NvbW1vbi5jCj4gPiArKysgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNpX2NvbW1vbi5jCj4g
-PiBAQCAtMjQ4LDkgKzI0OCwxMSBAQCBzdGF0aWMgdm9pZCB2cF9kZWxfdnEoc3RydWN0IHZpcnRx
-dWV1ZSAqdnEpCj4gPiAgIAlzdHJ1Y3QgdmlydGlvX3BjaV92cV9pbmZvICppbmZvID0gdnBfZGV2
-LT52cXNbdnEtPmluZGV4XTsKPiA+ICAgCXVuc2lnbmVkIGxvbmcgZmxhZ3M7Cj4gPgo+ID4gLQlz
-cGluX2xvY2tfaXJxc2F2ZSgmdnBfZGV2LT5sb2NrLCBmbGFncyk7Cj4gPiAtCWxpc3RfZGVsKCZp
-bmZvLT5ub2RlKTsKPiA+IC0Jc3Bpbl91bmxvY2tfaXJxcmVzdG9yZSgmdnBfZGV2LT5sb2NrLCBm
-bGFncyk7Cj4gPiArCWlmICghdnEtPnJlc2V0KSB7Cj4gPiArCQlzcGluX2xvY2tfaXJxc2F2ZSgm
-dnBfZGV2LT5sb2NrLCBmbGFncyk7Cj4gPiArCQlsaXN0X2RlbCgmaW5mby0+bm9kZSk7Cj4gPiAr
-CQlzcGluX3VubG9ja19pcnFyZXN0b3JlKCZ2cF9kZXYtPmxvY2ssIGZsYWdzKTsKPiA+ICsJfQo+
-ID4KPiA+ICAgCXZwX2Rldi0+ZGVsX3ZxKGluZm8pOwo+ID4gICAJa2ZyZWUoaW5mbyk7Cj4gPiBk
-aWZmIC0tZ2l0IGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX3BjaV9tb2Rlcm4uYyBiL2RyaXZlcnMv
-dmlydGlvL3ZpcnRpb19wY2lfbW9kZXJuLmMKPiA+IGluZGV4IDQ5YTQ0OTM3MzJjZi4uM2M2N2Qz
-NjA3ODAyIDEwMDY0NAo+ID4gLS0tIGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX3BjaV9tb2Rlcm4u
-Ywo+ID4gKysrIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX3BjaV9tb2Rlcm4uYwo+ID4gQEAgLTM0
-LDYgKzM0LDkgQEAgc3RhdGljIHZvaWQgdnBfdHJhbnNwb3J0X2ZlYXR1cmVzKHN0cnVjdCB2aXJ0
-aW9fZGV2aWNlICp2ZGV2LCB1NjQgZmVhdHVyZXMpCj4gPiAgIAlpZiAoKGZlYXR1cmVzICYgQklU
-X1VMTChWSVJUSU9fRl9TUl9JT1YpKSAmJgo+ID4gICAJCQlwY2lfZmluZF9leHRfY2FwYWJpbGl0
-eShwY2lfZGV2LCBQQ0lfRVhUX0NBUF9JRF9TUklPVikpCj4gPiAgIAkJX192aXJ0aW9fc2V0X2Jp
-dCh2ZGV2LCBWSVJUSU9fRl9TUl9JT1YpOwo+ID4gKwo+ID4gKwlpZiAoZmVhdHVyZXMgJiBCSVRf
-VUxMKFZJUlRJT19GX1JJTkdfUkVTRVQpKQo+ID4gKwkJX192aXJ0aW9fc2V0X2JpdCh2ZGV2LCBW
-SVJUSU9fRl9SSU5HX1JFU0VUKTsKPiA+ICAgfQo+ID4KPiA+ICAgLyogdmlydGlvIGNvbmZpZy0+
-ZmluYWxpemVfZmVhdHVyZXMoKSBpbXBsZW1lbnRhdGlvbiAqLwo+ID4gQEAgLTE5OSw2ICsyMDIs
-ODIgQEAgc3RhdGljIGludCB2cF9hY3RpdmVfdnEoc3RydWN0IHZpcnRxdWV1ZSAqdnEsIHUxNiBt
-c2l4X3ZlYykKPiA+ICAgCXJldHVybiAwOwo+ID4gICB9Cj4gPgo+ID4gK3N0YXRpYyBpbnQgdnBf
-bW9kZXJuX3Jlc2V0X3ZxKHN0cnVjdCB2aXJ0cXVldWUgKnZxKQo+ID4gK3sKPiA+ICsJc3RydWN0
-IHZpcnRpb19wY2lfZGV2aWNlICp2cF9kZXYgPSB0b192cF9kZXZpY2UodnEtPnZkZXYpOwo+ID4g
-KwlzdHJ1Y3QgdmlydGlvX3BjaV9tb2Rlcm5fZGV2aWNlICptZGV2ID0gJnZwX2Rldi0+bWRldjsK
-PiA+ICsJc3RydWN0IHZpcnRpb19wY2lfdnFfaW5mbyAqaW5mbzsKPiA+ICsJdW5zaWduZWQgbG9u
-ZyBmbGFnczsKPiA+ICsJdW5zaWduZWQgaW50IGlycTsKPiA+ICsKPiA+ICsJaWYgKCF2aXJ0aW9f
-aGFzX2ZlYXR1cmUodnEtPnZkZXYsIFZJUlRJT19GX1JJTkdfUkVTRVQpKQo+ID4gKwkJcmV0dXJu
-IC1FTk9FTlQ7Cj4gPiArCj4gPiArCXZwX21vZGVybl9zZXRfcXVldWVfcmVzZXQobWRldiwgdnEt
-PmluZGV4KTsKPiA+ICsKPiA+ICsJaW5mbyA9IHZwX2Rldi0+dnFzW3ZxLT5pbmRleF07Cj4gPiAr
-Cj4gPiArCS8qIGRlbGV0ZSB2cSBmcm9tIGlycSBoYW5kbGVyICovCj4gPiArCXNwaW5fbG9ja19p
-cnFzYXZlKCZ2cF9kZXYtPmxvY2ssIGZsYWdzKTsKPiA+ICsJbGlzdF9kZWwoJmluZm8tPm5vZGUp
-Owo+ID4gKwlzcGluX3VubG9ja19pcnFyZXN0b3JlKCZ2cF9kZXYtPmxvY2ssIGZsYWdzKTsKPiA+
-ICsKPiA+ICsJSU5JVF9MSVNUX0hFQUQoJmluZm8tPm5vZGUpOwo+ID4gKwo+ID4gKwl2cS0+cmVz
-ZXQgPSBWSVJUSU9fVlFfUkVTRVRfU1RFUF9ERVZJQ0U7Cj4gPiArCj4gPiArCS8qIHN5bmMgaXJx
-IGNhbGxiYWNrLiAqLwo+ID4gKwlpZiAodnBfZGV2LT5pbnR4X2VuYWJsZWQpIHsKPiA+ICsJCWly
-cSA9IHZwX2Rldi0+cGNpX2Rldi0+aXJxOwo+ID4gKwo+ID4gKwl9IGVsc2Ugewo+ID4gKwkJaWYg
-KGluZm8tPm1zaXhfdmVjdG9yID09IFZJUlRJT19NU0lfTk9fVkVDVE9SKQo+ID4gKwkJCXJldHVy
-biAwOwo+ID4gKwo+ID4gKwkJaXJxID0gcGNpX2lycV92ZWN0b3IodnBfZGV2LT5wY2lfZGV2LCBp
-bmZvLT5tc2l4X3ZlY3Rvcik7Cj4gPiArCX0KPiA+ICsKPiA+ICsJc3luY2hyb25pemVfaXJxKGly
-cSk7Cj4KPgo+IFN5bmNocm9uaXplX2lycSgpIGlzIG5vdCBzdWZmaWNpZW50IGhlcmUgc2luY2Ug
-aXQgYnJlYWtzIHRoZSBlZmZvcnQgb2YKPiB0aGUgaW50ZXJydXB0IGhhcmRlbmluZyB3aGljaCBp
-cyBkb25lIGJ5IGNvbW1pdHM6Cj4KPiAwODBjZDdjM2FjODcgdmlydGlvLXBjaTogaGFyZGVuIElO
-VFggaW50ZXJydXB0cwo+IDllMzUyNzZhNTM0NCB2aXJ0aW9fcGNpOiBoYXJkZW4gTVNJLVggaW50
-ZXJydXB0cwo+Cj4gVW5mb3J0dW5hdGVsecKgIDA4MGNkN2MzYWM4NyBpbnRyb2R1Y2VzIGFuIGlz
-c3VlIHRoYXQgZGlzYWJsZV9pcnEoKSB3ZXJlCj4gdXNlZCBmb3IgdGhlIGFmZmluaXR5IG1hbmFn
-ZWQgaXJxIGJ1dCB3ZSdyZSBkaXNjdXNzaW5nIGEgZml4Lgo+CgoKb2ssIEkgdGhpbmsgZGlzYWJs
-ZV9pcnEoKSBpcyBzdGlsbCB1c2VkIGhlcmUuCgpJIHdhbnQgdG8gZGV0ZXJtaW5lIHRoZSBzb2x1
-dGlvbiBmb3IgdGhpcyBkZXRhaWwgZmlyc3QuIFNvIEkgcG9zdGVkIHRoZSBjb2RlLCBJCmhvcGUg
-SmFzb24gY2FuIGhlbHAgY29uZmlybSB0aGlzIHBvaW50IGZpcnN0LgoKVGhlcmUgYXJlIHRocmVl
-IHNpdHVhdGlvbnMgaW4gd2hpY2ggdnEgY29ycmVzcG9uZHMgdG8gYW4gaW50ZXJydXB0CgoxLiBp
-bnR4CjIuIG1zaXg6IHBlciB2cSB2ZWN0b3JzCjIuIG1zaXg6IHNoYXJlIGlycQoKRXNzZW50aWFs
-bHkgY2FuIGJlIGRpdmlkZWQgaW50byB0d28gY2F0ZWdvcmllczogcGVyIHZxIHZlY3RvcnMgYW5k
-IHNoYXJlIGlycS4KCkZvciBzaGFyZSBpcnEgaXMgYmFzZWQgb24gdmlydHF1ZXVlcyB0byBmaW5k
-IHZxLCBzbyBJIHRoaW5rIGl0IGlzIHNhZmUgYXMgbG9uZwphcyBsaXN0X2RlbCgpIGlzIGV4ZWN1
-dGVkIHVuZGVyIHRoZSBwcm90ZWN0aW9uIG9mIHRoZSBsb2NrLgoKSW4gdGhlIGNhc2Ugb2YgcGVy
-IHZxIHZlY3RvcnMsIGRpc2FibGVfaXJxKCkgaXMgdXNlZC4KClRoYW5rcy4KCitzdGF0aWMgaW50
-IHZwX21vZGVybl9yZXNldF92cShzdHJ1Y3QgdmlydHF1ZXVlICp2cSkKK3sKKyAgICAgICBzdHJ1
-Y3QgdmlydGlvX3BjaV9kZXZpY2UgKnZwX2RldiA9IHRvX3ZwX2RldmljZSh2cS0+dmRldik7Cisg
-ICAgICAgc3RydWN0IHZpcnRpb19wY2lfbW9kZXJuX2RldmljZSAqbWRldiA9ICZ2cF9kZXYtPm1k
-ZXY7CisgICAgICAgc3RydWN0IHZpcnRpb19wY2lfdnFfaW5mbyAqaW5mbzsKKyAgICAgICB1bnNp
-Z25lZCBsb25nIGZsYWdzOworICAgICAgIHVuc2lnbmVkIGludCBpcnE7CisKKyAgICAgICBpZiAo
-IXZpcnRpb19oYXNfZmVhdHVyZSh2cS0+dmRldiwgVklSVElPX0ZfUklOR19SRVNFVCkpCisgICAg
-ICAgICAgICAgICByZXR1cm4gLUVOT0VOVDsKKworICAgICAgIHZwX21vZGVybl9zZXRfcXVldWVf
-cmVzZXQobWRldiwgdnEtPmluZGV4KTsKKworICAgICAgIGluZm8gPSB2cF9kZXYtPnZxc1t2cS0+
-aW5kZXhdOworCisgICAgICAgLyogZGVsZXRlIHZxIGZyb20gaXJxIGhhbmRsZXIgKi8KKyAgICAg
-ICBzcGluX2xvY2tfaXJxc2F2ZSgmdnBfZGV2LT5sb2NrLCBmbGFncyk7CisgICAgICAgbGlzdF9k
-ZWwoJmluZm8tPm5vZGUpOworICAgICAgIHZwX21vZGVybl9zZXRfcXVldWVfcmVzZXQobWRldiwg
-dnEtPmluZGV4KTsKKworICAgICAgIGluZm8gPSB2cF9kZXYtPnZxc1t2cS0+aW5kZXhdOworCisg
-ICAgICAgLyogZGVsZXRlIHZxIGZyb20gaXJxIGhhbmRsZXIgKi8KKyAgICAgICBzcGluX2xvY2tf
-aXJxc2F2ZSgmdnBfZGV2LT5sb2NrLCBmbGFncyk7CisgICAgICAgbGlzdF9kZWwoJmluZm8tPm5v
-ZGUpOworICAgICAgIHNwaW5fdW5sb2NrX2lycXJlc3RvcmUoJnZwX2Rldi0+bG9jaywgZmxhZ3Mp
-OworCisgICAgICAgSU5JVF9MSVNUX0hFQUQoJmluZm8tPm5vZGUpOworCisgICAgICAgLyogRm9y
-IHRoZSBjYXNlIHdoZXJlIHZxIGhhcyBhbiBleGNsdXNpdmUgaXJxLCB0byBwcmV2ZW50IHRoZSBp
-cnEgZnJvbQorICAgICAgICAqIGJlaW5nIHJlY2VpdmVkIGFnYWluIGFuZCB0aGUgcGVuZGluZyBp
-cnEsIGNhbGwgZGlzYWJsZV9pcnEoKS4KKyAgICAgICAgKgorICAgICAgICAqIEluIHRoZSBzY2Vu
-YXJpbyBiYXNlZCBvbiBzaGFyZWQgaW50ZXJydXB0cywgdnEgd2lsbCBiZSBzZWFyY2hlZCBmcm9t
-CisgICAgICAgICogdGhlIHF1ZXVlIHZpcnRxdWV1ZXMuIFNpbmNlIHRoZSBwcmV2aW91cyBsaXN0
-X2RlbCgpIGhhcyBiZWVuIGRlbGV0ZWQKKyAgICAgICAgKiBmcm9tIHRoZSBxdWV1ZSwgaXQgaXMg
-aW1wb3NzaWJsZSBmb3IgdnEgdG8gYmUgY2FsbGVkIGluIHRoaXMgY2FzZS4KKyAgICAgICAgKiBU
-aGVyZSBpcyBubyBuZWVkIHRvIGNsb3NlIHRoZSBjb3JyZXNwb25kaW5nIGludGVycnVwdC4KKyAg
-ICAgICAgKi8KKyAgICAgICBpZiAodnBfZGV2LT5wZXJfdnFfdmVjdG9ycyAmJiBtc2l4X3ZlYyAh
-PSBWSVJUSU9fTVNJX05PX1ZFQ1RPUikKKyAgICAgICAgICAgICAgIGRpc2FibGVfaXJxKHBjaV9p
-cnFfdmVjdG9yKHZwX2Rldi0+cGNpX2RldiwgaW5mby0+bXNpeF92ZWN0b3IpKTsKKworICAgICAg
-IHZxLT5yZXNldCA9IHRydWU7CisKKyAgICAgICByZXR1cm4gMDsKK30KKworc3RhdGljIGludCB2
-cF9tb2Rlcm5fZW5hYmxlX3Jlc2V0X3ZxKHN0cnVjdCB2aXJ0cXVldWUgKnZxKQoreworICAgICAg
-IHN0cnVjdCB2aXJ0aW9fcGNpX2RldmljZSAqdnBfZGV2ID0gdG9fdnBfZGV2aWNlKHZxLT52ZGV2
-KTsKKyAgICAgICBzdHJ1Y3QgdmlydGlvX3BjaV9tb2Rlcm5fZGV2aWNlICptZGV2ID0gJnZwX2Rl
-di0+bWRldjsKKyAgICAgICBzdHJ1Y3QgdmlydGlvX3BjaV92cV9pbmZvICppbmZvOworICAgICAg
-IHVuc2lnbmVkIGxvbmcgZmxhZ3MsIGluZGV4OworICAgICAgIGludCBlcnI7CisKKyAgICAgICBp
-ZiAoIXZxLT5yZXNldCkKKyAgICAgICAgICAgICAgIHJldHVybiAtRUJVU1k7CisKKyAgICAgICBp
-bmRleCA9IHZxLT5pbmRleDsKKyAgICAgICBpbmZvID0gdnBfZGV2LT52cXNbaW5kZXhdOworCisg
-ICAgICAgLyogY2hlY2sgcXVldWUgcmVzZXQgc3RhdHVzICovCisgICAgICAgaWYgKHZwX21vZGVy
-bl9nZXRfcXVldWVfcmVzZXQobWRldiwgaW5kZXgpICE9IDEpCisgICAgICAgICAgICAgICByZXR1
-cm4gLUVCVVNZOworCisgICAgICAgZXJyID0gdnBfYWN0aXZlX3ZxKHZxLCBpbmZvLT5tc2l4X3Zl
-Y3Rvcik7CisgICAgICAgaWYgKGVycikKKyAgICAgICAgICAgICAgIHJldHVybiBlcnI7CisKKyAg
-ICAgICBpZiAodnEtPmNhbGxiYWNrKSB7CisgICAgICAgICAgICAgICBzcGluX2xvY2tfaXJxc2F2
-ZSgmdnBfZGV2LT5sb2NrLCBmbGFncyk7CisgICAgICAgICAgICAgICBsaXN0X2FkZCgmaW5mby0+
-bm9kZSwgJnZwX2Rldi0+dmlydHF1ZXVlcyk7CisgICAgICAgICAgICAgICBzcGluX3VubG9ja19p
-cnFyZXN0b3JlKCZ2cF9kZXYtPmxvY2ssIGZsYWdzKTsKKyAgICAgICB9IGVsc2UgeworICAgICAg
-ICAgICAgICAgSU5JVF9MSVNUX0hFQUQoJmluZm8tPm5vZGUpOworICAgICAgIH0KKworICAgICAg
-IHZwX21vZGVybl9zZXRfcXVldWVfZW5hYmxlKCZ2cF9kZXYtPm1kZXYsIGluZGV4LCB0cnVlKTsK
-KyAgICAgICB2cS0+cmVzZXQgPSBmYWxzZTsKKworICAgICAgIGlmICh2cF9kZXYtPnBlcl92cV92
-ZWN0b3JzICYmIG1zaXhfdmVjICE9IFZJUlRJT19NU0lfTk9fVkVDVE9SKQorICAgICAgICAgICAg
-ICAgZW5hYmxlX2lycShwY2lfaXJxX3ZlY3Rvcih2cF9kZXYtPnBjaV9kZXYsIGluZm8tPm1zaXhf
-dmVjdG9yKSk7CisKKyAgICAgICByZXR1cm4gMDsKK30KCgpfX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmly
-dHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51
-eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+Hi Jiyong,
+
+On Thu, Mar 10, 2022 at 05:18:54PM +0900, Jiyong Park wrote:
+>Filtering non-h2g connections out when determining orphaned connections.
+>Otherwise, in a nested VM configuration, destroying the nested VM (which
+>often involves the closing of /dev/vhost-vsock if there was h2g
+>connections to the nested VM) kills not only the h2g connections, but
+>also all existing g2h connections to the (outmost) host which are
+>totally unrelated.
+>
+>Tested: Executed the following steps on Cuttlefish (Android running on a
+>VM) [1]: (1) Enter into an `adb shell` session - to have a g2h
+>connection inside the VM, (2) open and then close /dev/vhost-vsock by
+>`exec 3< /dev/vhost-vsock && exec 3<&-`, (3) observe that the adb
+>session is not reset.
+>
+>[1] https://android.googlesource.com/device/google/cuttlefish/
+>
+>Signed-off-by: Jiyong Park <jiyong@google.com>
+>---
+> drivers/vhost/vsock.c | 4 ++++
+> 1 file changed, 4 insertions(+)
+>
+>diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+>index 37f0b4274113..2f6d5d66f5ed 100644
+>--- a/drivers/vhost/vsock.c
+>+++ b/drivers/vhost/vsock.c
+>@@ -722,6 +722,10 @@ static void vhost_vsock_reset_orphans(struct sock *sk)
+> 	 * executing.
+> 	 */
+>
+>+	/* Only the h2g connections are reset */
+>+	if (vsk->transport != &vhost_transport.transport)
+>+		return;
+>+
+> 	/* If the peer is still valid, no need to reset connection */
+> 	if (vhost_vsock_get(vsk->remote_addr.svm_cid))
+> 		return;
+>-- 
+>2.35.1.723.g4982287a31-goog
+>
+
+Thanks for your patch!
+
+Yes, I see the problem and I think I introduced it with the 
+multi-transports support (ooops).
+
+So we should add this fixes tag:
+
+Fixes: c0cfa2d8a788 ("vsock: add multi-transports support")
+
+
+IIUC the problem is for all transports that should only cycle on their 
+own sockets. Indeed I think there is the same problem if the g2h driver 
+will be unloaded (or a reset event is received after a VM migration), it 
+will close all sockets of the nested h2g.
+
+So I suggest a more generic solution, modifying 
+vsock_for_each_connected_socket() like this (not tested):
+
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index 38baeb189d4e..f04abf662ec6 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -334,7 +334,8 @@ void vsock_remove_sock(struct vsock_sock *vsk)
+  }
+  EXPORT_SYMBOL_GPL(vsock_remove_sock);
+
+-void vsock_for_each_connected_socket(void (*fn)(struct sock *sk))
++void vsock_for_each_connected_socket(struct vsock_transport *transport,
++                                    void (*fn)(struct sock *sk))
+  {
+         int i;
+
+@@ -343,8 +344,12 @@ void vsock_for_each_connected_socket(void (*fn)(struct sock *sk))
+         for (i = 0; i < ARRAY_SIZE(vsock_connected_table); i++) {
+                 struct vsock_sock *vsk;
+                 list_for_each_entry(vsk, &vsock_connected_table[i],
+-                                   connected_table)
++                                   connected_table) {
++                       if (vsk->transport != transport)
++                               continue;
++
+                         fn(sk_vsock(vsk));
++               }
+         }
+
+
+And all transports that call it.
+
+Thanks,
+Stefano
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
