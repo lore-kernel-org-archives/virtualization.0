@@ -1,109 +1,121 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 81B74C433EF
-	for <virtualization@archiver.kernel.org>; Thu, 10 Mar 2022 05:43:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id CD1FFC433F5
+	for <virtualization@archiver.kernel.org>; Thu, 10 Mar 2022 07:00:54 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 27CFB812D1;
-	Thu, 10 Mar 2022 05:43:46 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 6C20860FB9;
+	Thu, 10 Mar 2022 07:00:54 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id IOv06j3vNyYq; Thu, 10 Mar 2022 05:43:45 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id MZdy5fqz4AVX; Thu, 10 Mar 2022 07:00:53 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 9B51C812E4;
-	Thu, 10 Mar 2022 05:43:44 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 9B79760FB0;
+	Thu, 10 Mar 2022 07:00:52 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 56CB7C0012;
-	Thu, 10 Mar 2022 05:43:44 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 88F3EC000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 65D63C001D;
+	Thu, 10 Mar 2022 07:00:52 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2BA82C000B
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Mar 2022 05:43:43 +0000 (UTC)
+ Thu, 10 Mar 2022 07:00:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 6465440A02
+ by smtp1.osuosl.org (Postfix) with ESMTP id EA8CD8432B
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Mar 2022 05:43:43 +0000 (UTC)
+ Thu, 10 Mar 2022 07:00:50 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id qJeqmWl1nKAS
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id ZzAizaqF5iSQ
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Mar 2022 05:43:42 +0000 (UTC)
+ Thu, 10 Mar 2022 07:00:50 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 33223408E7
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 11F508431C
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Mar 2022 05:43:42 +0000 (UTC)
+ Thu, 10 Mar 2022 07:00:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1646891021;
+ s=mimecast20190719; t=1646895648;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=x9QzHdB9qfKPGetPE93QARDGDfHnG7eDoqAtFhra7N4=;
- b=i0sFyGoVN8TXjEiW5HvgT6iaDvDmS/+yhXXg1DinyXa6CJtRJVST917E+xocA4fwQU2SNF
- DSptHlIjFSlhr/YYIDdsT8Cx+Kbju3ji4jPZRbmZBYyneRlDW74UaPVHAR8TTSXXAcrC2i
- FUeedeH0NCd0/7Nb/TFSLAMQwWuFRNM=
-Received: from mail-lj1-f197.google.com (mail-lj1-f197.google.com
- [209.85.208.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=LkMQorCMU7xc93uPK5gJZgn4oA7Bb7VUOpIFgodhLkk=;
+ b=Y5HfUX+g8XcOPc95Yl+vYg3fQC4JDRx5uYuLS0evCwbO9Ln8j8CTEYwEBcxp0bLqiJkUr7
+ bsGN7wj3SL7IAxRYGnRcISouPBBH471SnuNUA2+3tw0TvkPD+7CfCDfcTRwDd52bSl3Jbk
+ /gGQjVyfv/8EUAkxzbOcSEVOapS3by0=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-588-F0vqU2ctN_qJD_5qnajxBA-1; Thu, 10 Mar 2022 00:43:39 -0500
-X-MC-Unique: F0vqU2ctN_qJD_5qnajxBA-1
-Received: by mail-lj1-f197.google.com with SMTP id
- h18-20020a2e3a12000000b00247e2a0e909so1854379lja.7
+ us-mta-590-pVpyEPRHOhqUqGG9J4TVEg-1; Thu, 10 Mar 2022 02:00:47 -0500
+X-MC-Unique: pVpyEPRHOhqUqGG9J4TVEg-1
+Received: by mail-wm1-f71.google.com with SMTP id
+ d8-20020a05600c34c800b0037e3cd6225eso1742926wmq.6
  for <virtualization@lists.linux-foundation.org>;
- Wed, 09 Mar 2022 21:43:39 -0800 (PST)
+ Wed, 09 Mar 2022 23:00:47 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=x9QzHdB9qfKPGetPE93QARDGDfHnG7eDoqAtFhra7N4=;
- b=NZ1M3ITTsZScL8TU4j0vy6qQ7j1VPszAx/+2pQGEtNcKqnUMyx6w+EOvzAS4i+5UcM
- 6W5kn0ttMr+HAi+LyvD/4Qg/eCeujgjtrobiD7wnFYI4X6spK0ZI5mIVEW/OuMa7lkB1
- hMKFFpk8umSpw9wWlJwOleOGICK7zgW8fHAoZipRIm99pQopJGWMhRu9of7x5ymRD9z5
- Ww4vpCDnrMbrMZf42K/7SFl9DW3GmDQDz6WhuYAoDy03znROwAVvY48gMtNJ3PGkgoZR
- mCW0WjAS2JHicIRDA499h9OEOfE4wVBczopcPywOcwXCIT34IwEAsz1bTfvA+jC/oDM+
- ZH8A==
-X-Gm-Message-State: AOAM530jIDL6F66x8JS2bJa5Pv8GjHbKcnwIz452brMQSsxG2l/fPNTi
- 1LjXUtV01hu6NVJUUQ+IEc2uU8pCA9Pha4D9OGOqwcY8Xwhq8FZgh/qUZ69wH6sZZg/xdFPS9kp
- oB1kI+DEeNuldt1WGsZaZZiCAydpyisJBfKOOklF9FO6JMKT5a6Yi3moqbg==
-X-Received: by 2002:a2e:b004:0:b0:247:e29f:fbd4 with SMTP id
- y4-20020a2eb004000000b00247e29ffbd4mr1871251ljk.315.1646891018049; 
- Wed, 09 Mar 2022 21:43:38 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwMuxlvEtizpvkCTH/UqCgVaHK6Rdc1MGd77I/6uA52Nzc19cjYfV5kYF6rCxEDcAhtGVrv8PXSZYaJns3yewI=
-X-Received: by 2002:a2e:b004:0:b0:247:e29f:fbd4 with SMTP id
- y4-20020a2eb004000000b00247e29ffbd4mr1871240ljk.315.1646891017789; Wed, 09
- Mar 2022 21:43:37 -0800 (PST)
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=LkMQorCMU7xc93uPK5gJZgn4oA7Bb7VUOpIFgodhLkk=;
+ b=xuTR+XsDNDXgT8K4wsAVyprxzD1RFUgq2iLSalUFxMt6APNTSOVG0QR7zQeeaNS19w
+ 77IsojIIv5Nubj4UXFmTWCBLd0XUQJkNlK6Wm/K2g/4LOryVgTydjprN1KQ60Kj56QRY
+ +KRv1luARJldXsnM4MvViBpM0kHpUxzu8ZuNm7S5MXPHCPYPcjWZaPgxUo4rRcr72Abp
+ fY2Z/Z+R3YHEzchpvwN3w29OGj0Rw1T1FPw/d3ONXxGFYKC0rzVY2kvaHkRV0P6jE1Oq
+ UQ0OCSgP6PSFFC8D6TcC2wCXpHtJVok5Gd32PnytOocUGtkPxvSQdcP8ocjX8ckTanUM
+ 4VEQ==
+X-Gm-Message-State: AOAM530XZF0f8jzVan26N7BcisSUFCiVmpB57uSfwysk3lJw/3t6gGCg
+ VFhweCeLYNIYnzCs7YSFkrljDdEuP9jwOjWNDLpGbyIRZByDyoG0bPkSQ7ZXQcltxLV/7URrCAN
+ IWiR2bxxkYhtZtFNdx2malFbPmASSgyt1Uw1uUOgQoQ==
+X-Received: by 2002:a05:6000:1104:b0:1f9:7df6:c864 with SMTP id
+ z4-20020a056000110400b001f97df6c864mr2313856wrw.63.1646895645810; 
+ Wed, 09 Mar 2022 23:00:45 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzsDaUfg1Dzks5kcvSZTIGN65fjx4oj0qZwLxHiAr1eXZpgoIX0Ngv/xjK7eBdLbtD4hrdZUQ==
+X-Received: by 2002:a05:6000:1104:b0:1f9:7df6:c864 with SMTP id
+ z4-20020a056000110400b001f97df6c864mr2313828wrw.63.1646895645533; 
+ Wed, 09 Mar 2022 23:00:45 -0800 (PST)
+Received: from redhat.com ([2.55.24.184]) by smtp.gmail.com with ESMTPSA id
+ o7-20020a5d6707000000b001f067c7b47fsm5312811wru.27.2022.03.09.23.00.41
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 09 Mar 2022 23:00:44 -0800 (PST)
+Date: Thu, 10 Mar 2022 02:00:39 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH v7 09/26] virtio_ring: split: implement
+ virtqueue_reset_vring_split()
+Message-ID: <20220310015418-mutt-send-email-mst@kernel.org>
+References: <20220308123518.33800-1-xuanzhuo@linux.alibaba.com>
+ <20220308123518.33800-10-xuanzhuo@linux.alibaba.com>
 MIME-Version: 1.0
-References: <20220117092921.1573-1-longpeng2@huawei.com>
- <20220117092921.1573-3-longpeng2@huawei.com>
- <1a26d7b3-1020-50c5-f0a3-ebc645cdcddf@redhat.com>
- <4e1870fed35f487b8cc2a5d112e7c41b@huawei.com>
-In-Reply-To: <4e1870fed35f487b8cc2a5d112e7c41b@huawei.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 10 Mar 2022 13:43:26 +0800
-Message-ID: <CACGkMEugOVe8m23npXAHYDVENpCYrat5nWXPefJkr4Krhcnxow@mail.gmail.com>
-Subject: Re: [RFC 2/3] vdpa: support exposing the count of vqs to userspace
-To: "Longpeng (Mike,
- Cloud Infrastructure Service Product Dept.)" <longpeng2@huawei.com>
+In-Reply-To: <20220308123518.33800-10-xuanzhuo@linux.alibaba.com>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
- "mst@redhat.com" <mst@redhat.com>,
- "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- Huangzhichao <huangzhichao@huawei.com>,
- "stefanha@redhat.com" <stefanha@redhat.com>, Yechuan <yechuan@huawei.com>
+Content-Disposition: inline
+Cc: Vadim Pasternak <vadimp@nvidia.com>, linux-remoteproc@vger.kernel.org,
+ Alexei Starovoitov <ast@kernel.org>, virtualization@lists.linux-foundation.org,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>, linux-s390@vger.kernel.org,
+ Johannes Berg <johannes.berg@intel.com>,
+ Daniel Borkmann <daniel@iogearbox.net>, Richard Weinberger <richard@nod.at>,
+ Vincent Whitchurch <vincent.whitchurch@axis.com>,
+ John Fastabend <john.fastabend@gmail.com>, Halil Pasic <pasic@linux.ibm.com>,
+ Jakub Kicinski <kuba@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
+ platform-driver-x86@vger.kernel.org, Jesper Dangaard Brouer <hawk@kernel.org>,
+ Vasily Gorbik <gor@linux.ibm.com>, Jeff Dike <jdike@addtoit.com>,
+ linux-um@lists.infradead.org, Mark Gross <markgross@kernel.org>,
+ Hans de Goede <hdegoede@redhat.com>, kvm@vger.kernel.org,
+ Bjorn Andersson <bjorn.andersson@linaro.org>,
+ Mathieu Poirier <mathieu.poirier@linaro.org>, netdev@vger.kernel.org,
+ Cornelia Huck <cohuck@redhat.com>, Sven Schnelle <svens@linux.ibm.com>,
+ bpf@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -115,282 +127,167 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============9148859235955512859=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
---===============9148859235955512859==
-Content-Type: multipart/alternative; boundary="000000000000198a9f05d9d6b23a"
+On Tue, Mar 08, 2022 at 08:35:01PM +0800, Xuan Zhuo wrote:
+> virtio ring supports reset.
+> 
+> Queue reset is divided into several stages.
+> 
+> 1. notify device queue reset
+> 2. vring release
+> 3. attach new vring
+> 4. notify device queue re-enable
+> 
+> After the first step is completed, the vring reset operation can be
+> performed. If the newly set vring num does not change, then just reset
+> the vq related value.
+> 
+> Otherwise, the vring will be released and the vring will be reallocated.
+> And the vring will be attached to the vq. If this process fails, the
+> function will exit, and the state of the vq will be the vring release
+> state. You can call this function again to reallocate the vring.
+> 
+> In addition, vring_align, may_reduce_num are necessary for reallocating
+> vring, so they are retained when creating vq.
+> 
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> ---
+>  drivers/virtio/virtio_ring.c | 69 ++++++++++++++++++++++++++++++++++++
+>  1 file changed, 69 insertions(+)
+> 
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index e0422c04c903..148fb1fd3d5a 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -158,6 +158,12 @@ struct vring_virtqueue {
+>  			/* DMA address and size information */
+>  			dma_addr_t queue_dma_addr;
+>  			size_t queue_size_in_bytes;
+> +
+> +			/* The parameters for creating vrings are reserved for
+> +			 * creating new vrings when enabling reset queue.
+> +			 */
+> +			u32 vring_align;
+> +			bool may_reduce_num;
+>  		} split;
+>  
+>  		/* Available for packed ring */
+> @@ -217,6 +223,12 @@ struct vring_virtqueue {
+>  #endif
+>  };
+>  
+> +static void vring_free(struct virtqueue *vq);
+> +static void __vring_virtqueue_init_split(struct vring_virtqueue *vq,
+> +					 struct virtio_device *vdev);
+> +static int __vring_virtqueue_attach_split(struct vring_virtqueue *vq,
+> +					  struct virtio_device *vdev,
+> +					  struct vring vring);
+>  
+>  /*
+>   * Helpers.
+> @@ -1012,6 +1024,8 @@ static struct virtqueue *vring_create_virtqueue_split(
+>  		return NULL;
+>  	}
+>  
+> +	to_vvq(vq)->split.vring_align = vring_align;
+> +	to_vvq(vq)->split.may_reduce_num = may_reduce_num;
+>  	to_vvq(vq)->split.queue_dma_addr = vring.dma_addr;
+>  	to_vvq(vq)->split.queue_size_in_bytes = vring.queue_size_in_bytes;
+>  	to_vvq(vq)->we_own_ring = true;
+> @@ -1019,6 +1033,59 @@ static struct virtqueue *vring_create_virtqueue_split(
+>  	return vq;
+>  }
+>  
+> +static int virtqueue_reset_vring_split(struct virtqueue *_vq, u32 num)
+> +{
+> +	struct vring_virtqueue *vq = to_vvq(_vq);
+> +	struct virtio_device *vdev = _vq->vdev;
+> +	struct vring_split vring;
+> +	int err;
+> +
+> +	if (num > _vq->num_max)
+> +		return -E2BIG;
+> +
+> +	switch (vq->vq.reset) {
+> +	case VIRTIO_VQ_RESET_STEP_NONE:
+> +		return -ENOENT;
+> +
+> +	case VIRTIO_VQ_RESET_STEP_VRING_ATTACH:
+> +	case VIRTIO_VQ_RESET_STEP_DEVICE:
+> +		if (vq->split.vring.num == num || !num)
+> +			break;
+> +
+> +		vring_free(_vq);
+> +
+> +		fallthrough;
+> +
+> +	case VIRTIO_VQ_RESET_STEP_VRING_RELEASE:
+> +		if (!num)
+> +			num = vq->split.vring.num;
+> +
+> +		err = vring_create_vring_split(&vring, vdev,
+> +					       vq->split.vring_align,
+> +					       vq->weak_barriers,
+> +					       vq->split.may_reduce_num, num);
+> +		if (err)
+> +			return -ENOMEM;
+> +
+> +		err = __vring_virtqueue_attach_split(vq, vdev, vring.vring);
+> +		if (err) {
+> +			vring_free_queue(vdev, vring.queue_size_in_bytes,
+> +					 vring.queue,
+> +					 vring.dma_addr);
+> +			return -ENOMEM;
+> +		}
+> +
+> +		vq->split.queue_dma_addr = vring.dma_addr;
+> +		vq->split.queue_size_in_bytes = vring.queue_size_in_bytes;
+> +	}
+> +
+> +	__vring_virtqueue_init_split(vq, vdev);
+> +	vq->we_own_ring = true;
+> +	vq->vq.reset = VIRTIO_VQ_RESET_STEP_VRING_ATTACH;
+> +
+> +	return 0;
+> +}
+> +
 
---000000000000198a9f05d9d6b23a
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+I kind of dislike this state machine.
 
-On Thu, Mar 10, 2022 at 11:16 AM Longpeng (Mike, Cloud Infrastructure
-Service Product Dept.) <longpeng2@huawei.com> wrote:
+Hacks like special-casing num = 0 to mean "reset" are especially
+confusing.
 
-> Hi Jason,
->
-> > -----Original Message-----
-> > From: Jason Wang [mailto:jasowang@redhat.com]
-> > Sent: Tuesday, January 18, 2022 11:08 AM
-> > To: Longpeng (Mike, Cloud Infrastructure Service Product Dept.)
-> > <longpeng2@huawei.com>; mst@redhat.com; sgarzare@redhat.com;
-> > stefanha@redhat.com
-> > Cc: virtualization@lists.linux-foundation.org; kvm@vger.kernel.org;
-> > linux-kernel@vger.kernel.org; netdev@vger.kernel.org; Gonglei (Arei)
-> > <arei.gonglei@huawei.com>; Yechuan <yechuan@huawei.com>; Huangzhichao
-> > <huangzhichao@huawei.com>
-> > Subject: Re: [RFC 2/3] vdpa: support exposing the count of vqs to
-> userspace
-> >
-> >
-> > =E5=9C=A8 2022/1/17 =E4=B8=8B=E5=8D=885:29, Longpeng(Mike) =E5=86=99=E9=
-=81=93:
-> > > From: Longpeng <longpeng2@huawei.com>
-> > >
-> > > - GET_VQS_COUNT: the count of virtqueues that exposed
-> > >
-> > > Signed-off-by: Longpeng <longpeng2@huawei.com>
-> > > ---
-> > >   drivers/vhost/vdpa.c       | 13 +++++++++++++
-> > >   include/uapi/linux/vhost.h |  3 +++
-> > >   2 files changed, 16 insertions(+)
-> > >
-> > > diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-> > > index 1eea14a4ea56..c1074278fc6b 100644
-> > > --- a/drivers/vhost/vdpa.c
-> > > +++ b/drivers/vhost/vdpa.c
-> > > @@ -369,6 +369,16 @@ static long vhost_vdpa_get_config_size(struct
-> vhost_vdpa
-> > *v, u32 __user *argp)
-> > >     return 0;
-> > >   }
-> > >
-> > > +static long vhost_vdpa_get_vqs_count(struct vhost_vdpa *v, u32 __use=
-r
-> *argp)
-> > > +{
-> > > +   struct vdpa_device *vdpa =3D v->vdpa;
-> >
-> >
-> > While at it, I think it's better to change vdpa->nvqs to use u32?
-> >
->
-> struct vhost_vdpa {
->     ...
->         int nvqs;
->     ...
-> };
->
-> struct vdpa_device {
->     ...
->         int nvqs;
->     ...
-> };
->
-> I think we should change both to u32?
->
+And as Jason points out, when we want a resize then yes this currently
+implies reset but that is an implementation detail.
 
-Yes.
+There should be a way to just make these cases separate functions
+and then use them to compose consistent external APIs.
 
-Thanks
-
-
->
->
-> > Thanks
-> >
-> >
-> > > +
-> > > +   if (copy_to_user(argp, &vdpa->nvqs, sizeof(vdpa->nvqs)))
-> > > +           return -EFAULT;
-> > > +
-> > > +   return 0;
-> > > +}
-> > > +
-> > >   static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned
-> int cmd,
-> > >                                void __user *argp)
-> > >   {
-> > > @@ -509,6 +519,9 @@ static long vhost_vdpa_unlocked_ioctl(struct file
-> *filep,
-> > >     case VHOST_VDPA_GET_CONFIG_SIZE:
-> > >             r =3D vhost_vdpa_get_config_size(v, argp);
-> > >             break;
-> > > +   case VHOST_VDPA_GET_VQS_COUNT:
-> > > +           r =3D vhost_vdpa_get_vqs_count(v, argp);
-> > > +           break;
-> > >     default:
-> > >             r =3D vhost_dev_ioctl(&v->vdev, cmd, argp);
-> > >             if (r =3D=3D -ENOIOCTLCMD)
-> > > diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
-> > > index bc74e95a273a..5d99e7c242a2 100644
-> > > --- a/include/uapi/linux/vhost.h
-> > > +++ b/include/uapi/linux/vhost.h
-> > > @@ -154,4 +154,7 @@
-> > >   /* Get the config size */
-> > >   #define VHOST_VDPA_GET_CONFIG_SIZE        _IOR(VHOST_VIRTIO, 0x79,
-> __u32)
-> > >
-> > > +/* Get the count of all virtqueues */
-> > > +#define VHOST_VDPA_GET_VQS_COUNT   _IOR(VHOST_VIRTIO, 0x80, __u32)
-> > > +
-> > >   #endif
->
->
-
---000000000000198a9f05d9d6b23a
-Content-Type: text/html; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr"><div dir=3D"ltr"><br></div><br><div class=3D"gmail_quote">=
-<div dir=3D"ltr" class=3D"gmail_attr">On Thu, Mar 10, 2022 at 11:16 AM Long=
-peng (Mike, Cloud Infrastructure Service Product Dept.) &lt;<a href=3D"mail=
-to:longpeng2@huawei.com">longpeng2@huawei.com</a>&gt; wrote:<br></div><bloc=
-kquote class=3D"gmail_quote" style=3D"margin:0px 0px 0px 0.8ex;border-left:=
-1px solid rgb(204,204,204);padding-left:1ex">Hi Jason,<br>
-<br>
-&gt; -----Original Message-----<br>
-&gt; From: Jason Wang [mailto:<a href=3D"mailto:jasowang@redhat.com" target=
-=3D"_blank">jasowang@redhat.com</a>]<br>
-&gt; Sent: Tuesday, January 18, 2022 11:08 AM<br>
-&gt; To: Longpeng (Mike, Cloud Infrastructure Service Product Dept.)<br>
-&gt; &lt;<a href=3D"mailto:longpeng2@huawei.com" target=3D"_blank">longpeng=
-2@huawei.com</a>&gt;; <a href=3D"mailto:mst@redhat.com" target=3D"_blank">m=
-st@redhat.com</a>; <a href=3D"mailto:sgarzare@redhat.com" target=3D"_blank"=
->sgarzare@redhat.com</a>;<br>
-&gt; <a href=3D"mailto:stefanha@redhat.com" target=3D"_blank">stefanha@redh=
-at.com</a><br>
-&gt; Cc: <a href=3D"mailto:virtualization@lists.linux-foundation.org" targe=
-t=3D"_blank">virtualization@lists.linux-foundation.org</a>; <a href=3D"mail=
-to:kvm@vger.kernel.org" target=3D"_blank">kvm@vger.kernel.org</a>;<br>
-&gt; <a href=3D"mailto:linux-kernel@vger.kernel.org" target=3D"_blank">linu=
-x-kernel@vger.kernel.org</a>; <a href=3D"mailto:netdev@vger.kernel.org" tar=
-get=3D"_blank">netdev@vger.kernel.org</a>; Gonglei (Arei)<br>
-&gt; &lt;<a href=3D"mailto:arei.gonglei@huawei.com" target=3D"_blank">arei.=
-gonglei@huawei.com</a>&gt;; Yechuan &lt;<a href=3D"mailto:yechuan@huawei.co=
-m" target=3D"_blank">yechuan@huawei.com</a>&gt;; Huangzhichao<br>
-&gt; &lt;<a href=3D"mailto:huangzhichao@huawei.com" target=3D"_blank">huang=
-zhichao@huawei.com</a>&gt;<br>
-&gt; Subject: Re: [RFC 2/3] vdpa: support exposing the count of vqs to user=
-space<br>
-&gt; <br>
-&gt; <br>
-&gt; =E5=9C=A8 2022/1/17 =E4=B8=8B=E5=8D=885:29, Longpeng(Mike) =E5=86=99=
-=E9=81=93:<br>
-&gt; &gt; From: Longpeng &lt;<a href=3D"mailto:longpeng2@huawei.com" target=
-=3D"_blank">longpeng2@huawei.com</a>&gt;<br>
-&gt; &gt;<br>
-&gt; &gt; - GET_VQS_COUNT: the count of virtqueues that exposed<br>
-&gt; &gt;<br>
-&gt; &gt; Signed-off-by: Longpeng &lt;<a href=3D"mailto:longpeng2@huawei.co=
-m" target=3D"_blank">longpeng2@huawei.com</a>&gt;<br>
-&gt; &gt; ---<br>
-&gt; &gt;=C2=A0 =C2=A0drivers/vhost/vdpa.c=C2=A0 =C2=A0 =C2=A0 =C2=A0| 13 +=
-++++++++++++<br>
-&gt; &gt;=C2=A0 =C2=A0include/uapi/linux/vhost.h |=C2=A0 3 +++<br>
-&gt; &gt;=C2=A0 =C2=A02 files changed, 16 insertions(+)<br>
-&gt; &gt;<br>
-&gt; &gt; diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c<br>
-&gt; &gt; index 1eea14a4ea56..c1074278fc6b 100644<br>
-&gt; &gt; --- a/drivers/vhost/vdpa.c<br>
-&gt; &gt; +++ b/drivers/vhost/vdpa.c<br>
-&gt; &gt; @@ -369,6 +369,16 @@ static long vhost_vdpa_get_config_size(struc=
-t vhost_vdpa<br>
-&gt; *v, u32 __user *argp)<br>
-&gt; &gt;=C2=A0 =C2=A0 =C2=A0return 0;<br>
-&gt; &gt;=C2=A0 =C2=A0}<br>
-&gt; &gt;<br>
-&gt; &gt; +static long vhost_vdpa_get_vqs_count(struct vhost_vdpa *v, u32 _=
-_user *argp)<br>
-&gt; &gt; +{<br>
-&gt; &gt; +=C2=A0 =C2=A0struct vdpa_device *vdpa =3D v-&gt;vdpa;<br>
-&gt; <br>
-&gt; <br>
-&gt; While at it, I think it&#39;s better to change vdpa-&gt;nvqs to use u3=
-2?<br>
-&gt; <br>
-<br>
-struct vhost_vdpa {<br>
-=C2=A0 =C2=A0 ...<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 int nvqs;<br>
-=C2=A0 =C2=A0 ...<br>
-};<br>
-<br>
-struct vdpa_device {<br>
-=C2=A0 =C2=A0 ...<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 int nvqs;<br>
-=C2=A0 =C2=A0 ...<br>
-};<br>
-<br>
-I think we should change both to u32?<br></blockquote><div><br></div><div>Y=
-es.</div><div><br></div><div>Thanks</div><div>=C2=A0</div><blockquote class=
-=3D"gmail_quote" style=3D"margin:0px 0px 0px 0.8ex;border-left:1px solid rg=
-b(204,204,204);padding-left:1ex">
-<br>
-<br>
-&gt; Thanks<br>
-&gt; <br>
-&gt; <br>
-&gt; &gt; +<br>
-&gt; &gt; +=C2=A0 =C2=A0if (copy_to_user(argp, &amp;vdpa-&gt;nvqs, sizeof(v=
-dpa-&gt;nvqs)))<br>
-&gt; &gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0return -EFAULT;<br>
-&gt; &gt; +<br>
-&gt; &gt; +=C2=A0 =C2=A0return 0;<br>
-&gt; &gt; +}<br>
-&gt; &gt; +<br>
-&gt; &gt;=C2=A0 =C2=A0static long vhost_vdpa_vring_ioctl(struct vhost_vdpa =
-*v, unsigned int cmd,<br>
-&gt; &gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 void __user *argp)<br>
-&gt; &gt;=C2=A0 =C2=A0{<br>
-&gt; &gt; @@ -509,6 +519,9 @@ static long vhost_vdpa_unlocked_ioctl(struct =
-file *filep,<br>
-&gt; &gt;=C2=A0 =C2=A0 =C2=A0case VHOST_VDPA_GET_CONFIG_SIZE:<br>
-&gt; &gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0r =3D vhost_vdpa_g=
-et_config_size(v, argp);<br>
-&gt; &gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0break;<br>
-&gt; &gt; +=C2=A0 =C2=A0case VHOST_VDPA_GET_VQS_COUNT:<br>
-&gt; &gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0r =3D vhost_vdpa_get_vq=
-s_count(v, argp);<br>
-&gt; &gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0break;<br>
-&gt; &gt;=C2=A0 =C2=A0 =C2=A0default:<br>
-&gt; &gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0r =3D vhost_dev_io=
-ctl(&amp;v-&gt;vdev, cmd, argp);<br>
-&gt; &gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0if (r =3D=3D -ENOI=
-OCTLCMD)<br>
-&gt; &gt; diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhos=
-t.h<br>
-&gt; &gt; index bc74e95a273a..5d99e7c242a2 100644<br>
-&gt; &gt; --- a/include/uapi/linux/vhost.h<br>
-&gt; &gt; +++ b/include/uapi/linux/vhost.h<br>
-&gt; &gt; @@ -154,4 +154,7 @@<br>
-&gt; &gt;=C2=A0 =C2=A0/* Get the config size */<br>
-&gt; &gt;=C2=A0 =C2=A0#define VHOST_VDPA_GET_CONFIG_SIZE=C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 _IOR(VHOST_VIRTIO, 0x79, __u32)<br>
-&gt; &gt;<br>
-&gt; &gt; +/* Get the count of all virtqueues */<br>
-&gt; &gt; +#define VHOST_VDPA_GET_VQS_COUNT=C2=A0 =C2=A0_IOR(VHOST_VIRTIO, =
-0x80, __u32)<br>
-&gt; &gt; +<br>
-&gt; &gt;=C2=A0 =C2=A0#endif<br>
-<br>
-</blockquote></div></div>
-
---000000000000198a9f05d9d6b23a--
+If we additionally want to track state for debugging then bool flags
+seem more appropriate for this, though from experience that is
+not always worth the extra code.
 
 
---===============9148859235955512859==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+
+>  /*
+>   * Packed ring specific functions - *_packed().
+> @@ -2317,6 +2384,8 @@ static int __vring_virtqueue_attach_split(struct vring_virtqueue *vq,
+>  static void __vring_virtqueue_init_split(struct vring_virtqueue *vq,
+>  					 struct virtio_device *vdev)
+>  {
+> +	vq->vq.reset = VIRTIO_VQ_RESET_STEP_NONE;
+> +
+>  	vq->packed_ring = false;
+>  	vq->we_own_ring = false;
+>  	vq->broken = false;
+> -- 
+> 2.31.0
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============9148859235955512859==--
-
