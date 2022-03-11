@@ -1,102 +1,84 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 016CDC433EF
-	for <virtualization@archiver.kernel.org>; Thu, 10 Mar 2022 19:02:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 63E16C433FE
+	for <virtualization@archiver.kernel.org>; Fri, 11 Mar 2022 02:55:25 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 96D5A4018E;
-	Thu, 10 Mar 2022 19:02:42 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id E254741987;
+	Fri, 11 Mar 2022 02:55:24 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Jad5sTihpARG; Thu, 10 Mar 2022 19:02:41 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id X63tAaY3ALY1; Fri, 11 Mar 2022 02:55:24 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id EA3D84053E;
-	Thu, 10 Mar 2022 19:02:40 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 6CA3341999;
+	Fri, 11 Mar 2022 02:55:23 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B6D0FC0012;
-	Thu, 10 Mar 2022 19:02:40 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4AA2AC0012;
+	Fri, 11 Mar 2022 02:55:23 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 56A7DC000B
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4CDA4C000B
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Mar 2022 19:02:39 +0000 (UTC)
+ Fri, 11 Mar 2022 02:55:22 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 45B908477F
+ by smtp1.osuosl.org (Postfix) with ESMTP id 35B0E826E7
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Mar 2022 19:02:39 +0000 (UTC)
+ Fri, 11 Mar 2022 02:55:22 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=suse.de header.b="h7pIh4eL";
- dkim=neutral reason="invalid (unsupported algorithm ed25519-sha256)"
- header.d=suse.de header.b="iuJ2YCVb"
+ dkim=pass (2048-bit key) header.d=intel.com
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 7-SmkELy5g2r
+ with ESMTP id xHZKdKH9W1AN
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Mar 2022 19:02:38 +0000 (UTC)
+ Fri, 11 Mar 2022 02:55:21 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 0A87D84741
+Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 06A1A81BA8
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Mar 2022 19:02:31 +0000 (UTC)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by smtp-out2.suse.de (Postfix) with ESMTPS id AF1AF1F381;
- Thu, 10 Mar 2022 19:02:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
- t=1646938943; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=VvuxtOkRTYe6y27Po/1nErjm/dM9kXlHT4HNL9PVo00=;
- b=h7pIh4eLaWzgkaI2p833yncJUhkX9aylvhTUlrji0Wa6KUgmBcDx5GsBivnV4CHgXyZJAJ
- nN0QeKx4SW3t/3hxvKNXt2SEISGHrT58J29q3Glpc1uUwnduBhNW5T5JXXpocvg5bAvh1D
- z2zfTxerc+h1Nmx+WDTF69G2lZGAebA=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
- s=susede2_ed25519; t=1646938943;
- h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=VvuxtOkRTYe6y27Po/1nErjm/dM9kXlHT4HNL9PVo00=;
- b=iuJ2YCVbYLpYcDF0VrQP3c/Ot3qB8OqqkPdpQBhTK8m1aknrovDZBmbMYf3tDQ5JbxC6QG
- Uy+hW3T9oCDjloBQ==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 6086F13FA3;
- Thu, 10 Mar 2022 19:02:23 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
- by imap2.suse-dmz.suse.de with ESMTPSA id PbzeFT9LKmIXVAAAMHmgww
- (envelope-from <tzimmermann@suse.de>); Thu, 10 Mar 2022 19:02:23 +0000
-Message-ID: <3caec8f4-1bc8-bd52-4a36-5223b633704e@suse.de>
-Date: Thu, 10 Mar 2022 20:02:22 +0100
+ Fri, 11 Mar 2022 02:55:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+ d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+ t=1646967321; x=1678503321;
+ h=date:from:to:cc:subject:message-id:references:
+ mime-version:in-reply-to;
+ bh=uemGpo3r1Ljzh7J5aQez3PPGjZxZAPOCkt2/GKim9c8=;
+ b=fIm+pMi0s4/eQJkMxF1DAvYI6KiVUfL+2jWuqxNUqanhxV5mknvao5M+
+ pMJEtV6MoM4aomXLHz20DxQlVqYK10ROyAm6YQlVpItNRGfKeTcffyV1G
+ hJsNQk5oMQl2ZmvDFIakv2zsuTVpweKMUFVPOUApAkKTH7NrZnuraND2l
+ d24UJr5OQE5fPEsD2XQBWKujID2V/rueN+GCgnEGkNRDFryZWrEhqncKc
+ wC8gg7ZW3Hqm0jybvhlcSgSeEglZyYFKBNBblrjTfz/XfIHwSyZKalJpW
+ R12faRK4wjRmaRz+H9dIPzFlp8sWCQYzwaN9NunPzXOPVcKW/uhKEEAlK g==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10282"; a="237658216"
+X-IronPort-AV: E=Sophos;i="5.90,172,1643702400"; d="scan'208";a="237658216"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+ by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 10 Mar 2022 18:55:19 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.90,172,1643702400"; d="scan'208";a="688937088"
+Received: from lkp-server02.sh.intel.com (HELO 89b41b6ae01c) ([10.239.97.151])
+ by fmsmga001.fm.intel.com with ESMTP; 10 Mar 2022 18:55:16 -0800
+Received: from kbuild by 89b41b6ae01c with local (Exim 4.92)
+ (envelope-from <lkp@intel.com>)
+ id 1nSVQy-0005k9-1G; Fri, 11 Mar 2022 02:55:16 +0000
+Date: Fri, 11 Mar 2022 10:55:10 +0800
+From: kernel test robot <lkp@intel.com>
+To: Jiyong Park <jiyong@google.com>, sgarzare@redhat.com,
+ stefanha@redhat.com, mst@redhat.com, jasowang@redhat.com,
+ davem@davemloft.net, kuba@kernel.org
+Subject: Re: [PATCH 1/2] vsock: each transport cycles only on its own sockets
+Message-ID: <202203111023.SPYFGn7W-lkp@intel.com>
+References: <20220310125425.4193879-2-jiyong@google.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.6.1
-Subject: Re: [PATCH v1 0/5] Add memory shrinker to VirtIO-GPU DRM driver
-Content-Language: en-US
-To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
- David Airlie <airlied@linux.ie>, Gerd Hoffmann <kraxel@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
- Daniel Almeida <daniel.almeida@collabora.com>,
- Gert Wollny <gert.wollny@collabora.com>
-References: <20220308131725.60607-1-dmitry.osipenko@collabora.com>
- <4ce1e172-799c-cba3-0a72-4a6fdf2c6d2f@suse.de>
- <caa9a2ea-d1b4-fa96-0e90-37a89aa0c000@collabora.com>
- <d1169f34-ccd8-299d-af1f-f45da37556db@suse.de>
- <c9b344ab-b674-d600-da13-94b329a9d46b@collabora.com>
-From: Thomas Zimmermann <tzimmermann@suse.de>
-In-Reply-To: <c9b344ab-b674-d600-da13-94b329a9d46b@collabora.com>
-Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>, linux-kernel@vger.kernel.org,
- dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
- Gustavo Padovan <gustavo.padovan@collabora.com>,
- Dmitry Osipenko <digetx@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20220310125425.4193879-2-jiyong@google.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+Cc: adelva@google.com, Jiyong Park <jiyong@google.com>, kbuild-all@lists.01.org,
+ kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -108,105 +90,97 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============4482644520215469806=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============4482644520215469806==
-Content-Language: en-US
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------NNe0wuk0PVOqaesrUKI5pL6A"
+Hi Jiyong,
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------NNe0wuk0PVOqaesrUKI5pL6A
-Content-Type: multipart/mixed; boundary="------------jixjnh6q6q1yWxdpMDOQzT0K";
- protected-headers="v1"
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
- David Airlie <airlied@linux.ie>, Gerd Hoffmann <kraxel@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
- Daniel Almeida <daniel.almeida@collabora.com>,
- Gert Wollny <gert.wollny@collabora.com>
-Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org,
- Gustavo Padovan <gustavo.padovan@collabora.com>,
- dri-devel@lists.freedesktop.org, Dmitry Osipenko <digetx@gmail.com>
-Message-ID: <3caec8f4-1bc8-bd52-4a36-5223b633704e@suse.de>
-Subject: Re: [PATCH v1 0/5] Add memory shrinker to VirtIO-GPU DRM driver
-References: <20220308131725.60607-1-dmitry.osipenko@collabora.com>
- <4ce1e172-799c-cba3-0a72-4a6fdf2c6d2f@suse.de>
- <caa9a2ea-d1b4-fa96-0e90-37a89aa0c000@collabora.com>
- <d1169f34-ccd8-299d-af1f-f45da37556db@suse.de>
- <c9b344ab-b674-d600-da13-94b329a9d46b@collabora.com>
-In-Reply-To: <c9b344ab-b674-d600-da13-94b329a9d46b@collabora.com>
+Thank you for the patch! Yet something to improve:
 
---------------jixjnh6q6q1yWxdpMDOQzT0K
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+[auto build test ERROR on 3bf7edc84a9eb4007dd9a0cb8878a7e1d5ec6a3b]
 
-SGkNCg0KQW0gMDkuMDMuMjIgdW0gMjM6MjUgc2NocmllYiBEbWl0cnkgT3NpcGVua286DQo+
-Pg0KPj4gVGhlIHJlYXNvbiBmb3IgdGhpcyB3b3JrIGlzIHRvIGtlZXAgR0VNIHNobWVtIHBh
-Z2VzIG1hcHBlZCBhbmQgYWxsb2NhdGVkDQo+PiBldmVuIHdoaWxlIHRoZSBCTyBpcyBuZWl0
-aGVyIG1hcHBlZCBub3IgcGlubmVkLsKgIEFzIGl0IGlzIG5vdywgR0VNIFNITUVNDQo+PiBj
-cmVhdGVzIGFuZCByZWxlYXNlcyBwYWdlcyBvbiBlYWNoIHBpbiBhbmQgdW5waW4sIGFuZCBt
-YXBzIGFuZCB1bm1hcHMNCj4+IG1lbW9yeSByYW5nZXMgb24gZWFjaCB2bWFwIGFuZCB2dW5t
-YXAuwqAgSXQncyBhbGwgd2FzdGVmdWwuIE9ubHkgdGhlDQo+PiBmaXJzdCBwaW4gYW5kIHZt
-YXAgY2FsbHMgc2hvdWxkIGVzdGFibGlzaCBwYWdlcyBhbmQgbWFwcGluZ3MgYW5kIG9ubHkN
-Cj4+IHRoZSBwdXJnZSBhbmQgZnJlZSBmdW5jdGlvbnMgc2hvdWxkIHJlbGVhc2UgdGhlbS4N
-Cj4gDQo+IEhtLCBhcmVuJ3QgbWFwcyBhbmQgcGlucyBhbHJlYWR5IHJlZmNvdW50ZWQ/DQoN
-ClRoZXkgYXJlLiBCdXQgZXZlbiB3aGVuIHRoZSByZWZjb3VudGVyIHJlYWNoZXMgMCBvbiBk
-ZXJlZiwgdGhlcmUncyBubyANCm5lZWQgdG8gcmVtb3ZlIHRoZSBtYXBwaW5nIG9yIGZyZWUg
-dGhlIG1lbW9yeSBwYWdlcy4gV2UgY2FuIGtlZXAgdGhlbSANCmFyb3VuZCBmb3IgdGhlIG5l
-eHQgcmVmIG9wZXJhdGlvbi4gIE9ubHkgdGhlIHNocmlua2VyJ3MgcHVyZ2Ugb3IgZnJlZWlu
-ZyANCnRoZSBvYmplY3QgaGFzIHRvIGRvIHN1Y2ggY2xlYW4tdXAgb3BlcmF0aW9ucy4gIFN1
-Y2ggYmVoYXZpb3IgaXMgDQpzdXBwb3J0ZWQgYnkgVFRNIGFuZCB3ZSBhbHJlYWR5IHVzZSBp
-dCBpbiBWUkFNIGhlbHBlcnMgYXMgd2VsbC4NCg0KQmVzdCByZWdhcmRzDQpUaG9tYXMNCg0K
-PiANCj4+IFRoZSBwYXRjaHNldCBhZGRzIG5ldyBoZWxwZXJzIGZvciBCTyBwdXJnaW5nIHRv
-IHN0cnVjdA0KPj4gZHJtX2dlbV9vYmplY3RfZnVuY3MuIFdpdGggdGhpcywgSSB0aGluayBp
-dCBtaWdodCBiZSBwb3NzaWJsZSB0byBoYXZlDQo+PiBvbmUgZ2xvYmFsIERSTSBzaHJpbmtl
-ciBhbmQgbGV0IGl0IGhhbmRsZSBhbGwgQk9zOyBpbmRlcGVuZGVudCBvZiBlYWNoDQo+PiBC
-TydzIG1lbW9yeSBtYW5hZ2VyLg0KPiANCj4gVGhhbmsgeW91LCBJJ2xsIGdpdmUgaXQgYSB0
-cnkuDQoNCi0tIA0KVGhvbWFzIFppbW1lcm1hbm4NCkdyYXBoaWNzIERyaXZlciBEZXZlbG9w
-ZXINClNVU0UgU29mdHdhcmUgU29sdXRpb25zIEdlcm1hbnkgR21iSA0KTWF4ZmVsZHN0ci4g
-NSwgOTA0MDkgTsO8cm5iZXJnLCBHZXJtYW55DQooSFJCIDM2ODA5LCBBRyBOw7xybmJlcmcp
-DQpHZXNjaMOkZnRzZsO8aHJlcjogSXZvIFRvdGV2DQo=
+url:    https://github.com/0day-ci/linux/commits/Jiyong-Park/vsock-cycle-only-on-its-own-socket/20220310-205638
+base:   3bf7edc84a9eb4007dd9a0cb8878a7e1d5ec6a3b
+config: x86_64-rhel-8.3 (https://download.01.org/0day-ci/archive/20220311/202203111023.SPYFGn7W-lkp@intel.com/config)
+compiler: gcc-9 (Ubuntu 9.4.0-1ubuntu1~20.04) 9.4.0
+reproduce (this is a W=1 build):
+        # https://github.com/0day-ci/linux/commit/6219060e1d706d7055fb0829b3bf23c5ae84790e
+        git remote add linux-review https://github.com/0day-ci/linux
+        git fetch --no-tags linux-review Jiyong-Park/vsock-cycle-only-on-its-own-socket/20220310-205638
+        git checkout 6219060e1d706d7055fb0829b3bf23c5ae84790e
+        # save the config file to linux build tree
+        mkdir build_dir
+        make W=1 O=build_dir ARCH=x86_64 SHELL=/bin/bash net/vmw_vsock/
 
---------------jixjnh6q6q1yWxdpMDOQzT0K--
+If you fix the issue, kindly add following tag as appropriate
+Reported-by: kernel test robot <lkp@intel.com>
 
---------------NNe0wuk0PVOqaesrUKI5pL6A
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
+All errors (new ones prefixed by >>):
 
------BEGIN PGP SIGNATURE-----
+   net/vmw_vsock/vmci_transport.c: In function 'vmci_transport_handle_detach':
+>> net/vmw_vsock/vmci_transport.c:808:25: error: 'vmci_transport' undeclared (first use in this function)
+     808 |  if (vsk->transport != &vmci_transport)
+         |                         ^~~~~~~~~~~~~~
+   net/vmw_vsock/vmci_transport.c:808:25: note: each undeclared identifier is reported only once for each function it appears in
 
-wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmIqSz4FAwAAAAAACgkQlh/E3EQov+At
-9g//Z9letBO6G3sE8aowjvZbpoZsrIyVdjoy+W6UDaqOrF3j938fYly4mcECyifSvmPTkt4gqyOf
-EBtirJ+muEGKtJhVGI384pw0yT86VYb0Avhv9y0Ev+zzoXbd+QSL4i7M12ne6P7/gbIpb/qMEtfV
-IRInAJ3VOKcYDAc/nveXusnJHRvghCqiyc6seLqWaZhtvSirTIrW4uihFd9N0Ol0Ix/WrT/EH2VO
-CP9AHptSWTGikCb/7lN9SvbeAZAbOKwLiYkldCuGzpydabmIXEE8R7dFSJPcrjZ9+bSftMZYWErs
-VYaXUZ3OcRRIAE4Y1GsvCBFyzfVtBCJH4QsajTa4Pu/U2Aa0obmKhtHlkNPIhMUAM60Uo50JtRut
-PhohOZXqLEE3Z4glpCzEgEarAY/nMm19cMU3TPyBt1PdjMWhpzn/gIwHz7JwlY4ki1QHn5WaY1Nx
-5//5GPSZtSSkSgPqKJOjTCv5gGyLOcvy+0DAGlH4AWncdhS79pjDtA+X5WEafy0YgB3aCApp+qnX
-HA4Rby5o7fOm+RdcLPvDWfwHLUHWPABbRrK+EyD0sTi0DIo/XCz2HMHeK1nJuSbbaDu0XshvM9CZ
-VcrCiaQDH8GTMhAvN0ZEiPIKBp1yRtOhVBXDwbkrHerz6KIjGLGicRn9O/APnd4K2yw8VhjH8+7b
-v7c=
-=7O5g
------END PGP SIGNATURE-----
 
---------------NNe0wuk0PVOqaesrUKI5pL6A--
+vim +/vmci_transport +808 net/vmw_vsock/vmci_transport.c
 
---===============4482644520215469806==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+   800	
+   801	static void vmci_transport_handle_detach(struct sock *sk)
+   802	{
+   803		struct vsock_sock *vsk;
+   804	
+   805		vsk = vsock_sk(sk);
+   806	
+   807		/* Only handle our own sockets */
+ > 808		if (vsk->transport != &vmci_transport)
+   809			return;
+   810	
+   811		if (!vmci_handle_is_invalid(vmci_trans(vsk)->qp_handle)) {
+   812			sock_set_flag(sk, SOCK_DONE);
+   813	
+   814			/* On a detach the peer will not be sending or receiving
+   815			 * anymore.
+   816			 */
+   817			vsk->peer_shutdown = SHUTDOWN_MASK;
+   818	
+   819			/* We should not be sending anymore since the peer won't be
+   820			 * there to receive, but we can still receive if there is data
+   821			 * left in our consume queue. If the local endpoint is a host,
+   822			 * we can't call vsock_stream_has_data, since that may block,
+   823			 * but a host endpoint can't read data once the VM has
+   824			 * detached, so there is no available data in that case.
+   825			 */
+   826			if (vsk->local_addr.svm_cid == VMADDR_CID_HOST ||
+   827			    vsock_stream_has_data(vsk) <= 0) {
+   828				if (sk->sk_state == TCP_SYN_SENT) {
+   829					/* The peer may detach from a queue pair while
+   830					 * we are still in the connecting state, i.e.,
+   831					 * if the peer VM is killed after attaching to
+   832					 * a queue pair, but before we complete the
+   833					 * handshake. In that case, we treat the detach
+   834					 * event like a reset.
+   835					 */
+   836	
+   837					sk->sk_state = TCP_CLOSE;
+   838					sk->sk_err = ECONNRESET;
+   839					sk_error_report(sk);
+   840					return;
+   841				}
+   842				sk->sk_state = TCP_CLOSE;
+   843			}
+   844			sk->sk_state_change(sk);
+   845		}
+   846	}
+   847	
 
+---
+0-DAY CI Kernel Test Service
+https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============4482644520215469806==--
