@@ -1,106 +1,117 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 66C83C433FE
-	for <virtualization@archiver.kernel.org>; Fri, 11 Mar 2022 16:19:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6BFC7C4332F
+	for <virtualization@archiver.kernel.org>; Fri, 11 Mar 2022 20:19:09 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id E12D3405E9;
-	Fri, 11 Mar 2022 16:19:06 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id ECCEC61314;
+	Fri, 11 Mar 2022 20:19:08 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id k_TiPz_cF7aM; Fri, 11 Mar 2022 16:19:05 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 2CA95400AF;
-	Fri, 11 Mar 2022 16:19:05 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 4TSMBN_GE3OY; Fri, 11 Mar 2022 20:19:08 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 725536131D;
+	Fri, 11 Mar 2022 20:19:07 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0065CC001D;
-	Fri, 11 Mar 2022 16:19:05 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 72E7FC000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 41FC8C001D;
+	Fri, 11 Mar 2022 20:19:07 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 044FAC000B
  for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Mar 2022 16:19:03 +0000 (UTC)
+ Fri, 11 Mar 2022 20:19:06 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 5ACD582726
+ by smtp4.osuosl.org (Postfix) with ESMTP id E097241A1C
  for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Mar 2022 16:19:03 +0000 (UTC)
+ Fri, 11 Mar 2022 20:19:05 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id AHomZVIxUsCB
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=linaro.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id oDO-X8VdgfaI
  for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Mar 2022 16:19:02 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id B4EB881985
+ Fri, 11 Mar 2022 20:19:05 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-oi1-x22f.google.com (mail-oi1-x22f.google.com
+ [IPv6:2607:f8b0:4864:20::22f])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id D458241A18
  for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Mar 2022 16:19:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1647015541;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=AJnh/WTVytD4QJ+LQjSrAhkCQ4EpEF75dMKosoE5+jw=;
- b=Qapvkj8nB3XF3032JRKfvEvpCV003SsTsL+WgjfwoLsWP8X96NPP0TIMpxFZEw5jDVuK9B
- DUxLZ2ooXcFhyCJQWHDG6c3erIgdgmCU/d2ljqqbTD8TiKNd+ptU/DxVXd5td/cZmCqAzG
- h5jGOqhZZLB1WsSaJZ/YXpCGTg2SUzA=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-474-fjwN8T99MMCaPW-Gmpnsgg-1; Fri, 11 Mar 2022 11:19:00 -0500
-X-MC-Unique: fjwN8T99MMCaPW-Gmpnsgg-1
-Received: by mail-wm1-f72.google.com with SMTP id
- a26-20020a7bc1da000000b003857205ec7cso3632352wmj.2
+ Fri, 11 Mar 2022 20:19:04 +0000 (UTC)
+Received: by mail-oi1-x22f.google.com with SMTP id z8so10614257oix.3
  for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Mar 2022 08:19:00 -0800 (PST)
+ Fri, 11 Mar 2022 12:19:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
+ h=date:from:to:cc:subject:message-id:references:mime-version
+ :content-disposition:in-reply-to;
+ bh=byy3khpUB/C66OcuZpBogrh1vBdJYZWOahv4ARsAqeU=;
+ b=JsI+MgGwcNWNo5mFTmDhFQFX43IPSGP8AHmpadTTq1/jegWXkSYGxRbyYSNd2GGAfZ
+ QJL9ePsqy1+pQCjIkYOKeRZF/4ou56BLTl43xcIPQgKVuLYTvOOSpWVMBXvPzi3iVcEE
+ M9OokvdpojzL0W3mpYKQGxN00uuF3MValP5LkZwv7tBK8MbHNCEdcUSp8EyQgNvmdObM
+ dV8uEHfL0A+kbdg4/kBwvllnMdB0q6LY78GBq99WSqCsQB+n/5bFK7oLoh//RzZWPskK
+ DuBKl43ZqA2bbLdc1tjjtMkwJymKeQrW5rKztLf0fnJNsCRRE5EUHhDiGz2DbwyIRrvz
+ mrcQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=AJnh/WTVytD4QJ+LQjSrAhkCQ4EpEF75dMKosoE5+jw=;
- b=p7XCFxbIrTUb6OrNNLJD7+RAiED7VUC+PfhhCyy5xQQLMrdRioT4A/chTaz5vBHADI
- XlNv8MBpDhTiZ+hCC8V87+ouPiEWkmzhK4kqso8/zb/dVuuxFDQKJK4bcL/gMdKIWDvf
- sw9FRp0mnyK/dK6Wimfy5snr11+ZPK1d57YrzBKH9PNpYBDouNUpl0uaLkM3S5/Y9U2Y
- dpfXUv+KbeWBSw4JAj80Zht24XhjC20paw7Gufo2efYjXWY3IWq79RD7fP36oNTdQZjd
- /ddJMoqdoIYxmH4FHk6aA4ewyIV1beEM5GniZhPSX5q2l+nSPXY0C8FOtoWwqKwNIGbi
- ziFw==
-X-Gm-Message-State: AOAM530rg0+XS6nL//bTrEvAQvqp4UwjIIicUHKmXjG4fZJdCZLyf+eF
- nRVF0Ll+hKxIICqvm4NRJLrxyQA8V8pjjGFF0f2FccfTtVD90eTi+xh8nDUarBDtC/w58gW1P34
- nX7PSiJB+OgHcfcxJCPHZncKv74SvFsw1wLJ0TF6V6Q==
-X-Received: by 2002:a5d:49c9:0:b0:1f0:16b2:584f with SMTP id
- t9-20020a5d49c9000000b001f016b2584fmr7904051wrs.710.1647015538981; 
- Fri, 11 Mar 2022 08:18:58 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJyl/ZBDUcyVD5pvPIubD+ihVN6dxnz+tjurlLQCrzXPmvl14giKcpyIB02nshY5MQ84ii1LTA==
-X-Received: by 2002:a5d:49c9:0:b0:1f0:16b2:584f with SMTP id
- t9-20020a5d49c9000000b001f016b2584fmr7904034wrs.710.1647015538767; 
- Fri, 11 Mar 2022 08:18:58 -0800 (PST)
-Received: from redhat.com ([2.53.27.107]) by smtp.gmail.com with ESMTPSA id
- l1-20020a05600c4f0100b00387369f380bsm11873652wmq.41.2022.03.11.08.18.57
+ bh=byy3khpUB/C66OcuZpBogrh1vBdJYZWOahv4ARsAqeU=;
+ b=UnEIZw/bnUquWd50LBXJA2sKFbfnUoEDRiBLPDUuYH+vgybcwdgiyBWEv86GT4XIV8
+ so82ig02EJliTWBI4Yn29JquNwaR2SW7j1GLMHyx4EXNcIXJx34T//5QWkjw/+iuZYIc
+ cry9kSgSatd7eIXaGtTW49Z+GM8Nx6UQp7qupNQOi23xwZtoAysltB3aM6gGMzfMvbG/
+ TtY4nK4xD4U3kdE/nZwCRU9rJc4zUZcLvfuVdBPFbh/nPCaHacTwh4kuqo1XgW7cXXbP
+ XmA4h37Ik1/pChCA4GaJf2wfu6V2jQLd/ft5UvQ0j7EEs5xA55iOrmwjN97AuLXxxSpL
+ ZMdg==
+X-Gm-Message-State: AOAM531pjMIIqIOsNkTQCazHLsqD2O9iUy1KZ8tHDvDengB6iTpycIpF
+ 6BN8/MXDjJ0dPiRe4Y0m7VpNaw==
+X-Google-Smtp-Source: ABdhPJwiCKmAYCnvMQUHkha6DRmgbP0TH7H+cC730Evh2nxJN9gacFfI6shVehimGVsKyYdMWq24uQ==
+X-Received: by 2002:a05:6808:1406:b0:2d9:a01a:4bcb with SMTP id
+ w6-20020a056808140600b002d9a01a4bcbmr7858798oiv.242.1647029943809; 
+ Fri, 11 Mar 2022 12:19:03 -0800 (PST)
+Received: from builder.lan ([2600:1700:a0:3dc8:3697:f6ff:fe85:aac9])
+ by smtp.gmail.com with ESMTPSA id
+ r41-20020a056870582900b000d6cbaf589esm3887680oap.40.2022.03.11.12.19.02
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 11 Mar 2022 08:18:58 -0800 (PST)
-Date: Fri, 11 Mar 2022 11:18:54 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Suwan Kim <suwan.kim027@gmail.com>
-Subject: Re: [PATCH] virtio-blk: support polling I/O
-Message-ID: <20220311111815-mutt-send-email-mst@kernel.org>
-References: <20220311152832.17703-1-suwan.kim027@gmail.com>
- <20220311103549-mutt-send-email-mst@kernel.org>
- <YitzuxYHywdCRKVO@localhost.localdomain>
+ Fri, 11 Mar 2022 12:19:02 -0800 (PST)
+Date: Fri, 11 Mar 2022 14:19:00 -0600
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
+To: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Subject: Re: [PATCH v3 11/11] rpmsg: Fix kfree() of static memory on setting
+ driver_override
+Message-ID: <YiuutCsuf4j192cJ@builder.lan>
+References: <20220227135214.145599-1-krzysztof.kozlowski@canonical.com>
+ <20220227135329.145862-5-krzysztof.kozlowski@canonical.com>
 MIME-Version: 1.0
-In-Reply-To: <YitzuxYHywdCRKVO@localhost.localdomain>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org,
- stefanha@redhat.com, pbonzini@redhat.com, suwan.kim027@gamil.com
+In-Reply-To: <20220227135329.145862-5-krzysztof.kozlowski@canonical.com>
+Cc: linux-hyperv@vger.kernel.org, Stuart Yoder <stuyoder@gmail.com>,
+ "Rafael J. Wysocki" <rafael@kernel.org>, linux-pci@vger.kernel.org,
+ linux-remoteproc@vger.kernel.org, alsa-devel@alsa-project.org,
+ linux-kernel@vger.kernel.org,
+ Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+ Vineeth Vijayan <vneethv@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>, Fabio Estevam <festevam@gmail.com>,
+ linux-clk@vger.kernel.org, linux-s390@vger.kernel.org,
+ Wei Liu <wei.liu@kernel.org>, Stephen Hemminger <sthemmin@microsoft.com>,
+ Abel Vesa <abel.vesa@nxp.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Dexuan Cui <decui@microsoft.com>,
+ Linus Torvalds <torvalds@linux-foundation.org>, Andy Gross <agross@kernel.org>,
+ NXP Linux Team <linux-imx@nxp.com>, Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, linux-arm-msm@vger.kernel.org,
+ Sascha Hauer <s.hauer@pengutronix.de>, Mark Brown <broonie@kernel.org>,
+ Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+ Bjorn Helgaas <bhelgaas@google.com>, virtualization@lists.linux-foundation.org,
+ linux-arm-kernel@lists.infradead.org,
+ Laurentiu Tudor <laurentiu.tudor@nxp.com>,
+ Mathieu Poirier <mathieu.poirier@linaro.org>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Haiyang Zhang <haiyangz@microsoft.com>,
+ Peter Oberparleiter <oberpar@linux.ibm.com>, stable@vger.kernel.org,
+ linux-spi@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
+ Shawn Guo <shawnguo@kernel.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -117,38 +128,127 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sat, Mar 12, 2022 at 01:07:23AM +0900, Suwan Kim wrote:
-> On Fri, Mar 11, 2022 at 10:38:07AM -0500, Michael S. Tsirkin wrote:
-> > On Sat, Mar 12, 2022 at 12:28:32AM +0900, Suwan Kim wrote:
-> > > diff --git a/include/uapi/linux/virtio_blk.h b/include/uapi/linux/virtio_blk.h
-> > > index d888f013d9ff..3fcaf937afe1 100644
-> > > --- a/include/uapi/linux/virtio_blk.h
-> > > +++ b/include/uapi/linux/virtio_blk.h
-> > > @@ -119,8 +119,9 @@ struct virtio_blk_config {
-> > >  	 * deallocation of one or more of the sectors.
-> > >  	 */
-> > >  	__u8 write_zeroes_may_unmap;
-> > > +	__u8 unused1;
-> > >  
-> > > -	__u8 unused1[3];
-> > > +	__virtio16 num_poll_queues;
-> > >  } __attribute__((packed));
-> > 
-> > Same as any virtio UAPI change, this has to go through the virtio TC.
+On Sun 27 Feb 07:53 CST 2022, Krzysztof Kozlowski wrote:
 
-
-Notice this pls.  Remember to copy one of the TC mailing lists.
-
-> > In particular I don't think gating a new config field on
-> > an existing feature flag is a good idea.
+> The driver_override field from platform driver should not be initialized
+> from static memory (string literal) because the core later kfree() it,
+> for example when driver_override is set via sysfs.
 > 
-> Did you mean that the polling should be based on a new feature like
-> "VIRTIO_BLK_F_POLL" and be added at the end of features_legacy[]
-> and features[]? If then, I will add the new feture flag and resend it.
+> Use dedicated helper to set driver_override properly.
 > 
-> Regards,
-> Suwan Kim
+> Fixes: 950a7388f02b ("rpmsg: Turn name service into a stand alone driver")
+> Fixes: c0cdc19f84a4 ("rpmsg: Driver for user space endpoint interface")
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+
+Regards,
+Bjorn
+
+> ---
+>  drivers/rpmsg/rpmsg_core.c     |  3 ++-
+>  drivers/rpmsg/rpmsg_internal.h | 13 +++++++++++--
+>  drivers/rpmsg/rpmsg_ns.c       | 14 ++++++++++++--
+>  include/linux/rpmsg.h          |  6 ++++--
+>  4 files changed, 29 insertions(+), 7 deletions(-)
+> 
+> diff --git a/drivers/rpmsg/rpmsg_core.c b/drivers/rpmsg/rpmsg_core.c
+> index d9e612f4f0f2..6e2bf2742973 100644
+> --- a/drivers/rpmsg/rpmsg_core.c
+> +++ b/drivers/rpmsg/rpmsg_core.c
+> @@ -397,7 +397,8 @@ field##_store(struct device *dev, struct device_attribute *attr,	\
+>  	      const char *buf, size_t sz)				\
+>  {									\
+>  	struct rpmsg_device *rpdev = to_rpmsg_device(dev);		\
+> -	char *new, *old;						\
+> +	const char *old;						\
+> +	char *new;							\
+>  									\
+>  	new = kstrndup(buf, sz, GFP_KERNEL);				\
+>  	if (!new)							\
+> diff --git a/drivers/rpmsg/rpmsg_internal.h b/drivers/rpmsg/rpmsg_internal.h
+> index b1245d3ed7c6..31345d6e9a7e 100644
+> --- a/drivers/rpmsg/rpmsg_internal.h
+> +++ b/drivers/rpmsg/rpmsg_internal.h
+> @@ -92,10 +92,19 @@ int rpmsg_release_channel(struct rpmsg_device *rpdev,
+>   */
+>  static inline int rpmsg_chrdev_register_device(struct rpmsg_device *rpdev)
+>  {
+> +	int ret;
+> +
+>  	strcpy(rpdev->id.name, "rpmsg_chrdev");
+> -	rpdev->driver_override = "rpmsg_chrdev";
+> +	ret = driver_set_override(&rpdev->dev, &rpdev->driver_override,
+> +				  "rpmsg_chrdev", strlen("rpmsg_chrdev"));
+> +	if (ret)
+> +		return ret;
+> +
+> +	ret = rpmsg_register_device(rpdev);
+> +	if (ret)
+> +		kfree(rpdev->driver_override);
+>  
+> -	return rpmsg_register_device(rpdev);
+> +	return ret;
+>  }
+>  
+>  #endif
+> diff --git a/drivers/rpmsg/rpmsg_ns.c b/drivers/rpmsg/rpmsg_ns.c
+> index 762ff1ae279f..95a51543f5ad 100644
+> --- a/drivers/rpmsg/rpmsg_ns.c
+> +++ b/drivers/rpmsg/rpmsg_ns.c
+> @@ -20,12 +20,22 @@
+>   */
+>  int rpmsg_ns_register_device(struct rpmsg_device *rpdev)
+>  {
+> +	int ret;
+> +
+>  	strcpy(rpdev->id.name, "rpmsg_ns");
+> -	rpdev->driver_override = "rpmsg_ns";
+> +	ret = driver_set_override(&rpdev->dev, &rpdev->driver_override,
+> +				  "rpmsg_ns", strlen("rpmsg_ns"));
+> +	if (ret)
+> +		return ret;
+> +
+>  	rpdev->src = RPMSG_NS_ADDR;
+>  	rpdev->dst = RPMSG_NS_ADDR;
+>  
+> -	return rpmsg_register_device(rpdev);
+> +	ret = rpmsg_register_device(rpdev);
+> +	if (ret)
+> +		kfree(rpdev->driver_override);
+> +
+> +	return ret;
+>  }
+>  EXPORT_SYMBOL(rpmsg_ns_register_device);
+>  
+> diff --git a/include/linux/rpmsg.h b/include/linux/rpmsg.h
+> index 02fa9116cd60..20c8cd1cde21 100644
+> --- a/include/linux/rpmsg.h
+> +++ b/include/linux/rpmsg.h
+> @@ -41,7 +41,9 @@ struct rpmsg_channel_info {
+>   * rpmsg_device - device that belong to the rpmsg bus
+>   * @dev: the device struct
+>   * @id: device id (used to match between rpmsg drivers and devices)
+> - * @driver_override: driver name to force a match
+> + * @driver_override: driver name to force a match; do not set directly,
+> + *                   because core frees it; use driver_set_override() to
+> + *                   set or clear it.
+>   * @src: local address
+>   * @dst: destination address
+>   * @ept: the rpmsg endpoint of this channel
+> @@ -51,7 +53,7 @@ struct rpmsg_channel_info {
+>  struct rpmsg_device {
+>  	struct device dev;
+>  	struct rpmsg_device_id id;
+> -	char *driver_override;
+> +	const char *driver_override;
+>  	u32 src;
+>  	u32 dst;
+>  	struct rpmsg_endpoint *ept;
+> -- 
+> 2.32.0
+> 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
