@@ -1,56 +1,55 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 50EFAC43217
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3C8BFC4332F
 	for <virtualization@archiver.kernel.org>; Mon, 14 Mar 2022 09:35:18 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 34F8483E3A;
-	Mon, 14 Mar 2022 09:35:17 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 06D4A415A6;
+	Mon, 14 Mar 2022 09:35:18 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id nZKeAZu4K1u4; Mon, 14 Mar 2022 09:35:16 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id C503D83E2F;
-	Mon, 14 Mar 2022 09:35:15 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 4vHewFrteSlO; Mon, 14 Mar 2022 09:35:17 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 79A8F4159E;
+	Mon, 14 Mar 2022 09:35:16 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E877CC0089;
-	Mon, 14 Mar 2022 09:35:14 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3DEE5C0070;
+	Mon, 14 Mar 2022 09:35:16 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 2D4C2C001D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 205A3C001D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Mar 2022 09:35:13 +0000 (UTC)
+ Mon, 14 Mar 2022 09:35:14 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 1B3DD4157E
+ by smtp4.osuosl.org (Postfix) with ESMTP id F3A834154C
  for <virtualization@lists.linux-foundation.org>;
  Mon, 14 Mar 2022 09:35:13 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id JCaS6f1GP6Ep
+ with ESMTP id vTvUDWDn0wx2
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Mar 2022 09:35:12 +0000 (UTC)
+ Mon, 14 Mar 2022 09:35:13 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from out30-43.freemail.mail.aliyun.com
  (out30-43.freemail.mail.aliyun.com [115.124.30.43])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 2B31C4157C
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 0F81041571
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Mar 2022 09:35:11 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R191e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04426; MF=xuanzhuo@linux.alibaba.com;
- NM=1; PH=DS; RN=3; SR=0; TI=SMTPD_---0V77QzE2_1647250508; 
+ Mon, 14 Mar 2022 09:35:12 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R881e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04357; MF=xuanzhuo@linux.alibaba.com;
+ NM=1; PH=DS; RN=3; SR=0; TI=SMTPD_---0V76s62-_1647250509; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0V77QzE2_1647250508) by smtp.aliyun-inc.com(127.0.0.1);
- Mon, 14 Mar 2022 17:35:09 +0800
+ fp:SMTPD_---0V76s62-_1647250509) by smtp.aliyun-inc.com(127.0.0.1);
+ Mon, 14 Mar 2022 17:35:10 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: virtualization@lists.linux-foundation.org
-Subject: [PATCH v8 15/16] virtio_ring: packed: implement
- virtqueue_resize_packed()
-Date: Mon, 14 Mar 2022 17:34:54 +0800
-Message-Id: <20220314093455.34707-16-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH v8 16/16] virtio_ring: introduce virtqueue_resize()
+Date: Mon, 14 Mar 2022 17:34:55 +0800
+Message-Id: <20220314093455.34707-17-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20220314093455.34707-1-xuanzhuo@linux.alibaba.com>
 References: <20220314093455.34707-1-xuanzhuo@linux.alibaba.com>
@@ -73,58 +72,118 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-virtio ring packed supports resize.
+Introduce virtqueue_resize() to implement the resize of vring.
+Based on these, the driver can dynamically adjust the size of the vring.
+For example: ethtool -G.
 
-Only after the new vring is successfully allocated based on the new num,
-we will release the old vring. In any case, an error is returned,
-indicating that the vring still points to the old vring. In the case of
-an error, we will re-initialize the state of the vring to ensure that
-the vring can be used.
+virtqueue_resize() implements resize based on the vq reset function. In
+case of failure to allocate a new vring, it will give up resize and use
+the original vring.
+
+During this process, if the re-enable reset vq fails, the vq can no
+longer be used. Although the probability of this situation is not high.
+
+The parameter recycle is used to recycle the buffer that is no longer
+used.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 ---
- drivers/virtio/virtio_ring.c | 28 ++++++++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
+ drivers/virtio/virtio_ring.c | 67 ++++++++++++++++++++++++++++++++++++
+ include/linux/virtio.h       |  3 ++
+ 2 files changed, 70 insertions(+)
 
 diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 73abc9e472ce..fb0abf9a2f57 100644
+index fb0abf9a2f57..b1dde086a8a4 100644
 --- a/drivers/virtio/virtio_ring.c
 +++ b/drivers/virtio/virtio_ring.c
-@@ -1968,6 +1968,34 @@ static struct virtqueue *vring_create_virtqueue_packed(
- 	return NULL;
+@@ -2528,6 +2528,73 @@ struct virtqueue *vring_create_virtqueue(
  }
+ EXPORT_SYMBOL_GPL(vring_create_virtqueue);
  
-+static int virtqueue_resize_packed(struct virtqueue *_vq, u32 num)
++/**
++ * virtqueue_resize - resize the vring of vq
++ * @vq: the struct virtqueue we're talking about.
++ * @num: new ring num
++ * @recycle: callback for recycle the useless buffer
++ *
++ * When it is really necessary to create a new vring, it will set the current vq
++ * into the reset state. Then call the passed cb to recycle the buffer that is
++ * no longer used. Only after the new vring is successfully created, the old
++ * vring will be released.
++ *
++ * Caller must ensure we don't call this with other virtqueue operations
++ * at the same time (except where noted).
++ *
++ * Returns zero or a negative error.
++ * -ENOMEM: create new vring fail. But vq can still work
++ * -EBUSY:  reset/re-enable vq fail. vq may cannot work
++ * -ENOENT: not support resize
++ * -E2BIG/-EINVAL: param num error
++ */
++int virtqueue_resize(struct virtqueue *vq, u32 num,
++		     void (*recycle)(struct virtqueue *vq, void *buf))
 +{
-+	struct vring_virtqueue *vq = to_vvq(_vq);
-+	struct virtio_device *vdev = _vq->vdev;
-+	struct vring_packed vring;
++	struct virtio_device *vdev = vq->vdev;
++	void *buf;
 +	int err;
 +
-+	err = vring_alloc_queue_packed(&vring, vdev, num);
++	if (num > vq->num_max)
++		return -E2BIG;
++
++	if (!num)
++		return -EINVAL;
++
++	if (to_vvq(vq)->packed.vring.num == num)
++		return 0;
++
++	if (!vq->vdev->config->reset_vq)
++		return -ENOENT;
++
++	if (!vq->vdev->config->enable_reset_vq)
++		return -ENOENT;
++
++	err = vq->vdev->config->reset_vq(vq);
++	if (err) {
++		if (err != -ENOENT)
++			err = -EBUSY;
++		return err;
++	}
++
++	while ((buf = virtqueue_detach_unused_buf(vq)) != NULL)
++		recycle(vq, buf);
++
++	if (virtio_has_feature(vdev, VIRTIO_F_RING_PACKED))
++		err = virtqueue_resize_packed(vq, num);
++	else
++		err = virtqueue_resize_split(vq, num);
++
 +	if (err)
-+		goto err_queue;
++		err = -ENOMEM;
 +
-+	err = vring_alloc_state_extra_packed(num, &vring);
-+	if (err)
-+		goto err_state_extra;
++	if (vq->vdev->config->enable_reset_vq(vq))
++		return -EBUSY;
 +
-+	__vring_free(&vq->vq);
-+
-+	vring_virtqueue_attach_packed(vq, &vring);
-+	vring_virtqueue_init_packed(vq, vdev);
-+	return 0;
-+
-+err_state_extra:
-+	vring_free_vring_packed(&vring, vdev);
-+err_queue:
-+	vring_virtqueue_init_packed(vq, vdev);
-+	return -ENOMEM;
++	return err;
 +}
++EXPORT_SYMBOL_GPL(virtqueue_resize);
 +
+ /* Only available for split ring */
+ struct virtqueue *vring_new_virtqueue(unsigned int index,
+ 				      unsigned int num,
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index d59adc4be068..c86ff02e0ca0 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -91,6 +91,9 @@ dma_addr_t virtqueue_get_desc_addr(struct virtqueue *vq);
+ dma_addr_t virtqueue_get_avail_addr(struct virtqueue *vq);
+ dma_addr_t virtqueue_get_used_addr(struct virtqueue *vq);
  
- /*
-  * Generic functions and exported symbols.
++int virtqueue_resize(struct virtqueue *vq, u32 num,
++		     void (*recycle)(struct virtqueue *vq, void *buf));
++
+ /**
+  * virtio_device - representation of a device using virtio
+  * @index: unique position on the virtio bus
 -- 
 2.31.0
 
