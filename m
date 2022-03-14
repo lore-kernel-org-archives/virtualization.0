@@ -4,54 +4,55 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5D51AC433F5
-	for <virtualization@archiver.kernel.org>; Mon, 14 Mar 2022 09:35:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 35DD8C433F5
+	for <virtualization@archiver.kernel.org>; Mon, 14 Mar 2022 09:35:08 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id E3160405EE;
-	Mon, 14 Mar 2022 09:35:04 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id E3B1E40605;
+	Mon, 14 Mar 2022 09:35:07 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id LgP_-E78gq7N; Mon, 14 Mar 2022 09:35:03 +0000 (UTC)
+	with ESMTP id Vzwq4wtT9E82; Mon, 14 Mar 2022 09:35:07 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 2C4FE40182;
-	Mon, 14 Mar 2022 09:35:03 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 9542240184;
+	Mon, 14 Mar 2022 09:35:06 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 006BBC001D;
-	Mon, 14 Mar 2022 09:35:03 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 673D9C001D;
+	Mon, 14 Mar 2022 09:35:06 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1559EC000B
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E19D6C001D
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 14 Mar 2022 09:35:03 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 752EE40184
  for <virtualization@lists.linux-foundation.org>;
  Mon, 14 Mar 2022 09:35:02 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id DD0F640184
- for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Mar 2022 09:35:01 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id p2UWLX3UPRh5
+ with ESMTP id 9FXhGV5L-Cud
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 14 Mar 2022 09:35:01 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from out30-133.freemail.mail.aliyun.com
+ (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 27F0A40182
  for <virtualization@lists.linux-foundation.org>;
  Mon, 14 Mar 2022 09:35:00 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from out30-42.freemail.mail.aliyun.com
- (out30-42.freemail.mail.aliyun.com [115.124.30.42])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 0B2AE4011A
- for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Mar 2022 09:34:59 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R851e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04395; MF=xuanzhuo@linux.alibaba.com;
- NM=1; PH=DS; RN=3; SR=0; TI=SMTPD_---0V77GKt5_1647250495; 
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R111e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04394; MF=xuanzhuo@linux.alibaba.com;
+ NM=1; PH=DS; RN=3; SR=0; TI=SMTPD_---0V76sSwg_1647250496; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0V77GKt5_1647250495) by smtp.aliyun-inc.com(127.0.0.1);
- Mon, 14 Mar 2022 17:34:56 +0800
+ fp:SMTPD_---0V76sSwg_1647250496) by smtp.aliyun-inc.com(127.0.0.1);
+ Mon, 14 Mar 2022 17:34:57 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: virtualization@lists.linux-foundation.org
-Subject: [PATCH v8 00/16] virtio pci support VIRTIO_F_RING_RESET (refactor
- vring)
-Date: Mon, 14 Mar 2022 17:34:39 +0800
-Message-Id: <20220314093455.34707-1-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH v8 01/16] virtio: add helper virtqueue_get_vring_max_size()
+Date: Mon, 14 Mar 2022 17:34:40 +0800
+Message-Id: <20220314093455.34707-2-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.31.0
+In-Reply-To: <20220314093455.34707-1-xuanzhuo@linux.alibaba.com>
+References: <20220314093455.34707-1-xuanzhuo@linux.alibaba.com>
 MIME-Version: 1.0
 X-Git-Hash: d6feaa0fb7e7
 Cc: "Michael S. Tsirkin" <mst@redhat.com>
@@ -71,89 +72,109 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-The virtio spec already supports the virtio queue reset function. This patch set
-is to add this function to the kernel. The relevant virtio spec information is
-here:
+Record the maximum queue num supported by the device.
 
-    https://github.com/oasis-tcs/virtio-spec/issues/124
+virtio-net can display the maximum (supported by hardware) ring size in
+ethtool -g eth0.
 
-Also regarding MMIO support for queue reset, I plan to support it after this
-patch is passed.
+When the subsequent patch implements vring reset, it can judge whether
+the ring size passed by the driver is legal based on this.
 
-This patch set implements the refactoring of vring. Finally, the
-virtuque_resize() interface is provided based on the reset function of the
-transport layer.
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/virtio/virtio_mmio.c       |  2 ++
+ drivers/virtio/virtio_pci_legacy.c |  2 ++
+ drivers/virtio/virtio_pci_modern.c |  2 ++
+ drivers/virtio/virtio_ring.c       | 14 ++++++++++++++
+ include/linux/virtio.h             |  2 ++
+ 5 files changed, 22 insertions(+)
 
-Test environment:
-    Host: 4.19.91
-    Qemu: QEMU emulator version 6.2.50 (with vq reset support)
-    Test Cmd:  ethtool -G eth1 rx $1 tx $2; ethtool -g eth1
-
-    The default is split mode, modify Qemu virtio-net to add PACKED feature to test
-    packed mode.
-
-Please review. Thanks.
-
-v8:
-  1. Provide a virtqueue_reset() interface directly
-  2. Split the two patch sets, this is the first part
-  3. Add independent allocation helper for allocating state, extra
-
-v7:
-  1. fix #6 subject typo
-  2. fix #6 ring_size_in_bytes is uninitialized
-  3. check by: make W=12
-
-v6:
-  1. virtio_pci: use synchronize_irq(irq) to sync the irq callbacks
-  2. Introduce virtqueue_reset_vring() to implement the reset of vring during
-     the reset process. May use the old vring if num of the vq not change.
-  3. find_vqs() support sizes to special the max size of each vq
-
-v5:
-  1. add virtio-net support set_ringparam
-
-v4:
-  1. just the code of virtio, without virtio-net
-  2. Performing reset on a queue is divided into these steps:
-    1. reset_vq: reset one vq
-    2. recycle the buffer from vq by virtqueue_detach_unused_buf()
-    3. release the ring of the vq by vring_release_virtqueue()
-    4. enable_reset_vq: re-enable the reset queue
-  3. Simplify the parameters of enable_reset_vq()
-  4. add container structures for virtio_pci_common_cfg
-
-v3:
-  1. keep vq, irq unreleased
-
-Xuan Zhuo (16):
-  virtio: add helper virtqueue_get_vring_max_size()
-  virtio: struct virtio_config_ops add callbacks for queue_reset
-  virtio_ring: update the document of the virtqueue_detach_unused_buf
-    for queue reset
-  virtio_ring: remove the arg vq of vring_alloc_desc_extra()
-  virtio_ring: extract the logic of freeing vring
-  virtio_ring: split: extract the logic of alloc queue
-  virtio_ring: split: extract the logic of alloc state and extra
-  virtio_ring: split: extract the logic of attach vring
-  virtio_ring: split: extract the logic of vq init
-  virtio_ring: split: implement virtqueue_resize_split()
-  virtio_ring: packed: extract the logic of alloc queue
-  virtio_ring: packed: extract the logic of alloc state and extra
-  virtio_ring: packed: extract the logic of attach vring
-  virtio_ring: packed: extract the logic of vq init
-  virtio_ring: packed: implement virtqueue_resize_packed()
-  virtio_ring: introduce virtqueue_resize()
-
- drivers/virtio/virtio_mmio.c       |   2 +
- drivers/virtio/virtio_pci_legacy.c |   2 +
- drivers/virtio/virtio_pci_modern.c |   2 +
- drivers/virtio/virtio_ring.c       | 604 ++++++++++++++++++++++-------
- include/linux/virtio.h             |   5 +
- include/linux/virtio_config.h      |  12 +
- 6 files changed, 494 insertions(+), 133 deletions(-)
-
---
+diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+index 56128b9c46eb..a41abc8051b9 100644
+--- a/drivers/virtio/virtio_mmio.c
++++ b/drivers/virtio/virtio_mmio.c
+@@ -390,6 +390,8 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned index,
+ 		goto error_new_virtqueue;
+ 	}
+ 
++	vq->num_max = num;
++
+ 	/* Activate the queue */
+ 	writel(virtqueue_get_vring_size(vq), vm_dev->base + VIRTIO_MMIO_QUEUE_NUM);
+ 	if (vm_dev->version == 1) {
+diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
+index 34141b9abe27..b68934fe6b5d 100644
+--- a/drivers/virtio/virtio_pci_legacy.c
++++ b/drivers/virtio/virtio_pci_legacy.c
+@@ -135,6 +135,8 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
+ 	if (!vq)
+ 		return ERR_PTR(-ENOMEM);
+ 
++	vq->num_max = num;
++
+ 	q_pfn = virtqueue_get_desc_addr(vq) >> VIRTIO_PCI_QUEUE_ADDR_SHIFT;
+ 	if (q_pfn >> 32) {
+ 		dev_err(&vp_dev->pci_dev->dev,
+diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
+index 5455bc041fb6..86d301f272b8 100644
+--- a/drivers/virtio/virtio_pci_modern.c
++++ b/drivers/virtio/virtio_pci_modern.c
+@@ -218,6 +218,8 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
+ 	if (!vq)
+ 		return ERR_PTR(-ENOMEM);
+ 
++	vq->num_max = num;
++
+ 	/* activate the queue */
+ 	vp_modern_set_queue_size(mdev, index, virtqueue_get_vring_size(vq));
+ 	vp_modern_queue_address(mdev, index, virtqueue_get_desc_addr(vq),
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 962f1477b1fa..b87130c8f312 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -2371,6 +2371,20 @@ void vring_transport_features(struct virtio_device *vdev)
+ }
+ EXPORT_SYMBOL_GPL(vring_transport_features);
+ 
++/**
++ * virtqueue_get_vring_max_size - return the max size of the virtqueue's vring
++ * @_vq: the struct virtqueue containing the vring of interest.
++ *
++ * Returns the max size of the vring.
++ *
++ * Unlike other operations, this need not be serialized.
++ */
++unsigned int virtqueue_get_vring_max_size(struct virtqueue *_vq)
++{
++	return _vq->num_max;
++}
++EXPORT_SYMBOL_GPL(virtqueue_get_vring_max_size);
++
+ /**
+  * virtqueue_get_vring_size - return the size of the virtqueue's vring
+  * @_vq: the struct virtqueue containing the vring of interest.
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index 72292a62cd90..d59adc4be068 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -31,6 +31,7 @@ struct virtqueue {
+ 	struct virtio_device *vdev;
+ 	unsigned int index;
+ 	unsigned int num_free;
++	unsigned int num_max;
+ 	void *priv;
+ };
+ 
+@@ -80,6 +81,7 @@ bool virtqueue_enable_cb_delayed(struct virtqueue *vq);
+ 
+ void *virtqueue_detach_unused_buf(struct virtqueue *vq);
+ 
++unsigned int virtqueue_get_vring_max_size(struct virtqueue *vq);
+ unsigned int virtqueue_get_vring_size(struct virtqueue *vq);
+ 
+ bool virtqueue_is_broken(struct virtqueue *vq);
+-- 
 2.31.0
 
 _______________________________________________
