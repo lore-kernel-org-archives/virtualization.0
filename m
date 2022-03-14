@@ -1,117 +1,114 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5C11AC433F5
-	for <virtualization@archiver.kernel.org>; Mon, 14 Mar 2022 17:14:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4140CC433F5
+	for <virtualization@archiver.kernel.org>; Mon, 14 Mar 2022 22:22:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 08E47408BA;
-	Mon, 14 Mar 2022 17:14:07 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id BC6B460F26;
+	Mon, 14 Mar 2022 22:22:33 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id zI-QMEYf0sql; Mon, 14 Mar 2022 17:14:06 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 888B8408BF;
-	Mon, 14 Mar 2022 17:14:05 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id xNcnh-uYvffP; Mon, 14 Mar 2022 22:22:32 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 52A2D60F20;
+	Mon, 14 Mar 2022 22:22:32 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 61E85C001D;
-	Mon, 14 Mar 2022 17:14:05 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 44D37C000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 32B92C0012;
+	Mon, 14 Mar 2022 22:22:32 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 15FF6C000B
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Mar 2022 17:14:04 +0000 (UTC)
+ Mon, 14 Mar 2022 22:22:31 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 2305740359
+ by smtp1.osuosl.org (Postfix) with ESMTP id E444883E65
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Mar 2022 17:14:04 +0000 (UTC)
+ Mon, 14 Mar 2022 22:22:30 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id eCXoMFAfuflY
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id cgs0ynamxGMR
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Mar 2022 17:14:03 +0000 (UTC)
+ Mon, 14 Mar 2022 22:22:28 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 064E5401DD
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 06E7B8332A
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Mar 2022 17:14:02 +0000 (UTC)
+ Mon, 14 Mar 2022 22:22:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1647278041;
+ s=mimecast20190719; t=1647296546;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=iAONPV5TRI2rOpqSpmMyMB9BD5aXa/UL7zZiN1WaZes=;
- b=Iv8yu3xc9cCQ+qBG50MiYFM0yD/JlfG1vuvaHCfkX9Mu5ZprzGUdgTsHrl9mT7E9RJz2cU
- qCYAP6F9kXTrgvNwLDAM5touw8YlCH5iCyfDKGAQ6qrUKgeAOhncM81PGbfnsumpyZ5kjJ
- oIPJi6pO5XKioD3BfRv5a7h1/neJK/g=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=448GABWMYqDQxarVEaCkpTgjvImz20CTRUQciGD2cbU=;
+ b=gjD4KdG+cn4QQvrn0f6VvPXDN20Qm6oze4ZdzYilGtObtTc2WWygxxjntrF45lTxHGZ4aB
+ OrlPUrV9jxJ3jeCxhp+pEXHodbhK9GtwaTRwo+pPbYENXNxUaEehEhEUMWvoOTI+XjP8h2
+ Ej9Q04kLPMK2UdDlcNlxj3YX/5BiFrc=
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
+ [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-290-gCcelHEROW6Xrq3os44f9g-1; Mon, 14 Mar 2022 13:14:00 -0400
-X-MC-Unique: gCcelHEROW6Xrq3os44f9g-1
-Received: by mail-wr1-f70.google.com with SMTP id
- b9-20020a05600003c900b00203647caa11so4620995wrg.5
+ us-mta-166-oTIiflf0MbqpsIIGNDQ39A-1; Mon, 14 Mar 2022 18:22:25 -0400
+X-MC-Unique: oTIiflf0MbqpsIIGNDQ39A-1
+Received: by mail-ej1-f72.google.com with SMTP id
+ el10-20020a170907284a00b006db9df1f3bbso5224549ejc.5
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Mar 2022 10:14:00 -0700 (PDT)
+ Mon, 14 Mar 2022 15:22:25 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:message-id:date:mime-version:user-agent
- :content-language:to:cc:references:from:organization:subject
- :in-reply-to:content-transfer-encoding;
- bh=iAONPV5TRI2rOpqSpmMyMB9BD5aXa/UL7zZiN1WaZes=;
- b=U5Xp1144DPt64+lKU3HVtYlINUq6AxaAOrwW6Cw7aVmhjGFS6mdJtp7r2BSl1QruG4
- F9A7b0YHluteStqC/U3s2gH3rCQHvkHAzQmXHausbUhhjy9DGMRtKh7cDaVjiy/Vsv8Z
- T0e3rxHEa1Jqm54RlK3ynoeVv7tqCll0uYDVpvFj7Fe4i/kJmqbBpCEdQBAkqePaEqhG
- xJiAmXsNO7DvUWXRPhdBfM5aLpic4CKdlxwIisWpW3v+B7HPazv4eLMjLpN4CMIWf2DA
- sjG2SliwoQgMxrC/G6cXNDMDjgGFOJD66aut8U+N7qDLOX+FhtDcwFCMS1GwdHbGHByS
- KuDQ==
-X-Gm-Message-State: AOAM530Ba5zc8MHE52iK6EDGdVvV3ubhrSEMYAqbtjELGnSspwYD6brH
- 5xc7bFMS/CTrdqTGN/GgfXVVs3iP0uDwX03G35DnlhIs7rm73G/mPyh3ZuzCPICSl2wE5KpplrQ
- NaivQoSMaBNFw16vQVBqecln4NXmDRYV2MY3VgDVgWw==
-X-Received: by 2002:a05:600c:3509:b0:389:f7f9:7b9d with SMTP id
- h9-20020a05600c350900b00389f7f97b9dmr183473wmq.4.1647278039383; 
- Mon, 14 Mar 2022 10:13:59 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyMlXe0JZo7IsQjOotU0ZRoQURVItzZT4okfGXuvey2OHb8WQ8UwWZCgbE8CFf15963Z28pvQ==
-X-Received: by 2002:a05:600c:3509:b0:389:f7f9:7b9d with SMTP id
- h9-20020a05600c350900b00389f7f97b9dmr183453wmq.4.1647278039145; 
- Mon, 14 Mar 2022 10:13:59 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c704:9a00:b2c1:8682:b807:e870?
- (p200300cbc7049a00b2c18682b807e870.dip0.t-ipconnect.de.
- [2003:cb:c704:9a00:b2c1:8682:b807:e870])
- by smtp.gmail.com with ESMTPSA id
- s17-20020adfbc11000000b001f023d197b8sm14086221wrg.68.2022.03.14.10.13.58
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Mon, 14 Mar 2022 10:13:58 -0700 (PDT)
-Message-ID: <1623cd68-8437-9404-f183-153741bbf84c@redhat.com>
-Date: Mon, 14 Mar 2022 18:13:57 +0100
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=448GABWMYqDQxarVEaCkpTgjvImz20CTRUQciGD2cbU=;
+ b=jDT3ilyC9vlGZMcHfZN1Zj+gcJcCKjGRav3vuHi1sxlP/22V6W2J9JQMIs4YW8HOoT
+ i6yNd96Mz/EvG2j5bbRE7M8iEZeZO2EmVNK/OusJHzAYRgw/f/GlEwyHqbrB7JOYq1E4
+ sSxl6pD9bd10pqrcES4z4LxuojmrZ1o93OpOOoSBUsNnPfrAo1VmV97OHTua1JRbA3WE
+ acsAKl8tN7Kdlu61WZYjwosHSoZhP+rbwdrldLJYWoecKbtyNxQaqu/zDxdPH3C2iaJN
+ 88gRrSfcOiCWoMbnHl8WFaYZHoUTkciDCZ8l+jo0UpcaT16kgJfpaRIk+F98L4r84mHd
+ dkKw==
+X-Gm-Message-State: AOAM531h7mrXJFpjmYbiQM3qI9mVZgWAWvjEpWka08ITL5xmKVm0FQS+
+ qAfK/dMqiYbqZP2QRIUF82y4OrPhtnGjoesUDbJZJNsqES/Yx+a/EfEmUPYC/ffgiSVspdvx78g
+ n4CTfnwHfTL58sbY19PXvEnHCt5Kfl8E/BAK21xlw+A==
+X-Received: by 2002:a17:907:94cd:b0:6d9:89e1:3036 with SMTP id
+ dn13-20020a17090794cd00b006d989e13036mr21208054ejc.231.1647296544138; 
+ Mon, 14 Mar 2022 15:22:24 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwTESGPdMCjU7Jvr1WtD2xxT/v+GSQHRJ65ip+MO0R/5zTFOd1YnfN3O5Oeqw3yqAVrM+g/Qw==
+X-Received: by 2002:a17:907:94cd:b0:6d9:89e1:3036 with SMTP id
+ dn13-20020a17090794cd00b006d989e13036mr21208038ejc.231.1647296543907; 
+ Mon, 14 Mar 2022 15:22:23 -0700 (PDT)
+Received: from redhat.com ([176.12.250.92]) by smtp.gmail.com with ESMTPSA id
+ kw3-20020a170907770300b006d2a835ac33sm7408819ejc.197.2022.03.14.15.22.21
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 14 Mar 2022 15:22:23 -0700 (PDT)
+Date: Mon, 14 Mar 2022 18:22:19 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Max Gurtovoy <mgurtovoy@nvidia.com>
+Subject: Re: [PATCH] virtio-blk: support polling I/O
+Message-ID: <20220314182148-mutt-send-email-mst@kernel.org>
+References: <20220311152832.17703-1-suwan.kim027@gmail.com>
+ <20220311103549-mutt-send-email-mst@kernel.org>
+ <YitzuxYHywdCRKVO@localhost.localdomain>
+ <c91ad1e9-8c5b-ff1e-7e7f-8590ea6c67e8@nvidia.com>
+ <Yi8OSE2hYoS8rSEo@localhost.localdomain>
+ <e441429b-90ef-a2e4-1365-3f55c7ff21d0@nvidia.com>
+ <20220314071222-mutt-send-email-mst@kernel.org>
+ <d9121e3c-abe5-fe4d-8088-8339c418c7a8@nvidia.com>
+ <20220314111306-mutt-send-email-mst@kernel.org>
+ <332c35ec-734b-d2bd-dd0f-c577b1c6174b@nvidia.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.6.2
-To: Zi Yan <ziy@nvidia.com>, linux-mm@kvack.org
-References: <20220311183656.1911811-1-zi.yan@sent.com>
- <20220311183656.1911811-3-zi.yan@sent.com>
-From: David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-Subject: Re: [PATCH v7 2/5] mm: page_isolation: check specified range for
- unmovable pages
-In-Reply-To: <20220311183656.1911811-3-zi.yan@sent.com>
+In-Reply-To: <332c35ec-734b-d2bd-dd0f-c577b1c6174b@nvidia.com>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=david@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Cc: linux-kernel@vger.kernel.org,
- Christophe Leroy <christophe.leroy@csgroup.eu>,
- virtualization@lists.linux-foundation.org, Vlastimil Babka <vbabka@suse.cz>,
- Eric Ren <renzhengeek@gmail.com>, Mel Gorman <mgorman@techsingularity.net>,
- Mike Rapoport <rppt@kernel.org>, Oscar Salvador <osalvador@suse.de>
+Content-Disposition: inline
+Cc: virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org,
+ Stefan Hajnoczi <stefanha@redhat.com>, pbonzini@redhat.com,
+ Suwan Kim <suwan.kim027@gmail.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -128,129 +125,85 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 11.03.22 19:36, Zi Yan wrote:
-> From: Zi Yan <ziy@nvidia.com>
+On Mon, Mar 14, 2022 at 06:33:06PM +0200, Max Gurtovoy wrote:
 > 
-> Enable set_migratetype_isolate() to check specified sub-range for
-> unmovable pages during isolation. Page isolation is done
-> at max(MAX_ORDER_NR_PAEGS, pageblock_nr_pages) granularity, but not all
-> pages within that granularity are intended to be isolated. For example,
-> alloc_contig_range(), which uses page isolation, allows ranges without
-> alignment. This commit makes unmovable page check only look for
-> interesting pages, so that page isolation can succeed for any
-> non-overlapping ranges.
+> On 3/14/2022 5:15 PM, Michael S. Tsirkin wrote:
+> > On Mon, Mar 14, 2022 at 03:26:13PM +0200, Max Gurtovoy wrote:
+> > > On 3/14/2022 1:15 PM, Michael S. Tsirkin wrote:
+> > > > On Mon, Mar 14, 2022 at 12:25:08PM +0200, Max Gurtovoy wrote:
+> > > > > On 3/14/2022 11:43 AM, Suwan Kim wrote:
+> > > > > > On Sun, Mar 13, 2022 at 12:37:21PM +0200, Max Gurtovoy wrote:
+> > > > > > > On 3/11/2022 6:07 PM, Suwan Kim wrote:
+> > > > > > > > On Fri, Mar 11, 2022 at 10:38:07AM -0500, Michael S. Tsirkin wrote:
+> > > > > > > > > On Sat, Mar 12, 2022 at 12:28:32AM +0900, Suwan Kim wrote:
+> > > > > > > > > > diff --git a/include/uapi/linux/virtio_blk.h b/include/uapi/linux/virtio_blk.h
+> > > > > > > > > > index d888f013d9ff..3fcaf937afe1 100644
+> > > > > > > > > > --- a/include/uapi/linux/virtio_blk.h
+> > > > > > > > > > +++ b/include/uapi/linux/virtio_blk.h
+> > > > > > > > > > @@ -119,8 +119,9 @@ struct virtio_blk_config {
+> > > > > > > > > >      	 * deallocation of one or more of the sectors.
+> > > > > > > > > >      	 */
+> > > > > > > > > >      	__u8 write_zeroes_may_unmap;
+> > > > > > > > > > +	__u8 unused1;
+> > > > > > > > > > -	__u8 unused1[3];
+> > > > > > > > > > +	__virtio16 num_poll_queues;
+> > > > > > > > > >      } __attribute__((packed));
+> > > > > > > > > Same as any virtio UAPI change, this has to go through the virtio TC.
+> > > > > > > > > In particular I don't think gating a new config field on
+> > > > > > > > > an existing feature flag is a good idea.
+> > > > > > > > Did you mean that the polling should be based on a new feature like
+> > > > > > > > "VIRTIO_BLK_F_POLL" and be added at the end of features_legacy[]
+> > > > > > > > and features[]? If then, I will add the new feture flag and resend it.
+> > > > > > > Isn't there a way in the SPEC today to create a queue without interrupt
+> > > > > > > vector ?
+> > > > > > It seems that it is not possible to create a queue without interrupt
+> > > > > > vector. If it is possible, we can expect more polling improvement.
+> > > > Yes, it's possible:
+> > > > 
+> > > > Writing a valid MSI-X Table entry number, 0 to 0x7FF, to
+> > > > \field{config_msix_vector}/\field{queue_msix_vector} maps interrupts triggered
+> > > > by the configuration change/selected queue events respectively to
+> > > > the corresponding MSI-X vector. To disable interrupts for an
+> > > > event type, the driver unmaps this event by writing a special NO_VECTOR
+> > > > value:
+> > > > 
+> > > > \begin{lstlisting}
+> > > > /* Vector value used to disable MSI for queue */
+> > > > #define VIRTIO_MSI_NO_VECTOR            0xffff
+> > > > \end{lstlisting}
+> > > > 
+> > > > 
+> > > > 
+> > > > > MST/Jason/Stefan,
+> > > > > 
+> > > > > can you confirm that please ?
+> > > > > 
+> > > > > what does VIRTQ_AVAIL_F_NO_INTERRUPT supposed to do ?
+> > > > This is a hint to the device not to send interrupts.
+> > > Why do you need a hint if the driver implicitly wrote 0xffff to disable MSI
+> > > for a virtqueue ?
+> > 
+> > VIRTIO_MSI_NO_VECTOR is an expensive write into config space, followed
+> > by an even more expensive read. Reliable and appropriate if you turn
+> > events on/off very rarely.
+> > 
+> > VIRTQ_AVAIL_F_NO_INTERRUPT is an in-memory write so it's much cheaper,
+> > but it's less reliable. Appropriate if you need to turn events on/off a
+> > lot.
 > 
-> Signed-off-by: Zi Yan <ziy@nvidia.com>
-> ---
->  include/linux/page-isolation.h | 10 ++++++++
->  mm/page_alloc.c                | 13 +---------
->  mm/page_isolation.c            | 47 +++++++++++++++++++++-------------
->  3 files changed, 40 insertions(+), 30 deletions(-)
-> 
-> diff --git a/include/linux/page-isolation.h b/include/linux/page-isolation.h
-> index e14eddf6741a..eb4a208fe907 100644
-> --- a/include/linux/page-isolation.h
-> +++ b/include/linux/page-isolation.h
-> @@ -15,6 +15,16 @@ static inline bool is_migrate_isolate(int migratetype)
->  {
->  	return migratetype == MIGRATE_ISOLATE;
->  }
-> +static inline unsigned long pfn_max_align_down(unsigned long pfn)
-> +{
-> +	return ALIGN_DOWN(pfn, MAX_ORDER_NR_PAGES);
-> +}
-> +
-> +static inline unsigned long pfn_max_align_up(unsigned long pfn)
-> +{
-> +	return ALIGN(pfn, MAX_ORDER_NR_PAGES);
-> +}
-> +
->  #else
->  static inline bool has_isolate_pageblock(struct zone *zone)
->  {
-> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-> index 6de57d058d3d..680580a40a35 100644
-> --- a/mm/page_alloc.c
-> +++ b/mm/page_alloc.c
-> @@ -8937,16 +8937,6 @@ void *__init alloc_large_system_hash(const char *tablename,
->  }
->  
->  #ifdef CONFIG_CONTIG_ALLOC
-> -static unsigned long pfn_max_align_down(unsigned long pfn)
-> -{
-> -	return ALIGN_DOWN(pfn, MAX_ORDER_NR_PAGES);
-> -}
-> -
-> -static unsigned long pfn_max_align_up(unsigned long pfn)
-> -{
-> -	return ALIGN(pfn, MAX_ORDER_NR_PAGES);
-> -}
-> -
->  #if defined(CONFIG_DYNAMIC_DEBUG) || \
->  	(defined(CONFIG_DYNAMIC_DEBUG_CORE) && defined(DYNAMIC_DEBUG_MODULE))
->  /* Usage: See admin-guide/dynamic-debug-howto.rst */
-> @@ -9091,8 +9081,7 @@ int alloc_contig_range(unsigned long start, unsigned long end,
->  	 * put back to page allocator so that buddy can use them.
->  	 */
->  
-> -	ret = start_isolate_page_range(pfn_max_align_down(start),
-> -				       pfn_max_align_up(end), migratetype, 0);
-> +	ret = start_isolate_page_range(start, end, migratetype, 0);
->  	if (ret)
->  		return ret;
->  
-> diff --git a/mm/page_isolation.c b/mm/page_isolation.c
-> index b34f1310aeaa..e0afc3ee8cf9 100644
-> --- a/mm/page_isolation.c
-> +++ b/mm/page_isolation.c
-> @@ -16,7 +16,8 @@
->  #include <trace/events/page_isolation.h>
->  
->  /*
-> - * This function checks whether pageblock includes unmovable pages or not.
-> + * This function checks whether pageblock within [start_pfn, end_pfn) includes
-> + * unmovable pages or not.
->   *
->   * PageLRU check without isolation or lru_lock could race so that
->   * MIGRATE_MOVABLE block might include unmovable pages. And __PageMovable
-> @@ -29,11 +30,14 @@
->   *
->   */
->  static struct page *has_unmovable_pages(struct zone *zone, struct page *page,
-> -				 int migratetype, int flags)
-> +				 int migratetype, int flags,
-> +				 unsigned long start_pfn, unsigned long end_pfn)
->  {
-> -	unsigned long iter = 0;
-> -	unsigned long pfn = page_to_pfn(page);
-> -	unsigned long offset = pfn % pageblock_nr_pages;
-> +	unsigned long first_pfn = max(page_to_pfn(page), start_pfn);
-> +	unsigned long pfn = first_pfn;
-> +	unsigned long last_pfn = min(ALIGN(pfn + 1, pageblock_nr_pages), end_pfn);
-> +
-> +	page = pfn_to_page(pfn);
+> An "expensive" operation in the ctrl path during vq creation is fine IMO.
 
-I think we should get rid of the page argument completely. The caller
-should pass in a reasonable [start_pfn, end_pfn) range, and to any
-necessary fixups to the range outside of this function.
+Yes.
 
-The goal should be to have
+> I see that nobody even used VIRTQ_AVAIL_F_NO_INTERRUPT in-memory write in
+> Linux.
 
-pfn = start_pfn
+Because it's called VRING_AVAIL_F_NO_INTERRUPT there.
 
-and replacing last_pfn by end_pfn.
-
-
-Ideally we'd end up with "This function checks whether the range
-[start_pfn, end_pfn) contains unmovable pages or not."
-
-
-What would be missing to achieve that?
-
--- 
-Thanks,
-
-David / dhildenb
+> > 
+> > 
+> > > > > > Regards,
+> > > > > > Suwan Kim
 
 _______________________________________________
 Virtualization mailing list
