@@ -1,114 +1,97 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 56FDCC433EF
-	for <virtualization@archiver.kernel.org>; Tue, 15 Mar 2022 11:49:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B8FDCC433FE
+	for <virtualization@archiver.kernel.org>; Tue, 15 Mar 2022 12:43:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id E1A1B40255;
-	Tue, 15 Mar 2022 11:49:38 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 59930812BA;
+	Tue, 15 Mar 2022 12:43:39 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id R1g3b5aHp_fh; Tue, 15 Mar 2022 11:49:38 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id t8gJCom7P4DF; Tue, 15 Mar 2022 12:43:38 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 55E2F40308;
-	Tue, 15 Mar 2022 11:49:37 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id ECBFF81268;
+	Tue, 15 Mar 2022 12:43:37 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2C123C0012;
-	Tue, 15 Mar 2022 11:49:37 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id ABBEBC001A;
+	Tue, 15 Mar 2022 12:43:37 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 29264C000B
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 37791C000B
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Mar 2022 11:49:36 +0000 (UTC)
+ Tue, 15 Mar 2022 12:43:36 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 0E8B660F7D
+ by smtp3.osuosl.org (Postfix) with ESMTP id 3442160AAE
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Mar 2022 11:49:36 +0000 (UTC)
+ Tue, 15 Mar 2022 12:43:36 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
+ dkim=pass (2048-bit key) header.d=gmail.com
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id k-FtHpBYFfYB
+ with ESMTP id e1_oxq2a7j3p
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Mar 2022 11:49:35 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 5281C60B71
+ Tue, 15 Mar 2022 12:43:35 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-qv1-xf2c.google.com (mail-qv1-xf2c.google.com
+ [IPv6:2607:f8b0:4864:20::f2c])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id E7C1A607EC
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Mar 2022 11:49:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1647344974;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=PterqoyvBh+msSA0i+V9VnnV0+IT1msM0OrO0D3B12Q=;
- b=MvH+of0RrqKqufDLcv/t9OLZEBi1wmrr1uMoDyBap4k0k191QGzParmsQmbxLZyO9Y8qeY
- 8P6GmjL9b6wxkK+b128XMunsS9rgecO6/BoofOff3lgoSNrGWmn2BTKNN/TR2pmU5hQnQu
- rZc4tW7Q/enQk9xyeJQ3N0O+JWPrbyU=
-Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com
- [209.85.160.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-562-S1d_khJ1N7GPiOUy6bq58w-1; Tue, 15 Mar 2022 07:49:33 -0400
-X-MC-Unique: S1d_khJ1N7GPiOUy6bq58w-1
-Received: by mail-qt1-f197.google.com with SMTP id
- k1-20020ac85fc1000000b002e1c5930386so7553050qta.3
+ Tue, 15 Mar 2022 12:43:34 +0000 (UTC)
+Received: by mail-qv1-xf2c.google.com with SMTP id im7so14864287qvb.4
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Mar 2022 04:49:33 -0700 (PDT)
+ Tue, 15 Mar 2022 05:43:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=fEAT5UUsmyhaWxfcdGvh7mL5N8nTzlfAjcT9ivAGrCk=;
+ b=cJ3yz86PEJDMILIQDbCRMD2eU82iXa2ZdXQiRq/hGWWqGtCRC3levbgE1ET08LU9JZ
+ Idn5sFu8lxnTQL1hHkWMqNUUNohvVuk33T7Er5pIDgobs0u9fwZ51Y0BYG7sEic/uHli
+ gBxt9aBWt25EJoNh2wcv5sbrlTOfvSGOLDznrsFb6S7YuIIlfaB09htbwydgfWEHkhFW
+ lzEDYnuMGPHCPfylp0nNT5oN+UIU6NITjEKoJO9NerR3bfgpLmlcU6VgyLOPtgM//zqd
+ ZDwG53dsSK1qMWwtZCaS2kCNFkzEoQ2FGVH7My+q7d1fBMrkGuaEZLIU/AJf3uA/zUeo
+ eY/A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=PterqoyvBh+msSA0i+V9VnnV0+IT1msM0OrO0D3B12Q=;
- b=FofRUNrWG2jiOmVszCCjqoe66zt6tcJ5XpRiVCQqFiua4pttkbRVAc9awp7lQ+h26N
- VVO+aRoo2TAbYv2NMOWIvBNSzqy3QwYqexJcJgf8N/SmgVMMct4JW2o6+wUCrKZRC0Jc
- 4G3JEDXJyBMgR4W5PfFjg8Y7s+auHUfN+nF2nwFzobggPLDIR3fIhKbakoi3IZEpc0BW
- NckKDjwQiNTacqv+8GxfeilCWp3ZxWT7tmPZKS2hY4yici70hlwGTlNofpKWcBIjS9zu
- vbmlH+mTL877GGUxQRKjltFrQ2q5KarPbirbJwHBe+cq3ckp5zJqSWhy69eoStJI/3qs
- voRQ==
-X-Gm-Message-State: AOAM530lp9w0NRHnB5s70b0/lLf//EyROyTZYu24UoHvOr8DV7SkhpEq
- J0QEkUBOFe8amO88wHvqW3hLkoXq3MfIYfxnYB1i8kLd0qVgoyCP0TubyAGF9ejzlaPQSR7AGbl
- Zh3huRxXxkvYZAvw13w0v+5m7qDuMb8lK3wJCyiGSCw==
-X-Received: by 2002:a05:620a:284d:b0:5ff:320d:c0a5 with SMTP id
- h13-20020a05620a284d00b005ff320dc0a5mr17984064qkp.681.1647344972640; 
- Tue, 15 Mar 2022 04:49:32 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwlVn8tnyxlBYGoPjGDSTQP/ITXgasxjqs34flNZkJRFrJ4Au6tkURG5Do6GTqcbi4TFZ7ZTQ==
-X-Received: by 2002:a05:620a:284d:b0:5ff:320d:c0a5 with SMTP id
- h13-20020a05620a284d00b005ff320dc0a5mr17984052qkp.681.1647344972385; 
- Tue, 15 Mar 2022 04:49:32 -0700 (PDT)
-Received: from sgarzare-redhat
- (host-212-171-187-184.pool212171.interbusiness.it. [212.171.187.184])
- by smtp.gmail.com with ESMTPSA id
- s12-20020a05622a018c00b002e1cd88645dsm5305032qtw.74.2022.03.15.04.49.29
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 15 Mar 2022 04:49:31 -0700 (PDT)
-Date: Tue, 15 Mar 2022 12:49:24 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Krasnov Arseniy Vladimirovich <AVKrasnov@sberdevices.ru>
-Subject: Re: [RFC PATCH v1 3/3] af_vsock: SOCK_SEQPACKET broken buffer test
-Message-ID: <20220315114924.er65xwzw6mg3zp6t@sgarzare-redhat>
-References: <1bb5ce91-da53-7de9-49ba-f49f76f45512@sberdevices.ru>
- <bc309cf9-5bcf-b645-577f-8e5b0cf6f220@sberdevices.ru>
- <20220315083617.n33naazzf3se4ozo@sgarzare-redhat>
- <b452aeac-9628-5e37-e0e6-d33f8bb47b22@sberdevices.ru>
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=fEAT5UUsmyhaWxfcdGvh7mL5N8nTzlfAjcT9ivAGrCk=;
+ b=EygDBwDWsCwvpZFcMVwo+7CmcAEEF3CSLmUlA46zvhWPPg3Pcv1bGsnfBPl2Jcn6t6
+ iFcdFGSYplfWyhuMUAZUY9KjmwixCO2betn/rSUKCoklxWYiLbGq2qmsBjlPUFDwsSo7
+ 04mHuPLCGQWGrh/yrBIl2jwb/kmQfnpS3xt/6ECD679vaWR8W4Ngl8ll20qNFmexdscC
+ WLnLxk804c+NA1Z9k0MwBED2dPg7Q4PoDar8YMqRlrOrP/pVs7osBsDQ1HE72sVLcqES
+ C+Enw7ymBpyfyXg2iJyD52cXIxTbsd26E4G5n9Ez09qWHIlY3iDy92VnUDW3xG9swYMH
+ n/Sw==
+X-Gm-Message-State: AOAM531nEEeE/CY0Y/vzy12Pb68xWFeUR3/+Vl16tYPiMGAXcuPjc40G
+ 4rRR66U7dLSx7TzuTwGMMOXhcaRpsuk04cMdzm0=
+X-Google-Smtp-Source: ABdhPJyoBonLxpVxdTKXm42VxIsdx96swV25W1RhjgHw2hK2gkTM/mwRVMnfK/H+pC9Fm5nWO7+Bak6+7qLijWaZH/I=
+X-Received: by 2002:a05:6214:262a:b0:439:2d7c:a4fb with SMTP id
+ gv10-20020a056214262a00b004392d7ca4fbmr18312638qvb.121.1647348213749; Tue, 15
+ Mar 2022 05:43:33 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <b452aeac-9628-5e37-e0e6-d33f8bb47b22@sberdevices.ru>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
- "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- Krasnov Arseniy <oxffffaa@gmail.com>,
- Rokosov Dmitry Dmitrievich <DDRokosov@sberdevices.ru>
+References: <20220314224253.236359-1-dmitry.osipenko@collabora.com>
+ <20220314224253.236359-8-dmitry.osipenko@collabora.com>
+In-Reply-To: <20220314224253.236359-8-dmitry.osipenko@collabora.com>
+From: Emil Velikov <emil.l.velikov@gmail.com>
+Date: Tue, 15 Mar 2022 12:43:22 +0000
+Message-ID: <CACvgo52-pd-g=ZnR=m0T7W2yQ4i7_Q6gWy22=vm-fX+eA-YwQg@mail.gmail.com>
+Subject: Re: [PATCH v2 7/8] drm/virtio: Support memory shrinking
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Cc: Rob Herring <robh@kernel.org>, Gert Wollny <gert.wollny@collabora.com>,
+ Tomeu Vizoso <tomeu.vizoso@collabora.com>,
+ Gustavo Padovan <gustavo.padovan@collabora.com>,
+ David Airlie <airlied@linux.ie>, Thomas Zimmermann <tzimmermann@suse.de>,
+ ML dri-devel <dri-devel@lists.freedesktop.org>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>,
+ Maxime Ripard <mripard@kernel.org>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Daniel Vetter <daniel@ffwll.ch>,
+ Dmitry Osipenko <digetx@gmail.com>, Steven Price <steven.price@arm.com>,
+ "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>,
+ Chia-I Wu <olvaffe@gmail.com>,
+ Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -120,30 +103,36 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Mar 15, 2022 at 09:34:35AM +0000, Krasnov Arseniy Vladimirovich 
-wrote:
->On 15.03.2022 11:36, Stefano Garzarella wrote:
->>
->> Is this the right behavior? If read() fails because the buffer is invalid, do we throw out the whole packet?
->>
->> I was expecting the packet not to be consumed, have you tried AF_UNIX, does it have the same behavior?
->
->I've just checked AF_UNIX implementation of SEQPACKET receive in net/unix/af_unix.c. So, if 'skb_copy_datagram_msg()'
->fails, it calls 'skb_free_datagram()'. I think this means that whole sk buff will be dropped, but anyway, i'll check
->this behaviour in practice. See '__unix_dgram_recvmsg()' in net/unix/af_unix.c.
->
+Greetings everyone,
 
-Yep. you are right it seems to be discarded but I don't know that
-code very well, so better to test as you said ;-)
+Food for thought: Would it make sense to have the madvise ioctl as
+generic DRM one?
+Looking around - i915, msm & panfrost already have one and the virtio
+implementation [below] seems as generic as it gets.
 
-Thanks,
-Stefano
+On Mon, 14 Mar 2022 at 22:44, Dmitry Osipenko
+<dmitry.osipenko@collabora.com> wrote:
 
+> +#define VIRTGPU_MADV_WILLNEED 0
+> +#define VIRTGPU_MADV_DONTNEED 1
+> +struct drm_virtgpu_madvise {
+> +       __u32 bo_handle;
+> +       __u32 retained; /* out, non-zero if BO can be used */
+> +       __u32 madv;
+> +       __u32 pad;
+
+This seems to be based on panfrost/msm yet names (bo_handle vs
+handle), layout and documentation varies.
+Why is that - copy/paste is cheap :-P
+
+HTH
+
+-Emil
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
