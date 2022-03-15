@@ -1,167 +1,102 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6C678C433EF
-	for <virtualization@archiver.kernel.org>; Tue, 15 Mar 2022 08:54:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AEE3CC433F5
+	for <virtualization@archiver.kernel.org>; Tue, 15 Mar 2022 08:59:44 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 0BBA841592;
-	Tue, 15 Mar 2022 08:54:35 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 3DFEC841A9;
+	Tue, 15 Mar 2022 08:59:44 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id r1OfbY0ky5_9; Tue, 15 Mar 2022 08:54:34 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 8F09F415CD;
-	Tue, 15 Mar 2022 08:54:33 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id W6pL5zad49iy; Tue, 15 Mar 2022 08:59:43 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 83EB18415B;
+	Tue, 15 Mar 2022 08:59:42 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4377AC001A;
-	Tue, 15 Mar 2022 08:54:33 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B94D2C000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5851FC001A;
+	Tue, 15 Mar 2022 08:59:42 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8A541C000B
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Mar 2022 08:54:31 +0000 (UTC)
+ Tue, 15 Mar 2022 08:59:40 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 8F6AE415CD
+ by smtp4.osuosl.org (Postfix) with ESMTP id 67DFF40880
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Mar 2022 08:54:31 +0000 (UTC)
+ Tue, 15 Mar 2022 08:59:40 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 75tboz4_71uO
+ with ESMTP id 9fidBDemHs8r
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Mar 2022 08:54:30 +0000 (UTC)
+ Tue, 15 Mar 2022 08:59:39 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com
- [205.220.177.32])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 8052F41592
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id AAB2D402E2
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Mar 2022 08:54:30 +0000 (UTC)
-Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
- by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22F8Luqf008028; 
- Tue, 15 Mar 2022 08:54:28 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
- h=date : from : to : cc
- : subject : message-id : references : content-type : in-reply-to :
- mime-version; s=corp-2021-07-09;
- bh=yQqXXqY6ygF7m7yq1dVDDx7A4JAeooUYzMqpXr+4YDc=;
- b=aFVoqZ1JL+cqYOKd+K9p3tSDDsnEJ+/Gz2LUNj35UU3zcsG+WF0XAkRx/hAIoQfUbM6I
- 8PQgFeUyYAvMNwSebwRS4mvgf2NF8Es37DEp7nHKHu+yLPxwyDWCAdCAaSpOcsv7AS7D
- kRKAEPyStiu19ScdTyOKE1as2wQdEsuGgnJ/8fMQ6X5K9zX6ckP9v0NH3m5YdgDWBTrs
- PWuvOX2Oc6sBUknqW8dtSCEVzQeemW5FftFVbtwuM+8BUYJWdyEDf6IyF30ic0w4NAix
- zrdq48cl11z3MMFaCADOIct1B3q9lxTLffPAp9QOr5s/qUmTA/xR0sasehL6XnWGZ0pM Iw== 
-Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
- by mx0b-00069f02.pphosted.com with ESMTP id 3et5s6jj6k-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Tue, 15 Mar 2022 08:54:27 +0000
-Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
- by userp3030.oracle.com (8.16.1.2/8.16.1.2) with SMTP id 22F8koBE119020;
- Tue, 15 Mar 2022 08:54:26 GMT
-Received: from nam04-bn8-obe.outbound.protection.outlook.com
- (mail-bn8nam08lp2048.outbound.protection.outlook.com [104.47.74.48])
- by userp3030.oracle.com with ESMTP id 3et65pdty7-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Tue, 15 Mar 2022 08:54:26 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Cr+peYa0dJsCUj1iwEsPJx9TK6izyqM6q61DbF3SFqE/XP5TofoMRlY/kwdyn5WHmnQVoKq+PkiXJ8PgeIEI6dyTyqseJjED5DXC01cbSAq4egJxI81mn8dLcLrUiwJZ9OyFsqbowaxMkFvjHXck0JkSk9am/GzP+F6IXCXkJQEYoT5tyeX49RuImvqEy+jZyBrfXwwrUNTfhJxOzYf9vWbDqYeVA7ELYthlPS+2BDdLlBE01E2r8JNfbjc9DkbhTV66irz6KoNB6NOAogZTFGrOrDMzY5VnQbdaXHP1Ruzf0scQQySZYfI7KlKdcmmQqLVlwHpTsEIJcL3U2SCDFA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=yQqXXqY6ygF7m7yq1dVDDx7A4JAeooUYzMqpXr+4YDc=;
- b=hBHzzBhgizgNtce0agxMVf/LqJ5WgpcySZbjZpRmFzLl/K7CbXxV7sLUxMeIqrAmrCUc/FCGZpNcshtLe/JemUxD12vG4TBLE3hBBUAqVP7dN1ewoRdsp90MahGYUanFlx3tXFDpx3YjTYrJSLZo4c0u+A61ECuhcYxb/P/2RuicaPYCo+IXkds1PQM4WJtJ/2eMmtfVuRL8nrRjbe/rRLCMEgWqASSkigk5jiNhmv6NBzE4B8FXqa5YGOmFN6wQ+CxTmPHPLHw4rqtpt2ic+XB86BzThEQ9dwrtVcgi1h+OGANiLJipnzEcFLJdMW5yysdDnEIihJFXQWxENKydaA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=yQqXXqY6ygF7m7yq1dVDDx7A4JAeooUYzMqpXr+4YDc=;
- b=BXFwoCgRK3e8Ca/lJKWepNRxrghAEql7AfKuj+Zv1ONpmGwBCIWWv0hpfZ9LlC4YitlReeYMYULWj7Alq+61qv46eQX1RNxhDTOV7QvoK4UrqPEyWlOP/g3S31joma4eInp/3QwAB4MoroYa4SjDW130IbX3+cLx2Pxnq2s4jRE=
-Received: from MWHPR1001MB2365.namprd10.prod.outlook.com
- (2603:10b6:301:2d::28) by MN2PR10MB3230.namprd10.prod.outlook.com
- (2603:10b6:208:128::16) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5061.25; Tue, 15 Mar
- 2022 08:54:24 +0000
-Received: from MWHPR1001MB2365.namprd10.prod.outlook.com
- ([fe80::2c3d:92b5:42b3:c1c5]) by MWHPR1001MB2365.namprd10.prod.outlook.com
- ([fe80::2c3d:92b5:42b3:c1c5%4]) with mapi id 15.20.5061.022; Tue, 15 Mar 2022
- 08:54:24 +0000
-Date: Tue, 15 Mar 2022 11:54:03 +0300
-From: Dan Carpenter <dan.carpenter@oracle.com>
-To: "Zhu, Lingshan" <lingshan.zhu@intel.com>
-Subject: Re: [bug report] vDPA/ifcvf: implement shared IRQ feature
-Message-ID: <20220315085403.GU3315@kadam>
-References: <20220311090013.GA7547@kili>
- <b4a33fa9-02f5-aa9d-8a62-868a1121debe@intel.com>
- <20220314103704.GR3315@kadam>
- <5a0462a2-8361-4b08-19b3-d4771e177764@intel.com>
-Content-Disposition: inline
-In-Reply-To: <5a0462a2-8361-4b08-19b3-d4771e177764@intel.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-ClientProxiedBy: JN2P275CA0037.ZAFP275.PROD.OUTLOOK.COM (2603:1086:0:2::25)
- To MWHPR1001MB2365.namprd10.prod.outlook.com
- (2603:10b6:301:2d::28)
+ Tue, 15 Mar 2022 08:59:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1647334778;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=7c2yA6rflI6/ZoBuTo2+0uiD0W6JY9rvnw4zKuVNUXY=;
+ b=IMii1d/n12UsL4fZxwj1zNkM79rSl5Nc315BFPVTPnfS74YBUO646udAvq5IbRipjjtoJF
+ hKwxz4OtjykuzKU/D0X/x844Z0pX13jCrRZmWL4KLuVYdRZJ3SMMiCsHk1TFv6PfK83Gm4
+ I2PsdaaAqmCpfMvEPbnsTvSr4DZix+0=
+Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
+ [209.85.167.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-163-Lb5zaJ9fPuyoC9TO5dYvBw-1; Tue, 15 Mar 2022 04:59:36 -0400
+X-MC-Unique: Lb5zaJ9fPuyoC9TO5dYvBw-1
+Received: by mail-lf1-f70.google.com with SMTP id
+ i17-20020a056512007100b0044879482376so3125305lfo.20
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 15 Mar 2022 01:59:36 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=7c2yA6rflI6/ZoBuTo2+0uiD0W6JY9rvnw4zKuVNUXY=;
+ b=x0Q57xFBV3G6jZ9zl5RNllZKPQJPOyS0wxDp9bS2JqnatBOKcxihPutdbvwp2ZsyQY
+ K8hDTboPnKWGNMNpybDkO9d5AZdewXso5nKna2S5YXyKvAr0IZ1cDx/+z+kMa4koIwQS
+ luBjKEFqLXxkyFSdbZFwBzUgLsdfw5QXuAljiXxMyMBrFLH2BW83OPyWrpn8QgeOG3TI
+ A21gaLzHzzYsGTarmWRPqU83kjxdA93KVG+sVrRxrspeBeWRe/FSKe7DAjxuShCl6yCS
+ VybTP5XICdmBFFRlgrB7zpPsbpIzH//w7ySop1H3KDd8RYcy33iWJJaKQkzvqGXdIp5B
+ PHUQ==
+X-Gm-Message-State: AOAM531u/O682SBSXMA8VW48Sq/90bARmMZTBj31SAaItn5WZIacpzHe
+ V9sMc+QMyxUk44UErdCs3sXI02x1jU6sLrDXqzH7ayGoEIL3W60cHaaiYB4C5j3/wLrXTGxBM2R
+ 0uehAA9+CmMPP8VOYOrJEqSVBA90xfCfqBYRXzgDaSfnowXHRMHtrhV7vFg==
+X-Received: by 2002:a19:7514:0:b0:448:7d8e:aca with SMTP id
+ y20-20020a197514000000b004487d8e0acamr9656608lfe.471.1647334775168; 
+ Tue, 15 Mar 2022 01:59:35 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzOPG5mZQ+aR6cThJEYDQFYYyykihoAOeRqJrNm+T9GSpAnv2U2iF3seNPUA78OyWz1K9ZxhyPSxKU1nEmWnMA=
+X-Received: by 2002:a19:7514:0:b0:448:7d8e:aca with SMTP id
+ y20-20020a197514000000b004487d8e0acamr9656590lfe.471.1647334774583; Tue, 15
+ Mar 2022 01:59:34 -0700 (PDT)
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 0dcb2bda-a0f0-4f55-b221-08da06616717
-X-MS-TrafficTypeDiagnostic: MN2PR10MB3230:EE_
-X-Microsoft-Antispam-PRVS: <MN2PR10MB3230F7EBFD22DD0C34F2B2678E109@MN2PR10MB3230.namprd10.prod.outlook.com>
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: X7Eur4qJ/bqVCOerMK2MmgyKfmvm98OEntMGPETw1ybVVDAffK3b9FMEw90sQeD/ZXERXhjA1y+47gAOiyxkZxfqSr+IfLd2pYM5j7A4zPxAuAALsZXDeTo3b+vuQAG7L0vLBXSJElo2XQmLDctBznnuaUs7F30PgAfHDtgF6o9oYku9v+tO0e4bq2LstRBqExDzzQ+eUEO8Fdzir3NVIDb3AssfhJDvLPMGlOctWFA8WRwDQYvNZO6Bw32vO48AJLBLDbXiB18ALZuaWKqy8xC3+O2JujnPwLctwdSCG8Sjsd3Nt58wN/RugEwL4V8P0H5PBGQNdEyo2sUDVzRgFZWOUF64SmWYz8/h5J9qdWLTYi8p1lyxHQG1809Vz63hOU3RKLiYoQ3Qkhh2co5eY21YyKgmUyh/0PP9GFj5u45TJzkbd3k6031JEK1G7A3ebc32+LE3yLr+uG9QZs6QRyj0/wVqQJom/gWLpYKjwptHEvesNTfmb7bAOcRGtzA1SFe5tLHInWT8J6qBUNJYeHeP3ZdJtCcLZqR87Afl6TD6eud2nZGsg7OHRjut4mUovvtHITRvONS2SZAwozzQPHQKdUdb1xx9LcnoJSW7wD8eo9wyGta/7n/KBzlyrSnNN7td+2KACkMN3oCBwAvKC1K8jgdORqWl8Vk6jMPrFIVdGhKCLIUZjckpsgyu+P33I7tqcjovp1i8YaE/NAmwlQ==
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:MWHPR1001MB2365.namprd10.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230001)(7916004)(366004)(86362001)(2906002)(1076003)(38100700002)(44832011)(5660300002)(26005)(8936002)(38350700002)(53546011)(52116002)(33656002)(9686003)(6666004)(6916009)(316002)(33716001)(6512007)(6506007)(508600001)(83380400001)(8676002)(6486002)(4326008)(66476007)(66556008)(186003)(66946007);
- DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?i8E8avyn2MseQVDApRYiuSC0kJG3l3etcbe7hglFQJDv4F9Y6LrgHgAM4LA8?=
- =?us-ascii?Q?tNt3ZOW4jCLdvPZQogVucl+oDREnkFVNUIX79hv9RrbZr8N83t4Pe5e2dsRK?=
- =?us-ascii?Q?h2s7OY+E9D3yGTlnloY4iOHKvgb+rmGrBTeQk1m1tCfqnEMozWyJQshUZZvm?=
- =?us-ascii?Q?ErdqBCqoJlKxfPtMcfLyzrBQyMaJBqCvY3dviXDTH5JHJe9TTffrWAirIi+T?=
- =?us-ascii?Q?lvQG+UGRqYozeIxsT2TxabAU+s2wJdpf5BZGpnyyBU8zijo23UdFwz1xvE/w?=
- =?us-ascii?Q?9V2qHurnzRPbXuYnxI8KpPR+1VynUDd3fkx8iWQu+Mrg02yw2QTzB/A2q50k?=
- =?us-ascii?Q?kRORP1/KdvD2i3Cbik64QCPwXow5IeWQF6SR0Ef91QR95qDFqGDKOsybCm92?=
- =?us-ascii?Q?i1j7HfVYlA8hwKeo13C+NRKL82X1TMIA5IRXzX2FsTJ4oMJEpJK0jhRK6dFb?=
- =?us-ascii?Q?Xnvz/4H2KcTzvCF/k+Ejs/Wf1ktVnm3fy4ExS670ntyCX4wJkLklAKMGi3/c?=
- =?us-ascii?Q?jomvpZyu/nKCh98k+nOxYLH99iSQFR0ELJeHHYHZiD69h1kVws1se6cXdGOv?=
- =?us-ascii?Q?8HrmbtMMv+umlLXycaXSjdHjDOGlFprZVcz9vjK+bvZl0IezPA8VE+yIfJdo?=
- =?us-ascii?Q?4iUoEApPTSSfrlLZJ3omICSYTfrkRtxFkdrAs/TKhjp91fDvg042zpY4OREz?=
- =?us-ascii?Q?9Bgv6pAQhSiM7Wp0emKVK2vl3eXXkimwf7hWh3eJgtqwobLT607d9LLdt5rp?=
- =?us-ascii?Q?lhMct6I+vknTpoFNFYAjp6bOCebhS3eA/8WM6jqPCmdS5QUHwY2bF+A8+5EI?=
- =?us-ascii?Q?ADYuYAOQHAT6ARBM/IyqnXbdT5y+9DJlMlSR2IMiQx2ZtJJOrXuu2jTYptTd?=
- =?us-ascii?Q?BeSq04AvzCSyCE4IfIl0tiI1Mz/LFOWHVssEwfUm/ZcaNM+PuvoMAsonCsrB?=
- =?us-ascii?Q?V0/53EIbi3JetDSg0BPUtDTUYPy+iiaG152KKtan/WrNq3MprYGzECkGb1IU?=
- =?us-ascii?Q?v3RzWUslZNUHy4+AeIivWwexM1ssnXqB5cFUCqEF80VeonkJHN2ZTVnfogaA?=
- =?us-ascii?Q?VYi1ncaNfb4SS/MWQdUMiqYyL8U19eMCRCh4nzJ7n/q0o9f+hAwdRReqOXB8?=
- =?us-ascii?Q?4KWkXxqtOXcVuaKE5dYmH10cqTk1Ul4xgqIIjX8WuaQ6MyJMN+zkzBQjZCZT?=
- =?us-ascii?Q?ushTHaJtVrOh1LOPt/LjXWJvQkcZEfY+HxhWIhWR/UvWDSTVjUs1TU2WQiwG?=
- =?us-ascii?Q?XHHcjTn7knvxvrgNIJFA4ho1RuePlqkC5kSnUMOvhwuJi+cYLGm2d+ESCMPy?=
- =?us-ascii?Q?Zps3v1KyvRgg6BJ9XyGOude4zusXsUxbx9E15uLv7FugDQAY+ScgOSg9fWqc?=
- =?us-ascii?Q?L0ur4jqU0ySjjCIhN5JInQqxb2I9xAimoFU3O252g0YIzK0IxojX9Rjbh6dp?=
- =?us-ascii?Q?5jkBzS/qFlQLqbAPzFPqSiswAZeU+oYz0IQOyfsFqLbI2Ht56og2XA=3D=3D?=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 0dcb2bda-a0f0-4f55-b221-08da06616717
-X-MS-Exchange-CrossTenant-AuthSource: MWHPR1001MB2365.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Mar 2022 08:54:24.3484 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: WtIJIR5RCUMetEDemhVPHXw9nMeeMdN5MWMMG+7qP3BvBq6axBkwJxMdR/Wa4Hpqb9sr7m6TJYZ8ykTczxNYQaKspTua5A+kSTgG2HC9Q58=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR10MB3230
-X-Proofpoint-Virus-Version: vendor=nai engine=6300 definitions=10286
- signatures=693139
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999
- phishscore=0
- suspectscore=0 adultscore=0 spamscore=0 bulkscore=0 malwarescore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2203150057
-X-Proofpoint-GUID: Q5hTNuruL3MMtUWL7tSbKVHfqDzXNL8j
-X-Proofpoint-ORIG-GUID: Q5hTNuruL3MMtUWL7tSbKVHfqDzXNL8j
-Cc: virtualization@lists.linux-foundation.org
+References: <20220311152832.17703-1-suwan.kim027@gmail.com>
+ <ea838f63-5f63-6f3b-f49e-1107b43f7d1c@redhat.com>
+ <Yi82BL9KecQsVfgX@localhost.localdomain>
+In-Reply-To: <Yi82BL9KecQsVfgX@localhost.localdomain>
+From: Jason Wang <jasowang@redhat.com>
+Date: Tue, 15 Mar 2022 16:59:23 +0800
+Message-ID: <CACGkMEujXYNE-88=m9ohjbeAj2F7CqEUes8gOUmasTNtwn2bUA@mail.gmail.com>
+Subject: Re: [PATCH] virtio-blk: support polling I/O
+To: Suwan Kim <suwan.kim027@gmail.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: linux-block@vger.kernel.org, pbonzini <pbonzini@redhat.com>,
+ virtualization <virtualization@lists.linux-foundation.org>,
+ Stefan Hajnoczi <stefanha@redhat.com>, mst <mst@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -173,68 +108,142 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============3471108349231938626=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Mar 15, 2022 at 10:27:35AM +0800, Zhu, Lingshan wrote:
-> 
-> 
-> On 3/14/2022 6:37 PM, Dan Carpenter wrote:
-> > On Mon, Mar 14, 2022 at 10:22:03AM +0800, Zhu, Lingshan wrote:
-> > > Hello Dan,
-> > > 
-> > > Thanks for your suggestions and this auto-testing efforts!
-> > > On handling the vector for device config interrupt, there are three
-> > > possibilities:
-> > > (1)it has a dedicated vector(2)it shares a vector with datapath(3)no
-> > > vectors.
-> > > 
-> > > So in these code below, it handles the three cases, or it should be -EINVAL,
-> > > so IMHO we don't need
-> > > an else there, just leave it -EINVAL.
-> > I'm confused about why you're talking about -EINVAL...  There is no
-> > -EINVAL in this function.
-> Oh, sorry I didn't explain this well. It is a series of patches, in other
-> patches, we initialize hw->config_irq = -EINVAL
-> as a safe default value. In this function ifcvf_request_config_irq(),
-> hw->config_irq is generated by request_config_irq().
-> 
-> Then config_vector matters, there are only three possible values the
-> config_vector can be(listed above),
-> depending on vf->msix_vector_status. And vf->msix_vector_status depends on
-> how many MSI vectors we got,
-> 
-> so there are only three values it can take, IMHO, it is a complete set of
-> the possibilities, we already
-> handled "else" in ifcvf_request_irq().
+--===============3471108349231938626==
+Content-Type: multipart/alternative; boundary="00000000000010cde805da3e0408"
 
-Alright, fine.  Yes, I verified this and it's a false positive.  But GCC
-will also warn about this code if we manage to enable the GCC warning
-again.
+--00000000000010cde805da3e0408
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-If we make a chart like this:
+On Mon, Mar 14, 2022 at 8:33 PM Suwan Kim <suwan.kim027@gmail.com> wrote:
 
-              [looks correct] [ looks buggy ]
-[ no warnings]     1                 2
-  [ warnings ]     3                 4
+> On Mon, Mar 14, 2022 at 02:14:53PM +0800, Jason Wang wrote:
+> >
+> > =E5=9C=A8 2022/3/11 =E4=B8=8B=E5=8D=8811:28, Suwan Kim =E5=86=99=E9=81=
+=93:
+> > > diff --git a/include/uapi/linux/virtio_blk.h
+> b/include/uapi/linux/virtio_blk.h
+> > > index d888f013d9ff..3fcaf937afe1 100644
+> > > --- a/include/uapi/linux/virtio_blk.h
+> > > +++ b/include/uapi/linux/virtio_blk.h
+> > > @@ -119,8 +119,9 @@ struct virtio_blk_config {
+> > >      * deallocation of one or more of the sectors.
+> > >      */
+> > >     __u8 write_zeroes_may_unmap;
+> > > +   __u8 unused1;
+> > > -   __u8 unused1[3];
+> > > +   __virtio16 num_poll_queues;
+> > >   } __attribute__((packed));
+> >
+> >
+> > This looks like a implementation specific (virtio-blk-pci) optimization=
+,
+> how
+> > about other implementation like vhost-user-blk?
+>
+> I didn=E2=80=99t consider vhost-user-blk yet. But does vhost-user-blk als=
+o
+> use vritio_blk_config as kernel-qemu interface?
+>
+
+Yes, but see below.
 
 
-Where you want to be is in box 1 where it looks correct and has no
-warnings.  Boxes 2 and 3 are a second best option because if it doesn't
-have static checker warnings, people won't notice it.  Or if the
-warnings are obvious false postives they can skip over it quickly.
+>
+> Does vhost-user-blk need additional modification to support polling
+> in kernel side?
+>
 
-But this code is box 4 where it is a big waste of time for anyone
-running a static checker.
 
-I almost prefer actual bugs to code which is deliberately written to
-fit in box 4.
+No, but the issue is, things like polling looks not a good candidate for
+the attributes belonging to the device but the driver. So I have more
+questions:
 
-regards,
-dan carpenter
+1) what does it really mean for hardware virtio block devices?
+2) Does driver polling help for the qemu implementation without polling?
+3) Using blk_config means we can only get the benefit from the new device
+
+Thanks
+
+
+
+> Regards,
+> Suwan Kim
+>
+>
+
+--00000000000010cde805da3e0408
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div dir=3D"ltr"><br></div><br><div class=3D"gmail_quote">=
+<div dir=3D"ltr" class=3D"gmail_attr">On Mon, Mar 14, 2022 at 8:33 PM Suwan=
+ Kim &lt;<a href=3D"mailto:suwan.kim027@gmail.com">suwan.kim027@gmail.com</=
+a>&gt; wrote:<br></div><blockquote class=3D"gmail_quote" style=3D"margin:0p=
+x 0px 0px 0.8ex;border-left:1px solid rgb(204,204,204);padding-left:1ex">On=
+ Mon, Mar 14, 2022 at 02:14:53PM +0800, Jason Wang wrote:<br>
+&gt; <br>
+&gt; =E5=9C=A8 2022/3/11 =E4=B8=8B=E5=8D=8811:28, Suwan Kim =E5=86=99=E9=81=
+=93:<br>
+&gt; &gt; diff --git a/include/uapi/linux/virtio_blk.h b/include/uapi/linux=
+/virtio_blk.h<br>
+&gt; &gt; index d888f013d9ff..3fcaf937afe1 100644<br>
+&gt; &gt; --- a/include/uapi/linux/virtio_blk.h<br>
+&gt; &gt; +++ b/include/uapi/linux/virtio_blk.h<br>
+&gt; &gt; @@ -119,8 +119,9 @@ struct virtio_blk_config {<br>
+&gt; &gt;=C2=A0 =C2=A0 =C2=A0 * deallocation of one or more of the sectors.=
+<br>
+&gt; &gt;=C2=A0 =C2=A0 =C2=A0 */<br>
+&gt; &gt;=C2=A0 =C2=A0 =C2=A0__u8 write_zeroes_may_unmap;<br>
+&gt; &gt; +=C2=A0 =C2=A0__u8 unused1;<br>
+&gt; &gt; -=C2=A0 =C2=A0__u8 unused1[3];<br>
+&gt; &gt; +=C2=A0 =C2=A0__virtio16 num_poll_queues;<br>
+&gt; &gt;=C2=A0 =C2=A0} __attribute__((packed));<br>
+&gt; <br>
+&gt; <br>
+&gt; This looks like a implementation specific (virtio-blk-pci) optimizatio=
+n, how<br>
+&gt; about other implementation like vhost-user-blk?<br>
+<br>
+I didn=E2=80=99t consider vhost-user-blk yet. But does vhost-user-blk also<=
+br>
+use vritio_blk_config as kernel-qemu interface?<br></blockquote><div><br></=
+div><div>Yes, but see below.</div><div>=C2=A0</div><blockquote class=3D"gma=
+il_quote" style=3D"margin:0px 0px 0px 0.8ex;border-left:1px solid rgb(204,2=
+04,204);padding-left:1ex">
+<br>
+Does vhost-user-blk need additional modification to support polling<br>
+in kernel side?<br></blockquote><div><br></div><div><br></div><div>No, but =
+the issue is, things=C2=A0like polling looks not a good candidate for the a=
+ttributes belonging to the device but the driver. So I have more questions:=
+</div><div><br></div><div>1) what does it really mean for hardware virtio b=
+lock devices?</div><div>2) Does driver polling help for the qemu implementa=
+tion without polling?</div><div>3) Using blk_config means we can only get t=
+he benefit from the new device</div><div><br></div><div>Thanks</div><div>=
+=C2=A0</div><div>=C2=A0</div><blockquote class=3D"gmail_quote" style=3D"mar=
+gin:0px 0px 0px 0.8ex;border-left:1px solid rgb(204,204,204);padding-left:1=
+ex">
+Regards,<br>
+Suwan Kim<br>
+<br>
+</blockquote></div></div>
+
+--00000000000010cde805da3e0408--
+
+
+--===============3471108349231938626==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============3471108349231938626==--
+
