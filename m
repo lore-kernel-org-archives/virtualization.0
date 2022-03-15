@@ -4,111 +4,100 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4140CC433F5
-	for <virtualization@archiver.kernel.org>; Mon, 14 Mar 2022 22:22:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C96B7C433FE
+	for <virtualization@archiver.kernel.org>; Tue, 15 Mar 2022 04:19:00 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id BC6B460F26;
-	Mon, 14 Mar 2022 22:22:33 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 5EE0D60F6E;
+	Tue, 15 Mar 2022 04:19:00 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id xNcnh-uYvffP; Mon, 14 Mar 2022 22:22:32 +0000 (UTC)
+	with ESMTP id XG67u4M80NbB; Tue, 15 Mar 2022 04:18:59 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 52A2D60F20;
-	Mon, 14 Mar 2022 22:22:32 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id A412960F4A;
+	Tue, 15 Mar 2022 04:18:58 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 32B92C0012;
-	Mon, 14 Mar 2022 22:22:32 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 15FF6C000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7D7B0C0012;
+	Tue, 15 Mar 2022 04:18:58 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8F56FC000B
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Mar 2022 22:22:31 +0000 (UTC)
+ Tue, 15 Mar 2022 04:18:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id E444883E65
+ by smtp4.osuosl.org (Postfix) with ESMTP id 78FF9415E5
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Mar 2022 22:22:30 +0000 (UTC)
+ Tue, 15 Mar 2022 04:18:57 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id cgs0ynamxGMR
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id iEGe4GtVlc88
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Mar 2022 22:22:28 +0000 (UTC)
+ Tue, 15 Mar 2022 04:18:52 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 06E7B8332A
+ by smtp4.osuosl.org (Postfix) with ESMTPS id D856B415E3
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Mar 2022 22:22:27 +0000 (UTC)
+ Tue, 15 Mar 2022 04:18:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1647296546;
+ s=mimecast20190719; t=1647317930;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=448GABWMYqDQxarVEaCkpTgjvImz20CTRUQciGD2cbU=;
- b=gjD4KdG+cn4QQvrn0f6VvPXDN20Qm6oze4ZdzYilGtObtTc2WWygxxjntrF45lTxHGZ4aB
- OrlPUrV9jxJ3jeCxhp+pEXHodbhK9GtwaTRwo+pPbYENXNxUaEehEhEUMWvoOTI+XjP8h2
- Ej9Q04kLPMK2UdDlcNlxj3YX/5BiFrc=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=PsO6HkaMJ2Kprjan7eNzJfsWF2SbOQ7QcIo/3Q9VIsQ=;
+ b=Z3oZnipFDtcFzOtJ63H36P+Y7kgT5GvOY7YiiapdsaTgMVuvg4YXnUF/MK4nDJShXZfdAb
+ VE0Ooz/zGl/fFuJNK1UloLiXwbkW3obXr0+mHYY/WE4fRCq3bMc6hexWIzp3cNuJKZcC0p
+ KJlPB9Vy18CHZalCxd70gjca0NGZ3Vs=
+Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com
+ [209.85.208.198]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-166-oTIiflf0MbqpsIIGNDQ39A-1; Mon, 14 Mar 2022 18:22:25 -0400
-X-MC-Unique: oTIiflf0MbqpsIIGNDQ39A-1
-Received: by mail-ej1-f72.google.com with SMTP id
- el10-20020a170907284a00b006db9df1f3bbso5224549ejc.5
+ us-mta-508-QGh7XCAyNlWYzaeFTa3cwg-1; Tue, 15 Mar 2022 00:18:48 -0400
+X-MC-Unique: QGh7XCAyNlWYzaeFTa3cwg-1
+Received: by mail-lj1-f198.google.com with SMTP id
+ a23-20020a05651c031700b00247fd91c2b5so7218500ljp.21
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Mar 2022 15:22:25 -0700 (PDT)
+ Mon, 14 Mar 2022 21:18:47 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=448GABWMYqDQxarVEaCkpTgjvImz20CTRUQciGD2cbU=;
- b=jDT3ilyC9vlGZMcHfZN1Zj+gcJcCKjGRav3vuHi1sxlP/22V6W2J9JQMIs4YW8HOoT
- i6yNd96Mz/EvG2j5bbRE7M8iEZeZO2EmVNK/OusJHzAYRgw/f/GlEwyHqbrB7JOYq1E4
- sSxl6pD9bd10pqrcES4z4LxuojmrZ1o93OpOOoSBUsNnPfrAo1VmV97OHTua1JRbA3WE
- acsAKl8tN7Kdlu61WZYjwosHSoZhP+rbwdrldLJYWoecKbtyNxQaqu/zDxdPH3C2iaJN
- 88gRrSfcOiCWoMbnHl8WFaYZHoUTkciDCZ8l+jo0UpcaT16kgJfpaRIk+F98L4r84mHd
- dkKw==
-X-Gm-Message-State: AOAM531h7mrXJFpjmYbiQM3qI9mVZgWAWvjEpWka08ITL5xmKVm0FQS+
- qAfK/dMqiYbqZP2QRIUF82y4OrPhtnGjoesUDbJZJNsqES/Yx+a/EfEmUPYC/ffgiSVspdvx78g
- n4CTfnwHfTL58sbY19PXvEnHCt5Kfl8E/BAK21xlw+A==
-X-Received: by 2002:a17:907:94cd:b0:6d9:89e1:3036 with SMTP id
- dn13-20020a17090794cd00b006d989e13036mr21208054ejc.231.1647296544138; 
- Mon, 14 Mar 2022 15:22:24 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwTESGPdMCjU7Jvr1WtD2xxT/v+GSQHRJ65ip+MO0R/5zTFOd1YnfN3O5Oeqw3yqAVrM+g/Qw==
-X-Received: by 2002:a17:907:94cd:b0:6d9:89e1:3036 with SMTP id
- dn13-20020a17090794cd00b006d989e13036mr21208038ejc.231.1647296543907; 
- Mon, 14 Mar 2022 15:22:23 -0700 (PDT)
-Received: from redhat.com ([176.12.250.92]) by smtp.gmail.com with ESMTPSA id
- kw3-20020a170907770300b006d2a835ac33sm7408819ejc.197.2022.03.14.15.22.21
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 14 Mar 2022 15:22:23 -0700 (PDT)
-Date: Mon, 14 Mar 2022 18:22:19 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Max Gurtovoy <mgurtovoy@nvidia.com>
-Subject: Re: [PATCH] virtio-blk: support polling I/O
-Message-ID: <20220314182148-mutt-send-email-mst@kernel.org>
-References: <20220311152832.17703-1-suwan.kim027@gmail.com>
- <20220311103549-mutt-send-email-mst@kernel.org>
- <YitzuxYHywdCRKVO@localhost.localdomain>
- <c91ad1e9-8c5b-ff1e-7e7f-8590ea6c67e8@nvidia.com>
- <Yi8OSE2hYoS8rSEo@localhost.localdomain>
- <e441429b-90ef-a2e4-1365-3f55c7ff21d0@nvidia.com>
- <20220314071222-mutt-send-email-mst@kernel.org>
- <d9121e3c-abe5-fe4d-8088-8339c418c7a8@nvidia.com>
- <20220314111306-mutt-send-email-mst@kernel.org>
- <332c35ec-734b-d2bd-dd0f-c577b1c6174b@nvidia.com>
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=PsO6HkaMJ2Kprjan7eNzJfsWF2SbOQ7QcIo/3Q9VIsQ=;
+ b=M4e7N9ysK/SgbFt2ixOJbbT4wUNJVVOSwqixQsjZS5dc3hgsxga+UxRxhtu6AbzCXf
+ pWiy6/shjCSYw1t+wBwFizKCltE8/FpJXfV3rQpBWZvSdrQeaSo9ygBkjuv2nkJXdlNv
+ /bH4SClhwd8r3M07QHwIa3qNmB7UzN4Z35pyJRGIxUW7UWLxRzfqc606ZHzlVahqb/QH
+ FcEjeQyZgqlAhSB1RmDSGEPuyI9xRgYG3y/W7GJgJzla3BbVPaweMzq1datakf4PkPFU
+ 5mnRBJl01vwjN37to9Z4hcUfToK3f04OTwciTxNv+eTDbKzF8zTgIN9b/BkjJLJj6+oD
+ Pbcw==
+X-Gm-Message-State: AOAM532s9ihtXU54z1ee3p2jrIIsqvOMUxxXmB/yUfqvUXMpys3p79Ai
+ 9TvlDjKBGdXk+IAaCHqqVg2w2mUyYsgXUCe4rmlrjvn2NhOwUC0yjS0JRcP3HAur01uEWSAkNpf
+ Gsc77ll5Pi7LFBrjE5dv/pLuPJS1PMOCbJe5YeRXfrDAN0xQcCRXgJT7/uw==
+X-Received: by 2002:a05:651c:b23:b0:247:ee17:e9ed with SMTP id
+ b35-20020a05651c0b2300b00247ee17e9edmr15995434ljr.243.1647317926461; 
+ Mon, 14 Mar 2022 21:18:46 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwVU9FZ9WEcQiGiMMptrEgNqc6f8mAO6/rM6av7IzlNZaQDc+PoWvlOXijIb8cHAI1Ifa/TAtJfo+L22R+Uh0U=
+X-Received: by 2002:a05:651c:b23:b0:247:ee17:e9ed with SMTP id
+ b35-20020a05651c0b2300b00247ee17e9edmr15995417ljr.243.1647317926215; Mon, 14
+ Mar 2022 21:18:46 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <332c35ec-734b-d2bd-dd0f-c577b1c6174b@nvidia.com>
+References: <20220315032553.455-1-longpeng2@huawei.com>
+ <20220315032553.455-3-longpeng2@huawei.com>
+In-Reply-To: <20220315032553.455-3-longpeng2@huawei.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Tue, 15 Mar 2022 12:18:35 +0800
+Message-ID: <CACGkMEsc16hWfKDg5yeq7qwy3HR3LzWfDk5PBZpHKG7KB6nohg@mail.gmail.com>
+Subject: Re: [PATCH v2 2/3] vdpa: change the type of nvqs to u32
+To: "Longpeng(Mike)" <longpeng2@huawei.com>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org,
- Stefan Hajnoczi <stefanha@redhat.com>, pbonzini@redhat.com,
- Suwan Kim <suwan.kim027@gmail.com>
+Cc: kvm <kvm@vger.kernel.org>, mst <mst@redhat.com>,
+ netdev <netdev@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>,
+ Yechuan <yechuan@huawei.com>, Huangzhichao <huangzhichao@huawei.com>,
+ Stefan Hajnoczi <stefanha@redhat.com>,
+ virtualization <virtualization@lists.linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -120,92 +109,305 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============4973865188760310471=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Mar 14, 2022 at 06:33:06PM +0200, Max Gurtovoy wrote:
-> 
-> On 3/14/2022 5:15 PM, Michael S. Tsirkin wrote:
-> > On Mon, Mar 14, 2022 at 03:26:13PM +0200, Max Gurtovoy wrote:
-> > > On 3/14/2022 1:15 PM, Michael S. Tsirkin wrote:
-> > > > On Mon, Mar 14, 2022 at 12:25:08PM +0200, Max Gurtovoy wrote:
-> > > > > On 3/14/2022 11:43 AM, Suwan Kim wrote:
-> > > > > > On Sun, Mar 13, 2022 at 12:37:21PM +0200, Max Gurtovoy wrote:
-> > > > > > > On 3/11/2022 6:07 PM, Suwan Kim wrote:
-> > > > > > > > On Fri, Mar 11, 2022 at 10:38:07AM -0500, Michael S. Tsirkin wrote:
-> > > > > > > > > On Sat, Mar 12, 2022 at 12:28:32AM +0900, Suwan Kim wrote:
-> > > > > > > > > > diff --git a/include/uapi/linux/virtio_blk.h b/include/uapi/linux/virtio_blk.h
-> > > > > > > > > > index d888f013d9ff..3fcaf937afe1 100644
-> > > > > > > > > > --- a/include/uapi/linux/virtio_blk.h
-> > > > > > > > > > +++ b/include/uapi/linux/virtio_blk.h
-> > > > > > > > > > @@ -119,8 +119,9 @@ struct virtio_blk_config {
-> > > > > > > > > >      	 * deallocation of one or more of the sectors.
-> > > > > > > > > >      	 */
-> > > > > > > > > >      	__u8 write_zeroes_may_unmap;
-> > > > > > > > > > +	__u8 unused1;
-> > > > > > > > > > -	__u8 unused1[3];
-> > > > > > > > > > +	__virtio16 num_poll_queues;
-> > > > > > > > > >      } __attribute__((packed));
-> > > > > > > > > Same as any virtio UAPI change, this has to go through the virtio TC.
-> > > > > > > > > In particular I don't think gating a new config field on
-> > > > > > > > > an existing feature flag is a good idea.
-> > > > > > > > Did you mean that the polling should be based on a new feature like
-> > > > > > > > "VIRTIO_BLK_F_POLL" and be added at the end of features_legacy[]
-> > > > > > > > and features[]? If then, I will add the new feture flag and resend it.
-> > > > > > > Isn't there a way in the SPEC today to create a queue without interrupt
-> > > > > > > vector ?
-> > > > > > It seems that it is not possible to create a queue without interrupt
-> > > > > > vector. If it is possible, we can expect more polling improvement.
-> > > > Yes, it's possible:
-> > > > 
-> > > > Writing a valid MSI-X Table entry number, 0 to 0x7FF, to
-> > > > \field{config_msix_vector}/\field{queue_msix_vector} maps interrupts triggered
-> > > > by the configuration change/selected queue events respectively to
-> > > > the corresponding MSI-X vector. To disable interrupts for an
-> > > > event type, the driver unmaps this event by writing a special NO_VECTOR
-> > > > value:
-> > > > 
-> > > > \begin{lstlisting}
-> > > > /* Vector value used to disable MSI for queue */
-> > > > #define VIRTIO_MSI_NO_VECTOR            0xffff
-> > > > \end{lstlisting}
-> > > > 
-> > > > 
-> > > > 
-> > > > > MST/Jason/Stefan,
-> > > > > 
-> > > > > can you confirm that please ?
-> > > > > 
-> > > > > what does VIRTQ_AVAIL_F_NO_INTERRUPT supposed to do ?
-> > > > This is a hint to the device not to send interrupts.
-> > > Why do you need a hint if the driver implicitly wrote 0xffff to disable MSI
-> > > for a virtqueue ?
-> > 
-> > VIRTIO_MSI_NO_VECTOR is an expensive write into config space, followed
-> > by an even more expensive read. Reliable and appropriate if you turn
-> > events on/off very rarely.
-> > 
-> > VIRTQ_AVAIL_F_NO_INTERRUPT is an in-memory write so it's much cheaper,
-> > but it's less reliable. Appropriate if you need to turn events on/off a
-> > lot.
-> 
-> An "expensive" operation in the ctrl path during vq creation is fine IMO.
+--===============4973865188760310471==
+Content-Type: multipart/alternative; boundary="000000000000d319da05da3a17f1"
 
-Yes.
+--000000000000d319da05da3a17f1
+Content-Type: text/plain; charset="UTF-8"
 
-> I see that nobody even used VIRTQ_AVAIL_F_NO_INTERRUPT in-memory write in
-> Linux.
+On Tue, Mar 15, 2022 at 11:26 AM Longpeng(Mike) <longpeng2@huawei.com>
+wrote:
 
-Because it's called VRING_AVAIL_F_NO_INTERRUPT there.
+> From: Longpeng <longpeng2@huawei.com>
+>
+> Change vdpa_device.nvqs and vhost_vdpa.nvqs to use u32
+>
+> Signed-off-by: Longpeng <longpeng2@huawei.com>
+>
 
-> > 
-> > 
-> > > > > > Regards,
-> > > > > > Suwan Kim
+Acked-by: Jason Wang <jasowang@redhat.com>
+
+
+> ---
+>  drivers/vdpa/vdpa.c  |  6 +++---
+>  drivers/vhost/vdpa.c | 10 ++++++----
+>  include/linux/vdpa.h |  6 +++---
+>  3 files changed, 12 insertions(+), 10 deletions(-)
+>
+> diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
+> index 1ea5254..2b75c00 100644
+> --- a/drivers/vdpa/vdpa.c
+> +++ b/drivers/vdpa/vdpa.c
+> @@ -232,7 +232,7 @@ static int vdpa_name_match(struct device *dev, const
+> void *data)
+>         return (strcmp(dev_name(&vdev->dev), data) == 0);
+>  }
+>
+> -static int __vdpa_register_device(struct vdpa_device *vdev, int nvqs)
+> +static int __vdpa_register_device(struct vdpa_device *vdev, u32 nvqs)
+>  {
+>         struct device *dev;
+>
+> @@ -257,7 +257,7 @@ static int __vdpa_register_device(struct vdpa_device
+> *vdev, int nvqs)
+>   *
+>   * Return: Returns an error when fail to add device to vDPA bus
+>   */
+> -int _vdpa_register_device(struct vdpa_device *vdev, int nvqs)
+> +int _vdpa_register_device(struct vdpa_device *vdev, u32 nvqs)
+>  {
+>         if (!vdev->mdev)
+>                 return -EINVAL;
+> @@ -274,7 +274,7 @@ int _vdpa_register_device(struct vdpa_device *vdev,
+> int nvqs)
+>   *
+>   * Return: Returns an error when fail to add to vDPA bus
+>   */
+> -int vdpa_register_device(struct vdpa_device *vdev, int nvqs)
+> +int vdpa_register_device(struct vdpa_device *vdev, u32 nvqs)
+>  {
+>         int err;
+>
+> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+> index 605c7ae..0c82eb5 100644
+> --- a/drivers/vhost/vdpa.c
+> +++ b/drivers/vhost/vdpa.c
+> @@ -42,7 +42,7 @@ struct vhost_vdpa {
+>         struct device dev;
+>         struct cdev cdev;
+>         atomic_t opened;
+> -       int nvqs;
+> +       u32 nvqs;
+>         int virtio_id;
+>         int minor;
+>         struct eventfd_ctx *config_ctx;
+> @@ -158,7 +158,8 @@ static long vhost_vdpa_set_status(struct vhost_vdpa
+> *v, u8 __user *statusp)
+>         struct vdpa_device *vdpa = v->vdpa;
+>         const struct vdpa_config_ops *ops = vdpa->config;
+>         u8 status, status_old;
+> -       int ret, nvqs = v->nvqs;
+> +       u32 nvqs = v->nvqs;
+> +       int ret;
+>         u16 i;
+>
+>         if (copy_from_user(&status, statusp, sizeof(status)))
+> @@ -965,7 +966,8 @@ static int vhost_vdpa_open(struct inode *inode, struct
+> file *filep)
+>         struct vhost_vdpa *v;
+>         struct vhost_dev *dev;
+>         struct vhost_virtqueue **vqs;
+> -       int nvqs, i, r, opened;
+> +       int r, opened;
+> +       u32 i, nvqs;
+>
+>         v = container_of(inode->i_cdev, struct vhost_vdpa, cdev);
+>
+> @@ -1018,7 +1020,7 @@ static int vhost_vdpa_open(struct inode *inode,
+> struct file *filep)
+>
+>  static void vhost_vdpa_clean_irq(struct vhost_vdpa *v)
+>  {
+> -       int i;
+> +       u32 i;
+>
+>         for (i = 0; i < v->nvqs; i++)
+>                 vhost_vdpa_unsetup_vq_irq(v, i);
+> diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
+> index a526919..8943a20 100644
+> --- a/include/linux/vdpa.h
+> +++ b/include/linux/vdpa.h
+> @@ -83,7 +83,7 @@ struct vdpa_device {
+>         unsigned int index;
+>         bool features_valid;
+>         bool use_va;
+> -       int nvqs;
+> +       u32 nvqs;
+>         struct vdpa_mgmt_dev *mdev;
+>  };
+>
+> @@ -338,10 +338,10 @@ struct vdpa_device *__vdpa_alloc_device(struct
+> device *parent,
+>                                        dev_struct, member)), name,
+> use_va), \
+>                                        dev_struct, member)
+>
+> -int vdpa_register_device(struct vdpa_device *vdev, int nvqs);
+> +int vdpa_register_device(struct vdpa_device *vdev, u32 nvqs);
+>  void vdpa_unregister_device(struct vdpa_device *vdev);
+>
+> -int _vdpa_register_device(struct vdpa_device *vdev, int nvqs);
+> +int _vdpa_register_device(struct vdpa_device *vdev, u32 nvqs);
+>  void _vdpa_unregister_device(struct vdpa_device *vdev);
+>
+>  /**
+> --
+> 1.8.3.1
+>
+>
+
+--000000000000d319da05da3a17f1
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div dir=3D"ltr"><br></div><br><div class=3D"gmail_quote">=
+<div dir=3D"ltr" class=3D"gmail_attr">On Tue, Mar 15, 2022 at 11:26 AM Long=
+peng(Mike) &lt;<a href=3D"mailto:longpeng2@huawei.com">longpeng2@huawei.com=
+</a>&gt; wrote:<br></div><blockquote class=3D"gmail_quote" style=3D"margin:=
+0px 0px 0px 0.8ex;border-left:1px solid rgb(204,204,204);padding-left:1ex">=
+From: Longpeng &lt;<a href=3D"mailto:longpeng2@huawei.com" target=3D"_blank=
+">longpeng2@huawei.com</a>&gt;<br>
+<br>
+Change vdpa_device.nvqs and vhost_vdpa.nvqs to use u32<br>
+<br>
+Signed-off-by: Longpeng &lt;<a href=3D"mailto:longpeng2@huawei.com" target=
+=3D"_blank">longpeng2@huawei.com</a>&gt;<br></blockquote><div><br></div><di=
+v>Acked-by: Jason Wang &lt;<a href=3D"mailto:jasowang@redhat.com">jasowang@=
+redhat.com</a>&gt;</div><div>=C2=A0</div><blockquote class=3D"gmail_quote" =
+style=3D"margin:0px 0px 0px 0.8ex;border-left:1px solid rgb(204,204,204);pa=
+dding-left:1ex">
+---<br>
+=C2=A0drivers/vdpa/vdpa.c=C2=A0 |=C2=A0 6 +++---<br>
+=C2=A0drivers/vhost/vdpa.c | 10 ++++++----<br>
+=C2=A0include/linux/vdpa.h |=C2=A0 6 +++---<br>
+=C2=A03 files changed, 12 insertions(+), 10 deletions(-)<br>
+<br>
+diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c<br>
+index 1ea5254..2b75c00 100644<br>
+--- a/drivers/vdpa/vdpa.c<br>
++++ b/drivers/vdpa/vdpa.c<br>
+@@ -232,7 +232,7 @@ static int vdpa_name_match(struct device *dev, const vo=
+id *data)<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 return (strcmp(dev_name(&amp;vdev-&gt;dev), dat=
+a) =3D=3D 0);<br>
+=C2=A0}<br>
+<br>
+-static int __vdpa_register_device(struct vdpa_device *vdev, int nvqs)<br>
++static int __vdpa_register_device(struct vdpa_device *vdev, u32 nvqs)<br>
+=C2=A0{<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 struct device *dev;<br>
+<br>
+@@ -257,7 +257,7 @@ static int __vdpa_register_device(struct vdpa_device *v=
+dev, int nvqs)<br>
+=C2=A0 *<br>
+=C2=A0 * Return: Returns an error when fail to add device to vDPA bus<br>
+=C2=A0 */<br>
+-int _vdpa_register_device(struct vdpa_device *vdev, int nvqs)<br>
++int _vdpa_register_device(struct vdpa_device *vdev, u32 nvqs)<br>
+=C2=A0{<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 if (!vdev-&gt;mdev)<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 return -EINVAL;<br>
+@@ -274,7 +274,7 @@ int _vdpa_register_device(struct vdpa_device *vdev, int=
+ nvqs)<br>
+=C2=A0 *<br>
+=C2=A0 * Return: Returns an error when fail to add to vDPA bus<br>
+=C2=A0 */<br>
+-int vdpa_register_device(struct vdpa_device *vdev, int nvqs)<br>
++int vdpa_register_device(struct vdpa_device *vdev, u32 nvqs)<br>
+=C2=A0{<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 int err;<br>
+<br>
+diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c<br>
+index 605c7ae..0c82eb5 100644<br>
+--- a/drivers/vhost/vdpa.c<br>
++++ b/drivers/vhost/vdpa.c<br>
+@@ -42,7 +42,7 @@ struct vhost_vdpa {<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 struct device dev;<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 struct cdev cdev;<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 atomic_t opened;<br>
+-=C2=A0 =C2=A0 =C2=A0 =C2=A0int nvqs;<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0u32 nvqs;<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 int virtio_id;<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 int minor;<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 struct eventfd_ctx *config_ctx;<br>
+@@ -158,7 +158,8 @@ static long vhost_vdpa_set_status(struct vhost_vdpa *v,=
+ u8 __user *statusp)<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 struct vdpa_device *vdpa =3D v-&gt;vdpa;<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 const struct vdpa_config_ops *ops =3D vdpa-&gt;=
+config;<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 u8 status, status_old;<br>
+-=C2=A0 =C2=A0 =C2=A0 =C2=A0int ret, nvqs =3D v-&gt;nvqs;<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0u32 nvqs =3D v-&gt;nvqs;<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0int ret;<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 u16 i;<br>
+<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 if (copy_from_user(&amp;status, statusp, sizeof=
+(status)))<br>
+@@ -965,7 +966,8 @@ static int vhost_vdpa_open(struct inode *inode, struct =
+file *filep)<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 struct vhost_vdpa *v;<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 struct vhost_dev *dev;<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 struct vhost_virtqueue **vqs;<br>
+-=C2=A0 =C2=A0 =C2=A0 =C2=A0int nvqs, i, r, opened;<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0int r, opened;<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0u32 i, nvqs;<br>
+<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 v =3D container_of(inode-&gt;i_cdev, struct vho=
+st_vdpa, cdev);<br>
+<br>
+@@ -1018,7 +1020,7 @@ static int vhost_vdpa_open(struct inode *inode, struc=
+t file *filep)<br>
+<br>
+=C2=A0static void vhost_vdpa_clean_irq(struct vhost_vdpa *v)<br>
+=C2=A0{<br>
+-=C2=A0 =C2=A0 =C2=A0 =C2=A0int i;<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0u32 i;<br>
+<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 for (i =3D 0; i &lt; v-&gt;nvqs; i++)<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 vhost_vdpa_unsetup_=
+vq_irq(v, i);<br>
+diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h<br>
+index a526919..8943a20 100644<br>
+--- a/include/linux/vdpa.h<br>
++++ b/include/linux/vdpa.h<br>
+@@ -83,7 +83,7 @@ struct vdpa_device {<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 unsigned int index;<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 bool features_valid;<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 bool use_va;<br>
+-=C2=A0 =C2=A0 =C2=A0 =C2=A0int nvqs;<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0u32 nvqs;<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 struct vdpa_mgmt_dev *mdev;<br>
+=C2=A0};<br>
+<br>
+@@ -338,10 +338,10 @@ struct vdpa_device *__vdpa_alloc_device(struct device=
+ *parent,<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0dev_struc=
+t, member)), name, use_va), \<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0dev_struc=
+t, member)<br>
+<br>
+-int vdpa_register_device(struct vdpa_device *vdev, int nvqs);<br>
++int vdpa_register_device(struct vdpa_device *vdev, u32 nvqs);<br>
+=C2=A0void vdpa_unregister_device(struct vdpa_device *vdev);<br>
+<br>
+-int _vdpa_register_device(struct vdpa_device *vdev, int nvqs);<br>
++int _vdpa_register_device(struct vdpa_device *vdev, u32 nvqs);<br>
+=C2=A0void _vdpa_unregister_device(struct vdpa_device *vdev);<br>
+<br>
+=C2=A0/**<br>
+-- <br>
+1.8.3.1<br>
+<br>
+</blockquote></div></div>
+
+--000000000000d319da05da3a17f1--
+
+
+--===============4973865188760310471==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============4973865188760310471==--
+
