@@ -1,104 +1,104 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 329CAC433F5
-	for <virtualization@archiver.kernel.org>; Tue, 15 Mar 2022 07:53:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0B4FEC433F5
+	for <virtualization@archiver.kernel.org>; Tue, 15 Mar 2022 08:11:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id D05A160B79;
-	Tue, 15 Mar 2022 07:53:41 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 96944415E5;
+	Tue, 15 Mar 2022 08:11:21 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id YFjiupDkJfCm; Tue, 15 Mar 2022 07:53:40 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 795E5607FF;
-	Tue, 15 Mar 2022 07:53:39 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id TbIC9HWaAcz2; Tue, 15 Mar 2022 08:11:17 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id D725E415E3;
+	Tue, 15 Mar 2022 08:11:16 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4B961C0012;
-	Tue, 15 Mar 2022 07:53:39 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 9BFF8C000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A36A4C0012;
+	Tue, 15 Mar 2022 08:11:16 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7268EC000B
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Mar 2022 07:53:37 +0000 (UTC)
+ Tue, 15 Mar 2022 08:11:15 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 704B181268
+ by smtp3.osuosl.org (Postfix) with ESMTP id 5E38660B2C
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Mar 2022 07:53:37 +0000 (UTC)
+ Tue, 15 Mar 2022 08:11:15 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=oracle.com header.b="oOIFCWyW";
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=oracle.com header.b="tCmBQPD1";
  dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
- header.b="HKf3Ih+m"
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id xgQoQJORr1Iz
+ header.b="f7sFlfqB"
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 80qq1GCwhiWv
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Mar 2022 07:53:33 +0000 (UTC)
+ Tue, 15 Mar 2022 08:11:12 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com
- [205.220.177.32])
- by smtp1.osuosl.org (Postfix) with ESMTPS id CCAA681240
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com
+ [205.220.165.32])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 2D3AA60B12
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Mar 2022 07:53:33 +0000 (UTC)
-Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
- by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22F3E0Mw015173; 
- Tue, 15 Mar 2022 07:53:32 GMT
+ Tue, 15 Mar 2022 08:11:11 +0000 (UTC)
+Received: from pps.filterd (m0246627.ppops.net [127.0.0.1])
+ by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22F35lDE000803; 
+ Tue, 15 Mar 2022 08:11:11 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
- h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=corp-2021-07-09;
- bh=nBIgK1HFAG3+1PcIJaXvMn/YzlrOcRseHDqFUEE9jGg=;
- b=oOIFCWyWpmF4Rxf1TYS1w41uXgyW46LbO/XHqVbbGp3BVBKMYtc9P2357yvuBqgl2pU0
- moEuMhG55hIPreg0VAtrs17tvzr5qXcQiKAZR0g+DDFmlezZgOr8q8+twbcSmLxWlYQP
- WnuHLVn9mYRFYHJz6Mw/HvGDykxhWrQeAIa1ARee6YUon3P8orVrX9JaWMI1lG1B8qam
- cp1GO5yC0LTleb6uUfk/Z6Oqm9zqu72wvZosTJcfZaX6ja5WBi6V/vi6daHIZLxW5MUG
- lFC2neCBGBHEVg+/0OUNo6mYroStM/ptHLX8dY8CWcaiMahKN+inW4ZEy3CrRVxtdTGa Xg== 
-Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
- by mx0b-00069f02.pphosted.com with ESMTP id 3et60rja6s-1
+ h=content-type :
+ message-id : date : subject : to : cc : references : from : in-reply-to :
+ mime-version; s=corp-2021-07-09;
+ bh=BopKf40LdcasxKDuRL7u0Dwu1AZNv2yLBJyLc1z/M/U=;
+ b=tCmBQPD1hhhGNY2unnhAXVkCn4xbZwDJeaESYwmXf5gajOFX4L5wr0RkW5Mr724Ol5dq
+ 65FaQT8NVNbbPa1NT1RDPRTYBiMXDiWN8LPLZG6j+vazBk81A/drwueEOD2eK1uTnHyX
+ rcYsc195Bu2FSJhh5wVRPk5loWfQaYEtArwbSILqjNuD2niLEP4jFqa3h42Lq4EK15/g
+ E3uXRr2vd0BTK+AQa33tV+qkN+yKBZnR6Vp02hGoCeXBfVJd/OLopgNzu/4P6gGmbvAh
+ HpQ96UE/UQ9xZxb1SlO5HdUvtldzd8G67OBGg7LUdTCtU5+qJpW0RPrQBv1Kmbd3fgjK YQ== 
+Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
+ by mx0b-00069f02.pphosted.com with ESMTP id 3et52ptevx-1
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Tue, 15 Mar 2022 07:53:32 +0000
-Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
- by aserp3020.oracle.com (8.16.1.2/8.16.1.2) with SMTP id 22F7pr4X112074;
- Tue, 15 Mar 2022 07:53:31 GMT
-Received: from nam12-bn8-obe.outbound.protection.outlook.com
- (mail-bn8nam12lp2173.outbound.protection.outlook.com [104.47.55.173])
- by aserp3020.oracle.com with ESMTP id 3et64jq524-1
+ Tue, 15 Mar 2022 08:11:09 +0000
+Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
+ by aserp3030.oracle.com (8.16.1.2/8.16.1.2) with SMTP id 22F8640F066172;
+ Tue, 15 Mar 2022 08:11:08 GMT
+Received: from nam12-mw2-obe.outbound.protection.outlook.com
+ (mail-mw2nam12lp2044.outbound.protection.outlook.com [104.47.66.44])
+ by aserp3030.oracle.com with ESMTP id 3et64tf9bf-1
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Tue, 15 Mar 2022 07:53:31 +0000
+ Tue, 15 Mar 2022 08:11:08 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=f+Ln578nvBGnC+FrpOIVsopfbbmMNWkB3Dcv6b2897bVnK3UktUzHCzqvd52nE7twenYP6haALTVczBxKZvLS0AWQiJUAkuW7ctKe82ed50r7AuAfCAvt1SV0EeGIRpDNBNRZKgoqWqKbbpuA1sCcA4RjMJljm3A4j4yc9Ub7nXl2SROTYjMR2RXMNd3PscbIL8zinLDjawOmBfWhVrnC8FpV5b4KQbcb1N+YRituCJf1VzJjgLlbe/ERQbgEIcId7yozoB0In2NGMtO86H+SQ/4GCqmJ3TQf9pviDXExpq6OcU6/U8aQPcRvCz5VySLn9pBy8KZML0GE+2868vV/w==
+ b=AZ4Ayb+nJcPbTz5MmVFJ9uU/cRrD9nfVSI/dPwLJMSG55l2MeRWdAhQ3+R1kMASpQF5BcKocVnFDaefUORJ25DfUfBd31cLqtu20I89z41DEjiZFfp6aeK1unbd251rAssjClZ9HygoIG9mM7yp/W+7aCKifjQretjH6UqoDqdtperSUg2Jh7U7vKl/2C4REq8cF/1kNSTNvfrgUgg7HSnwvajA8Wywqy71U4JH5C7ct4KEEe/qYeV6H+85NsFEytCp2xq4n8IA7wZp4/yTa7364CZHhRNPMwomkCtS5HcvDqsydBUziimIIWOnPZNFxGNEyEWR0K7g3zZGMALQMQA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=nBIgK1HFAG3+1PcIJaXvMn/YzlrOcRseHDqFUEE9jGg=;
- b=HvwF3WSDv/+SSQh+UQ5AZ8F4sGkmj3P0pwhHitrJUOKdBVK3oyGZRcnw+QmKVT4uZRljjZ1b/8KwllmnALU77Ffa4/ZTTbpUw8947XlWxmhlS3zb+4D8vQE+3fDM7I8xVT5sZJ5pjsLSKELbNmA5/v46rqo9apZsiPGP7SUF2NSN+zp2tvAwKyWaWVB8ik+nmoXj7OUpKnctwyXWoJ6wn8GOWMX3NMg8a1IKH2dOjoY3z7+nDQD1G+ryzyaH53SGdTYDJHjK+Qx6Uh0MuQJzK8P1yG6F9kTn0DzaAwN3oEy0xTH7BVmx5F6w7Tdwe3vXHtTJ6PvUBPvFwHGedDVeRQ==
+ bh=BopKf40LdcasxKDuRL7u0Dwu1AZNv2yLBJyLc1z/M/U=;
+ b=B8p9WLLADmLXYVny1iOPmEX9ClcaLh3zTcn6mvb/bALSGFtZ9eLbylfflJSVh+1YwGsCLGDxmNGejbCwzB80KMZvcTcAY+Wk2IBSBkgvJFubKW5leRwJN+ZO+ZNIC2vemOp5KxfACPbJvIRjEMOxjx5HJYGnA+s9CU7qFzAfYQtv9yp5B90JHdxRYnyv1QG9WT5baf+2Aci9ReOCAADHMkLNUf4DpYG7Dnp131RDGr7I8jgRH/QBMzUjEdQgcfP9SzMTmly3VqSPPitGwZMkatmxdWUhFTT5CnwSPZE/jRyzNoz2Xils1Zr2pPet88ZBx/VacDH6XaR6+5LHhJ5GLQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
  dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=nBIgK1HFAG3+1PcIJaXvMn/YzlrOcRseHDqFUEE9jGg=;
- b=HKf3Ih+m3bLVEyA6eOF82Av2wZflb/s1zn+ngtLfnPQrpzLvQt9MG/KkzdtSeX8/PB6R3p+nqu6a0NDWQqtuGMyn5HMMy/UiNjVd+mJjae44wyNSUpZ27HLA3THgKr8gw7ZP2mu1gK4E0eg3cbt8pCEjOM3KuBj1g9ObJXafMOU=
+ bh=BopKf40LdcasxKDuRL7u0Dwu1AZNv2yLBJyLc1z/M/U=;
+ b=f7sFlfqBFiLxxYyRUbpt32ooZiWKywBWwdUYZX79KqbgNu97HXnCaCuM8Rc6VdJJaBsBkp6xGqSKGtNTVGF/z5yrvNUtl5Yum71Vi4R7m96MEbGS0XC1cK0rRtWR/ZtfFG65s2jT/lwtAeoSL6Ec+0SJLEWhMVwf/Da/E1onW7M=
 Received: from BYAPR10MB3287.namprd10.prod.outlook.com (2603:10b6:a03:15c::11)
- by MN2PR10MB3535.namprd10.prod.outlook.com (2603:10b6:208:111::18)
+ by BY5PR10MB4290.namprd10.prod.outlook.com (2603:10b6:a03:203::15)
  with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5061.22; Tue, 15 Mar
- 2022 07:53:27 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5061.21; Tue, 15 Mar
+ 2022 08:11:05 +0000
 Received: from BYAPR10MB3287.namprd10.prod.outlook.com
  ([fe80::e478:4b5e:50a8:7f96]) by BYAPR10MB3287.namprd10.prod.outlook.com
  ([fe80::e478:4b5e:50a8:7f96%6]) with mapi id 15.20.5061.029; Tue, 15 Mar 2022
- 07:53:27 +0000
-Message-ID: <61748d91-153c-ec79-c1f0-e3c44cdbea5d@oracle.com>
-Date: Tue, 15 Mar 2022 00:53:23 -0700
+ 08:11:04 +0000
+Message-ID: <29cbfaba-5589-ac07-b244-d845de3a0fcc@oracle.com>
+Date: Tue, 15 Mar 2022 01:11:00 -0700
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
  Thunderbird/91.6.1
 Subject: Re: [PATCH v1 1/2] vdpa: Add support for querying vendor statistics
 Content-Language: en-US
-To: Eli Cohen <elic@nvidia.com>
+To: Jason Wang <jasowang@redhat.com>, Eli Cohen <elic@nvidia.com>
 References: <20220216080022.56707-1-elic@nvidia.com>
  <20220216080022.56707-2-elic@nvidia.com>
  <22f77b5c-2003-c963-24c9-fce9cb53160d@oracle.com>
@@ -111,78 +111,80 @@ References: <20220216080022.56707-1-elic@nvidia.com>
  <DM8PR12MB540086CCD1F535668D05E546AB0A9@DM8PR12MB5400.namprd12.prod.outlook.com>
  <a30ac3c0-059d-4588-c5ac-599c060f6bbf@oracle.com>
  <DM8PR12MB54000042A48FDFA446EFE792AB0E9@DM8PR12MB5400.namprd12.prod.outlook.com>
+ <CACGkMEsjv+Yz0W=-V=My3E7i7+sMSJhZAZrN+vSs_Bdh9nVdHA@mail.gmail.com>
 From: Si-Wei Liu <si-wei.liu@oracle.com>
 Organization: Oracle Corporation
-In-Reply-To: <DM8PR12MB54000042A48FDFA446EFE792AB0E9@DM8PR12MB5400.namprd12.prod.outlook.com>
-X-ClientProxiedBy: BYAPR05CA0066.namprd05.prod.outlook.com
- (2603:10b6:a03:74::43) To BYAPR10MB3287.namprd10.prod.outlook.com
+In-Reply-To: <CACGkMEsjv+Yz0W=-V=My3E7i7+sMSJhZAZrN+vSs_Bdh9nVdHA@mail.gmail.com>
+X-ClientProxiedBy: BY5PR03CA0017.namprd03.prod.outlook.com
+ (2603:10b6:a03:1e0::27) To BYAPR10MB3287.namprd10.prod.outlook.com
  (2603:10b6:a03:15c::11)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 9e5bf8ca-a0ad-4999-01dc-08da0658e38d
-X-MS-TrafficTypeDiagnostic: MN2PR10MB3535:EE_
-X-Microsoft-Antispam-PRVS: <MN2PR10MB35355E9712D3D3560650138CB1109@MN2PR10MB3535.namprd10.prod.outlook.com>
+X-MS-Office365-Filtering-Correlation-Id: f171b012-5c32-419f-ca12-08da065b59d3
+X-MS-TrafficTypeDiagnostic: BY5PR10MB4290:EE_
+X-Microsoft-Antispam-PRVS: <BY5PR10MB4290290C7D5EBECEBCD6B4F1B1109@BY5PR10MB4290.namprd10.prod.outlook.com>
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: X1p3wlmF8WrHe8azY+ejuLQcTpHmaXw7mf69DkKG1IFBYBaECx6bpuG6c77N5DOsTOy+q1/55T9gbw7leYunomWUrKxxBuNnxxV+D99uJDNaWkKt8Qrp23vkztrRANGnZUAVcqEr2swZE+uIMNOlAOcXmmHLVQ8ZfPvR0cFLOvhbKGT3IgX2WThKiYQaoQgHaQj9A4Vp/r56FDblbkRYD4RWkFV+3xC06tpwXam0yNh4YwXReUCuZhvis+lUHBxwvmbCFFwBM4wTIUKQrgSSr46M/4CBQKsggOQu8380RsBhAwiZyAcT0NGW91fNrCLX5Pa7w1KP/HcCkfT6tYZ1UGCF8BEUMX0ztvvRLUpyMhvSCZJrdLh5djUExbtPbe2Fet7P02GjMCgnkB000VOFM+k/lQQlxrPNzAYxHTXxWHk9QM/M7i0H8RS3i4Noek994/6aLwR15AKzMoWZ5mdTy93Twe9kmFSaAemxY6BQldA3/WZkhKNR6i7ZSdwujbiWkoafDavy/yu7eCLdD1D8LybDTSExhcm581uYd6W0hGdI4Y9mauJoH/T1PbHGHc3WV3DQh2ig6+3Vx5xTRiZNWSM4Gf1IdusQiFoPy4GiHVu2QFWxtrS4RKMUCY0mCTEnMI+tyAIEdghwSDSgySi6APhdHq8q4eGO2Etr7KvYmRdo2OKoY/6oCU0xVeX0MOkc6Ap2MYmdL6Ue6kQf2NK/SQwGG5jbTvcz20SjRinAcbk=
+X-Microsoft-Antispam-Message-Info: 07gfW3bMPGE1F/lwj2acZ3xugMVjwcXXmlSw7FntvjMVx1YTG6hFiBQHWi+P1/yzyG8DV1t16PceJFevMJA1pR+0kTCHehdRPxKZ9Jgid9+RoorUMB24MHA3VXagc0PycRRrR+4mEnANIGIeex0OmFnAe33cjlLd+dOj91gsRsYS+l78oI3t9R0vcgwuiVQToGY3rx4kp0FT49kgFI3QPtrfq5h/bv+uxi6flgLC2sR5T/N9XIkRDIYUv6bZp60Rk6/t/GLoMo85dbc3y1aBIOe45rrYWSGPXw8t7PUXo3IK14zbmDaPLUZRE4R35Iy8gU+/JoE2y3/0BHaXYycEtEAPx/kBI7gZcOdA85lr1yWUhbU9KZJZIIEHM5P10vMCaUBecopfa8FWwPxSakcX1fkuhxKS3QSGDMFCEtk7Gjfk8AF8oNGeYeDDmEAYAu495SkMkB3pH+YnbWweBHZ6TcMnhysSCN6O9nzLvfj2PWrdSDzFONNO9zteeMOGz3mjhrX9MrTOLfovL+F8ANdBOao87veAQrN4DCXqme8RuAF46TOQny7SzpeY+jyYYMidgDme+vsT3pszg2zemZASPqd41thJCcT09pXh/6MlbkFuSq1nV7UMx7Yo9vgFFFdNwVbBPcWSCXJ3iIW1BR2q5uEkjYiU30M8q++YPngY5XI2jXjkeB3abQPFKPSgXQ7MycgKD19WZTqV5hqpEYWk4KhYudX37sU7vwCiTvzGlW9nnDohjuTzvAQwplsyMMSOUaZHIRgjUh/y2HFa2K4ldJ5nYEWBo/J95RJnwdCPnR1FsRps5pQt5hBJRm3nqlP8
 X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
  IPV:NLI; SFV:NSPM; H:BYAPR10MB3287.namprd10.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230001)(366004)(53546011)(36916002)(30864003)(6506007)(6916009)(83380400001)(6512007)(5660300002)(36756003)(54906003)(31686004)(8936002)(2616005)(6666004)(38100700002)(6486002)(31696002)(86362001)(316002)(4326008)(66946007)(8676002)(26005)(186003)(508600001)(2906002)(66556008)(66476007)(45980500001)(43740500002);
+ SFS:(13230001)(366004)(2906002)(2616005)(6506007)(33964004)(38100700002)(53546011)(36916002)(30864003)(8936002)(5660300002)(6666004)(6512007)(86362001)(31696002)(166002)(186003)(26005)(83380400001)(66556008)(66476007)(316002)(54906003)(110136005)(66946007)(31686004)(6486002)(8676002)(36756003)(4326008)(508600001)(43740500002)(45980500001)(579004)(559001);
  DIR:OUT; SFP:1101; 
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?cGNKZkxCSDY5alBFc3BnOUJITHQ0ZXlBNjgxSjBDNTZ5Z2ZXTzNVWFI1eHVR?=
- =?utf-8?B?RUhDTHRhditTYVJ3ZjN2NzZNU2V1ZTQzTVZ6WGU0cjhZZFhMbS9hUHo4QXAy?=
- =?utf-8?B?ZEhhNkRkSzhmOGc4eVpYcmdxYjlEeEZzVmJuRTlOOUsxL1hOK2NsZDlGanp3?=
- =?utf-8?B?eVArcVI1RTExdnB0Vk53eUZxUkcwdk1va1ZZMmNFUk5FQThYb09zV0prNVFU?=
- =?utf-8?B?TEJTZXpNSE9ZNUdmcU53QWpZTWVSZUVhV3BLTTVJRTdSOXMwWEtJVlJSRyto?=
- =?utf-8?B?ZFpaaVFJOVQ5M0NIc25JZWxpWDZCMjBoMlpuSGVMYTNJVGtVeTNoZEJybjRE?=
- =?utf-8?B?a3V2d0gwU0Nldk4zNERoQ2tieWNkV3g0bVlBazc0SlpHU3ovckNYVllWa1Nt?=
- =?utf-8?B?V0xNcWlXSkJvSGdmOVJFNngvNkJRWFU3eCtrSnczc21IWmkvQnBTNFdVMkV6?=
- =?utf-8?B?K3V2Q3dYKzFFUWM4ZUdVRmVNYmh0VlE1U2pQZmFpWW5FYm9DOGJyZWFGZGFV?=
- =?utf-8?B?RkNvNU9CVjh0NlNGOTcyZVNVeHRxcUVJcWEwOGY1cEl4TzEwdStERC9WbWJD?=
- =?utf-8?B?Q0FIWGI2ZjI1QnB5WmdFd2lpRVNnWTVsd1RKWStkNWdld0VKVnFqUXR6STRM?=
- =?utf-8?B?Q1dHSml3cXFYYUtwdmtCcVhwbVNjaE1zN0g1c1VtcjhUemRudyt2K3hsMytS?=
- =?utf-8?B?d0dVV2srbjR6bEEzRlpKdlJLZjY1TTRqS091bFBVVnl3M2N2emVZMWluWldw?=
- =?utf-8?B?Sk1wbXo4aDMrTzNWdDJ3ajloaFBVdUxsL2ljVkRaUm5YVHY1RTQrajFXaisw?=
- =?utf-8?B?aDA4dS9wQi81ZUtJUWxZYmQrUjV5R0c2ZldDS0k4VUpJLzA4OEFGVTI0SHBI?=
- =?utf-8?B?Ym04d1RYc2phWW96bXE5cmR3R2UxTHNNb2VvdGRtS3FuQVpVRlJuUFlIV1J2?=
- =?utf-8?B?ak9vbjNqNUJOOTZJTU04OWFGdTFtMFhhNHBRelVnTVpTM241eCs1SzJ0eDNP?=
- =?utf-8?B?YVhIS2pCb3Uzb24vWHAyL3dmeWF5Q2YySFF5TWtXc0lhMnFvVzAxL1FjZzZw?=
- =?utf-8?B?dkxXS25PVXJDekNzSTM5OHVBbytXa3B6RDVmRUlMVTkxbHM1UklIWUIzbWRO?=
- =?utf-8?B?Q3owamVoQjgremRLcnJ5eFhBdDMwSjNNQ0t6Q0QrNE12STZKc1k1aGZyczFP?=
- =?utf-8?B?eHFxbzJTR3gwT2JhNEwwM3JuYWNoOGZjeE00SW0yam5Ld1BuRTBpYkNlS01M?=
- =?utf-8?B?V1hLOCtQL053Y0RkM1hXVXJYSmJtbTQ0ZEVNNGRTV28vWXY5YUdRVCtKbHVK?=
- =?utf-8?B?SDk5MGFIWmpYeENUTXl2VVlkS3ZlRmJtOUZjK2hHTXBsMlh4RnUrMWdOamR4?=
- =?utf-8?B?L3hQL2QzWXVKSzdTaitPYldVNW1jSGVONzVIUFVZNGd2T3Npa2FqbFdqZUFR?=
- =?utf-8?B?V1c5YXNhUDB3SGFBa3Zvb2l2UVUzbXdrL2ZiQzJheHM0QklWS0lMV28yMTY4?=
- =?utf-8?B?MzBIR1Y5TzUvZ3BMTGxtNnlPRS9lY3pscnZrazlVZG9xS2lRb3NYZ1V1ZThC?=
- =?utf-8?B?U1d4RG1oUVBOZ3VRdWdORkNUYWdEd2lGalpWb2JyZEMxVXZLZnZGRjlNNVNJ?=
- =?utf-8?B?bVg0UjZBa1VxRkNHNzg5bkh1RVBHZlhSOXFvMHlGR0ZzV2lGTkJJSHNoa2FM?=
- =?utf-8?B?am9NVW1JYlRuSm5wMVF3SFMyb1RFQnNTV1NUUldIMkxrV0FrcWQ0NzlvUTky?=
- =?utf-8?B?VWtoVnFBNFhBQ2hUS2lFMDNobm5UL2NpUlQ1TUs3T1FTWExOdjlHSmdtTjN5?=
- =?utf-8?B?TFF2QkdDYXJxLzlJcXdNWUpWMzJuQllkWTdOblVPR1dVdkpnbXlvNmhMR3pn?=
- =?utf-8?B?OVJXcFUrV0o4M2c2MjhsZkNtWmpFTHFlRnBWZVhtU2k1ODRhbC9qZlhjMnFx?=
- =?utf-8?Q?8bNYAvX3HZ7KwZNElshQ7Ej+D5p6CZQW?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?Zm9YQlRyZ2RFMkRnQUhXZ2JvRG1qOUYxMEhGektEVGhVVUNlTmVaa3VkRE1U?=
+ =?utf-8?B?MEdKcXRsVU43cmxNQmNwRC80UFdNMXJLZlhoWWc0T0RnMDJTK05kL2h5WDFs?=
+ =?utf-8?B?OWkxWjdkUjFnNk5wOUtiTUVjL0NhL1N4Vi84UDJyME1WTXBjZXZOR3JQU1Bi?=
+ =?utf-8?B?VktDNkEveUZHZDVUZkR6bytNdDd4SHN5S01TV2RZNVY2SDB2dXR3SkIyNzY3?=
+ =?utf-8?B?bmxBODhnMUg5YkZBbnZpYmpheUtiWkplSFRDbEM1MUh3Y3h1bmFLVTVMd0xn?=
+ =?utf-8?B?UnU2aFZLYWFRUHRkTVF6dE4vTzFnTUJNenFVZlplRHVoRDdYa052cHhGMkly?=
+ =?utf-8?B?TjZwRWNmUGZ5dzNld0hYcGZOOTFESUtEWnViVUQ1UUFqQWRmOWtjR1E1bW9O?=
+ =?utf-8?B?UlUwRmhxcEY3Nk0xQklUTG5hMnllbXg1UE9ZbjNkTHdxRmhXZXFhbkg4Qjkz?=
+ =?utf-8?B?QzluYStTTG1MS3VYZXRWZXYyalc4UG13eFdIeEw3dzNXVGp6cFl4VzZtMlQ5?=
+ =?utf-8?B?SDgzd0V2RkZwd1dtZURVSnhPM0ZHK0l5VFdoOEduRUNyYWFtTWZFa2hUOVhW?=
+ =?utf-8?B?Qk1vRFBZT1NsanNTM2psdk4rS0liTG95SkQrN2pzM0gxTmhQKzkwTVZWajBi?=
+ =?utf-8?B?OXgzTnErOFJuU09VdkMxdXk3Ym9qSFFhemhuaFRIc1FFeDBGM2hjZVYrUkkv?=
+ =?utf-8?B?MGx1dDh5Ympyd2hRaDdYajdISVdRK2lmV3JXK0RjZFRvZDJDaG9ibGNUVWNV?=
+ =?utf-8?B?S2U4TGhiMS9rcnp6aHpMWjF6UDh0a2VkTFBibGVzR09nMThQOStYV01jRGxV?=
+ =?utf-8?B?bHNFU3RQQXdRajhyckVoWHpETW1JdWtYdVFWaEw2eC9lSW9OK2FkelZYc1c5?=
+ =?utf-8?B?MWo1Z2w1TzFUbHplREhDKy9SZEFwNzNYRzVwelJSa3hKNmpBSG4xOTZJU3la?=
+ =?utf-8?B?RkdzY0E4VDFpSVRzRzNJUzRPaDBDT2ltTTIrYmdXZUNVRHBsa1hzRnZ5ajZD?=
+ =?utf-8?B?VXJTSXVHRXB5NmxnRklaQmNmeEs2SXcvVHpkbzVVU2dUcEpvN1VwV1F1K2xC?=
+ =?utf-8?B?NmFVV3FiUzJIS1lVTndmTWxOWjRpQUVQRzZ1ZHFrbW9XNG90VWlQSHF4eEtq?=
+ =?utf-8?B?MlhvRDlyMUlLM3oxVmJxOEUxZTl4Ti9FQWxQZ0NZOGExRGk1cDFxUjBHMExw?=
+ =?utf-8?B?N3dOYWtzNUdmRjZ6Nm4zc2NuTUZsdGJYY2UvYkJQeitmUkt3bFdBRVBJSU84?=
+ =?utf-8?B?UURQSEEzRXVKSFJiM2FWK2FodThLSEt4RDFWS1BROTQrMExCKzduSStWdVhF?=
+ =?utf-8?B?Q1djMlNtMmFzMUZweXhtK3pMRXRTUW44VVFLTmxHb1I2WDR3T0RBbzhlTzJH?=
+ =?utf-8?B?b25LN2FYcVhVZDJPOEpxMDFjNzRkUmJSdVZsRXNrTmQvWmtjMEhSMDl1RTV2?=
+ =?utf-8?B?YWZkZlY4NEhGK08yOWNVUHhUVkxTR0hYTVdsVExMSmhoamk0VDJZK1RpRUNq?=
+ =?utf-8?B?cTVtWktjSEc3NDllSCtXQmswUllsblJiZk1aaENYVWdaQ3hhMFlPUjl0WnFh?=
+ =?utf-8?B?b05jNTQ1TkhFa2NNbThYdDJNZlQzdG0yUUFvMU9HNGlXTmx4RFpwcUNOTU9l?=
+ =?utf-8?B?WmpSd3J4NFBUMS8zRUVtdEJMaXZQdisyeEM1SXNHWEhFdEF5aGlHSUFTYXBR?=
+ =?utf-8?B?cUsxekxybkJuOHFCS3BBZjBhZ0VESnczbFlEdDVzcHJ3MjIxdUdxNjJHSThv?=
+ =?utf-8?B?Sk1Cb0NBV1Q0aG1DcEQweCtXTXp4djZjR1E4eDZnK1VBUXIrY0xXTXJjVWlp?=
+ =?utf-8?B?ZXZvVVJDck9ndkh4d2hjQWg1QmtVNkxXczJOaVRlM0hQOGVwdmVvZUNXWHhk?=
+ =?utf-8?B?aEdSU0RWMWFzaVA2alJIV3BqRHVwMTNZR0JCbWQxOUI4MGhqOGNyMlRPeEJu?=
+ =?utf-8?B?NWllbWkrVncwbTFzL1RtTStISUVnRVNuN2tYalhjV3NTVlZ0VUJEeXg4SUYx?=
+ =?utf-8?B?TndRME0ySGFBPT0=?=
 X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 9e5bf8ca-a0ad-4999-01dc-08da0658e38d
+X-MS-Exchange-CrossTenant-Network-Message-Id: f171b012-5c32-419f-ca12-08da065b59d3
 X-MS-Exchange-CrossTenant-AuthSource: BYAPR10MB3287.namprd10.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Mar 2022 07:53:27.2466 (UTC)
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Mar 2022 08:11:04.7688 (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: gcPjSi0qJe+z/0aaVJnxJSB508CMu6twFMCJwyrwaluA05x751AlvfcUTsMXjj1TENbqxeV9xtlDWAEYJbROAg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR10MB3535
+X-MS-Exchange-CrossTenant-UserPrincipalName: 0RLD/qhvQWx3e0KwZ7LVgd8ogOw9Kq+AsHHz9OYQAmxN8JQTkngBDJhX3Lk3VjisVTWOhubsEl4DAUWxLfAV0Q==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR10MB4290
 X-Proofpoint-Virus-Version: vendor=nai engine=6300 definitions=10286
  signatures=693139
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0
- phishscore=0
- malwarescore=0 mlxscore=0 suspectscore=0 spamscore=0 bulkscore=0
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2203150051
-X-Proofpoint-ORIG-GUID: LQjloVdRnfrn5G2ZUgz9wL0HAK95VlzN
-X-Proofpoint-GUID: LQjloVdRnfrn5G2ZUgz9wL0HAK95VlzN
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0
+ bulkscore=0 phishscore=0
+ suspectscore=0 mlxscore=0 adultscore=0 spamscore=0 mlxlogscore=999
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
+ definitions=main-2203150053
+X-Proofpoint-GUID: zzxqTte_wRlWXj3XPq07d0L3Fwf5SguL
+X-Proofpoint-ORIG-GUID: zzxqTte_wRlWXj3XPq07d0L3Fwf5SguL
 Cc: "lvivier@redhat.com" <lvivier@redhat.com>,
  "mst@redhat.com" <mst@redhat.com>,
  "virtualization@lists.linux-foundation.org"
@@ -199,435 +201,1533 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: multipart/mixed; boundary="===============5228127016160222074=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-CgpPbiAzLzEzLzIwMjIgODoyNiBBTSwgRWxpIENvaGVuIHdyb3RlOgo+PiBPbiAzLzgvMjAyMiA5
-OjA3IFBNLCBFbGkgQ29oZW4gd3JvdGU6Cj4+Pj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0K
-Pj4+PiBGcm9tOiBTaS1XZWkgTGl1IDxzaS13ZWkubGl1QG9yYWNsZS5jb20+Cj4+Pj4gU2VudDog
-V2VkbmVzZGF5LCBNYXJjaCA5LCAyMDIyIDU6MzMgQU0KPj4+PiBUbzogRWxpIENvaGVuIDxlbGlj
-QG52aWRpYS5jb20+Cj4+Pj4gQ2M6IG1zdEByZWRoYXQuY29tOyBqYXNvd2FuZ0ByZWRoYXQuY29t
-OyB2aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC0KPj4+PiBmb3VuZGF0aW9uLm9yZzsgZXBlcmV6
-bWFAcmVkaGF0LmNvbTsgYW1vcmVub3pAcmVkaGF0LmNvbTsKPj4+PiBsdml2aWVyQHJlZGhhdC5j
-b207IHNnYXJ6YXJlQHJlZGhhdC5jb207IFBhcmF2IFBhbmRpdCA8cGFyYXZAbnZpZGlhLmNvbT4K
-Pj4+PiBTdWJqZWN0OiBSZTogW1BBVENIIHYxIDEvMl0gdmRwYTogQWRkIHN1cHBvcnQgZm9yIHF1
-ZXJ5aW5nIHZlbmRvciBzdGF0aXN0aWNzCj4+Pj4KPj4+Pgo+Pj4+Cj4+Pj4gT24gMy84LzIwMjIg
-NjoxMyBBTSwgRWxpIENvaGVuIHdyb3RlOgo+Pj4+Pj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0t
-LS0KPj4+Pj4+IEZyb206IFNpLVdlaSBMaXUgPHNpLXdlaS5saXVAb3JhY2xlLmNvbT4KPj4+Pj4+
-IFNlbnQ6IFR1ZXNkYXksIE1hcmNoIDgsIDIwMjIgODoxNiBBTQo+Pj4+Pj4gVG86IEVsaSBDb2hl
-biA8ZWxpY0BudmlkaWEuY29tPgo+Pj4+Pj4gQ2M6IG1zdEByZWRoYXQuY29tOyBqYXNvd2FuZ0By
-ZWRoYXQuY29tOyB2aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC0KPj4+Pj4+IGZvdW5kYXRpb24u
-b3JnOyBlcGVyZXptYUByZWRoYXQuY29tOyBhbW9yZW5vekByZWRoYXQuY29tOwo+Pj4+Pj4gbHZp
-dmllckByZWRoYXQuY29tOyBzZ2FyemFyZUByZWRoYXQuY29tOyBQYXJhdiBQYW5kaXQKPj4+Pj4+
-IDxwYXJhdkBudmlkaWEuY29tPgo+Pj4+Pj4gU3ViamVjdDogUmU6IFtQQVRDSCB2MSAxLzJdIHZk
-cGE6IEFkZCBzdXBwb3J0IGZvciBxdWVyeWluZyB2ZW5kb3IKPj4+Pj4+IHN0YXRpc3RpY3MKPj4+
-Pj4+Cj4+Pj4+Pgo+Pj4+Pj4KPj4+Pj4+IE9uIDMvNi8yMDIyIDExOjU3IFBNLCBFbGkgQ29oZW4g
-d3JvdGU6Cj4+Pj4+Pj4+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tCj4+Pj4+Pj4+IEZyb206
-IFNpLVdlaSBMaXUgPHNpLXdlaS5saXVAb3JhY2xlLmNvbT4KPj4+Pj4+Pj4gU2VudDogU2F0dXJk
-YXksIE1hcmNoIDUsIDIwMjIgMTI6MzQgQU0KPj4+Pj4+Pj4gVG86IEVsaSBDb2hlbiA8ZWxpY0Bu
-dmlkaWEuY29tPgo+Pj4+Pj4+PiBDYzogbXN0QHJlZGhhdC5jb207IGphc293YW5nQHJlZGhhdC5j
-b207Cj4+Pj4+Pj4+IHZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LSBmb3VuZGF0aW9uLm9yZzsg
-ZXBlcmV6bWFAcmVkaGF0LmNvbTsKPj4+Pj4+Pj4gYW1vcmVub3pAcmVkaGF0LmNvbTsgbHZpdmll
-ckByZWRoYXQuY29tOyBzZ2FyemFyZUByZWRoYXQuY29tOwo+Pj4+IFBhcmF2Cj4+Pj4+Pj4+IFBh
-bmRpdCA8cGFyYXZAbnZpZGlhLmNvbT4KPj4+Pj4+Pj4gU3ViamVjdDogUmU6IFtQQVRDSCB2MSAx
-LzJdIHZkcGE6IEFkZCBzdXBwb3J0IGZvciBxdWVyeWluZyB2ZW5kb3IKPj4+Pj4+Pj4gc3RhdGlz
-dGljcwo+Pj4+Pj4+Pgo+Pj4+Pj4+PiBTb3JyeSwgSSBzb21laG93IG1pc3NlZCB0aGlzIGFmdGVy
-IG15IGJyZWFrLiBQbGVhc2Ugc2VlIGNvbW1lbnRzIGluCj4+Pj4gbGluZS4KPj4+Pj4+Pj4gT24g
-Mi8xNi8yMDIyIDEwOjQ2IFBNLCBFbGkgQ29oZW4gd3JvdGU6Cj4+Pj4+Pj4+PiBPbiBXZWQsIEZl
-YiAxNiwgMjAyMiBhdCAxMDo0OToyNkFNIC0wODAwLCBTaS1XZWkgTGl1IHdyb3RlOgo+Pj4+Pj4+
-Pj4+IE9uIDIvMTYvMjAyMiAxMjowMCBBTSwgRWxpIENvaGVuIHdyb3RlOgo+Pj4+Pj4+Pj4+PiBB
-bGxvd3MgdG8gcmVhZCB2ZW5kb3Igc3RhdGlzdGljcyBvZiBhIHZkcGEgZGV2aWNlLiBUaGUgc3Bl
-Y2lmaWMKPj4+Pj4+Pj4+Pj4gc3RhdGlzdGljcyBkYXRhIGlzIHJlY2VpdmVkIGJ5IHRoZSB1cHN0
-cmVhbSBkcml2ZXIgaW4gdGhlIGZvcm0KPj4+Pj4+Pj4+Pj4gb2YgYW4gKGF0dHJpYnV0ZSBuYW1l
-LCBhdHRyaWJ1dGUgdmFsdWUpIHBhaXJzLgo+Pj4+Pj4+Pj4+Pgo+Pj4+Pj4+Pj4+PiBBbiBleGFt
-cGxlIG9mIHN0YXRpc3RpY3MgZm9yIG1seDVfdmRwYSBkZXZpY2UgYXJlOgo+Pj4+Pj4+Pj4+Pgo+
-Pj4+Pj4+Pj4+PiByZWNlaXZlZF9kZXNjIC0gbnVtYmVyIG9mIGRlc2NyaXB0b3JzIHJlY2VpdmVk
-IGJ5IHRoZSB2aXJ0cXVldWUKPj4+Pj4+Pj4+Pj4gY29tcGxldGVkX2Rlc2MgLSBudW1iZXIgb2Yg
-ZGVzY3JpcHRvcnMgY29tcGxldGVkIGJ5IHRoZQo+Pj4+Pj4+Pj4+PiB2aXJ0cXVldWUKPj4+Pj4+
-Pj4+Pj4KPj4+Pj4+Pj4+Pj4gQSBkZXNjcmlwdG9yIHVzaW5nIGluZGlyZWN0IGJ1ZmZlcnMgaXMg
-c3RpbGwgY291bnRlZCBhcyAxLiBJbgo+Pj4+Pj4+Pj4+PiBhZGRpdGlvbiwgTiBjaGFpbmVkIGRl
-c2NyaXB0b3JzIGFyZSBjb3VudGVkIGNvcnJlY3RseSBOIHRpbWVzIGFzCj4+Pj4+Pj4+Pj4+IG9u
-ZQo+Pj4+Pj4+PiB3b3VsZCBleHBlY3QuCj4+Pj4+Pj4+Pj4+IEEgbmV3IGNhbGxiYWNrIHdhcyBh
-ZGRlZCB0byB2ZHBhX2NvbmZpZ19vcHMgd2hpY2ggcHJvdmlkZXMgdGhlCj4+Pj4+Pj4+Pj4+IG1l
-YW5zIGZvciB0aGUgdmRwYSBkcml2ZXIgdG8gcmV0dXJuIHN0YXRpc3RpY3MgcmVzdWx0cy4KPj4+
-Pj4+Pj4+Pj4KPj4+Pj4+Pj4+Pj4gVGhlIGludGVyZmFjZSBhbGxvd3MgZm9yIHJlYWRpbmcgYWxs
-IHRoZSBzdXBwb3J0ZWQgdmlydHF1ZXVlcywKPj4+Pj4+Pj4+Pj4gaW5jbHVkaW5nIHRoZSBjb250
-cm9sIHZpcnRxdWV1ZSBpZiBpdCBleGlzdHMuCj4+Pj4+Pj4+Pj4+Cj4+Pj4+Pj4+Pj4+IEJlbG93
-IGFyZSBzb21lIGV4YW1wbGVzIHRha2VuIGZyb20gbWx4NV92ZHBhIHdoaWNoIGFyZQo+Pj4+Pj4+
-Pj4+PiBpbnRyb2R1Y2VkIGluIHRoZSBmb2xsb3dpbmcgcGF0Y2g6Cj4+Pj4+Pj4+Pj4+Cj4+Pj4+
-Pj4+Pj4+IDEuIFJlYWQgc3RhdGlzdGljcyBmb3IgdGhlIHZpcnRxdWV1ZSBhdCBpbmRleCAxCj4+
-Pj4+Pj4+Pj4+Cj4+Pj4+Pj4+Pj4+ICQgdmRwYSBkZXYgdnN0YXRzIHNob3cgdmRwYS1hIHFpZHgg
-MQo+Pj4+Pj4+Pj4+PiB2ZHBhLWE6Cj4+Pj4+Pj4+Pj4+IHF1ZXVlX3R5cGUgdHggcXVldWVfaW5k
-ZXggMSByZWNlaXZlZF9kZXNjIDM4NDQ4MzYKPj4+PiBjb21wbGV0ZWRfZGVzYwo+Pj4+Pj4+Pj4+
-PiAzODQ0ODM2Cj4+Pj4+Pj4+Pj4+Cj4+Pj4+Pj4+Pj4+IDIuIFJlYWQgc3RhdGlzdGljcyBmb3Ig
-dGhlIHZpcnRxdWV1ZSBhdCBpbmRleCAzMiAkIHZkcGEgZGV2Cj4+Pj4+Pj4+Pj4+IHZzdGF0cyBz
-aG93IHZkcGEtYSBxaWR4IDMyCj4+Pj4+Pj4+Pj4+IHZkcGEtYToKPj4+Pj4+Pj4+Pj4gcXVldWVf
-dHlwZSBjb250cm9sX3ZxIHF1ZXVlX2luZGV4IDMyIHJlY2VpdmVkX2Rlc2MgNjIKPj4+Pj4+Pj4+
-Pj4gY29tcGxldGVkX2Rlc2MKPj4+Pj4+Pj4+Pj4gNjIKPj4+Pj4+Pj4+Pj4KPj4+Pj4+Pj4+Pj4g
-My4gUmVhZCBzdGF0aXNpdGljcyBmb3IgdGhlIHZpcnRxdWV1ZSBhdCBpbmRleCAwIHdpdGgganNv
-bgo+Pj4+Pj4+Pj4+PiBvdXRwdXQgJCB2ZHBhIC1qIGRldiB2c3RhdHMgc2hvdyB2ZHBhLWEgcWlk
-eCAwCj4+Pj4+Pj4+Pj4+IHsidnN0YXRzIjp7InZkcGEtYSI6ewo+Pj4+Pj4+Pj4+Pgo+Pj4+Pj4+
-PiAicXVldWVfdHlwZSI6InJ4IiwicXVldWVfaW5kZXgiOjAsIm5hbWUiOiJyZWNlaXZlZF9kZXNj
-IiwidmFsdWUiOjQxCj4+Pj4+Pj4+IDc3Cj4+Pj4+Pj4+IDc2LFwKPj4+Pj4+Pj4+Pj4gICAgICAg
-ICJuYW1lIjoiY29tcGxldGVkX2Rlc2MiLCJ2YWx1ZSI6NDE3NTQ4fX19Cj4+Pj4+Pj4+Pj4+Cj4+
-Pj4+Pj4+Pj4+IDQuIFJlYWQgc3RhdGlzdGljcyBmb3IgdGhlIHZpcnRxdWV1ZSBhdCBpbmRleCAw
-IHdpdGggcHJlZXR5IGpzb24KPj4+Pj4+Pj4+Pj4gb3V0cHV0ICQgdmRwYSAtanAgZGV2IHZzdGF0
-cyBzaG93IHZkcGEtYSBxaWR4IDAgewo+Pj4+Pj4+Pj4+PiAgICAgICAgICAgInZzdGF0cyI6IHsK
-Pj4+Pj4+Pj4+Pj4gICAgICAgICAgICAgICAidmRwYS1hIjogewo+Pj4+Pj4+Pj4+Pgo+Pj4+Pj4+
-Pj4+PiAgICAgICAgICAgICAgICAgICAicXVldWVfdHlwZSI6ICJyeCIsCj4+Pj4+Pj4+Pj4gSSB3
-b25kZXIgd2hlcmUgdGhpcyBpbmZvIGNhbiBiZSBpbmZlcnJlZD8gSSBkb24ndCBzZWUgcmVsZXZh
-bnQKPj4+Pj4+Pj4+PiBjaGFuZ2UgaW4gdGhlIHBhdGNoIHNlcmllcyB0aGF0IGhlbHBzIGdhdGhl
-ciB0aGUKPj4+Pj4+IFZEUEFfQVRUUl9ERVZfUVVFVUVfVFlQRT8KPj4+Pj4+Pj4+PiBJcyB0aGlz
-IGFuIGFyYml0cmFyeSBzdHJpbmcgZGVmaW5lZCBieSB0aGUgdmVuZG9yIGFzIHdlbGw/IElmIHNv
-LAo+Pj4+Pj4+Pj4+IGhvdyBkb2VzIHRoZSB1c2VyIGV4cGVjdCB0byBjb25zdW1lIGl0Pwo+Pj4+
-Pj4+Pj4gVGhlIHF1ZXVlIHR1cGUgaXMgZGVkdWNlZCBmcm9tIHRoZSBpbmRleCBhbmQgd2hldGhl
-ciB3ZSBoYXZlIGEKPj4+Pj4+Pj4+IHZpcnRxdWV1ZS4gRXZlbiBudW1iZXJzIGFyZSByeCwgb2Rk
-IG51bWJlcnMgYXJlIHR4IGFuZCBpZiB0aGVyZSBpcwo+Pj4+Pj4+Pj4gQ1ZRLCB0aGUgbGFzdCBv
-bmUgaXMgQ1ZRLgo+Pj4+Pj4+PiBPSywgdGhlbiBWRFBBX0FUVFJfREVWX1FVRVVFX1RZUEUgYXR0
-cmlidXRlIGludHJvZHVjZWQgaW4gdGhpcwo+Pj4+Pj4+PiBwYXRjaCBtaWdodCBub3QgYmUgdXNl
-ZnVsIGF0IGFsbD8KPj4+Pj4+PiBSaWdodCwgd2lsbCByZW1vdmUuCj4+Pj4+Pj4KPj4+Pj4+Pj4g
-QW5kIGhvdyBkbyB5b3UgZGV0ZXJtaW5lIGluIHRoZSB2ZHBhIHRvb2wgaWYgQ1ZRIGlzIG5lZ290
-aWF0ZWQgb3IKPj4+Pj4+Pj4gbm90Pwo+Pj4+Pj4+IEkgbWFrZSBhIG5ldGxpbmsgY2FsbCB0byBn
-ZXQgdGhlIHNhbWUgaW5mb3JtYXRpb24gYXMgIiB2ZHBhIGRldiBjb25maWcKPj4+PiBzaG93Igo+
-Pj4+Pj4gcmV0cmlldmVzLiBJIHVzZSB0aGUgbmVnb3RpYXRlZCBmZWF0dXJlcyB0byBkZXRlcm1p
-bmUgaWYgYSBDVlEgaXMKPj4+Pj4+IGF2YWlsYWJsZS4gSWYgaXQgaXMsIHRoZSBudW1iZXIgb2Yg
-VlFzIGVxdWFscyB0aGUgY29udHJvbCBWUSBpbmRleC4KPj4+Pj4+IFNvIHRoZXJlIGFyZSB0d28g
-bmV0bGluayBjYWxscyB1bmRlciB0aGUgaG9vZC4KPj4+Pj4+IFRoZSBsb2NrIHZkcGFfZGV2X211
-dGV4IHdvbid0IGhvbGQgYWNyb3NzIHRoZSB0d28gc2VwYXJhdGUgbmV0bGluawo+Pj4+Pj4gY2Fs
-bHMsIGFuZCBpdCBtYXkgZW5kIHVwIHdpdGggaW5jb25zaXN0ZW50IHN0YXRlIC0gdGhlb3JldGlj
-YWxseQo+Pj4+Pj4gdGhpbmdzIGNvdWxkIGhhcHBlbiBsaWtlIHRoYXQgdGhlIGZpcnN0IGNhbGwg
-Z2V0cyBDVlEgbmVnb3RpYXRlZCwgYnV0Cj4+Pj4+PiB0aGUgbGF0ZXIgY2FsbCBmb3IKPj4+Pj4+
-IGdldF92ZW5kb3JfdnFfc3RhdHMoKSBvbiB0aGUgY3ZxIG1pZ2h0IGdldCAtRUlOVkFMIGR1ZSB0
-byBkZXZpY2UKPj4+Pj4+IHJlc2V0LiBDYW4gdGhlIG5lZ290aWF0ZWQgc3RhdHVzIGFuZCBzdGF0
-IHF1ZXJ5IGJlIGRvbmUgd2l0aGluIG9uZSBzaW5nbGUKPj4+PiBuZXRsaW5rIGNhbGw/Cj4+Pj4+
-IEkgc2VlIHlvdXIgY29uY2Vybi4KPj4+Pj4gVGhlIG9ubHkgcmVhc29uIEkgZG8gdGhlIGV4dHJh
-IGNhbGwgaXMgdG8ga25vdyBpZiB3ZSBoYXZlIGEgY29udHJvbCBWUQo+Pj4+PiBhbmQgd2hhdCBp
-bmRleCBpdCBpcywganVzdCB0byBwcmludCBhIGRlc2NyaXB0aXZlIHN0cmluZyB0ZWxsaW5nIGlm
-IGl0J3MgYSBlaXRoZXIgcngsCj4+Pj4gdHggb3IgY29udHJvbCBWUS4KPj4+Pj4gU28gdGhlIGN1
-cmUgY2FuIGJlIHNpbXBsZS4gTGV0J3MgaGF2ZSBhIG5ldyBhdHRyaWJ1dGUgdGhhdCByZXR1cm5z
-IHRoZQo+Pj4+PiB0eXBlIG9mIHZpcnRxdWV1ZS4KPj4+PiBJIGFtIG5vdCBzdXJlIEkgZm9sbG93
-IHRoZSBjdXJlLiBXb3VsZG4ndCBpdCBiZSBwb3NzaWJsZSB0byBnZXQgYm90aCBuZWdvdGlhdGVk
-Cj4+Pj4gc3RhdHVzIGFuZCB0aGUgcXVldWUgc3RhdCBpbiB2ZHBhX25sX2NtZF9kZXZfc3RhdHNf
-Z2V0X2RvaXQoKSB1bmRlciB0aGUKPj4+PiBzYW1lIHZkcGFfZGV2X211dGV4IGxvY2s/Cj4+PiBZ
-ZXMgd2UgY2FuLCBidXQgSSBzdWdnZXN0ZWQgdG8gZ2V0IG9ubHkgdGhlIHR5cGUgb2YgdGhlIHF1
-ZXVlIGFzIGEgbmV3IGF0dHJpYnV0ZS4KPj4+IFRoZSBrZXJuZWwgd2lsbCBkbyB0aGUgZGlnZXN0
-IGFuZCBkZWNpZGUgcGVyIGEgZ2l2ZW4gVlEgaWYgaXQncyByeCwgdHggb3IgY29udHJvbCBhbmQK
-Pj4+IHJldHVybiB0aGUgcmVzdWx0IGluIHRoYXQgbmV3IGF0dHJpYnV0ZS4KPj4gVGhlIHJ4LCB0
-eCBhbmQgY29udHJvbCBxdWV1ZSB0eXBlIGlzIG5ldCBzcGVjaWZpYywgd2hpbGUgdGhlIHZkcGEg
-Y29yZQo+PiBpcyBjdXJyZW50bHkgYWdub3N0aWMgdG8gdGhlIHZkcGEgY2xhc3MuCj4+Cj4+Pj4g
-QW5kIEkgYW0gbm90IGV2ZW4gc3VyZSBpZiBpdCBpcyBhIG11c3QgdG8gZGlzcGxheQo+Pj4+IHRo
-ZSBxdWV1ZSB0eXBlIC0gaXQgZG9lc24ndCBzZWVtIHRoZSBvdXRwdXQgaW5jbHVkZXMgdGhlIHZk
-cGEgY2xhc3MgaW5mbywgd2hpY2gKPj4+PiBtYWtlcyBpdCBoYXJkIGZvciBzY3JpcHQgdG8gcGFy
-c2UgdGhlIHRoaXMgZmllbGQgaW4gZ2VuZXJpYyB3YXkuCj4+PiBJIGRvbid0IGdldCB5b3UuIFlv
-dSBzYXkgeW91IGRvbid0IHRoaW5rIHlvdSBuZWVkIHRoZSBxdWV1ZSB0eXBlIGFuZCBhdCB0aGUg
-c2FtZQo+Pj4gdGltZSB5b3UncmUgY29uY2VybmVkIGxhY2sgb2YgaW5mb3JtYXRpb24gbWFrZXMg
-aXQgaGFyZCBmb3Igc2NyaXB0cy4KPj4+IEJUVywgY2xhc3MgaW5mbyBpcyBzb21ldGhpbmcgeW91
-IGNhbiBnZXQgZm9yIHRoZSBkZXZpY2UgdGhyb3VnaCAidmRwYSBkZXYgc2hvdyIKPj4+IHNvIHlv
-dXIga25vdyB0aGUgY2xhc3Mgb2YgeW91ciBkZXZpY2UuCj4+IFN0ZXBwaW5nIGJhY2ssIG1heSBJ
-IGFzayBpZiB0aGVyZSdzIGEgY2FzZSB0aGF0IHF1ZXVlIHR5cGUgc3BlY2lmaWMgc3RhdAo+PiBt
-YXkgYmUgZGVmaW5lZCBieSB2ZW5kb3IsIHN1Y2ggdGhhdCBkZWNpcGhlcmluZyBvZiBjZXJ0YWlu
-IHZlbmRvciBzdGF0Cj4+IHdvdWxkIG5lZWQgdHlwZSBzcGVjaWZpYyBrbm93bGVkZ2U/IFNvIGZh
-ciB0aGUgcmVjZWl2ZWRfZGVzYyBhbmQKPj4gY29tcGxldGVkX2Rlc2Mgc3RhdHMgb2ZmZXJlZCB0
-aHJvdWdoIHRoZSBtbHg1X3ZkcGEgcGF0Y2ggbG9vayB0byBiZQo+PiBnZW5lcmFsIG9uZXMgYW5k
-IG5vdCBhc3NvY2lhdGVkIHdpdGggYW55IHF1ZXVlIHR5cGUgaW4gcGFydGljdWxhci4gSXMKPj4g
-dGhlcmUgc29tZSBmdXR1cmUgc3RhdCBpbiB5b3VyIG1pbmQgdGhhdCBuZWVkcyBzcGVjaWZpYyBr
-bm93bGVkZ2Ugb2YKPj4gcXVldWUgdHlwZSBhbmQgdmRwYSBjbGFzcz8KPiBObywgdGhlIG9ubHkg
-cmVhc29uIGZvciBkaXNwbGF5aW5nIHRoZSBxdWV1ZSB0eXBlIGlzIHRvIGhlbHAgdXNlcnMKPiBr
-bm93IGtpbmQgb2YgcXVldWUgdGhleSdyZSBsb29raW5nIGF0Lgo+Cj4+IEknZCBwcmVmZXIgdGhl
-IHZzdGF0IG91dHB1dCB0byBiZSBzZWxmLWNvbnRhaW5lZCBhbmQgc2VsZi1kZXNjcmlwdGl2ZS4K
-Pj4gWW91IG1heSBhcmd1ZSB0aGUgY2xhc3Mgb2YgdmRwYSBuZXZlciBjaGFuZ2VzIGluICJ2ZHBh
-IGRldiBzaG93IiBhZnRlcgo+PiBjcmVhdGlvbi4gVGhpcyBpcyB0cnVlLCBob3dldmVyIHRoZSBx
-dWV1ZSB0eXBlIGlzIG5vdCAtIHNheSB5b3UgZ290IGEKPj4gY29udHJvbCBxdWV1ZSBmb3IgcWlu
-ZGV4IDIsIGJ1dCB0aGUgbmV4dCBtb21lbnQgeW91IG1heSBnZXQgYSByeCBxdWV1ZQo+PiB3aXRo
-IHRoZSBzYW1lIHFpbmRleC4KPiBJIGRvbid0IHRoaW5rIHRoaXMgaXMgcG9zc2libGUgdW5sZXNz
-IHlvdSBkZXN0cm95ZWQgdGhlIGRldmljZSBhbmQgcmUtY3JlYXRlZCBpdC4KPiBXaGF0IG9wZXJh
-dGlvbiBkbyB5b3UgdGhpbmsgY291bGQgY2F1c2UgdGhhdD8KU2F5IHlvdSBnb3QgYSB2ZHBhIG5l
-dCBkZXZpY2UgY3JlYXRlZCB3aXRoIDQgZGF0YSBxdWV1ZSBwYWlycyBhbmQgYSAKY29udHJvbCB2
-cS4gT24gYm9vdCBzb21lIGd1ZXN0IGZpcm13YXJlIG1heSBzdXBwb3J0IGp1c3QgRl9DVFJMX1ZR
-IGJ1dCAKbm90IEZfTVEsIHRoZW4gdGhlIGluZGV4IGZvciB0aGUgY29udHJvbCB2cSBpbiBndWVz
-dCBlbmRzIHVwIHdpdGggMiwgYXMgCmluIHRoaXMgY2FzZSB0aGVyZSdzIG9ubHkgYSBzaW5nbGUg
-cXVldWUgcGFpciBlbmFibGVkIGZvciByeCAoaW5kZXggMCkgCmFuZCB0eCAoaW5kZXggMSkuIEZy
-b20gdGhlIGhvc3QgZHJpdmVyIChlLmcuIG1seDVfdmRwYSkgcGVyc3BlY3RpdmUsIHRoZSAKY29u
-dHJvbCB2cSBpcyB0aGUgbGFzdCB2cSBmb2xsb3dpbmcgOCBkYXRhIHZxcyBvZiBhbGwgNCBwYWly
-cywgaGVuY2UgZ290IAp0aGUgOHRoIGluZGV4IGluIHRoZSByYW5rLiBTaW5jZSBGX01RIGlzIG5v
-dCBuZWdvdGlhdGVkIGFuZCBvbmx5IDEgZGF0YSAKcXVldWUgcGFpciBlbmFibGVkLCBpbiBzdWNo
-IGV2ZW50IG9ubHkgaG9zdCBxaW5kZXggMCwxIGFuZCA4IGhhdmUgdmVuZG9yIApzdGF0cyBhdmFp
-bGFibGUsIGFuZCB0aGUgcmVzdCBvZiBxaW5kZXggd291bGQgZ2V0IGludmFsaWQvZW1wdHkgc3Rh
-dC4KCkxhdGVyIG9uIHNheSBib290IGNvbnRpbnVlcyB0b3dhcmRzIGxvYWRpbmcgdGhlIExpbnV4
-IHZpcnRpbyBkcml2ZXIsIAp0aGVuIGd1ZXN0IGNvdWxkIHN1Y2Nlc3NmdWxseSBuZWdvdGlhdGUg
-Ym90aCBGX0NUUkxfVlEgYW5kIEZfTVEgCmZlYXR1cmVzLiBJbiB0aGlzIGNhc2UsIGFsbCA4IGRh
-dGEgdmlydHF1ZXVlcyBhcmUgZnVsbHkgZW5hYmxlZCwgdGhlIAppbmRleCBmb3IgdGhlIGNvbnRy
-b2wgdnEgZW5kcyB1cCBhcyA4LCBmb2xsb3dpbmcgdGlnaHRseSBhZnRlciBhbGwgdGhlIDQgCmRh
-dGEgcXVldWUgcGFpcnMuIE9ubHkgdW50aWwgYm90aCBmZWF0dXJlcyBhcmUgbmVnb3RpYXRlZCwg
-dGhlIGd1ZXN0IGFuZCAKaG9zdCBhcmUgYWJsZSB0byBzZWUgY29uc2lzdGVudCB2aWV3IGluIGlk
-ZW50aWZ5aW5nIHRoZSBjb250cm9sIHZxLiAKU2luY2UgRl9NUSBpcyBuZWdvdGlhdGVkLCBhbGwg
-aG9zdCBxdWV1ZXMsIGluZGV4ZWQgZnJvbSAwIHRocm91Z2ggOCwgCnNob3VsZCBoYXZlIHZlbmRv
-ciBzdGF0cyBhdmFpbGFibGUuCgpUaGF0J3Mgd2h5IEkgc2FpZCB0aGUgZ3Vlc3QgcWluZGV4IGlz
-IGVwaGVtZXJhbCBhbmQgaGFyZCB0byBwcmVkaWN0IApzdWJqZWN0ZWQgdG8gbmVnb3RpYXRlZCBm
-ZWF0dXJlcywgYnV0IGhvc3QgcWluZGV4IGlzIHJlbGlhYmxlIGFuZCBtb3JlIAplbGlnaWJsZSBm
-b3IgY29tbWFuZCBsaW5lIGlkZW50aWZpY2F0aW9uIHB1cnBvc2UuCgo+Cj4+IFBhcnRpY3VsYXJs
-eSB5b3Ugc2VlbSB3YW50IHRvIHRpZSB0aGlzIHdpdGggcXVldWUKPj4gaW5kZXggaW4gdGhlIGd1
-ZXN0IHZpZXcsIHdoaWNoIGlzIHF1aXRlIGR5bmFtaWMgZm9yIGhvc3QgYWRtaW4gb3Igc2NyaXB0
-Cj4+IHJ1bm5pbmcgb24gdGhlIGhvc3QgdG8gZm9sbG93Lgo+IEZvciByeCBhbmQgdHggcXVldWVz
-LCBzb21lIGluZGV4IG1heSBiZWNvbWUgaW52YWxpZCBpZiB0aGUgdXNlciBjaGFuZ2VkCj4gdGhl
-IG51bWJlciBvZiBxdWV1ZXMgd2l0aCBldGh0b29sIC1MIGJ1dCBJIGRvbid0IHRoaW5rIHRoaXMg
-aXMgYW4gaXNzdWUuClRoaXMgaXMgaXJyZWxldmFudC4gRXRodG9vbCAtTCBtYXkgb25seSBjaGFu
-Z2UgdGhlIGVmZmVjdGl2ZSBudW1iZXIgb2YgCnZxcyBpbiB1c2UgKGV2ZW4gaWYgZW5kaW5nIHdp
-dGggb25lIHNpbmdsZSBxdWV1ZSBwYWlyKSwgYnV0IHdvdWxkIG5ldmVyIApmbGlwIGZlYXR1cmUg
-bmVnb3RpYXRpb24gYXJvdW5kIEZfTVEuCgo+Pj4+PiAgICAgSSB0aGluayBKYXNvbiBkaWQgbm90
-IGxpa2UgdGhlIGlkZWEgb2YgY29tbXVuaWNhdGluZyB0aGUga2luZCBvZiBWUQo+Pj4+PiBmcm9t
-IGtlcm5lbCB0byB1c2Vyc3BhY2UgYnV0IHVuZGVyIHRoZXNlIGNpcmN1bXN0YW5jZXMsIG1heWJl
-IGhlIHdvdWxkCj4+Pj4gYXBwcm92ZS4KPj4+Pj4gSmFzb24/Cj4+Pj4+Cj4+Pj4+PiBXaGF0IHdv
-cnJpZWQgbWUgaXMgdGhhdCB0aGUgcXVldWUgaW5kZXggYmVpbmcgZHluYW1pYyBhbmQgZGVwZW5k
-ZWQgb24KPj4+Pj4+IG5lZ290aWF0aW9uIHN0YXR1cyB3b3VsZCBtYWtlIGhvc3QgYWRtaW4gdXNl
-ciBxdWl0ZSBoYXJkIHRvIGZvbGxvdy4KPj4+Pj4+IFRoZSBndWVzdCBtYXkgb3IgbWF5IG5vdCBh
-ZHZlcnRpc2UgRl9NUSBhbmQvb3IgRl9DVFJMX1ZRIGFjcm9zcwo+Pj4+IHZhcmlvdXMgcGhhc2Vz
-LCBlLmcuCj4+Pj4+PiBmaXJtd2FyZSAoVUVGSSksIGJvb3QgbG9hZGVyIChncnViKSB0aWxsIE9T
-IGRyaXZlciBpcyB1cCBhbmQgcnVubmluZywKPj4+Pj4+IHdoaWNoIGNhbiBiZSBhZ25vc3RpYyB0
-byBob3N0IGFkbWluLiBGb3IgbW9zdCBvZiB0aGUgcGFydCBpdCdzIG5vdAo+Pj4+Pj4gZWFzeSB0
-byBzY3JpcHQgYW5kIHByZWRpY3QgdGhlIHF1ZXVlIGluZGV4IHdoaWNoIGNhbiBjaGFuZ2UgZnJv
-bSB0aW1lCj4+Pj4+PiB0byB0aW1lLiBDYW4gd2UgZGVmaW5lIHRoZSBvcmRlciBvZiBob3N0IHBy
-ZWRpY3RhYmxlIHF1ZXVlIGluZGV4LAo+Pj4+Pj4gd2hpY2ggaXMgaW5kZXBlbmRlbnQgZnJvbSBh
-bnkgZ3Vlc3QgbmVnb3RpYXRlZCBzdGF0ZT8KPj4+PiBIZXJlIEkgdGhpbmsgd2UgY2FuIGp1c3Qg
-dXNlIHRoZSBwbGFpbiBxdWV1ZSBpbmRleCBpbiB0aGUgaG9zdCB2aWV3IC0gc2F5IGlmIHZkcGEK
-Pj4+PiBuZXQgaGFzIDQgcGFpcnMgb2YgZGF0YSB2cXMgYW5kIDEgY29udHJvbCB2cSwgdXNlciBt
-YXkgdXNlIHFpbmRleCA4IGFjcm9zcyB0aGUKPj4+PiBib2FyZCB0byBpZGVudGlmeSB0aGUgY29u
-dHJvbCB2cSwgcmVnYXJkbGVzcyBpZiB0aGUgRl9NUSBmZWF0dXJlIGlzIG5lZ290aWF0ZWQKPj4+
-PiBvciBub3QgaW4gZ3Vlc3QuCj4+PiBSaWdodCwgYnV0IHRoZSBpZGVhIHRoYXQgYSB1c2Vyc3Bh
-Y2UgdG9vbCBzaG91bGQgcHJvdmlkZSB1c2VmdWwgaW5mb3JtYXRpb24gdG8gdGhlCj4+PiB1c2Vy
-IHNvIGl0IGRvZXMgbm90IG5lZWQgdG8gZG8gY29tcGxleCBsb2dpYyB0byBpbmZlciB0aGF0IGZy
-b20gYmFyZSBkYXRhLgo+PiBUaGUgaG9zdCBzaWRlIHFpbmRleCBhbmQgcXR5cGUgd291bGQgbmV2
-ZXIgY2hhbmdlIHJlZ2FyZGxlc3Mgb2YgZ3Vlc3QKPj4gZmVhdHVyZSBuZWdvdGlhdGlvbiwgYnkg
-bmF0dXJlIGl0IHJlZmxlY3RzIHRoZSByZWFsIGNvbnN0cnVjdCBhbmQgb2JqZWN0Cj4+IGluIHRo
-ZSBoYXJkd2FyZS4gSSBkb24ndCBmZWVsIGl0J3MgYSBzaW1wbGUgdGFzayBmb3IgaG9zdCB1c2Vy
-cyB0bwo+PiBmaWd1cmUgb3V0IHRoZSBjb3JyZWN0IGd1ZXN0IHNpZGUgcWluZGV4IGZvciB0aGUg
-Y29udHJvbCBxdWV1ZSAtwqAgaXQncwo+PiBhbHdheXMgcmFjeSBmb3Igb25lIHRvIGNoZWNrIHNv
-bWUgb3RoZXIgdmRwYSBjb21tYW5kIG91dHB1dCBpZiB0aGUgdnN0YXQKPj4gb3V0cHV0IGlzIG5v
-dCBzZWxmLWNvbnRhaW5lZC4KPiBTbyB3aGF0IGFyZSB5b3UgYWN0dWFsbHkgcHJvcG9zaW5nPyBE
-aXNwbGF5IHJlY2VpdmVkIGFuZCBjb21wbGV0ZWQgZGVzY3JpcHRvcnMKPiBwZXIgcXVldWUgaW5k
-ZXggd2l0aG91dCBmdXJ0aGVyIGludGVycHJldGF0aW9uPwoKSSdkIHN1Z2dlc3QgdXNpbmcgYSBt
-b3JlIHN0YWJsZSBxdWV1ZSBpZCBpLmUuIHRoZSBob3N0IHF1ZXVlIGluZGV4IHRvIApyZXByZXNl
-bnQgdGhlIHFpZHggKHdoaWNoIHNlZW1zIHRvIGJlIHdoYXQgeW91J3JlIGRvaW5nIG5vdz8pLCBh
-bmQgCmRpc3BsYXlpbmcgYm90aCB0aGUgaG9zdCBxaW5kZXggKHF1ZXVlX2luZGV4X2RldmljZSBp
-biB0aGUgZXhhbXBsZSAKYmVsb3cpLCBhcyB3ZWxsIGFzIHRoZSBndWVzdCdzIChxdWV1ZV9pbmRl
-eF9kcml2ZXIgYXMgYmVsb3cpIGluIHRoZSBvdXRwdXQ6CgokIHZkcGEgLWpwIGRldiB2c3RhdHMg
-c2hvdyB2ZHBhLWEgcWlkeCA4CnsKIMKgwqDCoCAidnN0YXRzIjogewogwqDCoMKgwqDCoMKgwqAg
-InZkcGEtYSI6IHsKIMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgInF1ZXVlX3N0YXRzIjogW3sKIMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCAicXVldWVfaW5kZXhfZGV2aWNlIjogOCwKIMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCAicXVldWVfaW5kZXhfZHJpdmVyIjogMiwKIMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCAicXVldWVfdHlwZSI6ICJjb250cm9sX3ZxIiwK
-IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCAic3RhdF9uYW1lIjogWyAicmVjZWl2ZWRf
-ZGVzYyIsImNvbXBsZXRlZF9kZXNjIiBdLAogwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-ICJzdGF0X3ZhbHVlIjogWyA0MTc3NzYsNDE3Nzc1IF0sCiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-IH1dCiDCoMKgwqDCoMKgwqDCoCB9CiDCoMKgwqAgfQp9CgpPcHRpb25hbGx5LCB1c2VyIG1heSB1
-c2UgZ3Vlc3QgcXVldWUgaW5kZXggZ3FpZHgsIHdoaWNoIGlzIGtpbmQgb2YgYW4gCmVwaGVtZXJh
-bCBJRCBhbmQgRl9NUSBuZWdvdGlhdGlvbiBkZXBlbmRlZCwgdG8gcXVlcnkgdGhlIHN0YXQgb24g
-YSAKc3BlY2lmaWMgZ3Vlc3QgcXVldWU6CgokIHZkcGEgLWpwIGRldiB2c3RhdHMgc2hvdyB2ZHBh
-LWEgZ3FpZHggMgp7CiDCoMKgwqAgInZzdGF0cyI6IHsKIMKgwqDCoMKgwqDCoMKgICJ2ZHBhLWEi
-OiB7CiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgICJxdWV1ZV9zdGF0cyI6IFt7CiDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqAgInF1ZXVlX2luZGV4X2RldmljZSI6IDgsCiDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqAgInF1ZXVlX2luZGV4X2RyaXZlciI6IDIsCiDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqAgInF1ZXVlX3R5cGUiOiAiY29udHJvbF92cSIsCiDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgInN0YXRfbmFtZSI6IFsgInJlY2VpdmVkX2Rlc2MiLCJj
-b21wbGV0ZWRfZGVzYyIgXSwKIMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCAic3RhdF92
-YWx1ZSI6IFsgNDE3Nzc2LDQxNzc3NSBdLAogwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB9XQogwqDC
-oMKgwqDCoMKgwqAgfQogwqDCoMKgIH0KfQoKVGhhbmtzLAotU2l3ZWkKCj4KPj4gVGhhbmtzLAo+
-PiAtU2l3ZWkKPj4KPj4+PiBSZWdhcmRzLAo+Pj4+IC1TaXdlaQo+Pj4+Cj4+Pj4+Pj4+IExvb2tz
-IHRvIG1lIHRoZXJlIGFyZSBzdGlsbCBzb21lIGxvb3NlIGVuZCBJIGRvbid0IHF1aXRlIHlldAo+
-Pj4+Pj4+PiB1bmRlcnN0YW5kLgo+Pj4+Pj4+Pgo+Pj4+Pj4+Pgo+Pj4+Pj4+Pj4+PiAgICAgICAg
-ICAgICAgICAgICAicXVldWVfaW5kZXgiOiAwLAo+Pj4+Pj4+IEkgdGhpbmsgdGhpcyBjYW4gYmUg
-cmVtb3ZlZCBzaW5jZSB0aGUgY29tbWFuZCBpcyBmb3IgYSBzcGVjaWZpYyBpbmRleC4KPj4+Pj4+
-Pgo+Pj4+Pj4+Pj4+PiAgICAgICAgICAgICAgICAgICAibmFtZSI6ICJyZWNlaXZlZF9kZXNjIiwK
-Pj4+Pj4+Pj4+Pj4gICAgICAgICAgICAgICAgICAgInZhbHVlIjogNDE3Nzc2LAo+Pj4+Pj4+Pj4+
-PiAgICAgICAgICAgICAgICAgICAibmFtZSI6ICJjb21wbGV0ZWRfZGVzYyIsCj4+Pj4+Pj4+Pj4+
-ICAgICAgICAgICAgICAgICAgICJ2YWx1ZSI6IDQxNzU0OAo+Pj4+Pj4+Pj4+IE5vdCBmb3IgdGhp
-cyBrZXJuZWwgcGF0Y2gsIGJ1dCBJTUhPIGl0J3MgdGhlIGJlc3QgdG8gcHV0IHRoZSBuYW1lCj4+
-Pj4+Pj4+Pj4gJiB2YWx1ZSBwYWlycyBpbiBhbiBhcnJheSBpbnN0ZWFkIG9mIGZsYXQgZW50cmll
-cyBpbiBqc29uJ3MKPj4+Pj4+Pj4+PiBoYXNoL2RpY3Rpb25hcnkuIFRoZSBoYXNoIGVudHJpZXMg
-Y2FuIGJlIHJlLW9yZGVyZWQgZGVsaWJlcmF0ZWx5Cj4+Pj4+Pj4+Pj4gYnkgZXh0ZXJuYWwganNv
-biBwYXJzaW5nIHRvb2wsIGVuZGluZyB1cCB3aXRoIGluY29uc2lzdGVudCBzdGF0IHZhbHVlcy4K
-Pj4+Pj4+Pj4gVGhpcyBjb21tZW50IGlzIG1pc3NlZCBmb3Igc29tZSByZWFzb24uIFBsZWFzZSBj
-aGFuZ2UgdGhlIGV4YW1wbGUKPj4+Pj4+Pj4gaW4gdGhlIGxvZyBpZiB5b3UgYWdyZWUgdG8gYWRk
-cmVzcyBpdCBpbiB2ZHBhIHRvb2wuIE9yIGp1c3RpZnkgd2h5Cj4+Pj4+Pj4+IGtlZXBpbmcgdGhl
-IG9yZGVyIGZvciBqc29uIGhhc2gvZGljdGlvbmFyeSBpcyBmaW5lLgo+Pj4+Pj4+IFNvcnJ5IGZv
-ciBza2lwcGluZyB0aGlzIGNvbW1lbnQuCj4+Pj4+Pj4gRG8geW91IG1lYW4gdG8gcHJlc2VudCB0
-aGUgaW5mb3JtYXRpb24gbGlrZToKPj4+Pj4+PiAicmVjZWl2ZWRfZGVzYyI6IDQxNzc3NiwKPj4+
-Pj4+PiAiY29tcGxldGVkX2Rlc2MiOiA0MTc1NDgsCj4+Pj4+PiBJIG1lYW4gdGhlIGZvbGxvd2lu
-ZyBwcmVzZW50YXRpb246Cj4+Pj4+Pgo+Pj4+Pj4gJCB2ZHBhIC1qcCBkZXYgdnN0YXRzIHNob3cg
-dmRwYS1hIHFpZHggMCB7Cj4+Pj4+PiAgICAgICAgICJ2c3RhdHMiOiB7Cj4+Pj4+PiAgICAgICAg
-ICAgICAidmRwYS1hIjogewo+Pj4+Pj4gICAgICAgICAgICAgICAgICJxdWV1ZV9zdGF0cyI6IFt7
-Cj4+Pj4+PiAgICAgICAgICAgICAgICAgICAgICJxdWV1ZV9pbmRleCI6IDAsCj4+Pj4+PiAgICAg
-ICAgICAgICAgICAgICAgICJxdWV1ZV90eXBlIjogInJ4IiwKPj4+Pj4+ICAgICAgICAgICAgICAg
-ICAgICAgInN0YXRfbmFtZSI6IFsgInJlY2VpdmVkX2Rlc2MiLCJjb21wbGV0ZWRfZGVzYyIgXSwK
-Pj4+Pj4+ICAgICAgICAgICAgICAgICAgICAgInN0YXRfdmFsdWUiOiBbIDQxNzc3Niw0MTc1NDgg
-XSwKPj4+Pj4+ICAgICAgICAgICAgICAgICB9XQo+Pj4+Pj4gICAgICAgICAgICAgfQo+Pj4+Pj4g
-ICAgICAgICB9Cj4+Pj4+PiB9Cj4+Pj4+Pgo+Pj4+Pj4gSSB0aGluayBQYXJhdiBoYWQgc2ltaWxh
-ciBzdWdnZXN0aW9uLCB0b28uCj4+Pj4+Pgo+Pj4+Pj4gVGhhbmtzLAo+Pj4+Pj4gLVNpd2VpCj4+
-Pj4+Pgo+Pj4+Pj4+PiBUaGFua3MsCj4+Pj4+Pj4+IC1TaXdlaQo+Pj4+Pj4+Pgo+Pj4+Pj4+Pj4+
-IFRoYW5rcywKPj4+Pj4+Pj4+PiAtU2l3ZWkKPj4+Pj4+Pj4+Pj4gICAgICAgICAgICAgICB9Cj4+
-Pj4+Pj4+Pj4+ICAgICAgICAgICB9Cj4+Pj4+Pj4+Pj4+IH0KPj4+Pj4+Pj4+Pj4KPj4+Pj4+Pj4+
-Pj4gU2lnbmVkLW9mZi1ieTogRWxpIENvaGVuIDxlbGljQG52aWRpYS5jb20+Cj4+Pj4+Pj4+Pj4+
-IC0tLQo+Pj4+Pj4+Pj4+PiAgICAgICAgZHJpdmVycy92ZHBhL3ZkcGEuYyAgICAgICB8IDEyOQo+
-Pj4+Pj4+PiArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKwo+Pj4+Pj4+Pj4+
-PiAgICAgICAgaW5jbHVkZS9saW51eC92ZHBhLmggICAgICB8ICAgNSArKwo+Pj4+Pj4+Pj4+PiAg
-ICAgICAgaW5jbHVkZS91YXBpL2xpbnV4L3ZkcGEuaCB8ICAgNyArKysKPj4+Pj4+Pj4+Pj4gICAg
-ICAgIDMgZmlsZXMgY2hhbmdlZCwgMTQxIGluc2VydGlvbnMoKykKPj4+Pj4+Pj4+Pj4KPj4+Pj4+
-Pj4+Pj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmRwYS92ZHBhLmMgYi9kcml2ZXJzL3ZkcGEvdmRw
-YS5jIGluZGV4Cj4+Pj4+Pj4+Pj4+IDk4NDZjOWRlNGJmYS4uZDBmZjY3MWJhZjg4IDEwMDY0NAo+
-Pj4+Pj4+Pj4+PiAtLS0gYS9kcml2ZXJzL3ZkcGEvdmRwYS5jCj4+Pj4+Pj4+Pj4+ICsrKyBiL2Ry
-aXZlcnMvdmRwYS92ZHBhLmMKPj4+Pj4+Pj4+Pj4gQEAgLTkwOSw2ICs5MDksNzQgQEAgdmRwYV9k
-ZXZfY29uZmlnX2ZpbGwoc3RydWN0IHZkcGFfZGV2aWNlCj4+Pj4+Pj4+Pj4+ICp2ZGV2LAo+Pj4+
-Pj4+PiBzdHJ1Y3Qgc2tfYnVmZiAqbXNnLCB1MzIgcG9ydGlkLAo+Pj4+Pj4+Pj4+PiAgICAgICAg
-CXJldHVybiBlcnI7Cj4+Pj4+Pj4+Pj4+ICAgICAgICB9Cj4+Pj4+Pj4+Pj4+ICtzdGF0aWMgaW50
-IHZkcGFfZmlsbF9zdGF0c19yZWMoc3RydWN0IHZkcGFfZGV2aWNlICp2ZGV2LCBzdHJ1Y3QKPj4+
-Pj4+Pj4+Pj4gK3NrX2J1ZmYKPj4+Pj4+Pj4gKm1zZywKPj4+Pj4+Pj4+Pj4gKwkJCSAgICAgICBz
-dHJ1Y3QgZ2VubF9pbmZvICppbmZvLCB1MzIgaW5kZXgpIHsKPj4+Pj4+Pj4+Pj4gKwlpbnQgZXJy
-Owo+Pj4+Pj4+Pj4+PiArCj4+Pj4+Pj4+Pj4+ICsJaWYgKG5sYV9wdXRfdTMyKG1zZywgVkRQQV9B
-VFRSX0RFVl9RVUVVRV9JTkRFWCwgaW5kZXgpKQo+Pj4+Pj4+Pj4+PiArCQlyZXR1cm4gLUVNU0dT
-SVpFOwo+Pj4+Pj4+Pj4+PiArCj4+Pj4+Pj4+Pj4+ICsJZXJyID0gdmRldi0+Y29uZmlnLT5nZXRf
-dmVuZG9yX3ZxX3N0YXRzKHZkZXYsIGluZGV4LCBtc2csCj4+Pj4+Pj4+Pj4+ICtpbmZvLQo+Pj4+
-Pj4+Pj4gZXh0YWNrKTsKPj4+Pj4+Pj4+Pj4gKwlpZiAoZXJyKQo+Pj4+Pj4+Pj4+PiArCQlyZXR1
-cm4gZXJyOwo+Pj4+Pj4+Pj4+PiArCj4+Pj4+Pj4+Pj4+ICsJcmV0dXJuIDA7Cj4+Pj4+Pj4+Pj4+
-ICt9Cj4+Pj4+Pj4+Pj4+ICsKPj4+Pj4+Pj4+Pj4gK3N0YXRpYyBpbnQgdmVuZG9yX3N0YXRzX2Zp
-bGwoc3RydWN0IHZkcGFfZGV2aWNlICp2ZGV2LCBzdHJ1Y3QKPj4+Pj4+Pj4+Pj4gK3NrX2J1ZmYK
-Pj4+Pj4+ICptc2csCj4+Pj4+Pj4+Pj4+ICsJCQkgICAgIHN0cnVjdCBnZW5sX2luZm8gKmluZm8s
-IHUzMiBpbmRleCkgewo+Pj4+Pj4+Pj4+PiArCWludCBlcnI7Cj4+Pj4+Pj4+Pj4+ICsKPj4+Pj4+
-Pj4+Pj4gKwlpZiAoIXZkZXYtPmNvbmZpZy0+Z2V0X3ZlbmRvcl92cV9zdGF0cykKPj4+Pj4+Pj4+
-Pj4gKwkJcmV0dXJuIC1FT1BOT1RTVVBQOwo+Pj4+Pj4+Pj4+PiArCj4+Pj4+Pj4+Pj4+ICsJZXJy
-ID0gdmRwYV9maWxsX3N0YXRzX3JlYyh2ZGV2LCBtc2csIGluZm8sIGluZGV4KTsKPj4+Pj4+Pj4+
-Pj4gKwlpZiAoZXJyKQo+Pj4+Pj4+Pj4+PiArCQlyZXR1cm4gZXJyOwo+Pj4+Pj4+Pj4+PiArCj4+
-Pj4+Pj4+Pj4+ICsJcmV0dXJuIDA7Cj4+Pj4+Pj4+Pj4+ICt9Cj4+Pj4+Pj4+Pj4+ICsKPj4+Pj4+
-Pj4+Pj4gK3N0YXRpYyBpbnQgdmRwYV9kZXZfdmVuZG9yX3N0YXRzX2ZpbGwoc3RydWN0IHZkcGFf
-ZGV2aWNlICp2ZGV2LAo+Pj4+Pj4+Pj4+PiArCQkJCSAgICAgIHN0cnVjdCBza19idWZmICptc2cs
-Cj4+Pj4+Pj4+Pj4+ICsJCQkJICAgICAgc3RydWN0IGdlbmxfaW5mbyAqaW5mbywgdTMyIGluZGV4
-KSB7Cj4+Pj4+Pj4+Pj4+ICsJdTMyIGRldmljZV9pZDsKPj4+Pj4+Pj4+Pj4gKwl2b2lkICpoZHI7
-Cj4+Pj4+Pj4+Pj4+ICsJaW50IGVycjsKPj4+Pj4+Pj4+Pj4gKwl1MzIgcG9ydGlkID0gaW5mby0+
-c25kX3BvcnRpZDsKPj4+Pj4+Pj4+Pj4gKwl1MzIgc2VxID0gaW5mby0+c25kX3NlcTsKPj4+Pj4+
-Pj4+Pj4gKwl1MzIgZmxhZ3MgPSAwOwo+Pj4+Pj4+Pj4+PiArCj4+Pj4+Pj4+Pj4+ICsJaGRyID0g
-Z2VubG1zZ19wdXQobXNnLCBwb3J0aWQsIHNlcSwgJnZkcGFfbmxfZmFtaWx5LCBmbGFncywKPj4+
-Pj4+Pj4+Pj4gKwkJCSAgVkRQQV9DTURfREVWX1ZTVEFUU19HRVQpOwo+Pj4+Pj4+Pj4+PiArCWlm
-ICghaGRyKQo+Pj4+Pj4+Pj4+PiArCQlyZXR1cm4gLUVNU0dTSVpFOwo+Pj4+Pj4+Pj4+PiArCj4+
-Pj4+Pj4+Pj4+ICsJaWYgKG5sYV9wdXRfc3RyaW5nKG1zZywgVkRQQV9BVFRSX0RFVl9OQU1FLAo+
-Pj4+IGRldl9uYW1lKCZ2ZGV2LQo+Pj4+Pj4+Pj4gZGV2KSkpIHsKPj4+Pj4+Pj4+Pj4gKwkJZXJy
-ID0gLUVNU0dTSVpFOwo+Pj4+Pj4+Pj4+PiArCQlnb3RvIHVuZG9fbXNnOwo+Pj4+Pj4+Pj4+PiAr
-CX0KPj4+Pj4+Pj4+Pj4gKwo+Pj4+Pj4+Pj4+PiArCWRldmljZV9pZCA9IHZkZXYtPmNvbmZpZy0+
-Z2V0X2RldmljZV9pZCh2ZGV2KTsKPj4+Pj4+Pj4+Pj4gKwlpZiAobmxhX3B1dF91MzIobXNnLCBW
-RFBBX0FUVFJfREVWX0lELCBkZXZpY2VfaWQpKSB7Cj4+Pj4+Pj4+Pj4+ICsJCWVyciA9IC1FTVNH
-U0laRTsKPj4+Pj4+Pj4+Pj4gKwkJZ290byB1bmRvX21zZzsKPj4+Pj4+Pj4+Pj4gKwl9Cj4+Pj4+
-Pj4+Pj4+ICsKPj4+Pj4+Pj4+Pj4gKwllcnIgPSB2ZW5kb3Jfc3RhdHNfZmlsbCh2ZGV2LCBtc2cs
-IGluZm8sIGluZGV4KTsKPj4+Pj4+Pj4+Pj4gKwo+Pj4+Pj4+Pj4+PiArCWdlbmxtc2dfZW5kKG1z
-ZywgaGRyKTsKPj4+Pj4+Pj4+Pj4gKwo+Pj4+Pj4+Pj4+PiArCXJldHVybiBlcnI7Cj4+Pj4+Pj4+
-Pj4+ICsKPj4+Pj4+Pj4+Pj4gK3VuZG9fbXNnOgo+Pj4+Pj4+Pj4+PiArCWdlbmxtc2dfY2FuY2Vs
-KG1zZywgaGRyKTsKPj4+Pj4+Pj4+Pj4gKwlyZXR1cm4gZXJyOwo+Pj4+Pj4+Pj4+PiArfQo+Pj4+
-Pj4+Pj4+PiArCj4+Pj4+Pj4+Pj4+ICAgICAgICBzdGF0aWMgaW50IHZkcGFfbmxfY21kX2Rldl9j
-b25maWdfZ2V0X2RvaXQoc3RydWN0IHNrX2J1ZmYKPj4+Pj4+Pj4+Pj4gKnNrYiwgc3RydWN0Cj4+
-Pj4+Pj4+IGdlbmxfaW5mbyAqaW5mbykKPj4+Pj4+Pj4+Pj4gICAgICAgIHsKPj4+Pj4+Pj4+Pj4g
-ICAgICAgIAlzdHJ1Y3QgdmRwYV9kZXZpY2UgKnZkZXY7Cj4+Pj4+Pj4+Pj4+IEBAIC05OTAsNiAr
-MTA1OCw2MCBAQAo+Pj4+IHZkcGFfbmxfY21kX2Rldl9jb25maWdfZ2V0X2R1bXBpdChzdHJ1Y3QK
-Pj4+Pj4+Pj4gc2tfYnVmZiAqbXNnLCBzdHJ1Y3QgbmV0bGlua19jYWxsYmFjayAqCj4+Pj4+Pj4+
-Pj4+ICAgICAgICAJcmV0dXJuIG1zZy0+bGVuOwo+Pj4+Pj4+Pj4+PiAgICAgICAgfQo+Pj4+Pj4+
-Pj4+PiArc3RhdGljIGludCB2ZHBhX25sX2NtZF9kZXZfc3RhdHNfZ2V0X2RvaXQoc3RydWN0IHNr
-X2J1ZmYgKnNrYiwKPj4+Pj4+Pj4+Pj4gKwkJCQkJICBzdHJ1Y3QgZ2VubF9pbmZvICppbmZvKQo+
-Pj4+Pj4+Pj4+PiArewo+Pj4+Pj4+Pj4+PiArCXN0cnVjdCB2ZHBhX2RldmljZSAqdmRldjsKPj4+
-Pj4+Pj4+Pj4gKwlzdHJ1Y3Qgc2tfYnVmZiAqbXNnOwo+Pj4+Pj4+Pj4+PiArCWNvbnN0IGNoYXIg
-KmRldm5hbWU7Cj4+Pj4+Pj4+Pj4+ICsJc3RydWN0IGRldmljZSAqZGV2Owo+Pj4+Pj4+Pj4+PiAr
-CXUzMiBpbmRleDsKPj4+Pj4+Pj4+Pj4gKwlpbnQgZXJyOwo+Pj4+Pj4+Pj4+PiArCj4+Pj4+Pj4+
-Pj4+ICsJaWYgKCFpbmZvLT5hdHRyc1tWRFBBX0FUVFJfREVWX05BTUVdKQo+Pj4+Pj4+Pj4+PiAr
-CQlyZXR1cm4gLUVJTlZBTDsKPj4+Pj4+Pj4+Pj4gKwo+Pj4+Pj4+Pj4+PiArCWlmICghaW5mby0+
-YXR0cnNbVkRQQV9BVFRSX0RFVl9RVUVVRV9JTkRFWF0pCj4+Pj4+Pj4+Pj4+ICsJCXJldHVybiAt
-RUlOVkFMOwo+Pj4+Pj4+Pj4+PiArCj4+Pj4+Pj4+Pj4+ICsJZGV2bmFtZSA9IG5sYV9kYXRhKGlu
-Zm8tPmF0dHJzW1ZEUEFfQVRUUl9ERVZfTkFNRV0pOwo+Pj4+Pj4+Pj4+PiArCW1zZyA9IG5sbXNn
-X25ldyhOTE1TR19ERUZBVUxUX1NJWkUsIEdGUF9LRVJORUwpOwo+Pj4+Pj4+Pj4+PiArCWlmICgh
-bXNnKQo+Pj4+Pj4+Pj4+PiArCQlyZXR1cm4gLUVOT01FTTsKPj4+Pj4+Pj4+Pj4gKwo+Pj4+Pj4+
-Pj4+PiArCWluZGV4ID0gbmxhX2dldF91MzIoaW5mby0KPj4+Pj4gYXR0cnNbVkRQQV9BVFRSX0RF
-Vl9RVUVVRV9JTkRFWF0pOwo+Pj4+Pj4+Pj4+PiArCW11dGV4X2xvY2soJnZkcGFfZGV2X211dGV4
-KTsKPj4+Pj4+Pj4+Pj4gKwlkZXYgPSBidXNfZmluZF9kZXZpY2UoJnZkcGFfYnVzLCBOVUxMLCBk
-ZXZuYW1lLAo+Pj4+Pj4+PiB2ZHBhX25hbWVfbWF0Y2gpOwo+Pj4+Pj4+Pj4+PiArCWlmICghZGV2
-KSB7Cj4+Pj4+Pj4+Pj4+ICsJCU5MX1NFVF9FUlJfTVNHX01PRChpbmZvLT5leHRhY2ssICJkZXZp
-Y2Ugbm90Cj4+Pj4gZm91bmQiKTsKPj4+Pj4+Pj4+Pj4gKwkJZXJyID0gLUVOT0RFVjsKPj4+Pj4+
-Pj4+Pj4gKwkJZ290byBkZXZfZXJyOwo+Pj4+Pj4+Pj4+PiArCX0KPj4+Pj4+Pj4+Pj4gKwl2ZGV2
-ID0gY29udGFpbmVyX29mKGRldiwgc3RydWN0IHZkcGFfZGV2aWNlLCBkZXYpOwo+Pj4+Pj4+Pj4+
-PiArCWlmICghdmRldi0+bWRldikgewo+Pj4+Pj4+Pj4+PiArCQlOTF9TRVRfRVJSX01TR19NT0Qo
-aW5mby0+ZXh0YWNrLCAidW5tYW5hZ2VkCj4+Pj4gdmRwYQo+Pj4+Pj4+PiBkZXZpY2UiKTsKPj4+
-Pj4+Pj4+Pj4gKwkJZXJyID0gLUVJTlZBTDsKPj4+Pj4+Pj4+Pj4gKwkJZ290byBtZGV2X2VycjsK
-Pj4+Pj4+Pj4+Pj4gKwl9Cj4+Pj4+Pj4+Pj4+ICsJZXJyID0gdmRwYV9kZXZfdmVuZG9yX3N0YXRz
-X2ZpbGwodmRldiwgbXNnLCBpbmZvLCBpbmRleCk7Cj4+Pj4+Pj4+Pj4+ICsJaWYgKCFlcnIpCj4+
-Pj4+Pj4+Pj4+ICsJCWVyciA9IGdlbmxtc2dfcmVwbHkobXNnLCBpbmZvKTsKPj4+Pj4+Pj4+Pj4g
-Kwo+Pj4+Pj4+Pj4+PiArCXB1dF9kZXZpY2UoZGV2KTsKPj4+Pj4+Pj4+Pj4gKwltdXRleF91bmxv
-Y2soJnZkcGFfZGV2X211dGV4KTsKPj4+Pj4+Pj4+Pj4gKwo+Pj4+Pj4+Pj4+PiArCWlmIChlcnIp
-Cj4+Pj4+Pj4+Pj4+ICsJCW5sbXNnX2ZyZWUobXNnKTsKPj4+Pj4+Pj4+Pj4gKwo+Pj4+Pj4+Pj4+
-PiArCXJldHVybiBlcnI7Cj4+Pj4+Pj4+Pj4+ICsKPj4+Pj4+Pj4+Pj4gK21kZXZfZXJyOgo+Pj4+
-Pj4+Pj4+PiArCXB1dF9kZXZpY2UoZGV2KTsKPj4+Pj4+Pj4+Pj4gK2Rldl9lcnI6Cj4+Pj4+Pj4+
-Pj4+ICsJbXV0ZXhfdW5sb2NrKCZ2ZHBhX2Rldl9tdXRleCk7Cj4+Pj4+Pj4+Pj4+ICsJcmV0dXJu
-IGVycjsKPj4+Pj4+Pj4+Pj4gK30KPj4+Pj4+Pj4+Pj4gKwo+Pj4+Pj4+Pj4+PiAgICAgICAgc3Rh
-dGljIGNvbnN0IHN0cnVjdCBubGFfcG9saWN5IHZkcGFfbmxfcG9saWN5W1ZEUEFfQVRUUl9NQVgg
-KyAxXQo+Pj4+ID0gewo+Pj4+Pj4+Pj4+PiAgICAgICAgCVtWRFBBX0FUVFJfTUdNVERFVl9CVVNf
-TkFNRV0gPSB7IC50eXBlID0KPj4+Pj4+IE5MQV9OVUxfU1RSSU5HIH0sCj4+Pj4+Pj4+Pj4+ICAg
-ICAgICAJW1ZEUEFfQVRUUl9NR01UREVWX0RFVl9OQU1FXSA9IHsgLnR5cGUgPSBOTEFfU1RSSU5H
-Cj4+Pj4+PiB9LCBAQCAtCj4+Pj4+Pj4+IDk5Nyw2Cj4+Pj4+Pj4+Pj4+ICsxMTE5LDcgQEAgc3Rh
-dGljIGNvbnN0IHN0cnVjdCBubGFfcG9saWN5Cj4+Pj4+Pj4+IHZkcGFfbmxfcG9saWN5W1ZEUEFf
-QVRUUl9NQVggKyAxXSA9IHsKPj4+Pj4+Pj4+Pj4gICAgICAgIAlbVkRQQV9BVFRSX0RFVl9ORVRf
-Q0ZHX01BQ0FERFJdID0KPj4+Pj4+IE5MQV9QT0xJQ1lfRVRIX0FERFIsCj4+Pj4+Pj4+Pj4+ICAg
-ICAgICAJLyogdmlydGlvIHNwZWMgMS4xIHNlY3Rpb24gNS4xLjQuMSBmb3IgdmFsaWQgTVRVIHJh
-bmdlICovCj4+Pj4+Pj4+Pj4+ICAgICAgICAJW1ZEUEFfQVRUUl9ERVZfTkVUX0NGR19NVFVdID0K
-Pj4+Pj4+IE5MQV9QT0xJQ1lfTUlOKE5MQV9VMTYsIDY4KSwKPj4+Pj4+Pj4+Pj4gKwlbVkRQQV9B
-VFRSX0RFVl9RVUVVRV9JTkRFWF0gPQo+Pj4+IE5MQV9QT0xJQ1lfUkFOR0UoTkxBX1UzMiwgMCwK
-Pj4+Pj4+Pj4gNjU1MzUpLAo+Pj4+Pj4+Pj4+PiAgICAgICAgfTsKPj4+Pj4+Pj4+Pj4gICAgICAg
-IHN0YXRpYyBjb25zdCBzdHJ1Y3QgZ2VubF9vcHMgdmRwYV9ubF9vcHNbXSA9IHsgQEAgLTEwMzAs
-Ngo+Pj4+Pj4+Pj4+PiArMTE1MywxMiBAQCBzdGF0aWMgY29uc3Qgc3RydWN0IGdlbmxfb3BzIHZk
-cGFfbmxfb3BzW10gPSB7Cj4+Pj4+Pj4+Pj4+ICAgICAgICAJCS5kb2l0ID0gdmRwYV9ubF9jbWRf
-ZGV2X2NvbmZpZ19nZXRfZG9pdCwKPj4+Pj4+Pj4+Pj4gICAgICAgIAkJLmR1bXBpdCA9IHZkcGFf
-bmxfY21kX2Rldl9jb25maWdfZ2V0X2R1bXBpdCwKPj4+Pj4+Pj4+Pj4gICAgICAgIAl9LAo+Pj4+
-Pj4+Pj4+PiArCXsKPj4+Pj4+Pj4+Pj4gKwkJLmNtZCA9IFZEUEFfQ01EX0RFVl9WU1RBVFNfR0VU
-LAo+Pj4+Pj4+Pj4+PiArCQkudmFsaWRhdGUgPSBHRU5MX0RPTlRfVkFMSURBVEVfU1RSSUNUIHwK
-Pj4+Pj4+Pj4gR0VOTF9ET05UX1ZBTElEQVRFX0RVTVAsCj4+Pj4+Pj4+Pj4+ICsJCS5kb2l0ID0g
-dmRwYV9ubF9jbWRfZGV2X3N0YXRzX2dldF9kb2l0LAo+Pj4+Pj4+Pj4+PiArCQkuZmxhZ3MgPSBH
-RU5MX0FETUlOX1BFUk0sCj4+Pj4+Pj4+Pj4+ICsJfSwKPj4+Pj4+Pj4+Pj4gICAgICAgIH07Cj4+
-Pj4+Pj4+Pj4+ICAgICAgICBzdGF0aWMgc3RydWN0IGdlbmxfZmFtaWx5IHZkcGFfbmxfZmFtaWx5
-IF9fcm9fYWZ0ZXJfaW5pdCA9Cj4+Pj4+Pj4+Pj4+IHsgZGlmZiAtLWdpdCBhL2luY2x1ZGUvbGlu
-dXgvdmRwYS5oIGIvaW5jbHVkZS9saW51eC92ZHBhLmggaW5kZXgKPj4+Pj4+Pj4+Pj4gMmRlNDQy
-ZWNlY2FlLi4yNzQyMDM4NDVjZmMgMTAwNjQ0Cj4+Pj4+Pj4+Pj4+IC0tLSBhL2luY2x1ZGUvbGlu
-dXgvdmRwYS5oCj4+Pj4+Pj4+Pj4+ICsrKyBiL2luY2x1ZGUvbGludXgvdmRwYS5oCj4+Pj4+Pj4+
-Pj4+IEBAIC0yNzUsNiArMjc1LDkgQEAgc3RydWN0IHZkcGFfY29uZmlnX29wcyB7Cj4+Pj4+Pj4+
-Pj4+ICAgICAgICAJCQkgICAgY29uc3Qgc3RydWN0IHZkcGFfdnFfc3RhdGUgKnN0YXRlKTsKPj4+
-Pj4+Pj4+Pj4gICAgICAgIAlpbnQgKCpnZXRfdnFfc3RhdGUpKHN0cnVjdCB2ZHBhX2RldmljZSAq
-dmRldiwgdTE2IGlkeCwKPj4+Pj4+Pj4+Pj4gICAgICAgIAkJCSAgICBzdHJ1Y3QgdmRwYV92cV9z
-dGF0ZSAqc3RhdGUpOwo+Pj4+Pj4+Pj4+PiArCWludCAoKmdldF92ZW5kb3JfdnFfc3RhdHMpKHN0
-cnVjdCB2ZHBhX2RldmljZSAqdmRldiwgdTE2IGlkeCwKPj4+Pj4+Pj4+Pj4gKwkJCQkgICBzdHJ1
-Y3Qgc2tfYnVmZiAqbXNnLAo+Pj4+Pj4+Pj4+PiArCQkJCSAgIHN0cnVjdCBuZXRsaW5rX2V4dF9h
-Y2sgKmV4dGFjayk7Cj4+Pj4+Pj4+Pj4+ICAgICAgICAJc3RydWN0IHZkcGFfbm90aWZpY2F0aW9u
-X2FyZWEKPj4+Pj4+Pj4+Pj4gICAgICAgIAkoKmdldF92cV9ub3RpZmljYXRpb24pKHN0cnVjdCB2
-ZHBhX2RldmljZSAqdmRldiwgdTE2IGlkeCk7Cj4+Pj4+Pj4+Pj4+ICAgICAgICAJLyogdnEgaXJx
-IGlzIG5vdCBleHBlY3RlZCB0byBiZSBjaGFuZ2VkIG9uY2UgRFJJVkVSX09LIGlzCj4+Pj4+Pj4+
-Pj4+IHNldCAqLyBAQCAtNDY2LDQgKzQ2OSw2IEBAIHN0cnVjdCB2ZHBhX21nbXRfZGV2IHsKPj4+
-Pj4+Pj4+Pj4gICAgICAgIGludCB2ZHBhX21nbXRkZXZfcmVnaXN0ZXIoc3RydWN0IHZkcGFfbWdt
-dF9kZXYgKm1kZXYpOwo+Pj4+Pj4+Pj4+PiAgICAgICAgdm9pZCB2ZHBhX21nbXRkZXZfdW5yZWdp
-c3RlcihzdHJ1Y3QgdmRwYV9tZ210X2RldiAqbWRldik7Cj4+Pj4+Pj4+Pj4+ICsjZGVmaW5lIFZE
-UEFfSU5WQUxfUVVFVUVfSU5ERVggMHhmZmZmCj4+Pj4+Pj4+Pj4+ICsKPj4+Pj4+Pj4+Pj4gICAg
-ICAgICNlbmRpZiAvKiBfTElOVVhfVkRQQV9IICovCj4+Pj4+Pj4+Pj4+IGRpZmYgLS1naXQgYS9p
-bmNsdWRlL3VhcGkvbGludXgvdmRwYS5oCj4+Pj4+Pj4+Pj4+IGIvaW5jbHVkZS91YXBpL2xpbnV4
-L3ZkcGEuaCBpbmRleCAxMDYxZDhkMmQwOWQuLmM1ZjIyOWE0MWRjMgo+Pj4+Pj4+Pj4+PiAxMDA2
-NDQKPj4+Pj4+Pj4+Pj4gLS0tIGEvaW5jbHVkZS91YXBpL2xpbnV4L3ZkcGEuaAo+Pj4+Pj4+Pj4+
-PiArKysgYi9pbmNsdWRlL3VhcGkvbGludXgvdmRwYS5oCj4+Pj4+Pj4+Pj4+IEBAIC0xOCw2ICsx
-OCw3IEBAIGVudW0gdmRwYV9jb21tYW5kIHsKPj4+Pj4+Pj4+Pj4gICAgICAgIAlWRFBBX0NNRF9E
-RVZfREVMLAo+Pj4+Pj4+Pj4+PiAgICAgICAgCVZEUEFfQ01EX0RFVl9HRVQsCQkvKiBjYW4gZHVt
-cCAqLwo+Pj4+Pj4+Pj4+PiAgICAgICAgCVZEUEFfQ01EX0RFVl9DT05GSUdfR0VULAkvKiBjYW4g
-ZHVtcCAqLwo+Pj4+Pj4+Pj4+PiArCVZEUEFfQ01EX0RFVl9WU1RBVFNfR0VULAo+Pj4+Pj4+Pj4+
-PiAgICAgICAgfTsKPj4+Pj4+Pj4+Pj4gICAgICAgIGVudW0gdmRwYV9hdHRyIHsKPj4+Pj4+Pj4+
-Pj4gQEAgLTQ2LDYgKzQ3LDEyIEBAIGVudW0gdmRwYV9hdHRyIHsKPj4+Pj4+Pj4+Pj4gICAgICAg
-IAlWRFBBX0FUVFJfREVWX05FR09USUFURURfRkVBVFVSRVMsCS8qIHU2NCAqLwo+Pj4+Pj4+Pj4+
-PiAgICAgICAgCVZEUEFfQVRUUl9ERVZfTUdNVERFVl9NQVhfVlFTLAkJLyoKPj4+Pj4+IHUzMiAq
-Lwo+Pj4+Pj4+Pj4+PiAgICAgICAgCVZEUEFfQVRUUl9ERVZfU1VQUE9SVEVEX0ZFQVRVUkVTLAkv
-KiB1NjQgKi8KPj4+Pj4+Pj4+Pj4gKwo+Pj4+Pj4+Pj4+PiArCVZEUEFfQVRUUl9ERVZfUVVFVUVf
-SU5ERVgsICAgICAgICAgICAgICAvKiB1MTYgKi8KPj4+Pj4+Pj4+Pj4gKwlWRFBBX0FUVFJfREVW
-X1FVRVVFX1RZUEUsICAgICAgICAgICAgICAgLyogc3RyaW5nICovCj4+Pj4+Pj4+Pj4+ICsJVkRQ
-QV9BVFRSX0RFVl9WRU5ET1JfQVRUUl9OQU1FLAkJLyoKPj4+PiBzdHJpbmcgKi8KPj4+Pj4+Pj4+
-Pj4gKwlWRFBBX0FUVFJfREVWX1ZFTkRPUl9BVFRSX1ZBTFVFLCAgICAgICAgLyogdTY0ICovCj4+
-Pj4+Pj4+Pj4+ICsKPj4+Pj4+Pj4+Pj4gICAgICAgIAkvKiBuZXcgYXR0cmlidXRlcyBtdXN0IGJl
-IGFkZGVkIGFib3ZlIGhlcmUgKi8KPj4+Pj4+Pj4+Pj4gICAgICAgIAlWRFBBX0FUVFJfTUFYLAo+
-Pj4+Pj4+Pj4+PiAgICAgICAgfTsKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBs
-aXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5v
-cmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+--===============5228127016160222074==
+Content-Type: multipart/alternative;
+ boundary="------------WeU8dqHDONOV0cUrvkXA6TxP"
+Content-Language: en-US
+
+--------------WeU8dqHDONOV0cUrvkXA6TxP
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+
+
+
+On 3/13/2022 11:25 PM, Jason Wang wrote:
+>
+>
+> On Sun, Mar 13, 2022 at 11:26 PM Eli Cohen <elic@nvidia.com> wrote:
+>
+>     > On 3/8/2022 9:07 PM, Eli Cohen wrote:
+>     > >
+>     > >> -----Original Message-----
+>     > >> From: Si-Wei Liu <si-wei.liu@oracle.com>
+>     > >> Sent: Wednesday, March 9, 2022 5:33 AM
+>     > >> To: Eli Cohen <elic@nvidia.com>
+>     > >> Cc: mst@redhat.com; jasowang@redhat.com;
+>     virtualization@lists.linux-
+>     > >> foundation.org
+>     <https://urldefense.com/v3/__http://foundation.org__;!!ACWV5N9M2RV99hQ!YPMORFmIws8PtrpKEDUfF-5a3cXRrZiABBLXYHHuLKRi3vHz9Uw2vznSWKi79mpV$>;
+>     eperezma@redhat.com; amorenoz@redhat.com;
+>     > >> lvivier@redhat.com; sgarzare@redhat.com; Parav Pandit
+>     <parav@nvidia.com>
+>     > >> Subject: Re: [PATCH v1 1/2] vdpa: Add support for querying
+>     vendor statistics
+>     > >>
+>     > >>
+>     > >>
+>     > >> On 3/8/2022 6:13 AM, Eli Cohen wrote:
+>     > >>>> -----Original Message-----
+>     > >>>> From: Si-Wei Liu <si-wei.liu@oracle.com>
+>     > >>>> Sent: Tuesday, March 8, 2022 8:16 AM
+>     > >>>> To: Eli Cohen <elic@nvidia.com>
+>     > >>>> Cc: mst@redhat.com; jasowang@redhat.com;
+>     virtualization@lists.linux-
+>     > >>>> foundation.org
+>     <https://urldefense.com/v3/__http://foundation.org__;!!ACWV5N9M2RV99hQ!YPMORFmIws8PtrpKEDUfF-5a3cXRrZiABBLXYHHuLKRi3vHz9Uw2vznSWKi79mpV$>;
+>     eperezma@redhat.com; amorenoz@redhat.com;
+>     > >>>> lvivier@redhat.com; sgarzare@redhat.com; Parav Pandit
+>     > >>>> <parav@nvidia.com>
+>     > >>>> Subject: Re: [PATCH v1 1/2] vdpa: Add support for querying
+>     vendor
+>     > >>>> statistics
+>     > >>>>
+>     > >>>>
+>     > >>>>
+>     > >>>> On 3/6/2022 11:57 PM, Eli Cohen wrote:
+>     > >>>>>> -----Original Message-----
+>     > >>>>>> From: Si-Wei Liu <si-wei.liu@oracle.com>
+>     > >>>>>> Sent: Saturday, March 5, 2022 12:34 AM
+>     > >>>>>> To: Eli Cohen <elic@nvidia.com>
+>     > >>>>>> Cc: mst@redhat.com; jasowang@redhat.com;
+>     > >>>>>> virtualization@lists.linux- foundation.org
+>     <https://urldefense.com/v3/__http://foundation.org__;!!ACWV5N9M2RV99hQ!YPMORFmIws8PtrpKEDUfF-5a3cXRrZiABBLXYHHuLKRi3vHz9Uw2vznSWKi79mpV$>;
+>     eperezma@redhat.com;
+>     > >>>>>> amorenoz@redhat.com; lvivier@redhat.com; sgarzare@redhat.com;
+>     > >> Parav
+>     > >>>>>> Pandit <parav@nvidia.com>
+>     > >>>>>> Subject: Re: [PATCH v1 1/2] vdpa: Add support for
+>     querying vendor
+>     > >>>>>> statistics
+>     > >>>>>>
+>     > >>>>>> Sorry, I somehow missed this after my break. Please see
+>     comments in
+>     > >> line.
+>     > >>>>>> On 2/16/2022 10:46 PM, Eli Cohen wrote:
+>     > >>>>>>> On Wed, Feb 16, 2022 at 10:49:26AM -0800, Si-Wei Liu wrote:
+>     > >>>>>>>> On 2/16/2022 12:00 AM, Eli Cohen wrote:
+>     > >>>>>>>>> Allows to read vendor statistics of a vdpa device. The
+>     specific
+>     > >>>>>>>>> statistics data is received by the upstream driver in
+>     the form
+>     > >>>>>>>>> of an (attribute name, attribute value) pairs.
+>     > >>>>>>>>>
+>     > >>>>>>>>> An example of statistics for mlx5_vdpa device are:
+>     > >>>>>>>>>
+>     > >>>>>>>>> received_desc - number of descriptors received by the
+>     virtqueue
+>     > >>>>>>>>> completed_desc - number of descriptors completed by the
+>     > >>>>>>>>> virtqueue
+>     > >>>>>>>>>
+>     > >>>>>>>>> A descriptor using indirect buffers is still counted
+>     as 1. In
+>     > >>>>>>>>> addition, N chained descriptors are counted correctly
+>     N times as
+>     > >>>>>>>>> one
+>     > >>>>>> would expect.
+>     > >>>>>>>>> A new callback was added to vdpa_config_ops which
+>     provides the
+>     > >>>>>>>>> means for the vdpa driver to return statistics results.
+>     > >>>>>>>>>
+>     > >>>>>>>>> The interface allows for reading all the supported
+>     virtqueues,
+>     > >>>>>>>>> including the control virtqueue if it exists.
+>     > >>>>>>>>>
+>     > >>>>>>>>> Below are some examples taken from mlx5_vdpa which are
+>     > >>>>>>>>> introduced in the following patch:
+>     > >>>>>>>>>
+>     > >>>>>>>>> 1. Read statistics for the virtqueue at index 1
+>     > >>>>>>>>>
+>     > >>>>>>>>> $ vdpa dev vstats show vdpa-a qidx 1
+>     > >>>>>>>>> vdpa-a:
+>     > >>>>>>>>> queue_type tx queue_index 1 received_desc 3844836
+>     > >> completed_desc
+>     > >>>>>>>>> 3844836
+>     > >>>>>>>>>
+>     > >>>>>>>>> 2. Read statistics for the virtqueue at index 32 $
+>     vdpa dev
+>     > >>>>>>>>> vstats show vdpa-a qidx 32
+>     > >>>>>>>>> vdpa-a:
+>     > >>>>>>>>> queue_type control_vq queue_index 32 received_desc 62
+>     > >>>>>>>>> completed_desc
+>     > >>>>>>>>> 62
+>     > >>>>>>>>>
+>     > >>>>>>>>> 3. Read statisitics for the virtqueue at index 0 with json
+>     > >>>>>>>>> output $ vdpa -j dev vstats show vdpa-a qidx 0
+>     > >>>>>>>>> {"vstats":{"vdpa-a":{
+>     > >>>>>>>>>
+>     > >>>>>>
+>     "queue_type":"rx","queue_index":0,"name":"received_desc","value":41
+>     > >>>>>> 77
+>     > >>>>>> 76,\
+>     > >>>>>>>>>  "name":"completed_desc","value":417548}}}
+>     > >>>>>>>>>
+>     > >>>>>>>>> 4. Read statistics for the virtqueue at index 0 with
+>     preety json
+>     > >>>>>>>>> output $ vdpa -jp dev vstats show vdpa-a qidx 0 {
+>     > >>>>>>>>>          "vstats": {
+>     > >>>>>>>>> "vdpa-a": {
+>     > >>>>>>>>>
+>     > >>>>>>>>> "queue_type": "rx",
+>     > >>>>>>>> I wonder where this info can be inferred? I don't see
+>     relevant
+>     > >>>>>>>> change in the patch series that helps gather the
+>     > >>>> VDPA_ATTR_DEV_QUEUE_TYPE?
+>     > >>>>>>>> Is this an arbitrary string defined by the vendor as
+>     well? If so,
+>     > >>>>>>>> how does the user expect to consume it?
+>     > >>>>>>> The queue tupe is deduced from the index and whether we
+>     have a
+>     > >>>>>>> virtqueue. Even numbers are rx, odd numbers are tx and
+>     if there is
+>     > >>>>>>> CVQ, the last one is CVQ.
+>     > >>>>>> OK, then VDPA_ATTR_DEV_QUEUE_TYPE attribute introduced in
+>     this
+>     > >>>>>> patch might not be useful at all?
+>     > >>>>> Right, will remove.
+>     > >>>>>
+>     > >>>>>> And how do you determine in the vdpa tool if CVQ is
+>     negotiated or
+>     > >>>>>> not?
+>     > >>>>> I make a netlink call to get the same information as "
+>     vdpa dev config
+>     > >> show"
+>     > >>>> retrieves. I use the negotiated features to determine if a
+>     CVQ is
+>     > >>>> available. If it is, the number of VQs equals the control
+>     VQ index.
+>     > >>>> So there are two netlink calls under the hood.
+>     > >>>> The lock vdpa_dev_mutex won't hold across the two separate
+>     netlink
+>     > >>>> calls, and it may end up with inconsistent state -
+>     theoretically
+>     > >>>> things could happen like that the first call gets CVQ
+>     negotiated, but
+>     > >>>> the later call for
+>     > >>>> get_vendor_vq_stats() on the cvq might get -EINVAL due to
+>     device
+>     > >>>> reset. Can the negotiated status and stat query be done
+>     within one single
+>     > >> netlink call?
+>     > >>> I see your concern.
+>     > >>> The only reason I do the extra call is to know if we have a
+>     control VQ
+>     > >>> and what index it is, just to print a descriptive string
+>     telling if it's a either rx,
+>     > >> tx or control VQ.
+>     > >>> So the cure can be simple. Let's have a new attribute that
+>     returns the
+>     > >>> type of virtqueue.
+>     > >> I am not sure I follow the cure. Wouldn't it be possible to
+>     get both negotiated
+>     > >> status and the queue stat in vdpa_nl_cmd_dev_stats_get_doit()
+>     under the
+>     > >> same vdpa_dev_mutex lock?
+>     > > Yes we can, but I suggested to get only the type of the queue
+>     as a new attribute.
+>     > > The kernel will do the digest and decide per a given VQ if
+>     it's rx, tx or control and
+>     > > return the result in that new attribute.
+>     > The rx, tx and control queue type is net specific, while the
+>     vdpa core
+>     > is currently agnostic to the vdpa class.
+>     >
+>     > >
+>     > >> And I am not even sure if it is a must to display
+>     > >> the queue type - it doesn't seem the output includes the vdpa
+>     class info, which
+>     > >> makes it hard for script to parse the this field in generic way.
+>     > > I don't get you. You say you don't think you need the queue
+>     type and at the same
+>     > > time you're concerned lack of information makes it hard for
+>     scripts.
+>     > > BTW, class info is something you can get for the device
+>     through "vdpa dev show"
+>     > > so your know the class of your device.
+>     > Stepping back, may I ask if there's a case that queue type
+>     specific stat
+>     > may be defined by vendor, such that deciphering of certain
+>     vendor stat
+>     > would need type specific knowledge? So far the received_desc and
+>     > completed_desc stats offered through the mlx5_vdpa patch look to be
+>     > general ones and not associated with any queue type in
+>     particular. Is
+>     > there some future stat in your mind that needs specific knowledge of
+>     > queue type and vdpa class?
+>
+>     No, the only reason for displaying the queue type is to help users
+>     know kind of queue they're looking at.
+>
+>     >
+>     > I'd prefer the vstat output to be self-contained and
+>     self-descriptive.
+>     > You may argue the class of vdpa never changes in "vdpa dev show"
+>     after
+>     > creation. This is true, however the queue type is not - say you
+>     got a
+>     > control queue for qindex 2, but the next moment you may get a rx
+>     queue
+>     > with the same qindex.
+>
+>     I don't think this is possible unless you destroyed the device and
+>     re-created it.
+>     What operation do you think could cause that?
+>
+>     > Particularly you seem want to tie this with queue
+>     > index in the guest view, which is quite dynamic for host admin
+>     or script
+>     > running on the host to follow.
+>
+>     For rx and tx queues, some index may become invalid if the user
+>     changed
+>     the number of queues with ethtool -L but I don't think this is an
+>     issue.
+>     >
+>     > >
+>     > >>>    I think Jason did not like the idea of communicating the
+>     kind of VQ
+>     > >>> from kernel to userspace but under these circumstances,
+>     maybe he would
+>     > >> approve.
+>     > >>> Jason?
+>     > >>>
+>     > >>>> What worried me is that the queue index being dynamic and
+>     depended on
+>     > >>>> negotiation status would make host admin user quite hard to
+>     follow.
+>     > >>>> The guest may or may not advertise F_MQ and/or F_CTRL_VQ across
+>     > >> various phases, e.g.
+>     > >>>> firmware (UEFI), boot loader (grub) till OS driver is up
+>     and running,
+>     > >>>> which can be agnostic to host admin. For most of the part
+>     it's not
+>     > >>>> easy to script and predict the queue index which can change
+>     from time
+>     > >>>> to time. Can we define the order of host predictable queue
+>     index,
+>     > >>>> which is independent from any guest negotiated state?
+>     > >> Here I think we can just use the plain queue index in the
+>     host view - say if vdpa
+>     > >> net has 4 pairs of data vqs and 1 control vq, user may use
+>     qindex 8 across the
+>     > >> board to identify the control vq, regardless if the F_MQ
+>     feature is negotiated
+>     > >> or not in guest.
+>     > > Right, but the idea that a userspace tool should provide
+>     useful information to the
+>     > > user so it does not need to do complex logic to infer that
+>     from bare data.
+>     > The host side qindex and qtype would never change regardless of
+>     guest
+>     > feature negotiation, by nature it reflects the real construct
+>     and object
+>     > in the hardware.
+>
+>
+> This should be possible for vendor specific stats. But I'm afraid it 
+> may cause more confusion since the spec doesn't have the concept like 
+> "host queue index".
+I am not sure if worth involving spec changes, but thinking it as a host 
+side handle that can be constantly used to identify a certain vdpa 
+device queue. Which should be vdpa specifics. Typically host admins 
+would need a consistent handle without having to know or blindly guess 
+the guest qindex, or query the negotiated features using another command 
+upfront (which as said can be racy and problematic).
+
+> And to be self descriptive the vendor need also display the mappings 
+> between virtqueue index and host(vendor) queue index.
+That's exactly what I had in mind. To ensure atomicity and 
+self-describablity, it's a must to display both queue indexes in single 
+vstat query output for a specific queue. See the example at the bottom 
+of my early reply to Eli's email.
+
+Thanks,
+-Siwei
+
+>
+> Thanks
+>
+>     I don't feel it's a simple task for host users to
+>     > figure out the correct guest side qindex for the control queue
+>     -  it's
+>     > always racy for one to check some other vdpa command output if
+>     the vstat
+>     > output is not self-contained.
+>
+>     So what are you actually proposing? Display received and completed
+>     descriptors
+>     per queue index without further interpretation?
+>
+>     >
+>     > Thanks,
+>     > -Siwei
+>     >
+>     > >
+>     > >>
+>     > >> Regards,
+>     > >> -Siwei
+>     > >>
+>     > >>>>>> Looks to me there are still some loose end I don't quite yet
+>     > >>>>>> understand.
+>     > >>>>>>
+>     > >>>>>>
+>     > >>>>>>>>> "queue_index": 0,
+>     > >>>>> I think this can be removed since the command is for a
+>     specific index.
+>     > >>>>>
+>     > >>>>>>>>> "name": "received_desc",
+>     > >>>>>>>>> "value": 417776,
+>     > >>>>>>>>> "name": "completed_desc",
+>     > >>>>>>>>> "value": 417548
+>     > >>>>>>>> Not for this kernel patch, but IMHO it's the best to
+>     put the name
+>     > >>>>>>>> & value pairs in an array instead of flat entries in json's
+>     > >>>>>>>> hash/dictionary. The hash entries can be re-ordered
+>     deliberately
+>     > >>>>>>>> by external json parsing tool, ending up with
+>     inconsistent stat values.
+>     > >>>>>> This comment is missed for some reason. Please change the
+>     example
+>     > >>>>>> in the log if you agree to address it in vdpa tool. Or
+>     justify why
+>     > >>>>>> keeping the order for json hash/dictionary is fine.
+>     > >>>>> Sorry for skipping this comment.
+>     > >>>>> Do you mean to present the information like:
+>     > >>>>> "received_desc": 417776,
+>     > >>>>> "completed_desc": 417548,
+>     > >>>> I mean the following presentation:
+>     > >>>>
+>     > >>>> $ vdpa -jp dev vstats show vdpa-a qidx 0 {
+>     > >>>>        "vstats": {
+>     > >>>>            "vdpa-a": {
+>     > >>>>                "queue_stats": [{
+>     > >>>>                    "queue_index": 0,
+>     > >>>>                    "queue_type": "rx",
+>     > >>>>                    "stat_name": [
+>     "received_desc","completed_desc" ],
+>     > >>>>                    "stat_value": [ 417776,417548 ],
+>     > >>>>                }]
+>     > >>>>            }
+>     > >>>>        }
+>     > >>>> }
+>     > >>>>
+>     > >>>> I think Parav had similar suggestion, too.
+>     > >>>>
+>     > >>>> Thanks,
+>     > >>>> -Siwei
+>     > >>>>
+>     > >>>>>> Thanks,
+>     > >>>>>> -Siwei
+>     > >>>>>>
+>     > >>>>>>>> Thanks,
+>     > >>>>>>>> -Siwei
+>     > >>>>>>>>>              }
+>     > >>>>>>>>>          }
+>     > >>>>>>>>> }
+>     > >>>>>>>>>
+>     > >>>>>>>>> Signed-off-by: Eli Cohen <elic@nvidia.com>
+>     > >>>>>>>>> ---
+>     > >>>>>>>>>  drivers/vdpa/vdpa.c       | 129
+>     > >>>>>> ++++++++++++++++++++++++++++++++++++++
+>     > >>>>>>>>>  include/linux/vdpa.h      |   5 ++
+>     > >>>>>>>>>  include/uapi/linux/vdpa.h |   7 +++
+>     > >>>>>>>>>       3 files changed, 141 insertions(+)
+>     > >>>>>>>>>
+>     > >>>>>>>>> diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
+>     index
+>     > >>>>>>>>> 9846c9de4bfa..d0ff671baf88 100644
+>     > >>>>>>>>> --- a/drivers/vdpa/vdpa.c
+>     > >>>>>>>>> +++ b/drivers/vdpa/vdpa.c
+>     > >>>>>>>>> @@ -909,6 +909,74 @@ vdpa_dev_config_fill(struct
+>     vdpa_device
+>     > >>>>>>>>> *vdev,
+>     > >>>>>> struct sk_buff *msg, u32 portid,
+>     > >>>>>>>>>             return err;
+>     > >>>>>>>>>       }
+>     > >>>>>>>>> +static int vdpa_fill_stats_rec(struct vdpa_device
+>     *vdev, struct
+>     > >>>>>>>>> +sk_buff
+>     > >>>>>> *msg,
+>     > >>>>>>>>> +         struct genl_info *info, u32 index) {
+>     > >>>>>>>>> +   int err;
+>     > >>>>>>>>> +
+>     > >>>>>>>>> +   if (nla_put_u32(msg, VDPA_ATTR_DEV_QUEUE_INDEX,
+>     index))
+>     > >>>>>>>>> +           return -EMSGSIZE;
+>     > >>>>>>>>> +
+>     > >>>>>>>>> +   err = vdev->config->get_vendor_vq_stats(vdev,
+>     index, msg,
+>     > >>>>>>>>> +info-
+>     > >>>>>>> extack);
+>     > >>>>>>>>> +   if (err)
+>     > >>>>>>>>> +           return err;
+>     > >>>>>>>>> +
+>     > >>>>>>>>> +   return 0;
+>     > >>>>>>>>> +}
+>     > >>>>>>>>> +
+>     > >>>>>>>>> +static int vendor_stats_fill(struct vdpa_device
+>     *vdev, struct
+>     > >>>>>>>>> +sk_buff
+>     > >>>> *msg,
+>     > >>>>>>>>> +       struct genl_info *info, u32 index) {
+>     > >>>>>>>>> +   int err;
+>     > >>>>>>>>> +
+>     > >>>>>>>>> +   if (!vdev->config->get_vendor_vq_stats)
+>     > >>>>>>>>> +           return -EOPNOTSUPP;
+>     > >>>>>>>>> +
+>     > >>>>>>>>> +   err = vdpa_fill_stats_rec(vdev, msg, info, index);
+>     > >>>>>>>>> +   if (err)
+>     > >>>>>>>>> +           return err;
+>     > >>>>>>>>> +
+>     > >>>>>>>>> +   return 0;
+>     > >>>>>>>>> +}
+>     > >>>>>>>>> +
+>     > >>>>>>>>> +static int vdpa_dev_vendor_stats_fill(struct
+>     vdpa_device *vdev,
+>     > >>>>>>>>> +                struct sk_buff *msg,
+>     > >>>>>>>>> +                struct genl_info *info, u32 index) {
+>     > >>>>>>>>> +   u32 device_id;
+>     > >>>>>>>>> +   void *hdr;
+>     > >>>>>>>>> +   int err;
+>     > >>>>>>>>> +   u32 portid = info->snd_portid;
+>     > >>>>>>>>> +   u32 seq = info->snd_seq;
+>     > >>>>>>>>> +   u32 flags = 0;
+>     > >>>>>>>>> +
+>     > >>>>>>>>> +   hdr = genlmsg_put(msg, portid, seq,
+>     &vdpa_nl_family, flags,
+>     > >>>>>>>>> +    VDPA_CMD_DEV_VSTATS_GET);
+>     > >>>>>>>>> +   if (!hdr)
+>     > >>>>>>>>> +           return -EMSGSIZE;
+>     > >>>>>>>>> +
+>     > >>>>>>>>> +   if (nla_put_string(msg, VDPA_ATTR_DEV_NAME,
+>     > >> dev_name(&vdev-
+>     > >>>>>>> dev))) {
+>     > >>>>>>>>> +           err = -EMSGSIZE;
+>     > >>>>>>>>> +           goto undo_msg;
+>     > >>>>>>>>> +   }
+>     > >>>>>>>>> +
+>     > >>>>>>>>> +   device_id = vdev->config->get_device_id(vdev);
+>     > >>>>>>>>> +   if (nla_put_u32(msg, VDPA_ATTR_DEV_ID, device_id)) {
+>     > >>>>>>>>> +           err = -EMSGSIZE;
+>     > >>>>>>>>> +           goto undo_msg;
+>     > >>>>>>>>> +   }
+>     > >>>>>>>>> +
+>     > >>>>>>>>> +   err = vendor_stats_fill(vdev, msg, info, index);
+>     > >>>>>>>>> +
+>     > >>>>>>>>> +  genlmsg_end(msg, hdr);
+>     > >>>>>>>>> +
+>     > >>>>>>>>> +   return err;
+>     > >>>>>>>>> +
+>     > >>>>>>>>> +undo_msg:
+>     > >>>>>>>>> +  genlmsg_cancel(msg, hdr);
+>     > >>>>>>>>> +   return err;
+>     > >>>>>>>>> +}
+>     > >>>>>>>>> +
+>     > >>>>>>>>>       static int
+>     vdpa_nl_cmd_dev_config_get_doit(struct sk_buff
+>     > >>>>>>>>> *skb, struct
+>     > >>>>>> genl_info *info)
+>     > >>>>>>>>>       {
+>     > >>>>>>>>>             struct vdpa_device *vdev;
+>     > >>>>>>>>> @@ -990,6 +1058,60 @@
+>     > >> vdpa_nl_cmd_dev_config_get_dumpit(struct
+>     > >>>>>> sk_buff *msg, struct netlink_callback *
+>     > >>>>>>>>>             return msg->len;
+>     > >>>>>>>>>       }
+>     > >>>>>>>>> +static int vdpa_nl_cmd_dev_stats_get_doit(struct
+>     sk_buff *skb,
+>     > >>>>>>>>> +                    struct genl_info *info)
+>     > >>>>>>>>> +{
+>     > >>>>>>>>> +   struct vdpa_device *vdev;
+>     > >>>>>>>>> +   struct sk_buff *msg;
+>     > >>>>>>>>> +   const char *devname;
+>     > >>>>>>>>> +   struct device *dev;
+>     > >>>>>>>>> +   u32 index;
+>     > >>>>>>>>> +   int err;
+>     > >>>>>>>>> +
+>     > >>>>>>>>> +   if (!info->attrs[VDPA_ATTR_DEV_NAME])
+>     > >>>>>>>>> +           return -EINVAL;
+>     > >>>>>>>>> +
+>     > >>>>>>>>> +   if (!info->attrs[VDPA_ATTR_DEV_QUEUE_INDEX])
+>     > >>>>>>>>> +           return -EINVAL;
+>     > >>>>>>>>> +
+>     > >>>>>>>>> +   devname = nla_data(info->attrs[VDPA_ATTR_DEV_NAME]);
+>     > >>>>>>>>> +   msg = nlmsg_new(NLMSG_DEFAULT_SIZE, GFP_KERNEL);
+>     > >>>>>>>>> +   if (!msg)
+>     > >>>>>>>>> +           return -ENOMEM;
+>     > >>>>>>>>> +
+>     > >>>>>>>>> +   index = nla_get_u32(info-
+>     > >>> attrs[VDPA_ATTR_DEV_QUEUE_INDEX]);
+>     > >>>>>>>>> +  mutex_lock(&vdpa_dev_mutex);
+>     > >>>>>>>>> +   dev = bus_find_device(&vdpa_bus, NULL, devname,
+>     > >>>>>> vdpa_name_match);
+>     > >>>>>>>>> +   if (!dev) {
+>     > >>>>>>>>> +  NL_SET_ERR_MSG_MOD(info->extack, "device not
+>     > >> found");
+>     > >>>>>>>>> +           err = -ENODEV;
+>     > >>>>>>>>> +           goto dev_err;
+>     > >>>>>>>>> +   }
+>     > >>>>>>>>> +   vdev = container_of(dev, struct vdpa_device, dev);
+>     > >>>>>>>>> +   if (!vdev->mdev) {
+>     > >>>>>>>>> +  NL_SET_ERR_MSG_MOD(info->extack, "unmanaged
+>     > >> vdpa
+>     > >>>>>> device");
+>     > >>>>>>>>> +           err = -EINVAL;
+>     > >>>>>>>>> +           goto mdev_err;
+>     > >>>>>>>>> +   }
+>     > >>>>>>>>> +   err = vdpa_dev_vendor_stats_fill(vdev, msg, info,
+>     index);
+>     > >>>>>>>>> +   if (!err)
+>     > >>>>>>>>> +           err = genlmsg_reply(msg, info);
+>     > >>>>>>>>> +
+>     > >>>>>>>>> +  put_device(dev);
+>     > >>>>>>>>> +  mutex_unlock(&vdpa_dev_mutex);
+>     > >>>>>>>>> +
+>     > >>>>>>>>> +   if (err)
+>     > >>>>>>>>> +  nlmsg_free(msg);
+>     > >>>>>>>>> +
+>     > >>>>>>>>> +   return err;
+>     > >>>>>>>>> +
+>     > >>>>>>>>> +mdev_err:
+>     > >>>>>>>>> +  put_device(dev);
+>     > >>>>>>>>> +dev_err:
+>     > >>>>>>>>> +  mutex_unlock(&vdpa_dev_mutex);
+>     > >>>>>>>>> +   return err;
+>     > >>>>>>>>> +}
+>     > >>>>>>>>> +
+>     > >>>>>>>>>       static const struct nla_policy
+>     vdpa_nl_policy[VDPA_ATTR_MAX + 1]
+>     > >> = {
+>     > >>>>>>>>>  [VDPA_ATTR_MGMTDEV_BUS_NAME] = { .type =
+>     > >>>> NLA_NUL_STRING },
+>     > >>>>>>>>>  [VDPA_ATTR_MGMTDEV_DEV_NAME] = { .type = NLA_STRING
+>     > >>>> }, @@ -
+>     > >>>>>> 997,6
+>     > >>>>>>>>> +1119,7 @@ static const struct nla_policy
+>     > >>>>>> vdpa_nl_policy[VDPA_ATTR_MAX + 1] = {
+>     > >>>>>>>>>  [VDPA_ATTR_DEV_NET_CFG_MACADDR] =
+>     > >>>> NLA_POLICY_ETH_ADDR,
+>     > >>>>>>>>>             /* virtio spec 1.1 section 5.1.4.1 for
+>     valid MTU range */
+>     > >>>>>>>>>  [VDPA_ATTR_DEV_NET_CFG_MTU] =
+>     > >>>> NLA_POLICY_MIN(NLA_U16, 68),
+>     > >>>>>>>>> +  [VDPA_ATTR_DEV_QUEUE_INDEX] =
+>     > >> NLA_POLICY_RANGE(NLA_U32, 0,
+>     > >>>>>> 65535),
+>     > >>>>>>>>>       };
+>     > >>>>>>>>>       static const struct genl_ops vdpa_nl_ops[] = {
+>     @@ -1030,6
+>     > >>>>>>>>> +1153,12 @@ static const struct genl_ops vdpa_nl_ops[] = {
+>     > >>>>>>>>>  .doit = vdpa_nl_cmd_dev_config_get_doit,
+>     > >>>>>>>>>  .dumpit = vdpa_nl_cmd_dev_config_get_dumpit,
+>     > >>>>>>>>>             },
+>     > >>>>>>>>> +   {
+>     > >>>>>>>>> +           .cmd = VDPA_CMD_DEV_VSTATS_GET,
+>     > >>>>>>>>> +  .validate = GENL_DONT_VALIDATE_STRICT |
+>     > >>>>>> GENL_DONT_VALIDATE_DUMP,
+>     > >>>>>>>>> +           .doit = vdpa_nl_cmd_dev_stats_get_doit,
+>     > >>>>>>>>> +           .flags = GENL_ADMIN_PERM,
+>     > >>>>>>>>> +   },
+>     > >>>>>>>>>       };
+>     > >>>>>>>>>       static struct genl_family vdpa_nl_family
+>     __ro_after_init =
+>     > >>>>>>>>> { diff --git a/include/linux/vdpa.h
+>     b/include/linux/vdpa.h index
+>     > >>>>>>>>> 2de442ececae..274203845cfc 100644
+>     > >>>>>>>>> --- a/include/linux/vdpa.h
+>     > >>>>>>>>> +++ b/include/linux/vdpa.h
+>     > >>>>>>>>> @@ -275,6 +275,9 @@ struct vdpa_config_ops {
+>     > >>>>>>>>>              const struct vdpa_vq_state *state);
+>     > >>>>>>>>>             int (*get_vq_state)(struct vdpa_device
+>     *vdev, u16 idx,
+>     > >>>>>>>>>              struct vdpa_vq_state *state);
+>     > >>>>>>>>> +   int (*get_vendor_vq_stats)(struct vdpa_device
+>     *vdev, u16 idx,
+>     > >>>>>>>>> +             struct sk_buff *msg,
+>     > >>>>>>>>> +             struct netlink_ext_ack *extack);
+>     > >>>>>>>>>             struct vdpa_notification_area
+>     > >>>>>>>>>  (*get_vq_notification)(struct vdpa_device *vdev, u16
+>     idx);
+>     > >>>>>>>>>             /* vq irq is not expected to be changed
+>     once DRIVER_OK is
+>     > >>>>>>>>> set */ @@ -466,4 +469,6 @@ struct vdpa_mgmt_dev {
+>     > >>>>>>>>>       int vdpa_mgmtdev_register(struct vdpa_mgmt_dev
+>     *mdev);
+>     > >>>>>>>>>       void vdpa_mgmtdev_unregister(struct
+>     vdpa_mgmt_dev *mdev);
+>     > >>>>>>>>> +#define VDPA_INVAL_QUEUE_INDEX 0xffff
+>     > >>>>>>>>> +
+>     > >>>>>>>>>       #endif /* _LINUX_VDPA_H */
+>     > >>>>>>>>> diff --git a/include/uapi/linux/vdpa.h
+>     > >>>>>>>>> b/include/uapi/linux/vdpa.h index
+>     1061d8d2d09d..c5f229a41dc2
+>     > >>>>>>>>> 100644
+>     > >>>>>>>>> --- a/include/uapi/linux/vdpa.h
+>     > >>>>>>>>> +++ b/include/uapi/linux/vdpa.h
+>     > >>>>>>>>> @@ -18,6 +18,7 @@ enum vdpa_command {
+>     > >>>>>>>>>  VDPA_CMD_DEV_DEL,
+>     > >>>>>>>>>  VDPA_CMD_DEV_GET,               /* can dump */
+>     > >>>>>>>>>  VDPA_CMD_DEV_CONFIG_GET,        /* can dump */
+>     > >>>>>>>>> +  VDPA_CMD_DEV_VSTATS_GET,
+>     > >>>>>>>>>       };
+>     > >>>>>>>>>       enum vdpa_attr {
+>     > >>>>>>>>> @@ -46,6 +47,12 @@ enum vdpa_attr {
+>     > >>>>>>>>>  VDPA_ATTR_DEV_NEGOTIATED_FEATURES,      /* u64 */
+>     > >>>>>>>>>  VDPA_ATTR_DEV_MGMTDEV_MAX_VQS,          /*
+>     > >>>> u32 */
+>     > >>>>>>>>>  VDPA_ATTR_DEV_SUPPORTED_FEATURES,       /* u64 */
+>     > >>>>>>>>> +
+>     > >>>>>>>>> +  VDPA_ATTR_DEV_QUEUE_INDEX,              /* u16 */
+>     > >>>>>>>>> +  VDPA_ATTR_DEV_QUEUE_TYPE,               /* string */
+>     > >>>>>>>>> +  VDPA_ATTR_DEV_VENDOR_ATTR_NAME,         /*
+>     > >> string */
+>     > >>>>>>>>> +  VDPA_ATTR_DEV_VENDOR_ATTR_VALUE,        /* u64 */
+>     > >>>>>>>>> +
+>     > >>>>>>>>>             /* new attributes must be added above here */
+>     > >>>>>>>>>  VDPA_ATTR_MAX,
+>     > >>>>>>>>>       };
+>
+
+--------------WeU8dqHDONOV0cUrvkXA6TxP
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  </head>
+  <body>
+    <br>
+    <br>
+    <div class="moz-cite-prefix">On 3/13/2022 11:25 PM, Jason Wang
+      wrote:<br>
+    </div>
+    <blockquote type="cite" cite="mid:CACGkMEsjv+Yz0W=-V=My3E7i7+sMSJhZAZrN+vSs_Bdh9nVdHA@mail.gmail.com">
+      
+      <div dir="ltr">
+        <div dir="ltr"><br>
+        </div>
+        <br>
+        <div class="gmail_quote">
+          <div dir="ltr" class="gmail_attr">On Sun, Mar 13, 2022 at
+            11:26 PM Eli Cohen &lt;<a href="mailto:elic@nvidia.com" moz-do-not-send="true" class="moz-txt-link-freetext">elic@nvidia.com</a>&gt;
+            wrote:<br>
+          </div>
+          <blockquote class="gmail_quote" style="margin:0px 0px 0px
+            0.8ex;border-left:1px solid
+            rgb(204,204,204);padding-left:1ex">&gt; On 3/8/2022 9:07 PM,
+            Eli Cohen wrote:<br>
+            &gt; &gt;<br>
+            &gt; &gt;&gt; -----Original Message-----<br>
+            &gt; &gt;&gt; From: Si-Wei Liu &lt;<a href="mailto:si-wei.liu@oracle.com" target="_blank" moz-do-not-send="true" class="moz-txt-link-freetext">si-wei.liu@oracle.com</a>&gt;<br>
+            &gt; &gt;&gt; Sent: Wednesday, March 9, 2022 5:33 AM<br>
+            &gt; &gt;&gt; To: Eli Cohen &lt;<a href="mailto:elic@nvidia.com" target="_blank" moz-do-not-send="true" class="moz-txt-link-freetext">elic@nvidia.com</a>&gt;<br>
+            &gt; &gt;&gt; Cc: <a href="mailto:mst@redhat.com" target="_blank" moz-do-not-send="true" class="moz-txt-link-freetext">mst@redhat.com</a>; <a href="mailto:jasowang@redhat.com" target="_blank" moz-do-not-send="true" class="moz-txt-link-freetext">jasowang@redhat.com</a>;
+            <a class="moz-txt-link-abbreviated" href="mailto:virtualization@lists.linux">virtualization@lists.linux</a>-<br>
+            &gt; &gt;&gt; <a href="https://urldefense.com/v3/__http://foundation.org__;!!ACWV5N9M2RV99hQ!YPMORFmIws8PtrpKEDUfF-5a3cXRrZiABBLXYHHuLKRi3vHz9Uw2vznSWKi79mpV$" rel="noreferrer" target="_blank" moz-do-not-send="true">foundation.org</a>;
+            <a href="mailto:eperezma@redhat.com" target="_blank" moz-do-not-send="true" class="moz-txt-link-freetext">eperezma@redhat.com</a>;
+            <a href="mailto:amorenoz@redhat.com" target="_blank" moz-do-not-send="true" class="moz-txt-link-freetext">amorenoz@redhat.com</a>;<br>
+            &gt; &gt;&gt; <a href="mailto:lvivier@redhat.com" target="_blank" moz-do-not-send="true" class="moz-txt-link-freetext">lvivier@redhat.com</a>; <a href="mailto:sgarzare@redhat.com" target="_blank" moz-do-not-send="true" class="moz-txt-link-freetext">sgarzare@redhat.com</a>;
+            Parav Pandit &lt;<a href="mailto:parav@nvidia.com" target="_blank" moz-do-not-send="true" class="moz-txt-link-freetext">parav@nvidia.com</a>&gt;<br>
+            &gt; &gt;&gt; Subject: Re: [PATCH v1 1/2] vdpa: Add support
+            for querying vendor statistics<br>
+            &gt; &gt;&gt;<br>
+            &gt; &gt;&gt;<br>
+            &gt; &gt;&gt;<br>
+            &gt; &gt;&gt; On 3/8/2022 6:13 AM, Eli Cohen wrote:<br>
+            &gt; &gt;&gt;&gt;&gt; -----Original Message-----<br>
+            &gt; &gt;&gt;&gt;&gt; From: Si-Wei Liu &lt;<a href="mailto:si-wei.liu@oracle.com" target="_blank" moz-do-not-send="true" class="moz-txt-link-freetext">si-wei.liu@oracle.com</a>&gt;<br>
+            &gt; &gt;&gt;&gt;&gt; Sent: Tuesday, March 8, 2022 8:16 AM<br>
+            &gt; &gt;&gt;&gt;&gt; To: Eli Cohen &lt;<a href="mailto:elic@nvidia.com" target="_blank" moz-do-not-send="true" class="moz-txt-link-freetext">elic@nvidia.com</a>&gt;<br>
+            &gt; &gt;&gt;&gt;&gt; Cc: <a href="mailto:mst@redhat.com" target="_blank" moz-do-not-send="true" class="moz-txt-link-freetext">mst@redhat.com</a>; <a href="mailto:jasowang@redhat.com" target="_blank" moz-do-not-send="true" class="moz-txt-link-freetext">jasowang@redhat.com</a>;
+            <a class="moz-txt-link-abbreviated" href="mailto:virtualization@lists.linux">virtualization@lists.linux</a>-<br>
+            &gt; &gt;&gt;&gt;&gt; <a href="https://urldefense.com/v3/__http://foundation.org__;!!ACWV5N9M2RV99hQ!YPMORFmIws8PtrpKEDUfF-5a3cXRrZiABBLXYHHuLKRi3vHz9Uw2vznSWKi79mpV$" rel="noreferrer" target="_blank" moz-do-not-send="true">foundation.org</a>;
+            <a href="mailto:eperezma@redhat.com" target="_blank" moz-do-not-send="true" class="moz-txt-link-freetext">eperezma@redhat.com</a>;
+            <a href="mailto:amorenoz@redhat.com" target="_blank" moz-do-not-send="true" class="moz-txt-link-freetext">amorenoz@redhat.com</a>;<br>
+            &gt; &gt;&gt;&gt;&gt; <a href="mailto:lvivier@redhat.com" target="_blank" moz-do-not-send="true" class="moz-txt-link-freetext">lvivier@redhat.com</a>; <a href="mailto:sgarzare@redhat.com" target="_blank" moz-do-not-send="true" class="moz-txt-link-freetext">sgarzare@redhat.com</a>;
+            Parav Pandit<br>
+            &gt; &gt;&gt;&gt;&gt; &lt;<a href="mailto:parav@nvidia.com" target="_blank" moz-do-not-send="true" class="moz-txt-link-freetext">parav@nvidia.com</a>&gt;<br>
+            &gt; &gt;&gt;&gt;&gt; Subject: Re: [PATCH v1 1/2] vdpa: Add
+            support for querying vendor<br>
+            &gt; &gt;&gt;&gt;&gt; statistics<br>
+            &gt; &gt;&gt;&gt;&gt;<br>
+            &gt; &gt;&gt;&gt;&gt;<br>
+            &gt; &gt;&gt;&gt;&gt;<br>
+            &gt; &gt;&gt;&gt;&gt; On 3/6/2022 11:57 PM, Eli Cohen wrote:<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt; -----Original Message-----<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt; From: Si-Wei Liu &lt;<a href="mailto:si-wei.liu@oracle.com" target="_blank" moz-do-not-send="true" class="moz-txt-link-freetext">si-wei.liu@oracle.com</a>&gt;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt; Sent: Saturday, March 5, 2022
+            12:34 AM<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt; To: Eli Cohen &lt;<a href="mailto:elic@nvidia.com" target="_blank" moz-do-not-send="true" class="moz-txt-link-freetext">elic@nvidia.com</a>&gt;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt; Cc: <a href="mailto:mst@redhat.com" target="_blank" moz-do-not-send="true" class="moz-txt-link-freetext">mst@redhat.com</a>;
+            <a href="mailto:jasowang@redhat.com" target="_blank" moz-do-not-send="true" class="moz-txt-link-freetext">jasowang@redhat.com</a>;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt; <a class="moz-txt-link-abbreviated" href="mailto:virtualization@lists.linux">virtualization@lists.linux</a>- <a href="https://urldefense.com/v3/__http://foundation.org__;!!ACWV5N9M2RV99hQ!YPMORFmIws8PtrpKEDUfF-5a3cXRrZiABBLXYHHuLKRi3vHz9Uw2vznSWKi79mpV$" rel="noreferrer" target="_blank" moz-do-not-send="true">foundation.org</a>;
+            <a href="mailto:eperezma@redhat.com" target="_blank" moz-do-not-send="true" class="moz-txt-link-freetext">eperezma@redhat.com</a>;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt; <a href="mailto:amorenoz@redhat.com" target="_blank" moz-do-not-send="true" class="moz-txt-link-freetext">amorenoz@redhat.com</a>;
+            <a href="mailto:lvivier@redhat.com" target="_blank" moz-do-not-send="true" class="moz-txt-link-freetext">lvivier@redhat.com</a>;
+            <a href="mailto:sgarzare@redhat.com" target="_blank" moz-do-not-send="true" class="moz-txt-link-freetext">sgarzare@redhat.com</a>;<br>
+            &gt; &gt;&gt; Parav<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt; Pandit &lt;<a href="mailto:parav@nvidia.com" target="_blank" moz-do-not-send="true" class="moz-txt-link-freetext">parav@nvidia.com</a>&gt;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt; Subject: Re: [PATCH v1 1/2]
+            vdpa: Add support for querying vendor<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt; statistics<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt; Sorry, I somehow missed this
+            after my break. Please see comments in<br>
+            &gt; &gt;&gt; line.<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt; On 2/16/2022 10:46 PM, Eli
+            Cohen wrote:<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt; On Wed, Feb 16, 2022 at
+            10:49:26AM -0800, Si-Wei Liu wrote:<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; On 2/16/2022 12:00 AM,
+            Eli Cohen wrote:<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; Allows to read
+            vendor statistics of a vdpa device. The specific<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; statistics data is
+            received by the upstream driver in the form<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; of an (attribute
+            name, attribute value) pairs.<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; An example of
+            statistics for mlx5_vdpa device are:<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; received_desc -
+            number of descriptors received by the virtqueue<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; completed_desc -
+            number of descriptors completed by the<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; virtqueue<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; A descriptor using
+            indirect buffers is still counted as 1. In<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; addition, N
+            chained descriptors are counted correctly N times as<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; one<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt; would expect.<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; A new callback was
+            added to vdpa_config_ops which provides the<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; means for the vdpa
+            driver to return statistics results.<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; The interface
+            allows for reading all the supported virtqueues,<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; including the
+            control virtqueue if it exists.<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; Below are some
+            examples taken from mlx5_vdpa which are<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; introduced in the
+            following patch:<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 1. Read statistics
+            for the virtqueue at index 1<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; $ vdpa dev vstats
+            show vdpa-a qidx 1<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; vdpa-a:<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; queue_type tx
+            queue_index 1 received_desc 3844836<br>
+            &gt; &gt;&gt; completed_desc<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 3844836<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 2. Read statistics
+            for the virtqueue at index 32 $ vdpa dev<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; vstats show vdpa-a
+            qidx 32<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; vdpa-a:<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; queue_type
+            control_vq queue_index 32 received_desc 62<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; completed_desc<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 62<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 3. Read
+            statisitics for the virtqueue at index 0 with json<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; output $ vdpa -j
+            dev vstats show vdpa-a qidx 0<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+            {&quot;vstats&quot;:{&quot;vdpa-a&quot;:{<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;
+            &quot;queue_type&quot;:&quot;rx&quot;,&quot;queue_index&quot;:0,&quot;name&quot;:&quot;received_desc&quot;,&quot;value&quot;:41<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt; 77<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt; 76,\<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp;
+            &nbsp;&quot;name&quot;:&quot;completed_desc&quot;,&quot;value&quot;:417548}}}<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 4. Read statistics
+            for the virtqueue at index 0 with preety json<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; output $ vdpa -jp
+            dev vstats show vdpa-a qidx 0 {<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;vstats&quot;:
+            {<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            &quot;vdpa-a&quot;: {<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            &quot;queue_type&quot;: &quot;rx&quot;,<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; I wonder where this
+            info can be inferred? I don't see relevant<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; change in the patch
+            series that helps gather the<br>
+            &gt; &gt;&gt;&gt;&gt; VDPA_ATTR_DEV_QUEUE_TYPE?<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; Is this an arbitrary
+            string defined by the vendor as well? If so,<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; how does the user
+            expect to consume it?<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt; The queue tupe is deduced
+            from the index and whether we have a<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt; virtqueue. Even numbers
+            are rx, odd numbers are tx and if there is<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt; CVQ, the last one is CVQ.<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt; OK, then
+            VDPA_ATTR_DEV_QUEUE_TYPE attribute introduced in this<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt; patch might not be useful at
+            all?<br>
+            &gt; &gt;&gt;&gt;&gt;&gt; Right, will remove.<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt; And how do you determine in
+            the vdpa tool if CVQ is negotiated or<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt; not?<br>
+            &gt; &gt;&gt;&gt;&gt;&gt; I make a netlink call to get the
+            same information as &quot; vdpa dev config<br>
+            &gt; &gt;&gt; show&quot;<br>
+            &gt; &gt;&gt;&gt;&gt; retrieves. I use the negotiated
+            features to determine if a CVQ is<br>
+            &gt; &gt;&gt;&gt;&gt; available. If it is, the number of VQs
+            equals the control VQ index.<br>
+            &gt; &gt;&gt;&gt;&gt; So there are two netlink calls under
+            the hood.<br>
+            &gt; &gt;&gt;&gt;&gt; The lock vdpa_dev_mutex won't hold
+            across the two separate netlink<br>
+            &gt; &gt;&gt;&gt;&gt; calls, and it may end up with
+            inconsistent state - theoretically<br>
+            &gt; &gt;&gt;&gt;&gt; things could happen like that the
+            first call gets CVQ negotiated, but<br>
+            &gt; &gt;&gt;&gt;&gt; the later call for<br>
+            &gt; &gt;&gt;&gt;&gt; get_vendor_vq_stats() on the cvq might
+            get -EINVAL due to device<br>
+            &gt; &gt;&gt;&gt;&gt; reset. Can the negotiated status and
+            stat query be done within one single<br>
+            &gt; &gt;&gt; netlink call?<br>
+            &gt; &gt;&gt;&gt; I see your concern.<br>
+            &gt; &gt;&gt;&gt; The only reason I do the extra call is to
+            know if we have a control VQ<br>
+            &gt; &gt;&gt;&gt; and what index it is, just to print a
+            descriptive string telling if it's a either rx,<br>
+            &gt; &gt;&gt; tx or control VQ.<br>
+            &gt; &gt;&gt;&gt; So the cure can be simple. Let's have a
+            new attribute that returns the<br>
+            &gt; &gt;&gt;&gt; type of virtqueue.<br>
+            &gt; &gt;&gt; I am not sure I follow the cure. Wouldn't it
+            be possible to get both negotiated<br>
+            &gt; &gt;&gt; status and the queue stat in
+            vdpa_nl_cmd_dev_stats_get_doit() under the<br>
+            &gt; &gt;&gt; same vdpa_dev_mutex lock?<br>
+            &gt; &gt; Yes we can, but I suggested to get only the type
+            of the queue as a new attribute.<br>
+            &gt; &gt; The kernel will do the digest and decide per a
+            given VQ if it's rx, tx or control and<br>
+            &gt; &gt; return the result in that new attribute.<br>
+            &gt; The rx, tx and control queue type is net specific,
+            while the vdpa core<br>
+            &gt; is currently agnostic to the vdpa class.<br>
+            &gt; <br>
+            &gt; &gt;<br>
+            &gt; &gt;&gt; And I am not even sure if it is a must to
+            display<br>
+            &gt; &gt;&gt; the queue type - it doesn't seem the output
+            includes the vdpa class info, which<br>
+            &gt; &gt;&gt; makes it hard for script to parse the this
+            field in generic way.<br>
+            &gt; &gt; I don't get you. You say you don't think you need
+            the queue type and at the same<br>
+            &gt; &gt; time you're concerned lack of information makes it
+            hard for scripts.<br>
+            &gt; &gt; BTW, class info is something you can get for the
+            device through &quot;vdpa dev show&quot;<br>
+            &gt; &gt; so your know the class of your device.<br>
+            &gt; Stepping back, may I ask if there's a case that queue
+            type specific stat<br>
+            &gt; may be defined by vendor, such that deciphering of
+            certain vendor stat<br>
+            &gt; would need type specific knowledge? So far the
+            received_desc and<br>
+            &gt; completed_desc stats offered through the mlx5_vdpa
+            patch look to be<br>
+            &gt; general ones and not associated with any queue type in
+            particular. Is<br>
+            &gt; there some future stat in your mind that needs specific
+            knowledge of<br>
+            &gt; queue type and vdpa class?<br>
+            <br>
+            No, the only reason for displaying the queue type is to help
+            users<br>
+            know kind of queue they're looking at.<br>
+            <br>
+            &gt; <br>
+            &gt; I'd prefer the vstat output to be self-contained and
+            self-descriptive.<br>
+            &gt; You may argue the class of vdpa never changes in &quot;vdpa
+            dev show&quot; after<br>
+            &gt; creation. This is true, however the queue type is not -
+            say you got a<br>
+            &gt; control queue for qindex 2, but the next moment you may
+            get a rx queue<br>
+            &gt; with the same qindex.<br>
+            <br>
+            I don't think this is possible unless you destroyed the
+            device and re-created it.<br>
+            What operation do you think could cause that?<br>
+            <br>
+            &gt; Particularly you seem want to tie this with queue<br>
+            &gt; index in the guest view, which is quite dynamic for
+            host admin or script<br>
+            &gt; running on the host to follow.<br>
+            <br>
+            For rx and tx queues, some index may become invalid if the
+            user changed<br>
+            the number of queues with ethtool -L but I don't think this
+            is an issue.<br>
+            &gt; <br>
+            &gt; &gt;<br>
+            &gt; &gt;&gt;&gt;&nbsp; &nbsp; I think Jason did not like the idea of
+            communicating the kind of VQ<br>
+            &gt; &gt;&gt;&gt; from kernel to userspace but under these
+            circumstances, maybe he would<br>
+            &gt; &gt;&gt; approve.<br>
+            &gt; &gt;&gt;&gt; Jason?<br>
+            &gt; &gt;&gt;&gt;<br>
+            &gt; &gt;&gt;&gt;&gt; What worried me is that the queue
+            index being dynamic and depended on<br>
+            &gt; &gt;&gt;&gt;&gt; negotiation status would make host
+            admin user quite hard to follow.<br>
+            &gt; &gt;&gt;&gt;&gt; The guest may or may not advertise
+            F_MQ and/or F_CTRL_VQ across<br>
+            &gt; &gt;&gt; various phases, e.g.<br>
+            &gt; &gt;&gt;&gt;&gt; firmware (UEFI), boot loader (grub)
+            till OS driver is up and running,<br>
+            &gt; &gt;&gt;&gt;&gt; which can be agnostic to host admin.
+            For most of the part it's not<br>
+            &gt; &gt;&gt;&gt;&gt; easy to script and predict the queue
+            index which can change from time<br>
+            &gt; &gt;&gt;&gt;&gt; to time. Can we define the order of
+            host predictable queue index,<br>
+            &gt; &gt;&gt;&gt;&gt; which is independent from any guest
+            negotiated state?<br>
+            &gt; &gt;&gt; Here I think we can just use the plain queue
+            index in the host view - say if vdpa<br>
+            &gt; &gt;&gt; net has 4 pairs of data vqs and 1 control vq,
+            user may use qindex 8 across the<br>
+            &gt; &gt;&gt; board to identify the control vq, regardless
+            if the F_MQ feature is negotiated<br>
+            &gt; &gt;&gt; or not in guest.<br>
+            &gt; &gt; Right, but the idea that a userspace tool should
+            provide useful information to the<br>
+            &gt; &gt; user so it does not need to do complex logic to
+            infer that from bare data.<br>
+            &gt; The host side qindex and qtype would never change
+            regardless of guest<br>
+            &gt; feature negotiation, by nature it reflects the real
+            construct and object<br>
+            &gt; in the hardware.</blockquote>
+          <div><br>
+          </div>
+          <div>This should be possible for vendor specific stats. But
+            I'm afraid it may cause more confusion since the spec
+            doesn't have the concept like &quot;host queue index&quot;.</div>
+        </div>
+      </div>
+    </blockquote>
+    I am not sure if worth involving spec changes, but thinking it as a
+    host side handle that can be constantly used to identify a certain
+    vdpa device queue. Which should be vdpa specifics. Typically host
+    admins would need a consistent handle without having to know or
+    blindly guess the guest qindex, or query the negotiated features
+    using another command upfront (which as said can be racy and
+    problematic).<br>
+    <br>
+    <blockquote type="cite" cite="mid:CACGkMEsjv+Yz0W=-V=My3E7i7+sMSJhZAZrN+vSs_Bdh9nVdHA@mail.gmail.com">
+      <div dir="ltr">
+        <div class="gmail_quote">
+          <div> And to be self descriptive the vendor need also display
+            the mappings between virtqueue index and host(vendor) queue
+            index.</div>
+        </div>
+      </div>
+    </blockquote>
+    That's exactly what I had in mind. To ensure atomicity and
+    self-describablity, it's a must to display both queue indexes in
+    single vstat query output for a specific queue. See the example at
+    the bottom of my early reply to Eli's email.<br>
+    <br>
+    Thanks,<br>
+    -Siwei<br>
+    <br>
+    <blockquote type="cite" cite="mid:CACGkMEsjv+Yz0W=-V=My3E7i7+sMSJhZAZrN+vSs_Bdh9nVdHA@mail.gmail.com">
+      <div dir="ltr">
+        <div class="gmail_quote">
+          <div><br>
+          </div>
+          <div>Thanks</div>
+          <div>&nbsp;<br>
+          </div>
+          <blockquote class="gmail_quote" style="margin:0px 0px 0px
+            0.8ex;border-left:1px solid
+            rgb(204,204,204);padding-left:1ex"> I don't feel it's a
+            simple task for host users to<br>
+            &gt; figure out the correct guest side qindex for the
+            control queue -&nbsp; it's<br>
+            &gt; always racy for one to check some other vdpa command
+            output if the vstat<br>
+            &gt; output is not self-contained.<br>
+            <br>
+            So what are you actually proposing? Display received and
+            completed descriptors<br>
+            per queue index without further interpretation?<br>
+            <br>
+            &gt; <br>
+            &gt; Thanks,<br>
+            &gt; -Siwei<br>
+            &gt; <br>
+            &gt; &gt;<br>
+            &gt; &gt;&gt;<br>
+            &gt; &gt;&gt; Regards,<br>
+            &gt; &gt;&gt; -Siwei<br>
+            &gt; &gt;&gt;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt; Looks to me there are still
+            some loose end I don't quite yet<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt; understand.<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            &quot;queue_index&quot;: 0,<br>
+            &gt; &gt;&gt;&gt;&gt;&gt; I think this can be removed since
+            the command is for a specific index.<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            &quot;name&quot;: &quot;received_desc&quot;,<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            &quot;value&quot;: 417776,<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            &quot;name&quot;: &quot;completed_desc&quot;,<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            &quot;value&quot;: 417548<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; Not for this kernel
+            patch, but IMHO it's the best to put the name<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; &amp; value pairs in
+            an array instead of flat entries in json's<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; hash/dictionary. The
+            hash entries can be re-ordered deliberately<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; by external json
+            parsing tool, ending up with inconsistent stat values.<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt; This comment is missed for
+            some reason. Please change the example<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt; in the log if you agree to
+            address it in vdpa tool. Or justify why<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt; keeping the order for json
+            hash/dictionary is fine.<br>
+            &gt; &gt;&gt;&gt;&gt;&gt; Sorry for skipping this comment.<br>
+            &gt; &gt;&gt;&gt;&gt;&gt; Do you mean to present the
+            information like:<br>
+            &gt; &gt;&gt;&gt;&gt;&gt; &quot;received_desc&quot;: 417776,<br>
+            &gt; &gt;&gt;&gt;&gt;&gt; &quot;completed_desc&quot;: 417548,<br>
+            &gt; &gt;&gt;&gt;&gt; I mean the following presentation:<br>
+            &gt; &gt;&gt;&gt;&gt;<br>
+            &gt; &gt;&gt;&gt;&gt; $ vdpa -jp dev vstats show vdpa-a qidx
+            0 {<br>
+            &gt; &gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &quot;vstats&quot;: {<br>
+            &gt; &gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;vdpa-a&quot;: {<br>
+            &gt; &gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;queue_stats&quot;: [{<br>
+            &gt; &gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;queue_index&quot;: 0,<br>
+            &gt; &gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;queue_type&quot;: &quot;rx&quot;,<br>
+            &gt; &gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;stat_name&quot;: [
+            &quot;received_desc&quot;,&quot;completed_desc&quot; ],<br>
+            &gt; &gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;stat_value&quot;: [
+            417776,417548 ],<br>
+            &gt; &gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; }]<br>
+            &gt; &gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; }<br>
+            &gt; &gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; }<br>
+            &gt; &gt;&gt;&gt;&gt; }<br>
+            &gt; &gt;&gt;&gt;&gt;<br>
+            &gt; &gt;&gt;&gt;&gt; I think Parav had similar suggestion,
+            too.<br>
+            &gt; &gt;&gt;&gt;&gt;<br>
+            &gt; &gt;&gt;&gt;&gt; Thanks,<br>
+            &gt; &gt;&gt;&gt;&gt; -Siwei<br>
+            &gt; &gt;&gt;&gt;&gt;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt; Thanks,<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt; -Siwei<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; Thanks,<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; -Siwei<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; }<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; }<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; }<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; Signed-off-by: Eli
+            Cohen &lt;<a href="mailto:elic@nvidia.com" target="_blank" moz-do-not-send="true" class="moz-txt-link-freetext">elic@nvidia.com</a>&gt;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; ---<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp;
+            &nbsp;drivers/vdpa/vdpa.c&nbsp; &nbsp; &nbsp; &nbsp;| 129<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;
+            ++++++++++++++++++++++++++++++++++++++<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp;
+            &nbsp;include/linux/vdpa.h&nbsp; &nbsp; &nbsp; |&nbsp; &nbsp;5 ++<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp;
+            &nbsp;include/uapi/linux/vdpa.h |&nbsp; &nbsp;7 +++<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp;3 files
+            changed, 141 insertions(+)<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; diff --git
+            a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c index<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+            9846c9de4bfa..d0ff671baf88 100644<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; ---
+            a/drivers/vdpa/vdpa.c<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +++
+            b/drivers/vdpa/vdpa.c<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; @@ -909,6 +909,74
+            @@ vdpa_dev_config_fill(struct vdpa_device<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; *vdev,<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt; struct sk_buff *msg, u32
+            portid,<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;return
+            err;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp;}<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +static int
+            vdpa_fill_stats_rec(struct vdpa_device *vdev, struct<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +sk_buff<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt; *msg,<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            &nbsp; &nbsp; &nbsp; &nbsp; struct genl_info *info, u32 index) {<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;int err;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;if
+            (nla_put_u32(msg, VDPA_ATTR_DEV_QUEUE_INDEX, index))<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;return
+            -EMSGSIZE;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;err =
+            vdev-&gt;config-&gt;get_vendor_vq_stats(vdev, index, msg,<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +info-<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt; extack);<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;if (err)<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;return
+            err;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;return 0;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +}<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +static int
+            vendor_stats_fill(struct vdpa_device *vdev, struct<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +sk_buff<br>
+            &gt; &gt;&gt;&gt;&gt; *msg,<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            &nbsp; &nbsp; &nbsp; struct genl_info *info, u32 index) {<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;int err;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;if
+            (!vdev-&gt;config-&gt;get_vendor_vq_stats)<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;return
+            -EOPNOTSUPP;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;err =
+            vdpa_fill_stats_rec(vdev, msg, info, index);<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;if (err)<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;return
+            err;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;return 0;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +}<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +static int
+            vdpa_dev_vendor_stats_fill(struct vdpa_device *vdev,<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;struct sk_buff *msg,<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;struct genl_info *info, u32 index) {<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;u32 device_id;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;void *hdr;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;int err;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;u32 portid =
+            info-&gt;snd_portid;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;u32 seq =
+            info-&gt;snd_seq;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;u32 flags = 0;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;hdr =
+            genlmsg_put(msg, portid, seq, &amp;vdpa_nl_family, flags,<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            &nbsp; &nbsp;VDPA_CMD_DEV_VSTATS_GET);<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;if (!hdr)<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;return
+            -EMSGSIZE;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;if
+            (nla_put_string(msg, VDPA_ATTR_DEV_NAME,<br>
+            &gt; &gt;&gt; dev_name(&amp;vdev-<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt; dev))) {<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;err =
+            -EMSGSIZE;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;goto
+            undo_msg;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;}<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;device_id =
+            vdev-&gt;config-&gt;get_device_id(vdev);<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;if
+            (nla_put_u32(msg, VDPA_ATTR_DEV_ID, device_id)) {<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;err =
+            -EMSGSIZE;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;goto
+            undo_msg;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;}<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;err =
+            vendor_stats_fill(vdev, msg, info, index);<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp;
+            &nbsp;genlmsg_end(msg, hdr);<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;return err;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +undo_msg:<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp;
+            &nbsp;genlmsg_cancel(msg, hdr);<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;return err;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +}<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp;static int
+            vdpa_nl_cmd_dev_config_get_doit(struct sk_buff<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; *skb, struct<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt; genl_info *info)<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp;{<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;struct
+            vdpa_device *vdev;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; @@ -990,6 +1058,60
+            @@<br>
+            &gt; &gt;&gt; vdpa_nl_cmd_dev_config_get_dumpit(struct<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt; sk_buff *msg, struct
+            netlink_callback *<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;return
+            msg-&gt;len;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp;}<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +static int
+            vdpa_nl_cmd_dev_stats_get_doit(struct sk_buff *skb,<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;struct genl_info *info)<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +{<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;struct
+            vdpa_device *vdev;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;struct sk_buff
+            *msg;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;const char
+            *devname;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;struct device
+            *dev;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;u32 index;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;int err;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;if
+            (!info-&gt;attrs[VDPA_ATTR_DEV_NAME])<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;return
+            -EINVAL;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;if
+            (!info-&gt;attrs[VDPA_ATTR_DEV_QUEUE_INDEX])<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;return
+            -EINVAL;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;devname =
+            nla_data(info-&gt;attrs[VDPA_ATTR_DEV_NAME]);<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;msg =
+            nlmsg_new(NLMSG_DEFAULT_SIZE, GFP_KERNEL);<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;if (!msg)<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;return
+            -ENOMEM;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;index =
+            nla_get_u32(info-<br>
+            &gt; &gt;&gt;&gt; attrs[VDPA_ATTR_DEV_QUEUE_INDEX]);<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp;
+            &nbsp;mutex_lock(&amp;vdpa_dev_mutex);<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;dev =
+            bus_find_device(&amp;vdpa_bus, NULL, devname,<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt; vdpa_name_match);<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;if (!dev) {<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            &nbsp;NL_SET_ERR_MSG_MOD(info-&gt;extack, &quot;device not<br>
+            &gt; &gt;&gt; found&quot;);<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;err =
+            -ENODEV;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;goto
+            dev_err;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;}<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;vdev =
+            container_of(dev, struct vdpa_device, dev);<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;if
+            (!vdev-&gt;mdev) {<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            &nbsp;NL_SET_ERR_MSG_MOD(info-&gt;extack, &quot;unmanaged<br>
+            &gt; &gt;&gt; vdpa<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt; device&quot;);<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;err =
+            -EINVAL;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;goto
+            mdev_err;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;}<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;err =
+            vdpa_dev_vendor_stats_fill(vdev, msg, info, index);<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;if (!err)<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;err =
+            genlmsg_reply(msg, info);<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp;
+            &nbsp;put_device(dev);<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp;
+            &nbsp;mutex_unlock(&amp;vdpa_dev_mutex);<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;if (err)<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            &nbsp;nlmsg_free(msg);<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;return err;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +mdev_err:<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp;
+            &nbsp;put_device(dev);<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +dev_err:<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp;
+            &nbsp;mutex_unlock(&amp;vdpa_dev_mutex);<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;return err;<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +}<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp;static const
+            struct nla_policy vdpa_nl_policy[VDPA_ATTR_MAX + 1]<br>
+            &gt; &gt;&gt; = {<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            &nbsp;[VDPA_ATTR_MGMTDEV_BUS_NAME] = { .type =<br>
+            &gt; &gt;&gt;&gt;&gt; NLA_NUL_STRING },<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            &nbsp;[VDPA_ATTR_MGMTDEV_DEV_NAME] = { .type = NLA_STRING<br>
+            &gt; &gt;&gt;&gt;&gt; }, @@ -<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt; 997,6<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +1119,7 @@ static
+            const struct nla_policy<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt; vdpa_nl_policy[VDPA_ATTR_MAX +
+            1] = {<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            &nbsp;[VDPA_ATTR_DEV_NET_CFG_MACADDR] =<br>
+            &gt; &gt;&gt;&gt;&gt; NLA_POLICY_ETH_ADDR,<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;/*
+            virtio spec 1.1 section 5.1.4.1 for valid MTU range */<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            &nbsp;[VDPA_ATTR_DEV_NET_CFG_MTU] =<br>
+            &gt; &gt;&gt;&gt;&gt; NLA_POLICY_MIN(NLA_U16, 68),<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp;
+            &nbsp;[VDPA_ATTR_DEV_QUEUE_INDEX] =<br>
+            &gt; &gt;&gt; NLA_POLICY_RANGE(NLA_U32, 0,<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt; 65535),<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp;};<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp;static const
+            struct genl_ops vdpa_nl_ops[] = { @@ -1030,6<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +1153,12 @@ static
+            const struct genl_ops vdpa_nl_ops[] = {<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            &nbsp;.doit = vdpa_nl_cmd_dev_config_get_doit,<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            &nbsp;.dumpit = vdpa_nl_cmd_dev_config_get_dumpit,<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;},<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;{<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;.cmd =
+            VDPA_CMD_DEV_VSTATS_GET,<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            &nbsp;.validate = GENL_DONT_VALIDATE_STRICT |<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt; GENL_DONT_VALIDATE_DUMP,<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;.doit
+            = vdpa_nl_cmd_dev_stats_get_doit,<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;.flags
+            = GENL_ADMIN_PERM,<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;},<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp;};<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp;static
+            struct genl_family vdpa_nl_family __ro_after_init =<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; { diff --git
+            a/include/linux/vdpa.h b/include/linux/vdpa.h index<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+            2de442ececae..274203845cfc 100644<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; ---
+            a/include/linux/vdpa.h<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +++
+            b/include/linux/vdpa.h<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; @@ -275,6 +275,9
+            @@ struct vdpa_config_ops {<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;const struct vdpa_vq_state *state);<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;int
+            (*get_vq_state)(struct vdpa_device *vdev, u16 idx,<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;struct vdpa_vq_state *state);<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp;int
+            (*get_vendor_vq_stats)(struct vdpa_device *vdev, u16 idx,<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; struct sk_buff *msg,<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; struct netlink_ext_ack *extack);<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;struct
+            vdpa_notification_area<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            &nbsp;(*get_vq_notification)(struct vdpa_device *vdev, u16 idx);<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;/* vq
+            irq is not expected to be changed once DRIVER_OK is<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; set */ @@ -466,4
+            +469,6 @@ struct vdpa_mgmt_dev {<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp;int
+            vdpa_mgmtdev_register(struct vdpa_mgmt_dev *mdev);<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp;void
+            vdpa_mgmtdev_unregister(struct vdpa_mgmt_dev *mdev);<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +#define
+            VDPA_INVAL_QUEUE_INDEX 0xffff<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp;#endif /*
+            _LINUX_VDPA_H */<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; diff --git
+            a/include/uapi/linux/vdpa.h<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+            b/include/uapi/linux/vdpa.h index 1061d8d2d09d..c5f229a41dc2<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 100644<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; ---
+            a/include/uapi/linux/vdpa.h<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +++
+            b/include/uapi/linux/vdpa.h<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; @@ -18,6 +18,7 @@
+            enum vdpa_command {<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            &nbsp;VDPA_CMD_DEV_DEL,<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            &nbsp;VDPA_CMD_DEV_GET,&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;/* can dump */<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            &nbsp;VDPA_CMD_DEV_CONFIG_GET,&nbsp; &nbsp; &nbsp; &nbsp; /* can dump */<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp;
+            &nbsp;VDPA_CMD_DEV_VSTATS_GET,<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp;};<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp;enum
+            vdpa_attr {<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; @@ -46,6 +47,12 @@
+            enum vdpa_attr {<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            &nbsp;VDPA_ATTR_DEV_NEGOTIATED_FEATURES,&nbsp; &nbsp; &nbsp; /* u64 */<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            &nbsp;VDPA_ATTR_DEV_MGMTDEV_MAX_VQS,&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; /*<br>
+            &gt; &gt;&gt;&gt;&gt; u32 */<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            &nbsp;VDPA_ATTR_DEV_SUPPORTED_FEATURES,&nbsp; &nbsp; &nbsp; &nbsp;/* u64 */<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp;
+            &nbsp;VDPA_ATTR_DEV_QUEUE_INDEX,&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; /* u16 */<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp;
+            &nbsp;VDPA_ATTR_DEV_QUEUE_TYPE,&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;/* string */<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp;
+            &nbsp;VDPA_ATTR_DEV_VENDOR_ATTR_NAME,&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;/*<br>
+            &gt; &gt;&gt; string */<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +&nbsp;
+            &nbsp;VDPA_ATTR_DEV_VENDOR_ATTR_VALUE,&nbsp; &nbsp; &nbsp; &nbsp; /* u64 */<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; +<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;/* new
+            attributes must be added above here */<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            &nbsp;VDPA_ATTR_MAX,<br>
+            &gt; &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&nbsp; &nbsp; &nbsp; &nbsp;};<br>
+            <br>
+          </blockquote>
+        </div>
+      </div>
+    </blockquote>
+    <br>
+  </body>
+</html>
+
+--------------WeU8dqHDONOV0cUrvkXA6TxP--
+
+--===============5228127016160222074==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============5228127016160222074==--
