@@ -4,91 +4,91 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 02E85C433EF
-	for <virtualization@archiver.kernel.org>; Tue, 15 Mar 2022 13:23:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 311D1C433FE
+	for <virtualization@archiver.kernel.org>; Tue, 15 Mar 2022 13:28:50 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 934AA40158;
-	Tue, 15 Mar 2022 13:23:50 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 86C6340A1E;
+	Tue, 15 Mar 2022 13:28:49 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id BdiWMG4vxMn9; Tue, 15 Mar 2022 13:23:49 +0000 (UTC)
+	with ESMTP id lLwk5uPFTJ8I; Tue, 15 Mar 2022 13:28:48 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id C6CC940168;
-	Tue, 15 Mar 2022 13:23:48 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id B1FAE40A19;
+	Tue, 15 Mar 2022 13:28:47 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 9360EC0012;
-	Tue, 15 Mar 2022 13:23:48 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3C442C000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 2166EC0012;
+	Tue, 15 Mar 2022 13:28:47 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B2248C000B
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Mar 2022 13:23:47 +0000 (UTC)
+ Tue, 15 Mar 2022 13:28:45 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 2A32C410A3
+ by smtp1.osuosl.org (Postfix) with ESMTP id 9B4728142B
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Mar 2022 13:23:47 +0000 (UTC)
+ Tue, 15 Mar 2022 13:28:45 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id vHMRthK4LxVK
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id JvTV3whDaHEX
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Mar 2022 13:23:46 +0000 (UTC)
+ Tue, 15 Mar 2022 13:28:45 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 7C0D9409E9
+ by smtp1.osuosl.org (Postfix) with ESMTPS id D67E281420
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Mar 2022 13:23:46 +0000 (UTC)
+ Tue, 15 Mar 2022 13:28:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1647350625;
+ s=mimecast20190719; t=1647350923;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=IEpiYhsMGlq2ReYke60gfIQZ2QzqWJpfRL9F+OcYAMY=;
- b=eTh/+BtUq8mkG3eLN+XzrwBClSIGZkA7ig53ycIRZfiDtSRDQzjBPWC7xbBnS7LfFbRFar
- o9tPJ3styOFDEd71BxS9nUnMEZobNGjjvLDosa2tbua8a10xmRmVvKSvFI5Fs5xBi4KOZu
- ciI++kvLZCTUSSzyxwrphkdbKJ3iFt0=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=iPwMDqoeq62hMQvUW+d6m4fa4n/Ezhwwm7xT9axVhHI=;
+ b=J0zWCN56MPLv4yWFJ6Ei4g1Kt1gC9VCRndxeP8ZLhCNT+s1R/vltZuKmYyK8xPKWdVS22s
+ Vt0uUFIBScU2Qr/9z1L58jeond2sOy5a4iOMsXBnfAeWj6196jlgI8bnRhQLf+Rq7f2d/0
+ IYF6vizxSZIDNzEWsUSSTFMqE2bJB60=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-669-rN6PfgjZPNGh6a95Tglp7g-1; Tue, 15 Mar 2022 09:23:43 -0400
-X-MC-Unique: rN6PfgjZPNGh6a95Tglp7g-1
-Received: by mail-wr1-f69.google.com with SMTP id
- o9-20020adfca09000000b001ea79f7edf8so5282074wrh.16
+ us-mta-589-t__ui_bDNnaSJt_WmjVtZw-1; Tue, 15 Mar 2022 09:28:42 -0400
+X-MC-Unique: t__ui_bDNnaSJt_WmjVtZw-1
+Received: by mail-wr1-f70.google.com with SMTP id
+ o9-20020adfca09000000b001ea79f7edf8so5287029wrh.16
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Mar 2022 06:23:43 -0700 (PDT)
+ Tue, 15 Mar 2022 06:28:42 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=IEpiYhsMGlq2ReYke60gfIQZ2QzqWJpfRL9F+OcYAMY=;
- b=GBFiPhe5mYH3dMD3IPfiZsOKrpvuShtc9ORaQbuofQjIKxfZmvErLE8nNMNnB99LyX
- vG992fdukVWTjYtND0IFO2ur583XU4aANTgkZ0un+H7bm1ZfRrOgZUE8K76FmaGAg/N7
- p3ly83V5B7BWkjBbCF3zDMDUMBz9IL40PKlg+95C3s1Yl+wIqxdxrbL631VbiYcC3sHh
- 5TYDSX2omQcN78BEfUhcpwgAKSJLK0ORqmnsozhhU6KDQajO/8NH5YImcorkoSiiQsqC
- GqT+yNqX8ohjAYPVFZDtHXsdd3Q+OHBZUnB+f0CBIhDHZt+IzmwXoYwvwPOB74UiF+Jq
- fyJg==
-X-Gm-Message-State: AOAM531jODLhkBdrKDCru5kaOR9HYk+yPnXbPxPiYDoyBi7f51+RihTE
- Iy41Oio49HqS6ovgVCi1TsrzqPECN/NPHIBsjxh7j4Bh1q2yHOJ/Bxfc+4i7cUTDxrDvjc8dlJs
- i2v2G/8WggEfk0KP6T1g3ZH3hqYoUjiTp1+yuuVJIRw==
-X-Received: by 2002:a5d:47ac:0:b0:1fc:f09b:c258 with SMTP id
- 12-20020a5d47ac000000b001fcf09bc258mr20957688wrb.618.1647350622429; 
- Tue, 15 Mar 2022 06:23:42 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzhcNjWTrbaoqdRbx7Oloh29YUHJlQt1KnYFPeCC8VNb6iBtIWGW90Cdk830Tz31dWtDzSVEw==
-X-Received: by 2002:a5d:47ac:0:b0:1fc:f09b:c258 with SMTP id
- 12-20020a5d47ac000000b001fcf09bc258mr20957671wrb.618.1647350622165; 
- Tue, 15 Mar 2022 06:23:42 -0700 (PDT)
+ bh=iPwMDqoeq62hMQvUW+d6m4fa4n/Ezhwwm7xT9axVhHI=;
+ b=ql+ypKqRzFZYanpqbWxGBHKtgxAyvC4rdGb31nDY+Kki84cXgxfmsu9RX/+kkipPwq
+ XeVgM5souMBBY37ZemaWAeuHd9LSGviIJ3DLpd9r1kjt8upjteutljsNoGToxRhdFJVO
+ KUezl9V9k9nQXDwgqAm8O1TxmwhwqWnahkmT585+434SC9YSizOwrVt2LesVD3gz3Hrt
+ mFiIGTTpOV1mi4qbCZM+s/O7YLcmEGGMxCZPM2PiR90EjMN7c1H7qgTxKlH+m8RYs9RY
+ un9QLEiSr5lzt4p5TxjCiemBfGZLNEgdeMZdiAUiJxQYZZRaLwIeSe/N6M3+hI+TcSft
+ +Exw==
+X-Gm-Message-State: AOAM530i0eGmne98EraEDJz5liegEiGiBMCxSlx/Jz18eu6ESnvmYGZ3
+ FbaLMldQBQdAP94yVUNyL9NX11Iy1ySo+F/ti6FzVQGULAsURglsBQusRbPcmWcdC+cAL6OmDJF
+ 8241FLjZXgii8GyME96I59C/+r0ox2HZ9sm6leMQU2Q==
+X-Received: by 2002:a05:6000:2c4:b0:203:72c9:ef37 with SMTP id
+ o4-20020a05600002c400b0020372c9ef37mr19554490wry.387.1647350921396; 
+ Tue, 15 Mar 2022 06:28:41 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJynwrsQrU6Igmjz50LudSk6gmIi09KRWpQylByny5QYQEzWyoMegsicYMO/z5ro86kUgXM4yw==
+X-Received: by 2002:a05:6000:2c4:b0:203:72c9:ef37 with SMTP id
+ o4-20020a05600002c400b0020372c9ef37mr19554472wry.387.1647350921151; 
+ Tue, 15 Mar 2022 06:28:41 -0700 (PDT)
 Received: from redhat.com ([2.53.2.35]) by smtp.gmail.com with ESMTPSA id
- b15-20020adfc74f000000b001e888b871a0sm16230818wrh.87.2022.03.15.06.23.39
+ s2-20020a1cf202000000b0038977146b28sm2283136wmc.18.2022.03.15.06.28.38
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 15 Mar 2022 06:23:41 -0700 (PDT)
-Date: Tue, 15 Mar 2022 09:23:36 -0400
+ Tue, 15 Mar 2022 06:28:40 -0700 (PDT)
+Date: Tue, 15 Mar 2022 09:28:36 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: trix@redhat.com
 Subject: Re: [PATCH] vDPA/ifcvf: match pointer check to use
-Message-ID: <20220315092101-mutt-send-email-mst@kernel.org>
+Message-ID: <20220315092656-mutt-send-email-mst@kernel.org>
 References: <20220315124130.1710030-1-trix@redhat.com>
 MIME-Version: 1.0
 In-Reply-To: <20220315124130.1710030-1-trix@redhat.com>
@@ -132,7 +132,14 @@ On Tue, Mar 15, 2022 at 05:41:30AM -0700, trix@redhat.com wrote:
 > Does not match the use.  Change dereference so they match.
 > 
 > Fixes: 79333575b8bd ("vDPA/ifcvf: implement shared IRQ feature")
+
+Thanks a lot! I squashed this into the offending patch - no point in
+breaking bisect. Pushed to linux. However I'm now
+having second thoughts about applying that patchset - I'd like
+soma analysis explaining how this got through testing.
+
 > Signed-off-by: Tom Rix <trix@redhat.com>
+
 > ---
 >  drivers/vdpa/ifcvf/ifcvf_main.c | 2 +-
 >  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -150,16 +157,6 @@ On Tue, Mar 15, 2022 at 05:41:30AM -0700, trix@redhat.com wrote:
 >  	}
 >  
 >  	return IRQ_HANDLED;
-
-
-Oh, absolutely. In fact vf->vring->cb.callback is just
-vf->vring[0].cb.callback so it's wrong for any ring except 0. Does not
-make sense.
-
-So how did it work in testing then? No idea.
-Zhu Lingshan, care to comment?
-
-
 > -- 
 > 2.26.3
 
