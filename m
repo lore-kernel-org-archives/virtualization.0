@@ -1,83 +1,74 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 75823C433EF
-	for <virtualization@archiver.kernel.org>; Wed, 16 Mar 2022 12:20:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2A69EC433F5
+	for <virtualization@archiver.kernel.org>; Wed, 16 Mar 2022 12:42:01 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 0867641686;
-	Wed, 16 Mar 2022 12:20:56 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id A0568842E4;
+	Wed, 16 Mar 2022 12:42:00 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id q6as7Ria8l4N; Wed, 16 Mar 2022 12:20:55 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id LDYDpkzMGrty; Wed, 16 Mar 2022 12:41:59 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 7F45B41624;
-	Wed, 16 Mar 2022 12:20:54 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id D9960842B9;
+	Wed, 16 Mar 2022 12:41:58 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 62209C0012;
-	Wed, 16 Mar 2022 12:20:54 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id AC79FC0012;
+	Wed, 16 Mar 2022 12:41:58 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id AF215C000B
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 86820C000B
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Mar 2022 12:20:52 +0000 (UTC)
+ Wed, 16 Mar 2022 12:41:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 9BB04405AE
+ by smtp2.osuosl.org (Postfix) with ESMTP id 731BE408BC
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Mar 2022 12:20:52 +0000 (UTC)
+ Wed, 16 Mar 2022 12:41:57 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 70YpJa_rrCwT
+ with ESMTP id wo6XQ2L8PYJt
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Mar 2022 12:20:51 +0000 (UTC)
+ Wed, 16 Mar 2022 12:41:56 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 3A63940521
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+ by smtp2.osuosl.org (Postfix) with ESMTP id D79E640521
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Mar 2022 12:20:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1647433249;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=GvPZ4q3oYvS3ih1qFIjOA0tmZwfKmE3lVIEy1I8AP14=;
- b=RFhXgPk4X7OWgOy0SbOCcsyZrUUQcLnRqQ9tBLE9Gj1Zzyc75RvrgXZ7h+h72TAWUzrkRn
- OBAaTI5IqrKuAiyQOMJS8HSGo9nA1ipAJfjrzMX7tHtka/rSewc4zq6cdv0N59cqk40qvO
- 7lLjgYVU1gxyWsy8LLAGuP0++mq4XSg=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-91-RArckN-iMaKPbomiJk7udw-1; Wed, 16 Mar 2022 08:20:46 -0400
-X-MC-Unique: RArckN-iMaKPbomiJk7udw-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com
- [10.11.54.4])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 06B9A18E5281;
- Wed, 16 Mar 2022 12:20:46 +0000 (UTC)
-Received: from localhost (unknown [10.39.193.207])
- by smtp.corp.redhat.com (Postfix) with ESMTP id E73F3202A447;
- Wed, 16 Mar 2022 12:20:41 +0000 (UTC)
-Date: Wed, 16 Mar 2022 12:20:41 +0000
-From: Stefan Hajnoczi <stefanha@redhat.com>
-To: Suwan Kim <suwan.kim027@gmail.com>
-Subject: Re: [PATCH] virtio-blk: support polling I/O
-Message-ID: <YjHWGWgOHD7HvdUb@stefanha-x1.localdomain>
-References: <20220311152832.17703-1-suwan.kim027@gmail.com>
- <Yi9c5bhdDrQ1pLDY@stefanha-x1.localdomain>
- <YjCauO0lb2mzQENJ@localhost.localdomain>
+ Wed, 16 Mar 2022 12:41:55 +0000 (UTC)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+ by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id B57231476;
+ Wed, 16 Mar 2022 05:41:54 -0700 (PDT)
+Received: from [10.57.42.204] (unknown [10.57.42.204])
+ by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 046133F85F;
+ Wed, 16 Mar 2022 05:41:50 -0700 (PDT)
+Message-ID: <f2fed903-c61b-8040-ddfd-25a7bf0a625a@arm.com>
+Date: Wed, 16 Mar 2022 12:41:46 +0000
 MIME-Version: 1.0
-In-Reply-To: <YjCauO0lb2mzQENJ@localhost.localdomain>
-X-Scanned-By: MIMEDefang 2.78 on 10.11.54.4
-Cc: mgurtovoy@nvidia.com, mst@redhat.com,
- virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org,
- pbonzini@redhat.com
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101
+ Thunderbird/91.6.2
+Subject: Re: [PATCH v2 4/8] drm/virtio: Improve DMA API usage for shmem BOs
+Content-Language: en-GB
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ David Airlie <airlied@linux.ie>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
+ Daniel Almeida <daniel.almeida@collabora.com>,
+ Gert Wollny <gert.wollny@collabora.com>,
+ Tomeu Vizoso <tomeu.vizoso@collabora.com>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Rob Herring <robh@kernel.org>, Steven Price <steven.price@arm.com>,
+ Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
+References: <20220314224253.236359-1-dmitry.osipenko@collabora.com>
+ <20220314224253.236359-5-dmitry.osipenko@collabora.com>
+From: Robin Murphy <robin.murphy@arm.com>
+In-Reply-To: <20220314224253.236359-5-dmitry.osipenko@collabora.com>
+Cc: Gustavo Padovan <gustavo.padovan@collabora.com>,
+ Dmitry Osipenko <digetx@gmail.com>, linux-kernel@vger.kernel.org,
+ dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -89,137 +80,278 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============0855481861052280033=="
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+On 2022-03-14 22:42, Dmitry Osipenko wrote:
+> DRM API requires the DRM's driver to be backed with the device that can
+> be used for generic DMA operations. The VirtIO-GPU device can't perform
+> DMA operations if it uses PCI transport because PCI device driver creates
+> a virtual VirtIO-GPU device that isn't associated with the PCI. Use PCI's
+> GPU device for the DRM's device instead of the VirtIO-GPU device and drop
+> DMA-related hacks from the VirtIO-GPU driver.
+> 
+> Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+> ---
+>   drivers/gpu/drm/virtio/virtgpu_drv.c    | 22 +++++++---
+>   drivers/gpu/drm/virtio/virtgpu_drv.h    |  5 +--
+>   drivers/gpu/drm/virtio/virtgpu_kms.c    |  7 ++--
+>   drivers/gpu/drm/virtio/virtgpu_object.c | 56 +++++--------------------
+>   drivers/gpu/drm/virtio/virtgpu_vq.c     | 13 +++---
+>   5 files changed, 37 insertions(+), 66 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
+> index 5f25a8d15464..8449dad3e65c 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_drv.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
+> @@ -46,9 +46,9 @@ static int virtio_gpu_modeset = -1;
+>   MODULE_PARM_DESC(modeset, "Disable/Enable modesetting");
+>   module_param_named(modeset, virtio_gpu_modeset, int, 0400);
+>   
+> -static int virtio_gpu_pci_quirk(struct drm_device *dev, struct virtio_device *vdev)
+> +static int virtio_gpu_pci_quirk(struct drm_device *dev)
+>   {
+> -	struct pci_dev *pdev = to_pci_dev(vdev->dev.parent);
+> +	struct pci_dev *pdev = to_pci_dev(dev->dev);
+>   	const char *pname = dev_name(&pdev->dev);
+>   	bool vga = (pdev->class >> 8) == PCI_CLASS_DISPLAY_VGA;
+>   	char unique[20];
+> @@ -101,6 +101,7 @@ static int virtio_gpu_pci_quirk(struct drm_device *dev, struct virtio_device *vd
+>   static int virtio_gpu_probe(struct virtio_device *vdev)
+>   {
+>   	struct drm_device *dev;
+> +	struct device *dma_dev;
+>   	int ret;
+>   
+>   	if (drm_firmware_drivers_only() && virtio_gpu_modeset == -1)
+> @@ -109,18 +110,29 @@ static int virtio_gpu_probe(struct virtio_device *vdev)
+>   	if (virtio_gpu_modeset == 0)
+>   		return -EINVAL;
+>   
+> -	dev = drm_dev_alloc(&driver, &vdev->dev);
+> +	/*
+> +	 * If GPU's parent is a PCI device, then we will use this PCI device
+> +	 * for the DRM's driver device because GPU won't have PCI's IOMMU DMA
+> +	 * ops in this case since GPU device is sitting on a separate (from PCI)
+> +	 * virtio-bus.
+> +	 */
+> +	if (!strcmp(vdev->dev.parent->bus->name, "pci"))
 
---===============0855481861052280033==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="13TYcT3iFZ/MtLCe"
-Content-Disposition: inline
+Nit: dev_is_pci() ?
 
+However, what about other VirtIO transports? Wouldn't virtio-mmio with 
+F_ACCESS_PLATFORM be in a similar situation?
 
---13TYcT3iFZ/MtLCe
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Robin.
 
-On Tue, Mar 15, 2022 at 10:55:04PM +0900, Suwan Kim wrote:
-> On Mon, Mar 14, 2022 at 03:19:01PM +0000, Stefan Hajnoczi wrote:
-> > On Sat, Mar 12, 2022 at 12:28:32AM +0900, Suwan Kim wrote:
-> > > This patch supports polling I/O via virtio-blk driver. Polling
-> > > feature is enabled based on "VIRTIO_BLK_F_MQ" feature and the number
-> > > of polling queues can be set by QEMU virtio-blk-pci property
-> > > "num-poll-queues=3DN". This patch improves the polling I/O throughput
-> > > and latency.
-> > >=20
-> > > The virtio-blk driver doesn't not have a poll function and a poll
-> > > queue and it has been operating in interrupt driven method even if
-> > > the polling function is called in the upper layer.
-> > >=20
-> > > virtio-blk polling is implemented upon 'batched completion' of block
-> > > layer. virtblk_poll() queues completed request to io_comp_batch->req_=
-list
-> > > and later, virtblk_complete_batch() calls unmap function and ends
-> > > the requests in batch.
-> > >=20
-> > > virtio-blk reads the number of queues and poll queues from QEMU
-> > > virtio-blk-pci properties ("num-queues=3DN", "num-poll-queues=3DM").
-> > > It allocates N virtqueues to virtio_blk->vqs[N] and it uses [0..(N-M-=
-1)]
-> > > as default queues and [(N-M)..(N-1)] as poll queues. Unlike the defau=
-lt
-> > > queues, the poll queues have no callback function.
-> > >=20
-> > > Regarding HW-SW queue mapping, the default queue mapping uses the
-> > > existing method that condsiders MSI irq vector. But the poll queue
-> > > doesn't have an irq, so it uses the regular blk-mq cpu mapping.
-> > >=20
-> > > To enable poll queues, "num-poll-queues=3DN" property of virtio-blk-p=
-ci
-> > > needs to be added to QEMU command line. For that, I temporarily
-> > > implemented the property on QEMU. Please refer to the git repository =
-below.
-> > >=20
-> > > 	git : https://github.com/asfaca/qemu.git #on master branch commit
-> > >=20
-> > > For verifying the improvement, I did Fio polling I/O performance test
-> > > with io_uring engine with the options below.
-> > > (io_uring, hipri, randread, direct=3D1, bs=3D512, iodepth=3D64 numjob=
-s=3DN)
-> > > I set 4 vcpu and 4 virtio-blk queues - 2 default queues and 2 poll
-> > > queues for VM.
-> > > (-device virtio-blk-pci,num-queues=3D4,num-poll-queues=3D2)
-> > > As a result, IOPS and average latency improved about 10%.
-> > >=20
-> > > Test result:
-> > >=20
-> > > - Fio io_uring poll without virtio-blk poll support
-> > > 	-- numjobs=3D1 : IOPS =3D 297K, avg latency =3D 214.59us
-> > > 	-- numjobs=3D2 : IOPS =3D 360K, avg latency =3D 363.88us
-> > > 	-- numjobs=3D4 : IOPS =3D 289K, avg latency =3D 885.42us
-> > >=20
-> > > - Fio io_uring poll with virtio-blk poll support
-> > > 	-- numjobs=3D1 : IOPS =3D 332K, avg latency =3D 192.61us
-> > > 	-- numjobs=3D2 : IOPS =3D 371K, avg latency =3D 348.31us
-> > > 	-- numjobs=3D4 : IOPS =3D 321K, avg latency =3D 795.93us
-> >=20
-> > Last year there was a patch series that switched regular queues into
-> > polling queues when HIPRI requests were in flight:
-> > https://lore.kernel.org/linux-block/20210520141305.355961-1-stefanha@re=
-dhat.com/T/
-> >=20
-> > The advantage is that polling is possible without prior device
-> > configuration, making it easier for users.
-> >=20
-> > However, the dynamic approach is a bit more complex and bugs can result
-> > in lost irqs (hung I/O). Christoph Hellwig asked for dedicated polling
-> > queues, which your patch series now delivers.
-> >=20
-> > I think your patch series is worth merging once the comments others have
-> > already made have been addressed. I'll keep an eye out for the VIRTIO
-> > spec change to extend the virtio-blk configuration space, which needs to
-> > be accepted before the Linux can be merged.
->=20
-> Thanks for the feedback :)
-> There's a lot of history.. I will try to improve the patch.
->=20
-> It might take some time because it need more discussion about qemu
-> device property and I do this in my night time.
-
-I see, it's great that you're making this contribution. Don't worry
-about the old patch series I linked. I think your approach is fine.
-
-Stefan
-
---13TYcT3iFZ/MtLCe
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmIx1hgACgkQnKSrs4Gr
-c8gPPggAqtPz8MJbtOKRWoA2xIu8mK69zNtUvAqTurWFiw/NBFRgVMOUaoeBtrgw
-Z+5BIeiui/YD1948HGWfaBO9UgOea4uBhby8NvnjqGLdadPcuxqJnmJYZL4OkHi7
-oEenlhtiZhWwq2trdpvbNz3duKUFRhmqxSRV/+ZSnEue93JA1wABNWgH1vgI3/37
-mR0XdKsF3OiApkJ+9pAU0JDlTk5Azz8mWesolpraUzdm7isoQwjO5vKdPc2+WRrD
-JzqfghR1x0FvchXwlMewkQWh901MJKn3LFnlpc6mDkKnZ6jShlnH7pquQW+EZL41
-H/QXj79qXsyHyhmb313nAwEq6M34aA==
-=N4Zi
------END PGP SIGNATURE-----
-
---13TYcT3iFZ/MtLCe--
-
-
---===============0855481861052280033==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
+> +		dma_dev = vdev->dev.parent;
+> +	else
+> +		dma_dev = &vdev->dev;
+> +
+> +	dev = drm_dev_alloc(&driver, dma_dev);
+>   	if (IS_ERR(dev))
+>   		return PTR_ERR(dev);
+>   	vdev->priv = dev;
+>   
+>   	if (!strcmp(vdev->dev.parent->bus->name, "pci")) {
+> -		ret = virtio_gpu_pci_quirk(dev, vdev);
+> +		ret = virtio_gpu_pci_quirk(dev);
+>   		if (ret)
+>   			goto err_free;
+>   	}
+>   
+> -	ret = virtio_gpu_init(dev);
+> +	ret = virtio_gpu_init(vdev, dev);
+>   	if (ret)
+>   		goto err_free;
+>   
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+> index 0a194aaad419..b2d93cb12ebf 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
+> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+> @@ -100,8 +100,6 @@ struct virtio_gpu_object {
+>   
+>   struct virtio_gpu_object_shmem {
+>   	struct virtio_gpu_object base;
+> -	struct sg_table *pages;
+> -	uint32_t mapped;
+>   };
+>   
+>   struct virtio_gpu_object_vram {
+> @@ -214,7 +212,6 @@ struct virtio_gpu_drv_cap_cache {
+>   };
+>   
+>   struct virtio_gpu_device {
+> -	struct device *dev;
+>   	struct drm_device *ddev;
+>   
+>   	struct virtio_device *vdev;
+> @@ -282,7 +279,7 @@ extern struct drm_ioctl_desc virtio_gpu_ioctls[DRM_VIRTIO_NUM_IOCTLS];
+>   void virtio_gpu_create_context(struct drm_device *dev, struct drm_file *file);
+>   
+>   /* virtgpu_kms.c */
+> -int virtio_gpu_init(struct drm_device *dev);
+> +int virtio_gpu_init(struct virtio_device *vdev, struct drm_device *dev);
+>   void virtio_gpu_deinit(struct drm_device *dev);
+>   void virtio_gpu_release(struct drm_device *dev);
+>   int virtio_gpu_driver_open(struct drm_device *dev, struct drm_file *file);
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
+> index 3313b92db531..0d1e3eb61bee 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_kms.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
+> @@ -110,7 +110,7 @@ static void virtio_gpu_get_capsets(struct virtio_gpu_device *vgdev,
+>   	vgdev->num_capsets = num_capsets;
+>   }
+>   
+> -int virtio_gpu_init(struct drm_device *dev)
+> +int virtio_gpu_init(struct virtio_device *vdev, struct drm_device *dev)
+>   {
+>   	static vq_callback_t *callbacks[] = {
+>   		virtio_gpu_ctrl_ack, virtio_gpu_cursor_ack
+> @@ -123,7 +123,7 @@ int virtio_gpu_init(struct drm_device *dev)
+>   	u32 num_scanouts, num_capsets;
+>   	int ret = 0;
+>   
+> -	if (!virtio_has_feature(dev_to_virtio(dev->dev), VIRTIO_F_VERSION_1))
+> +	if (!virtio_has_feature(vdev, VIRTIO_F_VERSION_1))
+>   		return -ENODEV;
+>   
+>   	vgdev = kzalloc(sizeof(struct virtio_gpu_device), GFP_KERNEL);
+> @@ -132,8 +132,7 @@ int virtio_gpu_init(struct drm_device *dev)
+>   
+>   	vgdev->ddev = dev;
+>   	dev->dev_private = vgdev;
+> -	vgdev->vdev = dev_to_virtio(dev->dev);
+> -	vgdev->dev = dev->dev;
+> +	vgdev->vdev = vdev;
+>   
+>   	spin_lock_init(&vgdev->display_info_lock);
+>   	spin_lock_init(&vgdev->resource_export_lock);
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
+> index 0b8cbb87f8d8..1964c0d8b51f 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_object.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_object.c
+> @@ -67,21 +67,6 @@ void virtio_gpu_cleanup_object(struct virtio_gpu_object *bo)
+>   
+>   	virtio_gpu_resource_id_put(vgdev, bo->hw_res_handle);
+>   	if (virtio_gpu_is_shmem(bo)) {
+> -		struct virtio_gpu_object_shmem *shmem = to_virtio_gpu_shmem(bo);
+> -
+> -		if (shmem->pages) {
+> -			if (shmem->mapped) {
+> -				dma_unmap_sgtable(vgdev->vdev->dev.parent,
+> -					     shmem->pages, DMA_TO_DEVICE, 0);
+> -				shmem->mapped = 0;
+> -			}
+> -
+> -			sg_free_table(shmem->pages);
+> -			kfree(shmem->pages);
+> -			shmem->pages = NULL;
+> -			drm_gem_shmem_unpin(&bo->base);
+> -		}
+> -
+>   		drm_gem_shmem_free(&bo->base);
+>   	} else if (virtio_gpu_is_vram(bo)) {
+>   		struct virtio_gpu_object_vram *vram = to_virtio_gpu_vram(bo);
+> @@ -153,37 +138,18 @@ static int virtio_gpu_object_shmem_init(struct virtio_gpu_device *vgdev,
+>   					unsigned int *nents)
+>   {
+>   	bool use_dma_api = !virtio_has_dma_quirk(vgdev->vdev);
+> -	struct virtio_gpu_object_shmem *shmem = to_virtio_gpu_shmem(bo);
+>   	struct scatterlist *sg;
+> -	int si, ret;
+> +	struct sg_table *pages;
+> +	int si;
+>   
+> -	ret = drm_gem_shmem_pin(&bo->base);
+> -	if (ret < 0)
+> -		return -EINVAL;
+> -
+> -	/*
+> -	 * virtio_gpu uses drm_gem_shmem_get_sg_table instead of
+> -	 * drm_gem_shmem_get_pages_sgt because virtio has it's own set of
+> -	 * dma-ops. This is discouraged for other drivers, but should be fine
+> -	 * since virtio_gpu doesn't support dma-buf import from other devices.
+> -	 */
+> -	shmem->pages = drm_gem_shmem_get_sg_table(&bo->base);
+> -	ret = PTR_ERR(shmem->pages);
+> -	if (ret) {
+> -		drm_gem_shmem_unpin(&bo->base);
+> -		shmem->pages = NULL;
+> -		return ret;
+> -	}
+> +	pages = drm_gem_shmem_get_pages_sgt(&bo->base);
+> +	if (IS_ERR(pages))
+> +		return PTR_ERR(pages);
+>   
+> -	if (use_dma_api) {
+> -		ret = dma_map_sgtable(vgdev->vdev->dev.parent,
+> -				      shmem->pages, DMA_TO_DEVICE, 0);
+> -		if (ret)
+> -			return ret;
+> -		*nents = shmem->mapped = shmem->pages->nents;
+> -	} else {
+> -		*nents = shmem->pages->orig_nents;
+> -	}
+> +	if (use_dma_api)
+> +		*nents = pages->nents;
+> +	else
+> +		*nents = pages->orig_nents;
+>   
+>   	*ents = kvmalloc_array(*nents,
+>   			       sizeof(struct virtio_gpu_mem_entry),
+> @@ -194,13 +160,13 @@ static int virtio_gpu_object_shmem_init(struct virtio_gpu_device *vgdev,
+>   	}
+>   
+>   	if (use_dma_api) {
+> -		for_each_sgtable_dma_sg(shmem->pages, sg, si) {
+> +		for_each_sgtable_dma_sg(pages, sg, si) {
+>   			(*ents)[si].addr = cpu_to_le64(sg_dma_address(sg));
+>   			(*ents)[si].length = cpu_to_le32(sg_dma_len(sg));
+>   			(*ents)[si].padding = 0;
+>   		}
+>   	} else {
+> -		for_each_sgtable_sg(shmem->pages, sg, si) {
+> +		for_each_sgtable_sg(pages, sg, si) {
+>   			(*ents)[si].addr = cpu_to_le64(sg_phys(sg));
+>   			(*ents)[si].length = cpu_to_le32(sg->length);
+>   			(*ents)[si].padding = 0;
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+> index 2edf31806b74..06566e44307d 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+> @@ -593,11 +593,10 @@ void virtio_gpu_cmd_transfer_to_host_2d(struct virtio_gpu_device *vgdev,
+>   	struct virtio_gpu_transfer_to_host_2d *cmd_p;
+>   	struct virtio_gpu_vbuffer *vbuf;
+>   	bool use_dma_api = !virtio_has_dma_quirk(vgdev->vdev);
+> -	struct virtio_gpu_object_shmem *shmem = to_virtio_gpu_shmem(bo);
+>   
+>   	if (virtio_gpu_is_shmem(bo) && use_dma_api)
+> -		dma_sync_sgtable_for_device(vgdev->vdev->dev.parent,
+> -					    shmem->pages, DMA_TO_DEVICE);
+> +		dma_sync_sgtable_for_device(&vgdev->vdev->dev,
+> +					    bo->base.sgt, DMA_TO_DEVICE);
+>   
+>   	cmd_p = virtio_gpu_alloc_cmd(vgdev, &vbuf, sizeof(*cmd_p));
+>   	memset(cmd_p, 0, sizeof(*cmd_p));
+> @@ -1017,11 +1016,9 @@ void virtio_gpu_cmd_transfer_to_host_3d(struct virtio_gpu_device *vgdev,
+>   	struct virtio_gpu_vbuffer *vbuf;
+>   	bool use_dma_api = !virtio_has_dma_quirk(vgdev->vdev);
+>   
+> -	if (virtio_gpu_is_shmem(bo) && use_dma_api) {
+> -		struct virtio_gpu_object_shmem *shmem = to_virtio_gpu_shmem(bo);
+> -		dma_sync_sgtable_for_device(vgdev->vdev->dev.parent,
+> -					    shmem->pages, DMA_TO_DEVICE);
+> -	}
+> +	if (virtio_gpu_is_shmem(bo) && use_dma_api)
+> +		dma_sync_sgtable_for_device(&vgdev->vdev->dev,
+> +					    bo->base.sgt, DMA_TO_DEVICE);
+>   
+>   	cmd_p = virtio_gpu_alloc_cmd(vgdev, &vbuf, sizeof(*cmd_p));
+>   	memset(cmd_p, 0, sizeof(*cmd_p));
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0855481861052280033==--
-
