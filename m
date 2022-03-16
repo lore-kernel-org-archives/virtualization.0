@@ -1,64 +1,63 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 93CAFC433F5
-	for <virtualization@archiver.kernel.org>; Wed, 16 Mar 2022 19:21:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id EF279C433EF
+	for <virtualization@archiver.kernel.org>; Wed, 16 Mar 2022 19:21:44 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 5432E8421C;
+	by smtp2.osuosl.org (Postfix) with ESMTP id 9FD2D40204;
+	Wed, 16 Mar 2022 19:21:44 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id xeR3cUsNXBQ2; Wed, 16 Mar 2022 19:21:43 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 1ED2340AC1;
 	Wed, 16 Mar 2022 19:21:43 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id f9H7jL-PR9Ym; Wed, 16 Mar 2022 19:21:42 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id DB7FE84238;
-	Wed, 16 Mar 2022 19:21:41 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B42E6C0012;
-	Wed, 16 Mar 2022 19:21:41 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3E1FEC000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id EB182C0012;
+	Wed, 16 Mar 2022 19:21:42 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 46EFAC000B
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Mar 2022 19:21:40 +0000 (UTC)
+ Wed, 16 Mar 2022 19:21:41 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 1D86C4017E
+ by smtp2.osuosl.org (Postfix) with ESMTP id 261154017E
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Mar 2022 19:21:40 +0000 (UTC)
+ Wed, 16 Mar 2022 19:21:41 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=infradead.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id XY2ViVbYtZqa
+ with ESMTP id c6o72MD07P4M
  for <virtualization@lists.linux-foundation.org>;
  Wed, 16 Mar 2022 19:21:39 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from bombadil.infradead.org (bombadil.infradead.org
  [IPv6:2607:7c80:54:e::133])
- by smtp2.osuosl.org (Postfix) with ESMTPS id F2934400BA
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 39DD040AC3
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Mar 2022 19:21:38 +0000 (UTC)
+ Wed, 16 Mar 2022 19:21:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
  MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
  :Reply-To:Content-Type:Content-ID:Content-Description;
- bh=xtNRe1xty6FQQPFuledRJUXSwUairNMM4kORWxmQYV8=; b=t84D6OIOwke7941Ipke874O+qb
- aGBsnQhRO4EXcylH7PbZ6WwWeCmIP4gE/9nv3vDdhD6Os6XtG70EyG1KDkHTNG6ABB0g9QcjpdI0J
- 6N/hmx6YYf+6oZ/gr4ycnfMFPal+Dige9a+w8PggP2gPGgVIZzFbB96HtwvXzZx0mJE3frVq+3ZoH
- GqAwo3vDUKUFX67ZKegrnZ9P2I9r8/CCabOZh4Q2zU/aeqxkW7pHJ39DGMYNLyBiGPINg7GoFQeGX
- gTQQQGxpmdVzC4R5jza4poDTlmba5GZouKH8tZYaUsEpaWIqAzRdgk4s8ssWMJ1Zj/YQW+S+dYFbZ
- wOWrix6Q==;
+ bh=vYNWn7/gWvdXVAuSqHEJdNrAy6DmSK7DzABaWvfRolU=; b=uz/gKWuyajnQkK6EymeSIkywI8
+ AKee4iVGItlSmtUcyfpMs2rpMKsnM+1/6giveeY/JiJlrqSVxOo/uKyCQMLRnf2rtJLUGAat2DheY
+ jlAWn5xBb7LboEv7888ALv/5/v+uInPkhSvt1z/XZ3RC/iEuJpn9ACgG9yZgYz+Oi6jgUxBqSCUmx
+ aCyq4+1vi7jjqsiV+NLiqIgV4WBYdtKnDD1jgX6hBWsAS/lCde6/J+6WW6RQvJO43a1TKudjCx5Lv
+ cA480jryLVqH5og5d6tTRnTuMIQ/mMRRCUvOHVwbY4zZr+mPiy5PCW5pN7fH3DP5OwZaIlFLgCqCM
+ qw9BeXNQ==;
 Received: from [2601:1c0:6280:3f0::aa0b] (helo=bombadil.infradead.org)
  by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1nUZC3-00EArp-Q1; Wed, 16 Mar 2022 19:20:23 +0000
+ id 1nUZCC-00EArp-TR; Wed, 16 Mar 2022 19:20:33 +0000
 From: Randy Dunlap <rdunlap@infradead.org>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 5/9] virtio-scsi: eliminate anonymous module_init & module_exit
-Date: Wed, 16 Mar 2022 12:20:06 -0700
-Message-Id: <20220316192010.19001-6-rdunlap@infradead.org>
+Subject: [PATCH 9/9] testmmiotrace: eliminate anonymous module_init &
+ module_exit
+Date: Wed, 16 Mar 2022 12:20:10 -0700
+Message-Id: <20220316192010.19001-10-rdunlap@infradead.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220316192010.19001-1-rdunlap@infradead.org>
 References: <20220316192010.19001-1-rdunlap@infradead.org>
@@ -131,49 +130,50 @@ Example 2: (initcall_debug log)
  calling  init+0x0/0x9a @ 1
  initcall init+0x0/0x9a returned 0 after 74 usecs
 
-Fixes: 4fe74b1cb051 ("[SCSI] virtio-scsi: SCSI driver for QEMU based virtual machines")
+Fixes: 8b7d89d02ef3 ("x86: mmiotrace - trace memory mapped IO")
 Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: "James E.J. Bottomley" <jejb@linux.ibm.com>
-Cc: "Martin K. Petersen" <martin.petersen@oracle.com>
-Cc: linux-scsi@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Karol Herbst <karolherbst@gmail.com>
+Cc: Pekka Paalanen <ppaalanen@gmail.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: nouveau@lists.freedesktop.org
+Cc: x86@kernel.org
 ---
- drivers/scsi/virtio_scsi.c |    8 ++++----
+ arch/x86/mm/testmmiotrace.c |    8 ++++----
  1 file changed, 4 insertions(+), 4 deletions(-)
 
---- lnx-517-rc8.orig/drivers/scsi/virtio_scsi.c
-+++ lnx-517-rc8/drivers/scsi/virtio_scsi.c
-@@ -988,7 +988,7 @@ static struct virtio_driver virtio_scsi_
- 	.remove = virtscsi_remove,
- };
+--- lnx-517-rc8.orig/arch/x86/mm/testmmiotrace.c
++++ lnx-517-rc8/arch/x86/mm/testmmiotrace.c
+@@ -113,7 +113,7 @@ static void do_test_bulk_ioremapping(voi
+ 	synchronize_rcu();
+ }
  
 -static int __init init(void)
-+static int __init virtio_scsi_init(void)
++static int __init testmmiotrace_init(void)
  {
- 	int ret = -ENOMEM;
- 
-@@ -1020,14 +1020,14 @@ error:
- 	return ret;
+ 	unsigned long size = (read_far) ? (8 << 20) : (16 << 10);
+ 	int ret = security_locked_down(LOCKDOWN_MMIOTRACE);
+@@ -136,11 +136,11 @@ static int __init init(void)
+ 	return 0;
  }
  
--static void __exit fini(void)
-+static void __exit virtio_scsi_fini(void)
+-static void __exit cleanup(void)
++static void __exit testmmiotrace_cleanup(void)
  {
- 	unregister_virtio_driver(&virtio_scsi_driver);
- 	mempool_destroy(virtscsi_cmd_pool);
- 	kmem_cache_destroy(virtscsi_cmd_cache);
+ 	pr_debug("unloaded.\n");
  }
+ 
 -module_init(init);
--module_exit(fini);
-+module_init(virtio_scsi_init);
-+module_exit(virtio_scsi_fini);
- 
- MODULE_DEVICE_TABLE(virtio, id_table);
- MODULE_DESCRIPTION("Virtio SCSI HBA driver");
+-module_exit(cleanup);
++module_init(testmmiotrace_init);
++module_exit(testmmiotrace_cleanup);
+ MODULE_LICENSE("GPL");
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
