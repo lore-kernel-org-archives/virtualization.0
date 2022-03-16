@@ -1,63 +1,64 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id EF279C433EF
-	for <virtualization@archiver.kernel.org>; Wed, 16 Mar 2022 19:21:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id ECE7EC433F5
+	for <virtualization@archiver.kernel.org>; Wed, 16 Mar 2022 19:21:59 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 9FD2D40204;
-	Wed, 16 Mar 2022 19:21:44 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id A702161249;
+	Wed, 16 Mar 2022 19:21:59 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id xeR3cUsNXBQ2; Wed, 16 Mar 2022 19:21:43 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 1ED2340AC1;
-	Wed, 16 Mar 2022 19:21:43 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id V1TBufkp1Vwo; Wed, 16 Mar 2022 19:21:58 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 478B060F6C;
+	Wed, 16 Mar 2022 19:21:58 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id EB182C0012;
-	Wed, 16 Mar 2022 19:21:42 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 46EFAC000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 2D046C0012;
+	Wed, 16 Mar 2022 19:21:58 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0D703C000B
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Mar 2022 19:21:41 +0000 (UTC)
+ Wed, 16 Mar 2022 19:21:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 261154017E
+ by smtp1.osuosl.org (Postfix) with ESMTP id F085184238
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Mar 2022 19:21:41 +0000 (UTC)
+ Wed, 16 Mar 2022 19:21:56 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id c6o72MD07P4M
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=infradead.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id KjoeC4AifMtC
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Mar 2022 19:21:39 +0000 (UTC)
+ Wed, 16 Mar 2022 19:21:56 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from bombadil.infradead.org (bombadil.infradead.org
  [IPv6:2607:7c80:54:e::133])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 39DD040AC3
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 60DB484216
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Mar 2022 19:21:39 +0000 (UTC)
+ Wed, 16 Mar 2022 19:21:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
  MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
  :Reply-To:Content-Type:Content-ID:Content-Description;
- bh=vYNWn7/gWvdXVAuSqHEJdNrAy6DmSK7DzABaWvfRolU=; b=uz/gKWuyajnQkK6EymeSIkywI8
- AKee4iVGItlSmtUcyfpMs2rpMKsnM+1/6giveeY/JiJlrqSVxOo/uKyCQMLRnf2rtJLUGAat2DheY
- jlAWn5xBb7LboEv7888ALv/5/v+uInPkhSvt1z/XZ3RC/iEuJpn9ACgG9yZgYz+Oi6jgUxBqSCUmx
- aCyq4+1vi7jjqsiV+NLiqIgV4WBYdtKnDD1jgX6hBWsAS/lCde6/J+6WW6RQvJO43a1TKudjCx5Lv
- cA480jryLVqH5og5d6tTRnTuMIQ/mMRRCUvOHVwbY4zZr+mPiy5PCW5pN7fH3DP5OwZaIlFLgCqCM
- qw9BeXNQ==;
+ bh=zlk0pYgeFrBRJtw/N83n4t+jmPWdRVlr1V46qxOWdnE=; b=OWH0M3YCDaaUvZNoeBhNPzIFL8
+ 1mOFKNuRVgUQ5Iogx2eIIw9Mj4dmnKQHT/rvRLaYy7YEu6qwyj9iN55WNZ72jUQfmwyzy+g3ArdCm
+ oAlJIiC2gYZhXLC3XI/4G2V7k/3WrVQQ9xcFl2aKGM3A7RWgmcYT7G0VSZg8WJdKy0+mxV2KWtRsb
+ ktMgcdtXuN9OVRcoh5mBRUTWlMiuU5Qx+f4y4gp+RBIP8e7Iy76TUNOOuokZ0LmtPn+WZG5E5NN0r
+ p36ObkoHZue3Sl2dvNTwt8OBP6UCI2pSUL01GUxoDuJWsfMKFSZ0CcV2BnY/gDeVhh+wmf2T+ajBI
+ rw5JcjiA==;
 Received: from [2601:1c0:6280:3f0::aa0b] (helo=bombadil.infradead.org)
  by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1nUZCC-00EArp-TR; Wed, 16 Mar 2022 19:20:33 +0000
+ id 1nUZBw-00EArp-Ge; Wed, 16 Mar 2022 19:20:16 +0000
 From: Randy Dunlap <rdunlap@infradead.org>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 9/9] testmmiotrace: eliminate anonymous module_init &
- module_exit
-Date: Wed, 16 Mar 2022 12:20:10 -0700
-Message-Id: <20220316192010.19001-10-rdunlap@infradead.org>
+Subject: [PATCH 1/9] virtio_blk: eliminate anonymous module_init & module_exit
+Date: Wed, 16 Mar 2022 12:20:02 -0700
+Message-Id: <20220316192010.19001-2-rdunlap@infradead.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220316192010.19001-1-rdunlap@infradead.org>
 References: <20220316192010.19001-1-rdunlap@infradead.org>
@@ -130,50 +131,48 @@ Example 2: (initcall_debug log)
  calling  init+0x0/0x9a @ 1
  initcall init+0x0/0x9a returned 0 after 74 usecs
 
-Fixes: 8b7d89d02ef3 ("x86: mmiotrace - trace memory mapped IO")
+Fixes: e467cde23818 ("Block driver using virtio.")
 Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Karol Herbst <karolherbst@gmail.com>
-Cc: Pekka Paalanen <ppaalanen@gmail.com>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: nouveau@lists.freedesktop.org
-Cc: x86@kernel.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: linux-block@vger.kernel.org
 ---
- arch/x86/mm/testmmiotrace.c |    8 ++++----
+ drivers/block/virtio_blk.c |    8 ++++----
  1 file changed, 4 insertions(+), 4 deletions(-)
 
---- lnx-517-rc8.orig/arch/x86/mm/testmmiotrace.c
-+++ lnx-517-rc8/arch/x86/mm/testmmiotrace.c
-@@ -113,7 +113,7 @@ static void do_test_bulk_ioremapping(voi
- 	synchronize_rcu();
- }
+--- lnx-517-rc8.orig/drivers/block/virtio_blk.c
++++ lnx-517-rc8/drivers/block/virtio_blk.c
+@@ -1058,7 +1058,7 @@ static struct virtio_driver virtio_blk =
+ #endif
+ };
  
 -static int __init init(void)
-+static int __init testmmiotrace_init(void)
++static int __init virtio_blk_init(void)
  {
- 	unsigned long size = (read_far) ? (8 << 20) : (16 << 10);
- 	int ret = security_locked_down(LOCKDOWN_MMIOTRACE);
-@@ -136,11 +136,11 @@ static int __init init(void)
- 	return 0;
+ 	int error;
+ 
+@@ -1084,14 +1084,14 @@ out_destroy_workqueue:
+ 	return error;
  }
  
--static void __exit cleanup(void)
-+static void __exit testmmiotrace_cleanup(void)
+-static void __exit fini(void)
++static void __exit virtio_blk_fini(void)
  {
- 	pr_debug("unloaded.\n");
+ 	unregister_virtio_driver(&virtio_blk);
+ 	unregister_blkdev(major, "virtblk");
+ 	destroy_workqueue(virtblk_wq);
  }
- 
 -module_init(init);
--module_exit(cleanup);
-+module_init(testmmiotrace_init);
-+module_exit(testmmiotrace_cleanup);
- MODULE_LICENSE("GPL");
+-module_exit(fini);
++module_init(virtio_blk_init);
++module_exit(virtio_blk_fini);
+ 
+ MODULE_DEVICE_TABLE(virtio, id_table);
+ MODULE_DESCRIPTION("Virtio block driver");
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
