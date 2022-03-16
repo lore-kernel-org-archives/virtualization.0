@@ -1,64 +1,64 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id DF3AAC433EF
-	for <virtualization@archiver.kernel.org>; Wed, 16 Mar 2022 19:21:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8F0F4C433EF
+	for <virtualization@archiver.kernel.org>; Wed, 16 Mar 2022 19:21:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 9A05841821;
-	Wed, 16 Mar 2022 19:21:23 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id EF6B340128;
+	Wed, 16 Mar 2022 19:21:37 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Z6TWPfxeeth1; Wed, 16 Mar 2022 19:21:22 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 11B94417EF;
-	Wed, 16 Mar 2022 19:21:22 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 8ekX32QJ8sRp; Wed, 16 Mar 2022 19:21:36 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 3BA98400AF;
+	Wed, 16 Mar 2022 19:21:36 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D6743C0012;
-	Wed, 16 Mar 2022 19:21:21 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 65E44C000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1A501C0012;
+	Wed, 16 Mar 2022 19:21:36 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B6EA2C000B
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Mar 2022 19:21:20 +0000 (UTC)
+ Wed, 16 Mar 2022 19:21:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 44B48611C6
+ by smtp1.osuosl.org (Postfix) with ESMTP id 976C18421C
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Mar 2022 19:21:20 +0000 (UTC)
+ Wed, 16 Mar 2022 19:21:33 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
  dkim=pass (2048-bit key) header.d=infradead.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ZIk-JGRsR8WZ
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id UWqiQSW8UjKM
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Mar 2022 19:21:19 +0000 (UTC)
+ Wed, 16 Mar 2022 19:21:32 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from bombadil.infradead.org (bombadil.infradead.org
  [IPv6:2607:7c80:54:e::133])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 90C3A61213
+ by smtp1.osuosl.org (Postfix) with ESMTPS id E35EB841B0
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Mar 2022 19:21:19 +0000 (UTC)
+ Wed, 16 Mar 2022 19:21:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
- Content-Type:MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:
- To:From:Sender:Reply-To:Content-ID:Content-Description;
- bh=4Krw3MostSzdRmJotMI0a/aFHrz6hD4Rnz4KlkBsZsY=; b=oMmN0YOyCxbwsqUbjdCoYoeLS5
- xwOMYvr9c6y0ZD0gLE9DMUnynweLItGGubfTLvG/AFTS8gDdpV6qbKOe2/SN3s2MVuCKG2ip8Mj1T
- daPYsOGmw7rRzY22M54r0qxbz7gAzmEjzHxFdcWBVn37bavK9d81on5K0p1gEE5WIrLXqWY8/fU6M
- s5P/mifVEcH7CseJqbey8V+DTjHnfTd9wcLrhUE4NbrJGroreYsn7JZe2n7d0wMy7AotAiFE9ZHGk
- 8JL0YSuhRL0OVQ5l3GWEQSBBUdGvXVahxlykI44NQpLaQo/Se64NnCywaP3JRAx3A9pSa/0AcvqOF
- CO5qvuzA==;
+ MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
+ :Reply-To:Content-Type:Content-ID:Content-Description;
+ bh=mAEBdlB3OIVWW6VHbg2SecqMSqz6buQ0aUi+Rw762/Y=; b=QU8xTqKmgiaf0d2RYK0H55UDCG
+ aLJvbEgjnyUe31XqnajbeerGSgezvbj7E6vzKNEkthY9gGqTCGwCgSKs/P6N/RAY4zpEqVLmXvKbP
+ uiSRzPcbdU7p3lSpluXCtlaLUMBZuaHvqoH09vYAF9WublfayTlpUU/qLQX/IDYXeABeZH5o+zC2W
+ 8kZMfKNRXr6lT1/BQuMttKB9AK/4vNhr0ZbmY9ozWZm9W0S5VvcJ8UryNdPz0mWnabak/ruaUP3LR
+ RSlCpaIl4OEVlR7bIZCUxDmvaJ/Q+Xkkx2o2F4c2Wa2eoa9/E3ikl20nvmBdUIbACnjGJJLK415O7
+ 7YK7glNg==;
 Received: from [2601:1c0:6280:3f0::aa0b] (helo=bombadil.infradead.org)
  by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1nUZC5-00EArp-Jb; Wed, 16 Mar 2022 19:20:25 +0000
+ id 1nUZCA-00EArp-3R; Wed, 16 Mar 2022 19:20:30 +0000
 From: Randy Dunlap <rdunlap@infradead.org>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 6/9] usb: gadget: eliminate anonymous module_init & module_exit
-Date: Wed, 16 Mar 2022 12:20:07 -0700
-Message-Id: <20220316192010.19001-7-rdunlap@infradead.org>
+Subject: [PATCH 8/9] x86/crypto: eliminate anonymous module_init & module_exit
+Date: Wed, 16 Mar 2022 12:20:09 -0700
+Message-Id: <20220316192010.19001-9-rdunlap@infradead.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220316192010.19001-1-rdunlap@infradead.org>
 References: <20220316192010.19001-1-rdunlap@infradead.org>
@@ -106,80 +106,196 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-RWxpbWluYXRlIGFub255bW91cyBtb2R1bGVfaW5pdCgpIGFuZCBtb2R1bGVfZXhpdCgpLCB3aGlj
-aCBjYW4gbGVhZCB0bwpjb25mdXNpb24gb3IgYW1iaWd1aXR5IHdoZW4gcmVhZGluZyBTeXN0ZW0u
-bWFwLCBjcmFzaGVzL29vcHMvYnVncywKb3IgYW4gaW5pdGNhbGxfZGVidWcgbG9nLgoKR2l2ZSBl
-YWNoIG9mIHRoZXNlIGluaXQgYW5kIGV4aXQgZnVuY3Rpb25zIHVuaXF1ZSBkcml2ZXItc3BlY2lm
-aWMKbmFtZXMgdG8gZWxpbWluYXRlIHRoZSBhbm9ueW1vdXMgbmFtZXMuCgpFeGFtcGxlIDE6IChT
-eXN0ZW0ubWFwKQogZmZmZmZmZmY4MzJmYzc4YyB0IGluaXQKIGZmZmZmZmZmODMyZmM3OWUgdCBp
-bml0CiBmZmZmZmZmZjgzMmZjOGY4IHQgaW5pdAoKRXhhbXBsZSAyOiAoaW5pdGNhbGxfZGVidWcg
-bG9nKQogY2FsbGluZyAgaW5pdCsweDAvMHgxMiBAIDEKIGluaXRjYWxsIGluaXQrMHgwLzB4MTIg
-cmV0dXJuZWQgMCBhZnRlciAxNSB1c2VjcwogY2FsbGluZyAgaW5pdCsweDAvMHg2MCBAIDEKIGlu
-aXRjYWxsIGluaXQrMHgwLzB4NjAgcmV0dXJuZWQgMCBhZnRlciAyIHVzZWNzCiBjYWxsaW5nICBp
-bml0KzB4MC8weDlhIEAgMQogaW5pdGNhbGwgaW5pdCsweDAvMHg5YSByZXR1cm5lZCAwIGFmdGVy
-IDc0IHVzZWNzCgpGaXhlczogYmQyNWExNGVkYjc1ICgidXNiOiBnYWRnZXQ6IGxlZ2FjeS9zZXJp
-YWw6IGFsbG93IGR5bmFtaWMgcmVtb3ZhbCIpCkZpeGVzOiA3YmI1ZWE1NGJlNDcgKCJ1c2IgZ2Fk
-Z2V0IHNlcmlhbDogdXNlIGNvbXBvc2l0ZSBnYWRnZXQgZnJhbWV3b3JrIikKRml4ZXM6IDFkYTE3
-N2U0YzNmNCAoIkxpbnV4LTIuNi4xMi1yYzIiKQpTaWduZWQtb2ZmLWJ5OiBSYW5keSBEdW5sYXAg
-PHJkdW5sYXBAaW5mcmFkZWFkLm9yZz4KQ2M6IEZlbGlwZSBCYWxiaSA8ZmVsaXBlLmJhbGJpQGxp
-bnV4LmludGVsLmNvbT4KQ2M6IE1pY2hhxYIgTWlyb3PFgmF3IDxtaXJxLWxpbnV4QHJlcmUucW1x
-bS5wbD4KQ2M6IEdyZWcgS3JvYWgtSGFydG1hbiA8Z3JlZ2toQGxpbnV4Zm91bmRhdGlvbi5vcmc+
-CkNjOiBTZWJhc3RpYW4gQW5kcnplaiBTaWV3aW9yIDxiaWdlYXN5QGxpbnV0cm9uaXguZGU+CkNj
-OiBsaW51eC11c2JAdmdlci5rZXJuZWwub3JnCi0tLQogZHJpdmVycy91c2IvZ2FkZ2V0L2xlZ2Fj
-eS9pbm9kZS5jICB8ICAgIDggKysrKy0tLS0KIGRyaXZlcnMvdXNiL2dhZGdldC9sZWdhY3kvc2Vy
-aWFsLmMgfCAgIDEwICsrKysrLS0tLS0KIGRyaXZlcnMvdXNiL2dhZGdldC91ZGMvZHVtbXlfaGNk
-LmMgfCAgICA4ICsrKystLS0tCiAzIGZpbGVzIGNoYW5nZWQsIDEzIGluc2VydGlvbnMoKyksIDEz
-IGRlbGV0aW9ucygtKQoKLS0tIGxueC01MTctcmM4Lm9yaWcvZHJpdmVycy91c2IvZ2FkZ2V0L2xl
-Z2FjeS9zZXJpYWwuYworKysgbG54LTUxNy1yYzgvZHJpdmVycy91c2IvZ2FkZ2V0L2xlZ2FjeS9z
-ZXJpYWwuYwpAQCAtMjczLDcgKzI3Myw3IEBAIHN0YXRpYyBzdHJ1Y3QgdXNiX2NvbXBvc2l0ZV9k
-cml2ZXIgZ3NlcmkKIHN0YXRpYyBpbnQgc3dpdGNoX2dzZXJpYWxfZW5hYmxlKGJvb2wgZG9fZW5h
-YmxlKQogewogCWlmICghc2VyaWFsX2NvbmZpZ19kcml2ZXIubGFiZWwpCi0JCS8qIGluaXQoKSB3
-YXMgbm90IGNhbGxlZCwgeWV0ICovCisJCS8qIGdzZXJpYWxfaW5pdCgpIHdhcyBub3QgY2FsbGVk
-LCB5ZXQgKi8KIAkJcmV0dXJuIDA7CiAKIAlpZiAoZG9fZW5hYmxlKQpAQCAtMjgzLDcgKzI4Myw3
-IEBAIHN0YXRpYyBpbnQgc3dpdGNoX2dzZXJpYWxfZW5hYmxlKGJvb2wgZG8KIAlyZXR1cm4gMDsK
-IH0KIAotc3RhdGljIGludCBfX2luaXQgaW5pdCh2b2lkKQorc3RhdGljIGludCBfX2luaXQgZ3Nl
-cmlhbF9pbml0KHZvaWQpCiB7CiAJLyogV2UgKmNvdWxkKiBleHBvcnQgdHdvIGNvbmZpZ3M7IHRo
-YXQnZCBiZSBtdWNoIGNsZWFuZXIuLi4KIAkgKiBidXQgbmVpdGhlciBvZiB0aGVzZSBwcm9kdWN0
-IElEcyB3YXMgZGVmaW5lZCB0aGF0IHdheS4KQEAgLTMxNCwxMSArMzE0LDExIEBAIHN0YXRpYyBp
-bnQgX19pbml0IGluaXQodm9pZCkKIAogCXJldHVybiB1c2JfY29tcG9zaXRlX3Byb2JlKCZnc2Vy
-aWFsX2RyaXZlcik7CiB9Ci1tb2R1bGVfaW5pdChpbml0KTsKK21vZHVsZV9pbml0KGdzZXJpYWxf
-aW5pdCk7CiAKLXN0YXRpYyB2b2lkIF9fZXhpdCBjbGVhbnVwKHZvaWQpCitzdGF0aWMgdm9pZCBf
-X2V4aXQgZ3NlcmlhbF9jbGVhbnVwKHZvaWQpCiB7CiAJaWYgKGVuYWJsZSkKIAkJdXNiX2NvbXBv
-c2l0ZV91bnJlZ2lzdGVyKCZnc2VyaWFsX2RyaXZlcik7CiB9Ci1tb2R1bGVfZXhpdChjbGVhbnVw
-KTsKK21vZHVsZV9leGl0KGdzZXJpYWxfY2xlYW51cCk7Ci0tLSBsbngtNTE3LXJjOC5vcmlnL2Ry
-aXZlcnMvdXNiL2dhZGdldC91ZGMvZHVtbXlfaGNkLmMKKysrIGxueC01MTctcmM4L2RyaXZlcnMv
-dXNiL2dhZGdldC91ZGMvZHVtbXlfaGNkLmMKQEAgLTI3NjUsNyArMjc2NSw3IEBAIHN0YXRpYyBz
-dHJ1Y3QgcGxhdGZvcm1fZHJpdmVyIGR1bW15X2hjZF8KIHN0YXRpYyBzdHJ1Y3QgcGxhdGZvcm1f
-ZGV2aWNlICp0aGVfdWRjX3BkZXZbTUFYX05VTV9VRENdOwogc3RhdGljIHN0cnVjdCBwbGF0Zm9y
-bV9kZXZpY2UgKnRoZV9oY2RfcGRldltNQVhfTlVNX1VEQ107CiAKLXN0YXRpYyBpbnQgX19pbml0
-IGluaXQodm9pZCkKK3N0YXRpYyBpbnQgX19pbml0IGR1bW15X2hjZF9pbml0KHZvaWQpCiB7CiAJ
-aW50CXJldHZhbCA9IC1FTk9NRU07CiAJaW50CWk7CkBAIC0yODg3LDkgKzI4ODcsOSBAQCBlcnJf
-YWxsb2NfdWRjOgogCQlwbGF0Zm9ybV9kZXZpY2VfcHV0KHRoZV9oY2RfcGRldltpXSk7CiAJcmV0
-dXJuIHJldHZhbDsKIH0KLW1vZHVsZV9pbml0KGluaXQpOworbW9kdWxlX2luaXQoZHVtbXlfaGNk
-X2luaXQpOwogCi1zdGF0aWMgdm9pZCBfX2V4aXQgY2xlYW51cCh2b2lkKQorc3RhdGljIHZvaWQg
-X19leGl0IGR1bW15X2hjZF9jbGVhbnVwKHZvaWQpCiB7CiAJaW50IGk7CiAKQEAgLTI5MDUsNCAr
-MjkwNSw0IEBAIHN0YXRpYyB2b2lkIF9fZXhpdCBjbGVhbnVwKHZvaWQpCiAJcGxhdGZvcm1fZHJp
-dmVyX3VucmVnaXN0ZXIoJmR1bW15X3VkY19kcml2ZXIpOwogCXBsYXRmb3JtX2RyaXZlcl91bnJl
-Z2lzdGVyKCZkdW1teV9oY2RfZHJpdmVyKTsKIH0KLW1vZHVsZV9leGl0KGNsZWFudXApOworbW9k
-dWxlX2V4aXQoZHVtbXlfaGNkX2NsZWFudXApOwotLS0gbG54LTUxNy1yYzgub3JpZy9kcml2ZXJz
-L3VzYi9nYWRnZXQvbGVnYWN5L2lub2RlLmMKKysrIGxueC01MTctcmM4L2RyaXZlcnMvdXNiL2dh
-ZGdldC9sZWdhY3kvaW5vZGUuYwpAQCAtMjEwMSw3ICsyMTAxLDcgQEAgTU9EVUxFX0FMSUFTX0ZT
-KCJnYWRnZXRmcyIpOwogCiAvKi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0qLwogCi1zdGF0aWMgaW50IF9faW5pdCBp
-bml0ICh2b2lkKQorc3RhdGljIGludCBfX2luaXQgZ2FkZ2V0ZnNfaW5pdCAodm9pZCkKIHsKIAlp
-bnQgc3RhdHVzOwogCkBAIC0yMTExLDEyICsyMTExLDEyIEBAIHN0YXRpYyBpbnQgX19pbml0IGlu
-aXQgKHZvaWQpCiAJCQlzaG9ydG5hbWUsIGRyaXZlcl9kZXNjKTsKIAlyZXR1cm4gc3RhdHVzOwog
-fQotbW9kdWxlX2luaXQgKGluaXQpOworbW9kdWxlX2luaXQgKGdhZGdldGZzX2luaXQpOwogCi1z
-dGF0aWMgdm9pZCBfX2V4aXQgY2xlYW51cCAodm9pZCkKK3N0YXRpYyB2b2lkIF9fZXhpdCBnYWRn
-ZXRmc19jbGVhbnVwICh2b2lkKQogewogCXByX2RlYnVnICgidW5yZWdpc3RlciAlc1xuIiwgc2hv
-cnRuYW1lKTsKIAl1bnJlZ2lzdGVyX2ZpbGVzeXN0ZW0gKCZnYWRnZXRmc190eXBlKTsKIH0KLW1v
-ZHVsZV9leGl0IChjbGVhbnVwKTsKK21vZHVsZV9leGl0IChnYWRnZXRmc19jbGVhbnVwKTsKIApf
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXph
-dGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5v
-cmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmly
-dHVhbGl6YXRpb24=
+Eliminate anonymous module_init() and module_exit(), which can lead to
+confusion or ambiguity when reading System.map, crashes/oops/bugs,
+or an initcall_debug log.
+
+Give each of these init and exit functions unique driver-specific
+names to eliminate the anonymous names.
+
+Example 1: (System.map)
+ ffffffff832fc78c t init
+ ffffffff832fc79e t init
+ ffffffff832fc8f8 t init
+
+Example 2: (initcall_debug log)
+ calling  init+0x0/0x12 @ 1
+ initcall init+0x0/0x12 returned 0 after 15 usecs
+ calling  init+0x0/0x60 @ 1
+ initcall init+0x0/0x60 returned 0 after 2 usecs
+ calling  init+0x0/0x9a @ 1
+ initcall init+0x0/0x9a returned 0 after 74 usecs
+
+Fixes: 64b94ceae8c1 ("crypto: blowfish - add x86_64 assembly implementation")
+Fixes: 676a38046f4f ("crypto: camellia-x86_64 - module init/exit functions should be static")
+Fixes: 0b95ec56ae19 ("crypto: camellia - add assembler implementation for x86_64")
+Fixes: 56d76c96a9f3 ("crypto: serpent - add AVX2/x86_64 assembler implementation of serpent cipher")
+Fixes: b9f535ffe38f ("[CRYPTO] twofish: i586 assembly version")
+Fixes: ff0a70fe0536 ("crypto: twofish-x86_64-3way - module init/exit functions should be static")
+Fixes: 8280daad436e ("crypto: twofish - add 3-way parallel x86_64 assembler implemention")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Jussi Kivilinna <jussi.kivilinna@mbnet.fi>
+Cc: Joachim Fritschi <jfritschi@freenet.de>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: linux-crypto@vger.kernel.org
+Cc: x86@kernel.org
+---
+ arch/x86/crypto/blowfish_glue.c     |    8 ++++----
+ arch/x86/crypto/camellia_glue.c     |    8 ++++----
+ arch/x86/crypto/serpent_avx2_glue.c |    8 ++++----
+ arch/x86/crypto/twofish_glue.c      |    8 ++++----
+ arch/x86/crypto/twofish_glue_3way.c |    8 ++++----
+ 5 files changed, 20 insertions(+), 20 deletions(-)
+
+--- lnx-517-rc8.orig/arch/x86/crypto/blowfish_glue.c
++++ lnx-517-rc8/arch/x86/crypto/blowfish_glue.c
+@@ -315,7 +315,7 @@ static int force;
+ module_param(force, int, 0);
+ MODULE_PARM_DESC(force, "Force module load, ignore CPU blacklist");
+ 
+-static int __init init(void)
++static int __init blowfish_init(void)
+ {
+ 	int err;
+ 
+@@ -339,15 +339,15 @@ static int __init init(void)
+ 	return err;
+ }
+ 
+-static void __exit fini(void)
++static void __exit blowfish_fini(void)
+ {
+ 	crypto_unregister_alg(&bf_cipher_alg);
+ 	crypto_unregister_skciphers(bf_skcipher_algs,
+ 				    ARRAY_SIZE(bf_skcipher_algs));
+ }
+ 
+-module_init(init);
+-module_exit(fini);
++module_init(blowfish_init);
++module_exit(blowfish_fini);
+ 
+ MODULE_LICENSE("GPL");
+ MODULE_DESCRIPTION("Blowfish Cipher Algorithm, asm optimized");
+--- lnx-517-rc8.orig/arch/x86/crypto/camellia_glue.c
++++ lnx-517-rc8/arch/x86/crypto/camellia_glue.c
+@@ -1377,7 +1377,7 @@ static int force;
+ module_param(force, int, 0);
+ MODULE_PARM_DESC(force, "Force module load, ignore CPU blacklist");
+ 
+-static int __init init(void)
++static int __init camellia_init(void)
+ {
+ 	int err;
+ 
+@@ -1401,15 +1401,15 @@ static int __init init(void)
+ 	return err;
+ }
+ 
+-static void __exit fini(void)
++static void __exit camellia_fini(void)
+ {
+ 	crypto_unregister_alg(&camellia_cipher_alg);
+ 	crypto_unregister_skciphers(camellia_skcipher_algs,
+ 				    ARRAY_SIZE(camellia_skcipher_algs));
+ }
+ 
+-module_init(init);
+-module_exit(fini);
++module_init(camellia_init);
++module_exit(camellia_fini);
+ 
+ MODULE_LICENSE("GPL");
+ MODULE_DESCRIPTION("Camellia Cipher Algorithm, asm optimized");
+--- lnx-517-rc8.orig/arch/x86/crypto/serpent_avx2_glue.c
++++ lnx-517-rc8/arch/x86/crypto/serpent_avx2_glue.c
+@@ -96,7 +96,7 @@ static struct skcipher_alg serpent_algs[
+ 
+ static struct simd_skcipher_alg *serpent_simd_algs[ARRAY_SIZE(serpent_algs)];
+ 
+-static int __init init(void)
++static int __init serpent_avx2_init(void)
+ {
+ 	const char *feature_name;
+ 
+@@ -115,14 +115,14 @@ static int __init init(void)
+ 					      serpent_simd_algs);
+ }
+ 
+-static void __exit fini(void)
++static void __exit serpent_avx2_fini(void)
+ {
+ 	simd_unregister_skciphers(serpent_algs, ARRAY_SIZE(serpent_algs),
+ 				  serpent_simd_algs);
+ }
+ 
+-module_init(init);
+-module_exit(fini);
++module_init(serpent_avx2_init);
++module_exit(serpent_avx2_fini);
+ 
+ MODULE_LICENSE("GPL");
+ MODULE_DESCRIPTION("Serpent Cipher Algorithm, AVX2 optimized");
+--- lnx-517-rc8.orig/arch/x86/crypto/twofish_glue.c
++++ lnx-517-rc8/arch/x86/crypto/twofish_glue.c
+@@ -81,18 +81,18 @@ static struct crypto_alg alg = {
+ 	}
+ };
+ 
+-static int __init init(void)
++static int __init twofish_glue_init(void)
+ {
+ 	return crypto_register_alg(&alg);
+ }
+ 
+-static void __exit fini(void)
++static void __exit twofish_glue_fini(void)
+ {
+ 	crypto_unregister_alg(&alg);
+ }
+ 
+-module_init(init);
+-module_exit(fini);
++module_init(twofish_glue_init);
++module_exit(twofish_glue_fini);
+ 
+ MODULE_LICENSE("GPL");
+ MODULE_DESCRIPTION ("Twofish Cipher Algorithm, asm optimized");
+--- lnx-517-rc8.orig/arch/x86/crypto/twofish_glue_3way.c
++++ lnx-517-rc8/arch/x86/crypto/twofish_glue_3way.c
+@@ -140,7 +140,7 @@ static int force;
+ module_param(force, int, 0);
+ MODULE_PARM_DESC(force, "Force module load, ignore CPU blacklist");
+ 
+-static int __init init(void)
++static int __init twofish_3way_init(void)
+ {
+ 	if (!force && is_blacklisted_cpu()) {
+ 		printk(KERN_INFO
+@@ -154,13 +154,13 @@ static int __init init(void)
+ 					 ARRAY_SIZE(tf_skciphers));
+ }
+ 
+-static void __exit fini(void)
++static void __exit twofish_3way_fini(void)
+ {
+ 	crypto_unregister_skciphers(tf_skciphers, ARRAY_SIZE(tf_skciphers));
+ }
+ 
+-module_init(init);
+-module_exit(fini);
++module_init(twofish_3way_init);
++module_exit(twofish_3way_fini);
+ 
+ MODULE_LICENSE("GPL");
+ MODULE_DESCRIPTION("Twofish Cipher Algorithm, 3-way parallel asm optimized");
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
