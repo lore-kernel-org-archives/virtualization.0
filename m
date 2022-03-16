@@ -1,70 +1,73 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4A743C433F5
-	for <virtualization@archiver.kernel.org>; Wed, 16 Mar 2022 14:18:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 73107C433F5
+	for <virtualization@archiver.kernel.org>; Wed, 16 Mar 2022 14:18:41 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 0C85E84387;
-	Wed, 16 Mar 2022 14:18:03 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 2B375415BE;
+	Wed, 16 Mar 2022 14:18:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id neiIYjsIM-zm; Wed, 16 Mar 2022 14:18:02 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id A9D8284389;
-	Wed, 16 Mar 2022 14:18:01 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id DU9jnnduyMUA; Wed, 16 Mar 2022 14:18:37 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id D4E40405AA;
+	Wed, 16 Mar 2022 14:18:36 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 80211C0012;
-	Wed, 16 Mar 2022 14:18:01 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8E487C000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B9B3AC0012;
+	Wed, 16 Mar 2022 14:18:36 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 68037C000B
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Mar 2022 14:18:00 +0000 (UTC)
+ Wed, 16 Mar 2022 14:18:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 7D05284387
+ by smtp3.osuosl.org (Postfix) with ESMTP id 561FD611D4
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Mar 2022 14:18:00 +0000 (UTC)
+ Wed, 16 Mar 2022 14:18:35 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id pq6OzsPfx0K5
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=kernel.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Z7Z6OQTthc7N
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Mar 2022 14:17:59 +0000 (UTC)
+ Wed, 16 Mar 2022 14:18:34 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
- by smtp1.osuosl.org (Postfix) with ESMTPS id B06348437D
+Received: from ams.source.kernel.org (ams.source.kernel.org
+ [IPv6:2604:1380:4601:e00::1])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 6D2D960A72
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Mar 2022 14:17:59 +0000 (UTC)
+ Wed, 16 Mar 2022 14:18:34 +0000 (UTC)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by dfw.source.kernel.org (Postfix) with ESMTPS id 119A26112F;
- Wed, 16 Mar 2022 14:17:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B828BC340EC;
- Wed, 16 Mar 2022 14:17:54 +0000 (UTC)
+ by ams.source.kernel.org (Postfix) with ESMTPS id CBF8EB81B85;
+ Wed, 16 Mar 2022 14:18:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECC4DC36AE3;
+ Wed, 16 Mar 2022 14:18:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1647440278;
- bh=u00hVaVVZV0tS90J075DOc/i7FLNseHgpTH7RXYLCPM=;
+ s=k20201202; t=1647440310;
+ bh=ZSpuhZ0FNDIHPGNjHzbp9ow81UzHOJQp4HiqAQy0f4c=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=n8+sypCXrnBfq8lQ/TudLvV+saf1+fnolY2QQdAlt5RE1Y00fXZMlbLFx5qCx4sXr
- u1MlyxS0exLiaWoBFkn+hlt05RA+nOP9D4sE21ef5au628ATXJi7/kY2ECt4zI5HQv
- e1HtbrlETtgIzcbLIbxdaWXVqE95k3Rb8Fpm4hh/uDL8nyGP/D1Ru+TOYFDSSv/gqz
- lqIa/xYRL9mqJ1ipuoMvaHX1xM7Go/0oug18dkJwFG0VDOWKgjhaWSo/cNH9gavZoF
- 9Z6LiLb0l9+7HrGJ6VGR8rPfzPVWKgh1leofD6r/XV75/l3aLvodC84BFABkLHMGPZ
- x9cKfap1egNaA==
+ b=cN0M6QihcH2y+tJ0urYKQHrgLI5SNH95mS7eJVWFDuCLzJ3MLdlfC4cWrHZ26MZ3o
+ FpYiysWdA0vuo20FiLboxMFp12/qCUdx8D3Q68rmHDjOuf3z2AK+UkUwxpPG3nuY+r
+ g3+BX6UTYOa335zd+CUFEdIXt4n7Zw+FF57MX+IJp+rcYBzP6ixPX4BxjHAJ87tssv
+ JVag4Oj4nvEOJhcIE7Kfs6b80pJFpKB0+wLH5DcGNVsb0GhmVlS8JOya5t9I6GaTCj
+ qD1Bd5e9ykejPlJOXUmahyMOik3vqXLuQdDVrzWpFuLGhtqQi6xkFsVnvy3zD2QHtI
+ 8ZQ9U/NM6b37Q==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 3/7] virtio_console: break out of buf poll on
+Subject: [PATCH AUTOSEL 4.19 2/6] virtio_console: break out of buf poll on
  remove
-Date: Wed, 16 Mar 2022 10:17:34 -0400
-Message-Id: <20220316141738.248513-3-sashal@kernel.org>
+Date: Wed, 16 Mar 2022 10:18:13 -0400
+Message-Id: <20220316141817.248621-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220316141738.248513-1-sashal@kernel.org>
-References: <20220316141738.248513-1-sashal@kernel.org>
+In-Reply-To: <20220316141817.248621-1-sashal@kernel.org>
+References: <20220316141817.248621-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -117,10 +120,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 7 insertions(+)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index b453029487a1..2660a0c5483a 100644
+index cdf441942bae..ac0b84afabe7 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -1961,6 +1961,13 @@ static void virtcons_remove(struct virtio_device *vdev)
+@@ -1985,6 +1985,13 @@ static void virtcons_remove(struct virtio_device *vdev)
  	list_del(&portdev->list);
  	spin_unlock_irq(&pdrvdata_lock);
  
