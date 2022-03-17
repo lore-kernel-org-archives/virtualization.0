@@ -1,93 +1,115 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id DDA00C43219
-	for <virtualization@archiver.kernel.org>; Thu, 17 Mar 2022 15:49:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0D2DCC433F5
+	for <virtualization@archiver.kernel.org>; Thu, 17 Mar 2022 16:11:45 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 830DD612CC;
-	Thu, 17 Mar 2022 15:49:54 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 878A1417D7;
+	Thu, 17 Mar 2022 16:11:45 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 3EELeyP12Fxd; Thu, 17 Mar 2022 15:49:52 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id bj4dNnHW9Gz2; Thu, 17 Mar 2022 16:11:44 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 4E3DA60E3C;
-	Thu, 17 Mar 2022 15:49:52 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 1C1FA417AB;
+	Thu, 17 Mar 2022 16:11:44 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1DDECC001A;
-	Thu, 17 Mar 2022 15:49:52 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 512E0C000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E1432C001A;
+	Thu, 17 Mar 2022 16:11:43 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0855BC000B
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Mar 2022 15:49:50 +0000 (UTC)
+ Thu, 17 Mar 2022 16:11:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 3F4CB60E3D
+ by smtp2.osuosl.org (Postfix) with ESMTP id D387440151
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Mar 2022 15:49:50 +0000 (UTC)
+ Thu, 17 Mar 2022 16:11:41 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 4uty66GBN4Mn
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=kernel-dk.20210112.gappssmtp.com
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id GVwTz733_NIj
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Mar 2022 15:49:49 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from casper.infradead.org (casper.infradead.org
- [IPv6:2001:8b0:10b:1236::1])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 1C48C60E3C
+ Thu, 17 Mar 2022 16:11:40 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com
+ [IPv6:2607:f8b0:4864:20::1032])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id E4DD34012D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Mar 2022 15:49:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
- Content-Type:References:In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender
- :Reply-To:Content-ID:Content-Description;
- bh=ThAyvdoG1U35K2Hzsm1O2USOWq/3qlMrhSaUoYHrsOs=; b=F6Vs/65oeZV/y3wN6Bw/M7u1FQ
- 5O+4lQTnS32R0VfdvOK1oVjLmv61tBR4yMMjN/NVDsOnHzoBbLMjP382aAGEyJMaumvolGSgA+m71
- 1Ehmx8UPj/GCllYWg+tBYociITo9JftToXJThRJBZ9nw2p07B62DgVCik4yzpt77Z8S9KNWcKP8vq
- 3tLkrgPZtcMac/dncj65oYGZ4SvtO6CK7F7u84MgNbC6goRbCxod26J//CJV7WZO58VGV5QhSn55l
- /KYfPXjDju0sdq2JANUCt29NuoEjYNFSGZB5nEbrQ97N+XXeTVv8WhJJ+KmWXn+usTtelySDGt3Ln
- 87L6gQCw==;
-Received: from [54.239.6.186] (helo=freeip.amazon.com)
- by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1nUsLq-0075ta-2M; Thu, 17 Mar 2022 15:47:46 +0000
-Message-ID: <f7b858bb438d1979c1f092e105e0db4c7af47758.camel@infradead.org>
-Subject: Re: [PATCH 2/9] virtio_console: eliminate anonymous module_init &
- module_exit
-From: Amit Shah <amit@infradead.org>
-To: Randy Dunlap <rdunlap@infradead.org>, linux-kernel@vger.kernel.org
-Date: Thu, 17 Mar 2022 16:47:42 +0100
-In-Reply-To: <20220316192010.19001-3-rdunlap@infradead.org>
+ Thu, 17 Mar 2022 16:11:40 +0000 (UTC)
+Received: by mail-pj1-x1032.google.com with SMTP id
+ l4-20020a17090a49c400b001c6840df4a3so2103947pjm.0
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 17 Mar 2022 09:11:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+ h=from:to:cc:in-reply-to:references:subject:message-id:date
+ :mime-version:content-transfer-encoding;
+ bh=wywg4x91ht1wDsZE8LDgwKs/937jDdBiI3aoJq8Icig=;
+ b=EcRFu47wdTKbqMSAq17bN6l3fW68je9I7sz6dNGS5tKD2WRbtx22XzizUZtR0qkyAQ
+ QWP1OHwCDN5A0Nw0t3Q7qmd76Q7jNga+edrTyslT2xibkPds1nD37wWbuAnO8SwFuhrO
+ gsVcYZtwJfnoFR7QpeZ53g8ha9BP7vQeAQagIeRfmuB8NZSh871Oy/O22T8GKZQsso7+
+ GAqKZ5LuYXbJaI8VOrspWlTrq9NYT2zp8TS48/UvpIibmW0S8anvsp+TLqAO1q5KW6Bh
+ lxRLQvTEz/3EMFmPsbBbDBLIo1E7GTCaZssTwBenfG227MP1XIuXr1IbCZbQ1ApUnFqh
+ aueg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:from:to:cc:in-reply-to:references:subject
+ :message-id:date:mime-version:content-transfer-encoding;
+ bh=wywg4x91ht1wDsZE8LDgwKs/937jDdBiI3aoJq8Icig=;
+ b=FuMlH+5ls0TFo5AxhNBDORY908KxFPuUUDYDMnNAovDbFgWh3AQNrcnEdRyYzNLimd
+ pSOq3psaDZ9V+1u3TnV5zP07c0SY+UzABnHe61tCOE5uRJiwdFlHRXdmvADQvnv7wikr
+ f1mSygCIz+oY/FOCEWw9lOseDsjkss5WwxJ+8Yh+qOmE638JLxV2t0JwIwSUaIZrhfFK
+ UbCAunc7T5Nzu1XACE8/eRzOBtTX4lERFipFajdxcwadYgsOs9nrnTHhsPiqAzsYXwEw
+ qW+MlcQY2LhHCuffmbqhQ4o+aP4zyeK+g6KY76pB+2SPg3byR4/G2B38vnytK59aLnd4
+ lLew==
+X-Gm-Message-State: AOAM532ArC+f2RNcFXyfptDtlrVD67MOfZPsFIvRjwlB2Oc923faHWj1
+ mrgVIWJqh8mYmNF9yTfaMBJVXA==
+X-Google-Smtp-Source: ABdhPJzujChC6izQDJEHNAPYk2A2y6Fs/ty0Hxcz37xAtsWb7B2FaolAnh/R0gH50blU6B7YVSPE4w==
+X-Received: by 2002:a17:902:7613:b0:151:6e1c:c49c with SMTP id
+ k19-20020a170902761300b001516e1cc49cmr5906213pll.109.1647533499805; 
+ Thu, 17 Mar 2022 09:11:39 -0700 (PDT)
+Received: from [127.0.1.1] ([2620:10d:c090:400::5:d2fd])
+ by smtp.gmail.com with ESMTPSA id
+ q10-20020a056a00088a00b004f7ceff389esm7702590pfj.152.2022.03.17.09.11.35
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 17 Mar 2022 09:11:39 -0700 (PDT)
+From: Jens Axboe <axboe@kernel.dk>
+To: linux-kernel@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>
+In-Reply-To: <20220316192010.19001-1-rdunlap@infradead.org>
 References: <20220316192010.19001-1-rdunlap@infradead.org>
- <20220316192010.19001-3-rdunlap@infradead.org>
-User-Agent: Evolution 3.36.5-0ubuntu1 
+Subject: Re: (subset) [PATCH 0/9] treewide: eliminate anonymous module_init &
+ module_exit
+Message-Id: <164753349550.89091.10994175450707575992.b4-ty@kernel.dk>
+Date: Thu, 17 Mar 2022 10:11:35 -0600
 MIME-Version: 1.0
-Cc: x86@kernel.org, Andy Lutomirski <luto@kernel.org>,
- "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>,
- nouveau@lists.freedesktop.org, Dave Hansen <dave.hansen@linux.intel.com>,
- Valentina Manea <valentina.manea.m@gmail.com>,
- virtualization@lists.linux-foundation.org,
- Krzysztof Opasiak <k.opasiak@samsung.com>, Eli Cohen <eli@mellanox.com>,
- netdev@vger.kernel.org, Shuah Khan <shuah@kernel.org>,
- Thomas Gleixner <tglx@linutronix.de>, "H. Peter
- Anvin" <hpa@zytor.com>, Arnd Bergmann <arnd@arndb.de>,
- Leon Romanovsky <leon@kernel.org>, linux-rdma@vger.kernel.org,
- Ingo Molnar <mingo@kernel.org>, Jozsef Kadlecsik <kadlec@netfilter.org>,
- coreteam@netfilter.org, Jakub Kicinski <kuba@kernel.org>,
+Cc: Joachim Fritschi <jfritschi@freenet.de>,
+ Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Peter Zijlstra <peterz@infradead.org>, nouveau@lists.freedesktop.org,
  Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+ Eli Cohen <eli@mellanox.com>, Valentina Manea <valentina.manea.m@gmail.com>,
+ virtualization@lists.linux-foundation.org,
+ Krzysztof Opasiak <k.opasiak@samsung.com>, "H. Peter Anvin" <hpa@zytor.com>,
+ netdev@vger.kernel.org, Shuah Khan <shuah@kernel.org>,
+ Ingo Molnar <mingo@kernel.org>, Herbert Xu <herbert@gondor.apana.org.au>,
+ linux-scsi@vger.kernel.org, linux-rdma@vger.kernel.org, x86@kernel.org,
+ Jozsef Kadlecsik <kadlec@netfilter.org>, coreteam@netfilter.org,
+ Jussi Kivilinna <jussi.kivilinna@mbnet.fi>, Jakub Kicinski <kuba@kernel.org>,
  Pablo Neira Ayuso <pablo@netfilter.org>,
- Joachim Fritschi <jfritschi@freenet.de>,
- Felipe Balbi <felipe.balbi@linux.intel.com>, Amit Shah <amit@kernel.org>,
- "James E.J. Bottomley" <jejb@linux.ibm.com>,
+ Felipe Balbi <felipe.balbi@linux.intel.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>, Arnd Bergmann <arnd@arndb.de>,
+ Amit Shah <amit@kernel.org>, "James E.J. Bottomley" <jejb@linux.ibm.com>,
  Steven Rostedt <rostedt@goodmis.org>,
- =?UTF-8?Q?Micha=C5=82_Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
+ =?UTF-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>,
  linux-block@vger.kernel.org, Pekka Paalanen <ppaalanen@gmail.com>,
- Borislav Petkov <bp@alien8.de>, Stefan Hajnoczi <stefanha@redhat.com>,
- Shuah Khan <skhan@linuxfoundation.org>,
- Jussi Kivilinna <jussi.kivilinna@mbnet.fi>,
- Herbert Xu <herbert@gondor.apana.org.au>, Jens Axboe <axboe@kernel.dk>,
- linux-scsi@vger.kernel.org, "Martin K. Petersen" <martin.petersen@oracle.com>,
+ Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>,
+ Shuah Khan <skhan@linuxfoundation.org>, Thomas Gleixner <tglx@linutronix.de>,
+ Leon Romanovsky <leon@kernel.org>,
+ "Martin K. Petersen" <martin.petersen@oracle.com>,
  Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-usb@vger.kernel.org,
  Florian Westphal <fw@strlen.de>, Karol Herbst <karolherbst@gmail.com>,
  netfilter-devel@vger.kernel.org, linux-crypto@vger.kernel.org,
@@ -110,55 +132,26 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, 2022-03-16 at 12:20 -0700, Randy Dunlap wrote:
-> Eliminate anonymous module_init() and module_exit(), which can lead to
+On Wed, 16 Mar 2022 12:20:01 -0700, Randy Dunlap wrote:
+> There are a number of drivers that use "module_init(init)" and
+> "module_exit(exit)", which are anonymous names and can lead to
 > confusion or ambiguity when reading System.map, crashes/oops/bugs,
 > or an initcall_debug log.
 > 
 > Give each of these init and exit functions unique driver-specific
 > names to eliminate the anonymous names.
 > 
-> Example 1: (System.map)
->  ffffffff832fc78c t init
->  ffffffff832fc79e t init
->  ffffffff832fc8f8 t init
-> 
-> Example 2: (initcall_debug log)
->  calling  init+0x0/0x12 @ 1
->  initcall init+0x0/0x12 returned 0 after 15 usecs
->  calling  init+0x0/0x60 @ 1
->  initcall init+0x0/0x60 returned 0 after 2 usecs
->  calling  init+0x0/0x9a @ 1
->  initcall init+0x0/0x9a returned 0 after 74 usecs
-> 
-> Fixes: 31610434bc35 ("Virtio console driver")
-> Fixes: 7177876fea83 ("virtio: console: Add ability to remove module")
-> Signed-off-by: Randy Dunlap <
-> rdunlap@infradead.org
-> >
-> Cc: Amit Shah <
-> amit@kernel.org
-> >
-> Cc: 
-> virtualization@lists.linux-foundation.org
-> 
-> Cc: Arnd Bergmann <
-> arnd@arndb.de
-> >
-> Cc: Greg Kroah-Hartman <
-> gregkh@linuxfoundation.org
-> >
-> ---
->  drivers/char/virtio_console.c |    8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
+> [...]
 
-Reviewed-by: Amit Shah <amit@kernel.org>
+Applied, thanks!
 
-I don't think the Fixes-by really applies here, though - we don't
-really want to push this into stable, nor do we want any automated
-tools to pick this up because of that tag..
+[1/9] virtio_blk: eliminate anonymous module_init & module_exit
+      commit: bcfe9b6cbb4438b8c1cc4bd475221652c8f9301b
 
-		Amit
+Best regards,
+-- 
+Jens Axboe
+
 
 _______________________________________________
 Virtualization mailing list
