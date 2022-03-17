@@ -4,77 +4,77 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 64D16C433F5
-	for <virtualization@archiver.kernel.org>; Thu, 17 Mar 2022 08:46:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 91A7BC4332F
+	for <virtualization@archiver.kernel.org>; Thu, 17 Mar 2022 08:46:26 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 0284C84357;
-	Thu, 17 Mar 2022 08:46:08 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 357CB8437D;
+	Thu, 17 Mar 2022 08:46:26 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id CoMKcbWxHL_P; Thu, 17 Mar 2022 08:46:07 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 8975C8434D;
-	Thu, 17 Mar 2022 08:46:06 +0000 (UTC)
+	with ESMTP id aKkb4ZeamapE; Thu, 17 Mar 2022 08:46:25 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id C6B318434D;
+	Thu, 17 Mar 2022 08:46:24 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 66A34C0012;
-	Thu, 17 Mar 2022 08:46:06 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B14A8C000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A7F89C0012;
+	Thu, 17 Mar 2022 08:46:24 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6BB91C000B
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Mar 2022 08:46:05 +0000 (UTC)
+ Thu, 17 Mar 2022 08:46:23 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 99263417BC
+ by smtp3.osuosl.org (Postfix) with ESMTP id 58EE5612AC
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Mar 2022 08:46:05 +0000 (UTC)
+ Thu, 17 Mar 2022 08:46:23 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id P3aB-qHn3x6o
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id XTeMj8esAEkS
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Mar 2022 08:46:04 +0000 (UTC)
+ Thu, 17 Mar 2022 08:46:22 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id C4965417B0
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id A03B3612AA
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Mar 2022 08:46:04 +0000 (UTC)
+ Thu, 17 Mar 2022 08:46:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1647506763;
+ s=mimecast20190719; t=1647506781;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=OJl0OqzFyx1IFYWW/jK4Qb7pxtgaM7g83EsrlNNbdCA=;
- b=fGd3TdXYQ43+fB8qHF4tr0icvBQx1vpt7P/livOfxDSSfz82pVhnY/ZQIN1Xi7PpehAqrf
- RHA0ZwUZPLmgDI3Bj02NeT7mc95XFqrhAJXs191OwvGBLCyLjyH29Mwe8P6TSSZpWmwrJt
- CBs+Y97K8L1fVdvWC4vKIzBweHEHSOw=
+ bh=sVx9DgD8AwAJ8+xHbwqIFqUi1dP3yjGM90jTXU92h6o=;
+ b=JcOWtwWcmcamaAT0mIAc+hlrG5AvD97EDvvTyyNIsxJvjXHgzJo0A0cA8FPz15mJxa001I
+ fCgyiirt9fJjYOpAr4DXdEzmX3vv33IHpprPay36JGUGMQUNUlFcalnUVeBy4k8F1QO53D
+ 39QlTl9d6dRxSqxxx/QCfUX/gJT6LWA=
 Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
  [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-150-ziQYNZgFMDqlhEuLtt5kZg-1; Thu, 17 Mar 2022 04:46:00 -0400
-X-MC-Unique: ziQYNZgFMDqlhEuLtt5kZg-1
-Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com
- [10.11.54.9])
+ us-mta-635-7I8ftN2EOIe68vrg6AndoA-1; Thu, 17 Mar 2022 04:46:20 -0400
+X-MC-Unique: 7I8ftN2EOIe68vrg6AndoA-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.5])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id D69261C03389;
- Thu, 17 Mar 2022 08:45:57 +0000 (UTC)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 5987B1C03385;
+ Thu, 17 Mar 2022 08:46:18 +0000 (UTC)
 Received: from localhost (unknown [10.39.194.252])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 643CC43E8FA;
- Thu, 17 Mar 2022 08:45:56 +0000 (UTC)
-Date: Thu, 17 Mar 2022 08:45:55 +0000
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 9FB7153CF;
+ Thu, 17 Mar 2022 08:46:13 +0000 (UTC)
+Date: Thu, 17 Mar 2022 08:46:12 +0000
 From: Stefan Hajnoczi <stefanha@redhat.com>
 To: Randy Dunlap <rdunlap@infradead.org>
-Subject: Re: [PATCH 1/9] virtio_blk: eliminate anonymous module_init &
+Subject: Re: [PATCH 5/9] virtio-scsi: eliminate anonymous module_init &
  module_exit
-Message-ID: <YjL1Qz58ET7gS0bs@stefanha-x1.localdomain>
+Message-ID: <YjL1VK4F53hKntam@stefanha-x1.localdomain>
 References: <20220316192010.19001-1-rdunlap@infradead.org>
- <20220316192010.19001-2-rdunlap@infradead.org>
+ <20220316192010.19001-6-rdunlap@infradead.org>
 MIME-Version: 1.0
-In-Reply-To: <20220316192010.19001-2-rdunlap@infradead.org>
-X-Scanned-By: MIMEDefang 2.85 on 10.11.54.9
+In-Reply-To: <20220316192010.19001-6-rdunlap@infradead.org>
+X-Scanned-By: MIMEDefang 2.79 on 10.11.54.5
 Cc: x86@kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
  Peter Zijlstra <peterz@infradead.org>, nouveau@lists.freedesktop.org,
  Dave Hansen <dave.hansen@linux.intel.com>,
@@ -118,23 +118,23 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============4664869848292608779=="
+Content-Type: multipart/mixed; boundary="===============1463061442511685221=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 
---===============4664869848292608779==
+--===============1463061442511685221==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="fc5ZE+6HWCBqJ9uq"
+	protocol="application/pgp-signature"; boundary="3AeFxmP0HGbN94e3"
 Content-Disposition: inline
 
 
---fc5ZE+6HWCBqJ9uq
+--3AeFxmP0HGbN94e3
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Mar 16, 2022 at 12:20:02PM -0700, Randy Dunlap wrote:
+On Wed, Mar 16, 2022 at 12:20:06PM -0700, Randy Dunlap wrote:
 > Eliminate anonymous module_init() and module_exit(), which can lead to
 > confusion or ambiguity when reading System.map, crashes/oops/bugs,
 > or an initcall_debug log.
@@ -155,71 +155,73 @@ On Wed, Mar 16, 2022 at 12:20:02PM -0700, Randy Dunlap wrote:
 >  calling  init+0x0/0x9a @ 1
 >  initcall init+0x0/0x9a returned 0 after 74 usecs
 >=20
-> Fixes: e467cde23818 ("Block driver using virtio.")
+> Fixes: 4fe74b1cb051 ("[SCSI] virtio-scsi: SCSI driver for QEMU based virt=
+ual machines")
 > Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
 > Cc: "Michael S. Tsirkin" <mst@redhat.com>
 > Cc: Jason Wang <jasowang@redhat.com>
 > Cc: Paolo Bonzini <pbonzini@redhat.com>
 > Cc: Stefan Hajnoczi <stefanha@redhat.com>
+> Cc: "James E.J. Bottomley" <jejb@linux.ibm.com>
+> Cc: "Martin K. Petersen" <martin.petersen@oracle.com>
+> Cc: linux-scsi@vger.kernel.org
 > Cc: virtualization@lists.linux-foundation.org
-> Cc: Jens Axboe <axboe@kernel.dk>
-> Cc: linux-block@vger.kernel.org
 > ---
->  drivers/block/virtio_blk.c |    8 ++++----
+>  drivers/scsi/virtio_scsi.c |    8 ++++----
 >  1 file changed, 4 insertions(+), 4 deletions(-)
 >=20
-> --- lnx-517-rc8.orig/drivers/block/virtio_blk.c
-> +++ lnx-517-rc8/drivers/block/virtio_blk.c
-> @@ -1058,7 +1058,7 @@ static struct virtio_driver virtio_blk =3D
->  #endif
+> --- lnx-517-rc8.orig/drivers/scsi/virtio_scsi.c
+> +++ lnx-517-rc8/drivers/scsi/virtio_scsi.c
+> @@ -988,7 +988,7 @@ static struct virtio_driver virtio_scsi_
+>  	.remove =3D virtscsi_remove,
 >  };
 > =20
 > -static int __init init(void)
-> +static int __init virtio_blk_init(void)
+> +static int __init virtio_scsi_init(void)
 >  {
->  	int error;
+>  	int ret =3D -ENOMEM;
 > =20
-> @@ -1084,14 +1084,14 @@ out_destroy_workqueue:
->  	return error;
+> @@ -1020,14 +1020,14 @@ error:
+>  	return ret;
 >  }
 > =20
 > -static void __exit fini(void)
-> +static void __exit virtio_blk_fini(void)
+> +static void __exit virtio_scsi_fini(void)
 >  {
->  	unregister_virtio_driver(&virtio_blk);
->  	unregister_blkdev(major, "virtblk");
->  	destroy_workqueue(virtblk_wq);
+>  	unregister_virtio_driver(&virtio_scsi_driver);
+>  	mempool_destroy(virtscsi_cmd_pool);
+>  	kmem_cache_destroy(virtscsi_cmd_cache);
 >  }
 > -module_init(init);
 > -module_exit(fini);
-> +module_init(virtio_blk_init);
-> +module_exit(virtio_blk_fini);
+> +module_init(virtio_scsi_init);
+> +module_exit(virtio_scsi_fini);
 > =20
 >  MODULE_DEVICE_TABLE(virtio, id_table);
->  MODULE_DESCRIPTION("Virtio block driver");
+>  MODULE_DESCRIPTION("Virtio SCSI HBA driver");
 >=20
 
 Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 
---fc5ZE+6HWCBqJ9uq
+--3AeFxmP0HGbN94e3
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmIy9UIACgkQnKSrs4Gr
-c8iZgwgAu+noR+ltVAJ7OwDFJ+cU1+Jt+y9ekxCE7nVf1ewvSPnRQk4uHedTFnbj
-Gj0heR6sfjVttvETL+7czSeKRHX9EXeoVppr4CUa8V5WFqvF9x1znxWKUdhLvBTQ
-EkP9LIuTQcDIAhhBnDkey+nm+HGSCskhzdL2dv+tCrmQpNL+A452YdhLdRDE9rc0
-hZhcHBGwWMaLCwkBgoOjtbV8XhAben6e8pSm/y4fhYox3Vdp+uhpyNq0VgecqQxo
-oAIHze/jJOOtt40S/VkCBFk59HmIIVfiP1HZYLTZ1rSxlozav/tpfevVO+SE1J4I
-AOGS9d5FzkEqt+zUnNrH4FIwokLOJQ==
-=xh+M
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmIy9VQACgkQnKSrs4Gr
+c8geUQgAw2TOHcSEnWK4BJz/IELyWnu6TzVbAIIgDLtl/bUwEsgSwAljdB7zw8K/
+6MBcR6ner6oRCLk6Vx0ltNqrAeaxRZOAPqnj1uBP+FZ13in/KYZNz4XkdVZpRbDj
+Kqgko1egvrgmbZlvwbRA15UnNntchizS8VfXd45jyGUFLD/zl1JvIKGDVU31vt7i
+ZLPUWxMdPG2LwGpgBmTEQnX9LQbK0/d2+f8AEnMAzn1SmIKp8ZgCTYwQrpuD/1xU
+eqYoCjQVhNAk7kwkL3XeL/1m0d3b+UVvNRIGaEQBo2Ia8ZJcub7kua6KFb3wfYyK
+AQM+SWYvzoTl9ws3BUL4BqsEgEItBA==
+=iao2
 -----END PGP SIGNATURE-----
 
---fc5ZE+6HWCBqJ9uq--
+--3AeFxmP0HGbN94e3--
 
 
---===============4664869848292608779==
+--===============1463061442511685221==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -229,5 +231,5 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============4664869848292608779==--
+--===============1463061442511685221==--
 
