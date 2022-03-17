@@ -1,108 +1,116 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6E597C433F5
-	for <virtualization@archiver.kernel.org>; Thu, 17 Mar 2022 02:20:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 95E45C433F5
+	for <virtualization@archiver.kernel.org>; Thu, 17 Mar 2022 02:33:18 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id E500C40AEA;
-	Thu, 17 Mar 2022 02:20:23 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 19D2541514;
+	Thu, 17 Mar 2022 02:33:18 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id HwNUzdIvOz5J; Thu, 17 Mar 2022 02:20:22 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id V8OHStDwZw8r; Thu, 17 Mar 2022 02:33:16 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 4EDB340111;
-	Thu, 17 Mar 2022 02:20:22 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 1EDFC410B6;
+	Thu, 17 Mar 2022 02:33:16 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 31BE7C001A;
-	Thu, 17 Mar 2022 02:20:22 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 95837C000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E19B9C001A;
+	Thu, 17 Mar 2022 02:33:15 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 64B4AC000B
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Mar 2022 02:20:21 +0000 (UTC)
+ Thu, 17 Mar 2022 02:33:14 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 8415561247
+ by smtp4.osuosl.org (Postfix) with ESMTP id 3D8C2410C5
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Mar 2022 02:20:21 +0000 (UTC)
+ Thu, 17 Mar 2022 02:33:14 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 56SsMRf2uK5o
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id o5-eX2Hormc3
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Mar 2022 02:20:20 +0000 (UTC)
+ Thu, 17 Mar 2022 02:33:13 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id A413260769
+ by smtp4.osuosl.org (Postfix) with ESMTPS id B7B4C410B6
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Mar 2022 02:20:20 +0000 (UTC)
+ Thu, 17 Mar 2022 02:33:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1647483619;
+ s=mimecast20190719; t=1647484391;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=nPCfzxyjMhxLP4qSRwQ+hURc5goubZq4R+xZPtQNplE=;
- b=FZh+BFUO7Y9ZW6k1zK66mexuOBvAvp8u5RtYhqLoIK+dmTm8rraxj/QdjA6OLGlwBNE5qJ
- kv0DBo6XlO6dlM8W+WEfcq7YzLSBI1VgblRFkhuc3jHy8+ux4RZ7xhv4cDeIcY8cW9+nF5
- 0GvrynipnkP1OxvGPGZobaw3nT+XwJg=
-Received: from mail-lj1-f197.google.com (mail-lj1-f197.google.com
- [209.85.208.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=FwezJHU/UjMaLKVBEXGzX4AfNs2DL2XOlOBZWRSnAMg=;
+ b=aR2qxWfakucNIVik+cneErouxEZF4Ktja7qiXoYendbwm/LQPADpoox3jRA8lqQG0O93Dp
+ skfpHE6RVhdf2h1YuFkKVe4aneUbbNWnWnGOiRc7xrOhTtO3XYd5WnK9B14GnRgML5EKE5
+ jLtA6pFP6N1ZGuhEyIef498BoJiyG/A=
+Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
+ [209.85.208.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-343-ZNXNu6F7PKqxZU38gfuKjg-1; Wed, 16 Mar 2022 22:20:18 -0400
-X-MC-Unique: ZNXNu6F7PKqxZU38gfuKjg-1
-Received: by mail-lj1-f197.google.com with SMTP id
- o8-20020a2e9448000000b00246133c54deso1567214ljh.10
+ us-mta-77-13H9DOsNPlmbK42RV-AlUQ-1; Wed, 16 Mar 2022 22:33:08 -0400
+X-MC-Unique: 13H9DOsNPlmbK42RV-AlUQ-1
+Received: by mail-lj1-f199.google.com with SMTP id
+ n9-20020a2e82c9000000b002435af2e8b9so1558267ljh.20
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Mar 2022 19:20:17 -0700 (PDT)
+ Wed, 16 Mar 2022 19:33:07 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc:content-transfer-encoding;
- bh=nPCfzxyjMhxLP4qSRwQ+hURc5goubZq4R+xZPtQNplE=;
- b=dDMGOLGn2UEQ1eApexwALCW68rNCIM9QmT6vrbN6NkF91Vy8R0+275+ASr4CBH38M9
- B+PE+EG8aMFG4Pm9ve/fXeavc6XauM7UdGKZ0QO98HCG/WSUqjJ5/ABuDJx47XlMTMef
- R+0d6s47sxl1xR57nvzpuXWBs3qxJMfHvBW+MGj1ZKARDlwzpv6gOH6ytUtWmSu3is4F
- hLADMCnEw4eY5FvYy9TK0ejgD/kQ8hgbvqZ12vop1QQY+ingimnAycrIuE1rP8BMbUxN
- 9WoUURR7emyp90oWk0Yl5JrWFJL3daD8HXJ4bXF8HczH4AFrNCZMR/iKVz1xpP4BBkbb
- WNkw==
-X-Gm-Message-State: AOAM532y5b4B+8HRarvDLp1fNCjzV7rZQZeha5qrLXybV0NNhTsq9BAq
- zzKzUyweDwKiXIuTijOB6JYvDPVgLMmAvgox9HDQ5wWpNuFjlOi717ypDhWBsJa8hqSjZijfSWl
- lmZy8w31xQkul04bTXvk+T8QjivTLkzmaI8gnNm6uSGf8WnCrE6SWAD8W1g==
-X-Received: by 2002:a05:651c:b23:b0:247:ee17:e9ed with SMTP id
- b35-20020a05651c0b2300b00247ee17e9edmr1466188ljr.243.1647483616427; 
- Wed, 16 Mar 2022 19:20:16 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxBCg7wlhjy6Rcdi31sE5bb7ELPAmbhPDTsbU5Jc7PjWTT/34HozDuP3hNEXZTNkG2RGvy9B9CMVr5KB2Cun9k=
-X-Received: by 2002:a05:651c:b23:b0:247:ee17:e9ed with SMTP id
- b35-20020a05651c0b2300b00247ee17e9edmr1466175ljr.243.1647483616214; Wed, 16
- Mar 2022 19:20:16 -0700 (PDT)
+ :message-id:subject:to:cc;
+ bh=FwezJHU/UjMaLKVBEXGzX4AfNs2DL2XOlOBZWRSnAMg=;
+ b=Oye29U9gXT5c2wcXbGWoyN/x3qMNDE3Carb5Q+P30qgig7RDiFwpYUOmJi62HyFCny
+ BR5+mxumHDKHCkLLPEtbHz5TMjxN8ED40QSh7lvEZWafsG0MICuiqxuUcR6hbo1bcBZZ
+ ObvfRjyqzkJxb0KfsI4+OE7DftIQIk2j9w8Lxd2cYxS28mjuVzytx65+gfp1RmvXkAoY
+ Oo4jnIq7ITkqmasJHxdMDyYMLvmV79tx2DwttOPQB6a1wqYGOUyZ0baOfNCXKLIkGSHx
+ QKAVd9GuYa/zinvkgvSiQtuUV3+j+2QdFrOIix0zZPgkzse4L3E6Z6STCplar4bIcIMD
+ a9wQ==
+X-Gm-Message-State: AOAM531JAGwI+2hTFruhL/EEolHxMfEaCYNMWlpu5dWxSFIEymQHQA1v
+ AzwBhqUw80/vqn6Zrn2nKbX/lfIqiFGlgEKr/4Twu9trNnAkm4vmALuaBJ+CFaeyZQX8n7UmzAk
+ HH8XkiMLvLCx1ONhOUBVX8wUk56UMh8MQDSUKOV9arOpAcOt07q3DGPD5sg==
+X-Received: by 2002:a05:6512:b81:b0:448:b342:513c with SMTP id
+ b1-20020a0565120b8100b00448b342513cmr1476026lfv.257.1647484386426; 
+ Wed, 16 Mar 2022 19:33:06 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJw3rIAGZ8dwsocxj4jXcKqZaKruziIeMiOIdsrisMjhFez+nmWyuChA+cWkRE6qoTQEj5//Vf0AvjRQH9BhZXQ=
+X-Received: by 2002:a05:6512:b81:b0:448:b342:513c with SMTP id
+ b1-20020a0565120b8100b00448b342513cmr1475999lfv.257.1647484386106; Wed, 16
+ Mar 2022 19:33:06 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220311152832.17703-1-suwan.kim027@gmail.com>
- <ea838f63-5f63-6f3b-f49e-1107b43f7d1c@redhat.com>
- <Yi82BL9KecQsVfgX@localhost.localdomain>
- <CACGkMEujXYNE-88=m9ohjbeAj2F7CqEUes8gOUmasTNtwn2bUA@mail.gmail.com>
- <YjCmBkjgtQZffiXw@localhost.localdomain>
- <CACGkMEtxadf1+0Db06nE3SuQZhvyELq7ZwvKaH8x_utj91dRdg@mail.gmail.com>
- <YjIDIjUwuwkfRS2d@localhost.localdomain>
-In-Reply-To: <YjIDIjUwuwkfRS2d@localhost.localdomain>
+References: <20220216080022.56707-1-elic@nvidia.com>
+ <20220216080022.56707-2-elic@nvidia.com>
+ <22f77b5c-2003-c963-24c9-fce9cb53160d@oracle.com>
+ <20220217064619.GB86497@mtl-vdi-166.wap.labs.mlnx>
+ <8e834c04-47d2-1286-117d-28caa3e84606@oracle.com>
+ <DM8PR12MB5400E80073521E898056578BAB089@DM8PR12MB5400.namprd12.prod.outlook.com>
+ <6175d620-6be3-c249-5482-0a9448499e4a@oracle.com>
+ <DM8PR12MB5400E03D7AD7833CEBF8DF9DAB099@DM8PR12MB5400.namprd12.prod.outlook.com>
+ <74495f15-8f1c-93db-1277-50198ac3284e@oracle.com>
+ <DM8PR12MB540086CCD1F535668D05E546AB0A9@DM8PR12MB5400.namprd12.prod.outlook.com>
+ <a30ac3c0-059d-4588-c5ac-599c060f6bbf@oracle.com>
+ <DM8PR12MB54000042A48FDFA446EFE792AB0E9@DM8PR12MB5400.namprd12.prod.outlook.com>
+ <61748d91-153c-ec79-c1f0-e3c44cdbea5d@oracle.com>
+ <DM8PR12MB540054565515158F9209723EAB109@DM8PR12MB5400.namprd12.prod.outlook.com>
+ <53dd5c21-5045-bb66-05fe-1a1157f7abe8@oracle.com>
+ <DM8PR12MB5400E7B2359FE4797F190AC5AB119@DM8PR12MB5400.namprd12.prod.outlook.com>
+ <7fa43ec9-202e-0cbc-22fb-0770ed023c35@oracle.com>
+In-Reply-To: <7fa43ec9-202e-0cbc-22fb-0770ed023c35@oracle.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 17 Mar 2022 10:20:05 +0800
-Message-ID: <CACGkMEu8T8_9gJMGybMZVCT9zCrw+OaTtbhtvnUNUORNmYKw-A@mail.gmail.com>
-Subject: Re: [PATCH] virtio-blk: support polling I/O
-To: Suwan Kim <suwan.kim027@gmail.com>
+Date: Thu, 17 Mar 2022 10:32:54 +0800
+Message-ID: <CACGkMEuvbWWiCrmuCKG7Z9OWUaFU5GT+U_yEBVg=QcWDrwOSzA@mail.gmail.com>
+Subject: Re: [PATCH v1 1/2] vdpa: Add support for querying vendor statistics
+To: Si-Wei Liu <si-wei.liu@oracle.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: Max Gurtovoy <mgurtovoy@nvidia.com>, mst <mst@redhat.com>,
- virtualization <virtualization@lists.linux-foundation.org>,
- linux-block@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>,
- pbonzini <pbonzini@redhat.com>
+Cc: "lvivier@redhat.com" <lvivier@redhat.com>,
+ "mst@redhat.com" <mst@redhat.com>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ "eperezma@redhat.com" <eperezma@redhat.com>, Eli Cohen <elic@nvidia.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -114,64 +122,473 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gV2VkLCBNYXIgMTYsIDIwMjIgYXQgMTE6MzMgUE0gU3V3YW4gS2ltIDxzdXdhbi5raW0wMjdA
-Z21haWwuY29tPiB3cm90ZToKPgo+IE9uIFdlZCwgTWFyIDE2LCAyMDIyIGF0IDEwOjAyOjEzQU0g
-KzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4gPiBPbiBUdWUsIE1hciAxNSwgMjAyMiBhdCAxMDo0
-MyBQTSBTdXdhbiBLaW0gPHN1d2FuLmtpbTAyN0BnbWFpbC5jb20+IHdyb3RlOgo+ID4gPgo+ID4g
-PiBPbiBUdWUsIE1hciAxNSwgMjAyMiBhdCAwNDo1OToyM1BNICswODAwLCBKYXNvbiBXYW5nIHdy
-b3RlOgo+ID4gPiA+IE9uIE1vbiwgTWFyIDE0LCAyMDIyIGF0IDg6MzMgUE0gU3V3YW4gS2ltIDxz
-dXdhbi5raW0wMjdAZ21haWwuY29tPiB3cm90ZToKPiA+ID4gPgo+ID4gPiA+ID4gT24gTW9uLCBN
-YXIgMTQsIDIwMjIgYXQgMDI6MTQ6NTNQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToKPiA+ID4g
-PiA+ID4KPiA+ID4gPiA+ID4g5ZyoIDIwMjIvMy8xMSDkuIvljYgxMToyOCwgU3V3YW4gS2ltIOWG
-memBkzoKPiA+ID4gPiA+ID4gPiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRp
-b19ibGsuaAo+ID4gPiA+ID4gYi9pbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX2Jsay5oCj4gPiA+
-ID4gPiA+ID4gaW5kZXggZDg4OGYwMTNkOWZmLi4zZmNhZjkzN2FmZTEgMTAwNjQ0Cj4gPiA+ID4g
-PiA+ID4gLS0tIGEvaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19ibGsuaAo+ID4gPiA+ID4gPiA+
-ICsrKyBiL2luY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fYmxrLmgKPiA+ID4gPiA+ID4gPiBAQCAt
-MTE5LDggKzExOSw5IEBAIHN0cnVjdCB2aXJ0aW9fYmxrX2NvbmZpZyB7Cj4gPiA+ID4gPiA+ID4g
-ICAgICAqIGRlYWxsb2NhdGlvbiBvZiBvbmUgb3IgbW9yZSBvZiB0aGUgc2VjdG9ycy4KPiA+ID4g
-PiA+ID4gPiAgICAgICovCj4gPiA+ID4gPiA+ID4gICAgIF9fdTggd3JpdGVfemVyb2VzX21heV91
-bm1hcDsKPiA+ID4gPiA+ID4gPiArICAgX191OCB1bnVzZWQxOwo+ID4gPiA+ID4gPiA+IC0gICBf
-X3U4IHVudXNlZDFbM107Cj4gPiA+ID4gPiA+ID4gKyAgIF9fdmlydGlvMTYgbnVtX3BvbGxfcXVl
-dWVzOwo+ID4gPiA+ID4gPiA+ICAgfSBfX2F0dHJpYnV0ZV9fKChwYWNrZWQpKTsKPiA+ID4gPiA+
-ID4KPiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4gVGhpcyBsb29rcyBsaWtlIGEgaW1wbGVtZW50YXRp
-b24gc3BlY2lmaWMgKHZpcnRpby1ibGstcGNpKSBvcHRpbWl6YXRpb24sCj4gPiA+ID4gPiBob3cK
-PiA+ID4gPiA+ID4gYWJvdXQgb3RoZXIgaW1wbGVtZW50YXRpb24gbGlrZSB2aG9zdC11c2VyLWJs
-az8KPiA+ID4gPiA+Cj4gPiA+ID4gPiBJIGRpZG7igJl0IGNvbnNpZGVyIHZob3N0LXVzZXItYmxr
-IHlldC4gQnV0IGRvZXMgdmhvc3QtdXNlci1ibGsgYWxzbwo+ID4gPiA+ID4gdXNlIHZyaXRpb19i
-bGtfY29uZmlnIGFzIGtlcm5lbC1xZW11IGludGVyZmFjZT8KPiA+ID4gPiA+Cj4gPiA+ID4KPiA+
-ID4gPiBZZXMsIGJ1dCBzZWUgYmVsb3cuCj4gPiA+ID4KPiA+ID4gPgo+ID4gPiA+ID4KPiA+ID4g
-PiA+IERvZXMgdmhvc3QtdXNlci1ibGsgbmVlZCBhZGRpdGlvbmFsIG1vZGlmaWNhdGlvbiB0byBz
-dXBwb3J0IHBvbGxpbmcKPiA+ID4gPiA+IGluIGtlcm5lbCBzaWRlPwo+ID4gPiA+ID4KPiA+ID4g
-Pgo+ID4gPiA+Cj4gPiA+ID4gTm8sIGJ1dCB0aGUgaXNzdWUgaXMsIHRoaW5ncyBsaWtlIHBvbGxp
-bmcgbG9va3Mgbm90IGEgZ29vZCBjYW5kaWRhdGUgZm9yCj4gPiA+ID4gdGhlIGF0dHJpYnV0ZXMg
-YmVsb25naW5nIHRvIHRoZSBkZXZpY2UgYnV0IHRoZSBkcml2ZXIuIFNvIEkgaGF2ZSBtb3JlCj4g
-PiA+ID4gcXVlc3Rpb25zOgo+ID4gPiA+Cj4gPiA+ID4gMSkgd2hhdCBkb2VzIGl0IHJlYWxseSBt
-ZWFuIGZvciBoYXJkd2FyZSB2aXJ0aW8gYmxvY2sgZGV2aWNlcz8KPiA+ID4gPiAyKSBEb2VzIGRy
-aXZlciBwb2xsaW5nIGhlbHAgZm9yIHRoZSBxZW11IGltcGxlbWVudGF0aW9uIHdpdGhvdXQgcG9s
-bGluZz8KPiA+ID4gPiAzKSBVc2luZyBibGtfY29uZmlnIG1lYW5zIHdlIGNhbiBvbmx5IGdldCB0
-aGUgYmVuZWZpdCBmcm9tIHRoZSBuZXcgZGV2aWNlCj4gPiA+Cj4gPiA+IDEpIHdoYXQgZG9lcyBp
-dCByZWFsbHkgbWVhbiBmb3IgaGFyZHdhcmUgdmlydGlvIGJsb2NrIGRldmljZXM/Cj4gPiA+IDMp
-IFVzaW5nIGJsa19jb25maWcgbWVhbnMgd2UgY2FuIG9ubHkgZ2V0IHRoZSBiZW5lZml0IGZyb20g
-dGhlIG5ldyBkZXZpY2UKPiA+ID4KPiA+ID4gVGhpcyBwYXRjaCBhZGRzIGRlZGljYXRlZCBIVyBx
-dWV1ZSBmb3IgcG9sbGluZyBwdXJwb3NlIHRvIHZpcnRpbwo+ID4gPiBibG9jayBkZXZpY2UuCj4g
-PiA+Cj4gPiA+IFNvIEkgdGhpbmsgaXQgY2FuIGJlIGEgbmV3IGh3IGZlYXR1cmUuIEFuZCBpdCBj
-YW4gYmUgYSBuZXcgZGV2aWNlCj4gPiA+IHRoYXQgc3VwcG9ydHMgaHcgcG9sbCBxdWV1ZS4KPiA+
-Cj4gPiBPbmUgcG9zc2libGUgaXNzdWUgaXMgdGhhdCB0aGUgInBvbGwiIGxvb2tzIG1vcmUgbGlr
-ZSBhCj4gPiBzb2Z0d2FyZS9kcml2ZXIgY29uY2VwdCBvdGhlciB0aGFuIHRoZSBkZXZpY2UvaGFy
-ZHdhcmUuCj4gPgo+ID4gPgo+ID4gPiBCVFcsIEkgaGF2ZSBvdGhlciBpZGVhIGFib3V0IGl0Lgo+
-ID4gPgo+ID4gPiBIb3cgYWJvdXQgYWRkaW5nIOKAnG51bS1wb2xsLXF1ZXVlcyIgcHJvcGVydHkg
-YXMgYSBkcml2ZXIgcGFyYW1ldGVyCj4gPiA+IGxpa2UgTlZNZSBkcml2ZXIsIG5vdCB0byBRRU1V
-IHZpcnRpby1ibGstcGNpIHByb3BlcnR5Pwo+ID4KPiA+IEl0IHNob3VsZCBiZSBmaW5lLCBidXQg
-d2UgbmVlZCB0byBsaXN0ZW4gdG8gb3RoZXJzLgo+Cj4gVG8gTWljaGFlbCwgU3RlZmFuLCBNYXgK
-Pgo+IEhvdyBhYm91dCB1c2luZyBkcml2ZXIgcGFyYW1ldGVyIGluc3RlYWQgb2YgdmlyaW9fYmxr
-X2NvbmZpZz8KCkkgYWdyZWUuCgpUaGFua3MKCj4KPiBSZWdhcmRzLAo+IFN1d2FuIEtpbQo+Cgpf
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXph
-dGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5v
-cmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmly
-dHVhbGl6YXRpb24=
+On Thu, Mar 17, 2022 at 6:00 AM Si-Wei Liu <si-wei.liu@oracle.com> wrote:
+>
+>
+>
+> On 3/16/2022 12:10 AM, Eli Cohen wrote:
+> >> From: Si-Wei Liu <si-wei.liu@oracle.com>
+> >> Sent: Wednesday, March 16, 2022 8:52 AM
+> >> To: Eli Cohen <elic@nvidia.com>
+> >> Cc: mst@redhat.com; jasowang@redhat.com; virtualization@lists.linux-foundation.org; eperezma@redhat.com; amorenoz@redhat.com;
+> >> lvivier@redhat.com; sgarzare@redhat.com; Parav Pandit <parav@nvidia.com>
+> >> Subject: Re: [PATCH v1 1/2] vdpa: Add support for querying vendor statistics
+> >>
+> >>
+> >>
+> >> On 3/15/2022 2:10 AM, Eli Cohen wrote:
+> >>
+> >> <...snip...>
+> >>
+> >>>> Say you got a vdpa net device created with 4 data queue pairs and a
+> >>>> control vq. On boot some guest firmware may support just F_CTRL_VQ but
+> >>>> not F_MQ, then the index for the control vq in guest ends up with 2, as
+> >>>> in this case there's only a single queue pair enabled for rx (index 0)
+> >>>> and tx (index 1). From the host driver (e.g. mlx5_vdpa) perspective, the
+> >>>> control vq is the last vq following 8
+> >>> If the host sees F_MQ was not negotiated but F_CTRL_VQ was, then it knows
+> >>> that control VQ index is 2
+> >> Right, but I don't see this feature negotiation info getting returned
+> >> from your vdpa_dev_vendor_stats_fill(), or did I miss something? How do
+> >> you plan for host user to get this info? If you meant another "vdpa dev
+> >> show" command to query negotiated features ahead, this won't get the
+> >> same lock protected as the time you run the stat query. It's very easy
+> >> to miss that ephemeral queue index.
+> > Right, so I suggested to include the negotiated features in the netlink message
+> > for the statistics. That would save us from using two system calls to get the
+> > information required and it answers your concern with respect to locking.
+> > I think Jason was reluctant to adding this attribute to the message but can't
+> > find where he explained the reasoning.
+> Maybe Jason can clarify and correct me, but I just did not get the same
+> impression as what you said? I just skimmed through all of the emails in
+> the thread, only finding that he didn't want device specific attribute
+> such as queue type to get returned by the vdpa core, which I agree. I'm
+> not sure if he's explicitly against piggyback negotiated features to aid
+> userspace parsing the index.
+
+I think we need piggyback the negotiated features, otherwise as you
+mentioned, we will probably get in-consistency.
+
+But a question for the "host queue index", as mentioned before. It's
+something that is not defined in the spec, so technically, vendor can
+do any mappings between it and the index what guest can see. I feel
+like we need to clarify it in the spec first.
+
+Thanks
+
+>
+> Another way around, vdpa tool may pass down -1 to get_vq_vstat() to
+> represent the queue index for the control queue - but that's less
+> favorable as the vdpa core needs to maintain device specific knowledge.
+>
+>
+>
+> >
+> >>>> data vqs of all 4 pairs, hence got
+> >>>> the 8th index in the rank. Since F_MQ is not negotiated and only 1 data
+> >>>> queue pair enabled, in such event only host qindex 0,1 and 8 have vendor
+> >>>> stats available, and the rest of qindex would get invalid/empty stat.
+> >>>>
+> >>>> Later on say boot continues towards loading the Linux virtio driver,
+> >>>> then guest could successfully negotiate both F_CTRL_VQ and F_MQ
+> >>>> features. In this case, all 8 data virtqueues are fully enabled, the
+> >>>> index for the control vq ends up as 8, following tightly after all the 4
+> >>>> data queue pairs. Only until both features are negotiated, the guest and
+> >>>> host are able to see consistent view in identifying the control vq.
+> >>>> Since F_MQ is negotiated, all host queues, indexed from 0 through 8,
+> >>>> should have vendor stats available.
+> >>>>
+> >>>> That's why I said the guest qindex is ephemeral and hard to predict
+> >>>> subjected to negotiated features, but host qindex is reliable and more
+> >>>> eligible for command line identification purpose.
+> >>>>
+> >> <...snip...>
+> >>>>> So what are you actually proposing? Display received and completed descriptors
+> >>>>> per queue index without further interpretation?
+> >>>> I'd suggest using a more stable queue id i.e. the host queue index to
+> >>>> represent the qidx (which seems to be what you're doing now?), and
+> >>>> displaying both the host qindex (queue_index_device in the example
+> >>>> below), as well as the guest's (queue_index_driver as below) in the output:
+> >>>>
+> >>> Given that per vdpa device you can display statistics only after features have
+> >>> been negotiated, you can always know the correct queue index for the control
+> >>> VQ.
+> >> The stats can be displayed only after features are negotiated, and only
+> >> when the corresponding queue is enabled. If you know it from "vdpa dev
+> >> show" on day 1 that the control vq and mq features are negotiated, but
+> >> then on day2 you got nothing for the predicted control vq index, what
+> >> would you recommend the host admin to do to get the right qindex again?
+> >> Re-run the stat query on the same queue index, or check the "vdpa dev
+> >> show" output again on day 3? This CLI design makes cloud administrator
+> >> really challenging to follow the dynamics of guest activities were to
+> >> manage hundreds or thousands of virtual machines...
+> >>
+> >> It would be easier, in my opinion, to grasp some well-defined handle
+> >> that is easily predictable or fixed across the board, for looking up the
+> >> control virtqueue. This could be a constant host queue index, or a
+> >> special magic keyword like "qidx ctrlvq". If cloud admin runs vstat
+> >> query on the control vq using a determined handle but get nothing back,
+> >> then s/he knows *for sure* the control vq was not available for some
+> >> reason at the point when the stat was being collected. S/he doesn't even
+> >> need to care negotiated status via "vdpa dev show" at all. Why bother?
+> > So, per my suggestion above, passing the negotiated attribute in the netlink
+> > message would satisfy the requirements for atomicity, right?
+> Yes, it satisfied the atomicity requirement, though not sure how you
+> want to represent the queue index for control vq? Basically if cloud
+> admin wants to dump control queue stats explicitly with a fixed handle
+> or identifier, how that can be done with the negotiated attribute?
+>
+> Thanks,
+> -Siwei
+> >
+> >>> Do you still hold see your proposal required?
+> >> Yes, this is essential to any cloud admin that runs stat query on all of
+> >> the queues on periodic basis. You'd get some deterministic without
+> >> blindly guessing or bothering other irrelevant command.
+> >>
+> >>
+> >> Thanks,
+> >> -Siwei
+> >>>> $ vdpa -jp dev vstats show vdpa-a qidx 8
+> >>>> {
+> >>>>        "vstats": {
+> >>>>            "vdpa-a": {
+> >>>>                "queue_stats": [{
+> >>>>                    "queue_index_device": 8,
+> >>>>                    "queue_index_driver": 2,
+> >>>>                    "queue_type": "control_vq",
+> >>>>                    "stat_name": [ "received_desc","completed_desc" ],
+> >>>>                    "stat_value": [ 417776,417775 ],
+> >>>>                }]
+> >>>>            }
+> >>>>        }
+> >>>> }
+> >>>>
+> >>>> Optionally, user may use guest queue index gqidx, which is kind of an
+> >>>> ephemeral ID and F_MQ negotiation depended, to query the stat on a
+> >>>> specific guest queue:
+> >>>>
+> >>>> $ vdpa -jp dev vstats show vdpa-a gqidx 2
+> >>>> {
+> >>>>        "vstats": {
+> >>>>            "vdpa-a": {
+> >>>>                "queue_stats": [{
+> >>>>                    "queue_index_device": 8,
+> >>>>                    "queue_index_driver": 2,
+> >>>>                    "queue_type": "control_vq",
+> >>>>                    "stat_name": [ "received_desc","completed_desc" ],
+> >>>>                    "stat_value": [ 417776,417775 ],
+> >>>>                }]
+> >>>>            }
+> >>>>        }
+> >>>> }
+> >>>>
+> >>>> Thanks,
+> >>>> -Siwei
+> >>>>
+> >>>>>> Thanks,
+> >>>>>> -Siwei
+> >>>>>>
+> >>>>>>>> Regards,
+> >>>>>>>> -Siwei
+> >>>>>>>>
+> >>>>>>>>>>>> Looks to me there are still some loose end I don't quite yet
+> >>>>>>>>>>>> understand.
+> >>>>>>>>>>>>
+> >>>>>>>>>>>>
+> >>>>>>>>>>>>>>>                     "queue_index": 0,
+> >>>>>>>>>>> I think this can be removed since the command is for a specific index.
+> >>>>>>>>>>>
+> >>>>>>>>>>>>>>>                     "name": "received_desc",
+> >>>>>>>>>>>>>>>                     "value": 417776,
+> >>>>>>>>>>>>>>>                     "name": "completed_desc",
+> >>>>>>>>>>>>>>>                     "value": 417548
+> >>>>>>>>>>>>>> Not for this kernel patch, but IMHO it's the best to put the name
+> >>>>>>>>>>>>>> & value pairs in an array instead of flat entries in json's
+> >>>>>>>>>>>>>> hash/dictionary. The hash entries can be re-ordered deliberately
+> >>>>>>>>>>>>>> by external json parsing tool, ending up with inconsistent stat values.
+> >>>>>>>>>>>> This comment is missed for some reason. Please change the example
+> >>>>>>>>>>>> in the log if you agree to address it in vdpa tool. Or justify why
+> >>>>>>>>>>>> keeping the order for json hash/dictionary is fine.
+> >>>>>>>>>>> Sorry for skipping this comment.
+> >>>>>>>>>>> Do you mean to present the information like:
+> >>>>>>>>>>> "received_desc": 417776,
+> >>>>>>>>>>> "completed_desc": 417548,
+> >>>>>>>>>> I mean the following presentation:
+> >>>>>>>>>>
+> >>>>>>>>>> $ vdpa -jp dev vstats show vdpa-a qidx 0 {
+> >>>>>>>>>>           "vstats": {
+> >>>>>>>>>>               "vdpa-a": {
+> >>>>>>>>>>                   "queue_stats": [{
+> >>>>>>>>>>                       "queue_index": 0,
+> >>>>>>>>>>                       "queue_type": "rx",
+> >>>>>>>>>>                       "stat_name": [ "received_desc","completed_desc" ],
+> >>>>>>>>>>                       "stat_value": [ 417776,417548 ],
+> >>>>>>>>>>                   }]
+> >>>>>>>>>>               }
+> >>>>>>>>>>           }
+> >>>>>>>>>> }
+> >>>>>>>>>>
+> >>>>>>>>>> I think Parav had similar suggestion, too.
+> >>>>>>>>>>
+> >>>>>>>>>> Thanks,
+> >>>>>>>>>> -Siwei
+> >>>>>>>>>>
+> >>>>>>>>>>>> Thanks,
+> >>>>>>>>>>>> -Siwei
+> >>>>>>>>>>>>
+> >>>>>>>>>>>>>> Thanks,
+> >>>>>>>>>>>>>> -Siwei
+> >>>>>>>>>>>>>>>                 }
+> >>>>>>>>>>>>>>>             }
+> >>>>>>>>>>>>>>> }
+> >>>>>>>>>>>>>>>
+> >>>>>>>>>>>>>>> Signed-off-by: Eli Cohen <elic@nvidia.com>
+> >>>>>>>>>>>>>>> ---
+> >>>>>>>>>>>>>>>          drivers/vdpa/vdpa.c       | 129
+> >>>>>>>>>>>> ++++++++++++++++++++++++++++++++++++++
+> >>>>>>>>>>>>>>>          include/linux/vdpa.h      |   5 ++
+> >>>>>>>>>>>>>>>          include/uapi/linux/vdpa.h |   7 +++
+> >>>>>>>>>>>>>>>          3 files changed, 141 insertions(+)
+> >>>>>>>>>>>>>>>
+> >>>>>>>>>>>>>>> diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c index
+> >>>>>>>>>>>>>>> 9846c9de4bfa..d0ff671baf88 100644
+> >>>>>>>>>>>>>>> --- a/drivers/vdpa/vdpa.c
+> >>>>>>>>>>>>>>> +++ b/drivers/vdpa/vdpa.c
+> >>>>>>>>>>>>>>> @@ -909,6 +909,74 @@ vdpa_dev_config_fill(struct vdpa_device
+> >>>>>>>>>>>>>>> *vdev,
+> >>>>>>>>>>>> struct sk_buff *msg, u32 portid,
+> >>>>>>>>>>>>>>>                 return err;
+> >>>>>>>>>>>>>>>          }
+> >>>>>>>>>>>>>>> +static int vdpa_fill_stats_rec(struct vdpa_device *vdev, struct
+> >>>>>>>>>>>>>>> +sk_buff
+> >>>>>>>>>>>> *msg,
+> >>>>>>>>>>>>>>> +                              struct genl_info *info, u32 index) {
+> >>>>>>>>>>>>>>> +       int err;
+> >>>>>>>>>>>>>>> +
+> >>>>>>>>>>>>>>> +       if (nla_put_u32(msg, VDPA_ATTR_DEV_QUEUE_INDEX, index))
+> >>>>>>>>>>>>>>> +               return -EMSGSIZE;
+> >>>>>>>>>>>>>>> +
+> >>>>>>>>>>>>>>> +       err = vdev->config->get_vendor_vq_stats(vdev, index, msg,
+> >>>>>>>>>>>>>>> +info-
+> >>>>>>>>>>>>> extack);
+> >>>>>>>>>>>>>>> +       if (err)
+> >>>>>>>>>>>>>>> +               return err;
+> >>>>>>>>>>>>>>> +
+> >>>>>>>>>>>>>>> +       return 0;
+> >>>>>>>>>>>>>>> +}
+> >>>>>>>>>>>>>>> +
+> >>>>>>>>>>>>>>> +static int vendor_stats_fill(struct vdpa_device *vdev, struct
+> >>>>>>>>>>>>>>> +sk_buff
+> >>>>>>>>>> *msg,
+> >>>>>>>>>>>>>>> +                            struct genl_info *info, u32 index) {
+> >>>>>>>>>>>>>>> +       int err;
+> >>>>>>>>>>>>>>> +
+> >>>>>>>>>>>>>>> +       if (!vdev->config->get_vendor_vq_stats)
+> >>>>>>>>>>>>>>> +               return -EOPNOTSUPP;
+> >>>>>>>>>>>>>>> +
+> >>>>>>>>>>>>>>> +       err = vdpa_fill_stats_rec(vdev, msg, info, index);
+> >>>>>>>>>>>>>>> +       if (err)
+> >>>>>>>>>>>>>>> +               return err;
+> >>>>>>>>>>>>>>> +
+> >>>>>>>>>>>>>>> +       return 0;
+> >>>>>>>>>>>>>>> +}
+> >>>>>>>>>>>>>>> +
+> >>>>>>>>>>>>>>> +static int vdpa_dev_vendor_stats_fill(struct vdpa_device *vdev,
+> >>>>>>>>>>>>>>> +                                     struct sk_buff *msg,
+> >>>>>>>>>>>>>>> +                                     struct genl_info *info, u32 index) {
+> >>>>>>>>>>>>>>> +       u32 device_id;
+> >>>>>>>>>>>>>>> +       void *hdr;
+> >>>>>>>>>>>>>>> +       int err;
+> >>>>>>>>>>>>>>> +       u32 portid = info->snd_portid;
+> >>>>>>>>>>>>>>> +       u32 seq = info->snd_seq;
+> >>>>>>>>>>>>>>> +       u32 flags = 0;
+> >>>>>>>>>>>>>>> +
+> >>>>>>>>>>>>>>> +       hdr = genlmsg_put(msg, portid, seq, &vdpa_nl_family, flags,
+> >>>>>>>>>>>>>>> +                         VDPA_CMD_DEV_VSTATS_GET);
+> >>>>>>>>>>>>>>> +       if (!hdr)
+> >>>>>>>>>>>>>>> +               return -EMSGSIZE;
+> >>>>>>>>>>>>>>> +
+> >>>>>>>>>>>>>>> +       if (nla_put_string(msg, VDPA_ATTR_DEV_NAME,
+> >>>>>>>> dev_name(&vdev-
+> >>>>>>>>>>>>> dev))) {
+> >>>>>>>>>>>>>>> +               err = -EMSGSIZE;
+> >>>>>>>>>>>>>>> +               goto undo_msg;
+> >>>>>>>>>>>>>>> +       }
+> >>>>>>>>>>>>>>> +
+> >>>>>>>>>>>>>>> +       device_id = vdev->config->get_device_id(vdev);
+> >>>>>>>>>>>>>>> +       if (nla_put_u32(msg, VDPA_ATTR_DEV_ID, device_id)) {
+> >>>>>>>>>>>>>>> +               err = -EMSGSIZE;
+> >>>>>>>>>>>>>>> +               goto undo_msg;
+> >>>>>>>>>>>>>>> +       }
+> >>>>>>>>>>>>>>> +
+> >>>>>>>>>>>>>>> +       err = vendor_stats_fill(vdev, msg, info, index);
+> >>>>>>>>>>>>>>> +
+> >>>>>>>>>>>>>>> +       genlmsg_end(msg, hdr);
+> >>>>>>>>>>>>>>> +
+> >>>>>>>>>>>>>>> +       return err;
+> >>>>>>>>>>>>>>> +
+> >>>>>>>>>>>>>>> +undo_msg:
+> >>>>>>>>>>>>>>> +       genlmsg_cancel(msg, hdr);
+> >>>>>>>>>>>>>>> +       return err;
+> >>>>>>>>>>>>>>> +}
+> >>>>>>>>>>>>>>> +
+> >>>>>>>>>>>>>>>          static int vdpa_nl_cmd_dev_config_get_doit(struct sk_buff
+> >>>>>>>>>>>>>>> *skb, struct
+> >>>>>>>>>>>> genl_info *info)
+> >>>>>>>>>>>>>>>          {
+> >>>>>>>>>>>>>>>                 struct vdpa_device *vdev;
+> >>>>>>>>>>>>>>> @@ -990,6 +1058,60 @@
+> >>>>>>>> vdpa_nl_cmd_dev_config_get_dumpit(struct
+> >>>>>>>>>>>> sk_buff *msg, struct netlink_callback *
+> >>>>>>>>>>>>>>>                 return msg->len;
+> >>>>>>>>>>>>>>>          }
+> >>>>>>>>>>>>>>> +static int vdpa_nl_cmd_dev_stats_get_doit(struct sk_buff *skb,
+> >>>>>>>>>>>>>>> +                                         struct genl_info *info)
+> >>>>>>>>>>>>>>> +{
+> >>>>>>>>>>>>>>> +       struct vdpa_device *vdev;
+> >>>>>>>>>>>>>>> +       struct sk_buff *msg;
+> >>>>>>>>>>>>>>> +       const char *devname;
+> >>>>>>>>>>>>>>> +       struct device *dev;
+> >>>>>>>>>>>>>>> +       u32 index;
+> >>>>>>>>>>>>>>> +       int err;
+> >>>>>>>>>>>>>>> +
+> >>>>>>>>>>>>>>> +       if (!info->attrs[VDPA_ATTR_DEV_NAME])
+> >>>>>>>>>>>>>>> +               return -EINVAL;
+> >>>>>>>>>>>>>>> +
+> >>>>>>>>>>>>>>> +       if (!info->attrs[VDPA_ATTR_DEV_QUEUE_INDEX])
+> >>>>>>>>>>>>>>> +               return -EINVAL;
+> >>>>>>>>>>>>>>> +
+> >>>>>>>>>>>>>>> +       devname = nla_data(info->attrs[VDPA_ATTR_DEV_NAME]);
+> >>>>>>>>>>>>>>> +       msg = nlmsg_new(NLMSG_DEFAULT_SIZE, GFP_KERNEL);
+> >>>>>>>>>>>>>>> +       if (!msg)
+> >>>>>>>>>>>>>>> +               return -ENOMEM;
+> >>>>>>>>>>>>>>> +
+> >>>>>>>>>>>>>>> +       index = nla_get_u32(info-
+> >>>>>>>>> attrs[VDPA_ATTR_DEV_QUEUE_INDEX]);
+> >>>>>>>>>>>>>>> +       mutex_lock(&vdpa_dev_mutex);
+> >>>>>>>>>>>>>>> +       dev = bus_find_device(&vdpa_bus, NULL, devname,
+> >>>>>>>>>>>> vdpa_name_match);
+> >>>>>>>>>>>>>>> +       if (!dev) {
+> >>>>>>>>>>>>>>> +               NL_SET_ERR_MSG_MOD(info->extack, "device not
+> >>>>>>>> found");
+> >>>>>>>>>>>>>>> +               err = -ENODEV;
+> >>>>>>>>>>>>>>> +               goto dev_err;
+> >>>>>>>>>>>>>>> +       }
+> >>>>>>>>>>>>>>> +       vdev = container_of(dev, struct vdpa_device, dev);
+> >>>>>>>>>>>>>>> +       if (!vdev->mdev) {
+> >>>>>>>>>>>>>>> +               NL_SET_ERR_MSG_MOD(info->extack, "unmanaged
+> >>>>>>>> vdpa
+> >>>>>>>>>>>> device");
+> >>>>>>>>>>>>>>> +               err = -EINVAL;
+> >>>>>>>>>>>>>>> +               goto mdev_err;
+> >>>>>>>>>>>>>>> +       }
+> >>>>>>>>>>>>>>> +       err = vdpa_dev_vendor_stats_fill(vdev, msg, info, index);
+> >>>>>>>>>>>>>>> +       if (!err)
+> >>>>>>>>>>>>>>> +               err = genlmsg_reply(msg, info);
+> >>>>>>>>>>>>>>> +
+> >>>>>>>>>>>>>>> +       put_device(dev);
+> >>>>>>>>>>>>>>> +       mutex_unlock(&vdpa_dev_mutex);
+> >>>>>>>>>>>>>>> +
+> >>>>>>>>>>>>>>> +       if (err)
+> >>>>>>>>>>>>>>> +               nlmsg_free(msg);
+> >>>>>>>>>>>>>>> +
+> >>>>>>>>>>>>>>> +       return err;
+> >>>>>>>>>>>>>>> +
+> >>>>>>>>>>>>>>> +mdev_err:
+> >>>>>>>>>>>>>>> +       put_device(dev);
+> >>>>>>>>>>>>>>> +dev_err:
+> >>>>>>>>>>>>>>> +       mutex_unlock(&vdpa_dev_mutex);
+> >>>>>>>>>>>>>>> +       return err;
+> >>>>>>>>>>>>>>> +}
+> >>>>>>>>>>>>>>> +
+> >>>>>>>>>>>>>>>          static const struct nla_policy vdpa_nl_policy[VDPA_ATTR_MAX + 1]
+> >>>>>>>> = {
+> >>>>>>>>>>>>>>>                 [VDPA_ATTR_MGMTDEV_BUS_NAME] = { .type =
+> >>>>>>>>>> NLA_NUL_STRING },
+> >>>>>>>>>>>>>>>                 [VDPA_ATTR_MGMTDEV_DEV_NAME] = { .type = NLA_STRING
+> >>>>>>>>>> }, @@ -
+> >>>>>>>>>>>> 997,6
+> >>>>>>>>>>>>>>> +1119,7 @@ static const struct nla_policy
+> >>>>>>>>>>>> vdpa_nl_policy[VDPA_ATTR_MAX + 1] = {
+> >>>>>>>>>>>>>>>                 [VDPA_ATTR_DEV_NET_CFG_MACADDR] =
+> >>>>>>>>>> NLA_POLICY_ETH_ADDR,
+> >>>>>>>>>>>>>>>                 /* virtio spec 1.1 section 5.1.4.1 for valid MTU range */
+> >>>>>>>>>>>>>>>                 [VDPA_ATTR_DEV_NET_CFG_MTU] =
+> >>>>>>>>>> NLA_POLICY_MIN(NLA_U16, 68),
+> >>>>>>>>>>>>>>> +       [VDPA_ATTR_DEV_QUEUE_INDEX] =
+> >>>>>>>> NLA_POLICY_RANGE(NLA_U32, 0,
+> >>>>>>>>>>>> 65535),
+> >>>>>>>>>>>>>>>          };
+> >>>>>>>>>>>>>>>          static const struct genl_ops vdpa_nl_ops[] = { @@ -1030,6
+> >>>>>>>>>>>>>>> +1153,12 @@ static const struct genl_ops vdpa_nl_ops[] = {
+> >>>>>>>>>>>>>>>                         .doit = vdpa_nl_cmd_dev_config_get_doit,
+> >>>>>>>>>>>>>>>                         .dumpit = vdpa_nl_cmd_dev_config_get_dumpit,
+> >>>>>>>>>>>>>>>                 },
+> >>>>>>>>>>>>>>> +       {
+> >>>>>>>>>>>>>>> +               .cmd = VDPA_CMD_DEV_VSTATS_GET,
+> >>>>>>>>>>>>>>> +               .validate = GENL_DONT_VALIDATE_STRICT |
+> >>>>>>>>>>>> GENL_DONT_VALIDATE_DUMP,
+> >>>>>>>>>>>>>>> +               .doit = vdpa_nl_cmd_dev_stats_get_doit,
+> >>>>>>>>>>>>>>> +               .flags = GENL_ADMIN_PERM,
+> >>>>>>>>>>>>>>> +       },
+> >>>>>>>>>>>>>>>          };
+> >>>>>>>>>>>>>>>          static struct genl_family vdpa_nl_family __ro_after_init =
+> >>>>>>>>>>>>>>> { diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h index
+> >>>>>>>>>>>>>>> 2de442ececae..274203845cfc 100644
+> >>>>>>>>>>>>>>> --- a/include/linux/vdpa.h
+> >>>>>>>>>>>>>>> +++ b/include/linux/vdpa.h
+> >>>>>>>>>>>>>>> @@ -275,6 +275,9 @@ struct vdpa_config_ops {
+> >>>>>>>>>>>>>>>                                     const struct vdpa_vq_state *state);
+> >>>>>>>>>>>>>>>                 int (*get_vq_state)(struct vdpa_device *vdev, u16 idx,
+> >>>>>>>>>>>>>>>                                     struct vdpa_vq_state *state);
+> >>>>>>>>>>>>>>> +       int (*get_vendor_vq_stats)(struct vdpa_device *vdev, u16 idx,
+> >>>>>>>>>>>>>>> +                                  struct sk_buff *msg,
+> >>>>>>>>>>>>>>> +                                  struct netlink_ext_ack *extack);
+> >>>>>>>>>>>>>>>                 struct vdpa_notification_area
+> >>>>>>>>>>>>>>>                 (*get_vq_notification)(struct vdpa_device *vdev, u16 idx);
+> >>>>>>>>>>>>>>>                 /* vq irq is not expected to be changed once DRIVER_OK is
+> >>>>>>>>>>>>>>> set */ @@ -466,4 +469,6 @@ struct vdpa_mgmt_dev {
+> >>>>>>>>>>>>>>>          int vdpa_mgmtdev_register(struct vdpa_mgmt_dev *mdev);
+> >>>>>>>>>>>>>>>          void vdpa_mgmtdev_unregister(struct vdpa_mgmt_dev *mdev);
+> >>>>>>>>>>>>>>> +#define VDPA_INVAL_QUEUE_INDEX 0xffff
+> >>>>>>>>>>>>>>> +
+> >>>>>>>>>>>>>>>          #endif /* _LINUX_VDPA_H */
+> >>>>>>>>>>>>>>> diff --git a/include/uapi/linux/vdpa.h
+> >>>>>>>>>>>>>>> b/include/uapi/linux/vdpa.h index 1061d8d2d09d..c5f229a41dc2
+> >>>>>>>>>>>>>>> 100644
+> >>>>>>>>>>>>>>> --- a/include/uapi/linux/vdpa.h
+> >>>>>>>>>>>>>>> +++ b/include/uapi/linux/vdpa.h
+> >>>>>>>>>>>>>>> @@ -18,6 +18,7 @@ enum vdpa_command {
+> >>>>>>>>>>>>>>>                 VDPA_CMD_DEV_DEL,
+> >>>>>>>>>>>>>>>                 VDPA_CMD_DEV_GET,               /* can dump */
+> >>>>>>>>>>>>>>>                 VDPA_CMD_DEV_CONFIG_GET,        /* can dump */
+> >>>>>>>>>>>>>>> +       VDPA_CMD_DEV_VSTATS_GET,
+> >>>>>>>>>>>>>>>          };
+> >>>>>>>>>>>>>>>          enum vdpa_attr {
+> >>>>>>>>>>>>>>> @@ -46,6 +47,12 @@ enum vdpa_attr {
+> >>>>>>>>>>>>>>>                 VDPA_ATTR_DEV_NEGOTIATED_FEATURES,      /* u64 */
+> >>>>>>>>>>>>>>>                 VDPA_ATTR_DEV_MGMTDEV_MAX_VQS,          /*
+> >>>>>>>>>> u32 */
+> >>>>>>>>>>>>>>>                 VDPA_ATTR_DEV_SUPPORTED_FEATURES,       /* u64 */
+> >>>>>>>>>>>>>>> +
+> >>>>>>>>>>>>>>> +       VDPA_ATTR_DEV_QUEUE_INDEX,              /* u16 */
+> >>>>>>>>>>>>>>> +       VDPA_ATTR_DEV_QUEUE_TYPE,               /* string */
+> >>>>>>>>>>>>>>> +       VDPA_ATTR_DEV_VENDOR_ATTR_NAME,         /*
+> >>>>>>>> string */
+> >>>>>>>>>>>>>>> +       VDPA_ATTR_DEV_VENDOR_ATTR_VALUE,        /* u64 */
+> >>>>>>>>>>>>>>> +
+> >>>>>>>>>>>>>>>                 /* new attributes must be added above here */
+> >>>>>>>>>>>>>>>                 VDPA_ATTR_MAX,
+> >>>>>>>>>>>>>>>          };
+>
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
