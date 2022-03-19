@@ -1,196 +1,55 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4C0E0C433EF
-	for <virtualization@archiver.kernel.org>; Sat, 19 Mar 2022 05:18:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4CA87C433F5
+	for <virtualization@archiver.kernel.org>; Sat, 19 Mar 2022 12:44:43 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id D7EB2415E1;
-	Sat, 19 Mar 2022 05:18:39 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id C58B340190;
+	Sat, 19 Mar 2022 12:44:42 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id L0Aqw7_fLwtx; Sat, 19 Mar 2022 05:18:37 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id B3588415BD;
-	Sat, 19 Mar 2022 05:18:36 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 7A9C0C0012;
-	Sat, 19 Mar 2022 05:18:36 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0B742C000B
- for <virtualization@lists.linux-foundation.org>;
- Sat, 19 Mar 2022 05:18:35 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id E6491402E1
- for <virtualization@lists.linux-foundation.org>;
- Sat, 19 Mar 2022 05:18:34 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=oracle.com header.b="TP4i7ZfE";
- dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
- header.b="pa0f01nH"
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id R-cmbBrhgiKj
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ejYw1OYo6-jB; Sat, 19 Mar 2022 12:44:41 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 79D5F4011A;
+	Sat, 19 Mar 2022 12:44:40 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 46356C001A;
+	Sat, 19 Mar 2022 12:44:40 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id CC1DCC000B
  for <virtualization@lists.linux-foundation.org>;
- Sat, 19 Mar 2022 05:18:30 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com
- [205.220.177.32])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 8B41440139
+ Sat, 19 Mar 2022 12:44:38 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id A341F607DE
  for <virtualization@lists.linux-foundation.org>;
- Sat, 19 Mar 2022 05:18:29 +0000 (UTC)
-Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
- by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22J1uTeG027608; 
- Sat, 19 Mar 2022 05:18:28 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
- h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=corp-2021-07-09;
- bh=XUTN3konkKQAPI7U2Dj5IkYj6Osg81ceReR3k0oEeyA=;
- b=TP4i7ZfEEHO5fDqp5GRMhVmvevEER/t1WsqG+YBgopKC2f/3vsSx4w9FCA6q8CSo5sak
- 9dU22YS6gaiC6Gr9SeBUr44DlAetqOcbChWV6Yn//qjDkHPqzMZAgmc1IAdvrqI1MB8V
- IibjU+7Um+Nqd9oaRts1ClQeXLIjFM9EFsdXca7ojRIm88ndGfZVAcwgwnqyhQU+0BUC
- gWPtLwcG2YJfKKyGgwpbODGRrO7HhD1Tnv0b0wfXHcM6B8n83FXBO3gxzqInQJY1xyHr
- ebktjLYBxgPi+/sEsLS9hIelFIuORXA/NKvDtlLsYaE9gGiGAc2T7bEEaMGDqBLSXRKx KQ== 
-Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
- by mx0b-00069f02.pphosted.com with ESMTP id 3ew5y1r3r2-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Sat, 19 Mar 2022 05:18:28 +0000
-Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
- by userp3020.oracle.com (8.16.1.2/8.16.1.2) with SMTP id 22J5FqMI140543;
- Sat, 19 Mar 2022 05:18:27 GMT
-Received: from nam12-bn8-obe.outbound.protection.outlook.com
- (mail-bn8nam12lp2170.outbound.protection.outlook.com [104.47.55.170])
- by userp3020.oracle.com with ESMTP id 3ew8mfr51t-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Sat, 19 Mar 2022 05:18:27 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Oz45qxbK4bfycWL5ijf9xnOY7693zeFOQ6+SMcXJXUObu/IZsOuU6r5QR6OC2JT512FVNXqSkJMd0SAm+3/lOkVm4rl72MdjuT/flw+dk4HRS9bBcYl65h8FRKFcGVLWIOnmJy81pRx+k3Xeq42delyhHfl37jIL/73+/u21WzUnjaGDIITBKRj2GbUmwqV/DRUqZsHL5fWa+CqpAbxrLutjKeT3KamjT67YxK64lcU+aRY0tGZqkTT7AylXE8dgMCMvTrlEBAzYB7A1NfWCGzYif3zhdxcGDNOXyRdq6W/eB3VOCwVexJGo+uS1H+mTnKu3JS+nib2wrvuFHDtWuA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=XUTN3konkKQAPI7U2Dj5IkYj6Osg81ceReR3k0oEeyA=;
- b=dfBEUwxADLJCF5Bzfr3C2QNRn1jtR8YC3qqbfcxwyvTPpt1wWeItio6381f+6zi5BsDfIw/nuxbxYjI/reEf3RCnp37X+mPt1r61q8yy3hR4yLtq2uIJ2sgWQkL2irLhrdNNWw6a83J2Rn4m0ZIAhJt9Bl5ccTVwmNGaB0uVVjeb1QlanrVxZkl0HpVoDBL7Vkl7jQQf/plT4nOWRtwUne+Lx80l/tZa4v8XccV6grypm+S8bqmj0SEt6mWu0Nl+ZcufUE+tfg4u8HmxdmUEgfu1H1uLUy/pq88lTfHXbkepOdFnZpJ/CEVFmkzlaPi2QN8dycHMQhwNPyvbgZYL7A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=XUTN3konkKQAPI7U2Dj5IkYj6Osg81ceReR3k0oEeyA=;
- b=pa0f01nHYjbRNODBuiyu46QyB4e9SMAr9MK7mb0I82FL23IHeQHQfXHWlRHBNOJ/S1MP8zLQRntVPSg83FeBWvHmjTz8+9Y9nO0GxCx3q7HY+0v2nP60LOlGCMnGAa1sQDTXOxcpBmOuARfmUqQVcL3zqZT9aJeuoMAIHBcphrI=
-Received: from BYAPR10MB3287.namprd10.prod.outlook.com (2603:10b6:a03:15c::11)
- by BYAPR10MB2917.namprd10.prod.outlook.com (2603:10b6:a03:87::17)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5081.14; Sat, 19 Mar
- 2022 05:18:24 +0000
-Received: from BYAPR10MB3287.namprd10.prod.outlook.com
- ([fe80::e478:4b5e:50a8:7f96]) by BYAPR10MB3287.namprd10.prod.outlook.com
- ([fe80::e478:4b5e:50a8:7f96%6]) with mapi id 15.20.5081.019; Sat, 19 Mar 2022
- 05:18:24 +0000
-Message-ID: <8b7e1fec-4f58-b2be-66af-454928f79814@oracle.com>
-Date: Fri, 18 Mar 2022 22:18:18 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.6.1
-Subject: Re: [PATCH v1 1/2] vdpa: Add support for querying vendor statistics
-Content-Language: en-US
-To: Jason Wang <jasowang@redhat.com>
-References: <20220216080022.56707-1-elic@nvidia.com>
- <6175d620-6be3-c249-5482-0a9448499e4a@oracle.com>
- <DM8PR12MB5400E03D7AD7833CEBF8DF9DAB099@DM8PR12MB5400.namprd12.prod.outlook.com>
- <74495f15-8f1c-93db-1277-50198ac3284e@oracle.com>
- <DM8PR12MB540086CCD1F535668D05E546AB0A9@DM8PR12MB5400.namprd12.prod.outlook.com>
- <a30ac3c0-059d-4588-c5ac-599c060f6bbf@oracle.com>
- <DM8PR12MB54000042A48FDFA446EFE792AB0E9@DM8PR12MB5400.namprd12.prod.outlook.com>
- <61748d91-153c-ec79-c1f0-e3c44cdbea5d@oracle.com>
- <DM8PR12MB540054565515158F9209723EAB109@DM8PR12MB5400.namprd12.prod.outlook.com>
- <53dd5c21-5045-bb66-05fe-1a1157f7abe8@oracle.com>
- <DM8PR12MB5400E7B2359FE4797F190AC5AB119@DM8PR12MB5400.namprd12.prod.outlook.com>
- <7fa43ec9-202e-0cbc-22fb-0770ed023c35@oracle.com>
- <CACGkMEuvbWWiCrmuCKG7Z9OWUaFU5GT+U_yEBVg=QcWDrwOSzA@mail.gmail.com>
- <f9cd0cf9-dbbc-78e1-c6f1-50597b796545@oracle.com>
- <CACGkMEtbY07y=_CPpeoSYyd7oPEbB2OwKssQfw9=_Ly4igsEEw@mail.gmail.com>
-From: Si-Wei Liu <si-wei.liu@oracle.com>
-Organization: Oracle Corporation
-In-Reply-To: <CACGkMEtbY07y=_CPpeoSYyd7oPEbB2OwKssQfw9=_Ly4igsEEw@mail.gmail.com>
-X-ClientProxiedBy: DM5PR16CA0039.namprd16.prod.outlook.com
- (2603:10b6:4:15::25) To BYAPR10MB3287.namprd10.prod.outlook.com
- (2603:10b6:a03:15c::11)
+ Sat, 19 Mar 2022 12:44:38 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id z2_2bMJvOjDY
+ for <virtualization@lists.linux-foundation.org>;
+ Sat, 19 Mar 2022 12:44:37 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+Received: from s052d7dde.fastvps-server.com (s052d7dde.fastvps-server.com
+ [IPv6:2a03:f480:1:14::7d])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id D6423606EC
+ for <virtualization@lists.linux-foundation.org>;
+ Sat, 19 Mar 2022 12:44:36 +0000 (UTC)
+Received: from 157.81.37.188.rev.vodafone.pt ([188.37.81.157]
+ helo=LAPTOP-EPOV2LRR) by s052d7dde.fastvps-server.com with esmtpsa
+ (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256) (Exim 4.89)
+ (envelope-from <marle@saisti.eu>) id 1nVXpG-0005bC-8H
+ for virtualization@lists.linux-foundation.org; Sat, 19 Mar 2022 15:04:54 +0300
+From: "MICRADS-22" <marialemos72@gmail.com>
+Subject: Call for Papers - MICRADS'22, Barranquilla, Colombia
+To: virtualization@lists.linux-foundation.org
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: a6cff57a-37f1-4040-4af1-08da0967e3fb
-X-MS-TrafficTypeDiagnostic: BYAPR10MB2917:EE_
-X-Microsoft-Antispam-PRVS: <BYAPR10MB291709A95C56830B0DBE2D7AB1149@BYAPR10MB2917.namprd10.prod.outlook.com>
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 0NNeHJW6LPIl8IuON32x0/3j0s94LNal3aog1Rbvca1ksRT4yH2DkrJPvt/NLSBBukOd1z9e5BoPSE4sJZe3eVldL2OlZcXZAhki3esYQdrqr5JiK6mS7yUezcvld0OdlbGS1nX782ItkqxEmIjj3q0yj0jAPMIEiUYMhA4cSRIbiZKphN2APCTc38wrDZLMjeWCk9juNhEOIc1ClaBfZouOLZzFPEY4xnHMidZ58djZCvVFOPQ3FhIl8Fm/iInAIdrGCq4MbpfD+ZK3chYYzV7mW025J4ZkMop8vPDaP6+QrWkw6plODrtUOGimIOldtJPGMMO15b4ElkigHtrBxkyQaRou5bI/yXtB4IW/54jmrbC0O5RalEkt4IcWN3iM/okNTNf4IWuNDFrIo+2AtSo+4Kxr3WcXmMYjKJpIcnOMr9xJ7XgWqS2AgCT4TfQ7m5plG1OnxZJJqctMdGDr3gavXSjobflJr6GIBCkeUovtIP3zlFUec1mf5X0rp9KAuxfSZoz50FFdfNgweCcIcGgQw6pAGnM4AFdUEo2c0NYIkbUNdtcsNP+JQWwc3eKop5DF50Xxv31GsNMkvSt6aWNuSX0xnstME2Yr5EqBq0GzGkD4hPEzuuuJ9QbOXlvlZDe5/yLOXkiDPrkLdZk4iC8yejptDupNmqQz/N1sAhZYrnEpfSspmi50AKeUXFW6vyCpwO5VS3of8sJAs3Hv0hbp4vcrE255NkLptZLUdqDjmVY9UGCValt97wwiGjqH
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:BYAPR10MB3287.namprd10.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230001)(366004)(66946007)(66556008)(6486002)(8936002)(2906002)(66476007)(6506007)(36916002)(86362001)(53546011)(6512007)(6666004)(508600001)(31696002)(5660300002)(38100700002)(2616005)(186003)(26005)(31686004)(83380400001)(8676002)(30864003)(4326008)(316002)(6916009)(54906003)(36756003)(45980500001)(43740500002);
- DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?dnl2cVphbjNiWE5Rd2NMcW1Rd21YQmlEUUxxQkUxQ1pkdTNnRFdRRmkzZ1l2?=
- =?utf-8?B?Q08xTlBKMkNYS1lNb2lIbFRwaWJRZVJIRHZqMGRoL2hxMDN4Nnl6bW1wZmNx?=
- =?utf-8?B?R2JCejd5TTU1MjBDb0xuRFlpVU5PS1FjakpTTmIyQnc1cXdqNG0xeHprSmJZ?=
- =?utf-8?B?dzBnUTNjY25HRFdtNDlwR3UxWWdMbVJuekNNY1hBeDFtTXhPaGMrVE1xSUsz?=
- =?utf-8?B?VG9tSGwrWWFxVEdBL2ZYMXpKTWs4Zy9xMUs3cFY0YmRERUFVOUlDMVVmalAr?=
- =?utf-8?B?NmFYSy9xZWJOQXplRm5kZ0xxNTMzVXdtZ2tiK1JENlp1clhnNUVROUZxQzh4?=
- =?utf-8?B?TmlmN1RseENIclVYMzJiWFV5YWdieUIxSTROeHEvSjJoSUJWL1p4RXBWK2xa?=
- =?utf-8?B?STR5UVZWdFVwM1J1Z3p6MjZFNEFCMTRYdHVvNmc2dldzemlDblpnZlkrb2pO?=
- =?utf-8?B?R0Z6aDY0dzBLU1VhYmVRcmpGc1JJbVA2VXl5UEtrdldEVUZXd3lUUFhSbHZF?=
- =?utf-8?B?aWNsY05nTERrb1A1ZEpKdDZlL1ZvQkJxQXdpTXpBb2FwaW1YNzFNMXhsamxw?=
- =?utf-8?B?V0RFSFY0bWp1bFBjVFBUTkpjS0pJSjRnNjBDb0ZaWFIwVU1MN0hqdDJFMEYx?=
- =?utf-8?B?azNGSGhCNnBoTmJVdm5iSnVpTkRScGlRUGJkRXg4ZTk2ZDNodWUxZDZCZVc4?=
- =?utf-8?B?alEzQTh6SE5HcjdDZW1JNDdtM2JwOEhZaHltcExmNWpzdG5WY09hSzlSWElJ?=
- =?utf-8?B?V1pzU0hMcnNhQWJZdWtGaHRIWnFaUWpMSU9GcTlaUFZnZ1poc3VKVkdkTjVB?=
- =?utf-8?B?bHlPMFloZ0crQTdrQ0RaTkc0OVYrbWd5S2FtdDNaVnRSTWh1WGQvOHhhcldo?=
- =?utf-8?B?K2h5WFRvMGtLOGp4SEtocG9LaWRvZU5UVmk1dUN4MSt5bHo1YjRGajhnM2l0?=
- =?utf-8?B?NFIxaTRyS0JuRVNMTnlMUmF6RG1XN09PT29vSHVLN3BuZVlodWRwRlpaNjU0?=
- =?utf-8?B?Vno0d2lTaFBNbHFhY2JiMmRUblRraG5MSGc0Y2VvSnA1NTI3K1RkTXZkRXZX?=
- =?utf-8?B?cmwxVmhIM2NhUXp2UE5IakhvQjlPU0Y3S1NCMjJPZnJlRmNGaFIyRVN2RnFF?=
- =?utf-8?B?UWl4ODhzMWY5bFp0U1VOWHFnN3BGSXlDMG1ZbnkyVXY1dmluZVJoVk83MEV4?=
- =?utf-8?B?MXBUZ0p0SjNBdkV5TjU0bFlUc3kwQ1VqVWhhWEVldk5oODl2SFZiUGhobElQ?=
- =?utf-8?B?Q2xxMkhxQzNtaWc4V2JqNVc4REE5RWJPUG0rNVp0R2tNK1pZZ0NWWlV3K0Na?=
- =?utf-8?B?T0l6Njd3U3ZVR00zeTNESVJUZ3o1VFgwUllZVzlnYTdTMEJDWDkrYmZ5TEF5?=
- =?utf-8?B?OVhUdzBhUFFLQlBPZW05RmJsaWFkZVpxcEtod0xXNTAweE5XNDdVaUpQYk9H?=
- =?utf-8?B?RUhUbWY0R1A5L3p3bko2ZTRuaEI4YWhYc2RGUkQxbVFvSEFvWFViam4wR0ow?=
- =?utf-8?B?L3ZuOHlkYXlra0lIcTA0d1BQU1g2VTJnSTZscUNlZ0owa1JkSWZMalVldDZD?=
- =?utf-8?B?Z05CUmJtSWlXV0F2aDNOVzhnTDNpY2FlNk9SVGNhV2xIUkxDbTB6cGQ3TDhs?=
- =?utf-8?B?eTJjYVNGUW05Y0NsNHlxQVJ4Zi9jWDZIRzlZcXFGWnUzWTRoTk5QK24relBw?=
- =?utf-8?B?eUVSc0o2aU5GSTZVNHlXMEZhRjlBRnNqNytBanhKc3VZWHB0cEt4SWN4SlM4?=
- =?utf-8?B?L21ubE5TZXVYdzFDbEZmOTF3ZFc5aHRZRjUwWCtRU2dDRDIrdTMxRFBKcnd4?=
- =?utf-8?B?emRjQ0pnVWF6STc2czMxOEx6MmpJY3dWOUpLUy84VVEwVUc3MW9KU0JMRjg1?=
- =?utf-8?B?aFdPSXJ0WDJPSzFmakZ0SkNCeDI2SkFKS1pCdWZVaXZKQkNHWmg2dWdzMWpa?=
- =?utf-8?Q?PGn1MEaFSY6YblHOwOcH3HKegwU9kRsg?=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: a6cff57a-37f1-4040-4af1-08da0967e3fb
-X-MS-Exchange-CrossTenant-AuthSource: BYAPR10MB3287.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 Mar 2022 05:18:24.0024 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: L3RZljT7srNYgQGr+tnExdMMhdAe7ilo+P7HEl0OcHLflfhgOd4e43RPvYSzjzhYh4AC7ZZX8zUCiyAULF5F8Q==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR10MB2917
-X-Proofpoint-Virus-Version: vendor=nai engine=6300 definitions=10290
- signatures=694221
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0
- adultscore=0 bulkscore=0
- malwarescore=0 mlxlogscore=999 phishscore=0 spamscore=0 mlxscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
- definitions=main-2203190029
-X-Proofpoint-GUID: wjAhHM2HO-NFtXEx9_oqErlJdFT8Jua3
-X-Proofpoint-ORIG-GUID: wjAhHM2HO-NFtXEx9_oqErlJdFT8Jua3
-Cc: "lvivier@redhat.com" <lvivier@redhat.com>,
- "mst@redhat.com" <mst@redhat.com>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- "eperezma@redhat.com" <eperezma@redhat.com>, Eli Cohen <elic@nvidia.com>
+Date: Sat, 19 Mar 2022 12:04:54 +0000
+Message-ID: <1527694711906@gmail-com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -202,546 +61,608 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Reply-To: micradsmail@gmail.com
+Content-Type: multipart/mixed; boundary="===============1077120915974660786=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+This is a multi-part message in MIME format
+
+--===============1077120915974660786==
+Content-Type: multipart/alternative; charset=utf-8; boundary="r4bV2JvskHcxJg6xJsM=_e3KsIKNHUADvI"
+
+This is a multi-part message in MIME format
+
+--r4bV2JvskHcxJg6xJsM=_e3KsIKNHUADvI
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+----------------------------------------------------------------------=
+--------------------------------------------------
+MICRADS=C2=B422 - The 2022 Multidisciplinary International Conference =
+of Research Applied to Defense and Security
+                                                           Barranquill=
+a; Colombia, 11-13 July 2022
+                                                                http:/=
+/www.micrads.org/ <http://www.micrads.org/>
+----------------------------------------------------------------------=
+--------------------------------------------------    =20
+
+=20
+
+=20
+
+Scope=20
+
+MICRADS=C2=B422 - The 2022 Multidisciplinary International Conference =
+of Research Applied to Defense and Security, to be held at Barraquilla=
+, Colombia, 11-13 July 2022, is an international forum for researchers=
+ and practitioners to present and discuss the most recent innovations,=
+ trends, results, experiences and concerns in the several perspectives=
+ of Defense and Security.
+
+We are pleased to invite you to submit your papers to MICRADS=C2=B422.=
+ They can be written in English, Spanish or Portuguese. All submission=
+s will be reviewed on the basis of relevance, originality, importance =
+and clarity.
+
+=20
+
+Topics=20
+
+Submitted papers should be related with one or more of the main themes=
+ proposed for the Conference:
+
+=20
+
+Area A: Systems, Communication and Defense
+
+A1) Information and Communication Technology in Education
+A2) Simulation and computer vision in military applications
+A3) Analysis and Signal Processing
+A4) Cybersecurity and Cyberdefense
+A5) Computer Networks, Mobility and Pervasive Systems
+
+ =20
+
+Area B: Strategy and political-administrative vision in Defense
+
+B1) Safety and Maritime Protection
+B2) Strategy, Geopolitics and Oceanopolitics
+B3) Planning, economy and logistics applied to Defense
+B4) Leadership and e-leadership
+B5) Military Marketing
+B6) Health informatics in military applications
+B7) Ethics in the context of military operations
+B8) Operational Law (DICA and DD. HH.)
+
+=20
+
+Area C: Engineering and technologies applied to Defense
+
+C1) Wearable Technology and Assistance Devices
+C2) Military Naval Engineering
+C3) Weapons and Combat Systems
+C4) Chemical, Biological and Nuclear Defense
+C5) Defense Engineering (General)
+C6) Energy efficiency
+C7) Artificial Intelligence and Machine Learning
+C8) Unmanned platforms
+
+  =20
+
+Submission and Decision=20
+
+Submitted papers written in English (until 10-page limit) must comply =
+with the format of Smart Innovation, Systems and Technologies series (=
+see Instructions for Authors at Springer Website <https://www.springer=
+=2Ecom/us/authors-editors/conference-proceedings/conference-proceeding=
+s-guidelines>), must not have been published before, not be under revi=
+ew for any other conference or publication and not include any informa=
+tion leading to the authors=E2=80=99 identification. Therefore, the au=
+thors=E2=80=99 names, affiliations and e-mails should not be included =
+in the version for evaluation by the Scientific Committee. This inform=
+ation should only be included in the camera-ready version, saved in Wo=
+rd or Latex format and also in PDF format. These files must be accompa=
+nied by the Consent to Publish form <http://www.micrads.org/consent.do=
+c> filled out, in a ZIP file, and uploaded at the conference managemen=
+t system.=20
+
+Submitted papers written in Spanish or Portuguese (until 15-page limit=
+) must comply with the format of RISTI <http://www.risti.xyz/> - Revis=
+ta Ib=C3=A9rica de Sistemas e Tecnologias de Informa=C3=A7=C3=A3o (dow=
+nload instructions/template for authors in Spanish <http://www.risti.x=
+yz/formato-es.doc> or Portuguese <http://www.risti.xyz/formato-pt.doc>=
+), must not have been published before, not be under review for any ot=
+her conference or publication and not include any information leading =
+to the authors=E2=80=99 identification. Therefore, the authors=E2=80=99=
+ names, affiliations and e-mails should not be included in the version=
+ for evaluation by the Scientific Committee. This information should o=
+nly be included in the camera-ready version, saved in Word. These file=
+ must be uploaded at the conference management system in a ZIP file.=20=
 
 
-On 3/17/2022 7:27 PM, Jason Wang wrote:
-> On Fri, Mar 18, 2022 at 8:59 AM Si-Wei Liu <si-wei.liu@oracle.com> wrote:
->>
->>
->> On 3/16/2022 7:32 PM, Jason Wang wrote:
->>> On Thu, Mar 17, 2022 at 6:00 AM Si-Wei Liu <si-wei.liu@oracle.com> wrote:
->>>>
->>>> On 3/16/2022 12:10 AM, Eli Cohen wrote:
->>>>>> From: Si-Wei Liu <si-wei.liu@oracle.com>
->>>>>> Sent: Wednesday, March 16, 2022 8:52 AM
->>>>>> To: Eli Cohen <elic@nvidia.com>
->>>>>> Cc: mst@redhat.com; jasowang@redhat.com; virtualization@lists.linux-foundation.org; eperezma@redhat.com; amorenoz@redhat.com;
->>>>>> lvivier@redhat.com; sgarzare@redhat.com; Parav Pandit <parav@nvidia.com>
->>>>>> Subject: Re: [PATCH v1 1/2] vdpa: Add support for querying vendor statistics
->>>>>>
->>>>>>
->>>>>>
->>>>>> On 3/15/2022 2:10 AM, Eli Cohen wrote:
->>>>>>
->>>>>> <...snip...>
->>>>>>
->>>>>>>> Say you got a vdpa net device created with 4 data queue pairs and a
->>>>>>>> control vq. On boot some guest firmware may support just F_CTRL_VQ but
->>>>>>>> not F_MQ, then the index for the control vq in guest ends up with 2, as
->>>>>>>> in this case there's only a single queue pair enabled for rx (index 0)
->>>>>>>> and tx (index 1). From the host driver (e.g. mlx5_vdpa) perspective, the
->>>>>>>> control vq is the last vq following 8
->>>>>>> If the host sees F_MQ was not negotiated but F_CTRL_VQ was, then it knows
->>>>>>> that control VQ index is 2
->>>>>> Right, but I don't see this feature negotiation info getting returned
->>>>>> from your vdpa_dev_vendor_stats_fill(), or did I miss something? How do
->>>>>> you plan for host user to get this info? If you meant another "vdpa dev
->>>>>> show" command to query negotiated features ahead, this won't get the
->>>>>> same lock protected as the time you run the stat query. It's very easy
->>>>>> to miss that ephemeral queue index.
->>>>> Right, so I suggested to include the negotiated features in the netlink message
->>>>> for the statistics. That would save us from using two system calls to get the
->>>>> information required and it answers your concern with respect to locking.
->>>>> I think Jason was reluctant to adding this attribute to the message but can't
->>>>> find where he explained the reasoning.
->>>> Maybe Jason can clarify and correct me, but I just did not get the same
->>>> impression as what you said? I just skimmed through all of the emails in
->>>> the thread, only finding that he didn't want device specific attribute
->>>> such as queue type to get returned by the vdpa core, which I agree. I'm
->>>> not sure if he's explicitly against piggyback negotiated features to aid
->>>> userspace parsing the index.
->>> I think we need piggyback the negotiated features, otherwise as you
->>> mentioned, we will probably get in-consistency.
->> Great. Thanks for confirming it.
->>
->>> But a question for the "host queue index", as mentioned before. It's
->>> something that is not defined in the spec, so technically, vendor can
->>> do any mappings between it and the index what guest can see. I feel
->>> like we need to clarify it in the spec first.
->> I have been thinking about this for some while today. Actually I am not
->> against exposing the host queue index to the spec, as we know it's
->> somewhat implicitly defined in the QEMU device model for multiqueue. The
->> thing is, I'm not sure if there's extra benefit than this minor
->> requirement (*) given that all of the other vDPA kAPI are taking the
->> guest queue index rather than the host queue index.
-> Rethink of this, consider currently we do this via vendor stats, so
-> it's probably fine. Maybe we can have a better netlink API like
-> "vendor_queue_index" etc then everything should be fine.
-True. Or if there's netlink API that simply dumps the stats for all of 
-the available queues in one shot, that would serve our cloud use case 
-quite well. :)
+All papers will be subjected to a =E2=80=9Cblind review=E2=80=9D by at=
+ least two members of the Scientific Committee.
 
->
->> It works for
->> mlx5_vdpa as the control vq is implemented in the software, so it can
->> map to whatever guest qindex it wishes to. But would it cause extra
->> trouble for some other emulated vDPA device or other vendor's vDPA such
->> as ifcvf to fabricate a fake mapping between the host queue index and
->> the one guest can see? I would have to send a heads-up ahead that the
->> current vhost-vdpa mq implementation in upstream QEMU has some issue in
->> mapping the host qindex to the guest one. This would become a problem
->> with MQ enabled vdpa device and a non-MQ supporting guest e.g. OVMF, for
->> which I'm about to share some RFC patches shortly to demonstrate the
->> issue.
-> Sure.
-Please see the RFC patch just sent with the subject "vhost_net: should 
-not use max_queue_pairs for non-mq guest", option #3 is to leverage host 
-queue index.
+Based on Scientific Committee evaluation, a paper can be rejected or a=
+ccepted by the Conference Chairs. In the later case, it can be accepte=
+d as paper or poster.
 
->
->> If exposing the host queue index to the spec turns is essential
->> to resolving this issue and maybe help with software virtio QEMU
->> implementation too, I won't hesitate to expose this important
->> implementation detail to the spec.
->>
->> (*) another means that may somehow address my use case is to use some
->> magic keyword e.g. "ctrlvq" to identify the control vq. Implementation
->> wise, we can extensively pass -1 to indicate the last guest qindex to
->> the get_vq_vstat() API given that we know for sure the ctrlvq is the
->> last queue in the array when the relevant features are present. Since
->> the negotiated features are piggybacked, it's not hard for the vdpa tool
->> to tell apart whether the last queue is a control vq or not.
-> For virtqueue index (guest index) defined in the spec, I'd let
-> userspace to deduce it.
-OK, that'll be fine. Although I thought by extending 
-get_vendor_vq_vstat() a bit, the virtqueue index is still guest based, 
-from which the userspace can deduce control vq for its own.
+The authors of papers accepted as posters must build and print a poste=
+r to be exhibited during the Conference. This poster must follow an A1=
+ or A2 vertical format. The Conference can includes Work Sessions wher=
+e these posters are presented and orally discussed, with a 7 minute li=
+mit per poster.
 
-> But for the host or vendor index, we probably can do this.
-Does vendor index means it's optional and vendor specific, host index 
-means it is mandated and universal to all vendors? I hope we can define 
-some generic indexing scheme for virtio stats defined in the spec across 
-all vendor's devices, while limiting vendor's flexibility to define its 
-own index mapping to only those vendor stats.
+The authors of accepted papers will have 15 minutes to present their w=
+ork in a Conference Work Session; approximately 5 minutes of discussio=
+n will follow each presentation.
 
-> (Btw, I feel like we need to separate the features, if we agree to go
-> with host/vendor index, we can let guest index part in first).
-OK. Sounds like a plan. Thanks Jason.
+=20
 
-Thanks,
--Siwei
+Publication and Indexing=20
 
->
-> Thanks
->
->> I'd also welcome other ideas that can make virtqueue identification
->> easier and predictable from the CLI.
->>
->> Thanks,
->> -Siwei
->>
->>> Thanks
->>>
->>>> Another way around, vdpa tool may pass down -1 to get_vq_vstat() to
->>>> represent the queue index for the control queue - but that's less
->>>> favorable as the vdpa core needs to maintain device specific knowledge.
->>>>
->>>>
->>>>
->>>>>>>> data vqs of all 4 pairs, hence got
->>>>>>>> the 8th index in the rank. Since F_MQ is not negotiated and only 1 data
->>>>>>>> queue pair enabled, in such event only host qindex 0,1 and 8 have vendor
->>>>>>>> stats available, and the rest of qindex would get invalid/empty stat.
->>>>>>>>
->>>>>>>> Later on say boot continues towards loading the Linux virtio driver,
->>>>>>>> then guest could successfully negotiate both F_CTRL_VQ and F_MQ
->>>>>>>> features. In this case, all 8 data virtqueues are fully enabled, the
->>>>>>>> index for the control vq ends up as 8, following tightly after all the 4
->>>>>>>> data queue pairs. Only until both features are negotiated, the guest and
->>>>>>>> host are able to see consistent view in identifying the control vq.
->>>>>>>> Since F_MQ is negotiated, all host queues, indexed from 0 through 8,
->>>>>>>> should have vendor stats available.
->>>>>>>>
->>>>>>>> That's why I said the guest qindex is ephemeral and hard to predict
->>>>>>>> subjected to negotiated features, but host qindex is reliable and more
->>>>>>>> eligible for command line identification purpose.
->>>>>>>>
->>>>>> <...snip...>
->>>>>>>>> So what are you actually proposing? Display received and completed descriptors
->>>>>>>>> per queue index without further interpretation?
->>>>>>>> I'd suggest using a more stable queue id i.e. the host queue index to
->>>>>>>> represent the qidx (which seems to be what you're doing now?), and
->>>>>>>> displaying both the host qindex (queue_index_device in the example
->>>>>>>> below), as well as the guest's (queue_index_driver as below) in the output:
->>>>>>>>
->>>>>>> Given that per vdpa device you can display statistics only after features have
->>>>>>> been negotiated, you can always know the correct queue index for the control
->>>>>>> VQ.
->>>>>> The stats can be displayed only after features are negotiated, and only
->>>>>> when the corresponding queue is enabled. If you know it from "vdpa dev
->>>>>> show" on day 1 that the control vq and mq features are negotiated, but
->>>>>> then on day2 you got nothing for the predicted control vq index, what
->>>>>> would you recommend the host admin to do to get the right qindex again?
->>>>>> Re-run the stat query on the same queue index, or check the "vdpa dev
->>>>>> show" output again on day 3? This CLI design makes cloud administrator
->>>>>> really challenging to follow the dynamics of guest activities were to
->>>>>> manage hundreds or thousands of virtual machines...
->>>>>>
->>>>>> It would be easier, in my opinion, to grasp some well-defined handle
->>>>>> that is easily predictable or fixed across the board, for looking up the
->>>>>> control virtqueue. This could be a constant host queue index, or a
->>>>>> special magic keyword like "qidx ctrlvq". If cloud admin runs vstat
->>>>>> query on the control vq using a determined handle but get nothing back,
->>>>>> then s/he knows *for sure* the control vq was not available for some
->>>>>> reason at the point when the stat was being collected. S/he doesn't even
->>>>>> need to care negotiated status via "vdpa dev show" at all. Why bother?
->>>>> So, per my suggestion above, passing the negotiated attribute in the netlink
->>>>> message would satisfy the requirements for atomicity, right?
->>>> Yes, it satisfied the atomicity requirement, though not sure how you
->>>> want to represent the queue index for control vq? Basically if cloud
->>>> admin wants to dump control queue stats explicitly with a fixed handle
->>>> or identifier, how that can be done with the negotiated attribute?
->>>>
->>>> Thanks,
->>>> -Siwei
->>>>>>> Do you still hold see your proposal required?
->>>>>> Yes, this is essential to any cloud admin that runs stat query on all of
->>>>>> the queues on periodic basis. You'd get some deterministic without
->>>>>> blindly guessing or bothering other irrelevant command.
->>>>>>
->>>>>>
->>>>>> Thanks,
->>>>>> -Siwei
->>>>>>>> $ vdpa -jp dev vstats show vdpa-a qidx 8
->>>>>>>> {
->>>>>>>>          "vstats": {
->>>>>>>>              "vdpa-a": {
->>>>>>>>                  "queue_stats": [{
->>>>>>>>                      "queue_index_device": 8,
->>>>>>>>                      "queue_index_driver": 2,
->>>>>>>>                      "queue_type": "control_vq",
->>>>>>>>                      "stat_name": [ "received_desc","completed_desc" ],
->>>>>>>>                      "stat_value": [ 417776,417775 ],
->>>>>>>>                  }]
->>>>>>>>              }
->>>>>>>>          }
->>>>>>>> }
->>>>>>>>
->>>>>>>> Optionally, user may use guest queue index gqidx, which is kind of an
->>>>>>>> ephemeral ID and F_MQ negotiation depended, to query the stat on a
->>>>>>>> specific guest queue:
->>>>>>>>
->>>>>>>> $ vdpa -jp dev vstats show vdpa-a gqidx 2
->>>>>>>> {
->>>>>>>>          "vstats": {
->>>>>>>>              "vdpa-a": {
->>>>>>>>                  "queue_stats": [{
->>>>>>>>                      "queue_index_device": 8,
->>>>>>>>                      "queue_index_driver": 2,
->>>>>>>>                      "queue_type": "control_vq",
->>>>>>>>                      "stat_name": [ "received_desc","completed_desc" ],
->>>>>>>>                      "stat_value": [ 417776,417775 ],
->>>>>>>>                  }]
->>>>>>>>              }
->>>>>>>>          }
->>>>>>>> }
->>>>>>>>
->>>>>>>> Thanks,
->>>>>>>> -Siwei
->>>>>>>>
->>>>>>>>>> Thanks,
->>>>>>>>>> -Siwei
->>>>>>>>>>
->>>>>>>>>>>> Regards,
->>>>>>>>>>>> -Siwei
->>>>>>>>>>>>
->>>>>>>>>>>>>>>> Looks to me there are still some loose end I don't quite yet
->>>>>>>>>>>>>>>> understand.
->>>>>>>>>>>>>>>>
->>>>>>>>>>>>>>>>
->>>>>>>>>>>>>>>>>>>                       "queue_index": 0,
->>>>>>>>>>>>>>> I think this can be removed since the command is for a specific index.
->>>>>>>>>>>>>>>
->>>>>>>>>>>>>>>>>>>                       "name": "received_desc",
->>>>>>>>>>>>>>>>>>>                       "value": 417776,
->>>>>>>>>>>>>>>>>>>                       "name": "completed_desc",
->>>>>>>>>>>>>>>>>>>                       "value": 417548
->>>>>>>>>>>>>>>>>> Not for this kernel patch, but IMHO it's the best to put the name
->>>>>>>>>>>>>>>>>> & value pairs in an array instead of flat entries in json's
->>>>>>>>>>>>>>>>>> hash/dictionary. The hash entries can be re-ordered deliberately
->>>>>>>>>>>>>>>>>> by external json parsing tool, ending up with inconsistent stat values.
->>>>>>>>>>>>>>>> This comment is missed for some reason. Please change the example
->>>>>>>>>>>>>>>> in the log if you agree to address it in vdpa tool. Or justify why
->>>>>>>>>>>>>>>> keeping the order for json hash/dictionary is fine.
->>>>>>>>>>>>>>> Sorry for skipping this comment.
->>>>>>>>>>>>>>> Do you mean to present the information like:
->>>>>>>>>>>>>>> "received_desc": 417776,
->>>>>>>>>>>>>>> "completed_desc": 417548,
->>>>>>>>>>>>>> I mean the following presentation:
->>>>>>>>>>>>>>
->>>>>>>>>>>>>> $ vdpa -jp dev vstats show vdpa-a qidx 0 {
->>>>>>>>>>>>>>             "vstats": {
->>>>>>>>>>>>>>                 "vdpa-a": {
->>>>>>>>>>>>>>                     "queue_stats": [{
->>>>>>>>>>>>>>                         "queue_index": 0,
->>>>>>>>>>>>>>                         "queue_type": "rx",
->>>>>>>>>>>>>>                         "stat_name": [ "received_desc","completed_desc" ],
->>>>>>>>>>>>>>                         "stat_value": [ 417776,417548 ],
->>>>>>>>>>>>>>                     }]
->>>>>>>>>>>>>>                 }
->>>>>>>>>>>>>>             }
->>>>>>>>>>>>>> }
->>>>>>>>>>>>>>
->>>>>>>>>>>>>> I think Parav had similar suggestion, too.
->>>>>>>>>>>>>>
->>>>>>>>>>>>>> Thanks,
->>>>>>>>>>>>>> -Siwei
->>>>>>>>>>>>>>
->>>>>>>>>>>>>>>> Thanks,
->>>>>>>>>>>>>>>> -Siwei
->>>>>>>>>>>>>>>>
->>>>>>>>>>>>>>>>>> Thanks,
->>>>>>>>>>>>>>>>>> -Siwei
->>>>>>>>>>>>>>>>>>>                   }
->>>>>>>>>>>>>>>>>>>               }
->>>>>>>>>>>>>>>>>>> }
->>>>>>>>>>>>>>>>>>>
->>>>>>>>>>>>>>>>>>> Signed-off-by: Eli Cohen <elic@nvidia.com>
->>>>>>>>>>>>>>>>>>> ---
->>>>>>>>>>>>>>>>>>>            drivers/vdpa/vdpa.c       | 129
->>>>>>>>>>>>>>>> ++++++++++++++++++++++++++++++++++++++
->>>>>>>>>>>>>>>>>>>            include/linux/vdpa.h      |   5 ++
->>>>>>>>>>>>>>>>>>>            include/uapi/linux/vdpa.h |   7 +++
->>>>>>>>>>>>>>>>>>>            3 files changed, 141 insertions(+)
->>>>>>>>>>>>>>>>>>>
->>>>>>>>>>>>>>>>>>> diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c index
->>>>>>>>>>>>>>>>>>> 9846c9de4bfa..d0ff671baf88 100644
->>>>>>>>>>>>>>>>>>> --- a/drivers/vdpa/vdpa.c
->>>>>>>>>>>>>>>>>>> +++ b/drivers/vdpa/vdpa.c
->>>>>>>>>>>>>>>>>>> @@ -909,6 +909,74 @@ vdpa_dev_config_fill(struct vdpa_device
->>>>>>>>>>>>>>>>>>> *vdev,
->>>>>>>>>>>>>>>> struct sk_buff *msg, u32 portid,
->>>>>>>>>>>>>>>>>>>                   return err;
->>>>>>>>>>>>>>>>>>>            }
->>>>>>>>>>>>>>>>>>> +static int vdpa_fill_stats_rec(struct vdpa_device *vdev, struct
->>>>>>>>>>>>>>>>>>> +sk_buff
->>>>>>>>>>>>>>>> *msg,
->>>>>>>>>>>>>>>>>>> +                              struct genl_info *info, u32 index) {
->>>>>>>>>>>>>>>>>>> +       int err;
->>>>>>>>>>>>>>>>>>> +
->>>>>>>>>>>>>>>>>>> +       if (nla_put_u32(msg, VDPA_ATTR_DEV_QUEUE_INDEX, index))
->>>>>>>>>>>>>>>>>>> +               return -EMSGSIZE;
->>>>>>>>>>>>>>>>>>> +
->>>>>>>>>>>>>>>>>>> +       err = vdev->config->get_vendor_vq_stats(vdev, index, msg,
->>>>>>>>>>>>>>>>>>> +info-
->>>>>>>>>>>>>>>>> extack);
->>>>>>>>>>>>>>>>>>> +       if (err)
->>>>>>>>>>>>>>>>>>> +               return err;
->>>>>>>>>>>>>>>>>>> +
->>>>>>>>>>>>>>>>>>> +       return 0;
->>>>>>>>>>>>>>>>>>> +}
->>>>>>>>>>>>>>>>>>> +
->>>>>>>>>>>>>>>>>>> +static int vendor_stats_fill(struct vdpa_device *vdev, struct
->>>>>>>>>>>>>>>>>>> +sk_buff
->>>>>>>>>>>>>> *msg,
->>>>>>>>>>>>>>>>>>> +                            struct genl_info *info, u32 index) {
->>>>>>>>>>>>>>>>>>> +       int err;
->>>>>>>>>>>>>>>>>>> +
->>>>>>>>>>>>>>>>>>> +       if (!vdev->config->get_vendor_vq_stats)
->>>>>>>>>>>>>>>>>>> +               return -EOPNOTSUPP;
->>>>>>>>>>>>>>>>>>> +
->>>>>>>>>>>>>>>>>>> +       err = vdpa_fill_stats_rec(vdev, msg, info, index);
->>>>>>>>>>>>>>>>>>> +       if (err)
->>>>>>>>>>>>>>>>>>> +               return err;
->>>>>>>>>>>>>>>>>>> +
->>>>>>>>>>>>>>>>>>> +       return 0;
->>>>>>>>>>>>>>>>>>> +}
->>>>>>>>>>>>>>>>>>> +
->>>>>>>>>>>>>>>>>>> +static int vdpa_dev_vendor_stats_fill(struct vdpa_device *vdev,
->>>>>>>>>>>>>>>>>>> +                                     struct sk_buff *msg,
->>>>>>>>>>>>>>>>>>> +                                     struct genl_info *info, u32 index) {
->>>>>>>>>>>>>>>>>>> +       u32 device_id;
->>>>>>>>>>>>>>>>>>> +       void *hdr;
->>>>>>>>>>>>>>>>>>> +       int err;
->>>>>>>>>>>>>>>>>>> +       u32 portid = info->snd_portid;
->>>>>>>>>>>>>>>>>>> +       u32 seq = info->snd_seq;
->>>>>>>>>>>>>>>>>>> +       u32 flags = 0;
->>>>>>>>>>>>>>>>>>> +
->>>>>>>>>>>>>>>>>>> +       hdr = genlmsg_put(msg, portid, seq, &vdpa_nl_family, flags,
->>>>>>>>>>>>>>>>>>> +                         VDPA_CMD_DEV_VSTATS_GET);
->>>>>>>>>>>>>>>>>>> +       if (!hdr)
->>>>>>>>>>>>>>>>>>> +               return -EMSGSIZE;
->>>>>>>>>>>>>>>>>>> +
->>>>>>>>>>>>>>>>>>> +       if (nla_put_string(msg, VDPA_ATTR_DEV_NAME,
->>>>>>>>>>>> dev_name(&vdev-
->>>>>>>>>>>>>>>>> dev))) {
->>>>>>>>>>>>>>>>>>> +               err = -EMSGSIZE;
->>>>>>>>>>>>>>>>>>> +               goto undo_msg;
->>>>>>>>>>>>>>>>>>> +       }
->>>>>>>>>>>>>>>>>>> +
->>>>>>>>>>>>>>>>>>> +       device_id = vdev->config->get_device_id(vdev);
->>>>>>>>>>>>>>>>>>> +       if (nla_put_u32(msg, VDPA_ATTR_DEV_ID, device_id)) {
->>>>>>>>>>>>>>>>>>> +               err = -EMSGSIZE;
->>>>>>>>>>>>>>>>>>> +               goto undo_msg;
->>>>>>>>>>>>>>>>>>> +       }
->>>>>>>>>>>>>>>>>>> +
->>>>>>>>>>>>>>>>>>> +       err = vendor_stats_fill(vdev, msg, info, index);
->>>>>>>>>>>>>>>>>>> +
->>>>>>>>>>>>>>>>>>> +       genlmsg_end(msg, hdr);
->>>>>>>>>>>>>>>>>>> +
->>>>>>>>>>>>>>>>>>> +       return err;
->>>>>>>>>>>>>>>>>>> +
->>>>>>>>>>>>>>>>>>> +undo_msg:
->>>>>>>>>>>>>>>>>>> +       genlmsg_cancel(msg, hdr);
->>>>>>>>>>>>>>>>>>> +       return err;
->>>>>>>>>>>>>>>>>>> +}
->>>>>>>>>>>>>>>>>>> +
->>>>>>>>>>>>>>>>>>>            static int vdpa_nl_cmd_dev_config_get_doit(struct sk_buff
->>>>>>>>>>>>>>>>>>> *skb, struct
->>>>>>>>>>>>>>>> genl_info *info)
->>>>>>>>>>>>>>>>>>>            {
->>>>>>>>>>>>>>>>>>>                   struct vdpa_device *vdev;
->>>>>>>>>>>>>>>>>>> @@ -990,6 +1058,60 @@
->>>>>>>>>>>> vdpa_nl_cmd_dev_config_get_dumpit(struct
->>>>>>>>>>>>>>>> sk_buff *msg, struct netlink_callback *
->>>>>>>>>>>>>>>>>>>                   return msg->len;
->>>>>>>>>>>>>>>>>>>            }
->>>>>>>>>>>>>>>>>>> +static int vdpa_nl_cmd_dev_stats_get_doit(struct sk_buff *skb,
->>>>>>>>>>>>>>>>>>> +                                         struct genl_info *info)
->>>>>>>>>>>>>>>>>>> +{
->>>>>>>>>>>>>>>>>>> +       struct vdpa_device *vdev;
->>>>>>>>>>>>>>>>>>> +       struct sk_buff *msg;
->>>>>>>>>>>>>>>>>>> +       const char *devname;
->>>>>>>>>>>>>>>>>>> +       struct device *dev;
->>>>>>>>>>>>>>>>>>> +       u32 index;
->>>>>>>>>>>>>>>>>>> +       int err;
->>>>>>>>>>>>>>>>>>> +
->>>>>>>>>>>>>>>>>>> +       if (!info->attrs[VDPA_ATTR_DEV_NAME])
->>>>>>>>>>>>>>>>>>> +               return -EINVAL;
->>>>>>>>>>>>>>>>>>> +
->>>>>>>>>>>>>>>>>>> +       if (!info->attrs[VDPA_ATTR_DEV_QUEUE_INDEX])
->>>>>>>>>>>>>>>>>>> +               return -EINVAL;
->>>>>>>>>>>>>>>>>>> +
->>>>>>>>>>>>>>>>>>> +       devname = nla_data(info->attrs[VDPA_ATTR_DEV_NAME]);
->>>>>>>>>>>>>>>>>>> +       msg = nlmsg_new(NLMSG_DEFAULT_SIZE, GFP_KERNEL);
->>>>>>>>>>>>>>>>>>> +       if (!msg)
->>>>>>>>>>>>>>>>>>> +               return -ENOMEM;
->>>>>>>>>>>>>>>>>>> +
->>>>>>>>>>>>>>>>>>> +       index = nla_get_u32(info-
->>>>>>>>>>>>> attrs[VDPA_ATTR_DEV_QUEUE_INDEX]);
->>>>>>>>>>>>>>>>>>> +       mutex_lock(&vdpa_dev_mutex);
->>>>>>>>>>>>>>>>>>> +       dev = bus_find_device(&vdpa_bus, NULL, devname,
->>>>>>>>>>>>>>>> vdpa_name_match);
->>>>>>>>>>>>>>>>>>> +       if (!dev) {
->>>>>>>>>>>>>>>>>>> +               NL_SET_ERR_MSG_MOD(info->extack, "device not
->>>>>>>>>>>> found");
->>>>>>>>>>>>>>>>>>> +               err = -ENODEV;
->>>>>>>>>>>>>>>>>>> +               goto dev_err;
->>>>>>>>>>>>>>>>>>> +       }
->>>>>>>>>>>>>>>>>>> +       vdev = container_of(dev, struct vdpa_device, dev);
->>>>>>>>>>>>>>>>>>> +       if (!vdev->mdev) {
->>>>>>>>>>>>>>>>>>> +               NL_SET_ERR_MSG_MOD(info->extack, "unmanaged
->>>>>>>>>>>> vdpa
->>>>>>>>>>>>>>>> device");
->>>>>>>>>>>>>>>>>>> +               err = -EINVAL;
->>>>>>>>>>>>>>>>>>> +               goto mdev_err;
->>>>>>>>>>>>>>>>>>> +       }
->>>>>>>>>>>>>>>>>>> +       err = vdpa_dev_vendor_stats_fill(vdev, msg, info, index);
->>>>>>>>>>>>>>>>>>> +       if (!err)
->>>>>>>>>>>>>>>>>>> +               err = genlmsg_reply(msg, info);
->>>>>>>>>>>>>>>>>>> +
->>>>>>>>>>>>>>>>>>> +       put_device(dev);
->>>>>>>>>>>>>>>>>>> +       mutex_unlock(&vdpa_dev_mutex);
->>>>>>>>>>>>>>>>>>> +
->>>>>>>>>>>>>>>>>>> +       if (err)
->>>>>>>>>>>>>>>>>>> +               nlmsg_free(msg);
->>>>>>>>>>>>>>>>>>> +
->>>>>>>>>>>>>>>>>>> +       return err;
->>>>>>>>>>>>>>>>>>> +
->>>>>>>>>>>>>>>>>>> +mdev_err:
->>>>>>>>>>>>>>>>>>> +       put_device(dev);
->>>>>>>>>>>>>>>>>>> +dev_err:
->>>>>>>>>>>>>>>>>>> +       mutex_unlock(&vdpa_dev_mutex);
->>>>>>>>>>>>>>>>>>> +       return err;
->>>>>>>>>>>>>>>>>>> +}
->>>>>>>>>>>>>>>>>>> +
->>>>>>>>>>>>>>>>>>>            static const struct nla_policy vdpa_nl_policy[VDPA_ATTR_MAX + 1]
->>>>>>>>>>>> = {
->>>>>>>>>>>>>>>>>>>                   [VDPA_ATTR_MGMTDEV_BUS_NAME] = { .type =
->>>>>>>>>>>>>> NLA_NUL_STRING },
->>>>>>>>>>>>>>>>>>>                   [VDPA_ATTR_MGMTDEV_DEV_NAME] = { .type = NLA_STRING
->>>>>>>>>>>>>> }, @@ -
->>>>>>>>>>>>>>>> 997,6
->>>>>>>>>>>>>>>>>>> +1119,7 @@ static const struct nla_policy
->>>>>>>>>>>>>>>> vdpa_nl_policy[VDPA_ATTR_MAX + 1] = {
->>>>>>>>>>>>>>>>>>>                   [VDPA_ATTR_DEV_NET_CFG_MACADDR] =
->>>>>>>>>>>>>> NLA_POLICY_ETH_ADDR,
->>>>>>>>>>>>>>>>>>>                   /* virtio spec 1.1 section 5.1.4.1 for valid MTU range */
->>>>>>>>>>>>>>>>>>>                   [VDPA_ATTR_DEV_NET_CFG_MTU] =
->>>>>>>>>>>>>> NLA_POLICY_MIN(NLA_U16, 68),
->>>>>>>>>>>>>>>>>>> +       [VDPA_ATTR_DEV_QUEUE_INDEX] =
->>>>>>>>>>>> NLA_POLICY_RANGE(NLA_U32, 0,
->>>>>>>>>>>>>>>> 65535),
->>>>>>>>>>>>>>>>>>>            };
->>>>>>>>>>>>>>>>>>>            static const struct genl_ops vdpa_nl_ops[] = { @@ -1030,6
->>>>>>>>>>>>>>>>>>> +1153,12 @@ static const struct genl_ops vdpa_nl_ops[] = {
->>>>>>>>>>>>>>>>>>>                           .doit = vdpa_nl_cmd_dev_config_get_doit,
->>>>>>>>>>>>>>>>>>>                           .dumpit = vdpa_nl_cmd_dev_config_get_dumpit,
->>>>>>>>>>>>>>>>>>>                   },
->>>>>>>>>>>>>>>>>>> +       {
->>>>>>>>>>>>>>>>>>> +               .cmd = VDPA_CMD_DEV_VSTATS_GET,
->>>>>>>>>>>>>>>>>>> +               .validate = GENL_DONT_VALIDATE_STRICT |
->>>>>>>>>>>>>>>> GENL_DONT_VALIDATE_DUMP,
->>>>>>>>>>>>>>>>>>> +               .doit = vdpa_nl_cmd_dev_stats_get_doit,
->>>>>>>>>>>>>>>>>>> +               .flags = GENL_ADMIN_PERM,
->>>>>>>>>>>>>>>>>>> +       },
->>>>>>>>>>>>>>>>>>>            };
->>>>>>>>>>>>>>>>>>>            static struct genl_family vdpa_nl_family __ro_after_init =
->>>>>>>>>>>>>>>>>>> { diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h index
->>>>>>>>>>>>>>>>>>> 2de442ececae..274203845cfc 100644
->>>>>>>>>>>>>>>>>>> --- a/include/linux/vdpa.h
->>>>>>>>>>>>>>>>>>> +++ b/include/linux/vdpa.h
->>>>>>>>>>>>>>>>>>> @@ -275,6 +275,9 @@ struct vdpa_config_ops {
->>>>>>>>>>>>>>>>>>>                                       const struct vdpa_vq_state *state);
->>>>>>>>>>>>>>>>>>>                   int (*get_vq_state)(struct vdpa_device *vdev, u16 idx,
->>>>>>>>>>>>>>>>>>>                                       struct vdpa_vq_state *state);
->>>>>>>>>>>>>>>>>>> +       int (*get_vendor_vq_stats)(struct vdpa_device *vdev, u16 idx,
->>>>>>>>>>>>>>>>>>> +                                  struct sk_buff *msg,
->>>>>>>>>>>>>>>>>>> +                                  struct netlink_ext_ack *extack);
->>>>>>>>>>>>>>>>>>>                   struct vdpa_notification_area
->>>>>>>>>>>>>>>>>>>                   (*get_vq_notification)(struct vdpa_device *vdev, u16 idx);
->>>>>>>>>>>>>>>>>>>                   /* vq irq is not expected to be changed once DRIVER_OK is
->>>>>>>>>>>>>>>>>>> set */ @@ -466,4 +469,6 @@ struct vdpa_mgmt_dev {
->>>>>>>>>>>>>>>>>>>            int vdpa_mgmtdev_register(struct vdpa_mgmt_dev *mdev);
->>>>>>>>>>>>>>>>>>>            void vdpa_mgmtdev_unregister(struct vdpa_mgmt_dev *mdev);
->>>>>>>>>>>>>>>>>>> +#define VDPA_INVAL_QUEUE_INDEX 0xffff
->>>>>>>>>>>>>>>>>>> +
->>>>>>>>>>>>>>>>>>>            #endif /* _LINUX_VDPA_H */
->>>>>>>>>>>>>>>>>>> diff --git a/include/uapi/linux/vdpa.h
->>>>>>>>>>>>>>>>>>> b/include/uapi/linux/vdpa.h index 1061d8d2d09d..c5f229a41dc2
->>>>>>>>>>>>>>>>>>> 100644
->>>>>>>>>>>>>>>>>>> --- a/include/uapi/linux/vdpa.h
->>>>>>>>>>>>>>>>>>> +++ b/include/uapi/linux/vdpa.h
->>>>>>>>>>>>>>>>>>> @@ -18,6 +18,7 @@ enum vdpa_command {
->>>>>>>>>>>>>>>>>>>                   VDPA_CMD_DEV_DEL,
->>>>>>>>>>>>>>>>>>>                   VDPA_CMD_DEV_GET,               /* can dump */
->>>>>>>>>>>>>>>>>>>                   VDPA_CMD_DEV_CONFIG_GET,        /* can dump */
->>>>>>>>>>>>>>>>>>> +       VDPA_CMD_DEV_VSTATS_GET,
->>>>>>>>>>>>>>>>>>>            };
->>>>>>>>>>>>>>>>>>>            enum vdpa_attr {
->>>>>>>>>>>>>>>>>>> @@ -46,6 +47,12 @@ enum vdpa_attr {
->>>>>>>>>>>>>>>>>>>                   VDPA_ATTR_DEV_NEGOTIATED_FEATURES,      /* u64 */
->>>>>>>>>>>>>>>>>>>                   VDPA_ATTR_DEV_MGMTDEV_MAX_VQS,          /*
->>>>>>>>>>>>>> u32 */
->>>>>>>>>>>>>>>>>>>                   VDPA_ATTR_DEV_SUPPORTED_FEATURES,       /* u64 */
->>>>>>>>>>>>>>>>>>> +
->>>>>>>>>>>>>>>>>>> +       VDPA_ATTR_DEV_QUEUE_INDEX,              /* u16 */
->>>>>>>>>>>>>>>>>>> +       VDPA_ATTR_DEV_QUEUE_TYPE,               /* string */
->>>>>>>>>>>>>>>>>>> +       VDPA_ATTR_DEV_VENDOR_ATTR_NAME,         /*
->>>>>>>>>>>> string */
->>>>>>>>>>>>>>>>>>> +       VDPA_ATTR_DEV_VENDOR_ATTR_VALUE,        /* u64 */
->>>>>>>>>>>>>>>>>>> +
->>>>>>>>>>>>>>>>>>>                   /* new attributes must be added above here */
->>>>>>>>>>>>>>>>>>>                   VDPA_ATTR_MAX,
->>>>>>>>>>>>>>>>>>>            };
+To ensure that an accepted paper is published, at least one of the aut=
+hors must be fully registered by the 31 of May 2022, and the paper mus=
+t comply with the suggested layout and page-limit (until 10 pages). Ad=
+ditionally, all recommended changes must be addressed by the authors b=
+efore they submit the camera-ready version.
+
+No more than one paper per registration will be published. An extra fe=
+e must be paid for publication of additional papers, with a maximum of=
+ one additional paper per registration. One registration permits only =
+the participation of one author in the conference.
+
+Papers can be written in English, Spanish or Portuguese. Accepted and =
+registered papers written in English will be published in Proceedings =
+by Springer, in a book of its SIST series, and will be submitted for i=
+ndexing by ISI, SCOPUS, EI-Compendex, SpringerLink, and Google Scholar=
+=2E=20
+
+Papers written in Spanish or Portuguese and registered will be publish=
+ed in a Special Issue of RISTI and will be submitted for indexation by=
+ SCOPUS, among others.
+
+=20
+
+Important Dates=20
+
+Paper Submission: April 21, 2022
+
+Notification of Acceptance: May 28, 2022
+
+ Payment of Registration, to ensure the inclusion of an accepted paper=
+ in the conference proceedings: May 31, 2022
+
+ Camera-ready Submission: May 31, 2022
+
+
+
+-------
+Website of MICRADS'22: http://www.micrads.org/ <http://www.micrads.org=
+/>
+-------=20
+
+--r4bV2JvskHcxJg6xJsM=_e3KsIKNHUADvI
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+<html>
+  <head>
+    <title></title>
+    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content=
+-Type" />
+  </head>
+  <body>
+    <p class=3D"MsoNormal" style=3D"margin: 0cm 0cm 8pt; line-height: =
+normal; mso-margin-top-alt: auto; mso-margin-bottom-alt: auto"><span l=
+ang=3D"EN-US" style=3D"font-size: 10pt; font-family: 'Arial',sans-seri=
+f; color: #222222; mso-fareast-font-family: 'Times New Roman'; mso-ans=
+i-language: EN-US; mso-fareast-language: PT">-------------------------=
+----------------------------------------------------------------------=
+-------------------------<br />MICRADS&acute;22 - The 2022 Multidiscip=
+linary International Conference of Research Applied to Defense and Sec=
+urity<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb=
+sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span lang=3D=
+"EN-US" style=3D"font-size: 12pt; font-family: 'Times New Roman',serif=
+; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language: EN-US=
+; mso-fareast-language: PT">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb=
+sp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span lang=3D"EN-US" style=3D"font-s=
+ize: 10pt; font-family: 'Arial',sans-serif; color: #222222; mso-fareas=
+t-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareas=
+t-language: PT">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Barranquilla; Colombia,&=
+nbsp;11-13&nbsp;July 2022<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb=
+sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
+nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb=
+sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
+nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><sp=
+an style=3D"font-size: 10pt; font-family: 'Arial',sans-serif; color: #=
+222222; mso-fareast-font-family: 'Times New Roman'; mso-fareast-langua=
+ge: PT"><a href=3D"http://www.micrads.org/" target=3D"_blank"><span la=
+ng=3D"EN-US" style=3D"color: blue; mso-ansi-language: EN-US">http://ww=
+w.micrads.org/</span></a></span><span lang=3D"EN-US" style=3D"font-siz=
+e: 10pt; font-family: 'Arial',sans-serif; color: #222222; mso-fareast-=
+font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareast-=
+language: PT"><br />--------------------------------------------------=
+----------------------------------------------------------------------=
+</span><span lang=3D"EN-US" style=3D"font-size: 12pt; font-family: 'Ti=
+mes New Roman',serif; mso-fareast-font-family: 'Times New Roman'; mso-=
+ansi-language: EN-US; mso-fareast-language: PT">&nbsp; &nbsp;&nbsp;&nb=
+sp;</span><span lang=3D"EN-US" style=3D"font-size: 10pt; font-family: =
+'Arial',sans-serif; color: #222222; mso-fareast-font-family: 'Times Ne=
+w Roman'; mso-ansi-language: EN-US; mso-fareast-language: PT"><br styl=
+e=3D"mso-special-character: line-break" /><br style=3D"mso-special-cha=
+racter: line-break" /></span><span lang=3D"EN-US" style=3D"font-size: =
+12pt; font-family: 'Times New Roman',serif; mso-fareast-font-family: '=
+Times New Roman'; mso-ansi-language: EN-US; mso-fareast-language: PT">=
+&nbsp;</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
+ 6.75pt; line-height: normal"><b><span lang=3D"EN-US" style=3D"font-si=
+ze: 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-far=
+east-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-far=
+east-language: PT">&nbsp;</span></b></p>
+    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
+ 6.75pt; line-height: normal"><b><span lang=3D"EN-US" style=3D"font-si=
+ze: 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-far=
+east-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-far=
+east-language: PT">Scope</span></b><span lang=3D"EN-US" style=3D"font-=
+size: 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-f=
+areast-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-f=
+areast-language: PT">&nbsp;</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
+tify; margin: 0cm 0cm 6.75pt; line-height: normal"><span lang=3D"EN-US=
+" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color=
+: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-langua=
+ge: EN-US; mso-fareast-language: PT">MICRADS&acute;22 - The 2022 Multi=
+disciplinary International Conference of Research Applied to Defense a=
+nd Security, to be held at Barraquilla, Colombia, 11-13 </span><span l=
+ang=3D"EN-US" style=3D"font-size: 10pt; font-family: 'Arial',sans-seri=
+f; color: #222222; mso-fareast-font-family: 'Times New Roman'; mso-ans=
+i-language: EN-US; mso-fareast-language: PT">July</span><span lang=3D"=
+EN-US" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; =
+color: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-l=
+anguage: EN-US; mso-fareast-language: PT"> 2022, is an international f=
+orum for researchers and practitioners to present and discuss the most=
+ recent innovations, trends, results, experiences and concerns in the =
+several perspectives of Defense and Security.</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
+tify; margin: 0cm 0cm 6.75pt; line-height: normal"><span lang=3D"EN-US=
+" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color=
+: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-langua=
+ge: EN-US; mso-fareast-language: PT">We are pleased to invite you to s=
+ubmit your papers to MICRADS&acute;22. They can be written in English,=
+ Spanish or Portuguese. All submissions will be reviewed on the basis =
+of relevance, originality, importance and clarity.</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
+ 6.75pt; line-height: normal"><span lang=3D"EN-US" style=3D"font-size:=
+ 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-fareas=
+t-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareas=
+t-language: PT">&nbsp;</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
+ 6.75pt; line-height: normal"><b><span lang=3D"EN-US" style=3D"font-si=
+ze: 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-far=
+east-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-far=
+east-language: PT">Topics</span></b><span lang=3D"EN-US" style=3D"font=
+-size: 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-=
+fareast-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-=
+fareast-language: PT">&nbsp;</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
+ 6.75pt; line-height: normal"><span lang=3D"EN-US" style=3D"font-size:=
+ 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-fareas=
+t-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareas=
+t-language: PT">Submitted papers should be related with one or more of=
+ the main themes proposed for the Conference:</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
+ 6.75pt; line-height: normal"><span lang=3D"EN-US" style=3D"font-size:=
+ 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-fareas=
+t-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareas=
+t-language: PT">&nbsp;</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
+ 6.75pt; line-height: normal"><b><span lang=3D"EN-US" style=3D"font-si=
+ze: 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-far=
+east-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-far=
+east-language: PT">Area A: Systems, Communication and Defense</span></=
+b><span lang=3D"EN-US" style=3D"font-size: 10pt; font-family: 'Helveti=
+ca',sans-serif; color: #333333; mso-fareast-font-family: 'Times New Ro=
+man'; mso-ansi-language: EN-US; mso-fareast-language: PT"><br /><br />=
+A1) Information and Communication Technology in Education<br />A2) Sim=
+ulation and computer vision in military applications<br />A3) Analysis=
+ and Signal Processing<br />A4) Cybersecurity and Cyberdefense<br />A5=
+) Computer Networks, Mobility and Pervasive Systems</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
+ 6.75pt; line-height: normal"><span lang=3D"EN-US" style=3D"font-size:=
+ 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-fareas=
+t-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareas=
+t-language: PT">&nbsp;&nbsp;</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
+ 6.75pt; line-height: normal"><b><span lang=3D"EN-US" style=3D"font-si=
+ze: 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-far=
+east-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-far=
+east-language: PT">Area B: Strategy and political-administrative visio=
+n in Defense</span></b><span lang=3D"EN-US" style=3D"font-size: 10pt; =
+font-family: 'Helvetica',sans-serif; color: #333333; mso-fareast-font-=
+family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareast-langu=
+age: PT"><br /><br /><span style=3D"background: white">B1) Safety and =
+Maritime Protection</span><br /><span style=3D"background: white">B2) =
+Strategy, Geopolitics and Oceanopolitics</span><br /><span style=3D"ba=
+ckground: white">B3) Planning, economy and logistics applied to Defens=
+e</span><br /><span style=3D"background: white">B4) Leadership and e-l=
+eadership</span><br /><span style=3D"background: white">B5) Military M=
+arketing</span><br /><span style=3D"background: white">B6) Health info=
+rmatics in military applications</span><br /><span style=3D"background=
+: white">B7) Ethics in the context of military operations</span><br />=
+<span style=3D"background: white">B8) Operational Law (DICA and DD. HH=
+=2E)</span></span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
+ 6.75pt; line-height: normal"><span lang=3D"EN-US" style=3D"font-size:=
+ 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-fareas=
+t-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareas=
+t-language: PT">&nbsp;</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
+ 6.75pt; line-height: normal"><b><span lang=3D"EN-US" style=3D"font-si=
+ze: 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-far=
+east-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-far=
+east-language: PT">Area C: Engineering and technologies applied to Def=
+ense</span></b><span lang=3D"EN-US" style=3D"font-size: 10pt; font-fam=
+ily: 'Helvetica',sans-serif; color: #333333; mso-fareast-font-family: =
+'Times New Roman'; mso-ansi-language: EN-US; mso-fareast-language: PT"=
+><br /><br /><span style=3D"background: white">C1) Wearable Technology=
+ and Assistance Devices</span><br /><span style=3D"background: white">=
+C2) Military Naval Engineering</span><br /><span style=3D"background: =
+white">C3) Weapons and Combat Systems</span><br /><span style=3D"backg=
+round: white">C4) Chemical, Biological and Nuclear Defense</span><br /=
+><span style=3D"background: white">C5) Defense Engineering (General)</=
+span><br /><span style=3D"background: white">C6) Energy efficiency</sp=
+an><br /><span style=3D"background: white">C7) Artificial Intelligence=
+ and Machine Learning</span><br /><span style=3D"background: white">C8=
+) Unmanned platforms</span></span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
+ 6.75pt; line-height: normal"><span lang=3D"EN-US" style=3D"font-size:=
+ 10pt; font-family: 'Helvetica',sans-serif; background: white; color: =
+#333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language=
+: EN-US; mso-fareast-language: PT">&nbsp;</span><span lang=3D"EN-US" s=
+tyle=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color: #=
+333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language:=
+ EN-US; mso-fareast-language: PT">&nbsp;&nbsp;</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
+ 6.75pt; line-height: normal"><b><span lang=3D"EN-US" style=3D"font-si=
+ze: 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-far=
+east-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-far=
+east-language: PT">Submission and Decision</span></b><span lang=3D"EN-=
+US" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; col=
+or: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-lang=
+uage: EN-US; mso-fareast-language: PT">&nbsp;</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
+tify; margin: 0cm 0cm 6.75pt; line-height: normal"><span lang=3D"EN-US=
+" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color=
+: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-langua=
+ge: EN-US; mso-fareast-language: PT">Submitted papers written in Engli=
+sh (until 10-page limit) must comply with the format of Smart Innovati=
+on, Systems and Technologies series (see&nbsp;</span><b><span style=3D=
+"font-size: 10pt; font-family: 'Helvetica',sans-serif; color: #333333;=
+ mso-fareast-font-family: 'Times New Roman'; mso-fareast-language: PT"=
+><a href=3D"https://www.springer.com/us/authors-editors/conference-pro=
+ceedings/conference-proceedings-guidelines" target=3D"_blank"><span la=
+ng=3D"EN-US" style=3D"text-decoration: none; color: #4a4a4a; mso-ansi-=
+language: EN-US; text-underline: none">Instructions for Authors at Spr=
+inger Website</span></a></span></b><span lang=3D"EN-US" style=3D"font-=
+size: 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-f=
+areast-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-f=
+areast-language: PT">), must not have been published before, not be un=
+der review for any other conference or publication and not include any=
+ information leading to the authors&rsquo; identification. Therefore, =
+the authors&rsquo; names, affiliations and e-mails should not be inclu=
+ded in the version for evaluation by the Scientific Committee. This in=
+formation should only be included in the camera-ready version, saved i=
+n Word or Latex format and also in PDF format.&nbsp;</span><span lang=3D=
+"EN" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; co=
+lor: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-lan=
+guage: EN; mso-fareast-language: PT">These files&nbsp;must&nbsp;be acc=
+ompanied by the&nbsp;<b><a href=3D"http://www.micrads.org/consent.doc"=
+ target=3D"_blank"><span style=3D"text-decoration: none; color: #4a4a4=
+a; text-underline: none">Consent to Publish form</span></a></b>&nbsp;f=
+illed out,&nbsp;in a ZIP file, and uploaded at the conference manageme=
+nt system.</span><span lang=3D"EN-US" style=3D"font-size: 10pt; font-f=
+amily: 'Helvetica',sans-serif; color: #333333; mso-fareast-font-family=
+: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareast-language: P=
+T">&nbsp;</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
+tify; margin: 0cm 0cm 6.75pt; line-height: normal"><span lang=3D"EN" s=
+tyle=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color: #=
+333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language:=
+ EN; mso-fareast-language: PT">Submitted papers written in Spanish or =
+Portuguese (until 15-page limit) must comply with the format of&nbsp;<=
+b><a href=3D"http://www.risti.xyz/" target=3D"_blank"><span style=3D"t=
+ext-decoration: none; color: #4a4a4a; text-underline: none">RISTI</spa=
+n></a></b>&nbsp;- Revista Ib&eacute;rica de Sistemas e Tecnologias de =
+Informa&ccedil;&atilde;o (download instructions/template for authors i=
+n&nbsp;<b><a href=3D"http://www.risti.xyz/formato-es.doc" target=3D"_b=
+lank"><span style=3D"text-decoration: none; color: #4a4a4a; text-under=
+line: none">Spanish</span></a></b>&nbsp;or&nbsp;<b><a href=3D"http://w=
+ww.risti.xyz/formato-pt.doc" target=3D"_blank"><span style=3D"text-dec=
+oration: none; color: #4a4a4a; text-underline: none">Portuguese</span>=
+</a></b>), must not have been published before, not be under review fo=
+r any other conference or publication and not include any information =
+leading to the authors&rsquo; identification. Therefore, the authors&r=
+squo; names, affiliations and e-mails should not be included in the ve=
+rsion for evaluation by the Scientific Committee. This information sho=
+uld only be included in the camera-ready version, saved in Word.&nbsp;=
+These file must&nbsp;be&nbsp;uploaded at the conference management sys=
+tem in a ZIP file.</span><span lang=3D"EN-US" style=3D"font-size: 10pt=
+; font-family: 'Helvetica',sans-serif; color: #333333; mso-fareast-fon=
+t-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareast-lan=
+guage: PT">&nbsp;</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
+tify; margin: 0cm 0cm 6.75pt; line-height: normal"><span lang=3D"EN-US=
+" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color=
+: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-langua=
+ge: EN-US; mso-fareast-language: PT">All papers will be subjected to a=
+ &ldquo;blind review&rdquo; by at least two members of the Scientific =
+Committee.</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
+tify; margin: 0cm 0cm 6.75pt; line-height: normal"><span lang=3D"EN-US=
+" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color=
+: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-langua=
+ge: EN-US; mso-fareast-language: PT">Based on Scientific Committee eva=
+luation, a paper can be rejected or accepted by the Conference Chairs.=
+ In the later case, it can be accepted as paper or poster.</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
+tify; margin: 0cm 0cm 6.75pt; line-height: normal"><span lang=3D"EN-US=
+" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color=
+: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-langua=
+ge: EN-US; mso-fareast-language: PT">The authors of papers accepted as=
+ posters must build and print a poster to be exhibited during the Conf=
+erence. This poster must follow an A1 or A2 vertical format. The Confe=
+rence can includes Work Sessions where these posters are presented and=
+ orally discussed, with a 7 minute limit per poster.</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
+tify; margin: 0cm 0cm 6.75pt; line-height: normal"><span lang=3D"EN-US=
+" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color=
+: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-langua=
+ge: EN-US; mso-fareast-language: PT">The authors of accepted papers wi=
+ll have 15 minutes to present their work in a Conference Work Session;=
+ approximately 5 minutes of discussion will follow each presentation.<=
+/span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
+tify; margin: 0cm 0cm 6.75pt; line-height: normal"><span lang=3D"EN-US=
+" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color=
+: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-langua=
+ge: EN-US; mso-fareast-language: PT">&nbsp;</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
+tify; margin: 0cm 0cm 6.75pt; line-height: normal"><b><span lang=3D"EN=
+-US" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; co=
+lor: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-lan=
+guage: EN-US; mso-fareast-language: PT">Publication and Indexing</span=
+></b><span lang=3D"EN-US" style=3D"font-size: 10pt; font-family: 'Helv=
+etica',sans-serif; color: #333333; mso-fareast-font-family: 'Times New=
+ Roman'; mso-ansi-language: EN-US; mso-fareast-language: PT">&nbsp;</s=
+pan></p>
+    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
+tify; margin: 0cm 0cm 6.75pt; line-height: normal"><span lang=3D"EN-US=
+" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color=
+: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-langua=
+ge: EN-US; mso-fareast-language: PT">To ensure that an accepted paper =
+is published, at least one of the authors must be fully registered by =
+the <span style=3D"background: white">31 of May 2022</span>, and the p=
+aper must comply with the suggested layout and page-limit (until 10 pa=
+ges). Additionally, all recommended changes must be addressed by the a=
+uthors before they submit the camera-ready version.</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
+tify; margin: 0cm 0cm 6.75pt; line-height: normal"><span lang=3D"EN-US=
+" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color=
+: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-langua=
+ge: EN-US; mso-fareast-language: PT">No more than one paper per regist=
+ration will be published. An extra fee must be paid for publication of=
+ additional papers, with a maximum of one additional paper per registr=
+ation. One registration permits only the participation of one author i=
+n the conference.</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
+tify; margin: 0cm 0cm 6.75pt; line-height: normal"><font face=3D"Calib=
+ri"><span lang=3D"EN-US" style=3D"color: #333333; mso-fareast-font-fam=
+ily: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareast-language=
+: PT; mso-ascii-font-family: Calibri; mso-hansi-font-family: Calibri; =
+mso-bidi-font-family: Calibri">Papers can be written in English, Spani=
+sh or Portuguese. Accepted and registered papers written in English wi=
+ll be published in Proceedings by Springer, in a book of its&nbsp;</sp=
+an><span lang=3D"EN-US" style=3D"color: black; mso-fareast-font-family=
+: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareast-language: P=
+T; mso-ascii-font-family: Calibri; mso-hansi-font-family: Calibri; mso=
+-bidi-font-family: Calibri">SIST series,&nbsp;</span><span lang=3D"EN-=
+US" style=3D"color: #333333; mso-fareast-font-family: 'Times New Roman=
+'; mso-ansi-language: EN-US; mso-fareast-language: PT; mso-ascii-font-=
+family: Calibri; mso-hansi-font-family: Calibri; mso-bidi-font-family:=
+ Calibri">and will be submitted for indexing by ISI, SCOPUS, EI-Compen=
+dex, SpringerLink, and Google Scholar</span></font><span lang=3D"EN-US=
+" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color=
+: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-langua=
+ge: EN-US; mso-fareast-language: PT">.&nbsp;</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
+tify; margin: 0cm 0cm 6.75pt; line-height: normal"><span lang=3D"EN-US=
+" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color=
+: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-langua=
+ge: EN-US; mso-fareast-language: PT">Papers written in Spanish or Port=
+uguese and registered will be published in a Special Issue of RISTI an=
+d will be submitted for indexation by SCOPUS, among others.</span></p>=
+
+    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
+ 6.75pt; line-height: normal"><span lang=3D"EN-US" style=3D"font-size:=
+ 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-fareas=
+t-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareas=
+t-language: PT">&nbsp;</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
+ 6.75pt; line-height: normal"><b><span lang=3D"EN-US" style=3D"font-si=
+ze: 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-far=
+east-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-far=
+east-language: PT">Important Dates</span></b><span lang=3D"EN-US" styl=
+e=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color: #333=
+333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language: EN=
+-US; mso-fareast-language: PT">&nbsp;</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
+ 6.75pt; line-height: normal"><span lang=3D"EN-US" style=3D"font-size:=
+ 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-fareas=
+t-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareas=
+t-language: PT">Paper Submission: <span style=3D"background: white">Ap=
+ril&nbsp;21, 2022</span></span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
+ 6.75pt; line-height: normal"><span lang=3D"EN-US" style=3D"font-size:=
+ 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-fareas=
+t-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareas=
+t-language: PT">Notification of Acceptance: <span style=3D"background:=
+ white">May 28, 2022</span></span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
+ 6.75pt; line-height: normal"><span lang=3D"EN-US" style=3D"font-size:=
+ 10pt; font-family: 'Helvetica',sans-serif; background: white; color: =
+#333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language=
+: EN-US; mso-fareast-language: PT">&nbsp;</span><span lang=3D"EN-US" s=
+tyle=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color: #=
+333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language:=
+ EN-US; mso-fareast-language: PT">Payment of Registration,&nbsp;to ens=
+ure the inclusion of an accepted paper in the conference proceedings: =
+<span style=3D"background: white">May 31, 2022</span></span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
+ 6.75pt; line-height: normal"><span lang=3D"EN-US" style=3D"font-size:=
+ 10pt; font-family: 'Helvetica',sans-serif; background: white; color: =
+#333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language=
+: EN-US; mso-fareast-language: PT">&nbsp;</span><span style=3D"font-si=
+ze: 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-far=
+east-font-family: 'Times New Roman'; mso-fareast-language: PT">Camera-=
+ready Submission: <span style=3D"background: white">May 31, 2022</span=
+></span></p>
+    <p class=3D"MsoNormal" style=3D"margin: 0cm 0cm 8pt"><span lang=3D=
+"EN-US" style=3D"font-size: 10pt; font-family: 'Arial',sans-serif; col=
+or: #222222; line-height: 107%; mso-fareast-font-family: 'Times New Ro=
+man'; mso-ansi-language: EN-US; mso-fareast-language: PT"><br /><br />=
+-------<br />Website of MICRADS'22:&nbsp;</span><span style=3D"font-si=
+ze: 10pt; font-family: 'Arial',sans-serif; color: #222222; line-height=
+: 107%; mso-fareast-font-family: 'Times New Roman'; mso-fareast-langua=
+ge: PT"><a href=3D"http://www.micrads.org/" target=3D"_blank"><span la=
+ng=3D"EN-US" style=3D"color: blue; mso-ansi-language: EN-US">http://ww=
+w.micrads.org/</span></a></span><span lang=3D"EN-US" style=3D"font-siz=
+e: 10pt; font-family: 'Arial',sans-serif; color: #222222; line-height:=
+ 107%; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language: =
+EN-US; mso-fareast-language: PT"><br />-------</span><span lang=3D"EN-=
+US" style=3D"mso-ansi-language: EN-US">&nbsp;</span></p>
+  </body>
+</html>
+
+--r4bV2JvskHcxJg6xJsM=_e3KsIKNHUADvI--
+
+
+--===============1077120915974660786==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============1077120915974660786==--
 
