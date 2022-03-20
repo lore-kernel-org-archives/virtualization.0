@@ -1,97 +1,99 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 19BAAC433EF
-	for <virtualization@archiver.kernel.org>; Sun, 20 Mar 2022 12:04:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2F187C4332F
+	for <virtualization@archiver.kernel.org>; Sun, 20 Mar 2022 12:05:06 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id A79BF408FB;
-	Sun, 20 Mar 2022 12:04:41 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id CBFB560BE4;
+	Sun, 20 Mar 2022 12:05:05 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id JYKzMVdSb-e2; Sun, 20 Mar 2022 12:04:40 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id qEGgV1TQbK87; Sun, 20 Mar 2022 12:05:05 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 3B505408F7;
-	Sun, 20 Mar 2022 12:04:40 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 7877160BD7;
+	Sun, 20 Mar 2022 12:05:04 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 12DE6C0012;
-	Sun, 20 Mar 2022 12:04:40 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id ED625C000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5D6B9C0012;
+	Sun, 20 Mar 2022 12:05:04 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 088C2C000B
  for <virtualization@lists.linux-foundation.org>;
- Sun, 20 Mar 2022 12:04:38 +0000 (UTC)
+ Sun, 20 Mar 2022 12:05:03 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id D87A4408FD
+ by smtp4.osuosl.org (Postfix) with ESMTP id EA71640929
  for <virtualization@lists.linux-foundation.org>;
- Sun, 20 Mar 2022 12:04:38 +0000 (UTC)
+ Sun, 20 Mar 2022 12:05:02 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id iurOpmPixr9L
+ with ESMTP id gHMNqmnnh_W3
  for <virtualization@lists.linux-foundation.org>;
- Sun, 20 Mar 2022 12:04:38 +0000 (UTC)
+ Sun, 20 Mar 2022 12:05:02 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 229D7408F8
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 3C0E740926
  for <virtualization@lists.linux-foundation.org>;
- Sun, 20 Mar 2022 12:04:37 +0000 (UTC)
+ Sun, 20 Mar 2022 12:05:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1647777877;
+ s=mimecast20190719; t=1647777901;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=pfT/FhM65DQKRvRUzD2KeWz3oDwCgvpb4tTTJtJbjgQ=;
- b=PDFQFf5V5N/hF/Sd/ykFFccAhPnqIFWsuIG2hdZIdiJflWUEAiFTGd4MFPNKBUTtOv7Uuc
- OGm9lPIpzcidFPlnv2McAR3pIzR4eHcNPqCAvWijxjPKxgM3kgVYZzrti3VRyAtMDGk3xm
- Tmd0iljTnx/BmMzoz7BDUQPN+JOxnHw=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=dluyFNWHj0wdqGZD9WiZi8hb8qI80pWjkbX+xynrT7U=;
+ b=Qj3nUJCKv0aRAzzU185bNxKaIr55ILXROrj5ddr/QbgaKYC9fKHx82LbU7lbF2tkTvU8ch
+ /xKW9/+Y77BTuzY5aH4nf2/hJ6y5XpNEwFCov6OTOmhxrTWl1NWWiAMujstRc3UHkl7LJP
+ ZJZJAlr4QI6Uanv00o/Srf5tM624064=
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
+ [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-571--qexkuQMMkSjbFPNu2o06A-1; Sun, 20 Mar 2022 08:04:35 -0400
-X-MC-Unique: -qexkuQMMkSjbFPNu2o06A-1
-Received: by mail-ej1-f70.google.com with SMTP id
- hg13-20020a1709072ccd00b006dfa484ec23so3509760ejc.8
+ us-mta-668-oQ1gyeELPy66uEOYfDAJBQ-1; Sun, 20 Mar 2022 08:05:00 -0400
+X-MC-Unique: oQ1gyeELPy66uEOYfDAJBQ-1
+Received: by mail-ej1-f72.google.com with SMTP id
+ h22-20020a1709060f5600b006b11a2d3dcfso5964811ejj.4
  for <virtualization@lists.linux-foundation.org>;
- Sun, 20 Mar 2022 05:04:34 -0700 (PDT)
+ Sun, 20 Mar 2022 05:04:59 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=pfT/FhM65DQKRvRUzD2KeWz3oDwCgvpb4tTTJtJbjgQ=;
- b=oAtqPeEVPEkCWAcciZuP695Bt25EecG0uYsikqUQtd5XZjfLCceKOYrxhmhbAoEG8h
- 6jEBTQgUBz4Lp9IntRypnfXtS7lNvbOjw3pUtzSAKcUx00oCtK/OyPgWbAxVizF43n3a
- yzGsfYXmU/8mYU7xf+0i/ueximJFANIrcWgbGofEqbgiYZLI2staIYDZCFLaKCsW49zk
- 4rXAHgJfKWfbr4cupgkvwzMMfGKirtWENwxouyCRjEzknxSjfL/UeWUvTpV3L49RA6K+
- JMDFA4U3eeqoo6+r0R7JtxR/J8RzlCluq1eodah9Td5EOd4ldmArKRWikqxEwFgimKE4
- mD0Q==
-X-Gm-Message-State: AOAM532wToDMaFCB2myOT85ZLrnNCqgcWkQ14kevoPthNiwM7FZhR4/X
- fmsziue91LXFetwYqWTw2NOgY0S3RAG6Rk0wl0a2ah59+ukpxHRk9R4daz309BfTVCJUbEPX75c
- DQDGqMhT5kgVG0Q5cWRx1CbLgHJUOXgyJLhdGPh5GRA==
-X-Received: by 2002:a17:907:9706:b0:6db:566a:4408 with SMTP id
- jg6-20020a170907970600b006db566a4408mr16470488ejc.374.1647777873718; 
- Sun, 20 Mar 2022 05:04:33 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJx89ppvPKr6BvvjBnbbPf3CkRgoqozB02ZyScIP5D34LakZNdud2DzXyDuKhCsgHIy5z//Zgg==
-X-Received: by 2002:a17:907:9706:b0:6db:566a:4408 with SMTP id
- jg6-20020a170907970600b006db566a4408mr16470444ejc.374.1647777873440; 
- Sun, 20 Mar 2022 05:04:33 -0700 (PDT)
+ bh=dluyFNWHj0wdqGZD9WiZi8hb8qI80pWjkbX+xynrT7U=;
+ b=zDQWTLv86jiDAdkzREACnTW5Be1SwALM5kzxC9dgD7L6T9H2sp2vOQ2vW+sFBdT4UF
+ 3IvGEUaauZcMOLCpfLHguC0ihgbd+CLSJvEU9nreAkeZPhd49vgrUIrcJRmWg9QLbIYj
+ lzWYbwOpdOgjHLN3oibI559spT7Yt8oUql7gSIOZ+vB9sKwIMeHf5wxP4P7pPL/PY0uz
+ 0cooRHu0FkZ5IDPXBfX+jleDMiddWj68/fSlRGh+xsRGOkQYaTIaHSQ6LeW7Ge6AkHPM
+ bL+Jx0G310gqPQc4+WeT32BN+x5OcaSu2ak5oPz06GhWywvKngxeYbeqsHjihS7DSqIx
+ VVXA==
+X-Gm-Message-State: AOAM531VmbpVn7prnJk1OyfqzdB32U3zh2IToPtG8IBDg52FSKalUBTc
+ dftG9LfWE7BRm4aBuCd+L4kvq/iG61PQvLGC0saKM0lH0NUuL9D0PYrY8KB+YsAXQf70ti79xy3
+ aetTXRjS1zRzGyAiKPnMT+W5QaUklWSRA8zudUvG3og==
+X-Received: by 2002:a05:6402:40c5:b0:418:e73c:a1ab with SMTP id
+ z5-20020a05640240c500b00418e73ca1abmr18517035edb.52.1647777898062; 
+ Sun, 20 Mar 2022 05:04:58 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzfAQhzmlNy6q9yY+EnFX+2g1gYETe+axmQh3kzhVOc32at9/0TqUx+j50nzMAK4FS++1BWlA==
+X-Received: by 2002:a05:6402:40c5:b0:418:e73c:a1ab with SMTP id
+ z5-20020a05640240c500b00418e73ca1abmr18517008edb.52.1647777897820; 
+ Sun, 20 Mar 2022 05:04:57 -0700 (PDT)
 Received: from redhat.com ([2.55.132.0]) by smtp.gmail.com with ESMTPSA id
- gb3-20020a170907960300b006dfafbb4ba4sm3340411ejc.83.2022.03.20.05.04.25
+ 27-20020a17090600db00b006df6b34d9b8sm5854831eji.211.2022.03.20.05.04.50
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sun, 20 Mar 2022 05:04:32 -0700 (PDT)
-Date: Sun, 20 Mar 2022 08:04:22 -0400
+ Sun, 20 Mar 2022 05:04:57 -0700 (PDT)
+Date: Sun, 20 Mar 2022 08:04:48 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Randy Dunlap <rdunlap@infradead.org>
-Subject: Re: [PATCH 5/9] virtio-scsi: eliminate anonymous module_init &
+Subject: Re: [PATCH 2/9] virtio_console: eliminate anonymous module_init &
  module_exit
-Message-ID: <20220320080414-mutt-send-email-mst@kernel.org>
+Message-ID: <20220320080438-mutt-send-email-mst@kernel.org>
 References: <20220316192010.19001-1-rdunlap@infradead.org>
- <20220316192010.19001-6-rdunlap@infradead.org>
+ <20220316192010.19001-3-rdunlap@infradead.org>
 MIME-Version: 1.0
-In-Reply-To: <20220316192010.19001-6-rdunlap@infradead.org>
+In-Reply-To: <20220316192010.19001-3-rdunlap@infradead.org>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
@@ -145,7 +147,7 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Mar 16, 2022 at 12:20:06PM -0700, Randy Dunlap wrote:
+On Wed, Mar 16, 2022 at 12:20:03PM -0700, Randy Dunlap wrote:
 > Eliminate anonymous module_init() and module_exit(), which can lead to
 > confusion or ambiguity when reading System.map, crashes/oops/bugs,
 > or an initcall_debug log.
@@ -166,17 +168,13 @@ On Wed, Mar 16, 2022 at 12:20:06PM -0700, Randy Dunlap wrote:
 >  calling  init+0x0/0x9a @ 1
 >  initcall init+0x0/0x9a returned 0 after 74 usecs
 > 
-> Fixes: 4fe74b1cb051 ("[SCSI] virtio-scsi: SCSI driver for QEMU based virtual machines")
+> Fixes: 31610434bc35 ("Virtio console driver")
+> Fixes: 7177876fea83 ("virtio: console: Add ability to remove module")
 > Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-> Cc: "Michael S. Tsirkin" <mst@redhat.com>
-> Cc: Jason Wang <jasowang@redhat.com>
-> Cc: Paolo Bonzini <pbonzini@redhat.com>
-> Cc: Stefan Hajnoczi <stefanha@redhat.com>
-> Cc: "James E.J. Bottomley" <jejb@linux.ibm.com>
-> Cc: "Martin K. Petersen" <martin.petersen@oracle.com>
-> Cc: linux-scsi@vger.kernel.org
+> Cc: Amit Shah <amit@kernel.org>
 > Cc: virtualization@lists.linux-foundation.org
-
+> Cc: Arnd Bergmann <arnd@arndb.de>
+> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 
 If this is done tree-wide, it's ok to do it for virtio too.
@@ -187,38 +185,40 @@ No real opinion on whether it's a good idea.
 
 
 > ---
->  drivers/scsi/virtio_scsi.c |    8 ++++----
+>  drivers/char/virtio_console.c |    8 ++++----
 >  1 file changed, 4 insertions(+), 4 deletions(-)
 > 
-> --- lnx-517-rc8.orig/drivers/scsi/virtio_scsi.c
-> +++ lnx-517-rc8/drivers/scsi/virtio_scsi.c
-> @@ -988,7 +988,7 @@ static struct virtio_driver virtio_scsi_
->  	.remove = virtscsi_remove,
+> --- lnx-517-rc8.orig/drivers/char/virtio_console.c
+> +++ lnx-517-rc8/drivers/char/virtio_console.c
+> @@ -2245,7 +2245,7 @@ static struct virtio_driver virtio_rproc
+>  	.remove =	virtcons_remove,
 >  };
 >  
 > -static int __init init(void)
-> +static int __init virtio_scsi_init(void)
+> +static int __init virtio_console_init(void)
 >  {
->  	int ret = -ENOMEM;
+>  	int err;
 >  
-> @@ -1020,14 +1020,14 @@ error:
->  	return ret;
+> @@ -2280,7 +2280,7 @@ free:
+>  	return err;
 >  }
 >  
 > -static void __exit fini(void)
-> +static void __exit virtio_scsi_fini(void)
+> +static void __exit virtio_console_fini(void)
 >  {
->  	unregister_virtio_driver(&virtio_scsi_driver);
->  	mempool_destroy(virtscsi_cmd_pool);
->  	kmem_cache_destroy(virtscsi_cmd_cache);
+>  	reclaim_dma_bufs();
+>  
+> @@ -2290,8 +2290,8 @@ static void __exit fini(void)
+>  	class_destroy(pdrvdata.class);
+>  	debugfs_remove_recursive(pdrvdata.debugfs_dir);
 >  }
 > -module_init(init);
 > -module_exit(fini);
-> +module_init(virtio_scsi_init);
-> +module_exit(virtio_scsi_fini);
+> +module_init(virtio_console_init);
+> +module_exit(virtio_console_fini);
 >  
->  MODULE_DEVICE_TABLE(virtio, id_table);
->  MODULE_DESCRIPTION("Virtio SCSI HBA driver");
+>  MODULE_DESCRIPTION("Virtio console driver");
+>  MODULE_LICENSE("GPL");
 
 _______________________________________________
 Virtualization mailing list
