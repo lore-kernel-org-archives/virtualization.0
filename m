@@ -4,100 +4,103 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E8769C433EF
-	for <virtualization@archiver.kernel.org>; Tue, 22 Mar 2022 11:43:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3B1D2C433F5
+	for <virtualization@archiver.kernel.org>; Tue, 22 Mar 2022 13:23:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 8735140133;
-	Tue, 22 Mar 2022 11:43:30 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id BB14140156;
+	Tue, 22 Mar 2022 13:23:32 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id uoS-MUXZnC22; Tue, 22 Mar 2022 11:43:29 +0000 (UTC)
+	with ESMTP id JF1YtZ41vcpj; Tue, 22 Mar 2022 13:23:31 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id D82364000B;
-	Tue, 22 Mar 2022 11:43:28 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 29D8D4000B;
+	Tue, 22 Mar 2022 13:23:31 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id ADA96C0012;
-	Tue, 22 Mar 2022 11:43:28 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 02825C000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0A271C0012;
+	Tue, 22 Mar 2022 13:23:31 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 114C6C000B
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Mar 2022 11:43:27 +0000 (UTC)
+ Tue, 22 Mar 2022 13:23:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id E62CD4050E
+ by smtp4.osuosl.org (Postfix) with ESMTP id 0097440353
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Mar 2022 11:43:26 +0000 (UTC)
+ Tue, 22 Mar 2022 13:23:30 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp4.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id odCS04HHN-at
+ with ESMTP id M_30-owB5FMG
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Mar 2022 11:43:26 +0000 (UTC)
+ Tue, 22 Mar 2022 13:23:29 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 100BC40358
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 21D824034D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Mar 2022 11:43:25 +0000 (UTC)
+ Tue, 22 Mar 2022 13:23:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1647949404;
+ s=mimecast20190719; t=1647955408;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding;
- bh=2l0fFq2ky7IzX1acqQDcv0PT6l/OeImeJ+r0/hABWSs=;
- b=P2BnhLN8Wm2zLTLqLaIaETrasrFfCvlwSmcVI6D4EX2hwhJnuKn1NnC1g0L467q2xrksNQ
- in/L7M0V6n+iLYmN98a0YX9TlqrwFBts2U9Ij1c1/an3nSItp3x8a3O0V+U+hDL7FoMG1W
- gSr3CDIfk16qZfUCt0AoeyJWKPh6xdk=
-Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com
- [209.85.222.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ in-reply-to:in-reply-to:references:references;
+ bh=JN8ATPDk4cHWzEEAufgy9h9WUwilvG31Oc3TZ9z83IM=;
+ b=ESWGYmqUaPfjaJ7e7zaQAiFARkKjBe5J6IMGNGu0xCsKRlKoXhVipRaRYCdstjeksXLY1T
+ SUtKqHMqRwnfv0RBkISdRMmERaFHjiJzq0wJftQb5sl95nw1VXCnyk5olVJvbEKsAdQ5Ye
+ 05S3BpsWWc2ZpdBZLu7YaWU6tZB/PhI=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-319-ZcZTDtoKP2WwWK6jFQW4VA-1; Tue, 22 Mar 2022 07:43:23 -0400
-X-MC-Unique: ZcZTDtoKP2WwWK6jFQW4VA-1
-Received: by mail-qk1-f198.google.com with SMTP id
- f11-20020a05620a20cb00b0067b3fedce10so11562860qka.15
+ us-mta-557-zHQYiBt_OtiqJqaq4Q2Pag-1; Tue, 22 Mar 2022 09:23:26 -0400
+X-MC-Unique: zHQYiBt_OtiqJqaq4Q2Pag-1
+Received: by mail-wm1-f72.google.com with SMTP id
+ o10-20020a1c4d0a000000b0038c6e5fcbaeso903902wmh.9
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Mar 2022 04:43:23 -0700 (PDT)
+ Tue, 22 Mar 2022 06:23:26 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
- :content-transfer-encoding;
- bh=2l0fFq2ky7IzX1acqQDcv0PT6l/OeImeJ+r0/hABWSs=;
- b=Uyh9oYzxi12+x8/E5K2uD8eoFYzrPZgO2aS2CCUaZbOuZEpJCixhLGMEjEPS5jkOEd
- i7oLv0dwOf+0EOBuVna2kdZam7FM8h+ZSA8NKVJIVDZmUUTEWnu3gUKbwFryYmlHPduY
- LERGjuG1ntjVQbiD//Vgm6ps2/JUEiqlBb6BKKhfDQoByrGjQMU2FuvuVkOcmwSd1JKe
- fgjg2fvOlqRrS0aS83BOYedUcpnSGgRQNbJ9nBpIjovngT557tlg6ntT72EZetr9hOvo
- zgZrAeAy9vqZT3csqNkvZG6+TATyNexIFMPZH1JUb4PwsuJ5JfltuW4+YrB+gXXf1BYV
- X6KA==
-X-Gm-Message-State: AOAM532ChdGDQgAkqmipvkM6wDnegeh/r6tztrnouoee+RYB/NfdJvuG
- 9Pu70GiNJNF7TlNdKdZyMI52X+rF1W5DGMPxhtp6tupY2INurOOYCO08C4c8Hm0ffo+aTVoBbOU
- LStACtOHvcIzcsO++fuWU3G8KKWOrjLYhNuyscqTquyDnf8fTJRwwkcVXU4r5E/Tc350UidptYe
- PtN9taD5cjRtL+mg4vQw==
-X-Received: by 2002:ad4:574d:0:b0:435:82ea:d03c with SMTP id
- q13-20020ad4574d000000b0043582ead03cmr18959372qvx.131.1647949402781; 
- Tue, 22 Mar 2022 04:43:22 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyAAjBCXd7O70+Bvy7zI379GD8IRuBdJuK4sQOv2roJe09wIwfOWpSci+9Wv5tMuxFEEnV38w==
-X-Received: by 2002:ad4:574d:0:b0:435:82ea:d03c with SMTP id
- q13-20020ad4574d000000b0043582ead03cmr18959357qvx.131.1647949402514; 
- Tue, 22 Mar 2022 04:43:22 -0700 (PDT)
-Received: from step1.redhat.com ([87.12.25.114])
- by smtp.gmail.com with ESMTPSA id
- y12-20020a05622a164c00b002e1e277885esm13177825qtj.8.2022.03.22.04.43.20
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=JN8ATPDk4cHWzEEAufgy9h9WUwilvG31Oc3TZ9z83IM=;
+ b=PbX1qpQ48KCFbcN4O25WpGGtD5eiJTinaHue/dkCeyGgUOmbT/Lf0mi67z2E1ZTkJM
+ WSRkz6X4x822dzhmHjeIKAlQ8cQ3n+ozxjUSoLA6yOeNJ2vhGJrK1zLtPmXIx5Kg41Yp
+ b3emzS8LwKwoiuBTfRE9dexPgXbnQxQVXKOtO0C+fnnP2i7Dhe/Jj1pKpvrh12bImbSp
+ LJgwN5+zoFqlvdw2BI6vMMU+j+rA4GdQ8IqdB7UiUiTBSqgHqa2t2DFU3kOQ/VdXotP3
+ 1Wcx8mXOiGAT55V35/vGRqPsEMTwVufr8YGW9HQjWfTQ4wRDvl7dJ7e1pZCakj2GQLco
+ +C/g==
+X-Gm-Message-State: AOAM5322+OzCOb1G2SQS6CEHr7Gpyfo4FhQZAlQ5FVy+TVMjRgEAuo54
+ vpzX8XlWDm3doJW1R94HuDi+e6cpy6nn/jSPmX07E+gP79E/JgYp5spKqOLiwtheUoVXPOMw0Hz
+ wiprSusca0+WydPnlNbU4pSdlxLjreYi3OpYA43svnw==
+X-Received: by 2002:a5d:6d8a:0:b0:204:8aa:309f with SMTP id
+ l10-20020a5d6d8a000000b0020408aa309fmr10216362wrs.38.1647955405630; 
+ Tue, 22 Mar 2022 06:23:25 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyByAs22ZvY5MKHs71gUXwXledIH2kM5TZiQ459vndkLSUuZjSqIZEm1xr9SHTYs19ZsINSjw==
+X-Received: by 2002:a5d:6d8a:0:b0:204:8aa:309f with SMTP id
+ l10-20020a5d6d8a000000b0020408aa309fmr10216347wrs.38.1647955405389; 
+ Tue, 22 Mar 2022 06:23:25 -0700 (PDT)
+Received: from redhat.com ([2.55.132.0]) by smtp.gmail.com with ESMTPSA id
+ az26-20020adfe19a000000b00204154a1d1fsm4599514wrb.88.2022.03.22.06.23.23
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 22 Mar 2022 04:43:21 -0700 (PDT)
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: virtualization@lists.linux-foundation.org
-Subject: [PATCH] virtio: use virtio_device_ready() in virtio_device_restore()
-Date: Tue, 22 Mar 2022 12:43:13 +0100
-Message-Id: <20220322114313.116516-1-sgarzare@redhat.com>
-X-Mailer: git-send-email 2.35.1
+ Tue, 22 Mar 2022 06:23:24 -0700 (PDT)
+Date: Tue, 22 Mar 2022 09:23:21 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Keir Fraser <keirf@google.com>
+Subject: Re: [PATCH] virtio: pci: Sanity check the bar index in find_shm_cap
+Message-ID: <20220322092255-mutt-send-email-mst@kernel.org>
+References: <20220321154931.859511-1-keirf@google.com>
+ <CACGkMEuEh+vsDok6hrp96kgGHkxbmzskFMJOouR3mo3d3VjwdQ@mail.gmail.com>
+ <YjmU22PnTLEy58+V@google.com>
 MIME-Version: 1.0
+In-Reply-To: <YjmU22PnTLEy58+V@google.com>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+Content-Disposition: inline
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+ virtualization <virtualization@lists.linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -114,85 +117,67 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-After waking up a suspended VM, the kernel prints the following trace
-for virtio drivers which do not directly call virtio_device_ready() in
-the .restore:
+On Tue, Mar 22, 2022 at 09:20:27AM +0000, Keir Fraser wrote:
+> On Tue, Mar 22, 2022 at 11:36:23AM +0800, Jason Wang wrote:
+> > On Mon, Mar 21, 2022 at 11:49 PM Keir Fraser <keirf@google.com> wrote:
+> > >
+> > > The bar index is used as an index into the device's resource list
+> > > and should be checked as within range for a standard bar.
+> > >
+> > > Signed-off-by: Keir Fraser <keirf@google.com>
+> > 
+> > Patch looks good, do we need a similar check in vp_modern_map_capability()?
+> 
+> Yes it looks like we do. Would you like me to fix that also? If so: separate patch, or
+> revised version of this patch?
 
-    PM: suspend exit
-    irq 22: nobody cared (try booting with the "irqpoll" option)
-    Call Trace:
-     <IRQ>
-     dump_stack_lvl+0x38/0x49
-     dump_stack+0x10/0x12
-     __report_bad_irq+0x3a/0xaf
-     note_interrupt.cold+0xb/0x60
-     handle_irq_event+0x71/0x80
-     handle_fasteoi_irq+0x95/0x1e0
-     __common_interrupt+0x6b/0x110
-     common_interrupt+0x63/0xe0
-     asm_common_interrupt+0x1e/0x40
-     ? __do_softirq+0x75/0x2f3
-     irq_exit_rcu+0x93/0xe0
-     sysvec_apic_timer_interrupt+0xac/0xd0
-     </IRQ>
-     <TASK>
-     asm_sysvec_apic_timer_interrupt+0x12/0x20
-     arch_cpu_idle+0x12/0x20
-     default_idle_call+0x39/0xf0
-     do_idle+0x1b5/0x210
-     cpu_startup_entry+0x20/0x30
-     start_secondary+0xf3/0x100
-     secondary_startup_64_no_verify+0xc3/0xcb
-     </TASK>
-    handlers:
-    [<000000008f9bac49>] vp_interrupt
-    [<000000008f9bac49>] vp_interrupt
-    Disabling IRQ #22
+Yes pls. A fixed version is better, less work for everyone.
 
-This happens because we don't invoke .enable_cbs callback in
-virtio_device_restore(). That callback is used by some transports
-(e.g. virtio-pci) to enable interrupts.
-
-Let's fix it, by calling virtio_device_ready() as we do in
-virtio_dev_probe(). This function calls .enable_cts callback and sets
-DRIVER_OK status bit.
-
-This fix also avoids setting DRIVER_OK twice for those drivers that
-call virtio_device_ready() in the .restore.
-
-Fixes: d50497eb4e55 ("virtio_config: introduce a new .enable_cbs method")
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
----
-
-I'm not sure about the fixes tag. That one is more generic, but the
-following one I think introduced the issue.
-
-Fixes: 9e35276a5344 ("virtio_pci: harden MSI-X interrupts")
-
-Thanks,
-Stefano
----
- drivers/virtio/virtio.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index 22f15f444f75..75c8d560bbd3 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -526,8 +526,9 @@ int virtio_device_restore(struct virtio_device *dev)
- 			goto err;
- 	}
- 
--	/* Finally, tell the device we're all set */
--	virtio_add_status(dev, VIRTIO_CONFIG_S_DRIVER_OK);
-+	/* If restore didn't do it, mark device DRIVER_OK ourselves. */
-+	if (!(dev->config->get_status(dev) & VIRTIO_CONFIG_S_DRIVER_OK))
-+		virtio_device_ready(dev);
- 
- 	virtio_config_enable(dev);
- 
--- 
-2.35.1
+> > Thanks
+> > 
+> > > ---
+> > >  drivers/virtio/virtio_pci_modern.c | 10 ++++++++--
+> > >  1 file changed, 8 insertions(+), 2 deletions(-)
+> > >
+> > > diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
+> > > index 5455bc041fb6..84bace98dff5 100644
+> > > --- a/drivers/virtio/virtio_pci_modern.c
+> > > +++ b/drivers/virtio/virtio_pci_modern.c
+> > > @@ -293,7 +293,7 @@ static int virtio_pci_find_shm_cap(struct pci_dev *dev, u8 required_id,
+> > >
+> > >         for (pos = pci_find_capability(dev, PCI_CAP_ID_VNDR); pos > 0;
+> > >              pos = pci_find_next_capability(dev, pos, PCI_CAP_ID_VNDR)) {
+> > > -               u8 type, cap_len, id;
+> > > +               u8 type, cap_len, id, res_bar;
+> > >                 u32 tmp32;
+> > >                 u64 res_offset, res_length;
+> > >
+> > > @@ -317,7 +317,12 @@ static int virtio_pci_find_shm_cap(struct pci_dev *dev, u8 required_id,
+> > >
+> > >                 /* Type, and ID match, looks good */
+> > >                 pci_read_config_byte(dev, pos + offsetof(struct virtio_pci_cap,
+> > > -                                                        bar), bar);
+> > > +                                                        bar), &res_bar);
+> > > +               if (res_bar >= PCI_STD_NUM_BARS) {
+> > > +                       dev_err(&dev->dev, "%s: shm cap with bad bar: %d\n",
+> > > +                               __func__, res_bar);
+> > > +                       continue;
+> > > +               }
+> > >
+> > >                 /* Read the lower 32bit of length and offset */
+> > >                 pci_read_config_dword(dev, pos + offsetof(struct virtio_pci_cap,
+> > > @@ -337,6 +342,7 @@ static int virtio_pci_find_shm_cap(struct pci_dev *dev, u8 required_id,
+> > >                                                      length_hi), &tmp32);
+> > >                 res_length |= ((u64)tmp32) << 32;
+> > >
+> > > +               *bar = res_bar;
+> > >                 *offset = res_offset;
+> > >                 *len = res_length;
+> > >
+> > > --
+> > > 2.35.1.894.gb6a874cedc-goog
+> > >
+> > 
 
 _______________________________________________
 Virtualization mailing list
