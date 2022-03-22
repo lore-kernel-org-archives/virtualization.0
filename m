@@ -4,103 +4,102 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3B1D2C433F5
-	for <virtualization@archiver.kernel.org>; Tue, 22 Mar 2022 13:23:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 46D9CC433F5
+	for <virtualization@archiver.kernel.org>; Tue, 22 Mar 2022 13:36:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id BB14140156;
-	Tue, 22 Mar 2022 13:23:32 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id AA7C340B09;
+	Tue, 22 Mar 2022 13:36:33 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id JF1YtZ41vcpj; Tue, 22 Mar 2022 13:23:31 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 29D8D4000B;
-	Tue, 22 Mar 2022 13:23:31 +0000 (UTC)
+	with ESMTP id 7o2_OzOTnjJf; Tue, 22 Mar 2022 13:36:32 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id E3FBD40AEA;
+	Tue, 22 Mar 2022 13:36:30 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0A271C0012;
-	Tue, 22 Mar 2022 13:23:31 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 114C6C000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 482D9C008F;
+	Tue, 22 Mar 2022 13:36:28 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2FD4FC001D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Mar 2022 13:23:30 +0000 (UTC)
+ Tue, 22 Mar 2022 13:36:26 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 0097440353
+ by smtp2.osuosl.org (Postfix) with ESMTP id 6EFCD40AFC
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Mar 2022 13:23:30 +0000 (UTC)
+ Tue, 22 Mar 2022 13:36:24 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id M_30-owB5FMG
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id PHzuYOO96Ymw
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Mar 2022 13:23:29 +0000 (UTC)
+ Tue, 22 Mar 2022 13:36:23 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 21D824034D
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 81ED940AEA
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Mar 2022 13:23:28 +0000 (UTC)
+ Tue, 22 Mar 2022 13:36:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1647955408;
+ s=mimecast20190719; t=1647956182;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=JN8ATPDk4cHWzEEAufgy9h9WUwilvG31Oc3TZ9z83IM=;
- b=ESWGYmqUaPfjaJ7e7zaQAiFARkKjBe5J6IMGNGu0xCsKRlKoXhVipRaRYCdstjeksXLY1T
- SUtKqHMqRwnfv0RBkISdRMmERaFHjiJzq0wJftQb5sl95nw1VXCnyk5olVJvbEKsAdQ5Ye
- 05S3BpsWWc2ZpdBZLu7YaWU6tZB/PhI=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=yEfbx3KDPFlRi9NsR3t9OxuLawKBXpgCccFQfHQvcxA=;
+ b=fhVhWJdi7t+P3dAoMoFXxeZdkO+IeM/DwwB//pOR9kI4TesLtrwiVeWjJgg5qcYGn1MPxg
+ 1OUuKCURqa5TPoYZS5ppB7SbUmGKRYmCosOlaGLNofwc4Yo94jo5gJsRTzBApFIsW9WSIa
+ 8yYZKSAmOzkEbgvaGI+Pf89b3aUhZa8=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-557-zHQYiBt_OtiqJqaq4Q2Pag-1; Tue, 22 Mar 2022 09:23:26 -0400
-X-MC-Unique: zHQYiBt_OtiqJqaq4Q2Pag-1
-Received: by mail-wm1-f72.google.com with SMTP id
- o10-20020a1c4d0a000000b0038c6e5fcbaeso903902wmh.9
+ us-mta-656-NR9vMJXeMJCHe3nlZK9NGQ-1; Tue, 22 Mar 2022 09:36:20 -0400
+X-MC-Unique: NR9vMJXeMJCHe3nlZK9NGQ-1
+Received: by mail-wm1-f69.google.com with SMTP id
+ q185-20020a1c43c2000000b0038c9d85915bso2787627wma.0
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Mar 2022 06:23:26 -0700 (PDT)
+ Tue, 22 Mar 2022 06:36:20 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=JN8ATPDk4cHWzEEAufgy9h9WUwilvG31Oc3TZ9z83IM=;
- b=PbX1qpQ48KCFbcN4O25WpGGtD5eiJTinaHue/dkCeyGgUOmbT/Lf0mi67z2E1ZTkJM
- WSRkz6X4x822dzhmHjeIKAlQ8cQ3n+ozxjUSoLA6yOeNJ2vhGJrK1zLtPmXIx5Kg41Yp
- b3emzS8LwKwoiuBTfRE9dexPgXbnQxQVXKOtO0C+fnnP2i7Dhe/Jj1pKpvrh12bImbSp
- LJgwN5+zoFqlvdw2BI6vMMU+j+rA4GdQ8IqdB7UiUiTBSqgHqa2t2DFU3kOQ/VdXotP3
- 1Wcx8mXOiGAT55V35/vGRqPsEMTwVufr8YGW9HQjWfTQ4wRDvl7dJ7e1pZCakj2GQLco
- +C/g==
-X-Gm-Message-State: AOAM5322+OzCOb1G2SQS6CEHr7Gpyfo4FhQZAlQ5FVy+TVMjRgEAuo54
- vpzX8XlWDm3doJW1R94HuDi+e6cpy6nn/jSPmX07E+gP79E/JgYp5spKqOLiwtheUoVXPOMw0Hz
- wiprSusca0+WydPnlNbU4pSdlxLjreYi3OpYA43svnw==
-X-Received: by 2002:a5d:6d8a:0:b0:204:8aa:309f with SMTP id
- l10-20020a5d6d8a000000b0020408aa309fmr10216362wrs.38.1647955405630; 
- Tue, 22 Mar 2022 06:23:25 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyByAs22ZvY5MKHs71gUXwXledIH2kM5TZiQ459vndkLSUuZjSqIZEm1xr9SHTYs19ZsINSjw==
-X-Received: by 2002:a5d:6d8a:0:b0:204:8aa:309f with SMTP id
- l10-20020a5d6d8a000000b0020408aa309fmr10216347wrs.38.1647955405389; 
- Tue, 22 Mar 2022 06:23:25 -0700 (PDT)
+ bh=yEfbx3KDPFlRi9NsR3t9OxuLawKBXpgCccFQfHQvcxA=;
+ b=Iw5a90uc0VI33oXVU+tk3GHBJXa/MD1OAOOnSmre6AEGlhMiGWK7xyr6LJoZC/+C7E
+ BFEI34yPzrVNXNNlZFs7jxm2IF6Pob1XuftI7onW0NlCmFYgYQiiFut3kqBwvkle57rd
+ GjpYONc7SxRRKROsPGDQgv+3uf2B2wyXwqXa8zsHQcCLf1TVWvGfe6/AAz3KHhFL8Ap8
+ Q1rkSuR0ls3GZsqGC/T42MS8jU9RlWfXcHIVqNFS+u3BEGQZwAoovfW06wt3mG5PME11
+ 048czXmLbJDSMCBl2Uk05DaelHIKMPpGo4JPiOy0CzFtIvOMjpwxXvPAeXR4D4KbfDfu
+ M7Cw==
+X-Gm-Message-State: AOAM533trgxrcrz3nMPbqjLs7aLbIw0ynP75+OtTbau+3nm/EEPDHSzG
+ MPrMp1M3prJRN7xrAIV79jeRZUTXwy7c1xEG0DovMlHHxe/LYvMlQ6vjNrLIFZJaEn9Sm3awvGA
+ YUuLoTmE7VeA23fBRVwuvzrlbogGIDf/0W7H058C2eA==
+X-Received: by 2002:a5d:5982:0:b0:204:1b19:40da with SMTP id
+ n2-20020a5d5982000000b002041b1940damr6150031wri.23.1647956179335; 
+ Tue, 22 Mar 2022 06:36:19 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzt2WiiDuMgW7o4aI8TTeUozv/0SKfKOVFu6npOXGitY0mPpGVzP8XK+kXs7cco7hBpouXLOw==
+X-Received: by 2002:a5d:5982:0:b0:204:1b19:40da with SMTP id
+ n2-20020a5d5982000000b002041b1940damr6150004wri.23.1647956179070; 
+ Tue, 22 Mar 2022 06:36:19 -0700 (PDT)
 Received: from redhat.com ([2.55.132.0]) by smtp.gmail.com with ESMTPSA id
- az26-20020adfe19a000000b00204154a1d1fsm4599514wrb.88.2022.03.22.06.23.23
+ q14-20020a1cf30e000000b0038986a18ec8sm1910031wmq.46.2022.03.22.06.36.16
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 22 Mar 2022 06:23:24 -0700 (PDT)
-Date: Tue, 22 Mar 2022 09:23:21 -0400
+ Tue, 22 Mar 2022 06:36:18 -0700 (PDT)
+Date: Tue, 22 Mar 2022 09:36:14 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Keir Fraser <keirf@google.com>
-Subject: Re: [PATCH] virtio: pci: Sanity check the bar index in find_shm_cap
-Message-ID: <20220322092255-mutt-send-email-mst@kernel.org>
-References: <20220321154931.859511-1-keirf@google.com>
- <CACGkMEuEh+vsDok6hrp96kgGHkxbmzskFMJOouR3mo3d3VjwdQ@mail.gmail.com>
- <YjmU22PnTLEy58+V@google.com>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH net] vsock/virtio: enable VQs early on probe
+Message-ID: <20220322092723-mutt-send-email-mst@kernel.org>
+References: <20220322103823.83411-1-sgarzare@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <YjmU22PnTLEy58+V@google.com>
+In-Reply-To: <20220322103823.83411-1-sgarzare@redhat.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org,
+ Stefan Hajnoczi <stefanha@redhat.com>, Jakub Kicinski <kuba@kernel.org>,
+ Asias He <asias@redhat.com>, Paolo Abeni <pabeni@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -117,67 +116,87 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Mar 22, 2022 at 09:20:27AM +0000, Keir Fraser wrote:
-> On Tue, Mar 22, 2022 at 11:36:23AM +0800, Jason Wang wrote:
-> > On Mon, Mar 21, 2022 at 11:49 PM Keir Fraser <keirf@google.com> wrote:
-> > >
-> > > The bar index is used as an index into the device's resource list
-> > > and should be checked as within range for a standard bar.
-> > >
-> > > Signed-off-by: Keir Fraser <keirf@google.com>
-> > 
-> > Patch looks good, do we need a similar check in vp_modern_map_capability()?
+On Tue, Mar 22, 2022 at 11:38:23AM +0100, Stefano Garzarella wrote:
+> virtio spec requires drivers to set DRIVER_OK before using VQs.
+> This is set automatically after probe returns, but virtio-vsock
+> driver uses VQs in the probe function to fill rx and event VQs
+> with new buffers.
+
+
+So this is a spec violation. absolutely.
+
+> Let's fix this, calling virtio_device_ready() before using VQs
+> in the probe function.
 > 
-> Yes it looks like we do. Would you like me to fix that also? If so: separate patch, or
-> revised version of this patch?
+> Fixes: 0ea9e1d3a9e3 ("VSOCK: Introduce virtio_transport.ko")
+> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+> ---
+>  net/vmw_vsock/virtio_transport.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+> index 5afc194a58bb..b1962f8cd502 100644
+> --- a/net/vmw_vsock/virtio_transport.c
+> +++ b/net/vmw_vsock/virtio_transport.c
+> @@ -622,6 +622,8 @@ static int virtio_vsock_probe(struct virtio_device *vdev)
+>  	INIT_WORK(&vsock->event_work, virtio_transport_event_work);
+>  	INIT_WORK(&vsock->send_pkt_work, virtio_transport_send_pkt_work);
+>  
+> +	virtio_device_ready(vdev);
+> +
+>  	mutex_lock(&vsock->tx_lock);
+>  	vsock->tx_run = true;
+>  	mutex_unlock(&vsock->tx_lock);
 
-Yes pls. A fixed version is better, less work for everyone.
+Here's the whole code snippet:
 
-> > Thanks
-> > 
-> > > ---
-> > >  drivers/virtio/virtio_pci_modern.c | 10 ++++++++--
-> > >  1 file changed, 8 insertions(+), 2 deletions(-)
-> > >
-> > > diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-> > > index 5455bc041fb6..84bace98dff5 100644
-> > > --- a/drivers/virtio/virtio_pci_modern.c
-> > > +++ b/drivers/virtio/virtio_pci_modern.c
-> > > @@ -293,7 +293,7 @@ static int virtio_pci_find_shm_cap(struct pci_dev *dev, u8 required_id,
-> > >
-> > >         for (pos = pci_find_capability(dev, PCI_CAP_ID_VNDR); pos > 0;
-> > >              pos = pci_find_next_capability(dev, pos, PCI_CAP_ID_VNDR)) {
-> > > -               u8 type, cap_len, id;
-> > > +               u8 type, cap_len, id, res_bar;
-> > >                 u32 tmp32;
-> > >                 u64 res_offset, res_length;
-> > >
-> > > @@ -317,7 +317,12 @@ static int virtio_pci_find_shm_cap(struct pci_dev *dev, u8 required_id,
-> > >
-> > >                 /* Type, and ID match, looks good */
-> > >                 pci_read_config_byte(dev, pos + offsetof(struct virtio_pci_cap,
-> > > -                                                        bar), bar);
-> > > +                                                        bar), &res_bar);
-> > > +               if (res_bar >= PCI_STD_NUM_BARS) {
-> > > +                       dev_err(&dev->dev, "%s: shm cap with bad bar: %d\n",
-> > > +                               __func__, res_bar);
-> > > +                       continue;
-> > > +               }
-> > >
-> > >                 /* Read the lower 32bit of length and offset */
-> > >                 pci_read_config_dword(dev, pos + offsetof(struct virtio_pci_cap,
-> > > @@ -337,6 +342,7 @@ static int virtio_pci_find_shm_cap(struct pci_dev *dev, u8 required_id,
-> > >                                                      length_hi), &tmp32);
-> > >                 res_length |= ((u64)tmp32) << 32;
-> > >
-> > > +               *bar = res_bar;
-> > >                 *offset = res_offset;
-> > >                 *len = res_length;
-> > >
-> > > --
-> > > 2.35.1.894.gb6a874cedc-goog
-> > >
-> > 
+
+        mutex_lock(&vsock->tx_lock);
+        vsock->tx_run = true;
+        mutex_unlock(&vsock->tx_lock);
+
+        mutex_lock(&vsock->rx_lock);
+        virtio_vsock_rx_fill(vsock);
+        vsock->rx_run = true;
+        mutex_unlock(&vsock->rx_lock);
+
+        mutex_lock(&vsock->event_lock);
+        virtio_vsock_event_fill(vsock);
+        vsock->event_run = true;
+        mutex_unlock(&vsock->event_lock);
+
+        if (virtio_has_feature(vdev, VIRTIO_VSOCK_F_SEQPACKET))
+                vsock->seqpacket_allow = true;
+
+        vdev->priv = vsock;
+        rcu_assign_pointer(the_virtio_vsock, vsock);
+
+        mutex_unlock(&the_virtio_vsock_mutex);
+
+
+I worry that this is not the only problem here:
+seqpacket_allow and setting of vdev->priv at least after
+device is active look suspicious.
+E.g.:
+
+static void virtio_vsock_event_done(struct virtqueue *vq)
+{
+        struct virtio_vsock *vsock = vq->vdev->priv;
+
+        if (!vsock)
+                return;
+        queue_work(virtio_vsock_workqueue, &vsock->event_work);
+}
+
+looks like it will miss events now they will be reported earlier.
+One might say that since vq has been kicked it might send
+interrupts earlier too so not a new problem, but
+there's a chance device actually waits until DRIVER_OK
+to start operating.
+
+
+> -- 
+> 2.35.1
 
 _______________________________________________
 Virtualization mailing list
