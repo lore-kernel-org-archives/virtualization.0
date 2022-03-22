@@ -1,68 +1,106 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 04379C433EF
-	for <virtualization@archiver.kernel.org>; Tue, 22 Mar 2022 09:17:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9BD8FC433EF
+	for <virtualization@archiver.kernel.org>; Tue, 22 Mar 2022 10:38:45 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 9E44C60C15;
-	Tue, 22 Mar 2022 09:17:39 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 4577D41760;
+	Tue, 22 Mar 2022 10:38:45 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 9dm12rxnSEQy; Tue, 22 Mar 2022 09:17:38 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 432A060B9D;
-	Tue, 22 Mar 2022 09:17:38 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id rlRBHk6eewfW; Tue, 22 Mar 2022 10:38:41 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id D89E84175E;
+	Tue, 22 Mar 2022 10:38:40 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 10D71C0012;
-	Tue, 22 Mar 2022 09:17:38 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id BF074C000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B86ABC001A;
+	Tue, 22 Mar 2022 10:38:40 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0AC61C000B
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Mar 2022 09:17:36 +0000 (UTC)
+ Tue, 22 Mar 2022 10:38:40 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id BC14760BCC
+ by smtp2.osuosl.org (Postfix) with ESMTP id E404A401FB
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Mar 2022 09:17:36 +0000 (UTC)
+ Tue, 22 Mar 2022 10:38:39 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Y8ikqf1Kfjzv
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 3EJVS0kE8Ism
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Mar 2022 09:17:35 +0000 (UTC)
+ Tue, 22 Mar 2022 10:38:37 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 72F9360B9D
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id EA7D1400B9
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Mar 2022 09:17:35 +0000 (UTC)
-Received: from kwepemi100005.china.huawei.com (unknown [172.30.72.53])
- by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4KN5VF0wftzcbG3;
- Tue, 22 Mar 2022 17:17:25 +0800 (CST)
-Received: from kwepemm600010.china.huawei.com (7.193.23.86) by
- kwepemi100005.china.huawei.com (7.221.188.155) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.21; Tue, 22 Mar 2022 17:17:32 +0800
-Received: from huawei.com (10.174.179.164) by kwepemm600010.china.huawei.com
- (7.193.23.86) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.21; Tue, 22 Mar
- 2022 17:17:31 +0800
-To: <airlied@linux.ie>, <kraxel@redhat.com>, <gurchetansingh@chromium.org>,
- <olvaffe@gmail.com>, <daniel@ffwll.ch>, <dri-devel@lists.freedesktop.org>,
- <virtualization@lists.linux-foundation.org>
-Subject: [PATCH] drm/virtio: fix NULL pointer dereference in
- virtio_gpu_conn_get_modes
-Date: Tue, 22 Mar 2022 17:17:30 +0800
-Message-ID: <20220322091730.1653-1-liuzixian4@huawei.com>
-X-Mailer: git-send-email 2.29.2.windows.3
+ Tue, 22 Mar 2022 10:38:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1647945515;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding;
+ bh=VkoZGCDazaob935cf0K6/xqwp1grV8y7vA1EUagsdw8=;
+ b=Y3gUDPWkKJh2Ez1YEcW2BIJgk/10rVecFGcwF7bXMwKy2bpyu2jBXBYbSmvh9Nv8g+/CZi
+ p9N2DShDRdrh6vA2/7BXrFm83SuoDpGsoKYNqtBH7ezfv0hyqDUhZZxV0gLwMcbrYfzxpN
+ tRRFYS2Q06EPBlbfVyZEqU06K5o+dE4=
+Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com
+ [209.85.222.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-54-U3y6No-eMQGBrp4MRfFYmQ-1; Tue, 22 Mar 2022 06:38:34 -0400
+X-MC-Unique: U3y6No-eMQGBrp4MRfFYmQ-1
+Received: by mail-qk1-f198.google.com with SMTP id
+ c19-20020a05620a0cf300b005f17891c015so11459545qkj.18
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 22 Mar 2022 03:38:34 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=VkoZGCDazaob935cf0K6/xqwp1grV8y7vA1EUagsdw8=;
+ b=sMjyqS2pLG7BwhiIbuDVyQAhwOPI7HMaz2Sog/ryUNG+ap5MqqGxLrLTuQD9KakyWn
+ rBCZtsmyQOEoPITZmdobwlalV5uM0bvi727x7lyRoRuV1u9ckhHADYm5jI1md3ustuuR
+ in+HeMLEj9nCy+nlOsRmzJn/2M1+O1lKEhG/BSskwZHVZFVUB3Fd/7NSTWGEU9Fxxhr/
+ 2NNuXuI6xEhqcM892MJzhXqIoOfMFHaOnEo8WwV03AAAliigw45CcPvvzRFhIZGyMHX5
+ 7DFCLB+f3yS+7meqbFyXE0cCm3TeX4ESvogh90Y7ZQzxDrvhA5s/mXNLK0Pi64dbdDmI
+ AupQ==
+X-Gm-Message-State: AOAM532tvL+RYUbP/M8EfQ1rg6vCw1kby/li2kjXZO2Q683TbrTRFLj8
+ fe8542kzfF6ZIq1Ww3QmbrC91mGjHnyCq4QMbkahHneWel2Css72q1qHTBYMWKtLwpeWJwCzlkq
+ CC1OQkwHvQBVXPw+iUq9Zwbk44bZ2AGf46yWmQTylBg==
+X-Received: by 2002:a05:6214:29ca:b0:441:1f8c:e58d with SMTP id
+ gh10-20020a05621429ca00b004411f8ce58dmr7306564qvb.111.1647945514092; 
+ Tue, 22 Mar 2022 03:38:34 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJz4XnbEotBgwmm8Kokd0VkMAvlrSAfcDAHK9dNDeWtrOWpekkIQX4QyQevtVagOHVlC3sFqKg==
+X-Received: by 2002:a05:6214:29ca:b0:441:1f8c:e58d with SMTP id
+ gh10-20020a05621429ca00b004411f8ce58dmr7306547qvb.111.1647945513838; 
+ Tue, 22 Mar 2022 03:38:33 -0700 (PDT)
+Received: from step1.redhat.com ([87.12.25.114])
+ by smtp.gmail.com with ESMTPSA id
+ q123-20020a378e81000000b0067eb3d6f605sm1532443qkd.0.2022.03.22.03.38.30
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 22 Mar 2022 03:38:33 -0700 (PDT)
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: netdev@vger.kernel.org
+Subject: [PATCH net] vsock/virtio: enable VQs early on probe
+Date: Tue, 22 Mar 2022 11:38:23 +0100
+Message-Id: <20220322103823.83411-1-sgarzare@redhat.com>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-X-Originating-IP: [10.174.179.164]
-X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
- kwepemm600010.china.huawei.com (7.193.23.86)
-X-CFilter-Loop: Reflected
-Cc: linfeilong@huawei.com
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ Stefan Hajnoczi <stefanha@redhat.com>, Jakub Kicinski <kuba@kernel.org>,
+ Asias He <asias@redhat.com>, Paolo Abeni <pabeni@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -74,88 +112,40 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Liu Zixian via Virtualization <virtualization@lists.linux-foundation.org>
-Reply-To: Liu Zixian <liuzixian4@huawei.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-drm_cvt_mode may return NULL and we should check it.
+virtio spec requires drivers to set DRIVER_OK before using VQs.
+This is set automatically after probe returns, but virtio-vsock
+driver uses VQs in the probe function to fill rx and event VQs
+with new buffers.
 
-This bug is found by syzkaller:
+Let's fix this, calling virtio_device_ready() before using VQs
+in the probe function.
 
-FAULT_INJECTION stacktrace:
-[  168.567394] FAULT_INJECTION: forcing a failure.
-name failslab, interval 1, probability 0, space 0, times 1
-[  168.567403] CPU: 1 PID: 6425 Comm: syz Kdump: loaded Not tainted 4.19.90-vhulk2201.1.0.h1035.kasan.eulerosv2r10.aarch64 #1
-[  168.567406] Hardware name: QEMU KVM Virtual Machine, BIOS 0.0.0 02/06/2015
-[  168.567408] Call trace:
-[  168.567414]  dump_backtrace+0x0/0x310
-[  168.567418]  show_stack+0x28/0x38
-[  168.567423]  dump_stack+0xec/0x15c
-[  168.567427]  should_fail+0x3ac/0x3d0
-[  168.567437]  __should_failslab+0xb8/0x120
-[  168.567441]  should_failslab+0x28/0xc0
-[  168.567445]  kmem_cache_alloc_trace+0x50/0x640
-[  168.567454]  drm_mode_create+0x40/0x90
-[  168.567458]  drm_cvt_mode+0x48/0xc78
-[  168.567477]  virtio_gpu_conn_get_modes+0xa8/0x140 [virtio_gpu]
-[  168.567485]  drm_helper_probe_single_connector_modes+0x3a4/0xd80
-[  168.567492]  drm_mode_getconnector+0x2e0/0xa70
-[  168.567496]  drm_ioctl_kernel+0x11c/0x1d8
-[  168.567514]  drm_ioctl+0x558/0x6d0
-[  168.567522]  do_vfs_ioctl+0x160/0xf30
-[  168.567525]  ksys_ioctl+0x98/0xd8
-[  168.567530]  __arm64_sys_ioctl+0x50/0xc8
-[  168.567536]  el0_svc_common+0xc8/0x320
-[  168.567540]  el0_svc_handler+0xf8/0x160
-[  168.567544]  el0_svc+0x10/0x218
-
-KASAN stacktrace:
-[  168.567561] BUG: KASAN: null-ptr-deref in virtio_gpu_conn_get_modes+0xb4/0x140 [virtio_gpu]
-[  168.567565] Read of size 4 at addr 0000000000000054 by task syz/6425
-[  168.567566]
-[  168.567571] CPU: 1 PID: 6425 Comm: syz Kdump: loaded Not tainted 4.19.90-vhulk2201.1.0.h1035.kasan.eulerosv2r10.aarch64 #1
-[  168.567573] Hardware name: QEMU KVM Virtual Machine, BIOS 0.0.0 02/06/2015
-[  168.567575] Call trace:
-[  168.567578]  dump_backtrace+0x0/0x310
-[  168.567582]  show_stack+0x28/0x38
-[  168.567586]  dump_stack+0xec/0x15c
-[  168.567591]  kasan_report+0x244/0x2f0
-[  168.567594]  __asan_load4+0x58/0xb0
-[  168.567607]  virtio_gpu_conn_get_modes+0xb4/0x140 [virtio_gpu]
-[  168.567612]  drm_helper_probe_single_connector_modes+0x3a4/0xd80
-[  168.567617]  drm_mode_getconnector+0x2e0/0xa70
-[  168.567621]  drm_ioctl_kernel+0x11c/0x1d8
-[  168.567624]  drm_ioctl+0x558/0x6d0
-[  168.567628]  do_vfs_ioctl+0x160/0xf30
-[  168.567632]  ksys_ioctl+0x98/0xd8
-[  168.567636]  __arm64_sys_ioctl+0x50/0xc8
-[  168.567641]  el0_svc_common+0xc8/0x320
-[  168.567645]  el0_svc_handler+0xf8/0x160
-[  168.567649]  el0_svc+0x10/0x218
-
-Signed-off-by: Liu Zixian <liuzixian4@huawei.com>
+Fixes: 0ea9e1d3a9e3 ("VSOCK: Introduce virtio_transport.ko")
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 ---
- drivers/gpu/drm/virtio/virtgpu_display.c | 2 ++
+ net/vmw_vsock/virtio_transport.c | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-index 5b00310ac..f73352e7b 100644
---- a/drivers/gpu/drm/virtio/virtgpu_display.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-@@ -179,6 +179,8 @@ static int virtio_gpu_conn_get_modes(struct drm_connector *connector)
- 		DRM_DEBUG("add mode: %dx%d\n", width, height);
- 		mode = drm_cvt_mode(connector->dev, width, height, 60,
- 				    false, false, false);
-+		if (!mode)
-+			return count;
- 		mode->type |= DRM_MODE_TYPE_PREFERRED;
- 		drm_mode_probed_add(connector, mode);
- 		count++;
+diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+index 5afc194a58bb..b1962f8cd502 100644
+--- a/net/vmw_vsock/virtio_transport.c
++++ b/net/vmw_vsock/virtio_transport.c
+@@ -622,6 +622,8 @@ static int virtio_vsock_probe(struct virtio_device *vdev)
+ 	INIT_WORK(&vsock->event_work, virtio_transport_event_work);
+ 	INIT_WORK(&vsock->send_pkt_work, virtio_transport_send_pkt_work);
+ 
++	virtio_device_ready(vdev);
++
+ 	mutex_lock(&vsock->tx_lock);
+ 	vsock->tx_run = true;
+ 	mutex_unlock(&vsock->tx_lock);
 -- 
-2.33.0
+2.35.1
 
 _______________________________________________
 Virtualization mailing list
