@@ -1,104 +1,104 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 53B8BC433EF
-	for <virtualization@archiver.kernel.org>; Wed, 23 Mar 2022 12:02:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 43195C433EF
+	for <virtualization@archiver.kernel.org>; Wed, 23 Mar 2022 12:36:52 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id E47F3812F5;
-	Wed, 23 Mar 2022 12:02:42 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id CD49B40C01;
+	Wed, 23 Mar 2022 12:36:51 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id MljGvkRXDCsw; Wed, 23 Mar 2022 12:02:42 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id c3gCr6iS0cR7; Wed, 23 Mar 2022 12:36:50 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 6191180D18;
-	Wed, 23 Mar 2022 12:02:41 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 2575D40AB8;
+	Wed, 23 Mar 2022 12:36:50 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 12822C001A;
-	Wed, 23 Mar 2022 12:02:41 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3EDEBC001A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 68AC6C0086;
+	Wed, 23 Mar 2022 12:36:48 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0633AC0012
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Mar 2022 12:02:40 +0000 (UTC)
+ Wed, 23 Mar 2022 12:36:47 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 22E47849CB
+ by smtp1.osuosl.org (Postfix) with ESMTP id D9DA0849D9
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Mar 2022 12:01:52 +0000 (UTC)
+ Wed, 23 Mar 2022 12:36:46 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id n32ydGc47MCW
+ with ESMTP id IPCTF23_Dd_D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Mar 2022 12:01:51 +0000 (UTC)
+ Wed, 23 Mar 2022 12:36:46 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 40E638499F
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 0A1A9849FA
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Mar 2022 12:01:51 +0000 (UTC)
+ Wed, 23 Mar 2022 12:36:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1648036910;
+ s=mimecast20190719; t=1648039004;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=06IKLeK1HPa8EqbWxS+T+9EJyp3Gy0v+dNMgxkBuw9M=;
- b=ZXoVqGjRSee2gRF5tmHgBiDSXLiDtPi3OgpcEiyS37ZibR3f0Tthj+y3anEyumM5U0OijE
- lvnjQsg8cp0fCnnNDKf4rXie+H9bicgkTRliLfwLtd8CybpsAETlid1FbRiFzEchr9YIBi
- cKYSh66ReBjxpVuJ2y+ntUSW+oRlZF0=
+ bh=fa9QTM48OUejCQPoDl5NAKjvkdcSmGmWd5J/s9MvAqs=;
+ b=PAtX4DX1UVR9GMtgl2OcT4Fsnx3xiOwLWb3u1JvRBGc3eArubsmm1NewWw1qhF1UC0NNwU
+ lvrDuxolFHPM/PpxeQ3seXBEFcpB9k1nboQ6afuVvNBqyzVi1r5JrzItNFzrVncJ64ZCqN
+ m04+sMui+cAvATioDIMYAKheB58rWdA=
 Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
  [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-640-bHsAfJEXMNi5aMVd3bvhaw-1; Wed, 23 Mar 2022 08:01:48 -0400
-X-MC-Unique: bHsAfJEXMNi5aMVd3bvhaw-1
+ us-mta-62-OPfg87QuN5WIztkZh2MB0Q-1; Wed, 23 Mar 2022 08:36:41 -0400
+X-MC-Unique: OPfg87QuN5WIztkZh2MB0Q-1
 Received: by mail-wm1-f72.google.com with SMTP id
- 12-20020a05600c24cc00b0038c6caa95f7so535579wmu.4
+ bg28-20020a05600c3c9c00b0038c8da4d9b3so2770893wmb.0
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Mar 2022 05:01:48 -0700 (PDT)
+ Wed, 23 Mar 2022 05:36:41 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=06IKLeK1HPa8EqbWxS+T+9EJyp3Gy0v+dNMgxkBuw9M=;
- b=dGeSfdah1N8voAZGUagywa741ylTg2bTFhnxVj+9mrn3QdBbhVnSgH65rmplu/lvyt
- S5IyQFMLtK7VigFeT6R5EPDAyDsr0XM0KGO0Xc28zQzp0xu0CMuuvtdmzexvt0RbMUyn
- oHwx04otKRH1ZwbYstxAuc97rL70tiJd2mtg/vpbFSyM+UIrDuM8Ns0u/IKhKwmkJE+j
- rPJsFaA1WqyBQhabjEv0pNwUcIGGKj88WE7MMyXceizO+DHE8teYN3h+vVad3d0PwG3F
- qfZp/66g3tNUY2aKthknrAIgEY4KVLeR8dLnV2KF6lxXH3ZhHD1hy6PGyjlVySWoiizk
- JRVg==
-X-Gm-Message-State: AOAM5304NhaBbEsM0i04Ov4nJJzm+HtCRLwTd3BoEWcp6Zi7zQzSvd1B
- W9OM+iDjyNpjhhInPgTYs3PzJEwI1+miAByGcxhAA/pLsSYWIUNC5ryNEyYlw81yKNgGoUPeQfU
- Wil8Y1dZXfxnddMR52lMKkN5EPb9j8YAWD8iICrnCvw==
-X-Received: by 2002:a5d:6750:0:b0:203:efaf:9fc1 with SMTP id
- l16-20020a5d6750000000b00203efaf9fc1mr23869412wrw.252.1648036907175; 
- Wed, 23 Mar 2022 05:01:47 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJynjLJRb91b0j7OuTthwiOqxaUOL6Ex8tKvWylL7WSkMnM9JIzW97AzFCAg5VkEOFL8tDHc5w==
-X-Received: by 2002:a5d:6750:0:b0:203:efaf:9fc1 with SMTP id
- l16-20020a5d6750000000b00203efaf9fc1mr23869390wrw.252.1648036906938; 
- Wed, 23 Mar 2022 05:01:46 -0700 (PDT)
+ bh=fa9QTM48OUejCQPoDl5NAKjvkdcSmGmWd5J/s9MvAqs=;
+ b=L3UwfPCxZ3H56h64SCn7HvEAiufl5N5gibhzyDyCSZi3LoNt4OvmlJmumIteCx6jB+
+ DLzBD2zJ606wjcp6eBZj4jjITXADO9il6NQ8be93KcrqVhQfgeDDxuXlUcLNH6PMsoTT
+ LtTU134JlRfM1vwQnmCRO71w0uk3Nl4+TKGI1ue4TyJoY7GlhwuE3ZFyT5nFK1HGQVs0
+ yO4xmnedOEK7aEeu345ja32ZxFaH+cTfk2EVD6832V/UweDSe26ew8yxSdKg3OMzRaGj
+ X9lh1DfjJttRajkT4qHWnJ2OQX8gq2B+uw7dEuDghYBkFhVWSQasDFT2NTdwFJ9+CqHr
+ A1vg==
+X-Gm-Message-State: AOAM530xBXZgK+WOdt1mkyBaXiLkvOtXFMxe+QI8E4iQ72hBwbmqoZeJ
+ R/KCRSeqG4cvW+En2vRAgeFGYfBAkwVe7mIn+fqA+n3WLvk43C9cBPg5l+1jFx90uWt/LMgUYyM
+ FGVlnEF44g9P5pE4v9287gkMuC7b6pnlHj2bjz/reFg==
+X-Received: by 2002:a5d:6b0b:0:b0:1ef:d826:723a with SMTP id
+ v11-20020a5d6b0b000000b001efd826723amr27400460wrw.420.1648039000396; 
+ Wed, 23 Mar 2022 05:36:40 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwBxeWRoCDIdMerVIOvtlAnOjiNcVTIj/UD5hdtcw5XobeVf2TSLgENh4CA6UmlgZGf3azmWw==
+X-Received: by 2002:a5d:6b0b:0:b0:1ef:d826:723a with SMTP id
+ v11-20020a5d6b0b000000b001efd826723amr27400445wrw.420.1648039000212; 
+ Wed, 23 Mar 2022 05:36:40 -0700 (PDT)
 Received: from redhat.com ([2.55.151.118]) by smtp.gmail.com with ESMTPSA id
- i74-20020adf90d0000000b0020373ba7beesm26224455wri.0.2022.03.23.05.01.44
+ r15-20020a5d6c6f000000b002040552e88esm11818773wrz.29.2022.03.23.05.36.38
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 23 Mar 2022 05:01:45 -0700 (PDT)
-Date: Wed, 23 Mar 2022 08:01:42 -0400
+ Wed, 23 Mar 2022 05:36:39 -0700 (PDT)
+Date: Wed, 23 Mar 2022 08:36:36 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH v2] virtio: pci: sanity check bar indexes
-Message-ID: <20220323075030-mutt-send-email-mst@kernel.org>
-References: <20220322151952.2950143-1-keirf@google.com>
- <CACGkMEubcU4rFVem7neKYb-qT3TQUN802bbLNq7vh+y8gdD5AA@mail.gmail.com>
+To: zhenwei pi <pizhenwei@bytedance.com>
+Subject: Re: [PATCH v3 0/6] Support akcipher for virtio-crypto
+Message-ID: <20220323083558-mutt-send-email-mst@kernel.org>
+References: <20220323024912.249789-1-pizhenwei@bytedance.com>
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEubcU4rFVem7neKYb-qT3TQUN802bbLNq7vh+y8gdD5AA@mail.gmail.com>
+In-Reply-To: <20220323024912.249789-1-pizhenwei@bytedance.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Keir Fraser <keirf@google.com>, kernel-team@android.com,
- linux-kernel <linux-kernel@vger.kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>
+Cc: herbert@gondor.apana.org.au, qemu-devel@nongnu.org,
+ virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -115,120 +115,69 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Mar 23, 2022 at 03:57:59PM +0800, Jason Wang wrote:
-> On Tue, Mar 22, 2022 at 11:20 PM Keir Fraser <keirf@google.com> wrote:
-> >
-> > The bar index is used as an index into the device's resource list
-> > and should be checked as within range for a standard bar.
-> >
-> > Also clean up an existing check to consistently use PCI_STD_NUM_BARS.
-> >
-> > Signed-off-by: Keir Fraser <keirf@google.com>
-> > ---
-> >  drivers/virtio/virtio_pci_modern.c     | 10 ++++++++--
-> >  drivers/virtio/virtio_pci_modern_dev.c |  8 +++++++-
-> >  2 files changed, 15 insertions(+), 3 deletions(-)
-> >
-> > diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-> > index 5455bc041fb6..84bace98dff5 100644
-> > --- a/drivers/virtio/virtio_pci_modern.c
-> > +++ b/drivers/virtio/virtio_pci_modern.c
-> > @@ -293,7 +293,7 @@ static int virtio_pci_find_shm_cap(struct pci_dev *dev, u8 required_id,
-> >
-> >         for (pos = pci_find_capability(dev, PCI_CAP_ID_VNDR); pos > 0;
-> >              pos = pci_find_next_capability(dev, pos, PCI_CAP_ID_VNDR)) {
-> > -               u8 type, cap_len, id;
-> > +               u8 type, cap_len, id, res_bar;
-> >                 u32 tmp32;
-> >                 u64 res_offset, res_length;
-> >
-> > @@ -317,7 +317,12 @@ static int virtio_pci_find_shm_cap(struct pci_dev *dev, u8 required_id,
-> >
-> >                 /* Type, and ID match, looks good */
-> >                 pci_read_config_byte(dev, pos + offsetof(struct virtio_pci_cap,
-> > -                                                        bar), bar);
-> > +                                                        bar), &res_bar);
-> > +               if (res_bar >= PCI_STD_NUM_BARS) {
-> > +                       dev_err(&dev->dev, "%s: shm cap with bad bar: %d\n",
-> > +                               __func__, res_bar);
-> > +                       continue;
-> > +               }
-> >
-> >                 /* Read the lower 32bit of length and offset */
-> >                 pci_read_config_dword(dev, pos + offsetof(struct virtio_pci_cap,
+On Wed, Mar 23, 2022 at 10:49:06AM +0800, zhenwei pi wrote:
+> v2 -> v3:
+> - Introduce akcipher types to qapi
+> - Add test/benchmark suite for akcipher class
+> - Seperate 'virtio_crypto: Support virtio crypto asym operation' into:
+>   - crypto: Introduce akcipher crypto class
+>   - virtio-crypto: Introduce RSA algorithm
 
-In fact, the spec says such BAR values are reserved, not bad, so
-the capabiluty should be ignored, they should not cause the driver to error out
-or print errors.
+Thanks!
+I tagged this but qemu is in freeze. If possible pls ping or
+repost after the release to help make sure I don't lose it.
 
-> > @@ -337,6 +342,7 @@ static int virtio_pci_find_shm_cap(struct pci_dev *dev, u8 required_id,
-> >                                                      length_hi), &tmp32);
-> >                 res_length |= ((u64)tmp32) << 32;
-> >
-> > +               *bar = res_bar;
-> >                 *offset = res_offset;
-> >                 *len = res_length;
-> >
-> > diff --git a/drivers/virtio/virtio_pci_modern_dev.c b/drivers/virtio/virtio_pci_modern_dev.c
-> > index e8b3ff2b9fbc..a6911d1e212a 100644
-> > --- a/drivers/virtio/virtio_pci_modern_dev.c
-> > +++ b/drivers/virtio/virtio_pci_modern_dev.c
-> > @@ -35,6 +35,12 @@ vp_modern_map_capability(struct virtio_pci_modern_device *mdev, int off,
-> >         pci_read_config_dword(dev, off + offsetof(struct virtio_pci_cap, length),
-> >                               &length);
-> >
-> > +       if (bar >= PCI_STD_NUM_BARS) {
-> > +               dev_err(&dev->dev,
-> > +                       "virtio_pci: bad capability bar %u\n", bar);
-
-In fact, I would say the issue is less that bar is reserved.
-The real issue is that the value apparently changed since
-we read it the first time. I think it's a good idea to
-reflect that in the message. Maybe find_capability should return
-the capability structure so we don't need to re-read it from
-the device?
-
-> > +               return NULL;
-> > +       }
-> > +
-> >         if (length <= start) {
-> >                 dev_err(&dev->dev,
-> >                         "virtio_pci: bad capability len %u (>%u expected)\n",
-> > @@ -120,7 +126,7 @@ static inline int virtio_pci_find_capability(struct pci_dev *dev, u8 cfg_type,
-> >                                      &bar);
-> >
-> >                 /* Ignore structures with reserved BAR values */
-> > -               if (bar > 0x5)
-> > +               if (bar >= PCI_STD_NUM_BARS)
-> >                         continue;
+> v1 -> v2:
+> - Update virtio_crypto.h from v2 version of related kernel patch.
 > 
-> Just notice that the spec said:
+> v1:
+> - Support akcipher for virtio-crypto.
+> - Introduce akcipher class.
+> - Introduce ASN1 decoder into QEMU.
+> - Implement RSA backend by nettle/hogweed.
 > 
-> "
-> values 0x0 to 0x5 specify a Base Address register (BAR) belonging to
-> the function located beginning at 10h in PCI Configuration Space and
-> used to map the structure into Memory or I/O Space. The BAR is
-> permitted to be either 32-bit or 64-bit, it can map Memory Space or
-> I/O Space.
+> Lei He (3):
+>   crypto-akcipher: Introduce akcipher types to qapi
+>   crypto: Implement RSA algorithm by hogweed
+>   tests/crypto: Add test suite for crypto akcipher
 > 
-> Any other value is reserved for future use.
-> "
-> So we probably need to stick 0x5 instead of 0x6 (PCI_STD_NUM_BARS) for
-> this and other places.
+> Zhenwei Pi (3):
+>   virtio-crypto: header update
+>   crypto: Introduce akcipher crypto class
+>   virtio-crypto: Introduce RSA algorithm
 > 
-> Thanks
-
-It does not matter much IMHO, the reason spec uses 0 to 0x5 is precisely
-because that's the standard number of BARs. Both ways work as long as we
-are consistent, and I guess PCI_STD_NUM_BARS might be preferable since
-people tend to copy paste values.
-
-
-> >
-> >                 if (type == cfg_type) {
-> > --
-> > 2.35.1.894.gb6a874cedc-goog
-> >
+>  backends/cryptodev-builtin.c                  | 319 +++++++-
+>  backends/cryptodev-vhost-user.c               |  34 +-
+>  backends/cryptodev.c                          |  32 +-
+>  crypto/akcipher-nettle.c                      | 523 +++++++++++++
+>  crypto/akcipher.c                             |  81 ++
+>  crypto/asn1_decoder.c                         | 185 +++++
+>  crypto/asn1_decoder.h                         |  42 +
+>  crypto/meson.build                            |   4 +
+>  hw/virtio/virtio-crypto.c                     | 326 ++++++--
+>  include/crypto/akcipher.h                     | 155 ++++
+>  include/hw/virtio/virtio-crypto.h             |   5 +-
+>  .../standard-headers/linux/virtio_crypto.h    |  82 +-
+>  include/sysemu/cryptodev.h                    |  88 ++-
+>  meson.build                                   |  11 +
+>  qapi/crypto.json                              |  86 +++
+>  tests/bench/benchmark-crypto-akcipher.c       | 163 ++++
+>  tests/bench/meson.build                       |   6 +
+>  tests/bench/test_akcipher_keys.inc            | 277 +++++++
+>  tests/unit/meson.build                        |   1 +
+>  tests/unit/test-crypto-akcipher.c             | 715 ++++++++++++++++++
+>  20 files changed, 2990 insertions(+), 145 deletions(-)
+>  create mode 100644 crypto/akcipher-nettle.c
+>  create mode 100644 crypto/akcipher.c
+>  create mode 100644 crypto/asn1_decoder.c
+>  create mode 100644 crypto/asn1_decoder.h
+>  create mode 100644 include/crypto/akcipher.h
+>  create mode 100644 tests/bench/benchmark-crypto-akcipher.c
+>  create mode 100644 tests/bench/test_akcipher_keys.inc
+>  create mode 100644 tests/unit/test-crypto-akcipher.c
+> 
+> -- 
+> 2.25.1
 
 _______________________________________________
 Virtualization mailing list
