@@ -1,99 +1,107 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3CEABC4332F
-	for <virtualization@archiver.kernel.org>; Wed, 23 Mar 2022 16:03:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B4A31C433F5
+	for <virtualization@archiver.kernel.org>; Wed, 23 Mar 2022 17:36:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id D677A84190;
-	Wed, 23 Mar 2022 16:03:58 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 54E4240FBB;
+	Wed, 23 Mar 2022 17:36:42 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id BEH3AvdYjtZ6; Wed, 23 Mar 2022 16:03:58 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id lVYwsmeXJKsV; Wed, 23 Mar 2022 17:36:41 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 7007483E04;
-	Wed, 23 Mar 2022 16:03:57 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id C413E400E2;
+	Wed, 23 Mar 2022 17:36:40 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 52865C0012;
-	Wed, 23 Mar 2022 16:03:57 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id DE7F2C000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 956F7C001A;
+	Wed, 23 Mar 2022 17:36:40 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1AFF2C000B
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Mar 2022 16:03:55 +0000 (UTC)
+ Wed, 23 Mar 2022 17:36:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id C0F9E418E0
+ by smtp4.osuosl.org (Postfix) with ESMTP id 0226241BA4
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Mar 2022 16:03:55 +0000 (UTC)
+ Wed, 23 Mar 2022 17:36:39 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=bytedance-com.20210112.gappssmtp.com
+ dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id gJU569OHysJm
+ with ESMTP id LdPcus3xTU74
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Mar 2022 16:03:54 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com
- [IPv6:2607:f8b0:4864:20::430])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 8E7A2418DC
+ Wed, 23 Mar 2022 17:36:37 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id DB83741B5D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Mar 2022 16:03:54 +0000 (UTC)
-Received: by mail-pf1-x430.google.com with SMTP id s11so1808430pfu.13
+ Wed, 23 Mar 2022 17:36:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1648056995;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding;
+ bh=MzwRKwBdRCLittF2Yi0pCWERtTQbkRUJ2eaS0FEovlY=;
+ b=dNBZv7ybLJL0439plQb3dMwAMc5FtBiHDjnb6IzGRoJriJSm9TzS+kBQGW6cBxpP3Kh8fV
+ OA776t3/1WwaoS1GtrBr+z5ycXiJat6L3lRzbpmSAPUep0DBKkwJC0NPXXHGGk/Ibmd5DM
+ KfdJhhAzCsuWQSyVp7kOjhSCt1Q1DJc=
+Received: from mail-qt1-f199.google.com (mail-qt1-f199.google.com
+ [209.85.160.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-122-6PRAjdzYNG2UB47j1-zaoA-1; Wed, 23 Mar 2022 13:36:32 -0400
+X-MC-Unique: 6PRAjdzYNG2UB47j1-zaoA-1
+Received: by mail-qt1-f199.google.com with SMTP id
+ g22-20020ac870d6000000b002e20a1508ecso1729671qtp.19
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Mar 2022 09:03:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=bytedance-com.20210112.gappssmtp.com; s=20210112;
- h=message-id:date:mime-version:user-agent:subject:content-language:to
- :cc:references:from:in-reply-to:content-transfer-encoding;
- bh=URu1Cld800RCpFArjD3mILx4RS3EOY2glrIHlB2KP8Q=;
- b=VFfXM5YxFWV1n769LQtS6lAB0qgqL8kW45iyrLTKOyu5t09OX//Lc2kgTexCPwxO1m
- DNO1uQtVYMW07nVqiP70fusf6ZNhI64ed4YsTbhAeBGIIV7aNp98yBQ0ltlSZ74Lpjud
- 2+hFvqsrpb9Y25jcKBsrfjnKPQwYspqQcVyM5zL5bHijVyY6qFs15Woa5NzsE24q0oCr
- Rkbx+JVO5LwjOfYRfg+5cdghuSGXQ6PQi/d6Lm3Y4UXa6BvLDd0fH3lXvIgi1rwa18rD
- kg5+i306FFdIa9psNvPEBu91D9OSZjRvRynBGzdx5mEQDjvukE8G1MbzsqRPxMXN6ymf
- gJ8Q==
+ Wed, 23 Mar 2022 10:36:32 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
- :content-language:to:cc:references:from:in-reply-to
+ h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
  :content-transfer-encoding;
- bh=URu1Cld800RCpFArjD3mILx4RS3EOY2glrIHlB2KP8Q=;
- b=LlkqqyLa3RgrbjlsJYr77GwPdBjuqTx0JJxXj0BbrMbjtrfb9ooqTfGEU3OXsbyete
- ztdZ/hHPL4wpCXWmfxNrJ/CAiqLP02+6Uai8I8UwtQCnnI/dq8U/zNKseSFoGft+r1XV
- 7kvAMsu+VtxD3suFrscShGcc/mCwjftqrOJPt4C3tFm04wxMwDtU/sJ0nzIPnFT3tkmf
- LsqJVuXmU/LDr4jJZ60pXDpIzxJ9KxvCqJrE55Vj2dgTTyWzsq5OYHYAGSF8axYrDe55
- veginki1LVPhSsHeT7pmq/gOw4FJ89DpJfLpT3VVGTcfjSHl4aF5x6gCWlRzcHTXXWKT
- 8odQ==
-X-Gm-Message-State: AOAM532J7CBbnLl9WLtgoUetSo8e+3M/oIGfozDgKg7xS68hUIAvSxKO
- uWwZCDlGeRZHK+FySJRQEdsUnA==
-X-Google-Smtp-Source: ABdhPJwxGfSENN/9Lwi9Dj6rnEjBTulAhjGbko1yBhAsuIBmI8EdYx67EM0pJ0KJ8RIRRT7o4EbRQw==
-X-Received: by 2002:a05:6a00:3309:b0:4fa:950b:d011 with SMTP id
- cq9-20020a056a00330900b004fa950bd011mr291249pfb.24.1648051433738; 
- Wed, 23 Mar 2022 09:03:53 -0700 (PDT)
-Received: from [10.255.146.117] ([139.177.225.224])
- by smtp.gmail.com with ESMTPSA id
- oa16-20020a17090b1bd000b001c72b632222sm7101041pjb.32.2022.03.23.09.03.23
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Wed, 23 Mar 2022 09:03:41 -0700 (PDT)
-Message-ID: <59113ffd-60c3-8036-d5c8-ca19908f0e65@bytedance.com>
-Date: Wed, 23 Mar 2022 23:59:46 +0800
+ bh=MzwRKwBdRCLittF2Yi0pCWERtTQbkRUJ2eaS0FEovlY=;
+ b=XU/CZm+VpTMl3cTEm1gSbDOK+0PS6GxkceSLGm1OyVFx7pG+hn2m0ympOtHdRqnEEN
+ uE5sZZ3sUBLGPcivA9b2CKeDwU2qhT24vz9P7FRMjRL8TROXfrllAPYnXImJgkOzlG4e
+ LWAAD/M2soAIZgGXXrDbhGuGzaIWyXi6IueDtAqt0H4emY3k+bzBo/prBsI4EegG8yTJ
+ I8xQwLG3RstjliDFcZTv5F2I0ML0hGRd04k8njB6QQ4r7Krw+cMo8kN8rnZEzEtiAebA
+ RrTQT8t77SP7pvxrkIvCNkTD/GuubRMPXdwWwpmFWgGbKt/wXxvVveqHrg5hz5XyxhcQ
+ iQQA==
+X-Gm-Message-State: AOAM531Yehep0XDGa2ukQcXFvOqEd8YXPNgfzIilXTceYdT25Z8nwAgH
+ nNgj2nL/Z/nyiuw4YxWEmRKj0udLalmKY1JsdJmyHkmlPkamLbv4IOUaH2yeeOW0TlebXqF0+9H
+ nQ85D6OqofVOsCC2f51084fqOpd1yiBoQB56idIAVCQ==
+X-Received: by 2002:a05:6214:2509:b0:435:7443:2dad with SMTP id
+ gf9-20020a056214250900b0043574432dadmr938554qvb.47.1648056991873; 
+ Wed, 23 Mar 2022 10:36:31 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxeN8QDcW/nCBes+HF3p4Qa8YtXACGqrPDG30FPUtcA4s5rpDfAh0kaotVknOsyPTvs3/VKmw==
+X-Received: by 2002:a05:6214:2509:b0:435:7443:2dad with SMTP id
+ gf9-20020a056214250900b0043574432dadmr938508qvb.47.1648056991171; 
+ Wed, 23 Mar 2022 10:36:31 -0700 (PDT)
+Received: from step1.redhat.com (host-87-12-25-114.business.telecomitalia.it.
+ [87.12.25.114]) by smtp.gmail.com with ESMTPSA id
+ h14-20020a05622a170e00b002e1a65754d8sm476127qtk.91.2022.03.23.10.36.27
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 23 Mar 2022 10:36:30 -0700 (PDT)
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: netdev@vger.kernel.org
+Subject: [PATCH net v3 0/3] vsock/virtio: enable VQs early on probe and finish
+ the setup before using them
+Date: Wed, 23 Mar 2022 18:36:22 +0100
+Message-Id: <20220323173625.91119-1-sgarzare@redhat.com>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: Re: [PATCH v3 1/6] virtio-crypto: header update
-Content-Language: en-US
-To: =?UTF-8?Q?Daniel_P=2e_Berrang=c3=a9?= <berrange@redhat.com>
-References: <20220323024912.249789-1-pizhenwei@bytedance.com>
- <20220323024912.249789-2-pizhenwei@bytedance.com>
- <Yjs+7TYdumci1Q9h@redhat.com>
-From: zhenwei pi <pizhenwei@bytedance.com>
-In-Reply-To: <Yjs+7TYdumci1Q9h@redhat.com>
-Cc: herbert@gondor.apana.org.au, mst@redhat.com, qemu-devel@nongnu.org,
- virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org,
- lei he <helei.sig11@bytedance.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ "David S. Miller" <davem@davemloft.net>, Stefan Hajnoczi <stefanha@redhat.com>,
+ Jakub Kicinski <kuba@kernel.org>, Asias He <asias@redhat.com>,
+ Paolo Abeni <pabeni@redhat.com>, Arseny Krasnov <arseny.krasnov@kaspersky.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -105,26 +113,34 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gMy8yMy8yMiAyMzozOCwgRGFuaWVsIFAuIEJlcnJhbmfDqSB3cm90ZToKPiBPbiBXZWQsIE1h
-ciAyMywgMjAyMiBhdCAxMDo0OTowN0FNICswODAwLCB6aGVud2VpIHBpIHdyb3RlOgo+PiBVcGRh
-dGUgaGVhZGVyIGZyb20gbGludXgsIHN1cHBvcnQgYWtjaXBoZXIgc2VydmljZS4KPiAKPiBJJ20g
-YXNzdW1pbmcgdGhpcyBpcyB1cGRhdGVkIGZvciAqbm9uLW1lcmdlZCogTGludXggaGVhZGVycywg
-c2luY2UKPiBJIGRvbid0IHNlZSB0aGVzZSBjaGFuZ2VzIHByZXNlbnQgaW4gY3VycmVudCBsaW51
-eC5naXQKPiAKPj4KSGksCgpUaGUgcmVsYXRlZCBjb250ZXh0IGxpbms6Cmh0dHBzOi8vbGttbC5v
-cmcvbGttbC8yMDIyLzMvMS8xNDI1CgotIFRoZSB2aXJ0aW8gY3J5cHRvIHNwZWMgaXMgdGhlIGZp
-cnN0IHBhcnQuIEl0IHdpbGwgYmUgZGVmZXJyZWQgdG8gMS4zLgpUaGUgbGF0ZXN0IHZlcnNpb246
-IApodHRwczovL3d3dy5vYXNpcy1vcGVuLm9yZy9jb21taXR0ZWVzL2JhbGxvdC5waHA/aWQ9MzY4
-MSAobmVlZCBwdXQgCiJfX2xlMzIgYWtjaXBoZXJfYWxnbzsiIGluc3RlYWQgb2YgIl9fbGUzMiBy
-ZXNlcnZlOyIgYW5kIHJlcG9zdCkKCi0gQWNjb3JkaW5nIHRvIHRoZSBzcGVjLCB0aGVuIHdlIGNh
-biBkZWZpbmUgdGhlIGxpbnV4IGhlYWRlcnMuIChkZXBlbmQgCm9uIHRoZSBzcGVjKQoKLSBVcGRh
-dGUgdGhlIGhlYWRlciBmaWxlIGZvciBRRU1VLiAoZGVwZW5kIG9uIHRoZSBsaW51eCBoZWFkZXJz
-KQoKQWxsIHRoZSBwYXJ0cyBhcmUgaW4gZGV2ZWxvcG1lbnQuCgotLSAKemhlbndlaSBwaQpfX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlv
-biBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
-aHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVh
-bGl6YXRpb24=
+The first patch fixes a virtio-spec violation. The other two patches
+complete the driver configuration before using the VQs in the probe.
+
+The patch order should simplify backporting in stable branches.
+
+v3:
+- re-ordered the patch to improve bisectability [MST]
+
+v2: https://lore.kernel.org/netdev/20220323084954.11769-1-sgarzare@redhat.com/
+v1: https://lore.kernel.org/netdev/20220322103823.83411-1-sgarzare@redhat.com/
+
+Stefano Garzarella (3):
+  vsock/virtio: initialize vdev->priv before using VQs
+  vsock/virtio: read the negotiated features before using VQs
+  vsock/virtio: enable VQs early on probe
+
+ net/vmw_vsock/virtio_transport.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
+
+-- 
+2.35.1
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
