@@ -4,94 +4,97 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9B4EEC433EF
-	for <virtualization@archiver.kernel.org>; Wed, 23 Mar 2022 07:36:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B04CAC433F5
+	for <virtualization@archiver.kernel.org>; Wed, 23 Mar 2022 07:58:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 4224A41A35;
-	Wed, 23 Mar 2022 07:36:10 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 59C1E40215;
+	Wed, 23 Mar 2022 07:58:20 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id yfS60oGBoPr9; Wed, 23 Mar 2022 07:36:09 +0000 (UTC)
+	with ESMTP id GOdav8MTm4n4; Wed, 23 Mar 2022 07:58:19 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id CE72D41A2E;
-	Wed, 23 Mar 2022 07:36:08 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id CFB3340239;
+	Wed, 23 Mar 2022 07:58:18 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8DD5CC0012;
-	Wed, 23 Mar 2022 07:36:08 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 9AB92C000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 84AE0C0012;
+	Wed, 23 Mar 2022 07:58:18 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 28856C000B
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Mar 2022 07:36:07 +0000 (UTC)
+ Wed, 23 Mar 2022 07:58:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 9756541869
+ by smtp3.osuosl.org (Postfix) with ESMTP id 01DD560E32
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Mar 2022 07:36:07 +0000 (UTC)
+ Wed, 23 Mar 2022 07:58:17 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id pz834GSyNghV
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id ToFkRBLLoGbC
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Mar 2022 07:36:04 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com
- [IPv6:2607:f8b0:4864:20::1034])
- by smtp4.osuosl.org (Postfix) with ESMTPS id D451841A2E
+ Wed, 23 Mar 2022 07:58:15 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id B0F1160C06
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Mar 2022 07:36:04 +0000 (UTC)
-Received: by mail-pj1-x1034.google.com with SMTP id
- mp6-20020a17090b190600b001c6841b8a52so5583671pjb.5
+ Wed, 23 Mar 2022 07:58:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1648022294;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=gAyVkbGAsQwthsHwR2YL1Xu7ffsSB44wUq5hKIC/Uq0=;
+ b=JaOT7tKCSGUPgrRdtYK45PB1/05LwBboJ673NcjEAnOEhu+vY7Op+NRjp7V0TB0ICB78m5
+ 4I0mrGOFB/24uHyezL9KCtkr9+VdyrvBsTh+OMAR3cDE+HSD8LjaQU9ZhQyhud7E97gZ6Y
+ LFmodKvKncCR8Ql63muRsAnOh4N2htU=
+Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
+ [209.85.167.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-613-61p3W-ezPOy3A_9mwyZh6g-1; Wed, 23 Mar 2022 03:58:13 -0400
+X-MC-Unique: 61p3W-ezPOy3A_9mwyZh6g-1
+Received: by mail-lf1-f69.google.com with SMTP id
+ u29-20020ac251dd000000b0044a245bcc1aso326665lfm.7
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Mar 2022 00:36:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=bytedance-com.20210112.gappssmtp.com; s=20210112;
- h=message-id:date:mime-version:user-agent:subject:content-language:to
- :cc:references:from:in-reply-to:content-transfer-encoding;
- bh=zvylfPpDD9P7LaVoOftyiAyZ4rjtzB+zBl0Umv/tVM8=;
- b=DRpcKWazqF/j9WlI8wmS2svwLYoi3ZrvlWHtWFCRpaYYQad4aGM5+KqGDh3unwJKNO
- nCeZrxwS//AlUXG0MZGTCWTc4MzpKlyri/EZR9aT7g3aCDodJUtmoGKvkeVOhaojjptD
- qaQ8/hZO2wpgYFHGvwBzmYLTwT9+opQ/Xo8maJo6ZJGGYb2OsGEVYcWY9hOdRDGwtTyg
- 299GeeOXfEOrc5ZO6Ho/0skuS/yEe19FHUJcd/9qxKH1j92hWH7vNqgg/nGTjini/NkZ
- fRLTFYZuk4xfRIYoel7PdNUz1GXEGZkwUtiOl/CyTIBv2TW8tTATGeNYaKUkmgqejH/U
- qz3A==
+ Wed, 23 Mar 2022 00:58:13 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
- :content-language:to:cc:references:from:in-reply-to
- :content-transfer-encoding;
- bh=zvylfPpDD9P7LaVoOftyiAyZ4rjtzB+zBl0Umv/tVM8=;
- b=3hZEZKMRwdZBoS1FV+SOFELpYhb9PV3V80MBzA8VPdkBI87mqPZqjrWa0jWI7zXWQI
- u6H3aMCjMd2TwQmLZM/P23s7Hid5k8nfvqbILMVzlWJekc6gwEv3NFWFg62duyNKsSp4
- 6nTABqc/h/oOZgqLmCcUeDBRMxCDKRIwoyc9F1q6+1uPE5HyvFafydzWOsJVlbuP5i+m
- PVA6FTjT1ceqRxBPFruOilXEsjcbQczElvZD4cQmOCPcqK4kMbZzgdLlKXl4SyGCWsB5
- /JjuRg3eN7vxd0MGuwwWqf+kaGXEGqRulB1H1QD/bpsa6fOcjpuOjmYe8YfHJilXsyV/
- Zx7w==
-X-Gm-Message-State: AOAM533bYpsJiq+hfrtfIYqM+X+3K0nf7u9CiEciK6XZElSVVN2QaF73
- mDE/ym6Vuz5QDctYVxDYTBafQw==
-X-Google-Smtp-Source: ABdhPJyiRm/ds9KsWZNW+LTcMfpWdOU27E0yNqDGEitACnD7dqxgZWBF8j1F3DZKQNh5UngmIs8tgw==
-X-Received: by 2002:a17:90a:4581:b0:1bc:d215:8722 with SMTP id
- v1-20020a17090a458100b001bcd2158722mr9837129pjg.149.1648020964224; 
- Wed, 23 Mar 2022 00:36:04 -0700 (PDT)
-Received: from [10.255.146.117] ([139.177.225.224])
- by smtp.gmail.com with ESMTPSA id
- il3-20020a17090b164300b001c6d5ed3cacsm5713618pjb.1.2022.03.23.00.36.00
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Wed, 23 Mar 2022 00:36:03 -0700 (PDT)
-Message-ID: <f806c17c-cc7e-e2eb-e187-e83148160322@bytedance.com>
-Date: Wed, 23 Mar 2022 15:32:37 +0800
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=gAyVkbGAsQwthsHwR2YL1Xu7ffsSB44wUq5hKIC/Uq0=;
+ b=yQ0LpJNqwtLipTryjTifbSdo1EH9eMszj6xFj+3uTuHj6YqwHP0lnul83QGwMETffV
+ kagMnfE7mPNv/2sr4MQhOaq3UdVEPh14sjJHArHvLTAe813CKrYf9reMDYV+VOfuBnVE
+ KjgFEohEEOkJ8YlsWg3HAIP7IlU6ige8+i+uo5ocSj4rWcAK38+xDuqSBkxRs1FSywvJ
+ 6Ee2ptSeoxPw9/boBZ/62oIejrJ7hvZHseNUbUyueeXDgj1VTzmEuvKWf9MdfTRr+vNT
+ ngILdXlTv6Gc2mBNgCJ9ROoZOjyaa2hyNLR6eH400vb+o0W79xIEEu5aBcrbbHFbxW/6
+ fYAw==
+X-Gm-Message-State: AOAM533Eg1AcfBhLzHNkviXK7V8vR6h3IwovugvR9gen02ZPY5LATeeI
+ nNw4PQ6tG/U9v3erHxUTT5lNpbsB/b3Eurh4UWFAGKK1g/85dVK+71OJ50B+98pjnvRK7NQS1mV
+ okMMiGckmAaL3r+WlgAl5PwT7VuumsHP421rbVZhFLYQKN7cuk567uScl5Q==
+X-Received: by 2002:a05:651c:90a:b0:249:5d82:fe9c with SMTP id
+ e10-20020a05651c090a00b002495d82fe9cmr21556665ljq.300.1648022291810; 
+ Wed, 23 Mar 2022 00:58:11 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzehhqEud0nAsdq/Kd29NYle9hKa9jnJAZWN6DSBqWRHij5C2bX9h3lR7Tb3iqEW8RSonlF1JIW0PRX8/99XHI=
+X-Received: by 2002:a05:651c:90a:b0:249:5d82:fe9c with SMTP id
+ e10-20020a05651c090a00b002495d82fe9cmr21556651ljq.300.1648022291581; Wed, 23
+ Mar 2022 00:58:11 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: Re: [PATCH v3 0/6] Support akcipher for virtio-crypto
-Content-Language: en-US
-To: Eric Biggers <ebiggers@kernel.org>
-References: <20220323024912.249789-1-pizhenwei@bytedance.com>
- <YjqtXFvfDq0kELl7@sol.localdomain>
-From: zhenwei pi <pizhenwei@bytedance.com>
-In-Reply-To: <YjqtXFvfDq0kELl7@sol.localdomain>
-Cc: herbert@gondor.apana.org.au, mst@redhat.com, qemu-devel@nongnu.org,
- virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org,
- "helei.sig11@bytedance.com" <helei.sig11@bytedance.com>
+References: <20220322151952.2950143-1-keirf@google.com>
+In-Reply-To: <20220322151952.2950143-1-keirf@google.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Wed, 23 Mar 2022 15:57:59 +0800
+Message-ID: <CACGkMEubcU4rFVem7neKYb-qT3TQUN802bbLNq7vh+y8gdD5AA@mail.gmail.com>
+Subject: Re: [PATCH v2] virtio: pci: sanity check bar indexes
+To: Keir Fraser <keirf@google.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: virtualization <virtualization@lists.linux-foundation.org>,
+ kernel-team@android.com, linux-kernel <linux-kernel@vger.kernel.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -103,57 +106,107 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+On Tue, Mar 22, 2022 at 11:20 PM Keir Fraser <keirf@google.com> wrote:
+>
+> The bar index is used as an index into the device's resource list
+> and should be checked as within range for a standard bar.
+>
+> Also clean up an existing check to consistently use PCI_STD_NUM_BARS.
+>
+> Signed-off-by: Keir Fraser <keirf@google.com>
+> ---
+>  drivers/virtio/virtio_pci_modern.c     | 10 ++++++++--
+>  drivers/virtio/virtio_pci_modern_dev.c |  8 +++++++-
+>  2 files changed, 15 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
+> index 5455bc041fb6..84bace98dff5 100644
+> --- a/drivers/virtio/virtio_pci_modern.c
+> +++ b/drivers/virtio/virtio_pci_modern.c
+> @@ -293,7 +293,7 @@ static int virtio_pci_find_shm_cap(struct pci_dev *dev, u8 required_id,
+>
+>         for (pos = pci_find_capability(dev, PCI_CAP_ID_VNDR); pos > 0;
+>              pos = pci_find_next_capability(dev, pos, PCI_CAP_ID_VNDR)) {
+> -               u8 type, cap_len, id;
+> +               u8 type, cap_len, id, res_bar;
+>                 u32 tmp32;
+>                 u64 res_offset, res_length;
+>
+> @@ -317,7 +317,12 @@ static int virtio_pci_find_shm_cap(struct pci_dev *dev, u8 required_id,
+>
+>                 /* Type, and ID match, looks good */
+>                 pci_read_config_byte(dev, pos + offsetof(struct virtio_pci_cap,
+> -                                                        bar), bar);
+> +                                                        bar), &res_bar);
+> +               if (res_bar >= PCI_STD_NUM_BARS) {
+> +                       dev_err(&dev->dev, "%s: shm cap with bad bar: %d\n",
+> +                               __func__, res_bar);
+> +                       continue;
+> +               }
+>
+>                 /* Read the lower 32bit of length and offset */
+>                 pci_read_config_dword(dev, pos + offsetof(struct virtio_pci_cap,
+> @@ -337,6 +342,7 @@ static int virtio_pci_find_shm_cap(struct pci_dev *dev, u8 required_id,
+>                                                      length_hi), &tmp32);
+>                 res_length |= ((u64)tmp32) << 32;
+>
+> +               *bar = res_bar;
+>                 *offset = res_offset;
+>                 *len = res_length;
+>
+> diff --git a/drivers/virtio/virtio_pci_modern_dev.c b/drivers/virtio/virtio_pci_modern_dev.c
+> index e8b3ff2b9fbc..a6911d1e212a 100644
+> --- a/drivers/virtio/virtio_pci_modern_dev.c
+> +++ b/drivers/virtio/virtio_pci_modern_dev.c
+> @@ -35,6 +35,12 @@ vp_modern_map_capability(struct virtio_pci_modern_device *mdev, int off,
+>         pci_read_config_dword(dev, off + offsetof(struct virtio_pci_cap, length),
+>                               &length);
+>
+> +       if (bar >= PCI_STD_NUM_BARS) {
+> +               dev_err(&dev->dev,
+> +                       "virtio_pci: bad capability bar %u\n", bar);
+> +               return NULL;
+> +       }
+> +
+>         if (length <= start) {
+>                 dev_err(&dev->dev,
+>                         "virtio_pci: bad capability len %u (>%u expected)\n",
+> @@ -120,7 +126,7 @@ static inline int virtio_pci_find_capability(struct pci_dev *dev, u8 cfg_type,
+>                                      &bar);
+>
+>                 /* Ignore structures with reserved BAR values */
+> -               if (bar > 0x5)
+> +               if (bar >= PCI_STD_NUM_BARS)
+>                         continue;
 
-On 3/23/22 13:17, Eric Biggers wrote:
-> On Wed, Mar 23, 2022 at 10:49:06AM +0800, zhenwei pi wrote:
->> v2 -> v3:
->> - Introduce akcipher types to qapi
->> - Add test/benchmark suite for akcipher class
->> - Seperate 'virtio_crypto: Support virtio crypto asym operation' into:
->>    - crypto: Introduce akcipher crypto class
->>    - virtio-crypto: Introduce RSA algorithm
->>
->> v1 -> v2:
->> - Update virtio_crypto.h from v2 version of related kernel patch.
->>
->> v1:
->> - Support akcipher for virtio-crypto.
->> - Introduce akcipher class.
->> - Introduce ASN1 decoder into QEMU.
->> - Implement RSA backend by nettle/hogweed.
->>
->> Lei He (3):
->>    crypto-akcipher: Introduce akcipher types to qapi
->>    crypto: Implement RSA algorithm by hogweed
->>    tests/crypto: Add test suite for crypto akcipher
->>
->> Zhenwei Pi (3):
->>    virtio-crypto: header update
->>    crypto: Introduce akcipher crypto class
->>    virtio-crypto: Introduce RSA algorithm
-> 
-> You forgot to describe the point of this patchset and what its use case is.
-> Like any other Linux kernel patchset, that needs to be in the cover letter.
-> 
-> - Eric
-Thanks Eric for pointing this missing part.
+Just notice that the spec said:
 
-This feature provides akcipher service offloading capability. QEMU side 
-handles asymmetric requests via virtio-crypto devices from guest side, 
-do encrypt/decrypt/sign/verify operations on host side, and return the 
-result to guest.
+"
+values 0x0 to 0x5 specify a Base Address register (BAR) belonging to
+the function located beginning at 10h in PCI Configuration Space and
+used to map the structure into Memory or I/O Space. The BAR is
+permitted to be either 32-bit or 64-bit, it can map Memory Space or
+I/O Space.
 
-This patchset implements a RSA backend by hogweed from nettle, it works 
-together with guest patch:
-https://lkml.org/lkml/2022/3/1/1425
+Any other value is reserved for future use.
+"
 
--- 
-zhenwei pi
+So we probably need to stick 0x5 instead of 0x6 (PCI_STD_NUM_BARS) for
+this and other places.
+
+Thanks
+
+>
+>                 if (type == cfg_type) {
+> --
+> 2.35.1.894.gb6a874cedc-goog
+>
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
