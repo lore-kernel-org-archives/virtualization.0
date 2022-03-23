@@ -4,96 +4,79 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 12EE1C433F5
-	for <virtualization@archiver.kernel.org>; Wed, 23 Mar 2022 14:41:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 57E1EC433EF
+	for <virtualization@archiver.kernel.org>; Wed, 23 Mar 2022 15:01:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 7FE6861357;
-	Wed, 23 Mar 2022 14:41:13 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id E2DC561351;
+	Wed, 23 Mar 2022 15:01:34 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ncTMr9m_fkV4; Wed, 23 Mar 2022 14:41:12 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 3FDB660E6B;
-	Wed, 23 Mar 2022 14:41:12 +0000 (UTC)
+	with ESMTP id nw7qvtP0f8TT; Wed, 23 Mar 2022 15:01:34 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 7691660E6B;
+	Wed, 23 Mar 2022 15:01:33 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0BBBFC0012;
-	Wed, 23 Mar 2022 14:41:12 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A2182C000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3DE5FC0012;
+	Wed, 23 Mar 2022 15:01:33 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8FAA1C000B
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Mar 2022 14:41:10 +0000 (UTC)
+ Wed, 23 Mar 2022 15:01:31 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 8EF2941B75
+ by smtp3.osuosl.org (Postfix) with ESMTP id 67A2A61348
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Mar 2022 14:41:10 +0000 (UTC)
+ Wed, 23 Mar 2022 15:01:31 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=bytedance-com.20210112.gappssmtp.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id i7vDIIy43ZNo
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id h_9tsgiZJiDn
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Mar 2022 14:41:08 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com
- [IPv6:2607:f8b0:4864:20::432])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 7E60A41B73
+ Wed, 23 Mar 2022 15:01:30 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 5FC7460E6B
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Mar 2022 14:41:08 +0000 (UTC)
-Received: by mail-pf1-x432.google.com with SMTP id s42so1694452pfg.0
- for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Mar 2022 07:41:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=bytedance-com.20210112.gappssmtp.com; s=20210112;
- h=message-id:date:mime-version:user-agent:subject:content-language:to
- :cc:references:from:in-reply-to:content-transfer-encoding;
- bh=9S4eZd/rXA3n6neAOpli6HJc1yfp+ivfWjQ96On7pkI=;
- b=QhZqkNggS08Iaw6ai+E2dKoy/D9zbMKsZp1q7bLscXQKKNTf2iXab7MnrMd1vBk6Er
- 2MWstlzqkm6T21vy6t5M/3ndyjHsZso7L4CrkCYWu2ChTfnRgKwo2TgNg9RMXSEwp9MW
- GMfSOF1OQQWrio3KOet+GLNOTHxytfLoHtF+kYIrYQUtTUhN0AYpaR6IdBrjTJMNr6Xa
- /WpnT6wXbFhnN1OR2SQQcLPAGSXzDTvuuPs7jGWyBMTXLtrvgdhQoUgZl+dNRulOviAQ
- 2iKSILaEbeGVSymi+LDckIyJJAyZtHlx8ZIVDLV3O/ut2zEsWbNgJXoV9+kUq9QMDIZ5
- mKLw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
- :content-language:to:cc:references:from:in-reply-to
- :content-transfer-encoding;
- bh=9S4eZd/rXA3n6neAOpli6HJc1yfp+ivfWjQ96On7pkI=;
- b=vdVI3peJM26HYDz+V8JvyvBv3FcFlQjDGWyw8yjmG8+wASHxbvbTf3RWK28uZNX7U9
- G0xVstYbVHC8gQCFu40iyCXvROZC+mlo8kDknNzncM2y/BjIi1H+ziwSoYKr+ePAHPf8
- faLzHaRrM31n5f4jvqrjOPyUSaNEYkq9GkcN0AQ/PH+vg3F+CQ4rHCKFX7/0gPm/kURK
- 1KXYjI1jY6TQ8EaJBjATLUG4GX09hPkpbVjOlMMi8VGi7i7J+CubhcjpTrvho5QqRi0M
- jiKG6fxiE4zpCW34Bzy8li8rB2Mi5VZjTyWwIXOovpfeskVpaihF0r9FVEtQqglkPicL
- tYOw==
-X-Gm-Message-State: AOAM530xDz20K9i0lbxyn9yQnbrYu/dP0SqRDuUzfCgAUWabH1A64LfK
- R6SGejcf1XnqU9WEQ8hM3Efy6g==
-X-Google-Smtp-Source: ABdhPJxs2YxbMDq4cFOUneNrKNpZMka1lWtg2y+oKbcBfOGQcS9WES0IMW0H8pPRUYmVwxqVrEN6wg==
-X-Received: by 2002:a63:ae03:0:b0:386:2b5d:dd7d with SMTP id
- q3-20020a63ae03000000b003862b5ddd7dmr196912pgf.332.1648046467709; 
- Wed, 23 Mar 2022 07:41:07 -0700 (PDT)
-Received: from [10.255.146.117] ([139.177.225.224])
- by smtp.gmail.com with ESMTPSA id
- e11-20020a056a001a8b00b004fab740dbddsm166340pfv.105.2022.03.23.07.41.03
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Wed, 23 Mar 2022 07:41:07 -0700 (PDT)
-Message-ID: <f0b798fe-d341-775d-c722-1d05b99da0c3@bytedance.com>
-Date: Wed, 23 Mar 2022 22:37:40 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: Re: [PATCH v3 0/6] Support akcipher for virtio-crypto
-Content-Language: en-US
-To: "Michael S. Tsirkin" <mst@redhat.com>,
- =?UTF-8?Q?Daniel_P=2e_Berrang=c3=a9?= <berrange@redhat.com>
+ Wed, 23 Mar 2022 15:01:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1648047689;
+ h=from:from:reply-to:reply-to:subject:subject:date:date:
+ message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+ content-type:content-type:in-reply-to:in-reply-to:  references:references;
+ bh=nV8tfFGM1AQ/P90Zz8juXEcegOc8r+b10AqC7hoVW0w=;
+ b=HN6d8ijVhksAl4T1z2cKVRw4+Ak9Mk7w3dv9Xixjwe3Zt0TtQEjZvzJeUvp7lYvbE6e9sH
+ HCnGvHvGZV+D90lvoKqBdDzvCqPH02SNyXfrfj2rD0y5bLJLS166+PD2yivnUD9eL3cd/n
+ lei+CweZbo14Ln1qbMvg0+168bEAR80=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-518-JM6FYdXaO_29lV7-FHIALw-1; Wed, 23 Mar 2022 11:01:22 -0400
+X-MC-Unique: JM6FYdXaO_29lV7-FHIALw-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.8])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id C4A043838065;
+ Wed, 23 Mar 2022 15:00:58 +0000 (UTC)
+Received: from redhat.com (unknown [10.33.36.123])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id 3B9ECC15D6F;
+ Wed, 23 Mar 2022 15:00:56 +0000 (UTC)
+Date: Wed, 23 Mar 2022 15:00:54 +0000
+From: Daniel =?utf-8?B?UC4gQmVycmFuZ8Op?= <berrange@redhat.com>
+To: zhenwei pi <pizhenwei@bytedance.com>
+Subject: Re: [PATCH v3 2/6] crypto-akcipher: Introduce akcipher types to qapi
+Message-ID: <Yjs2JshB8ZASiHJT@redhat.com>
 References: <20220323024912.249789-1-pizhenwei@bytedance.com>
- <20220323083558-mutt-send-email-mst@kernel.org>
-From: zhenwei pi <pizhenwei@bytedance.com>
-In-Reply-To: <20220323083558-mutt-send-email-mst@kernel.org>
-Cc: herbert@gondor.apana.org.au, qemu-devel@nongnu.org,
+ <20220323024912.249789-3-pizhenwei@bytedance.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+In-Reply-To: <20220323024912.249789-3-pizhenwei@bytedance.com>
+User-Agent: Mutt/2.1.5 (2021-12-30)
+X-Scanned-By: MIMEDefang 2.85 on 10.11.54.8
+Cc: herbert@gondor.apana.org.au, mst@redhat.com, qemu-devel@nongnu.org,
  virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org,
- "helei.sig11@bytedance.com" <helei.sig11@bytedance.com>
+ Lei He <helei.sig11@bytedance.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -105,34 +88,58 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Reply-To: Daniel =?utf-8?B?UC4gQmVycmFuZ8Op?= <berrange@redhat.com>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 3/23/22 20:36, Michael S. Tsirkin wrote:
-> On Wed, Mar 23, 2022 at 10:49:06AM +0800, zhenwei pi wrote:
->> v2 -> v3:
->> - Introduce akcipher types to qapi
->> - Add test/benchmark suite for akcipher class
->> - Seperate 'virtio_crypto: Support virtio crypto asym operation' into:
->>    - crypto: Introduce akcipher crypto class
->>    - virtio-crypto: Introduce RSA algorithm
+On Wed, Mar 23, 2022 at 10:49:08AM +0800, zhenwei pi wrote:
+> From: Lei He <helei.sig11@bytedance.com>
 > 
-> Thanks!
-> I tagged this but qemu is in freeze. If possible pls ping or
-> repost after the release to help make sure I don't lose it.
+> Introduce akcipher types, also include RSA & ECDSA related types.
 > 
-Hi,
+> Signed-off-by: Lei He <helei.sig11@bytedance.com>
+> Signed-off-by: zhenwei pi <pizhenwei@bytedance.com>
+> ---
+>  qapi/crypto.json | 86 ++++++++++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 86 insertions(+)
+> 
+> diff --git a/qapi/crypto.json b/qapi/crypto.json
+> index 1ec54c15ca..d44c38e3b1 100644
+> --- a/qapi/crypto.json
+> +++ b/qapi/crypto.json
+> @@ -540,3 +540,89 @@
+>    'data': { '*loaded': { 'type': 'bool', 'features': ['deprecated'] },
+>              '*sanity-check': 'bool',
+>              '*passwordid': 'str' } }
+> +##
+> +# @QCryptoAkcipherAlgorithm:
+> +#
+> +# The supported algorithms for asymmetric encryption ciphers
+> +#
+> +# @rsa: RSA algorithm
+> +# @ecdsa: ECDSA algorithm
+> +#
+> +# Since: 7.0
+> +##
+> +{ 'enum': 'QCryptoAkcipherAlgorithm',
+> +  'prefix': 'QCRYPTO_AKCIPHER_ALG',
+> +  'data': ['rsa', 'ecdsa']}
 
-Daniel has started to review this patchset, according to Daniel's 
-important suggestion, I'll rework this feature and post the next version 
-later.
+What were your intentions wrt  ecdsa - the nettle impl in this patch
+series doesn't appear to actually support ecdsa. Are you intending to
+add this in later versions of this patch series, or do it as separate
+work at a later date ?
 
-Thanks a lot!
 
+With regards,
+Daniel
 -- 
-zhenwei pi
+|: https://berrange.com      -o-    https://www.flickr.com/photos/dberrange :|
+|: https://libvirt.org         -o-            https://fstop138.berrange.com :|
+|: https://entangle-photo.org    -o-    https://www.instagram.com/dberrange :|
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
