@@ -4,98 +4,75 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9F72AC433EF
-	for <virtualization@archiver.kernel.org>; Wed, 23 Mar 2022 03:10:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 156C9C433F5
+	for <virtualization@archiver.kernel.org>; Wed, 23 Mar 2022 03:15:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 3D9F34013A;
-	Wed, 23 Mar 2022 03:10:56 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id B036240CA5;
+	Wed, 23 Mar 2022 03:15:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id CQG3GISwUAFg; Wed, 23 Mar 2022 03:10:55 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 67CF9403A4;
-	Wed, 23 Mar 2022 03:10:54 +0000 (UTC)
+	with ESMTP id 5kI04EiOTgCV; Wed, 23 Mar 2022 03:15:37 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 188D040C98;
+	Wed, 23 Mar 2022 03:15:37 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3D00FC0031;
-	Wed, 23 Mar 2022 03:10:54 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E4CF6C000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E0636C0012;
+	Wed, 23 Mar 2022 03:15:36 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 151BCC000B
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Mar 2022 03:10:53 +0000 (UTC)
+ Wed, 23 Mar 2022 03:15:36 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id CCF4860E64
+ by smtp4.osuosl.org (Postfix) with ESMTP id E36CD419BF
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Mar 2022 03:10:53 +0000 (UTC)
+ Wed, 23 Mar 2022 03:15:35 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id HxNTkl0fqgu9
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 1Kf0KUE8qe6q
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Mar 2022 03:10:42 +0000 (UTC)
+ Wed, 23 Mar 2022 03:15:35 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 7755760E50
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 2DC21419B3
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Mar 2022 03:10:42 +0000 (UTC)
+ Wed, 23 Mar 2022 03:15:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1648005041;
+ s=mimecast20190719; t=1648005334;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=oGgo2QAozxKREy7KkTi56vaqwR7d3TFN694TEyxqgzw=;
- b=IbjZ2AEfx/JDT0e7XEyZwxp2o/iLKQ36d1nueCSLOL/4mwbmDVhIz2Sj7+/oJYVJ9/EsEP
- FuULSxq+LddPvHQ3Asjl1NFEGWNFAenbfTPPXZKx1V5QhmqNNjfcZabsSM0+namRAxMTff
- to4xiqO4LpbZHYXOLSO+DAFu3+I7WrY=
-Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com
- [209.85.208.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ to:to:cc:cc:mime-version:mime-version:
+ content-transfer-encoding:content-transfer-encoding;
+ bh=RzU9qqeaoBp/Yii+Yq3KaDZTZqiOvzziYtFqIGNvnWw=;
+ b=FuMlEfDPx1Ffc4Ba/ETKx2W7XlPLu0BEtIdg6DIxWte7zhQmBTXjMv34ZgWdpFF/dQ+vhE
+ um3N/smgpPstSn/9RkheeU/pOU2huGoaDLU7H9wOhxZctQEvOM8b4Jy54Hoamgz1ta/hnk
+ K3EYwNwH5smz24EEw984p3JM/ZynF3E=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-650-zVaVnLFdPEuqM-euNqMsGg-1; Tue, 22 Mar 2022 23:10:40 -0400
-X-MC-Unique: zVaVnLFdPEuqM-euNqMsGg-1
-Received: by mail-lj1-f200.google.com with SMTP id
- s24-20020a2e98d8000000b00249800e5b87so51760ljj.22
- for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Mar 2022 20:10:39 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=oGgo2QAozxKREy7KkTi56vaqwR7d3TFN694TEyxqgzw=;
- b=nPr1gXLr64v21QgoNhuNlmVIudFSl/Bx+9kbUbwXU246vEWVUt2E9bq3ISyn54lMjT
- xj8XznAJCI6qIUu7umaL3E/kpujU6426eCyrZsja1GKG0jkGvhNPcweIC+AtviEnZ1Eo
- gh3EowobJWsO4+PzgHtyr4W3/4QWOVSyxJMxIFsUnYvT+D6AjaaX8eNIAzmdaUVc1/ur
- ZOPifFI4aHu3XO2Gx/kYeVQWI7G9A73w08P53dbLcoL9FsG2Sf/h8E2/yfk0YGFKZI6y
- tmi1NYkViHmQYZPVIjPrRegUZZC3reCkKQ+V1OEClYFOJN0EuHsi77wTIN+8hPAVSKHe
- SVBg==
-X-Gm-Message-State: AOAM5314nfewTyRJNmPm4vuTLMR95+6SpexIjaEc2WGQZeJFa12+vZ0J
- t8e0e3Ov9XBFRGTC/sPEk9YTY4gNcY/hOBozg5oBerO+CpywnERhalSmv8TTxG5znSqDTZL709F
- n1XmQc/8Av5vosI/ClN+dzgoFnuMzMSf+rbs8tFQLhCZDbsPRz483A2ivTw==
-X-Received: by 2002:a05:6512:b81:b0:448:b342:513c with SMTP id
- b1-20020a0565120b8100b00448b342513cmr20337157lfv.257.1648005038328; 
- Tue, 22 Mar 2022 20:10:38 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxiqwJ/kbpPgsK45vw/El7oQ7v37X0Q2cKgv7r1FOUy5FXu/SiMPslSTD1xQjyEymdBzlAsxwuQghtxfpQChsg=
-X-Received: by 2002:a05:6512:b81:b0:448:b342:513c with SMTP id
- b1-20020a0565120b8100b00448b342513cmr20337143lfv.257.1648005038112; Tue, 22
- Mar 2022 20:10:38 -0700 (PDT)
-MIME-Version: 1.0
-References: <20220322114313.116516-1-sgarzare@redhat.com>
- <20220322100635-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20220322100635-mutt-send-email-mst@kernel.org>
+ us-mta-645-f43DsdMhMTi3hwG3iEVDBw-1; Tue, 22 Mar 2022 23:15:30 -0400
+X-MC-Unique: f43DsdMhMTi3hwG3iEVDBw-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.7])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 5A86F3804078;
+ Wed, 23 Mar 2022 03:15:30 +0000 (UTC)
+Received: from localhost.localdomain (ovpn-12-49.pek2.redhat.com [10.72.12.49])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id F26E11400E70;
+ Wed, 23 Mar 2022 03:15:26 +0000 (UTC)
 From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 23 Mar 2022 11:10:27 +0800
-Message-ID: <CACGkMEuUpFKTyqmRh2T7cnF=1hbz3T3_DiT_t8L9Pfs_g5yJmA@mail.gmail.com>
-Subject: Re: [PATCH] virtio: use virtio_device_ready() in
- virtio_device_restore()
-To: "Michael S. Tsirkin" <mst@redhat.com>, Parav Pandit <parav@nvidia.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: virtualization <virtualization@lists.linux-foundation.org>,
- linux-kernel <linux-kernel@vger.kernel.org>
+To: mst@redhat.com, jasowang@redhat.com,
+ virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 1/2] Revert "virtio-pci: harden INTX interrupts"
+Date: Wed, 23 Mar 2022 11:15:23 +0800
+Message-Id: <20220323031524.6555-1-jasowang@redhat.com>
+MIME-Version: 1.0
+X-Scanned-By: MIMEDefang 2.85 on 10.11.54.7
+Cc: peterz@infradead.org, tglx@linutronix.de
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -112,98 +89,81 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Mar 22, 2022 at 10:07 PM Michael S. Tsirkin <mst@redhat.com> wrote:
->
-> On Tue, Mar 22, 2022 at 12:43:13PM +0100, Stefano Garzarella wrote:
-> > After waking up a suspended VM, the kernel prints the following trace
-> > for virtio drivers which do not directly call virtio_device_ready() in
-> > the .restore:
-> >
-> >     PM: suspend exit
-> >     irq 22: nobody cared (try booting with the "irqpoll" option)
-> >     Call Trace:
-> >      <IRQ>
-> >      dump_stack_lvl+0x38/0x49
-> >      dump_stack+0x10/0x12
-> >      __report_bad_irq+0x3a/0xaf
-> >      note_interrupt.cold+0xb/0x60
-> >      handle_irq_event+0x71/0x80
-> >      handle_fasteoi_irq+0x95/0x1e0
-> >      __common_interrupt+0x6b/0x110
-> >      common_interrupt+0x63/0xe0
-> >      asm_common_interrupt+0x1e/0x40
-> >      ? __do_softirq+0x75/0x2f3
-> >      irq_exit_rcu+0x93/0xe0
-> >      sysvec_apic_timer_interrupt+0xac/0xd0
-> >      </IRQ>
-> >      <TASK>
-> >      asm_sysvec_apic_timer_interrupt+0x12/0x20
-> >      arch_cpu_idle+0x12/0x20
-> >      default_idle_call+0x39/0xf0
-> >      do_idle+0x1b5/0x210
-> >      cpu_startup_entry+0x20/0x30
-> >      start_secondary+0xf3/0x100
-> >      secondary_startup_64_no_verify+0xc3/0xcb
-> >      </TASK>
-> >     handlers:
-> >     [<000000008f9bac49>] vp_interrupt
-> >     [<000000008f9bac49>] vp_interrupt
-> >     Disabling IRQ #22
-> >
-> > This happens because we don't invoke .enable_cbs callback in
-> > virtio_device_restore(). That callback is used by some transports
-> > (e.g. virtio-pci) to enable interrupts.
-> >
-> > Let's fix it, by calling virtio_device_ready() as we do in
-> > virtio_dev_probe(). This function calls .enable_cts callback and sets
-> > DRIVER_OK status bit.
-> >
-> > This fix also avoids setting DRIVER_OK twice for those drivers that
-> > call virtio_device_ready() in the .restore.
-> >
-> > Fixes: d50497eb4e55 ("virtio_config: introduce a new .enable_cbs method")
-> > Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-> > ---
-> >
-> > I'm not sure about the fixes tag. That one is more generic, but the
-> > following one I think introduced the issue.
-> >
-> > Fixes: 9e35276a5344 ("virtio_pci: harden MSI-X interrupts")
->
-> Jason what should we do about this one BTW? Just revert? We have other
-> issues ...
+This reverts commit 080cd7c3ac8701081d143a15ba17dd9475313188. Since
+the MSI-X interrupts hardening will be reverted in the next patch. We
+will rework the interrupt hardening in the future.
 
-Let me post a patch to revert it and give it a rework.
+Fixes: 080cd7c3ac87 ("virtio-pci: harden INTX interrupts")
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/virtio/virtio_pci_common.c | 23 ++---------------------
+ drivers/virtio/virtio_pci_common.h |  1 -
+ 2 files changed, 2 insertions(+), 22 deletions(-)
 
-Thanks
-
->
->
-> > Thanks,
-> > Stefano
-> > ---
-> >  drivers/virtio/virtio.c | 5 +++--
-> >  1 file changed, 3 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> > index 22f15f444f75..75c8d560bbd3 100644
-> > --- a/drivers/virtio/virtio.c
-> > +++ b/drivers/virtio/virtio.c
-> > @@ -526,8 +526,9 @@ int virtio_device_restore(struct virtio_device *dev)
-> >                       goto err;
-> >       }
-> >
-> > -     /* Finally, tell the device we're all set */
-> > -     virtio_add_status(dev, VIRTIO_CONFIG_S_DRIVER_OK);
-> > +     /* If restore didn't do it, mark device DRIVER_OK ourselves. */
-> > +     if (!(dev->config->get_status(dev) & VIRTIO_CONFIG_S_DRIVER_OK))
-> > +             virtio_device_ready(dev);
-> >
-> >       virtio_config_enable(dev);
-> >
-> > --
-> > 2.35.1
->
+diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+index fdbde1db5ec5..3f51fdb7be45 100644
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -30,16 +30,8 @@ void vp_disable_cbs(struct virtio_device *vdev)
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+ 	int i;
+ 
+-	if (vp_dev->intx_enabled) {
+-		/*
+-		 * The below synchronize() guarantees that any
+-		 * interrupt for this line arriving after
+-		 * synchronize_irq() has completed is guaranteed to see
+-		 * intx_soft_enabled == false.
+-		 */
+-		WRITE_ONCE(vp_dev->intx_soft_enabled, false);
++	if (vp_dev->intx_enabled)
+ 		synchronize_irq(vp_dev->pci_dev->irq);
+-	}
+ 
+ 	for (i = 0; i < vp_dev->msix_vectors; ++i)
+ 		disable_irq(pci_irq_vector(vp_dev->pci_dev, i));
+@@ -51,16 +43,8 @@ void vp_enable_cbs(struct virtio_device *vdev)
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+ 	int i;
+ 
+-	if (vp_dev->intx_enabled) {
+-		disable_irq(vp_dev->pci_dev->irq);
+-		/*
+-		 * The above disable_irq() provides TSO ordering and
+-		 * as such promotes the below store to store-release.
+-		 */
+-		WRITE_ONCE(vp_dev->intx_soft_enabled, true);
+-		enable_irq(vp_dev->pci_dev->irq);
++	if (vp_dev->intx_enabled)
+ 		return;
+-	}
+ 
+ 	for (i = 0; i < vp_dev->msix_vectors; ++i)
+ 		enable_irq(pci_irq_vector(vp_dev->pci_dev, i));
+@@ -113,9 +97,6 @@ static irqreturn_t vp_interrupt(int irq, void *opaque)
+ 	struct virtio_pci_device *vp_dev = opaque;
+ 	u8 isr;
+ 
+-	if (!READ_ONCE(vp_dev->intx_soft_enabled))
+-		return IRQ_NONE;
+-
+ 	/* reading the ISR has the effect of also clearing it so it's very
+ 	 * important to save off the value. */
+ 	isr = ioread8(vp_dev->isr);
+diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
+index 23f6c5c678d5..d3c6f72c7390 100644
+--- a/drivers/virtio/virtio_pci_common.h
++++ b/drivers/virtio/virtio_pci_common.h
+@@ -63,7 +63,6 @@ struct virtio_pci_device {
+ 	/* MSI-X support */
+ 	int msix_enabled;
+ 	int intx_enabled;
+-	bool intx_soft_enabled;
+ 	cpumask_var_t *msix_affinity_masks;
+ 	/* Name strings for interrupts. This size should be enough,
+ 	 * and I'm too lazy to allocate each name separately. */
+-- 
+2.25.1
 
 _______________________________________________
 Virtualization mailing list
