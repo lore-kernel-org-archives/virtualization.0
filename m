@@ -1,97 +1,95 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E7DE7C433EF
-	for <virtualization@archiver.kernel.org>; Wed, 23 Mar 2022 17:36:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 06841C4332F
+	for <virtualization@archiver.kernel.org>; Wed, 23 Mar 2022 17:36:45 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 8C4C5400E2;
-	Wed, 23 Mar 2022 17:36:43 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 87FE884A5A;
+	Wed, 23 Mar 2022 17:36:45 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id gT01N5xodDSb; Wed, 23 Mar 2022 17:36:42 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id E889940C2B;
-	Wed, 23 Mar 2022 17:36:41 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id cRzcE3QoI5ES; Wed, 23 Mar 2022 17:36:44 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 3F16184A31;
+	Wed, 23 Mar 2022 17:36:44 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CF1C6C001A;
-	Wed, 23 Mar 2022 17:36:41 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4CB52C000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 18ABCC001A;
+	Wed, 23 Mar 2022 17:36:44 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 88DC7C000B
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Mar 2022 17:36:41 +0000 (UTC)
+ Wed, 23 Mar 2022 17:36:43 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 2B500613D8
+ by smtp1.osuosl.org (Postfix) with ESMTP id 745F984A3D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Mar 2022 17:36:41 +0000 (UTC)
+ Wed, 23 Mar 2022 17:36:43 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Sjao3KLewzDh
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id TzzI1Xm-8pQ6
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Mar 2022 17:36:39 +0000 (UTC)
+ Wed, 23 Mar 2022 17:36:42 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 1851A607E1
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 3232A84A4E
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Mar 2022 17:36:38 +0000 (UTC)
+ Wed, 23 Mar 2022 17:36:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1648056997;
+ s=mimecast20190719; t=1648057001;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=B/auHUunRKmj44ZRhZ4Uljn8hCNOGxN6qXBgu6Qo8Sg=;
- b=UyrNdnWvpydwYo9+WJNDu1xsS/doXU99Z+eTBeEPxjcmpQ7o/B0tZ3tsM8ehV9EKZRXKl2
- fHcQRDLl3ss65G937wXet9xxQVic9OWiyErQk2vXPcDIv0F1ZaeaLWRst1WbZnHlZNW+W2
- LAi8sc+AtFK4T8ky2XGfqfanhqo9+TU=
-Received: from mail-qt1-f199.google.com (mail-qt1-f199.google.com
- [209.85.160.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=badQ4iNux1pPz/7wSA5tFhWc+QQEkhPUp5sQLckQMkQ=;
+ b=Smn0FCOWu3okH54sFJehYNUWOFHjQ5Kbcrbc8UO5U+olUKta9QyvbsyRL2uPMV7BLCP8z5
+ SfnzPsPIcNOhGE9zX60T8432a3UXEvl2K9J/U98zvsWtm6I5Oe6Nw0tfT295dcNjf4AcGK
+ EIW+fb3pYvGscC261yglz07Gz7AHsUM=
+Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com
+ [209.85.222.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-591-A_NOy1sROS6_dVsAzOfR3w-1; Wed, 23 Mar 2022 13:36:36 -0400
-X-MC-Unique: A_NOy1sROS6_dVsAzOfR3w-1
-Received: by mail-qt1-f199.google.com with SMTP id
- g22-20020ac870d6000000b002e20a1508ecso1729821qtp.19
+ us-mta-14-Z4wisagrOY2bcBhSK_QtPg-1; Wed, 23 Mar 2022 13:36:39 -0400
+X-MC-Unique: Z4wisagrOY2bcBhSK_QtPg-1
+Received: by mail-qk1-f199.google.com with SMTP id
+ w200-20020a3762d1000000b0067d2149318dso1483861qkb.1
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Mar 2022 10:36:36 -0700 (PDT)
+ Wed, 23 Mar 2022 10:36:39 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
  :references:mime-version:content-transfer-encoding;
- bh=B/auHUunRKmj44ZRhZ4Uljn8hCNOGxN6qXBgu6Qo8Sg=;
- b=7oewj1fQb/q/gNhgxPHTPgRbtD11pOEzZTkB1cfuYlH2wfd6KmUfHpt3+o4adgCW1/
- jXulQ91/gZgMchphGnkZ2w+5BxoZ2rL9LPh+rf6cm3iMaXNm9EGp9SxNooQvvWvmLVsV
- VgJQVm3yditmY+vMA0VJOba0hWE4RajImnaH9+pmRhoikOMDj5dJfBAjTDW9owRIEuFw
- s29THxbakIxAMIn1dJnmem5V5eIbyyq6ukgTxMl3LR2SmaO5g36g02vGYF7tecejr4t2
- S11epNJvQ9hy+C7ghq/UD4HpwS41OLsURjU+QTwZTAy8kU685ukrlKK6c6JQwzyYoK98
- FPpA==
-X-Gm-Message-State: AOAM532nxNsW77fgHGF5xtgOx8TBJz27BPRqpioifyxN7rqvPc9N03Zx
- t+7qeudNRjIev+HwwLYZq3j8gidZNy7r+YKxN5j7YRgIjtvG5D+Getgj9olmK12JhW0R9/1iuW+
- X0wieLBJoIZraiA0Vl1d/mWHFFrHlkHTgTgvjHrsUdQ==
-X-Received: by 2002:a05:620a:15cf:b0:67d:f378:5cf8 with SMTP id
- o15-20020a05620a15cf00b0067df3785cf8mr745284qkm.354.1648056995705; 
- Wed, 23 Mar 2022 10:36:35 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxTUiRkn6eha8XU1o1IqDFFHEY3objSBoDDAqSNfC0KM2Zb1piJWjlVMzOTuJp+NKhZ0Bg0SA==
-X-Received: by 2002:a05:620a:15cf:b0:67d:f378:5cf8 with SMTP id
- o15-20020a05620a15cf00b0067df3785cf8mr745251qkm.354.1648056995111; 
- Wed, 23 Mar 2022 10:36:35 -0700 (PDT)
+ bh=badQ4iNux1pPz/7wSA5tFhWc+QQEkhPUp5sQLckQMkQ=;
+ b=iAGDzES2pZcTOaDPlbX+6hw76A3r/WXNDQyEgYR8tq2nRPh+v3OJLHT0UxXidEO7m0
+ guXM8deYiY2JPRZU4tiO64RJavSFHyaTAYVQ2JEML38U5QVUFbRw4urE2PIS+0dI+g40
+ omPEvPytmTHDCofFeNnREeNn8oZP9wmbBj4a1Lq4GPWw0RnlI2sGx8/2Q3+wJRu/cJEQ
+ Na+hT2522jaiFv3OP08pTkwPmCgb/cVg1hmrNjuoG5LPkUjvNxW/Z0PdlpOERz+Spusf
+ b6RhsHn8fwFCTaNJxRuxJ+kvOtDiQ/KFj/hxhvJDTSFG5aqD4M+YqhAWJI6/IdIRqgQl
+ /pBw==
+X-Gm-Message-State: AOAM531OsNpoOVnpcIyZlvS9rh8X01ghl06jvfoggASXZkS/y2gKRa7k
+ Q9T4PsXDd9uW94E0blYLbdWjfEiVroOzWFk+MRPlNueF6RCLc8Lxac3mp6U9vE4FJOZkz5dFF6e
+ 3X6f2mIHpSzp+dLJv94BsS7r3Wt3Hl376ZTSuggppug==
+X-Received: by 2002:ae9:ed96:0:b0:67e:c89e:480a with SMTP id
+ c144-20020ae9ed96000000b0067ec89e480amr718880qkg.274.1648056999446; 
+ Wed, 23 Mar 2022 10:36:39 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJydhjsyMjk7m4UHfPJYXhDmCRpm61QiwyPkqiHwWTFXbdWyL3aM7kxuaIS4gs2HZKKewMIaMg==
+X-Received: by 2002:ae9:ed96:0:b0:67e:c89e:480a with SMTP id
+ c144-20020ae9ed96000000b0067ec89e480amr718839qkg.274.1648056998815; 
+ Wed, 23 Mar 2022 10:36:38 -0700 (PDT)
 Received: from step1.redhat.com (host-87-12-25-114.business.telecomitalia.it.
  [87.12.25.114]) by smtp.gmail.com with ESMTPSA id
- h14-20020a05622a170e00b002e1a65754d8sm476127qtk.91.2022.03.23.10.36.31
+ h14-20020a05622a170e00b002e1a65754d8sm476127qtk.91.2022.03.23.10.36.35
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 23 Mar 2022 10:36:34 -0700 (PDT)
+ Wed, 23 Mar 2022 10:36:38 -0700 (PDT)
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: netdev@vger.kernel.org
-Subject: [PATCH net v3 1/3] vsock/virtio: initialize vdev->priv before using
- VQs
-Date: Wed, 23 Mar 2022 18:36:23 +0100
-Message-Id: <20220323173625.91119-2-sgarzare@redhat.com>
+Subject: [PATCH net v3 2/3] vsock/virtio: read the negotiated features before
+ using VQs
+Date: Wed, 23 Mar 2022 18:36:24 +0100
+Message-Id: <20220323173625.91119-3-sgarzare@redhat.com>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220323173625.91119-1-sgarzare@redhat.com>
 References: <20220323173625.91119-1-sgarzare@redhat.com>
@@ -121,35 +119,38 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-When we fill VQs with empty buffers and kick the host, it may send
-an interrupt. `vdev->priv` must be initialized before this since it
-is used in the virtqueue callbacks.
+Complete the driver configuration, reading the negotiated features,
+before using the VQs in the virtio_vsock_probe().
 
-Fixes: 0deab087b16a ("vsock/virtio: use RCU to avoid use-after-free on the_virtio_vsock")
+Fixes: 53efbba12cc7 ("virtio/vsock: enable SEQPACKET for transport")
 Suggested-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 ---
- net/vmw_vsock/virtio_transport.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/vmw_vsock/virtio_transport.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
-index 5afc194a58bb..3e5513934c9f 100644
+index 3e5513934c9f..3954d3be9083 100644
 --- a/net/vmw_vsock/virtio_transport.c
 +++ b/net/vmw_vsock/virtio_transport.c
-@@ -622,6 +622,8 @@ static int virtio_vsock_probe(struct virtio_device *vdev)
+@@ -622,6 +622,9 @@ static int virtio_vsock_probe(struct virtio_device *vdev)
  	INIT_WORK(&vsock->event_work, virtio_transport_event_work);
  	INIT_WORK(&vsock->send_pkt_work, virtio_transport_send_pkt_work);
  
-+	vdev->priv = vsock;
++	if (virtio_has_feature(vdev, VIRTIO_VSOCK_F_SEQPACKET))
++		vsock->seqpacket_allow = true;
 +
- 	mutex_lock(&vsock->tx_lock);
- 	vsock->tx_run = true;
- 	mutex_unlock(&vsock->tx_lock);
-@@ -639,7 +641,6 @@ static int virtio_vsock_probe(struct virtio_device *vdev)
- 	if (virtio_has_feature(vdev, VIRTIO_VSOCK_F_SEQPACKET))
- 		vsock->seqpacket_allow = true;
+ 	vdev->priv = vsock;
  
--	vdev->priv = vsock;
+ 	mutex_lock(&vsock->tx_lock);
+@@ -638,9 +641,6 @@ static int virtio_vsock_probe(struct virtio_device *vdev)
+ 	vsock->event_run = true;
+ 	mutex_unlock(&vsock->event_lock);
+ 
+-	if (virtio_has_feature(vdev, VIRTIO_VSOCK_F_SEQPACKET))
+-		vsock->seqpacket_allow = true;
+-
  	rcu_assign_pointer(the_virtio_vsock, vsock);
  
  	mutex_unlock(&the_virtio_vsock_mutex);
