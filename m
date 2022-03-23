@@ -1,81 +1,144 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 884FBC433F5
-	for <virtualization@archiver.kernel.org>; Wed, 23 Mar 2022 03:15:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8BD91C433EF
+	for <virtualization@archiver.kernel.org>; Wed, 23 Mar 2022 07:15:47 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 15D218491E;
-	Wed, 23 Mar 2022 03:15:44 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 2D5BE60E32;
+	Wed, 23 Mar 2022 07:15:47 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 0YBtI4PYylP8; Wed, 23 Mar 2022 03:15:43 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id OOT0umnLORNC; Wed, 23 Mar 2022 07:15:46 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 630858491B;
-	Wed, 23 Mar 2022 03:15:42 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 8486860B60;
+	Wed, 23 Mar 2022 07:15:45 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 312E8C0012;
-	Wed, 23 Mar 2022 03:15:42 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 50AC2C0012;
+	Wed, 23 Mar 2022 07:15:45 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 98377C000B
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 59862C000B
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Mar 2022 03:15:40 +0000 (UTC)
+ Wed, 23 Mar 2022 07:15:44 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 8434440CA6
+ by smtp2.osuosl.org (Postfix) with ESMTP id 403F240566
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Mar 2022 03:15:40 +0000 (UTC)
+ Wed, 23 Mar 2022 07:15:44 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
+ dkim=pass (1024-bit key) header.d=amd.com
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id aQj9Tx8Z_jWs
+ with ESMTP id xqpM14-YzmKG
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Mar 2022 03:15:39 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 3AB4440C98
+ Wed, 23 Mar 2022 07:15:42 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from NAM10-DM6-obe.outbound.protection.outlook.com
+ (mail-dm6nam10on20611.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:7e88::611])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 840D1401D2
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Mar 2022 03:15:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1648005338;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=SVrjcP1lrBTCbvCHht5yAGBOLG7SBcbqKikxAiB9SAI=;
- b=JMYu/pZXOlUDEYnOt6+aSJzbqGEQoPEoToaZzxP4Y6PWl5u/TME7ymV/hdBEuRh7Oop1Xq
- mrHHVQrWv9tggJWK7S1U0/gFQ3StPrHUnwL6UdoRYn/peTgoiHmg4fWQUElOg7bWxTKSu7
- 8M/FpWv+0LwCwz0sEnRYICRmDCIo8U0=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-35-riB5se-NO0e12lAtJj5Xiw-1; Tue, 22 Mar 2022 23:15:34 -0400
-X-MC-Unique: riB5se-NO0e12lAtJj5Xiw-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com
- [10.11.54.7])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 7C31685A5BC;
- Wed, 23 Mar 2022 03:15:34 +0000 (UTC)
-Received: from localhost.localdomain (ovpn-12-49.pek2.redhat.com [10.72.12.49])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 0C1EA1427AF5;
- Wed, 23 Mar 2022 03:15:30 +0000 (UTC)
-From: Jason Wang <jasowang@redhat.com>
-To: mst@redhat.com, jasowang@redhat.com,
- virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 2/2] Revert "virtio_pci: harden MSI-X interrupts"
-Date: Wed, 23 Mar 2022 11:15:24 +0800
-Message-Id: <20220323031524.6555-2-jasowang@redhat.com>
-In-Reply-To: <20220323031524.6555-1-jasowang@redhat.com>
-References: <20220323031524.6555-1-jasowang@redhat.com>
+ Wed, 23 Mar 2022 07:15:42 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=BdGA6WWX9o7vt3d3Uc+F3K3nKueYb8nFFcO9VQ51xB1n5ldQ+1zCftCUkeKT8uZbZiBv4hTmu9xz8tgzU9H/1Lpl9H16zdooXLcxo0baPpQ17c21wY6HY7JsIYUZQLg77u6hbpzMs+96wp9peE/YpezXP4G6YplLvimjNBxdvztpdpX1DNFT3II1esA3+tKr5VtpPfGjjaB4TzXsppJx2QABIjbmix/gpcAyev69FMC1gOy1HxaX3EFBhH0BSZVvQoA1dkNw1N8BSnt0jWlZrpRXL+hBA7UxAOvpFzeA6EoJfPvnF4l2rc10NPIHSunqyaC1PsKKyug8rwXHF25R3w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=t3yMgg/1dlk+WpXuOXBKTBfWOKCuVOFBUMXy4Pl5r+Y=;
+ b=To0aBMVZpqV89SK4462I2ACvPLggNlujTtrPTvsJHoliRVp466QsF+57/O5jjRAJGp3WeOTiX8vRg7yGrJWNTyQQg/JHOBNOLMFMp73rVVqxOBcPK0eMXSr4Y9HmLgbZSL/0QkkOs50knZ5ZvFfQIp4IC9Ald77Ug87AC772L5QnfWs4tAdPqpcYCdfrixt8B/HWJx9XJzn7ZEivMTHqxecXQaxwt/Ze4qsfqfGn2fiRkk5m1XosKwGI/Js6pao8zdknVSG42TYGeyJlduP3nXOQ3oWLR6k0c/LK822NU3sF1Hru5XKlMIdWjxDmam5G1P2XVW3mNfCEf6gWPqDHlg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1; 
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=t3yMgg/1dlk+WpXuOXBKTBfWOKCuVOFBUMXy4Pl5r+Y=;
+ b=nsO45w2ebXQhp/h5ScP2dKtVOm+syTVANoJgrj2oJWW2jVqLIBub+7Q35TnAtL1Sx9E+HbZ/ausLdg3NcqNiBu/1ZwMBh+zP/S1tHehnRi/FHB7xbHUWL5JxDfG4QOTLZncQjLvDU6OedMvqb4uIoDaF445fknxDGKTTGYQx8NQ=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+Received: from BN8PR12MB3587.namprd12.prod.outlook.com (2603:10b6:408:43::13)
+ by MN2PR12MB4517.namprd12.prod.outlook.com (2603:10b6:208:267::16)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5081.15; Wed, 23 Mar
+ 2022 07:15:39 +0000
+Received: from BN8PR12MB3587.namprd12.prod.outlook.com
+ ([fe80::404f:1fc8:9f4c:f185]) by BN8PR12MB3587.namprd12.prod.outlook.com
+ ([fe80::404f:1fc8:9f4c:f185%6]) with mapi id 15.20.5081.024; Wed, 23 Mar 2022
+ 07:15:34 +0000
+Message-ID: <e2bc20e4-41e1-7162-257c-f2ad3309f1cb@amd.com>
+Date: Wed, 23 Mar 2022 08:15:10 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH v1 1/2] drm/qxl: replace ioremap by ioremap_cache on arm64
+Content-Language: en-US
+To: Cong Liu <liucong2@kylinos.cn>, airlied@redhat.com, kraxel@redhat.com,
+ airlied@linux.ie, daniel@ffwll.ch, ray.huang@amd.com,
+ virtualization@lists.linux-foundation.org,
+ spice-devel@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+References: <20220322093444.1236582-1-liucong2@kylinos.cn>
+In-Reply-To: <20220322093444.1236582-1-liucong2@kylinos.cn>
+X-ClientProxiedBy: AM5PR0202CA0005.eurprd02.prod.outlook.com
+ (2603:10a6:203:69::15) To BN8PR12MB3587.namprd12.prod.outlook.com
+ (2603:10b6:408:43::13)
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.85 on 10.11.54.7
-Cc: peterz@infradead.org, Marc Zyngier <maz@kernel.org>, tglx@linutronix.de
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 635901c9-9a00-43be-c974-08da0c9ce246
+X-MS-TrafficTypeDiagnostic: MN2PR12MB4517:EE_
+X-Microsoft-Antispam-PRVS: <MN2PR12MB45174B1FCEF1D7FB9F1C7B0583189@MN2PR12MB4517.namprd12.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: dAUl8rVvS6H3a/J4fPJycCepbASDO4vOSc1ddtAS32iCoRI6g6duFuUultwM2U5mUb/PI4tjy4O2HkwcaoDF8i+qUxxoDfjzXflPNsNpTO8lCthO4vDo9u7BT2a9mm7ntZrLTCMeXAJps5ykrOi6aMWBRNZF/B1Wp4BADSS2wExpjX/xp/sTpoZNidaDTHvpQgW6/qaiRk6owo0SMmw7QbisPIGF1lpLEy5z5Oa6hTMX147dSo+t5oMGN6erYtxfpXoi/ngSliWl3ugaqLJF/wjDrBf9Ots9NU3VbYsE7gAIyLVTLQLxqGRS9BNtntrh4WLroAZ62AmaNGPH/xaaFPL01QevuimHY+1iU9KSMu4U6HZKyUr1usC9n2WKybeBHl10l4RbvgO/wE1DwG5wvPLyMmLUh/TpJNZSu+YXcs4ck5aT7qBWvPiNogKlEEV7XA851ZgnEU3GgqWRFq91YZO0Fvk/yPdoYyl9ft7g8BIbcncFs9nKgQH5D2gVOSzM+hfMJyrCmoM6/Rqjn7NsmlCAf1wMOWURWvsVFCkxke2w0Ww+0hqnqFTFZqoRMx96Yrhl+RJfbV4mdfAIKBHTo88BZRBwP+BYmSRKJA8d9QoaMb6PTOkfUSd4E77inz6oG2iUseWbO8SiuMlhN/76r9KtUDYa+PAvqxvLbU5nNrDzRrm4br5XUkzCQGWFEosq5bTW1VAaWvzwrkcG0jEoumsgfRsWm6+QVo0JEUYLACs=
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:BN8PR12MB3587.namprd12.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230001)(4636009)(366004)(83380400001)(38100700002)(316002)(26005)(186003)(8676002)(66476007)(66556008)(6666004)(66946007)(86362001)(31696002)(508600001)(2616005)(6512007)(5660300002)(6486002)(6506007)(8936002)(36756003)(2906002)(31686004)(45980500001)(43740500002);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?bWN5MGoyRWVjUzEvcEdQTFBrUnFGYW4raTdzbmJ5d2tvZ3J2WU1xYjNuOExB?=
+ =?utf-8?B?VVkvUWdmSlZoVFlmaW4wdVZWOHZmMlBLazhaemM2engrNXpGNE91OEpIdFJE?=
+ =?utf-8?B?MGpUdzRiQUpJSHRiMHhyTUFXUmZpN1p2NjJXQ0lTcERMc3NrQ05Ra0EyK0Ru?=
+ =?utf-8?B?ME1lOTVCUUc4QjY4dThYNGM0cG1SK0lyK3MxQTZlL3lEc0lLOUNBcHIwWElh?=
+ =?utf-8?B?Q0ZTVUZ6a3FlbU5OSVJaNXpkcGtrWDIrVEtlMncwMzZXUEEzekJ0QjU0MDZt?=
+ =?utf-8?B?WHI0QWZ3QWFiemUzallhOWhoSnFQanRKTTFEQkFrc2c4R1AwbVdrWkxUUlgr?=
+ =?utf-8?B?dnZWRWYzUzd0dWRURXlVNkN2anZ0cjYrUTdqWUdNMUl3dU1vODVQbHNqQ2tn?=
+ =?utf-8?B?MFFGbzVNWVhSdjFBQVNxUVRWZnVyUm1XZ2M0YTBzRDN6RVpiKzRwemZUUDJ6?=
+ =?utf-8?B?MGZTWjYxRFZXT1BKTG1PcElkVEVqQkpSUUMyWFRUOGxoeUpNL1ZhWDJTd2Fs?=
+ =?utf-8?B?eTVLOTV6WmVTZmx0NXpSU3NwU0x4ZUpHUVRMVUF3VU4wZmRKTG85UVZIaVBa?=
+ =?utf-8?B?N0dFRHVOUno2SFZramhVbTU3Y0xiZ0dQQWFKbUcwdVoxRldTR0hGamZzUnVx?=
+ =?utf-8?B?MGhHOGdvR3pGaEM3bkMwNWdQV2w4WDJBV2dCSWtYb0J1NVVDM3hYNUlsLytE?=
+ =?utf-8?B?UGIrd1NzNXRvSVd6UlQ5eGd5Z2M5L0ZFRlhaTHhMRTJBRldiNkh6dlZnY0Q4?=
+ =?utf-8?B?RUhWYkZ3cVJMS0FHTGtFSkVlQTRGSDZGVVZwSnd6MDV6RWd3WWtHUlpOUThW?=
+ =?utf-8?B?djhsNkhLSWpsWjJLUnZJMGxDd1lYcmVyWmlqdzR3M2dBVDdBdUp6eWRKSmlr?=
+ =?utf-8?B?WDdLRFRoekxVZm4ydXpjNlBHYU9pWHQ2MEdTL0ExQndqV20rT2taZUo4elJ1?=
+ =?utf-8?B?d0NtMHBZR1I1Q1JpNzZFcVZzK1hwY25MbGpMMG5NSEc4T2hjSVo2Z0toaWNa?=
+ =?utf-8?B?MVlVNWtXU0paZFI5VmdXbmpkRVIwRXI3Wk5MR0VPbWdjM0RDckh3UHYxWjhX?=
+ =?utf-8?B?K3dYaEpHbkdQZC9OMkZNSkR5ZTN3VEtmeUUyelVzc3YxR05JbmIwU00vcHh1?=
+ =?utf-8?B?eFMwd1dHaXBETHY5WDIrMXAzMy80T0VXaHRHUlAxVGFGcWJCdVlrNWFveU9x?=
+ =?utf-8?B?UTRFNlFjN3NPd3ZTRE9aV1p3NDZJdE9sWURWRHNYcFFleWZPUlJrVkh0VlZX?=
+ =?utf-8?B?bTl0SGhYQXFyV29UOTJYcm95ZTBGR29Gckp3U09rck43c25VanBUUGtwQlRC?=
+ =?utf-8?B?L3g0VVJzR1R2RmR5eTRkblloM3grQXYxVEo4NDJySEhac1AxcXBqOFBhUVFF?=
+ =?utf-8?B?aE5CeDJCR1RLcFFiclh3RjVhcXZnMk9LeW52VVZMZC9DVnR4TUVkcmFUNGxU?=
+ =?utf-8?B?cFdmOGxUS3VCNENZT3dXb0FtVmJZSlJ6aFdSRFM2aHBQd1hCVnRva0kzeERQ?=
+ =?utf-8?B?cmZ5MWI3dlUrTk4yTTEwQ0VtT2FWVVYvSlpvRDdWU2cwd1JVY2N3WmNvNHhx?=
+ =?utf-8?B?MDgxWDZuMjZSTlNMWStxQ0V4T25PcVB6RC9qZi9CNmNyUDByek01NngrdHIx?=
+ =?utf-8?B?cmx5YS9hK01VUUNiSnVOcjVxZjh3UDU2TTlzL2l1TzFKOWdUbGF6dkZ0ZU1R?=
+ =?utf-8?B?eW1QYlJWUlRIZDJaU2ZPTVl0ZEhVT0hFYjkvYnJnNWlJVjJQVTdSQk5iYW1w?=
+ =?utf-8?B?UFJGaTFxOExCNEpkWFBXdXpud0ZVdVdxZ001c0p0dEhuYmNlOHY3TnN6allO?=
+ =?utf-8?B?VnJ6c004ck9UcEljZHlwbE5mU3hBZ1NtNG1LQVhoMnRLUUlpcllSbHM2djhh?=
+ =?utf-8?B?VzhHRHkxSEFDQ3pyUXRzMDdkdjRnMnh0ckkxMzd4REYwYUI4c0t4d3NzazlL?=
+ =?utf-8?Q?M4pSjFI0NLppeim/jN0Vjv/2FpGmbHy9?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 635901c9-9a00-43be-c974-08da0c9ce246
+X-MS-Exchange-CrossTenant-AuthSource: BN8PR12MB3587.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Mar 2022 07:15:33.7212 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: WnNpwi32qEZnllr5QmuCac2aIzHQSK4NPLUFpUuY3ZqdX86tIjQQ39CFNdzNukoo
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB4517
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -87,168 +150,109 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
+From: =?UTF-8?Q?Christian_K=c3=b6nig?= via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This reverts commit 9e35276a5344f74d4a3600fc4100b3dd251d5c56. Issue
-were reported for the drivers that are using affinity managed IRQ
-where manually toggling IRQ status is not expected. And we forget to
-enable the interrupts in the restore path as well.
+Am 22.03.22 um 10:34 schrieb Cong Liu:
+> qxl use ioremap to map ram_header and rom, in the arm64 implementation,
+> the device is mapped as DEVICE_nGnRE, it can not support unaligned
+> access.
 
-In the future, we will rework on the interrupt hardening.
+Well that some ARM boards doesn't allow unaligned access to MMIO space 
+is a well known bug of those ARM boards.
 
-Fixes: 9e35276a5344 ("virtio_pci: harden MSI-X interrupts")
-Reported-by: Marc Zyngier <maz@kernel.org>
-Reported-by: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/virtio/virtio_pci_common.c | 27 ++++++---------------------
- drivers/virtio/virtio_pci_common.h |  6 ++----
- drivers/virtio/virtio_pci_legacy.c |  5 ++---
- drivers/virtio/virtio_pci_modern.c |  6 ++----
- 4 files changed, 12 insertions(+), 32 deletions(-)
+So as far as I know this is a hardware bug you are trying to workaround 
+here and I'm not 100% sure that this is correct.
 
-diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-index 3f51fdb7be45..d724f676608b 100644
---- a/drivers/virtio/virtio_pci_common.c
-+++ b/drivers/virtio/virtio_pci_common.c
-@@ -24,8 +24,8 @@ MODULE_PARM_DESC(force_legacy,
- 		 "Force legacy mode for transitional virtio 1 devices");
- #endif
- 
--/* disable irq handlers */
--void vp_disable_cbs(struct virtio_device *vdev)
-+/* wait for pending irq handlers */
-+void vp_synchronize_vectors(struct virtio_device *vdev)
- {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
- 	int i;
-@@ -34,20 +34,7 @@ void vp_disable_cbs(struct virtio_device *vdev)
- 		synchronize_irq(vp_dev->pci_dev->irq);
- 
- 	for (i = 0; i < vp_dev->msix_vectors; ++i)
--		disable_irq(pci_irq_vector(vp_dev->pci_dev, i));
--}
--
--/* enable irq handlers */
--void vp_enable_cbs(struct virtio_device *vdev)
--{
--	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
--	int i;
--
--	if (vp_dev->intx_enabled)
--		return;
--
--	for (i = 0; i < vp_dev->msix_vectors; ++i)
--		enable_irq(pci_irq_vector(vp_dev->pci_dev, i));
-+		synchronize_irq(pci_irq_vector(vp_dev->pci_dev, i));
- }
- 
- /* the notify function used when creating a virt queue */
-@@ -154,8 +141,7 @@ static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
- 	snprintf(vp_dev->msix_names[v], sizeof *vp_dev->msix_names,
- 		 "%s-config", name);
- 	err = request_irq(pci_irq_vector(vp_dev->pci_dev, v),
--			  vp_config_changed, IRQF_NO_AUTOEN,
--			  vp_dev->msix_names[v],
-+			  vp_config_changed, 0, vp_dev->msix_names[v],
- 			  vp_dev);
- 	if (err)
- 		goto error;
-@@ -174,8 +160,7 @@ static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
- 		snprintf(vp_dev->msix_names[v], sizeof *vp_dev->msix_names,
- 			 "%s-virtqueues", name);
- 		err = request_irq(pci_irq_vector(vp_dev->pci_dev, v),
--				  vp_vring_interrupt, IRQF_NO_AUTOEN,
--				  vp_dev->msix_names[v],
-+				  vp_vring_interrupt, 0, vp_dev->msix_names[v],
- 				  vp_dev);
- 		if (err)
- 			goto error;
-@@ -352,7 +337,7 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned nvqs,
- 			 "%s-%s",
- 			 dev_name(&vp_dev->vdev.dev), names[i]);
- 		err = request_irq(pci_irq_vector(vp_dev->pci_dev, msix_vec),
--				  vring_interrupt, IRQF_NO_AUTOEN,
-+				  vring_interrupt, 0,
- 				  vp_dev->msix_names[msix_vec],
- 				  vqs[i]);
- 		if (err)
-diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
-index d3c6f72c7390..eb17a29fc7ef 100644
---- a/drivers/virtio/virtio_pci_common.h
-+++ b/drivers/virtio/virtio_pci_common.h
-@@ -101,10 +101,8 @@ static struct virtio_pci_device *to_vp_device(struct virtio_device *vdev)
- 	return container_of(vdev, struct virtio_pci_device, vdev);
- }
- 
--/* disable irq handlers */
--void vp_disable_cbs(struct virtio_device *vdev);
--/* enable irq handlers */
--void vp_enable_cbs(struct virtio_device *vdev);
-+/* wait for pending irq handlers */
-+void vp_synchronize_vectors(struct virtio_device *vdev);
- /* the notify function used when creating a virt queue */
- bool vp_notify(struct virtqueue *vq);
- /* the config->del_vqs() implementation */
-diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
-index 34141b9abe27..6f4e34ce96b8 100644
---- a/drivers/virtio/virtio_pci_legacy.c
-+++ b/drivers/virtio/virtio_pci_legacy.c
-@@ -98,8 +98,8 @@ static void vp_reset(struct virtio_device *vdev)
- 	/* Flush out the status write, and flush in device writes,
- 	 * including MSi-X interrupts, if any. */
- 	vp_legacy_get_status(&vp_dev->ldev);
--	/* Disable VQ/configuration callbacks. */
--	vp_disable_cbs(vdev);
-+	/* Flush pending VQ/configuration callbacks. */
-+	vp_synchronize_vectors(vdev);
- }
- 
- static u16 vp_config_vector(struct virtio_pci_device *vp_dev, u16 vector)
-@@ -185,7 +185,6 @@ static void del_vq(struct virtio_pci_vq_info *info)
- }
- 
- static const struct virtio_config_ops virtio_pci_config_ops = {
--	.enable_cbs	= vp_enable_cbs,
- 	.get		= vp_get,
- 	.set		= vp_set,
- 	.get_status	= vp_get_status,
-diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-index 5455bc041fb6..30654d3a0b41 100644
---- a/drivers/virtio/virtio_pci_modern.c
-+++ b/drivers/virtio/virtio_pci_modern.c
-@@ -172,8 +172,8 @@ static void vp_reset(struct virtio_device *vdev)
- 	 */
- 	while (vp_modern_get_status(mdev))
- 		msleep(1);
--	/* Disable VQ/configuration callbacks. */
--	vp_disable_cbs(vdev);
-+	/* Flush pending VQ/configuration callbacks. */
-+	vp_synchronize_vectors(vdev);
- }
- 
- static u16 vp_config_vector(struct virtio_pci_device *vp_dev, u16 vector)
-@@ -380,7 +380,6 @@ static bool vp_get_shm_region(struct virtio_device *vdev,
- }
- 
- static const struct virtio_config_ops virtio_pci_config_nodev_ops = {
--	.enable_cbs	= vp_enable_cbs,
- 	.get		= NULL,
- 	.set		= NULL,
- 	.generation	= vp_generation,
-@@ -398,7 +397,6 @@ static const struct virtio_config_ops virtio_pci_config_nodev_ops = {
- };
- 
- static const struct virtio_config_ops virtio_pci_config_ops = {
--	.enable_cbs	= vp_enable_cbs,
- 	.get		= vp_get,
- 	.set		= vp_set,
- 	.generation	= vp_generation,
--- 
-2.25.1
+Christian.
+
+>
+>    6.620515] pc : setup_hw_slot+0x24/0x60 [qxl]
+> [    6.620961] lr : setup_slot+0x34/0xf0 [qxl]
+> [    6.621376] sp : ffff800012b73760
+> [    6.621701] x29: ffff800012b73760 x28: 0000000000000001 x27: 0000000010000000
+> [    6.622400] x26: 0000000000000001 x25: 0000000004000000 x24: ffffcf376848c000
+> [    6.623099] x23: ffff0000c4087400 x22: ffffcf3718e17140 x21: 0000000000000000
+> [    6.623823] x20: ffff0000c4086000 x19: ffff0000c40870b0 x18: 0000000000000014
+> [    6.624519] x17: 000000004d3605ab x16: 00000000bb3b6129 x15: 000000006e771809
+> [    6.625214] x14: 0000000000000001 x13: 007473696c5f7974 x12: 696e696666615f65
+> [    6.625909] x11: 00000000d543656a x10: 0000000000000000 x9 : ffffcf3718e085a4
+> [    6.626616] x8 : 00000000006c7871 x7 : 000000000000000a x6 : 0000000000000017
+> [    6.627343] x5 : 0000000000001400 x4 : ffff800011f63400 x3 : 0000000014000000
+> [    6.628047] x2 : 0000000000000000 x1 : ffff0000c40870b0 x0 : ffff0000c4086000
+> [    6.628751] Call trace:
+> [    6.628994]  setup_hw_slot+0x24/0x60 [qxl]
+> [    6.629404]  setup_slot+0x34/0xf0 [qxl]
+> [    6.629790]  qxl_device_init+0x6f0/0x7f0 [qxl]
+> [    6.630235]  qxl_pci_probe+0xdc/0x1d0 [qxl]
+> [    6.630654]  local_pci_probe+0x48/0xb8
+> [    6.631027]  pci_device_probe+0x194/0x208
+> [    6.631464]  really_probe+0xd0/0x458
+> [    6.631818]  __driver_probe_device+0x124/0x1c0
+> [    6.632256]  driver_probe_device+0x48/0x130
+> [    6.632669]  __driver_attach+0xc4/0x1a8
+> [    6.633049]  bus_for_each_dev+0x78/0xd0
+> [    6.633437]  driver_attach+0x2c/0x38
+> [    6.633789]  bus_add_driver+0x154/0x248
+> [    6.634168]  driver_register+0x6c/0x128
+> [    6.635205]  __pci_register_driver+0x4c/0x58
+> [    6.635628]  qxl_init+0x48/0x1000 [qxl]
+> [    6.636013]  do_one_initcall+0x50/0x240
+> [    6.636390]  do_init_module+0x60/0x238
+> [    6.636768]  load_module+0x2458/0x2900
+> [    6.637136]  __do_sys_finit_module+0xbc/0x128
+> [    6.637561]  __arm64_sys_finit_module+0x28/0x38
+> [    6.638004]  invoke_syscall+0x74/0xf0
+> [    6.638366]  el0_svc_common.constprop.0+0x58/0x1a8
+> [    6.638836]  do_el0_svc+0x2c/0x90
+> [    6.639216]  el0_svc+0x40/0x190
+> [    6.639526]  el0t_64_sync_handler+0xb0/0xb8
+> [    6.639934]  el0t_64_sync+0x1a4/0x1a8
+> [    6.640294] Code: 910003fd f9484804 f9400c23 8b050084 (f809c083)
+> [    6.640889] ---[ end trace 95615d89b7c87f95 ]---
+>
+> Signed-off-by: Cong Liu <liucong2@kylinos.cn>
+> ---
+>   drivers/gpu/drm/qxl/qxl_kms.c | 10 ++++++++++
+>   1 file changed, 10 insertions(+)
+>
+> diff --git a/drivers/gpu/drm/qxl/qxl_kms.c b/drivers/gpu/drm/qxl/qxl_kms.c
+> index 4dc5ad13f12c..0e61ac04d8ad 100644
+> --- a/drivers/gpu/drm/qxl/qxl_kms.c
+> +++ b/drivers/gpu/drm/qxl/qxl_kms.c
+> @@ -165,7 +165,11 @@ int qxl_device_init(struct qxl_device *qdev,
+>   		 (int)qdev->surfaceram_size / 1024,
+>   		 (sb == 4) ? "64bit" : "32bit");
+>   
+> +#ifdef CONFIG_ARM64
+> +	qdev->rom = ioremap_cache(qdev->rom_base, qdev->rom_size);
+> +#else
+>   	qdev->rom = ioremap(qdev->rom_base, qdev->rom_size);
+> +#endif
+>   	if (!qdev->rom) {
+>   		pr_err("Unable to ioremap ROM\n");
+>   		r = -ENOMEM;
+> @@ -183,9 +187,15 @@ int qxl_device_init(struct qxl_device *qdev,
+>   		goto rom_unmap;
+>   	}
+>   
+> +#ifdef CONFIG_ARM64
+> +	qdev->ram_header = ioremap_cache(qdev->vram_base +
+> +				   qdev->rom->ram_header_offset,
+> +				   sizeof(*qdev->ram_header));
+> +#else
+>   	qdev->ram_header = ioremap(qdev->vram_base +
+>   				   qdev->rom->ram_header_offset,
+>   				   sizeof(*qdev->ram_header));
+> +#endif
+>   	if (!qdev->ram_header) {
+>   		DRM_ERROR("Unable to ioremap RAM header\n");
+>   		r = -ENOMEM;
 
 _______________________________________________
 Virtualization mailing list
