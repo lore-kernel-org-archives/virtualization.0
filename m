@@ -1,70 +1,92 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id CFFAAC433F5
-	for <virtualization@archiver.kernel.org>; Thu, 24 Mar 2022 12:03:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5964AC433F5
+	for <virtualization@archiver.kernel.org>; Thu, 24 Mar 2022 13:21:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 6AC16843E9;
-	Thu, 24 Mar 2022 12:03:10 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id EEF22400EA;
+	Thu, 24 Mar 2022 13:21:19 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 7wV5K4Z8NRSS; Thu, 24 Mar 2022 12:03:09 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id mrSYHEWUO07E; Thu, 24 Mar 2022 13:21:18 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 0BF5284329;
-	Thu, 24 Mar 2022 12:03:09 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 47CB8400D6;
+	Thu, 24 Mar 2022 13:21:18 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id BBA10C0012;
-	Thu, 24 Mar 2022 12:03:08 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 833AAC000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 292EEC0012;
+	Thu, 24 Mar 2022 13:21:18 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 73F77C000B
  for <virtualization@lists.linux-foundation.org>;
- Thu, 24 Mar 2022 12:03:07 +0000 (UTC)
+ Thu, 24 Mar 2022 13:21:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 629C684341
+ by smtp3.osuosl.org (Postfix) with ESMTP id 5C0D560D5C
  for <virtualization@lists.linux-foundation.org>;
- Thu, 24 Mar 2022 12:03:07 +0000 (UTC)
+ Thu, 24 Mar 2022 13:21:17 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id HcxP7Imc5MrI
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Djpcq3oW8usj
  for <virtualization@lists.linux-foundation.org>;
- Thu, 24 Mar 2022 12:03:06 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from mail3-166.sinamail.sina.com.cn (mail3-166.sinamail.sina.com.cn
- [202.108.3.166])
- by smtp1.osuosl.org (Postfix) with SMTP id A229B843FC
+ Thu, 24 Mar 2022 13:21:16 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 97C0D600C6
  for <virtualization@lists.linux-foundation.org>;
- Thu, 24 Mar 2022 12:03:05 +0000 (UTC)
-Received: from unknown (HELO localhost.localdomain)([114.249.57.134])
- by sina.com (172.16.97.23) with ESMTP
- id 623C5DC300018575; Thu, 24 Mar 2022 20:02:13 +0800 (CST)
-X-Sender: hdanton@sina.com
-X-Auth-ID: hdanton@sina.com
-X-SMAIL-MID: 14035254919537
-From: Hillf Danton <hdanton@sina.com>
-To: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 1/2] vdpa: mlx5: prevent cvq work from hogging CPU
-Date: Thu, 24 Mar 2022 20:02:17 +0800
-Message-Id: <20220324120217.3746-1-hdanton@sina.com>
-In-Reply-To: <CACGkMEuD-9cHmZotAwdLSecmBtWhBS0qxhSKfZ84e9_wS4E4EQ@mail.gmail.com>
-References: <20220321060429.10457-1-jasowang@redhat.com>
- <20220321085317.3148-1-hdanton@sina.com>
- <CACGkMEvF80FuU0uD+RZMOrySQ0K2RZVh7Pmn4UhNtz_Exs3c2w@mail.gmail.com>
- <CACGkMEvLqox3QZxpxeQdrjBnM6zRr_wGfddoN45RUSsZEOe=bQ@mail.gmail.com>
- <20220321123420.3207-1-hdanton@sina.com>
- <CACGkMEt-PRCsBQ+EJVGeWGikJfLk-0M1dRPMqnp9YC5R4HYAjQ@mail.gmail.com>
- <20220324005345.3623-1-hdanton@sina.com>
- <20220324060419.3682-1-hdanton@sina.com>
- <20220324021428-mutt-send-email-mst@kernel.org>
+ Thu, 24 Mar 2022 13:21:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1648128075;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=KbUfq5Ttn9TLVrkbv/r2vzp1qmLsYDSRFfW64UUbX/Y=;
+ b=XE8C8Ri8f8MiKwbv2KTfJ7h+t1GiWX7jaWVmBZc4DccGqgMeJJBcJCe+vR5hmwcS5Ij+bL
+ XLl54BIev8RQNtdDtlLrvBZFuhvelSlFYKrhwkXLTFMSZkRV2n+LOrIiAxE2fHI7TxWx7a
+ DyKUhP1yx31zxpeFfanHaqrpUXb6hdo=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-75--3M2yY4qM3Gzbj6tGKQFfA-1; Thu, 24 Mar 2022 09:21:12 -0400
+X-MC-Unique: -3M2yY4qM3Gzbj6tGKQFfA-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.7])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 6D83182A682;
+ Thu, 24 Mar 2022 13:21:11 +0000 (UTC)
+Received: from sirius.home.kraxel.org (unknown [10.39.196.67])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id CD4C5142B94F;
+ Thu, 24 Mar 2022 13:21:10 +0000 (UTC)
+Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
+ id 62C5318003B8; Thu, 24 Mar 2022 14:21:09 +0100 (CET)
+Date: Thu, 24 Mar 2022 14:21:09 +0100
+From: Gerd Hoffmann <kraxel@redhat.com>
+To: liucong2@kylinos.cn
+Subject: Re: =?utf-8?B?5Zue5aSNOiBSZTog5Zue5aSNOiBSZTog5Zue5aSNOiBSZTog?=
+ =?utf-8?B?5Zue5aSNOiBSZTogW1BBVEM=?= =?utf-8?Q?H?= v1 1/2] drm/qxl: replace
+ ioremap by ioremap_cache on arm64
+Message-ID: <20220324132109.3ox6k2wif6tkp47n@sirius.home.kraxel.org>
+References: <olr8fzd5ad-olr8fzd5ae@nsmail6.0>
 MIME-Version: 1.0
-Cc: Eli Cohen <elic@nvidia.com>,
- virtualization <virtualization@lists.linux-foundation.org>,
- linux-kernel <linux-kernel@vger.kernel.org>,
- "Michael S. Tsirkin" <mst@redhat.com>
+In-Reply-To: <olr8fzd5ad-olr8fzd5ae@nsmail6.0>
+X-Scanned-By: MIMEDefang 2.85 on 10.11.54.7
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=kraxel@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: airlied@linux.ie, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org, ray.huang@amd.com, daniel@ffwll.ch,
+ spice-devel@lists.freedesktop.org, airlied@redhat.com,
+ Robin Murphy <robin.murphy@arm.com>,
+ Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -81,74 +103,20 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, 24 Mar 2022 16:20:34 +0800 Jason Wang wrote:
-> On Thu, Mar 24, 2022 at 2:17 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > On Thu, Mar 24, 2022 at 02:04:19PM +0800, Hillf Danton wrote:
-> > > On Thu, 24 Mar 2022 10:34:09 +0800 Jason Wang wrote:
-> > > > On Thu, Mar 24, 2022 at 8:54 AM Hillf Danton <hdanton@sina.com> wrote:
-> > > > >
-> > > > > On Tue, 22 Mar 2022 09:59:14 +0800 Jason Wang wrote:
-> > > > > >
-> > > > > > Yes, there will be no "infinite" loop, but since the loop is triggered
-> > > > > > by userspace. It looks to me it will delay the flush/drain of the
-> > > > > > workqueue forever which is still suboptimal.
-> > > > >
-> > > > > Usually it is barely possible to shoot two birds using a stone.
-> > > > >
-> > > > > Given the "forever", I am inclined to not running faster, hehe, though
-> > > > > another cobble is to add another line in the loop checking if mvdev is
-> > > > > unregistered, and for example make mvdev->cvq unready before destroying
-> > > > > workqueue.
-> > > > >
-> > > > > static void mlx5_vdpa_dev_del(struct vdpa_mgmt_dev *v_mdev, struct vdpa_device *dev)
-> > > > > {
-> > > > >         struct mlx5_vdpa_mgmtdev *mgtdev = container_of(v_mdev, struct mlx5_vdpa_mgmtdev, mgtdev);
-> > > > >         struct mlx5_vdpa_dev *mvdev = to_mvdev(dev);
-> > > > >         struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
-> > > > >
-> > > > >         mlx5_notifier_unregister(mvdev->mdev, &ndev->nb);
-> > > > >         destroy_workqueue(mvdev->wq);
-> > > > >         _vdpa_unregister_device(dev);
-> > > > >         mgtdev->ndev = NULL;
-> > > > > }
-> > > > >
-> > > >
-> > > > Yes, so we had
-> > > >
-> > > > 1) using a quota for re-requeue
-> > > > 2) using something like
-> > > >
-> > > > while (READ_ONCE(cvq->ready)) {
-> > > >         ...
-> > > >         cond_resched();
-> > > > }
-> > > >
-> > > > There should not be too much difference except we need to use
-> > > > cancel_work_sync() instead of flush_work for 1).
-> > > >
-> > > > I would keep the code as is but if you stick I can change.
-> > >
-> > > No Sir I would not - I am simply not a fan of work requeue.
-> > >
-> > > Hillf
-> >
-> > I think I agree - requeue adds latency spikes under heavy load -
-> > unfortunately, not measured by netperf but still important
-> > for latency sensitive workloads. Checking a flag is cheaper.
-> 
-> Just spot another possible issue.
-> 
-> The workqueue will be used by another work to update the carrier
-> (event_handler()). Using cond_resched() may still have unfair issue
-> which blocks the carrier update for infinite time,
+On Thu, Mar 24, 2022 at 06:34:02PM +0800, liucong2@kylinos.cn wrote:
+>    ok, thanks, a lot of our customer use qxl on x86 before, so it still need
+>    to supoort qxl on arm64.
 
-Then would you please specify the reason why mvdev->wq is single
-threaded? Given requeue, the serialization of the two works is not
-strong. Otherwise unbound WQ that can process works in parallel is
-a cure to the unfairness above.
+Well, qxl isn't the best choice even on x86.  The main advantage it
+offers (2d acceleration) is basically useless today because pretty much
+everything moved on to use 3d acceleration instead.  So qxl ends up
+being used as dumb framebuffer with software 3d rendering.
 
-Thanks
-Hillf
+So, I'm still recommending to just use virtio-gpu ...
+
+take care,
+  Gerd
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
