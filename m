@@ -1,106 +1,105 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2EA1BC433F5
-	for <virtualization@archiver.kernel.org>; Thu, 24 Mar 2022 17:58:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 332F4C433F5
+	for <virtualization@archiver.kernel.org>; Thu, 24 Mar 2022 18:03:48 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id B446241CA4;
-	Thu, 24 Mar 2022 17:58:40 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id BF0D4404A6;
+	Thu, 24 Mar 2022 18:03:47 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 7V9eUOQJC9Xp; Thu, 24 Mar 2022 17:58:39 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id E705040232;
-	Thu, 24 Mar 2022 17:58:38 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 12C20-hDNL9f; Thu, 24 Mar 2022 18:03:46 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 1AD2141064;
+	Thu, 24 Mar 2022 18:03:46 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C98FDC001A;
-	Thu, 24 Mar 2022 17:58:38 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D5970C0012;
+	Thu, 24 Mar 2022 18:03:45 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E05BAC000B
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 51219C000B
  for <virtualization@lists.linux-foundation.org>;
- Thu, 24 Mar 2022 17:58:36 +0000 (UTC)
+ Thu, 24 Mar 2022 18:03:45 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id CF7DC6101D
+ by smtp3.osuosl.org (Postfix) with ESMTP id 3D7E261017
  for <virtualization@lists.linux-foundation.org>;
- Thu, 24 Mar 2022 17:58:36 +0000 (UTC)
+ Thu, 24 Mar 2022 18:03:45 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
+ dkim=pass (2048-bit key) header.d=kernel.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id nPtIt6yWBDNC
+ with ESMTP id 8FJlW8keFoiT
  for <virtualization@lists.linux-foundation.org>;
- Thu, 24 Mar 2022 17:58:36 +0000 (UTC)
+ Thu, 24 Mar 2022 18:03:44 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id E2A64607F2
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id E7168605D8
  for <virtualization@lists.linux-foundation.org>;
- Thu, 24 Mar 2022 17:58:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1648144714;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=24B/XtKE+i9R/9Z1L/twF0hYRAX8SqxHW1nZtqCuuqk=;
- b=CpIM11ITuaXp44n5lKJRlRB7x1FXrejO9ld+XjJ2CsG5FLG3KswteKp+4AFK8BvA/4xYQV
- l2gT5qvTHDet60BtcWLqDiPSr3RWLwXhq0AmfD6AQkI7V/3bmmhDQP7krxYJOuuDiTST9t
- kqrpNQmGC9kHJ0VrzHQLKpQJBl/0PT0=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-486-UiDlLc4YO1-qO6ZAzNnKqw-1; Thu, 24 Mar 2022 13:58:33 -0400
-X-MC-Unique: UiDlLc4YO1-qO6ZAzNnKqw-1
-Received: by mail-wm1-f72.google.com with SMTP id
- 2-20020a1c0202000000b0038c71e8c49cso4326271wmc.1
- for <virtualization@lists.linux-foundation.org>;
- Thu, 24 Mar 2022 10:58:33 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=24B/XtKE+i9R/9Z1L/twF0hYRAX8SqxHW1nZtqCuuqk=;
- b=dDs388CgyLN0fUi4HOfjIMbUyel7/NGyy7ufHNtRzDmwQzdHBJSQEzn5HwBv7VgIQb
- JsBg3oDJdx6IDCm6/EKZANqdYYq768bStAtecV0wt0ZJ77GfiwPeFc+zIbWP4pveh1uc
- IiWF1U5NaR1rKXU6Irhh9u7I3hVXWIESUBYDmINMYbfLlr5zA5dPbqbeRmE+2tdJXUA5
- U/ZFmLrfGA0k1XNNmK+QvnG4kI3Czvi7cmuUMJOj/vhkym83I7TFt1tU09YukaNdcsbs
- tDKrycuwxdroYg7Omm1CX6H9BOALdOrgqaUGBAPh+EJGJsXEbfDjCH2FDS3nVRF1tKFO
- K0Xw==
-X-Gm-Message-State: AOAM531qCF4h00X5WuW1F82iltnEEIzv2/H6p1DMPtMLFyT+zyrZEwMc
- dhpx8gR27DCo1Rec1yDvPqprCyFQD3tiE4HN1m8LCrBsfRKSdvuVU8Wh+DUkUY2QN9xsVlawvPc
- 6Jsa3nV90qu1j7ZbhEispuNFjyCSpFfb9VKjDXCb1fg==
-X-Received: by 2002:a7b:cd88:0:b0:38c:9d04:d794 with SMTP id
- y8-20020a7bcd88000000b0038c9d04d794mr5722750wmj.140.1648144712435; 
- Thu, 24 Mar 2022 10:58:32 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwhZbiSeR68cODSxSS5FyJbBKt66eFyYTyW3evQ31ppjLV03LBggfH5LAwCSzlxfiskD0H8dA==
-X-Received: by 2002:a7b:cd88:0:b0:38c:9d04:d794 with SMTP id
- y8-20020a7bcd88000000b0038c9d04d794mr5722725wmj.140.1648144712108; 
- Thu, 24 Mar 2022 10:58:32 -0700 (PDT)
-Received: from redhat.com ([2.55.151.118]) by smtp.gmail.com with ESMTPSA id
- n10-20020a5d588a000000b002052e4aaf89sm3289829wrf.80.2022.03.24.10.58.30
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 24 Mar 2022 10:58:31 -0700 (PDT)
-Date: Thu, 24 Mar 2022 13:58:28 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Suwan Kim <suwan.kim027@gmail.com>
-Subject: Re: [PATCH v3 1/2] virtio-blk: support polling I/O
-Message-ID: <20220324135647-mutt-send-email-mst@kernel.org>
-References: <20220324140450.33148-1-suwan.kim027@gmail.com>
- <20220324140450.33148-2-suwan.kim027@gmail.com>
+ Thu, 24 Mar 2022 18:03:43 +0000 (UTC)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by dfw.source.kernel.org (Postfix) with ESMTPS id 6347761A78;
+ Thu, 24 Mar 2022 18:03:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CA14C340F0;
+ Thu, 24 Mar 2022 18:03:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1648145021;
+ bh=t4qj3yzjpmPxrk9bbLyU8usx0IFZLTWW+/9wIEcE8T0=;
+ h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+ b=RyuBJrVfvGAO3I+jdGpD3wWjzHZ5BPFyIqWkxNU+ZGEMVRx7okKrAVg0PHdIgXy4E
+ j4cvG8KokWZHeHXK0v8HaHHhcoisqdch4CPoA+WYVrKKai6xags4j49GUPqZZ6xnEB
+ vX/rIS8hBuibENDX1LmjivHy2I6Qh8ZIvogvzXRALHN4kltJcr6V23dr2ZqJgOU6mP
+ TD93ffV9fwme715cdPhGHRTErYTO3HZf9IkAexYWpInnigQvrxwRqgDcZRUpt8BBf8
+ 0zasG5ShtBezkzkb66iOesP0vxz0bNxkuOcwbWqujbYehvDg4uxsOffNUk+FMD/dgV
+ IsMlJ1z61ezEw==
+Date: Thu, 24 Mar 2022 20:03:37 +0200
+From: Leon Romanovsky <leon@kernel.org>
+To: Randy Dunlap <rdunlap@infradead.org>
+Subject: Re: [PATCH 3/9] net: mlx5: eliminate anonymous module_init &
+ module_exit
+Message-ID: <YjyyeUEAo+1Kob5v@unreal>
+References: <20220316192010.19001-1-rdunlap@infradead.org>
+ <20220316192010.19001-4-rdunlap@infradead.org>
 MIME-Version: 1.0
-In-Reply-To: <20220324140450.33148-2-suwan.kim027@gmail.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: mgurtovoy@nvidia.com, kernel test robot <lkp@intel.com>,
- virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org,
- stefanha@redhat.com, pbonzini@redhat.com
+In-Reply-To: <20220316192010.19001-4-rdunlap@infradead.org>
+Cc: x86@kernel.org, Andy Lutomirski <luto@kernel.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>,
+ nouveau@lists.freedesktop.org, Dave Hansen <dave.hansen@linux.intel.com>,
+ Valentina Manea <valentina.manea.m@gmail.com>,
+ Karol Herbst <karolherbst@gmail.com>,
+ Krzysztof Opasiak <k.opasiak@samsung.com>, Eli Cohen <eli@mellanox.com>,
+ netdev@vger.kernel.org, Shuah Khan <shuah@kernel.org>,
+ Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>,
+ Arnd Bergmann <arnd@arndb.de>, linux-scsi@vger.kernel.org,
+ linux-rdma@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
+ Jozsef Kadlecsik <kadlec@netfilter.org>, coreteam@netfilter.org,
+ Jakub Kicinski <kuba@kernel.org>,
+ Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+ Pablo Neira Ayuso <pablo@netfilter.org>,
+ Joachim Fritschi <jfritschi@freenet.de>,
+ Felipe Balbi <felipe.balbi@linux.intel.com>, Amit Shah <amit@kernel.org>,
+ "James E.J. Bottomley" <jejb@linux.ibm.com>,
+ Steven Rostedt <rostedt@goodmis.org>,
+ =?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>,
+ linux-block@vger.kernel.org, Pekka Paalanen <ppaalanen@gmail.com>,
+ Borislav Petkov <bp@alien8.de>, Stefan Hajnoczi <stefanha@redhat.com>,
+ Shuah Khan <skhan@linuxfoundation.org>,
+ Jussi Kivilinna <jussi.kivilinna@mbnet.fi>,
+ virtualization@lists.linux-foundation.org,
+ Herbert Xu <herbert@gondor.apana.org.au>, Jens Axboe <axboe@kernel.dk>,
+ "Martin K. Petersen" <martin.petersen@oracle.com>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-usb@vger.kernel.org,
+ Florian Westphal <fw@strlen.de>, linux-kernel@vger.kernel.org,
+ netfilter-devel@vger.kernel.org, linux-crypto@vger.kernel.org,
+ Igor Kotrasinski <i.kotrasinsk@samsung.com>,
+ Paolo Bonzini <pbonzini@redhat.com>, Saeed Mahameed <saeedm@nvidia.com>,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -117,236 +116,41 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Mar 24, 2022 at 11:04:49PM +0900, Suwan Kim wrote:
-> This patch supports polling I/O via virtio-blk driver. Polling
-> feature is enabled by module parameter "num_poll_queues" and it
-> sets dedicated polling queues for virtio-blk. This patch improves
-> the polling I/O throughput and latency.
+On Wed, Mar 16, 2022 at 12:20:04PM -0700, Randy Dunlap wrote:
+> Eliminate anonymous module_init() and module_exit(), which can lead to
+> confusion or ambiguity when reading System.map, crashes/oops/bugs,
+> or an initcall_debug log.
 > 
-> The virtio-blk driver doesn't not have a poll function and a poll
-> queue and it has been operating in interrupt driven method even if
-> the polling function is called in the upper layer.
+> Give each of these init and exit functions unique driver-specific
+> names to eliminate the anonymous names.
 > 
-> virtio-blk polling is implemented upon 'batched completion' of block
-> layer. virtblk_poll() queues completed request to io_comp_batch->req_list
-> and later, virtblk_complete_batch() calls unmap function and ends
-> the requests in batch.
+> Example 1: (System.map)
+>  ffffffff832fc78c t init
+>  ffffffff832fc79e t init
+>  ffffffff832fc8f8 t init
 > 
-> virtio-blk reads the number of poll queues from module parameter
-> "num_poll_queues". If VM sets queue parameter as below,
-> ("num-queues=N" [QEMU property], "num_poll_queues=M" [module parameter])
-> It allocates N virtqueues to virtio_blk->vqs[N] and it uses [0..(N-M-1)]
-> as default queues and [(N-M)..(N-1)] as poll queues. Unlike the default
-> queues, the poll queues have no callback function.
+> Example 2: (initcall_debug log)
+>  calling  init+0x0/0x12 @ 1
+>  initcall init+0x0/0x12 returned 0 after 15 usecs
+>  calling  init+0x0/0x60 @ 1
+>  initcall init+0x0/0x60 returned 0 after 2 usecs
+>  calling  init+0x0/0x9a @ 1
+>  initcall init+0x0/0x9a returned 0 after 74 usecs
 > 
-> Regarding HW-SW queue mapping, the default queue mapping uses the
-> existing method that condsiders MSI irq vector. But the poll queue
-> doesn't have an irq, so it uses the regular blk-mq cpu mapping.
-> 
-> For verifying the improvement, I did Fio polling I/O performance test
-> with io_uring engine with the options below.
-> (io_uring, hipri, randread, direct=1, bs=512, iodepth=64 numjobs=N)
-> I set 4 vcpu and 4 virtio-blk queues - 2 default queues and 2 poll
-> queues for VM.
-> 
-> As a result, IOPS and average latency improved about 10%.
-> 
-> Test result:
-> 
-> - Fio io_uring poll without virtio-blk poll support
-> 	-- numjobs=1 : IOPS = 339K, avg latency = 188.33us
-> 	-- numjobs=2 : IOPS = 367K, avg latency = 347.33us
-> 	-- numjobs=4 : IOPS = 383K, avg latency = 682.06us
-> 
-> - Fio io_uring poll with virtio-blk poll support
-> 	-- numjobs=1 : IOPS = 380K, avg latency = 167.87us
-> 	-- numjobs=2 : IOPS = 409K, avg latency = 312.6us
-> 	-- numjobs=4 : IOPS = 413K, avg latency = 619.72us
-> 
-> Reported-by: kernel test robot <lkp@intel.com>
-> Signed-off-by: Suwan Kim <suwan.kim027@gmail.com>
+> Fixes: e126ba97dba9 ("mlx5: Add driver for Mellanox Connect-IB adapters")
+> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+> Cc: Eli Cohen <eli@mellanox.com>
+> Cc: Saeed Mahameed <saeedm@nvidia.com>
+> Cc: netdev@vger.kernel.org
+> Cc: Leon Romanovsky <leon@kernel.org>
+> Cc: linux-rdma@vger.kernel.org
 > ---
->  drivers/block/virtio_blk.c | 101 +++++++++++++++++++++++++++++++++++--
->  1 file changed, 97 insertions(+), 4 deletions(-)
+>  drivers/net/ethernet/mellanox/mlx5/core/main.c |    8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
 > 
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index 8c415be86732..3d16f8b753e7 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-> @@ -37,6 +37,10 @@ MODULE_PARM_DESC(num_request_queues,
->  		 "0 for no limit. "
->  		 "Values > nr_cpu_ids truncated to nr_cpu_ids.");
->  
-> +static unsigned int num_poll_queues;
-> +module_param(num_poll_queues, uint, 0644);
-> +MODULE_PARM_DESC(num_poll_queues, "The number of dedicated virtqueues for polling I/O");
-> +
->  static int major;
->  static DEFINE_IDA(vd_index_ida);
->  
-> @@ -81,6 +85,7 @@ struct virtio_blk {
->  
->  	/* num of vqs */
->  	int num_vqs;
-> +	int io_queues[HCTX_MAX_TYPES];
->  	struct virtio_blk_vq *vqs;
->  };
->  
-> @@ -548,6 +553,7 @@ static int init_vq(struct virtio_blk *vblk)
->  	const char **names;
->  	struct virtqueue **vqs;
->  	unsigned short num_vqs;
-> +	unsigned int num_poll_vqs;
->  	struct virtio_device *vdev = vblk->vdev;
->  	struct irq_affinity desc = { 0, };
->  
-> @@ -556,6 +562,7 @@ static int init_vq(struct virtio_blk *vblk)
->  				   &num_vqs);
->  	if (err)
->  		num_vqs = 1;
-> +
->  	if (!err && !num_vqs) {
->  		dev_err(&vdev->dev, "MQ advertised but zero queues reported\n");
->  		return -EINVAL;
-> @@ -565,6 +572,13 @@ static int init_vq(struct virtio_blk *vblk)
->  			min_not_zero(num_request_queues, nr_cpu_ids),
->  			num_vqs);
->  
-> +	num_poll_vqs = min_t(unsigned int, num_poll_queues, num_vqs - 1);
-> +
-> +	memset(vblk->io_queues, 0, sizeof(int) * HCTX_MAX_TYPES);
-> +	vblk->io_queues[HCTX_TYPE_DEFAULT] = num_vqs - num_poll_vqs;
-> +	vblk->io_queues[HCTX_TYPE_READ] = 0;
-> +	vblk->io_queues[HCTX_TYPE_POLL] = num_poll_vqs;
-> +
->  	vblk->vqs = kmalloc_array(num_vqs, sizeof(*vblk->vqs), GFP_KERNEL);
->  	if (!vblk->vqs)
->  		return -ENOMEM;
-> @@ -578,8 +592,13 @@ static int init_vq(struct virtio_blk *vblk)
->  	}
->  
->  	for (i = 0; i < num_vqs; i++) {
-> -		callbacks[i] = virtblk_done;
-> -		snprintf(vblk->vqs[i].name, VQ_NAME_LEN, "req.%d", i);
-> +		if (i < num_vqs - num_poll_vqs) {
-> +			callbacks[i] = virtblk_done;
-> +			snprintf(vblk->vqs[i].name, VQ_NAME_LEN, "req.%d", i);
-> +		} else {
-> +			callbacks[i] = NULL;
-> +			snprintf(vblk->vqs[i].name, VQ_NAME_LEN, "req_poll.%d", i);
-> +		}
->  		names[i] = vblk->vqs[i].name;
->  	}
->  
-> @@ -728,16 +747,87 @@ static const struct attribute_group *virtblk_attr_groups[] = {
->  static int virtblk_map_queues(struct blk_mq_tag_set *set)
->  {
->  	struct virtio_blk *vblk = set->driver_data;
-> +	int i, qoff;
-> +
-> +	for (i = 0, qoff = 0; i < set->nr_maps; i++) {
-> +		struct blk_mq_queue_map *map = &set->map[i];
-> +
-> +		map->nr_queues = vblk->io_queues[i];
-> +		map->queue_offset = qoff;
-> +		qoff += map->nr_queues;
-> +
-> +		if (map->nr_queues == 0)
-> +			continue;
-> +
-> +		/*
-> +		 * Regular queues have interrupts and hence CPU affinity is
-> +		 * defined by the core virtio code, but polling queues have
-> +		 * no interrupts so we let the block layer assign CPU affinity.
-> +		 */
-> +		if (i == HCTX_TYPE_DEFAULT)
-> +			blk_mq_virtio_map_queues(&set->map[i], vblk->vdev, 0);
-> +		else
-> +			blk_mq_map_queues(&set->map[i]);
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static void virtblk_complete_batch(struct io_comp_batch *iob)
-> +{
-> +	struct request *req;
-> +	struct virtblk_req *vbr;
->  
-> -	return blk_mq_virtio_map_queues(&set->map[HCTX_TYPE_DEFAULT],
-> -					vblk->vdev, 0);
-> +	rq_list_for_each(&iob->req_list, req) {
-> +		vbr = blk_mq_rq_to_pdu(req);
-> +		virtblk_unmap_data(req, vbr);
-> +		virtblk_cleanup_cmd(req);
-> +	}
-> +	blk_mq_end_request_batch(iob);
-> +}
-> +
-> +static int virtblk_poll(struct blk_mq_hw_ctx *hctx, struct io_comp_batch *iob)
-> +{
-> +	struct virtio_blk_vq *vq = hctx->driver_data;
-> +	struct virtblk_req *vbr;
-> +	unsigned long flags;
-> +	unsigned int len;
-> +	int found = 0;
-> +
-> +	spin_lock_irqsave(&vq->lock, flags);
-> +
-> +	while ((vbr = virtqueue_get_buf(vq->vq, &len)) != NULL) {
-> +		struct request *req = blk_mq_rq_from_pdu(vbr);
-> +
-> +		found++;
-> +		if (!blk_mq_add_to_batch(req, iob, vbr->status,
-> +						virtblk_complete_batch))
-> +			blk_mq_complete_request(req);
-> +	}
-> +
-> +	spin_unlock_irqrestore(&vq->lock, flags);
-> +
-> +	return found;
-> +}
-> +
-> +static int virtblk_init_hctx(struct blk_mq_hw_ctx *hctx, void *data,
-> +			  unsigned int hctx_idx)
-> +{
-> +	struct virtio_blk *vblk = data;
-> +	struct virtio_blk_vq *vq = &vblk->vqs[hctx_idx];
-> +
-> +	WARN_ON(vblk->tag_set.tags[hctx_idx] != hctx->tags);
-> +	hctx->driver_data = vq;
-> +	return 0;
->  }
->  
->  static const struct blk_mq_ops virtio_mq_ops = {
->  	.queue_rq	= virtio_queue_rq,
->  	.commit_rqs	= virtio_commit_rqs,
-> +	.init_hctx	= virtblk_init_hctx,
->  	.complete	= virtblk_request_done,
->  	.map_queues	= virtblk_map_queues,
-> +	.poll		= virtblk_poll,
->  };
->  
->  static unsigned int virtblk_queue_depth;
-> @@ -816,6 +906,9 @@ static int virtblk_probe(struct virtio_device *vdev)
->  		sizeof(struct scatterlist) * VIRTIO_BLK_INLINE_SG_CNT;
->  	vblk->tag_set.driver_data = vblk;
->  	vblk->tag_set.nr_hw_queues = vblk->num_vqs;
-> +	vblk->tag_set.nr_maps = 1;
-> +	if (vblk->io_queues[HCTX_TYPE_POLL])
-> +		vblk->tag_set.nr_maps = 3;
->  
->  	err = blk_mq_alloc_tag_set(&vblk->tag_set);
->  	if (err)
 
-
-
-So wrt cleanup, does something poll for all buffers to be
-used when device is removed?
-
-> -- 
-> 2.26.3
-
+Thanks,
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
