@@ -1,106 +1,90 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2F016C433F5
-	for <virtualization@archiver.kernel.org>; Thu, 24 Mar 2022 14:32:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7E309C433F5
+	for <virtualization@archiver.kernel.org>; Thu, 24 Mar 2022 15:33:28 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id BEA3541C2B;
-	Thu, 24 Mar 2022 14:32:15 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 18A5284438;
+	Thu, 24 Mar 2022 15:33:28 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id tmfsgo1WQaHr; Thu, 24 Mar 2022 14:32:14 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 23CFC418FE;
-	Thu, 24 Mar 2022 14:32:14 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id RzL9Mhv_oFzX; Thu, 24 Mar 2022 15:33:27 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 92C8784419;
+	Thu, 24 Mar 2022 15:33:26 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D9492C001A;
-	Thu, 24 Mar 2022 14:32:13 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4FDD9C000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 69020C0012;
+	Thu, 24 Mar 2022 15:33:26 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 11441C000B
  for <virtualization@lists.linux-foundation.org>;
- Thu, 24 Mar 2022 14:32:13 +0000 (UTC)
+ Thu, 24 Mar 2022 15:33:25 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 257FB400D6
+ by smtp1.osuosl.org (Postfix) with ESMTP id EAE7084433
  for <virtualization@lists.linux-foundation.org>;
- Thu, 24 Mar 2022 14:32:13 +0000 (UTC)
+ Thu, 24 Mar 2022 15:33:24 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id dbkt4s0XAJDe
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id McnEBpw4SaMg
  for <virtualization@lists.linux-foundation.org>;
- Thu, 24 Mar 2022 14:32:11 +0000 (UTC)
+ Thu, 24 Mar 2022 15:33:24 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 4AEDD4002B
+ by smtp1.osuosl.org (Postfix) with ESMTPS id E448684419
  for <virtualization@lists.linux-foundation.org>;
- Thu, 24 Mar 2022 14:32:11 +0000 (UTC)
+ Thu, 24 Mar 2022 15:33:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1648132330;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=inPw/ywO3r7g5Acohc7OmszZqzvn1xPk23Mbpa9WRq4=;
- b=hLEiPIBIGbHzdmCKYzt6ma5slXgV1fS8ziXiN0rTTmkvn4CZUdyowu2E8knxIh7MALOHu6
- 6Pxer/d6HKatHZr8DdqT2bKrZuLTEvAsljCmK+Eje4LZU+GIZEA3Ahy9wS3Bg1E7lwcb3z
- vLaehsKn/g3LtLDtwboi3FubzT8UyhY=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ s=mimecast20190719; t=1648136002;
+ h=from:from:reply-to:reply-to:subject:subject:date:date:
+ message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+ content-type:content-type:in-reply-to:in-reply-to:  references:references;
+ bh=8QnjcDWT8YHaE2ypxB7fTnVt6WqhkXSObBAZWvhDXe0=;
+ b=GPC7WpJ17TuKMyygFtRZOlh+tJ6n/iEFv+4u2vsmfzlkggV+IBNfjIpDl37faT4b4ojoxs
+ mUSO3qqZtWI+se43ivM89/niHICtrp9tG/72wNqOgTmkZkAx9RJU3Fdr6uo1kaMmsXCPZ2
+ qIj2KylPEDQcsn29AbOFXFglpbLZUP8=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-590-q8On6697MzC7QqSla02KIg-1; Thu, 24 Mar 2022 10:32:08 -0400
-X-MC-Unique: q8On6697MzC7QqSla02KIg-1
-Received: by mail-wm1-f69.google.com with SMTP id
- t2-20020a7bc3c2000000b003528fe59cb9so1653090wmj.5
- for <virtualization@lists.linux-foundation.org>;
- Thu, 24 Mar 2022 07:32:08 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=inPw/ywO3r7g5Acohc7OmszZqzvn1xPk23Mbpa9WRq4=;
- b=B2yjnYXcTIpONkD+fwQb7+fDs72FTCMUj/YcxFQuVvEKMmg5Q58Fmvxq/hvAbxCbJE
- zz7Vx/eTyxvdjPNR/BkApXN+NJXaDJXnIodW5/2cXBV507BOoT2xKoxFf5sLmXYxEUO3
- G9I7HwEuj9mUjfB6216SDv3i9QkksofjeXu7EYTCb0crqbUqgfUBQZAb4N3t/u06qwZ3
- /6QCH0n92BSvmCNeQJNnHyC8yIaJI2D3bX2wczNfLIBvh1ox8jvlDnHcyDGXabGUR09R
- XFgBpZFOj60iv5L6lXnWIdTkY4WX+Jr7BhSKr7QGUqjTmR1A4rYXxkjaYk6NFtYB6Uea
- 5XYQ==
-X-Gm-Message-State: AOAM531GJk1WALv9uEL4SJTptoTAxwFC8PiyhaDy5+Z/v+93oiSF1SGj
- JxwvR0eH/EiOQeIvOybbRNAZJd7EoqEDfVfSW/iMQzRZb+WoXR4DOyiVBFxJIRPxPk7XtEqGYwr
- AWeJVXE5O+QFQcMG4h4aP9S8MVqttdW7uYh8eQAgN7w==
-X-Received: by 2002:a05:600c:2045:b0:38c:98be:9bd8 with SMTP id
- p5-20020a05600c204500b0038c98be9bd8mr14105270wmg.76.1648132327306; 
- Thu, 24 Mar 2022 07:32:07 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJz4wGtHxH6De4HVnsqhpQLTCoo9q3VJCxEnDip3XbrLIZmiUE+vlY85HgatPXyU9HxwVswiPw==
-X-Received: by 2002:a05:600c:2045:b0:38c:98be:9bd8 with SMTP id
- p5-20020a05600c204500b0038c98be9bd8mr14105249wmg.76.1648132326951; 
- Thu, 24 Mar 2022 07:32:06 -0700 (PDT)
-Received: from redhat.com ([2.55.151.118]) by smtp.gmail.com with ESMTPSA id
- o16-20020a05600c511000b0038c6d836935sm6299185wms.16.2022.03.24.07.32.05
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 24 Mar 2022 07:32:06 -0700 (PDT)
-Date: Thu, 24 Mar 2022 10:32:02 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Suwan Kim <suwan.kim027@gmail.com>
-Subject: Re: [PATCH v3 1/2] virtio-blk: support polling I/O
-Message-ID: <20220324103056-mutt-send-email-mst@kernel.org>
-References: <20220324140450.33148-1-suwan.kim027@gmail.com>
- <20220324140450.33148-2-suwan.kim027@gmail.com>
+ us-mta-124-AkdLzR3CP2ant435S_RImw-1; Thu, 24 Mar 2022 11:33:16 -0400
+X-MC-Unique: AkdLzR3CP2ant435S_RImw-1
+Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.9])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 5771628EC119;
+ Thu, 24 Mar 2022 15:33:16 +0000 (UTC)
+Received: from redhat.com (unknown [10.33.36.150])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id 4EB00492D46;
+ Thu, 24 Mar 2022 15:33:14 +0000 (UTC)
+Date: Thu, 24 Mar 2022 15:33:12 +0000
+From: Daniel =?utf-8?B?UC4gQmVycmFuZ8Op?= <berrange@redhat.com>
+To: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [Spice-devel] =?utf-8?B?5Zue5aSNOiBS?=
+ =?utf-8?B?ZTog5Zue5aSNOiBSZTog5Zue5aSNOiBSZTog5Zue5aSNOiBSZTogW1BBVEM=?=
+ =?utf-8?Q?H?= v1 1/2] drm/qxl: replace ioremap by ioremap_cache on arm64
+Message-ID: <YjyPODaEUKC693sL@redhat.com>
+References: <olr8fzd5ad-olr8fzd5ae@nsmail6.0>
+ <20220324132109.3ox6k2wif6tkp47n@sirius.home.kraxel.org>
 MIME-Version: 1.0
-In-Reply-To: <20220324140450.33148-2-suwan.kim027@gmail.com>
+In-Reply-To: <20220324132109.3ox6k2wif6tkp47n@sirius.home.kraxel.org>
+User-Agent: Mutt/2.1.5 (2021-12-30)
+X-Scanned-By: MIMEDefang 2.85 on 10.11.54.9
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=berrange@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: mgurtovoy@nvidia.com, kernel test robot <lkp@intel.com>,
- virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org,
- stefanha@redhat.com, pbonzini@redhat.com
+Cc: airlied@linux.ie, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org, ray.huang@amd.com,
+ liucong2@kylinos.cn, daniel@ffwll.ch, airlied@redhat.com,
+ spice-devel@lists.freedesktop.org, Robin Murphy <robin.murphy@arm.com>,
+ Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -112,239 +96,36 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Reply-To: Daniel =?utf-8?B?UC4gQmVycmFuZ8Op?= <berrange@redhat.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Mar 24, 2022 at 11:04:49PM +0900, Suwan Kim wrote:
-> This patch supports polling I/O via virtio-blk driver. Polling
-> feature is enabled by module parameter "num_poll_queues" and it
-> sets dedicated polling queues for virtio-blk. This patch improves
-> the polling I/O throughput and latency.
+On Thu, Mar 24, 2022 at 02:21:09PM +0100, Gerd Hoffmann wrote:
+> On Thu, Mar 24, 2022 at 06:34:02PM +0800, liucong2@kylinos.cn wrote:
+> >    ok, thanks, a lot of our customer use qxl on x86 before, so it still need
+> >    to supoort qxl on arm64.
 > 
-> The virtio-blk driver doesn't not have a poll function and a poll
-> queue and it has been operating in interrupt driven method even if
-> the polling function is called in the upper layer.
+> Well, qxl isn't the best choice even on x86.  The main advantage it
+> offers (2d acceleration) is basically useless today because pretty much
+> everything moved on to use 3d acceleration instead.  So qxl ends up
+> being used as dumb framebuffer with software 3d rendering.
 > 
-> virtio-blk polling is implemented upon 'batched completion' of block
-> layer. virtblk_poll() queues completed request to io_comp_batch->req_list
-> and later, virtblk_complete_batch() calls unmap function and ends
-> the requests in batch.
-> 
-> virtio-blk reads the number of poll queues from module parameter
-> "num_poll_queues". If VM sets queue parameter as below,
-> ("num-queues=N" [QEMU property], "num_poll_queues=M" [module parameter])
-> It allocates N virtqueues to virtio_blk->vqs[N] and it uses [0..(N-M-1)]
-> as default queues and [(N-M)..(N-1)] as poll queues. Unlike the default
-> queues, the poll queues have no callback function.
-> 
-> Regarding HW-SW queue mapping, the default queue mapping uses the
-> existing method that condsiders MSI irq vector. But the poll queue
-> doesn't have an irq, so it uses the regular blk-mq cpu mapping.
-> 
-> For verifying the improvement, I did Fio polling I/O performance test
-> with io_uring engine with the options below.
-> (io_uring, hipri, randread, direct=1, bs=512, iodepth=64 numjobs=N)
-> I set 4 vcpu and 4 virtio-blk queues - 2 default queues and 2 poll
-> queues for VM.
-> 
-> As a result, IOPS and average latency improved about 10%.
-> 
-> Test result:
-> 
-> - Fio io_uring poll without virtio-blk poll support
-> 	-- numjobs=1 : IOPS = 339K, avg latency = 188.33us
-> 	-- numjobs=2 : IOPS = 367K, avg latency = 347.33us
-> 	-- numjobs=4 : IOPS = 383K, avg latency = 682.06us
-> 
-> - Fio io_uring poll with virtio-blk poll support
-> 	-- numjobs=1 : IOPS = 380K, avg latency = 167.87us
-> 	-- numjobs=2 : IOPS = 409K, avg latency = 312.6us
-> 	-- numjobs=4 : IOPS = 413K, avg latency = 619.72us
-> 
-> Reported-by: kernel test robot <lkp@intel.com>
-> Signed-off-by: Suwan Kim <suwan.kim027@gmail.com>
-> ---
->  drivers/block/virtio_blk.c | 101 +++++++++++++++++++++++++++++++++++--
->  1 file changed, 97 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index 8c415be86732..3d16f8b753e7 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-> @@ -37,6 +37,10 @@ MODULE_PARM_DESC(num_request_queues,
->  		 "0 for no limit. "
->  		 "Values > nr_cpu_ids truncated to nr_cpu_ids.");
->  
-> +static unsigned int num_poll_queues;
-> +module_param(num_poll_queues, uint, 0644);
-> +MODULE_PARM_DESC(num_poll_queues, "The number of dedicated virtqueues for polling I/O");
-> +
->  static int major;
->  static DEFINE_IDA(vd_index_ida);
->
+> So, I'm still recommending to just use virtio-gpu ...
 
-Is there some way to make it work reasonably without need to set
-module parameters? I don't see any other devices with a num_poll_queues
-parameter - how do they handle this?
-  
-> @@ -81,6 +85,7 @@ struct virtio_blk {
->  
->  	/* num of vqs */
->  	int num_vqs;
-> +	int io_queues[HCTX_MAX_TYPES];
->  	struct virtio_blk_vq *vqs;
->  };
->  
-> @@ -548,6 +553,7 @@ static int init_vq(struct virtio_blk *vblk)
->  	const char **names;
->  	struct virtqueue **vqs;
->  	unsigned short num_vqs;
-> +	unsigned int num_poll_vqs;
->  	struct virtio_device *vdev = vblk->vdev;
->  	struct irq_affinity desc = { 0, };
->  
-> @@ -556,6 +562,7 @@ static int init_vq(struct virtio_blk *vblk)
->  				   &num_vqs);
->  	if (err)
->  		num_vqs = 1;
-> +
->  	if (!err && !num_vqs) {
->  		dev_err(&vdev->dev, "MQ advertised but zero queues reported\n");
->  		return -EINVAL;
-> @@ -565,6 +572,13 @@ static int init_vq(struct virtio_blk *vblk)
->  			min_not_zero(num_request_queues, nr_cpu_ids),
->  			num_vqs);
->  
-> +	num_poll_vqs = min_t(unsigned int, num_poll_queues, num_vqs - 1);
-> +
-> +	memset(vblk->io_queues, 0, sizeof(int) * HCTX_MAX_TYPES);
-> +	vblk->io_queues[HCTX_TYPE_DEFAULT] = num_vqs - num_poll_vqs;
-> +	vblk->io_queues[HCTX_TYPE_READ] = 0;
-> +	vblk->io_queues[HCTX_TYPE_POLL] = num_poll_vqs;
-> +
->  	vblk->vqs = kmalloc_array(num_vqs, sizeof(*vblk->vqs), GFP_KERNEL);
->  	if (!vblk->vqs)
->  		return -ENOMEM;
-> @@ -578,8 +592,13 @@ static int init_vq(struct virtio_blk *vblk)
->  	}
->  
->  	for (i = 0; i < num_vqs; i++) {
-> -		callbacks[i] = virtblk_done;
-> -		snprintf(vblk->vqs[i].name, VQ_NAME_LEN, "req.%d", i);
-> +		if (i < num_vqs - num_poll_vqs) {
-> +			callbacks[i] = virtblk_done;
-> +			snprintf(vblk->vqs[i].name, VQ_NAME_LEN, "req.%d", i);
-> +		} else {
-> +			callbacks[i] = NULL;
-> +			snprintf(vblk->vqs[i].name, VQ_NAME_LEN, "req_poll.%d", i);
-> +		}
->  		names[i] = vblk->vqs[i].name;
->  	}
->  
-> @@ -728,16 +747,87 @@ static const struct attribute_group *virtblk_attr_groups[] = {
->  static int virtblk_map_queues(struct blk_mq_tag_set *set)
->  {
->  	struct virtio_blk *vblk = set->driver_data;
-> +	int i, qoff;
-> +
-> +	for (i = 0, qoff = 0; i < set->nr_maps; i++) {
-> +		struct blk_mq_queue_map *map = &set->map[i];
-> +
-> +		map->nr_queues = vblk->io_queues[i];
-> +		map->queue_offset = qoff;
-> +		qoff += map->nr_queues;
-> +
-> +		if (map->nr_queues == 0)
-> +			continue;
-> +
-> +		/*
-> +		 * Regular queues have interrupts and hence CPU affinity is
-> +		 * defined by the core virtio code, but polling queues have
-> +		 * no interrupts so we let the block layer assign CPU affinity.
-> +		 */
-> +		if (i == HCTX_TYPE_DEFAULT)
-> +			blk_mq_virtio_map_queues(&set->map[i], vblk->vdev, 0);
-> +		else
-> +			blk_mq_map_queues(&set->map[i]);
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static void virtblk_complete_batch(struct io_comp_batch *iob)
-> +{
-> +	struct request *req;
-> +	struct virtblk_req *vbr;
->  
-> -	return blk_mq_virtio_map_queues(&set->map[HCTX_TYPE_DEFAULT],
-> -					vblk->vdev, 0);
-> +	rq_list_for_each(&iob->req_list, req) {
-> +		vbr = blk_mq_rq_to_pdu(req);
-> +		virtblk_unmap_data(req, vbr);
-> +		virtblk_cleanup_cmd(req);
-> +	}
-> +	blk_mq_end_request_batch(iob);
-> +}
-> +
-> +static int virtblk_poll(struct blk_mq_hw_ctx *hctx, struct io_comp_batch *iob)
-> +{
-> +	struct virtio_blk_vq *vq = hctx->driver_data;
-> +	struct virtblk_req *vbr;
-> +	unsigned long flags;
-> +	unsigned int len;
-> +	int found = 0;
-> +
-> +	spin_lock_irqsave(&vq->lock, flags);
-> +
-> +	while ((vbr = virtqueue_get_buf(vq->vq, &len)) != NULL) {
-> +		struct request *req = blk_mq_rq_from_pdu(vbr);
-> +
-> +		found++;
-> +		if (!blk_mq_add_to_batch(req, iob, vbr->status,
-> +						virtblk_complete_batch))
-> +			blk_mq_complete_request(req);
-> +	}
-> +
-> +	spin_unlock_irqrestore(&vq->lock, flags);
-> +
-> +	return found;
-> +}
-> +
-> +static int virtblk_init_hctx(struct blk_mq_hw_ctx *hctx, void *data,
-> +			  unsigned int hctx_idx)
-> +{
-> +	struct virtio_blk *vblk = data;
-> +	struct virtio_blk_vq *vq = &vblk->vqs[hctx_idx];
-> +
-> +	WARN_ON(vblk->tag_set.tags[hctx_idx] != hctx->tags);
-> +	hctx->driver_data = vq;
-> +	return 0;
->  }
->  
->  static const struct blk_mq_ops virtio_mq_ops = {
->  	.queue_rq	= virtio_queue_rq,
->  	.commit_rqs	= virtio_commit_rqs,
-> +	.init_hctx	= virtblk_init_hctx,
->  	.complete	= virtblk_request_done,
->  	.map_queues	= virtblk_map_queues,
-> +	.poll		= virtblk_poll,
->  };
->  
->  static unsigned int virtblk_queue_depth;
-> @@ -816,6 +906,9 @@ static int virtblk_probe(struct virtio_device *vdev)
->  		sizeof(struct scatterlist) * VIRTIO_BLK_INLINE_SG_CNT;
->  	vblk->tag_set.driver_data = vblk;
->  	vblk->tag_set.nr_hw_queues = vblk->num_vqs;
-> +	vblk->tag_set.nr_maps = 1;
-> +	if (vblk->io_queues[HCTX_TYPE_POLL])
-> +		vblk->tag_set.nr_maps = 3;
->  
->  	err = blk_mq_alloc_tag_set(&vblk->tag_set);
->  	if (err)
-> -- 
-> 2.26.3
+Also bear in mind that while almost no one uses the 2d acceleration
+in QXL, the QEMU device still implements all the 2d functionality.
+This exposes an attack surface to the guest VM, from code that is
+largely ignored by maintainers today, as attention is focused on
+virtio-gpu instead. 
+
+With regards,
+Daniel
+-- 
+|: https://berrange.com      -o-    https://www.flickr.com/photos/dberrange :|
+|: https://libvirt.org         -o-            https://fstop138.berrange.com :|
+|: https://entangle-photo.org    -o-    https://www.instagram.com/dberrange :|
 
 _______________________________________________
 Virtualization mailing list
