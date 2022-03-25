@@ -1,115 +1,109 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 092FEC433F5
-	for <virtualization@archiver.kernel.org>; Fri, 25 Mar 2022 03:05:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7B54FC433EF
+	for <virtualization@archiver.kernel.org>; Fri, 25 Mar 2022 03:22:45 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 97A1761069;
-	Fri, 25 Mar 2022 03:05:35 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id E27C941CBD;
+	Fri, 25 Mar 2022 03:22:44 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id zP9QVWkOr8No; Fri, 25 Mar 2022 03:05:34 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 4A5476106D;
-	Fri, 25 Mar 2022 03:05:34 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id C0tObib3IgES; Fri, 25 Mar 2022 03:22:44 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 6F01441CBB;
+	Fri, 25 Mar 2022 03:22:43 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0F8DDC0012;
-	Fri, 25 Mar 2022 03:05:34 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 16CC7C0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4D40EC001A;
+	Fri, 25 Mar 2022 03:22:43 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id CB7DFC000B
  for <virtualization@lists.linux-foundation.org>;
- Fri, 25 Mar 2022 03:05:33 +0000 (UTC)
+ Fri, 25 Mar 2022 03:22:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 09C3D61069
+ by smtp4.osuosl.org (Postfix) with ESMTP id A69BB41CBC
  for <virtualization@lists.linux-foundation.org>;
- Fri, 25 Mar 2022 03:05:32 +0000 (UTC)
+ Fri, 25 Mar 2022 03:22:42 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id rEoB3FAgOBPQ
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 3VmuK1HRp6HU
  for <virtualization@lists.linux-foundation.org>;
- Fri, 25 Mar 2022 03:05:31 +0000 (UTC)
+ Fri, 25 Mar 2022 03:22:40 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 5523A6106D
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 961EF41CBB
  for <virtualization@lists.linux-foundation.org>;
- Fri, 25 Mar 2022 03:05:31 +0000 (UTC)
+ Fri, 25 Mar 2022 03:22:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1648177530;
+ s=mimecast20190719; t=1648178559;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=W1/M7/bmnByTWu65Mzim6SoRU2urxCvtovIoU38RgkU=;
- b=WpadKwdErklKri4AQp5ONhAUhJDJJYJC2GAVKhQLDgpa0K23NEeaKiXYVWwCcGdKqMCLuI
- u87Af/BEp7/SU4qfGhJKl9bhNuVHgozLd1L0DrTgHLNjP45azgbI51P/9Tb2hQ0ASw5dXt
- wcgxOAEx1ERl0iqU0pKBO8Nf+/BEvP8=
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
- [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=/vrdVLbvl2FEAzCSgs81TCush7rfFjcGSogkgzqSOFQ=;
+ b=BQWlxb2dLId70aMu+twHHlXYq3xSZuy32F9ijlLOla7IZ609vnk0cvcBd2CJQYIQcRpCrH
+ 85Pru2NNdx0hOktBhNQIcyk5d81OsdqWWY6fnG1FPM1E23toUoIRlt4Vgfmv3rxanTT9S+
+ WaG9Df7IHu1s/woudVXOv1F3l9OZBhk=
+Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com
+ [209.85.208.198]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-410-p2idXrB7NYKz_1gxBZ6hkw-1; Thu, 24 Mar 2022 23:05:28 -0400
-X-MC-Unique: p2idXrB7NYKz_1gxBZ6hkw-1
-Received: by mail-pj1-f69.google.com with SMTP id
- n17-20020a17090ac69100b001c77ebd900fso3807557pjt.8
+ us-mta-633-0PZYf75AN6Gu_X65_0WIEQ-1; Thu, 24 Mar 2022 23:22:38 -0400
+X-MC-Unique: 0PZYf75AN6Gu_X65_0WIEQ-1
+Received: by mail-lj1-f198.google.com with SMTP id
+ n9-20020a2e82c9000000b002435af2e8b9so2482471ljh.20
  for <virtualization@lists.linux-foundation.org>;
- Thu, 24 Mar 2022 20:05:28 -0700 (PDT)
+ Thu, 24 Mar 2022 20:22:37 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
- :content-language:to:cc:references:from:in-reply-to
- :content-transfer-encoding;
- bh=W1/M7/bmnByTWu65Mzim6SoRU2urxCvtovIoU38RgkU=;
- b=L9eE61hOmmB3ltI7W3eg5XjPMjArCMlXCVcKaYPny9GsYHif4BMNgs4jA6XbCXXsyq
- Ns3vvF4LPkNJcUkpM+m8ASUATTStkQ6ux1E/1xO5zWye64g1e61WXPLuoTHYsgCtr3OX
- XrdSeOmRH9AMmchVFt4sOaH47nSMwdvuMkGT8s9wEsoovURueayiVopji7xFl2e9fMkc
- iVKi7f9XKxsppMBk0y0GN2E5HVJY/qEoqGs8i5u7NryvDiREPua5muswlmGMUAyxeGAJ
- 59rncXBkWIxKgQNWxh0iFimD7xeqJ/8zWErFkS0JeF7yXi81A/8y+JWBPeKr2cSZGjox
- PxMQ==
-X-Gm-Message-State: AOAM532282nLUyXwjGMlSeAMlpWgOIZcO0Liw5E2QfXGQx0+tKD4VUb1
- XklT9AnOSTsxwe2w3l3o1zWRy2RwNnRLjVOXxAeiwIWJExqijWAXLJNUX+Xh23gYjFKRwla5v/I
- msIaaGqb1DUJrYW0A+OfcUdOTfN/mqfbs/KkEIqbxpg==
-X-Received: by 2002:a17:902:7797:b0:154:b6d:31f2 with SMTP id
- o23-20020a170902779700b001540b6d31f2mr9069827pll.39.1648177527694; 
- Thu, 24 Mar 2022 20:05:27 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJymmceXQlKogsbDkqxGa/+jhIE+qWfz707Sj9yP9hpf7xzOj6GOmmceC8wpdI7WERDceL9xUQ==
-X-Received: by 2002:a17:902:7797:b0:154:b6d:31f2 with SMTP id
- o23-20020a170902779700b001540b6d31f2mr9069804pll.39.1648177527397; 
- Thu, 24 Mar 2022 20:05:27 -0700 (PDT)
-Received: from [10.72.13.249] ([209.132.188.80])
- by smtp.gmail.com with ESMTPSA id
- f14-20020a056a0022ce00b004fabe9fac23sm5163104pfj.151.2022.03.24.20.05.24
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Thu, 24 Mar 2022 20:05:26 -0700 (PDT)
-Message-ID: <81381018-9dcd-3fba-becf-183435a5bf6b@redhat.com>
-Date: Fri, 25 Mar 2022 11:05:22 +0800
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=/vrdVLbvl2FEAzCSgs81TCush7rfFjcGSogkgzqSOFQ=;
+ b=0QG4ECrn9NxKxkA1hdVG+Ubx7GHrVEdLOKbvCceOGlnOoGXGX1xZ0STtaoQ276Y/JU
+ lFRbWS0F7Y1gdHfDfh2AxghEIs95cCQOaQeHz+eB46RvVpm2GOZA1Wdd/+ON5QTHhEuO
+ CGVTWNtJK/eJoPGD3aLo+xHjvip+hQebpOkSXTOsDBjJWlQI5tNvo/bmsBhiBAzefE+9
+ G4vwzrY+OiizYkcJglvlMFd0sad3tJ9Dm5hQ3RE38vZYU0ABXu9W0N9oQoHXUeeEqS3j
+ 2zSGtdiFOa52FpaNNIMElsqbDvIvVHnZtWCHy3HinSWGXIpwI88Rccb1OkoMQKpMxx5M
+ 4aBw==
+X-Gm-Message-State: AOAM533umJsixR5tu7c3Qk32LWquAQqn1mIxehi7M4hYUFvBJ3Ka2hF1
+ +WK0tG6abaD4J8A9KHqkKfxpVn6Bvzvx4TjYqfgXOMdqvLUKCyt+gvez1Ct+sl+bTxWtgVkYJBr
+ o6RwB8waS4LgUF6e4MsOsELVS3vkCVY43rd8bz4/+ipTSu/CVjE7XK9OzJg==
+X-Received: by 2002:a2e:54d:0:b0:249:8213:f970 with SMTP id
+ 74-20020a2e054d000000b002498213f970mr6574821ljf.315.1648178556704; 
+ Thu, 24 Mar 2022 20:22:36 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzoJVK7eltqcdR+KmXpacgd9LreAh6Ima8MArEeG8LkLLC6mQ188NZuNbMkJ5BgGWOcV2QOmDDFSOezocc8Xdw=
+X-Received: by 2002:a2e:54d:0:b0:249:8213:f970 with SMTP id
+ 74-20020a2e054d000000b002498213f970mr6574806ljf.315.1648178556380; Thu, 24
+ Mar 2022 20:22:36 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.7.0
-Subject: Re: [PATCH 1/3] virtio: use virtio_device_ready() in
- virtio_device_restore()
-To: Stefano Garzarella <sgarzare@redhat.com>,
- "Michael S. Tsirkin" <mst@redhat.com>
-References: <20220324084004.14349-1-jasowang@redhat.com>
- <20220324084004.14349-2-jasowang@redhat.com>
- <20220324064205-mutt-send-email-mst@kernel.org>
- <20220324110307.iizkdwuhc5c75noj@sgarzare-redhat>
- <20220324070612-mutt-send-email-mst@kernel.org>
- <20220324113126.f6f5hfabhqfyutix@sgarzare-redhat>
+References: <20220321060429.10457-1-jasowang@redhat.com>
+ <20220321085317.3148-1-hdanton@sina.com>
+ <CACGkMEvF80FuU0uD+RZMOrySQ0K2RZVh7Pmn4UhNtz_Exs3c2w@mail.gmail.com>
+ <CACGkMEvLqox3QZxpxeQdrjBnM6zRr_wGfddoN45RUSsZEOe=bQ@mail.gmail.com>
+ <20220321123420.3207-1-hdanton@sina.com>
+ <CACGkMEt-PRCsBQ+EJVGeWGikJfLk-0M1dRPMqnp9YC5R4HYAjQ@mail.gmail.com>
+ <20220324005345.3623-1-hdanton@sina.com>
+ <20220324060419.3682-1-hdanton@sina.com>
+ <20220324021428-mutt-send-email-mst@kernel.org>
+ <20220324120217.3746-1-hdanton@sina.com>
+ <DM8PR12MB54004034A8A5DA1D2B6EA8D1AB199@DM8PR12MB5400.namprd12.prod.outlook.com>
+In-Reply-To: <DM8PR12MB54004034A8A5DA1D2B6EA8D1AB199@DM8PR12MB5400.namprd12.prod.outlook.com>
 From: Jason Wang <jasowang@redhat.com>
-In-Reply-To: <20220324113126.f6f5hfabhqfyutix@sgarzare-redhat>
+Date: Fri, 25 Mar 2022 11:22:25 +0800
+Message-ID: <CACGkMEtVUqJcS1W2p1U9RCjQqQOSREu1J9zjmw37TbPBNqq7tA@mail.gmail.com>
+Subject: Re: [PATCH 1/2] vdpa: mlx5: prevent cvq work from hogging CPU
+To: Eli Cohen <elic@nvidia.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Cc: peterz@infradead.org, maz@kernel.org, keirf@google.com,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- tglx@linutronix.de
+Cc: Hillf Danton <hdanton@sina.com>,
+ virtualization <virtualization@lists.linux-foundation.org>,
+ linux-kernel <linux-kernel@vger.kernel.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -121,39 +115,117 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-CuWcqCAyMDIyLzMvMjQg5LiL5Y2INzozMSwgU3RlZmFubyBHYXJ6YXJlbGxhIOWGmemBkzoKPiBP
-biBUaHUsIE1hciAyNCwgMjAyMiBhdCAwNzowNzowOUFNIC0wNDAwLCBNaWNoYWVsIFMuIFRzaXJr
-aW4gd3JvdGU6Cj4+IE9uIFRodSwgTWFyIDI0LCAyMDIyIGF0IDEyOjAzOjA3UE0gKzAxMDAsIFN0
-ZWZhbm8gR2FyemFyZWxsYSB3cm90ZToKPj4+IE9uIFRodSwgTWFyIDI0LCAyMDIyIGF0IDA2OjQ4
-OjA1QU0gLTA0MDAsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPj4+ID4gT24gVGh1LCBNYXIg
-MjQsIDIwMjIgYXQgMDQ6NDA6MDJQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToKPj4+ID4gPiBG
-cm9tOiBTdGVmYW5vIEdhcnphcmVsbGEgPHNnYXJ6YXJlQHJlZGhhdC5jb20+Cj4+PiA+ID4KPj4+
-ID4gPiBUaGlzIGF2b2lkcyBzZXR0aW5nIERSSVZFUl9PSyB0d2ljZSBmb3IgdGhvc2UgZHJpdmVy
-cyB0aGF0IGNhbGwKPj4+ID4gPiB2aXJ0aW9fZGV2aWNlX3JlYWR5KCkgaW4gdGhlIC5yZXN0b3Jl
-Cj4+PiA+Cj4+PiA+IElzIHRoaXMgdHJ5aW5nIHRvIHNheSBpdCdzIGZhc3Rlcj8KPj4+Cj4+PiBO
-b3BlLCBJIG1lYW4sIHdoZW4gSSB3cm90ZSB0aGUgb3JpZ2luYWwgdmVyc2lvbiwgSSBtZWFudCB0
-byBkbyB0aGUgc2FtZQo+Pj4gdGhpbmdzIHRoYXQgd2UgZG8gaW4gdmlydGlvX2Rldl9wcm9iZSgp
-IHdoZXJlIHdlIGNhbGxlZAo+Pj4gdmlydGlvX2RldmljZV9yZWFkeSgpIHdoaWNoIG5vdCBvbmx5
-IHNldCB0aGUgc3RhdGUsIGJ1dCBhbHNvIGNhbGxlZAo+Pj4gLmVuYWJsZV9jYnMgY2FsbGJhY2su
-Cj4+Pgo+Pj4gV2FzIHRoaXMgYSBzaWRlIGVmZmVjdCBhbmQgbWF5YmUgbW9yZSBjb21wbGlhbnQg
-d2l0aCB0aGUgc3BlYz8KPj4KPj4KPj4gU29ycnkgSSBkb24ndCB1bmRlcnN0YW5kIHRoZSBxdWVz
-dGlvbi4gaXQgc2F5cyAiYXZvaWRzIHNldHRpbmcgCj4+IERSSVZFUl9PSyB0d2ljZSIgLQo+PiB3
-aHkgaXMgdGhhdCBhZHZhbnRhZ2VvdXMgYW5kIHdvcnRoIGNhbGxpbmcgb3V0IGluIHRoZSBjb21t
-aXQgbG9nPwo+Cj4gSSBqdXN0IHdhbnRlZCB0byBzYXkgdGhhdCBpdCBzZWVtcyBzdHJhbmdlIHRv
-IHNldCBEUklWRVJfT0sgdHdpY2UgaWYgCj4gd2UgcmVhZCB0aGUgc3BlYy4gSSBkb24ndCB0aGlu
-ayBpdCdzIHdyb25nLCBidXQgd2VpcmQuCj4KPiBZZXMsIG1heWJlIHdlIHNob3VsZCByZXdyaXRl
-IHRoZSBjb21taXQgbWVzc2FnZSBzYXlpbmcgdGhhdCB3ZSB3YW50IHRvIAo+IHVzZSB2aXJ0aW9f
-ZGV2aWNlX3JlYWR5KCkgZXZlcnl3aGVyZSB0byBjb21wbGV0ZSB0aGUgc2V0dXAgYmVmb3JlIAo+
-IHNldHRpbmcgRFJJVkVSX09LIHNvIHdlIGNhbiBkbyBhbGwgdGhlIG5lY2Vzc2FyeSBvcGVyYXRp
-b25zIGluc2lkZSAKPiAobGlrZSBpbiBwYXRjaCAzIG9yIGNhbGwgZW5hYmxlX2NicykuCj4KPiBK
-YXNvbiByZXdyb3RlIHRoZSBjb21taXQgbG9nLCBzbyBJIGRvbid0IGtub3cgaWYgaGUgYWdyZWVz
-Lgo+Cj4gVGhhbmtzLAo+IFN0ZWZhbm8KCgpJIGFncmVlLCBJIHdpbGwgdHdlYWsgdGhlIGxvZyBp
-biBWMi4KClRoYW5rcwoKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5s
-aW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFp
-bG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Thu, Mar 24, 2022 at 8:24 PM Eli Cohen <elic@nvidia.com> wrote:
+>
+>
+>
+> > -----Original Message-----
+> > From: Hillf Danton <hdanton@sina.com>
+> > Sent: Thursday, March 24, 2022 2:02 PM
+> > To: Jason Wang <jasowang@redhat.com>
+> > Cc: Eli Cohen <elic@nvidia.com>; Michael S. Tsirkin <mst@redhat.com>; virtualization <virtualization@lists.linux-foundation.org>; linux-
+> > kernel <linux-kernel@vger.kernel.org>
+> > Subject: Re: [PATCH 1/2] vdpa: mlx5: prevent cvq work from hogging CPU
+> >
+> > On Thu, 24 Mar 2022 16:20:34 +0800 Jason Wang wrote:
+> > > On Thu, Mar 24, 2022 at 2:17 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > > On Thu, Mar 24, 2022 at 02:04:19PM +0800, Hillf Danton wrote:
+> > > > > On Thu, 24 Mar 2022 10:34:09 +0800 Jason Wang wrote:
+> > > > > > On Thu, Mar 24, 2022 at 8:54 AM Hillf Danton <hdanton@sina.com> wrote:
+> > > > > > >
+> > > > > > > On Tue, 22 Mar 2022 09:59:14 +0800 Jason Wang wrote:
+> > > > > > > >
+> > > > > > > > Yes, there will be no "infinite" loop, but since the loop is triggered
+> > > > > > > > by userspace. It looks to me it will delay the flush/drain of the
+> > > > > > > > workqueue forever which is still suboptimal.
+> > > > > > >
+> > > > > > > Usually it is barely possible to shoot two birds using a stone.
+> > > > > > >
+> > > > > > > Given the "forever", I am inclined to not running faster, hehe, though
+> > > > > > > another cobble is to add another line in the loop checking if mvdev is
+> > > > > > > unregistered, and for example make mvdev->cvq unready before destroying
+> > > > > > > workqueue.
+> > > > > > >
+> > > > > > > static void mlx5_vdpa_dev_del(struct vdpa_mgmt_dev *v_mdev, struct vdpa_device *dev)
+> > > > > > > {
+> > > > > > >         struct mlx5_vdpa_mgmtdev *mgtdev = container_of(v_mdev, struct mlx5_vdpa_mgmtdev, mgtdev);
+> > > > > > >         struct mlx5_vdpa_dev *mvdev = to_mvdev(dev);
+> > > > > > >         struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
+> > > > > > >
+> > > > > > >         mlx5_notifier_unregister(mvdev->mdev, &ndev->nb);
+> > > > > > >         destroy_workqueue(mvdev->wq);
+> > > > > > >         _vdpa_unregister_device(dev);
+> > > > > > >         mgtdev->ndev = NULL;
+> > > > > > > }
+> > > > > > >
+> > > > > >
+> > > > > > Yes, so we had
+> > > > > >
+> > > > > > 1) using a quota for re-requeue
+> > > > > > 2) using something like
+> > > > > >
+> > > > > > while (READ_ONCE(cvq->ready)) {
+> > > > > >         ...
+> > > > > >         cond_resched();
+> > > > > > }
+> > > > > >
+> > > > > > There should not be too much difference except we need to use
+> > > > > > cancel_work_sync() instead of flush_work for 1).
+> > > > > >
+> > > > > > I would keep the code as is but if you stick I can change.
+> > > > >
+> > > > > No Sir I would not - I am simply not a fan of work requeue.
+> > > > >
+> > > > > Hillf
+> > > >
+> > > > I think I agree - requeue adds latency spikes under heavy load -
+> > > > unfortunately, not measured by netperf but still important
+> > > > for latency sensitive workloads. Checking a flag is cheaper.
+> > >
+> > > Just spot another possible issue.
+> > >
+> > > The workqueue will be used by another work to update the carrier
+> > > (event_handler()). Using cond_resched() may still have unfair issue
+> > > which blocks the carrier update for infinite time,
+> >
+> > Then would you please specify the reason why mvdev->wq is single
+> > threaded?
+
+I didn't see a reason why it needs to be a single threaded (ordered).
+
+> Given requeue, the serialization of the two works is not
+> > strong. Otherwise unbound WQ that can process works in parallel is
+> > a cure to the unfairness above.
+
+Yes, and we probably don't want a per device workqueue but a per
+module one. Or simply use the system_wq one.
+
+> >
+>
+> I think the proposed patch can still be used with quota equal to one.
+> That would guarantee fairness.
+> This is not performance critical and a single workqueue should be enough.
+
+Yes, but both Hillf and Michael don't like requeuing. So my plan is
+
+1) send patch 2 first since it's a hard requirement for the next RHEL release
+2) a series to fix this hogging issue by
+2.1) switch to use a per module workqueue
+2.2) READ_ONCE(cvq->ready) + cond_resched()
+
+Thanks
+
+>
+> > Thanks
+> > Hillf
+>
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
