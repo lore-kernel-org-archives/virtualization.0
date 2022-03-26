@@ -4,57 +4,94 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 23E33C433EF
-	for <virtualization@archiver.kernel.org>; Fri, 25 Mar 2022 22:32:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9F8F9C433EF
+	for <virtualization@archiver.kernel.org>; Sat, 26 Mar 2022 00:36:52 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id BF53D8266A;
-	Fri, 25 Mar 2022 22:32:07 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 314B5842D4;
+	Sat, 26 Mar 2022 00:36:52 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Q9NxRZ2MbTW1; Fri, 25 Mar 2022 22:32:06 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 45AF18246F;
-	Fri, 25 Mar 2022 22:32:06 +0000 (UTC)
+	with ESMTP id ouj1KPt0nWC3; Sat, 26 Mar 2022 00:36:51 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id CE8A7842D2;
+	Sat, 26 Mar 2022 00:36:50 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2308EC002C;
-	Fri, 25 Mar 2022 22:32:06 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7B0B9C0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B45D2C002C;
+	Sat, 26 Mar 2022 00:36:50 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E0A53C0012
  for <virtualization@lists.linux-foundation.org>;
- Fri, 25 Mar 2022 22:32:05 +0000 (UTC)
+ Sat, 26 Mar 2022 00:36:48 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 60FEE402C3
+ by smtp2.osuosl.org (Postfix) with ESMTP id DCD2740154
  for <virtualization@lists.linux-foundation.org>;
- Fri, 25 Mar 2022 22:32:05 +0000 (UTC)
+ Sat, 26 Mar 2022 00:36:48 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=linux-foundation.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id qSvM8p6D0Saw
+ with ESMTP id ycwi2hB9DVrf
  for <virtualization@lists.linux-foundation.org>;
- Fri, 25 Mar 2022 22:32:03 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from out30-131.freemail.mail.aliyun.com
- (out30-131.freemail.mail.aliyun.com [115.124.30.131])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 863FB4013D
+ Sat, 26 Mar 2022 00:36:48 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-lf1-x131.google.com (mail-lf1-x131.google.com
+ [IPv6:2a00:1450:4864:20::131])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id C784240103
  for <virtualization@lists.linux-foundation.org>;
- Fri, 25 Mar 2022 22:32:03 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R161e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04400; MF=xuanzhuo@linux.alibaba.com;
- NM=1; PH=DS; RN=3; SR=0; TI=SMTPD_---0V8BUW.L_1648247519; 
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0V8BUW.L_1648247519) by smtp.aliyun-inc.com(127.0.0.1);
- Sat, 26 Mar 2022 06:32:00 +0800
-Message-ID: <1648247490.285747-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH v8 16/16] virtio_ring: introduce virtqueue_resize()
-Date: Sat, 26 Mar 2022 06:31:30 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-References: <20220314093455.34707-1-xuanzhuo@linux.alibaba.com>
- <20220314093455.34707-17-xuanzhuo@linux.alibaba.com>
- <20220325062719-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20220325062719-mutt-send-email-mst@kernel.org>
-Cc: virtualization@lists.linux-foundation.org
+ Sat, 26 Mar 2022 00:36:47 +0000 (UTC)
+Received: by mail-lf1-x131.google.com with SMTP id h7so15961150lfl.2
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 25 Mar 2022 17:36:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=linux-foundation.org; s=google;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=lcshdobGzILllMY3zNpnZ3Ex5ohCbZSLroaY3F9W/JA=;
+ b=dTex8E2DlnTcTjb24xecx3Rs17SSDlOTb2q2dyGoe4UMrbGwJxoqMFipPFX1dMVeta
+ WXHrs1YXfFuOjUXiXABz7YSdikeLsyKoFKm9th2ytRWjAyczdZsos502VTEaIp/Z+TxG
+ Bge3mQs/tQgKvKYn5r8VcKJQjSjngfGK4Akfw=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=lcshdobGzILllMY3zNpnZ3Ex5ohCbZSLroaY3F9W/JA=;
+ b=s+zPSr4SfY1lBf0Qo0a8uIjRevA3iHiNP12PbnX9SikxLoJmOYH2UOfXV46JFZBz/f
+ wzFMUN9KBW75eSeul0uQcCHepOYmcfTSPmg/pzm7ZWskCQGT0X21fPVWMl8rPzBp1JA9
+ mmmG0p0mJbKUPQa9EERlrnFgF6T1yr8wPBJYxp9tVcwHAQyV1rZ1StghQBsuiDPsLOCe
+ ouOSeXVsU9HTqPWorHmBD+Cvjp1iZ5jHpmk5tw1dUabCRze/MnPEWlgAvRXE6YPJ5LhJ
+ 6EPN6Zz8/dmp3fftFNbZd89Fn7+JIOH0ekc8Ndk8Xt7dD/Q1ziQXN6cMpIBleRzC96XF
+ QtNg==
+X-Gm-Message-State: AOAM5315g/9eRx1WNf/zSZ2hOn9sOTDf+Qagp4UB6UR2d+CwgxRG4kGt
+ cmkUHErPyFeJaQWWaBYee8A+Pjet9KOueSdC7pyHAA==
+X-Google-Smtp-Source: ABdhPJwuZ8DPC3CISv99rMPGVsqR9JUZPJnnjuUxQV/AuJnm72PXgOh2u7UsEdjnU+pwopRPIY6mtQ==
+X-Received: by 2002:a05:6512:3d22:b0:44a:378e:d289 with SMTP id
+ d34-20020a0565123d2200b0044a378ed289mr10344147lfv.369.1648255005187; 
+ Fri, 25 Mar 2022 17:36:45 -0700 (PDT)
+Received: from mail-lj1-f172.google.com (mail-lj1-f172.google.com.
+ [209.85.208.172]) by smtp.gmail.com with ESMTPSA id
+ a25-20020a19ca19000000b0044a145eb35bsm866467lfg.35.2022.03.25.17.36.43
+ for <virtualization@lists.linux-foundation.org>
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Fri, 25 Mar 2022 17:36:44 -0700 (PDT)
+Received: by mail-lj1-f172.google.com with SMTP id g24so12278808lja.7
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 25 Mar 2022 17:36:43 -0700 (PDT)
+X-Received: by 2002:a2e:a5c4:0:b0:249:9ec3:f2b with SMTP id
+ n4-20020a2ea5c4000000b002499ec30f2bmr10061179ljp.358.1648255003631; Fri, 25
+ Mar 2022 17:36:43 -0700 (PDT)
+MIME-Version: 1.0
+References: <20220325172036.3f8f619e@gandalf.local.home>
+In-Reply-To: <20220325172036.3f8f619e@gandalf.local.home>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Fri, 25 Mar 2022 17:36:27 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wjTL=vz2PC7=dFZVrT=9nuBtZ21j_qT8e=yHvVuXvhCdg@mail.gmail.com>
+Message-ID: <CAHk-=wjTL=vz2PC7=dFZVrT=9nuBtZ21j_qT8e=yHvVuXvhCdg@mail.gmail.com>
+Subject: Re: [PATCH] virtio: Workaround fix for hard hang on guest using fifos
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ virtualization@lists.linux-foundation.org, LKML <linux-kernel@vger.kernel.org>,
+ Arnd Bergmann <arnd@arndb.de>, Amit Shah <amit@kernel.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -66,142 +103,70 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, 25 Mar 2022 06:33:19 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> On Mon, Mar 14, 2022 at 05:34:55PM +0800, Xuan Zhuo wrote:
-> > Introduce virtqueue_resize() to implement the resize of vring.
-> > Based on these, the driver can dynamically adjust the size of the vring.
-> > For example: ethtool -G.
-> >
-> > virtqueue_resize() implements resize based on the vq reset function. In
-> > case of failure to allocate a new vring, it will give up resize and use
-> > the original vring.
-> >
-> > During this process, if the re-enable reset vq fails, the vq can no
-> > longer be used. Although the probability of this situation is not high.
-> >
-> > The parameter recycle is used to recycle the buffer that is no longer
-> > used.
-> >
-> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > ---
-> >  drivers/virtio/virtio_ring.c | 67 ++++++++++++++++++++++++++++++++++++
-> >  include/linux/virtio.h       |  3 ++
-> >  2 files changed, 70 insertions(+)
-> >
-> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> > index fb0abf9a2f57..b1dde086a8a4 100644
-> > --- a/drivers/virtio/virtio_ring.c
-> > +++ b/drivers/virtio/virtio_ring.c
-> > @@ -2528,6 +2528,73 @@ struct virtqueue *vring_create_virtqueue(
-> >  }
-> >  EXPORT_SYMBOL_GPL(vring_create_virtqueue);
-> >
-> > +/**
-> > + * virtqueue_resize - resize the vring of vq
-> > + * @vq: the struct virtqueue we're talking about.
-> > + * @num: new ring num
-> > + * @recycle: callback for recycle the useless buffer
-> > + *
-> > + * When it is really necessary to create a new vring, it will set the current vq
-> > + * into the reset state. Then call the passed cb to recycle the buffer that is
-> > + * no longer used. Only after the new vring is successfully created, the old
-> > + * vring will be released.
-> > + *
-> > + * Caller must ensure we don't call this with other virtqueue operations
-> > + * at the same time (except where noted).
-> > + *
-> > + * Returns zero or a negative error.
-> > + * -ENOMEM: create new vring fail. But vq can still work
-> > + * -EBUSY:  reset/re-enable vq fail. vq may cannot work
-> > + * -ENOENT: not support resize
-> > + * -E2BIG/-EINVAL: param num error
-> > + */
-> > +int virtqueue_resize(struct virtqueue *vq, u32 num,
-> > +		     void (*recycle)(struct virtqueue *vq, void *buf))
-> > +{
-> > +	struct virtio_device *vdev = vq->vdev;
-> > +	void *buf;
-> > +	int err;
-> > +
-> > +	if (num > vq->num_max)
-> > +		return -E2BIG;
-> > +
-> > +	if (!num)
-> > +		return -EINVAL;
-> > +
-> > +	if (to_vvq(vq)->packed.vring.num == num)
-> > +		return 0;
-> > +
-> > +	if (!vq->vdev->config->reset_vq)
-> > +		return -ENOENT;
-> > +
-> > +	if (!vq->vdev->config->enable_reset_vq)
-> > +		return -ENOENT;
-> > +
-> > +	err = vq->vdev->config->reset_vq(vq);
-> > +	if (err) {
-> > +		if (err != -ENOENT)
-> > +			err = -EBUSY;
-> > +		return err;
-> > +	}
-> > +
-> > +	while ((buf = virtqueue_detach_unused_buf(vq)) != NULL)
-> > +		recycle(vq, buf);
+On Fri, Mar 25, 2022 at 2:20 PM Steven Rostedt <rostedt@goodmis.org> wrote:
 >
->
-> So all this callback can do now is drop all buffers, and I think that is
-> not great.  Can we store them and invoke the callback after queue is
-> enabled?
+> With the updates to change the size being passed in the splice from
+> page_size to pipe_size, this never finished (it would copy around a meg or
+> so). And stopped. When I killed the agent-fifo task on the guest, the guest
+> hung hard.
 
+Without knowing (or really caring) at all how virtqueue works, this
+sounds very much like the classic pipe deadlock where two processes
+communicate over a pair of pipes, sending each other commands, and
+replying to each other with status updates.
 
-OK, I will bring this feature in the next version.
+And you absolutely cannot do that if one side can possibly want to up
+fill the whole pipe.
 
-Thanks.
+Deadlock:
 
->
->
-> > +
-> > +	if (virtio_has_feature(vdev, VIRTIO_F_RING_PACKED))
-> > +		err = virtqueue_resize_packed(vq, num);
-> > +	else
-> > +		err = virtqueue_resize_split(vq, num);
-> > +
-> > +	if (err)
-> > +		err = -ENOMEM;
-> > +
-> > +	if (vq->vdev->config->enable_reset_vq(vq))
-> > +		return -EBUSY;
-> > +
-> > +	return err;
-> > +}
-> > +EXPORT_SYMBOL_GPL(virtqueue_resize);
-> > +
-> >  /* Only available for split ring */
-> >  struct virtqueue *vring_new_virtqueue(unsigned int index,
-> >  				      unsigned int num,
-> > diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-> > index d59adc4be068..c86ff02e0ca0 100644
-> > --- a/include/linux/virtio.h
-> > +++ b/include/linux/virtio.h
-> > @@ -91,6 +91,9 @@ dma_addr_t virtqueue_get_desc_addr(struct virtqueue *vq);
-> >  dma_addr_t virtqueue_get_avail_addr(struct virtqueue *vq);
-> >  dma_addr_t virtqueue_get_used_addr(struct virtqueue *vq);
-> >
-> > +int virtqueue_resize(struct virtqueue *vq, u32 num,
-> > +		     void (*recycle)(struct virtqueue *vq, void *buf));
-> > +
-> >  /**
-> >   * virtio_device - representation of a device using virtio
-> >   * @index: unique position on the virtio bus
-> > --
-> > 2.31.0
->
+ - process A is trying to send data to process B (on 'pipe_A'), and
+blocks because the pipe is full
+
+ - process B is reads the data and everything is fine, and A gets to continue
+
+ - but then process B sends some stratus update the other way (on
+'pipe_B' - you can't use the same pipe for bidirectional, it's why you
+use a pair of pipes or a socketpair) and waits for the result.
+
+ - now A and B are both waiting for each other - A is waiting for B to
+empty the big bunch of data it's sending, and B is waiting for the
+result for the (small) command it sent.
+
+and neither makes any progress.
+
+You can find several mentions of these kinds of problems by just
+googling for "bidirectional pipe deadlock" or similar.
+
+The solution is invariably to either
+
+ (a) make sure that nobody writes even remotely close to enough data
+to fill a pipe before reading the other pipe (you can still fill up a
+pipe, but at least somebody is always going to succeed and make
+progress and do the read to make progress).
+
+ (b) make sure everybody who writes to a pipe will use nonblocking IO
+(and is willing to do reads in between to satisfy the other end).
+
+That first case is basically what one of the PIPE_BUF guarantees is
+all about (the other one is the atomicity it guarantees, ie you can
+write a "command packet" and be guaranteed that readers will see it
+without data mixed in from other writes).
+
+I have no idea what your client/agent does and how it interacts with
+the virtio pipes, but it really _sounds_ like a very similar issue,
+where it used to work (because PIPE_BUF) and now no longer does
+(because pipe filled).
+
+And that virtio_console __send_control_msg() pattern very much sounds
+like a "send data and wait for ACK" behavior of "process B".
+
+              Linus
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
