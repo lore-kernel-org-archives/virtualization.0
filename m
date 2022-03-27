@@ -1,63 +1,55 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 92A23C433F5
-	for <virtualization@archiver.kernel.org>; Sat, 26 Mar 2022 01:02:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E8A8DC433EF
+	for <virtualization@archiver.kernel.org>; Sun, 27 Mar 2022 11:41:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 0AD1F40103;
-	Sat, 26 Mar 2022 01:02:59 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 7986E60B8F;
+	Sun, 27 Mar 2022 11:41:55 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ss4r51kklDRc; Sun, 27 Mar 2022 11:41:54 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id A0962607E3;
+	Sun, 27 Mar 2022 11:41:53 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 791C4C002C;
+	Sun, 27 Mar 2022 11:41:53 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 74B86C0012
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 27 Mar 2022 11:41:51 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 6A7EB40424
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 27 Mar 2022 11:41:51 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id UNULOoWIJXnS; Sat, 26 Mar 2022 01:02:57 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id DC2DE40154;
-	Sat, 26 Mar 2022 01:02:56 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 91C58C002C;
-	Sat, 26 Mar 2022 01:02:56 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6E800C0012
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id hE60eibBBGRb
  for <virtualization@lists.linux-foundation.org>;
- Sat, 26 Mar 2022 01:02:55 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 55CC441996
+ Sun, 27 Mar 2022 11:41:49 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+Received: from s052d7dde.fastvps-server.com (s052d7dde.fastvps-server.com
+ [IPv6:2a03:f480:1:14::7d])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 2FA33400B9
  for <virtualization@lists.linux-foundation.org>;
- Sat, 26 Mar 2022 01:02:55 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ATOLyd32EZT5
- for <virtualization@lists.linux-foundation.org>;
- Sat, 26 Mar 2022 01:02:54 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 24F6F41990
- for <virtualization@lists.linux-foundation.org>;
- Sat, 26 Mar 2022 01:02:53 +0000 (UTC)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by ams.source.kernel.org (Postfix) with ESMTPS id 685EFB82A9B;
- Sat, 26 Mar 2022 01:02:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65D6DC2BBE4;
- Sat, 26 Mar 2022 01:02:49 +0000 (UTC)
-Date: Fri, 25 Mar 2022 21:02:47 -0400
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH] virtio: Workaround fix for hard hang on guest using fifos
-Message-ID: <20220325210247.0d695ab6@gandalf.local.home>
-In-Reply-To: <CAHk-=wjTL=vz2PC7=dFZVrT=9nuBtZ21j_qT8e=yHvVuXvhCdg@mail.gmail.com>
-References: <20220325172036.3f8f619e@gandalf.local.home>
- <CAHk-=wjTL=vz2PC7=dFZVrT=9nuBtZ21j_qT8e=yHvVuXvhCdg@mail.gmail.com>
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+ Sun, 27 Mar 2022 11:41:49 +0000 (UTC)
+Received: from 157.81.37.188.rev.vodafone.pt ([188.37.81.157]
+ helo=LAPTOP-EPOV2LRR) by s052d7dde.fastvps-server.com with esmtpsa
+ (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256) (Exim 4.89)
+ (envelope-from <marle@saisti.eu>) id 1nYQBy-0006dx-HJ
+ for virtualization@lists.linux-foundation.org; Sun, 27 Mar 2022 13:32:14 +0300
+From: "MICRADS-22" <marialemos72@gmail.com>
+Subject: Call for Papers - MICRADS'22, Barranquilla, Colombia
+To: virtualization@lists.linux-foundation.org
 MIME-Version: 1.0
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- virtualization@lists.linux-foundation.org, LKML <linux-kernel@vger.kernel.org>,
- Arnd Bergmann <arnd@arndb.de>, Amit Shah <amit@kernel.org>
+Date: Sun, 27 Mar 2022 11:32:13 +0100
+Message-ID: <9688780349500@gmail-com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -69,144 +61,608 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Reply-To: micradsmail@gmail.com
+Content-Type: multipart/mixed; boundary="===============8325569513487939811=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, 25 Mar 2022 17:36:27 -0700
-Linus Torvalds <torvalds@linux-foundation.org> wrote:
+This is a multi-part message in MIME format
 
-> On Fri, Mar 25, 2022 at 2:20 PM Steven Rostedt <rostedt@goodmis.org> wrote:
-> >
-> > With the updates to change the size being passed in the splice from
-> > page_size to pipe_size, this never finished (it would copy around a meg or
-> > so). And stopped. When I killed the agent-fifo task on the guest, the guest
-> > hung hard.  
-> 
-> Without knowing (or really caring) at all how virtqueue works, this
-> sounds very much like the classic pipe deadlock where two processes
-> communicate over a pair of pipes, sending each other commands, and
-> replying to each other with status updates.
+--===============8325569513487939811==
+Content-Type: multipart/alternative; charset=utf-8; boundary="E8i4FapApt88Bv=_6iBZZIBuiJEaoAXPNa"
 
-It does look like this. Note, this is not due to my application, since it
-flows in one direction, but I think the way virtio pipes are implemented
-can cause this to occur.
+This is a multi-part message in MIME format
 
-A virtio pipe on the guest looks like a normal bidirectional char device.
-You open it, read it, write to it. No problem. On the host, there are two
-FIFOs that are attached to the guest. One for each direction. That is, the
-host is using two pipes that convert to a character device on the guest.
+--E8i4FapApt88Bv=_6iBZZIBuiJEaoAXPNa
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> 
-> And you absolutely cannot do that if one side can possibly want to up
-> fill the whole pipe.
-> 
-> Deadlock:
-> 
->  - process A is trying to send data to process B (on 'pipe_A'), and
-> blocks because the pipe is full
-> 
->  - process B is reads the data and everything is fine, and A gets to continue
-> 
+----------------------------------------------------------------------=
+--------------------------------------------------
+MICRADS=C2=B422 - The 2022 Multidisciplinary International Conference =
+of Research Applied to Defense and Security
+                                                           Barranquill=
+a; Colombia, 11-13 July 2022
+                                                                http:/=
+/www.micrads.org/ <http://www.micrads.org/>
+----------------------------------------------------------------------=
+--------------------------------------------------    =20
 
-I think you left out a step here, where A is blocked again.
+=20
 
->  - but then process B sends some stratus update the other way (on
-> 'pipe_B' - you can't use the same pipe for bidirectional, it's why you
-> use a pair of pipes or a socketpair) and waits for the result.
-> 
->  - now A and B are both waiting for each other - A is waiting for B to
-> empty the big bunch of data it's sending, and B is waiting for the
-> result for the (small) command it sent.
-> 
-> and neither makes any progress.
-> 
-> You can find several mentions of these kinds of problems by just
-> googling for "bidirectional pipe deadlock" or similar.
-> 
-> The solution is invariably to either
-> 
->  (a) make sure that nobody writes even remotely close to enough data
-> to fill a pipe before reading the other pipe (you can still fill up a
-> pipe, but at least somebody is always going to succeed and make
-> progress and do the read to make progress).
-> 
->  (b) make sure everybody who writes to a pipe will use nonblocking IO
-> (and is willing to do reads in between to satisfy the other end).
-> 
-> That first case is basically what one of the PIPE_BUF guarantees is
-> all about (the other one is the atomicity it guarantees, ie you can
-> write a "command packet" and be guaranteed that readers will see it
-> without data mixed in from other writes).
-> 
-> I have no idea what your client/agent does and how it interacts with
-> the virtio pipes, but it really _sounds_ like a very similar issue,
-> where it used to work (because PIPE_BUF) and now no longer does
-> (because pipe filled).
+=20
 
-So the agent writes to the virtio char device on the guest, while the
-client is reading the guest's FIFO on the host.
+Scope=20
 
-One directional.
+MICRADS=C2=B422 - The 2022 Multidisciplinary International Conference =
+of Research Applied to Defense and Security, to be held at Barraquilla=
+, Colombia, 11-13 July 2022, is an international forum for researchers=
+ and practitioners to present and discuss the most recent innovations,=
+ trends, results, experiences and concerns in the several perspectives=
+ of Defense and Security.
+
+We are pleased to invite you to submit your papers to MICRADS=C2=B422.=
+ They can be written in English, Spanish or Portuguese. All submission=
+s will be reviewed on the basis of relevance, originality, importance =
+and clarity.
+
+=20
+
+Topics=20
+
+Submitted papers should be related with one or more of the main themes=
+ proposed for the Conference:
+
+=20
+
+Area A: Systems, Communication and Defense
+
+A1) Information and Communication Technology in Education
+A2) Simulation and computer vision in military applications
+A3) Analysis and Signal Processing
+A4) Cybersecurity and Cyberdefense
+A5) Computer Networks, Mobility and Pervasive Systems
+
+ =20
+
+Area B: Strategy and political-administrative vision in Defense
+
+B1) Safety and Maritime Protection
+B2) Strategy, Geopolitics and Oceanopolitics
+B3) Planning, economy and logistics applied to Defense
+B4) Leadership and e-leadership
+B5) Military Marketing
+B6) Health informatics in military applications
+B7) Ethics in the context of military operations
+B8) Operational Law (DICA and DD. HH.)
+
+=20
+
+Area C: Engineering and technologies applied to Defense
+
+C1) Wearable Technology and Assistance Devices
+C2) Military Naval Engineering
+C3) Weapons and Combat Systems
+C4) Chemical, Biological and Nuclear Defense
+C5) Defense Engineering (General)
+C6) Energy efficiency
+C7) Artificial Intelligence and Machine Learning
+C8) Unmanned platforms
+
+  =20
+
+Submission and Decision=20
+
+Submitted papers written in English (until 10-page limit) must comply =
+with the format of Smart Innovation, Systems and Technologies series (=
+see Instructions for Authors at Springer Website <https://www.springer=
+=2Ecom/us/authors-editors/conference-proceedings/conference-proceeding=
+s-guidelines>), must not have been published before, not be under revi=
+ew for any other conference or publication and not include any informa=
+tion leading to the authors=E2=80=99 identification. Therefore, the au=
+thors=E2=80=99 names, affiliations and e-mails should not be included =
+in the version for evaluation by the Scientific Committee. This inform=
+ation should only be included in the camera-ready version, saved in Wo=
+rd or Latex format and also in PDF format. These files must be accompa=
+nied by the Consent to Publish form <http://www.micrads.org/consent.do=
+c> filled out, in a ZIP file, and uploaded at the conference managemen=
+t system.=20
+
+Submitted papers written in Spanish or Portuguese (until 15-page limit=
+) must comply with the format of RISTI <http://www.risti.xyz/> - Revis=
+ta Ib=C3=A9rica de Sistemas e Tecnologias de Informa=C3=A7=C3=A3o (dow=
+nload instructions/template for authors in Spanish <http://www.risti.x=
+yz/formato-es.doc> or Portuguese <http://www.risti.xyz/formato-pt.doc>=
+), must not have been published before, not be under review for any ot=
+her conference or publication and not include any information leading =
+to the authors=E2=80=99 identification. Therefore, the authors=E2=80=99=
+ names, affiliations and e-mails should not be included in the version=
+ for evaluation by the Scientific Committee. This information should o=
+nly be included in the camera-ready version, saved in Word. These file=
+ must be uploaded at the conference management system in a ZIP file.=20=
 
 
-> 
-> And that virtio_console __send_control_msg() pattern very much sounds
-> like a "send data and wait for ACK" behavior of "process B".
+All papers will be subjected to a =E2=80=9Cblind review=E2=80=9D by at=
+ least two members of the Scientific Committee.
 
-Something happens where data stops transferring (the virtio system waiting
-for status?) This mostly happens when I run the agent under gdb. Which it
-stops transferring data. Everything is still fine. I hit Ctrl^C twice to
-get back to the gdb command prompt, and then I kill the process with the
-gdb "kill" command. It asks me if I'm sure, I type "y", and then boom! The
-system is hung. The guest locks up.
+Based on Scientific Committee evaluation, a paper can be rejected or a=
+ccepted by the Conference Chairs. In the later case, it can be accepte=
+d as paper or poster.
 
-And printk()s show that the exit of the agent is in that loop.
+The authors of papers accepted as posters must build and print a poste=
+r to be exhibited during the Conference. This poster must follow an A1=
+ or A2 vertical format. The Conference can includes Work Sessions wher=
+e these posters are presented and orally discussed, with a 7 minute li=
+mit per poster.
 
- watchdog: BUG: soft lockup - CPU#0 stuck for 26s! [agent-test:1165]
- Modules linked in: ip6table_filter ip6_tables ebtable_nat ebtables bnep bluetooth ecdh_generic ecc cfg80211 rfkill cirrus drm_shmem_helper drm_kms_helper vmw_vsock_virtio_transport vmw_vsock_virtio_transport_common pcspkr joydev serio_raw vsock virtio_console drm virtio_balloon 8139too i2c_piix4 floppy nfsd auth_rpcgss nfs_acl lockd grace sunrpc virtio_net net_failover failover virtio_pci virtio virtio_pci_legacy_dev virtio_pci_modern_dev virtio_ring 8139cp mii ata_generic pata_acpi
- CPU: 0 PID: 1165 Comm: agent-test Not tainted 5.17.0-test+ #41
- Hardware name: Bochs Bochs, BIOS Bochs 01/01/2011
- RIP: 0010:virtqueue_get_buf_ctx_split+0x0/0xd0 [virtio_ring]
- Code: 75 a6 45 31 e4 39 45 2c 74 e6 0f 0b 83 c6 01 48 83 c2 10 39 c6 75 b4 45 31 e4 39 45 2c 74 d1 0f 0b 66 0f 1f 84 00 00 00 00 00 <0f> 1f 44 00 00 41 54 53 80 7f 3b 00 0f 85 9a 00 00 00 48 8b 47 68
- RSP: 0018:ffffb85c012e7c68 EFLAGS: 00000246
- RAX: 0000000000000000 RBX: ffff951705171300 RCX: 0000000000000000
- RDX: 0000000000000000 RSI: ffffb85c012e7c74 RDI: ffff951705171e40
- RBP: ffff951705171e40 R08: ffffffffae733288 R09: 0000000000009ffb
- R10: 00000000000002a1 R11: ffffffffae7032a0 R12: ffff951705171388
- R13: ffff951705171368 R14: 0000000000000006 R15: 0000000000000001
- FS:  0000000000000000(0000) GS:ffff95173d400000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 00007f0c8aa2f000 CR3: 000000000e60a000 CR4: 00000000000006f0
- Call Trace:
-  <TASK>
-  __send_control_msg.part.0+0xdd/0xf0 [virtio_console]
-  port_fops_release+0x10e/0x130 [virtio_console]
-  __fput+0x8c/0x240
-  task_work_run+0x5c/0x90
-  do_exit+0x32a/0xb20
-  do_group_exit+0x2d/0x90
-  get_signal+0x10e/0xa40
-  arch_do_signal_or_restart+0x109/0x740
-  ? kick_process+0x46/0x70
-  ? __send_signal+0x2b2/0x400
-  ? send_signal+0x3f/0x130
-  exit_to_user_mode_prepare+0xf0/0x1c0
-  syscall_exit_to_user_mode+0x17/0x30
-  do_syscall_64+0x48/0x90
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
- RIP: 0033:0x35878f5603
- Code: Unable to access opcode bytes at RIP 0x35878f55d9.
- RSP: 002b:00007fffffffe878 EFLAGS: 00000246 ORIG_RAX: 0000000000000113
- RAX: fffffffffffffe00 RBX: 0000000000000000 RCX: 00000035878f5603
- RDX: 0000000000000006 RSI: 0000000000000000 RDI: 0000000000000004
- RBP: 00007fffffffe9c0 R08: 0000000000007fff R09: 0000000000000003
- R10: 0000000000000000 R11: 0000000000000346 R12: 0000000000400df0
- R13: 00007fffffffeaa0 R14: 0000000000000000 R15: 0000000000000000
+The authors of accepted papers will have 15 minutes to present their w=
+ork in a Conference Work Session; approximately 5 minutes of discussio=
+n will follow each presentation.
 
--- Steve
+=20
+
+Publication and Indexing=20
+
+To ensure that an accepted paper is published, at least one of the aut=
+hors must be fully registered by the 31 of May 2022, and the paper mus=
+t comply with the suggested layout and page-limit (until 10 pages). Ad=
+ditionally, all recommended changes must be addressed by the authors b=
+efore they submit the camera-ready version.
+
+No more than one paper per registration will be published. An extra fe=
+e must be paid for publication of additional papers, with a maximum of=
+ one additional paper per registration. One registration permits only =
+the participation of one author in the conference.
+
+Papers can be written in English, Spanish or Portuguese. Accepted and =
+registered papers written in English will be published in Proceedings =
+by Springer, in a book of its SIST series, and will be submitted for i=
+ndexing by ISI, SCOPUS, EI-Compendex, SpringerLink, and Google Scholar=
+=2E=20
+
+Papers written in Spanish or Portuguese and registered will be publish=
+ed in a Special Issue of RISTI and will be submitted for indexation by=
+ SCOPUS, among others.
+
+=20
+
+Important Dates=20
+
+Paper Submission: April 21, 2022
+
+Notification of Acceptance: May 28, 2022
+
+ Payment of Registration, to ensure the inclusion of an accepted paper=
+ in the conference proceedings: May 31, 2022
+
+ Camera-ready Submission: May 31, 2022
+
+
+
+-------
+Website of MICRADS'22: http://www.micrads.org/ <http://www.micrads.org=
+/>
+-------=20
+
+--E8i4FapApt88Bv=_6iBZZIBuiJEaoAXPNa
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+<html>
+  <head>
+    <title></title>
+    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content=
+-Type" />
+  </head>
+  <body>
+    <p class=3D"MsoNormal" style=3D"margin: 0cm 0cm 8pt; line-height: =
+normal; mso-margin-top-alt: auto; mso-margin-bottom-alt: auto"><span l=
+ang=3D"EN-US" style=3D"font-size: 10pt; font-family: 'Arial',sans-seri=
+f; color: #222222; mso-fareast-font-family: 'Times New Roman'; mso-ans=
+i-language: EN-US; mso-fareast-language: PT">-------------------------=
+----------------------------------------------------------------------=
+-------------------------<br />MICRADS&acute;22 - The 2022 Multidiscip=
+linary International Conference of Research Applied to Defense and Sec=
+urity<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb=
+sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span lang=3D=
+"EN-US" style=3D"font-size: 12pt; font-family: 'Times New Roman',serif=
+; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language: EN-US=
+; mso-fareast-language: PT">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb=
+sp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span lang=3D"EN-US" style=3D"font-s=
+ize: 10pt; font-family: 'Arial',sans-serif; color: #222222; mso-fareas=
+t-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareas=
+t-language: PT">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Barranquilla; Colombia,&=
+nbsp;11-13&nbsp;July 2022<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb=
+sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
+nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb=
+sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
+nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><sp=
+an style=3D"font-size: 10pt; font-family: 'Arial',sans-serif; color: #=
+222222; mso-fareast-font-family: 'Times New Roman'; mso-fareast-langua=
+ge: PT"><a href=3D"http://www.micrads.org/" target=3D"_blank"><span la=
+ng=3D"EN-US" style=3D"color: blue; mso-ansi-language: EN-US">http://ww=
+w.micrads.org/</span></a></span><span lang=3D"EN-US" style=3D"font-siz=
+e: 10pt; font-family: 'Arial',sans-serif; color: #222222; mso-fareast-=
+font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareast-=
+language: PT"><br />--------------------------------------------------=
+----------------------------------------------------------------------=
+</span><span lang=3D"EN-US" style=3D"font-size: 12pt; font-family: 'Ti=
+mes New Roman',serif; mso-fareast-font-family: 'Times New Roman'; mso-=
+ansi-language: EN-US; mso-fareast-language: PT">&nbsp; &nbsp;&nbsp;&nb=
+sp;</span><span lang=3D"EN-US" style=3D"font-size: 10pt; font-family: =
+'Arial',sans-serif; color: #222222; mso-fareast-font-family: 'Times Ne=
+w Roman'; mso-ansi-language: EN-US; mso-fareast-language: PT"><br styl=
+e=3D"mso-special-character: line-break" /><br style=3D"mso-special-cha=
+racter: line-break" /></span><span lang=3D"EN-US" style=3D"font-size: =
+12pt; font-family: 'Times New Roman',serif; mso-fareast-font-family: '=
+Times New Roman'; mso-ansi-language: EN-US; mso-fareast-language: PT">=
+&nbsp;</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
+ 6.75pt; line-height: normal"><b><span lang=3D"EN-US" style=3D"font-si=
+ze: 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-far=
+east-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-far=
+east-language: PT">&nbsp;</span></b></p>
+    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
+ 6.75pt; line-height: normal"><b><span lang=3D"EN-US" style=3D"font-si=
+ze: 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-far=
+east-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-far=
+east-language: PT">Scope</span></b><span lang=3D"EN-US" style=3D"font-=
+size: 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-f=
+areast-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-f=
+areast-language: PT">&nbsp;</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
+tify; margin: 0cm 0cm 6.75pt; line-height: normal"><span lang=3D"EN-US=
+" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color=
+: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-langua=
+ge: EN-US; mso-fareast-language: PT">MICRADS&acute;22 - The 2022 Multi=
+disciplinary International Conference of Research Applied to Defense a=
+nd Security, to be held at Barraquilla, Colombia, 11-13 </span><span l=
+ang=3D"EN-US" style=3D"font-size: 10pt; font-family: 'Arial',sans-seri=
+f; color: #222222; mso-fareast-font-family: 'Times New Roman'; mso-ans=
+i-language: EN-US; mso-fareast-language: PT">July</span><span lang=3D"=
+EN-US" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; =
+color: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-l=
+anguage: EN-US; mso-fareast-language: PT"> 2022, is an international f=
+orum for researchers and practitioners to present and discuss the most=
+ recent innovations, trends, results, experiences and concerns in the =
+several perspectives of Defense and Security.</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
+tify; margin: 0cm 0cm 6.75pt; line-height: normal"><span lang=3D"EN-US=
+" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color=
+: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-langua=
+ge: EN-US; mso-fareast-language: PT">We are pleased to invite you to s=
+ubmit your papers to MICRADS&acute;22. They can be written in English,=
+ Spanish or Portuguese. All submissions will be reviewed on the basis =
+of relevance, originality, importance and clarity.</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
+ 6.75pt; line-height: normal"><span lang=3D"EN-US" style=3D"font-size:=
+ 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-fareas=
+t-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareas=
+t-language: PT">&nbsp;</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
+ 6.75pt; line-height: normal"><b><span lang=3D"EN-US" style=3D"font-si=
+ze: 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-far=
+east-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-far=
+east-language: PT">Topics</span></b><span lang=3D"EN-US" style=3D"font=
+-size: 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-=
+fareast-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-=
+fareast-language: PT">&nbsp;</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
+ 6.75pt; line-height: normal"><span lang=3D"EN-US" style=3D"font-size:=
+ 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-fareas=
+t-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareas=
+t-language: PT">Submitted papers should be related with one or more of=
+ the main themes proposed for the Conference:</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
+ 6.75pt; line-height: normal"><span lang=3D"EN-US" style=3D"font-size:=
+ 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-fareas=
+t-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareas=
+t-language: PT">&nbsp;</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
+ 6.75pt; line-height: normal"><b><span lang=3D"EN-US" style=3D"font-si=
+ze: 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-far=
+east-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-far=
+east-language: PT">Area A: Systems, Communication and Defense</span></=
+b><span lang=3D"EN-US" style=3D"font-size: 10pt; font-family: 'Helveti=
+ca',sans-serif; color: #333333; mso-fareast-font-family: 'Times New Ro=
+man'; mso-ansi-language: EN-US; mso-fareast-language: PT"><br /><br />=
+A1) Information and Communication Technology in Education<br />A2) Sim=
+ulation and computer vision in military applications<br />A3) Analysis=
+ and Signal Processing<br />A4) Cybersecurity and Cyberdefense<br />A5=
+) Computer Networks, Mobility and Pervasive Systems</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
+ 6.75pt; line-height: normal"><span lang=3D"EN-US" style=3D"font-size:=
+ 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-fareas=
+t-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareas=
+t-language: PT">&nbsp;&nbsp;</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
+ 6.75pt; line-height: normal"><b><span lang=3D"EN-US" style=3D"font-si=
+ze: 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-far=
+east-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-far=
+east-language: PT">Area B: Strategy and political-administrative visio=
+n in Defense</span></b><span lang=3D"EN-US" style=3D"font-size: 10pt; =
+font-family: 'Helvetica',sans-serif; color: #333333; mso-fareast-font-=
+family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareast-langu=
+age: PT"><br /><br /><span style=3D"background: white">B1) Safety and =
+Maritime Protection</span><br /><span style=3D"background: white">B2) =
+Strategy, Geopolitics and Oceanopolitics</span><br /><span style=3D"ba=
+ckground: white">B3) Planning, economy and logistics applied to Defens=
+e</span><br /><span style=3D"background: white">B4) Leadership and e-l=
+eadership</span><br /><span style=3D"background: white">B5) Military M=
+arketing</span><br /><span style=3D"background: white">B6) Health info=
+rmatics in military applications</span><br /><span style=3D"background=
+: white">B7) Ethics in the context of military operations</span><br />=
+<span style=3D"background: white">B8) Operational Law (DICA and DD. HH=
+=2E)</span></span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
+ 6.75pt; line-height: normal"><span lang=3D"EN-US" style=3D"font-size:=
+ 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-fareas=
+t-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareas=
+t-language: PT">&nbsp;</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
+ 6.75pt; line-height: normal"><b><span lang=3D"EN-US" style=3D"font-si=
+ze: 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-far=
+east-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-far=
+east-language: PT">Area C: Engineering and technologies applied to Def=
+ense</span></b><span lang=3D"EN-US" style=3D"font-size: 10pt; font-fam=
+ily: 'Helvetica',sans-serif; color: #333333; mso-fareast-font-family: =
+'Times New Roman'; mso-ansi-language: EN-US; mso-fareast-language: PT"=
+><br /><br /><span style=3D"background: white">C1) Wearable Technology=
+ and Assistance Devices</span><br /><span style=3D"background: white">=
+C2) Military Naval Engineering</span><br /><span style=3D"background: =
+white">C3) Weapons and Combat Systems</span><br /><span style=3D"backg=
+round: white">C4) Chemical, Biological and Nuclear Defense</span><br /=
+><span style=3D"background: white">C5) Defense Engineering (General)</=
+span><br /><span style=3D"background: white">C6) Energy efficiency</sp=
+an><br /><span style=3D"background: white">C7) Artificial Intelligence=
+ and Machine Learning</span><br /><span style=3D"background: white">C8=
+) Unmanned platforms</span></span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
+ 6.75pt; line-height: normal"><span lang=3D"EN-US" style=3D"font-size:=
+ 10pt; font-family: 'Helvetica',sans-serif; background: white; color: =
+#333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language=
+: EN-US; mso-fareast-language: PT">&nbsp;</span><span lang=3D"EN-US" s=
+tyle=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color: #=
+333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language:=
+ EN-US; mso-fareast-language: PT">&nbsp;&nbsp;</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
+ 6.75pt; line-height: normal"><b><span lang=3D"EN-US" style=3D"font-si=
+ze: 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-far=
+east-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-far=
+east-language: PT">Submission and Decision</span></b><span lang=3D"EN-=
+US" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; col=
+or: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-lang=
+uage: EN-US; mso-fareast-language: PT">&nbsp;</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
+tify; margin: 0cm 0cm 6.75pt; line-height: normal"><span lang=3D"EN-US=
+" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color=
+: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-langua=
+ge: EN-US; mso-fareast-language: PT">Submitted papers written in Engli=
+sh (until 10-page limit) must comply with the format of Smart Innovati=
+on, Systems and Technologies series (see&nbsp;</span><b><span style=3D=
+"font-size: 10pt; font-family: 'Helvetica',sans-serif; color: #333333;=
+ mso-fareast-font-family: 'Times New Roman'; mso-fareast-language: PT"=
+><a href=3D"https://www.springer.com/us/authors-editors/conference-pro=
+ceedings/conference-proceedings-guidelines" target=3D"_blank"><span la=
+ng=3D"EN-US" style=3D"text-decoration: none; color: #4a4a4a; mso-ansi-=
+language: EN-US; text-underline: none">Instructions for Authors at Spr=
+inger Website</span></a></span></b><span lang=3D"EN-US" style=3D"font-=
+size: 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-f=
+areast-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-f=
+areast-language: PT">), must not have been published before, not be un=
+der review for any other conference or publication and not include any=
+ information leading to the authors&rsquo; identification. Therefore, =
+the authors&rsquo; names, affiliations and e-mails should not be inclu=
+ded in the version for evaluation by the Scientific Committee. This in=
+formation should only be included in the camera-ready version, saved i=
+n Word or Latex format and also in PDF format.&nbsp;</span><span lang=3D=
+"EN" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; co=
+lor: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-lan=
+guage: EN; mso-fareast-language: PT">These files&nbsp;must&nbsp;be acc=
+ompanied by the&nbsp;<b><a href=3D"http://www.micrads.org/consent.doc"=
+ target=3D"_blank"><span style=3D"text-decoration: none; color: #4a4a4=
+a; text-underline: none">Consent to Publish form</span></a></b>&nbsp;f=
+illed out,&nbsp;in a ZIP file, and uploaded at the conference manageme=
+nt system.</span><span lang=3D"EN-US" style=3D"font-size: 10pt; font-f=
+amily: 'Helvetica',sans-serif; color: #333333; mso-fareast-font-family=
+: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareast-language: P=
+T">&nbsp;</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
+tify; margin: 0cm 0cm 6.75pt; line-height: normal"><span lang=3D"EN" s=
+tyle=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color: #=
+333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language:=
+ EN; mso-fareast-language: PT">Submitted papers written in Spanish or =
+Portuguese (until 15-page limit) must comply with the format of&nbsp;<=
+b><a href=3D"http://www.risti.xyz/" target=3D"_blank"><span style=3D"t=
+ext-decoration: none; color: #4a4a4a; text-underline: none">RISTI</spa=
+n></a></b>&nbsp;- Revista Ib&eacute;rica de Sistemas e Tecnologias de =
+Informa&ccedil;&atilde;o (download instructions/template for authors i=
+n&nbsp;<b><a href=3D"http://www.risti.xyz/formato-es.doc" target=3D"_b=
+lank"><span style=3D"text-decoration: none; color: #4a4a4a; text-under=
+line: none">Spanish</span></a></b>&nbsp;or&nbsp;<b><a href=3D"http://w=
+ww.risti.xyz/formato-pt.doc" target=3D"_blank"><span style=3D"text-dec=
+oration: none; color: #4a4a4a; text-underline: none">Portuguese</span>=
+</a></b>), must not have been published before, not be under review fo=
+r any other conference or publication and not include any information =
+leading to the authors&rsquo; identification. Therefore, the authors&r=
+squo; names, affiliations and e-mails should not be included in the ve=
+rsion for evaluation by the Scientific Committee. This information sho=
+uld only be included in the camera-ready version, saved in Word.&nbsp;=
+These file must&nbsp;be&nbsp;uploaded at the conference management sys=
+tem in a ZIP file.</span><span lang=3D"EN-US" style=3D"font-size: 10pt=
+; font-family: 'Helvetica',sans-serif; color: #333333; mso-fareast-fon=
+t-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareast-lan=
+guage: PT">&nbsp;</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
+tify; margin: 0cm 0cm 6.75pt; line-height: normal"><span lang=3D"EN-US=
+" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color=
+: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-langua=
+ge: EN-US; mso-fareast-language: PT">All papers will be subjected to a=
+ &ldquo;blind review&rdquo; by at least two members of the Scientific =
+Committee.</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
+tify; margin: 0cm 0cm 6.75pt; line-height: normal"><span lang=3D"EN-US=
+" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color=
+: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-langua=
+ge: EN-US; mso-fareast-language: PT">Based on Scientific Committee eva=
+luation, a paper can be rejected or accepted by the Conference Chairs.=
+ In the later case, it can be accepted as paper or poster.</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
+tify; margin: 0cm 0cm 6.75pt; line-height: normal"><span lang=3D"EN-US=
+" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color=
+: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-langua=
+ge: EN-US; mso-fareast-language: PT">The authors of papers accepted as=
+ posters must build and print a poster to be exhibited during the Conf=
+erence. This poster must follow an A1 or A2 vertical format. The Confe=
+rence can includes Work Sessions where these posters are presented and=
+ orally discussed, with a 7 minute limit per poster.</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
+tify; margin: 0cm 0cm 6.75pt; line-height: normal"><span lang=3D"EN-US=
+" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color=
+: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-langua=
+ge: EN-US; mso-fareast-language: PT">The authors of accepted papers wi=
+ll have 15 minutes to present their work in a Conference Work Session;=
+ approximately 5 minutes of discussion will follow each presentation.<=
+/span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
+tify; margin: 0cm 0cm 6.75pt; line-height: normal"><span lang=3D"EN-US=
+" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color=
+: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-langua=
+ge: EN-US; mso-fareast-language: PT">&nbsp;</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
+tify; margin: 0cm 0cm 6.75pt; line-height: normal"><b><span lang=3D"EN=
+-US" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; co=
+lor: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-lan=
+guage: EN-US; mso-fareast-language: PT">Publication and Indexing</span=
+></b><span lang=3D"EN-US" style=3D"font-size: 10pt; font-family: 'Helv=
+etica',sans-serif; color: #333333; mso-fareast-font-family: 'Times New=
+ Roman'; mso-ansi-language: EN-US; mso-fareast-language: PT">&nbsp;</s=
+pan></p>
+    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
+tify; margin: 0cm 0cm 6.75pt; line-height: normal"><span lang=3D"EN-US=
+" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color=
+: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-langua=
+ge: EN-US; mso-fareast-language: PT">To ensure that an accepted paper =
+is published, at least one of the authors must be fully registered by =
+the <span style=3D"background: white">31 of May 2022</span>, and the p=
+aper must comply with the suggested layout and page-limit (until 10 pa=
+ges). Additionally, all recommended changes must be addressed by the a=
+uthors before they submit the camera-ready version.</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
+tify; margin: 0cm 0cm 6.75pt; line-height: normal"><span lang=3D"EN-US=
+" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color=
+: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-langua=
+ge: EN-US; mso-fareast-language: PT">No more than one paper per regist=
+ration will be published. An extra fee must be paid for publication of=
+ additional papers, with a maximum of one additional paper per registr=
+ation. One registration permits only the participation of one author i=
+n the conference.</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
+tify; margin: 0cm 0cm 6.75pt; line-height: normal"><font face=3D"Calib=
+ri"><span lang=3D"EN-US" style=3D"color: #333333; mso-fareast-font-fam=
+ily: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareast-language=
+: PT; mso-ascii-font-family: Calibri; mso-hansi-font-family: Calibri; =
+mso-bidi-font-family: Calibri">Papers can be written in English, Spani=
+sh or Portuguese. Accepted and registered papers written in English wi=
+ll be published in Proceedings by Springer, in a book of its&nbsp;</sp=
+an><span lang=3D"EN-US" style=3D"color: black; mso-fareast-font-family=
+: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareast-language: P=
+T; mso-ascii-font-family: Calibri; mso-hansi-font-family: Calibri; mso=
+-bidi-font-family: Calibri">SIST series,&nbsp;</span><span lang=3D"EN-=
+US" style=3D"color: #333333; mso-fareast-font-family: 'Times New Roman=
+'; mso-ansi-language: EN-US; mso-fareast-language: PT; mso-ascii-font-=
+family: Calibri; mso-hansi-font-family: Calibri; mso-bidi-font-family:=
+ Calibri">and will be submitted for indexing by ISI, SCOPUS, EI-Compen=
+dex, SpringerLink, and Google Scholar</span></font><span lang=3D"EN-US=
+" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color=
+: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-langua=
+ge: EN-US; mso-fareast-language: PT">.&nbsp;</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
+tify; margin: 0cm 0cm 6.75pt; line-height: normal"><span lang=3D"EN-US=
+" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color=
+: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-langua=
+ge: EN-US; mso-fareast-language: PT">Papers written in Spanish or Port=
+uguese and registered will be published in a Special Issue of RISTI an=
+d will be submitted for indexation by SCOPUS, among others.</span></p>=
+
+    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
+ 6.75pt; line-height: normal"><span lang=3D"EN-US" style=3D"font-size:=
+ 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-fareas=
+t-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareas=
+t-language: PT">&nbsp;</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
+ 6.75pt; line-height: normal"><b><span lang=3D"EN-US" style=3D"font-si=
+ze: 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-far=
+east-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-far=
+east-language: PT">Important Dates</span></b><span lang=3D"EN-US" styl=
+e=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color: #333=
+333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language: EN=
+-US; mso-fareast-language: PT">&nbsp;</span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
+ 6.75pt; line-height: normal"><span lang=3D"EN-US" style=3D"font-size:=
+ 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-fareas=
+t-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareas=
+t-language: PT">Paper Submission: <span style=3D"background: white">Ap=
+ril&nbsp;21, 2022</span></span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
+ 6.75pt; line-height: normal"><span lang=3D"EN-US" style=3D"font-size:=
+ 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-fareas=
+t-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareas=
+t-language: PT">Notification of Acceptance: <span style=3D"background:=
+ white">May 28, 2022</span></span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
+ 6.75pt; line-height: normal"><span lang=3D"EN-US" style=3D"font-size:=
+ 10pt; font-family: 'Helvetica',sans-serif; background: white; color: =
+#333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language=
+: EN-US; mso-fareast-language: PT">&nbsp;</span><span lang=3D"EN-US" s=
+tyle=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color: #=
+333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language:=
+ EN-US; mso-fareast-language: PT">Payment of Registration,&nbsp;to ens=
+ure the inclusion of an accepted paper in the conference proceedings: =
+<span style=3D"background: white">May 31, 2022</span></span></p>
+    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
+ 6.75pt; line-height: normal"><span lang=3D"EN-US" style=3D"font-size:=
+ 10pt; font-family: 'Helvetica',sans-serif; background: white; color: =
+#333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language=
+: EN-US; mso-fareast-language: PT">&nbsp;</span><span style=3D"font-si=
+ze: 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-far=
+east-font-family: 'Times New Roman'; mso-fareast-language: PT">Camera-=
+ready Submission: <span style=3D"background: white">May 31, 2022</span=
+></span></p>
+    <p class=3D"MsoNormal" style=3D"margin: 0cm 0cm 8pt"><span lang=3D=
+"EN-US" style=3D"font-size: 10pt; font-family: 'Arial',sans-serif; col=
+or: #222222; line-height: 107%; mso-fareast-font-family: 'Times New Ro=
+man'; mso-ansi-language: EN-US; mso-fareast-language: PT"><br /><br />=
+-------<br />Website of MICRADS'22:&nbsp;</span><span style=3D"font-si=
+ze: 10pt; font-family: 'Arial',sans-serif; color: #222222; line-height=
+: 107%; mso-fareast-font-family: 'Times New Roman'; mso-fareast-langua=
+ge: PT"><a href=3D"http://www.micrads.org/" target=3D"_blank"><span la=
+ng=3D"EN-US" style=3D"color: blue; mso-ansi-language: EN-US">http://ww=
+w.micrads.org/</span></a></span><span lang=3D"EN-US" style=3D"font-siz=
+e: 10pt; font-family: 'Arial',sans-serif; color: #222222; line-height:=
+ 107%; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language: =
+EN-US; mso-fareast-language: PT"><br />-------</span><span lang=3D"EN-=
+US" style=3D"mso-ansi-language: EN-US">&nbsp;</span></p>
+  </body>
+</html>
+
+--E8i4FapApt88Bv=_6iBZZIBuiJEaoAXPNa--
+
+
+--===============8325569513487939811==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============8325569513487939811==--
+
