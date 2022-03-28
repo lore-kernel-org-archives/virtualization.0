@@ -1,106 +1,104 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 51800C433F5
-	for <virtualization@archiver.kernel.org>; Mon, 28 Mar 2022 20:43:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9D9F5C433EF
+	for <virtualization@archiver.kernel.org>; Mon, 28 Mar 2022 20:45:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id E068860B19;
-	Mon, 28 Mar 2022 20:43:12 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 37455415AE;
+	Mon, 28 Mar 2022 20:45:39 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id bMZEUvvQVCka; Mon, 28 Mar 2022 20:43:12 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 658FB60655;
-	Mon, 28 Mar 2022 20:43:11 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Rz_g3FQf6x3V; Mon, 28 Mar 2022 20:45:38 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id DFB7F4155C;
+	Mon, 28 Mar 2022 20:45:37 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 427D5C002C;
-	Mon, 28 Mar 2022 20:43:11 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id DD64FC0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id AF804C002C;
+	Mon, 28 Mar 2022 20:45:37 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 16D11C0012
  for <virtualization@lists.linux-foundation.org>;
- Mon, 28 Mar 2022 20:43:09 +0000 (UTC)
+ Mon, 28 Mar 2022 20:45:36 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id C87FD4016C
+ by smtp4.osuosl.org (Postfix) with ESMTP id EACB04155C
  for <virtualization@lists.linux-foundation.org>;
- Mon, 28 Mar 2022 20:43:09 +0000 (UTC)
+ Mon, 28 Mar 2022 20:45:35 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id qiCdBN-fStmC
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Sf7eu0E3dtiX
  for <virtualization@lists.linux-foundation.org>;
- Mon, 28 Mar 2022 20:43:08 +0000 (UTC)
+ Mon, 28 Mar 2022 20:45:35 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id A542640117
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 12A01400FD
  for <virtualization@lists.linux-foundation.org>;
- Mon, 28 Mar 2022 20:43:08 +0000 (UTC)
+ Mon, 28 Mar 2022 20:45:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1648500187;
+ s=mimecast20190719; t=1648500334;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=PJEPbSEt0O6lWWC+/4/A5CGukD+9ye2bG6M4HjxFpHI=;
- b=VokgyMEoNeXACqeY7cBSnVAuQEbnXhkyfjX85Hykn8cb+g4KzL3K+A+4Gc1msISb8RHk6A
- cD/xnmgquUZl317dSEfL5RVfFhFyPDzSu89eGzozPeA+BAkBk4D16ZJFc8bQpxJWuAxql1
- fUGLGkzKkeut3ztZBisdFUbrDOc0mRU=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=LnKa6nTnZjVyLapB3u+K+tVTv5yyqsbvt80uXn7tlqE=;
+ b=JcFJIigjIiPL6JRREFDdQY5GpHp/z9gh6xqcdtppD1w1SL3iKtYimWesOHx8nCPCGE9Tci
+ CQtLiQ35OqnxeLERWoaUGz6/zYuhlL0JOKibpYc2EPT0xn64OuerhPSAjV1m5jYSpoJUNl
+ uOpMxQFCbcOeRQPJha2iQAzqr19I3/Y=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-515-L9zzqmYOOxqOYl5xcq7egQ-1; Mon, 28 Mar 2022 16:43:06 -0400
-X-MC-Unique: L9zzqmYOOxqOYl5xcq7egQ-1
-Received: by mail-wm1-f71.google.com with SMTP id
- o10-20020a1c4d0a000000b0038c6e5fcbaeso203074wmh.9
+ us-mta-12-ByjwUyTPMxqRB2hEfrGykA-1; Mon, 28 Mar 2022 16:45:15 -0400
+X-MC-Unique: ByjwUyTPMxqRB2hEfrGykA-1
+Received: by mail-wm1-f69.google.com with SMTP id
+ f19-20020a7bcd13000000b0038c01defd5aso208030wmj.7
  for <virtualization@lists.linux-foundation.org>;
- Mon, 28 Mar 2022 13:43:06 -0700 (PDT)
+ Mon, 28 Mar 2022 13:45:14 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=PJEPbSEt0O6lWWC+/4/A5CGukD+9ye2bG6M4HjxFpHI=;
- b=p5qLz1oo4qBaYK2jBhAgUO7DnoaSkOR6HfQYf3v53YjqP0cYvrcJ4vSDRXnEC8hoMX
- 8f6PjkGo2GhCu0/BvGD7cmhrRLZaM0X+Y5k4/OwUHPiwPzFkecZ/xQU+uxcluyaiwgjo
- BErh2PytpQ43DCbM8bcdGSn9hw0PcDUxwahb5Fm/xZblTtAmboCrw3PmLccM9sG/eyAQ
- mPryFNztqd2/W0Trn2qPn34IOtgEq8WjR+Kl0YFl1tdl6B1sD8dpwVBUujBiFQkImE2f
- sLKQAxUNooAwb5g7l9pVjZGmzAJeO+SfUZEHwa/M3cJsbFKTeMNQUTzUid8z2IWk5xdy
- S0Ug==
-X-Gm-Message-State: AOAM531s2Cq360pHokP5tmlrN/I0vDv25/muy24C5xSIqaQ3wsN5zyDo
- ZEb0BDAOwCyis6Ev+r5djrsZH/dAzsBFh6ofJ/pSw2QH04qcvIKJgmlpZX1ZUE0ZCmyVx1uyLop
- epOf5LNA0fEhQuAdXLyKxqIOMQ1vvyNyH903StVzEhQ==
-X-Received: by 2002:a7b:c341:0:b0:37b:ed90:7dad with SMTP id
- l1-20020a7bc341000000b0037bed907dadmr1467630wmj.138.1648500184530; 
- Mon, 28 Mar 2022 13:43:04 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwqJ51NlOZBInKiTlBe3giVlBSqn5C3pjZeP3UUXO1W7rcm9wq0r9ipgX192N0DSiX3l8eE+Q==
-X-Received: by 2002:a7b:c341:0:b0:37b:ed90:7dad with SMTP id
- l1-20020a7bc341000000b0037bed907dadmr1467606wmj.138.1648500184334; 
- Mon, 28 Mar 2022 13:43:04 -0700 (PDT)
+ bh=LnKa6nTnZjVyLapB3u+K+tVTv5yyqsbvt80uXn7tlqE=;
+ b=0sZVY7yDz2E+dNxwkcRuYSr42/+XffjVLMPGNIQPiuwmO4fQzQ9gLjEjcl4pzCxjhU
+ 88HAQN9MRpyWELHd578JiJb6SFqx8S9k9MR7D0irt606SmQcSuNWfPlVPzdkdo1JghCH
+ /k5lpPYynj/TsQEvpZTJRmSnnpbenpvvTKyI7C0ILbmrPMDolUH64F8boJhZn0GpKOw3
+ u+hPS8pf2HB3E9t20xtBiyAvK86p8kjHW4FOFN7a4HN1KEtSUMVqqeo95UTsXZotLxxz
+ thEYS2+Kfh83wwYUYbCGWlddEgMfeh28JC+7szzONeJmER1OiYCCCzgmDdvwlkrvXwXh
+ tBOQ==
+X-Gm-Message-State: AOAM531ho5t4054Sk6daqliooW0d8QWhNfw9nVkVgbZLtQMzwiQ166me
+ CAMtnRrk+KNT//vi/9vyVGCpqI6eoKItE7NgZbGwQeQSwCWyPDG+aIJW7WBjojvZqDntF7De4Wv
+ ChB9M06cKgPPAgREE6DluaqA+W1Bkuc7qlHMu9nhRzg==
+X-Received: by 2002:adf:ed50:0:b0:203:da73:e0fd with SMTP id
+ u16-20020adfed50000000b00203da73e0fdmr26662473wro.516.1648500313607; 
+ Mon, 28 Mar 2022 13:45:13 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJw074Uoe8XwVEA8gx6KrACZhH+gFVcy6Xz6Ap01CnGtcLywUMvECryjGZs5gVgeUc2Qy60EGg==
+X-Received: by 2002:adf:ed50:0:b0:203:da73:e0fd with SMTP id
+ u16-20020adfed50000000b00203da73e0fdmr26662453wro.516.1648500313409; 
+ Mon, 28 Mar 2022 13:45:13 -0700 (PDT)
 Received: from redhat.com ([2.52.9.207]) by smtp.gmail.com with ESMTPSA id
- l20-20020a05600c1d1400b0038cba2f88c0sm616358wms.26.2022.03.28.13.43.01
+ z3-20020a1cf403000000b0037d1f4a2201sm431912wma.21.2022.03.28.13.45.11
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 28 Mar 2022 13:43:03 -0700 (PDT)
-Date: Mon, 28 Mar 2022 16:42:59 -0400
+ Mon, 28 Mar 2022 13:45:12 -0700 (PDT)
+Date: Mon, 28 Mar 2022 16:45:08 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Minghao Xue <quic_mingxue@quicinc.com>
-Subject: Re: [PATCH v2 1/2] dt-bindings: virtio: mmio: add optional
- wakeup-source property
-Message-ID: <20220328164228-mutt-send-email-mst@kernel.org>
-References: <20220325015945.GA17578@mingxue-gv.qualcomm.com>
+To: cgel.zte@gmail.com
+Subject: Re: [PATCH] virito-pci-modern: Remove useless DMA-32 fallback
+ configuration
+Message-ID: <20220328164435-mutt-send-email-mst@kernel.org>
+References: <20220318005858.2141967-1-chi.minghao@zte.com.cn>
 MIME-Version: 1.0
-In-Reply-To: <20220325015945.GA17578@mingxue-gv.qualcomm.com>
+In-Reply-To: <20220318005858.2141967-1-chi.minghao@zte.com.cn>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: jean-philippe@linaro.org, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- robh+dt@kernel.org, quic_ztu@quicinc.com
+Cc: Zeal Robot <zealci@zte.com.cn>, linux-kernel@vger.kernel.org,
+ Minghao Chi <chi.minghao@zte.com.cn>,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -117,39 +115,42 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Mar 25, 2022 at 09:59:45AM +0800, Minghao Xue wrote:
-> Some systems want to set the interrupt of virtio_mmio device
-> as a wakeup source. On such systems, we'll use the existence
-> of the "wakeup-source" property as a signal of requirement.
+Typo in subj, and pls make subject match actual file name (_ not -).
+
+
+On Fri, Mar 18, 2022 at 12:58:58AM +0000, cgel.zte@gmail.com wrote:
+> From: Minghao Chi <chi.minghao@zte.com.cn>
 > 
-> Signed-off-by: Minghao Xue <quic_mingxue@quicinc.com>
-
-I don't have enough of a clue about dt to review this.
-Pls get some acks from people with DT expertise.
-
+> As stated in [1], dma_set_mask() with a 64-bit mask will never fail if
+> dev->dma_mask is non-NULL.
+> So, if it fails, the 32 bits case will also fail for the same reason.
+> 
+> Simplify code and remove some dead code accordingly.
+> 
+> [1]: https://lkml.org/lkml/2021/6/7/398
+> 
+> Reported-by: Zeal Robot <zealci@zte.com.cn>
+> Signed-off-by: Minghao Chi <chi.minghao@zte.com.cn>
 > ---
-> v1 -> v2: rename property from "virtio,wakeup" to "wakeup-source"
+>  drivers/virtio/virtio_pci_modern_dev.c | 3 ---
+>  1 file changed, 3 deletions(-)
 > 
->  Documentation/devicetree/bindings/virtio/mmio.yaml | 4 ++++
->  1 file changed, 4 insertions(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/virtio/mmio.yaml b/Documentation/devicetree/bindings/virtio/mmio.yaml
-> index 4b7a027..160b21b 100644
-> --- a/Documentation/devicetree/bindings/virtio/mmio.yaml
-> +++ b/Documentation/devicetree/bindings/virtio/mmio.yaml
-> @@ -31,6 +31,10 @@ properties:
->      description: Required for devices making accesses thru an IOMMU.
->      maxItems: 1
+> diff --git a/drivers/virtio/virtio_pci_modern_dev.c b/drivers/virtio/virtio_pci_modern_dev.c
+> index e8b3ff2b9fbc..dff0b15a239d 100644
+> --- a/drivers/virtio/virtio_pci_modern_dev.c
+> +++ b/drivers/virtio/virtio_pci_modern_dev.c
+> @@ -255,9 +255,6 @@ int vp_modern_probe(struct virtio_pci_modern_device *mdev)
+>  	}
 >  
-> +  wakeup-source:
-> +    type: boolean
-> +    description: Required for setting irq of a virtio_mmio device as wakeup source.
-> +
->  required:
->    - compatible
->    - reg
+>  	err = dma_set_mask_and_coherent(&pci_dev->dev, DMA_BIT_MASK(64));
+> -	if (err)
+> -		err = dma_set_mask_and_coherent(&pci_dev->dev,
+> -						DMA_BIT_MASK(32));
+>  	if (err)
+>  		dev_warn(&pci_dev->dev, "Failed to enable 64-bit or 32-bit DMA.  Trying to continue, but this might not work.\n");
+>  
 > -- 
-> 2.7.4
+> 2.25.1
 
 _______________________________________________
 Virtualization mailing list
