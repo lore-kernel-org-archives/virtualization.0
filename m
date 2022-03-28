@@ -1,55 +1,107 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E8A8DC433EF
-	for <virtualization@archiver.kernel.org>; Sun, 27 Mar 2022 11:41:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E782EC433EF
+	for <virtualization@archiver.kernel.org>; Mon, 28 Mar 2022 04:57:05 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 7986E60B8F;
-	Sun, 27 Mar 2022 11:41:55 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 6FF3E4169E;
+	Mon, 28 Mar 2022 04:57:05 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ss4r51kklDRc; Sun, 27 Mar 2022 11:41:54 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id A0962607E3;
-	Sun, 27 Mar 2022 11:41:53 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id F9AErst9FOhf; Mon, 28 Mar 2022 04:57:02 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 0D8A6416A3;
+	Mon, 28 Mar 2022 04:57:01 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 791C4C002C;
-	Sun, 27 Mar 2022 11:41:53 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 74B86C0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D2714C001D;
+	Mon, 28 Mar 2022 04:57:01 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id CDE5CC0012
  for <virtualization@lists.linux-foundation.org>;
- Sun, 27 Mar 2022 11:41:51 +0000 (UTC)
+ Mon, 28 Mar 2022 04:57:00 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 6A7EB40424
+ by smtp1.osuosl.org (Postfix) with ESMTP id B515A81A18
  for <virtualization@lists.linux-foundation.org>;
- Sun, 27 Mar 2022 11:41:51 +0000 (UTC)
+ Mon, 28 Mar 2022 04:57:00 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id hE60eibBBGRb
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 8nCeBKkHXsCl
  for <virtualization@lists.linux-foundation.org>;
- Sun, 27 Mar 2022 11:41:49 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from s052d7dde.fastvps-server.com (s052d7dde.fastvps-server.com
- [IPv6:2a03:f480:1:14::7d])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 2FA33400B9
+ Mon, 28 Mar 2022 04:56:57 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 9ED1081A16
  for <virtualization@lists.linux-foundation.org>;
- Sun, 27 Mar 2022 11:41:49 +0000 (UTC)
-Received: from 157.81.37.188.rev.vodafone.pt ([188.37.81.157]
- helo=LAPTOP-EPOV2LRR) by s052d7dde.fastvps-server.com with esmtpsa
- (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256) (Exim 4.89)
- (envelope-from <marle@saisti.eu>) id 1nYQBy-0006dx-HJ
- for virtualization@lists.linux-foundation.org; Sun, 27 Mar 2022 13:32:14 +0300
-From: "MICRADS-22" <marialemos72@gmail.com>
-Subject: Call for Papers - MICRADS'22, Barranquilla, Colombia
-To: virtualization@lists.linux-foundation.org
+ Mon, 28 Mar 2022 04:56:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1648443416;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=2gkNQpu4kANGFFL3VkEjiCuQFdxFNSWesUdsMKBws3Q=;
+ b=c0ejT8/5yJNtNY8QLDuKiQkGTn5xp0pubPylpyyVn7FuymOOubWTGfA6ry71k6nzYoynzp
+ mfENF0H5/VWswEq9v76+jlbWKLw7140z8STmHuwiO5IJs0BqpERVGwDWu6DtuKUVCyV71l
+ 73VS85x8qy2fcgaC/O0zbblxQpM/SA4=
+Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com
+ [209.85.208.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-541-A_uL4alUMe2UNqZU2ml1Dg-1; Mon, 28 Mar 2022 00:56:54 -0400
+X-MC-Unique: A_uL4alUMe2UNqZU2ml1Dg-1
+Received: by mail-lj1-f200.google.com with SMTP id
+ b2-20020a2e8942000000b002497c9833c2so5414102ljk.8
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 27 Mar 2022 21:56:54 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc:content-transfer-encoding;
+ bh=2gkNQpu4kANGFFL3VkEjiCuQFdxFNSWesUdsMKBws3Q=;
+ b=t51zVpg2/hfMveS5zuRGqIVA7XILOKmoR9ggMWQ7tui3emVM4OlboP86Tpw8j9m+hr
+ 89AFHwuwlLxXivVvO+60fStwcwISo4aU4ZnkcngO/qBmMn2zFh9xJE2jtV68l2Bn3U00
+ yU6+Dmecj+ddsuPFeej/iP2TYQi6gZmi65+72pH0dEL9TvoXC/rGoA4DRhQzQd1mPvAl
+ usT50Rg/uEEHXrm5E2yPx4crl2B8IFR3BcVlkfUU6wqfEo3ihvW4K0yz2lgl5eLGFHRw
+ VCwylD0W2AKd3yUHP/JUZIilXOTZLCFxSpGcUSUwoMUyXEC0NXExLAPnJVzI3xgQMzOD
+ zsMw==
+X-Gm-Message-State: AOAM532EN+L79WoEXtNsDkS0Ad3N/A6olowwn1ZCljhu0BPTG8cuB9XQ
+ eBS0BzIYdnt4WAN2ql3KIMKjh79EBdkO+FbZjG5k4AdE1TG4Cz1AvLYPi0OxqcmIq7mDmTaSwcY
+ scDiUYII1+aeR1acBvlSlH563LzM2pDqsHADykw/1gAzw6bYi/+gcrNqWkw==
+X-Received: by 2002:a05:6512:1395:b0:446:d382:79a5 with SMTP id
+ p21-20020a056512139500b00446d38279a5mr17926720lfa.210.1648443412758; 
+ Sun, 27 Mar 2022 21:56:52 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxt/bzJ9zwsNh8eSBVNz+omWW+KwYlD+ICzTaTEWGL/Qf6hUvuQA+7bxaQNlLmtrAeX/T1GVfdn1/f74Wo+kio=
+X-Received: by 2002:a05:6512:1395:b0:446:d382:79a5 with SMTP id
+ p21-20020a056512139500b00446d38279a5mr17926694lfa.210.1648443412391; Sun, 27
+ Mar 2022 21:56:52 -0700 (PDT)
 MIME-Version: 1.0
-Date: Sun, 27 Mar 2022 11:32:13 +0100
-Message-ID: <9688780349500@gmail-com>
+References: <Yj1hkpyUqJE9sQ2p@redhat.com>
+ <CACGkMEunsuWhn+aB2dM7noU257M9JV6jDjkQXLyOA+GjEoz_iw@mail.gmail.com>
+ <20220325050947-mutt-send-email-mst@kernel.org>
+ <CACGkMEvioAVMmB+ab2xXB2YPECtwi1J55u8mRRk9-JAjFSZ8vg@mail.gmail.com>
+ <20220325060659-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20220325060659-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 28 Mar 2022 12:56:41 +0800
+Message-ID: <CACGkMEu4mRfNbJXJtAFzhyd55fD7phUDKnVtYW0aqRnQmT_bYw@mail.gmail.com>
+Subject: Re:
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: "Paul E. McKenney" <paulmck@kernel.org>,
+ Peter Zijlstra <peterz@infradead.org>, Marc Zyngier <maz@kernel.org>,
+ Keir Fraser <keirf@google.com>, linux-kernel <linux-kernel@vger.kernel.org>,
+ virtualization <virtualization@lists.linux-foundation.org>,
+ Thomas Gleixner <tglx@linutronix.de>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -61,608 +113,333 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Reply-To: micradsmail@gmail.com
-Content-Type: multipart/mixed; boundary="===============8325569513487939811=="
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is a multi-part message in MIME format
-
---===============8325569513487939811==
-Content-Type: multipart/alternative; charset=utf-8; boundary="E8i4FapApt88Bv=_6iBZZIBuiJEaoAXPNa"
-
-This is a multi-part message in MIME format
-
---E8i4FapApt88Bv=_6iBZZIBuiJEaoAXPNa
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-----------------------------------------------------------------------=
---------------------------------------------------
-MICRADS=C2=B422 - The 2022 Multidisciplinary International Conference =
-of Research Applied to Defense and Security
-                                                           Barranquill=
-a; Colombia, 11-13 July 2022
-                                                                http:/=
-/www.micrads.org/ <http://www.micrads.org/>
-----------------------------------------------------------------------=
---------------------------------------------------    =20
-
-=20
-
-=20
-
-Scope=20
-
-MICRADS=C2=B422 - The 2022 Multidisciplinary International Conference =
-of Research Applied to Defense and Security, to be held at Barraquilla=
-, Colombia, 11-13 July 2022, is an international forum for researchers=
- and practitioners to present and discuss the most recent innovations,=
- trends, results, experiences and concerns in the several perspectives=
- of Defense and Security.
-
-We are pleased to invite you to submit your papers to MICRADS=C2=B422.=
- They can be written in English, Spanish or Portuguese. All submission=
-s will be reviewed on the basis of relevance, originality, importance =
-and clarity.
-
-=20
-
-Topics=20
-
-Submitted papers should be related with one or more of the main themes=
- proposed for the Conference:
-
-=20
-
-Area A: Systems, Communication and Defense
-
-A1) Information and Communication Technology in Education
-A2) Simulation and computer vision in military applications
-A3) Analysis and Signal Processing
-A4) Cybersecurity and Cyberdefense
-A5) Computer Networks, Mobility and Pervasive Systems
-
- =20
-
-Area B: Strategy and political-administrative vision in Defense
-
-B1) Safety and Maritime Protection
-B2) Strategy, Geopolitics and Oceanopolitics
-B3) Planning, economy and logistics applied to Defense
-B4) Leadership and e-leadership
-B5) Military Marketing
-B6) Health informatics in military applications
-B7) Ethics in the context of military operations
-B8) Operational Law (DICA and DD. HH.)
-
-=20
-
-Area C: Engineering and technologies applied to Defense
-
-C1) Wearable Technology and Assistance Devices
-C2) Military Naval Engineering
-C3) Weapons and Combat Systems
-C4) Chemical, Biological and Nuclear Defense
-C5) Defense Engineering (General)
-C6) Energy efficiency
-C7) Artificial Intelligence and Machine Learning
-C8) Unmanned platforms
-
-  =20
-
-Submission and Decision=20
-
-Submitted papers written in English (until 10-page limit) must comply =
-with the format of Smart Innovation, Systems and Technologies series (=
-see Instructions for Authors at Springer Website <https://www.springer=
-=2Ecom/us/authors-editors/conference-proceedings/conference-proceeding=
-s-guidelines>), must not have been published before, not be under revi=
-ew for any other conference or publication and not include any informa=
-tion leading to the authors=E2=80=99 identification. Therefore, the au=
-thors=E2=80=99 names, affiliations and e-mails should not be included =
-in the version for evaluation by the Scientific Committee. This inform=
-ation should only be included in the camera-ready version, saved in Wo=
-rd or Latex format and also in PDF format. These files must be accompa=
-nied by the Consent to Publish form <http://www.micrads.org/consent.do=
-c> filled out, in a ZIP file, and uploaded at the conference managemen=
-t system.=20
-
-Submitted papers written in Spanish or Portuguese (until 15-page limit=
-) must comply with the format of RISTI <http://www.risti.xyz/> - Revis=
-ta Ib=C3=A9rica de Sistemas e Tecnologias de Informa=C3=A7=C3=A3o (dow=
-nload instructions/template for authors in Spanish <http://www.risti.x=
-yz/formato-es.doc> or Portuguese <http://www.risti.xyz/formato-pt.doc>=
-), must not have been published before, not be under review for any ot=
-her conference or publication and not include any information leading =
-to the authors=E2=80=99 identification. Therefore, the authors=E2=80=99=
- names, affiliations and e-mails should not be included in the version=
- for evaluation by the Scientific Committee. This information should o=
-nly be included in the camera-ready version, saved in Word. These file=
- must be uploaded at the conference management system in a ZIP file.=20=
-
-
-All papers will be subjected to a =E2=80=9Cblind review=E2=80=9D by at=
- least two members of the Scientific Committee.
-
-Based on Scientific Committee evaluation, a paper can be rejected or a=
-ccepted by the Conference Chairs. In the later case, it can be accepte=
-d as paper or poster.
-
-The authors of papers accepted as posters must build and print a poste=
-r to be exhibited during the Conference. This poster must follow an A1=
- or A2 vertical format. The Conference can includes Work Sessions wher=
-e these posters are presented and orally discussed, with a 7 minute li=
-mit per poster.
-
-The authors of accepted papers will have 15 minutes to present their w=
-ork in a Conference Work Session; approximately 5 minutes of discussio=
-n will follow each presentation.
-
-=20
-
-Publication and Indexing=20
-
-To ensure that an accepted paper is published, at least one of the aut=
-hors must be fully registered by the 31 of May 2022, and the paper mus=
-t comply with the suggested layout and page-limit (until 10 pages). Ad=
-ditionally, all recommended changes must be addressed by the authors b=
-efore they submit the camera-ready version.
-
-No more than one paper per registration will be published. An extra fe=
-e must be paid for publication of additional papers, with a maximum of=
- one additional paper per registration. One registration permits only =
-the participation of one author in the conference.
-
-Papers can be written in English, Spanish or Portuguese. Accepted and =
-registered papers written in English will be published in Proceedings =
-by Springer, in a book of its SIST series, and will be submitted for i=
-ndexing by ISI, SCOPUS, EI-Compendex, SpringerLink, and Google Scholar=
-=2E=20
-
-Papers written in Spanish or Portuguese and registered will be publish=
-ed in a Special Issue of RISTI and will be submitted for indexation by=
- SCOPUS, among others.
-
-=20
-
-Important Dates=20
-
-Paper Submission: April 21, 2022
-
-Notification of Acceptance: May 28, 2022
-
- Payment of Registration, to ensure the inclusion of an accepted paper=
- in the conference proceedings: May 31, 2022
-
- Camera-ready Submission: May 31, 2022
-
-
-
--------
-Website of MICRADS'22: http://www.micrads.org/ <http://www.micrads.org=
-/>
--------=20
-
---E8i4FapApt88Bv=_6iBZZIBuiJEaoAXPNa
-Content-Type: text/html; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-<html>
-  <head>
-    <title></title>
-    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content=
--Type" />
-  </head>
-  <body>
-    <p class=3D"MsoNormal" style=3D"margin: 0cm 0cm 8pt; line-height: =
-normal; mso-margin-top-alt: auto; mso-margin-bottom-alt: auto"><span l=
-ang=3D"EN-US" style=3D"font-size: 10pt; font-family: 'Arial',sans-seri=
-f; color: #222222; mso-fareast-font-family: 'Times New Roman'; mso-ans=
-i-language: EN-US; mso-fareast-language: PT">-------------------------=
-----------------------------------------------------------------------=
--------------------------<br />MICRADS&acute;22 - The 2022 Multidiscip=
-linary International Conference of Research Applied to Defense and Sec=
-urity<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
-;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb=
-sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span lang=3D=
-"EN-US" style=3D"font-size: 12pt; font-family: 'Times New Roman',serif=
-; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language: EN-US=
-; mso-fareast-language: PT">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp=
-;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb=
-sp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span lang=3D"EN-US" style=3D"font-s=
-ize: 10pt; font-family: 'Arial',sans-serif; color: #222222; mso-fareas=
-t-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareas=
-t-language: PT">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Barranquilla; Colombia,&=
-nbsp;11-13&nbsp;July 2022<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb=
-sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
-nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
-;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb=
-sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
-nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><sp=
-an style=3D"font-size: 10pt; font-family: 'Arial',sans-serif; color: #=
-222222; mso-fareast-font-family: 'Times New Roman'; mso-fareast-langua=
-ge: PT"><a href=3D"http://www.micrads.org/" target=3D"_blank"><span la=
-ng=3D"EN-US" style=3D"color: blue; mso-ansi-language: EN-US">http://ww=
-w.micrads.org/</span></a></span><span lang=3D"EN-US" style=3D"font-siz=
-e: 10pt; font-family: 'Arial',sans-serif; color: #222222; mso-fareast-=
-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareast-=
-language: PT"><br />--------------------------------------------------=
-----------------------------------------------------------------------=
-</span><span lang=3D"EN-US" style=3D"font-size: 12pt; font-family: 'Ti=
-mes New Roman',serif; mso-fareast-font-family: 'Times New Roman'; mso-=
-ansi-language: EN-US; mso-fareast-language: PT">&nbsp; &nbsp;&nbsp;&nb=
-sp;</span><span lang=3D"EN-US" style=3D"font-size: 10pt; font-family: =
-'Arial',sans-serif; color: #222222; mso-fareast-font-family: 'Times Ne=
-w Roman'; mso-ansi-language: EN-US; mso-fareast-language: PT"><br styl=
-e=3D"mso-special-character: line-break" /><br style=3D"mso-special-cha=
-racter: line-break" /></span><span lang=3D"EN-US" style=3D"font-size: =
-12pt; font-family: 'Times New Roman',serif; mso-fareast-font-family: '=
-Times New Roman'; mso-ansi-language: EN-US; mso-fareast-language: PT">=
-&nbsp;</span></p>
-    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
- 6.75pt; line-height: normal"><b><span lang=3D"EN-US" style=3D"font-si=
-ze: 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-far=
-east-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-far=
-east-language: PT">&nbsp;</span></b></p>
-    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
- 6.75pt; line-height: normal"><b><span lang=3D"EN-US" style=3D"font-si=
-ze: 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-far=
-east-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-far=
-east-language: PT">Scope</span></b><span lang=3D"EN-US" style=3D"font-=
-size: 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-f=
-areast-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-f=
-areast-language: PT">&nbsp;</span></p>
-    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
-tify; margin: 0cm 0cm 6.75pt; line-height: normal"><span lang=3D"EN-US=
-" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color=
-: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-langua=
-ge: EN-US; mso-fareast-language: PT">MICRADS&acute;22 - The 2022 Multi=
-disciplinary International Conference of Research Applied to Defense a=
-nd Security, to be held at Barraquilla, Colombia, 11-13 </span><span l=
-ang=3D"EN-US" style=3D"font-size: 10pt; font-family: 'Arial',sans-seri=
-f; color: #222222; mso-fareast-font-family: 'Times New Roman'; mso-ans=
-i-language: EN-US; mso-fareast-language: PT">July</span><span lang=3D"=
-EN-US" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; =
-color: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-l=
-anguage: EN-US; mso-fareast-language: PT"> 2022, is an international f=
-orum for researchers and practitioners to present and discuss the most=
- recent innovations, trends, results, experiences and concerns in the =
-several perspectives of Defense and Security.</span></p>
-    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
-tify; margin: 0cm 0cm 6.75pt; line-height: normal"><span lang=3D"EN-US=
-" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color=
-: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-langua=
-ge: EN-US; mso-fareast-language: PT">We are pleased to invite you to s=
-ubmit your papers to MICRADS&acute;22. They can be written in English,=
- Spanish or Portuguese. All submissions will be reviewed on the basis =
-of relevance, originality, importance and clarity.</span></p>
-    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
- 6.75pt; line-height: normal"><span lang=3D"EN-US" style=3D"font-size:=
- 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-fareas=
-t-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareas=
-t-language: PT">&nbsp;</span></p>
-    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
- 6.75pt; line-height: normal"><b><span lang=3D"EN-US" style=3D"font-si=
-ze: 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-far=
-east-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-far=
-east-language: PT">Topics</span></b><span lang=3D"EN-US" style=3D"font=
--size: 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-=
-fareast-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-=
-fareast-language: PT">&nbsp;</span></p>
-    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
- 6.75pt; line-height: normal"><span lang=3D"EN-US" style=3D"font-size:=
- 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-fareas=
-t-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareas=
-t-language: PT">Submitted papers should be related with one or more of=
- the main themes proposed for the Conference:</span></p>
-    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
- 6.75pt; line-height: normal"><span lang=3D"EN-US" style=3D"font-size:=
- 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-fareas=
-t-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareas=
-t-language: PT">&nbsp;</span></p>
-    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
- 6.75pt; line-height: normal"><b><span lang=3D"EN-US" style=3D"font-si=
-ze: 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-far=
-east-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-far=
-east-language: PT">Area A: Systems, Communication and Defense</span></=
-b><span lang=3D"EN-US" style=3D"font-size: 10pt; font-family: 'Helveti=
-ca',sans-serif; color: #333333; mso-fareast-font-family: 'Times New Ro=
-man'; mso-ansi-language: EN-US; mso-fareast-language: PT"><br /><br />=
-A1) Information and Communication Technology in Education<br />A2) Sim=
-ulation and computer vision in military applications<br />A3) Analysis=
- and Signal Processing<br />A4) Cybersecurity and Cyberdefense<br />A5=
-) Computer Networks, Mobility and Pervasive Systems</span></p>
-    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
- 6.75pt; line-height: normal"><span lang=3D"EN-US" style=3D"font-size:=
- 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-fareas=
-t-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareas=
-t-language: PT">&nbsp;&nbsp;</span></p>
-    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
- 6.75pt; line-height: normal"><b><span lang=3D"EN-US" style=3D"font-si=
-ze: 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-far=
-east-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-far=
-east-language: PT">Area B: Strategy and political-administrative visio=
-n in Defense</span></b><span lang=3D"EN-US" style=3D"font-size: 10pt; =
-font-family: 'Helvetica',sans-serif; color: #333333; mso-fareast-font-=
-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareast-langu=
-age: PT"><br /><br /><span style=3D"background: white">B1) Safety and =
-Maritime Protection</span><br /><span style=3D"background: white">B2) =
-Strategy, Geopolitics and Oceanopolitics</span><br /><span style=3D"ba=
-ckground: white">B3) Planning, economy and logistics applied to Defens=
-e</span><br /><span style=3D"background: white">B4) Leadership and e-l=
-eadership</span><br /><span style=3D"background: white">B5) Military M=
-arketing</span><br /><span style=3D"background: white">B6) Health info=
-rmatics in military applications</span><br /><span style=3D"background=
-: white">B7) Ethics in the context of military operations</span><br />=
-<span style=3D"background: white">B8) Operational Law (DICA and DD. HH=
-=2E)</span></span></p>
-    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
- 6.75pt; line-height: normal"><span lang=3D"EN-US" style=3D"font-size:=
- 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-fareas=
-t-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareas=
-t-language: PT">&nbsp;</span></p>
-    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
- 6.75pt; line-height: normal"><b><span lang=3D"EN-US" style=3D"font-si=
-ze: 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-far=
-east-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-far=
-east-language: PT">Area C: Engineering and technologies applied to Def=
-ense</span></b><span lang=3D"EN-US" style=3D"font-size: 10pt; font-fam=
-ily: 'Helvetica',sans-serif; color: #333333; mso-fareast-font-family: =
-'Times New Roman'; mso-ansi-language: EN-US; mso-fareast-language: PT"=
-><br /><br /><span style=3D"background: white">C1) Wearable Technology=
- and Assistance Devices</span><br /><span style=3D"background: white">=
-C2) Military Naval Engineering</span><br /><span style=3D"background: =
-white">C3) Weapons and Combat Systems</span><br /><span style=3D"backg=
-round: white">C4) Chemical, Biological and Nuclear Defense</span><br /=
-><span style=3D"background: white">C5) Defense Engineering (General)</=
-span><br /><span style=3D"background: white">C6) Energy efficiency</sp=
-an><br /><span style=3D"background: white">C7) Artificial Intelligence=
- and Machine Learning</span><br /><span style=3D"background: white">C8=
-) Unmanned platforms</span></span></p>
-    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
- 6.75pt; line-height: normal"><span lang=3D"EN-US" style=3D"font-size:=
- 10pt; font-family: 'Helvetica',sans-serif; background: white; color: =
-#333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language=
-: EN-US; mso-fareast-language: PT">&nbsp;</span><span lang=3D"EN-US" s=
-tyle=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color: #=
-333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language:=
- EN-US; mso-fareast-language: PT">&nbsp;&nbsp;</span></p>
-    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
- 6.75pt; line-height: normal"><b><span lang=3D"EN-US" style=3D"font-si=
-ze: 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-far=
-east-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-far=
-east-language: PT">Submission and Decision</span></b><span lang=3D"EN-=
-US" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; col=
-or: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-lang=
-uage: EN-US; mso-fareast-language: PT">&nbsp;</span></p>
-    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
-tify; margin: 0cm 0cm 6.75pt; line-height: normal"><span lang=3D"EN-US=
-" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color=
-: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-langua=
-ge: EN-US; mso-fareast-language: PT">Submitted papers written in Engli=
-sh (until 10-page limit) must comply with the format of Smart Innovati=
-on, Systems and Technologies series (see&nbsp;</span><b><span style=3D=
-"font-size: 10pt; font-family: 'Helvetica',sans-serif; color: #333333;=
- mso-fareast-font-family: 'Times New Roman'; mso-fareast-language: PT"=
-><a href=3D"https://www.springer.com/us/authors-editors/conference-pro=
-ceedings/conference-proceedings-guidelines" target=3D"_blank"><span la=
-ng=3D"EN-US" style=3D"text-decoration: none; color: #4a4a4a; mso-ansi-=
-language: EN-US; text-underline: none">Instructions for Authors at Spr=
-inger Website</span></a></span></b><span lang=3D"EN-US" style=3D"font-=
-size: 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-f=
-areast-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-f=
-areast-language: PT">), must not have been published before, not be un=
-der review for any other conference or publication and not include any=
- information leading to the authors&rsquo; identification. Therefore, =
-the authors&rsquo; names, affiliations and e-mails should not be inclu=
-ded in the version for evaluation by the Scientific Committee. This in=
-formation should only be included in the camera-ready version, saved i=
-n Word or Latex format and also in PDF format.&nbsp;</span><span lang=3D=
-"EN" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; co=
-lor: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-lan=
-guage: EN; mso-fareast-language: PT">These files&nbsp;must&nbsp;be acc=
-ompanied by the&nbsp;<b><a href=3D"http://www.micrads.org/consent.doc"=
- target=3D"_blank"><span style=3D"text-decoration: none; color: #4a4a4=
-a; text-underline: none">Consent to Publish form</span></a></b>&nbsp;f=
-illed out,&nbsp;in a ZIP file, and uploaded at the conference manageme=
-nt system.</span><span lang=3D"EN-US" style=3D"font-size: 10pt; font-f=
-amily: 'Helvetica',sans-serif; color: #333333; mso-fareast-font-family=
-: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareast-language: P=
-T">&nbsp;</span></p>
-    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
-tify; margin: 0cm 0cm 6.75pt; line-height: normal"><span lang=3D"EN" s=
-tyle=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color: #=
-333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language:=
- EN; mso-fareast-language: PT">Submitted papers written in Spanish or =
-Portuguese (until 15-page limit) must comply with the format of&nbsp;<=
-b><a href=3D"http://www.risti.xyz/" target=3D"_blank"><span style=3D"t=
-ext-decoration: none; color: #4a4a4a; text-underline: none">RISTI</spa=
-n></a></b>&nbsp;- Revista Ib&eacute;rica de Sistemas e Tecnologias de =
-Informa&ccedil;&atilde;o (download instructions/template for authors i=
-n&nbsp;<b><a href=3D"http://www.risti.xyz/formato-es.doc" target=3D"_b=
-lank"><span style=3D"text-decoration: none; color: #4a4a4a; text-under=
-line: none">Spanish</span></a></b>&nbsp;or&nbsp;<b><a href=3D"http://w=
-ww.risti.xyz/formato-pt.doc" target=3D"_blank"><span style=3D"text-dec=
-oration: none; color: #4a4a4a; text-underline: none">Portuguese</span>=
-</a></b>), must not have been published before, not be under review fo=
-r any other conference or publication and not include any information =
-leading to the authors&rsquo; identification. Therefore, the authors&r=
-squo; names, affiliations and e-mails should not be included in the ve=
-rsion for evaluation by the Scientific Committee. This information sho=
-uld only be included in the camera-ready version, saved in Word.&nbsp;=
-These file must&nbsp;be&nbsp;uploaded at the conference management sys=
-tem in a ZIP file.</span><span lang=3D"EN-US" style=3D"font-size: 10pt=
-; font-family: 'Helvetica',sans-serif; color: #333333; mso-fareast-fon=
-t-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareast-lan=
-guage: PT">&nbsp;</span></p>
-    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
-tify; margin: 0cm 0cm 6.75pt; line-height: normal"><span lang=3D"EN-US=
-" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color=
-: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-langua=
-ge: EN-US; mso-fareast-language: PT">All papers will be subjected to a=
- &ldquo;blind review&rdquo; by at least two members of the Scientific =
-Committee.</span></p>
-    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
-tify; margin: 0cm 0cm 6.75pt; line-height: normal"><span lang=3D"EN-US=
-" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color=
-: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-langua=
-ge: EN-US; mso-fareast-language: PT">Based on Scientific Committee eva=
-luation, a paper can be rejected or accepted by the Conference Chairs.=
- In the later case, it can be accepted as paper or poster.</span></p>
-    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
-tify; margin: 0cm 0cm 6.75pt; line-height: normal"><span lang=3D"EN-US=
-" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color=
-: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-langua=
-ge: EN-US; mso-fareast-language: PT">The authors of papers accepted as=
- posters must build and print a poster to be exhibited during the Conf=
-erence. This poster must follow an A1 or A2 vertical format. The Confe=
-rence can includes Work Sessions where these posters are presented and=
- orally discussed, with a 7 minute limit per poster.</span></p>
-    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
-tify; margin: 0cm 0cm 6.75pt; line-height: normal"><span lang=3D"EN-US=
-" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color=
-: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-langua=
-ge: EN-US; mso-fareast-language: PT">The authors of accepted papers wi=
-ll have 15 minutes to present their work in a Conference Work Session;=
- approximately 5 minutes of discussion will follow each presentation.<=
-/span></p>
-    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
-tify; margin: 0cm 0cm 6.75pt; line-height: normal"><span lang=3D"EN-US=
-" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color=
-: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-langua=
-ge: EN-US; mso-fareast-language: PT">&nbsp;</span></p>
-    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
-tify; margin: 0cm 0cm 6.75pt; line-height: normal"><b><span lang=3D"EN=
--US" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; co=
-lor: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-lan=
-guage: EN-US; mso-fareast-language: PT">Publication and Indexing</span=
-></b><span lang=3D"EN-US" style=3D"font-size: 10pt; font-family: 'Helv=
-etica',sans-serif; color: #333333; mso-fareast-font-family: 'Times New=
- Roman'; mso-ansi-language: EN-US; mso-fareast-language: PT">&nbsp;</s=
-pan></p>
-    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
-tify; margin: 0cm 0cm 6.75pt; line-height: normal"><span lang=3D"EN-US=
-" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color=
-: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-langua=
-ge: EN-US; mso-fareast-language: PT">To ensure that an accepted paper =
-is published, at least one of the authors must be fully registered by =
-the <span style=3D"background: white">31 of May 2022</span>, and the p=
-aper must comply with the suggested layout and page-limit (until 10 pa=
-ges). Additionally, all recommended changes must be addressed by the a=
-uthors before they submit the camera-ready version.</span></p>
-    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
-tify; margin: 0cm 0cm 6.75pt; line-height: normal"><span lang=3D"EN-US=
-" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color=
-: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-langua=
-ge: EN-US; mso-fareast-language: PT">No more than one paper per regist=
-ration will be published. An extra fee must be paid for publication of=
- additional papers, with a maximum of one additional paper per registr=
-ation. One registration permits only the participation of one author i=
-n the conference.</span></p>
-    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
-tify; margin: 0cm 0cm 6.75pt; line-height: normal"><font face=3D"Calib=
-ri"><span lang=3D"EN-US" style=3D"color: #333333; mso-fareast-font-fam=
-ily: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareast-language=
-: PT; mso-ascii-font-family: Calibri; mso-hansi-font-family: Calibri; =
-mso-bidi-font-family: Calibri">Papers can be written in English, Spani=
-sh or Portuguese. Accepted and registered papers written in English wi=
-ll be published in Proceedings by Springer, in a book of its&nbsp;</sp=
-an><span lang=3D"EN-US" style=3D"color: black; mso-fareast-font-family=
-: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareast-language: P=
-T; mso-ascii-font-family: Calibri; mso-hansi-font-family: Calibri; mso=
--bidi-font-family: Calibri">SIST series,&nbsp;</span><span lang=3D"EN-=
-US" style=3D"color: #333333; mso-fareast-font-family: 'Times New Roman=
-'; mso-ansi-language: EN-US; mso-fareast-language: PT; mso-ascii-font-=
-family: Calibri; mso-hansi-font-family: Calibri; mso-bidi-font-family:=
- Calibri">and will be submitted for indexing by ISI, SCOPUS, EI-Compen=
-dex, SpringerLink, and Google Scholar</span></font><span lang=3D"EN-US=
-" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color=
-: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-langua=
-ge: EN-US; mso-fareast-language: PT">.&nbsp;</span></p>
-    <p class=3D"MsoNormal" style=3D"background: white; text-align: jus=
-tify; margin: 0cm 0cm 6.75pt; line-height: normal"><span lang=3D"EN-US=
-" style=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color=
-: #333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-langua=
-ge: EN-US; mso-fareast-language: PT">Papers written in Spanish or Port=
-uguese and registered will be published in a Special Issue of RISTI an=
-d will be submitted for indexation by SCOPUS, among others.</span></p>=
-
-    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
- 6.75pt; line-height: normal"><span lang=3D"EN-US" style=3D"font-size:=
- 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-fareas=
-t-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareas=
-t-language: PT">&nbsp;</span></p>
-    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
- 6.75pt; line-height: normal"><b><span lang=3D"EN-US" style=3D"font-si=
-ze: 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-far=
-east-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-far=
-east-language: PT">Important Dates</span></b><span lang=3D"EN-US" styl=
-e=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color: #333=
-333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language: EN=
--US; mso-fareast-language: PT">&nbsp;</span></p>
-    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
- 6.75pt; line-height: normal"><span lang=3D"EN-US" style=3D"font-size:=
- 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-fareas=
-t-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareas=
-t-language: PT">Paper Submission: <span style=3D"background: white">Ap=
-ril&nbsp;21, 2022</span></span></p>
-    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
- 6.75pt; line-height: normal"><span lang=3D"EN-US" style=3D"font-size:=
- 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-fareas=
-t-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareas=
-t-language: PT">Notification of Acceptance: <span style=3D"background:=
- white">May 28, 2022</span></span></p>
-    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
- 6.75pt; line-height: normal"><span lang=3D"EN-US" style=3D"font-size:=
- 10pt; font-family: 'Helvetica',sans-serif; background: white; color: =
-#333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language=
-: EN-US; mso-fareast-language: PT">&nbsp;</span><span lang=3D"EN-US" s=
-tyle=3D"font-size: 10pt; font-family: 'Helvetica',sans-serif; color: #=
-333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language:=
- EN-US; mso-fareast-language: PT">Payment of Registration,&nbsp;to ens=
-ure the inclusion of an accepted paper in the conference proceedings: =
-<span style=3D"background: white">May 31, 2022</span></span></p>
-    <p class=3D"MsoNormal" style=3D"background: white; margin: 0cm 0cm=
- 6.75pt; line-height: normal"><span lang=3D"EN-US" style=3D"font-size:=
- 10pt; font-family: 'Helvetica',sans-serif; background: white; color: =
-#333333; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language=
-: EN-US; mso-fareast-language: PT">&nbsp;</span><span style=3D"font-si=
-ze: 10pt; font-family: 'Helvetica',sans-serif; color: #333333; mso-far=
-east-font-family: 'Times New Roman'; mso-fareast-language: PT">Camera-=
-ready Submission: <span style=3D"background: white">May 31, 2022</span=
-></span></p>
-    <p class=3D"MsoNormal" style=3D"margin: 0cm 0cm 8pt"><span lang=3D=
-"EN-US" style=3D"font-size: 10pt; font-family: 'Arial',sans-serif; col=
-or: #222222; line-height: 107%; mso-fareast-font-family: 'Times New Ro=
-man'; mso-ansi-language: EN-US; mso-fareast-language: PT"><br /><br />=
--------<br />Website of MICRADS'22:&nbsp;</span><span style=3D"font-si=
-ze: 10pt; font-family: 'Arial',sans-serif; color: #222222; line-height=
-: 107%; mso-fareast-font-family: 'Times New Roman'; mso-fareast-langua=
-ge: PT"><a href=3D"http://www.micrads.org/" target=3D"_blank"><span la=
-ng=3D"EN-US" style=3D"color: blue; mso-ansi-language: EN-US">http://ww=
-w.micrads.org/</span></a></span><span lang=3D"EN-US" style=3D"font-siz=
-e: 10pt; font-family: 'Arial',sans-serif; color: #222222; line-height:=
- 107%; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language: =
-EN-US; mso-fareast-language: PT"><br />-------</span><span lang=3D"EN-=
-US" style=3D"mso-ansi-language: EN-US">&nbsp;</span></p>
-  </body>
-</html>
-
---E8i4FapApt88Bv=_6iBZZIBuiJEaoAXPNa--
-
-
---===============8325569513487939811==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============8325569513487939811==--
-
+T24gRnJpLCBNYXIgMjUsIDIwMjIgYXQgNjoxMCBQTSBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEBy
+ZWRoYXQuY29tPiB3cm90ZToKPgo+IE9uIEZyaSwgTWFyIDI1LCAyMDIyIGF0IDA1OjIwOjE5UE0g
+KzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4gPiBPbiBGcmksIE1hciAyNSwgMjAyMiBhdCA1OjEw
+IFBNIE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+IHdyb3RlOgo+ID4gPgo+ID4g
+PiBPbiBGcmksIE1hciAyNSwgMjAyMiBhdCAwMzo1MjowMFBNICswODAwLCBKYXNvbiBXYW5nIHdy
+b3RlOgo+ID4gPiA+IE9uIEZyaSwgTWFyIDI1LCAyMDIyIGF0IDI6MzEgUE0gTWljaGFlbCBTLiBU
+c2lya2luIDxtc3RAcmVkaGF0LmNvbT4gd3JvdGU6Cj4gPiA+ID4gPgo+ID4gPiA+ID4gQmNjOgo+
+ID4gPiA+ID4gU3ViamVjdDogUmU6IFtQQVRDSCAzLzNdIHZpcnRpbzogaGFyZGVuIHZyaW5nIElS
+UQo+ID4gPiA+ID4gTWVzc2FnZS1JRDogPDIwMjIwMzI1MDIxNDIyLW11dHQtc2VuZC1lbWFpbC1t
+c3RAa2VybmVsLm9yZz4KPiA+ID4gPiA+IFJlcGx5LVRvOgo+ID4gPiA+ID4gSW4tUmVwbHktVG86
+IDxmNzA0NjMwMy03ZDdkLWUzOWYtM2M3MS0zNjg4MTI2Y2M4MTJAcmVkaGF0LmNvbT4KPiA+ID4g
+PiA+Cj4gPiA+ID4gPiBPbiBGcmksIE1hciAyNSwgMjAyMiBhdCAxMTowNDowOEFNICswODAwLCBK
+YXNvbiBXYW5nIHdyb3RlOgo+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiDlnKggMjAyMi8zLzI0IOS4
+i+WNiDc6MDMsIE1pY2hhZWwgUy4gVHNpcmtpbiDlhpnpgZM6Cj4gPiA+ID4gPiA+ID4gT24gVGh1
+LCBNYXIgMjQsIDIwMjIgYXQgMDQ6NDA6MDRQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToKPiA+
+ID4gPiA+ID4gPiA+IFRoaXMgaXMgYSByZXdvcmsgb24gdGhlIHByZXZpb3VzIElSUSBoYXJkZW5p
+bmcgdGhhdCBpcyBkb25lIGZvcgo+ID4gPiA+ID4gPiA+ID4gdmlydGlvLXBjaSB3aGVyZSBzZXZl
+cmFsIGRyYXdiYWNrcyB3ZXJlIGZvdW5kIGFuZCB3ZXJlIHJldmVydGVkOgo+ID4gPiA+ID4gPiA+
+ID4KPiA+ID4gPiA+ID4gPiA+IDEpIHRyeSB0byB1c2UgSVJRRl9OT19BVVRPRU4gd2hpY2ggaXMg
+bm90IGZyaWVuZGx5IHRvIGFmZmluaXR5IG1hbmFnZWQgSVJRCj4gPiA+ID4gPiA+ID4gPiAgICAg
+dGhhdCBpcyB1c2VkIGJ5IHNvbWUgZGV2aWNlIHN1Y2ggYXMgdmlydGlvLWJsawo+ID4gPiA+ID4g
+PiA+ID4gMikgZG9uZSBvbmx5IGZvciBQQ0kgdHJhbnNwb3J0Cj4gPiA+ID4gPiA+ID4gPgo+ID4g
+PiA+ID4gPiA+ID4gSW4gdGhpcyBwYXRjaCwgd2UgdHJpZXMgdG8gYm9ycm93IHRoZSBpZGVhIGZy
+b20gdGhlIElOVFggSVJRIGhhcmRlbmluZwo+ID4gPiA+ID4gPiA+ID4gaW4gdGhlIHJldmVydGVk
+IGNvbW1pdCAwODBjZDdjM2FjODcgKCJ2aXJ0aW8tcGNpOiBoYXJkZW4gSU5UWCBpbnRlcnJ1cHRz
+IikKPiA+ID4gPiA+ID4gPiA+IGJ5IGludHJvZHVjaW5nIGEgZ2xvYmFsIGlycV9zb2Z0X2VuYWJs
+ZWQgdmFyaWFibGUgZm9yIGVhY2gKPiA+ID4gPiA+ID4gPiA+IHZpcnRpb19kZXZpY2UuIFRoZW4g
+d2UgY2FuIHRvIHRvZ2dsZSBpdCBkdXJpbmcKPiA+ID4gPiA+ID4gPiA+IHZpcnRpb19yZXNldF9k
+ZXZpY2UoKS92aXJ0aW9fZGV2aWNlX3JlYWR5KCkuIEEgc3luY2hvcm5pemVfcmN1KCkgaXMKPiA+
+ID4gPiA+ID4gPiA+IHVzZWQgaW4gdmlydGlvX3Jlc2V0X2RldmljZSgpIHRvIHN5bmNocm9uaXpl
+IHdpdGggdGhlIElSUSBoYW5kbGVycy4gSW4KPiA+ID4gPiA+ID4gPiA+IHRoZSBmdXR1cmUsIHdl
+IG1heSBwcm92aWRlIGNvbmZpZ19vcHMgZm9yIHRoZSB0cmFuc3BvcnQgdGhhdCBkb2Vzbid0Cj4g
+PiA+ID4gPiA+ID4gPiB1c2UgSVJRLiBXaXRoIHRoaXMsIHZyaW5nX2ludGVycnVwdCgpIGNhbiBy
+ZXR1cm4gY2hlY2sgYW5kIGVhcmx5IGlmCj4gPiA+ID4gPiA+ID4gPiBpcnFfc29mdF9lbmFibGVk
+IGlzIGZhbHNlLiBUaGlzIGxlYWQgdG8gc21wX2xvYWRfYWNxdWlyZSgpIHRvIGJlIHVzZWQKPiA+
+ID4gPiA+ID4gPiA+IGJ1dCB0aGUgY29zdCBzaG91bGQgYmUgYWNjZXB0YWJsZS4KPiA+ID4gPiA+
+ID4gPiBNYXliZSBpdCBzaG91bGQgYmUgYnV0IGlzIGl0PyBDYW4ndCB3ZSB1c2Ugc3luY2hyb25p
+emVfaXJxIGluc3RlYWQ/Cj4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+IEV2ZW4g
+aWYgd2UgYWxsb3cgdGhlIHRyYW5zcG9ydCBkcml2ZXIgdG8gc3luY2hvcm5pemUgdGhyb3VnaAo+
+ID4gPiA+ID4gPiBzeW5jaHJvbml6ZV9pcnEoKSB3ZSBzdGlsbCBuZWVkIGEgY2hlY2sgaW4gdGhl
+IHZyaW5nX2ludGVycnVwdCgpLgo+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiBXZSBkbyBzb21ldGhp
+bmcgbGlrZSB0aGUgZm9sbG93aW5nIHByZXZpb3VzbHk6Cj4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+
+ICAgICAgICAgaWYgKCFSRUFEX09OQ0UodnBfZGV2LT5pbnR4X3NvZnRfZW5hYmxlZCkpCj4gPiA+
+ID4gPiA+ICAgICAgICAgICAgICAgICByZXR1cm4gSVJRX05PTkU7Cj4gPiA+ID4gPiA+Cj4gPiA+
+ID4gPiA+IEJ1dCBpdCBsb29rcyBsaWtlIGEgYnVnIHNpbmNlIHNwZWN1bGF0aXZlIHJlYWQgY2Fu
+IGJlIGRvbmUgYmVmb3JlIHRoZSBjaGVjawo+ID4gPiA+ID4gPiB3aGVyZSB0aGUgaW50ZXJydXB0
+IGhhbmRsZXIgY2FuJ3Qgc2VlIHRoZSB1bmNvbW1pdHRlZCBzZXR1cCB3aGljaCBpcyBkb25lIGJ5
+Cj4gPiA+ID4gPiA+IHRoZSBkcml2ZXIuCj4gPiA+ID4gPgo+ID4gPiA+ID4gSSBkb24ndCB0aGlu
+ayBzbyAtIGlmIHlvdSBzeW5jIGFmdGVyIHNldHRpbmcgdGhlIHZhbHVlIHRoZW4KPiA+ID4gPiA+
+IHlvdSBhcmUgZ3VhcmFudGVlZCB0aGF0IGFueSBoYW5kbGVyIHJ1bm5pbmcgYWZ0ZXJ3YXJkcwo+
+ID4gPiA+ID4gd2lsbCBzZWUgdGhlIG5ldyB2YWx1ZS4KPiA+ID4gPgo+ID4gPiA+IFRoZSBwcm9i
+bGVtIGlzIG5vdCBkaXNhYmxlZCBidXQgdGhlIGVuYWJsZS4KPiA+ID4KPiA+ID4gU28gYSBtaXNi
+ZWhhdmluZyBkZXZpY2UgY2FuIGxvc2UgaW50ZXJydXB0cz8gVGhhdCdzIG5vdCBhIHByb2JsZW0g
+YXQgYWxsCj4gPiA+IGltby4KPiA+Cj4gPiBJdCdzIHRoZSBpbnRlcnJ1cHQgcmFpc2VkIGJlZm9y
+ZSBzZXR0aW5nIGlycV9zb2Z0X2VuYWJsZWQgdG8gdHJ1ZToKPiA+Cj4gPiBDUFUgMCBwcm9iZSkg
+ZHJpdmVyIHNwZWNpZmljIHNldHVwIChub3QgY29tbWl0ZWQpCj4gPiBDUFUgMSBJUlEgaGFuZGxl
+cikgcmVhZCB0aGUgdW5pbml0aWFsaXplZCB2YXJpYWJsZQo+ID4gQ1BVIDAgcHJvYmUpIHNldCBp
+cnFfc29mdF9lbmFibGVkIHRvIHRydWUKPiA+IENQVSAxIElSUSBoYW5kbGVyKSByZWFkIGlycV9z
+b2Z0X2VuYWJsZSBhcyB0cnVlCj4gPiBDUFUgMSBJUlEgaGFuZGxlcikgdXNlIHRoZSB1bmluaXRp
+YWxpemVkIHZhcmlhYmxlCj4gPgo+ID4gVGhhbmtzCj4KPiBZZWEsIGl0IGh1cnRzIGlmIHlvdSBk
+byBpdC4gIFNvIGRvIG5vdCBkbyBpdCB0aGVuIDspLgo+Cj4gaXJxX3NvZnRfZW5hYmxlZCAoSSB0
+aGluayBkcml2ZXJfb2sgb3Igc3RhdHVzIGlzIGEgYmV0dGVyIG5hbWUpCgpJIGNhbiBjaGFuZ2Ug
+aXQgdG8gZHJpdmVyX29rLgoKPiBzaG91bGQgYmUgaW5pdGlhbGl6ZWQgdG8gZmFsc2UgKmJlZm9y
+ZSogaXJxIGlzIHJlcXVlc3RlZC4KPgo+IEFuZCByZXF1ZXN0aW5nIGlycSBjb21taXRzIGFsbCBt
+ZW1vcnkgb3RoZXJ3aXNlIGFsbCBkcml2ZXJzIHdvdWxkIGJlCj4gYnJva2VuLAoKU28gSSB0aGlu
+ayB3ZSBtaWdodCB0YWxrIGRpZmZlcmVudCBpc3N1ZXM6CgoxKSBXaGV0aGVyIHJlcXVlc3RfaXJx
+KCkgY29tbWl0cyB0aGUgcHJldmlvdXMgc2V0dXBzLCBJIHRoaW5rIHRoZQphbnN3ZXIgaXMgeWVz
+LCBzaW5jZSB0aGUgc3Bpbl91bmxvY2sgb2YgZGVzYy0+bG9jayAocmVsZWFzZSkgY2FuCmd1YXJh
+bnRlZSB0aGlzIHRob3VnaCB0aGVyZSBzZWVtcyBubyBkb2N1bWVudGF0aW9uIGFyb3VuZApyZXF1
+ZXN0X2lycSgpIHRvIHNheSB0aGlzLgoKQW5kIEkgY2FuIHNlZSBhdCBsZWFzdCBkcml2ZXJzL3Zp
+ZGVvL2ZiZGV2L29tYXAyL29tYXBmYi9kc3MvZGlzcGMuYyBpcwp1c2luZyBzbXBfd21iKCkgYmVm
+b3JlIHRoZSByZXF1ZXN0X2lycSgpLgoKQW5kIGV2ZW4gaWYgd3JpdGUgaXMgb3JkZXJlZCB3ZSBz
+dGlsbCBuZWVkIHJlYWQgdG8gYmUgb3JkZXJlZCB0byBiZQpwYWlyZWQgd2l0aCB0aGF0LgoKPiBp
+ZiBpdCBkb2Vzbid0IGl0IGp1c3QgbmVlZHMgdG8gYmUgZml4ZWQsIG5vdCB3b3JrZWQgYXJvdW5k
+IGluCj4gdmlydGlvLgoKMikgdmlydGlvIGRyaXZlcnMgbWlnaHQgZG8gYSBsb3Qgb2Ygc2V0dXBz
+IGJldHdlZW4gcmVxdWVzdF9pcnEoKSBhbmQKdmlydGlvX2RldmljZV9yZWFkeSgpOgoKcmVxdWVz
+dF9pcnEoKQpkcml2ZXIgc3BlY2lmaWMgc2V0dXBzCnZpcnRpb19kZXZpY2VfcmVhZHkoKQoKQ1BV
+IDAgcHJvYmUpIHJlcXVlc3RfaXJxKCkKQ1BVIDEgSVJRIGhhbmRsZXIpIHJlYWQgdGhlIHVuaW5p
+dGlhbGl6ZWQgdmFyaWFibGUKQ1BVIDAgcHJvYmUpIGRyaXZlciBzcGVjaWZpYyBzZXR1cHMKQ1BV
+IDAgcHJvYmUpIHNtcF9zdG9yZV9yZWxlYXNlKGludHJfc29mdF9lbmFibGVkLCB0cnVlKSwgY29t
+bWl0IHRoZSBzZXR1cHMKQ1BVIDEgSVJRIGhhbmRsZXIpIHJlYWQgaXJxX3NvZnRfZW5hYmxlIGFz
+IHRydWUKQ1BVIDEgSVJRIGhhbmRsZXIpIHVzZSB0aGUgdW5pbml0aWFsaXplZCB2YXJpYWJsZQoK
+VGhhbmtzCgo+Cj4KPiA+ID4KPiA+ID4gPiBXZSB1c2Ugc21wX3N0b3JlX3JlbGFzZSgpCj4gPiA+
+ID4gdG8gbWFrZSBzdXJlIHRoZSBkcml2ZXIgY29tbWl0cyB0aGUgc2V0dXAgYmVmb3JlIGVuYWJs
+aW5nIHRoZSBpcnEuIEl0Cj4gPiA+ID4gbWVhbnMgdGhlIHJlYWQgbmVlZHMgdG8gYmUgb3JkZXJl
+ZCBhcyB3ZWxsIGluIHZyaW5nX2ludGVycnVwdCgpLgo+ID4gPiA+Cj4gPiA+ID4gPgo+ID4gPiA+
+ID4gQWx0aG91Z2ggSSBjb3VsZG4ndCBmaW5kIGFueXRoaW5nIGFib3V0IHRoaXMgaW4gbWVtb3J5
+LWJhcnJpZXJzLnR4dAo+ID4gPiA+ID4gd2hpY2ggc3VycHJpc2VzIG1lLgo+ID4gPiA+ID4KPiA+
+ID4gPiA+IENDIFBhdWwgdG8gaGVscCBtYWtlIHN1cmUgSSdtIHJpZ2h0Lgo+ID4gPiA+ID4KPiA+
+ID4gPiA+Cj4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4gPiA+IFRvIGF2b2lk
+IGJyZWFraW5nIGxlZ2FjeSBkZXZpY2Ugd2hpY2ggY2FuIHNlbmQgSVJRIGJlZm9yZSBEUklWRVJf
+T0ssIGEKPiA+ID4gPiA+ID4gPiA+IG1vZHVsZSBwYXJhbWV0ZXIgaXMgaW50cm9kdWNlZCB0byBl
+bmFibGUgdGhlIGhhcmRlbmluZyBzbyBmdW5jdGlvbgo+ID4gPiA+ID4gPiA+ID4gaGFyZGVuaW5n
+IGlzIGRpc2FibGVkIGJ5IGRlZmF1bHQuCj4gPiA+ID4gPiA+ID4gV2hpY2ggZGV2aWNlcyBhcmUg
+dGhlc2U/IEhvdyBjb21lIHRoZXkgc2VuZCBhbiBpbnRlcnJ1cHQgYmVmb3JlIHRoZXJlCj4gPiA+
+ID4gPiA+ID4gYXJlIGFueSBidWZmZXJzIGluIGFueSBxdWV1ZXM/Cj4gPiA+ID4gPiA+Cj4gPiA+
+ID4gPiA+Cj4gPiA+ID4gPiA+IEkgY29waWVkIHRoaXMgZnJvbSB0aGUgY29tbWl0IGxvZyBmb3Ig
+MjJiNzA1MGEwMjRkNwo+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiAiCj4gPiA+ID4gPiA+Cj4gPiA+
+ID4gPiA+ICAgICBUaGlzIGNoYW5nZSB3aWxsIGFsc28gYmVuZWZpdCBvbGQgaHlwZXJ2aXNvcnMg
+KGJlZm9yZSAyMDA5KQo+ID4gPiA+ID4gPiAgICAgdGhhdCBzZW5kIGludGVycnVwdHMgd2l0aG91
+dCBjaGVja2luZyBEUklWRVJfT0s6IHByZXZpb3VzbHksCj4gPiA+ID4gPiA+ICAgICB0aGUgY2Fs
+bGJhY2sgY291bGQgcmFjZSB3aXRoIGRyaXZlci1zcGVjaWZpYyBpbml0aWFsaXphdGlvbi4KPiA+
+ID4gPiA+ID4gIgo+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiBJZiB0aGlzIGlzIG9ubHkgZm9yIGNv
+bmZpZyBpbnRlcnJ1cHQsIEkgY2FuIHJlbW92ZSB0aGUgYWJvdmUgbG9nLgo+ID4gPiA+ID4KPiA+
+ID4gPiA+Cj4gPiA+ID4gPiBUaGlzIGlzIG9ubHkgZm9yIGNvbmZpZyBpbnRlcnJ1cHQuCj4gPiA+
+ID4KPiA+ID4gPiBPay4KPiA+ID4gPgo+ID4gPiA+ID4KPiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4g
+Pgo+ID4gPiA+ID4gPiA+ID4gTm90ZSB0aGF0IHRoZSBoYXJkZW5pbmcgaXMgb25seSBkb25lIGZv
+ciB2cmluZyBpbnRlcnJ1cHQgc2luY2UgdGhlCj4gPiA+ID4gPiA+ID4gPiBjb25maWcgaW50ZXJy
+dXB0IGhhcmRlbmluZyBpcyBhbHJlYWR5IGRvbmUgaW4gY29tbWl0IDIyYjcwNTBhMDI0ZDcKPiA+
+ID4gPiA+ID4gPiA+ICgidmlydGlvOiBkZWZlciBjb25maWcgY2hhbmdlZCBub3RpZmljYXRpb25z
+IikuIEJ1dCB0aGUgbWV0aG9kIHRoYXQgaXMKPiA+ID4gPiA+ID4gPiA+IHVzZWQgYnkgY29uZmln
+IGludGVycnVwdCBjYW4ndCBiZSByZXVzZWQgYnkgdGhlIHZyaW5nIGludGVycnVwdAo+ID4gPiA+
+ID4gPiA+ID4gaGFuZGxlciBiZWNhdXNlIGl0IHVzZXMgc3BpbmxvY2sgdG8gZG8gdGhlIHN5bmNo
+cm9uaXphdGlvbiB3aGljaCBpcwo+ID4gPiA+ID4gPiA+ID4gZXhwZW5zaXZlLgo+ID4gPiA+ID4g
+PiA+ID4KPiA+ID4gPiA+ID4gPiA+IFNpZ25lZC1vZmYtYnk6IEphc29uIFdhbmcgPGphc293YW5n
+QHJlZGhhdC5jb20+Cj4gPiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4gPiA+IC0tLQo+ID4gPiA+ID4g
+PiA+ID4gICBkcml2ZXJzL3ZpcnRpby92aXJ0aW8uYyAgICAgICB8IDE5ICsrKysrKysrKysrKysr
+KysrKysKPiA+ID4gPiA+ID4gPiA+ICAgZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYyAgfCAg
+OSArKysrKysrKy0KPiA+ID4gPiA+ID4gPiA+ICAgaW5jbHVkZS9saW51eC92aXJ0aW8uaCAgICAg
+ICAgfCAgNCArKysrCj4gPiA+ID4gPiA+ID4gPiAgIGluY2x1ZGUvbGludXgvdmlydGlvX2NvbmZp
+Zy5oIHwgMjUgKysrKysrKysrKysrKysrKysrKysrKysrKwo+ID4gPiA+ID4gPiA+ID4gICA0IGZp
+bGVzIGNoYW5nZWQsIDU2IGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkKPiA+ID4gPiA+ID4g
+PiA+Cj4gPiA+ID4gPiA+ID4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aXJ0aW8vdmlydGlvLmMg
+Yi9kcml2ZXJzL3ZpcnRpby92aXJ0aW8uYwo+ID4gPiA+ID4gPiA+ID4gaW5kZXggOGRkZTQ0ZWEw
+NDRhLi44NWUzMzFlZmE5Y2MgMTAwNjQ0Cj4gPiA+ID4gPiA+ID4gPiAtLS0gYS9kcml2ZXJzL3Zp
+cnRpby92aXJ0aW8uYwo+ID4gPiA+ID4gPiA+ID4gKysrIGIvZHJpdmVycy92aXJ0aW8vdmlydGlv
+LmMKPiA+ID4gPiA+ID4gPiA+IEBAIC03LDYgKzcsMTIgQEAKPiA+ID4gPiA+ID4gPiA+ICAgI2lu
+Y2x1ZGUgPGxpbnV4L29mLmg+Cj4gPiA+ID4gPiA+ID4gPiAgICNpbmNsdWRlIDx1YXBpL2xpbnV4
+L3ZpcnRpb19pZHMuaD4KPiA+ID4gPiA+ID4gPiA+ICtzdGF0aWMgYm9vbCBpcnFfaGFyZGVuaW5n
+ID0gZmFsc2U7Cj4gPiA+ID4gPiA+ID4gPiArCj4gPiA+ID4gPiA+ID4gPiArbW9kdWxlX3BhcmFt
+KGlycV9oYXJkZW5pbmcsIGJvb2wsIDA0NDQpOwo+ID4gPiA+ID4gPiA+ID4gK01PRFVMRV9QQVJN
+X0RFU0MoaXJxX2hhcmRlbmluZywKPiA+ID4gPiA+ID4gPiA+ICsgICAgICAgICAgIkRpc2FsYmUg
+SVJRIHNvZnR3YXJlIHByb2Nlc3Npbmcgd2hlbiBpdCBpcyBub3QgZXhwZWN0ZWQiKTsKPiA+ID4g
+PiA+ID4gPiA+ICsKPiA+ID4gPiA+ID4gPiA+ICAgLyogVW5pcXVlIG51bWJlcmluZyBmb3Igdmly
+dGlvIGRldmljZXMuICovCj4gPiA+ID4gPiA+ID4gPiAgIHN0YXRpYyBERUZJTkVfSURBKHZpcnRp
+b19pbmRleF9pZGEpOwo+ID4gPiA+ID4gPiA+ID4gQEAgLTIyMCw2ICsyMjYsMTUgQEAgc3RhdGlj
+IGludCB2aXJ0aW9fZmVhdHVyZXNfb2soc3RydWN0IHZpcnRpb19kZXZpY2UgKmRldikKPiA+ID4g
+PiA+ID4gPiA+ICAgICogKi8KPiA+ID4gPiA+ID4gPiA+ICAgdm9pZCB2aXJ0aW9fcmVzZXRfZGV2
+aWNlKHN0cnVjdCB2aXJ0aW9fZGV2aWNlICpkZXYpCj4gPiA+ID4gPiA+ID4gPiAgIHsKPiA+ID4g
+PiA+ID4gPiA+ICsgLyoKPiA+ID4gPiA+ID4gPiA+ICsgICogVGhlIGJlbG93IHN5bmNocm9uaXpl
+X3JjdSgpIGd1YXJhbnRlZXMgdGhhdCBhbnkKPiA+ID4gPiA+ID4gPiA+ICsgICogaW50ZXJydXB0
+IGZvciB0aGlzIGxpbmUgYXJyaXZpbmcgYWZ0ZXIKPiA+ID4gPiA+ID4gPiA+ICsgICogc3luY2hy
+b25pemVfcmN1KCkgaGFzIGNvbXBsZXRlZCBpcyBndWFyYW50ZWVkIHRvIHNlZQo+ID4gPiA+ID4g
+PiA+ID4gKyAgKiBpcnFfc29mdF9lbmFibGVkID09IGZhbHNlLgo+ID4gPiA+ID4gPiA+IE5ld3Mg
+dG8gbWUgSSBkaWQgbm90IGtub3cgc3luY2hyb25pemVfcmN1IGhhcyBhbnl0aGluZyB0byBkbwo+
+ID4gPiA+ID4gPiA+IHdpdGggaW50ZXJydXB0cy4gRGlkIG5vdCB5b3UgaW50ZW5kIHRvIHVzZSBz
+eW5jaHJvbml6ZV9pcnE/Cj4gPiA+ID4gPiA+ID4gSSBhbSBub3QgZXZlbiAxMDAlIHN1cmUgc3lu
+Y2hyb25pemVfcmN1IGlzIGJ5IGRlc2lnbiBhIG1lbW9yeSBiYXJyaWVyCj4gPiA+ID4gPiA+ID4g
+dGhvdWdoIGl0J3MgbW9zdCBsaWtlbHkgaXMgLi4uCj4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+Cj4g
+PiA+ID4gPiA+IEFjY29yZGluZyB0byB0aGUgY29tbWVudCBhYm92ZSB0cmVlIFJDVSB2ZXJzaW9u
+IG9mIHN5bmNocm9uaXplX3JjdSgpOgo+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiAiIiIKPiA+ID4g
+PiA+ID4KPiA+ID4gPiA+ID4gICogUkNVIHJlYWQtc2lkZSBjcml0aWNhbCBzZWN0aW9ucyBhcmUg
+ZGVsaW1pdGVkIGJ5IHJjdV9yZWFkX2xvY2soKQo+ID4gPiA+ID4gPiAgKiBhbmQgcmN1X3JlYWRf
+dW5sb2NrKCksIGFuZCBtYXkgYmUgbmVzdGVkLiAgSW4gYWRkaXRpb24sIGJ1dCBvbmx5IGluCj4g
+PiA+ID4gPiA+ICAqIHY1LjAgYW5kIGxhdGVyLCByZWdpb25zIG9mIGNvZGUgYWNyb3NzIHdoaWNo
+IGludGVycnVwdHMsIHByZWVtcHRpb24sCj4gPiA+ID4gPiA+ICAqIG9yIHNvZnRpcnFzIGhhdmUg
+YmVlbiBkaXNhYmxlZCBhbHNvIHNlcnZlIGFzIFJDVSByZWFkLXNpZGUgY3JpdGljYWwKPiA+ID4g
+PiA+ID4gICogc2VjdGlvbnMuICBUaGlzIGluY2x1ZGVzIGhhcmR3YXJlIGludGVycnVwdCBoYW5k
+bGVycywgc29mdGlycSBoYW5kbGVycywKPiA+ID4gPiA+ID4gICogYW5kIE5NSSBoYW5kbGVycy4K
+PiA+ID4gPiA+ID4gIiIiCj4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+IFNvIGludGVycnVwdCBoYW5k
+bGVycyBhcmUgdHJlYXRlZCBhcyByZWFkLXNpZGUgY3JpdGljYWwgc2VjdGlvbnMuCj4gPiA+ID4g
+PiA+Cj4gPiA+ID4gPiA+IEFuZCBpdCBoYXMgdGhlIGNvbW1lbnQgZm9yIGV4cGxhaW4gdGhlIGJh
+cnJpZXI6Cj4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+ICIiIgo+ID4gPiA+ID4gPgo+ID4gPiA+ID4g
+PiAgKiBOb3RlIHRoYXQgdGhpcyBndWFyYW50ZWUgaW1wbGllcyBmdXJ0aGVyIG1lbW9yeS1vcmRl
+cmluZyBndWFyYW50ZWVzLgo+ID4gPiA+ID4gPiAgKiBPbiBzeXN0ZW1zIHdpdGggbW9yZSB0aGFu
+IG9uZSBDUFUsIHdoZW4gc3luY2hyb25pemVfcmN1KCkgcmV0dXJucywKPiA+ID4gPiA+ID4gICog
+ZWFjaCBDUFUgaXMgZ3VhcmFudGVlZCB0byBoYXZlIGV4ZWN1dGVkIGEgZnVsbCBtZW1vcnkgYmFy
+cmllciBzaW5jZQo+ID4gPiA+ID4gPiAgKiB0aGUgZW5kIG9mIGl0cyBsYXN0IFJDVSByZWFkLXNp
+ZGUgY3JpdGljYWwgc2VjdGlvbiB3aG9zZSBiZWdpbm5pbmcKPiA+ID4gPiA+ID4gICogcHJlY2Vk
+ZWQgdGhlIGNhbGwgdG8gc3luY2hyb25pemVfcmN1KCkuICBJbiBhZGRpdGlvbiwgZWFjaCBDUFUg
+aGF2aW5nCj4gPiA+ID4gPiA+ICIiIgo+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiBTbyBvbiBTTVAg
+aXQgcHJvdmlkZXMgYSBmdWxsIGJhcnJpZXIuIEFuZCBmb3IgVVAvdGlueSBSQ1Ugd2UgZG9uJ3Qg
+bmVlZCB0aGUKPiA+ID4gPiA+ID4gYmFycmllciwgaWYgdGhlIGludGVycnVwdCBjb21lIGFmdGVy
+IFdSSVRFX09OQ0UoKSBpdCB3aWxsIHNlZSB0aGUKPiA+ID4gPiA+ID4gaXJxX3NvZnRfZW5hYmxl
+ZCBhcyBmYWxzZS4KPiA+ID4gPiA+ID4KPiA+ID4gPiA+Cj4gPiA+ID4gPiBZb3UgYXJlIHJpZ2h0
+LiBTbyB0aGVuCj4gPiA+ID4gPiAxLiBJIGRvIG5vdCB0aGluayB3ZSBuZWVkIGxvYWRfYWNxdWly
+ZSAtIHdoeSBpcyBpdCBuZWVkZWQ/IEp1c3QKPiA+ID4gPiA+ICAgIFJFQURfT05DRSBzaG91bGQg
+ZG8uCj4gPiA+ID4KPiA+ID4gPiBTZWUgYWJvdmUuCj4gPiA+ID4KPiA+ID4gPiA+IDIuIGlzbid0
+IHN5bmNocm9uaXplX2lycSBhbHNvIGRvaW5nIHRoZSBzYW1lIHRoaW5nPwo+ID4gPiA+Cj4gPiA+
+ID4KPiA+ID4gPiBZZXMsIGJ1dCBpdCByZXF1aXJlcyBhIGNvbmZpZyBvcHMgc2luY2UgdGhlIElS
+USBrbm93bGVkZ2UgaXMgdHJhbnNwb3J0IHNwZWNpZmljLgo+ID4gPiA+Cj4gPiA+ID4gPgo+ID4g
+PiA+ID4KPiA+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiA+ID4gKyAgKi8KPiA+ID4gPiA+ID4gPiA+
+ICsgV1JJVEVfT05DRShkZXYtPmlycV9zb2Z0X2VuYWJsZWQsIGZhbHNlKTsKPiA+ID4gPiA+ID4g
+PiA+ICsgc3luY2hyb25pemVfcmN1KCk7Cj4gPiA+ID4gPiA+ID4gPiArCj4gPiA+ID4gPiA+ID4g
+PiAgICAgICAgICAgZGV2LT5jb25maWctPnJlc2V0KGRldik7Cj4gPiA+ID4gPiA+ID4gPiAgIH0K
+PiA+ID4gPiA+ID4gPiA+ICAgRVhQT1JUX1NZTUJPTF9HUEwodmlydGlvX3Jlc2V0X2RldmljZSk7
+Cj4gPiA+ID4gPiA+ID4gUGxlYXNlIGFkZCBjb21tZW50IGV4cGxhaW5pbmcgd2hlcmUgaXQgd2ls
+bCBiZSBlbmFibGVkLgo+ID4gPiA+ID4gPiA+IEFsc28sIHdlICpyZWFsbHkqIGRvbid0IG5lZWQg
+dG8gc3luY2ggaWYgaXQgd2FzIGFscmVhZHkgZGlzYWJsZWQsCj4gPiA+ID4gPiA+ID4gbGV0J3Mg
+bm90IGFkZCB1c2VsZXNzIG92ZXJoZWFkIHRvIHRoZSBib290IHNlcXVlbmNlLgo+ID4gPiA+ID4g
+Pgo+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiBPay4KPiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4KPiA+
+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+ID4gPiBAQCAtNDI3LDYgKzQ0Miwx
+MCBAQCBpbnQgcmVnaXN0ZXJfdmlydGlvX2RldmljZShzdHJ1Y3QgdmlydGlvX2RldmljZSAqZGV2
+KQo+ID4gPiA+ID4gPiA+ID4gICAgICAgICAgIHNwaW5fbG9ja19pbml0KCZkZXYtPmNvbmZpZ19s
+b2NrKTsKPiA+ID4gPiA+ID4gPiA+ICAgICAgICAgICBkZXYtPmNvbmZpZ19lbmFibGVkID0gZmFs
+c2U7Cj4gPiA+ID4gPiA+ID4gPiAgICAgICAgICAgZGV2LT5jb25maWdfY2hhbmdlX3BlbmRpbmcg
+PSBmYWxzZTsKPiA+ID4gPiA+ID4gPiA+ICsgZGV2LT5pcnFfc29mdF9jaGVjayA9IGlycV9oYXJk
+ZW5pbmc7Cj4gPiA+ID4gPiA+ID4gPiArCj4gPiA+ID4gPiA+ID4gPiArIGlmIChkZXYtPmlycV9z
+b2Z0X2NoZWNrKQo+ID4gPiA+ID4gPiA+ID4gKyAgICAgICAgIGRldl9pbmZvKCZkZXYtPmRldiwg
+IklSUSBoYXJkZW5pbmcgaXMgZW5hYmxlZFxuIik7Cj4gPiA+ID4gPiA+ID4gPiAgICAgICAgICAg
+LyogV2UgYWx3YXlzIHN0YXJ0IGJ5IHJlc2V0dGluZyB0aGUgZGV2aWNlLCBpbiBjYXNlIGEgcHJl
+dmlvdXMKPiA+ID4gPiA+ID4gPiA+ICAgICAgICAgICAgKiBkcml2ZXIgbWVzc2VkIGl0IHVwLiAg
+VGhpcyBhbHNvIHRlc3RzIHRoYXQgY29kZSBwYXRoIGEgbGl0dGxlLiAqLwo+ID4gPiA+ID4gPiA+
+IG9uZSBvZiB0aGUgcG9pbnRzIG9mIGhhcmRlbmluZyBpcyBpdCdzIGFsc28gaGVscGZ1bCBmb3Ig
+YnVnZ3kKPiA+ID4gPiA+ID4gPiBkZXZpY2VzLiB0aGlzIGZsYWcgZGVmZWF0cyB0aGUgcHVycG9z
+ZS4KPiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4gRG8geW91IG1lYW46Cj4gPiA+
+ID4gPiA+Cj4gPiA+ID4gPiA+IDEpIHdlIG5lZWQgc29tZXRoaW5nIGxpa2UgY29uZmlnX2VuYWJs
+ZT8gVGhpcyBzZWVtcyBub3QgZWFzeSB0byBiZQo+ID4gPiA+ID4gPiBpbXBsZW1lbnRlZCB3aXRo
+b3V0IG9idmlvdXMgb3ZlcmhlYWQsIG1haW5seSB0aGUgc3luY2hyb25pemUgd2l0aCB0aGUKPiA+
+ID4gPiA+ID4gaW50ZXJydXB0IGhhbmRsZXJzCj4gPiA+ID4gPgo+ID4gPiA+ID4gQnV0IHN5bmNo
+cm9uaXplIGlzIG9ubHkgb24gdGVhci1kb3duIHBhdGguIFRoYXQgaXMgbm90IGNyaXRpY2FsIGZv
+ciBhbnkKPiA+ID4gPiA+IHVzZXJzIGF0IHRoZSBtb21lbnQsIGV2ZW4gbGVzcyB0aGFuIHByb2Jl
+Lgo+ID4gPiA+Cj4gPiA+ID4gSSBtZWFudCBpZiB3ZSBoYXZlIHZxLT5pcnFfcGVuZGluZywgd2Ug
+bmVlZCB0byBjYWxsIHZyaW5nX2ludGVycnVwdCgpCj4gPiA+ID4gaW4gdGhlIHZpcnRpb19kZXZp
+Y2VfcmVhZHkoKSBhbmQgc3luY2hyb25pemUgdGhlIElSUSBoYW5kbGVycyB3aXRoCj4gPiA+ID4g
+c3BpbmxvY2sgb3Igb3RoZXJzLgo+ID4gPiA+Cj4gPiA+ID4gPgo+ID4gPiA+ID4gPiAyKSBlbmFi
+bGUgdGhpcyBieSBkZWZhdWx0LCBzbyBJIGRvbid0IG9iamVjdCwgYnV0IHRoaXMgbWF5IGhhdmUg
+c29tZSByaXNrCj4gPiA+ID4gPiA+IGZvciBvbGQgaHlwZXJ2aXNvcnMKPiA+ID4gPiA+Cj4gPiA+
+ID4gPgo+ID4gPiA+ID4gVGhlIHJpc2sgaWYgdGhlcmUncyBhIGRyaXZlciBhZGRpbmcgYnVmZmVy
+cyB3aXRob3V0IHNldHRpbmcgRFJJVkVSX09LLgo+ID4gPiA+Cj4gPiA+ID4gUHJvYmFibHkgbm90
+LCB3ZSBoYXZlIGRldmljZXMgdGhhdCBhY2NlcHQgcmFuZG9tIGlucHV0cyBmcm9tIG91dHNpZGUs
+Cj4gPiA+ID4gbmV0LCBjb25zb2xlLCBpbnB1dCBldGMuIEkndmUgZG9uZSBhIHJvdW5kIG9mIGF1
+ZGl0cyBvZiB0aGUgUWVtdQo+ID4gPiA+IGNvZGVzLiBUaGV5IGxvb2sgYWxsIGZpbmUgc2luY2Ug
+ZGF5MC4KPiA+ID4gPgo+ID4gPiA+ID4gU28gd2l0aCB0aGlzIGFwcHJvYWNoLCBob3cgYWJvdXQg
+d2UgcmVuYW1lIHRoZSBmbGFnICJkcml2ZXJfb2siPwo+ID4gPiA+ID4gQW5kIHRoZW4gYWRkX2J1
+ZiBjYW4gYWN0dWFsbHkgdGVzdCBpdCBhbmQgQlVHX09OIGlmIG5vdCB0aGVyZSAgKGF0IGxlYXN0
+Cj4gPiA+ID4gPiBpbiB0aGUgZGVidWcgYnVpbGQpLgo+ID4gPiA+Cj4gPiA+ID4gVGhpcyBsb29r
+cyBsaWtlIGEgaGFyZGVuaW5nIG9mIHRoZSBkcml2ZXIgaW4gdGhlIGNvcmUgaW5zdGVhZCBvZiB0
+aGUKPiA+ID4gPiBkZXZpY2UuIEkgdGhpbmsgaXQgY2FuIGJlIGRvbmUgYnV0IGluIGEgc2VwYXJh
+dGUgc2VyaWVzLgo+ID4gPiA+Cj4gPiA+ID4gPgo+ID4gPiA+ID4gQW5kIGdvaW5nIGRvd24gZnJv
+bSB0aGVyZSwgaG93IGFib3V0IHdlIGNhY2hlIHN0YXR1cyBpbiB0aGUKPiA+ID4gPiA+IGRldmlj
+ZT8gVGhlbiB3ZSBkb24ndCBuZWVkIHRvIGtlZXAgcmUtcmVhZGluZyBpdCBldmVyeSB0aW1lLAo+
+ID4gPiA+ID4gc3BlZWRpbmcgYm9vdCB1cCBhIHRpbnkgYml0Lgo+ID4gPiA+Cj4gPiA+ID4gSSBk
+b24ndCBmdWxseSB1bmRlcnN0YW5kIGhlcmUsIGFjdHVhbGx5IHNwZWMgcmVxdWlyZXMgc3RhdHVz
+IHRvIGJlCj4gPiA+ID4gcmVhZCBiYWNrIGZvciB2YWxpZGF0aW9uIGluIG1hbnkgY2FzZXMuCj4g
+PiA+ID4KPiA+ID4gPiBUaGFua3MKPiA+ID4gPgo+ID4gPiA+ID4KPiA+ID4gPiA+ID4KPiA+ID4g
+PiA+ID4gPgo+ID4gPiA+ID4gPiA+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmlydGlvL3ZpcnRp
+b19yaW5nLmMgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jCj4gPiA+ID4gPiA+ID4gPiBp
+bmRleCA5NjJmMTQ3N2IxZmEuLjAxNzBmOGM3ODRkOCAxMDA2NDQKPiA+ID4gPiA+ID4gPiA+IC0t
+LSBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMKPiA+ID4gPiA+ID4gPiA+ICsrKyBiL2Ry
+aXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMKPiA+ID4gPiA+ID4gPiA+IEBAIC0yMTQ0LDEwICsy
+MTQ0LDE3IEBAIHN0YXRpYyBpbmxpbmUgYm9vbCBtb3JlX3VzZWQoY29uc3Qgc3RydWN0IHZyaW5n
+X3ZpcnRxdWV1ZSAqdnEpCj4gPiA+ID4gPiA+ID4gPiAgICAgICAgICAgcmV0dXJuIHZxLT5wYWNr
+ZWRfcmluZyA/IG1vcmVfdXNlZF9wYWNrZWQodnEpIDogbW9yZV91c2VkX3NwbGl0KHZxKTsKPiA+
+ID4gPiA+ID4gPiA+ICAgfQo+ID4gPiA+ID4gPiA+ID4gLWlycXJldHVybl90IHZyaW5nX2ludGVy
+cnVwdChpbnQgaXJxLCB2b2lkICpfdnEpCj4gPiA+ID4gPiA+ID4gPiAraXJxcmV0dXJuX3QgdnJp
+bmdfaW50ZXJydXB0KGludCBpcnEsIHZvaWQgKnYpCj4gPiA+ID4gPiA+ID4gPiAgIHsKPiA+ID4g
+PiA+ID4gPiA+ICsgc3RydWN0IHZpcnRxdWV1ZSAqX3ZxID0gdjsKPiA+ID4gPiA+ID4gPiA+ICsg
+c3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYgPSBfdnEtPnZkZXY7Cj4gPiA+ID4gPiA+ID4gPiAg
+ICAgICAgICAgc3RydWN0IHZyaW5nX3ZpcnRxdWV1ZSAqdnEgPSB0b192dnEoX3ZxKTsKPiA+ID4g
+PiA+ID4gPiA+ICsgaWYgKCF2aXJ0aW9faXJxX3NvZnRfZW5hYmxlZCh2ZGV2KSkgewo+ID4gPiA+
+ID4gPiA+ID4gKyAgICAgICAgIGRldl93YXJuX29uY2UoJnZkZXYtPmRldiwgInZpcnRpbyB2cmlu
+ZyBJUlEgcmFpc2VkIGJlZm9yZSBEUklWRVJfT0siKTsKPiA+ID4gPiA+ID4gPiA+ICsgICAgICAg
+ICByZXR1cm4gSVJRX05PTkU7Cj4gPiA+ID4gPiA+ID4gPiArIH0KPiA+ID4gPiA+ID4gPiA+ICsK
+PiA+ID4gPiA+ID4gPiA+ICAgICAgICAgICBpZiAoIW1vcmVfdXNlZCh2cSkpIHsKPiA+ID4gPiA+
+ID4gPiA+ICAgICAgICAgICAgICAgICAgIHByX2RlYnVnKCJ2aXJ0cXVldWUgaW50ZXJydXB0IHdp
+dGggbm8gd29yayBmb3IgJXBcbiIsIHZxKTsKPiA+ID4gPiA+ID4gPiA+ICAgICAgICAgICAgICAg
+ICAgIHJldHVybiBJUlFfTk9ORTsKPiA+ID4gPiA+ID4gPiA+IGRpZmYgLS1naXQgYS9pbmNsdWRl
+L2xpbnV4L3ZpcnRpby5oIGIvaW5jbHVkZS9saW51eC92aXJ0aW8uaAo+ID4gPiA+ID4gPiA+ID4g
+aW5kZXggNTQ2NGYzOTg5MTJhLi45NTdkNmFkNjA0YWMgMTAwNjQ0Cj4gPiA+ID4gPiA+ID4gPiAt
+LS0gYS9pbmNsdWRlL2xpbnV4L3ZpcnRpby5oCj4gPiA+ID4gPiA+ID4gPiArKysgYi9pbmNsdWRl
+L2xpbnV4L3ZpcnRpby5oCj4gPiA+ID4gPiA+ID4gPiBAQCAtOTUsNiArOTUsOCBAQCBkbWFfYWRk
+cl90IHZpcnRxdWV1ZV9nZXRfdXNlZF9hZGRyKHN0cnVjdCB2aXJ0cXVldWUgKnZxKTsKPiA+ID4g
+PiA+ID4gPiA+ICAgICogQGZhaWxlZDogc2F2ZWQgdmFsdWUgZm9yIFZJUlRJT19DT05GSUdfU19G
+QUlMRUQgYml0IChmb3IgcmVzdG9yZSkKPiA+ID4gPiA+ID4gPiA+ICAgICogQGNvbmZpZ19lbmFi
+bGVkOiBjb25maWd1cmF0aW9uIGNoYW5nZSByZXBvcnRpbmcgZW5hYmxlZAo+ID4gPiA+ID4gPiA+
+ID4gICAgKiBAY29uZmlnX2NoYW5nZV9wZW5kaW5nOiBjb25maWd1cmF0aW9uIGNoYW5nZSByZXBv
+cnRlZCB3aGlsZSBkaXNhYmxlZAo+ID4gPiA+ID4gPiA+ID4gKyAqIEBpcnFfc29mdF9jaGVjazog
+d2hldGhlciBvciBub3QgdG8gY2hlY2sgQGlycV9zb2Z0X2VuYWJsZWQKPiA+ID4gPiA+ID4gPiA+
+ICsgKiBAaXJxX3NvZnRfZW5hYmxlZDogY2FsbGJhY2tzIGVuYWJsZWQKPiA+ID4gPiA+ID4gPiA+
+ICAgICogQGNvbmZpZ19sb2NrOiBwcm90ZWN0cyBjb25maWd1cmF0aW9uIGNoYW5nZSByZXBvcnRp
+bmcKPiA+ID4gPiA+ID4gPiA+ICAgICogQGRldjogdW5kZXJseWluZyBkZXZpY2UuCj4gPiA+ID4g
+PiA+ID4gPiAgICAqIEBpZDogdGhlIGRldmljZSB0eXBlIGlkZW50aWZpY2F0aW9uICh1c2VkIHRv
+IG1hdGNoIGl0IHdpdGggYSBkcml2ZXIpLgo+ID4gPiA+ID4gPiA+ID4gQEAgLTEwOSw2ICsxMTEs
+OCBAQCBzdHJ1Y3QgdmlydGlvX2RldmljZSB7Cj4gPiA+ID4gPiA+ID4gPiAgICAgICAgICAgYm9v
+bCBmYWlsZWQ7Cj4gPiA+ID4gPiA+ID4gPiAgICAgICAgICAgYm9vbCBjb25maWdfZW5hYmxlZDsK
+PiA+ID4gPiA+ID4gPiA+ICAgICAgICAgICBib29sIGNvbmZpZ19jaGFuZ2VfcGVuZGluZzsKPiA+
+ID4gPiA+ID4gPiA+ICsgYm9vbCBpcnFfc29mdF9jaGVjazsKPiA+ID4gPiA+ID4gPiA+ICsgYm9v
+bCBpcnFfc29mdF9lbmFibGVkOwo+ID4gPiA+ID4gPiA+ID4gICAgICAgICAgIHNwaW5sb2NrX3Qg
+Y29uZmlnX2xvY2s7Cj4gPiA+ID4gPiA+ID4gPiAgICAgICAgICAgc3BpbmxvY2tfdCB2cXNfbGlz
+dF9sb2NrOyAvKiBQcm90ZWN0cyBWUXMgbGlzdCBhY2Nlc3MgKi8KPiA+ID4gPiA+ID4gPiA+ICAg
+ICAgICAgICBzdHJ1Y3QgZGV2aWNlIGRldjsKPiA+ID4gPiA+ID4gPiA+IGRpZmYgLS1naXQgYS9p
+bmNsdWRlL2xpbnV4L3ZpcnRpb19jb25maWcuaCBiL2luY2x1ZGUvbGludXgvdmlydGlvX2NvbmZp
+Zy5oCj4gPiA+ID4gPiA+ID4gPiBpbmRleCBkYWZkYzdmNDhjMDEuLjljMWI2MWYyZTUyNSAxMDA2
+NDQKPiA+ID4gPiA+ID4gPiA+IC0tLSBhL2luY2x1ZGUvbGludXgvdmlydGlvX2NvbmZpZy5oCj4g
+PiA+ID4gPiA+ID4gPiArKysgYi9pbmNsdWRlL2xpbnV4L3ZpcnRpb19jb25maWcuaAo+ID4gPiA+
+ID4gPiA+ID4gQEAgLTE3NCw2ICsxNzQsMjQgQEAgc3RhdGljIGlubGluZSBib29sIHZpcnRpb19o
+YXNfZmVhdHVyZShjb25zdCBzdHJ1Y3QgdmlydGlvX2RldmljZSAqdmRldiwKPiA+ID4gPiA+ID4g
+PiA+ICAgICAgICAgICByZXR1cm4gX192aXJ0aW9fdGVzdF9iaXQodmRldiwgZmJpdCk7Cj4gPiA+
+ID4gPiA+ID4gPiAgIH0KPiA+ID4gPiA+ID4gPiA+ICsvKgo+ID4gPiA+ID4gPiA+ID4gKyAqIHZp
+cnRpb19pcnFfc29mdF9lbmFibGVkOiB3aGV0aGVyIHdlIGNhbiBleGVjdXRlIGNhbGxiYWNrcwo+
+ID4gPiA+ID4gPiA+ID4gKyAqIEB2ZGV2OiB0aGUgZGV2aWNlCj4gPiA+ID4gPiA+ID4gPiArICov
+Cj4gPiA+ID4gPiA+ID4gPiArc3RhdGljIGlubGluZSBib29sIHZpcnRpb19pcnFfc29mdF9lbmFi
+bGVkKGNvbnN0IHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2KQo+ID4gPiA+ID4gPiA+ID4gK3sK
+PiA+ID4gPiA+ID4gPiA+ICsgaWYgKCF2ZGV2LT5pcnFfc29mdF9jaGVjaykKPiA+ID4gPiA+ID4g
+PiA+ICsgICAgICAgICByZXR1cm4gdHJ1ZTsKPiA+ID4gPiA+ID4gPiA+ICsKPiA+ID4gPiA+ID4g
+PiA+ICsgLyoKPiA+ID4gPiA+ID4gPiA+ICsgICogUmVhZCBpcnFfc29mdF9lbmFibGVkIGJlZm9y
+ZSByZWFkaW5nIG90aGVyIGRldmljZSBzcGVjaWZpYwo+ID4gPiA+ID4gPiA+ID4gKyAgKiBkYXRh
+LiBQYXJpZWQgd2l0aCBzbXBfc3RvcmVfcmVsYXNlKCkgaW4KPiA+ID4gPiA+ID4gPiBwYWlyZWQK
+PiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4gV2lsbCBmaXguCj4gPiA+ID4gPiA+
+Cj4gPiA+ID4gPiA+IFRoYW5rcwo+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiA+
+Cj4gPiA+ID4gPiA+ID4gPiArICAqIHZpcnRpb19kZXZpY2VfcmVhZHkoKSBhbmQgV1JJVEVfT05D
+RSgpL3N5bmNocm9uaXplX3JjdSgpIGluCj4gPiA+ID4gPiA+ID4gPiArICAqIHZpcnRpb19yZXNl
+dF9kZXZpY2UoKS4KPiA+ID4gPiA+ID4gPiA+ICsgICovCj4gPiA+ID4gPiA+ID4gPiArIHJldHVy
+biBzbXBfbG9hZF9hY3F1aXJlKCZ2ZGV2LT5pcnFfc29mdF9lbmFibGVkKTsKPiA+ID4gPiA+ID4g
+PiA+ICt9Cj4gPiA+ID4gPiA+ID4gPiArCj4gPiA+ID4gPiA+ID4gPiAgIC8qKgo+ID4gPiA+ID4g
+PiA+ID4gICAgKiB2aXJ0aW9faGFzX2RtYV9xdWlyayAtIGRldGVybWluZSB3aGV0aGVyIHRoaXMg
+ZGV2aWNlIGhhcyB0aGUgRE1BIHF1aXJrCj4gPiA+ID4gPiA+ID4gPiAgICAqIEB2ZGV2OiB0aGUg
+ZGV2aWNlCj4gPiA+ID4gPiA+ID4gPiBAQCAtMjM2LDYgKzI1NCwxMyBAQCB2b2lkIHZpcnRpb19k
+ZXZpY2VfcmVhZHkoc3RydWN0IHZpcnRpb19kZXZpY2UgKmRldikKPiA+ID4gPiA+ID4gPiA+ICAg
+ICAgICAgICBpZiAoZGV2LT5jb25maWctPmVuYWJsZV9jYnMpCj4gPiA+ID4gPiA+ID4gPiAgICAg
+ICAgICAgICAgICAgICAgIGRldi0+Y29uZmlnLT5lbmFibGVfY2JzKGRldik7Cj4gPiA+ID4gPiA+
+ID4gPiArIC8qCj4gPiA+ID4gPiA+ID4gPiArICAqIENvbW1pdCB0aGUgZHJpdmVyIHNldHVwIGJl
+Zm9yZSBlbmFibGluZyB0aGUgdmlydHF1ZXVlCj4gPiA+ID4gPiA+ID4gPiArICAqIGNhbGxiYWNr
+cy4gUGFyaWVkIHdpdGggc21wX2xvYWRfYWN1cWlyZSgpIGluCj4gPiA+ID4gPiA+ID4gPiArICAq
+IHZpcnRpb19pcnFfc29mdF9lbmFibGVkKCkKPiA+ID4gPiA+ID4gPiA+ICsgICovCj4gPiA+ID4g
+PiA+ID4gPiArIHNtcF9zdG9yZV9yZWxlYXNlKCZkZXYtPmlycV9zb2Z0X2VuYWJsZWQsIHRydWUp
+Owo+ID4gPiA+ID4gPiA+ID4gKwo+ID4gPiA+ID4gPiA+ID4gICAgICAgICAgIEJVR19PTihzdGF0
+dXMgJiBWSVJUSU9fQ09ORklHX1NfRFJJVkVSX09LKTsKPiA+ID4gPiA+ID4gPiA+ICAgICAgICAg
+ICBkZXYtPmNvbmZpZy0+c2V0X3N0YXR1cyhkZXYsIHN0YXR1cyB8IFZJUlRJT19DT05GSUdfU19E
+UklWRVJfT0spOwo+ID4gPiA+ID4gPiA+ID4gICB9Cj4gPiA+ID4gPiA+ID4gPiAtLQo+ID4gPiA+
+ID4gPiA+ID4gMi4yNS4xCj4gPiA+ID4gPgo+ID4gPgo+CgpfX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmly
+dHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51
+eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
