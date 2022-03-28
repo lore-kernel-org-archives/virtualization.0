@@ -1,92 +1,106 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E1094C433F5
-	for <virtualization@archiver.kernel.org>; Mon, 28 Mar 2022 18:01:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 51800C433F5
+	for <virtualization@archiver.kernel.org>; Mon, 28 Mar 2022 20:43:13 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id A068E414CC;
-	Mon, 28 Mar 2022 18:01:51 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id E068860B19;
+	Mon, 28 Mar 2022 20:43:12 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id g8mpImnIEZTV; Mon, 28 Mar 2022 18:01:50 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 30579414D1;
-	Mon, 28 Mar 2022 18:01:50 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id bMZEUvvQVCka; Mon, 28 Mar 2022 20:43:12 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 658FB60655;
+	Mon, 28 Mar 2022 20:43:11 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 04A4FC0083;
-	Mon, 28 Mar 2022 18:01:50 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A9B48C0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 427D5C002C;
+	Mon, 28 Mar 2022 20:43:11 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id DD64FC0012
  for <virtualization@lists.linux-foundation.org>;
- Mon, 28 Mar 2022 18:01:48 +0000 (UTC)
+ Mon, 28 Mar 2022 20:43:09 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 8429A41499
+ by smtp2.osuosl.org (Postfix) with ESMTP id C87FD4016C
  for <virtualization@lists.linux-foundation.org>;
- Mon, 28 Mar 2022 18:01:48 +0000 (UTC)
+ Mon, 28 Mar 2022 20:43:09 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id tdyCohAwh4X8
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id qiCdBN-fStmC
  for <virtualization@lists.linux-foundation.org>;
- Mon, 28 Mar 2022 18:01:47 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-lf1-x12d.google.com (mail-lf1-x12d.google.com
- [IPv6:2a00:1450:4864:20::12d])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 7F8CC410E8
+ Mon, 28 Mar 2022 20:43:08 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id A542640117
  for <virtualization@lists.linux-foundation.org>;
- Mon, 28 Mar 2022 18:01:47 +0000 (UTC)
-Received: by mail-lf1-x12d.google.com with SMTP id d5so26146946lfj.9
+ Mon, 28 Mar 2022 20:43:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1648500187;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=PJEPbSEt0O6lWWC+/4/A5CGukD+9ye2bG6M4HjxFpHI=;
+ b=VokgyMEoNeXACqeY7cBSnVAuQEbnXhkyfjX85Hykn8cb+g4KzL3K+A+4Gc1msISb8RHk6A
+ cD/xnmgquUZl317dSEfL5RVfFhFyPDzSu89eGzozPeA+BAkBk4D16ZJFc8bQpxJWuAxql1
+ fUGLGkzKkeut3ztZBisdFUbrDOc0mRU=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-515-L9zzqmYOOxqOYl5xcq7egQ-1; Mon, 28 Mar 2022 16:43:06 -0400
+X-MC-Unique: L9zzqmYOOxqOYl5xcq7egQ-1
+Received: by mail-wm1-f71.google.com with SMTP id
+ o10-20020a1c4d0a000000b0038c6e5fcbaeso203074wmh.9
  for <virtualization@lists.linux-foundation.org>;
- Mon, 28 Mar 2022 11:01:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=daynix-com.20210112.gappssmtp.com; s=20210112;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:content-transfer-encoding;
- bh=XwrXFEA6ufe8dhxsMfcGXWPDSgo5Wl5hFQl5/q/s41A=;
- b=gHyv2qs2Yjq/ET7dkvz7OTcH8gpSmULP7P//kx11mu9/+xqOAQehRE51mGJ5/niBSX
- 0pVi8VNCBoiCZQbxtDiA2CchVULw9xHJglAV/fYsbDWm50j52Usq40j8ewNFccLZhlGo
- qoSq1PBxybT9st8xoOU0NMLqSk2uIg37bHY9L8SzZCyy2ASEhp9QVpvT2NnZFTCP/S7P
- G5kA9qUe+kNGWBybNNA2edLumDyI5l3BS0iGVGp8c/eNO+PsPe54aPyMUW01Dq2G3oic
- Mhc2dB4UWmkJ99/BOrRbrUHQjzycZs+exBjI8CGivRz2a5inPStD3soSHXV5Z9j6La7z
- y3Gg==
+ Mon, 28 Mar 2022 13:43:06 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
- :references:mime-version:content-transfer-encoding;
- bh=XwrXFEA6ufe8dhxsMfcGXWPDSgo5Wl5hFQl5/q/s41A=;
- b=OzP/cDedITBg6Z8i5pnhyKZ9l5vUClbb32QYyBqmc7OR1GQvSa7J1ET1RyJkX175gd
- 7QPwVcfzxoSspTRFOrVdbLbGNfRJrVC9TI+rQN37FijnzI1p2+82eYLtExNNp/q9kYsK
- rUZGU8b6pnHnys0rCWobK/V33Uk2ru5mBdevc7mxsl/5jrnuyWL2goEYii6hi4PcVMAE
- Xu+u4zgtha7SZSt0pqyaYfTmF4Y5Sft5nCoUsukdIQS/w2vgXBIhto/r/L6ZA5ZSUisS
- hUPlCtJrHudM/Ct8H++YSdYsdkLD1KsSdcOXqNpSwhRdRqZ+SRYsIdu2ypYgW0ov6Gmi
- jL0g==
-X-Gm-Message-State: AOAM530Tf8DWW80b7GRyL2xBqowOoyk/VydwShGYMOO9eERm0g+8z43O
- BliUl/ZBywLgkzrSr4d+4y4Spw==
-X-Google-Smtp-Source: ABdhPJzqoqh0sgKnKs5HEqi6D3G6NXiCSBODvFvDqYTbViPzi7+Xk2QY1waFok8NORsCAwWNGH3rqQ==
-X-Received: by 2002:a05:6512:130c:b0:44a:2dd3:91d0 with SMTP id
- x12-20020a056512130c00b0044a2dd391d0mr21741491lfu.234.1648490505338; 
- Mon, 28 Mar 2022 11:01:45 -0700 (PDT)
-Received: from localhost.localdomain (host-188-190-49-235.la.net.ua.
- [188.190.49.235]) by smtp.gmail.com with ESMTPSA id
- a4-20020a2eb164000000b0024988e1cfb6sm1801559ljm.94.2022.03.28.11.01.44
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=PJEPbSEt0O6lWWC+/4/A5CGukD+9ye2bG6M4HjxFpHI=;
+ b=p5qLz1oo4qBaYK2jBhAgUO7DnoaSkOR6HfQYf3v53YjqP0cYvrcJ4vSDRXnEC8hoMX
+ 8f6PjkGo2GhCu0/BvGD7cmhrRLZaM0X+Y5k4/OwUHPiwPzFkecZ/xQU+uxcluyaiwgjo
+ BErh2PytpQ43DCbM8bcdGSn9hw0PcDUxwahb5Fm/xZblTtAmboCrw3PmLccM9sG/eyAQ
+ mPryFNztqd2/W0Trn2qPn34IOtgEq8WjR+Kl0YFl1tdl6B1sD8dpwVBUujBiFQkImE2f
+ sLKQAxUNooAwb5g7l9pVjZGmzAJeO+SfUZEHwa/M3cJsbFKTeMNQUTzUid8z2IWk5xdy
+ S0Ug==
+X-Gm-Message-State: AOAM531s2Cq360pHokP5tmlrN/I0vDv25/muy24C5xSIqaQ3wsN5zyDo
+ ZEb0BDAOwCyis6Ev+r5djrsZH/dAzsBFh6ofJ/pSw2QH04qcvIKJgmlpZX1ZUE0ZCmyVx1uyLop
+ epOf5LNA0fEhQuAdXLyKxqIOMQ1vvyNyH903StVzEhQ==
+X-Received: by 2002:a7b:c341:0:b0:37b:ed90:7dad with SMTP id
+ l1-20020a7bc341000000b0037bed907dadmr1467630wmj.138.1648500184530; 
+ Mon, 28 Mar 2022 13:43:04 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwqJ51NlOZBInKiTlBe3giVlBSqn5C3pjZeP3UUXO1W7rcm9wq0r9ipgX192N0DSiX3l8eE+Q==
+X-Received: by 2002:a7b:c341:0:b0:37b:ed90:7dad with SMTP id
+ l1-20020a7bc341000000b0037bed907dadmr1467606wmj.138.1648500184334; 
+ Mon, 28 Mar 2022 13:43:04 -0700 (PDT)
+Received: from redhat.com ([2.52.9.207]) by smtp.gmail.com with ESMTPSA id
+ l20-20020a05600c1d1400b0038cba2f88c0sm616358wms.26.2022.03.28.13.43.01
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 28 Mar 2022 11:01:44 -0700 (PDT)
-From: Andrew Melnychenko <andrew@daynix.com>
-To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org
-Subject: [PATCH v5 4/4] drivers/net/virtio_net: Added RSS hash report control.
-Date: Mon, 28 Mar 2022 20:53:36 +0300
-Message-Id: <20220328175336.10802-5-andrew@daynix.com>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220328175336.10802-1-andrew@daynix.com>
-References: <20220328175336.10802-1-andrew@daynix.com>
+ Mon, 28 Mar 2022 13:43:03 -0700 (PDT)
+Date: Mon, 28 Mar 2022 16:42:59 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Minghao Xue <quic_mingxue@quicinc.com>
+Subject: Re: [PATCH v2 1/2] dt-bindings: virtio: mmio: add optional
+ wakeup-source property
+Message-ID: <20220328164228-mutt-send-email-mst@kernel.org>
+References: <20220325015945.GA17578@mingxue-gv.qualcomm.com>
 MIME-Version: 1.0
-Cc: mst@redhat.com, yuri.benditovich@daynix.com, yan@daynix.com,
- kuba@kernel.org, davem@davemloft.net
+In-Reply-To: <20220325015945.GA17578@mingxue-gv.qualcomm.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: jean-philippe@linaro.org, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ robh+dt@kernel.org, quic_ztu@quicinc.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -103,215 +117,39 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Now it's possible to control supported hashflows.
-Added hashflow set/get callbacks.
-Also, disabling RXH_IP_SRC/DST for TCP would disable then for UDP.
-TCP and UDP supports only:
-ethtool -U eth0 rx-flow-hash tcp4 sd
-    RXH_IP_SRC + RXH_IP_DST
-ethtool -U eth0 rx-flow-hash tcp4 sdfn
-    RXH_IP_SRC + RXH_IP_DST + RXH_L4_B_0_1 + RXH_L4_B_2_3
-Disabling happens because VirtioNET hashtype for IP doesn't check L4 proto,
-it works for all IP packets(TCP, UDP, ICMP, etc.).
-For TCP and UDP, it's possible to set IP+PORT hashes.
-But disabling IP hashes will disable them for TCP and UDP simultaneously.
-It's possible to set IP+PORT for TCP/UDP and disable/enable IP
-for everything else(UDP, ICMP, etc.).
+On Fri, Mar 25, 2022 at 09:59:45AM +0800, Minghao Xue wrote:
+> Some systems want to set the interrupt of virtio_mmio device
+> as a wakeup source. On such systems, we'll use the existence
+> of the "wakeup-source" property as a signal of requirement.
+> 
+> Signed-off-by: Minghao Xue <quic_mingxue@quicinc.com>
 
-Signed-off-by: Andrew Melnychenko <andrew@daynix.com>
----
- drivers/net/virtio_net.c | 141 ++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 140 insertions(+), 1 deletion(-)
+I don't have enough of a clue about dt to review this.
+Pls get some acks from people with DT expertise.
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index c9472c30e8a2..17eeb4f807e3 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -231,6 +231,7 @@ struct virtnet_info {
- 	u8 rss_key_size;
- 	u16 rss_indir_table_size;
- 	u32 rss_hash_types_supported;
-+	u32 rss_hash_types_saved;
- 
- 	/* Has control virtqueue */
- 	bool has_cvq;
-@@ -2278,6 +2279,7 @@ static void virtnet_init_default_rss(struct virtnet_info *vi)
- 	int i = 0;
- 
- 	vi->ctrl->rss.hash_types = vi->rss_hash_types_supported;
-+	vi->rss_hash_types_saved = vi->rss_hash_types_supported;
- 	vi->ctrl->rss.indirection_table_mask = vi->rss_indir_table_size
- 						? vi->rss_indir_table_size - 1 : 0;
- 	vi->ctrl->rss.unclassified_queue = 0;
-@@ -2293,6 +2295,121 @@ static void virtnet_init_default_rss(struct virtnet_info *vi)
- 	netdev_rss_key_fill(vi->ctrl->rss.key, vi->rss_key_size);
- }
- 
-+static void virtnet_get_hashflow(const struct virtnet_info *vi, struct ethtool_rxnfc *info)
-+{
-+	info->data = 0;
-+	switch (info->flow_type) {
-+	case TCP_V4_FLOW:
-+		if (vi->rss_hash_types_saved & VIRTIO_NET_RSS_HASH_TYPE_TCPv4) {
-+			info->data = RXH_IP_SRC | RXH_IP_DST |
-+						 RXH_L4_B_0_1 | RXH_L4_B_2_3;
-+		} else if (vi->rss_hash_types_saved & VIRTIO_NET_RSS_HASH_TYPE_IPv4) {
-+			info->data = RXH_IP_SRC | RXH_IP_DST;
-+		}
-+		break;
-+	case TCP_V6_FLOW:
-+		if (vi->rss_hash_types_saved & VIRTIO_NET_RSS_HASH_TYPE_TCPv6) {
-+			info->data = RXH_IP_SRC | RXH_IP_DST |
-+						 RXH_L4_B_0_1 | RXH_L4_B_2_3;
-+		} else if (vi->rss_hash_types_saved & VIRTIO_NET_RSS_HASH_TYPE_IPv6) {
-+			info->data = RXH_IP_SRC | RXH_IP_DST;
-+		}
-+		break;
-+	case UDP_V4_FLOW:
-+		if (vi->rss_hash_types_saved & VIRTIO_NET_RSS_HASH_TYPE_UDPv4) {
-+			info->data = RXH_IP_SRC | RXH_IP_DST |
-+						 RXH_L4_B_0_1 | RXH_L4_B_2_3;
-+		} else if (vi->rss_hash_types_saved & VIRTIO_NET_RSS_HASH_TYPE_IPv4) {
-+			info->data = RXH_IP_SRC | RXH_IP_DST;
-+		}
-+		break;
-+	case UDP_V6_FLOW:
-+		if (vi->rss_hash_types_saved & VIRTIO_NET_RSS_HASH_TYPE_UDPv6) {
-+			info->data = RXH_IP_SRC | RXH_IP_DST |
-+						 RXH_L4_B_0_1 | RXH_L4_B_2_3;
-+		} else if (vi->rss_hash_types_saved & VIRTIO_NET_RSS_HASH_TYPE_IPv6) {
-+			info->data = RXH_IP_SRC | RXH_IP_DST;
-+		}
-+		break;
-+	case IPV4_FLOW:
-+		if (vi->rss_hash_types_saved & VIRTIO_NET_RSS_HASH_TYPE_IPv4)
-+			info->data = RXH_IP_SRC | RXH_IP_DST;
-+
-+		break;
-+	case IPV6_FLOW:
-+		if (vi->rss_hash_types_saved & VIRTIO_NET_RSS_HASH_TYPE_IPv6)
-+			info->data = RXH_IP_SRC | RXH_IP_DST;
-+
-+		break;
-+	default:
-+		info->data = 0;
-+		break;
-+	}
-+}
-+
-+static bool virtnet_set_hashflow(struct virtnet_info *vi, struct ethtool_rxnfc *info)
-+{
-+	u32 new_hashtypes = vi->rss_hash_types_saved;
-+	bool is_disable = info->data & RXH_DISCARD;
-+	bool is_l4 = info->data == (RXH_IP_SRC | RXH_IP_DST | RXH_L4_B_0_1 | RXH_L4_B_2_3);
-+
-+	/* supports only 'sd', 'sdfn' and 'r' */
-+	if (!((info->data == (RXH_IP_SRC | RXH_IP_DST)) | is_l4 | is_disable))
-+		return false;
-+
-+	switch (info->flow_type) {
-+	case TCP_V4_FLOW:
-+		new_hashtypes &= ~(VIRTIO_NET_RSS_HASH_TYPE_IPv4 | VIRTIO_NET_RSS_HASH_TYPE_TCPv4);
-+		if (!is_disable)
-+			new_hashtypes |= VIRTIO_NET_RSS_HASH_TYPE_IPv4
-+				| (is_l4 ? VIRTIO_NET_RSS_HASH_TYPE_TCPv4 : 0);
-+		break;
-+	case UDP_V4_FLOW:
-+		new_hashtypes &= ~(VIRTIO_NET_RSS_HASH_TYPE_IPv4 | VIRTIO_NET_RSS_HASH_TYPE_UDPv4);
-+		if (!is_disable)
-+			new_hashtypes |= VIRTIO_NET_RSS_HASH_TYPE_IPv4
-+				| (is_l4 ? VIRTIO_NET_RSS_HASH_TYPE_UDPv4 : 0);
-+		break;
-+	case IPV4_FLOW:
-+		new_hashtypes &= ~VIRTIO_NET_RSS_HASH_TYPE_IPv4;
-+		if (!is_disable)
-+			new_hashtypes = VIRTIO_NET_RSS_HASH_TYPE_IPv4;
-+		break;
-+	case TCP_V6_FLOW:
-+		new_hashtypes &= ~(VIRTIO_NET_RSS_HASH_TYPE_IPv6 | VIRTIO_NET_RSS_HASH_TYPE_TCPv6);
-+		if (!is_disable)
-+			new_hashtypes |= VIRTIO_NET_RSS_HASH_TYPE_IPv6
-+				| (is_l4 ? VIRTIO_NET_RSS_HASH_TYPE_TCPv6 : 0);
-+		break;
-+	case UDP_V6_FLOW:
-+		new_hashtypes &= ~(VIRTIO_NET_RSS_HASH_TYPE_IPv6 | VIRTIO_NET_RSS_HASH_TYPE_UDPv6);
-+		if (!is_disable)
-+			new_hashtypes |= VIRTIO_NET_RSS_HASH_TYPE_IPv6
-+				| (is_l4 ? VIRTIO_NET_RSS_HASH_TYPE_UDPv6 : 0);
-+		break;
-+	case IPV6_FLOW:
-+		new_hashtypes &= ~VIRTIO_NET_RSS_HASH_TYPE_IPv6;
-+		if (!is_disable)
-+			new_hashtypes = VIRTIO_NET_RSS_HASH_TYPE_IPv6;
-+		break;
-+	default:
-+		/* unsupported flow */
-+		return false;
-+	}
-+
-+	/* if unsupported hashtype was set */
-+	if (new_hashtypes != (new_hashtypes & vi->rss_hash_types_supported))
-+		return false;
-+
-+	if (new_hashtypes != vi->rss_hash_types_saved) {
-+		vi->rss_hash_types_saved = new_hashtypes;
-+		vi->ctrl->rss.hash_types = vi->rss_hash_types_saved;
-+		if (vi->dev->features & NETIF_F_RXHASH)
-+			return virtnet_commit_rss_command(vi);
-+	}
-+
-+	return true;
-+}
- 
- static void virtnet_get_drvinfo(struct net_device *dev,
- 				struct ethtool_drvinfo *info)
-@@ -2578,6 +2695,27 @@ static int virtnet_get_rxnfc(struct net_device *dev, struct ethtool_rxnfc *info,
- 	switch (info->cmd) {
- 	case ETHTOOL_GRXRINGS:
- 		info->data = vi->curr_queue_pairs;
-+		break;
-+	case ETHTOOL_GRXFH:
-+		virtnet_get_hashflow(vi, info);
-+		break;
-+	default:
-+		rc = -EOPNOTSUPP;
-+	}
-+
-+	return rc;
-+}
-+
-+static int virtnet_set_rxnfc(struct net_device *dev, struct ethtool_rxnfc *info)
-+{
-+	struct virtnet_info *vi = netdev_priv(dev);
-+	int rc = 0;
-+
-+	switch (info->cmd) {
-+	case ETHTOOL_SRXFH:
-+		if (!virtnet_set_hashflow(vi, info))
-+			rc = -EINVAL;
-+
- 		break;
- 	default:
- 		rc = -EOPNOTSUPP;
-@@ -2606,6 +2744,7 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
- 	.get_rxfh = virtnet_get_rxfh,
- 	.set_rxfh = virtnet_set_rxfh,
- 	.get_rxnfc = virtnet_get_rxnfc,
-+	.set_rxnfc = virtnet_set_rxnfc,
- };
- 
- static void virtnet_freeze_down(struct virtio_device *vdev)
-@@ -2860,7 +2999,7 @@ static int virtnet_set_features(struct net_device *dev,
- 
- 	if ((dev->features ^ features) & NETIF_F_RXHASH) {
- 		if (features & NETIF_F_RXHASH)
--			vi->ctrl->rss.hash_types = vi->rss_hash_types_supported;
-+			vi->ctrl->rss.hash_types = vi->rss_hash_types_saved;
- 		else
- 			vi->ctrl->rss.hash_types = VIRTIO_NET_HASH_REPORT_NONE;
- 
--- 
-2.35.1
+> ---
+> v1 -> v2: rename property from "virtio,wakeup" to "wakeup-source"
+> 
+>  Documentation/devicetree/bindings/virtio/mmio.yaml | 4 ++++
+>  1 file changed, 4 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/virtio/mmio.yaml b/Documentation/devicetree/bindings/virtio/mmio.yaml
+> index 4b7a027..160b21b 100644
+> --- a/Documentation/devicetree/bindings/virtio/mmio.yaml
+> +++ b/Documentation/devicetree/bindings/virtio/mmio.yaml
+> @@ -31,6 +31,10 @@ properties:
+>      description: Required for devices making accesses thru an IOMMU.
+>      maxItems: 1
+>  
+> +  wakeup-source:
+> +    type: boolean
+> +    description: Required for setting irq of a virtio_mmio device as wakeup source.
+> +
+>  required:
+>    - compatible
+>    - reg
+> -- 
+> 2.7.4
 
 _______________________________________________
 Virtualization mailing list
