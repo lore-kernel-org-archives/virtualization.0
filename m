@@ -1,99 +1,100 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id F1403C433F5
-	for <virtualization@archiver.kernel.org>; Tue, 29 Mar 2022 07:49:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1D124C433EF
+	for <virtualization@archiver.kernel.org>; Tue, 29 Mar 2022 07:50:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 92C3F60C05;
-	Tue, 29 Mar 2022 07:49:45 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id C89E984186;
+	Tue, 29 Mar 2022 07:50:37 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id UiPWp_8kpyFh; Tue, 29 Mar 2022 07:49:44 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id uGBApc9ktqER; Tue, 29 Mar 2022 07:50:37 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 0FB0860C04;
-	Tue, 29 Mar 2022 07:49:43 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 6C9BC84185;
+	Tue, 29 Mar 2022 07:50:36 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E4EF4C001D;
-	Tue, 29 Mar 2022 07:49:43 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E17B9C0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3BEA2C001D;
+	Tue, 29 Mar 2022 07:50:36 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 63B66C0012
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Mar 2022 07:49:42 +0000 (UTC)
+ Tue, 29 Mar 2022 07:50:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id B6DD441729
+ by smtp2.osuosl.org (Postfix) with ESMTP id 50ABE40579
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Mar 2022 07:49:42 +0000 (UTC)
+ Tue, 29 Mar 2022 07:50:34 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id qoNispofvQcD
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id k4Wt1t9L5rbT
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Mar 2022 07:49:41 +0000 (UTC)
+ Tue, 29 Mar 2022 07:50:33 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 6612A4171A
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 982FD402FE
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Mar 2022 07:49:41 +0000 (UTC)
+ Tue, 29 Mar 2022 07:50:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1648540180;
+ s=mimecast20190719; t=1648540232;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=lsR/34KqJqbBBpHRK+08f40lqnu5rbIFXnCvn3suC+k=;
- b=Abao1opdVqJg4JqGvAlpWFRhSoCnNtvBaICR7JL9MLWXeckXhbz/OBhEOUZZ/CFTs6vd2i
- tIcP2EJbfJhvVgkhf0I1Gqa02AviEGx0NVKdMDGKlzT0Z3h6cqm/U1nHx+0zzDkolXEUPV
- UwzapTbWfuRkih5A65BSwGIRxSwF/GA=
-Received: from mail-qv1-f71.google.com (mail-qv1-f71.google.com
- [209.85.219.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=HHYas20bFA+kNgMHaxoIQKsMvNcafn9rtG/cGQWeJ9M=;
+ b=Zo6ty+hOTEmURP+TdqUWLsb1KPMTt145QDnODGBMpnjZoeL+84/AqGBEEYXTDlvn4vnvXF
+ rnoe63XGY5LZKAy4jCBHO7y/oosPZ8bqksCTRWgIfWUXijEzU+y4V6LJYc67D1biJcIT96
+ i60pe1FvIcP4KSDeAICIC4UcUvPBn10=
+Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com
+ [209.85.160.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-295-l9n34Uv2PNiux0n5zgbsew-1; Tue, 29 Mar 2022 03:49:38 -0400
-X-MC-Unique: l9n34Uv2PNiux0n5zgbsew-1
-Received: by mail-qv1-f71.google.com with SMTP id
- z1-20020ad44781000000b00440ded04b09so13110894qvy.22
+ us-mta-332-9MB4TQdBMriwon0SdpXACA-1; Tue, 29 Mar 2022 03:50:31 -0400
+X-MC-Unique: 9MB4TQdBMriwon0SdpXACA-1
+Received: by mail-qt1-f197.google.com with SMTP id
+ z18-20020ac84552000000b002e201c79cd4so14182664qtn.2
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Mar 2022 00:49:38 -0700 (PDT)
+ Tue, 29 Mar 2022 00:50:31 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=lsR/34KqJqbBBpHRK+08f40lqnu5rbIFXnCvn3suC+k=;
- b=6+k3HzWYmtaU7uYxOK56iFYxfGDeoB7nIem7pNIncmDuGkY8vZ42JW1lGxNvlopOzy
- bd62DCbN9BFoaak7/b44SrqxCI9Q1/O0ChrOO+JvB1Gyh9KgWw3dAmTSt89k/X4HZ1Iq
- 3ttBDo/SlNzPd+k7c4Ah7/T949ykjtelPzOGELE2zkPFQD5QBhDfPW6rRh8YBeR9tKTt
- Xjsd9W1XgeUEQFBHu7Hruhngk6QwuX3h93Vtwu55UtpJYNWf0rZEpCkthgQvWjnagUcJ
- /apEKjzTtzQtKWMK6MBpUNW+C1LVL2q0+xKrXM67vl0SE8776dhnlwatSsJEO2qyYFBN
- A4jg==
-X-Gm-Message-State: AOAM533s+3jAEJI/FzHb8mdignLMMFqMyTtj4OQYu+RFKChYVirkOztY
- UQqa8cA+Cq6VPBz/tsRrE1b/L8wFqOqX2tXszT0ZTiy8eaYUdTcpVah+/L3KoqTJqu9jtQYjdrt
- d99+n1p3xtjibJF+1UnTiUv9ctayzORfziv3O/uW7WA==
-X-Received: by 2002:ac8:5743:0:b0:2e1:cee6:f15 with SMTP id
- 3-20020ac85743000000b002e1cee60f15mr26099600qtx.634.1648540178444; 
- Tue, 29 Mar 2022 00:49:38 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyF88WnyEL92F591a91CJkQdQTk0tHBD5HJOhEHqqmJn3s+62AbX5AdLhjztsk5SSSRj9HebA==
-X-Received: by 2002:ac8:5743:0:b0:2e1:cee6:f15 with SMTP id
- 3-20020ac85743000000b002e1cee60f15mr26099593qtx.634.1648540178179; 
- Tue, 29 Mar 2022 00:49:38 -0700 (PDT)
+ bh=HHYas20bFA+kNgMHaxoIQKsMvNcafn9rtG/cGQWeJ9M=;
+ b=FmOdUTIj+qeWLJPUI3Sf03RhPA+DEHGNS0OlBTKiMvpP4I94twM4tJecAU9/rdtjh/
+ cBpVmVVoOPniIRPdN79Se4W6+778TiYQjL1V1q9XJMNRuvJICN24T2h+Xa80f5TWI5Jx
+ fuaT7enZQ+BSolcbFKZJwM3gOlZ2e3MGzrJC5XwDE+e1BhIZTfnfXh59Dr4puJ6n2Lag
+ QbA6gWHmTf8Ze36s6QaNR1RlMZTjURTjlUdU/iFr7wfcRsvxIVbSY7Rhlgr2Y0Lm1TE6
+ d0dTiMpww6lk6KY/yR2I0PHB1rXuO+PzBgmdc10N2c+yo+OeDxA2/9ixDFOe3M1Xf+la
+ 5SaA==
+X-Gm-Message-State: AOAM532/0Ht6zbAWBwe/ewnHgRcpweibmV5K0N4uPmUYiSDDafqizQii
+ PwL84LXszJQDBt3XLlDvHwFxF11XNfPzkKX2BIg7BQA/lSAtKRt0dttZGZ/DewpYks9G5r/g45n
+ 3MeC1aoQqSRk6msN6+/mOnGelGLa4CAh+MggcryyWEQ==
+X-Received: by 2002:a05:6214:4016:b0:441:28a4:52ff with SMTP id
+ kd22-20020a056214401600b0044128a452ffmr24894024qvb.74.1648540230486; 
+ Tue, 29 Mar 2022 00:50:30 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyBn1dkAlRDwy4hsXt41FSpdVAAm3YfVvYIpXoTpkqSVyseUq6Uo9uoTaE6ItLGVv55uUz6aA==
+X-Received: by 2002:a05:6214:4016:b0:441:28a4:52ff with SMTP id
+ kd22-20020a056214401600b0044128a452ffmr24894016qvb.74.1648540230285; 
+ Tue, 29 Mar 2022 00:50:30 -0700 (PDT)
 Received: from sgarzare-redhat (host-79-46-200-67.retail.telecomitalia.it.
  [79.46.200.67]) by smtp.gmail.com with ESMTPSA id
- bs32-20020a05620a472000b0067d4560a516sm9478080qkb.32.2022.03.29.00.49.35
+ x19-20020a05620a14b300b0067e09a47e39sm8843107qkj.34.2022.03.29.00.50.28
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 29 Mar 2022 00:49:37 -0700 (PDT)
-Date: Tue, 29 Mar 2022 09:49:32 +0200
+ Tue, 29 Mar 2022 00:50:29 -0700 (PDT)
+Date: Tue, 29 Mar 2022 09:50:24 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Xianting Tian <xianting.tian@linux.alibaba.com>
-Subject: Re: [PATCH 1/2] virtio_ring: remove unnecessary to_vvq call in vring
- hot path
-Message-ID: <20220329074932.5wtyi7fd7ud5dedd@sgarzare-redhat>
+Subject: Re: [PATCH 2/2] virtio_ring: add unlikely annotation for free descs
+ check
+Message-ID: <20220329075024.eoajm5ufrcfytug4@sgarzare-redhat>
 References: <20220328105817.1028065-1-xianting.tian@linux.alibaba.com>
+ <20220328105817.1028065-2-xianting.tian@linux.alibaba.com>
 MIME-Version: 1.0
-In-Reply-To: <20220328105817.1028065-1-xianting.tian@linux.alibaba.com>
+In-Reply-To: <20220328105817.1028065-2-xianting.tian@linux.alibaba.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
 X-Mimecast-Spam-Score: 0
@@ -117,54 +118,30 @@ Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Mar 28, 2022 at 06:58:16PM +0800, Xianting Tian wrote:
->It passes '_vq' to virtqueue_use_indirect(), which still calls
->to_vvq to get 'vq', let's directly pass 'vq'. It can avoid
->unnecessary call of to_vvq in hot path.
+On Mon, Mar 28, 2022 at 06:58:17PM +0800, Xianting Tian wrote:
+>The 'if (vq->vq.num_free < descs_used)' check will almost always be false.
 >
 >Signed-off-by: Xianting Tian <xianting.tian@linux.alibaba.com>
 >---
-> drivers/virtio/virtio_ring.c | 8 +++-----
-> 1 file changed, 3 insertions(+), 5 deletions(-)
+> drivers/virtio/virtio_ring.c | 2 +-
+> 1 file changed, 1 insertion(+), 1 deletion(-)
 
 Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 
 >
 >diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
->index 962f1477b1fa..d597fc0874ec 100644
+>index d597fc0874ec..ab6d5f0cb579 100644
 >--- a/drivers/virtio/virtio_ring.c
 >+++ b/drivers/virtio/virtio_ring.c
->@@ -205,11 +205,9 @@ struct vring_virtqueue {
+>@@ -525,7 +525,7 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
+> 		descs_used = total_sg;
+> 	}
 >
-> #define to_vvq(_vq) container_of(_vq, struct vring_virtqueue, vq)
->
->-static inline bool virtqueue_use_indirect(struct virtqueue *_vq,
->+static inline bool virtqueue_use_indirect(struct vring_virtqueue *vq,
-> 					  unsigned int total_sg)
-> {
->-	struct vring_virtqueue *vq = to_vvq(_vq);
->-
-> 	/*
-> 	 * If the host supports indirect descriptor tables, and we have multiple
-> 	 * buffers, then go indirect. FIXME: tune this threshold
->@@ -507,7 +505,7 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
->
-> 	head = vq->free_head;
->
->-	if (virtqueue_use_indirect(_vq, total_sg))
->+	if (virtqueue_use_indirect(vq, total_sg))
-> 		desc = alloc_indirect_split(_vq, total_sg, gfp);
-> 	else {
-> 		desc = NULL;
->@@ -1194,7 +1192,7 @@ static inline int virtqueue_add_packed(struct virtqueue *_vq,
->
-> 	BUG_ON(total_sg == 0);
->
->-	if (virtqueue_use_indirect(_vq, total_sg)) {
->+	if (virtqueue_use_indirect(vq, total_sg)) {
-> 		err = virtqueue_add_indirect_packed(vq, sgs, total_sg, out_sgs,
-> 						    in_sgs, data, gfp);
-> 		if (err != -ENOMEM) {
+>-	if (vq->vq.num_free < descs_used) {
+>+	if (unlikely(vq->vq.num_free < descs_used)) {
+> 		pr_debug("Can't add buf len %i - avail = %i\n",
+> 			 descs_used, vq->vq.num_free);
+> 		/* FIXME: for historical reasons, we force a notify here if
 >-- 
 >2.17.1
 >
