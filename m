@@ -1,83 +1,82 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id DA689C433F5
-	for <virtualization@archiver.kernel.org>; Tue, 29 Mar 2022 08:35:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E97C7C433EF
+	for <virtualization@archiver.kernel.org>; Tue, 29 Mar 2022 08:45:41 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 6EEF6417C2;
-	Tue, 29 Mar 2022 08:35:30 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 972CE60C1C;
+	Tue, 29 Mar 2022 08:45:41 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 6ttcQgecHFAM; Tue, 29 Mar 2022 08:35:29 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id C3D5A417BC;
-	Tue, 29 Mar 2022 08:35:28 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Agip2bUSgIwW; Tue, 29 Mar 2022 08:45:40 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 24BD360B58;
+	Tue, 29 Mar 2022 08:45:40 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 93E16C002C;
-	Tue, 29 Mar 2022 08:35:28 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8A7E7C0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E12F5C001D;
+	Tue, 29 Mar 2022 08:45:39 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C17E8C0012
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Mar 2022 08:35:27 +0000 (UTC)
+ Tue, 29 Mar 2022 08:45:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 6D393417C1
+ by smtp3.osuosl.org (Postfix) with ESMTP id 97D8960B5F
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Mar 2022 08:35:27 +0000 (UTC)
+ Tue, 29 Mar 2022 08:45:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id DXv4cIh83GV1
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id wD8rXAEcwPZU
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Mar 2022 08:35:26 +0000 (UTC)
+ Tue, 29 Mar 2022 08:45:37 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from galois.linutronix.de (Galois.linutronix.de
- [IPv6:2a0a:51c0:0:12e:550::1])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 4343D417BC
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id B398360B58
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Mar 2022 08:35:26 +0000 (UTC)
-From: Thomas Gleixner <tglx@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020; t=1648542922;
+ Tue, 29 Mar 2022 08:45:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1648543536;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=jxo2fANONHqaPhhHVOh0yDywiTjWcuYhsxdsXZUuyQc=;
- b=RStcuUQ735QvEvgn2gP9AapfqEBcHTu1/DqKNr5yru+C2lPrbU7b6ZlpJrZYw+cb2pk4+6
- nMaWjBzg4BrnqZtn3NtLo6Loaxlh3Rm6ODAZmD66KvnqwqDbzUmfJcA8yXZy6GnJikR7zx
- /RIT/57HJRUE7VufPGF3asvKSms60au634m5gN0olLRQ1KVzJFMzTqYLErSz647Akq2j08
- c6E5tK9MbNWaIRTnrp9q1Zzi4fBmFSbUNu5rC9z4PsvKvJZXcmT4zSHbwHTa8/cx9t+hWo
- Q/zWFyoHDs8GzU2Y2LuWGB7no7RIx77oKYN+KdJsAfVJ/wPDV0iIKZTkOfImmQ==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020e; t=1648542922;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=jxo2fANONHqaPhhHVOh0yDywiTjWcuYhsxdsXZUuyQc=;
- b=jrfi9eIOoNRFIhbQjDceJgTfM2tvd35PV2BCmvdNn6rpaFI3gczf6bRiJsPo+vNhrCd0YM
- sXtUVGrgLpd8SgCQ==
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Subject: Re:
-In-Reply-To: <20220328062452-mutt-send-email-mst@kernel.org>
-References: <Yj1hkpyUqJE9sQ2p@redhat.com>
- <CACGkMEunsuWhn+aB2dM7noU257M9JV6jDjkQXLyOA+GjEoz_iw@mail.gmail.com>
- <20220325050947-mutt-send-email-mst@kernel.org>
- <CACGkMEvioAVMmB+ab2xXB2YPECtwi1J55u8mRRk9-JAjFSZ8vg@mail.gmail.com>
- <20220325060659-mutt-send-email-mst@kernel.org>
- <CACGkMEu4mRfNbJXJtAFzhyd55fD7phUDKnVtYW0aqRnQmT_bYw@mail.gmail.com>
- <20220328015757-mutt-send-email-mst@kernel.org>
- <CACGkMEu+fax6YYwhfbc1yoSxv6o1FTQyrOheVTmUfqGvmbAEfA@mail.gmail.com>
- <20220328062452-mutt-send-email-mst@kernel.org>
-Date: Tue, 29 Mar 2022 10:35:21 +0200
-Message-ID: <87fsn1f96e.ffs@tglx>
+ bh=uMgkTYZf/g0woPe8B780plgukc+vz+yUuXXC8TqXCcA=;
+ b=d0u6bPBImwf3AxzytBR1tgu04Bg27G4TVQS48Z9j5ygYbpPJ8hI4LncgoSEWlUXKbCzkPn
+ 6MMgsGLQ0mo2xj0974kelFv0c3aWwzDIUbBX6wuOxvlxhu8qqo1sWgFVgPqHjAfytS+Y+u
+ hpBBBJ0gz97nArA3GJ/vUuySZ/0OqtE=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-556-4oflrWbVOaKBM0S8CQKSBQ-1; Tue, 29 Mar 2022 04:45:31 -0400
+X-MC-Unique: 4oflrWbVOaKBM0S8CQKSBQ-1
+Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.9])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id B7F571C168E4;
+ Tue, 29 Mar 2022 08:45:30 +0000 (UTC)
+Received: from localhost (unknown [10.39.195.109])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 6AE0D46A3AF;
+ Tue, 29 Mar 2022 08:45:30 +0000 (UTC)
+Date: Tue, 29 Mar 2022 09:45:29 +0100
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Suwan Kim <suwan.kim027@gmail.com>
+Subject: Re: [PATCH v3 2/2] virtio-blk: support mq_ops->queue_rqs()
+Message-ID: <YkLHKXukyZd27ADE@stefanha-x1.localdomain>
+References: <20220324140450.33148-1-suwan.kim027@gmail.com>
+ <20220324140450.33148-3-suwan.kim027@gmail.com>
+ <YkG1HeQ8qu11KFnF@stefanha-x1.localdomain>
+ <YkHZSV+USBSRPuTv@localhost.localdomain>
 MIME-Version: 1.0
-Cc: "Paul E. McKenney" <paulmck@kernel.org>,
- Peter Zijlstra <peterz@infradead.org>, Marc Zyngier <maz@kernel.org>,
- Keir Fraser <keirf@google.com>, linux-kernel <linux-kernel@vger.kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>
+In-Reply-To: <YkHZSV+USBSRPuTv@localhost.localdomain>
+X-Scanned-By: MIMEDefang 2.85 on 10.11.54.9
+Cc: mgurtovoy@nvidia.com, mst@redhat.com,
+ virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org,
+ pbonzini@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -89,104 +88,135 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============0406913427225875817=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Mar 28 2022 at 06:40, Michael S. Tsirkin wrote:
-> On Mon, Mar 28, 2022 at 02:18:22PM +0800, Jason Wang wrote:
->> > > So I think we might talk different issues:
->> > >
->> > > 1) Whether request_irq() commits the previous setups, I think the
->> > > answer is yes, since the spin_unlock of desc->lock (release) can
->> > > guarantee this though there seems no documentation around
->> > > request_irq() to say this.
->> > >
->> > > And I can see at least drivers/video/fbdev/omap2/omapfb/dss/dispc.c is
->> > > using smp_wmb() before the request_irq().
 
-That's a complete bogus example especially as there is not a single
-smp_rmb() which pairs with the smp_wmb().
+--===============0406913427225875817==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="mO5OVVo6Gt3wRhJH"
+Content-Disposition: inline
 
->> > > And even if write is ordered we still need read to be ordered to be
->> > > paired with that.
->
-> IMO it synchronizes with the CPU to which irq is
-> delivered. Otherwise basically all drivers would be broken,
-> wouldn't they be?
-> I don't know whether it's correct on all platforms, but if not
-> we need to fix request_irq.
 
-There is nothing to fix:
+--mO5OVVo6Gt3wRhJH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-request_irq()
-   raw_spin_lock_irq(desc->lock);       // ACQUIRE
-   ....
-   raw_spin_unlock_irq(desc->lock);     // RELEASE
+On Tue, Mar 29, 2022 at 12:50:33AM +0900, Suwan Kim wrote:
+> On Mon, Mar 28, 2022 at 02:16:13PM +0100, Stefan Hajnoczi wrote:
+> > On Thu, Mar 24, 2022 at 11:04:50PM +0900, Suwan Kim wrote:
+> > > +static void virtio_queue_rqs(struct request **rqlist)
+> > > +{
+> > > +	struct request *req, *next, *prev =3D NULL;
+> > > +	struct request *requeue_list =3D NULL;
+> > > +
+> > > +	rq_list_for_each_safe(rqlist, req, next) {
+> > > +		struct virtio_blk_vq *vq =3D req->mq_hctx->driver_data;
+> > > +		unsigned long flags;
+> > > +		bool kick;
+> > > +
+> > > +		if (!virtblk_prep_rq_batch(vq, req)) {
+> > > +			rq_list_move(rqlist, &requeue_list, req, prev);
+> > > +			req =3D prev;
+> > > +
+> > > +			if (!req)
+> > > +				continue;
+> > > +		}
+> > > +
+> > > +		if (!next || req->mq_hctx !=3D next->mq_hctx) {
+> > > +			spin_lock_irqsave(&vq->lock, flags);
+> >=20
+> > Did you try calling virtblk_add_req() here to avoid acquiring and
+> > releasing the lock multiple times? In other words, do virtblk_prep_rq()
+> > but wait until we get here to do virtblk_add_req().
+> >=20
+> > I don't know if it has any measurable effect on performance or maybe the
+> > code would become too complex, but I noticed that we're not fully
+> > exploiting batching.
+>=20
+> I tried as you said. I called virtlblk_add_req() and added requests
+> of rqlist to virtqueue in this if statement with holding the lock
+> only once.
+>=20
+> I attach the code at the end of this mail.
+> Please refer the code.
+>=20
+> But I didn't see improvement. It showed slightly worse performance
+> than the current patch.
 
-interrupt()
-   raw_spin_lock(desc->lock);           // ACQUIRE
-   set status to IN_PROGRESS
-   raw_spin_unlock(desc->lock);         // RELEASE
-   invoke handler()
+Okay, thanks for trying it!
 
-So anything which the driver set up _before_ request_irq() is visible to
-the interrupt handler. No?
+> > > +			kick =3D virtqueue_kick_prepare(vq->vq);
+> > > +			spin_unlock_irqrestore(&vq->lock, flags);
+> > > +			if (kick)
+> > > +				virtqueue_notify(vq->vq);
+> > > +
+> > > +			req->rq_next =3D NULL;
+>=20
+> Did you ask this part?
+>=20
+> > > +			*rqlist =3D next;
+> > > +			prev =3D NULL;
+> > > +		} else
+> > > +			prev =3D req;
+> >=20
+> > What guarantees that req is still alive after we called
+> > virtblk_add_req()? The device may have seen it and completed it already
+> > by the time we get here.
+>=20
+> Isn't request completed after the kick?
+>=20
+> If you asked about "req->rq_next =3D NULL",
+> I think it should be placed before
+> "kick =3D virtqueue_kick_prepare(vq->vq);"
+>=20
+> -----------
+> 	req->rq_next =3D NULL;
+> 	kick =3D virtqueue_kick_prepare(vq->vq);
+> 	spin_unlock_irqrestore(&vq->lock, flags);
+> 	if (kick)
+> 		virtqueue_notify(vq->vq);
+> -----------
 
->> What happens if an interrupt is raised in the middle like:
->> 
->> smp_store_release(dev->irq_soft_enabled, true)
->> IRQ handler
->> synchornize_irq()
+No, virtqueue_add_sgs() exposes vring descriptors to the device. The
+device may process immediately. In other words, VIRTIO devices may poll
+the vring instead of waiting for virtqueue_notify(). There is no
+guarantee that the request is alive until virtqueue_notify() is called.
 
-This is bogus. The obvious order of things is:
+The code has to handle the case where the request is completed during
+virtqueue_add_sgs().
 
-    dev->ok = false;
-    request_irq();
+Stefan
 
-    moar_setup();
-    synchronize_irq();  // ACQUIRE + RELEASE
-    dev->ok = true;
+--mO5OVVo6Gt3wRhJH
+Content-Type: application/pgp-signature; name="signature.asc"
 
-The reverse operation on teardown:
+-----BEGIN PGP SIGNATURE-----
 
-    dev->ok = false;
-    synchronize_irq();  // ACQUIRE + RELEASE
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmJCxykACgkQnKSrs4Gr
+c8i6RggAyb2FEHMODJp1S34MXObUfuNkzJdnNuX2cn1Eh4CjmvTyHSPK/vSwqBF2
+cLcDqG1Mdf8qzvtO2WQdrkvDzhyYZAM0C51cQu7m1UzZ7HMmSVZc6XNdKplKS7uZ
+sWkGppbl43ng0Ts31FhSCE7tt5RbfQ1qZqdoCkDLl6oD4xAAP2/tJJy7iXaFdOoT
+PYI2OWs3S2u2kCxJdJbHVlxMy4I+SIn9q/ZOzzgz4PI4xAQ316YlL99ciyIqIBaX
+toE6eMSrkvyveT/O80M8OwwaVNkZR/EPZGNAWGwz6ZpmMIL33T+mRU3DOdC5ikLy
+aqaIom1JtCx+gekwkhhfw4XHhlJPqQ==
+=a5gB
+-----END PGP SIGNATURE-----
 
-    teardown();
+--mO5OVVo6Gt3wRhJH--
 
-So in both cases a simple check in the handler is sufficient:
 
-handler()
-    if (!dev->ok)
-    	return;
+--===============0406913427225875817==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-I'm not understanding what you folks are trying to "fix" here. If any
-driver does this in the wrong order, then the driver is broken.
-
-Sure, you can do the same with:
-
-    dev->ok = false;
-    request_irq();
-    moar_setup();
-    smp_wmb();
-    dev->ok = true;
-
-for the price of a smp_rmb() in the interrupt handler:
-
-handler()
-    if (!dev->ok)
-    	return;
-    smp_rmb();
-
-but that's only working for the setup case correctly and not for
-teardown.
-
-Thanks,
-
-        tglx
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============0406913427225875817==--
+
