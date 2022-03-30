@@ -1,105 +1,107 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C959EC433EF
-	for <virtualization@archiver.kernel.org>; Wed, 30 Mar 2022 06:23:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A691CC433F5
+	for <virtualization@archiver.kernel.org>; Wed, 30 Mar 2022 06:34:06 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 65FBE40B3E;
-	Wed, 30 Mar 2022 06:23:42 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 3592F41C13;
+	Wed, 30 Mar 2022 06:34:06 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id m_wMJpv4dE7r; Wed, 30 Mar 2022 06:23:41 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 0C13A40C9D;
-	Wed, 30 Mar 2022 06:23:41 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 5OH3Af2JjWYf; Wed, 30 Mar 2022 06:34:05 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 6318841A0A;
+	Wed, 30 Mar 2022 06:34:04 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DA28DC002C;
-	Wed, 30 Mar 2022 06:23:40 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3BA61C0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 261CDC002C;
+	Wed, 30 Mar 2022 06:34:04 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 64D57C0012
  for <virtualization@lists.linux-foundation.org>;
- Wed, 30 Mar 2022 06:23:39 +0000 (UTC)
+ Wed, 30 Mar 2022 06:34:03 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id D7A0E60A4F
+ by smtp2.osuosl.org (Postfix) with ESMTP id 3941240CAF
  for <virtualization@lists.linux-foundation.org>;
- Wed, 30 Mar 2022 06:23:38 +0000 (UTC)
+ Wed, 30 Mar 2022 06:34:03 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Hm1UDScMjadR
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 60GCbhFpfkLu
  for <virtualization@lists.linux-foundation.org>;
- Wed, 30 Mar 2022 06:23:37 +0000 (UTC)
+ Wed, 30 Mar 2022 06:34:00 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id CCF8A60807
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 30AFA40CA2
  for <virtualization@lists.linux-foundation.org>;
- Wed, 30 Mar 2022 06:23:36 +0000 (UTC)
+ Wed, 30 Mar 2022 06:34:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1648621415;
+ s=mimecast20190719; t=1648622038;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=N5XfMGd9jclB7Y89wnX07DRxpXe9qfoOyLMTpktP1Go=;
- b=ReoDSuD1JX3K85iQausv8SlP7zN9WJchw/n5LJzp2r9rIPbfWcvma28qrqbsCELhjl+IWV
- D+DQg4O2iYjjL68aktbXMBx4Q1FR6rURmyh7E8LF4Svtgc8jeYxSWBb+GmnBPxvW2bEIaQ
- 68XGVbW7nwqeD1OVUqzTlkhpygD5WvA=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=8OnziqqDPw1UfFbV4aNhNoy1sEjtLc7+xQm5kwlL89c=;
+ b=U0UC9k1bAML5Z84hwkSkF0ipoNUuHQqSbxRKgVkcBvgJMyopj4SHl8jsEzrmbj79bF6Mi0
+ bpza1nWdBUjpU3eqLE6sxX6JKCKRFrZqLCHWZ0hJ3EtVJSAcpTbPvk/T/w1Rq8q45ULZjf
+ mOFDUVvLUD7ia3M918hSm9i3Qyk4X5o=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-528-M0T-FBv4P1uOdBsWqOxKRA-1; Wed, 30 Mar 2022 02:23:34 -0400
-X-MC-Unique: M0T-FBv4P1uOdBsWqOxKRA-1
-Received: by mail-wr1-f71.google.com with SMTP id
- e10-20020adf9bca000000b002059b6ffa18so4226061wrc.14
+ us-mta-375-jPjUAWFjM5ucHmT24tmP0g-1; Wed, 30 Mar 2022 02:33:57 -0400
+X-MC-Unique: jPjUAWFjM5ucHmT24tmP0g-1
+Received: by mail-wm1-f72.google.com with SMTP id
+ c62-20020a1c3541000000b003815245c642so604597wma.6
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Mar 2022 23:23:34 -0700 (PDT)
+ Tue, 29 Mar 2022 23:33:57 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=N5XfMGd9jclB7Y89wnX07DRxpXe9qfoOyLMTpktP1Go=;
- b=38U1B9RaNLH7MT6cqnydgq1El0A9XoBfPML6ZGE31UZ5B8+eoIhDJ/AEjUCKWlBofi
- lFSb/a2GheI2dDKnyDoda+FK92UeEw6wx7D0MEjx2+96TmDTT0reOY5utCFkyqKFj8Oq
- tX8VlEeyN8yL9txK1feijZWfIPXcGDpZiAllxBwVafb2nQXNEY5/GQ2tbn1vOUmFKV5U
- G/eLdX/zZI1XEOrwUD8EhkjuZw0PSkd3mw9gcafyUrNNDHaffaYvOsXUaGH/3v1fbgaf
- WvAefX9mnCJrwHbfKGO9FBceDP7z2qNFg0KhnmT1/Y+qrV177RWCFyrJyQqYwH+rjs3l
- wa4w==
-X-Gm-Message-State: AOAM5332AbSdPn4qKTRwFnLQjSxgJg38gi21dtbxa5HXD+qnn9yBSrCg
- x3naJJsqUcp6/1/JJACDFrqJX9sbWhEoJlikdLmVJIR743xvJd0MPX31zLeLTqDtfsX0Lu9bU/7
- 7QyGki05BtCzsGnViznT+1L8qTe9XIMBh6AlxNUCXuA==
-X-Received: by 2002:a05:6000:38e:b0:204:101a:b2bf with SMTP id
- u14-20020a056000038e00b00204101ab2bfmr35760758wrf.308.1648621413065; 
- Tue, 29 Mar 2022 23:23:33 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzISs0u26955cnW/k6f0wGfHnfWVmb1Bxl8fBIKYFV5DYAcUY7i7AIUsaUgjsvbX0suwvm3DA==
-X-Received: by 2002:a05:6000:38e:b0:204:101a:b2bf with SMTP id
- u14-20020a056000038e00b00204101ab2bfmr35760748wrf.308.1648621412840; 
- Tue, 29 Mar 2022 23:23:32 -0700 (PDT)
+ bh=8OnziqqDPw1UfFbV4aNhNoy1sEjtLc7+xQm5kwlL89c=;
+ b=gEyLQKK82NY6zKXSMkf2omfMo5xuQDi2c49gDooc9kQh/je2TMWCE9x10mwaQXVABf
+ SXaGwj4zYYBT/JOcwoBljMDYqAlHWA/Cd+ZDXXxJgs6BLLbnI+hDW4kxng+xFTWica8u
+ FCKe9bbneo6EyB2cQgUbsN7UVoy8a7h387K+ySoEwlaaa/LxwzlyZHYMiunzrJrIC0iB
+ 5E6wZUzNGYpA2iZXK5GMum7i3QlWj2lOw6rysy3Y/h8Z1k9Jl4E1VUmWlo4zg3kD80fu
+ NAzPECouTIaeP1wNLc9VHH97lpZT15R1aa8DD21RP7F+ke6OH2OTK66361b0eyJIS+1n
+ 0iPw==
+X-Gm-Message-State: AOAM532XsR0YYn6/EXBNjVPMtPB/SLIH23b/nrKV/+2JF8+WaUxYJ4BV
+ eqniyYXAfkT3pGFS+Y0EMbS6JPJ/PFwrZYMYz7c2+IyZeK+Q+CdyEpok9YLgrzyhJsnZOx0WQeq
+ XQH6B8wTGUMSwfB2RMIycPzKFOjZg8SD2oVokEiK/mA==
+X-Received: by 2002:a05:6000:2cd:b0:204:1bf4:e4f8 with SMTP id
+ o13-20020a05600002cd00b002041bf4e4f8mr35140126wry.682.1648622036278; 
+ Tue, 29 Mar 2022 23:33:56 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxZ87E7eY3qwB6BZvYyIwH4cGmNeD8anl5BueTVKGjjkpvj4rb01CerNy1jhbIZHW0+Foa9Jw==
+X-Received: by 2002:a05:6000:2cd:b0:204:1bf4:e4f8 with SMTP id
+ o13-20020a05600002cd00b002041bf4e4f8mr35140106wry.682.1648622036067; 
+ Tue, 29 Mar 2022 23:33:56 -0700 (PDT)
 Received: from redhat.com ([2.52.9.207]) by smtp.gmail.com with ESMTPSA id
- k5-20020a5d66c5000000b00203fd25f4ecsm15756665wrw.16.2022.03.29.23.23.31
+ y5-20020a1c4b05000000b0038cbf571334sm3731386wma.18.2022.03.29.23.33.53
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 29 Mar 2022 23:23:32 -0700 (PDT)
-Date: Wed, 30 Mar 2022 02:23:30 -0400
+ Tue, 29 Mar 2022 23:33:54 -0700 (PDT)
+Date: Wed, 30 Mar 2022 02:33:51 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 2/2] Revert "virtio_config: introduce a new .enable_cbs method"
-Message-ID: <20220330062315.125924-2-mst@redhat.com>
-References: <20220330062315.125924-1-mst@redhat.com>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH v2 0/9] virtio: support advance DMA
+Message-ID: <20220330023258-mutt-send-email-mst@kernel.org>
+References: <20220224110402.108161-1-xuanzhuo@linux.alibaba.com>
 MIME-Version: 1.0
-In-Reply-To: <20220330062315.125924-1-mst@redhat.com>
-X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
-X-Mutt-Fcc: =sent
+In-Reply-To: <20220224110402.108161-1-xuanzhuo@linux.alibaba.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: virtualization@lists.linux-foundation.org
+Cc: Jesper Dangaard Brouer <hawk@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org,
+ John Fastabend <john.fastabend@gmail.com>, Alexei Starovoitov <ast@kernel.org>,
+ virtualization@lists.linux-foundation.org, Jakub Kicinski <kuba@kernel.org>,
+ bpf@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -116,49 +118,49 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This reverts commit d50497eb4e554e1f0351e1836ee7241c059592e6.
+On Thu, Feb 24, 2022 at 07:03:53PM +0800, Xuan Zhuo wrote:
+> virtqueue_add() only supports virtual addresses, dma is completed in
+> virtqueue_add().
+> 
+> In some scenarios (such as the AF_XDP scenario), DMA is completed in advance, so
+> it is necessary for us to support passing the DMA address to virtqueue_add().
 
-The new callback ended up not being used, and it's asymmetrical:
-just enable, no disable.
+I picked up a couple of patches. Others are waiting for some acks
+(Jason?) and improved commit logs for documentation.
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- include/linux/virtio_config.h | 6 ------
- 1 file changed, 6 deletions(-)
+Thanks!
 
-diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-index dafdc7f48c01..b341dd62aa4d 100644
---- a/include/linux/virtio_config.h
-+++ b/include/linux/virtio_config.h
-@@ -23,8 +23,6 @@ struct virtio_shm_region {
-  *       any of @get/@set, @get_status/@set_status, or @get_features/
-  *       @finalize_features are NOT safe to be called from an atomic
-  *       context.
-- * @enable_cbs: enable the callbacks
-- *      vdev: the virtio_device
-  * @get: read the value of a configuration field
-  *	vdev: the virtio_device
-  *	offset: the offset of the configuration field
-@@ -78,7 +76,6 @@ struct virtio_shm_region {
-  */
- typedef void vq_callback_t(struct virtqueue *);
- struct virtio_config_ops {
--	void (*enable_cbs)(struct virtio_device *vdev);
- 	void (*get)(struct virtio_device *vdev, unsigned offset,
- 		    void *buf, unsigned len);
- 	void (*set)(struct virtio_device *vdev, unsigned offset,
-@@ -233,9 +230,6 @@ void virtio_device_ready(struct virtio_device *dev)
- {
- 	unsigned status = dev->config->get_status(dev);
- 
--	if (dev->config->enable_cbs)
--                  dev->config->enable_cbs(dev);
--
- 	BUG_ON(status & VIRTIO_CONFIG_S_DRIVER_OK);
- 	dev->config->set_status(dev, status | VIRTIO_CONFIG_S_DRIVER_OK);
- }
--- 
-MST
+> v2:
+>     1. rename predma -> premapped
+>     2. virtio net xdp tx use virtio dma api
+> 
+> v1:
+>    1. All sgs requested at one time are required to be unified PREDMA, and several
+>       of them are not supported to be PREDMA
+>    2. virtio_dma_map() is removed from this patch set and will be submitted
+>       together with the next time AF_XDP supports virtio dma
+>    3. Added patch #2 #3 to remove the check for flags when performing unmap
+>       indirect desc
+> 
+> Xuan Zhuo (9):
+>   virtio_ring: rename vring_unmap_state_packed() to
+>     vring_unmap_extra_packed()
+>   virtio_ring: remove flags check for unmap split indirect desc
+>   virtio_ring: remove flags check for unmap packed indirect desc
+>   virtio_ring: virtqueue_add() support premapped
+>   virtio_ring: split: virtqueue_add_split() support premapped
+>   virtio_ring: packed: virtqueue_add_packed() support premapped
+>   virtio_ring: add api virtio_dma_map() for advance dma
+>   virtio_ring: introduce virtqueue_add_outbuf_premapped()
+>   virtio_net: xdp xmit use virtio dma api
+> 
+>  drivers/net/virtio_net.c     |  42 +++++-
+>  drivers/virtio/virtio_ring.c | 280 ++++++++++++++++++++++++++---------
+>  include/linux/virtio.h       |  12 ++
+>  3 files changed, 254 insertions(+), 80 deletions(-)
+> 
+> --
+> 2.31.0
 
 _______________________________________________
 Virtualization mailing list
