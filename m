@@ -4,199 +4,113 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6A572C433F5
-	for <virtualization@archiver.kernel.org>; Wed, 30 Mar 2022 03:53:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E8E29C433EF
+	for <virtualization@archiver.kernel.org>; Wed, 30 Mar 2022 05:09:41 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 0EFEC8126D;
-	Wed, 30 Mar 2022 03:53:50 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 7AF0C842A6;
+	Wed, 30 Mar 2022 05:09:41 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id vqf2o6A3WWVW; Wed, 30 Mar 2022 03:53:49 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id B094381252;
-	Wed, 30 Mar 2022 03:53:48 +0000 (UTC)
+	with ESMTP id 4eo4sCZEkuDU; Wed, 30 Mar 2022 05:09:40 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 0D1EA84436;
+	Wed, 30 Mar 2022 05:09:40 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6B008C002C;
-	Wed, 30 Mar 2022 03:53:48 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8E31FC0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B9D1EC001D;
+	Wed, 30 Mar 2022 05:09:39 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1EBE4C0012
  for <virtualization@lists.linux-foundation.org>;
- Wed, 30 Mar 2022 03:53:46 +0000 (UTC)
+ Wed, 30 Mar 2022 05:09:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 7A8BE80FF8
+ by smtp4.osuosl.org (Postfix) with ESMTP id 0AD4D417D3
  for <virtualization@lists.linux-foundation.org>;
- Wed, 30 Mar 2022 03:53:46 +0000 (UTC)
+ Wed, 30 Mar 2022 05:09:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id XeaciCjSXNXW
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id sGESQ4fCOgwd
  for <virtualization@lists.linux-foundation.org>;
- Wed, 30 Mar 2022 03:53:44 +0000 (UTC)
+ Wed, 30 Mar 2022 05:09:37 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com
- [205.220.177.32])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 1AB2D80DC5
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id B17D9417C6
  for <virtualization@lists.linux-foundation.org>;
- Wed, 30 Mar 2022 03:53:43 +0000 (UTC)
-Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
- by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22U3Avcj011972; 
- Wed, 30 Mar 2022 03:51:33 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
- h=to : cc : subject :
- from : message-id : references : date : in-reply-to : content-type :
- mime-version; s=corp-2021-07-09;
- bh=MTAz/AZSivMduMxR16LfoZmOoRCY6iaWZcf+qgW2veU=;
- b=yTpwjuV5XJJenXGLOtJ5APN89BpjH44AssGabqf/HygQwOebr2m4RHYT4Q1MzyH16BnY
- GnyZKvQVaCZLd98vNGy2WsjvcqrDpa8Ec4fM1/LY1E4hztStu38u4Jkvje7b5HyJ7+bh
- cw6FohmU/fasg4XAwefa32vxq1blUcaaJ+uxiTVBrWktt7HYaRFOFL6wJFuGhMFWq1f3
- 2z6WYFDDa7n8Exepk7rmE1Q8Oo/SQv2q+lW99AKK5kFxSwZlO3vM8wxRYBTv++kR7TAM
- Ao/vx89J+88h+Wsz9cjJ2uhXywCEL6NAB2I3Rwq/ijIr0nDmQIysnjkRxSYO2y9uA4Cl vw== 
-Received: from aserp3030.oracle.com ([141.146.126.71])
- by mx0b-00069f02.pphosted.com with ESMTP id 3f1sm2gb1e-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Wed, 30 Mar 2022 03:51:33 +0000
-Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
- by aserp3030.oracle.com (8.16.1.2/8.16.1.2) with SMTP id 22U3ohVf156677;
- Wed, 30 Mar 2022 03:51:32 GMT
-Received: from nam12-dm6-obe.outbound.protection.outlook.com
- (mail-dm6nam12lp2175.outbound.protection.outlook.com [104.47.59.175])
- by aserp3030.oracle.com with ESMTP id 3f1rv8e93f-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Wed, 30 Mar 2022 03:51:32 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=WsJDH6e55m6fMwohhPNYcmQRIrEvhDM2k2HjvuVF+z/9iVJ3ZsDioCAihqcehce8Hy3R63fU0BbWUe5/LGBLKDYDY5QcSU+qd9I1RAN2wNhE0N59EkmZusC/UzwWGS3/H1ys/MUGsPpbaLi+nVf65rJPtK22Egcrq/imGIuBN+ymSeSiuT4EB4b+p295d5zsHC5Jo8ZwQK/LV/ZSpsI1KmiFdZNrspCPQTKQG1/RG984MCGzi7BVy/jJHavdZZ5neoiZvydJf6LQrejcZlZuue+KPfXMf4uQSoeQ2CT7ABcM3HcbVkDRhQH9LYmPePhKdIVHer/shqIXvFU5+vDDZQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=MTAz/AZSivMduMxR16LfoZmOoRCY6iaWZcf+qgW2veU=;
- b=PbQA+hAIyGQ4PeDMPggqKePXD++iXwaSd1MWuNo5T+x+RgvCEoYywO8iTtbSTaH3bZf/drQwHaDF2ri2ISaVAJbIHmGmdfXhwA89jUVjajXvUEZWfPJCYE3ZBIv810xGIimWsLrHFlkyYqJNjyiFxCUlJXCv8xlbBRmh+08ZDViXltrrJJsQrJG2dtz50KEp5PLLo5ySWnNnQPG5KlAI8Zj9iQ0E6AyftWIBBsHaOionU3Md4KSxroCjPpFQijRdZKQk39J8pZ2ycv+ny9Uofep7rstzpXbLO3V45v4gCcU+xvHqS0SttRYrTUPo+aByOdEzbcYMtOAzApC1GefUcQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=MTAz/AZSivMduMxR16LfoZmOoRCY6iaWZcf+qgW2veU=;
- b=x9YEY0C9uo937d1SOBCJcYlAQFFtKI5NgsnWuF7P51+RtvrhrPdgw6sidLrs0+gDe57kVAyZVSeDFChVzDziyki6SoIJRjPg/AiFPRVpNyvq4OLiiES6uSAp7kQE3JVV0TbGhUSxZKn7gOQFUFp8tXAIfL1UBT9IEc6o2QrI+TQ=
-Received: from PH0PR10MB4759.namprd10.prod.outlook.com (2603:10b6:510:3d::12)
- by MN2PR10MB4173.namprd10.prod.outlook.com (2603:10b6:208:1d1::19)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5102.18; Wed, 30 Mar
- 2022 03:51:30 +0000
-Received: from PH0PR10MB4759.namprd10.prod.outlook.com
- ([fe80::48e3:d153:6df4:fbed]) by PH0PR10MB4759.namprd10.prod.outlook.com
- ([fe80::48e3:d153:6df4:fbed%4]) with mapi id 15.20.5102.023; Wed, 30 Mar 2022
- 03:51:30 +0000
-To: Randy Dunlap <rdunlap@infradead.org>
-Subject: Re: [PATCH 5/9] virtio-scsi: eliminate anonymous module_init &
- module_exit
-From: "Martin K. Petersen" <martin.petersen@oracle.com>
-Organization: Oracle Corporation
-Message-ID: <yq1y20st7ww.fsf@ca-mkp.ca.oracle.com>
-References: <20220316192010.19001-1-rdunlap@infradead.org>
- <20220316192010.19001-6-rdunlap@infradead.org>
-Date: Tue, 29 Mar 2022 23:51:27 -0400
-In-Reply-To: <20220316192010.19001-6-rdunlap@infradead.org> (Randy Dunlap's
- message of "Wed, 16 Mar 2022 12:20:06 -0700")
-X-ClientProxiedBy: DM6PR02CA0042.namprd02.prod.outlook.com
- (2603:10b6:5:177::19) To PH0PR10MB4759.namprd10.prod.outlook.com
- (2603:10b6:510:3d::12)
+ Wed, 30 Mar 2022 05:09:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1648616975;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=eeYUD3XUajeRCNs/Vt/JYditXRCKbb5+uzBVBz/FB5c=;
+ b=XZjM1g5OqGPSiVGTCcwgyOYtjwKxfAnepgxs7N6nVNg/btuqMwbxpbC504SrNzBcdLA8A2
+ b32dspWCGaNtBpM5KBzjHGPbQH/ZrnNSyRfdOb3F7Mt9CFzVforf+vegZgqc69HHQFm1FX
+ qSZsA68SC9ucmQbx77orrOa48IdYaZM=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-341-GCD7Mu7xMb2nYfnF1UInZQ-1; Wed, 30 Mar 2022 01:09:32 -0400
+X-MC-Unique: GCD7Mu7xMb2nYfnF1UInZQ-1
+Received: by mail-wr1-f72.google.com with SMTP id
+ h33-20020adf9024000000b00203fcba8aadso5507736wrh.15
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 29 Mar 2022 22:09:31 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=eeYUD3XUajeRCNs/Vt/JYditXRCKbb5+uzBVBz/FB5c=;
+ b=nvD5UwjIHx548yui7IAE+StNDRsvGjtm8F+Xz32R/IsBA2i/JGubTbex4SBplwZsCa
+ x/aUYDcpmSvI1Qh76soj3Ojc0TqEj+Qx0Qaf3C+vcqjh3wGraKf0RSxO5ud0zkanGmhS
+ suvUgZoRzuX29cTW8aK8PRWdUuXI4HRYnp2oshheeXEPdNoG0REVZMYEKMElwuKMSKQi
+ ZUQnjoYHqex0ua+nmC9t6so0ALuXIcNQ5ZWBYfy3UJWjCgd3fV9XseRVe39siMln99fc
+ 9pPfRpRccOXII/P4t+eWFqnc/ruMh1OUHlBDL2EgWJbfSq3BfoJLkbdJjNm46O6LMQ1g
+ rFHA==
+X-Gm-Message-State: AOAM53082sOJGcfih2W3VPn7oQB+3+tcCU8fk3VeaI2I/9bpVeOveMah
+ 20hHD7TEaT9pSHnWpkzU9RQ+sL+ku4h+8zY83NiO6sVBTTxI1J8BOpgu+5k1lufMnlajUaLmcaP
+ 79oOAK5C+S5oF2rPxiKuYmVuYvVUzYxSR4FB5yAC+FA==
+X-Received: by 2002:adf:908e:0:b0:1e7:bea7:3486 with SMTP id
+ i14-20020adf908e000000b001e7bea73486mr33607448wri.401.1648616970762; 
+ Tue, 29 Mar 2022 22:09:30 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwgm9skh/llpKb0wahMYt3d2fhdEpF8cYwvjfeh9spYqrd2U2SWbZElaXEnLNn1Y8P45g2Flg==
+X-Received: by 2002:adf:908e:0:b0:1e7:bea7:3486 with SMTP id
+ i14-20020adf908e000000b001e7bea73486mr33607435wri.401.1648616970488; 
+ Tue, 29 Mar 2022 22:09:30 -0700 (PDT)
+Received: from redhat.com ([2.52.9.207]) by smtp.gmail.com with ESMTPSA id
+ az26-20020adfe19a000000b00204154a1d1fsm16140858wrb.88.2022.03.29.22.09.27
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 29 Mar 2022 22:09:29 -0700 (PDT)
+Date: Wed, 30 Mar 2022 01:09:24 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Subject: Re:
+Message-ID: <20220330010646-mutt-send-email-mst@kernel.org>
+References: <20220325060659-mutt-send-email-mst@kernel.org>
+ <CACGkMEu4mRfNbJXJtAFzhyd55fD7phUDKnVtYW0aqRnQmT_bYw@mail.gmail.com>
+ <20220328015757-mutt-send-email-mst@kernel.org>
+ <CACGkMEu+fax6YYwhfbc1yoSxv6o1FTQyrOheVTmUfqGvmbAEfA@mail.gmail.com>
+ <20220328062452-mutt-send-email-mst@kernel.org>
+ <87fsn1f96e.ffs@tglx>
+ <20220329100859-mutt-send-email-mst@kernel.org>
+ <87v8vweie2.ffs@tglx>
+ <20220329175426-mutt-send-email-mst@kernel.org>
+ <CACGkMEv2j2cJkSFfxTmaRxJ+SH6actSCZsALjvvDUPgg0h-KeA@mail.gmail.com>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 609889fb-058c-4bdb-5695-08da12009300
-X-MS-TrafficTypeDiagnostic: MN2PR10MB4173:EE_
-X-Microsoft-Antispam-PRVS: <MN2PR10MB4173D0036F739BDDC7753C888E1F9@MN2PR10MB4173.namprd10.prod.outlook.com>
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: un6f//6iu39uhfJNawpCiF2FMLLldzDMSXxNSS8zBCMV13ExzfYEjDtFTwTgjWWM558X85eREvri4Y+lciAQodprT9CfTyHFh3pKxn2SYZcw2ii8GZL1b2MREo3ctfCgozkX7uXt4H0SFaKzRMW3GzaspFYrxNLVVCfvlEKqn4JY0C6GpUhCa7oyVPKTYe1o78Z0AN+jyHTjVFQXAk7JtfcMaS6RkDIN5Fkh2fT3wQD4Bymr86V7LaBWpKl4K9UfPXw8tbh86SEe9RgtNOT9oY+o587CX+k/V5XFB3bgdGMkFDZeV1MWMHWlu8Cysq7U7ELege/BfmtFvS50QlounZYAEO1wf9OoNw4nC2U7F7Aik8XddeYBpY3IR8diGgVdsieiybiVNpu2fBDZbL4G3P5h4iPMPGGfLfsHsWOTY/JO02HCce0KVbC548eyJFBWbGqIN1auEIRrQdk1ynesnOxzMloZSi9yvcFCLxY7N3RpJAuxUgCjaN7nXQbARTZB3c1zrdElYWF0wMS6dyeia/n3XlD1zh1bbZOsymlwcTKK1yvWxyyF/35Nx0tf5q9i1Ge/uwcsKMmQshIGxS2ckItIV2M3DPFmUAmfSfF20Yigyx3qfTm5ozR1ohCJw7ikhZ86uf4y/v98K2ndxSDo/T7Gwffu+niK/+wv1MImEbUl0VoxCFBEWjHxydMd+EJqchuOX51IKj3ZMbzzDGpa0A==
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:PH0PR10MB4759.namprd10.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230001)(366004)(316002)(6486002)(4326008)(7366002)(8676002)(54906003)(7416002)(36916002)(2906002)(66556008)(6512007)(6666004)(6916009)(66476007)(7406005)(5660300002)(86362001)(52116002)(66946007)(558084003)(38100700002)(38350700002)(26005)(6506007)(508600001)(8936002)(186003);
- DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?Vxpgna/MvdxlJqlYd+4dFReKfRiyjM9rdLnc/OFC6HX/OQgo7Y7DcKA6CDD7?=
- =?us-ascii?Q?EgT+vkeh3ThSpqf18xVol9ikVRAx8S4e3R29pEohzXqwgq9TPf25ZPHxOq2X?=
- =?us-ascii?Q?Y303ft/jsd1h3FXPN7Uyp5qRadYwZS7bA6gZkgBgypdVv0bQ8g7ecmXBalvB?=
- =?us-ascii?Q?jvqUpgObUcLyZLc/pyvMqrAYPkrTt4uOAwa18AlV/S1uupXtK5PWMUk0OCk2?=
- =?us-ascii?Q?YwOmTXIvVURrvwcQX/cdk/CYGJWZQa/UZDnBZI5Ea4A8wBcWclMeWZpfOV0r?=
- =?us-ascii?Q?IdbRffXM5s1zhNocpjUtqRO6ODJBh0F3J9oZZ7XDLvw5BNKHxKdOqXmvrGsy?=
- =?us-ascii?Q?M+sdn9GkNL47FiVDfhkADMt15Il9iGYPGL0vCsLxv3952mcGK5mv/J7jJypq?=
- =?us-ascii?Q?uHBG7piUL/R6u502DY5gu8XFcy/Fh9Zrxp7x8dmtZ7eS+RmKLQAxC6tZ6Tvg?=
- =?us-ascii?Q?FzEQAMiKdoiGz0F5IdYLPl3uMmC5f43ODBSTMxoUoZomRRMd5SWR6uRxBdOz?=
- =?us-ascii?Q?OXhJF3CitpEtt+l0kpzqMu+iFqN6OviCuB9m+uSVOX6wmqbkGzwuvkTnk8h8?=
- =?us-ascii?Q?3y+nuukANnCwK3A/yDgEFE9Gn9wd1z9I+ksULstacbvePDjDmPpGNkeHMp4N?=
- =?us-ascii?Q?42/5/Ejyf6CdKsNnPSASiV6ws7pg2hTrtDidCe0UuLgoEyn4DuccIaluetWk?=
- =?us-ascii?Q?HAveApqmuCFndhUEcnJOUkOynuLooW6XwJTM8bExDJd+if/j91btSSE7mj28?=
- =?us-ascii?Q?UW60RIvNXL2KrB/YrjniWak53zsdyezUivhX+1A9fn2ffQx16UN4eWnB5aPS?=
- =?us-ascii?Q?JD0lROY9/YSR519lUcMI8WonHlnz02sCSPCPhF/Pklhh8vOfOICFgIbmFoLQ?=
- =?us-ascii?Q?9idSTBft+PIrVGwFB7BTrlXO8MtY3sZq5rqxosTo24H+LCXOhtr4YX+Ky/TY?=
- =?us-ascii?Q?5ZfksXfzXAX5s4KxhuDZBJHGyrpXCAxLTksbJ3cut7k2GgQOuF7adi4pDdwT?=
- =?us-ascii?Q?T0R7695z5RDiEgEV1/b7MQOf8UN7MqBgJ0UIE/AzIsK1eWf+xTKibXK2vkFE?=
- =?us-ascii?Q?KuV0EwU9P7Ilfun5FOPoLmhfsntWB5pnEJKsmEqKEzo6CGVECD2Sw0cGmfAg?=
- =?us-ascii?Q?IPAQ551LEyXAW8T70zAls9ReqBDv0d+G/f2Dx5DG/1CbNwXbWPv+OIbNXT0o?=
- =?us-ascii?Q?mLaa1Bn9HBJ2JhVYBrmxElo+U7r408sI/a4xh3fgY2KtDop6P4CxywxsaxqV?=
- =?us-ascii?Q?VTvw9X87kZk9pXw1xODOSBIMb6R1MQoJJVxpW8bdldwqAVwap8wMZE1ApIGN?=
- =?us-ascii?Q?UP37WhAxED5nJKcYTDGD4hfQKswtr4gCwayjeA+ZCHIwfw8lwdB8hKoUGD+u?=
- =?us-ascii?Q?K6EMzAtgcuAr7xh7pGYKMHWegegOa9Dvg6Qj2swuZ2Ml4bqOnijK5i0CYvCm?=
- =?us-ascii?Q?gLa1WgGSNY0vLshRhZFP+Rg2RaH1FN6z9z42vfYLwRHOM4HZKl3AVIaT1z94?=
- =?us-ascii?Q?d5WUv5Yt/cm8iNWQP3UyKOGrRcmzyt26yHt7IIXvGhwYHPwuqz+TVK9DPA+1?=
- =?us-ascii?Q?LABK2/ATjBM1oBN4rejj+UnIn5SqilLKYPnTd6FvUr7Ydy7pRi9wxwEdqXze?=
- =?us-ascii?Q?VvQMLe5Vq2jO92qBr1nDZkIgCmGe98P09ytI3JGzX+drHCkIofZzV2rRUZKu?=
- =?us-ascii?Q?kyCMel8BZIMLOZzdf5w5wGVZcSmdvGM8WDrncLMPILlMxDVQ2PStAW/awZoQ?=
- =?us-ascii?Q?cQL+1NUbGiKknlAarVNKOe92qf9gV/s=3D?=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 609889fb-058c-4bdb-5695-08da12009300
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR10MB4759.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 Mar 2022 03:51:30.4418 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: x71bOGbVgGxrMdmSRIqZvsq7l5SWhdaI4jtwFsMcqPQDBb3QZ+Uxw2lm2IWWC5fX2yOaCAuYCcMvAEMGz6Z+tsGhfk+VxDvKjr1vBsq0PKo=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR10MB4173
-X-Proofpoint-Virus-Version: vendor=nai engine=6300 definitions=10301
- signatures=695566
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=806
- spamscore=0
- adultscore=0 mlxscore=0 phishscore=0 bulkscore=0 suspectscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2203300017
-X-Proofpoint-ORIG-GUID: NlyRnsT44OwC8SWLKEdZBVwQEiUY1Qxq
-X-Proofpoint-GUID: NlyRnsT44OwC8SWLKEdZBVwQEiUY1Qxq
-Cc: x86@kernel.org, Andy Lutomirski <luto@kernel.org>,
- "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>,
- nouveau@lists.freedesktop.org, Dave Hansen <dave.hansen@linux.intel.com>,
- Valentina Manea <valentina.manea.m@gmail.com>,
- Karol Herbst <karolherbst@gmail.com>,
- Krzysztof Opasiak <k.opasiak@samsung.com>, Eli Cohen <eli@mellanox.com>,
- netdev@vger.kernel.org, Shuah Khan <shuah@kernel.org>,
- Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>,
- Arnd Bergmann <arnd@arndb.de>, Leon Romanovsky <leon@kernel.org>,
- linux-rdma@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
- Jozsef Kadlecsik <kadlec@netfilter.org>, coreteam@netfilter.org,
- Jakub Kicinski <kuba@kernel.org>,
- Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
- Pablo Neira Ayuso <pablo@netfilter.org>,
- Joachim Fritschi <jfritschi@freenet.de>,
- Felipe Balbi <felipe.balbi@linux.intel.com>, Amit Shah <amit@kernel.org>,
- "James
- E.J. Bottomley" <jejb@linux.ibm.com>, Steven Rostedt <rostedt@goodmis.org>,
- =?utf-8?Q?Micha=C5=82_Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
- linux-block@vger.kernel.org, Pekka Paalanen <ppaalanen@gmail.com>,
- Borislav Petkov <bp@alien8.de>, Stefan Hajnoczi <stefanha@redhat.com>,
- Shuah Khan <skhan@linuxfoundation.org>,
- Jussi Kivilinna <jussi.kivilinna@mbnet.fi>,
- virtualization@lists.linux-foundation.org,
- Herbert Xu <herbert@gondor.apana.org.au>, Jens Axboe <axboe@kernel.dk>,
- linux-scsi@vger.kernel.org, "Martin K. Petersen" <martin.petersen@oracle.com>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-usb@vger.kernel.org,
- Florian Westphal <fw@strlen.de>, linux-kernel@vger.kernel.org,
- netfilter-devel@vger.kernel.org, linux-crypto@vger.kernel.org,
- Igor Kotrasinski <i.kotrasinsk@samsung.com>,
- Paolo Bonzini <pbonzini@redhat.com>, Saeed Mahameed <saeedm@nvidia.com>,
- "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <CACGkMEv2j2cJkSFfxTmaRxJ+SH6actSCZsALjvvDUPgg0h-KeA@mail.gmail.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: "Paul E. McKenney" <paulmck@kernel.org>,
+ Peter Zijlstra <peterz@infradead.org>, Marc Zyngier <maz@kernel.org>,
+ Keir Fraser <keirf@google.com>, linux-kernel <linux-kernel@vger.kernel.org>,
+ virtualization <virtualization@lists.linux-foundation.org>,
+ Thomas Gleixner <tglx@linutronix.de>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -213,17 +127,82 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+On Wed, Mar 30, 2022 at 10:38:06AM +0800, Jason Wang wrote:
+> On Wed, Mar 30, 2022 at 6:04 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+> >
+> > On Tue, Mar 29, 2022 at 08:13:57PM +0200, Thomas Gleixner wrote:
+> > > On Tue, Mar 29 2022 at 10:37, Michael S. Tsirkin wrote:
+> > > > On Tue, Mar 29, 2022 at 10:35:21AM +0200, Thomas Gleixner wrote:
+> > > > We are trying to fix the driver since at the moment it does not
+> > > > have the dev->ok flag at all.
+> > > >
+> > > > And I suspect virtio is not alone in that.
+> > > > So it would have been nice if there was a standard flag
+> > > > replacing the driver-specific dev->ok above, and ideally
+> > > > would also handle the case of an interrupt triggering
+> > > > too early by deferring the interrupt until the flag is set.
+> > > >
+> > > > And in fact, it does kind of exist: IRQF_NO_AUTOEN, and you would call
+> > > > enable_irq instead of dev->ok = true, except
+> > > > - it doesn't work with affinity managed IRQs
+> > > > - it does not work with shared IRQs
+> > > >
+> > > > So using dev->ok as you propose above seems better at this point.
+> > >
+> > > Unless there is a big enough amount of drivers which could make use of a
+> > > generic mechanism for that.
+> > >
+> > > >> If any driver does this in the wrong order, then the driver is
+> > > >> broken.
+> > > >
+> > > > I agree, however:
+> > > > $ git grep synchronize_irq `git grep -l request_irq drivers/net/`|wc -l
+> > > > 113
+> > > > $ git grep -l request_irq drivers/net/|wc -l
+> > > > 397
+> > > >
+> > > > I suspect there are more drivers which in theory need the
+> > > > synchronize_irq dance but in practice do not execute it.
+> > >
+> > > That really depends on when the driver requests the interrupt, when
+> > > it actually enables the interrupt in the device itself
+> >
+> > This last point does not matter since we are talking about protecting
+> > against buggy/malicious devices. They can inject the interrupt anyway
+> > even if driver did not configure it.
+> >
+> > > and how the
+> > > interrupt service routine works.
+> > >
+> > > So just doing that grep dance does not tell much. You really have to do
+> > > a case by case analysis.
+> > >
+> > > Thanks,
+> > >
+> > >         tglx
+> >
+> >
+> > I agree. In fact, at least for network the standard approach is to
+> > request interrupts in the open call, virtio net is unusual
+> > in doing it in probe. We should consider changing that.
+> > Jason?
+> 
+> This probably works only for virtio-net and it looks like not trivial
+> since we don't have a specific core API to request interrupts.
+> 
+> Thanks
 
-Randy,
+We'll need a new API, for sure. E.g.  find vqs with no
+callback on probe, and then virtio_request_vq_callbacks separately.
 
-> Eliminate anonymous module_init() and module_exit(), which can lead to
-> confusion or ambiguity when reading System.map, crashes/oops/bugs, or
-> an initcall_debug log.
+The existing API that specifies callbacks during find vqs
+can be used by other drivers.
 
-Applied to 5.18/scsi-staging, thanks!
+> >
+> > --
+> > MST
+> >
 
--- 
-Martin K. Petersen	Oracle Linux Engineering
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
