@@ -1,95 +1,97 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 852A6C433EF
-	for <virtualization@archiver.kernel.org>; Wed, 30 Mar 2022 06:23:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C959EC433EF
+	for <virtualization@archiver.kernel.org>; Wed, 30 Mar 2022 06:23:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 2422060A81;
-	Wed, 30 Mar 2022 06:23:38 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 65FBE40B3E;
+	Wed, 30 Mar 2022 06:23:42 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id xJaXI0Y1r8fN; Wed, 30 Mar 2022 06:23:37 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id B4C4660804;
-	Wed, 30 Mar 2022 06:23:36 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id m_wMJpv4dE7r; Wed, 30 Mar 2022 06:23:41 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 0C13A40C9D;
+	Wed, 30 Mar 2022 06:23:41 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 904FAC002C;
-	Wed, 30 Mar 2022 06:23:36 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id DD706C0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id DA28DC002C;
+	Wed, 30 Mar 2022 06:23:40 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3BA61C0012
  for <virtualization@lists.linux-foundation.org>;
- Wed, 30 Mar 2022 06:23:35 +0000 (UTC)
+ Wed, 30 Mar 2022 06:23:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id C65DA812C9
+ by smtp3.osuosl.org (Postfix) with ESMTP id D7A0E60A4F
  for <virtualization@lists.linux-foundation.org>;
- Wed, 30 Mar 2022 06:23:35 +0000 (UTC)
+ Wed, 30 Mar 2022 06:23:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id fF2lEK_CMFx7
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Hm1UDScMjadR
  for <virtualization@lists.linux-foundation.org>;
- Wed, 30 Mar 2022 06:23:34 +0000 (UTC)
+ Wed, 30 Mar 2022 06:23:37 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 676DB812B7
+ by smtp3.osuosl.org (Postfix) with ESMTPS id CCF8A60807
  for <virtualization@lists.linux-foundation.org>;
- Wed, 30 Mar 2022 06:23:34 +0000 (UTC)
+ Wed, 30 Mar 2022 06:23:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1648621413;
+ s=mimecast20190719; t=1648621415;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type;
- bh=8TGY8FPvAj69Ea635jOIsz/rfPRMfoGdBaPywDij9qk=;
- b=MMH8WpxtjPbPyz5cgNC9lzbISZaywE9mml8yzi2PqEMh6wDg5SDBCSbmA7oLCeYSAhUbp6
- tnIxJ3plbGlLYdEt2RQekbCXDe3yb4ySFPiTBKwCdwnH0n8R8rLhxpgz9guZJZBWCG2pvp
- 86SB9/wNigEeQuYa75Xuo9aXR1uDPXo=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=N5XfMGd9jclB7Y89wnX07DRxpXe9qfoOyLMTpktP1Go=;
+ b=ReoDSuD1JX3K85iQausv8SlP7zN9WJchw/n5LJzp2r9rIPbfWcvma28qrqbsCELhjl+IWV
+ D+DQg4O2iYjjL68aktbXMBx4Q1FR6rURmyh7E8LF4Svtgc8jeYxSWBb+GmnBPxvW2bEIaQ
+ 68XGVbW7nwqeD1OVUqzTlkhpygD5WvA=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-556-TbAJgzOjPPundCCSS25pvA-1; Wed, 30 Mar 2022 02:23:31 -0400
-X-MC-Unique: TbAJgzOjPPundCCSS25pvA-1
-Received: by mail-wr1-f69.google.com with SMTP id
- p18-20020adfba92000000b001e8f7697cc7so5568576wrg.20
+ us-mta-528-M0T-FBv4P1uOdBsWqOxKRA-1; Wed, 30 Mar 2022 02:23:34 -0400
+X-MC-Unique: M0T-FBv4P1uOdBsWqOxKRA-1
+Received: by mail-wr1-f71.google.com with SMTP id
+ e10-20020adf9bca000000b002059b6ffa18so4226061wrc.14
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Mar 2022 23:23:31 -0700 (PDT)
+ Tue, 29 Mar 2022 23:23:34 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
- :content-disposition;
- bh=8TGY8FPvAj69Ea635jOIsz/rfPRMfoGdBaPywDij9qk=;
- b=uSBQsS3rF9Ef4tRa1xhHkKHhLkQqFNmamAbVUgQZSfxFFjc5Yeyi/laa36c4A4z83l
- 8h7B4wocN1N4XgC2rs8FtglPYtMQlcSTdPqByFzT+UnyGpTvu+Qn33fMV+btBIveKoim
- 3Zh/uSXnU8HMwJvU7tgtUFwTSCrD51NTukGzu0zGsgQ92GYZPh/kqIVIHi+GmTg195Zx
- G4ABynu25rNwF6zr3FDPfrTF/2meibNrS/rK8Bv3SDG6szx/bfUlEpUQlceJ2O2Wu4gs
- 28DQqJqKAqqW1YYnvObEZX+ZsK32AmxRnLQTC5wtOlYMp3sTkqNV/c9CHngtXOCqmfvU
- tizw==
-X-Gm-Message-State: AOAM5311nurj6jsj9+SPBI53Aafa94BdKk0FQ+x1cLkYICd34hAHRvyj
- +0ioTVDW1YGgWn4VESwK8idrzCmPye6/+tVTZXdEzCwW7WhMScmqYN0FgRqy/VctOQKlJDhhU5+
- I0M65asv2YmHsMEXbpkDkfsLiCKFQmntzitqfOyqc9g==
-X-Received: by 2002:adf:e58a:0:b0:203:f3c8:4cfe with SMTP id
- l10-20020adfe58a000000b00203f3c84cfemr34658945wrm.475.1648621410662; 
- Tue, 29 Mar 2022 23:23:30 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyqd0k6v3wYqEXpvBX5cQt/Kl9g/JqVY1JyMjZJFzrNQq8Nfcjn2ou2eHRnr8n6fxvobm+ufQ==
-X-Received: by 2002:adf:e58a:0:b0:203:f3c8:4cfe with SMTP id
- l10-20020adfe58a000000b00203f3c84cfemr34658934wrm.475.1648621410459; 
- Tue, 29 Mar 2022 23:23:30 -0700 (PDT)
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=N5XfMGd9jclB7Y89wnX07DRxpXe9qfoOyLMTpktP1Go=;
+ b=38U1B9RaNLH7MT6cqnydgq1El0A9XoBfPML6ZGE31UZ5B8+eoIhDJ/AEjUCKWlBofi
+ lFSb/a2GheI2dDKnyDoda+FK92UeEw6wx7D0MEjx2+96TmDTT0reOY5utCFkyqKFj8Oq
+ tX8VlEeyN8yL9txK1feijZWfIPXcGDpZiAllxBwVafb2nQXNEY5/GQ2tbn1vOUmFKV5U
+ G/eLdX/zZI1XEOrwUD8EhkjuZw0PSkd3mw9gcafyUrNNDHaffaYvOsXUaGH/3v1fbgaf
+ WvAefX9mnCJrwHbfKGO9FBceDP7z2qNFg0KhnmT1/Y+qrV177RWCFyrJyQqYwH+rjs3l
+ wa4w==
+X-Gm-Message-State: AOAM5332AbSdPn4qKTRwFnLQjSxgJg38gi21dtbxa5HXD+qnn9yBSrCg
+ x3naJJsqUcp6/1/JJACDFrqJX9sbWhEoJlikdLmVJIR743xvJd0MPX31zLeLTqDtfsX0Lu9bU/7
+ 7QyGki05BtCzsGnViznT+1L8qTe9XIMBh6AlxNUCXuA==
+X-Received: by 2002:a05:6000:38e:b0:204:101a:b2bf with SMTP id
+ u14-20020a056000038e00b00204101ab2bfmr35760758wrf.308.1648621413065; 
+ Tue, 29 Mar 2022 23:23:33 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzISs0u26955cnW/k6f0wGfHnfWVmb1Bxl8fBIKYFV5DYAcUY7i7AIUsaUgjsvbX0suwvm3DA==
+X-Received: by 2002:a05:6000:38e:b0:204:101a:b2bf with SMTP id
+ u14-20020a056000038e00b00204101ab2bfmr35760748wrf.308.1648621412840; 
+ Tue, 29 Mar 2022 23:23:32 -0700 (PDT)
 Received: from redhat.com ([2.52.9.207]) by smtp.gmail.com with ESMTPSA id
- l20-20020a05600c1d1400b0038cba2f88c0sm5173811wms.26.2022.03.29.23.23.29
+ k5-20020a5d66c5000000b00203fd25f4ecsm15756665wrw.16.2022.03.29.23.23.31
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 29 Mar 2022 23:23:29 -0700 (PDT)
-Date: Wed, 30 Mar 2022 02:23:27 -0400
+ Tue, 29 Mar 2022 23:23:32 -0700 (PDT)
+Date: Wed, 30 Mar 2022 02:23:30 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 1/2] Revert "virtio: use virtio_device_ready() in
- virtio_device_restore()"
-Message-ID: <20220330062315.125924-1-mst@redhat.com>
+Subject: [PATCH 2/2] Revert "virtio_config: introduce a new .enable_cbs method"
+Message-ID: <20220330062315.125924-2-mst@redhat.com>
+References: <20220330062315.125924-1-mst@redhat.com>
 MIME-Version: 1.0
+In-Reply-To: <20220330062315.125924-1-mst@redhat.com>
 X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
 X-Mutt-Fcc: =sent
 Authentication-Results: relay.mimecast.com;
@@ -114,32 +116,47 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This reverts commit 8d65bc9a5be3f23c5e2ab36b6b8ef40095165b18.
+This reverts commit d50497eb4e554e1f0351e1836ee7241c059592e6.
 
-We reverted the problematic changes, no more need for work
-arounds on restore.
+The new callback ended up not being used, and it's asymmetrical:
+just enable, no disable.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/virtio/virtio.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ include/linux/virtio_config.h | 6 ------
+ 1 file changed, 6 deletions(-)
 
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index 75c8d560bbd3..22f15f444f75 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -526,9 +526,8 @@ int virtio_device_restore(struct virtio_device *dev)
- 			goto err;
- 	}
+diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+index dafdc7f48c01..b341dd62aa4d 100644
+--- a/include/linux/virtio_config.h
++++ b/include/linux/virtio_config.h
+@@ -23,8 +23,6 @@ struct virtio_shm_region {
+  *       any of @get/@set, @get_status/@set_status, or @get_features/
+  *       @finalize_features are NOT safe to be called from an atomic
+  *       context.
+- * @enable_cbs: enable the callbacks
+- *      vdev: the virtio_device
+  * @get: read the value of a configuration field
+  *	vdev: the virtio_device
+  *	offset: the offset of the configuration field
+@@ -78,7 +76,6 @@ struct virtio_shm_region {
+  */
+ typedef void vq_callback_t(struct virtqueue *);
+ struct virtio_config_ops {
+-	void (*enable_cbs)(struct virtio_device *vdev);
+ 	void (*get)(struct virtio_device *vdev, unsigned offset,
+ 		    void *buf, unsigned len);
+ 	void (*set)(struct virtio_device *vdev, unsigned offset,
+@@ -233,9 +230,6 @@ void virtio_device_ready(struct virtio_device *dev)
+ {
+ 	unsigned status = dev->config->get_status(dev);
  
--	/* If restore didn't do it, mark device DRIVER_OK ourselves. */
--	if (!(dev->config->get_status(dev) & VIRTIO_CONFIG_S_DRIVER_OK))
--		virtio_device_ready(dev);
-+	/* Finally, tell the device we're all set */
-+	virtio_add_status(dev, VIRTIO_CONFIG_S_DRIVER_OK);
- 
- 	virtio_config_enable(dev);
- 
+-	if (dev->config->enable_cbs)
+-                  dev->config->enable_cbs(dev);
+-
+ 	BUG_ON(status & VIRTIO_CONFIG_S_DRIVER_OK);
+ 	dev->config->set_status(dev, status | VIRTIO_CONFIG_S_DRIVER_OK);
+ }
 -- 
 MST
 
