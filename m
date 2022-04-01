@@ -4,67 +4,69 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 17E63C433F5
-	for <virtualization@archiver.kernel.org>; Fri,  1 Apr 2022 14:44:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C2E42C433FE
+	for <virtualization@archiver.kernel.org>; Fri,  1 Apr 2022 14:45:50 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id BC2D3405C4;
-	Fri,  1 Apr 2022 14:44:03 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 740FF40621;
+	Fri,  1 Apr 2022 14:45:50 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 6my9d8whifgT; Fri,  1 Apr 2022 14:44:03 +0000 (UTC)
+	with ESMTP id X25vi2i98ZI4; Fri,  1 Apr 2022 14:45:49 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 6F0BA40517;
-	Fri,  1 Apr 2022 14:44:02 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 017A8405EB;
+	Fri,  1 Apr 2022 14:45:49 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3DAC8C002C;
-	Fri,  1 Apr 2022 14:44:02 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1CDB0C0082
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CB3FAC002C;
+	Fri,  1 Apr 2022 14:45:48 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1B1B4C0012
  for <virtualization@lists.linux-foundation.org>;
- Fri,  1 Apr 2022 14:44:01 +0000 (UTC)
+ Fri,  1 Apr 2022 14:45:47 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id E65FF405C4
+ by smtp4.osuosl.org (Postfix) with ESMTP id 0732941A19
  for <virtualization@lists.linux-foundation.org>;
- Fri,  1 Apr 2022 14:43:59 +0000 (UTC)
+ Fri,  1 Apr 2022 14:45:47 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id YDj80hUd86v8
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=kernel.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Nv-anaEuCyoC
  for <virtualization@lists.linux-foundation.org>;
- Fri,  1 Apr 2022 14:43:59 +0000 (UTC)
+ Fri,  1 Apr 2022 14:45:46 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
- by smtp2.osuosl.org (Postfix) with ESMTPS id E4C4640517
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id E4F61419B1
  for <virtualization@lists.linux-foundation.org>;
- Fri,  1 Apr 2022 14:43:58 +0000 (UTC)
+ Fri,  1 Apr 2022 14:45:45 +0000 (UTC)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by ams.source.kernel.org (Postfix) with ESMTPS id 45EEDB824FC;
- Fri,  1 Apr 2022 14:43:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2569EC340EE;
- Fri,  1 Apr 2022 14:43:54 +0000 (UTC)
+ by dfw.source.kernel.org (Postfix) with ESMTPS id 3947D60AD8;
+ Fri,  1 Apr 2022 14:45:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6E11C3410F;
+ Fri,  1 Apr 2022 14:45:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1648824235;
- bh=aocFPkyzseOCNsdg1UrLaHgsgGvcR7I5oaXDD6AYLMw=;
+ s=k20201202; t=1648824344;
+ bh=E2djiHk1LRYlrnMkPv5vbgKoFXBlVL5DTuDzJxyAGEQ=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=liOa8aoDyp/atrus9KEW+tK0dT3FIsK7lcBRHL2ROwlPECIHrfFJC8eVtB9mjRDq5
- LAPxSmHtCelW+5BUv5mP1GLjDP3zklnB8BfgH7RQvXZ7LJLO+UAotoI7E1uyq4ufZV
- Ko5YqH7UZpbUZ7qePARV5mCL2a5dyxqaif1m7qfyN9y0ScJ6vw+0YfmO51mGgVw1cQ
- gyYaSb/nN2T11bpqRsf1D9Pb0x0yv22B3ZlC83i0g9filY9BQ0F+Aclvt0irKdvp2h
- cttvaHxr2WNWX/+AyQflI5xxmKVOskDCMoSyUhEBllunMzSVTxXziBrhIrJbyUPLXK
- yJOAuvelfPPSA==
+ b=RyhbL7cyN8NqMRC8e6vj1uLIeHjXRxaG/qHLyzhroxPq/XCzz96W99WgnEmctxavF
+ /dwgpb6WlOKaG/7fwN+ky5U6kMw0Bqxw1kW+MgeQVc0AyWQhfffai6DPlREwSfpN+M
+ Zr2hec+IbhmpozSM/q4qGTG04D0EPQACx7VLRGxreFNP08PzcPbVNjMqseJBGLUKa7
+ xkwQUMSeivlMM3tC9gPBdtb2x21zPEm8k9X6zWxjGbtVfDGLhr3FRXd62TxHqnmwuH
+ NL8FYUsbJA3rv/9evjtUKAVEQWEQVq7/zjLHm8o/IiEJ60WH9jwfWdU8yE4vVSUP4I
+ 2hRb2qd4HDMfw==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 44/65] tuntap: add sanity checks about
+Subject: [PATCH AUTOSEL 5.4 26/37] tuntap: add sanity checks about
  msg_controllen in sendmsg
-Date: Fri,  1 Apr 2022 10:41:45 -0400
-Message-Id: <20220401144206.1953700-44-sashal@kernel.org>
+Date: Fri,  1 Apr 2022 10:44:35 -0400
+Message-Id: <20220401144446.1954694-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220401144206.1953700-1-sashal@kernel.org>
-References: <20220401144206.1953700-1-sashal@kernel.org>
+In-Reply-To: <20220401144446.1954694-1-sashal@kernel.org>
+References: <20220401144446.1954694-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -115,10 +117,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  3 files changed, 5 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/net/tap.c b/drivers/net/tap.c
-index f549d3a8e59c..8f7bb15206e9 100644
+index f285422a8071..f870d08bb1f8 100644
 --- a/drivers/net/tap.c
 +++ b/drivers/net/tap.c
-@@ -1202,7 +1202,8 @@ static int tap_sendmsg(struct socket *sock, struct msghdr *m,
+@@ -1214,7 +1214,8 @@ static int tap_sendmsg(struct socket *sock, struct msghdr *m,
  	struct xdp_buff *xdp;
  	int i;
  
@@ -129,10 +131,10 @@ index f549d3a8e59c..8f7bb15206e9 100644
  			xdp = &((struct xdp_buff *)ctl->ptr)[i];
  			tap_get_user_xdp(q, xdp);
 diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-index ffbc7eda95ee..55ce141c93c7 100644
+index 10211ea60514..d9993884a97d 100644
 --- a/drivers/net/tun.c
 +++ b/drivers/net/tun.c
-@@ -2499,7 +2499,8 @@ static int tun_sendmsg(struct socket *sock, struct msghdr *m, size_t total_len)
+@@ -2561,7 +2561,8 @@ static int tun_sendmsg(struct socket *sock, struct msghdr *m, size_t total_len)
  	if (!tun)
  		return -EBADFD;
  
@@ -143,7 +145,7 @@ index ffbc7eda95ee..55ce141c93c7 100644
  		int n = ctl->num;
  		int flush = 0;
 diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index da02c3e96e7b..e303f6f073d2 100644
+index cec9173aac6f..1058aba8d573 100644
 --- a/drivers/vhost/net.c
 +++ b/drivers/vhost/net.c
 @@ -472,6 +472,7 @@ static void vhost_tx_batch(struct vhost_net *net,
