@@ -1,107 +1,103 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7EF3EC433EF
-	for <virtualization@archiver.kernel.org>; Mon,  4 Apr 2022 10:15:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8DD4DC433F5
+	for <virtualization@archiver.kernel.org>; Mon,  4 Apr 2022 10:31:40 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 333DF82AED;
-	Mon,  4 Apr 2022 10:15:32 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 23555401ED;
+	Mon,  4 Apr 2022 10:31:40 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ETT4OOTrphIS; Mon,  4 Apr 2022 10:15:31 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id r5a9j7fG5aqY; Mon,  4 Apr 2022 10:31:39 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id C130F82948;
-	Mon,  4 Apr 2022 10:15:30 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 8556140255;
+	Mon,  4 Apr 2022 10:31:38 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 96638C001D;
-	Mon,  4 Apr 2022 10:15:30 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8D95AC0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 54E90C001D;
+	Mon,  4 Apr 2022 10:31:38 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C05F7C0012
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Apr 2022 10:15:29 +0000 (UTC)
+ Mon,  4 Apr 2022 10:31:37 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 790FB81DB2
+ by smtp1.osuosl.org (Postfix) with ESMTP id A3792827A8
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Apr 2022 10:15:29 +0000 (UTC)
+ Mon,  4 Apr 2022 10:31:37 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Jr6yP-qXe15J
+ with ESMTP id oZVb-vqGedko
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Apr 2022 10:15:28 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com
- [IPv6:2a00:1450:4864:20::532])
- by smtp1.osuosl.org (Postfix) with ESMTPS id AB2158175A
+ Mon,  4 Apr 2022 10:31:37 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id CF73F824DD
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Apr 2022 10:15:28 +0000 (UTC)
-Received: by mail-ed1-x532.google.com with SMTP id g22so10462736edz.2
+ Mon,  4 Apr 2022 10:31:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1649068295;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+ bh=ZAR73l9+1WOyYLU1N4aBZq/AhW2TiRjp9zjhr1hdpGk=;
+ b=PvHUQPBsl7DhbZrokCtS9UwpsJaogg23HPotYB/k2c9KO7xqsEq/XhqlDHW9uZS5H2DMXE
+ VX7D3P9JJb+21R1Zd+Ii+eo8eArdhuWqwmfNlabiRKRUMRYAxyEAgyWBjEeg3U4fUf7G3H
+ l/L/NVd2PrKYlqp2Te9pu9risDM8yms=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-84-71ER87IePlyj3CYpybBVmg-1; Mon, 04 Apr 2022 06:31:34 -0400
+X-MC-Unique: 71ER87IePlyj3CYpybBVmg-1
+Received: by mail-wm1-f72.google.com with SMTP id
+ x8-20020a7bc768000000b0038e73173886so983768wmk.6
  for <virtualization@lists.linux-foundation.org>;
- Mon, 04 Apr 2022 03:15:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=s/rlqtfSH/+OKtlWbKj/8X8QmPBtgrwTTfh5H/AMmr8=;
- b=M6UB/xq5U2lez0akpMy5cdYkLpWp5TY7avZOr9EOmD3mOmC7LnKWizhrsWVbS9OYXV
- WxZR1L3Zip6LzxkB/OPBaxvuvHRQ+I4ccmh7WVg7layXLF9PfwqQYZ+jlB6EvWgmb6tq
- 0lZWCE3uc7LImkbQu2mlfWDe2OdVL/M2gk8b/f83Msuz2BzcI+DWU/n4c03LXmBik2KW
- KbNMC8korkh/nF0C0QAzLDf4TOGpyF8a6IoEG8l74xBIia5wiIab+cBhjD/6K3P9R06b
- EK2dkk2s3pESu8s3Lp5ePedMQzZPflgxpC1RgXqt3TXscJmh/VeMBZJdhbyeZhLuCe4J
- VwFg==
+ Mon, 04 Apr 2022 03:31:34 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=s/rlqtfSH/+OKtlWbKj/8X8QmPBtgrwTTfh5H/AMmr8=;
- b=anEj+AVsqFtMuroLa+v0QiVcEjXvA2OGwb9GnNWsPGrcXa+blraSMsQ2g/tVzzB3ZX
- DaILQiPgFaYATnBCa5JH2WAXrFkBxHHzDKDGaenFGxi16QK7HhAWghtjVfM6tsimUThT
- 4QXY/eZGhzZVvdygFqJBZETzOeEE9Y02iFMX24moY7kXuNOeNKeGsStYtx7T8jc3ipdu
- zs0gwgKb3iogMDKZiFH0eiVG4F/4Dv4hBmdGzwWsjbucsYK9d/UiEGfJfPKCJcKQ8XYw
- CN7c4sbR/o5/QTXicquBCmNphIwKsT3yc/KANAfMETuKyt3HhQPH741O5lAXjbvgrzr5
- Ystg==
-X-Gm-Message-State: AOAM531UU8IMpXL+tBCyHC3UqpKsRzHO/FMlGrK7Ec17ijVSSiSvovn5
- cjcAYNxr0V62g9g9XJO8zbMMTKcqDunK0vROJ1k=
-X-Google-Smtp-Source: ABdhPJxh9T+A1Yt+ILwhaxqoZIRZw7XK7bOr8aWn5QI6DqXoAfRnxar+91mJpxHWbEEB8aKP53yR05gviFAyUrKxBls=
-X-Received: by 2002:a05:6402:b19:b0:41c:d713:5cba with SMTP id
- bm25-20020a0564020b1900b0041cd7135cbamr2668518edb.270.1649067326747; Mon, 04
- Apr 2022 03:15:26 -0700 (PDT)
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+ :content-disposition;
+ bh=ZAR73l9+1WOyYLU1N4aBZq/AhW2TiRjp9zjhr1hdpGk=;
+ b=b5Hfcxn7w/tipYTNFhTnBj2FZZpJYEC34feSSjQD9LElB/aKJDpepzOjvyuFRhiERr
+ VttK77c89vwd8hvazk2oTmlW9IrdwQZrJtGj+dh9Z+KedFELw/tzSEnl3WTgf3+g8NwX
+ 3GBVadJRWA9tJVWwDZA0wRuNJx08Qlk7MoN1ofy1MLekmjQ2gGpaDSAcUJgUJZRPk7hg
+ xZOXz5ySvaNQA9SmwNrbBXidWew03voSJW+B2HRxyqdb5vWlC++oDofiXF1frdXR8pEL
+ YFSfWqLAr9xtBCnuuVyNrJpG356ZwRf6ssNQb1Xq2xiGjBiOuiEW4HT5k602ZXuqhISB
+ YY7Q==
+X-Gm-Message-State: AOAM531Rj0fyKKRLppKSapmCTe9SKyvRQakdScvRZWra46qnwruvUC1Y
+ vMYmFveeo72O9EVPUqgrsL9n43XDCLzBC6aDLsiQUcwVNIIXra8srodO4QZtRUj6zK1Z5NEF/Za
+ aOM8IhWovyzemUQBfP7bwjDSaNyVblpGZUcsbc8ju0A==
+X-Received: by 2002:a5d:6944:0:b0:203:e024:7cdd with SMTP id
+ r4-20020a5d6944000000b00203e0247cddmr16372271wrw.503.1649068293060; 
+ Mon, 04 Apr 2022 03:31:33 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwhH6jXXCNsS0CDc1GvA4tUCvtOnZ01cqJiOcI9JEogzYD5ay3XT2i7n/tCqJgUrwWPwTT6jQ==
+X-Received: by 2002:a5d:6944:0:b0:203:e024:7cdd with SMTP id
+ r4-20020a5d6944000000b00203e0247cddmr16372254wrw.503.1649068292813; 
+ Mon, 04 Apr 2022 03:31:32 -0700 (PDT)
+Received: from redhat.com ([2.54.40.213]) by smtp.gmail.com with ESMTPSA id
+ p14-20020a05600c1d8e00b0038dbb5ecc8asm9289654wms.2.2022.04.04.03.31.30
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 04 Apr 2022 03:31:32 -0700 (PDT)
+Date: Mon, 4 Apr 2022 06:31:28 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [GIT PULL] virtio: fixes, cleanups
+Message-ID: <20220404063128-mutt-send-email-mst@kernel.org>
 MIME-Version: 1.0
-References: <20220403183758.192236-1-krzysztof.kozlowski@linaro.org>
- <20220403183758.192236-2-krzysztof.kozlowski@linaro.org>
- <CAHp75Vczm9f9Bx_w4nW31cnBgwEzPiN-Eqn-7DKZuB+Hew0F=Q@mail.gmail.com>
- <2976f4f9-4fda-c04f-45cf-351518f88ec0@linaro.org>
-In-Reply-To: <2976f4f9-4fda-c04f-45cf-351518f88ec0@linaro.org>
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Date: Mon, 4 Apr 2022 13:14:22 +0300
-Message-ID: <CAHp75Vd-=-unRzQPtpfOs80dN=pDSsBaj=10nwOmmyWE8OqDPg@mail.gmail.com>
-Subject: Re: [PATCH v6 01/12] driver: platform: Add helper for safer setting
- of driver_override
-To: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Cc: Linux on Hyper-V List <linux-hyperv@vger.kernel.org>,
- Stuart Yoder <stuyoder@gmail.com>, "Rafael J. Wysocki" <rafael@kernel.org>,
- linux-pci <linux-pci@vger.kernel.org>, linux-remoteproc@vger.kernel.org,
- ALSA Development Mailing List <alsa-devel@alsa-project.org>,
- Bjorn Andersson <bjorn.andersson@linaro.org>,
- Vineeth Vijayan <vneethv@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- linux-clk <linux-clk@vger.kernel.org>, linux-s390@vger.kernel.org,
- Wei Liu <wei.liu@kernel.org>, Stephen Hemminger <sthemmin@microsoft.com>,
- Dexuan Cui <decui@microsoft.com>, Andy Gross <agross@kernel.org>,
- NXP Linux Team <linux-imx@nxp.com>, Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, linux-arm-msm@vger.kernel.org,
- Haiyang Zhang <haiyangz@microsoft.com>, linux-spi <linux-spi@vger.kernel.org>,
- Rasmus Villemoes <linux@rasmusvillemoes.dk>,
- Bjorn Helgaas <bhelgaas@google.com>, virtualization@lists.linux-foundation.org,
- linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>,
- Mathieu Poirier <mathieu.poirier@linaro.org>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Peter Oberparleiter <oberpar@linux.ibm.com>,
- Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
- Sven Schnelle <svens@linux.ibm.com>,
- Linus Torvalds <torvalds@linux-foundation.org>
+X-Mutt-Fcc: =sent
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ elic@nvidia.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -118,91 +114,41 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Apr 4, 2022 at 12:34 PM Krzysztof Kozlowski
-<krzysztof.kozlowski@linaro.org> wrote:
-> On 04/04/2022 11:16, Andy Shevchenko wrote:
-> > On Sun, Apr 3, 2022 at 9:38 PM Krzysztof Kozlowski
-> > <krzysztof.kozlowski@linaro.org> wrote:
+The following changes since commit ad6dc1daaf29f97f23cc810d60ee01c0e83f4c6b:
 
-...
+  vdpa/mlx5: Avoid processing works if workqueue was destroyed (2022-03-28 16:54:30 -0400)
 
-> >> +int driver_set_override(struct device *dev, const char **override,
-> >> +                       const char *s, size_t len)
-> >> +{
-> >> +       const char *new, *old;
-> >> +       char *cp;
-> >
-> >> +       if (!override || !s)
-> >> +               return -EINVAL;
-> >
-> > Still not sure if we should distinguish (s == NULL && len == 0) from
-> > (s != NULL && len == 0).
-> > Supplying the latter seems confusing (yes, I see that in the old code). Perhaps
-> > !s test, in case you want to leave it, should be also commented.
->
-> The old semantics were focused on sysfs usage, so clearing is by passing
-> an empty string. In the case of sysfs empty string is actually "\n". I
-> intend to keep the semantics also for the in-kernel usage and in such
-> case empty string can be also "".
->
-> If I understand your comment correctly, you propose to change it to NULL
-> for in-kernel usage, but that would change the semantics.
+are available in the Git repository at:
 
-Yes. It's also possible to have a wrapper for sysfs use.
+  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
 
-> > Another approach is to split above to two checks and move !s after !len.
->
-> I don't follow why... The !override and !s are invalid uses. !len is a
-> valid user for internal callers, just like "\n" is for sysfs.
+for you to fetch changes up to 1c80cf031e0204fde471558ee40183695773ce13:
 
-I understand but always supplying s maybe an overhead for in-kernel usages.
+  vdpa: mlx5: synchronize driver status with CVQ (2022-03-30 04:18:14 -0400)
 
-In any case, it's not critical right now, just a remark that it can be modified.
+----------------------------------------------------------------
+virtio: fixes, cleanups
 
-> >> +       /*
-> >> +        * The stored value will be used in sysfs show callback (sysfs_emit()),
-> >> +        * which has a length limit of PAGE_SIZE and adds a trailing newline.
-> >> +        * Thus we can store one character less to avoid truncation during sysfs
-> >> +        * show.
-> >> +        */
-> >> +       if (len >= (PAGE_SIZE - 1))
-> >> +               return -EINVAL;
-> >
-> > Perhaps explain the case in the comment here?
->
-> You mean the case we discuss here (to clear override with "")? Sure.
+A couple of mlx5 fixes related to cvq
+A couple of reverts dropping useless code (code that used it got reverted
+earlier)
 
-Yep. Before the below check.
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-> >> +       if (!len) {
-> >> +               device_lock(dev);
-> >> +               old = *override;
-> >> +               *override = NULL;
-> >
-> >> +               device_unlock(dev);
-> >> +               goto out_free;
-> >
-> > You may deduplicate this one, by
-> >
-> >                goto out_unlock_free;
-> >
-> > But I understand your intention to keep lock-unlock in one place, so
-> > perhaps dropping that label would be even better in this case and
-> > keeping it
->
-> Yes, exactly.
->
-> >        kfree(old);
-> >        return 0;
-> >
-> > here instead of goto.
->
-> Slightly more code, but indeed maybe easier to follow. I'll do like this.
+----------------------------------------------------------------
+Jason Wang (2):
+      vdpa: mlx5: prevent cvq work from hogging CPU
+      vdpa: mlx5: synchronize driver status with CVQ
 
+Michael S. Tsirkin (2):
+      Revert "virtio: use virtio_device_ready() in virtio_device_restore()"
+      Revert "virtio_config: introduce a new .enable_cbs method"
 
--- 
-With Best Regards,
-Andy Shevchenko
+ drivers/vdpa/mlx5/net/mlx5_vnet.c | 62 ++++++++++++++++++++++++++-------------
+ drivers/virtio/virtio.c           |  5 ++--
+ include/linux/virtio_config.h     |  6 ----
+ 3 files changed, 43 insertions(+), 30 deletions(-)
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
