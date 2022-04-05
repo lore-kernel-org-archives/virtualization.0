@@ -1,68 +1,66 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D56B0C433F5
-	for <virtualization@archiver.kernel.org>; Tue,  5 Apr 2022 08:51:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8FF2CC433EF
+	for <virtualization@archiver.kernel.org>; Tue,  5 Apr 2022 08:57:15 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 6A89860D54;
-	Tue,  5 Apr 2022 08:51:52 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 2617740861;
+	Tue,  5 Apr 2022 08:57:15 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 6FMw3SaShEYa; Tue,  5 Apr 2022 08:51:51 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id PTUnYfQfkWMN; Tue,  5 Apr 2022 08:57:14 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id BB25E60C31;
-	Tue,  5 Apr 2022 08:51:50 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 7D24640928;
+	Tue,  5 Apr 2022 08:57:13 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 98BF9C001D;
-	Tue,  5 Apr 2022 08:51:50 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E3A95C0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4F078C001D;
+	Tue,  5 Apr 2022 08:57:13 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 73BA6C0012
  for <virtualization@lists.linux-foundation.org>;
- Tue,  5 Apr 2022 08:51:48 +0000 (UTC)
+ Tue,  5 Apr 2022 08:57:11 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id BA40A4035E
+ by smtp4.osuosl.org (Postfix) with ESMTP id 4B74F40928
  for <virtualization@lists.linux-foundation.org>;
- Tue,  5 Apr 2022 08:51:48 +0000 (UTC)
+ Tue,  5 Apr 2022 08:57:11 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=infradead.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id CSQCtDWZZZSy
+ with ESMTP id aQvcHAu3kOtw
  for <virtualization@lists.linux-foundation.org>;
- Tue,  5 Apr 2022 08:51:47 +0000 (UTC)
+ Tue,  5 Apr 2022 08:57:10 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from bombadil.infradead.org (bombadil.infradead.org
  [IPv6:2607:7c80:54:e::133])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 2BB374023B
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 54B8940861
  for <virtualization@lists.linux-foundation.org>;
- Tue,  5 Apr 2022 08:51:47 +0000 (UTC)
+ Tue,  5 Apr 2022 08:57:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
  :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
  Content-Transfer-Encoding:Content-ID:Content-Description;
- bh=ME7eCfclWEIRuct0uqejqJOoYnW+nbwI0+B01pHSEUU=; b=vElwsFHzVnTtZMHng58CrmzhqE
- hzf0lzppsO9dHI3QUs5G1N3RzeMBrp6FkU0rCJFVMwc+Garh9VLXXA5TV5oUK9FfB51nGpisfMcG0
- erbhMVnIPlCvpkWqWSNPpFqGHEf9vtNreWTwftdA4G5o4G639MfcLolZPk7AGfa93/MKXccB0wsR2
- bkkv2vnyZe6aWOBW/MqPZX7D4KCPC74XVBifcBe+SqMQqY6Zig4wb0N183FAMX4QoRfnk/7uAnH/q
- 1kHELNgy9Y+o+JgunA2Mk4lYKEb4UUsOg+WXrlXqnYZAF2JCAztYzW2OySsry2FqFg4fMmGnd4wkI
- 7BVA8KaA==;
+ bh=SWMNvfgC2cDhGmodQfW4rBVIZG0zkZ03Nrm5DRcv/5s=; b=2FMxWjEJREvdf3jbNunFlAQT+x
+ 9Bns4A8eQj3fAR4N74ofg3yIE4WpIQHLAL9p6XEJMk6poCM7XaYLSLDFjRDxO4Tk7HdMuiR92tCCV
+ DzGjfPkOmZpYWeHAYa+1FKpLIvzzKJtGfBQThnfORkYyJ6lzwskz9PBoEibDs2A9gWSgESiSMM676
+ t9FCOg4D13kwIUhvv2feqJw1sBAZG8Z1ExOP8LRR79ouexT9+/6yNOUz30Uyk0Qx1dVN9cuOpKHdy
+ NCAidagNZlqSBWRTB7ohvSc9o+BKfvymcxtp+W/SKK7/cPSfBWmkm+X+xA37XXMUJPU3aEvTaaAsT
+ rB1L1TiQ==;
 Received: from hch by bombadil.infradead.org with local (Exim 4.94.2 #2 (Red
- Hat Linux)) id 1nbeua-000FlY-Iv; Tue, 05 Apr 2022 08:51:40 +0000
-Date: Tue, 5 Apr 2022 01:51:40 -0700
+ Hat Linux)) id 1nbezq-000GMm-HQ; Tue, 05 Apr 2022 08:57:06 +0000
+Date: Tue, 5 Apr 2022 01:57:06 -0700
 From: Christoph Hellwig <hch@infradead.org>
 To: Suwan Kim <suwan.kim027@gmail.com>
-Subject: Re: [PATCH v4 1/2] virtio-blk: support polling I/O
-Message-ID: <YkwDHGutRLN51hbd@infradead.org>
+Subject: Re: [PATCH v4 2/2] virtio-blk: support mq_ops->queue_rqs()
+Message-ID: <YkwEYoeVSemLhivF@infradead.org>
 References: <20220405053122.77626-1-suwan.kim027@gmail.com>
- <20220405053122.77626-2-suwan.kim027@gmail.com>
+ <20220405053122.77626-3-suwan.kim027@gmail.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20220405053122.77626-2-suwan.kim027@gmail.com>
+In-Reply-To: <20220405053122.77626-3-suwan.kim027@gmail.com>
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by
  bombadil.infradead.org. See http://www.infradead.org/rpr.html
 Cc: mgurtovoy@nvidia.com, mst@redhat.com,
@@ -84,178 +82,105 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Apr 05, 2022 at 02:31:21PM +0900, Suwan Kim wrote:
-> This patch supports polling I/O via virtio-blk driver. Polling
-> feature is enabled by module parameter "num_poll_queues" and it
-> sets dedicated polling queues for virtio-blk. This patch improves
-> the polling I/O throughput and latency.
+On Tue, Apr 05, 2022 at 02:31:22PM +0900, Suwan Kim wrote:
+> This patch supports mq_ops->queue_rqs() hook. It has an advantage of
+> batch submission to virtio-blk driver. It also helps polling I/O because
+> polling uses batched completion of block layer. Batch submission in
+> queue_rqs() can boost polling performance.
 > 
-> The virtio-blk driver doesn't not have a poll function and a poll
-> queue and it has been operating in interrupt driven method even if
-> the polling function is called in the upper layer.
+> In queue_rqs(), it iterates plug->mq_list, collects requests that
+> belong to same HW queue until it encounters a request from other
+> HW queue or sees the end of the list.
+> Then, virtio-blk adds requests into virtqueue and kicks virtqueue
+> to submit requests.
 > 
-> virtio-blk polling is implemented upon 'batched completion' of block
-> layer. virtblk_poll() queues completed request to io_comp_batch->req_list
-> and later, virtblk_complete_batch() calls unmap function and ends
-> the requests in batch.
+> If there is an error, it inserts error request to requeue_list and
+> passes it to ordinary block layer path.
 > 
-> virtio-blk reads the number of poll queues from module parameter
-> "num_poll_queues". If VM sets queue parameter as below,
-> ("num-queues=N" [QEMU property], "num_poll_queues=M" [module parameter])
-> It allocates N virtqueues to virtio_blk->vqs[N] and it uses [0..(N-M-1)]
-> as default queues and [(N-M)..(N-1)] as poll queues. Unlike the default
-> queues, the poll queues have no callback function.
+> For verification, I did fio test.
+> (io_uring, randread, direct=1, bs=4K, iodepth=64 numjobs=N)
+> I set 4 vcpu and 2 virtio-blk queues for VM and run fio test 5 times.
+> It shows about 2% improvement.
 > 
-> Regarding HW-SW queue mapping, the default queue mapping uses the
-> existing method that condsiders MSI irq vector. But the poll queue
-> doesn't have an irq, so it uses the regular blk-mq cpu mapping.
+>                                  |   numjobs=2   |   numjobs=4
+>       -----------------------------------------------------------
+>         fio without queue_rqs()  |   291K IOPS   |   238K IOPS
+>       -----------------------------------------------------------
+>         fio with queue_rqs()     |   295K IOPS   |   243K IOPS
 > 
-> For verifying the improvement, I did Fio polling I/O performance test
-> with io_uring engine with the options below.
-> (io_uring, hipri, randread, direct=1, bs=512, iodepth=64 numjobs=N)
-> I set 4 vcpu and 4 virtio-blk queues - 2 default queues and 2 poll
-> queues for VM.
+> For polling I/O performance, I also did fio test as below.
+> (io_uring, hipri, randread, direct=1, bs=512, iodepth=64 numjobs=4)
+> I set 4 vcpu and 2 poll queues for VM.
+> It shows about 2% improvement in polling I/O.
 > 
-> As a result, IOPS and average latency improved about 10%.
-> 
-> Test result:
-> 
-> - Fio io_uring poll without virtio-blk poll support
-> 	-- numjobs=1 : IOPS = 339K, avg latency = 188.33us
-> 	-- numjobs=2 : IOPS = 367K, avg latency = 347.33us
-> 	-- numjobs=4 : IOPS = 383K, avg latency = 682.06us
-> 
-> - Fio io_uring poll with virtio-blk poll support
-> 	-- numjobs=1 : IOPS = 385K, avg latency = 165.94us
-> 	-- numjobs=2 : IOPS = 408K, avg latency = 313.28us
-> 	-- numjobs=4 : IOPS = 424K, avg latency = 613.05us
+>                                       |   IOPS   |  avg latency
+>       -----------------------------------------------------------
+>         fio poll without queue_rqs()  |   424K   |   613.05 usec
+>       -----------------------------------------------------------
+>         fio poll with queue_rqs()     |   435K   |   601.01 usec
 > 
 > Signed-off-by: Suwan Kim <suwan.kim027@gmail.com>
 > ---
->  drivers/block/virtio_blk.c | 112 +++++++++++++++++++++++++++++++++++--
->  1 file changed, 108 insertions(+), 4 deletions(-)
+>  drivers/block/virtio_blk.c | 110 +++++++++++++++++++++++++++++++++----
+>  1 file changed, 99 insertions(+), 11 deletions(-)
 > 
 > diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index 8c415be86732..712579dcd3cc 100644
+> index 712579dcd3cc..a091034bc551 100644
 > --- a/drivers/block/virtio_blk.c
 > +++ b/drivers/block/virtio_blk.c
-> @@ -37,6 +37,10 @@ MODULE_PARM_DESC(num_request_queues,
->  		 "0 for no limit. "
->  		 "Values > nr_cpu_ids truncated to nr_cpu_ids.");
->  
-> +static unsigned int poll_queues;
-> +module_param(poll_queues, uint, 0644);
-> +MODULE_PARM_DESC(poll_queues, "The number of dedicated virtqueues for polling I/O");
-> +
->  static int major;
->  static DEFINE_IDA(vd_index_ida);
->  
-> @@ -81,6 +85,7 @@ struct virtio_blk {
->  
->  	/* num of vqs */
->  	int num_vqs;
-> +	int io_queues[HCTX_MAX_TYPES];
->  	struct virtio_blk_vq *vqs;
+> @@ -92,6 +92,7 @@ struct virtio_blk {
+>  struct virtblk_req {
+>  	struct virtio_blk_outhdr out_hdr;
+>  	u8 status;
+> +	int sg_num;
+>  	struct sg_table sg_table;
+>  	struct scatterlist sg[];
 >  };
+> @@ -311,18 +312,13 @@ static void virtio_commit_rqs(struct blk_mq_hw_ctx *hctx)
+>  		virtqueue_notify(vq->vq);
+>  }
 >  
-> @@ -548,6 +553,7 @@ static int init_vq(struct virtio_blk *vblk)
->  	const char **names;
->  	struct virtqueue **vqs;
->  	unsigned short num_vqs;
-> +	unsigned int num_poll_vqs;
->  	struct virtio_device *vdev = vblk->vdev;
->  	struct irq_affinity desc = { 0, };
+> -static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
+> -			   const struct blk_mq_queue_data *bd)
+> +static blk_status_t virtblk_prep_rq(struct blk_mq_hw_ctx *hctx,
+> +					struct virtio_blk *vblk,
+> +					struct request *req,
+> +					struct virtblk_req *vbr)
+>  {
+> -	struct virtio_blk *vblk = hctx->queue->queuedata;
+> -	struct request *req = bd->rq;
+> -	struct virtblk_req *vbr = blk_mq_rq_to_pdu(req);
+> -	unsigned long flags;
+> -	int num;
+> -	int qid = hctx->queue_num;
+> -	bool notify = false;
+>  	blk_status_t status;
+> -	int err;
+> +	int num;
 >  
-> @@ -556,6 +562,7 @@ static int init_vq(struct virtio_blk *vblk)
->  				   &num_vqs);
->  	if (err)
->  		num_vqs = 1;
-> +
->  	if (!err && !num_vqs) {
->  		dev_err(&vdev->dev, "MQ advertised but zero queues reported\n");
->  		return -EINVAL;
-> @@ -565,6 +572,18 @@ static int init_vq(struct virtio_blk *vblk)
->  			min_not_zero(num_request_queues, nr_cpu_ids),
->  			num_vqs);
->  
-> +	num_poll_vqs = min_t(unsigned int, poll_queues, num_vqs - 1);
-> +
-> +	memset(vblk->io_queues, 0, sizeof(int) * HCTX_MAX_TYPES);
-> +	vblk->io_queues[HCTX_TYPE_DEFAULT] = num_vqs - num_poll_vqs;
-> +	vblk->io_queues[HCTX_TYPE_READ] = 0;
-> +	vblk->io_queues[HCTX_TYPE_POLL] = num_poll_vqs;
-> +
-> +	dev_info(&vdev->dev, "%d/%d/%d default/read/poll queues\n",
-> +				vblk->io_queues[HCTX_TYPE_DEFAULT],
-> +				vblk->io_queues[HCTX_TYPE_READ],
-> +				vblk->io_queues[HCTX_TYPE_POLL]);
-> +
->  	vblk->vqs = kmalloc_array(num_vqs, sizeof(*vblk->vqs), GFP_KERNEL);
->  	if (!vblk->vqs)
->  		return -ENOMEM;
-> @@ -578,8 +597,13 @@ static int init_vq(struct virtio_blk *vblk)
+>  	status = virtblk_setup_cmd(vblk->vdev, req, vbr);
+>  	if (unlikely(status))
+> @@ -335,9 +331,30 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
+>  		virtblk_cleanup_cmd(req);
+>  		return BLK_STS_RESOURCE;
 >  	}
+> +	vbr->sg_num = num;
+
+This can go into the nents field of vbr->sg_table.
+
+> +	int err;
+> +
+> +	status = virtblk_prep_rq(hctx, vblk, req, vbr);
+> +	if (unlikely(status))
+> +		return status;
 >  
->  	for (i = 0; i < num_vqs; i++) {
-> +		if (i < num_vqs - num_poll_vqs) {
-> +			callbacks[i] = virtblk_done;
-> +			snprintf(vblk->vqs[i].name, VQ_NAME_LEN, "req.%d", i);
-> +		} else {
-> +			callbacks[i] = NULL;
-> +			snprintf(vblk->vqs[i].name, VQ_NAME_LEN, "req_poll.%d", i);
-> +		}
->  		names[i] = vblk->vqs[i].name;
+>  	spin_lock_irqsave(&vblk->vqs[qid].lock, flags);
+> -	err = virtblk_add_req(vblk->vqs[qid].vq, vbr, vbr->sg_table.sgl, num);
+> +	err = virtblk_add_req(vblk->vqs[qid].vq, vbr,
+> +				vbr->sg_table.sgl, vbr->sg_num);
 
-This would look a little cleaner with two loops:
-
- 	for (i = 0; i < num_vqs - num_poll_vqs; i++) {
-		callbacks[i] = virtblk_done;
-		snprintf(vblk->vqs[i].name, VQ_NAME_LEN, "req.%d", i);
- 		names[i] = vblk->vqs[i].name;
-	}
- 	for (; i < num_vqs; i++) {
-		callbacks[i] = NULL;
-		snprintf(vblk->vqs[i].name, VQ_NAME_LEN, "req_poll.%d", i);
-		names[i] = vblk->vqs[i].name;
-	}
-
-> +
-> +		if (map->nr_queues == 0)
-> +			continue;
-> +
-> +		/*
-> +		 * Regular queues have interrupts and hence CPU affinity is
-> +		 * defined by the core virtio code, but polling queues have
-> +		 * no interrupts so we let the block layer assign CPU affinity.
-> +		 */
-> +		if (i == HCTX_TYPE_DEFAULT)
-
-I'd check for
-		i != HCTX_TYPE_POLL
-
-here instead to make the check a little more explicit and future proof
-for the potential addition of read queues (which would be a Linux only
-change without hypervisor or spec changes).  In fact you might as well
-add that support now as doing it is completely trivial once a driver
-supports multiple map types.
-
-> +static void virtblk_complete_batch(struct io_comp_batch *iob)
-> +{
-> +	struct request *req;
-> +	struct virtblk_req *vbr;
-> +
-> +	rq_list_for_each(&iob->req_list, req) {
-> +		vbr = blk_mq_rq_to_pdu(req);
-> +		virtblk_unmap_data(req, vbr);
-> +		virtblk_cleanup_cmd(req);
-
-vbr is only used ones, so why not just:
-
-		virtblk_unmap_data(req, blk_mq_rq_to_pdu);
-?
-
-Or even better add a cleanup patch to just remove the vbr argument to
-virtblk_unmap_data as it is not needed at all.
+And while we're at it - virtblk_add_req can lose the data_sg and
+have_data arguments as they can be derived from vbr.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
