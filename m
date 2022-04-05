@@ -1,88 +1,117 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 419C5C433EF
-	for <virtualization@archiver.kernel.org>; Tue,  5 Apr 2022 17:57:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 67D0AC433F5
+	for <virtualization@archiver.kernel.org>; Tue,  5 Apr 2022 19:10:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id DF614402A4;
-	Tue,  5 Apr 2022 17:57:08 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 04EB940222;
+	Tue,  5 Apr 2022 19:10:56 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id gS5hGoPY_Dmf; Tue,  5 Apr 2022 17:57:08 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 4CB82402BE;
-	Tue,  5 Apr 2022 17:57:07 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1828DC002C;
-	Tue,  5 Apr 2022 17:57:07 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 83AB3C0012
- for <virtualization@lists.linux-foundation.org>;
- Tue,  5 Apr 2022 17:57:05 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 5BE0C40283
- for <virtualization@lists.linux-foundation.org>;
- Tue,  5 Apr 2022 17:57:05 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=gmail.com
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id rrpgTO0zuMIq
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id g8pejL3UhAyt; Tue,  5 Apr 2022 19:10:55 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 9988B402F3;
+	Tue,  5 Apr 2022 19:10:54 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 46FA2C002C;
+	Tue,  5 Apr 2022 19:10:54 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2A030C0012
  for <virtualization@lists.linux-foundation.org>;
- Tue,  5 Apr 2022 17:57:04 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com
- [IPv6:2a00:1450:4864:20::62a])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 8A4254018A
+ Tue,  5 Apr 2022 19:10:52 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 0C896827CE
  for <virtualization@lists.linux-foundation.org>;
- Tue,  5 Apr 2022 17:57:04 +0000 (UTC)
-Received: by mail-ej1-x62a.google.com with SMTP id qh7so18274481ejb.11
+ Tue,  5 Apr 2022 19:10:52 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id VHvTR6GSJ13R
  for <virtualization@lists.linux-foundation.org>;
- Tue, 05 Apr 2022 10:57:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=fWlXCTkYGyXzOu6P6awXX/6nfl84WYIZI9g+WSGOyw0=;
- b=jwx0XQUGCaRHrpcErZBCsWMj23/VXGgzoKqDbPSw2f+7F8N/d9igo6HIZ+sSRTWP9a
- hqVlvkcMJHhbv8xYnDkM7bGSTq93zYJVCDN/0Uym3PloU+pHINLS9cTw6XdP9ouh17le
- it2++ow9VO0gUkSzqvwdCeMBzqbqoP5MRFjfawj+UxJefktYATV0WZknO8TYNGxTGfMQ
- A4SEg3p8c2YD/MFhBiOnIcKNUo84CMezQUHC+Em+oj9ZjR24dmD358+boudl6sT0Vpem
- JS1XGjGYbGqUCc76nIevCdXkQ4b19TaL0abiCBotNqqN7PtVcy3R/zqZT3DhISco56Xk
- 7VWw==
+ Tue,  5 Apr 2022 19:10:49 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id C5F7782591
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  5 Apr 2022 19:10:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1649185848;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=ufYYfNJ31ZxJiptHxZVI0cJDY245GxkfqBFvOLAxMek=;
+ b=Z9xUuWIFR1s5Ev4w2nyOD2v0z3fHci6g13TOV980JOAop8ZJh1B/KGPbUnOLPzwiod2D5n
+ zR9KVBTDx3Z1Fn096cuMlF3ritv9wL0sh6HY7KAWGny3m03LjZYEBUy5itgGqEsLKTFi79
+ JEkrQ5Axjt92XOV3XQSYNJdJKHT4Qkg=
+Received: from mail-io1-f70.google.com (mail-io1-f70.google.com
+ [209.85.166.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-658-37AqgOSgODCoxRRiLZymNA-1; Tue, 05 Apr 2022 15:10:47 -0400
+X-MC-Unique: 37AqgOSgODCoxRRiLZymNA-1
+Received: by mail-io1-f70.google.com with SMTP id
+ i19-20020a5d9353000000b006495ab76af6so179658ioo.0
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 05 Apr 2022 12:10:47 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=fWlXCTkYGyXzOu6P6awXX/6nfl84WYIZI9g+WSGOyw0=;
- b=dQmaesEbU3cSFyevdsoOIgM93k5g91HZN/KFJ6JAzM6rw/OkYxWblaUgXZMyyFkyHI
- pDWnCDOQZkpu9sOrLcZX9CbZZRe2QsGMnW+qEoN4FivB9NDXfZw668VM1o+cmkdTswTN
- FpN4ogjuSlCGdCKcilRcjJvECBbszueWLtMO4VssA91EE7hXVGpsreP2w3sSIyqu+mnp
- 3Sbidu6Yb8i3dGKHj9aVCHiZdTqZWt5p5C2GrL4s+fwoSwvKEliQQ99qDSxQ/uRBN1KF
- kOALfYvh+uOtRIh3VLfG7FDZz3B4olNWXwTebhAKhxXdSnYdD7vvpXD1+9dFs4OCWOno
- wHmg==
-X-Gm-Message-State: AOAM530LmozLJqxpaIrF1JjE9mmiT0btrkMzne2Wb3bKDYgAgXvEHupw
- bKdQY0taMGuV0xCNx6c3jw/ltAjw9bUZxtFy58k=
-X-Google-Smtp-Source: ABdhPJzNwJLndNEvf8of6myr8gcbYVYJMmeilk2VVKShekHBfh+c8nN7LVIdcrL0bjowhSiwuKS+l8gYahoKhGqXbFU=
-X-Received: by 2002:a17:906:d10c:b0:6cd:4aa2:cd62 with SMTP id
- b12-20020a170906d10c00b006cd4aa2cd62mr4684858ejz.229.1649181422577; Tue, 05
- Apr 2022 10:57:02 -0700 (PDT)
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
+ :references:organization:mime-version:content-transfer-encoding;
+ bh=ufYYfNJ31ZxJiptHxZVI0cJDY245GxkfqBFvOLAxMek=;
+ b=injPos5WqEEd9aeypRJA7pRTRfICYoeJkDjkbXo8DPfsN6PBCLbwaTgTqgPuB0lg3q
+ 7aB4VJnpV/kOq9XVO3EqRbdVsrtKkdwAWYXtyV2iZuxgnSHh0O8qPeAWFHhYmeA1zpjr
+ ZeV0w+UpwGBDZ3GYUAE650YuJ5Xznm042P9ef+hafJSPaUgsMDYP41zTIdFtQ//mqkMs
+ nSrVEVkEZBImqTQG7np39i2Udl35liigZCFkV6AbBtb+kltJc+Rzj4Zx+ixf5DztfMA4
+ oRVgLPRQUz2cDru6Q6gqNIdq1Ant/VFnmPRX9qN6TvKwdEX6XjJfqqd0azchIiU2iDDN
+ VHIg==
+X-Gm-Message-State: AOAM533h3QgZjqdhXRD7fODiTKdon4DMx8owW387BmbWkYtazT714ETK
+ F/qQekbcNbyP1/2PxQxA15CccN7wpxoniQ9hAtOzwHpl1XfPVeyfAfMopExphC7CFYvFBhKT37m
+ f0j/7IO0Gd8WNqeD5FLtPq/cxZLKam2xTV0oTM1oI3w==
+X-Received: by 2002:a92:cdad:0:b0:2c6:7b76:a086 with SMTP id
+ g13-20020a92cdad000000b002c67b76a086mr2568140ild.5.1649185846546; 
+ Tue, 05 Apr 2022 12:10:46 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxocs2ZVaXF5YVJwjGBcLRqnK5UBIr3mQlWSQgNmkFdgGBC2rjlpWZLrLl9AI2wrgBUaUJw1w==
+X-Received: by 2002:a92:cdad:0:b0:2c6:7b76:a086 with SMTP id
+ g13-20020a92cdad000000b002c67b76a086mr2568112ild.5.1649185846282; 
+ Tue, 05 Apr 2022 12:10:46 -0700 (PDT)
+Received: from redhat.com ([38.15.36.239]) by smtp.gmail.com with ESMTPSA id
+ x2-20020a056602160200b006463c1977f9sm9314961iow.22.2022.04.05.12.10.45
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 05 Apr 2022 12:10:45 -0700 (PDT)
+Date: Tue, 5 Apr 2022 13:10:44 -0600
+From: Alex Williamson <alex.williamson@redhat.com>
+To: Jason Gunthorpe <jgg@nvidia.com>
+Subject: Re: [PATCH 2/5] vfio: Require that devices support DMA cache coherence
+Message-ID: <20220405131044.23910b77.alex.williamson@redhat.com>
+In-Reply-To: <2-v1-ef02c60ddb76+12ca2-intel_no_snoop_jgg@nvidia.com>
+References: <0-v1-ef02c60ddb76+12ca2-intel_no_snoop_jgg@nvidia.com>
+ <2-v1-ef02c60ddb76+12ca2-intel_no_snoop_jgg@nvidia.com>
+Organization: Red Hat
 MIME-Version: 1.0
-References: <20220405173918.1000846-1-robdclark@gmail.com>
-In-Reply-To: <20220405173918.1000846-1-robdclark@gmail.com>
-From: Chia-I Wu <olvaffe@gmail.com>
-Date: Tue, 5 Apr 2022 10:56:51 -0700
-Message-ID: <CAPaKu7Tur-_Kf3Lb9U=98Yr_08onxPHNKTPh2anHU6zLPhr5ZQ@mail.gmail.com>
-Subject: Re: [PATCH] drm/virtio: Add execbuf flag to request no fence-event
-To: Rob Clark <robdclark@gmail.com>
-Cc: Rob Clark <robdclark@chromium.org>, David Airlie <airlied@linux.ie>,
- open list <linux-kernel@vger.kernel.org>,
- ML dri-devel <dri-devel@lists.freedesktop.org>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Daniel Vetter <daniel@ffwll.ch>,
- "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=alex.williamson@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: Nelson Escobar <neescoba@cisco.com>,
+ Matthew Rosato <mjrosato@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ virtualization@lists.linux-foundation.org, Will Deacon <will@kernel.org>,
+ Christoph Hellwig <hch@lst.de>, linux-s390@vger.kernel.org,
+ kvm@vger.kernel.org, linux-rdma@vger.kernel.org,
+ Joerg Roedel <joro@8bytes.org>, iommu@lists.linux-foundation.org,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ David Woodhouse <dwmw2@infradead.org>, linux-arm-msm@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, netdev@vger.kernel.org,
+ Cornelia Huck <cohuck@redhat.com>, Rob Clark <robdclark@gmail.com>,
+ Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+ Christian Benvenuti <benve@cisco.com>, Robin Murphy <robin.murphy@arm.com>,
+ Lu Baolu <baolu.lu@linux.intel.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -99,63 +128,59 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Apr 5, 2022 at 10:38 AM Rob Clark <robdclark@gmail.com> wrote:
->
-> From: Rob Clark <robdclark@chromium.org>
->
-> It would have been cleaner to have a flag to *request* the fence event.
-> But that ship has sailed.  So add a flag so that userspace which doesn't
-> care about the events can opt-out.
->
-> Signed-off-by: Rob Clark <robdclark@chromium.org>
-Reviewed-by: Chia-I Wu <olvaffe@gmail.com>
+On Tue,  5 Apr 2022 13:16:01 -0300
+Jason Gunthorpe <jgg@nvidia.com> wrote:
 
-Might want to wait for Gurchetan to chime in as he added the mechanism.
-
+> dev_is_dma_coherent() is the control to determine if IOMMU_CACHE can be
+> supported.
+> 
+> IOMMU_CACHE means that normal DMAs do not require any additional coherency
+> mechanism and is the basic uAPI that VFIO exposes to userspace. For
+> instance VFIO applications like DPDK will not work if additional coherency
+> operations are required.
+> 
+> Therefore check dev_is_dma_coherent() before allowing a device to join a
+> domain. This will block device/platform/iommu combinations from using VFIO
+> that do not support cache coherent DMA.
+> 
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 > ---
->  drivers/gpu/drm/virtio/virtgpu_ioctl.c | 8 +++++---
->  include/uapi/drm/virtgpu_drm.h         | 2 ++
->  2 files changed, 7 insertions(+), 3 deletions(-)
->
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> index 3a8078f2ee27..09f1aa263f91 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> @@ -225,9 +225,11 @@ static int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
->                 goto out_unresv;
->         }
->
-> -       ret = virtio_gpu_fence_event_create(dev, file, out_fence, ring_idx);
-> -       if (ret)
-> -               goto out_unresv;
-> +       if (!(exbuf->flags & VIRTGPU_EXECBUF_NO_EVENT)) {
-> +               ret = virtio_gpu_fence_event_create(dev, file, out_fence, ring_idx);
-> +               if (ret)
-> +                       goto out_unresv;
-> +       }
->
->         if (out_fence_fd >= 0) {
->                 sync_file = sync_file_create(&out_fence->f);
-> diff --git a/include/uapi/drm/virtgpu_drm.h b/include/uapi/drm/virtgpu_drm.h
-> index 0512fde5e697..d06cac3407cc 100644
-> --- a/include/uapi/drm/virtgpu_drm.h
-> +++ b/include/uapi/drm/virtgpu_drm.h
-> @@ -52,10 +52,12 @@ extern "C" {
->  #define VIRTGPU_EXECBUF_FENCE_FD_IN    0x01
->  #define VIRTGPU_EXECBUF_FENCE_FD_OUT   0x02
->  #define VIRTGPU_EXECBUF_RING_IDX       0x04
-> +#define VIRTGPU_EXECBUF_NO_EVENT       0x08
->  #define VIRTGPU_EXECBUF_FLAGS  (\
->                 VIRTGPU_EXECBUF_FENCE_FD_IN |\
->                 VIRTGPU_EXECBUF_FENCE_FD_OUT |\
->                 VIRTGPU_EXECBUF_RING_IDX |\
-> +               VIRTGPU_EXECBUF_NO_EVENT |\
->                 0)
->
->  struct drm_virtgpu_map {
-> --
-> 2.35.1
->
+>  drivers/vfio/vfio.c | 6 ++++++
+>  1 file changed, 6 insertions(+)
+> 
+> diff --git a/drivers/vfio/vfio.c b/drivers/vfio/vfio.c
+> index a4555014bd1e72..2a3aa3e742d943 100644
+> --- a/drivers/vfio/vfio.c
+> +++ b/drivers/vfio/vfio.c
+> @@ -32,6 +32,7 @@
+>  #include <linux/vfio.h>
+>  #include <linux/wait.h>
+>  #include <linux/sched/signal.h>
+> +#include <linux/dma-map-ops.h>
+>  #include "vfio.h"
+>  
+>  #define DRIVER_VERSION	"0.3"
+> @@ -1348,6 +1349,11 @@ static int vfio_group_get_device_fd(struct vfio_group *group, char *buf)
+>  	if (IS_ERR(device))
+>  		return PTR_ERR(device);
+>  
+> +	if (group->type == VFIO_IOMMU && !dev_is_dma_coherent(device->dev)) {
+> +		ret = -ENODEV;
+> +		goto err_device_put;
+> +	}
+> +
+
+Failing at the point where the user is trying to gain access to the
+device seems a little late in the process and opaque, wouldn't we
+rather have vfio bus drivers fail to probe such devices?  I'd expect
+this to occur in the vfio_register_group_dev() path.  Thanks,
+
+Alex
+
+>  	if (!try_module_get(device->dev->driver->owner)) {
+>  		ret = -ENODEV;
+>  		goto err_device_put;
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
