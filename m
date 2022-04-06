@@ -1,64 +1,63 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5A66AC433FE
-	for <virtualization@archiver.kernel.org>; Wed,  6 Apr 2022 06:06:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 833B3C433FE
+	for <virtualization@archiver.kernel.org>; Wed,  6 Apr 2022 06:06:04 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 0A79D81A3E;
-	Wed,  6 Apr 2022 06:06:00 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 4CEB7610B7;
+	Wed,  6 Apr 2022 06:06:04 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Tpw0sGgp-u-7; Wed,  6 Apr 2022 06:05:59 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id SkT6II5GNmpd; Wed,  6 Apr 2022 06:06:03 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id CDD7381A34;
-	Wed,  6 Apr 2022 06:05:58 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 0A3C4610B2;
+	Wed,  6 Apr 2022 06:06:02 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B4122C002C;
-	Wed,  6 Apr 2022 06:05:58 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D45EDC0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E677AC002C;
+	Wed,  6 Apr 2022 06:06:02 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7251BC0012
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Apr 2022 06:05:56 +0000 (UTC)
+ Wed,  6 Apr 2022 06:06:01 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id BF620818D0
+ by smtp3.osuosl.org (Postfix) with ESMTP id 519C4610B2
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Apr 2022 06:05:56 +0000 (UTC)
+ Wed,  6 Apr 2022 06:06:01 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id MvsQHx-ppdAP
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id dWO54sVWHIvD
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Apr 2022 06:05:56 +0000 (UTC)
+ Wed,  6 Apr 2022 06:06:00 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from bombadil.infradead.org (bombadil.infradead.org
  [IPv6:2607:7c80:54:e::133])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 4B2B981A3E
+ by smtp3.osuosl.org (Postfix) with ESMTPS id C788D610B7
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Apr 2022 06:05:56 +0000 (UTC)
+ Wed,  6 Apr 2022 06:06:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
  MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
  :Reply-To:Content-Type:Content-ID:Content-Description;
- bh=tRabeefOvFWuX0UGmN5W80/SEitu80or+ujXPxbBifU=; b=AOm4sjiAlP6tD5BDPG+nlvSOnr
- a+eqmQqJ44Gu3hNVff0rp/i9EstWS6YUe61HZmqK+NgAP9RCVrUroq8zVL8cKV3zpQ5XL0vyJlmRK
- NzewYB+71v3WGLpgxvDoCFkqDQNPtIyV060z8fdSvtAa8bXvOhTJAGc1uVeds1Z8SanWEw05KGQ3W
- UFB/Fg7NmKib5Uv9tykTUx2ZTObJAhnLIWQguQ08ldvRIaVpq8BqAf/QlCjLYPeugVNgGqcQ31x4x
- JN/Z3K777fE2OazN7ZPpQSN18xdxSBZinMwtnPgc6nyTQwlijNE+ESpNHGBXjEkXAjangL33mjfc5
- dZArx7ow==;
+ bh=OGJvHxXgCvw9/l2/0Y6T0ivupEa5/VICLVgDi4pj6zk=; b=SGjGHiHxXhTBb30pFVsmtYoofW
+ AXRkPwj9L+IToaoBSWN/RSxSSuBK+pJDBU/ojpwlgCD+rUR4zw9pN8EFDE29pkKOW63auHTvvxwCA
+ PC6e0Da7Eiu1hFS/uIysLLSexy3aaIErbCMYeQH3HFSJ8bABmb6owDVYICpwPc9JKy6Ef8YTyDd/h
+ SpNQxuUWxQhBUfv6Iv5iH1SH6hdeTIk5hPArvSrbVe9a1T+UDbpIkKauh2JPDG7p1MdAcg6ES2qNP
+ pANlA2vT9XhPzqH+DYD3Rh3z9Pdg8L6xQ3HlNdFcmLcX+EpDCJ45aTaIIck6oVGd/w30i6T7ad6VR
+ N9+UdC5Q==;
 Received: from 213-225-3-188.nat.highway.a1.net ([213.225.3.188]
  helo=localhost)
  by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1nbyne-003v04-Nu; Wed, 06 Apr 2022 06:05:51 +0000
+ id 1nbyni-003v3I-Ik; Wed, 06 Apr 2022 06:05:55 +0000
 From: Christoph Hellwig <hch@lst.de>
 To: Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 08/27] ntfs3: use bdev_logical_block_size instead of open
- coding it
-Date: Wed,  6 Apr 2022 08:04:57 +0200
-Message-Id: <20220406060516.409838-9-hch@lst.de>
+Subject: [PATCH 09/27] mm: use bdev_is_zoned in claim_swapfile
+Date: Wed,  6 Apr 2022 08:04:58 +0200
+Message-Id: <20220406060516.409838-10-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20220406060516.409838-1-hch@lst.de>
 References: <20220406060516.409838-1-hch@lst.de>
@@ -95,24 +94,26 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+Use the bdev based helper instead of poking into the queue.
+
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- fs/ntfs3/super.c | 2 +-
+ mm/swapfile.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/ntfs3/super.c b/fs/ntfs3/super.c
-index 278dcf5024102..cd30e81abbce0 100644
---- a/fs/ntfs3/super.c
-+++ b/fs/ntfs3/super.c
-@@ -920,7 +920,7 @@ static int ntfs_fill_super(struct super_block *sb, struct fs_context *fc)
- 	}
- 
- 	/* Parse boot. */
--	err = ntfs_init_from_boot(sb, rq ? queue_logical_block_size(rq) : 512,
-+	err = ntfs_init_from_boot(sb, bdev_logical_block_size(bdev),
- 				  bdev_nr_bytes(bdev));
- 	if (err)
- 		goto out;
+diff --git a/mm/swapfile.c b/mm/swapfile.c
+index 63c61f8b26118..4c7537162af5e 100644
+--- a/mm/swapfile.c
++++ b/mm/swapfile.c
+@@ -2761,7 +2761,7 @@ static int claim_swapfile(struct swap_info_struct *p, struct inode *inode)
+ 		 * write only restriction.  Hence zoned block devices are not
+ 		 * suitable for swapping.  Disallow them here.
+ 		 */
+-		if (blk_queue_is_zoned(p->bdev->bd_disk->queue))
++		if (bdev_is_zoned(p->bdev))
+ 			return -EINVAL;
+ 		p->flags |= SWP_BLKDEV;
+ 	} else if (S_ISREG(inode->i_mode)) {
 -- 
 2.30.2
 
