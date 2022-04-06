@@ -1,77 +1,74 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0B8E0C433EF
-	for <virtualization@archiver.kernel.org>; Wed,  6 Apr 2022 08:35:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 75BCAC433F5
+	for <virtualization@archiver.kernel.org>; Wed,  6 Apr 2022 08:36:15 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id B343581BA9;
-	Wed,  6 Apr 2022 08:35:58 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 1FF7360E73;
+	Wed,  6 Apr 2022 08:36:15 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id BM3s9USlEIn0; Wed,  6 Apr 2022 08:35:58 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 655EA81B53;
-	Wed,  6 Apr 2022 08:35:57 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id B3fCJIBfXOST; Wed,  6 Apr 2022 08:36:14 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id B0B5760C03;
+	Wed,  6 Apr 2022 08:36:13 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3FA53C002C;
-	Wed,  6 Apr 2022 08:35:57 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 29E4FC0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 88BA7C002C;
+	Wed,  6 Apr 2022 08:36:13 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 98228C0012
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Apr 2022 08:35:56 +0000 (UTC)
+ Wed,  6 Apr 2022 08:36:11 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 17485405BC
+ by smtp3.osuosl.org (Postfix) with ESMTP id 770AC60E62
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Apr 2022 08:35:56 +0000 (UTC)
+ Wed,  6 Apr 2022 08:36:11 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id u37S0DZeojLd
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id yE-xzuskB6PD
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Apr 2022 08:35:55 +0000 (UTC)
+ Wed,  6 Apr 2022 08:36:10 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 672E54019F
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id BDDA660C03
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Apr 2022 08:35:55 +0000 (UTC)
+ Wed,  6 Apr 2022 08:36:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1649234154;
+ s=mimecast20190719; t=1649234169;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=xvfjr3XhmHkmPEznI6BD1smjCJrc58Cl2CSt883dCaY=;
- b=QgHvAxTiimoL+mMmY81upXbXS0O9AwI4mJ3QQJekpjDmBSFLrcwymyheyDkKV5qm7qFXPt
- mbYuZ8G5W2zH6f045pV6i0/gyH3TkllTOZnPArQKv4qwIgxkGcLncaZvRq7e1HqoRYXJkp
- EZ5hFiNpBRyQPoyOeLv6PtwIsE/FE98=
+ bh=Mo+37PUldM6ZumYASfl7EbwOu7jSED8t6QGqdYfIb4E=;
+ b=ZtqaXhSqWE3HXeG7oqWlzrfja1FywrniK0DUVGcnE19K2AUYTaE9F0t8SL9wj+U9NNLWx7
+ O6X5i8PL8JVtw4FC/22NQkzUlEI9ajSOFAR1LJP/j9L5JWaFDW/wcmCDzZXmUQRB0PyJZT
+ Pzberyo0vmbIPkOePqW9598aQQfAar8=
 Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
  [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-304-YRfKIHFgNhu5nDR_Tjss4Q-1; Wed, 06 Apr 2022 04:35:51 -0400
-X-MC-Unique: YRfKIHFgNhu5nDR_Tjss4Q-1
+ us-mta-355--b2tvIduNiulsavj4ZShjQ-1; Wed, 06 Apr 2022 04:36:05 -0400
+X-MC-Unique: -b2tvIduNiulsavj4ZShjQ-1
 Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com
  [10.11.54.3])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id C922680005D;
- Wed,  6 Apr 2022 08:35:50 +0000 (UTC)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 73982800882;
+ Wed,  6 Apr 2022 08:36:05 +0000 (UTC)
 Received: from localhost.localdomain (ovpn-12-58.pek2.redhat.com [10.72.12.58])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 654D71121314;
- Wed,  6 Apr 2022 08:35:46 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id EF36E1121314;
+ Wed,  6 Apr 2022 08:35:51 +0000 (UTC)
 From: Jason Wang <jasowang@redhat.com>
 To: mst@redhat.com,
 	jasowang@redhat.com
-Subject: [PATCH V2 1/5] virtio: use virtio_device_ready() in
- virtio_device_restore()
-Date: Wed,  6 Apr 2022 16:35:34 +0800
-Message-Id: <20220406083538.16274-2-jasowang@redhat.com>
+Subject: [PATCH V2 2/5] virtio: use virtio_reset_device() when possible
+Date: Wed,  6 Apr 2022 16:35:35 +0800
+Message-Id: <20220406083538.16274-3-jasowang@redhat.com>
 In-Reply-To: <20220406083538.16274-1-jasowang@redhat.com>
 References: <20220406083538.16274-1-jasowang@redhat.com>
 MIME-Version: 1.0
@@ -95,37 +92,39 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Stefano Garzarella <sgarzare@redhat.com>
-
-It will allows us to do extension on virtio_device_ready() without
-duplicating codes.
+This allows us to do common extension without duplicating codes.
 
 Cc: Thomas Gleixner <tglx@linutronix.de>
 Cc: Peter Zijlstra <peterz@infradead.org>
 Cc: "Paul E. McKenney" <paulmck@kernel.org>
 Cc: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/virtio/virtio.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/virtio/virtio.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index 22f15f444f75..75c8d560bbd3 100644
+index 75c8d560bbd3..8dde44ea044a 100644
 --- a/drivers/virtio/virtio.c
 +++ b/drivers/virtio/virtio.c
-@@ -526,8 +526,9 @@ int virtio_device_restore(struct virtio_device *dev)
- 			goto err;
- 	}
+@@ -430,7 +430,7 @@ int register_virtio_device(struct virtio_device *dev)
  
--	/* Finally, tell the device we're all set */
--	virtio_add_status(dev, VIRTIO_CONFIG_S_DRIVER_OK);
-+	/* If restore didn't do it, mark device DRIVER_OK ourselves. */
-+	if (!(dev->config->get_status(dev) & VIRTIO_CONFIG_S_DRIVER_OK))
-+		virtio_device_ready(dev);
+ 	/* We always start by resetting the device, in case a previous
+ 	 * driver messed it up.  This also tests that code path a little. */
+-	dev->config->reset(dev);
++	virtio_reset_device(dev);
  
- 	virtio_config_enable(dev);
+ 	/* Acknowledge that we've seen the device. */
+ 	virtio_add_status(dev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
+@@ -496,7 +496,7 @@ int virtio_device_restore(struct virtio_device *dev)
  
+ 	/* We always start by resetting the device, in case a previous
+ 	 * driver messed it up. */
+-	dev->config->reset(dev);
++	virtio_reset_device(dev);
+ 
+ 	/* Acknowledge that we've seen the device. */
+ 	virtio_add_status(dev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
 -- 
 2.25.1
 
