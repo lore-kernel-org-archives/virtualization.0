@@ -1,56 +1,55 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 68B50C433EF
-	for <virtualization@archiver.kernel.org>; Wed,  6 Apr 2022 03:44:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 16337C433FE
+	for <virtualization@archiver.kernel.org>; Wed,  6 Apr 2022 03:44:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 0E27940B36;
+	by smtp4.osuosl.org (Postfix) with ESMTP id A1A6841793;
 	Wed,  6 Apr 2022 03:44:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id XfXJeOW8kjw7; Wed,  6 Apr 2022 03:44:28 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 48jdaY0NdRho; Wed,  6 Apr 2022 03:44:28 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 958B24044D;
+	by smtp4.osuosl.org (Postfix) with ESMTPS id D8472417A3;
 	Wed,  6 Apr 2022 03:44:27 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6ABC5C002C;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B0FBBC0084;
 	Wed,  6 Apr 2022 03:44:27 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 96A3BC0012
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8A96FC0073
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Apr 2022 03:44:25 +0000 (UTC)
+ Wed,  6 Apr 2022 03:44:26 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 84F6681A81
+ by smtp4.osuosl.org (Postfix) with ESMTP id 73F2C4179D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Apr 2022 03:44:25 +0000 (UTC)
+ Wed,  6 Apr 2022 03:44:26 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id GXlz8F2pUioR
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id HEZ91D_nIsbb
  for <virtualization@lists.linux-foundation.org>;
  Wed,  6 Apr 2022 03:44:25 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from out30-44.freemail.mail.aliyun.com
- (out30-44.freemail.mail.aliyun.com [115.124.30.44])
- by smtp1.osuosl.org (Postfix) with ESMTPS id A621281A95
+Received: from out30-43.freemail.mail.aliyun.com
+ (out30-43.freemail.mail.aliyun.com [115.124.30.43])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 5838241793
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Apr 2022 03:44:24 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R941e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04423; MF=xuanzhuo@linux.alibaba.com;
- NM=1; PH=DS; RN=34; SR=0; TI=SMTPD_---0V9Jmrek_1649216657; 
+ Wed,  6 Apr 2022 03:44:25 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R321e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04426; MF=xuanzhuo@linux.alibaba.com;
+ NM=1; PH=DS; RN=34; SR=0; TI=SMTPD_---0V9JnaQg_1649216659; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0V9Jmrek_1649216657) by smtp.aliyun-inc.com(127.0.0.1);
- Wed, 06 Apr 2022 11:44:18 +0800
+ fp:SMTPD_---0V9JnaQg_1649216659) by smtp.aliyun-inc.com(127.0.0.1);
+ Wed, 06 Apr 2022 11:44:20 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: virtualization@lists.linux-foundation.org
-Subject: [PATCH v9 14/32] virtio_ring: packed: extract the logic of attach
- vring
-Date: Wed,  6 Apr 2022 11:43:28 +0800
-Message-Id: <20220406034346.74409-15-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH v9 15/32] virtio_ring: packed: extract the logic of vq init
+Date: Wed,  6 Apr 2022 11:43:29 +0800
+Message-Id: <20220406034346.74409-16-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20220406034346.74409-1-xuanzhuo@linux.alibaba.com>
 References: <20220406034346.74409-1-xuanzhuo@linux.alibaba.com>
@@ -90,86 +89,120 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Separate the logic of attach vring, the subsequent patch will call it
-separately.
+Separate the logic of initializing vq, and subsequent patches will call
+it separately.
+
+The characteristic of this part of the logic is that it does not depend
+on the information passed by the upper layer, and can be called
+repeatedly.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 ---
- drivers/virtio/virtio_ring.c | 47 +++++++++++++++++++++++++-----------
- 1 file changed, 33 insertions(+), 14 deletions(-)
+ drivers/virtio/virtio_ring.c | 71 ++++++++++++++++++++----------------
+ 1 file changed, 39 insertions(+), 32 deletions(-)
 
 diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 5b5976c5742e..80d446fa8d16 100644
+index 80d446fa8d16..c783eb272468 100644
 --- a/drivers/virtio/virtio_ring.c
 +++ b/drivers/virtio/virtio_ring.c
-@@ -1904,6 +1904,35 @@ static int vring_alloc_state_extra_packed(u32 num,
- 	return -ENOMEM;
+@@ -1933,6 +1933,44 @@ static void vring_virtqueue_attach_packed(struct vring_virtqueue *vq,
+ 	vq->packed.desc_extra = extra;
  }
  
-+static void vring_virtqueue_attach_packed(struct vring_virtqueue *vq,
-+					  u32 num,
-+					  struct vring_packed_desc *ring,
-+					  struct vring_packed_desc_event *driver,
-+					  struct vring_packed_desc_event *device,
-+					  dma_addr_t ring_dma_addr,
-+					  dma_addr_t driver_event_dma_addr,
-+					  dma_addr_t device_event_dma_addr,
-+					  size_t ring_size_in_bytes,
-+					  size_t event_size_in_bytes,
-+					  struct vring_desc_state_packed *state,
-+					  struct vring_desc_extra *extra)
++static void vring_virtqueue_init_packed(struct vring_virtqueue *vq,
++					struct virtio_device *vdev)
 +{
-+	vq->packed.ring_dma_addr = ring_dma_addr;
-+	vq->packed.driver_event_dma_addr = driver_event_dma_addr;
-+	vq->packed.device_event_dma_addr = device_event_dma_addr;
++	vq->vq.num_free = vq->packed.vring.num;
++	vq->we_own_ring = true;
++	vq->broken = false;
++	vq->last_used_idx = 0;
++	vq->event_triggered = false;
++	vq->num_added = 0;
++	vq->packed_ring = true;
++	vq->use_dma_api = vring_use_dma_api(vdev);
++#ifdef DEBUG
++	vq->in_use = false;
++	vq->last_add_time_valid = false;
++#endif
 +
-+	vq->packed.ring_size_in_bytes = ring_size_in_bytes;
-+	vq->packed.event_size_in_bytes = event_size_in_bytes;
++	vq->event = virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX);
 +
-+	vq->packed.vring.num = num;
-+	vq->packed.vring.desc = ring;
-+	vq->packed.vring.driver = driver;
-+	vq->packed.vring.device = device;
++	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
++		vq->weak_barriers = false;
 +
-+	vq->packed.desc_state = state;
-+	vq->packed.desc_extra = extra;
++	vq->packed.next_avail_idx = 0;
++	vq->packed.avail_wrap_counter = 1;
++	vq->packed.used_wrap_counter = 1;
++	vq->packed.event_flags_shadow = 0;
++	vq->packed.avail_used_flags = 1 << VRING_PACKED_DESC_F_AVAIL;
++
++	/* Put everything in free lists. */
++	vq->free_head = 0;
++
++	/* No callback?  Tell other side not to bother us. */
++	if (!vq->vq.callback) {
++		vq->packed.event_flags_shadow = VRING_PACKED_EVENT_FLAG_DISABLE;
++		vq->packed.vring.driver->flags =
++			cpu_to_le16(vq->packed.event_flags_shadow);
++	}
 +}
 +
  static struct virtqueue *vring_create_virtqueue_packed(
  	unsigned int index,
  	unsigned int num,
-@@ -1962,18 +1991,6 @@ static struct virtqueue *vring_create_virtqueue_packed(
- 	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
- 		vq->weak_barriers = false;
+@@ -1968,34 +2006,12 @@ static struct virtqueue *vring_create_virtqueue_packed(
+ 	vq->vq.callback = callback;
+ 	vq->vq.vdev = vdev;
+ 	vq->vq.name = name;
+-	vq->vq.num_free = num;
+ 	vq->vq.index = index;
+-	vq->we_own_ring = true;
+ 	vq->notify = notify;
+ 	vq->weak_barriers = weak_barriers;
+-	vq->broken = false;
+-	vq->last_used_idx = 0;
+-	vq->event_triggered = false;
+-	vq->num_added = 0;
+-	vq->packed_ring = true;
+-	vq->use_dma_api = vring_use_dma_api(vdev);
+-#ifdef DEBUG
+-	vq->in_use = false;
+-	vq->last_add_time_valid = false;
+-#endif
  
--	vq->packed.ring_dma_addr = ring_dma_addr;
--	vq->packed.driver_event_dma_addr = driver_event_dma_addr;
--	vq->packed.device_event_dma_addr = device_event_dma_addr;
+ 	vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC) &&
+ 		!context;
+-	vq->event = virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX);
 -
--	vq->packed.ring_size_in_bytes = ring_size_in_bytes;
--	vq->packed.event_size_in_bytes = event_size_in_bytes;
+-	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
+-		vq->weak_barriers = false;
 -
--	vq->packed.vring.num = num;
--	vq->packed.vring.desc = ring;
--	vq->packed.vring.driver = driver;
--	vq->packed.vring.device = device;
--
- 	vq->packed.next_avail_idx = 0;
- 	vq->packed.avail_wrap_counter = 1;
- 	vq->packed.used_wrap_counter = 1;
-@@ -1984,8 +2001,10 @@ static struct virtqueue *vring_create_virtqueue_packed(
+-	vq->packed.next_avail_idx = 0;
+-	vq->packed.avail_wrap_counter = 1;
+-	vq->packed.used_wrap_counter = 1;
+-	vq->packed.event_flags_shadow = 0;
+-	vq->packed.avail_used_flags = 1 << VRING_PACKED_DESC_F_AVAIL;
+ 
+ 	err = vring_alloc_state_extra_packed(num, &state, &extra);
  	if (err)
- 		goto err_state_extra;
+@@ -2005,16 +2021,7 @@ static struct virtqueue *vring_create_virtqueue_packed(
+ 				      ring_dma_addr, driver_event_dma_addr,
+ 				      device_event_dma_addr, ring_size_in_bytes,
+ 				      event_size_in_bytes, state, extra);
+-
+-	/* Put everything in free lists. */
+-	vq->free_head = 0;
+-
+-	/* No callback?  Tell other side not to bother us. */
+-	if (!callback) {
+-		vq->packed.event_flags_shadow = VRING_PACKED_EVENT_FLAG_DISABLE;
+-		vq->packed.vring.driver->flags =
+-			cpu_to_le16(vq->packed.event_flags_shadow);
+-	}
++	vring_virtqueue_init_packed(vq, vdev);
  
--	vq->packed.desc_state = state;
--	vq->packed.desc_extra = extra;
-+	vring_virtqueue_attach_packed(vq, num, ring, driver, device,
-+				      ring_dma_addr, driver_event_dma_addr,
-+				      device_event_dma_addr, ring_size_in_bytes,
-+				      event_size_in_bytes, state, extra);
- 
- 	/* Put everything in free lists. */
- 	vq->free_head = 0;
+ 	spin_lock(&vdev->vqs_list_lock);
+ 	list_add_tail(&vq->vq.list, &vdev->vqs);
 -- 
 2.31.0
 
