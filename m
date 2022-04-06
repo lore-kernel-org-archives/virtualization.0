@@ -1,71 +1,107 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 29C81C433F5
-	for <virtualization@archiver.kernel.org>; Wed,  6 Apr 2022 13:57:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7597BC433F5
+	for <virtualization@archiver.kernel.org>; Wed,  6 Apr 2022 15:31:32 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id D2C7A83312;
-	Wed,  6 Apr 2022 13:57:12 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 13E74418DE;
+	Wed,  6 Apr 2022 15:31:32 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ux5GeZmCh5c6; Wed,  6 Apr 2022 13:57:12 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id TIOhL0PbUHid; Wed,  6 Apr 2022 15:31:31 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 6377E8308A;
-	Wed,  6 Apr 2022 13:57:11 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 592134004F;
+	Wed,  6 Apr 2022 15:31:30 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id F3D05C0083;
-	Wed,  6 Apr 2022 13:57:10 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id DE386C0012;
- Wed,  6 Apr 2022 13:57:09 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0FC37C001D;
+	Wed,  6 Apr 2022 15:31:30 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3FFACC0012
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  6 Apr 2022 15:31:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 32FAE8308A;
- Wed,  6 Apr 2022 13:57:08 +0000 (UTC)
+ by smtp4.osuosl.org (Postfix) with ESMTP id 1F18B40183
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  6 Apr 2022 15:31:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id E18i8qy98cW3; Wed,  6 Apr 2022 13:57:07 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id dxzyfGqL2moJ
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  6 Apr 2022 15:31:28 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
- by smtp1.osuosl.org (Postfix) with ESMTP id 64E0682F92;
- Wed,  6 Apr 2022 13:57:07 +0000 (UTC)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
- by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 7E2F912FC;
- Wed,  6 Apr 2022 06:57:06 -0700 (PDT)
-Received: from [10.57.41.19] (unknown [10.57.41.19])
- by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id E682C3F73B;
- Wed,  6 Apr 2022 06:57:01 -0700 (PDT)
-Message-ID: <db5a6daa-bfe9-744f-7fc5-d5167858bc3e@arm.com>
-Date: Wed, 6 Apr 2022 14:56:56 +0100
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id F2D8A4004F
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  6 Apr 2022 15:31:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1649259086;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=SXqsmr5lOmq1DC0O01EgBHNJ75YfihYQ9afQo8lccGQ=;
+ b=TZq4ajl5Qj9CFq1SOFgMmgLLV2hlFvybOXtVkgh+q4r0y+xruxvNgNy+5zQhyzexPyT8iu
+ 3WFlZnjdw6zHGhYBKVsVpMVFVYbSTlaLOCHhknhca6iiDD9P7PjKkfyAt56D86KZujEXnV
+ 1I/megxU+RCHn3q4MOt4pTqV+qz40NI=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-635-MTyg56JpPL-zElOIDGYHBg-1; Wed, 06 Apr 2022 11:31:25 -0400
+X-MC-Unique: MTyg56JpPL-zElOIDGYHBg-1
+Received: by mail-wm1-f70.google.com with SMTP id
+ v191-20020a1cacc8000000b0038ce818d2efso764420wme.1
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 06 Apr 2022 08:31:25 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=SXqsmr5lOmq1DC0O01EgBHNJ75YfihYQ9afQo8lccGQ=;
+ b=HFkgtLa54YAQVHwzIDuBDGIVvrMIsdcs4/x4+xL/MfIlim7z1T2rg5hKLlfU9QNDl1
+ 4K1DD7hVhLHHQtb83fCXEQVc/CVLDUwh4jomfdc/IYs1miAUDPH79+kGr/d2x6rIoUCC
+ EjbGR32yuRXyoA5kue9CF1dI7jC87x4auCSD+PWu11FpHbO5LLbU3sJHNKUsIOQS41RJ
+ Z7pW/+Ide5kSu/NGusE4ajhMuMoQGk9x5l5g2qEgnWb2eLuChXXNCCt+yMK7s0Wd/3zz
+ FGqqapLuIjAxT0kOV7/iFICAutdP1n+gatnAvKXMETEq5GxUUxAn5Fea88WVO4MDA/Ue
+ iIkw==
+X-Gm-Message-State: AOAM531AGiLoHLstqEVD1yIUva2WOB4c/VMs1rKIgMxi5KA145HIpbk1
+ a0sxNtYcYFGbddxEIeQ83q+Aw7iOFn4SgkvL+Joha39wibAfPs+8Oqp5f32N9zCC6aAxxrQG4O7
+ n3E0yaByuBiUhtAk43Xkz1oQo+Kx/8/ZkynNMwerydQ==
+X-Received: by 2002:a05:600c:3511:b0:38c:d035:cddb with SMTP id
+ h17-20020a05600c351100b0038cd035cddbmr8039414wmq.74.1649259084177; 
+ Wed, 06 Apr 2022 08:31:24 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzMJUIuOfCAWCV1KjhYntMj29VSsQUoSZ2t6duktlX1OxSHrnPzc0hHgltLl0oDc5ne7fB2BQ==
+X-Received: by 2002:a05:600c:3511:b0:38c:d035:cddb with SMTP id
+ h17-20020a05600c351100b0038cd035cddbmr8039392wmq.74.1649259083924; 
+ Wed, 06 Apr 2022 08:31:23 -0700 (PDT)
+Received: from redhat.com ([2.55.156.253]) by smtp.gmail.com with ESMTPSA id
+ 14-20020a056000154e00b00203f8adde0csm18525600wry.32.2022.04.06.08.31.21
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 06 Apr 2022 08:31:22 -0700 (PDT)
+Date: Wed, 6 Apr 2022 11:31:19 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH V2 4/5] virtio-pci: implement synchronize_vqs()
+Message-ID: <20220406112858-mutt-send-email-mst@kernel.org>
+References: <20220406083538.16274-1-jasowang@redhat.com>
+ <20220406083538.16274-5-jasowang@redhat.com>
+ <20220406075952-mutt-send-email-mst@kernel.org>
+ <87wng2e527.fsf@redhat.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH 1/5] iommu: Replace uses of IOMMU_CAP_CACHE_COHERENCY with
- dev_is_dma_coherent()
-Content-Language: en-GB
-To: Jason Gunthorpe <jgg@nvidia.com>,
- Alex Williamson <alex.williamson@redhat.com>,
- Lu Baolu <baolu.lu@linux.intel.com>, Christian Benvenuti <benve@cisco.com>,
- Cornelia Huck <cohuck@redhat.com>, David Woodhouse <dwmw2@infradead.org>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- iommu@lists.linux-foundation.org, Jason Wang <jasowang@redhat.com>,
- Joerg Roedel <joro@8bytes.org>, kvm@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-arm-msm@vger.kernel.org,
- linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
- Matthew Rosato <mjrosato@linux.ibm.com>, "Michael S. Tsirkin"
- <mst@redhat.com>, Nelson Escobar <neescoba@cisco.com>,
- netdev@vger.kernel.org, Rob Clark <robdclark@gmail.com>,
- Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
- virtualization@lists.linux-foundation.org, Will Deacon <will@kernel.org>
-References: <1-v1-ef02c60ddb76+12ca2-intel_no_snoop_jgg@nvidia.com>
-From: Robin Murphy <robin.murphy@arm.com>
-In-Reply-To: <1-v1-ef02c60ddb76+12ca2-intel_no_snoop_jgg@nvidia.com>
-Cc: Christoph Hellwig <hch@lst.de>
+In-Reply-To: <87wng2e527.fsf@redhat.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: "Paul E. McKenney" <paulmck@kernel.org>, peterz@infradead.org,
+ maz@kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, Halil Pasic <pasic@linux.ibm.com>,
+ tglx@linutronix.de
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -77,111 +113,75 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 2022-04-05 17:16, Jason Gunthorpe wrote:
-> vdpa and usnic are trying to test if IOMMU_CACHE is supported. The correct
-> way to do this is via dev_is_dma_coherent()
-
-Not necessarily...
-
-Disregarding the complete disaster of PCIe No Snoop on Arm-Based 
-systems, there's the more interesting effectively-opposite scenario 
-where an SMMU bridges non-coherent devices to a coherent interconnect. 
-It's not something we take advantage of yet in Linux, and it can only be 
-properly described in ACPI, but there do exist situations where 
-IOMMU_CACHE is capable of making the device's traffic snoop, but 
-dev_is_dma_coherent() - and device_get_dma_attr() for external users - 
-would still say non-coherent because they can't assume that the SMMU is 
-enabled and programmed in just the right way.
-
-I've also not thought too much about how things might look with S2FWB 
-thrown into the mix in future...
-
-Robin.
-
-> like the DMA API does. If
-> IOMMU_CACHE is not supported then these drivers won't work as they don't
-> call any coherency-restoring routines around their DMAs.
+On Wed, Apr 06, 2022 at 03:04:32PM +0200, Cornelia Huck wrote:
+> On Wed, Apr 06 2022, "Michael S. Tsirkin" <mst@redhat.com> wrote:
 > 
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> ---
->   drivers/infiniband/hw/usnic/usnic_uiom.c | 16 +++++++---------
->   drivers/vhost/vdpa.c                     |  3 ++-
->   2 files changed, 9 insertions(+), 10 deletions(-)
+> > On Wed, Apr 06, 2022 at 04:35:37PM +0800, Jason Wang wrote:
+> >> This patch implements PCI version of synchronize_vqs().
+> >> 
+> >> Cc: Thomas Gleixner <tglx@linutronix.de>
+> >> Cc: Peter Zijlstra <peterz@infradead.org>
+> >> Cc: "Paul E. McKenney" <paulmck@kernel.org>
+> >> Cc: Marc Zyngier <maz@kernel.org>
+> >> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> >
+> > Please add implementations at least for ccw and mmio.
 > 
-> diff --git a/drivers/infiniband/hw/usnic/usnic_uiom.c b/drivers/infiniband/hw/usnic/usnic_uiom.c
-> index 760b254ba42d6b..24d118198ac756 100644
-> --- a/drivers/infiniband/hw/usnic/usnic_uiom.c
-> +++ b/drivers/infiniband/hw/usnic/usnic_uiom.c
-> @@ -42,6 +42,7 @@
->   #include <linux/list.h>
->   #include <linux/pci.h>
->   #include <rdma/ib_verbs.h>
-> +#include <linux/dma-map-ops.h>
->   
->   #include "usnic_log.h"
->   #include "usnic_uiom.h"
-> @@ -474,6 +475,12 @@ int usnic_uiom_attach_dev_to_pd(struct usnic_uiom_pd *pd, struct device *dev)
->   	struct usnic_uiom_dev *uiom_dev;
->   	int err;
->   
-> +	if (!dev_is_dma_coherent(dev)) {
-> +		usnic_err("IOMMU of %s does not support cache coherency\n",
-> +				dev_name(dev));
-> +		return -EINVAL;
-> +	}
-> +
->   	uiom_dev = kzalloc(sizeof(*uiom_dev), GFP_ATOMIC);
->   	if (!uiom_dev)
->   		return -ENOMEM;
-> @@ -483,13 +490,6 @@ int usnic_uiom_attach_dev_to_pd(struct usnic_uiom_pd *pd, struct device *dev)
->   	if (err)
->   		goto out_free_dev;
->   
-> -	if (!iommu_capable(dev->bus, IOMMU_CAP_CACHE_COHERENCY)) {
-> -		usnic_err("IOMMU of %s does not support cache coherency\n",
-> -				dev_name(dev));
-> -		err = -EINVAL;
-> -		goto out_detach_device;
-> -	}
-> -
->   	spin_lock(&pd->lock);
->   	list_add_tail(&uiom_dev->link, &pd->devs);
->   	pd->dev_cnt++;
-> @@ -497,8 +497,6 @@ int usnic_uiom_attach_dev_to_pd(struct usnic_uiom_pd *pd, struct device *dev)
->   
->   	return 0;
->   
-> -out_detach_device:
-> -	iommu_detach_device(pd->domain, dev);
->   out_free_dev:
->   	kfree(uiom_dev);
->   	return err;
-> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-> index 4c2f0bd062856a..05ea5800febc37 100644
-> --- a/drivers/vhost/vdpa.c
-> +++ b/drivers/vhost/vdpa.c
-> @@ -22,6 +22,7 @@
->   #include <linux/vdpa.h>
->   #include <linux/nospec.h>
->   #include <linux/vhost.h>
-> +#include <linux/dma-map-ops.h>
->   
->   #include "vhost.h"
->   
-> @@ -929,7 +930,7 @@ static int vhost_vdpa_alloc_domain(struct vhost_vdpa *v)
->   	if (!bus)
->   		return -EFAULT;
->   
-> -	if (!iommu_capable(bus, IOMMU_CAP_CACHE_COHERENCY))
-> +	if (!dev_is_dma_coherent(dma_dev))
->   		return -ENOTSUPP;
->   
->   	v->domain = iommu_domain_alloc(bus);
+> I'm not sure what (if anything) can/should be done for ccw...
+> 
+> >
+> >> ---
+> >>  drivers/virtio/virtio_pci_common.c | 14 ++++++++++++++
+> >>  drivers/virtio/virtio_pci_common.h |  2 ++
+> >>  drivers/virtio/virtio_pci_legacy.c |  1 +
+> >>  drivers/virtio/virtio_pci_modern.c |  2 ++
+> >>  4 files changed, 19 insertions(+)
+> >> 
+> >> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+> >> index d724f676608b..b78c8bc93a97 100644
+> >> --- a/drivers/virtio/virtio_pci_common.c
+> >> +++ b/drivers/virtio/virtio_pci_common.c
+> >> @@ -37,6 +37,20 @@ void vp_synchronize_vectors(struct virtio_device *vdev)
+> >>  		synchronize_irq(pci_irq_vector(vp_dev->pci_dev, i));
+> >>  }
+> >>  
+> >> +void vp_synchronize_vqs(struct virtio_device *vdev)
+> >> +{
+> >> +	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+> >> +	int i;
+> >> +
+> >> +	if (vp_dev->intx_enabled) {
+> >> +		synchronize_irq(vp_dev->pci_dev->irq);
+> >> +		return;
+> >> +	}
+> >> +
+> >> +	for (i = 0; i < vp_dev->msix_vectors; ++i)
+> >> +		synchronize_irq(pci_irq_vector(vp_dev->pci_dev, i));
+> >> +}
+> >> +
+> 
+> ...given that this seems to synchronize threaded interrupt handlers?
+
+No, any handlers at all. The point is to make sure any memory changes
+made prior to this op are visible to callbacks.
+
+Jason, maybe add that to the documentation?
+
+> Halil, do you think ccw needs to do anything? (AFAICS, we only have one
+> 'irq' for channel devices anyway, and the handler just calls the
+> relevant callbacks directly.)
+
+Then you need to synchronize with that.
+
+> >>  /* the notify function used when creating a virt queue */
+> >>  bool vp_notify(struct virtqueue *vq)
+> >>  {
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
