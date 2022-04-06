@@ -1,55 +1,55 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0AA04C433F5
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A0E4AC433EF
 	for <virtualization@archiver.kernel.org>; Wed,  6 Apr 2022 03:45:05 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id B7220607EC;
-	Wed,  6 Apr 2022 03:45:04 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 5529481BF5;
+	Wed,  6 Apr 2022 03:45:05 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 7RMIn5CDDlga; Wed,  6 Apr 2022 03:45:03 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 4A274610C0;
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id UlmpWxpsCkKG; Wed,  6 Apr 2022 03:45:04 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id CDF4C81C67;
 	Wed,  6 Apr 2022 03:45:03 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 23215C002C;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 51C40C0084;
 	Wed,  6 Apr 2022 03:45:03 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 53B48C0012
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id EA849C0012
  for <virtualization@lists.linux-foundation.org>;
  Wed,  6 Apr 2022 03:45:02 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 3FEFC417CD
+ by smtp3.osuosl.org (Postfix) with ESMTP id D8FFA607EC
  for <virtualization@lists.linux-foundation.org>;
  Wed,  6 Apr 2022 03:45:02 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Rumwx2Tg2B9G
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 6jgLDATEPgZe
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  6 Apr 2022 03:45:02 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from out30-44.freemail.mail.aliyun.com
+ (out30-44.freemail.mail.aliyun.com [115.124.30.44])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 03BAB610C0
  for <virtualization@lists.linux-foundation.org>;
  Wed,  6 Apr 2022 03:45:01 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from out30-132.freemail.mail.aliyun.com
- (out30-132.freemail.mail.aliyun.com [115.124.30.132])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 0BB0E417CB
- for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Apr 2022 03:45:00 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R101e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04426; MF=xuanzhuo@linux.alibaba.com;
- NM=1; PH=DS; RN=34; SR=0; TI=SMTPD_---0V9KCOR._1649216693; 
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R171e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04400; MF=xuanzhuo@linux.alibaba.com;
+ NM=1; PH=DS; RN=34; SR=0; TI=SMTPD_---0V9Jzj-E_1649216695; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0V9KCOR._1649216693) by smtp.aliyun-inc.com(127.0.0.1);
- Wed, 06 Apr 2022 11:44:54 +0800
+ fp:SMTPD_---0V9Jzj-E_1649216695) by smtp.aliyun-inc.com(127.0.0.1);
+ Wed, 06 Apr 2022 11:44:57 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: virtualization@lists.linux-foundation.org
-Subject: [PATCH v9 31/32] virtio_net: support rx/tx queue resize
-Date: Wed,  6 Apr 2022 11:43:45 +0800
-Message-Id: <20220406034346.74409-32-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH v9 32/32] virtio_net: support set_ringparam
+Date: Wed,  6 Apr 2022 11:43:46 +0800
+Message-Id: <20220406034346.74409-33-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20220406034346.74409-1-xuanzhuo@linux.alibaba.com>
 References: <20220406034346.74409-1-xuanzhuo@linux.alibaba.com>
@@ -89,140 +89,81 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This patch implements the resize function of the rx, tx queues.
-Based on this function, it is possible to modify the ring num of the
-queue.
+Support set_ringparam based on virtio queue reset.
 
-There may be an exception during the resize process, the resize may
-fail, or the vq can no longer be used. Either way, we must execute
-napi_enable(). Because napi_disable is similar to a lock, napi_enable
-must be called after calling napi_disable.
+Users can use ethtool -G eth0 <ring_num> to modify the ring size of
+virtio-net.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 ---
- drivers/net/virtio_net.c | 81 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 81 insertions(+)
+ drivers/net/virtio_net.c | 47 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 47 insertions(+)
 
 diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index b8bf00525177..ba6859f305f7 100644
+index ba6859f305f7..37e4e27f1e4e 100644
 --- a/drivers/net/virtio_net.c
 +++ b/drivers/net/virtio_net.c
-@@ -251,6 +251,9 @@ struct padded_vnet_hdr {
- 	char padding[4];
- };
- 
-+static void virtnet_sq_free_unused_buf(struct virtqueue *vq, void *buf);
-+static void virtnet_rq_free_unused_buf(struct virtqueue *vq, void *buf);
-+
- static bool is_xdp_frame(void *ptr)
- {
- 	return (unsigned long)ptr & VIRTIO_XDP_FLAG;
-@@ -1369,6 +1372,15 @@ static void virtnet_napi_enable(struct virtqueue *vq, struct napi_struct *napi)
- {
- 	napi_enable(napi);
- 
-+	/* Check if vq is in reset state. The normal reset/resize process will
-+	 * be protected by napi. However, the protection of napi is only enabled
-+	 * during the operation, and the protection of napi will end after the
-+	 * operation is completed. If re-enable fails during the process, vq
-+	 * will remain unavailable with reset state.
-+	 */
-+	if (vq->reset)
-+		return;
-+
- 	/* If all buffers were filled by other side before we napi_enabled, we
- 	 * won't get another interrupt, so process any outstanding packets now.
- 	 * Call local_bh_enable after to trigger softIRQ processing.
-@@ -1413,6 +1425,15 @@ static void refill_work(struct work_struct *work)
- 		struct receive_queue *rq = &vi->rq[i];
- 
- 		napi_disable(&rq->napi);
-+
-+		/* Check if vq is in reset state. See more in
-+		 * virtnet_napi_enable()
-+		 */
-+		if (rq->vq->reset) {
-+			virtnet_napi_enable(rq->vq, &rq->napi);
-+			continue;
-+		}
-+
- 		still_empty = !try_fill_recv(vi, rq, GFP_KERNEL);
- 		virtnet_napi_enable(rq->vq, &rq->napi);
- 
-@@ -1523,6 +1544,10 @@ static void virtnet_poll_cleantx(struct receive_queue *rq)
- 	if (!sq->napi.weight || is_xdp_raw_buffer_queue(vi, index))
- 		return;
- 
-+	/* Check if vq is in reset state. See more in virtnet_napi_enable() */
-+	if (sq->vq->reset)
-+		return;
-+
- 	if (__netif_tx_trylock(txq)) {
- 		do {
- 			virtqueue_disable_cb(sq->vq);
-@@ -1769,6 +1794,62 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
- 	return NETDEV_TX_OK;
+@@ -2264,6 +2264,52 @@ static void virtnet_get_ringparam(struct net_device *dev,
+ 	ring->tx_pending = virtqueue_get_vring_size(vi->sq[0].vq);
  }
  
-+static int virtnet_rx_resize(struct virtnet_info *vi,
-+			     struct receive_queue *rq, u32 ring_num)
++static int virtnet_set_ringparam(struct net_device *dev,
++				 struct ethtool_ringparam *ring,
++				 struct kernel_ethtool_ringparam *kernel_ring,
++				 struct netlink_ext_ack *extack)
 +{
-+	int err;
++	struct virtnet_info *vi = netdev_priv(dev);
++	u32 rx_pending, tx_pending;
++	struct receive_queue *rq;
++	struct send_queue *sq;
++	int i, err;
 +
-+	napi_disable(&rq->napi);
++	if (ring->rx_mini_pending || ring->rx_jumbo_pending)
++		return -EINVAL;
 +
-+	err = virtqueue_resize(rq->vq, ring_num, virtnet_rq_free_unused_buf);
-+	if (err)
-+		goto err;
++	rx_pending = virtqueue_get_vring_size(vi->rq[0].vq);
++	tx_pending = virtqueue_get_vring_size(vi->sq[0].vq);
 +
-+	if (!try_fill_recv(vi, rq, GFP_KERNEL))
-+		schedule_delayed_work(&vi->refill, 0);
++	if (ring->rx_pending == rx_pending &&
++	    ring->tx_pending == tx_pending)
++		return 0;
 +
-+	virtnet_napi_enable(rq->vq, &rq->napi);
++	if (ring->rx_pending > virtqueue_get_vring_max_size(vi->rq[0].vq))
++		return -EINVAL;
++
++	if (ring->tx_pending > virtqueue_get_vring_max_size(vi->sq[0].vq))
++		return -EINVAL;
++
++	for (i = 0; i < vi->max_queue_pairs; i++) {
++		rq = vi->rq + i;
++		sq = vi->sq + i;
++
++		if (ring->tx_pending != tx_pending) {
++			err = virtnet_tx_resize(vi, sq, ring->tx_pending);
++			if (err)
++				return err;
++		}
++
++		if (ring->rx_pending != rx_pending) {
++			err = virtnet_rx_resize(vi, rq, ring->rx_pending);
++			if (err)
++				return err;
++		}
++	}
++
 +	return 0;
-+
-+err:
-+	netdev_err(vi->dev,
-+		   "reset rx reset vq fail: rx queue index: %td err: %d\n",
-+		   rq - vi->rq, err);
-+	virtnet_napi_enable(rq->vq, &rq->napi);
-+	return err;
 +}
-+
-+static int virtnet_tx_resize(struct virtnet_info *vi,
-+			     struct send_queue *sq, u32 ring_num)
-+{
-+	struct netdev_queue *txq;
-+	int err, qindex;
-+
-+	qindex = sq - vi->sq;
-+
-+	virtnet_napi_tx_disable(&sq->napi);
-+
-+	txq = netdev_get_tx_queue(vi->dev, qindex);
-+	__netif_tx_lock_bh(txq);
-+	netif_stop_subqueue(vi->dev, qindex);
-+	__netif_tx_unlock_bh(txq);
-+
-+	err = virtqueue_resize(sq->vq, ring_num, virtnet_sq_free_unused_buf);
-+	if (err)
-+		goto err;
-+
-+	netif_start_subqueue(vi->dev, qindex);
-+	virtnet_napi_tx_enable(vi, sq->vq, &sq->napi);
-+	return 0;
-+
-+err:
-+	netdev_err(vi->dev,
-+		   "reset tx reset vq fail: tx queue index: %td err: %d\n",
-+		   sq - vi->sq, err);
-+	virtnet_napi_tx_enable(vi, sq->vq, &sq->napi);
-+	return err;
-+}
-+
- /*
-  * Send command via the control virtqueue and check status.  Commands
-  * supported by the hypervisor, as indicated by feature bits, should
+ 
+ static void virtnet_get_drvinfo(struct net_device *dev,
+ 				struct ethtool_drvinfo *info)
+@@ -2497,6 +2543,7 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
+ 	.get_drvinfo = virtnet_get_drvinfo,
+ 	.get_link = ethtool_op_get_link,
+ 	.get_ringparam = virtnet_get_ringparam,
++	.set_ringparam = virtnet_set_ringparam,
+ 	.get_strings = virtnet_get_strings,
+ 	.get_sset_count = virtnet_get_sset_count,
+ 	.get_ethtool_stats = virtnet_get_ethtool_stats,
 -- 
 2.31.0
 
