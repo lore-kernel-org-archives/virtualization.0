@@ -1,171 +1,109 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 23A40C433F5
-	for <virtualization@archiver.kernel.org>; Wed,  6 Apr 2022 07:19:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4C103C433EF
+	for <virtualization@archiver.kernel.org>; Wed,  6 Apr 2022 07:48:06 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id D3CFF417AB;
-	Wed,  6 Apr 2022 07:19:20 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id DE28681B17;
+	Wed,  6 Apr 2022 07:48:05 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id z1ksp6vFdBfh; Wed,  6 Apr 2022 07:19:19 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id rrxuxqkOgDv3; Wed,  6 Apr 2022 07:48:05 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 0F7EC4177A;
-	Wed,  6 Apr 2022 07:19:19 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 6C3DE81A5F;
+	Wed,  6 Apr 2022 07:48:04 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D9885C001D;
-	Wed,  6 Apr 2022 07:19:18 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 25A68C0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4DD7FC001D;
+	Wed,  6 Apr 2022 07:48:04 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E7529C0012
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Apr 2022 07:19:17 +0000 (UTC)
+ Wed,  6 Apr 2022 07:48:02 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id B2D6540B3C
+ by smtp1.osuosl.org (Postfix) with ESMTP id C0A9681A95
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Apr 2022 07:19:16 +0000 (UTC)
+ Wed,  6 Apr 2022 07:48:02 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=fujitsu.com
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id uoGZAoijsfnG
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id IqZe11PjaTeb
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Apr 2022 07:19:15 +0000 (UTC)
-X-Greylist: delayed 00:13:58 by SQLgrey-1.8.0
-Received: from mail1.bemta34.messagelabs.com (mail1.bemta34.messagelabs.com
- [195.245.231.4])
- by smtp2.osuosl.org (Postfix) with ESMTPS id C0A1E400E4
+ Wed,  6 Apr 2022 07:48:02 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id DE76E81A5F
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Apr 2022 07:19:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fujitsu.com;
- s=170520fj; t=1649228714; i=@fujitsu.com;
- bh=05cGtA6yxrBEXr8TsKfNblRw+Bdby9YhP92PsT290U4=;
- h=Date:To:Cc:Subject:Message-ID:Reply-To:References:MIME-Version:
- Content-Type:In-Reply-To:From;
- b=BJDFFQHg7gw8WYACPIsS5IO7QZ2Et0/snRy0O1P7sPcx3klPBjnAcFB0x5vQmkc7B
- wdj7sgZsarcq07EkkN9Uk7cWaXRM4BHIkDNaIuDnoDW/xdWPN+yfeRQ0VLd0GPd0XX
- YqbordNSTrdttI2gAjHO+G0BfdXM58RE64W8BbUe7mviFWROX5XjUVwj2GTsNCRtCK
- 2WJ4V8hKwe8nmUuYA+n39zIapfnu0J3NGApl7UCEEBLyvU7tS2BrmjwMlFpa9b2hDX
- gUaY7GvBudukN14SBUkBadO1YF+sMHYk2wGdlkRTCLILZZ+pMjV2no6kK1JlP7i/NG
- hrGSl+X1ARJQg==
-X-Brightmail-Tracker: H4sIAAAAAAAAA1WSf1CTdRzH+T4bzx5hDz38iq9L8ljCH3ibDDW
- +ilh6lk8nFJfJJVfZgyy2GsjteThnXAdKKIcRKiTHVFDHrwFhB6OIOQ60BDwhGM6BFxWyGU4R
- kwqMX+1p54/+e3/u9fq8P/98CEFAPS4hlDpOqc1gNFLcR7h5E8HI6mITUqJcB19GDaPFOHowc
- gJDvQ3jOLLcP+WNxmx1QmRs+BFDg3/kY+jKtzcwZLm5GlnH60SovOJnHFnPb0cXLb1C9Evjkj
- f6YakYIPOhGhGaL1uHKmucInSksh2gY+fyBOiovQ1HRfXxqH2+TYTmnF9jyDjeiqH2e/0ilF8
- 9iaHavgoczZhKsFdD6aG+LLr54QkR3VKVQ3/+22GcLhmuBfRESzmgzWenMfryg+tC2jySi9MD
- Nfdw2vZ3noCe6rDh9HTzi4lksrc6I2Wf7kNv1dRoF5Y56KNrt1zGc8E8UQiWEQGUCcBbV94sB
- D7ubASwqMMkKASEe8iChp/EvCOkVkFLpRnwOYiSQqerD/C+gGoiYZfTIeL9QCoZLt6O5x2Sio
- Z/3jJgnv6X4BnbAs77JDVLwuq2CW8PyIZHf50Uehb8YW+5478soCLh8OIdjO8UUC/A2kWCj8u
- oJJh/XMobkFoB54wzOJ+D3fVNhl7AKzi1BrqKGI8SAW39zYJjIFD/TL/+mX790/6zQFAPNqZo
- 1WkqLp1Ra2SKqCiZQrFetjZGptggZz6VMXJllmy/kuVk0XJmPytXsqycPZC+V5Mqz1ByzcD9Q
- qlseGAbKDA+kl8CywlMGkz6KhJSAvxS9qUeUDGsao82S6NkL4EVBCGFZBxyM3+tMk2p+0itcT
- /iYwwJsTSIrNroxiSbyaSz6jQPugrCJCHkyAY3oHigysp4svb4ha0gVBJIAi8vrwBxplKbrub
- +z10ghADSQHIHXy9WZ3BP2l3uw5j78P1rb/CHOeYpkuRiOVWl7x8SfveXV2mR5OTzV3PqoheN
- 8ht3LNyuk9zUZwMLSQn2nG7ZBY2j9fXj4/Xh6J+Y0PeSaktax4Y6d4cFOZ7z//LgrtqvDm/2t
- W9dWnvb3L/tiNrwdkfbzTDCd94gjg5/95FjbO+gZtI+y5ozcZk43XrBOln9+2vFBZvW567Z9r
- 1f6qzuA8KkHzrTOXG3xfXJW3si49dl55zK18VVrPzm9FJB8kxZ07XEPMeA3frKF82dFysL5hq
- Dd6++a1ie0POwZ2DnaGwMN709Qp+4yh63My4WdkU4sod7ulc6TeLr3X51WxpLqKCwyK0maam1
- qj6pbOGdEGdhiVl3Pu3jc0Nb9JxUyKoYRaRAyzL/Akr/LJA9BAAA
-X-Env-Sender: Alan.Robinson@fujitsu.com
-X-Msg-Ref: server-8.tower-548.messagelabs.com!1649228712!85085!1
-X-Originating-IP: [62.60.8.97]
-X-SYMC-ESS-Client-Auth: outbound-route-from=pass
-X-StarScan-Received: 
-X-StarScan-Version: 9.85.5; banners=-,-,-
-X-VirusChecked: Checked
-Received: (qmail 31866 invoked from network); 6 Apr 2022 07:05:12 -0000
-Received: from unknown (HELO n03ukasimr01.n03.fujitsu.local) (62.60.8.97)
- by server-8.tower-548.messagelabs.com with ECDHE-RSA-AES256-GCM-SHA384
- encrypted SMTP; 6 Apr 2022 07:05:12 -0000
-Received: from n03ukasimr01.n03.fujitsu.local (localhost [127.0.0.1])
- by n03ukasimr01.n03.fujitsu.local (Postfix) with ESMTP id 3681F100190;
- Wed,  6 Apr 2022 08:05:12 +0100 (BST)
-Received: from nera.osd.abg.fsc.net (unknown [172.17.20.8])
- by n03ukasimr01.n03.fujitsu.local (Postfix) with SMTP id 07836100181;
- Wed,  6 Apr 2022 08:05:10 +0100 (BST)
-Received: by nera.osd.abg.fsc.net (Postfix, from userid 5004)
- id B86E417478B; Wed,  6 Apr 2022 09:04:46 +0200 (CEST)
-Date: Wed, 6 Apr 2022 09:04:46 +0200
-To: Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH 15/27] block: use bdev_alignment_offset in
- part_alignment_offset_show
-Message-ID: <20220406070446.GA1722@ts.fujitsu.com>
-Mail-Followup-To: Alan.Robinson@fujitsu.com, Christoph Hellwig <hch@lst.de>,
- Jens Axboe <axboe@kernel.dk>,
- "jfs-discussion@lists.sourceforge.net" <jfs-discussion@lists.sourceforge.net>, 
- "linux-nvme@lists.infradead.org" <linux-nvme@lists.infradead.org>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>, 
- "linux-mm@kvack.org" <linux-mm@kvack.org>,
- "dm-devel@redhat.com" <dm-devel@redhat.com>,
- "target-devel@vger.kernel.org" <target-devel@vger.kernel.org>,
- "linux-mtd@lists.infradead.org" <linux-mtd@lists.infradead.org>,
- "drbd-dev@lists.linbit.com" <drbd-dev@lists.linbit.com>,
- "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
- "linux-nilfs@vger.kernel.org" <linux-nilfs@vger.kernel.org>,
- "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>,
- "cluster-devel@redhat.com" <cluster-devel@redhat.com>,
- "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>,
- "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>,
- "linux-um@lists.infradead.org" <linux-um@lists.infradead.org>,
- "nbd@other.debian.org" <nbd@other.debian.org>,
- "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>,
- "linux-bcache@vger.kernel.org" <linux-bcache@vger.kernel.org>,
- "ceph-devel@vger.kernel.org" <ceph-devel@vger.kernel.org>,
- "linux-raid@vger.kernel.org" <linux-raid@vger.kernel.org>,
- "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>,
- "linux-f2fs-devel@lists.sourceforge.net"
- <linux-f2fs-devel@lists.sourceforge.net>, 
- "linux-xfs@vger.kernel.org" <linux-xfs@vger.kernel.org>,
- "ocfs2-devel@oss.oracle.com" <ocfs2-devel@oss.oracle.com>,
- "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
- "ntfs3@lists.linux.dev" <ntfs3@lists.linux.dev>,
- "linux-btrfs@vger.kernel.org" <linux-btrfs@vger.kernel.org>
-References: <20220406060516.409838-1-hch@lst.de>
- <0b7ae3df301c4fdd8d37f773d8d1eb93@FR3P281MB0843.DEUP281.PROD.OUTLOOK.COM>
+ Wed,  6 Apr 2022 07:48:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1649231280;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=tnMN3pUaj7lJGkHw7ZLvt0aTt3QjufyLZHnTLczmUJE=;
+ b=ZHD3RBHYJUhUtxjgM2rMOgpE09EHsaF1eOMsiBtvDX/SSYJFGN22Fzm5NezPq3o+Punulu
+ sotrBOKgiuyO8ZK4JxbHUAlHn+otnFWi/lu0DZg7IcusWLTgfcYjWD6QvAz5gkNYnXgT7x
+ lg2Sx4nxTUHPIi3JHjNuwhe3H1namck=
+Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
+ [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-183-fyPrJWSAMr6akXP6buUgVw-1; Wed, 06 Apr 2022 03:47:59 -0400
+X-MC-Unique: fyPrJWSAMr6akXP6buUgVw-1
+Received: by mail-ed1-f69.google.com with SMTP id
+ w8-20020a50d788000000b00418e6810364so762794edi.13
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 06 Apr 2022 00:47:59 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=tnMN3pUaj7lJGkHw7ZLvt0aTt3QjufyLZHnTLczmUJE=;
+ b=OpbviJvzjfwE5eNgTw1gJjeGfcR6DIJ61LReYjS3p3gpBtaqTYOT1WPt7uYnxy79En
+ 6o4ly/+bihUf1PVdb/wBbtoHBzEyjX9vgGEFoQY4cgWYZ4RHOh7JmNHBaUjQ4jPS1Fbu
+ 2tRbDkk8n+w9L8wxNgJXlczQem2XrCUROmxyQiktNzi+vUZqwyRVK/aR2cc/73ymc+7+
+ tak8nu7tLQGOvZ7hK0YXF146FbKq12aWCcCL8B8WfOLVimdnOSKcNZdRhpLcBczM35Xw
+ FMvzNQY6h/3gaNgUadK8AXU12XJVpCu8KXpclwakWXSuO+MJ7FDther/cw7c0ertkwoJ
+ UbQg==
+X-Gm-Message-State: AOAM530/KD+ujeXek3KzrSrT3leRvH269/3+IDL8RtvXmG3mGQsbUgJk
+ KiW41v7GtT6SjpXDhOS3iws0vsLHPQ8ICokJX8990BZ+NgfbivqozDYWr38vo0+WCEJw594Zm+R
+ 8IcdF7P+lOBP4zqYNCNU5qqwd5qK/Wh6t7W3fZjygQg==
+X-Received: by 2002:a05:6402:183:b0:410:fde:887a with SMTP id
+ r3-20020a056402018300b004100fde887amr7228687edv.243.1649231278380; 
+ Wed, 06 Apr 2022 00:47:58 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyLcLipZLH882pfJA3h0lLGi++W3jsGhKM/fA7YIjyDbCflYB4XnGKFeaNybu/dm01/9LLhtA==
+X-Received: by 2002:a05:6402:183:b0:410:fde:887a with SMTP id
+ r3-20020a056402018300b004100fde887amr7228671edv.243.1649231278152; 
+ Wed, 06 Apr 2022 00:47:58 -0700 (PDT)
+Received: from redhat.com ([2.53.144.12]) by smtp.gmail.com with ESMTPSA id
+ k23-20020a1709062a5700b006ccd8fdc300sm6132409eje.180.2022.04.06.00.47.55
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 06 Apr 2022 00:47:57 -0700 (PDT)
+Date: Wed, 6 Apr 2022 03:47:53 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v3 0/4] Introduce akcipher service for virtio-crypto
+Message-ID: <20220406034721-mutt-send-email-mst@kernel.org>
+References: <20220302033917.1295334-1-pizhenwei@bytedance.com>
+ <a9d1dfc1-080e-fba2-8fbb-28718b067e0d@bytedance.com>
+ <20220307040431-mutt-send-email-mst@kernel.org>
+ <87h778g8nn.fsf@redhat.com>
+ <20220405012015-mutt-send-email-mst@kernel.org>
+ <87ee2cexp5.fsf@redhat.com>
 MIME-Version: 1.0
+In-Reply-To: <87ee2cexp5.fsf@redhat.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-In-Reply-To: <0b7ae3df301c4fdd8d37f773d8d1eb93@FR3P281MB0843.DEUP281.PROD.OUTLOOK.COM>
-X-sent-by-me: robin@sanpedro
-User-Agent: Mutt/1.9.3 (2018-01-21)
-From: Alan.Robinson@fujitsu.com (Alan Robinson)
-X-Virus-Scanned: ClamAV using ClamSMTP
-Cc: "jfs-discussion@lists.sourceforge.net"
- <jfs-discussion@lists.sourceforge.net>,
- "linux-nvme@lists.infradead.org" <linux-nvme@lists.infradead.org>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- "linux-mm@kvack.org" <linux-mm@kvack.org>,
- "dm-devel@redhat.com" <dm-devel@redhat.com>,
- "target-devel@vger.kernel.org" <target-devel@vger.kernel.org>,
- "linux-mtd@lists.infradead.org" <linux-mtd@lists.infradead.org>,
- "drbd-dev@lists.linbit.com" <drbd-dev@lists.linbit.com>,
- "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
- "linux-nilfs@vger.kernel.org" <linux-nilfs@vger.kernel.org>,
- "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>,
- "cluster-devel@redhat.com" <cluster-devel@redhat.com>,
- "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>,
- "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>,
- "linux-um@lists.infradead.org" <linux-um@lists.infradead.org>,
- "nbd@other.debian.org" <nbd@other.debian.org>,
- "linux-raid@vger.kernel.org" <linux-raid@vger.kernel.org>,
- "linux-bcache@vger.kernel.org" <linux-bcache@vger.kernel.org>,
- "ceph-devel@vger.kernel.org" <ceph-devel@vger.kernel.org>,
- Jens Axboe <axboe@kernel.dk>,
- "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>,
- "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>,
- "linux-f2fs-devel@lists.sourceforge.net"
- <linux-f2fs-devel@lists.sourceforge.net>,
- "linux-xfs@vger.kernel.org" <linux-xfs@vger.kernel.org>,
- "linux-btrfs@vger.kernel.org" <linux-btrfs@vger.kernel.org>,
- "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
- "ntfs3@lists.linux.dev" <ntfs3@lists.linux.dev>,
- "ocfs2-devel@oss.oracle.com" <ocfs2-devel@oss.oracle.com>
+Cc: herbert@gondor.apana.org.au, linux-kernel@vger.kernel.org,
+ zhenwei pi <pizhenwei@bytedance.com>,
+ virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org,
+ helei.sig11@bytedance.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -177,51 +115,48 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Reply-To: Alan.Robinson@fujitsu.com
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Christoph,
-
-On Wed, Apr 06, 2022 at 06:05:04AM +0000, Christoph Hellwig wrote:
-> From: Christoph Hellwig <hch@lst.de>
-> Subject: [PATCH 15/27] block: use bdev_alignment_offset in
->  part_alignment_offset_show
+On Tue, Apr 05, 2022 at 10:33:42AM +0200, Cornelia Huck wrote:
+> On Tue, Apr 05 2022, "Michael S. Tsirkin" <mst@redhat.com> wrote:
 > 
-> Replace the open coded offset calculation with the proper helper.
-> This is an ABI change in that the -1 for a misaligned partition is
-> properly propagated, which can be considered a bug fix and maches
-
-s/maches/matches/
-
-> what is done on the whole device.
+> > On Mon, Apr 04, 2022 at 05:39:24PM +0200, Cornelia Huck wrote:
+> >> On Mon, Mar 07 2022, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> >> 
+> >> > On Mon, Mar 07, 2022 at 10:42:30AM +0800, zhenwei pi wrote:
+> >> >> Hi, Michael & Lei
+> >> >> 
+> >> >> The full patchset has been reviewed by Gonglei, thanks to Gonglei.
+> >> >> Should I modify the virtio crypto specification(use "__le32 akcipher_algo;"
+> >> >> instead of "__le32 reserve;" only, see v1->v2 change), and start a new issue
+> >> >> for a revoting procedure?
+> >> >
+> >> > You can but not it probably will be deferred to 1.3. OK with you?
+> >> >
+> >> >> Also cc Cornelia Huck.
+> >> 
+> >> [Apologies, I'm horribly behind on my email backlog, and on virtio
+> >> things in general :(]
+> >> 
+> >> The akcipher update had been deferred for 1.2, so I think it will be 1.3
+> >> material. However, I just noticed while browsing the fine lwn.net merge
+> >> window summary that this seems to have been merged already. That
+> >> situation is less than ideal, although I don't expect any really bad
+> >> problems, given that there had not been any negative feedback for the
+> >> spec proposal that I remember.
+> >
+> > Let's open a 1.3 branch? What do you think?
 > 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->  block/partitions/core.c | 6 +-----
->  1 file changed, 1 insertion(+), 5 deletions(-)
-> 
-> diff --git a/block/partitions/core.c b/block/partitions/core.c
-> index 2ef8dfa1e5c85..240b3fff521e4 100644
-> --- a/block/partitions/core.c
-> +++ b/block/partitions/core.c
-> @@ -200,11 +200,7 @@ static ssize_t part_ro_show(struct device *dev,
->  static ssize_t part_alignment_offset_show(struct device *dev,
->  					  struct device_attribute *attr, char *buf)
->  {
-> -	struct block_device *bdev = dev_to_bdev(dev);
-> -
-> -	return sprintf(buf, "%u\n",
-> -		queue_limit_alignment_offset(&bdev_get_queue(bdev)->limits,
-> -				bdev->bd_start_sect));
-> +	return sprintf(buf, "%u\n", bdev_alignment_offset(dev_to_bdev(dev)));
+> Yes, that's probably best, before things start piling up.
 
-Should this now be %d instead of %u, there are one or two examples of
-both in the rest of the patch series.
+OK, want to do it? And we can then start voting on 1.3 things
+straight away.
 
-Alan
+-- 
+MST
 
 _______________________________________________
 Virtualization mailing list
