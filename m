@@ -1,69 +1,71 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 09709C433F5
-	for <virtualization@archiver.kernel.org>; Thu,  7 Apr 2022 01:12:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0A73DC433EF
+	for <virtualization@archiver.kernel.org>; Thu,  7 Apr 2022 01:13:45 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 9C0964197A;
-	Thu,  7 Apr 2022 01:12:31 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id ADBBB60F41;
+	Thu,  7 Apr 2022 01:13:45 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Kze4BsCjmlr8; Thu,  7 Apr 2022 01:12:30 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id RzHNc6He5UAJ; Thu,  7 Apr 2022 01:13:45 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 1659B4188D;
-	Thu,  7 Apr 2022 01:12:30 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 634BA60C03;
+	Thu,  7 Apr 2022 01:13:44 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E1F54C002C;
-	Thu,  7 Apr 2022 01:12:29 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 08F3AC0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 39F37C001D;
+	Thu,  7 Apr 2022 01:13:44 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1E52CC0012
  for <virtualization@lists.linux-foundation.org>;
- Thu,  7 Apr 2022 01:12:29 +0000 (UTC)
+ Thu,  7 Apr 2022 01:13:43 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id DCBD541979
+ by smtp1.osuosl.org (Postfix) with ESMTP id 0CF4D80D47
  for <virtualization@lists.linux-foundation.org>;
- Thu,  7 Apr 2022 01:12:28 +0000 (UTC)
+ Thu,  7 Apr 2022 01:13:43 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id DC2HZ-c3UvCu
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=kernel.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id BVpdAz2_J2tT
  for <virtualization@lists.linux-foundation.org>;
- Thu,  7 Apr 2022 01:12:28 +0000 (UTC)
+ Thu,  7 Apr 2022 01:13:42 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 08C2341978
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 8A67480C63
  for <virtualization@lists.linux-foundation.org>;
- Thu,  7 Apr 2022 01:12:27 +0000 (UTC)
+ Thu,  7 Apr 2022 01:13:42 +0000 (UTC)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by ams.source.kernel.org (Postfix) with ESMTPS id 5BD65B82692;
- Thu,  7 Apr 2022 01:12:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 468EAC385A1;
- Thu,  7 Apr 2022 01:12:24 +0000 (UTC)
+ by dfw.source.kernel.org (Postfix) with ESMTPS id CCA3161DAB;
+ Thu,  7 Apr 2022 01:13:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E1B7C385A3;
+ Thu,  7 Apr 2022 01:13:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1649293945;
+ s=k20201202; t=1649294021;
  bh=ssJYHvkpscxFMbUpBVyB4ceTVTGzImrTC1CGpjG5HWs=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=i1zTnDqj2rRwhVuK/M+swJq1kukpQkYg7FT8LBZp7lSvdBoGcH+QdPztyg/2Z5aTC
- N2QNb4ZpAuBJIIhqW4+rKDEbO1BAROI9EMJXhPukP4Gq9oSxdGkHZWanSWaTzAc8db
- len+RJgLrveZd59CAR6zW0o9FnII2FSfUgQfgBdAEXi19j1cw6XnN71jj+xbAS8bqj
- r90Te+qKceckxJ1elFu0xSty+PQjAOQ3U6XMoPF43EoKYf8EudjuloQ4Brx+BvAK4U
- JyjMfdLSCIxeEX3VDyXwIMw3eJ5XvkQvt+rd5lE8Y3p/rATZw25MR9350R9qy5ZG9n
- 0auxtyrm7XHCw==
+ b=jH5hi8qd6TU6B/t2r2BuTuLE9LQrfe7cJaNHyXfLco0ly50kVoLqmbM6xiU7KLGnv
+ 2sync81WJVzMRtsPz8nELaudbi81tMeltzAOzmjoj+6SZEg3qZ5wVo7ucJULbMMdGk
+ gzcfM3GN5ko3SpLnqa0avTDfxyjzzR7DZQioX7E3j6UrnMGPi9Om3iwEtSzF9YuMRj
+ XCdGiZB4q5PRyw3Eyjb79KFzLxrZbFOIBgApEUtcpLhrz6Lo4puT0fU00Ravq65O22
+ 8bdGwhBbhZne/UhVw2GryMoP7Pv8LSOxEvDh05zBFLM99hT0iEylIoy8IQ9Z8wqGT4
+ 7/Vk2Fap9YFxw==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 20/30] tools/virtio: compile with -pthread
-Date: Wed,  6 Apr 2022 21:11:30 -0400
-Message-Id: <20220407011140.113856-20-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 17/27] tools/virtio: compile with -pthread
+Date: Wed,  6 Apr 2022 21:12:47 -0400
+Message-Id: <20220407011257.114287-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220407011140.113856-1-sashal@kernel.org>
-References: <20220407011140.113856-1-sashal@kernel.org>
+In-Reply-To: <20220407011257.114287-1-sashal@kernel.org>
+References: <20220407011257.114287-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
