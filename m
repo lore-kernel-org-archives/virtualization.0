@@ -4,63 +4,61 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C9BC7C4167D
-	for <virtualization@archiver.kernel.org>; Sat,  9 Apr 2022 04:52:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3B695C433FE
+	for <virtualization@archiver.kernel.org>; Sat,  9 Apr 2022 04:52:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 6299941F61;
-	Sat,  9 Apr 2022 04:52:15 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id D45D24213E;
+	Sat,  9 Apr 2022 04:52:20 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 6zcVPrlYdkD5; Sat,  9 Apr 2022 04:52:14 +0000 (UTC)
+	with ESMTP id X6HYaEwibihr; Sat,  9 Apr 2022 04:52:19 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id C940F41EC5;
-	Sat,  9 Apr 2022 04:52:13 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 1880441FD9;
+	Sat,  9 Apr 2022 04:52:19 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id AF31CC0033;
-	Sat,  9 Apr 2022 04:52:13 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B978AC002C
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E23E4C0033;
+	Sat,  9 Apr 2022 04:52:18 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id AC10BC002C
  for <virtualization@lists.linux-foundation.org>;
- Sat,  9 Apr 2022 04:52:12 +0000 (UTC)
+ Sat,  9 Apr 2022 04:52:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id A85E584727
+ by smtp4.osuosl.org (Postfix) with ESMTP id 985584213E
  for <virtualization@lists.linux-foundation.org>;
- Sat,  9 Apr 2022 04:52:12 +0000 (UTC)
+ Sat,  9 Apr 2022 04:52:17 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=infradead.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id iLRJPwFZIEIE
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 7XLRRBF5R0ee
  for <virtualization@lists.linux-foundation.org>;
- Sat,  9 Apr 2022 04:52:12 +0000 (UTC)
+ Sat,  9 Apr 2022 04:52:16 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from bombadil.infradead.org (bombadil.infradead.org
  [IPv6:2607:7c80:54:e::133])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 12C808462B
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 8920941FD9
  for <virtualization@lists.linux-foundation.org>;
- Sat,  9 Apr 2022 04:52:12 +0000 (UTC)
+ Sat,  9 Apr 2022 04:52:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
  MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
  :Reply-To:Content-Type:Content-ID:Content-Description;
- bh=A3F4pzgWH2QQ0wtpIeTWEbWkE7zvp2Hf2SzUvBBV6uI=; b=eX3MLxgs7+LMLexFHqIdmiQ1Yi
- JdldSlm4poJNjPdmeRgScog9CyFDEOKE36j3Y8GOp25ZxOav5fY5REWK35ZSyRrUZZpvLOWxApha8
- AqMJ/MRcKr/CciLBe0jYueVDtJe90F1Pdg6qhOzgnLBHrJsW74l04GpKIl/5YuRS1FbaP4TBsToNP
- 0GMgdPs2iWYbeYRMarbkSLZIEMdyAXHMZf+OWZlI5UmjWZF1rz7GghGKiiX6rIFIXD4QKrdrCfgbK
- fUs8lbnQ+FGDvl7FzdU6CQADQv8poqc/NeAD2tkAuI0L7ZIL5HeAN+izt/vpd0COwgfEQET8Ojz2e
- P5cDct/w==;
+ bh=6r328luNCDNaFOT33dRflffYOj2Ig+snh5CgwFTaxcw=; b=y5la5uK0xpIhSXtbBy/onPBwBU
+ FwHrEP+WgCDZWr9RLCmtiWZSBy3JZlP6LxFpLTBM+Nd9/2cM4fDgGet2bc0H2JEDJaYCnGjCubDq2
+ Hs9FWJmFBvCUS8AQuenxCnFR0cA41FyTmlSTltbkCVEHfSM9sSnD7oPEGCN8ZX07uJjnHoINaZAsZ
+ npSJrgPfthjgK/j1zKU81zTY86HdQv5lyyod3YfTKkYVFRwo/gHNLmU33ucR809tSrrS9oMBFQRBz
+ lw/QH9mmRBGuHmyXN8YuW/Z648JV/+xEquH5iy/QTyXSZMkqO0YMVV1cNnL6OuVpWP4hui/t8N1mQ
+ LEn+3oVA==;
 Received: from 213-147-167-116.nat.highway.webapn.at ([213.147.167.116]
  helo=localhost)
  by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1nd34k-0021Kt-TR; Sat, 09 Apr 2022 04:51:55 +0000
+ id 1nd34o-0021Oq-Ko; Sat, 09 Apr 2022 04:52:04 +0000
 From: Christoph Hellwig <hch@lst.de>
 To: Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 20/27] block: use bdev_discard_alignment in
- part_discard_alignment_show
-Date: Sat,  9 Apr 2022 06:50:36 +0200
-Message-Id: <20220409045043.23593-21-hch@lst.de>
+Subject: [PATCH 21/27] block: move {bdev,
+ queue_limit}_discard_alignment out of line
+Date: Sat,  9 Apr 2022 06:50:37 +0200
+Message-Id: <20220409045043.23593-22-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20220409045043.23593-1-hch@lst.de>
 References: <20220409045043.23593-1-hch@lst.de>
@@ -97,31 +95,111 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Use the bdev based alignment helper instead of open coding it.
+No need to inline these fairly larger helpers.  Also fix the return value
+to be unsigned, just like the field in struct queue_limits.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
 ---
- block/partitions/core.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ block/blk-settings.c   | 35 +++++++++++++++++++++++++++++++++++
+ include/linux/blkdev.h | 34 +---------------------------------
+ 2 files changed, 36 insertions(+), 33 deletions(-)
 
-diff --git a/block/partitions/core.c b/block/partitions/core.c
-index 240b3fff521e4..70dec1c78521d 100644
---- a/block/partitions/core.c
-+++ b/block/partitions/core.c
-@@ -206,11 +206,7 @@ static ssize_t part_alignment_offset_show(struct device *dev,
- static ssize_t part_discard_alignment_show(struct device *dev,
- 					   struct device_attribute *attr, char *buf)
- {
--	struct block_device *bdev = dev_to_bdev(dev);
--
--	return sprintf(buf, "%u\n",
--		queue_limit_discard_alignment(&bdev_get_queue(bdev)->limits,
--				bdev->bd_start_sect));
-+	return sprintf(buf, "%u\n", bdev_discard_alignment(dev_to_bdev(dev)));
+diff --git a/block/blk-settings.c b/block/blk-settings.c
+index 94410a13c0dee..fd83d674afd0a 100644
+--- a/block/blk-settings.c
++++ b/block/blk-settings.c
+@@ -478,6 +478,30 @@ static int queue_limit_alignment_offset(struct queue_limits *lim,
+ 	return (granularity + lim->alignment_offset - alignment) % granularity;
  }
  
- static DEVICE_ATTR(partition, 0444, part_partition_show, NULL);
++static unsigned int queue_limit_discard_alignment(struct queue_limits *lim,
++		sector_t sector)
++{
++	unsigned int alignment, granularity, offset;
++
++	if (!lim->max_discard_sectors)
++		return 0;
++
++	/* Why are these in bytes, not sectors? */
++	alignment = lim->discard_alignment >> SECTOR_SHIFT;
++	granularity = lim->discard_granularity >> SECTOR_SHIFT;
++	if (!granularity)
++		return 0;
++
++	/* Offset of the partition start in 'granularity' sectors */
++	offset = sector_div(sector, granularity);
++
++	/* And why do we do this modulus *again* in blkdev_issue_discard()? */
++	offset = (granularity + alignment - offset) % granularity;
++
++	/* Turn it back into bytes, gaah */
++	return offset << SECTOR_SHIFT;
++}
++
+ static unsigned int blk_round_down_sectors(unsigned int sectors, unsigned int lbs)
+ {
+ 	sectors = round_down(sectors, lbs >> SECTOR_SHIFT);
+@@ -924,3 +948,14 @@ int bdev_alignment_offset(struct block_device *bdev)
+ 	return q->limits.alignment_offset;
+ }
+ EXPORT_SYMBOL_GPL(bdev_alignment_offset);
++
++unsigned int bdev_discard_alignment(struct block_device *bdev)
++{
++	struct request_queue *q = bdev_get_queue(bdev);
++
++	if (bdev_is_partition(bdev))
++		return queue_limit_discard_alignment(&q->limits,
++				bdev->bd_start_sect);
++	return q->limits.discard_alignment;
++}
++EXPORT_SYMBOL_GPL(bdev_discard_alignment);
+diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
+index 5a9b7aeda010b..34b1cfd067421 100644
+--- a/include/linux/blkdev.h
++++ b/include/linux/blkdev.h
+@@ -1252,39 +1252,7 @@ bdev_zone_write_granularity(struct block_device *bdev)
+ }
+ 
+ int bdev_alignment_offset(struct block_device *bdev);
+-
+-static inline int queue_limit_discard_alignment(struct queue_limits *lim, sector_t sector)
+-{
+-	unsigned int alignment, granularity, offset;
+-
+-	if (!lim->max_discard_sectors)
+-		return 0;
+-
+-	/* Why are these in bytes, not sectors? */
+-	alignment = lim->discard_alignment >> SECTOR_SHIFT;
+-	granularity = lim->discard_granularity >> SECTOR_SHIFT;
+-	if (!granularity)
+-		return 0;
+-
+-	/* Offset of the partition start in 'granularity' sectors */
+-	offset = sector_div(sector, granularity);
+-
+-	/* And why do we do this modulus *again* in blkdev_issue_discard()? */
+-	offset = (granularity + alignment - offset) % granularity;
+-
+-	/* Turn it back into bytes, gaah */
+-	return offset << SECTOR_SHIFT;
+-}
+-
+-static inline int bdev_discard_alignment(struct block_device *bdev)
+-{
+-	struct request_queue *q = bdev_get_queue(bdev);
+-
+-	if (bdev_is_partition(bdev))
+-		return queue_limit_discard_alignment(&q->limits,
+-				bdev->bd_start_sect);
+-	return q->limits.discard_alignment;
+-}
++unsigned int bdev_discard_alignment(struct block_device *bdev);
+ 
+ static inline unsigned int bdev_write_zeroes_sectors(struct block_device *bdev)
+ {
 -- 
 2.30.2
 
