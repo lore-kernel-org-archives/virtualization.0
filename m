@@ -1,110 +1,69 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1C738C433FE
-	for <virtualization@archiver.kernel.org>; Sun, 10 Apr 2022 07:51:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E1236C433F5
+	for <virtualization@archiver.kernel.org>; Mon, 11 Apr 2022 02:10:36 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id A5DAB84203;
-	Sun, 10 Apr 2022 07:51:18 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 4A39A4155C;
+	Mon, 11 Apr 2022 02:10:36 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id JiQAsnWT6-nv; Sun, 10 Apr 2022 07:51:17 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 179EE841FE;
-	Sun, 10 Apr 2022 07:51:17 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DE34DC0033;
-	Sun, 10 Apr 2022 07:51:16 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C0D72C002C
- for <virtualization@lists.linux-foundation.org>;
- Sun, 10 Apr 2022 07:51:15 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 98EA8416FF
- for <virtualization@lists.linux-foundation.org>;
- Sun, 10 Apr 2022 07:51:15 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id vccBub_mWLB1
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 7c30q0OK0QZf; Mon, 11 Apr 2022 02:10:35 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 949554159A;
+	Mon, 11 Apr 2022 02:10:34 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 47B11C0033;
+	Mon, 11 Apr 2022 02:10:34 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5B904C002C
  for <virtualization@lists.linux-foundation.org>;
- Sun, 10 Apr 2022 07:51:14 +0000 (UTC)
+ Mon, 11 Apr 2022 02:10:32 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 428F4401D5
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 11 Apr 2022 02:10:32 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id oRkkWFidulQ5
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 11 Apr 2022 02:10:31 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 50F164170B
+Received: from out30-56.freemail.mail.aliyun.com
+ (out30-56.freemail.mail.aliyun.com [115.124.30.56])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id A3FAE400BA
  for <virtualization@lists.linux-foundation.org>;
- Sun, 10 Apr 2022 07:51:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1649577072;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=CEGpPcEbQpA7grhoTpCsc4+FcBngn29MUORJJ4U+NYw=;
- b=eNbxZE16HfP1GC3hyvsw7U7FS+fd8CC79H72BFzFd2Xnp8QQKGgiksJe1KTxiY5oT7a5Zo
- eNJOwvLLuU3E+5YMbhx5grtEDTP3CZ43rLsLWSiCLsxT1Wwu20t4jgB+u9UutYxLg1l6Qp
- 5yZSnBb9LvfFfpbn7JaP2GoK9ED7+ZA=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-500-byIXlUAVOhSkSUjapwyYjQ-1; Sun, 10 Apr 2022 03:51:11 -0400
-X-MC-Unique: byIXlUAVOhSkSUjapwyYjQ-1
-Received: by mail-wm1-f72.google.com with SMTP id
- h65-20020a1c2144000000b0038e9ce3b29cso3654792wmh.2
- for <virtualization@lists.linux-foundation.org>;
- Sun, 10 Apr 2022 00:51:11 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=CEGpPcEbQpA7grhoTpCsc4+FcBngn29MUORJJ4U+NYw=;
- b=6jtv/PeBt3ZtkBA8q55159qHLjosAPvOHPGo0xTnSt5NszHJstxJWi09VCK2l5pH7/
- VurxZIuemXcQsdBFitQzkB6qXgbI3OsSlVaFHxCvz2XbXgR0oM0FtA1CYo5+dakAEuJH
- n4oCxSRpZk/UobQ/yID1WaFMRyrfpztgLmYVkh6ZDQ2+6QY2ax9yW0F93I8ff877bGD0
- 6xwF4l+M4J9qsYBSzb8XTp+XCB/rlEPdjm8GFpWyNAf0BaEeB0Y78EsRkJlPh19b2flp
- xDTW2QGTV71wAVrnpIfeRIee/YGxOt47ml9sSClErBeJfxO5va9F1d4lyuSeRHkBrhX9
- +xbA==
-X-Gm-Message-State: AOAM531WO4emGAjBSOs6DN0biltxSFt9yY9ycQyajLswdBPFPPJIhv1l
- 2dNa9rx7XAZ/j1zFFtCgEw8gq48ndGrWATqfVRvWxOTgBP2BTEsN0f+4smBwPHlHbbYcsi6UUvm
- bH1LQsj4lAcOLq6Imy7G7eHkwdARdh7Q46juLz5t5yQ==
-X-Received: by 2002:a05:6000:38e:b0:204:101a:b2bf with SMTP id
- u14-20020a056000038e00b00204101ab2bfmr21145000wrf.308.1649577069988; 
- Sun, 10 Apr 2022 00:51:09 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyvYZyBQ0r+Gt7hwuX3pBsyKj4i4o0hapZQla4rsV4724KDz9tVyJjJ9jxgUH/qez7K6v9+rw==
-X-Received: by 2002:a05:6000:38e:b0:204:101a:b2bf with SMTP id
- u14-20020a056000038e00b00204101ab2bfmr21144987wrf.308.1649577069755; 
- Sun, 10 Apr 2022 00:51:09 -0700 (PDT)
-Received: from redhat.com ([2.53.10.84]) by smtp.gmail.com with ESMTPSA id
- u7-20020a05600c19c700b0038cc9aac1a3sm16055019wmq.23.2022.04.10.00.51.06
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sun, 10 Apr 2022 00:51:08 -0700 (PDT)
-Date: Sun, 10 Apr 2022 03:51:04 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH V2 4/5] virtio-pci: implement synchronize_vqs()
-Message-ID: <20220410034556-mutt-send-email-mst@kernel.org>
-References: <20220406083538.16274-1-jasowang@redhat.com>
- <20220406083538.16274-5-jasowang@redhat.com>
- <20220406075952-mutt-send-email-mst@kernel.org>
- <87wng2e527.fsf@redhat.com>
- <20220408150307.24b6b99f.pasic@linux.ibm.com>
+ Mon, 11 Apr 2022 02:10:29 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R941e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04423; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=6; SR=0; TI=SMTPD_---0V9gdvlU_1649643023; 
+Received: from 30.225.24.83(mailfrom:jefflexu@linux.alibaba.com
+ fp:SMTPD_---0V9gdvlU_1649643023) by smtp.aliyun-inc.com(127.0.0.1);
+ Mon, 11 Apr 2022 10:10:24 +0800
+Message-ID: <d5c1b2bc-78d1-c6f8-0fb0-512a702b6e3b@linux.alibaba.com>
+Date: Mon, 11 Apr 2022 10:10:23 +0800
 MIME-Version: 1.0
-In-Reply-To: <20220408150307.24b6b99f.pasic@linux.ibm.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: "Paul E. McKenney" <paulmck@kernel.org>, peterz@infradead.org,
- maz@kernel.org, Cornelia Huck <cohuck@redhat.com>,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- tglx@linutronix.de
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.6.1
+Subject: Re: [PATCH] fuse: avoid unnecessary spinlock bump
+Content-Language: en-US
+To: Vivek Goyal <vgoyal@redhat.com>
+References: <20220402103250.68027-1-jefflexu@linux.alibaba.com>
+ <Yk7w8L1f/yik+qrR@redhat.com>
+ <b7a50fac-0259-e56c-0445-cca3fbf99888@linux.alibaba.com>
+ <YlAbqF4Yts8Aju+W@redhat.com>
+ <586dd7bb-4218-63da-c7db-fe8d46f43cde@linux.alibaba.com>
+ <YlAlR0xVDqQzl98w@redhat.com>
+From: JeffleXu <jefflexu@linux.alibaba.com>
+In-Reply-To: <YlAlR0xVDqQzl98w@redhat.com>
+Cc: linux-fsdevel@vger.kernel.org, gerry@linux.alibaba.com,
+ virtualization@lists.linux-foundation.org, stefanha@redhat.com,
+ miklos@szeredi.hu
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -121,91 +80,63 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Apr 08, 2022 at 03:03:07PM +0200, Halil Pasic wrote:
-> On Wed, 06 Apr 2022 15:04:32 +0200
-> Cornelia Huck <cohuck@redhat.com> wrote:
-> 
-> > On Wed, Apr 06 2022, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > 
-> > > On Wed, Apr 06, 2022 at 04:35:37PM +0800, Jason Wang wrote:  
-> > >> This patch implements PCI version of synchronize_vqs().
-> > >> 
-> > >> Cc: Thomas Gleixner <tglx@linutronix.de>
-> > >> Cc: Peter Zijlstra <peterz@infradead.org>
-> > >> Cc: "Paul E. McKenney" <paulmck@kernel.org>
-> > >> Cc: Marc Zyngier <maz@kernel.org>
-> > >> Signed-off-by: Jason Wang <jasowang@redhat.com>  
-> > >
-> > > Please add implementations at least for ccw and mmio.  
-> > 
-> > I'm not sure what (if anything) can/should be done for ccw...
-> 
-> If nothing needs to be done I would like to have at least a comment in
-> the code that explains why. So that somebody who reads the code
-> doesn't wonder: why is virtio-ccw not implementing that callback.
-
-Right.
-
-I am currently thinking instead of making this optional in the
-core we should make it mandatory, and have transports which do not
-need to sync have an empty stub with documentation explaining why.
-
-Also, do we want to document this sync is explicitly for irq enable/disable?
-synchronize_irq_enable_disable?
 
 
-> > 
-> > >  
-> > >> ---
-> > >>  drivers/virtio/virtio_pci_common.c | 14 ++++++++++++++
-> > >>  drivers/virtio/virtio_pci_common.h |  2 ++
-> > >>  drivers/virtio/virtio_pci_legacy.c |  1 +
-> > >>  drivers/virtio/virtio_pci_modern.c |  2 ++
-> > >>  4 files changed, 19 insertions(+)
-> > >> 
-> > >> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-> > >> index d724f676608b..b78c8bc93a97 100644
-> > >> --- a/drivers/virtio/virtio_pci_common.c
-> > >> +++ b/drivers/virtio/virtio_pci_common.c
-> > >> @@ -37,6 +37,20 @@ void vp_synchronize_vectors(struct virtio_device *vdev)
-> > >>  		synchronize_irq(pci_irq_vector(vp_dev->pci_dev, i));
-> > >>  }
-> > >>  
-> > >> +void vp_synchronize_vqs(struct virtio_device *vdev)
-> > >> +{
-> > >> +	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-> > >> +	int i;
-> > >> +
-> > >> +	if (vp_dev->intx_enabled) {
-> > >> +		synchronize_irq(vp_dev->pci_dev->irq);
-> > >> +		return;
-> > >> +	}
-> > >> +
-> > >> +	for (i = 0; i < vp_dev->msix_vectors; ++i)
-> > >> +		synchronize_irq(pci_irq_vector(vp_dev->pci_dev, i));
-> > >> +}
-> > >> +  
-> > 
-> > ...given that this seems to synchronize threaded interrupt handlers?
-> > Halil, do you think ccw needs to do anything? (AFAICS, we only have one
-> > 'irq' for channel devices anyway, and the handler just calls the
-> > relevant callbacks directly.)
+On 4/8/22 8:06 PM, Vivek Goyal wrote:
+> On Fri, Apr 08, 2022 at 07:50:55PM +0800, JeffleXu wrote:
+>>
+>>
+>> On 4/8/22 7:25 PM, Vivek Goyal wrote:
+>>> On Fri, Apr 08, 2022 at 10:36:40AM +0800, JeffleXu wrote:
+>>>>
+>>>>
+>>>> On 4/7/22 10:10 PM, Vivek Goyal wrote:
+>>>>> On Sat, Apr 02, 2022 at 06:32:50PM +0800, Jeffle Xu wrote:
+>>>>>> Move dmap free worker kicker inside the critical region, so that extra
+>>>>>> spinlock lock/unlock could be avoided.
+>>>>>>
+>>>>>> Suggested-by: Liu Jiang <gerry@linux.alibaba.com>
+>>>>>> Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
+>>>>>
+>>>>> Looks good to me. Have you done any testing to make sure nothing is
+>>>>> broken.
+>>>>
+>>>> xfstests -g quick shows no regression. The tested virtiofs is mounted
+>>>> with "dax=always".
+>>>
+>>> I think xfstests might not trigger reclaim. You probably will have to
+>>> run something like blogbench with a small dax window like 1G so that
+>>> heavy reclaim happens.
+>>
+>>
+>> Actually, I configured the DAX window to 8MB, i.e. 4 slots when running
+>> xfstests. Thus I think the reclaim path is most likely triggered.
+>>
+>>
+>>>
+>>> For fun, I sometimes used to run it with a window of just say 16 dax
+>>> ranges so that reclaim was so heavy that if there was a bug, it will
+>>> show up.
+>>>
+>>
+>> Yeah, my colleague had ever reported that a DAX window of 4KB will cause
+>> hang in our internal OS (which is 4.19, we back ported virtiofs to
+>> 4.19). But then I found that this issue doesn't exist in the latest
+>> upstream. The reason seems that in the upstream kernel,
+>> devm_memremap_pages() called in virtio_fs_setup_dax() will fail directly
+>> since the dax window (4KB) is not aligned with the sparse memory section.
 > 
-> Sorry I don't understand enough yet. A more verbose documentation on
-> "virtio_synchronize_vqs - synchronize with virtqueue callbacks" would
-> surely benefit me. It may be more than enough for a back-belt but it
-> ain't enough for me to tell what is the callback supposed to accomplish.
-> 
-> I will have to study this discussion and the code more thoroughly.
-> Tentatively I side with Jason and Michael in a sense, that I don't
-> believe virtio-ccw is safe against rough interrupts.
-> 
-> Sorry for the late response. I intend to revisit this on Monday. If
-> I don't please feel encouraged to ping.
-> 
-> Regards,
-> Halil
+> Given our default chunk size is 2MB (FUSE_DAX_SHIFT), may be it is not
+> a bad idea to enforce some minimum cache window size. IIRC, even one
+> range is not enough. Minimum 2 are required for reclaim to not deadlock.
 
+Curiously, why minimum 1 range is not adequate? In which case minimum 2
+are required?
+
+
+-- 
+Thanks,
+Jeffle
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
