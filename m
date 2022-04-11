@@ -1,113 +1,92 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3A10DC433EF
-	for <virtualization@archiver.kernel.org>; Mon, 11 Apr 2022 08:56:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 82C9AC433FE
+	for <virtualization@archiver.kernel.org>; Mon, 11 Apr 2022 10:47:11 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id C11C683FC8;
-	Mon, 11 Apr 2022 08:56:47 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 0F599409D3;
+	Mon, 11 Apr 2022 10:47:11 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id aS4PF_EeEsng; Mon, 11 Apr 2022 08:56:46 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Xg_F34l61GRj; Mon, 11 Apr 2022 10:47:09 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 4591483FC1;
-	Mon, 11 Apr 2022 08:56:46 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id B8B8A403EA;
+	Mon, 11 Apr 2022 10:47:08 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2A86DC002F;
-	Mon, 11 Apr 2022 08:56:46 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B88DFC002C
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 70E4FC002F;
+	Mon, 11 Apr 2022 10:47:08 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 76566C002C
  for <virtualization@lists.linux-foundation.org>;
- Mon, 11 Apr 2022 08:56:44 +0000 (UTC)
+ Mon, 11 Apr 2022 10:47:07 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 8A860408F5
+ by smtp2.osuosl.org (Postfix) with ESMTP id 5CC6D409D6
  for <virtualization@lists.linux-foundation.org>;
- Mon, 11 Apr 2022 08:56:44 +0000 (UTC)
+ Mon, 11 Apr 2022 10:47:07 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id R8Uvlhf7Ij1Z
+ with ESMTP id 7oLfe7F4ltg3
  for <virtualization@lists.linux-foundation.org>;
- Mon, 11 Apr 2022 08:56:43 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id A7115404B0
+ Mon, 11 Apr 2022 10:47:06 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com
+ [IPv6:2607:f8b0:4864:20::529])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 2BA96403EA
  for <virtualization@lists.linux-foundation.org>;
- Mon, 11 Apr 2022 08:56:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1649667402;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=k/8SRRAANzvkchv/qA5xGsv21EcrCPMWC+psYPj5Pk4=;
- b=MHIZHy4DtSUEwaTG2bNbxd32Fq4TIqsF33ba0WZxYv3XNLfwtVwXJ7kNhdFNGkPvhlWT5w
- 6rnyqiulfnrsIP84KxE35W7VG25TFboSE95eeOL0+gNAW82dGgKeybaYAk40TNciKV3AR1
- ZhAl3JdUpXNdI+34uh1s0WxL0PhXRwQ=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-101-GZ-0wWGEOCqhd3IpwwFV9g-1; Mon, 11 Apr 2022 04:56:39 -0400
-X-MC-Unique: GZ-0wWGEOCqhd3IpwwFV9g-1
-Received: by mail-wr1-f70.google.com with SMTP id
- p18-20020adfc392000000b00207a2102f9bso684106wrf.7
+ Mon, 11 Apr 2022 10:47:05 +0000 (UTC)
+Received: by mail-pg1-x529.google.com with SMTP id 125so13807487pgc.11
  for <virtualization@lists.linux-foundation.org>;
- Mon, 11 Apr 2022 01:56:38 -0700 (PDT)
+ Mon, 11 Apr 2022 03:47:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=bytedance-com.20210112.gappssmtp.com; s=20210112;
+ h=from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=ch9eAVgtj1rN+vWV6m52FPC9lnbmsAZFUH8BEqY/nG4=;
+ b=a7bnCvu+OFZhuBGR3sgaiM4l/1wQJrmxh2D4pxILOmEnsKa7nOm/9lB5MRREsD/dUR
+ qH30aQEnqFHTlmLIzXvrY9dJcgjT/RbVziBYHp3ahoinRxWcGJ8cB2NrrLY3BcWdC69O
+ 90bg2BzanZNV8LId7w4TyxY8eQ5gumYxq49FI6M/mPfObXmvhnQ8sHBsFjyUz2vldRsV
+ rPGHBHGqiEdhnfSoR+SxTnPFn2qzbFLAo8N2DD0KUqfn9DDofMlrL6sQS4Ebd6sleSpi
+ 7CxwOImpAceBuGPcITtRYuy9lpSWQ7g7u622nZfQWarmcm8dLKuc2e4uY/ziINCXu2FZ
+ v9LQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=k/8SRRAANzvkchv/qA5xGsv21EcrCPMWC+psYPj5Pk4=;
- b=pnqyGq+s5GUeYfOut3YNVMRmVX1gUBIZKppFIt6IuI+YYlf6q8o2QeoeTuEcx7nDxc
- Dq3YJxm3rKZF76H5DcFoaH4ojb/zcq4AGs3mBxKeL6jjAFq8G1FJmBzQ/bxgpHPyU2ak
- sYj8wv95XEEuWqqHCS95wDxm/CAUf0PA3yLfPbifkLzKkCVeKk8cqbY2I0P3F2OFNSsS
- OmPPJ60bteGQsKfkCIVTPIKb4oS72wz6/ZNNTEGTAArjGbgsGqcxCHYFwvEIS3htQGgn
- rNfLbDohHQoQcc5LsS+x0+y5fSVfFKrV81GBTv9bID/cfbtWlrPtlC4hpBqItxzWVAWM
- KzeQ==
-X-Gm-Message-State: AOAM530msMgKcpeL+viYfbbiD9knt1qYdrMBlC5BvZVsgvZ+bXexLyhc
- D8oAgQHoNcWC60m4IqSW1NpmOZYabrdVS+bT6pAvJlNy05kjo/fO209Ed8cAzYlF8Nwl1KjC9zc
- X114+BFoGceCWYYzPfUrNkooW042bpQ4yoAVJ//Elyw==
-X-Received: by 2002:a5d:6d8a:0:b0:204:8aa:309f with SMTP id
- l10-20020a5d6d8a000000b0020408aa309fmr23696631wrs.38.1649667398030; 
- Mon, 11 Apr 2022 01:56:38 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzbuWEZKovLlvZ9rE66XCQpJJwVUoRQzhWiB2WoGPCiZ1WI17PylwzUv/x5oI7UDfQLPpTKHQ==
-X-Received: by 2002:a5d:6d8a:0:b0:204:8aa:309f with SMTP id
- l10-20020a5d6d8a000000b0020408aa309fmr23696617wrs.38.1649667397814; 
- Mon, 11 Apr 2022 01:56:37 -0700 (PDT)
-Received: from redhat.com ([2.52.1.156]) by smtp.gmail.com with ESMTPSA id
- u11-20020a056000038b00b00203e5c9aa09sm36522327wrf.27.2022.04.11.01.56.35
+ h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=ch9eAVgtj1rN+vWV6m52FPC9lnbmsAZFUH8BEqY/nG4=;
+ b=yfiuvJo9891Xk1AWZC2s/s64Rg6I4HJp4VSNB1T0hfTpdXi6haJFRVH6v8CGTJRUga
+ 3p/UkkM1KzrksvYDVLvid1MOo67H9aZtU3bCQSQT5mIPkPAyjsNz6RB8ymCz6o1eTR00
+ EyaE8aj6jsmAIeBDz1WVREjE15yAy/TvYkpBBm61iMnu4KFWc2Hi8NdEiYr01zBkmsLy
+ ptVulII8HjqwNj2qNUIk6Ro/QqM1dZyBqoEo8viChz8rWO0Y5bz3GIiwzqOzThL/+La5
+ igQxxTrxRVNNQQfMTXjZIUqZ9DSYoABdCHM6qovL9EwwQ/ckbOFNczHK1lmv+3vmtUHY
+ pscg==
+X-Gm-Message-State: AOAM532Dd5hf8Z4zhH9b3HQSsqfTCzq7KalOeX3VHvuuJruCLUZJQpHr
+ eeJ61/9Awqj3PJ126e3E5Z+Ssw==
+X-Google-Smtp-Source: ABdhPJyM/U/Gty0iFc8Rn9tgWEQZ1g0qf4l2I/GAmMqJ2uRI+Kbw/8e9qiPdJ5G2jY6YEhb0hPowLA==
+X-Received: by 2002:a05:6a00:1a55:b0:4fd:ef0c:fad1 with SMTP id
+ h21-20020a056a001a5500b004fdef0cfad1mr31940137pfv.50.1649674025279; 
+ Mon, 11 Apr 2022 03:47:05 -0700 (PDT)
+Received: from always-x1.bytedance.net ([61.120.150.76])
+ by smtp.gmail.com with ESMTPSA id
+ d8-20020a636808000000b00398e9c7049bsm27541649pgc.31.2022.04.11.03.47.00
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 11 Apr 2022 01:56:36 -0700 (PDT)
-Date: Mon, 11 Apr 2022 04:56:33 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V2 4/5] virtio-pci: implement synchronize_vqs()
-Message-ID: <20220411045011-mutt-send-email-mst@kernel.org>
-References: <20220406083538.16274-1-jasowang@redhat.com>
- <20220406083538.16274-5-jasowang@redhat.com>
- <20220406075952-mutt-send-email-mst@kernel.org>
- <87wng2e527.fsf@redhat.com>
- <20220408150307.24b6b99f.pasic@linux.ibm.com>
- <20220410034556-mutt-send-email-mst@kernel.org>
- <CACGkMEtarZb6g3ij5=+As17+d9jtdAqNa1EzSuTXc7Pq_som0Q@mail.gmail.com>
+ Mon, 11 Apr 2022 03:47:04 -0700 (PDT)
+From: zhenwei pi <pizhenwei@bytedance.com>
+To: mst@redhat.com,
+	berrange@redhat.com,
+	arei.gonglei@huawei.com
+Subject: [PATCH v4 0/8] Introduce akcipher service for virtio-crypto
+Date: Mon, 11 Apr 2022 18:43:19 +0800
+Message-Id: <20220411104327.197048-1-pizhenwei@bytedance.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEtarZb6g3ij5=+As17+d9jtdAqNa1EzSuTXc7Pq_som0Q@mail.gmail.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: "Paul E. McKenney" <paulmck@kernel.org>,
- Peter Zijlstra <peterz@infradead.org>, Marc Zyngier <maz@kernel.org>,
- Cornelia Huck <cohuck@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>,
- Halil Pasic <pasic@linux.ibm.com>, Thomas Gleixner <tglx@linutronix.de>
+Cc: helei.sig11@bytedance.com, cohuck@redhat.com, qemu-devel@nongnu.org,
+ zhenwei pi <pizhenwei@bytedance.com>,
+ virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -124,109 +103,136 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Apr 11, 2022 at 04:22:19PM +0800, Jason Wang wrote:
-> On Sun, Apr 10, 2022 at 3:51 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> >
-> > On Fri, Apr 08, 2022 at 03:03:07PM +0200, Halil Pasic wrote:
-> > > On Wed, 06 Apr 2022 15:04:32 +0200
-> > > Cornelia Huck <cohuck@redhat.com> wrote:
-> > >
-> > > > On Wed, Apr 06 2022, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > >
-> > > > > On Wed, Apr 06, 2022 at 04:35:37PM +0800, Jason Wang wrote:
-> > > > >> This patch implements PCI version of synchronize_vqs().
-> > > > >>
-> > > > >> Cc: Thomas Gleixner <tglx@linutronix.de>
-> > > > >> Cc: Peter Zijlstra <peterz@infradead.org>
-> > > > >> Cc: "Paul E. McKenney" <paulmck@kernel.org>
-> > > > >> Cc: Marc Zyngier <maz@kernel.org>
-> > > > >> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > > > >
-> > > > > Please add implementations at least for ccw and mmio.
-> > > >
-> > > > I'm not sure what (if anything) can/should be done for ccw...
-> > >
-> > > If nothing needs to be done I would like to have at least a comment in
-> > > the code that explains why. So that somebody who reads the code
-> > > doesn't wonder: why is virtio-ccw not implementing that callback.
-> >
-> > Right.
-> >
-> > I am currently thinking instead of making this optional in the
-> > core we should make it mandatory, and have transports which do not
-> > need to sync have an empty stub with documentation explaining why.
-> >
-> > Also, do we want to document this sync is explicitly for irq enable/disable?
-> > synchronize_irq_enable_disable?
-> 
-> I would not since the transport is not guaranteed to use an interrupt
-> for callbacks.
+v3 -> v4:
+- Coding style fix: Akcipher -> AkCipher, struct XXX -> XXX, Rsa -> RSA,
+XXX-alg -> XXX-algo.
+- Change version info in qapi/crypto.json, from 7.0 -> 7.1.
+- Remove ecdsa from qapi/crypto.json, it would be introduced with the implemetion later.
+- Use QCryptoHashAlgothrim instead of QCryptoRSAHashAlgorithm(removed) in qapi/crypto.json.
+- Rename arguments of qcrypto_akcipher_XXX to keep aligned with qcrypto_cipher_XXX(dec/enc/sign/vefiry -> in/out/in2), and add qcrypto_akcipher_max_XXX APIs.
+- Add new API: qcrypto_akcipher_supports.
+- Change the return value of qcrypto_akcipher_enc/dec/sign, these functions return the actual length of result.
+- Separate ASN.1 source code and test case clean.
+- Disable RSA raw encoding for akcipher-nettle.
+- Separate RSA key parser into rsakey.{hc}, and implememts it with builtin-asn1-decoder and nettle respectivly.
+- Implement RSA(pkcs1 and raw encoding) algorithm by gcrypt. This has higher priority than nettle.
+- For some akcipher operations(eg, decryption of pkcs1pad(rsa)), the length of returned result maybe less than the dst buffer size, return the actual length of result instead of the buffer length to the guest side. (in function virtio_crypto_akcipher_input_data_helper)
+- Other minor changes.
 
-OK but let's then document this in more detail.
-More readers will wonder about what is the callback
-trying to accomplish, and Halil requested that as well.
+Thanks to Daniel!
 
-For example, let's document why is sync required on enable.
+Eric pointed out this missing part of use case, send it here again.
 
-> >
-> >
-> > > >
-> > > > >
-> > > > >> ---
-> > > > >>  drivers/virtio/virtio_pci_common.c | 14 ++++++++++++++
-> > > > >>  drivers/virtio/virtio_pci_common.h |  2 ++
-> > > > >>  drivers/virtio/virtio_pci_legacy.c |  1 +
-> > > > >>  drivers/virtio/virtio_pci_modern.c |  2 ++
-> > > > >>  4 files changed, 19 insertions(+)
-> > > > >>
-> > > > >> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-> > > > >> index d724f676608b..b78c8bc93a97 100644
-> > > > >> --- a/drivers/virtio/virtio_pci_common.c
-> > > > >> +++ b/drivers/virtio/virtio_pci_common.c
-> > > > >> @@ -37,6 +37,20 @@ void vp_synchronize_vectors(struct virtio_device *vdev)
-> > > > >>                  synchronize_irq(pci_irq_vector(vp_dev->pci_dev, i));
-> > > > >>  }
-> > > > >>
-> > > > >> +void vp_synchronize_vqs(struct virtio_device *vdev)
-> > > > >> +{
-> > > > >> +        struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-> > > > >> +        int i;
-> > > > >> +
-> > > > >> +        if (vp_dev->intx_enabled) {
-> > > > >> +                synchronize_irq(vp_dev->pci_dev->irq);
-> > > > >> +                return;
-> > > > >> +        }
-> > > > >> +
-> > > > >> +        for (i = 0; i < vp_dev->msix_vectors; ++i)
-> > > > >> +                synchronize_irq(pci_irq_vector(vp_dev->pci_dev, i));
-> > > > >> +}
-> > > > >> +
-> > > >
-> > > > ...given that this seems to synchronize threaded interrupt handlers?
-> > > > Halil, do you think ccw needs to do anything? (AFAICS, we only have one
-> > > > 'irq' for channel devices anyway, and the handler just calls the
-> > > > relevant callbacks directly.)
-> > >
-> > > Sorry I don't understand enough yet. A more verbose documentation on
-> > > "virtio_synchronize_vqs - synchronize with virtqueue callbacks" would
-> > > surely benefit me. It may be more than enough for a back-belt but it
-> > > ain't enough for me to tell what is the callback supposed to accomplish.
-> > >
-> > > I will have to study this discussion and the code more thoroughly.
-> > > Tentatively I side with Jason and Michael in a sense, that I don't
-> > > believe virtio-ccw is safe against rough interrupts.
-> 
-> That's my feeling as well.
-> 
-> Thanks
-> 
-> > >
-> > > Sorry for the late response. I intend to revisit this on Monday. If
-> > > I don't please feel encouraged to ping.
-> > >
-> > > Regards,
-> > > Halil
-> >
+In our plan, the feature is designed for HTTPS offloading case and other applications which use kernel RSA/ecdsa by keyctl syscall. The full picture shows bellow:
+
+
+                  Nginx/openssl[1] ... Apps
+Guest   -----------------------------------------
+                   virtio-crypto driver[2]
+-------------------------------------------------
+                   virtio-crypto backend[3]
+Host    -----------------------------------------
+                  /          |          \
+              builtin[4]   vhost     keyctl[5] ...
+
+
+[1] User applications can offload RSA calculation to kernel by keyctl syscall. There is no keyctl engine in openssl currently, we developed a engine and tried to contribute it to openssl upstream, but openssl 1.x does not accept new feature. Link:
+    https://github.com/openssl/openssl/pull/16689
+
+This branch is available and maintained by Lei <helei.sig11@bytedance.com>
+    https://github.com/TousakaRin/openssl/tree/OpenSSL_1_1_1-kctl_engine
+
+We tested nginx(change config file only) with openssl keyctl engine, it works fine.
+
+[2] virtio-crypto driver is used to communicate with host side, send requests to host side to do asymmetric calculation.
+    https://lkml.org/lkml/2022/3/1/1425
+
+[3] virtio-crypto backend handles requests from guest side, and forwards request to crypto backend driver of QEMU.
+
+[4] Currently RSA is supported only in builtin driver. This driver is supposed to test the full feature without other software(Ex vhost process) and hardware dependence. ecdsa is introduced into qapi type without implementation, this may be implemented in Q3-2022 or later. If ecdsa type definition should be added with the implementation together, I'll remove this in next version.
+
+[5] keyctl backend is in development, we will post this feature in Q2-2022. keyctl backend can use hardware acceleration(Ex, Intel QAT).
+
+Setup the full environment, tested with Intel QAT on host side, the QPS of HTTPS increase to ~200% in a guest.
+
+VS PCI passthrough: the most important benefit of this solution makes the VM migratable.
+
+v2 -> v3:
+- Introduce akcipher types to qapi
+- Add test/benchmark suite for akcipher class
+- Seperate 'virtio_crypto: Support virtio crypto asym operation' into:
+  - crypto: Introduce akcipher crypto class
+  - virtio-crypto: Introduce RSA algorithm
+
+v1 -> v2:
+- Update virtio_crypto.h from v2 version of related kernel patch.
+
+v1:
+- Support akcipher for virtio-crypto.
+- Introduce akcipher class.
+- Introduce ASN1 decoder into QEMU.
+- Implement RSA backend by nettle/hogweed.
+
+Lei He (4):
+  crypto-akcipher: Introduce akcipher types to qapi
+  crypto: add ASN.1 decoder
+  crypto: Implement RSA algorithm by hogweed
+  crypto: Implement RSA algorithm by gcrypt
+
+Zhenwei Pi (3):
+  virtio-crypto: header update
+  crypto: Introduce akcipher crypto class
+  crypto: Introduce RSA algorithm
+
+lei he (1):
+  tests/crypto: Add test suite for crypto akcipher
+
+ backends/cryptodev-builtin.c                  | 261 ++++++-
+ backends/cryptodev-vhost-user.c               |  34 +-
+ backends/cryptodev.c                          |  32 +-
+ crypto/akcipher-gcrypt.c.inc                  | 531 +++++++++++++
+ crypto/akcipher-nettle.c.inc                  | 448 +++++++++++
+ crypto/akcipher.c                             | 108 +++
+ crypto/akcipherpriv.h                         |  43 ++
+ crypto/asn1_decoder.c                         | 161 ++++
+ crypto/asn1_decoder.h                         |  75 ++
+ crypto/meson.build                            |   6 +
+ crypto/rsakey-builtin.c.inc                   | 150 ++++
+ crypto/rsakey-nettle.c.inc                    | 141 ++++
+ crypto/rsakey.c                               |  43 ++
+ crypto/rsakey.h                               |  96 +++
+ hw/virtio/virtio-crypto.c                     | 323 ++++++--
+ include/crypto/akcipher.h                     | 151 ++++
+ include/hw/virtio/virtio-crypto.h             |   5 +-
+ .../standard-headers/linux/virtio_crypto.h    |  82 +-
+ include/sysemu/cryptodev.h                    |  83 +-
+ meson.build                                   |  11 +
+ qapi/crypto.json                              |  64 ++
+ tests/bench/benchmark-crypto-akcipher.c       | 161 ++++
+ tests/bench/meson.build                       |   4 +
+ tests/bench/test_akcipher_keys.inc            | 537 +++++++++++++
+ tests/unit/meson.build                        |   2 +
+ tests/unit/test-crypto-akcipher.c             | 708 ++++++++++++++++++
+ tests/unit/test-crypto-asn1-decoder.c         | 289 +++++++
+ 27 files changed, 4404 insertions(+), 145 deletions(-)
+ create mode 100644 crypto/akcipher-gcrypt.c.inc
+ create mode 100644 crypto/akcipher-nettle.c.inc
+ create mode 100644 crypto/akcipher.c
+ create mode 100644 crypto/akcipherpriv.h
+ create mode 100644 crypto/asn1_decoder.c
+ create mode 100644 crypto/asn1_decoder.h
+ create mode 100644 crypto/rsakey-builtin.c.inc
+ create mode 100644 crypto/rsakey-nettle.c.inc
+ create mode 100644 crypto/rsakey.c
+ create mode 100644 crypto/rsakey.h
+ create mode 100644 include/crypto/akcipher.h
+ create mode 100644 tests/bench/benchmark-crypto-akcipher.c
+ create mode 100644 tests/bench/test_akcipher_keys.inc
+ create mode 100644 tests/unit/test-crypto-akcipher.c
+ create mode 100644 tests/unit/test-crypto-asn1-decoder.c
+
+-- 
+2.20.1
 
 _______________________________________________
 Virtualization mailing list
