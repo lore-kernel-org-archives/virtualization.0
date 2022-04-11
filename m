@@ -1,79 +1,79 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2139AC433EF
-	for <virtualization@archiver.kernel.org>; Mon, 11 Apr 2022 17:28:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 79C26C433F5
+	for <virtualization@archiver.kernel.org>; Mon, 11 Apr 2022 17:29:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id C1B1360671;
-	Mon, 11 Apr 2022 17:28:32 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 1031682FEA;
+	Mon, 11 Apr 2022 17:29:46 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id jE0Dq6J4189B; Mon, 11 Apr 2022 17:28:31 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 3EF2E600B6;
-	Mon, 11 Apr 2022 17:28:31 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id QC_u4nMRUCDB; Mon, 11 Apr 2022 17:29:45 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id A8D2582D57;
+	Mon, 11 Apr 2022 17:29:44 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1C2A8C0033;
-	Mon, 11 Apr 2022 17:28:31 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3005FC002C
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 89CC0C0033;
+	Mon, 11 Apr 2022 17:29:44 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3E607C002C
  for <virtualization@lists.linux-foundation.org>;
- Mon, 11 Apr 2022 17:28:30 +0000 (UTC)
+ Mon, 11 Apr 2022 17:29:43 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 0C79A408FF
+ by smtp2.osuosl.org (Postfix) with ESMTP id 2B96F4049F
  for <virtualization@lists.linux-foundation.org>;
- Mon, 11 Apr 2022 17:28:30 +0000 (UTC)
+ Mon, 11 Apr 2022 17:29:43 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=suse.cz header.b="tfXHkMaj";
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=suse.cz header.b="I9nwx9hr";
  dkim=neutral reason="invalid (unsupported algorithm ed25519-sha256)"
- header.d=suse.cz header.b="y/QeT70z"
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id HsJnqSJL8A1u
+ header.d=suse.cz header.b="AzkdKu96"
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id eGGGUzGW9h2m
  for <virtualization@lists.linux-foundation.org>;
- Mon, 11 Apr 2022 17:28:29 +0000 (UTC)
+ Mon, 11 Apr 2022 17:29:42 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
- by smtp4.osuosl.org (Postfix) with ESMTPS id EDFA6408EB
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 8F7FE40275
  for <virtualization@lists.linux-foundation.org>;
- Mon, 11 Apr 2022 17:28:28 +0000 (UTC)
+ Mon, 11 Apr 2022 17:29:42 +0000 (UTC)
 Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
- by smtp-out2.suse.de (Postfix) with ESMTP id ABD701F7AD;
- Mon, 11 Apr 2022 17:28:26 +0000 (UTC)
+ by smtp-out2.suse.de (Postfix) with ESMTP id CB2971F38D;
+ Mon, 11 Apr 2022 17:29:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
- t=1649698106;
+ t=1649698180;
  h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
  cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=0RiNf7uoJjg1rRFObzVZQSCMAd1nof/h0vLpUgMcwvY=;
- b=tfXHkMaj5kpUcLtvBYnwRGxDxcXmodIyKTVNxARm8whPlAkOVHL3pBXy48YlCR99uput93
- ek64inXcfBYSt9NuV9MWohA/Liu5eXfW+58ujnwevThluScwhFajBAp+/PR+hCYJW8ogrY
- iu/7/TOOXGQ1NMcWDFWaoeOCSwaX7H0=
+ bh=y9/RDfYGC6K6KRC0KdrprIVWfIX/zpdTiz9ROrz551U=;
+ b=I9nwx9hrwiLBwY8Cn2rQGBPnpBriJmDMs1b8oNISqOpk754k7ib2Xve0iYAZqqPcSD2SgP
+ oZEA90HfyQ7ya+rehSXEh9k5AQbwstldp6HDVnl/WGBpQS17mVXtCGXXbsCypPUDUyaMdU
+ y+Peaf55gboQyV27R4kCRTuYgY7wFX4=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
- s=susede2_ed25519; t=1649698106;
+ s=susede2_ed25519; t=1649698180;
  h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
  cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=0RiNf7uoJjg1rRFObzVZQSCMAd1nof/h0vLpUgMcwvY=;
- b=y/QeT70zXSjm5PP3weiVBlhCkwkEL69tQO+HTTi+7j+oI3RtiZJDs5egZuujl2LcaWZ24F
- apjvnh1HQMyDZeAA==
+ bh=y9/RDfYGC6K6KRC0KdrprIVWfIX/zpdTiz9ROrz551U=;
+ b=AzkdKu96rYkAsjhpJavWNTiZGL3Agdt16W1llO8/BhnjKgsTeGvgPw66Q+CklEVPEpPHBk
+ JsD+WnrQfAy3whCQ==
 Received: from ds.suse.cz (ds.suse.cz [10.100.12.205])
- by relay2.suse.de (Postfix) with ESMTP id 775CCA3B82;
- Mon, 11 Apr 2022 17:28:26 +0000 (UTC)
+ by relay2.suse.de (Postfix) with ESMTP id B0827A3B87;
+ Mon, 11 Apr 2022 17:29:40 +0000 (UTC)
 Received: by ds.suse.cz (Postfix, from userid 10065)
- id 0F66CDA7F7; Mon, 11 Apr 2022 19:24:22 +0200 (CEST)
-Date: Mon, 11 Apr 2022 19:24:21 +0200
+ id 47973DA7F7; Mon, 11 Apr 2022 19:25:36 +0200 (CEST)
+Date: Mon, 11 Apr 2022 19:25:36 +0200
 From: David Sterba <dsterba@suse.cz>
 To: Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH 24/27] block: remove QUEUE_FLAG_DISCARD
-Message-ID: <20220411172421.GU15609@twin.jikos.cz>
+Subject: Re: [PATCH 25/27] block: add a bdev_discard_granularity helper
+Message-ID: <20220411172536.GV15609@twin.jikos.cz>
 Mail-Followup-To: dsterba@suse.cz, Christoph Hellwig <hch@lst.de>,
  Jens Axboe <axboe@kernel.dk>, dm-devel@redhat.com,
  linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org,
@@ -92,12 +92,13 @@ Mail-Followup-To: dsterba@suse.cz, Christoph Hellwig <hch@lst.de>,
  ocfs2-devel@oss.oracle.com, linux-mm@kvack.org,
  "Martin K . Petersen" <martin.petersen@oracle.com>,
  Christoph =?iso-8859-1?Q?B=F6hmwalder?= <christoph.boehmwalder@linbit.com>,
- Coly Li <colyli@suse.de>
+ Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+ David Sterba <dsterba@suse.com>
 References: <20220409045043.23593-1-hch@lst.de>
- <20220409045043.23593-25-hch@lst.de>
+ <20220409045043.23593-26-hch@lst.de>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20220409045043.23593-25-hch@lst.de>
+In-Reply-To: <20220409045043.23593-26-hch@lst.de>
 User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
 Cc: jfs-discussion@lists.sourceforge.net, linux-nvme@lists.infradead.org,
  virtualization@lists.linux-foundation.org, linux-mm@kvack.org,
@@ -108,10 +109,11 @@ Cc: jfs-discussion@lists.sourceforge.net, linux-nvme@lists.infradead.org,
  xen-devel@lists.xenproject.org, linux-ext4@vger.kernel.org,
  linux-um@lists.infradead.org, nbd@other.debian.org,
  linux-block@vger.kernel.org, linux-bcache@vger.kernel.org,
- ceph-devel@vger.kernel.org, Coly Li <colyli@suse.de>,
- Jens Axboe <axboe@kernel.dk>, linux-raid@vger.kernel.org,
- "Martin K . Petersen" <martin.petersen@oracle.com>, linux-mmc@vger.kernel.org,
- linux-f2fs-devel@lists.sourceforge.net, linux-xfs@vger.kernel.org,
+ David Sterba <dsterba@suse.com>, ceph-devel@vger.kernel.org,
+ Ryusuke Konishi <konishi.ryusuke@gmail.com>, Jens Axboe <axboe@kernel.dk>,
+ linux-raid@vger.kernel.org, "Martin K . Petersen" <martin.petersen@oracle.com>,
+ linux-mmc@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
+ linux-xfs@vger.kernel.org,
  Christoph =?iso-8859-1?Q?B=F6hmwalder?= <christoph.boehmwalder@linbit.com>,
  ocfs2-devel@oss.oracle.com, linux-fsdevel@vger.kernel.org,
  ntfs3@lists.linux.dev, linux-btrfs@vger.kernel.org
@@ -132,69 +134,20 @@ Content-Transfer-Encoding: quoted-printable
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sat, Apr 09, 2022 at 06:50:40AM +0200, Christoph Hellwig wrote:
-> Just use a non-zero max_discard_sectors as an indicator for discard
-> support, similar to what is done for write zeroes.
-> =
-
-> The only places where needs special attention is the RAID5 driver,
-> which must clear discard support for security reasons by default,
-> even if the default stacking rules would allow for it.
+On Sat, Apr 09, 2022 at 06:50:41AM +0200, Christoph Hellwig wrote:
+> Abstract away implementation details from file systems by providing a
+> block_device based helper to retrieve the discard granularity.
 > =
 
 > Signed-off-by: Christoph Hellwig <hch@lst.de>
 > Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
 > Acked-by: Christoph B=F6hmwalder <christoph.boehmwalder@linbit.com> [btrf=
 s]
-> Acked-by: Coly Li <colyli@suse.de> [bcache]
-> ---
->  arch/um/drivers/ubd_kern.c          |  2 --
->  block/blk-core.c                    |  2 +-
->  block/blk-lib.c                     |  2 +-
->  block/blk-mq-debugfs.c              |  1 -
->  block/ioctl.c                       |  3 +--
->  drivers/block/drbd/drbd_main.c      |  2 +-
->  drivers/block/drbd/drbd_nl.c        | 19 ++-----------------
->  drivers/block/drbd/drbd_receiver.c  |  3 +--
->  drivers/block/loop.c                | 11 +++--------
->  drivers/block/nbd.c                 |  5 +----
->  drivers/block/null_blk/main.c       |  1 -
->  drivers/block/rbd.c                 |  1 -
->  drivers/block/rnbd/rnbd-clt.c       |  2 --
->  drivers/block/rnbd/rnbd-srv-dev.h   |  3 ---
->  drivers/block/virtio_blk.c          |  2 --
->  drivers/block/xen-blkback/xenbus.c  |  2 +-
->  drivers/block/xen-blkfront.c        |  2 --
->  drivers/block/zram/zram_drv.c       |  1 -
->  drivers/md/bcache/request.c         |  4 ++--
->  drivers/md/bcache/super.c           |  3 +--
->  drivers/md/bcache/sysfs.c           |  2 +-
->  drivers/md/dm-cache-target.c        |  9 +--------
->  drivers/md/dm-clone-target.c        |  9 +--------
->  drivers/md/dm-log-writes.c          |  3 +--
->  drivers/md/dm-raid.c                |  9 ++-------
->  drivers/md/dm-table.c               |  9 ++-------
->  drivers/md/dm-thin.c                | 11 +----------
->  drivers/md/dm.c                     |  3 +--
->  drivers/md/md-linear.c              | 11 +----------
->  drivers/md/raid0.c                  |  7 -------
->  drivers/md/raid1.c                  | 16 +---------------
->  drivers/md/raid10.c                 | 18 ++----------------
->  drivers/md/raid5-cache.c            |  2 +-
->  drivers/md/raid5.c                  | 12 ++++--------
->  drivers/mmc/core/queue.c            |  1 -
->  drivers/mtd/mtd_blkdevs.c           |  1 -
->  drivers/nvme/host/core.c            |  6 ++----
->  drivers/s390/block/dasd_fba.c       |  1 -
->  drivers/scsi/sd.c                   |  2 --
->  drivers/target/target_core_device.c |  2 +-
 
-For
+This ^^^^ is for drbd
 
->  fs/btrfs/extent-tree.c              |  4 ++--
->  fs/btrfs/ioctl.c                    |  2 +-
-
-Acked-by: David Sterba <dsterba@suse.com>
+> Acked-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+> Acked-by: David Sterba <dsterba@suse.com> [btrfs]
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
