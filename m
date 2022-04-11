@@ -1,89 +1,87 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 62F29C433F5
-	for <virtualization@archiver.kernel.org>; Mon, 11 Apr 2022 10:47:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id CDD7BC433EF
+	for <virtualization@archiver.kernel.org>; Mon, 11 Apr 2022 10:47:19 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id E157F41519;
-	Mon, 11 Apr 2022 10:47:14 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 7370B83033;
+	Mon, 11 Apr 2022 10:47:19 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id bfxUHdlTiNag; Mon, 11 Apr 2022 10:47:13 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id HWM3QMOfYw-L; Mon, 11 Apr 2022 10:47:18 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id F35EA41521;
-	Mon, 11 Apr 2022 10:47:12 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 2AAD882FDE;
+	Mon, 11 Apr 2022 10:47:18 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id BE58BC002F;
-	Mon, 11 Apr 2022 10:47:12 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4E675C002C
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 03587C002F;
+	Mon, 11 Apr 2022 10:47:18 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 60F4EC002C
  for <virtualization@lists.linux-foundation.org>;
- Mon, 11 Apr 2022 10:47:11 +0000 (UTC)
+ Mon, 11 Apr 2022 10:47:16 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 2A09560EAE
+ by smtp1.osuosl.org (Postfix) with ESMTP id 3C75481AD7
  for <virtualization@lists.linux-foundation.org>;
- Mon, 11 Apr 2022 10:47:11 +0000 (UTC)
+ Mon, 11 Apr 2022 10:47:16 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=bytedance-com.20210112.gappssmtp.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id X61vTyj5FBr1
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 1WTax6nZtejw
  for <virtualization@lists.linux-foundation.org>;
- Mon, 11 Apr 2022 10:47:10 +0000 (UTC)
+ Mon, 11 Apr 2022 10:47:15 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pg1-x533.google.com (mail-pg1-x533.google.com
- [IPv6:2607:f8b0:4864:20::533])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 7A2E060EB4
+Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com
+ [IPv6:2607:f8b0:4864:20::52c])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 311B082FDE
  for <virtualization@lists.linux-foundation.org>;
- Mon, 11 Apr 2022 10:47:10 +0000 (UTC)
-Received: by mail-pg1-x533.google.com with SMTP id 125so13807638pgc.11
+ Mon, 11 Apr 2022 10:47:15 +0000 (UTC)
+Received: by mail-pg1-x52c.google.com with SMTP id s137so11113308pgs.5
  for <virtualization@lists.linux-foundation.org>;
- Mon, 11 Apr 2022 03:47:10 -0700 (PDT)
+ Mon, 11 Apr 2022 03:47:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=bytedance-com.20210112.gappssmtp.com; s=20210112;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=r1LVHO5sM0sX4Mp/kIWaAI89jNYg4e1hMgC8/TqhpPE=;
- b=rAHRlN8Z3U+Wsnm8Zansh+kRLoYyDYTKUar7GY0xPVd0RV1uDix6qAdG1LZFOijYN+
- TWLVX8cLgmpEW8gqb5A0eJpQa7vBzESJzel6SYxoIIDo1SLcNYJjvs5uUXfUWQ2cnc6h
- CW+lBc4n1yUMLyXeQfmK6Z8JHCJLOB1gZJAjjmTueOqNZ3MXbAUzGzA/iLTUkPCNXJMq
- uF4OYpuo9xghReeZa2zuI2lU2EqCxHyb6U5qZL7DlHrkqNQiytqB4xN4DZ38zw6kpq3C
- 4dHdq+quW7RRRMnO53KiozzgI3jOKX90Dsg2KC4NkRvarIfD8pM0sprtB5p7SyGNxlgp
- 1sXw==
+ bh=T2tpQeswcKujfVdwIoHw1RfrV9uib5LWkvVd7zn6J2E=;
+ b=CVqR85YK0kV1ew5YUb3MKn+PwqC2RZOKHCbao+qgSvMsIETamGFD9jCgpWNEtN4C6k
+ H+RQP9uMXjyo2wdqC6/aN2iyj28Ans+K9/6FrjtHKaua2079TiC1j024zPO37h0HS/Cy
+ q3DtobvPoZzMU2wUk6X8HfMYTDfPJgEcTzKA6QZHRNOzU0YUiYrXVH+EydNk/MdWRYom
+ Gi0/CD5X0ZI3Q6qVX88MHAJr9DDgUWy9xZNM6bmkR0aZfZgF688948+SR42xez+1w5yw
+ L1ydr7fmLrGBuSkaUMgO6fpcyqj0qQD7qCjxathDC782+hCBUb+FOBT2a8RXM54zLNid
+ t24g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
  :references:mime-version:content-transfer-encoding;
- bh=r1LVHO5sM0sX4Mp/kIWaAI89jNYg4e1hMgC8/TqhpPE=;
- b=pJ5mAa6uVDa9hzrVPmxjIJ0D1vRXvcPFQ9nCw9tJ4UnNldY6ykeGqXcU+gS08SfzqL
- ifYMwo0iUyNMs/Sp36QB73jbcDxra9yIyi+mO5UlBB6m2PahMRlQzeONMHNyRMCAZ42e
- 395QaQ8lm+eFPbdoWVSVGpeS6QJ6zjs5ImYvLBm3bBSyGDwwMhAfIyZV+nG0GAfcVuHB
- FMYXW8hWBVpuLVllmGxB4KoN6bqVCOizOlX4mbwH9jVtKeYJZNFxvAOGuOU1bmkrJJcP
- o8hkUsHngvdkQ6EmOLAdgiNZsmjtGdQ94IqMpof5xEt8I8Oybwm0TApPi9uqurkZDvGY
- k2Iw==
-X-Gm-Message-State: AOAM530CWgDuwS5npOAabeYm+MXtDjWhCWjw7M8lhbXiG++JgpdPrCzt
- xycudCLo1ahXXeMImdH1NUXhqg==
-X-Google-Smtp-Source: ABdhPJzNWipLLMOZULomAUb8mwqFQAWk9p3wn9uvSu8QAzLJT1bXBY/9CrYAZFu/K3SJo7LMkqm/Yg==
-X-Received: by 2002:a05:6a00:114e:b0:4c8:55f7:faad with SMTP id
- b14-20020a056a00114e00b004c855f7faadmr32520337pfm.86.1649674029925; 
- Mon, 11 Apr 2022 03:47:09 -0700 (PDT)
+ bh=T2tpQeswcKujfVdwIoHw1RfrV9uib5LWkvVd7zn6J2E=;
+ b=I3LkM+jA/lfHjvvhPiek7pZPM30ACwiB92hGkizlmzu10Pht7jHolvdqbkU/G4ABOa
+ kz50PrIQvTwCZZqTf0AYPs3YPgxIM+6Ic3Sq5H3W0qrsGsYqP3Qp7TGt8H6rnxUkv4TB
+ rpLZurNXxIlYAVQw/ZWemBBNlInWqz7lLRT/ocN4PqgSe3V22tVzFeMsigO+cA1mC522
+ 59C6vrJ9bia5OeECpFof17JIRxN25RH+XZGGNWdJNn482zvtywMD+p7p/0jYhRnNOlXX
+ 4IKVSD8Jb/XwP1pxJjnhI+ENVj7TgWZz9G6Xg6zfw86fKh9oQ3XDMU2C1O8TPvKQ9huk
+ R32Q==
+X-Gm-Message-State: AOAM532Tq9JOMVPMrC+NgNACjj7mHbVpTGp/8LspLvSePefbqBnOhNwG
+ oLeo8kwlxI5qWpn5E0dQ46aonQ==
+X-Google-Smtp-Source: ABdhPJywzB2A8MdeFTx2U2wbcJIYP/g1Ica6qEgtJFifufvGAHLRLpTSa7YMRA+izmFa0y09OLt/eQ==
+X-Received: by 2002:a63:1141:0:b0:39c:b664:c508 with SMTP id
+ 1-20020a631141000000b0039cb664c508mr20204916pgr.49.1649674034556; 
+ Mon, 11 Apr 2022 03:47:14 -0700 (PDT)
 Received: from always-x1.bytedance.net ([61.120.150.76])
  by smtp.gmail.com with ESMTPSA id
- d8-20020a636808000000b00398e9c7049bsm27541649pgc.31.2022.04.11.03.47.05
+ d8-20020a636808000000b00398e9c7049bsm27541649pgc.31.2022.04.11.03.47.10
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 11 Apr 2022 03:47:09 -0700 (PDT)
+ Mon, 11 Apr 2022 03:47:14 -0700 (PDT)
 From: zhenwei pi <pizhenwei@bytedance.com>
 To: mst@redhat.com,
 	berrange@redhat.com,
 	arei.gonglei@huawei.com
-Subject: [PATCH v4 1/8] virtio-crypto: header update
-Date: Mon, 11 Apr 2022 18:43:20 +0800
-Message-Id: <20220411104327.197048-2-pizhenwei@bytedance.com>
+Subject: [PATCH v4 2/8] crypto-akcipher: Introduce akcipher types to qapi
+Date: Mon, 11 Apr 2022 18:43:21 +0800
+Message-Id: <20220411104327.197048-3-pizhenwei@bytedance.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220411104327.197048-1-pizhenwei@bytedance.com>
 References: <20220411104327.197048-1-pizhenwei@bytedance.com>
@@ -107,164 +105,88 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Update header from linux, support akcipher service.
+From: Lei He <helei.sig11@bytedance.com>
 
-Reviewed-by: Gonglei <arei.gonglei@huawei.com>
-Signed-off-by: lei he <helei.sig11@bytedance.com>
+Introduce akcipher types, also include RSA related types.
+
+Signed-off-by: Lei He <helei.sig11@bytedance.com>
 Signed-off-by: zhenwei pi <pizhenwei@bytedance.com>
 ---
- .../standard-headers/linux/virtio_crypto.h    | 82 ++++++++++++++++++-
- 1 file changed, 81 insertions(+), 1 deletion(-)
+ qapi/crypto.json | 64 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 64 insertions(+)
 
-diff --git a/include/standard-headers/linux/virtio_crypto.h b/include/standard-headers/linux/virtio_crypto.h
-index 5ff0b4ee59..68066dafb6 100644
---- a/include/standard-headers/linux/virtio_crypto.h
-+++ b/include/standard-headers/linux/virtio_crypto.h
-@@ -37,6 +37,7 @@
- #define VIRTIO_CRYPTO_SERVICE_HASH   1
- #define VIRTIO_CRYPTO_SERVICE_MAC    2
- #define VIRTIO_CRYPTO_SERVICE_AEAD   3
-+#define VIRTIO_CRYPTO_SERVICE_AKCIPHER 4
- 
- #define VIRTIO_CRYPTO_OPCODE(service, op)   (((service) << 8) | (op))
- 
-@@ -57,6 +58,10 @@ struct virtio_crypto_ctrl_header {
- 	   VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_AEAD, 0x02)
- #define VIRTIO_CRYPTO_AEAD_DESTROY_SESSION \
- 	   VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_AEAD, 0x03)
-+#define VIRTIO_CRYPTO_AKCIPHER_CREATE_SESSION \
-+	   VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_AKCIPHER, 0x04)
-+#define VIRTIO_CRYPTO_AKCIPHER_DESTROY_SESSION \
-+	   VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_AKCIPHER, 0x05)
- 	uint32_t opcode;
- 	uint32_t algo;
- 	uint32_t flag;
-@@ -180,6 +185,58 @@ struct virtio_crypto_aead_create_session_req {
- 	uint8_t padding[32];
- };
- 
-+struct virtio_crypto_rsa_session_para {
-+#define VIRTIO_CRYPTO_RSA_RAW_PADDING   0
-+#define VIRTIO_CRYPTO_RSA_PKCS1_PADDING 1
-+	uint32_t padding_algo;
+diff --git a/qapi/crypto.json b/qapi/crypto.json
+index 1ec54c15ca..9e2b41fc82 100644
+--- a/qapi/crypto.json
++++ b/qapi/crypto.json
+@@ -540,3 +540,67 @@
+   'data': { '*loaded': { 'type': 'bool', 'features': ['deprecated'] },
+             '*sanity-check': 'bool',
+             '*passwordid': 'str' } }
++##
++# @QCryptoAkCipherAlgorithm:
++#
++# The supported algorithms for asymmetric encryption ciphers
++#
++# @rsa: RSA algorithm
++#
++# Since: 7.1
++##
++{ 'enum': 'QCryptoAkCipherAlgorithm',
++  'prefix': 'QCRYPTO_AKCIPHER_ALG',
++  'data': ['rsa']}
 +
-+#define VIRTIO_CRYPTO_RSA_NO_HASH   0
-+#define VIRTIO_CRYPTO_RSA_MD2       1
-+#define VIRTIO_CRYPTO_RSA_MD3       2
-+#define VIRTIO_CRYPTO_RSA_MD4       3
-+#define VIRTIO_CRYPTO_RSA_MD5       4
-+#define VIRTIO_CRYPTO_RSA_SHA1      5
-+#define VIRTIO_CRYPTO_RSA_SHA256    6
-+#define VIRTIO_CRYPTO_RSA_SHA384    7
-+#define VIRTIO_CRYPTO_RSA_SHA512    8
-+#define VIRTIO_CRYPTO_RSA_SHA224    9
-+	uint32_t hash_algo;
-+};
++##
++# @QCryptoAkCipherKeyType:
++#
++# The type of asymmetric keys.
++#
++# Since: 7.1
++##
++{ 'enum': 'QCryptoAkCipherKeyType',
++  'prefix': 'QCRYPTO_AKCIPHER_KEY_TYPE',
++  'data': ['public', 'private']}
 +
-+struct virtio_crypto_ecdsa_session_para {
-+#define VIRTIO_CRYPTO_CURVE_UNKNOWN   0
-+#define VIRTIO_CRYPTO_CURVE_NIST_P192 1
-+#define VIRTIO_CRYPTO_CURVE_NIST_P224 2
-+#define VIRTIO_CRYPTO_CURVE_NIST_P256 3
-+#define VIRTIO_CRYPTO_CURVE_NIST_P384 4
-+#define VIRTIO_CRYPTO_CURVE_NIST_P521 5
-+	uint32_t curve_id;
-+	uint32_t padding;
-+};
++##
++# @QCryptoRSAPaddingAlgorithm:
++#
++# The padding algorithm for RSA.
++#
++# @raw: no padding used
++# @pkcs1: pkcs1#v1.5
++#
++# Since: 7.1
++##
++{ 'enum': 'QCryptoRSAPaddingAlgorithm',
++  'prefix': 'QCRYPTO_RSA_PADDING_ALG',
++  'data': ['raw', 'pkcs1']}
 +
-+struct virtio_crypto_akcipher_session_para {
-+#define VIRTIO_CRYPTO_NO_AKCIPHER    0
-+#define VIRTIO_CRYPTO_AKCIPHER_RSA   1
-+#define VIRTIO_CRYPTO_AKCIPHER_DSA   2
-+#define VIRTIO_CRYPTO_AKCIPHER_ECDSA 3
-+	uint32_t algo;
++##
++# @QCryptoAkCipherOptionsRSA:
++#
++# Specific parameters for RSA algorithm.
++#
++# @hash-alg: QCryptoHashAlgorithm
++# @padding-alg: QCryptoRSAPaddingAlgorithm
++#
++# Since: 7.1
++##
++{ 'struct': 'QCryptoAkCipherOptionsRSA',
++  'data': { 'hash-alg':'QCryptoHashAlgorithm',
++            'padding-alg': 'QCryptoRSAPaddingAlgorithm'}}
 +
-+#define VIRTIO_CRYPTO_AKCIPHER_KEY_TYPE_PUBLIC  1
-+#define VIRTIO_CRYPTO_AKCIPHER_KEY_TYPE_PRIVATE 2
-+	uint32_t keytype;
-+	uint32_t keylen;
-+
-+	union {
-+		struct virtio_crypto_rsa_session_para rsa;
-+		struct virtio_crypto_ecdsa_session_para ecdsa;
-+	} u;
-+};
-+
-+struct virtio_crypto_akcipher_create_session_req {
-+	struct virtio_crypto_akcipher_session_para para;
-+	uint8_t padding[36];
-+};
-+
- struct virtio_crypto_alg_chain_session_para {
- #define VIRTIO_CRYPTO_SYM_ALG_CHAIN_ORDER_HASH_THEN_CIPHER  1
- #define VIRTIO_CRYPTO_SYM_ALG_CHAIN_ORDER_CIPHER_THEN_HASH  2
-@@ -247,6 +304,8 @@ struct virtio_crypto_op_ctrl_req {
- 			mac_create_session;
- 		struct virtio_crypto_aead_create_session_req
- 			aead_create_session;
-+		struct virtio_crypto_akcipher_create_session_req
-+			akcipher_create_session;
- 		struct virtio_crypto_destroy_session_req
- 			destroy_session;
- 		uint8_t padding[56];
-@@ -266,6 +325,14 @@ struct virtio_crypto_op_header {
- 	VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_AEAD, 0x00)
- #define VIRTIO_CRYPTO_AEAD_DECRYPT \
- 	VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_AEAD, 0x01)
-+#define VIRTIO_CRYPTO_AKCIPHER_ENCRYPT \
-+	VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_AKCIPHER, 0x00)
-+#define VIRTIO_CRYPTO_AKCIPHER_DECRYPT \
-+	VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_AKCIPHER, 0x01)
-+#define VIRTIO_CRYPTO_AKCIPHER_SIGN \
-+	VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_AKCIPHER, 0x02)
-+#define VIRTIO_CRYPTO_AKCIPHER_VERIFY \
-+	VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_AKCIPHER, 0x03)
- 	uint32_t opcode;
- 	/* algo should be service-specific algorithms */
- 	uint32_t algo;
-@@ -390,6 +457,16 @@ struct virtio_crypto_aead_data_req {
- 	uint8_t padding[32];
- };
- 
-+struct virtio_crypto_akcipher_para {
-+	uint32_t src_data_len;
-+	uint32_t dst_data_len;
-+};
-+
-+struct virtio_crypto_akcipher_data_req {
-+	struct virtio_crypto_akcipher_para para;
-+	uint8_t padding[40];
-+};
-+
- /* The request of the data virtqueue's packet */
- struct virtio_crypto_op_data_req {
- 	struct virtio_crypto_op_header header;
-@@ -399,6 +476,7 @@ struct virtio_crypto_op_data_req {
- 		struct virtio_crypto_hash_data_req hash_req;
- 		struct virtio_crypto_mac_data_req mac_req;
- 		struct virtio_crypto_aead_data_req aead_req;
-+		struct virtio_crypto_akcipher_data_req akcipher_req;
- 		uint8_t padding[48];
- 	} u;
- };
-@@ -408,6 +486,8 @@ struct virtio_crypto_op_data_req {
- #define VIRTIO_CRYPTO_BADMSG    2
- #define VIRTIO_CRYPTO_NOTSUPP   3
- #define VIRTIO_CRYPTO_INVSESS   4 /* Invalid session id */
-+#define VIRTIO_CRYPTO_NOSPC     5 /* no free session ID */
-+#define VIRTIO_CRYPTO_KEY_REJECTED 6 /* Signature verification failed */
- 
- /* The accelerator hardware is ready */
- #define VIRTIO_CRYPTO_S_HW_READY  (1 << 0)
-@@ -438,7 +518,7 @@ struct virtio_crypto_config {
- 	uint32_t max_cipher_key_len;
- 	/* Maximum length of authenticated key */
- 	uint32_t max_auth_key_len;
--	uint32_t reserve;
-+	uint32_t akcipher_algo;
- 	/* Maximum size of each crypto request's content */
- 	uint64_t max_size;
- };
++##
++# @QCryptoAkCipherOptions:
++#
++# The options that are available for all asymmetric key algorithms
++# when creating a new QCryptoAkCipher.
++#
++# Since: 7.1
++##
++{ 'union': 'QCryptoAkCipherOptions',
++  'base': { 'algorithm': 'QCryptoAkCipherAlgorithm' },
++  'discriminator': 'algorithm',
++  'data': { 'rsa': 'QCryptoAkCipherOptionsRSA' }}
 -- 
 2.20.1
 
