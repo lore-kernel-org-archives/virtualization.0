@@ -4,40 +4,40 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1CC0EC433EF
-	for <virtualization@archiver.kernel.org>; Tue, 12 Apr 2022 07:26:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5C00DC433FE
+	for <virtualization@archiver.kernel.org>; Tue, 12 Apr 2022 07:26:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id B4389408CD;
-	Tue, 12 Apr 2022 07:26:27 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id D7CB9404A1;
+	Tue, 12 Apr 2022 07:26:28 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id r6kcjwMsJDta; Tue, 12 Apr 2022 07:26:26 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id E50814011C;
-	Tue, 12 Apr 2022 07:26:25 +0000 (UTC)
+	with ESMTP id ll_BSEPiFP2R; Tue, 12 Apr 2022 07:26:27 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 36DC340643;
+	Tue, 12 Apr 2022 07:26:27 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 9E0FFC0033;
-	Tue, 12 Apr 2022 07:26:25 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A0B10C002C
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E6CDDC0033;
+	Tue, 12 Apr 2022 07:26:26 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5361AC002C
  for <virtualization@lists.linux-foundation.org>;
- Tue, 12 Apr 2022 07:26:24 +0000 (UTC)
+ Tue, 12 Apr 2022 07:26:25 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 7828E60DFA
+ by smtp4.osuosl.org (Postfix) with ESMTP id 31F1C41675
  for <virtualization@lists.linux-foundation.org>;
- Tue, 12 Apr 2022 07:26:24 +0000 (UTC)
+ Tue, 12 Apr 2022 07:26:25 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
  dkim=pass (2048-bit key) header.d=intel.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id wr4HDcPL2ywi
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id pzAxn23lA9t7
  for <virtualization@lists.linux-foundation.org>;
  Tue, 12 Apr 2022 07:26:23 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 6305060687
+Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id CA5CD4093A
  for <virtualization@lists.linux-foundation.org>;
  Tue, 12 Apr 2022 07:26:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
@@ -45,26 +45,26 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
  t=1649748383; x=1681284383;
  h=date:from:to:cc:subject:message-id:references:
  mime-version:in-reply-to;
- bh=gkhGiepzPyOKcCmGXkN+87sWY6kjgK6MU99iQQlt3gs=;
- b=bYgezipwarSpl1rtElh+SM2Cy7w0gSIOuB4JJFxfS1s473Ycxf7zVELG
- TllL5AtQrbr+51+cYrfKlt6KFJeAG+OwYMMuI+y13j+84879jtqk/9YXg
- puRQTKWGfBO86RuxDZtMg278Jd0cK2xk7pE4D2uJYkEmQw2C+IhNkpiXy
- xHParV5UVORiaWXkaW8+UrX/uLjkiSBAI5jbeq2P421HM5eUx6kAW8GH+
- lBKuk7UToBDaNbgtLYcpp8LTG2SidsYQdlLo6eX0rw+Qr5MGLYjzREPjv
- 8J8ldS+44aZ38XhakIl+DZR6cERHtoW3i3kpnqrHcF+lWFJ8yyw4dmNmS w==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10314"; a="244182267"
-X-IronPort-AV: E=Sophos;i="5.90,253,1643702400"; d="scan'208";a="244182267"
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
- by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ bh=5OyqKZ2t12lVTvKw/fJWrzDUz4nPfGALPPcWHIJFgN8=;
+ b=O+Qvlm3KUxP6NVMuF9f3Uk8PHtLEqAfxKw7hl4eGYCN5b31hkBJvLS1M
+ aUVFvkSmYbolPm7NkycXFjPBRL3+yPHekPwZ7rEu8+lP3cjWpo7vaGX3m
+ Gixz6Yr6xG4ExcXlWfLWQ37eohuUu/fCETc/hZq1gZNLcd+owgIKhnO14
+ 0VOmEQNTQuAQPWlj0dA2SKe3803QAl3yAgBnsZ+szM3l42GIk1cIrBcre
+ KdVEg7nt/MExsG3DxptHOB9k5174nlPqBG9fQsaetQk69QFeAZjMIQMqJ
+ Jni85dpNPkRsJW0SH29DcVw6BTOamZCtPUZrO9AsI9lbtIJKI1W4aXCPv g==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10314"; a="325210063"
+X-IronPort-AV: E=Sophos;i="5.90,253,1643702400"; d="scan'208";a="325210063"
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+ by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
  12 Apr 2022 00:26:22 -0700
 X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.90,253,1643702400"; d="scan'208";a="802118281"
+X-IronPort-AV: E=Sophos;i="5.90,253,1643702400"; d="scan'208";a="644602157"
 Received: from lkp-server02.sh.intel.com (HELO d3fc50ef50de) ([10.239.97.151])
- by fmsmga006.fm.intel.com with ESMTP; 12 Apr 2022 00:26:17 -0700
+ by FMSMGA003.fm.intel.com with ESMTP; 12 Apr 2022 00:26:17 -0700
 Received: from kbuild by d3fc50ef50de with local (Exim 4.95)
- (envelope-from <lkp@intel.com>) id 1neAum-0002ci-L0;
- Tue, 12 Apr 2022 07:26:16 +0000
-Date: Tue, 12 Apr 2022 15:25:51 +0800
+ (envelope-from <lkp@intel.com>) id 1neAun-0002cr-5k;
+ Tue, 12 Apr 2022 07:26:17 +0000
+Date: Tue, 12 Apr 2022 15:25:46 +0800
 From: kernel test robot <lkp@intel.com>
 To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
  David Airlie <airlied@linux.ie>, Gerd Hoffmann <kraxel@redhat.com>,
@@ -80,7 +80,7 @@ To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
  Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
  Rob Clark <robdclark@gmail.com>
 Subject: Re: [PATCH v3 11/15] drm/shmem-helper: Add generic memory shrinker
-Message-ID: <202204121504.gLR3FHQe-lkp@intel.com>
+Message-ID: <202204121523.qVMxOvZg-lkp@intel.com>
 References: <20220411215937.281655-12-dmitry.osipenko@collabora.com>
 MIME-Version: 1.0
 Content-Disposition: inline
@@ -118,7 +118,7 @@ https://git-scm.com/docs/git-format-patch]
 
 url:    https://github.com/intel-lab-lkp/linux/commits/Dmitry-Osipenko/Add-generic-memory-shrinker-to-VirtIO-GPU-and-Panfrost-DRM-drivers/20220412-060325
 base:    d12d7e1cfe38e0c36d28c7a9fbbc436ad0d17c14
-config: hexagon-randconfig-r045-20220411 (https://download.01.org/0day-ci/archive/20220412/202204121504.gLR3FHQe-lkp@intel.com/config)
+config: i386-randconfig-a005-20220411 (https://download.01.org/0day-ci/archive/20220412/202204121523.qVMxOvZg-lkp@intel.com/config)
 compiler: clang version 15.0.0 (https://github.com/llvm/llvm-project fe2478d44e4f7f191c43fef629ac7a23d0251e72)
 reproduce (this is a W=1 build):
         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
@@ -129,7 +129,7 @@ reproduce (this is a W=1 build):
         git checkout 683ba8a9d72ba7770a61a9266a2b33949f3874f2
         # save the config file to linux build tree
         mkdir build_dir
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross W=1 O=build_dir ARCH=hexagon SHELL=/bin/bash drivers/gpu/drm/
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross W=1 O=build_dir ARCH=i386 SHELL=/bin/bash drivers/gpu/drm/
 
 If you fix the issue, kindly add following tag as appropriate
 Reported-by: kernel test robot <lkp@intel.com>
