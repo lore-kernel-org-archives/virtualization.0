@@ -1,82 +1,91 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B27F5C433F5
-	for <virtualization@archiver.kernel.org>; Tue, 12 Apr 2022 16:37:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id DCF73C433EF
+	for <virtualization@archiver.kernel.org>; Tue, 12 Apr 2022 16:49:11 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 5A7CD40B18;
-	Tue, 12 Apr 2022 16:37:32 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 812F2610AB;
+	Tue, 12 Apr 2022 16:49:11 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 6zow_4A-R4XA; Tue, 12 Apr 2022 16:37:31 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id qnUCMinyOBk6; Tue, 12 Apr 2022 16:49:10 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id D223A40B15;
-	Tue, 12 Apr 2022 16:37:30 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 1C9CE610B4;
+	Tue, 12 Apr 2022 16:49:10 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A3E21C0033;
-	Tue, 12 Apr 2022 16:37:30 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 414CCC002C
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E9C84C0033;
+	Tue, 12 Apr 2022 16:49:09 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id EFAEBC002C
  for <virtualization@lists.linux-foundation.org>;
- Tue, 12 Apr 2022 16:37:29 +0000 (UTC)
+ Tue, 12 Apr 2022 16:49:07 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 207DA41728
+ by smtp2.osuosl.org (Postfix) with ESMTP id E75F640B2F
  for <virtualization@lists.linux-foundation.org>;
- Tue, 12 Apr 2022 16:37:29 +0000 (UTC)
+ Tue, 12 Apr 2022 16:49:07 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=intel.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id qD-fjrNXMEso
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id VDHAFKca7uop
  for <virtualization@lists.linux-foundation.org>;
- Tue, 12 Apr 2022 16:37:28 +0000 (UTC)
+ Tue, 12 Apr 2022 16:49:06 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
- by smtp4.osuosl.org (Postfix) with ESMTPS id F139141727
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id A27EA40B1A
  for <virtualization@lists.linux-foundation.org>;
- Tue, 12 Apr 2022 16:37:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
- d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1649781448; x=1681317448;
- h=date:from:to:cc:subject:message-id:references:
- mime-version:in-reply-to;
- bh=8zmapAeyFTtKr42ftB7igvZstrLdaQa5K0dOWyaPelI=;
- b=fFkG/+2vlJEKxDFkjQmF7+XMSAQhS/oW8qank07N75rbLNiHyaywDgQd
- 9WV1ByRB2v47+eIAnHn4eR/es2aZt5RGjRzaXkl6S+yw5bM7cTnFA59gq
- SgvkF3Fu/IjYWGeKWWNbuu0sMMntwZ8VKxdxLcQw0i/2WQxND4y81UYt5
- arWWjEqNBjzj4LeNodN1ZqeAaSnWONqDbnlVThbYvU0ICFCIrkFZr6nKE
- oNAX8jMvMg90v5ztdarlPrNLK5hzu+6iqHOsRUKay8JoHfW/XhMrjOkFC
- ZtO9yXqv1JnSEiwN5nzrbmWcK5iLZ7UiDC8yrp8rruBhOwIRZDzA6UFYd g==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10315"; a="325340343"
-X-IronPort-AV: E=Sophos;i="5.90,254,1643702400"; d="scan'208";a="325340343"
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
- by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 12 Apr 2022 09:29:30 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.90,254,1643702400"; d="scan'208";a="590393310"
-Received: from lkp-server02.sh.intel.com (HELO d3fc50ef50de) ([10.239.97.151])
- by orsmga001.jf.intel.com with ESMTP; 12 Apr 2022 09:29:27 -0700
-Received: from kbuild by d3fc50ef50de with local (Exim 4.95)
- (envelope-from <lkp@intel.com>) id 1neJOQ-0002zk-UN;
- Tue, 12 Apr 2022 16:29:26 +0000
-Date: Wed, 13 Apr 2022 00:28:42 +0800
-From: kernel test robot <lkp@intel.com>
-To: Eli Cohen <elic@nvidia.com>, mst@redhat.com, jasowang@redhat.com
-Subject: Re: [PATCH v2 1/2] vdpa: Add support for querying vendor statistics
-Message-ID: <202204130003.fROyiuxA-lkp@intel.com>
-References: <20220412130402.46945-2-elic@nvidia.com>
+ Tue, 12 Apr 2022 16:49:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1649782144;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=UaNDfDtZrF6G9nBA9RDO8xMUJdj8q1bYX1cCWIIUT/8=;
+ b=S1OKSttfoqZGCIo4c0d3jVweEozTLaJzZvj0TYEhDdmGhNhRN7U76fFrZIBAesHXJH2sWr
+ bjpHmdgEueaEBFECIVS/b+3pTAeOE7Nw7N/gWFzSqGx2dGp7lqUW/1ghoYeUJCRuF9zQLA
+ mqg2iCDL5CI//Gxuwr9NozDo1TvNoSU=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-5-0_C0awwMMxmhlkf01iFzdw-1; Tue, 12 Apr 2022 12:48:59 -0400
+X-MC-Unique: 0_C0awwMMxmhlkf01iFzdw-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.4])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id AF6DA3C01B97;
+ Tue, 12 Apr 2022 16:48:58 +0000 (UTC)
+Received: from localhost (unknown [10.39.193.33])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id EEEA02024CD2;
+ Tue, 12 Apr 2022 16:48:48 +0000 (UTC)
+From: Cornelia Huck <cohuck@redhat.com>
+To: Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH V2 4/5] virtio-pci: implement synchronize_vqs()
+In-Reply-To: <20220412020145.32e26e5a.pasic@linux.ibm.com>
+Organization: Red Hat GmbH
+References: <20220406083538.16274-1-jasowang@redhat.com>
+ <20220406083538.16274-5-jasowang@redhat.com>
+ <20220406075952-mutt-send-email-mst@kernel.org>
+ <87wng2e527.fsf@redhat.com> <20220408150307.24b6b99f.pasic@linux.ibm.com>
+ <20220410034556-mutt-send-email-mst@kernel.org>
+ <CACGkMEtarZb6g3ij5=+As17+d9jtdAqNa1EzSuTXc7Pq_som0Q@mail.gmail.com>
+ <877d7vbspu.fsf@redhat.com> <20220412020145.32e26e5a.pasic@linux.ibm.com>
+User-Agent: Notmuch/0.34 (https://notmuchmail.org)
+Date: Tue, 12 Apr 2022 18:48:47 +0200
+Message-ID: <87r1629rio.fsf@redhat.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20220412130402.46945-2-elic@nvidia.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-Cc: kbuild-all@lists.01.org, llvm@lists.linux.dev, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, si-wei.liu@oracle.com,
- Eli Cohen <elic@nvidia.com>
+X-Scanned-By: MIMEDefang 2.78 on 10.11.54.4
+Cc: "Paul E. McKenney" <paulmck@kernel.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>,
+ Marc Zyngier <maz@kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>,
+ virtualization <virtualization@lists.linux-foundation.org>,
+ Halil Pasic <pasic@linux.ibm.com>, Thomas Gleixner <tglx@linutronix.de>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -93,62 +102,38 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Eli,
+On Tue, Apr 12 2022, Halil Pasic <pasic@linux.ibm.com> wrote:
 
-Thank you for the patch! Perhaps something to improve:
+> On Mon, 11 Apr 2022 16:27:41 +0200
+> Cornelia Huck <cohuck@redhat.com> wrote:
 
-[auto build test WARNING on linus/master]
-[also build test WARNING on v5.18-rc2 next-20220412]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch]
+>> My main concern is that we would need to synchronize against a single
+>> interrupt that covers all kinds of I/O interrupts, not just a single
+>> device...
+>> 
+>
+> Could we synchronize on struct airq_info's lock member? If we were
+> to grab all of these that might be involved...
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Eli-Cohen/Show-statistics-for-a-vdpa-device/20220412-212129
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git ce522ba9ef7e2d9fb22a39eb3371c0c64e2a433e
-config: i386-randconfig-a004-20220411 (https://download.01.org/0day-ci/archive/20220413/202204130003.fROyiuxA-lkp@intel.com/config)
-compiler: clang version 15.0.0 (https://github.com/llvm/llvm-project fe2478d44e4f7f191c43fef629ac7a23d0251e72)
-reproduce (this is a W=1 build):
-        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        # https://github.com/intel-lab-lkp/linux/commit/813a1bf827634a8d7e148b133e2849fac37819cd
-        git remote add linux-review https://github.com/intel-lab-lkp/linux
-        git fetch --no-tags linux-review Eli-Cohen/Show-statistics-for-a-vdpa-device/20220412-212129
-        git checkout 813a1bf827634a8d7e148b133e2849fac37819cd
-        # save the config file to linux build tree
-        mkdir build_dir
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross W=1 O=build_dir ARCH=i386 SHELL=/bin/bash drivers/usb/typec/ drivers/vdpa/
+Hm, that could possibly narrow the sync down to a subset, which seems
+better. For devices still using classic interrupts, per-device sync
+would be easy.
 
-If you fix the issue, kindly add following tag as appropriate
-Reported-by: kernel test robot <lkp@intel.com>
+>
+> AFAIU for the synchronize implementation we need a lock or a set of locks
+> that contain all the possible vring_interrupt() calls with the queuues
+> that belong to the given device as a critical section. That way, one
+> has the acquire's and release's in place so that the vrign_interrupt()
+> either guaranteed to finish before the change of driver_ready is
+> guaranteed to be complete, or it is guaranteed to see the change.
+>
+> In any case, I guess we should first get clear on the first part. I.e.
+> when do we want to allow host->guest notifications.
 
-All warnings (new ones prefixed by >>):
+Also, whether we just care about vring interrupts, or general device
+interrupts (not sure if a config change interrupt may also trigger
+things we do not want to trigger?)
 
->> drivers/vdpa/vdpa.c:1122:61: warning: implicit conversion from 'int' to 's16' (aka 'short') changes value from 65535 to -1 [-Wconstant-conversion]
-           [VDPA_ATTR_DEV_QUEUE_INDEX] = NLA_POLICY_RANGE(NLA_U32, 0, 65535),
-                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~
-   include/net/netlink.h:396:9: note: expanded from macro 'NLA_POLICY_RANGE'
-           .max = _max                                     \
-                  ^~~~
-   1 warning generated.
-
-
-vim +1122 drivers/vdpa/vdpa.c
-
-  1114	
-  1115	static const struct nla_policy vdpa_nl_policy[VDPA_ATTR_MAX + 1] = {
-  1116		[VDPA_ATTR_MGMTDEV_BUS_NAME] = { .type = NLA_NUL_STRING },
-  1117		[VDPA_ATTR_MGMTDEV_DEV_NAME] = { .type = NLA_STRING },
-  1118		[VDPA_ATTR_DEV_NAME] = { .type = NLA_STRING },
-  1119		[VDPA_ATTR_DEV_NET_CFG_MACADDR] = NLA_POLICY_ETH_ADDR,
-  1120		/* virtio spec 1.1 section 5.1.4.1 for valid MTU range */
-  1121		[VDPA_ATTR_DEV_NET_CFG_MTU] = NLA_POLICY_MIN(NLA_U16, 68),
-> 1122		[VDPA_ATTR_DEV_QUEUE_INDEX] = NLA_POLICY_RANGE(NLA_U32, 0, 65535),
-  1123	};
-  1124	
-
--- 
-0-DAY CI Kernel Test Service
-https://01.org/lkp
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
