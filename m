@@ -1,120 +1,82 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D0196C433EF
-	for <virtualization@archiver.kernel.org>; Tue, 12 Apr 2022 15:06:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B27F5C433F5
+	for <virtualization@archiver.kernel.org>; Tue, 12 Apr 2022 16:37:32 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 55B7E416E9;
-	Tue, 12 Apr 2022 15:06:17 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 5A7CD40B18;
+	Tue, 12 Apr 2022 16:37:32 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id C9-FC1ewB5LU; Tue, 12 Apr 2022 15:06:16 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 6zow_4A-R4XA; Tue, 12 Apr 2022 16:37:31 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 4E3F640994;
-	Tue, 12 Apr 2022 15:06:15 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id D223A40B15;
+	Tue, 12 Apr 2022 16:37:30 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1988FC0033;
-	Tue, 12 Apr 2022 15:06:15 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B06CDC002C
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A3E21C0033;
+	Tue, 12 Apr 2022 16:37:30 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 414CCC002C
  for <virtualization@lists.linux-foundation.org>;
- Tue, 12 Apr 2022 15:06:13 +0000 (UTC)
+ Tue, 12 Apr 2022 16:37:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 9D2E5409EE
+ by smtp4.osuosl.org (Postfix) with ESMTP id 207DA41728
  for <virtualization@lists.linux-foundation.org>;
- Tue, 12 Apr 2022 15:06:13 +0000 (UTC)
+ Tue, 12 Apr 2022 16:37:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=intel.com
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id LMJk9D7UfG83
+ with ESMTP id qD-fjrNXMEso
  for <virtualization@lists.linux-foundation.org>;
- Tue, 12 Apr 2022 15:06:11 +0000 (UTC)
+ Tue, 12 Apr 2022 16:37:28 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 46B4340994
+Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id F139141727
  for <virtualization@lists.linux-foundation.org>;
- Tue, 12 Apr 2022 15:06:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1649775970;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=XcMg4A6w1yZzg9wuJ8koxUDNZ+ppyVYaFpMl0UYBBWU=;
- b=gYQRy7lnKGUmRYZQvr8N2Yjf7jS6x0Z72BhOIuMFt4eS48JXLntTIt7ftF6vJSPCAa5Sch
- sxqC8B9G/eJL1KFTbLqKAVs33dw7k6nGGOrZpfPp9EQverq49LOrpaiIbP50aL+IbZZuO4
- m+2cLPmtWsWQvN5dxHBKY9B0splgv/A=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-169-VAC8CjSgO1qfJGQrHgiRXQ-1; Tue, 12 Apr 2022 11:06:04 -0400
-X-MC-Unique: VAC8CjSgO1qfJGQrHgiRXQ-1
-Received: by mail-wr1-f69.google.com with SMTP id
- 46-20020adf8031000000b00207ad3febaeso564586wrk.6
- for <virtualization@lists.linux-foundation.org>;
- Tue, 12 Apr 2022 08:06:04 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
- :content-language:to:cc:references:from:organization:in-reply-to
- :content-transfer-encoding;
- bh=XcMg4A6w1yZzg9wuJ8koxUDNZ+ppyVYaFpMl0UYBBWU=;
- b=AnnunQWxSgl19Tiz9bn7ZKFYoMirQ5xBcORMvoQXn7zmMxC8cWyx32N0zRTCbf4ky9
- FZGETE9Td+k9LKX9QfOtb0U+a8UOaUFWTiCaHjBVYrAxDP4WyaC0yWMIH5ZX8mWoanEj
- NzVtkHt0+HHx7sQKvimjkMZmpEtAYqCi1JnqW2lxLzTaJMDu9Tb18I8jRVFvd6EN2s8p
- WMWtpG2raHxnrYBJ0C6a70GS7NvUuYIv0IvZOcllk1z2o7C+TERnZmKn+ABXtreh7hJP
- an81kESOH3tT26Beof+jVdrJkRczynKXCRIC+oz/4mCKxiVyBu8so5snNqVLwrqUbeEl
- Wr/g==
-X-Gm-Message-State: AOAM5307BqWP0p/EG6roBSc8m2QRgKhdxHU0Ql/28qN2vpRT0/tgQhjF
- ivn8aJhNjilJjRjDpkn+gxQ/5CNy1xtcAiXMPODf2gpuKqKeyTJypJ5O6u1A3Kv0e1MDcPhyqQY
- +ivhzFKYpMKvdopJlxV7GAQ5rF+1HGP02T9RlAYV0Gg==
-X-Received: by 2002:adf:c188:0:b0:1e6:8ecb:ea5a with SMTP id
- x8-20020adfc188000000b001e68ecbea5amr28432440wre.711.1649775963502; 
- Tue, 12 Apr 2022 08:06:03 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxUf6mPkR4HTFyBmy700+AFHseZaInznKf5AOScugwmvW/0QoMnFDweHlOBb+4v1i50K+KUow==
-X-Received: by 2002:adf:c188:0:b0:1e6:8ecb:ea5a with SMTP id
- x8-20020adfc188000000b001e68ecbea5amr28432412wre.711.1649775963050; 
- Tue, 12 Apr 2022 08:06:03 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c707:1800:7c14:16cc:5291:a9f3?
- (p200300cbc70718007c1416cc5291a9f3.dip0.t-ipconnect.de.
- [2003:cb:c707:1800:7c14:16cc:5291:a9f3])
- by smtp.gmail.com with ESMTPSA id
- 7-20020a05600c024700b0038ec0c4a2e7sm2522715wmj.11.2022.04.12.08.06.02
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Tue, 12 Apr 2022 08:06:02 -0700 (PDT)
-Message-ID: <afa115e6-d2ae-eeff-ba31-f8b2a5715b95@redhat.com>
-Date: Tue, 12 Apr 2022 17:06:01 +0200
+ Tue, 12 Apr 2022 16:37:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+ d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+ t=1649781448; x=1681317448;
+ h=date:from:to:cc:subject:message-id:references:
+ mime-version:in-reply-to;
+ bh=8zmapAeyFTtKr42ftB7igvZstrLdaQa5K0dOWyaPelI=;
+ b=fFkG/+2vlJEKxDFkjQmF7+XMSAQhS/oW8qank07N75rbLNiHyaywDgQd
+ 9WV1ByRB2v47+eIAnHn4eR/es2aZt5RGjRzaXkl6S+yw5bM7cTnFA59gq
+ SgvkF3Fu/IjYWGeKWWNbuu0sMMntwZ8VKxdxLcQw0i/2WQxND4y81UYt5
+ arWWjEqNBjzj4LeNodN1ZqeAaSnWONqDbnlVThbYvU0ICFCIrkFZr6nKE
+ oNAX8jMvMg90v5ztdarlPrNLK5hzu+6iqHOsRUKay8JoHfW/XhMrjOkFC
+ ZtO9yXqv1JnSEiwN5nzrbmWcK5iLZ7UiDC8yrp8rruBhOwIRZDzA6UFYd g==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10315"; a="325340343"
+X-IronPort-AV: E=Sophos;i="5.90,254,1643702400"; d="scan'208";a="325340343"
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+ by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 12 Apr 2022 09:29:30 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.90,254,1643702400"; d="scan'208";a="590393310"
+Received: from lkp-server02.sh.intel.com (HELO d3fc50ef50de) ([10.239.97.151])
+ by orsmga001.jf.intel.com with ESMTP; 12 Apr 2022 09:29:27 -0700
+Received: from kbuild by d3fc50ef50de with local (Exim 4.95)
+ (envelope-from <lkp@intel.com>) id 1neJOQ-0002zk-UN;
+ Tue, 12 Apr 2022 16:29:26 +0000
+Date: Wed, 13 Apr 2022 00:28:42 +0800
+From: kernel test robot <lkp@intel.com>
+To: Eli Cohen <elic@nvidia.com>, mst@redhat.com, jasowang@redhat.com
+Subject: Re: [PATCH v2 1/2] vdpa: Add support for querying vendor statistics
+Message-ID: <202204130003.fROyiuxA-lkp@intel.com>
+References: <20220412130402.46945-2-elic@nvidia.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.6.2
-Subject: Re: [PATCH v10 2/5] mm: page_isolation: check specified range for
- unmovable pages
-To: Zi Yan <ziy@nvidia.com>
-References: <20220406151858.3149821-1-zi.yan@sent.com>
- <20220406151858.3149821-3-zi.yan@sent.com>
- <ccae12f9-a452-95a8-f404-3398dcdf5bdf@redhat.com>
- <039317AF-985C-43D7-BB99-714DD6022B5C@nvidia.com>
- <428828e1-6b59-8db7-62e0-1429863cb13f@redhat.com>
- <B4336C2E-E728-49E2-B84B-5728B9A1EA69@nvidia.com>
-From: David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-In-Reply-To: <B4336C2E-E728-49E2-B84B-5728B9A1EA69@nvidia.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=david@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Cc: linux-kernel@vger.kernel.org,
- Christophe Leroy <christophe.leroy@csgroup.eu>,
- virtualization@lists.linux-foundation.org, linux-mm@kvack.org,
- Mike Rapoport <rppt@kernel.org>, Eric Ren <renzhengeek@gmail.com>,
- Mel Gorman <mgorman@techsingularity.net>, Vlastimil Babka <vbabka@suse.cz>,
- Oscar Salvador <osalvador@suse.de>
+Content-Disposition: inline
+In-Reply-To: <20220412130402.46945-2-elic@nvidia.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+Cc: kbuild-all@lists.01.org, llvm@lists.linux.dev, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, si-wei.liu@oracle.com,
+ Eli Cohen <elic@nvidia.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -131,171 +93,62 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 12.04.22 17:01, Zi Yan wrote:
-> On 12 Apr 2022, at 10:49, David Hildenbrand wrote:
-> 
->> On 12.04.22 16:07, Zi Yan wrote:
->>> On 12 Apr 2022, at 9:10, David Hildenbrand wrote:
->>>
->>>> On 06.04.22 17:18, Zi Yan wrote:
->>>>> From: Zi Yan <ziy@nvidia.com>
->>>>>
->>>>> Enable set_migratetype_isolate() to check specified sub-range for
->>>>> unmovable pages during isolation. Page isolation is done
->>>>> at MAX_ORDER_NR_PAEGS granularity, but not all pages within that
->>>>> granularity are intended to be isolated. For example,
->>>>> alloc_contig_range(), which uses page isolation, allows ranges without
->>>>> alignment. This commit makes unmovable page check only look for
->>>>> interesting pages, so that page isolation can succeed for any
->>>>> non-overlapping ranges.
->>>>>
->>>>> Signed-off-by: Zi Yan <ziy@nvidia.com>
->>>>> ---
->>>>
->>>> [...]
->>>>
->>>>>  /*
->>>>> - * This function checks whether pageblock includes unmovable pages or not.
->>>>> + * This function checks whether the range [start_pfn, end_pfn) includes
->>>>> + * unmovable pages or not. The range must fall into a single pageblock and
->>>>> + * consequently belong to a single zone.
->>>>>   *
->>>>>   * PageLRU check without isolation or lru_lock could race so that
->>>>>   * MIGRATE_MOVABLE block might include unmovable pages. And __PageMovable
->>>>> @@ -28,12 +30,14 @@
->>>>>   * cannot get removed (e.g., via memory unplug) concurrently.
->>>>>   *
->>>>>   */
->>>>> -static struct page *has_unmovable_pages(struct zone *zone, struct page *page,
->>>>> -				 int migratetype, int flags)
->>>>> +static struct page *has_unmovable_pages(unsigned long start_pfn, unsigned long end_pfn,
->>>>> +				int migratetype, int flags)
->>>>>  {
->>>>> -	unsigned long iter = 0;
->>>>> -	unsigned long pfn = page_to_pfn(page);
->>>>> -	unsigned long offset = pfn % pageblock_nr_pages;
->>>>> +	unsigned long pfn = start_pfn;
->>>>> +	struct page *page = pfn_to_page(pfn);
->>>>
->>>>
->>>> Just do
->>>>
->>>> struct page *page = pfn_to_page(start_pfn);
->>>> struct zone *zone = page_zone(page);
->>>>
->>>> here. No need to lookup the zone again in the loop because, as you
->>>> document "must ... belong to a single zone.".
->>>>
->>>> Then, there is also no need to initialize "pfn" here. In the loop header
->>>> is sufficient.
->>>>
->>>
->>> Sure.
->>>
->>>>> +
->>>>> +	VM_BUG_ON(ALIGN_DOWN(start_pfn, pageblock_nr_pages) !=
->>>>> +		  ALIGN_DOWN(end_pfn - 1, pageblock_nr_pages));
->>>>>
->>>>>  	if (is_migrate_cma_page(page)) {
->>>>>  		/*
->>>>> @@ -47,8 +51,11 @@ static struct page *has_unmovable_pages(struct zone *zone, struct page *page,
->>>>>  		return page;
->>>>>  	}
->>>>>
->>>>> -	for (; iter < pageblock_nr_pages - offset; iter++) {
->>>>> -		page = pfn_to_page(pfn + iter);
->>>>> +	for (pfn = start_pfn; pfn < end_pfn; pfn++) {
->>>>> +		struct zone *zone;
->>>>> +
->>>>> +		page = pfn_to_page(pfn);
->>>>> +		zone = page_zone(page);
->>>>>
->>>>>  		/*
->>>>>  		 * Both, bootmem allocations and memory holes are marked
->>>>> @@ -85,7 +92,7 @@ static struct page *has_unmovable_pages(struct zone *zone, struct page *page,
->>>>>  			}
->>>>>
->>>>>  			skip_pages = compound_nr(head) - (page - head);
->>>>> -			iter += skip_pages - 1;
->>>>> +			pfn += skip_pages - 1;
->>>>>  			continue;
->>>>>  		}
->>>>>
->>>>> @@ -97,7 +104,7 @@ static struct page *has_unmovable_pages(struct zone *zone, struct page *page,
->>>>>  		 */
->>>>>  		if (!page_ref_count(page)) {
->>>>>  			if (PageBuddy(page))
->>>>> -				iter += (1 << buddy_order(page)) - 1;
->>>>> +				pfn += (1 << buddy_order(page)) - 1;
->>>>>  			continue;
->>>>>  		}
->>>>>
->>>>> @@ -134,11 +141,18 @@ static struct page *has_unmovable_pages(struct zone *zone, struct page *page,
->>>>>  	return NULL;
->>>>>  }
->>>>>
->>>>> -static int set_migratetype_isolate(struct page *page, int migratetype, int isol_flags)
->>>>> +/*
->>>>> + * This function set pageblock migratetype to isolate if no unmovable page is
->>>>> + * present in [start_pfn, end_pfn). The pageblock must intersect with
->>>>> + * [start_pfn, end_pfn).
->>>>> + */
->>>>> +static int set_migratetype_isolate(struct page *page, int migratetype, int isol_flags,
->>>>> +			unsigned long start_pfn, unsigned long end_pfn)
->>>>
->>>> I think we might be able do better, eventually not passing start_pfn at
->>>> all. Hmm.
->>>
->>> IMHO, having start_pfn and end_pfn in the parameter list would make the
->>> interface easier to understand. Otherwise if we remove start_pfn,
->>> the caller needs to adjust @page to be within the range of [start_pfn,
->>> end_pfn)
->>>
->>>>
->>>> I think we want to pull out the
->>>> start_isolate_page_range()/undo_isolate_page_range() interface change
->>>> into a separate patch.
->>>
->>> You mean a patch just adding
->>>
->>> unsigned long isolate_start = pfn_max_align_down(start_pfn);
->>> unsigned long isolate_end = pfn_max_align_up(end_pfn);
->>>
->>> in start_isolate_page_range()/undo_isolate_page_range()?
->>>
->>> Yes I can do that.
->>
->> I think we have to be careful with memory onlining/offlining. There are
->> corner cases where we get called with only pageblock alignment and
->> must not adjust the range.
-> 
-> In the patch below, you added a new set of start_isolate_pageblocks()
-> and undo_isolate_pageblocks(), where start_isolate_pageblocks() still
-> calls set_migratetype_isolate() and noted their range should not be
-> adjusted. But in my patch, set_migratetype_isolate() adjusts
-> the range for has_unmovable_pages() check. Do you mean
+Hi Eli,
 
-Right, that's broken in your patch. Memory onlining/offlining behavior
-changed recently when "vmemmap on memory" was added. The start range
-might only be aligned to pageblocks but not MAX_ORDER -1 -- and we must
-not align u..
+Thank you for the patch! Perhaps something to improve:
 
-The core thing is that there are two types of users: memory offlining
-that knows what it's doing when it aligns to less then MAX_ORDER -1 ,
-and range allocators, that just pass in the range of interest.
+[auto build test WARNING on linus/master]
+[also build test WARNING on v5.18-rc2 next-20220412]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch]
 
-> start_isolate_pageblocks() should call a different version of
-> set_migratetype_isolate() without range adjustment? That can be done
-> with an additional parameter in start_isolate_page_range(), like
-> bool strict, right?
+url:    https://github.com/intel-lab-lkp/linux/commits/Eli-Cohen/Show-statistics-for-a-vdpa-device/20220412-212129
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git ce522ba9ef7e2d9fb22a39eb3371c0c64e2a433e
+config: i386-randconfig-a004-20220411 (https://download.01.org/0day-ci/archive/20220413/202204130003.fROyiuxA-lkp@intel.com/config)
+compiler: clang version 15.0.0 (https://github.com/llvm/llvm-project fe2478d44e4f7f191c43fef629ac7a23d0251e72)
+reproduce (this is a W=1 build):
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        # https://github.com/intel-lab-lkp/linux/commit/813a1bf827634a8d7e148b133e2849fac37819cd
+        git remote add linux-review https://github.com/intel-lab-lkp/linux
+        git fetch --no-tags linux-review Eli-Cohen/Show-statistics-for-a-vdpa-device/20220412-212129
+        git checkout 813a1bf827634a8d7e148b133e2849fac37819cd
+        # save the config file to linux build tree
+        mkdir build_dir
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross W=1 O=build_dir ARCH=i386 SHELL=/bin/bash drivers/usb/typec/ drivers/vdpa/
 
-Random boolean flags are in general frowned upon ;)
+If you fix the issue, kindly add following tag as appropriate
+Reported-by: kernel test robot <lkp@intel.com>
+
+All warnings (new ones prefixed by >>):
+
+>> drivers/vdpa/vdpa.c:1122:61: warning: implicit conversion from 'int' to 's16' (aka 'short') changes value from 65535 to -1 [-Wconstant-conversion]
+           [VDPA_ATTR_DEV_QUEUE_INDEX] = NLA_POLICY_RANGE(NLA_U32, 0, 65535),
+                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~
+   include/net/netlink.h:396:9: note: expanded from macro 'NLA_POLICY_RANGE'
+           .max = _max                                     \
+                  ^~~~
+   1 warning generated.
+
+
+vim +1122 drivers/vdpa/vdpa.c
+
+  1114	
+  1115	static const struct nla_policy vdpa_nl_policy[VDPA_ATTR_MAX + 1] = {
+  1116		[VDPA_ATTR_MGMTDEV_BUS_NAME] = { .type = NLA_NUL_STRING },
+  1117		[VDPA_ATTR_MGMTDEV_DEV_NAME] = { .type = NLA_STRING },
+  1118		[VDPA_ATTR_DEV_NAME] = { .type = NLA_STRING },
+  1119		[VDPA_ATTR_DEV_NET_CFG_MACADDR] = NLA_POLICY_ETH_ADDR,
+  1120		/* virtio spec 1.1 section 5.1.4.1 for valid MTU range */
+  1121		[VDPA_ATTR_DEV_NET_CFG_MTU] = NLA_POLICY_MIN(NLA_U16, 68),
+> 1122		[VDPA_ATTR_DEV_QUEUE_INDEX] = NLA_POLICY_RANGE(NLA_U32, 0, 65535),
+  1123	};
+  1124	
 
 -- 
-Thanks,
-
-David / dhildenb
-
+0-DAY CI Kernel Test Service
+https://01.org/lkp
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
