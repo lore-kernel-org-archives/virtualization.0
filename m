@@ -1,131 +1,96 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3B7A0C433FE
-	for <virtualization@archiver.kernel.org>; Tue, 12 Apr 2022 07:56:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AF548C433EF
+	for <virtualization@archiver.kernel.org>; Tue, 12 Apr 2022 09:47:25 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id D3EDB83E7B;
-	Tue, 12 Apr 2022 07:56:15 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 50B3D40500;
+	Tue, 12 Apr 2022 09:47:25 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id WtRI8Hb94BG4; Tue, 12 Apr 2022 07:56:15 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 8617381BB2;
-	Tue, 12 Apr 2022 07:56:14 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id sBVJDataY-wt; Tue, 12 Apr 2022 09:47:24 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 038F7400EF;
+	Tue, 12 Apr 2022 09:47:24 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6A60FC002F;
-	Tue, 12 Apr 2022 07:56:14 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1A1E8C002C
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D03E4C002F;
+	Tue, 12 Apr 2022 09:47:23 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id CB77EC002C
  for <virtualization@lists.linux-foundation.org>;
- Tue, 12 Apr 2022 07:56:13 +0000 (UTC)
+ Tue, 12 Apr 2022 09:47:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 0769B41296
+ by smtp2.osuosl.org (Postfix) with ESMTP id B91FE400EF
  for <virtualization@lists.linux-foundation.org>;
- Tue, 12 Apr 2022 07:56:13 +0000 (UTC)
+ Tue, 12 Apr 2022 09:47:21 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=ibm.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id MLaz28J45ssj
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id LsdGYovgs8TN
  for <virtualization@lists.linux-foundation.org>;
- Tue, 12 Apr 2022 07:56:11 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com
- [148.163.156.1])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 8CBEA40926
+ Tue, 12 Apr 2022 09:47:21 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com
+ [IPv6:2a00:1450:4864:20::434])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 0C49F40169
  for <virtualization@lists.linux-foundation.org>;
- Tue, 12 Apr 2022 07:56:11 +0000 (UTC)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
- by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23C6ft7Y029349; 
- Tue, 12 Apr 2022 07:55:46 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com;
- h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=xBbtpFu+g0M5oAS5qWS81PsG9t3GJIOwiA28DUQVs5g=;
- b=SVt+WNZtqmPYAF1sZKsrFMSalIkYkLBUKYWFGmso0cvIt6pFOBLJn+hFqCkiGkQZ8QlW
- Cpm3SrNXmSZI1LyT5UoWIFoLoW9CyJvTSevYp6+23sjOFvnru3bBUx6U5IJKMCjm+YxC
- 8OU7TpD1xZny6mJvUjc8AESJO7YtKCWqAUUsYG5Ff58UoMrv/Yf8ruq2uH/gTgTiGTAM
- UdzurUjj7dXdoMLi03n2lbdmhcS1os5jK6pAAjIfs3CPUeuvMF/6AJTPH2AJ0sIbtmBL
- jTmjME6SO4w33YEUfPIdnSPjVB3nc5vGAhUMtQ1L0UWZC8LvuPx2GvaurSL5+sXxHaxI Lg== 
-Received: from pps.reinject (localhost [127.0.0.1])
- by mx0a-001b2d01.pphosted.com with ESMTP id 3fd4cj9e3m-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Tue, 12 Apr 2022 07:55:46 +0000
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
- by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 23C7YZ1Z024509;
- Tue, 12 Apr 2022 07:55:46 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com
- [169.51.49.99])
- by mx0a-001b2d01.pphosted.com with ESMTP id 3fd4cj9e2v-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Tue, 12 Apr 2022 07:55:45 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
- by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23C7sIaW012477;
- Tue, 12 Apr 2022 07:55:43 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com
- (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
- by ppma04ams.nl.ibm.com with ESMTP id 3fb1s8vd9d-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Tue, 12 Apr 2022 07:55:43 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com
- [9.149.105.62])
- by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id
- 23C7tf9n34013486
- (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Tue, 12 Apr 2022 07:55:41 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
- by IMSVA (Postfix) with ESMTP id 29C2BAE04D;
- Tue, 12 Apr 2022 07:55:41 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
- by IMSVA (Postfix) with ESMTP id 776EBAE055;
- Tue, 12 Apr 2022 07:55:40 +0000 (GMT)
-Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.60.83])
- by d06av26.portsmouth.uk.ibm.com (Postfix) with SMTP;
- Tue, 12 Apr 2022 07:55:40 +0000 (GMT)
-Date: Tue, 12 Apr 2022 09:55:19 +0200
-From: Halil Pasic <pasic@linux.ibm.com>
-To: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V2 4/5] virtio-pci: implement synchronize_vqs()
-Message-ID: <20220412095519.245cf9f7.pasic@linux.ibm.com>
-In-Reply-To: <CACGkMEvDSv+sZwLYqqfP-jzDzonmon+CxeSXkvyd6F-CbfV3tQ@mail.gmail.com>
-References: <20220406083538.16274-1-jasowang@redhat.com>
- <20220406083538.16274-5-jasowang@redhat.com>
- <20220406075952-mutt-send-email-mst@kernel.org>
- <87wng2e527.fsf@redhat.com>
- <20220408150307.24b6b99f.pasic@linux.ibm.com>
- <20220410034556-mutt-send-email-mst@kernel.org>
- <CACGkMEtarZb6g3ij5=+As17+d9jtdAqNa1EzSuTXc7Pq_som0Q@mail.gmail.com>
- <877d7vbspu.fsf@redhat.com>
- <20220412020145.32e26e5a.pasic@linux.ibm.com>
- <CACGkMEvDSv+sZwLYqqfP-jzDzonmon+CxeSXkvyd6F-CbfV3tQ@mail.gmail.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+ Tue, 12 Apr 2022 09:47:20 +0000 (UTC)
+Received: by mail-wr1-x434.google.com with SMTP id t1so9173415wra.4
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 12 Apr 2022 02:47:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=sender:message-id:date:mime-version:user-agent:subject
+ :content-language:to:cc:references:from:in-reply-to
+ :content-transfer-encoding;
+ bh=jEYu5Dc4DrM1CeiFx20rntUZKHdIKyhqBQGEbRb+QEo=;
+ b=MSfYzpmK8tn+uXXhR01V+fNirOZU31wliDT7ahVZuBpemgDi/9lLDSAJVDYSpZeTbK
+ YQQZ3Vi4EWOxx+dFtFXwenHouaTwLx4s++6Ihuj5g+cZwyxYaYqJwNHwBcWqwNDIABXV
+ sOF6eSR1FEjx2RARMY/b+sgg4jvWhwV/ntSyVIY5zJ2sMknGhHuIz38NMCHOzaW5vnug
+ tbygB8NQlSK7osT568Zcj0/Y6GhTiRlqhnYZ+hfp3EWdCoS5NmUwBSzyEUxCiZImo9KD
+ EVx0gknoyTlaDOb2phm0TpbMkQbbRVWfP0oorSNsd7q3GbydRyQvu3Mn6URcFylPvZH2
+ Enaw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:sender:message-id:date:mime-version:user-agent
+ :subject:content-language:to:cc:references:from:in-reply-to
+ :content-transfer-encoding;
+ bh=jEYu5Dc4DrM1CeiFx20rntUZKHdIKyhqBQGEbRb+QEo=;
+ b=MTIE8oSXeWdg+/hb9cooqqMBz/0LBgWqgkI4QW0gpqjfWb8gYGejFJI1C3tPxFUv5K
+ mUedxP7xOUN+TClbPZODktuygdoAuM76B4cjsTZHC6NJj0r7DZ85CDiiRLir2ikECZWU
+ 1nrhl6wq6lSGbMgWg9XisXPRusGZJsgYqx9Lq/JzHBz5MVLMrLif5wZVg04+uZiYAFsF
+ FXnJWkT2O4znrbyTfyzMalRzYLDdjI224EthfWYvROnLZcjdwWt77oNZJ9A6TzpxmfRB
+ tLKyx0lrDzFwAKIp4r9oYwjZ60gR42UmUbpRHfiQcIfWgJ0OBdevKcKeAnwX84F70+T5
+ c5pA==
+X-Gm-Message-State: AOAM532A6eGH84Zv2FXdpsHj4oYfQSXqrYqq7wB1h29uI+4At00hupbA
+ NEBlxTdkLeN3xMk/b7QvwO4=
+X-Google-Smtp-Source: ABdhPJxCyWsrTSnfaBIu38O7iMTAsodQWY+yafnQ23aeJwg2qr3DNeFG5SxlCZ0qf1FD8HUV3c+OzA==
+X-Received: by 2002:a5d:598a:0:b0:204:6fb:6461 with SMTP id
+ n10-20020a5d598a000000b0020406fb6461mr28331617wri.132.1649756839021; 
+ Tue, 12 Apr 2022 02:47:19 -0700 (PDT)
+Received: from ?IPV6:2001:b07:6468:f312:c8dd:75d4:99ab:290a?
+ ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
+ by smtp.googlemail.com with ESMTPSA id
+ o6-20020a05600002c600b00207a389117csm7316817wry.53.2022.04.12.02.47.18
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Tue, 12 Apr 2022 02:47:18 -0700 (PDT)
+Message-ID: <df758c80-ea85-d324-ad05-9bf07bb569e3@redhat.com>
+Date: Tue, 12 Apr 2022 11:47:17 +0200
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: CmSVxQ2lgNAuH9PRyaNdXW8BiJbSoWi6
-X-Proofpoint-ORIG-GUID: k8zmRpchgAEYpZ3jEgIZi-3Qw_H2iW3j
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-04-12_02,2022-04-11_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 mlxscore=0
- spamscore=0 lowpriorityscore=0 phishscore=0 adultscore=0 malwarescore=0
- mlxlogscore=814 bulkscore=0 clxscore=1015 impostorscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2204120035
-Cc: "Paul E. McKenney" <paulmck@kernel.org>,
- "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>,
- Marc Zyngier <maz@kernel.org>, Cornelia Huck <cohuck@redhat.com>,
- linux-kernel <linux-kernel@vger.kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>,
- Halil Pasic <pasic@linux.ibm.com>, Thomas Gleixner <tglx@linutronix.de>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH v4 0/8] Introduce akcipher service for virtio-crypto
+Content-Language: en-US
+To: zhenwei pi <pizhenwei@bytedance.com>, mst@redhat.com,
+ berrange@redhat.com, arei.gonglei@huawei.com, Simo Sorce <simo@redhat.com>
+References: <20220411104327.197048-1-pizhenwei@bytedance.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+In-Reply-To: <20220411104327.197048-1-pizhenwei@bytedance.com>
+Cc: helei.sig11@bytedance.com, cohuck@redhat.com, qemu-devel@nongnu.org,
+ virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -137,32 +102,32 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, 12 Apr 2022 10:24:35 +0800
-Jason Wang <jasowang@redhat.com> wrote:
 
-> > Regarding the question "are we safe against notifications before
-> > indicators have been registered" I think we really need to think about
-> > something like Secure Execution. We don't have, and we are unlikely
-> > to have in hardware virtio-ccw implementations, and for a malicious hypervisor
-> > that has full access to the guest memory hardening makes no sense.  
-> 
-> Does s390 have something like memory encryption? (I guess yes). In the
-> case of x86 VM encryption, the I/O buffers were now done via software
-> IOTLB, that's why hardening of the virtio driver is needed to prevent
-> the hypervisor to poke the swiotlb etc.
+> In our plan, the feature is designed for HTTPS offloading case and
+> other applications which use kernel RSA/ecdsa by keyctl syscall.
 
-Yep! Secure Execution is a confidential computing solution which is much
-like encrypted guest memory, except for one gets exceptions when trying
-to access private memory instead of ending up with garbage  because of
-the encryption. These improvements are IMHO relevant to us!
+Hi Zhenwei,
 
-Regards,
-Halil
+what is the % of time spent doing asymmetric key operations in your
+benchmark?  I am not very familiar with crypto acceleration but my
+understanding has always been that most time is spent doing either
+hashing (for signing) or symmetric key operations (for encryption).
+
+If I understand correctly, without support for acceleration these 
+patches are more of a demonstration of virtio-crypto, or usable for 
+testing purposes.
+
+Would it be possible to extend virtio-crypto to use keys already in the
+host keyctl, or in a PKCS#11 smartcard, so that virtio-crypto could also
+provide the functionality of an HSM?  Or does the standard require that
+the keys are provided by the guest?
+
+Paolo
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
