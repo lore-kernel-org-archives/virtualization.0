@@ -4,75 +4,102 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B0294C4167D
-	for <virtualization@archiver.kernel.org>; Wed, 13 Apr 2022 08:49:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1798FC433FE
+	for <virtualization@archiver.kernel.org>; Wed, 13 Apr 2022 08:54:53 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 59EC381C40;
-	Wed, 13 Apr 2022 08:49:05 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id A28FC81CC3;
+	Wed, 13 Apr 2022 08:54:53 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id UcPtxcnefz-8; Wed, 13 Apr 2022 08:49:04 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id B42D081B98;
-	Wed, 13 Apr 2022 08:49:03 +0000 (UTC)
+	with ESMTP id G-BlhIuVd5Vc; Wed, 13 Apr 2022 08:54:52 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id C683C819E6;
+	Wed, 13 Apr 2022 08:54:51 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6A9DEC002F;
-	Wed, 13 Apr 2022 08:49:03 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 405CCC002C
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8BA58C002F;
+	Wed, 13 Apr 2022 08:54:51 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BCD15C002C
  for <virtualization@lists.linux-foundation.org>;
- Wed, 13 Apr 2022 08:49:02 +0000 (UTC)
+ Wed, 13 Apr 2022 08:54:49 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 2E30C81C40
+ by smtp4.osuosl.org (Postfix) with ESMTP id 958C341701
  for <virtualization@lists.linux-foundation.org>;
- Wed, 13 Apr 2022 08:49:02 +0000 (UTC)
+ Wed, 13 Apr 2022 08:54:49 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id y8HxIxd6yOXk
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id sl0zvkzn6Iyb
  for <virtualization@lists.linux-foundation.org>;
- Wed, 13 Apr 2022 08:49:01 +0000 (UTC)
+ Wed, 13 Apr 2022 08:54:48 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from out30-57.freemail.mail.aliyun.com
- (out30-57.freemail.mail.aliyun.com [115.124.30.57])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 96FB481B98
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id E6AAB416EA
  for <virtualization@lists.linux-foundation.org>;
- Wed, 13 Apr 2022 08:49:00 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R321e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04357; MF=xuanzhuo@linux.alibaba.com;
- NM=1; PH=DS; RN=33; SR=0; TI=SMTPD_---0V9yiszT_1649839734; 
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0V9yiszT_1649839734) by smtp.aliyun-inc.com(127.0.0.1);
- Wed, 13 Apr 2022 16:48:55 +0800
-Message-ID: <1649839684.1990876-11-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH v9 23/32] virtio_pci: queue_reset: support
- VIRTIO_F_RING_RESET
-Date: Wed, 13 Apr 2022 16:48:04 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+ Wed, 13 Apr 2022 08:54:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1649840086;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=4I1Thc95eXkMkw7mMfQtqcBx+DUgODD/HDaM3C4awEk=;
+ b=iZ9g0WOQcF2GbZo9+Tc7UXPn2G69Ox5oPzFE4Vw8lzLBP+aZxApmdMExK8XJl+5mkOc+z5
+ 2jd7X4FNYeqAj/Iqe4/A7cnHmypzUYjltW7TxvBNk9c2v9mzN/RIo4PSFUsr0Uw15eht0j
+ TRB5fs+20TgfYUrMeB5e5GBPJzyMMr0=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-192-qF8bZpeiNqOR7lgX_Tkpew-1; Wed, 13 Apr 2022 04:54:45 -0400
+X-MC-Unique: qF8bZpeiNqOR7lgX_Tkpew-1
+Received: by mail-wr1-f70.google.com with SMTP id
+ r10-20020adfc10a000000b00207a2c7bcf6so185528wre.0
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 13 Apr 2022 01:54:45 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=4I1Thc95eXkMkw7mMfQtqcBx+DUgODD/HDaM3C4awEk=;
+ b=MZBmhKEVLvEz3eY2/VyuEJXkYPsM62YnlV8WV5SQ9GPTKSLNLj7H9Y83wf/oB46tnB
+ RDAqDoW0ZqDX8ZphZucrlzMNEuYfURuzLJaOaPA0438W+fndce/ZhvK+9chJsvsSjBDl
+ pZB7jSk3najxr5+uJhWUjNk25qE6SPSnxEgEhOl7MXnELODJRuFZkCQy3VJJMnT+qGA7
+ ZswpTna7slNY9Gd+mvYD/aRekx3UPw2I8yHdTssdo4sgGVe5AMSrcBj0Gv30Ef530oHe
+ 1ppsMYHGQOP2kXY0odkdoGgjVOl+HYnrurWAXcMETpZ3RmHOuzWtboIYdKwS/2p9x8qQ
+ Zllw==
+X-Gm-Message-State: AOAM530+jSywobqIGxhaV0aL6AynO75q7pHUkuRlZJzcMVSmDZuSGhe0
+ F3oNxlFzkeRMQBozI65cBv7C2fKtnXf35tGbqwCnObTvlQRvtg5hSN0PrgYTenI7WT/3FeDMGPw
+ L60ezr+NmcICUnqakfMI6xDMqw5NTNXfi2uYhOwPa3A==
+X-Received: by 2002:a05:6000:1acc:b0:204:2ae7:da14 with SMTP id
+ i12-20020a0560001acc00b002042ae7da14mr31675764wry.609.1649840084049; 
+ Wed, 13 Apr 2022 01:54:44 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwR3DWdqkeBo0XumWWftT5naoJWAhI0n5nGgikkkV1vKRGXohROXCec6zm5AOl3cto90z63tw==
+X-Received: by 2002:a05:6000:1acc:b0:204:2ae7:da14 with SMTP id
+ i12-20020a0560001acc00b002042ae7da14mr31675743wry.609.1649840083747; 
+ Wed, 13 Apr 2022 01:54:43 -0700 (PDT)
+Received: from redhat.com ([2.55.135.33]) by smtp.gmail.com with ESMTPSA id
+ j36-20020a05600c1c2400b0038ec526a0e3sm2196199wms.9.2022.04.13.01.54.41
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 13 Apr 2022 01:54:43 -0700 (PDT)
+Date: Wed, 13 Apr 2022 04:54:39 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Jason Wang <jasowang@redhat.com>
-References: <20220406034346.74409-1-xuanzhuo@linux.alibaba.com>
- <20220406034346.74409-24-xuanzhuo@linux.alibaba.com>
- <d040a3fe-765e-93d6-cef9-603f23a0fd1e@redhat.com>
-In-Reply-To: <d040a3fe-765e-93d6-cef9-603f23a0fd1e@redhat.com>
-Cc: Vadim Pasternak <vadimp@nvidia.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- linux-remoteproc@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
- Bjorn Andersson <bjorn.andersson@linaro.org>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>, linux-s390@vger.kernel.org,
- Johannes Berg <johannes.berg@intel.com>,
- Daniel Borkmann <daniel@iogearbox.net>, Richard Weinberger <richard@nod.at>,
- Vincent Whitchurch <vincent.whitchurch@axis.com>,
- John Fastabend <john.fastabend@gmail.com>, Halil Pasic <pasic@linux.ibm.com>,
- Jakub Kicinski <kuba@kernel.org>, virtualization@lists.linux-foundation.org,
- Heiko Carstens <hca@linux.ibm.com>, Jesper Dangaard Brouer <hawk@kernel.org>,
- Vasily Gorbik <gor@linux.ibm.com>, Jeff Dike <jdike@addtoit.com>,
- linux-um@lists.infradead.org, Mark Gross <markgross@kernel.org>,
- Hans de Goede <hdegoede@redhat.com>, kvm@vger.kernel.org,
- platform-driver-x86@vger.kernel.org,
- Mathieu Poirier <mathieu.poirier@linaro.org>, netdev@vger.kernel.org,
- Cornelia Huck <cohuck@redhat.com>, Sven Schnelle <svens@linux.ibm.com>,
- bpf@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH] vDPA/ifcvf: allow userspace to suspend a queue
+Message-ID: <20220413045223-mutt-send-email-mst@kernel.org>
+References: <20220411031057.162485-1-lingshan.zhu@intel.com>
+ <CACGkMEu7dUYKr7Nv-fDFFBM4M1hvWuO8P17xNMEkwofiiP178A@mail.gmail.com>
+MIME-Version: 1.0
+In-Reply-To: <CACGkMEu7dUYKr7Nv-fDFFBM4M1hvWuO8P17xNMEkwofiiP178A@mail.gmail.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: netdev <netdev@vger.kernel.org>, Zhu Lingshan <lingshan.zhu@intel.com>,
+ virtualization <virtualization@lists.linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -84,144 +111,371 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gVHVlLCAxMiBBcHIgMjAyMiAxNTowNzo1OCArMDgwMCwgSmFzb24gV2FuZyA8amFzb3dhbmdA
-cmVkaGF0LmNvbT4gd3JvdGU6Cj4KPiDlnKggMjAyMi80LzYg5LiK5Y2IMTE6NDMsIFh1YW4gWmh1
-byDlhpnpgZM6Cj4gPiBUaGlzIHBhdGNoIGltcGxlbWVudHMgdmlydGlvIHBjaSBzdXBwb3J0IGZv
-ciBRVUVVRSBSRVNFVC4KPiA+Cj4gPiBQZXJmb3JtaW5nIHJlc2V0IG9uIGEgcXVldWUgaXMgZGl2
-aWRlZCBpbnRvIHRoZXNlIHN0ZXBzOgo+ID4KPiA+ICAgMS4gbm90aWZ5IHRoZSBkZXZpY2UgdG8g
-cmVzZXQgdGhlIHF1ZXVlCj4gPiAgIDIuIHJlY3ljbGUgdGhlIGJ1ZmZlciBzdWJtaXR0ZWQKPiA+
-ICAgMy4gcmVzZXQgdGhlIHZyaW5nIChtYXkgcmUtYWxsb2MpCj4gPiAgIDQuIG1tYXAgdnJpbmcg
-dG8gZGV2aWNlLCBhbmQgZW5hYmxlIHRoZSBxdWV1ZQo+ID4KPiA+IFRoaXMgcGF0Y2ggaW1wbGVt
-ZW50cyB2aXJ0aW9fcmVzZXRfdnEoKSwgdmlydGlvX2VuYWJsZV9yZXNldHEoKSBpbiB0aGUKPiA+
-IHBjaSBzY2VuYXJpby4KPiA+Cj4gPiBTaWduZWQtb2ZmLWJ5OiBYdWFuIFpodW8gPHh1YW56aHVv
-QGxpbnV4LmFsaWJhYmEuY29tPgo+ID4gLS0tCj4gPiAgIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19w
-Y2lfY29tbW9uLmMgfCAgOCArLS0KPiA+ICAgZHJpdmVycy92aXJ0aW8vdmlydGlvX3BjaV9tb2Rl
-cm4uYyB8IDg0ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKwo+ID4gICBkcml2ZXJzL3Zp
-cnRpby92aXJ0aW9fcmluZy5jICAgICAgIHwgIDIgKwo+ID4gICBpbmNsdWRlL2xpbnV4L3ZpcnRp
-by5oICAgICAgICAgICAgIHwgIDEgKwo+ID4gICA0IGZpbGVzIGNoYW5nZWQsIDkyIGluc2VydGlv
-bnMoKyksIDMgZGVsZXRpb25zKC0pCj4gPgo+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmlydGlv
-L3ZpcnRpb19wY2lfY29tbW9uLmMgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNpX2NvbW1vbi5j
-Cj4gPiBpbmRleCBmZGJkZTFkYjVlYzUuLjg2M2QzYThhMDk1NiAxMDA2NDQKPiA+IC0tLSBhL2Ry
-aXZlcnMvdmlydGlvL3ZpcnRpb19wY2lfY29tbW9uLmMKPiA+ICsrKyBiL2RyaXZlcnMvdmlydGlv
-L3ZpcnRpb19wY2lfY29tbW9uLmMKPiA+IEBAIC0yNDgsOSArMjQ4LDExIEBAIHN0YXRpYyB2b2lk
-IHZwX2RlbF92cShzdHJ1Y3QgdmlydHF1ZXVlICp2cSkKPiA+ICAgCXN0cnVjdCB2aXJ0aW9fcGNp
-X3ZxX2luZm8gKmluZm8gPSB2cF9kZXYtPnZxc1t2cS0+aW5kZXhdOwo+ID4gICAJdW5zaWduZWQg
-bG9uZyBmbGFnczsKPiA+Cj4gPiAtCXNwaW5fbG9ja19pcnFzYXZlKCZ2cF9kZXYtPmxvY2ssIGZs
-YWdzKTsKPiA+IC0JbGlzdF9kZWwoJmluZm8tPm5vZGUpOwo+ID4gLQlzcGluX3VubG9ja19pcnFy
-ZXN0b3JlKCZ2cF9kZXYtPmxvY2ssIGZsYWdzKTsKPiA+ICsJaWYgKCF2cS0+cmVzZXQpIHsKPgo+
-Cj4gT24gd2hpY2ggY29uZGl0aW9uIHRoYXQgd2UgbWF5IGhpdCB0aGlzIHBhdGg/CgpBcyBkaXNj
-dXNzZWQgaW4gcGF0Y2ggMzEsIGl0IG1heSBmYWlsIHdoZW4gcmVuYWJsZSB2cS4KClRoYW5rcy4K
-Cj4KPgo+ID4gKwkJc3Bpbl9sb2NrX2lycXNhdmUoJnZwX2Rldi0+bG9jaywgZmxhZ3MpOwo+ID4g
-KwkJbGlzdF9kZWwoJmluZm8tPm5vZGUpOwo+ID4gKwkJc3Bpbl91bmxvY2tfaXJxcmVzdG9yZSgm
-dnBfZGV2LT5sb2NrLCBmbGFncyk7Cj4gPiArCX0KPiA+Cj4gPiAgIAl2cF9kZXYtPmRlbF92cShp
-bmZvKTsKPiA+ICAgCWtmcmVlKGluZm8pOwo+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmlydGlv
-L3ZpcnRpb19wY2lfbW9kZXJuLmMgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNpX21vZGVybi5j
-Cj4gPiBpbmRleCA0OWE0NDkzNzMyY2YuLmNiNWQzOGYxYzljOCAxMDA2NDQKPiA+IC0tLSBhL2Ry
-aXZlcnMvdmlydGlvL3ZpcnRpb19wY2lfbW9kZXJuLmMKPiA+ICsrKyBiL2RyaXZlcnMvdmlydGlv
-L3ZpcnRpb19wY2lfbW9kZXJuLmMKPiA+IEBAIC0zNCw2ICszNCw5IEBAIHN0YXRpYyB2b2lkIHZw
-X3RyYW5zcG9ydF9mZWF0dXJlcyhzdHJ1Y3QgdmlydGlvX2RldmljZSAqdmRldiwgdTY0IGZlYXR1
-cmVzKQo+ID4gICAJaWYgKChmZWF0dXJlcyAmIEJJVF9VTEwoVklSVElPX0ZfU1JfSU9WKSkgJiYK
-PiA+ICAgCQkJcGNpX2ZpbmRfZXh0X2NhcGFiaWxpdHkocGNpX2RldiwgUENJX0VYVF9DQVBfSURf
-U1JJT1YpKQo+ID4gICAJCV9fdmlydGlvX3NldF9iaXQodmRldiwgVklSVElPX0ZfU1JfSU9WKTsK
-PiA+ICsKPiA+ICsJaWYgKGZlYXR1cmVzICYgQklUX1VMTChWSVJUSU9fRl9SSU5HX1JFU0VUKSkK
-PiA+ICsJCV9fdmlydGlvX3NldF9iaXQodmRldiwgVklSVElPX0ZfUklOR19SRVNFVCk7Cj4gPiAg
-IH0KPiA+Cj4gPiAgIC8qIHZpcnRpbyBjb25maWctPmZpbmFsaXplX2ZlYXR1cmVzKCkgaW1wbGVt
-ZW50YXRpb24gKi8KPiA+IEBAIC0xOTksNiArMjAyLDgzIEBAIHN0YXRpYyBpbnQgdnBfYWN0aXZl
-X3ZxKHN0cnVjdCB2aXJ0cXVldWUgKnZxLCB1MTYgbXNpeF92ZWMpCj4gPiAgIAlyZXR1cm4gMDsK
-PiA+ICAgfQo+ID4KPiA+ICtzdGF0aWMgaW50IHZwX21vZGVybl9yZXNldF92cShzdHJ1Y3Qgdmly
-dHF1ZXVlICp2cSkKPiA+ICt7Cj4gPiArCXN0cnVjdCB2aXJ0aW9fcGNpX2RldmljZSAqdnBfZGV2
-ID0gdG9fdnBfZGV2aWNlKHZxLT52ZGV2KTsKPiA+ICsJc3RydWN0IHZpcnRpb19wY2lfbW9kZXJu
-X2RldmljZSAqbWRldiA9ICZ2cF9kZXYtPm1kZXY7Cj4gPiArCXN0cnVjdCB2aXJ0aW9fcGNpX3Zx
-X2luZm8gKmluZm87Cj4gPiArCXVuc2lnbmVkIGxvbmcgZmxhZ3M7Cj4gPiArCj4gPiArCWlmICgh
-dmlydGlvX2hhc19mZWF0dXJlKHZxLT52ZGV2LCBWSVJUSU9fRl9SSU5HX1JFU0VUKSkKPiA+ICsJ
-CXJldHVybiAtRU5PRU5UOwo+ID4gKwo+ID4gKwl2cF9tb2Rlcm5fc2V0X3F1ZXVlX3Jlc2V0KG1k
-ZXYsIHZxLT5pbmRleCk7Cj4gPiArCj4gPiArCWluZm8gPSB2cF9kZXYtPnZxc1t2cS0+aW5kZXhd
-Owo+ID4gKwo+ID4gKwkvKiBkZWxldGUgdnEgZnJvbSBpcnEgaGFuZGxlciAqLwo+ID4gKwlzcGlu
-X2xvY2tfaXJxc2F2ZSgmdnBfZGV2LT5sb2NrLCBmbGFncyk7Cj4gPiArCWxpc3RfZGVsKCZpbmZv
-LT5ub2RlKTsKPiA+ICsJc3Bpbl91bmxvY2tfaXJxcmVzdG9yZSgmdnBfZGV2LT5sb2NrLCBmbGFn
-cyk7Cj4gPiArCj4gPiArCUlOSVRfTElTVF9IRUFEKCZpbmZvLT5ub2RlKTsKPiA+ICsKPiA+ICsJ
-LyogRm9yIHRoZSBjYXNlIHdoZXJlIHZxIGhhcyBhbiBleGNsdXNpdmUgaXJxLCB0byBwcmV2ZW50
-IHRoZSBpcnEgZnJvbQo+ID4gKwkgKiBiZWluZyByZWNlaXZlZCBhZ2FpbiBhbmQgdGhlIHBlbmRp
-bmcgaXJxLCBjYWxsIGRpc2FibGVfaXJxKCkuCj4gPiArCSAqCj4gPiArCSAqIEluIHRoZSBzY2Vu
-YXJpbyBiYXNlZCBvbiBzaGFyZWQgaW50ZXJydXB0cywgdnEgd2lsbCBiZSBzZWFyY2hlZCBmcm9t
-Cj4gPiArCSAqIHRoZSBxdWV1ZSB2aXJ0cXVldWVzLiBTaW5jZSB0aGUgcHJldmlvdXMgbGlzdF9k
-ZWwoKSBoYXMgYmVlbiBkZWxldGVkCj4gPiArCSAqIGZyb20gdGhlIHF1ZXVlLCBpdCBpcyBpbXBv
-c3NpYmxlIGZvciB2cSB0byBiZSBjYWxsZWQgaW4gdGhpcyBjYXNlLgo+ID4gKwkgKiBUaGVyZSBp
-cyBubyBuZWVkIHRvIGNsb3NlIHRoZSBjb3JyZXNwb25kaW5nIGludGVycnVwdC4KPiA+ICsJICov
-Cj4gPiArCWlmICh2cF9kZXYtPnBlcl92cV92ZWN0b3JzICYmIGluZm8tPm1zaXhfdmVjdG9yICE9
-IFZJUlRJT19NU0lfTk9fVkVDVE9SKQo+ID4gKwkJZGlzYWJsZV9pcnEocGNpX2lycV92ZWN0b3Io
-dnBfZGV2LT5wY2lfZGV2LCBpbmZvLT5tc2l4X3ZlY3RvcikpOwo+Cj4KPiBTZWUgdGhlIHByZXZp
-b3VzIGRpc2N1c3Npb24gYW5kIHRoZSByZXZlcnQgb2YgdGhlIGZpcnN0IHRyeSB0byBoYXJkZW4K
-PiB0aGUgaW50ZXJydXB0LiBXZSBwcm9iYWJseSBjYW4ndCB1c2UgZGlzYWJsZV9pcnEoKSBzaW5j
-ZSBpdCBjb25mbGljdHMKPiB3aXRoIHRoZSBhZmZpbml0eSBtYW5hZ2VkIElSUSB0aGF0IGlzIHVz
-ZWQgYnkgc29tZSBkcml2ZXJzLgo+Cj4gV2UgbmVlZCB0byB1c2Ugc3luY2hvbml6ZV9pcnEoKSBh
-bmQgcGVyIHZpcnRxdWV1ZSBmbGFnIGluc3RlYWQuIEFzCj4gbWVudGlvbmVkIGluIHByZXZpb3Vz
-IHBhdGNoZXMsIHRoaXMgY291bGQgYmUgZG9uZSBvbiB0b3Agb2YgbXkgcmV3b3JrIG9uCj4gdGhl
-IElSUSBoYXJkZW5pbmcgLgo+Cj4KPiA+ICsKPiA+ICsJdnEtPnJlc2V0ID0gdHJ1ZTsKPiA+ICsK
-PiA+ICsJcmV0dXJuIDA7Cj4gPiArfQo+ID4gKwo+ID4gK3N0YXRpYyBpbnQgdnBfbW9kZXJuX2Vu
-YWJsZV9yZXNldF92cShzdHJ1Y3QgdmlydHF1ZXVlICp2cSkKPiA+ICt7Cj4gPiArCXN0cnVjdCB2
-aXJ0aW9fcGNpX2RldmljZSAqdnBfZGV2ID0gdG9fdnBfZGV2aWNlKHZxLT52ZGV2KTsKPiA+ICsJ
-c3RydWN0IHZpcnRpb19wY2lfbW9kZXJuX2RldmljZSAqbWRldiA9ICZ2cF9kZXYtPm1kZXY7Cj4g
-PiArCXN0cnVjdCB2aXJ0aW9fcGNpX3ZxX2luZm8gKmluZm87Cj4gPiArCXVuc2lnbmVkIGxvbmcg
-ZmxhZ3MsIGluZGV4Owo+ID4gKwlpbnQgZXJyOwo+ID4gKwo+ID4gKwlpZiAoIXZxLT5yZXNldCkK
-PiA+ICsJCXJldHVybiAtRUJVU1k7Cj4gPiArCj4gPiArCWluZGV4ID0gdnEtPmluZGV4Owo+ID4g
-KwlpbmZvID0gdnBfZGV2LT52cXNbaW5kZXhdOwo+ID4gKwo+ID4gKwkvKiBjaGVjayBxdWV1ZSBy
-ZXNldCBzdGF0dXMgKi8KPiA+ICsJaWYgKHZwX21vZGVybl9nZXRfcXVldWVfcmVzZXQobWRldiwg
-aW5kZXgpICE9IDEpCj4gPiArCQlyZXR1cm4gLUVCVVNZOwo+ID4gKwo+ID4gKwllcnIgPSB2cF9h
-Y3RpdmVfdnEodnEsIGluZm8tPm1zaXhfdmVjdG9yKTsKPiA+ICsJaWYgKGVycikKPiA+ICsJCXJl
-dHVybiBlcnI7Cj4gPiArCj4gPiArCWlmICh2cS0+Y2FsbGJhY2spIHsKPiA+ICsJCXNwaW5fbG9j
-a19pcnFzYXZlKCZ2cF9kZXYtPmxvY2ssIGZsYWdzKTsKPiA+ICsJCWxpc3RfYWRkKCZpbmZvLT5u
-b2RlLCAmdnBfZGV2LT52aXJ0cXVldWVzKTsKPiA+ICsJCXNwaW5fdW5sb2NrX2lycXJlc3RvcmUo
-JnZwX2Rldi0+bG9jaywgZmxhZ3MpOwo+ID4gKwl9IGVsc2Ugewo+ID4gKwkJSU5JVF9MSVNUX0hF
-QUQoJmluZm8tPm5vZGUpOwo+ID4gKwl9Cj4gPiArCj4gPiArCXZwX21vZGVybl9zZXRfcXVldWVf
-ZW5hYmxlKCZ2cF9kZXYtPm1kZXYsIGluZGV4LCB0cnVlKTsKPiA+ICsKPiA+ICsJaWYgKHZwX2Rl
-di0+cGVyX3ZxX3ZlY3RvcnMgJiYgaW5mby0+bXNpeF92ZWN0b3IgIT0gVklSVElPX01TSV9OT19W
-RUNUT1IpCj4gPiArCQllbmFibGVfaXJxKHBjaV9pcnFfdmVjdG9yKHZwX2Rldi0+cGNpX2Rldiwg
-aW5mby0+bXNpeF92ZWN0b3IpKTsKPgo+Cj4gV2UgaGFkIHRoZSBzYW1lIGlzc3VlIGFzIGRpc2Fi
-bGVfaXJxKCkuCj4KPiBUaGFua3MKPgo+Cj4gPiArCj4gPiArCXZxLT5yZXNldCA9IGZhbHNlOwo+
-ID4gKwo+ID4gKwlyZXR1cm4gMDsKPiA+ICt9Cj4gPiArCj4gPiAgIHN0YXRpYyB1MTYgdnBfY29u
-ZmlnX3ZlY3RvcihzdHJ1Y3QgdmlydGlvX3BjaV9kZXZpY2UgKnZwX2RldiwgdTE2IHZlY3RvcikK
-PiA+ICAgewo+ID4gICAJcmV0dXJuIHZwX21vZGVybl9jb25maWdfdmVjdG9yKCZ2cF9kZXYtPm1k
-ZXYsIHZlY3Rvcik7Cj4gPiBAQCAtNDA3LDYgKzQ4Nyw4IEBAIHN0YXRpYyBjb25zdCBzdHJ1Y3Qg
-dmlydGlvX2NvbmZpZ19vcHMgdmlydGlvX3BjaV9jb25maWdfbm9kZXZfb3BzID0gewo+ID4gICAJ
-LnNldF92cV9hZmZpbml0eSA9IHZwX3NldF92cV9hZmZpbml0eSwKPiA+ICAgCS5nZXRfdnFfYWZm
-aW5pdHkgPSB2cF9nZXRfdnFfYWZmaW5pdHksCj4gPiAgIAkuZ2V0X3NobV9yZWdpb24gID0gdnBf
-Z2V0X3NobV9yZWdpb24sCj4gPiArCS5yZXNldF92cQkgPSB2cF9tb2Rlcm5fcmVzZXRfdnEsCj4g
-PiArCS5lbmFibGVfcmVzZXRfdnEgPSB2cF9tb2Rlcm5fZW5hYmxlX3Jlc2V0X3ZxLAo+ID4gICB9
-Owo+ID4KPiA+ICAgc3RhdGljIGNvbnN0IHN0cnVjdCB2aXJ0aW9fY29uZmlnX29wcyB2aXJ0aW9f
-cGNpX2NvbmZpZ19vcHMgPSB7Cj4gPiBAQCAtNDI1LDYgKzUwNyw4IEBAIHN0YXRpYyBjb25zdCBz
-dHJ1Y3QgdmlydGlvX2NvbmZpZ19vcHMgdmlydGlvX3BjaV9jb25maWdfb3BzID0gewo+ID4gICAJ
-LnNldF92cV9hZmZpbml0eSA9IHZwX3NldF92cV9hZmZpbml0eSwKPiA+ICAgCS5nZXRfdnFfYWZm
-aW5pdHkgPSB2cF9nZXRfdnFfYWZmaW5pdHksCj4gPiAgIAkuZ2V0X3NobV9yZWdpb24gID0gdnBf
-Z2V0X3NobV9yZWdpb24sCj4gPiArCS5yZXNldF92cQkgPSB2cF9tb2Rlcm5fcmVzZXRfdnEsCj4g
-PiArCS5lbmFibGVfcmVzZXRfdnEgPSB2cF9tb2Rlcm5fZW5hYmxlX3Jlc2V0X3ZxLAo+ID4gICB9
-Owo+ID4KPiA+ICAgLyogdGhlIFBDSSBwcm9iaW5nIGZ1bmN0aW9uICovCj4gPiBkaWZmIC0tZ2l0
-IGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19y
-aW5nLmMKPiA+IGluZGV4IDYyNTBlMTlmYzViZi4uOTE5MzdlMjFlZGNhIDEwMDY0NAo+ID4gLS0t
-IGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYwo+ID4gKysrIGIvZHJpdmVycy92aXJ0aW8v
-dmlydGlvX3JpbmcuYwo+ID4gQEAgLTIwMjgsNiArMjAyOCw3IEBAIHN0YXRpYyBzdHJ1Y3Qgdmly
-dHF1ZXVlICp2cmluZ19jcmVhdGVfdmlydHF1ZXVlX3BhY2tlZCgKPiA+ICAgCXZxLT52cS52ZGV2
-ID0gdmRldjsKPiA+ICAgCXZxLT52cS5uYW1lID0gbmFtZTsKPiA+ICAgCXZxLT52cS5pbmRleCA9
-IGluZGV4Owo+ID4gKwl2cS0+dnEucmVzZXQgPSBmYWxzZTsKPiA+ICAgCXZxLT5ub3RpZnkgPSBu
-b3RpZnk7Cj4gPiAgIAl2cS0+d2Vha19iYXJyaWVycyA9IHdlYWtfYmFycmllcnM7Cj4gPgo+ID4g
-QEAgLTI1MDgsNiArMjUwOSw3IEBAIHN0cnVjdCB2aXJ0cXVldWUgKl9fdnJpbmdfbmV3X3ZpcnRx
-dWV1ZSh1bnNpZ25lZCBpbnQgaW5kZXgsCj4gPiAgIAl2cS0+dnEudmRldiA9IHZkZXY7Cj4gPiAg
-IAl2cS0+dnEubmFtZSA9IG5hbWU7Cj4gPiAgIAl2cS0+dnEuaW5kZXggPSBpbmRleDsKPiA+ICsJ
-dnEtPnZxLnJlc2V0ID0gZmFsc2U7Cj4gPiAgIAl2cS0+bm90aWZ5ID0gbm90aWZ5Owo+ID4gICAJ
-dnEtPndlYWtfYmFycmllcnMgPSB3ZWFrX2JhcnJpZXJzOwo+ID4KPiA+IGRpZmYgLS1naXQgYS9p
-bmNsdWRlL2xpbnV4L3ZpcnRpby5oIGIvaW5jbHVkZS9saW51eC92aXJ0aW8uaAo+ID4gaW5kZXgg
-Yzg2ZmYwMmUwY2EwLi4zM2FiMDAzYzUxMDAgMTAwNjQ0Cj4gPiAtLS0gYS9pbmNsdWRlL2xpbnV4
-L3ZpcnRpby5oCj4gPiArKysgYi9pbmNsdWRlL2xpbnV4L3ZpcnRpby5oCj4gPiBAQCAtMzMsNiAr
-MzMsNyBAQCBzdHJ1Y3QgdmlydHF1ZXVlIHsKPiA+ICAgCXVuc2lnbmVkIGludCBudW1fZnJlZTsK
-PiA+ICAgCXVuc2lnbmVkIGludCBudW1fbWF4Owo+ID4gICAJdm9pZCAqcHJpdjsKPiA+ICsJYm9v
-bCByZXNldDsKPiA+ICAgfTsKPiA+Cj4gPiAgIGludCB2aXJ0cXVldWVfYWRkX291dGJ1ZihzdHJ1
-Y3QgdmlydHF1ZXVlICp2cSwKPgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlz
-dHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3Jn
-L21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Wed, Apr 13, 2022 at 04:25:22PM +0800, Jason Wang wrote:
+> On Mon, Apr 11, 2022 at 11:18 AM Zhu Lingshan <lingshan.zhu@intel.com> wrote:
+> >
+> > Formerly, ifcvf driver has implemented a lazy-initialization mechanism
+> > for the virtqueues, it would store all virtqueue config fields that
+> > passed down from the userspace, then load them to the virtqueues and
+> > enable the queues upon DRIVER_OK.
+> >
+> > To allow the userspace to suspend a virtqueue,
+> > this commit passes queue_enable to the virtqueue directly through
+> > set_vq_ready().
+> >
+> > This feature requires and this commits implementing all virtqueue
+> > ops(set_vq_addr, set_vq_num and set_vq_ready) to take immediate
+> > actions than lazy-initialization, so ifcvf_hw_enable() is retired.
+> >
+> > To avoid losing virtqueue configurations caused by multiple
+> > rounds of reset(), this commit also refactors thed evice reset
+> > routine, now it simply reset the config handler and the virtqueues,
+> > and only once device-reset().
+> >
+> > Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
+> > ---
+> >  drivers/vdpa/ifcvf/ifcvf_base.c | 94 ++++++++++++++++++++-------------
+> >  drivers/vdpa/ifcvf/ifcvf_base.h | 11 ++--
+> >  drivers/vdpa/ifcvf/ifcvf_main.c | 57 +++++---------------
+> >  3 files changed, 75 insertions(+), 87 deletions(-)
+> >
+> > diff --git a/drivers/vdpa/ifcvf/ifcvf_base.c b/drivers/vdpa/ifcvf/ifcvf_base.c
+> > index 48c4dadb0c7c..19eb0dcac123 100644
+> > --- a/drivers/vdpa/ifcvf/ifcvf_base.c
+> > +++ b/drivers/vdpa/ifcvf/ifcvf_base.c
+> > @@ -175,16 +175,12 @@ u8 ifcvf_get_status(struct ifcvf_hw *hw)
+> >  void ifcvf_set_status(struct ifcvf_hw *hw, u8 status)
+> >  {
+> >         vp_iowrite8(status, &hw->common_cfg->device_status);
+> > +       vp_ioread8(&hw->common_cfg->device_status);
+> 
+> This looks confusing, the name of the function is to set the status
+> but what actually implemented here is to get the status.
+> 
+> >  }
+> >
+> >  void ifcvf_reset(struct ifcvf_hw *hw)
+> >  {
+> > -       hw->config_cb.callback = NULL;
+> > -       hw->config_cb.private = NULL;
+> > -
+> >         ifcvf_set_status(hw, 0);
+> > -       /* flush set_status, make sure VF is stopped, reset */
+> > -       ifcvf_get_status(hw);
+> >  }
+> >
+> >  static void ifcvf_add_status(struct ifcvf_hw *hw, u8 status)
+> > @@ -331,68 +327,94 @@ int ifcvf_set_vq_state(struct ifcvf_hw *hw, u16 qid, u16 num)
+> >         ifcvf_lm = (struct ifcvf_lm_cfg __iomem *)hw->lm_cfg;
+> >         q_pair_id = qid / hw->nr_vring;
+> >         avail_idx_addr = &ifcvf_lm->vring_lm_cfg[q_pair_id].idx_addr[qid % 2];
+> > -       hw->vring[qid].last_avail_idx = num;
+> >         vp_iowrite16(num, avail_idx_addr);
+> > +       vp_ioread16(avail_idx_addr);
+> 
+> This looks like a bug fix.
+
+is this to flush out the status write?  pls add a comment
+explaining when and why it's needed.
+
+> >
+> >         return 0;
+> >  }
+> >
+> > -static int ifcvf_hw_enable(struct ifcvf_hw *hw)
+> > +void ifcvf_set_vq_num(struct ifcvf_hw *hw, u16 qid, u32 num)
+> >  {
+> > -       struct virtio_pci_common_cfg __iomem *cfg;
+> > -       u32 i;
+> > +       struct virtio_pci_common_cfg __iomem *cfg = hw->common_cfg;
+> >
+> > -       cfg = hw->common_cfg;
+> > -       for (i = 0; i < hw->nr_vring; i++) {
+> > -               if (!hw->vring[i].ready)
+> > -                       break;
+> > +       vp_iowrite16(qid, &cfg->queue_select);
+> > +       vp_iowrite16(num, &cfg->queue_size);
+> > +       vp_ioread16(&cfg->queue_size);
+> > +}
+> >
+> > -               vp_iowrite16(i, &cfg->queue_select);
+> > -               vp_iowrite64_twopart(hw->vring[i].desc, &cfg->queue_desc_lo,
+> > -                                    &cfg->queue_desc_hi);
+> > -               vp_iowrite64_twopart(hw->vring[i].avail, &cfg->queue_avail_lo,
+> > -                                     &cfg->queue_avail_hi);
+> > -               vp_iowrite64_twopart(hw->vring[i].used, &cfg->queue_used_lo,
+> > -                                    &cfg->queue_used_hi);
+> > -               vp_iowrite16(hw->vring[i].size, &cfg->queue_size);
+> > -               ifcvf_set_vq_state(hw, i, hw->vring[i].last_avail_idx);
+> > -               vp_iowrite16(1, &cfg->queue_enable);
+> > -       }
+> > +int ifcvf_set_vq_address(struct ifcvf_hw *hw, u16 qid, u64 desc_area,
+> > +                        u64 driver_area, u64 device_area)
+> > +{
+> > +       struct virtio_pci_common_cfg __iomem *cfg = hw->common_cfg;
+> > +
+> > +       vp_iowrite16(qid, &cfg->queue_select);
+> > +       vp_iowrite64_twopart(desc_area, &cfg->queue_desc_lo,
+> > +                            &cfg->queue_desc_hi);
+> > +       vp_iowrite64_twopart(driver_area, &cfg->queue_avail_lo,
+> > +                            &cfg->queue_avail_hi);
+> > +       vp_iowrite64_twopart(device_area, &cfg->queue_used_lo,
+> > +                            &cfg->queue_used_hi);
+> > +       /* to flush IO */
+> > +       vp_ioread16(&cfg->queue_select);
+> 
+> Why do we need to flush I/O here?
+> 
+> >
+> >         return 0;
+> >  }
+> >
+> > -static void ifcvf_hw_disable(struct ifcvf_hw *hw)
+> > +void ifcvf_set_vq_ready(struct ifcvf_hw *hw, u16 qid, bool ready)
+> >  {
+> > -       u32 i;
+> > +       struct virtio_pci_common_cfg __iomem *cfg = hw->common_cfg;
+> >
+> > -       ifcvf_set_config_vector(hw, VIRTIO_MSI_NO_VECTOR);
+> > -       for (i = 0; i < hw->nr_vring; i++) {
+> > -               ifcvf_set_vq_vector(hw, i, VIRTIO_MSI_NO_VECTOR);
+> > -       }
+> > +       vp_iowrite16(qid, &cfg->queue_select);
+> > +       vp_iowrite16(ready, &cfg->queue_enable);
+> 
+> I think we need a comment to explain that IFCVF can support write to
+> queue_enable since it's not allowed by the virtio spec.
+
+
+I think you mean writing 0 there. writing 1 is allowed.
+
+
+> 
+> > +       vp_ioread16(&cfg->queue_enable);
+> > +}
+> > +
+> > +bool ifcvf_get_vq_ready(struct ifcvf_hw *hw, u16 qid)
+> > +{
+> > +       struct virtio_pci_common_cfg __iomem *cfg = hw->common_cfg;
+> > +       bool queue_enable;
+> > +
+> > +       vp_iowrite16(qid, &cfg->queue_select);
+> > +       queue_enable = vp_ioread16(&cfg->queue_enable);
+> > +
+> > +       return (bool)queue_enable;
+> >  }
+> >
+> >  int ifcvf_start_hw(struct ifcvf_hw *hw)
+> >  {
+> > -       ifcvf_reset(hw);
+> >         ifcvf_add_status(hw, VIRTIO_CONFIG_S_ACKNOWLEDGE);
+> >         ifcvf_add_status(hw, VIRTIO_CONFIG_S_DRIVER);
+> >
+> >         if (ifcvf_config_features(hw) < 0)
+> >                 return -EINVAL;
+> >
+> > -       if (ifcvf_hw_enable(hw) < 0)
+> > -               return -EINVAL;
+> > -
+> >         ifcvf_add_status(hw, VIRTIO_CONFIG_S_DRIVER_OK);
+> >
+> >         return 0;
+> >  }
+> >
+> > +static void ifcvf_reset_vring(struct ifcvf_hw *hw)
+> > +{
+> > +       int i;
+> > +
+> > +       for (i = 0; i < hw->nr_vring; i++) {
+> > +               hw->vring[i].cb.callback = NULL;
+> > +               hw->vring[i].cb.private = NULL;
+> > +               ifcvf_set_vq_vector(hw, i, VIRTIO_MSI_NO_VECTOR);
+> > +       }
+> > +}
+> > +
+> > +static void ifcvf_reset_config_handler(struct ifcvf_hw *hw)
+> > +{
+> > +       hw->config_cb.callback = NULL;
+> > +       hw->config_cb.private = NULL;
+> > +       ifcvf_set_config_vector(hw, VIRTIO_MSI_NO_VECTOR);
+> 
+> Do we need to synchronize with the IRQ here?
+> 
+> > +}
+> > +
+> >  void ifcvf_stop_hw(struct ifcvf_hw *hw)
+> >  {
+> > -       ifcvf_hw_disable(hw);
+> > -       ifcvf_reset(hw);
+> > +       ifcvf_reset_vring(hw);
+> > +       ifcvf_reset_config_handler(hw);
+> >  }
+> >
+> >  void ifcvf_notify_queue(struct ifcvf_hw *hw, u16 qid)
+> > diff --git a/drivers/vdpa/ifcvf/ifcvf_base.h b/drivers/vdpa/ifcvf/ifcvf_base.h
+> > index 115b61f4924b..41d86985361f 100644
+> > --- a/drivers/vdpa/ifcvf/ifcvf_base.h
+> > +++ b/drivers/vdpa/ifcvf/ifcvf_base.h
+> > @@ -49,12 +49,6 @@
+> >  #define MSIX_VECTOR_DEV_SHARED                 3
+> >
+> >  struct vring_info {
+> > -       u64 desc;
+> > -       u64 avail;
+> > -       u64 used;
+> > -       u16 size;
+> > -       u16 last_avail_idx;
+> > -       bool ready;
+> >         void __iomem *notify_addr;
+> >         phys_addr_t notify_pa;
+> >         u32 irq;
+> > @@ -131,6 +125,11 @@ int ifcvf_set_vq_state(struct ifcvf_hw *hw, u16 qid, u16 num);
+> >  struct ifcvf_adapter *vf_to_adapter(struct ifcvf_hw *hw);
+> >  int ifcvf_probed_virtio_net(struct ifcvf_hw *hw);
+> >  u32 ifcvf_get_config_size(struct ifcvf_hw *hw);
+> > +int ifcvf_set_vq_address(struct ifcvf_hw *hw, u16 qid, u64 desc_area,
+> > +                        u64 driver_area, u64 device_area);
+> >  u16 ifcvf_set_vq_vector(struct ifcvf_hw *hw, u16 qid, int vector);
+> >  u16 ifcvf_set_config_vector(struct ifcvf_hw *hw, int vector);
+> > +void ifcvf_set_vq_num(struct ifcvf_hw *hw, u16 qid, u32 num);
+> > +void ifcvf_set_vq_ready(struct ifcvf_hw *hw, u16 qid, bool ready);
+> > +bool ifcvf_get_vq_ready(struct ifcvf_hw *hw, u16 qid);
+> >  #endif /* _IFCVF_H_ */
+> > diff --git a/drivers/vdpa/ifcvf/ifcvf_main.c b/drivers/vdpa/ifcvf/ifcvf_main.c
+> > index 4366320fb68d..e442aa11333e 100644
+> > --- a/drivers/vdpa/ifcvf/ifcvf_main.c
+> > +++ b/drivers/vdpa/ifcvf/ifcvf_main.c
+> > @@ -374,37 +374,6 @@ static int ifcvf_start_datapath(void *private)
+> >         return ret;
+> >  }
+> >
+> > -static int ifcvf_stop_datapath(void *private)
+> > -{
+> > -       struct ifcvf_hw *vf = ifcvf_private_to_vf(private);
+> > -       int i;
+> > -
+> > -       for (i = 0; i < vf->nr_vring; i++)
+> > -               vf->vring[i].cb.callback = NULL;
+> > -
+> > -       ifcvf_stop_hw(vf);
+> > -
+> > -       return 0;
+> > -}
+> > -
+> > -static void ifcvf_reset_vring(struct ifcvf_adapter *adapter)
+> > -{
+> > -       struct ifcvf_hw *vf = ifcvf_private_to_vf(adapter);
+> > -       int i;
+> > -
+> > -       for (i = 0; i < vf->nr_vring; i++) {
+> > -               vf->vring[i].last_avail_idx = 0;
+> > -               vf->vring[i].desc = 0;
+> > -               vf->vring[i].avail = 0;
+> > -               vf->vring[i].used = 0;
+> > -               vf->vring[i].ready = 0;
+> > -               vf->vring[i].cb.callback = NULL;
+> > -               vf->vring[i].cb.private = NULL;
+> > -       }
+> > -
+> > -       ifcvf_reset(vf);
+> > -}
+> > -
+> >  static struct ifcvf_adapter *vdpa_to_adapter(struct vdpa_device *vdpa_dev)
+> >  {
+> >         return container_of(vdpa_dev, struct ifcvf_adapter, vdpa);
+> > @@ -477,6 +446,8 @@ static void ifcvf_vdpa_set_status(struct vdpa_device *vdpa_dev, u8 status)
+> >         if (status_old == status)
+> >                 return;
+> >
+> > +       ifcvf_set_status(vf, status);
+> > +
+> >         if ((status & VIRTIO_CONFIG_S_DRIVER_OK) &&
+> >             !(status_old & VIRTIO_CONFIG_S_DRIVER_OK)) {
+> >                 ret = ifcvf_request_irq(adapter);
+> 
+> Does this mean e.g for DRIVER_OK the device may work before the
+> interrupt handler is requested?
+> 
+> Looks racy.
+> 
+> Thanks
+> 
+> > @@ -493,7 +464,6 @@ static void ifcvf_vdpa_set_status(struct vdpa_device *vdpa_dev, u8 status)
+> >                                   status);
+> >         }
+> >
+> > -       ifcvf_set_status(vf, status);
+> >  }
+> >
+> >  static int ifcvf_vdpa_reset(struct vdpa_device *vdpa_dev)
+> > @@ -509,12 +479,10 @@ static int ifcvf_vdpa_reset(struct vdpa_device *vdpa_dev)
+> >         if (status_old == 0)
+> >                 return 0;
+> >
+> > -       if (status_old & VIRTIO_CONFIG_S_DRIVER_OK) {
+> > -               ifcvf_stop_datapath(adapter);
+> > -               ifcvf_free_irq(adapter);
+> > -       }
+> > +       ifcvf_stop_hw(vf);
+> > +       ifcvf_free_irq(adapter);
+> >
+> > -       ifcvf_reset_vring(adapter);
+> > +       ifcvf_reset(vf);
+> >
+> >         return 0;
+> >  }
+> > @@ -554,14 +522,17 @@ static void ifcvf_vdpa_set_vq_ready(struct vdpa_device *vdpa_dev,
+> >  {
+> >         struct ifcvf_hw *vf = vdpa_to_vf(vdpa_dev);
+> >
+> > -       vf->vring[qid].ready = ready;
+> > +       ifcvf_set_vq_ready(vf, qid, ready);
+> >  }
+> >
+> >  static bool ifcvf_vdpa_get_vq_ready(struct vdpa_device *vdpa_dev, u16 qid)
+> >  {
+> >         struct ifcvf_hw *vf = vdpa_to_vf(vdpa_dev);
+> > +       bool ready;
+> >
+> > -       return vf->vring[qid].ready;
+> > +       ready = ifcvf_get_vq_ready(vf, qid);
+> > +
+> > +       return ready;
+> >  }
+> >
+> >  static void ifcvf_vdpa_set_vq_num(struct vdpa_device *vdpa_dev, u16 qid,
+> > @@ -569,7 +540,7 @@ static void ifcvf_vdpa_set_vq_num(struct vdpa_device *vdpa_dev, u16 qid,
+> >  {
+> >         struct ifcvf_hw *vf = vdpa_to_vf(vdpa_dev);
+> >
+> > -       vf->vring[qid].size = num;
+> > +       ifcvf_set_vq_num(vf, qid, num);
+> >  }
+> >
+> >  static int ifcvf_vdpa_set_vq_address(struct vdpa_device *vdpa_dev, u16 qid,
+> > @@ -578,11 +549,7 @@ static int ifcvf_vdpa_set_vq_address(struct vdpa_device *vdpa_dev, u16 qid,
+> >  {
+> >         struct ifcvf_hw *vf = vdpa_to_vf(vdpa_dev);
+> >
+> > -       vf->vring[qid].desc = desc_area;
+> > -       vf->vring[qid].avail = driver_area;
+> > -       vf->vring[qid].used = device_area;
+> > -
+> > -       return 0;
+> > +       return ifcvf_set_vq_address(vf, qid, desc_area, driver_area, device_area);
+> >  }
+> >
+> >  static void ifcvf_vdpa_kick_vq(struct vdpa_device *vdpa_dev, u16 qid)
+> > --
+> > 2.31.1
+> >
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
