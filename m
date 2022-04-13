@@ -4,75 +4,90 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D93A1C43217
-	for <virtualization@archiver.kernel.org>; Wed, 13 Apr 2022 06:41:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AC638C433EF
+	for <virtualization@archiver.kernel.org>; Wed, 13 Apr 2022 06:41:50 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 6AC9382662;
-	Wed, 13 Apr 2022 06:41:05 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 645218266C;
+	Wed, 13 Apr 2022 06:41:50 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id jHBn0ah_IEkC; Wed, 13 Apr 2022 06:41:04 +0000 (UTC)
+	with ESMTP id gIbN_UAknKSQ; Wed, 13 Apr 2022 06:41:49 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 59F1182660;
-	Wed, 13 Apr 2022 06:41:03 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id E3DB48267C;
+	Wed, 13 Apr 2022 06:41:48 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2DBA0C0033;
-	Wed, 13 Apr 2022 06:41:03 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id AAB51C0033;
+	Wed, 13 Apr 2022 06:41:48 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C29A1C002C
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D3E74C002C
  for <virtualization@lists.linux-foundation.org>;
- Wed, 13 Apr 2022 06:41:01 +0000 (UTC)
+ Wed, 13 Apr 2022 06:41:47 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id AE72340877
+ by smtp4.osuosl.org (Postfix) with ESMTP id C07D740877
  for <virtualization@lists.linux-foundation.org>;
- Wed, 13 Apr 2022 06:41:01 +0000 (UTC)
+ Wed, 13 Apr 2022 06:41:47 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id OHMtJ54FnK3Z
+ with ESMTP id wPbE-dk6hNuv
  for <virtualization@lists.linux-foundation.org>;
- Wed, 13 Apr 2022 06:41:00 +0000 (UTC)
+ Wed, 13 Apr 2022 06:41:46 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from out30-44.freemail.mail.aliyun.com
- (out30-44.freemail.mail.aliyun.com [115.124.30.44])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 1CD6940876
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id C088A40876
  for <virtualization@lists.linux-foundation.org>;
- Wed, 13 Apr 2022 06:40:59 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R381e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04357; MF=xuanzhuo@linux.alibaba.com;
- NM=1; PH=DS; RN=33; SR=0; TI=SMTPD_---0V9yQeE6_1649832051; 
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0V9yQeE6_1649832051) by smtp.aliyun-inc.com(127.0.0.1);
- Wed, 13 Apr 2022 14:40:53 +0800
-Message-ID: <1649831529.7724812-5-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH v9 11/32] virtio_ring: split: introduce
- virtqueue_resize_split()
-Date: Wed, 13 Apr 2022 14:32:09 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+ Wed, 13 Apr 2022 06:41:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1649832105;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=f/G4+V/2r9lJkom+e8pScX/b0FmMM9Qy+8u3OkZBVmQ=;
+ b=dB7aGemGlEqs8PnHiYXpE9wcTREFRbzpZsb4rVJiWW5QT6lFkeKndEsmBUzYxKGPIEcfzi
+ sHzaMg1rpjfgIp6flUW4+OBlWZlrdEtady37ceDxFuDwEwaiplNrX/FsNFdPDss9eGSNHB
+ 46Dpsx2fsDz0INeh9w80QTeNP2Kb4G8=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-551-6cM1yx9tMj6dMc1NTxRJhg-1; Wed, 13 Apr 2022 02:41:41 -0400
+X-MC-Unique: 6cM1yx9tMj6dMc1NTxRJhg-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.6])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id DCC3385A5BE;
+ Wed, 13 Apr 2022 06:41:40 +0000 (UTC)
+Received: from localhost (dhcp-192-194.str.redhat.com [10.33.192.194])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id 902112166B4F;
+ Wed, 13 Apr 2022 06:41:26 +0000 (UTC)
+From: Cornelia Huck <cohuck@redhat.com>
 To: Jason Wang <jasowang@redhat.com>
-References: <20220406034346.74409-1-xuanzhuo@linux.alibaba.com>
- <20220406034346.74409-12-xuanzhuo@linux.alibaba.com>
- <f79fc367-7ac5-961b-83c5-90f3d097c672@redhat.com>
-In-Reply-To: <f79fc367-7ac5-961b-83c5-90f3d097c672@redhat.com>
-Cc: Vadim Pasternak <vadimp@nvidia.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- linux-remoteproc@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
- Bjorn Andersson <bjorn.andersson@linaro.org>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>, linux-s390@vger.kernel.org,
- Johannes Berg <johannes.berg@intel.com>,
- Daniel Borkmann <daniel@iogearbox.net>, Richard Weinberger <richard@nod.at>,
- Vincent Whitchurch <vincent.whitchurch@axis.com>,
- John Fastabend <john.fastabend@gmail.com>, Halil Pasic <pasic@linux.ibm.com>,
- Jakub Kicinski <kuba@kernel.org>, virtualization@lists.linux-foundation.org,
- Heiko Carstens <hca@linux.ibm.com>, Jesper Dangaard Brouer <hawk@kernel.org>,
- Vasily Gorbik <gor@linux.ibm.com>, Jeff Dike <jdike@addtoit.com>,
- linux-um@lists.infradead.org, Mark Gross <markgross@kernel.org>,
- Hans de Goede <hdegoede@redhat.com>, kvm@vger.kernel.org,
- platform-driver-x86@vger.kernel.org,
- Mathieu Poirier <mathieu.poirier@linaro.org>, netdev@vger.kernel.org,
- Cornelia Huck <cohuck@redhat.com>, Sven Schnelle <svens@linux.ibm.com>,
- bpf@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH V2 4/5] virtio-pci: implement synchronize_vqs()
+In-Reply-To: <CACGkMEuUXAUK-8GnBWgij5TOSN0ct_gmxnDQEcovRmTLK6bv4w@mail.gmail.com>
+Organization: Red Hat GmbH
+References: <20220406083538.16274-1-jasowang@redhat.com>
+ <20220406083538.16274-5-jasowang@redhat.com>
+ <20220406075952-mutt-send-email-mst@kernel.org>
+ <87wng2e527.fsf@redhat.com> <20220408150307.24b6b99f.pasic@linux.ibm.com>
+ <20220410034556-mutt-send-email-mst@kernel.org>
+ <CACGkMEtarZb6g3ij5=+As17+d9jtdAqNa1EzSuTXc7Pq_som0Q@mail.gmail.com>
+ <877d7vbspu.fsf@redhat.com> <20220412020145.32e26e5a.pasic@linux.ibm.com>
+ <87r1629rio.fsf@redhat.com>
+ <CACGkMEuUXAUK-8GnBWgij5TOSN0ct_gmxnDQEcovRmTLK6bv4w@mail.gmail.com>
+User-Agent: Notmuch/0.34 (https://notmuchmail.org)
+Date: Wed, 13 Apr 2022 08:41:25 +0200
+Message-ID: <87o815a3je.fsf@redhat.com>
+MIME-Version: 1.0
+X-Scanned-By: MIMEDefang 2.78 on 10.11.54.6
+Cc: "Paul E. McKenney" <paulmck@kernel.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>,
+ Marc Zyngier <maz@kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>,
+ virtualization <virtualization@lists.linux-foundation.org>,
+ Halil Pasic <pasic@linux.ibm.com>, Thomas Gleixner <tglx@linutronix.de>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -84,85 +99,53 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gVHVlLCAxMiBBcHIgMjAyMiAxMzo1Mzo0NCArMDgwMCwgSmFzb24gV2FuZyA8amFzb3dhbmdA
-cmVkaGF0LmNvbT4gd3JvdGU6Cj4KPiDlnKggMjAyMi80LzYg5LiK5Y2IMTE6NDMsIFh1YW4gWmh1
-byDlhpnpgZM6Cj4gPiB2aXJ0aW8gcmluZyBzcGxpdCBzdXBwb3J0cyByZXNpemUuCj4gPgo+ID4g
-T25seSBhZnRlciB0aGUgbmV3IHZyaW5nIGlzIHN1Y2Nlc3NmdWxseSBhbGxvY2F0ZWQgYmFzZWQg
-b24gdGhlIG5ldyBudW0sCj4gPiB3ZSB3aWxsIHJlbGVhc2UgdGhlIG9sZCB2cmluZy4gSW4gYW55
-IGNhc2UsIGFuIGVycm9yIGlzIHJldHVybmVkLAo+ID4gaW5kaWNhdGluZyB0aGF0IHRoZSB2cmlu
-ZyBzdGlsbCBwb2ludHMgdG8gdGhlIG9sZCB2cmluZy4KPiA+Cj4gPiBJbiB0aGUgY2FzZSBvZiBh
-biBlcnJvciwgdGhlIGNhbGxlciBtdXN0Cj4gPiByZS1pbml0aWFsaXplKHZpcnRxdWV1ZV9yZWlu
-aXRfc3BsaXQoKSkgdGhlIHZpcnRxdWV1ZSB0byBlbnN1cmUgdGhhdCB0aGUKPiA+IHZyaW5nIGNh
-biBiZSB1c2VkLgo+ID4KPiA+IEluIGFkZGl0aW9uLCB2cmluZ19hbGlnbiwgbWF5X3JlZHVjZV9u
-dW0gYXJlIG5lY2Vzc2FyeSBmb3IgcmVhbGxvY2F0aW5nCj4gPiB2cmluZywgc28gdGhleSBhcmUg
-cmV0YWluZWQgZm9yIGNyZWF0aW5nIHZxLgo+ID4KPiA+IFNpZ25lZC1vZmYtYnk6IFh1YW4gWmh1
-byA8eHVhbnpodW9AbGludXguYWxpYmFiYS5jb20+Cj4gPiAtLS0KPiA+ICAgZHJpdmVycy92aXJ0
-aW8vdmlydGlvX3JpbmcuYyB8IDQ3ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
-Kwo+ID4gICAxIGZpbGUgY2hhbmdlZCwgNDcgaW5zZXJ0aW9ucygrKQo+ID4KPiA+IGRpZmYgLS1n
-aXQgYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jIGIvZHJpdmVycy92aXJ0aW8vdmlydGlv
-X3JpbmcuYwo+ID4gaW5kZXggM2RjNmFjZTJiYTdhLi4zMzg2NDEzNGE3NDQgMTAwNjQ0Cj4gPiAt
-LS0gYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jCj4gPiArKysgYi9kcml2ZXJzL3ZpcnRp
-by92aXJ0aW9fcmluZy5jCj4gPiBAQCAtMTM5LDYgKzEzOSwxMiBAQCBzdHJ1Y3QgdnJpbmdfdmly
-dHF1ZXVlIHsKPiA+ICAgCQkJLyogRE1BIGFkZHJlc3MgYW5kIHNpemUgaW5mb3JtYXRpb24gKi8K
-PiA+ICAgCQkJZG1hX2FkZHJfdCBxdWV1ZV9kbWFfYWRkcjsKPiA+ICAgCQkJc2l6ZV90IHF1ZXVl
-X3NpemVfaW5fYnl0ZXM7Cj4gPiArCj4gPiArCQkJLyogVGhlIHBhcmFtZXRlcnMgZm9yIGNyZWF0
-aW5nIHZyaW5ncyBhcmUgcmVzZXJ2ZWQgZm9yCj4gPiArCQkJICogY3JlYXRpbmcgbmV3IHZyaW5n
-Lgo+ID4gKwkJCSAqLwo+ID4gKwkJCXUzMiB2cmluZ19hbGlnbjsKPiA+ICsJCQlib29sIG1heV9y
-ZWR1Y2VfbnVtOwo+ID4gICAJCX0gc3BsaXQ7Cj4gPgo+ID4gICAJCS8qIEF2YWlsYWJsZSBmb3Ig
-cGFja2VkIHJpbmcgKi8KPiA+IEBAIC0xOTksNiArMjA1LDcgQEAgc3RydWN0IHZyaW5nX3ZpcnRx
-dWV1ZSB7Cj4gPiAgIH07Cj4gPgo+ID4gICBzdGF0aWMgc3RydWN0IHZyaW5nX2Rlc2NfZXh0cmEg
-KnZyaW5nX2FsbG9jX2Rlc2NfZXh0cmEodW5zaWduZWQgaW50IG51bSk7Cj4gPiArc3RhdGljIHZv
-aWQgdnJpbmdfZnJlZShzdHJ1Y3QgdmlydHF1ZXVlICpfdnEpOwo+ID4KPiA+ICAgLyoKPiA+ICAg
-ICogSGVscGVycy4KPiA+IEBAIC0xMDg4LDYgKzEwOTUsOCBAQCBzdGF0aWMgc3RydWN0IHZpcnRx
-dWV1ZSAqdnJpbmdfY3JlYXRlX3ZpcnRxdWV1ZV9zcGxpdCgKPiA+ICAgCQlyZXR1cm4gTlVMTDsK
-PiA+ICAgCX0KPiA+Cj4gPiArCXRvX3Z2cSh2cSktPnNwbGl0LnZyaW5nX2FsaWduID0gdnJpbmdf
-YWxpZ247Cj4gPiArCXRvX3Z2cSh2cSktPnNwbGl0Lm1heV9yZWR1Y2VfbnVtID0gbWF5X3JlZHVj
-ZV9udW07Cj4KPgo+IEl0IGxvb2tzIHRvIG1lIHRoZSBhYm92ZSBzaG91bGQgYmVsb25nIHRvIHBh
-dGNoIDYuCgpwYXRjaCA2IGp1c3QgZXh0cmFjdHMgYSBmdW5jdGlvbiwgbm8gbG9naWNhbCBtb2Rp
-ZmljYXRpb24uCgp0b192dnEodnEpLT5zcGxpdC5tYXlfcmVkdWNlX251bSBpcyBuZXdseSBhZGRl
-ZCwgc28gSSBkb24ndCB0aGluayBpdCBzaG91bGQgYmUKbWVyZ2VkIGludG8gcGF0Y2ggNi4KCj4K
-Pgo+ID4gICAJdG9fdnZxKHZxKS0+c3BsaXQucXVldWVfZG1hX2FkZHIgPSBkbWFfYWRkcjsKPiA+
-ICAgCXRvX3Z2cSh2cSktPnNwbGl0LnF1ZXVlX3NpemVfaW5fYnl0ZXMgPSBxdWV1ZV9zaXplX2lu
-X2J5dGVzOwo+ID4gICAJdG9fdnZxKHZxKS0+d2Vfb3duX3JpbmcgPSB0cnVlOwo+ID4gQEAgLTEw
-OTUsNiArMTEwNCw0NCBAQCBzdGF0aWMgc3RydWN0IHZpcnRxdWV1ZSAqdnJpbmdfY3JlYXRlX3Zp
-cnRxdWV1ZV9zcGxpdCgKPiA+ICAgCXJldHVybiB2cTsKPiA+ICAgfQo+ID4KPiA+ICtzdGF0aWMg
-aW50IHZpcnRxdWV1ZV9yZXNpemVfc3BsaXQoc3RydWN0IHZpcnRxdWV1ZSAqX3ZxLCB1MzIgbnVt
-KQo+ID4gK3sKPiA+ICsJc3RydWN0IHZyaW5nX3ZpcnRxdWV1ZSAqdnEgPSB0b192dnEoX3ZxKTsK
-PiA+ICsJc3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYgPSBfdnEtPnZkZXY7Cj4gPiArCXN0cnVj
-dCB2cmluZ19kZXNjX3N0YXRlX3NwbGl0ICpzdGF0ZTsKPiA+ICsJc3RydWN0IHZyaW5nX2Rlc2Nf
-ZXh0cmEgKmV4dHJhOwo+ID4gKwlzaXplX3QgcXVldWVfc2l6ZV9pbl9ieXRlczsKPiA+ICsJZG1h
-X2FkZHJfdCBkbWFfYWRkcjsKPiA+ICsJc3RydWN0IHZyaW5nIHZyaW5nOwo+ID4gKwlpbnQgZXJy
-ID0gLUVOT01FTTsKPiA+ICsJdm9pZCAqcXVldWU7Cj4gPiArCj4gPiArCXF1ZXVlID0gdnJpbmdf
-YWxsb2NfcXVldWVfc3BsaXQodmRldiwgJmRtYV9hZGRyLCAmbnVtLAo+ID4gKwkJCQkJdnEtPnNw
-bGl0LnZyaW5nX2FsaWduLAo+ID4gKwkJCQkJdnEtPndlYWtfYmFycmllcnMsCj4gPiArCQkJCQl2
-cS0+c3BsaXQubWF5X3JlZHVjZV9udW0pOwo+ID4gKwlpZiAoIXF1ZXVlKQo+ID4gKwkJcmV0dXJu
-IC1FTk9NRU07Cj4gPiArCj4gPiArCXF1ZXVlX3NpemVfaW5fYnl0ZXMgPSB2cmluZ19zaXplKG51
-bSwgdnEtPnNwbGl0LnZyaW5nX2FsaWduKTsKPiA+ICsKPiA+ICsJZXJyID0gdnJpbmdfYWxsb2Nf
-c3RhdGVfZXh0cmFfc3BsaXQobnVtLCAmc3RhdGUsICZleHRyYSk7Cj4gPiArCWlmIChlcnIpIHsK
-PiA+ICsJCXZyaW5nX2ZyZWVfcXVldWUodmRldiwgcXVldWVfc2l6ZV9pbl9ieXRlcywgcXVldWUs
-IGRtYV9hZGRyKTsKPiA+ICsJCXJldHVybiAtRU5PTUVNOwo+ID4gKwl9Cj4gPiArCj4gPiArCXZy
-aW5nX2ZyZWUoJnZxLT52cSk7Cj4gPiArCj4gPiArCXZyaW5nX2luaXQoJnZyaW5nLCBudW0sIHF1
-ZXVlLCB2cS0+c3BsaXQudnJpbmdfYWxpZ24pOwo+ID4gKwl2cmluZ192aXJ0cXVldWVfYXR0YWNo
-X3NwbGl0KHZxLCB2cmluZywgc3RhdGUsIGV4dHJhKTsKPiA+ICsJdnEtPnNwbGl0LnF1ZXVlX2Rt
-YV9hZGRyID0gZG1hX2FkZHI7Cj4gPiArCXZxLT5zcGxpdC5xdWV1ZV9zaXplX2luX2J5dGVzID0g
-cXVldWVfc2l6ZV9pbl9ieXRlczsKPgo+Cj4gSSB3b25kZXIgaWYgaXQncyBiZXR0ZXIgdG8gbW92
-ZSB0aGUgYWJvdmUgYXNzaWdubWVudHMgdG8KPiB2cmluZ192aXJ0cXVldWVfYXR0YWNoX3NwbGl0
-KCkuCgpJIGFsc28gdGhpbmsgc28sIHRoZSByZWFzb24gZm9yIG5vdCBkb2luZyB0aGlzIGlzIHRo
-YXQgdGhlcmUgaXMgbm8gZG1hX2FkZHIgYW5kCnF1ZXVlX3NpemVfaW5fYnl0ZXMgd2hlbiB2cmlu
-Z192aXJ0cXVldWVfYXR0YWNoX3NwbGl0IGlzIGNhbGxlZCBpbgpfX3ZyaW5nX25ld192aXJ0cXVl
-dWUuCgpBcyBkaXNjdXNzZWQgaW4gcGF0Y2ggMTIsIHdlIGNhbiBwYXNzIHRoZSBzdHJ1Y3Qgc3Ry
-dWN0IHZyaW5nX3ZpcnRxdWV1ZV9zcGxpdCB0bwp2cmluZ192aXJ0cXVldWVfYXR0YWNoX3NwbGl0
-KCkuIFRoaXMgaXMgbXVjaCBtb3JlIGNvbnZlbmllbnQuCgpUaGFua3MuCgo+Cj4gT3RoZXIgbG9v
-a3MgZ29vZC4KPgo+IFRoYW5rcwo+Cj4KPiA+ICsKPiA+ICsJdnJpbmdfdmlydHF1ZXVlX2luaXRf
-c3BsaXQodnEsIHZkZXYsIHRydWUpOwo+ID4gKwlyZXR1cm4gMDsKPiA+ICt9Cj4gPiArCj4gPgo+
-ID4gICAvKgo+ID4gICAgKiBQYWNrZWQgcmluZyBzcGVjaWZpYyBmdW5jdGlvbnMgLSAqX3BhY2tl
-ZCgpLgo+Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZp
-cnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3Vu
-ZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0
-aW5mby92aXJ0dWFsaXphdGlvbg==
+On Wed, Apr 13 2022, Jason Wang <jasowang@redhat.com> wrote:
+
+> On Wed, Apr 13, 2022 at 12:49 AM Cornelia Huck <cohuck@redhat.com> wrote:
+>>
+>> On Tue, Apr 12 2022, Halil Pasic <pasic@linux.ibm.com> wrote:
+>>
+>> > On Mon, 11 Apr 2022 16:27:41 +0200
+>> > Cornelia Huck <cohuck@redhat.com> wrote:
+>>
+>> >> My main concern is that we would need to synchronize against a single
+>> >> interrupt that covers all kinds of I/O interrupts, not just a single
+>> >> device...
+>> >>
+>> >
+>> > Could we synchronize on struct airq_info's lock member? If we were
+>> > to grab all of these that might be involved...
+>>
+>> Hm, that could possibly narrow the sync down to a subset, which seems
+>> better. For devices still using classic interrupts, per-device sync
+>> would be easy.
+>>
+>> >
+>> > AFAIU for the synchronize implementation we need a lock or a set of locks
+>> > that contain all the possible vring_interrupt() calls with the queuues
+>> > that belong to the given device as a critical section. That way, one
+>> > has the acquire's and release's in place so that the vrign_interrupt()
+>> > either guaranteed to finish before the change of driver_ready is
+>> > guaranteed to be complete, or it is guaranteed to see the change.
+>> >
+>> > In any case, I guess we should first get clear on the first part. I.e.
+>> > when do we want to allow host->guest notifications.
+>>
+>> Also, whether we just care about vring interrupts, or general device
+>> interrupts (not sure if a config change interrupt may also trigger
+>> things we do not want to trigger?)
+>
+> I think only vring interrupts, since the config interrupt hardening is
+> done via 22b7050a024d7 ("virtio: defer config changed notifications")
+
+Ah thanks, I even reviewed that one back then :)
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
