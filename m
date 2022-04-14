@@ -1,89 +1,141 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 73611C433F5
-	for <virtualization@archiver.kernel.org>; Thu, 14 Apr 2022 15:48:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A688BC433EF
+	for <virtualization@archiver.kernel.org>; Thu, 14 Apr 2022 19:33:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 075B160BCC;
-	Thu, 14 Apr 2022 15:48:50 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 3FB4C41872;
+	Thu, 14 Apr 2022 19:33:42 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id emxpfGGQxC6J; Thu, 14 Apr 2022 15:48:49 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 900D060AAB;
-	Thu, 14 Apr 2022 15:48:48 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 2mQU3z6yHw8V; Thu, 14 Apr 2022 19:33:41 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 594094182F;
+	Thu, 14 Apr 2022 19:33:40 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 53D80C002F;
-	Thu, 14 Apr 2022 15:48:48 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 79195C002C
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 30169C002F;
+	Thu, 14 Apr 2022 19:33:40 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6C374C002C
  for <virtualization@lists.linux-foundation.org>;
- Thu, 14 Apr 2022 15:48:46 +0000 (UTC)
+ Thu, 14 Apr 2022 19:33:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 6669B403A5
+ by smtp4.osuosl.org (Postfix) with ESMTP id 49CE341839
  for <virtualization@lists.linux-foundation.org>;
- Thu, 14 Apr 2022 15:48:46 +0000 (UTC)
+ Thu, 14 Apr 2022 19:33:39 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=infradead.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 458k5OVMHTsn
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id SWjK_v3cL3Yq
  for <virtualization@lists.linux-foundation.org>;
- Thu, 14 Apr 2022 15:48:45 +0000 (UTC)
-X-Greylist: delayed 00:27:05 by SQLgrey-1.8.0
-Received: from desiato.infradead.org (desiato.infradead.org
- [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 2156D400A8
+ Thu, 14 Apr 2022 19:33:37 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from NAM04-BN8-obe.outbound.protection.outlook.com
+ (mail-bn8nam08on20607.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:7e8d::607])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id D6B934182F
  for <virtualization@lists.linux-foundation.org>;
- Thu, 14 Apr 2022 15:48:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
- References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
- Content-Transfer-Encoding:Content-ID:Content-Description;
- bh=+iRSXHQlt9lmhOSBYrvMuVQHw2ElrWncN2mrge5/yQ4=; b=D4UH8lPRYK29ybcCYqOCJLNd3u
- Q4+bXU/1kTRxIE7w0/mHcMkrSCPJLapr2iCBsE80oGx3aeLmDbXhfKP6Fkzs31vlY0FP+8YSnLnGA
- psKONhCK8ST+iduJ2Cti5dc3/6xuzu4tUyrIHXDJUf3AQJwRNtqCqg/sZFQdBxJcqgIJGbD60Bxdi
- oaS0jyseexJ2bmKgeTcR1u426IWL9UnLdxAAKWVNxQBpyvSlDMHvhbL3rxBlCURpBfsccZHjsU40U
- p/tYya+kBtsh2ywbDnxGs9FU+WwVs7jWaPh4lOoJ1W1BUap47SGA8TWNcD30kSVuVAPp+UnWSnl0A
- I59pSpRQ==;
-Received: from j217100.upc-j.chello.nl ([24.132.217.100]
- helo=noisy.programming.kicks-ass.net)
- by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1nf1HL-0052yG-BV; Thu, 14 Apr 2022 15:21:03 +0000
-Received: from hirez.programming.kicks-ass.net
- (hirez.programming.kicks-ass.net [192.168.1.225])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature RSA-PSS (4096 bits))
- (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 578083002DE;
- Thu, 14 Apr 2022 17:21:01 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
- id 3B94F2057AAE7; Thu, 14 Apr 2022 17:21:01 +0200 (CEST)
-Date: Thu, 14 Apr 2022 17:21:01 +0200
-From: Peter Zijlstra <peterz@infradead.org>
-To: Christophe de Dinechin <dinechin@redhat.com>
-Subject: Re: [PATCH 1/3] sched/headers: Fix compilation error with GCC 12
-Message-ID: <Ylg73c83AJGwz9UN@hirez.programming.kicks-ass.net>
-References: <20220414150855.2407137-1-dinechin@redhat.com>
- <20220414150855.2407137-2-dinechin@redhat.com>
+ Thu, 14 Apr 2022 19:33:37 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=kp7rIgvr9aW/lKdO87HlZzuXysNBS2VXfiphmlsmIK8uA5oFqqJbvE1KWhRzXtBS34KSxnM1JfLZAVHQ6qgZR9mc8bn77o6y9QRaUgcNCmQo579SANybYj3BO7aZnVbzdYjZNlL+tp9b03GSiWnNlRjgDSY/68UPyG4bW5PU8NncUZv/2o5S3VfX44PCmA41Fggb2bOGf9AWK+LRUVj6wT3mQ+xkj366Q/+SftEjKi7CJL+vbFj/4BBL2oYssPNwTwPz198cCVlnqDSEpVMyAGFiCDJqkVGYmD3KxROPEHOEPYHojcLEN4GplrNLgrqQJexJ5SV+IwdbBwiJB1Qf2Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=1G4mHZc6JVwHuJ+0qp0fVcHtrmqU2RBILrTbC6Np7Vo=;
+ b=QEEMgxRYNG248apBdgUPVLZzEZbZ+xx84ugRjDseELPJtUl/TxZctqi0ufSZA27OqnOpUUeiKCRbskhceHS+bbi/wZNewcJcjdftHXsluAVBfi6j+hZVOx1IGfczVGLIngQdsp4uAT1t2l+gIT11fDWJOFybMXljjg1aoNr7+CYmOp/uBLTOhtTmJvry7KCo20Oz5MhQ6ZpbcK8ee+ppX2VGCBZXQU+RBWvhPAxPo3zDBx8ITh3Id5+bWYoy9S6MFkwyAt+K9gguM2qlwZwGfMe30vwsI38CnE/8CxyxownTP2TX1758P9fnYv4nVObLgOGysWiLo+8dIWRtmydipQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=vmware.com; dmarc=pass action=none header.from=vmware.com;
+ dkim=pass header.d=vmware.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vmware.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=1G4mHZc6JVwHuJ+0qp0fVcHtrmqU2RBILrTbC6Np7Vo=;
+ b=f9++CNvoHiLkNz4NufW/KfX85gXnV4Hm53wbb6hbCERwG79Oh/LVc00iah7aRYokwHwN6x54AqNC68sQL87sRsuq3COG9CIXUC4fyFPjurvRwV6VutNDx+AiUYwYxJr3TkqwHnOJXLRsE5KyyP67jy02DVhTLIaGoLyp0swJmzQ=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=vmware.com;
+Received: from BYAPR05MB3960.namprd05.prod.outlook.com (2603:10b6:a02:88::12)
+ by MN2PR05MB6013.namprd05.prod.outlook.com (2603:10b6:208:d0::29)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5164.18; Thu, 14 Apr
+ 2022 19:33:34 +0000
+Received: from BYAPR05MB3960.namprd05.prod.outlook.com
+ ([fe80::41ca:85a3:ec90:bf6f]) by BYAPR05MB3960.namprd05.prod.outlook.com
+ ([fe80::41ca:85a3:ec90:bf6f%3]) with mapi id 15.20.5164.018; Thu, 14 Apr 2022
+ 19:33:34 +0000
+From: vdasa@vmware.com
+To: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org,
+ linux-arm-kernel@lists.infradead.org
+Subject: [PATCH] VMCI: Add support for ARM64
+Date: Thu, 14 Apr 2022 12:33:16 -0700
+Message-Id: <20220414193316.14356-1-vdasa@vmware.com>
+X-Mailer: git-send-email 2.35.1
+X-ClientProxiedBy: BY5PR20CA0012.namprd20.prod.outlook.com
+ (2603:10b6:a03:1f4::25) To BYAPR05MB3960.namprd05.prod.outlook.com
+ (2603:10b6:a02:88::12)
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20220414150855.2407137-2-dinechin@redhat.com>
-Cc: Juri Lelli <juri.lelli@redhat.com>, trivial@kernel.org,
- "Michael S. Tsirkin" <mst@redhat.com>, Zhen Lei <thunder.leizhen@huawei.com>,
- linux-kernel@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>,
- virtualization@lists.linux-foundation.org, Ben Segall <bsegall@google.com>,
- Ingo Molnar <mingo@redhat.com>, Mel Gorman <mgorman@suse.de>,
- Paolo Bonzini <pbonzini@redhat.com>,
- Vincent Guittot <vincent.guittot@linaro.org>,
- Andrew Morton <akpm@linux-foundation.org>,
- Daniel Bristot de Oliveira <bristot@redhat.com>,
- Dietmar Eggemann <dietmar.eggemann@arm.com>
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 983c37f0-c80a-4a7b-a719-08da1e4da9d3
+X-MS-TrafficTypeDiagnostic: MN2PR05MB6013:EE_
+X-LD-Processed: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0,ExtAddr
+X-MS-Exchange-AtpMessageProperties: SA|SL
+X-Microsoft-Antispam-PRVS: <MN2PR05MB6013AC74A2F05F13053FD580CEEF9@MN2PR05MB6013.namprd05.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: BhNUFOk96BCDomlEmabRs/7LTvWsfv41r9ne2IGRfBtFEWuZJp2MxXTWRyUn7u0rsu7JKjzzpPqJTKUj7NDcJw0RkmstCxqckmEkZFq47ADyxMt4AB7VcgZwCgLbwZSuYGOTog+1JX3HOYOzzPy6pGUlg1amnr1w0at+xnVpsvuAhSDUJ2IoUAWEubMNcaOl09Sb/Rbv98mHQMATlq46HicUIrGD0JysWRM8iICBqc+PZm4EAk4yBCqtQGZ8wJCcWPcMTKfch/jSFBXjYUwkB1UX4YzumFjKVUeTsQqXkHq4BpMGRmzU6hWCD9UCK9W/Ht7ky9RizRPPrnLubZ9v35vvlAFqA6/lLBHTwecEA7yHPJlVODVBSbrE1PECSSY9YWAJeuWPzxhvIaIO/jS1DkxZGxMRAdep80XvrGnVUOlXv9SgncPYGPnIPdU/yPGjBkAjeqULDEwh87nnMryeMafz5SL3DVmmh7w4GFQM1SCx2fJd0FIt1hxKYGCfv1CMQQFZPpdBl3uHz9ARALtVBx0Ppv+EQGlmEfZHUqF2h5YM6AX+J7V00rEfkaoQZs2XhQhJDVw5h99Lmt/noZo7TDPBBMLnQYfEVsu5iFp4aoO2OWXid7uwqDCvI4q43ZXoLGa4G4W10RY9tr0F2/Vq3kwk/Gv6i24GlptK9fvTONqZ/DvTO0lC7+n7auI6nYZqkPpLWG7QtNAhtmjsoR6ORQ==
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:BYAPR05MB3960.namprd05.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230001)(4636009)(366004)(4326008)(8676002)(86362001)(316002)(186003)(26005)(66476007)(6486002)(2906002)(6506007)(54906003)(107886003)(66946007)(9686003)(6666004)(508600001)(83380400001)(5660300002)(6512007)(1076003)(36756003)(8936002)(38100700002)(2616005)(66556008)(52116002)(38350700002);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?Ea3ZUTc31gtGhsxaaykyekCh4lw1g1hy8oD6P+zDKQ2G+W/WpDlPckHyhUCl?=
+ =?us-ascii?Q?7p9CgJsurxxAWS5zh7UjcuKzLtv6nddOH+0OfbqGl1KFM7etOSHUET3njdgY?=
+ =?us-ascii?Q?pboPwBxPGiecB6G/j9Q5fvWxnV1mWF9BQSsPW+ggkuAfXwIJedCS2sSpBQlT?=
+ =?us-ascii?Q?2IBPbjaUpy4G7DS3j0F8MG2ZKPsgW0Sk/QP9UjIB6tBXIgtcca4AWpevISGn?=
+ =?us-ascii?Q?9erB8MUsqlI28DTgarTqUl4wvTqdXohwmG/2AiS1rxRRyyyAOUfp4o/xxsee?=
+ =?us-ascii?Q?t2o9hjQ79w2XWf7F+wmCLGKEr/mtoZ8F3axtOezkIEd8rFWlmOY1U7GUuQXk?=
+ =?us-ascii?Q?1SXF1htVK2TQqxDanCrxo6Vf8jYMvlT0Cl1dhy2k4hPy06DBoUE/pZXjhpRx?=
+ =?us-ascii?Q?ZJcsnQgoP2hFcDV3lXPjpHT/LeErU849vzQVc9ktkWpaitrks4OtDbid/ZfM?=
+ =?us-ascii?Q?P1lPkd4QNc+OhLB7+WKbG6vD9vOi/iLZQXq2G7PXyoOGXv8zK5myDfNK59rG?=
+ =?us-ascii?Q?Jj9zFKtwh0wzhWzzwfwSebCql7fEHAKENDXq5EGUao+k4wh5d3ck6xVq/Rf6?=
+ =?us-ascii?Q?2g/w/GfEnb9n2br0LgjGyWQ5mt9OA+apCYMacrIjKG5xZxahqc83uAoD8cyh?=
+ =?us-ascii?Q?GYAaWEoUA0lFcxI5KB2lqEq3T/aGionx/47mtnTmX+m8UegcYjFMAuD3IciE?=
+ =?us-ascii?Q?NCK999O+Y3i5JzUb7H+L/arcp/TiHW8XPBtKLFSuEALOvN+W+GI5Z1it/gmm?=
+ =?us-ascii?Q?OWzdP0sLEKe0mfT0WlZpQYteAW2Yysbb81fE18Stm9eZLDLswccEhpZL1W5M?=
+ =?us-ascii?Q?eDeWKOGozJ5+OArKIz10DCiqezKvU2WpzLlfYEscziR8UxzN0YOxErwaYsaF?=
+ =?us-ascii?Q?qWXscfSwhcfYMkHBLlzk29z5sWvjg/QpQobvZWcSacxwHX0tr3z+hzpjAQb4?=
+ =?us-ascii?Q?73MKbHfrrraYObqzl3qLwpEi0XkO7J730T0d9Rf8YPU9I1I3R+WCC2qQ0v0N?=
+ =?us-ascii?Q?3LPUtIzNncNDa5+q7+a8vYNiFrEVsyyUUEUSVUJiLaAwFEMn1DmiCR7loEnj?=
+ =?us-ascii?Q?b0HR2aE7b6LoQ0WY7XE71nenEQc5YUdsNLEHLFYo8U8IOmD72e5DaX1KBjMZ?=
+ =?us-ascii?Q?42FNmbgg61x0SxBmUYjnFHa6HUNHZ1ksPdoZvD2paMU1qfe5VdYwHV7Yqryj?=
+ =?us-ascii?Q?khG49R03gnOByr30lDRxtfw8iY9MzFd/uq3TUZZ17g9yZ291IURlYWZgLZ2i?=
+ =?us-ascii?Q?/iFXiNziY0R9SNiOf1wyxELKTBaprw5e87lf5SJRcz+zjeRwCxDPcn1Ydgnn?=
+ =?us-ascii?Q?w5LlBX6YGCAm8yL0QS2qVS66Wiy7PPkr/PGS9aDl4qz3J811dfTbvl07itDx?=
+ =?us-ascii?Q?mdDn7+N7kwWx47RZlhiyFQS2qddW61Ta0GOzyeQq7tOGbx/+ZX6IlditxORi?=
+ =?us-ascii?Q?KekW7Kpxx1hFr73BNKg5b3Oz3xhCcuEw/DAGN/BI1ouYl3C1QRJdEcvNmCvR?=
+ =?us-ascii?Q?MLeZmQSmGW9u4O4m3WKw799jgar0VOD4GypsG8nAcS9UyP6A2eVxjrZ7C+s0?=
+ =?us-ascii?Q?+dxlcBipxgSuD0WDjfCrzyYawcC4SltM+uwUrdZYJSy/rovsBUAVM0/Wbayq?=
+ =?us-ascii?Q?7bLRr0hylmGA8osEqi05MYcYZLsZSNickhhfcA0dLCy+/zcee0ZEV4gYoun6?=
+ =?us-ascii?Q?Cl17nI3/cU5rloDSwsbacG6jATMG1BuBWgyybIyrih7Jkyr30PD3D5YgU+LU?=
+ =?us-ascii?Q?bW8chdOuEQ=3D=3D?=
+X-OriginatorOrg: vmware.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 983c37f0-c80a-4a7b-a719-08da1e4da9d3
+X-MS-Exchange-CrossTenant-AuthSource: BYAPR05MB3960.namprd05.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Apr 2022 19:33:34.0006 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: GlLDIxJ8PmNzGogoVL0qr6YwlHpw1kIGpZTZBmw0ySlp0HkA46pcUb5JJzBCTG3cQ+Cy/MOHlcfsONTMxrFMCA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR05MB6013
+Cc: pv-drivers@vmware.com, linux-kernel-review@vmware.com,
+ Cyprien Laplace <claplace@vmware.com>, Vishnu Dasa <vdasa@vmware.com>,
+ Bryan Tan <bryantan@vmware.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -95,66 +147,93 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Reply-To: vdasa@vmware.com
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Apr 14, 2022 at 05:08:53PM +0200, Christophe de Dinechin wrote:
-> With gcc version 12.0.1 20220401 (Red Hat 12.0.1-0) (GCC), the following
-> errors are reported in sched.h when building after `make defconfig`:
+From: Vishnu Dasa <vdasa@vmware.com>
 
-<snip tons of noise>
+Add support for ARM64 architecture so that the driver can now be built
+and VMCI device can be used.
 
-> Rewrite the definitions of sched_class_highest and for_class_range to
-> avoid this error as follows:
-> 
-> 1/ The sched_class_highest is rewritten to be relative to
->   __begin_sched_classes, so that GCC sees it as being part of the
->   __begin_sched_classes array and not a distinct __end_sched_classes
->   array.
-> 
-> 2/ The for_class_range macro is modified to replace the comparison with
->   an out-of-bound pointer __begin_sched_classes - 1 with an equivalent,
->   but in-bounds comparison.
-> 
-> In that specific case, I believe that the GCC analysis is correct and
-> potentially valuable for other arrays, so it makes sense to keep it
-> enabled.
-> 
-> Signed-off-by: Christophe de Dinechin <christophe@dinechin.org>
-> Signed-off-by: Christophe de Dinechin <dinechin@redhat.com>
-> ---
->  kernel/sched/sched.h | 11 +++++++++--
->  1 file changed, 9 insertions(+), 2 deletions(-)
-> 
-> diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
-> index 8dccb34eb190..6350fbc7418d 100644
-> --- a/kernel/sched/sched.h
-> +++ b/kernel/sched/sched.h
-> @@ -2193,11 +2193,18 @@ const struct sched_class name##_sched_class \
->  extern struct sched_class __begin_sched_classes[];
->  extern struct sched_class __end_sched_classes[];
->  
-> -#define sched_class_highest (__end_sched_classes - 1)
-> +/*
-> + * sched_class_highests is really __end_sched_classes - 1, but written in a way
-> + * that makes it clear that it is within __begin_sched_classes[] and not outside
-> + * of __end_sched_classes[].
-> + */
-> +#define sched_class_highest (__begin_sched_classes + \
-> +			     (__end_sched_classes - __begin_sched_classes - 1))
->  #define sched_class_lowest  (__begin_sched_classes - 1)
->  
-> +/* The + 1 below places the pointers within the range of their array */
->  #define for_class_range(class, _from, _to) \
-> -	for (class = (_from); class != (_to); class--)
-> +	for (class = (_from); class + 1 != (_to) + 1; class--)
+Update Kconfig file to allow the driver to be built on ARM64 as well.
+Fail vmci_guest_probe_device() on ARM64 if the device does not support
+MMIO register access.  Lastly, add virtualization specific barriers
+which map to actual memory barrier instructions on ARM64, because it
+is required in case of ARM64 for queuepair (de)queuing.
 
-Urgh, so now we get less readable code, just because GCC is being
-stupid?
+Reviewed-by: Bryan Tan <bryantan@vmware.com>
+Reviewed-by: Cyprien Laplace <claplace@vmware.com>
+Signed-off-by: Vishnu Dasa <vdasa@vmware.com>
+---
+ drivers/misc/vmw_vmci/Kconfig           |  2 +-
+ drivers/misc/vmw_vmci/vmci_guest.c      |  4 ++++
+ drivers/misc/vmw_vmci/vmci_queue_pair.c | 12 ++++++++++++
+ 3 files changed, 17 insertions(+), 1 deletion(-)
 
-What's wrong with negative array indexes? memory is memory, stuff works.
+diff --git a/drivers/misc/vmw_vmci/Kconfig b/drivers/misc/vmw_vmci/Kconfig
+index 605794aadf11..b6d4d7fd686a 100644
+--- a/drivers/misc/vmw_vmci/Kconfig
++++ b/drivers/misc/vmw_vmci/Kconfig
+@@ -5,7 +5,7 @@
+ 
+ config VMWARE_VMCI
+ 	tristate "VMware VMCI Driver"
+-	depends on X86 && PCI
++	depends on (X86 || ARM64) && !CPU_BIG_ENDIAN && PCI
+ 	help
+ 	  This is VMware's Virtual Machine Communication Interface.  It enables
+ 	  high-speed communication between host and guest in a virtual
+diff --git a/drivers/misc/vmw_vmci/vmci_guest.c b/drivers/misc/vmw_vmci/vmci_guest.c
+index 57a6157209a1..aa7b05de97dd 100644
+--- a/drivers/misc/vmw_vmci/vmci_guest.c
++++ b/drivers/misc/vmw_vmci/vmci_guest.c
+@@ -614,6 +614,10 @@ static int vmci_guest_probe_device(struct pci_dev *pdev,
+ 	}
+ 
+ 	if (!mmio_base) {
++		if (IS_ENABLED(CONFIG_ARM64)) {
++			dev_err(&pdev->dev, "MMIO base is invalid\n");
++			return -ENXIO;
++		}
+ 		error = pcim_iomap_regions(pdev, BIT(0), KBUILD_MODNAME);
+ 		if (error) {
+ 			dev_err(&pdev->dev, "Failed to reserve/map IO regions\n");
+diff --git a/drivers/misc/vmw_vmci/vmci_queue_pair.c b/drivers/misc/vmw_vmci/vmci_queue_pair.c
+index 94ebf7f3fd58..8f2de1893245 100644
+--- a/drivers/misc/vmw_vmci/vmci_queue_pair.c
++++ b/drivers/misc/vmw_vmci/vmci_queue_pair.c
+@@ -2577,6 +2577,12 @@ static ssize_t qp_enqueue_locked(struct vmci_queue *produce_q,
+ 	if (result < VMCI_SUCCESS)
+ 		return result;
+ 
++	/*
++	 * This virt_wmb() ensures that data written to the queue
++	 * is observable before the new producer_tail is.
++	 */
++	virt_wmb();
++
+ 	vmci_q_header_add_producer_tail(produce_q->q_header, written,
+ 					produce_q_size);
+ 	return written;
+@@ -2620,6 +2626,12 @@ static ssize_t qp_dequeue_locked(struct vmci_queue *produce_q,
+ 	if (buf_ready < VMCI_SUCCESS)
+ 		return (ssize_t) buf_ready;
+ 
++	/*
++	 * This virt_rmb() ensures that data from the queue will be read
++	 * after we have determined how much is ready to be consumed.
++	 */
++	virt_rmb();
++
+ 	read = (size_t) (buf_ready > buf_size ? buf_size : buf_ready);
+ 	head = vmci_q_header_consumer_head(produce_q->q_header);
+ 	if (likely(head + read < consume_q_size)) {
+-- 
+2.35.1
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
