@@ -1,95 +1,80 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3B491C433F5
-	for <virtualization@archiver.kernel.org>; Fri, 15 Apr 2022 06:45:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id BB03BC433F5
+	for <virtualization@archiver.kernel.org>; Fri, 15 Apr 2022 07:41:44 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id D25D560B1C;
-	Fri, 15 Apr 2022 06:45:35 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 48A748411B;
+	Fri, 15 Apr 2022 07:41:44 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 5y52oNFARNUn; Fri, 15 Apr 2022 06:45:35 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 76C336103E;
-	Fri, 15 Apr 2022 06:45:34 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5E228C002F;
-	Fri, 15 Apr 2022 06:45:34 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 87579C002C
- for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Apr 2022 06:45:33 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 8422E84138
- for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Apr 2022 06:45:33 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=bytedance-com.20210112.gappssmtp.com
 Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Af1HeYbMiNMM
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 8iAkV2ND8t8y; Fri, 15 Apr 2022 07:41:43 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 0A4C684102;
+	Fri, 15 Apr 2022 07:41:42 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D1008C0033;
+	Fri, 15 Apr 2022 07:41:42 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 60545C002C
  for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Apr 2022 06:45:33 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com
- [IPv6:2607:f8b0:4864:20::432])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 163D284068
+ Fri, 15 Apr 2022 07:41:40 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 3856840126
  for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Apr 2022 06:45:32 +0000 (UTC)
-Received: by mail-pf1-x432.google.com with SMTP id n43so2665378pfv.10
+ Fri, 15 Apr 2022 07:41:40 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=infradead.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id YLve3QsV_w29
  for <virtualization@lists.linux-foundation.org>;
- Thu, 14 Apr 2022 23:45:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=bytedance-com.20210112.gappssmtp.com; s=20210112;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:content-transfer-encoding;
- bh=ouz4DgKg6HX7//LGRrUD97CctBPhdyzV/9EeFTiygxk=;
- b=gMCyNTTL33kI18vJdBqOu9Mcm2fImvGdxj+ka3vkQktHDiY/CK6mvTSSga/VonfgCK
- G2yDrY4zAQ73dGXaCnliYP1Sy/I4SgZ0iyzTWjhjjHSEigW4fxdNA2tP2Wf0uxbksfhX
- cBHCROmEIoL5iGVlxzgLAUEjeRiwP80HJL4kjIiu0Ul8xGUMQGmqpnFWq7dE7QrLdKSO
- 69iqyiKk38F14+E73N4tvDHBGN2U4xpNoI5fXGuTfLl7tLH4+PRaN5ohLpVXe45yFSXv
- GER/mPzklCwMsqFB3YjPtmkoDrHVR4kVx5qMb1cFyLLTHiTjMubqehbQDnte90iuhh6h
- Bb1A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
- :references:mime-version:content-transfer-encoding;
- bh=ouz4DgKg6HX7//LGRrUD97CctBPhdyzV/9EeFTiygxk=;
- b=6Py7VJqFo8OAs5zzV0NGZVTTdd1MvGllr5UvgRrAuIl/Xf6aICmAZ7ETXc5yqn3WOV
- ZCHsl0NUVy9ZMdV7PgTWZezbQrIzIp3s0c2HuDoq00pXx4ttwu1vqmI/ok7HyARwOQaR
- 3U5Sd7XoStaUlPojOgWH7nrPpE+D5TAazozizXE8Kpfxff1cXC1XMkfwQ1s9RhlNokY5
- DWmXRx53p/sKoiJjMxNc1Z9cp/XF/wIal44PMiQMT2JmPxczhZ/UyEdvSihwpWC5GzK1
- k0MVPA8fLITsRErw6AykWH4AL6CsS1qTYGuP9mwR+om+p+ucbRFlwGHm6RrO5vY5CCEF
- 504A==
-X-Gm-Message-State: AOAM5316O60i7HtQhg7ZWPV0+ZLRLQrNXUlfpe7ap7lSRcpPQothKsGm
- QQajmIQyLCUIma6syMv/89SPvQ==
-X-Google-Smtp-Source: ABdhPJwyfNEEO9oK4pBktYn2c0uxMeRu2wWbIGD1BpxdATL+9+KfkFN82SS1+bpSVF2rQMXvUC8AAw==
-X-Received: by 2002:a63:6a88:0:b0:398:54fb:85ba with SMTP id
- f130-20020a636a88000000b0039854fb85bamr5311202pgc.88.1650005132521; 
- Thu, 14 Apr 2022 23:45:32 -0700 (PDT)
-Received: from always-x1.bytedance.net ([61.120.150.70])
- by smtp.gmail.com with ESMTPSA id
- d8-20020a056a00198800b004fab740dbe6sm1867385pfl.15.2022.04.14.23.45.28
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 14 Apr 2022 23:45:32 -0700 (PDT)
-From: zhenwei pi <pizhenwei@bytedance.com>
-To: arei.gonglei@huawei.com,
-	mst@redhat.com
-Subject: [PATCH 4/4] virtio-crypto: enable retry for virtio-crypto-dev
-Date: Fri, 15 Apr 2022 14:41:36 +0800
-Message-Id: <20220415064136.304661-5-pizhenwei@bytedance.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220415064136.304661-1-pizhenwei@bytedance.com>
-References: <20220415064136.304661-1-pizhenwei@bytedance.com>
+ Fri, 15 Apr 2022 07:41:39 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+Received: from bombadil.infradead.org (bombadil.infradead.org
+ [IPv6:2607:7c80:54:e::133])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id B824C40103
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 15 Apr 2022 07:41:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
+ :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+ Content-Transfer-Encoding:Content-ID:Content-Description;
+ bh=xanSGgJ3nmtzvbbdp9vVuGDNU57I0ihEAXyIecrf4bA=; b=lps71QQUamaHvR3jlBRw+n3uyM
+ JFgM5Skqngi7JHyRil4qKMmAEM5LFTvcWctJCRRUKTHITWjByEaRjFXlI1QFwKwfDznzrnq/lmskY
+ ehCLULfMu+QaORULxHxFRPom6cawrtOvL6VeWCdLRS1vsaXUEDq/mTvEhVnvx0flpxmqzBiwKSAX3
+ LmQI65ZSeNYRW47jHR4TI91hvxdPBP9a+ni/rg4MKnyPzCdRkLG2CLrX55JwN8keJFvMvbjNu1uEU
+ DrvFdR6Ne1c+TOm7uYaONr2V++soK+q3+FnvCW2LW7BjSo6SkR3egrhx72Jv82FoBDGRaXaU2ABV7
+ CtfGLRrg==;
+Received: from hch by bombadil.infradead.org with local (Exim 4.94.2 #2 (Red
+ Hat Linux)) id 1nfGaG-009Cis-7P; Fri, 15 Apr 2022 07:41:36 +0000
+Date: Fri, 15 Apr 2022 00:41:36 -0700
+From: Christoph Hellwig <hch@infradead.org>
+To: Oleksandr Tyshchenko <olekstysh@gmail.com>
+Subject: Re: [RFC PATCH 0/6] virtio: Solution to restrict memory access under
+ Xen using xen-virtio DMA ops layer
+Message-ID: <YlkhsH4zqly/BykB@infradead.org>
+References: <1649963973-22879-1-git-send-email-olekstysh@gmail.com>
 MIME-Version: 1.0
-Cc: helei.sig11@bytedance.com, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org,
- davem@davemloft.net, herbert@gondor.apana.org.au
+Content-Disposition: inline
+In-Reply-To: <1649963973-22879-1-git-send-email-olekstysh@gmail.com>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by
+ bombadil.infradead.org. See http://www.infradead.org/rpr.html
+Cc: Juergen Gross <jgross@suse.com>, Kaly Xin <Kaly.Xin@arm.com>,
+ Stefano Stabellini <sstabellini@kernel.org>, Julien Grall <julien@xen.org>,
+ Wei Chen <Wei.Chen@arm.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ Henry Wang <Henry.Wang@arm.com>,
+ Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+ Jiamei Xie <Jiamei.Xie@arm.com>, xen-devel@lists.xenproject.org,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+ Bertrand Marquis <bertrand.marquis@arm.com>,
+ linux-arm-kernel@lists.infradead.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -106,33 +91,9 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: lei he <helei.sig11@bytedance.com>
-
-Enable retry for virtio-crypto-dev, so that crypto-engine
-can process cipher-requests parallelly.
-
-Signed-off-by: lei he <helei.sig11@bytedance.com>
----
- drivers/crypto/virtio/virtio_crypto_core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/crypto/virtio/virtio_crypto_core.c b/drivers/crypto/virtio/virtio_crypto_core.c
-index d8edefcb966c..5c0d68c9e894 100644
---- a/drivers/crypto/virtio/virtio_crypto_core.c
-+++ b/drivers/crypto/virtio/virtio_crypto_core.c
-@@ -62,7 +62,8 @@ static int virtcrypto_find_vqs(struct virtio_crypto *vi)
- 		spin_lock_init(&vi->data_vq[i].lock);
- 		vi->data_vq[i].vq = vqs[i];
- 		/* Initialize crypto engine */
--		vi->data_vq[i].engine = crypto_engine_alloc_init(dev, 1);
-+		vi->data_vq[i].engine = crypto_engine_alloc_init_and_set(dev, true, NULL, 1,
-+						virtqueue_get_vring_size(vqs[i]));
- 		if (!vi->data_vq[i].engine) {
- 			ret = -ENOMEM;
- 			goto err_engine;
--- 
-2.20.1
-
+I can only see three out of 6 patches on the linux-arm-kernel list,
+which makes reviewing this impossible.  Also please Cc me directly
+on any series doing crazy things with dma ops.  Thanks!
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
