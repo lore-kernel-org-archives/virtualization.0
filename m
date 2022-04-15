@@ -1,64 +1,65 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9D360C388F3
-	for <virtualization@archiver.kernel.org>; Fri, 15 Apr 2022 04:53:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A0480C433EF
+	for <virtualization@archiver.kernel.org>; Fri, 15 Apr 2022 04:53:48 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 3B1BB61000;
-	Fri, 15 Apr 2022 04:53:46 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 4E5F4840EB;
+	Fri, 15 Apr 2022 04:53:48 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id g7UC4jvsfNiI; Fri, 15 Apr 2022 04:53:45 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id AFF676101A;
-	Fri, 15 Apr 2022 04:53:44 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 88648C0033;
-	Fri, 15 Apr 2022 04:53:44 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 213D4C002C
- for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Apr 2022 04:53:43 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 6AEDB84116
- for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Apr 2022 04:53:42 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=infradead.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id JekFjwBGc_pF
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id YXxeDy_l-dE6; Fri, 15 Apr 2022 04:53:47 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 06BA684117;
+	Fri, 15 Apr 2022 04:53:46 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B8932C0033;
+	Fri, 15 Apr 2022 04:53:46 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B625BC0033
  for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Apr 2022 04:53:41 +0000 (UTC)
+ Fri, 15 Apr 2022 04:53:45 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id A18DB61045
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 15 Apr 2022 04:53:45 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=infradead.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id ChBHH_GJf5O7
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 15 Apr 2022 04:53:45 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from bombadil.infradead.org (bombadil.infradead.org
  [IPv6:2607:7c80:54:e::133])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 9359C8410C
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 17AC26103B
  for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Apr 2022 04:53:41 +0000 (UTC)
+ Fri, 15 Apr 2022 04:53:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
- Content-Type:MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:
- To:From:Sender:Reply-To:Content-ID:Content-Description;
- bh=9tUaZULhEmteAuYmNe/S5K85i8mY+zpV/R7NWj8li0M=; b=AjCBuPx/UHSGTakXv8HXmgNw4N
- Iyofq9wNNzfgjbG93scprq/gUs5OOhFUGL0tKjcj2IWWkpHNBkXqusk5CV5Uj/P/70TymjB6Unzdu
- VnxSzUtQb3ldimIkXALq/IfCXSo1TL1NzeISVmz+Ea7q6xFf02zHvxp+FndxH2zbBXHBFRTOnXe4c
- nAXrXpjx27cFTMs0mjOzvEq3gOjLOY6hKIcglkznMntAYg+vXORRN23xzGalvjS8R6ccxTXJWj8QW
- sdXJMYerLCI2QfFcDPA/f8tI4pucu7JSpv7rjXlKJh5WSo2NBa1UXNlyVf9emnFeALezPoiPRp2d8
- jaVM4Jaw==;
+ MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
+ :Reply-To:Content-Type:Content-ID:Content-Description;
+ bh=3FWZlAG92h1RMyWa34xIeRgUUqbPb180tFAKbgq0RAE=; b=vLBRGmYA6jBMZDlzC6PXWv+Ksh
+ 9na0CpZ5vQifHyF0I8hMiOODlZP67Q2wDV/bHkW9tDW3iYlbHmeg8cbzKsYytJTpwvlcHhRbVfqcX
+ u3Kb/T1hJpTRApCefLOPvQW0mKpxDcNm47SF5wKvwDYKsM4SjV65VWQFHoZN4xC3iqhdpTgH60xyD
+ 3FkocDRpHF7/kXuVb8jwQtLL3ZBVVz+fa7PIdADFNqNFERroneG/Wkz00hQMCvFOcmh7+ThP9CfhC
+ oK97r2DvOPV2WXipkXhu1yEAGyGeER9Ori1+uKdJHNOs14UTWNR2qEKSdnT4Cxh5GrNg5oiq3V6Rp
+ ycclGS7g==;
 Received: from [2a02:1205:504b:4280:f5dd:42a4:896c:d877] (helo=localhost)
  by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1nfDxb-008OvZ-Ly; Fri, 15 Apr 2022 04:53:32 +0000
+ id 1nfDxe-008Oxy-2A; Fri, 15 Apr 2022 04:53:34 +0000
 From: Christoph Hellwig <hch@lst.de>
 To: Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 07/27] drbd: cleanup decide_on_discard_support
-Date: Fri, 15 Apr 2022 06:52:38 +0200
-Message-Id: <20220415045258.199825-8-hch@lst.de>
+Subject: [PATCH 08/27] btrfs: use bdev_max_active_zones instead of open coding
+ it
+Date: Fri, 15 Apr 2022 06:52:39 +0200
+Message-Id: <20220415045258.199825-9-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20220415045258.199825-1-hch@lst.de>
 References: <20220415045258.199825-1-hch@lst.de>
@@ -74,12 +75,12 @@ Cc: jfs-discussion@lists.sourceforge.net, linux-nvme@lists.infradead.org,
  xen-devel@lists.xenproject.org, linux-ext4@vger.kernel.org,
  linux-um@lists.infradead.org, nbd@other.debian.org,
  linux-block@vger.kernel.org, linux-bcache@vger.kernel.org,
- ceph-devel@vger.kernel.org, linux-raid@vger.kernel.org,
+ David Sterba <dsterba@suse.com>, ceph-devel@vger.kernel.org,
+ linux-raid@vger.kernel.org, Johannes Thumshirn <johannes.thumshirn@wdc.com>,
  linux-mmc@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
- linux-xfs@vger.kernel.org,
- =?UTF-8?q?Christoph=20B=C3=B6hmwalder?= <christoph.boehmwalder@linbit.com>,
- ocfs2-devel@oss.oracle.com, linux-fsdevel@vger.kernel.org,
- ntfs3@lists.linux.dev, linux-btrfs@vger.kernel.org
+ linux-xfs@vger.kernel.org, ocfs2-devel@oss.oracle.com,
+ linux-fsdevel@vger.kernel.org, ntfs3@lists.linux.dev,
+ linux-btrfs@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -91,90 +92,43 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-U2FuaXRpemUgdGhlIGNhbGxpbmcgY29udmVudGlvbnMgYW5kIHVzZSBhIGdvdG8gbGFiZWwgdG8g
-Y2xlYW51cCB0aGUKY29kZSBmbG93LgoKU2lnbmVkLW9mZi1ieTogQ2hyaXN0b3BoIEhlbGx3aWcg
-PGhjaEBsc3QuZGU+CkFja2VkLWJ5OiBDaHJpc3RvcGggQsO2aG13YWxkZXIgPGNocmlzdG9waC5i
-b2VobXdhbGRlckBsaW5iaXQuY29tPgotLS0KIGRyaXZlcnMvYmxvY2svZHJiZC9kcmJkX25sLmMg
-fCA2OCArKysrKysrKysrKysrKysrKysrLS0tLS0tLS0tLS0tLS0tLS0KIDEgZmlsZSBjaGFuZ2Vk
-LCAzNSBpbnNlcnRpb25zKCspLCAzMyBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9kcml2ZXJz
-L2Jsb2NrL2RyYmQvZHJiZF9ubC5jIGIvZHJpdmVycy9ibG9jay9kcmJkL2RyYmRfbmwuYwppbmRl
-eCBiNzIxNmMxODZiYTRkLi40ZDAwOTg2ZDZmNTg4IDEwMDY0NAotLS0gYS9kcml2ZXJzL2Jsb2Nr
-L2RyYmQvZHJiZF9ubC5jCisrKyBiL2RyaXZlcnMvYmxvY2svZHJiZC9kcmJkX25sLmMKQEAgLTEy
-MDQsMzggKzEyMDQsNDIgQEAgc3RhdGljIHVuc2lnbmVkIGludCBkcmJkX21heF9kaXNjYXJkX3Nl
-Y3RvcnMoc3RydWN0IGRyYmRfY29ubmVjdGlvbiAqY29ubmVjdGlvbikKIH0KIAogc3RhdGljIHZv
-aWQgZGVjaWRlX29uX2Rpc2NhcmRfc3VwcG9ydChzdHJ1Y3QgZHJiZF9kZXZpY2UgKmRldmljZSwK
-LQkJCXN0cnVjdCByZXF1ZXN0X3F1ZXVlICpxLAotCQkJc3RydWN0IHJlcXVlc3RfcXVldWUgKmIs
-Ci0JCQlib29sIGRpc2NhcmRfemVyb2VzX2lmX2FsaWduZWQpCisJCXN0cnVjdCBkcmJkX2JhY2tp
-bmdfZGV2ICpiZGV2KQogewotCS8qIHEgPSBkcmJkIGRldmljZSBxdWV1ZSAoZGV2aWNlLT5ycV9x
-dWV1ZSkKLQkgKiBiID0gYmFja2luZyBkZXZpY2UgcXVldWUgKGRldmljZS0+bGRldi0+YmFja2lu
-Z19iZGV2LT5iZF9kaXNrLT5xdWV1ZSksCi0JICogICAgIG9yIE5VTEwgaWYgZGlza2xlc3MKLQkg
-Ki8KLQlzdHJ1Y3QgZHJiZF9jb25uZWN0aW9uICpjb25uZWN0aW9uID0gZmlyc3RfcGVlcl9kZXZp
-Y2UoZGV2aWNlKS0+Y29ubmVjdGlvbjsKLQlib29sIGNhbl9kbyA9IGIgPyBibGtfcXVldWVfZGlz
-Y2FyZChiKSA6IHRydWU7Ci0KLQlpZiAoY2FuX2RvICYmIGNvbm5lY3Rpb24tPmNzdGF0ZSA+PSBD
-X0NPTk5FQ1RFRCAmJiAhKGNvbm5lY3Rpb24tPmFncmVlZF9mZWF0dXJlcyAmIERSQkRfRkZfVFJJ
-TSkpIHsKLQkJY2FuX2RvID0gZmFsc2U7Ci0JCWRyYmRfaW5mbyhjb25uZWN0aW9uLCAicGVlciBE
-UkJEIHRvbyBvbGQsIGRvZXMgbm90IHN1cHBvcnQgVFJJTTogZGlzYWJsaW5nIGRpc2NhcmRzXG4i
-KTsKLQl9Ci0JaWYgKGNhbl9kbykgewotCQkvKiBXZSBkb24ndCBjYXJlIGZvciB0aGUgZ3JhbnVs
-YXJpdHksIHJlYWxseS4KLQkJICogU3RhY2tpbmcgbGltaXRzIGJlbG93IHNob3VsZCBmaXggaXQg
-Zm9yIHRoZSBsb2NhbAotCQkgKiBkZXZpY2UuICBXaGV0aGVyIG9yIG5vdCBpdCBpcyBhIHN1aXRh
-YmxlIGdyYW51bGFyaXR5Ci0JCSAqIG9uIHRoZSByZW1vdGUgZGV2aWNlIGlzIG5vdCBvdXIgcHJv
-YmxlbSwgcmVhbGx5LiBJZgotCQkgKiB5b3UgY2FyZSwgeW91IG5lZWQgdG8gdXNlIGRldmljZXMg
-d2l0aCBzaW1pbGFyCi0JCSAqIHRvcG9sb2d5IG9uIGFsbCBwZWVycy4gKi8KLQkJYmxrX3F1ZXVl
-X2Rpc2NhcmRfZ3JhbnVsYXJpdHkocSwgNTEyKTsKLQkJcS0+bGltaXRzLm1heF9kaXNjYXJkX3Nl
-Y3RvcnMgPSBkcmJkX21heF9kaXNjYXJkX3NlY3RvcnMoY29ubmVjdGlvbik7Ci0JCWJsa19xdWV1
-ZV9mbGFnX3NldChRVUVVRV9GTEFHX0RJU0NBUkQsIHEpOwotCQlxLT5saW1pdHMubWF4X3dyaXRl
-X3plcm9lc19zZWN0b3JzID0gZHJiZF9tYXhfZGlzY2FyZF9zZWN0b3JzKGNvbm5lY3Rpb24pOwot
-CX0gZWxzZSB7Ci0JCWJsa19xdWV1ZV9mbGFnX2NsZWFyKFFVRVVFX0ZMQUdfRElTQ0FSRCwgcSk7
-Ci0JCWJsa19xdWV1ZV9kaXNjYXJkX2dyYW51bGFyaXR5KHEsIDApOwotCQlxLT5saW1pdHMubWF4
-X2Rpc2NhcmRfc2VjdG9ycyA9IDA7Ci0JCXEtPmxpbWl0cy5tYXhfd3JpdGVfemVyb2VzX3NlY3Rv
-cnMgPSAwOworCXN0cnVjdCBkcmJkX2Nvbm5lY3Rpb24gKmNvbm5lY3Rpb24gPQorCQlmaXJzdF9w
-ZWVyX2RldmljZShkZXZpY2UpLT5jb25uZWN0aW9uOworCXN0cnVjdCByZXF1ZXN0X3F1ZXVlICpx
-ID0gZGV2aWNlLT5ycV9xdWV1ZTsKKworCWlmIChiZGV2ICYmICFibGtfcXVldWVfZGlzY2FyZChi
-ZGV2LT5iYWNraW5nX2JkZXYtPmJkX2Rpc2stPnF1ZXVlKSkKKwkJZ290byBub3Rfc3VwcG9ydGVk
-OworCisJaWYgKGNvbm5lY3Rpb24tPmNzdGF0ZSA+PSBDX0NPTk5FQ1RFRCAmJgorCSAgICAhKGNv
-bm5lY3Rpb24tPmFncmVlZF9mZWF0dXJlcyAmIERSQkRfRkZfVFJJTSkpIHsKKwkJZHJiZF9pbmZv
-KGNvbm5lY3Rpb24sCisJCQkicGVlciBEUkJEIHRvbyBvbGQsIGRvZXMgbm90IHN1cHBvcnQgVFJJ
-TTogZGlzYWJsaW5nIGRpc2NhcmRzXG4iKTsKKwkJZ290byBub3Rfc3VwcG9ydGVkOwogCX0KKwor
-CS8qCisJICogV2UgZG9uJ3QgY2FyZSBmb3IgdGhlIGdyYW51bGFyaXR5LCByZWFsbHkuCisJICoK
-KwkgKiBTdGFja2luZyBsaW1pdHMgYmVsb3cgc2hvdWxkIGZpeCBpdCBmb3IgdGhlIGxvY2FsIGRl
-dmljZS4gIFdoZXRoZXIgb3IKKwkgKiBub3QgaXQgaXMgYSBzdWl0YWJsZSBncmFudWxhcml0eSBv
-biB0aGUgcmVtb3RlIGRldmljZSBpcyBub3Qgb3VyCisJICogcHJvYmxlbSwgcmVhbGx5LiBJZiB5
-b3UgY2FyZSwgeW91IG5lZWQgdG8gdXNlIGRldmljZXMgd2l0aCBzaW1pbGFyCisJICogdG9wb2xv
-Z3kgb24gYWxsIHBlZXJzLgorCSAqLworCWJsa19xdWV1ZV9kaXNjYXJkX2dyYW51bGFyaXR5KHEs
-IDUxMik7CisJcS0+bGltaXRzLm1heF9kaXNjYXJkX3NlY3RvcnMgPSBkcmJkX21heF9kaXNjYXJk
-X3NlY3RvcnMoY29ubmVjdGlvbik7CisJYmxrX3F1ZXVlX2ZsYWdfc2V0KFFVRVVFX0ZMQUdfRElT
-Q0FSRCwgcSk7CisJcS0+bGltaXRzLm1heF93cml0ZV96ZXJvZXNfc2VjdG9ycyA9CisJCWRyYmRf
-bWF4X2Rpc2NhcmRfc2VjdG9ycyhjb25uZWN0aW9uKTsKKwlyZXR1cm47CisKK25vdF9zdXBwb3J0
-ZWQ6CisJYmxrX3F1ZXVlX2ZsYWdfY2xlYXIoUVVFVUVfRkxBR19ESVNDQVJELCBxKTsKKwlibGtf
-cXVldWVfZGlzY2FyZF9ncmFudWxhcml0eShxLCAwKTsKKwlxLT5saW1pdHMubWF4X2Rpc2NhcmRf
-c2VjdG9ycyA9IDA7CisJcS0+bGltaXRzLm1heF93cml0ZV96ZXJvZXNfc2VjdG9ycyA9IDA7CiB9
-CiAKIHN0YXRpYyB2b2lkIGZpeHVwX2Rpc2NhcmRfaWZfbm90X3N1cHBvcnRlZChzdHJ1Y3QgcmVx
-dWVzdF9xdWV1ZSAqcSkKQEAgLTEyNzMsNyArMTI3Nyw2IEBAIHN0YXRpYyB2b2lkIGRyYmRfc2V0
-dXBfcXVldWVfcGFyYW0oc3RydWN0IGRyYmRfZGV2aWNlICpkZXZpY2UsIHN0cnVjdCBkcmJkX2Jh
-Y2tpCiAJdW5zaWduZWQgaW50IG1heF9zZWdtZW50cyA9IDA7CiAJc3RydWN0IHJlcXVlc3RfcXVl
-dWUgKmIgPSBOVUxMOwogCXN0cnVjdCBkaXNrX2NvbmYgKmRjOwotCWJvb2wgZGlzY2FyZF96ZXJv
-ZXNfaWZfYWxpZ25lZCA9IHRydWU7CiAKIAlpZiAoYmRldikgewogCQliID0gYmRldi0+YmFja2lu
-Z19iZGV2LT5iZF9kaXNrLT5xdWV1ZTsKQEAgLTEyODIsNyArMTI4NSw2IEBAIHN0YXRpYyB2b2lk
-IGRyYmRfc2V0dXBfcXVldWVfcGFyYW0oc3RydWN0IGRyYmRfZGV2aWNlICpkZXZpY2UsIHN0cnVj
-dCBkcmJkX2JhY2tpCiAJCXJjdV9yZWFkX2xvY2soKTsKIAkJZGMgPSByY3VfZGVyZWZlcmVuY2Uo
-ZGV2aWNlLT5sZGV2LT5kaXNrX2NvbmYpOwogCQltYXhfc2VnbWVudHMgPSBkYy0+bWF4X2Jpb19i
-dmVjczsKLQkJZGlzY2FyZF96ZXJvZXNfaWZfYWxpZ25lZCA9IGRjLT5kaXNjYXJkX3plcm9lc19p
-Zl9hbGlnbmVkOwogCQlyY3VfcmVhZF91bmxvY2soKTsKIAogCQlibGtfc2V0X3N0YWNraW5nX2xp
-bWl0cygmcS0+bGltaXRzKTsKQEAgLTEyOTIsNyArMTI5NCw3IEBAIHN0YXRpYyB2b2lkIGRyYmRf
-c2V0dXBfcXVldWVfcGFyYW0oc3RydWN0IGRyYmRfZGV2aWNlICpkZXZpY2UsIHN0cnVjdCBkcmJk
-X2JhY2tpCiAJLyogVGhpcyBpcyB0aGUgd29ya2Fyb3VuZCBmb3IgImJpbyB3b3VsZCBuZWVkIHRv
-LCBidXQgY2Fubm90LCBiZSBzcGxpdCIgKi8KIAlibGtfcXVldWVfbWF4X3NlZ21lbnRzKHEsIG1h
-eF9zZWdtZW50cyA/IG1heF9zZWdtZW50cyA6IEJMS19NQVhfU0VHTUVOVFMpOwogCWJsa19xdWV1
-ZV9zZWdtZW50X2JvdW5kYXJ5KHEsIFBBR0VfU0laRS0xKTsKLQlkZWNpZGVfb25fZGlzY2FyZF9z
-dXBwb3J0KGRldmljZSwgcSwgYiwgZGlzY2FyZF96ZXJvZXNfaWZfYWxpZ25lZCk7CisJZGVjaWRl
-X29uX2Rpc2NhcmRfc3VwcG9ydChkZXZpY2UsIGJkZXYpOwogCiAJaWYgKGIpIHsKIAkJYmxrX3N0
-YWNrX2xpbWl0cygmcS0+bGltaXRzLCAmYi0+bGltaXRzLCAwKTsKLS0gCjIuMzAuMgoKX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24g
-bWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0
-dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxp
-emF0aW9u
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Acked-by: David Sterba <dsterba@suse.com>
+---
+ fs/btrfs/zoned.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/fs/btrfs/zoned.c b/fs/btrfs/zoned.c
+index 1b1b310c3c510..f72cad7391a11 100644
+--- a/fs/btrfs/zoned.c
++++ b/fs/btrfs/zoned.c
+@@ -350,7 +350,6 @@ int btrfs_get_dev_zone_info(struct btrfs_device *device, bool populate_cache)
+ 	struct btrfs_fs_info *fs_info = device->fs_info;
+ 	struct btrfs_zoned_device_info *zone_info = NULL;
+ 	struct block_device *bdev = device->bdev;
+-	struct request_queue *queue = bdev_get_queue(bdev);
+ 	unsigned int max_active_zones;
+ 	unsigned int nactive;
+ 	sector_t nr_sectors;
+@@ -410,7 +409,7 @@ int btrfs_get_dev_zone_info(struct btrfs_device *device, bool populate_cache)
+ 	if (!IS_ALIGNED(nr_sectors, zone_sectors))
+ 		zone_info->nr_zones++;
+ 
+-	max_active_zones = queue_max_active_zones(queue);
++	max_active_zones = bdev_max_active_zones(bdev);
+ 	if (max_active_zones && max_active_zones < BTRFS_MIN_ACTIVE_ZONES) {
+ 		btrfs_err_in_rcu(fs_info,
+ "zoned: %s: max active zones %u is too small, need at least %u active zones",
+-- 
+2.30.2
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
