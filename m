@@ -1,109 +1,159 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9A85BC433F5
-	for <virtualization@archiver.kernel.org>; Fri, 15 Apr 2022 12:33:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0EE59C433F5
+	for <virtualization@archiver.kernel.org>; Fri, 15 Apr 2022 14:27:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 228D6400D1;
-	Fri, 15 Apr 2022 12:33:26 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 8FB2F41A1B;
+	Fri, 15 Apr 2022 14:27:46 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id XlGcw7_KOFIC; Fri, 15 Apr 2022 12:33:25 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 9578740491;
-	Fri, 15 Apr 2022 12:33:24 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id hmBxmN5_z_oS; Fri, 15 Apr 2022 14:27:45 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id BC52A41A10;
+	Fri, 15 Apr 2022 14:27:44 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6D0F6C002F;
-	Fri, 15 Apr 2022 12:33:24 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8D9DDC002F;
+	Fri, 15 Apr 2022 14:27:44 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 49F1FC002C
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7EC19C002C
  for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Apr 2022 12:33:23 +0000 (UTC)
+ Fri, 15 Apr 2022 14:27:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 2D95E41A01
+ by smtp4.osuosl.org (Postfix) with ESMTP id 66FA941A11
  for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Apr 2022 12:33:23 +0000 (UTC)
+ Fri, 15 Apr 2022 14:27:42 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Jy8hvnGusWs4
+ with ESMTP id dq-WGrA1uXwq
  for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Apr 2022 12:33:22 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id CA687419FA
+ Fri, 15 Apr 2022 14:27:41 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from na01-obe.outbound.protection.outlook.com
+ (mail-eus2azlp170100001.outbound.protection.outlook.com
+ [IPv6:2a01:111:f403:c110::1])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 41DC741A10
  for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Apr 2022 12:33:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1650026000;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=ftgpEXExt/Q8tapC3VPgV4SRlTmXUpdTzVH1uq6974U=;
- b=iyplEH9yjOGTNu6PE3JAIDVfm89DvtB8wEf7sdML63gbz9YL+TvGQJq5xwi8o8cfg9cVLU
- iY9IHLWKMp7S/S9Dwu7HxWXIEoqppzIFUCsgYRhRvXdj0/32qW4kj6HqY8U0l68izgYBRV
- SmJZ0MojfHoRdVjPWTODmQz57Y8lWi4=
-Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
- [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-606-CNtFcmmtMMqCDoo-fxAVRA-1; Fri, 15 Apr 2022 08:33:19 -0400
-X-MC-Unique: CNtFcmmtMMqCDoo-fxAVRA-1
-Received: by mail-ej1-f71.google.com with SMTP id
- ga31-20020a1709070c1f00b006cec400422fso3144128ejc.22
- for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Apr 2022 05:33:18 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=ftgpEXExt/Q8tapC3VPgV4SRlTmXUpdTzVH1uq6974U=;
- b=7gSop7hUQPY7w1xl5TbagKLd92PvMI9Bj0BkW9qHotMOhtpPGo4WBTCYRRPel/1brb
- JisLQgItD/QWWePQvTVIgJd4Yn1dvlI6+PmnTUwzOg9ZFpeDJDsAF4HYIqAjm0W4zvbX
- 7XlqpI+sylE47+Ou08ZRgV/qAlyx9s6sumG7Q3SRSddfTcrl2dYWkWkcyVSmQy+RJVUG
- a3N6I3Rrkdo5nFjrI9ggPG+q9raR4CDHQqsoq2xk217/LpZzmlr2j92JhSpwbzhAm9ss
- I99bfuSryUx2+Bbt70b0CtGiyyg1WyIF15Aybw5wmX4pNNClIEi4InG9p6SOvcXaNNoW
- CoJw==
-X-Gm-Message-State: AOAM533mlpiDnTtJaQs/CDkBVOm4wYOMF2u3Lrz0T8Lpidjd7pkf0ZBG
- 7FMpVpMdBrCy+dPM0uuhRFC0YVYDhFvN1ff9j/qAK7b/H5LkYtVmb1Jzvh+cLm7k2793gDsySHp
- QuzWirMEuebEtKD3Bq5XA9CAzHugGvqJb9OyoDHuQzw==
-X-Received: by 2002:a17:907:6e0d:b0:6e0:59ae:21f1 with SMTP id
- sd13-20020a1709076e0d00b006e059ae21f1mr6240114ejc.362.1650025997846; 
- Fri, 15 Apr 2022 05:33:17 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyuKmlTty+4i2feqbobmTM30rT7DiZ0fmBwHM9hMPpc7VE0xAYd1NkDNPZxHO77k5Tbr4RyuQ==
-X-Received: by 2002:a17:907:6e0d:b0:6e0:59ae:21f1 with SMTP id
- sd13-20020a1709076e0d00b006e059ae21f1mr6240091ejc.362.1650025997535; 
- Fri, 15 Apr 2022 05:33:17 -0700 (PDT)
-Received: from redhat.com ([2.53.138.98]) by smtp.gmail.com with ESMTPSA id
- w7-20020a1709061f0700b006ec8197e8a4sm1135508ejj.97.2022.04.15.05.33.14
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 15 Apr 2022 05:33:16 -0700 (PDT)
-Date: Fri, 15 Apr 2022 08:33:12 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: zhenwei pi <pizhenwei@bytedance.com>
-Subject: Re: Re: [PATCH 1/4] virtio-crypto: wait ctrl queue instead of busy
- polling
-Message-ID: <20220415082750-mutt-send-email-mst@kernel.org>
-References: <20220415064136.304661-1-pizhenwei@bytedance.com>
- <20220415064136.304661-2-pizhenwei@bytedance.com>
- <20220415042555-mutt-send-email-mst@kernel.org>
- <eba72a32-aa94-0d9c-b927-a9e6b965ca44@bytedance.com>
+ Fri, 15 Apr 2022 14:27:41 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=dU+oGgKPed1ELr43gT2SMyTsdXS6Oo5d8BsG0szBf8ZFt4aR/uBBqqcK9LDdlQG1ScjGsm+52OasX+Uf13Pqr9RqmEk6a7G4LJ5BmB9IJO6u90tpNgCNmHPKFmA09+Sgbxp5SxPPugvA1AJZqeQMEKuLDk1mCTH9AvrsUaDGt1YtAkUV23kpopquSJdM2u+yv0YqrsXtdjbFa11ybCht/86i5bzDIBWhWwCYIcmVisfhc6SqRUVPL1ELHv7fFSw9JbTzkbmlsY2u9MsOc2A7FZaoOyHefdmQd0+jrzofkw9qJTE+jkXJaxewMqaaeqNIeszcYyDRVMOVCn4WWEiVdg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=9YapCafICZL0nUoddUMofulRReXA1vYs1snepQkbvUI=;
+ b=PvsrzmDq49M0vTZ7kWti0rhs3Ao6xl/jymIR0sUTMqJfwkGwmqXuYC1hFB2O+EPiuZ8GAckgvdXVp60Bi7XkJA47BkxUZ9IbDeAYGAJfvRelC6g8OMwdUIqXooQuv/UBbdbzOC1UnUFgRbGg98rnoHt0DmpZCTnYs/i21qnWnL2EFZNYLsttNYApuzEH37VorifiIoBildCwBf4wLwctfsa5WffCmlccnmcvt/LT+Hiagc1v705Fn8pwGvnZZ6CqhEQnWaTN248eDXisCYl1ja1oJ/ziXAclLGhX2ElnYDqcnIcFEddVbBhBoNJdSlEUPQbqwzbfSBnrw9xgynAzpQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=microsoft.com; dmarc=pass action=none
+ header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=9YapCafICZL0nUoddUMofulRReXA1vYs1snepQkbvUI=;
+ b=CTHsMZ/0qGJnuVqNBiwxCadEdFw1+8o+puEMfAq1MwuPDHEiShjLJlCTypAmk/ZW/X9+wjjHVcxYTk2w/dnVz4UKPBQVv5pLJC2P4Os7NjQGfF6EbOqszlnf/eFQFHVPvVsUYdyqLaP6fFbgL9Y1Ym+ibbtUIECJWJ2Y8PqlaZY=
+Received: from PH0PR21MB3025.namprd21.prod.outlook.com (2603:10b6:510:d2::21)
+ by LV2PR21MB3350.namprd21.prod.outlook.com (2603:10b6:408:14e::12)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5186.6; Fri, 15 Apr
+ 2022 14:27:38 +0000
+Received: from PH0PR21MB3025.namprd21.prod.outlook.com
+ ([fe80::ac09:6e1b:de72:2b2f]) by PH0PR21MB3025.namprd21.prod.outlook.com
+ ([fe80::ac09:6e1b:de72:2b2f%9]) with mapi id 15.20.5186.010; Fri, 15 Apr 2022
+ 14:27:38 +0000
+To: Andrea Parri <parri.andrea@gmail.com>
+Subject: RE: [RFC PATCH 1/6] hv_sock: Check hv_pkt_iter_first_raw()'s return
+ value
+Thread-Topic: [RFC PATCH 1/6] hv_sock: Check hv_pkt_iter_first_raw()'s return
+ value
+Thread-Index: AQHYT3fFI5IGSfWvX0SxiF7md4+Se6zvlcGQgADzAICAAIEKsA==
+Date: Fri, 15 Apr 2022 14:27:37 +0000
+Message-ID: <PH0PR21MB3025F31739A0480F66639ACAD7EE9@PH0PR21MB3025.namprd21.prod.outlook.com>
+References: <20220413204742.5539-1-parri.andrea@gmail.com>
+ <20220413204742.5539-2-parri.andrea@gmail.com>
+ <PH0PR21MB3025FA1943D74A31E47B7F8FD7EE9@PH0PR21MB3025.namprd21.prod.outlook.com>
+ <20220415064133.GA2961@anparri>
+In-Reply-To: <20220415064133.GA2961@anparri>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+msip_labels: MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=bb8a42da-3d9c-4fd7-af98-95b6f67f39f4;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ContentBits=0;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Enabled=true;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Method=Standard;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Name=Internal;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2022-04-15T14:23:23Z;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SiteId=72f988bf-86f1-41af-91ab-2d7cd011db47;
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=microsoft.com;
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: edb51455-e429-4035-ac72-08da1eec1765
+x-ms-traffictypediagnostic: LV2PR21MB3350:EE_
+x-ms-exchange-atpmessageproperties: SA|SL
+x-microsoft-antispam-prvs: <LV2PR21MB335073F4C56C89D1553BC15FD7EE9@LV2PR21MB3350.namprd21.prod.outlook.com>
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: VTnEBjU1uytnZ0b9FolZjyTci1afw8BMra7BvDyDgRVxJpY2L+sBEzb1cktM5Vry7dCazSqkj3/B/y4a3ghrn2RCmOOyjxR55xGU+J/gRUDRf1yFGO6LOa/sweSiWvfof1aCO/fkwugd/5EbOEjg2WDw86tGrWjcTLBlwBr8V54cIQO6GLJ0vm2kUC8/0LjaSU+fuTotx/t2MD9UtJ20a6DHY4UUUOaqDjpNcI+GHIHM6JKPoQg3pwkXKWv4bV9RK+V67AHCLJhrdkYVzlw5tN6qyk76uW+FXwfWKvAAUTtU4tlQtbVjIC8/TDtO6GQj00NzU/sIXAuv2tBk6DhowWXR/ub2b2VjUxSsE7r4zbsfd7yMqgYih8/CVqF86QthMv2bw3e68pnvO1QeyuJRwILuvchIjn3aB9ljugcxq8Mvp+3couVBcFpAjzfpYLGn0k0npAnlDsFmblvjylxcNz1i0abHfg/kduIaC0wXAaTpt3QPb57UPYJHy/LfHlayFMJltt2mLcps3DPe6wsa9t+bI8fhgJ15f3z7rh1Rl0vOcn9e8IhZpOXwRTM9qXcE1irxp3iHnKKb0mFqZ1v+swdw3gibp6lRsvgWiD/TT1cXiU6H0zGt883kAXa4KvB8br20WzsiAFG2HaKeYyGGu85tp+gY1g2Ss1JS0XZfS6UF0/xkQ1bMNdOHwBT+8ctLBiyhVWp6eQfCDDuYJAbrKnOEcWkDPorAaQpuey5QXyIJpEGtb6YCzMZ94400frif
+x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:PH0PR21MB3025.namprd21.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230001)(4636009)(366004)(451199009)(10290500003)(86362001)(122000001)(71200400001)(6916009)(54906003)(52536014)(508600001)(316002)(8676002)(66556008)(64756008)(5660300002)(76116006)(66476007)(66446008)(66946007)(55016003)(7416002)(82960400001)(82950400001)(8936002)(4326008)(33656002)(38100700002)(186003)(9686003)(8990500004)(26005)(7696005)(6506007)(38070700005)(2906002)(83380400001);
+ DIR:OUT; SFP:1102; 
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?0hr/BbkbpZvBeQvpLg/yRNLALze1uZYznVHqhAfmHqt/l2Bjnoy8vuJJ+xgx?=
+ =?us-ascii?Q?SBGgb4vLwboSK0AgU9xhRmkcbEhClodufcZeZ2J2ZkoQRpNTrZyZuUt1rUlh?=
+ =?us-ascii?Q?fhJHuToq9/FB36GmOMeji3xWHg1+9GgnaP/hht6o2P8Z9mEIxK63Lm6cGFKp?=
+ =?us-ascii?Q?0MJKPW2OHOP6EswK/VsaW4xF5ZB82+jwvRGDLiI9Z/rS4yXhHJ3ZZjrFMmAl?=
+ =?us-ascii?Q?0szgPyXrCQFEVZnUBbHOzdzWDb0fWUGxe7EnfwSCljjdE+dwC2Qk5+S5l+WD?=
+ =?us-ascii?Q?nV+doX6YzKPtD0+MR3kF7X+YdhzgG9kkWD2gXgV0wfGi8zqsbiB1WvpwZYAp?=
+ =?us-ascii?Q?GngE6BgnABa01I4HdHhHLrkcvvxvj9dr1wA3p3vbKimjfFV+MFXDlsx+Zic6?=
+ =?us-ascii?Q?G4hwI/327xTU4LB/gmhkNjCN4hK2bCOplZVb6vlyur+nZXQ14oDkSQvfVcUO?=
+ =?us-ascii?Q?qPkChE+7jp8swLmcfLX23VTJJ/4RKU7YufyqieM/kbR5ibH0hRn7HPLE1EEF?=
+ =?us-ascii?Q?Ak54ocJZrU0IIFym5QZogWXfyJBywylgeBbMQ8KHy3A6GN/L/76hxYE0xIxo?=
+ =?us-ascii?Q?B4+V1/DcKR6m3AkRbkIwm9whATD9sDKV64D/qtL0xTj2W1e4VWMGbBUSOyY/?=
+ =?us-ascii?Q?j22ODF5jURmTaYIgzlp10YfeZAbuCokEVCN7AG38ZHWyADCopmIfHUkB7wYO?=
+ =?us-ascii?Q?vXEN4hZT6I0ParYeW+z0Y92wP2zBxOeBPsCU+aks2qM4rqMnytsWpIC+zmLq?=
+ =?us-ascii?Q?fiZWE2jyRpETSeU73yGmAjvZneg+7L/ezYOepMaA7oyhGoNXtmJH4wFoAv8S?=
+ =?us-ascii?Q?3IoWq94lWOS4HqUjLRWQSb1S/MUG/DYPiV2el4CVV0YZ/bcNAD3U3LAnVXU9?=
+ =?us-ascii?Q?jI9ENL8T3fd+XpUBf0tNL489YAcOkwgK2LbToSAIn7DSgpJrJMNB7RZW/PNH?=
+ =?us-ascii?Q?AChbOTRIsLCFPVQ/29LvTk7wyFShZxBIX228J4C4s34HJESAwIHO6ygO/COH?=
+ =?us-ascii?Q?j4S3Yag02AVMi+i72uYU3b3m8jxNeJ/hbreDlxQhwaQ3WiJLhXVbQ5AenlwJ?=
+ =?us-ascii?Q?GfgP5yLlcROfGapuxwBzXEPz6JwHjlykahLeB41p6BjwP6rBbX7ENd89I87y?=
+ =?us-ascii?Q?0VEikjK0riVPBcbxkwEh9/qIrv1Xw6CPyM3h67uijfHXPLuB1A78Wu/WWwDR?=
+ =?us-ascii?Q?ubWa2MIzC09NQmL+3YL3chWodIfUL/Nm/dCGJQzkeS72O5Z3FbIo/pFwU9pD?=
+ =?us-ascii?Q?vlcOzyAu69AAIv1TMr4Z/mUXyIvL9aAJPIQKiiyF1WCcYSjBPkUjRTZU/J52?=
+ =?us-ascii?Q?wKy/uBqhaZeqHv7lFQ+pkgOhfNYpnpLGSNk8wYVYUZdaQY0OzrS7NyrePW+x?=
+ =?us-ascii?Q?1nV/GZm/3/z1PENyLSs7v1QNc5RpNEBZZUb8VCXpXTC1PMaoOn2o4C4KQCPy?=
+ =?us-ascii?Q?8sJ/Nc3fDhY5Hk/leGAMfIhXLOIik5eVzzC4bKCdA8lC318eUpiyOYmdnH6U?=
+ =?us-ascii?Q?EHrLIpPWIncV2cbeQjj9AkQltYJkPVyfK9Xk3DZS1nvh9NA6xjxOTD8uR+Rs?=
+ =?us-ascii?Q?d2ZLAfq+QRef2qOdwbm4k8ucOTvfnpcgGPxEbhUHzCpKoGFE7izyIC8kVQKa?=
+ =?us-ascii?Q?Q2pC/NUSKNodc5agvFynXuDhinrbDrKNMBEzFXl4To8aJzNihkTQKqWdQTAS?=
+ =?us-ascii?Q?wHukXu57tlIAnLpZALaIQMjuIQeRH+qol1ZmOv7UNNoKajFUjWNlF8sodRQy?=
+ =?us-ascii?Q?SerDVL2yyFzwKw5AMTSf2voc/odM4uI=3D?=
 MIME-Version: 1.0
-In-Reply-To: <eba72a32-aa94-0d9c-b927-a9e6b965ca44@bytedance.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: herbert@gondor.apana.org.au, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org,
- davem@davemloft.net, helei.sig11@bytedance.com
+X-OriginatorOrg: microsoft.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: PH0PR21MB3025.namprd21.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: edb51455-e429-4035-ac72-08da1eec1765
+X-MS-Exchange-CrossTenant-originalarrivaltime: 15 Apr 2022 14:27:37.9600 (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: wtL2YJ6ktdD/yNaMLdLD4hm0o85viT8yNTVsFHUawx04Q+t6vepXezadqcFDgdIvp89/XDh2Qcqs1UULx/bWgfAbUGGCnZHcJvKN4UHLOmI=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV2PR21MB3350
+Cc: Wei Liu <wei.liu@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Stephen Hemminger <sthemmin@microsoft.com>,
+ "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+ Haiyang Zhang <haiyangz@microsoft.com>, Dexuan Cui <decui@microsoft.com>,
+ "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>, Jakub Kicinski <kuba@kernel.org>,
+ David Miller <davem@davemloft.net>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -115,173 +165,53 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+From: "Michael Kelley \(LINUX\) via Virtualization"
+ <virtualization@lists.linux-foundation.org>
+Reply-To: "Michael Kelley \(LINUX\)" <mikelley@microsoft.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Apr 15, 2022 at 06:50:19PM +0800, zhenwei pi wrote:
-> On 4/15/22 16:41, Michael S. Tsirkin wrote:
-> > > diff --git a/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c b/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
-> > > index f3ec9420215e..bf7c1aa4be37 100644
-> > > --- a/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
-> > > +++ b/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
-> > > @@ -102,107 +102,100 @@ static int virtio_crypto_alg_akcipher_init_session(struct virtio_crypto_akcipher
-> > >   {
-> > >   	struct scatterlist outhdr_sg, key_sg, inhdr_sg, *sgs[3];
-> > >   	struct virtio_crypto *vcrypto = ctx->vcrypto;
-> > > +	struct virtio_crypto_ctrl_request *vc_ctrl_req = NULL;
-> > 
-> > this is initialized down the road, I think you can skip = NULL here.
-> > 
-> OK.
-> > >   	uint8_t *pkey;
-> > > -	unsigned int inlen;
-> > > -	int err;
-> > > +	int err = -ENOMEM;
-> > 
-> > I would assign this in the single case where this value is used.
-> > 
-> OK
-> > >   	unsigned int num_out = 0, num_in = 0;
-> > > +	int node = dev_to_node(&vcrypto->vdev->dev);
-> > are you sure it is
-> > better to allocate close to device and not to current node
-> > which is the default?
-> > 
-> Also with this part:
->  /* Internal representation of a data virtqueue */
-> @@ -65,11 +66,6 @@ struct virtio_crypto {
->  	/* Maximum size of per request */
->  	u64 max_size;
+From: Andrea Parri <parri.andrea@gmail.com> Sent: Thursday, April 14, 2022 11:42 PM
 > 
-> -	/* Control VQ buffers: protected by the ctrl_lock */
-> -	struct virtio_crypto_op_ctrl_req ctrl;
-> -	struct virtio_crypto_session_input input;
-> -	struct virtio_crypto_inhdr ctrl_status;
-> -
->  	unsigned long status;
->  	atomic_t ref_count;
+> On Fri, Apr 15, 2022 at 03:33:23AM +0000, Michael Kelley (LINUX) wrote:
+> > From: Andrea Parri (Microsoft) <parri.andrea@gmail.com> Sent: Wednesday, April 13,
+> 2022 1:48 PM
+> > >
+> > > The function returns NULL if the ring buffer has no enough space
+> > > available for a packet descriptor.  The ring buffer's write_index
+> >
+> > The first sentence wording is a bit scrambled.  I think you mean the
+> > ring buffer doesn't contain enough readable bytes to constitute a
+> > packet descriptor.
 > 
-> Orignally virtio crypto driver allocates ctrl&input&ctrl_status per-device,
-> and protects this with ctrl_lock. This is the reason why the control queue
-> reaches the bottleneck of performance. I'll append this in the next version
-> in commit message.
+> Indeed, replaced with your working.
 > 
-> Instead of the single request buffer, declare struct
-> virtio_crypto_ctrl_request {
->         struct virtio_crypto_op_ctrl_req ctrl;
->         struct virtio_crypto_session_input input;
->         struct virtio_crypto_inhdr ctrl_status;
-> 	... }
 > 
-> The motivation of this change is to allocate buffer from the same node with
-> device during control queue operations.
+> > > is in memory which is shared with the Hyper-V host, its value is
+> > > thus subject to being changed at any time.
+> >
+> > This second sentence is true, but I'm not making the connection
+> > with the code change below.   Evidently, there is some previous
+> > check made to ensure that enough bytes are available to be
+> > received when hvs_stream_dequeue() is called, so we assumed that
+> > NULL could never be returned?  I looked but didn't find such a check,
+> > so maybe I didn't look carefully enough.  But now we are assuming
+> > that Hyper-V might have invalidated that previous check by
+> > subsequently changing the write_index in a bogus way?  So now, NULL
+> > could be returned when previously we assumed it couldn't.
+> 
+> I think you're looking for hvs_stream_has_data().  (Previous checks
+> apart, hvs_stream_dequeue() will "dereference" the pointer so...)
 
-But are you sure it's a win?  quite possibly it's a win to
-have it close to driver not close to device.
-This kind of change is really best done separately with some
-testing showing it's a win. If that is too much to ask,
-make it a separate patch and add some analysis explaining
-why device accesses the structure more than the driver.
+Agreed.  I didn't say this explicitly, but I was wondering about the risk
+in the current code (without these hardening patches) of getting a
+NULL pointer from hv_pkt_iter_first_raw(), and then dereferencing it.
+
+Michael
 
 
-> > 
-> > >   	pkey = kmemdup(key, keylen, GFP_ATOMIC);
-> > >   	if (!pkey)
-> > >   		return -ENOMEM;
-> > > -	spin_lock(&vcrypto->ctrl_lock);
-> > > -	memcpy(&vcrypto->ctrl.header, header, sizeof(vcrypto->ctrl.header));
-> > > -	memcpy(&vcrypto->ctrl.u, para, sizeof(vcrypto->ctrl.u));
-> > > -	vcrypto->input.status = cpu_to_le32(VIRTIO_CRYPTO_ERR);
-> > > +	vc_ctrl_req = kzalloc_node(sizeof(*vc_ctrl_req), GFP_KERNEL, node);
-> > > +	if (!vc_ctrl_req)
-> > > +		goto out;
-> > 
-> > do you need to allocate it with kzalloc?
-> > is anything wrong with just keeping it part of device?
-> > even if yes this change is better split in a separate patch, would make the patch smaller.
-> Because there are padding field in
-> virtio_crypto_op_ctrl_req&virtio_crypto_session_input, I suppose the
-> original version also needs to clear padding field.
-> So I use kzalloc to make sure that the padding field gets cleared.
-> If this is reasonable, to separate this patch is OK to me, or I append this
-> reason into commit message and comments in code.
-
-Not sure I understand. Maybe add a code comment explaining
-what is cleared and why.
-
-> > > +
-> > > +void virtcrypto_ctrlq_callback(struct virtqueue *vq)
-> > > +{
-> > > +	struct virtio_crypto *vcrypto = vq->vdev->priv;
-> > > +	struct virtio_crypto_ctrl_request *vc_ctrl_req;
-> > > +	unsigned long flags;
-> > > +	unsigned int len;
-> > > +
-> > > +	spin_lock_irqsave(&vcrypto->ctrl_lock, flags);
-> > > +	do {
-> > > +		virtqueue_disable_cb(vq);
-> > > +		while ((vc_ctrl_req = virtqueue_get_buf(vq, &len)) != NULL) {
-> > 
-> > 
-> > you really need to break out of this loop if vq is broken,
-> > virtqueue_get_buf will keep returning NULL in this case.
-> > 
-> I'm a little confused here, if virtqueue_get_buf return NULL, this loop will
-> break. Could you please give me more hints?
-
-Oh right. Sorry was confused.
-
-> > 
-> > > +			spin_unlock_irqrestore(&vcrypto->ctrl_lock, flags);
-> > > +			if (vc_ctrl_req->ctrl_cb)
-> > > +				vc_ctrl_req->ctrl_cb(vc_ctrl_req);
-> > > +			spin_lock_irqsave(&vcrypto->ctrl_lock, flags);
-> > > +		}
-> > > +		if (unlikely(virtqueue_is_broken(vq)))
-> > > +			break;
-> > > +	} while (!virtqueue_enable_cb(vq));
-> > > +	spin_unlock_irqrestore(&vcrypto->ctrl_lock, flags);
-> > 
-> > speaking of which existing code does not handle vq broken case
-> > all that well but it looks like this patch makes it a bit worse.
-> > want to try fixing? basically report an error ...
-> > 
-> > if virtqueue is broken, I can print log.
-> 
-> > > diff --git a/drivers/crypto/virtio/virtio_crypto_core.c b/drivers/crypto/virtio/virtio_crypto_core.c
-> > > index c6f482db0bc0..e668d4b1bc6a 100644
-> > > --- a/drivers/crypto/virtio/virtio_crypto_core.c
-> > > +++ b/drivers/crypto/virtio/virtio_crypto_core.c
-> > > @@ -73,7 +73,7 @@ static int virtcrypto_find_vqs(struct virtio_crypto *vi)
-> > >   		goto err_names;
-> > >   	/* Parameters for control virtqueue */
-> > > -	callbacks[total_vqs - 1] = NULL;
-> > > +	callbacks[total_vqs - 1] = virtcrypto_ctrlq_callback;
-> > >   	names[total_vqs - 1] = "controlq";
-> > >   	/* Allocate/initialize parameters for data virtqueues */
-> > > diff --git a/drivers/crypto/virtio/virtio_crypto_skcipher_algs.c b/drivers/crypto/virtio/virtio_crypto_skcipher_algs.c
-> > > index a618c46a52b8..b8999dab3e66 100644
-> > > --- a/drivers/crypto/virtio/virtio_crypto_skcipher_algs.c
-> > > +++ b/drivers/crypto/virtio/virtio_crypto_skcipher_algs.c
-> > > +	err = 0;
-> > > +out:
-> > > +	kfree_sensitive(vc_ctrl_req);
-> > 
-> > it is interesting that you use kfree_sensitive here. why is that?
-> > is there in fact anything sensitive here? if yes this is a security
-> > improvement and might need its own patch, or at least documentation.
-> > 
-> 
-> OK, kfree is good enough here, I'll fix this.
-> 
-> 
-> Thanks a lot!
-> 
-> 
-> -- 
-> zhenwei pi
 
 _______________________________________________
 Virtualization mailing list
