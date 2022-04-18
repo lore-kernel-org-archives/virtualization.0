@@ -1,62 +1,64 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 365ADC3527A
-	for <virtualization@archiver.kernel.org>; Mon, 18 Apr 2022 04:54:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3FD6CC433EF
+	for <virtualization@archiver.kernel.org>; Mon, 18 Apr 2022 04:54:06 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id BD71940117;
-	Mon, 18 Apr 2022 04:54:00 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id E690B6120B;
+	Mon, 18 Apr 2022 04:54:05 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id gVx8VqIm9moG; Mon, 18 Apr 2022 04:54:00 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id jhZQp_PSMNZV; Mon, 18 Apr 2022 04:54:05 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 5BC9041004;
-	Mon, 18 Apr 2022 04:53:59 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 8BC5760E9D;
+	Mon, 18 Apr 2022 04:54:04 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 36AC5C002F;
-	Mon, 18 Apr 2022 04:53:59 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 20BB7C002C
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 62CB2C002F;
+	Mon, 18 Apr 2022 04:54:04 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 570E9C002C
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Apr 2022 04:53:57 +0000 (UTC)
+ Mon, 18 Apr 2022 04:54:02 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 0E54141009
+ by smtp1.osuosl.org (Postfix) with ESMTP id 36E1E83F9F
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Apr 2022 04:53:57 +0000 (UTC)
+ Mon, 18 Apr 2022 04:54:02 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id hF4NqFF0SeCF
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=infradead.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id T1nTMKjeQJ_y
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Apr 2022 04:53:56 +0000 (UTC)
+ Mon, 18 Apr 2022 04:54:01 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from bombadil.infradead.org (bombadil.infradead.org
  [IPv6:2607:7c80:54:e::133])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 747E441008
+ by smtp1.osuosl.org (Postfix) with ESMTPS id AF20683F79
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Apr 2022 04:53:56 +0000 (UTC)
+ Mon, 18 Apr 2022 04:54:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
  MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
  :Reply-To:Content-Type:Content-ID:Content-Description;
- bh=p9kVzatrYS3rOQLSwSVe7hP5f0rChlSo2rdSBrIcPYE=; b=0FL1fru1SsYGhSt8FM9Hn5xwZJ
- EmQtcyxuckYmdCptFk4+/gbaxge3l3nq3kRFPBP2il/Rof09pxe6Ws2nfts4MKx5OwwmpIZVuaYn4
- QeXpjkKcOgL+kIGAlsZf8TM3L2foTyd4yXmmcS+vpt95vjmJlLA2Izx3NJJBScVt157v41DjhjlqM
- L7UcHqXMheEW+Am7Onu8gXnRyneCudkfEE0daVhQvCm9moV6YBkxEJJ4GpFmY1uJvO31vQEX3ElTE
- DJMzx/mYKMVBU0H0c+NGX3DON4EMSxBXtNngeE5dikTPdCHtE3RUwtmqsEkdAx9DNdwjKW/ddgcK7
- QLRmmVOw==;
+ bh=l98+JE7NsbGjf5nWv4p96TEYrrJUm3Xf8r7AJ/Re+50=; b=b3jjhl3NnpidTbS0yNml6BOTZ8
+ g5tAOt/e4fr16yh0hdRjlvIGx02REr0Be/uhAhfgcsNY4E/teSSgiM/GgyhOUQSv8IiRoSt3RzkXd
+ 8ui/01VcFQfFGEsSUAyAx5STB9OojQQpAMNCVjttzU6nFKsO6z0j+D3KoS7MAvwWFyJEJ3mY3oIsB
+ aTOMIweseDzyB/wuWieC2B/KurzoqX4uzoCO/b2//x4TSx2HhfzcfsLpYy6R0eW8NN3W7VB+YjfkW
+ SzDEVVy4J5mGZoqCt2e5fSbZvWNFqqIYUzWtTTDJikCF+4YJ7f49HyVqAPAjNJ9U+5xHbqAhd2nPp
+ Q4yHIWlA==;
 Received: from [2a02:1205:504b:4280:f5dd:42a4:896c:d877] (helo=localhost)
  by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1ngJOR-00FYpT-19; Mon, 18 Apr 2022 04:53:43 +0000
+ id 1ngJOU-00FYrv-1m; Mon, 18 Apr 2022 04:53:46 +0000
 From: Christoph Hellwig <hch@lst.de>
 To: Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 09/11] nvme: remove a spurious clear of discard_alignment
-Date: Mon, 18 Apr 2022 06:53:12 +0200
-Message-Id: <20220418045314.360785-10-hch@lst.de>
+Subject: [PATCH 10/11] rnbd-srv: use bdev_discard_alignment
+Date: Mon, 18 Apr 2022 06:53:13 +0200
+Message-Id: <20220418045314.360785-11-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20220418045314.360785-1-hch@lst.de>
 References: <20220418045314.360785-1-hch@lst.de>
@@ -91,26 +93,27 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-The nvme driver never sets a discard_alignment, so it also doens't need
-to clear it to zero.
+Use bdev_discard_alignment to calculate the correct discard alignment
+offset even for partitions instead of just looking at the queue limit.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/nvme/host/core.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/block/rnbd/rnbd-srv-dev.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index b9b0fbde97c80..76a9ccd5d064a 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -1628,7 +1628,6 @@ static void nvme_config_discard(struct gendisk *disk, struct nvme_ns *ns)
- 	BUILD_BUG_ON(PAGE_SIZE / sizeof(struct nvme_dsm_range) <
- 			NVME_DSM_MAX_RANGES);
+diff --git a/drivers/block/rnbd/rnbd-srv-dev.h b/drivers/block/rnbd/rnbd-srv-dev.h
+index d080a0de59225..4309e52524691 100644
+--- a/drivers/block/rnbd/rnbd-srv-dev.h
++++ b/drivers/block/rnbd/rnbd-srv-dev.h
+@@ -59,7 +59,7 @@ static inline int rnbd_dev_get_discard_granularity(const struct rnbd_dev *dev)
  
--	queue->limits.discard_alignment = 0;
- 	queue->limits.discard_granularity = size;
+ static inline int rnbd_dev_get_discard_alignment(const struct rnbd_dev *dev)
+ {
+-	return bdev_get_queue(dev->bdev)->limits.discard_alignment;
++	return bdev_discard_alignment(dev->bdev);
+ }
  
- 	/* If discard is already enabled, don't reset queue limits */
+ #endif /* RNBD_SRV_DEV_H */
 -- 
 2.30.2
 
