@@ -1,101 +1,107 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 243BBC433EF
-	for <virtualization@archiver.kernel.org>; Mon, 18 Apr 2022 15:41:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C7A87C433FE
+	for <virtualization@archiver.kernel.org>; Mon, 18 Apr 2022 18:25:44 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 8AAC783ECE;
-	Mon, 18 Apr 2022 15:41:27 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 711576120F;
+	Mon, 18 Apr 2022 18:25:44 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id XcagggxI9RzW; Mon, 18 Apr 2022 15:41:26 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 349658401E;
-	Mon, 18 Apr 2022 15:41:26 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Jjyssukhp0mw; Mon, 18 Apr 2022 18:25:43 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id D50B860AD0;
+	Mon, 18 Apr 2022 18:25:42 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 000C2C002F;
-	Mon, 18 Apr 2022 15:41:25 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B256FC002C
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B3C2BC0033;
+	Mon, 18 Apr 2022 18:25:42 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 74071C002C
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Apr 2022 15:41:24 +0000 (UTC)
+ Mon, 18 Apr 2022 18:25:41 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 91E908401E
+ by smtp2.osuosl.org (Postfix) with ESMTP id 5206840C80
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Apr 2022 15:41:24 +0000 (UTC)
+ Mon, 18 Apr 2022 18:25:41 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 1EYt9Emz9qxc
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=suse.de header.b="BMLITiTV";
+ dkim=neutral reason="invalid (unsupported algorithm ed25519-sha256)"
+ header.d=suse.de header.b="TvTpNdTS"
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Mc73umIHfg-Z
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Apr 2022 15:41:23 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-qv1-xf2f.google.com (mail-qv1-xf2f.google.com
- [IPv6:2607:f8b0:4864:20::f2f])
- by smtp1.osuosl.org (Postfix) with ESMTPS id C37B983ECE
+ Mon, 18 Apr 2022 18:25:40 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 8BD0040438
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Apr 2022 15:41:23 +0000 (UTC)
-Received: by mail-qv1-xf2f.google.com with SMTP id h13so654884qvr.2
- for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Apr 2022 08:41:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=NIlNiSkkSkgTapGfecwZRIqvyhekuiNyDyxM96ZsPI4=;
- b=POT7koJZVyf0j8gHL1RT150kUn1gZh12BE6+ykwhi2ekMHb9lLcuhssdNkfU9EKQbP
- KTVQyXsUAxGT3DnmFoWpXcZNl9zALhEWEu7dIuhij8G9o/x8U0dUhSFq1GkW8M+/s+9y
- gAWfNf4fYr8wqMpwKIho3ACE3aWTuTZeeLcyDfvTQYAbcRom7YBgM+5Wo5o+N3RE/31y
- Zjn1jyQibJg/33NOqMSuBOzXusme3ILdVzopHP2QB6giyeEAk1uQx08Tg5ViIv5bOta6
- M/CJwER9qKu6iV2k4lQzf6mBn/o5/EJSuvtzGoNwln8UBranoqu0EnOnWLN30jDsjfW5
- 1F1Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=NIlNiSkkSkgTapGfecwZRIqvyhekuiNyDyxM96ZsPI4=;
- b=646UI7z+KJmIHH50iPIvNKle5xqtJnkoDyRBkZYhdGafPUYr7ugyHbBv1mI84/IQmu
- aZ1plPSzyJ7qwCgesyU0kpRbsku7xSqXxEQtGkGVPOmX/3Ti/UJatzXZiwNVpO5SiBaF
- hqaf+PDijG2/3XvGf2q66Vq0B11I3YAUs6Ah+SsJsd84p49PpszfZtqBQf6OkM7dg0RW
- FQ0vJ2J62lFQbrI7Ny9zM6wGDvGqixlgZZGI7u0FVrt6vaXN6atu2Pkbzj0BmS20p5k+
- kfDetc74zMBylsTeWN+orJn0k64HfIcL9AKKnUxz5ti6hfD8qhL3cWy72iFr4Rf+c5NH
- h28A==
-X-Gm-Message-State: AOAM532zYzN7DlJHKctTQUv/CitMs9IWQfnDKjQ71eCtBVIRi4zAYUjB
- lXAmJssN4sgjp75Yva9nwsjNhWHbSpI=
-X-Google-Smtp-Source: ABdhPJwhBHnpw227/uEZkBh4y2hoR1EA7WEN70R9AgZ9uWSAfcQdpMSitFckGq7S2emLrtqz6jWLhw==
-X-Received: by 2002:a05:6214:1643:b0:429:d6fb:f309 with SMTP id
- f3-20020a056214164300b00429d6fbf309mr8221433qvw.58.1650296482456; 
- Mon, 18 Apr 2022 08:41:22 -0700 (PDT)
-Received: from mail-yb1-f174.google.com (mail-yb1-f174.google.com.
- [209.85.219.174]) by smtp.gmail.com with ESMTPSA id
- g21-20020ac85815000000b002e06e2623a7sm7920995qtg.0.2022.04.18.08.41.21
- for <virtualization@lists.linux-foundation.org>
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Mon, 18 Apr 2022 08:41:21 -0700 (PDT)
-Received: by mail-yb1-f174.google.com with SMTP id p65so26158213ybp.9
- for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Apr 2022 08:41:21 -0700 (PDT)
-X-Received: by 2002:a25:b94a:0:b0:644:db14:ff10 with SMTP id
- s10-20020a25b94a000000b00644db14ff10mr7288155ybm.648.1650296480886; Mon, 18
- Apr 2022 08:41:20 -0700 (PDT)
+ Mon, 18 Apr 2022 18:25:40 +0000 (UTC)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by smtp-out2.suse.de (Postfix) with ESMTPS id 9E1271F37C;
+ Mon, 18 Apr 2022 18:25:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+ t=1650306337; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=m4EwY29FNQNA6aBvOHivkDZQn0CsW++lPET3NmVjoro=;
+ b=BMLITiTV73pS00hiFGRnxXcsRP+PpG9qqrxXKt1ipaGM4ZC9gWBEzMMfGuDFCGB5A3yvNE
+ 82TynsA4kr4VXLM/nUiNSnjqXtAi4AWbAxTz/ZRvM4pbGbUe7BytiYycA99PqZnQmzZa3T
+ P0Etn+tkxmqlQ4rVuvfMAt6+CprhdlM=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+ s=susede2_ed25519; t=1650306337;
+ h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=m4EwY29FNQNA6aBvOHivkDZQn0CsW++lPET3NmVjoro=;
+ b=TvTpNdTSWSgjWQM0G4P4gRnni7WKoPOUVE+RQdtjt9cRpeQQi0fYIe0V7k5BXsMtAIuatz
+ fVoCKWmxfabAwKCA==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 0BB2F13A9B;
+ Mon, 18 Apr 2022 18:25:37 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+ by imap2.suse-dmz.suse.de with ESMTPSA id 6PsWASGtXWINfwAAMHmgww
+ (envelope-from <tzimmermann@suse.de>); Mon, 18 Apr 2022 18:25:37 +0000
+Message-ID: <eefe5120-638a-40bc-5ed8-e26defe178ca@suse.de>
+Date: Mon, 18 Apr 2022 20:25:35 +0200
 MIME-Version: 1.0
-References: <20220418044339.127545-1-liuhangbin@gmail.com>
- <20220418044339.127545-3-liuhangbin@gmail.com>
-In-Reply-To: <20220418044339.127545-3-liuhangbin@gmail.com>
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Date: Mon, 18 Apr 2022 11:40:44 -0400
-X-Gmail-Original-Message-ID: <CA+FuTSdTbpYGJo6ec2Ti+djXCj=gBAQpv9ZVaTtaJA-QUNNgYQ@mail.gmail.com>
-Message-ID: <CA+FuTSdTbpYGJo6ec2Ti+djXCj=gBAQpv9ZVaTtaJA-QUNNgYQ@mail.gmail.com>
-Subject: Re: [PATCH net 2/2] virtio_net: check L3 protocol for VLAN packets
-To: Hangbin Liu <liuhangbin@gmail.com>
-Cc: Maxim Mikityanskiy <maximmi@mellanox.com>,
- Mike Pattrick <mailmpattric@redhat.com>,
- "Michael S . Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
- Eric Dumazet <edumazet@google.com>, virtualization@lists.linux-foundation.org,
- Balazs Nemeth <bnemeth@redhat.com>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, "David S . Miller" <davem@davemloft.net>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH v4 09/15] drm/shmem-helper: Correct doc-comment of
+ drm_gem_shmem_get_sg_table()
+Content-Language: en-US
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ David Airlie <airlied@linux.ie>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
+ Daniel Almeida <daniel.almeida@collabora.com>,
+ Gert Wollny <gert.wollny@collabora.com>,
+ Gustavo Padovan <gustavo.padovan@collabora.com>,
+ Daniel Stone <daniel@fooishbar.org>,
+ Tomeu Vizoso <tomeu.vizoso@collabora.com>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Rob Herring <robh@kernel.org>,
+ Steven Price <steven.price@arm.com>,
+ Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
+ Rob Clark <robdclark@gmail.com>, Emil Velikov <emil.l.velikov@gmail.com>,
+ Robin Murphy <robin.murphy@arm.com>
+References: <20220417223707.157113-1-dmitry.osipenko@collabora.com>
+ <20220417223707.157113-10-dmitry.osipenko@collabora.com>
+From: Thomas Zimmermann <tzimmermann@suse.de>
+In-Reply-To: <20220417223707.157113-10-dmitry.osipenko@collabora.com>
+Cc: Dmitry Osipenko <digetx@gmail.com>, linux-kernel@vger.kernel.org,
+ dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -107,102 +113,119 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============4718111695298636281=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Apr 18, 2022 at 12:44 AM Hangbin Liu <liuhangbin@gmail.com> wrote:
->
-> For gso packets, virtio_net_hdr_to_skb() will check the protocol via
-> virtio_net_hdr_match_proto(). But a packet may come from a raw socket
-> with a VLAN tag. Checking the VLAN protocol for virtio net_hdr makes no
-> sense. Let's check the L3 protocol if it's a VLAN packet.
->
-> Make the virtio_net_hdr_match_proto() checking for all skbs instead of
-> only skb without protocol setting.
->
-> Also update the data, protocol parameter for
-> skb_flow_dissect_flow_keys_basic() as the skb->protocol may not IP or IPv6.
->
-> Fixes: 7e5cced9ca84 ("net: accept UFOv6 packages in virtio_net_hdr_to_skb")
-> Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-> ---
->  include/linux/virtio_net.h | 26 +++++++++++++++++++-------
->  1 file changed, 19 insertions(+), 7 deletions(-)
->
-> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-> index a960de68ac69..97b4f9680786 100644
-> --- a/include/linux/virtio_net.h
-> +++ b/include/linux/virtio_net.h
-> @@ -3,6 +3,7 @@
->  #define _LINUX_VIRTIO_NET_H
->
->  #include <linux/if_vlan.h>
-> +#include <uapi/linux/if_arp.h>
->  #include <uapi/linux/tcp.h>
->  #include <uapi/linux/udp.h>
->  #include <uapi/linux/virtio_net.h>
-> @@ -102,25 +103,36 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
->                  */
->                 if (gso_type && skb->network_header) {
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--===============4718111695298636281==
+Content-Language: en-US
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------07hn0Cfk6pNM1eBTgzCdqQwC"
 
-This whole branch should not be taken by well formed packets. It is
-inside the else clause of
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------07hn0Cfk6pNM1eBTgzCdqQwC
+Content-Type: multipart/mixed; boundary="------------NpYd0XFriQtT3lTaA0437n4Q";
+ protected-headers="v1"
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ David Airlie <airlied@linux.ie>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
+ Daniel Almeida <daniel.almeida@collabora.com>,
+ Gert Wollny <gert.wollny@collabora.com>,
+ Gustavo Padovan <gustavo.padovan@collabora.com>,
+ Daniel Stone <daniel@fooishbar.org>,
+ Tomeu Vizoso <tomeu.vizoso@collabora.com>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Rob Herring <robh@kernel.org>,
+ Steven Price <steven.price@arm.com>,
+ Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
+ Rob Clark <robdclark@gmail.com>, Emil Velikov <emil.l.velikov@gmail.com>,
+ Robin Murphy <robin.murphy@arm.com>
+Cc: dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, Dmitry Osipenko <digetx@gmail.com>
+Message-ID: <eefe5120-638a-40bc-5ed8-e26defe178ca@suse.de>
+Subject: Re: [PATCH v4 09/15] drm/shmem-helper: Correct doc-comment of
+ drm_gem_shmem_get_sg_table()
+References: <20220417223707.157113-1-dmitry.osipenko@collabora.com>
+ <20220417223707.157113-10-dmitry.osipenko@collabora.com>
+In-Reply-To: <20220417223707.157113-10-dmitry.osipenko@collabora.com>
 
-       if (hdr->flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) {
-          ..
-       } else {
+--------------NpYd0XFriQtT3lTaA0437n4Q
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
-GSO packets should always request checksum offload. The fact that we
-try to patch up some incomplete packets should not have to be expanded
-if we expand support to include VLAN.
+SGkNCg0KQW0gMTguMDQuMjIgdW0gMDA6Mzcgc2NocmllYiBEbWl0cnkgT3NpcGVua286DQo+
+IGRybV9nZW1fc2htZW1fZ2V0X3NnX3RhYmxlKCkgbmV2ZXIgcmV0dXJucyBOVUxMIG9uIGVy
+cm9yLCBidXQgYSBFUlJfUFRSLg0KPiBDb3JyZWN0IHRoZSBkb2MgY29tbWVudCB3aGljaCBz
+YXlzIHRoYXQgaXQgcmV0dXJucyBOVUxMIG9uIGVycm9yLg0KPiANCj4gU2lnbmVkLW9mZi1i
+eTogRG1pdHJ5IE9zaXBlbmtvIDxkbWl0cnkub3NpcGVua29AY29sbGFib3JhLmNvbT4NCg0K
+DQo+IC0tLQ0KPiAgIGRyaXZlcnMvZ3B1L2RybS9kcm1fZ2VtX3NobWVtX2hlbHBlci5jIHwg
+NSArKystLQ0KPiAgIDEgZmlsZSBjaGFuZ2VkLCAzIGluc2VydGlvbnMoKyksIDIgZGVsZXRp
+b25zKC0pDQo+IA0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUvZHJtL2RybV9nZW1fc2ht
+ZW1faGVscGVyLmMgYi9kcml2ZXJzL2dwdS9kcm0vZHJtX2dlbV9zaG1lbV9oZWxwZXIuYw0K
+PiBpbmRleCA4YWQwZTAyOTkxY2EuLjMwZWU0NjM0OGE5OSAxMDA2NDQNCj4gLS0tIGEvZHJp
+dmVycy9ncHUvZHJtL2RybV9nZW1fc2htZW1faGVscGVyLmMNCj4gKysrIGIvZHJpdmVycy9n
+cHUvZHJtL2RybV9nZW1fc2htZW1faGVscGVyLmMNCj4gQEAgLTY2Miw3ICs2NjIsNyBAQCBF
+WFBPUlRfU1lNQk9MKGRybV9nZW1fc2htZW1fcHJpbnRfaW5mbyk7DQo+ICAgICogZHJtX2dl
+bV9zaG1lbV9nZXRfcGFnZXNfc2d0KCkgaW5zdGVhZC4NCj4gICAgKg0KPiAgICAqIFJldHVy
+bnM6DQo+IC0gKiBBIHBvaW50ZXIgdG8gdGhlIHNjYXR0ZXIvZ2F0aGVyIHRhYmxlIG9mIHBp
+bm5lZCBwYWdlcyBvciBOVUxMIG9uIGZhaWx1cmUuDQo+ICsgKiBBIHBvaW50ZXIgdG8gdGhl
+IHNjYXR0ZXIvZ2F0aGVyIHRhYmxlIG9mIHBpbm5lZCBwYWdlcyBvciBlcnJubyBvbiBmYWls
+dXJlLg0KDQonLCBvciBhbiBFUlJfUFRSKCktZW5jb2RlZCBlcnJubyBjb2RlIG9uIGZhaWx1
+cmUnDQoNCj4gICAgKi8NCj4gICBzdHJ1Y3Qgc2dfdGFibGUgKmRybV9nZW1fc2htZW1fZ2V0
+X3NnX3RhYmxlKHN0cnVjdCBkcm1fZ2VtX3NobWVtX29iamVjdCAqc2htZW0pDQo+ICAgew0K
+PiBAQCAtNjg4LDcgKzY4OCw4IEBAIEVYUE9SVF9TWU1CT0xfR1BMKGRybV9nZW1fc2htZW1f
+Z2V0X3NnX3RhYmxlKTsNCj4gICAgKiBkcm1fZ2VtX3NobWVtX2dldF9zZ190YWJsZSgpIHNo
+b3VsZCBub3QgYmUgZGlyZWN0bHkgY2FsbGVkIGJ5IGRyaXZlcnMuDQo+ICAgICoNCj4gICAg
+KiBSZXR1cm5zOg0KPiAtICogQSBwb2ludGVyIHRvIHRoZSBzY2F0dGVyL2dhdGhlciB0YWJs
+ZSBvZiBwaW5uZWQgcGFnZXMgb3IgZXJybm8gb24gZmFpbHVyZS4NCj4gKyAqIEEgcG9pbnRl
+ciB0byB0aGUgc2NhdHRlci9nYXRoZXIgdGFibGUgb2YgcGlubmVkIHBhZ2VzIEVSUl9QVFIo
+KS1lbmNvZGVkDQoNCicsIG9yIGFuJyBiZWZvcmUgRVJSX1BUUg0KDQpXaXRoIHRoZSBpbXBy
+b3ZlZCBncmFtbWFyOg0KDQpBY2tlZC1ieTogVGhvbWFzIFppbW1lcm1hbm4gPHR6aW1tZXJt
+YW5uQHN1c2UuZGU+DQoNCg0KPiArICogZXJyb3IgY29kZSBvbiBmYWlsdXJlLg0KPiAgICAq
+Lw0KPiAgIHN0cnVjdCBzZ190YWJsZSAqZHJtX2dlbV9zaG1lbV9nZXRfcGFnZXNfc2d0KHN0
+cnVjdCBkcm1fZ2VtX3NobWVtX29iamVjdCAqc2htZW0pDQo+ICAgew0KDQotLSANClRob21h
+cyBaaW1tZXJtYW5uDQpHcmFwaGljcyBEcml2ZXIgRGV2ZWxvcGVyDQpTVVNFIFNvZnR3YXJl
+IFNvbHV0aW9ucyBHZXJtYW55IEdtYkgNCk1heGZlbGRzdHIuIDUsIDkwNDA5IE7DvHJuYmVy
+ZywgR2VybWFueQ0KKEhSQiAzNjgwOSwgQUcgTsO8cm5iZXJnKQ0KR2VzY2jDpGZ0c2bDvGhy
+ZXI6IEl2byBUb3Rldg0K
 
->                         struct flow_keys_basic keys;
-> +                       __be16 protocol;
->
->                         if (!skb->protocol) {
-> -                               __be16 protocol = dev_parse_header_protocol(skb);
-> +                               protocol = dev_parse_header_protocol(skb);
->
->                                 if (!protocol)
->                                         virtio_net_hdr_set_proto(skb, hdr);
-> -                               else if (!virtio_net_hdr_match_proto(protocol, hdr->gso_type))
-> -                                       return -EINVAL;
->                                 else
->                                         skb->protocol = protocol;
-> +                       } else {
-> +                               protocol = skb->protocol;
->                         }
-> +
-> +                       /* Get L3 protocol if current protocol is VLAN */
-> +                       if (likely(skb->dev->type == ARPHRD_ETHER) &&
-> +                           eth_type_vlan(protocol))
-> +                               protocol = vlan_get_protocol(skb);
-> +
-> +                       if (!virtio_net_hdr_match_proto(protocol, hdr->gso_type))
-> +                               return -EINVAL;
-> +
->  retry:
->                         if (!skb_flow_dissect_flow_keys_basic(NULL, skb, &keys,
-> -                                                             NULL, 0, 0, 0,
-> -                                                             0)) {
-> +                                                             skb->data, protocol,
-> +                                                             skb_network_offset(skb),
-> +                                                             skb_headlen(skb), 0)) {
->                                 /* UFO does not specify ipv4 or 6: try both */
->                                 if (gso_type & SKB_GSO_UDP &&
-> -                                   skb->protocol == htons(ETH_P_IP)) {
-> -                                       skb->protocol = htons(ETH_P_IPV6);
-> +                                   protocol == htons(ETH_P_IP)) {
-> +                                       protocol = htons(ETH_P_IPV6);
->                                         goto retry;
->                                 }
->                                 return -EINVAL;
-> --
-> 2.35.1
->
+--------------NpYd0XFriQtT3lTaA0437n4Q--
+
+--------------07hn0Cfk6pNM1eBTgzCdqQwC
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmJdrR8FAwAAAAAACgkQlh/E3EQov+C7
+NQ//QTm5cEWnSqUqF8Mf7LCZiWyR0eyj2qiqi7ZZfWSSu5i9ILLUL+Eq0aSGB5ubhTi95GxyDdt+
+x0/ibBkBWgPE79kTHAd/nFQ8I4paRzZAsmuyq0Arudfib8lWszoQrN3TtVSmMcXOI7F+pduj+tyt
+zI+wz687GKx0J7/7gvGWNx8O7lrYnNfsGhJxJ4PAiqab0Mc2uqZXqP2s4LvDWKCldIM6Nnaj79bJ
+1tTWrto7Kayok8uXXWQ7b5KdTaClQKnb5/x1zH/l0a2v6SQFPIL3M6rLG7ImYjP64abNh9QBvNyp
+31pFE2JWt0ff6TX2kabe9FoTRZza5lumxXioag4Un92IzPUXO6KrWB7+Jc6wbfCgzmwD49ax8Aj5
+rMkFWG+LOgZ425j0WFo/sZOF4AKoY/vkPh+pXXJeoPzhVRPcfdRAVniGajCOaj8zS4dX0sg9PQ8N
+TkIuv1c7PzpUZELnhbzhsF3pCz83fzcaKH58cAOCYqfSVAblFUQVFoMkjJsMkFXxTAHFarQtJlHT
+gFsrAAqz9eJ3k8YLGpL5FNwXAS9NfPSs/yxZmW2ujIft8iUKjO+8k11BZbY3EQMD2HufsCSnNedf
+JTCfqI8YNd3DugfASbp9PKd4SoOAHUIwMruT6aAqFF2lsaH/SkVsJJecBi2bQJGAkOeKLR++kPwi
+5zI=
+=W7Nd
+-----END PGP SIGNATURE-----
+
+--------------07hn0Cfk6pNM1eBTgzCdqQwC--
+
+--===============4718111695298636281==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============4718111695298636281==--
