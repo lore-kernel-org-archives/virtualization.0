@@ -1,65 +1,64 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E19EDC4332F
-	for <virtualization@archiver.kernel.org>; Mon, 18 Apr 2022 04:53:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 61662C4332F
+	for <virtualization@archiver.kernel.org>; Mon, 18 Apr 2022 04:53:53 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 1A4C141CC2;
-	Mon, 18 Apr 2022 04:53:49 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 0A28561202;
+	Mon, 18 Apr 2022 04:53:53 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id SvjdDAPzVNRw; Mon, 18 Apr 2022 04:53:48 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id BGUQuLO8lTcW; Mon, 18 Apr 2022 04:53:52 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 46C7941D4E;
-	Mon, 18 Apr 2022 04:53:47 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id B18806120E;
+	Mon, 18 Apr 2022 04:53:51 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C4802C0095;
-	Mon, 18 Apr 2022 04:53:45 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 9656FC002C
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 76308C002C;
+	Mon, 18 Apr 2022 04:53:51 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7CE70C0083
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Apr 2022 04:53:44 +0000 (UTC)
+ Mon, 18 Apr 2022 04:53:50 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 75B5783F7A
+ by smtp2.osuosl.org (Postfix) with ESMTP id 776BB40FF6
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Apr 2022 04:53:44 +0000 (UTC)
+ Mon, 18 Apr 2022 04:53:50 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
  dkim=pass (2048-bit key) header.d=infradead.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 2c3a2ABMKtpV
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Ubc9p9tR9HlQ
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Apr 2022 04:53:44 +0000 (UTC)
+ Mon, 18 Apr 2022 04:53:49 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from bombadil.infradead.org (bombadil.infradead.org
  [IPv6:2607:7c80:54:e::133])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 0012183F79
+ by smtp2.osuosl.org (Postfix) with ESMTPS id E1FD540117
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Apr 2022 04:53:43 +0000 (UTC)
+ Mon, 18 Apr 2022 04:53:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
  MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
  :Reply-To:Content-Type:Content-ID:Content-Description;
- bh=KG+SgMW1cgxv4FiMP5E+75DsV8uftH+qG3p1TXEyEio=; b=WCY6skOHo4HAb9P+VnkeBFb0Wd
- 6HtmKYsZebjLRF7olS575CTUsYnepT6MLhQcw4sj2+aChzDYFdv2TJAkdt+xyZ1fXNBl7i0qMNjh3
- atVTLApTQdVrJzkAw+e1xu5UI+XeibuBhpE8sdBqSRgmuc6LQWX7Gh+vwa6QmZwgL4o7wDhOkPATZ
- JJdiL4zj1+8ON5LJ5rpzrXXnZZ2Gt3WLli0Y+Kla+bD/xTw/zq7EpruzAfxZI9IfvyngDrwoC2oVp
- 27txs+BLBDIzzVrm7MMsfkvqKD3aBSqEiOBeG/1GG6jcIJdI2YJ/vneItfmtIQXQEFbm2vNa5lU9l
- aHTP8xYA==;
+ bh=5rcnJ83GrgSSabCav/BawazCovpIiEvHei2b2gmullQ=; b=CjJhpozaz3ZvUqlOlRhUG6HF0e
+ L1k08qBdI7FjLxrC+2SHHoNWrKKNNyMlTyF4yTi95nmPu6QjzipSWH9TvaHMjTe8XoTWpzOf49Xwn
+ /jTNmyPXW291lu9ai/kVpUcGZy0BEma/a+v71WBQptYeQK53Oa4G3wRCg1iH80jgNCDh+UkonCJTi
+ b2hNWpI0YPpjBR+0L2Bg82wVndKnPmP8XXH33hc/RLegnrrgdomyqC3ANZRjwyzqph4yUIcfGGV1b
+ 13e7GSLfhf8SaHCAofITijpch9zJ9GPiLs40aqk7qM6e7KoHhSnPrPVcNE2jwVOMrxC25OuZ8i44W
+ kFZNgihA==;
 Received: from [2a02:1205:504b:4280:f5dd:42a4:896c:d877] (helo=localhost)
  by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1ngJOC-00FYj8-0H; Mon, 18 Apr 2022 04:53:28 +0000
+ id 1ngJOI-00FYkg-0o; Mon, 18 Apr 2022 04:53:34 +0000
 From: Christoph Hellwig <hch@lst.de>
 To: Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 04/11] virtio_blk: fix the discard_granularity and
- discard_alignment queue limits
-Date: Mon, 18 Apr 2022 06:53:07 +0200
-Message-Id: <20220418045314.360785-5-hch@lst.de>
+Subject: [PATCH 06/11] raid5: don't set the discard_alignment queue limit
+Date: Mon, 18 Apr 2022 06:53:09 +0200
+Message-Id: <20220418045314.360785-7-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20220418045314.360785-1-hch@lst.de>
 References: <20220418045314.360785-1-hch@lst.de>
@@ -96,45 +95,26 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 The discard_alignment queue limit is named a bit misleading means the
 offset into the block device at which the discard granularity starts.
+Setting it to the discard granularity as done by raid5 is mostly
+harmless but also useless.
 
-On the other hand the discard_sector_alignment from the virtio 1.1 looks
-similar to what Linux uses as discard granularity (even if not very well
-described):
-
-  "discard_sector_alignment can be used by OS when splitting a request
-   based on alignment. "
-
-And at least qemu does set it to the discard granularity.
-
-So stop setting the discard_alignment and use the virtio
-discard_sector_alignment to set the discard granularity.
-
-Fixes: 1f23816b8eb8 ("virtio_blk: add discard and write zeroes support")
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/block/virtio_blk.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/md/raid5.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 6ccf15253dee1..d624cc8eddc3c 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -867,11 +867,12 @@ static int virtblk_probe(struct virtio_device *vdev)
- 		blk_queue_io_opt(q, blk_size * opt_io_size);
+diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
+index 59f91e392a2ae..39b0afdf40d0a 100644
+--- a/drivers/md/raid5.c
++++ b/drivers/md/raid5.c
+@@ -7749,7 +7749,6 @@ static int raid5_run(struct mddev *mddev)
+ 		 */
+ 		stripe = stripe * PAGE_SIZE;
+ 		stripe = roundup_pow_of_two(stripe);
+-		mddev->queue->limits.discard_alignment = stripe;
+ 		mddev->queue->limits.discard_granularity = stripe;
  
- 	if (virtio_has_feature(vdev, VIRTIO_BLK_F_DISCARD)) {
--		q->limits.discard_granularity = blk_size;
--
- 		virtio_cread(vdev, struct virtio_blk_config,
- 			     discard_sector_alignment, &v);
--		q->limits.discard_alignment = v ? v << SECTOR_SHIFT : 0;
-+		if (v)
-+			q->limits.discard_granularity = v << SECTOR_SHIFT;
-+		else
-+			q->limits.discard_granularity = blk_size;
- 
- 		virtio_cread(vdev, struct virtio_blk_config,
- 			     max_discard_sectors, &v);
+ 		blk_queue_max_write_zeroes_sectors(mddev->queue, 0);
 -- 
 2.30.2
 
