@@ -1,62 +1,64 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 65F58C433FE
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 80DCEC433EF
 	for <virtualization@archiver.kernel.org>; Mon, 18 Apr 2022 04:53:49 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 36F946120D;
-	Mon, 18 Apr 2022 04:53:48 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 309D940FE8;
+	Mon, 18 Apr 2022 04:53:49 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id R_Sgp9k5deAW; Mon, 18 Apr 2022 04:53:47 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ykljdI9-DaFQ; Mon, 18 Apr 2022 04:53:47 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 900B061204;
+	by smtp2.osuosl.org (Postfix) with ESMTPS id D611740117;
 	Mon, 18 Apr 2022 04:53:46 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5A54BC008D;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 86611C0091;
 	Mon, 18 Apr 2022 04:53:45 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 44919C002C
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4B8BAC002F
  for <virtualization@lists.linux-foundation.org>;
  Mon, 18 Apr 2022 04:53:43 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 31EE960E9D
+ by smtp4.osuosl.org (Postfix) with ESMTP id 467BF41CC2
  for <virtualization@lists.linux-foundation.org>;
  Mon, 18 Apr 2022 04:53:43 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id whojFuela_aD
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=infradead.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id B-BrFYgYgLly
  for <virtualization@lists.linux-foundation.org>;
  Mon, 18 Apr 2022 04:53:42 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from bombadil.infradead.org (bombadil.infradead.org
  [IPv6:2607:7c80:54:e::133])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 9DF1F60F2D
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 84C5A41CC8
  for <virtualization@lists.linux-foundation.org>;
  Mon, 18 Apr 2022 04:53:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
  MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
  :Reply-To:Content-Type:Content-ID:Content-Description;
- bh=koCagwvOxhN7Shu8/AJxKzZVAKuzrO1L5//iYnC02Iw=; b=AfuHTR/V7lcr3zFbVv43aXi0wl
- 9BXiL1MXkRpqJBplwxZBu6BMXzKAwM3cLacngv6w9v/xu4r4wsZXJzUpjj8oykifbHGOdLOj9+cXd
- w57UeuYr1aXFL4KN5snqFZNRlx3/zg/as2hg/byKwuFPkRBWSqYCMgz6Nalf6bjYlUrYWYMFOg7lM
- VVtAyBmc/UB6YQDpwNy9RxJMNN3OFjU5UKmrw+vl4PuZd7vQ6hmG2jXje40n9Bl31/uUTw3g/iABO
- fgajCyxoKwPRp2bRxD9DHepUAQfpOnb0+QEai/a9nd+iaTwNGZ7XqT7mmOiN9r3r1T9l317vuoSmZ
- 0Zs1vSZQ==;
+ bh=ehhbXywWEInDu2MzhhcU8qyC2x202NRIVxnfV552fWg=; b=4+aRzQJYcjSRih3CAHHoWbQKH7
+ tpRyxCuoqoDD29J+mP/JD+tuOpLTzRf6tGAVyuGm1tGzqWiKw0VPI3Z//Ivegeb/zkkMfBF25uEJu
+ 8o1KOY9vmrdu70v5p52qRPOvKYU/KO1j7AILK0X1SV3xH0zUNCBtjO5MxmPWDyB3FnDcknLf1/b8+
+ fYnEzGYeuBU14+X4y8DMlr1JmpgaZUgZLWvLmRML5UshcDri7muDpboKeTNp2VDYLGcnydDsZfdy1
+ EQTV6mqhUtxtdvZYv9mIEeqGcvXfbsOHMtH6Uny/9EHEwtxN5JNm1DCu1+PcS53QbmFNMsfc4uiGB
+ S1uPtQoA==;
 Received: from [2a02:1205:504b:4280:f5dd:42a4:896c:d877] (helo=localhost)
  by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1ngJO6-00FYhe-Hq; Mon, 18 Apr 2022 04:53:23 +0000
+ id 1ngJO3-00FYha-FT; Mon, 18 Apr 2022 04:53:20 +0000
 From: Christoph Hellwig <hch@lst.de>
 To: Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 02/11] nbd: don't set the discard_alignment queue limit
-Date: Mon, 18 Apr 2022 06:53:05 +0200
-Message-Id: <20220418045314.360785-3-hch@lst.de>
+Subject: [PATCH 01/11] ubd: don't set the discard_alignment queue limit
+Date: Mon, 18 Apr 2022 06:53:04 +0200
+Message-Id: <20220418045314.360785-2-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20220418045314.360785-1-hch@lst.de>
 References: <20220418045314.360785-1-hch@lst.de>
@@ -93,42 +95,26 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 The discard_alignment queue limit is named a bit misleading means the
 offset into the block device at which the discard granularity starts.
-Setting it to the discard granularity as done by nbd is mostly harmless
+Setting it to the discard granularity as done by ubd is mostly harmless
 but also useless.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/block/nbd.c | 3 ---
- 1 file changed, 3 deletions(-)
+ arch/um/drivers/ubd_kern.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index 4729aef8c6462..102597a4277b9 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -333,7 +333,6 @@ static int nbd_set_size(struct nbd_device *nbd, loff_t bytesize,
- 
- 	if (nbd->config->flags & NBD_FLAG_SEND_TRIM) {
- 		nbd->disk->queue->limits.discard_granularity = blksize;
--		nbd->disk->queue->limits.discard_alignment = blksize;
- 		blk_queue_max_discard_sectors(nbd->disk->queue, UINT_MAX);
+diff --git a/arch/um/drivers/ubd_kern.c b/arch/um/drivers/ubd_kern.c
+index 085ffdf98e57e..c4344b67628dd 100644
+--- a/arch/um/drivers/ubd_kern.c
++++ b/arch/um/drivers/ubd_kern.c
+@@ -799,7 +799,6 @@ static int ubd_open_dev(struct ubd *ubd_dev)
  	}
- 	blk_queue_logical_block_size(nbd->disk->queue, blksize);
-@@ -1316,7 +1315,6 @@ static void nbd_config_put(struct nbd_device *nbd)
- 
- 		nbd->tag_set.timeout = 0;
- 		nbd->disk->queue->limits.discard_granularity = 0;
--		nbd->disk->queue->limits.discard_alignment = 0;
- 		blk_queue_max_discard_sectors(nbd->disk->queue, 0);
- 
- 		mutex_unlock(&nbd->config_lock);
-@@ -1781,7 +1779,6 @@ static struct nbd_device *nbd_dev_add(int index, unsigned int refs)
- 	blk_queue_flag_set(QUEUE_FLAG_NONROT, disk->queue);
- 	blk_queue_flag_clear(QUEUE_FLAG_ADD_RANDOM, disk->queue);
- 	disk->queue->limits.discard_granularity = 0;
--	disk->queue->limits.discard_alignment = 0;
- 	blk_queue_max_discard_sectors(disk->queue, 0);
- 	blk_queue_max_segment_size(disk->queue, UINT_MAX);
- 	blk_queue_max_segments(disk->queue, USHRT_MAX);
+ 	if (ubd_dev->no_trim == 0) {
+ 		ubd_dev->queue->limits.discard_granularity = SECTOR_SIZE;
+-		ubd_dev->queue->limits.discard_alignment = SECTOR_SIZE;
+ 		blk_queue_max_discard_sectors(ubd_dev->queue, UBD_MAX_REQUEST);
+ 		blk_queue_max_write_zeroes_sectors(ubd_dev->queue, UBD_MAX_REQUEST);
+ 	}
 -- 
 2.30.2
 
