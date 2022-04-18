@@ -1,64 +1,62 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 61662C4332F
-	for <virtualization@archiver.kernel.org>; Mon, 18 Apr 2022 04:53:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5E8FCC433FE
+	for <virtualization@archiver.kernel.org>; Mon, 18 Apr 2022 04:53:52 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 0A28561202;
-	Mon, 18 Apr 2022 04:53:53 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 148F841D9D;
+	Mon, 18 Apr 2022 04:53:52 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id BGUQuLO8lTcW; Mon, 18 Apr 2022 04:53:52 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id B18806120E;
-	Mon, 18 Apr 2022 04:53:51 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id wb0o0RR8wigd; Mon, 18 Apr 2022 04:53:51 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 5ADDA41D75;
+	Mon, 18 Apr 2022 04:53:50 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 76308C002C;
-	Mon, 18 Apr 2022 04:53:51 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7CE70C0083
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 30F80C0089;
+	Mon, 18 Apr 2022 04:53:50 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 37CC9C0083
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Apr 2022 04:53:50 +0000 (UTC)
+ Mon, 18 Apr 2022 04:53:47 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 776BB40FF6
+ by smtp4.osuosl.org (Postfix) with ESMTP id 1AD3B41D4E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Apr 2022 04:53:50 +0000 (UTC)
+ Mon, 18 Apr 2022 04:53:47 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=infradead.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Ubc9p9tR9HlQ
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 00yGYH10GsnO
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Apr 2022 04:53:49 +0000 (UTC)
+ Mon, 18 Apr 2022 04:53:46 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from bombadil.infradead.org (bombadil.infradead.org
  [IPv6:2607:7c80:54:e::133])
- by smtp2.osuosl.org (Postfix) with ESMTPS id E1FD540117
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 4761641CDC
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Apr 2022 04:53:49 +0000 (UTC)
+ Mon, 18 Apr 2022 04:53:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
  MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
  :Reply-To:Content-Type:Content-ID:Content-Description;
- bh=5rcnJ83GrgSSabCav/BawazCovpIiEvHei2b2gmullQ=; b=CjJhpozaz3ZvUqlOlRhUG6HF0e
- L1k08qBdI7FjLxrC+2SHHoNWrKKNNyMlTyF4yTi95nmPu6QjzipSWH9TvaHMjTe8XoTWpzOf49Xwn
- /jTNmyPXW291lu9ai/kVpUcGZy0BEma/a+v71WBQptYeQK53Oa4G3wRCg1iH80jgNCDh+UkonCJTi
- b2hNWpI0YPpjBR+0L2Bg82wVndKnPmP8XXH33hc/RLegnrrgdomyqC3ANZRjwyzqph4yUIcfGGV1b
- 13e7GSLfhf8SaHCAofITijpch9zJ9GPiLs40aqk7qM6e7KoHhSnPrPVcNE2jwVOMrxC25OuZ8i44W
- kFZNgihA==;
+ bh=jJDfNJ+noyJ0aQwSxPjfuM0bukOLXIlZdKOCCRo7UC0=; b=xuIkX7BaO7YLYo2xtforYUeJSz
+ D4ZkceNgWZcqsdA4kKDR70kSEQCNujP+EuBqv6qBw0ZF92W/0/cEfjWOan0nETRKihTYr6lzIZlZl
+ bBcwq/JHARHxWpbiEMaI9y7fhWsSop569zSNCbdEUmCgnceKeTdNHmdubHo2T02f4jZnDeMuy9YEp
+ gX5Gk0YQFUdeh+lTgVE6905xov9XyUfA8uV/rEBVxEimHbnB03TXVy+Q+6Z3Gp8bR9szIE8Cp8Ndy
+ rknbV4gm7RVldjeoTzmK+sn63+wAUNv9Myo89P/eXTHdhfPYO+SAS69EJRqWmwD6yqU/r8IFcrYqq
+ /61rhfuw==;
 Received: from [2a02:1205:504b:4280:f5dd:42a4:896c:d877] (helo=localhost)
  by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1ngJOI-00FYkg-0o; Mon, 18 Apr 2022 04:53:34 +0000
+ id 1ngJOE-00FYjt-Uc; Mon, 18 Apr 2022 04:53:31 +0000
 From: Christoph Hellwig <hch@lst.de>
 To: Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 06/11] raid5: don't set the discard_alignment queue limit
-Date: Mon, 18 Apr 2022 06:53:09 +0200
-Message-Id: <20220418045314.360785-7-hch@lst.de>
+Subject: [PATCH 05/11] dm-zoned: don't set the discard_alignment queue limit
+Date: Mon, 18 Apr 2022 06:53:08 +0200
+Message-Id: <20220418045314.360785-6-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20220418045314.360785-1-hch@lst.de>
 References: <20220418045314.360785-1-hch@lst.de>
@@ -95,26 +93,27 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 The discard_alignment queue limit is named a bit misleading means the
 offset into the block device at which the discard granularity starts.
-Setting it to the discard granularity as done by raid5 is mostly
+Setting it to the discard granularity as done by dm-zoned is mostly
 harmless but also useless.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/md/raid5.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/md/dm-zoned-target.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
-index 59f91e392a2ae..39b0afdf40d0a 100644
---- a/drivers/md/raid5.c
-+++ b/drivers/md/raid5.c
-@@ -7749,7 +7749,6 @@ static int raid5_run(struct mddev *mddev)
- 		 */
- 		stripe = stripe * PAGE_SIZE;
- 		stripe = roundup_pow_of_two(stripe);
--		mddev->queue->limits.discard_alignment = stripe;
- 		mddev->queue->limits.discard_granularity = stripe;
+diff --git a/drivers/md/dm-zoned-target.c b/drivers/md/dm-zoned-target.c
+index cac295cc8840e..0ec5d8b9b1a4e 100644
+--- a/drivers/md/dm-zoned-target.c
++++ b/drivers/md/dm-zoned-target.c
+@@ -1001,7 +1001,7 @@ static void dmz_io_hints(struct dm_target *ti, struct queue_limits *limits)
+ 	blk_limits_io_min(limits, DMZ_BLOCK_SIZE);
+ 	blk_limits_io_opt(limits, DMZ_BLOCK_SIZE);
  
- 		blk_queue_max_write_zeroes_sectors(mddev->queue, 0);
+-	limits->discard_alignment = DMZ_BLOCK_SIZE;
++	limits->discard_alignment = 0;
+ 	limits->discard_granularity = DMZ_BLOCK_SIZE;
+ 	limits->max_discard_sectors = chunk_sectors;
+ 	limits->max_hw_discard_sectors = chunk_sectors;
 -- 
 2.30.2
 
