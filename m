@@ -4,108 +4,105 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 82000C433F5
-	for <virtualization@archiver.kernel.org>; Wed, 20 Apr 2022 11:11:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 078C4C433F5
+	for <virtualization@archiver.kernel.org>; Wed, 20 Apr 2022 13:13:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 1AC5983089;
-	Wed, 20 Apr 2022 11:11:03 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 9660682B21;
+	Wed, 20 Apr 2022 13:13:35 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id bmp95cxXcNVX; Wed, 20 Apr 2022 11:11:02 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id BF286840FA;
-	Wed, 20 Apr 2022 11:11:01 +0000 (UTC)
+	with ESMTP id tzTMPDd54DTK; Wed, 20 Apr 2022 13:13:35 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 58A2182B24;
+	Wed, 20 Apr 2022 13:13:34 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 947A7C002F;
-	Wed, 20 Apr 2022 11:11:01 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6A629C002C
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 2DE5BC002F;
+	Wed, 20 Apr 2022 13:13:34 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BBD5EC002C
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Apr 2022 11:11:00 +0000 (UTC)
+ Wed, 20 Apr 2022 13:13:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 577F484109
+ by smtp3.osuosl.org (Postfix) with ESMTP id A8BE761107
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Apr 2022 11:11:00 +0000 (UTC)
+ Wed, 20 Apr 2022 13:13:33 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id aEL4gVAG8cX3
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=gmail.com
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 761uWBZwbLGG
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Apr 2022 11:10:59 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 743D683089
+ Wed, 20 Apr 2022 13:13:32 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-qt1-x833.google.com (mail-qt1-x833.google.com
+ [IPv6:2607:f8b0:4864:20::833])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 680F0610C9
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Apr 2022 11:10:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1650453058;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=YsnnPIAMkwFjtCukDLHEtbujjWuw4if1rc8O7lEr2po=;
- b=dOcRroY2RZ+pn30fpL5rSL8VqQ5WUBoX+gDFny4eUeZLn5GWB8vIcDUxZ1GCQQX0AL/f5f
- e3eFQDxX612xaeWDvyVAAY7KMoFexlisp7zfLIpbulpTEQAMRBAeiCYfX1PFU5g1UXyQUT
- /l7xAB+A6APCcqNBdn/Yqqw+ztmQ2E4=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-116-0HmVBtO2NJmVAHalX_LP2Q-1; Wed, 20 Apr 2022 07:10:55 -0400
-X-MC-Unique: 0HmVBtO2NJmVAHalX_LP2Q-1
-Received: by mail-wr1-f70.google.com with SMTP id
- p18-20020adf9592000000b00207bc12decbso297022wrp.21
+ Wed, 20 Apr 2022 13:13:32 +0000 (UTC)
+Received: by mail-qt1-x833.google.com with SMTP id d9so877125qty.12
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Apr 2022 04:10:54 -0700 (PDT)
+ Wed, 20 Apr 2022 06:13:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=EBpAB6FDbZK4zE5ed/nvxGtuXnn9kJ3DTB27o6boGrA=;
+ b=AAoC49XgCBYwRBkrug5A93BfpSzwnQ2QHz5ADG0+GiiOROP4ryHDBT40BHJNx2DRpi
+ FPmkM0rFi1kUDUbBXKJhLI7gvWIldjfT17sU38UFTuvGNbd7GA5M/2ALIFsEsFAOEtRW
+ 92RZAMOukvGoszrxxXrmOkNmN0wvR+/Lt2gNi/AXvuncfrNvsa9cUmIrMOfxDG8Us3yF
+ EMJiC0i+yiO9+yJGF5Agf2+WPmqwpbybOCwxnjhl/wBmM9zEKyyeZ/IW4oeflKm2R06p
+ J93ryrZQVS/iPlo51erMrOY3R252amSBMiCEYwHi409wR8BYTd7kM8qbBi9uf9azmNvR
+ MSqw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:content-transfer-encoding
- :in-reply-to;
- bh=YsnnPIAMkwFjtCukDLHEtbujjWuw4if1rc8O7lEr2po=;
- b=YytezVYX6VQzWBZxJUnn9Utug9typ0/x3nB363BE4Mc/sYtR1RcxgLEwg6yYXQnC7w
- BoqfUS2iE1afUhHyxlhO6SBcfZfkgjGFYPtid0qu88z1HryY6Nyb5AGiPBWKPszYe32U
- azaNZh0s6zDa0L71QGyMlCUYIJYYXfhEBASgALhbGvk5oX7OFIoAF6lBXpM5fKRGSzzl
- ILYP7lIjbgji48zW+bw82JrBsHNFw1knWTchhVe+8z3opNUT3UKRbVVBb3kQyKeQMETG
- jeWjyhFUXFZaZprs2jJBKpNg5YVjI8S7RGKyIs6cgGxfMkT8pHeWWC5hEyPUPnC8uRak
- CFJw==
-X-Gm-Message-State: AOAM5325jMa4SxSh5sVqsWMQl73DoiL9UmkV3a8N6k7Wq1+5GBSudvit
- lWLfa2TNPb655gg/IMdwDV9beETarEo4wka/51qPeuRCmD6SWMyCb4KlbBqdVn6qxp36HrMtfjZ
- rocVx4X65ieToEaAJUG09r62J1CFUSBwIqSWzI1WJVA==
-X-Received: by 2002:a5d:4d83:0:b0:207:b5fb:ecae with SMTP id
- b3-20020a5d4d83000000b00207b5fbecaemr15031444wru.625.1650453053816; 
- Wed, 20 Apr 2022 04:10:53 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwJbffe+a5JlsW6ZJQS34oageQLYR9yEEgZed/GH7nghNNHUURALq8Q2KE+JOVRYBbvaiQ0vQ==
-X-Received: by 2002:a5d:4d83:0:b0:207:b5fb:ecae with SMTP id
- b3-20020a5d4d83000000b00207b5fbecaemr15031428wru.625.1650453053556; 
- Wed, 20 Apr 2022 04:10:53 -0700 (PDT)
-Received: from redhat.com ([2.53.17.80]) by smtp.gmail.com with ESMTPSA id
- o40-20020a05600c512800b0038ebf2858cbsm24062454wms.16.2022.04.20.04.10.51
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 20 Apr 2022 04:10:52 -0700 (PDT)
-Date: Wed, 20 Apr 2022 07:10:49 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Maciej =?utf-8?Q?Szyma=C5=84ski?= <maciej.szymanski@opensynergy.com>
-Subject: Re: virtio-net: Unpermitted usage of virtqueue before virtio driver
- initialization
-Message-ID: <20220420070944-mutt-send-email-mst@kernel.org>
-References: <c0c17b91-747e-ab58-83e5-b6f7dfa55e75@opensynergy.com>
- <20220419103826-mutt-send-email-mst@kernel.org>
- <CACGkMEvJu8ADk=+QJryDfuh9y8pXzfYQ3KRg0Lq0POH3Z-SHuQ@mail.gmail.com>
- <20220420023511-mutt-send-email-mst@kernel.org>
- <4080d799-b42e-018a-8b14-621295e55a8d@opensynergy.com>
- <b4899534-8c08-ddfc-dea0-460a94b00c32@redhat.com>
- <0a118236-bb98-9183-8be2-84f6b83e2581@opensynergy.com>
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=EBpAB6FDbZK4zE5ed/nvxGtuXnn9kJ3DTB27o6boGrA=;
+ b=pfxYX90yhtwoUo7uhKqCkh2XHwxFUVnTks1zOc7vFu+3nr0iycvs7dRArh9Ua6Liz1
+ R9lrfqAHYPt4Z6hjjFoJZpZelYy4YGboDVN9UNyRd4aIIhhLrdlre3pIZvI5xC6c0oXS
+ yIeHTdQptShT0GoyvxGZGr7SVu4IsY71P5/gsg1ec4A41Uk3cq4LHK4ITho3to4UZnj9
+ bkeeHwR6T/5JRoD/QzUPHcdwrq35Wme2VzD+IvQl69dL4lgCs+9vgT0Q6y9K47zTDYJt
+ FRplCwVJXKodS1+rz0JEzMy6GevOxcncwnHBrm+pAvr0NLjeK7cvE6SMxGVa7ytNHm4S
+ dkBQ==
+X-Gm-Message-State: AOAM531gBGtreDC8bx1gDhYB/BF9kAyM1I7rvD1B6z9/s5Ayg4qkqwCz
+ NU4QkJVdjHruuTCa8aAPxQ1FI7rDdzc=
+X-Google-Smtp-Source: ABdhPJzpJdqPwGrg5cC7VLJ6VMSEzVJdXow38flVoAnd+Ppw9THD8CNami8pP4e0O/ZzCbUmR7Jdvw==
+X-Received: by 2002:ac8:5907:0:b0:2f1:fbe9:e802 with SMTP id
+ 7-20020ac85907000000b002f1fbe9e802mr10529273qty.570.1650460411191; 
+ Wed, 20 Apr 2022 06:13:31 -0700 (PDT)
+Received: from mail-yb1-f176.google.com (mail-yb1-f176.google.com.
+ [209.85.219.176]) by smtp.gmail.com with ESMTPSA id
+ f19-20020a05620a409300b00680c933fb1csm1744919qko.20.2022.04.20.06.13.30
+ for <virtualization@lists.linux-foundation.org>
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Wed, 20 Apr 2022 06:13:30 -0700 (PDT)
+Received: by mail-yb1-f176.google.com with SMTP id s33so2719285ybi.12
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 20 Apr 2022 06:13:30 -0700 (PDT)
+X-Received: by 2002:a05:6902:1202:b0:641:e3c5:f989 with SMTP id
+ s2-20020a056902120200b00641e3c5f989mr19463989ybu.532.1650460409740; Wed, 20
+ Apr 2022 06:13:29 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <0a118236-bb98-9183-8be2-84f6b83e2581@opensynergy.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: Willem de Bruijn <willemb@google.com>,
- virtualization <virtualization@lists.linux-foundation.org>
+References: <20220418044339.127545-1-liuhangbin@gmail.com>
+ <20220418044339.127545-3-liuhangbin@gmail.com>
+ <CA+FuTSdTbpYGJo6ec2Ti+djXCj=gBAQpv9ZVaTtaJA-QUNNgYQ@mail.gmail.com>
+ <Yl4pG8MN7jxVybPB@Laptop-X1>
+ <CA+FuTSdLGUgbkP3U+zmqoFzrewnUUN3pci8q8oNfHzo11ZhRZg@mail.gmail.com>
+ <Yl9d2L39BzUiLINN@Laptop-X1>
+In-Reply-To: <Yl9d2L39BzUiLINN@Laptop-X1>
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Date: Wed, 20 Apr 2022 09:12:53 -0400
+X-Gmail-Original-Message-ID: <CA+FuTSdrramQiwoUQ7bn+US+CDFWXKr8-Bzb8X1JzJbyMNcK8A@mail.gmail.com>
+Message-ID: <CA+FuTSdrramQiwoUQ7bn+US+CDFWXKr8-Bzb8X1JzJbyMNcK8A@mail.gmail.com>
+Subject: Re: [PATCH net 2/2] virtio_net: check L3 protocol for VLAN packets
+To: Hangbin Liu <liuhangbin@gmail.com>
+Cc: Maxim Mikityanskiy <maximmi@mellanox.com>,
+ Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+ "Michael S . Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
+ Balazs Nemeth <bnemeth@redhat.com>, virtualization@lists.linux-foundation.org,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Mike Pattrick <mpattric@redhat.com>,
+ "David S . Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -117,38 +114,36 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gV2VkLCBBcHIgMjAsIDIwMjIgYXQgMTA6MTc6MjdBTSArMDIwMCwgTWFjaWVqIFN6eW1hxYRz
-a2kgd3JvdGU6Cj4gPiA+ID4gPiA+IEhtbSBzbyB3ZSBoYXZlIHRoaXM6Cj4gPiA+ID4gPiA+IAo+
-ID4gPiA+ID4gPiAKPiA+ID4gPiA+ID4gICAgICAgICAgaWYgKChkZXYtPmZlYXR1cmVzIF4gZmVh
-dHVyZXMpICYgTkVUSUZfRl9HUk9fSFcpIHsKPiA+ID4gPiA+ID4gICAgICAgICAgICAgICAgICBp
-ZiAodmktPnhkcF9lbmFibGVkKQo+ID4gPiA+ID4gPiAgICAgICAgICAgICAgICAgICAgICAgICAg
-cmV0dXJuIC1FQlVTWTsKPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+ICAgICAgICAgICAgICAgICAg
-aWYgKGZlYXR1cmVzICYgTkVUSUZfRl9HUk9fSFcpCj4gPiA+ID4gPiA+ICAgICAgICAgICAgICAg
-ICAgICAgICAgICBvZmZsb2FkcyA9IHZpLT5ndWVzdF9vZmZsb2Fkc19jYXBhYmxlOwo+ID4gPiA+
-ID4gPiAgICAgICAgICAgICAgICAgIGVsc2UKPiA+ID4gPiA+ID4gICAgICAgICAgICAgICAgICAg
-ICAgICAgIG9mZmxvYWRzID0gdmktPmd1ZXN0X29mZmxvYWRzX2NhcGFibGUgJgo+ID4gPiA+ID4g
-PiB+R1VFU1RfT0ZGTE9BRF9HUk9fSFdfTUFTSzsKPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+ICAg
-ICAgICAgICAgICAgICAgZXJyID0gdmlydG5ldF9zZXRfZ3Vlc3Rfb2ZmbG9hZHModmksIG9mZmxv
-YWRzKTsKPiA+ID4gPiA+ID4gICAgICAgICAgICAgICAgICBpZiAoZXJyKQo+ID4gPiA+ID4gPiAg
-ICAgICAgICAgICAgICAgICAgICAgICAgcmV0dXJuIGVycjsKPiA+ID4gPiA+ID4gICAgICAgICAg
-ICAgICAgICB2aS0+Z3Vlc3Rfb2ZmbG9hZHMgPSBvZmZsb2FkczsKPiA+ID4gPiA+ID4gICAgICAg
-ICAgfQo+ID4gPiA+ID4gPiAKPiA+ID4gPiA+ID4gd2hpY2ggSSBndWVzcyBzaG91bGQgaGF2ZSBw
-cmV2ZW50ZWQgdmlydG5ldF9zZXRfZ3Vlc3Rfb2ZmbG9hZHMKPiA+ID4gPiA+ID4gZnJvbSBldmVy
-IHJ1bm5pbmcuCj4gPiA+ID4gPiA+IAo+ID4gPiA+ID4gPiAgRnJvbSB5b3VyIGRlc2NyaXB0aW9u
-IGl0IHNvdW5kcyBsaWtlIHlvdSBoYXZlIG9ic2VydmVkIHRoaXMKPiA+ID4gPiA+ID4gaW4gcHJh
-Y3RpY2UsIHJpZ2h0Pwo+ID4gPiA+ID4gPiAKPiA+ID4gWWVzLiBJIGhhdmUgcHJvcHJpZXRhcnkg
-dmlydGlvLW5ldCBkZXZpY2Ugd2hpY2ggYWR2ZXJ0aXNlcyBmb2xsb3dpbmcKPiA+ID4gZ3Vlc3Qg
-b2ZmbG9hZCBmZWF0dXJlcyA6Cj4gPiA+IC0gVklSVElPX05FVF9GX0dVRVNUX0NTVU0KPiA+ID4g
-LSBWSVJUSU9fTkVUX0ZfR1VFU1RfVFNPNAo+ID4gPiAtIFZJUlRJT19ORVRfRl9HVUVTVF9UU082
-Cj4gPiA+IC0gVklSVElPX05FVF9GX0dVRVNUX1VGTwo+ID4gPiAKPiA+ID4gVGhpcyBmZWF0dXJl
-IHNldCBwYXNzZXMgdGhlIGNvbmRpdGlvbiBpbiB2aXJ0bmV0X3NldF9mZWF0dXJlcy4KClNvIHdo
-eSBpc24ndCBkZXYtPmZlYXR1cmVzIGVxdWFsIHRvIGZlYXR1cmVzPwoKLS0gCk1TVAoKX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24g
-bWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0
-dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxp
-emF0aW9u
+On Tue, Apr 19, 2022 at 9:16 PM Hangbin Liu <liuhangbin@gmail.com> wrote:
+>
+> Hi Willem,
+>
+> On Tue, Apr 19, 2022 at 09:52:46AM -0400, Willem de Bruijn wrote:
+> > Segmentation offload requires checksum offload. Packets that request
+>
+> OK, makes sense.
+>
+> > GSO but not NEEDS_CSUM are an aberration. We had to go out of our way
+> > to handle them because the original implementation did not explicitly
+> > flag and drop these. But we should not extend that to new types.
+>
+> So do you mean, the current gso types are enough, we should not extend to
+> handle VLAN headers if no NEEDS_CSUM flag. This patch can be dropped, right?
+
+That's right.
+
+> Although I don't understand why we should not extend to support VLAN GSO.
+> I'm OK if you think this patch should be dropped when I re-post patch 1/2 to
+> net-next.
+>
+> Thanks
+> Hangbin
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
