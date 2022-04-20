@@ -4,78 +4,94 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 58A62C433EF
-	for <virtualization@archiver.kernel.org>; Wed, 20 Apr 2022 15:20:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 71AB5C43219
+	for <virtualization@archiver.kernel.org>; Wed, 20 Apr 2022 17:13:04 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id E22E1409A2;
-	Wed, 20 Apr 2022 15:20:07 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 13EB54193F;
+	Wed, 20 Apr 2022 17:13:04 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Vbn389yU1xTq; Wed, 20 Apr 2022 15:20:06 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 3B3CF40992;
-	Wed, 20 Apr 2022 15:20:06 +0000 (UTC)
+	with ESMTP id CZ9vBDVCTkGQ; Wed, 20 Apr 2022 17:13:02 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 19D714193E;
+	Wed, 20 Apr 2022 17:13:02 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E9390C002F;
-	Wed, 20 Apr 2022 15:20:05 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 19036C002C
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E2471C002F;
+	Wed, 20 Apr 2022 17:13:01 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2992AC002C
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Apr 2022 15:20:04 +0000 (UTC)
+ Wed, 20 Apr 2022 17:13:01 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id E449582B34
+ by smtp3.osuosl.org (Postfix) with ESMTP id 16F8F60C34
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Apr 2022 15:20:03 +0000 (UTC)
+ Wed, 20 Apr 2022 17:13:01 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id GA_giXI11JZp
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id o5-Dj-_fJ5-O
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Apr 2022 15:20:03 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 4A3AB8283D
+ Wed, 20 Apr 2022 17:13:00 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-yb1-f174.google.com (mail-yb1-f174.google.com
+ [209.85.219.174])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 3BF7060C0F
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Apr 2022 15:20:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1650468002;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=Vr65kK48b4IYGWq3LEsb2mA5/gjqSSqZxbsyzjsVrlA=;
- b=EeYu7IpQbe7eufVlQDw5v3ue0fJPdTo8hGZV+xptfXFOszng4b/CYqf75mK/e5u6vRx5vE
- 0px6l3zLHJDKcV4UlGKGHIXJE8PtxJrJz0VCUYkuy+8J2rVtaO48+/bopSazqskgwcSWQW
- QFJOmg/xk3MS0sS3QZrFnsKxRRnWrWQ=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-106-JOxFjWwfNxejb_ux5u4Oxw-1; Wed, 20 Apr 2022 11:20:00 -0400
-X-MC-Unique: JOxFjWwfNxejb_ux5u4Oxw-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com
- [10.11.54.6])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 19E761C05142;
- Wed, 20 Apr 2022 15:20:00 +0000 (UTC)
-Received: from localhost (unknown [10.39.194.99])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 0ABEE2166B44;
- Wed, 20 Apr 2022 15:19:53 +0000 (UTC)
-Date: Wed, 20 Apr 2022 17:19:51 +0200
-From: Stefan Hajnoczi <stefanha@redhat.com>
-To: Chaitanya Kulkarni <kch@nvidia.com>
-Subject: Re: [PATCH 4/4] virtio-blk: remove deprecated ida_simple_XXX()
-Message-ID: <YmAklxLSkwiijfxV@stefanha-x1.localdomain>
-References: <20220420041053.7927-1-kch@nvidia.com>
- <20220420041053.7927-5-kch@nvidia.com>
+ Wed, 20 Apr 2022 17:13:00 +0000 (UTC)
+Received: by mail-yb1-f174.google.com with SMTP id t67so4084186ybi.2
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 20 Apr 2022 10:13:00 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=/ASIWAo0HytBTKR5fLcMLGJJVl7MsnssiA8AeEXSjEM=;
+ b=goeJQuZKk5xPa4VVAdWjx5vz5+V/0PeoRgmRxBgXd8iicheQNAoma2jjTBOy3I8LIO
+ ks35w+JJEhAqRPUe2/2EEJN9E5DzsqY2oeCaU/NeuTEdVjILS7pkfVDE+lXgxvufmfQY
+ 8vrAPi77moPo4uAzfA2AvJFvZWkNmDatQucmynMXv/l2FxRbwxrJfMRodeMIV+dB1kDe
+ Huxp7Lym93z5w1tK79+5UbVgadOLJPxR5goot7mDMjLvJoBXnPbsy6slWs6c9DarGWyT
+ gilxxvZTTPpO6w8l4WGfq85DTliiiFbscODOv9yGh3gPz1Q14sie42XD2YdRzwgMl7qj
+ AQNQ==
+X-Gm-Message-State: AOAM530TZKY0/6KoMzm+NR075IIqpYCFRHAcPdJdZkW7vYjXipICt8Ot
+ 01qpe7xP0mYo6neLniqN1NeU0V5EMnmJROjTKNY=
+X-Google-Smtp-Source: ABdhPJygxTqwH/fYP8f9/TOx3wegsu6FxX5O1kN/quLL9EMh/cabSnVGqayxP5pVJxnDK33VgIW6Cm39TvZfF3wMYBU=
+X-Received: by 2002:a25:e082:0:b0:641:cf5:b91f with SMTP id
+ x124-20020a25e082000000b006410cf5b91fmr20887561ybg.482.1650474779115; Wed, 20
+ Apr 2022 10:12:59 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20220420041053.7927-5-kch@nvidia.com>
-X-Scanned-By: MIMEDefang 2.78 on 10.11.54.6
-Cc: linux-block@vger.kernel.org, pbonzini@redhat.com,
- virtualization@lists.linux-foundation.org, mst@redhat.com
+References: <20220419113435.246203-1-krzysztof.kozlowski@linaro.org>
+ <20220419113435.246203-2-krzysztof.kozlowski@linaro.org>
+In-Reply-To: <20220419113435.246203-2-krzysztof.kozlowski@linaro.org>
+From: "Rafael J. Wysocki" <rafael@kernel.org>
+Date: Wed, 20 Apr 2022 19:12:48 +0200
+Message-ID: <CAJZ5v0ijsLvgeN5y+T1D+iLAkYEOiSTPd0+m5_GMpBnVuqEOKA@mail.gmail.com>
+Subject: Re: [PATCH v7 01/12] driver: platform: Add helper for safer setting
+ of driver_override
+To: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Cc: Linux on Hyper-V List <linux-hyperv@vger.kernel.org>,
+ Stuart Yoder <stuyoder@gmail.com>, "Rafael J. Wysocki" <rafael@kernel.org>,
+ Linux PCI <linux-pci@vger.kernel.org>, linux-remoteproc@vger.kernel.org,
+ "moderated list:SOUND - SOC LAYER / DYNAMIC AUDIO POWER MANAGEM..."
+ <alsa-devel@alsa-project.org>, Bjorn Andersson <bjorn.andersson@linaro.org>,
+ Vineeth Vijayan <vneethv@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ linux-clk <linux-clk@vger.kernel.org>, linux-s390@vger.kernel.org,
+ Wei Liu <wei.liu@kernel.org>, Stephen Hemminger <sthemmin@microsoft.com>,
+ Dexuan Cui <decui@microsoft.com>, Andy Shevchenko <andy.shevchenko@gmail.com>,
+ Andy Gross <agross@kernel.org>, NXP Linux Team <linux-imx@nxp.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ linux-arm-msm <linux-arm-msm@vger.kernel.org>,
+ Haiyang Zhang <haiyangz@microsoft.com>, linux-spi <linux-spi@vger.kernel.org>,
+ Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+ Bjorn Helgaas <bhelgaas@google.com>, virtualization@lists.linux-foundation.org,
+ Linux ARM <linux-arm-kernel@lists.infradead.org>,
+ Mathieu Poirier <mathieu.poirier@linaro.org>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Peter Oberparleiter <oberpar@linux.ibm.com>,
+ Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+ Sven Schnelle <svens@linux.ibm.com>,
+ Linus Torvalds <torvalds@linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -87,60 +103,227 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============8964742087311061340=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-
---===============8964742087311061340==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="n2ti8gPJk9PvKj1M"
-Content-Disposition: inline
-
-
---n2ti8gPJk9PvKj1M
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, Apr 19, 2022 at 09:10:53PM -0700, Chaitanya Kulkarni wrote:
-> Replace deprecated ida_simple_get() and ida_simple_remove() with
-> ida_alloc_max() and ida_free().
->=20
-> Signed-off-by: Chaitanya Kulkarni <kch@nvidia.com>
+On Tue, Apr 19, 2022 at 1:34 PM Krzysztof Kozlowski
+<krzysztof.kozlowski@linaro.org> wrote:
+>
+> Several core drivers and buses expect that driver_override is a
+> dynamically allocated memory thus later they can kfree() it.
+>
+> However such assumption is not documented, there were in the past and
+> there are already users setting it to a string literal. This leads to
+> kfree() of static memory during device release (e.g. in error paths or
+> during unbind):
+>
+>     kernel BUG at ../mm/slub.c:3960!
+>     Internal error: Oops - BUG: 0 [#1] PREEMPT SMP ARM
+>     ...
+>     (kfree) from [<c058da50>] (platform_device_release+0x88/0xb4)
+>     (platform_device_release) from [<c0585be0>] (device_release+0x2c/0x90)
+>     (device_release) from [<c0a69050>] (kobject_put+0xec/0x20c)
+>     (kobject_put) from [<c0f2f120>] (exynos5_clk_probe+0x154/0x18c)
+>     (exynos5_clk_probe) from [<c058de70>] (platform_drv_probe+0x6c/0xa4)
+>     (platform_drv_probe) from [<c058b7ac>] (really_probe+0x280/0x414)
+>     (really_probe) from [<c058baf4>] (driver_probe_device+0x78/0x1c4)
+>     (driver_probe_device) from [<c0589854>] (bus_for_each_drv+0x74/0xb8)
+>     (bus_for_each_drv) from [<c058b48c>] (__device_attach+0xd4/0x16c)
+>     (__device_attach) from [<c058a638>] (bus_probe_device+0x88/0x90)
+>     (bus_probe_device) from [<c05871fc>] (device_add+0x3dc/0x62c)
+>     (device_add) from [<c075ff10>] (of_platform_device_create_pdata+0x94/0xbc)
+>     (of_platform_device_create_pdata) from [<c07600ec>] (of_platform_bus_create+0x1a8/0x4fc)
+>     (of_platform_bus_create) from [<c0760150>] (of_platform_bus_create+0x20c/0x4fc)
+>     (of_platform_bus_create) from [<c07605f0>] (of_platform_populate+0x84/0x118)
+>     (of_platform_populate) from [<c0f3c964>] (of_platform_default_populate_init+0xa0/0xb8)
+>     (of_platform_default_populate_init) from [<c01031f8>] (do_one_initcall+0x8c/0x404)
+>
+> Provide a helper which clearly documents the usage of driver_override.
+> This will allow later to reuse the helper and reduce the amount of
+> duplicated code.
+>
+> Convert the platform driver to use a new helper and make the
+> driver_override field const char (it is not modified by the core).
+>
+> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 > ---
->  drivers/block/virtio_blk.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
+>  drivers/base/driver.c           | 69 +++++++++++++++++++++++++++++++++
+>  drivers/base/platform.c         | 28 ++-----------
+>  include/linux/device/driver.h   |  2 +
+>  include/linux/platform_device.h |  6 ++-
+>  4 files changed, 80 insertions(+), 25 deletions(-)
+>
+> diff --git a/drivers/base/driver.c b/drivers/base/driver.c
+> index 8c0d33e182fd..1b9d47b10bd0 100644
+> --- a/drivers/base/driver.c
+> +++ b/drivers/base/driver.c
+> @@ -30,6 +30,75 @@ static struct device *next_device(struct klist_iter *i)
+>         return dev;
+>  }
+>
+> +/**
+> + * driver_set_override() - Helper to set or clear driver override.
+> + * @dev: Device to change
+> + * @override: Address of string to change (e.g. &device->driver_override);
+> + *            The contents will be freed and hold newly allocated override.
 
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+I would stick to one-line description here and possibly expand them in
+the body of the comment.
 
---n2ti8gPJk9PvKj1M
-Content-Type: application/pgp-signature; name="signature.asc"
+Regardless, I think that the series is an improvement, so please feel
+free to add
 
------BEGIN PGP SIGNATURE-----
+Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmJgJJcACgkQnKSrs4Gr
-c8giFQf/bIt70RKS9GLawcbAsbUw996Yx8V9PyZRRGJopQZ9K8AixFN7Vi0NJskQ
-qYFvP0yIn8ZwXDbGoQmZ/iH+zDvTingGGhb1kB4hm5eZa3qMy8X84ZuvhmNNcpbO
-jtJa3rl7kqL++9m54XnGelL9M/g4pYPiLKqalh6Ri+HZ2VyVtFhhbbMftcSjRj0h
-PE5iN9neP545tsu2k+lm1IJaOd2vSC5dG7HrqnHPYsRbiGUx9wrzcSIXew6AZlJd
-19Pp8ZGhK0JBhxoTW6OUU0xDAQnR4/yyBbKxwdBxn7W1hFbR5+UUM/yuGrppa4IG
-PSJbUB49PVdLzKTxoIHiGsDUmujkcQ==
-=WzxC
------END PGP SIGNATURE-----
+to this patch and
 
---n2ti8gPJk9PvKj1M--
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
+to the other patches in the series.
 
---===============8964742087311061340==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
+> + * @s: NUL-terminated string, new driver name to force a match, pass empty
+> + *     string to clear it ("" or "\n", where the latter is only for sysfs
+> + *     interface).
+> + * @len: length of @s
+> + *
+> + * Helper to set or clear driver override in a device, intended for the cases
+> + * when the driver_override field is allocated by driver/bus code.
+> + *
+> + * Returns: 0 on success or a negative error code on failure.
+> + */
+> +int driver_set_override(struct device *dev, const char **override,
+> +                       const char *s, size_t len)
+> +{
+> +       const char *new, *old;
+> +       char *cp;
+> +
+> +       if (!override || !s)
+> +               return -EINVAL;
+> +
+> +       /*
+> +        * The stored value will be used in sysfs show callback (sysfs_emit()),
+> +        * which has a length limit of PAGE_SIZE and adds a trailing newline.
+> +        * Thus we can store one character less to avoid truncation during sysfs
+> +        * show.
+> +        */
+> +       if (len >= (PAGE_SIZE - 1))
+> +               return -EINVAL;
+> +
+> +       if (!len) {
+> +               /* Empty string passed - clear override */
+> +               device_lock(dev);
+> +               old = *override;
+> +               *override = NULL;
+> +               device_unlock(dev);
+> +               kfree(old);
+> +
+> +               return 0;
+> +       }
+> +
+> +       cp = strnchr(s, len, '\n');
+> +       if (cp)
+> +               len = cp - s;
+> +
+> +       new = kstrndup(s, len, GFP_KERNEL);
+> +       if (!new)
+> +               return -ENOMEM;
+> +
+> +       device_lock(dev);
+> +       old = *override;
+> +       if (cp != s) {
+> +               *override = new;
+> +       } else {
+> +               /* "\n" passed - clear override */
+> +               kfree(new);
+> +               *override = NULL;
+> +       }
+> +       device_unlock(dev);
+> +
+> +       kfree(old);
+> +
+> +       return 0;
+> +}
+> +EXPORT_SYMBOL_GPL(driver_set_override);
+> +
+>  /**
+>   * driver_for_each_device - Iterator for devices bound to a driver.
+>   * @drv: Driver we're iterating.
+> diff --git a/drivers/base/platform.c b/drivers/base/platform.c
+> index 8cc272fd5c99..b684157b7f2f 100644
+> --- a/drivers/base/platform.c
+> +++ b/drivers/base/platform.c
+> @@ -1275,31 +1275,11 @@ static ssize_t driver_override_store(struct device *dev,
+>                                      const char *buf, size_t count)
+>  {
+>         struct platform_device *pdev = to_platform_device(dev);
+> -       char *driver_override, *old, *cp;
+> -
+> -       /* We need to keep extra room for a newline */
+> -       if (count >= (PAGE_SIZE - 1))
+> -               return -EINVAL;
+> -
+> -       driver_override = kstrndup(buf, count, GFP_KERNEL);
+> -       if (!driver_override)
+> -               return -ENOMEM;
+> -
+> -       cp = strchr(driver_override, '\n');
+> -       if (cp)
+> -               *cp = '\0';
+> -
+> -       device_lock(dev);
+> -       old = pdev->driver_override;
+> -       if (strlen(driver_override)) {
+> -               pdev->driver_override = driver_override;
+> -       } else {
+> -               kfree(driver_override);
+> -               pdev->driver_override = NULL;
+> -       }
+> -       device_unlock(dev);
+> +       int ret;
+>
+> -       kfree(old);
+> +       ret = driver_set_override(dev, &pdev->driver_override, buf, count);
+> +       if (ret)
+> +               return ret;
+>
+>         return count;
+>  }
+> diff --git a/include/linux/device/driver.h b/include/linux/device/driver.h
+> index 15e7c5e15d62..700453017e1c 100644
+> --- a/include/linux/device/driver.h
+> +++ b/include/linux/device/driver.h
+> @@ -151,6 +151,8 @@ extern int __must_check driver_create_file(struct device_driver *driver,
+>  extern void driver_remove_file(struct device_driver *driver,
+>                                const struct driver_attribute *attr);
+>
+> +int driver_set_override(struct device *dev, const char **override,
+> +                       const char *s, size_t len);
+>  extern int __must_check driver_for_each_device(struct device_driver *drv,
+>                                                struct device *start,
+>                                                void *data,
+> diff --git a/include/linux/platform_device.h b/include/linux/platform_device.h
+> index 7c96f169d274..582d83ed9a91 100644
+> --- a/include/linux/platform_device.h
+> +++ b/include/linux/platform_device.h
+> @@ -31,7 +31,11 @@ struct platform_device {
+>         struct resource *resource;
+>
+>         const struct platform_device_id *id_entry;
+> -       char *driver_override; /* Driver name to force a match */
+> +       /*
+> +        * Driver name to force a match.  Do not set directly, because core
+> +        * frees it.  Use driver_set_override() to set or clear it.
+> +        */
+> +       const char *driver_override;
+>
+>         /* MFD cell pointer */
+>         struct mfd_cell *mfd_cell;
+> --
+> 2.32.0
+>
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============8964742087311061340==--
-
