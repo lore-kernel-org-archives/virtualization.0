@@ -1,81 +1,95 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6DCE5C433EF
-	for <virtualization@archiver.kernel.org>; Thu, 21 Apr 2022 09:10:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 21385C433F5
+	for <virtualization@archiver.kernel.org>; Thu, 21 Apr 2022 10:44:01 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 06CB340516;
-	Thu, 21 Apr 2022 09:10:25 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 981DC4161A;
+	Thu, 21 Apr 2022 10:44:01 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id bXqKVklVU0GE; Thu, 21 Apr 2022 09:10:24 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 8D1F7404DF;
-	Thu, 21 Apr 2022 09:10:23 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ePWfbDPv7zii; Thu, 21 Apr 2022 10:44:00 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 072F84190A;
+	Thu, 21 Apr 2022 10:44:00 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6C737C0033;
-	Thu, 21 Apr 2022 09:10:23 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 96DC7C0033;
+	Thu, 21 Apr 2022 10:43:59 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 407E1C002C
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4950DC002C
  for <virtualization@lists.linux-foundation.org>;
- Thu, 21 Apr 2022 09:10:21 +0000 (UTC)
+ Thu, 21 Apr 2022 10:43:58 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 1F31660E3C
+ by smtp3.osuosl.org (Postfix) with ESMTP id 317E060F9B
  for <virtualization@lists.linux-foundation.org>;
- Thu, 21 Apr 2022 09:10:21 +0000 (UTC)
+ Thu, 21 Apr 2022 10:43:58 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=kernel.org
+ dkim=pass (2048-bit key) header.d=bytedance-com.20210112.gappssmtp.com
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id gDV8EAiQguTG
+ with ESMTP id 2moOtw5pDO5V
  for <virtualization@lists.linux-foundation.org>;
- Thu, 21 Apr 2022 09:10:19 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
- by smtp3.osuosl.org (Postfix) with ESMTPS id D002F60804
+ Thu, 21 Apr 2022 10:43:57 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com
+ [IPv6:2607:f8b0:4864:20::1035])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 5EDFF60D6D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 21 Apr 2022 09:10:19 +0000 (UTC)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by dfw.source.kernel.org (Postfix) with ESMTPS id A4A8060B34;
- Thu, 21 Apr 2022 09:10:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC654C385A1;
- Thu, 21 Apr 2022 09:10:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1650532218;
- bh=wWg+TqUndPGPiHos3howNQj+fH1A1hLH3CX7tyZnjDo=;
- h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=Vx9XAvVe9eJPUylgV21gOM9CWMeYk6NW2jxKf/lucwmXYqwzcu+7fEahRDgixLeAR
- 1Jhld4cGG+1fAgZd79HEyxWNjrTmibJ9u3nPaT1LnVtMPR2vzuScfBDv33LEnc+TII
- hfs1W6ratt0h1j7x32P3/Pj2XtX+xjzn81hJ3cKb00+US+SA80Fyep26+5fi2RVJEz
- pp3t6gMgfamhR9MNafZbGQrFHfP7isnmnHym3HQrOh9Fze+x709jx8saAAaOzmK7u4
- h7u2btndjZJtc7uFD6e55EfM3upP3GxvQA5i/leziUlzL3DZaTXqUwo0FhzuoEBee0
- aLwXWBw03RZ7Q==
-Date: Thu, 21 Apr 2022 10:10:11 +0100
-From: Will Deacon <will@kernel.org>
-To: Juergen Gross <jgross@suse.com>
-Subject: Re: [PATCH] arm64: paravirt: Disable IRQs during
- stolen_time_cpu_down_prepare
-Message-ID: <20220421091011.GB8303@willie-the-truck>
-References: <20220420204417.155194-1-quic_eberman@quicinc.com>
- <0737998d-3006-5866-5ea1-dcfef0cfeb32@suse.com>
+ Thu, 21 Apr 2022 10:43:57 +0000 (UTC)
+Received: by mail-pj1-x1035.google.com with SMTP id
+ s14-20020a17090a880e00b001caaf6d3dd1so7396237pjn.3
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 21 Apr 2022 03:43:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=bytedance-com.20210112.gappssmtp.com; s=20210112;
+ h=from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=cbdLvfr3QXslFSKGfbNp8gy/VAj6R0oFm+lWnNgRZEE=;
+ b=HkoS371DN3rSB2jIADCgXmgk6xKOztuAL+Iu5gpqJFF2mbsXhPnm/k9b7V+fq5NN2m
+ rnVamyYbSirwFxS5yxa5JBJJjkE5J3dlUjgd3s8k2tifbygIVEvv8wsyA4+q06vhXj0b
+ ySimouWTBoDI/FRZ0ZsdRgZn616Njg7h/xUkgKAcLhn870Fvp6Rx0cbN7A9+v4fDuuLG
+ 34gZbAsJsZ4xC//ClZvVEC0UF7H4A4DSE/T+aqUbLc/re/RBg599R3J/k/klpupT8Bis
+ rHwwfCVEghc5OYAS2sLZAd294Y/yvPL4O2yARwX7qa7nixxGNTWQw2flHmnCadRiuEpV
+ Islw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=cbdLvfr3QXslFSKGfbNp8gy/VAj6R0oFm+lWnNgRZEE=;
+ b=boQQ2zqbfKYFxNij1pE3qBMFEtpQWhP4DPSc4sZH7vd8dDq0oLm8AMZuYymgGv0o1L
+ L7LrfyqZKDaR3CrIOP7CiRHb7ZhuJBsjPtcDMJjjBWDKgjDOT5EqW8ekfWEO49IcFIEy
+ 40IwlGQ8TpIa9YCVQEZcUmA52kmflHSVsteTjuIjkLXP3/M36s+vZmuDcr7rMpod0NDB
+ j95zXTNx95euPB+Hg/wseCWI8Pp6WEZMzD8lbHjyoUBGo5YqAf8SHQsfmLTTIWvEDDj6
+ 0G+7iAaDI319nIytEMmzaPwGH8GZcZiZmyXgYUG/aMNVV/84Z46pKLBGAWQOistz59q5
+ 7T/Q==
+X-Gm-Message-State: AOAM530d/Q87JyE47QJnoDEvzZBZUCgvvMTtojqBPm7bkqo8jRRl1hvQ
+ QcxXMP/VVXzsOwvYIktQIAdouA==
+X-Google-Smtp-Source: ABdhPJyk6fg01yydytqJRg18e+hOfoK++WdR9/ootTsiE1OipZUW/zqvsPTAzh4cpVm/wPk2PQXe4w==
+X-Received: by 2002:a17:902:e886:b0:158:cefc:c041 with SMTP id
+ w6-20020a170902e88600b00158cefcc041mr25472986plg.51.1650537836593; 
+ Thu, 21 Apr 2022 03:43:56 -0700 (PDT)
+Received: from always-x1.bytedance.net ([61.120.150.69])
+ by smtp.gmail.com with ESMTPSA id
+ w7-20020aa79547000000b0050ad0e82e6dsm3772485pfq.215.2022.04.21.03.43.51
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 21 Apr 2022 03:43:55 -0700 (PDT)
+From: zhenwei pi <pizhenwei@bytedance.com>
+To: arei.gonglei@huawei.com,
+	mst@redhat.com
+Subject: [PATCH v3 0/5] virtio-crypto: Improve performance
+Date: Thu, 21 Apr 2022 18:40:11 +0800
+Message-Id: <20220421104016.453458-1-pizhenwei@bytedance.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <0737998d-3006-5866-5ea1-dcfef0cfeb32@suse.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-Cc: Murali Nalajala <quic_mnalajal@quicinc.com>,
- Elliot Berman <quic_eberman@quicinc.com>,
- Catalin Marinas <catalin.marinas@arm.com>, x86@kernel.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- Alexey Makhalov <amakhalov@vmware.com>,
- Prakruthi Deepak Heragu <quic_pheragu@quicinc.com>,
- linux-arm-kernel@lists.infradead.org
+Cc: helei.sig11@bytedance.com, linux-kernel@vger.kernel.org,
+ zhenwei pi <pizhenwei@bytedance.com>,
+ virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org,
+ davem@davemloft.net, herbert@gondor.apana.org.au
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -92,74 +106,54 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Apr 21, 2022 at 09:44:28AM +0200, Juergen Gross wrote:
-> On 20.04.22 22:44, Elliot Berman wrote:
-> > From: Prakruthi Deepak Heragu <quic_pheragu@quicinc.com>
-> > 
-> > During hotplug, the stolen time data structure is unmapped and memset.
-> > There is a possibility of the timer IRQ being triggered before memset
-> > and stolen time is getting updated as part of this timer IRQ handler. This
-> > causes the below crash in timer handler -
-> > 
-> >    [ 3457.473139][    C5] Unable to handle kernel paging request at virtual address ffffffc03df05148
-> >    ...
-> >    [ 3458.154398][    C5] Call trace:
-> >    [ 3458.157648][    C5]  para_steal_clock+0x30/0x50
-> >    [ 3458.162319][    C5]  irqtime_account_process_tick+0x30/0x194
-> >    [ 3458.168148][    C5]  account_process_tick+0x3c/0x280
-> >    [ 3458.173274][    C5]  update_process_times+0x5c/0xf4
-> >    [ 3458.178311][    C5]  tick_sched_timer+0x180/0x384
-> >    [ 3458.183164][    C5]  __run_hrtimer+0x160/0x57c
-> >    [ 3458.187744][    C5]  hrtimer_interrupt+0x258/0x684
-> >    [ 3458.192698][    C5]  arch_timer_handler_virt+0x5c/0xa0
-> >    [ 3458.198002][    C5]  handle_percpu_devid_irq+0xdc/0x414
-> >    [ 3458.203385][    C5]  handle_domain_irq+0xa8/0x168
-> >    [ 3458.208241][    C5]  gic_handle_irq.34493+0x54/0x244
-> >    [ 3458.213359][    C5]  call_on_irq_stack+0x40/0x70
-> >    [ 3458.218125][    C5]  do_interrupt_handler+0x60/0x9c
-> >    [ 3458.223156][    C5]  el1_interrupt+0x34/0x64
-> >    [ 3458.227560][    C5]  el1h_64_irq_handler+0x1c/0x2c
-> >    [ 3458.232503][    C5]  el1h_64_irq+0x7c/0x80
-> >    [ 3458.236736][    C5]  free_vmap_area_noflush+0x108/0x39c
-> >    [ 3458.242126][    C5]  remove_vm_area+0xbc/0x118
-> >    [ 3458.246714][    C5]  vm_remove_mappings+0x48/0x2a4
-> >    [ 3458.251656][    C5]  __vunmap+0x154/0x278
-> >    [ 3458.255796][    C5]  stolen_time_cpu_down_prepare+0xc0/0xd8
-> >    [ 3458.261542][    C5]  cpuhp_invoke_callback+0x248/0xc34
-> >    [ 3458.266842][    C5]  cpuhp_thread_fun+0x1c4/0x248
-> >    [ 3458.271696][    C5]  smpboot_thread_fn+0x1b0/0x400
-> >    [ 3458.276638][    C5]  kthread+0x17c/0x1e0
-> >    [ 3458.280691][    C5]  ret_from_fork+0x10/0x20
-> > 
-> > As a fix, disable the IRQs during hotplug until we unmap and memset the
-> > stolen time structure.
-> 
-> This will work for the call chain of your observed crash, but are
-> you sure that para_steal_clock() can't be called from another cpu
-> concurrently?
+v2 -> v3:
+ - Jason suggested that spliting the first patch into two part:
+     1, using private buffer
+     2, remove the busy polling
+   Rework as Jason's suggestion, this makes the smaller change in
+   each one and clear.
 
-Agreed, this needs checking as update_rq_clock() is called from all over the
-place.
+v1 -> v2:
+ - Use kfree instead of kfree_sensitive for insensitive buffer.
+ - Several coding style fix.
+ - Use memory from current node, instead of memory close to device
+ - Add more message in commit, also explain why removing per-device
+   request buffer.
+ - Add necessary comment in code to explain why using kzalloc to
+   allocate struct virtio_crypto_ctrl_request.
 
-> In case you verified this can't happen, you can add my:
-> 
-> Reviewed-by: Juergen Gross <jgross@suse.com>
-> 
-> Otherwise you either need to use RCU for doing the memunmap(), or a
-> lock to protect stolen_time_region.
+v1:
+The main point of this series is to improve the performance for
+virtio crypto:
+- Use wait mechanism instead of busy polling for ctrl queue, this
+  reduces CPU and lock racing, it's possiable to create/destroy session
+  parallelly, QPS increases from ~40K/s to ~200K/s.
+- Enable retry on crypto engine to improve performance for data queue,
+  this allows the larger depth instead of 1.
+- Fix dst data length in akcipher service.
+- Other style fix.
 
-Yes, I think RCU would make a lot of sense here, deferring the memunmap
-until there are no longer any readers. The reader is currently doing:
+lei he (2):
+  virtio-crypto: adjust dst_len at ops callback
+  virtio-crypto: enable retry for virtio-crypto-dev
 
-	if (!reg->kaddr)
-		return 0;
+zhenwei pi (3):
+  virtio-crypto: use private buffer for control request
+  virtio-crypto: wait ctrl queue instead of busy polling
+  virtio-crypto: move helpers into virtio_crypto_common.c
 
-	return le64_to_cpu(READ_ONCE(reg->kaddr->stolen_time));
+ drivers/crypto/virtio/Makefile                |   1 +
+ .../virtio/virtio_crypto_akcipher_algs.c      |  95 ++++++-------
+ drivers/crypto/virtio/virtio_crypto_common.c  |  92 ++++++++++++
+ drivers/crypto/virtio/virtio_crypto_common.h  |  29 +++-
+ drivers/crypto/virtio/virtio_crypto_core.c    |  37 +----
+ .../virtio/virtio_crypto_skcipher_algs.c      | 133 ++++++++----------
+ 6 files changed, 226 insertions(+), 161 deletions(-)
+ create mode 100644 drivers/crypto/virtio/virtio_crypto_common.c
 
-so we'd also want an rcu_dereference() on reg->kaddr to avoid reading it
-twice.
+-- 
+2.20.1
 
-Will
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
