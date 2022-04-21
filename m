@@ -1,98 +1,99 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7A63BC433F5
-	for <virtualization@archiver.kernel.org>; Thu, 21 Apr 2022 13:58:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AFADAC433FE
+	for <virtualization@archiver.kernel.org>; Thu, 21 Apr 2022 14:08:19 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 1A8F7409D6;
-	Thu, 21 Apr 2022 13:58:55 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 4F88F6117B;
+	Thu, 21 Apr 2022 14:08:19 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id NMV5r5jMB7qX; Thu, 21 Apr 2022 13:58:54 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id upazXtcDwVPO; Thu, 21 Apr 2022 14:08:18 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id A632E40BB5;
-	Thu, 21 Apr 2022 13:58:53 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id E341060E33;
+	Thu, 21 Apr 2022 14:08:17 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 7590FC0033;
-	Thu, 21 Apr 2022 13:58:53 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B9EABC0033;
+	Thu, 21 Apr 2022 14:08:17 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8F032C002C
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0789EC002C
  for <virtualization@lists.linux-foundation.org>;
- Thu, 21 Apr 2022 13:58:52 +0000 (UTC)
+ Thu, 21 Apr 2022 14:08:16 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 7BDB5409D6
+ by smtp2.osuosl.org (Postfix) with ESMTP id 03B1D409DE
  for <virtualization@lists.linux-foundation.org>;
- Thu, 21 Apr 2022 13:58:52 +0000 (UTC)
+ Thu, 21 Apr 2022 14:08:16 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 4s1lYId1nLQp
+ with ESMTP id t2eSMsGA_KJr
  for <virtualization@lists.linux-foundation.org>;
- Thu, 21 Apr 2022 13:58:51 +0000 (UTC)
+ Thu, 21 Apr 2022 14:08:15 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 2C5BF405DB
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 3FE8D400E4
  for <virtualization@lists.linux-foundation.org>;
- Thu, 21 Apr 2022 13:58:50 +0000 (UTC)
+ Thu, 21 Apr 2022 14:08:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1650549529;
+ s=mimecast20190719; t=1650550093;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=FCDdTtfh+cTEbBhGHl6TDA/w0vVS1GSM5e8sY5ZehTw=;
- b=NFxtqG+ent5tyig8uUSSYtm2Yw+WwGApBjD7cjJzdT827tVMrRK8AxhiX9wk7An5SkSk4p
- 5eBePbASd5aDooNfV/ZpyHFAsqD8bdpTqu/224aiob5lRN7KZuDE0W/O1qfnjkY8pNyIQI
- YVvEjJygnazrcbQOCyohM1Qa0yKM6aw=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=QysMU2yYugYFLYjW2LOfTqqKvlLZq8H2fqc/5Hi2OwA=;
+ b=BL/kTCXkRzLD/RiHjxwYTUi6T176psjxwc9l7oLPJ4vhDgjfpQXcQu0g3CGstlEYkJVcln
+ m5m2lVTOlOkq7UmZrvHoejZ1Tu2cLIqcaYgZhdx58gPPqWvFKnLE7XkvbvYSuLOzBYdZnG
+ HwFNQtDd/Vq+yOU47mQ+hpmfXaoKO+k=
+Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
+ [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-290-S4ecl56XP96Kw_UT8zMB9A-1; Thu, 21 Apr 2022 09:58:46 -0400
-X-MC-Unique: S4ecl56XP96Kw_UT8zMB9A-1
-Received: by mail-ej1-f70.google.com with SMTP id
- hq19-20020a1709073f1300b006f02c6bdf4aso64526ejc.17
+ us-mta-270-CdkiY8INOj26-ISWh2QGFA-1; Thu, 21 Apr 2022 10:08:12 -0400
+X-MC-Unique: CdkiY8INOj26-ISWh2QGFA-1
+Received: by mail-ej1-f69.google.com with SMTP id
+ sb12-20020a1709076d8c00b006efa121ff38so2553030ejc.16
  for <virtualization@lists.linux-foundation.org>;
- Thu, 21 Apr 2022 06:58:46 -0700 (PDT)
+ Thu, 21 Apr 2022 07:08:12 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=FCDdTtfh+cTEbBhGHl6TDA/w0vVS1GSM5e8sY5ZehTw=;
- b=DsTQ7mtLHlNpgNiRpAm2IaHCcXCAMUsacaCXEKFYZeR3behuWq6BtamIAb+/MD4G6c
- OEmyD14An/WDj+9Ktf8mYtqe6exoH6sfaY0PC8gzUcQSqY7NqK4A8ppy2NBYQBY7BWG5
- U7dOCTtzmvA1e1BPIeTvvr4PyW8PtE1zYHsVXiZSjt4MjShQhlMkWrxP9GYoNWfFrwgm
- ysP7cQ6dz4EeF6fny3dX81NBoq36TterrrPsmyPND6YnJKsAV5wBP05ZXJsoeWtoJQqS
- ewNI2ipAh9BjlvDZt+V5L+T+45P9TTLgYc25LGKJx7GqVj87ZSvyIzFyxs6A4gJMcQ+T
- 9DyA==
-X-Gm-Message-State: AOAM530ZXlu2mm6iflQ3TwNaf2LyJ3UV5ty2S+uxcUcW7aJqiwByM3Zp
- Wf84NiPDuIX9q4qGwBktw0f+QZT4B26ZggnapoZu7ySkmWvgT6QTzLHKDeh/fsKnZx3tCcJ4swC
- 1Qxk9kxtEuFUny+8KouvhFJBu9Wfg/3PbNbmWw/DfZw==
-X-Received: by 2002:a05:6402:50d1:b0:423:f4a2:95c7 with SMTP id
- h17-20020a05640250d100b00423f4a295c7mr18677807edb.91.1650549525248; 
- Thu, 21 Apr 2022 06:58:45 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJx4JGn8p7OAUTHSbJC7sBsOiSljB3wcQ48NL5S76jPutkqPECOtv4rN6ZvZhqHRw9AZzzPQ5Q==
-X-Received: by 2002:a05:6402:50d1:b0:423:f4a2:95c7 with SMTP id
- h17-20020a05640250d100b00423f4a295c7mr18677794edb.91.1650549525081; 
- Thu, 21 Apr 2022 06:58:45 -0700 (PDT)
+ bh=QysMU2yYugYFLYjW2LOfTqqKvlLZq8H2fqc/5Hi2OwA=;
+ b=lqKXYR+52urKTfV300RT4UIGoXbN60V5SUug2GVhEp4oBcl1NlSgZI5Kagwn0vzdw5
+ UoDF8HburXre4pv0UDm1UMhnCGB7nAJaJXqayXXvuv2eYYdTlhgk3iOS7VqwZzxTJgA0
+ 1Bw7o/hFPRPp02DJgMg5gyjUjmv6KHBt9lLsZ+w8XdyEpE1NRpL/R/BR+WRVy9meMCH8
+ 5MpIBIVzOftxrtlWBwtj0IqMEtYAznuXFm1rAGgi/G2ktpM0EjrkOvHpQzdG6dMiu3tb
+ zntZEluNT/mnz7a+IKWH8WovsYz9M8W0onRiKaMjPNZZHV79P9fBVSuJQ8kgsEaOUjXw
+ 3Gdg==
+X-Gm-Message-State: AOAM532FFI2AaRaf8LlSS4SqmSzzQ8cj5fC6TpVeKNdfM7hEvnNAJiPc
+ ikBNtszF7MpEFFrQVNmUkQxYR7e1eSH1qiDZk+sEw1HG37lJUzw3NTVqOtClicUsGSS3npDpraP
+ NEpHkqZdtaH4kYnziyN84AH//qLhQSsg7adY0PFyvqA==
+X-Received: by 2002:aa7:d2d6:0:b0:423:97a4:801c with SMTP id
+ k22-20020aa7d2d6000000b0042397a4801cmr28374704edr.383.1650550091510; 
+ Thu, 21 Apr 2022 07:08:11 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJz3UzhXjJKIUWIe+FtmghcBY3LXg/jvh/2MMeLG1JqYitGhX//nK2tUibwxnsLz37Kl67RNDA==
+X-Received: by 2002:aa7:d2d6:0:b0:423:97a4:801c with SMTP id
+ k22-20020aa7d2d6000000b0042397a4801cmr28374687edr.383.1650550091329; 
+ Thu, 21 Apr 2022 07:08:11 -0700 (PDT)
 Received: from sgarzare-redhat ([217.171.75.76])
  by smtp.gmail.com with ESMTPSA id
- s1-20020a056402036100b004240a3fc6b4sm3043298edw.82.2022.04.21.06.58.43
+ ee17-20020a056402291100b0041fe1e4e342sm11340261edb.27.2022.04.21.07.08.09
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 21 Apr 2022 06:58:44 -0700 (PDT)
-Date: Thu, 21 Apr 2022 15:58:39 +0200
+ Thu, 21 Apr 2022 07:08:10 -0700 (PDT)
+Date: Thu, 21 Apr 2022 16:08:05 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: "Andrea Parri (Microsoft)" <parri.andrea@gmail.com>
-Subject: Re: [PATCH 2/5] hv_sock: Copy packets sent by Hyper-V out of the
- ring buffer
-Message-ID: <20220421135839.2fj6fk6bvlrau73o@sgarzare-redhat>
+Subject: Re: [PATCH 3/5] hv_sock: Add validation for untrusted Hyper-V values
+Message-ID: <20220421140805.qg4cwqhsq5vuqkut@sgarzare-redhat>
 References: <20220420200720.434717-1-parri.andrea@gmail.com>
- <20220420200720.434717-3-parri.andrea@gmail.com>
+ <20220420200720.434717-4-parri.andrea@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20220420200720.434717-3-parri.andrea@gmail.com>
+In-Reply-To: <20220420200720.434717-4-parri.andrea@gmail.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
 X-Mimecast-Spam-Score: 0
@@ -120,75 +121,69 @@ Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Apr 20, 2022 at 10:07:17PM +0200, Andrea Parri (Microsoft) wrote:
->Pointers to VMbus packets sent by Hyper-V are used by the hv_sock driver
->within the guest VM.  Hyper-V can send packets with erroneous values or
->modify packet fields after they are processed by the guest.  To defend
->against these scenarios, copy the incoming packet after validating its
->length and offset fields using hv_pkt_iter_{first,next}().  In this way,
->the packet can no longer be modified by the host.
+On Wed, Apr 20, 2022 at 10:07:18PM +0200, Andrea Parri (Microsoft) wrote:
+>For additional robustness in the face of Hyper-V errors or malicious
+>behavior, validate all values that originate from packets that Hyper-V
+>has sent to the guest in the host-to-guest ring buffer.  Ensure that
+>invalid values cannot cause data being copied out of the bounds of the
+>source buffer in hvs_stream_dequeue().
 >
 >Signed-off-by: Andrea Parri (Microsoft) <parri.andrea@gmail.com>
 >---
-> net/vmw_vsock/hyperv_transport.c | 9 +++++++--
-> 1 file changed, 7 insertions(+), 2 deletions(-)
+> include/linux/hyperv.h           |  5 +++++
+> net/vmw_vsock/hyperv_transport.c | 11 +++++++++--
+> 2 files changed, 14 insertions(+), 2 deletions(-)
 >
+>diff --git a/include/linux/hyperv.h b/include/linux/hyperv.h
+>index fe2e0179ed51e..55478a6810b60 100644
+>--- a/include/linux/hyperv.h
+>+++ b/include/linux/hyperv.h
+>@@ -1663,6 +1663,11 @@ static inline u32 hv_pkt_datalen(const struct vmpacket_descriptor *desc)
+> 	return (desc->len8 << 3) - (desc->offset8 << 3);
+> }
+>
+>+/* Get packet length associated with descriptor */
+>+static inline u32 hv_pkt_len(const struct vmpacket_descriptor *desc)
+>+{
+>+	return desc->len8 << 3;
+>+}
+>
+> struct vmpacket_descriptor *
+> hv_pkt_iter_first_raw(struct vmbus_channel *channel);
 >diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
->index 943352530936e..8c37d07017fc4 100644
+>index 8c37d07017fc4..092cadc2c866d 100644
 >--- a/net/vmw_vsock/hyperv_transport.c
 >+++ b/net/vmw_vsock/hyperv_transport.c
->@@ -78,6 +78,9 @@ struct hvs_send_buf {
-> 					 ALIGN((payload_len), 8) + \
-> 					 VMBUS_PKT_TRAILER_SIZE)
->
->+/* Upper bound on the size of a VMbus packet for hv_sock */
->+#define HVS_MAX_PKT_SIZE	HVS_PKT_LEN(HVS_MTU_SIZE)
+>@@ -577,12 +577,19 @@ static bool hvs_dgram_allow(u32 cid, u32 port)
+> static int hvs_update_recv_data(struct hvsock *hvs)
+> {
+> 	struct hvs_recv_buf *recv_buf;
+>-	u32 payload_len;
+>+	u32 pkt_len, payload_len;
 >+
-> union hvs_service_id {
-> 	guid_t	srv_id;
->
->@@ -378,6 +381,8 @@ static void hvs_open_connection(struct vmbus_channel *chan)
-> 		rcvbuf = ALIGN(rcvbuf, HV_HYP_PAGE_SIZE);
-> 	}
->
->+	chan->max_pkt_size = HVS_MAX_PKT_SIZE;
+>+	pkt_len = hv_pkt_len(hvs->recv_desc);
 >+
+>+	/* Ensure the packet is big enough to read its header */
+>+	if (pkt_len < HVS_HEADER_LEN)
+>+		return -EIO;
+>
+> 	recv_buf = (struct hvs_recv_buf *)(hvs->recv_desc + 1);
+> 	payload_len = recv_buf->hdr.data_size;
+>
+>-	if (payload_len > HVS_MTU_SIZE)
+>+	/* Ensure the packet is big enough to read its payload */
+>+	if (payload_len > pkt_len - HVS_HEADER_LEN || payload_len > HVS_MTU_SIZE)
 
-premise, I don't know HyperV channels :-(
+checkpatch warns that we exceed 80 characters, I do not have a strong 
+opinion on this, but if you have to resend better break the condition 
+into 2 lines.
 
-Is this change necessary to use hv_pkt_iter_first() instead of 
-hv_pkt_iter_first_raw()?
-
-If yes, then please mention that you set this value in the commit 
-message, otherwise maybe better to have a separate patch.
+Maybe even update or remove the comment? (it only describes the first 
+condition, but the conditions are pretty clear, so I don't think it adds 
+much).
 
 Thanks,
 Stefano
-
-> 	ret = vmbus_open(chan, sndbuf, rcvbuf, NULL, 0, hvs_channel_cb,
-> 			 conn_from_host ? new : sk);
-> 	if (ret != 0) {
->@@ -602,7 +607,7 @@ static ssize_t hvs_stream_dequeue(struct vsock_sock *vsk, struct msghdr *msg,
-> 		return -EOPNOTSUPP;
->
-> 	if (need_refill) {
->-		hvs->recv_desc = hv_pkt_iter_first_raw(hvs->chan);
->+		hvs->recv_desc = hv_pkt_iter_first(hvs->chan);
-> 		if (!hvs->recv_desc)
-> 			return -ENOBUFS;
-> 		ret = hvs_update_recv_data(hvs);
->@@ -618,7 +623,7 @@ static ssize_t hvs_stream_dequeue(struct vsock_sock *vsk, struct msghdr *msg,
->
-> 	hvs->recv_data_len -= to_read;
-> 	if (hvs->recv_data_len == 0) {
->-		hvs->recv_desc = hv_pkt_iter_next_raw(hvs->chan, hvs->recv_desc);
->+		hvs->recv_desc = hv_pkt_iter_next(hvs->chan, hvs->recv_desc);
-> 		if (hvs->recv_desc) {
-> 			ret = hvs_update_recv_data(hvs);
-> 			if (ret)
->-- 
->2.25.1
->
 
 _______________________________________________
 Virtualization mailing list
