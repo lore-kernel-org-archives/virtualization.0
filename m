@@ -1,89 +1,89 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1057BC433F5
-	for <virtualization@archiver.kernel.org>; Thu, 21 Apr 2022 10:44:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id CB31DC433EF
+	for <virtualization@archiver.kernel.org>; Thu, 21 Apr 2022 10:44:22 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 8929841B37;
-	Thu, 21 Apr 2022 10:44:17 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 7ED7061185;
+	Thu, 21 Apr 2022 10:44:22 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id nG02QlReRj6X; Thu, 21 Apr 2022 10:44:16 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id C3A5E4190A;
-	Thu, 21 Apr 2022 10:44:15 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ps3Z4f-lStCb; Thu, 21 Apr 2022 10:44:21 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 22FA26117D;
+	Thu, 21 Apr 2022 10:44:21 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 7D0B4C0033;
-	Thu, 21 Apr 2022 10:44:15 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1A3FDC002C
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 01250C0033;
+	Thu, 21 Apr 2022 10:44:21 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 57A53C002C
  for <virtualization@lists.linux-foundation.org>;
- Thu, 21 Apr 2022 10:44:14 +0000 (UTC)
+ Thu, 21 Apr 2022 10:44:19 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 04FEB8278F
+ by smtp4.osuosl.org (Postfix) with ESMTP id 36D0541B63
  for <virtualization@lists.linux-foundation.org>;
- Thu, 21 Apr 2022 10:44:14 +0000 (UTC)
+ Thu, 21 Apr 2022 10:44:19 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
  dkim=pass (2048-bit key) header.d=bytedance-com.20210112.gappssmtp.com
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id JMmCSg97rowf
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id TIu0AlIdXgNv
  for <virtualization@lists.linux-foundation.org>;
- Thu, 21 Apr 2022 10:44:13 +0000 (UTC)
+ Thu, 21 Apr 2022 10:44:18 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com
- [IPv6:2607:f8b0:4864:20::102b])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 6906B813F2
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com
+ [IPv6:2607:f8b0:4864:20::102d])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 7DA4841A6B
  for <virtualization@lists.linux-foundation.org>;
- Thu, 21 Apr 2022 10:44:13 +0000 (UTC)
-Received: by mail-pj1-x102b.google.com with SMTP id
- e62-20020a17090a6fc400b001d2cd8e9b0aso4797296pjk.5
+ Thu, 21 Apr 2022 10:44:18 +0000 (UTC)
+Received: by mail-pj1-x102d.google.com with SMTP id
+ w5-20020a17090aaf8500b001d74c754128so149317pjq.0
  for <virtualization@lists.linux-foundation.org>;
- Thu, 21 Apr 2022 03:44:13 -0700 (PDT)
+ Thu, 21 Apr 2022 03:44:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=bytedance-com.20210112.gappssmtp.com; s=20210112;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=Soqf3DM2EhHRALM+l3+OvMMOLUa3IL3/z83R4lQAUME=;
- b=MFcgCbgJJ5SK6J0X7stUHJhXJ0mBu8nHN96Z4tvfqDrjvLucvnYZgOGT0QjT597Uby
- X1P1qxXXARFF8wit/aAxMKwfDXO0rZDn3F4cbxwmxkKokfzYB1z7LhuoaTYegIMgyLqv
- ly0HoDdhUXeNpgQ1mwtvXwvP/8FrtIQEvkfMEezAoF7dwPoFpG+VMQ6TQ//imHHxOyBL
- WBSWvxXIsH8lO/KABabvTqewYOam48h/9Eli0b7/wsbHJREAKCSreIl3TDjrsRmS7fZQ
- qwNH4ZZ/D49sflTZ4fn2bPHMvETRXj/qB6rZXBbEbHddeeXH8ZwfU3nfojguPxeKrs06
- SBRw==
+ bh=6zOuRYVFWDGuC1PrwNUGb6FpSSDkw8m8NU3bhEpx4ck=;
+ b=kCpy3srq/EiBanbPyFzUd0w0fdOrd3PL2QHCcbTp7TZh1XfM6gSXBFFrxDXiKzePET
+ BwCk62X45XrHU1TRgo+rpF5cPK87lvBqe9Z5X9gX1XXa42IXLMh0wrxSbi/ZzoLCkWyg
+ SG7njy+qJTfzPqsl+gQYTHqx+ULb086FwT7Ngo75IOdDDyyoxoL5pgLeUqjDxGNWgG9G
+ 225aPoSR1vTY6k9fszQ/AZzu6oQaJEoYoAUR+o+wuYp5q30SnukeGjrXpM2hl3VEYIsH
+ JgLtg/EZ6VTM4QfR2EGeiOBXfMD7vkr3EurEZ95KVGyPnNSwjYsuJ7l1lwN1LgNM1bFS
+ TBag==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
  :references:mime-version:content-transfer-encoding;
- bh=Soqf3DM2EhHRALM+l3+OvMMOLUa3IL3/z83R4lQAUME=;
- b=azCgnlI7BPFSlmEF5WXVn/giX8JaoZx2IiOnHK3TqFZNwn9EHCacasNrvMbweDU0NM
- x/yez6cY0R8/GRbzQMzkwbevhrQWFS8X5y1LAlCjARq5Rx/6TKY1qDktfWrAlY/EY57T
- IPKvTiVZtwcGUbpe7jl8C36un4akXzPO86giYA1YPHZRf9k7LG/ditCQ5nSdSR+U3ZW7
- FHFbcZlhiJMzKcPdi6peO/zERx+YPk1m/egBJo3Xm4+cqH/47D5X3cqR+z98Dh0NYIbQ
- xjOtmwS0R5wvwYdwYK9707Iuk/EDcaLn7a9umPbnNoj2CFoRb7rGQJUhptEDFR624hIa
- sjwQ==
-X-Gm-Message-State: AOAM533Wt0XKWX33E8LAqgn3tSGC4Q9q66PISz9RqPLxBylFbbH3ecQt
- 9JnvGreyD2taCD6y0oZffj0pbA==
-X-Google-Smtp-Source: ABdhPJwERO7VeCmPyZBwxIsQHqWASpqeFP8RVtxBICGxK+ZjXbAoVUBaCflO3+ba3KBsGrekR9xcJg==
-X-Received: by 2002:a17:902:bb92:b0:153:4eae:c77e with SMTP id
- m18-20020a170902bb9200b001534eaec77emr24831615pls.93.1650537852862; 
- Thu, 21 Apr 2022 03:44:12 -0700 (PDT)
+ bh=6zOuRYVFWDGuC1PrwNUGb6FpSSDkw8m8NU3bhEpx4ck=;
+ b=7sqbSkKDUbZfnwdJk/TxIHTwFWKcpyB7ZvAwB4tOLRlvgXLAG2byKQDPghHZ6osfgb
+ 3uLWoSvsYRO0Gh2WYiHZ1fWqPvqrb0pNFH1ZFcOzba+dhw6rDhNdgkhksaiW7n4PPJix
+ w88zdjwAfNdClQROEhh5XJiBRxtprZL9aHcMN9Un8W7GCUxSpROPZgNjUII5IsMULKm3
+ Go/92JRwxf4osubw3jwnBxpJobySjxmmfZId1YFpEHJIqbnLgL71BcFJ2vWxhEP3mf/8
+ seMJULTpddinC6NM8LMw9nKetulwX8eoOobhGg7ONDFzuqzNuKwCvtdDYnIKD30yY5n3
+ Aewg==
+X-Gm-Message-State: AOAM532yJNYSFdagNOQUzGNfkBctAPGwM/om8SItyyq41US4W+paxyZt
+ I8xBT+2mFZ4xePHzcNzeaw8S4w==
+X-Google-Smtp-Source: ABdhPJxu/20L6f4UIu3TjxYb9mGaNdxihBAZzHQCrTg/qmpKmPcYQWNqpuUUco8L1qBhWTdWiI8RRQ==
+X-Received: by 2002:a17:90b:15c9:b0:1d2:f2f0:e15e with SMTP id
+ lh9-20020a17090b15c900b001d2f2f0e15emr9734310pjb.195.1650537857872; 
+ Thu, 21 Apr 2022 03:44:17 -0700 (PDT)
 Received: from always-x1.bytedance.net ([61.120.150.69])
  by smtp.gmail.com with ESMTPSA id
- w7-20020aa79547000000b0050ad0e82e6dsm3772485pfq.215.2022.04.21.03.44.08
+ w7-20020aa79547000000b0050ad0e82e6dsm3772485pfq.215.2022.04.21.03.44.13
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 21 Apr 2022 03:44:12 -0700 (PDT)
+ Thu, 21 Apr 2022 03:44:17 -0700 (PDT)
 From: zhenwei pi <pizhenwei@bytedance.com>
 To: arei.gonglei@huawei.com,
 	mst@redhat.com
-Subject: [PATCH v3 3/5] virtio-crypto: move helpers into virtio_crypto_common.c
-Date: Thu, 21 Apr 2022 18:40:14 +0800
-Message-Id: <20220421104016.453458-4-pizhenwei@bytedance.com>
+Subject: [PATCH v3 4/5] virtio-crypto: adjust dst_len at ops callback
+Date: Thu, 21 Apr 2022 18:40:15 +0800
+Message-Id: <20220421104016.453458-5-pizhenwei@bytedance.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220421104016.453458-1-pizhenwei@bytedance.com>
 References: <20220421104016.453458-1-pizhenwei@bytedance.com>
@@ -108,125 +108,40 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Move virtcrypto_clear_request and virtcrypto_dataq_callback into
-virtio_crypto_common.c to make code clear. Then the xx_core.c
-supports:
-  - probe/remove/irq affinity seting for a virtio device
-  - basic virtio related operations
+From: lei he <helei.sig11@bytedance.com>
 
-xx_common.c supports:
-  - common helpers/functions for algos
+For some akcipher operations(eg, decryption of pkcs1pad(rsa)),
+the length of returned result maybe less than akcipher_req->dst_len,
+we need to recalculate the actual dst_len through the virt-queue
+protocol.
 
 Cc: Michael S. Tsirkin <mst@redhat.com>
 Cc: Jason Wang <jasowang@redhat.com>
 Cc: Gonglei <arei.gonglei@huawei.com>
+Signed-off-by: lei he <helei.sig11@bytedance.com>
 Signed-off-by: zhenwei pi <pizhenwei@bytedance.com>
 ---
- drivers/crypto/virtio/virtio_crypto_common.c | 31 +++++++++++++++++++
- drivers/crypto/virtio/virtio_crypto_common.h |  2 ++
- drivers/crypto/virtio/virtio_crypto_core.c   | 32 --------------------
- 3 files changed, 33 insertions(+), 32 deletions(-)
+ drivers/crypto/virtio/virtio_crypto_akcipher_algs.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/virtio/virtio_crypto_common.c b/drivers/crypto/virtio/virtio_crypto_common.c
-index 93df73c40dd3..4a23524896fe 100644
---- a/drivers/crypto/virtio/virtio_crypto_common.c
-+++ b/drivers/crypto/virtio/virtio_crypto_common.c
-@@ -8,6 +8,14 @@
+diff --git a/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c b/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
+index 9561bc2df62b..82db86e088c2 100644
+--- a/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
++++ b/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
+@@ -90,9 +90,12 @@ static void virtio_crypto_dataq_akcipher_callback(struct virtio_crypto_request *
+ 	}
  
- #include "virtio_crypto_common.h"
- 
-+void virtcrypto_clear_request(struct virtio_crypto_request *vc_req)
-+{
-+	if (vc_req) {
-+		kfree_sensitive(vc_req->req_data);
-+		kfree(vc_req->sgs);
+ 	akcipher_req = vc_akcipher_req->akcipher_req;
+-	if (vc_akcipher_req->opcode != VIRTIO_CRYPTO_AKCIPHER_VERIFY)
++	if (vc_akcipher_req->opcode != VIRTIO_CRYPTO_AKCIPHER_VERIFY) {
++		/* actuall length maybe less than dst buffer */
++		akcipher_req->dst_len = len - sizeof(vc_req->status);
+ 		sg_copy_from_buffer(akcipher_req->dst, sg_nents(akcipher_req->dst),
+ 				    vc_akcipher_req->dst_buf, akcipher_req->dst_len);
 +	}
-+}
-+
- static void virtio_crypto_ctrlq_callback(struct virtio_crypto_ctrl_request *vc_ctrl_req)
- {
- 	complete(&vc_ctrl_req->compl);
-@@ -59,3 +67,26 @@ void virtcrypto_ctrlq_callback(struct virtqueue *vq)
- 	} while (!virtqueue_enable_cb(vq));
- 	spin_unlock_irqrestore(&vcrypto->ctrl_lock, flags);
+ 	virtio_crypto_akcipher_finalize_req(vc_akcipher_req, akcipher_req, error);
  }
-+
-+void virtcrypto_dataq_callback(struct virtqueue *vq)
-+{
-+	struct virtio_crypto *vcrypto = vq->vdev->priv;
-+	struct virtio_crypto_request *vc_req;
-+	unsigned long flags;
-+	unsigned int len;
-+	unsigned int qid = vq->index;
-+
-+	spin_lock_irqsave(&vcrypto->data_vq[qid].lock, flags);
-+	do {
-+		virtqueue_disable_cb(vq);
-+		while ((vc_req = virtqueue_get_buf(vq, &len)) != NULL) {
-+			spin_unlock_irqrestore(
-+				&vcrypto->data_vq[qid].lock, flags);
-+			if (vc_req->alg_cb)
-+				vc_req->alg_cb(vc_req, len);
-+			spin_lock_irqsave(
-+				&vcrypto->data_vq[qid].lock, flags);
-+		}
-+	} while (!virtqueue_enable_cb(vq));
-+	spin_unlock_irqrestore(&vcrypto->data_vq[qid].lock, flags);
-+}
-diff --git a/drivers/crypto/virtio/virtio_crypto_common.h b/drivers/crypto/virtio/virtio_crypto_common.h
-index 25b4f22e8605..4d33ed5593d4 100644
---- a/drivers/crypto/virtio/virtio_crypto_common.h
-+++ b/drivers/crypto/virtio/virtio_crypto_common.h
-@@ -152,4 +152,6 @@ int virtio_crypto_ctrl_vq_request(struct virtio_crypto *vcrypto, struct scatterl
- 				  unsigned int out_sgs, unsigned int in_sgs,
- 				  struct virtio_crypto_ctrl_request *vc_ctrl_req);
  
-+void virtcrypto_dataq_callback(struct virtqueue *vq);
-+
- #endif /* _VIRTIO_CRYPTO_COMMON_H */
-diff --git a/drivers/crypto/virtio/virtio_crypto_core.c b/drivers/crypto/virtio/virtio_crypto_core.c
-index e668d4b1bc6a..d8edefcb966c 100644
---- a/drivers/crypto/virtio/virtio_crypto_core.c
-+++ b/drivers/crypto/virtio/virtio_crypto_core.c
-@@ -13,38 +13,6 @@
- #include "virtio_crypto_common.h"
- 
- 
--void
--virtcrypto_clear_request(struct virtio_crypto_request *vc_req)
--{
--	if (vc_req) {
--		kfree_sensitive(vc_req->req_data);
--		kfree(vc_req->sgs);
--	}
--}
--
--static void virtcrypto_dataq_callback(struct virtqueue *vq)
--{
--	struct virtio_crypto *vcrypto = vq->vdev->priv;
--	struct virtio_crypto_request *vc_req;
--	unsigned long flags;
--	unsigned int len;
--	unsigned int qid = vq->index;
--
--	spin_lock_irqsave(&vcrypto->data_vq[qid].lock, flags);
--	do {
--		virtqueue_disable_cb(vq);
--		while ((vc_req = virtqueue_get_buf(vq, &len)) != NULL) {
--			spin_unlock_irqrestore(
--				&vcrypto->data_vq[qid].lock, flags);
--			if (vc_req->alg_cb)
--				vc_req->alg_cb(vc_req, len);
--			spin_lock_irqsave(
--				&vcrypto->data_vq[qid].lock, flags);
--		}
--	} while (!virtqueue_enable_cb(vq));
--	spin_unlock_irqrestore(&vcrypto->data_vq[qid].lock, flags);
--}
--
- static int virtcrypto_find_vqs(struct virtio_crypto *vi)
- {
- 	vq_callback_t **callbacks;
 -- 
 2.20.1
 
