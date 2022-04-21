@@ -4,81 +4,81 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4D7F0C433F5
-	for <virtualization@archiver.kernel.org>; Thu, 21 Apr 2022 07:44:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E9F4FC433F5
+	for <virtualization@archiver.kernel.org>; Thu, 21 Apr 2022 08:11:09 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id D023E41B82;
-	Thu, 21 Apr 2022 07:44:36 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 93E2241936;
+	Thu, 21 Apr 2022 08:11:09 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id MUwifRg2fQq8; Thu, 21 Apr 2022 07:44:35 +0000 (UTC)
+	with ESMTP id hBXgkc3wYzMu; Thu, 21 Apr 2022 08:11:07 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 0DCA741B76;
-	Thu, 21 Apr 2022 07:44:35 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 3AB7941BB7;
+	Thu, 21 Apr 2022 08:11:07 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B7770C0033;
-	Thu, 21 Apr 2022 07:44:34 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E6218C002C
+	by lists.linuxfoundation.org (Postfix) with ESMTP id F006DC002F;
+	Thu, 21 Apr 2022 08:11:06 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 36A34C002C
  for <virtualization@lists.linux-foundation.org>;
- Thu, 21 Apr 2022 07:44:33 +0000 (UTC)
+ Thu, 21 Apr 2022 08:11:05 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id D30E041B82
+ by smtp2.osuosl.org (Postfix) with ESMTP id 243C1405CF
  for <virtualization@lists.linux-foundation.org>;
- Thu, 21 Apr 2022 07:44:33 +0000 (UTC)
+ Thu, 21 Apr 2022 08:11:05 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Et9xS5GoOuQg
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 8kwAtrhq03xQ
  for <virtualization@lists.linux-foundation.org>;
- Thu, 21 Apr 2022 07:44:32 +0000 (UTC)
+ Thu, 21 Apr 2022 08:11:01 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
- by smtp4.osuosl.org (Postfix) with ESMTPS id B338041B76
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 1A3F9400E5
  for <virtualization@lists.linux-foundation.org>;
- Thu, 21 Apr 2022 07:44:32 +0000 (UTC)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ Thu, 21 Apr 2022 08:11:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1650528659;
+ h=from:from:reply-to:reply-to:subject:subject:date:date:
+ message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+ content-type:content-type:in-reply-to:in-reply-to:  references:references;
+ bh=JZy9WiibqUuTKglYnuq9Ezc/wMdYUtsp9hB0KJ/eWJY=;
+ b=CWESQp693iM8Y6QdgpC4c1KBo6Yd/KUPsSase5iVsM0PntcX1FlgO8ydKr3g+SUTcI/wx4
+ 8EfQPv/Su7R6SqwlMlVF60XRoVHUXx/dQDe9s8/LDolMEHlqhhxDac+F97L0CzoPoTP3n9
+ rlmRejfc7E+mjtWdlMENfdXvrMUQfWA=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-437-fggkGlS5PrCoCN5DAICRdg-1; Thu, 21 Apr 2022 04:10:57 -0400
+X-MC-Unique: fggkGlS5PrCoCN5DAICRdg-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.6])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by smtp-out2.suse.de (Postfix) with ESMTPS id C44C01F752;
- Thu, 21 Apr 2022 07:44:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
- t=1650527069; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=Dh2F+Vwxf+hsifUhcR02dLqCCZPXfLcmNwS/TLzgkqA=;
- b=rdH1YhtxbIUi1DkrudbNFO7ydapweGXXIEgXgnaDqpAn19ifa2IE/0F6BRc2R9ukXn8IGZ
- 1TyNWL9Tl8e7StrqdsMOFn0B+GgFhu+3al/TN3zUVxvVZ0k5YerIphyNVRIJ1P96u6EWCx
- lu5pfUN/yOwG2L9/6nF3NtzU6nLGoBk=
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 6F70D13A84;
- Thu, 21 Apr 2022 07:44:29 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
- by imap2.suse-dmz.suse.de with ESMTPSA id 7SeXGV0LYWIEFgAAMHmgww
- (envelope-from <jgross@suse.com>); Thu, 21 Apr 2022 07:44:29 +0000
-Message-ID: <0737998d-3006-5866-5ea1-dcfef0cfeb32@suse.com>
-Date: Thu, 21 Apr 2022 09:44:28 +0200
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 770652801EBF;
+ Thu, 21 Apr 2022 08:10:54 +0000 (UTC)
+Received: from redhat.com (unknown [10.33.36.128])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id C388A2166B46;
+ Thu, 21 Apr 2022 08:10:47 +0000 (UTC)
+Date: Thu, 21 Apr 2022 09:10:45 +0100
+From: Daniel =?utf-8?B?UC4gQmVycmFuZ8Op?= <berrange@redhat.com>
+To: zhenwei pi <pizhenwei@bytedance.com>
+Subject: Re: PING: [PATCH v4 0/8] Introduce akcipher service for virtio-crypto
+Message-ID: <YmERhZJkeKIGZEyf@redhat.com>
+References: <20220411104327.197048-1-pizhenwei@bytedance.com>
+ <ed446ba2-75a0-aa0d-535e-0bb3501f558f@bytedance.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.0
-Content-Language: en-US
-To: Elliot Berman <quic_eberman@quicinc.com>,
- "Srivatsa S. Bhat (VMware)" <srivatsa@csail.mit.edu>,
- Alexey Makhalov <amakhalov@vmware.com>,
- Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>
-References: <20220420204417.155194-1-quic_eberman@quicinc.com>
-Subject: Re: [PATCH] arm64: paravirt: Disable IRQs during
- stolen_time_cpu_down_prepare
-In-Reply-To: <20220420204417.155194-1-quic_eberman@quicinc.com>
-Cc: Murali Nalajala <quic_mnalajal@quicinc.com>, x86@kernel.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- Prakruthi Deepak Heragu <quic_pheragu@quicinc.com>,
- linux-arm-kernel@lists.infradead.org
+Content-Disposition: inline
+In-Reply-To: <ed446ba2-75a0-aa0d-535e-0bb3501f558f@bytedance.com>
+User-Agent: Mutt/2.1.5 (2021-12-30)
+X-Scanned-By: MIMEDefang 2.78 on 10.11.54.6
+Cc: helei.sig11@bytedance.com, mst@redhat.com, cohuck@redhat.com,
+ qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org,
+ linux-crypto@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -90,182 +90,161 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Juergen Gross via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Juergen Gross <jgross@suse.com>
-Content-Type: multipart/mixed; boundary="===============9119567043912632956=="
+Reply-To: Daniel =?utf-8?B?UC4gQmVycmFuZ8Op?= <berrange@redhat.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============9119567043912632956==
-Content-Language: en-US
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------7aEmFWIe6tv5DKOKFo7EYOGI"
+On Thu, Apr 21, 2022 at 09:41:40AM +0800, zhenwei pi wrote:
+> Hi Daniel,
+> Could you please review this series?
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------7aEmFWIe6tv5DKOKFo7EYOGI
-Content-Type: multipart/mixed; boundary="------------qKfA015FQnKvuS8o0VgFbD8Z";
- protected-headers="v1"
-From: Juergen Gross <jgross@suse.com>
-To: Elliot Berman <quic_eberman@quicinc.com>,
- "Srivatsa S. Bhat (VMware)" <srivatsa@csail.mit.edu>,
- Alexey Makhalov <amakhalov@vmware.com>,
- Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>
-Cc: Prakruthi Deepak Heragu <quic_pheragu@quicinc.com>,
- virtualization@lists.linux-foundation.org, x86@kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
- Murali Nalajala <quic_mnalajal@quicinc.com>
-Message-ID: <0737998d-3006-5866-5ea1-dcfef0cfeb32@suse.com>
-Subject: Re: [PATCH] arm64: paravirt: Disable IRQs during
- stolen_time_cpu_down_prepare
-References: <20220420204417.155194-1-quic_eberman@quicinc.com>
-In-Reply-To: <20220420204417.155194-1-quic_eberman@quicinc.com>
+Yes, its on my to do. I've been on holiday for 2 weeks, so still catching
+up on the backlog of reviews.
 
---------------qKfA015FQnKvuS8o0VgFbD8Z
-Content-Type: multipart/mixed; boundary="------------tMgOFIIt5XmTj75OSWHDTEip"
+> On 4/11/22 18:43, zhenwei pi wrote:
+> > v3 -> v4:
+> > - Coding style fix: Akcipher -> AkCipher, struct XXX -> XXX, Rsa -> RSA,
+> > XXX-alg -> XXX-algo.
+> > - Change version info in qapi/crypto.json, from 7.0 -> 7.1.
+> > - Remove ecdsa from qapi/crypto.json, it would be introduced with the implemetion later.
+> > - Use QCryptoHashAlgothrim instead of QCryptoRSAHashAlgorithm(removed) in qapi/crypto.json.
+> > - Rename arguments of qcrypto_akcipher_XXX to keep aligned with qcrypto_cipher_XXX(dec/enc/sign/vefiry -> in/out/in2), and add qcrypto_akcipher_max_XXX APIs.
+> > - Add new API: qcrypto_akcipher_supports.
+> > - Change the return value of qcrypto_akcipher_enc/dec/sign, these functions return the actual length of result.
+> > - Separate ASN.1 source code and test case clean.
+> > - Disable RSA raw encoding for akcipher-nettle.
+> > - Separate RSA key parser into rsakey.{hc}, and implememts it with builtin-asn1-decoder and nettle respectivly.
+> > - Implement RSA(pkcs1 and raw encoding) algorithm by gcrypt. This has higher priority than nettle.
+> > - For some akcipher operations(eg, decryption of pkcs1pad(rsa)), the length of returned result maybe less than the dst buffer size, return the actual length of result instead of the buffer length to the guest side. (in function virtio_crypto_akcipher_input_data_helper)
+> > - Other minor changes.
+> > 
+> > Thanks to Daniel!
+> > 
+> > Eric pointed out this missing part of use case, send it here again.
+> > 
+> > In our plan, the feature is designed for HTTPS offloading case and other applications which use kernel RSA/ecdsa by keyctl syscall. The full picture shows bellow:
+> > 
+> > 
+> >                    Nginx/openssl[1] ... Apps
+> > Guest   -----------------------------------------
+> >                     virtio-crypto driver[2]
+> > -------------------------------------------------
+> >                     virtio-crypto backend[3]
+> > Host    -----------------------------------------
+> >                    /          |          \
+> >                builtin[4]   vhost     keyctl[5] ...
+> > 
+> > 
+> > [1] User applications can offload RSA calculation to kernel by keyctl syscall. There is no keyctl engine in openssl currently, we developed a engine and tried to contribute it to openssl upstream, but openssl 1.x does not accept new feature. Link:
+> >      https://github.com/openssl/openssl/pull/16689
+> > 
+> > This branch is available and maintained by Lei <helei.sig11@bytedance.com>
+> >      https://github.com/TousakaRin/openssl/tree/OpenSSL_1_1_1-kctl_engine
+> > 
+> > We tested nginx(change config file only) with openssl keyctl engine, it works fine.
+> > 
+> > [2] virtio-crypto driver is used to communicate with host side, send requests to host side to do asymmetric calculation.
+> >      https://lkml.org/lkml/2022/3/1/1425
+> > 
+> > [3] virtio-crypto backend handles requests from guest side, and forwards request to crypto backend driver of QEMU.
+> > 
+> > [4] Currently RSA is supported only in builtin driver. This driver is supposed to test the full feature without other software(Ex vhost process) and hardware dependence. ecdsa is introduced into qapi type without implementation, this may be implemented in Q3-2022 or later. If ecdsa type definition should be added with the implementation together, I'll remove this in next version.
+> > 
+> > [5] keyctl backend is in development, we will post this feature in Q2-2022. keyctl backend can use hardware acceleration(Ex, Intel QAT).
+> > 
+> > Setup the full environment, tested with Intel QAT on host side, the QPS of HTTPS increase to ~200% in a guest.
+> > 
+> > VS PCI passthrough: the most important benefit of this solution makes the VM migratable.
+> > 
+> > v2 -> v3:
+> > - Introduce akcipher types to qapi
+> > - Add test/benchmark suite for akcipher class
+> > - Seperate 'virtio_crypto: Support virtio crypto asym operation' into:
+> >    - crypto: Introduce akcipher crypto class
+> >    - virtio-crypto: Introduce RSA algorithm
+> > 
+> > v1 -> v2:
+> > - Update virtio_crypto.h from v2 version of related kernel patch.
+> > 
+> > v1:
+> > - Support akcipher for virtio-crypto.
+> > - Introduce akcipher class.
+> > - Introduce ASN1 decoder into QEMU.
+> > - Implement RSA backend by nettle/hogweed.
+> > 
+> > Lei He (4):
+> >    crypto-akcipher: Introduce akcipher types to qapi
+> >    crypto: add ASN.1 decoder
+> >    crypto: Implement RSA algorithm by hogweed
+> >    crypto: Implement RSA algorithm by gcrypt
+> > 
+> > Zhenwei Pi (3):
+> >    virtio-crypto: header update
+> >    crypto: Introduce akcipher crypto class
+> >    crypto: Introduce RSA algorithm
+> > 
+> > lei he (1):
+> >    tests/crypto: Add test suite for crypto akcipher
+> > 
+> >   backends/cryptodev-builtin.c                  | 261 ++++++-
+> >   backends/cryptodev-vhost-user.c               |  34 +-
+> >   backends/cryptodev.c                          |  32 +-
+> >   crypto/akcipher-gcrypt.c.inc                  | 531 +++++++++++++
+> >   crypto/akcipher-nettle.c.inc                  | 448 +++++++++++
+> >   crypto/akcipher.c                             | 108 +++
+> >   crypto/akcipherpriv.h                         |  43 ++
+> >   crypto/asn1_decoder.c                         | 161 ++++
+> >   crypto/asn1_decoder.h                         |  75 ++
+> >   crypto/meson.build                            |   6 +
+> >   crypto/rsakey-builtin.c.inc                   | 150 ++++
+> >   crypto/rsakey-nettle.c.inc                    | 141 ++++
+> >   crypto/rsakey.c                               |  43 ++
+> >   crypto/rsakey.h                               |  96 +++
+> >   hw/virtio/virtio-crypto.c                     | 323 ++++++--
+> >   include/crypto/akcipher.h                     | 151 ++++
+> >   include/hw/virtio/virtio-crypto.h             |   5 +-
+> >   .../standard-headers/linux/virtio_crypto.h    |  82 +-
+> >   include/sysemu/cryptodev.h                    |  83 +-
+> >   meson.build                                   |  11 +
+> >   qapi/crypto.json                              |  64 ++
+> >   tests/bench/benchmark-crypto-akcipher.c       | 161 ++++
+> >   tests/bench/meson.build                       |   4 +
+> >   tests/bench/test_akcipher_keys.inc            | 537 +++++++++++++
+> >   tests/unit/meson.build                        |   2 +
+> >   tests/unit/test-crypto-akcipher.c             | 708 ++++++++++++++++++
+> >   tests/unit/test-crypto-asn1-decoder.c         | 289 +++++++
+> >   27 files changed, 4404 insertions(+), 145 deletions(-)
+> >   create mode 100644 crypto/akcipher-gcrypt.c.inc
+> >   create mode 100644 crypto/akcipher-nettle.c.inc
+> >   create mode 100644 crypto/akcipher.c
+> >   create mode 100644 crypto/akcipherpriv.h
+> >   create mode 100644 crypto/asn1_decoder.c
+> >   create mode 100644 crypto/asn1_decoder.h
+> >   create mode 100644 crypto/rsakey-builtin.c.inc
+> >   create mode 100644 crypto/rsakey-nettle.c.inc
+> >   create mode 100644 crypto/rsakey.c
+> >   create mode 100644 crypto/rsakey.h
+> >   create mode 100644 include/crypto/akcipher.h
+> >   create mode 100644 tests/bench/benchmark-crypto-akcipher.c
+> >   create mode 100644 tests/bench/test_akcipher_keys.inc
+> >   create mode 100644 tests/unit/test-crypto-akcipher.c
+> >   create mode 100644 tests/unit/test-crypto-asn1-decoder.c
+> > 
+> 
+> -- 
+> zhenwei pi
+> 
 
---------------tMgOFIIt5XmTj75OSWHDTEip
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
-
-T24gMjAuMDQuMjIgMjI6NDQsIEVsbGlvdCBCZXJtYW4gd3JvdGU6DQo+IEZyb206IFByYWty
-dXRoaSBEZWVwYWsgSGVyYWd1IDxxdWljX3BoZXJhZ3VAcXVpY2luYy5jb20+DQo+IA0KPiBE
-dXJpbmcgaG90cGx1ZywgdGhlIHN0b2xlbiB0aW1lIGRhdGEgc3RydWN0dXJlIGlzIHVubWFw
-cGVkIGFuZCBtZW1zZXQuDQo+IFRoZXJlIGlzIGEgcG9zc2liaWxpdHkgb2YgdGhlIHRpbWVy
-IElSUSBiZWluZyB0cmlnZ2VyZWQgYmVmb3JlIG1lbXNldA0KPiBhbmQgc3RvbGVuIHRpbWUg
-aXMgZ2V0dGluZyB1cGRhdGVkIGFzIHBhcnQgb2YgdGhpcyB0aW1lciBJUlEgaGFuZGxlci4g
-VGhpcw0KPiBjYXVzZXMgdGhlIGJlbG93IGNyYXNoIGluIHRpbWVyIGhhbmRsZXIgLQ0KPiAN
-Cj4gICAgWyAzNDU3LjQ3MzEzOV1bICAgIEM1XSBVbmFibGUgdG8gaGFuZGxlIGtlcm5lbCBw
-YWdpbmcgcmVxdWVzdCBhdCB2aXJ0dWFsIGFkZHJlc3MgZmZmZmZmYzAzZGYwNTE0OA0KPiAg
-ICAuLi4NCj4gICAgWyAzNDU4LjE1NDM5OF1bICAgIEM1XSBDYWxsIHRyYWNlOg0KPiAgICBb
-IDM0NTguMTU3NjQ4XVsgICAgQzVdICBwYXJhX3N0ZWFsX2Nsb2NrKzB4MzAvMHg1MA0KPiAg
-ICBbIDM0NTguMTYyMzE5XVsgICAgQzVdICBpcnF0aW1lX2FjY291bnRfcHJvY2Vzc190aWNr
-KzB4MzAvMHgxOTQNCj4gICAgWyAzNDU4LjE2ODE0OF1bICAgIEM1XSAgYWNjb3VudF9wcm9j
-ZXNzX3RpY2srMHgzYy8weDI4MA0KPiAgICBbIDM0NTguMTczMjc0XVsgICAgQzVdICB1cGRh
-dGVfcHJvY2Vzc190aW1lcysweDVjLzB4ZjQNCj4gICAgWyAzNDU4LjE3ODMxMV1bICAgIEM1
-XSAgdGlja19zY2hlZF90aW1lcisweDE4MC8weDM4NA0KPiAgICBbIDM0NTguMTgzMTY0XVsg
-ICAgQzVdICBfX3J1bl9ocnRpbWVyKzB4MTYwLzB4NTdjDQo+ICAgIFsgMzQ1OC4xODc3NDRd
-WyAgICBDNV0gIGhydGltZXJfaW50ZXJydXB0KzB4MjU4LzB4Njg0DQo+ICAgIFsgMzQ1OC4x
-OTI2OThdWyAgICBDNV0gIGFyY2hfdGltZXJfaGFuZGxlcl92aXJ0KzB4NWMvMHhhMA0KPiAg
-ICBbIDM0NTguMTk4MDAyXVsgICAgQzVdICBoYW5kbGVfcGVyY3B1X2RldmlkX2lycSsweGRj
-LzB4NDE0DQo+ICAgIFsgMzQ1OC4yMDMzODVdWyAgICBDNV0gIGhhbmRsZV9kb21haW5faXJx
-KzB4YTgvMHgxNjgNCj4gICAgWyAzNDU4LjIwODI0MV1bICAgIEM1XSAgZ2ljX2hhbmRsZV9p
-cnEuMzQ0OTMrMHg1NC8weDI0NA0KPiAgICBbIDM0NTguMjEzMzU5XVsgICAgQzVdICBjYWxs
-X29uX2lycV9zdGFjaysweDQwLzB4NzANCj4gICAgWyAzNDU4LjIxODEyNV1bICAgIEM1XSAg
-ZG9faW50ZXJydXB0X2hhbmRsZXIrMHg2MC8weDljDQo+ICAgIFsgMzQ1OC4yMjMxNTZdWyAg
-ICBDNV0gIGVsMV9pbnRlcnJ1cHQrMHgzNC8weDY0DQo+ICAgIFsgMzQ1OC4yMjc1NjBdWyAg
-ICBDNV0gIGVsMWhfNjRfaXJxX2hhbmRsZXIrMHgxYy8weDJjDQo+ICAgIFsgMzQ1OC4yMzI1
-MDNdWyAgICBDNV0gIGVsMWhfNjRfaXJxKzB4N2MvMHg4MA0KPiAgICBbIDM0NTguMjM2NzM2
-XVsgICAgQzVdICBmcmVlX3ZtYXBfYXJlYV9ub2ZsdXNoKzB4MTA4LzB4MzljDQo+ICAgIFsg
-MzQ1OC4yNDIxMjZdWyAgICBDNV0gIHJlbW92ZV92bV9hcmVhKzB4YmMvMHgxMTgNCj4gICAg
-WyAzNDU4LjI0NjcxNF1bICAgIEM1XSAgdm1fcmVtb3ZlX21hcHBpbmdzKzB4NDgvMHgyYTQN
-Cj4gICAgWyAzNDU4LjI1MTY1Nl1bICAgIEM1XSAgX192dW5tYXArMHgxNTQvMHgyNzgNCj4g
-ICAgWyAzNDU4LjI1NTc5Nl1bICAgIEM1XSAgc3RvbGVuX3RpbWVfY3B1X2Rvd25fcHJlcGFy
-ZSsweGMwLzB4ZDgNCj4gICAgWyAzNDU4LjI2MTU0Ml1bICAgIEM1XSAgY3B1aHBfaW52b2tl
-X2NhbGxiYWNrKzB4MjQ4LzB4YzM0DQo+ICAgIFsgMzQ1OC4yNjY4NDJdWyAgICBDNV0gIGNw
-dWhwX3RocmVhZF9mdW4rMHgxYzQvMHgyNDgNCj4gICAgWyAzNDU4LjI3MTY5Nl1bICAgIEM1
-XSAgc21wYm9vdF90aHJlYWRfZm4rMHgxYjAvMHg0MDANCj4gICAgWyAzNDU4LjI3NjYzOF1b
-ICAgIEM1XSAga3RocmVhZCsweDE3Yy8weDFlMA0KPiAgICBbIDM0NTguMjgwNjkxXVsgICAg
-QzVdICByZXRfZnJvbV9mb3JrKzB4MTAvMHgyMA0KPiANCj4gQXMgYSBmaXgsIGRpc2FibGUg
-dGhlIElSUXMgZHVyaW5nIGhvdHBsdWcgdW50aWwgd2UgdW5tYXAgYW5kIG1lbXNldCB0aGUN
-Cj4gc3RvbGVuIHRpbWUgc3RydWN0dXJlLg0KDQpUaGlzIHdpbGwgd29yayBmb3IgdGhlIGNh
-bGwgY2hhaW4gb2YgeW91ciBvYnNlcnZlZCBjcmFzaCwgYnV0IGFyZQ0KeW91IHN1cmUgdGhh
-dCBwYXJhX3N0ZWFsX2Nsb2NrKCkgY2FuJ3QgYmUgY2FsbGVkIGZyb20gYW5vdGhlciBjcHUN
-CmNvbmN1cnJlbnRseT8NCg0KSW4gY2FzZSB5b3UgdmVyaWZpZWQgdGhpcyBjYW4ndCBoYXBw
-ZW4sIHlvdSBjYW4gYWRkIG15Og0KDQpSZXZpZXdlZC1ieTogSnVlcmdlbiBHcm9zcyA8amdy
-b3NzQHN1c2UuY29tPg0KDQpPdGhlcndpc2UgeW91IGVpdGhlciBuZWVkIHRvIHVzZSBSQ1Ug
-Zm9yIGRvaW5nIHRoZSBtZW11bm1hcCgpLCBvciBhDQpsb2NrIHRvIHByb3RlY3Qgc3RvbGVu
-X3RpbWVfcmVnaW9uLg0KDQoNCkp1ZXJnZW4NCg==
---------------tMgOFIIt5XmTj75OSWHDTEip
-Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Description: OpenPGP public key
-Content-Transfer-Encoding: quoted-printable
-
------BEGIN PGP PUBLIC KEY BLOCK-----
-
-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
-jR/i1DG86lem3iBDXzXsZDn8R38=3D
-=3D2wuH
------END PGP PUBLIC KEY BLOCK-----
-
---------------tMgOFIIt5XmTj75OSWHDTEip--
-
---------------qKfA015FQnKvuS8o0VgFbD8Z--
-
---------------7aEmFWIe6tv5DKOKFo7EYOGI
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
-
------BEGIN PGP SIGNATURE-----
-
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmJhC10FAwAAAAAACgkQsN6d1ii/Ey+h
-wggAmCL55Mzc0nEMs5HctJWJTeCtFYOtL4lowDkPWeDlKQS1UXITvc1Ql9mEcBgtP/aa7s0aAbmp
-twgmzohJgr6yjx9IyORysYq5hRI6VOfGXExCXDoPdobusfUqHPdLrciKtKlJaBT5ZBnfc4rIucdG
-6GRqg5hnlpC9+/bjPsphRieLKfNxmxSO2LhsVeN9uc6oQspQ00AyUq/DSgK8nr1H8ZBa7p5355KR
-EwCvLRvcviAwrv2RVmnVZ3ZCOqDliyi+a7/t48HJBV0RfCx7g8umpFFIxU23VKXrX4ZUi7P8QP5j
-HPuHHJaTRsQT687kp9NDNzb8Dx7D1sSljMDLLC1Yzw==
-=Ytw4
------END PGP SIGNATURE-----
-
---------------7aEmFWIe6tv5DKOKFo7EYOGI--
-
---===============9119567043912632956==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+With regards,
+Daniel
+-- 
+|: https://berrange.com      -o-    https://www.flickr.com/photos/dberrange :|
+|: https://libvirt.org         -o-            https://fstop138.berrange.com :|
+|: https://entangle-photo.org    -o-    https://www.instagram.com/dberrange :|
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============9119567043912632956==--
