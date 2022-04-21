@@ -4,157 +4,93 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9CE49C433EF
-	for <virtualization@archiver.kernel.org>; Wed, 20 Apr 2022 23:15:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 35F47C433EF
+	for <virtualization@archiver.kernel.org>; Thu, 21 Apr 2022 01:45:23 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 5092D60BEA;
-	Wed, 20 Apr 2022 23:15:08 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id D4C3961125;
+	Thu, 21 Apr 2022 01:45:22 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id d5jL-XPQXuxe; Wed, 20 Apr 2022 23:15:07 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id A4B46600CC;
-	Wed, 20 Apr 2022 23:15:06 +0000 (UTC)
+	with ESMTP id 7V2x5xa8xiBu; Thu, 21 Apr 2022 01:45:21 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 381B260D79;
+	Thu, 21 Apr 2022 01:45:21 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 77166C002F;
-	Wed, 20 Apr 2022 23:15:06 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 08F8BC002F;
+	Thu, 21 Apr 2022 01:45:21 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C748BC002C
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 098CBC002C
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Apr 2022 23:15:04 +0000 (UTC)
+ Thu, 21 Apr 2022 01:45:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id C045140283
+ by smtp2.osuosl.org (Postfix) with ESMTP id F3ED44052F
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Apr 2022 23:15:04 +0000 (UTC)
+ Thu, 21 Apr 2022 01:45:19 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=microsoft.com
+ dkim=pass (2048-bit key) header.d=bytedance-com.20210112.gappssmtp.com
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id fgazjDl2BOM6
+ with ESMTP id zvH0gVUrHTSz
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Apr 2022 23:15:04 +0000 (UTC)
+ Thu, 21 Apr 2022 01:45:18 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from na01-obe.outbound.protection.outlook.com
- (mail-eus2azlp170110002.outbound.protection.outlook.com
- [IPv6:2a01:111:f403:c110::2])
- by smtp2.osuosl.org (Postfix) with ESMTPS id D31804051E
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com
+ [IPv6:2607:f8b0:4864:20::1032])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 4C4BD40C16
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Apr 2022 23:15:03 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=GknRNaSUizrLNfiXE68gqMojMCbnDEw3ZeQEkzKmU5KjipOmQO9hBWqNIBauKcgRQ5uj108OQm8Rl6Lpjuvv3WUrOStsvurBcmoXbG1ZVyy885iUbWtIlh6NmAd3H+3JH87i/1w6Ahg/O2VwN6OwT1CSciqCc93GpoOX1Q2oAgVRBxmUpchw6ux9EWlmRI3OpQaDlHB0aAO3K0iqq2N3AgpwMgsD4F8AWMY1PX3naeb7yckjMdEErAZd+8/J4633/uGfWqFKBRg1ctz6hrRy5fXOU/MYBv085KpqfOG9tBuUoTSU3RNhSn1yns6ak34zQ3OwZ7qU/5bh5iSlSYTjXA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=G48gaoFMLG6KyRpgrzxv3LFh2u9c7s6gbwhig1Vylp4=;
- b=gwGoynlzGGbM/WyASP7h0ZlKoTXhbvH77GnjzEWltri+FccsRqcLuayQ7XG+rH8sIUrSIrrrEtIO/sLtELw/g7IbCfhbpk8RCHZ4DfSL0LoNI5jxaTMylt/jceBvJUTfEewatfgiyMT2Z6FwTBGOwaQJXGtvfzCLu+Asr9/sdgjiQGx2iv90BMkoJu6hBN8zmJhF5+G916P+t2kgphpW1t/+EUcaxGf7GI1l4WyPnNGcuuQCfV/WfFZoYF5Bb9iOKlB/w9RQkOYZI5t4LuWPrfbz3so783Nj4tqw8P3rFHE8LNZ1H2hOuGvAeDgNv3/S5sMxPL0a8HOlF0LRclTlGA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=microsoft.com; dmarc=pass action=none
- header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=G48gaoFMLG6KyRpgrzxv3LFh2u9c7s6gbwhig1Vylp4=;
- b=AOIe/dnvTdtSa/oBLX60TtGbXnn7gwYb4JZgv/EHtnv/DCSDrKSVsWLgRe7aoWBV40Pg+PiBTbd1SRvMQcWqyEYS9I1Lvnq1WiQu/RyHu0U8az9bks0bZpzQjdqnnRR/x/+RRMF8hq6FC7+ne91E9QO6fhrVkEYliotn8iwm864=
-Received: from PH0PR21MB3025.namprd21.prod.outlook.com (2603:10b6:510:d2::21)
- by DM5PR21MB0634.namprd21.prod.outlook.com (2603:10b6:3:127::13) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5206.6; Wed, 20 Apr
- 2022 23:15:01 +0000
-Received: from PH0PR21MB3025.namprd21.prod.outlook.com
- ([fe80::dd77:2d4d:329e:87df]) by PH0PR21MB3025.namprd21.prod.outlook.com
- ([fe80::dd77:2d4d:329e:87df%5]) with mapi id 15.20.5206.006; Wed, 20 Apr 2022
- 23:15:00 +0000
-To: "Andrea Parri (Microsoft)" <parri.andrea@gmail.com>, KY Srinivasan
- <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen
- Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, Dexuan Cui
- <decui@microsoft.com>, Stefano Garzarella <sgarzare@redhat.com>, David Miller
- <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
- <pabeni@redhat.com>
-Subject: RE: [PATCH 5/5] Drivers: hv: vmbus: Refactor the ring-buffer iterator
- functions
-Thread-Topic: [PATCH 5/5] Drivers: hv: vmbus: Refactor the ring-buffer
- iterator functions
-Thread-Index: AQHYVPJSruHaMyZGKUm01yiVMWl9T6z5brnw
-Date: Wed, 20 Apr 2022 23:15:00 +0000
-Message-ID: <PH0PR21MB30253EB6EBBC3BF674DD20EED7F59@PH0PR21MB3025.namprd21.prod.outlook.com>
-References: <20220420200720.434717-1-parri.andrea@gmail.com>
- <20220420200720.434717-6-parri.andrea@gmail.com>
-In-Reply-To: <20220420200720.434717-6-parri.andrea@gmail.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-msip_labels: MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=7ec502e7-3170-4548-9c01-55f53781ec4a;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ContentBits=0;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Enabled=true;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Method=Standard;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Name=Internal;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2022-04-20T23:13:56Z;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SiteId=72f988bf-86f1-41af-91ab-2d7cd011db47;
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=microsoft.com;
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 987306b0-4223-4141-510e-08da23239804
-x-ms-traffictypediagnostic: DM5PR21MB0634:EE_
-x-ms-exchange-atpmessageproperties: SA|SL
-x-microsoft-antispam-prvs: <DM5PR21MB0634C94747B70F21BFD9B521D7F59@DM5PR21MB0634.namprd21.prod.outlook.com>
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: OtCGjTZJOJS1ReRbwDI3SPT3ypUSHa2eP3aFcJLKWpBu10Gv+MgRg12zWDmYzEZO5JaZYO6dZysTGQo8VsPiTT12EYAwQiXQQTPK6tM9oHP9IFN3eovjPXGi3r914SXPrduaDBNDO2pow4WZeaLxSFwVRl51JNtLgcfETJO8OwYWEfx+8xP1Oe28IiE8uLcwe8DTJVTE2s7+AISgAndjbycl7IACut1QYsfYtZJykKbV5HZ4KBiKw5j/7gLBeMkrZqyS8dZFsZW2oo9qTjfo1DiYXukXVtwOH466dxKrs+rG7mlcKLlj8/Fo2hNwqDFkDWSyXVsp1ZlWU6lcjj26cNav8tcB+nFnmyXUP/ZfizM2k9t+x32n+a9WwzMsYMwvj6YwKZbK2AAUwXQo7AWwMkQhAvD6BRy75uMPc+1UcUPN+hnmccelOEm+8PeebzgsmY0TRWdXt9CA8w0M4h50KvbvK4DGw6SYtCkJj4p9IKmIS/Q6qUDv4re5jSVc+CvkbUFG7s0RcrpYKgNUE/IgWUSilYN1p7DTyc5HGD3KH9TIeU3epahZi0nkotaOlJDu+rPCB3MyhHAHcAXSHF/K3iSOFRaA2wKmETjc/HCmsPrGh1U475XoCybA34DSD8r3U9X4ZGu11L9SYoP0vmBkbpZAbMkGOBZn9VJ6ZbbhCIFmyDuhD8etY072Rouzn2u76KWUn643kDz38ZXnRC/l5y4iaYxjOGWL+hDIz1l+r1I9uLcg/tOlnBmf4his1Wl4bPvz8uXNMfeXxihzbeFlig==
-x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:PH0PR21MB3025.namprd21.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230001)(4636009)(366004)(451199009)(26005)(8990500004)(6506007)(86362001)(2906002)(9686003)(186003)(110136005)(66946007)(7696005)(4326008)(54906003)(316002)(8676002)(64756008)(66446008)(76116006)(10290500003)(66476007)(66556008)(38100700002)(83380400001)(38070700005)(122000001)(55016003)(508600001)(5660300002)(7416002)(71200400001)(82950400001)(8936002)(52536014)(33656002)(82960400001)(921005);
- DIR:OUT; SFP:1102; 
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?8xsx4yAPsa0fcDBQrCzDnfBnD5u2Tz6+pjKWNsrgX4Bkx4HATWSr8Vimh9Sp?=
- =?us-ascii?Q?dw8DLZfnMRsupIa8VPGjRoUMSObPK+cfNJvyxCF0uK+jEPbpzpq35QYGniPk?=
- =?us-ascii?Q?Ra0Sg5eYi6Nfj8xZbanuWlU9bBQRl+zWYOPs0F6loYUCjwF5g3RmBvoJO34M?=
- =?us-ascii?Q?ojGfjWmOr4B4bT7IkDLFuaSCNUnB7sEfkGIFMwCTDZWK69m/lHa0a2I1hrIp?=
- =?us-ascii?Q?WGWMjvVMQUyNHxBPZLGsVuPd8sLWrL8aFi3j2XalvrJRT7oYt+8q5p9d2YOf?=
- =?us-ascii?Q?uCoF4+nDPNfbht4lhPyqgmwyzEbIZs6orbpyzErC+MDsf3aiOciWD854Qi0A?=
- =?us-ascii?Q?wUfdsB5osrG6WIU/CDsY4bOjMzQKwEp4PppCbBOfniSO1CQUll6gg6tqlMs0?=
- =?us-ascii?Q?BK1WGL9JrJQWZ8Hu750wSXW7uoqmCEq+76Fi+FBJ3WCI4pjBFhAgGwU5wLRE?=
- =?us-ascii?Q?ADyIVOTECEr15jQxId3zn0DUtOMC9ExiuiryI6eFdWjTSXpwLOvAI6sEWyhb?=
- =?us-ascii?Q?/U902GIEcOojt9J4YF+n0UqEV/J5wR2GGq2GTTOsKQpmDCkNWFelV6Mu/jNP?=
- =?us-ascii?Q?WiKqclkFg8MYFP4ji70c6bnir4K7vfx1K/rpxNxqvRtG3Hm4IPQn5VOPPHmv?=
- =?us-ascii?Q?MIHgyib4aBqPJunV7gan7GO4V1P9gJfPTwiQu3kTLHYt/4DANUDfLhly0l9g?=
- =?us-ascii?Q?4A95nsOqfEjVNXxYGvoOISjsw6f98etHwDmhrKhEq8U5RKEwhTMjOTOOhS8/?=
- =?us-ascii?Q?3uEfTMJU+GYtHKLDtbKMbz82HKxGevPV6LOjuxZgtvSJFF0fAGqxcqz0EA5B?=
- =?us-ascii?Q?l1FZMIde46xXzIE29uGOyfxKitqVGArCz9G4B10Q7p0T+zckrFsHJP5e1lef?=
- =?us-ascii?Q?uJ5uI/i/Uo41ZqZDVa+xU/iWqRBFc4Z2cE4xd+fJHbpUpJPkXlR7lSz37X7/?=
- =?us-ascii?Q?V/8xjdlx6RClf92NEsTBvBOWNhBcI6jHiIR87l+nMRwqzOk4Q7NTool5ZjoU?=
- =?us-ascii?Q?n7AAuLmPR6hB5/XbiDGnmPaten7VAfToUKF8EUbvIdtQy6wxNCNqua5GcVJp?=
- =?us-ascii?Q?nwBjblmUAQ4KWQQct4Bbw0qRYkIZmK6NLfzK9pjKdTkjv+NCoz8ohg4MbDxP?=
- =?us-ascii?Q?wy9fSrTytnOCF14hCTzGNhn4FTg1R3PrOiG2pTJpw2wxx7n2b9ml+L/fjcPA?=
- =?us-ascii?Q?xuS9/lQwq7YlNipcYF1sl7Gh1AtjpEYL95T2dXwNk+EK69ACyVdvalgZQOxA?=
- =?us-ascii?Q?QbBH9ZU7yJnidiMCvWzFzTtaO8EyDxo+IErCUV9JEqMVO9C3BB1+J9Y7eePr?=
- =?us-ascii?Q?KW28uo2DIi0du3uQ3KDooUbjyJHbNxN9CAzJ3Od5E18oLfAWwd9ih5750xxI?=
- =?us-ascii?Q?tDjkZ1LBZBph5QqZYEdTLd2YuyFF/4LYtNoZqwtF2BRcwdF08K37NNVGbwwE?=
- =?us-ascii?Q?M1AN+0jWJ3HMD/efWmpLgyiLimxauIrVZExmUJXLZn9P+8CSTmOYrHrxFuyG?=
- =?us-ascii?Q?J/UC6BD17idc/XoFnwzJZvC4/Kp6B9Kdi3d6OtE7ZN6uMtAmbE8GGH1FSwrW?=
- =?us-ascii?Q?dJJLWpO6vj42gVMTcP2cRC8HOzvjQQClcw+PG0pWeMrW5VFgDZ79U9OGi1U9?=
- =?us-ascii?Q?IZN9pN0YNNlUbH+VdP3AS57kgHrd98qPVnBI5F1UTl966u0hQW86WsXaKL+W?=
- =?us-ascii?Q?t6ipzGFwjsFWBJBn59ztQga/aMhmvk1Ufz/MYvAZRlB9L0SeteTYkb+ib3YX?=
- =?us-ascii?Q?u1UPsFrLMWv+eHiFKWTszh+I+QXoIYM=3D?=
+ Thu, 21 Apr 2022 01:45:18 +0000 (UTC)
+Received: by mail-pj1-x1032.google.com with SMTP id u5so490889pjr.5
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 20 Apr 2022 18:45:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=bytedance-com.20210112.gappssmtp.com; s=20210112;
+ h=message-id:date:mime-version:user-agent:subject:content-language:to
+ :cc:references:from:in-reply-to:content-transfer-encoding;
+ bh=lLFp+jcZPCDBptlsIznxTdve17ZyRswKCYMzv/KYwNs=;
+ b=eIXSY94mJhIN8yUHyDxfX0SvMqUPkcn3XbS9T+n0csM9I8+eu0fqOeyOsoI2eGww1l
+ nQG8IxES4nUl5ZdNPfzdBByNWDJVCYKpj2QwYcnqcobC5gyanMbn6LiUju38B0oKe5kI
+ dWtLkQFLkabj89M6YIBZJSmkmiBiRtkZx4CHSsIhJm/b28vWn/3SrtfI1Gs01VY+vX8L
+ GZb2J4XDt1+zZzgefXbZWgkORpMYBn0Dk1dTTe2DRtzpAd3k0RUmc5uzWOfOD1SHe4lK
+ DdzT+MP1h8ZBP0UHDjiCYQk0aK6CYVeu5DjUMc7tQ5mU0BZcSZ+6d32BFWh6RIlSWd2w
+ 2b5g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+ :content-language:to:cc:references:from:in-reply-to
+ :content-transfer-encoding;
+ bh=lLFp+jcZPCDBptlsIznxTdve17ZyRswKCYMzv/KYwNs=;
+ b=tw2EGVpPM1b8n45HxiQELZF8QS5JwcIRf8DqGxqo2raJotTZdvJjQAAqOnMl2KNvCt
+ eayxEMAjM/8jFe7VqOYLxA1+gwI0ss2Dfw0l6RFuQe/xUiGlm+NxqpNJaps2kgMu8xN3
+ jgx1vwSplhS+hg658QylvORxFHdCFq3Xqlv6hMAKv8uuCDZuv2Y4CaAOC8wIU/q9nvwK
+ L0Ty6dCbWYFqOUyJNZqPqabctvGzjHHGiv+KXEKhJYCANyGHrUNL4Lvl6st4y7/ywrF7
+ TdLfCjVAdRfMWZ56ilxuwEEBoSYWrTXgJYplfSQNJKL/luULE5ESEwhyA2njQaZ2OmrN
+ HCsg==
+X-Gm-Message-State: AOAM532n8ud/Tf9UqdDZ6FPDON96DMfKVajMoIvoOOi3sFB16Pdu3utl
+ Y4mjwBmnxOSIO3+mYzRC2xshAw==
+X-Google-Smtp-Source: ABdhPJwmoXVK6D/qbEB2UeQpbMpyZ8W5u7ZKPfEEe9GI+7zMQJuHK1I2o2urYIvboqdPbEE9jhYDig==
+X-Received: by 2002:a17:902:7ec1:b0:156:17a4:a2f8 with SMTP id
+ p1-20020a1709027ec100b0015617a4a2f8mr24168256plb.155.1650505517363; 
+ Wed, 20 Apr 2022 18:45:17 -0700 (PDT)
+Received: from [10.76.15.169] ([61.120.150.70])
+ by smtp.gmail.com with ESMTPSA id
+ ay33-20020a056a00302100b00508374700b9sm20195756pfb.166.2022.04.20.18.45.13
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Wed, 20 Apr 2022 18:45:16 -0700 (PDT)
+Message-ID: <ed446ba2-75a0-aa0d-535e-0bb3501f558f@bytedance.com>
+Date: Thu, 21 Apr 2022 09:41:40 +0800
 MIME-Version: 1.0
-X-OriginatorOrg: microsoft.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR21MB3025.namprd21.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 987306b0-4223-4141-510e-08da23239804
-X-MS-Exchange-CrossTenant-originalarrivaltime: 20 Apr 2022 23:15:00.6793 (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: jtbFOuSVX/vHvJGScy0EJTs8N7LxamtoNjYf91LQ1WS5lrE+CeEJr2zGpVhZUzIBdF3dV89reE69CGnaxC8CyDmXg5A/4aLuxPJHHSfQdxs=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR21MB0634
-Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
- "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: PING: [PATCH v4 0/8] Introduce akcipher service for virtio-crypto
+Content-Language: en-US
+To: mst@redhat.com, berrange@redhat.com, arei.gonglei@huawei.com
+References: <20220411104327.197048-1-pizhenwei@bytedance.com>
+From: zhenwei pi <pizhenwei@bytedance.com>
+In-Reply-To: <20220411104327.197048-1-pizhenwei@bytedance.com>
+Cc: helei.sig11@bytedance.com, cohuck@redhat.com, qemu-devel@nongnu.org,
+ virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -166,174 +102,147 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: "Michael Kelley \(LINUX\) via Virtualization"
- <virtualization@lists.linux-foundation.org>
-Reply-To: "Michael Kelley \(LINUX\)" <mikelley@microsoft.com>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Andrea Parri (Microsoft) <parri.andrea@gmail.com> Sent: Wednesday, April 20, 2022 1:07 PM
-> 
-> With no users of hv_pkt_iter_next_raw() and no "external" users of
-> hv_pkt_iter_first_raw(), the iterator functions can be refactored
-> and simplified to remove some indirection/code.
-> 
-> Signed-off-by: Andrea Parri (Microsoft) <parri.andrea@gmail.com>
-> ---
->  drivers/hv/ring_buffer.c | 32 +++++++++-----------------------
->  include/linux/hyperv.h   | 35 ++++-------------------------------
->  2 files changed, 13 insertions(+), 54 deletions(-)
-> 
-> diff --git a/drivers/hv/ring_buffer.c b/drivers/hv/ring_buffer.c
-> index 3d215d9dec433..fa98b3a91206a 100644
-> --- a/drivers/hv/ring_buffer.c
-> +++ b/drivers/hv/ring_buffer.c
-> @@ -421,7 +421,7 @@ int hv_ringbuffer_read(struct vmbus_channel *channel,
->  	memcpy(buffer, (const char *)desc + offset, packetlen);
-> 
->  	/* Advance ring index to next packet descriptor */
-> -	__hv_pkt_iter_next(channel, desc, true);
-> +	__hv_pkt_iter_next(channel, desc);
-> 
->  	/* Notify host of update */
->  	hv_pkt_iter_close(channel);
-> @@ -456,22 +456,6 @@ static u32 hv_pkt_iter_avail(const struct hv_ring_buffer_info
-> *rbi)
->  		return (rbi->ring_datasize - priv_read_loc) + write_loc;
->  }
-> 
-> -/*
-> - * Get first vmbus packet without copying it out of the ring buffer
-> - */
-> -struct vmpacket_descriptor *hv_pkt_iter_first_raw(struct vmbus_channel *channel)
-> -{
-> -	struct hv_ring_buffer_info *rbi = &channel->inbound;
-> -
-> -	hv_debug_delay_test(channel, MESSAGE_DELAY);
-> -
-> -	if (hv_pkt_iter_avail(rbi) < sizeof(struct vmpacket_descriptor))
-> -		return NULL;
-> -
-> -	return (struct vmpacket_descriptor *)(hv_get_ring_buffer(rbi) + rbi-
-> >priv_read_index);
-> -}
-> -EXPORT_SYMBOL_GPL(hv_pkt_iter_first_raw);
-> -
->  /*
->   * Get first vmbus packet from ring buffer after read_index
->   *
-> @@ -483,11 +467,14 @@ struct vmpacket_descriptor *hv_pkt_iter_first(struct
-> vmbus_channel *channel)
->  	struct vmpacket_descriptor *desc, *desc_copy;
->  	u32 bytes_avail, pkt_len, pkt_offset;
-> 
-> -	desc = hv_pkt_iter_first_raw(channel);
-> -	if (!desc)
-> +	hv_debug_delay_test(channel, MESSAGE_DELAY);
-> +
-> +	bytes_avail = hv_pkt_iter_avail(rbi);
-> +	if (bytes_avail < sizeof(struct vmpacket_descriptor))
->  		return NULL;
-> +	bytes_avail = min(rbi->pkt_buffer_size, bytes_avail);
-> 
-> -	bytes_avail = min(rbi->pkt_buffer_size, hv_pkt_iter_avail(rbi));
-> +	desc = (struct vmpacket_descriptor *)(hv_get_ring_buffer(rbi) + rbi-
-> >priv_read_index);
-> 
->  	/*
->  	 * Ensure the compiler does not use references to incoming Hyper-V values
-> (which
-> @@ -534,8 +521,7 @@ EXPORT_SYMBOL_GPL(hv_pkt_iter_first);
->   */
->  struct vmpacket_descriptor *
->  __hv_pkt_iter_next(struct vmbus_channel *channel,
-> -		   const struct vmpacket_descriptor *desc,
-> -		   bool copy)
-> +		   const struct vmpacket_descriptor *desc)
->  {
->  	struct hv_ring_buffer_info *rbi = &channel->inbound;
->  	u32 packetlen = desc->len8 << 3;
-> @@ -548,7 +534,7 @@ __hv_pkt_iter_next(struct vmbus_channel *channel,
->  		rbi->priv_read_index -= dsize;
-> 
->  	/* more data? */
-> -	return copy ? hv_pkt_iter_first(channel) : hv_pkt_iter_first_raw(channel);
-> +	return hv_pkt_iter_first(channel);
->  }
->  EXPORT_SYMBOL_GPL(__hv_pkt_iter_next);
-> 
-> diff --git a/include/linux/hyperv.h b/include/linux/hyperv.h
-> index 1112c5cf894e6..370adc9971d3e 100644
-> --- a/include/linux/hyperv.h
-> +++ b/include/linux/hyperv.h
-> @@ -1673,55 +1673,28 @@ static inline u32 hv_pkt_len(const struct
-> vmpacket_descriptor *desc)
->  	return desc->len8 << 3;
->  }
-> 
-> -struct vmpacket_descriptor *
-> -hv_pkt_iter_first_raw(struct vmbus_channel *channel);
-> -
->  struct vmpacket_descriptor *
->  hv_pkt_iter_first(struct vmbus_channel *channel);
-> 
->  struct vmpacket_descriptor *
->  __hv_pkt_iter_next(struct vmbus_channel *channel,
-> -		   const struct vmpacket_descriptor *pkt,
-> -		   bool copy);
-> +		   const struct vmpacket_descriptor *pkt);
-> 
->  void hv_pkt_iter_close(struct vmbus_channel *channel);
-> 
->  static inline struct vmpacket_descriptor *
-> -hv_pkt_iter_next_pkt(struct vmbus_channel *channel,
-> -		     const struct vmpacket_descriptor *pkt,
-> -		     bool copy)
-> +hv_pkt_iter_next(struct vmbus_channel *channel,
-> +		 const struct vmpacket_descriptor *pkt)
->  {
->  	struct vmpacket_descriptor *nxt;
-> 
-> -	nxt = __hv_pkt_iter_next(channel, pkt, copy);
-> +	nxt = __hv_pkt_iter_next(channel, pkt);
->  	if (!nxt)
->  		hv_pkt_iter_close(channel);
-> 
->  	return nxt;
->  }
-> 
-> -/*
-> - * Get next packet descriptor without copying it out of the ring buffer
-> - * If at end of list, return NULL and update host.
-> - */
-> -static inline struct vmpacket_descriptor *
-> -hv_pkt_iter_next_raw(struct vmbus_channel *channel,
-> -		     const struct vmpacket_descriptor *pkt)
-> -{
-> -	return hv_pkt_iter_next_pkt(channel, pkt, false);
-> -}
-> -
-> -/*
-> - * Get next packet descriptor from iterator
-> - * If at end of list, return NULL and update host.
-> - */
-> -static inline struct vmpacket_descriptor *
-> -hv_pkt_iter_next(struct vmbus_channel *channel,
-> -		 const struct vmpacket_descriptor *pkt)
-> -{
-> -	return hv_pkt_iter_next_pkt(channel, pkt, true);
-> -}
-> -
->  #define foreach_vmbus_pkt(pkt, channel) \
->  	for (pkt = hv_pkt_iter_first(channel); pkt; \
->  	    pkt = hv_pkt_iter_next(channel, pkt))
-> --
-> 2.25.1
+Hi Daniel,
+Could you please review this series?
 
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
 
+On 4/11/22 18:43, zhenwei pi wrote:
+> v3 -> v4:
+> - Coding style fix: Akcipher -> AkCipher, struct XXX -> XXX, Rsa -> RSA,
+> XXX-alg -> XXX-algo.
+> - Change version info in qapi/crypto.json, from 7.0 -> 7.1.
+> - Remove ecdsa from qapi/crypto.json, it would be introduced with the implemetion later.
+> - Use QCryptoHashAlgothrim instead of QCryptoRSAHashAlgorithm(removed) in qapi/crypto.json.
+> - Rename arguments of qcrypto_akcipher_XXX to keep aligned with qcrypto_cipher_XXX(dec/enc/sign/vefiry -> in/out/in2), and add qcrypto_akcipher_max_XXX APIs.
+> - Add new API: qcrypto_akcipher_supports.
+> - Change the return value of qcrypto_akcipher_enc/dec/sign, these functions return the actual length of result.
+> - Separate ASN.1 source code and test case clean.
+> - Disable RSA raw encoding for akcipher-nettle.
+> - Separate RSA key parser into rsakey.{hc}, and implememts it with builtin-asn1-decoder and nettle respectivly.
+> - Implement RSA(pkcs1 and raw encoding) algorithm by gcrypt. This has higher priority than nettle.
+> - For some akcipher operations(eg, decryption of pkcs1pad(rsa)), the length of returned result maybe less than the dst buffer size, return the actual length of result instead of the buffer length to the guest side. (in function virtio_crypto_akcipher_input_data_helper)
+> - Other minor changes.
+> 
+> Thanks to Daniel!
+> 
+> Eric pointed out this missing part of use case, send it here again.
+> 
+> In our plan, the feature is designed for HTTPS offloading case and other applications which use kernel RSA/ecdsa by keyctl syscall. The full picture shows bellow:
+> 
+> 
+>                    Nginx/openssl[1] ... Apps
+> Guest   -----------------------------------------
+>                     virtio-crypto driver[2]
+> -------------------------------------------------
+>                     virtio-crypto backend[3]
+> Host    -----------------------------------------
+>                    /          |          \
+>                builtin[4]   vhost     keyctl[5] ...
+> 
+> 
+> [1] User applications can offload RSA calculation to kernel by keyctl syscall. There is no keyctl engine in openssl currently, we developed a engine and tried to contribute it to openssl upstream, but openssl 1.x does not accept new feature. Link:
+>      https://github.com/openssl/openssl/pull/16689
+> 
+> This branch is available and maintained by Lei <helei.sig11@bytedance.com>
+>      https://github.com/TousakaRin/openssl/tree/OpenSSL_1_1_1-kctl_engine
+> 
+> We tested nginx(change config file only) with openssl keyctl engine, it works fine.
+> 
+> [2] virtio-crypto driver is used to communicate with host side, send requests to host side to do asymmetric calculation.
+>      https://lkml.org/lkml/2022/3/1/1425
+> 
+> [3] virtio-crypto backend handles requests from guest side, and forwards request to crypto backend driver of QEMU.
+> 
+> [4] Currently RSA is supported only in builtin driver. This driver is supposed to test the full feature without other software(Ex vhost process) and hardware dependence. ecdsa is introduced into qapi type without implementation, this may be implemented in Q3-2022 or later. If ecdsa type definition should be added with the implementation together, I'll remove this in next version.
+> 
+> [5] keyctl backend is in development, we will post this feature in Q2-2022. keyctl backend can use hardware acceleration(Ex, Intel QAT).
+> 
+> Setup the full environment, tested with Intel QAT on host side, the QPS of HTTPS increase to ~200% in a guest.
+> 
+> VS PCI passthrough: the most important benefit of this solution makes the VM migratable.
+> 
+> v2 -> v3:
+> - Introduce akcipher types to qapi
+> - Add test/benchmark suite for akcipher class
+> - Seperate 'virtio_crypto: Support virtio crypto asym operation' into:
+>    - crypto: Introduce akcipher crypto class
+>    - virtio-crypto: Introduce RSA algorithm
+> 
+> v1 -> v2:
+> - Update virtio_crypto.h from v2 version of related kernel patch.
+> 
+> v1:
+> - Support akcipher for virtio-crypto.
+> - Introduce akcipher class.
+> - Introduce ASN1 decoder into QEMU.
+> - Implement RSA backend by nettle/hogweed.
+> 
+> Lei He (4):
+>    crypto-akcipher: Introduce akcipher types to qapi
+>    crypto: add ASN.1 decoder
+>    crypto: Implement RSA algorithm by hogweed
+>    crypto: Implement RSA algorithm by gcrypt
+> 
+> Zhenwei Pi (3):
+>    virtio-crypto: header update
+>    crypto: Introduce akcipher crypto class
+>    crypto: Introduce RSA algorithm
+> 
+> lei he (1):
+>    tests/crypto: Add test suite for crypto akcipher
+> 
+>   backends/cryptodev-builtin.c                  | 261 ++++++-
+>   backends/cryptodev-vhost-user.c               |  34 +-
+>   backends/cryptodev.c                          |  32 +-
+>   crypto/akcipher-gcrypt.c.inc                  | 531 +++++++++++++
+>   crypto/akcipher-nettle.c.inc                  | 448 +++++++++++
+>   crypto/akcipher.c                             | 108 +++
+>   crypto/akcipherpriv.h                         |  43 ++
+>   crypto/asn1_decoder.c                         | 161 ++++
+>   crypto/asn1_decoder.h                         |  75 ++
+>   crypto/meson.build                            |   6 +
+>   crypto/rsakey-builtin.c.inc                   | 150 ++++
+>   crypto/rsakey-nettle.c.inc                    | 141 ++++
+>   crypto/rsakey.c                               |  43 ++
+>   crypto/rsakey.h                               |  96 +++
+>   hw/virtio/virtio-crypto.c                     | 323 ++++++--
+>   include/crypto/akcipher.h                     | 151 ++++
+>   include/hw/virtio/virtio-crypto.h             |   5 +-
+>   .../standard-headers/linux/virtio_crypto.h    |  82 +-
+>   include/sysemu/cryptodev.h                    |  83 +-
+>   meson.build                                   |  11 +
+>   qapi/crypto.json                              |  64 ++
+>   tests/bench/benchmark-crypto-akcipher.c       | 161 ++++
+>   tests/bench/meson.build                       |   4 +
+>   tests/bench/test_akcipher_keys.inc            | 537 +++++++++++++
+>   tests/unit/meson.build                        |   2 +
+>   tests/unit/test-crypto-akcipher.c             | 708 ++++++++++++++++++
+>   tests/unit/test-crypto-asn1-decoder.c         | 289 +++++++
+>   27 files changed, 4404 insertions(+), 145 deletions(-)
+>   create mode 100644 crypto/akcipher-gcrypt.c.inc
+>   create mode 100644 crypto/akcipher-nettle.c.inc
+>   create mode 100644 crypto/akcipher.c
+>   create mode 100644 crypto/akcipherpriv.h
+>   create mode 100644 crypto/asn1_decoder.c
+>   create mode 100644 crypto/asn1_decoder.h
+>   create mode 100644 crypto/rsakey-builtin.c.inc
+>   create mode 100644 crypto/rsakey-nettle.c.inc
+>   create mode 100644 crypto/rsakey.c
+>   create mode 100644 crypto/rsakey.h
+>   create mode 100644 include/crypto/akcipher.h
+>   create mode 100644 tests/bench/benchmark-crypto-akcipher.c
+>   create mode 100644 tests/bench/test_akcipher_keys.inc
+>   create mode 100644 tests/unit/test-crypto-akcipher.c
+>   create mode 100644 tests/unit/test-crypto-asn1-decoder.c
+> 
+
+-- 
+zhenwei pi
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
