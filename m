@@ -1,87 +1,90 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 17E21C4167D
-	for <virtualization@archiver.kernel.org>; Fri, 22 Apr 2022 14:54:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E3E53C433F5
+	for <virtualization@archiver.kernel.org>; Fri, 22 Apr 2022 21:05:09 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id BC53081457;
-	Fri, 22 Apr 2022 14:54:10 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 7DE9640AFB;
+	Fri, 22 Apr 2022 21:05:09 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ns8ezg3gqf-1; Fri, 22 Apr 2022 14:54:10 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 5642C8001F;
-	Fri, 22 Apr 2022 14:54:09 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id U6wjVX-QoAnw; Fri, 22 Apr 2022 21:05:08 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id CD8C240141;
+	Fri, 22 Apr 2022 21:05:07 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 24290C0039;
-	Fri, 22 Apr 2022 14:54:09 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id CE97AC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 9F9E7C0039;
+	Fri, 22 Apr 2022 21:05:07 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 71A82C002D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 22 Apr 2022 14:54:07 +0000 (UTC)
+ Fri, 22 Apr 2022 21:05:06 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id B405A83DF6
+ by smtp3.osuosl.org (Postfix) with ESMTP id 5990B60AAE
  for <virtualization@lists.linux-foundation.org>;
- Fri, 22 Apr 2022 14:54:07 +0000 (UTC)
+ Fri, 22 Apr 2022 21:05:06 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id MbNbzzjlIUuz
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=gmail.com
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id PiaFUAqyjIgS
  for <virtualization@lists.linux-foundation.org>;
- Fri, 22 Apr 2022 14:54:05 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
- by smtp1.osuosl.org (Postfix) with ESMTPS id C2BE683404
+ Fri, 22 Apr 2022 21:05:05 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-wm1-x335.google.com (mail-wm1-x335.google.com
+ [IPv6:2a00:1450:4864:20::335])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 7443260A88
  for <virtualization@lists.linux-foundation.org>;
- Fri, 22 Apr 2022 14:54:05 +0000 (UTC)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by dfw.source.kernel.org (Postfix) with ESMTPS id BDD8F60C6E;
- Fri, 22 Apr 2022 14:54:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DC7EC385AB;
- Fri, 22 Apr 2022 14:54:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
- s=korg; t=1650639244;
- bh=c/tlEA8ZlzdxmIQcMOOwVpEn66NWm3rRj8+jDgV6xxc=;
- h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=gqA0vzwFNzldjsjjRmYleh3zBQQsf2csoe8Klhv/3GjBm4DNaPy55KzSHN+92OUFG
- m3GNyJl25wnUK7V/vD5eogrGZ+M/bqPHb977EwGlbc3JNLGzmYWVnypL9eTSt5TC+O
- s80RQTbQw2OrYCwnCnsa3LtgR6qLawgvnYBRHp1Q=
-Date: Fri, 22 Apr 2022 16:54:01 +0200
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Subject: Re: [PATCH v7 00/12] Fix broken usage of driver_override (and kfree
- of static memory)
-Message-ID: <YmLBiQjyKhFZsPlG@kroah.com>
-References: <20220419113435.246203-1-krzysztof.kozlowski@linaro.org>
- <529de1fd-7e98-1634-c61e-0e69ddcd9e73@linaro.org>
+ Fri, 22 Apr 2022 21:05:05 +0000 (UTC)
+Received: by mail-wm1-x335.google.com with SMTP id
+ l3-20020a05600c1d0300b0038ff89c938bso5580284wms.0
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 22 Apr 2022 14:05:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=gmRkt5N52LVAcW5jIpeF1Nn5yhhAyoF29FUFsd01Fns=;
+ b=brYIpV1+gbZnACdgtobiaHYB0nSPaEQY0ScB0C1CEeIsPotvLvC9d7oCAEPCZgA89C
+ uxr4XWWt08JrUjRW2taPLwIBI0l08LIQ+tdBDD3Dcvl2N+LHeNiiWLLSiJ/2nAXSmxbW
+ 5V6Qt8AQIHi92IOyOLysC7CDhQRUu7lZDi7hKcHVobTK+mt9yg3GXLl1gnF6CUN511k8
+ 2dACgkZB0zdoeD223DTUdfjYRFediBrQ/WkFCx20AwAddSmuDegIlAyVpQMaA+YkJeVl
+ i9/jYTuvmZKVUkEHz5l8/VZdcoi46D7lI/zvaAmJgrcM3qXnC1vMcqvjxQtND51sdUpm
+ 7npA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=gmRkt5N52LVAcW5jIpeF1Nn5yhhAyoF29FUFsd01Fns=;
+ b=vCgGsAutqtdjXGIC0dzPQYgBeA/4COkRDGHHAEdJ4n4lOe8xHu22hwnHx/k+MK2jqZ
+ 7MDd2GDEiJGW5MA9YFG9zUd/urccyiczsPXXug7glzGGQ1kkaP9bAjd5lU0Y1v4hIZM7
+ uSJ72LhVOc6vseYW0dBOMEhO1xUeNdQWiP1aZqqeztS6Ecp0ARdMwSj0mAke709OlY9H
+ IbKAFTrtmT2cGgdBw9PnSWkGNbtnCabiniS8BbU1UmPqr/aypPisgk4vT7NyExSCj+N/
+ oYAZl2MW3CbAMaPkOBDz36QrkJBm50bC0gbiozt1K1DoMQ3dPnmmYeTpuuBpZTdZxvGP
+ ocLg==
+X-Gm-Message-State: AOAM530bAYdK+cU+wMD7/Wm79k2e9s25SxChMYgfzz5PiJQhzOk3HBMQ
+ 3nes50JaIOTbWBYWueYj2cL1fbDAetia5FZ/72s=
+X-Google-Smtp-Source: ABdhPJwKs/6J6K59SHxPCUJVmRs3c/Et02MftfleiTfkZ7qpvT/EN+91VaTZjZn+ojcG4yAIgaCF1NrTLKUqpfpuOBY=
+X-Received: by 2002:a05:600c:3011:b0:38e:ba57:8b79 with SMTP id
+ j17-20020a05600c301100b0038eba578b79mr14709846wmh.26.1650661503393; Fri, 22
+ Apr 2022 14:05:03 -0700 (PDT)
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <529de1fd-7e98-1634-c61e-0e69ddcd9e73@linaro.org>
-Cc: linux-hyperv@vger.kernel.org, Stuart Yoder <stuyoder@gmail.com>,
- "Rafael J. Wysocki" <rafael@kernel.org>, linux-pci@vger.kernel.org,
- linux-remoteproc@vger.kernel.org, alsa-devel@alsa-project.org,
- Peter Oberparleiter <oberpar@linux.ibm.com>,
- Vineeth Vijayan <vneethv@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>, linux-clk@vger.kernel.org,
- linux-s390@vger.kernel.org, Wei Liu <wei.liu@kernel.org>,
- Stephen Hemminger <sthemmin@microsoft.com>, Dexuan Cui <decui@microsoft.com>,
- Andy Shevchenko <andy.shevchenko@gmail.com>, Andy Gross <agross@kernel.org>,
- NXP Linux Team <linux-imx@nxp.com>, virtualization@lists.linux-foundation.org,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- linux-arm-msm@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>,
- Rasmus Villemoes <linux@rasmusvillemoes.dk>,
- Bjorn Helgaas <bhelgaas@google.com>,
- Bjorn Andersson <bjorn.andersson@linaro.org>,
- linux-arm-kernel@lists.infradead.org,
- Mathieu Poirier <mathieu.poirier@linaro.org>, linux-kernel@vger.kernel.org,
- linux-spi@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
- Linus Torvalds <torvalds@linux-foundation.org>
+References: <20220405173918.1000846-1-robdclark@gmail.com>
+ <CAPaKu7Tur-_Kf3Lb9U=98Yr_08onxPHNKTPh2anHU6zLPhr5ZQ@mail.gmail.com>
+In-Reply-To: <CAPaKu7Tur-_Kf3Lb9U=98Yr_08onxPHNKTPh2anHU6zLPhr5ZQ@mail.gmail.com>
+From: Rob Clark <robdclark@gmail.com>
+Date: Fri, 22 Apr 2022 14:06:08 -0700
+Message-ID: <CAF6AEGsUVDbqYOeDBXBOySfs+7ftVf5_86CiFGOLfY9fmQuEVQ@mail.gmail.com>
+Subject: Re: [PATCH] drm/virtio: Add execbuf flag to request no fence-event
+To: Chia-I Wu <olvaffe@gmail.com>
+Cc: Rob Clark <robdclark@chromium.org>, David Airlie <airlied@linux.ie>,
+ open list <linux-kernel@vger.kernel.org>,
+ ML dri-devel <dri-devel@lists.freedesktop.org>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Daniel Vetter <daniel@ffwll.ch>,
+ "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -98,20 +101,73 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Apr 20, 2022 at 11:20:06AM +0200, Krzysztof Kozlowski wrote:
-> On 19/04/2022 13:34, Krzysztof Kozlowski wrote:
-> 
-> Hi Greg, Rafael,
-> 
-> The patchset was for some time on the lists, got some reviews, some
-> changes/feedback which I hope I applied/responded.
-> 
-> Entire set depends on the driver core changes, so maybe you could pick
-> up everything via drivers core tree?
+On Tue, Apr 5, 2022 at 10:57 AM Chia-I Wu <olvaffe@gmail.com> wrote:
+>
+> On Tue, Apr 5, 2022 at 10:38 AM Rob Clark <robdclark@gmail.com> wrote:
+> >
+> > From: Rob Clark <robdclark@chromium.org>
+> >
+> > It would have been cleaner to have a flag to *request* the fence event.
+> > But that ship has sailed.  So add a flag so that userspace which doesn't
+> > care about the events can opt-out.
+> >
+> > Signed-off-by: Rob Clark <robdclark@chromium.org>
+> Reviewed-by: Chia-I Wu <olvaffe@gmail.com>
+>
+> Might want to wait for Gurchetan to chime in as he added the mechanism.
 
-Ok, will do, thanks.
+It turns out this patch is unnecessary.. I can simply not set
+VIRTGPU_CONTEXT_PARAM_POLL_RINGS_MASK instead
 
-greg k-h
+so self-nak for this patch ;-)
+
+BR,
+-R
+
+> > ---
+> >  drivers/gpu/drm/virtio/virtgpu_ioctl.c | 8 +++++---
+> >  include/uapi/drm/virtgpu_drm.h         | 2 ++
+> >  2 files changed, 7 insertions(+), 3 deletions(-)
+> >
+> > diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+> > index 3a8078f2ee27..09f1aa263f91 100644
+> > --- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+> > +++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+> > @@ -225,9 +225,11 @@ static int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
+> >                 goto out_unresv;
+> >         }
+> >
+> > -       ret = virtio_gpu_fence_event_create(dev, file, out_fence, ring_idx);
+> > -       if (ret)
+> > -               goto out_unresv;
+> > +       if (!(exbuf->flags & VIRTGPU_EXECBUF_NO_EVENT)) {
+> > +               ret = virtio_gpu_fence_event_create(dev, file, out_fence, ring_idx);
+> > +               if (ret)
+> > +                       goto out_unresv;
+> > +       }
+> >
+> >         if (out_fence_fd >= 0) {
+> >                 sync_file = sync_file_create(&out_fence->f);
+> > diff --git a/include/uapi/drm/virtgpu_drm.h b/include/uapi/drm/virtgpu_drm.h
+> > index 0512fde5e697..d06cac3407cc 100644
+> > --- a/include/uapi/drm/virtgpu_drm.h
+> > +++ b/include/uapi/drm/virtgpu_drm.h
+> > @@ -52,10 +52,12 @@ extern "C" {
+> >  #define VIRTGPU_EXECBUF_FENCE_FD_IN    0x01
+> >  #define VIRTGPU_EXECBUF_FENCE_FD_OUT   0x02
+> >  #define VIRTGPU_EXECBUF_RING_IDX       0x04
+> > +#define VIRTGPU_EXECBUF_NO_EVENT       0x08
+> >  #define VIRTGPU_EXECBUF_FLAGS  (\
+> >                 VIRTGPU_EXECBUF_FENCE_FD_IN |\
+> >                 VIRTGPU_EXECBUF_FENCE_FD_OUT |\
+> >                 VIRTGPU_EXECBUF_RING_IDX |\
+> > +               VIRTGPU_EXECBUF_NO_EVENT |\
+> >                 0)
+> >
+> >  struct drm_virtgpu_map {
+> > --
+> > 2.35.1
+> >
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
