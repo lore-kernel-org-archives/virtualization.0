@@ -1,110 +1,111 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 21463C433EF
-	for <virtualization@archiver.kernel.org>; Sun, 24 Apr 2022 13:47:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 484F0C433EF
+	for <virtualization@archiver.kernel.org>; Sun, 24 Apr 2022 14:53:23 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id ACC2B81D16;
-	Sun, 24 Apr 2022 13:47:04 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id C750E400FF;
+	Sun, 24 Apr 2022 14:53:22 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id m8mIo2OlLa_J; Sun, 24 Apr 2022 13:47:04 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 6875081CEF;
-	Sun, 24 Apr 2022 13:47:03 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id YLuuXYE7r624; Sun, 24 Apr 2022 14:53:21 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 3CF6440102;
+	Sun, 24 Apr 2022 14:53:21 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id F3FD1C0032;
-	Sun, 24 Apr 2022 13:47:02 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 9AB40C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 10E8AC0039;
+	Sun, 24 Apr 2022 14:53:21 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3F75AC002D
  for <virtualization@lists.linux-foundation.org>;
- Sun, 24 Apr 2022 13:47:01 +0000 (UTC)
+ Sun, 24 Apr 2022 14:53:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 7364D60BD1
+ by smtp1.osuosl.org (Postfix) with ESMTP id 3A99F81CA7
  for <virtualization@lists.linux-foundation.org>;
- Sun, 24 Apr 2022 13:47:01 +0000 (UTC)
+ Sun, 24 Apr 2022 14:53:20 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=gmail.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 0MwQ_yp16WtM
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=blackwall-org.20210112.gappssmtp.com
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id bdMF-OuDQxhh
  for <virtualization@lists.linux-foundation.org>;
- Sun, 24 Apr 2022 13:47:00 +0000 (UTC)
+ Sun, 24 Apr 2022 14:53:18 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-qk1-x72f.google.com (mail-qk1-x72f.google.com
- [IPv6:2607:f8b0:4864:20::72f])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 23B4D60BB4
+Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com
+ [IPv6:2a00:1450:4864:20::62d])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 05C5C81CA3
  for <virtualization@lists.linux-foundation.org>;
- Sun, 24 Apr 2022 13:46:59 +0000 (UTC)
-Received: by mail-qk1-x72f.google.com with SMTP id b189so9083967qkf.11
+ Sun, 24 Apr 2022 14:53:17 +0000 (UTC)
+Received: by mail-ej1-x62d.google.com with SMTP id kq17so1931837ejb.4
  for <virtualization@lists.linux-foundation.org>;
- Sun, 24 Apr 2022 06:46:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=8dwBFVIXy534bKGTyyuJDK1gwkEa8o2qP7YdajUgu+g=;
- b=FDkvAgGJ0PNObM/pCjxbWmTzNac5Abl0qKcS/HIco9/IQWF/WCLCbIi0rOXELA4qn6
- lSTMqWF/bEQROUJqEOEpx+Uu7nWjFz6463+8HYFmn2ETfkEngvRqkpU12Pt6zhzL5rCS
- bKn+Hq0lzHn3XLpvDTHWBTtOl23F5TLp/BIbL9qiExOPLM+0yQ7IibHzl7UhhFMMMeSe
- 1ndmRdGC1it3S3VickSXM/DIn0qUXIAS7FpajpuxwlJX2GprH32Y/I89kV+Xz/FxtsUc
- j0GnQL7hHBHwNvOw5tVhUFpaWNCWr3AvacGSUv8LJ/hyFhEpExE1LWvaU4MxoOcUoqVv
- +6bg==
+ Sun, 24 Apr 2022 07:53:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=blackwall-org.20210112.gappssmtp.com; s=20210112;
+ h=message-id:date:mime-version:user-agent:subject:content-language:to
+ :cc:references:from:in-reply-to:content-transfer-encoding;
+ bh=FSdZ0EyibnPl6YT5BPXSx2licUaKCWt4bsCgOsnNmbs=;
+ b=cEgn8A/O1H9H+dljfA0EHahDbm8xweR+PBmjeE/tslJYO7M5LAALrv40xHWj5tRgzj
+ QUeU5t+g7yligkmFEpWyS9oOd12tjyuQWe9u23EC9Yfn6O+IEhyZm7IVaotizt1G61Lj
+ wqmF8lIbozjr9VAOwl3Dh3esd6XTXom0IYWDm/46S7rkhSDsE5FriTGBZXYRNBjXJwp5
+ akPvfUi7vx2/KeQcQ2x68XhmbZiR0VP+BkmUHO5rF7q/+cckwZ+TZZmpqm1d3VPTc8yF
+ RceUXmt4gQrlXK24K/bn6k28xIKbzzdbYRNB+h3fGlkiSVHjvupqvCns72EZ6+V6M2gA
+ IebA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=8dwBFVIXy534bKGTyyuJDK1gwkEa8o2qP7YdajUgu+g=;
- b=h54K2QLvC824dfO2CNAMFOHZhhU81QLAlw5dz0RkbADNmEqhExJ3HrbppXEajER45Z
- CQQLgVGvnjI/LE6xUI1Bh+CxWMYmjR61IplR4BbENIIfQfyjBF7Gr/r39XC+3UKEL4hi
- VBl986jWuEKNdEIpOO85wuKoE2lzsnpiq8DLjR7NmoHYZ1PWjq2TlxD/XrS6zNew6Ql8
- i1u7/SleBwLLysE4MxJg0phQbZf+DVXZXPeH0IUbsLqut0Ew7A/r60oKdlVwRR7Qs84m
- UfEUFqi0IqL+v8cyv91JFwSFRPeRY6r11gn3XcAxe76A5pWCePm8OcJQhnzg/wO8+7Ez
- eH6Q==
-X-Gm-Message-State: AOAM531zQN+He5y/8W30bRS3ssE+E65MXtlNZklXeuIDlTsuLe1AEwmZ
- xf+kuHOIZ6RQUF70BBwnCXgi8esr91M=
-X-Google-Smtp-Source: ABdhPJzD5X8Z42r5OShcOG9lmcNMPperrjWBK4Vo5Q1TgxsFE+F07I3jGq7eSp/iQPzr7YiSM9Rekg==
-X-Received: by 2002:a37:ad0:0:b0:69e:eb4d:7334 with SMTP id
- 199-20020a370ad0000000b0069eeb4d7334mr7548055qkk.706.1650808018749; 
- Sun, 24 Apr 2022 06:46:58 -0700 (PDT)
-Received: from mail-yb1-f175.google.com (mail-yb1-f175.google.com.
- [209.85.219.175]) by smtp.gmail.com with ESMTPSA id
- b28-20020a05620a271c00b0069f52b96667sm433916qkp.53.2022.04.24.06.46.57
- for <virtualization@lists.linux-foundation.org>
+ h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+ :content-language:to:cc:references:from:in-reply-to
+ :content-transfer-encoding;
+ bh=FSdZ0EyibnPl6YT5BPXSx2licUaKCWt4bsCgOsnNmbs=;
+ b=6mvoUfN2TkmziJUQ6qOGCXjOVYdzF9kQqr2HpT+g0yV9DLbCVNnZgr6B83r+B+IePF
+ SMIaiZF0O1cxBKHnEWjDGuvWLKKDF+wdxhVwpwfLKvnn2xYlTUlDrM3UVtw5AfTwBzR3
+ 1sHx/WbqiD6FfvpM2gwOorHC7gBXej5DtBB83ir65mVZCadOfDGVKAHEgwRLZ8uQIEjH
+ AmSISXNLjkabnsHw4HGV1bkQEX33peL2a7hUGGY/HX+egfcAsWsytyYBlhDlex6VIwT+
+ PvfQUq0g3VZuxkTnCGFnfgn5DmCtEaQHmQ5MjHypUtp4vXPMov9drvOD94KmnwEKC2Fp
+ a1NQ==
+X-Gm-Message-State: AOAM5301Q002yPfyZUWDKZ1ouEUyE6WZtg9+Ae6hQ2AAnsemwkS5+uIs
+ +udGu6qmKB6BTIzOwDaVPwuJbw==
+X-Google-Smtp-Source: ABdhPJwWjaofBEbFz/c/hWVLkFBaESJwklRq20VejH/s4tBbb7ui2abSGJ3PTtuJRwRZ9UFJK++SZQ==
+X-Received: by 2002:a17:906:9b85:b0:6e0:5c22:f0df with SMTP id
+ dd5-20020a1709069b8500b006e05c22f0dfmr12285346ejc.114.1650811995827; 
+ Sun, 24 Apr 2022 07:53:15 -0700 (PDT)
+Received: from [192.168.0.111] (87-243-81-1.ip.btc-net.bg. [87.243.81.1])
+ by smtp.gmail.com with ESMTPSA id
+ 17-20020a170906059100b006cee1bceddasm2629473ejn.130.2022.04.24.07.53.14
  (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Sun, 24 Apr 2022 06:46:57 -0700 (PDT)
-Received: by mail-yb1-f175.google.com with SMTP id v59so9791857ybi.12
- for <virtualization@lists.linux-foundation.org>;
- Sun, 24 Apr 2022 06:46:57 -0700 (PDT)
-X-Received: by 2002:a05:6902:10c2:b0:645:192e:1a88 with SMTP id
- w2-20020a05690210c200b00645192e1a88mr13139818ybu.117.1650808016622; Sun, 24
- Apr 2022 06:46:56 -0700 (PDT)
+ Sun, 24 Apr 2022 07:53:15 -0700 (PDT)
+Message-ID: <540a850d-11f3-5d14-a9e7-0cf78e878b75@blackwall.org>
+Date: Sun, 24 Apr 2022 17:53:14 +0300
 MIME-Version: 1.0
-References: <20220420082758.581245-1-liuhangbin@gmail.com>
- <CA+FuTScyF4BKEcNSCYOv8SBA_EmB806YtKA17jb3F+fymVF-Pg@mail.gmail.com>
- <YmDCHI330AUfcYKa@Laptop-X1>
- <CA+FuTSckEJVUH1Q2vBxGbfPgVteyDVmTfjJC6hBj=qRP+JcAxA@mail.gmail.com>
- <YmIOLBihyeLy+PCS@Laptop-X1>
- <CA+FuTSfzcAUXrxzbLd-MPctTyLu8USJQ4gvsqPBfLpA+svYMYA@mail.gmail.com>
- <YmS2Gd6c1b+o5nyR@Laptop-X1>
-In-Reply-To: <YmS2Gd6c1b+o5nyR@Laptop-X1>
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Date: Sun, 24 Apr 2022 09:46:19 -0400
-X-Gmail-Original-Message-ID: <CA+FuTSe7zNmJ0JpouMoCFrt5AR19HJQVzDsB3BK46A9rNfowYw@mail.gmail.com>
-Message-ID: <CA+FuTSe7zNmJ0JpouMoCFrt5AR19HJQVzDsB3BK46A9rNfowYw@mail.gmail.com>
-Subject: Re: [PATCH net-next] net/af_packet: add VLAN support for AF_PACKET
- SOCK_RAW GSO
-To: Hangbin Liu <liuhangbin@gmail.com>
-Cc: Maxim Mikityanskiy <maximmi@mellanox.com>,
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
- "Michael S . Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
- Eric Dumazet <edumazet@google.com>, virtualization@lists.linux-foundation.org,
- Balazs Nemeth <bnemeth@redhat.com>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Mike Pattrick <mpattric@redhat.com>,
- "David S . Miller" <davem@davemloft.net>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH net v2] virtio_net: fix wrong buf address calculation when
+ using xdp
+Content-Language: en-US
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+References: <20220423112612.2292774-1-razor@blackwall.org>
+ <1650720683.8168066-1-xuanzhuo@linux.alibaba.com>
+ <8d511a16-8d69-82b1-48a1-24de3a592aef@blackwall.org>
+ <a58bfd2c-4f83-11fe-08d1-19c1d6497fc2@blackwall.org>
+ <1650724608.256497-2-xuanzhuo@linux.alibaba.com>
+ <c206c147-ad7e-b615-2e96-572482335563@blackwall.org>
+ <1650726113.2334588-1-xuanzhuo@linux.alibaba.com>
+ <ff95db6e-5a0a-7e63-080f-c719ac434c34@blackwall.org>
+ <c7e49737-c5f8-5164-88ad-599c828c5d23@blackwall.org>
+ <20220424102121.2686893-1-razor@blackwall.org>
+ <1650796959.4611728-1-xuanzhuo@linux.alibaba.com>
+ <94172c53-2919-9eab-7933-91a78bdb87f0@blackwall.org>
+ <1650799132.122562-1-xuanzhuo@linux.alibaba.com>
+From: Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <1650799132.122562-1-xuanzhuo@linux.alibaba.com>
+Cc: Daniel Borkmann <daniel@iogearbox.net>,
+ "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
+ stable@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ kuba@kernel.org, davem@davemloft.net
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -121,39 +122,139 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sat, Apr 23, 2022 at 10:31 PM Hangbin Liu <liuhangbin@gmail.com> wrote:
->
-> On Fri, Apr 22, 2022 at 05:39:48PM -0400, Willem de Bruijn wrote:
-> > > If we split skb_probe_transport_header() from packet_parse_headers() and
-> > > move it before calling virtio_net_hdr_* function in packet_snd(). Should
-> > > we do the same for tpacket_snd(), i.e. move skb_probe_transport_header()
-> > > after the virtio_net_hdr_* function?
-> >
-> > That sounds like the inverse: "move after" instead of "move before"?
->
-> That's for "split packet_parse_headers()" option.
->
-> >
-> > But I thought the plan was to go back to your last patch which brings
-> > packet_snd in line with tpacket_snd by moving packet_parse_headers in
-> > its entirety before virtio_net_hdr_*?
->
-> Yes, exactly.
->
-> > > So my conclusion is. There is no need to split packet_parse_headers(). Move
-> > > packet_parse_headers() before calling virtio_net_hdr_* function in packet_snd()
-> > > should be safe.
-> >
-> > Ack. Sorry if my last response was not entirely clear on this point.
->
-> Thanks a lot for your review. Do you think if I need to re-post the patch?
-> Or will you give an Acked-by for this one?
+On 24/04/2022 14:18, Xuan Zhuo wrote:
+> On Sun, 24 Apr 2022 13:56:17 +0300, Nikolay Aleksandrov <razor@blackwall.org> wrote:
+>> On 24/04/2022 13:42, Xuan Zhuo wrote:
+>>> On Sun, 24 Apr 2022 13:21:21 +0300, Nikolay Aleksandrov <razor@blackwall.org> wrote:
+[snip]
+>>>>
+>>>> CC: stable@vger.kernel.org
+>>>> CC: Jason Wang <jasowang@redhat.com>
+>>>> CC: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+>>>> CC: Daniel Borkmann <daniel@iogearbox.net>
+>>>> CC: "Michael S. Tsirkin" <mst@redhat.com>
+>>>> CC: virtualization@lists.linux-foundation.org
+>>>> Fixes: 8fb7da9e9907 ("virtio_net: get build_skb() buf by data ptr")
+>>>> Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
+>>>> ---
+>>>> v2: Recalculate headroom based on data, data_hard_start and data_meta
+>>>>
+>>>>  drivers/net/virtio_net.c | 8 +++++++-
+>>>>  1 file changed, 7 insertions(+), 1 deletion(-)
+>>>>
+>>>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>>>> index 87838cbe38cf..a12338de7ef1 100644
+>>>> --- a/drivers/net/virtio_net.c
+>>>> +++ b/drivers/net/virtio_net.c
+>>>> @@ -1005,6 +1005,12 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+>>>>  			 * xdp.data_meta were adjusted
+>>>>  			 */
+>>>>  			len = xdp.data_end - xdp.data + vi->hdr_len + metasize;
+>>>> +
+>>>> +			/* recalculate headroom if xdp.data or xdp.data_meta
+>>>> +			 * were adjusted
+>>>> +			 */
+>>>> +			headroom = xdp.data - xdp.data_hard_start - metasize;
+>>>
+>>>
+>>> This is incorrect.
+>>>
+>>>
+>>> 		data = page_address(xdp_page) + offset;
+>>> 		xdp_init_buff(&xdp, frame_sz - vi->hdr_len, &rq->xdp_rxq);
+>>> 		xdp_prepare_buff(&xdp, data - VIRTIO_XDP_HEADROOM + vi->hdr_len,
+>>> 				 VIRTIO_XDP_HEADROOM, len - vi->hdr_len, true);
+>>>
+>>> so: xdp.data_hard_start = page_address(xdp_page) + offset - VIRTIO_XDP_HEADROOM + vi->hdr_len
+>>>
+>>> (page_address(xdp_page) + offset) points to virtio-net hdr.
+>>> (page_address(xdp_page) + offset - VIRTIO_XDP_HEADROOM) points to the allocated buf.
+>>>
+>>> xdp.data_hard_start points to buf + vi->hdr_len
+>>>
+>>> Thanks.
+>>>
+>>
+>> xdp.data points to buf + vi->hdr_len + VIRTIO_XDP_HEADROOM, so we calculate
+>> xdp.data - xdp.data_hard_start, i.e. buf + vi->hdr_len + VIRTIO_XDP_HEADROOM - (buf + vi->hdr_len)
+>>
+>> You can see the headrooms from my tests above, they are correct and they match exactly
+>> the values from the headroom calculations that you suggested earlier.
+> 
+> 
+> OK. You are right, xdp.data, xdp.data_hard_start have an offset of hdr_len. I
+> hope this can be explained in the comments, because the headroom we want to get
+> is virtio_hdr - buf. Although the value here are equal.
+> 
 
-Please resubmit. And then please also add the comment about tap having
-the same path.
+I think it's normal for them to be equal because buf + offset points to vnet_hdr start,
+that is it doesn't include the vnet_hdr size, so all that is left to subtract to get
+to buf is offset - headroom after the prepare (given correct headroom, of course). 
+The linearized xdp page buf has the following initial geometry (at prepare):
+ offset = VIRTIO_XDP_HEADROOM
+ headroom = VIRTIO_XDP_HEADROOM
+ data_hard_start = page_address + vnet_hdr
+ data = page_address + vnet_hdr + headroom
+ data_meta = data
 
->
-> Hangbin
+after xdp prog has run:
+offset is recalculated as: (page_address + vnet_hdr + adjusted headroom) - page_address -
+                            vnet_hdr - metasize = adjusted headroom - metasize
+
+I wrote adjusted headroom because it depends on data and data_meta adjustments done by
+the xdp prog, so based on the above we can get back to page_address (or buf if it's a virtnet
+buf) by subtracting the following headroom recalculation:
+ headroom = data - data_hard_start - metasize =
+ (page_address + vnet_hdr + adjusted headroom) - page_address - vnet_hdr - metasize =
+ adjusted headroom - metasize
+
+That is because in page_to_skb() p points to page_address + recalculated offset, i.e.
+p = page_address + (adjusted headroom - metasize) for the linearized case.
+For the other case it's the same just the initial offset is a larger value.
+
+I'll add a comment that page_address + offset always points to vnet_hdr start so
+it will be equal to headroom which is data - data_hard_start because we have
+data = page_address + vnet_hdr + adjusted headroom and data_hard_start at page_address
++ vnet_hdr. Note that we have adjusted headroom + vnet_hdr bytes available behind data
+always, so for offset to point to vnet_hdr it has to be equal to headroom, it just
+starts at page_address while the actual headroom starts at page_address + vnet_hdr to
+reserve that many bytes.
+
+I'll see how I can make that more concise. :)
+
+> In addition, if you are going to post v2, I think you should post a new thread
+> separately instead of replying in the previous thread.
+> 
+
+sure, I don't mind either way
+
+> Thanks.
+> 
+> 
+
+Cheers,
+ Nik
+
+>>
+>>>
+>>>> +
+>>>>  			/* We can only create skb based on xdp_page. */
+>>>>  			if (unlikely(xdp_page != page)) {
+>>>>  				rcu_read_unlock();
+>>>> @@ -1012,7 +1018,7 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+>>>>  				head_skb = page_to_skb(vi, rq, xdp_page, offset,
+>>>>  						       len, PAGE_SIZE, false,
+>>>>  						       metasize,
+>>>> -						       VIRTIO_XDP_HEADROOM);
+>>>> +						       headroom);
+>>>>  				return head_skb;
+>>>>  			}
+>>>>  			break;
+>>>> --
+>>>> 2.35.1
+>>>>
+>>
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
