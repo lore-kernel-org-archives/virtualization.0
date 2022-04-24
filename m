@@ -1,56 +1,56 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1620FC433F5
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A4D02C4332F
 	for <virtualization@archiver.kernel.org>; Sun, 24 Apr 2022 02:41:07 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id C6591410A6;
-	Sun, 24 Apr 2022 02:41:06 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 681C74055E;
+	Sun, 24 Apr 2022 02:41:07 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id qaoxnJjYT1tb; Sun, 24 Apr 2022 02:41:05 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id BxOcNRKg2JQt; Sun, 24 Apr 2022 02:41:06 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id D58E84171B;
-	Sun, 24 Apr 2022 02:41:04 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 1151C4090E;
+	Sun, 24 Apr 2022 02:41:06 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8F243C008A;
-	Sun, 24 Apr 2022 02:41:03 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 93B5DC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id DEFC9C0032;
+	Sun, 24 Apr 2022 02:41:05 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 27FDEC007E
  for <virtualization@lists.linux-foundation.org>;
- Sun, 24 Apr 2022 02:41:02 +0000 (UTC)
+ Sun, 24 Apr 2022 02:41:03 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 80C934064B
+ by smtp2.osuosl.org (Postfix) with ESMTP id CBF944055E
  for <virtualization@lists.linux-foundation.org>;
  Sun, 24 Apr 2022 02:41:02 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 8mrKrJKIV0ry
+ with ESMTP id CgFyL1NVzLTV
  for <virtualization@lists.linux-foundation.org>;
  Sun, 24 Apr 2022 02:41:02 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from out30-54.freemail.mail.aliyun.com
- (out30-54.freemail.mail.aliyun.com [115.124.30.54])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 8FE774060F
+Received: from out199-14.us.a.mail.aliyun.com (out199-14.us.a.mail.aliyun.com
+ [47.90.199.14])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id A4B0D40641
  for <virtualization@lists.linux-foundation.org>;
  Sun, 24 Apr 2022 02:41:01 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R191e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04357; MF=xuanzhuo@linux.alibaba.com;
- NM=1; PH=DS; RN=4; SR=0; TI=SMTPD_---0VAzpPKJ_1650768058; 
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R161e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04407; MF=xuanzhuo@linux.alibaba.com;
+ NM=1; PH=DS; RN=4; SR=0; TI=SMTPD_---0VAzbmsJ_1650768056; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VAzpPKJ_1650768058) by smtp.aliyun-inc.com(127.0.0.1);
- Sun, 24 Apr 2022 10:40:59 +0800
+ fp:SMTPD_---0VAzbmsJ_1650768056) by smtp.aliyun-inc.com(127.0.0.1);
+ Sun, 24 Apr 2022 10:40:57 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: linux-kernel@vger.kernel.org
-Subject: [RFC PATCH 16/16] virtio_ring: virtqueue_resize() no longer call
- recycle() directly
-Date: Sun, 24 Apr 2022 10:40:44 +0800
-Message-Id: <20220424024044.94749-17-xuanzhuo@linux.alibaba.com>
+Subject: [RFC PATCH 14/16] virtio_ring: packed: introduce
+ vring_reuse_bufs_packed()
+Date: Sun, 24 Apr 2022 10:40:42 +0800
+Message-Id: <20220424024044.94749-15-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20220424024044.94749-1-xuanzhuo@linux.alibaba.com>
 References: <20220424024044.94749-1-xuanzhuo@linux.alibaba.com>
@@ -74,51 +74,75 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-virtqueue_resize() no longer calls the recycle callback to release the
-buffer. These bufs are reused by virtqueue_resize_* first, and if they
-cannot be used, the buffers that cannot be reused will be released
+vring_reuse_bufs_packed() checks vring.desc forward based on
+last_used_idx. The resulting buffers are the order in which they were
+committed.
+
+It is beneficial to ensure the order of buffers in the process of reuse.
+For example, under virtio-net, if the order is not guaranteed, it may
+lead to out-of-order tcp streams.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 ---
- drivers/virtio/virtio_ring.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/virtio/virtio_ring.c | 45 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 45 insertions(+)
 
 diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 730c8dded4c7..51dab35a54c9 100644
+index 8ca9985ffb4b..66f71e22ece0 100644
 --- a/drivers/virtio/virtio_ring.c
 +++ b/drivers/virtio/virtio_ring.c
-@@ -2895,7 +2895,6 @@ int virtqueue_resize(struct virtqueue *_vq, u32 num,
- 	struct vring_virtqueue *vq = to_vvq(_vq);
- 	struct virtio_device *vdev = vq->vq.vdev;
- 	bool packed;
--	void *buf;
- 	int err;
- 
- 	if (!vq->we_own_ring)
-@@ -2922,16 +2921,19 @@ int virtqueue_resize(struct virtqueue *_vq, u32 num,
- 	if (err)
- 		return err;
- 
--	while ((buf = virtqueue_detach_unused_buf(_vq)) != NULL)
--		recycle(_vq, buf);
--
- 	if (packed)
- 		err = virtqueue_resize_packed(_vq, num, recycle);
- 	else
- 		err = virtqueue_resize_split(_vq, num, recycle);
- 
--	if (vdev->config->enable_reset_vq(_vq))
-+	if (vdev->config->enable_reset_vq(_vq)) {
- 		return -EBUSY;
-+	} else if (!err) {
-+		num = packed ? vq->packed.vring.num : vq->split.vring.num;
-+
-+		if (num != vq->vq.num_free)
-+			virtqueue_kick(_vq);
-+	}
- 
- 	return err;
+@@ -2041,6 +2041,51 @@ static bool virtqueue_enable_cb_delayed_packed(struct virtqueue *_vq)
+ 	return true;
  }
+ 
++static void vring_reuse_bufs_packed(struct vring_virtqueue *vq,
++				    struct vring_virtqueue_packed *vring,
++				    void (*recycle)(struct virtqueue *vq, void *buf))
++{
++	struct vring_desc_state_packed *state;
++	u32 last_used, id, desc_num = 0;
++	int err = 0;
++	void *buf;
++
++	last_used = vring->last_used_idx;
++
++	do {
++		id = le16_to_cpu(vring->vring.desc[last_used].id);
++
++		state = &vring->desc_state[id];
++
++		if (!state->data) {
++			last_used++;
++			goto next;
++		}
++
++		/* once add to vq fail, no more try add to vq. */
++		if (err >= 0) {
++			err = vring_copy_to_vq_packed(vq, vring, id);
++			if (err >= 0)
++				goto ok;
++		}
++
++		buf = state->data;
++		detach_buf_from_vring_packed(vring, vq, id, 0, NULL);
++		recycle(&vq->vq, buf);
++
++ok:
++		last_used += state->num;
++		desc_num += state->num;
++
++next:
++		if (unlikely(last_used >= vring->vring.num))
++			last_used -= vring->vring.num;
++
++	} while (last_used != vring->last_used_idx);
++
++	WARN_ON(vring->num_left != desc_num);
++}
++
+ static void *virtqueue_detach_unused_buf_packed(struct virtqueue *_vq)
+ {
+ 	struct vring_virtqueue *vq = to_vvq(_vq);
 -- 
 2.31.0
 
