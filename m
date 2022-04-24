@@ -4,52 +4,53 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0ADE0C433F5
-	for <virtualization@archiver.kernel.org>; Sun, 24 Apr 2022 02:41:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6A3C5C433FE
+	for <virtualization@archiver.kernel.org>; Sun, 24 Apr 2022 02:41:02 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id C968D81CE1;
-	Sun, 24 Apr 2022 02:41:00 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 049D781D70;
+	Sun, 24 Apr 2022 02:41:02 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id V5ZmLor_0H5w; Sun, 24 Apr 2022 02:41:00 +0000 (UTC)
+	with ESMTP id sIaQEmATcJmb; Sun, 24 Apr 2022 02:41:01 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 6C71581B70;
-	Sun, 24 Apr 2022 02:40:59 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 5B0AA81C67;
+	Sun, 24 Apr 2022 02:41:00 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 918ACC007F;
-	Sun, 24 Apr 2022 02:40:58 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 634BBC007E;
+	Sun, 24 Apr 2022 02:40:59 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 03FF6C0032
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 198BBC007A
  for <virtualization@lists.linux-foundation.org>;
- Sun, 24 Apr 2022 02:40:55 +0000 (UTC)
+ Sun, 24 Apr 2022 02:40:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id DF9C781A73
+ by smtp1.osuosl.org (Postfix) with ESMTP id 5D5AD81AC4
  for <virtualization@lists.linux-foundation.org>;
- Sun, 24 Apr 2022 02:40:52 +0000 (UTC)
+ Sun, 24 Apr 2022 02:40:54 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id UTKt--V_suHD
+ with ESMTP id hTO12GpsfUG4
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 24 Apr 2022 02:40:53 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from out30-130.freemail.mail.aliyun.com
+ (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 1F72A81A39
  for <virtualization@lists.linux-foundation.org>;
  Sun, 24 Apr 2022 02:40:52 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from out30-44.freemail.mail.aliyun.com
- (out30-44.freemail.mail.aliyun.com [115.124.30.44])
- by smtp1.osuosl.org (Postfix) with ESMTPS id EB1F281A39
- for <virtualization@lists.linux-foundation.org>;
- Sun, 24 Apr 2022 02:40:51 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R131e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04395; MF=xuanzhuo@linux.alibaba.com;
- NM=1; PH=DS; RN=4; SR=0; TI=SMTPD_---0VAzbmr0_1650768049; 
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R331e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04407; MF=xuanzhuo@linux.alibaba.com;
+ NM=1; PH=DS; RN=4; SR=0; TI=SMTPD_---0VAzpPIr_1650768049; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VAzbmr0_1650768049) by smtp.aliyun-inc.com(127.0.0.1);
- Sun, 24 Apr 2022 10:40:49 +0800
+ fp:SMTPD_---0VAzpPIr_1650768049) by smtp.aliyun-inc.com(127.0.0.1);
+ Sun, 24 Apr 2022 10:40:50 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: linux-kernel@vger.kernel.org
-Subject: [RFC PATCH 05/16] virtio_ring: split: support copy from vring
-Date: Sun, 24 Apr 2022 10:40:33 +0800
-Message-Id: <20220424024044.94749-6-xuanzhuo@linux.alibaba.com>
+Subject: [RFC PATCH 06/16] virtio_ring: split: introduce
+ vring_reuse_bufs_split()
+Date: Sun, 24 Apr 2022 10:40:34 +0800
+Message-Id: <20220424024044.94749-7-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20220424024044.94749-1-xuanzhuo@linux.alibaba.com>
 References: <20220424024044.94749-1-xuanzhuo@linux.alibaba.com>
@@ -73,89 +74,109 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-To support reusing old buffers during resize.
+This patch will resubmit the buffers to the new vq in the order in which
+they were submitted.
 
-This patch implements copying a buffer from the detached vring to the vq
-where the new vring is attached.
+In order to get these buffers in order, the patch will get the buffers
+from the avail ring. We can know the current position of the avail ring
+from vring.avail->idx.
 
-This process is similar to virtqueue_add_split(), but skips DMA. Use
-the function virtqueue_update_split() provided by the previous patch to
-update the state of the vq.
+First, check backward from idx. If a state appears repeatedly, it means
+that the buffer corresponding to this state has been consumed by the
+device and resubmitted. We will remove the subsequent state from the
+queue. Then move forward from the position where idx ends, the buffers
+encountered at this time are the order in which they were submitted.
+
+It is beneficial to ensure the order of buffers in the process of reuse.
+For example, under virtio-net, if the order is not guaranteed, it may
+lead to out-of-order tcp streams.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 ---
- drivers/virtio/virtio_ring.c | 60 ++++++++++++++++++++++++++++++++++++
- 1 file changed, 60 insertions(+)
+ drivers/virtio/virtio_ring.c | 65 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 65 insertions(+)
 
 diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index aa85058978cb..167442cfdb2a 100644
+index 167442cfdb2a..02d4ffcc0a3b 100644
 --- a/drivers/virtio/virtio_ring.c
 +++ b/drivers/virtio/virtio_ring.c
-@@ -703,6 +703,66 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
- 	return -ENOMEM;
+@@ -69,6 +69,7 @@
+ struct vring_desc_state_split {
+ 	void *data;			/* Data for callback. */
+ 	struct vring_desc *indir_desc;	/* Indirect descriptor, if any. */
++	bool checked;
+ };
+ 
+ struct vring_desc_state_packed {
+@@ -1007,6 +1008,70 @@ static bool virtqueue_enable_cb_delayed_split(struct virtqueue *_vq)
+ 	return true;
  }
  
-+static u32 vring_copy_desc_split(struct vring_virtqueue *vq, u32 i,
-+				 struct vring_virtqueue_split *vring,
-+				 u32 src)
++static void vring_reuse_bufs_split(struct vring_virtqueue *vq,
++				   struct vring_virtqueue_split *vring,
++				   void (*recycle)(struct virtqueue *vq, void *buf))
 +{
-+	struct vring_desc_extra *extra = vq->split.desc_extra;
-+	struct vring_desc *desc = vq->split.vring.desc;
-+	u16 next;
++	u32 head, num, idx, oidx, i, desc_num = 0;
++	u16 null, *p;
++	int err = 0;
++	void *buf;
 +
-+	desc[i].flags = vring->vring.desc[src].flags;
-+	desc[i].addr  = vring->vring.desc[src].addr;
-+	desc[i].len   = vring->vring.desc[src].len;
++	num = vring->vring.num;
 +
-+	next = extra[i].next;
++	oidx = le16_to_cpu(vring->vring.avail->idx) - 1;
++	null = vring->vring.avail->ring[oidx & (num - 1)];
 +
-+	desc[i].next = cpu_to_virtio16(vq->vq.vdev, next);
++	/*
++	 * Check in the opposite direction in the avail ring. If a state appears
++	 * repeatedly, it means that the state has been used and rejoined the
++	 * avail ring.
++	 */
++	for (i = 0, idx = oidx; i < num; ++i, --idx) {
++		p = &vring->vring.avail->ring[idx & (num - 1)];
 +
-+	extra[i].addr  = vring->desc_extra[src].addr;
-+	extra[i].len   = vring->desc_extra[src].len;
-+	extra[i].flags = vring->desc_extra[src].flags;
++		head = virtio32_to_cpu(vq->vq.vdev, *p);
 +
-+	return next;
-+}
++		if (vring->desc_state[head].checked) {
++			*p = null;
++			continue;
++		}
 +
-+static int vring_copy_to_vq_split(struct vring_virtqueue *vq,
-+				  struct vring_virtqueue_split *vring,
-+				  u32 old_index)
-+{
-+	__virtio16 nextflag = cpu_to_virtio16(vq->vq.vdev, VRING_DESC_F_NEXT);
-+	struct vring_desc_state_split *state;
-+	u32 i, num = 1, old_idx;
-+
-+	old_idx = old_index;
-+	while (vring->vring.desc[old_idx].flags & nextflag) {
-+		old_idx = vring->desc_extra[old_idx].next;
-+		++num;
++		vring->desc_state[head].checked = true;
 +	}
 +
-+	if (num > vq->vq.num_free)
-+		return -ENOSPC;
++	/*
++	 * Checking the avail ring forward, the non-null states encountered are
++	 * the order in which they were added to the avail ring.
++	 */
++	for (i = 0, ++idx; i < num; ++i, ++idx) {
++		p = &vring->vring.avail->ring[idx & (num - 1)];
++		if (*p == null && idx != oidx)
++			continue;
 +
-+	i = vq->free_head;
++		head = virtio32_to_cpu(vq->vq.vdev, *p);
 +
-+	old_idx = old_index;
-+	while (vring->vring.desc[old_idx].flags & nextflag) {
-+		i = vring_copy_desc_split(vq, i, vring, old_idx);
++		if (!vring->desc_state[head].data)
++			continue;
 +
-+		old_idx = vring->desc_extra[old_idx].next;
++		/* once add to vq fail, no more try add to vq. */
++		if (err >= 0) {
++			err = vring_copy_to_vq_split(vq, vring, head);
++			if (err >= 0) {
++				desc_num += err;
++				continue;
++			}
++		}
++
++		buf = vring->desc_state[head].data;
++		desc_num += detach_buf_from_vring_split(vring, vq, head, 0,
++							NULL);
++		recycle(&vq->vq, buf);
 +	}
 +
-+	i = vring_copy_desc_split(vq, i, vring, old_idx);
-+
-+	state = &vring->desc_state[old_index];
-+
-+	virtqueue_update_split(vq, num, i, state->indir_desc, state->data);
-+
-+	state->data = NULL;
-+
-+	return num;
++	WARN_ON(vring->num_left != desc_num);
 +}
 +
- static bool virtqueue_kick_prepare_split(struct virtqueue *_vq)
+ static void *virtqueue_detach_unused_buf_split(struct virtqueue *_vq)
  {
  	struct vring_virtqueue *vq = to_vvq(_vq);
 -- 
