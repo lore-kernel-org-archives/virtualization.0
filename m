@@ -4,102 +4,57 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 841B3C433F5
-	for <virtualization@archiver.kernel.org>; Sat, 23 Apr 2022 15:56:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8DED2C433FE
+	for <virtualization@archiver.kernel.org>; Sun, 24 Apr 2022 02:40:54 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 20248415CC;
-	Sat, 23 Apr 2022 15:56:00 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 25E4140933;
+	Sun, 24 Apr 2022 02:40:54 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id FVuLAU1Y3V1L; Sat, 23 Apr 2022 15:55:59 +0000 (UTC)
+	with ESMTP id xwWl7aXKmF3k; Sun, 24 Apr 2022 02:40:53 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 693EE415AF;
-	Sat, 23 Apr 2022 15:55:58 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 6265A40924;
+	Sun, 24 Apr 2022 02:40:52 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3F50BC0039;
-	Sat, 23 Apr 2022 15:55:58 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 66F12C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3EFF2C0032;
+	Sun, 24 Apr 2022 02:40:52 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 03F8CC002D
  for <virtualization@lists.linux-foundation.org>;
- Sat, 23 Apr 2022 15:55:56 +0000 (UTC)
+ Sun, 24 Apr 2022 02:40:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 4D15B60A6D
+ by smtp1.osuosl.org (Postfix) with ESMTP id DF9E981A23
  for <virtualization@lists.linux-foundation.org>;
- Sat, 23 Apr 2022 15:55:56 +0000 (UTC)
+ Sun, 24 Apr 2022 02:40:50 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=blackwall-org.20210112.gappssmtp.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id CQmpkxx6DgWv
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id QbYxHaPH_Phn
  for <virtualization@lists.linux-foundation.org>;
- Sat, 23 Apr 2022 15:55:55 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-ed1-x531.google.com (mail-ed1-x531.google.com
- [IPv6:2a00:1450:4864:20::531])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 83F3860ACD
+ Sun, 24 Apr 2022 02:40:49 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from out30-130.freemail.mail.aliyun.com
+ (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 9A88E819FC
  for <virtualization@lists.linux-foundation.org>;
- Sat, 23 Apr 2022 15:55:55 +0000 (UTC)
-Received: by mail-ed1-x531.google.com with SMTP id g20so13792755edw.6
- for <virtualization@lists.linux-foundation.org>;
- Sat, 23 Apr 2022 08:55:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=blackwall-org.20210112.gappssmtp.com; s=20210112;
- h=message-id:date:mime-version:user-agent:subject:content-language:to
- :cc:references:from:in-reply-to:content-transfer-encoding;
- bh=QnKErwSXat4qexxkmNgihC1z6Q4C1GOP8emnalj3zKY=;
- b=OQKqojjRu/6u2nGcFEzeCbF7WQb9pnrfzXoQLTFHY3iuQOBh4rLzAt+C8QvI7zj6DA
- NTG/CZybdXl4Y55ZPVjGogIBNN4gJn6vO3kCOsmgtZCaaTB9IEqZxVX+nTyH0U8dno87
- DYJ/FkS0l++SrLFuJZ8n4kXnu4fykqSFg3V9hUF9kw8CJl3UJkNu2ZC6zmS80Ry/8voK
- CnX5Czhm+1GPrfIXrWJaFqCHUapQ1fl7aNqyw8W82yDiyDpTcktu37FCp+iUDpkD6DZx
- dxbHKzQhUemRqGCi3DBtFIiexp2gTZHClgFbdm5vpMVJ0AU5/Rjf0ajdWhkwKTTkP2ZI
- KplA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
- :content-language:to:cc:references:from:in-reply-to
- :content-transfer-encoding;
- bh=QnKErwSXat4qexxkmNgihC1z6Q4C1GOP8emnalj3zKY=;
- b=Jbgz44g+l7pLUJQZDnFpvy6ct8cFthl03YwuNL6gNCMgib8RGVmGX7n1IT3tCYQ0b9
- zIIYXLEA9pDLGPjPWcTbb79Hz5/Kh2cN4Nj/YyzF5gbo1XYAiL/LEM9cRXCWZV15Gqky
- u74zpNe/j8ul+S5OB+lmmLLxE3xQp+E3qpdYnRX44X+5/10s2VTDrnhv6KA+bjK4UUy7
- u82H7n8OXJf5KL0/Bkz1cS2/1+f/4Fp06VY1myKumV9lhZsTGIH4W5jhYBR7SyxyfNZ8
- 0rGF+rD9WNKE72BpxmnKPrmCUTHeqKzEzuEQg+Kw0xIrrv6CGxFCEV6AG2zQvR4e3jKs
- /xcw==
-X-Gm-Message-State: AOAM531pOPD/lH6Kg63J/fUQijV+p5lOn8ObtTBrSI9UlpdV7+JVM4Or
- 3oUHnerXN+DBgdPwePqKfnc/qw==
-X-Google-Smtp-Source: ABdhPJwGZhxtcU/CjjffaxobWl86iaqzRUjZp8xTahkgEnX3UO8k/6sfG2jNT3wExUAZ7uSST2P8Hw==
-X-Received: by 2002:a05:6402:3587:b0:423:fcf6:e979 with SMTP id
- y7-20020a056402358700b00423fcf6e979mr10703888edc.137.1650729353673; 
- Sat, 23 Apr 2022 08:55:53 -0700 (PDT)
-Received: from [192.168.0.111] (87-243-81-1.ip.btc-net.bg. [87.243.81.1])
- by smtp.gmail.com with ESMTPSA id
- kx5-20020a170907774500b006e1382b8192sm1806933ejc.147.2022.04.23.08.55.52
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Sat, 23 Apr 2022 08:55:53 -0700 (PDT)
-Message-ID: <9e7db66d-8925-be38-c740-b7e3d21c2060@blackwall.org>
-Date: Sat, 23 Apr 2022 18:55:51 +0300
+ Sun, 24 Apr 2022 02:40:49 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R191e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04407; MF=xuanzhuo@linux.alibaba.com;
+ NM=1; PH=DS; RN=4; SR=0; TI=SMTPD_---0VAzRZXj_1650768044; 
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
+ fp:SMTPD_---0VAzRZXj_1650768044) by smtp.aliyun-inc.com(127.0.0.1);
+ Sun, 24 Apr 2022 10:40:45 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: linux-kernel@vger.kernel.org
+Subject: [RFC PATCH 00/16] virtio_ring: resize support re-use the old buffers
+Date: Sun, 24 Apr 2022 10:40:28 +0800
+Message-Id: <20220424024044.94749-1-xuanzhuo@linux.alibaba.com>
+X-Mailer: git-send-email 2.31.0
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH net] virtio_net: fix wrong buf address calculation when
- using xdp
-Content-Language: en-US
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-References: <20220423112612.2292774-1-razor@blackwall.org>
- <1650720683.8168066-1-xuanzhuo@linux.alibaba.com>
- <8d511a16-8d69-82b1-48a1-24de3a592aef@blackwall.org>
- <a58bfd2c-4f83-11fe-08d1-19c1d6497fc2@blackwall.org>
- <1650724608.256497-2-xuanzhuo@linux.alibaba.com>
- <c206c147-ad7e-b615-2e96-572482335563@blackwall.org>
- <1650726113.2334588-1-xuanzhuo@linux.alibaba.com>
-From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <1650726113.2334588-1-xuanzhuo@linux.alibaba.com>
-Cc: Daniel Borkmann <daniel@iogearbox.net>,
- "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
- stable@vger.kernel.org, virtualization@lists.linux-foundation.org,
- kuba@kernel.org, davem@davemloft.net
+X-Git-Hash: c42022d07dde
+Cc: virtualization@lists.linux-foundation.org,
+ "Michael S. Tsirkin" <mst@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -116,51 +71,43 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 23/04/2022 18:01, Xuan Zhuo wrote:
-> On Sat, 23 Apr 2022 17:58:05 +0300, Nikolay Aleksandrov <razor@blackwall.org> wrote:
->> On 23/04/2022 17:36, Xuan Zhuo wrote:
->>> On Sat, 23 Apr 2022 17:30:11 +0300, Nikolay Aleksandrov <razor@blackwall.org> wrote:
->>>> On 23/04/2022 17:16, Nikolay Aleksandrov wrote:
->>>>> On 23/04/2022 16:31, Xuan Zhuo wrote:
->>>>>> On Sat, 23 Apr 2022 14:26:12 +0300, Nikolay Aleksandrov <razor@blackwall.org> wrote:
-[snip]                                   metasize,
->>>>>> -                                                      VIRTIO_XDP_HEADROOM);
->>>>>> +                                                      VIRTIO_XDP_HEADROOM - metazie);
->>>>>>                                 return head_skb;
->>>>>>                         }
->>>>>>                         break;
->>>>>
->>>>> That patch doesn't fix it, as I said with xdp you can move both data and data_meta.
->>>>> So just doing that would take care of the meta, but won't take care of moving data.
->>>>>
->>>>
->>>> Also it doesn't take care of the case where page_to_skb() is called with the original page
->>>> i.e. when we already have headroom, so we hit the next/standard page_to_skb() call (xdp_page == page).
->>>
->>> Yes, you are right.
->>>
->>>>
->>>> The above change guarantees that buf and p will be in the same page
->>>
->>>
->>> How can this be guaranteed?
->>>
->>> 1. For example, we applied for a 32k buffer first, and took away 1500 + hdr_len
->>>    from the allocation.
->>> 2. set xdp
->>> 3. alloc for new buffer
->>>
->>
->> p = page_address(page) + offset;
->> buf = p & PAGE_MASK; // whatever page p lands in is where buf is set
->>
->> => p and buf are always in the same page, no?
-> 
-> I don't think it is, it's entirely possible to split on two pages.
-> 
+This patch set is based on "virtio pci support VIRTIO_F_RING_RESET". This patch
+set is rfc since it hasn't been merged yet. And "virtio pci support
+VIRTIO_F_RING_RESET" is currently waiting for Jason Wang's "rework on the IRQ
+hardening of virtio".
 
-Ahhh, I completely misinterpreted page_address(). You're right.
+This patch set implements the reuse of buffers committed before resize.
+And it is resubmitted to the new vq in the order of the original submission.
 
+A core idea is to detach the original vring after the new vring is allocated.
+Then, the buffers are sequentially obtained from the old vring and submitted to
+the new vq.
+
+Please review.
+
+Xuan Zhuo (16):
+  virtio_ring: split: vring_unmap_one_split() get extra by arg
+  virtio_ring: split: introduce vring_virtqueue_detach_split()
+  virtio_ring: split: extract virtqueue_update_split()
+  virtio_ring: split: extract detach_from_vring_split()
+  virtio_ring: split: support copy from vring
+  virtio_ring: split: introduce vring_reuse_bufs_split()
+  virtio_ring: split: resize support re-use buffers
+  virtio_ring: packed: extract next_idx()
+  virtio_ring: packed: always update desc_extra
+  virtio_ring: packed: introduce vring_virtqueue_detach_packed()
+  virtio_ring: packed: extract virtqueue_update_packed()
+  virtio_ring: packed: extract detach_from_vring_packed()
+  virtio_ring: packed: support copy from vring
+  virtio_ring: packed: introduce vring_reuse_bufs_packed()
+  virtio_ring: packed: resize support re-use buffers
+  virtio_ring: virtqueue_resize() no longer call recycle() directly
+
+ drivers/virtio/virtio_ring.c | 685 ++++++++++++++++++++++++++---------
+ 1 file changed, 518 insertions(+), 167 deletions(-)
+
+--
+2.31.0
 
 _______________________________________________
 Virtualization mailing list
