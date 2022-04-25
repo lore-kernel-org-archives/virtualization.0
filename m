@@ -1,180 +1,106 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 505E0C433F5
-	for <virtualization@archiver.kernel.org>; Mon, 25 Apr 2022 13:28:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id BB0D1C433EF
+	for <virtualization@archiver.kernel.org>; Mon, 25 Apr 2022 13:52:28 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id C33FB410BE;
-	Mon, 25 Apr 2022 13:28:40 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 5169160E09;
+	Mon, 25 Apr 2022 13:52:28 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id CULT1cAHI8qt; Mon, 25 Apr 2022 13:28:39 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 9625F410A3;
-	Mon, 25 Apr 2022 13:28:38 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 60ABAC0039;
-	Mon, 25 Apr 2022 13:28:38 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 38115C002D
- for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Apr 2022 13:28:36 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 2595560DA0
- for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Apr 2022 13:28:36 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=oracle.com header.b="eThLxeSn";
- dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
- header.b="gp66Li1u"
 Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id x8fI3eS-2Pr9
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id k6ZZF-C-4zWW; Mon, 25 Apr 2022 13:52:26 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 2341E60A6A;
+	Mon, 25 Apr 2022 13:52:26 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D58B1C0039;
+	Mon, 25 Apr 2022 13:52:25 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C57A1C002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Apr 2022 13:28:33 +0000 (UTC)
+ Mon, 25 Apr 2022 13:52:24 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp4.osuosl.org (Postfix) with ESMTP id 9D2D24098D
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 25 Apr 2022 13:52:24 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 7h76owt3ge05
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 25 Apr 2022 13:52:21 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com
- [205.220.165.32])
- by smtp3.osuosl.org (Postfix) with ESMTPS id B7CCB60B15
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 8EF0D4093F
  for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Apr 2022 13:28:33 +0000 (UTC)
-Received: from pps.filterd (m0246629.ppops.net [127.0.0.1])
- by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 23PAEprN022522;
- Mon, 25 Apr 2022 13:28:19 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
- h=date : from : to : cc
- : subject : message-id : content-type : in-reply-to : mime-version;
- s=corp-2021-07-09; bh=sPCB9N4S8irY0nhp8Tlit7zgTAD3RnIQRb0sPz1U3y8=;
- b=eThLxeSn+sFbH7NGmUILy7mbU3K7m4B2BinRCPlc//02oX3r8ZqAQjMSPlMqHserYay/
- GS9vge2wu2K/eel/PyudZQzkIBdo8hY8CDGtdkU+87RASNFAGlddPxEznbWcxr1zu9fL
- gDiGkwyoHJU6t31hcF1XLPCXTFYMwyqzWHQryMvptRROqDZ4ePdgykWM50WaKaFqf+wP
- Ds5/8byjikAG3ZDBFgEIxvbWUlRmCpeJoP9w17ARag13MpZLpwzPOlBspAkN9RJvCByo
- vaFUpoYrGp/cK8aBWTVAS4jywjZuv6cNkmgqocKGZrTCY9OfDhYHY6XCHiY/ysBYc+t5 Xw== 
-Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com
- (iadpaimrmta01.appoci.oracle.com [130.35.100.223])
- by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3fmb0yu3h3-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Mon, 25 Apr 2022 13:28:18 +0000
-Received: from pps.filterd
- (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
- by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (8.16.1.2/8.16.1.2)
- with SMTP id 23PDCUBH011156; Mon, 25 Apr 2022 13:28:16 GMT
-Received: from nam10-dm6-obe.outbound.protection.outlook.com
- (mail-dm6nam10lp2103.outbound.protection.outlook.com [104.47.58.103])
- by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com with ESMTP id
- 3fm7w1x9p0-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Mon, 25 Apr 2022 13:28:16 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=SVcmlK8DXhjIPelJM05JDvQ6RaNqBxsuWUYkgXbuhwZgKOvr6oxiCNeBU0xb8GBnwaO9tCzM+ptx0EI6TuoMp6Z7g2ct81moFKR7QuLuu011AX4KbUAJ5OWbN6WZP8VouSgoh4B5NaNkc62cFBOFW26a6xmNCxkm0byqCbJhEidPTc+aVNu1Xx1m4UWPEyyJ/uqKPBT5ildOnHjAsCy3o4Sppcf4VHoIa/35zbWzbyF1IDsoXaVKmgeLUpcw4Pmy4thlxYnFjy46gw2FMdc5pk+qs12cmz3UV5DUSmfMD9+5kty317KZltDMxyi+Vp59WD3/mmveRDhwuseopH6p8w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=sPCB9N4S8irY0nhp8Tlit7zgTAD3RnIQRb0sPz1U3y8=;
- b=WPE5Rg3cuJi3VkCvXWHdCWGDEYapjPIwCdxzRjdolQ5kwuEtzLxL7VeZle9u7COSy6vjYYrQqUUdRKTujPFdAQPhQhS8ookaJ2NSEnq/kOb2XZoc5neAb2C9IFUi8K0aRH+DCy/dG04UOd/Y+BCUjR2hAE4mJDu7mUEsTn/9FcTxlzx8HBorCFeqMxrSWhAAtLi3mbXXY/nkOu4idbi5LyWMV7uc20ZZenwEWyMoCkWs0sBEzY14Yo2KoUkOAjGxllLImDaM8W64C0WYX2Tuo6piwbpsu/ELmpR/JMBOhaYQy5MKZh9koQm2x17Buc2tFvv4qsOLLLzyi9noMmzXFg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=sPCB9N4S8irY0nhp8Tlit7zgTAD3RnIQRb0sPz1U3y8=;
- b=gp66Li1ub5MoBxvpmm5wwRtOu9qrl/kUEEBnxqJ+4nlWN0PybRFzYawPtTjgjEI5ohb5JhKIG3jkCbaQoYNNrg1K1TUGE+ddGhn86TQ3Q6w/ZLPo8q1YjRmhuaPOu7pxmkb2KJFxzq7FR+Myb9z07Y3r6++mptqgqSas9DtEENA=
-Received: from MWHPR1001MB2365.namprd10.prod.outlook.com
- (2603:10b6:301:2d::28) by SJ0PR10MB5566.namprd10.prod.outlook.com
- (2603:10b6:a03:3d0::15) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5186.14; Mon, 25 Apr
- 2022 13:28:14 +0000
-Received: from MWHPR1001MB2365.namprd10.prod.outlook.com
- ([fe80::b5d5:7b39:ca2d:1b87]) by MWHPR1001MB2365.namprd10.prod.outlook.com
- ([fe80::b5d5:7b39:ca2d:1b87%5]) with mapi id 15.20.5164.025; Mon, 25 Apr 2022
- 13:28:14 +0000
-Date: Mon, 25 Apr 2022 16:27:51 +0300
-From: Dan Carpenter <dan.carpenter@oracle.com>
-To: kbuild@lists.01.org, zhenwei pi <pizhenwei@bytedance.com>,
- arei.gonglei@huawei.com, mst@redhat.com, jasowang@redhat.com
-Subject: Re: [PATCH v4 2/5] virtio-crypto: use private buffer for control
- request
-Message-ID: <202204242344.JepUMdzP-lkp@intel.com>
-Content-Disposition: inline
-In-Reply-To: <20220424104140.44841-3-pizhenwei@bytedance.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-ClientProxiedBy: CT2P275CA0044.ZAFP275.PROD.OUTLOOK.COM
- (2603:1086:100:a::32) To MWHPR1001MB2365.namprd10.prod.outlook.com
- (2603:10b6:301:2d::28)
+ Mon, 25 Apr 2022 13:52:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1650894740;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=jqbyoLD0QYZj8tJ/bx8Pb2e1MwmtWdkXBxeX0ToHtEo=;
+ b=WovSUiOo/B8XrOMLn0Wj10kZGAP1tZLcEu5b6UzAruEX9EdQ2g1+/Ugb3KhIzn1LuhpesF
+ JH/0vIM2M6Ij/jykDwBzQvu3mdwTd8BdDZR1Gyu0Y29z/Qptwqhzrsj65e22xLxFpkfxJd
+ pc5qfc1ouWFJx9njO8fiufgw82FmQAY=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-631-mTDz_rIcM9exTsEMe8mcOw-1; Mon, 25 Apr 2022 09:52:18 -0400
+X-MC-Unique: mTDz_rIcM9exTsEMe8mcOw-1
+Received: by mail-wr1-f72.google.com with SMTP id
+ l7-20020adfbd87000000b0020ac0a4d23dso2715417wrh.17
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 25 Apr 2022 06:52:18 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=jqbyoLD0QYZj8tJ/bx8Pb2e1MwmtWdkXBxeX0ToHtEo=;
+ b=P3G1B0os7KZdU+5WBRRHTMBcA4Bpiz+CAnZn1N79H5CrtqS4oubZEFdTxURjw/163U
+ b4fcDc8DJWdwcy0rLsiLJZAYXh1bT1RlFcJKYtTJoXkqZrHkcP+p4MhbCfBd3dw8PYqs
+ NPdlNpon+QVeZG2p2FH1U0+Wj388efFynIt31GjMO9MpvgxWEPakvHCXqf5gsyZJFoo3
+ SmI33Jv68zW9oBDxI06QHyNPxTi/9wkoC2pKVIy2yCbQqjJT8IySAQ7kpn8LAo8f1FIP
+ ibYUBNKk35T7wdrhJ8si+ruG54vMnKCdYiYG5ZjYu2QnYcOCJ7lV4XA05jrleT2qGPoq
+ j/rg==
+X-Gm-Message-State: AOAM533xOzsqo9zhrhaW4WDIu3lNUSq4ZqPRsskL33faE9RjB1Wy0H2t
+ H8YN9Kt8sJwOqkaRKS7IX2fPM6ch/nCg5lbDl3ZPpqJxbIKFAgenGi7TA/Ol9P/u1iwhICXu/OB
+ XrxUwj0IzB0gB1IkaM5TmA+XxHWV8/hutYASxbdgUWg==
+X-Received: by 2002:a5d:6448:0:b0:20a:d70e:cc9 with SMTP id
+ d8-20020a5d6448000000b0020ad70e0cc9mr7346234wrw.184.1650894737368; 
+ Mon, 25 Apr 2022 06:52:17 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzvFtiuIAPYCaVD2N4ESEJEYEwyN78tnPHv++SehaY9j1u9QAwUsTJU7p1ncVY70Kpx2Yefag==
+X-Received: by 2002:a5d:6448:0:b0:20a:d70e:cc9 with SMTP id
+ d8-20020a5d6448000000b0020ad70e0cc9mr7346216wrw.184.1650894737090; 
+ Mon, 25 Apr 2022 06:52:17 -0700 (PDT)
+Received: from redhat.com ([2.53.22.137]) by smtp.gmail.com with ESMTPSA id
+ az30-20020a05600c601e00b0038ebd950caesm8834133wmb.30.2022.04.25.06.52.14
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 25 Apr 2022 06:52:16 -0700 (PDT)
+Date: Mon, 25 Apr 2022 09:52:12 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Nikolay Aleksandrov <razor@blackwall.org>
+Subject: Re: [PATCH net v3] virtio_net: fix wrong buf address calculation
+ when using xdp
+Message-ID: <20220425094526-mutt-send-email-mst@kernel.org>
+References: <20220425103703.3067292-1-razor@blackwall.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 4ea2bdaf-4e80-42b0-156d-08da26bf737b
-X-MS-TrafficTypeDiagnostic: SJ0PR10MB5566:EE_
-X-Microsoft-Antispam-PRVS: <SJ0PR10MB55660085C84CEB6F5BAC79198EF89@SJ0PR10MB5566.namprd10.prod.outlook.com>
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 8PQBByoszYRzMOqZnR4XnzXAFDn7Gc1WyuI4xmFFLI8XBrDyzQAlgCQPou13HUe3yc46R+PUjUBX4/Y84c0eF3c3iezRTO1qJkOrIF9Pk2qpox4q0JwJ5cJz0PbFexYm4hXqcLRYpQ0TpG/+1mE0ZyBLJSkpa4mGiVcbKaA+ZXWBalJlm/6UnMdyrZ540J16oDreL94sU2psg7zreaQGMdVJpSaY5XlSHNj60UAZ/gfQWA+FCdoXbKy2be5LlkmVsxbJNql55H32yB/jCRc55zAwnvfMCt0n/tHHuKBO/A019fpcHRGriIADehX9PXm9J3iEDb8RyPxL5j4cdmX8WlStpiXQm9XDURSyasDfNsG9lDI2OIFmFAC2Z0qMrLlWQS2W2JoDGjP2lV8ZMU1eFS+MNl4vBNHZXD4r1msoLkNNLaAYIlKbPyiw7tQE4YB+UDPhxLMfgGYx9O9E6cBnpigrINtdfaMHH8I8Z16Vqsv3zrokWiEhmoJVTp3e3OzmRX2eF9BbcN/KNqt9lQWo+gTvglLVQdozjELaxDF53aVzzblmvpPg/0SF6f4+ZxkaL+y38t+t9lhwBNwLqs6RAnef7YDLXmJe+q5YvMExAA/dP/il5tOH1c25qebWnlG5RuirIKfVoSUtlL95m7Eh+m9p7klcEtjWoEpZsQXfM6yszC/kfFwHX+ugF9NFmf90s+3G39C6FVdbRZD5iO4TX8Mhvws2f21lZjQg5vklFHhC55dt5yf1dGTeKEbHfPZBkq/Lx7LMara8KKdl9acGc8j0zEwDWhxqQQDbqQjgh2NMqagLln3NuR193XMALFhzXA9Ao6jOvF4zQ9TT6iKhYw==
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:MWHPR1001MB2365.namprd10.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230001)(366004)(6512007)(6666004)(26005)(508600001)(6486002)(38350700002)(6506007)(66556008)(30864003)(2906002)(44832011)(5660300002)(7416002)(36756003)(8936002)(38100700002)(66946007)(66476007)(8676002)(4326008)(52116002)(966005)(83380400001)(186003)(1076003)(9686003)(86362001)(316002);
- DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?MxT17V0z0RDSLdv4OHngDSVbaylEpNCg9Bb29CcRvVjDRUma2tZTHYbY6OeL?=
- =?us-ascii?Q?1nQTCXmbvEYElMOm5zDJks+QHb4IhyaTzjRU0+5cOu/481n1qwHAzXFzlmiM?=
- =?us-ascii?Q?s1qUMyMqXr4CpKU99ZQdt121j4XTxVrHgT/DltXFMIFczw1GK2d0l4W4t02F?=
- =?us-ascii?Q?ycQV1o4WYjbSP+VMCzYTvFBEfNTZX9g8HGAb4yLzLOQArL9rB7QmvnPAtfE1?=
- =?us-ascii?Q?ZIlb+8x4YuLQSesh1IOQHlZTttXxQ2NzIT6hNzo0cSMxQkijkvydTagsaKQp?=
- =?us-ascii?Q?VuxypovQtfXS/hMoQzLH5uemrqMYw8wwCzOnJbS3p9OWp/U4RlmA0IVYBNhY?=
- =?us-ascii?Q?Q17AS0ywAnIctMvJyq4oRM2s5uiik0LYk55bvpLmKNP3CCjHtba+VAXDWUG5?=
- =?us-ascii?Q?26zAKaG93NTVYHyYqbzkXSDgbqW9Kq77kfpeD8ORPu1Nn+Ria522lE9CmsZz?=
- =?us-ascii?Q?6piogznViP7GxyMNBHZx9k/f6G5ZwvAdzEJ7aGW3268bPeWgBhNJcdc0sUy2?=
- =?us-ascii?Q?npT4Aesk2Gpxza9zOW6q+ufu6XShF65/u95SNJfe0FBt1JAbb4Xzl3XuRs5B?=
- =?us-ascii?Q?5xr8rhF5KNzrxMzUiyfxki2zW1R7swOxWhSUzQfKprJwkVXJSIpUBlwOW0c9?=
- =?us-ascii?Q?AVykATh1EdbqwIuntCCkwI6woTFrRJpRyYNVTFgvxhFbdsoqA5APwwynp1R/?=
- =?us-ascii?Q?iakpX8BlzRn5a0C3m/4R+ON4dfsIYB38F6iLNRigy0pTdQg3rnXlZxLlphZX?=
- =?us-ascii?Q?2gaZxda/ubok6dJbeiMPRE7WkaiGImvcVDjSJcHwUp0xwqF+USyaKRsSwfKC?=
- =?us-ascii?Q?KCgUUootT4IHzRtuZ34fXTS80Kw/WTQrQ3Q1kkMwwdMYAM9jvyAeHrL/7tVi?=
- =?us-ascii?Q?cOWf5QyjjvkIIV76ohL62UHnUcEE3v39VluLM7zhpcixAEa1DjDyIYKJADPN?=
- =?us-ascii?Q?nVAExyz+juiym26RM6JBrgCjBM+HZ6w1GRHU9RvVua8YG1Zy/2PXmJdCK2NZ?=
- =?us-ascii?Q?01OrHp6m04V5+T4bG3u/Cu3JtBIaNLCk1nzRPG5A2NKrdZzYBWnqduLnjpDM?=
- =?us-ascii?Q?pYW8h/+EgcR8XhE+2shJzuhKeGLDSt18m9Fzv3OEdswLt/6jzEznlqPQwSme?=
- =?us-ascii?Q?leTnvSLJneG2kbA+P3RREU9QAJaobdKpi8aHnfBgAmh4PUYfKODm0vXnT4nO?=
- =?us-ascii?Q?FTkPuyOQ7NGvx41b7EPDfAG3cbf77wONmSyrRqMXLCcN2cT0bCtgeevh/X03?=
- =?us-ascii?Q?E0yLiH9kjO9PMGDDioc18Nc2bCm9Ki1lL/VDSdG3UPeJEw0Xso3RI91xQ+mU?=
- =?us-ascii?Q?FY2/qCInfVKwh3XMef9nDW/svCFidTWfkdHyaKGjPazjXa1fDwKaFnC6tno3?=
- =?us-ascii?Q?+TK68yHrfcqnT6dbHdHu/ol4+efoMUYt+GgmtP65plpcani4bIymEKM04fQ5?=
- =?us-ascii?Q?mfbBf7hRCg1etEBlIp0sMVaQrd69aL+INtJod5VMo1I7uTC4Vs/UpCX3O6MI?=
- =?us-ascii?Q?0VnKGN/NjhMFz5dTQzPLS1jhW4WZV9xIsc8PYNpNMiss69NW8Hag+ZAGj2R9?=
- =?us-ascii?Q?Q4K8URPqrLEUr2Lp5br8wg05VUouVrga3o6F47VlDxk95aFw8vHEDjbNhnMh?=
- =?us-ascii?Q?wOvY+YZ9lWKqAjgQr6g1Flg7DIVTGYnZvK0PBqQy6S4rw7HEhaE+ljO06Vry?=
- =?us-ascii?Q?pWbzm0QVTM7LzNKr/Z06iBgtgeL9fnokysWjD0rVf2W4Vj1vERFJre9i09r6?=
- =?us-ascii?Q?wCUJ2/ZhmFkm1sGE7SZ1K1e3n6919iE=3D?=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4ea2bdaf-4e80-42b0-156d-08da26bf737b
-X-MS-Exchange-CrossTenant-AuthSource: MWHPR1001MB2365.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 25 Apr 2022 13:28:14.5964 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: uu4Zy6fef3eNzJ1htm9AtC3G9G4Mt3c8erw9MXhg03lH+LAifCyE8vpWbe9OgEfFKsmkOOAzWrnrv5N7iJOP/ZLLPaFi732cIcfob6g+ryw=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR10MB5566
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.486, 18.0.858
- definitions=2022-04-25_06:2022-04-25,
- 2022-04-25 signatures=0
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0
- suspectscore=0 spamscore=0
- malwarescore=0 mlxlogscore=999 adultscore=0 mlxscore=0 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
- definitions=main-2204250059
-X-Proofpoint-ORIG-GUID: 4tqRdSSSkIrSlfeh5kztZFiR3emK2JEC
-X-Proofpoint-GUID: 4tqRdSSSkIrSlfeh5kztZFiR3emK2JEC
-Cc: kbuild-all@lists.01.org, lkp@intel.com, linux-kernel@vger.kernel.org,
- zhenwei pi <pizhenwei@bytedance.com>,
- virtualization@lists.linux-foundation.org, helei.sig11@bytedance.com,
- linux-crypto@vger.kernel.org, davem@davemloft.net, herbert@gondor.apana.org.au
+In-Reply-To: <20220425103703.3067292-1-razor@blackwall.org>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org,
+ stable@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ kuba@kernel.org, davem@davemloft.net
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -191,174 +117,206 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi zhenwei,
+On Mon, Apr 25, 2022 at 01:37:03PM +0300, Nikolay Aleksandrov wrote:
+> We received a report[1] of kernel crashes when Cilium is used in XDP
+> mode with virtio_net after updating to newer kernels. After
+> investigating the reason it turned out that when using mergeable bufs
+> with an XDP program which adjusts xdp.data or xdp.data_meta page_to_buf()
+> calculates the build_skb address wrong because the offset can become less
+> than the headroom so it gets the address of the previous page (-X bytes
+> depending on how lower offset is):
+>  page_to_skb: page addr ffff9eb2923e2000 buf ffff9eb2923e1ffc offset 252 headroom 256
+> 
+> This is a pr_err() I added in the beginning of page_to_skb which clearly
+> shows offset that is less than headroom by adding 4 bytes of metadata
+> via an xdp prog. The calculations done are:
+>  receive_mergeable():
+>  headroom = VIRTIO_XDP_HEADROOM; // VIRTIO_XDP_HEADROOM == 256 bytes
+>  offset = xdp.data - page_address(xdp_page) -
+>           vi->hdr_len - metasize;
+> 
+>  page_to_skb():
+>  p = page_address(page) + offset;
+>  ...
+>  buf = p - headroom;
+> 
+> Now buf goes -4 bytes from the page's starting address as can be seen
+> above which is set as skb->head and skb->data by build_skb later. Depending
+> on what's done with the skb (when it's freed most often) we get all kinds
+> of corruptions and BUG_ON() triggers in mm[2]. We have to recalculate
+> the new headroom after the xdp program has run, similar to how offset
+> and len are recalculated. Headroom is directly related to
+> data_hard_start, data and data_meta, so we use them to get the new size.
+> The result is correct (similar pr_err() in page_to_skb, one case of
+> xdp_page and one case of virtnet buf):
+>  a) Case with 4 bytes of metadata
+>  [  115.949641] page_to_skb: page addr ffff8b4dcfad2000 offset 252 headroom 252
+>  [  121.084105] page_to_skb: page addr ffff8b4dcf018000 offset 20732 headroom 252
+>  b) Case of pushing data +32 bytes
+>  [  153.181401] page_to_skb: page addr ffff8b4dd0c4d000 offset 288 headroom 288
+>  [  158.480421] page_to_skb: page addr ffff8b4dd00b0000 offset 24864 headroom 288
+>  c) Case of pushing data -33 bytes
+>  [  835.906830] page_to_skb: page addr ffff8b4dd3270000 offset 223 headroom 223
+>  [  840.839910] page_to_skb: page addr ffff8b4dcdd68000 offset 12511 headroom 223
+> 
+> Offset and headroom are equal because offset points to the start of
+> reserved bytes for the virtio_net header which are at buf start +
+> headroom, while data points at buf start + vnet hdr size + headroom so
+> when data or data_meta are adjusted by the xdp prog both the headroom size
+> and the offset change equally. We can use data_hard_start to compute the
+> new headroom after the xdp prog (linearized / page start case, the
+> virtnet buf case is similar just with bigger base offset):
+>  xdp.data_hard_start = page_address + vnet_hdr
+>  xdp.data = page_address + vnet_hdr + headroom
+>  new headroom after xdp prog = xdp.data - xdp.data_hard_start - metasize
+> 
+> An example reproducer xdp prog[3] is below.
+> 
+> [1] https://github.com/cilium/cilium/issues/19453
+> 
+> [2] Two of the many traces:
+>  [   40.437400] BUG: Bad page state in process swapper/0  pfn:14940
+>  [   40.916726] BUG: Bad page state in process systemd-resolve  pfn:053b7
+>  [   41.300891] kernel BUG at include/linux/mm.h:720!
+>  [   41.301801] invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
+>  [   41.302784] CPU: 1 PID: 1181 Comm: kubelet Kdump: loaded Tainted: G    B   W         5.18.0-rc1+ #37
+>  [   41.304458] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.15.0-1.fc35 04/01/2014
+>  [   41.306018] RIP: 0010:page_frag_free+0x79/0xe0
+>  [   41.306836] Code: 00 00 75 ea 48 8b 07 a9 00 00 01 00 74 e0 48 8b 47 48 48 8d 50 ff a8 01 48 0f 45 fa eb d0 48 c7 c6 18 b8 30 a6 e8 d7 f8 fc ff <0f> 0b 48 8d 78 ff eb bc 48 8b 07 a9 00 00 01 00 74 3a 66 90 0f b6
+>  [   41.310235] RSP: 0018:ffffac05c2a6bc78 EFLAGS: 00010292
+>  [   41.311201] RAX: 000000000000003e RBX: 0000000000000000 RCX: 0000000000000000
+>  [   41.312502] RDX: 0000000000000001 RSI: ffffffffa6423004 RDI: 00000000ffffffff
+>  [   41.313794] RBP: ffff993c98823600 R08: 0000000000000000 R09: 00000000ffffdfff
+>  [   41.315089] R10: ffffac05c2a6ba68 R11: ffffffffa698ca28 R12: ffff993c98823600
+>  [   41.316398] R13: ffff993c86311ebc R14: 0000000000000000 R15: 000000000000005c
+>  [   41.317700] FS:  00007fe13fc56740(0000) GS:ffff993cdd900000(0000) knlGS:0000000000000000
+>  [   41.319150] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>  [   41.320152] CR2: 000000c00008a000 CR3: 0000000014908000 CR4: 0000000000350ee0
+>  [   41.321387] Call Trace:
+>  [   41.321819]  <TASK>
+>  [   41.322193]  skb_release_data+0x13f/0x1c0
+>  [   41.322902]  __kfree_skb+0x20/0x30
+>  [   41.343870]  tcp_recvmsg_locked+0x671/0x880
+>  [   41.363764]  tcp_recvmsg+0x5e/0x1c0
+>  [   41.384102]  inet_recvmsg+0x42/0x100
+>  [   41.406783]  ? sock_recvmsg+0x1d/0x70
+>  [   41.428201]  sock_read_iter+0x84/0xd0
+>  [   41.445592]  ? 0xffffffffa3000000
+>  [   41.462442]  new_sync_read+0x148/0x160
+>  [   41.479314]  ? 0xffffffffa3000000
+>  [   41.496937]  vfs_read+0x138/0x190
+>  [   41.517198]  ksys_read+0x87/0xc0
+>  [   41.535336]  do_syscall_64+0x3b/0x90
+>  [   41.551637]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+>  [   41.568050] RIP: 0033:0x48765b
+>  [   41.583955] Code: e8 4a 35 fe ff eb 88 cc cc cc cc cc cc cc cc e8 fb 7a fe ff 48 8b 7c 24 10 48 8b 74 24 18 48 8b 54 24 20 48 8b 44 24 08 0f 05 <48> 3d 01 f0 ff ff 76 20 48 c7 44 24 28 ff ff ff ff 48 c7 44 24 30
+>  [   41.632818] RSP: 002b:000000c000a2f5b8 EFLAGS: 00000212 ORIG_RAX: 0000000000000000
+>  [   41.664588] RAX: ffffffffffffffda RBX: 000000c000062000 RCX: 000000000048765b
+>  [   41.681205] RDX: 0000000000005e54 RSI: 000000c000e66000 RDI: 0000000000000016
+>  [   41.697164] RBP: 000000c000a2f608 R08: 0000000000000001 R09: 00000000000001b4
+>  [   41.713034] R10: 00000000000000b6 R11: 0000000000000212 R12: 00000000000000e9
+>  [   41.728755] R13: 0000000000000001 R14: 000000c000a92000 R15: ffffffffffffffff
+>  [   41.744254]  </TASK>
+>  [   41.758585] Modules linked in: br_netfilter bridge veth netconsole virtio_net
+> 
+>  and
+> 
+>  [   33.524802] BUG: Bad page state in process systemd-network  pfn:11e60
+>  [   33.528617] page ffffe05dc0147b00 ffffe05dc04e7a00 ffff8ae9851ec000 (1) len 82 offset 252 metasize 4 hroom 0 hdr_len 12 data ffff8ae9851ec10c data_meta ffff8ae9851ec108 data_end ffff8ae9851ec14e
+>  [   33.529764] page:000000003792b5ba refcount:0 mapcount:-512 mapping:0000000000000000 index:0x0 pfn:0x11e60
+>  [   33.532463] flags: 0xfffffc0000000(node=0|zone=1|lastcpupid=0x1fffff)
+>  [   33.532468] raw: 000fffffc0000000 0000000000000000 dead000000000122 0000000000000000
+>  [   33.532470] raw: 0000000000000000 0000000000000000 00000000fffffdff 0000000000000000
+>  [   33.532471] page dumped because: nonzero mapcount
+>  [   33.532472] Modules linked in: br_netfilter bridge veth netconsole virtio_net
+>  [   33.532479] CPU: 0 PID: 791 Comm: systemd-network Kdump: loaded Not tainted 5.18.0-rc1+ #37
+>  [   33.532482] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.15.0-1.fc35 04/01/2014
+>  [   33.532484] Call Trace:
+>  [   33.532496]  <TASK>
+>  [   33.532500]  dump_stack_lvl+0x45/0x5a
+>  [   33.532506]  bad_page.cold+0x63/0x94
+>  [   33.532510]  free_pcp_prepare+0x290/0x420
+>  [   33.532515]  free_unref_page+0x1b/0x100
+>  [   33.532518]  skb_release_data+0x13f/0x1c0
+>  [   33.532524]  kfree_skb_reason+0x3e/0xc0
+>  [   33.532527]  ip6_mc_input+0x23c/0x2b0
+>  [   33.532531]  ip6_sublist_rcv_finish+0x83/0x90
+>  [   33.532534]  ip6_sublist_rcv+0x22b/0x2b0
+> 
+> [3] XDP program to reproduce(xdp_pass.c):
+>  #include <linux/bpf.h>
+>  #include <bpf/bpf_helpers.h>
+> 
+>  SEC("xdp_pass")
+>  int xdp_pkt_pass(struct xdp_md *ctx)
+>  {
+>           bpf_xdp_adjust_head(ctx, -(int)32);
+>           return XDP_PASS;
+>  }
+> 
+>  char _license[] SEC("license") = "GPL";
+> 
+>  compile: clang -O2 -g -Wall -target bpf -c xdp_pass.c -o xdp_pass.o
+>  load on virtio_net: ip link set enp1s0 xdpdrv obj xdp_pass.o sec xdp_pass
+> 
+> CC: stable@vger.kernel.org
+> CC: Jason Wang <jasowang@redhat.com>
+> CC: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> CC: Daniel Borkmann <daniel@iogearbox.net>
+> CC: "Michael S. Tsirkin" <mst@redhat.com>
+> CC: virtualization@lists.linux-foundation.org
+> Fixes: 8fb7da9e9907 ("virtio_net: get build_skb() buf by data ptr")
+> Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
 
-url:    https://github.com/intel-lab-lkp/linux/commits/zhenwei-pi/virtio-crypto-Improve-performance/20220424-184732
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/herbert/cryptodev-2.6.git master
-config: i386-randconfig-m021 (https://download.01.org/0day-ci/archive/20220424/202204242344.JepUMdzP-lkp@intel.com/config)
-compiler: gcc-11 (Debian 11.2.0-20) 11.2.0
-
-If you fix the issue, kindly add following tag as appropriate
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-
-smatch warnings:
-drivers/crypto/virtio/virtio_crypto_akcipher_algs.c:165 virtio_crypto_alg_akcipher_init_session() error: potentially dereferencing uninitialized 'input'.
-drivers/crypto/virtio/virtio_crypto_akcipher_algs.c:230 virtio_crypto_alg_akcipher_close_session() error: uninitialized symbol 'vc_ctrl_req'.
-drivers/crypto/virtio/virtio_crypto_akcipher_algs.c:232 virtio_crypto_alg_akcipher_close_session() error: potentially dereferencing uninitialized 'ctrl_status'.
-drivers/crypto/virtio/virtio_crypto_akcipher_algs.c:232 virtio_crypto_alg_akcipher_close_session() error: potentially dereferencing uninitialized 'destroy_session'.
-
-vim +/input +165 drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
-
-59ca6c93387d32 zhenwei pi 2022-03-02   99  static int virtio_crypto_alg_akcipher_init_session(struct virtio_crypto_akcipher_ctx *ctx,
-59ca6c93387d32 zhenwei pi 2022-03-02  100  		struct virtio_crypto_ctrl_header *header, void *para,
-59ca6c93387d32 zhenwei pi 2022-03-02  101  		const uint8_t *key, unsigned int keylen)
-59ca6c93387d32 zhenwei pi 2022-03-02  102  {
-59ca6c93387d32 zhenwei pi 2022-03-02  103  	struct scatterlist outhdr_sg, key_sg, inhdr_sg, *sgs[3];
-59ca6c93387d32 zhenwei pi 2022-03-02  104  	struct virtio_crypto *vcrypto = ctx->vcrypto;
-59ca6c93387d32 zhenwei pi 2022-03-02  105  	uint8_t *pkey;
-59ca6c93387d32 zhenwei pi 2022-03-02  106  	unsigned int inlen;
-59ca6c93387d32 zhenwei pi 2022-03-02  107  	int err;
-59ca6c93387d32 zhenwei pi 2022-03-02  108  	unsigned int num_out = 0, num_in = 0;
-bb26cab9a7c25d zhenwei pi 2022-04-24  109  	struct virtio_crypto_op_ctrl_req *ctrl;
-bb26cab9a7c25d zhenwei pi 2022-04-24  110  	struct virtio_crypto_session_input *input;
-286da9ed04239c zhenwei pi 2022-04-24  111  	struct virtio_crypto_ctrl_request *vc_ctrl_req;
-59ca6c93387d32 zhenwei pi 2022-03-02  112  
-59ca6c93387d32 zhenwei pi 2022-03-02  113  	pkey = kmemdup(key, keylen, GFP_ATOMIC);
-59ca6c93387d32 zhenwei pi 2022-03-02  114  	if (!pkey)
-59ca6c93387d32 zhenwei pi 2022-03-02  115  		return -ENOMEM;
-59ca6c93387d32 zhenwei pi 2022-03-02  116  
-286da9ed04239c zhenwei pi 2022-04-24  117  	vc_ctrl_req = kzalloc(sizeof(*vc_ctrl_req), GFP_KERNEL);
-286da9ed04239c zhenwei pi 2022-04-24  118  	if (!vc_ctrl_req) {
-286da9ed04239c zhenwei pi 2022-04-24  119  		err = -ENOMEM;
-286da9ed04239c zhenwei pi 2022-04-24  120  		goto out;
-286da9ed04239c zhenwei pi 2022-04-24  121  	}
-286da9ed04239c zhenwei pi 2022-04-24  122  
-286da9ed04239c zhenwei pi 2022-04-24  123  	ctrl = &vc_ctrl_req->ctrl;
-bb26cab9a7c25d zhenwei pi 2022-04-24  124  	memcpy(&ctrl->header, header, sizeof(ctrl->header));
-bb26cab9a7c25d zhenwei pi 2022-04-24  125  	memcpy(&ctrl->u, para, sizeof(ctrl->u));
-286da9ed04239c zhenwei pi 2022-04-24  126  	input = &vc_ctrl_req->input;
-bb26cab9a7c25d zhenwei pi 2022-04-24  127  	input->status = cpu_to_le32(VIRTIO_CRYPTO_ERR);
-59ca6c93387d32 zhenwei pi 2022-03-02  128  
-bb26cab9a7c25d zhenwei pi 2022-04-24  129  	sg_init_one(&outhdr_sg, ctrl, sizeof(*ctrl));
-59ca6c93387d32 zhenwei pi 2022-03-02  130  	sgs[num_out++] = &outhdr_sg;
-59ca6c93387d32 zhenwei pi 2022-03-02  131  
-59ca6c93387d32 zhenwei pi 2022-03-02  132  	sg_init_one(&key_sg, pkey, keylen);
-59ca6c93387d32 zhenwei pi 2022-03-02  133  	sgs[num_out++] = &key_sg;
-59ca6c93387d32 zhenwei pi 2022-03-02  134  
-bb26cab9a7c25d zhenwei pi 2022-04-24  135  	sg_init_one(&inhdr_sg, input, sizeof(*input));
-59ca6c93387d32 zhenwei pi 2022-03-02  136  	sgs[num_out + num_in++] = &inhdr_sg;
-59ca6c93387d32 zhenwei pi 2022-03-02  137  
-286da9ed04239c zhenwei pi 2022-04-24  138  	spin_lock(&vcrypto->ctrl_lock);
-59ca6c93387d32 zhenwei pi 2022-03-02  139  	err = virtqueue_add_sgs(vcrypto->ctrl_vq, sgs, num_out, num_in, vcrypto, GFP_ATOMIC);
-286da9ed04239c zhenwei pi 2022-04-24  140  	if (err < 0) {
-286da9ed04239c zhenwei pi 2022-04-24  141  		spin_unlock(&vcrypto->ctrl_lock);
-59ca6c93387d32 zhenwei pi 2022-03-02  142  		goto out;
-286da9ed04239c zhenwei pi 2022-04-24  143  	}
-59ca6c93387d32 zhenwei pi 2022-03-02  144  
-59ca6c93387d32 zhenwei pi 2022-03-02  145  	virtqueue_kick(vcrypto->ctrl_vq);
-59ca6c93387d32 zhenwei pi 2022-03-02  146  	while (!virtqueue_get_buf(vcrypto->ctrl_vq, &inlen) &&
-59ca6c93387d32 zhenwei pi 2022-03-02  147  	       !virtqueue_is_broken(vcrypto->ctrl_vq))
-59ca6c93387d32 zhenwei pi 2022-03-02  148  		cpu_relax();
-286da9ed04239c zhenwei pi 2022-04-24  149  	spin_unlock(&vcrypto->ctrl_lock);
-59ca6c93387d32 zhenwei pi 2022-03-02  150  
-bb26cab9a7c25d zhenwei pi 2022-04-24  151  	if (le32_to_cpu(input->status) != VIRTIO_CRYPTO_OK) {
-59ca6c93387d32 zhenwei pi 2022-03-02  152  		err = -EINVAL;
-59ca6c93387d32 zhenwei pi 2022-03-02  153  		goto out;
-59ca6c93387d32 zhenwei pi 2022-03-02  154  	}
-59ca6c93387d32 zhenwei pi 2022-03-02  155  
-bb26cab9a7c25d zhenwei pi 2022-04-24  156  	ctx->session_id = le64_to_cpu(input->session_id);
-59ca6c93387d32 zhenwei pi 2022-03-02  157  	ctx->session_valid = true;
-59ca6c93387d32 zhenwei pi 2022-03-02  158  	err = 0;
-59ca6c93387d32 zhenwei pi 2022-03-02  159  
-59ca6c93387d32 zhenwei pi 2022-03-02  160  out:
-286da9ed04239c zhenwei pi 2022-04-24  161  	kfree(vc_ctrl_req);
-59ca6c93387d32 zhenwei pi 2022-03-02  162  	kfree_sensitive(pkey);
-59ca6c93387d32 zhenwei pi 2022-03-02  163  
-59ca6c93387d32 zhenwei pi 2022-03-02  164  	if (err < 0)
-59ca6c93387d32 zhenwei pi 2022-03-02 @165  		pr_err("virtio_crypto: Create session failed status: %u\n",
-bb26cab9a7c25d zhenwei pi 2022-04-24  166  			le32_to_cpu(input->status));
-
-goto out is always suspicious.  "input" is not initialized.
-
-59ca6c93387d32 zhenwei pi 2022-03-02  167  
-59ca6c93387d32 zhenwei pi 2022-03-02  168  	return err;
-59ca6c93387d32 zhenwei pi 2022-03-02  169  }
-59ca6c93387d32 zhenwei pi 2022-03-02  170  
-59ca6c93387d32 zhenwei pi 2022-03-02  171  static int virtio_crypto_alg_akcipher_close_session(struct virtio_crypto_akcipher_ctx *ctx)
-59ca6c93387d32 zhenwei pi 2022-03-02  172  {
-59ca6c93387d32 zhenwei pi 2022-03-02  173  	struct scatterlist outhdr_sg, inhdr_sg, *sgs[2];
-59ca6c93387d32 zhenwei pi 2022-03-02  174  	struct virtio_crypto_destroy_session_req *destroy_session;
-59ca6c93387d32 zhenwei pi 2022-03-02  175  	struct virtio_crypto *vcrypto = ctx->vcrypto;
-59ca6c93387d32 zhenwei pi 2022-03-02  176  	unsigned int num_out = 0, num_in = 0, inlen;
-59ca6c93387d32 zhenwei pi 2022-03-02  177  	int err;
-bb26cab9a7c25d zhenwei pi 2022-04-24  178  	struct virtio_crypto_op_ctrl_req *ctrl;
-bb26cab9a7c25d zhenwei pi 2022-04-24  179  	struct virtio_crypto_inhdr *ctrl_status;
-286da9ed04239c zhenwei pi 2022-04-24  180  	struct virtio_crypto_ctrl_request *vc_ctrl_req;
-59ca6c93387d32 zhenwei pi 2022-03-02  181  
-59ca6c93387d32 zhenwei pi 2022-03-02  182  	if (!ctx->session_valid) {
-59ca6c93387d32 zhenwei pi 2022-03-02  183  		err = 0;
-59ca6c93387d32 zhenwei pi 2022-03-02  184  		goto out;
-59ca6c93387d32 zhenwei pi 2022-03-02  185  	}
-286da9ed04239c zhenwei pi 2022-04-24  186  
-286da9ed04239c zhenwei pi 2022-04-24  187  	vc_ctrl_req = kzalloc(sizeof(*vc_ctrl_req), GFP_KERNEL);
-286da9ed04239c zhenwei pi 2022-04-24  188  	if (!vc_ctrl_req) {
-286da9ed04239c zhenwei pi 2022-04-24  189  		err = -ENOMEM;
-286da9ed04239c zhenwei pi 2022-04-24  190  		goto out;
-286da9ed04239c zhenwei pi 2022-04-24  191  	}
-286da9ed04239c zhenwei pi 2022-04-24  192  
-286da9ed04239c zhenwei pi 2022-04-24  193  	ctrl_status = &vc_ctrl_req->ctrl_status;
-bb26cab9a7c25d zhenwei pi 2022-04-24  194  	ctrl_status->status = VIRTIO_CRYPTO_ERR;
-286da9ed04239c zhenwei pi 2022-04-24  195  	ctrl = &vc_ctrl_req->ctrl;
-bb26cab9a7c25d zhenwei pi 2022-04-24  196  	ctrl->header.opcode = cpu_to_le32(VIRTIO_CRYPTO_AKCIPHER_DESTROY_SESSION);
-bb26cab9a7c25d zhenwei pi 2022-04-24  197  	ctrl->header.queue_id = 0;
-59ca6c93387d32 zhenwei pi 2022-03-02  198  
-bb26cab9a7c25d zhenwei pi 2022-04-24  199  	destroy_session = &ctrl->u.destroy_session;
-59ca6c93387d32 zhenwei pi 2022-03-02  200  	destroy_session->session_id = cpu_to_le64(ctx->session_id);
-59ca6c93387d32 zhenwei pi 2022-03-02  201  
-bb26cab9a7c25d zhenwei pi 2022-04-24  202  	sg_init_one(&outhdr_sg, ctrl, sizeof(*ctrl));
-59ca6c93387d32 zhenwei pi 2022-03-02  203  	sgs[num_out++] = &outhdr_sg;
-59ca6c93387d32 zhenwei pi 2022-03-02  204  
-bb26cab9a7c25d zhenwei pi 2022-04-24  205  	sg_init_one(&inhdr_sg, &ctrl_status->status, sizeof(ctrl_status->status));
-59ca6c93387d32 zhenwei pi 2022-03-02  206  	sgs[num_out + num_in++] = &inhdr_sg;
-59ca6c93387d32 zhenwei pi 2022-03-02  207  
-286da9ed04239c zhenwei pi 2022-04-24  208  	spin_lock(&vcrypto->ctrl_lock);
-59ca6c93387d32 zhenwei pi 2022-03-02  209  	err = virtqueue_add_sgs(vcrypto->ctrl_vq, sgs, num_out, num_in, vcrypto, GFP_ATOMIC);
-286da9ed04239c zhenwei pi 2022-04-24  210  	if (err < 0) {
-286da9ed04239c zhenwei pi 2022-04-24  211  		spin_unlock(&vcrypto->ctrl_lock);
-59ca6c93387d32 zhenwei pi 2022-03-02  212  		goto out;
-286da9ed04239c zhenwei pi 2022-04-24  213  	}
-59ca6c93387d32 zhenwei pi 2022-03-02  214  
-59ca6c93387d32 zhenwei pi 2022-03-02  215  	virtqueue_kick(vcrypto->ctrl_vq);
-59ca6c93387d32 zhenwei pi 2022-03-02  216  	while (!virtqueue_get_buf(vcrypto->ctrl_vq, &inlen) &&
-59ca6c93387d32 zhenwei pi 2022-03-02  217  	       !virtqueue_is_broken(vcrypto->ctrl_vq))
-59ca6c93387d32 zhenwei pi 2022-03-02  218  		cpu_relax();
-286da9ed04239c zhenwei pi 2022-04-24  219  	spin_unlock(&vcrypto->ctrl_lock);
-59ca6c93387d32 zhenwei pi 2022-03-02  220  
-bb26cab9a7c25d zhenwei pi 2022-04-24  221  	if (ctrl_status->status != VIRTIO_CRYPTO_OK) {
-59ca6c93387d32 zhenwei pi 2022-03-02  222  		err = -EINVAL;
-59ca6c93387d32 zhenwei pi 2022-03-02  223  		goto out;
-59ca6c93387d32 zhenwei pi 2022-03-02  224  	}
-59ca6c93387d32 zhenwei pi 2022-03-02  225  
-59ca6c93387d32 zhenwei pi 2022-03-02  226  	err = 0;
-59ca6c93387d32 zhenwei pi 2022-03-02  227  	ctx->session_valid = false;
-59ca6c93387d32 zhenwei pi 2022-03-02  228  
-59ca6c93387d32 zhenwei pi 2022-03-02  229  out:
-286da9ed04239c zhenwei pi 2022-04-24 @230  	kfree(vc_ctrl_req);
-59ca6c93387d32 zhenwei pi 2022-03-02  231  	if (err < 0) {
-59ca6c93387d32 zhenwei pi 2022-03-02 @232  		pr_err("virtio_crypto: Close session failed status: %u, session_id: 0x%llx\n",
-bb26cab9a7c25d zhenwei pi 2022-04-24  233  			ctrl_status->status, destroy_session->session_id);
-
-More canonical goto out bugs.
-
-59ca6c93387d32 zhenwei pi 2022-03-02  234  	}
-59ca6c93387d32 zhenwei pi 2022-03-02  235  
-59ca6c93387d32 zhenwei pi 2022-03-02  236  	return err;
-59ca6c93387d32 zhenwei pi 2022-03-02  237  }
-
--- 
-0-DAY CI Kernel Test Service
-https://01.org/lkp
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+> v3: Add a comment explaining why offset and headroom are equal,
+>     no code changes
+> v2: Recalculate headroom based on data, data_hard_start and data_meta
+> 
+>  drivers/net/virtio_net.c | 20 +++++++++++++++++++-
+>  1 file changed, 19 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 87838cbe38cf..cbba9d2e8f32 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -1005,6 +1005,24 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+>  			 * xdp.data_meta were adjusted
+>  			 */
+>  			len = xdp.data_end - xdp.data + vi->hdr_len + metasize;
+> +
+> +			/* recalculate headroom if xdp.data or xdp_data_meta
+> +			 * were adjusted, note that offset should always point
+> +			 * to the start of the reserved bytes for virtio_net
+> +			 * header which are followed by xdp.data, that means
+> +			 * that offset is equal to the headroom (when buf is
+> +			 * starting at the beginning of the page, otherwise
+> +			 * there is a base offset inside the page) but it's used
+> +			 * with a different starting point (buf start) than
+> +			 * xdp.data (buf start + vnet hdr size). If xdp.data or
+> +			 * data_meta were adjusted by the xdp prog then the
+> +			 * headroom size has changed and so has the offset, we
+> +			 * can use data_hard_start, which points at buf start +
+> +			 * vnet hdr size, to calculate the new headroom and use
+> +			 * it later to compute buf start in page_to_skb()
+> +			 */
+> +			headroom = xdp.data - xdp.data_hard_start - metasize;
+> +
+>  			/* We can only create skb based on xdp_page. */
+>  			if (unlikely(xdp_page != page)) {
+>  				rcu_read_unlock();
+> @@ -1012,7 +1030,7 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+>  				head_skb = page_to_skb(vi, rq, xdp_page, offset,
+>  						       len, PAGE_SIZE, false,
+>  						       metasize,
+> -						       VIRTIO_XDP_HEADROOM);
+> +						       headroom);
+>  				return head_skb;
+>  			}
+>  			break;
+> -- 
+> 2.35.1
 
 _______________________________________________
 Virtualization mailing list
