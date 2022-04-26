@@ -1,81 +1,83 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2B7AFC433EF
-	for <virtualization@archiver.kernel.org>; Tue, 26 Apr 2022 11:54:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 09220C433F5
+	for <virtualization@archiver.kernel.org>; Tue, 26 Apr 2022 11:57:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id B39E082BA7;
-	Tue, 26 Apr 2022 11:54:55 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id A731F60B74;
+	Tue, 26 Apr 2022 11:57:20 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id YZc7s2o1T-wP; Tue, 26 Apr 2022 11:54:54 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id B55CC82B93;
-	Tue, 26 Apr 2022 11:54:53 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8567DC0039;
-	Tue, 26 Apr 2022 11:54:53 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C137FC002D
- for <virtualization@lists.linux-foundation.org>;
- Tue, 26 Apr 2022 11:54:51 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 9FE5860B74
- for <virtualization@lists.linux-foundation.org>;
- Tue, 26 Apr 2022 11:54:51 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id JD5cFhC0IeVB
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ftYxWpM5cz9N; Tue, 26 Apr 2022 11:57:19 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 3508A60FC4;
+	Tue, 26 Apr 2022 11:57:19 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 04E8DC0039;
+	Tue, 26 Apr 2022 11:57:19 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2C7DCC002D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 26 Apr 2022 11:54:50 +0000 (UTC)
+ Tue, 26 Apr 2022 11:57:18 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp4.osuosl.org (Postfix) with ESMTP id 1697341824
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 26 Apr 2022 11:57:18 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id GjiXMNjU3nxX
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 26 Apr 2022 11:57:16 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 10A7360864
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id BFD9B41821
  for <virtualization@lists.linux-foundation.org>;
- Tue, 26 Apr 2022 11:54:49 +0000 (UTC)
+ Tue, 26 Apr 2022 11:57:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1650974088;
+ s=mimecast20190719; t=1650974235;
  h=from:from:reply-to:reply-to:subject:subject:date:date:
  message-id:message-id:to:to:cc:cc:mime-version:mime-version:
- content-type:content-type:in-reply-to:in-reply-to:  references:references;
- bh=lWy3+iBM0hzkxkmaGclysQSSiY/cztGYE8k6lXFQn0M=;
- b=a/91zpdeW/s5cBbF2vcJaPRcyunZ4AKfp9a7nrO9IfFhz2MxJlhlixzYIoEP6pIut8gygG
- VH/UBLvRf09UBVYSuK7O4chbmfmbdE7NXKbUOjNhImL61HX7ApSO+DDzPs4R4ZiZYW9Fag
- sb9SAypS5gXWJn+0x8EWCv+zhqhRcYQ=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=FtGBciEbW3HrGbgfdt44SW/MAlLfJ/KV2/2Bj92AK+4=;
+ b=aphI9mVPUMPPVScc0xQp4cwEy87ZxBR3A7T2KwxJ1/sPlTPU7+d5IBwe/S2x+FgXTGITBu
+ NyDfiTD1TSf6R3lt3gPReDyBX600ZPY6kTqMIIhPjPipqKqWqGjLGLZwx8X+Udmwt8A64a
+ C6QT6/ex2fujyEczKavOYPr1jzMexbs=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-613-ne1IrrZKOQCTl2iF6DKK8w-1; Tue, 26 Apr 2022 07:54:45 -0400
-X-MC-Unique: ne1IrrZKOQCTl2iF6DKK8w-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com
- [10.11.54.8])
+ us-mta-650-GDLsOS10NyK7qFRCVICpZg-1; Tue, 26 Apr 2022 07:57:11 -0400
+X-MC-Unique: GDLsOS10NyK7qFRCVICpZg-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.1])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id D9F9B3C10ABF;
- Tue, 26 Apr 2022 11:54:44 +0000 (UTC)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 6FF5C83395E;
+ Tue, 26 Apr 2022 11:57:11 +0000 (UTC)
 Received: from redhat.com (unknown [10.33.36.156])
- by smtp.corp.redhat.com (Postfix) with ESMTPS id 0632EC28132;
- Tue, 26 Apr 2022 11:54:41 +0000 (UTC)
-Date: Tue, 26 Apr 2022 12:54:39 +0100
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id 54E9440F9D40;
+ Tue, 26 Apr 2022 11:57:08 +0000 (UTC)
+Date: Tue, 26 Apr 2022 12:57:05 +0100
 From: Daniel =?utf-8?B?UC4gQmVycmFuZ8Op?= <berrange@redhat.com>
 To: zhenwei pi <pizhenwei@bytedance.com>
-Subject: Re: [PATCH v4 6/8] crypto: Implement RSA algorithm by gcrypt
-Message-ID: <Ymfdf1ylxuE88+sI@redhat.com>
+Subject: Re: [PATCH v4 7/8] tests/crypto: Add test suite for crypto akcipher
+Message-ID: <YmfeEaQHupPLBteU@redhat.com>
 References: <20220411104327.197048-1-pizhenwei@bytedance.com>
- <20220411104327.197048-7-pizhenwei@bytedance.com>
+ <20220411104327.197048-8-pizhenwei@bytedance.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20220411104327.197048-7-pizhenwei@bytedance.com>
+In-Reply-To: <20220411104327.197048-8-pizhenwei@bytedance.com>
 User-Agent: Mutt/2.1.5 (2021-12-30)
-X-Scanned-By: MIMEDefang 2.85 on 10.11.54.8
+X-Scanned-By: MIMEDefang 2.84 on 10.11.54.1
 Cc: helei.sig11@bytedance.com, mst@redhat.com, cohuck@redhat.com,
  qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org,
  linux-crypto@vger.kernel.org
@@ -91,558 +93,48 @@ List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=hel
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Reply-To: Daniel =?utf-8?B?UC4gQmVycmFuZ8Op?= <berrange@redhat.com>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Apr 11, 2022 at 06:43:25PM +0800, zhenwei pi wrote:
-> From: Lei He <helei.sig11@bytedance.com>
-> 
-> Added gcryt implementation of RSA algorithm, RSA algorithm
-> implemented by gcrypt has a higher priority than nettle because
-> it supports raw padding.
-> 
-> Signed-off-by: Lei He <helei.sig11@bytedance.com>
-> ---
->  crypto/akcipher-gcrypt.c.inc | 531 +++++++++++++++++++++++++++++++++++
->  crypto/akcipher.c            |   4 +-
->  2 files changed, 534 insertions(+), 1 deletion(-)
->  create mode 100644 crypto/akcipher-gcrypt.c.inc
-> 
-> diff --git a/crypto/akcipher-gcrypt.c.inc b/crypto/akcipher-gcrypt.c.inc
-> new file mode 100644
-> index 0000000000..c109bf0566
-> --- /dev/null
-> +++ b/crypto/akcipher-gcrypt.c.inc
-> @@ -0,0 +1,531 @@
-> +/*
-> + * QEMU Crypto akcipher algorithms
-> + *
-> + * Copyright (c) 2022 Bytedance
-> + * Author: lei he <helei.sig11@bytedance.com>
-> + *
-> + * This library is free software; you can redistribute it and/or
-> + * modify it under the terms of the GNU Lesser General Public
-> + * License as published by the Free Software Foundation; either
-> + * version 2.1 of the License, or (at your option) any later version.
-> + *
-> + * This library is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-> + * Lesser General Public License for more details.
-> + *
-> + * You should have received a copy of the GNU Lesser General Public
-> + * License along with this library; if not, see <http://www.gnu.org/licenses/>.
-> + *
-> + */
-> +
-> +#include <stdbool.h>
-> +
-> +#include <gcrypt.h>
-> +
-> +#include "qemu/osdep.h"
-> +#include "qemu/host-utils.h"
-> +#include "asn1_decoder.h"
-> +#include "crypto/akcipher.h"
-> +#include "crypto/random.h"
-> +#include "qapi/error.h"
-> +#include "sysemu/cryptodev.h"
-> +#include "rsakey.h"
-> +
-> +typedef struct QCryptoGcryptRSA {
-> +    QCryptoAkCipher akcipher;
-> +    gcry_sexp_t key;
-> +    QCryptoRSAPaddingAlgorithm padding_alg;
-> +    QCryptoHashAlgorithm hash_alg;
-> +} QCryptoGcryptRSA;
-> +
-> +static void qcrypto_gcrypt_rsa_destroy(QCryptoGcryptRSA *rsa)
-> +{
-> +    if (!rsa) {
-> +        return;
-> +    }
-> +
-> +    gcry_sexp_release(rsa->key);
-> +    g_free(rsa);
-> +}
-> +
-> +static QCryptoGcryptRSA *qcrypto_gcrypt_rsa_new(
-> +    const QCryptoAkCipherOptionsRSA *opt,
-> +    QCryptoAkCipherKeyType type,
-> +    const uint8_t *key,  size_t keylen,
-> +    Error **errp);
-> +
-> +QCryptoAkCipher *qcrypto_akcipher_new(const QCryptoAkCipherOptions *opts,
-> +                                      QCryptoAkCipherKeyType type,
-> +                                      const uint8_t *key, size_t keylen,
-> +                                      Error **errp)
-> +{
-> +    switch (opts->algorithm) {
-> +    case QCRYPTO_AKCIPHER_ALG_RSA:
-> +        return (QCryptoAkCipher *)qcrypto_gcrypt_rsa_new(
-> +            &opts->u.rsa, type, key, keylen, errp);
-> +
-> +    default:
-> +        error_setg(errp, "Unsupported algorithm: %u", opts->algorithm);
-> +        return NULL;
-> +    }
-> +
-> +    return NULL;
-> +}
-> +
-> +static void qcrypto_gcrypt_set_rsa_size(QCryptoAkCipher *akcipher, gcry_mpi_t n)
-> +{
-> +    size_t key_size = (gcry_mpi_get_nbits(n) + 7) / 8;
-> +    akcipher->max_plaintext_len = key_size;
-> +    akcipher->max_ciphertext_len = key_size;
-> +    akcipher->max_dgst_len = key_size;
-> +    akcipher->max_signature_len = key_size;
-> +}
-> +
-> +static int qcrypto_gcrypt_parse_rsa_private_key(
-> +    QCryptoGcryptRSA *rsa,
-> +    const uint8_t *key, size_t keylen)
-> +{
-> +    QCryptoAkCipherRSAKey *rsa_key =
-> +        qcrypto_akcipher_parse_rsa_private_key(key, keylen);
-
-With my earlier suggestion, you can use
-
-  g_autoptr(QCryptoAkCipherRSAKey) rsa_key = ...
-
-and avoid need for the later  qcrypto_akcipher_free_rsa_key calls.
-
-> +    gcry_mpi_t n = NULL, e = NULL, d = NULL, p = NULL, q = NULL, u = NULL;
-> +    int ret = -1;
-> +    bool compute_mul_inv = false;
-> +    gcry_error_t err;
-> +    if (!rsa_key) {
-> +        return ret;
-> +    }
-> +
-> +    err = gcry_mpi_scan(&n, GCRYMPI_FMT_STD,
-> +                        rsa_key->n.data, rsa_key->n.len, NULL);
-> +    if (gcry_err_code(err) != 0) {
-> +        goto clear;
-> +    }
-> +
-> +    err = gcry_mpi_scan(&e, GCRYMPI_FMT_STD,
-> +                        rsa_key->e.data, rsa_key->e.len, NULL);
-> +    if (gcry_err_code(err) != 0) {
-> +        goto clear;
-> +    }
-> +
-> +    err = gcry_mpi_scan(&d, GCRYMPI_FMT_STD,
-> +                        rsa_key->d.data, rsa_key->d.len, NULL);
-> +    if (gcry_err_code(err) != 0) {
-> +        goto clear;
-> +    }
-> +
-> +    err = gcry_mpi_scan(&p, GCRYMPI_FMT_STD,
-> +                        rsa_key->p.data, rsa_key->p.len, NULL);
-> +    if (gcry_err_code(err) != 0) {
-> +        goto clear;
-> +    }
-> +
-> +    err = gcry_mpi_scan(&q, GCRYMPI_FMT_STD,
-> +                        rsa_key->q.data, rsa_key->q.len, NULL);
-> +    if (gcry_err_code(err) != 0) {
-> +        goto clear;
-> +    }
-> +
-> +    if (gcry_mpi_cmp_ui(p, 0) > 0 && gcry_mpi_cmp_ui(q, 0) > 0) {
-> +        compute_mul_inv = true;
-> +
-> +        u = gcry_mpi_new(0);
-> +        if (gcry_mpi_cmp(p, q) > 0) {
-> +            gcry_mpi_swap(p, q);
-> +        }
-> +        gcry_mpi_invm(u, p, q);
-> +    }
-> +
-> +    if (compute_mul_inv) {
-> +        err = gcry_sexp_build(&rsa->key, NULL,
-> +            "(private-key (rsa (n %m) (e %m) (d %m) (p %m) (q %m) (u %m)))",
-> +            n, e, d, p, q, u);
-> +    } else {
-> +        err = gcry_sexp_build(&rsa->key, NULL,
-> +            "(private-key (rsa (n %m) (e %m) (d %m)))", n, e, d);
-> +    }
-> +    if (gcry_err_code(err) != 0) {
-> +        goto clear;
-> +    }
-> +    qcrypto_gcrypt_set_rsa_size((QCryptoAkCipher *)rsa,  n);
-> +    ret = 0;
-> +
-> +clear:
-
-Same note about using either 'cleanup' or 'error' depending on whether
-this is for both successs+failure paths, or just failure path. This
-case is a fit for 'cleanup'.
-
-> +    qcrypto_akcipher_free_rsa_key(rsa_key);
-> +    gcry_mpi_release(n);
-> +    gcry_mpi_release(e);
-> +    gcry_mpi_release(d);
-> +    gcry_mpi_release(p);
-> +    gcry_mpi_release(q);
-> +    gcry_mpi_release(u);
-> +    return ret;
-> +}
-> +
-> +static int qcrypto_gcrypt_parse_rsa_public_key(QCryptoGcryptRSA *rsa,
-> +                                               const uint8_t *key,
-> +                                               size_t keylen)
-> +{
-> +
-> +    QCryptoAkCipherRSAKey *rsa_key =
-> +        qcrypto_akcipher_parse_rsa_public_key(key, keylen);
-> +    gcry_mpi_t n = NULL, e = NULL;
-> +    int ret = -1;
-> +    gcry_error_t err;
-> +    if (!rsa_key) {
-> +        return ret;
-> +    }
-> +
-> +    err = gcry_mpi_scan(&n, GCRYMPI_FMT_STD,
-> +                        rsa_key->n.data, rsa_key->n.len, NULL);
-> +    if (gcry_err_code(err) != 0) {
-> +        goto clear;
-> +    }
-> +
-> +    err = gcry_mpi_scan(&e, GCRYMPI_FMT_STD,
-> +                        rsa_key->e.data, rsa_key->e.len, NULL);
-> +    if (gcry_err_code(err) != 0) {
-> +        goto clear;
-> +    }
-> +
-> +    err = gcry_sexp_build(&rsa->key, NULL,
-> +                          "(public-key (rsa (n %m) (e %m)))", n, e);
-> +    if (gcry_err_code(err) != 0) {
-> +        goto clear;
-> +    }
-> +    qcrypto_gcrypt_set_rsa_size((QCryptoAkCipher *)rsa, n);
-> +    ret = 0;
-> +
-> +clear:
-> +    qcrypto_akcipher_free_rsa_key(rsa_key);
-> +    gcry_mpi_release(n);
-> +    gcry_mpi_release(e);
-> +    return ret;
-> +}
-> +
-> +static int qcrypto_gcrypt_rsa_encrypt(QCryptoAkCipher *akcipher,
-> +                                      const void *in, size_t in_len,
-> +                                      void *out, size_t out_len,
-> +                                      Error **errp)
-> +{
-> +    QCryptoGcryptRSA *rsa =
-> +        container_of(akcipher, QCryptoGcryptRSA, akcipher);
-> +    int ret = -1;
-> +    gcry_sexp_t data_sexp = NULL, cipher_sexp = NULL;
-> +    gcry_sexp_t cipher_sexp_item = NULL;
-> +    gcry_mpi_t cipher_mpi = NULL;
-> +    const char *result;
-> +    gcry_error_t err;
-> +    size_t actual_len;
-> +
-> +    if (in_len > akcipher->max_plaintext_len) {
-> +        error_setg(errp, "Invalid buffer size");
-> +        return ret;
-> +    }
-> +
-> +    err = gcry_sexp_build(&data_sexp, NULL,
-> +                          "(data (flags %s) (value %b))",
-> +                          QCryptoRSAPaddingAlgorithm_str(rsa->padding_alg),
-> +                          in_len, in);
-> +    if (gcry_err_code(err) != 0) {
-> +        goto clear;
-> +    }
-> +
-> +    err = gcry_pk_encrypt(&cipher_sexp, data_sexp, rsa->key);
-> +    if (gcry_err_code(err) != 0) {
-> +        goto clear;
-> +    }
-> +
-> +    /* S-expression of cipher: (enc-val (rsa (a a-mpi))) */
-> +    cipher_sexp_item = gcry_sexp_find_token(cipher_sexp, "a", 0);
-> +    if (!cipher_sexp_item || gcry_sexp_length(cipher_sexp_item) != 2) {
-> +        goto clear;
-> +    }
-> +
-> +    if (rsa->padding_alg == QCRYPTO_RSA_PADDING_ALG_RAW) {
-> +        cipher_mpi = gcry_sexp_nth_mpi(cipher_sexp_item, 1, GCRYMPI_FMT_USG);
-> +        if (!cipher_mpi) {
-> +            goto clear;
-> +        }
-> +        err = gcry_mpi_print(GCRYMPI_FMT_USG, out, out_len,
-> +                             &actual_len, cipher_mpi);
-> +        if (gcry_err_code(err) != 0 || actual_len > out_len) {
-> +            goto clear;
-> +        }
-> +
-> +        /* We always padding leading-zeros for RSA-RAW */
-> +        if (actual_len < out_len) {
-> +            memmove((uint8_t *)out + (out_len - actual_len), out, actual_len);
-> +            memset(out, 0, out_len - actual_len);
-> +        }
-> +        ret = out_len;
-> +
-> +    } else {
-> +        result = gcry_sexp_nth_data(cipher_sexp_item, 1, &actual_len);
-> +        if (!result || actual_len > out_len) {
-> +            goto clear;
-> +        }
-> +        memcpy(out, result, actual_len);
-> +        ret = actual_len;
-> +    }
-> +
-> +clear:
-> +    gcry_sexp_release(data_sexp);
-> +    gcry_sexp_release(cipher_sexp);
-> +    gcry_sexp_release(cipher_sexp_item);
-> +    gcry_mpi_release(cipher_mpi);
-> +    return ret;
-> +}
-> +
-> +static int qcrypto_gcrypt_rsa_decrypt(QCryptoAkCipher *akcipher,
-> +                                      const void *in, size_t in_len,
-> +                                      void *out, size_t out_len,
-> +                                      Error **errp)
-> +{
-> +    QCryptoGcryptRSA *rsa =
-> +        container_of(akcipher, QCryptoGcryptRSA, akcipher);
-> +    int ret = -1;
-> +    gcry_sexp_t data_sexp = NULL, cipher_sexp = NULL;
-> +    gcry_mpi_t data_mpi = NULL;
-> +    gcry_error_t err;
-> +    size_t actual_len;
-> +    const char *result;
-> +
-> +    if (in_len > akcipher->max_ciphertext_len) {
-> +        error_setg(errp, "Invalid buffer size");
-> +        return ret;
-> +    }
-> +
-> +    err = gcry_sexp_build(&cipher_sexp, NULL,
-> +                          "(enc-val (flags %s) (rsa (a %b) ))",
-> +                          QCryptoRSAPaddingAlgorithm_str(rsa->padding_alg),
-> +                          in_len, in);
-> +    if (gcry_err_code(err) != 0) {
-> +        goto clear;
-> +    }
-> +
-> +    err = gcry_pk_decrypt(&data_sexp, cipher_sexp, rsa->key);
-> +    if (gcry_err_code(err) != 0) {
-> +        goto clear;
-> +    }
-> +
-> +    /* S-expression of cipher: (value plaintext) */
-> +    if (rsa->padding_alg == QCRYPTO_RSA_PADDING_ALG_RAW) {
-> +        data_mpi = gcry_sexp_nth_mpi(data_sexp, 1, GCRYMPI_FMT_USG);
-> +        if (!data_mpi) {
-> +            goto clear;
-> +        }
-> +        err = gcry_mpi_print(GCRYMPI_FMT_USG, out, out_len,
-> +                             &actual_len, data_mpi);
-> +        if (gcry_err_code(err) != 0) {
-> +            goto clear;
-> +        }
-> +         if (actual_len > out_len) {
-> +            goto clear;
-> +        }
-> +        /* We always padding leading-zeros for RSA-RAW */
-> +        if (actual_len < out_len) {
-> +            memmove((uint8_t *)out + (out_len - actual_len), out, actual_len);
-> +            memset(out, 0, out_len - actual_len);
-> +        }
-> +        ret = out_len;
-> +    } else {
-> +        result = gcry_sexp_nth_data(data_sexp, 1, &actual_len);
-> +        if (!result || actual_len > out_len) {
-> +            goto clear;
-> +        }
-> +        memcpy(out, result, actual_len);
-> +        ret = actual_len;
-> +    }
-> +
-> +clear:
-> +    gcry_sexp_release(cipher_sexp);
-> +    gcry_sexp_release(data_sexp);
-> +    gcry_mpi_release(data_mpi);
-> +    return ret;
-> +}
-> +
-> +static int qcrypto_gcrypt_rsa_sign(QCryptoAkCipher *akcipher,
-> +                                   const void *in, size_t in_len,
-> +                                   void *out, size_t out_len, Error **errp)
-> +{
-> +    QCryptoGcryptRSA *rsa =
-> +        container_of(akcipher, QCryptoGcryptRSA, akcipher);
-> +    int ret = -1;
-> +    gcry_sexp_t dgst_sexp = NULL, sig_sexp = NULL;
-> +    gcry_sexp_t sig_sexp_item = NULL;
-> +    const char *result;
-> +    gcry_error_t err;
-> +    size_t actual_len;
-> +
-> +    if (in_len > akcipher->max_dgst_len) {
-> +        error_setg(errp, "Invalid buffer size");
-> +        return ret;
-> +    }
-> +
-> +    if (rsa->padding_alg != QCRYPTO_RSA_PADDING_ALG_PKCS1) {
-> +        return ret;
-> +    }
-> +    err = gcry_sexp_build(&dgst_sexp, NULL,
-> +                          "(data (flags pkcs1) (hash %s %b))",
-> +                          QCryptoHashAlgorithm_str(rsa->hash_alg),
-> +                          in_len, in);
-> +
-> +    if (gcry_err_code(err) != 0) {
-> +        goto clear;
-> +    }
-> +
-> +    err = gcry_pk_sign(&sig_sexp, dgst_sexp, rsa->key);
-> +    if (gcry_err_code(err) != 0) {
-> +        goto clear;
-> +    }
-> +
-> +    /* S-expression of signature: (sig-val (rsa (s s-mpi))) */
-> +    sig_sexp_item = gcry_sexp_find_token(sig_sexp, "s", 0);
-> +    if (!sig_sexp_item || gcry_sexp_length(sig_sexp_item) != 2) {
-> +        goto clear;
-> +    }
-> +
-> +    result = gcry_sexp_nth_data(sig_sexp_item, 1, &actual_len);
-> +    if (!result || actual_len > out_len) {
-> +        goto clear;
-> +     }
-> +    memcpy(out, result, actual_len);
-> +    ret = actual_len;
-> +
-> +clear:
-> +    gcry_sexp_release(dgst_sexp);
-> +    gcry_sexp_release(sig_sexp);
-> +    gcry_sexp_release(sig_sexp_item);
-> +
-> +    return ret;
-> +}
-> +
-> +static int qcrypto_gcrypt_rsa_verify(QCryptoAkCipher *akcipher,
-> +                                     const void *in, size_t in_len,
-> +                                     const void *in2, size_t in2_len,
-> +                                     Error **errp)
-> +{
-> +    QCryptoGcryptRSA *rsa =
-> +        container_of(akcipher, QCryptoGcryptRSA, akcipher);
-> +    int ret = -1;
-> +    gcry_sexp_t sig_sexp = NULL, dgst_sexp = NULL;
-> +    gcry_error_t err;
-> +
-> +    if (in_len > akcipher->max_signature_len ||
-> +        in2_len > akcipher->max_dgst_len) {
-> +        error_setg(errp, "Invalid buffer size");
-> +        return ret;
-> +    }
-> +
-> +    if (rsa->padding_alg != QCRYPTO_RSA_PADDING_ALG_PKCS1) {
-> +        error_setg(errp, "Invalid padding %u", rsa->padding_alg);
-> +        return ret;
-> +    }
-> +
-> +    err = gcry_sexp_build(&sig_sexp, NULL,
-> +                          "(sig-val (rsa (s %b)))", in_len, in);
-> +    if (gcry_err_code(err) != 0) {
-> +        goto clear;
-> +    }
-> +
-> +    err = gcry_sexp_build(&dgst_sexp, NULL,
-> +                          "(data (flags pkcs1) (hash %s %b))",
-> +                          QCryptoHashAlgorithm_str(rsa->hash_alg),
-> +                          in2_len, in2);
-> +    if (gcry_err_code(err) != 0) {
-> +        goto clear;
-> +    }
-> +
-> +    err = gcry_pk_verify(sig_sexp, dgst_sexp, rsa->key);
-> +    if (gcry_err_code(err) == 0) {
-> +        ret = 0;
-> +    }
-> +
-> +clear:
-> +    gcry_sexp_release(dgst_sexp);
-> +    gcry_sexp_release(sig_sexp);
-> +
-> +    return ret;
-> +}
-> +
-> +static int qcrypto_gcrypt_rsa_free(QCryptoAkCipher *akcipher,
-> +                                   Error **errp)
-> +{
-> +    qcrypto_gcrypt_rsa_destroy((QCryptoGcryptRSA *)akcipher);
-> +    return 0;
-> +}
-> +
-> +QCryptoAkCipherDriver gcrypt_rsa = {
-> +    .encrypt = qcrypto_gcrypt_rsa_encrypt,
-> +    .decrypt = qcrypto_gcrypt_rsa_decrypt,
-> +    .sign = qcrypto_gcrypt_rsa_sign,
-> +    .verify = qcrypto_gcrypt_rsa_verify,
-> +    .free = qcrypto_gcrypt_rsa_free,
-> +};
-> +
-> +static QCryptoGcryptRSA *qcrypto_gcrypt_rsa_new(
-> +    const QCryptoAkCipherOptionsRSA *opt,
-> +    QCryptoAkCipherKeyType type,
-> +    const uint8_t *key, size_t keylen,
-> +    Error **errp)
-> +{
-> +    QCryptoGcryptRSA *rsa = g_new0(QCryptoGcryptRSA, 1);
-> +    rsa->padding_alg = opt->padding_alg;
-> +    rsa->hash_alg = opt->hash_alg;
-> +    rsa->akcipher.driver = &gcrypt_rsa;
-> +
-> +    switch (type) {
-> +    case QCRYPTO_AKCIPHER_KEY_TYPE_PRIVATE:
-> +        if (qcrypto_gcrypt_parse_rsa_private_key(rsa, key, keylen) != 0) {
-> +            error_setg(errp, "Failed to parse rsa private key");
-> +            goto err;
-> +        }
-> +        break;
-> +
-> +    case QCRYPTO_AKCIPHER_KEY_TYPE_PUBLIC:
-> +        if (qcrypto_gcrypt_parse_rsa_public_key(rsa, key, keylen) != 0) {
-> +            error_setg(errp, "Failed to parse rsa public rsa key");
-> +            goto err;
-> +        }
-> +        break;
-> +
-> +    default:
-> +        error_setg(errp, "Unknown akcipher key type %d", type);
-
-'goto err' here
-
-> +    }
-> +
-> +    return rsa;
-> +
-> +err:
-> +    qcrypto_gcrypt_rsa_destroy(rsa);
-> +    return NULL;
-> +}
-> +
-> +
-
-With regards,
-Daniel
--- 
-|: https://berrange.com      -o-    https://www.flickr.com/photos/dberrange :|
-|: https://libvirt.org         -o-            https://fstop138.berrange.com :|
-|: https://entangle-photo.org    -o-    https://www.instagram.com/dberrange :|
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gTW9uLCBBcHIgMTEsIDIwMjIgYXQgMDY6NDM6MjZQTSArMDgwMCwgemhlbndlaSBwaSB3cm90
+ZToKPiBGcm9tOiBsZWkgaGUgPGhlbGVpLnNpZzExQGJ5dGVkYW5jZS5jb20+Cj4gCj4gQWRkIHVu
+aXQgdGVzdCBhbmQgYmVuY2htYXJrIHRlc3QgZm9yIGNyeXB0byBha2NpcGhlci4KPiAKPiBTaWdu
+ZWQtb2ZmLWJ5OiBsZWkgaGUgPGhlbGVpLnNpZzExQGJ5dGVkYW5jZS5jb20+Cj4gU2lnbmVkLW9m
+Zi1ieTogemhlbndlaSBwaSA8cGl6aGVud2VpQGJ5dGVkYW5jZS5jb20+Cj4gLS0tCj4gIHRlc3Rz
+L2JlbmNoL2JlbmNobWFyay1jcnlwdG8tYWtjaXBoZXIuYyB8IDE2MSArKysrKysKPiAgdGVzdHMv
+YmVuY2gvbWVzb24uYnVpbGQgICAgICAgICAgICAgICAgIHwgICA0ICsKPiAgdGVzdHMvYmVuY2gv
+dGVzdF9ha2NpcGhlcl9rZXlzLmluYyAgICAgIHwgNTM3ICsrKysrKysrKysrKysrKysrKwo+ICB0
+ZXN0cy91bml0L21lc29uLmJ1aWxkICAgICAgICAgICAgICAgICAgfCAgIDEgKwo+ICB0ZXN0cy91
+bml0L3Rlc3QtY3J5cHRvLWFrY2lwaGVyLmMgICAgICAgfCA3MDggKysrKysrKysrKysrKysrKysr
+KysrKysrCj4gIDUgZmlsZXMgY2hhbmdlZCwgMTQxMSBpbnNlcnRpb25zKCspCj4gIGNyZWF0ZSBt
+b2RlIDEwMDY0NCB0ZXN0cy9iZW5jaC9iZW5jaG1hcmstY3J5cHRvLWFrY2lwaGVyLmMKPiAgY3Jl
+YXRlIG1vZGUgMTAwNjQ0IHRlc3RzL2JlbmNoL3Rlc3RfYWtjaXBoZXJfa2V5cy5pbmMKPiAgY3Jl
+YXRlIG1vZGUgMTAwNjQ0IHRlc3RzL3VuaXQvdGVzdC1jcnlwdG8tYWtjaXBoZXIuYwo+IAoKPiBk
+aWZmIC0tZ2l0IGEvdGVzdHMvYmVuY2gvdGVzdF9ha2NpcGhlcl9rZXlzLmluYyBiL3Rlc3RzL2Jl
+bmNoL3Rlc3RfYWtjaXBoZXJfa2V5cy5pbmMKPiBuZXcgZmlsZSBtb2RlIDEwMDY0NAo+IGluZGV4
+IDAwMDAwMDAwMDAuLjdhZGYyMTgxMzUKPiAtLS0gL2Rldi9udWxsCj4gKysrIGIvdGVzdHMvYmVu
+Y2gvdGVzdF9ha2NpcGhlcl9rZXlzLmluYwo+IEBAIC0wLDAgKzEsNTM3IEBACj4gKy8qCj4gKyAq
+IENvcHlyaWdodCAoYykgMjAyMiBCeXRlZGFuY2UsIGFuZC9vciBpdHMgYWZmaWxpYXRlcwo+ICsg
+Kgo+ICsgKiBUaGlzIHdvcmsgaXMgbGljZW5zZWQgdW5kZXIgdGhlIHRlcm1zIG9mIHRoZSBHTlUg
+R1BMLCB2ZXJzaW9uIDIgb3IgbGF0ZXIuCj4gKyAqIFNlZSB0aGUgQ09QWUlORyBmaWxlIGluIHRo
+ZSB0b3AtbGV2ZWwgZGlyZWN0b3J5Lgo+ICsgKgo+ICsgKiBBdXRob3I6IGxlaSBoZSA8aGVsZWku
+c2lnMTFAYnl0ZWRhbmNlLmNvbT4KPiArICovCj4gKwo+ICsvKiBSU0EgdGVzdCBrZXlzLCBnZW5l
+cmF0ZWQgYnkgT3BlblNTTCAqLwo+ICtzdGF0aWMgY29uc3QgdWludDhfdCByc2ExMDI0X3ByaXZf
+a2V5W10gPSB7Cj4gKyAgICAweDMwLCAweDgyLCAweDAyLCAweDVjLCAweDAyLCAweDAxLCAweDAw
+LCAweDAyLAo+ICsJMHg4MSwgMHg4MSwgMHgwMCwgMHhlNiwgMHg0ZCwgMHg3NiwgMHg0ZiwgMHhi
+MiwKCnNuaXAKCkZvciB0aGUgcGF0Y2ggYXMgaXM6CgogUmV2aWV3ZWQtYnk6IERhbmllbCBQLiBC
+ZXJyYW5nw6kgPGJlcnJhbmdlQHJlZGhhdC5jb20+CgoKSXQgY291bGQgYmUgbmljZSB0byBhZGQg
+YW5vdGhlciB0ZXN0IHdpdGggc29tZSBpbnRlbnRpb25hbGx5IGNvcnJ1cHQKUlNBIGtleXMgd2l0
+aCBiYWQgREVSIGVuY29kaW5nLCBhcyBhIHdheSB0byBwcm92ZSB0aGF0IHdlJ3JlIGhhbmRsaW5n
+CmVycm9ycyBpbiBERVIgZGVjb2RpbmcgY29ycmVjdGx5IHdoZW4gZmFjZWQgd2l0aCBtYWxpY291
+cyBkYXRhIGZyb20gYQpiYWQgZ3Vlc3QuCgpXaXRoIHJlZ2FyZHMsCkRhbmllbAotLSAKfDogaHR0
+cHM6Ly9iZXJyYW5nZS5jb20gICAgICAtby0gICAgaHR0cHM6Ly93d3cuZmxpY2tyLmNvbS9waG90
+b3MvZGJlcnJhbmdlIDp8Cnw6IGh0dHBzOi8vbGlidmlydC5vcmcgICAgICAgICAtby0gICAgICAg
+ICAgICBodHRwczovL2ZzdG9wMTM4LmJlcnJhbmdlLmNvbSA6fAp8OiBodHRwczovL2VudGFuZ2xl
+LXBob3RvLm9yZyAgICAtby0gICAgaHR0cHM6Ly93d3cuaW5zdGFncmFtLmNvbS9kYmVycmFuZ2Ug
+OnwKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1
+YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0
+aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5m
+by92aXJ0dWFsaXphdGlvbg==
