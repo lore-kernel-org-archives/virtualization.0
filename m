@@ -1,100 +1,106 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id BAEB6C433F5
-	for <virtualization@archiver.kernel.org>; Wed, 27 Apr 2022 18:36:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 691E4C433FE
+	for <virtualization@archiver.kernel.org>; Wed, 27 Apr 2022 23:10:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 4A92B40528;
-	Wed, 27 Apr 2022 18:36:34 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id EDEE860F3C;
+	Wed, 27 Apr 2022 23:10:32 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 8vFrLeeX1Zmf; Wed, 27 Apr 2022 18:36:33 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 0ZqaYne9brTU; Wed, 27 Apr 2022 23:10:32 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id A85654036A;
-	Wed, 27 Apr 2022 18:36:32 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 62C4360C26;
+	Wed, 27 Apr 2022 23:10:31 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 82C3CC0039;
-	Wed, 27 Apr 2022 18:36:32 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 42FDEC0032;
+	Wed, 27 Apr 2022 23:10:31 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 55005C002D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5CE80C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Apr 2022 18:36:31 +0000 (UTC)
+ Wed, 27 Apr 2022 23:10:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 4344C82BC3
+ by smtp1.osuosl.org (Postfix) with ESMTP id 4454D832AA
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Apr 2022 18:36:31 +0000 (UTC)
+ Wed, 27 Apr 2022 23:10:30 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=suse.com
+ dkim=pass (2048-bit key) header.d=linutronix.de header.b="hQC4wdHr";
+ dkim=neutral reason="invalid (unsupported algorithm ed25519-sha256)"
+ header.d=linutronix.de header.b="GNkovCpO"
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id m7KAMG6Bwyog
+ with ESMTP id nOM9ncc-59i3
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Apr 2022 18:36:30 +0000 (UTC)
+ Wed, 27 Apr 2022 23:10:28 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
- by smtp1.osuosl.org (Postfix) with ESMTPS id C8C9182B21
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 23C8C826FB
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Apr 2022 18:36:29 +0000 (UTC)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by smtp-out2.suse.de (Postfix) with ESMTPS id 8430D1F37B;
- Wed, 27 Apr 2022 18:36:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
- t=1651084586; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
+ Wed, 27 Apr 2022 23:10:27 +0000 (UTC)
+From: Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+ s=2020; t=1651101023;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=hPGj7n/vA6ah11cM3Ov68FdS/0km35hEepQltyzPhB8=;
- b=u7XvmDwiqRHIocWGiLAYcscLlu02y9WmeQ1USlJ/XSK66O2hqcuH1uRea760zpnR4rh00j
- 3GyKDD9HMLZD5nTnnOihWYk0kshZybRNljb/ntBP/bERvhcWLw7uEpOak5MRTm3u4T7Uz5
- E4o3/r0i9xxCMbEPqV+JO0KaNPcHmuE=
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id AA8DC13A39;
- Wed, 27 Apr 2022 18:36:25 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
- by imap2.suse-dmz.suse.de with ESMTPSA id lD+1JymNaWJ0XQAAMHmgww
- (envelope-from <jgross@suse.com>); Wed, 27 Apr 2022 18:36:25 +0000
-Message-ID: <3d85dccb-7a22-1701-5717-8efd08b7a50c@suse.com>
-Date: Wed, 27 Apr 2022 20:36:25 +0200
+ bh=d0f+m2Dqb3x2CVJe4DM+W9cwvXPiNqPC/6H9asGUciw=;
+ b=hQC4wdHr3uIvFPLUK37KcFVlQVbuVrdB2JhO9mWr032woo0CTs1XzrrJ9w8d51QXkif9AL
+ iqq/CtSS3SAVCOsErIZhntagIalkjek2CKzYlZKbY+1yquvkEQ+SYGxLFEeOfB9K8/iuiJ
+ sJTeeJ3hD6Z+Wnv3S4GSGuF5a9lTEeyQcTKwL6ILvd79BejzkSsxSC6T5rE5aZP3TBP/n3
+ +jg4S8nbkCWy5yCMu6ql/RNoji2O4gWL9/3jqEHHpACl6ssvK5LjT19uU9SgW5SHZbttuD
+ IIpdWuU+v3ZLfrZlGAvsGInIufO9oQU50N6f2e5WaZw6mwwzzdp4oghy6QGLww==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+ s=2020e; t=1651101023;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=d0f+m2Dqb3x2CVJe4DM+W9cwvXPiNqPC/6H9asGUciw=;
+ b=GNkovCpOnyHDDop7r43RmNJOWpj1X6I0zE9A0pAj3SrYiDPcex+a91CWpFL9fN5aLfGBcx
+ y5Us2rg+kicvELDA==
+To: Adrian Hunter <adrian.hunter@intel.com>, Peter Zijlstra
+ <peterz@infradead.org>
+Subject: Re: [PATCH V2 03/11] perf/x86: Add support for TSC in nanoseconds
+ as a perf event clock
+In-Reply-To: <c8033229-97a0-3e4c-66d5-74c0d1d4e15c@intel.com>
+References: <20220214110914.268126-1-adrian.hunter@intel.com>
+ <20220214110914.268126-4-adrian.hunter@intel.com>
+ <YiIXFmA4vpcTSk2L@hirez.programming.kicks-ass.net>
+ <853ce127-25f0-d0fe-1d8f-0b0dd4f3ce71@intel.com>
+ <YiXVgEk/1UClkygX@hirez.programming.kicks-ass.net>
+ <30383f92-59cb-2875-1e1b-ff1a0eacd235@intel.com>
+ <YiYZv+LOmjzi5wcm@hirez.programming.kicks-ass.net>
+ <013b5425-2a60-e4d4-b846-444a576f2b28@intel.com>
+ <6f07a7d4e1ad4440bf6c502c8cb6c2ed@intel.com>
+ <c3e1842b-79c3-634a-3121-938b5160ca4c@intel.com>
+ <50fd2671-6070-0eba-ea68-9df9b79ccac3@intel.com> <87ilqx33vk.ffs@tglx>
+ <ff1e190a-95e6-e2a6-dc01-a46f7ffd2162@intel.com> <87fsm114ax.ffs@tglx>
+ <c8033229-97a0-3e4c-66d5-74c0d1d4e15c@intel.com>
+Date: Thu, 28 Apr 2022 01:10:23 +0200
+Message-ID: <87ee1iw2ao.ffs@tglx>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.0
-Subject: Re: [PATCH v2 2/2] virtio: replace
- arch_has_restricted_virtio_memory_access()
-Content-Language: en-US
-To: "Michael Kelley (LINUX)" <mikelley@microsoft.com>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>,
- "x86@kernel.org" <x86@kernel.org>,
- "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
- "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
+Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+ Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>,
  "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>
-References: <20220427153336.11091-1-jgross@suse.com>
- <20220427153336.11091-3-jgross@suse.com>
- <PH0PR21MB3025FAA99B4E2C8155A1AE12D7FA9@PH0PR21MB3025.namprd21.prod.outlook.com>
-In-Reply-To: <PH0PR21MB3025FAA99B4E2C8155A1AE12D7FA9@PH0PR21MB3025.namprd21.prod.outlook.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
- Peter Zijlstra <peterz@infradead.org>,
- Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>, Wei Liu <wei.liu@kernel.org>,
- Stephen Hemminger <sthemmin@microsoft.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Dexuan Cui <decui@microsoft.com>, Christoph Hellwig <hch@infradead.org>,
- Ingo Molnar <mingo@redhat.com>, Haiyang Zhang <haiyangz@microsoft.com>,
- Arnd Bergmann <arnd@arndb.de>, Heiko Carstens <hca@linux.ibm.com>,
- Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>,
- Thomas Gleixner <tglx@linutronix.de>,
- Oleksandr Tyshchenko <olekstysh@gmail.com>,
- Sven Schnelle <svens@linux.ibm.com>
+ <virtualization@lists.linux-foundation.org>, H Peter Anvin <hpa@zytor.com>,
+ Jiri Olsa <jolsa@redhat.com>, "Hall,
+ Christopher S" <christopher.s.hall@intel.com>,
+ "sthemmin@microsoft.com" <sthemmin@microsoft.com>,
+ "x86@kernel.org" <x86@kernel.org>,
+ "pv-drivers@vmware.com" <pv-drivers@vmware.com>,
+ Ingo Molnar <mingo@redhat.com>, Suzuki K Poulose <suzuki.poulose@arm.com>,
+ Leo Yan <leo.yan@linaro.org>, Arnaldo Carvalho de Melo <acme@kernel.org>,
+ Borislav Petkov <bp@alien8.de>, "jgross@suse.com" <jgross@suse.com>,
+ Mathieu Poirier <mathieu.poirier@linaro.org>,
+ "seanjc@google.com" <seanjc@google.com>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ "Andrew.Cooper3@citrix.com" <Andrew.Cooper3@citrix.com>,
+ "pbonzini@redhat.com" <pbonzini@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -106,233 +112,71 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Juergen Gross via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Juergen Gross <jgross@suse.com>
-Content-Type: multipart/mixed; boundary="===============3958403719074318804=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============3958403719074318804==
-Content-Language: en-US
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------j0b7KV03sm3SSS00lOqpuvd3"
+On Tue, Apr 26 2022 at 09:51, Adrian Hunter wrote:
+> On 25/04/22 20:05, Thomas Gleixner wrote:
+>> On Mon, Apr 25 2022 at 16:15, Adrian Hunter wrote:
+>>> On 25/04/22 12:32, Thomas Gleixner wrote:
+>>>> It's hillarious, that we still cling to this pvclock abomination, while
+>>>> we happily expose TSC deadline timer to the guest. TSC virt scaling was
+>>>> implemented in hardware for a reason.
+>>>
+>>> So you are talking about changing VMX TCS Offset on every VM-Entry to try to hide
+>>> the time jumps when the VM is scheduled out?  Or neglect that and just let the time
+>>> jumps happen?
+>>>
+>>> If changing VMX TCS Offset, how can TSC be kept consistent between each VCPU i.e.
+>>> wouldn't that mean each VCPU has to have the same VMX TSC Offset?
+>> 
+>> Obviously so. That's the only thing which makes sense, no?
+>
+> [ Sending this again, because I notice I messed up the email "From" ]
+>
+> But wouldn't that mean changing all the VCPUs VMX TSC Offset at the same time,
+> which means when none are currently executing?  How could that be done?
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------j0b7KV03sm3SSS00lOqpuvd3
-Content-Type: multipart/mixed; boundary="------------u2CO02YVk1NKGgC5oPI9sJzg";
- protected-headers="v1"
-From: Juergen Gross <jgross@suse.com>
-To: "Michael Kelley (LINUX)" <mikelley@microsoft.com>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>,
- "x86@kernel.org" <x86@kernel.org>,
- "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
- "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>
-Cc: Arnd Bergmann <arnd@arndb.de>, Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@linutronix.de>,
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
- Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>,
- KY Srinivasan <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>,
- Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>,
- Dexuan Cui <decui@microsoft.com>, Andy Lutomirski <luto@kernel.org>,
- Peter Zijlstra <peterz@infradead.org>, "Michael S. Tsirkin"
- <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Christoph Hellwig <hch@infradead.org>,
- Oleksandr Tyshchenko <olekstysh@gmail.com>
-Message-ID: <3d85dccb-7a22-1701-5717-8efd08b7a50c@suse.com>
-Subject: Re: [PATCH v2 2/2] virtio: replace
- arch_has_restricted_virtio_memory_access()
-References: <20220427153336.11091-1-jgross@suse.com>
- <20220427153336.11091-3-jgross@suse.com>
- <PH0PR21MB3025FAA99B4E2C8155A1AE12D7FA9@PH0PR21MB3025.namprd21.prod.outlook.com>
-In-Reply-To: <PH0PR21MB3025FAA99B4E2C8155A1AE12D7FA9@PH0PR21MB3025.namprd21.prod.outlook.com>
+Why would you change TSC offset after the point where a VM is started
+and why would it be different per vCPU?
 
---------------u2CO02YVk1NKGgC5oPI9sJzg
-Content-Type: multipart/mixed; boundary="------------PVKJ8AyElnAXikkyiJoY2hwt"
+Time is global and time moves on when a vCPU is scheduled out. Anything
+else is bonkers, really. If the hypervisor tries to screw with that then
+how does the guest do timekeeping in a consistent way?
 
---------------PVKJ8AyElnAXikkyiJoY2hwt
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+    CLOCK_REALTIME = CLOCK_MONOTONIC + offset
 
-T24gMjcuMDQuMjIgMTg6MzAsIE1pY2hhZWwgS2VsbGV5IChMSU5VWCkgd3JvdGU6DQo+IEZy
-b206IEp1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT4gU2VudDogV2VkbmVzZGF5LCBB
-cHJpbCAyNywgMjAyMiA4OjM0IEFNDQo+Pg0KPj4gSW5zdGVhZCBvZiB1c2luZyBhcmNoX2hh
-c19yZXN0cmljdGVkX3ZpcnRpb19tZW1vcnlfYWNjZXNzKCkgdG9nZXRoZXINCj4+IHdpdGgg
-Q09ORklHX0FSQ0hfSEFTX1JFU1RSSUNURURfVklSVElPX01FTU9SWV9BQ0NFU1MsIHJlcGxh
-Y2UgdGhvc2UNCj4+IHdpdGggcGxhdGZvcm1faGFzKCkgYW5kIGEgbmV3IHBsYXRmb3JtIGZl
-YXR1cmUNCj4+IFBMQVRGT1JNX1ZJUlRJT19SRVNUUklDVEVEX01FTV9BQ0NFU1MuDQo+Pg0K
-Pj4gU2lnbmVkLW9mZi1ieTogSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1c2UuY29tPg0KPj4g
-LS0tDQo+PiBWMjoNCj4+IC0gbW92ZSBzZXR0aW5nIG9mIFBMQVRGT1JNX1ZJUlRJT19SRVNU
-UklDVEVEX01FTV9BQ0NFU1MgaW4gU0VWIGNhc2UNCj4+ICAgIHRvIHNldl9zZXR1cF9hcmNo
-KCkuDQo+PiAtLS0NCj4+ICAgYXJjaC9zMzkwL0tjb25maWcgICAgICAgICAgICAgICAgfCAg
-MSAtDQo+PiAgIGFyY2gvczM5MC9tbS9pbml0LmMgICAgICAgICAgICAgIHwgMTMgKysrLS0t
-LS0tLS0tLQ0KPj4gICBhcmNoL3g4Ni9LY29uZmlnICAgICAgICAgICAgICAgICB8ICAxIC0N
-Cj4+ICAgYXJjaC94ODYva2VybmVsL2NwdS9tc2h5cGVydi5jICAgfCAgNSArKysrLQ0KPj4g
-ICBhcmNoL3g4Ni9tbS9tZW1fZW5jcnlwdC5jICAgICAgICB8ICA2IC0tLS0tLQ0KPj4gICBh
-cmNoL3g4Ni9tbS9tZW1fZW5jcnlwdF9hbWQuYyAgICB8ICA0ICsrKysNCj4+ICAgZHJpdmVy
-cy92aXJ0aW8vS2NvbmZpZyAgICAgICAgICAgfCAgNiAtLS0tLS0NCj4+ICAgZHJpdmVycy92
-aXJ0aW8vdmlydGlvLmMgICAgICAgICAgfCAgNSArKy0tLQ0KPj4gICBpbmNsdWRlL2xpbnV4
-L3BsYXRmb3JtLWZlYXR1cmUuaCB8ICAzICsrLQ0KPj4gICBpbmNsdWRlL2xpbnV4L3ZpcnRp
-b19jb25maWcuaCAgICB8ICA5IC0tLS0tLS0tLQ0KPj4gICAxMCBmaWxlcyBjaGFuZ2VkLCAx
-NSBpbnNlcnRpb25zKCspLCAzOCBkZWxldGlvbnMoLSkNCj4+DQo+PiBkaWZmIC0tZ2l0IGEv
-YXJjaC9zMzkwL0tjb25maWcgYi9hcmNoL3MzOTAvS2NvbmZpZw0KPj4gaW5kZXggZTA4NGM3
-MjEwNGY4Li5mOTdhMjJhZTY5YTggMTAwNjQ0DQo+PiAtLS0gYS9hcmNoL3MzOTAvS2NvbmZp
-Zw0KPj4gKysrIGIvYXJjaC9zMzkwL0tjb25maWcNCj4+IEBAIC03NzIsNyArNzcyLDYgQEAg
-bWVudSAiVmlydHVhbGl6YXRpb24iDQo+PiAgIGNvbmZpZyBQUk9URUNURURfVklSVFVBTEla
-QVRJT05fR1VFU1QNCj4+ICAgCWRlZl9ib29sIG4NCj4+ICAgCXByb21wdCAiUHJvdGVjdGVk
-IHZpcnR1YWxpemF0aW9uIGd1ZXN0IHN1cHBvcnQiDQo+PiAtCXNlbGVjdCBBUkNIX0hBU19S
-RVNUUklDVEVEX1ZJUlRJT19NRU1PUllfQUNDRVNTDQo+PiAgIAloZWxwDQo+PiAgIAkgIFNl
-bGVjdCB0aGlzIG9wdGlvbiwgaWYgeW91IHdhbnQgdG8gYmUgYWJsZSB0byBydW4gdGhpcw0K
-Pj4gICAJICBrZXJuZWwgYXMgYSBwcm90ZWN0ZWQgdmlydHVhbGl6YXRpb24gS1ZNIGd1ZXN0
-Lg0KPj4gZGlmZiAtLWdpdCBhL2FyY2gvczM5MC9tbS9pbml0LmMgYi9hcmNoL3MzOTAvbW0v
-aW5pdC5jDQo+PiBpbmRleCA4NmZmZDBkNTFmZDUuLjJjM2I0NTE4MTNlZCAxMDA2NDQNCj4+
-IC0tLSBhL2FyY2gvczM5MC9tbS9pbml0LmMNCj4+ICsrKyBiL2FyY2gvczM5MC9tbS9pbml0
-LmMNCj4+IEBAIC0zMSw2ICszMSw3IEBADQo+PiAgICNpbmNsdWRlIDxsaW51eC9jbWEuaD4N
-Cj4+ICAgI2luY2x1ZGUgPGxpbnV4L2dmcC5oPg0KPj4gICAjaW5jbHVkZSA8bGludXgvZG1h
-LWRpcmVjdC5oPg0KPj4gKyNpbmNsdWRlIDxsaW51eC9wbGF0Zm9ybS1mZWF0dXJlLmg+DQo+
-PiAgICNpbmNsdWRlIDxhc20vcHJvY2Vzc29yLmg+DQo+PiAgICNpbmNsdWRlIDxsaW51eC91
-YWNjZXNzLmg+DQo+PiAgICNpbmNsdWRlIDxhc20vcGdhbGxvYy5oPg0KPj4gQEAgLTE2OCwy
-MiArMTY5LDE0IEBAIGJvb2wgZm9yY2VfZG1hX3VuZW5jcnlwdGVkKHN0cnVjdCBkZXZpY2Ug
-KmRldikNCj4+ICAgCXJldHVybiBpc19wcm90X3ZpcnRfZ3Vlc3QoKTsNCj4+ICAgfQ0KPj4N
-Cj4+IC0jaWZkZWYgQ09ORklHX0FSQ0hfSEFTX1JFU1RSSUNURURfVklSVElPX01FTU9SWV9B
-Q0NFU1MNCj4+IC0NCj4+IC1pbnQgYXJjaF9oYXNfcmVzdHJpY3RlZF92aXJ0aW9fbWVtb3J5
-X2FjY2Vzcyh2b2lkKQ0KPj4gLXsNCj4+IC0JcmV0dXJuIGlzX3Byb3RfdmlydF9ndWVzdCgp
-Ow0KPj4gLX0NCj4+IC1FWFBPUlRfU1lNQk9MKGFyY2hfaGFzX3Jlc3RyaWN0ZWRfdmlydGlv
-X21lbW9yeV9hY2Nlc3MpOw0KPj4gLQ0KPj4gLSNlbmRpZg0KPj4gLQ0KPj4gICAvKiBwcm90
-ZWN0ZWQgdmlydHVhbGl6YXRpb24gKi8NCj4+ICAgc3RhdGljIHZvaWQgcHZfaW5pdCh2b2lk
-KQ0KPj4gICB7DQo+PiAgIAlpZiAoIWlzX3Byb3RfdmlydF9ndWVzdCgpKQ0KPj4gICAJCXJl
-dHVybjsNCj4+DQo+PiArCXBsYXRmb3JtX3NldChQTEFURk9STV9WSVJUSU9fUkVTVFJJQ1RF
-RF9NRU1fQUNDRVNTKTsNCj4+ICsNCj4+ICAgCS8qIG1ha2Ugc3VyZSBib3VuY2UgYnVmZmVy
-cyBhcmUgc2hhcmVkICovDQo+PiAgIAlzd2lvdGxiX2ZvcmNlID0gU1dJT1RMQl9GT1JDRTsN
-Cj4+ICAgCXN3aW90bGJfaW5pdCgxKTsNCj4+IGRpZmYgLS1naXQgYS9hcmNoL3g4Ni9LY29u
-ZmlnIGIvYXJjaC94ODYvS2NvbmZpZw0KPj4gaW5kZXggYjAxNDJlMDEwMDJlLi4yMGFjNzI1
-NDZhZTQgMTAwNjQ0DQo+PiAtLS0gYS9hcmNoL3g4Ni9LY29uZmlnDQo+PiArKysgYi9hcmNo
-L3g4Ni9LY29uZmlnDQo+PiBAQCAtMTUxNSw3ICsxNTE1LDYgQEAgY29uZmlnIFg4Nl9DUEFf
-U1RBVElTVElDUw0KPj4gICBjb25maWcgWDg2X01FTV9FTkNSWVBUDQo+PiAgIAlzZWxlY3Qg
-QVJDSF9IQVNfRk9SQ0VfRE1BX1VORU5DUllQVEVEDQo+PiAgIAlzZWxlY3QgRFlOQU1JQ19Q
-SFlTSUNBTF9NQVNLDQo+PiAtCXNlbGVjdCBBUkNIX0hBU19SRVNUUklDVEVEX1ZJUlRJT19N
-RU1PUllfQUNDRVNTDQo+PiAgIAlkZWZfYm9vbCBuDQo+Pg0KPj4gICBjb25maWcgQU1EX01F
-TV9FTkNSWVBUDQo+PiBkaWZmIC0tZ2l0IGEvYXJjaC94ODYva2VybmVsL2NwdS9tc2h5cGVy
-di5jIGIvYXJjaC94ODYva2VybmVsL2NwdS9tc2h5cGVydi5jDQo+PiBpbmRleCA0YjY3MDk0
-MjE1YmIuLjk2NTUxOGI5ZDE0YiAxMDA2NDQNCj4+IC0tLSBhL2FyY2gveDg2L2tlcm5lbC9j
-cHUvbXNoeXBlcnYuYw0KPj4gKysrIGIvYXJjaC94ODYva2VybmVsL2NwdS9tc2h5cGVydi5j
-DQo+PiBAQCAtMTksNiArMTksNyBAQA0KPj4gICAjaW5jbHVkZSA8bGludXgvaTgyNTMuaD4N
-Cj4+ICAgI2luY2x1ZGUgPGxpbnV4L3JhbmRvbS5oPg0KPj4gICAjaW5jbHVkZSA8bGludXgv
-c3dpb3RsYi5oPg0KPj4gKyNpbmNsdWRlIDxsaW51eC9wbGF0Zm9ybS1mZWF0dXJlLmg+DQo+
-PiAgICNpbmNsdWRlIDxhc20vcHJvY2Vzc29yLmg+DQo+PiAgICNpbmNsdWRlIDxhc20vaHlw
-ZXJ2aXNvci5oPg0KPj4gICAjaW5jbHVkZSA8YXNtL2h5cGVydi10bGZzLmg+DQo+PiBAQCAt
-MzQ3LDggKzM0OCwxMCBAQCBzdGF0aWMgdm9pZCBfX2luaXQgbXNfaHlwZXJ2X2luaXRfcGxh
-dGZvcm0odm9pZCkNCj4+ICAgI2VuZGlmDQo+PiAgIAkJLyogSXNvbGF0aW9uIFZNcyBhcmUg
-dW5lbmxpZ2h0ZW5lZCBTRVYtYmFzZWQgVk1zLCB0aHVzIHRoaXMgY2hlY2s6ICovDQo+PiAg
-IAkJaWYgKElTX0VOQUJMRUQoQ09ORklHX0FNRF9NRU1fRU5DUllQVCkpIHsNCj4+IC0JCQlp
-ZiAoaHZfZ2V0X2lzb2xhdGlvbl90eXBlKCkgIT0gSFZfSVNPTEFUSU9OX1RZUEVfTk9ORSkN
-Cj4+ICsJCQlpZiAoaHZfZ2V0X2lzb2xhdGlvbl90eXBlKCkgIT0gSFZfSVNPTEFUSU9OX1RZ
-UEVfTk9ORSkgew0KPj4gICAJCQkJY2Nfc2V0X3ZlbmRvcihDQ19WRU5ET1JfSFlQRVJWKTsN
-Cj4+ICsNCj4+IAlwbGF0Zm9ybV9zZXQoUExBVEZPUk1fVklSVElPX1JFU1RSSUNURURfTUVN
-X0FDQ0VTUyk7DQo+PiArCQkJfQ0KPj4gICAJCX0NCj4+ICAgCX0NCj4+DQo+IA0KPiBVbmxl
-c3MgSSdtIG1pc3VuZGVyc3RhbmRpbmcgc29tZXRoaW5nLCB0aGUgSHlwZXItViBzcGVjaWZp
-YyBjaGFuZ2UgaXNuJ3QNCj4gbmVlZGVkLiAgIEh5cGVyLVYgZG9lc24ndCBzdXBwb3J0IHZp
-cnRpbyBpbiB0aGUgZmlyc3QgcGxhY2UsIHNvIGl0J3MgYSBiaXQNCj4gdW5leHBlY3RlZCBi
-ZSBzZXR0aW5nIGEgdmlydGlvLXJlbGF0ZWQgZmxhZyBpbiBIeXBlci1WIGNvZGUuICAgQWxz
-bywgSHlwZXItVg0KPiBndWVzdHMgY2FsbCBzZXZfc2V0dXBfYXJjaCgpIHdpdGggQ0NfQVRU
-Ul9HVUVTVF9NRU1fRU5DUllQVCBzZXQsDQo+IHNvIHRoaXMgdmlydGlvLXJlbGF0ZWQgZmxh
-ZyB3aWxsIGdldCBzZXQgYW55d2F5IHZpYSB0aGF0IHBhdGguDQoNCk9rYXksIHRoYW5rcy4g
-V2lsbCBkcm9wIHRoYXQgY2h1bmsgdGhlbi4NCg0KDQpKdWVyZ2VuDQo=
---------------PVKJ8AyElnAXikkyiJoY2hwt
-Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Description: OpenPGP public key
-Content-Transfer-Encoding: quoted-printable
+That offset changes when something sets the clock, i.e. clock_settime(),
+settimeofday() or adjtimex() in case that NTP cannot compensate or for
+the beloved leap seconds adjustment. At any other time the offset is
+constant.
 
------BEGIN PGP PUBLIC KEY BLOCK-----
+CLOCK_MONOTONIC is derived from the underlying clocksource which is
+expected to increment with constant frequency and that has to be
+consistent accross _all_ vCPUs of a particular VM.
 
-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
-jR/i1DG86lem3iBDXzXsZDn8R38=3D
-=3D2wuH
------END PGP PUBLIC KEY BLOCK-----
+So how would a hypervisor 'hide' scheduled out time w/o screwing up
+timekeeping completely?
 
---------------PVKJ8AyElnAXikkyiJoY2hwt--
+The guest TSC which is based on the host TSC is:
 
---------------u2CO02YVk1NKGgC5oPI9sJzg--
+    guestTSC = offset + hostTSC * factor;
 
---------------j0b7KV03sm3SSS00lOqpuvd3
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
+If you make offset different between guest vCPUs then timekeeping in the
+guest is screwed.
 
------BEGIN PGP SIGNATURE-----
+The whole point of that paravirt clock was to handle migration between
+hosts which did not have the VMCS TSC scaling/offset mechanism. The CPUs
+which did not have that went EOL at least 10 years ago.
 
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmJpjSkFAwAAAAAACgkQsN6d1ii/Ey98
-pgf/WiV67QRBats+u2omAOX4l0/3uBh9EBbHJyfewyl63ed6u5p3nv4ZgOe/R8vyv/YNM9g2Koaq
-kHIg61F0LYIYEVPKnTsA8axpm2/9OiuxjSCt/mFu3UpvdIhmWxOZtZWE6vZ+6OvklaY40bYGPjE8
-Xacv4RCgsNUvIFJ95zrpLEo5YlGTk/UZSRM+ua5OAT8aK5cvCTWM4tFXI5v60yWsDk4PEMUpUcJa
-qo/A9WLQYIiBBaI3YFsua4tqvAxCVkLUy26t1s6sxpzulV+0NpXnr4mZp8JVk8Q6kMfIO//VTuUn
-VUBsBn9UReq5Sn7Abux/iLuSKhvqF9423Mm7zchKjA==
-=N89D
------END PGP SIGNATURE-----
+So what are you concerned about?
 
---------------j0b7KV03sm3SSS00lOqpuvd3--
+Thanks,
 
---===============3958403719074318804==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
+        tglx
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============3958403719074318804==--
