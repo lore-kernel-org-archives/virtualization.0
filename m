@@ -1,96 +1,111 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 67B74C43217
-	for <virtualization@archiver.kernel.org>; Wed, 27 Apr 2022 12:45:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 10925C433FE
+	for <virtualization@archiver.kernel.org>; Wed, 27 Apr 2022 13:38:22 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id E913581B72;
-	Wed, 27 Apr 2022 12:45:38 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 95B1F60F5E;
+	Wed, 27 Apr 2022 13:38:22 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 0aog7cTG4ygS; Wed, 27 Apr 2022 12:45:38 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id XkqjAhc4G8CK; Wed, 27 Apr 2022 13:38:21 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 6E53281A6F;
-	Wed, 27 Apr 2022 12:45:37 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 1DF6660EE7;
+	Wed, 27 Apr 2022 13:38:21 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3E62CC0039;
-	Wed, 27 Apr 2022 12:45:37 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 9473AC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id F316DC0032;
+	Wed, 27 Apr 2022 13:38:20 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 682C1C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Apr 2022 12:45:35 +0000 (UTC)
+ Wed, 27 Apr 2022 13:38:19 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 72C6940876
+ by smtp4.osuosl.org (Postfix) with ESMTP id 404814097E
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Apr 2022 12:45:35 +0000 (UTC)
+ Wed, 27 Apr 2022 13:38:19 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=suse.com
+ dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id UK-COePBIkyQ
+ with ESMTP id PVU-tWKNvyt0
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Apr 2022 12:45:34 +0000 (UTC)
+ Wed, 27 Apr 2022 13:38:18 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 75F4E40871
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 3C7374071E
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Apr 2022 12:45:34 +0000 (UTC)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by smtp-out2.suse.de (Postfix) with ESMTPS id 7A51F1F74D;
- Wed, 27 Apr 2022 12:45:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
- t=1651063532; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
+ Wed, 27 Apr 2022 13:38:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1651066696;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=f7ZHfk6vc4zgMEvq1EHLWCpOl8Ctk3WE3DXvA6Vjt/4=;
- b=LiLK+JGui8QqQfh8W0x16+mObrzQ4Fje12HfJW7hZ94icLHhk5/gxq7NXXopwsraglIWhT
- Qd+AOsn2O2Sdx7LAy0xcvnBIeKxo3jyuqUv8fKgeFG52VhHZAC84a1GKao9KAOQYtVsvJz
- LsOjzmiktuf5OEUJjFiQxiW5Rg42mrI=
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 8719C1323E;
- Wed, 27 Apr 2022 12:45:31 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
- by imap2.suse-dmz.suse.de with ESMTPSA id KZu6H+s6aWKXRAAAMHmgww
- (envelope-from <jgross@suse.com>); Wed, 27 Apr 2022 12:45:31 +0000
-Message-ID: <3f15f128-4d77-14e2-20ca-ea2e4a7d4181@suse.com>
-Date: Wed, 27 Apr 2022 14:45:31 +0200
+ bh=PSHs414nLmIXHY0MNvy/DxlhGuFhzSSXxRrlOw3+ock=;
+ b=FqkyDlh8W61TWFUsn375FwGhxt/JEJjo/sW5x32YcAJYcwiHaYXgGN0Y/IeZ8P1EoGY9op
+ 3JEdpzX/cvS9a+dBMVRL0GkBibUU3QYkvq0zknWZNpKLakWQlFfj7JDCUR/fmI4MmEAtM5
+ 5+kT+ymKidQA5sXvGtm2azz4Hzs1wg8=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-604-Vni7PWQMNb-LYyjCBzJ_-w-1; Wed, 27 Apr 2022 09:38:13 -0400
+X-MC-Unique: Vni7PWQMNb-LYyjCBzJ_-w-1
+Received: by mail-wr1-f71.google.com with SMTP id
+ s14-20020adfa28e000000b0020ac7532f08so759946wra.15
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 27 Apr 2022 06:38:13 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=PSHs414nLmIXHY0MNvy/DxlhGuFhzSSXxRrlOw3+ock=;
+ b=DrtLh53D/Mq9OWl4vRUhLA3hWVw/iW5ixog1kPM7zHQu/gLCYdXG1W50O4uRSCzNpa
+ v/5XDziApmoMllr0UA7SZnD4sfZ3gL9LeDWLf5ws6ICSkO6xvC7WDlGBTjBLXhuTPKG4
+ XxQmxI0Ec7fz++GksWMd6xPq4uy8yrqPjiNIW7DOBj25yVquXrBiX9M++ys17JRQJIeW
+ xBYoLbQEdjQEowGtpmDGNcW9BOhoM2TRcbB0LulfgUrd/TPD+zZibYwUoZgyis9FFD+X
+ XUNd2XADMVjcFqWhuwphX8vBp7xejjCc1Oi2J5iBgRFiuEKNr/nlve9h6iyMBLWAdDlj
+ RNdg==
+X-Gm-Message-State: AOAM531Cg/bjDMMtG+jaQ9XgoooYY00Mhz+kapZzbaVfNIkueMxuRykn
+ eJ3jtXY7YoHHkQXU9/OCJWQSbeuvtcad8BQpQmC3WO9TDzEiu4sgY4I5IHOIHkSuBWGJfYAvslF
+ ANbBhQbxq6hVTVqbhp8ddqqlQEaTZA0Tw1EFbRl5nOw==
+X-Received: by 2002:a5d:40ca:0:b0:20a:cf97:f1b4 with SMTP id
+ b10-20020a5d40ca000000b0020acf97f1b4mr18244195wrq.121.1651066692512; 
+ Wed, 27 Apr 2022 06:38:12 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzosLJXqvRwF4U/eGOveNg83nSH/OQqj2msqvMJzBqQTXR97GmklzXkcLwfNLij7D2eSiit9g==
+X-Received: by 2002:a5d:40ca:0:b0:20a:cf97:f1b4 with SMTP id
+ b10-20020a5d40ca000000b0020acf97f1b4mr18244166wrq.121.1651066692307; 
+ Wed, 27 Apr 2022 06:38:12 -0700 (PDT)
+Received: from sgarzare-redhat (host-87-11-6-234.retail.telecomitalia.it.
+ [87.11.6.234]) by smtp.gmail.com with ESMTPSA id
+ r7-20020a05600c2c4700b0038eb7d8df69sm1565757wmg.11.2022.04.27.06.38.10
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 27 Apr 2022 06:38:11 -0700 (PDT)
+Date: Wed, 27 Apr 2022 15:38:08 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: "Andrea Parri (Microsoft)" <parri.andrea@gmail.com>
+Subject: Re: [PATCH v2 2/5] hv_sock: Copy packets sent by Hyper-V out of the
+ ring buffer
+Message-ID: <20220427133808.elbrvtvl6xplx62n@sgarzare-redhat>
+References: <20220427131225.3785-1-parri.andrea@gmail.com>
+ <20220427131225.3785-3-parri.andrea@gmail.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.0
-Content-Language: en-US
-To: Borislav Petkov <bp@alien8.de>
-References: <20220426134021.11210-1-jgross@suse.com>
- <20220426134021.11210-3-jgross@suse.com> <Ymgtb2dSNYz7DBqx@zn.tnic>
- <YmhNNrLW+tM2gnZB@osiris> <49e33b14-b439-340b-aa59-a6c77daa4929@suse.com>
- <Ymk2gXuNGFhIQ2zQ@zn.tnic>
-Subject: Re: [PATCH 2/2] virtio: replace
- arch_has_restricted_virtio_memory_access()
-In-Reply-To: <Ymk2gXuNGFhIQ2zQ@zn.tnic>
-Cc: linux-hyperv@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
- Peter Zijlstra <peterz@infradead.org>,
- Dave Hansen <dave.hansen@linux.intel.com>,
- virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>, linux-arch@vger.kernel.org,
- linux-s390@vger.kernel.org, Wei Liu <wei.liu@kernel.org>,
- Stephen Hemminger <sthemmin@microsoft.com>, Arnd Bergmann <arnd@arndb.de>,
- x86@kernel.org, Dexuan Cui <decui@microsoft.com>,
- Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@redhat.com>,
- Haiyang Zhang <haiyangz@microsoft.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Andy Lutomirski <luto@kernel.org>,
- Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
- Oleksandr Tyshchenko <olekstysh@gmail.com>,
- Sven Schnelle <svens@linux.ibm.com>
+In-Reply-To: <20220427131225.3785-3-parri.andrea@gmail.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: Wei Liu <wei.liu@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Stephen Hemminger <sthemmin@microsoft.com>, netdev@vger.kernel.org,
+ Haiyang Zhang <haiyangz@microsoft.com>, Dexuan Cui <decui@microsoft.com>,
+ linux-hyperv@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
+ Jakub Kicinski <kuba@kernel.org>, virtualization@lists.linux-foundation.org,
+ David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -102,161 +117,75 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Juergen Gross via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Juergen Gross <jgross@suse.com>
-Content-Type: multipart/mixed; boundary="===============6556401267742669500=="
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============6556401267742669500==
-Content-Language: en-US
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------5RSoFKl9gkDkNvOmD7dR6fME"
+On Wed, Apr 27, 2022 at 03:12:22PM +0200, Andrea Parri (Microsoft) wrote:
+>Pointers to VMbus packets sent by Hyper-V are used by the hv_sock driver
+>within the guest VM.  Hyper-V can send packets with erroneous values or
+>modify packet fields after they are processed by the guest.  To defend
+>against these scenarios, copy the incoming packet after validating its
+>length and offset fields using hv_pkt_iter_{first,next}().  Use
+>HVS_PKT_LEN(HVS_MTU_SIZE) to initialize the buffer which holds the
+>copies of the incoming packets.  In this way, the packet can no longer
+>be modified by the host.
+>
+>Signed-off-by: Andrea Parri (Microsoft) <parri.andrea@gmail.com>
+>Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+>---
+> net/vmw_vsock/hyperv_transport.c | 9 +++++++--
+> 1 file changed, 7 insertions(+), 2 deletions(-)
+>
+>diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
+>index 943352530936e..8c37d07017fc4 100644
+>--- a/net/vmw_vsock/hyperv_transport.c
+>+++ b/net/vmw_vsock/hyperv_transport.c
+>@@ -78,6 +78,9 @@ struct hvs_send_buf {
+> 					 ALIGN((payload_len), 8) + \
+> 					 VMBUS_PKT_TRAILER_SIZE)
+>
+>+/* Upper bound on the size of a VMbus packet for hv_sock */
+>+#define HVS_MAX_PKT_SIZE	HVS_PKT_LEN(HVS_MTU_SIZE)
+>+
+> union hvs_service_id {
+> 	guid_t	srv_id;
+>
+>@@ -378,6 +381,8 @@ static void hvs_open_connection(struct vmbus_channel *chan)
+> 		rcvbuf = ALIGN(rcvbuf, HV_HYP_PAGE_SIZE);
+> 	}
+>
+>+	chan->max_pkt_size = HVS_MAX_PKT_SIZE;
+>+
+> 	ret = vmbus_open(chan, sndbuf, rcvbuf, NULL, 0, hvs_channel_cb,
+> 			 conn_from_host ? new : sk);
+> 	if (ret != 0) {
+>@@ -602,7 +607,7 @@ static ssize_t hvs_stream_dequeue(struct vsock_sock *vsk, struct msghdr *msg,
+> 		return -EOPNOTSUPP;
+>
+> 	if (need_refill) {
+>-		hvs->recv_desc = hv_pkt_iter_first_raw(hvs->chan);
+>+		hvs->recv_desc = hv_pkt_iter_first(hvs->chan);
+> 		if (!hvs->recv_desc)
+> 			return -ENOBUFS;
+> 		ret = hvs_update_recv_data(hvs);
+>@@ -618,7 +623,7 @@ static ssize_t hvs_stream_dequeue(struct vsock_sock *vsk, struct msghdr *msg,
+>
+> 	hvs->recv_data_len -= to_read;
+> 	if (hvs->recv_data_len == 0) {
+>-		hvs->recv_desc = hv_pkt_iter_next_raw(hvs->chan, hvs->recv_desc);
+>+		hvs->recv_desc = hv_pkt_iter_next(hvs->chan, hvs->recv_desc);
+> 		if (hvs->recv_desc) {
+> 			ret = hvs_update_recv_data(hvs);
+> 			if (ret)
+>-- 
+>2.25.1
+>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------5RSoFKl9gkDkNvOmD7dR6fME
-Content-Type: multipart/mixed; boundary="------------WqbtrtgMwxh4M25yqpBhfhy8";
- protected-headers="v1"
-From: Juergen Gross <jgross@suse.com>
-To: Borislav Petkov <bp@alien8.de>
-Cc: Heiko Carstens <hca@linux.ibm.com>, linux-kernel@vger.kernel.org,
- x86@kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org,
- linux-hyperv@vger.kernel.org, virtualization@lists.linux-foundation.org,
- Arnd Bergmann <arnd@arndb.de>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@linutronix.de>,
- Ingo Molnar <mingo@redhat.com>, Dave Hansen <dave.hansen@linux.intel.com>,
- "H. Peter Anvin" <hpa@zytor.com>, "K. Y. Srinivasan" <kys@microsoft.com>,
- Haiyang Zhang <haiyangz@microsoft.com>,
- Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>,
- Dexuan Cui <decui@microsoft.com>, Andy Lutomirski <luto@kernel.org>,
- Peter Zijlstra <peterz@infradead.org>, "Michael S. Tsirkin"
- <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Christoph Hellwig <hch@infradead.org>,
- Oleksandr Tyshchenko <olekstysh@gmail.com>
-Message-ID: <3f15f128-4d77-14e2-20ca-ea2e4a7d4181@suse.com>
-Subject: Re: [PATCH 2/2] virtio: replace
- arch_has_restricted_virtio_memory_access()
-References: <20220426134021.11210-1-jgross@suse.com>
- <20220426134021.11210-3-jgross@suse.com> <Ymgtb2dSNYz7DBqx@zn.tnic>
- <YmhNNrLW+tM2gnZB@osiris> <49e33b14-b439-340b-aa59-a6c77daa4929@suse.com>
- <Ymk2gXuNGFhIQ2zQ@zn.tnic>
-In-Reply-To: <Ymk2gXuNGFhIQ2zQ@zn.tnic>
-
---------------WqbtrtgMwxh4M25yqpBhfhy8
-Content-Type: multipart/mixed; boundary="------------lFn82CY4z1MtnopLJeWnduYk"
-
---------------lFn82CY4z1MtnopLJeWnduYk
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
-
-T24gMjcuMDQuMjIgMTQ6MjYsIEJvcmlzbGF2IFBldGtvdiB3cm90ZToNCj4gT24gV2VkLCBB
-cHIgMjcsIDIwMjIgYXQgMDg6NDA6MDhBTSArMDIwMCwgSnVlcmdlbiBHcm9zcyB3cm90ZToN
-Cj4+IEkgd2FzIHBsYW5uaW5nIHRvIGxvb2sgYXQgdGhlIHg4NiBjcHUgZmVhdHVyZXMgdG8g
-c2VlIHdoZXRoZXIgc29tZSBvZg0KPj4gdGhvc2UgbWlnaHQgYmUgY2FuZGlkYXRlcyB0byBi
-ZSBzd2l0Y2hlZCB0byBwbGF0Zm9ybSBmZWF0dXJlcyBpbnN0ZWFkLg0KPiANCj4gSSdkIHNh
-eSAibmV2ZXIgdG91Y2ggYSBydW5uaW5nIHN5c3RlbSIgdW5sZXNzIHRoZSBwbGF0Zm9ybSBm
-ZWF0dXJlcyBhcmUNCj4gb2YgYW4gYWR2YW50YWdlLi4uDQoNCkRlcGVuZHMgb24gdGhlIHVz
-ZSBjYXNlIElNSE8uDQoNCkFsbCBmZWF0dXJlcyBiZWluZyBiYXNlZCBvbiBhIGNwdWlkIGJp
-dCBhcmUgbm8gY2FuZGlkYXRlcy4gU2FtZSBhcHBsaWVzDQp0byBhbGwgZmVhdHVyZXMgdXNl
-ZCBmb3IgYWx0ZXJuYXRpdmUgaGFuZGxpbmcgKGFzc3VtaW5nIHdlIGRvbid0IHdhbnQNCnRv
-IGV4cGFuZCB0aGF0IHRvIHBsYXRmb3JtIGZlYXR1cmVzKS4NCg0KSSByZWFsbHkgaGF2ZSBu
-byBpZGVhIHdoZXRoZXIgdGhpcyB3aWxsIGxlYXZlIGFueSBjYW5kaWRhdGVzLiBJbiBjYXNl
-DQppdCBkb2VzLCBpdCBtaWdodCBiZSBpbnRlcmVzdGluZyB0byBzd2l0Y2ggdGhvc2UgaW4g
-b3JkZXIgdG8gc2F2ZSBzb21lDQpwZXItY3B1IGJpdHMuDQoNCk90aGVyIGNhbmRpZGF0ZXMg
-bWlnaHQgYmUgdGhlIHg4Nl9sZWdhY3lfZmVhdHVyZXMuDQoNCg0KSnVlcmdlbg0K
---------------lFn82CY4z1MtnopLJeWnduYk
-Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Description: OpenPGP public key
-Content-Transfer-Encoding: quoted-printable
-
------BEGIN PGP PUBLIC KEY BLOCK-----
-
-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
-jR/i1DG86lem3iBDXzXsZDn8R38=3D
-=3D2wuH
------END PGP PUBLIC KEY BLOCK-----
-
---------------lFn82CY4z1MtnopLJeWnduYk--
-
---------------WqbtrtgMwxh4M25yqpBhfhy8--
-
---------------5RSoFKl9gkDkNvOmD7dR6fME
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
-
------BEGIN PGP SIGNATURE-----
-
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmJpOusFAwAAAAAACgkQsN6d1ii/Ey+J
-OQf/eUrJzkec/zE1iDKcyCbxADGvHuoQyWnYHfvAB7VqIJ5P8IyobJW0GEt+L9K8PkJ+fgDqhl+Q
-DLBculdTiZCP7wh6Q0zXUvrPHMyUQafp9NHctNSSJurMdndFqvSM+TKuNGZaVDTvsSZfgAGaBy63
-VKKADB1mJo2S0fG9wvLrirCyn1rKvPYhfdErZuqS078u9Mj4V4YmE3uz6WqSFUfnqJwBlAGZXM4X
-4cbBEgQ8WPfhkyNKi18UOMTQaWEnVkLBJjmeXJ4hGtbTcJFLpAbSKPIJTWv6jI+U9Ca5xjSIw6zt
-PgaS84cJYWG2/xJoqqxt6EVIA4wCf66w6+bFTXyOCw==
-=lXDm
------END PGP SIGNATURE-----
-
---------------5RSoFKl9gkDkNvOmD7dR6fME--
-
---===============6556401267742669500==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============6556401267742669500==--
