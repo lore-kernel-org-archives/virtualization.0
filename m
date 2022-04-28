@@ -4,115 +4,107 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1B352C433F5
-	for <virtualization@archiver.kernel.org>; Thu, 28 Apr 2022 11:06:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 44395C433EF
+	for <virtualization@archiver.kernel.org>; Thu, 28 Apr 2022 11:43:43 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id B564F813A1;
-	Thu, 28 Apr 2022 11:06:48 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id CFD4E827FB;
+	Thu, 28 Apr 2022 11:43:42 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id P04A7gwIRiiP; Thu, 28 Apr 2022 11:06:47 +0000 (UTC)
+	with ESMTP id clYribBIcdOy; Thu, 28 Apr 2022 11:43:40 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 31D328131B;
-	Thu, 28 Apr 2022 11:06:47 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 75E4D82E5F;
+	Thu, 28 Apr 2022 11:43:39 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 05C7CC0032;
-	Thu, 28 Apr 2022 11:06:47 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id CACC4C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 39CE0C0039;
+	Thu, 28 Apr 2022 11:43:39 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5AB35C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Apr 2022 11:06:45 +0000 (UTC)
+ Thu, 28 Apr 2022 11:43:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id A3EA781343
+ by smtp1.osuosl.org (Postfix) with ESMTP id 5170982E5F
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Apr 2022 11:06:45 +0000 (UTC)
+ Thu, 28 Apr 2022 11:43:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id zxynKFfz1jLe
+ with ESMTP id aQ9_T6Yt-_Lx
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Apr 2022 11:06:45 +0000 (UTC)
+ Thu, 28 Apr 2022 11:43:37 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id C96B78131B
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 194EF827FB
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Apr 2022 11:06:44 +0000 (UTC)
+ Thu, 28 Apr 2022 11:43:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1651144003;
+ s=mimecast20190719; t=1651146215;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=fOu5am8KOe0yhknijbWSc9nIgISI1EHhtzqNkNPo72Q=;
- b=cXYCUjrVQV2poKkZRipFWB7Q2oPad6PQCxXdAKYhf9w8/YEjGuM0FOf+hKp3gw4G5x+vLs
- af1HCaCuSOwl1OXuJkjuOX47sCqAoXUq0Zvfwbn5t3tlkKgBGJitpNAUuRJ8LYibvmRoKQ
- a8UaPmdpaRTAwSyC9MdELtnjYxwjFao=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=A3VNVQbyWOMiG5MSi1c3OlpS/oGdXctdWFVWFZf8IW0=;
+ b=Jgy5UnCxwEtew8OlWocJhF3vTRsqoJZZcfPTVyJli7sAf7XgumHk5Pqsbr+xUA9xECXhtV
+ 0teMxGsJsf0Eunu57bDV/IeCzTtS9v/eGA+FtpiNsdMwlM0+krtag6yjrWA8PiWpsUpB2X
+ 7xesXMbJXFQ5DeWDO4PYFl8V5B9N4Kg=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-518-1sBsL9QMNYSIWX32t643lw-1; Thu, 28 Apr 2022 07:06:41 -0400
-X-MC-Unique: 1sBsL9QMNYSIWX32t643lw-1
-Received: by mail-wr1-f70.google.com with SMTP id
- y13-20020adfc7cd000000b0020ac7c7bf2eso1797942wrg.9
+ us-mta-517-wZfUIHuINIq9lJKyXOOcMg-1; Thu, 28 Apr 2022 07:43:34 -0400
+X-MC-Unique: wZfUIHuINIq9lJKyXOOcMg-1
+Received: by mail-wm1-f70.google.com with SMTP id
+ 125-20020a1c0283000000b003928cd3853aso4171379wmc.9
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Apr 2022 04:06:41 -0700 (PDT)
+ Thu, 28 Apr 2022 04:43:33 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:content-transfer-encoding
- :in-reply-to;
- bh=fOu5am8KOe0yhknijbWSc9nIgISI1EHhtzqNkNPo72Q=;
- b=vXLRpPYVrS0XX18SkG+mS0zrvINwZzKPeu5BvL/Jvcw2zmevkRiBuukv8daGFI5Fgs
- dtzytNmWuc7+0dwPHE0DVsTwX3tGYJtiQ/uycKkJjKYG2oXHii7rfBtpnNhvqI6jKY3M
- KWQBfbXVceFKms9NwB4QplGuMPSQ1EAPiu82iy4aJhhWF+zPUVUA0jYudTvISUBZ/tAo
- xpQbUBF7Rfo/7rxXhNVgqX676HNxys5YJbMaUd9zBCcSrjw4V3rbrnydfgoCo+C17s4P
- fj9ZvAaCqv4inWpHpiJzoTOco86eBSyZWjdaAS9Bh7QrhLzJ+mQExVZHH9DUE7nAABDP
- mf2w==
-X-Gm-Message-State: AOAM531X0kPLDKeG8PNpUOF7tyJ3OHpcQ6Dxsf5GEKlm1w2BUwUT0p61
- x7stqmcPCSxP3BenTVfrf2XZvPEbhsu81NgE/egkk6mi4pH0Ot6fLzAxXq/RC3PTQBJi2qDA8bt
- szCeGv8Xs5kKjwR2aA0xegwKx1/1rRjnanx+trvse8g==
-X-Received: by 2002:a1c:5459:0:b0:394:1191:a1ff with SMTP id
- p25-20020a1c5459000000b003941191a1ffmr2210270wmi.96.1651144000698; 
- Thu, 28 Apr 2022 04:06:40 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzEuh7RPsaIpF9AUu/qCwpZ+jPB//bHxmrpwyPaS8uUDyhj5LkvVK/8+RDdhQEUo0XlzAiVfg==
-X-Received: by 2002:a1c:5459:0:b0:394:1191:a1ff with SMTP id
- p25-20020a1c5459000000b003941191a1ffmr2210246wmi.96.1651144000472; 
- Thu, 28 Apr 2022 04:06:40 -0700 (PDT)
-Received: from redhat.com ([2.53.18.16]) by smtp.gmail.com with ESMTPSA id
- 17-20020a05600c021100b00393faf12859sm4258790wmi.18.2022.04.28.04.06.37
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 28 Apr 2022 04:06:39 -0700 (PDT)
-Date: Thu, 28 Apr 2022 07:06:35 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Christophe Marie Francois Dupont de Dinechin <cdupontd@redhat.com>
-Subject: Re: [PATCH 3/3] virtio-pci: Use cpumask_available to fix compilation
- error
-Message-ID: <20220428070620-mutt-send-email-mst@kernel.org>
-References: <20220414150855.2407137-1-dinechin@redhat.com>
- <20220414150855.2407137-4-dinechin@redhat.com>
- <20220415044657-mutt-send-email-mst@kernel.org>
- <3D264F7F-624D-4E9D-A139-F1DB0CC6045C@redhat.com>
-MIME-Version: 1.0
-In-Reply-To: <3D264F7F-624D-4E9D-A139-F1DB0CC6045C@redhat.com>
+ h=x-gm-message-state:from:message-id:mime-version:subject:date
+ :in-reply-to:cc:to:references;
+ bh=ctGs0iw1V61njzeHFcs+s1y0v3JVBzH7Bf3gRkaSckw=;
+ b=hfIKSjtEvTJwGqwe3s4AOAXgPHJ1pNYOVsAV04TOEbr3GojPqYMq0QE/CzsXhHTkSL
+ ggeACMoNvvQDzEzNO2+/7yKK2RZJwuCqrQnQogBbzh6M2XxV8wgJu0oerExdXNb9Nhmb
+ L/0m5sSUuY5n0KHxIaRWDKHmyJOonGGS/WhBFeiRL2+HfpGpsTv6t+o/NzCvPY5IPuWU
+ 2D8yBhyxt0I+2bHGgc5TcPdkb4LvqNEKadCw9CutLpEPV4aF2HiF8Yg4pz6iRmYzJzu4
+ x9R6V4+xEdssfa5NKhBYulty2HfEMsmmvP9uG/dVVhm+HTIOIn33Unve9FKTmCELSk60
+ carg==
+X-Gm-Message-State: AOAM532cZ7hcwwANTjwZMsTPZPJrxTzxbgACeNp3zhCFv11xJMm6+yAi
+ fNVq2amU/lYeLR+IkhjJN+cqR4ChsKTn4M+RwlugBgTbJF6imAU07OwTRCCOhK24BvgnMRMclop
+ qm4qcZ5LwLBkMxFkWV7lTXJYh3VPRK9LQxWvSOv2LKQ==
+X-Received: by 2002:a05:600c:1ca2:b0:394:19df:20df with SMTP id
+ k34-20020a05600c1ca200b0039419df20dfmr232660wms.188.1651146213012; 
+ Thu, 28 Apr 2022 04:43:33 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzx9pjkpMZ6hV7aEf7LsQskCOqcMzHhPpf4fjCB3svvJQ17BrUHcLUzu7rnoqB1of8M/gkIkw==
+X-Received: by 2002:a05:600c:1ca2:b0:394:19df:20df with SMTP id
+ k34-20020a05600c1ca200b0039419df20dfmr232636wms.188.1651146212652; 
+ Thu, 28 Apr 2022 04:43:32 -0700 (PDT)
+Received: from smtpclient.apple ([2a01:e0a:834:5aa0:5160:7495:6b8e:3f15])
+ by smtp.gmail.com with ESMTPSA id
+ b11-20020adfc74b000000b0020ad84d3fa3sm11802950wrh.44.2022.04.28.04.43.31
+ (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+ Thu, 28 Apr 2022 04:43:31 -0700 (PDT)
+From: Christophe Marie Francois Dupont de Dinechin <cdupontd@redhat.com>
+Message-Id: <0C8432EA-7156-492F-A5F5-B7683F37BAFF@redhat.com>
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3696.80.82.1.1\))
+Subject: Re: [PATCH] virtio-pci: Remove wrong address verification in
+ vp_del_vqs()
+Date: Thu, 28 Apr 2022 13:43:30 +0200
+In-Reply-To: <20220428070345-mutt-send-email-mst@kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+References: <20220415023002.49805-1-muriloo@linux.ibm.com>
+ <e8620e70-16bb-639c-9446-68dcd199253f@linux.ibm.com>
+ <A5CD1C91-F5D0-4109-9894-824184362B5C@redhat.com>
+ <B954A683-EE43-4469-B57A-EB8C6B671BEC@redhat.com>
+ <2F2EFFE9-5174-49A8-A71F-EE134D387E07@redhat.com>
+ <20220428070345-mutt-send-email-mst@kernel.org>
+X-Mailer: Apple Mail (2.3696.80.82.1.1)
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=cdupontd@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: Juri Lelli <juri.lelli@redhat.com>, trivial@kernel.org,
- Peter Zijlstra <peterz@infradead.org>, Zhen Lei <thunder.leizhen@huawei.com>,
- linux-kernel@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>,
- virtualization@lists.linux-foundation.org, Ben Segall <bsegall@google.com>,
- Ingo Molnar <mingo@redhat.com>, Mel Gorman <mgorman@suse.de>,
- Murilo Opsfelder Araujo <muriloo@linux.ibm.com>,
- Paolo Bonzini <pbonzini@redhat.com>,
- Christophe de Dinechin <dinechin@redhat.com>,
- Vincent Guittot <vincent.guittot@linaro.org>,
- Andrew Morton <akpm@linux-foundation.org>,
- Daniel Bristot de Oliveira <bristot@redhat.com>,
- Dietmar Eggemann <dietmar.eggemann@arm.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ mopsfelder@gmail.com, Murilo Opsfelder Araujo <muriloo@linux.ibm.com>,
+ Christophe de Dinechin <dinechin@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -124,59 +116,222 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============2866727343750860914=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gVGh1LCBBcHIgMjgsIDIwMjIgYXQgMTE6NDg6MDFBTSArMDIwMCwgQ2hyaXN0b3BoZSBNYXJp
-ZSBGcmFuY29pcyBEdXBvbnQgZGUgRGluZWNoaW4gd3JvdGU6Cj4gCj4gCj4gPiBPbiAxNSBBcHIg
-MjAyMiwgYXQgMTA6NDgsIE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+IHdyb3Rl
-Ogo+ID4gCj4gPiBPbiBUaHUsIEFwciAxNCwgMjAyMiBhdCAwNTowODo1NVBNICswMjAwLCBDaHJp
-c3RvcGhlIGRlIERpbmVjaGluIHdyb3RlOgo+ID4+IFdpdGggR0NDIDEyIGFuZCBkZWZjb25maWcs
-IHdlIGdldCB0aGUgZm9sbG93aW5nIGVycm9yOgo+ID4+IAo+ID4+IHwgICBDQyAgICAgIGRyaXZl
-cnMvdmlydGlvL3ZpcnRpb19wY2lfY29tbW9uLm8KPiA+PiB8IGRyaXZlcnMvdmlydGlvL3ZpcnRp
-b19wY2lfY29tbW9uLmM6IEluIGZ1bmN0aW9uIOKAmHZwX2RlbF92cXPigJk6Cj4gPj4gfCBkcml2
-ZXJzL3ZpcnRpby92aXJ0aW9fcGNpX2NvbW1vbi5jOjI1NzoyOTogZXJyb3I6IHRoZSBjb21wYXJp
-c29uIHdpbGwKPiA+PiB8ICBhbHdheXMgZXZhbHVhdGUgYXMg4oCYdHJ1ZeKAmSBmb3IgdGhlIHBv
-aW50ZXIgb3BlcmFuZCBpbgo+ID4+IHwgIOKAmHZwX2Rldi0+bXNpeF9hZmZpbml0eV9tYXNrcyAr
-IChzaXpldHlwZSkoKGxvbmcgdW5zaWduZWQgaW50KWkgKiA4KeKAmQo+ID4+IHwgIG11c3Qgbm90
-IGJlIE5VTEwgWy1XZXJyb3I9YWRkcmVzc10KPiA+PiB8ICAgMjU3IHwgICAgICAgICAgICAgICAg
-ICAgICAgICAgaWYgKHZwX2Rldi0+bXNpeF9hZmZpbml0eV9tYXNrc1tpXSkKPiA+PiB8ICAgICAg
-IHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgIF5+fn5+fgo+ID4+IAo+ID4+IFRoaXMgaGFw
-cGVucyBpbiB0aGUgY2FzZSB3aGVyZSBDT05GSUdfQ1BVTUFTS19PRkZTVEFDSyBpcyBub3QgZGVm
-aW5lZCwKPiA+PiBzaW5jZSB3ZSB0eXBlZGVmIGNwdW1hc2tfdmFyX3QgYXMgYW4gYXJyYXkuIFRo
-ZSBjb21waWxlciBpcyBlc3NlbnRpYWxseQo+ID4+IGNvbXBsYWluaW5nIHRoYXQgYW4gYXJyYXkg
-cG9pbnRlciBjYW5ub3QgYmUgTlVMTC4gVGhpcyBpcyBub3QgYSB2ZXJ5Cj4gPj4gaW1wb3J0YW50
-IHdhcm5pbmcsIGJ1dCB0aGVyZSBpcyBhIGZ1bmN0aW9uIGNhbGxlZCBjcHVtYXNrX2F2YWlsYWJs
-ZSB0aGF0Cj4gPj4gc2VlbXMgdG8gYmUgZGVmaW5lZCBqdXN0IGZvciB0aGF0IGNhc2UsIHNvIHRo
-ZSBmaXggaXMgZWFzeS4KPiA+PiAKPiA+PiBTaWduZWQtb2ZmLWJ5OiBDaHJpc3RvcGhlIGRlIERp
-bmVjaGluIDxjaHJpc3RvcGhlQGRpbmVjaGluLm9yZz4KPiA+PiBTaWduZWQtb2ZmLWJ5OiBDaHJp
-c3RvcGhlIGRlIERpbmVjaGluIDxkaW5lY2hpbkByZWRoYXQuY29tPgo+ID4gCj4gPiBUaGVyZSB3
-YXMgYW4gYWx0ZXJuYXRlIHBhdGNoIHByb3Bvc2VkIGZvciB0aGlzIGJ5Cj4gPiBNdXJpbG8gT3Bz
-ZmVsZGVyIEFyYXVqby4gV2hhdCBkbyB5b3UgdGhpbmsgYWJvdXQgdGhhdCBhcHByb2FjaD8KPiAK
-PiBJIHJlc3BvbmRlZCBvbiB0aGUgb3RoZXIgdGhyZWFkLCBidXQgbGV0IG1lIHNoYXJlIHRoZSBy
-ZXNwb25zZSBoZXJlOgo+IAo+IFt0byBtdXJpbG9vQGxpbnV4LmlibS5jb21dCj4gQXBvbG9naWVz
-IGZvciB0aGUgZGVsYXkgaW4gcmVzcG9uZGluZywgYnJva2VuIGxhcHRvcOKApgo+IAo+IEluIHRo
-ZSBjYXNlIHdoZXJlIENPTkZJR19DUFVNQVNLX09GRlNUQUNLIGlzIG5vdCBkZWZpbmVkLCB3ZSBo
-YXZlOgo+IAo+IAl0eXBlZGVmIHN0cnVjdCBjcHVtYXNrIGNwdW1hc2tfdmFyX3RbMV07Cj4gCj4g
-U28gdGhhdCB2cF9kZXYtPm1zaXhfYWZmaW5pdHlfbWFza3NbaV0gaXMgc3RhdGljYWxseSBub3Qg
-bnVsbCAodGhhdOKAmXMgdGhlIHdhcm5pbmcpCj4gYnV0IGFsc28gYSBzdGF0aWMgcG9pbnRlciwg
-c28gbm90IGtmcmVlLXNhZmUgSU1PLgoKCk5vdCBzdXJlIEkgdW5kZXJzdGFuZCB3aGF0IHlvdSBh
-cmUgc2F5aW5nIGhlcmUuCgo+ID4gCj4gPiAKPiA+PiAtLS0KPiA+PiBkcml2ZXJzL3ZpcnRpby92
-aXJ0aW9fcGNpX2NvbW1vbi5jIHwgMiArLQo+ID4+IDEgZmlsZSBjaGFuZ2VkLCAxIGluc2VydGlv
-bigrKSwgMSBkZWxldGlvbigtKQo+ID4+IAo+ID4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZpcnRp
-by92aXJ0aW9fcGNpX2NvbW1vbi5jIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX3BjaV9jb21tb24u
-Ywo+ID4+IGluZGV4IGQ3MjRmNjc2NjA4Yi4uNWM0NGEyZjEzYzkzIDEwMDY0NAo+ID4+IC0tLSBh
-L2RyaXZlcnMvdmlydGlvL3ZpcnRpb19wY2lfY29tbW9uLmMKPiA+PiArKysgYi9kcml2ZXJzL3Zp
-cnRpby92aXJ0aW9fcGNpX2NvbW1vbi5jCj4gPj4gQEAgLTI1NCw3ICsyNTQsNyBAQCB2b2lkIHZw
-X2RlbF92cXMoc3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYpCj4gPj4gCj4gPj4gCWlmICh2cF9k
-ZXYtPm1zaXhfYWZmaW5pdHlfbWFza3MpIHsKPiA+PiAJCWZvciAoaSA9IDA7IGkgPCB2cF9kZXYt
-Pm1zaXhfdmVjdG9yczsgaSsrKQo+ID4+IC0JCQlpZiAodnBfZGV2LT5tc2l4X2FmZmluaXR5X21h
-c2tzW2ldKQo+ID4+ICsJCQlpZiAoY3B1bWFza19hdmFpbGFibGUodnBfZGV2LT5tc2l4X2FmZmlu
-aXR5X21hc2tzW2ldKSkKPiA+PiAJCQkJZnJlZV9jcHVtYXNrX3Zhcih2cF9kZXYtPm1zaXhfYWZm
-aW5pdHlfbWFza3NbaV0pOwo+ID4+IAl9Cj4gPj4gCj4gPj4gLS0gCj4gPj4gMi4zNS4xCj4gPiAK
-Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxp
-emF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9u
-Lm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92
-aXJ0dWFsaXphdGlvbg==
+--===============2866727343750860914==
+Content-Type: multipart/alternative;
+	boundary="Apple-Mail=_6C207FBF-1664-40D5-A393-41045FCBA55D"
+
+--Apple-Mail=_6C207FBF-1664-40D5-A393-41045FCBA55D
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain;
+	charset=utf-8
+
+
+
+> On 28 Apr 2022, at 13:03, Michael S. Tsirkin <mst@redhat.com> wrote:
+>=20
+> On Thu, Apr 28, 2022 at 11:55:31AM +0200, Christophe Marie Francois Dupon=
+t de Dinechin wrote:
+>>=20
+>>=20
+>>> On 28 Apr 2022, at 11:51, Christophe Marie Francois Dupont de Dinechin =
+<cdupontd@redhat.com> wrote:
+>>>=20
+>>>=20
+>>>=20
+>>>> On 28 Apr 2022, at 11:46, Christophe Marie Francois Dupont de Dinechin=
+ <cdupontd@redhat.com> wrote:
+>>>>=20
+>>>>=20
+>>>>=20
+>>>>> On 15 Apr 2022, at 05:51, Murilo Opsfelder Ara=C3=BAjo <muriloo@linux=
+.ibm.com> wrote:
+>>>>>=20
+>>>>> On 4/14/22 23:30, Murilo Opsfelder Araujo wrote:
+>>>>>> GCC 12 enhanced -Waddress when comparing array address to null [0],
+>>>>>> which warns:
+>>>>>> drivers/virtio/virtio_pci_common.c: In function =E2=80=98vp_del_vqs=
+=E2=80=99:
+>>>>>> drivers/virtio/virtio_pci_common.c:257:29: warning: the comparison w=
+ill always evaluate as =E2=80=98true=E2=80=99 for the pointer operand in =
+=E2=80=98vp_dev->msix_affinity_masks + (sizetype)((long unsigned int)i * 25=
+6)=E2=80=99 must not be NULL [-Waddress]
+>>>>>> 257 | if (vp_dev->msix_affinity_masks[i])
+>>>>>> | ^~~~~~
+>>>>>> In fact, the verification is comparing the result of a pointer
+>>>>>> arithmetic, the address "msix_affinity_masks + i", which will always
+>>>>>> evaluate to true.
+>>>>>> Under the hood, free_cpumask_var() calls kfree(), which is safe to p=
+ass
+>>>>>> NULL, not requiring non-null verification. So remove the verificatio=
+n
+>>>>>> to make compiler happy (happy compiler, happy life).
+>>>>>> [0] https://gcc.gnu.org/bugzilla/show_bug.cgi?id=3D102103
+>>>>>> Signed-off-by: Murilo Opsfelder Araujo <muriloo@linux.ibm.com>
+>>>>>> ---
+>>>>>> drivers/virtio/virtio_pci_common.c | 3 +--
+>>>>>> 1 file changed, 1 insertion(+), 2 deletions(-)
+>>>>>> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/vir=
+tio_pci_common.c
+>>>>>> index d724f676608b..5046efcffb4c 100644
+>>>>>> --- a/drivers/virtio/virtio_pci_common.c
+>>>>>> +++ b/drivers/virtio/virtio_pci_common.c
+>>>>>> @@ -254,8 +254,7 @@ void vp_del_vqs(struct virtio_device *vdev)
+>>>>>> =09if (vp_dev->msix_affinity_masks) {
+>>>>>> =09=09for (i =3D 0; i < vp_dev->msix_vectors; i++)
+>>>>>> -=09=09=09if (vp_dev->msix_affinity_masks[i])
+>>>>>> -=09=09=09=09free_cpumask_var(vp_dev->msix_affinity_masks[i]);
+>>>>>> +=09=09=09free_cpumask_var(vp_dev->msix_affinity_masks[i]);
+>>>>>> =09}
+>>>>>> =09if (vp_dev->msix_enabled) {
+>>>>>=20
+>>>>> After I sent this message, I realized that Christophe (copied here)
+>>>>> had already proposed a fix:
+>>>>>=20
+>>>>> https://lore.kernel.org/lkml/20220414150855.2407137-4-dinechin@redhat=
+.com/
+>>>>>=20
+>>>>> Christophe,
+>>>>>=20
+>>>>> Since free_cpumask_var() calls kfree() and kfree() is null-safe,
+>>>>> can we just drop this null verification and call free_cpumask_var() r=
+ight away?
+>>>>=20
+>>>> Apologies for the delay in responding, broken laptop=E2=80=A6
+>>>>=20
+>>>> In the case where CONFIG_CPUMASK_OFFSTACK is not defined, we have:
+>>>>=20
+>>>> =09typedef struct cpumask cpumask_var_t[1];
+>>>>=20
+>>>> So that vp_dev->msix_affinity_masks[i] is statically not null (that=E2=
+=80=99s the warning)
+>>>> but also a static pointer, so not kfree-safe IMO.
+>>>=20
+>>> =E2=80=A6 which also renders my own patch invalid :-/
+>>>=20
+>>> Compiler warnings are good. Clearly not sufficient.
+>>=20
+>> Ah, I just noticed that free_cpumask_var is a noop in that case.
+>>=20
+>> So yes, your fix is better :-)
+>=20
+> ACK then?
+
+Yes.
+
+Acked-by: Christophe de Dinechin <dinechin@redhat.com <mailto:dinechin@redh=
+at.com>>
+
+>=20
+
+
+--Apple-Mail=_6C207FBF-1664-40D5-A393-41045FCBA55D
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/html;
+	charset=utf-8
+
+<html><head><meta http-equiv=3D"Content-Type" content=3D"text/html; charset=
+=3Dutf-8"></head><body style=3D"word-wrap: break-word; -webkit-nbsp-mode: s=
+pace; line-break: after-white-space;" class=3D""><br class=3D""><div><br cl=
+ass=3D""><blockquote type=3D"cite" class=3D""><div class=3D"">On 28 Apr 202=
+2, at 13:03, Michael S. Tsirkin &lt;<a href=3D"mailto:mst@redhat.com" class=
+=3D"">mst@redhat.com</a>&gt; wrote:</div><br class=3D"Apple-interchange-new=
+line"><div class=3D""><div class=3D"">On Thu, Apr 28, 2022 at 11:55:31AM +0=
+200, Christophe Marie Francois Dupont de Dinechin wrote:<br class=3D""><blo=
+ckquote type=3D"cite" class=3D""><br class=3D""><br class=3D""><blockquote =
+type=3D"cite" class=3D"">On 28 Apr 2022, at 11:51, Christophe Marie Francoi=
+s Dupont de Dinechin &lt;<a href=3D"mailto:cdupontd@redhat.com" class=3D"">=
+cdupontd@redhat.com</a>&gt; wrote:<br class=3D""><br class=3D""><br class=
+=3D""><br class=3D""><blockquote type=3D"cite" class=3D"">On 28 Apr 2022, a=
+t 11:46, Christophe Marie Francois Dupont de Dinechin &lt;<a href=3D"mailto=
+:cdupontd@redhat.com" class=3D"">cdupontd@redhat.com</a>&gt; wrote:<br clas=
+s=3D""><br class=3D""><br class=3D""><br class=3D""><blockquote type=3D"cit=
+e" class=3D"">On 15 Apr 2022, at 05:51, Murilo Opsfelder Ara=C3=BAjo &lt;<a=
+ href=3D"mailto:muriloo@linux.ibm.com" class=3D"">muriloo@linux.ibm.com</a>=
+&gt; wrote:<br class=3D""><br class=3D"">On 4/14/22 23:30, Murilo Opsfelder=
+ Araujo wrote:<br class=3D""><blockquote type=3D"cite" class=3D"">GCC 12 en=
+hanced -Waddress when comparing array address to null [0],<br class=3D"">wh=
+ich warns:<br class=3D"">drivers/virtio/virtio_pci_common.c: In function =
+=E2=80=98vp_del_vqs=E2=80=99:<br class=3D"">drivers/virtio/virtio_pci_commo=
+n.c:257:29: warning: the comparison will always evaluate as =E2=80=98true=
+=E2=80=99 for the pointer operand in =E2=80=98vp_dev-&gt;msix_affinity_mask=
+s + (sizetype)((long unsigned int)i * 256)=E2=80=99 must not be NULL [-Wadd=
+ress]<br class=3D"">257 | if (vp_dev-&gt;msix_affinity_masks[i])<br class=
+=3D"">| ^~~~~~<br class=3D"">In fact, the verification is comparing the res=
+ult of a pointer<br class=3D"">arithmetic, the address "msix_affinity_masks=
+ + i", which will always<br class=3D"">evaluate to true.<br class=3D"">Unde=
+r the hood, free_cpumask_var() calls kfree(), which is safe to pass<br clas=
+s=3D"">NULL, not requiring non-null verification. So remove the verificatio=
+n<br class=3D"">to make compiler happy (happy compiler, happy life).<br cla=
+ss=3D"">[0] <a href=3D"https://gcc.gnu.org/bugzilla/show_bug.cgi?id=3D10210=
+3" class=3D"">https://gcc.gnu.org/bugzilla/show_bug.cgi?id=3D102103</a><br =
+class=3D"">Signed-off-by: Murilo Opsfelder Araujo &lt;<a href=3D"mailto:mur=
+iloo@linux.ibm.com" class=3D"">muriloo@linux.ibm.com</a>&gt;<br class=3D"">=
+---<br class=3D"">drivers/virtio/virtio_pci_common.c | 3 +--<br class=3D"">=
+1 file changed, 1 insertion(+), 2 deletions(-)<br class=3D"">diff --git a/d=
+rivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c<br c=
+lass=3D"">index d724f676608b..5046efcffb4c 100644<br class=3D"">--- a/drive=
+rs/virtio/virtio_pci_common.c<br class=3D"">+++ b/drivers/virtio/virtio_pci=
+_common.c<br class=3D"">@@ -254,8 +254,7 @@ void vp_del_vqs(struct virtio_d=
+evice *vdev)<br class=3D""><span class=3D"Apple-tab-span" style=3D"white-sp=
+ace:pre">=09</span>if (vp_dev-&gt;msix_affinity_masks) {<br class=3D""><spa=
+n class=3D"Apple-tab-span" style=3D"white-space:pre">=09</span><span class=
+=3D"Apple-tab-span" style=3D"white-space:pre">=09</span>for (i =3D 0; i &lt=
+; vp_dev-&gt;msix_vectors; i++)<br class=3D"">-<span class=3D"Apple-tab-spa=
+n" style=3D"white-space:pre">=09</span><span class=3D"Apple-tab-span" style=
+=3D"white-space:pre">=09</span><span class=3D"Apple-tab-span" style=3D"whit=
+e-space:pre">=09</span>if (vp_dev-&gt;msix_affinity_masks[i])<br class=3D""=
+>-<span class=3D"Apple-tab-span" style=3D"white-space:pre">=09</span><span =
+class=3D"Apple-tab-span" style=3D"white-space:pre">=09</span><span class=3D=
+"Apple-tab-span" style=3D"white-space:pre">=09</span><span class=3D"Apple-t=
+ab-span" style=3D"white-space:pre">=09</span>free_cpumask_var(vp_dev-&gt;ms=
+ix_affinity_masks[i]);<br class=3D"">+<span class=3D"Apple-tab-span" style=
+=3D"white-space:pre">=09</span><span class=3D"Apple-tab-span" style=3D"whit=
+e-space:pre">=09</span><span class=3D"Apple-tab-span" style=3D"white-space:=
+pre">=09</span>free_cpumask_var(vp_dev-&gt;msix_affinity_masks[i]);<br clas=
+s=3D""><span class=3D"Apple-tab-span" style=3D"white-space:pre">=09</span>}=
+<br class=3D""><span class=3D"Apple-tab-span" style=3D"white-space:pre">=09=
+</span>if (vp_dev-&gt;msix_enabled) {<br class=3D""></blockquote><br class=
+=3D"">After I sent this message, I realized that Christophe (copied here)<b=
+r class=3D"">had already proposed a fix:<br class=3D""><br class=3D""><a hr=
+ef=3D"https://lore.kernel.org/lkml/20220414150855.2407137-4-dinechin@redhat=
+.com/" class=3D"">https://lore.kernel.org/lkml/20220414150855.2407137-4-din=
+echin@redhat.com/</a><br class=3D""><br class=3D"">Christophe,<br class=3D"=
+"><br class=3D"">Since free_cpumask_var() calls kfree() and kfree() is null=
+-safe,<br class=3D"">can we just drop this null verification and call free_=
+cpumask_var() right away?<br class=3D""></blockquote><br class=3D"">Apologi=
+es for the delay in responding, broken laptop=E2=80=A6<br class=3D""><br cl=
+ass=3D"">In the case where CONFIG_CPUMASK_OFFSTACK is not defined, we have:=
+<br class=3D""><br class=3D""><span class=3D"Apple-tab-span" style=3D"white=
+-space:pre">=09</span>typedef struct cpumask cpumask_var_t[1];<br class=3D"=
+"><br class=3D"">So that vp_dev-&gt;msix_affinity_masks[i] is statically no=
+t null (that=E2=80=99s the warning)<br class=3D"">but also a static pointer=
+, so not kfree-safe IMO.<br class=3D""></blockquote><br class=3D"">=E2=80=
+=A6 which also renders my own patch invalid :-/<br class=3D""><br class=3D"=
+">Compiler warnings are good. Clearly not sufficient.<br class=3D""></block=
+quote><br class=3D"">Ah, I just noticed that free_cpumask_var is a noop in =
+that case.<br class=3D""><br class=3D"">So yes, your fix is better :-)<br c=
+lass=3D""></blockquote><br class=3D"">ACK then?<br class=3D""></div></div><=
+/blockquote><div><br class=3D""></div><div>Yes.</div><div><br class=3D""></=
+div><div>Acked-by: Christophe de Dinechin &lt;<a href=3D"mailto:dinechin@re=
+dhat.com" class=3D"">dinechin@redhat.com</a>&gt;</div><br class=3D""><block=
+quote type=3D"cite" class=3D""><div class=3D""><div class=3D""><br class=3D=
+""></div></div></blockquote></div><br class=3D""></body></html>
+--Apple-Mail=_6C207FBF-1664-40D5-A393-41045FCBA55D--
+
+
+--===============2866727343750860914==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============2866727343750860914==--
+
