@@ -1,109 +1,105 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id CC2DAC433EF
-	for <virtualization@archiver.kernel.org>; Thu, 28 Apr 2022 05:25:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9287DC433EF
+	for <virtualization@archiver.kernel.org>; Thu, 28 Apr 2022 05:52:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 61540401B3;
-	Thu, 28 Apr 2022 05:25:00 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 46570812E0;
+	Thu, 28 Apr 2022 05:52:20 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 3W24ZvI74d14; Thu, 28 Apr 2022 05:24:59 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ohEh_oqOyhS0; Thu, 28 Apr 2022 05:52:19 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 8151E4016C;
-	Thu, 28 Apr 2022 05:24:58 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 00D08812DB;
+	Thu, 28 Apr 2022 05:52:18 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 569DAC0032;
-	Thu, 28 Apr 2022 05:24:58 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C1493C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 98B3BC0032;
+	Thu, 28 Apr 2022 05:52:18 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1DE32C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Apr 2022 05:24:56 +0000 (UTC)
+ Thu, 28 Apr 2022 05:52:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id B71974016C
+ by smtp4.osuosl.org (Postfix) with ESMTP id 048E74026E
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Apr 2022 05:24:56 +0000 (UTC)
+ Thu, 28 Apr 2022 05:52:17 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id VbJ6v9V3SWIr
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id z16Vz-cjY7d3
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Apr 2022 05:24:55 +0000 (UTC)
+ Thu, 28 Apr 2022 05:52:15 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 76B61400FE
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id A86644025B
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Apr 2022 05:24:55 +0000 (UTC)
+ Thu, 28 Apr 2022 05:52:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1651123494;
+ s=mimecast20190719; t=1651125134;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=E2WT+5Dj/uF92md4vRvJ45vZd5NBiJcHUWg+Un6DF70=;
- b=bAf3BZ6QaqgK//q2caMT5ah594EnZT2Jb2yx0WlQz5kZGIMdilaS/65RHmJzhG5/Noqc4A
- BgvmKO0KGnOf9qIu9QNPXMYN1kQyHayLWGuqdfBrobKlSkbAFkIqbBfl66V4WCjkMflBwc
- 1KLO2CQjWFUENHPxY3IEp6XCiF+9TNE=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=VG8xe0Lj4eTE8PBjFl2duBm+bHnWsA2hI9mqEPY5x1M=;
+ b=hbROdJuK/dex2novTUjm+kgshKmg/9kOoJmD/rQRVX3nFdNDxS1sMt0hMC16xd+IWfhQSG
+ 3GLz57tsR/iN5YmsrtqhksftUXVCAD2Q7mRiDPHV734Gza/CldW/kpOmEHzRq9lnJdMwo2
+ UU8HaNpYqXeT6aIB6MMy0JuayR29EVs=
+Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
+ [209.85.167.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-553-LEE_1PgsOoylFq-xz5AGsQ-1; Thu, 28 Apr 2022 01:24:52 -0400
-X-MC-Unique: LEE_1PgsOoylFq-xz5AGsQ-1
-Received: by mail-wm1-f69.google.com with SMTP id
- r186-20020a1c44c3000000b00393f52ed5ceso3089323wma.7
+ us-mta-396-lpDxbzetOjSoHOBwn3YKxQ-1; Thu, 28 Apr 2022 01:52:12 -0400
+X-MC-Unique: lpDxbzetOjSoHOBwn3YKxQ-1
+Received: by mail-lf1-f69.google.com with SMTP id
+ bp36-20020a05651215a400b004722f090903so1367679lfb.22
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Apr 2022 22:24:52 -0700 (PDT)
+ Wed, 27 Apr 2022 22:52:12 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=E2WT+5Dj/uF92md4vRvJ45vZd5NBiJcHUWg+Un6DF70=;
- b=g7bRimLf8P3OrJLDn8oAGNQFTVba8lARmmVKlk37dPTQjz6eucuMlHe0Ie2v2O/LIC
- DT/k/UTT5Bz9b3tbkHIR0i1qQVkX+bD7qYcvgzkGawW4wxzivvjJw1EED8Pb6tXRF+WS
- O55ZXY16cIa2pIKTE1yszQugz23cYYELIzqGXFddN/E6AoyMpB7Mcv1IHPr5zgIT7zmw
- FfJtzOT8tmfvur7Fyc2fr7nK3GJc3eTRiduS3T3tapaSBs1ahA7MBsDLVX+3HssZtaeL
- JO0z5bLLB66Z3kEOBzWgoD11sboY23ghRsbLcPi4Zc+6rAA9s24yPmwkzbPr9g76hNYg
- 8ACA==
-X-Gm-Message-State: AOAM531QWjAJmqI7tVftnhbbx1yhxsaUpU8qDcQ+MLq2zF8z4lCaUvpQ
- loliuzAemptB8ebf9ym3t2wd2m9cfugCD0unjScNZattxidlq7OBfBsACTaboC++bA/jHWLZshB
- TDbhOVP2xowGFULPBAVfFZD97HEqinEVji14jces0+A==
-X-Received: by 2002:adf:dd0e:0:b0:20a:d00a:fcf0 with SMTP id
- a14-20020adfdd0e000000b0020ad00afcf0mr20082704wrm.239.1651123491568; 
- Wed, 27 Apr 2022 22:24:51 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJy1Dc+Z1n8cfxiweI/O1wRWrqc7b8BNVYC1ZGuXlRWcoYm4SDgXmSVs64meStwS7OhANEavmw==
-X-Received: by 2002:adf:dd0e:0:b0:20a:d00a:fcf0 with SMTP id
- a14-20020adfdd0e000000b0020ad00afcf0mr20082687wrm.239.1651123491114; 
- Wed, 27 Apr 2022 22:24:51 -0700 (PDT)
-Received: from redhat.com ([2.53.18.16]) by smtp.gmail.com with ESMTPSA id
- c12-20020a05600c0a4c00b00381141f4967sm3674279wmq.35.2022.04.27.22.24.45
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 27 Apr 2022 22:24:49 -0700 (PDT)
-Date: Thu, 28 Apr 2022 01:24:43 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V3 6/9] virtio-ccw: implement synchronize_cbs()
-Message-ID: <20220428012156-mutt-send-email-mst@kernel.org>
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=VG8xe0Lj4eTE8PBjFl2duBm+bHnWsA2hI9mqEPY5x1M=;
+ b=l85hcEG5SAN4Ti43p6kppK3HVjILYLkeumtSuIW+6Pq2DvaxdOGqJmuu2Pw1tTc3dR
+ E/T3bHlfhSbdxpY/n8IkV0sHmanO1LxsXvwVaTHvxET+9uuEeIDVIGU9BrJIuZ/93slo
+ 544XQe+w4k3biC6R6hVMGmQqnA8RGUWMqhaJU+wVr0oPaIuuusByplL3rc1D5cTOF55I
+ 34ZR+BluFmiAG7SpQCXCDBUZDY45hX3n24STcOqu5XEARc16BNze3P+XP14x4k5V8qkX
+ 6M1PGk1y6RvBetRN4Q8CI2KiwenEWDPQJbIiTFVq3SliuekdWRLzeuczwSOo3MQ87dRu
+ KeDw==
+X-Gm-Message-State: AOAM5315LQOGsbybbxDrquc2Oa36HwOz8DnlfD5dtLN/Mz6GdV7epiFa
+ JaSqyIwlHB584E/hTgUltLnPToHfRGTQeqrdCfZCLxa+fD7feEVU9ZhYhKgsTqRHIhBOZ5Seyfl
+ DS6A1U6t/MZPNxnvCY7Og2+epj7gLgTsRmembaA815HTJ85MiI5ezov0lXg==
+X-Received: by 2002:a05:6512:b81:b0:448:b342:513c with SMTP id
+ b1-20020a0565120b8100b00448b342513cmr22834529lfv.257.1651125130907; 
+ Wed, 27 Apr 2022 22:52:10 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyQ1RzrfWfSkhGClXkO34qKBaipySKvQusBGIxeNu+GZHGD2TZarCmX1ullRo8BzpxyDgwoENa2ajgmtrv0F3g=
+X-Received: by 2002:a05:6512:b81:b0:448:b342:513c with SMTP id
+ b1-20020a0565120b8100b00448b342513cmr22834515lfv.257.1651125130719; Wed, 27
+ Apr 2022 22:52:10 -0700 (PDT)
+MIME-Version: 1.0
 References: <20220425233434-mutt-send-email-mst@kernel.org>
  <20220425233604-mutt-send-email-mst@kernel.org>
  <ba0c3977-c471-3275-2327-c5910cdd506a@redhat.com>
  <20220425235134-mutt-send-email-mst@kernel.org>
  <20220425235415-mutt-send-email-mst@kernel.org>
- <87o80n7soq.fsf@redhat.com>
- <20220426124243-mutt-send-email-mst@kernel.org>
- <87ilqu7u6w.fsf@redhat.com>
- <20220428044315.3945e660.pasic@linux.ibm.com>
+ <87o80n7soq.fsf@redhat.com> <20220426124243-mutt-send-email-mst@kernel.org>
+ <87ilqu7u6w.fsf@redhat.com> <20220428044315.3945e660.pasic@linux.ibm.com>
  <CACGkMEudDf=XXhV2tV+xZ586AnDyrQEotGAiSQZ4k1CTAWHZJQ@mail.gmail.com>
-MIME-Version: 1.0
-In-Reply-To: <CACGkMEudDf=XXhV2tV+xZ586AnDyrQEotGAiSQZ4k1CTAWHZJQ@mail.gmail.com>
+ <20220428012156-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20220428012156-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 28 Apr 2022 13:51:59 +0800
+Message-ID: <CACGkMEsd+WHp=LN0BnnDKfzv+nbS2hjgVC-tdemZWuPTc60HBQ@mail.gmail.com>
+Subject: Re: [PATCH V3 6/9] virtio-ccw: implement synchronize_cbs()
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
 Cc: "Paul E. McKenney" <paulmck@kernel.org>, Cindy Lu <lulu@redhat.com>,
  Peter Zijlstra <peterz@infradead.org>, Marc Zyngier <maz@kernel.org>,
  Cornelia Huck <cohuck@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>,
@@ -126,21 +122,36 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Apr 28, 2022 at 11:04:41AM +0800, Jason Wang wrote:
-> > But my guess is that rwlock + some testing for the legacy indicator case
-> > just to double check if there is a heavy regression despite of our
-> > expectations to see none should do the trick.
-> 
-> I suggest this, rwlock (for not airq) seems better than spinlock, but
-> at worst case it will cause cache line bouncing. But I wonder if it's
-> noticeable (anyhow it has been used for airq).
-> 
-> Thanks
+On Thu, Apr 28, 2022 at 1:24 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+>
+> On Thu, Apr 28, 2022 at 11:04:41AM +0800, Jason Wang wrote:
+> > > But my guess is that rwlock + some testing for the legacy indicator case
+> > > just to double check if there is a heavy regression despite of our
+> > > expectations to see none should do the trick.
+> >
+> > I suggest this, rwlock (for not airq) seems better than spinlock, but
+> > at worst case it will cause cache line bouncing. But I wonder if it's
+> > noticeable (anyhow it has been used for airq).
+> >
+> > Thanks
+>
+> Which existing rwlock does airq use right now? Can we take it to sync?
 
-Which existing rwlock does airq use right now? Can we take it to sync?
+It's the rwlock in airq_info, it has already been used in this patch.
 
--- 
-MST
+                write_lock(&info->lock);
+                write_unlock(&info->lock);
+
+But the problem is, it looks to me there could be a case that airq is
+not used, (virtio_ccw_int_hander()). That's why the patch use a
+spinlock, it could be optimized with using a rwlock as well.
+
+Thanks
+
+>
+> --
+> MST
+>
 
 _______________________________________________
 Virtualization mailing list
