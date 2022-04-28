@@ -4,84 +4,84 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 72FCCC433EF
-	for <virtualization@archiver.kernel.org>; Thu, 28 Apr 2022 14:04:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 43773C433F5
+	for <virtualization@archiver.kernel.org>; Thu, 28 Apr 2022 14:04:48 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 1EF0A83E35;
-	Thu, 28 Apr 2022 14:04:40 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id F180183E2D;
+	Thu, 28 Apr 2022 14:04:47 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id iTmeOqO9r7wB; Thu, 28 Apr 2022 14:04:38 +0000 (UTC)
+	with ESMTP id 8fvojle0dKl4; Thu, 28 Apr 2022 14:04:46 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 5101383498;
-	Thu, 28 Apr 2022 14:04:38 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id B236683E0B;
+	Thu, 28 Apr 2022 14:04:45 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 33C76C0080;
-	Thu, 28 Apr 2022 14:04:38 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8A05AC0032;
+	Thu, 28 Apr 2022 14:04:45 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 06F5AC0032
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2BA56C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Apr 2022 14:04:37 +0000 (UTC)
+ Thu, 28 Apr 2022 14:04:44 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 0968783E45
+ by smtp1.osuosl.org (Postfix) with ESMTP id 8BDCE83E32
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Apr 2022 14:04:36 +0000 (UTC)
+ Thu, 28 Apr 2022 14:04:41 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Y49DWJ1ovqJj
+ with ESMTP id ZWhUcBnr-Iqm
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Apr 2022 14:04:34 +0000 (UTC)
+ Thu, 28 Apr 2022 14:04:39 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com
- [IPv6:2607:f8b0:4864:20::52b])
- by smtp1.osuosl.org (Postfix) with ESMTPS id B41FE83498
+Received: from mail-pf1-x434.google.com (mail-pf1-x434.google.com
+ [IPv6:2607:f8b0:4864:20::434])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 8FCB183490
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Apr 2022 14:04:34 +0000 (UTC)
-Received: by mail-pg1-x52b.google.com with SMTP id q76so1016887pgq.10
+ Thu, 28 Apr 2022 14:04:39 +0000 (UTC)
+Received: by mail-pf1-x434.google.com with SMTP id y38so4337435pfa.6
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Apr 2022 07:04:34 -0700 (PDT)
+ Thu, 28 Apr 2022 07:04:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=bytedance-com.20210112.gappssmtp.com; s=20210112;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=fbLj4epjW6ZvurRp3t1wVu3fCU1F78uwTpoV4SHLZDE=;
- b=W4eaiu2v671QD+KeyKKsVnXHr9TgjldcbtWTobOvtrILhcYJuiUvxKhZWEnocI/GHm
- CWSFn6++EvFWlMHMfRZqTFk7XDR+iZs+anvWs8lPt2u1LIjoumCaMyDiVmuTV0Bjkl5R
- JLm1PAZ550w2/7eRwAF8soo0mmzoAgMy/abUFSb0CeVyCdK26pb7tdnQQ4ynTFc2YMBr
- p3ViND+qNhVxwuo/uG6/h/gSF5qrsX+vkdD2MC2ZIgb7Zz53gt2NtQ0AYIeZO2TfpxIZ
- stRVtqGV6eH+XjGWtS47RaN7l/fsDPAZUNjWqtrsXmsOKblJkv3MYXGe9UfVpgK9mNhN
- M7EA==
+ bh=5kz6PRQeUNuvSt/p2bbwQhAayz+jXvcWzVUgIcWgigk=;
+ b=3kEc6/CQvWSSGxlCjs3H0lIi68wN+iNdMxt8LAuBh8A6LZaa6baHUwtkIXzHYAC4Px
+ ymnid8nbEaXYZoPqMqy36rIxO7DG1BCTtb1TovNxwNPjOwCMQ7ofWin0EAzJuhGbpkOO
+ PnUo+wP5AIhM6HpEZTNz+OMTP8fRuZXazU/5AXY4msbgxwgHgWvdS4ST24sYHDkVU4UZ
+ V8T/fNKCjVGvFktS9jy2BRnN9vb3hxBE/YA/gSz/N0J3qJPz6d9bNjqwbaOoM16an3V1
+ pUQ0oJFPdv4RxN6hR3aZCotilG9Q4g49gi6qPeI0AlNFXyRf74jw4W0Fz0UBK29DBwx8
+ s+6g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
  :references:mime-version:content-transfer-encoding;
- bh=fbLj4epjW6ZvurRp3t1wVu3fCU1F78uwTpoV4SHLZDE=;
- b=N4natchORoO7hE1cglyq5onPE7PGOygCUMe7vuE1eYWsgbvsmBZO8TBpeuq+s4bVyR
- i2Q9hctZxmaf/1hkcs239UBkz4veA8l4vZGUTdlbSRG6SGT0tE+uI5XQ296gNtSIiFdQ
- HYy8ao9Zi5rNbb2pPc5pR5P/3iU1SEvkZQOAIb4UlTpZLW4kNWYK0bXjfttlmoq0+X22
- qz/S5+SwpZO2r4L46HFv1qV8SIltvvt/8Wo4RuHdIlXGTXoiVtAlUI8qACxhk/f33cmq
- Xh8GjZ/QLi/wPkBPPeeHwwGP512Dv7KmSTu5TQJqvcC44c5kSSPodrtFfjIR1zjLcK8s
- EhtA==
-X-Gm-Message-State: AOAM5317YXTaf00Vk39xxSC11/87b+pFePFc2YZtAv6o2ipOHWB81PuZ
- p+GcyIPg/SohI6C5hV0WSPiONQ==
-X-Google-Smtp-Source: ABdhPJxSlosodERzxS/9FDEELC3eVT8tg0s+Prqgs8Ucvix3FVSDMA9qR7CRcGMnyTuSoolRKW0fRQ==
-X-Received: by 2002:a63:fb02:0:b0:3c1:9513:2e11 with SMTP id
- o2-20020a63fb02000000b003c195132e11mr898858pgh.258.1651154674022; 
- Thu, 28 Apr 2022 07:04:34 -0700 (PDT)
+ bh=5kz6PRQeUNuvSt/p2bbwQhAayz+jXvcWzVUgIcWgigk=;
+ b=GgP5FV0u8fYoORHo7Ts1LHlUxvS4gChCGyQbQQox/JvoN7MbyVA6hwuDvnjm4ryg2h
+ LfKhzeKUWIQ+MNdPjQJ/f5HHRRs/gTneIZbHxRoh3uWnWZp3LxWmXAy6Mam+k7Hb93k7
+ STIXH62s2TYKavWVAqvt4N2+pqu1Seyo6J/07yeqMNJBWQVrs6W8rP4VIbA9fjYJIJrJ
+ Sr760DfdJDmF2jIn5KaC2+ZkxHYF8ovPMP5jIMO8SODXbY93YA1tjXSFL5iYeZxYXwPg
+ DxPBZFVdyFOmv4aeOPM44kvpMSQnKmRxSB/uAU0fquEshkecex+8ofie27u5z5yll/X3
+ S5aA==
+X-Gm-Message-State: AOAM532bn16ztDRo2OBzEuBfdNeo4P9yYTvf8zsMLyg7+1Sdik3COCxb
+ FrrbsRHs3vkcD03F4OYkb2tu8A==
+X-Google-Smtp-Source: ABdhPJywWEZavHSIHfU7qBmf+zNOd3FAyb8mjiG4axDDE0/9W2BubLUdS4yClJKZz/A16Fc/ZdXbDw==
+X-Received: by 2002:a63:149:0:b0:3c1:6f72:af95 with SMTP id
+ 70-20020a630149000000b003c16f72af95mr3900978pgb.413.1651154678737; 
+ Thu, 28 Apr 2022 07:04:38 -0700 (PDT)
 Received: from always-x1.www.tendawifi.com ([139.177.225.254])
  by smtp.gmail.com with ESMTPSA id
- x129-20020a623187000000b0050835f6d6a1sm38975pfx.9.2022.04.28.07.04.29
+ x129-20020a623187000000b0050835f6d6a1sm38975pfx.9.2022.04.28.07.04.34
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 28 Apr 2022 07:04:33 -0700 (PDT)
+ Thu, 28 Apr 2022 07:04:38 -0700 (PDT)
 From: zhenwei pi <pizhenwei@bytedance.com>
 To: mst@redhat.com,
 	arei.gonglei@huawei.com,
 	berrange@redhat.com
-Subject: [PATCH v5 3/9] crypto: Introduce akcipher crypto class
-Date: Thu, 28 Apr 2022 21:59:37 +0800
-Message-Id: <20220428135943.178254-4-pizhenwei@bytedance.com>
+Subject: [PATCH v5 4/9] crypto: add ASN.1 DER decoder
+Date: Thu, 28 Apr 2022 21:59:38 +0800
+Message-Id: <20220428135943.178254-5-pizhenwei@bytedance.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220428135943.178254-1-pizhenwei@bytedance.com>
 References: <20220428135943.178254-1-pizhenwei@bytedance.com>
@@ -100,229 +100,637 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-SW50cm9kdWNlIG5ldyBha2NpcGhlciBjcnlwdG8gY2xhc3MgJ1FDcnlwdG9Ba0NJcGhlcicsIHdo
-aWNoIHN1cHBvcnRzCmJhc2ljIGFzeW1tZXRyaWMgb3BlcmF0aW9uczogZW5jcnlwdCwgZGVjcnlw
-dCwgc2lnbiBhbmQgdmVyaWZ5LgoKU3VnZ2VzdGVkIGJ5IERhbmllbCBQLiBCZXJyYW5nw6ksIGFs
-c28gYWRkIGF1dG9wdHIgY2xlYW51cCBmb3IgdGhlIG5ldwpjbGFzcy4gVGhhbmtzIHRvIERhbmll
-bCEKCkNvLWRldmVsb3BlZC1ieTogbGVpIGhlIDxoZWxlaS5zaWcxMUBieXRlZGFuY2UuY29tPgpT
-aWduZWQtb2ZmLWJ5OiBsZWkgaGUgPGhlbGVpLnNpZzExQGJ5dGVkYW5jZS5jb20+ClNpZ25lZC1v
-ZmYtYnk6IHpoZW53ZWkgcGkgPHBpemhlbndlaUBieXRlZGFuY2UuY29tPgotLS0KIGNyeXB0by9h
-a2NpcGhlci5jICAgICAgICAgfCAxMDIgKysrKysrKysrKysrKysrKysrKysrKysrCiBjcnlwdG8v
-YWtjaXBoZXJwcml2LmggICAgIHwgIDU1ICsrKysrKysrKysrKysKIGNyeXB0by9tZXNvbi5idWls
-ZCAgICAgICAgfCAgIDEgKwogaW5jbHVkZS9jcnlwdG8vYWtjaXBoZXIuaCB8IDE1OCArKysrKysr
-KysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKwogNCBmaWxlcyBjaGFuZ2VkLCAzMTYgaW5z
-ZXJ0aW9ucygrKQogY3JlYXRlIG1vZGUgMTAwNjQ0IGNyeXB0by9ha2NpcGhlci5jCiBjcmVhdGUg
-bW9kZSAxMDA2NDQgY3J5cHRvL2FrY2lwaGVycHJpdi5oCiBjcmVhdGUgbW9kZSAxMDA2NDQgaW5j
-bHVkZS9jcnlwdG8vYWtjaXBoZXIuaAoKZGlmZiAtLWdpdCBhL2NyeXB0by9ha2NpcGhlci5jIGIv
-Y3J5cHRvL2FrY2lwaGVyLmMKbmV3IGZpbGUgbW9kZSAxMDA2NDQKaW5kZXggMDAwMDAwMDAwMC4u
-YWIyOGJmNDE1YgotLS0gL2Rldi9udWxsCisrKyBiL2NyeXB0by9ha2NpcGhlci5jCkBAIC0wLDAg
-KzEsMTAyIEBACisvKgorICogUUVNVSBDcnlwdG8gYWtjaXBoZXIgYWxnb3JpdGhtcworICoKKyAq
-IENvcHlyaWdodCAoYykgMjAyMiBCeXRlZGFuY2UKKyAqIEF1dGhvcjogemhlbndlaSBwaSA8cGl6
-aGVud2VpQGJ5dGVkYW5jZS5jb20+CisgKgorICogVGhpcyBsaWJyYXJ5IGlzIGZyZWUgc29mdHdh
-cmU7IHlvdSBjYW4gcmVkaXN0cmlidXRlIGl0IGFuZC9vcgorICogbW9kaWZ5IGl0IHVuZGVyIHRo
-ZSB0ZXJtcyBvZiB0aGUgR05VIExlc3NlciBHZW5lcmFsIFB1YmxpYworICogTGljZW5zZSBhcyBw
-dWJsaXNoZWQgYnkgdGhlIEZyZWUgU29mdHdhcmUgRm91bmRhdGlvbjsgZWl0aGVyCisgKiB2ZXJz
-aW9uIDIuMSBvZiB0aGUgTGljZW5zZSwgb3IgKGF0IHlvdXIgb3B0aW9uKSBhbnkgbGF0ZXIgdmVy
-c2lvbi4KKyAqCisgKiBUaGlzIGxpYnJhcnkgaXMgZGlzdHJpYnV0ZWQgaW4gdGhlIGhvcGUgdGhh
-dCBpdCB3aWxsIGJlIHVzZWZ1bCwKKyAqIGJ1dCBXSVRIT1VUIEFOWSBXQVJSQU5UWTsgd2l0aG91
-dCBldmVuIHRoZSBpbXBsaWVkIHdhcnJhbnR5IG9mCisgKiBNRVJDSEFOVEFCSUxJVFkgb3IgRklU
-TkVTUyBGT1IgQSBQQVJUSUNVTEFSIFBVUlBPU0UuICBTZWUgdGhlIEdOVQorICogTGVzc2VyIEdl
-bmVyYWwgUHVibGljIExpY2Vuc2UgZm9yIG1vcmUgZGV0YWlscy4KKyAqCisgKiBZb3Ugc2hvdWxk
-IGhhdmUgcmVjZWl2ZWQgYSBjb3B5IG9mIHRoZSBHTlUgTGVzc2VyIEdlbmVyYWwgUHVibGljCisg
-KiBMaWNlbnNlIGFsb25nIHdpdGggdGhpcyBsaWJyYXJ5OyBpZiBub3QsIHNlZSA8aHR0cDovL3d3
-dy5nbnUub3JnL2xpY2Vuc2VzLz4uCisgKgorICovCisKKyNpbmNsdWRlICJxZW11L29zZGVwLmgi
-CisjaW5jbHVkZSAiY3J5cHRvL2FrY2lwaGVyLmgiCisjaW5jbHVkZSAiYWtjaXBoZXJwcml2Lmgi
-CisKK1FDcnlwdG9Ba0NpcGhlciAqcWNyeXB0b19ha2NpcGhlcl9uZXcoY29uc3QgUUNyeXB0b0Fr
-Q2lwaGVyT3B0aW9ucyAqb3B0cywKKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgUUNyeXB0b0FrQ2lwaGVyS2V5VHlwZSB0eXBlLAorICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICBjb25zdCB1aW50OF90ICprZXksIHNpemVfdCBrZXlsZW4sCisgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIEVycm9yICoqZXJycCkKK3sKKyAgICBRQ3J5
-cHRvQWtDaXBoZXIgKmFrY2lwaGVyID0gTlVMTDsKKworICAgIHJldHVybiBha2NpcGhlcjsKK30K
-KworYm9vbCBxY3J5cHRvX2FrY2lwaGVyX3N1cHBvcnRzKFFDcnlwdG9Ba0NpcGhlck9wdGlvbnMg
-Km9wdHMpCit7CisgICAgcmV0dXJuIGZhbHNlOworfQorCitpbnQgcWNyeXB0b19ha2NpcGhlcl9l
-bmNyeXB0KFFDcnlwdG9Ba0NpcGhlciAqYWtjaXBoZXIsCisgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgIGNvbnN0IHZvaWQgKmluLCBzaXplX3QgaW5fbGVuLAorICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICB2b2lkICpvdXQsIHNpemVfdCBvdXRfbGVuLCBFcnJvciAqKmVycnApCit7Cisg
-ICAgY29uc3QgUUNyeXB0b0FrQ2lwaGVyRHJpdmVyICpkcnYgPSBha2NpcGhlci0+ZHJpdmVyOwor
-CisgICAgcmV0dXJuIGRydi0+ZW5jcnlwdChha2NpcGhlciwgaW4sIGluX2xlbiwgb3V0LCBvdXRf
-bGVuLCBlcnJwKTsKK30KKworaW50IHFjcnlwdG9fYWtjaXBoZXJfZGVjcnlwdChRQ3J5cHRvQWtD
-aXBoZXIgKmFrY2lwaGVyLAorICAgICAgICAgICAgICAgICAgICAgICAgICAgICBjb25zdCB2b2lk
-ICppbiwgc2l6ZV90IGluX2xlbiwKKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgdm9pZCAq
-b3V0LCBzaXplX3Qgb3V0X2xlbiwgRXJyb3IgKiplcnJwKQoreworICAgIGNvbnN0IFFDcnlwdG9B
-a0NpcGhlckRyaXZlciAqZHJ2ID0gYWtjaXBoZXItPmRyaXZlcjsKKworICAgIHJldHVybiBkcnYt
-PmRlY3J5cHQoYWtjaXBoZXIsIGluLCBpbl9sZW4sIG91dCwgb3V0X2xlbiwgZXJycCk7Cit9CisK
-K2ludCBxY3J5cHRvX2FrY2lwaGVyX3NpZ24oUUNyeXB0b0FrQ2lwaGVyICpha2NpcGhlciwKKyAg
-ICAgICAgICAgICAgICAgICAgICAgICAgY29uc3Qgdm9pZCAqaW4sIHNpemVfdCBpbl9sZW4sCisg
-ICAgICAgICAgICAgICAgICAgICAgICAgIHZvaWQgKm91dCwgc2l6ZV90IG91dF9sZW4sIEVycm9y
-ICoqZXJycCkKK3sKKyAgICBjb25zdCBRQ3J5cHRvQWtDaXBoZXJEcml2ZXIgKmRydiA9IGFrY2lw
-aGVyLT5kcml2ZXI7CisKKyAgICByZXR1cm4gZHJ2LT5zaWduKGFrY2lwaGVyLCBpbiwgaW5fbGVu
-LCBvdXQsIG91dF9sZW4sIGVycnApOworfQorCitpbnQgcWNyeXB0b19ha2NpcGhlcl92ZXJpZnko
-UUNyeXB0b0FrQ2lwaGVyICpha2NpcGhlciwKKyAgICAgICAgICAgICAgICAgICAgICAgICAgICBj
-b25zdCB2b2lkICppbiwgc2l6ZV90IGluX2xlbiwKKyAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICBjb25zdCB2b2lkICppbjIsIHNpemVfdCBpbjJfbGVuLCBFcnJvciAqKmVycnApCit7CisgICAg
-Y29uc3QgUUNyeXB0b0FrQ2lwaGVyRHJpdmVyICpkcnYgPSBha2NpcGhlci0+ZHJpdmVyOworCisg
-ICAgcmV0dXJuIGRydi0+dmVyaWZ5KGFrY2lwaGVyLCBpbiwgaW5fbGVuLCBpbjIsIGluMl9sZW4s
-IGVycnApOworfQorCitpbnQgcWNyeXB0b19ha2NpcGhlcl9tYXhfcGxhaW50ZXh0X2xlbihRQ3J5
-cHRvQWtDaXBoZXIgKmFrY2lwaGVyKQoreworICAgIHJldHVybiBha2NpcGhlci0+bWF4X3BsYWlu
-dGV4dF9sZW47Cit9CisKK2ludCBxY3J5cHRvX2FrY2lwaGVyX21heF9jaXBoZXJ0ZXh0X2xlbihR
-Q3J5cHRvQWtDaXBoZXIgKmFrY2lwaGVyKQoreworICAgIHJldHVybiBha2NpcGhlci0+bWF4X2Np
-cGhlcnRleHRfbGVuOworfQorCitpbnQgcWNyeXB0b19ha2NpcGhlcl9tYXhfc2lnbmF0dXJlX2xl
-bihRQ3J5cHRvQWtDaXBoZXIgKmFrY2lwaGVyKQoreworICAgIHJldHVybiBha2NpcGhlci0+bWF4
-X3NpZ25hdHVyZV9sZW47Cit9CisKK2ludCBxY3J5cHRvX2FrY2lwaGVyX21heF9kZ3N0X2xlbihR
-Q3J5cHRvQWtDaXBoZXIgKmFrY2lwaGVyKQoreworICAgIHJldHVybiBha2NpcGhlci0+bWF4X2Rn
-c3RfbGVuOworfQorCit2b2lkIHFjcnlwdG9fYWtjaXBoZXJfZnJlZShRQ3J5cHRvQWtDaXBoZXIg
-KmFrY2lwaGVyKQoreworICAgIGNvbnN0IFFDcnlwdG9Ba0NpcGhlckRyaXZlciAqZHJ2ID0gYWtj
-aXBoZXItPmRyaXZlcjsKKworICAgIGRydi0+ZnJlZShha2NpcGhlcik7Cit9CmRpZmYgLS1naXQg
-YS9jcnlwdG8vYWtjaXBoZXJwcml2LmggYi9jcnlwdG8vYWtjaXBoZXJwcml2LmgKbmV3IGZpbGUg
-bW9kZSAxMDA2NDQKaW5kZXggMDAwMDAwMDAwMC4uNzM5ZjYzOWJjZgotLS0gL2Rldi9udWxsCisr
-KyBiL2NyeXB0by9ha2NpcGhlcnByaXYuaApAQCAtMCwwICsxLDU1IEBACisvKgorICogUUVNVSBD
-cnlwdG8gYXN5bW1ldHJpYyBhbGdvcml0aG1zCisgKgorICogQ29weXJpZ2h0IChjKSAyMDIyIEJ5
-dGVkYW5jZQorICogQXV0aG9yOiB6aGVud2VpIHBpIDxwaXpoZW53ZWlAYnl0ZWRhbmNlLmNvbT4K
-KyAqCisgKiBUaGlzIGxpYnJhcnkgaXMgZnJlZSBzb2Z0d2FyZTsgeW91IGNhbiByZWRpc3RyaWJ1
-dGUgaXQgYW5kL29yCisgKiBtb2RpZnkgaXQgdW5kZXIgdGhlIHRlcm1zIG9mIHRoZSBHTlUgTGVz
-c2VyIEdlbmVyYWwgUHVibGljCisgKiBMaWNlbnNlIGFzIHB1Ymxpc2hlZCBieSB0aGUgRnJlZSBT
-b2Z0d2FyZSBGb3VuZGF0aW9uOyBlaXRoZXIKKyAqIHZlcnNpb24gMi4xIG9mIHRoZSBMaWNlbnNl
-LCBvciAoYXQgeW91ciBvcHRpb24pIGFueSBsYXRlciB2ZXJzaW9uLgorICoKKyAqIFRoaXMgbGli
-cmFyeSBpcyBkaXN0cmlidXRlZCBpbiB0aGUgaG9wZSB0aGF0IGl0IHdpbGwgYmUgdXNlZnVsLAor
-ICogYnV0IFdJVEhPVVQgQU5ZIFdBUlJBTlRZOyB3aXRob3V0IGV2ZW4gdGhlIGltcGxpZWQgd2Fy
-cmFudHkgb2YKKyAqIE1FUkNIQU5UQUJJTElUWSBvciBGSVRORVNTIEZPUiBBIFBBUlRJQ1VMQVIg
-UFVSUE9TRS4gIFNlZSB0aGUgR05VCisgKiBMZXNzZXIgR2VuZXJhbCBQdWJsaWMgTGljZW5zZSBm
-b3IgbW9yZSBkZXRhaWxzLgorICoKKyAqIFlvdSBzaG91bGQgaGF2ZSByZWNlaXZlZCBhIGNvcHkg
-b2YgdGhlIEdOVSBMZXNzZXIgR2VuZXJhbCBQdWJsaWMKKyAqIExpY2Vuc2UgYWxvbmcgd2l0aCB0
-aGlzIGxpYnJhcnk7IGlmIG5vdCwgc2VlIDxodHRwOi8vd3d3LmdudS5vcmcvbGljZW5zZXMvPi4K
-KyAqCisgKi8KKworI2lmbmRlZiBRQ1JZUFRPX0FLQ0lQSEVSUFJJVl9ICisjZGVmaW5lIFFDUllQ
-VE9fQUtDSVBIRVJQUklWX0gKKworI2luY2x1ZGUgInFhcGkvcWFwaS10eXBlcy1jcnlwdG8uaCIK
-KwordHlwZWRlZiBzdHJ1Y3QgUUNyeXB0b0FrQ2lwaGVyRHJpdmVyIFFDcnlwdG9Ba0NpcGhlckRy
-aXZlcjsKKworc3RydWN0IFFDcnlwdG9Ba0NpcGhlciB7CisgICAgUUNyeXB0b0FrQ2lwaGVyQWxn
-b3JpdGhtIGFsZzsKKyAgICBRQ3J5cHRvQWtDaXBoZXJLZXlUeXBlIHR5cGU7CisgICAgaW50IG1h
-eF9wbGFpbnRleHRfbGVuOworICAgIGludCBtYXhfY2lwaGVydGV4dF9sZW47CisgICAgaW50IG1h
-eF9zaWduYXR1cmVfbGVuOworICAgIGludCBtYXhfZGdzdF9sZW47CisgICAgUUNyeXB0b0FrQ2lw
-aGVyRHJpdmVyICpkcml2ZXI7Cit9OworCitzdHJ1Y3QgUUNyeXB0b0FrQ2lwaGVyRHJpdmVyIHsK
-KyAgICBpbnQgKCplbmNyeXB0KShRQ3J5cHRvQWtDaXBoZXIgKmFrY2lwaGVyLAorICAgICAgICAg
-ICAgICAgICAgIGNvbnN0IHZvaWQgKmluLCBzaXplX3QgaW5fbGVuLAorICAgICAgICAgICAgICAg
-ICAgIHZvaWQgKm91dCwgc2l6ZV90IG91dF9sZW4sIEVycm9yICoqZXJycCk7CisgICAgaW50ICgq
-ZGVjcnlwdCkoUUNyeXB0b0FrQ2lwaGVyICpha2NpcGhlciwKKyAgICAgICAgICAgICAgICAgICBj
-b25zdCB2b2lkICpvdXQsIHNpemVfdCBvdXRfbGVuLAorICAgICAgICAgICAgICAgICAgIHZvaWQg
-KmluLCBzaXplX3QgaW5fbGVuLCBFcnJvciAqKmVycnApOworICAgIGludCAoKnNpZ24pKFFDcnlw
-dG9Ba0NpcGhlciAqYWtjaXBoZXIsCisgICAgICAgICAgICAgICAgY29uc3Qgdm9pZCAqaW4sIHNp
-emVfdCBpbl9sZW4sCisgICAgICAgICAgICAgICAgdm9pZCAqb3V0LCBzaXplX3Qgb3V0X2xlbiwg
-RXJyb3IgKiplcnJwKTsKKyAgICBpbnQgKCp2ZXJpZnkpKFFDcnlwdG9Ba0NpcGhlciAqYWtjaXBo
-ZXIsCisgICAgICAgICAgICAgICAgICBjb25zdCB2b2lkICppbiwgc2l6ZV90IGluX2xlbiwKKyAg
-ICAgICAgICAgICAgICAgIGNvbnN0IHZvaWQgKmluMiwgc2l6ZV90IGluMl9sZW4sIEVycm9yICoq
-ZXJycCk7CisgICAgdm9pZCAoKmZyZWUpKFFDcnlwdG9Ba0NpcGhlciAqYWtjaXBoZXIpOworfTsK
-KworI2VuZGlmIC8qIFFDUllQVE9fQUtDSVBIRVJfSCAqLwpkaWZmIC0tZ2l0IGEvY3J5cHRvL21l
-c29uLmJ1aWxkIGIvY3J5cHRvL21lc29uLmJ1aWxkCmluZGV4IDE5YzQ0YmVhODkuLjc2NDdkNWUy
-NDMgMTAwNjQ0Ci0tLSBhL2NyeXB0by9tZXNvbi5idWlsZAorKysgYi9jcnlwdG8vbWVzb24uYnVp
-bGQKQEAgLTEsNiArMSw3IEBACiBjcnlwdG9fc3MuYWRkKGdlbmgpCiBjcnlwdG9fc3MuYWRkKGZp
-bGVzKAogICAnYWZzcGxpdC5jJywKKyAgJ2FrY2lwaGVyLmMnLAogICAnYmxvY2stbHVrcy5jJywK
-ICAgJ2Jsb2NrLXFjb3cuYycsCiAgICdibG9jay5jJywKZGlmZiAtLWdpdCBhL2luY2x1ZGUvY3J5
-cHRvL2FrY2lwaGVyLmggYi9pbmNsdWRlL2NyeXB0by9ha2NpcGhlci5oCm5ldyBmaWxlIG1vZGUg
-MTAwNjQ0CmluZGV4IDAwMDAwMDAwMDAuLjUxZjVmYTI3NzQKLS0tIC9kZXYvbnVsbAorKysgYi9p
-bmNsdWRlL2NyeXB0by9ha2NpcGhlci5oCkBAIC0wLDAgKzEsMTU4IEBACisvKgorICogUUVNVSBD
-cnlwdG8gYXN5bW1ldHJpYyBhbGdvcml0aG1zCisgKgorICogQ29weXJpZ2h0IChjKSAyMDIyIEJ5
-dGVkYW5jZQorICogQXV0aG9yOiB6aGVud2VpIHBpIDxwaXpoZW53ZWlAYnl0ZWRhbmNlLmNvbT4K
-KyAqCisgKiBUaGlzIGxpYnJhcnkgaXMgZnJlZSBzb2Z0d2FyZTsgeW91IGNhbiByZWRpc3RyaWJ1
-dGUgaXQgYW5kL29yCisgKiBtb2RpZnkgaXQgdW5kZXIgdGhlIHRlcm1zIG9mIHRoZSBHTlUgTGVz
-c2VyIEdlbmVyYWwgUHVibGljCisgKiBMaWNlbnNlIGFzIHB1Ymxpc2hlZCBieSB0aGUgRnJlZSBT
-b2Z0d2FyZSBGb3VuZGF0aW9uOyBlaXRoZXIKKyAqIHZlcnNpb24gMi4xIG9mIHRoZSBMaWNlbnNl
-LCBvciAoYXQgeW91ciBvcHRpb24pIGFueSBsYXRlciB2ZXJzaW9uLgorICoKKyAqIFRoaXMgbGli
-cmFyeSBpcyBkaXN0cmlidXRlZCBpbiB0aGUgaG9wZSB0aGF0IGl0IHdpbGwgYmUgdXNlZnVsLAor
-ICogYnV0IFdJVEhPVVQgQU5ZIFdBUlJBTlRZOyB3aXRob3V0IGV2ZW4gdGhlIGltcGxpZWQgd2Fy
-cmFudHkgb2YKKyAqIE1FUkNIQU5UQUJJTElUWSBvciBGSVRORVNTIEZPUiBBIFBBUlRJQ1VMQVIg
-UFVSUE9TRS4gIFNlZSB0aGUgR05VCisgKiBMZXNzZXIgR2VuZXJhbCBQdWJsaWMgTGljZW5zZSBm
-b3IgbW9yZSBkZXRhaWxzLgorICoKKyAqIFlvdSBzaG91bGQgaGF2ZSByZWNlaXZlZCBhIGNvcHkg
-b2YgdGhlIEdOVSBMZXNzZXIgR2VuZXJhbCBQdWJsaWMKKyAqIExpY2Vuc2UgYWxvbmcgd2l0aCB0
-aGlzIGxpYnJhcnk7IGlmIG5vdCwgc2VlIDxodHRwOi8vd3d3LmdudS5vcmcvbGljZW5zZXMvPi4K
-KyAqCisgKi8KKworI2lmbmRlZiBRQ1JZUFRPX0FLQ0lQSEVSX0gKKyNkZWZpbmUgUUNSWVBUT19B
-S0NJUEhFUl9ICisKKyNpbmNsdWRlICJxYXBpL3FhcGktdHlwZXMtY3J5cHRvLmgiCisKK3R5cGVk
-ZWYgc3RydWN0IFFDcnlwdG9Ba0NpcGhlciBRQ3J5cHRvQWtDaXBoZXI7CisKKy8qKgorICogcWNy
-eXB0b19ha2NpcGhlcl9zdXBwb3J0czoKKyAqIEBvcHRzOiB0aGUgYXN5bW1ldHJpYyBrZXkgYWxn
-b3JpdGhtIGFuZCByZWxhdGVkIG9wdGlvbnMKKyAqCisgKiBEZXRlcm1pbmUgaWYgYXN5bW1ldHJp
-YyBrZXkgY2lwaGVyIGRlY3JpYmVkIHdpdGggQG9wdHMgaXMKKyAqIHN1cHBvcnRlZCBieSB0aGUg
-Y3VycmVudCBjb25maWd1cmVkIGJ1aWxkCisgKgorICogUmV0dXJuczogdHJ1ZSBpZiBpdCBpcyBz
-dXBwb3J0ZWQsIGZhbHNlIG90aGVyd2lzZS4KKyAqLworYm9vbCBxY3J5cHRvX2FrY2lwaGVyX3N1
-cHBvcnRzKFFDcnlwdG9Ba0NpcGhlck9wdGlvbnMgKm9wdHMpOworCisvKioKKyAqIHFjcnlwdG9f
-YWtjaXBoZXJfbmV3OgorICogQG9wdHM6IHNwZWNpZnkgdGhlIGFsZ29yaXRobSBhbmQgdGhlIHJl
-bGF0ZWQgYXJndW1lbnRzCisgKiBAdHlwZTogcHJpdmF0ZSBvciBwdWJsaWMga2V5IHR5cGUKKyAq
-IEBrZXk6IGJ1ZmZlciB0byBzdG9yZSB0aGUga2V5CisgKiBAa2V5X2xlbjogdGhlIGxlbmd0aCBv
-ZiBrZXkgYnVmZmVyCisgKiBAZXJycDogZXJyb3IgcG9pbnRlcgorICoKKyAqIENyZWF0ZSBha2Np
-cGhlciBjb250ZXh0CisgKgorICogUmV0dXJuczogT24gc3VjY2VzcywgYSBuZXcgUUNyeXB0b0Fr
-Q2lwaGVyIGluaXRpYWxpemVkIHdpdGggQG9wdAorICogaXMgY3JlYXRlZCBhbmQgcmV0dXJuZWQs
-IG90aGVyd2lzZSBOVUxMIGlzIHJldHVybmVkLgorICovCisKK1FDcnlwdG9Ba0NpcGhlciAqcWNy
-eXB0b19ha2NpcGhlcl9uZXcoY29uc3QgUUNyeXB0b0FrQ2lwaGVyT3B0aW9ucyAqb3B0cywKKyAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgUUNyeXB0b0FrQ2lwaGVyS2V5VHlw
-ZSB0eXBlLAorICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBjb25zdCB1aW50
-OF90ICprZXksIHNpemVfdCBrZXlfbGVuLAorICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICBFcnJvciAqKmVycnApOworCisvKioKKyAqIHFjcnlwdG9fYWtjaXBoZXJfZW5jcnlw
-dDoKKyAqIEBha2NpcGhlcjogYWtjaXBoZXIgY29udGV4dAorICogQGluOiBwbGFpbnRleHQgcGVu
-ZGluZyB0byBiZSBlbmNyeXB0ZWQKKyAqIEBpbl9sZW46IGxlbmd0aCBvZiBwbGFpbnRleHQsIGxl
-c3Mgb3IgZXF1YWwgdG8gdGhlIHNpemUgcmVwb3J0ZWQKKyAqICAgICAgICAgIGJ5IGEgY2FsbCB0
-byBxY3J5cHRvX2FrY2lwaGVyX21heF9wbGFpbnRleHRfbGVuKCkKKyAqIEBvdXQ6IGJ1ZmZlciB0
-byBzdG9yZSB0aGUgY2lwaGVydGV4dAorICogQG91dF9sZW46IGxlbmd0aCBvZiBjaXBoZXJ0ZXh0
-LCBsZXNzIG9yIGVxdWFsIHRvIHRoZSBzaXplIHJlcG9ydGVkCisgKiAgICAgICAgICAgYnkgYSBj
-YWxsIHRvIHFjcnlwdG9fYWtjaXBoZXJfbWF4X2NpcGhlcnRleHRfbGVuKCkKKyAqIEBlcnJwOiBl
-cnJvciBwb2ludGVyCisgKgorICogRW5jcnlwdCBAaW4gYW5kIHdyaXRlIGNpcGhlcnRleHQgaW50
-byBAb3V0CisgKgorICogUmV0dXJuczogbGVuZ3RoIG9mIGNpcGhlcnRleHQgaWYgZW5jcnlwdCBz
-dWNjZWVkLAorICogICAgICAgICAgb3RoZXJ3aXNlIC0xIGlzIHJldHVybmVkCisgKi8KK2ludCBx
-Y3J5cHRvX2FrY2lwaGVyX2VuY3J5cHQoUUNyeXB0b0FrQ2lwaGVyICpha2NpcGhlciwKKyAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgY29uc3Qgdm9pZCAqaW4sIHNpemVfdCBpbl9sZW4sCisg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgIHZvaWQgKm91dCwgc2l6ZV90IG91dF9sZW4sIEVy
-cm9yICoqZXJycCk7CisKKy8qKgorICogcWNyeXB0b19ha2NpcGhlcl9kZWNyeXB0OgorICogQGFr
-Y2lwaGVyOiBha2NpcGhlciBjb250ZXh0CisgKiBAaW46IGNpcGhlcnRleHQgdG8gYmUgZGVjcnlw
-dGVkCisgKiBAaW5fbGVuOiB0aGUgbGVuZ3RoIG9mIGNpcGhlcnRleHQsIGxlc3Mgb3IgZXF1YWwg
-dG8gdGhlIHNpemUgcmVwb3J0ZWQKKyAqICAgICAgICAgIGJ5IGEgY2FsbCB0byBxY3J5cHRvX2Fr
-Y2lwaGVyX21heF9jaXBoZXJ0ZXh0X2xlbigpCisgKiBAb3V0OiBidWZmZXIgdG8gc3RvcmUgdGhl
-IHBsYWludGV4dAorICogQG91dF9sZW46IGxlbmd0aCBvZiB0aGUgcGxhaW50ZXh0IGJ1ZmZlciwg
-bGVzcyBvciBlcXVhbCB0byB0aGUgc2l6ZQorICogICAgICAgICAgIHJlcG9ydGVkIGJ5IGEgY2Fs
-bCB0byBxY3J5cHRvX2FrY2lwaGVyX21heF9wbGFpbnRleHRfbGVuKCkKKyAqIEBlcnJwOiBlcnJv
-ciBwb2ludGVyCisgKgorICogRGVjcnlwdCBAaW4gYW5kIHdyaXRlIHBsYWludGV4dCBpbnRvIEBv
-dXQKKyAqCisgKiBSZXR1cm5zOiBsZW5ndGggb2YgcGxhaW50ZXh0IGlmIGRlY3J5cHQgc3VjY2Vl
-ZCwKKyAqICAgICAgICAgIG90aGVyd2lzZSAtMSBpcyByZXR1cm5lZAorICovCitpbnQgcWNyeXB0
-b19ha2NpcGhlcl9kZWNyeXB0KFFDcnlwdG9Ba0NpcGhlciAqYWtjaXBoZXIsCisgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgIGNvbnN0IHZvaWQgKmluLCBzaXplX3QgaW5fbGVuLAorICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICB2b2lkICpvdXQsIHNpemVfdCBvdXRfbGVuLCBFcnJvciAq
-KmVycnApOworCisvKioKKyAqIHFjcnlwdG9fYWtjaXBoZXJfc2lnbjoKKyAqIEBha2NpcGhlcjog
-YWtjaXBoZXIgY29udGV4dAorICogQGluOiBkYXRhIHRvIGJlIHNpZ25lZAorICogQGluX2xlbjog
-dGhlIGxlbmd0aCBvZiBkYXRhLCBsZXNzIG9yIGVxdWFsIHRvIHRoZSBzaXplIHJlcG9ydGVkCisg
-KiAgICAgICAgICBieSBhIGNhbGwgdG8gcWNyeXB0b19ha2NpcGhlcl9tYXhfZGdzdF9sZW4oKQor
-ICogQG91dDogYnVmZmVyIHRvIHN0b3JlIHRoZSBzaWduYXR1cmUKKyAqIEBvdXRfbGVuOiBsZW5n
-dGggb2YgdGhlIHNpZ25hdHVyZSBidWZmZXIsIGxlc3Mgb3IgZXF1YWwgdG8gdGhlIHNpemUKKyAq
-ICAgICAgICAgICBieSBhIGNhbGwgdG8gcWNyeXB0b19ha2NpcGhlcl9tYXhfc2lnbmF0dXJlX2xl
-bigpCisgKiBAZXJycDogZXJyb3IgcG9pbnRlcgorICoKKyAqIEdlbmVyYXRlIHNpZ25hdHVyZSBm
-b3IgQGluLCB3cml0ZSBpbnRvIEBvdXQKKyAqCisgKiBSZXR1cm5zOiBsZW5ndGggb2Ygc2lnbmF0
-dXJlIGlmIHN1Y2NlZWQsCisgKiAgICAgICAgICBvdGhlcndpc2UgLTEgaXMgcmV0dXJuZWQKKyAq
-LworaW50IHFjcnlwdG9fYWtjaXBoZXJfc2lnbihRQ3J5cHRvQWtDaXBoZXIgKmFrY2lwaGVyLAor
-ICAgICAgICAgICAgICAgICAgICAgICAgICBjb25zdCB2b2lkICppbiwgc2l6ZV90IGluX2xlbiwK
-KyAgICAgICAgICAgICAgICAgICAgICAgICAgdm9pZCAqb3V0LCBzaXplX3Qgb3V0X2xlbiwgRXJy
-b3IgKiplcnJwKTsKKworLyoqCisgKiBxY3J5cHRvX2FrY2lwaGVyX3ZlcmlmeToKKyAqIEBha2Np
-cGhlcjogYWtjaXBoZXIgY29udGV4dAorICogQGluOiBwb2ludGVyIHRvIHRoZSBzaWduYXR1cmUK
-KyAqIEBpbl9sZW46IGxlbmd0aCBvZiBzaWduYXR1cmUsIGVzcyBvciBlcXVhbCB0byB0aGUgc2l6
-ZSByZXBvcnRlZAorICogICAgICAgICAgYnkgYSBjYWxsIHRvIHFjcnlwdG9fYWtjaXBoZXJfbWF4
-X3NpZ25hdHVyZV9sZW4oKQorICogQGluMjogcG9pbnRlciB0byBvcmlnaW5hbCBkYXRhCisgKiBA
-aW4yX2xlbjogdGhlIGxlbmd0aCBvZiBvcmlnaW5hbCBkYXRhLCBsZXNzIG9yIGVxdWFsIHRvIHRo
-ZSBzaXplCisgKiAgICAgICAgICAgYnkgYSBjYWxsIHRvIHFjcnlwdG9fYWtjaXBoZXJfbWF4X2Rn
-c3RfbGVuKCkKKyAqIEBlcnJwOiBlcnJvciBwb2ludGVyCisgKgorICogVmVyaWZ5IEBpbiBhbmQg
-QGluMiBtYXRjaCBvciBub3QKKyAqCisgKiBSZXR1cm5zOiAwIGZvciBzdWNjZWVkLAorICogICAg
-ICAgICAgb3RoZXJ3aXNlIC0xIGlzIHJldHVybmVkCisgKi8KK2ludCBxY3J5cHRvX2FrY2lwaGVy
-X3ZlcmlmeShRQ3J5cHRvQWtDaXBoZXIgKmFrY2lwaGVyLAorICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgIGNvbnN0IHZvaWQgKmluLCBzaXplX3QgaW5fbGVuLAorICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgIGNvbnN0IHZvaWQgKmluMiwgc2l6ZV90IGluMl9sZW4sIEVycm9yICoqZXJycCk7
-CisKK2ludCBxY3J5cHRvX2FrY2lwaGVyX21heF9wbGFpbnRleHRfbGVuKFFDcnlwdG9Ba0NpcGhl
-ciAqYWtjaXBoZXIpOworCitpbnQgcWNyeXB0b19ha2NpcGhlcl9tYXhfY2lwaGVydGV4dF9sZW4o
-UUNyeXB0b0FrQ2lwaGVyICpha2NpcGhlcik7CisKK2ludCBxY3J5cHRvX2FrY2lwaGVyX21heF9z
-aWduYXR1cmVfbGVuKFFDcnlwdG9Ba0NpcGhlciAqYWtjaXBoZXIpOworCitpbnQgcWNyeXB0b19h
-a2NpcGhlcl9tYXhfZGdzdF9sZW4oUUNyeXB0b0FrQ2lwaGVyICpha2NpcGhlcik7CisKKy8qKgor
-ICogcWNyeXB0b19ha2NpcGhlcl9mcmVlOgorICogQGFrY2lwaGVyOiBha2NpcGhlciBjb250ZXh0
-CisgKgorICogRnJlZSB0aGUgYWtjaXBoZXIgY29udGV4dAorICoKKyAqLwordm9pZCBxY3J5cHRv
-X2FrY2lwaGVyX2ZyZWUoUUNyeXB0b0FrQ2lwaGVyICpha2NpcGhlcik7CisKK0dfREVGSU5FX0FV
-VE9QVFJfQ0xFQU5VUF9GVU5DKFFDcnlwdG9Ba0NpcGhlciwgcWNyeXB0b19ha2NpcGhlcl9mcmVl
-KQorCisjZW5kaWYgLyogUUNSWVBUT19BS0NJUEhFUl9IICovCi0tIAoyLjIwLjEKCl9fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1h
-aWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRw
-czovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXph
-dGlvbg==
+From: Lei He <helei.sig11@bytedance.com>
+
+Add an ANS.1 DER decoder which is used to parse asymmetric
+cipher keys
+
+Signed-off-by: zhenwei pi <pizhenwei@bytedance.com>
+Signed-off-by: lei he <helei.sig11@bytedance.com>
+---
+ crypto/der.c                 | 190 +++++++++++++++++++++++
+ crypto/der.h                 |  82 ++++++++++
+ crypto/meson.build           |   1 +
+ tests/unit/meson.build       |   1 +
+ tests/unit/test-crypto-der.c | 290 +++++++++++++++++++++++++++++++++++
+ 5 files changed, 564 insertions(+)
+ create mode 100644 crypto/der.c
+ create mode 100644 crypto/der.h
+ create mode 100644 tests/unit/test-crypto-der.c
+
+diff --git a/crypto/der.c b/crypto/der.c
+new file mode 100644
+index 0000000000..7907bcfd51
+--- /dev/null
++++ b/crypto/der.c
+@@ -0,0 +1,190 @@
++/*
++ * QEMU Crypto ASN.1 DER decoder
++ *
++ * Copyright (c) 2022 Bytedance
++ * Author: lei he <helei.sig11@bytedance.com>
++ *
++ * This library is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * This library is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
++ *
++ */
++
++#include <stdint.h>
++#include <stddef.h>
++
++#include "crypto/der.h"
++
++enum QCryptoDERTypeTag {
++    QCRYPTO_DER_TYPE_TAG_BOOL = 0x1,
++    QCRYPTO_DER_TYPE_TAG_INT = 0x2,
++    QCRYPTO_DER_TYPE_TAG_BIT_STR = 0x3,
++    QCRYPTO_DER_TYPE_TAG_OCT_STR = 0x4,
++    QCRYPTO_DER_TYPE_TAG_OCT_NULL = 0x5,
++    QCRYPTO_DER_TYPE_TAG_OCT_OID = 0x6,
++    QCRYPTO_DER_TYPE_TAG_SEQ = 0x10,
++    QCRYPTO_DER_TYPE_TAG_SET = 0x11,
++};
++
++#define QCRYPTO_DER_CONSTRUCTED_MASK 0x20
++#define QCRYPTO_DER_SHORT_LEN_MASK 0x80
++
++static uint8_t qcrypto_der_peek_byte(const uint8_t **data, size_t *dlen)
++{
++    return **data;
++}
++
++static void qcrypto_der_cut_nbytes(const uint8_t **data,
++                                   size_t *dlen,
++                                   size_t nbytes)
++{
++    *data += nbytes;
++    *dlen -= nbytes;
++}
++
++static uint8_t qcrypto_der_cut_byte(const uint8_t **data, size_t *dlen)
++{
++    uint8_t val = qcrypto_der_peek_byte(data, dlen);
++
++    qcrypto_der_cut_nbytes(data, dlen, 1);
++
++    return val;
++}
++
++static int qcrypto_der_invoke_callback(DERDecodeCb cb, void *ctx,
++                                       const uint8_t *value, size_t vlen,
++                                       Error **errp)
++{
++    if (!cb) {
++        return 0;
++    }
++
++    return cb(ctx, value, vlen, errp);
++}
++
++static int qcrypto_der_extract_definite_data(const uint8_t **data, size_t *dlen,
++                                             DERDecodeCb cb, void *ctx,
++                                             Error **errp)
++{
++    const uint8_t *value;
++    size_t vlen = 0;
++    uint8_t byte_count = qcrypto_der_cut_byte(data, dlen);
++
++    /* short format of definite-length */
++    if (!(byte_count & QCRYPTO_DER_SHORT_LEN_MASK)) {
++        if (byte_count > *dlen) {
++            error_setg(errp, "Invalid content length: %u", byte_count);
++            return -1;
++        }
++
++        value = *data;
++        vlen = byte_count;
++        qcrypto_der_cut_nbytes(data, dlen, vlen);
++
++        if (qcrypto_der_invoke_callback(cb, ctx, value, vlen, errp) != 0) {
++            return -1;
++        }
++        return vlen;
++    }
++
++    /* Ignore highest bit */
++    byte_count &= ~QCRYPTO_DER_SHORT_LEN_MASK;
++
++    /*
++     * size_t is enough to store the value of length, although the DER
++     * encoding standard supports larger length.
++     */
++    if (byte_count > sizeof(size_t)) {
++        error_setg(errp, "Invalid byte count of content length: %u",
++                   byte_count);
++        return -1;
++    }
++
++    if (*dlen < byte_count) {
++        error_setg(errp, "Invalid content length: %u", byte_count);
++        return -1;
++    }
++    while (byte_count--) {
++        vlen <<= 8;
++        vlen += qcrypto_der_cut_byte(data, dlen);
++    }
++
++    if (vlen > *dlen) {
++        error_setg(errp, "Invalid content length: %lu", vlen);
++        return -1;
++    }
++
++    value = *data;
++    qcrypto_der_cut_nbytes(data, dlen, vlen);
++
++    if (qcrypto_der_invoke_callback(cb, ctx, value, vlen, errp) != 0) {
++        return -1;
++    }
++    return vlen;
++}
++
++static int qcrypto_der_extract_data(const uint8_t **data, size_t *dlen,
++                                    DERDecodeCb cb, void *ctx, Error **errp)
++{
++    uint8_t val;
++    if (*dlen < 1) {
++        error_setg(errp, "Need more data");
++        return -1;
++    }
++    val = qcrypto_der_peek_byte(data, dlen);
++
++    /* must use definite length format */
++    if (val == QCRYPTO_DER_SHORT_LEN_MASK) {
++        error_setg(errp, "Only definite length format is allowed");
++        return -1;
++    }
++
++    return qcrypto_der_extract_definite_data(data, dlen, cb, ctx, errp);
++}
++
++int qcrypto_der_decode_int(const uint8_t **data, size_t *dlen,
++                           DERDecodeCb cb, void *ctx, Error **errp)
++{
++    uint8_t tag;
++    if (*dlen < 1) {
++        error_setg(errp, "Need more data");
++        return -1;
++    }
++    tag = qcrypto_der_cut_byte(data, dlen);
++
++    /* INTEGER must encoded in primitive-form */
++    if (tag != QCRYPTO_DER_TYPE_TAG_INT) {
++        error_setg(errp, "Invalid integer type tag: %u", tag);
++        return -1;
++    }
++
++    return qcrypto_der_extract_data(data, dlen, cb, ctx, errp);
++}
++
++int qcrypto_der_decode_seq(const uint8_t **data, size_t *dlen,
++                           DERDecodeCb cb, void *ctx, Error **errp)
++{
++    uint8_t tag;
++    if (*dlen < 1) {
++        error_setg(errp, "Need more data");
++        return -1;
++    }
++    tag = qcrypto_der_cut_byte(data, dlen);
++
++    /* SEQUENCE must use constructed form */
++    if (tag != (QCRYPTO_DER_TYPE_TAG_SEQ | QCRYPTO_DER_CONSTRUCTED_MASK)) {
++        error_setg(errp, "Invalid type sequence tag: %u", tag);
++        return -1;
++    }
++
++    return qcrypto_der_extract_data(data, dlen, cb, ctx, errp);
++}
+diff --git a/crypto/der.h b/crypto/der.h
+new file mode 100644
+index 0000000000..aaa0e01969
+--- /dev/null
++++ b/crypto/der.h
+@@ -0,0 +1,82 @@
++/*
++ * Copyright (c) 2022 Bytedance
++ * Author: lei he <helei.sig11@bytedance.com>
++ *
++ * This library is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * This library is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
++ *
++ */
++
++#ifndef QCRYPTO_ASN1_DECODER_H
++#define QCRYPTO_ASN1_DECODER_H
++
++#include "qemu/osdep.h"
++#include "qapi/error.h"
++
++/* Simple decoder used to parse DER encoded rsa keys. */
++
++/**
++ *  @opaque: user context.
++ *  @value: the starting address of |value| part of 'Tag-Length-Value' pattern.
++ *  @vlen: length of the |value|.
++ *  Returns: 0 for success, any other value is considered an error.
++ */
++typedef int (*DERDecodeCb) (void *opaque, const uint8_t *value,
++                            size_t vlen, Error **errp);
++
++/**
++ * der_decode_int:
++ * @data: pointer to address of input data
++ * @dlen: pointer to length of input data
++ * @cb: callback invoked when decode succeed, if cb equals NULL, no
++ * callback will be invoked
++ * @opaque: parameter passed to cb
++ *
++ * Decode integer from DER-encoded data.
++ *
++ * Returns: On success, *data points to rest data, and *dlen
++ * will be set to the rest length of data, if cb is not NULL, must
++ * return 0 to make decode success, at last, the length of the data
++ * part of the decoded INTEGER will be returned. Otherwise, -1 is
++ * returned.
++ */
++int qcrypto_der_decode_int(const uint8_t **data,
++                           size_t *dlen,
++                           DERDecodeCb cb,
++                           void *opaque,
++                           Error **errp);
++
++/**
++ * der_decode_seq:
++ *
++ * Decode sequence from DER-encoded data, similar with der_decode_int.
++ *
++ * @data: pointer to address of input data
++ * @dlen: pointer to length of input data
++ * @cb: callback invoked when decode succeed, if cb equals NULL, no
++ * callback will be invoked
++ * @opaque: parameter passed to cb
++ *
++ * Returns: On success, *data points to rest data, and *dlen
++ * will be set to the rest length of data, if cb is not NULL, must
++ * return 0 to make decode success, at last, the length of the data
++ * part of the decoded SEQUENCE will be returned. Otherwise, -1 is
++ * returned.
++ */
++int qcrypto_der_decode_seq(const uint8_t **data,
++                           size_t *dlen,
++                           DERDecodeCb cb,
++                           void *opaque,
++                           Error **errp);
++
++#endif  /* QCRYPTO_ASN1_DECODER_H */
+diff --git a/crypto/meson.build b/crypto/meson.build
+index 7647d5e243..c9b36857a6 100644
+--- a/crypto/meson.build
++++ b/crypto/meson.build
+@@ -6,6 +6,7 @@ crypto_ss.add(files(
+   'block-qcow.c',
+   'block.c',
+   'cipher.c',
++  'der.c',
+   'hash.c',
+   'hmac.c',
+   'ivgen-essiv.c',
+diff --git a/tests/unit/meson.build b/tests/unit/meson.build
+index ab01e00f12..a82603d7cb 100644
+--- a/tests/unit/meson.build
++++ b/tests/unit/meson.build
+@@ -47,6 +47,7 @@ tests = {
+   'ptimer-test': ['ptimer-test-stubs.c', meson.project_source_root() / 'hw/core/ptimer.c'],
+   'test-qapi-util': [],
+   'test-smp-parse': [qom, meson.project_source_root() / 'hw/core/machine-smp.c'],
++  'test-crypto-der': [crypto],
+ }
+ 
+ if have_system or have_tools
+diff --git a/tests/unit/test-crypto-der.c b/tests/unit/test-crypto-der.c
+new file mode 100644
+index 0000000000..4ce578284f
+--- /dev/null
++++ b/tests/unit/test-crypto-der.c
+@@ -0,0 +1,290 @@
++/*
++ * QEMU Crypto akcipher algorithms
++ *
++ * Copyright (c) 2022 Bytedance
++ * Author: lei he <helei@bytedance.com>
++ *
++ * This library is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * This library is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
++ *
++ */
++
++#include "qemu/osdep.h"
++#include "crypto/der.h"
++
++/* rsa(512) private key, generated by openssl */
++static const uint8_t test_rsa512_priv_key[] =
++    "\x30\x82\x01\x39"      /* SEQUENCE, offset: 0, length: 313 */
++    "\x02\x01\x00"          /* INTEGER, offset: 4, length: 1 */
++    "\x02\x41"              /* INTEGER, offset: 7, length: 65 */
++    "\x00\xb9\xe1\x22\xdb\x56\x2f\xb6\xf7\xf0\x0a\x87\x43\x07\x12\xdb"
++    "\x6d\xb6\x2b\x41\x8d\x2c\x3c\xa5\xdd\x78\x9a\x8f\xab\x8e\xf2\x4a"
++    "\xc8\x34\x0c\x12\x4f\x11\x90\xc6\xc2\xa5\xd0\xcd\xfb\xfc\x2c\x95"
++    "\x56\x82\xdf\x39\xf3\x3b\x1d\x62\x26\x97\xb7\x93\x25\xc7\xec\x7e"
++    "\xf7"
++    "\x02\x03\x01\x00\x01"  /* INTEGER, offset: 74, length: 3 */
++    "\x02\x40"              /* INTEGER, offset: 79, length: 64 */
++    "\x1e\x80\xfe\xda\x65\xdb\x70\xb8\x61\x91\x28\xbf\x6c\x32\xc1\x05"
++    "\xd1\x26\x6a\x1c\x83\xcc\xf4\x1f\x53\x42\x72\x1f\x62\x57\x0a\xc4"
++    "\x66\x76\x30\x87\xb9\xb1\xb9\x6a\x63\xfd\x8f\x3e\xfc\x35\x3f\xd6"
++    "\x2e\x6c\xc8\x70\x8a\x17\xc1\x28\x6a\xfe\x51\x56\xb3\x92\x6f\x09"
++    "\x02\x21"              /* INTEGER, offset: 145, length: 33 */
++    "\x00\xe3\x2e\x2d\x8d\xba\x1c\x34\x4c\x49\x9f\xc1\xa6\xdd\xd7\x13"
++    "\x8d\x05\x48\xdd\xff\x5c\x30\xbc\x6b\xc4\x18\x9d\xfc\xa2\xd0\x9b"
++    "\x4d"
++    "\x02\x21"             /* INTEGER, offset: 180, length: 33 */
++    "\x00\xd1\x75\xaf\x4b\xc6\x1a\xb0\x98\x14\x42\xae\x33\xf3\x44\xde"
++    "\x21\xcb\x04\xda\xfb\x1e\x35\x92\xcd\x69\xc0\x83\x06\x83\x8e\x39"
++    "\x53"
++    "\x02\x20"             /* INTEGER, offset: 215, length: 32 */
++    "\x68\x8d\x2a\xf7\xcb\xcc\x09\x21\x86\xcc\x98\x21\xc4\x7c\xa4\x09"
++    "\xc5\x81\xd8\x71\x1a\x2b\x6f\xbb\xa4\xde\xb3\x6e\xbe\x3b\x85\x0d"
++    "\x02\x20"             /* INTEGER, offset: 249, length: 32 */
++    "\x64\x06\x0e\xef\xe0\x6a\x5e\x6a\x41\x42\x96\x6d\xb8\x7d\xea\x95"
++    "\xb8\x9d\x58\xf5\x12\x38\x03\x22\x94\x9d\x99\xf4\x42\x5e\x68\x81"
++    "\x02\x20"             /* INTEGER, offset: 283, length: 32 */
++    "\x7f\x1d\x87\xe8\x55\x30\x75\xc7\x29\xec\xc9\x65\x76\x5a\x6a\xa3"
++    "\x4a\x6e\xe1\x26\x65\xd1\x76\xd5\xb9\xd1\x8b\xa8\x73\xe2\x6a\x9e";
++
++static const uint8_t test_rsa2048_priv_key[] =
++    "\x30\x82\x04\xa6"          /* SEQUENCE, offset: 0, length 1190 */
++    "\x02\x01\x00"              /* INTEGER, offset: 4, length: 1 */
++    "\x02\x82\x01\x01"          /* INTEGER, offset: 7, length: 257 */
++    "\x00\xd1\x48\xc2\xc1\x1d\x4f\x94\xf2\xbb\x9b\xe2\x2d\xe1\xea\x4c"
++    "\xce\x41\x72\xe3\x41\x7e\x9d\x91\x85\xa3\x4e\xe1\x2c\xf6\x52\x6d"
++    "\xf9\x84\x64\xdf\x87\x28\x4a\xc9\x9d\x78\x93\x47\xc8\xd9\x66\x2e"
++    "\xf4\xc6\xf0\x32\x15\x1a\xe8\xaf\x5a\xca\x3a\xd3\x3e\xf6\xde\x86"
++    "\xdd\x9b\xa6\x4d\x74\x58\xf0\x11\x7f\x66\xd5\x1c\xd8\xde\xa3\xf8"
++    "\xa3\xfc\x33\x55\x89\xa9\xc3\xea\x5b\x2e\x31\x06\xf8\xcb\x9e\x6e"
++    "\xb2\x68\x0d\xe6\xc3\x5c\x2d\xf8\xa2\xbd\x00\x1a\xf6\xb6\xdd\x14"
++    "\x8d\x11\x6d\x2d\xc6\x0c\x09\xe6\xf6\xb9\x8b\x87\x4c\x9f\x4d\x63"
++    "\xd3\x94\xf4\x32\xca\xcf\x5e\xbf\xe2\x7f\x73\x5a\x65\xec\x82\x0d"
++    "\x7f\x30\x25\x03\xd4\x3a\xff\xa2\xe8\xd6\xb5\x1f\x4f\x36\x64\x61"
++    "\xc3\x5f\xb2\x9e\x0c\x53\x04\x19\x34\x99\xe8\xe3\xe6\xd3\x2f\x45"
++    "\x58\x8e\x5d\x54\x5a\xa0\xc0\x5e\x51\x9b\x22\x15\xec\x26\x6f\x72"
++    "\x68\xe9\xbf\x5d\x1d\xb5\xd9\xe4\x81\x1a\x92\x66\xa8\xcb\x73\x46"
++    "\xab\x96\x7b\xf8\x9c\xf5\xb5\x9e\x2b\x13\x71\xe0\x01\x0c\x59\x1b"
++    "\x63\x9f\xb7\xd1\xcd\x47\x8e\xc7\x3a\xbe\xcb\x47\xa7\x23\x43\xa7"
++    "\x7d\xbd\x2c\x4e\x22\x37\xcc\xf9\x1b\x1b\xbb\xed\xec\xf0\x47\x92"
++    "\x43"
++    "\x02\x03\x01\x00\x01"      /* INTEGER, offset 268, length 3 */
++    "\x02\x82\x01\x01"          /* INTEGER, offset 273, length 257 */
++    "\x00\x8d\x21\x97\x0c\x29\x9a\xf8\x23\xf4\x76\x3b\xc1\x9b\x3e\xa8"
++    "\x8a\xd2\xc2\x0a\x14\xa9\xb0\xd2\x68\x9f\x67\x5b\x1c\x3a\x03\xfe"
++    "\x5b\xac\x77\x65\xf1\xbc\x2f\x2a\xe5\x01\x61\xb8\x9f\xee\x53\x25"
++    "\x49\x36\x3a\xd6\x5b\x3b\x29\x3c\xcf\x69\xde\xdf\x83\xef\x70\xc2"
++    "\xdc\x00\xd1\xd6\x1b\xa6\xba\x45\xe2\x77\x53\x31\xbf\xe1\xec\x0b"
++    "\x89\x72\x52\x9f\xd5\x54\xe1\x64\x52\x16\xc5\x43\x21\x56\x16\xc2"
++    "\x29\x97\x58\x00\x8d\x2f\xc5\x64\x8d\x42\x0d\x27\x21\xc6\xd1\x31"
++    "\xc1\xab\xc5\xc7\x7f\x6d\xb0\xe3\xca\xef\xf6\xf2\xc7\xae\x09\xbf"
++    "\x4d\xc0\x4e\x90\x2c\x28\xb9\xcc\x22\x74\xf2\xd5\xff\x4d\x86\xf6"
++    "\xec\x45\x1f\xbf\x25\x4c\x30\x26\x76\x4f\x09\x13\x83\xef\x35\x73"
++    "\xa3\xa2\xb1\x40\xcf\x07\x7a\x83\xae\xea\x00\xea\x74\xc7\x54\x6a"
++    "\x88\x19\xed\x35\xd3\x7e\x5e\xac\x51\xc1\x1e\x5e\x2c\x57\x72\x20"
++    "\x10\x6a\x0c\x47\xe1\xf0\x36\x70\xd2\xa7\x57\x64\x47\x46\x9f\xca"
++    "\x23\x8a\x48\x50\x1d\x33\x6a\x86\x46\x69\xed\x54\x65\x6b\x9e\xab"
++    "\x1f\x84\x87\xf4\x92\x8a\x6c\x44\x20\xaa\x8d\xd8\x50\xde\x45\x74"
++    "\xe0\xa8\xc7\xb9\x38\x74\x24\x51\x33\xf0\x39\x54\x6c\x11\xae\xc2"
++    "\x29"
++    "\x02\x81\x81"              /* INTEGER, offset 534, length 129 */
++    "\x00\xe8\x26\xd1\xf9\xa0\xd3\x0e\x3f\x2f\x89\x9b\x94\x16\x12\xd1"
++    "\xae\x3c\x53\x9c\xcf\xc6\xf7\x03\xf5\xdf\x39\xdc\x25\x5d\xcb\xb8"
++    "\xb9\x74\x3e\x3b\x36\xf6\xa0\x8d\xb1\x0e\xd8\xfe\x8c\xcd\x01\x13"
++    "\x77\x73\x08\x0f\x32\xbd\xe6\x95\xdc\xd0\x14\x7d\x44\xdc\x3e\xd9"
++    "\xaa\x8a\x32\xe6\x0e\x76\xb6\x05\xc5\x6b\x87\x78\x9a\x32\xe2\xf8"
++    "\x78\xba\x58\x75\x58\xd5\x26\x9d\x9a\x0f\xb6\xca\xb5\x27\xd8\x58"
++    "\xae\x3f\x49\x54\xd2\x2b\xac\x28\x39\x88\x31\x42\x12\x08\xea\x0b"
++    "\x39\x58\xae\xf3\x82\xa0\xe2\x75\x7c\x96\xa9\xb8\x57\x29\x6d\xd7"
++    "\x37"
++    "\x02\x81\x81"              /* INTEGER, offset 666, length 129 */
++    "\x00\xe6\xc8\x91\x50\x49\x97\x56\x70\x6e\x25\xf5\x77\x25\xa5\x41"
++    "\xfe\xd7\x25\x1b\xc1\x4a\xff\x37\x44\x2b\x46\xa0\xdf\xe8\x02\x09"
++    "\xdd\xa8\x41\xa1\x12\x84\x3c\xf8\xc2\x13\x3e\xb8\x4b\x22\x01\xac"
++    "\xa6\x09\xb2\xe9\xcd\xc8\x51\xee\xde\xa3\x1e\x6b\xfe\xb1\xf8\xb6"
++    "\x9e\x48\x36\x62\x0b\x05\xfa\x38\xc1\x06\x04\x58\x95\x4d\x25\x13"
++    "\x6d\x0b\x12\x0b\xc9\x6d\x59\xfc\x33\x03\x36\x01\x12\x09\x72\x74"
++    "\x5e\x98\x65\x66\x2f\x3a\xde\xd8\xd4\xee\x6f\x82\xe6\x36\x49\x12"
++    "\x6a\x94\x28\xe9\x28\x9e\xef\x29\xdc\xdf\xab\x94\x65\x02\x4e\x4b"
++    "\x55"
++    "\x02\x81\x81"              /* INTEGER, offset 798, length 129 */
++    "\x00\xc9\xda\xb7\x48\x6e\x66\x15\x45\x2b\x78\x63\x26\x67\xeb\x05"
++    "\x16\x92\xad\xc0\xf3\x88\xf4\xcf\x24\xc2\x6b\xf4\xd7\x28\xaf\x32"
++    "\x77\x4e\x73\xad\xd9\x24\xa8\x85\x8b\x26\x75\xd7\x1f\x66\x41\x41"
++    "\x43\xe3\x69\x66\x8d\xa0\x41\x16\x9d\x60\xef\xef\xdc\x28\x05\x1e"
++    "\x0e\x03\x0c\x2e\xac\xf4\xdb\x60\x39\x40\x3e\x12\xc7\x40\xe7\xc9"
++    "\x54\x6f\xf2\xea\x55\xcb\x40\x40\x58\xec\xc0\xeb\x90\x88\x8c\xbc"
++    "\xcf\x05\x88\x25\x90\x79\x18\xc0\x01\x06\x42\x8e\x48\x50\x27\xf0"
++    "\x8a\x74\x69\xea\xa1\xf2\x71\xf5\xe5\xd6\xba\xcb\xe6\x3d\xc7\x9c"
++    "\x11"
++     "\x02\x81\x81"              /* INTEGER, offset 930, length 129 */
++    "\x00\xc9\xf5\x04\xad\x34\xe9\x39\xdc\x83\x97\xb6\x3a\x40\xf8\x60"
++    "\x4b\x69\xec\xf0\x5f\xf3\x88\x69\xcd\xbe\xed\x3c\xc5\x14\x5c\x0c"
++    "\x54\x2b\xf4\xda\xc6\xc0\x70\x36\xe4\x67\x41\x00\xb7\xc7\x17\x9e"
++    "\x05\x63\x01\x6d\x77\x06\x71\x24\xcf\x32\x01\xe2\x51\xed\x5e\x90"
++    "\x38\xed\x4a\xa1\xfb\xb1\x8c\x69\xf4\x08\x96\xef\x0a\x20\x8b\x6c"
++    "\x77\x85\x33\x92\x9a\xff\x95\xba\x8c\xcd\xa7\x89\xc2\x46\x00\x21"
++    "\xf3\xd1\xfb\x12\x34\x0c\x99\x8d\x38\xb1\x3b\x66\x5a\x9d\x70\xce"
++    "\xab\xf3\xe1\xe5\x40\x05\xed\x97\x3d\xd1\x82\x6e\x07\x02\xc0\x8f"
++    "\x4d"
++    "\x02\x81\x81"              /* INTEGER, offset 1062, length 129 */
++    "\x00\xe4\x96\x79\xa8\x6a\x70\xdd\x67\x42\xff\x15\x11\x9e\x01\x71"
++    "\xac\xf1\x70\x7d\x87\xe2\x6e\x0c\x4d\xbb\x21\x15\xbb\xa7\x4e\x0c"
++    "\x09\x7e\x82\xca\x91\xbe\xd0\xdd\x9c\x8c\xb0\x77\x64\x30\x1b\x7e"
++    "\xbb\x69\xcb\x4c\xde\xd6\x6a\xb9\x72\x15\x79\xdc\x05\x99\x69\x8b"
++    "\x24\xa1\xad\x13\x35\x31\xc0\x0b\xf1\xd2\x06\x7c\x94\x1a\x21\x2f"
++    "\x02\xb9\xf0\xd0\xbb\xf7\xb7\x78\xf9\x3d\x76\x60\xd6\x6b\x5f\x35"
++    "\x88\x14\x33\xe6\xbc\xca\x6b\x88\x90\x57\x3b\x0c\xa3\x6e\x47\xdf"
++    "\x4e\x2f\x4c\xf9\xab\x97\x38\xe4\x20\x32\x32\x96\xc8\x9e\x79\xd3"
++    "\x12";
++
++#define MAX_CHECKER_COUNT 32
++
++typedef struct QCryptoAns1DecoderResultChecker QCryptoAns1DecoderResultChecker;
++struct QCryptoAns1DecoderResultChecker {
++    int (*action) (const uint8_t **data, size_t *dlen,
++                   DERDecodeCb cb, void *opaque, Error **errp);
++    DERDecodeCb cb;
++    const uint8_t *exp_value;
++    size_t exp_vlen;
++};
++
++typedef struct QCryptoAns1DecoderTestData QCryptoAns1DecoderTestData;
++struct QCryptoAns1DecoderTestData {
++    const char *path;
++    const uint8_t *test_data;
++    size_t test_data_len;
++    QCryptoAns1DecoderResultChecker checker[MAX_CHECKER_COUNT];
++};
++
++typedef struct QCryptoAns1DecoderTestContext QCryptoAns1DecoderTestContext;
++struct QCryptoAns1DecoderTestContext {
++    const uint8_t *data;
++    size_t dlen;
++};
++
++static int checker_callback(void *opaque, const uint8_t *value,
++                            size_t vlen, Error **errp)
++{
++    QCryptoAns1DecoderResultChecker *checker =
++        (QCryptoAns1DecoderResultChecker *)opaque;
++
++    g_assert(value == checker->exp_value);
++    g_assert(vlen == checker->exp_vlen);
++    return 0;
++}
++
++static void test_ans1(const void *opaque)
++{
++    const QCryptoAns1DecoderTestData *test_data =
++        (QCryptoAns1DecoderTestData *)opaque;
++    QCryptoAns1DecoderTestContext ctx[MAX_CHECKER_COUNT];
++    int seq_depth = 0, checker_idx = 0;
++    ctx[seq_depth].data = test_data->test_data;
++    ctx[seq_depth].dlen = test_data->test_data_len;
++    bool all_checker_completed = false;
++
++    do {
++        const QCryptoAns1DecoderResultChecker *checker =
++            &test_data->checker[checker_idx++];
++        QCryptoAns1DecoderTestContext *c = &ctx[seq_depth];
++        if (!checker->action) {
++            all_checker_completed = true;
++            break;
++        }
++        g_assert(checker->action(&c->data, &c->dlen, checker_callback,
++                                 (void *)checker, &error_abort)
++            == checker->exp_vlen);
++        if (checker->action == qcrypto_der_decode_seq) {
++            ++seq_depth;
++            ctx[seq_depth].data = checker->exp_value;
++            ctx[seq_depth].dlen = checker->exp_vlen;
++        }
++        while (seq_depth != 0 && ctx[seq_depth].dlen == 0) {
++            --seq_depth;
++        }
++
++    } while (true);
++    g_assert(seq_depth == 0);
++    g_assert(ctx[seq_depth].dlen == 0);
++    g_assert(all_checker_completed);
++}
++
++static QCryptoAns1DecoderTestData test_data[] = {
++{
++    .path = "/crypto/der/parse-rsa512-priv-key",
++    .test_data = test_rsa512_priv_key,
++    .test_data_len = sizeof(test_rsa512_priv_key) - 1,
++    .checker = {
++        { qcrypto_der_decode_seq, checker_callback,
++          test_rsa512_priv_key + 4, 313 },
++        { qcrypto_der_decode_int, checker_callback,
++          test_rsa512_priv_key + 4 + 2, 1 },
++        { qcrypto_der_decode_int, checker_callback,
++          test_rsa512_priv_key + 7 + 2, 65 },
++        { qcrypto_der_decode_int, checker_callback,
++          test_rsa512_priv_key + 74 + 2, 3 },
++        { qcrypto_der_decode_int, checker_callback,
++          test_rsa512_priv_key + 79 + 2, 64 },
++        { qcrypto_der_decode_int, checker_callback,
++          test_rsa512_priv_key + 145 + 2, 33 },
++        { qcrypto_der_decode_int, checker_callback,
++          test_rsa512_priv_key + 180 + 2, 33 },
++        { qcrypto_der_decode_int, checker_callback,
++          test_rsa512_priv_key + 215 + 2, 32 },
++        { qcrypto_der_decode_int, checker_callback,
++          test_rsa512_priv_key + 249 + 2, 32 },
++        { qcrypto_der_decode_int, checker_callback,
++          test_rsa512_priv_key + 283 + 2, 32 },
++    },
++},
++{
++    .path = "/crypto/der/parse-rsa2048-priv-key",
++    .test_data = test_rsa2048_priv_key,
++    .test_data_len = sizeof(test_rsa2048_priv_key) - 1,
++    .checker = {
++        { qcrypto_der_decode_seq, checker_callback,
++          test_rsa2048_priv_key + 4, 1190 },
++        { qcrypto_der_decode_int, checker_callback,
++          test_rsa2048_priv_key + 4 + 2, 1 },
++        { qcrypto_der_decode_int, checker_callback,
++          test_rsa2048_priv_key + 7 + 4, 257 },
++        { qcrypto_der_decode_int, checker_callback,
++          test_rsa2048_priv_key + 268 + 2, 3 },
++        { qcrypto_der_decode_int, checker_callback,
++          test_rsa2048_priv_key + 273 + 4, 257 },
++        { qcrypto_der_decode_int, checker_callback,
++          test_rsa2048_priv_key + 534 + 3, 129 },
++        { qcrypto_der_decode_int, checker_callback,
++          test_rsa2048_priv_key + 666 + 3, 129 },
++        { qcrypto_der_decode_int, checker_callback,
++          test_rsa2048_priv_key + 798 + 3, 129 },
++        { qcrypto_der_decode_int, checker_callback,
++          test_rsa2048_priv_key + 930 + 3, 129 },
++        { qcrypto_der_decode_int, checker_callback,
++          test_rsa2048_priv_key + 1062 + 3, 129 },
++    },
++},
++
++};
++
++int main(int argc, char **argv)
++{
++    size_t i;
++    g_test_init(&argc, &argv, NULL);
++
++    for (i = 0; i < G_N_ELEMENTS(test_data); i++) {
++        g_test_add_data_func(test_data[i].path, &test_data[i], test_ans1);
++    }
++
++    return g_test_run();
++}
+-- 
+2.20.1
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
