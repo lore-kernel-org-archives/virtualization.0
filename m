@@ -1,87 +1,88 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 436E5C433F5
-	for <virtualization@archiver.kernel.org>; Thu, 28 Apr 2022 14:04:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 370ABC433F5
+	for <virtualization@archiver.kernel.org>; Thu, 28 Apr 2022 14:04:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id B93F160C30;
-	Thu, 28 Apr 2022 14:04:28 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id CB19C83E40;
+	Thu, 28 Apr 2022 14:04:33 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id vOM8a7mka_zc; Thu, 28 Apr 2022 14:04:27 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id mkoKq35a3DmC; Thu, 28 Apr 2022 14:04:32 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 4D73360B5F;
-	Thu, 28 Apr 2022 14:04:27 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 3C37383E26;
+	Thu, 28 Apr 2022 14:04:32 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 24326C0032;
-	Thu, 28 Apr 2022 14:04:27 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D77D9C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E6A12C0080;
+	Thu, 28 Apr 2022 14:04:31 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 724F7C0082
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Apr 2022 14:04:25 +0000 (UTC)
+ Thu, 28 Apr 2022 14:04:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id C604760C30
+ by smtp1.osuosl.org (Postfix) with ESMTP id 5D06283E14
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Apr 2022 14:04:25 +0000 (UTC)
+ Thu, 28 Apr 2022 14:04:30 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id x2jpar2r6MjO
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id sd0qDx8fLsFC
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Apr 2022 14:04:25 +0000 (UTC)
+ Thu, 28 Apr 2022 14:04:29 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com
- [IPv6:2607:f8b0:4864:20::62a])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 2607060B5F
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com
+ [IPv6:2607:f8b0:4864:20::1036])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id D31A183E0C
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Apr 2022 14:04:25 +0000 (UTC)
-Received: by mail-pl1-x62a.google.com with SMTP id n18so4445245plg.5
+ Thu, 28 Apr 2022 14:04:29 +0000 (UTC)
+Received: by mail-pj1-x1036.google.com with SMTP id
+ m14-20020a17090a34ce00b001d5fe250e23so4473480pjf.3
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Apr 2022 07:04:25 -0700 (PDT)
+ Thu, 28 Apr 2022 07:04:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=bytedance-com.20210112.gappssmtp.com; s=20210112;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=r1LVHO5sM0sX4Mp/kIWaAI89jNYg4e1hMgC8/TqhpPE=;
- b=seV+R+D+u5fwCRH3HEZ3Pq5Vt0Ezxs8ce7x4jvAsryKOJItXudvh4ckn4eLKEqHY/l
- qaxRmS2vKbZbedQRaVzkRE1+s/5FqFQBDiPocVNL2ZkYwzRKqvfl0xzfUEGcBwlhv2yZ
- IjT0QrPSh5IiAkNRMZfWAkdYcvMRskNE8sJdGMacdk2GDjRdqM1a7HU1egba34ZCaDJq
- q2jBoMtdpvpuYa+wUrGSwh+zVqbujwjDWOJrI+HzkgvOdgQqNQV/vFfCOVHp4Jjz2Sdu
- /Dj5GgvMT1aLvZsDUcOy8lox7qrI1BP0jA4k4oNv67OIzccbCW5x+uaiPGpKXxAqRPMN
- 0eSg==
+ bh=ebyq3t0cku0JBJko0+i5+pZ5xMWPYwbiZj5xlzmmt5U=;
+ b=Ewaj6GD+7ylmnl7Nek9NISo81xfEOut07vgy8s3rYiTDvsgLhHLZYC0i3FM+bIkrF9
+ egJxdmCLlgMgh3msobyc33KZ+40c0Kr0X72uKjHSvmPApdqXjErVzyoJuP/t7Usddyxs
+ V37gmYW40Qs3Pyb3fZqkT70FmE9grSf1HUSiF9gZ95EoAexvJ3y9q4s3gkm/HxzshGuf
+ 84FHRdEQ7c66VTWyITIZGlJL0u8a8joS8OsOdko7GDzvmQC2mKnZGM4XMAzFyc+aHGdh
+ etU1YoD1+CfaiJjDubhco9bEvaUfILSIrCrRf5Yk7xbZLVD5aLbE6xrgDMc6g1LCyVEo
+ F14Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
  :references:mime-version:content-transfer-encoding;
- bh=r1LVHO5sM0sX4Mp/kIWaAI89jNYg4e1hMgC8/TqhpPE=;
- b=vMK5vezFNnLljhuo0n28/BbtKApgR4SfbwKzKE+h5pI70wfMSTTmjtkSeDrlhM5/5k
- ZivEjR5Oe4/eOly3lm3MqF3WANUryJzDNeY+DWG5KhbzG3L9gAURfhNVfbe6bpN1o69B
- IjghmjCJWL338gNg6fyysUB2bCJmNIQrMA6r9BcTBb9zIUqgKSy3G6XM4kaK9AyW8zNB
- nilpk79fUcLtvA6l+06bkem9RCFqnBXVEfOrP2LuTikZ8fznMAZjIjaT/tt4ewrq7tha
- RvUgHBg6BuoxFd9InOPlIm05ntzIJNNUSQ9H4RkeJXiTlktaQVh5TETm/eZugeiy4Z9D
- EjFg==
-X-Gm-Message-State: AOAM532Om+TfQsKb/eviXv7hsndbi5gkFr5I79/qh+NVLwEUFPJ5x1N0
- A3C9IyvpQi8oZXLwWnSXlG5WOA==
-X-Google-Smtp-Source: ABdhPJwkTJpqeSLyHvZSedVXb41+2usGwkwvKnEaEUp9pYxtC3ks+er1223oMyxKXkEZUX+jdQlszQ==
-X-Received: by 2002:a17:902:8306:b0:158:2d58:a36a with SMTP id
- bd6-20020a170902830600b001582d58a36amr33890806plb.55.1651154664374; 
- Thu, 28 Apr 2022 07:04:24 -0700 (PDT)
+ bh=ebyq3t0cku0JBJko0+i5+pZ5xMWPYwbiZj5xlzmmt5U=;
+ b=nBk1+hGjmCWbJuFc2GLYUXCZUuOmOHLyw5PZbOJtDcJxGj9gmyKl/vMeAdh7NLHAV9
+ PVTEAbJV1UtSaTQdE/QbiDuASlxDAn/BtVSEpYf8Y26XZ4iREuSGfdc92grglq73DVLn
+ 5ZNAaxXsSH83yMBHW6zZpw2XzhkeMCKuwKRTzuvKu7NH/bgEumReBzj4lvCEWqBl+b2S
+ sdtRs+T1ElIcrr0wU/fA01dNKbW15B3nHf8e4VFn43uR1nB3+KBC2c6yFExknILNKrLF
+ nfvbtYRsmHNC2bfokVexU+PFws7AiU4RLZBdf8sJ/Oq7G70n//24K0g/ZjNXEhEk5SAv
+ qTJg==
+X-Gm-Message-State: AOAM532YmQujFg8yKlmqvDCYE8nLuDeaSDtWZ1LheO+woS87TVScsVZ5
+ yVQuvq+fluuVfeLDq53RskLQgw==
+X-Google-Smtp-Source: ABdhPJzFXOB4Yvy392O4Xx60+klDrMds8MRiFy7ceV16DQ5b0HI6aGVA1VUPZtKkkrvCgYvI8wN7vQ==
+X-Received: by 2002:a17:90b:1b03:b0:1d2:a338:c568 with SMTP id
+ nu3-20020a17090b1b0300b001d2a338c568mr50432960pjb.129.1651154669248; 
+ Thu, 28 Apr 2022 07:04:29 -0700 (PDT)
 Received: from always-x1.www.tendawifi.com ([139.177.225.254])
  by smtp.gmail.com with ESMTPSA id
- x129-20020a623187000000b0050835f6d6a1sm38975pfx.9.2022.04.28.07.04.19
+ x129-20020a623187000000b0050835f6d6a1sm38975pfx.9.2022.04.28.07.04.24
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 28 Apr 2022 07:04:23 -0700 (PDT)
+ Thu, 28 Apr 2022 07:04:28 -0700 (PDT)
 From: zhenwei pi <pizhenwei@bytedance.com>
 To: mst@redhat.com,
 	arei.gonglei@huawei.com,
 	berrange@redhat.com
-Subject: [PATCH v5 1/9] virtio-crypto: header update
-Date: Thu, 28 Apr 2022 21:59:35 +0800
-Message-Id: <20220428135943.178254-2-pizhenwei@bytedance.com>
+Subject: [PATCH v5 2/9] qapi: crypto-akcipher: Introduce akcipher types to qapi
+Date: Thu, 28 Apr 2022 21:59:36 +0800
+Message-Id: <20220428135943.178254-3-pizhenwei@bytedance.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220428135943.178254-1-pizhenwei@bytedance.com>
 References: <20220428135943.178254-1-pizhenwei@bytedance.com>
@@ -100,173 +101,48 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Update header from linux, support akcipher service.
-
-Reviewed-by: Gonglei <arei.gonglei@huawei.com>
-Signed-off-by: lei he <helei.sig11@bytedance.com>
-Signed-off-by: zhenwei pi <pizhenwei@bytedance.com>
----
- .../standard-headers/linux/virtio_crypto.h    | 82 ++++++++++++++++++-
- 1 file changed, 81 insertions(+), 1 deletion(-)
-
-diff --git a/include/standard-headers/linux/virtio_crypto.h b/include/standard-headers/linux/virtio_crypto.h
-index 5ff0b4ee59..68066dafb6 100644
---- a/include/standard-headers/linux/virtio_crypto.h
-+++ b/include/standard-headers/linux/virtio_crypto.h
-@@ -37,6 +37,7 @@
- #define VIRTIO_CRYPTO_SERVICE_HASH   1
- #define VIRTIO_CRYPTO_SERVICE_MAC    2
- #define VIRTIO_CRYPTO_SERVICE_AEAD   3
-+#define VIRTIO_CRYPTO_SERVICE_AKCIPHER 4
- 
- #define VIRTIO_CRYPTO_OPCODE(service, op)   (((service) << 8) | (op))
- 
-@@ -57,6 +58,10 @@ struct virtio_crypto_ctrl_header {
- 	   VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_AEAD, 0x02)
- #define VIRTIO_CRYPTO_AEAD_DESTROY_SESSION \
- 	   VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_AEAD, 0x03)
-+#define VIRTIO_CRYPTO_AKCIPHER_CREATE_SESSION \
-+	   VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_AKCIPHER, 0x04)
-+#define VIRTIO_CRYPTO_AKCIPHER_DESTROY_SESSION \
-+	   VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_AKCIPHER, 0x05)
- 	uint32_t opcode;
- 	uint32_t algo;
- 	uint32_t flag;
-@@ -180,6 +185,58 @@ struct virtio_crypto_aead_create_session_req {
- 	uint8_t padding[32];
- };
- 
-+struct virtio_crypto_rsa_session_para {
-+#define VIRTIO_CRYPTO_RSA_RAW_PADDING   0
-+#define VIRTIO_CRYPTO_RSA_PKCS1_PADDING 1
-+	uint32_t padding_algo;
-+
-+#define VIRTIO_CRYPTO_RSA_NO_HASH   0
-+#define VIRTIO_CRYPTO_RSA_MD2       1
-+#define VIRTIO_CRYPTO_RSA_MD3       2
-+#define VIRTIO_CRYPTO_RSA_MD4       3
-+#define VIRTIO_CRYPTO_RSA_MD5       4
-+#define VIRTIO_CRYPTO_RSA_SHA1      5
-+#define VIRTIO_CRYPTO_RSA_SHA256    6
-+#define VIRTIO_CRYPTO_RSA_SHA384    7
-+#define VIRTIO_CRYPTO_RSA_SHA512    8
-+#define VIRTIO_CRYPTO_RSA_SHA224    9
-+	uint32_t hash_algo;
-+};
-+
-+struct virtio_crypto_ecdsa_session_para {
-+#define VIRTIO_CRYPTO_CURVE_UNKNOWN   0
-+#define VIRTIO_CRYPTO_CURVE_NIST_P192 1
-+#define VIRTIO_CRYPTO_CURVE_NIST_P224 2
-+#define VIRTIO_CRYPTO_CURVE_NIST_P256 3
-+#define VIRTIO_CRYPTO_CURVE_NIST_P384 4
-+#define VIRTIO_CRYPTO_CURVE_NIST_P521 5
-+	uint32_t curve_id;
-+	uint32_t padding;
-+};
-+
-+struct virtio_crypto_akcipher_session_para {
-+#define VIRTIO_CRYPTO_NO_AKCIPHER    0
-+#define VIRTIO_CRYPTO_AKCIPHER_RSA   1
-+#define VIRTIO_CRYPTO_AKCIPHER_DSA   2
-+#define VIRTIO_CRYPTO_AKCIPHER_ECDSA 3
-+	uint32_t algo;
-+
-+#define VIRTIO_CRYPTO_AKCIPHER_KEY_TYPE_PUBLIC  1
-+#define VIRTIO_CRYPTO_AKCIPHER_KEY_TYPE_PRIVATE 2
-+	uint32_t keytype;
-+	uint32_t keylen;
-+
-+	union {
-+		struct virtio_crypto_rsa_session_para rsa;
-+		struct virtio_crypto_ecdsa_session_para ecdsa;
-+	} u;
-+};
-+
-+struct virtio_crypto_akcipher_create_session_req {
-+	struct virtio_crypto_akcipher_session_para para;
-+	uint8_t padding[36];
-+};
-+
- struct virtio_crypto_alg_chain_session_para {
- #define VIRTIO_CRYPTO_SYM_ALG_CHAIN_ORDER_HASH_THEN_CIPHER  1
- #define VIRTIO_CRYPTO_SYM_ALG_CHAIN_ORDER_CIPHER_THEN_HASH  2
-@@ -247,6 +304,8 @@ struct virtio_crypto_op_ctrl_req {
- 			mac_create_session;
- 		struct virtio_crypto_aead_create_session_req
- 			aead_create_session;
-+		struct virtio_crypto_akcipher_create_session_req
-+			akcipher_create_session;
- 		struct virtio_crypto_destroy_session_req
- 			destroy_session;
- 		uint8_t padding[56];
-@@ -266,6 +325,14 @@ struct virtio_crypto_op_header {
- 	VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_AEAD, 0x00)
- #define VIRTIO_CRYPTO_AEAD_DECRYPT \
- 	VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_AEAD, 0x01)
-+#define VIRTIO_CRYPTO_AKCIPHER_ENCRYPT \
-+	VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_AKCIPHER, 0x00)
-+#define VIRTIO_CRYPTO_AKCIPHER_DECRYPT \
-+	VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_AKCIPHER, 0x01)
-+#define VIRTIO_CRYPTO_AKCIPHER_SIGN \
-+	VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_AKCIPHER, 0x02)
-+#define VIRTIO_CRYPTO_AKCIPHER_VERIFY \
-+	VIRTIO_CRYPTO_OPCODE(VIRTIO_CRYPTO_SERVICE_AKCIPHER, 0x03)
- 	uint32_t opcode;
- 	/* algo should be service-specific algorithms */
- 	uint32_t algo;
-@@ -390,6 +457,16 @@ struct virtio_crypto_aead_data_req {
- 	uint8_t padding[32];
- };
- 
-+struct virtio_crypto_akcipher_para {
-+	uint32_t src_data_len;
-+	uint32_t dst_data_len;
-+};
-+
-+struct virtio_crypto_akcipher_data_req {
-+	struct virtio_crypto_akcipher_para para;
-+	uint8_t padding[40];
-+};
-+
- /* The request of the data virtqueue's packet */
- struct virtio_crypto_op_data_req {
- 	struct virtio_crypto_op_header header;
-@@ -399,6 +476,7 @@ struct virtio_crypto_op_data_req {
- 		struct virtio_crypto_hash_data_req hash_req;
- 		struct virtio_crypto_mac_data_req mac_req;
- 		struct virtio_crypto_aead_data_req aead_req;
-+		struct virtio_crypto_akcipher_data_req akcipher_req;
- 		uint8_t padding[48];
- 	} u;
- };
-@@ -408,6 +486,8 @@ struct virtio_crypto_op_data_req {
- #define VIRTIO_CRYPTO_BADMSG    2
- #define VIRTIO_CRYPTO_NOTSUPP   3
- #define VIRTIO_CRYPTO_INVSESS   4 /* Invalid session id */
-+#define VIRTIO_CRYPTO_NOSPC     5 /* no free session ID */
-+#define VIRTIO_CRYPTO_KEY_REJECTED 6 /* Signature verification failed */
- 
- /* The accelerator hardware is ready */
- #define VIRTIO_CRYPTO_S_HW_READY  (1 << 0)
-@@ -438,7 +518,7 @@ struct virtio_crypto_config {
- 	uint32_t max_cipher_key_len;
- 	/* Maximum length of authenticated key */
- 	uint32_t max_auth_key_len;
--	uint32_t reserve;
-+	uint32_t akcipher_algo;
- 	/* Maximum size of each crypto request's content */
- 	uint64_t max_size;
- };
--- 
-2.20.1
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+RnJvbTogTGVpIEhlIDxoZWxlaS5zaWcxMUBieXRlZGFuY2UuY29tPgoKSW50cm9kdWNlIGFrY2lw
+aGVyIHR5cGVzLCBhbHNvIGluY2x1ZGUgUlNBIHJlbGF0ZWQgdHlwZXMuCgpSZXZpZXdlZC1ieTog
+RGFuaWVsIFAuIEJlcnJhbmfDqSA8YmVycmFuZ2VAcmVkaGF0LmNvbT4KU2lnbmVkLW9mZi1ieTog
+TGVpIEhlIDxoZWxlaS5zaWcxMUBieXRlZGFuY2UuY29tPgpTaWduZWQtb2ZmLWJ5OiB6aGVud2Vp
+IHBpIDxwaXpoZW53ZWlAYnl0ZWRhbmNlLmNvbT4KLS0tCiBxYXBpL2NyeXB0by5qc29uIHwgNjQg
+KysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrCiAxIGZpbGUg
+Y2hhbmdlZCwgNjQgaW5zZXJ0aW9ucygrKQoKZGlmZiAtLWdpdCBhL3FhcGkvY3J5cHRvLmpzb24g
+Yi9xYXBpL2NyeXB0by5qc29uCmluZGV4IDFlYzU0YzE1Y2EuLmY3YmI5YTQyZDAgMTAwNjQ0Ci0t
+LSBhL3FhcGkvY3J5cHRvLmpzb24KKysrIGIvcWFwaS9jcnlwdG8uanNvbgpAQCAtNTQwLDMgKzU0
+MCw2NyBAQAogICAnZGF0YSc6IHsgJypsb2FkZWQnOiB7ICd0eXBlJzogJ2Jvb2wnLCAnZmVhdHVy
+ZXMnOiBbJ2RlcHJlY2F0ZWQnXSB9LAogICAgICAgICAgICAgJypzYW5pdHktY2hlY2snOiAnYm9v
+bCcsCiAgICAgICAgICAgICAnKnBhc3N3b3JkaWQnOiAnc3RyJyB9IH0KKyMjCisjIEBRQ3J5cHRv
+QWtDaXBoZXJBbGdvcml0aG06CisjCisjIFRoZSBzdXBwb3J0ZWQgYWxnb3JpdGhtcyBmb3IgYXN5
+bW1ldHJpYyBlbmNyeXB0aW9uIGNpcGhlcnMKKyMKKyMgQHJzYTogUlNBIGFsZ29yaXRobQorIwor
+IyBTaW5jZTogNy4xCisjIworeyAnZW51bSc6ICdRQ3J5cHRvQWtDaXBoZXJBbGdvcml0aG0nLAor
+ICAncHJlZml4JzogJ1FDUllQVE9fQUtDSVBIRVJfQUxHJywKKyAgJ2RhdGEnOiBbJ3JzYSddfQor
+CisjIworIyBAUUNyeXB0b0FrQ2lwaGVyS2V5VHlwZToKKyMKKyMgVGhlIHR5cGUgb2YgYXN5bW1l
+dHJpYyBrZXlzLgorIworIyBTaW5jZTogNy4xCisjIworeyAnZW51bSc6ICdRQ3J5cHRvQWtDaXBo
+ZXJLZXlUeXBlJywKKyAgJ3ByZWZpeCc6ICdRQ1JZUFRPX0FLQ0lQSEVSX0tFWV9UWVBFJywKKyAg
+J2RhdGEnOiBbJ3B1YmxpYycsICdwcml2YXRlJ119CisKKyMjCisjIEBRQ3J5cHRvUlNBUGFkZGlu
+Z0FsZ29yaXRobToKKyMKKyMgVGhlIHBhZGRpbmcgYWxnb3JpdGhtIGZvciBSU0EuCisjCisjIEBy
+YXc6IG5vIHBhZGRpbmcgdXNlZAorIyBAcGtjczE6IHBrY3MxI3YxLjUKKyMKKyMgU2luY2U6IDcu
+MQorIyMKK3sgJ2VudW0nOiAnUUNyeXB0b1JTQVBhZGRpbmdBbGdvcml0aG0nLAorICAncHJlZml4
+JzogJ1FDUllQVE9fUlNBX1BBRERJTkdfQUxHJywKKyAgJ2RhdGEnOiBbJ3JhdycsICdwa2NzMSdd
+fQorCisjIworIyBAUUNyeXB0b0FrQ2lwaGVyT3B0aW9uc1JTQToKKyMKKyMgU3BlY2lmaWMgcGFy
+YW1ldGVycyBmb3IgUlNBIGFsZ29yaXRobS4KKyMKKyMgQGhhc2gtYWxnOiBRQ3J5cHRvSGFzaEFs
+Z29yaXRobQorIyBAcGFkZGluZy1hbGc6IFFDcnlwdG9SU0FQYWRkaW5nQWxnb3JpdGhtCisjCisj
+IFNpbmNlOiA3LjEKKyMjCit7ICdzdHJ1Y3QnOiAnUUNyeXB0b0FrQ2lwaGVyT3B0aW9uc1JTQScs
+CisgICdkYXRhJzogeyAnaGFzaC1hbGcnOidRQ3J5cHRvSGFzaEFsZ29yaXRobScsCisgICAgICAg
+ICAgICAncGFkZGluZy1hbGcnOiAnUUNyeXB0b1JTQVBhZGRpbmdBbGdvcml0aG0nfX0KKworIyMK
+KyMgQFFDcnlwdG9Ba0NpcGhlck9wdGlvbnM6CisjCisjIFRoZSBvcHRpb25zIHRoYXQgYXJlIGF2
+YWlsYWJsZSBmb3IgYWxsIGFzeW1tZXRyaWMga2V5IGFsZ29yaXRobXMKKyMgd2hlbiBjcmVhdGlu
+ZyBhIG5ldyBRQ3J5cHRvQWtDaXBoZXIuCisjCisjIFNpbmNlOiA3LjEKKyMjCit7ICd1bmlvbic6
+ICdRQ3J5cHRvQWtDaXBoZXJPcHRpb25zJywKKyAgJ2Jhc2UnOiB7ICdhbGcnOiAnUUNyeXB0b0Fr
+Q2lwaGVyQWxnb3JpdGhtJyB9LAorICAnZGlzY3JpbWluYXRvcic6ICdhbGcnLAorICAnZGF0YSc6
+IHsgJ3JzYSc6ICdRQ3J5cHRvQWtDaXBoZXJPcHRpb25zUlNBJyB9fQotLSAKMi4yMC4xCgpfX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlv
+biBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
+aHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVh
+bGl6YXRpb24=
