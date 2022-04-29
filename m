@@ -1,159 +1,94 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0BA3EC433FE
-	for <virtualization@archiver.kernel.org>; Fri, 29 Apr 2022 13:08:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id EBFEBC433EF
+	for <virtualization@archiver.kernel.org>; Fri, 29 Apr 2022 13:42:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id A9D8960E2C;
-	Fri, 29 Apr 2022 13:08:40 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id A454E83FF7;
+	Fri, 29 Apr 2022 13:42:42 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id iYZLGbEHKmGS; Fri, 29 Apr 2022 13:08:39 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 2E67F60888;
-	Fri, 29 Apr 2022 13:08:38 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id xQtP2gviBW3A; Fri, 29 Apr 2022 13:42:41 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 4B33783E5D;
+	Fri, 29 Apr 2022 13:42:41 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D47FEC0032;
-	Fri, 29 Apr 2022 13:08:38 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3BF47C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id EA02AC0032;
+	Fri, 29 Apr 2022 13:42:40 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8A73BC002D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 29 Apr 2022 13:08:37 +0000 (UTC)
+ Fri, 29 Apr 2022 13:42:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 2A08C60AD3
+ by smtp1.osuosl.org (Postfix) with ESMTP id 7989683F16
  for <virtualization@lists.linux-foundation.org>;
- Fri, 29 Apr 2022 13:08:37 +0000 (UTC)
+ Fri, 29 Apr 2022 13:42:39 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id q5dJGFxUi-lt
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 5QgAYyVAmfxs
  for <virtualization@lists.linux-foundation.org>;
- Fri, 29 Apr 2022 13:08:35 +0000 (UTC)
+ Fri, 29 Apr 2022 13:42:38 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from NAM11-BN8-obe.outbound.protection.outlook.com
- (mail-bn8nam11on20630.outbound.protection.outlook.com
- [IPv6:2a01:111:f400:7eae::630])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 9E90560888
+Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com
+ [IPv6:2a00:1450:4864:20::434])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 9E82983E5D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 29 Apr 2022 13:08:35 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=CQE+evny/wF3Ek5znjhEc81kH4JDQL2PzQfvo2kAls55LarJvUsiaLSwB23gSzVQN7SzIOPqwzaQ3qrEOoRVswWUt05dBcQbxUtLlYuqaqEBPplZKN3qvuBFW6Ma3Qx53P3FAKiE7ZIrxx8mLWFYfaVeMgr0Tb8qYPrSBVK/kwOT8ei2DoA4U2TGTSmgziHunA2VWo7/jXxm5MDIrwlbjUUpxsHyxtzzi3pbTohA293uVFMXTH7CivhAIdfIdtBEF8gXs3bnJNXxdVa68p35WX68N9IYrwzue67WqUD8SQJRdzWgo3DDCH0s1Zh+R65VBI5nvtjhMHempMHG90e/rw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=8QkW2q9FWkgFl4bBR16zdLA9b2Zq/BfTHXfBqHLJK2w=;
- b=e6kAa2Fmrp2YLsmQF29j3GOCg4PBe+WHfD+Z/ch9FbuLbuJq08ILJ5gtImfUqeXYdya7KzhVRtZHUB4qZJczPkz2AomII8ak3nC14H228Tb42oDNiVoPdtCKbyuu2peAFz+UDLDcgFg/hHi5ElPWJlZQvuBJIADdD9MA4whzV8Zw35ZK6OzHkchEPmVo7vD59E9OXBLqgxc8I+Vu1FD3zKFrljJLd8DK29dU8DSClZtUYvuwgdiE8WCSEm2cGobmDmLlg5BMrY3dCE0Q2uRCqUMaTPNiHMBLFl1pamlBUvIGLnna7E1+KpGiXzP+VJuf1aim3LaFVz8hlX1uyX9SBQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1; 
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=8QkW2q9FWkgFl4bBR16zdLA9b2Zq/BfTHXfBqHLJK2w=;
- b=oNVGZu7ew//79hsOIjiflbB2t+08n/rnJK+dmmBjLGYMqRPa3ASNEh5KHUrFR2zQZJC9B9bJkPY8Y7l2VR9UhUH69f5AIOcbm6t9ED5KU7HKAPURPsKqav21aD4s5gA7dW1S0xwKJTuUDQFTi+GzJVMGhBGvQVkPJxyljKtOXLs=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from DM4PR12MB5229.namprd12.prod.outlook.com (2603:10b6:5:398::12)
- by BN9PR12MB5210.namprd12.prod.outlook.com (2603:10b6:408:11b::23) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5186.13; Fri, 29 Apr
- 2022 13:08:31 +0000
-Received: from DM4PR12MB5229.namprd12.prod.outlook.com
- ([fe80::db8:5b23:acf0:6f9a]) by DM4PR12MB5229.namprd12.prod.outlook.com
- ([fe80::db8:5b23:acf0:6f9a%4]) with mapi id 15.20.5186.026; Fri, 29 Apr 2022
- 13:08:31 +0000
-Message-ID: <46b27b72-aabf-f37d-7304-29debeefd8ae@amd.com>
-Date: Fri, 29 Apr 2022 08:08:28 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Content-Language: en-US
-To: Tao Liu <ltao@redhat.com>, Joerg Roedel <joro@8bytes.org>
-References: <20220127101044.13803-1-joro@8bytes.org>
- <YmuqifsJltdh7rpv@localhost.localdomain>
-Subject: Re: [PATCH v3 00/10] x86/sev: KEXEC/KDUMP support for SEV-ES guests
-In-Reply-To: <YmuqifsJltdh7rpv@localhost.localdomain>
-X-ClientProxiedBy: SA0PR11CA0046.namprd11.prod.outlook.com
- (2603:10b6:806:d0::21) To DM4PR12MB5229.namprd12.prod.outlook.com
- (2603:10b6:5:398::12)
+ Fri, 29 Apr 2022 13:42:38 +0000 (UTC)
+Received: by mail-wr1-x434.google.com with SMTP id i5so10825612wrc.13
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 29 Apr 2022 06:42:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=from:to:cc:subject:date:message-id:in-reply-to:references
+ :mime-version:content-transfer-encoding;
+ bh=LNM1AEcQA1TC9gdIDYx11HgLW6iNh6oI5PWYGXlZlcE=;
+ b=p/2OcZKTlgGP3GKgPfjNkt19DmFAK1dTdwQk5tAt0UhUE0cUd2X+fBDeOjf+Ffhe20
+ r8F0++xJoGDy/lMVhaIPOSxtSuqyIcMOJ9HBLV9NNr7ObSnlU/diKZ9ipcFVjv+TTqwY
+ HE/caSuK0kXPP4K+O8GyFhmXAMiv904Z47g6SsMj2bYVIX2t8W2ahVQId9UJdCHOXHE8
+ 2U49sCmK/Nk/Tc6wLGAUPWscFd7MfUUBsdWJApCLS9hINYejWXiyU5eYW/MRgg3YVVVP
+ 2ZzMvonSIH2W5qf9YEGGIDN+6ilSubR8i/SSkOWBWbqb76P1XR13wDBLfICZ2vArmoJZ
+ b12A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+ :references:mime-version:content-transfer-encoding;
+ bh=LNM1AEcQA1TC9gdIDYx11HgLW6iNh6oI5PWYGXlZlcE=;
+ b=eIzyTle2/CgNgnbiMGPz56IXC7XWwyhcdwrBqj4+eZnVA7ZF2cNp7i06su8Nw91CIZ
+ 5tm83ZcAj7pnyqFg3dvEIA9USfoPXYASEgfNExcuPBu7CZOGNX4QU/bXRYQeAc1l+CSU
+ fiLj6210+XfvJKsMxXjYxYiPR/AHf3HHS0B/tB713dT21BieTTzbgmZZnJOhFrwr93SK
+ Kzj52jRYsk2jWYPYQOM0MFF9vsLjSgag0Dvldqq7wY2pHJUEePl4ifZu7ko8FZPmMmtg
+ WaMqOdI3MlTEm1ULVcLq7yNH6u1/+IibA6W1VLPfiJs3oDydtrTJTEsKtSJjkG44Mkiz
+ n/nA==
+X-Gm-Message-State: AOAM532wX93ZhcRn86+TzXwaLRJcAFz9vdqs374nA83IWHDrW1TTW3k+
+ 5JTwDEU/a5ytdyB+pfhwMUg=
+X-Google-Smtp-Source: ABdhPJwU7PzmmCxcteLi5KWHy5fqWgZ5rFNEm/7Iy4Q7eBRKgkHL9WPdF7q8HZOW2aG5+mwxhSn5aw==
+X-Received: by 2002:a5d:5966:0:b0:20a:e810:5e9d with SMTP id
+ e38-20020a5d5966000000b0020ae8105e9dmr14033832wri.240.1651239756938; 
+ Fri, 29 Apr 2022 06:42:36 -0700 (PDT)
+Received: from able.fritz.box (p57b0b9e1.dip0.t-ipconnect.de. [87.176.185.225])
+ by smtp.gmail.com with ESMTPSA id
+ u19-20020a05600c19d300b00393f081d49fsm7301227wmq.2.2022.04.29.06.42.35
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Fri, 29 Apr 2022 06:42:36 -0700 (PDT)
+From: "=?UTF-8?q?Christian=20K=C3=B6nig?=" <ckoenig.leichtzumerken@gmail.com>
+X-Google-Original-From: =?UTF-8?q?Christian=20K=C3=B6nig?=
+ <christian.koenig@amd.com>
+To: daniel.vetter@ffwll.ch,
+	dri-devel@lists.freedesktop.org
+Subject: [PATCH 4/4] drm/qxl: add drm_gem_plane_helper_prepare_fb
+Date: Fri, 29 Apr 2022 15:42:30 +0200
+Message-Id: <20220429134230.24334-4-christian.koenig@amd.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20220429134230.24334-1-christian.koenig@amd.com>
+References: <20220429134230.24334-1-christian.koenig@amd.com>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 84d2912a-3ca0-4169-c160-08da29e15bfb
-X-MS-TrafficTypeDiagnostic: BN9PR12MB5210:EE_
-X-Microsoft-Antispam-PRVS: <BN9PR12MB5210218EBF06A66A7710C2E6ECFC9@BN9PR12MB5210.namprd12.prod.outlook.com>
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: euWGa+OpcLFnLunIFlSHZ83Nst/Y+Ftt+FY66S91Y2UtLV3qaJVIcHvY6x1HtBNmUvdXqkM9l8soH1NSbb7rVoLpunRGqYn457W8/OKZKUA76ntTGs20kBw3/dYeis52maKjkNPZYQzJ0Ef0hHqh5C92UH6C04WwMs0avC4uGJ26aRd+ENYVOjvui2uXVJBydet2k99oaTKjhzjIsMjtnPWddhdMB7a/xqbBaUFV+uK6na+GCV5rKRXxHb6/VgUCU2jN+DK8pDKI2Fdpx2G7UYAyWrLLfMIzFmR23UM4VOEr5MB3gOHz4AmIR29KrjD+Cg9VCvFNsGFtICn03B1NZRCXUQk+kfJY5mrQUtU+ltORsrfLx5PRgrPdHxe0rBq32eZZ5TwBu4k1toCQ14caWT61EkSk/eneUxgUKyq2xGy/ksl0VoIyUprQRrjQnpXs+ISI9pbE4OcjQigeYABKIvX0FTekNUdeK6bNlTPSnoveKDzEe4Ed70CLUzr1NrJtmSuMPj/8cfpW7yDdlliFrangJgA7Qe4587xlHMYLTyYVtXyFuc4f2ba2aQSwLLhdX++ablDlfEfPBP1hPGTr42tMRO6zRcqezdBYLAurKQakl8HDGtNZyt2yB1KgV49LLeCTt57UtX16R4ZY/Ptem0kXJnOWYszLVq7TanaO9E/saDTXrBpLiqI8pFJjZShsIrrmcJOF3teHPd+jz0T4nHq+iadIvScxB1agle0SSSkCQOfYcWCBuZBwyS0sKVHlPp9dOL+4BYCsp1mkvHYgwae1mIduXnybYQKTyQg4OHqXRNW7nj5WDHDy3gaSD1CW
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:DM4PR12MB5229.namprd12.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230001)(4636009)(366004)(2906002)(508600001)(36756003)(8936002)(31686004)(316002)(7416002)(966005)(4326008)(6486002)(8676002)(66946007)(66556008)(66476007)(5660300002)(110136005)(6512007)(6506007)(54906003)(2616005)(53546011)(26005)(186003)(38100700002)(86362001)(31696002)(6666004)(43740500002)(45980500001);
- DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?d1oraytseG5kRUpwU09GUVBZMGFFM1JPKzJDN1NyaURONlpISjRGTzFDblhV?=
- =?utf-8?B?b3ZNM3hhUmhwN3R2Y2oydE9EbDI3TUNHOGJQbklPcHcyVkovNjFpUUtobHFP?=
- =?utf-8?B?VFRBc1BJS3J5Uk85TXpqNnNma2NadWN3bXZqMkN0Y3VEd3dpU1JDYS9iVDk3?=
- =?utf-8?B?OGllU2x3N0tkTjJnTWZwam5tS2RKbitHcngvTzdSVHJ4cVhlOTgxeGZ1QmI2?=
- =?utf-8?B?M2VwOW1hZ2xSbmRwU21tRzJHWXVLeVc2eG1MV3FxUDNoZFN2UHRudjl6Nzcw?=
- =?utf-8?B?SHMyMGdwUHBRQ25MN3RCdHVwOXB5bHdwR0diV3FRL2ZibXR0S2pMckpFZmUz?=
- =?utf-8?B?Sm5jRm5PS2hoZG5ycGxFbE1UU2xPKzVtK2ZmSDN6ajFDVkpkdk1FeFVxZlRY?=
- =?utf-8?B?U0xDYnJTS1pLRnBGTVJrMjFaai8wNmpHVzdtSXNMR0xaL1lWeTgwdWFFNWk4?=
- =?utf-8?B?RmRYV1gxNUl6Q0ZIU1A3U3JBZ0VkaFdCa2pxYUZoQWcxV3VYUk1zdG9nZnRR?=
- =?utf-8?B?b0tPQ1ZZRDRoU24rdzJJN3RDN3VsdkRvOFl6RDREZmw4Ny80NGM5Zm9kbkhY?=
- =?utf-8?B?SUhLcTBYeUZ5MUNIN2x2TXBBdmVGUXNKd25QQy9RUTFjeHN0NFVPZzVSYkV6?=
- =?utf-8?B?VnNZSXRrSUhUN0NUS0NESWtpeFgzdDZBdnh3SkZyOVpCbnNNZVg4MWJqTzU3?=
- =?utf-8?B?QkNBOFl5NzVHZldkMDgvL2wwZ25kSktKby9kQUl3V0pvTTMwMGxTTlFRSUpM?=
- =?utf-8?B?N1lpUnlyQWt3S0pRM0gyejE5VlR2TGJxVnAwTG4wcWNGMEM3dkhydkVycHEv?=
- =?utf-8?B?S3lBS09md3V3c05rcVJ0WDFPZHlOd0xqSXhHNnFwZlUrNjhKSU55TlRlUlZi?=
- =?utf-8?B?NnhIcnNaV1RGM2FwTmVHKzN4eWg0ZXM4M1JKbXhjZzhQTURLS2RCalFQK0ps?=
- =?utf-8?B?WnRYSGVrazN0MUFYUHZSby84RS9ySEtWWVUvVERwSXJ5anQrRU5IcGdXeVVy?=
- =?utf-8?B?VVRNdGo5RkxldHpWNE5qUGF0eHJUUEVXYUJYTUNydHpIa2FTZkxQQjJjb3Jl?=
- =?utf-8?B?SEF1K2ZQVm9jSmhEODNCZHEzQ1VpbG9sRGw4akdGdXlqNTdad3Jka2cyVXRL?=
- =?utf-8?B?NklsRW1hWlhTeE5yaEM5MXBlYXNZOUFObXVPbkI0aUpRbWhhN1JjS0ppTHk2?=
- =?utf-8?B?djRvUkJOMDdXWFo1MDc5dklwMlVnQXgvMTM2UFR4ZXMwa1JScUhoeVU5cVN3?=
- =?utf-8?B?clFwYUsrOTlub2hnUVNYanJZbE0zb1ZtckpMTDBtUGpldTJwQTdpeWt2Ym9v?=
- =?utf-8?B?U1FqN0V2UjRJQ0JLVXlTY1lJLzRzbUJRaUFOUGh2UzdRQ2ltWkVEbnZnMTRp?=
- =?utf-8?B?TDZaMXhTWnB1YWhKSkJWOXdVMi9mNUZaLzJjeEFWWi84cStzSTlwR0lZbVEv?=
- =?utf-8?B?cUVSZHZwTmh6L3lUek5ZUTJ6RzVxN1plZUoxWHFNWEFmTnQxYmp0NkZVKzl5?=
- =?utf-8?B?WmlyVC90NEF2U2szdnNUa3J1L290elQ5UXF3MlVGdUhGaW1YTDZPSzJmb0Zz?=
- =?utf-8?B?djJXT2FiMlhIWjJiWkxDZ1ZiM3hTMXhGZUpOblJzaXhaN29uWGJRVllVRUVI?=
- =?utf-8?B?NSsvSzJucFdzWTNjWkErL0h6K1IxT0RkUDRtdElHVk1JcHhadG5nRGd0a0E4?=
- =?utf-8?B?VndZMWd3TWpwZjhXcjZoV3BTL09nZ0VBdSt4KzdWQy8xdXVFaHl1Mm05S3Fl?=
- =?utf-8?B?bmNHT3hkT1hsSjV3ckZXNXh6SEpTVERIWjRwd2VGQklCb1VpU0JoaGtIU2F2?=
- =?utf-8?B?NHdrUExOU0pHWWlCTXZlVVl5ZTA4VkN0RUt3citrRTBJb3dPVTNLcTc0MjM0?=
- =?utf-8?B?TVp1L2ZEalZUSWJmUXVBZ0Q5M3dtL0dibC9tYkZQVjRJSitKZHA1ellzYWNr?=
- =?utf-8?B?aGVIVzI3Y3plKzluUHFORktMeWlHZnUyWXAwVVMzZnp4RDgvYVdyRElwTUZv?=
- =?utf-8?B?TWhzVi95emZDbnBuQlg2L011anJUUGRuNXBlK0UveWlsU0hEYUxXR3hHcnBR?=
- =?utf-8?B?cElpNWF6c3J4WXA3aU1hVnVTVnR4Uit0RmJ2cjZtMzZTLzMrWkpmeVdTU0Js?=
- =?utf-8?B?L0FrZnBpL1RrQ0wzRnlPby9MMGV6Q3pFZ2VzZS9zWk5wbmlybjcwdFV0TW9o?=
- =?utf-8?B?dzcvZ1BZUVRiZkdHcnBjUks1RXh2b1N3RE9EeHVZMjY2TzRXcHlTbE1LMHdF?=
- =?utf-8?B?cGluUFJzTk9ZTGNNaDV2cEI2aWtJdXM2eUJhZVlNWnJCanBsem8vTm5yaGwr?=
- =?utf-8?B?MUpxcGJJdG15azJFMVpvbXZNNWdHTkpWWEVOMmFJRFJtZDBGNHdwUT09?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 84d2912a-3ca0-4169-c160-08da29e15bfb
-X-MS-Exchange-CrossTenant-AuthSource: DM4PR12MB5229.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Apr 2022 13:08:31.5826 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: cpdhqnKuiVqxGbU87+sjSKcIpUrXY7J65eJhY5QwPXmMwoCuj7iBQYqfUd9HMc0KXekZvxR1hdduY69ggorp/A==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN9PR12MB5210
-Cc: kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
- Dave Hansen <dave.hansen@linux.intel.com>,
+Cc: spice-devel@lists.freedesktop.org, Dave Airlie <airlied@redhat.com>,
  virtualization@lists.linux-foundation.org,
- Arvind Sankar <nivedita@alum.mit.edu>, hpa@zytor.com,
- Jiri Slaby <jslaby@suse.cz>, x86@kernel.org,
- David Rientjes <rientjes@google.com>, Eric Biederman <ebiederm@xmission.com>,
- Martin Radev <martin.b.radev@gmail.com>, Joerg Roedel <jroedel@suse.de>,
- Kees Cook <keescook@chromium.org>, Cfir Cohen <cfir@google.com>,
- linux-coco@lists.linux.dev, Andy Lutomirski <luto@kernel.org>,
- Dan Williams <dan.j.williams@intel.com>, Juergen Gross <jgross@suse.com>,
- Mike Stunes <mstunes@vmware.com>, Sean Christopherson <seanjc@google.com>,
- kexec@lists.infradead.org, linux-kernel@vger.kernel.org,
- Masami Hiramatsu <mhiramat@kernel.org>, Erdem Aktas <erdemaktas@google.com>
+ =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -165,102 +100,36 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Tom Lendacky via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Tom Lendacky <thomas.lendacky@amd.com>
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 4/29/22 04:06, Tao Liu wrote:
-> On Thu, Jan 27, 2022 at 11:10:34AM +0100, Joerg Roedel wrote:
-
-> 
-> Hi Joerg,
-> 
-> I tried the patch set with 5.17.0-rc1 kernel, and I have a few questions:
-> 
-> 1) Is it a bug or should qemu-kvm 6.2.0 be patched with specific patch? Because
->     I found it will exit with 0 when I tried to reboot the VM with sev-es enabled.
->     However with only sev enabled, the VM can do reboot with no problem:
-
-Qemu was specifically patched to exit on reboot with SEV-ES guests. Qemu 
-performs a reboot by resetting the vCPU state, which can't be done with an 
-SEV-ES guest because the vCPU state is encrypted.
-
-> 
-> [root@dell-per7525-03 ~]# virsh start TW-SEV-ES --console
-> ....
-> Fedora Linux 35 (Server Edition)
-> Kernel 5.17.0-rc1 on an x86_64 (ttyS0)
-> ....
-> [root@fedora ~]# reboot
-> .....
-> [   48.077682] reboot: Restarting system
-> [   48.078109] reboot: machine restart
->                         ^^^^^^^^^^^^^^^ guest vm reached restart
-> [root@dell-per7525-03 ~]# echo $?
-> 0
-> ^^^ qemu-kvm exit with 0, no reboot back to normal VM kernel
-> [root@dell-per7525-03 ~]#
-> 
-> 2) With sev-es enabled and the 2 patch sets applied: A) [PATCH v3 00/10] x86/sev:
-> KEXEC/KDUMP support for SEV-ES guests, and B) [PATCH v6 0/7] KVM: SVM: Add initial
-> GHCB protocol version 2 support. I can enable kdump and have vmcore generated:
-> 
-> [root@fedora ~]# dmesg|grep -i sev
-> [    0.030600] SEV: Hypervisor GHCB protocol version support: min=1 max=2
-> [    0.030602] SEV: Using GHCB protocol version 2
-> [    0.296144] AMD Memory Encryption Features active: SEV SEV-ES
-> [    0.450991] SEV: AP jump table Blob successfully set up
-> [root@fedora ~]# kdumpctl status
-> kdump: Kdump is operational
-> 
-> However without the 2 patch sets, I can also enable kdump and have vmcore generated:
-> 
-> [root@fedora ~]# dmesg|grep -i sev
-> [    0.295754] AMD Memory Encryption Features active: SEV SEV-ES
->                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ patch set A & B
-> 	       not applied, so only have this string.
-> [root@fedora ~]# echo c > /proc/sysrq-trigger
-> ...
-> [    2.759403] kdump[549]: saving vmcore-dmesg.txt to /sysroot/var/crash/127.0.0.1-2022-04-18-05:58:50/
-> [    2.804355] kdump[555]: saving vmcore-dmesg.txt complete
-> [    2.806915] kdump[557]: saving vmcore
->                             ^^^^^^^^^^^^^ vmcore can still be generated
-> ...
-> [    7.068981] reboot: Restarting system
-> [    7.069340] reboot: machine restart
-> 
-> [root@dell-per7525-03 ~]# echo $?
-> 0
-> ^^^ same exit issue as question 1.
-> 
-> I doesn't have a complete technical background of the patch set, but isn't
-> it the issue which this patch set is trying to solve? Or I missed something?
-
-The main goal of this patch set is to really to solve the ability to 
-perform a kexec. I would expect kdump to work since kdump shuts down all 
-but the executing vCPU and performs its operations before "rebooting" 
-(which will exit Qemu as I mentioned above). But kexec requires the need 
-to restart the APs from within the guest after they have been stopped. 
-That requires specific support and actions on the part of the guest kernel 
-in how the APs are stopped and restarted.
-
-Thanks,
-Tom
-
-> 
-> Thanks,
-> Tao Liu
->   
->> _______________________________________________
->> Virtualization mailing list
->> Virtualization@lists.linux-foundation.org
->> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
-> 
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+V2UgY291bGQgbmVlZCB0byB3YWl0IGZvciB0aGUgcGluIHRvIGNvbXBsZXRlIGhlcmUuCgpTaWdu
+ZWQtb2ZmLWJ5OiBDaHJpc3RpYW4gS8O2bmlnIDxjaHJpc3RpYW4ua29lbmlnQGFtZC5jb20+CkNj
+OiBEYXZlIEFpcmxpZSA8YWlybGllZEByZWRoYXQuY29tPgpDYzogR2VyZCBIb2ZmbWFubiA8a3Jh
+eGVsQHJlZGhhdC5jb20+CkNjOiB2aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9u
+Lm9yZwpDYzogc3BpY2UtZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCi0tLQogZHJpdmVycy9n
+cHUvZHJtL3F4bC9xeGxfZGlzcGxheS5jIHwgOCArKysrKysrLQogMSBmaWxlIGNoYW5nZWQsIDcg
+aW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2Ry
+bS9xeGwvcXhsX2Rpc3BsYXkuYyBiL2RyaXZlcnMvZ3B1L2RybS9xeGwvcXhsX2Rpc3BsYXkuYwpp
+bmRleCA5YTljMjliMWQzZTEuLjlhNjRmYTRjNzUzMCAxMDA2NDQKLS0tIGEvZHJpdmVycy9ncHUv
+ZHJtL3F4bC9xeGxfZGlzcGxheS5jCisrKyBiL2RyaXZlcnMvZ3B1L2RybS9xeGwvcXhsX2Rpc3Bs
+YXkuYwpAQCAtMzQsNiArMzQsNyBAQAogI2luY2x1ZGUgPGRybS9kcm1fcGxhbmVfaGVscGVyLmg+
+CiAjaW5jbHVkZSA8ZHJtL2RybV9wcm9iZV9oZWxwZXIuaD4KICNpbmNsdWRlIDxkcm0vZHJtX3Np
+bXBsZV9rbXNfaGVscGVyLmg+CisjaW5jbHVkZSA8ZHJtL2RybV9nZW1fYXRvbWljX2hlbHBlci5o
+PgogCiAjaW5jbHVkZSAicXhsX2Rydi5oIgogI2luY2x1ZGUgInF4bF9vYmplY3QuaCIKQEAgLTgy
+OSw2ICs4MzAsNyBAQCBzdGF0aWMgaW50IHF4bF9wbGFuZV9wcmVwYXJlX2ZiKHN0cnVjdCBkcm1f
+cGxhbmUgKnBsYW5lLAogCXN0cnVjdCBxeGxfZGV2aWNlICpxZGV2ID0gdG9fcXhsKHBsYW5lLT5k
+ZXYpOwogCXN0cnVjdCBkcm1fZ2VtX29iamVjdCAqb2JqOwogCXN0cnVjdCBxeGxfYm8gKnVzZXJf
+Ym87CisJaW50IHJldDsKIAogCWlmICghbmV3X3N0YXRlLT5mYikKIAkJcmV0dXJuIDA7CkBAIC04
+NTIsNyArODU0LDExIEBAIHN0YXRpYyBpbnQgcXhsX3BsYW5lX3ByZXBhcmVfZmIoc3RydWN0IGRy
+bV9wbGFuZSAqcGxhbmUsCiAJCXF4bF9mcmVlX2N1cnNvcihvbGRfY3Vyc29yX2JvKTsKIAl9CiAK
+LQlyZXR1cm4gcXhsX2JvX3Bpbih1c2VyX2JvKTsKKwlyZXQgPSBxeGxfYm9fcGluKHVzZXJfYm8p
+OworCWlmIChyZXQpCisJCXJldHVybiByZXQ7CisKKwlyZXR1cm4gZHJtX2dlbV9wbGFuZV9oZWxw
+ZXJfcHJlcGFyZV9mYihwbGFuZSwgbmV3X3N0YXRlKTsKIH0KIAogc3RhdGljIHZvaWQgcXhsX3Bs
+YW5lX2NsZWFudXBfZmIoc3RydWN0IGRybV9wbGFuZSAqcGxhbmUsCi0tIAoyLjI1LjEKCl9fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9u
+IG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpo
+dHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFs
+aXphdGlvbg==
