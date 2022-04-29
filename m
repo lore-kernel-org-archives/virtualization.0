@@ -1,109 +1,100 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 56946C433EF
-	for <virtualization@archiver.kernel.org>; Fri, 29 Apr 2022 02:02:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4CD7FC433F5
+	for <virtualization@archiver.kernel.org>; Fri, 29 Apr 2022 02:09:08 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id DE43583F56;
-	Fri, 29 Apr 2022 02:02:30 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id D9FB1611CF;
+	Fri, 29 Apr 2022 02:09:07 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id bDdDM_XJmBbg; Fri, 29 Apr 2022 02:02:30 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id uGO-TQJDn4O1; Fri, 29 Apr 2022 02:09:07 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 7936683EBF;
-	Fri, 29 Apr 2022 02:02:29 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 6025661198;
+	Fri, 29 Apr 2022 02:09:06 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 22CB9C0032;
-	Fri, 29 Apr 2022 02:02:29 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A74DDC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 340B4C0032;
+	Fri, 29 Apr 2022 02:09:06 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0BF8EC002D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 29 Apr 2022 02:02:27 +0000 (UTC)
+ Fri, 29 Apr 2022 02:09:05 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 99E1741BE5
+ by smtp3.osuosl.org (Postfix) with ESMTP id DE467611A0
  for <virtualization@lists.linux-foundation.org>;
- Fri, 29 Apr 2022 02:02:27 +0000 (UTC)
+ Fri, 29 Apr 2022 02:09:04 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Mi5Vk6HC_rKN
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 56FjktykIMrN
  for <virtualization@lists.linux-foundation.org>;
- Fri, 29 Apr 2022 02:02:26 +0000 (UTC)
+ Fri, 29 Apr 2022 02:09:04 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id E853441BD1
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 2859E61198
  for <virtualization@lists.linux-foundation.org>;
- Fri, 29 Apr 2022 02:02:25 +0000 (UTC)
+ Fri, 29 Apr 2022 02:09:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1651197744;
+ s=mimecast20190719; t=1651198142;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=Dvj9G0/4wUIqSyOJTfvrlWtHyKpXimLlrMN8i333+hY=;
- b=FkqDfv6nxNUruYkIkTxUa85nGrHVJenHN1o9mLBpn3LIaNKIoVhdbVtKzzGVwn7JkBVtdq
- VPaXUVuG+9JhUpXfktwFpjZcQ9nkhs28NFRDifzYZsFNsk6RcvWObPSdCRT1xxCIwW5RGO
- suaFqzhpBnHWyD5wrS0R0rDDNa1SVEM=
+ bh=n1hFr6Yi4j7w9u2wUwkc3nSsLkNRf93uROLqf4bH3hw=;
+ b=OPZGuSwnPLXoWNspjWejbyYHMInLitx54MWnGdpXQs9L+wPRip5DaUkum1X+UawuOM0YfE
+ wVLVb+Yq/1KDWxwjYHTjv5WoM3TAzaRh3LS1wrKyV1orpEfCX2YofE5j1DaecZkFyaA1OG
+ NUEjgmfHz30wB/ESG4r3JU7foFjIpqQ=
 Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
  [209.85.167.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-7-LTR7-1RbOX2PMwZQKMq-4g-1; Thu, 28 Apr 2022 22:02:22 -0400
-X-MC-Unique: LTR7-1RbOX2PMwZQKMq-4g-1
+ us-mta-582-mhOPR4t6Oqe-f0opmVXiSg-1; Thu, 28 Apr 2022 22:08:53 -0400
+X-MC-Unique: mhOPR4t6Oqe-f0opmVXiSg-1
 Received: by mail-lf1-f69.google.com with SMTP id
- v13-20020a056512096d00b004487e1503d0so2707362lft.4
+ h4-20020a0565123c8400b00471f8c2a09eso2717287lfv.10
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Apr 2022 19:02:22 -0700 (PDT)
+ Thu, 28 Apr 2022 19:08:52 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=Dvj9G0/4wUIqSyOJTfvrlWtHyKpXimLlrMN8i333+hY=;
- b=Uva53Dlm4gGdLE1GC99DXS0QkTeEC+NEJQlQvWUqTnaXQ+tmpEyH674EbkNSRjda50
- 0cihC2lZSJfUszz4aUDzS2T4X4i0YuCJ/KZsb1Rg1J4CsvlB6nPTYIVOY6IDVbSeyWrr
- 4/Vk2verRtwigstXwey9xI4oOwS+GdtyYsg6rAFHqcgZ8ctA3TUP16cnXB263pz015Kq
- 5x5DJcren32ykANP6np10Y7Exz8NnjMYBREzbVjXpzA0kt592PUtA8OUnXG+PO8IaElD
- xU4kQPype3QABAr8DRiL/bnG/nI4UYv+m/K9ifKnlY2IoL1fwmM4S+5BttEA+PUQXDXt
- IXRg==
-X-Gm-Message-State: AOAM533uE/3AZTrhamovh6Dd9A7L11wpj2xXbgwX5d/elXDHLS6bohay
- Pi7ESmthR/bwKW8zekMhuvFVYwfbaWfBIyEXyiCIdpFdDtd8k8X1vUa3vOOcZ1/RTSf1AEA9lqn
- fIvFhN9L7CcJGCLHc30gO4LkHMnVLrlO2cxEk3mEOaopGJMIM+ESUHLLJIg==
-X-Received: by 2002:a05:6512:1526:b0:471:44fa:c367 with SMTP id
- bq38-20020a056512152600b0047144fac367mr25928153lfb.376.1651197741181; 
- Thu, 28 Apr 2022 19:02:21 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxRwhr5Cr2fURlu5+J1sQU4pjDclODzlVYVdEfWUhon2IrguY2W6JlRc8rJ3htPCEJZ1xLuCNvxsMLxtCZHwxg=
-X-Received: by 2002:a05:6512:1526:b0:471:44fa:c367 with SMTP id
- bq38-20020a056512152600b0047144fac367mr25928142lfb.376.1651197740985; Thu, 28
- Apr 2022 19:02:20 -0700 (PDT)
+ bh=n1hFr6Yi4j7w9u2wUwkc3nSsLkNRf93uROLqf4bH3hw=;
+ b=FdIzeIFDVdbnVN7qYfggxvmVXnaoQPouxXg1B1qj7o6h6eCA2Iu0QYe2TxJhHM8aUP
+ c0UtQN/vm7pH16o0pTWPbluyEabf5LY3HheWegTTae6RbJc0YI5oibiEcdAyX3dvXwF3
+ DnvxNGq3q4zcB9cpJE24ddbkwE9ER6flT342Kn0ooto60YmFnlq5d09Dhj6hgxAoO7iW
+ uBnd9kcKjK5RbW3ZGgtEWBSE6NA6o1ujiozEh0Wf33A7Uf276tnpsPyqsUqgvYOsQVXv
+ KcGhAawVvk9DC2UnYPK9II3ovXQcRkLXNHAMZOucGFLx6TkkRoxHHgomTKCBb7rJgHj2
+ Vd+Q==
+X-Gm-Message-State: AOAM532xL1GIqKJenU+IJ1aXp8b2PjNOeDG7DAGEBAJpUr759PBdLojl
+ CjfoJjULyTnSkDOTyNCB0dVlRTrakOcwEObf9ANXBRvIs4mY7GybWjCfTX12Es2zzYq2giPGgpQ
+ qnlo8Yih7O4IJBj/eXjwSW4/PmP/BayfSETxA4BcfHOSz84sEfDZQYxLdmw==
+X-Received: by 2002:a05:651c:892:b0:249:9e23:15 with SMTP id
+ d18-20020a05651c089200b002499e230015mr23697093ljq.492.1651198131736; 
+ Thu, 28 Apr 2022 19:08:51 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxg9jpPQWsuBYVjm9WMW0PBgw9VuFnAduhGEOWG/ZXQHEFn6JmM4VwclH4MDqex/tZ+M8KTzTqL1c5etuwsVIY=
+X-Received: by 2002:a05:651c:892:b0:249:9e23:15 with SMTP id
+ d18-20020a05651c089200b002499e230015mr23697078ljq.492.1651198131581; Thu, 28
+ Apr 2022 19:08:51 -0700 (PDT)
 MIME-Version: 1.0
-References: <ba0c3977-c471-3275-2327-c5910cdd506a@redhat.com>
- <20220425235134-mutt-send-email-mst@kernel.org>
- <20220425235415-mutt-send-email-mst@kernel.org>
- <87o80n7soq.fsf@redhat.com> <20220426124243-mutt-send-email-mst@kernel.org>
- <87ilqu7u6w.fsf@redhat.com> <20220428044315.3945e660.pasic@linux.ibm.com>
- <CACGkMEudDf=XXhV2tV+xZ586AnDyrQEotGAiSQZ4k1CTAWHZJQ@mail.gmail.com>
- <20220428012156-mutt-send-email-mst@kernel.org>
- <CACGkMEsd+WHp=LN0BnnDKfzv+nbS2hjgVC-tdemZWuPTc60HBQ@mail.gmail.com>
- <20220428015318-mutt-send-email-mst@kernel.org>
- <CACGkMEutdd=9c-2h5ijMkgUzEqNPtUCXAum7bm8W7a6m62i_Mg@mail.gmail.com>
- <87zgk5lkme.fsf@redhat.com>
-In-Reply-To: <87zgk5lkme.fsf@redhat.com>
+References: <20220425024418.8415-1-jasowang@redhat.com>
+ <20220425024418.8415-4-jasowang@redhat.com>
+ <87r15hlgel.fsf@redhat.com>
+In-Reply-To: <87r15hlgel.fsf@redhat.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 29 Apr 2022 10:02:09 +0800
-Message-ID: <CACGkMEtAXGdWKTSh90DH-=0YHhoSFxR43jwA8eROHqxUxdrVYQ@mail.gmail.com>
-Subject: Re: [PATCH V3 6/9] virtio-ccw: implement synchronize_cbs()
+Date: Fri, 29 Apr 2022 10:08:40 +0800
+Message-ID: <CACGkMEsrSHtD9iO1qHjMGgwG5YwYVpX+7OKZaN9Oq29tPpGZYg@mail.gmail.com>
+Subject: Re: [PATCH V3 3/9] virtio: introduce config op to synchronize vring
+ callbacks
 To: Cornelia Huck <cohuck@redhat.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Cc: "Paul E. McKenney" <paulmck@kernel.org>, Cindy Lu <lulu@redhat.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>,
+ mst <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>,
  Marc Zyngier <maz@kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>,
  virtualization <virtualization@lists.linux-foundation.org>,
  Halil Pasic <pasic@linux.ibm.com>, eperezma <eperezma@redhat.com>,
@@ -124,53 +115,73 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Apr 28, 2022 at 3:42 PM Cornelia Huck <cohuck@redhat.com> wrote:
+On Thu, Apr 28, 2022 at 5:13 PM Cornelia Huck <cohuck@redhat.com> wrote:
 >
-> On Thu, Apr 28 2022, Jason Wang <jasowang@redhat.com> wrote:
+> On Mon, Apr 25 2022, Jason Wang <jasowang@redhat.com> wrote:
 >
-> > On Thu, Apr 28, 2022 at 1:55 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> >>
-> >> On Thu, Apr 28, 2022 at 01:51:59PM +0800, Jason Wang wrote:
-> >> > On Thu, Apr 28, 2022 at 1:24 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> >> > >
-> >> > > On Thu, Apr 28, 2022 at 11:04:41AM +0800, Jason Wang wrote:
-> >> > > > > But my guess is that rwlock + some testing for the legacy indicator case
-> >> > > > > just to double check if there is a heavy regression despite of our
-> >> > > > > expectations to see none should do the trick.
-> >> > > >
-> >> > > > I suggest this, rwlock (for not airq) seems better than spinlock, but
-> >> > > > at worst case it will cause cache line bouncing. But I wonder if it's
-> >> > > > noticeable (anyhow it has been used for airq).
-> >> > > >
-> >> > > > Thanks
-> >> > >
-> >> > > Which existing rwlock does airq use right now? Can we take it to sync?
-> >> >
-> >> > It's the rwlock in airq_info, it has already been used in this patch.
-> >> >
-> >> >                 write_lock(&info->lock);
-> >> >                 write_unlock(&info->lock);
-> >> >
-> >> > But the problem is, it looks to me there could be a case that airq is
-> >> > not used, (virtio_ccw_int_hander()). That's why the patch use a
-> >> > spinlock, it could be optimized with using a rwlock as well.
-> >> >
-> >> > Thanks
-> >>
-> >> Ah, right. So let's take that on the legacy path too and Halil promises
-> >> to test to make sure performance isn't impacted too badly?
-> >
-> > I think what you meant is using a dedicated rwlock instead of trying
-> > to reuse one of the airq_info locks.
-> >
-> > If this is true, it should be fine.
+> > This patch introduces new virtio config op to vring
+> > callbacks. Transport specific method is required to make sure the
+> > write before this function is visible to the vring_interrupt() that is
 >
-> FWIW, that approach makes sense to me as well.
->
+> Which kind of writes? I.e., what is the scope?
 
-Good to know that. Let me post a new version.
+Any writes before synchronize_cbs(). Is something like the following better?
+
+The function guarantees that all memory operations before it are
+visible to the vring_interrupt() that is called after it.
+
+>
+> > called after the return of this function. For the transport that
+> > doesn't provide synchronize_vqs(), use synchornize_rcu() which
+>
+> Typo: synchronize_rcu()
+
+Will fix it.
 
 Thanks
+
+>
+> > synchronize with IRQ implicitly as a fallback.
+> >
+> > Cc: Thomas Gleixner <tglx@linutronix.de>
+> > Cc: Peter Zijlstra <peterz@infradead.org>
+> > Cc: "Paul E. McKenney" <paulmck@kernel.org>
+> > Cc: Marc Zyngier <maz@kernel.org>
+> > Cc: Halil Pasic <pasic@linux.ibm.com>
+> > Cc: Cornelia Huck <cohuck@redhat.com>
+> > Signed-off-by: Jason Wang <jasowang@redhat.com>
+> > ---
+> >  include/linux/virtio_config.h | 24 ++++++++++++++++++++++++
+> >  1 file changed, 24 insertions(+)
+> >
+> > diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+> > index b341dd62aa4d..14fe89ff99c7 100644
+> > --- a/include/linux/virtio_config.h
+> > +++ b/include/linux/virtio_config.h
+> > @@ -57,6 +57,10 @@ struct virtio_shm_region {
+> >   *           include a NULL entry for vqs unused by driver
+> >   *   Returns 0 on success or error status
+> >   * @del_vqs: free virtqueues found by find_vqs().
+> > + * @synchronize_cbs: synchronize with the virtqueue callbacks (optional)
+> > + *      Make sure the writes commited before this method is visible to
+> > + *      vring_interrupt() which is called after this method.
+>
+> Same here, I think the description needs to be a bit more explicit about
+> which writes we care about here.
+>
+> > + *      vdev: the virtio_device
+> >   * @get_features: get the array of feature bits for this device.
+> >   *   vdev: the virtio_device
+> >   *   Returns the first 64 feature bits (all we currently need).
+> > @@ -89,6 +93,7 @@ struct virtio_config_ops {
+> >                       const char * const names[], const bool *ctx,
+> >                       struct irq_affinity *desc);
+> >       void (*del_vqs)(struct virtio_device *);
+> > +     void (*synchronize_cbs)(struct virtio_device *);
+> >       u64 (*get_features)(struct virtio_device *vdev);
+> >       int (*finalize_features)(struct virtio_device *vdev);
+> >       const char *(*bus_name)(struct virtio_device *vdev);
+>
 
 _______________________________________________
 Virtualization mailing list
