@@ -4,101 +4,98 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4CD7FC433F5
-	for <virtualization@archiver.kernel.org>; Fri, 29 Apr 2022 02:09:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 04DC8C433EF
+	for <virtualization@archiver.kernel.org>; Fri, 29 Apr 2022 02:47:00 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id D9FB1611CF;
-	Fri, 29 Apr 2022 02:09:07 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 97382605B3;
+	Fri, 29 Apr 2022 02:47:00 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id uGO-TQJDn4O1; Fri, 29 Apr 2022 02:09:07 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 6025661198;
-	Fri, 29 Apr 2022 02:09:06 +0000 (UTC)
+	with ESMTP id 7dqlWkSHFiQK; Fri, 29 Apr 2022 02:46:59 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 37A56606CB;
+	Fri, 29 Apr 2022 02:46:59 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 340B4C0032;
-	Fri, 29 Apr 2022 02:09:06 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0BF8EC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 01ADEC0032;
+	Fri, 29 Apr 2022 02:46:59 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6438EC002D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 29 Apr 2022 02:09:05 +0000 (UTC)
+ Fri, 29 Apr 2022 02:46:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id DE467611A0
+ by smtp2.osuosl.org (Postfix) with ESMTP id 3D1FC40165
  for <virtualization@lists.linux-foundation.org>;
- Fri, 29 Apr 2022 02:09:04 +0000 (UTC)
+ Fri, 29 Apr 2022 02:46:57 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 56FjktykIMrN
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id lboysKKDywCM
  for <virtualization@lists.linux-foundation.org>;
- Fri, 29 Apr 2022 02:09:04 +0000 (UTC)
+ Fri, 29 Apr 2022 02:46:56 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 2859E61198
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 7DDE3400A6
  for <virtualization@lists.linux-foundation.org>;
- Fri, 29 Apr 2022 02:09:03 +0000 (UTC)
+ Fri, 29 Apr 2022 02:46:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1651198142;
+ s=mimecast20190719; t=1651200414;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=n1hFr6Yi4j7w9u2wUwkc3nSsLkNRf93uROLqf4bH3hw=;
- b=OPZGuSwnPLXoWNspjWejbyYHMInLitx54MWnGdpXQs9L+wPRip5DaUkum1X+UawuOM0YfE
- wVLVb+Yq/1KDWxwjYHTjv5WoM3TAzaRh3LS1wrKyV1orpEfCX2YofE5j1DaecZkFyaA1OG
- NUEjgmfHz30wB/ESG4r3JU7foFjIpqQ=
-Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
- [209.85.167.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=L2gx7h6NbYu8uuTSJ9N8wCp852RvTqnX9mX9jiXJyBc=;
+ b=e6TN7QFmlfQ6b81tLKKQIDoYw2a/kYs6y7Cr1q96xBj4PbaXIJR2SeXKyqmBJ68u1DAnci
+ xnnhyXSe2suPMk+mGPH6lZXbTGSVc51Gfab7VO6a1aohjyKsbVqfSosy4O23YgHgUKcTog
+ AfPRybVfDJZuPOK4omVQ6KgMSZXR3k4=
+Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
+ [209.85.167.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-582-mhOPR4t6Oqe-f0opmVXiSg-1; Thu, 28 Apr 2022 22:08:53 -0400
-X-MC-Unique: mhOPR4t6Oqe-f0opmVXiSg-1
-Received: by mail-lf1-f69.google.com with SMTP id
- h4-20020a0565123c8400b00471f8c2a09eso2717287lfv.10
+ us-mta-660-x4DTziG4OH-LPi5okrgwqA-1; Thu, 28 Apr 2022 22:46:52 -0400
+X-MC-Unique: x4DTziG4OH-LPi5okrgwqA-1
+Received: by mail-lf1-f72.google.com with SMTP id
+ d4-20020a05651221c400b0046ba0689478so2738359lft.21
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Apr 2022 19:08:52 -0700 (PDT)
+ Thu, 28 Apr 2022 19:46:52 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=n1hFr6Yi4j7w9u2wUwkc3nSsLkNRf93uROLqf4bH3hw=;
- b=FdIzeIFDVdbnVN7qYfggxvmVXnaoQPouxXg1B1qj7o6h6eCA2Iu0QYe2TxJhHM8aUP
- c0UtQN/vm7pH16o0pTWPbluyEabf5LY3HheWegTTae6RbJc0YI5oibiEcdAyX3dvXwF3
- DnvxNGq3q4zcB9cpJE24ddbkwE9ER6flT342Kn0ooto60YmFnlq5d09Dhj6hgxAoO7iW
- uBnd9kcKjK5RbW3ZGgtEWBSE6NA6o1ujiozEh0Wf33A7Uf276tnpsPyqsUqgvYOsQVXv
- KcGhAawVvk9DC2UnYPK9II3ovXQcRkLXNHAMZOucGFLx6TkkRoxHHgomTKCBb7rJgHj2
- Vd+Q==
-X-Gm-Message-State: AOAM532xL1GIqKJenU+IJ1aXp8b2PjNOeDG7DAGEBAJpUr759PBdLojl
- CjfoJjULyTnSkDOTyNCB0dVlRTrakOcwEObf9ANXBRvIs4mY7GybWjCfTX12Es2zzYq2giPGgpQ
- qnlo8Yih7O4IJBj/eXjwSW4/PmP/BayfSETxA4BcfHOSz84sEfDZQYxLdmw==
-X-Received: by 2002:a05:651c:892:b0:249:9e23:15 with SMTP id
- d18-20020a05651c089200b002499e230015mr23697093ljq.492.1651198131736; 
- Thu, 28 Apr 2022 19:08:51 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxg9jpPQWsuBYVjm9WMW0PBgw9VuFnAduhGEOWG/ZXQHEFn6JmM4VwclH4MDqex/tZ+M8KTzTqL1c5etuwsVIY=
-X-Received: by 2002:a05:651c:892:b0:249:9e23:15 with SMTP id
- d18-20020a05651c089200b002499e230015mr23697078ljq.492.1651198131581; Thu, 28
- Apr 2022 19:08:51 -0700 (PDT)
+ bh=L2gx7h6NbYu8uuTSJ9N8wCp852RvTqnX9mX9jiXJyBc=;
+ b=BUk2TgHgtiPuOcKU+7YQBL4gry80I5PXZnHBf+fzVKEZ1l3YaZO28eMoZ/E0FT9Kad
+ ItcpUb8+vvnsG1YnLFDCn67DgQbBfc0GDcpaakiYj171IQyLAz6iFLCctiV2/15RVjRq
+ BfJNsev9vUeBFZkSZ+sCw75au2a//ebMOVjrjq7bv1t51A5kJc/v1dYLdd6ya0DYOywa
+ fihhWktxtss2hQgXMnXf9yEiWZizM8Avhp71+IMpaycld/xOMuKnKiWNAv8bJkGQ4LSV
+ 0W4brC/gilKtxptAVLv1otQoQtVgmJHG39XBmODpAWfFZwq9rEd8EYSjVdypgg8gUZZd
+ u0rg==
+X-Gm-Message-State: AOAM530saEzQ3AVaIJVlCBEHDelVAzF796PJDSLp3Xk4BXWuJrH2y4dq
+ fYlO9HCwZ9s7IWxvSvVtT5BJCmtygU6mEgUYJ0gR0OD/7lGVxYWqT0WBMq6lSmNS3iVFfms2TUX
+ prflz7gsLrjO7KWCdXs/eeiNKZgmJ1N9bsMdOPsdfhc/JvRladhuNDecHSw==
+X-Received: by 2002:a19:ca50:0:b0:471:f556:92b with SMTP id
+ h16-20020a19ca50000000b00471f556092bmr22046664lfj.587.1651200411380; 
+ Thu, 28 Apr 2022 19:46:51 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJx6iPLLBUifBPvjONr1Ab9ze/wQ5cB0TwkyM+p9qr7gp7ho++cFBXhVIBCz1e5TwUXO7O0QeVLJ2MLAvlTw4Ac=
+X-Received: by 2002:a19:ca50:0:b0:471:f556:92b with SMTP id
+ h16-20020a19ca50000000b00471f556092bmr22046647lfj.587.1651200411210; Thu, 28
+ Apr 2022 19:46:51 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220425024418.8415-1-jasowang@redhat.com>
- <20220425024418.8415-4-jasowang@redhat.com>
- <87r15hlgel.fsf@redhat.com>
-In-Reply-To: <87r15hlgel.fsf@redhat.com>
+References: <20220428151242.213824-1-sgarzare@redhat.com>
+In-Reply-To: <20220428151242.213824-1-sgarzare@redhat.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 29 Apr 2022 10:08:40 +0800
-Message-ID: <CACGkMEsrSHtD9iO1qHjMGgwG5YwYVpX+7OKZaN9Oq29tPpGZYg@mail.gmail.com>
-Subject: Re: [PATCH V3 3/9] virtio: introduce config op to synchronize vring
- callbacks
-To: Cornelia Huck <cohuck@redhat.com>
+Date: Fri, 29 Apr 2022 10:46:40 +0800
+Message-ID: <CACGkMEv=0VWh_NxhvM+6_TRHEx0f2RGRWbR1n5RhKfq0a7xJUw@mail.gmail.com>
+Subject: Re: [PATCH] vdpa_sim_blk: add support for VIRTIO_BLK_T_FLUSH
+To: Stefano Garzarella <sgarzare@redhat.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: "Paul E. McKenney" <paulmck@kernel.org>, Cindy Lu <lulu@redhat.com>,
- mst <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>,
- Marc Zyngier <maz@kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>,
- Halil Pasic <pasic@linux.ibm.com>, eperezma <eperezma@redhat.com>,
- Thomas Gleixner <tglx@linutronix.de>
+Cc: Max Gurtovoy <mgurtovoy@nvidia.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ linux-kernel <linux-kernel@vger.kernel.org>,
+ Stefan Hajnoczi <stefanha@redhat.com>,
+ virtualization <virtualization@lists.linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -115,72 +112,58 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Apr 28, 2022 at 5:13 PM Cornelia Huck <cohuck@redhat.com> wrote:
+On Thu, Apr 28, 2022 at 11:13 PM Stefano Garzarella <sgarzare@redhat.com> wrote:
 >
-> On Mon, Apr 25 2022, Jason Wang <jasowang@redhat.com> wrote:
+> The simulator behaves like a ramdisk, so we don't have to do
+> anything when a VIRTIO_BLK_T_FLUSH request is received, but it
+> could be useful to test driver behavior.
 >
-> > This patch introduces new virtio config op to vring
-> > callbacks. Transport specific method is required to make sure the
-> > write before this function is visible to the vring_interrupt() that is
+> Let's expose the VIRTIO_BLK_F_FLUSH feature to inform the driver
+> that we support the flush command.
 >
-> Which kind of writes? I.e., what is the scope?
+> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+> ---
+>  drivers/vdpa/vdpa_sim/vdpa_sim_blk.c | 12 ++++++++++++
+>  1 file changed, 12 insertions(+)
+>
+> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c b/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
+> index 42d401d43911..a6dd1233797c 100644
+> --- a/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
+> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
+> @@ -25,6 +25,7 @@
+>  #define DRV_LICENSE  "GPL v2"
+>
+>  #define VDPASIM_BLK_FEATURES   (VDPASIM_FEATURES | \
+> +                                (1ULL << VIRTIO_BLK_F_FLUSH)    | \
+>                                  (1ULL << VIRTIO_BLK_F_SIZE_MAX) | \
+>                                  (1ULL << VIRTIO_BLK_F_SEG_MAX)  | \
+>                                  (1ULL << VIRTIO_BLK_F_BLK_SIZE) | \
+> @@ -166,6 +167,17 @@ static bool vdpasim_blk_handle_req(struct vdpasim *vdpasim,
+>                 pushed += bytes;
+>                 break;
+>
+> +       case VIRTIO_BLK_T_FLUSH:
+> +               if (sector != 0) {
+> +                       dev_err(&vdpasim->vdpa.dev,
+> +                               "A driver MUST set sector to 0 for a VIRTIO_BLK_T_FLUSH request - sector: 0x%llx\n",
+> +                               sector);
 
-Any writes before synchronize_cbs(). Is something like the following better?
-
-The function guarantees that all memory operations before it are
-visible to the vring_interrupt() that is called after it.
-
->
-> > called after the return of this function. For the transport that
-> > doesn't provide synchronize_vqs(), use synchornize_rcu() which
->
-> Typo: synchronize_rcu()
-
-Will fix it.
+If this is something that could be triggered by userspace/guest, then
+we should avoid this.
 
 Thanks
 
->
-> > synchronize with IRQ implicitly as a fallback.
-> >
-> > Cc: Thomas Gleixner <tglx@linutronix.de>
-> > Cc: Peter Zijlstra <peterz@infradead.org>
-> > Cc: "Paul E. McKenney" <paulmck@kernel.org>
-> > Cc: Marc Zyngier <maz@kernel.org>
-> > Cc: Halil Pasic <pasic@linux.ibm.com>
-> > Cc: Cornelia Huck <cohuck@redhat.com>
-> > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > ---
-> >  include/linux/virtio_config.h | 24 ++++++++++++++++++++++++
-> >  1 file changed, 24 insertions(+)
-> >
-> > diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-> > index b341dd62aa4d..14fe89ff99c7 100644
-> > --- a/include/linux/virtio_config.h
-> > +++ b/include/linux/virtio_config.h
-> > @@ -57,6 +57,10 @@ struct virtio_shm_region {
-> >   *           include a NULL entry for vqs unused by driver
-> >   *   Returns 0 on success or error status
-> >   * @del_vqs: free virtqueues found by find_vqs().
-> > + * @synchronize_cbs: synchronize with the virtqueue callbacks (optional)
-> > + *      Make sure the writes commited before this method is visible to
-> > + *      vring_interrupt() which is called after this method.
->
-> Same here, I think the description needs to be a bit more explicit about
-> which writes we care about here.
->
-> > + *      vdev: the virtio_device
-> >   * @get_features: get the array of feature bits for this device.
-> >   *   vdev: the virtio_device
-> >   *   Returns the first 64 feature bits (all we currently need).
-> > @@ -89,6 +93,7 @@ struct virtio_config_ops {
-> >                       const char * const names[], const bool *ctx,
-> >                       struct irq_affinity *desc);
-> >       void (*del_vqs)(struct virtio_device *);
-> > +     void (*synchronize_cbs)(struct virtio_device *);
-> >       u64 (*get_features)(struct virtio_device *vdev);
-> >       int (*finalize_features)(struct virtio_device *vdev);
-> >       const char *(*bus_name)(struct virtio_device *vdev);
+> +                       status = VIRTIO_BLK_S_IOERR;
+> +                       break;
+> +               }
+> +
+> +               break;
+> +
+>         default:
+>                 dev_warn(&vdpasim->vdpa.dev,
+>                          "Unsupported request type %d\n", type);
+> --
+> 2.35.1
 >
 
 _______________________________________________
