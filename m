@@ -1,94 +1,71 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id EBFEBC433EF
-	for <virtualization@archiver.kernel.org>; Fri, 29 Apr 2022 13:42:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id CF55CC433EF
+	for <virtualization@archiver.kernel.org>; Sun,  1 May 2022 18:30:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id A454E83FF7;
-	Fri, 29 Apr 2022 13:42:42 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 54AB260E1B;
+	Sun,  1 May 2022 18:30:56 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id xQtP2gviBW3A; Fri, 29 Apr 2022 13:42:41 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 4B33783E5D;
-	Fri, 29 Apr 2022 13:42:41 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id oc9wpzHBxGgi; Sun,  1 May 2022 18:30:55 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 6B57560E16;
+	Sun,  1 May 2022 18:30:54 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id EA02AC0032;
-	Fri, 29 Apr 2022 13:42:40 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8A73BC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3406FC0032;
+	Sun,  1 May 2022 18:30:54 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B899DC002D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 29 Apr 2022 13:42:39 +0000 (UTC)
+ Sun,  1 May 2022 18:30:52 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 7989683F16
+ by smtp4.osuosl.org (Postfix) with ESMTP id 91A4341499
  for <virtualization@lists.linux-foundation.org>;
- Fri, 29 Apr 2022 13:42:39 +0000 (UTC)
+ Sun,  1 May 2022 18:30:52 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 5QgAYyVAmfxs
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=linuxfoundation.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 3kQpuHHpVsN5
  for <virtualization@lists.linux-foundation.org>;
- Fri, 29 Apr 2022 13:42:38 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com
- [IPv6:2a00:1450:4864:20::434])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 9E82983E5D
+ Sun,  1 May 2022 18:30:50 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 9FBF8414A1
  for <virtualization@lists.linux-foundation.org>;
- Fri, 29 Apr 2022 13:42:38 +0000 (UTC)
-Received: by mail-wr1-x434.google.com with SMTP id i5so10825612wrc.13
- for <virtualization@lists.linux-foundation.org>;
- Fri, 29 Apr 2022 06:42:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:content-transfer-encoding;
- bh=LNM1AEcQA1TC9gdIDYx11HgLW6iNh6oI5PWYGXlZlcE=;
- b=p/2OcZKTlgGP3GKgPfjNkt19DmFAK1dTdwQk5tAt0UhUE0cUd2X+fBDeOjf+Ffhe20
- r8F0++xJoGDy/lMVhaIPOSxtSuqyIcMOJ9HBLV9NNr7ObSnlU/diKZ9ipcFVjv+TTqwY
- HE/caSuK0kXPP4K+O8GyFhmXAMiv904Z47g6SsMj2bYVIX2t8W2ahVQId9UJdCHOXHE8
- 2U49sCmK/Nk/Tc6wLGAUPWscFd7MfUUBsdWJApCLS9hINYejWXiyU5eYW/MRgg3YVVVP
- 2ZzMvonSIH2W5qf9YEGGIDN+6ilSubR8i/SSkOWBWbqb76P1XR13wDBLfICZ2vArmoJZ
- b12A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
- :references:mime-version:content-transfer-encoding;
- bh=LNM1AEcQA1TC9gdIDYx11HgLW6iNh6oI5PWYGXlZlcE=;
- b=eIzyTle2/CgNgnbiMGPz56IXC7XWwyhcdwrBqj4+eZnVA7ZF2cNp7i06su8Nw91CIZ
- 5tm83ZcAj7pnyqFg3dvEIA9USfoPXYASEgfNExcuPBu7CZOGNX4QU/bXRYQeAc1l+CSU
- fiLj6210+XfvJKsMxXjYxYiPR/AHf3HHS0B/tB713dT21BieTTzbgmZZnJOhFrwr93SK
- Kzj52jRYsk2jWYPYQOM0MFF9vsLjSgag0Dvldqq7wY2pHJUEePl4ifZu7ko8FZPmMmtg
- WaMqOdI3MlTEm1ULVcLq7yNH6u1/+IibA6W1VLPfiJs3oDydtrTJTEsKtSJjkG44Mkiz
- n/nA==
-X-Gm-Message-State: AOAM532wX93ZhcRn86+TzXwaLRJcAFz9vdqs374nA83IWHDrW1TTW3k+
- 5JTwDEU/a5ytdyB+pfhwMUg=
-X-Google-Smtp-Source: ABdhPJwU7PzmmCxcteLi5KWHy5fqWgZ5rFNEm/7Iy4Q7eBRKgkHL9WPdF7q8HZOW2aG5+mwxhSn5aw==
-X-Received: by 2002:a5d:5966:0:b0:20a:e810:5e9d with SMTP id
- e38-20020a5d5966000000b0020ae8105e9dmr14033832wri.240.1651239756938; 
- Fri, 29 Apr 2022 06:42:36 -0700 (PDT)
-Received: from able.fritz.box (p57b0b9e1.dip0.t-ipconnect.de. [87.176.185.225])
- by smtp.gmail.com with ESMTPSA id
- u19-20020a05600c19d300b00393f081d49fsm7301227wmq.2.2022.04.29.06.42.35
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 29 Apr 2022 06:42:36 -0700 (PDT)
-From: "=?UTF-8?q?Christian=20K=C3=B6nig?=" <ckoenig.leichtzumerken@gmail.com>
-X-Google-Original-From: =?UTF-8?q?Christian=20K=C3=B6nig?=
- <christian.koenig@amd.com>
-To: daniel.vetter@ffwll.ch,
-	dri-devel@lists.freedesktop.org
-Subject: [PATCH 4/4] drm/qxl: add drm_gem_plane_helper_prepare_fb
-Date: Fri, 29 Apr 2022 15:42:30 +0200
-Message-Id: <20220429134230.24334-4-christian.koenig@amd.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220429134230.24334-1-christian.koenig@amd.com>
-References: <20220429134230.24334-1-christian.koenig@amd.com>
+ Sun,  1 May 2022 18:30:50 +0000 (UTC)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by dfw.source.kernel.org (Postfix) with ESMTPS id 0A70C60FD1;
+ Sun,  1 May 2022 18:30:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8498BC385A9;
+ Sun,  1 May 2022 18:30:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+ s=korg; t=1651429848;
+ bh=H8UCwm2vAktyJgaAuA8JnF+icbWMjS9fGjLX7ddzlyI=;
+ h=Subject:To:Cc:From:Date:From;
+ b=Lx672nponmR4xF0hp/4J4ljwop481iq3qyPXNAsAQmAzc8YhcXr4QHmB4dDmQ/a6F
+ 0VtoQtKefm45ElHMsKKLUYidM3lB4JgLejPxJcX0vt3Uy4ouyKuAI35953IApF6bPv
+ B4/OIDDbPiP4DI4vT7rfOljC31fnGzIiChLnjEck=
+Subject: Patch "virtio_net: fix wrong buf address calculation when using xdp"
+ has been added to the 5.15-stable tree
+To: daniel@iogearbox.net, gregkh@linuxfoundation.org, jasowang@redhat.com,
+ mst@redhat.com, pabeni@redhat.com, razor@blackwall.org,
+ virtualization@lists.linux-foundation.org, xuanzhuo@linux.alibaba.com
+From: <gregkh@linuxfoundation.org>
+Date: Sun, 01 May 2022 20:30:18 +0200
+Message-ID: <165142981895171@kroah.com>
 MIME-Version: 1.0
-Cc: spice-devel@lists.freedesktop.org, Dave Airlie <airlied@redhat.com>,
- virtualization@lists.linux-foundation.org,
- =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
+X-stable: commit
+X-Patchwork-Hint: ignore 
+Cc: stable-commits@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -100,36 +77,238 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-V2UgY291bGQgbmVlZCB0byB3YWl0IGZvciB0aGUgcGluIHRvIGNvbXBsZXRlIGhlcmUuCgpTaWdu
-ZWQtb2ZmLWJ5OiBDaHJpc3RpYW4gS8O2bmlnIDxjaHJpc3RpYW4ua29lbmlnQGFtZC5jb20+CkNj
-OiBEYXZlIEFpcmxpZSA8YWlybGllZEByZWRoYXQuY29tPgpDYzogR2VyZCBIb2ZmbWFubiA8a3Jh
-eGVsQHJlZGhhdC5jb20+CkNjOiB2aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9u
-Lm9yZwpDYzogc3BpY2UtZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCi0tLQogZHJpdmVycy9n
-cHUvZHJtL3F4bC9xeGxfZGlzcGxheS5jIHwgOCArKysrKysrLQogMSBmaWxlIGNoYW5nZWQsIDcg
-aW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2Ry
-bS9xeGwvcXhsX2Rpc3BsYXkuYyBiL2RyaXZlcnMvZ3B1L2RybS9xeGwvcXhsX2Rpc3BsYXkuYwpp
-bmRleCA5YTljMjliMWQzZTEuLjlhNjRmYTRjNzUzMCAxMDA2NDQKLS0tIGEvZHJpdmVycy9ncHUv
-ZHJtL3F4bC9xeGxfZGlzcGxheS5jCisrKyBiL2RyaXZlcnMvZ3B1L2RybS9xeGwvcXhsX2Rpc3Bs
-YXkuYwpAQCAtMzQsNiArMzQsNyBAQAogI2luY2x1ZGUgPGRybS9kcm1fcGxhbmVfaGVscGVyLmg+
-CiAjaW5jbHVkZSA8ZHJtL2RybV9wcm9iZV9oZWxwZXIuaD4KICNpbmNsdWRlIDxkcm0vZHJtX3Np
-bXBsZV9rbXNfaGVscGVyLmg+CisjaW5jbHVkZSA8ZHJtL2RybV9nZW1fYXRvbWljX2hlbHBlci5o
-PgogCiAjaW5jbHVkZSAicXhsX2Rydi5oIgogI2luY2x1ZGUgInF4bF9vYmplY3QuaCIKQEAgLTgy
-OSw2ICs4MzAsNyBAQCBzdGF0aWMgaW50IHF4bF9wbGFuZV9wcmVwYXJlX2ZiKHN0cnVjdCBkcm1f
-cGxhbmUgKnBsYW5lLAogCXN0cnVjdCBxeGxfZGV2aWNlICpxZGV2ID0gdG9fcXhsKHBsYW5lLT5k
-ZXYpOwogCXN0cnVjdCBkcm1fZ2VtX29iamVjdCAqb2JqOwogCXN0cnVjdCBxeGxfYm8gKnVzZXJf
-Ym87CisJaW50IHJldDsKIAogCWlmICghbmV3X3N0YXRlLT5mYikKIAkJcmV0dXJuIDA7CkBAIC04
-NTIsNyArODU0LDExIEBAIHN0YXRpYyBpbnQgcXhsX3BsYW5lX3ByZXBhcmVfZmIoc3RydWN0IGRy
-bV9wbGFuZSAqcGxhbmUsCiAJCXF4bF9mcmVlX2N1cnNvcihvbGRfY3Vyc29yX2JvKTsKIAl9CiAK
-LQlyZXR1cm4gcXhsX2JvX3Bpbih1c2VyX2JvKTsKKwlyZXQgPSBxeGxfYm9fcGluKHVzZXJfYm8p
-OworCWlmIChyZXQpCisJCXJldHVybiByZXQ7CisKKwlyZXR1cm4gZHJtX2dlbV9wbGFuZV9oZWxw
-ZXJfcHJlcGFyZV9mYihwbGFuZSwgbmV3X3N0YXRlKTsKIH0KIAogc3RhdGljIHZvaWQgcXhsX3Bs
-YW5lX2NsZWFudXBfZmIoc3RydWN0IGRybV9wbGFuZSAqcGxhbmUsCi0tIAoyLjI1LjEKCl9fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9u
-IG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpo
-dHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFs
-aXphdGlvbg==
+
+This is a note to let you know that I've just added the patch titled
+
+    virtio_net: fix wrong buf address calculation when using xdp
+
+to the 5.15-stable tree which can be found at:
+    http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+
+The filename of the patch is:
+     virtio_net-fix-wrong-buf-address-calculation-when-using-xdp.patch
+and it can be found in the queue-5.15 subdirectory.
+
+If you, or anyone else, feels it should not be added to the stable tree,
+please let <stable@vger.kernel.org> know about it.
+
+
+From acb16b395c3f3d7502443e0c799c2b42df645642 Mon Sep 17 00:00:00 2001
+From: Nikolay Aleksandrov <razor@blackwall.org>
+Date: Mon, 25 Apr 2022 13:37:03 +0300
+Subject: virtio_net: fix wrong buf address calculation when using xdp
+
+From: Nikolay Aleksandrov <razor@blackwall.org>
+
+commit acb16b395c3f3d7502443e0c799c2b42df645642 upstream.
+
+We received a report[1] of kernel crashes when Cilium is used in XDP
+mode with virtio_net after updating to newer kernels. After
+investigating the reason it turned out that when using mergeable bufs
+with an XDP program which adjusts xdp.data or xdp.data_meta page_to_buf()
+calculates the build_skb address wrong because the offset can become less
+than the headroom so it gets the address of the previous page (-X bytes
+depending on how lower offset is):
+ page_to_skb: page addr ffff9eb2923e2000 buf ffff9eb2923e1ffc offset 252 headroom 256
+
+This is a pr_err() I added in the beginning of page_to_skb which clearly
+shows offset that is less than headroom by adding 4 bytes of metadata
+via an xdp prog. The calculations done are:
+ receive_mergeable():
+ headroom = VIRTIO_XDP_HEADROOM; // VIRTIO_XDP_HEADROOM == 256 bytes
+ offset = xdp.data - page_address(xdp_page) -
+          vi->hdr_len - metasize;
+
+ page_to_skb():
+ p = page_address(page) + offset;
+ ...
+ buf = p - headroom;
+
+Now buf goes -4 bytes from the page's starting address as can be seen
+above which is set as skb->head and skb->data by build_skb later. Depending
+on what's done with the skb (when it's freed most often) we get all kinds
+of corruptions and BUG_ON() triggers in mm[2]. We have to recalculate
+the new headroom after the xdp program has run, similar to how offset
+and len are recalculated. Headroom is directly related to
+data_hard_start, data and data_meta, so we use them to get the new size.
+The result is correct (similar pr_err() in page_to_skb, one case of
+xdp_page and one case of virtnet buf):
+ a) Case with 4 bytes of metadata
+ [  115.949641] page_to_skb: page addr ffff8b4dcfad2000 offset 252 headroom 252
+ [  121.084105] page_to_skb: page addr ffff8b4dcf018000 offset 20732 headroom 252
+ b) Case of pushing data +32 bytes
+ [  153.181401] page_to_skb: page addr ffff8b4dd0c4d000 offset 288 headroom 288
+ [  158.480421] page_to_skb: page addr ffff8b4dd00b0000 offset 24864 headroom 288
+ c) Case of pushing data -33 bytes
+ [  835.906830] page_to_skb: page addr ffff8b4dd3270000 offset 223 headroom 223
+ [  840.839910] page_to_skb: page addr ffff8b4dcdd68000 offset 12511 headroom 223
+
+Offset and headroom are equal because offset points to the start of
+reserved bytes for the virtio_net header which are at buf start +
+headroom, while data points at buf start + vnet hdr size + headroom so
+when data or data_meta are adjusted by the xdp prog both the headroom size
+and the offset change equally. We can use data_hard_start to compute the
+new headroom after the xdp prog (linearized / page start case, the
+virtnet buf case is similar just with bigger base offset):
+ xdp.data_hard_start = page_address + vnet_hdr
+ xdp.data = page_address + vnet_hdr + headroom
+ new headroom after xdp prog = xdp.data - xdp.data_hard_start - metasize
+
+An example reproducer xdp prog[3] is below.
+
+[1] https://github.com/cilium/cilium/issues/19453
+
+[2] Two of the many traces:
+ [   40.437400] BUG: Bad page state in process swapper/0  pfn:14940
+ [   40.916726] BUG: Bad page state in process systemd-resolve  pfn:053b7
+ [   41.300891] kernel BUG at include/linux/mm.h:720!
+ [   41.301801] invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
+ [   41.302784] CPU: 1 PID: 1181 Comm: kubelet Kdump: loaded Tainted: G    B   W         5.18.0-rc1+ #37
+ [   41.304458] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.15.0-1.fc35 04/01/2014
+ [   41.306018] RIP: 0010:page_frag_free+0x79/0xe0
+ [   41.306836] Code: 00 00 75 ea 48 8b 07 a9 00 00 01 00 74 e0 48 8b 47 48 48 8d 50 ff a8 01 48 0f 45 fa eb d0 48 c7 c6 18 b8 30 a6 e8 d7 f8 fc ff <0f> 0b 48 8d 78 ff eb bc 48 8b 07 a9 00 00 01 00 74 3a 66 90 0f b6
+ [   41.310235] RSP: 0018:ffffac05c2a6bc78 EFLAGS: 00010292
+ [   41.311201] RAX: 000000000000003e RBX: 0000000000000000 RCX: 0000000000000000
+ [   41.312502] RDX: 0000000000000001 RSI: ffffffffa6423004 RDI: 00000000ffffffff
+ [   41.313794] RBP: ffff993c98823600 R08: 0000000000000000 R09: 00000000ffffdfff
+ [   41.315089] R10: ffffac05c2a6ba68 R11: ffffffffa698ca28 R12: ffff993c98823600
+ [   41.316398] R13: ffff993c86311ebc R14: 0000000000000000 R15: 000000000000005c
+ [   41.317700] FS:  00007fe13fc56740(0000) GS:ffff993cdd900000(0000) knlGS:0000000000000000
+ [   41.319150] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ [   41.320152] CR2: 000000c00008a000 CR3: 0000000014908000 CR4: 0000000000350ee0
+ [   41.321387] Call Trace:
+ [   41.321819]  <TASK>
+ [   41.322193]  skb_release_data+0x13f/0x1c0
+ [   41.322902]  __kfree_skb+0x20/0x30
+ [   41.343870]  tcp_recvmsg_locked+0x671/0x880
+ [   41.363764]  tcp_recvmsg+0x5e/0x1c0
+ [   41.384102]  inet_recvmsg+0x42/0x100
+ [   41.406783]  ? sock_recvmsg+0x1d/0x70
+ [   41.428201]  sock_read_iter+0x84/0xd0
+ [   41.445592]  ? 0xffffffffa3000000
+ [   41.462442]  new_sync_read+0x148/0x160
+ [   41.479314]  ? 0xffffffffa3000000
+ [   41.496937]  vfs_read+0x138/0x190
+ [   41.517198]  ksys_read+0x87/0xc0
+ [   41.535336]  do_syscall_64+0x3b/0x90
+ [   41.551637]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+ [   41.568050] RIP: 0033:0x48765b
+ [   41.583955] Code: e8 4a 35 fe ff eb 88 cc cc cc cc cc cc cc cc e8 fb 7a fe ff 48 8b 7c 24 10 48 8b 74 24 18 48 8b 54 24 20 48 8b 44 24 08 0f 05 <48> 3d 01 f0 ff ff 76 20 48 c7 44 24 28 ff ff ff ff 48 c7 44 24 30
+ [   41.632818] RSP: 002b:000000c000a2f5b8 EFLAGS: 00000212 ORIG_RAX: 0000000000000000
+ [   41.664588] RAX: ffffffffffffffda RBX: 000000c000062000 RCX: 000000000048765b
+ [   41.681205] RDX: 0000000000005e54 RSI: 000000c000e66000 RDI: 0000000000000016
+ [   41.697164] RBP: 000000c000a2f608 R08: 0000000000000001 R09: 00000000000001b4
+ [   41.713034] R10: 00000000000000b6 R11: 0000000000000212 R12: 00000000000000e9
+ [   41.728755] R13: 0000000000000001 R14: 000000c000a92000 R15: ffffffffffffffff
+ [   41.744254]  </TASK>
+ [   41.758585] Modules linked in: br_netfilter bridge veth netconsole virtio_net
+
+ and
+
+ [   33.524802] BUG: Bad page state in process systemd-network  pfn:11e60
+ [   33.528617] page ffffe05dc0147b00 ffffe05dc04e7a00 ffff8ae9851ec000 (1) len 82 offset 252 metasize 4 hroom 0 hdr_len 12 data ffff8ae9851ec10c data_meta ffff8ae9851ec108 data_end ffff8ae9851ec14e
+ [   33.529764] page:000000003792b5ba refcount:0 mapcount:-512 mapping:0000000000000000 index:0x0 pfn:0x11e60
+ [   33.532463] flags: 0xfffffc0000000(node=0|zone=1|lastcpupid=0x1fffff)
+ [   33.532468] raw: 000fffffc0000000 0000000000000000 dead000000000122 0000000000000000
+ [   33.532470] raw: 0000000000000000 0000000000000000 00000000fffffdff 0000000000000000
+ [   33.532471] page dumped because: nonzero mapcount
+ [   33.532472] Modules linked in: br_netfilter bridge veth netconsole virtio_net
+ [   33.532479] CPU: 0 PID: 791 Comm: systemd-network Kdump: loaded Not tainted 5.18.0-rc1+ #37
+ [   33.532482] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.15.0-1.fc35 04/01/2014
+ [   33.532484] Call Trace:
+ [   33.532496]  <TASK>
+ [   33.532500]  dump_stack_lvl+0x45/0x5a
+ [   33.532506]  bad_page.cold+0x63/0x94
+ [   33.532510]  free_pcp_prepare+0x290/0x420
+ [   33.532515]  free_unref_page+0x1b/0x100
+ [   33.532518]  skb_release_data+0x13f/0x1c0
+ [   33.532524]  kfree_skb_reason+0x3e/0xc0
+ [   33.532527]  ip6_mc_input+0x23c/0x2b0
+ [   33.532531]  ip6_sublist_rcv_finish+0x83/0x90
+ [   33.532534]  ip6_sublist_rcv+0x22b/0x2b0
+
+[3] XDP program to reproduce(xdp_pass.c):
+ #include <linux/bpf.h>
+ #include <bpf/bpf_helpers.h>
+
+ SEC("xdp_pass")
+ int xdp_pkt_pass(struct xdp_md *ctx)
+ {
+          bpf_xdp_adjust_head(ctx, -(int)32);
+          return XDP_PASS;
+ }
+
+ char _license[] SEC("license") = "GPL";
+
+ compile: clang -O2 -g -Wall -target bpf -c xdp_pass.c -o xdp_pass.o
+ load on virtio_net: ip link set enp1s0 xdpdrv obj xdp_pass.o sec xdp_pass
+
+CC: stable@vger.kernel.org
+CC: Jason Wang <jasowang@redhat.com>
+CC: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+CC: Daniel Borkmann <daniel@iogearbox.net>
+CC: "Michael S. Tsirkin" <mst@redhat.com>
+CC: virtualization@lists.linux-foundation.org
+Fixes: 8fb7da9e9907 ("virtio_net: get build_skb() buf by data ptr")
+Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
+Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Acked-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Link: https://lore.kernel.org/r/20220425103703.3067292-1-razor@blackwall.org
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/net/virtio_net.c |   20 +++++++++++++++++++-
+ 1 file changed, 19 insertions(+), 1 deletion(-)
+
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -965,6 +965,24 @@ static struct sk_buff *receive_mergeable
+ 			 * xdp.data_meta were adjusted
+ 			 */
+ 			len = xdp.data_end - xdp.data + vi->hdr_len + metasize;
++
++			/* recalculate headroom if xdp.data or xdp_data_meta
++			 * were adjusted, note that offset should always point
++			 * to the start of the reserved bytes for virtio_net
++			 * header which are followed by xdp.data, that means
++			 * that offset is equal to the headroom (when buf is
++			 * starting at the beginning of the page, otherwise
++			 * there is a base offset inside the page) but it's used
++			 * with a different starting point (buf start) than
++			 * xdp.data (buf start + vnet hdr size). If xdp.data or
++			 * data_meta were adjusted by the xdp prog then the
++			 * headroom size has changed and so has the offset, we
++			 * can use data_hard_start, which points at buf start +
++			 * vnet hdr size, to calculate the new headroom and use
++			 * it later to compute buf start in page_to_skb()
++			 */
++			headroom = xdp.data - xdp.data_hard_start - metasize;
++
+ 			/* We can only create skb based on xdp_page. */
+ 			if (unlikely(xdp_page != page)) {
+ 				rcu_read_unlock();
+@@ -972,7 +990,7 @@ static struct sk_buff *receive_mergeable
+ 				head_skb = page_to_skb(vi, rq, xdp_page, offset,
+ 						       len, PAGE_SIZE, false,
+ 						       metasize,
+-						       VIRTIO_XDP_HEADROOM);
++						       headroom);
+ 				return head_skb;
+ 			}
+ 			break;
+
+
+Patches currently in stable-queue which might be from razor@blackwall.org are
+
+queue-5.15/virtio_net-fix-wrong-buf-address-calculation-when-using-xdp.patch
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
