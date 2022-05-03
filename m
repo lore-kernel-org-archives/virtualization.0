@@ -1,179 +1,180 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 34C60C433F5
-	for <virtualization@archiver.kernel.org>; Mon,  2 May 2022 23:48:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3DC18C433F5
+	for <virtualization@archiver.kernel.org>; Tue,  3 May 2022 00:36:32 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id BBCEE60EB0;
-	Mon,  2 May 2022 23:48:11 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id B5BE181301;
+	Tue,  3 May 2022 00:36:31 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 4_bvkpnaTqsb; Mon,  2 May 2022 23:48:10 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id E6C2760AB0;
-	Mon,  2 May 2022 23:48:09 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id lb03pIepR01H; Tue,  3 May 2022 00:36:30 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id B85FA80D5A;
+	Tue,  3 May 2022 00:36:29 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 9E107C0032;
-	Mon,  2 May 2022 23:48:09 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 86216C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 866DEC0039;
+	Tue,  3 May 2022 00:36:29 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8E70EC002D
  for <virtualization@lists.linux-foundation.org>;
- Mon,  2 May 2022 23:48:08 +0000 (UTC)
+ Tue,  3 May 2022 00:36:27 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 6D5C6409FC
+ by smtp4.osuosl.org (Postfix) with ESMTP id 76486401F2
  for <virtualization@lists.linux-foundation.org>;
- Mon,  2 May 2022 23:48:08 +0000 (UTC)
+ Tue,  3 May 2022 00:36:27 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=oracle.com header.b="u1mU6jER";
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=oracle.com header.b="cMW0Yeyc";
  dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
- header.b="SW1FH6zq"
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id xcUiCy2eUQfq
+ header.b="enumGNLk"
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 5NJyN0wbaKra
  for <virtualization@lists.linux-foundation.org>;
- Mon,  2 May 2022 23:48:05 +0000 (UTC)
+ Tue,  3 May 2022 00:36:25 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com
  [205.220.177.32])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 4A39940141
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 9186D400C2
  for <virtualization@lists.linux-foundation.org>;
- Mon,  2 May 2022 23:48:05 +0000 (UTC)
-Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
- by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 242MQh3e013665;
- Mon, 2 May 2022 23:48:04 GMT
+ Tue,  3 May 2022 00:36:25 +0000 (UTC)
+Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
+ by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 242Nnl4N025194;
+ Tue, 3 May 2022 00:36:24 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
  h=message-id : date :
  subject : to : cc : references : from : in-reply-to : content-type :
  content-transfer-encoding : mime-version; s=corp-2021-07-09;
- bh=J6gKn3AdvevaK89tV7sY8JQ9JoaFRmUQusNbuDG4SOA=;
- b=u1mU6jERFjNm8Fyd5qfA0l9B/ASHCAU3nF/dSSM7wx/M22b0uIEC47BZi/bRl/3+a3sb
- JXglY8cMxDnXTes67o6wzO3GpsBTA8SZSPdT1JgIj+tDEnqix/VZUMCSvvZ0l83vD0wf
- 3kvTNJhqcOFfTi3r7ApsxVFJZWQgDVtMz7upFyWAFDBZq46gcmNI0uV/aNwK/nGjaFRw
- vkBGw5AsO3m4W7bkpFedqS3uH8N5xeeFgHWHYwu2JIwURQPuYDFX5WY9dQNdBp1w39V4
- IA9BIYY8tE7tqAqkW5Th/+jf0YS+PHDvEhpTi6TmUsdtTQWGD7m+TZEXecGIPKSeemEH ZA== 
+ bh=NF11mrs4SJe+N/BII3rrquFE4xqHCDrybufPlRQxC0w=;
+ b=cMW0YeycEBxQaUUoiueKRO5OCphG66alSLZmv8YQoz0/qZsIVdZZjWx5E3YlyzKko49S
+ G5nbvxYBsCLvdbvKZMyK3VuW4RXRfECVBh37wudRhps4NDjTqt1zJNBW6prcBaWG0ujk
+ cmcSAdGDQgTHKtSms42Vis9/HBxl3UAfKga0oec4peLHoJfuq5vdbZTSl07LsH/2c40n
+ genBArwBfM043XzpNwF6+OBOO44YCCYZBDlol+Ydv4VdUNjeYIdfRUwxfLiwiwDlYiIl
+ 16+ke/84ovKt9zCZHnr6v6aEc3bLeyErPYJTbICAVz69MmV+zukUV9YQJ7r1RVJFLr+a Zw== 
 Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com
  (iadpaimrmta01.appoci.oracle.com [130.35.100.223])
- by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3frvqsckfd-1
+ by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3fruw2cnhb-1
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Mon, 02 May 2022 23:48:03 +0000
+ Tue, 03 May 2022 00:36:23 +0000
 Received: from pps.filterd
  (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
  by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (8.16.1.2/8.16.1.2)
- with SMTP id 242NV2TC031261; Mon, 2 May 2022 23:48:03 GMT
-Received: from nam02-bn1-obe.outbound.protection.outlook.com
- (mail-bn1nam07lp2044.outbound.protection.outlook.com [104.47.51.44])
+ with SMTP id 2430Up4v002704; Tue, 3 May 2022 00:36:23 GMT
+Received: from nam12-dm6-obe.outbound.protection.outlook.com
+ (mail-dm6nam12lp2170.outbound.protection.outlook.com [104.47.59.170])
  by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com with ESMTP id
- 3fruj82wfu-1
+ 3fruj83q00-1
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Mon, 02 May 2022 23:48:02 +0000
+ Tue, 03 May 2022 00:36:23 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=QXMLDs8oG2M9cvShTV0T91VKenG3XHFnAUSvsCXZ7FxE6o+YEhVzz71XgxD7OwMFsj1sSKVkPTCHaNMQ71zy3cIQ5B3Lm5B+eirJ67ePcvKDvUshn9wR77pWv0Ljc3u3vnI3XB8RfypP05gwExL4hlUxB5urteLeXDCBqhqX8rygPtvywNFKYMrDXKYwOWXtgoQAC4e4whkjzoJVhln8d2YJkEd0WobqLSFMP6mk4f8L5gqKN4cIriIfHZklvRTXWsy0Dad7bFdSPajH1E+wE0EaUY7y4mWlzo50gOsPgFT0dnt4/wdsYg7V3suRpU8HhjBOx0MhFglkuviwMqbgjg==
+ b=HOcKMTB8LkOEXdVuFHJiHNNubHCd1m2z4lWg40QNgTojJbZHUAtDTFCGNHRbzATVNqKJObhcrffL/o43j5DWHEDm+0pvjHcDMJavczwNPcYhiYe5EmFXfJeDr3I6/Fg69FMVSHVKdo/pl5dSFaQ4kzejKe33EnUsSGUB1PN2WadwnoNV6ROJJPmV9IBfnNbRAdvRJvJpELpT6tuZqji5WciEHEtyWHY60+8oUXT5eN8mTCKk9tgQV2rR6FORmlmaYiecGjUuEIiKFI16hAw0Mhs4CA6EEYLJ3OL97vgUX9Ov2FcHNj3cRMoC0UIn3E6eOFIdfvjgrFUtqLfAcRXz2g==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=J6gKn3AdvevaK89tV7sY8JQ9JoaFRmUQusNbuDG4SOA=;
- b=HyVLeUkQpfGBl218JD4gGqcCnOed24zQ25OTq1Jf2cxQHm9xy2PIxKxOic9mqQwZvOKcBMk4gzBA8/g/AJmkF+lt+eDxbaZDEnLg8z807SXL7w1Df5d2FIJXh1kMQnJn532JfLa9oWQVnGNspfvinMk1aYPJIBeWeKyqlemUY9qejiIz/6YHsyiDP2RbhfxNRNDoYlZ032ZiWJBPC0A2iKl61byvBpuqynoIB+fZbHYIOmfSdy+nr4J+2RQwZYOpNxQLZPjZQisb/M8m7YCLY/QnA1CnvcD7hbwUwW+zZ+IINpw+xOsvwILdEDXe8FiThVjygDwNezAFLw9JDStSKw==
+ bh=NF11mrs4SJe+N/BII3rrquFE4xqHCDrybufPlRQxC0w=;
+ b=ZcDrgx2gM3WLOa3CPJhoWeNlrPfm5Cpo6+es/9n4G2rGofQ4lWdNCr42rsvPpyU5ua7YT3O45byvHOPFeUamG329MsbDTtrY70DA0jtGzvComvkluy/KGue/IwCNtfELrTT9lPkRvBotCosFsTWyb288TKoCYdnbs3H6hQQrYrVE/z7AIRMf+WYUYJQB92FS7dg6Jehbv8onK/sS9hlqiPxmAPfWh1tNcnbwWv1WvdY4tncWQFGsm0lxmrrvifxcj/PXQLsG/yzlPKlaRodHN3Za31xkDriZYndKQ9SBLZj2ZELAracvY9AzZExXAkOpcr/TN14tHWwpW9SwUlzKZg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
  dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=J6gKn3AdvevaK89tV7sY8JQ9JoaFRmUQusNbuDG4SOA=;
- b=SW1FH6zq/oX+pzn5vQ2YkhqIGKCSo9/jaTtU/N62zBnTVcl+qcSbi3EH1OgirF5Ai5A6WLsgohX1jEFSpgQqDoCU7BkIqXqYXHLoUCG10POhimMamsuArfV5VmishCp+FtmQVAY9k4h8XctmUINiT6HVwbX21EfkPKMz2mHgqh0=
+ bh=NF11mrs4SJe+N/BII3rrquFE4xqHCDrybufPlRQxC0w=;
+ b=enumGNLkf143FqELorhqAIojJHQgClbdWtjyy4sXI/Z/0q9KAsbI/USiOnUfJ/zSV6zUf+ayCGOIho7YqjRJI5nyljuP2WinpeholeyTnwFS/zhf2A6I/987xCG3VbNxgSNyrgIveeFwRYj25mEHVfXKaXZyXxsVL1kl77WUSgE=
 Received: from BYAPR10MB3287.namprd10.prod.outlook.com (2603:10b6:a03:15c::11)
- by DM5PR10MB1881.namprd10.prod.outlook.com (2603:10b6:3:10c::16) with
+ by DS7PR10MB5245.namprd10.prod.outlook.com (2603:10b6:5:3a2::7) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5186.14; Mon, 2 May
- 2022 23:48:00 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5206.13; Tue, 3 May
+ 2022 00:36:21 +0000
 Received: from BYAPR10MB3287.namprd10.prod.outlook.com
  ([fe80::c89:e3f5:ea4a:8d30]) by BYAPR10MB3287.namprd10.prod.outlook.com
- ([fe80::c89:e3f5:ea4a:8d30%2]) with mapi id 15.20.5206.024; Mon, 2 May 2022
- 23:48:00 +0000
-Message-ID: <f279bbbb-6af2-95f4-08c3-97ba72deb6cb@oracle.com>
-Date: Mon, 2 May 2022 16:47:56 -0700
+ ([fe80::c89:e3f5:ea4a:8d30%2]) with mapi id 15.20.5206.024; Tue, 3 May 2022
+ 00:36:21 +0000
+Message-ID: <fdef13b9-74e4-e578-482e-b9632c9f582c@oracle.com>
+Date: Mon, 2 May 2022 17:36:15 -0700
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
  Thunderbird/91.8.1
-Subject: Re: [PATCH v3 1/2] vdpa: Add support for querying vendor statistics
+Subject: Re: [PATCH v3 2/2] vdpa/mlx5: Add support for reading descriptor
+ statistics
 Content-Language: en-US
-To: Eli Cohen <elic@nvidia.com>, mst@redhat.com, jasowang@redhat.com
+To: mst@redhat.com, jasowang@redhat.com, Eli Cohen <elic@nvidia.com>
 References: <20220502102201.190357-1-elic@nvidia.com>
- <20220502102201.190357-2-elic@nvidia.com>
+ <20220502102201.190357-3-elic@nvidia.com>
 From: Si-Wei Liu <si-wei.liu@oracle.com>
 Organization: Oracle Corporation
-In-Reply-To: <20220502102201.190357-2-elic@nvidia.com>
-X-ClientProxiedBy: SJ0PR03CA0059.namprd03.prod.outlook.com
- (2603:10b6:a03:33e::34) To BYAPR10MB3287.namprd10.prod.outlook.com
+In-Reply-To: <20220502102201.190357-3-elic@nvidia.com>
+X-ClientProxiedBy: SN4PR0501CA0007.namprd05.prod.outlook.com
+ (2603:10b6:803:40::20) To BYAPR10MB3287.namprd10.prod.outlook.com
  (2603:10b6:a03:15c::11)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: bed43a7e-de18-4a56-ac25-08da2c9630c9
-X-MS-TrafficTypeDiagnostic: DM5PR10MB1881:EE_
-X-Microsoft-Antispam-PRVS: <DM5PR10MB18811AFEF1DA8C181CA7D89BB1C19@DM5PR10MB1881.namprd10.prod.outlook.com>
+X-MS-Office365-Filtering-Correlation-Id: 508ef772-6588-454e-2846-08da2c9cf189
+X-MS-TrafficTypeDiagnostic: DS7PR10MB5245:EE_
+X-Microsoft-Antispam-PRVS: <DS7PR10MB5245F6FC41E159C4B3D2C08BB1C09@DS7PR10MB5245.namprd10.prod.outlook.com>
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: s/xN5A65m1I5ikXkSdmcEsSrosJRjzgKFB7QwE1F3EwAft6jT0FmgsUps8zKYWZchqTwFH6EMCApAfpv8004OvQl2I7gVUg+3Oj3Z/e3AasV1M/S7+sky3zO3PstzByCV3mnrYR33C7YZqQjSgCDcqPFbnzXoveX7PgV6Tjwzyxlc8eeAZ+s+x8tpCOF8cO9tSCQlkpQLBppmUykZB0vMdRBI30z+hyxJFmpGdot9xSCcfmQUizX0ybr34XyOt9g4UchJatQ1IqM0koKrV4tUcybm5rJCB9PG0eRRib871euW4lsavQQcr0aPv1+QH8YVxYdc5qierNr7B90ZfekxRelw0ZXAejpkuEJKUm90yXvEgEr4QzQ0WdhEElAQHKodoJ/0z67+GWKaM0KspZLsWuDytzp4AGcY8cfLaPVnkxKwJPOHiYO6xosGGV/eoU71p3SH8xOiVVDJYLCtPZ2Pew3oJ7Lm6RJYrz4/GzkF/j5l4iFjym5fTooeQfYlTd6rnALUfSQN8+1/QhpuZWXq5vF9xCl5Zwlitwtr2NlNmtSvUyX2q5ejZUnd/rTia8eaMpXs3x9DXZ3QXMBb49sgpEy+UGjClz/5z1ZO8vWtCeqxkAxg4rW76brxlnLP4+ClHSMbbJ1T1qgdH9Oat5zE7JF9bW9ijZDG8WNkPbHx+h9WSSQ3Dms3PMfr2wXydPFjOhnCVQS3OvhtbGn0zZ9eqJwepRbiak29eo2Y6eRH2JUvWiNFCPqQZypHBPG/34Q
+X-Microsoft-Antispam-Message-Info: 5MLY69dWo1y7r9HlHg7EknOPovJD41VIwwPXqjlR12o//d+xBby8Uhm0PpHUrW9+erWRF7kwy3JiTHPg2lRO0+43gdTp801ias3Dj4jmt9lsHTxOSwDcKbQztHsumF/P7OxycCnOJWb882Zih6xrCJ5tbtgJ5+Xus+JIakgxCGykQiMZQPh/1Sd5hXsTq4rEn4NdXW6ScUp+1cDkGyHaojl+9Nh3yQM1muQBSjIUhLGIEWU39H8tfDhsjkV0Hk/U6VKrlccLQOT68gznw/DOzD2xK+CjQ8E6c6xOi9CKK683U7BR+fJTp3hvdLjwngsjmjPGo3gB8T6x8EB4zzWUgzRJ8UPWsUny3tMrP6Z4XYC/VP8hWu2Czk1i/pqVSOZu8S0/7zTpC3k/5O23uLYfkIdqpLm7hPQUYc5rOmM6S6D3t7YP8E31rCGOkr0zL6GDnul89erlO0TaV3kzC3I2qSKmdf39AHujlNPQH3OhpvTiLEn8rkpeNo3UV0O4aitZZetUJ+Y24WfIkCR74Rb9uuJeS1PBZo0AVXG4b5b9YZAgGlTeuhxLoGUa8o1L/CBFjJZ1JgyBz+kq6TP2+9shj0Kz4OgUNPgODnq717jilTVHTjPt7DyuEozNiFWb+pq5IUGXEecPNZSir8GifU2qMIpJwuBGj4JHEKK5tV//3okTqjQQk+hsZZBvsxUnZ1YfiYIMyV9WPBEUIexFI4n64IBQWYoI8umVotb5d2w8DItuZHeu/Bpr9Ybkt5UA0+Cq
 X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
  IPV:NLI; SFV:NSPM; H:BYAPR10MB3287.namprd10.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230001)(366004)(2616005)(508600001)(6486002)(6506007)(6512007)(36916002)(53546011)(83380400001)(186003)(66476007)(66556008)(66946007)(36756003)(31696002)(4326008)(8676002)(2906002)(5660300002)(8936002)(38100700002)(6666004)(316002)(26005)(31686004)(86362001)(45980500001)(43740500002);
+ SFS:(13230001)(366004)(66946007)(36756003)(66476007)(66556008)(8676002)(4326008)(316002)(186003)(6512007)(26005)(31686004)(53546011)(6506007)(2616005)(6916009)(6486002)(31696002)(36916002)(86362001)(6666004)(5660300002)(8936002)(508600001)(38100700002)(83380400001)(2906002)(30864003)(43740500002)(45980500001);
  DIR:OUT; SFP:1101; 
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?aVZDNXVzWndTd3VEL1JnTXZFS0JiNFo0WDhVOHBaRDZsalhPaUFmV3VXV05J?=
- =?utf-8?B?d0Q0QW1vWmp4UkpFcW9FUnNrWi9rU0w1OHp0UmpaM1lXMW5COXRBeUF5RFRa?=
- =?utf-8?B?Z2hxcTA4UTI5V1ArWmVkTzBMeUlSUXlqb0NIaFZXRStJUmVHMUhGMEdZajNU?=
- =?utf-8?B?dnM1MXAwNU85Zk1zSU1FenhOZ3Z4OTkxVW9KNi81dm5HUWNGYzhBTzB5a3g4?=
- =?utf-8?B?d1dDeDRCdXBzVEJISDUrOHNvUmw3RkhoOTQvNjRxNUl5dTZ5RkthUFJZaWZ5?=
- =?utf-8?B?TTJLOTJuK240U1NCTm1mSXBORURDdVZEWFkvbE1tTmJwTk5Wb1oxazQxbm5R?=
- =?utf-8?B?cU01Kyt6NUFqOXlWd2VEcU1XTUNZZjRMSFRJVEMwaXA2YXRLeW5obS93VTRw?=
- =?utf-8?B?MVYxcldvNnY2OEhBVERLZEE2ZGs1blNHZWJnUmVxUDBnb3lSMWc4Y2JGN2J4?=
- =?utf-8?B?eGdKR2x3SUx0MW0yWngrcSt6Y0UxUkExNzlFa2xnR3BuNm1FQnIvRGNvcjhG?=
- =?utf-8?B?Mk5QOTllTWtKbXpteHVIZTdzUXd2T0tvTEh3WGEyclUwQlNKV203VGMrK1lM?=
- =?utf-8?B?bmk0TlJyQUhPeXZrbXMvVkFkM2RCblBsczZuVHk5UmZRNy92MGxZMWRzZXVD?=
- =?utf-8?B?ZU5yYllpZ01taHFHdDhXV1ZieU03YXM1Wmt4VldDWGlIOW55Q1N4eTJ3Rzk2?=
- =?utf-8?B?b0RVZFNoYnRjY1poOEwvUnRCSkZSSlVRb2dmVzBFajgwQlI3R21tMHlXb21B?=
- =?utf-8?B?VnI2elJlaDJDQ0taNVZROWlaWENxaXFnYTlPeFlRVDhHem9VK29tTnhSZElV?=
- =?utf-8?B?cG00czl5TDhnOGEwdk9NT2w3K05kTTNCKzlTdEg0cEJ1Y1NQRDN2Y3pSOUFO?=
- =?utf-8?B?UE00d2hqaU1UQXNEd2pkUjFtL2pvQlpWc2IzQWwyQU1VbU81TnVaRzg4WGl2?=
- =?utf-8?B?aFdnb0hvbkQ5MVNxTFNVYmJvOEdUVG1TT2FNQjdQaGxSei8vNGI2UGY3TGMw?=
- =?utf-8?B?SXJMNjM4WXhqWDN2WldBRGRmOGdYU0RGSC9xZS9QZnp6aGFlcEZEUVM1bWZi?=
- =?utf-8?B?WkdCdmt6RkZzbmxJTlI3RFRuWFZQMk0xWWlBajRnTHd0amxQbHBZb04ybjFM?=
- =?utf-8?B?YlFObjRhK3Q3R0ZUTWdZWUI2MnJuUDRNVFNuSWRoaUdmR0NkSnlNbThUMTBR?=
- =?utf-8?B?VmhIUlp4UENGYzV1U1JITVZVNldmOENyT3R3V3I4MHpVWGNRa0ZJSThqU0FL?=
- =?utf-8?B?c29HcEE0ckYvL2hWeXVTSklTclJoNEtPOXJ5ODl2SzhBWjA3OGlFcEo0dHFj?=
- =?utf-8?B?aGZZRzdjUXRSVGQwY0w3TlBwU0VaVExobDZwOTFJSjJ0Nko1TWIrcldxOXBy?=
- =?utf-8?B?Sk9uYW1aT2haVFpyTlhQanV6S0FFME12KzRrdy9SdzY2OHpldjExdzJmMnpy?=
- =?utf-8?B?b1Rab2xYRi9FZGIxWjVTd29Yc2ZaWEFaa1B4cWw4UzAyNVpnby9ib0lLcytp?=
- =?utf-8?B?dUw5Tk1wZEY1bm9TUkJONjl1bkVsN2RrR3BTTzJXSDljc2c4US9XRFVaNVpr?=
- =?utf-8?B?LzRFcng5bWpwZmUwSHJKRUZMY2lNQTlYQi80dG4xQS91Zy8vSmljZmRXRys3?=
- =?utf-8?B?ZkRnajhqUVJNNHV5QjVyQnF3UFR6S0FtT3RTenV2ZzRBS0pmb0JNdmNnZG9q?=
- =?utf-8?B?RDFXZ2xUQk1GQkhkYlZJU0xrMEx5TEptUXkvdVlManlHcWc2N2QrMGJGWmxh?=
- =?utf-8?B?TVVYbUd0UzRSbkw5Z0tRczlOL3Q5Q1NUeW9HSTNvRW5CRkQrUm16OGRSM2M3?=
- =?utf-8?B?dzJJWXprL2ltcVdZWE5FWXZlRHZDbjVQUGdtS2dPSGR2KzJ1WE5SR0sybVh2?=
- =?utf-8?B?T09ZUXdhdlc4Z1F2blJyQ3MwTWh2L2NranhGUUIybGV3ZTBmRWI3RHo5eVJZ?=
- =?utf-8?B?ZUF6NHFUTTRISWZLY3U4QmFrS2VBcFlSUGJQTFJOMTExOEpWSmZwRGsvdmVi?=
- =?utf-8?B?djlIdzUyZ1JDOUR3WXQxZ0tueDFPdHE3RnhQMS9MbmdORVNwSSs0bW56NlJm?=
- =?utf-8?B?VE1oZzRlUG9mUVQrSWVSZ3VnSjhhaElWRXppZkxUZmRSSFR1Z0NNZ2NINUZS?=
- =?utf-8?B?UzB2MVhhUnF2VDI1L0M2RE1xTWdOTkdNdzR0dEMxZXVkNi9FSnZ2OXlFdHc0?=
- =?utf-8?B?NGhBV2prNktDbitDdnpxNzI2WEZ5Nno5U3M2M3E1UWRIU2Qydk5lY0RwQnB4?=
- =?utf-8?B?VFZKeUxEQlVYb3VESzNrZDhqWFE0VUFsUnkzbzhEcjBsZ1Zya2ZCdFhZdlhz?=
- =?utf-8?B?dTcwQmVOUkcrcS9JMlpad0FMMGh3M1RDRDI5QnFFMzcvVDFmWjVqV0xGUVhu?=
- =?utf-8?Q?uXy5Gw0GfjFzvSW0=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?KzRFNU8yVVJLZ2JmaWcyMHRKbnZrRkFnclJVTlh6aVJDWDBROXA5R01qRWky?=
+ =?utf-8?B?S2pjSXJVL2JaYjFDa1RsdXc3bzBtTy91MHpJaW5DV1RrQ0FpMHEwSVBFSGQ0?=
+ =?utf-8?B?MkRWcHNVcFdqSDhHYnErUys3Z3dqMzFHcTRkVWZGTzlPdjg1MFl1L1RVTUZL?=
+ =?utf-8?B?NjYwanJIWTR3MEJaUlZvR1VhZDF5V29IcXFhQlRnRjdPTjg4RytNYjh2Y3Q1?=
+ =?utf-8?B?SVZQK0QyS0JueTNWM2NSSW9peVhBL1F3UkxLazl4SkhyUnB5RUJ4VEpTMTR4?=
+ =?utf-8?B?UmhoNWZyT2JRNkRLNHY0UGVCa0llZlBmdjFDR1VRVnE1WjhuVjlscGhRck95?=
+ =?utf-8?B?UUNYcGNwZFY4QkpmajZMVjk4Tm5ZWk9pVS9IbVAvWSs5eDJCWjlFYStqb293?=
+ =?utf-8?B?UDJsdUxUOUtlNDlNeHRKRWpFMHpWZXMxdUxDMGZySEcrdkNaZ2s2U2F0aHpu?=
+ =?utf-8?B?Uno4VEhJdlBWVkhCS25MS0VXWjdFNnZ1RnhEcitkWDdXNFp4emwxMG10djFW?=
+ =?utf-8?B?N1Z2SC9DaWVJbXBSS01lY0xGQXVla2lkaDViOVRJcGZ6RUNNVU9wcUlUalVP?=
+ =?utf-8?B?dW85blR1S01hcHk2cFpRUElpcDIwL2dKYnlqbDZNUHQ0OXVja0ZIY05iS0U1?=
+ =?utf-8?B?OUw2amFURzhSYXkzUE5jYWpRSXZuTi80Ykh5NFpOUHZvOVA0eFBNUm12Wnpa?=
+ =?utf-8?B?N04wQ1NnbWUyMUxac3RqMnZWTDlNRjkzYUMwNjZrdGloY3ZDWjBRak5uOWZ0?=
+ =?utf-8?B?QlNHT3prVVlCY2NwcTMreGVmYnpLdzdhQS9JSHpueVU5TUIvWWlqY2FsNEJj?=
+ =?utf-8?B?empCL0p6N0tNUm05TDkzbXZmM0RPeVJ4VWRMZlRzelhJM29rcFZBNlhhZlR3?=
+ =?utf-8?B?MjF0Zm9LNFY1aDFGL1Vsazlzc3hRNEgvM3JuVnVFMHdZdVRJUVJaSkZBYisw?=
+ =?utf-8?B?dXY0Lzh5dkwxOWpjRkN6SDhWamozK2NRWHpsTTQzU3Jma0NWUTNYeW1pZVNt?=
+ =?utf-8?B?Z2VjR2xubzUxYjlGNWk5dko4MTh3ZEN1cXVnNVlpWkdPSmtMM3IxMFo4TUxB?=
+ =?utf-8?B?MW11TGNBY1liOVNWOHllYnV5d0thNzNGeFhmWEw4dEIwMVdPMFZEZ2U4TnEz?=
+ =?utf-8?B?NjBOL05MMkpoa2hZeFRQaEVYcFhYOGNNVUIzeitpZ0hTbDNpM1crdHc3a2xk?=
+ =?utf-8?B?ZnhJV3pzRmkwTFU2cmlSckdmdWhSMzI1MlFEMVJwNTNMYzIrbTBRMCtmNTdG?=
+ =?utf-8?B?U3ZtNkFaSVJpdVgxUVVlb212MllCOHlreDFBUGFWaFM3aHM3akhUR2lKV2dB?=
+ =?utf-8?B?V2tTRjhuZllud3J3S3U5aEZocElsZU9CRlRMNEJKZys5Uk85OTlHcVZnNTRC?=
+ =?utf-8?B?aU5oV3BYQk1Va0FZaXp2bjNJZUJKUmhhMU1sMW1tTk9yRVV2NDg3TXpjRERY?=
+ =?utf-8?B?VlNzNlRMM2xFRk5uZTVtRTRnUU5rMUtyaDNmNUVHS0grRlUvZThNZHRSeXZu?=
+ =?utf-8?B?cU5pd2t0K0RRdDUrU2lsM3pwNGhCZDBWdktWbE1Ra3B1TWwwVlhKTnlnaWtk?=
+ =?utf-8?B?YlI5cUcvNnMyeDh0YlVFOEZsS2RtS0hOdyt3bTV3NTFqUGpVQzFKelRMMm9q?=
+ =?utf-8?B?ZVZSMThYM25hT0w5bURleTgwYmtTVldocGgzVktyUlNqWHJNeHFNUE1HQml3?=
+ =?utf-8?B?TkVqalNjN2JTUjJHVkNORlhXaHRCcks3OVFxbzROazg4aWRqd2gvRTE2ZTdI?=
+ =?utf-8?B?bE9rRy8wYVltSWtzTmJDdkExOE5ZRXlkQjFYeWx2YTZMeGNyRkV0TEVjUysz?=
+ =?utf-8?B?VDJ3TVhFai9iSEVYdi9aaVkrNGt2WkJWbUNmang4RlIwQkMyajJlZ21JUC94?=
+ =?utf-8?B?TXRoWEFacEhxOXUwR01zZnRBdnpramZHdFJiZ1JyRU1aQnM2bDMySFArV0JD?=
+ =?utf-8?B?YmxyUlAxcFFidXpXM0JZVUZsVGo4Y3Iva2p5TlZVSG9xQjUxTXNtYng4VElT?=
+ =?utf-8?B?czg2ekVWUjd1UndoVUZTTFVRZDBlMjVtV0hRNVZ4SGpBSkhEczRjTE50QlFN?=
+ =?utf-8?B?NjBEVDlsU1VySU41QW9tS2xFdkpUSjZOYUUrdU1ZalFHZU5nT0RnM1VOa1F2?=
+ =?utf-8?B?OEZ0d0VMZ1VIbVpuZ1cwbnhERkU1S2VuOXhnZW9FM1RTblR6WnV0Qk5tOEh3?=
+ =?utf-8?B?dVhEeXd3dm9IUHE0eE1ZeXZiNDdSZUtuRXNEZitpMW1FT0FtTWpXRTJ0djhL?=
+ =?utf-8?B?dUtsc2dicllGaElRTi9ER3FhUkdzSGNJc3ZTTy9lTTA4ZHVnUXhKYldTQmtY?=
+ =?utf-8?B?TC92Y3RHemtKOGUxZXhLWDQxSzloeS9CeW9YQ3RVRjk2cHJ5bXhGMW5CUmE2?=
+ =?utf-8?Q?lHYc0+RtXBm2n79E=3D?=
 X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: bed43a7e-de18-4a56-ac25-08da2c9630c9
+X-MS-Exchange-CrossTenant-Network-Message-Id: 508ef772-6588-454e-2846-08da2c9cf189
 X-MS-Exchange-CrossTenant-AuthSource: BYAPR10MB3287.namprd10.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 May 2022 23:48:00.3617 (UTC)
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 May 2022 00:36:21.0008 (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: vtqZofdNU0l2MkzKZjr0kxSOmnGSwxbGCOlj3IHzvUqcld9Ji7bwX85KJMPZsbkLP0vJhx4jxnKkotqDuTFDSw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR10MB1881
+X-MS-Exchange-CrossTenant-UserPrincipalName: O7lHCC8sGcOLNjkmcjPSIP8Od74sLP7N4JXn1oOea0zA7KEaaE1OyrwCfbF6bi6iuihWYI+WpmQweI7h+DI+8g==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS7PR10MB5245
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.486, 18.0.858
  definitions=2022-05-02_08:2022-05-02,
  2022-05-02 signatures=0
@@ -181,9 +182,9 @@ X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0
  mlxscore=0 adultscore=0
  bulkscore=0 suspectscore=0 mlxlogscore=999 malwarescore=0 phishscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
- definitions=main-2205020172
-X-Proofpoint-GUID: CcQ9DASeHSH_i0yYUtigShJWYca2CrEU
-X-Proofpoint-ORIG-GUID: CcQ9DASeHSH_i0yYUtigShJWYca2CrEU
+ definitions=main-2205030002
+X-Proofpoint-GUID: HrvTWckAd-GfWr_r5kD6DwDytbQQw_oL
+X-Proofpoint-ORIG-GUID: HrvTWckAd-GfWr_r5kD6DwDytbQQw_oL
 Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
@@ -204,292 +205,416 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 
 On 5/2/2022 3:22 AM, Eli Cohen wrote:
-> Allows to read vendor statistics of a vdpa device. The specific
-> statistics data are received from the upstream driver in the form of an
-> (attribute name, attribute value) pairs.
+> Implement the get_vq_stats calback of vdpa_config_ops to return the
+> statistics for a virtqueue.
 >
-> An example of statistics for mlx5_vdpa device are:
+> The statistics are provided as vendor specific statistics where the
+> driver provides a pair of attribute name and attribute value.
 >
-> received_desc - number of descriptors received by the virtqueue
-> completed_desc - number of descriptors completed by the virtqueue
+> In addition to the attribute name/attribute value pair, the driver
+> returns the negotiated features and max virtqueue pairs for userspace
+> can decide for a given queue index whether it is a data or control
+> virtqueue.
 >
-> A descriptor using indirect buffers is still counted as 1. In addition,
-> N chained descriptors are counted correctly N times as one would expect.
+> Currently supported are received descriptors and completed descriptors.
 >
-> A new callback was added to vdpa_config_ops which provides the means for
-> the vdpa driver to return statistics results.
->
-> The interface allows for reading all the supported virtqueues, including
-> the control virtqueue if it exists.
->
-> Below are some examples taken from mlx5_vdpa which are introduced in the
-> following patch:
->
-> 1. Read statistics for the virtqueue at index 1
->
-> $ vdpa dev vstats show vdpa-a qidx 1
-> vdpa-a:
-> queue_type tx queue_index 1 received_desc 3844836 completed_desc 3844836
->
-> 2. Read statistics for the virtqueue at index 32
-> $ vdpa dev vstats show vdpa-a qidx 32
-> vdpa-a:
-> queue_type control_vq queue_index 32 received_desc 62 completed_desc 62
->
-> 3. Read statisitics for the virtqueue at index 0 with json output
-> $ vdpa -j dev vstats show vdpa-a qidx 0
-> {"vstats":{"vdpa-a":{
-> "queue_type":"rx","queue_index":0,"name":"received_desc","value":417776,\
->   "name":"completed_desc","value":417548}}}
->
-> 4. Read statistics for the virtqueue at index 0 with preety json output
-> $ vdpa -jp dev vstats show vdpa-a qidx 0
-> {
->      "vstats": {
->          "vdpa-a": {
->
->              "queue_type": "rx",
->              "queue_index": 0,
->              "name": "received_desc",
->              "value": 417776,
->              "name": "completed_desc",
->              "value": 417548
->          }
->      }
-> }
->
+> Acked-by: Jason Wang <jasowang@redhat.com>
 > Signed-off-by: Eli Cohen <elic@nvidia.com>
-> ---
->   drivers/vdpa/vdpa.c       | 129 ++++++++++++++++++++++++++++++++++++++
->   include/linux/vdpa.h      |   5 ++
->   include/uapi/linux/vdpa.h |   6 ++
->   3 files changed, 140 insertions(+)
 >
-> diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
-> index 2b75c00b1005..933466f61ca8 100644
-> --- a/drivers/vdpa/vdpa.c
-> +++ b/drivers/vdpa/vdpa.c
-> @@ -909,6 +909,74 @@ vdpa_dev_config_fill(struct vdpa_device *vdev, struct sk_buff *msg, u32 portid,
+> v2 -> v3:
+> Fix sparse warning
+> ---
+>   drivers/vdpa/mlx5/core/mlx5_vdpa.h |   2 +
+>   drivers/vdpa/mlx5/net/mlx5_vnet.c  | 165 +++++++++++++++++++++++++++++
+>   include/linux/mlx5/mlx5_ifc.h      |   1 +
+>   include/linux/mlx5/mlx5_ifc_vdpa.h |  39 +++++++
+>   4 files changed, 207 insertions(+)
+>
+> diff --git a/drivers/vdpa/mlx5/core/mlx5_vdpa.h b/drivers/vdpa/mlx5/core/mlx5_vdpa.h
+> index daaf7b503677..44104093163b 100644
+> --- a/drivers/vdpa/mlx5/core/mlx5_vdpa.h
+> +++ b/drivers/vdpa/mlx5/core/mlx5_vdpa.h
+> @@ -61,6 +61,8 @@ struct mlx5_control_vq {
+>   	struct vringh_kiov riov;
+>   	struct vringh_kiov wiov;
+>   	unsigned short head;
+> +	unsigned int received_desc;
+> +	unsigned int completed_desc;
+>   };
+>   
+>   struct mlx5_vdpa_wq_ent {
+> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> index 79001301b383..473ec481813c 100644
+> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> @@ -119,6 +119,7 @@ struct mlx5_vdpa_virtqueue {
+>   	struct mlx5_vdpa_umem umem2;
+>   	struct mlx5_vdpa_umem umem3;
+>   
+> +	u32 counter_set_id;
+>   	bool initialized;
+>   	int index;
+>   	u32 virtq_id;
+> @@ -164,6 +165,8 @@ struct mlx5_vdpa_net {
+>   	struct notifier_block nb;
+>   	struct vdpa_callback config_cb;
+>   	struct mlx5_vdpa_wq_ent cvq_ent;
+> +	/* sync access to virtqueues statistics */
+> +	struct mutex numq_lock;
+>   };
+>   
+>   static void free_resources(struct mlx5_vdpa_net *ndev);
+> @@ -822,6 +825,12 @@ static u16 get_features_12_3(u64 features)
+>   	       (!!(features & BIT_ULL(VIRTIO_NET_F_GUEST_CSUM)) << 6);
+>   }
+>   
+> +static bool counters_supported(const struct mlx5_vdpa_dev *mvdev)
+> +{
+> +	return MLX5_CAP_GEN_64(mvdev->mdev, general_obj_types) &
+> +	       BIT_ULL(MLX5_OBJ_TYPE_VIRTIO_Q_COUNTERS);
+> +}
+> +
+>   static int create_virtqueue(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueue *mvq)
+>   {
+>   	int inlen = MLX5_ST_SZ_BYTES(create_virtio_net_q_in);
+> @@ -876,6 +885,8 @@ static int create_virtqueue(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtque
+>   	MLX5_SET(virtio_q, vq_ctx, umem_3_id, mvq->umem3.id);
+>   	MLX5_SET(virtio_q, vq_ctx, umem_3_size, mvq->umem3.size);
+>   	MLX5_SET(virtio_q, vq_ctx, pd, ndev->mvdev.res.pdn);
+> +	if (counters_supported(&ndev->mvdev))
+> +		MLX5_SET(virtio_q, vq_ctx, counter_set_id, mvq->counter_set_id);
+>   
+>   	err = mlx5_cmd_exec(ndev->mvdev.mdev, in, inlen, out, sizeof(out));
+>   	if (err)
+> @@ -1139,6 +1150,47 @@ static int modify_virtqueue(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtque
 >   	return err;
 >   }
 >   
-> +static int vdpa_fill_stats_rec(struct vdpa_device *vdev, struct sk_buff *msg,
-> +			       struct genl_info *info, u32 index)
+> +static int counter_set_alloc(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueue *mvq)
 > +{
+> +	u32 in[MLX5_ST_SZ_DW(create_virtio_q_counters_in)] = {};
+> +	u32 out[MLX5_ST_SZ_DW(create_virtio_q_counters_out)] = {};
+> +	void *cmd_hdr;
 > +	int err;
 > +
-> +	err = vdev->config->get_vendor_vq_stats(vdev, index, msg, info->extack);
+> +	if (!counters_supported(&ndev->mvdev))
+> +		return 0;
+> +
+> +	cmd_hdr = MLX5_ADDR_OF(create_virtio_q_counters_in, in, hdr);
+> +
+> +	MLX5_SET(general_obj_in_cmd_hdr, cmd_hdr, opcode, MLX5_CMD_OP_CREATE_GENERAL_OBJECT);
+> +	MLX5_SET(general_obj_in_cmd_hdr, cmd_hdr, obj_type, MLX5_OBJ_TYPE_VIRTIO_Q_COUNTERS);
+> +	MLX5_SET(general_obj_in_cmd_hdr, cmd_hdr, uid, ndev->mvdev.res.uid);
+> +
+> +	err = mlx5_cmd_exec(ndev->mvdev.mdev, in, sizeof(in), out, sizeof(out));
 > +	if (err)
 > +		return err;
 > +
-> +	if (nla_put_u32(msg, VDPA_ATTR_DEV_QUEUE_INDEX, index))
-> +		return -EMSGSIZE;
+> +	mvq->counter_set_id = MLX5_GET(general_obj_out_cmd_hdr, out, obj_id);
 > +
 > +	return 0;
 > +}
 > +
-> +static int vendor_stats_fill(struct vdpa_device *vdev, struct sk_buff *msg,
-> +			     struct genl_info *info, u32 index)
+> +static void counter_set_dealloc(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueue *mvq)
 > +{
-> +	int err;
+> +	u32 in[MLX5_ST_SZ_DW(destroy_virtio_q_counters_in)] = {};
+> +	u32 out[MLX5_ST_SZ_DW(destroy_virtio_q_counters_out)] = {};
 > +
-> +	if (!vdev->config->get_vendor_vq_stats)
-> +		return -EOPNOTSUPP;
+> +	if (!counters_supported(&ndev->mvdev))
+> +		return;
 > +
-> +	err = vdpa_fill_stats_rec(vdev, msg, info, index);
-> +	if (err)
-> +		return err;
-> +
-> +	return 0;
+> +	MLX5_SET(destroy_virtio_q_counters_in, in, hdr.opcode, MLX5_CMD_OP_DESTROY_GENERAL_OBJECT);
+> +	MLX5_SET(destroy_virtio_q_counters_in, in, hdr.obj_id, mvq->counter_set_id);
+> +	MLX5_SET(destroy_virtio_q_counters_in, in, hdr.uid, ndev->mvdev.res.uid);
+> +	MLX5_SET(destroy_virtio_q_counters_in, in, hdr.obj_type, MLX5_OBJ_TYPE_VIRTIO_Q_COUNTERS);
+> +	if (mlx5_cmd_exec(ndev->mvdev.mdev, in, sizeof(in), out, sizeof(out)))
+> +		mlx5_vdpa_warn(&ndev->mvdev, "dealloc counter set 0x%x\n", mvq->counter_set_id);
 > +}
 > +
-> +static int vdpa_dev_vendor_stats_fill(struct vdpa_device *vdev,
-> +				      struct sk_buff *msg,
-> +				      struct genl_info *info, u32 index)
-> +{
-> +	u32 device_id;
-> +	void *hdr;
-> +	int err;
-> +	u32 portid = info->snd_portid;
-> +	u32 seq = info->snd_seq;
-> +	u32 flags = 0;
-> +
-> +	hdr = genlmsg_put(msg, portid, seq, &vdpa_nl_family, flags,
-> +			  VDPA_CMD_DEV_VSTATS_GET);
-> +	if (!hdr)
-> +		return -EMSGSIZE;
-> +
-> +	if (nla_put_string(msg, VDPA_ATTR_DEV_NAME, dev_name(&vdev->dev))) {
-> +		err = -EMSGSIZE;
-> +		goto undo_msg;
-> +	}
-> +
-> +	device_id = vdev->config->get_device_id(vdev);
-> +	if (nla_put_u32(msg, VDPA_ATTR_DEV_ID, device_id)) {
-> +		err = -EMSGSIZE;
-> +		goto undo_msg;
-> +	}
-> +
-You seem to miss VDPA_ATTR_DEV_NEGOTIATED_FEATURES from this function, 
-otherwise I can't image how you can ensure the atomicity to infer 
-queue_type for control vq.
-And should we make sure VIRTIO_CONFIG_S_FEATURES_OK is set before call 
-into vendor_stats_fill()?
-
-> +	err = vendor_stats_fill(vdev, msg, info, index);
-> +
-> +	genlmsg_end(msg, hdr);
-> +
-> +	return err;
-> +
-> +undo_msg:
-> +	genlmsg_cancel(msg, hdr);
-> +	return err;
-> +}
-> +
->   static int vdpa_nl_cmd_dev_config_get_doit(struct sk_buff *skb, struct genl_info *info)
+>   static int setup_vq(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueue *mvq)
 >   {
->   	struct vdpa_device *vdev;
-> @@ -990,6 +1058,60 @@ vdpa_nl_cmd_dev_config_get_dumpit(struct sk_buff *msg, struct netlink_callback *
->   	return msg->len;
+>   	u16 idx = mvq->index;
+> @@ -1166,6 +1218,10 @@ static int setup_vq(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueue *mvq)
+>   	if (err)
+>   		goto err_connect;
+>   
+> +	err = counter_set_alloc(ndev, mvq);
+> +	if (err)
+> +		goto err_counter;
+> +
+The setup_vq() can be called from change_num_qps() to recreate vq stat 
+counters with zero value when changing (increasing) the number of 
+queues. See below.
+>   	err = create_virtqueue(ndev, mvq);
+>   	if (err)
+>   		goto err_connect;
+> @@ -1183,6 +1239,8 @@ static int setup_vq(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueue *mvq)
+>   	return 0;
+>   
+>   err_connect:
+> +	counter_set_dealloc(ndev, mvq);
+> +err_counter:
+>   	qp_destroy(ndev, &mvq->vqqp);
+>   err_vqqp:
+>   	qp_destroy(ndev, &mvq->fwqp);
+> @@ -1227,6 +1285,7 @@ static void teardown_vq(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueue *
+>   
+>   	suspend_vq(ndev, mvq);
+>   	destroy_virtqueue(ndev, mvq);
+> +	counter_set_dealloc(ndev, mvq);
+Likewise, teardown_vq() can be called from change_num_qps() to destroy 
+vq stat counters when changing (decreasing) the number of queues.
+
+This is not ideal, at least from usability point of view it's quite 
+confusing for e.g. if guest user changes the queue number via ethtool 
+from 8 to 4 then back to 8, the vq stat on, say queue #6, will not 
+persist. Perhaps here it needs some clarifications in the VirtIO spec 
+about what should be the expected behavior for these cases:
+
+- if queue number changes without going through a device reset, should 
+any device side stat count reset to zero?
+- if an individual vq gets reset but the device does not, should device 
+side stat counter for the vq reset to zero?
+
+Anyway, the above could be good enhancement with future patches. Given that,
+
+Reviewed-by: Si-Wei Liu <si-wei.liu@oracle.com>
+
+
+>   	qp_destroy(ndev, &mvq->vqqp);
+>   	qp_destroy(ndev, &mvq->fwqp);
+>   	cq_destroy(ndev, mvq->index);
+> @@ -1633,8 +1692,10 @@ static virtio_net_ctrl_ack handle_ctrl_mq(struct mlx5_vdpa_dev *mvdev, u8 cmd)
+>   			break;
+>   		}
+>   
+> +		mutex_lock(&ndev->numq_lock);
+>   		if (!change_num_qps(mvdev, newqps))
+>   			status = VIRTIO_NET_OK;
+> +		mutex_unlock(&ndev->numq_lock);
+>   
+>   		break;
+>   	default:
+> @@ -1681,6 +1742,7 @@ static void mlx5_cvq_kick_handler(struct work_struct *work)
+>   		if (read != sizeof(ctrl))
+>   			break;
+>   
+> +		cvq->received_desc++;
+>   		switch (ctrl.class) {
+>   		case VIRTIO_NET_CTRL_MAC:
+>   			status = handle_ctrl_mac(mvdev, ctrl.cmd);
+> @@ -1704,6 +1766,7 @@ static void mlx5_cvq_kick_handler(struct work_struct *work)
+>   		if (vringh_need_notify_iotlb(&cvq->vring))
+>   			vringh_notify(&cvq->vring);
+>   
+> +		cvq->completed_desc++;
+>   		queue_work(mvdev->wq, &wqent->work);
+>   		break;
+>   	}
+> @@ -2323,6 +2386,8 @@ static int mlx5_vdpa_reset(struct vdpa_device *vdev)
+>   	mlx5_vdpa_destroy_mr(&ndev->mvdev);
+>   	ndev->mvdev.status = 0;
+>   	ndev->cur_num_vqs = 0;
+> +	ndev->mvdev.cvq.received_desc = 0;
+> +	ndev->mvdev.cvq.completed_desc = 0;
+>   	memset(ndev->event_cbs, 0, sizeof(*ndev->event_cbs) * (mvdev->max_vqs + 1));
+>   	ndev->mvdev.actual_features = 0;
+>   	++mvdev->generation;
+> @@ -2401,6 +2466,7 @@ static void mlx5_vdpa_free(struct vdpa_device *vdev)
+>   		mlx5_mpfs_del_mac(pfmdev, ndev->config.mac);
+>   	}
+>   	mlx5_vdpa_free_resources(&ndev->mvdev);
+> +	mutex_destroy(&ndev->numq_lock);
+>   	mutex_destroy(&ndev->reslock);
+>   	kfree(ndev->event_cbs);
+>   	kfree(ndev->vqs);
+> @@ -2442,6 +2508,102 @@ static u64 mlx5_vdpa_get_driver_features(struct vdpa_device *vdev)
+>   	return mvdev->actual_features;
 >   }
 >   
-> +static int vdpa_nl_cmd_dev_stats_get_doit(struct sk_buff *skb,
-> +					  struct genl_info *info)
+> +static int counter_set_query(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueue *mvq,
+> +			     u64 *received_desc, u64 *completed_desc)
 > +{
-> +	struct vdpa_device *vdev;
-> +	struct sk_buff *msg;
-> +	const char *devname;
-> +	struct device *dev;
-> +	u32 index;
+> +	u32 in[MLX5_ST_SZ_DW(query_virtio_q_counters_in)] = {};
+> +	u32 out[MLX5_ST_SZ_DW(query_virtio_q_counters_out)] = {};
+> +	void *cmd_hdr;
+> +	void *ctx;
 > +	int err;
 > +
-> +	if (!info->attrs[VDPA_ATTR_DEV_NAME])
-> +		return -EINVAL;
+> +	if (!counters_supported(&ndev->mvdev))
+> +		return -EOPNOTSUPP;
 > +
-> +	if (!info->attrs[VDPA_ATTR_DEV_QUEUE_INDEX])
-> +		return -EINVAL;
+> +	if (mvq->fw_state != MLX5_VIRTIO_NET_Q_OBJECT_STATE_RDY)
+> +		return -EAGAIN;
 > +
-> +	devname = nla_data(info->attrs[VDPA_ATTR_DEV_NAME]);
-> +	msg = nlmsg_new(NLMSG_DEFAULT_SIZE, GFP_KERNEL);
-> +	if (!msg)
-> +		return -ENOMEM;
+> +	cmd_hdr = MLX5_ADDR_OF(query_virtio_q_counters_in, in, hdr);
 > +
-> +	index = nla_get_u32(info->attrs[VDPA_ATTR_DEV_QUEUE_INDEX]);
-> +	mutex_lock(&vdpa_dev_mutex);
-Given that stats_get() is a read-only operation that might happen quite 
-often from time to time, I wonder if it is now a good timing to convert 
-vdpa_dev_mutex to a semaphore?
-
-> +	dev = bus_find_device(&vdpa_bus, NULL, devname, vdpa_name_match);
-> +	if (!dev) {
-> +		NL_SET_ERR_MSG_MOD(info->extack, "device not found");
-> +		err = -ENODEV;
-> +		goto dev_err;
-Missing nlmsg_free().
-> +	}
-> +	vdev = container_of(dev, struct vdpa_device, dev);
-> +	if (!vdev->mdev) {
-> +		NL_SET_ERR_MSG_MOD(info->extack, "unmanaged vdpa device");
-> +		err = -EINVAL;
-> +		goto mdev_err;
-Missing nlmsg_free().
-
-Otherwise looks fine.
-
-Acked-by: Si-Wei Liu <si-wei.liu@oracle.com>
-
-
--Siwei
-> +	}
-> +	err = vdpa_dev_vendor_stats_fill(vdev, msg, info, index);
-> +	if (!err)
-> +		err = genlmsg_reply(msg, info);
+> +	MLX5_SET(general_obj_in_cmd_hdr, cmd_hdr, opcode, MLX5_CMD_OP_QUERY_GENERAL_OBJECT);
+> +	MLX5_SET(general_obj_in_cmd_hdr, cmd_hdr, obj_type, MLX5_OBJ_TYPE_VIRTIO_Q_COUNTERS);
+> +	MLX5_SET(general_obj_in_cmd_hdr, cmd_hdr, uid, ndev->mvdev.res.uid);
+> +	MLX5_SET(general_obj_in_cmd_hdr, cmd_hdr, obj_id, mvq->counter_set_id);
 > +
-> +	put_device(dev);
-> +	mutex_unlock(&vdpa_dev_mutex);
-> +
+> +	err = mlx5_cmd_exec(ndev->mvdev.mdev, in, sizeof(in), out, sizeof(out));
 > +	if (err)
-> +		nlmsg_free(msg);
+> +		return err;
 > +
-> +	return err;
+> +	ctx = MLX5_ADDR_OF(query_virtio_q_counters_out, out, counters);
+> +	*received_desc = MLX5_GET64(virtio_q_counters, ctx, received_desc);
+> +	*completed_desc = MLX5_GET64(virtio_q_counters, ctx, completed_desc);
+> +	return 0;
+> +}
 > +
-> +mdev_err:
-> +	put_device(dev);
-> +dev_err:
-> +	mutex_unlock(&vdpa_dev_mutex);
+> +static int mlx5_vdpa_get_vendor_vq_stats(struct vdpa_device *vdev, u16 idx,
+> +					 struct sk_buff *msg,
+> +					 struct netlink_ext_ack *extack)
+> +{
+> +	struct mlx5_vdpa_dev *mvdev = to_mvdev(vdev);
+> +	struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
+> +	struct mlx5_vdpa_virtqueue *mvq;
+> +	struct mlx5_control_vq *cvq;
+> +	u64 received_desc;
+> +	u64 completed_desc;
+> +	int err = 0;
+> +	u16 max_vqp;
+> +
+> +	mutex_lock(&ndev->numq_lock);
+> +	if (!is_index_valid(mvdev, idx)) {
+> +		NL_SET_ERR_MSG_MOD(extack, "virtqueue index is not valid");
+> +		err = -EINVAL;
+> +		goto out_err;
+> +	}
+> +
+> +	if (idx == ctrl_vq_idx(mvdev)) {
+> +		cvq = &mvdev->cvq;
+> +		received_desc = cvq->received_desc;
+> +		completed_desc = cvq->completed_desc;
+> +		goto out;
+> +	}
+> +
+> +	mvq = &ndev->vqs[idx];
+> +	err = counter_set_query(ndev, mvq, &received_desc, &completed_desc);
+> +	if (err) {
+> +		NL_SET_ERR_MSG_MOD(extack, "failed to query hardware");
+> +		goto out_err;
+> +	}
+> +
+> +out:
+> +	err = -EMSGSIZE;
+> +	if (nla_put_u64_64bit(msg, VDPA_ATTR_DEV_NEGOTIATED_FEATURES,
+> +			      mvdev->actual_features, VDPA_ATTR_PAD))
+> +		goto out_err;
+> +
+> +	max_vqp = mlx5vdpa16_to_cpu(mvdev, ndev->config.max_virtqueue_pairs);
+> +	if (nla_put_u16(msg, VDPA_ATTR_DEV_NET_CFG_MAX_VQP, max_vqp))
+> +		goto out_err;
+> +
+> +	if (nla_put_string(msg, VDPA_ATTR_DEV_VENDOR_ATTR_NAME, "received_desc"))
+> +		goto out_err;
+> +
+> +	if (nla_put_u64_64bit(msg, VDPA_ATTR_DEV_VENDOR_ATTR_VALUE, received_desc,
+> +			      VDPA_ATTR_PAD))
+> +		goto out_err;
+> +
+> +	if (nla_put_string(msg, VDPA_ATTR_DEV_VENDOR_ATTR_NAME, "completed_desc"))
+> +		goto out_err;
+> +
+> +	if (nla_put_u64_64bit(msg, VDPA_ATTR_DEV_VENDOR_ATTR_VALUE, completed_desc,
+> +			      VDPA_ATTR_PAD))
+> +		goto out_err;
+> +
+> +	err = 0;
+> +out_err:
+> +	mutex_unlock(&ndev->numq_lock);
 > +	return err;
 > +}
 > +
->   static const struct nla_policy vdpa_nl_policy[VDPA_ATTR_MAX + 1] = {
->   	[VDPA_ATTR_MGMTDEV_BUS_NAME] = { .type = NLA_NUL_STRING },
->   	[VDPA_ATTR_MGMTDEV_DEV_NAME] = { .type = NLA_STRING },
-> @@ -997,6 +1119,7 @@ static const struct nla_policy vdpa_nl_policy[VDPA_ATTR_MAX + 1] = {
->   	[VDPA_ATTR_DEV_NET_CFG_MACADDR] = NLA_POLICY_ETH_ADDR,
->   	/* virtio spec 1.1 section 5.1.4.1 for valid MTU range */
->   	[VDPA_ATTR_DEV_NET_CFG_MTU] = NLA_POLICY_MIN(NLA_U16, 68),
-> +	[VDPA_ATTR_DEV_QUEUE_INDEX] = NLA_POLICY_RANGE(NLA_U32, 0, 65535),
+>   static const struct vdpa_config_ops mlx5_vdpa_ops = {
+>   	.set_vq_address = mlx5_vdpa_set_vq_address,
+>   	.set_vq_num = mlx5_vdpa_set_vq_num,
+> @@ -2451,6 +2613,7 @@ static const struct vdpa_config_ops mlx5_vdpa_ops = {
+>   	.get_vq_ready = mlx5_vdpa_get_vq_ready,
+>   	.set_vq_state = mlx5_vdpa_set_vq_state,
+>   	.get_vq_state = mlx5_vdpa_get_vq_state,
+> +	.get_vendor_vq_stats = mlx5_vdpa_get_vendor_vq_stats,
+>   	.get_vq_notification = mlx5_get_vq_notification,
+>   	.get_vq_irq = mlx5_get_vq_irq,
+>   	.get_vq_align = mlx5_vdpa_get_vq_align,
+> @@ -2706,6 +2869,7 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name,
+>   
+>   	init_mvqs(ndev);
+>   	mutex_init(&ndev->reslock);
+> +	mutex_init(&ndev->numq_lock);
+>   	config = &ndev->config;
+>   
+>   	if (add_config->mask & BIT_ULL(VDPA_ATTR_DEV_NET_CFG_MTU)) {
+> @@ -2788,6 +2952,7 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name,
+>   	if (!is_zero_ether_addr(config->mac))
+>   		mlx5_mpfs_del_mac(pfmdev, config->mac);
+>   err_mtu:
+> +	mutex_destroy(&ndev->numq_lock);
+>   	mutex_destroy(&ndev->reslock);
+>   err_alloc:
+>   	put_device(&mvdev->vdev.dev);
+> diff --git a/include/linux/mlx5/mlx5_ifc.h b/include/linux/mlx5/mlx5_ifc.h
+> index 49a48d7709ac..1d193d9b6029 100644
+> --- a/include/linux/mlx5/mlx5_ifc.h
+> +++ b/include/linux/mlx5/mlx5_ifc.h
+> @@ -94,6 +94,7 @@ enum {
+>   enum {
+>   	MLX5_OBJ_TYPE_GENEVE_TLV_OPT = 0x000b,
+>   	MLX5_OBJ_TYPE_VIRTIO_NET_Q = 0x000d,
+> +	MLX5_OBJ_TYPE_VIRTIO_Q_COUNTERS = 0x001c,
+>   	MLX5_OBJ_TYPE_MATCH_DEFINER = 0x0018,
+>   	MLX5_OBJ_TYPE_MKEY = 0xff01,
+>   	MLX5_OBJ_TYPE_QP = 0xff02,
+> diff --git a/include/linux/mlx5/mlx5_ifc_vdpa.h b/include/linux/mlx5/mlx5_ifc_vdpa.h
+> index 1a9c9d94cb59..4414ed5b6ed2 100644
+> --- a/include/linux/mlx5/mlx5_ifc_vdpa.h
+> +++ b/include/linux/mlx5/mlx5_ifc_vdpa.h
+> @@ -165,4 +165,43 @@ struct mlx5_ifc_modify_virtio_net_q_out_bits {
+>   	struct mlx5_ifc_general_obj_out_cmd_hdr_bits general_obj_out_cmd_hdr;
 >   };
 >   
->   static const struct genl_ops vdpa_nl_ops[] = {
-> @@ -1030,6 +1153,12 @@ static const struct genl_ops vdpa_nl_ops[] = {
->   		.doit = vdpa_nl_cmd_dev_config_get_doit,
->   		.dumpit = vdpa_nl_cmd_dev_config_get_dumpit,
->   	},
-> +	{
-> +		.cmd = VDPA_CMD_DEV_VSTATS_GET,
-> +		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
-> +		.doit = vdpa_nl_cmd_dev_stats_get_doit,
-> +		.flags = GENL_ADMIN_PERM,
-> +	},
->   };
->   
->   static struct genl_family vdpa_nl_family __ro_after_init = {
-> diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
-> index 8943a209202e..48ed1fc00830 100644
-> --- a/include/linux/vdpa.h
-> +++ b/include/linux/vdpa.h
-> @@ -276,6 +276,9 @@ struct vdpa_config_ops {
->   			    const struct vdpa_vq_state *state);
->   	int (*get_vq_state)(struct vdpa_device *vdev, u16 idx,
->   			    struct vdpa_vq_state *state);
-> +	int (*get_vendor_vq_stats)(struct vdpa_device *vdev, u16 idx,
-> +				   struct sk_buff *msg,
-> +				   struct netlink_ext_ack *extack);
->   	struct vdpa_notification_area
->   	(*get_vq_notification)(struct vdpa_device *vdev, u16 idx);
->   	/* vq irq is not expected to be changed once DRIVER_OK is set */
-> @@ -473,4 +476,6 @@ struct vdpa_mgmt_dev {
->   int vdpa_mgmtdev_register(struct vdpa_mgmt_dev *mdev);
->   void vdpa_mgmtdev_unregister(struct vdpa_mgmt_dev *mdev);
->   
-> +#define VDPA_INVAL_QUEUE_INDEX 0xffff
+> +struct mlx5_ifc_virtio_q_counters_bits {
+> +	u8    modify_field_select[0x40];
+> +	u8    reserved_at_40[0x40];
+> +	u8    received_desc[0x40];
+> +	u8    completed_desc[0x40];
+> +	u8    error_cqes[0x20];
+> +	u8    bad_desc_errors[0x20];
+> +	u8    exceed_max_chain[0x20];
+> +	u8    invalid_buffer[0x20];
+> +	u8    reserved_at_180[0x280];
+> +};
 > +
->   #endif /* _LINUX_VDPA_H */
-> diff --git a/include/uapi/linux/vdpa.h b/include/uapi/linux/vdpa.h
-> index 1061d8d2d09d..25c55cab3d7c 100644
-> --- a/include/uapi/linux/vdpa.h
-> +++ b/include/uapi/linux/vdpa.h
-> @@ -18,6 +18,7 @@ enum vdpa_command {
->   	VDPA_CMD_DEV_DEL,
->   	VDPA_CMD_DEV_GET,		/* can dump */
->   	VDPA_CMD_DEV_CONFIG_GET,	/* can dump */
-> +	VDPA_CMD_DEV_VSTATS_GET,
->   };
->   
->   enum vdpa_attr {
-> @@ -46,6 +47,11 @@ enum vdpa_attr {
->   	VDPA_ATTR_DEV_NEGOTIATED_FEATURES,	/* u64 */
->   	VDPA_ATTR_DEV_MGMTDEV_MAX_VQS,		/* u32 */
->   	VDPA_ATTR_DEV_SUPPORTED_FEATURES,	/* u64 */
+> +struct mlx5_ifc_create_virtio_q_counters_in_bits {
+> +	struct mlx5_ifc_general_obj_in_cmd_hdr_bits hdr;
+> +	struct mlx5_ifc_virtio_q_counters_bits virtio_q_counters;
+> +};
 > +
-> +	VDPA_ATTR_DEV_QUEUE_INDEX,              /* u32 */
-> +	VDPA_ATTR_DEV_VENDOR_ATTR_NAME,		/* string */
-> +	VDPA_ATTR_DEV_VENDOR_ATTR_VALUE,        /* u64 */
+> +struct mlx5_ifc_create_virtio_q_counters_out_bits {
+> +	struct mlx5_ifc_general_obj_in_cmd_hdr_bits hdr;
+> +	struct mlx5_ifc_virtio_q_counters_bits virtio_q_counters;
+> +};
 > +
->   	/* new attributes must be added above here */
->   	VDPA_ATTR_MAX,
->   };
+> +struct mlx5_ifc_destroy_virtio_q_counters_in_bits {
+> +	struct mlx5_ifc_general_obj_in_cmd_hdr_bits hdr;
+> +};
+> +
+> +struct mlx5_ifc_destroy_virtio_q_counters_out_bits {
+> +	struct mlx5_ifc_general_obj_out_cmd_hdr_bits hdr;
+> +};
+> +
+> +struct mlx5_ifc_query_virtio_q_counters_in_bits {
+> +	struct mlx5_ifc_general_obj_in_cmd_hdr_bits hdr;
+> +};
+> +
+> +struct mlx5_ifc_query_virtio_q_counters_out_bits {
+> +	struct mlx5_ifc_general_obj_in_cmd_hdr_bits hdr;
+> +	struct mlx5_ifc_virtio_q_counters_bits counters;
+> +};
+> +
+>   #endif /* __MLX5_IFC_VDPA_H_ */
 
 _______________________________________________
 Virtualization mailing list
