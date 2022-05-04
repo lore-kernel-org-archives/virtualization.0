@@ -1,194 +1,129 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 61878C433F5
-	for <virtualization@archiver.kernel.org>; Wed,  4 May 2022 04:43:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 97DBFC433F5
+	for <virtualization@archiver.kernel.org>; Wed,  4 May 2022 08:21:50 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id E1F7183EEF;
-	Wed,  4 May 2022 04:43:56 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 3C42141755;
+	Wed,  4 May 2022 08:21:50 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id S9KiBy2k8X6u; Wed,  4 May 2022 04:43:55 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 0E91D83E36;
-	Wed,  4 May 2022 04:43:54 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id uB7evYlH1vzj; Wed,  4 May 2022 08:21:48 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 0B6BC41747;
+	Wed,  4 May 2022 08:21:48 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D38A3C0032;
-	Wed,  4 May 2022 04:43:54 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 28475C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id DD9E2C0039;
+	Wed,  4 May 2022 08:21:47 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id EA2C3C0032
  for <virtualization@lists.linux-foundation.org>;
- Wed,  4 May 2022 04:43:53 +0000 (UTC)
+ Wed,  4 May 2022 08:21:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 0F3544028D
+ by smtp3.osuosl.org (Postfix) with ESMTP id C3C146079E
  for <virtualization@lists.linux-foundation.org>;
- Wed,  4 May 2022 04:43:53 +0000 (UTC)
+ Wed,  4 May 2022 08:21:46 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=oracle.com header.b="z4KIN0yM";
- dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
- header.b="w8X9BTm/"
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id FJHaRvyB6bvO
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=ffwll.ch
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id X4pcRCtYaJlc
  for <virtualization@lists.linux-foundation.org>;
- Wed,  4 May 2022 04:43:50 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com
- [205.220.177.32])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 17891400E3
+ Wed,  4 May 2022 08:21:45 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com
+ [IPv6:2a00:1450:4864:20::52e])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 4C67A60768
  for <virtualization@lists.linux-foundation.org>;
- Wed,  4 May 2022 04:43:49 +0000 (UTC)
-Received: from pps.filterd (m0246630.ppops.net [127.0.0.1])
- by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 243MIwvl026114;
- Wed, 4 May 2022 04:43:48 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
- h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=corp-2021-07-09;
- bh=z4F3lbGlYVnVy7b1haZjcmrwqae+GnZTsTfx/97gpNc=;
- b=z4KIN0yMBtR1Zavap6oKC84DoTQgSJU4lKPxaGedeWhKnAzG3dOalokdgfmMWv/a8Bbi
- r1AbWToya31y6mLiRJh1qu+ShgXu09/T5jEeCFmHdpZ9WWdaLvgNPC9osB17hU3Juirw
- CF9y6E6gV8ni8NFCmHySK6Gkg+5CXUCs+wYYN8caheJisrzi0OOLAQ7wzcgQ4N7ryXMC
- tNm6TEyItGIsaeb0y8lOVeJTBijlG/7kldz+As3O0Gd/TAOtBoE+gi+1SGyJbAw07nQk
- 4UPsIejJwk/up/kxPDEm9Ps0MrKUdcqdxCwIQF25qeUqRus91DzH4Ylmr2Bx7ME1jyGr 0w== 
-Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com
- (iadpaimrmta01.appoci.oracle.com [130.35.100.223])
- by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3fruhc7907-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Wed, 04 May 2022 04:43:48 +0000
-Received: from pps.filterd
- (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
- by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (8.16.1.2/8.16.1.2)
- with SMTP id 2444es1e039701; Wed, 4 May 2022 04:43:48 GMT
-Received: from nam10-mw2-obe.outbound.protection.outlook.com
- (mail-mw2nam10lp2100.outbound.protection.outlook.com [104.47.55.100])
- by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com with ESMTP id
- 3fruj953mh-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Wed, 04 May 2022 04:43:47 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=a3qzmyybnY09jBYVMqgUy/Xew09x1hJMQ1gWDnfZggFoqtazr1/JnGtfmZCzUC64oAfxoQbcHTOmAtgeMJTm6qHqKMApdg2QTF84wQ/2KI20fVphk9y4kpWVqEtfuYug7/S5TP6rWgPGr+sTALD1ksNBgEP1QvYgLPDvjj30IAXP3EuhuIFR5E2S2lYnQvRt31DlmAJR/Zh30KR7DmOqTO7PGiPGunKCTK6V3HM8ITTCbGDPEBgrzYL/ut4onK4EYDjxYaB/88qHLhAykCNBbYM5mGrIp0oQenbuQbEsdjHOTkNn34xQM+HNFSXxDwzvDczjrZtIZ84Sy72oR58RtQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=z4F3lbGlYVnVy7b1haZjcmrwqae+GnZTsTfx/97gpNc=;
- b=McrYRkcOj1Ay1V2+bffu232eji46BZe+iqUVVUvU9NXOMxxM9NOXdWVZJeAA56OjWY11EDjpqhPF9Cg2hvDKkKh+XW4enSfXYWS739Ls+erWO0ihwB6btDeqLLDBoo4thP4t1VMK4qc/ASDX9+ILZTnh0tQFpl5bVuz3qXvUd8X44Qg2VTnpmSwSE9xQypniKOivc2Uo2dnvuMcfbx/eX2YOegtlLhRsukyVxzK/TMp9DO3Ma+2G72DqiMbPl8Ytxi83c15JfSC+RZNybhV76yHrBZbx9fBHp5+YZE6TuqFIrqBg9A3eCca8dekBVpqLlHENIV9ClMGB8QhCLyrueA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=z4F3lbGlYVnVy7b1haZjcmrwqae+GnZTsTfx/97gpNc=;
- b=w8X9BTm/80Wkz6Rkr/RV1BUwDGVpDx1tT25Xg3ua4xEfMmYGpniyv3TWzTrTKce7INFwK7j6DNCDicuun3GOGO4sM5PfgXwW+AZ9mzE1KTX0mKS8M3fkDD5QV/qJfswMBF2xUTKg+8QxMd87jxDMLCaxfBZFYO8j7wUNxphBmZo=
-Received: from BYAPR10MB3287.namprd10.prod.outlook.com (2603:10b6:a03:15c::11)
- by SA1PR10MB5509.namprd10.prod.outlook.com (2603:10b6:806:1f5::20)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5186.15; Wed, 4 May
- 2022 04:43:45 +0000
-Received: from BYAPR10MB3287.namprd10.prod.outlook.com
- ([fe80::c89:e3f5:ea4a:8d30]) by BYAPR10MB3287.namprd10.prod.outlook.com
- ([fe80::c89:e3f5:ea4a:8d30%2]) with mapi id 15.20.5206.024; Wed, 4 May 2022
- 04:43:45 +0000
-Message-ID: <f54e1450-bdd0-860c-5962-90f312234134@oracle.com>
-Date: Tue, 3 May 2022 21:43:41 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.1
-Subject: Re: [PATCH v3 1/2] vdpa: Add support for querying vendor statistics
-Content-Language: en-US
-To: Eli Cohen <elic@nvidia.com>, "mst@redhat.com" <mst@redhat.com>,
- "jasowang@redhat.com" <jasowang@redhat.com>
-References: <20220502102201.190357-1-elic@nvidia.com>
- <20220502102201.190357-2-elic@nvidia.com>
- <f279bbbb-6af2-95f4-08c3-97ba72deb6cb@oracle.com>
- <DM8PR12MB5400350099D5A2C932C32B07ABC09@DM8PR12MB5400.namprd12.prod.outlook.com>
-From: Si-Wei Liu <si-wei.liu@oracle.com>
-Organization: Oracle Corporation
-In-Reply-To: <DM8PR12MB5400350099D5A2C932C32B07ABC09@DM8PR12MB5400.namprd12.prod.outlook.com>
-X-ClientProxiedBy: BYAPR21CA0019.namprd21.prod.outlook.com
- (2603:10b6:a03:114::29) To BYAPR10MB3287.namprd10.prod.outlook.com
- (2603:10b6:a03:15c::11)
+ Wed,  4 May 2022 08:21:45 +0000 (UTC)
+Received: by mail-ed1-x52e.google.com with SMTP id p4so879260edx.0
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 04 May 2022 01:21:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ffwll.ch; s=google;
+ h=date:from:to:cc:subject:message-id:mail-followup-to:references
+ :mime-version:content-disposition:content-transfer-encoding
+ :in-reply-to; bh=VDdx6SnTBc/x3hqSqeoZ0OfihXfqmRqnu+owhp1Pk7I=;
+ b=kXpJCcqnJXYo6DFxpZt2zaSYdj84Z1DsaCnLwkmK08s6KqjJZdJtLXR3x8+xemf0rt
+ kagg3meDbbs7FjgKS5jV/iwys9PwikMXkATlAt7yil8+zr6dSRgtgJjUq0rFTrtrT/fV
+ IfB3lxf+nPGsdcygoRYzCtKb71OXk73EAk734=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id
+ :mail-followup-to:references:mime-version:content-disposition
+ :content-transfer-encoding:in-reply-to;
+ bh=VDdx6SnTBc/x3hqSqeoZ0OfihXfqmRqnu+owhp1Pk7I=;
+ b=lrjadM2Usxle0sGHuautzJk4jVPdHkjBA5SZiDrBC7GrciVr6LI3T21hCtnqYwGptU
+ 12qufmFsk3bDiVc/5GdQaFma3D5TrCoDInpsK+DfHJkcJJewvDcGEwKAVM1Bf6rQt0KV
+ 9QON9m54BcB0mkFUjuxdIJFtYaAHp6qB/FIWqzUhtTkDCZ4viGSG7Swdz1mUpMBR85fm
+ JSmSNBVSJw/0zKQ1cpWP8+ImZIjYXdQbnwofrHBGusBvL6Tas1cHci0UyFPdzg8l93lC
+ S84anVn+q1rshI9tt1Hv+H+dKiB1pUKgP+ngT5U9L8A6gv0quhm5mccEwnQdMhnRNQQA
+ oMag==
+X-Gm-Message-State: AOAM533BvdZxBuB5qsePbOhgEUwqttYVnoIV+RiTYHnlm3fNVbCyBDj4
+ ioO0ptMODU9Gj0SmSfUPPmZXdA==
+X-Google-Smtp-Source: ABdhPJzDbGmxFILJU2oICyGZqcgGQFia6s4oybWBirwH1Joi8kUfhsVPZ4FaGStFNnYRj6Z0sKsRqg==
+X-Received: by 2002:a05:6402:5205:b0:427:b431:e0ed with SMTP id
+ s5-20020a056402520500b00427b431e0edmr18026088edd.186.1651652503231; 
+ Wed, 04 May 2022 01:21:43 -0700 (PDT)
+Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
+ by smtp.gmail.com with ESMTPSA id
+ cf4-20020a0564020b8400b00426488dce1dsm6209549edb.25.2022.05.04.01.21.42
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 04 May 2022 01:21:42 -0700 (PDT)
+Date: Wed, 4 May 2022 10:21:40 +0200
+From: Daniel Vetter <daniel@ffwll.ch>
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Subject: Re: [PATCH v4 10/15] drm/shmem-helper: Take reservation lock instead
+ of drm_gem_shmem locks
+Message-ID: <YnI3lE0TxLfZaQjE@phenom.ffwll.local>
+Mail-Followup-To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ Daniel Stone <daniel@fooishbar.org>,
+ Thomas Zimmermann <tzimmermann@suse.de>,
+ David Airlie <airlied@linux.ie>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>,
+ Chia-I Wu <olvaffe@gmail.com>,
+ Daniel Almeida <daniel.almeida@collabora.com>,
+ Gert Wollny <gert.wollny@collabora.com>,
+ Gustavo Padovan <gustavo.padovan@collabora.com>,
+ Tomeu Vizoso <tomeu.vizoso@collabora.com>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Rob Herring <robh@kernel.org>,
+ Steven Price <steven.price@arm.com>,
+ Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
+ Rob Clark <robdclark@gmail.com>,
+ Emil Velikov <emil.l.velikov@gmail.com>,
+ Robin Murphy <robin.murphy@arm.com>,
+ Dmitry Osipenko <digetx@gmail.com>, linux-kernel@vger.kernel.org,
+ dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org
+References: <20220417223707.157113-1-dmitry.osipenko@collabora.com>
+ <20220417223707.157113-11-dmitry.osipenko@collabora.com>
+ <248083d2-b8f2-a4d7-099d-70a7e7859c11@suse.de>
+ <d9e7bec1-fffb-e0c4-8659-ef3ce2c31280@collabora.com>
+ <YmlYHNlcmNMfOeyy@phenom.ffwll.local>
+ <8f932ab0-bb72-8fea-4078-dc59e9164bd4@collabora.com>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 5cc1bf74-5007-4033-36a2-08da2d88abd5
-X-MS-TrafficTypeDiagnostic: SA1PR10MB5509:EE_
-X-Microsoft-Antispam-PRVS: <SA1PR10MB5509F963B59C62684192C84BB1C39@SA1PR10MB5509.namprd10.prod.outlook.com>
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: xYL/Jlb0lgSef4igxG7P9WQl3S8W/eCJQ/VeE9g7bmk1M7coOJBlMZvP08UuZ9JAwtrwd1XDCww7bdL/zSFLBdkbTF7hqDIQnMRIOk3QiwNymLnD4soeJPycYYw079WQufmZ4fv3xfx5MFLPZBDpLLPH9L/RrL/YoxyNLad2VarRxM7MbkmgAJUd+fmLAxa/eIZqVhC0TypMNdfqc+qt89dZtpzZmUivC1aXsokMN5aIHblQ0YXnpfoB7Qh2LdARR+X0jnpyfPwVDF9vgP+Ec7no0759CYLkKyFbheYjB306qV/2KZO0iXWnPT55CKTMStyqDESKaFDgDqYcC8cqN7IoIYI9Krz2K8e971ap9t+zranh/EILC6FbvVj65Bv11SCgRuyzSbxEtC9ZQICmB8VYbOlpMtILqlmDFWg49iMLog9f3GDa3jzL7LZZL+JUAgL+qafvpyiyMW/s72Ah8Hv3jeCmHlC3rkpxqkGEUIc1myvnFxuTPeLlmOKQosZLrJzhj6d3sxfpc7LIOL1KYmQwr2poRcMBN6jZfgOyzaADEUm/wQ8G3yKLff7NF4Zx1rGEddVepnQ8f8YvgXz0b3B6Tfd7Xb96FXmbzaQc7K+6cFk2gS0DoxyClka2HqvnQLGDMKjTGdHTEOSePMew4sKTWdr2gNO+VpwdDPmW9MazVpaQFE+E4iNyOYDS03W1BPrRZkCHoUTXYrFhz1KMGvvriNjMVvGMOnN6mhph9dY=
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:BYAPR10MB3287.namprd10.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230001)(366004)(26005)(6512007)(508600001)(31696002)(53546011)(6506007)(86362001)(36756003)(110136005)(186003)(54906003)(2616005)(38100700002)(6486002)(316002)(83380400001)(4326008)(66476007)(66946007)(66556008)(8676002)(2906002)(31686004)(30864003)(8936002)(6666004)(5660300002)(36916002)(45980500001)(43740500002);
- DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?V2svOWpDL2lKcmxJeEJNOHhabGFCbUN2T0ZpcHd6MVgzcVZXQWhEODhyYml3?=
- =?utf-8?B?aW44QnFGUzcxUThuNDJyb1Z5UHNKdVhxMjJwbHUxSU5FWUFUdUV1b1o0TXJp?=
- =?utf-8?B?YkdZMWdmMnpSWEZ2QXRQekhHUmtvUndKWmJhOVdxc25xTEplWmFoVHpxR0tZ?=
- =?utf-8?B?bzMzMXAramVVSnFZcndDa1dEWFFLMXRoY3ZhSjJrWjVsb1pONmgxT05GTXA3?=
- =?utf-8?B?WlNsQ3RwMVZhZ2U1L1NWcDB0UGZBQjVhSmFUMEtKRkJPWG83Qkg0VUJnWmhZ?=
- =?utf-8?B?aEdpMHRBR3JpK1ZVSC9YWEhSYnNYaWdIcnc3MHBUTnd6MStuS2JJQ2dIbVMw?=
- =?utf-8?B?R0hJYjRyU2hNbVU0ckhnMmNiSk40TnA5WlV0ZVhKUW9TZ1FHeXk3bGxkR1Fa?=
- =?utf-8?B?VTQrVHRiSm1JY25QTlJCbzhDWnp2WWYvV2VyL1gvVlJkdFhaaE45eDNSSUtU?=
- =?utf-8?B?dWNWSEpWb2JTa3ZpRWZoQVVsZ3RQbTlWazFMZUJld0RLU1NVaWFNYzBLaS96?=
- =?utf-8?B?NVdMRXBZMDN2L3NXdVVobXpTQU56N0FXZ0VyeUFiUmd3UVpsN1JGWVRjdVRy?=
- =?utf-8?B?Uzc2RjFDQUduVTVYWFF0OE5NNTd0QnZWT1BuSy9uZk8vdVNFWTZvMjg3VnF0?=
- =?utf-8?B?WHRkcXByLzhWbWI0bE1sUE5WNVRUV0MrS3d2V0VzRjVCUHplK24yVlp4bEs3?=
- =?utf-8?B?Q3pHWmhPTUc0QWVoWlB5WGhnanM1NittT3FlMlNHaWhaUFR6Z2dFdDRrbnk3?=
- =?utf-8?B?TEx6R0JhUTZva2tpaXc3TFBqZkZKSC85Vk9wV2pyVVhiOFpvVGlYYzI3SW1J?=
- =?utf-8?B?ZGNUdklWZ1p0Q0FGRTg3TGVPZThDNjE2NmVRU0ZVUkYxZzRNV0xvSW14L1pB?=
- =?utf-8?B?endkZ3l2cS9BWnVqaTFyRUIzaUI0V0VYbmlMY20zckZCZ2tGOTRGdHpWUFMz?=
- =?utf-8?B?TXhHTU1VRkZOR0hPNm14U0xQbVZ4VzB5MElmcmgvK0tXU3VKQTBvNkdWd0M5?=
- =?utf-8?B?RjlWdG52VFRTVTg5TXdMVzh0UEk2cVBpcmNNbUhPak9CZnI3MDdxL0MrR0hj?=
- =?utf-8?B?ME1ZYTAwRE5rN3o5QTdwbXdFUVdFSzhzN3BHNTVHQzIyeDFQVndZa2hsZkgv?=
- =?utf-8?B?dFZpcy9Uc0VnS0JTNW1DbDF2dytwcWY3eVl3VkM4VkZQSGR1R2NabTBiZWZX?=
- =?utf-8?B?VzJndzJLMGJZdkVkUkxkUWVNRG9Edm56MEtFY2VXTnp1M0p2ekp0L0UwUmYx?=
- =?utf-8?B?bkpBUEVxN0RmZVVWZzNBR3F5S1dwNjBwU2l6azVnVkM5bldUdE1kSWltV3dQ?=
- =?utf-8?B?VzdXRHlhVEtUNC9yWHpGMWpMbExTYWRxdzlBUWozRTFTRmgwZVBINGh6THhW?=
- =?utf-8?B?QUFaL09tTnNYUy9wbEp2VUpISkQ3emttQWpUWUxZeUh5ekUrTHhVL00xUFFt?=
- =?utf-8?B?SUdGZ2hhalRYemVML0ozQWl2V056a0w4WHlsRTRFcml5TGhXQzQzRTVGcmEr?=
- =?utf-8?B?dWtGKzBXaXRXZHphZTZCQzVXZGRxWTloNXRzdFJVQUJYVDQyZUU2eERGcE5m?=
- =?utf-8?B?VmQ4bzdXRWdQMGlxT0l2dmpaazBkWVpqbUphZWNUSEMvT21UTXdYSmZISXJs?=
- =?utf-8?B?Y1lXVFV0Vy9HOW5Wek9xUEExV2VPOUF2Z1lRWmUvMjJld3dmQVJxc216REg3?=
- =?utf-8?B?WUFlRnN0cjNYS3dIZk9WM3F0T3V3Rk1ib0R1VnNrMkIvbkRjY3hESmp4SG0v?=
- =?utf-8?B?Q3JDeG9kcENkczhmU1ZKSHNsTTM3Tks2ZVRsSDB6UU1TdjY2R24ySWVpSjhs?=
- =?utf-8?B?VDg1TG1JaVF2YmJvMDk0Tm84N2hFQmZCYllvWTdzMmMrV0ZnMUhxWWJoODVt?=
- =?utf-8?B?TXB3aGdhOG14WjlYcjQ5SkEvNlZWNmdNejhYditzdUd0Q29KNDcxaVpGb0to?=
- =?utf-8?B?bmNXRkE3cnFraHF5WXE3R2ZWUC9RNU83ZE1OQWFkaGtxeXhKeUJ1blZ6OFFx?=
- =?utf-8?B?WEx4cGhUbzFuTHYrZ3NXRkY2NW4xMThKc0NFVlRGSUkyS25mcTd5aDViK09s?=
- =?utf-8?B?OFV6R2l2YWp5d3RQSkZ1U2xabGdIV3BLa2t4R0wyNEU3NDRQZVZJVzNRVFdk?=
- =?utf-8?B?ZmhtTmtBMDNjRXFVZmdzRElpVjRqWnROTGUwZTluOFVVYXRjTXpNQktBOHZJ?=
- =?utf-8?B?UlVhK3BIQ3pyNUNTWEErYzVNd2cyN2YweENMdEdjamlLanFKbmc0M2doUWNp?=
- =?utf-8?B?Zk1iOEs1TjhjVGNPN0lRakpFNVlKUVJxVmVJZTZOTXQ2WjBJRVA3UjM5Lys0?=
- =?utf-8?B?RXJIUWJtTXR2cWlLTThzcWxmejdKa1ZCUkV1MzZWZVVlYjlGbWwzdz09?=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5cc1bf74-5007-4033-36a2-08da2d88abd5
-X-MS-Exchange-CrossTenant-AuthSource: BYAPR10MB3287.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 May 2022 04:43:45.0681 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: Sfb75qkkAjZiCkPSzwP/WBjdcjPEll8YWHZk7PZTXx1O0YbEr7pmK+iayLh1wlXm9q4i6oHo6TUeHuX9XQHmrQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR10MB5509
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.486, 18.0.858
- definitions=2022-05-04_01:2022-05-02,
- 2022-05-04 signatures=0
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0
- mlxscore=0 adultscore=0
- bulkscore=0 suspectscore=0 mlxlogscore=999 malwarescore=0 phishscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
- definitions=main-2205040029
-X-Proofpoint-GUID: JfaQDXXxJNn-5sog0G6Mi4IxgDS9kT3m
-X-Proofpoint-ORIG-GUID: JfaQDXXxJNn-5sog0G6Mi4IxgDS9kT3m
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <8f932ab0-bb72-8fea-4078-dc59e9164bd4@collabora.com>
+X-Operating-System: Linux phenom 5.10.0-8-amd64 
+Cc: David Airlie <airlied@linux.ie>, dri-devel@lists.freedesktop.org,
+ Gurchetan Singh <gurchetansingh@chromium.org>,
+ Dmitry Osipenko <digetx@gmail.com>, Rob Herring <robh@kernel.org>,
+ Daniel Stone <daniel@fooishbar.org>, Steven Price <steven.price@arm.com>,
+ Gustavo Padovan <gustavo.padovan@collabora.com>,
+ Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
+ Chia-I Wu <olvaffe@gmail.com>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, virtualization@lists.linux-foundation.org,
+ Tomeu Vizoso <tomeu.vizoso@collabora.com>,
+ Gert Wollny <gert.wollny@collabora.com>,
+ Emil Velikov <emil.l.velikov@gmail.com>, linux-kernel@vger.kernel.org,
+ Rob Clark <robdclark@gmail.com>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Robin Murphy <robin.murphy@arm.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -200,346 +135,125 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-
-
-On 5/2/2022 10:13 PM, Eli Cohen wrote:
->
->> -----Original Message-----
->> From: Si-Wei Liu <si-wei.liu@oracle.com>
->> Sent: Tuesday, May 3, 2022 2:48 AM
->> To: Eli Cohen <elic@nvidia.com>; mst@redhat.com; jasowang@redhat.com
->> Cc: virtualization@lists.linux-foundation.org; linux-kernel@vger.kernel.org
->> Subject: Re: [PATCH v3 1/2] vdpa: Add support for querying vendor statistics
->>
->>
->>
->> On 5/2/2022 3:22 AM, Eli Cohen wrote:
->>> Allows to read vendor statistics of a vdpa device. The specific
->>> statistics data are received from the upstream driver in the form of an
->>> (attribute name, attribute value) pairs.
->>>
->>> An example of statistics for mlx5_vdpa device are:
->>>
->>> received_desc - number of descriptors received by the virtqueue
->>> completed_desc - number of descriptors completed by the virtqueue
->>>
->>> A descriptor using indirect buffers is still counted as 1. In addition,
->>> N chained descriptors are counted correctly N times as one would expect.
->>>
->>> A new callback was added to vdpa_config_ops which provides the means for
->>> the vdpa driver to return statistics results.
->>>
->>> The interface allows for reading all the supported virtqueues, including
->>> the control virtqueue if it exists.
->>>
->>> Below are some examples taken from mlx5_vdpa which are introduced in the
->>> following patch:
->>>
->>> 1. Read statistics for the virtqueue at index 1
->>>
->>> $ vdpa dev vstats show vdpa-a qidx 1
->>> vdpa-a:
->>> queue_type tx queue_index 1 received_desc 3844836 completed_desc 3844836
->>>
->>> 2. Read statistics for the virtqueue at index 32
->>> $ vdpa dev vstats show vdpa-a qidx 32
->>> vdpa-a:
->>> queue_type control_vq queue_index 32 received_desc 62 completed_desc 62
->>>
->>> 3. Read statisitics for the virtqueue at index 0 with json output
->>> $ vdpa -j dev vstats show vdpa-a qidx 0
->>> {"vstats":{"vdpa-a":{
->>> "queue_type":"rx","queue_index":0,"name":"received_desc","value":417776,\
->>>    "name":"completed_desc","value":417548}}}
->>>
->>> 4. Read statistics for the virtqueue at index 0 with preety json output
->>> $ vdpa -jp dev vstats show vdpa-a qidx 0
->>> {
->>>       "vstats": {
->>>           "vdpa-a": {
->>>
->>>               "queue_type": "rx",
->>>               "queue_index": 0,
->>>               "name": "received_desc",
->>>               "value": 417776,
->>>               "name": "completed_desc",
->>>               "value": 417548
->>>           }
->>>       }
->>> }
->>>
->>> Signed-off-by: Eli Cohen <elic@nvidia.com>
->>> ---
->>>    drivers/vdpa/vdpa.c       | 129 ++++++++++++++++++++++++++++++++++++++
->>>    include/linux/vdpa.h      |   5 ++
->>>    include/uapi/linux/vdpa.h |   6 ++
->>>    3 files changed, 140 insertions(+)
->>>
->>> diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
->>> index 2b75c00b1005..933466f61ca8 100644
->>> --- a/drivers/vdpa/vdpa.c
->>> +++ b/drivers/vdpa/vdpa.c
->>> @@ -909,6 +909,74 @@ vdpa_dev_config_fill(struct vdpa_device *vdev, struct sk_buff *msg, u32 portid,
->>>    	return err;
->>>    }
->>>
->>> +static int vdpa_fill_stats_rec(struct vdpa_device *vdev, struct sk_buff *msg,
->>> +			       struct genl_info *info, u32 index)
->>> +{
->>> +	int err;
->>> +
->>> +	err = vdev->config->get_vendor_vq_stats(vdev, index, msg, info->extack);
->>> +	if (err)
->>> +		return err;
->>> +
->>> +	if (nla_put_u32(msg, VDPA_ATTR_DEV_QUEUE_INDEX, index))
->>> +		return -EMSGSIZE;
->>> +
->>> +	return 0;
->>> +}
->>> +
->>> +static int vendor_stats_fill(struct vdpa_device *vdev, struct sk_buff *msg,
->>> +			     struct genl_info *info, u32 index)
->>> +{
->>> +	int err;
->>> +
->>> +	if (!vdev->config->get_vendor_vq_stats)
->>> +		return -EOPNOTSUPP;
->>> +
->>> +	err = vdpa_fill_stats_rec(vdev, msg, info, index);
->>> +	if (err)
->>> +		return err;
->>> +
->>> +	return 0;
->>> +}
->>> +
->>> +static int vdpa_dev_vendor_stats_fill(struct vdpa_device *vdev,
->>> +				      struct sk_buff *msg,
->>> +				      struct genl_info *info, u32 index)
->>> +{
->>> +	u32 device_id;
->>> +	void *hdr;
->>> +	int err;
->>> +	u32 portid = info->snd_portid;
->>> +	u32 seq = info->snd_seq;
->>> +	u32 flags = 0;
->>> +
->>> +	hdr = genlmsg_put(msg, portid, seq, &vdpa_nl_family, flags,
->>> +			  VDPA_CMD_DEV_VSTATS_GET);
->>> +	if (!hdr)
->>> +		return -EMSGSIZE;
->>> +
->>> +	if (nla_put_string(msg, VDPA_ATTR_DEV_NAME, dev_name(&vdev->dev))) {
->>> +		err = -EMSGSIZE;
->>> +		goto undo_msg;
->>> +	}
->>> +
->>> +	device_id = vdev->config->get_device_id(vdev);
->>> +	if (nla_put_u32(msg, VDPA_ATTR_DEV_ID, device_id)) {
->>> +		err = -EMSGSIZE;
->>> +		goto undo_msg;
->>> +	}
->>> +
->> You seem to miss VDPA_ATTR_DEV_NEGOTIATED_FEATURES from this function,
->> otherwise I can't image how you can ensure the atomicity to infer
->> queue_type for control vq.
->> And should we make sure VIRTIO_CONFIG_S_FEATURES_OK is set before call
->> into vendor_stats_fill()?
-> It is done in the hardware driver. In this case, in mlx5_vdpa.
-OK... So you think this is not vdpa common code but rather individual 
-vendor driver should deal with? Seems fine at the first glance, but with 
-some thoughts this would complicate userspace code quite a lot to tell 
-apart different cases - say if the VDPA_ATTR_DEV_NEGOTIATED_FEATURES 
-attr is missing it would not be possible to display the queue type. On 
-the other hand, the queue type itself shouldn't be vendor specific thing 
-- only the vendor stats are, right?
-
-Furthermore, without FEATURES_OK the stats returned for a specific queue 
-might not be stable/reliable/reasonable at all, not sure how the tool 
-can infer such complex state (e.g. negotiation is in progress) if 
-somehow the vendor driver doesn't provide the corresponding attribute? 
-Should vendor driver expect to fail with explicit message to indicate 
-the reason, or it'd be fine to just display zero stats there? Looking at 
-mlx5_vdpa implementation it seems to be the former case, but in case of 
-device being negotiating, depending on which queue, the vstat query 
-might end up with a confusing message of, either
-
-"virtqueue index is not valid"
-
-or,
-
-"failed to query hardware"
-
-but none is helpful for user to indicate what's going on... I wonder if 
-mandating presence of FEATURES_OK would simplify userspace tool's 
-implementation in this case?
-
-
-Thanks,
--Siwei
-
->
->>> +	err = vendor_stats_fill(vdev, msg, info, index);
->>> +
->>> +	genlmsg_end(msg, hdr);
->>> +
->>> +	return err;
->>> +
->>> +undo_msg:
->>> +	genlmsg_cancel(msg, hdr);
->>> +	return err;
->>> +}
->>> +
->>>    static int vdpa_nl_cmd_dev_config_get_doit(struct sk_buff *skb, struct genl_info *info)
->>>    {
->>>    	struct vdpa_device *vdev;
->>> @@ -990,6 +1058,60 @@ vdpa_nl_cmd_dev_config_get_dumpit(struct sk_buff *msg, struct netlink_callback *
->>>    	return msg->len;
->>>    }
->>>
->>> +static int vdpa_nl_cmd_dev_stats_get_doit(struct sk_buff *skb,
->>> +					  struct genl_info *info)
->>> +{
->>> +	struct vdpa_device *vdev;
->>> +	struct sk_buff *msg;
->>> +	const char *devname;
->>> +	struct device *dev;
->>> +	u32 index;
->>> +	int err;
->>> +
->>> +	if (!info->attrs[VDPA_ATTR_DEV_NAME])
->>> +		return -EINVAL;
->>> +
->>> +	if (!info->attrs[VDPA_ATTR_DEV_QUEUE_INDEX])
->>> +		return -EINVAL;
->>> +
->>> +	devname = nla_data(info->attrs[VDPA_ATTR_DEV_NAME]);
->>> +	msg = nlmsg_new(NLMSG_DEFAULT_SIZE, GFP_KERNEL);
->>> +	if (!msg)
->>> +		return -ENOMEM;
->>> +
->>> +	index = nla_get_u32(info->attrs[VDPA_ATTR_DEV_QUEUE_INDEX]);
->>> +	mutex_lock(&vdpa_dev_mutex);
->> Given that stats_get() is a read-only operation that might happen quite
->> often from time to time, I wonder if it is now a good timing to convert
->> vdpa_dev_mutex to a semaphore?
->>
->>> +	dev = bus_find_device(&vdpa_bus, NULL, devname, vdpa_name_match);
->>> +	if (!dev) {
->>> +		NL_SET_ERR_MSG_MOD(info->extack, "device not found");
->>> +		err = -ENODEV;
->>> +		goto dev_err;
->> Missing nlmsg_free().
->>> +	}
->>> +	vdev = container_of(dev, struct vdpa_device, dev);
->>> +	if (!vdev->mdev) {
->>> +		NL_SET_ERR_MSG_MOD(info->extack, "unmanaged vdpa device");
->>> +		err = -EINVAL;
->>> +		goto mdev_err;
->> Missing nlmsg_free().
->>
->> Otherwise looks fine.
->>
->> Acked-by: Si-Wei Liu <si-wei.liu@oracle.com>
->>
->>
->> -Siwei
->>> +	}
->>> +	err = vdpa_dev_vendor_stats_fill(vdev, msg, info, index);
->>> +	if (!err)
->>> +		err = genlmsg_reply(msg, info);
->>> +
->>> +	put_device(dev);
->>> +	mutex_unlock(&vdpa_dev_mutex);
->>> +
->>> +	if (err)
->>> +		nlmsg_free(msg);
->>> +
->>> +	return err;
->>> +
->>> +mdev_err:
->>> +	put_device(dev);
->>> +dev_err:
->>> +	mutex_unlock(&vdpa_dev_mutex);
->>> +	return err;
->>> +}
->>> +
->>>    static const struct nla_policy vdpa_nl_policy[VDPA_ATTR_MAX + 1] = {
->>>    	[VDPA_ATTR_MGMTDEV_BUS_NAME] = { .type = NLA_NUL_STRING },
->>>    	[VDPA_ATTR_MGMTDEV_DEV_NAME] = { .type = NLA_STRING },
->>> @@ -997,6 +1119,7 @@ static const struct nla_policy vdpa_nl_policy[VDPA_ATTR_MAX + 1] = {
->>>    	[VDPA_ATTR_DEV_NET_CFG_MACADDR] = NLA_POLICY_ETH_ADDR,
->>>    	/* virtio spec 1.1 section 5.1.4.1 for valid MTU range */
->>>    	[VDPA_ATTR_DEV_NET_CFG_MTU] = NLA_POLICY_MIN(NLA_U16, 68),
->>> +	[VDPA_ATTR_DEV_QUEUE_INDEX] = NLA_POLICY_RANGE(NLA_U32, 0, 65535),
->>>    };
->>>
->>>    static const struct genl_ops vdpa_nl_ops[] = {
->>> @@ -1030,6 +1153,12 @@ static const struct genl_ops vdpa_nl_ops[] = {
->>>    		.doit = vdpa_nl_cmd_dev_config_get_doit,
->>>    		.dumpit = vdpa_nl_cmd_dev_config_get_dumpit,
->>>    	},
->>> +	{
->>> +		.cmd = VDPA_CMD_DEV_VSTATS_GET,
->>> +		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
->>> +		.doit = vdpa_nl_cmd_dev_stats_get_doit,
->>> +		.flags = GENL_ADMIN_PERM,
->>> +	},
->>>    };
->>>
->>>    static struct genl_family vdpa_nl_family __ro_after_init = {
->>> diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
->>> index 8943a209202e..48ed1fc00830 100644
->>> --- a/include/linux/vdpa.h
->>> +++ b/include/linux/vdpa.h
->>> @@ -276,6 +276,9 @@ struct vdpa_config_ops {
->>>    			    const struct vdpa_vq_state *state);
->>>    	int (*get_vq_state)(struct vdpa_device *vdev, u16 idx,
->>>    			    struct vdpa_vq_state *state);
->>> +	int (*get_vendor_vq_stats)(struct vdpa_device *vdev, u16 idx,
->>> +				   struct sk_buff *msg,
->>> +				   struct netlink_ext_ack *extack);
->>>    	struct vdpa_notification_area
->>>    	(*get_vq_notification)(struct vdpa_device *vdev, u16 idx);
->>>    	/* vq irq is not expected to be changed once DRIVER_OK is set */
->>> @@ -473,4 +476,6 @@ struct vdpa_mgmt_dev {
->>>    int vdpa_mgmtdev_register(struct vdpa_mgmt_dev *mdev);
->>>    void vdpa_mgmtdev_unregister(struct vdpa_mgmt_dev *mdev);
->>>
->>> +#define VDPA_INVAL_QUEUE_INDEX 0xffff
->>> +
->>>    #endif /* _LINUX_VDPA_H */
->>> diff --git a/include/uapi/linux/vdpa.h b/include/uapi/linux/vdpa.h
->>> index 1061d8d2d09d..25c55cab3d7c 100644
->>> --- a/include/uapi/linux/vdpa.h
->>> +++ b/include/uapi/linux/vdpa.h
->>> @@ -18,6 +18,7 @@ enum vdpa_command {
->>>    	VDPA_CMD_DEV_DEL,
->>>    	VDPA_CMD_DEV_GET,		/* can dump */
->>>    	VDPA_CMD_DEV_CONFIG_GET,	/* can dump */
->>> +	VDPA_CMD_DEV_VSTATS_GET,
->>>    };
->>>
->>>    enum vdpa_attr {
->>> @@ -46,6 +47,11 @@ enum vdpa_attr {
->>>    	VDPA_ATTR_DEV_NEGOTIATED_FEATURES,	/* u64 */
->>>    	VDPA_ATTR_DEV_MGMTDEV_MAX_VQS,		/* u32 */
->>>    	VDPA_ATTR_DEV_SUPPORTED_FEATURES,	/* u64 */
->>> +
->>> +	VDPA_ATTR_DEV_QUEUE_INDEX,              /* u32 */
->>> +	VDPA_ATTR_DEV_VENDOR_ATTR_NAME,		/* string */
->>> +	VDPA_ATTR_DEV_VENDOR_ATTR_VALUE,        /* u64 */
->>> +
->>>    	/* new attributes must be added above here */
->>>    	VDPA_ATTR_MAX,
->>>    };
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gVGh1LCBBcHIgMjgsIDIwMjIgYXQgMDk6MzE6MDBQTSArMDMwMCwgRG1pdHJ5IE9zaXBlbmtv
+IHdyb3RlOgo+IEhlbGxvIERhbmllbCwKPiAKPiAyNy4wNC4yMDIyIDE3OjUwLCBEYW5pZWwgVmV0
+dGVyINC/0LjRiNC10YI6Cj4gPiBPbiBNb24sIEFwciAxOCwgMjAyMiBhdCAxMDoxODo1NFBNICsw
+MzAwLCBEbWl0cnkgT3NpcGVua28gd3JvdGU6Cj4gPj4gSGVsbG8sCj4gPj4KPiA+PiBPbiA0LzE4
+LzIyIDIxOjM4LCBUaG9tYXMgWmltbWVybWFubiB3cm90ZToKPiA+Pj4gSGkKPiA+Pj4KPiA+Pj4g
+QW0gMTguMDQuMjIgdW0gMDA6Mzcgc2NocmllYiBEbWl0cnkgT3NpcGVua286Cj4gPj4+PiBSZXBs
+YWNlIGRybV9nZW1fc2htZW0gbG9ja3Mgd2l0aCB0aGUgcmVzZXJ2YXRpb24gbG9jayB0byBtYWtl
+IEdFTQo+ID4+Pj4gbG9ja2luZ3MgbW9yZSBjb25zaXN0ZW50Lgo+ID4+Pj4KPiA+Pj4+IFByZXZp
+b3VzbHkgZHJtX2dlbV9zaG1lbV92bWFwKCkgYW5kIGRybV9nZW1fc2htZW1fZ2V0X3BhZ2VzKCkg
+d2VyZQo+ID4+Pj4gcHJvdGVjdGVkIGJ5IHNlcGFyYXRlIGxvY2tzLCBub3cgaXQncyB0aGUgc2Ft
+ZSBsb2NrLCBidXQgaXQgZG9lc24ndAo+ID4+Pj4gbWFrZSBhbnkgZGlmZmVyZW5jZSBmb3IgdGhl
+IGN1cnJlbnQgR0VNIFNITUVNIHVzZXJzLiBPbmx5IFBhbmZyb3N0Cj4gPj4+PiBhbmQgTGltYSBk
+cml2ZXJzIHVzZSB2bWFwKCkgYW5kIHRoZXkgZG8gaXQgaW4gdGhlIHNsb3cgY29kZSBwYXRocywK
+PiA+Pj4+IGhlbmNlIHRoZXJlIHdhcyBubyBwcmFjdGljYWwganVzdGlmaWNhdGlvbiBmb3IgdGhl
+IHVzYWdlIG9mIHNlcGFyYXRlCj4gPj4+PiBsb2NrIGluIHRoZSB2bWFwKCkuCj4gPj4+Pgo+ID4+
+Pj4gU3VnZ2VzdGVkLWJ5OiBEYW5pZWwgVmV0dGVyIDxkYW5pZWxAZmZ3bGwuY2g+Cj4gPj4+PiBT
+aWduZWQtb2ZmLWJ5OiBEbWl0cnkgT3NpcGVua28gPGRtaXRyeS5vc2lwZW5rb0Bjb2xsYWJvcmEu
+Y29tPgo+ID4+Pj4gLS0tCj4gPj4gLi4uCj4gPj4+PiDCoCBAQCAtMzEwLDcgKzMwNiw3IEBAIHN0
+YXRpYyBpbnQgZHJtX2dlbV9zaG1lbV92bWFwX2xvY2tlZChzdHJ1Y3QKPiA+Pj4+IGRybV9nZW1f
+c2htZW1fb2JqZWN0ICpzaG1lbSwKPiA+Pj4+IMKgwqDCoMKgwqAgfSBlbHNlIHsKPiA+Pj4+IMKg
+wqDCoMKgwqDCoMKgwqDCoCBwZ3Byb3RfdCBwcm90ID0gUEFHRV9LRVJORUw7Cj4gPj4+PiDCoCAt
+wqDCoMKgwqDCoMKgwqAgcmV0ID0gZHJtX2dlbV9zaG1lbV9nZXRfcGFnZXMoc2htZW0pOwo+ID4+
+Pj4gK8KgwqDCoMKgwqDCoMKgIHJldCA9IGRybV9nZW1fc2htZW1fZ2V0X3BhZ2VzX2xvY2tlZChz
+aG1lbSk7Cj4gPj4+PiDCoMKgwqDCoMKgwqDCoMKgwqAgaWYgKHJldCkKPiA+Pj4+IMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgIGdvdG8gZXJyX3plcm9fdXNlOwo+ID4+Pj4gwqAgQEAgLTM2MCwx
+MSArMzU2LDExIEBAIGludCBkcm1fZ2VtX3NobWVtX3ZtYXAoc3RydWN0Cj4gPj4+PiBkcm1fZ2Vt
+X3NobWVtX29iamVjdCAqc2htZW0sCj4gPj4+PiDCoCB7Cj4gPj4+PiDCoMKgwqDCoMKgIGludCBy
+ZXQ7Cj4gPj4+PiDCoCAtwqDCoMKgIHJldCA9IG11dGV4X2xvY2tfaW50ZXJydXB0aWJsZSgmc2ht
+ZW0tPnZtYXBfbG9jayk7Cj4gPj4+PiArwqDCoMKgIHJldCA9IGRtYV9yZXN2X2xvY2tfaW50ZXJy
+dXB0aWJsZShzaG1lbS0+YmFzZS5yZXN2LCBOVUxMKTsKPiA+Pj4+IMKgwqDCoMKgwqAgaWYgKHJl
+dCkKPiA+Pj4+IMKgwqDCoMKgwqDCoMKgwqDCoCByZXR1cm4gcmV0Owo+ID4+Pj4gwqDCoMKgwqDC
+oCByZXQgPSBkcm1fZ2VtX3NobWVtX3ZtYXBfbG9ja2VkKHNobWVtLCBtYXApOwo+ID4+Pgo+ID4+
+PiBXaXRoaW4gZHJtX2dlbV9zaG1lbV92bWFwX2xvY2tlZCgpLCB0aGVyZSdzIGEgY2FsbCB0byBk
+bWFfYnVmX3ZtYXAoKSBmb3IKPiA+Pj4gaW1wb3J0ZWQgcGFnZXMuIElmIHRoZSBleHBvcnRlciBz
+aWRlIGFsc28gaG9sZHMvYWNxdWlyZXMgdGhlIHNhbWUKPiA+Pj4gcmVzZXJ2YXRpb24gbG9jayBh
+cyBvdXIgb2JqZWN0LCB0aGUgd2hvbGUgdGhpbmcgY2FuIGRlYWRsb2NrLiBXZSBjYW5ub3QKPiA+
+Pj4gbW92ZSBkbWFfYnVmX3ZtYXAoKSBvdXQgb2YgdGhlIENTLCBiZWNhdXNlIHdlIHN0aWxsIG5l
+ZWQgdG8gaW5jcmVtZW50Cj4gPj4+IHRoZSByZWZlcmVuY2UgY291bnRlci4gSSBob25lc3RseSBk
+b24ndCBrbm93IGhvdyB0byBlYXNpbHkgZml4IHRoaXMKPiA+Pj4gcHJvYmxlbS4gVGhlcmUncyBh
+IFRPRE8gaXRlbSBhYm91dCByZXBsYWNpbmcgdGhlc2UgbG9ja3MgYXQgWzFdLiBBcwo+ID4+PiBE
+YW5pZWwgc3VnZ2VzdGVkIHRoaXMgcGF0Y2gsIHdlIHNob3VsZCB0YWxrIHRvIGhpbSBhYm91dCB0
+aGUgaXNzdWUuCj4gPj4+Cj4gPj4+IEJlc3QgcmVnYXJkcwo+ID4+PiBUaG9tYXMKPiA+Pj4KPiA+
+Pj4gWzFdCj4gPj4+IGh0dHBzOi8vd3d3Lmtlcm5lbC5vcmcvZG9jL2h0bWwvbGF0ZXN0L2dwdS90
+b2RvLmh0bWwjbW92ZS1idWZmZXItb2JqZWN0LWxvY2tpbmctdG8tZG1hLXJlc3YtbG9jawo+ID4+
+Cj4gPj4gSW5kZWVkLCBnb29kIGNhdGNoISBQZXJoYXBzIHdlIGNvdWxkIHNpbXBseSB1c2UgYSBz
+ZXBhcmF0ZSBsb2NrIGZvciB0aGUKPiA+PiB2bWFwcGluZyBvZiB0aGUgKmltcG9ydGVkKiBHRU1z
+PyBUaGUgdm1hcF91c2VfY291bnQgaXMgdXNlZCBvbmx5IGJ5Cj4gPj4gdm1hcC92dW5tYXAsIHNv
+IGl0IGRvZXNuJ3QgbWF0dGVyIHdoaWNoIGxvY2sgaXMgdXNlZCBieSB0aGVzZSBmdW5jdGlvbnMK
+PiA+PiBpbiB0aGUgY2FzZSBvZiBpbXBvcnRlZCBHRU1zIHNpbmNlIHdlIG9ubHkgbmVlZCB0byBw
+cm90ZWN0IHRoZQo+ID4+IHZtYXBfdXNlX2NvdW50Lgo+ID4gCj4gPiBBcG9sb2dpZXMgZm9yIHRo
+ZSBsYXRlIHJlcGx5LCBJJ20gZmxvb2RlZC4KPiA+IAo+ID4gSSBkaXNjdXNzZWQgdGhpcyB3aXRo
+IERhbmllbCBTdG9uZSBsYXN0IHdlZWsgaW4gYSBjaGF0LCByb3VnaGx5IHdoYXQgd2UKPiA+IG5l
+ZWQgdG8gZG8gaXM6Cj4gPiAKPiA+IDEuIFBpY2sgYSBmdW5jdGlvbiBmcm9tIHNobWVtIGhlbHBl
+cnMuCj4gPiAKPiA+IDIuIEdvIHRocm91Z2ggYWxsIGRyaXZlcnMgdGhhdCBjYWxsIHRoaXMsIGFu
+ZCBtYWtlIHN1cmUgdGhhdCB3ZSBhY3F1aXJlCj4gPiBkbWFfcmVzdl9sb2NrIGluIHRoZSB0b3Ag
+bGV2ZWwgZHJpdmVyIGVudHJ5IHBvaW50IGZvciB0aGlzLgo+ID4gCj4gPiAzLiBPbmNlIGFsbCBk
+cml2ZXIgY29kZSBwYXRocyBhcmUgY29udmVydGVkLCBhZGQgYSBkbWFfcmVzdl9hc3NlcnRfaGVs
+ZCgpCj4gPiBjYWxsIHRvIHRoYXQgZnVuY3Rpb24gdG8gbWFrZSBzdXJlIHlvdSBoYXZlIGl0IGFs
+bCBjb3JyZWN0bHkuCj4gPiA0LiBSZXBlYXRlIDEtMyB1bnRpbCBhbGwgc2htZW0gaGVscGVyIGZ1
+bmN0aW9ucyBhcmUgY29udmVydGVkIG92ZXIuCj4gU29tZWhvdyBJIGRpZG4ndCBub3RpY2UgdGhl
+IGV4aXN0ZW5jZSBvZiBkbWFfcmVzdl9hc3NlcnRfaGVsZCgpLCB0aGFuawo+IHlvdSBmb3IgdGhl
+IHN1Z2dlc3Rpb24gOikKPiAKPiA+IAo+ID4gNS4gRGl0Y2ggdGhlIDMgZGlmZmVyZW50IHNobWVt
+IGhlbHBlciBsb2Nrcy4KPiA+IAo+ID4gVGhlIHRyb3VibGUgaXMgdGhhdCBJIGZvcmdvdCB0aGF0
+IHZtYXAgaXMgYSB0aGluZywgc28gdGhhdCBuZWVkcyBtb3JlCj4gPiB3b3JrLiBJIHRoaW5rIHRo
+ZXJlJ3MgdHdvIGFwcHJvYWNoZXMgaGVyZToKPiA+IC0gRG8gdGhlIHZtYXAgYXQgaW1wb3J0IHRp
+bWUuIFRoaXMgaXMgdGhlIHRyaWNrIHdlIHVzZWQgdG8gdW50YW5nbGUgdGhlCj4gPiAgIGRtYV9y
+ZXN2X2xvY2sgaXNzdWVzIGFyb3VuZCBkbWFfYnVmX2F0dGFjaG1lbnRfbWFwKCkKPiAKPiA+IC0g
+Q2hhbmdlIHRoZSBkbWFfYnVmX3ZtYXAgcnVsZXMgdGhhdCBjYWxsZXJzIG11c3QgaG9sZCB0aGUg
+ZG1hX3Jlc3ZfbG9jay4KPiAKPiBJJ2xsIGNvbnNpZGVyIHRoaXMgb3B0aW9uIGZvciB2NiwgdGhh
+bmsgeW91Lgo+IAo+IEkgc2VlIG5vdyB0aGF0IHlvdSBhY3R1YWxseSB3YW50IHRvIGRlZmluZSB0
+aGUgbmV3IHJ1bGVzIGZvciB0aGUKPiBkbWEtYnVmcyBpbiBnZW5lcmFsIGFuZCBub3Qgb25seSBp
+biB0aGUgY29udGV4dCBvZiB0aGUgRFJNIGNvZGUsIHRoaXMKPiBub3cgbWFrZXMgbXVjaCBtb3Jl
+IHNlbnNlIHRvIG1lLgoKWWVhaCBkbWEtYnVmIGlzIGEgY3Jvc3MgZHJpdmVyIGludGVyZmFjZSwg
+c28gd2Ugc2hvdWxkIHRyeSB0byBiZQpjb25zaXN0ZW50IGhlcmUuIFdlIGRpZG4ndCBkbyB0aGlz
+IGluIHRoZSBwYXN0LCB3aGVyZSB0aGUgb25seSByZWFzb24geW91CmRpZG4ndCBnZXQgbG9ja2Rl
+cCBzcGxhdHMgd2FzIGJlY2F1c2UgeW91IG5vcm1hbGx5IGRpZG4ndCBydW4gYWxsIHBvc3NpYmxl
+CmNvbWJpbmF0aW9ucyBvZiBkcml2ZXJzIGFuZCBpbXBvcnRlci9leHBvcnRlciByZWxhdGlvbnNo
+aXBzIGluIG9uZSBzeXN0ZW0uCkJ1dCB0aGF0IG1lYW5zIGl0IGJlY29tZXMgdmVyeSB0cmlja3kg
+dG8gcmVhc29uIGFib3V0IGhvdyBkbWEtYnVmIHJlYWxseQp3b3Jrcy4KCj4gPiAtIE1heWJlIGFs
+c28gZG8gd2hhdCB5b3Ugc3VnZ2VzdCBhbmQga2VlcCBhIHNlcGFyYXRlIGxvY2sgZm9yIHRoaXMs
+IGJ1dAo+ID4gICB0aGUgZnVuZGFtZW50YWwgaXNzdWUgaXMgdGhhdCB0aGlzIGRvZXNuJ3QgcmVh
+bGx5IHdvcmsgLSBpZiB5b3Ugc2hhcmUKPiA+ICAgYnVmZmVycyBib3RoIHdheXMgd2l0aCB0d28g
+ZHJpdmVycyB1c2luZyBzaG1lbSBoZWxwZXJzLCB0aGVuIHRoZQo+ID4gICBvcmRlcmluZyBvZiB0
+aGlzIHZtYXBfY291bnRfbXV0ZXggdnMgZG1hX3Jlc3ZfbG9jayBpcyBpbmNvbnNpc3RlbnQgYW5k
+Cj4gPiAgIHlvdSBjYW4gZ2V0IHNvbWUgbmljZSBkZWFkbG9ja3MuIFNvIG5vdCBhIGdyZWF0IGFw
+cHJvYWNoIChhbmQgYWxzbyB0aGUKPiA+ICAgcmVhc29uIHdoeSB3ZSByZWFsbHkgbmVlZCB0byBn
+ZXQgZXZlcnlvbmUgdG8gbW92ZSB0b3dhcmRzIGRtYV9yZXN2X2xvY2sKPiA+ICAgYXMgX3RoZV8g
+YnVmZmVyIG9iamVjdCBsb2NrLCBzaW5jZSBvdGhlcndpc2Ugd2UnbGwgbmV2ZXIgZ2V0IGEKPiA+
+ICAgY29uc2lzdGVudCBsb2NrIG5lc3RpbmcgaGllcmFyY2h5KS4KPiAKPiBUaGUgc2VwYXJhdGUg
+bG9ja3Mgc2hvdWxkIHdvcmsgb2theSBiZWNhdXNlIGl0IHdpbGwgYmUgYWx3YXlzIHRoZQo+IGV4
+cG9ydGVyIHRoYXQgdGFrZXMgdGhlIGRtYV9yZXN2X2xvY2suIEJ1dCBJIGFncmVlIHRoYXQgaXQn
+cyBsZXNzIGlkZWFsCj4gdGhhbiBkZWZpbmluZyB0aGUgbmV3IHJ1bGVzIGZvciBkbWEtYnVmcyBz
+aW5jZSBzb21ldGltZSB5b3Ugd2lsbCB0YWtlCj4gdGhlIHJlc3YgbG9jayBhbmQgc29tZXRpbWUg
+bm90LCBwb3RlbnRpYWxseSBoaWRpbmcgYnVncyByZWxhdGVkIHRvIGxvY2tpbmdzLgoKVGhhdCdz
+IHRoZSBpc3N1ZSwgc29tZSBpbXBvcnRlcnMgbmVlZCB0byB0YWtlIHRoZSBkbWFfcmVzdl9sb2Nr
+IGZvcgpkbWFfYnVmX3ZtYXAgdG9vIChlLmcuIHRvIGZpcnN0IG5haWwgdGhlIGJ1ZmZlciBpbiBw
+bGFjZSB3aGVuIGl0J3MgYQpkeW5hbWljIG1lbW9yeSBtYW5hZ2VyKS4gSW4gcHJhY3RpY2UgaXQn
+bGwgd29yayBhcyB3ZWxsIGFzIHdoYXQgd2UgaGF2ZQpjdXJyZW50bHksIHdoaWNoIGlzIHNpbWls
+YXJseSBpbmNvbnNpc3RlbnQsIGV4Y2VwdCB3aXRoIHBlci1kcml2ZXIgbG9ja3MKaW5zdGVhZCBv
+ZiBzaGFyZWQgbG9ja3MgZnJvbSBzaG1lbSBoZWxwZXJzIG9yIGRtYS1idWYsIHNvIGxlc3Mgb2J2
+aW91cwp0aGF0IHRoaW5ncyBhcmUgaW5jb25zaXN0ZW50LgoKU28geWVhaCBpZiBpdCdzIHRvbyBt
+ZXNzeSBtYXliZSB0aGUgYXBwcm9hY2ggaXMgdG8gaGF2ZSBhIHNlcGFyYXRlIGxvY2sKZm9yIHZt
+YXAgZm9yIG5vdywgbGFuZCB0aGluZ3MsIGFuZCB0aGVuIGZpeCB1cCBkbWFfYnVmX3ZtYXAgaW4g
+YSBmb2xsb3cgdXAKc2VyaWVzLgotRGFuaWVsCgo+ID4gVGhlIHRyb3VibGUgaGVyZSBpcyB0aGF0
+IHRyeWluZyB0byBiZSBjbGV2ZXIgYW5kIGRvaW5nIHRoZSBjb252ZXJzaW9uIGp1c3QKPiA+IGlu
+IHNobWVtIGhlbHBlcnMgd29udCB3b3JrLCBiZWNhdXNlIHRoZXJlJ3MgYSBsb3Qgb2YgY2FzZXMg
+d2hlcmUgdGhlCj4gPiBkcml2ZXJzIGFyZSBhbGwga2luZHMgb2YgaW5jb25zaXN0ZW50IHdpdGgg
+dGhlaXIgbG9ja2luZy4KPiA+IAo+ID4gQWRkaW5nIERhbmllbCBTLCBhbHNvIG1heWJlIGZvciBx
+dWVzdGlvbnMgaXQnZCBiZSBmYXN0ZXN0IHRvIGNoYXQgb24gaXJjPwo+IAo+IE15IG5pY2tuYW1l
+IGlzIGRpZ2V0eCBvbiB0aGUgI2RyaS1kZXZlbCBjaGFubmVsLCBmZWVsIGZyZWUgdG8gcGluZyBt
+ZSBpZgo+IG5lZWRlZC4gUmlnaHQgbm93IHlvdXJzIHN1Z2dlc3Rpb25zIGFyZSBjbGVhciB0byBt
+ZSwgaGVuY2Ugbm8gZXh0cmEKPiBxdWVzdGlvbnMuCj4gCj4gVGhhbmsgeW91IGZvciB0aGUgcmV2
+aWV3LgoKLS0gCkRhbmllbCBWZXR0ZXIKU29mdHdhcmUgRW5naW5lZXIsIEludGVsIENvcnBvcmF0
+aW9uCmh0dHA6Ly9ibG9nLmZmd2xsLmNoCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlv
+bkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlv
+bi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
