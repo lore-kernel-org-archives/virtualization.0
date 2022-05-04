@@ -1,67 +1,68 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A776AC433F5
-	for <virtualization@archiver.kernel.org>; Wed,  4 May 2022 16:53:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E57D4C433F5
+	for <virtualization@archiver.kernel.org>; Wed,  4 May 2022 16:56:41 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 3D16A40A9C;
-	Wed,  4 May 2022 16:53:18 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 73B6C8144B;
+	Wed,  4 May 2022 16:56:41 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Cm6e0iXXqMc0; Wed,  4 May 2022 16:53:17 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 83C014000B;
-	Wed,  4 May 2022 16:53:16 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id rh2WgiEkHB6D; Wed,  4 May 2022 16:56:40 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id BA02881441;
+	Wed,  4 May 2022 16:56:39 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5C273C0039;
-	Wed,  4 May 2022 16:53:16 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D2ABBC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8C99DC007E;
+	Wed,  4 May 2022 16:56:39 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 11214C0032
  for <virtualization@lists.linux-foundation.org>;
- Wed,  4 May 2022 16:53:14 +0000 (UTC)
+ Wed,  4 May 2022 16:56:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id C11314051A
+ by smtp3.osuosl.org (Postfix) with ESMTP id E1BEB610A2
  for <virtualization@lists.linux-foundation.org>;
- Wed,  4 May 2022 16:53:14 +0000 (UTC)
+ Wed,  4 May 2022 16:56:37 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id rEaUhZY9NcR0
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=linuxfoundation.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id c3wH0ilxeh0Y
  for <virtualization@lists.linux-foundation.org>;
- Wed,  4 May 2022 16:53:13 +0000 (UTC)
+ Wed,  4 May 2022 16:56:36 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from dfw.source.kernel.org (dfw.source.kernel.org
- [IPv6:2604:1380:4641:c500::1])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 5F6E54000B
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 7DBC160590
  for <virtualization@lists.linux-foundation.org>;
- Wed,  4 May 2022 16:53:13 +0000 (UTC)
+ Wed,  4 May 2022 16:56:36 +0000 (UTC)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by dfw.source.kernel.org (Postfix) with ESMTPS id 96B85617A6;
- Wed,  4 May 2022 16:53:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C45BAC385AA;
- Wed,  4 May 2022 16:53:11 +0000 (UTC)
+ by ams.source.kernel.org (Postfix) with ESMTPS id AB34EB82795;
+ Wed,  4 May 2022 16:56:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3380EC385AA;
+ Wed,  4 May 2022 16:56:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
- s=korg; t=1651683192;
- bh=4gt+y1PCHKSei6GnmF7KoD8IRKUwjNCP6hoEu5OsRQ0=;
+ s=korg; t=1651683392;
+ bh=3vZEKfce7dz2+KyYOFW5awhB/yZI4UFAGOGarSHn2Jw=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=cOppEur+RJ7vLGbUmrMDyb47qc8wARncJHOIfV8FNXwrtVTj1U7UOuaQcE2nO0ffL
- xDrDmxhtcGVs1sXrPhtcPW2gfEVd6GiFmbWJONH30kXDVHLfKZRl+mhwqE1W4ExhHX
- jqqMiXLd1d0dCvmagCQUtgg6LlSUTndoPvkx6Rxs=
+ b=sMGbWM+UKTAu5grGUjVTohk6SHqY8iRhXXn1pf6ENbYMky58b05xZt8Xsl4+b0GUx
+ 3JWys1t01TVDm1Y3QrdVpmaEpqhr0g8Bc7dvv65zi/kfc/8imcsl7uqjSz0AQDZTAF
+ cM1gfb7k9Rz1MpMjHPUS4NiloQRWnmRGs3wCWzaI=
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 5.15 044/177] virtio_net: fix wrong buf address calculation
+Subject: [PATCH 5.17 054/225] virtio_net: fix wrong buf address calculation
  when using xdp
-Date: Wed,  4 May 2022 18:43:57 +0200
-Message-Id: <20220504153056.874474113@linuxfoundation.org>
+Date: Wed,  4 May 2022 18:44:52 +0200
+Message-Id: <20220504153114.985196710@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Cc: Daniel Borkmann <daniel@iogearbox.net>,
@@ -251,7 +252,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/net/virtio_net.c
 +++ b/drivers/net/virtio_net.c
-@@ -965,6 +965,24 @@ static struct sk_buff *receive_mergeable
+@@ -978,6 +978,24 @@ static struct sk_buff *receive_mergeable
  			 * xdp.data_meta were adjusted
  			 */
  			len = xdp.data_end - xdp.data + vi->hdr_len + metasize;
@@ -276,7 +277,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  			/* We can only create skb based on xdp_page. */
  			if (unlikely(xdp_page != page)) {
  				rcu_read_unlock();
-@@ -972,7 +990,7 @@ static struct sk_buff *receive_mergeable
+@@ -985,7 +1003,7 @@ static struct sk_buff *receive_mergeable
  				head_skb = page_to_skb(vi, rq, xdp_page, offset,
  						       len, PAGE_SIZE, false,
  						       metasize,
