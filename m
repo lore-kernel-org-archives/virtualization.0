@@ -4,114 +4,97 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B90C9C433EF
-	for <virtualization@archiver.kernel.org>; Thu,  5 May 2022 08:16:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id EC5A3C433EF
+	for <virtualization@archiver.kernel.org>; Thu,  5 May 2022 08:23:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 6AB4A83FF1;
-	Thu,  5 May 2022 08:16:06 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 8DF0883227;
+	Thu,  5 May 2022 08:23:39 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 1w7bC270uqSg; Thu,  5 May 2022 08:16:05 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 16F6B83FC8;
-	Thu,  5 May 2022 08:16:05 +0000 (UTC)
+	with ESMTP id PFC8cxs8faoS; Thu,  5 May 2022 08:23:38 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 0E20C82ED2;
+	Thu,  5 May 2022 08:23:38 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E1B64C0032;
-	Thu,  5 May 2022 08:16:04 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E804BC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E4D92C0032;
+	Thu,  5 May 2022 08:23:37 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C4F47C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu,  5 May 2022 08:16:02 +0000 (UTC)
+ Thu,  5 May 2022 08:23:36 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id D5D1C60D71
+ by smtp1.osuosl.org (Postfix) with ESMTP id AD4F182F32
  for <virtualization@lists.linux-foundation.org>;
- Thu,  5 May 2022 08:16:02 +0000 (UTC)
+ Thu,  5 May 2022 08:23:36 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 9IAyJqXHip0K
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id fOE7u9FYiN-0
  for <virtualization@lists.linux-foundation.org>;
- Thu,  5 May 2022 08:16:02 +0000 (UTC)
+ Thu,  5 May 2022 08:23:36 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-74.mimecast.com
  (us-smtp-delivery-74.mimecast.com [170.10.129.74])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 29EDD60B8E
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 02BCC82ED2
  for <virtualization@lists.linux-foundation.org>;
- Thu,  5 May 2022 08:16:02 +0000 (UTC)
+ Thu,  5 May 2022 08:23:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1651738561;
+ s=mimecast20190719; t=1651739014;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=do1UvCnuc5di86ZbdYll8zHp7a0uqEH80l8XkiVHqz0=;
- b=clMpJvRZY2WyqEKtLTeaG0lXVMPQ0JmhxQAKmPKmX22c67FNmWtyg/x/3BahJ53FPLw2Ns
- i4AagX+CPWXjswN3CDxSR8EM403woUi4oS/xLZF/GnEVrUJvy1sWChfiVgyJxR7bUeYSDC
- isazcYQbPDfkA7Me8Lb+69XWMKBwRgo=
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
- [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=bHiS5ONkMB5Lq/fq3dbZCeNjmLoTmpnWP4a2X4gvHsg=;
+ b=Sbv1dmOP3X4zeJYMDsny9sVNLU2DfHStw+FWGrbXad+d6sIGjY6dNodqfSPEYLyi+qMxsm
+ 6dYTEIsG2HHTDsyqfq6SjUWzUt4y6/q0nhWrUel/BeRuSDvGx6dzUYhzRjYRJzqwxrgYCw
+ HdTSjxUb+f47zUh0V6985oefabUEsWA=
+Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
+ [209.85.208.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-209-WvS3eBTLNtecy4IzfXr9ig-1; Thu, 05 May 2022 04:15:56 -0400
-X-MC-Unique: WvS3eBTLNtecy4IzfXr9ig-1
-Received: by mail-pj1-f70.google.com with SMTP id
- o8-20020a17090a9f8800b001dc9f554c7fso1639207pjp.4
+ us-mta-167-5A-5QmyZNV6CPGKxxwyDWQ-1; Thu, 05 May 2022 04:23:33 -0400
+X-MC-Unique: 5A-5QmyZNV6CPGKxxwyDWQ-1
+Received: by mail-lj1-f199.google.com with SMTP id
+ y5-20020a2e9785000000b002508326235fso1163331lji.7
  for <virtualization@lists.linux-foundation.org>;
- Thu, 05 May 2022 01:15:56 -0700 (PDT)
+ Thu, 05 May 2022 01:23:33 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
- :content-language:to:cc:references:from:in-reply-to
- :content-transfer-encoding;
- bh=do1UvCnuc5di86ZbdYll8zHp7a0uqEH80l8XkiVHqz0=;
- b=lqRmxcPCX1TBPWN79n9FMP8UvXnVxtzM1imNn+Jl/lJS3C1Ua1dW1zTlyXnRhn+ux+
- uecRnSZlU1sFTAk9452WsHfOaV33EHAC+SkWQpF9FPMqmNyfEpAvzikKSk21z8NOF+E4
- /kt1yeQ/ulQZRpHhCp6OKO4LSEv1Au8BiSqg698R+bO7Y7Rzz0UUEWQR4wkR9+8R9ZFu
- Y6EYtzFsFIF9fIitLrGpelVpLDvDyfCg6ObdxDau0S6WPCWGQSnROCEAsbZxEkg4O9aE
- jOjbNuaU5pRp9gaKWSVKnc96F93XrurXLkjfbFDDEfqv43M4ECFp/1z3TNJSYqoUcY8F
- PNGQ==
-X-Gm-Message-State: AOAM5331/M9oGR+9G63tk3cXfYDBFGCeDzPHTgN1Oh0LNU4HqNsKBxcu
- MwZJiU9ipRtvc1wlXB7yx3TbLZTGQERc0FAKR+0nZsdvzMPVRwWn0QnGw3GORE7oXeSh4//t0s9
- 3HHF7itCaUubWYYOAgBRsCg9k4gHk37tlr7CLWcTFbQ==
-X-Received: by 2002:a17:90b:4acb:b0:1dc:32dd:d51e with SMTP id
- mh11-20020a17090b4acb00b001dc32ddd51emr4536840pjb.5.1651738555899; 
- Thu, 05 May 2022 01:15:55 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwpduv1Ktx/cekWb28nZP/0aCNFGUL1g8LskDyDIqV4bXgu7v49iSg3ZoEhWf+Kaxx0D13mxg==
-X-Received: by 2002:a17:90b:4acb:b0:1dc:32dd:d51e with SMTP id
- mh11-20020a17090b4acb00b001dc32ddd51emr4536817pjb.5.1651738555672; 
- Thu, 05 May 2022 01:15:55 -0700 (PDT)
-Received: from [10.72.13.116] ([209.132.188.80])
- by smtp.gmail.com with ESMTPSA id
- m3-20020a170902bb8300b0015e8d4eb2c2sm829079pls.268.2022.05.05.01.15.51
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Thu, 05 May 2022 01:15:55 -0700 (PDT)
-Message-ID: <fe3c54a2-f6eb-96a8-425e-07df6b7b7f95@redhat.com>
-Date: Thu, 5 May 2022 16:15:50 +0800
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=bHiS5ONkMB5Lq/fq3dbZCeNjmLoTmpnWP4a2X4gvHsg=;
+ b=t+DylxprrC8291LAzuN+9I7uF1CX40NOkpAj1Y/9VJZzY8uyK1IkPvCX3fEcztpBIN
+ OU0LX/kR4ICqeE/StVGV0ghjFgWHmC39wcTdMQyNqJcPed3DsGKww9sn7/K6/sinCv7v
+ 7KVRpviGk4xuHpZ5XtU8kZ+xnHUKcDeggwKy5h1SA7KkT7Akaumwi7S9LqBcjpFnwA0Z
+ bJCyKxb/2d+WYGLN6jQeSlK/J/r8w3ke3fa9t4lQqW47xRUg5nyH+hJKtgXU8TK/Evo2
+ BlLX9dG5ljELPwUasEguhC0rbPbeQ9dlEvElVJekkVXenQKTCF7xDgP/Sda4mQY5jeFA
+ v+rg==
+X-Gm-Message-State: AOAM532KGA3bsF2MQekIIh673Wfpi16NZ64mL/ka/alScqQaSZSCN6AT
+ 5LW8sYzt5Kw8O6PEU+w7e+BUs4+9EDWoQb+uZ0hg/0rLyEVjPzbhIGMcZIDuA1FitqY3LFdQ3tb
+ eLN21mZwwyaWt7WeFUxslmEY39msg/h7NZ+SJE6KPF0UXRcbzRX4ddKurBg==
+X-Received: by 2002:a19:ca50:0:b0:471:f556:92b with SMTP id
+ h16-20020a19ca50000000b00471f556092bmr17139226lfj.587.1651739011815; 
+ Thu, 05 May 2022 01:23:31 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyu7/SW5+4bqy1N6ieFzRxA+JqqARJfwTWHOLRD9CoLyqjlumPR7uuMHg1pie0YRch6E0Y+OKmBTpGKQoJqSCk=
+X-Received: by 2002:a19:ca50:0:b0:471:f556:92b with SMTP id
+ h16-20020a19ca50000000b00471f556092bmr17139203lfj.587.1651739011384; Thu, 05
+ May 2022 01:23:31 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.8.1
-Subject: Re: [PATCH V3 3/9] virtio: introduce config op to synchronize vring
- callbacks
-To: Cornelia Huck <cohuck@redhat.com>
-References: <20220425024418.8415-1-jasowang@redhat.com>
- <20220425024418.8415-4-jasowang@redhat.com> <87r15hlgel.fsf@redhat.com>
- <CACGkMEsrSHtD9iO1qHjMGgwG5YwYVpX+7OKZaN9Oq29tPpGZYg@mail.gmail.com>
- <87ilqsl5ba.fsf@redhat.com>
+References: <20220504081117.40-1-xieyongji@bytedance.com>
+ <CACGkMEvdVFP2GkTy2Vxe44xZ+6BOU3FM5WccuHe-32FN1Pm=7A@mail.gmail.com>
+ <CACycT3sdLfJPhm73p8onT1zZF3eyt+uPKBj__cfH_RvEk=FoBw@mail.gmail.com>
+In-Reply-To: <CACycT3sdLfJPhm73p8onT1zZF3eyt+uPKBj__cfH_RvEk=FoBw@mail.gmail.com>
 From: Jason Wang <jasowang@redhat.com>
-In-Reply-To: <87ilqsl5ba.fsf@redhat.com>
+Date: Thu, 5 May 2022 16:23:20 +0800
+Message-ID: <CACGkMEtQXk-FsSGvEh1CpAYy9O-Zo+s9_CqwfPX358hBJ7gNBg@mail.gmail.com>
+Subject: Re: [PATCH] vringh: Fix maximum number check for indirect descriptors
+To: Yongji Xie <xieyongji@bytedance.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Cc: "Paul E. McKenney" <paulmck@kernel.org>, Cindy Lu <lulu@redhat.com>,
- mst <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>,
- Marc Zyngier <maz@kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>,
+Cc: fam.zheng@bytedance.com, rusty <rusty@rustcorp.com.au>,
  virtualization <virtualization@lists.linux-foundation.org>,
- Halil Pasic <pasic@linux.ibm.com>, eperezma <eperezma@redhat.com>,
- Thomas Gleixner <tglx@linutronix.de>
+ kvm <kvm@vger.kernel.org>, mst <mst@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -123,26 +106,80 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-CuWcqCAyMDIyLzQvMjkgMTU6MjUsIENvcm5lbGlhIEh1Y2sg5YaZ6YGTOgo+IE9uIEZyaSwgQXBy
-IDI5IDIwMjIsIEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+IHdyb3RlOgo+Cj4+IE9u
-IFRodSwgQXByIDI4LCAyMDIyIGF0IDU6MTMgUE0gQ29ybmVsaWEgSHVjayA8Y29odWNrQHJlZGhh
-dC5jb20+IHdyb3RlOgo+Pj4gT24gTW9uLCBBcHIgMjUgMjAyMiwgSmFzb24gV2FuZyA8amFzb3dh
-bmdAcmVkaGF0LmNvbT4gd3JvdGU6Cj4+Pgo+Pj4+IFRoaXMgcGF0Y2ggaW50cm9kdWNlcyBuZXcg
-dmlydGlvIGNvbmZpZyBvcCB0byB2cmluZwo+Pj4+IGNhbGxiYWNrcy4gVHJhbnNwb3J0IHNwZWNp
-ZmljIG1ldGhvZCBpcyByZXF1aXJlZCB0byBtYWtlIHN1cmUgdGhlCj4+Pj4gd3JpdGUgYmVmb3Jl
-IHRoaXMgZnVuY3Rpb24gaXMgdmlzaWJsZSB0byB0aGUgdnJpbmdfaW50ZXJydXB0KCkgdGhhdCBp
-cwo+Pj4gV2hpY2gga2luZCBvZiB3cml0ZXM/IEkuZS4sIHdoYXQgaXMgdGhlIHNjb3BlPwo+PiBB
-bnkgd3JpdGVzIGJlZm9yZSBzeW5jaHJvbml6ZV9jYnMoKS4gSXMgc29tZXRoaW5nIGxpa2UgdGhl
-IGZvbGxvd2luZyBiZXR0ZXI/Cj4+Cj4+IFRoZSBmdW5jdGlvbiBndWFyYW50ZWVzIHRoYXQgYWxs
-IG1lbW9yeSBvcGVyYXRpb25zIGJlZm9yZSBpdCBhcmUKPj4gdmlzaWJsZSB0byB0aGUgdnJpbmdf
-aW50ZXJydXB0KCkgdGhhdCBpcyBjYWxsZWQgYWZ0ZXIgaXQuCj4gTWF5YmUgImFsbCBtZW1vcnkg
-b3BlcmF0aW9ucyBvbiB0aGUgcXVldWUiPwoKClRoYXQncyBmaW5lLiBXaWxsIGRvLgoKVGhhbmtz
-CgoKPgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmly
-dHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5k
-YXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3Rp
-bmZvL3ZpcnR1YWxpemF0aW9u
+On Thu, May 5, 2022 at 4:06 PM Yongji Xie <xieyongji@bytedance.com> wrote:
+>
+> On Thu, May 5, 2022 at 3:47 PM Jason Wang <jasowang@redhat.com> wrote:
+> >
+> > On Wed, May 4, 2022 at 4:12 PM Xie Yongji <xieyongji@bytedance.com> wrote:
+> > >
+> > > We should use size of descriptor chain to check the maximum
+> > > number of consumed descriptors in indirect case.
+> >
+> > AFAIK, it's a guard for loop descriptors.
+> >
+>
+> Yes, but for indirect descriptors, we know the size of the descriptor
+> chain. Should we use it to test loop condition rather than using
+> virtqueue size?
+
+Yes.
+
+>
+> > > And the
+> > > statistical counts should also be reset to zero each time
+> > > we get an indirect descriptor.
+> >
+> > What might happen if we don't have this patch?
+> >
+>
+> Then we can't handle the case that one request includes multiple
+> indirect descriptors. Although I never see this kind of case now, the
+> spec doesn't forbid it.
+
+It looks to me we need to introduce dedicated counters for indirect
+descriptors instead of trying to use a single counter?
+
+(All evils came from the move_to_indirect()/return_from_indierct()
+logic, vhost have dedicated helper to deal with indirect descriptors -
+get_indirect()).
+
+Thanks
+
+
+>
+> > >
+> > > Fixes: f87d0fbb5798 ("vringh: host-side implementation of virtio rings.")
+> > > Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
+> > > Signed-off-by: Fam Zheng <fam.zheng@bytedance.com>
+> > > ---
+> > >  drivers/vhost/vringh.c | 4 +++-
+> > >  1 file changed, 3 insertions(+), 1 deletion(-)
+> > >
+> > > diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
+> > > index 14e2043d7685..c1810b77a05e 100644
+> > > --- a/drivers/vhost/vringh.c
+> > > +++ b/drivers/vhost/vringh.c
+> > > @@ -344,12 +344,13 @@ __vringh_iov(struct vringh *vrh, u16 i,
+> > >                         addr = (void *)(long)(a + range.offset);
+> > >                         err = move_to_indirect(vrh, &up_next, &i, addr, &desc,
+> > >                                                &descs, &desc_max);
+> > > +                       count = 0;
+> >
+> > Then it looks to me we can detect a loop indirect descriptor chain?
+> >
+>
+> I think so.
+>
+> Thanks,
+> Yongji
+>
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
