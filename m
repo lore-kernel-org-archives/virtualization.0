@@ -1,114 +1,94 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 77F73C433F5
-	for <virtualization@archiver.kernel.org>; Fri,  6 May 2022 11:33:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 52457C433FE
+	for <virtualization@archiver.kernel.org>; Fri,  6 May 2022 13:20:59 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id F0D04840A4;
-	Fri,  6 May 2022 11:33:43 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id D7BD8418FD;
+	Fri,  6 May 2022 13:20:58 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id XEPO9eipO4Zt; Fri,  6 May 2022 11:33:43 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 7193C83415;
-	Fri,  6 May 2022 11:33:42 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 2q1SLbJsBl2u; Fri,  6 May 2022 13:20:57 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 39530409A1;
+	Fri,  6 May 2022 13:20:57 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2451FC0039;
-	Fri,  6 May 2022 11:33:42 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D3C99C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0B195C0039;
+	Fri,  6 May 2022 13:20:57 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4598EC002D
  for <virtualization@lists.linux-foundation.org>;
- Fri,  6 May 2022 11:33:40 +0000 (UTC)
+ Fri,  6 May 2022 13:20:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id A8BD040BD0
+ by smtp2.osuosl.org (Postfix) with ESMTP id 1E4FE40447
  for <virtualization@lists.linux-foundation.org>;
- Fri,  6 May 2022 11:33:40 +0000 (UTC)
+ Fri,  6 May 2022 13:20:56 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
+ dkim=pass (2048-bit key) header.d=bytedance-com.20210112.gappssmtp.com
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id U1EmDDBTkq04
+ with ESMTP id gANm8RZ00rSS
  for <virtualization@lists.linux-foundation.org>;
- Fri,  6 May 2022 11:33:39 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-74.mimecast.com
- (us-smtp-delivery-74.mimecast.com [170.10.133.74])
- by smtp2.osuosl.org (Postfix) with ESMTPS id B847E40BBB
+ Fri,  6 May 2022 13:20:54 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com
+ [IPv6:2607:f8b0:4864:20::102c])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id DA77640025
  for <virtualization@lists.linux-foundation.org>;
- Fri,  6 May 2022 11:33:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1651836818;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=1ucCpzTQkF8XhUkvL7+8cXDWEm9SjV8gZcvK7m79UBU=;
- b=Ub1hTqjHotADcLx3s7Iw9AbPT+M7KRXbQ5tOd2GiyGfH/yKEa8T4n4IbayBid36JGKUStq
- 28TslEfu7dztzEdEhvAgQE9MBZLz2b00EXJddfh15nwKhOAEkLCC1GTDpgYHm109aAiAUz
- eMTf9YQR++wM3u3Di5d3k4h3SRo4W1g=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-528-wL4K7KCBNAa6v-xgt5d5KA-1; Fri, 06 May 2022 07:33:37 -0400
-X-MC-Unique: wL4K7KCBNAa6v-xgt5d5KA-1
-Received: by mail-ej1-f72.google.com with SMTP id
- nb10-20020a1709071c8a00b006e8f89863ceso4202505ejc.18
+ Fri,  6 May 2022 13:20:54 +0000 (UTC)
+Received: by mail-pj1-x102c.google.com with SMTP id
+ l11-20020a17090a49cb00b001d923a9ca99so6861415pjm.1
  for <virtualization@lists.linux-foundation.org>;
- Fri, 06 May 2022 04:33:37 -0700 (PDT)
+ Fri, 06 May 2022 06:20:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=bytedance-com.20210112.gappssmtp.com; s=20210112;
+ h=from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=VQA7sO3Gs0+tp7sDV+25Y43XXMTJ/XsoGGLuKCP2Q5c=;
+ b=QHX7BY4TwwXgGIri826+34OIoQnZyonU2K5KsCwFi4WtwRftvSjGjx4ptoaBX5dy5m
+ EqUGIltWJH7jod06iVUUbfe07wHTN/gRZnt0YC11dr8IoLeuk2Jv6tN7yztcRSBt9rrF
+ MR2HdlRMV78qjg2Z3wPMIme7/3AFqLElpIYyDmBCi+Wozg1j8Z+RMdgCCLgfKbSzhOyu
+ b33ktXG0LJlFRLt6rVj0FgHig2tSxgw6w1OJmRWt3LHkoGh/XhsHfRf1bwRobMSHUk3e
+ 3CPwKIg4+c1oYIaE6YiTNhN48/9bvFPqFde/QJChE6/BaMB8MkULCec9tlY+QKXXZoXQ
+ P/uQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=1ucCpzTQkF8XhUkvL7+8cXDWEm9SjV8gZcvK7m79UBU=;
- b=TjxuYpFqLDFgH1s7LeUsUrXRRfjpY38vIvjS1oM5XSdetA9jJKvBhrbO8K2y/Q0zQR
- r35u/8Xt+6h5p8Md6Z7vPQwcJR8et+HQXlBMAY9haJ8YG0PMx79MO1boNevXJQ5VBEa5
- H8si+xRZT+06/ybQ6RweDS8stk/otlFLwF+j2W3hbCnHWD8TD709neF5FnyYPn+9M7a5
- fynzG47rkyKkFFfq2lCuJRXFHBsAC6fP5LgPd0TZs8y7IxpqBY+Y23+89C5dn5FhXafN
- EfzasRGKrQ90uMv+wSsq7KA7BzIQ/YZ5H5kBREE8zUNQlCqqWr8NUtsh8U0ACMDQRTYv
- 7VYg==
-X-Gm-Message-State: AOAM533OAGFq7rFMu2fuwjeY6580dPlG7RgraPmekQMsn1R0DhsHJ4oJ
- LJ56yu4hEBGmSemHo4sU9TYAR6htDTncHG8sFgAUAHhMzrcuXFIfAhAc07zLe23+WkN54Hn6mcl
- ccrZNzHtZ4MmGPPQLH5AL7cImYetsyWlyhtvLUXjxng==
-X-Received: by 2002:a17:906:148a:b0:6f3:833d:5a0f with SMTP id
- x10-20020a170906148a00b006f3833d5a0fmr2560428ejc.49.1651836816382; 
- Fri, 06 May 2022 04:33:36 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwWqNhgRcK629dCnuKAST3WbCl+p9Mce05cC+BHLm/aKmxrKARyEIXE+pvxtLSGIpCklwFmrA==
-X-Received: by 2002:a17:906:148a:b0:6f3:833d:5a0f with SMTP id
- x10-20020a170906148a00b006f3833d5a0fmr2560103ejc.49.1651836811295; 
- Fri, 06 May 2022 04:33:31 -0700 (PDT)
-Received: from redhat.com ([2a03:c5c0:107e:a6f7:2ba7:16e9:af89:1a95])
+ h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=VQA7sO3Gs0+tp7sDV+25Y43XXMTJ/XsoGGLuKCP2Q5c=;
+ b=nCOMHoXSMdkiq7jU+qxR/gHMS8kR9ifKNBUegCQJM4n+vwny1GlYxX1wiuzDkE7Qym
+ Ncw8qVyTKEBveT0xPMQ7zfhz/HW3JNUYyQTMoEoblJlb9MaDmfjkRUfsJKjPm3VPl/aG
+ iaSHPdyo2DdtiL9loYu+WJCf2AdYjwVXvK7WUTEgvg32rHXKmd90RG/rrMi1emTNSPb2
+ ltSZVjjiEcU3p1w7vp0JPvD/PufBAOtm+IPFjmIPnTgQstBrqCa2u/68WDp5qJeqeU5E
+ YUqi+pF/E0j4oKmbc5/C2y7b6K6jLhBA/JwYEvDl/5gF1apm3SeEzYjIDgSXAv71aW5b
+ 0VpQ==
+X-Gm-Message-State: AOAM533WyLW2xfz95l4aGeeW3/TFH0M1BHS+PuYgyF52hSaNWWOmN0Do
+ z8s68JG9n6f2kMpxW6YkfY3Z7A==
+X-Google-Smtp-Source: ABdhPJwf9r5jic9L4RMxeLZWJ+xLefhk6TerHNfuXcQyEP1lOV6uhftuuhlJRdWizxpFwGezbysJxA==
+X-Received: by 2002:a17:903:2091:b0:15c:b49b:664d with SMTP id
+ d17-20020a170903209100b0015cb49b664dmr3628597plc.151.1651843254280; 
+ Fri, 06 May 2022 06:20:54 -0700 (PDT)
+Received: from always-x1.www.tendawifi.com ([139.177.225.255])
  by smtp.gmail.com with ESMTPSA id
- hy5-20020a1709068a6500b006f3ef214ddcsm1808167ejc.66.2022.05.06.04.33.28
+ i22-20020a63e916000000b003c14af50643sm3256986pgh.91.2022.05.06.06.20.49
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 06 May 2022 04:33:30 -0700 (PDT)
-Date: Fri, 6 May 2022 07:33:26 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: zhenwei pi <pizhenwei@bytedance.com>
-Subject: Re: RE: [PATCH v5 5/5] virtio-crypto: enable retry for
- virtio-crypto-dev
-Message-ID: <20220506073316-mutt-send-email-mst@kernel.org>
-References: <20220505092408.53692-1-pizhenwei@bytedance.com>
- <20220505092408.53692-6-pizhenwei@bytedance.com>
- <ad61b1ae4bd145eaa18fc28696e9502a@huawei.com>
- <48c9b073-0b03-5769-633b-5b668cea6fa4@bytedance.com>
+ Fri, 06 May 2022 06:20:53 -0700 (PDT)
+From: zhenwei pi <pizhenwei@bytedance.com>
+To: arei.gonglei@huawei.com,
+	mst@redhat.com
+Subject: [PATCH v6 0/5] virtio-crypto: Improve performance
+Date: Fri,  6 May 2022 21:16:22 +0800
+Message-Id: <20220506131627.180784-1-pizhenwei@bytedance.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-In-Reply-To: <48c9b073-0b03-5769-633b-5b668cea6fa4@bytedance.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: "herbert@gondor.apana.org.au" <herbert@gondor.apana.org.au>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>,
- "davem@davemloft.net" <davem@davemloft.net>,
- "helei.sig11@bytedance.com" <helei.sig11@bytedance.com>
+Cc: helei.sig11@bytedance.com, linux-kernel@vger.kernel.org,
+ pizhenwei@bytedance.com, virtualization@lists.linux-foundation.org,
+ linux-crypto@vger.kernel.org, davem@davemloft.net, herbert@gondor.apana.org.au
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -125,74 +105,69 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, May 06, 2022 at 05:55:33PM +0800, zhenwei pi wrote:
-> On 5/6/22 17:34, Gonglei (Arei) wrote:
-> > 
-> > 
-> > > -----Original Message-----
-> > > From: zhenwei pi [mailto:pizhenwei@bytedance.com]
-> > > Sent: Thursday, May 5, 2022 5:24 PM
-> > > To: Gonglei (Arei) <arei.gonglei@huawei.com>; mst@redhat.com
-> > > Cc: jasowang@redhat.com; herbert@gondor.apana.org.au;
-> > > linux-kernel@vger.kernel.org; virtualization@lists.linux-foundation.org;
-> > > linux-crypto@vger.kernel.org; helei.sig11@bytedance.com;
-> > > pizhenwei@bytedance.com; davem@davemloft.net
-> > > Subject: [PATCH v5 5/5] virtio-crypto: enable retry for virtio-crypto-dev
-> > > 
-> > > From: lei he <helei.sig11@bytedance.com>
-> > > 
-> > > Enable retry for virtio-crypto-dev, so that crypto-engine can process
-> > > cipher-requests parallelly.
-> > > 
-> > > Cc: Michael S. Tsirkin <mst@redhat.com>
-> > > Cc: Jason Wang <jasowang@redhat.com>
-> > > Cc: Gonglei <arei.gonglei@huawei.com>
-> > > Signed-off-by: lei he <helei.sig11@bytedance.com>
-> > > Signed-off-by: zhenwei pi <pizhenwei@bytedance.com>
-> > > ---
-> > >   drivers/crypto/virtio/virtio_crypto_core.c | 3 ++-
-> > >   1 file changed, 2 insertions(+), 1 deletion(-)
-> > > 
-> > > diff --git a/drivers/crypto/virtio/virtio_crypto_core.c
-> > > b/drivers/crypto/virtio/virtio_crypto_core.c
-> > > index 60490ffa3df1..f67e0d4c1b0c 100644
-> > > --- a/drivers/crypto/virtio/virtio_crypto_core.c
-> > > +++ b/drivers/crypto/virtio/virtio_crypto_core.c
-> > > @@ -144,7 +144,8 @@ static int virtcrypto_find_vqs(struct virtio_crypto *vi)
-> > >   		spin_lock_init(&vi->data_vq[i].lock);
-> > >   		vi->data_vq[i].vq = vqs[i];
-> > >   		/* Initialize crypto engine */
-> > > -		vi->data_vq[i].engine = crypto_engine_alloc_init(dev, 1);
-> > > +		vi->data_vq[i].engine = crypto_engine_alloc_init_and_set(dev, true,
-> > > NULL, 1,
-> > > +						virtqueue_get_vring_size(vqs[i]));
-> > 
-> > Here the '1' can be 'true' too.
-> > 
-> > Sure, you can add
-> > 
-> > Reviewed-by: Gonglei <arei.gonglei@huawei.com>
-> > 
-> > Regards,
-> > -Gonglei
-> > 
-> > >   		if (!vi->data_vq[i].engine) {
-> > >   			ret = -ENOMEM;
-> > >   			goto err_engine;
-> > > --
-> > > 2.20.1
-> > 
-> 
-> Thanks to Lei!
-> 
-> Hi, Michael
-> I would appreciate it if you could apply this minor change, or I send the v6
-> series, which one do you prefer?
-> 
-> -- 
+v5 -> v6:
+ - Minor fix for crypto_engine_alloc_init_and_set().
+ - All the patches have been reviewed by Gonglei, add this in patch.
+ Thanks to Gonglei.
 
+v4 -> v5:
+ - Fix potentially dereferencing uninitialized variables in
+   'virtio-crypto: use private buffer for control request'.
+   Thanks to Dan Carpenter!
 
-send v6 with acks and change pls
+v3 -> v4:
+ - Don't create new file virtio_common.c, the new functions are added
+   into virtio_crypto_core.c
+ - Split the first patch into two parts:
+     1, change code style,
+     2, use private buffer instead of shared buffer
+ - Remove relevant change.
+ - Other minor changes.
+
+v2 -> v3:
+ - Jason suggested that spliting the first patch into two part:
+     1, using private buffer
+     2, remove the busy polling
+   Rework as Jason's suggestion, this makes the smaller change in
+   each one and clear.
+
+v1 -> v2:
+ - Use kfree instead of kfree_sensitive for insensitive buffer.
+ - Several coding style fix.
+ - Use memory from current node, instead of memory close to device
+ - Add more message in commit, also explain why removing per-device
+   request buffer.
+ - Add necessary comment in code to explain why using kzalloc to
+   allocate struct virtio_crypto_ctrl_request.
+
+v1:
+The main point of this series is to improve the performance for
+virtio crypto:
+- Use wait mechanism instead of busy polling for ctrl queue, this
+  reduces CPU and lock racing, it's possiable to create/destroy session
+  parallelly, QPS increases from ~40K/s to ~200K/s.
+- Enable retry on crypto engine to improve performance for data queue,
+  this allows the larger depth instead of 1.
+- Fix dst data length in akcipher service.
+- Other style fix.
+
+lei he (2):
+  virtio-crypto: adjust dst_len at ops callback
+  virtio-crypto: enable retry for virtio-crypto-dev
+
+zhenwei pi (3):
+  virtio-crypto: change code style
+  virtio-crypto: use private buffer for control request
+  virtio-crypto: wait ctrl queue instead of busy polling
+
+ .../virtio/virtio_crypto_akcipher_algs.c      |  95 ++++++------
+ drivers/crypto/virtio/virtio_crypto_common.h  |  21 ++-
+ drivers/crypto/virtio/virtio_crypto_core.c    |  55 ++++++-
+ .../virtio/virtio_crypto_skcipher_algs.c      | 140 ++++++++----------
+ 4 files changed, 182 insertions(+), 129 deletions(-)
+
+-- 
+2.20.1
 
 _______________________________________________
 Virtualization mailing list
