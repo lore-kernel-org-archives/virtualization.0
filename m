@@ -4,59 +4,59 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B5E9EC433EF
-	for <virtualization@archiver.kernel.org>; Fri,  6 May 2022 09:28:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 009C4C4332F
+	for <virtualization@archiver.kernel.org>; Fri,  6 May 2022 09:34:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 66D37400AB;
-	Fri,  6 May 2022 09:28:09 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 8D24240180;
+	Fri,  6 May 2022 09:34:46 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id r9pNyDH6tLQd; Fri,  6 May 2022 09:28:08 +0000 (UTC)
+	with ESMTP id IAXu2JhVefnw; Fri,  6 May 2022 09:34:45 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id DDC6940025;
-	Fri,  6 May 2022 09:28:07 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 2C28E40025;
+	Fri,  6 May 2022 09:34:45 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C3444C0039;
-	Fri,  6 May 2022 09:28:07 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id BA9FDC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id F3ACCC0039;
+	Fri,  6 May 2022 09:34:44 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 86755C002D
  for <virtualization@lists.linux-foundation.org>;
- Fri,  6 May 2022 09:28:06 +0000 (UTC)
+ Fri,  6 May 2022 09:34:43 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id B893183FBB
+ by smtp3.osuosl.org (Postfix) with ESMTP id 6163860C0B
  for <virtualization@lists.linux-foundation.org>;
- Fri,  6 May 2022 09:28:06 +0000 (UTC)
+ Fri,  6 May 2022 09:34:43 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id TnYUToO6zqZ3
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Qfd0NQy8Dx-v
  for <virtualization@lists.linux-foundation.org>;
- Fri,  6 May 2022 09:28:06 +0000 (UTC)
+ Fri,  6 May 2022 09:34:42 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
- by smtp1.osuosl.org (Postfix) with ESMTPS id B86AC840A4
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id ABF8E60A7D
  for <virtualization@lists.linux-foundation.org>;
- Fri,  6 May 2022 09:28:05 +0000 (UTC)
-Received: from kwepemi500011.china.huawei.com (unknown [172.30.72.54])
- by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4KvlZS3bvfz1JBmX;
- Fri,  6 May 2022 17:26:56 +0800 (CST)
+ Fri,  6 May 2022 09:34:42 +0000 (UTC)
+Received: from kwepemi100012.china.huawei.com (unknown [172.30.72.57])
+ by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4Kvlkl6FPMzhYhf;
+ Fri,  6 May 2022 17:34:07 +0800 (CST)
 Received: from dggpemm500006.china.huawei.com (7.185.36.236) by
- kwepemi500011.china.huawei.com (7.221.188.124) with Microsoft SMTP Server
+ kwepemi100012.china.huawei.com (7.221.188.202) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Fri, 6 May 2022 17:28:01 +0800
+ 15.1.2375.24; Fri, 6 May 2022 17:34:39 +0800
 Received: from dggpemm500006.china.huawei.com ([7.185.36.236]) by
  dggpemm500006.china.huawei.com ([7.185.36.236]) with mapi id 15.01.2375.024;
- Fri, 6 May 2022 17:28:01 +0800
+ Fri, 6 May 2022 17:34:39 +0800
 To: zhenwei pi <pizhenwei@bytedance.com>, "mst@redhat.com" <mst@redhat.com>
-Subject: RE: [PATCH v5 4/5] virtio-crypto: adjust dst_len at ops callback
-Thread-Topic: [PATCH v5 4/5] virtio-crypto: adjust dst_len at ops callback
-Thread-Index: AQHYYGJ6/Z4WULmv0kCZX8LJqZ7zXa0Rlkkg
-Date: Fri, 6 May 2022 09:28:01 +0000
-Message-ID: <f2addf5602254e2c81b52c30cb2c8180@huawei.com>
+Subject: RE: [PATCH v5 5/5] virtio-crypto: enable retry for virtio-crypto-dev
+Thread-Topic: [PATCH v5 5/5] virtio-crypto: enable retry for virtio-crypto-dev
+Thread-Index: AQHYYGfJIkLldEFis0GWr3Sle9+GwK0Rltzw
+Date: Fri, 6 May 2022 09:34:39 +0000
+Message-ID: <ad61b1ae4bd145eaa18fc28696e9502a@huawei.com>
 References: <20220505092408.53692-1-pizhenwei@bytedance.com>
- <20220505092408.53692-5-pizhenwei@bytedance.com>
-In-Reply-To: <20220505092408.53692-5-pizhenwei@bytedance.com>
+ <20220505092408.53692-6-pizhenwei@bytedance.com>
+In-Reply-To: <20220505092408.53692-6-pizhenwei@bytedance.com>
 Accept-Language: zh-CN, en-US
 Content-Language: zh-CN
 X-MS-Has-Attach: 
@@ -100,13 +100,12 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 > linux-kernel@vger.kernel.org; virtualization@lists.linux-foundation.org;
 > linux-crypto@vger.kernel.org; helei.sig11@bytedance.com;
 > pizhenwei@bytedance.com; davem@davemloft.net
-> Subject: [PATCH v5 4/5] virtio-crypto: adjust dst_len at ops callback
+> Subject: [PATCH v5 5/5] virtio-crypto: enable retry for virtio-crypto-dev
 > 
 > From: lei he <helei.sig11@bytedance.com>
 > 
-> For some akcipher operations(eg, decryption of pkcs1pad(rsa)), the length of
-> returned result maybe less than akcipher_req->dst_len, we need to recalculate
-> the actual dst_len through the virt-queue protocol.
+> Enable retry for virtio-crypto-dev, so that crypto-engine can process
+> cipher-requests parallelly.
 > 
 > Cc: Michael S. Tsirkin <mst@redhat.com>
 > Cc: Jason Wang <jasowang@redhat.com>
@@ -114,37 +113,35 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 > Signed-off-by: lei he <helei.sig11@bytedance.com>
 > Signed-off-by: zhenwei pi <pizhenwei@bytedance.com>
 > ---
->  drivers/crypto/virtio/virtio_crypto_akcipher_algs.c | 5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
+>  drivers/crypto/virtio/virtio_crypto_core.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
 > 
+> diff --git a/drivers/crypto/virtio/virtio_crypto_core.c
+> b/drivers/crypto/virtio/virtio_crypto_core.c
+> index 60490ffa3df1..f67e0d4c1b0c 100644
+> --- a/drivers/crypto/virtio/virtio_crypto_core.c
+> +++ b/drivers/crypto/virtio/virtio_crypto_core.c
+> @@ -144,7 +144,8 @@ static int virtcrypto_find_vqs(struct virtio_crypto *vi)
+>  		spin_lock_init(&vi->data_vq[i].lock);
+>  		vi->data_vq[i].vq = vqs[i];
+>  		/* Initialize crypto engine */
+> -		vi->data_vq[i].engine = crypto_engine_alloc_init(dev, 1);
+> +		vi->data_vq[i].engine = crypto_engine_alloc_init_and_set(dev, true,
+> NULL, 1,
+> +						virtqueue_get_vring_size(vqs[i]));
+
+Here the '1' can be 'true' too.
+
+Sure, you can add
 
 Reviewed-by: Gonglei <arei.gonglei@huawei.com>
 
 Regards,
 -Gonglei
 
-
-> diff --git a/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
-> b/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
-> index 382ccec9ab12..2a60d0525cde 100644
-> --- a/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
-> +++ b/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
-> @@ -90,9 +90,12 @@ static void
-> virtio_crypto_dataq_akcipher_callback(struct virtio_crypto_request *
->  	}
-> 
->  	akcipher_req = vc_akcipher_req->akcipher_req;
-> -	if (vc_akcipher_req->opcode != VIRTIO_CRYPTO_AKCIPHER_VERIFY)
-> +	if (vc_akcipher_req->opcode != VIRTIO_CRYPTO_AKCIPHER_VERIFY) {
-> +		/* actuall length maybe less than dst buffer */
-> +		akcipher_req->dst_len = len - sizeof(vc_req->status);
->  		sg_copy_from_buffer(akcipher_req->dst,
-> sg_nents(akcipher_req->dst),
->  				    vc_akcipher_req->dst_buf, akcipher_req->dst_len);
-> +	}
->  	virtio_crypto_akcipher_finalize_req(vc_akcipher_req, akcipher_req,
-> error);  }
-> 
+>  		if (!vi->data_vq[i].engine) {
+>  			ret = -ENOMEM;
+>  			goto err_engine;
 > --
 > 2.20.1
 
