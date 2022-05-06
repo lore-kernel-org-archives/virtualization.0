@@ -1,107 +1,116 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 52BCBC433F5
-	for <virtualization@archiver.kernel.org>; Fri,  6 May 2022 14:14:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D74A4C433F5
+	for <virtualization@archiver.kernel.org>; Fri,  6 May 2022 16:28:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id C49CB404D3;
-	Fri,  6 May 2022 14:14:23 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 81DE860D57;
+	Fri,  6 May 2022 16:28:34 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ARQc-OXcrbFY; Fri,  6 May 2022 14:14:22 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id nChvTBdBeZbs; Fri,  6 May 2022 16:28:33 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 7B4BC40193;
-	Fri,  6 May 2022 14:14:21 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 5EDD360C22;
+	Fri,  6 May 2022 16:28:30 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3B275C0032;
-	Fri,  6 May 2022 14:14:21 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A4A97C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 2FFA5C0032;
+	Fri,  6 May 2022 16:28:30 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0D53FC002D
  for <virtualization@lists.linux-foundation.org>;
- Fri,  6 May 2022 14:14:19 +0000 (UTC)
+ Fri,  6 May 2022 16:28:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 7CD3F41849
+ by smtp2.osuosl.org (Postfix) with ESMTP id DA4734041C
  for <virtualization@lists.linux-foundation.org>;
- Fri,  6 May 2022 14:14:19 +0000 (UTC)
+ Fri,  6 May 2022 16:28:28 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id hhASfOVqX6CQ
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 1TdjrcyCcqUS
  for <virtualization@lists.linux-foundation.org>;
- Fri,  6 May 2022 14:14:18 +0000 (UTC)
+ Fri,  6 May 2022 16:28:27 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-74.mimecast.com
- (us-smtp-delivery-74.mimecast.com [170.10.129.74])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 6595641769
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 787F2400E9
  for <virtualization@lists.linux-foundation.org>;
- Fri,  6 May 2022 14:14:18 +0000 (UTC)
+ Fri,  6 May 2022 16:28:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1651846457;
+ s=mimecast20190719; t=1651854505;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=6EwxLss5z9pqfmNAfnE+750spjOXcHfkOQWWavm7Z64=;
- b=Po+Sszh3iBJkb4iPhqRWef617jkgSED5KvJgwzCYGqxF/zRc66HXbOIX+lerrd9kxo10sG
- T0Sw4w0ge8Lc3Vy4oOBkXYNBMOe4dbcaCJSS4+JQL+Xpu4Th56bhaXGqqWwyatZ6P0lMPB
- RMrjI25IjzPM0vrk/WeTdDDBnJEOpw8=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=Afy3LRmgbTX/W4kOJBv51V2x19c9yS1eYu85zuJRd9c=;
+ b=KtvYQ30KEaae5NwHKDR2QOuRJJl/ypiGqvCLSk9s9E3UHJH3R0WP880tg2w+csROWYyo1Z
+ qChTMosWLEVmoD1x4SnEC26eDTxQ5Z4dk85jpvhxpzjoXSAzKDFa5+KbqxzKkbOzFiYHGN
+ tRpf/9BDJUhEB9NXWM+kC75Wdk7o3nM=
+Received: from mail-qk1-f197.google.com (mail-qk1-f197.google.com
+ [209.85.222.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-629-JOl7y0ZTMU2Q4CKqjoBT5Q-1; Fri, 06 May 2022 10:14:15 -0400
-X-MC-Unique: JOl7y0ZTMU2Q4CKqjoBT5Q-1
-Received: by mail-ej1-f72.google.com with SMTP id
- sh14-20020a1709076e8e00b006f4a5de6888so4451561ejc.8
+ us-mta-659-IAZXROrTPRS8OwVVGgdKHg-1; Fri, 06 May 2022 12:28:25 -0400
+X-MC-Unique: IAZXROrTPRS8OwVVGgdKHg-1
+Received: by mail-qk1-f197.google.com with SMTP id
+ c84-20020a379a57000000b0069fcf83c373so5242493qke.20
  for <virtualization@lists.linux-foundation.org>;
- Fri, 06 May 2022 07:14:15 -0700 (PDT)
+ Fri, 06 May 2022 09:28:24 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:from:to:cc:subject:in-reply-to:references:date
- :message-id:mime-version;
- bh=6EwxLss5z9pqfmNAfnE+750spjOXcHfkOQWWavm7Z64=;
- b=s5ZvdpApaigd5PRaedmSo935Ha319OKjTuJtU6C3+CNxmbC57B4yTp8MpH/vQley6z
- 7vo86EEYXOaPBBjsapihky10M3Ery3kDWQEn4hE/Nhh1s0d+cWF064NiHSeI31zi30oh
- ipnJbCgvk6K0+FK+qeHoBOb4DrzmiJuac6DCYZBj9/agWC7fbaLBTDTGwztluaWuTA3g
- VpGNpYOAriU5pNLh0iyO+dN1Xf8npiwMd8r+xTdN5XBLvx9hGTRBQPSqTeRL9tRaV23O
- Dh7ZEuF4zskb2B2zJslwdi4Bny8NdYsnZBjmbhoTxs8+AGyp1c7iA7A/393fgcVwSmCn
- IAaA==
-X-Gm-Message-State: AOAM531k+QUn36YPUCzYlLLDp0ycWIbrkh5ql8XAW0tx5KVFnsc6MZXB
- /8ZLE7mC67xDtfyBWPcC1TpHVnF+P/sHBbcLBRpUj31fPvgiRxFh7g2cyhULPOpau6sd/nP8/ca
- 3bHEqEQpqWE6iV0/Uj9O4pUNkwOJ7PoZoCkKRUwl9wg==
-X-Received: by 2002:a17:907:1b1e:b0:6d7:31b0:e821 with SMTP id
- mp30-20020a1709071b1e00b006d731b0e821mr3152147ejc.334.1651846439148; 
- Fri, 06 May 2022 07:13:59 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyckf4ruK6WdXTZnQq2U7aWMOvfIW+9+F+1UXGr2zoM6PiRjmvaqZw5/Ho5iGuSVQegyf/HHg==
-X-Received: by 2002:a17:907:1b1e:b0:6d7:31b0:e821 with SMTP id
- mp30-20020a1709071b1e00b006d731b0e821mr3152126ejc.334.1651846438898; 
- Fri, 06 May 2022 07:13:58 -0700 (PDT)
-Received: from fedora (nat-2.ign.cz. [91.219.240.2])
+ h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+ :content-language:to:cc:references:from:organization:in-reply-to
+ :content-transfer-encoding;
+ bh=Afy3LRmgbTX/W4kOJBv51V2x19c9yS1eYu85zuJRd9c=;
+ b=E6XeThPtiUmsmlGRN1VZdDhHDqFIc24Y2Cv1eonEYuWTO1X6+fEGAts/SKPvBWwWJT
+ ixKlszfuX27Ldn4BIkpqokcAjU47rvZX/3ae1TK+ovpdYyurMn20cwaU0ivAf8Lv5yPM
+ p8TIlYQQUQWa9PstVPTMYsK5oqN7n+CSy8P+1z78dW7csv7YjIdcnSqwX7z3A15Mws19
+ y5yr2qq+LRcz/ynM12QK5E7gEiZMnmi/BE6JPOlmru9W3LCwFM4Wm8Ga/PBaRaorbFFp
+ 3H+EuJhfGwXL93RBzJ8NGjL+8YIJCjes2BAmywOUnEa/eonhn8YFTt4ZmISQz6KLkSTj
+ ll8g==
+X-Gm-Message-State: AOAM5311C3Guonft/4kEYeKfXGtcxKlICbRrzBD4Vm7v0wwHH0q1Z271
+ sXDZV86hrNzOOUA+KT9e/5kUAFpN28X2l1AQqQ0hGJqD2V3F2YBPAniC+Q2sLZs8MPcpnCO4X91
+ 4hNi2b6RR8sNCXVY928uQPTVRFmhyA7uL2nKVj2wgxQ==
+X-Received: by 2002:a05:620a:4405:b0:6a0:30b7:7d5b with SMTP id
+ v5-20020a05620a440500b006a030b77d5bmr2843357qkp.482.1651854504318; 
+ Fri, 06 May 2022 09:28:24 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJy9mEOuQZwJEmFcxWadpmKCBaw0BWvAOMjoo5GmSP6daGuDLSFXPHz5F/LLg72a11CQ2+pb/A==
+X-Received: by 2002:a05:620a:4405:b0:6a0:30b7:7d5b with SMTP id
+ v5-20020a05620a440500b006a030b77d5bmr2843324qkp.482.1651854503954; 
+ Fri, 06 May 2022 09:28:23 -0700 (PDT)
+Received: from [10.23.153.165] ([46.248.132.196])
  by smtp.gmail.com with ESMTPSA id
- hf15-20020a1709072c4f00b006f3ef214e4asm1940876ejc.176.2022.05.06.07.13.57
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 06 May 2022 07:13:58 -0700 (PDT)
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
-To: vdasa@vmware.com
-Subject: Re: [PATCH] VMCI: Add support for ARM64
-In-Reply-To: <20220414193316.14356-1-vdasa@vmware.com>
-References: <20220414193316.14356-1-vdasa@vmware.com>
-Date: Fri, 06 May 2022 16:13:57 +0200
-Message-ID: <87levezr2y.fsf@redhat.com>
+ l1-20020ae9f001000000b0069fd35d2abcsm2638745qkg.112.2022.05.06.09.28.13
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Fri, 06 May 2022 09:28:23 -0700 (PDT)
+Message-ID: <ac3fc5b9-d09c-5fb6-998d-f7c655d7fa00@redhat.com>
+Date: Fri, 6 May 2022 18:28:11 +0200
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.0
+Subject: Re: [PATCH 3/4] mm/memofy-failure.c: optimize hwpoison_filter
+To: zhenwei pi <pizhenwei@bytedance.com>,
+ Naoya Horiguchi <naoya.horiguchi@linux.dev>
+References: <20220429142206.294714-1-pizhenwei@bytedance.com>
+ <20220429142206.294714-4-pizhenwei@bytedance.com>
+ <20220506085920.GC1356094@u2004>
+ <3c0e25fb-695d-4a29-6de4-c892f89cea7a@bytedance.com>
+From: David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+In-Reply-To: <3c0e25fb-695d-4a29-6de4-c892f89cea7a@bytedance.com>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=vkuznets@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=david@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: Vishnu Dasa <vdasa@vmware.com>, pv-drivers@vmware.com,
- gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, linux-kernel-review@vmware.com,
- Bryan Tan <bryantan@vmware.com>, Cyprien Laplace <claplace@vmware.com>,
- linux-arm-kernel@lists.infradead.org
+Content-Language: en-US
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, naoya.horiguchi@nec.com,
+ linux-kernel@vger.kernel.org, "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>, linux-mm@kvack.org,
+ akpm@linux-foundation.org, Wu Fengguang <fengguang.wu@intel.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -118,93 +127,69 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-vdasa@vmware.com writes:
+On 06.05.22 15:38, zhenwei pi wrote:
+> 
+> 
+> On 5/6/22 16:59, Naoya Horiguchi wrote:
+>> On Fri, Apr 29, 2022 at 10:22:05PM +0800, zhenwei pi wrote:
+>>> In the memory failure procedure, hwpoison_filter has higher priority,
+>>> if memory_filter() filters the error event, there is no need to do
+>>> the further work.
+>>
+>> Could you clarify what problem you are trying to solve (what does
+>> "optimize" mean in this context or what is the benefit)?
+>>
+> 
+> OK. The background of this work:
+> As well known, the memory failure mechanism handles memory corrupted 
+> event, and try to send SIGBUS to the user process which uses this 
+> corrupted page.
+> 
+> For the virtualization case, QEMU catches SIGBUS and tries to inject MCE 
+> into the guest, and the guest handles memory failure again. Thus the 
+> guest gets the minimal effect from hardware memory corruption.
+> 
+> The further step I'm working on:
+> 1, try to modify code to decrease poisoned pages in a single place 
+> (mm/memofy-failure.c: simplify num_poisoned_pages_dec in this series).
+> 
+> 2, try to use page_handle_poison() to handle SetPageHWPoison() and 
+> num_poisoned_pages_inc() together. It would be best to call 
+> num_poisoned_pages_inc() in a single place too. I'm not sure if this is 
+> possible or not, please correct me if I misunderstand.
+> 
+> 3, introduce memory failure notifier list in memory-failure.c: notify 
+> the corrupted PFN to someone who registers this list.
+> If I can complete [1] and [2] part, [3] will be quite easy(just call 
+> notifier list after increasing poisoned page).
+> 
+> 4, introduce memory recover VQ for memory balloon device, and registers 
+> memory failure notifier list. During the guest kernel handles memory 
+> failure, balloon device gets notified by memory failure notifier list, 
+> and tells the host to recover the corrupted PFN(GPA) by the new VQ.
 
-> From: Vishnu Dasa <vdasa@vmware.com>
->
-> Add support for ARM64 architecture so that the driver can now be built
-> and VMCI device can be used.
->
-> Update Kconfig file to allow the driver to be built on ARM64 as well.
-> Fail vmci_guest_probe_device() on ARM64 if the device does not support
-> MMIO register access.  Lastly, add virtualization specific barriers
-> which map to actual memory barrier instructions on ARM64, because it
-> is required in case of ARM64 for queuepair (de)queuing.
->
+Most probably you might want to do that asynchronously, and once the
+callback succeeds, un-poison the page.
 
-FWIW, it seems you're doing three things at once, better split this into
-a 3-patch series.
+> 
+> 5, host side remaps the corrupted page(HVA), and tells the guest side to 
+> unpoison the PFN(GPA). Then the guest fixes the corrupted page(GPA) 
+> dynamically.
 
-> Reviewed-by: Bryan Tan <bryantan@vmware.com>
-> Reviewed-by: Cyprien Laplace <claplace@vmware.com>
-> Signed-off-by: Vishnu Dasa <vdasa@vmware.com>
-> ---
->  drivers/misc/vmw_vmci/Kconfig           |  2 +-
->  drivers/misc/vmw_vmci/vmci_guest.c      |  4 ++++
->  drivers/misc/vmw_vmci/vmci_queue_pair.c | 12 ++++++++++++
->  3 files changed, 17 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/misc/vmw_vmci/Kconfig b/drivers/misc/vmw_vmci/Kconfig
-> index 605794aadf11..b6d4d7fd686a 100644
-> --- a/drivers/misc/vmw_vmci/Kconfig
-> +++ b/drivers/misc/vmw_vmci/Kconfig
-> @@ -5,7 +5,7 @@
->  
->  config VMWARE_VMCI
->  	tristate "VMware VMCI Driver"
-> -	depends on X86 && PCI
-> +	depends on (X86 || ARM64) && !CPU_BIG_ENDIAN && PCI
->  	help
->  	  This is VMware's Virtual Machine Communication Interface.  It enables
->  	  high-speed communication between host and guest in a virtual
-> diff --git a/drivers/misc/vmw_vmci/vmci_guest.c b/drivers/misc/vmw_vmci/vmci_guest.c
-> index 57a6157209a1..aa7b05de97dd 100644
-> --- a/drivers/misc/vmw_vmci/vmci_guest.c
-> +++ b/drivers/misc/vmw_vmci/vmci_guest.c
-> @@ -614,6 +614,10 @@ static int vmci_guest_probe_device(struct pci_dev *pdev,
->  	}
->  
->  	if (!mmio_base) {
-> +		if (IS_ENABLED(CONFIG_ARM64)) {
-> +			dev_err(&pdev->dev, "MMIO base is invalid\n");
-> +			return -ENXIO;
-> +		}
->  		error = pcim_iomap_regions(pdev, BIT(0), KBUILD_MODNAME);
->  		if (error) {
->  			dev_err(&pdev->dev, "Failed to reserve/map IO regions\n");
-> diff --git a/drivers/misc/vmw_vmci/vmci_queue_pair.c b/drivers/misc/vmw_vmci/vmci_queue_pair.c
-> index 94ebf7f3fd58..8f2de1893245 100644
-> --- a/drivers/misc/vmw_vmci/vmci_queue_pair.c
-> +++ b/drivers/misc/vmw_vmci/vmci_queue_pair.c
-> @@ -2577,6 +2577,12 @@ static ssize_t qp_enqueue_locked(struct vmci_queue *produce_q,
->  	if (result < VMCI_SUCCESS)
->  		return result;
->  
-> +	/*
-> +	 * This virt_wmb() ensures that data written to the queue
-> +	 * is observable before the new producer_tail is.
-> +	 */
-> +	virt_wmb();
-> +
->  	vmci_q_header_add_producer_tail(produce_q->q_header, written,
->  					produce_q_size);
->  	return written;
-> @@ -2620,6 +2626,12 @@ static ssize_t qp_dequeue_locked(struct vmci_queue *produce_q,
->  	if (buf_ready < VMCI_SUCCESS)
->  		return (ssize_t) buf_ready;
->  
-> +	/*
-> +	 * This virt_rmb() ensures that data from the queue will be read
-> +	 * after we have determined how much is ready to be consumed.
-> +	 */
-> +	virt_rmb();
-> +
->  	read = (size_t) (buf_ready > buf_size ? buf_size : buf_ready);
->  	head = vmci_q_header_consumer_head(produce_q->q_header);
->  	if (likely(head + read < consume_q_size)) {
+I think QEMU already does that during reboots. Now it would be triggered
+by the guest for individual pages.
+
+> 
+> Because [4] and [5] are related to balloon device, also CC Michael, 
+> David and Jason.
+
+Doesn't sound too crazy for me, although it's a shame that we always
+have to use virtio-balloon for such fairly balloon-unrelated things.
 
 -- 
-Vitaly
+Thanks,
+
+David / dhildenb
 
 _______________________________________________
 Virtualization mailing list
