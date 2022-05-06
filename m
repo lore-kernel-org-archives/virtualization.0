@@ -1,95 +1,100 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 752C8C433EF
-	for <virtualization@archiver.kernel.org>; Fri,  6 May 2022 13:21:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 12E4FC433F5
+	for <virtualization@archiver.kernel.org>; Fri,  6 May 2022 13:42:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 3CA0983FEE;
-	Fri,  6 May 2022 13:21:22 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id A0D2D40291;
+	Fri,  6 May 2022 13:42:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id JWR4QlABLCuq; Fri,  6 May 2022 13:21:21 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id CFDD88409E;
-	Fri,  6 May 2022 13:21:20 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 792F4C0082;
-	Fri,  6 May 2022 13:21:20 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0737DC002D
- for <virtualization@lists.linux-foundation.org>;
- Fri,  6 May 2022 13:21:19 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id DB96140C1C
- for <virtualization@lists.linux-foundation.org>;
- Fri,  6 May 2022 13:21:18 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=bytedance-com.20210112.gappssmtp.com
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id T51sXiA_SLXj
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id frupLmLsKJJy; Fri,  6 May 2022 13:42:28 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 1719540025;
+	Fri,  6 May 2022 13:42:28 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D3D52C0039;
+	Fri,  6 May 2022 13:42:27 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8CC8DC002D
  for <virtualization@lists.linux-foundation.org>;
- Fri,  6 May 2022 13:21:18 +0000 (UTC)
+ Fri,  6 May 2022 13:42:26 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 73B728254D
+ for <virtualization@lists.linux-foundation.org>;
+ Fri,  6 May 2022 13:42:26 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=bytedance-com.20210112.gappssmtp.com
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id l9g5PmONjN56
+ for <virtualization@lists.linux-foundation.org>;
+ Fri,  6 May 2022 13:42:25 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com
- [IPv6:2607:f8b0:4864:20::629])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 630C440025
+Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com
+ [IPv6:2607:f8b0:4864:20::42a])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 623ED82542
  for <virtualization@lists.linux-foundation.org>;
- Fri,  6 May 2022 13:21:18 +0000 (UTC)
-Received: by mail-pl1-x629.google.com with SMTP id j14so7420546plx.3
+ Fri,  6 May 2022 13:42:25 +0000 (UTC)
+Received: by mail-pf1-x42a.google.com with SMTP id 204so3508201pfx.3
  for <virtualization@lists.linux-foundation.org>;
- Fri, 06 May 2022 06:21:18 -0700 (PDT)
+ Fri, 06 May 2022 06:42:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=bytedance-com.20210112.gappssmtp.com; s=20210112;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:content-transfer-encoding;
- bh=snAq8vOceBJQXNtHaQrKZKIzrWkN2Ytbsg/b/TMNKmk=;
- b=RcbJboymTfiVvIkRHCgMojUfl9bLvh+A2nG+XBtgmx0u4q3MuN7jucM7/yuVKMzlwh
- UnMU2h/tV8bvG7ApiCvCmir6sodCeLyONGmHHscGkU0RofG2yjBLERzmHarv3zKNdn3c
- W1qDNbeb8vuDdLXbyGwpLxh4as5TGCG+DtP5oGtMuiJwcz9+Ocnj6sZ9xOBb211wgbSW
- lsRhEZHd8CZ93wsB7gNlHbWHuwdNKtEIzUYtmdB/cxqBRweoDwfSlHs4aj/ZF7ZTmad+
- TDCC2YheRyFnYFVnvg1YVHCxdu5HESG/g1d4BiK1Ixu56OjuAOLXVlpoBk9MzY19DPQI
- qzKQ==
+ h=message-id:date:mime-version:user-agent:subject:content-language:to
+ :cc:references:from:in-reply-to:content-transfer-encoding;
+ bh=PfUI54DC+Rd4JhaHhM79SH7hCQA6BnGmIDFJn3u5zLM=;
+ b=aKsXfyC6aHrcUWOwO7G7UYAV68+b8gHqoJddnLu0t/IA7s7HawCsFCGO/Kujg873Y6
+ KVD3LFFVeuekk+wEAOPy1Y6U1hO5gUa0jLOw8Bvc5N02CNRvkanaEg2w/JG5wka+Oslx
+ ydesijDYApsY+LM85LShGfEnGycGRv/VEdWYUy9FfhhdzljJFiBXPOyi/Pa35WArWkKX
+ BhCl/GlGG23ObBA0eoXzfYFXawe6ko9nCA940pYhFh0G0ZTDtWM5vfpTM+6JW1Njun30
+ ZsFjAFyFgMjFBHj+GWTjf33CG4KH/W+9w3UtvRGjoUgC8vdqfTBth8M1FRYVYh8Z+xd5
+ 8xFw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
- :references:mime-version:content-transfer-encoding;
- bh=snAq8vOceBJQXNtHaQrKZKIzrWkN2Ytbsg/b/TMNKmk=;
- b=vT3U9iAPE24bsfcIxMUDtFgkanDWas70mV8lESsHexDQQSgoR5TKrKTGGDKV07ECah
- TJ3EB+svCD1dmfhcE4pI3JK0wcWxEIBmBL3FZ9XvFOzHiVQq4nFC/FavTGzFecjcfK1c
- IqK7UiD0qLC+wmuW1Ss98hoD7iWKJbRC3s+y2uqfWl0M9WP7GvK2POH1A6aEOUZdEq7B
- pdwVdcJcGjeXpYJjHNY1ybB0W3IZ+7ImglQeW3KcbFpbopldeygl1SAG3wL9Vn8K3rIZ
- R8jazb1jlTB/CfOpsz3sp+IJa+6v1YxvAPkmgRICBuONX9TnE2CqVzZ3iIK/UZfLcvPd
- +eVg==
-X-Gm-Message-State: AOAM531L+iGvO5ZKcZ2K6RueAalUuYkqsIFVJ5YnkGpa0CjiWNzdIPxC
- ZFkGCJfjPs2nhGcqq8aRdoPkRA==
-X-Google-Smtp-Source: ABdhPJyFm1OdK877ATfQ8sTTUFDzZf6kwJX19vO8QKfl9vfzuJo5UneDBXKKQgQprvUGJ1o25mQvVQ==
-X-Received: by 2002:a17:902:8605:b0:15d:10dc:1c6f with SMTP id
- f5-20020a170902860500b0015d10dc1c6fmr3781372plo.4.1651843277875; 
- Fri, 06 May 2022 06:21:17 -0700 (PDT)
-Received: from always-x1.www.tendawifi.com ([139.177.225.255])
+ h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+ :content-language:to:cc:references:from:in-reply-to
+ :content-transfer-encoding;
+ bh=PfUI54DC+Rd4JhaHhM79SH7hCQA6BnGmIDFJn3u5zLM=;
+ b=Lz4xzoALhGh0v6ptMCt1jpgGXPbZjAb7KJOwBol5mv3bhykuQs5TN9DsZl/qRaAUgU
+ GXEvuUeru6zlnYM1bLcm3b7CPbgUgI3X1K7DaRA2JoqfC8j6Fagm3z1P56vZCWoD4a92
+ aXdvPx0lBckZA9ThImA4N4O9aSZRCkho2iF7Pe0vaR0DdeMUYRqTZM8HNuc5G7zRLCij
+ VT8VbxurKYxEP25BMB3Kf7WE6AJUJYOM999789EiiYkcfb6EnUSxx9NKMkXrMIBt1AYg
+ BGTxnlf24D/hdsF6MN70LA69ruVq0rKbG8chFNhwl79zKdUHYYIEnnFK3w9qxZFrYvpK
+ 06aw==
+X-Gm-Message-State: AOAM531tm+5dVgWlxV6wXi7IEJbPZNGiVODn4/3fwYNrqbwaT7mohVfV
+ tm57/iTVTd+XrgUlr97D+yn9pQ==
+X-Google-Smtp-Source: ABdhPJySJILodY6XqJPjPbH87bJIVRNRr+CgOPpU7dPLFadY++HIHQRCjgCYnQukNaA1I2A/cUztMg==
+X-Received: by 2002:a63:8449:0:b0:3c6:4145:6a1c with SMTP id
+ k70-20020a638449000000b003c641456a1cmr2839205pgd.590.1651844544773; 
+ Fri, 06 May 2022 06:42:24 -0700 (PDT)
+Received: from [10.255.89.252] ([139.177.225.255])
  by smtp.gmail.com with ESMTPSA id
- i22-20020a63e916000000b003c14af50643sm3256986pgh.91.2022.05.06.06.21.13
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 06 May 2022 06:21:17 -0700 (PDT)
-From: zhenwei pi <pizhenwei@bytedance.com>
-To: arei.gonglei@huawei.com,
-	mst@redhat.com
-Subject: [PATCH v6 5/5] virtio-crypto: enable retry for virtio-crypto-dev
-Date: Fri,  6 May 2022 21:16:27 +0800
-Message-Id: <20220506131627.180784-6-pizhenwei@bytedance.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220506131627.180784-1-pizhenwei@bytedance.com>
-References: <20220506131627.180784-1-pizhenwei@bytedance.com>
+ s14-20020a056a001c4e00b0050dc76281fesm3333258pfw.216.2022.05.06.06.42.19
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Fri, 06 May 2022 06:42:24 -0700 (PDT)
+Message-ID: <3c0e25fb-695d-4a29-6de4-c892f89cea7a@bytedance.com>
+Date: Fri, 6 May 2022 21:38:29 +0800
 MIME-Version: 1.0
-Cc: helei.sig11@bytedance.com, linux-kernel@vger.kernel.org,
- pizhenwei@bytedance.com, virtualization@lists.linux-foundation.org,
- linux-crypto@vger.kernel.org, davem@davemloft.net, herbert@gondor.apana.org.au
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.1
+Subject: Re: Re: [PATCH 3/4] mm/memofy-failure.c: optimize hwpoison_filter
+Content-Language: en-US
+To: Naoya Horiguchi <naoya.horiguchi@linux.dev>
+References: <20220429142206.294714-1-pizhenwei@bytedance.com>
+ <20220429142206.294714-4-pizhenwei@bytedance.com>
+ <20220506085920.GC1356094@u2004>
+From: zhenwei pi <pizhenwei@bytedance.com>
+In-Reply-To: <20220506085920.GC1356094@u2004>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, naoya.horiguchi@nec.com,
+ linux-kernel@vger.kernel.org, "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>, linux-mm@kvack.org,
+ akpm@linux-foundation.org, Wu Fengguang <fengguang.wu@intel.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -101,43 +106,125 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: lei he <helei.sig11@bytedance.com>
 
-Enable retry for virtio-crypto-dev, so that crypto-engine
-can process cipher-requests parallelly.
 
-Cc: Michael S. Tsirkin <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: Gonglei <arei.gonglei@huawei.com>
-Reviewed-by: Gonglei <arei.gonglei@huawei.com>
-Signed-off-by: lei he <helei.sig11@bytedance.com>
-Signed-off-by: zhenwei pi <pizhenwei@bytedance.com>
----
- drivers/crypto/virtio/virtio_crypto_core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+On 5/6/22 16:59, Naoya Horiguchi wrote:
+> On Fri, Apr 29, 2022 at 10:22:05PM +0800, zhenwei pi wrote:
+>> In the memory failure procedure, hwpoison_filter has higher priority,
+>> if memory_filter() filters the error event, there is no need to do
+>> the further work.
+> 
+> Could you clarify what problem you are trying to solve (what does
+> "optimize" mean in this context or what is the benefit)?
+> 
 
-diff --git a/drivers/crypto/virtio/virtio_crypto_core.c b/drivers/crypto/virtio/virtio_crypto_core.c
-index 60490ffa3df1..1198bd306365 100644
---- a/drivers/crypto/virtio/virtio_crypto_core.c
-+++ b/drivers/crypto/virtio/virtio_crypto_core.c
-@@ -144,7 +144,8 @@ static int virtcrypto_find_vqs(struct virtio_crypto *vi)
- 		spin_lock_init(&vi->data_vq[i].lock);
- 		vi->data_vq[i].vq = vqs[i];
- 		/* Initialize crypto engine */
--		vi->data_vq[i].engine = crypto_engine_alloc_init(dev, 1);
-+		vi->data_vq[i].engine = crypto_engine_alloc_init_and_set(dev, true, NULL, true,
-+						virtqueue_get_vring_size(vqs[i]));
- 		if (!vi->data_vq[i].engine) {
- 			ret = -ENOMEM;
- 			goto err_engine;
+OK. The background of this work:
+As well known, the memory failure mechanism handles memory corrupted 
+event, and try to send SIGBUS to the user process which uses this 
+corrupted page.
+
+For the virtualization case, QEMU catches SIGBUS and tries to inject MCE 
+into the guest, and the guest handles memory failure again. Thus the 
+guest gets the minimal effect from hardware memory corruption.
+
+The further step I'm working on:
+1, try to modify code to decrease poisoned pages in a single place 
+(mm/memofy-failure.c: simplify num_poisoned_pages_dec in this series).
+
+2, try to use page_handle_poison() to handle SetPageHWPoison() and 
+num_poisoned_pages_inc() together. It would be best to call 
+num_poisoned_pages_inc() in a single place too. I'm not sure if this is 
+possible or not, please correct me if I misunderstand.
+
+3, introduce memory failure notifier list in memory-failure.c: notify 
+the corrupted PFN to someone who registers this list.
+If I can complete [1] and [2] part, [3] will be quite easy(just call 
+notifier list after increasing poisoned page).
+
+4, introduce memory recover VQ for memory balloon device, and registers 
+memory failure notifier list. During the guest kernel handles memory 
+failure, balloon device gets notified by memory failure notifier list, 
+and tells the host to recover the corrupted PFN(GPA) by the new VQ.
+
+5, host side remaps the corrupted page(HVA), and tells the guest side to 
+unpoison the PFN(GPA). Then the guest fixes the corrupted page(GPA) 
+dynamically.
+
+Because [4] and [5] are related to balloon device, also CC Michael, 
+David and Jason.
+
+> Now hwpoison_filter() can be called both with *and* without taking page refcount.
+> It's mainly called *with* taking page refcount in order to make sure that the
+> actual handling process is executed only for pages that meet a given condition.
+> IOW, it's important to prevent pages which do not meet the condition from going
+> ahead to further steps (false-positive is not permitted).  So this type of
+> callsite should not be omittable.
+> 
+> As for the other case, hwpoison_filter() is also called in hwpoison_inject()
+> *without* taking page refcount.  This actually has a different nuance and
+> intended to speculatively filter the injection events before setting
+> PageHWPoison flag to reduce the noise due to setting PG_hwpoison temporary.
+> The point is that it's not intended here to filter precisely and this callsite
+> is omittable.
+> 
+> So in my understanding, we need keep hwpoison_filter() after taking page
+> refcount as we do now.  Maybe optionally and additionally calling
+> hwpoison_filter() at the beginning of memory_failure() might be possible,
+> but I'm not sure yet how helpful...
+> 
+> Thanks,
+> Naoya Horiguchi
+> 
+>>
+>> Cc: Wu Fengguang <fengguang.wu@intel.com>
+>> Signed-off-by: zhenwei pi <pizhenwei@bytedance.com>
+>> ---
+>>   mm/memory-failure.c | 14 +++++---------
+>>   1 file changed, 5 insertions(+), 9 deletions(-)
+>>
+>> diff --git a/mm/memory-failure.c b/mm/memory-failure.c
+>> index ece05858568f..a6a27c8b800f 100644
+>> --- a/mm/memory-failure.c
+>> +++ b/mm/memory-failure.c
+>> @@ -1800,6 +1800,11 @@ int memory_failure(unsigned long pfn, int flags)
+>>   		goto unlock_mutex;
+>>   	}
+>>   
+>> +	if (hwpoison_filter(p)) {
+>> +		res = -EOPNOTSUPP;
+>> +		goto unlock_mutex;
+>> +	}
+>> +
+>>   try_again:
+>>   	res = try_memory_failure_hugetlb(pfn, flags, &hugetlb);
+>>   	if (hugetlb)
+>> @@ -1937,15 +1942,6 @@ int memory_failure(unsigned long pfn, int flags)
+>>   	 */
+>>   	page_flags = p->flags;
+>>   
+>> -	if (hwpoison_filter(p)) {
+>> -		if (TestClearPageHWPoison(p))
+>> -			num_poisoned_pages_dec();
+>> -		unlock_page(p);
+>> -		put_page(p);
+>> -		res = -EOPNOTSUPP;
+>> -		goto unlock_mutex;
+>> -	}
+>> -
+>>   	/*
+>>   	 * __munlock_pagevec may clear a writeback page's LRU flag without
+>>   	 * page_lock. We need wait writeback completion for this page or it
+>> -- 
+>> 2.20.1
+>>
+
 -- 
-2.20.1
-
+zhenwei pi
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
