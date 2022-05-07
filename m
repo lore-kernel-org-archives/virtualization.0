@@ -4,103 +4,78 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2BABCC433F5
-	for <virtualization@archiver.kernel.org>; Sat,  7 May 2022 06:55:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id CCD13C433EF
+	for <virtualization@archiver.kernel.org>; Sat,  7 May 2022 07:20:13 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id C59B340185;
-	Sat,  7 May 2022 06:55:54 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 4B9CD405B4;
+	Sat,  7 May 2022 07:20:13 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ZAr6QW3PgEFj; Sat,  7 May 2022 06:55:54 +0000 (UTC)
+	with ESMTP id tt797fCfR92D; Sat,  7 May 2022 07:20:12 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 5E93240025;
-	Sat,  7 May 2022 06:55:53 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id ABDFC40025;
+	Sat,  7 May 2022 07:20:11 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 40500C0032;
-	Sat,  7 May 2022 06:55:53 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id CC8E4C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7FD02C0039;
+	Sat,  7 May 2022 07:20:11 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 46790C002D
  for <virtualization@lists.linux-foundation.org>;
- Sat,  7 May 2022 06:55:51 +0000 (UTC)
+ Sat,  7 May 2022 07:20:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id A6A9D60BF5
+ by smtp3.osuosl.org (Postfix) with ESMTP id 2E95060DFF
  for <virtualization@lists.linux-foundation.org>;
- Sat,  7 May 2022 06:55:51 +0000 (UTC)
+ Sat,  7 May 2022 07:20:10 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp3.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id jrQgyQBYjrEQ
+ with ESMTP id mip0lepwGcAt
  for <virtualization@lists.linux-foundation.org>;
- Sat,  7 May 2022 06:55:50 +0000 (UTC)
+ Sat,  7 May 2022 07:20:09 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id B8777607FF
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 72E5360DCB
  for <virtualization@lists.linux-foundation.org>;
- Sat,  7 May 2022 06:55:50 +0000 (UTC)
+ Sat,  7 May 2022 07:20:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1651906549;
+ s=mimecast20190719; t=1651908007;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=5ky9664jBBxipaK1+T4WD1CyHdwDxzdCPyIZwivjlQ8=;
- b=KSBCNFESphMoeeWYDiHVy4/1JslIh8iB3kKFvaZ+JvKHc/hZg4E0Q3rrQlbnSxkISSZhX6
- GfFIwaZ2Kv/tRHvMWsox+Y3ez1vbWzGfEM8m0c7vsVbo6NuLJHMkCWqQ6z99yqtQOHgs6S
- xBFkfou8zR/ic3x0hPl6oEExG+o3G/Q=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ content-transfer-encoding:content-transfer-encoding;
+ bh=G9fn9Vx3GvvQ05Jnhj8kd/SkzWXQ+qqrB/GBPEAxGNc=;
+ b=D+lrq041TWrI6RUZWD33DOmWha2QXtDhqYMh5wmz0Qr3tUDGhcUTcYqcrxUE9WNqpPWEvn
+ r9cjvFmh85zCV3Qb9PJ+khpMI5Y8NBlCpL+EHSQA5AlIJyBLfn1SH1CiA7Z+UrlPYEyTH8
+ k9yAX9dpuuFRMdDoMugP9Vp/HAJdEMk=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-634-1B7MGSh2PcKa2dgaGvM1Dw-1; Sat, 07 May 2022 02:55:40 -0400
-X-MC-Unique: 1B7MGSh2PcKa2dgaGvM1Dw-1
-Received: by mail-wm1-f71.google.com with SMTP id
- c62-20020a1c3541000000b0038ec265155fso7215130wma.6
- for <virtualization@lists.linux-foundation.org>;
- Fri, 06 May 2022 23:55:40 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=5ky9664jBBxipaK1+T4WD1CyHdwDxzdCPyIZwivjlQ8=;
- b=X72Xy9NgQKh81D7Sm11pXFimgzXPXfeslBGlm0UzzOetkVD82+HXwmT9/zD8bCZanz
- FMHfchOkG5bkGKtMSLLg2m6rHTponek0BPG1TgXOx7dID77TWCITB74l7R5J0IukFP4u
- AE+bogpK8WJPNuwf1+Xu82VrJFGVbvfiJyJU5YFas7L3NHVvaOyDDwFvk4tRCHxU0Pxq
- iPDpGVqQAwPqX3e7n8jPnmQsR6pP48JjAKcvh6pkOjmIT0Dzw7HuaoC0DcEbhtKhhPi5
- wD6f3SjJ2vkGRzvbpLdcL946lDjCSUlT8NTDMY4qUwyMEz0dsljtbbJvJidvYFgnjxr/
- O5lA==
-X-Gm-Message-State: AOAM530BUOnSBY9u9fluoFXIyVqI+PcOXl90oditSqVHM2We8LpgjkyU
- gFLcso+yOuvprfReCE49WPJkh1tJATJA5kA5SqkX0xc2Lon2fEBxXcodOlHmECquVimEcKutovH
- pRyQOKFjWrkNE5NTbM1Q16eLSe1atABx/QqqY3eml2A==
-X-Received: by 2002:a5d:5887:0:b0:20c:83c9:b72 with SMTP id
- n7-20020a5d5887000000b0020c83c90b72mr5533769wrf.588.1651906539534; 
- Fri, 06 May 2022 23:55:39 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwBtR1KWNuMpwef5G9NX642kzlWT08eDCiawrk/2foN5QTS+D1MNeZJ72hyJtzipf1hz24aGA==
-X-Received: by 2002:a5d:5887:0:b0:20c:83c9:b72 with SMTP id
- n7-20020a5d5887000000b0020c83c90b72mr5533755wrf.588.1651906539325; 
- Fri, 06 May 2022 23:55:39 -0700 (PDT)
-Received: from redhat.com ([2.55.154.141]) by smtp.gmail.com with ESMTPSA id
- t18-20020a5d6912000000b0020c5253d913sm5154408wru.95.2022.05.06.23.55.37
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 06 May 2022 23:55:38 -0700 (PDT)
-Date: Sat, 7 May 2022 02:55:35 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jakub Kicinski <kuba@kernel.org>
-Subject: Re: [PATCH net-next 5/6] net: virtio: switch to
- netif_napi_add_weight()
-Message-ID: <20220507025428-mutt-send-email-mst@kernel.org>
-References: <20220506170751.822862-1-kuba@kernel.org>
- <20220506170751.822862-6-kuba@kernel.org>
+ us-mta-59-gCj31TyTOUGDVpUyyrhcQA-1; Sat, 07 May 2022 03:20:04 -0400
+X-MC-Unique: gCj31TyTOUGDVpUyyrhcQA-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.2])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 4B47880A0AD;
+ Sat,  7 May 2022 07:20:04 +0000 (UTC)
+Received: from localhost.localdomain (ovpn-13-216.pek2.redhat.com
+ [10.72.13.216])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 36DEE40D2971;
+ Sat,  7 May 2022 07:19:56 +0000 (UTC)
+From: Jason Wang <jasowang@redhat.com>
+To: jasowang@redhat.com, mst@redhat.com,
+ virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Subject: [PATCH V4 0/9] rework on the IRQ hardening of virtio
+Date: Sat,  7 May 2022 15:19:45 +0800
+Message-Id: <20220507071954.14455-1-jasowang@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20220506170751.822862-6-kuba@kernel.org>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org,
- edumazet@google.com, pabeni@redhat.com, davem@davemloft.net
+X-Scanned-By: MIMEDefang 2.84 on 10.11.54.2
+Cc: lulu@redhat.com, paulmck@kernel.org, peterz@infradead.org, maz@kernel.org,
+ cohuck@redhat.com, pasic@linux.ibm.com, eperezma@redhat.com,
+ tglx@linutronix.de
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -117,39 +92,80 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, May 06, 2022 at 10:07:50AM -0700, Jakub Kicinski wrote:
-> virtio netdev driver uses a custom napi weight, switch to the new
-> API for setting custom weight.
-> 
-> Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Hi All:
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+This is a rework on the IRQ hardening for virtio which is done
+previously by the following commits are reverted:
 
-> ---
-> CC: mst@redhat.com
-> CC: jasowang@redhat.com
-> CC: virtualization@lists.linux-foundation.org
-> ---
->  drivers/net/virtio_net.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index ebb98b796352..db05b5e930be 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -3313,8 +3313,8 @@ static int virtnet_alloc_queues(struct virtnet_info *vi)
->  	INIT_DELAYED_WORK(&vi->refill, refill_work);
->  	for (i = 0; i < vi->max_queue_pairs; i++) {
->  		vi->rq[i].pages = NULL;
-> -		netif_napi_add(vi->dev, &vi->rq[i].napi, virtnet_poll,
-> -			       napi_weight);
-> +		netif_napi_add_weight(vi->dev, &vi->rq[i].napi, virtnet_poll,
-> +				      napi_weight);
->  		netif_napi_add_tx_weight(vi->dev, &vi->sq[i].napi,
->  					 virtnet_poll_tx,
->  					 napi_tx ? napi_weight : 0);
-> -- 
-> 2.34.1
+9e35276a5344 ("virtio_pci: harden MSI-X interrupts")
+080cd7c3ac87 ("virtio-pci: harden INTX interrupts")
+
+The reason is that it depends on the IRQF_NO_AUTOEN which may conflict
+with the assumption of the affinity managed IRQ that is used by some
+virtio drivers. And what's more, it is only done for virtio-pci but
+not other transports.
+
+In this rework, I try to implement a general virtio solution which
+borrows the idea of the INTX hardening by re-using per virtqueue
+boolean vq->broken and toggle it in virtio_device_ready() and
+virtio_reset_device(). Then we can simply reuse the existing checks in
+the vring_interrupt() and return early if the driver is not ready.
+
+Note that, I only did compile test on ccw and MMIO transport.
+
+Please review.
+
+Changes since v1:
+
+- Use transport specific irq synchronization method when possible
+- Drop the module parameter and enable the hardening unconditonally
+- Tweak the barrier/ordering facilities used in the code
+- Reanme irq_soft_enabled to driver_ready
+- Avoid unnecssary IRQ synchornization (e.g during boot)
+
+Changes since V2:
+
+- add ccw and MMIO support
+- rename synchronize_vqs() to synchronize_cbs()
+- switch to re-use vq->broken instead of introducing new device
+  attributes for the future virtqueue reset support
+- remove unnecssary READ_ONCE()/WRITE_ONCE()
+- a new patch to remove device triggerable BUG_ON()
+- more tweaks on the comments
+
+Changes since V3:
+
+- Rename synchornize_vqs() to synchronize_cbs()
+- tweak the comment for synchronize_cbs()
+- switch to use a dedicated helper __virtio_unbreak_device() and
+  document it should be only used for probing
+- switch to use rwlick to synchornize the non airq for ccw
+
+Jason Wang (8):
+  virtio: use virtio_reset_device() when possible
+  virtio: introduce config op to synchronize vring callbacks
+  virtio-pci: implement synchronize_cbs()
+  virtio-mmio: implement synchronize_cbs()
+  virtio-ccw: implement synchronize_cbs()
+  virtio: allow to unbreak virtqueue
+  virtio: harden vring IRQ
+  virtio: use WARN_ON() to warning illegal status value
+
+Stefano Garzarella (1):
+  virtio: use virtio_device_ready() in virtio_device_restore()
+
+ drivers/s390/virtio/virtio_ccw.c   | 27 +++++++++++++++++++++
+ drivers/virtio/virtio.c            | 24 ++++++++++++------
+ drivers/virtio/virtio_mmio.c       |  9 +++++++
+ drivers/virtio/virtio_pci_legacy.c |  1 +
+ drivers/virtio/virtio_pci_modern.c |  2 ++
+ drivers/virtio/virtio_ring.c       | 32 +++++++++++++++++++++---
+ include/linux/virtio.h             |  1 +
+ include/linux/virtio_config.h      | 39 +++++++++++++++++++++++++++++-
+ 8 files changed, 123 insertions(+), 12 deletions(-)
+
+-- 
+2.25.1
 
 _______________________________________________
 Virtualization mailing list
