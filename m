@@ -1,84 +1,83 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 628B3C433EF
-	for <virtualization@archiver.kernel.org>; Mon,  9 May 2022 15:34:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B518FC433EF
+	for <virtualization@archiver.kernel.org>; Mon,  9 May 2022 21:39:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id EA48A41528;
-	Mon,  9 May 2022 15:34:57 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 36940409C1;
+	Mon,  9 May 2022 21:39:30 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id IKeRVKIs602D; Mon,  9 May 2022 15:34:56 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 4F32E408C7;
-	Mon,  9 May 2022 15:34:56 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0FE78C0032;
-	Mon,  9 May 2022 15:34:56 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D09F1C002D
- for <virtualization@lists.linux-foundation.org>;
- Mon,  9 May 2022 15:34:54 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id BD8AC408B2
- for <virtualization@lists.linux-foundation.org>;
- Mon,  9 May 2022 15:34:54 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id bKqLMwi6amxv
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id FmZRmEkwsXCD; Mon,  9 May 2022 21:39:29 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id A93224000B;
+	Mon,  9 May 2022 21:39:28 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 78AACC0032;
+	Mon,  9 May 2022 21:39:28 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id DB2EBC002D
  for <virtualization@lists.linux-foundation.org>;
- Mon,  9 May 2022 15:34:53 +0000 (UTC)
+ Mon,  9 May 2022 21:39:26 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id C91B760615
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  9 May 2022 21:39:26 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=kernel.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 1ZFsDCY5gidV
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  9 May 2022 21:39:25 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 8FB4340253
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 8E49E60585
  for <virtualization@lists.linux-foundation.org>;
- Mon,  9 May 2022 15:34:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1652110492;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=XLE5gs9AKC1Mbx8szbb4ijRB1DOaSzEm2Mb45RW/k5o=;
- b=arJJORKw0U35DOpIteyIwIb0ZqTWE2jFnhVvlEsHI06z07480/tDQobg93MYneI8UsWEuL
- DCdBcVqi3tbsduNP5Xr7E1ufh4L2oui+Tqj/iuU+0LbhjXJ6HsYA5wT3Tzc3Ef6P3F8WoK
- G/GSCgnVlwnol9Rg5pKk23DDfyGgCPc=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-542-8oR-qA49MbqZ64FzhsNhyg-1; Mon, 09 May 2022 11:34:48 -0400
-X-MC-Unique: 8oR-qA49MbqZ64FzhsNhyg-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com
- [10.11.54.8])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ Mon,  9 May 2022 21:39:25 +0000 (UTC)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 838B286B8A2;
- Mon,  9 May 2022 15:34:47 +0000 (UTC)
-Received: from localhost (unknown [10.39.193.170])
- by smtp.corp.redhat.com (Postfix) with ESMTPS id 30B7AC27E83;
- Mon,  9 May 2022 15:34:47 +0000 (UTC)
-From: Cornelia Huck <cohuck@redhat.com>
-To: Jason Wang <jasowang@redhat.com>, jasowang@redhat.com, mst@redhat.com,
- virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH V4 5/9] virtio-mmio: implement synchronize_cbs()
-In-Reply-To: <20220507071954.14455-6-jasowang@redhat.com>
-Organization: Red Hat GmbH
-References: <20220507071954.14455-1-jasowang@redhat.com>
- <20220507071954.14455-6-jasowang@redhat.com>
-User-Agent: Notmuch/0.34 (https://notmuchmail.org)
-Date: Mon, 09 May 2022 17:34:45 +0200
-Message-ID: <8735hi4t4a.fsf@redhat.com>
+ by dfw.source.kernel.org (Postfix) with ESMTPS id 2C2F16173E;
+ Mon,  9 May 2022 21:39:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D98FBC385BF;
+ Mon,  9 May 2022 21:39:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1652132363;
+ bh=bGVROk1yCVFbw1tN5TwGGaOX8G0Pd3s1D8n+lUcuavY=;
+ h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+ b=jIjU+8tpltcUUdOqWb8RQToebMMi7jlG6EnTVHQBvz5t4l//CxxmzayoSnWIXtjIq
+ fy84fHDqbtXeMASASk++DG2/cUJ91hHqe+1Of9X3a0Eqm2Ev0LsG2q4HBN1O49pRh/
+ joc0a+YLoJYyXOtV+WB+uOq6+Eg9WZ38FDg+fEdO7rWaYwefXDFa+7Z2682LO0g4He
+ fqu6yjT37l+A8wnb4ZLJ51/OtFAAs5lLs25jPNFrue7rXsnPkmBkwix4cn5/5iwLu6
+ rQglFPRi0M/Wk8iwB4xrNXNUkRTDsHz+TWohutLj7rphd2GX07IfzohFQHQSlMvjcM
+ 6uDxuOP7Y4MIQ==
+Date: Mon, 9 May 2022 14:39:22 -0700 (PDT)
+From: Stefano Stabellini <sstabellini@kernel.org>
+X-X-Sender: sstabellini@ubuntu-linux-20-04-desktop
+To: Oleksandr Tyshchenko <olekstysh@gmail.com>
+Subject: Re: [PATCH V2 5/7] dt-bindings: Add xen,
+ dev-domid property description for xen-grant DMA ops
+In-Reply-To: <1651947548-4055-6-git-send-email-olekstysh@gmail.com>
+Message-ID: <alpine.DEB.2.22.394.2205091436390.43560@ubuntu-linux-20-04-desktop>
+References: <1651947548-4055-1-git-send-email-olekstysh@gmail.com>
+ <1651947548-4055-6-git-send-email-olekstysh@gmail.com>
+User-Agent: Alpine 2.22 (DEB 394 2020-01-19)
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.85 on 10.11.54.8
-Cc: lulu@redhat.com, paulmck@kernel.org, peterz@infradead.org, maz@kernel.org,
- pasic@linux.ibm.com, eperezma@redhat.com, tglx@linutronix.de
+Cc: Juergen Gross <jgross@suse.com>, devicetree@vger.kernel.org,
+ Stefano Stabellini <sstabellini@kernel.org>, Julien Grall <julien@xen.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org,
+ Christoph Hellwig <hch@infradead.org>,
+ Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+ Jean-Philippe Brucker <jean-philippe@linaro.org>,
+ Rob Herring <robh+dt@kernel.org>, xen-devel@lists.xenproject.org,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, linux-arm-kernel@lists.infradead.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -95,23 +94,124 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sat, May 07 2022, Jason Wang <jasowang@redhat.com> wrote:
+On Sat, 7 May 2022, Oleksandr Tyshchenko wrote:
+> From: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
+> 
+> Introduce Xen specific binding for the virtualized device (e.g. virtio)
+> to be used by Xen grant DMA-mapping layer in the subsequent commit.
+> 
+> This binding indicates that Xen grant mappings scheme needs to be
+> enabled for the device which DT node contains that property and specifies
+> the ID of Xen domain where the corresponding backend resides. The ID
+> (domid) is used as an argument to the grant mapping APIs.
+> 
+> This is needed for the option to restrict memory access using Xen grant
+> mappings to work which primary goal is to enable using virtio devices
+> in Xen guests.
+> 
+> Signed-off-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
 
-> Simply synchronize the platform irq that is used by us.
->
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Peter Zijlstra <peterz@infradead.org>
-> Cc: "Paul E. McKenney" <paulmck@kernel.org>
-> Cc: Marc Zyngier <maz@kernel.org>
-> Cc: Halil Pasic <pasic@linux.ibm.com>
-> Cc: Cornelia Huck <cohuck@redhat.com>
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
+The binding is OK and the wording is OK too.
+
+Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
+
+I am not an expert on the details of writing a good schema, I'll defer
+to Rob if he has any comments on that.
+
+
 > ---
->  drivers/virtio/virtio_mmio.c | 9 +++++++++
->  1 file changed, 9 insertions(+)
-
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-
+> Changes RFC -> V1:
+>    - update commit subject/description and text in description
+>    - move to devicetree/bindings/arm/
+> 
+> Changes V1 -> V2:
+>    - update text in description
+>    - change the maintainer of the binding
+>    - fix validation issue
+>    - reference xen,dev-domid.yaml schema from virtio/mmio.yaml
+> ---
+>  .../devicetree/bindings/arm/xen,dev-domid.yaml     | 37 ++++++++++++++++++++++
+>  Documentation/devicetree/bindings/virtio/mmio.yaml |  7 ++++
+>  2 files changed, 44 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/arm/xen,dev-domid.yaml
+> 
+> diff --git a/Documentation/devicetree/bindings/arm/xen,dev-domid.yaml b/Documentation/devicetree/bindings/arm/xen,dev-domid.yaml
+> new file mode 100644
+> index 00000000..750e89e
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/arm/xen,dev-domid.yaml
+> @@ -0,0 +1,37 @@
+> +# SPDX-License-Identifier: (GPL-2.0-only or BSD-2-Clause)
+> +%YAML 1.2
+> +---
+> +$id: http://devicetree.org/schemas/arm/xen,dev-domid.yaml#
+> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> +
+> +title: Xen specific binding for virtualized devices (e.g. virtio)
+> +
+> +maintainers:
+> +  - Stefano Stabellini <sstabellini@kernel.org>
+> +
+> +select: true
+> +
+> +description:
+> +  This binding indicates that Xen grant mappings need to be enabled for
+> +  the device, and it specifies the ID of the domain where the corresponding
+> +  device (backend) resides. The property is required to restrict memory
+> +  access using Xen grant mappings.
+> +
+> +properties:
+> +  xen,dev-domid:
+> +    $ref: /schemas/types.yaml#/definitions/uint32
+> +    description:
+> +      The domid (domain ID) of the domain where the device (backend) is running.
+> +
+> +additionalProperties: true
+> +
+> +examples:
+> +  - |
+> +    virtio@3000 {
+> +            compatible = "virtio,mmio";
+> +            reg = <0x3000 0x100>;
+> +            interrupts = <41>;
+> +
+> +            /* The device is located in Xen domain with ID 1 */
+> +            xen,dev-domid = <1>;
+> +    };
+> diff --git a/Documentation/devicetree/bindings/virtio/mmio.yaml b/Documentation/devicetree/bindings/virtio/mmio.yaml
+> index 10c22b5..29a0932 100644
+> --- a/Documentation/devicetree/bindings/virtio/mmio.yaml
+> +++ b/Documentation/devicetree/bindings/virtio/mmio.yaml
+> @@ -13,6 +13,9 @@ description:
+>    See https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=virtio for
+>    more details.
+>  
+> +allOf:
+> +  - $ref: /schemas/arm/xen,dev-domid.yaml#
+> +
+>  properties:
+>    compatible:
+>      const: virtio,mmio
+> @@ -33,6 +36,10 @@ properties:
+>      description: Required for devices making accesses thru an IOMMU.
+>      maxItems: 1
+>  
+> +  xen,dev-domid:
+> +    description: Required when Xen grant mappings need to be enabled for device.
+> +    $ref: /schemas/types.yaml#/definitions/uint32
+> +
+>  required:
+>    - compatible
+>    - reg
+> -- 
+> 2.7.4
+> 
+> 
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+> 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
