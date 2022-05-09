@@ -4,114 +4,99 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id EDF2FC433F5
-	for <virtualization@archiver.kernel.org>; Mon,  9 May 2022 07:07:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 24497C433F5
+	for <virtualization@archiver.kernel.org>; Mon,  9 May 2022 08:02:28 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 9404160F31;
-	Mon,  9 May 2022 07:07:35 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id BD50160F32;
+	Mon,  9 May 2022 08:02:27 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id RcfbXK_ekooG; Mon,  9 May 2022 07:07:34 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id BFE1860AFF;
-	Mon,  9 May 2022 07:07:33 +0000 (UTC)
+	with ESMTP id MS7jPEYaSfef; Mon,  9 May 2022 08:02:26 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 29D4D60B89;
+	Mon,  9 May 2022 08:02:26 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A1361C0032;
-	Mon,  9 May 2022 07:07:33 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id F2C66C0032;
+	Mon,  9 May 2022 08:02:25 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id BFC35C002D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 29616C002D
  for <virtualization@lists.linux-foundation.org>;
- Mon,  9 May 2022 07:07:32 +0000 (UTC)
+ Mon,  9 May 2022 08:02:24 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 96C264023F
+ by smtp4.osuosl.org (Postfix) with ESMTP id 062A94054A
  for <virtualization@lists.linux-foundation.org>;
- Mon,  9 May 2022 07:07:32 +0000 (UTC)
+ Mon,  9 May 2022 08:02:24 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp4.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id hH8wj6LnxMMz
+ with ESMTP id HZy4fiCuG12N
  for <virtualization@lists.linux-foundation.org>;
- Mon,  9 May 2022 07:07:31 +0000 (UTC)
+ Mon,  9 May 2022 08:02:23 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 0677440203
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id C39CE4049F
  for <virtualization@lists.linux-foundation.org>;
- Mon,  9 May 2022 07:07:30 +0000 (UTC)
+ Mon,  9 May 2022 08:02:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1652080049;
+ s=mimecast20190719; t=1652083341;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=XJB9Em6I7OuLyYTTBEaXQS40dd84xL6H6gQSfOQOSK4=;
- b=GRWs4DQhY6XpTeJ7ZW1bxIl80mIb0FxZhyKyGvDQXNyNwE5UkCfSdfamx09eAPqsKmgELt
- WyHuzD1QMBU/xnXDiPhxLSofk9ZVvvfi6Z+yc3+elG7wBRRx/M+1MMue0ArkBvd7coIezP
- cfjQj9hXNBtL4p6ZfrYuWJFAlKA50U8=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=L0dEJhPvtpVY9vKuKdRWMDwwctVUgQ9NezFDM8exNt8=;
+ b=B1AImJcqZ3oQPt4E33u3t9ZAg3RfQ2z2m30lckw6s5/Awk2iSdE0diteM2VmAu7jC6ztL2
+ yx6ni9UvtWgOMplQLcvLK+mAPk+1mTdwsCBYjriU4gA/LImWcx+pq1pOV6TlyCL5fCeT6T
+ 0AkwaFIodEMAQOBs167i4JyHn81GukY=
+Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
+ [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-190-ZJFC34ZhONiAJSWKCwETPA-1; Mon, 09 May 2022 03:07:27 -0400
-X-MC-Unique: ZJFC34ZhONiAJSWKCwETPA-1
-Received: by mail-wr1-f72.google.com with SMTP id
- t17-20020adfa2d1000000b0020ac519c222so5378558wra.4
+ us-mta-277-VbDjPMDqPzSXJI39hFey0A-1; Mon, 09 May 2022 04:02:20 -0400
+X-MC-Unique: VbDjPMDqPzSXJI39hFey0A-1
+Received: by mail-lf1-f71.google.com with SMTP id
+ m2-20020a0565120a8200b00473a809c6e0so5510464lfu.11
  for <virtualization@lists.linux-foundation.org>;
- Mon, 09 May 2022 00:07:27 -0700 (PDT)
+ Mon, 09 May 2022 01:02:20 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=XJB9Em6I7OuLyYTTBEaXQS40dd84xL6H6gQSfOQOSK4=;
- b=AYRhU3Owxzc3tYSwDVpHSLOTij4VQH8YzccjAoC0TD+xKCv/9DzXw/fNyxHHmaJaGD
- sBFci3YUjYWcZ/ql/B7NVyM8xCcxCW3R+gv03gP6Mgn7bVl6JlQiGEdx85guIlpmPLOV
- bNiDcLWu+dZEV7bmAXWVyaCjyikMKNMZz6f0rZ6pn2RlOJZedEKWH5fjOx7gp1xaIvkD
- 3+akAU4cGThuv23bJmFLn4Sn6R/J5ZBfoX/lYvy8UOTv8zGUFP46Gf3L5eGmp8FYXqJP
- vIw5I6WLryQujDtgAz2XMZU7+0BosgfIW2PVGjsMKu2w/DeUJVITdiF6mWJZBE4+5ycn
- zE1Q==
-X-Gm-Message-State: AOAM5301dA/9V7CyeyGwv1KrnKwVNqbqDc+ur/tio5YbgAAJOCTFEcIV
- X7sRH29s9pKq4D1scGZlBG06gOS7XjwfPoOb/ZYuh2LEdPKSMSDkg6aX08hE7FG7FTea7at67TQ
- n7ZAK9RBfQx5fiWrNm8VcPhYBf/HNug9RKItFF5HVMg==
-X-Received: by 2002:a7b:cf04:0:b0:394:27c8:d28a with SMTP id
- l4-20020a7bcf04000000b0039427c8d28amr20487773wmg.94.1652080046257; 
- Mon, 09 May 2022 00:07:26 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyCyHCGQCbWEwWZ/UHI0DnttZzMiYsb/44YfiPVnJDRlGYZi1SIGptJp+PDbsNZyHEwx15Iog==
-X-Received: by 2002:a7b:cf04:0:b0:394:27c8:d28a with SMTP id
- l4-20020a7bcf04000000b0039427c8d28amr20487743wmg.94.1652080045958; 
- Mon, 09 May 2022 00:07:25 -0700 (PDT)
-Received: from redhat.com ([2.53.130.81]) by smtp.gmail.com with ESMTPSA id
- l6-20020a05600c1d0600b003942a244f34sm15441415wms.13.2022.05.09.00.07.21
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 09 May 2022 00:07:24 -0700 (PDT)
-Date: Mon, 9 May 2022 03:07:18 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH v2 00/19] Control VQ support in vDPA
-Message-ID: <20220509030656-mutt-send-email-mst@kernel.org>
-References: <20220330180436.24644-1-gdawar@xilinx.com>
- <CACGkMEsPTui8XDLvvLCq4myx1gWh=W1=W_9tXe+Lps5ExdE4+g@mail.gmail.com>
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=L0dEJhPvtpVY9vKuKdRWMDwwctVUgQ9NezFDM8exNt8=;
+ b=1VSBE/DpyfO+AEkBVXbIMukfPO3afHxu/3XwSX6DUTwrrISeRX6uUnsIU5p5XT7q0k
+ cuOUVwPvo9/Zomae/BpD+tqJHQ+zAicxSA4dZKeXEmHLUjk9ionJvhrFAQSh7V0vPE0o
+ RSTr+U+mf0AF0jyhwiiPpen8PrtHkoBUeiLTzDYdXzKyH8Md/v6pEgbVhteCyxJFcVbC
+ ZqLPKpKBc7OGhhYDSBSxUeye+FHAGui+4Hn/K9ONAJTOJRy4p0bFNJhRmbdKsU1Ejww5
+ 36h6mQl7SSFQLmiOAmo3KyD915hMW/xk2NWrliA8YzMwqYHDf5Bqic7YfBMW9H89IQ6q
+ ZyaQ==
+X-Gm-Message-State: AOAM531kRxMiKFiLXkkm7VN+o2j9jYzde+n/eZ8HYWj80nFFlW7WvMm5
+ 2bK4uNueycn9KAakjC7oWO4IT0gWGSDkl7uVTvASNgo5Iw9vojlA0dHO67SwkkvPCsOwVSA2WC4
+ 9eqbij5lQM9fVBb9Jns+wH6GatPUp15b/PATxss1yPupIoVgCqgRVJ2/uqA==
+X-Received: by 2002:a05:651c:89:b0:250:87c9:d4e6 with SMTP id
+ 9-20020a05651c008900b0025087c9d4e6mr9955092ljq.315.1652083338931; 
+ Mon, 09 May 2022 01:02:18 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJz+R1VfoIPFwnxs6fui5BsHA9rC2X2yYYrOq5wpGklCNwM4/hEwSYAJG1Ghk78Cjqu1eMIefFsXW/FXguj6+c8=
+X-Received: by 2002:a05:651c:89:b0:250:87c9:d4e6 with SMTP id
+ 9-20020a05651c008900b0025087c9d4e6mr9955078ljq.315.1652083338682; Mon, 09 May
+ 2022 01:02:18 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEsPTui8XDLvvLCq4myx1gWh=W1=W_9tXe+Lps5ExdE4+g@mail.gmail.com>
+References: <20220509071426.155941-1-lulu@redhat.com>
+In-Reply-To: <20220509071426.155941-1-lulu@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 9 May 2022 16:02:06 +0800
+Message-ID: <CACGkMEuPoXp7kC1yVoTJ8jpgV8c+0=LcPbuZdzxm8D3v6jAmbQ@mail.gmail.com>
+Subject: Re: [PATCH v1] vdpa: Do not count the pages that were already pinned
+ in the vhost-vDPA
+To: Cindy Lu <lulu@redhat.com>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: tanuj.kamde@amd.com, kvm <kvm@vger.kernel.org>,
+Cc: netdev <netdev@vger.kernel.org>,
  virtualization <virtualization@lists.linux-foundation.org>,
- Wu Zongyong <wuzongyong@linux.alibaba.com>, Si-Wei Liu <si-wei.liu@oracle.com>,
- Pablo Cascon Katchadourian <pabloc@xilinx.com>, Eli Cohen <elic@nvidia.com>,
- Zhang Min <zhang.min9@zte.com.cn>, Xie Yongji <xieyongji@bytedance.com>,
- Martin Petrus Hubertus Habets <martinh@xilinx.com>,
- eperezma <eperezma@redhat.com>, Dinan Gunawardena <dinang@xilinx.com>,
- habetsm.xilinx@gmail.com, Longpeng <longpeng2@huawei.com>,
- Dan Carpenter <dan.carpenter@oracle.com>, Gautam Dawar <gdawar@xilinx.com>,
- Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
- Gautam Dawar <gautam.dawar@xilinx.com>, netdev <netdev@vger.kernel.org>,
- linux-kernel <linux-kernel@vger.kernel.org>, ecree.xilinx@gmail.com,
- Harpreet Singh Anand <hanand@xilinx.com>, Martin Porter <martinpo@xilinx.com>,
- Zhu Lingshan <lingshan.zhu@intel.com>
+ linux-kernel <linux-kernel@vger.kernel.org>, kvm <kvm@vger.kernel.org>,
+ mst <mst@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -128,176 +113,181 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, May 09, 2022 at 11:42:10AM +0800, Jason Wang wrote:
-> On Thu, Mar 31, 2022 at 2:05 AM Gautam Dawar <gautam.dawar@xilinx.com> wrote:
-> >
-> > Hi All:
-> >
-> > This series tries to add the support for control virtqueue in vDPA.
-> >
-> > Control virtqueue is used by networking device for accepting various
-> > commands from the driver. It's a must to support multiqueue and other
-> > configurations.
-> >
-> > When used by vhost-vDPA bus driver for VM, the control virtqueue
-> > should be shadowed via userspace VMM (Qemu) instead of being assigned
-> > directly to Guest. This is because Qemu needs to know the device state
-> > in order to start and stop device correctly (e.g for Live Migration).
-> >
-> > This requies to isolate the memory mapping for control virtqueue
-> > presented by vhost-vDPA to prevent guest from accessing it directly.
-> >
-> > To achieve this, vDPA introduce two new abstractions:
-> >
-> > - address space: identified through address space id (ASID) and a set
-> >                  of memory mapping in maintained
-> > - virtqueue group: the minimal set of virtqueues that must share an
-> >                  address space
-> >
-> > Device needs to advertise the following attributes to vDPA:
-> >
-> > - the number of address spaces supported in the device
-> > - the number of virtqueue groups supported in the device
-> > - the mappings from a specific virtqueue to its virtqueue groups
-> >
-> > The mappings from virtqueue to virtqueue groups is fixed and defined
-> > by vDPA device driver. E.g:
-> >
-> > - For the device that has hardware ASID support, it can simply
-> >   advertise a per virtqueue group.
-> > - For the device that does not have hardware ASID support, it can
-> >   simply advertise a single virtqueue group that contains all
-> >   virtqueues. Or if it wants a software emulated control virtqueue, it
-> >   can advertise two virtqueue groups, one is for cvq, another is for
-> >   the rest virtqueues.
-> >
-> > vDPA also allow to change the association between virtqueue group and
-> > address space. So in the case of control virtqueue, userspace
-> > VMM(Qemu) may use a dedicated address space for the control virtqueue
-> > group to isolate the memory mapping.
-> >
-> > The vhost/vhost-vDPA is also extend for the userspace to:
-> >
-> > - query the number of virtqueue groups and address spaces supported by
-> >   the device
-> > - query the virtqueue group for a specific virtqueue
-> > - assocaite a virtqueue group with an address space
-> > - send ASID based IOTLB commands
-> >
-> > This will help userspace VMM(Qemu) to detect whether the control vq
-> > could be supported and isolate memory mappings of control virtqueue
-> > from the others.
-> >
-> > To demonstrate the usage, vDPA simulator is extended to support
-> > setting MAC address via a emulated control virtqueue.
-> >
-> > Please review.
-> 
-> Michael, this looks good to me, do you have comments on this?
-> 
-> Thanks
+On Mon, May 9, 2022 at 3:15 PM Cindy Lu <lulu@redhat.com> wrote:
+>
+> We count pinned_vm as follow in vhost-vDPA
+>
+>         lock_limit = rlimit(RLIMIT_MEMLOCK) >> PAGE_SHIFT;
+>         if (npages + atomic64_read(&dev->mm->pinned_vm) > lock_limit) {
+>                 ret = -ENOMEM;
+>                 goto unlock;
+>         }
+> This means if we have two vDPA devices for the same VM the pages would be counted twice
+> So we add a tree to save the page that counted and we will not count it again
+>
+> Signed-off-by: Cindy Lu <lulu@redhat.com>
+> ---
+>  drivers/vhost/vdpa.c     | 79 ++++++++++++++++++++++++++++++++++++++--
+>  include/linux/mm_types.h |  2 +
+>  2 files changed, 78 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+> index 05f5fd2af58f..48cb5c8264b5 100644
+> --- a/drivers/vhost/vdpa.c
+> +++ b/drivers/vhost/vdpa.c
+> @@ -24,6 +24,9 @@
+>  #include <linux/vhost.h>
+>
+>  #include "vhost.h"
+> +#include <linux/rbtree.h>
+> +#include <linux/interval_tree.h>
+> +#include <linux/interval_tree_generic.h>
+>
+>  enum {
+>         VHOST_VDPA_BACKEND_FEATURES =
+> @@ -505,6 +508,50 @@ static long vhost_vdpa_unlocked_ioctl(struct file *filep,
+>         mutex_unlock(&d->mutex);
+>         return r;
+>  }
+> +int vhost_vdpa_add_range_ctx(struct rb_root_cached *root, u64 start, u64 last)
+> +{
+> +       struct interval_tree_node *new_node;
+> +
+> +       if (last < start)
+> +               return -EFAULT;
+> +
+> +       /* If the range being mapped is [0, ULONG_MAX], split it into two entries
+> +        * otherwise its size would overflow u64.
+> +        */
+> +       if (start == 0 && last == ULONG_MAX) {
+> +               u64 mid = last / 2;
+> +
+> +               vhost_vdpa_add_range_ctx(root, start, mid);
+> +               start = mid + 1;
+> +       }
+> +
+> +       new_node = kmalloc(sizeof(struct interval_tree_node), GFP_ATOMIC);
+> +       if (!new_node)
+> +               return -ENOMEM;
+> +
+> +       new_node->start = start;
+> +       new_node->last = last;
+> +
+> +       interval_tree_insert(new_node, root);
+> +
+> +       return 0;
+> +}
+> +
+> +void vhost_vdpa_del_range(struct rb_root_cached *root, u64 start, u64 last)
+> +{
+> +       struct interval_tree_node *new_node;
+> +
+> +       while ((new_node = interval_tree_iter_first(root, start, last))) {
+> +               interval_tree_remove(new_node, root);
+> +               kfree(new_node);
+> +       }
+> +}
+> +
+> +struct interval_tree_node *vhost_vdpa_search_range(struct rb_root_cached *root,
+> +                                                  u64 start, u64 last)
+> +{
+> +       return interval_tree_iter_first(root, start, last);
+> +}
+>
+>  static void vhost_vdpa_pa_unmap(struct vhost_vdpa *v, u64 start, u64 last)
+>  {
+> @@ -513,6 +560,7 @@ static void vhost_vdpa_pa_unmap(struct vhost_vdpa *v, u64 start, u64 last)
+>         struct vhost_iotlb_map *map;
+>         struct page *page;
+>         unsigned long pfn, pinned;
+> +       struct interval_tree_node *new_node = NULL;
+>
+>         while ((map = vhost_iotlb_itree_first(iotlb, start, last)) != NULL) {
+>                 pinned = PFN_DOWN(map->size);
+> @@ -523,7 +571,18 @@ static void vhost_vdpa_pa_unmap(struct vhost_vdpa *v, u64 start, u64 last)
+>                                 set_page_dirty_lock(page);
+>                         unpin_user_page(page);
+>                 }
+> -               atomic64_sub(PFN_DOWN(map->size), &dev->mm->pinned_vm);
+> +
+> +               new_node = vhost_vdpa_search_range(&dev->mm->root_for_vdpa,
+> +                                                  map->start,
+> +                                                  map->start + map->size - 1);
+> +
+> +               if (new_node) {
+> +                       vhost_vdpa_del_range(&dev->mm->root_for_vdpa,
+> +                                            map->start,
+> +                                            map->start + map->size - 1);
+> +                       atomic64_sub(PFN_DOWN(map->size), &dev->mm->pinned_vm);
+> +               }
+> +
+>                 vhost_iotlb_map_free(iotlb, map);
+>         }
+>  }
+> @@ -591,6 +650,7 @@ static int vhost_vdpa_map(struct vhost_vdpa *v, u64 iova,
+>         struct vdpa_device *vdpa = v->vdpa;
+>         const struct vdpa_config_ops *ops = vdpa->config;
+>         int r = 0;
+> +       struct interval_tree_node *new_node = NULL;
+>
+>         r = vhost_iotlb_add_range_ctx(dev->iotlb, iova, iova + size - 1,
+>                                       pa, perm, opaque);
+> @@ -611,9 +671,22 @@ static int vhost_vdpa_map(struct vhost_vdpa *v, u64 iova,
+>                 return r;
+>         }
+>
+> -       if (!vdpa->use_va)
+> -               atomic64_add(PFN_DOWN(size), &dev->mm->pinned_vm);
+> +       if (!vdpa->use_va) {
+> +               new_node = vhost_vdpa_search_range(&dev->mm->root_for_vdpa,
+> +                                                  iova, iova + size - 1);
+> +
+> +               if (new_node == 0) {
+> +                       r = vhost_vdpa_add_range_ctx(&dev->mm->root_for_vdpa,
+> +                                                    iova, iova + size - 1);
+> +                       if (r) {
+> +                               vhost_iotlb_del_range(dev->iotlb, iova,
+> +                                                     iova + size - 1);
+> +                               return r;
+> +                       }
+>
+> +                       atomic64_add(PFN_DOWN(size), &dev->mm->pinned_vm);
+> +               }
 
+This seems not sufficient, consider:
 
-I'll merge this for next.
+vhost-vDPA-A: add [A, B)
+vhost-vDPA-B: add [A, C) (C>B)
 
-> >
-> > Changes since RFC v2:
-> >
-> > - Fixed memory leak for asid 0 in vhost_vdpa_remove_as()
-> > - Removed unnecessary NULL check for iotlb in vhost_vdpa_unmap() and
-> >   changed its return type to void.
-> > - Removed insignificant used_as member field from struct vhost_vdpa.
-> > - Corrected the iommu parameter in call to vringh_set_iotlb() from
-> >   vdpasim_set_group_asid()
-> > - Fixed build errors with vdpa_sim_net
-> > - Updated alibaba, vdpa_user and virtio_pci vdpa parent drivers to
-> >   call updated vDPA APIs and ensured successful build
-> > - Tested control (MAC address configuration) and data-path using
-> >   single virtqueue pair on Xilinx (now AMD) SN1022 SmartNIC device
-> >   and vdpa_sim_net software device using QEMU release at [1]
-> > - Removed two extra blank lines after set_group_asid() in
-> >   include/linux/vdpa.h
-> >
-> > Changes since v1:
-> >
-> > - Rebased the v1 patch series on vhost branch of MST vhost git repo
-> >   git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git/log/?h=vhost
-> > - Updates to accommodate vdpa_sim changes from monolithic module in
-> >   kernel used v1 patch series to current modularized class (net, block)
-> >   based approach.
-> > - Added new attributes (ngroups and nas) to "vdpasim_dev_attr" and
-> >   propagated them from vdpa_sim_net to vdpa_sim
-> > - Widened the data-type for "asid" member of vhost_msg_v2 to __u32
-> >   to accommodate PASID
-> > - Fixed the buildbot warnings
-> > - Resolved all checkpatch.pl errors and warnings
-> > - Tested both control and datapath with Xilinx Smartnic SN1000 series
-> >   device using QEMU implementing the Shadow virtqueue and support for
-> >   VQ groups and ASID available at [1]
-> >
-> > Changes since RFC:
-> >
-> > - tweak vhost uAPI documentation
-> > - switch to use device specific IOTLB really in patch 4
-> > - tweak the commit log
-> > - fix that ASID in vhost is claimed to be 32 actually but 16bit
-> >   actually
-> > - fix use after free when using ASID with IOTLB batching requests
-> > - switch to use Stefano's patch for having separated iov
-> > - remove unused "used_as" variable
-> > - fix the iotlb/asid checking in vhost_vdpa_unmap()
-> >
-> > [1] Development QEMU release with support for SVQ, VQ groups and ASID:
-> >   github.com/eugpermar/qemu/releases/tag/vdpa_sw_live_migration.d%2F
-> >   asid_groups-v1.d%2F00
-> >
-> > Thanks
-> >
-> > Gautam Dawar (19):
-> >   vhost: move the backend feature bits to vhost_types.h
-> >   virtio-vdpa: don't set callback if virtio doesn't need it
-> >   vhost-vdpa: passing iotlb to IOMMU mapping helpers
-> >   vhost-vdpa: switch to use vhost-vdpa specific IOTLB
-> >   vdpa: introduce virtqueue groups
-> >   vdpa: multiple address spaces support
-> >   vdpa: introduce config operations for associating ASID to a virtqueue
-> >     group
-> >   vhost_iotlb: split out IOTLB initialization
-> >   vhost: support ASID in IOTLB API
-> >   vhost-vdpa: introduce asid based IOTLB
-> >   vhost-vdpa: introduce uAPI to get the number of virtqueue groups
-> >   vhost-vdpa: introduce uAPI to get the number of address spaces
-> >   vhost-vdpa: uAPI to get virtqueue group id
-> >   vhost-vdpa: introduce uAPI to set group ASID
-> >   vhost-vdpa: support ASID based IOTLB API
-> >   vdpa_sim: advertise VIRTIO_NET_F_MTU
-> >   vdpa_sim: factor out buffer completion logic
-> >   vdpa_sim: filter destination mac address
-> >   vdpasim: control virtqueue support
-> >
-> >  drivers/vdpa/alibaba/eni_vdpa.c      |   2 +-
-> >  drivers/vdpa/ifcvf/ifcvf_main.c      |   8 +-
-> >  drivers/vdpa/mlx5/net/mlx5_vnet.c    |  11 +-
-> >  drivers/vdpa/vdpa.c                  |   5 +
-> >  drivers/vdpa/vdpa_sim/vdpa_sim.c     | 100 ++++++++--
-> >  drivers/vdpa/vdpa_sim/vdpa_sim.h     |   3 +
-> >  drivers/vdpa/vdpa_sim/vdpa_sim_net.c | 169 +++++++++++++----
-> >  drivers/vdpa/vdpa_user/vduse_dev.c   |   3 +-
-> >  drivers/vdpa/virtio_pci/vp_vdpa.c    |   2 +-
-> >  drivers/vhost/iotlb.c                |  23 ++-
-> >  drivers/vhost/vdpa.c                 | 267 +++++++++++++++++++++------
-> >  drivers/vhost/vhost.c                |  23 ++-
-> >  drivers/vhost/vhost.h                |   4 +-
-> >  drivers/virtio/virtio_vdpa.c         |   2 +-
-> >  include/linux/vdpa.h                 |  44 ++++-
-> >  include/linux/vhost_iotlb.h          |   2 +
-> >  include/uapi/linux/vhost.h           |  26 ++-
-> >  include/uapi/linux/vhost_types.h     |  11 +-
-> >  18 files changed, 563 insertions(+), 142 deletions(-)
-> >
-> > --
-> > 2.30.1
-> >
+We lose the accounting for [B, C)?
+
+> +       }
+>         return 0;
+>  }
+>
+> diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
+> index 5140e5feb486..46eaa6d0560b 100644
+> --- a/include/linux/mm_types.h
+> +++ b/include/linux/mm_types.h
+> @@ -634,6 +634,8 @@ struct mm_struct {
+>  #ifdef CONFIG_IOMMU_SUPPORT
+>                 u32 pasid;
+>  #endif
+> +               struct rb_root_cached root_for_vdpa;
+> +
+
+Let's avoid touching mm_structure unless it's a must.
+
+We can allocate something like vhost_mm if needed during SET_OWNER.
+
+Thanks
+
+>         } __randomize_layout;
+>
+>         /*
+> --
+> 2.34.1
+>
 
 _______________________________________________
 Virtualization mailing list
