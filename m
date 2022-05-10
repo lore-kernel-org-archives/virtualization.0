@@ -1,101 +1,83 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6473DC433FE
-	for <virtualization@archiver.kernel.org>; Tue, 10 May 2022 07:56:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 64851C433EF
+	for <virtualization@archiver.kernel.org>; Tue, 10 May 2022 09:29:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id E65DD415EC;
-	Tue, 10 May 2022 07:56:51 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 09E5840A93;
+	Tue, 10 May 2022 09:29:42 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id vH9gWvA_fEdX; Tue, 10 May 2022 07:56:50 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id pEdAGXg6n18N; Tue, 10 May 2022 09:29:41 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 464AE415EA;
-	Tue, 10 May 2022 07:56:50 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 93E5340223;
+	Tue, 10 May 2022 09:29:40 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 19D29C0039;
-	Tue, 10 May 2022 07:56:50 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 77DD5C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 6A33FC0039;
+	Tue, 10 May 2022 09:29:40 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 48C11C002D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 10 May 2022 07:56:49 +0000 (UTC)
+ Tue, 10 May 2022 09:29:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 514FF415EB
+ by smtp3.osuosl.org (Postfix) with ESMTP id 2A0E060E6A
  for <virtualization@lists.linux-foundation.org>;
- Tue, 10 May 2022 07:56:49 +0000 (UTC)
+ Tue, 10 May 2022 09:29:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id FVmV4VGJrakc
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id GEdIFT-rxOEs
  for <virtualization@lists.linux-foundation.org>;
- Tue, 10 May 2022 07:56:48 +0000 (UTC)
+ Tue, 10 May 2022 09:29:37 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 57A98415EA
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 12DFC60701
  for <virtualization@lists.linux-foundation.org>;
- Tue, 10 May 2022 07:56:48 +0000 (UTC)
+ Tue, 10 May 2022 09:29:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1652169406;
+ s=mimecast20190719; t=1652174975;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=/c1ztnUjsSvwMC8tPkMNFQeFrqhGiOZ2N5BrE2wTqhY=;
- b=EIUilsOZ5pt8pIVX93LlqOemXrproqKfamueFPH9mXulwIiwJXFyNLvyHDIc+vovoIpaJC
- rGi+zLrM9/anUt/f19pyIjiIF8knnN8Vk/51HUQut4BC7lqfYoMsLIwFitzyWkibw+fnHE
- 8UyOcesoWyfa5U8RSScpvvJA/KfUbvw=
-Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
- [209.85.167.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=dBN8OqT32wAVA1vLxVE8MyhBep8hnWJXY92euzRr0/k=;
+ b=aiAL0sWeJKgsBAlOF7ambXALMaqT4oORnbxXWO2Ie7nrnQIL3lNrK9uw1PQFKRoYJRpxk0
+ okscp+SNPaVybNXgcGU2UHEmLz7GrzoQIlLSy1cjZaHyN/9AmruROSU+IgexX8B5mV6+DN
+ b5dSf8VifTZP26DcLIuhmDLKCgOn9TM=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-516-8S_WGNZCMwGETz2hc-IosQ-1; Tue, 10 May 2022 03:56:45 -0400
-X-MC-Unique: 8S_WGNZCMwGETz2hc-IosQ-1
-Received: by mail-lf1-f72.google.com with SMTP id
- n3-20020ac242c3000000b00473d8af3a0cso5628250lfl.21
- for <virtualization@lists.linux-foundation.org>;
- Tue, 10 May 2022 00:56:45 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=/c1ztnUjsSvwMC8tPkMNFQeFrqhGiOZ2N5BrE2wTqhY=;
- b=wm56KwVPFUpJ2yYX45ZMGHaa7iFii9XELbHuz8Tupg+QsRjgIvlBN4Z6q/cgmUZiRe
- Y3fWBKak1sgddB7bMUooL4Pfq3lAdnHk5HfCBstyCd8PkBbDgiNZEM0CmTwFxfuGP6os
- lom+UZo3UwKkj/trbAiWVGgOCCLaEwp8GwW29+Lj2qTtXZYTUgM3jNYHyUSPd8TNYHOq
- BonQ8DRjbztkJ+UCFb9zY8NxI8ODLRwxY1o5pD7scP805i+iVrIB4OfvxwucHpP4l3dG
- SaX/BmW7NJOSJ0yyCDnWN2v/R6RZ5Hq0wSNGsI/jncL0LJl6dsAnLrK5123P6oBI7kSN
- S8rw==
-X-Gm-Message-State: AOAM533/LPhM0OBFt3khOqqeCBIj7P0+LbTTtZIGbdqOvvoyi/w6FkxM
- WDSW+N06GbQlbJp2EsvEDHCSYzM4Xm1GzBPLcBnoDqzgx5+k22k3CwXXWjTqE7q0l7D9uhkBNs8
- jGNcWAujaBxRV2DEDhCw9SR6cfZX2NDH6BLt+AWfzK5lLTOLUrZid3FeT8g==
-X-Received: by 2002:a19:ca50:0:b0:471:f556:92b with SMTP id
- h16-20020a19ca50000000b00471f556092bmr15479991lfj.587.1652169404073; 
- Tue, 10 May 2022 00:56:44 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxD3QYQhNm8OOhmYu9K618fwpvK2JHxPPxaipeoPj14mMMrx2E9jL681mf6nCwBi/RMtwvLQ6FsFANB6ecwX0c=
-X-Received: by 2002:a19:ca50:0:b0:471:f556:92b with SMTP id
- h16-20020a19ca50000000b00471f556092bmr15479980lfj.587.1652169403887; Tue, 10
- May 2022 00:56:43 -0700 (PDT)
+ us-mta-403-XbCL79E6MJadEnJwsh7nzw-1; Tue, 10 May 2022 05:29:32 -0400
+X-MC-Unique: XbCL79E6MJadEnJwsh7nzw-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.7])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 50B301C06EC0;
+ Tue, 10 May 2022 09:29:32 +0000 (UTC)
+Received: from localhost (dhcp-192-194.str.redhat.com [10.33.192.194])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id D8E3E146894F;
+ Tue, 10 May 2022 09:29:31 +0000 (UTC)
+From: Cornelia Huck <cohuck@redhat.com>
+To: Jason Wang <jasowang@redhat.com>, jasowang@redhat.com, mst@redhat.com,
+ virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH V4 0/9] rework on the IRQ hardening of virtio
+In-Reply-To: <20220507071954.14455-1-jasowang@redhat.com>
+Organization: Red Hat GmbH
+References: <20220507071954.14455-1-jasowang@redhat.com>
+User-Agent: Notmuch/0.34 (https://notmuchmail.org)
+Date: Tue, 10 May 2022 11:29:30 +0200
+Message-ID: <875ymd3fd1.fsf@redhat.com>
 MIME-Version: 1.0
-References: <20220505100910.137-1-xieyongji@bytedance.com>
- <CACGkMEv3Ofbu7OOTB9vN2Lt85TD44LipjoPm26KEq3RiKJU0Yw@mail.gmail.com>
- <CACycT3uakPB_JeXb11hrBaPjcdqign3FmuQd3FXgFR7orO_Eaw@mail.gmail.com>
-In-Reply-To: <CACycT3uakPB_JeXb11hrBaPjcdqign3FmuQd3FXgFR7orO_Eaw@mail.gmail.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 10 May 2022 15:56:33 +0800
-Message-ID: <CACGkMEu72zPKyZXWvyeMsNwjKohXHEMu_hp1dwPVF_2RF5ezPA@mail.gmail.com>
-Subject: Re: [PATCH v2] vringh: Fix loop descriptors check in the indirect
- cases
-To: Yongji Xie <xieyongji@bytedance.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: fam.zheng@bytedance.com, rusty <rusty@rustcorp.com.au>,
- virtualization <virtualization@lists.linux-foundation.org>,
- kvm <kvm@vger.kernel.org>, mst <mst@redhat.com>
+X-Scanned-By: MIMEDefang 2.85 on 10.11.54.7
+Cc: lulu@redhat.com, paulmck@kernel.org, peterz@infradead.org, maz@kernel.org,
+ pasic@linux.ibm.com, eperezma@redhat.com, tglx@linutronix.de
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -112,72 +94,114 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, May 10, 2022 at 3:54 PM Yongji Xie <xieyongji@bytedance.com> wrote:
->
-> On Tue, May 10, 2022 at 3:44 PM Jason Wang <jasowang@redhat.com> wrote:
-> >
-> > On Thu, May 5, 2022 at 6:08 PM Xie Yongji <xieyongji@bytedance.com> wrote:
-> > >
-> > > We should use size of descriptor chain to test loop condition
-> > > in the indirect case. And another statistical count is also introduced
-> > > for indirect descriptors to avoid conflict with the statistical count
-> > > of direct descriptors.
-> > >
-> > > Fixes: f87d0fbb5798 ("vringh: host-side implementation of virtio rings.")
-> > > Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-> > > Signed-off-by: Fam Zheng <fam.zheng@bytedance.com>
-> > > ---
-> > >  drivers/vhost/vringh.c | 10 ++++++++--
-> > >  1 file changed, 8 insertions(+), 2 deletions(-)
-> > >
-> > > diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
-> > > index 14e2043d7685..eab55accf381 100644
-> > > --- a/drivers/vhost/vringh.c
-> > > +++ b/drivers/vhost/vringh.c
-> > > @@ -292,7 +292,7 @@ __vringh_iov(struct vringh *vrh, u16 i,
-> > >              int (*copy)(const struct vringh *vrh,
-> > >                          void *dst, const void *src, size_t len))
-> > >  {
-> > > -       int err, count = 0, up_next, desc_max;
-> > > +       int err, count = 0, indirect_count = 0, up_next, desc_max;
-> > >         struct vring_desc desc, *descs;
-> > >         struct vringh_range range = { -1ULL, 0 }, slowrange;
-> > >         bool slow = false;
-> > > @@ -349,7 +349,12 @@ __vringh_iov(struct vringh *vrh, u16 i,
-> > >                         continue;
-> > >                 }
-> > >
-> > > -               if (count++ == vrh->vring.num) {
-> > > +               if (up_next == -1)
-> > > +                       count++;
-> > > +               else
-> > > +                       indirect_count++;
-> > > +
-> > > +               if (count > vrh->vring.num || indirect_count > desc_max) {
-> > >                         vringh_bad("Descriptor loop in %p", descs);
-> > >                         err = -ELOOP;
-> > >                         goto fail;
-> > > @@ -411,6 +416,7 @@ __vringh_iov(struct vringh *vrh, u16 i,
-> > >                                 i = return_from_indirect(vrh, &up_next,
-> > >                                                          &descs, &desc_max);
-> > >                                 slow = false;
-> > > +                               indirect_count = 0;
-> >
-> > Do we need to reset up_next to -1 here?
-> >
->
-> It will be reset to -1 in return_from_indirect().
+On Sat, May 07 2022, Jason Wang <jasowang@redhat.com> wrote:
 
-Right. Then
-
-Acked-by: Jason Wang <jasowang@redhat.com>
-
-Thanks
-
+> Hi All:
 >
-> Thanks,
-> Yongji
+> This is a rework on the IRQ hardening for virtio which is done
+> previously by the following commits are reverted:
 >
+> 9e35276a5344 ("virtio_pci: harden MSI-X interrupts")
+> 080cd7c3ac87 ("virtio-pci: harden INTX interrupts")
+>
+> The reason is that it depends on the IRQF_NO_AUTOEN which may conflict
+> with the assumption of the affinity managed IRQ that is used by some
+> virtio drivers. And what's more, it is only done for virtio-pci but
+> not other transports.
+>
+> In this rework, I try to implement a general virtio solution which
+> borrows the idea of the INTX hardening by re-using per virtqueue
+> boolean vq->broken and toggle it in virtio_device_ready() and
+> virtio_reset_device(). Then we can simply reuse the existing checks in
+> the vring_interrupt() and return early if the driver is not ready.
+>
+> Note that, I only did compile test on ccw and MMIO transport.
+
+Lockdep is unhappy with the ccw parts:
+
+================================
+WARNING: inconsistent lock state
+5.18.0-rc6+ #191 Not tainted
+--------------------------------
+inconsistent {IN-HARDIRQ-R} -> {HARDIRQ-ON-W} usage.
+kworker/u4:0/9 [HC0[0]:SC0[0]:HE1:SE1] takes:
+00000000058e9618 (&vcdev->irq_lock){+-..}-{2:2}, at: virtio_ccw_synchronize_cbs+0x4e/0x60
+{IN-HARDIRQ-R} state was registered at:
+  __lock_acquire+0x442/0xc20
+  lock_acquire.part.0+0xdc/0x228
+  lock_acquire+0xa6/0x1b0
+  _raw_read_lock_irqsave+0x72/0x100
+  virtio_ccw_int_handler+0x84/0x238
+  ccw_device_call_handler+0x72/0xd0
+  ccw_device_irq+0x7a/0x198
+  do_cio_interrupt+0x11c/0x1d0
+  __handle_irq_event_percpu+0xc2/0x318
+  handle_irq_event_percpu+0x26/0x68
+  handle_percpu_irq+0x64/0x88
+  generic_handle_irq+0x40/0x58
+  do_irq_async+0x56/0xb0
+  do_io_irq+0x82/0x160
+  io_int_handler+0xe6/0x120
+  rcu_read_lock_sched_held+0x3e/0xb0
+  lock_acquired+0x12e/0x208
+  new_inode+0x3e/0xd0
+  debugfs_get_inode+0x22/0x68
+  __debugfs_create_file+0x78/0x1c0
+  debugfs_create_file_unsafe+0x36/0x58
+  debugfs_create_u32+0x38/0x68
+  sched_init_debug+0xb0/0x1c0
+  do_one_initcall+0x108/0x280
+  do_initcalls+0x124/0x148
+  kernel_init_freeable+0x242/0x280
+  kernel_init+0x2e/0x158
+  __ret_from_fork+0x3c/0x50
+  ret_from_fork+0xa/0x40
+irq event stamp: 539789
+hardirqs last  enabled at (539789): [<0000000000d9c632>] _raw_spin_unlock_irqrestore+0x72/0x88
+hardirqs last disabled at (539788): [<0000000000d9c2b6>] _raw_spin_lock_irqsave+0x96/0xd0
+softirqs last  enabled at (539568): [<0000000000d9e0d4>] __do_softirq+0x434/0x588
+softirqs last disabled at (539503): [<000000000018cd66>] __irq_exit_rcu+0x146/0x170
+
+other info that might help us debug this:
+ Possible unsafe locking scenario:
+
+       CPU0
+       ----
+  lock(&vcdev->irq_lock);
+  <Interrupt>
+    lock(&vcdev->irq_lock);
+
+ *** DEADLOCK ***
+
+2 locks held by kworker/u4:0/9:
+ #0: 000000000288d948 ((wq_completion)events_unbound){+.+.}-{0:0}, at: process_one_work+0x1ea/0x658
+ #1: 000003800004bdc8 ((work_completion)(&entry->work)){+.+.}-{0:0}, at: process_one_work+0x1ea/0x658
+
+stack backtrace:
+CPU: 1 PID: 9 Comm: kworker/u4:0 Not tainted 5.18.0-rc6+ #191
+Hardware name: QEMU 8561 QEMU (KVM/Linux)
+Workqueue: events_unbound async_run_entry_fn
+Call Trace:
+ [<0000000000d8af22>] dump_stack_lvl+0x92/0xd0 
+ [<00000000002032ac>] mark_lock_irq+0x864/0x968 
+ [<0000000000203670>] mark_lock.part.0+0x2c0/0x790 
+ [<0000000000203cea>] mark_usage+0x10a/0x178 
+ [<000000000020692a>] __lock_acquire+0x442/0xc20 
+ [<0000000000207cc4>] lock_acquire.part.0+0xdc/0x228 
+ [<0000000000207eb6>] lock_acquire+0xa6/0x1b0 
+ [<0000000000d9c774>] _raw_write_lock+0x54/0xa8 
+ [<0000000000d5a1f6>] virtio_ccw_synchronize_cbs+0x4e/0x60 
+ [<00000000008eec04>] register_virtio_device+0xdc/0x1b0 
+ [<0000000000d5aabe>] virtio_ccw_online+0x246/0x2e8 
+ [<0000000000c9fecc>] ccw_device_set_online+0x1c4/0x540 
+ [<0000000000d5a05e>] virtio_ccw_auto_online+0x26/0x50 
+ [<00000000001ba2b0>] async_run_entry_fn+0x40/0x108 
+ [<00000000001ab9b4>] process_one_work+0x2a4/0x658 
+ [<00000000001abdd0>] worker_thread+0x68/0x440 
+ [<00000000001b4668>] kthread+0x128/0x130 
+ [<0000000000102fac>] __ret_from_fork+0x3c/0x50 
+ [<0000000000d9d3aa>] ret_from_fork+0xa/0x40 
+INFO: lockdep is turned off.
 
 _______________________________________________
 Virtualization mailing list
