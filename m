@@ -4,90 +4,90 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id CADE1C433FE
-	for <virtualization@archiver.kernel.org>; Wed, 11 May 2022 19:05:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6F148C433EF
+	for <virtualization@archiver.kernel.org>; Wed, 11 May 2022 19:09:16 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 480B341548;
-	Wed, 11 May 2022 19:05:21 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 06659415CA;
+	Wed, 11 May 2022 19:09:16 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id CoMsyTi6NSR1; Wed, 11 May 2022 19:05:20 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 865B6409F7;
-	Wed, 11 May 2022 19:05:19 +0000 (UTC)
+	with ESMTP id utb_c-j1JRh4; Wed, 11 May 2022 19:09:14 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 27A72415A7;
+	Wed, 11 May 2022 19:09:14 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 61724C0039;
-	Wed, 11 May 2022 19:05:19 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6120AC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 02E29C0032;
+	Wed, 11 May 2022 19:09:14 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8C12BC002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 May 2022 19:05:17 +0000 (UTC)
+ Wed, 11 May 2022 19:09:12 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 4C32E41548
+ by smtp3.osuosl.org (Postfix) with ESMTP id 7255E60D61
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 May 2022 19:05:17 +0000 (UTC)
+ Wed, 11 May 2022 19:09:12 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id hYkQYPNUlPYI
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=ffwll.ch
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id y-Sg_c_YGAMR
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 May 2022 19:05:14 +0000 (UTC)
+ Wed, 11 May 2022 19:09:11 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com
- [IPv6:2a00:1450:4864:20::533])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 2AE92409F7
+Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com
+ [IPv6:2a00:1450:4864:20::62f])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 4404660BC0
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 May 2022 19:05:14 +0000 (UTC)
-Received: by mail-ed1-x533.google.com with SMTP id g20so3656762edw.6
+ Wed, 11 May 2022 19:09:11 +0000 (UTC)
+Received: by mail-ej1-x62f.google.com with SMTP id m20so5896456ejj.10
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 May 2022 12:05:13 -0700 (PDT)
+ Wed, 11 May 2022 12:09:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ffwll.ch; s=google;
  h=date:from:to:cc:subject:message-id:mail-followup-to:references
- :mime-version:content-disposition:content-transfer-encoding
- :in-reply-to; bh=4K/BqknQQ3B81Ri9IMPLTLrHNMzicKZVVfstqbcQoXw=;
- b=A/KCQGg5ugLO69SideOJEv3eS/RyBeILjrfEq1trEjYp4cb9RZCmIZVFqxyI7WsooG
- XsWzCAMH5B+G8qNASIFfM8v3cZTbZl3x5TWJGNd90LgqR8xJipz7OP0NHwqKYzKNE3I7
- MVIOk5NK+bWC0jwrLMNufBwoueLjBB6jdZuiE=
+ :mime-version:content-disposition:in-reply-to;
+ bh=M2DykjHAMdlStYb5EmcYSUR1Pkzo63PzxwPMaZ8LvFo=;
+ b=RyFGCFRtSxjZc9mIoytVCXq/YWGjqf+7X1f1onqM7tbKpLpI5ilS0HD3W+wryYO3eA
+ OxxE2IpBo99CuN/f3UvdN2TyQdKnAWqhafI0mCX9WQ2GKArXjz3PpjvEofURYxNFo5Yb
+ zCYHi0yxeD9Ub457ewESExxn2/2ovvErrm4A0=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id
  :mail-followup-to:references:mime-version:content-disposition
- :content-transfer-encoding:in-reply-to;
- bh=4K/BqknQQ3B81Ri9IMPLTLrHNMzicKZVVfstqbcQoXw=;
- b=3wX70tHOg/5KHn2lzxIAnxrbZ5ya9UifHV4LHuyKw0LpBzsKwwx5siCAPw/UjP5OCz
- GVkYyhVA6oXIlUn4oqFq4rC5cSdb+TT9Nnqma44zrd40d5xGery/vz46dLXOcXYZcs9n
- LUYSFaLZ1OgVHHyLlK82xsUKG30DpnoaA1BvVJxSOIjqK/b8UKby48P3TTkwuq/QUduU
- A3P/GIrDerwXMzAU7rwKsbd5/ZNahe6cg58/hqdBNzF1vXw/XwPNGxNuRY/zDQXpahPN
- n6FFTA+zXHWBM04pTB/e/wWUm8ZezHReyXZ2jyM1PUCgkQdOWeiPGODDIxoTxGyMR8iu
- vE7g==
-X-Gm-Message-State: AOAM531lrogaBXjZ7VFEm0ZPZ2L76EUyR9JF0hEHSRG8eS5SkIleizuR
- NixGlo4dVzCs0u+zNmAL1QP3og==
-X-Google-Smtp-Source: ABdhPJxzbQWruH8VN9oOr7p/K2/W+DT07g4nY6eAZpa/3zcSLOTXAgDkDgKjcZvZEO42b/8vTn+Ifg==
-X-Received: by 2002:a05:6402:278d:b0:42a:2dc0:744f with SMTP id
- b13-20020a056402278d00b0042a2dc0744fmr1951646ede.226.1652295912301; 
- Wed, 11 May 2022 12:05:12 -0700 (PDT)
+ :in-reply-to;
+ bh=M2DykjHAMdlStYb5EmcYSUR1Pkzo63PzxwPMaZ8LvFo=;
+ b=tj/fTu1dXMpxJ30cswhA4q8bqXjZkMXW2sPXnEn8WuTYOp8DlHPFlnzxo6CGXYQbqj
+ 0D3aiiVTan+cddl8MkeML8I0c1nusIkSfTMisj+yX3NwqNrLHqpRswCSz+1ndKFiLCZc
+ Q0Y0bTC9+FJ5deGQJqdPWHcCbzFfuaNype9aIuyGvkm8yXbpUJXv457VolybljQqMFBg
+ PFPQq2SgJ2bVjkQ7UNA4qrJRtjifSdEud9caem7NfJlgfxlGmVwy0QS4T3XHQh5si/+e
+ 9wErZ5eW/4Haz0uWqU53X9WWVK1QVG1QzvCpo3VQ3I+337Jxo4FcoS5zrqFg6KTJdYEY
+ Zcuw==
+X-Gm-Message-State: AOAM532Ub/xEsDVLh1GmqnK9iLNhoAUfKKHvA32VWi6Wqvbc75jcdNtN
+ n3VSV6jvCLHLIgxERZWyGcW5mw==
+X-Google-Smtp-Source: ABdhPJw9Nd8vnPYqEL0MNAFmVh+U7IZ/wircjNLfEqm8Te3y/rY6G1oUIM7+PpLhbG8Z+WzygG5ebQ==
+X-Received: by 2002:a17:907:2d07:b0:6f4:36fe:f1c with SMTP id
+ gs7-20020a1709072d0700b006f436fe0f1cmr26449179ejc.383.1652296149389; 
+ Wed, 11 May 2022 12:09:09 -0700 (PDT)
 Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
  by smtp.gmail.com with ESMTPSA id
- i26-20020a1709063c5a00b006fa9384a0b5sm1259045ejg.61.2022.05.11.12.05.10
+ y13-20020a056402134d00b0042617ba63d6sm1528596edw.96.2022.05.11.12.09.08
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 11 May 2022 12:05:11 -0700 (PDT)
-Date: Wed, 11 May 2022 21:05:09 +0200
+ Wed, 11 May 2022 12:09:08 -0700 (PDT)
+Date: Wed, 11 May 2022 21:09:06 +0200
 From: Daniel Vetter <daniel@ffwll.ch>
 To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Subject: Re: [PATCH v4 10/15] drm/shmem-helper: Take reservation lock instead
- of drm_gem_shmem locks
-Message-ID: <YnwI5UX/zvmnAHvg@phenom.ffwll.local>
+Subject: Re: [PATCH v4 11/15] drm/shmem-helper: Add generic memory shrinker
+Message-ID: <YnwJ0kLwLS7RxuwS@phenom.ffwll.local>
 Mail-Followup-To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
- Christian =?iso-8859-1?Q?K=F6nig?= <ckoenig.leichtzumerken@gmail.com>,
  Thomas Zimmermann <tzimmermann@suse.de>,
- Daniel Stone <daniel@fooishbar.org>,
  David Airlie <airlied@linux.ie>, Gerd Hoffmann <kraxel@redhat.com>,
  Gurchetan Singh <gurchetansingh@chromium.org>,
  Chia-I Wu <olvaffe@gmail.com>,
  Daniel Almeida <daniel.almeida@collabora.com>,
  Gert Wollny <gert.wollny@collabora.com>,
  Gustavo Padovan <gustavo.padovan@collabora.com>,
+ Daniel Stone <daniel@fooishbar.org>,
  Tomeu Vizoso <tomeu.vizoso@collabora.com>,
  Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
  Maxime Ripard <mripard@kernel.org>, Rob Herring <robh@kernel.org>,
@@ -99,19 +99,17 @@ Mail-Followup-To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
  Dmitry Osipenko <digetx@gmail.com>, linux-kernel@vger.kernel.org,
  dri-devel@lists.freedesktop.org,
  virtualization@lists.linux-foundation.org
-References: <01506516-ab2f-cb6e-7507-f2a3295efb59@collabora.com>
- <YnOHAh9I1ds4+1J+@phenom.ffwll.local>
- <83e68918-68de-c0c6-6f9b-e94d34b19383@collabora.com>
- <YnkaUk0mZNuPsZ5r@phenom.ffwll.local>
- <4d08b382-0076-1ea2-b565-893d50b453cb@collabora.com>
- <YnuziJDmXVR09UzP@phenom.ffwll.local>
- <56787b70-fb64-64da-6006-d3aa3ed59d12@gmail.com>
- <3a362c32-870c-1d73-bba6-bbdcd62dc326@collabora.com>
- <YnvWUbh5QDDs6u2B@phenom.ffwll.local>
- <ba2836d0-9a3a-b879-cb1e-a48aed31637d@collabora.com>
+References: <20220417223707.157113-1-dmitry.osipenko@collabora.com>
+ <20220417223707.157113-12-dmitry.osipenko@collabora.com>
+ <e6108e9c-6e67-2d71-0665-654e11d9c3a5@suse.de>
+ <ff97790a-fb64-1e15-74b4-59c807bce0b9@collabora.com>
+ <Ynkb1U2nNWYPML88@phenom.ffwll.local>
+ <5fdf5232-e2b2-b444-5a41-f1db7e6a04da@collabora.com>
+ <Ynu1k5lH+xvqtObG@phenom.ffwll.local>
+ <3429a12f-9fbe-b66b-dbbd-94a1df54714e@collabora.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <ba2836d0-9a3a-b879-cb1e-a48aed31637d@collabora.com>
+In-Reply-To: <3429a12f-9fbe-b66b-dbbd-94a1df54714e@collabora.com>
 X-Operating-System: Linux phenom 5.10.0-8-amd64 
 Cc: David Airlie <airlied@linux.ie>, dri-devel@lists.freedesktop.org,
  Gurchetan Singh <gurchetansingh@chromium.org>,
@@ -120,7 +118,6 @@ Cc: David Airlie <airlied@linux.ie>, dri-devel@lists.freedesktop.org,
  Gustavo Padovan <gustavo.padovan@collabora.com>,
  Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
  Chia-I Wu <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
- Christian =?iso-8859-1?Q?K=F6nig?= <ckoenig.leichtzumerken@gmail.com>,
  Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
  Maxime Ripard <mripard@kernel.org>, virtualization@lists.linux-foundation.org,
  Tomeu Vizoso <tomeu.vizoso@collabora.com>,
@@ -139,127 +136,95 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, May 11, 2022 at 06:40:32PM +0300, Dmitry Osipenko wrote:
-> On 5/11/22 18:29, Daniel Vetter wrote:
-> > On Wed, May 11, 2022 at 06:14:00PM +0300, Dmitry Osipenko wrote:
-> >> On 5/11/22 17:24, Christian K=F6nig wrote:
-> >>> Am 11.05.22 um 15:00 schrieb Daniel Vetter:
-> >>>> On Tue, May 10, 2022 at 04:39:53PM +0300, Dmitry Osipenko wrote:
-> >>>>> [SNIP]
-> >>>>> Since vmapping implies implicit pinning, we can't use a separate lo=
-ck in
-> >>>>> drm_gem_shmem_vmap() because we need to protect the
-> >>>>> drm_gem_shmem_get_pages(), which is invoked by drm_gem_shmem_vmap()=
- to
-> >>>>> pin the pages and requires the dma_resv_lock to be locked.
-> >>>>>
-> >>>>> Hence the problem is:
-> >>>>>
-> >>>>> 1. If dma-buf importer holds the dma_resv_lock and invokes
-> >>>>> dma_buf_vmap() -> drm_gem_shmem_vmap(), then drm_gem_shmem_vmap() s=
-hall
-> >>>>> not take the dma_resv_lock.
-> >>>>>
-> >>>>> 2. Since dma-buf locking convention isn't specified, we can't assume
-> >>>>> that dma-buf importer holds the dma_resv_lock around dma_buf_vmap().
-> >>>>>
-> >>>>> The possible solutions are:
-> >>>>>
-> >>>>> 1. Specify the dma_resv_lock convention for dma-bufs and make all
-> >>>>> drivers to follow it.
-> >>>>>
-> >>>>> 2. Make only DRM drivers to hold dma_resv_lock around dma_buf_vmap(=
-).
-> >>>>> Other non-DRM drivers will get the lockdep warning.
-> >>>>>
-> >>>>> 3. Make drm_gem_shmem_vmap() to take the dma_resv_lock and get dead=
-lock
-> >>>>> if dma-buf importer holds the lock.
-> >>>>>
-> >>>>> ...
-> >>>> Yeah this is all very annoying.
-> >>> Ah, yes that topic again :)
-> >>>
-> >>> I think we could relatively easily fix that by just defining and
-> >>> enforcing that the dma_resv_lock must have be taken by the caller when
-> >>> dma_buf_vmap() is called.
-> >>>
-> >>> A two step approach should work:
-> >>> 1. Move the call to dma_resv_lock() into the dma_buf_vmap() function =
-and
-> >>> remove all lock taking from the vmap callback implementations.
-> >>> 2. Move the call to dma_resv_lock() into the callers of dma_buf_vmap()
-> >>> and enforce that the function is called with the lock held.
-> >> I've doubts about the need to move out the dma_resv_lock() into the
-> >> callers of dma_buf_vmap()..
+On Wed, May 11, 2022 at 07:06:18PM +0300, Dmitry Osipenko wrote:
+> On 5/11/22 16:09, Daniel Vetter wrote:
+> >>>>> I'd like to ask you to reduce the scope of the patchset and build the
+> >>>>> shrinker only for virtio-gpu. I know that I first suggested to build
+> >>>>> upon shmem helpers, but it seems that it's easier to do that in a later
+> >>>>> patchset.
+> >>>> The first version of the VirtIO shrinker didn't support memory eviction.
+> >>>> Memory eviction support requires page fault handler to be aware of the
+> >>>> evicted pages, what should we do about it? The page fault handling is a
+> >>>> part of memory management, hence to me drm-shmem is already kinda a MM.
+> >>> Hm I still don't get that part, why does that also not go through the
+> >>> shmem helpers?
+> >> The drm_gem_shmem_vm_ops includes the page faults handling, it's a
+> >> helper by itself that is used by DRM drivers.
 > >>
-> >> I looked through all the dma_buf_vmap() users and neither of them
-> >> interacts with dma_resv_lock() at all, i.e. nobody takes the lock
-> >> in/outside of dma_buf_vmap(). Hence it's easy and more practical to ma=
-ke
-> >> dma_buf_mmap/vmap() to take the dma_resv_lock by themselves.
-> > i915_gem_dmabuf_vmap -> i915_gem_object_pin_map_unlocked ->
-> >   i915_gem_object_lock -> dma_resv_lock
-> > =
-
-> > And all the ttm drivers should work similarly. So there's definitely
-> > drivers which grab dma_resv_lock from their vmap callback.
-> =
-
-> Grr.. I'll take another look.
-> =
-
-> >> It's unclear to me which driver may ever want to do the mapping under
-> >> the dma_resv_lock. But if we will ever have such a driver that will ne=
-ed
-> >> to map imported buffer under dma_resv_lock, then we could always add t=
-he
-> >> dma_buf_vmap_locked() variant of the function. In this case the locking
-> >> rule will sound like this:
+> >> I could try to move all the shrinker logic to the VirtIO and re-invent
+> >> virtio_gem_shmem_vm_ops, but what is the point of doing this for each
+> >> driver if we could have it once and for all in the common drm-shmem code?
 > >>
-> >> "All dma-buf importers are responsible for holding the dma-reservation
-> >> lock around the dmabuf->ops->mmap/vmap() calls."
-> =
+> >> Maybe I should try to factor out all the shrinker logic from drm-shmem
+> >> into a new drm-shmem-shrinker that could be shared by drivers? Will you
+> >> be okay with this option?
+> > I think we're talking past each another a bit. I'm only bringing up the
+> > purge vs eviction topic we discussed in the other subthread again.
+> 
+> Thomas asked to move the whole shrinker code to the VirtIO driver and
+> I's saying that this is not a great idea to me, or am I misunderstanding
+> the Thomas' suggestion? Thomas?
 
-> Are you okay with this rule?
+I think it was just me creating a confusion here.
 
-Yeah I think long-term it's where we want to be, just trying to find
-clever ways to get there.
+fwiw I do also think that shrinker in shmem helpers makes sense, just in
+case that was also lost in confusion.
 
-And I think Christian agrees with that?
+> >>> I'm still confused why drivers need to know the difference
+> >>> between evition and purging. Or maybe I'm confused again.
+> >> Example:
+> >>
+> >> If userspace uses IOV addresses, then these addresses must be kept
+> >> reserved while buffer is evicted.
+> >>
+> >> If BO is purged, then we don't need to retain the IOV space allocated
+> >> for the purged BO.
+> > Yeah but is that actually needed by anyone? If userspace fails to allocate
+> > another bo because of lack of gpu address space then it's very easy to
+> > handle that:
+> > 
+> > 1. Make a rule that "out of gpu address space" gives you a special errno
+> > code like ENOSPC
+> > 
+> > 2. If userspace gets that it walks the list of all buffers it marked as
+> > purgeable and nukes them (whether they have been evicted or not). Then it
+> > retries the bo allocation.
+> > 
+> > Alternatively you can do step 2 also directly from the bo alloc ioctl in
+> > step 1. Either way you clean up va space, and actually a lot more (you
+> > potentially nuke all buffers marked as purgeable, not just the ones that
+> > have been purged already) and only when va cleanup is actually needed
+> > 
+> > Trying to solve this problem at eviction time otoh means:
+> > - we have this difference between eviction and purging
+> > - it's still not complete, you still need to glue step 2 above into your
+> >   driver somehow, and once step 2 above is glued in doing additional
+> >   cleanup in the purge function is just duplicated logic
+> > 
+> > So at least in my opinion this isn't the justification we need. And we
+> > should definitely not just add that complication "in case, for the
+> > future", if we don't have a real need right now. Adding it later on is
+> > easy, removing it later on because it just gets in the way and confuses is
+> > much harder.
+> 
+> The IOVA space is only one example.
+> 
+> In case of the VirtIO driver, we may have two memory allocation for a
+> BO. One is the shmem allcation in guest and the other is in host's vram.
+> If we will only release the guest's memory on purge, then the vram will
+> remain allocated until BO is destroyed, which unnecessarily sub-optimal.
 
-> >>> It shouldn't be that hard to clean up. The last time I looked into it=
- my
-> >>> main problem was that we didn't had any easy unit test for it.
-> >> Do we have any tests for dma-bufs at all? It's unclear to me what you
-> >> are going to test in regards to the reservation locks, could you please
-> >> clarify?
-> > Unfortunately not really :-/ Only way really is to grab a driver which
-> > needs vmap (those are mostly display drivers) on an imported buffer, and
-> > see what happens.
-> > =
-
-> > 2nd best is liberally sprinkling lockdep annotations all over the place
-> > and throwing it at intel ci (not sure amd ci is accessible to the publi=
-c)
-> > and then hoping that's good enough. Stuff like might_lock and
-> > dma_resv_assert_held.
-> =
-
-> Alright
-
-So throwing it at intel-gfx-ci can't hurt I think, but that only covers
-i915 so doesn't really help with the bigger issue of catching all the
-drivers.
-
-Cheers, Daniel
--- =
-
+Hm but why don't you just nuke the memory on the host side too when you
+evict? Allowing the guest memory to be swapped out while keeping the host
+memory allocation alive also doesn't make a lot of sense for me. Both can
+be recreated (I guess at least?) on swap-in.
+-Daniel
+-- 
 Daniel Vetter
 Software Engineer, Intel Corporation
 http://blog.ffwll.ch
