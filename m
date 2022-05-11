@@ -1,127 +1,135 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id EE1B2C433EF
-	for <virtualization@archiver.kernel.org>; Wed, 11 May 2022 12:49:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 32F95C433EF
+	for <virtualization@archiver.kernel.org>; Wed, 11 May 2022 13:01:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 9F8CE82C5E;
-	Wed, 11 May 2022 12:49:51 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id DCFB9610D5;
+	Wed, 11 May 2022 13:01:09 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id xQnBWu23ZaDd; Wed, 11 May 2022 12:49:50 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 106D0827A0;
-	Wed, 11 May 2022 12:49:50 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CE537C0039;
-	Wed, 11 May 2022 12:49:49 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id F2C57C002D
- for <virtualization@lists.linux-foundation.org>;
- Wed, 11 May 2022 12:49:47 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id CCBAC610D5
- for <virtualization@lists.linux-foundation.org>;
- Wed, 11 May 2022 12:49:47 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=ibm.com
 Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id NJqhMdF1viVV
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id kXpGV1iVGs36; Wed, 11 May 2022 13:01:08 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id E6F96610D7;
+	Wed, 11 May 2022 13:01:07 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C1DD3C007A;
+	Wed, 11 May 2022 13:01:07 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5E651C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 May 2022 12:49:46 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com
- [148.163.158.5])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 9D92260BF6
+ Wed, 11 May 2022 13:01:06 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 3E2714031D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 May 2022 12:49:46 +0000 (UTC)
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
- by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24BBhI9E032342;
- Wed, 11 May 2022 12:49:23 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com;
- h=date : from : to : cc :
- subject : message-id : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=1PGXnKpwL9pMg8WhOFKAsaQ7qZ1YpzH8fm4i2e6k9/Q=;
- b=l0X6G8vJfhJz2nMjZqDHcLznN9ce/G/4huJN0/ueEe6nigkItrGRBfV1s4CfYWpktTb0
- /BlM7Sr3+cu83ZLuy9atyGn7m9yRGn+uzYRSZoJJW7qGvZVZMl5SV1MtS8jKkDNETWoa
- 4u+2g/oqc/r5sBgpX1Q68em903lhVdU4OpA49SXlboLYkjHhipVDqf3hKCRx5amEBCuy
- 9kWzcuFREV8eEF012Upov9rbtMw5g9KdL4lgBspqXbhQwdbdv2JxPdm6lqSQASr/sjnE
- tShuAhO8c8O7HDY4JobhIl0cvtk30hJaIUGwKrST+WfK5066fY53sulmVzsqj1wsBYoD cQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
- by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g09fkcqq4-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Wed, 11 May 2022 12:49:23 +0000
-Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
- by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24BCbWTW017466;
- Wed, 11 May 2022 12:49:22 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com
- [169.51.49.98])
- by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g09fkcqpa-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Wed, 11 May 2022 12:49:22 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
- by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24BCgo0Z009518;
- Wed, 11 May 2022 12:49:20 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com
- (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
- by ppma03ams.nl.ibm.com with ESMTP id 3fwgd8wg7j-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Wed, 11 May 2022 12:49:20 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com
- [9.149.105.232])
- by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id
- 24BCnIS937028130
- (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Wed, 11 May 2022 12:49:18 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
- by IMSVA (Postfix) with ESMTP id 70BC952050;
- Wed, 11 May 2022 12:49:18 +0000 (GMT)
-Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown
- [9.152.224.205])
- by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 0D9405204F;
- Wed, 11 May 2022 12:49:18 +0000 (GMT)
-Date: Wed, 11 May 2022 14:49:15 +0200
-From: Halil Pasic <pasic@linux.ibm.com>
-To: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V4 8/9] virtio: harden vring IRQ
-Message-ID: <20220511144915.02efda98.pasic@linux.ibm.com>
-In-Reply-To: <CACGkMEt0WdaVCbzeJ9KJuLw273D6KjSOG85RCk675QW3ZxvEsQ@mail.gmail.com>
-References: <20220507071954.14455-1-jasowang@redhat.com>
- <20220507071954.14455-9-jasowang@redhat.com>
- <20220510072833-mutt-send-email-mst@kernel.org>
- <CACGkMEtBfdhx-9CMKD0F4+536e5ewf6NQJGPTEBX00uby-C8+w@mail.gmail.com>
- <87o804bgrl.fsf@redhat.com>
- <CACGkMEt0WdaVCbzeJ9KJuLw273D6KjSOG85RCk675QW3ZxvEsQ@mail.gmail.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: xp4X4iqv_cT9aIe_M_aVP-nbqyDxiCzb
-X-Proofpoint-ORIG-GUID: auMKS3LXBZLXOUa2V_ijx9HG9fJJl7Wn
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+ Wed, 11 May 2022 13:01:06 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=ffwll.ch
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id k5bxzlTnHXUN
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 11 May 2022 13:01:02 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com
+ [IPv6:2a00:1450:4864:20::631])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 20C4940150
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 11 May 2022 13:01:01 +0000 (UTC)
+Received: by mail-ej1-x631.google.com with SMTP id bv19so3894705ejb.6
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 11 May 2022 06:01:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ffwll.ch; s=google;
+ h=date:from:to:cc:subject:message-id:mail-followup-to:references
+ :mime-version:content-disposition:content-transfer-encoding
+ :in-reply-to; bh=8H0o24KOPQorK5IuPCvtUAMCss3nDd12IGHbq327CjI=;
+ b=QCgiXKrmjLjOwu5RIXWerhjrFe0TxbJELrTheINhK1/ZySoO6xGJNrs+YvBmmDEHLS
+ m1P1laJ7/b5/OuV2hPq8G/8kXd8yNygrSap0X0lcZAJGPePoJDAM0mxTkwLWOKEcEcAS
+ G0I8AHos8HIhKn3OKVzvjsO6TJshkap+4Xpy4=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id
+ :mail-followup-to:references:mime-version:content-disposition
+ :content-transfer-encoding:in-reply-to;
+ bh=8H0o24KOPQorK5IuPCvtUAMCss3nDd12IGHbq327CjI=;
+ b=eFwxha5xbNtYT9KYpmoiAxrLBWTYYLpZKVKjlRkNbh0ZRjaeveaCgX2kLdb8NLSLyz
+ 3LAlb0cWW71oaHi6hLV/aAENLeBNGd42pGHgYpjRPWR3l03M7XnuULIyG9jdncMMLC5I
+ w9vwPWx2bZtDNcgkfiHxnJlF+ur9cZ538PoJPgVwAZdqovjtKV0/LDLXhxx7Tptn3hpx
+ SU09CCLqc+Uo4oni+gjizCkESgcUxkHwBq75aBHbJrLR8il5ADkSxz1CFDtAYftJkyOG
+ hpT7idys3qPf8REk5YArr5VikTI3BCq29WhT7I4u3SptIqoxiBAGkEJ8KFEnzduKtjLy
+ /goA==
+X-Gm-Message-State: AOAM533n/6O3HTwjtLA7qV/M1yJDH/f4e0prQXT69px1MZKNRd0t6bdf
+ KMK6U0/eymiOmdC2K/01H88Njw==
+X-Google-Smtp-Source: ABdhPJxyOpCfVHeSngNM9HPrB3DRbfpHeuzK7N4EjLCSkbhminjBZqUrAZg9c6E5I/yQRq8gdrSzvg==
+X-Received: by 2002:a17:907:9482:b0:6f5:171d:f7f5 with SMTP id
+ dm2-20020a170907948200b006f5171df7f5mr24771106ejc.68.1652274059411; 
+ Wed, 11 May 2022 06:00:59 -0700 (PDT)
+Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
+ by smtp.gmail.com with ESMTPSA id
+ k13-20020a50c8cd000000b0042617ba6389sm1217537edh.19.2022.05.11.06.00.58
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 11 May 2022 06:00:58 -0700 (PDT)
+Date: Wed, 11 May 2022 15:00:56 +0200
+From: Daniel Vetter <daniel@ffwll.ch>
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Subject: Re: [PATCH v4 10/15] drm/shmem-helper: Take reservation lock instead
+ of drm_gem_shmem locks
+Message-ID: <YnuziJDmXVR09UzP@phenom.ffwll.local>
+Mail-Followup-To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ Thomas Zimmermann <tzimmermann@suse.de>,
+ Christian =?iso-8859-1?Q?K=F6nig?= <ckoenig.leichtzumerken@gmail.com>,
+ Daniel Stone <daniel@fooishbar.org>,
+ David Airlie <airlied@linux.ie>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>,
+ Chia-I Wu <olvaffe@gmail.com>,
+ Daniel Almeida <daniel.almeida@collabora.com>,
+ Gert Wollny <gert.wollny@collabora.com>,
+ Gustavo Padovan <gustavo.padovan@collabora.com>,
+ Tomeu Vizoso <tomeu.vizoso@collabora.com>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Rob Herring <robh@kernel.org>,
+ Steven Price <steven.price@arm.com>,
+ Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
+ Rob Clark <robdclark@gmail.com>,
+ Emil Velikov <emil.l.velikov@gmail.com>,
+ Robin Murphy <robin.murphy@arm.com>,
+ Dmitry Osipenko <digetx@gmail.com>, linux-kernel@vger.kernel.org,
+ dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org
+References: <248083d2-b8f2-a4d7-099d-70a7e7859c11@suse.de>
+ <d9e7bec1-fffb-e0c4-8659-ef3ce2c31280@collabora.com>
+ <YmlYHNlcmNMfOeyy@phenom.ffwll.local>
+ <8f932ab0-bb72-8fea-4078-dc59e9164bd4@collabora.com>
+ <YnI3lE0TxLfZaQjE@phenom.ffwll.local>
+ <01506516-ab2f-cb6e-7507-f2a3295efb59@collabora.com>
+ <YnOHAh9I1ds4+1J+@phenom.ffwll.local>
+ <83e68918-68de-c0c6-6f9b-e94d34b19383@collabora.com>
+ <YnkaUk0mZNuPsZ5r@phenom.ffwll.local>
+ <4d08b382-0076-1ea2-b565-893d50b453cb@collabora.com>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-11_03,2022-05-11_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501
- mlxlogscore=999 impostorscore=0 phishscore=0 bulkscore=0 adultscore=0
- spamscore=0 clxscore=1015 malwarescore=0 mlxscore=0 suspectscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2205110058
-Cc: Cindy Lu <lulu@redhat.com>, "Paul E. McKenney" <paulmck@kernel.org>,
- "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>,
- Marc Zyngier <maz@kernel.org>, Cornelia Huck <cohuck@redhat.com>,
- linux-kernel <linux-kernel@vger.kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>,
- Halil Pasic <pasic@linux.ibm.com>, eperezma <eperezma@redhat.com>,
- Thomas Gleixner <tglx@linutronix.de>
+Content-Disposition: inline
+In-Reply-To: <4d08b382-0076-1ea2-b565-893d50b453cb@collabora.com>
+X-Operating-System: Linux phenom 5.10.0-8-amd64 
+Cc: David Airlie <airlied@linux.ie>, dri-devel@lists.freedesktop.org,
+ Gurchetan Singh <gurchetansingh@chromium.org>,
+ Dmitry Osipenko <digetx@gmail.com>, Rob Herring <robh@kernel.org>,
+ Daniel Stone <daniel@fooishbar.org>, Steven Price <steven.price@arm.com>,
+ Gustavo Padovan <gustavo.padovan@collabora.com>,
+ Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
+ Chia-I Wu <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
+ Christian =?iso-8859-1?Q?K=F6nig?= <ckoenig.leichtzumerken@gmail.com>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, virtualization@lists.linux-foundation.org,
+ Tomeu Vizoso <tomeu.vizoso@collabora.com>,
+ Gert Wollny <gert.wollny@collabora.com>,
+ Emil Velikov <emil.l.velikov@gmail.com>, linux-kernel@vger.kernel.org,
+ Rob Clark <robdclark@gmail.com>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Robin Murphy <robin.murphy@arm.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -133,180 +141,297 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, 11 May 2022 17:27:44 +0800
-Jason Wang <jasowang@redhat.com> wrote:
+On Tue, May 10, 2022 at 04:39:53PM +0300, Dmitry Osipenko wrote:
+> On 5/9/22 16:42, Daniel Vetter wrote:
+> > On Fri, May 06, 2022 at 01:49:12AM +0300, Dmitry Osipenko wrote:
+> >> On 5/5/22 11:12, Daniel Vetter wrote:
+> >>> On Wed, May 04, 2022 at 06:56:09PM +0300, Dmitry Osipenko wrote:
+> >>>> On 5/4/22 11:21, Daniel Vetter wrote:
+> >>>> ...
+> >>>>>>> - Maybe also do what you suggest and keep a separate lock for thi=
+s, but
+> >>>>>>>   the fundamental issue is that this doesn't really work - if you=
+ share
+> >>>>>>>   buffers both ways with two drivers using shmem helpers, then the
+> >>>>>>>   ordering of this vmap_count_mutex vs dma_resv_lock is inconsist=
+ent and
+> >>>>>>>   you can get some nice deadlocks. So not a great approach (and a=
+lso the
+> >>>>>>>   reason why we really need to get everyone to move towards dma_r=
+esv_lock
+> >>>>>>>   as _the_ buffer object lock, since otherwise we'll never get a
+> >>>>>>>   consistent lock nesting hierarchy).
+> >>>>>>
+> >>>>>> The separate locks should work okay because it will be always the
+> >>>>>> exporter that takes the dma_resv_lock. But I agree that it's less =
+ideal
+> >>>>>> than defining the new rules for dma-bufs since sometime you will t=
+ake
+> >>>>>> the resv lock and sometime not, potentially hiding bugs related to=
+ lockings.
+> >>>>>
+> >>>>> That's the issue, some importers need to take the dma_resv_lock for
+> >>>>> dma_buf_vmap too (e.g. to first nail the buffer in place when it's a
+> >>>>> dynamic memory manager). In practice it'll work as well as what we =
+have
+> >>>>> currently, which is similarly inconsistent, except with per-driver =
+locks
+> >>>>> instead of shared locks from shmem helpers or dma-buf, so less obvi=
+ous
+> >>>>> that things are inconsistent.
+> >>>>>
+> >>>>> So yeah if it's too messy maybe the approach is to have a separate =
+lock
+> >>>>> for vmap for now, land things, and then fix up dma_buf_vmap in a fo=
+llow up
+> >>>>> series.
+> >>>>
+> >>>> The amdgpu driver was the fist who introduced the concept of movable
+> >>>> memory for dma-bufs. Now we want to support it for DRM SHMEM too. For
+> >>>> both amdgpu ttm and shmem drivers we will want to hold the reservati=
+on
+> >>>> lock when we're touching moveable buffers. The current way of denoti=
+ng
+> >>>> that dma-buf is movable is to implement the pin/unpin callbacks of t=
+he
+> >>>> dma-buf ops, should be doable for shmem.
+> >>>
+> >>> Hm that sounds like a bridge too far? I don't think we want to start
+> >>> adding moveable dma-bufs for shmem, thus far at least no one asked for
+> >>> that. Goal here is just to streamline the locking a bit and align acr=
+oss
+> >>> all the different ways of doing buffers in drm.
+> >>>
+> >>> Or do you mean something else and I'm just completely lost?
+> >>
+> >> I'm talking about aligning DRM locks with the dma-buf locks. The probl=
+em
+> >> is that the convention of dma-bufs isn't specified yet. In particular
+> >> there is no convention for the mapping operations.
+> >>
+> >> If we want to switch vmapping of shmem to use reservation lock, then
+> >> somebody will have to hold this lock for dma_buf_vmap() and the locking
+> >> convention needs to be specified firmly.
+> > =
 
-> On Wed, May 11, 2022 at 4:44 PM Cornelia Huck <cohuck@redhat.com> wrote:
-> >
-> > On Wed, May 11 2022, Jason Wang <jasowang@redhat.com> wrote:
-> >  
-> > > On Tue, May 10, 2022 at 7:32 PM Michael S. Tsirkin <mst@redhat.com> wrote:  
-> > >>
-> > >> On Sat, May 07, 2022 at 03:19:53PM +0800, Jason Wang wrote:  
-> > >> > diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-> > >> > index d8a2340f928e..23f1694cdbd5 100644
-> > >> > --- a/include/linux/virtio_config.h
-> > >> > +++ b/include/linux/virtio_config.h
-> > >> > @@ -256,6 +256,18 @@ void virtio_device_ready(struct virtio_device *dev)
-> > >> >       unsigned status = dev->config->get_status(dev);
-> > >> >
-> > >> >       BUG_ON(status & VIRTIO_CONFIG_S_DRIVER_OK);
-> > >> > +
-> > >> > +     /*
-> > >> > +      * The virtio_synchronize_cbs() makes sure vring_interrupt()
-> > >> > +      * will see the driver specific setup if it sees vq->broken
-> > >> > +      * as false.
-> > >> > +      */
-> > >> > +     virtio_synchronize_cbs(dev);  
-> > >>
-> > >> since you mention vq->broken above, maybe add
-> > >>         "set vq->broken to false"  
-> > >
-> > > Ok.
-> > >  
-> > >>  
-> > >> > +     __virtio_unbreak_device(dev);
-> > >> > +     /*
-> > >> > +      * The transport is expected ensure the visibility of  
-> > >>
-> > >> to ensure  
-> > >
-> > > Will fix.
-> > >  
-> > >>  
-> > >> > +      * vq->broken  
-> > >>
-> > >> let's add: "visibility by vq callbacks"  
-> > >
-> > > Sure.
-> > >  
-> > >>  
-> > >> > before setting VIRTIO_CONFIG_S_DRIVER_OK.
-> > >> > +      */  
-> > >>
-> > >>
-> > >> Can I see some analysis of existing transports showing
-> > >> this is actually the case for them?  
-> > >
-> > > Yes.
-> > >  
-> > >> And maybe add a comment near set_status to document the
-> > >> requirement.  
-> > >
-> > > For PCI and MMIO, we can quote the memory-barriers.txt or explain that
-> > > wmb() is not needed before the MMIO writel().
-> > > For CCW, it looks not obvious, it looks to me the IO was submitted via
-> > > __ssch() which has an inline assembly.  Cornelia and Hali, could you
-> > > help me to understand if and how did virtio_ccw_set_status() can
-> > > ensure the visibility of the previous driver setup and vq->broken
-> > > here?  
-> >
-> > I'm not sure I completely understand the question here, but let me try:  
-> 
-> It's something like the following case:
-> 
-> CPU 0: vq->broken = false
-> CPU 0: set_status(DRIVER_OK)
-> CPU 1: vring_interrupt() { if (vq->broken) return IRQ_NONE; }
-> 
-> We need to make sure the CPU 1 sees the vq->broken if the interrupt is
-> raised after DRVER_OK.
-> 
-> For PCI, we use MMIO of writel() for set_status(), a wmb() is not
-> needed in this case according to memory-barriers.txt.
-> 
-> "
-> Note that, when using writel(), a prior
-> wmb() is not needed to guarantee that the cache coherent memory writes
-> have completed before writing to the MMIO region.
-> "
+> > Ah yes that makes sense.
+> > =
 
+> >> In case of dynamic buffers, we will also need to specify whether
+> >> dma_buf_vmap() should imply the implicit pinning by exporter or the
+> >> buffer must be pinned explicitly by importer before dma_buf_vmap() is
+> >> invoked.
+> >>
+> >> Perhaps I indeed shouldn't care about this for this patchset. The
+> >> complete locking model of dma-bufs must be specified first.
+> > =
 
-IMHO the key facts here are the following:
-* ssch and all other I/O instructions are serializing instructions
-* all interruptions are serializing operations 
+> > Hm I thought vmap is meant to pin itself, and not rely on any other
+> > pinning done already. And from a quick look through the long call chain
+> > for amd (which is currently the only driver supporting dynamic dma-buf)
+> > that seems to be the case.
+> =
 
-For reference see
-https://www.ibm.com/resources/publications/OutputPubsDetails?PubID=SA22783213
-page 5-138.
+> The vmapping behaviour is implementation-defined until it's documented
+> explicitly, IMO.
+> =
 
+> > But yeah the locking isn't specificied yet, and that makes it a bit a m=
+ess
+> > :-(
+> > =
 
-Maybe we should add that to the linux documentation somewhere if
-not already mentioned.
+> >>>> A day ago I found that mapping of imported dma-bufs is broken at lea=
+st
+> >>>> for the Tegra DRM driver (and likely for others too) because driver
+> >>>> doesn't assume that anyone will try to mmap imported buffer and just
+> >>>> doesn't handle this case at all, so we're getting a hard lockup on
+> >>>> touching mapped memory because we're mapping something else than the
+> >>>> dma-buf.
+> >>>
+> >>> Huh that sounds bad, how does this happen? Pretty much all pieces of
+> >>> dma-buf (cpu vmap, userspace mmap, heck even dma_buf_attach) are opti=
+onal
+> >>> or at least can fail for various reasons. So exporters not providing =
+mmap
+> >>> support is fine, but importers then dying is not.
+> >>
+> >> Those drivers that die don't have userspace that uses dma-bufs
+> >> extensively. I noticed it only because was looking at this code too mu=
+ch
+> >> for the last days.
+> >>
+> >> Drivers that don't die either map imported BOs properly or don't allow
+> >> mapping at all.
+> > =
 
-So IMHO we don't need CPU0 to do a wmb() because of the ssch.
+> > Ah yeah driver bugs as explanation makes sense :-/
+> > =
 
-> 
-> So CPU 1 will see the broken as false.
+> >>>> My plan is to move the dma-buf management code to the level of DRM c=
+ore
+> >>>> and make it aware of the reservation locks for the dynamic dma-bufs.
+> >>>> This way we will get the proper locking for dma-bufs and fix mapping=
+ of
+> >>>> imported dma-bufs for Tegra and other drivers.
+> >>>
+> >>> So maybe we're completely talking past each another, or coffee is not
+> >>> working here on my end, but I've no idea what you mean.
+> >>>
+> >>> We do have some helpers for taking care of the dma_resv_lock dance, a=
+nd
+> >>> Christian K=F6nig has an rfc patch set to maybe unify this further. B=
+ut that
+> >>> should be fairly orthogonal to reworking shmem (it might help a bit w=
+ith
+> >>> reworking shmem though).
+> >>
+> >> The reservation lock itself doesn't help much shmem, IMO. It should he=
+lp
+> >> only in the context of dynamic dma-bufs and today we don't have a need
+> >> in the dynamic shmem dma-bufs.
+> >>
+> >> You were talking about making DRM locks consistent with dma-buf locks,
+> >> so I thought that yours main point of making use of reservation locks
+> >> for shmem is to prepare to the new locking scheme.
+> >>
+> >> I wanted to try to specify the dma-buf locking convention for mapping
+> >> operations because it's missing right now and it should affect how DRM
+> >> should take the reservation locks, but this is not easy to do as I see=
+ now.
+> >>
+> >> Could you please point at the Christian's RFC patch? He posted too many
+> >> patches, can't find it :) I'm curious to take a look.
+> > =
 
-But barriers need to be paired. And in my understanding the ssch
-doesn't really ensure that CPU1 is about to see the change, unless
-there is a suitable barrier that pairs with the barrier implied
-the ssch instruction.
+> > https://lore.kernel.org/dri-devel/20220504074739.2231-1-christian.koeni=
+g@amd.com/
+> > =
 
-Assumed vring_interrupt() is always done in hard-irq context, AFAIU,
-we should be fine. Is that assumption correct?
+> > Wrt this patch series here I'm wondering whether we could do an interim
+> > solution that side-steps the dma_buf_vmap mess.
+> > =
 
-Why are we fine:
-* Either the ssch was performed before the interrupt for
-  vring_interrupt() got delivered on CPU1, and then we are guaranteed to
-  see the updated value for vq->broken,
-* or the interrupt that triggered vring_interrupt() was delivered before
-  the ssch instruction got executed. But in this case it is fine to
-  ignore the notification, because this is actually the bad case
-  we want to guard against: we got a notification when
-  notifications are not allowed.
+> > - in shmem helpers pin any vmapped buffer (it's how dma-buf works too),
+> >   and that pinning would be done under dma_resv_lock (like with other
+> >   drivers using dma_resv_lock for bo protection)
+> > =
 
-We may end up with !vq->broken and !DEVICE_OK as well, but that should
-be fine because, although that notification would be a should not happen
-one, I understand it would not catch us with our pants down.
+> > - switch over everything else except vmap code to dma_resv_lock, but le=
+ave
+> >   vmap locking as-is
+> > =
 
-Regards,
-Halil
+> > - shrinker then only needs to trylock dma_resv_trylock in the shrinker,
+> >   which can check for pinned buffer and that's good enough to exclude
+> >   vmap'ed buffer. And it avoids mixing the vmap locking into the new
+> >   shrinker code and driver interfaces.
+> > =
 
+> > This still leaves the vmap locking mess as-is, but I think that's a mess
+> > that's orthogonal to shrinker work.
+> > =
 
-> 
-> >
-> > virtio_ccw_set_status() uses a channel command to set the status, with
-> > the interesting stuff done inside ccw_io_helper(). That function
-> > - takes the subchannel lock, disabling interrupts  
-> 
-> Then it is, for x86 the operation to disable interrupt is a full
-> barrier. I guess this should apply to other architecture like s390. I
-> see a stnsm is used in this case but a quick google doesn't tell me if
-> it's a barrier.
-> If this is true. The vring_interrupt will see broken as false.
-> 
-> > - does the ssch; this instruction will fail if there's already another
-> >   I/O in progress, or an interrupt is pending for the subchannel; on
-> >   success, it is guaranteed that we'll get an interrupt eventually  
-> 
-> I guess ssch might imply a barrier as well, otherwise we may need a
-> lot of barriers before this.
-> 
-> Thanks
-> 
-> > - unlock the subchannel, and wait for the interupt handler to eventually
-> >   process the interrupt, so I guess it should see the vq->broken value?
-> >
-> > If the I/O fails, virtio_ccw_set_status() will revert its internal
-> > status to the old value.
-> >
-> >  
-> > >
-> > > Thanks
-> > >  
-> > >>  
-> > >> >       dev->config->set_status(dev, status | VIRTIO_CONFIG_S_DRIVER_OK);
-> > >> >  }  
-> >  
-> 
+> > Thoughts?
+> =
 
+> Since vmapping implies implicit pinning, we can't use a separate lock in
+> drm_gem_shmem_vmap() because we need to protect the
+> drm_gem_shmem_get_pages(), which is invoked by drm_gem_shmem_vmap() to
+> pin the pages and requires the dma_resv_lock to be locked.
+> =
+
+> Hence the problem is:
+> =
+
+> 1. If dma-buf importer holds the dma_resv_lock and invokes
+> dma_buf_vmap() -> drm_gem_shmem_vmap(), then drm_gem_shmem_vmap() shall
+> not take the dma_resv_lock.
+> =
+
+> 2. Since dma-buf locking convention isn't specified, we can't assume
+> that dma-buf importer holds the dma_resv_lock around dma_buf_vmap().
+> =
+
+> The possible solutions are:
+> =
+
+> 1. Specify the dma_resv_lock convention for dma-bufs and make all
+> drivers to follow it.
+> =
+
+> 2. Make only DRM drivers to hold dma_resv_lock around dma_buf_vmap().
+> Other non-DRM drivers will get the lockdep warning.
+> =
+
+> 3. Make drm_gem_shmem_vmap() to take the dma_resv_lock and get deadlock
+> if dma-buf importer holds the lock.
+> =
+
+> ...
+
+Yeah this is all very annoying.
+
+> There are actually very few drivers in kernel that use dma_buf_vmap()
+> [1], so perhaps it's not really a big deal to first try to define the
+> locking and pinning convention for the dma-bufs? At least for
+> dma_buf_vmap()? Let me try to do this.
+> =
+
+> [1] https://elixir.bootlin.com/linux/v5.18-rc6/C/ident/dma_buf_vmap
+
+Yeah looking through the code there's largely two classes of drivers that
+need vmap:
+
+- display drivers that need to do cpu upload (usb, spi, i2c displays).
+  Those generally set up the vmap at import time or when creating the
+  drm_framebuffer object (e.g. see
+  drm_gem_cma_prime_import_sg_table_vmap()), because that's really the
+  only place where you can safely do that without running into locking
+  inversion issues sooner or later
+
+- lots of other drivers (and shmem helpers) seem to do dma_buf_vmap just
+  because they can, but only actually ever use vmap on native objects,
+  never on imported objects. Or at least I think so.
+
+So maybe another approach here:
+
+1. In general drivers which need a vmap need to set that up at dma_buf
+import time - the same way we pin the buffers at import time for
+non-dynamic importers because that's the only place where across all
+drivers it's ok to just take dma_resv_lock.
+
+2. We remove the "just because we can" dma_buf_vmap support from
+helpers/drivers - the paths all already can cope with NULL since
+dma_buf_vmap can fail. vmap will only work on native objects, not imported
+ones.
+
+3. If there is any driver using shmem helpers that absolutely needs vmap
+to also work on imported it needs a special import function (like cma
+helpers) which sets up the vmap at import time.
+
+So since this is all very tricky ... what did I miss this time around?
+
+> I envision that the extra dma_resv_locks for dma-bufs potentially may
+> create unnecessary bottlenecks for some drivers if locking isn't really
+> necessary by a specific driver, so drivers will need to keep this in
+> mind. On the other hand, I don't think that any of the today's drivers
+> will notice the additional resv locks in practice.
+
+Nah I don't think the extra locking will ever create a bottleneck,
+especially not for vmap. Generally vmap is a fallback or at least cpu
+operation, so at that point you're already going very slow.
+-Daniel
+-- =
+
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
