@@ -4,102 +4,94 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id ACC86C433F5
-	for <virtualization@archiver.kernel.org>; Wed, 11 May 2022 02:42:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0F593C433EF
+	for <virtualization@archiver.kernel.org>; Wed, 11 May 2022 03:31:52 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 58FE040B43;
-	Wed, 11 May 2022 02:42:15 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 9751D4032B;
+	Wed, 11 May 2022 03:31:52 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id nmlDb3bmPz3Y; Wed, 11 May 2022 02:42:14 +0000 (UTC)
+	with ESMTP id sDrYYK9vjRDT; Wed, 11 May 2022 03:31:51 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id D45F6408DF;
-	Wed, 11 May 2022 02:42:13 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 3492B4011F;
+	Wed, 11 May 2022 03:31:51 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A2DCFC0032;
-	Wed, 11 May 2022 02:42:13 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 19B71C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1A23CC0039;
+	Wed, 11 May 2022 03:31:51 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4AD41C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 May 2022 02:42:13 +0000 (UTC)
+ Wed, 11 May 2022 03:31:49 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 0406441578
+ by smtp3.osuosl.org (Postfix) with ESMTP id 2A54D60FA5
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 May 2022 02:42:13 +0000 (UTC)
+ Wed, 11 May 2022 03:31:49 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ae5azJRHC-JJ
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=bytedance-com.20210112.gappssmtp.com
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id xmbYD5rEU6c4
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 May 2022 02:42:12 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id E33A84034F
+ Wed, 11 May 2022 03:31:48 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com
+ [IPv6:2607:f8b0:4864:20::62e])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 4B0B560A72
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 May 2022 02:42:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1652236930;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=4nGkvcvFWz+odk5yhwLYeDyIG2eWn1ClUMoDKPyJdBk=;
- b=GSklQrxnk4oJqeDhQkPUD4cW23eZuuXShA899Dudk4vcn4NGUx345Z3ONrM4+Xxs8moKOH
- vDEDUQZ+NE4rqNmgnf5VLjTA74b/gjIGl3jLOWASkp56OHnfsQDvJZOXiyX9v2BORLN+kh
- 0qwnPRjlCou9+hlQcglU02xbpF7mZKo=
-Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
- [209.85.167.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-10-3CdE-TGrOia84g02GgUqKw-1; Tue, 10 May 2022 22:42:09 -0400
-X-MC-Unique: 3CdE-TGrOia84g02GgUqKw-1
-Received: by mail-lf1-f70.google.com with SMTP id
- m2-20020a0565120a8200b00473a809c6e0so282287lfu.11
+ Wed, 11 May 2022 03:31:47 +0000 (UTC)
+Received: by mail-pl1-x62e.google.com with SMTP id i1so626841plg.7
  for <virtualization@lists.linux-foundation.org>;
- Tue, 10 May 2022 19:42:09 -0700 (PDT)
+ Tue, 10 May 2022 20:31:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=bytedance-com.20210112.gappssmtp.com; s=20210112;
+ h=message-id:date:mime-version:user-agent:subject:content-language:to
+ :cc:references:from:in-reply-to:content-transfer-encoding;
+ bh=0Cuz/4c60eAy74LVoGu/qfMMHC1/J7T3iJogMolLBpY=;
+ b=V4ZE0XDxk26uwPSQS8dJPeFtf5cIpGdQnSJhziEOEYbidw5ZiU1L5yPsD1GPsa+HOz
+ tQTsF4MIFhOYiUuXT6VrVPnZ/YDdwSKEj8Jxz2hjTZe+Q2WitMTb3TRmYchmTZwsrBht
+ NO0blCP5OEyyYsvgJLxXOBrITmTOtMAt6Dsao/WkJUbNf4QEhGMIzV4Pqdm/VE7dkKu/
+ vMz0QnLSUIMnzs/ikouWcRwlLJg01nwuGrXJ2zLlfoBsoRmN9/jwbojf7rQsr/AmvB+e
+ U5mc9rqZahHXdbY5SeXRJI5hTe3QpmaAdq4cCycFRusJxZ6FOmKGdTWhQ2UteZOsc7DZ
+ LLJA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=4nGkvcvFWz+odk5yhwLYeDyIG2eWn1ClUMoDKPyJdBk=;
- b=VBaZJ5DsG31wS5YK1G7MHWzLUZyDiHDGnZzDv6caiqeZKeQWDMnR+gFa7nyUh0Y3tF
- /AN1zAkbpfzu4ztLX+h1j0JwrNWLboRFxAnDVem4sUaSeozeOlqARfnKyYVQIviKOamS
- 8cY1tMsOK73EQaFbYYSG7qPlC/3NqPkXKvVwtnbr5EENz2bu1zj6DXsGwx96hcFKTFub
- qUqVuv4mrUwxRtIutodvO8ylMo62eTY1i+XSIzJ1z1TX4q8ZZrLH7E2qD5K8vqZe3NrA
- f67TxZfFfDh2yrWSUW1XUIGz1VO8bq4AcpTU9iomLKLo6Qlmp5JRDWgnlaMrgEEK9viT
- yXYw==
-X-Gm-Message-State: AOAM533cmY3c3UsBr5+ll1mNBFEiG6l5+rq4IVviCGuw7Lk/G5WzsL58
- qSiCKtNeCNYyqEs3xJP2ZAPv612An4WycLCfkJ7/VUds608iS1c13F4GLp5yjv5Vb8eTS7HpGGG
- 0iEwK8njccjpAS00nhj4cnf/HG611P+SmDeH7lxFXCiOpfCR7srffYpbAng==
-X-Received: by 2002:a19:ca50:0:b0:471:f556:92b with SMTP id
- h16-20020a19ca50000000b00471f556092bmr18230643lfj.587.1652236927994; 
- Tue, 10 May 2022 19:42:07 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyHTIitvlKBo9gntoR+9nuIVQxt66PfDgGM8uDAMiSrYJWVeqcsjWShA2gwMUq9hVPezrkTWEGfgTI37LaNx88=
-X-Received: by 2002:a19:ca50:0:b0:471:f556:92b with SMTP id
- h16-20020a19ca50000000b00471f556092bmr18230621lfj.587.1652236927813; Tue, 10
- May 2022 19:42:07 -0700 (PDT)
+ h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+ :content-language:to:cc:references:from:in-reply-to
+ :content-transfer-encoding;
+ bh=0Cuz/4c60eAy74LVoGu/qfMMHC1/J7T3iJogMolLBpY=;
+ b=MvGNWVUEFo1Y3G0s2STuJr5yhGbtcdGuS7FynJkQOg31c/EUltEi+vorVEOBXQ75rr
+ HAPE19Uo+u0iAReysUt16iTZtgoZfh7V8g/Lq2siuIt3G9CxtLS/uAjr8IjVWbxKqy6I
+ RGmWFkR54il4SEP2BuQTwZ7X4lpoxkFRnHDVBvV7PJATzKPR/bo+bsylNYVz4JNNtjxv
+ W8eFmcR01HS+cSxbI6yLKz+wfem7Gn8iGfp2GujDAtWI8a0r/Em95eaN8/i1KzOpearG
+ 5dP2ZMwomIaM2dqXhe1o/4P1v+Q2yrKcDkPWG5ps0A/sbByOuo+7jgfIjBUK4Lv1hR/h
+ qD6A==
+X-Gm-Message-State: AOAM533v9kK92SKI0AkWdmHZbqt6IdNeGU/JZFjkzjvXTZopSTiN7kzh
+ ufOsvX5EuhWJpstUyWSGkV7BnA==
+X-Google-Smtp-Source: ABdhPJxY0SlCXZqyVxerhzEeDAaBhp6GhEa2eaFw/HdrskiYy68wUGSjbKGUmrMT8YnswcQAMiPSSg==
+X-Received: by 2002:a17:90b:194f:b0:1dd:a47:3db5 with SMTP id
+ nk15-20020a17090b194f00b001dd0a473db5mr3157292pjb.74.1652239907513; 
+ Tue, 10 May 2022 20:31:47 -0700 (PDT)
+Received: from [10.255.89.252] ([139.177.225.239])
+ by smtp.gmail.com with ESMTPSA id
+ q6-20020a056a0002a600b0050dc76281f0sm307226pfs.202.2022.05.10.20.31.43
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Tue, 10 May 2022 20:31:46 -0700 (PDT)
+Message-ID: <55fc700a-9cdb-a4ed-c155-5b03a328eb6c@bytedance.com>
+Date: Wed, 11 May 2022 11:27:52 +0800
 MIME-Version: 1.0
-References: <20220507071954.14455-1-jasowang@redhat.com>
- <20220507071954.14455-7-jasowang@redhat.com>
- <20220510072451-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20220510072451-mutt-send-email-mst@kernel.org>
-From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 11 May 2022 10:41:56 +0800
-Message-ID: <CACGkMEvWFyEqeeXYEmbU4TWtnj9Ku6J7jLK_7MueuFvpR7FiGg@mail.gmail.com>
-Subject: Re: [PATCH V4 6/9] virtio-ccw: implement synchronize_cbs()
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: Cindy Lu <lulu@redhat.com>, "Paul E. McKenney" <paulmck@kernel.org>,
- Peter Zijlstra <peterz@infradead.org>, Marc Zyngier <maz@kernel.org>,
- Cornelia Huck <cohuck@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>,
- Halil Pasic <pasic@linux.ibm.com>, eperezma <eperezma@redhat.com>,
- Thomas Gleixner <tglx@linutronix.de>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.1
+Subject: PING: [PATCH v6 0/5] virtio-crypto: Improve performance
+Content-Language: en-US
+To: mst@redhat.com
+References: <20220506131627.180784-1-pizhenwei@bytedance.com>
+From: zhenwei pi <pizhenwei@bytedance.com>
+In-Reply-To: <20220506131627.180784-1-pizhenwei@bytedance.com>
+Cc: herbert@gondor.apana.org.au, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org,
+ davem@davemloft.net, helei.sig11@bytedance.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -111,139 +103,80 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, May 10, 2022 at 7:28 PM Michael S. Tsirkin <mst@redhat.com> wrote:
->
-> On Sat, May 07, 2022 at 03:19:51PM +0800, Jason Wang wrote:
-> > This patch tries to implement the synchronize_cbs() for ccw. For the
-> > vring_interrupt() that is called via virtio_airq_handler(), the
-> > synchronization is simply done via the airq_info's lock. For the
-> > vring_interrupt() that is called via virtio_ccw_int_handler(), a per
-> > device spinlock for irq is introduced ans used in the synchronization
-> > method.
-> >
-> > Cc: Thomas Gleixner <tglx@linutronix.de>
-> > Cc: Peter Zijlstra <peterz@infradead.org>
-> > Cc: "Paul E. McKenney" <paulmck@kernel.org>
-> > Cc: Marc Zyngier <maz@kernel.org>
-> > Cc: Halil Pasic <pasic@linux.ibm.com>
-> > Cc: Cornelia Huck <cohuck@redhat.com>
-> > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > ---
-> >  drivers/s390/virtio/virtio_ccw.c | 27 +++++++++++++++++++++++++++
-> >  1 file changed, 27 insertions(+)
-> >
-> > diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> > index d35e7a3f7067..001e1f0e6037 100644
-> > --- a/drivers/s390/virtio/virtio_ccw.c
-> > +++ b/drivers/s390/virtio/virtio_ccw.c
-> > @@ -62,6 +62,7 @@ struct virtio_ccw_device {
-> >       unsigned int revision; /* Transport revision */
-> >       wait_queue_head_t wait_q;
-> >       spinlock_t lock;
-> > +     rwlock_t irq_lock;
-> >       struct mutex io_lock; /* Serializes I/O requests */
-> >       struct list_head virtqueues;
-> >       bool is_thinint;
-> > @@ -984,6 +985,27 @@ static const char *virtio_ccw_bus_name(struct virtio_device *vdev)
-> >       return dev_name(&vcdev->cdev->dev);
-> >  }
-> >
-> > +static void virtio_ccw_synchronize_cbs(struct virtio_device *vdev)
-> > +{
-> > +     struct virtio_ccw_device *vcdev = to_vc_device(vdev);
-> > +     struct airq_info *info = vcdev->airq_info;
-> > +
-> > +     if (info) {
-> > +             /*
-> > +              * Synchronize with the vring_interrupt() with airq indicator
-> > +              */
-> > +             write_lock(&info->lock);
-> > +             write_unlock(&info->lock);
-> > +     } else {
-> > +             /*
-> > +              * Synchronize with the vring_interrupt() called by
-> > +              * virtio_ccw_int_handler().
-> > +              */
-> > +             write_lock(&vcdev->irq_lock);
-> > +             write_unlock(&vcdev->irq_lock);
-> > +     }
-> > +}
-> > +
-> >  static const struct virtio_config_ops virtio_ccw_config_ops = {
-> >       .get_features = virtio_ccw_get_features,
-> >       .finalize_features = virtio_ccw_finalize_features,
-> > @@ -995,6 +1017,7 @@ static const struct virtio_config_ops virtio_ccw_config_ops = {
-> >       .find_vqs = virtio_ccw_find_vqs,
-> >       .del_vqs = virtio_ccw_del_vqs,
-> >       .bus_name = virtio_ccw_bus_name,
-> > +     .synchronize_cbs = virtio_ccw_synchronize_cbs,
-> >  };
-> >
-> >
-> > @@ -1079,6 +1102,7 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
-> >  {
-> >       __u32 activity = intparm & VIRTIO_CCW_INTPARM_MASK;
-> >       struct virtio_ccw_device *vcdev = dev_get_drvdata(&cdev->dev);
-> > +     unsigned long flags;
-> >       int i;
-> >       struct virtqueue *vq;
-> >
-> > @@ -1106,6 +1130,7 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
-> >                       vcdev->err = -EIO;
-> >       }
-> >       virtio_ccw_check_activity(vcdev, activity);
-> > +     read_lock_irqsave(&vcdev->irq_lock, flags);
-> >       for_each_set_bit(i, indicators(vcdev),
-> >                        sizeof(*indicators(vcdev)) * BITS_PER_BYTE) {
-> >               /* The bit clear must happen before the vring kick. */
->
-> Cornelia sent a lockdep trace on this.
->
-> Basically I think this gets the irqsave/restore logic wrong.
-> It attempts to disable irqs in the handler (which is an interrupt
-> anyway).
+Hi, Michael
 
-The reason I use irqsave/restore is that it can be called from process
-context (if I was not wrong), e.g from io_subchannel_quiesce().
+I would appreciate it if you could review this series!
 
-> And it does not disable irqs in the synchronize_cbs.
->
-> As a result in interrupt might try to take a read lock while
-> .synchronize_cbs has the writer lock, resulting in a deadlock.
->
-> I think you want regular read_lock + write_lock_irq.
+On 5/6/22 21:16, zhenwei pi wrote:
+> v5 -> v6:
+>   - Minor fix for crypto_engine_alloc_init_and_set().
+>   - All the patches have been reviewed by Gonglei, add this in patch.
+>   Thanks to Gonglei.
+> 
+> v4 -> v5:
+>   - Fix potentially dereferencing uninitialized variables in
+>     'virtio-crypto: use private buffer for control request'.
+>     Thanks to Dan Carpenter!
+> 
+> v3 -> v4:
+>   - Don't create new file virtio_common.c, the new functions are added
+>     into virtio_crypto_core.c
+>   - Split the first patch into two parts:
+>       1, change code style,
+>       2, use private buffer instead of shared buffer
+>   - Remove relevant change.
+>   - Other minor changes.
+> 
+> v2 -> v3:
+>   - Jason suggested that spliting the first patch into two part:
+>       1, using private buffer
+>       2, remove the busy polling
+>     Rework as Jason's suggestion, this makes the smaller change in
+>     each one and clear.
+> 
+> v1 -> v2:
+>   - Use kfree instead of kfree_sensitive for insensitive buffer.
+>   - Several coding style fix.
+>   - Use memory from current node, instead of memory close to device
+>   - Add more message in commit, also explain why removing per-device
+>     request buffer.
+>   - Add necessary comment in code to explain why using kzalloc to
+>     allocate struct virtio_crypto_ctrl_request.
+> 
+> v1:
+> The main point of this series is to improve the performance for
+> virtio crypto:
+> - Use wait mechanism instead of busy polling for ctrl queue, this
+>    reduces CPU and lock racing, it's possiable to create/destroy session
+>    parallelly, QPS increases from ~40K/s to ~200K/s.
+> - Enable retry on crypto engine to improve performance for data queue,
+>    this allows the larger depth instead of 1.
+> - Fix dst data length in akcipher service.
+> - Other style fix.
+> 
+> lei he (2):
+>    virtio-crypto: adjust dst_len at ops callback
+>    virtio-crypto: enable retry for virtio-crypto-dev
+> 
+> zhenwei pi (3):
+>    virtio-crypto: change code style
+>    virtio-crypto: use private buffer for control request
+>    virtio-crypto: wait ctrl queue instead of busy polling
+> 
+>   .../virtio/virtio_crypto_akcipher_algs.c      |  95 ++++++------
+>   drivers/crypto/virtio/virtio_crypto_common.h  |  21 ++-
+>   drivers/crypto/virtio/virtio_crypto_core.c    |  55 ++++++-
+>   .../virtio/virtio_crypto_skcipher_algs.c      | 140 ++++++++----------
+>   4 files changed, 182 insertions(+), 129 deletions(-)
+> 
 
-Yes.
-
-Thanks
-
->
->
-> > @@ -1114,6 +1139,7 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
-> >               vq = virtio_ccw_vq_by_ind(vcdev, i);
-> >               vring_interrupt(0, vq);
-> >       }
-> > +     read_unlock_irqrestore(&vcdev->irq_lock, flags);
-> >       if (test_bit(0, indicators2(vcdev))) {
-> >               virtio_config_changed(&vcdev->vdev);
-> >               clear_bit(0, indicators2(vcdev));
-> > @@ -1284,6 +1310,7 @@ static int virtio_ccw_online(struct ccw_device *cdev)
-> >       init_waitqueue_head(&vcdev->wait_q);
-> >       INIT_LIST_HEAD(&vcdev->virtqueues);
-> >       spin_lock_init(&vcdev->lock);
-> > +     rwlock_init(&vcdev->irq_lock);
-> >       mutex_init(&vcdev->io_lock);
-> >
-> >       spin_lock_irqsave(get_ccwdev_lock(cdev), flags);
-> > --
-> > 2.25.1
->
-
+-- 
+zhenwei pi
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
