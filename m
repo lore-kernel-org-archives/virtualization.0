@@ -1,110 +1,98 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E59DBC433F5
-	for <virtualization@archiver.kernel.org>; Wed, 11 May 2022 09:28:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D3EEAC433EF
+	for <virtualization@archiver.kernel.org>; Wed, 11 May 2022 09:34:45 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 935D1610A6;
-	Wed, 11 May 2022 09:28:39 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 7A4D883342;
+	Wed, 11 May 2022 09:34:45 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 7LkVIyiR-HS0; Wed, 11 May 2022 09:28:38 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id DPaTJtNrBv-K; Wed, 11 May 2022 09:34:44 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 4CF3161096;
-	Wed, 11 May 2022 09:28:38 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 308D582EF0;
+	Wed, 11 May 2022 09:34:44 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 238DDC0032;
-	Wed, 11 May 2022 09:28:38 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A2549C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 09911C0032;
+	Wed, 11 May 2022 09:34:44 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id F0616C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 May 2022 09:28:37 +0000 (UTC)
+ Wed, 11 May 2022 09:34:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 82B8B41752
+ by smtp1.osuosl.org (Postfix) with ESMTP id C9722832EB
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 May 2022 09:28:37 +0000 (UTC)
+ Wed, 11 May 2022 09:34:42 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id T00wXNdGqqGj
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id M1Y2QkdntFPj
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 May 2022 09:28:36 +0000 (UTC)
+ Wed, 11 May 2022 09:34:42 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 94A0841635
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 1A31582EF0
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 May 2022 09:28:36 +0000 (UTC)
+ Wed, 11 May 2022 09:34:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1652261315;
+ s=mimecast20190719; t=1652261680;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=fnj3eCg7s0TS1ramQcFiuiKen3jow8jquS3FS71SHPU=;
- b=BCUPGe44b/hdkwItpnMRh1T9feKiDLKtsTIREvUFIJRvDVJJYepXH4UwKhjFWZK0DlmTSO
- B8wPM3eF3RwuAK0khSa9SJpyhY2p0F1syB3G7NWQvRYcK/Yv6dRE9JqGALRBAUR1bbZqI+
- aVBwQLMZ3lG9dHLNtVteHwZYDium/aY=
-Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com
- [209.85.208.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=QX0Cj/+aTx+xhTnveWbfnDHJZzn7y8L+bKOgxixU/4k=;
+ b=dVCaNqVnHWm0tz2pU62w1fr7UIlD3J7R7RXuFl5MJpsjd8oFhaj0aMQ5eq8BRZhP6Z+CeM
+ 3oTytVzltAUTgrnA59i0RX8InnZpYEchky0yri+gNwcdmwTIOSb2pXe9Ixobgzwy/SP1eg
+ RZ89ipgpPBIxmvFCLs9dOPXdr92p5+c=
+Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
+ [209.85.167.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-108-Uo4c3AYgO5WhJX0enWmWug-1; Wed, 11 May 2022 05:28:24 -0400
-X-MC-Unique: Uo4c3AYgO5WhJX0enWmWug-1
-Received: by mail-lj1-f198.google.com with SMTP id
- k8-20020a2e92c8000000b0024f249d1770so517047ljh.23
+ us-mta-575-3M5KTs7aNbmqoEYZOLZFyQ-1; Wed, 11 May 2022 05:34:39 -0400
+X-MC-Unique: 3M5KTs7aNbmqoEYZOLZFyQ-1
+Received: by mail-lf1-f70.google.com with SMTP id
+ x29-20020a0565123f9d00b00471c2bbf57cso595747lfa.12
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 May 2022 02:28:24 -0700 (PDT)
+ Wed, 11 May 2022 02:34:39 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=fnj3eCg7s0TS1ramQcFiuiKen3jow8jquS3FS71SHPU=;
- b=bIutSaXoYVoztFi6L/0+p9mqkEVXkVZ2PnwBZ33Wwyem41TiBOZeXGzobYsDRYz9wW
- LmDHs9hFKJvoz478kiKFG5/uUN9idvlE7qxnnDUGoRLWXyx1NboW6v1NhZTYqforSuRh
- r6i3pSUrCJSWM/0iQRRQnO1+KBM+YuS5JzxaGGA0Bt0X1wzv769YALHJv+KC96iipPAz
- pREn6ZSBny+UXBtHrIzguRagojaNmHYszw03n3eyHp8aQ2+3gvLmWHbvGiZcUnE7EO3i
- bXYmQfumk8url8JRagKjF5GffVi+KPkXdWKRtIiUSBcbneyrL2ie2Whhpg3t9Tc8kDDE
- JS3w==
-X-Gm-Message-State: AOAM530+Lcmn0HNQjDtxahZ5qnSXpRgk/006Aa5/J4ZOxUlw0NOPTS4A
- 5eNIicAyTXe6PTPb8IBl0KByx/00PR7vzlgA5MtYjb8O1nrTVIAAmKmc7H8yW58Usd51nO+0E3x
- dpqoywZfLCfv9oAxhTt9X18XXBqnqqZQFdpp+/CW898/f8AGROQRuKJjWkA==
-X-Received: by 2002:a05:6512:1395:b0:446:d382:79a5 with SMTP id
- p21-20020a056512139500b00446d38279a5mr18757585lfa.210.1652261303108; 
- Wed, 11 May 2022 02:28:23 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJziEsE0wruGYH+kUCMRRSImc8q7QCatle/uLfreXdxbIWtU4dwTUYlK/rx6iWNQiOJla5rpc0/Sn+mLSDLqQ1Y=
-X-Received: by 2002:a05:6512:1395:b0:446:d382:79a5 with SMTP id
- p21-20020a056512139500b00446d38279a5mr18757555lfa.210.1652261302901; Wed, 11
- May 2022 02:28:22 -0700 (PDT)
+ bh=QX0Cj/+aTx+xhTnveWbfnDHJZzn7y8L+bKOgxixU/4k=;
+ b=flZwOD7XlgBvqxo9M0Cj7OYhjddRbbbOpcRm9eOuZ+rjvkj4EUUy41IURcQ3mOPQbO
+ VcuAEVulsww3MQXsTTtOLR3nHwpyTIK0tv1V8iyJWOInBLUWVlc4q/372JLF8XY7DVqn
+ Qhnh95GYVu91FbbNNB0IVC2ek+49bqvL/PeiD8fqYf6X7jSk9t1MdTeZvqfYqvLnqyd9
+ GVLbylPGPCEn/WT211XtTsRxdGeQy2J/x+muJGCJo8Z4CJxUmNOF5xXs+AZgj/f9pDAc
+ +onKlStkT+oMHdGcGyyud+mZTDAnndUNA+NRCsLHVPpCKB853i+dLypLwvhSQW8H2tOT
+ JvRg==
+X-Gm-Message-State: AOAM532uHYshnZydQiRGg5tPHVpuEqX/bd3qtNLfQWTlQ9tFgrww5dMr
+ 02450pd7iiSa5IYpCKftYyu53tMYTELY9fGzHsG4mr0DqJz4SpIkG2qOQaAb9ToDqFzZbKW+ixQ
+ EDWgAYIh/fajB5PtrgCrzPkykMXdPC2BtHYnCwJgHBoxQeCiVkX8SDc2rmQ==
+X-Received: by 2002:ac2:4e14:0:b0:474:1f4d:9b86 with SMTP id
+ e20-20020ac24e14000000b004741f4d9b86mr12529117lfr.257.1652261678188; 
+ Wed, 11 May 2022 02:34:38 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxwSR3boxqB9WdjMa8GSORmdjNZKJuW9jsa+GGmDPHgBa8GPteEbR7AZJKTagjR6DSaEVD6g/u41NoP+SGevjE=
+X-Received: by 2002:ac2:4e14:0:b0:474:1f4d:9b86 with SMTP id
+ e20-20020ac24e14000000b004741f4d9b86mr12529040lfr.257.1652261676518; Wed, 11
+ May 2022 02:34:36 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220507071954.14455-1-jasowang@redhat.com>
- <20220507071954.14455-7-jasowang@redhat.com>
- <20220510072451-mutt-send-email-mst@kernel.org>
- <CACGkMEvWFyEqeeXYEmbU4TWtnj9Ku6J7jLK_7MueuFvpR7FiGg@mail.gmail.com>
- <87r150bi0d.fsf@redhat.com>
- <CACGkMEtPk9P4KhJ5wTOLj9CZoKDx9-X_5uLRVBag692x4s9SrA@mail.gmail.com>
- <87lev8bffh.fsf@redhat.com>
-In-Reply-To: <87lev8bffh.fsf@redhat.com>
+References: <20220511084804.82482-1-elic@nvidia.com>
+In-Reply-To: <20220511084804.82482-1-elic@nvidia.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 11 May 2022 17:28:11 +0800
-Message-ID: <CACGkMEviB6-SmJmbV3h2zhaTwnep=WQLdnHXRc6D+UUxRXijfg@mail.gmail.com>
-Subject: Re: [PATCH V4 6/9] virtio-ccw: implement synchronize_cbs()
-To: Cornelia Huck <cohuck@redhat.com>
+Date: Wed, 11 May 2022 17:34:25 +0800
+Message-ID: <CACGkMEt9h=hGH9cGj=NNLrGtvg2PguS8-pe4trxNUQOxmTRsog@mail.gmail.com>
+Subject: Re: [PATCH] vdpa: Warn if MTU configured is too low
+To: Eli Cohen <elic@nvidia.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: Peter Oberparleiter <oberpar@linux.ibm.com>, Cindy Lu <lulu@redhat.com>,
- "Paul E. McKenney" <paulmck@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>,
- Peter Zijlstra <peterz@infradead.org>, Marc Zyngier <maz@kernel.org>,
- linux-kernel <linux-kernel@vger.kernel.org>,
+Cc: Si-Wei Liu <si-wei.liu@oracle.com>,
  virtualization <virtualization@lists.linux-foundation.org>,
- Halil Pasic <pasic@linux.ibm.com>, eperezma <eperezma@redhat.com>,
- Vineeth Vijayan <vneethv@linux.ibm.com>, Thomas Gleixner <tglx@linutronix.de>
+ linux-kernel <linux-kernel@vger.kernel.org>, mst <mst@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -121,55 +109,62 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, May 11, 2022 at 5:13 PM Cornelia Huck <cohuck@redhat.com> wrote:
+On Wed, May 11, 2022 at 4:48 PM Eli Cohen <elic@nvidia.com> wrote:
 >
-> On Wed, May 11 2022, Jason Wang <jasowang@redhat.com> wrote:
+> Following the recommendation in virio spec 1.1, a device offering
+> VIRTIO_NET_F_MTU should set the mtu to at least 1280 bytes.
 >
-> > On Wed, May 11, 2022 at 4:17 PM Cornelia Huck <cohuck@redhat.com> wrote:
-> >>
-> >> On Wed, May 11 2022, Jason Wang <jasowang@redhat.com> wrote:
-> >>
-> >> > On Tue, May 10, 2022 at 7:28 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> >> >>
-> >> >> On Sat, May 07, 2022 at 03:19:51PM +0800, Jason Wang wrote:
-> >> >> > @@ -1106,6 +1130,7 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
-> >> >> >                       vcdev->err = -EIO;
-> >> >> >       }
-> >> >> >       virtio_ccw_check_activity(vcdev, activity);
-> >> >> > +     read_lock_irqsave(&vcdev->irq_lock, flags);
-> >> >> >       for_each_set_bit(i, indicators(vcdev),
-> >> >> >                        sizeof(*indicators(vcdev)) * BITS_PER_BYTE) {
-> >> >> >               /* The bit clear must happen before the vring kick. */
-> >> >>
-> >> >> Cornelia sent a lockdep trace on this.
-> >> >>
-> >> >> Basically I think this gets the irqsave/restore logic wrong.
-> >> >> It attempts to disable irqs in the handler (which is an interrupt
-> >> >> anyway).
-> >> >
-> >> > The reason I use irqsave/restore is that it can be called from process
-> >> > context (if I was not wrong), e.g from io_subchannel_quiesce().
-> >>
-> >> io_subchannel_quiesce() should disable interrupts, though? Otherwise, it
-> >> would be a bug.
-> >
-> > Right, it was protected by a spin_lock_irq(), but I can see other
-> > cdev->handler() in e.g device_fsm.c, the irq status is not obvious, do
-> > they have the same assumption which IRQ is disabled?
+> Print a warning if this recommendation is not met.
 >
-> Yes, that should be the case for any invocations via the fsm as well.
->
+> Signed-off-by: Eli Cohen <elic@nvidia.com>
 
-Ok.
+I wonder why it's a must?
 
-> It's been some time since I've worked on that part of the code, though,
-> so let's cc: the s390 cio maintainers so that they can speak up if I'm
-> wrong.
+> ---
+>  drivers/vdpa/vdpa.c | 9 ++++++++-
+>  1 file changed, 8 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
+> index 91f4c13c7c7c..961168fe9094 100644
+> --- a/drivers/vdpa/vdpa.c
+> +++ b/drivers/vdpa/vdpa.c
+> @@ -583,6 +583,9 @@ vdpa_nl_cmd_mgmtdev_get_dumpit(struct sk_buff *msg, struct netlink_callback *cb)
+>                                  BIT_ULL(VDPA_ATTR_DEV_NET_CFG_MTU)     | \
+>                                  BIT_ULL(VDPA_ATTR_DEV_NET_CFG_MAX_VQP))
+>
+> +/* Recommended virtio spec 1.1 section 5.1.4.1 */
+> +#define VIRTIO_MIN_PREFERRED_MTU 1280
+> +
+>  static int vdpa_nl_cmd_dev_add_set_doit(struct sk_buff *skb, struct genl_info *info)
+>  {
+>         struct vdpa_dev_set_config config = {};
+> @@ -634,6 +637,10 @@ static int vdpa_nl_cmd_dev_add_set_doit(struct sk_buff *skb, struct genl_info *i
+>                 err = PTR_ERR(mdev);
+>                 goto err;
+>         }
+> +       if ((mdev->supported_features & BIT_ULL(VIRTIO_NET_F_MTU)) &&
+> +           (config.mask & BIT_ULL(VDPA_ATTR_DEV_NET_CFG_MTU) &&
+> +           config.net.mtu < VIRTIO_MIN_PREFERRED_MTU))
 
-Ok, I will do that.
+Should be <= ?
 
 Thanks
 
+> +               pr_warn("MTU is below recommended value\n");
+>         if ((config.mask & mdev->config_attr_mask) != config.mask) {
+>                 NL_SET_ERR_MSG_MOD(info->extack,
+>                                    "All provided attributes are not supported");
+> @@ -1135,7 +1142,7 @@ static const struct nla_policy vdpa_nl_policy[VDPA_ATTR_MAX + 1] = {
+>         [VDPA_ATTR_DEV_NAME] = { .type = NLA_STRING },
+>         [VDPA_ATTR_DEV_NET_CFG_MACADDR] = NLA_POLICY_ETH_ADDR,
+>         /* virtio spec 1.1 section 5.1.4.1 for valid MTU range */
+> -       [VDPA_ATTR_DEV_NET_CFG_MTU] = NLA_POLICY_MIN(NLA_U16, 68),
+> +       [VDPA_ATTR_DEV_NET_CFG_MTU] = NLA_POLICY_MIN(NLA_U16, ETH_MIN_MTU),
+>  };
+>
+>  static const struct genl_ops vdpa_nl_ops[] = {
+> --
+> 2.35.1
 >
 
 _______________________________________________
