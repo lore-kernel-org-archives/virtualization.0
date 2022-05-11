@@ -1,121 +1,121 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 10A26C433EF
-	for <virtualization@archiver.kernel.org>; Wed, 11 May 2022 14:02:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id EAEE5C433EF
+	for <virtualization@archiver.kernel.org>; Wed, 11 May 2022 14:24:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id A86DA82F8B;
-	Wed, 11 May 2022 14:02:15 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 7EFB860D94;
+	Wed, 11 May 2022 14:24:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id bw1VSOXsOvqB; Wed, 11 May 2022 14:02:14 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id vIsOaGhFg7rg; Wed, 11 May 2022 14:24:37 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 55DE6828AA;
-	Wed, 11 May 2022 14:02:14 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 0493F60BEB;
+	Wed, 11 May 2022 14:24:36 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2F961C0032;
-	Wed, 11 May 2022 14:02:14 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 48F0CC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id DB2F7C0039;
+	Wed, 11 May 2022 14:24:36 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E7931C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 May 2022 14:02:11 +0000 (UTC)
+ Wed, 11 May 2022 14:24:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 4591E82C7C
+ by smtp4.osuosl.org (Postfix) with ESMTP id E2C1641833
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 May 2022 14:02:11 +0000 (UTC)
+ Wed, 11 May 2022 14:24:34 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id a_Cgizdd-cWF
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=gmail.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id fP2vSdE8b2Uc
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 May 2022 14:02:10 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com
- [148.163.158.5])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 96A5583224
+ Wed, 11 May 2022 14:24:33 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com
+ [IPv6:2a00:1450:4864:20::52b])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 73D2B415FD
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 May 2022 14:02:10 +0000 (UTC)
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
- by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24BDKVnd029848;
- Wed, 11 May 2022 14:01:55 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com;
- h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=qsQ5SKdZ0ioW8fqIOFzLQJ9VmnLyw+WheucOVyOqJyg=;
- b=k4Rx4Nf8+Bx/Ryz55H7dbjXRRxBo1ea4Oy+RBhUJOBmxr+uRIels04vcd5/UKx2vUmzg
- lWw27swv7KYIMoypYXbP1VVWDVwafJeVToYGHy5ZIIcz8wv8rnjMPurpIAQsDSkIgS71
- 8DPKmjlZCh8MZcj3wBpUmaLpofdoOIW40lj4DArBvIZUZFOijQKDlpoAOV0PNZa+SuWI
- Ni/NXHJi7vWDtdhONEEUJ9FmZB+xhl4kQAY6iAjl67lq97vfLWC8uYat/w3RBwOQgscb
- 7kJEokRQVoWWox8teCjVLXl9rQ3LpVqlRqEbN9SM7GdLH2TgwLTg5NH7fiNLhGyy8Avs 5w== 
-Received: from pps.reinject (localhost [127.0.0.1])
- by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g0dxq8t7x-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Wed, 11 May 2022 14:01:55 +0000
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
- by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24BDjBOt035787;
- Wed, 11 May 2022 14:01:54 GMT
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com
- [159.122.73.72])
- by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g0dxq8t6t-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Wed, 11 May 2022 14:01:54 +0000
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
- by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24BDvLUM009481;
- Wed, 11 May 2022 14:01:52 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com
- (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
- by ppma06fra.de.ibm.com with ESMTP id 3fwg1hvb3k-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Wed, 11 May 2022 14:01:52 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com
- [9.149.105.232])
- by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id
- 24BE1nhq57868570
- (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Wed, 11 May 2022 14:01:49 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
- by IMSVA (Postfix) with ESMTP id A0E115204F;
- Wed, 11 May 2022 14:01:49 +0000 (GMT)
-Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown
- [9.152.224.205])
- by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 37EDD5204E;
- Wed, 11 May 2022 14:01:49 +0000 (GMT)
-Date: Wed, 11 May 2022 16:01:47 +0200
-From: Halil Pasic <pasic@linux.ibm.com>
-To: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V4 0/9] rework on the IRQ hardening of virtio
-Message-ID: <20220511160147.46cbf2fb.pasic@linux.ibm.com>
-In-Reply-To: <CACGkMEvfkUpsY4LRTuH7w18DZdq+w3=Ef6b-0sG0XvzVUVKdzg@mail.gmail.com>
-References: <20220507071954.14455-1-jasowang@redhat.com>
- <875ymd3fd1.fsf@redhat.com>
- <CACGkMEvfkUpsY4LRTuH7w18DZdq+w3=Ef6b-0sG0XvzVUVKdzg@mail.gmail.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+ Wed, 11 May 2022 14:24:33 +0000 (UTC)
+Received: by mail-ed1-x52b.google.com with SMTP id a21so2792375edb.1
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 11 May 2022 07:24:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=message-id:date:mime-version:user-agent:subject:content-language:to
+ :references:from:in-reply-to:content-transfer-encoding;
+ bh=HUH8tlT8lXb3CWmwqvN7Ydrh8IaXMTb4spsD3mLnS/M=;
+ b=jivEDiDmye/lS2mIg5KIOd28OXyk0tDDk1D9yKGnX3e7kdSIn9gpcF88poaTeqO8gN
+ KYPbfd15Gq17qIsUtNd9VRmIF3hmjexpQymV6U0TSPh63o5u5v+vhm198WOrns1zGWS5
+ y6DnGlfigABwDrjDTHGczff9WESSOKgJrcl4MXZjydmZm8Kkz6/VzfspBtLcBsun7Ctf
+ d8Q1EtgS9P2wCO5uJQ8glu5y/MTD34sss/qe8vupZMHlBA+27LcqVitWOqXWhjnZbtPb
+ hSZq6kZEIQ2BgV2IIKt1I2Y0urCQk0NrAJrMr3oQoRYyGhD9xBRaFOZRlVBi/HqUxOvk
+ U+fA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+ :content-language:to:references:from:in-reply-to
+ :content-transfer-encoding;
+ bh=HUH8tlT8lXb3CWmwqvN7Ydrh8IaXMTb4spsD3mLnS/M=;
+ b=p5SGcPLK7flUWQ21LTiDk5+C41amQint/pP6GM4Ex+VCdo3hpRVrfWdGOIC18/PhQB
+ 5vZPrgBl81MKmv4Xi/fuk7J0DC1Pe6SpyCtIiKBTaF2Bfiux3rOj9ab1u/cpxP8YILta
+ jeTTNxHyGYinhzGGIFKRXyqihAt8LCXF9268GEOLowkJsz97+C0DTJ2601FslJyInrL2
+ E41nCshRViwEAXXLEjvVL1T6q4pzI1n8Y3U9WcUlRb7ZXrY0FNEcR41VNogQCSutOOPT
+ rOOhZ8vZhjR4zRKPF6+vFJG5lebpc2hqCOxOPkwrNTIw0S84wAk09AWVYj1moGmmCWf4
+ eAbg==
+X-Gm-Message-State: AOAM532EHq0BZfgxceXt36pmoPhu/cUdMDKJqh0iPRS/jV2bFzBU1R/g
+ zIn3jQ2ciFNbtC42/DZomYo=
+X-Google-Smtp-Source: ABdhPJwOtFlq1WvW0FIuRkxOJG81MM65TGKej/9Xy0UZB1RQWBaSIHnO89v4XF1WhilLEyiZ/4Pteg==
+X-Received: by 2002:a05:6402:1f0b:b0:427:b390:2020 with SMTP id
+ b11-20020a0564021f0b00b00427b3902020mr29095143edb.70.1652279071366; 
+ Wed, 11 May 2022 07:24:31 -0700 (PDT)
+Received: from ?IPV6:2a02:908:1256:79a0:9503:dbd2:a019:fe23?
+ ([2a02:908:1256:79a0:9503:dbd2:a019:fe23])
+ by smtp.gmail.com with ESMTPSA id
+ ot17-20020a170906ccd100b006f3ef214e3bsm973652ejb.161.2022.05.11.07.24.29
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Wed, 11 May 2022 07:24:30 -0700 (PDT)
+Message-ID: <56787b70-fb64-64da-6006-d3aa3ed59d12@gmail.com>
+Date: Wed, 11 May 2022 16:24:28 +0200
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: YwY84jtz4mZc8wDYsffoaslHaMgif1_C
-X-Proofpoint-ORIG-GUID: HB8f3CTnTA7Z_CM9GzFj0wrmdbOigrtX
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-11_05,2022-05-11_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 spamscore=0
- adultscore=0 mlxlogscore=917 clxscore=1015 mlxscore=0 lowpriorityscore=0
- priorityscore=1501 suspectscore=0 impostorscore=0 malwarescore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2205110063
-Cc: Cindy Lu <lulu@redhat.com>, "Paul E. McKenney" <paulmck@kernel.org>,
- mst <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>,
- Marc Zyngier <maz@kernel.org>, Cornelia Huck <cohuck@redhat.com>,
- linux-kernel <linux-kernel@vger.kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>,
- Halil Pasic <pasic@linux.ibm.com>, eperezma <eperezma@redhat.com>,
- Thomas Gleixner <tglx@linutronix.de>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH v4 10/15] drm/shmem-helper: Take reservation lock instead
+ of drm_gem_shmem locks
+Content-Language: en-US
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ Thomas Zimmermann <tzimmermann@suse.de>, Daniel Stone
+ <daniel@fooishbar.org>, David Airlie <airlied@linux.ie>,
+ Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Daniel Almeida <daniel.almeida@collabora.com>,
+ Gert Wollny <gert.wollny@collabora.com>,
+ Gustavo Padovan <gustavo.padovan@collabora.com>,
+ Tomeu Vizoso <tomeu.vizoso@collabora.com>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Rob Herring <robh@kernel.org>,
+ Steven Price <steven.price@arm.com>,
+ Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
+ Rob Clark <robdclark@gmail.com>, Emil Velikov <emil.l.velikov@gmail.com>,
+ Robin Murphy <robin.murphy@arm.com>, Dmitry Osipenko <digetx@gmail.com>,
+ linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org
+References: <248083d2-b8f2-a4d7-099d-70a7e7859c11@suse.de>
+ <d9e7bec1-fffb-e0c4-8659-ef3ce2c31280@collabora.com>
+ <YmlYHNlcmNMfOeyy@phenom.ffwll.local>
+ <8f932ab0-bb72-8fea-4078-dc59e9164bd4@collabora.com>
+ <YnI3lE0TxLfZaQjE@phenom.ffwll.local>
+ <01506516-ab2f-cb6e-7507-f2a3295efb59@collabora.com>
+ <YnOHAh9I1ds4+1J+@phenom.ffwll.local>
+ <83e68918-68de-c0c6-6f9b-e94d34b19383@collabora.com>
+ <YnkaUk0mZNuPsZ5r@phenom.ffwll.local>
+ <4d08b382-0076-1ea2-b565-893d50b453cb@collabora.com>
+ <YnuziJDmXVR09UzP@phenom.ffwll.local>
+From: =?UTF-8?Q?Christian_K=c3=b6nig?= <ckoenig.leichtzumerken@gmail.com>
+In-Reply-To: <YnuziJDmXVR09UzP@phenom.ffwll.local>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -127,35 +127,109 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, 11 May 2022 10:22:59 +0800
-Jason Wang <jasowang@redhat.com> wrote:
+Am 11.05.22 um 15:00 schrieb Daniel Vetter:
+> On Tue, May 10, 2022 at 04:39:53PM +0300, Dmitry Osipenko wrote:
+>> [SNIP]
+>> Since vmapping implies implicit pinning, we can't use a separate lock in
+>> drm_gem_shmem_vmap() because we need to protect the
+>> drm_gem_shmem_get_pages(), which is invoked by drm_gem_shmem_vmap() to
+>> pin the pages and requires the dma_resv_lock to be locked.
+>>
+>> Hence the problem is:
+>>
+>> 1. If dma-buf importer holds the dma_resv_lock and invokes
+>> dma_buf_vmap() -> drm_gem_shmem_vmap(), then drm_gem_shmem_vmap() shall
+>> not take the dma_resv_lock.
+>>
+>> 2. Since dma-buf locking convention isn't specified, we can't assume
+>> that dma-buf importer holds the dma_resv_lock around dma_buf_vmap().
+>>
+>> The possible solutions are:
+>>
+>> 1. Specify the dma_resv_lock convention for dma-bufs and make all
+>> drivers to follow it.
+>>
+>> 2. Make only DRM drivers to hold dma_resv_lock around dma_buf_vmap().
+>> Other non-DRM drivers will get the lockdep warning.
+>>
+>> 3. Make drm_gem_shmem_vmap() to take the dma_resv_lock and get deadlock
+>> if dma-buf importer holds the lock.
+>>
+>> ...
+> Yeah this is all very annoying.
 
-> >        CPU0
-> >        ----
-> >   lock(&vcdev->irq_lock);
-> >   <Interrupt>
-> >     lock(&vcdev->irq_lock);
-> >
-> >  *** DEADLOCK ***  
-> 
-> It looks to me we need to use write_lock_irq()/write_unlock_irq() to
-> do the synchronization.
-> 
-> And we probably need to keep the
-> read_lock_irqsave()/read_lock_irqrestore() logic since I can see the
-> virtio_ccw_int_handler() to be called from process context (e.g from
-> the io_subchannel_quiesce()).
-> 
+Ah, yes that topic again :)
 
-Sounds correct.
+I think we could relatively easily fix that by just defining and 
+enforcing that the dma_resv_lock must have be taken by the caller when 
+dma_buf_vmap() is called.
+
+A two step approach should work:
+1. Move the call to dma_resv_lock() into the dma_buf_vmap() function and 
+remove all lock taking from the vmap callback implementations.
+2. Move the call to dma_resv_lock() into the callers of dma_buf_vmap() 
+and enforce that the function is called with the lock held.
+
+It shouldn't be that hard to clean up. The last time I looked into it my 
+main problem was that we didn't had any easy unit test for it.
 
 Regards,
-Halil
+Christian.
+
+>
+>> There are actually very few drivers in kernel that use dma_buf_vmap()
+>> [1], so perhaps it's not really a big deal to first try to define the
+>> locking and pinning convention for the dma-bufs? At least for
+>> dma_buf_vmap()? Let me try to do this.
+>>
+>> [1] https://elixir.bootlin.com/linux/v5.18-rc6/C/ident/dma_buf_vmap
+> Yeah looking through the code there's largely two classes of drivers that
+> need vmap:
+>
+> - display drivers that need to do cpu upload (usb, spi, i2c displays).
+>    Those generally set up the vmap at import time or when creating the
+>    drm_framebuffer object (e.g. see
+>    drm_gem_cma_prime_import_sg_table_vmap()), because that's really the
+>    only place where you can safely do that without running into locking
+>    inversion issues sooner or later
+>
+> - lots of other drivers (and shmem helpers) seem to do dma_buf_vmap just
+>    because they can, but only actually ever use vmap on native objects,
+>    never on imported objects. Or at least I think so.
+>
+> So maybe another approach here:
+>
+> 1. In general drivers which need a vmap need to set that up at dma_buf
+> import time - the same way we pin the buffers at import time for
+> non-dynamic importers because that's the only place where across all
+> drivers it's ok to just take dma_resv_lock.
+>
+> 2. We remove the "just because we can" dma_buf_vmap support from
+> helpers/drivers - the paths all already can cope with NULL since
+> dma_buf_vmap can fail. vmap will only work on native objects, not imported
+> ones.
+>
+> 3. If there is any driver using shmem helpers that absolutely needs vmap
+> to also work on imported it needs a special import function (like cma
+> helpers) which sets up the vmap at import time.
+>
+> So since this is all very tricky ... what did I miss this time around?
+>
+>> I envision that the extra dma_resv_locks for dma-bufs potentially may
+>> create unnecessary bottlenecks for some drivers if locking isn't really
+>> necessary by a specific driver, so drivers will need to keep this in
+>> mind. On the other hand, I don't think that any of the today's drivers
+>> will notice the additional resv locks in practice.
+> Nah I don't think the extra locking will ever create a bottleneck,
+> especially not for vmap. Generally vmap is a fallback or at least cpu
+> operation, so at that point you're already going very slow.
+> -Daniel
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
