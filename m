@@ -1,102 +1,104 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id EBEFEC433EF
-	for <virtualization@archiver.kernel.org>; Tue, 10 May 2022 23:51:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 41581C433EF
+	for <virtualization@archiver.kernel.org>; Wed, 11 May 2022 02:23:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 599A041872;
-	Tue, 10 May 2022 23:51:12 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id D47D5408DF;
+	Wed, 11 May 2022 02:23:20 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id sKcoAetsSqC4; Tue, 10 May 2022 23:51:11 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id A9F9541731;
-	Tue, 10 May 2022 23:51:10 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 865F2C0039;
-	Tue, 10 May 2022 23:51:10 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id F3CC3C002D
- for <virtualization@lists.linux-foundation.org>;
- Tue, 10 May 2022 23:51:09 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id DAB6040232
- for <virtualization@lists.linux-foundation.org>;
- Tue, 10 May 2022 23:51:09 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=linux-foundation.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id tQ7x1cHv8Wgy
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id csY1kkxd5qHr; Wed, 11 May 2022 02:23:19 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 53DD940463;
+	Wed, 11 May 2022 02:23:19 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 26C12C0032;
+	Wed, 11 May 2022 02:23:19 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C9271C002D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 10 May 2022 23:51:07 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com
- [IPv6:2a00:1450:4864:20::633])
- by smtp2.osuosl.org (Postfix) with ESMTPS id D1AE3400CB
+ Wed, 11 May 2022 02:23:17 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id B444F82EF0
  for <virtualization@lists.linux-foundation.org>;
- Tue, 10 May 2022 23:51:06 +0000 (UTC)
-Received: by mail-ej1-x633.google.com with SMTP id dk23so811589ejb.8
+ Wed, 11 May 2022 02:23:17 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id PKl2w_byVKQL
  for <virtualization@lists.linux-foundation.org>;
- Tue, 10 May 2022 16:51:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=linux-foundation.org; s=google;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=s7uQP88rm2fFVrAVhakdMnaytPLChwV+spwEqxpvxKE=;
- b=Wvb2Yr5ntSMikIY6rsVTXCZINVsgnvf5OHdXaS5WophjI51WFvB8FsxEaYv1RdGkSy
- ORGLa02GFQN4jWiwyp35UkGxqCVY8hbh1eV9xU7ToJNJzjVWjhEYOqjgamybrHXG8cWb
- TwhAiglLuZCkojR6K6YA46HDyLB6G+PqIX51A=
+ Wed, 11 May 2022 02:23:16 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id B013982E22
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 11 May 2022 02:23:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1652235795;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=NoNShCUgG/r5sx7GtSLhujeTcuOeCXLnixMsESYMdzg=;
+ b=Mo172dR/XPeQRbZvRdT99BnmDmJQa1BmkLnPnwRS/LGRKfaDjUas9EQPw+KVPDL9bfv7ME
+ hnozkNVVkhIiSX/png3SsL1hXkeeOUQWZccKRW5c5hVocYZLsUKZ+4OKg59eueLuCCZ/vB
+ SkCJcZ8YxqbUu5gFRqlxQICaxHpSG2o=
+Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com
+ [209.85.208.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-195-DwVo-NPvMOCE_G7N9ukavw-1; Tue, 10 May 2022 22:23:12 -0400
+X-MC-Unique: DwVo-NPvMOCE_G7N9ukavw-1
+Received: by mail-lj1-f200.google.com with SMTP id
+ 194-20020a2e09cb000000b002508b2e655dso179800ljj.11
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 10 May 2022 19:23:11 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=s7uQP88rm2fFVrAVhakdMnaytPLChwV+spwEqxpvxKE=;
- b=izSwwTujZIeqv4s4XX3qOXeT2y5FnqmB535ShA1aWhW03XfsQLdXxBbmj6EpduDN6x
- GwrYwWt9/AW5KA25MlR541IDHxQrzFMcYG9rw8uNv1+SdgYuIUfpIC9RSv/neD3Vuk4a
- Bwee1FgNLyFmf4n1EPxOO9jhFnIePJL+P/EIXG2+bU8lQEzKX81ouKlQiv2MrdlZXPhn
- aA+OSRtydrn4CfRUOQABazP1zWxt7qITWLhH2TpxNmt3qhlk4huieQcoKcchuEX2PeBF
- REPP0NcL1xQo1uIyVsM5rd7wDKVqHdnyF5eskta5ZRIb2sJGCb/xyLFbJx1EymtbEg0U
- 2Y2g==
-X-Gm-Message-State: AOAM5336AKep0g4GkLg8wcejdb/Qk54QoGMEdq6gfo4oXcPADVCvCjkA
- pl04rsYEWWBqBg6O/+Pu4N/uJeLNwa++G1Qzo8H9+g==
-X-Google-Smtp-Source: ABdhPJyHOOI8BmlHICJMeGcvn/Uyoyd7DBQOLn6k0zNMz4tcZUea43XefzqcmJ3xrdbDqRvY86rnnA==
-X-Received: by 2002:a17:907:2ce5:b0:6f5:64f4:91d8 with SMTP id
- hz5-20020a1709072ce500b006f564f491d8mr19443588ejc.675.1652226664622; 
- Tue, 10 May 2022 16:51:04 -0700 (PDT)
-Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com.
- [209.85.128.41]) by smtp.gmail.com with ESMTPSA id
- k9-20020a056402048900b0042617ba6399sm270207edv.35.2022.05.10.16.51.03
- for <virtualization@lists.linux-foundation.org>
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Tue, 10 May 2022 16:51:04 -0700 (PDT)
-Received: by mail-wm1-f41.google.com with SMTP id
- n6-20020a05600c3b8600b0039492b44ce7so281039wms.5
- for <virtualization@lists.linux-foundation.org>;
- Tue, 10 May 2022 16:51:03 -0700 (PDT)
-X-Received: by 2002:a1c:4c06:0:b0:394:65c4:bd03 with SMTP id
- z6-20020a1c4c06000000b0039465c4bd03mr2167400wmf.8.1652226663399; Tue, 10 May
- 2022 16:51:03 -0700 (PDT)
+ bh=NoNShCUgG/r5sx7GtSLhujeTcuOeCXLnixMsESYMdzg=;
+ b=iB60nkEHoxMTL5Yp2P7dLe7hivxxEJSK/i3BBACplpfAfGzsRmhmkVVx9qsGF0SF5x
+ msBz34/UpW8Z+8U5Z8Us/6F4qKQZtO0e7AZkJMTTcaJCO/ADJXLQu1JqEQNXc2HIHdw/
+ 6U+FxeXX7dHT/NRBiI5KW1eW8vZKkcI2Lzr2HDRo2toXmqnz5Nvism2x4viyjpPXHg8y
+ EublmG3UfO1I5X6155yQfanf4/kVjRo7Rs3Hndyi0hXv2XH5VOHCVDGbePmSKfoHyIod
+ DL1Qeynsk7I0R2nuFXPvOqPvBMvBrxZcQXOqw8eq9m+OmeBPY38sc+AxtOahJHZo0obG
+ Ogaw==
+X-Gm-Message-State: AOAM530yWwI7NdXsguBMDY2q+zkZ/PJ9YUTshDbGNAdJngcg/TTUzOXF
+ zfpzTM04xiS173e7f8C7aBMW7Sy43eEeS5w8+eA+C/v6yVikLc/UO+x/ZUQP4i7kuBRYUdDj9T5
+ gLUg1x1M8e7Mli9yALMDZvbS5cUNV7mKXxK2MAeG955kGXqMUZBbbJVCcsQ==
+X-Received: by 2002:a19:ca50:0:b0:471:f556:92b with SMTP id
+ h16-20020a19ca50000000b00471f556092bmr18193782lfj.587.1652235790481; 
+ Tue, 10 May 2022 19:23:10 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyfn5RF53v2JjmJJQkV8pzwLGeqEl3ZHCNTpF3vbu92pgelfIJ4hMyyAb1vY2XGHUKz6rIPN4WAR3mln3WzRxs=
+X-Received: by 2002:a19:ca50:0:b0:471:f556:92b with SMTP id
+ h16-20020a19ca50000000b00471f556092bmr18193766lfj.587.1652235790258; Tue, 10
+ May 2022 19:23:10 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220510082351-mutt-send-email-mst@kernel.org>
- <CAHk-=wjPR+bj7P1O=MAQWXp0Mx2hHuNQ1acn6gS+mRo_kbo5Lg@mail.gmail.com>
- <YnrxTMVRtDnGA/EK@dev-arch.thelio-3990X>
-In-Reply-To: <YnrxTMVRtDnGA/EK@dev-arch.thelio-3990X>
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Date: Tue, 10 May 2022 16:50:47 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wgAk3NEJ2PHtb0jXzCUOGytiHLq=rzjkFKfpiuH-SROgA@mail.gmail.com>
-Message-ID: <CAHk-=wgAk3NEJ2PHtb0jXzCUOGytiHLq=rzjkFKfpiuH-SROgA@mail.gmail.com>
-Subject: Re: [GIT PULL] virtio: last minute fixup
-To: Nathan Chancellor <nathan@kernel.org>
-Cc: KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>,
- Netdev <netdev@vger.kernel.org>,
- Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
- virtualization@lists.linux-foundation.org, mie@igel.co.jp,
- Konstantin Ryabitsev <konstantin@linuxfoundation.org>
+References: <20220507071954.14455-1-jasowang@redhat.com>
+ <875ymd3fd1.fsf@redhat.com>
+In-Reply-To: <875ymd3fd1.fsf@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Wed, 11 May 2022 10:22:59 +0800
+Message-ID: <CACGkMEvfkUpsY4LRTuH7w18DZdq+w3=Ef6b-0sG0XvzVUVKdzg@mail.gmail.com>
+Subject: Re: [PATCH V4 0/9] rework on the IRQ hardening of virtio
+To: Cornelia Huck <cohuck@redhat.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: Cindy Lu <lulu@redhat.com>, "Paul E. McKenney" <paulmck@kernel.org>,
+ mst <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>,
+ Marc Zyngier <maz@kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>,
+ virtualization <virtualization@lists.linux-foundation.org>,
+ Halil Pasic <pasic@linux.ibm.com>, eperezma <eperezma@redhat.com>,
+ Thomas Gleixner <tglx@linutronix.de>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -113,65 +115,129 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, May 10, 2022 at 4:12 PM Nathan Chancellor <nathan@kernel.org> wrote:
+On Tue, May 10, 2022 at 5:29 PM Cornelia Huck <cohuck@redhat.com> wrote:
 >
-> For what it's worth, as someone who is frequently tracking down and
-> reporting issues, a link to the mailing list post in the commit message
-> makes it much easier to get these reports into the right hands, as the
-> original posting is going to have all relevant parties in one location
-> and it will usually have all the context necessary to triage the
-> problem.
+> On Sat, May 07 2022, Jason Wang <jasowang@redhat.com> wrote:
+>
+> > Hi All:
+> >
+> > This is a rework on the IRQ hardening for virtio which is done
+> > previously by the following commits are reverted:
+> >
+> > 9e35276a5344 ("virtio_pci: harden MSI-X interrupts")
+> > 080cd7c3ac87 ("virtio-pci: harden INTX interrupts")
+> >
+> > The reason is that it depends on the IRQF_NO_AUTOEN which may conflict
+> > with the assumption of the affinity managed IRQ that is used by some
+> > virtio drivers. And what's more, it is only done for virtio-pci but
+> > not other transports.
+> >
+> > In this rework, I try to implement a general virtio solution which
+> > borrows the idea of the INTX hardening by re-using per virtqueue
+> > boolean vq->broken and toggle it in virtio_device_ready() and
+> > virtio_reset_device(). Then we can simply reuse the existing checks in
+> > the vring_interrupt() and return early if the driver is not ready.
+> >
+> > Note that, I only did compile test on ccw and MMIO transport.
+>
+> Lockdep is unhappy with the ccw parts:
+>
+> ================================
+> WARNING: inconsistent lock state
+> 5.18.0-rc6+ #191 Not tainted
+> --------------------------------
+> inconsistent {IN-HARDIRQ-R} -> {HARDIRQ-ON-W} usage.
+> kworker/u4:0/9 [HC0[0]:SC0[0]:HE1:SE1] takes:
+> 00000000058e9618 (&vcdev->irq_lock){+-..}-{2:2}, at: virtio_ccw_synchronize_cbs+0x4e/0x60
+> {IN-HARDIRQ-R} state was registered at:
+>   __lock_acquire+0x442/0xc20
+>   lock_acquire.part.0+0xdc/0x228
+>   lock_acquire+0xa6/0x1b0
+>   _raw_read_lock_irqsave+0x72/0x100
+>   virtio_ccw_int_handler+0x84/0x238
+>   ccw_device_call_handler+0x72/0xd0
+>   ccw_device_irq+0x7a/0x198
+>   do_cio_interrupt+0x11c/0x1d0
+>   __handle_irq_event_percpu+0xc2/0x318
+>   handle_irq_event_percpu+0x26/0x68
+>   handle_percpu_irq+0x64/0x88
+>   generic_handle_irq+0x40/0x58
+>   do_irq_async+0x56/0xb0
+>   do_io_irq+0x82/0x160
+>   io_int_handler+0xe6/0x120
+>   rcu_read_lock_sched_held+0x3e/0xb0
+>   lock_acquired+0x12e/0x208
+>   new_inode+0x3e/0xd0
+>   debugfs_get_inode+0x22/0x68
+>   __debugfs_create_file+0x78/0x1c0
+>   debugfs_create_file_unsafe+0x36/0x58
+>   debugfs_create_u32+0x38/0x68
+>   sched_init_debug+0xb0/0x1c0
+>   do_one_initcall+0x108/0x280
+>   do_initcalls+0x124/0x148
+>   kernel_init_freeable+0x242/0x280
+>   kernel_init+0x2e/0x158
+>   __ret_from_fork+0x3c/0x50
+>   ret_from_fork+0xa/0x40
+> irq event stamp: 539789
+> hardirqs last  enabled at (539789): [<0000000000d9c632>] _raw_spin_unlock_irqrestore+0x72/0x88
+> hardirqs last disabled at (539788): [<0000000000d9c2b6>] _raw_spin_lock_irqsave+0x96/0xd0
+> softirqs last  enabled at (539568): [<0000000000d9e0d4>] __do_softirq+0x434/0x588
+> softirqs last disabled at (539503): [<000000000018cd66>] __irq_exit_rcu+0x146/0x170
+>
+> other info that might help us debug this:
+>  Possible unsafe locking scenario:
+>
+>        CPU0
+>        ----
+>   lock(&vcdev->irq_lock);
+>   <Interrupt>
+>     lock(&vcdev->irq_lock);
+>
+>  *** DEADLOCK ***
 
-Honestly, I think such a thing would be trivial to automate with
-something like just a patch-id lookup, rather than a "Link:".
+It looks to me we need to use write_lock_irq()/write_unlock_irq() to
+do the synchronization.
 
-And such a lookup model ("where was this patch posted") would work for
-<i>any</i> patch (and often also find previous unmodified versions of
-it when it has been posted multiple times).
+And we probably need to keep the
+read_lock_irqsave()/read_lock_irqrestore() logic since I can see the
+virtio_ccw_int_handler() to be called from process context (e.g from
+the io_subchannel_quiesce()).
 
-I suspect that most of the building blocks of such automation
-effectively already exists, since I think the lore infrastructure
-already integrates with patchwork, and patchwork already has a "look
-up by patch id".
+Thanks
 
-Wouldn't it be cool if you had some webby interface to just go from
-commit SHA1 to patch ID to a lore.kernel.org lookup of where said
-patch was done?
+>
+> 2 locks held by kworker/u4:0/9:
+>  #0: 000000000288d948 ((wq_completion)events_unbound){+.+.}-{0:0}, at: process_one_work+0x1ea/0x658
+>  #1: 000003800004bdc8 ((work_completion)(&entry->work)){+.+.}-{0:0}, at: process_one_work+0x1ea/0x658
+>
+> stack backtrace:
+> CPU: 1 PID: 9 Comm: kworker/u4:0 Not tainted 5.18.0-rc6+ #191
+> Hardware name: QEMU 8561 QEMU (KVM/Linux)
+> Workqueue: events_unbound async_run_entry_fn
+> Call Trace:
+>  [<0000000000d8af22>] dump_stack_lvl+0x92/0xd0
+>  [<00000000002032ac>] mark_lock_irq+0x864/0x968
+>  [<0000000000203670>] mark_lock.part.0+0x2c0/0x790
+>  [<0000000000203cea>] mark_usage+0x10a/0x178
+>  [<000000000020692a>] __lock_acquire+0x442/0xc20
+>  [<0000000000207cc4>] lock_acquire.part.0+0xdc/0x228
+>  [<0000000000207eb6>] lock_acquire+0xa6/0x1b0
+>  [<0000000000d9c774>] _raw_write_lock+0x54/0xa8
+>  [<0000000000d5a1f6>] virtio_ccw_synchronize_cbs+0x4e/0x60
+>  [<00000000008eec04>] register_virtio_device+0xdc/0x1b0
+>  [<0000000000d5aabe>] virtio_ccw_online+0x246/0x2e8
+>  [<0000000000c9fecc>] ccw_device_set_online+0x1c4/0x540
+>  [<0000000000d5a05e>] virtio_ccw_auto_online+0x26/0x50
+>  [<00000000001ba2b0>] async_run_entry_fn+0x40/0x108
+>  [<00000000001ab9b4>] process_one_work+0x2a4/0x658
+>  [<00000000001abdd0>] worker_thread+0x68/0x440
+>  [<00000000001b4668>] kthread+0x128/0x130
+>  [<0000000000102fac>] __ret_from_fork+0x3c/0x50
+>  [<0000000000d9d3aa>] ret_from_fork+0xa/0x40
+> INFO: lockdep is turned off.
+>
 
-Of course, I personally tend to just search by the commit contents
-instead, which works just about as well. If the first line of the
-commit isn't very unique, add a "f:author" to the search.
-
-IOW, I really don't find much value in the "Link to original
-submission", because that thing is *already* trivial to find, and the
-lore search is actually better in many ways (it also tends to find
-people *reporting* that commit, which is often what you really want -
-the reason you're doing the search is that there's something going on
-with it).
-
-My argument here really is that "find where this commit was posted" is
-
- (a) not generally the most interesting thing
-
- (b) doesn't even need that "Link:" line.
-
-but what *is* interesting, and where the "Link:" line is very useful,
-is finding where the original problem that *caused* that patch to be
-posted in the first place.
-
-Yes, obviously you can find that original problem by searching too if
-the commit message has enough other information.
-
-For example, if there is an oops quoted in the commit message, I have
-personally searched for parts of that kind of information to find the
-original report and discussion.
-
-So that whole "searching is often an option" is true for pretty much
-_any_ Link:, but I think that for the whole "original submission" it's
-so mindless and can be automated that it really doesn't add much real
-value at all.
-
-                Linus
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
