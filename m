@@ -1,91 +1,90 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 49A71C433FE
-	for <virtualization@archiver.kernel.org>; Thu, 12 May 2022 11:33:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7EF95C433F5
+	for <virtualization@archiver.kernel.org>; Thu, 12 May 2022 11:33:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id EC26241706;
-	Thu, 12 May 2022 11:33:26 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 19724610DE;
+	Thu, 12 May 2022 11:33:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Pt2e-R59O6uC; Thu, 12 May 2022 11:33:24 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 142E6416A3;
-	Thu, 12 May 2022 11:33:24 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E039FC0039;
-	Thu, 12 May 2022 11:33:23 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E0CD7C002D
- for <virtualization@lists.linux-foundation.org>;
- Thu, 12 May 2022 11:33:22 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id C13126109E
- for <virtualization@lists.linux-foundation.org>;
- Thu, 12 May 2022 11:33:22 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=daynix-com.20210112.gappssmtp.com
 Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id aXEsHACqWt5X
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 2Am77cAq7EE0; Thu, 12 May 2022 11:33:28 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 97F9960E00;
+	Thu, 12 May 2022 11:33:27 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 6E9CBC0039;
+	Thu, 12 May 2022 11:33:27 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 20327C002D
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 12 May 2022 11:33:24 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id D8BA8405B0
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 12 May 2022 11:33:23 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=daynix-com.20210112.gappssmtp.com
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id z5gzflb1g73B
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 12 May 2022 11:33:23 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-lf1-x136.google.com (mail-lf1-x136.google.com
+ [IPv6:2a00:1450:4864:20::136])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id EF2AD40025
  for <virtualization@lists.linux-foundation.org>;
  Thu, 12 May 2022 11:33:22 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-lj1-x234.google.com (mail-lj1-x234.google.com
- [IPv6:2a00:1450:4864:20::234])
- by smtp3.osuosl.org (Postfix) with ESMTPS id D1F9661094
+Received: by mail-lf1-x136.google.com with SMTP id p26so8477038lfh.10
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 May 2022 11:33:21 +0000 (UTC)
-Received: by mail-lj1-x234.google.com with SMTP id q130so6096723ljb.5
- for <virtualization@lists.linux-foundation.org>;
- Thu, 12 May 2022 04:33:21 -0700 (PDT)
+ Thu, 12 May 2022 04:33:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=daynix-com.20210112.gappssmtp.com; s=20210112;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=poaAl/LWMtSjpF9E3ArKo5BaGizAmiyDHMdbPQU58wM=;
- b=L0BFpVLJQqlT0zt4b7FVLFd+SSf6LkTvIZONJ+ldc+OUcKRc4j/x60BAYklyj/+lMc
- CKZM+K1fF2jHLZUKhOEAHrdOVXtJy/71Z6j5BZLP19lHovNzo8VyrLuDe+oRiUerrKJT
- kGkAPi9eO0/bb7UnFYrT4as3ZAfrwqKBIjzfbbLHHUWLww4uTiQ8AUqNkgzgFZZuzDZH
- AVQ13nVULJHMSZYiLGoA6KclaPqR39FmHZvxbid1YuOLOF3AsJ1CIyySOmSNGAI5lm99
- x2Bnz9i/LNHo1qMPg0HGpNqIkDdwOYwXpBHu8XCP/lagjhocE8jHM40QiYnRR842wQo3
- 9oOQ==
+ bh=vWGmhmweV+dNU5jtCxsxI3a+Zh1xPCMPOBO82/gmlT8=;
+ b=LKUD1yC32xjbxmkSjCnpvuGV+8W7U4BU65WpHJE3jq3pkQpn1jtn6WIi0hBwFbvO1H
+ A9TSVFsVVQfZbvcjeW13k4cH6GFbrI5hb0Z4djPSZd1N6bBC67YPH452ep4LQwsk0WV8
+ y2YzdhmWiMSLQZFLeedNKlvsJGIR0oAkoC9fTPqx1xNStO2xj0HGxgNgfWCkuf0BTSfB
+ zhM0kGiyzLSCjeiQgbzY7bjCBK+FcgdMsz0UnP4Zgpjnb4SOX3/4bMiKLkJGKbXTrlDO
+ KzFWIsuWwK6BVT0/jE4YaTxGKFY00f6wvNeNPO/Rek5sOuC08PXqLalP/n9r+2F1I/L+
+ TFPg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
  :references:mime-version:content-transfer-encoding;
- bh=poaAl/LWMtSjpF9E3ArKo5BaGizAmiyDHMdbPQU58wM=;
- b=Q5dkcfwGuexDTHt2wA8cbtxFVnFw58OBjMKerUqi92+8+xe5DFiMiJowt1YuzI0qzd
- GEu3KjYgyHzQvckdnNMEUIv8nsegHi3uDWt5TYUu7NrwXdctjZ9gYtXeAk5Zv/9BLXuR
- Sh5KXFCRn4gsDDaU8bRYH6dwJ2d+nzlYGq8TJ6/3creYsgvYI+lDSGHQ+B0PbnhDpDsb
- Fv6geQRKDjVpu92JJ2jbG6LmwRbOUk4Pvmbj4razeLsNXIY5u68UYXckA37AJxKHhQY6
- QYs+SVDWYnk1zXQMFwXwni3eGMD3X3PLDCdlZ5AsFKBaTE0dBcn0uXotViGbzcxXjgYO
- 4cUA==
-X-Gm-Message-State: AOAM532zVBtMcLxiYWsAf7w4b5zHV5NPmJPvok9Zur2bvo1izD9Chx1n
- UQcRpkqja/Z3kQVO5TSmwo2i6g==
-X-Google-Smtp-Source: ABdhPJzq5JITT2BfM4tF1muCzbgjceuolUocorvsJ4Bs//pjuR3Cjamjp8cpK5UYGylTqv1LOmTXzw==
-X-Received: by 2002:a2e:b712:0:b0:24f:150e:1a71 with SMTP id
- j18-20020a2eb712000000b0024f150e1a71mr20147165ljo.240.1652355199481; 
- Thu, 12 May 2022 04:33:19 -0700 (PDT)
+ bh=vWGmhmweV+dNU5jtCxsxI3a+Zh1xPCMPOBO82/gmlT8=;
+ b=m5KS7XNXJLySRyhUc+oAbhOAaiVmINnh5v123/eNeWPyKQRf7wEfC35BPIuf2hdOF6
+ S1+w0xH9ZFR7ByIyDgX0uI6zySGi5blbjGm7hcGVXq0d1nHxRjsqmdB5BrI+gyMs/pIJ
+ aLWmSakOiLOSsnFH9qSlaAaFzzBo0h8jKWWNsKJ8mLq3h6Jwar5vgyyixN07TcLFJjtd
+ aUrUAm482aHYe0bxdynpEoXm0PzUHLboFvyqZQ2ZJyVOiUEivK+sKAAT1Bjnq9aLvZvP
+ SBFlyKcRcAAh2wD1EX10AcBGtRXCp9qSAVRK5UYYPFUkfZ1yliQLtfCg1scCZuCfTd2o
+ XZmA==
+X-Gm-Message-State: AOAM533ZCjF4DE/DTvoovALu5ga7Vg4T9hpZ5/6YS+ykpgXdsq5tdArG
+ Y3iaO38g9PRFKTrq6Bmy4tphEQ==
+X-Google-Smtp-Source: ABdhPJxbWkbMoHZx9vnNhaWMQsFMmMpNbbKEDn9qoqWTiVezpVArTwZqGvvEio/w1aBmU0O0mXLwOg==
+X-Received: by 2002:a05:6512:3e17:b0:473:205d:a3d5 with SMTP id
+ i23-20020a0565123e1700b00473205da3d5mr23770800lfv.80.1652355200800; 
+ Thu, 12 May 2022 04:33:20 -0700 (PDT)
 Received: from localhost.localdomain (host-188-190-49-235.la.net.ua.
  [188.190.49.235]) by smtp.gmail.com with ESMTPSA id
- r29-20020ac25a5d000000b0047255d211a6sm741758lfn.213.2022.05.12.04.33.18
+ r29-20020ac25a5d000000b0047255d211a6sm741758lfn.213.2022.05.12.04.33.19
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 12 May 2022 04:33:19 -0700 (PDT)
+ Thu, 12 May 2022 04:33:20 -0700 (PDT)
 From: Andrew Melnychenko <andrew@daynix.com>
 To: davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
  pabeni@redhat.com, mst@redhat.com, jasowang@redhat.com,
  netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
  virtualization@lists.linux-foundation.org
-Subject: [RFC PATCH v2 1/5] uapi/linux/if_tun.h: Added new offload types for
- USO4/6.
-Date: Thu, 12 May 2022 14:23:43 +0300
-Message-Id: <20220512112347.18717-2-andrew@daynix.com>
+Subject: [RFC PATCH v2 2/5] driver/net/tun: Added features for USO.
+Date: Thu, 12 May 2022 14:23:44 +0300
+Message-Id: <20220512112347.18717-3-andrew@daynix.com>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220512112347.18717-1-andrew@daynix.com>
 References: <20220512112347.18717-1-andrew@daynix.com>
@@ -107,28 +106,77 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Added 2 additional offlloads for USO(IPv4 & IPv6).
-Separate offloads are required for Windows VM guests,
-g.e. Windows may set USO rx only for IPv4.
+Added support for USO4 and USO6.
+For now, to "enable" USO, it's required to set both USO4 and USO6 simultaneously.
+USO enables NETIF_F_GSO_UDP_L4.
 
 Signed-off-by: Andrew Melnychenko <andrew@daynix.com>
 ---
- include/uapi/linux/if_tun.h | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/tap.c | 10 ++++++++--
+ drivers/net/tun.c |  8 +++++++-
+ 2 files changed, 15 insertions(+), 3 deletions(-)
 
-diff --git a/include/uapi/linux/if_tun.h b/include/uapi/linux/if_tun.h
-index 454ae31b93c7..e147dcb46d5c 100644
---- a/include/uapi/linux/if_tun.h
-+++ b/include/uapi/linux/if_tun.h
-@@ -88,6 +88,8 @@
- #define TUN_F_TSO6	0x04	/* I can handle TSO for IPv6 packets */
- #define TUN_F_TSO_ECN	0x08	/* I can handle TSO with ECN bits. */
- #define TUN_F_UFO	0x10	/* I can handle UFO packets */
-+#define TUN_F_USO4	0x20	/* I can handle USO for IPv4 packets */
-+#define TUN_F_USO6	0x40	/* I can handle USO for IPv6 packets */
+diff --git a/drivers/net/tap.c b/drivers/net/tap.c
+index c3d42062559d..eae7c2c13713 100644
+--- a/drivers/net/tap.c
++++ b/drivers/net/tap.c
+@@ -955,6 +955,10 @@ static int set_offload(struct tap_queue *q, unsigned long arg)
+ 			if (arg & TUN_F_TSO6)
+ 				feature_mask |= NETIF_F_TSO6;
+ 		}
++
++		/* TODO: for now USO4 and USO6 should work simultaneously */
++		if ((arg & (TUN_F_USO4 | TUN_F_USO6)) == (TUN_F_USO4 | TUN_F_USO6))
++			features |= NETIF_F_GSO_UDP_L4;
+ 	}
  
- /* Protocol info prepended to the packets (when IFF_NO_PI is not set) */
- #define TUN_PKT_STRIP	0x0001
+ 	/* tun/tap driver inverts the usage for TSO offloads, where
+@@ -965,7 +969,8 @@ static int set_offload(struct tap_queue *q, unsigned long arg)
+ 	 * When user space turns off TSO, we turn off GSO/LRO so that
+ 	 * user-space will not receive TSO frames.
+ 	 */
+-	if (feature_mask & (NETIF_F_TSO | NETIF_F_TSO6))
++	if (feature_mask & (NETIF_F_TSO | NETIF_F_TSO6) ||
++	    (feature_mask & (TUN_F_USO4 | TUN_F_USO6)) == (TUN_F_USO4 | TUN_F_USO6))
+ 		features |= RX_OFFLOADS;
+ 	else
+ 		features &= ~RX_OFFLOADS;
+@@ -1089,7 +1094,8 @@ static long tap_ioctl(struct file *file, unsigned int cmd,
+ 	case TUNSETOFFLOAD:
+ 		/* let the user check for future flags */
+ 		if (arg & ~(TUN_F_CSUM | TUN_F_TSO4 | TUN_F_TSO6 |
+-			    TUN_F_TSO_ECN | TUN_F_UFO))
++			    TUN_F_TSO_ECN | TUN_F_UFO |
++			    TUN_F_USO4 | TUN_F_USO6))
+ 			return -EINVAL;
+ 
+ 		rtnl_lock();
+diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+index dbe4c0a4be2c..ecad1bdee717 100644
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -185,7 +185,7 @@ struct tun_struct {
+ 	struct net_device	*dev;
+ 	netdev_features_t	set_features;
+ #define TUN_USER_FEATURES (NETIF_F_HW_CSUM|NETIF_F_TSO_ECN|NETIF_F_TSO| \
+-			  NETIF_F_TSO6)
++			  NETIF_F_TSO6 | NETIF_F_GSO_UDP_L4)
+ 
+ 	int			align;
+ 	int			vnet_hdr_sz;
+@@ -2861,6 +2861,12 @@ static int set_offload(struct tun_struct *tun, unsigned long arg)
+ 		}
+ 
+ 		arg &= ~TUN_F_UFO;
++
++		/* TODO: for now USO4 and USO6 should work simultaneously */
++		if (arg & TUN_F_USO4 && arg & TUN_F_USO6) {
++			features |= NETIF_F_GSO_UDP_L4;
++			arg &= ~(TUN_F_USO4 | TUN_F_USO6);
++		}
+ 	}
+ 
+ 	/* This gives the user a way to test for new features in future by
 -- 
 2.35.1
 
