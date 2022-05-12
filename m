@@ -1,79 +1,82 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 52613C433F5
-	for <virtualization@archiver.kernel.org>; Thu, 12 May 2022 09:41:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A9764C433F5
+	for <virtualization@archiver.kernel.org>; Thu, 12 May 2022 09:46:58 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id EA8E940BDF;
-	Thu, 12 May 2022 09:41:09 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 389AB40092;
+	Thu, 12 May 2022 09:46:58 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id zuJozNcNEYi7; Thu, 12 May 2022 09:41:09 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id DrTjADMcae4B; Thu, 12 May 2022 09:46:56 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 5938A40185;
-	Thu, 12 May 2022 09:41:08 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 2723B4004A;
+	Thu, 12 May 2022 09:46:56 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 149C5C0039;
-	Thu, 12 May 2022 09:41:08 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8E671C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D6A1BC0039;
+	Thu, 12 May 2022 09:46:55 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C0833C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 May 2022 09:41:07 +0000 (UTC)
+ Thu, 12 May 2022 09:46:54 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 76B4141980
+ by smtp4.osuosl.org (Postfix) with ESMTP id A02D3419AD
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 May 2022 09:41:07 +0000 (UTC)
+ Thu, 12 May 2022 09:46:54 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=linuxfoundation.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 3R1y6NB3fja7
+ with ESMTP id JVwAQZOpFAwc
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 May 2022 09:41:03 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from ams.source.kernel.org (ams.source.kernel.org
- [IPv6:2604:1380:4601:e00::1])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 4F88F41913
+ Thu, 12 May 2022 09:46:53 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 0E8A5419A9
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 May 2022 09:41:03 +0000 (UTC)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ Thu, 12 May 2022 09:46:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1652348811;
+ h=from:from:reply-to:reply-to:subject:subject:date:date:
+ message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+ content-type:content-type:in-reply-to:in-reply-to:  references:references;
+ bh=Z3DCHxCc1W7wV9sOESsYGyuIRr3xoZq2O3IVeKMznC8=;
+ b=dbid0zkbrNl6x10SMkTZcPdmQHzfPd2Vf2UG9Dj/GX2W1XqVFNUSApGkQRJOpaFlW3NRJt
+ DjjicLAllNz1qfLOqPAaK1/PBg5HzZIdRJ1zZ57TLAsPNOM6ddId7esow5EUzWo2faazJ8
+ +Wj2XRlGMfs/uOV54yh6bRRU0mIQg1U=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-489-Bo3L2KwPPAuu7ErKgSKZtg-1; Thu, 12 May 2022 05:46:48 -0400
+X-MC-Unique: Bo3L2KwPPAuu7ErKgSKZtg-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.3])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by ams.source.kernel.org (Postfix) with ESMTPS id 855F3B826F5;
- Thu, 12 May 2022 09:41:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF99CC385B8;
- Thu, 12 May 2022 09:40:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
- s=korg; t=1652348460;
- bh=CD5h0DamBPqknP9VbE66AMHf27lNpynrXjo1ZCX89D0=;
- h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=T7fpAVJBgUT+PvW2Dv8eK3stnYW3o+NvTDn4XvSrwknLhFDF+t5OcKwyeQcme+gDC
- 0mh/59RUJpJ2M2QbmaGJN2ybT+FmlsxBbjpfYmb5SsnnkZpxV8z93HloFspdwxmLHb
- ew3+jljYIwwb4ewptARJWpHi84CBcxdBXPDt5kGw=
-Date: Thu, 12 May 2022 11:40:57 +0200
-From: Greg KH <gregkh@linuxfoundation.org>
-To: Yongji Xie <xieyongji@bytedance.com>
-Subject: Re: [PATCH 1/2] vduse: Remove empty vduse_mgmtdev_release()
-Message-ID: <YnzWKfsIfYOif5eA@kroah.com>
-References: <20220511135523.147-1-xieyongji@bytedance.com>
- <YnvB2ZxyzGRkPwbm@kroah.com>
- <CACycT3s_-E=whAX02C0KKnr-1qx2yWdvTrRnQN=Km1L98VFThg@mail.gmail.com>
- <YnyZ6LiaQDxRSD/b@kroah.com>
- <CACycT3tibej7Hw3LtNRyDiNLLm7W5PzssENbuSGXsvK8-Cg43Q@mail.gmail.com>
- <Ynym+9BgJOyJdEkn@kroah.com>
- <CACycT3uHn0BnQO8kHY6P+EnLu1-YAVqC3koWP8AKzvcXH4hHYw@mail.gmail.com>
- <YnzMGO919dZG908/@kroah.com>
- <CACycT3uf61r0Wduw=SSMGvbMRA7XWf208Ow0Thc4N6M6nCd0nA@mail.gmail.com>
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id ECBAF38349BC;
+ Thu, 12 May 2022 09:46:47 +0000 (UTC)
+Received: from redhat.com (unknown [10.33.36.134])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id 0DB04112131E;
+ Thu, 12 May 2022 09:46:35 +0000 (UTC)
+Date: Thu, 12 May 2022 10:46:33 +0100
+From: Daniel =?utf-8?B?UC4gQmVycmFuZ8Op?= <berrange@redhat.com>
+To: zhenwei pi <pizhenwei@bytedance.com>
+Subject: Re: [PATCH v5 4/9] crypto: add ASN.1 DER decoder
+Message-ID: <YnzXefo1tcJ9wbJ9@redhat.com>
+References: <20220428135943.178254-1-pizhenwei@bytedance.com>
+ <20220428135943.178254-5-pizhenwei@bytedance.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <CACycT3uf61r0Wduw=SSMGvbMRA7XWf208Ow0Thc4N6M6nCd0nA@mail.gmail.com>
-Cc: virtualization <virtualization@lists.linux-foundation.org>,
- "Michael S. Tsirkin" <mst@redhat.com>
+In-Reply-To: <20220428135943.178254-5-pizhenwei@bytedance.com>
+User-Agent: Mutt/2.2.1 (2022-02-19)
+X-Scanned-By: MIMEDefang 2.78 on 10.11.54.3
+Cc: helei.sig11@bytedance.com, mst@redhat.com, cohuck@redhat.com,
+ qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org,
+ linux-crypto@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -85,142 +88,239 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Reply-To: Daniel =?utf-8?B?UC4gQmVycmFuZ8Op?= <berrange@redhat.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, May 12, 2022 at 05:31:51PM +0800, Yongji Xie wrote:
-> On Thu, May 12, 2022 at 4:58 PM Greg KH <gregkh@linuxfoundation.org> wrote:
-> >
-> > On Thu, May 12, 2022 at 03:51:38PM +0800, Yongji Xie wrote:
-> > > On Thu, May 12, 2022 at 2:19 PM Greg KH <gregkh@linuxfoundation.org> wrote:
-> > > >
-> > > > On Thu, May 12, 2022 at 01:59:00PM +0800, Yongji Xie wrote:
-> > > > > On Thu, May 12, 2022 at 1:23 PM Greg KH <gregkh@linuxfoundation.org> wrote:
-> > > > > >
-> > > > > > On Thu, May 12, 2022 at 01:19:58PM +0800, Yongji Xie wrote:
-> > > > > > > On Wed, May 11, 2022 at 10:02 PM Greg KH <gregkh@linuxfoundation.org> wrote:
-> > > > > > > >
-> > > > > > > > On Wed, May 11, 2022 at 09:55:22PM +0800, Xie Yongji wrote:
-> > > > > > > > > It's not recommended to provide an "empty" release function
-> > > > > > > > > for the device object as Documentation/core-api/kobject.rst
-> > > > > > > > > mentioned.
-> > > > > > > >
-> > > > > > > > "it is a bug to have an empty release function" is more like it :)
-> > > > > > > >
-> > > > > > >
-> > > > > > > OK.
-> > > > > > >
-> > > > > > > > > So let's allocate the device object dynamically
-> > > > > > > > > to get rid of it.
-> > > > > > > >
-> > > > > > > > Much better, but not quite there, see below for details.
-> > > > > > > >
-> > > > > > > > >
-> > > > > > > > > Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-> > > > > > > > > ---
-> > > > > > > > >  drivers/vdpa/vdpa_user/vduse_dev.c | 43 +++++++++++++++++-------------
-> > > > > > > > >  1 file changed, 25 insertions(+), 18 deletions(-)
-> > > > > > > > >
-> > > > > > > > > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > > > > > > > index 160e40d03084..a8a5ebaefa10 100644
-> > > > > > > > > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > > > > > > > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > > > > > > > @@ -1475,15 +1475,6 @@ static char *vduse_devnode(struct device *dev, umode_t *mode)
-> > > > > > > > >       return kasprintf(GFP_KERNEL, "vduse/%s", dev_name(dev));
-> > > > > > > > >  }
-> > > > > > > > >
-> > > > > > > > > -static void vduse_mgmtdev_release(struct device *dev)
-> > > > > > > > > -{
-> > > > > > > > > -}
-> > > > > > > > > -
-> > > > > > > > > -static struct device vduse_mgmtdev = {
-> > > > > > > > > -     .init_name = "vduse",
-> > > > > > > > > -     .release = vduse_mgmtdev_release,
-> > > > > > > > > -};
-> > > > > > > > > -
-> > > > > > > > >  static struct vdpa_mgmt_dev mgmt_dev;
-> > > > > > > >
-> > > > > > > > Close.  This should be a pointer and the device structure within it
-> > > > > > > > should control the lifecycle of that structure.  It should not be a
-> > > > > > > > single static structure like this, that's very odd.
-> > > > > > > >
-> > > > > > >
-> > > > > > > OK, I can define mgmt_dev as a pointer. But the device is defined as a
-> > > > > > > parent device for structure vdpa_mgmt_dev. So I think we can't use it
-> > > > > > > to control the lifecycle of the structure vdpa_mgmt_dev.
-> > > > > >
-> > > > > > You should be able to control the lifecycle of it, especially if it is
-> > > > > > the parent device of something.  To not do that correctly is to have
-> > > > > > everything messed up as you should be using the driver model properly.
-> > > > > > As it is, you are not :(
-> > > > > >
-> > > > >
-> > > > > I can control the lifecycle of it. What I mean is that I can not free
-> > > > > it in the release function of the device object since it is the parent
-> > > > > device of mgmt_dev. E.g., in other cases (such as ifcvf_probe()), the
-> > > > > device object comes from a pci device but the structure vdpa_mgmt_dev
-> > > > > is created during driver probing. The structure vdpa_mgmt_dev just
-> > > > > maintains a pointer to the device object. So the structure
-> > > > > vdpa_mgmt_dev and the device object have different lifecycles.
-> > > >
-> > > > Then something is very very wrong here.  The structure's lifespace
-> > > > should only be controlled by one reference count, not multiple ones.
-> > >
-> > > But they are different devices (one is vdpa_mgmt_dev and another is
-> > > the device I create which will be the parent of vdpa_mgmt_dev), I
-> > > didn't get why we need to control their lifecycle in one reference
-> > > count.
-> > >
-> > > > Have it be controlled by the device you create and properly register as
-> > > > a child of the pci device and all should be fine.
-> > > >
-> > >
-> > > The structure vdpa_mgmt_dev is defined as:
-> > >
-> > > /**
-> > >  * struct vdpa_mgmt_dev - vdpa management device
-> > >  * @device: Management parent device
-> > >  * @ops: operations supported by management device
-> > >  * @id_table: Pointer to device id table of supported ids
-> > >  * @config_attr_mask: bit mask of attributes of type enum vdpa_attr that
-> > >  *       management device support during dev_add callback
-> > >  * @list: list entry
-> > >  */
-> > > struct vdpa_mgmt_dev {
-> > >     struct device *device;
-> > >     const struct vdpa_mgmtdev_ops *ops;
-> > >     const struct virtio_device_id *id_table;
-> > >     u64 config_attr_mask;
-> > >     struct list_head list;
-> > > };
-> > >
-> > > Now the device I create is passed to the struct vdpa_mgmt_dev as a
-> > > parent device pointer. If we want to control the lifecycle of the
-> > > structure vdpa_mgmt_dev by the device I create, some logic of the vdpa
-> > > management device needs to be reworked. For example, define a device
-> > > object for structure vdpa_mgmt_dev rather than just maintaining a
-> > > pointer to the parent device.
-> >
-> > But this is a device (it says in the name), so it should have the device
-> > structure embedded in it to control the lifespan of it.
-> >
+On Thu, Apr 28, 2022 at 09:59:38PM +0800, zhenwei pi wrote:
+> From: Lei He <helei.sig11@bytedance.com>
 > 
-> Currently it's not a device as Jason mentioned. So I think the
-> question is whether we need to re-define it or just re-name it.
+> Add an ANS.1 DER decoder which is used to parse asymmetric
+> cipher keys
+> 
+> Signed-off-by: zhenwei pi <pizhenwei@bytedance.com>
+> Signed-off-by: lei he <helei.sig11@bytedance.com>
+> ---
+>  crypto/der.c                 | 190 +++++++++++++++++++++++
+>  crypto/der.h                 |  82 ++++++++++
+>  crypto/meson.build           |   1 +
+>  tests/unit/meson.build       |   1 +
+>  tests/unit/test-crypto-der.c | 290 +++++++++++++++++++++++++++++++++++
+>  5 files changed, 564 insertions(+)
+>  create mode 100644 crypto/der.c
+>  create mode 100644 crypto/der.h
+>  create mode 100644 tests/unit/test-crypto-der.c
+> 
+> diff --git a/crypto/der.c b/crypto/der.c
+> new file mode 100644
+> index 0000000000..7907bcfd51
+> --- /dev/null
+> +++ b/crypto/der.c
+> @@ -0,0 +1,190 @@
+> +/*
+> + * QEMU Crypto ASN.1 DER decoder
+> + *
+> + * Copyright (c) 2022 Bytedance
+> + * Author: lei he <helei.sig11@bytedance.com>
+> + *
+> + * This library is free software; you can redistribute it and/or
+> + * modify it under the terms of the GNU Lesser General Public
+> + * License as published by the Free Software Foundation; either
+> + * version 2.1 of the License, or (at your option) any later version.
+> + *
+> + * This library is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+> + * Lesser General Public License for more details.
+> + *
+> + * You should have received a copy of the GNU Lesser General Public
+> + * License along with this library; if not, see <http://www.gnu.org/licenses/>.
+> + *
+> + */
+> +
+> +#include <stdint.h>
+> +#include <stddef.h>
 
-It is a device, you have a pointer to a device structure that is used by
-the code!
+These should both be replaced by
 
-Embed it in the structure and you should be fine.  Well, maybe, let's
-see what falls out from there as it seems like the use of the driver
-model is a bit messed up in this codebase.  But it's a good first step
-forward in fixing things.
+  #include "qemu/osdep.h"
 
-thanks,
+otherwise this fails to build for Mingw targets
 
-greg k-h
+
+> +static int qcrypto_der_invoke_callback(DERDecodeCb cb, void *ctx,
+> +                                       const uint8_t *value, size_t vlen,
+> +                                       Error **errp)
+> +{
+> +    if (!cb) {
+> +        return 0;
+> +    }
+> +
+> +    return cb(ctx, value, vlen, errp);
+> +}
+> +
+> +static int qcrypto_der_extract_definite_data(const uint8_t **data, size_t *dlen,
+> +                                             DERDecodeCb cb, void *ctx,
+> +                                             Error **errp)
+> +{
+> +    const uint8_t *value;
+> +    size_t vlen = 0;
+> +    uint8_t byte_count = qcrypto_der_cut_byte(data, dlen);
+> +
+> +    /* short format of definite-length */
+> +    if (!(byte_count & QCRYPTO_DER_SHORT_LEN_MASK)) {
+> +        if (byte_count > *dlen) {
+> +            error_setg(errp, "Invalid content length: %u", byte_count);
+> +            return -1;
+> +        }
+> +
+> +        value = *data;
+> +        vlen = byte_count;
+> +        qcrypto_der_cut_nbytes(data, dlen, vlen);
+> +
+> +        if (qcrypto_der_invoke_callback(cb, ctx, value, vlen, errp) != 0) {
+> +            return -1;
+> +        }
+> +        return vlen;
+> +    }
+> +
+> +    /* Ignore highest bit */
+> +    byte_count &= ~QCRYPTO_DER_SHORT_LEN_MASK;
+> +
+> +    /*
+> +     * size_t is enough to store the value of length, although the DER
+> +     * encoding standard supports larger length.
+> +     */
+> +    if (byte_count > sizeof(size_t)) {
+> +        error_setg(errp, "Invalid byte count of content length: %u",
+> +                   byte_count);
+> +        return -1;
+> +    }
+
+> +
+> +    if (*dlen < byte_count) {
+
+Can you flip this to   'byte_count > *dlen' so that the ordering
+is consistent with the rest of the checks in this method.
+
+
+> +        error_setg(errp, "Invalid content length: %u", byte_count);
+> +        return -1;
+> +    }
+> +    while (byte_count--) {
+> +        vlen <<= 8;
+> +        vlen += qcrypto_der_cut_byte(data, dlen);
+> +    }
+> +
+> +    if (vlen > *dlen) {
+> +        error_setg(errp, "Invalid content length: %lu", vlen);
+> +        return -1;
+> +    }
+> +
+> +    value = *data;
+> +    qcrypto_der_cut_nbytes(data, dlen, vlen);
+> +
+> +    if (qcrypto_der_invoke_callback(cb, ctx, value, vlen, errp) != 0) {
+> +        return -1;
+> +    }
+> +    return vlen;
+> +}
+
+
+
+> diff --git a/crypto/der.h b/crypto/der.h
+> new file mode 100644
+> index 0000000000..aaa0e01969
+> --- /dev/null
+> +++ b/crypto/der.h
+> @@ -0,0 +1,82 @@
+
+> +#ifndef QCRYPTO_ASN1_DECODER_H
+> +#define QCRYPTO_ASN1_DECODER_H
+> +
+> +#include "qemu/osdep.h"
+
+osdep.h should always be in the .c file
+
+> +#include "qapi/error.h"
+> +
+> +/* Simple decoder used to parse DER encoded rsa keys. */
+> +
+> +/**
+> + *  @opaque: user context.
+> + *  @value: the starting address of |value| part of 'Tag-Length-Value' pattern.
+> + *  @vlen: length of the |value|.
+> + *  Returns: 0 for success, any other value is considered an error.
+> + */
+> +typedef int (*DERDecodeCb) (void *opaque, const uint8_t *value,
+> +                            size_t vlen, Error **errp);
+
+Could you call this one   'QCryptoDERDecodeCb)'
+
+> +
+> +/**
+> + * der_decode_int:
+
+Needs updating for the new func name
+
+> + * @data: pointer to address of input data
+> + * @dlen: pointer to length of input data
+> + * @cb: callback invoked when decode succeed, if cb equals NULL, no
+> + * callback will be invoked
+> + * @opaque: parameter passed to cb
+> + *
+> + * Decode integer from DER-encoded data.
+> + *
+> + * Returns: On success, *data points to rest data, and *dlen
+> + * will be set to the rest length of data, if cb is not NULL, must
+> + * return 0 to make decode success, at last, the length of the data
+> + * part of the decoded INTEGER will be returned. Otherwise, -1 is
+> + * returned.
+> + */
+> +int qcrypto_der_decode_int(const uint8_t **data,
+> +                           size_t *dlen,
+> +                           DERDecodeCb cb,
+> +                           void *opaque,
+> +                           Error **errp);
+> +
+> +/**
+> + * der_decode_seq:
+
+Likewise needs updating
+
+> + *
+> + * Decode sequence from DER-encoded data, similar with der_decode_int.
+> + *
+> + * @data: pointer to address of input data
+> + * @dlen: pointer to length of input data
+> + * @cb: callback invoked when decode succeed, if cb equals NULL, no
+> + * callback will be invoked
+> + * @opaque: parameter passed to cb
+> + *
+> + * Returns: On success, *data points to rest data, and *dlen
+> + * will be set to the rest length of data, if cb is not NULL, must
+> + * return 0 to make decode success, at last, the length of the data
+> + * part of the decoded SEQUENCE will be returned. Otherwise, -1 is
+> + * returned.
+> + */
+> +int qcrypto_der_decode_seq(const uint8_t **data,
+> +                           size_t *dlen,
+> +                           DERDecodeCb cb,
+> +                           void *opaque,
+> +                           Error **errp);
+> +
+> +#endif  /* QCRYPTO_ASN1_DECODER_H */
+
+
+With regards,
+Daniel
+-- 
+|: https://berrange.com      -o-    https://www.flickr.com/photos/dberrange :|
+|: https://libvirt.org         -o-            https://fstop138.berrange.com :|
+|: https://entangle-photo.org    -o-    https://www.instagram.com/dberrange :|
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
