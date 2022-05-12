@@ -4,125 +4,93 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 236CDC433EF
-	for <virtualization@archiver.kernel.org>; Thu, 12 May 2022 14:15:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 66F7FC433FE
+	for <virtualization@archiver.kernel.org>; Thu, 12 May 2022 17:05:05 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id C61EE60F83;
-	Thu, 12 May 2022 14:15:47 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id F278060B1D;
+	Thu, 12 May 2022 17:05:04 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ADB56EGaIGyU; Thu, 12 May 2022 14:15:47 +0000 (UTC)
+	with ESMTP id jz4yt5ggoZIP; Thu, 12 May 2022 17:05:03 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 5186560E19;
-	Thu, 12 May 2022 14:15:46 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 5940560761;
+	Thu, 12 May 2022 17:05:03 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2F63AC0032;
-	Thu, 12 May 2022 14:15:46 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 236F6C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 2CA0BC0032;
+	Thu, 12 May 2022 17:05:03 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id CC03DC002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 May 2022 14:15:44 +0000 (UTC)
+ Thu, 12 May 2022 17:05:01 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 1031D4199E
+ by smtp1.osuosl.org (Postfix) with ESMTP id BA09D82C84
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 May 2022 14:15:44 +0000 (UTC)
+ Thu, 12 May 2022 17:05:01 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=ffwll.ch
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Qmb3bAoce-Tk
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 9x4jdbJatEpj
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 May 2022 14:15:42 +0000 (UTC)
+ Thu, 12 May 2022 17:05:00 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com
- [IPv6:2a00:1450:4864:20::42c])
- by smtp4.osuosl.org (Postfix) with ESMTPS id BF22A4199C
+Received: from mail-oi1-x22c.google.com (mail-oi1-x22c.google.com
+ [IPv6:2607:f8b0:4864:20::22c])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id A3BB182C3E
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 May 2022 14:15:42 +0000 (UTC)
-Received: by mail-wr1-x42c.google.com with SMTP id d5so7474264wrb.6
+ Thu, 12 May 2022 17:04:59 +0000 (UTC)
+Received: by mail-oi1-x22c.google.com with SMTP id l16so7170553oil.6
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 May 2022 07:15:42 -0700 (PDT)
+ Thu, 12 May 2022 10:04:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ffwll.ch; s=google;
- h=date:from:to:cc:subject:message-id:mail-followup-to:references
- :mime-version:content-disposition:content-transfer-encoding
- :in-reply-to; bh=n/7pYmQpfwFthS/9oBJ6j9sdvjU7gecjyTu7MlWAR7k=;
- b=kUmh1oG60Fx0A6U56QVurQQLGKQ7477RCDCtn29lmcK1mpvRBMpGiD6hdcAaMvFXmV
- qOGgXhg3PVoHSSWjxbVmU5G5zNZqptA0VHiElu7Vy6cSSsGOyRC0I3lk0Tn4mIUNZlAw
- AsnpIb4hk5Q+SIPopSbDEj41i4yu8DkWC+t4w=
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=chTQPE8s2XiI033YuqzMveiHeBofeKqYbLvthAkBmTo=;
+ b=Ep4hhtVsOOvso0K4dDn5rqLsCgloqgBDkJIBretQ9s4UJqD5BY+MBB6oa1r4eLjk+t
+ vM2tGcqz4sQfzLtff14nL3YYdLipq5/FU0mfGYLVlyLguGNbpbvmVvq31x8Wcd1Icw1e
+ tOCvyAz/evcOx2MRPkcBsbyg7KsbSVHS2bYOA=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id
- :mail-followup-to:references:mime-version:content-disposition
- :content-transfer-encoding:in-reply-to;
- bh=n/7pYmQpfwFthS/9oBJ6j9sdvjU7gecjyTu7MlWAR7k=;
- b=vVbm4eRdIsKz8ThH2WGFEdUbYlbCtDxDGvc9OyCULJ+PwBUF2Tm56CZpnWHKYJmE3h
- xGxyKqFJ2R/VdJhNX5S/FEY5c8Ipbh7LBUfLivsoIlZq7vKfuCXYhF3WtG2A1y4aei9w
- /SDGdh13e4pGp1khUN3i8uHaEBf18DFv7fUN4yTrEa4QffMBPL5xCtdmJ7c8r/fALG1L
- DI1Ok7ije+y7/NDYTFJ8ivfu3iHHEt0aKofdQM2rjfVi45r1bLB2+ay6Br8BSNTcHEwJ
- 872/KLHnimwXnti67X2n6nOQcVGCkD0F76AdtFO87j1ug3ZJwfPa5OE66yV9dGHRSIkH
- 53Pg==
-X-Gm-Message-State: AOAM533JYmV3RFU+fnvcKm54yL8Xgl2Jn67ZOdNXe/aVNydtuPkMQMgV
- V1yC7MFzO5KTVc00iELTd2m4MA==
-X-Google-Smtp-Source: ABdhPJxgE25FTVTyKaDpk3JLkWltkhrtfTRyeVsxBvMnjZwfuCI1/qUzdN0GY0T1EvfVBkrJ5o12Vw==
-X-Received: by 2002:a5d:6d8d:0:b0:20c:5f60:d551 with SMTP id
- l13-20020a5d6d8d000000b0020c5f60d551mr27919826wrs.427.1652364940783; 
- Thu, 12 May 2022 07:15:40 -0700 (PDT)
-Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
- by smtp.gmail.com with ESMTPSA id
- c13-20020adfed8d000000b0020c5253d8d7sm4428980wro.35.2022.05.12.07.15.39
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 12 May 2022 07:15:39 -0700 (PDT)
-Date: Thu, 12 May 2022 16:15:37 +0200
-From: Daniel Vetter <daniel@ffwll.ch>
-To: Christian =?iso-8859-1?Q?K=F6nig?= <ckoenig.leichtzumerken@gmail.com>
-Subject: Re: [PATCH v4 10/15] drm/shmem-helper: Take reservation lock instead
- of drm_gem_shmem locks
-Message-ID: <Yn0WicACq5Y46DGU@phenom.ffwll.local>
-Mail-Followup-To: Christian =?iso-8859-1?Q?K=F6nig?=
- <ckoenig.leichtzumerken@gmail.com>, 
- Dmitry Osipenko <dmitry.osipenko@collabora.com>,
- Thomas Zimmermann <tzimmermann@suse.de>,
- Daniel Stone <daniel@fooishbar.org>,
- David Airlie <airlied@linux.ie>, Gerd Hoffmann <kraxel@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>,
- Chia-I Wu <olvaffe@gmail.com>,
- Daniel Almeida <daniel.almeida@collabora.com>,
- Gert Wollny <gert.wollny@collabora.com>,
- Gustavo Padovan <gustavo.padovan@collabora.com>,
- Tomeu Vizoso <tomeu.vizoso@collabora.com>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Rob Herring <robh@kernel.org>,
- Steven Price <steven.price@arm.com>,
- Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
- Rob Clark <robdclark@gmail.com>,
- Emil Velikov <emil.l.velikov@gmail.com>,
- Robin Murphy <robin.murphy@arm.com>,
- Dmitry Osipenko <digetx@gmail.com>, linux-kernel@vger.kernel.org,
- dri-devel@lists.freedesktop.org,
- virtualization@lists.linux-foundation.org
-References: <83e68918-68de-c0c6-6f9b-e94d34b19383@collabora.com>
- <YnkaUk0mZNuPsZ5r@phenom.ffwll.local>
- <4d08b382-0076-1ea2-b565-893d50b453cb@collabora.com>
- <YnuziJDmXVR09UzP@phenom.ffwll.local>
- <56787b70-fb64-64da-6006-d3aa3ed59d12@gmail.com>
- <3a362c32-870c-1d73-bba6-bbdcd62dc326@collabora.com>
- <YnvWUbh5QDDs6u2B@phenom.ffwll.local>
- <ba2836d0-9a3a-b879-cb1e-a48aed31637d@collabora.com>
- <YnwI5UX/zvmnAHvg@phenom.ffwll.local>
- <f6e42cfb-0252-1273-2ba3-76af818e0799@gmail.com>
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=chTQPE8s2XiI033YuqzMveiHeBofeKqYbLvthAkBmTo=;
+ b=h61NkDxlkg8fQF9mbNSDpmIjjlaAErgJEIaRKAmFiZKONceMIrZ799w8aRKqq/oetb
+ d4q5NemWPxqTD4779U2lQ5O5CIZkF+B37c2xKkw8PwsJZw9vo0loGUeBAKmWFJDVoh+/
+ S+HWDF+bPm79ZTtDt/4flrf89siYvEFxD+eEDP79qOxLQAVPnHzoUPzpDaPH5Ops7jxN
+ 3nXC8MssibzH5ZS8uLaRFrAzxXDGUEdjb5v9JoKrPdbi3JHuZx4HncxRgtQnAoC+vaP3
+ 9B5ZBvB5P/Cb1HWCvUMmZrjYN9yu89TU/TlmJWvc8UwysFDEI1kSRK9Z6cAa08XNde19
+ cOqg==
+X-Gm-Message-State: AOAM532nZeo2Km6LvOTKcAsJ9AJ+cbJqCW3GlvkkArWIxL4k0Q9/GKKj
+ zPDT1j7xpEaIQ/OHFlpsAhpihp5a1k+909RAXGMEWQ==
+X-Google-Smtp-Source: ABdhPJzRyMZhGiuFkuqzg39xxxmhA96f9Tcd0cbFtk1OH5x7cRguRLX0Vl9KPPxWSrz95Xti0+3ONFcOVR+IlJ9RYpY=
+X-Received: by 2002:a05:6808:1314:b0:326:e438:d8cd with SMTP id
+ y20-20020a056808131400b00326e438d8cdmr5966587oiv.228.1652375098764; Thu, 12
+ May 2022 10:04:58 -0700 (PDT)
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <f6e42cfb-0252-1273-2ba3-76af818e0799@gmail.com>
-X-Operating-System: Linux phenom 5.10.0-8-amd64 
+References: <20220417223707.157113-1-dmitry.osipenko@collabora.com>
+ <20220417223707.157113-12-dmitry.osipenko@collabora.com>
+ <e6108e9c-6e67-2d71-0665-654e11d9c3a5@suse.de>
+ <ff97790a-fb64-1e15-74b4-59c807bce0b9@collabora.com>
+ <Ynkb1U2nNWYPML88@phenom.ffwll.local>
+ <5fdf5232-e2b2-b444-5a41-f1db7e6a04da@collabora.com>
+ <Ynu1k5lH+xvqtObG@phenom.ffwll.local>
+ <3429a12f-9fbe-b66b-dbbd-94a1df54714e@collabora.com>
+ <YnwJ0kLwLS7RxuwS@phenom.ffwll.local>
+ <0ae6fed7-b166-d2b8-0e42-84b94b777c20@collabora.com>
+In-Reply-To: <0ae6fed7-b166-d2b8-0e42-84b94b777c20@collabora.com>
+From: Daniel Vetter <daniel@ffwll.ch>
+Date: Thu, 12 May 2022 19:04:47 +0200
+Message-ID: <CAKMK7uGS3PSwbkW7gj1hd2pz591HwY6Gbb=P_X4N5KOM5+X85w@mail.gmail.com>
+Subject: Re: [PATCH v4 11/15] drm/shmem-helper: Add generic memory shrinker
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
 Cc: David Airlie <airlied@linux.ie>, dri-devel@lists.freedesktop.org,
  Gurchetan Singh <gurchetansingh@chromium.org>,
  Dmitry Osipenko <digetx@gmail.com>, Rob Herring <robh@kernel.org>,
  Daniel Stone <daniel@fooishbar.org>, Steven Price <steven.price@arm.com>,
  Gustavo Padovan <gustavo.padovan@collabora.com>,
  Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
- Dmitry Osipenko <dmitry.osipenko@collabora.com>, Chia-I Wu <olvaffe@gmail.com>,
+ Chia-I Wu <olvaffe@gmail.com>,
  Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
  Maxime Ripard <mripard@kernel.org>, virtualization@lists.linux-foundation.org,
  Tomeu Vizoso <tomeu.vizoso@collabora.com>,
@@ -141,80 +109,118 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, May 12, 2022 at 09:29:35AM +0200, Christian K=F6nig wrote:
-> Am 11.05.22 um 21:05 schrieb Daniel Vetter:
-> > [SNIP]
-> > > > > It's unclear to me which driver may ever want to do the mapping u=
-nder
-> > > > > the dma_resv_lock. But if we will ever have such a driver that wi=
-ll need
-> > > > > to map imported buffer under dma_resv_lock, then we could always =
-add the
-> > > > > dma_buf_vmap_locked() variant of the function. In this case the l=
-ocking
-> > > > > rule will sound like this:
-> > > > > =
+On Thu, 12 May 2022 at 13:36, Dmitry Osipenko
+<dmitry.osipenko@collabora.com> wrote:
+>
+> On 5/11/22 22:09, Daniel Vetter wrote:
+> > On Wed, May 11, 2022 at 07:06:18PM +0300, Dmitry Osipenko wrote:
+> >> On 5/11/22 16:09, Daniel Vetter wrote:
+> >>>>>>> I'd like to ask you to reduce the scope of the patchset and build the
+> >>>>>>> shrinker only for virtio-gpu. I know that I first suggested to build
+> >>>>>>> upon shmem helpers, but it seems that it's easier to do that in a later
+> >>>>>>> patchset.
+> >>>>>> The first version of the VirtIO shrinker didn't support memory eviction.
+> >>>>>> Memory eviction support requires page fault handler to be aware of the
+> >>>>>> evicted pages, what should we do about it? The page fault handling is a
+> >>>>>> part of memory management, hence to me drm-shmem is already kinda a MM.
+> >>>>> Hm I still don't get that part, why does that also not go through the
+> >>>>> shmem helpers?
+> >>>> The drm_gem_shmem_vm_ops includes the page faults handling, it's a
+> >>>> helper by itself that is used by DRM drivers.
+> >>>>
+> >>>> I could try to move all the shrinker logic to the VirtIO and re-invent
+> >>>> virtio_gem_shmem_vm_ops, but what is the point of doing this for each
+> >>>> driver if we could have it once and for all in the common drm-shmem code?
+> >>>>
+> >>>> Maybe I should try to factor out all the shrinker logic from drm-shmem
+> >>>> into a new drm-shmem-shrinker that could be shared by drivers? Will you
+> >>>> be okay with this option?
+> >>> I think we're talking past each another a bit. I'm only bringing up the
+> >>> purge vs eviction topic we discussed in the other subthread again.
+> >>
+> >> Thomas asked to move the whole shrinker code to the VirtIO driver and
+> >> I's saying that this is not a great idea to me, or am I misunderstanding
+> >> the Thomas' suggestion? Thomas?
+> >
+> > I think it was just me creating a confusion here.
+> >
+> > fwiw I do also think that shrinker in shmem helpers makes sense, just in
+> > case that was also lost in confusion.
+>
+> Okay, good that we're on the same page now.
+>
+> >>>>> I'm still confused why drivers need to know the difference
+> >>>>> between evition and purging. Or maybe I'm confused again.
+> >>>> Example:
+> >>>>
+> >>>> If userspace uses IOV addresses, then these addresses must be kept
+> >>>> reserved while buffer is evicted.
+> >>>>
+> >>>> If BO is purged, then we don't need to retain the IOV space allocated
+> >>>> for the purged BO.
+> >>> Yeah but is that actually needed by anyone? If userspace fails to allocate
+> >>> another bo because of lack of gpu address space then it's very easy to
+> >>> handle that:
+> >>>
+> >>> 1. Make a rule that "out of gpu address space" gives you a special errno
+> >>> code like ENOSPC
+> >>>
+> >>> 2. If userspace gets that it walks the list of all buffers it marked as
+> >>> purgeable and nukes them (whether they have been evicted or not). Then it
+> >>> retries the bo allocation.
+> >>>
+> >>> Alternatively you can do step 2 also directly from the bo alloc ioctl in
+> >>> step 1. Either way you clean up va space, and actually a lot more (you
+> >>> potentially nuke all buffers marked as purgeable, not just the ones that
+> >>> have been purged already) and only when va cleanup is actually needed
+> >>>
+> >>> Trying to solve this problem at eviction time otoh means:
+> >>> - we have this difference between eviction and purging
+> >>> - it's still not complete, you still need to glue step 2 above into your
+> >>>   driver somehow, and once step 2 above is glued in doing additional
+> >>>   cleanup in the purge function is just duplicated logic
+> >>>
+> >>> So at least in my opinion this isn't the justification we need. And we
+> >>> should definitely not just add that complication "in case, for the
+> >>> future", if we don't have a real need right now. Adding it later on is
+> >>> easy, removing it later on because it just gets in the way and confuses is
+> >>> much harder.
+> >>
+> >> The IOVA space is only one example.
+> >>
+> >> In case of the VirtIO driver, we may have two memory allocation for a
+> >> BO. One is the shmem allcation in guest and the other is in host's vram.
+> >> If we will only release the guest's memory on purge, then the vram will
+> >> remain allocated until BO is destroyed, which unnecessarily sub-optimal.
+> >
+> > Hm but why don't you just nuke the memory on the host side too when you
+> > evict? Allowing the guest memory to be swapped out while keeping the host
+> > memory allocation alive also doesn't make a lot of sense for me. Both can
+> > be recreated (I guess at least?) on swap-in.
+>
+> Shouldn't be very doable or at least worth the efforts. It's userspace
+> that manages data uploading, kernel only provides transport for the
+> virtio-gpu commands.
+>
+> Drivers are free to use the same function for both purge() and evict()
+> callbacks if they want. Getting rid of the purge() callback creates more
+> problems than solves, IMO.
 
-> > > > > "All dma-buf importers are responsible for holding the dma-reserv=
-ation
-> > > > > lock around the dmabuf->ops->mmap/vmap() calls."
-> > > Are you okay with this rule?
-> > Yeah I think long-term it's where we want to be, just trying to find
-> > clever ways to get there.
-> > =
+Hm this still sounds pretty funny and defeats the point of
+purgeable/evictable buffers a bit I think. But also I guess we'd
+pushed this bikeshed to the max, so I think if you make ->purge
+optional and just call ->evict if that's not present, and document it
+all in the kerneldoc, then I think that's good.
 
-> > And I think Christian agrees with that?
-> =
-
-> Yes, completely.
-> =
-
-> A design where most DMA-buf functions are supposed to be called with the
-> reservation lock held is exactly what I have in mind for the long term.
-> =
-
-> > > > > > It shouldn't be that hard to clean up. The last time I looked i=
-nto it my
-> > > > > > main problem was that we didn't had any easy unit test for it.
-> > > > > Do we have any tests for dma-bufs at all? It's unclear to me what=
- you
-> > > > > are going to test in regards to the reservation locks, could you =
-please
-> > > > > clarify?
-> > > > Unfortunately not really :-/ Only way really is to grab a driver wh=
-ich
-> > > > needs vmap (those are mostly display drivers) on an imported buffer=
-, and
-> > > > see what happens.
-> > > > =
-
-> > > > 2nd best is liberally sprinkling lockdep annotations all over the p=
-lace
-> > > > and throwing it at intel ci (not sure amd ci is accessible to the p=
-ublic)
-> > > > and then hoping that's good enough. Stuff like might_lock and
-> > > > dma_resv_assert_held.
-> > > Alright
-> > So throwing it at intel-gfx-ci can't hurt I think, but that only covers
-> > i915 so doesn't really help with the bigger issue of catching all the
-> > drivers.
-> =
-
-> BTW: We have now somebody working on converting the existing libdrm_amdgpu
-> unit tests over to igt.
-
-This sounds awesome.
-
-/me throws a happy dance
-
-Cheers, Daniel
--- =
-
+I just don't think that encouraging drivers to distinguish between
+evict/purge is a good idea for almost all of them.
+-Daniel
+-- 
 Daniel Vetter
 Software Engineer, Intel Corporation
 http://blog.ffwll.ch
