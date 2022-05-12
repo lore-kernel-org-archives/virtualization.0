@@ -1,92 +1,85 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id BC9B6C433F5
-	for <virtualization@archiver.kernel.org>; Wed, 11 May 2022 20:08:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AE5ABC433F5
+	for <virtualization@archiver.kernel.org>; Thu, 12 May 2022 02:07:59 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 404F24056A;
-	Wed, 11 May 2022 20:08:13 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 3A5E582FF9;
+	Thu, 12 May 2022 02:07:59 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id eq-YpChiQTgY; Wed, 11 May 2022 20:08:12 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id gINZ5egtdOax; Thu, 12 May 2022 02:07:58 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id DA4F440186;
-	Wed, 11 May 2022 20:08:11 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id DC4438301F;
+	Thu, 12 May 2022 02:07:57 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B07BCC0032;
-	Wed, 11 May 2022 20:08:11 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id AE74EC0039;
+	Thu, 12 May 2022 02:07:57 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 00CC5C002D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8CC40C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 May 2022 20:08:10 +0000 (UTC)
+ Thu, 12 May 2022 02:07:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id CE2374174D
+ by smtp4.osuosl.org (Postfix) with ESMTP id 74D2B402EF
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 May 2022 20:08:10 +0000 (UTC)
+ Thu, 12 May 2022 02:07:56 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=fail (2048-bit key) reason="fail (message has been altered)"
+ header.d=mit.edu
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id uAZNl5s97LNv
+ with ESMTP id 3QwF3Ik2Wwrm
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 May 2022 20:08:10 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from mout.kundenserver.de (mout.kundenserver.de [217.72.192.74])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 9AFAC41759
+ Thu, 12 May 2022 02:07:54 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from outgoing.mit.edu (outgoing-auth-1.mit.edu [18.9.28.11])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 54EF6402BB
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 May 2022 20:08:09 +0000 (UTC)
-Received: from mail-oa1-f42.google.com ([209.85.160.42]) by
- mrelayeu.kundenserver.de (mreue106 [213.165.67.113]) with ESMTPSA (Nemesis)
- id 1N6bwO-1nqkpf12Ok-0180Zp for <virtualization@lists.linux-foundation.org>;
- Wed, 11 May 2022 22:03:01 +0200
-Received: by mail-oa1-f42.google.com with SMTP id
- 586e51a60fabf-d39f741ba0so4104060fac.13
- for <virtualization@lists.linux-foundation.org>;
- Wed, 11 May 2022 13:03:00 -0700 (PDT)
-X-Gm-Message-State: AOAM533jr6qy29xx1NQHdAYiLG5qkBL+oifHzW8WDUcaYG3ZIV9H7Z0b
- LFTk6O5w4wlAVySlsfFOAmQF1kBh2KmP9SNQnsM=
-X-Google-Smtp-Source: ABdhPJwwPw4+8p8VgoM3olKQlDqsXwX59vFNT4ipMIqp/8fatnE0NT9ZkM+0jaPJODaBSx5ZwEBPTq9Ovo9Espj6BpE=
-X-Received: by 2002:a05:6870:a1a0:b0:e2:9331:cc30 with SMTP id
- a32-20020a056870a1a000b000e29331cc30mr3527723oaf.155.1652299379884; Wed, 11
- May 2022 13:02:59 -0700 (PDT)
+ Thu, 12 May 2022 02:07:54 +0000 (UTC)
+Received: from cwcc.thunk.org (pool-108-7-220-252.bstnma.fios.verizon.net
+ [108.7.220.252]) (authenticated bits=0)
+ (User authenticated as tytso@ATHENA.MIT.EDU)
+ by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 24C27abX015835
+ (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+ Wed, 11 May 2022 22:07:37 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mit.edu; s=outgoing;
+ t=1652321259; bh=N0RrHZICQeD+jMKffmiVOPCX1VOHVXkmF2unBxL2MJo=;
+ h=Date:From:To:Cc:Subject:References:In-Reply-To;
+ b=ICSnAYgUceKKXsBKoRVPVEIQKsCW0KTrDhONUN31qeHKplZYIzPxqs8r+P+6YnX6x
+ abGDraN6I6t1+6cpTxV+pX/G3fEwMzr4yTmbUKBr0T0taRo1DJimXKf5Gg79Ohpl3X
+ JpMubQ0WlA6eF0LKDzQNgnOqe3puzHfHVqCXvtBW3+YG7uyHfHolbIovUtrn+rdOwy
+ JRr9Qa2HfVEUQ+aQ+EAp9AyaK7SPZhtHVsCbScLn15PNFhEYvE1xXltNl0sfjvJCFF
+ uoPI6+2MP/NnYrl1D9pLkyRIkK7Nn5W9/l5pldeyIP7y4GsgumtbbEERrnA1b/cRhh
+ 9OGVUNr2s3ldg==
+Received: by cwcc.thunk.org (Postfix, from userid 15806)
+ id 0BBB915C3F2A; Wed, 11 May 2022 22:07:36 -0400 (EDT)
+Date: Wed, 11 May 2022 22:07:36 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Konstantin Ryabitsev <konstantin@linuxfoundation.org>
+Subject: Re: [GIT PULL] virtio: last minute fixup
+Message-ID: <Ynxr6JNczWFTwxVw@mit.edu>
+References: <20220510082351-mutt-send-email-mst@kernel.org>
+ <CAHk-=wjPR+bj7P1O=MAQWXp0Mx2hHuNQ1acn6gS+mRo_kbo5Lg@mail.gmail.com>
+ <YnrxTMVRtDnGA/EK@dev-arch.thelio-3990X>
+ <CAHk-=wgAk3NEJ2PHtb0jXzCUOGytiHLq=rzjkFKfpiuH-SROgA@mail.gmail.com>
+ <20220511125140.ormw47yluv4btiey@meerkat.local>
+ <87a6bo89w4.fsf@mpe.ellerman.id.au>
+ <20220511163116.fpw2lvrkjbxmiesz@meerkat.local>
 MIME-Version: 1.0
-References: <20220414193316.14356-1-vdasa@vmware.com>
- <87levezr2y.fsf@redhat.com>
- <245F4717-CF83-40BC-BC87-5EB8563E0588@vmware.com>
-In-Reply-To: <245F4717-CF83-40BC-BC87-5EB8563E0588@vmware.com>
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Wed, 11 May 2022 22:02:43 +0200
-X-Gmail-Original-Message-ID: <CAK8P3a1yCBO5fJ8pacxVd4Umjt0Qy7wfgwZNkqqYMKjofZFvLQ@mail.gmail.com>
-Message-ID: <CAK8P3a1yCBO5fJ8pacxVd4Umjt0Qy7wfgwZNkqqYMKjofZFvLQ@mail.gmail.com>
-Subject: Re: [PATCH] VMCI: Add support for ARM64
-To: Vishnu Dasa <vdasa@vmware.com>
-X-Provags-ID: V03:K1:a7LOW0kt0gF+2TBJ+E1KH7ysykniKYV+rn46nQzqJQU0huI6RWQ
- EYz+x0JN2VJiaHVk2gKQS5P6SFQFESQPnrO0GlAQ9ukytv4oze2J/Cgj74gPTYOcMY2DJGz
- o7lQOaMAnQCo2rIXqdYZug8I8hrwEvQB8cznyYLC1IK0grljSbSct9CgD4XFE1zdlPVLUfD
- GowtbwTnIjQ+R1sxrzC3Q==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:TvSKS8OjxSE=:NO2U/Zcz1o/MPE2V2GWf4F
- 6Ko7SO+bvtiWzQyNqeTnPrkmHZCixwacTRnoQbI4gZDiECgTUOkq6dT6tTD2e8UCenj+FqOAn
- FTRkJCIzX5/5sgv7FXlFAgcYidrWSrOKLK8TUGjMSikHMUOtwr8711x3CMx9jj9XiWjLyBcyi
- eJJprlqF60LIDrSYAuf5NZJDPmG9uu3gvfeccZmIA3ZzjZoz8fMkfAftvb2FETrU/Q3cdUPEK
- s3pZBI1WWiRbYJ35gDYSpspy0KHJ8KpBPdWcnJihl6EGUD3foktiHnNlCQZtSIa98c+RCn4eq
- ot+UPhW7tYp7jtPpgPHoeY9o/YfIxUcxcWR5DnUPJeg1Z2HAzP40f0sKLYdOUltYSJztpoLQ+
- t98e2moNHNrsKc706g3y2a9TuZbDmUrCHDgrW43qxHINdjAGo8FKgyn5ywVJfpGF90mIif3SJ
- 8VqkRPWxiEuzkHuL0pSZ4rTvGTGIWKcsqVoNlJoH+m8/Xe7089EyCL3eAv7iicIuohVc7G46w
- Aa+uPeWZWAG2PxuVfrJjfGkdxszyCj7HeuO3Kw44Z1bx/koOl6OfswwvZgAndjzvPXZQrr/s8
- nOP1svxqC21hb3kDaQoMHUJ6XGm4elKESa1t4E37nIOHe+RTGnXioKLa1xY/5Zk+tFZ2v9DXO
- omXF9RH+hUS5yuyR6oIuF427X5C6zlqCaKPeA+js8AT+dxF4tsB6GAx+jI4CsrXj7gGNWeqkp
- kl6TGcvXREoRbic7aI836HoueDy/4hLCJntzYA==
-Cc: Pv-drivers <Pv-drivers@vmware.com>,
- "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
- linux-kernel-review list <linux-kernel-review@mailman2.vmware.com>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>, Bryan Tan <bryantan@vmware.com>,
- Cyprien Laplace <claplace@vmware.com>,
- "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Content-Disposition: inline
+In-Reply-To: <20220511163116.fpw2lvrkjbxmiesz@meerkat.local>
+Cc: KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Michael Ellerman <mpe@ellerman.id.au>,
+ Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+ virtualization@lists.linux-foundation.org,
+ Nathan Chancellor <nathan@kernel.org>, mie@igel.co.jp,
+ Netdev <netdev@vger.kernel.org>,
+ Linus Torvalds <torvalds@linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -103,22 +96,30 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, May 11, 2022 at 9:54 PM Vishnu Dasa <vdasa@vmware.com> wrote:
+On Wed, May 11, 2022 at 12:31:16PM -0400, Konstantin Ryabitsev wrote:
+> > But my mailer, editor and terminal don't know what to do with a Message-Id.
+> > 
+> > Whereas they can all open an https link.
+> > 
+> > Making people paste message ids into lore to see the original submission
+> > is not a win. People make enough fun of us already for still using email
+> > to submit patches, let's not make their job any easier :)
+> 
+> Okay, I'm fine with using a dedicated trailer for this purpose, perhaps an
+> "Archived-At"? That's a real header that was proposed by IETF for similar
+> purposes. E.g.:
+> 
+>     Archived-at: https://lore.kernel.org/r/CAHk-=wgAk3NEJ2PHtb0jXzCUOGytiHLq=rzjkFKfpiuH-SROgA@mail.gmail.com
 >
->
-> > FWIW, it seems you're doing three things at once, better split this into
-> > a 3-patch series.
->
-> Thanks for the feedback.  I was debating between the two ways of doing
-> it and ultimately did it one way.  It is a bit late now to change it as it has
-> made its way to linux-next already.
 
-It's really ok either way here. While there are clearly multiple changes in the
-source file, they are all trivial, and the Kconfig change doesn't make sense
-without the other changes, so having a combined patch seems totally
-reasonable as well.
+I'd suggest is "Patch-Link".  Then we can also have "Bug-Link:",
+"Test-Link:", etc.
 
-         Arnd
+"Patch-Link" is a tad bit shorter "Archived-at", and ultimately, it's
+not actually not the patch which is being archived.  It's the fact
+that it's a pointer to the patch review which is of most interest.
+
+					- Ted
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
