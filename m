@@ -4,73 +4,83 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E3EAEC433F5
-	for <virtualization@archiver.kernel.org>; Thu, 12 May 2022 08:58:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A6FEEC433F5
+	for <virtualization@archiver.kernel.org>; Thu, 12 May 2022 09:39:13 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 88A0A60F39;
-	Thu, 12 May 2022 08:58:10 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 421D360F39;
+	Thu, 12 May 2022 09:39:13 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 6H6UG8tjQPfT; Thu, 12 May 2022 08:58:09 +0000 (UTC)
+	with ESMTP id GbpvNLZu7E0H; Thu, 12 May 2022 09:39:12 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 031EB60E6D;
-	Thu, 12 May 2022 08:58:08 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id CF2D96063B;
+	Thu, 12 May 2022 09:39:11 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C655FC0032;
-	Thu, 12 May 2022 08:58:08 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 54AEEC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A33FBC0039;
+	Thu, 12 May 2022 09:39:11 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 47E02C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 May 2022 08:58:08 +0000 (UTC)
+ Thu, 12 May 2022 09:39:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 2D1AD40122
+ by smtp4.osuosl.org (Postfix) with ESMTP id 359FE41980
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 May 2022 08:58:08 +0000 (UTC)
+ Thu, 12 May 2022 09:39:10 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=linuxfoundation.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id WJ-ro54sKWUG
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id nk8Jze_0ltPp
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 May 2022 08:58:07 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 28FD140BE1
+ Thu, 12 May 2022 09:39:09 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id D1E2B41913
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 May 2022 08:58:07 +0000 (UTC)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ Thu, 12 May 2022 09:39:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1652348347;
+ h=from:from:reply-to:reply-to:subject:subject:date:date:
+ message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+ content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=tLKLgA7d5d1qjLjAxbAiC2y0ZsRTe2UXXmSPURXjo2c=;
+ b=C1UmPh1XKfKhuOy4UgMk3erHP5EaBMX69mmjjVhupK2kxtLEuD+peBzR6cHcEm547H+mxZ
+ zA5lEuglsCj20d4xc2EwpvM64nHV1z5N5gR0sDdu7UVbHFAe4cuLFLhJ+nq3SQ+XkmF7e/
+ MZtCFgl+m1TNNSYWqz6BLXGYEl05lHE=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-435-XsdZg6wLObCxVseVbxSDLQ-1; Thu, 12 May 2022 05:39:04 -0400
+X-MC-Unique: XsdZg6wLObCxVseVbxSDLQ-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.2])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by ams.source.kernel.org (Postfix) with ESMTPS id 67345B8212E;
- Thu, 12 May 2022 08:58:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBC06C385B8;
- Thu, 12 May 2022 08:58:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
- s=korg; t=1652345883;
- bh=1yvF9UfwDmxE0wTLjIZ1uf1smV1TpceuUJuNVU6/v8s=;
- h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=K/AV1G8L4kA0Su0cIcWYCn7FqXFKd4Xxk6S8FeW6rckJfS9tVkdJPGuqisALrk/Sa
- yf6EdOOgXs1aNiuPFDt6ixLcmQ2jcIVk2In8jZYfASog48q2p4ZVEXMgWDQJF8ZQht
- ZgrWhfUjWxeSjrPOMiRjCTHIYZ+aGVeSYqNPSAxA=
-Date: Thu, 12 May 2022 10:58:00 +0200
-From: Greg KH <gregkh@linuxfoundation.org>
-To: Yongji Xie <xieyongji@bytedance.com>
-Subject: Re: [PATCH 1/2] vduse: Remove empty vduse_mgmtdev_release()
-Message-ID: <YnzMGO919dZG908/@kroah.com>
-References: <20220511135523.147-1-xieyongji@bytedance.com>
- <YnvB2ZxyzGRkPwbm@kroah.com>
- <CACycT3s_-E=whAX02C0KKnr-1qx2yWdvTrRnQN=Km1L98VFThg@mail.gmail.com>
- <YnyZ6LiaQDxRSD/b@kroah.com>
- <CACycT3tibej7Hw3LtNRyDiNLLm7W5PzssENbuSGXsvK8-Cg43Q@mail.gmail.com>
- <Ynym+9BgJOyJdEkn@kroah.com>
- <CACycT3uHn0BnQO8kHY6P+EnLu1-YAVqC3koWP8AKzvcXH4hHYw@mail.gmail.com>
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id BB30585A5BE;
+ Thu, 12 May 2022 09:39:03 +0000 (UTC)
+Received: from redhat.com (unknown [10.33.36.134])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id 1B1E34010A13;
+ Thu, 12 May 2022 09:39:00 +0000 (UTC)
+Date: Thu, 12 May 2022 10:38:57 +0100
+From: Daniel =?utf-8?B?UC4gQmVycmFuZ8Op?= <berrange@redhat.com>
+To: zhenwei pi <pizhenwei@bytedance.com>
+Subject: Re: [PATCH v5 7/9] test/crypto: Add test suite for crypto akcipher
+Message-ID: <YnzVsRW9DiyhbuIm@redhat.com>
+References: <20220428135943.178254-1-pizhenwei@bytedance.com>
+ <20220428135943.178254-8-pizhenwei@bytedance.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <CACycT3uHn0BnQO8kHY6P+EnLu1-YAVqC3koWP8AKzvcXH4hHYw@mail.gmail.com>
-Cc: virtualization <virtualization@lists.linux-foundation.org>,
- "Michael S. Tsirkin" <mst@redhat.com>
+In-Reply-To: <20220428135943.178254-8-pizhenwei@bytedance.com>
+User-Agent: Mutt/2.2.1 (2022-02-19)
+X-Scanned-By: MIMEDefang 2.84 on 10.11.54.2
+Cc: helei.sig11@bytedance.com, mst@redhat.com, cohuck@redhat.com,
+ qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org,
+ linux-crypto@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -82,132 +92,40 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Reply-To: Daniel =?utf-8?B?UC4gQmVycmFuZ8Op?= <berrange@redhat.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, May 12, 2022 at 03:51:38PM +0800, Yongji Xie wrote:
-> On Thu, May 12, 2022 at 2:19 PM Greg KH <gregkh@linuxfoundation.org> wrote:
-> >
-> > On Thu, May 12, 2022 at 01:59:00PM +0800, Yongji Xie wrote:
-> > > On Thu, May 12, 2022 at 1:23 PM Greg KH <gregkh@linuxfoundation.org> wrote:
-> > > >
-> > > > On Thu, May 12, 2022 at 01:19:58PM +0800, Yongji Xie wrote:
-> > > > > On Wed, May 11, 2022 at 10:02 PM Greg KH <gregkh@linuxfoundation.org> wrote:
-> > > > > >
-> > > > > > On Wed, May 11, 2022 at 09:55:22PM +0800, Xie Yongji wrote:
-> > > > > > > It's not recommended to provide an "empty" release function
-> > > > > > > for the device object as Documentation/core-api/kobject.rst
-> > > > > > > mentioned.
-> > > > > >
-> > > > > > "it is a bug to have an empty release function" is more like it :)
-> > > > > >
-> > > > >
-> > > > > OK.
-> > > > >
-> > > > > > > So let's allocate the device object dynamically
-> > > > > > > to get rid of it.
-> > > > > >
-> > > > > > Much better, but not quite there, see below for details.
-> > > > > >
-> > > > > > >
-> > > > > > > Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-> > > > > > > ---
-> > > > > > >  drivers/vdpa/vdpa_user/vduse_dev.c | 43 +++++++++++++++++-------------
-> > > > > > >  1 file changed, 25 insertions(+), 18 deletions(-)
-> > > > > > >
-> > > > > > > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > > > > > index 160e40d03084..a8a5ebaefa10 100644
-> > > > > > > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > > > > > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > > > > > @@ -1475,15 +1475,6 @@ static char *vduse_devnode(struct device *dev, umode_t *mode)
-> > > > > > >       return kasprintf(GFP_KERNEL, "vduse/%s", dev_name(dev));
-> > > > > > >  }
-> > > > > > >
-> > > > > > > -static void vduse_mgmtdev_release(struct device *dev)
-> > > > > > > -{
-> > > > > > > -}
-> > > > > > > -
-> > > > > > > -static struct device vduse_mgmtdev = {
-> > > > > > > -     .init_name = "vduse",
-> > > > > > > -     .release = vduse_mgmtdev_release,
-> > > > > > > -};
-> > > > > > > -
-> > > > > > >  static struct vdpa_mgmt_dev mgmt_dev;
-> > > > > >
-> > > > > > Close.  This should be a pointer and the device structure within it
-> > > > > > should control the lifecycle of that structure.  It should not be a
-> > > > > > single static structure like this, that's very odd.
-> > > > > >
-> > > > >
-> > > > > OK, I can define mgmt_dev as a pointer. But the device is defined as a
-> > > > > parent device for structure vdpa_mgmt_dev. So I think we can't use it
-> > > > > to control the lifecycle of the structure vdpa_mgmt_dev.
-> > > >
-> > > > You should be able to control the lifecycle of it, especially if it is
-> > > > the parent device of something.  To not do that correctly is to have
-> > > > everything messed up as you should be using the driver model properly.
-> > > > As it is, you are not :(
-> > > >
-> > >
-> > > I can control the lifecycle of it. What I mean is that I can not free
-> > > it in the release function of the device object since it is the parent
-> > > device of mgmt_dev. E.g., in other cases (such as ifcvf_probe()), the
-> > > device object comes from a pci device but the structure vdpa_mgmt_dev
-> > > is created during driver probing. The structure vdpa_mgmt_dev just
-> > > maintains a pointer to the device object. So the structure
-> > > vdpa_mgmt_dev and the device object have different lifecycles.
-> >
-> > Then something is very very wrong here.  The structure's lifespace
-> > should only be controlled by one reference count, not multiple ones.
-> 
-> But they are different devices (one is vdpa_mgmt_dev and another is
-> the device I create which will be the parent of vdpa_mgmt_dev), I
-> didn't get why we need to control their lifecycle in one reference
-> count.
-> 
-> > Have it be controlled by the device you create and properly register as
-> > a child of the pci device and all should be fine.
-> >
-> 
-> The structure vdpa_mgmt_dev is defined as:
-> 
-> /**
->  * struct vdpa_mgmt_dev - vdpa management device
->  * @device: Management parent device
->  * @ops: operations supported by management device
->  * @id_table: Pointer to device id table of supported ids
->  * @config_attr_mask: bit mask of attributes of type enum vdpa_attr that
->  *       management device support during dev_add callback
->  * @list: list entry
->  */
-> struct vdpa_mgmt_dev {
->     struct device *device;
->     const struct vdpa_mgmtdev_ops *ops;
->     const struct virtio_device_id *id_table;
->     u64 config_attr_mask;
->     struct list_head list;
-> };
-> 
-> Now the device I create is passed to the struct vdpa_mgmt_dev as a
-> parent device pointer. If we want to control the lifecycle of the
-> structure vdpa_mgmt_dev by the device I create, some logic of the vdpa
-> management device needs to be reworked. For example, define a device
-> object for structure vdpa_mgmt_dev rather than just maintaining a
-> pointer to the parent device.
-
-But this is a device (it says in the name), so it should have the device
-structure embedded in it to control the lifespan of it.
-
-If the lifespan is somehow different, then you have a real problem no
-matter what (if it is or is not embedded), so that shows this really
-needs to be resolved properly.
-
-thanks,
-
-greg k-h
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gVGh1LCBBcHIgMjgsIDIwMjIgYXQgMDk6NTk6NDFQTSArMDgwMCwgemhlbndlaSBwaSB3cm90
+ZToKPiBGcm9tOiBMZWkgSGUgPGhlbGVpLnNpZzExQGJ5dGVkYW5jZS5jb20+Cj4gCj4gQWRkIHVu
+aXQgdGVzdCBhbmQgYmVuY2htYXJrIHRlc3QgZm9yIGNyeXB0byBha2NpcGhlci4KPiAKPiBTaWdu
+ZWQtb2ZmLWJ5OiBsZWkgaGUgPGhlbGVpLnNpZzExQGJ5dGVkYW5jZS5jb20+Cj4gU2lnbmVkLW9m
+Zi1ieTogemhlbndlaSBwaSA8cGl6aGVud2VpQGJ5dGVkYW5jZS5jb20+Cj4gUmV2aWV3ZWQtYnk6
+IERhbmllbCBQLiBCZXJyYW5nw6kgPGJlcnJhbmdlQHJlZGhhdC5jb20+Cj4gLS0tCj4gIHRlc3Rz
+L2JlbmNoL2JlbmNobWFyay1jcnlwdG8tYWtjaXBoZXIuYyB8IDE1NyArKysrKysKPiAgdGVzdHMv
+YmVuY2gvbWVzb24uYnVpbGQgICAgICAgICAgICAgICAgIHwgICA0ICsKPiAgdGVzdHMvYmVuY2gv
+dGVzdF9ha2NpcGhlcl9rZXlzLmluYyAgICAgIHwgNTM3ICsrKysrKysrKysrKysrKysrKwo+ICB0
+ZXN0cy91bml0L21lc29uLmJ1aWxkICAgICAgICAgICAgICAgICAgfCAgIDEgKwo+ICB0ZXN0cy91
+bml0L3Rlc3QtY3J5cHRvLWFrY2lwaGVyLmMgICAgICAgfCA3MTEgKysrKysrKysrKysrKysrKysr
+KysrKysrCj4gIDUgZmlsZXMgY2hhbmdlZCwgMTQxMCBpbnNlcnRpb25zKCspCj4gIGNyZWF0ZSBt
+b2RlIDEwMDY0NCB0ZXN0cy9iZW5jaC9iZW5jaG1hcmstY3J5cHRvLWFrY2lwaGVyLmMKPiAgY3Jl
+YXRlIG1vZGUgMTAwNjQ0IHRlc3RzL2JlbmNoL3Rlc3RfYWtjaXBoZXJfa2V5cy5pbmMKPiAgY3Jl
+YXRlIG1vZGUgMTAwNjQ0IHRlc3RzL3VuaXQvdGVzdC1jcnlwdG8tYWtjaXBoZXIuYwoKCj4gZGlm
+ZiAtLWdpdCBhL3Rlc3RzL2JlbmNoL21lc29uLmJ1aWxkIGIvdGVzdHMvYmVuY2gvbWVzb24uYnVp
+bGQKPiBpbmRleCAwMGIzYzIwOWRjLi5mNzkzZDk3MmI2IDEwMDY0NAo+IC0tLSBhL3Rlc3RzL2Jl
+bmNoL21lc29uLmJ1aWxkCj4gKysrIGIvdGVzdHMvYmVuY2gvbWVzb24uYnVpbGQKPiBAQCAtMjMs
+NiArMjMsMTAgQEAgaWYgaGF2ZV9ibG9jawo+ICAgIH0KPiAgZW5kaWYKPiAgCj4gK2JlbmNocyAr
+PSB7Cj4gKyAgICAnYmVuY2htYXJrLWNyeXB0by1ha2NpcGhlcic6IFtjcnlwdG9dLAo+ICt9CgpU
+aGlzIG5lZWRzIHRvIG1vdmVkIGFib3ZlIGEgYml0IHRvIGJlIGluY2x1ZGUgdGhlICdpZiBoYXZl
+X2Jsb2NrJwpzZWN0aW9uIGFib3ZlLCBvdGhlcndpc2UgaXQgYnJlYWtzIHRoZSBidWlsZCB3aGVu
+IHVzaW5nIC0tZGlzYWJsZS1zeXN0ZW0KCgpXaXRoIHJlZ2FyZHMsCkRhbmllbAotLSAKfDogaHR0
+cHM6Ly9iZXJyYW5nZS5jb20gICAgICAtby0gICAgaHR0cHM6Ly93d3cuZmxpY2tyLmNvbS9waG90
+b3MvZGJlcnJhbmdlIDp8Cnw6IGh0dHBzOi8vbGlidmlydC5vcmcgICAgICAgICAtby0gICAgICAg
+ICAgICBodHRwczovL2ZzdG9wMTM4LmJlcnJhbmdlLmNvbSA6fAp8OiBodHRwczovL2VudGFuZ2xl
+LXBob3RvLm9yZyAgICAtby0gICAgaHR0cHM6Ly93d3cuaW5zdGFncmFtLmNvbS9kYmVycmFuZ2Ug
+OnwKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1
+YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0
+aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5m
+by92aXJ0dWFsaXphdGlvbg==
