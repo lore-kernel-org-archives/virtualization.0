@@ -1,89 +1,87 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id CB317C433EF
-	for <virtualization@archiver.kernel.org>; Sat, 14 May 2022 00:59:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id CDBF7C433F5
+	for <virtualization@archiver.kernel.org>; Sat, 14 May 2022 00:59:58 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 9779B60EA9;
-	Sat, 14 May 2022 00:59:49 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 65FB283F99;
+	Sat, 14 May 2022 00:59:58 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id gxieQ1siNOAk; Sat, 14 May 2022 00:59:48 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id B12F660E87;
-	Sat, 14 May 2022 00:59:47 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id qZQhYBkcVwkl; Sat, 14 May 2022 00:59:57 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 6D23D83FA0;
+	Sat, 14 May 2022 00:59:56 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 96427C0039;
-	Sat, 14 May 2022 00:59:47 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 44B79C0039;
+	Sat, 14 May 2022 00:59:56 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 78A17C002D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2D8E2C0084
  for <virtualization@lists.linux-foundation.org>;
- Sat, 14 May 2022 00:59:46 +0000 (UTC)
+ Sat, 14 May 2022 00:59:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 594AD83F93
+ by smtp1.osuosl.org (Postfix) with ESMTP id 1B50783F9F
  for <virtualization@lists.linux-foundation.org>;
- Sat, 14 May 2022 00:59:46 +0000 (UTC)
+ Sat, 14 May 2022 00:59:55 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=bytedance-com.20210112.gappssmtp.com
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Sonjtvq6qNp0
+ with ESMTP id ZWRCIt4HC-k8
  for <virtualization@lists.linux-foundation.org>;
- Sat, 14 May 2022 00:59:45 +0000 (UTC)
+ Sat, 14 May 2022 00:59:54 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com
- [IPv6:2607:f8b0:4864:20::102d])
- by smtp1.osuosl.org (Postfix) with ESMTPS id F14D183F9D
+Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com
+ [IPv6:2607:f8b0:4864:20::42a])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 3916783F8B
  for <virtualization@lists.linux-foundation.org>;
- Sat, 14 May 2022 00:59:44 +0000 (UTC)
-Received: by mail-pj1-x102d.google.com with SMTP id fv2so9440219pjb.4
+ Sat, 14 May 2022 00:59:54 +0000 (UTC)
+Received: by mail-pf1-x42a.google.com with SMTP id p8so9067655pfh.8
  for <virtualization@lists.linux-foundation.org>;
- Fri, 13 May 2022 17:59:44 -0700 (PDT)
+ Fri, 13 May 2022 17:59:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=bytedance-com.20210112.gappssmtp.com; s=20210112;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=h34AXTj+8XUDrvB6MUnog+G/Mps9P+4k/0m79B0Juyk=;
- b=Gv8pKSglvH5a5FyHPh8FedxfR6/+yWjEuWXTKSfYfNg5JZAi2NN5VMWPt4ee4FBj43
- av3hOrGGfGYZeKR0cSeHUGAzFxhHVDvGn7VJnVKyEd/tAfOgYY63AoSqajftZsDvKHKT
- AHqwj+nV4qxyu1kWDY9II5KJU9FV2sTw+a23bn+zzUJnoygWPNw8Pj2642AkzYb+a7/E
- ZI3mWepUwMMlk0A9UZyBeH9arseKMJCfrdq4l7NekWWGSaVm2EHrJG7yL2+fyNfCXKA8
- MjKSXi+OHGbJS/huFNMr2xnwAPHWwxsK+2LMd7I+So07VyYnwXzwqajt37mVd97Ku2Ty
- lOkA==
+ bh=PSxLrZH+hc3CYhkDYxfByo2A7hNKKgQ9HR81Av48tec=;
+ b=jOZUlETZH5l3+AD7kz+Vb+1pUlWxlU/Mpwp0Ld3SV7OiX4YijJ6BlLR6u2YjqShbrt
+ Oz24gRV3ZscQwh2vF301qEWXL5kXjfqWWfF4Jk/0sn4PwFwDp2/MpXsomEJq5fyYT2Pb
+ PWdMAc0D3SwBhzJPdN2NPG/ZI0qJ4dsQl/toO4AAgEVn4WR/vW0ZkrtlhDjqUuKoGGlw
+ GHmt7d+DxMBbRXHNKr+JqkDW+8fhSu4Iy8T1pjbCI65zNJ7dOfXtcQ2T8OnfZniPD2OT
+ aKnZUrEibULlU3R+exeAxfAz89MY7WzLEgazB+BXDORqv3P30uycQrDNaJoSh+RBrkXf
+ Mx8Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
  :references:mime-version:content-transfer-encoding;
- bh=h34AXTj+8XUDrvB6MUnog+G/Mps9P+4k/0m79B0Juyk=;
- b=T7a09l4pVHxDSmy4y0ePPBmdw6A/OFRl6m+nbliABtMDbyF3ESG4GbxxJizHNvNy2a
- 0fyQVyvxHe8wblsw7VOcyyOEI5k12smZuWsDhmfxAn832FE4fxqtRRPSd/vZwCbvEPpz
- yclazvDKlXXF5ls3DGKMgPr+xHohK2c/5vhJgmMXd7dWTZVMEpe2mbnysxPCPzFVrg84
- u0ZnFoTwIBdIxH1juE3dui1dyXVDBbpKO5/Dq4tr4aF+nBUVoLCX7EYV2p0HZ7JN2Bc0
- Rje76LsanC+0PXM5aXiW6xihgonUFORVPss4PxlRUS4WyHMZ8RNg1HqFRfhsLcT32wRR
- Wq8g==
-X-Gm-Message-State: AOAM530ZerXm79JEbmUcjHmJomvnn//oE8xPjisYpDeQTXlm5hIF7UgU
- pRqRLws7E15CuU4XHJ1CgjvLyPCKUJ5zhA==
-X-Google-Smtp-Source: ABdhPJwKNXpv6ys3t5ZQgXZ8kQmZngYVkPBd0w14p7J13IRwVJ7tkyZpsqTNpeBcIB0d7P5ySKz9+g==
-X-Received: by 2002:a17:902:f650:b0:15f:3a10:a020 with SMTP id
- m16-20020a170902f65000b0015f3a10a020mr7187672plg.61.1652489984280; 
- Fri, 13 May 2022 17:59:44 -0700 (PDT)
+ bh=PSxLrZH+hc3CYhkDYxfByo2A7hNKKgQ9HR81Av48tec=;
+ b=KBC+IF2gRmKSaGD1EKKTRQXIeU5Rm3gPKN0I755ZKl43LWuMkayPXa5uFfMR2e6b/l
+ oSTrj40sVYM3lN/A+SVmVGsvUZsFsWZGFYl8OJ7KXPAIEc6u+pgIiyPHQ3opd/UQ9f73
+ iMB4H6uThJ9oXjc3JdDEIJ729fazNBoR/W3x+0H6Yds2xmIl6Jgr/euTcroT8drevDCP
+ oV3kRGNh16m9dsMSkgnbd40D5J+sAuv/t18N06z8nABusBDY2aN2b5a0Z0y1Z1tr2Tqx
+ I9tZ7fzoWkjIhvNqdHqgxr4QCLk3ep2ClWoHKT/cVlBDvY6bcPCmhVFjvVrK5mKIb5Ni
+ eAGg==
+X-Gm-Message-State: AOAM533lgv6+Y6/LYou4jcl+8hQbVsy9rE3BNs0qtajSX89Wo3z3M5IK
+ oMhUTuqkyJz5q3r1r73GBcWO2A==
+X-Google-Smtp-Source: ABdhPJwFmzugwEvsIsh3jYonaXN8NBJb0BAw1y9+0Gw7QzkFBAhj0M/o4HTmRemabB+8CiJ83o5asA==
+X-Received: by 2002:a65:4cce:0:b0:3c2:6d66:f141 with SMTP id
+ n14-20020a654cce000000b003c26d66f141mr6226159pgt.173.1652489993584; 
+ Fri, 13 May 2022 17:59:53 -0700 (PDT)
 Received: from always-x1.www.tendawifi.com ([139.177.225.239])
  by smtp.gmail.com with ESMTPSA id
- t24-20020a170902b21800b0015e8d4eb1dbsm2466125plr.37.2022.05.13.17.59.40
+ t24-20020a170902b21800b0015e8d4eb1dbsm2466125plr.37.2022.05.13.17.59.49
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 13 May 2022 17:59:43 -0700 (PDT)
+ Fri, 13 May 2022 17:59:52 -0700 (PDT)
 From: zhenwei pi <pizhenwei@bytedance.com>
 To: mst@redhat.com,
 	arei.gonglei@huawei.com,
 	berrange@redhat.com
-Subject: [PATCH v6 6/9] crypto: Implement RSA algorithm by gcrypt
-Date: Sat, 14 May 2022 08:55:01 +0800
-Message-Id: <20220514005504.1042884-7-pizhenwei@bytedance.com>
+Subject: [PATCH v6 8/9] tests/crypto: Add test suite for RSA keys
+Date: Sat, 14 May 2022 08:55:03 +0800
+Message-Id: <20220514005504.1042884-9-pizhenwei@bytedance.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220514005504.1042884-1-pizhenwei@bytedance.com>
 References: <20220514005504.1042884-1-pizhenwei@bytedance.com>
@@ -102,647 +100,216 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Lei He <helei.sig11@bytedance.com>
-
-Added gcryt implementation of RSA algorithm, RSA algorithm
-implemented by gcrypt has a higher priority than nettle because
-it supports raw padding.
-
-Signed-off-by: zhenwei pi <pizhenwei@bytedance.com>
-Signed-off-by: lei he <helei.sig11@bytedance.com>
----
- crypto/akcipher-gcrypt.c.inc | 597 +++++++++++++++++++++++++++++++++++
- crypto/akcipher.c            |   4 +-
- 2 files changed, 600 insertions(+), 1 deletion(-)
- create mode 100644 crypto/akcipher-gcrypt.c.inc
-
-diff --git a/crypto/akcipher-gcrypt.c.inc b/crypto/akcipher-gcrypt.c.inc
-new file mode 100644
-index 0000000000..6c5daa301e
---- /dev/null
-+++ b/crypto/akcipher-gcrypt.c.inc
-@@ -0,0 +1,597 @@
-+/*
-+ * QEMU Crypto akcipher algorithms
-+ *
-+ * Copyright (c) 2022 Bytedance
-+ * Author: lei he <helei.sig11@bytedance.com>
-+ *
-+ * This library is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU Lesser General Public
-+ * License as published by the Free Software Foundation; either
-+ * version 2.1 of the License, or (at your option) any later version.
-+ *
-+ * This library is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ * Lesser General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU Lesser General Public
-+ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
-+ *
-+ */
-+
-+#include <gcrypt.h>
-+
-+#include "qemu/osdep.h"
-+#include "qemu/host-utils.h"
-+#include "crypto/akcipher.h"
-+#include "crypto/random.h"
-+#include "qapi/error.h"
-+#include "sysemu/cryptodev.h"
-+#include "rsakey.h"
-+
-+typedef struct QCryptoGcryptRSA {
-+    QCryptoAkCipher akcipher;
-+    gcry_sexp_t key;
-+    QCryptoRSAPaddingAlgorithm padding_alg;
-+    QCryptoHashAlgorithm hash_alg;
-+} QCryptoGcryptRSA;
-+
-+static void qcrypto_gcrypt_rsa_free(QCryptoAkCipher *akcipher)
-+{
-+    QCryptoGcryptRSA *rsa = (QCryptoGcryptRSA *)akcipher;
-+    if (!rsa) {
-+        return;
-+    }
-+
-+    gcry_sexp_release(rsa->key);
-+    g_free(rsa);
-+}
-+
-+static QCryptoGcryptRSA *qcrypto_gcrypt_rsa_new(
-+    const QCryptoAkCipherOptionsRSA *opt,
-+    QCryptoAkCipherKeyType type,
-+    const uint8_t *key,  size_t keylen,
-+    Error **errp);
-+
-+QCryptoAkCipher *qcrypto_akcipher_new(const QCryptoAkCipherOptions *opts,
-+                                      QCryptoAkCipherKeyType type,
-+                                      const uint8_t *key, size_t keylen,
-+                                      Error **errp)
-+{
-+    switch (opts->alg) {
-+    case QCRYPTO_AKCIPHER_ALG_RSA:
-+        return (QCryptoAkCipher *)qcrypto_gcrypt_rsa_new(
-+            &opts->u.rsa, type, key, keylen, errp);
-+
-+    default:
-+        error_setg(errp, "Unsupported algorithm: %u", opts->alg);
-+        return NULL;
-+    }
-+
-+    return NULL;
-+}
-+
-+static void qcrypto_gcrypt_set_rsa_size(QCryptoAkCipher *akcipher, gcry_mpi_t n)
-+{
-+    size_t key_size = (gcry_mpi_get_nbits(n) + 7) / 8;
-+    akcipher->max_plaintext_len = key_size;
-+    akcipher->max_ciphertext_len = key_size;
-+    akcipher->max_dgst_len = key_size;
-+    akcipher->max_signature_len = key_size;
-+}
-+
-+static int qcrypto_gcrypt_parse_rsa_private_key(
-+    QCryptoGcryptRSA *rsa,
-+    const uint8_t *key, size_t keylen, Error **errp)
-+{
-+    g_autoptr(QCryptoAkCipherRSAKey) rsa_key = qcrypto_akcipher_rsakey_parse(
-+        QCRYPTO_AKCIPHER_KEY_TYPE_PRIVATE, key, keylen, errp);
-+    gcry_mpi_t n = NULL, e = NULL, d = NULL, p = NULL, q = NULL, u = NULL;
-+    bool compute_mul_inv = false;
-+    int ret = -1;
-+    gcry_error_t err;
-+
-+    if (!rsa_key) {
-+        return ret;
-+    }
-+
-+    err = gcry_mpi_scan(&n, GCRYMPI_FMT_STD,
-+                        rsa_key->n.data, rsa_key->n.len, NULL);
-+    if (gcry_err_code(err) != 0) {
-+        error_setg(errp, "Failed to parse RSA parameter n: %s/%s",
-+                   gcry_strsource(err), gcry_strerror(err));
-+        goto cleanup;
-+    }
-+
-+    err = gcry_mpi_scan(&e, GCRYMPI_FMT_STD,
-+                        rsa_key->e.data, rsa_key->e.len, NULL);
-+    if (gcry_err_code(err) != 0) {
-+        error_setg(errp, "Failed to parse RSA parameter e: %s/%s",
-+                   gcry_strsource(err), gcry_strerror(err));
-+        goto cleanup;
-+    }
-+
-+    err = gcry_mpi_scan(&d, GCRYMPI_FMT_STD,
-+                        rsa_key->d.data, rsa_key->d.len, NULL);
-+    if (gcry_err_code(err) != 0) {
-+        error_setg(errp, "Failed to parse RSA parameter d: %s/%s",
-+                   gcry_strsource(err), gcry_strerror(err));
-+        goto cleanup;
-+    }
-+
-+    err = gcry_mpi_scan(&p, GCRYMPI_FMT_STD,
-+                        rsa_key->p.data, rsa_key->p.len, NULL);
-+    if (gcry_err_code(err) != 0) {
-+        error_setg(errp, "Failed to parse RSA parameter p: %s/%s",
-+                   gcry_strsource(err), gcry_strerror(err));
-+        goto cleanup;
-+    }
-+
-+    err = gcry_mpi_scan(&q, GCRYMPI_FMT_STD,
-+                        rsa_key->q.data, rsa_key->q.len, NULL);
-+    if (gcry_err_code(err) != 0) {
-+        error_setg(errp, "Failed to parse RSA parameter q: %s/%s",
-+                   gcry_strsource(err), gcry_strerror(err));
-+        goto cleanup;
-+    }
-+
-+    if (gcry_mpi_cmp_ui(p, 0) > 0 && gcry_mpi_cmp_ui(q, 0) > 0) {
-+        compute_mul_inv = true;
-+
-+        u = gcry_mpi_new(0);
-+        if (gcry_mpi_cmp(p, q) > 0) {
-+            gcry_mpi_swap(p, q);
-+        }
-+        gcry_mpi_invm(u, p, q);
-+    }
-+
-+    if (compute_mul_inv) {
-+        err = gcry_sexp_build(&rsa->key, NULL,
-+            "(private-key (rsa (n %m) (e %m) (d %m) (p %m) (q %m) (u %m)))",
-+            n, e, d, p, q, u);
-+    } else {
-+        err = gcry_sexp_build(&rsa->key, NULL,
-+            "(private-key (rsa (n %m) (e %m) (d %m)))", n, e, d);
-+    }
-+    if (gcry_err_code(err) != 0) {
-+        error_setg(errp, "Failed to build RSA private key: %s/%s",
-+                   gcry_strsource(err), gcry_strerror(err));
-+        goto cleanup;
-+    }
-+    qcrypto_gcrypt_set_rsa_size((QCryptoAkCipher *)rsa,  n);
-+    ret = 0;
-+
-+cleanup:
-+    gcry_mpi_release(n);
-+    gcry_mpi_release(e);
-+    gcry_mpi_release(d);
-+    gcry_mpi_release(p);
-+    gcry_mpi_release(q);
-+    gcry_mpi_release(u);
-+    return ret;
-+}
-+
-+static int qcrypto_gcrypt_parse_rsa_public_key(QCryptoGcryptRSA *rsa,
-+                                               const uint8_t *key,
-+                                               size_t keylen,
-+                                               Error **errp)
-+{
-+
-+    g_autoptr(QCryptoAkCipherRSAKey) rsa_key = qcrypto_akcipher_rsakey_parse(
-+        QCRYPTO_AKCIPHER_KEY_TYPE_PUBLIC, key, keylen, errp);
-+    gcry_mpi_t n = NULL, e = NULL;
-+    int ret = -1;
-+    gcry_error_t err;
-+
-+    if (!rsa_key) {
-+        return ret;
-+    }
-+
-+    err = gcry_mpi_scan(&n, GCRYMPI_FMT_STD,
-+                        rsa_key->n.data, rsa_key->n.len, NULL);
-+    if (gcry_err_code(err) != 0) {
-+        error_setg(errp, "Failed to parse RSA parameter n: %s/%s",
-+                   gcry_strsource(err), gcry_strerror(err));
-+        goto cleanup;
-+    }
-+
-+    err = gcry_mpi_scan(&e, GCRYMPI_FMT_STD,
-+                        rsa_key->e.data, rsa_key->e.len, NULL);
-+    if (gcry_err_code(err) != 0) {
-+        error_setg(errp, "Failed to parse RSA parameter e: %s/%s",
-+                   gcry_strsource(err), gcry_strerror(err));
-+        goto cleanup;
-+    }
-+
-+    err = gcry_sexp_build(&rsa->key, NULL,
-+                          "(public-key (rsa (n %m) (e %m)))", n, e);
-+    if (gcry_err_code(err) != 0) {
-+        error_setg(errp, "Failed to build RSA public key: %s/%s",
-+                   gcry_strsource(err), gcry_strerror(err));
-+        goto cleanup;
-+    }
-+    qcrypto_gcrypt_set_rsa_size((QCryptoAkCipher *)rsa, n);
-+    ret = 0;
-+
-+cleanup:
-+    gcry_mpi_release(n);
-+    gcry_mpi_release(e);
-+    return ret;
-+}
-+
-+static int qcrypto_gcrypt_rsa_encrypt(QCryptoAkCipher *akcipher,
-+                                      const void *in, size_t in_len,
-+                                      void *out, size_t out_len,
-+                                      Error **errp)
-+{
-+    QCryptoGcryptRSA *rsa = (QCryptoGcryptRSA *)akcipher;
-+    int ret = -1;
-+    gcry_sexp_t data_sexp = NULL, cipher_sexp = NULL;
-+    gcry_sexp_t cipher_sexp_item = NULL;
-+    gcry_mpi_t cipher_mpi = NULL;
-+    const char *result;
-+    gcry_error_t err;
-+    size_t actual_len;
-+
-+    if (in_len > akcipher->max_plaintext_len) {
-+        error_setg(errp, "Plaintext length is greater than key size: %d",
-+                   akcipher->max_plaintext_len);
-+        return ret;
-+    }
-+
-+    err = gcry_sexp_build(&data_sexp, NULL,
-+                          "(data (flags %s) (value %b))",
-+                          QCryptoRSAPaddingAlgorithm_str(rsa->padding_alg),
-+                          in_len, in);
-+    if (gcry_err_code(err) != 0) {
-+        error_setg(errp, "Failed to build plaintext: %s/%s",
-+                   gcry_strsource(err), gcry_strerror(err));
-+        goto cleanup;
-+    }
-+
-+    err = gcry_pk_encrypt(&cipher_sexp, data_sexp, rsa->key);
-+    if (gcry_err_code(err) != 0) {
-+        error_setg(errp, "Failed to encrypt: %s/%s",
-+                   gcry_strsource(err), gcry_strerror(err));
-+        goto cleanup;
-+    }
-+
-+    /* S-expression of cipher: (enc-val (rsa (a a-mpi))) */
-+    cipher_sexp_item = gcry_sexp_find_token(cipher_sexp, "a", 0);
-+    if (!cipher_sexp_item || gcry_sexp_length(cipher_sexp_item) != 2) {
-+        error_setg(errp, "Invalid ciphertext result");
-+        goto cleanup;
-+    }
-+
-+    if (rsa->padding_alg == QCRYPTO_RSA_PADDING_ALG_RAW) {
-+        cipher_mpi = gcry_sexp_nth_mpi(cipher_sexp_item, 1, GCRYMPI_FMT_USG);
-+        if (!cipher_mpi) {
-+            error_setg(errp, "Invalid ciphertext result");
-+            goto cleanup;
-+        }
-+        err = gcry_mpi_print(GCRYMPI_FMT_USG, out, out_len,
-+                             &actual_len, cipher_mpi);
-+        if (gcry_err_code(err) != 0) {
-+            error_setg(errp, "Failed to print MPI: %s/%s",
-+                       gcry_strsource(err), gcry_strerror(err));
-+            goto cleanup;
-+        }
-+
-+        if (actual_len > out_len) {
-+            error_setg(errp, "Ciphertext buffer length is too small");
-+            goto cleanup;
-+        }
-+
-+        /* We always padding leading-zeros for RSA-RAW */
-+        if (actual_len < out_len) {
-+            memmove((uint8_t *)out + (out_len - actual_len), out, actual_len);
-+            memset(out, 0, out_len - actual_len);
-+        }
-+        ret = out_len;
-+
-+    } else {
-+        result = gcry_sexp_nth_data(cipher_sexp_item, 1, &actual_len);
-+        if (!result) {
-+            error_setg(errp, "Invalid ciphertext result");
-+            goto cleanup;
-+        }
-+        if (actual_len > out_len) {
-+            error_setg(errp, "Ciphertext buffer length is too small");
-+            goto cleanup;
-+        }
-+        memcpy(out, result, actual_len);
-+        ret = actual_len;
-+    }
-+
-+cleanup:
-+    gcry_sexp_release(data_sexp);
-+    gcry_sexp_release(cipher_sexp);
-+    gcry_sexp_release(cipher_sexp_item);
-+    gcry_mpi_release(cipher_mpi);
-+    return ret;
-+}
-+
-+static int qcrypto_gcrypt_rsa_decrypt(QCryptoAkCipher *akcipher,
-+                                      const void *in, size_t in_len,
-+                                      void *out, size_t out_len,
-+                                      Error **errp)
-+{
-+    QCryptoGcryptRSA *rsa = (QCryptoGcryptRSA *)akcipher;
-+    int ret = -1;
-+    gcry_sexp_t data_sexp = NULL, cipher_sexp = NULL;
-+    gcry_mpi_t data_mpi = NULL;
-+    gcry_error_t err;
-+    size_t actual_len;
-+    const char *result;
-+
-+    if (in_len > akcipher->max_ciphertext_len) {
-+        error_setg(errp, "Ciphertext length is greater than key size: %d",
-+                   akcipher->max_ciphertext_len);
-+        return ret;
-+    }
-+
-+    err = gcry_sexp_build(&cipher_sexp, NULL,
-+                          "(enc-val (flags %s) (rsa (a %b) ))",
-+                          QCryptoRSAPaddingAlgorithm_str(rsa->padding_alg),
-+                          in_len, in);
-+    if (gcry_err_code(err) != 0) {
-+        error_setg(errp, "Failed to build ciphertext: %s/%s",
-+                   gcry_strsource(err), gcry_strerror(err));
-+        goto cleanup;
-+    }
-+
-+    err = gcry_pk_decrypt(&data_sexp, cipher_sexp, rsa->key);
-+    if (gcry_err_code(err) != 0) {
-+        error_setg(errp, "Failed to decrypt: %s/%s",
-+                   gcry_strsource(err), gcry_strerror(err));
-+        goto cleanup;
-+    }
-+
-+    /* S-expression of plaintext: (value plaintext) */
-+    if (rsa->padding_alg == QCRYPTO_RSA_PADDING_ALG_RAW) {
-+        data_mpi = gcry_sexp_nth_mpi(data_sexp, 1, GCRYMPI_FMT_USG);
-+        if (!data_mpi) {
-+            error_setg(errp, "Invalid plaintext result");
-+            goto cleanup;
-+        }
-+        err = gcry_mpi_print(GCRYMPI_FMT_USG, out, out_len,
-+                             &actual_len, data_mpi);
-+        if (gcry_err_code(err) != 0) {
-+            error_setg(errp, "Failed to print MPI: %s/%s",
-+                       gcry_strsource(err), gcry_strerror(err));
-+            goto cleanup;
-+        }
-+        if (actual_len > out_len) {
-+            error_setg(errp, "Plaintext buffer length is too small");
-+            goto cleanup;
-+        }
-+        /* We always padding leading-zeros for RSA-RAW */
-+        if (actual_len < out_len) {
-+            memmove((uint8_t *)out + (out_len - actual_len), out, actual_len);
-+            memset(out, 0, out_len - actual_len);
-+        }
-+        ret = out_len;
-+    } else {
-+        result = gcry_sexp_nth_data(data_sexp, 1, &actual_len);
-+        if (!result) {
-+            error_setg(errp, "Invalid plaintext result");
-+            goto cleanup;
-+        }
-+        if (actual_len > out_len) {
-+            error_setg(errp, "Plaintext buffer length is too small");
-+            goto cleanup;
-+        }
-+        memcpy(out, result, actual_len);
-+        ret = actual_len;
-+    }
-+
-+cleanup:
-+    gcry_sexp_release(cipher_sexp);
-+    gcry_sexp_release(data_sexp);
-+    gcry_mpi_release(data_mpi);
-+    return ret;
-+}
-+
-+static int qcrypto_gcrypt_rsa_sign(QCryptoAkCipher *akcipher,
-+                                   const void *in, size_t in_len,
-+                                   void *out, size_t out_len, Error **errp)
-+{
-+    QCryptoGcryptRSA *rsa = (QCryptoGcryptRSA *)akcipher;
-+    int ret = -1;
-+    gcry_sexp_t dgst_sexp = NULL, sig_sexp = NULL;
-+    gcry_sexp_t sig_sexp_item = NULL;
-+    const char *result;
-+    gcry_error_t err;
-+    size_t actual_len;
-+
-+    if (in_len > akcipher->max_dgst_len) {
-+        error_setg(errp, "Data length is greater than key size: %d",
-+                   akcipher->max_dgst_len);
-+        return ret;
-+    }
-+
-+    if (rsa->padding_alg != QCRYPTO_RSA_PADDING_ALG_PKCS1) {
-+        error_setg(errp, "Invalid padding %u", rsa->padding_alg);
-+        return ret;
-+    }
-+
-+    err = gcry_sexp_build(&dgst_sexp, NULL,
-+                          "(data (flags pkcs1) (hash %s %b))",
-+                          QCryptoHashAlgorithm_str(rsa->hash_alg),
-+                          in_len, in);
-+    if (gcry_err_code(err) != 0) {
-+        error_setg(errp, "Failed to build dgst: %s/%s",
-+                   gcry_strsource(err), gcry_strerror(err));
-+        goto cleanup;
-+    }
-+
-+    err = gcry_pk_sign(&sig_sexp, dgst_sexp, rsa->key);
-+    if (gcry_err_code(err) != 0) {
-+        error_setg(errp, "Failed to make signature: %s/%s",
-+                   gcry_strsource(err), gcry_strerror(err));
-+        goto cleanup;
-+    }
-+
-+    /* S-expression of signature: (sig-val (rsa (s s-mpi))) */
-+    sig_sexp_item = gcry_sexp_find_token(sig_sexp, "s", 0);
-+    if (!sig_sexp_item || gcry_sexp_length(sig_sexp_item) != 2) {
-+        error_setg(errp, "Invalid signature result");
-+        goto cleanup;
-+    }
-+
-+    result = gcry_sexp_nth_data(sig_sexp_item, 1, &actual_len);
-+    if (!result) {
-+        error_setg(errp, "Invalid signature result");
-+        goto cleanup;
-+    }
-+
-+    if (actual_len > out_len) {
-+        error_setg(errp, "Signature buffer length is too small");
-+        goto cleanup;
-+    }
-+    memcpy(out, result, actual_len);
-+    ret = actual_len;
-+
-+cleanup:
-+    gcry_sexp_release(dgst_sexp);
-+    gcry_sexp_release(sig_sexp);
-+    gcry_sexp_release(sig_sexp_item);
-+
-+    return ret;
-+}
-+
-+static int qcrypto_gcrypt_rsa_verify(QCryptoAkCipher *akcipher,
-+                                     const void *in, size_t in_len,
-+                                     const void *in2, size_t in2_len,
-+                                     Error **errp)
-+{
-+    QCryptoGcryptRSA *rsa = (QCryptoGcryptRSA *)akcipher;
-+    int ret = -1;
-+    gcry_sexp_t sig_sexp = NULL, dgst_sexp = NULL;
-+    gcry_error_t err;
-+
-+    if (in_len > akcipher->max_signature_len) {
-+        error_setg(errp, "Signature length is greater than key size: %d",
-+                   akcipher->max_signature_len);
-+        return ret;
-+    }
-+
-+    if (in2_len > akcipher->max_dgst_len) {
-+        error_setg(errp, "Data length is greater than key size: %d",
-+                   akcipher->max_dgst_len);
-+        return ret;
-+    }
-+
-+    if (rsa->padding_alg != QCRYPTO_RSA_PADDING_ALG_PKCS1) {
-+        error_setg(errp, "Invalid padding %u", rsa->padding_alg);
-+        return ret;
-+    }
-+
-+    err = gcry_sexp_build(&sig_sexp, NULL,
-+                          "(sig-val (rsa (s %b)))", in_len, in);
-+    if (gcry_err_code(err) != 0) {
-+        error_setg(errp, "Failed to build signature: %s/%s",
-+                   gcry_strsource(err), gcry_strerror(err));
-+        goto cleanup;
-+    }
-+
-+    err = gcry_sexp_build(&dgst_sexp, NULL,
-+                          "(data (flags pkcs1) (hash %s %b))",
-+                          QCryptoHashAlgorithm_str(rsa->hash_alg),
-+                          in2_len, in2);
-+    if (gcry_err_code(err) != 0) {
-+        error_setg(errp, "Failed to build dgst: %s/%s",
-+                   gcry_strsource(err), gcry_strerror(err));
-+        goto cleanup;
-+    }
-+
-+    err = gcry_pk_verify(sig_sexp, dgst_sexp, rsa->key);
-+    if (gcry_err_code(err) != 0) {
-+        error_setg(errp, "Failed to verify signature: %s/%s",
-+                   gcry_strsource(err), gcry_strerror(err));
-+        goto cleanup;
-+    }
-+    ret = 0;
-+
-+cleanup:
-+    gcry_sexp_release(dgst_sexp);
-+    gcry_sexp_release(sig_sexp);
-+
-+    return ret;
-+}
-+
-+QCryptoAkCipherDriver gcrypt_rsa = {
-+    .encrypt = qcrypto_gcrypt_rsa_encrypt,
-+    .decrypt = qcrypto_gcrypt_rsa_decrypt,
-+    .sign = qcrypto_gcrypt_rsa_sign,
-+    .verify = qcrypto_gcrypt_rsa_verify,
-+    .free = qcrypto_gcrypt_rsa_free,
-+};
-+
-+static QCryptoGcryptRSA *qcrypto_gcrypt_rsa_new(
-+    const QCryptoAkCipherOptionsRSA *opt,
-+    QCryptoAkCipherKeyType type,
-+    const uint8_t *key, size_t keylen,
-+    Error **errp)
-+{
-+    QCryptoGcryptRSA *rsa = g_new0(QCryptoGcryptRSA, 1);
-+    rsa->padding_alg = opt->padding_alg;
-+    rsa->hash_alg = opt->hash_alg;
-+    rsa->akcipher.driver = &gcrypt_rsa;
-+
-+    switch (type) {
-+    case QCRYPTO_AKCIPHER_KEY_TYPE_PRIVATE:
-+        if (qcrypto_gcrypt_parse_rsa_private_key(rsa, key, keylen, errp) != 0) {
-+            error_setg(errp, "Failed to parse rsa private key");
-+            goto error;
-+        }
-+        break;
-+
-+    case QCRYPTO_AKCIPHER_KEY_TYPE_PUBLIC:
-+        if (qcrypto_gcrypt_parse_rsa_public_key(rsa, key, keylen, errp) != 0) {
-+            error_setg(errp, "Failed to parse rsa public rsa key");
-+            goto error;
-+        }
-+        break;
-+
-+    default:
-+        error_setg(errp, "Unknown akcipher key type %d", type);
-+        goto error;
-+    }
-+
-+    return rsa;
-+
-+error:
-+    qcrypto_gcrypt_rsa_free((QCryptoAkCipher *)rsa);
-+    return NULL;
-+}
-+
-+
-+bool qcrypto_akcipher_supports(QCryptoAkCipherOptions *opts)
-+{
-+    switch (opts->alg) {
-+    case QCRYPTO_AKCIPHER_ALG_RSA:
-+        switch (opts->u.rsa.padding_alg) {
-+        case QCRYPTO_RSA_PADDING_ALG_RAW:
-+            return true;
-+
-+        case QCRYPTO_RSA_PADDING_ALG_PKCS1:
-+            switch (opts->u.rsa.hash_alg) {
-+            case QCRYPTO_HASH_ALG_MD5:
-+            case QCRYPTO_HASH_ALG_SHA1:
-+            case QCRYPTO_HASH_ALG_SHA256:
-+            case QCRYPTO_HASH_ALG_SHA512:
-+                return true;
-+
-+            default:
-+                return false;
-+            }
-+
-+        default:
-+            return false;
-+        }
-+
-+    default:
-+        return true;
-+    }
-+}
-diff --git a/crypto/akcipher.c b/crypto/akcipher.c
-index f287083f92..ad88379c1e 100644
---- a/crypto/akcipher.c
-+++ b/crypto/akcipher.c
-@@ -23,7 +23,9 @@
- #include "crypto/akcipher.h"
- #include "akcipherpriv.h"
- 
--#if defined(CONFIG_NETTLE) && defined(CONFIG_HOGWEED)
-+#if defined(CONFIG_GCRYPT)
-+#include "akcipher-gcrypt.c.inc"
-+#elif defined(CONFIG_NETTLE) && defined(CONFIG_HOGWEED)
- #include "akcipher-nettle.c.inc"
- #else
- QCryptoAkCipher *qcrypto_akcipher_new(const QCryptoAkCipherOptions *opts,
--- 
-2.20.1
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+RnJvbTogTGVpIEhlIDxoZWxlaS5zaWcxMUBieXRlZGFuY2UuY29tPgoKQXMgRGFuaWVsIHN1Z2dl
+c3RlZCwgQWRkIHRlc3RzIHN1aXRlIGZvciByc2FrZXksIGFzIGEgd2F5IHRvIHByb3ZlCnRoYXQg
+d2UgY2FuIGhhbmRsZSBERVIgZXJyb3JzIGNvcnJlY3RseS4KClNpZ25lZC1vZmYtYnk6IHpoZW53
+ZWkgcGkgPHBpemhlbndlaUBieXRlZGFuY2UuY29tPgpTaWduZWQtb2ZmLWJ5OiBsZWkgaGUgPGhl
+bGVpLnNpZzExQGJ5dGVkYW5jZS5jb20+ClJldmlld2VkLWJ5OiBEYW5pZWwgUC4gQmVycmFuZ8Op
+IDxiZXJyYW5nZUByZWRoYXQuY29tPgotLS0KIHRlc3RzL3VuaXQvdGVzdC1jcnlwdG8tYWtjaXBo
+ZXIuYyB8IDI4NSArKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0KIDEgZmlsZSBjaGFuZ2Vk
+LCAyODIgaW5zZXJ0aW9ucygrKSwgMyBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS90ZXN0cy91
+bml0L3Rlc3QtY3J5cHRvLWFrY2lwaGVyLmMgYi90ZXN0cy91bml0L3Rlc3QtY3J5cHRvLWFrY2lw
+aGVyLmMKaW5kZXggYjViZTU2Mzg4NC4uNGYxZjQyMTRkZCAxMDA2NDQKLS0tIGEvdGVzdHMvdW5p
+dC90ZXN0LWNyeXB0by1ha2NpcGhlci5jCisrKyBiL3Rlc3RzL3VuaXQvdGVzdC1jcnlwdG8tYWtj
+aXBoZXIuYwpAQCAtNTE3LDYgKzUxNywxNTggQEAgc3RhdGljIGNvbnN0IHVpbnQ4X3QgZXhwX2Np
+cGhlcnRleHRfcnNhMjA0OF9wa2NzMVtdID0gewogICAgIDB4ZDAsIDB4MjgsIDB4MDMsIDB4MTks
+IDB4YTYsIDB4MDYsIDB4MTMsIDB4NDUsCiB9OwogCitzdGF0aWMgY29uc3QgdWludDhfdCByc2Ff
+cHJpdmF0ZV9rZXlfbGFja19lbGVtZW50W10gPSB7CisgICAgLyogUlNBUHJpdmF0ZUtleSwgb2Zm
+c2V0OiAwLCBsZW5ndGg6IDE3NiAqLworICAgIDB4MzAsIDB4ODEsIDB4YjAsCisgICAgLyogdmVy
+c2lvbiwgb2Zmc2V0OiA0LCBsZW5ndGg6IDEgKi8KKyAgICAweDAyLCAweDAxLCAweDAwLAorICAg
+IC8qIG4sIG9mZnNldDogNywgbGVuZ3RoOiA2NSAqLworICAgIDB4MDIsIDB4NDEsCisgICAgMHgw
+MCwgMHhiOSwgMHhlMSwgMHgyMiwgMHhkYiwgMHg1NiwgMHgyZiwgMHhiNiwKKyAgICAweGY3LCAw
+eGYwLCAweDBhLCAweDg3LCAweDQzLCAweDA3LCAweDEyLCAweGRiLAorICAgIDB4NmQsIDB4YjYs
+IDB4MmIsIDB4NDEsIDB4OGQsIDB4MmMsIDB4M2MsIDB4YTUsCisgICAgMHhkZCwgMHg3OCwgMHg5
+YSwgMHg4ZiwgMHhhYiwgMHg4ZSwgMHhmMiwgMHg0YSwKKyAgICAweGM4LCAweDM0LCAweDBjLCAw
+eDEyLCAweDRmLCAweDExLCAweDkwLCAweGM2LAorICAgIDB4YzIsIDB4YTUsIDB4ZDAsIDB4Y2Qs
+IDB4ZmIsIDB4ZmMsIDB4MmMsIDB4OTUsCisgICAgMHg1NiwgMHg4MiwgMHhkZiwgMHgzOSwgMHhm
+MywgMHgzYiwgMHgxZCwgMHg2MiwKKyAgICAweDI2LCAweDk3LCAweGI3LCAweDkzLCAweDI1LCAw
+eGM3LCAweGVjLCAweDdlLAorICAgIDB4ZjcsCisgICAgLyogZSwgb2Zmc2V0OiA3NCwgbGVuZ3Ro
+OiAzICovCisgICAgMHgwMiwgMHgwMywgMHgwMSwgMHgwMCwgMHgwMSwKKyAgICAvKiBkLCBvZmZz
+ZXQ6IDc5LCBsZW5ndGg6IDY0ICovCisgICAgMHgwMiwgMHg0MCwKKyAgICAweDFlLCAweDgwLCAw
+eGZlLCAweGRhLCAweDY1LCAweGRiLCAweDcwLCAweGI4LAorICAgIDB4NjEsIDB4OTEsIDB4Mjgs
+IDB4YmYsIDB4NmMsIDB4MzIsIDB4YzEsIDB4MDUsCisgICAgMHhkMSwgMHgyNiwgMHg2YSwgMHgx
+YywgMHg4MywgMHhjYywgMHhmNCwgMHgxZiwKKyAgICAweDUzLCAweDQyLCAweDcyLCAweDFmLCAw
+eDYyLCAweDU3LCAweDBhLCAweGM0LAorICAgIDB4NjYsIDB4NzYsIDB4MzAsIDB4ODcsIDB4Yjks
+IDB4YjEsIDB4YjksIDB4NmEsCisgICAgMHg2MywgMHhmZCwgMHg4ZiwgMHgzZSwgMHhmYywgMHgz
+NSwgMHgzZiwgMHhkNiwKKyAgICAweDJlLCAweDZjLCAweGM4LCAweDcwLCAweDhhLCAweDE3LCAw
+eGMxLCAweDI4LAorICAgIDB4NmEsIDB4ZmUsIDB4NTEsIDB4NTYsIDB4YjMsIDB4OTIsIDB4NmYs
+IDB4MDksCisgICAgLyogcCwgb2Zmc2V0OiAxNDUsIGxlbmd0aDogMzMgKi8KKyAgICAweDAyLCAw
+eDIxLAorICAgIDB4MDAsIDB4ZTMsIDB4MmUsIDB4MmQsIDB4OGQsIDB4YmEsIDB4MWMsIDB4MzQs
+CisgICAgMHg0YywgMHg0OSwgMHg5ZiwgMHhjMSwgMHhhNiwgMHhkZCwgMHhkNywgMHgxMywKKyAg
+ICAweDhkLCAweDA1LCAweDQ4LCAweGRkLCAweGZmLCAweDVjLCAweDMwLCAweGJjLAorICAgIDB4
+NmIsIDB4YzQsIDB4MTgsIDB4OWQsIDB4ZmMsIDB4YTIsIDB4ZDAsIDB4OWIsCisgICAgMHg0ZCwK
+KyAgICAvKiBxLCBvZmZzZXQ6IDE4MCwgbGVuZ3RoOiAzMyAqLworICAgIDB4MDIsIDB4MjEsCisg
+ICAgMHgwMCwgMHhkMSwgMHg3NSwgMHhhZiwgMHg0YiwgMHhjNiwgMHgxYSwgMHhiMCwKKyAgICAw
+eDk4LCAweDE0LCAweDQyLCAweGFlLCAweDMzLCAweGYzLCAweDQ0LCAweGRlLAorICAgIDB4MjEs
+IDB4Y2IsIDB4MDQsIDB4ZGEsIDB4ZmIsIDB4MWUsIDB4MzUsIDB4OTIsCisgICAgMHhjZCwgMHg2
+OSwgMHhjMCwgMHg4MywgMHgwNiwgMHg4MywgMHg4ZSwgMHgzOSwKKyAgICAweDUzLAorICAgIC8q
+IGxhY2sgZWxlbWVudDogZHAsIGRxLCB1ICovCit9OworCitzdGF0aWMgY29uc3QgdWludDhfdCBy
+c2FfcHVibGljX2tleV9sYWNrX2VsZW1lbnRbXSA9IHsKKyAgICAvKiBSU0FQdWJsaWNLZXksIG9m
+ZnNldDogMCwgbGVuZ3RoOiA2NyAqLworICAgIDB4MzAsIDB4ODEsIDB4NDMsCisgICAgLyogbiwg
+b2Zmc2V0OiA3LCBsZW5ndGg6IDY1ICovCisgICAgMHgwMiwgMHg0MSwKKyAgICAweDAwLCAweGI5
+LCAweGUxLCAweDIyLCAweGRiLCAweDU2LCAweDJmLCAweGI2LAorICAgIDB4ZjcsIDB4ZjAsIDB4
+MGEsIDB4ODcsIDB4NDMsIDB4MDcsIDB4MTIsIDB4ZGIsCisgICAgMHg2ZCwgMHhiNiwgMHgyYiwg
+MHg0MSwgMHg4ZCwgMHgyYywgMHgzYywgMHhhNSwKKyAgICAweGRkLCAweDc4LCAweDlhLCAweDhm
+LCAweGFiLCAweDhlLCAweGYyLCAweDRhLAorICAgIDB4YzgsIDB4MzQsIDB4MGMsIDB4MTIsIDB4
+NGYsIDB4MTEsIDB4OTAsIDB4YzYsCisgICAgMHhjMiwgMHhhNSwgMHhkMCwgMHhjZCwgMHhmYiwg
+MHhmYywgMHgyYywgMHg5NSwKKyAgICAweDU2LCAweDgyLCAweGRmLCAweDM5LCAweGYzLCAweDNi
+LCAweDFkLCAweDYyLAorICAgIDB4MjYsIDB4OTcsIDB4YjcsIDB4OTMsIDB4MjUsIDB4YzcsIDB4
+ZWMsIDB4N2UsCisgICAgMHhmNywKKyAgICAvKiBsYWNrIGVsZW1lbnQ6IGUgKi8KK307CisKK3N0
+YXRpYyBjb25zdCB1aW50OF90IHJzYV9wdWJsaWNfa2V5X2VtcHR5X2VsZW1lbnRbXSA9IHsKKyAg
+ICAvKiBSU0FQdWJsaWNLZXksIG9mZnNldDogMCwgbGVuZ3RoOiA2OSAqLworICAgIDB4MzAsIDB4
+ODEsIDB4NDUsCisgICAgLyogbiwgb2Zmc2V0OiA3LCBsZW5ndGg6IDY1ICovCisgICAgMHgwMiwg
+MHg0MSwKKyAgICAweDAwLCAweGI5LCAweGUxLCAweDIyLCAweGRiLCAweDU2LCAweDJmLCAweGI2
+LAorICAgIDB4ZjcsIDB4ZjAsIDB4MGEsIDB4ODcsIDB4NDMsIDB4MDcsIDB4MTIsIDB4ZGIsCisg
+ICAgMHg2ZCwgMHhiNiwgMHgyYiwgMHg0MSwgMHg4ZCwgMHgyYywgMHgzYywgMHhhNSwKKyAgICAw
+eGRkLCAweDc4LCAweDlhLCAweDhmLCAweGFiLCAweDhlLCAweGYyLCAweDRhLAorICAgIDB4Yzgs
+IDB4MzQsIDB4MGMsIDB4MTIsIDB4NGYsIDB4MTEsIDB4OTAsIDB4YzYsCisgICAgMHhjMiwgMHhh
+NSwgMHhkMCwgMHhjZCwgMHhmYiwgMHhmYywgMHgyYywgMHg5NSwKKyAgICAweDU2LCAweDgyLCAw
+eGRmLCAweDM5LCAweGYzLCAweDNiLCAweDFkLCAweDYyLAorICAgIDB4MjYsIDB4OTcsIDB4Yjcs
+IDB4OTMsIDB4MjUsIDB4YzcsIDB4ZWMsIDB4N2UsCisgICAgMHhmNywKKyAgICAvKiBlOiBlbXB0
+eSBlbGVtZW50ICovCisgICAgMHgwMiwgMHgwMCwKK307CisKK3N0YXRpYyBjb25zdCB1aW50OF90
+IHJzYV9wcml2YXRlX2tleV9lbXB0eV9lbGVtZW50W10gPSB7CisgICAgLyogUlNBUHJpdmF0ZUtl
+eSwgb2Zmc2V0OiAwLCBsZW5ndGg6IDE5ICovCisgICAgMHgzMCwgMHg4MSwgMHgxMywKKyAgICAv
+KiB2ZXJzaW9uLCBvZmZzZXQ6IDQsIGxlbmd0aDogMSAqLworICAgIDB4MDIsIDB4MDEsIDB4MDAs
+CisgICAgLyogbjogZW1wdHkgZWxlbWVudCAqLworICAgIDB4MDIsIDB4MDAsCisgICAgLyogZTog
+ZW1wdHkgZWxlbWVudCAqLworICAgIDB4MDIsIDB4MDAsCisgICAgLyogZDogZW1wdHkgZWxlbWVu
+dCAqLworICAgIDB4MDIsIDB4MDAsCisgICAgLyogcDogZW1wdHkgZWxlbWVudCAqLworICAgIDB4
+MDIsIDB4MDAsCisgICAgLyogcTogZW1wdHkgZWxlbWVudCAqLworICAgIDB4MDIsIDB4MDAsCisg
+ICAgLyogZHA6IGVtcHR5IGVsZW1lbnQgKi8KKyAgICAweDAyLCAweDAwLAorICAgIC8qIGRxOiBl
+bXB0eSBlbGVtZW50ICovCisgICAgMHgwMiwgMHgwMCwKKyAgICAvKiB1OiBlbXB0eSBlbGVtZW50
+ICovCisgICAgMHgwMiwgMHgwMCwKK307CisKK3N0YXRpYyBjb25zdCB1aW50OF90IHJzYV9wdWJs
+aWNfa2V5X2ludmFsaWRfbGVuZ3RoX3ZhbFtdID0geworICAgIC8qIFJTQVB1YmxpY0tleSwgSU5W
+QUxJRCBsZW5ndGg6IDMxMyAqLworICAgIDB4MzAsIDB4ODIsIDB4MDEsIDB4MzksCisgICAgLyog
+biwgb2Zmc2V0OiA3LCBsZW5ndGg6IDY1ICovCisgICAgMHgwMiwgMHg0MSwKKyAgICAweDAwLCAw
+eGI5LCAweGUxLCAweDIyLCAweGRiLCAweDU2LCAweDJmLCAweGI2LAorICAgIDB4ZjcsIDB4ZjAs
+IDB4MGEsIDB4ODcsIDB4NDMsIDB4MDcsIDB4MTIsIDB4ZGIsCisgICAgMHg2ZCwgMHhiNiwgMHgy
+YiwgMHg0MSwgMHg4ZCwgMHgyYywgMHgzYywgMHhhNSwKKyAgICAweGRkLCAweDc4LCAweDlhLCAw
+eDhmLCAweGFiLCAweDhlLCAweGYyLCAweDRhLAorICAgIDB4YzgsIDB4MzQsIDB4MGMsIDB4MTIs
+IDB4NGYsIDB4MTEsIDB4OTAsIDB4YzYsCisgICAgMHhjMiwgMHhhNSwgMHhkMCwgMHhjZCwgMHhm
+YiwgMHhmYywgMHgyYywgMHg5NSwKKyAgICAweDU2LCAweDgyLCAweGRmLCAweDM5LCAweGYzLCAw
+eDNiLCAweDFkLCAweDYyLAorICAgIDB4MjYsIDB4OTcsIDB4YjcsIDB4OTMsIDB4MjUsIDB4Yzcs
+IDB4ZWMsIDB4N2UsCisgICAgMHhmNywKKyAgICAvKiBlLCAqLworICAgIDB4MDIsIDB4MDMsIDB4
+MDEsIDB4MDAsIDB4MDEsICAvKiBJTlRFR0VSLCBvZmZzZXQ6IDc0LCBsZW5ndGg6IDMgKi8KK307
+CisKK3N0YXRpYyBjb25zdCB1aW50OF90IHJzYV9wdWJsaWNfa2V5X2V4dHJhX2VsZW1bXSA9IHsK
+KyAgICAvKiBSU0FQdWJsaWNLZXksIGxlbmd0aDogODAgKi8KKyAgICAweDMwLCAweDgxLCAweDUw
+LAorICAgIC8qIG4sIG9mZnNldDogNywgbGVuZ3RoOiA2NSAqLworICAgIDB4MDIsIDB4NDEsCisg
+ICAgMHgwMCwgMHhiOSwgMHhlMSwgMHgyMiwgMHhkYiwgMHg1NiwgMHgyZiwgMHhiNiwKKyAgICAw
+eGY3LCAweGYwLCAweDBhLCAweDg3LCAweDQzLCAweDA3LCAweDEyLCAweGRiLAorICAgIDB4NmQs
+IDB4YjYsIDB4MmIsIDB4NDEsIDB4OGQsIDB4MmMsIDB4M2MsIDB4YTUsCisgICAgMHhkZCwgMHg3
+OCwgMHg5YSwgMHg4ZiwgMHhhYiwgMHg4ZSwgMHhmMiwgMHg0YSwKKyAgICAweGM4LCAweDM0LCAw
+eDBjLCAweDEyLCAweDRmLCAweDExLCAweDkwLCAweGM2LAorICAgIDB4YzIsIDB4YTUsIDB4ZDAs
+IDB4Y2QsIDB4ZmIsIDB4ZmMsIDB4MmMsIDB4OTUsCisgICAgMHg1NiwgMHg4MiwgMHhkZiwgMHgz
+OSwgMHhmMywgMHgzYiwgMHgxZCwgMHg2MiwKKyAgICAweDI2LCAweDk3LCAweGI3LCAweDkzLCAw
+eDI1LCAweGM3LCAweGVjLCAweDdlLAorICAgIDB4ZjcsCisgICAgLyogZSwgb2Zmc2V0OiA3NCwg
+bGVuZ3RoOiAzICovCisgICAgMHgwMiwgMHgwMywgMHgwMSwgMHgwMCwgMHgwMSwKKyAgICAvKiBB
+ZGRpdGlvbmFsIGludGVnZXIgZmllbGQsIGxlbmd0aCAzICovCisgICAgMHgwMiwgMHgwNiwgMHhl
+MSwgMHgyMiwgMHhkYiwgMHhlMSwgMHgyMiwgMHhkYiwKK307CisKK3R5cGVkZWYgc3RydWN0IFFD
+cnlwdG9SU0FLZXlUZXN0RGF0YSBRQ3J5cHRvUlNBS2V5VGVzdERhdGE7CitzdHJ1Y3QgUUNyeXB0
+b1JTQUtleVRlc3REYXRhIHsKKyAgICBjb25zdCBjaGFyICpwYXRoOworICAgIFFDcnlwdG9Ba0Np
+cGhlcktleVR5cGUga2V5X3R5cGU7CisgICAgUUNyeXB0b0FrQ2lwaGVyT3B0aW9ucyBvcHQ7Cisg
+ICAgY29uc3QgdWludDhfdCAqa2V5OworICAgIHNpemVfdCBrZXlsZW47CisgICAgYm9vbCBpc192
+YWxpZF9rZXk7CisgICAgc2l6ZV90IGV4cF9rZXlfbGVuOworfTsKKwogdHlwZWRlZiBzdHJ1Y3Qg
+UUNyeXB0b0FrQ2lwaGVyVGVzdERhdGEgUUNyeXB0b0FrQ2lwaGVyVGVzdERhdGE7CiBzdHJ1Y3Qg
+UUNyeXB0b0FrQ2lwaGVyVGVzdERhdGEgewogICAgIGNvbnN0IGNoYXIgKnBhdGg7CkBAIC01Mzcs
+NyArNjg5LDk4IEBAIHN0cnVjdCBRQ3J5cHRvQWtDaXBoZXJUZXN0RGF0YSB7CiAgICAgc2l6ZV90
+IHNsZW47CiB9OwogCi1zdGF0aWMgUUNyeXB0b0FrQ2lwaGVyVGVzdERhdGEgdGVzdF9kYXRhW10g
+PSB7CitzdGF0aWMgUUNyeXB0b1JTQUtleVRlc3REYXRhIHJzYWtleV90ZXN0X2RhdGFbXSA9IHsK
+KyAgICB7CisgICAgICAgIC5wYXRoID0gIi9jcnlwdG8vYWtjaXBoZXIvcnNha2V5LTEwMjQtcHVi
+bGljIiwKKyAgICAgICAgLmtleV90eXBlID0gUUNSWVBUT19BS0NJUEhFUl9LRVlfVFlQRV9QVUJM
+SUMsCisgICAgICAgIC5rZXkgPSByc2ExMDI0X3B1YmxpY19rZXksCisgICAgICAgIC5rZXlsZW4g
+PSBzaXplb2YocnNhMTAyNF9wdWJsaWNfa2V5KSwKKyAgICAgICAgLmlzX3ZhbGlkX2tleSA9IHRy
+dWUsCisgICAgICAgIC5leHBfa2V5X2xlbiA9IDEyOCwKKyAgICB9LAorICAgIHsKKyAgICAgICAg
+LnBhdGggPSAiL2NyeXB0by9ha2NpcGhlci9yc2FrZXktMTAyNC1wcml2YXRlIiwKKyAgICAgICAg
+LmtleV90eXBlID0gUUNSWVBUT19BS0NJUEhFUl9LRVlfVFlQRV9QUklWQVRFLAorICAgICAgICAu
+a2V5ID0gcnNhMTAyNF9wcml2YXRlX2tleSwKKyAgICAgICAgLmtleWxlbiA9IHNpemVvZihyc2Ex
+MDI0X3ByaXZhdGVfa2V5KSwKKyAgICAgICAgLmlzX3ZhbGlkX2tleSA9IHRydWUsCisgICAgICAg
+IC5leHBfa2V5X2xlbiA9IDEyOCwKKyAgICB9LAorICAgIHsKKyAgICAgICAgLnBhdGggPSAiL2Ny
+eXB0by9ha2NpcGhlci9yc2FrZXktMjA0OC1wdWJsaWMiLAorICAgICAgICAua2V5X3R5cGUgPSBR
+Q1JZUFRPX0FLQ0lQSEVSX0tFWV9UWVBFX1BVQkxJQywKKyAgICAgICAgLmtleSA9IHJzYTIwNDhf
+cHVibGljX2tleSwKKyAgICAgICAgLmtleWxlbiA9IHNpemVvZihyc2EyMDQ4X3B1YmxpY19rZXkp
+LAorICAgICAgICAuaXNfdmFsaWRfa2V5ID0gdHJ1ZSwKKyAgICAgICAgLmV4cF9rZXlfbGVuID0g
+MjU2LAorICAgIH0sCisgICAgeworICAgICAgICAucGF0aCA9ICIvY3J5cHRvL2FrY2lwaGVyL3Jz
+YWtleS0yMDQ4LXByaXZhdGUiLAorICAgICAgICAua2V5X3R5cGUgPSBRQ1JZUFRPX0FLQ0lQSEVS
+X0tFWV9UWVBFX1BSSVZBVEUsCisgICAgICAgIC5rZXkgPSByc2EyMDQ4X3ByaXZhdGVfa2V5LAor
+ICAgICAgICAua2V5bGVuID0gc2l6ZW9mKHJzYTIwNDhfcHJpdmF0ZV9rZXkpLAorICAgICAgICAu
+aXNfdmFsaWRfa2V5ID0gdHJ1ZSwKKyAgICAgICAgLmV4cF9rZXlfbGVuID0gMjU2LAorICAgIH0s
+CisgICAgeworICAgICAgICAucGF0aCA9ICIvY3J5cHRvL2FrY2lwaGVyL3JzYWtleS1wdWJsaWMt
+bGFjay1lbGVtIiwKKyAgICAgICAgLmtleV90eXBlID0gUUNSWVBUT19BS0NJUEhFUl9LRVlfVFlQ
+RV9QVUJMSUMsCisgICAgICAgIC5rZXkgPSByc2FfcHVibGljX2tleV9sYWNrX2VsZW1lbnQsCisg
+ICAgICAgIC5rZXlsZW4gPSBzaXplb2YocnNhX3B1YmxpY19rZXlfbGFja19lbGVtZW50KSwKKyAg
+ICAgICAgLmlzX3ZhbGlkX2tleSA9IGZhbHNlLAorICAgIH0sCisgICAgeworICAgICAgICAucGF0
+aCA9ICIvY3J5cHRvL2FrY2lwaGVyL3JzYWtleS1wcml2YXRlLWxhY2stZWxlbSIsCisgICAgICAg
+IC5rZXlfdHlwZSA9IFFDUllQVE9fQUtDSVBIRVJfS0VZX1RZUEVfUFJJVkFURSwKKyAgICAgICAg
+LmtleSA9IHJzYV9wcml2YXRlX2tleV9sYWNrX2VsZW1lbnQsCisgICAgICAgIC5rZXlsZW4gPSBz
+aXplb2YocnNhX3ByaXZhdGVfa2V5X2xhY2tfZWxlbWVudCksCisgICAgICAgIC5pc192YWxpZF9r
+ZXkgPSBmYWxzZSwKKyAgICB9LAorICAgIHsKKyAgICAgICAgLnBhdGggPSAiL2NyeXB0by9ha2Np
+cGhlci9yc2FrZXktcHVibGljLWVtcHR5LWVsZW0iLAorICAgICAgICAua2V5X3R5cGUgPSBRQ1JZ
+UFRPX0FLQ0lQSEVSX0tFWV9UWVBFX1BVQkxJQywKKyAgICAgICAgLmtleSA9IHJzYV9wdWJsaWNf
+a2V5X2VtcHR5X2VsZW1lbnQsCisgICAgICAgIC5rZXlsZW4gPSBzaXplb2YocnNhX3B1YmxpY19r
+ZXlfZW1wdHlfZWxlbWVudCksCisgICAgICAgIC5pc192YWxpZF9rZXkgPSBmYWxzZSwKKyAgICB9
+LAorICAgIHsKKyAgICAgICAgLnBhdGggPSAiL2NyeXB0by9ha2NpcGhlci9yc2FrZXktcHJpdmF0
+ZS1lbXB0eS1lbGVtIiwKKyAgICAgICAgLmtleV90eXBlID0gUUNSWVBUT19BS0NJUEhFUl9LRVlf
+VFlQRV9QUklWQVRFLAorICAgICAgICAua2V5ID0gcnNhX3ByaXZhdGVfa2V5X2VtcHR5X2VsZW1l
+bnQsCisgICAgICAgIC5rZXlsZW4gPSBzaXplb2YocnNhX3ByaXZhdGVfa2V5X2VtcHR5X2VsZW1l
+bnQpLAorICAgICAgICAuaXNfdmFsaWRfa2V5ID0gZmFsc2UsCisgICAgfSwKKyAgICB7CisgICAg
+ICAgIC5wYXRoID0gIi9jcnlwdG8vYWtjaXBoZXIvcnNha2V5LXB1YmxpYy1lbXB0eS1rZXkiLAor
+ICAgICAgICAua2V5X3R5cGUgPSBRQ1JZUFRPX0FLQ0lQSEVSX0tFWV9UWVBFX1BVQkxJQywKKyAg
+ICAgICAgLmtleSA9IE5VTEwsCisgICAgICAgIC5rZXlsZW4gPSAwLAorICAgICAgICAuaXNfdmFs
+aWRfa2V5ID0gZmFsc2UsCisgICAgfSwKKyAgICB7CisgICAgICAgIC5wYXRoID0gIi9jcnlwdG8v
+YWtjaXBoZXIvcnNha2V5LXByaXZhdGUtZW1wdHkta2V5IiwKKyAgICAgICAgLmtleV90eXBlID0g
+UUNSWVBUT19BS0NJUEhFUl9LRVlfVFlQRV9QUklWQVRFLAorICAgICAgICAua2V5ID0gTlVMTCwK
+KyAgICAgICAgLmtleWxlbiA9IDAsCisgICAgICAgIC5pc192YWxpZF9rZXkgPSBmYWxzZSwKKyAg
+ICB9LAorICAgIHsKKyAgICAgICAgLnBhdGggPSAiL2NyeXB0by9ha2NpcGhlci9yc2FrZXktcHVi
+bGljLWludmFsaWQtbGVuZ3RoLXZhbCIsCisgICAgICAgIC5rZXlfdHlwZSA9IFFDUllQVE9fQUtD
+SVBIRVJfS0VZX1RZUEVfUFVCTElDLAorICAgICAgICAua2V5ID0gcnNhX3B1YmxpY19rZXlfaW52
+YWxpZF9sZW5ndGhfdmFsLAorICAgICAgICAua2V5bGVuID0gc2l6ZW9mKHJzYV9wdWJsaWNfa2V5
+X2ludmFsaWRfbGVuZ3RoX3ZhbCksCisgICAgICAgIC5pc192YWxpZF9rZXkgPSBmYWxzZSwKKyAg
+ICB9LAorICAgIHsKKyAgICAgICAgLnBhdGggPSAiL2NyeXB0by9ha2NpcGhlci9yc2FrZXktcHVi
+bGljLWV4dHJhLWVsZW0iLAorICAgICAgICAua2V5X3R5cGUgPSBRQ1JZUFRPX0FLQ0lQSEVSX0tF
+WV9UWVBFX1BVQkxJQywKKyAgICAgICAgLmtleSA9IHJzYV9wdWJsaWNfa2V5X2V4dHJhX2VsZW0s
+CisgICAgICAgIC5rZXlsZW4gPSBzaXplb2YocnNhX3B1YmxpY19rZXlfZXh0cmFfZWxlbSksCisg
+ICAgICAgIC5pc192YWxpZF9rZXkgPSBmYWxzZSwKKyAgICB9LAorfTsKKworc3RhdGljIFFDcnlw
+dG9Ba0NpcGhlclRlc3REYXRhIGFrY2lwaGVyX3Rlc3RfZGF0YVtdID0gewogICAgIC8qIHJzYTEw
+MjQgd2l0aCByYXcgcGFkZGluZyAqLwogICAgIHsKICAgICAgICAgLnBhdGggPSAiL2NyeXB0by9h
+a2NpcGhlci9yc2ExMDI0LXJhdyIsCkBAIC02OTcsMTQgKzk0MCw1MCBAQCBzdGF0aWMgdm9pZCB0
+ZXN0X2FrY2lwaGVyKGNvbnN0IHZvaWQgKm9wYXF1ZSkKICAgICBxY3J5cHRvX2FrY2lwaGVyX2Zy
+ZWUocHJpdl9rZXkpOwogfQogCitzdGF0aWMgdm9pZCB0ZXN0X3JzYWtleShjb25zdCB2b2lkICpv
+cGFxdWUpCit7CisgICAgY29uc3QgUUNyeXB0b1JTQUtleVRlc3REYXRhICpkYXRhID0gKGNvbnN0
+IFFDcnlwdG9SU0FLZXlUZXN0RGF0YSAqKW9wYXF1ZTsKKyAgICBRQ3J5cHRvQWtDaXBoZXJPcHRp
+b25zIG9wdCA9IHsKKyAgICAgICAgLmFsZyA9IFFDUllQVE9fQUtDSVBIRVJfQUxHX1JTQSwKKyAg
+ICAgICAgLnUucnNhID0geworICAgICAgICAgICAgLnBhZGRpbmdfYWxnID0gUUNSWVBUT19SU0Ff
+UEFERElOR19BTEdfUEtDUzEsCisgICAgICAgICAgICAuaGFzaF9hbGcgPSBRQ1JZUFRPX0hBU0hf
+QUxHX1NIQTEsCisgICAgICAgIH0KKyAgICB9OworICAgIGdfYXV0b3B0cihRQ3J5cHRvQWtDaXBo
+ZXIpIGtleSA9IHFjcnlwdG9fYWtjaXBoZXJfbmV3KAorICAgICAgICAmb3B0LCBkYXRhLT5rZXlf
+dHlwZSwgZGF0YS0+a2V5LCBkYXRhLT5rZXlsZW4sIE5VTEwpOworCisgICAgaWYgKCFxY3J5cHRv
+X2FrY2lwaGVyX3N1cHBvcnRzKCZvcHQpKSB7CisgICAgICAgIHJldHVybjsKKyAgICB9CisKKyAg
+ICBpZiAoIWRhdGEtPmlzX3ZhbGlkX2tleSkgeworICAgICAgICBnX2Fzc2VydChrZXkgPT0gTlVM
+TCk7CisgICAgICAgIHJldHVybjsKKyAgICB9CisKKyAgICBnX2Fzc2VydChrZXkgIT0gTlVMTCk7
+CisgICAgZ19hc3NlcnQocWNyeXB0b19ha2NpcGhlcl9tYXhfY2lwaGVydGV4dF9sZW4oa2V5KSA9
+PSBkYXRhLT5leHBfa2V5X2xlbik7CisgICAgZ19hc3NlcnQocWNyeXB0b19ha2NpcGhlcl9tYXhf
+cGxhaW50ZXh0X2xlbihrZXkpID09IGRhdGEtPmV4cF9rZXlfbGVuKTsKKyAgICBnX2Fzc2VydChx
+Y3J5cHRvX2FrY2lwaGVyX21heF9zaWduYXR1cmVfbGVuKGtleSkgPT0gZGF0YS0+ZXhwX2tleV9s
+ZW4pOworICAgIGdfYXNzZXJ0KHFjcnlwdG9fYWtjaXBoZXJfbWF4X2Rnc3RfbGVuKGtleSkgPT0g
+ZGF0YS0+ZXhwX2tleV9sZW4pOworfQorCiBpbnQgbWFpbihpbnQgYXJnYywgY2hhciAqKmFyZ3Yp
+CiB7CiAgICAgc2l6ZV90IGk7CiAgICAgZ190ZXN0X2luaXQoJmFyZ2MsICZhcmd2LCBOVUxMKTsK
+ICAgICBnX2Fzc2VydChxY3J5cHRvX2luaXQoTlVMTCkgPT0gMCk7CiAKLSAgICBmb3IgKGkgPSAw
+OyBpIDwgR19OX0VMRU1FTlRTKHRlc3RfZGF0YSk7IGkrKykgewotICAgICAgICBnX3Rlc3RfYWRk
+X2RhdGFfZnVuYyh0ZXN0X2RhdGFbaV0ucGF0aCwgJnRlc3RfZGF0YVtpXSwgdGVzdF9ha2NpcGhl
+cik7CisgICAgZm9yIChpID0gMDsgaSA8IEdfTl9FTEVNRU5UUyhha2NpcGhlcl90ZXN0X2RhdGEp
+OyBpKyspIHsKKyAgICAgICAgZ190ZXN0X2FkZF9kYXRhX2Z1bmMoYWtjaXBoZXJfdGVzdF9kYXRh
+W2ldLnBhdGgsCisgICAgICAgICAgICAgICAgICAgICAgICAgICAgICZha2NpcGhlcl90ZXN0X2Rh
+dGFbaV0sCisgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHRlc3RfYWtjaXBoZXIpOworICAg
+IH0KKyAgICBmb3IgKGkgPSAwOyBpIDwgR19OX0VMRU1FTlRTKHJzYWtleV90ZXN0X2RhdGEpOyBp
+KyspIHsKKyAgICAgICAgZ190ZXN0X2FkZF9kYXRhX2Z1bmMocnNha2V5X3Rlc3RfZGF0YVtpXS5w
+YXRoLAorICAgICAgICAgICAgICAgICAgICAgICAgICAgICAmcnNha2V5X3Rlc3RfZGF0YVtpXSwK
+KyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgdGVzdF9yc2FrZXkpOwogICAgIH0KIAogICAg
+IHJldHVybiBnX3Rlc3RfcnVuKCk7Ci0tIAoyLjIwLjEKCl9fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0
+dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4
+Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
