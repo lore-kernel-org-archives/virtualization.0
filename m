@@ -1,96 +1,176 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E1152C433FE
-	for <virtualization@archiver.kernel.org>; Sat, 14 May 2022 01:00:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 34F61C433EF
+	for <virtualization@archiver.kernel.org>; Sun, 15 May 2022 20:29:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id A9D3183F9B;
-	Sat, 14 May 2022 01:00:04 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id BFF6060F9F;
+	Sun, 15 May 2022 20:29:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id GyBrPwerBVn6; Sat, 14 May 2022 01:00:02 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id AEFA481461;
-	Sat, 14 May 2022 01:00:01 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 5ET4wKDt3HDy; Sun, 15 May 2022 20:29:38 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 603D060B4E;
+	Sun, 15 May 2022 20:29:37 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 879A5C0039;
-	Sat, 14 May 2022 01:00:01 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 2F914C007A;
+	Sun, 15 May 2022 20:29:37 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C5F65C002D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 162B3C002D
  for <virtualization@lists.linux-foundation.org>;
- Sat, 14 May 2022 01:00:00 +0000 (UTC)
+ Sun, 15 May 2022 20:29:36 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id AAE414055D
+ by smtp2.osuosl.org (Postfix) with ESMTP id F06B1401D8
  for <virtualization@lists.linux-foundation.org>;
- Sat, 14 May 2022 01:00:00 +0000 (UTC)
+ Sun, 15 May 2022 20:29:35 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=bytedance-com.20210112.gappssmtp.com
+ dkim=pass (2048-bit key) header.d=oracle.com header.b="H8FzRyh8";
+ dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
+ header.b="a9l6iinA"
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id HH0vk1pyN62L
+ with ESMTP id pSKZR-Ld-c-6
  for <virtualization@lists.linux-foundation.org>;
- Sat, 14 May 2022 00:59:58 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com
- [IPv6:2607:f8b0:4864:20::531])
- by smtp2.osuosl.org (Postfix) with ESMTPS id ABC3040516
+ Sun, 15 May 2022 20:29:35 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com
+ [205.220.165.32])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 32350400A4
  for <virtualization@lists.linux-foundation.org>;
- Sat, 14 May 2022 00:59:58 +0000 (UTC)
-Received: by mail-pg1-x531.google.com with SMTP id h186so6306459pgc.3
- for <virtualization@lists.linux-foundation.org>;
- Fri, 13 May 2022 17:59:58 -0700 (PDT)
+ Sun, 15 May 2022 20:29:35 +0000 (UTC)
+Received: from pps.filterd (m0246627.ppops.net [127.0.0.1])
+ by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24FEadqp020757;
+ Sun, 15 May 2022 20:29:34 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+ h=from : to : cc :
+ subject : date : message-id : in-reply-to : references :
+ content-transfer-encoding : content-type : mime-version;
+ s=corp-2021-07-09; bh=ypIyVYafciBhNoyWd8PpMyelaLBopZerVU7IdPpZpFU=;
+ b=H8FzRyh8dS2JakI0OAseeVMsF2YhZX0xh94/P5Zi4RY6r+Zv+7f04O6HweWdgwTRt7bm
+ MGPAigKrJt/M8irgKD9J/SUb/hAA6blUbTipBYD5MTCv+NwkVdMQQKKmaY07ESPH/VEU
+ ep9d8FOgH65ckPRLPebyxGt9KkXcDBasFT+Sf+3OFNIDRw+yEfCR95a2IaOqEKnaXAw/
+ 2UdKple2kv/bhH4kAO7QB7jMQb9ipAzlMUUMu0QrhieMNaqZHF6tgJnP1Ayn+69SLvt1
+ bbtgrwpz7Z/f9LN131fthOmwja55SND7rspt+35/hnmSizVwMB8G/9CrUffgBkJ7Tuc5 qQ== 
+Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com
+ (iadpaimrmta03.appoci.oracle.com [130.35.103.27])
+ by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3g2310hv2w-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Sun, 15 May 2022 20:29:34 +0000
+Received: from pps.filterd
+ (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+ by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (8.16.1.2/8.16.1.2)
+ with SMTP id 24FKOthE000789; Sun, 15 May 2022 20:29:33 GMT
+Received: from nam02-bn1-obe.outbound.protection.outlook.com
+ (mail-bn1nam07lp2047.outbound.protection.outlook.com [104.47.51.47])
+ by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com with ESMTP id
+ 3g22v17vqs-5
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Sun, 15 May 2022 20:29:33 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=kz9d88feIqTAbbIyljoPkMbQTwvP7FWjSFGklqEjoSf5moUcMadxmm+byRroIMggVAw1wzBTAV7+9rMrmvgFn4vRmAkdPpQuF4HVT76xUIRstPzh3/qKTUagS/qayXgeMlz6WeLA18HQ9fjh2CUdBWvrMCRXVd28rSL/EPEnS1owZt0o0mDMAOS4cdNiijDoCbJapDTzM8XzyYTiG2PJU8thNYGB2G7yMh4n31XnIWwMTHCtPv6Hvee0aGWy0TIq8IcQWqNdDNBuI3WdCCdExjp1l5T7zufrBEfLFfdWRhD715xdrPAQvR7B2x5yzc02nE1Z7TpSJbe/42wycbG/bw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=ypIyVYafciBhNoyWd8PpMyelaLBopZerVU7IdPpZpFU=;
+ b=RlR1QJp05C+K0sPq+LWVmmS9O6NnfFe7NzeZ/cD2kPV0OTvIShwAgXwMIOGfMa1JE4z/ovr3RsH51AZznwyzHZMT7GgOY8UBF8gOo5AljRCAVYwfYcWaNo+DiZWTwu1Wvmyd6chWZPf7/t2tpzkj4oGI98GYAoZk9/Ccn4BaJTCStAUAEIkqO1NdmGu2No2VLpfluMK8Xfedhccy5LYl3sgWk/gBjTpp4qMB6RGgefR+O2Jjk5qtM1FXuQk5q9PNMpW3xA2C5sDYlnA23q/bulgGQCk6oVlqRXyfxXgMg+rIvDkzUkkUUfp8F+UoDZ7f20h62WPR0OYNm2FP0TsJNw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=bytedance-com.20210112.gappssmtp.com; s=20210112;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:content-transfer-encoding;
- bh=sNR0XFHg8nOFyD/okexidlo28c+xwasNHBdex9dNqEc=;
- b=ghAPw6csOqoMUjvek1KjGaMpvQUdedSCIQTRFk4Wz7R8mpIlvTX5+QM6Yur20vdBPO
- ZgWHGI3mixK/nBZGsmKwN21iBreLZ0nw9iob87VV7XLGoXqg++O3wE2aNLEOQBfRE5ZC
- 4yKVTCk9lC2bZIQle+VVP0u1IiOHScYpoO1JepkKn7YNTcHv9E5qIYPMTvzU3JEFvetH
- iYGqU5y5QtrkK7/edgRKDZUk6l7whRUZwNJdZkq9DoqHo5nyarVBWgHmidiMb7dvVLyb
- 7G4iX6zS+14mUUm8tk7DcXCbj9qBlIDzaM66Y/dvU+stJ9a2U3W3bCjtSJmA/6r5NKBb
- caOQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
- :references:mime-version:content-transfer-encoding;
- bh=sNR0XFHg8nOFyD/okexidlo28c+xwasNHBdex9dNqEc=;
- b=PdhSjkwirSx1B2JQ51CH7cvbO3KPnu9xtG52dteI7tH2PAs1Izmt+XxkH+5WD74c7r
- Yxdf5SscWeDvtzjBsD5hTo6NIB3uZypQ4ZaO9nTBZMQCiPOg/c4wfql/vGCT82HCGFAZ
- eGO8rqqZgWQRhmk3YghZYhssMGVva3GLN3QTVEB6R5/zf0ATEJNJtXjBbvcONw8uvdPI
- KZ08efPLTWVTk827gf0VCDxF8Pfaf8X/JEeK+Zv1SDuQde4EM2ptvjkJgp3QNqTzwuwR
- ZxAZt8ItUUAoZRggjYJYPQwNf5p1GNijsLOzcFCIDVYuVAvvQQ/q7NXW3ubVh3SToM4I
- P76w==
-X-Gm-Message-State: AOAM533weR6/UTKiE8e3AXNsIcj+YEzz3+Pa/axGcmsUHxYEn1AXqX/o
- TeG5C3cK1pzdwBPTiQHDRyebuA==
-X-Google-Smtp-Source: ABdhPJyuzZlhqmytOT0oyd9JSr/jrs0W8THeZOBij389VycNh6FHIiSCpYBdg98ZRaShSsn34IL+7g==
-X-Received: by 2002:aa7:8215:0:b0:4f7:125a:c88c with SMTP id
- k21-20020aa78215000000b004f7125ac88cmr6969579pfi.70.1652489997907; 
- Fri, 13 May 2022 17:59:57 -0700 (PDT)
-Received: from always-x1.www.tendawifi.com ([139.177.225.239])
- by smtp.gmail.com with ESMTPSA id
- t24-20020a170902b21800b0015e8d4eb1dbsm2466125plr.37.2022.05.13.17.59.53
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 13 May 2022 17:59:57 -0700 (PDT)
-From: zhenwei pi <pizhenwei@bytedance.com>
-To: mst@redhat.com,
-	arei.gonglei@huawei.com,
-	berrange@redhat.com
-Subject: [PATCH v6 9/9] crypto: Introduce RSA algorithm
-Date: Sat, 14 May 2022 08:55:04 +0800
-Message-Id: <20220514005504.1042884-10-pizhenwei@bytedance.com>
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ypIyVYafciBhNoyWd8PpMyelaLBopZerVU7IdPpZpFU=;
+ b=a9l6iinADBZfLEQhTEAw96NYfsLTkblTwZDYasZy+Xy2nCGm8TPN6qH5fLr88kdJQuI8e5ZN8RWUWTyOYd7yPVRqFikBbiFj8LZb41enkH2a2l66a8aZcaKN6t7zqIOFuSDE7xJeqpmNKlC+ZwGTjx4f1CjLCmm4VAIKub5Ed+E=
+Received: from DM5PR10MB1466.namprd10.prod.outlook.com (2603:10b6:3:b::7) by
+ BN7PR10MB2707.namprd10.prod.outlook.com (2603:10b6:406:c9::20) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.5250.13; Sun, 15 May 2022 20:29:32 +0000
+Received: from DM5PR10MB1466.namprd10.prod.outlook.com
+ ([fe80::f81d:b8ef:c5a4:9c9b]) by DM5PR10MB1466.namprd10.prod.outlook.com
+ ([fe80::f81d:b8ef:c5a4:9c9b%3]) with mapi id 15.20.5250.018; Sun, 15 May 2022
+ 20:29:32 +0000
+From: Mike Christie <michael.christie@oracle.com>
+To: stefanha@redhat.com, jasowang@redhat.com, mst@redhat.com,
+ sgarzare@redhat.com, virtualization@lists.linux-foundation.org,
+ arbn@yandex-team.com
+Subject: [PATCH V2 4/8] vhost_test: remove vhost_test_flush_vq()
+Date: Sun, 15 May 2022 15:29:18 -0500
+Message-Id: <20220515202922.174066-5-michael.christie@oracle.com>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220514005504.1042884-1-pizhenwei@bytedance.com>
-References: <20220514005504.1042884-1-pizhenwei@bytedance.com>
+In-Reply-To: <20220515202922.174066-1-michael.christie@oracle.com>
+References: <20220515202922.174066-1-michael.christie@oracle.com>
+X-ClientProxiedBy: DS7PR05CA0074.namprd05.prod.outlook.com
+ (2603:10b6:8:57::22) To DM5PR10MB1466.namprd10.prod.outlook.com
+ (2603:10b6:3:b::7)
 MIME-Version: 1.0
-Cc: helei.sig11@bytedance.com, cohuck@redhat.com, qemu-devel@nongnu.org,
- pizhenwei@bytedance.com, virtualization@lists.linux-foundation.org,
- linux-crypto@vger.kernel.org
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 5794fe20-3efa-4c1c-80b2-08da36b19e20
+X-MS-TrafficTypeDiagnostic: BN7PR10MB2707:EE_
+X-Microsoft-Antispam-PRVS: <BN7PR10MB2707CD022195EB9FBB3BC8B7F1CC9@BN7PR10MB2707.namprd10.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 9uUD/7Gw29QTjiapx5b5oBPhmEPaIf3tre6nJQpK2QvfRaZ3UNCBaHtWiOrbZl8/BuWhgO2RbEXf9t1aH5BEndl9697x7BfcvlMH6MtcXjE7ShkrKk6tv4SubB27dCMVBTCtfg337bHj/ZWyC94OL7qWVvnnvI85sGf00lveA9JwtRrzre001KcOxmsYVHAJgi6STPn8+27GszyDpQdC96WSJtJCoSthyfKS8FDcVOqJHznoNWCC9mWM3E0G1pD4IZEhjrj6LCaxnrRNhwjgelqf5j9WDBVTCYUVgpPxjQ5f1RdINWIRwEPxCuG1THYpFUmeQOnYYsT0yzX22oJWA9BOoDTP8+uQxrqtPsRrIYux5LD/z9RGVJXa/wuxRCgOEszjGbaGlJnysVXQZaDMfWtdH7V6eZwiOeCCdMiNU24FhKAweoRgkyRayZwxF2LLFUGsAC2U1vYR/fTbkRpye1DBR93p0XSFuxnIBc04KnPo3J/s81sYXIUlgx5Cxg0CpkeF9OGh30DYR72Z/SP60Tiv4bkJCfXPvSludiExek7ZQRwm2lGhDnPGh/FJME66ARI3PUYK3eVwmeSQw2ZLQ3va5lLFFJ37m1uey8L6Lfw1UYWSClMP3fA48T+3qUWqbtE0UfVQI7MlF3Yiqt07T0Cx50eOHGY+4/QrzqckDyjm4f4Qve2qCMQIuKncBcKiCtaz6EGOm9+lODT7qLkRqA==
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:DM5PR10MB1466.namprd10.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230001)(366004)(1076003)(8676002)(107886003)(38350700002)(8936002)(36756003)(316002)(26005)(6512007)(2616005)(186003)(5660300002)(6506007)(6486002)(2906002)(38100700002)(86362001)(4326008)(6666004)(66946007)(66476007)(52116002)(83380400001)(66556008)(508600001);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?s+6kH++6fXWpFpftRD+sylc2D5uSWRRowRj6X/F8FMJibH9H9RGSg25M87IB?=
+ =?us-ascii?Q?eC3XkW2jWK7LmxY9PvKtgUr6awMz6Mr4mioq41GZdcQXFPjuoZ7j9jqYIrO2?=
+ =?us-ascii?Q?qDORW1t+RHMSxHzyRPuTjo82UDT3BSD1WxytE8QTYTFMAobSc0Vhd19pVwPA?=
+ =?us-ascii?Q?brg4s7LJiGkgdIRjYEVnyku+7XdzC13FMwZadmqyFmbBzc8jT5O3fDKNkvA+?=
+ =?us-ascii?Q?73j3FTqZHikxysFt0qc5t1z02PqyR1KdQEBRJVBet7Wdw7VApUDmQMBhQpk3?=
+ =?us-ascii?Q?272hEvkkTzM1qd1uckHGWEY0XQ5x+HReGOxJvOD8yIVVL3xyUq3TPxJJ4s3a?=
+ =?us-ascii?Q?gM9gluk7tTC2Xhmso9SOnscZq3iBcyF8R3QuzJrSTi8AlFZSxWRX8E372ATo?=
+ =?us-ascii?Q?tf5NjRzdMn3u5Wmw8dGnblu826URcTjH1AyHVaLvRJX5smOcITCU79qVoJxK?=
+ =?us-ascii?Q?6qU/l2Rd7Jlb6gS3F5xQYYhXfknLFt+Hm40JY7ljvL43ketlxgYCJvHDzV/z?=
+ =?us-ascii?Q?DoLk0MVrGLkZcDp5Z21lK7MmE2EU0G526+uSrdJxwFTesLxJz535y5GAcY7X?=
+ =?us-ascii?Q?BE7Sb5bc0R3p7NaPatfJe26wJ/H60PeWdsOfJwcI8E8CAMp5+Yp2Sf1MZXoH?=
+ =?us-ascii?Q?sqsWcRZ80aKt3VY+hXPcviwvIbR4T7wKjBd5OeqKwV8BDAhch3A2mt7hkziF?=
+ =?us-ascii?Q?ej10eFogvtcGlLx86dwJfoORG7hXFg/wp2fF7C/RQtOevXWUPUc618byrdZW?=
+ =?us-ascii?Q?CeGuAaZcHvjr+HFO8a+YCfQUaYQDK5J3oNJGaf12PO9JIyQmrVjxfzFsXg6F?=
+ =?us-ascii?Q?tPsnNi0sRDdC2Oq6Jm566dvAjVEQTMSMopbTd5EQi5jrejAOlsO8luX1ANyI?=
+ =?us-ascii?Q?5mJQAJBxLmRTEWBed6e+gtrDNOrnXcYvGq4xeyNZV2wp51ds47exzhxaLX3B?=
+ =?us-ascii?Q?wqnOdRGo6XxQCjA1xeDa5S8dRiavNnZGjK8+7F+FxiaDfC9pn4iM8GFBlbqY?=
+ =?us-ascii?Q?xMFxIW/TWlnICfgSMBkRIOQ01c1LDtwNM4ygEhZCbc1N7RWYQAGjA9Ds3wPX?=
+ =?us-ascii?Q?g+mvhk8I+ws/7037Ywc6CIzWMV0sswBcz8uj2pNKyXK2EWWRLAkP9Gb6kGfZ?=
+ =?us-ascii?Q?qc++8rUMBV13VJ3hd18OLAKT0x3URbrhO9eO3HWIqcSl8+KrclWW/KDrXvXX?=
+ =?us-ascii?Q?cD80RLq7FrCENn61EOYHW0JLkH7CD4QrKe2ocd4ZnpVAMRbJ0FwZOJFlFMwM?=
+ =?us-ascii?Q?PfEwALqo3GpQtXH+AVe3aRtvcnvj71WW9R2FniCEiDzGTIkKaMPA8dw9ht95?=
+ =?us-ascii?Q?7kJ/fj7qqf4e9+BRCCw86/wVPklwJbrtZUa979gDD9DmkceyN44Onm3TQ9eI?=
+ =?us-ascii?Q?mCsP7FkiybPzNVgCL8+0YWcKsdAj/k2b/1rvtEJKvQqn8wJZ8o71qNeCkqHc?=
+ =?us-ascii?Q?l7910wcbuLT1sYVgRTG3l+rJK6Fp0vMXvWpbJkM6eid2Knjx6lt0LF4G+GQk?=
+ =?us-ascii?Q?Wvu0IfPKYWStGGUPTqVu2NzpOTOmPUEgn9F4qTKhjqNeL5E2MmRQSqLcJ1Ru?=
+ =?us-ascii?Q?C+gE1MUS4XTfMLeDB1/7ZVtTopon8xTRv1UImgFIdjzXrRAVpCrpH1tJsU5E?=
+ =?us-ascii?Q?0e2/uWeIaoMdQ6UM/sNUgMeR6VNtF498/MI1sL1gfx8WQf333Ljt8hvTg7Ph?=
+ =?us-ascii?Q?xknIIZu1zY3nmP+SvqSUdvsu4EUqr0Eq/VErENkMqGk7KSpFPZnekik0Jfzv?=
+ =?us-ascii?Q?uPOGhVoI9ffnEbyRFibWXFs/Mo7Agsg=3D?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 5794fe20-3efa-4c1c-80b2-08da36b19e20
+X-MS-Exchange-CrossTenant-AuthSource: DM5PR10MB1466.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 May 2022 20:29:31.7794 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: uZfuakT5jffVEGNYQJb3cnNOmhZImZWPvf5pzi4pdVtuV2D0ErtC0cDI8v99kJCaGNHn5J2ThTZUZ1sMG0YsE7Ca5BnXvl14nTQWe4aR/qI=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN7PR10MB2707
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.486, 18.0.858
+ definitions=2022-05-15_11:2022-05-13,
+ 2022-05-15 signatures=0
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0
+ malwarescore=0
+ suspectscore=0 mlxlogscore=999 adultscore=0 phishscore=0 spamscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2205150120
+X-Proofpoint-ORIG-GUID: 5sWlxqAoUfsctYKDIX3y7iCWT2jnfnpp
+X-Proofpoint-GUID: 5sWlxqAoUfsctYKDIX3y7iCWT2jnfnpp
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -107,1333 +187,62 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-There are two parts in this patch:
-1, support akcipher service by cryptodev-builtin driver
-2, virtio-crypto driver supports akcipher service
+From: Andrey Ryabinin <arbn@yandex-team.com>
 
-In principle, we should separate this into two patches, to avoid
-compiling error, merge them into one.
+vhost_test_flush_vq() just a simple wrapper around vhost_work_dev_flush()
+which seems have no value. It's just easier to call vhost_work_dev_flush()
+directly. Besides there is no point in obtaining vhost_dev pointer
+via 'n->vqs[index].poll.dev' while we can just use &n->dev.
+It's the same pointers, see vhost_test_open()/vhost_dev_init().
 
-Then virtio-crypto gets request from guest side, and forwards the
-request to builtin driver to handle it.
-
-Test with a guest linux:
-1, The self-test framework of crypto layer works fine in guest kernel
-2, Test with Linux guest(with asym support), the following script
-test(note that pkey_XXX is supported only in a newer version of keyutils):
-  - both public key & private key
-  - create/close session
-  - encrypt/decrypt/sign/verify basic driver operation
-  - also test with kernel crypto layer(pkey add/query)
-
-All the cases work fine.
-
-Run script in guest:
-rm -rf *.der *.pem *.pfx
-modprobe pkcs8_key_parser # if CONFIG_PKCS8_PRIVATE_KEY_PARSER=m
-rm -rf /tmp/data
-dd if=/dev/random of=/tmp/data count=1 bs=20
-
-openssl req -nodes -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -subj "/C=CN/ST=BJ/L=HD/O=qemu/OU=dev/CN=qemu/emailAddress=qemu@qemu.org"
-openssl pkcs8 -in key.pem -topk8 -nocrypt -outform DER -out key.der
-openssl x509 -in cert.pem -inform PEM -outform DER -out cert.der
-
-PRIV_KEY_ID=`cat key.der | keyctl padd asymmetric test_priv_key @s`
-echo "priv key id = "$PRIV_KEY_ID
-PUB_KEY_ID=`cat cert.der | keyctl padd asymmetric test_pub_key @s`
-echo "pub key id = "$PUB_KEY_ID
-
-keyctl pkey_query $PRIV_KEY_ID 0
-keyctl pkey_query $PUB_KEY_ID 0
-
-echo "Enc with priv key..."
-keyctl pkey_encrypt $PRIV_KEY_ID 0 /tmp/data enc=pkcs1 >/tmp/enc.priv
-echo "Dec with pub key..."
-keyctl pkey_decrypt $PRIV_KEY_ID 0 /tmp/enc.priv enc=pkcs1 >/tmp/dec
-cmp /tmp/data /tmp/dec
-
-echo "Sign with priv key..."
-keyctl pkey_sign $PRIV_KEY_ID 0 /tmp/data enc=pkcs1 hash=sha1 > /tmp/sig
-echo "Verify with pub key..."
-keyctl pkey_verify $PRIV_KEY_ID 0 /tmp/data /tmp/sig enc=pkcs1 hash=sha1
-
-echo "Enc with pub key..."
-keyctl pkey_encrypt $PUB_KEY_ID 0 /tmp/data enc=pkcs1 >/tmp/enc.pub
-echo "Dec with priv key..."
-keyctl pkey_decrypt $PRIV_KEY_ID 0 /tmp/enc.pub enc=pkcs1 >/tmp/dec
-cmp /tmp/data /tmp/dec
-
-echo "Verify with pub key..."
-keyctl pkey_verify $PUB_KEY_ID 0 /tmp/data /tmp/sig enc=pkcs1 hash=sha1
-
-Signed-off-by: zhenwei pi <pizhenwei@bytedance.com>
-Signed-off-by: lei he <helei.sig11@bytedance.com
+Signed-off-by: Andrey Ryabinin <arbn@yandex-team.com>
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
 ---
- backends/cryptodev-builtin.c      | 272 +++++++++++++++++++++----
- backends/cryptodev-vhost-user.c   |  34 +++-
- backends/cryptodev.c              |  32 ++-
- hw/virtio/virtio-crypto.c         | 323 ++++++++++++++++++++++++------
- include/hw/virtio/virtio-crypto.h |   5 +-
- include/sysemu/cryptodev.h        |  83 ++++++--
- 6 files changed, 604 insertions(+), 145 deletions(-)
+ drivers/vhost/test.c | 11 +++--------
+ 1 file changed, 3 insertions(+), 8 deletions(-)
 
-diff --git a/backends/cryptodev-builtin.c b/backends/cryptodev-builtin.c
-index 0671bf9f3e..388aedd8df 100644
---- a/backends/cryptodev-builtin.c
-+++ b/backends/cryptodev-builtin.c
-@@ -26,6 +26,7 @@
- #include "qapi/error.h"
- #include "standard-headers/linux/virtio_crypto.h"
- #include "crypto/cipher.h"
-+#include "crypto/akcipher.h"
- #include "qom/object.h"
- 
- 
-@@ -41,11 +42,12 @@ OBJECT_DECLARE_SIMPLE_TYPE(CryptoDevBackendBuiltin, CRYPTODEV_BACKEND_BUILTIN)
- typedef struct CryptoDevBackendBuiltinSession {
-     QCryptoCipher *cipher;
-     uint8_t direction; /* encryption or decryption */
--    uint8_t type; /* cipher? hash? aead? */
-+    uint8_t type; /* cipher? hash? aead? akcipher? */
-+    QCryptoAkCipher *akcipher;
-     QTAILQ_ENTRY(CryptoDevBackendBuiltinSession) next;
- } CryptoDevBackendBuiltinSession;
- 
--/* Max number of symmetric sessions */
-+/* Max number of symmetric/asymmetric sessions */
- #define MAX_NUM_SESSIONS 256
- 
- #define CRYPTODEV_BUITLIN_MAX_AUTH_KEY_LEN    512
-@@ -80,15 +82,17 @@ static void cryptodev_builtin_init(
-     backend->conf.crypto_services =
-                          1u << VIRTIO_CRYPTO_SERVICE_CIPHER |
-                          1u << VIRTIO_CRYPTO_SERVICE_HASH |
--                         1u << VIRTIO_CRYPTO_SERVICE_MAC;
-+                         1u << VIRTIO_CRYPTO_SERVICE_MAC |
-+                         1u << VIRTIO_CRYPTO_SERVICE_AKCIPHER;
-     backend->conf.cipher_algo_l = 1u << VIRTIO_CRYPTO_CIPHER_AES_CBC;
-     backend->conf.hash_algo = 1u << VIRTIO_CRYPTO_HASH_SHA1;
-+    backend->conf.akcipher_algo = 1u << VIRTIO_CRYPTO_AKCIPHER_RSA;
-     /*
-      * Set the Maximum length of crypto request.
-      * Why this value? Just avoid to overflow when
-      * memory allocation for each crypto request.
-      */
--    backend->conf.max_size = LONG_MAX - sizeof(CryptoDevBackendSymOpInfo);
-+    backend->conf.max_size = LONG_MAX - sizeof(CryptoDevBackendOpInfo);
-     backend->conf.max_cipher_key_len = CRYPTODEV_BUITLIN_MAX_CIPHER_KEY_LEN;
-     backend->conf.max_auth_key_len = CRYPTODEV_BUITLIN_MAX_AUTH_KEY_LEN;
- 
-@@ -148,6 +152,53 @@ err:
-    return -1;
+diff --git a/drivers/vhost/test.c b/drivers/vhost/test.c
+index f0ac9e35f5d6..837148d0a6a8 100644
+--- a/drivers/vhost/test.c
++++ b/drivers/vhost/test.c
+@@ -144,14 +144,9 @@ static void vhost_test_stop(struct vhost_test *n, void **privatep)
+ 	*privatep = vhost_test_stop_vq(n, n->vqs + VHOST_TEST_VQ);
  }
  
-+static int cryptodev_builtin_get_rsa_hash_algo(
-+    int virtio_rsa_hash, Error **errp)
-+{
-+    switch (virtio_rsa_hash) {
-+    case VIRTIO_CRYPTO_RSA_MD5:
-+        return QCRYPTO_HASH_ALG_MD5;
-+
-+    case VIRTIO_CRYPTO_RSA_SHA1:
-+        return QCRYPTO_HASH_ALG_SHA1;
-+
-+    case VIRTIO_CRYPTO_RSA_SHA256:
-+        return QCRYPTO_HASH_ALG_SHA256;
-+
-+    case VIRTIO_CRYPTO_RSA_SHA512:
-+        return QCRYPTO_HASH_ALG_SHA512;
-+
-+    default:
-+        error_setg(errp, "Unsupported rsa hash algo: %d", virtio_rsa_hash);
-+        return -1;
-+    }
-+}
-+
-+static int cryptodev_builtin_set_rsa_options(
-+                    int virtio_padding_algo,
-+                    int virtio_hash_algo,
-+                    QCryptoAkCipherOptionsRSA *opt,
-+                    Error **errp)
-+{
-+    if (virtio_padding_algo == VIRTIO_CRYPTO_RSA_PKCS1_PADDING) {
-+        opt->padding_alg = QCRYPTO_RSA_PADDING_ALG_PKCS1;
-+        opt->hash_alg =
-+            cryptodev_builtin_get_rsa_hash_algo(virtio_hash_algo, errp);
-+        if (opt->hash_alg < 0) {
-+            return -1;
-+        }
-+        return 0;
-+    }
-+
-+    if (virtio_padding_algo == VIRTIO_CRYPTO_RSA_RAW_PADDING) {
-+        opt->padding_alg = QCRYPTO_RSA_PADDING_ALG_RAW;
-+        return 0;
-+    }
-+
-+    error_setg(errp, "Unsupported rsa padding algo: %d", virtio_padding_algo);
-+    return -1;
-+}
-+
- static int cryptodev_builtin_create_cipher_session(
-                     CryptoDevBackendBuiltin *builtin,
-                     CryptoDevBackendSymSessionInfo *sess_info,
-@@ -240,26 +291,89 @@ static int cryptodev_builtin_create_cipher_session(
-     return index;
- }
- 
--static int64_t cryptodev_builtin_sym_create_session(
-+static int cryptodev_builtin_create_akcipher_session(
-+                    CryptoDevBackendBuiltin *builtin,
-+                    CryptoDevBackendAsymSessionInfo *sess_info,
-+                    Error **errp)
-+{
-+    CryptoDevBackendBuiltinSession *sess;
-+    QCryptoAkCipher *akcipher;
-+    int index;
-+    QCryptoAkCipherKeyType type;
-+    QCryptoAkCipherOptions opts;
-+
-+    switch (sess_info->algo) {
-+    case VIRTIO_CRYPTO_AKCIPHER_RSA:
-+        opts.alg = QCRYPTO_AKCIPHER_ALG_RSA;
-+        if (cryptodev_builtin_set_rsa_options(sess_info->u.rsa.padding_algo,
-+            sess_info->u.rsa.hash_algo, &opts.u.rsa, errp) != 0) {
-+            return -1;
-+        }
-+        break;
-+
-+    /* TODO support DSA&ECDSA until qemu crypto framework support these */
-+
-+    default:
-+        error_setg(errp, "Unsupported akcipher alg %u", sess_info->algo);
-+        return -1;
-+    }
-+
-+    switch (sess_info->keytype) {
-+    case VIRTIO_CRYPTO_AKCIPHER_KEY_TYPE_PUBLIC:
-+        type = QCRYPTO_AKCIPHER_KEY_TYPE_PUBLIC;
-+        break;
-+
-+    case VIRTIO_CRYPTO_AKCIPHER_KEY_TYPE_PRIVATE:
-+        type = QCRYPTO_AKCIPHER_KEY_TYPE_PRIVATE;
-+        break;
-+
-+    default:
-+        error_setg(errp, "Unsupported akcipher keytype %u", sess_info->keytype);
-+        return -1;
-+    }
-+
-+    index = cryptodev_builtin_get_unused_session_index(builtin);
-+    if (index < 0) {
-+        error_setg(errp, "Total number of sessions created exceeds %u",
-+                   MAX_NUM_SESSIONS);
-+        return -1;
-+    }
-+
-+    akcipher = qcrypto_akcipher_new(&opts, type, sess_info->key,
-+                                    sess_info->keylen, errp);
-+    if (!akcipher) {
-+        return -1;
-+    }
-+
-+    sess = g_new0(CryptoDevBackendBuiltinSession, 1);
-+    sess->akcipher = akcipher;
-+
-+    builtin->sessions[index] = sess;
-+
-+    return index;
-+}
-+
-+static int64_t cryptodev_builtin_create_session(
-            CryptoDevBackend *backend,
--           CryptoDevBackendSymSessionInfo *sess_info,
-+           CryptoDevBackendSessionInfo *sess_info,
-            uint32_t queue_index, Error **errp)
- {
-     CryptoDevBackendBuiltin *builtin =
-                       CRYPTODEV_BACKEND_BUILTIN(backend);
--    int64_t session_id = -1;
--    int ret;
-+    CryptoDevBackendSymSessionInfo *sym_sess_info;
-+    CryptoDevBackendAsymSessionInfo *asym_sess_info;
- 
-     switch (sess_info->op_code) {
-     case VIRTIO_CRYPTO_CIPHER_CREATE_SESSION:
--        ret = cryptodev_builtin_create_cipher_session(
--                           builtin, sess_info, errp);
--        if (ret < 0) {
--            return ret;
--        } else {
--            session_id = ret;
--        }
--        break;
-+        sym_sess_info = &sess_info->u.sym_sess_info;
-+        return cryptodev_builtin_create_cipher_session(
-+                           builtin, sym_sess_info, errp);
-+
-+    case VIRTIO_CRYPTO_AKCIPHER_CREATE_SESSION:
-+        asym_sess_info = &sess_info->u.asym_sess_info;
-+        return cryptodev_builtin_create_akcipher_session(
-+                           builtin, asym_sess_info, errp);
-+
-     case VIRTIO_CRYPTO_HASH_CREATE_SESSION:
-     case VIRTIO_CRYPTO_MAC_CREATE_SESSION:
-     default:
-@@ -268,50 +382,44 @@ static int64_t cryptodev_builtin_sym_create_session(
-         return -1;
-     }
- 
--    return session_id;
-+    return -1;
- }
- 
--static int cryptodev_builtin_sym_close_session(
-+static int cryptodev_builtin_close_session(
-            CryptoDevBackend *backend,
-            uint64_t session_id,
-            uint32_t queue_index, Error **errp)
- {
-     CryptoDevBackendBuiltin *builtin =
-                       CRYPTODEV_BACKEND_BUILTIN(backend);
-+    CryptoDevBackendBuiltinSession *session;
- 
-     assert(session_id < MAX_NUM_SESSIONS && builtin->sessions[session_id]);
- 
--    qcrypto_cipher_free(builtin->sessions[session_id]->cipher);
--    g_free(builtin->sessions[session_id]);
-+    session = builtin->sessions[session_id];
-+    if (session->cipher) {
-+        qcrypto_cipher_free(session->cipher);
-+    } else if (session->akcipher) {
-+        qcrypto_akcipher_free(session->akcipher);
-+    }
-+
-+    g_free(session);
-     builtin->sessions[session_id] = NULL;
-     return 0;
- }
- 
- static int cryptodev_builtin_sym_operation(
--                 CryptoDevBackend *backend,
--                 CryptoDevBackendSymOpInfo *op_info,
--                 uint32_t queue_index, Error **errp)
-+                 CryptoDevBackendBuiltinSession *sess,
-+                 CryptoDevBackendSymOpInfo *op_info, Error **errp)
- {
--    CryptoDevBackendBuiltin *builtin =
--                      CRYPTODEV_BACKEND_BUILTIN(backend);
--    CryptoDevBackendBuiltinSession *sess;
-     int ret;
- 
--    if (op_info->session_id >= MAX_NUM_SESSIONS ||
--              builtin->sessions[op_info->session_id] == NULL) {
--        error_setg(errp, "Cannot find a valid session id: %" PRIu64 "",
--                   op_info->session_id);
--        return -VIRTIO_CRYPTO_INVSESS;
--    }
+-static void vhost_test_flush_vq(struct vhost_test *n, int index)
+-{
+-	vhost_work_dev_flush(n->vqs[index].poll.dev);
+-}
 -
-     if (op_info->op_type == VIRTIO_CRYPTO_SYM_OP_ALGORITHM_CHAINING) {
-         error_setg(errp,
-                "Algorithm chain is unsupported for cryptdoev-builtin");
-         return -VIRTIO_CRYPTO_NOTSUPP;
-     }
- 
--    sess = builtin->sessions[op_info->session_id];
--
-     if (op_info->iv_len > 0) {
-         ret = qcrypto_cipher_setiv(sess->cipher, op_info->iv,
-                                    op_info->iv_len, errp);
-@@ -333,9 +441,95 @@ static int cryptodev_builtin_sym_operation(
-             return -VIRTIO_CRYPTO_ERR;
-         }
-     }
-+
-+    return VIRTIO_CRYPTO_OK;
-+}
-+
-+static int cryptodev_builtin_asym_operation(
-+                 CryptoDevBackendBuiltinSession *sess, uint32_t op_code,
-+                 CryptoDevBackendAsymOpInfo *op_info, Error **errp)
-+{
-+    int ret;
-+
-+    switch (op_code) {
-+    case VIRTIO_CRYPTO_AKCIPHER_ENCRYPT:
-+        ret = qcrypto_akcipher_encrypt(sess->akcipher,
-+                                       op_info->src, op_info->src_len,
-+                                       op_info->dst, op_info->dst_len, errp);
-+        break;
-+
-+    case VIRTIO_CRYPTO_AKCIPHER_DECRYPT:
-+        ret = qcrypto_akcipher_decrypt(sess->akcipher,
-+                                       op_info->src, op_info->src_len,
-+                                       op_info->dst, op_info->dst_len, errp);
-+        break;
-+
-+    case VIRTIO_CRYPTO_AKCIPHER_SIGN:
-+        ret = qcrypto_akcipher_sign(sess->akcipher,
-+                                    op_info->src, op_info->src_len,
-+                                    op_info->dst, op_info->dst_len, errp);
-+        break;
-+
-+    case VIRTIO_CRYPTO_AKCIPHER_VERIFY:
-+        ret = qcrypto_akcipher_verify(sess->akcipher,
-+                                      op_info->src, op_info->src_len,
-+                                      op_info->dst, op_info->dst_len, errp);
-+    break;
-+
-+    default:
-+        return -VIRTIO_CRYPTO_ERR;
-+    }
-+
-+    if (ret < 0) {
-+        if (op_code == VIRTIO_CRYPTO_AKCIPHER_VERIFY) {
-+            return -VIRTIO_CRYPTO_KEY_REJECTED;
-+        }
-+        return -VIRTIO_CRYPTO_ERR;
-+    }
-+
-+    /* Buffer is too short */
-+    if (unlikely(ret > op_info->dst_len)) {
-+        return -VIRTIO_CRYPTO_ERR;
-+    }
-+
-+    op_info->dst_len = ret;
-+
-     return VIRTIO_CRYPTO_OK;
- }
- 
-+static int cryptodev_builtin_operation(
-+                 CryptoDevBackend *backend,
-+                 CryptoDevBackendOpInfo *op_info,
-+                 uint32_t queue_index, Error **errp)
-+{
-+    CryptoDevBackendBuiltin *builtin =
-+                      CRYPTODEV_BACKEND_BUILTIN(backend);
-+    CryptoDevBackendBuiltinSession *sess;
-+    CryptoDevBackendSymOpInfo *sym_op_info;
-+    CryptoDevBackendAsymOpInfo *asym_op_info;
-+    enum CryptoDevBackendAlgType algtype = op_info->algtype;
-+    int ret = -VIRTIO_CRYPTO_ERR;
-+
-+    if (op_info->session_id >= MAX_NUM_SESSIONS ||
-+              builtin->sessions[op_info->session_id] == NULL) {
-+        error_setg(errp, "Cannot find a valid session id: %" PRIu64 "",
-+                   op_info->session_id);
-+        return -VIRTIO_CRYPTO_INVSESS;
-+    }
-+
-+    sess = builtin->sessions[op_info->session_id];
-+    if (algtype == CRYPTODEV_BACKEND_ALG_SYM) {
-+        sym_op_info = op_info->u.sym_op_info;
-+        ret = cryptodev_builtin_sym_operation(sess, sym_op_info, errp);
-+    } else if (algtype == CRYPTODEV_BACKEND_ALG_ASYM) {
-+        asym_op_info = op_info->u.asym_op_info;
-+        ret = cryptodev_builtin_asym_operation(sess, op_info->op_code,
-+                                               asym_op_info, errp);
-+    }
-+
-+    return ret;
-+}
-+
- static void cryptodev_builtin_cleanup(
-              CryptoDevBackend *backend,
-              Error **errp)
-@@ -348,7 +542,7 @@ static void cryptodev_builtin_cleanup(
- 
-     for (i = 0; i < MAX_NUM_SESSIONS; i++) {
-         if (builtin->sessions[i] != NULL) {
--            cryptodev_builtin_sym_close_session(backend, i, 0, &error_abort);
-+            cryptodev_builtin_close_session(backend, i, 0, &error_abort);
-         }
-     }
- 
-@@ -370,9 +564,9 @@ cryptodev_builtin_class_init(ObjectClass *oc, void *data)
- 
-     bc->init = cryptodev_builtin_init;
-     bc->cleanup = cryptodev_builtin_cleanup;
--    bc->create_session = cryptodev_builtin_sym_create_session;
--    bc->close_session = cryptodev_builtin_sym_close_session;
--    bc->do_sym_op = cryptodev_builtin_sym_operation;
-+    bc->create_session = cryptodev_builtin_create_session;
-+    bc->close_session = cryptodev_builtin_close_session;
-+    bc->do_op = cryptodev_builtin_operation;
- }
- 
- static const TypeInfo cryptodev_builtin_info = {
-diff --git a/backends/cryptodev-vhost-user.c b/backends/cryptodev-vhost-user.c
-index bedb452474..5443a59153 100644
---- a/backends/cryptodev-vhost-user.c
-+++ b/backends/cryptodev-vhost-user.c
-@@ -259,7 +259,33 @@ static int64_t cryptodev_vhost_user_sym_create_session(
-     return -1;
- }
- 
--static int cryptodev_vhost_user_sym_close_session(
-+static int64_t cryptodev_vhost_user_create_session(
-+           CryptoDevBackend *backend,
-+           CryptoDevBackendSessionInfo *sess_info,
-+           uint32_t queue_index, Error **errp)
-+{
-+    uint32_t op_code = sess_info->op_code;
-+    CryptoDevBackendSymSessionInfo *sym_sess_info;
-+
-+    switch (op_code) {
-+    case VIRTIO_CRYPTO_CIPHER_CREATE_SESSION:
-+    case VIRTIO_CRYPTO_HASH_CREATE_SESSION:
-+    case VIRTIO_CRYPTO_MAC_CREATE_SESSION:
-+    case VIRTIO_CRYPTO_AEAD_CREATE_SESSION:
-+        sym_sess_info = &sess_info->u.sym_sess_info;
-+        return cryptodev_vhost_user_sym_create_session(backend, sym_sess_info,
-+                   queue_index, errp);
-+    default:
-+        error_setg(errp, "Unsupported opcode :%" PRIu32 "",
-+                   sess_info->op_code);
-+        return -1;
-+
-+    }
-+
-+    return -1;
-+}
-+
-+static int cryptodev_vhost_user_close_session(
-            CryptoDevBackend *backend,
-            uint64_t session_id,
-            uint32_t queue_index, Error **errp)
-@@ -351,9 +377,9 @@ cryptodev_vhost_user_class_init(ObjectClass *oc, void *data)
- 
-     bc->init = cryptodev_vhost_user_init;
-     bc->cleanup = cryptodev_vhost_user_cleanup;
--    bc->create_session = cryptodev_vhost_user_sym_create_session;
--    bc->close_session = cryptodev_vhost_user_sym_close_session;
--    bc->do_sym_op = NULL;
-+    bc->create_session = cryptodev_vhost_user_create_session;
-+    bc->close_session = cryptodev_vhost_user_close_session;
-+    bc->do_op = NULL;
- 
-     object_class_property_add_str(oc, "chardev",
-                                   cryptodev_vhost_user_get_chardev,
-diff --git a/backends/cryptodev.c b/backends/cryptodev.c
-index 2b105e433c..33eb4e1a70 100644
---- a/backends/cryptodev.c
-+++ b/backends/cryptodev.c
-@@ -72,9 +72,9 @@ void cryptodev_backend_cleanup(
-     }
- }
- 
--int64_t cryptodev_backend_sym_create_session(
-+int64_t cryptodev_backend_create_session(
-            CryptoDevBackend *backend,
--           CryptoDevBackendSymSessionInfo *sess_info,
-+           CryptoDevBackendSessionInfo *sess_info,
-            uint32_t queue_index, Error **errp)
+ static void vhost_test_flush(struct vhost_test *n)
  {
-     CryptoDevBackendClass *bc =
-@@ -87,7 +87,7 @@ int64_t cryptodev_backend_sym_create_session(
-     return -1;
+-	vhost_test_flush_vq(n, VHOST_TEST_VQ);
++	vhost_work_dev_flush(&n->dev);
  }
  
--int cryptodev_backend_sym_close_session(
-+int cryptodev_backend_close_session(
-            CryptoDevBackend *backend,
-            uint64_t session_id,
-            uint32_t queue_index, Error **errp)
-@@ -102,16 +102,16 @@ int cryptodev_backend_sym_close_session(
-     return -1;
- }
+ static int vhost_test_release(struct inode *inode, struct file *f)
+@@ -210,7 +205,7 @@ static long vhost_test_run(struct vhost_test *n, int test)
+ 			goto err;
  
--static int cryptodev_backend_sym_operation(
-+static int cryptodev_backend_operation(
-                  CryptoDevBackend *backend,
--                 CryptoDevBackendSymOpInfo *op_info,
-+                 CryptoDevBackendOpInfo *op_info,
-                  uint32_t queue_index, Error **errp)
- {
-     CryptoDevBackendClass *bc =
-                       CRYPTODEV_BACKEND_GET_CLASS(backend);
+ 		if (oldpriv) {
+-			vhost_test_flush_vq(n, index);
++			vhost_test_flush(n, index);
+ 		}
+ 	}
  
--    if (bc->do_sym_op) {
--        return bc->do_sym_op(backend, op_info, queue_index, errp);
-+    if (bc->do_op) {
-+        return bc->do_op(backend, op_info, queue_index, errp);
-     }
+@@ -303,7 +298,7 @@ static long vhost_test_set_backend(struct vhost_test *n, unsigned index, int fd)
+ 	mutex_unlock(&vq->mutex);
  
-     return -VIRTIO_CRYPTO_ERR;
-@@ -123,20 +123,18 @@ int cryptodev_backend_crypto_operation(
-                  uint32_t queue_index, Error **errp)
- {
-     VirtIOCryptoReq *req = opaque;
-+    CryptoDevBackendOpInfo *op_info = &req->op_info;
-+    enum CryptoDevBackendAlgType algtype = req->flags;
+ 	if (enable) {
+-		vhost_test_flush_vq(n, index);
++		vhost_test_flush(n);
+ 	}
  
--    if (req->flags == CRYPTODEV_BACKEND_ALG_SYM) {
--        CryptoDevBackendSymOpInfo *op_info;
--        op_info = req->u.sym_op_info;
--
--        return cryptodev_backend_sym_operation(backend,
--                         op_info, queue_index, errp);
--    } else {
-+    if ((algtype != CRYPTODEV_BACKEND_ALG_SYM)
-+        && (algtype != CRYPTODEV_BACKEND_ALG_ASYM)) {
-         error_setg(errp, "Unsupported cryptodev alg type: %" PRIu32 "",
--                   req->flags);
--       return -VIRTIO_CRYPTO_NOTSUPP;
-+                   algtype);
-+
-+        return -VIRTIO_CRYPTO_NOTSUPP;
-     }
- 
--    return -VIRTIO_CRYPTO_ERR;
-+    return cryptodev_backend_operation(backend, op_info, queue_index, errp);
- }
- 
- static void
-diff --git a/hw/virtio/virtio-crypto.c b/hw/virtio/virtio-crypto.c
-index dcd80b904d..a98105d9e9 100644
---- a/hw/virtio/virtio-crypto.c
-+++ b/hw/virtio/virtio-crypto.c
-@@ -83,7 +83,8 @@ virtio_crypto_create_sym_session(VirtIOCrypto *vcrypto,
-                struct iovec *iov, unsigned int out_num)
- {
-     VirtIODevice *vdev = VIRTIO_DEVICE(vcrypto);
--    CryptoDevBackendSymSessionInfo info;
-+    CryptoDevBackendSessionInfo info;
-+    CryptoDevBackendSymSessionInfo *sym_info;
-     int64_t session_id;
-     int queue_index;
-     uint32_t op_type;
-@@ -92,11 +93,13 @@ virtio_crypto_create_sym_session(VirtIOCrypto *vcrypto,
- 
-     memset(&info, 0, sizeof(info));
-     op_type = ldl_le_p(&sess_req->op_type);
--    info.op_type = op_type;
-     info.op_code = opcode;
- 
-+    sym_info = &info.u.sym_sess_info;
-+    sym_info->op_type = op_type;
-+
-     if (op_type == VIRTIO_CRYPTO_SYM_OP_CIPHER) {
--        ret = virtio_crypto_cipher_session_helper(vdev, &info,
-+        ret = virtio_crypto_cipher_session_helper(vdev, sym_info,
-                            &sess_req->u.cipher.para,
-                            &iov, &out_num);
-         if (ret < 0) {
-@@ -105,47 +108,47 @@ virtio_crypto_create_sym_session(VirtIOCrypto *vcrypto,
-     } else if (op_type == VIRTIO_CRYPTO_SYM_OP_ALGORITHM_CHAINING) {
-         size_t s;
-         /* cipher part */
--        ret = virtio_crypto_cipher_session_helper(vdev, &info,
-+        ret = virtio_crypto_cipher_session_helper(vdev, sym_info,
-                            &sess_req->u.chain.para.cipher_param,
-                            &iov, &out_num);
-         if (ret < 0) {
-             goto err;
-         }
-         /* hash part */
--        info.alg_chain_order = ldl_le_p(
-+        sym_info->alg_chain_order = ldl_le_p(
-                                      &sess_req->u.chain.para.alg_chain_order);
--        info.add_len = ldl_le_p(&sess_req->u.chain.para.aad_len);
--        info.hash_mode = ldl_le_p(&sess_req->u.chain.para.hash_mode);
--        if (info.hash_mode == VIRTIO_CRYPTO_SYM_HASH_MODE_AUTH) {
--            info.hash_alg = ldl_le_p(&sess_req->u.chain.para.u.mac_param.algo);
--            info.auth_key_len = ldl_le_p(
-+        sym_info->add_len = ldl_le_p(&sess_req->u.chain.para.aad_len);
-+        sym_info->hash_mode = ldl_le_p(&sess_req->u.chain.para.hash_mode);
-+        if (sym_info->hash_mode == VIRTIO_CRYPTO_SYM_HASH_MODE_AUTH) {
-+            sym_info->hash_alg =
-+                ldl_le_p(&sess_req->u.chain.para.u.mac_param.algo);
-+            sym_info->auth_key_len = ldl_le_p(
-                              &sess_req->u.chain.para.u.mac_param.auth_key_len);
--            info.hash_result_len = ldl_le_p(
-+            sym_info->hash_result_len = ldl_le_p(
-                            &sess_req->u.chain.para.u.mac_param.hash_result_len);
--            if (info.auth_key_len > vcrypto->conf.max_auth_key_len) {
-+            if (sym_info->auth_key_len > vcrypto->conf.max_auth_key_len) {
-                 error_report("virtio-crypto length of auth key is too big: %u",
--                             info.auth_key_len);
-+                             sym_info->auth_key_len);
-                 ret = -VIRTIO_CRYPTO_ERR;
-                 goto err;
-             }
-             /* get auth key */
--            if (info.auth_key_len > 0) {
--                DPRINTF("auth_keylen=%" PRIu32 "\n", info.auth_key_len);
--                info.auth_key = g_malloc(info.auth_key_len);
--                s = iov_to_buf(iov, out_num, 0, info.auth_key,
--                               info.auth_key_len);
--                if (unlikely(s != info.auth_key_len)) {
-+            if (sym_info->auth_key_len > 0) {
-+                sym_info->auth_key = g_malloc(sym_info->auth_key_len);
-+                s = iov_to_buf(iov, out_num, 0, sym_info->auth_key,
-+                               sym_info->auth_key_len);
-+                if (unlikely(s != sym_info->auth_key_len)) {
-                     virtio_error(vdev,
-                           "virtio-crypto authenticated key incorrect");
-                     ret = -EFAULT;
-                     goto err;
-                 }
--                iov_discard_front(&iov, &out_num, info.auth_key_len);
-+                iov_discard_front(&iov, &out_num, sym_info->auth_key_len);
-             }
--        } else if (info.hash_mode == VIRTIO_CRYPTO_SYM_HASH_MODE_PLAIN) {
--            info.hash_alg = ldl_le_p(
-+        } else if (sym_info->hash_mode == VIRTIO_CRYPTO_SYM_HASH_MODE_PLAIN) {
-+            sym_info->hash_alg = ldl_le_p(
-                              &sess_req->u.chain.para.u.hash_param.algo);
--            info.hash_result_len = ldl_le_p(
-+            sym_info->hash_result_len = ldl_le_p(
-                         &sess_req->u.chain.para.u.hash_param.hash_result_len);
-         } else {
-             /* VIRTIO_CRYPTO_SYM_HASH_MODE_NESTED */
-@@ -161,13 +164,10 @@ virtio_crypto_create_sym_session(VirtIOCrypto *vcrypto,
-     }
- 
-     queue_index = virtio_crypto_vq2q(queue_id);
--    session_id = cryptodev_backend_sym_create_session(
-+    session_id = cryptodev_backend_create_session(
-                                      vcrypto->cryptodev,
-                                      &info, queue_index, &local_err);
-     if (session_id >= 0) {
--        DPRINTF("create session_id=%" PRIu64 " successfully\n",
--                session_id);
--
-         ret = session_id;
-     } else {
-         if (local_err) {
-@@ -177,11 +177,78 @@ virtio_crypto_create_sym_session(VirtIOCrypto *vcrypto,
-     }
- 
- err:
--    g_free(info.cipher_key);
--    g_free(info.auth_key);
-+    g_free(sym_info->cipher_key);
-+    g_free(sym_info->auth_key);
-     return ret;
- }
- 
-+static int64_t
-+virtio_crypto_create_asym_session(VirtIOCrypto *vcrypto,
-+               struct virtio_crypto_akcipher_create_session_req *sess_req,
-+               uint32_t queue_id, uint32_t opcode,
-+               struct iovec *iov, unsigned int out_num)
-+{
-+    VirtIODevice *vdev = VIRTIO_DEVICE(vcrypto);
-+    CryptoDevBackendSessionInfo info = {0};
-+    CryptoDevBackendAsymSessionInfo *asym_info;
-+    int64_t session_id;
-+    int queue_index;
-+    uint32_t algo, keytype, keylen;
-+    g_autofree uint8_t *key = NULL;
-+    Error *local_err = NULL;
-+
-+    algo = ldl_le_p(&sess_req->para.algo);
-+    keytype = ldl_le_p(&sess_req->para.keytype);
-+    keylen = ldl_le_p(&sess_req->para.keylen);
-+
-+    if ((keytype != VIRTIO_CRYPTO_AKCIPHER_KEY_TYPE_PUBLIC)
-+         && (keytype != VIRTIO_CRYPTO_AKCIPHER_KEY_TYPE_PRIVATE)) {
-+        error_report("unsupported asym keytype: %d", keytype);
-+        return -VIRTIO_CRYPTO_NOTSUPP;
-+    }
-+
-+    if (keylen) {
-+        key = g_malloc(keylen);
-+        if (iov_to_buf(iov, out_num, 0, key, keylen) != keylen) {
-+            virtio_error(vdev, "virtio-crypto asym key incorrect");
-+            return -EFAULT;
-+        }
-+        iov_discard_front(&iov, &out_num, keylen);
-+    }
-+
-+    info.op_code = opcode;
-+    asym_info = &info.u.asym_sess_info;
-+    asym_info->algo = algo;
-+    asym_info->keytype = keytype;
-+    asym_info->keylen = keylen;
-+    asym_info->key = key;
-+    switch (asym_info->algo) {
-+    case VIRTIO_CRYPTO_AKCIPHER_RSA:
-+        asym_info->u.rsa.padding_algo =
-+            ldl_le_p(&sess_req->para.u.rsa.padding_algo);
-+        asym_info->u.rsa.hash_algo =
-+            ldl_le_p(&sess_req->para.u.rsa.hash_algo);
-+        break;
-+
-+    /* TODO DSA&ECDSA handling */
-+
-+    default:
-+        return -VIRTIO_CRYPTO_ERR;
-+    }
-+
-+    queue_index = virtio_crypto_vq2q(queue_id);
-+    session_id = cryptodev_backend_create_session(vcrypto->cryptodev, &info,
-+                     queue_index, &local_err);
-+    if (session_id < 0) {
-+        if (local_err) {
-+            error_report_err(local_err);
-+        }
-+        return -VIRTIO_CRYPTO_ERR;
-+    }
-+
-+    return session_id;
-+}
-+
- static uint8_t
- virtio_crypto_handle_close_session(VirtIOCrypto *vcrypto,
-          struct virtio_crypto_destroy_session_req *close_sess_req,
-@@ -195,7 +262,7 @@ virtio_crypto_handle_close_session(VirtIOCrypto *vcrypto,
-     session_id = ldq_le_p(&close_sess_req->session_id);
-     DPRINTF("close session, id=%" PRIu64 "\n", session_id);
- 
--    ret = cryptodev_backend_sym_close_session(
-+    ret = cryptodev_backend_close_session(
-               vcrypto->cryptodev, session_id, queue_id, &local_err);
-     if (ret == 0) {
-         status = VIRTIO_CRYPTO_OK;
-@@ -260,13 +327,22 @@ static void virtio_crypto_handle_ctrl(VirtIODevice *vdev, VirtQueue *vq)
-         opcode = ldl_le_p(&ctrl.header.opcode);
-         queue_id = ldl_le_p(&ctrl.header.queue_id);
- 
-+        memset(&input, 0, sizeof(input));
-         switch (opcode) {
-         case VIRTIO_CRYPTO_CIPHER_CREATE_SESSION:
--            memset(&input, 0, sizeof(input));
-             session_id = virtio_crypto_create_sym_session(vcrypto,
-                              &ctrl.u.sym_create_session,
-                              queue_id, opcode,
-                              out_iov, out_num);
-+            goto check_session;
-+
-+        case VIRTIO_CRYPTO_AKCIPHER_CREATE_SESSION:
-+            session_id = virtio_crypto_create_asym_session(vcrypto,
-+                             &ctrl.u.akcipher_create_session,
-+                             queue_id, opcode,
-+                             out_iov, out_num);
-+
-+check_session:
-             /* Serious errors, need to reset virtio crypto device */
-             if (session_id == -EFAULT) {
-                 virtqueue_detach_element(vq, elem, 0);
-@@ -290,10 +366,12 @@ static void virtio_crypto_handle_ctrl(VirtIODevice *vdev, VirtQueue *vq)
-             virtqueue_push(vq, elem, sizeof(input));
-             virtio_notify(vdev, vq);
-             break;
-+
-         case VIRTIO_CRYPTO_CIPHER_DESTROY_SESSION:
-         case VIRTIO_CRYPTO_HASH_DESTROY_SESSION:
-         case VIRTIO_CRYPTO_MAC_DESTROY_SESSION:
-         case VIRTIO_CRYPTO_AEAD_DESTROY_SESSION:
-+        case VIRTIO_CRYPTO_AKCIPHER_DESTROY_SESSION:
-             status = virtio_crypto_handle_close_session(vcrypto,
-                    &ctrl.u.destroy_session, queue_id);
-             /* The status only occupy one byte, we can directly use it */
-@@ -311,7 +389,6 @@ static void virtio_crypto_handle_ctrl(VirtIODevice *vdev, VirtQueue *vq)
-         case VIRTIO_CRYPTO_AEAD_CREATE_SESSION:
-         default:
-             error_report("virtio-crypto unsupported ctrl opcode: %d", opcode);
--            memset(&input, 0, sizeof(input));
-             stl_le_p(&input.status, VIRTIO_CRYPTO_NOTSUPP);
-             s = iov_from_buf(in_iov, in_num, 0, &input, sizeof(input));
-             if (unlikely(s != sizeof(input))) {
-@@ -339,28 +416,39 @@ static void virtio_crypto_init_request(VirtIOCrypto *vcrypto, VirtQueue *vq,
-     req->in_num = 0;
-     req->in_len = 0;
-     req->flags = CRYPTODEV_BACKEND_ALG__MAX;
--    req->u.sym_op_info = NULL;
-+    memset(&req->op_info, 0x00, sizeof(req->op_info));
- }
- 
- static void virtio_crypto_free_request(VirtIOCryptoReq *req)
- {
--    if (req) {
--        if (req->flags == CRYPTODEV_BACKEND_ALG_SYM) {
--            size_t max_len;
--            CryptoDevBackendSymOpInfo *op_info = req->u.sym_op_info;
--
--            max_len = op_info->iv_len +
--                      op_info->aad_len +
--                      op_info->src_len +
--                      op_info->dst_len +
--                      op_info->digest_result_len;
--
--            /* Zeroize and free request data structure */
--            memset(op_info, 0, sizeof(*op_info) + max_len);
-+    if (!req) {
-+        return;
-+    }
-+
-+    if (req->flags == CRYPTODEV_BACKEND_ALG_SYM) {
-+        size_t max_len;
-+        CryptoDevBackendSymOpInfo *op_info = req->op_info.u.sym_op_info;
-+
-+        max_len = op_info->iv_len +
-+                  op_info->aad_len +
-+                  op_info->src_len +
-+                  op_info->dst_len +
-+                  op_info->digest_result_len;
-+
-+        /* Zeroize and free request data structure */
-+        memset(op_info, 0, sizeof(*op_info) + max_len);
-+        g_free(op_info);
-+    } else if (req->flags == CRYPTODEV_BACKEND_ALG_ASYM) {
-+        CryptoDevBackendAsymOpInfo *op_info = req->op_info.u.asym_op_info;
-+        if (op_info) {
-+            g_free(op_info->src);
-+            g_free(op_info->dst);
-+            memset(op_info, 0, sizeof(*op_info));
-             g_free(op_info);
-         }
--        g_free(req);
-     }
-+
-+    g_free(req);
- }
- 
- static void
-@@ -397,6 +485,35 @@ virtio_crypto_sym_input_data_helper(VirtIODevice *vdev,
-     }
- }
- 
-+static void
-+virtio_crypto_akcipher_input_data_helper(VirtIODevice *vdev,
-+        VirtIOCryptoReq *req, int32_t status,
-+        CryptoDevBackendAsymOpInfo *asym_op_info)
-+{
-+    size_t s, len;
-+
-+    if (status != VIRTIO_CRYPTO_OK) {
-+        return;
-+    }
-+
-+    len = asym_op_info->dst_len;
-+    if (!len) {
-+        return;
-+    }
-+
-+    s = iov_from_buf(req->in_iov, req->in_num, 0, asym_op_info->dst, len);
-+    if (s != len) {
-+        virtio_error(vdev, "virtio-crypto asym dest data incorrect");
-+        return;
-+    }
-+
-+    iov_discard_front(&req->in_iov, &req->in_num, len);
-+
-+    /* For akcipher, dst_len may be changed after operation */
-+    req->in_len = sizeof(struct virtio_crypto_inhdr) + asym_op_info->dst_len;
-+}
-+
-+
- static void virtio_crypto_req_complete(VirtIOCryptoReq *req, uint8_t status)
- {
-     VirtIOCrypto *vcrypto = req->vcrypto;
-@@ -404,7 +521,10 @@ static void virtio_crypto_req_complete(VirtIOCryptoReq *req, uint8_t status)
- 
-     if (req->flags == CRYPTODEV_BACKEND_ALG_SYM) {
-         virtio_crypto_sym_input_data_helper(vdev, req, status,
--                                            req->u.sym_op_info);
-+                                            req->op_info.u.sym_op_info);
-+    } else if (req->flags == CRYPTODEV_BACKEND_ALG_ASYM) {
-+        virtio_crypto_akcipher_input_data_helper(vdev, req, status,
-+                                             req->op_info.u.asym_op_info);
-     }
-     stb_p(&req->in->status, status);
-     virtqueue_push(req->vq, &req->elem, req->in_len);
-@@ -543,41 +663,100 @@ err:
- static int
- virtio_crypto_handle_sym_req(VirtIOCrypto *vcrypto,
-                struct virtio_crypto_sym_data_req *req,
--               CryptoDevBackendSymOpInfo **sym_op_info,
-+               CryptoDevBackendOpInfo *op_info,
-                struct iovec *iov, unsigned int out_num)
- {
-     VirtIODevice *vdev = VIRTIO_DEVICE(vcrypto);
-+    CryptoDevBackendSymOpInfo *sym_op_info;
-     uint32_t op_type;
--    CryptoDevBackendSymOpInfo *op_info;
- 
-     op_type = ldl_le_p(&req->op_type);
--
-     if (op_type == VIRTIO_CRYPTO_SYM_OP_CIPHER) {
--        op_info = virtio_crypto_sym_op_helper(vdev, &req->u.cipher.para,
-+        sym_op_info = virtio_crypto_sym_op_helper(vdev, &req->u.cipher.para,
-                                               NULL, iov, out_num);
--        if (!op_info) {
-+        if (!sym_op_info) {
-             return -EFAULT;
-         }
--        op_info->op_type = op_type;
-     } else if (op_type == VIRTIO_CRYPTO_SYM_OP_ALGORITHM_CHAINING) {
--        op_info = virtio_crypto_sym_op_helper(vdev, NULL,
-+        sym_op_info = virtio_crypto_sym_op_helper(vdev, NULL,
-                                               &req->u.chain.para,
-                                               iov, out_num);
--        if (!op_info) {
-+        if (!sym_op_info) {
-             return -EFAULT;
-         }
--        op_info->op_type = op_type;
-     } else {
-         /* VIRTIO_CRYPTO_SYM_OP_NONE */
-         error_report("virtio-crypto unsupported cipher type");
-         return -VIRTIO_CRYPTO_NOTSUPP;
-     }
- 
--    *sym_op_info = op_info;
-+    sym_op_info->op_type = op_type;
-+    op_info->u.sym_op_info = sym_op_info;
- 
-     return 0;
- }
- 
-+static int
-+virtio_crypto_handle_asym_req(VirtIOCrypto *vcrypto,
-+               struct virtio_crypto_akcipher_data_req *req,
-+               CryptoDevBackendOpInfo *op_info,
-+               struct iovec *iov, unsigned int out_num)
-+{
-+    VirtIODevice *vdev = VIRTIO_DEVICE(vcrypto);
-+    CryptoDevBackendAsymOpInfo *asym_op_info;
-+    uint32_t src_len;
-+    uint32_t dst_len;
-+    uint32_t len;
-+    uint8_t *src = NULL;
-+    uint8_t *dst = NULL;
-+
-+    asym_op_info = g_malloc0(sizeof(CryptoDevBackendAsymOpInfo));
-+    src_len = ldl_le_p(&req->para.src_data_len);
-+    dst_len = ldl_le_p(&req->para.dst_data_len);
-+
-+    if (src_len > 0) {
-+        src = g_malloc0(src_len);
-+        len = iov_to_buf(iov, out_num, 0, src, src_len);
-+        if (unlikely(len != src_len)) {
-+            virtio_error(vdev, "virtio-crypto asym src data incorrect"
-+                         "expected %u, actual %u", src_len, len);
-+            goto err;
-+        }
-+
-+        iov_discard_front(&iov, &out_num, src_len);
-+    }
-+
-+    if (dst_len > 0) {
-+        dst = g_malloc0(dst_len);
-+
-+        if (op_info->op_code == VIRTIO_CRYPTO_AKCIPHER_VERIFY) {
-+            len = iov_to_buf(iov, out_num, 0, dst, dst_len);
-+            if (unlikely(len != dst_len)) {
-+                virtio_error(vdev, "virtio-crypto asym dst data incorrect"
-+                             "expected %u, actual %u", dst_len, len);
-+                goto err;
-+            }
-+
-+            iov_discard_front(&iov, &out_num, dst_len);
-+        }
-+    }
-+
-+    asym_op_info->src_len = src_len;
-+    asym_op_info->dst_len = dst_len;
-+    asym_op_info->src = src;
-+    asym_op_info->dst = dst;
-+    op_info->u.asym_op_info = asym_op_info;
-+
-+    return 0;
-+
-+ err:
-+    g_free(asym_op_info);
-+    g_free(src);
-+    g_free(dst);
-+
-+    return -EFAULT;
-+}
-+
- static int
- virtio_crypto_handle_request(VirtIOCryptoReq *request)
- {
-@@ -595,8 +774,7 @@ virtio_crypto_handle_request(VirtIOCryptoReq *request)
-     unsigned out_num;
-     uint32_t opcode;
-     uint8_t status = VIRTIO_CRYPTO_ERR;
--    uint64_t session_id;
--    CryptoDevBackendSymOpInfo *sym_op_info = NULL;
-+    CryptoDevBackendOpInfo *op_info = &request->op_info;
-     Error *local_err = NULL;
- 
-     if (elem->out_num < 1 || elem->in_num < 1) {
-@@ -639,15 +817,28 @@ virtio_crypto_handle_request(VirtIOCryptoReq *request)
-     request->in_iov = in_iov;
- 
-     opcode = ldl_le_p(&req.header.opcode);
--    session_id = ldq_le_p(&req.header.session_id);
-+    op_info->session_id = ldq_le_p(&req.header.session_id);
-+    op_info->op_code = opcode;
- 
-     switch (opcode) {
-     case VIRTIO_CRYPTO_CIPHER_ENCRYPT:
-     case VIRTIO_CRYPTO_CIPHER_DECRYPT:
-+        op_info->algtype = request->flags = CRYPTODEV_BACKEND_ALG_SYM;
-         ret = virtio_crypto_handle_sym_req(vcrypto,
--                         &req.u.sym_req,
--                         &sym_op_info,
-+                         &req.u.sym_req, op_info,
-+                         out_iov, out_num);
-+        goto check_result;
-+
-+    case VIRTIO_CRYPTO_AKCIPHER_ENCRYPT:
-+    case VIRTIO_CRYPTO_AKCIPHER_DECRYPT:
-+    case VIRTIO_CRYPTO_AKCIPHER_SIGN:
-+    case VIRTIO_CRYPTO_AKCIPHER_VERIFY:
-+        op_info->algtype = request->flags = CRYPTODEV_BACKEND_ALG_ASYM;
-+        ret = virtio_crypto_handle_asym_req(vcrypto,
-+                         &req.u.akcipher_req, op_info,
-                          out_iov, out_num);
-+
-+check_result:
-         /* Serious errors, need to reset virtio crypto device */
-         if (ret == -EFAULT) {
-             return -1;
-@@ -655,11 +846,8 @@ virtio_crypto_handle_request(VirtIOCryptoReq *request)
-             virtio_crypto_req_complete(request, VIRTIO_CRYPTO_NOTSUPP);
-             virtio_crypto_free_request(request);
-         } else {
--            sym_op_info->session_id = session_id;
- 
-             /* Set request's parameter */
--            request->flags = CRYPTODEV_BACKEND_ALG_SYM;
--            request->u.sym_op_info = sym_op_info;
-             ret = cryptodev_backend_crypto_operation(vcrypto->cryptodev,
-                                     request, queue_index, &local_err);
-             if (ret < 0) {
-@@ -674,6 +862,7 @@ virtio_crypto_handle_request(VirtIOCryptoReq *request)
-             virtio_crypto_free_request(request);
-         }
-         break;
-+
-     case VIRTIO_CRYPTO_HASH:
-     case VIRTIO_CRYPTO_MAC:
-     case VIRTIO_CRYPTO_AEAD_ENCRYPT:
-@@ -779,6 +968,7 @@ static void virtio_crypto_init_config(VirtIODevice *vdev)
-     vcrypto->conf.mac_algo_l = vcrypto->conf.cryptodev->conf.mac_algo_l;
-     vcrypto->conf.mac_algo_h = vcrypto->conf.cryptodev->conf.mac_algo_h;
-     vcrypto->conf.aead_algo = vcrypto->conf.cryptodev->conf.aead_algo;
-+    vcrypto->conf.akcipher_algo = vcrypto->conf.cryptodev->conf.akcipher_algo;
-     vcrypto->conf.max_cipher_key_len =
-                   vcrypto->conf.cryptodev->conf.max_cipher_key_len;
-     vcrypto->conf.max_auth_key_len =
-@@ -891,6 +1081,7 @@ static void virtio_crypto_get_config(VirtIODevice *vdev, uint8_t *config)
-     stl_le_p(&crypto_cfg.max_cipher_key_len, c->conf.max_cipher_key_len);
-     stl_le_p(&crypto_cfg.max_auth_key_len, c->conf.max_auth_key_len);
-     stq_le_p(&crypto_cfg.max_size, c->conf.max_size);
-+    stl_le_p(&crypto_cfg.akcipher_algo, c->conf.akcipher_algo);
- 
-     memcpy(config, &crypto_cfg, c->config_size);
- }
-diff --git a/include/hw/virtio/virtio-crypto.h b/include/hw/virtio/virtio-crypto.h
-index a2228d7b2e..348749f5d5 100644
---- a/include/hw/virtio/virtio-crypto.h
-+++ b/include/hw/virtio/virtio-crypto.h
-@@ -50,6 +50,7 @@ typedef struct VirtIOCryptoConf {
-     uint32_t mac_algo_l;
-     uint32_t mac_algo_h;
-     uint32_t aead_algo;
-+    uint32_t akcipher_algo;
- 
-     /* Maximum length of cipher key */
-     uint32_t max_cipher_key_len;
-@@ -71,9 +72,7 @@ typedef struct VirtIOCryptoReq {
-     size_t in_len;
-     VirtQueue *vq;
-     struct VirtIOCrypto *vcrypto;
--    union {
--        CryptoDevBackendSymOpInfo *sym_op_info;
--    } u;
-+    CryptoDevBackendOpInfo op_info;
- } VirtIOCryptoReq;
- 
- typedef struct VirtIOCryptoQueue {
-diff --git a/include/sysemu/cryptodev.h b/include/sysemu/cryptodev.h
-index f4d4057d4d..37c3a360fd 100644
---- a/include/sysemu/cryptodev.h
-+++ b/include/sysemu/cryptodev.h
-@@ -50,13 +50,13 @@ typedef struct CryptoDevBackendClient
- 
- enum CryptoDevBackendAlgType {
-     CRYPTODEV_BACKEND_ALG_SYM,
-+    CRYPTODEV_BACKEND_ALG_ASYM,
-     CRYPTODEV_BACKEND_ALG__MAX,
- };
- 
- /**
-  * CryptoDevBackendSymSessionInfo:
-  *
-- * @op_code: operation code (refer to virtio_crypto.h)
-  * @cipher_alg: algorithm type of CIPHER
-  * @key_len: byte length of cipher key
-  * @hash_alg: algorithm type of HASH/MAC
-@@ -74,7 +74,6 @@ enum CryptoDevBackendAlgType {
-  */
- typedef struct CryptoDevBackendSymSessionInfo {
-     /* corresponding with virtio crypto spec */
--    uint32_t op_code;
-     uint32_t cipher_alg;
-     uint32_t key_len;
-     uint32_t hash_alg;
-@@ -89,11 +88,36 @@ typedef struct CryptoDevBackendSymSessionInfo {
-     uint8_t *auth_key;
- } CryptoDevBackendSymSessionInfo;
- 
-+/**
-+ * CryptoDevBackendAsymSessionInfo:
-+ */
-+typedef struct CryptoDevBackendRsaPara {
-+    uint32_t padding_algo;
-+    uint32_t hash_algo;
-+} CryptoDevBackendRsaPara;
-+
-+typedef struct CryptoDevBackendAsymSessionInfo {
-+    /* corresponding with virtio crypto spec */
-+    uint32_t algo;
-+    uint32_t keytype;
-+    uint32_t keylen;
-+    uint8_t *key;
-+    union {
-+        CryptoDevBackendRsaPara rsa;
-+    } u;
-+} CryptoDevBackendAsymSessionInfo;
-+
-+typedef struct CryptoDevBackendSessionInfo {
-+    uint32_t op_code;
-+    union {
-+        CryptoDevBackendSymSessionInfo sym_sess_info;
-+        CryptoDevBackendAsymSessionInfo asym_sess_info;
-+    } u;
-+} CryptoDevBackendSessionInfo;
-+
- /**
-  * CryptoDevBackendSymOpInfo:
-  *
-- * @session_id: session index which was previously
-- *              created by cryptodev_backend_sym_create_session()
-  * @aad_len: byte length of additional authenticated data
-  * @iv_len: byte length of initialization vector or counter
-  * @src_len: byte length of source data
-@@ -119,7 +143,6 @@ typedef struct CryptoDevBackendSymSessionInfo {
-  *
-  */
- typedef struct CryptoDevBackendSymOpInfo {
--    uint64_t session_id;
-     uint32_t aad_len;
-     uint32_t iv_len;
-     uint32_t src_len;
-@@ -138,6 +161,33 @@ typedef struct CryptoDevBackendSymOpInfo {
-     uint8_t data[];
- } CryptoDevBackendSymOpInfo;
- 
-+
-+/**
-+ * CryptoDevBackendAsymOpInfo:
-+ *
-+ * @src_len: byte length of source data
-+ * @dst_len: byte length of destination data
-+ * @src: point to the source data
-+ * @dst: point to the destination data
-+ *
-+ */
-+typedef struct CryptoDevBackendAsymOpInfo {
-+    uint32_t src_len;
-+    uint32_t dst_len;
-+    uint8_t *src;
-+    uint8_t *dst;
-+} CryptoDevBackendAsymOpInfo;
-+
-+typedef struct CryptoDevBackendOpInfo {
-+    enum CryptoDevBackendAlgType algtype;
-+    uint32_t op_code;
-+    uint64_t session_id;
-+    union {
-+        CryptoDevBackendSymOpInfo *sym_op_info;
-+        CryptoDevBackendAsymOpInfo *asym_op_info;
-+    } u;
-+} CryptoDevBackendOpInfo;
-+
- struct CryptoDevBackendClass {
-     ObjectClass parent_class;
- 
-@@ -145,13 +195,13 @@ struct CryptoDevBackendClass {
-     void (*cleanup)(CryptoDevBackend *backend, Error **errp);
- 
-     int64_t (*create_session)(CryptoDevBackend *backend,
--                       CryptoDevBackendSymSessionInfo *sess_info,
-+                       CryptoDevBackendSessionInfo *sess_info,
-                        uint32_t queue_index, Error **errp);
-     int (*close_session)(CryptoDevBackend *backend,
-                            uint64_t session_id,
-                            uint32_t queue_index, Error **errp);
--    int (*do_sym_op)(CryptoDevBackend *backend,
--                     CryptoDevBackendSymOpInfo *op_info,
-+    int (*do_op)(CryptoDevBackend *backend,
-+                     CryptoDevBackendOpInfo *op_info,
-                      uint32_t queue_index, Error **errp);
- };
- 
-@@ -190,6 +240,7 @@ struct CryptoDevBackendConf {
-     uint32_t mac_algo_l;
-     uint32_t mac_algo_h;
-     uint32_t aead_algo;
-+    uint32_t akcipher_algo;
-     /* Maximum length of cipher key */
-     uint32_t max_cipher_key_len;
-     /* Maximum length of authenticated key */
-@@ -247,34 +298,34 @@ void cryptodev_backend_cleanup(
-            Error **errp);
- 
- /**
-- * cryptodev_backend_sym_create_session:
-+ * cryptodev_backend_create_session:
-  * @backend: the cryptodev backend object
-  * @sess_info: parameters needed by session creating
-  * @queue_index: queue index of cryptodev backend client
-  * @errp: pointer to a NULL-initialized error object
-  *
-- * Create a session for symmetric algorithms
-+ * Create a session for symmetric/symmetric algorithms
-  *
-  * Returns: session id on success, or -1 on error
-  */
--int64_t cryptodev_backend_sym_create_session(
-+int64_t cryptodev_backend_create_session(
-            CryptoDevBackend *backend,
--           CryptoDevBackendSymSessionInfo *sess_info,
-+           CryptoDevBackendSessionInfo *sess_info,
-            uint32_t queue_index, Error **errp);
- 
- /**
-- * cryptodev_backend_sym_close_session:
-+ * cryptodev_backend_close_session:
-  * @backend: the cryptodev backend object
-  * @session_id: the session id
-  * @queue_index: queue index of cryptodev backend client
-  * @errp: pointer to a NULL-initialized error object
-  *
-- * Close a session for symmetric algorithms which was previously
-- * created by cryptodev_backend_sym_create_session()
-+ * Close a session for which was previously
-+ * created by cryptodev_backend_create_session()
-  *
-  * Returns: 0 on success, or Negative on error
-  */
--int cryptodev_backend_sym_close_session(
-+int cryptodev_backend_close_session(
-            CryptoDevBackend *backend,
-            uint64_t session_id,
-            uint32_t queue_index, Error **errp);
+ 	mutex_unlock(&n->dev.mutex);
 -- 
-2.20.1
-
+2.25.1
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
-
