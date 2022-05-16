@@ -1,71 +1,70 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3BBA9C433F5
-	for <virtualization@archiver.kernel.org>; Mon, 16 May 2022 06:14:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 63214C433F5
+	for <virtualization@archiver.kernel.org>; Mon, 16 May 2022 06:21:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id E40CD60DDF;
-	Mon, 16 May 2022 06:14:19 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 021024011D;
+	Mon, 16 May 2022 06:21:34 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id OUKVo1FQRKie; Mon, 16 May 2022 06:14:19 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 8211F60A46;
-	Mon, 16 May 2022 06:14:18 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 56C6DC0032;
-	Mon, 16 May 2022 06:14:18 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1C7D0C002D
- for <virtualization@lists.linux-foundation.org>;
- Mon, 16 May 2022 06:14:18 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 04D3840364
- for <virtualization@lists.linux-foundation.org>;
- Mon, 16 May 2022 06:14:18 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=linuxfoundation.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id MBfRadxO97BI
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Eo1RrLfwRRVb; Mon, 16 May 2022 06:21:33 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 9ACE740148;
+	Mon, 16 May 2022 06:21:32 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 691D7C0032;
+	Mon, 16 May 2022 06:21:32 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8121DC002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 16 May 2022 06:14:17 +0000 (UTC)
+ Mon, 16 May 2022 06:21:31 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 695D1812FE
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 16 May 2022 06:21:31 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=linuxfoundation.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id A8TIFjFtk2KO
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 16 May 2022 06:21:30 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from ams.source.kernel.org (ams.source.kernel.org
- [IPv6:2604:1380:4601:e00::1])
- by smtp2.osuosl.org (Postfix) with ESMTPS id A33B64011D
+Received: from sin.source.kernel.org (sin.source.kernel.org
+ [IPv6:2604:1380:40e1:4800::1])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 511648128F
  for <virtualization@lists.linux-foundation.org>;
- Mon, 16 May 2022 06:14:16 +0000 (UTC)
+ Mon, 16 May 2022 06:21:30 +0000 (UTC)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by ams.source.kernel.org (Postfix) with ESMTPS id DF9D6B80B48;
- Mon, 16 May 2022 06:14:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46ECEC385B8;
- Mon, 16 May 2022 06:14:11 +0000 (UTC)
+ by sin.source.kernel.org (Postfix) with ESMTPS id 10395CE1047;
+ Mon, 16 May 2022 06:13:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DECD1C385AA;
+ Mon, 16 May 2022 06:13:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
- s=korg; t=1652681653;
- bh=ab3eEGJB9uefOEURnNplTjvDpQ/KhtB3KCKpl0zehRk=;
+ s=korg; t=1652681616;
+ bh=WsHiSw3wi94yAeuQMFRuzTaGuW1wgereK3pwDUGl5BU=;
  h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=zAh9j8mqzrpzeqwNpmNJJnYInkvpLgPV81J+nIaE7i6hcMCy9JchruxBTRWrI+JKf
- Z2CeBASwGZRSWL4Qce8triuB+Wq04F+n9xM6ThtPX4fvYhHnedeLn2+tgYAGRHtHk4
- qsJr3eQHi0mF8uof74SlhqxjdIXHMvu9p9tHY08o=
-Date: Mon, 16 May 2022 08:14:09 +0200
+ b=nBhMZYPypXC4gYBgge5DjDqACvx6qCXc4ZMpt8Y5v17+6OPOPeB8XK7JYgNmRGzFJ
+ 7hfSgbh/7bVphNebWABEhC6DpWs6Bgb5L7rIEHV3V60Z5PnUg2a4D9r5YD21O9xoNy
+ Gn7QsJX6V5G3VF+YWJVdy21XRsW1n4DF0BALArDo=
+Date: Mon, 16 May 2022 08:13:32 +0200
 From: Greg KH <gregkh@linuxfoundation.org>
 To: Xie Yongji <xieyongji@bytedance.com>
-Subject: Re: [PATCH v2 3/3] Docs/ABI/testing: Add VDUSE sysfs interface ABI
- document
-Message-ID: <YoHrsVWsLZtJSLDc@kroah.com>
+Subject: Re: [PATCH v2 1/3] vduse: Pass management device pointer to
+ vduse_dev_init_vdpa()
+Message-ID: <YoHrjF3leYdTOs9q@kroah.com>
 References: <20220516060342.106-1-xieyongji@bytedance.com>
- <20220516060342.106-3-xieyongji@bytedance.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20220516060342.106-3-xieyongji@bytedance.com>
+In-Reply-To: <20220516060342.106-1-xieyongji@bytedance.com>
 Cc: mst@redhat.com, virtualization@lists.linux-foundation.org, elic@nvidia.com,
  lingshan.zhu@intel.com
 X-BeenThere: virtualization@lists.linux-foundation.org
@@ -84,68 +83,52 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, May 16, 2022 at 02:03:42PM +0800, Xie Yongji wrote:
-> This adds missing documentation for VDUSE sysfs interface ABI
-> under Documentation/ABI/testing.
+On Mon, May 16, 2022 at 02:03:40PM +0800, Xie Yongji wrote:
+> Pass management device pointer from vdpa_dev_add() to
+> vduse_dev_init_vdpa() rather than using the static
+> variable directly.
+> 
+> No functional change.
 > 
 > Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
 > ---
->  Documentation/ABI/testing/sysfs-class-vduse | 33 +++++++++++++++++++++
->  MAINTAINERS                                 |  1 +
->  2 files changed, 34 insertions(+)
->  create mode 100644 Documentation/ABI/testing/sysfs-class-vduse
+>  drivers/vdpa/vdpa_user/vduse_dev.c | 9 ++++-----
+>  1 file changed, 4 insertions(+), 5 deletions(-)
 > 
-> diff --git a/Documentation/ABI/testing/sysfs-class-vduse b/Documentation/ABI/testing/sysfs-class-vduse
-> new file mode 100644
-> index 000000000000..2f2bc5c8fc48
-> --- /dev/null
-> +++ b/Documentation/ABI/testing/sysfs-class-vduse
-> @@ -0,0 +1,33 @@
-> +What:		/sys/class/vduse/
-> +Date:		Oct 2021
-> +KernelVersion:	5.15
-> +Contact:	Yongji Xie <xieyongji@bytedance.com>
-> +Description:
-> +		The vduse/ class sub-directory belongs to the VDUSE
-> +		framework and provides a sysfs interface for configuring
-> +		VDUSE devices.
-> +
-> +What:		/sys/class/vduse/control/
-> +Date:		Oct 2021
-> +KernelVersion:	5.15
-> +Contact:	Yongji Xie <xieyongji@bytedance.com>
-> +Description:
-> +		This directory entry is created for the control device
-> +		of VDUSE framework.
-> +
-> +What:		/sys/class/vduse/<device-name>/
-> +Date:		Oct 2021
-> +KernelVersion:	5.15
-> +Contact:	Yongji Xie <xieyongji@bytedance.com>
-> +Description:
-> +		This directory entry is created when a VDUSE device is
-> +		created via the control device.
-> +
-> +What:		/sys/class/vduse/<device-name>/msg_timeout
-> +Date:		Oct 2021
-> +KernelVersion:	5.15
-> +Contact:	Yongji Xie <xieyongji@bytedance.com>
-> +Description:
-> +		(RW) The timeout (in seconds) for waiting for the control
-> +		message's response from userspace. Default value is 30s.
-> +		Writing a '0' to the file means to disable the timeout.
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index d6d879cb0afd..d9a423de2f4d 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -20842,6 +20842,7 @@ M:	Jason Wang <jasowang@redhat.com>
->  L:	virtualization@lists.linux-foundation.org
->  S:	Maintained
->  F:	Documentation/ABI/testing/sysfs-bus-vdpa
-> +F:	Documentation/ABI/testing/sysfs-class-vduse
->  F:	Documentation/devicetree/bindings/virtio/
->  F:	drivers/block/virtio_blk.c
->  F:	drivers/crypto/virtio/
+> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
+> index 160e40d03084..d3bf55a58cd2 100644
+> --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> @@ -1484,9 +1484,8 @@ static struct device vduse_mgmtdev = {
+>  	.release = vduse_mgmtdev_release,
+>  };
+>  
+> -static struct vdpa_mgmt_dev mgmt_dev;
+> -
+> -static int vduse_dev_init_vdpa(struct vduse_dev *dev, const char *name)
+> +static int vduse_dev_init_vdpa(struct vduse_dev *dev,
+> +			       struct vdpa_mgmt_dev *mdev, const char *name)
+>  {
+>  	struct vduse_vdpa *vdev;
+>  	int ret;
+> @@ -1509,7 +1508,7 @@ static int vduse_dev_init_vdpa(struct vduse_dev *dev, const char *name)
+>  	}
+>  	set_dma_ops(&vdev->vdpa.dev, &vduse_dev_dma_ops);
+>  	vdev->vdpa.dma_dev = &vdev->vdpa.dev;
+> -	vdev->vdpa.mdev = &mgmt_dev;
+> +	vdev->vdpa.mdev = mdev;
+>  
+>  	return 0;
+>  }
+> @@ -1526,7 +1525,7 @@ static int vdpa_dev_add(struct vdpa_mgmt_dev *mdev, const char *name,
+>  		mutex_unlock(&vduse_lock);
+>  		return -EINVAL;
+>  	}
+> -	ret = vduse_dev_init_vdpa(dev, name);
+> +	ret = vduse_dev_init_vdpa(dev, mdev, name);
+>  	mutex_unlock(&vduse_lock);
+>  	if (ret)
+>  		return ret;
 > -- 
 > 2.20.1
 > 
