@@ -1,161 +1,98 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A2285C433EF
-	for <virtualization@archiver.kernel.org>; Wed, 18 May 2022 12:51:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0E7B8C433EF
+	for <virtualization@archiver.kernel.org>; Wed, 18 May 2022 14:32:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 39B67404E5;
-	Wed, 18 May 2022 12:51:55 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 997AF417D5;
+	Wed, 18 May 2022 14:32:38 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id NOpz3KW1Wfev; Wed, 18 May 2022 14:32:37 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id E5CA141803;
+	Wed, 18 May 2022 14:32:36 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B6C52C0032;
+	Wed, 18 May 2022 14:32:36 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 104D0C002D
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 18 May 2022 14:32:36 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id E2D38408E0
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 18 May 2022 14:32:35 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 4nUkul5f0rS0; Wed, 18 May 2022 12:51:54 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id AEE76404DD;
-	Wed, 18 May 2022 12:51:53 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6B0CBC0032;
-	Wed, 18 May 2022 12:51:53 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id BC9B0C002D
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id wW3kMxV9Mt7O
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 May 2022 12:51:51 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id AB525817AA
+ Wed, 18 May 2022 14:32:35 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+Received: from mout.kundenserver.de (mout.kundenserver.de [212.227.126.130])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 7B972404D8
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 May 2022 12:51:51 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=nvidia.com
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 281Sh8mIJlXJ
+ Wed, 18 May 2022 14:32:34 +0000 (UTC)
+Received: from mail-yw1-f178.google.com ([209.85.128.178]) by
+ mrelayeu.kundenserver.de (mreue010 [213.165.67.97]) with ESMTPSA (Nemesis) id
+ 1N3bnP-1nj2w01X1f-010czE for <virtualization@lists.linux-foundation.org>;
+ Wed, 18 May 2022 16:32:31 +0200
+Received: by mail-yw1-f178.google.com with SMTP id
+ 00721157ae682-2fedd26615cso26481517b3.7
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 May 2022 12:51:51 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from NAM02-SN1-obe.outbound.protection.outlook.com
- (mail-sn1anam02on2062d.outbound.protection.outlook.com
- [IPv6:2a01:111:f400:7ea9::62d])
- by smtp1.osuosl.org (Postfix) with ESMTPS id EB4F8813CF
- for <virtualization@lists.linux-foundation.org>;
- Wed, 18 May 2022 12:51:50 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=jFmL9h2Va0EOFHQh/cFr5JxIZJ2xMlWrBIcl/jiwvwale3k3I9tR1iHDtFpAavX09W8I+86cEoCUeZueKsUTw/34XtZm0vlduZtAzOcsmGupODbJUdhNwru3aiT44/FXYh7VufAVLji3hg8oCyVv88JJ0woKvuwv+yEQ7Xfhks66iWAuIw6fyIU1q0hy/3gDkaSxrV6k4iwyXpvP+c247EHeZwl2eiqsrk9F6vUpVcprlpP41VecdQKKZhBMlm7VXvtpSJrcQE9FhEREkKs6h+X3T9OiPVl/CM/95TEkeLOKtbYv+/G2WouarQcuiyv0si16ygAPsk+t61Q+dCS+Gg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=MJAuN1fSL1fhIl3K3eWQBuWSorIPXeKcEkdlScbScPg=;
- b=hib2vEW/CgeS/iu5jOa6T+7xKV0IeH+wyIurp7AQozFKiad8ruryVTmy1Nm1xoL5kKM6w2kOIjLTr978H3eBjvJsZOC4lVD/RkLqPavTJv00u4E0X2ZJup1YmYWvtttlR4Wmcn0eY1JvVtEjnLJ+7U2IcRBIgCgBub8CRWODUCJOAPUi7Kh1D4bKjkGk4Ak0V3tewHT1pKAxyaQL1xP9NFJW8lfDqf4r94iu8dI+Wm/J0AwQn1EtlfQLlybOHRCVibtcV6+EZAae9NVCeD/2lja1gCCd2tLKujoErd5iSznWl6JCyXNzLoPN4z8M/NzqaPZaGP6XIa9fdtH6kvYqDQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=MJAuN1fSL1fhIl3K3eWQBuWSorIPXeKcEkdlScbScPg=;
- b=bhAjTyU90Ch6UU4sBq7MDm1dw/FL4/7PCeFXLR8jPd3aT7JmAiaz8ICqov7znaI5QMq17aBJJn+FPIMsfYuC4bh/1hWZgqt1D0m3cA5wnwU1m0GTzXeU69u5L1vovRvvFwh4H8Do8/FeSmb0GAfjuTUh/TEwnhCdqNwNAJ9ecV1EhzXHIg7HUFTeI+qrGG5xMUaly7QDm8C7DlxoAZuxjwHqHfQBOpRSlymVOeRMQpzaaDGFnPSUOFMIZ1mrQsYwenwaXB+yo5O30uYWNMJxH2wXYqyVwHnWXi66zTKJ/p49VH2lJBZcVIFe3Ud6z8eSVtY+jNxljClZ+PxbZwBxZA==
-Received: from PH0PR12MB5481.namprd12.prod.outlook.com (2603:10b6:510:d4::15)
- by CH2PR12MB4326.namprd12.prod.outlook.com (2603:10b6:610:af::11)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5273.14; Wed, 18 May
- 2022 12:51:48 +0000
-Received: from PH0PR12MB5481.namprd12.prod.outlook.com
- ([fe80::489d:7d33:3194:b854]) by PH0PR12MB5481.namprd12.prod.outlook.com
- ([fe80::489d:7d33:3194:b854%3]) with mapi id 15.20.5273.014; Wed, 18 May 2022
- 12:51:47 +0000
-To: Eugenio Perez Martin <eperezma@redhat.com>
-Subject: RE: About restoring the state in vhost-vdpa device
-Thread-Topic: About restoring the state in vhost-vdpa device
-Thread-Index: AQHYZW+JxbBQ1h+RIkS7iyhFOVHKbK0c5lPggAAyGwCAAAYJcIAEGq4AgAC/8WCAAMebAIAB37MQ
-Date: Wed, 18 May 2022 12:51:47 +0000
-Message-ID: <PH0PR12MB5481846910A230F6F8F58DA9DCD19@PH0PR12MB5481.namprd12.prod.outlook.com>
-References: <CAJaqyWcbqzvtyHcU3t1TF7Mqm2_sBX57rN8S6hHB8NXxgi=tyQ@mail.gmail.com>
- <PH0PR12MB5481AF0B02B0FB00885FF2AEDCCA9@PH0PR12MB5481.namprd12.prod.outlook.com>
- <BY5PR02MB698052EE53B707C6C04C3C8CB1CA9@BY5PR02MB6980.namprd02.prod.outlook.com>
- <PH0PR12MB54811C88B389ACB495BD5AB2DCCA9@PH0PR12MB5481.namprd12.prod.outlook.com>
- <CAJaqyWe2dQx1s7wQr8OLp-0eAQZJcCBuFwdxBA=sgeNm_u4N6A@mail.gmail.com>
- <PH0PR12MB54812F8306F5B9650BA10783DCCF9@PH0PR12MB5481.namprd12.prod.outlook.com>
- <CAJaqyWfqugjApohFBejiFQTLhkuLFEfgFjKhmGGc5-yMDmM6Hg@mail.gmail.com>
-In-Reply-To: <CAJaqyWfqugjApohFBejiFQTLhkuLFEfgFjKhmGGc5-yMDmM6Hg@mail.gmail.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 77bcc225-796c-4b34-d46c-08da38cd2bb8
-x-ms-traffictypediagnostic: CH2PR12MB4326:EE_
-x-microsoft-antispam-prvs: <CH2PR12MB4326B4A8A03DD3D347B5A875DCD19@CH2PR12MB4326.namprd12.prod.outlook.com>
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: IuR+qlFy4KVOZEgLuQLKMOeDcc9woKKBMgRzzYQksnigbp6v1UfASyGn+a+0GVnk9xyT0RQfFuI3y9+e8WQR29ncHmVzv+6H/kdDypxGhwOpuXuX8vWYfA35Iq/U6bdD2pbvoLWVTyr4C79ssbUrCs4FoULj32txMSiBvSk2Ru3QdmTUPQPlzXlyPAtnDwOJYkZoTi0oj4LDjo1aXBuvLbaLh2w/UyAUIxV+BFBFPjhiOUZ0m/9JEvrVtfvV5/eZiFbEzNxnv+T2SQGQEiR6MAJs9muqL2jtI9esuQR1uyOSb0w3rXQpXYrLdmObPYv4wTf8v9HI6MypC3kGl98kaUGoPtr5kw3l5MDVv41bT+u/yzepzVs9De24uZC6XNA+IqnwK/i6lw7eUW71gKF9hpkK3wz5gPs3LUalZw1n2pZEBpXxtaDGQre/nlkHQwhpjEwRF/9kgEc272hBWoyDZl/g8fCSwzSuWJ+LIvR8A9rDzmOfbZdghF0TWE7hPC9H5l8o1YhpX1+NgJ7Nr1NizXDkdikAOebTwDdmuSt24TZLOiaoc1iu/SQ0k4bRyZg4KNqIt4NpCmR/MIaWstO80Sysb1PH9QLsil9MviVBdLYbrekOnNhbUmuCewoyPG1w9OZrGwBC+3DiyhZvHtB6IIY9G+us5HW3DIGOOs/w6lh5v7CUoZeKJ9G4H3Yi5c1QGYLXyTt7CalsD1KizWEnvQ==
-x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:PH0PR12MB5481.namprd12.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230001)(4636009)(366004)(52536014)(8936002)(38070700005)(508600001)(38100700002)(33656002)(5660300002)(55016003)(71200400001)(122000001)(186003)(9686003)(86362001)(83380400001)(7696005)(66476007)(2906002)(6506007)(66556008)(66446008)(76116006)(66946007)(64756008)(316002)(6916009)(54906003)(8676002)(4326008);
- DIR:OUT; SFP:1101; 
-x-ms-exchange-antispam-messagedata-chunkcount: 2
-x-ms-exchange-antispam-messagedata-0: =?utf-8?B?cjRhWG9KQkFpOGR3UWtHT25lMlVhUzBTZUZmOTYwUitNN29aQ3NUb3RxQ1l6?=
- =?utf-8?B?ZlVCbEJiV3p1TXlSZ3N6Mmd4Tkg2NHVqZFh2R014RldyNVhSVktRTHZBSm0x?=
- =?utf-8?B?Tk90WlVPeVFhNEdIUkR1ZGhWNCtxNmhhQ1BTQmllSFZQNXA0YXhKdlJ0ZThL?=
- =?utf-8?B?am9uc1YyaWtpelBXNUYzUlVxcktSR3l4TzkwL3VjVithRnU5Y3YvNzUvOTh0?=
- =?utf-8?B?a2tTYVREUHAxcnMyQWFVbjNseUxtbVVzcC80WU9YdHdsT3JIRTBxK3BOdGRt?=
- =?utf-8?B?dGxkR3pIRWFVa0lLNm5PaTRhUHJaSTYvY1hoQ0dIU3VQVDRDRGhFK0JaNXJZ?=
- =?utf-8?B?aWZiYldXT0p1T2huQ2x3TFU2QmNhWDRhZUpDQ3FmMTFuTnZYYWlQbzJoL0Nq?=
- =?utf-8?B?RDR0N3NVOW0vWjNSSE1Femw3bWVSNCtuVUFYRklXT2dSaWR6K2hMenZNYkRx?=
- =?utf-8?B?RkJ1MnVLRG1XdTBjNUxSbE5DdnoybythNGhzb0d3VGhJaE56bFdlTE1sdHh2?=
- =?utf-8?B?UlVwU0RnOGdsTEpqdThtRWhBU3h0SWNpSmM1TU5OdWNrbE9YNUJZZ0Nua0NN?=
- =?utf-8?B?aXdxMnRUTGFLMnlUdVc0NUJBcm1NZ1N4bUVBVXBoYjdmbmI3djlEMGgrNnZD?=
- =?utf-8?B?UmMyUmhnNzBaUzVoUUFpcnpBSXBIT3RqNDlxbTJad2tubzJTNm0xM1NLSXRT?=
- =?utf-8?B?KzNkWnJjRnMzcFRmUHJ0bm91Y1RiQkFucGlqUzB6VFVXRkFnSURoSjkxUjBO?=
- =?utf-8?B?bUIxbzI0L2ZCNVdobEo4QUgxSThvQ0Z5dXFJTUdMeWlPOCs1aHNGNlorS1ZZ?=
- =?utf-8?B?bU94SWhHZTlwMHFXcEs4UHdldFNUWjMrcmtKeUc5RldqS0NoeFViRWpiWi9J?=
- =?utf-8?B?alNmdnhFL0pZUTI3ZHNXcDBlWHhIaE1SamNJNnE0cU5zWk1KanFGN25wR0o4?=
- =?utf-8?B?b0hHclZZV1NJaTJydm9PK0dtTlNEckNOZTVzTE5EOW5iZmE5TnRUamwrbDh5?=
- =?utf-8?B?dW8xTlR4NW02TEdtSUphTTBiNTVBSFo5cmtVTDNSelJFVXBJQ2dBeDZXaGxX?=
- =?utf-8?B?cmg5M3dZdlJrdHB4SzZoYi9vK3RJUlhqTlNaNGlxVTdQSVdwOThIV25xblpk?=
- =?utf-8?B?NXFDb01ad1Q2QlZzVCs3bHQ3TzN5RE1BbjRSWTVFWWtqMU1PT3c1SUpKUnlX?=
- =?utf-8?B?MVJpZkw5RFZJcnJhSjZQYjNtcU5mbVAvZnJzclVPQytpem1nUSs1SWVMcUNJ?=
- =?utf-8?B?ZFpwcmdGaDVxSlUveWFrUHZyRVNEM3JvVks2Z3AwOERiWmsxc1daaVlZUlhE?=
- =?utf-8?B?UkxwT0ZnMURDSjZ0eHJtUFNJSW9UN3dGRnlGYjd1VUlpTjhKUGV4aVRLdlJ2?=
- =?utf-8?B?Y3VBbnNEeDY2amtnREpnQ205RUVocVJVbVBicmVKd2RDdlpZcHdtbDJ1R3B5?=
- =?utf-8?B?UnIzenpLWlZNQkkzclZ6OXBrcXVlWjBCTFFCNURIbWxEbVl4eXYxL3Y0NmZs?=
- =?utf-8?B?MzNQTGplWEpvL0ZxbFZDWFJoOFhYdncybGZjdlZCcnVFUDY4WFBRWjFJWHFT?=
- =?utf-8?B?TEd4UUNYejQwN0p3ZUNFbitSeWowNzNRbUhwaXk3d3Jyd1p1d283c1BIeVRW?=
- =?utf-8?B?dzdkY3pqUmtIUnplODJNcDg3dUwxQmkvUWJreTl1SHdrOEp4TE1CRmJXSExr?=
- =?utf-8?B?MzJUSWtpTmpCRUtxck8xU0xMNWtRQ2xtMEJUL2xWZDVoWG15dkFGVWRpQzhq?=
- =?utf-8?B?WjZRWkcwRVVFbVRHK0FCWGNVRDQzdmdDUUpUSzZKWjEzaGJnd21GbkllQ2JN?=
- =?utf-8?B?Z0Q3NDBVbmhpZzllc201dDZWYklkNHhjRzhjeTNmWU9WWnNIY28vdkI1Zldp?=
- =?utf-8?B?S2k0RnhqQzhuZi9yQ3c1dW56QWtLR3ZYSVYrY0R5RVdTenlSZEJ5VDhUTzh6?=
- =?utf-8?B?RHM5b0FRNFdrR2lnK09Va2xzZXl0STZLbjMxMmJvdXJ2L1hUR1paUXBYYjVL?=
- =?utf-8?B?RUlvSnVud3FDTkwrV2t4QVVsdlRaRDJ0RnM3dFlLWjVDNWNVdUt4UWo4dXE1?=
- =?utf-8?B?YTMvYjJZbml1Y1hZSVZYNFZsSEk0RVR5RGtjRVUyeWs2anR6NnFpVHRmMW5y?=
- =?utf-8?B?WUZoS1pMRFRCdmQzWkg2b1lVQTBBdTc1dlJsVStmQlhSRlJBbkFFUW1BaWg2?=
- =?utf-8?B?NDBTY0F2NXU2WisxODlrbXMvZnhsRTlCYVRWVXUzTGkvdlF2YlFGUWpXaFpy?=
- =?utf-8?B?aVZIbnVJQWdDK0R5SldscmZjVmRSSHA5Q1psNHBkemdRVGpXY0hLREdMdmpW?=
- =?utf-8?B?MUxLYldkWnJ1TWVjeTFsOHhqZXhZOWNkbzF0Vk1WSUorWHJuZUpmUnBWK2NO?=
- =?utf-8?Q?65GJM2SrQFLzghu/1sLY900GmWNdPenInWsl8GV/5DRUF?=
-x-ms-exchange-antispam-messagedata-1: THUI981TVlV4gg==
+ Wed, 18 May 2022 07:32:30 -0700 (PDT)
+X-Gm-Message-State: AOAM5320I5cMsJl/pm5Y2nJ48ohLQf0X+0HbIhYcjBqCjSb9/OpEAmYA
+ 0qiVMSuUkBFCqEdLIP9wsZl2jaqzGYZobga2xoQ=
+X-Google-Smtp-Source: ABdhPJxlE4uUCuxvYT1DUTMaDWGZzPyyY5pBzmvWGxQQ4rCwL5f9fheKzGazF0y+V/+NQaENE1GQBL2EymP+kgt99NY=
+X-Received: by 2002:a81:6283:0:b0:2ff:2443:6f3c with SMTP id
+ w125-20020a816283000000b002ff24436f3cmr9731868ywb.135.1652884349891; Wed, 18
+ May 2022 07:32:29 -0700 (PDT)
 MIME-Version: 1.0
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB5481.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 77bcc225-796c-4b34-d46c-08da38cd2bb8
-X-MS-Exchange-CrossTenant-originalarrivaltime: 18 May 2022 12:51:47.9174 (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: FwSf5/l9SMyBvzm75o1pGJjWovr7s0OHpuV3zEpeFPrp85MWVaEnrJygQBnx3ZRy97r2h86TjNLdtZbj6028QQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH2PR12MB4326
-Cc: Laurent Vivier <lvivier@redhat.com>, Cindy Lu <lulu@redhat.com>,
- "virtio-networking@redhat.com" <virtio-networking@redhat.com>,
- qemu-level <qemu-devel@nongnu.org>, Gautam Dawar <gdawar@xilinx.com>,
- virtualization <virtualization@lists.linux-foundation.org>,
- Eli Cohen <elic@nvidia.com>
+References: <1651947548-4055-1-git-send-email-olekstysh@gmail.com>
+ <1651947548-4055-6-git-send-email-olekstysh@gmail.com>
+In-Reply-To: <1651947548-4055-6-git-send-email-olekstysh@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Wed, 18 May 2022 15:32:27 +0100
+X-Gmail-Original-Message-ID: <CAK8P3a2cAnXr8TDDYTiFxTWzQxa67sGnYDQRRD+=Q8_cSb1mEw@mail.gmail.com>
+Message-ID: <CAK8P3a2cAnXr8TDDYTiFxTWzQxa67sGnYDQRRD+=Q8_cSb1mEw@mail.gmail.com>
+Subject: Re: [PATCH V2 5/7] dt-bindings: Add xen,dev-domid property
+ description for xen-grant DMA ops
+To: Oleksandr Tyshchenko <olekstysh@gmail.com>
+X-Provags-ID: V03:K1:Kkmd/zkW1ukQBukbM5EpZTe/wNIh4iqEj7Xq79GR/0RfmsBPYN5
+ oGCwXfbcaRwqLBor7W7YP4FmXVJ6OS27ZeWS3GyWdRKXTO19H+LaXVNyFFJkHxpZQsJe3EL
+ /NScj93IQqSxPgwyuoQHEtItrk6GPM8HLiH3qYFpkldDb+B5WvmsJ1fLFKcvW0k9a4llLda
+ qo9Lxwgo5dkv0EquOLfdQ==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:uiNBreb/xb0=:2LR0OV09RkhwCI5G5ZcqNL
+ rCeYpOxkw6vGJ3vvTrQmTBNdffb7VmK76eeJucVeJEovrAPGEViXPkbftBu/Feuf8oGdbyvMZ
+ FoMZTja5pehjd50OvoDEtbzR8Ooinh8BcleofqWBgadR9vFkc4jh5oCI9y7DdO7zyAUSD20Gc
+ mIrN3iVikHX1MOg4wTRWyEUSOaaeIgYPSOCU+eQpLp5i8++Vtw6Y7Bzco99e0axLcHMyMf02n
+ Z0eQa4y2M0jhwYYw62guKVBuHtsH0waEq5kYD7p4HH0V5umfbaXleQ9zOBHOcd4ey+2XTBVgG
+ xmv/BTrPbfjLVNU94Q68SaFhQX7yI1A5/QnylxoDzetcPsq0TnflthuvSAP9aK2NK8mlbC/6L
+ +tpp3ltGSMS3Oj9dl0wfCN5N9oEbINjD2yE53g0o/zen1C7cgAYdB8HLvq/Zw16JhYWr5RGKf
+ S8AFxnW8T3I8Fx+tSYoMoIwvkUltIWKVrXPtlYGhuGS390Y47HgbJhjfQHdHBHTwW+0P4WsdN
+ IDo3c6ScYehIfEkt8XwHtnWAIQYA1eC5NlXOi3LzUDEv0HC82tYL0x5JM3sPsgYRg1Uyc/kJ+
+ cEOwwhgOmlpzZl2ehmTVjmRQRQOPZxzR4mSFtKCyoxAo1fDpnAMbdOVpHo5VCwXD2vUZgCY99
+ G6phZhZcquFpkGTzgBkEjO3ru/oOsD4GOFFeTyK3kMlCaQ8mH6BVFMzgOgXtnApJjlXxwrXJn
+ +bgJxseAg7W1hRPW1N5IjrNBjE+vghwTTovLlE/vfXSr+CwU1i0/lzQJNQMoHG3z4MgbQt+lT
+ uT4j0fEKwCpbmZYVpPAmznY/n26icY6raCuWWwglA7IKq4RH8REWuc0Hr8y7gRt9C1zFUMNyd
+ iiKr0Z4kpSMUv3q4haBA==
+Cc: Juergen Gross <jgross@suse.com>, DTML <devicetree@vger.kernel.org>,
+ Stefano Stabellini <sstabellini@kernel.org>, Julien Grall <julien@xen.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+ "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE"
+ <virtualization@lists.linux-foundation.org>,
+ Christoph Hellwig <hch@infradead.org>,
+ Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+ Jean-Philippe Brucker <jean-philippe@linaro.org>,
+ Rob Herring <robh+dt@kernel.org>, xen-devel <xen-devel@lists.xenproject.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Linux ARM <linux-arm-kernel@lists.infradead.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -167,40 +104,50 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Parav Pandit via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Parav Pandit <parav@nvidia.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+On Sat, May 7, 2022 at 7:19 PM Oleksandr Tyshchenko <olekstysh@gmail.com> wrote:
+>
+> diff --git a/Documentation/devicetree/bindings/virtio/mmio.yaml b/Documentation/devicetree/bindings/virtio/mmio.yaml
+> index 10c22b5..29a0932 100644
+> --- a/Documentation/devicetree/bindings/virtio/mmio.yaml
+> +++ b/Documentation/devicetree/bindings/virtio/mmio.yaml
+> @@ -13,6 +13,9 @@ description:
+>    See https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=virtio for
+>    more details.
+>
+> +allOf:
+> +  - $ref: /schemas/arm/xen,dev-domid.yaml#
+> +
+>  properties:
+>    compatible:
+>      const: virtio,mmio
+> @@ -33,6 +36,10 @@ properties:
+>      description: Required for devices making accesses thru an IOMMU.
+>      maxItems: 1
+>
+> +  xen,dev-domid:
+> +    description: Required when Xen grant mappings need to be enabled for device.
+> +    $ref: /schemas/types.yaml#/definitions/uint32
+> +
+>  required:
+>    - compatible
+>    - reg
 
-> From: Eugenio Perez Martin <eperezma@redhat.com>
-> Sent: Tuesday, May 17, 2022 4:12 AM
- 
-> > 2. Each VQ enablement one at a time, requires constant steering update
-> > for the VQ While this information is something already known. Trying to
-> reuse brings a callback result in this in-efficiency.
-> > So better to start with more reusable APIs that fits the LM flow.
-> 
-> We can change to that model later. Since the model proposed by us does not
-> add any burden, we can discard it down the road if something better arises.
-> The proposed behavior should already work for all
-> devices: It comes for free regarding kernel / vdpa code.
-It is not for free.
-It comes with higher LM downtime.
-And that makes it unusable as the queues scale.
+Sorry for joining the discussion late. Have you considered using the
+generic iommu
+binding here instead of a custom property? This would mean having a device
+node for the grant-table mechanism that can be referred to using the 'iommus'
+phandle property, with the domid as an additional argument.
 
-> 
-> I think that doing at vhost/vDPA level is going to cause the same problem as
-> VRING_SET_BASE: We will need to maintain two ways of performing the
-> same, and the code will need to synchronize them. I'm not *against* adding
-> it by itself, I'm just considering it an optimization that needs to be balanced
-> against what already enables the device to perform state restoring.
+It does not quite fit the model that Linux currently uses for iommus,
+as that has an allocator for dma_addr_t space, but it would think it's
+conceptually close enough that it makes sense for the binding.
 
-We only need to change the sequencing of how we restore and abstract it out how to restore in the vdpa layer.
-CVQ or something else it the choice internal inside the vpda vendor driver.
+         Arnd
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
