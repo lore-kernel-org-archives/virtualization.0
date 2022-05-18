@@ -1,76 +1,74 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 87DD8C433F5
-	for <virtualization@archiver.kernel.org>; Wed, 18 May 2022 04:01:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 33C96C433EF
+	for <virtualization@archiver.kernel.org>; Wed, 18 May 2022 04:02:15 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 4CE1241983;
-	Wed, 18 May 2022 04:01:52 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id D306B832C7;
+	Wed, 18 May 2022 04:02:14 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id L3IZDFFpRDw7; Wed, 18 May 2022 04:01:51 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 9514241959;
-	Wed, 18 May 2022 04:01:50 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id x7Yn-rVofGRd; Wed, 18 May 2022 04:02:14 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 61E198134B;
+	Wed, 18 May 2022 04:02:13 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 734C2C0032;
-	Wed, 18 May 2022 04:01:50 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 21775C0032;
+	Wed, 18 May 2022 04:02:13 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 26AAEC002D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 22A74C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 May 2022 04:01:49 +0000 (UTC)
+ Wed, 18 May 2022 04:02:09 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 153FF818BE
+ by smtp1.osuosl.org (Postfix) with ESMTP id 037378328E
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 May 2022 04:01:49 +0000 (UTC)
+ Wed, 18 May 2022 04:02:09 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 66-DFWBvXRJR
+ with ESMTP id FcE3LJA85udJ
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 May 2022 04:01:48 +0000 (UTC)
+ Wed, 18 May 2022 04:02:05 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 54A538134B
+ by smtp1.osuosl.org (Postfix) with ESMTPS id A679F8134B
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 May 2022 04:01:48 +0000 (UTC)
+ Wed, 18 May 2022 04:02:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1652846507;
+ s=mimecast20190719; t=1652846524;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=TcWKc+TaFJg+Z2XnEjHIsM8AhXNeMqxiwb9on4zJjo8=;
- b=Jb3dLQEAunJb9tTjzWwW4yVR68ch4wKEyRNK02hI6CsMRp10KufeA499q43mBjCGcGmGBg
- 2kQDmKsxpa+o3GoE1wVgIZlkcKeuV0pPAuf5De5lEvcbmlKkUbZo6eQQEx14KAMA9NUr1l
- WE31MXsO4ImM3cTL5WsRFuv4oBMf/cg=
+ bh=WrBOPE4oEId2dh/bBHbwVJzxUmHDMIkRN//SBUyJhtk=;
+ b=AjjEzgvpEcc267DRKT0fhmA2YVCCLpiKRe/J9mxHkBMb7JW56m3JdwBzmo8HOHyFuFiK7L
+ 4/SSO7M6SzRzl0EmertpkCZTHYdKpFEsZq7m0hsTkNJcycusESiyrPsc3tcVvtdlzuQpLh
+ m8xiQYF6+GFxW+XJfh9txC+EPRLtpcg=
 Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
  [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-658-t7Z9i3TwOOek0Q4SOnIMKQ-1; Wed, 18 May 2022 00:01:41 -0400
-X-MC-Unique: t7Z9i3TwOOek0Q4SOnIMKQ-1
+ us-mta-380-mljeMUe7MOOqttl8EqkYkw-1; Wed, 18 May 2022 00:01:58 -0400
+X-MC-Unique: mljeMUe7MOOqttl8EqkYkw-1
 Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com
  [10.11.54.3])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 7D31E185A7B2;
- Wed, 18 May 2022 04:01:40 +0000 (UTC)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 94D67185A794;
+ Wed, 18 May 2022 04:01:57 +0000 (UTC)
 Received: from localhost.localdomain (ovpn-14-27.pek2.redhat.com [10.72.14.27])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 7CB1D1121314;
- Wed, 18 May 2022 04:01:33 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 4307A1121314;
+ Wed, 18 May 2022 04:01:40 +0000 (UTC)
 From: Jason Wang <jasowang@redhat.com>
 To: mst@redhat.com, jasowang@redhat.com,
  virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-Subject: [PATCH V5 6/9] virtio-ccw: implement synchronize_cbs()
-Date: Wed, 18 May 2022 11:59:48 +0800
-Message-Id: <20220518035951.94220-7-jasowang@redhat.com>
+Subject: [PATCH V5 7/9] virtio: allow to unbreak virtqueue
+Date: Wed, 18 May 2022 11:59:49 +0800
+Message-Id: <20220518035951.94220-8-jasowang@redhat.com>
 In-Reply-To: <20220518035951.94220-1-jasowang@redhat.com>
 References: <20220518035951.94220-1-jasowang@redhat.com>
 MIME-Version: 1.0
@@ -96,11 +94,8 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This patch tries to implement the synchronize_cbs() for ccw. For the
-vring_interrupt() that is called via virtio_airq_handler(), the
-synchronization is simply done via the airq_info's lock. For the
-vring_interrupt() that is called via virtio_ccw_int_handler(), a per
-device rwlock is introduced ans used in the synchronization method.
+This patch allows the new introduced __virtio_break_device() to
+unbreak the virtqueue.
 
 Cc: Thomas Gleixner <tglx@linutronix.de>
 Cc: Peter Zijlstra <peterz@infradead.org>
@@ -113,82 +108,54 @@ Cc: Peter Oberparleiter <oberpar@linux.ibm.com>
 Cc: linux-s390@vger.kernel.org
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/s390/virtio/virtio_ccw.c | 27 +++++++++++++++++++++++++++
- 1 file changed, 27 insertions(+)
+ drivers/virtio/virtio_ring.c | 21 +++++++++++++++++++++
+ include/linux/virtio.h       |  1 +
+ 2 files changed, 22 insertions(+)
 
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index d35e7a3f7067..22d36594bcdd 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -62,6 +62,7 @@ struct virtio_ccw_device {
- 	unsigned int revision; /* Transport revision */
- 	wait_queue_head_t wait_q;
- 	spinlock_t lock;
-+	rwlock_t irq_lock;
- 	struct mutex io_lock; /* Serializes I/O requests */
- 	struct list_head virtqueues;
- 	bool is_thinint;
-@@ -984,6 +985,27 @@ static const char *virtio_ccw_bus_name(struct virtio_device *vdev)
- 	return dev_name(&vcdev->cdev->dev);
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index cfb028ca238e..5b7df7c455f0 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -2397,6 +2397,27 @@ void virtio_break_device(struct virtio_device *dev)
  }
+ EXPORT_SYMBOL_GPL(virtio_break_device);
  
-+static void virtio_ccw_synchronize_cbs(struct virtio_device *vdev)
++/*
++ * This should allow the device to be used by the driver. You may
++ * need to grab appropriate locks to flush. This should only be used
++ * in some specific case e.g (probing and restoring). Driver should
++ * not call this directly.
++ */
++void __virtio_unbreak_device(struct virtio_device *dev)
 +{
-+	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
-+	struct airq_info *info = vcdev->airq_info;
++	struct virtqueue *_vq;
 +
-+	if (info) {
-+		/*
-+		 * Synchronize with the vring_interrupt() with airq indicator
-+		 */
-+		write_lock_irq(&info->lock);
-+		write_unlock_irq(&info->lock);
-+	} else {
-+		/*
-+		 * Synchronize with the vring_interrupt() called by
-+		 * virtio_ccw_int_handler().
-+		 */
-+		write_lock_irq(&vcdev->irq_lock);
-+		write_unlock_irq(&vcdev->irq_lock);
++	spin_lock(&dev->vqs_list_lock);
++	list_for_each_entry(_vq, &dev->vqs, list) {
++		struct vring_virtqueue *vq = to_vvq(_vq);
++
++		/* Pairs with READ_ONCE() in virtqueue_is_broken(). */
++		WRITE_ONCE(vq->broken, false);
 +	}
++	spin_unlock(&dev->vqs_list_lock);
 +}
++EXPORT_SYMBOL_GPL(__virtio_unbreak_device);
 +
- static const struct virtio_config_ops virtio_ccw_config_ops = {
- 	.get_features = virtio_ccw_get_features,
- 	.finalize_features = virtio_ccw_finalize_features,
-@@ -995,6 +1017,7 @@ static const struct virtio_config_ops virtio_ccw_config_ops = {
- 	.find_vqs = virtio_ccw_find_vqs,
- 	.del_vqs = virtio_ccw_del_vqs,
- 	.bus_name = virtio_ccw_bus_name,
-+	.synchronize_cbs = virtio_ccw_synchronize_cbs,
- };
+ dma_addr_t virtqueue_get_desc_addr(struct virtqueue *_vq)
+ {
+ 	struct vring_virtqueue *vq = to_vvq(_vq);
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index 5464f398912a..d8fdf170637c 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -131,6 +131,7 @@ void unregister_virtio_device(struct virtio_device *dev);
+ bool is_virtio_device(struct device *dev);
  
+ void virtio_break_device(struct virtio_device *dev);
++void __virtio_unbreak_device(struct virtio_device *dev);
  
-@@ -1106,6 +1129,8 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
- 			vcdev->err = -EIO;
- 	}
- 	virtio_ccw_check_activity(vcdev, activity);
-+	/* Local interrupt should be disabled at this time */
-+	read_lock(&vcdev->irq_lock);
- 	for_each_set_bit(i, indicators(vcdev),
- 			 sizeof(*indicators(vcdev)) * BITS_PER_BYTE) {
- 		/* The bit clear must happen before the vring kick. */
-@@ -1114,6 +1139,7 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
- 		vq = virtio_ccw_vq_by_ind(vcdev, i);
- 		vring_interrupt(0, vq);
- 	}
-+	read_unlock(&vcdev->irq_lock);
- 	if (test_bit(0, indicators2(vcdev))) {
- 		virtio_config_changed(&vcdev->vdev);
- 		clear_bit(0, indicators2(vcdev));
-@@ -1284,6 +1310,7 @@ static int virtio_ccw_online(struct ccw_device *cdev)
- 	init_waitqueue_head(&vcdev->wait_q);
- 	INIT_LIST_HEAD(&vcdev->virtqueues);
- 	spin_lock_init(&vcdev->lock);
-+	rwlock_init(&vcdev->irq_lock);
- 	mutex_init(&vcdev->io_lock);
- 
- 	spin_lock_irqsave(get_ccwdev_lock(cdev), flags);
+ void virtio_config_changed(struct virtio_device *dev);
+ #ifdef CONFIG_PM_SLEEP
 -- 
 2.25.1
 
