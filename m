@@ -1,98 +1,99 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 84D63C433EF
-	for <virtualization@archiver.kernel.org>; Thu, 19 May 2022 08:34:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3A3D0C433F5
+	for <virtualization@archiver.kernel.org>; Thu, 19 May 2022 08:34:52 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 135B841C3E;
-	Thu, 19 May 2022 08:34:13 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id EC9DF60DA5;
+	Thu, 19 May 2022 08:34:51 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id J8ne_UZ3NRLH; Thu, 19 May 2022 08:34:12 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 0a__hx1JZUgc; Thu, 19 May 2022 08:34:51 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 632B941C41;
-	Thu, 19 May 2022 08:34:11 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id A41DE60D95;
+	Thu, 19 May 2022 08:34:50 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 27751C0039;
-	Thu, 19 May 2022 08:34:11 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 59678C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7D4BAC0039;
+	Thu, 19 May 2022 08:34:50 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 107E6C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 May 2022 08:34:10 +0000 (UTC)
+ Thu, 19 May 2022 08:34:49 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 4DEA541C41
+ by smtp1.osuosl.org (Postfix) with ESMTP id E4C90843EB
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 May 2022 08:34:10 +0000 (UTC)
+ Thu, 19 May 2022 08:34:48 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id h0x752OzHXtX
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 5kHnrfQT2VkU
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 May 2022 08:34:09 +0000 (UTC)
+ Thu, 19 May 2022 08:34:48 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 6447E41C3E
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 2BA2B83E79
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 May 2022 08:34:09 +0000 (UTC)
+ Thu, 19 May 2022 08:34:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1652949248;
+ s=mimecast20190719; t=1652949287;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=e36VWZ5DWvtpQPTuTGZUg65mwhzA3Ro0bMqrlq/Fvz0=;
- b=RbB3h40sCWvVQm364D+zXUkG3O2p+LjeKQcbqGWMieSSkTDLi9q92Cs4lwiTEmMk+DHQG+
- Ho1Ll8ouQdqiq5s+GYFi+e9+R6CjEZpFnQ0HlyfaM8TLN57up3ttze6iZJ2W4w+SsZ0kQe
- zIEslzuCCjlX6abPV1CkpcWuNEsS47c=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=RXQa/is57ndmeB4UOc268UZ9oUyQAZpGNBvHCtt4ZMQ=;
+ b=XYEX3fcWt/be2EZlP1kdRbN/3G23998sXwwW8lUKYfyyGJe5+IAhW4OaC7YjVcwfPydArQ
+ Bx4hsyB1CbS51dNiodDTaMuIajCbgt9t74+sei+iMQZ/LPWRA9qceFMRzO7B0uMKlAIx7C
+ rVEPlqT+Qxf22LTq8oXVasr+MlpDIFE=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-573-sqQLW8cSMLyOcJCZoOy8Yg-1; Thu, 19 May 2022 04:34:06 -0400
-X-MC-Unique: sqQLW8cSMLyOcJCZoOy8Yg-1
-Received: by mail-wr1-f71.google.com with SMTP id
- t9-20020a5d5349000000b0020d02cd51fbso1288592wrv.13
+ us-mta-540-X1sJVxHJPRuVlXQ13m-wcg-1; Thu, 19 May 2022 04:34:45 -0400
+X-MC-Unique: X1sJVxHJPRuVlXQ13m-wcg-1
+Received: by mail-wr1-f72.google.com with SMTP id
+ m8-20020adfc588000000b0020c4edd8a57so1289730wrg.10
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 May 2022 01:34:05 -0700 (PDT)
+ Thu, 19 May 2022 01:34:45 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=e36VWZ5DWvtpQPTuTGZUg65mwhzA3Ro0bMqrlq/Fvz0=;
- b=a2+sqVhAy2MEAENkpDK2BMXKW1UP8tThdS4eaZS5N/dFim/7eZQDDWvSvQI1dSzfaL
- Y1DUXKuy6HHqTcs0BwPNh95G8IfVoMWVg7TBaJlPhI4U1X0Hd5pVauh34yb0nMxl6xh4
- 3kAw8K35SbA7ZMuQtmzl3jkS6nX6Mrf/0gN8OcQRryAn8X1Lp6LZmCWBOs6+0g/flaVw
- +ZkGbOJFvfKd0pOXzuRb8jfL1dqicItRnmmhMvpe+Yw3E4saDMnLKW1p9qGXY08IG0QE
- Zrud/cKuFVVU/InsvHOyHGErkZBxWL5tj/hGD4cZrTPTJjNiZmEEh+Nrcy8yCpvYv1lS
- mKVA==
-X-Gm-Message-State: AOAM53381P8QWtoRM6WCBasC2iM3CLtFJpMySptlMrSZ7RhCRA3nFeTI
- acSgIKfYARt15SzIiq9p/DySSxwkCq1t3vaaQQALfOF/tKHx1FnTXEgrFw7a1U39VqCZx2l52Pz
- ta+Ri37381dOmsg2gFPEXxOEet4ZRBBB9Q2SqEU3ovA==
-X-Received: by 2002:a5d:6a4e:0:b0:20d:83:f5bb with SMTP id
- t14-20020a5d6a4e000000b0020d0083f5bbmr2963261wrw.392.1652949245040; 
- Thu, 19 May 2022 01:34:05 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJz05m0Do5MtdQDqPk7YxffOwGGKVjHy6V0eWXG2QT+lHKjiwAFQdDwNmmaqWWjoSwfqFAMZew==
-X-Received: by 2002:a5d:6a4e:0:b0:20d:83:f5bb with SMTP id
- t14-20020a5d6a4e000000b0020d0083f5bbmr2963236wrw.392.1652949244809; 
- Thu, 19 May 2022 01:34:04 -0700 (PDT)
+ bh=RXQa/is57ndmeB4UOc268UZ9oUyQAZpGNBvHCtt4ZMQ=;
+ b=WVz0Uub/B+ZxODLR63/V0A0w40r0UUAB6wE+uNRAyVWwHExFeVExx67p7M/w2FqyZ+
+ lZfeaZyNRvoz+f7bTPtHefS/C/l5tzPdNFvjaIOqUMlHxhbIrmn2kPP7yHlb7ybkqTJA
+ OaADKWo/QWK1PdZ6UdeDtihj9X/jwOpH+s9FBTAQHH3siRTFesFkZ0XdOotP8Tbhnj9J
+ Qzn7SUpFINUJMVqkI0rgwKiJ8Mn6rs0FLD2qMn4SiaJJjQe/LgGPUazFOvr6CY+pP0G2
+ VSU8XVPP33Q1+IT7oWJDhvcd8stnO2zLxSp8sDIelO+R4/xPykU9FqZuhRKTtsfMdbFW
+ uF7A==
+X-Gm-Message-State: AOAM532SzzYUbbHvK70900FjuMC0dOs3lxSrSpefi83Ieq21/et9Nr/y
+ Ajg3Zfnyv4w6J8CxrIdAiMBBfflnmIg9fUnUITy0Vd0jG6AMU/LOq7s3kq1Y7f2pdSzHDZVe7i5
+ FBWJe550/mb2xfoXQ9dQOXtFkwjdl3CH2EcmEUsZzfw==
+X-Received: by 2002:a05:600c:4f03:b0:394:6499:21c7 with SMTP id
+ l3-20020a05600c4f0300b00394649921c7mr2708655wmq.103.1652949284639; 
+ Thu, 19 May 2022 01:34:44 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzAkq9/tyayvfVCMywTQMNAHfHo8x/Yw3YYtWkfOqMxHBW6hbphrtHFbnw12lWB4vdPFEW1PA==
+X-Received: by 2002:a05:600c:4f03:b0:394:6499:21c7 with SMTP id
+ l3-20020a05600c4f0300b00394649921c7mr2708636wmq.103.1652949284410; 
+ Thu, 19 May 2022 01:34:44 -0700 (PDT)
 Received: from sgarzare-redhat (host-87-12-25-16.business.telecomitalia.it.
  [87.12.25.16]) by smtp.gmail.com with ESMTPSA id
- m26-20020a7bce1a000000b003942a244f3fsm6669865wmc.24.2022.05.19.01.34.03
+ n4-20020a1c2704000000b003942a244f3asm6212873wmn.19.2022.05.19.01.34.42
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 19 May 2022 01:34:04 -0700 (PDT)
-Date: Thu, 19 May 2022 10:34:01 +0200
+ Thu, 19 May 2022 01:34:43 -0700 (PDT)
+Date: Thu, 19 May 2022 10:34:40 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V5 3/9] virtio: introduce config op to synchronize vring
- callbacks
-Message-ID: <20220519083401.ynmjdihi4hnjahlg@sgarzare-redhat>
+Subject: Re: [PATCH V5 9/9] virtio: use WARN_ON() to warn illegal status value
+Message-ID: <20220519083440.luyv6lzcq3fiw27e@sgarzare-redhat>
 References: <20220518035951.94220-1-jasowang@redhat.com>
- <20220518035951.94220-4-jasowang@redhat.com>
+ <20220518035951.94220-10-jasowang@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20220518035951.94220-4-jasowang@redhat.com>
+In-Reply-To: <20220518035951.94220-10-jasowang@redhat.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
 X-Mimecast-Spam-Score: 0
@@ -120,13 +121,10 @@ Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, May 18, 2022 at 11:59:45AM +0800, Jason Wang wrote:
->This patch introduces new virtio config op to vring
->callbacks. Transport specific method is required to make sure the
->write before this function is visible to the vring_interrupt() that is
->called after the return of this function. For the transport that
->doesn't provide synchronize_vqs(), use synchornize_rcu() which
->synchronize with IRQ implicitly as a fallback.
+On Wed, May 18, 2022 at 11:59:51AM +0800, Jason Wang wrote:
+>We used to use BUG_ON() in virtio_device_ready() to detect illegal
+>status value, this seems sub-optimal since the value is under the
+>control of the device. Switch to use WARN_ON() instead.
 >
 >Cc: Thomas Gleixner <tglx@linutronix.de>
 >Cc: Peter Zijlstra <peterz@infradead.org>
@@ -137,11 +135,10 @@ On Wed, May 18, 2022 at 11:59:45AM +0800, Jason Wang wrote:
 >Cc: Vineeth Vijayan <vneethv@linux.ibm.com>
 >Cc: Peter Oberparleiter <oberpar@linux.ibm.com>
 >Cc: linux-s390@vger.kernel.org
->Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 >Signed-off-by: Jason Wang <jasowang@redhat.com>
 >---
-> include/linux/virtio_config.h | 25 +++++++++++++++++++++++++
-> 1 file changed, 25 insertions(+)
+> include/linux/virtio_config.h | 2 +-
+> 1 file changed, 1 insertion(+), 1 deletion(-)
 
 Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 
