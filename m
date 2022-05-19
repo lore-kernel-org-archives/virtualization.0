@@ -1,92 +1,94 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3352EC433F5
-	for <virtualization@archiver.kernel.org>; Thu, 19 May 2022 08:02:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A1484C433FE
+	for <virtualization@archiver.kernel.org>; Thu, 19 May 2022 08:08:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id CEBA840600;
-	Thu, 19 May 2022 08:02:49 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 30D3984363;
+	Thu, 19 May 2022 08:08:42 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id XCtFTEnLD3dD; Thu, 19 May 2022 08:02:49 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 583BD400DA;
-	Thu, 19 May 2022 08:02:48 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id P3Z_J45h8Zom; Thu, 19 May 2022 08:08:41 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id B8DDF84368;
+	Thu, 19 May 2022 08:08:40 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 307CEC0032;
-	Thu, 19 May 2022 08:02:48 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 27562C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8282DC0032;
+	Thu, 19 May 2022 08:08:40 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5FF76C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 May 2022 08:02:47 +0000 (UTC)
+ Thu, 19 May 2022 08:08:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 11D4E4048D
+ by smtp2.osuosl.org (Postfix) with ESMTP id 475654048D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 May 2022 08:02:47 +0000 (UTC)
+ Thu, 19 May 2022 08:08:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id QoNxF9wDnOPq
+ with ESMTP id kfjKevj8_m21
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 May 2022 08:02:46 +0000 (UTC)
+ Thu, 19 May 2022 08:08:37 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 342FB400DA
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 8DEA340165
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 May 2022 08:02:46 +0000 (UTC)
+ Thu, 19 May 2022 08:08:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1652947365;
+ s=mimecast20190719; t=1652947716;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=mBpdwym2ArG4EquWnWSi2ftom73RXQQa+Rs2uQPWbKQ=;
- b=LHQMQSUHiRGj6vv9A4x+UN4aJUlN8/oDsWNhfyWtQkmYn625XTwbAD9M2iUO9/kbNohxXF
- YaxBus9WICDEOR3APB3zXxTJgD48lh5CG1GP43EuKHm1xpWNCjywRuaKMsl6WqIWH/6hxA
- sOr1mbEJMIr+d7zqDb78A1pANjybjIQ=
-Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
- [209.85.167.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=PaRT19em+T4GPwPQ/T0xXwQTdvktI3d/a43tTl0NNkw=;
+ b=YglDRBKj6NtFtEJYgfjfIpd1ByEZctatedn6v9j81LNqt+xhBZV61SoFn79PG0s02KGQUu
+ a/UgZ74/I1bUEYl+5IjHPdee1b7/n8vcOIg0ctb8k6uydrnF8a3j4nl7JLUs+qp16r4rQV
+ lh8SI1THDehlZ7EwnriNP+yGI6IbaaE=
+Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
+ [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-332-xshEawrNNfOYHg3xbl2qww-1; Thu, 19 May 2022 04:02:43 -0400
-X-MC-Unique: xshEawrNNfOYHg3xbl2qww-1
-Received: by mail-lf1-f70.google.com with SMTP id
- w25-20020a05651234d900b0044023ac3f64so2323309lfr.0
+ us-mta-333-7nggYhh1N16UUisWuq7DSw-1; Thu, 19 May 2022 04:08:35 -0400
+X-MC-Unique: 7nggYhh1N16UUisWuq7DSw-1
+Received: by mail-lf1-f71.google.com with SMTP id
+ p36-20020a05651213a400b004779d806c13so2307261lfa.10
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 May 2022 01:02:43 -0700 (PDT)
+ Thu, 19 May 2022 01:08:34 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=mBpdwym2ArG4EquWnWSi2ftom73RXQQa+Rs2uQPWbKQ=;
- b=uspU/RunrTgalIqdd31A/PhnpEQHhj0BK+Ulm09H2jW6IwGECuqGrEtHJEGE1Prmp3
- gstCLc6WijiniwUZN+WK2ySPAfET8NZCPWiCRF36CTdnU/GWTSF/NFQegaHDyXV8oMB8
- yOMLAxLr0CgNquai7OqkvT5/u/Peywklsg+TUWd3doKb+eAI/8lPtI4veqEviecrS659
- iocPc1sjk+72a+GxOByle3sT1fJzgjWI0kQUiMqVkVVMLbTS6wKepVWY+h97esSIUJHr
- bZRKMTvn2y15w2II6DtLZbbkPWVaAR2IVOYyeTTrJZRIBT/xx4E5bxDWh5u5nLpuzK/t
- xdjg==
-X-Gm-Message-State: AOAM531p8RpTgc5m/MwHfmK+m0e2bAu1Fc3I2YV9F7PiGcSusZ0lms9A
- fiJfm7gFd5WMGQZeMOFX2gKRT6TmND8TBJwCRBRKxlWkjr8ktQcjtuNNkjuPw4F7u1O56Ln/+29
- K4/K5/D3knrLmGtdDdvOmGqUWN7LNNywDbShshJhg3CokPcNosBJE8S7rPA==
-X-Received: by 2002:a05:6512:1395:b0:446:d382:79a5 with SMTP id
- p21-20020a056512139500b00446d38279a5mr2463618lfa.210.1652947362262; 
- Thu, 19 May 2022 01:02:42 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwnED6RSEVAGwD+6jZQlEqqnkm9njtiJZnFEYibosooBXmmsa4+cJ2PSgTUPo3sWmsUgAZgWgEnJrDT+wPlxRw=
-X-Received: by 2002:a05:6512:1395:b0:446:d382:79a5 with SMTP id
- p21-20020a056512139500b00446d38279a5mr2463601lfa.210.1652947362047; Thu, 19
- May 2022 01:02:42 -0700 (PDT)
+ bh=PaRT19em+T4GPwPQ/T0xXwQTdvktI3d/a43tTl0NNkw=;
+ b=dd7ebQu2wpaQ+W6PU9cHMrx2XZwrReEq90KduxMkSijcLzo/6j8fwsHYoSUF5xrxYM
+ 3JJjU10CY5SdT+LWdUHi3behjtubV0k4kQAnQKT88LO0oeBN0Q5HzUkxlbOIc2KNH9w+
+ z9mDyyhI+QK9n88YhlYAaKUcLzS239QY8Lf6jOI19xENB40s200JJzEHFPykO7xcA7G9
+ a5Wamdma6B1D9pkybR2mkZ4hTfRFm/kReRKbBPEZCGDREdCAfg4sU0qpBoB1OnkVfu+t
+ VZGzj9c7LKGyEYAmUdaV0SXDPUgs9wHrQF7XhUaGmw/YgifS4eSioXpWwyYZhwZSLKj6
+ fNWg==
+X-Gm-Message-State: AOAM533pFYHEj5mhRYs8RQyVDJEN1DA24BtFSVW2hTfTyCRy7In7/wIL
+ W0Q3UAa2/VTI3B5H3eBslrWw5W/LsOpP7MH84zpSNlfMgf807CZS00ccBYaCWZxto7HDMRKzhBA
+ VpgnAmIbAs6ZaKyYl+hcnhDQZ8TkrJfDHAwZHCGVOgGtuJEFFDM0aRub3Hw==
+X-Received: by 2002:a2e:bd85:0:b0:250:9bf2:8e27 with SMTP id
+ o5-20020a2ebd85000000b002509bf28e27mr1936014ljq.177.1652947713550; 
+ Thu, 19 May 2022 01:08:33 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzTVSo9SydbYuTdAcj6vvShrXEBo1eZDTyMXTBaYDqgH2C2D8RyXds5Ke02dPdHxXw8Kdl7wrNxJTIMixKQCm4=
+X-Received: by 2002:a2e:bd85:0:b0:250:9bf2:8e27 with SMTP id
+ o5-20020a2ebd85000000b002509bf28e27mr1936002ljq.177.1652947713385; Thu, 19
+ May 2022 01:08:33 -0700 (PDT)
 MIME-Version: 1.0
 References: <20220518035951.94220-1-jasowang@redhat.com>
- <20220518035951.94220-7-jasowang@redhat.com>
- <87tu9nfaoe.fsf@redhat.com>
-In-Reply-To: <87tu9nfaoe.fsf@redhat.com>
+ <20220518035951.94220-8-jasowang@redhat.com>
+ <87r14rf983.fsf@redhat.com>
+In-Reply-To: <87r14rf983.fsf@redhat.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 19 May 2022 16:02:30 +0800
-Message-ID: <CACGkMEsiMQ7zDZ6r-q2W=yFqW8WbMEwUc8OFd+o1JzUL-E19Ew@mail.gmail.com>
-Subject: Re: [PATCH V5 6/9] virtio-ccw: implement synchronize_cbs()
+Date: Thu, 19 May 2022 16:08:22 +0800
+Message-ID: <CACGkMEs7f63SDxed0qg4XVspJ9cSCTRrV8R-MUUVQCvjAXp+DA@mail.gmail.com>
+Subject: Re: [PATCH V5 7/9] virtio: allow to unbreak virtqueue
 To: Cornelia Huck <cohuck@redhat.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
@@ -115,21 +117,12 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, May 18, 2022 at 5:32 PM Cornelia Huck <cohuck@redhat.com> wrote:
+On Wed, May 18, 2022 at 6:04 PM Cornelia Huck <cohuck@redhat.com> wrote:
 >
 > On Wed, May 18 2022, Jason Wang <jasowang@redhat.com> wrote:
 >
-> > This patch tries to implement the synchronize_cbs() for ccw. For the
-> > vring_interrupt() that is called via virtio_airq_handler(), the
-> > synchronization is simply done via the airq_info's lock. For the
-> > vring_interrupt() that is called via virtio_ccw_int_handler(), a per
-> > device rwlock is introduced ans used in the synchronization method.
->
-> s/ans/and/
->
-
-Will fix.
-
+> > This patch allows the new introduced __virtio_break_device() to
+> > unbreak the virtqueue.
 > >
 > > Cc: Thomas Gleixner <tglx@linutronix.de>
 > > Cc: Peter Zijlstra <peterz@infradead.org>
@@ -142,100 +135,57 @@ Will fix.
 > > Cc: linux-s390@vger.kernel.org
 > > Signed-off-by: Jason Wang <jasowang@redhat.com>
 > > ---
-> >  drivers/s390/virtio/virtio_ccw.c | 27 +++++++++++++++++++++++++++
-> >  1 file changed, 27 insertions(+)
+> >  drivers/virtio/virtio_ring.c | 21 +++++++++++++++++++++
+> >  include/linux/virtio.h       |  1 +
+> >  2 files changed, 22 insertions(+)
 > >
-> > diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> > index d35e7a3f7067..22d36594bcdd 100644
-> > --- a/drivers/s390/virtio/virtio_ccw.c
-> > +++ b/drivers/s390/virtio/virtio_ccw.c
-> > @@ -62,6 +62,7 @@ struct virtio_ccw_device {
-> >       unsigned int revision; /* Transport revision */
-> >       wait_queue_head_t wait_q;
-> >       spinlock_t lock;
-> > +     rwlock_t irq_lock;
-> >       struct mutex io_lock; /* Serializes I/O requests */
-> >       struct list_head virtqueues;
-> >       bool is_thinint;
-> > @@ -984,6 +985,27 @@ static const char *virtio_ccw_bus_name(struct virtio_device *vdev)
-> >       return dev_name(&vcdev->cdev->dev);
+> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> > index cfb028ca238e..5b7df7c455f0 100644
+> > --- a/drivers/virtio/virtio_ring.c
+> > +++ b/drivers/virtio/virtio_ring.c
+> > @@ -2397,6 +2397,27 @@ void virtio_break_device(struct virtio_device *dev)
 > >  }
+> >  EXPORT_SYMBOL_GPL(virtio_break_device);
 > >
-> > +static void virtio_ccw_synchronize_cbs(struct virtio_device *vdev)
-> > +{
-> > +     struct virtio_ccw_device *vcdev = to_vc_device(vdev);
-> > +     struct airq_info *info = vcdev->airq_info;
-> > +
-> > +     if (info) {
-> > +             /*
-> > +              * Synchronize with the vring_interrupt() with airq indicator
+> > +/*
+> > + * This should allow the device to be used by the driver. You may
+> > + * need to grab appropriate locks to flush. This should only be used
 >
-> Maybe
->
-> /*
->  * This device uses adapter interrupts: synchronize with
->  * vring_interrupt() called by virtio_airq_handler() via the indicator
->  * area lock.
->  */
->
+> Hm, to flush what?
 
-Fine.
+How about "to flush the write to vq->broken"?
 
-> > +              */
-> > +             write_lock_irq(&info->lock);
-> > +             write_unlock_irq(&info->lock);
-> > +     } else {
-> > +             /*
-> > +              * Synchronize with the vring_interrupt() called by
-> > +              * virtio_ccw_int_handler().
 >
-> /*
->  * This device uses classic interrupts: synchronize with
->  * vring_interrupt() called by virtio_ccw_int_handler() via the
->  * per-device irq_lock.
->  */
+> > + * in some specific case e.g (probing and restoring). Driver should
+> > + * not call this directly.
 >
+> Maybe "This function should only be called by the core, not directly by
+> the driver."?
 
-Looks fine.
-
-> > +              */
-> > +             write_lock_irq(&vcdev->irq_lock);
-> > +             write_unlock_irq(&vcdev->irq_lock);
-> > +     }
-> > +}
-> > +
-> >  static const struct virtio_config_ops virtio_ccw_config_ops = {
-> >       .get_features = virtio_ccw_get_features,
-> >       .finalize_features = virtio_ccw_finalize_features,
-> > @@ -995,6 +1017,7 @@ static const struct virtio_config_ops virtio_ccw_config_ops = {
-> >       .find_vqs = virtio_ccw_find_vqs,
-> >       .del_vqs = virtio_ccw_del_vqs,
-> >       .bus_name = virtio_ccw_bus_name,
-> > +     .synchronize_cbs = virtio_ccw_synchronize_cbs,
-> >  };
-> >
-> >
-> > @@ -1106,6 +1129,8 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
-> >                       vcdev->err = -EIO;
-> >       }
-> >       virtio_ccw_check_activity(vcdev, activity);
-> > +     /* Local interrupt should be disabled at this time */
->
-> /* Interrupts are disabled here. */
->
-> ?
->
-> Interrupts enabled here would surely be a bug.
-
-Right.
+Ok.
 
 Thanks
 
 >
-> > +     read_lock(&vcdev->irq_lock);
-> >       for_each_set_bit(i, indicators(vcdev),
-> >                        sizeof(*indicators(vcdev)) * BITS_PER_BYTE) {
-> >               /* The bit clear must happen before the vring kick. */
+> > + */
+> > +void __virtio_unbreak_device(struct virtio_device *dev)
+> > +{
+> > +     struct virtqueue *_vq;
+> > +
+> > +     spin_lock(&dev->vqs_list_lock);
+> > +     list_for_each_entry(_vq, &dev->vqs, list) {
+> > +             struct vring_virtqueue *vq = to_vvq(_vq);
+> > +
+> > +             /* Pairs with READ_ONCE() in virtqueue_is_broken(). */
+> > +             WRITE_ONCE(vq->broken, false);
+> > +     }
+> > +     spin_unlock(&dev->vqs_list_lock);
+> > +}
+> > +EXPORT_SYMBOL_GPL(__virtio_unbreak_device);
+> > +
+> >  dma_addr_t virtqueue_get_desc_addr(struct virtqueue *_vq)
+> >  {
+> >       struct vring_virtqueue *vq = to_vvq(_vq);
 >
 
 _______________________________________________
