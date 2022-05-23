@@ -1,101 +1,104 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D2768C433F5
-	for <virtualization@archiver.kernel.org>; Mon, 23 May 2022 04:15:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4BC47C433EF
+	for <virtualization@archiver.kernel.org>; Mon, 23 May 2022 04:41:25 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 659934185E;
-	Mon, 23 May 2022 04:15:41 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id D9420404F3;
+	Mon, 23 May 2022 04:41:24 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id zlq63hJB_p-U; Mon, 23 May 2022 04:15:40 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id B9ECA41845;
-	Mon, 23 May 2022 04:15:39 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id rq-2wwgEXYUe; Mon, 23 May 2022 04:41:24 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 7F422404B3;
+	Mon, 23 May 2022 04:41:23 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 87D5DC0039;
-	Mon, 23 May 2022 04:15:39 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id BB367C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4F335C0039;
+	Mon, 23 May 2022 04:41:23 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C5417C002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 23 May 2022 04:15:37 +0000 (UTC)
+ Mon, 23 May 2022 04:41:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 962D641853
+ by smtp3.osuosl.org (Postfix) with ESMTP id ACB0060B3A
  for <virtualization@lists.linux-foundation.org>;
- Mon, 23 May 2022 04:15:37 +0000 (UTC)
+ Mon, 23 May 2022 04:41:21 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id fC8DPpvX1wLi
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id e_IJpIlAFr7R
  for <virtualization@lists.linux-foundation.org>;
- Mon, 23 May 2022 04:15:36 +0000 (UTC)
+ Mon, 23 May 2022 04:41:20 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 29DE441845
+ by smtp3.osuosl.org (Postfix) with ESMTPS id B0362608A5
  for <virtualization@lists.linux-foundation.org>;
- Mon, 23 May 2022 04:15:35 +0000 (UTC)
+ Mon, 23 May 2022 04:41:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1653279334;
+ s=mimecast20190719; t=1653280879;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=/4uq0rZJkoN6vEvVqkAPhz7EjjSM0bnK2nRK5G7D8m8=;
- b=KS9QVS9g3hA280cow634h5qkxSvr3xpNfq6t6Lx5akvtQ0GLzjpcO7jO7wNt7GbfCtUE8B
- uEC9R5U0n/2eA+b+eiAtqYRTXEtigJaxqSuA6azbLBSFYTS8WLJNCa/HLDyOP5zMDuBve3
- NSew5BLZNjJerpm0wjjGVJIuezI9yjk=
+ bh=08y9EJtcz+7a/JcW5CAQJh1vaSn+lYtCa1y1S5/rUOM=;
+ b=dOTxSxS1WagJmeEityGz2xpT572VJvoCT4WbLvvORnu5BDY6jQISUTPYdIrYH4AYuXUUO8
+ N1LIuyNtz8szUiV6eVVA9lrPQ7kOmH/mYLV9kIs+EiA07gjrG1Xx7WEuGY01ehA8GSKnK+
+ 8xTBU9F8TGmXOpQrYvaRAnOwh04x8+w=
 Received: from mail-lj1-f197.google.com (mail-lj1-f197.google.com
  [209.85.208.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-625-csy9ABV_MYuPRb0uS9m-Lw-1; Mon, 23 May 2022 00:15:29 -0400
-X-MC-Unique: csy9ABV_MYuPRb0uS9m-Lw-1
+ us-mta-595-hmE5kC1tMUmqbhT0A2jcjw-1; Mon, 23 May 2022 00:41:18 -0400
+X-MC-Unique: hmE5kC1tMUmqbhT0A2jcjw-1
 Received: by mail-lj1-f197.google.com with SMTP id
- f10-20020a2e9e8a000000b00250925fec6aso2540763ljk.20
+ m11-20020a2ea88b000000b0024db6246908so2564064ljq.22
  for <virtualization@lists.linux-foundation.org>;
- Sun, 22 May 2022 21:15:29 -0700 (PDT)
+ Sun, 22 May 2022 21:41:17 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=/4uq0rZJkoN6vEvVqkAPhz7EjjSM0bnK2nRK5G7D8m8=;
- b=LMNs5vKWuVmOshfpcDWWrGSJpNRXaSpG5jgaQQNCLyqw4iUaadhRSv5/bt1DGg0Ewb
- gWBUQS3Ov8qOYj0r7LjSGWzSIKSdjPb0AEHjVTl5eKJ49yhR4wVP327jtJzkHp6syju4
- xoUQzFBTpFWPLhq/XDwrKePlEpuJGEJwtlbIQKQ/OoXcbrj7Zx9hu31RnttOWDFro0f6
- mbs7K4hjbkckWDMHhJ0H1hyuQKqSokxGbQwN/cco5sOvkOPg6oTcBiWZaWqtAgM3fc9D
- emQeC5FR8FzhUp+gwukCwcXmdypi92LtrTj+BQuQFwvucq6irbnCCmFTywZvFtdZbWlw
- wz7A==
-X-Gm-Message-State: AOAM533WViooXUAaXSzSd0qwzlPX88HpzABwIN7E5cxDQ83xkT7KBBBd
- gDtiVsAW7W34pYi7TMSJtfUPL6Th2zoZ/SJnw87y8Gls3WBWvri+QKBnh4XpwsPo6SD0rUvWb+J
- 33W8aLzddtK4gY7+DSKbvBbrAXqQgkBIWPVEvPre+n7MxCc6KlRDXta3tfg==
-X-Received: by 2002:a05:6512:1395:b0:446:d382:79a5 with SMTP id
- p21-20020a056512139500b00446d38279a5mr14947653lfa.210.1653279328291; 
- Sun, 22 May 2022 21:15:28 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzWmvbbOnlzByyq0K7ST1/0Rig6zYncXxT7uN0bhy7BAXium/pYbfOxxsbqwsJyyqfJa8HBFvtAlbjEDB8k180=
-X-Received: by 2002:a05:6512:1395:b0:446:d382:79a5 with SMTP id
- p21-20020a056512139500b00446d38279a5mr14947643lfa.210.1653279328132; Sun, 22
- May 2022 21:15:28 -0700 (PDT)
+ bh=08y9EJtcz+7a/JcW5CAQJh1vaSn+lYtCa1y1S5/rUOM=;
+ b=Z6IghMotj/vAwrt3ui2GlXon5ZE2TkumE3aQGR696hinVUSUUWQY6m5HtHQzqS89Pp
+ /ZlyJ46BB0fcAsTddW4cNVzaLOoCd9PBwjj2y7VXWjtz5k5igipFP+brSyYFdTN0UIGr
+ EUcPmgu4jFGU1VTR0hzrp44+XTJ7wmD1vIccnlZdC+3id8pTjijBdOSl0nlfZAgIgiRw
+ DVnidud5Nz0vAKMmsvnc0Rh2V/coFgti4DKPM1/qFx6m6XTrfV8gYPT8rteK6e29XQtU
+ 404kIOSKtUIE3jzaZhe76wz/aeEfUP2qAq+YHQfKqvsRqdDAx2JQURP0S06pO0Y6DrJU
+ YhDQ==
+X-Gm-Message-State: AOAM533z435UH9AnVW7y/GTOlavKNOh7Bh96dGz5+o1XKhU0Yw9wK9NJ
+ QNy9o+l5Y0xyyCSFCrWEo3H6yL0USVWVbWjai53wZz5WkI1LFXoVezCmNGJUxSPruWK9OY5fNTf
+ U09TzRsziC7vCXyCXPbYQvyRs3l335XHTmbXEwG8nYHGXxegnJpfDO29/QA==
+X-Received: by 2002:a05:6512:1588:b0:477:a556:4ab2 with SMTP id
+ bp8-20020a056512158800b00477a5564ab2mr15008565lfb.376.1653280875765; 
+ Sun, 22 May 2022 21:41:15 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxqRetp33JcfidVaUk+iFKExKrB3v7QK7jBSPRLyLJwJHS8cGFd1P5dpWd3xCNGBT0hiuY9YQ5gpi2GOTwnZdI=
+X-Received: by 2002:a05:6512:1588:b0:477:a556:4ab2 with SMTP id
+ bp8-20020a056512158800b00477a5564ab2mr15008553lfb.376.1653280875600; Sun, 22
+ May 2022 21:41:15 -0700 (PDT)
 MIME-Version: 1.0
-References: <CAMhUBj=5jD5AjyaF8UmMXAZGFnMEgTruFM2KYL3GGZt-ABcHBQ@mail.gmail.com>
-In-Reply-To: <CAMhUBj=5jD5AjyaF8UmMXAZGFnMEgTruFM2KYL3GGZt-ABcHBQ@mail.gmail.com>
+References: <89ef0ae4c26ac3cfa440c71e97e392dcb328ac1b.1653227924.git.christophe.jaillet@wanadoo.fr>
+In-Reply-To: <89ef0ae4c26ac3cfa440c71e97e392dcb328ac1b.1653227924.git.christophe.jaillet@wanadoo.fr>
 From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 23 May 2022 12:15:16 +0800
-Message-ID: <CACGkMEvgtzUXw9v=cMN3=Mqm9YTp_2bKmc4--q2+BREvgVdeLg@mail.gmail.com>
-Subject: Re: [BUG] vDPA/ifcvf: got a warning when removing the module
-To: Zheyu Ma <zheyuma97@gmail.com>
+Date: Mon, 23 May 2022 12:41:03 +0800
+Message-ID: <CACGkMEtvgL+MxBmhWZ-Hn-QjfS-MBm7gvLoQHhazOiwrLxxUJA@mail.gmail.com>
+Subject: Re: [PATCH] vhost-vdpa: Fix some error handling path in
+ vhost_vdpa_process_iotlb_msg()
+To: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: multipart/mixed; boundary="0000000000001188a805dfa6171f"
-Cc: mst <mst@redhat.com>,
- Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+Cc: kvm <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>,
+ netdev <netdev@vger.kernel.org>, kernel-janitors@vger.kernel.org,
+ linux-kernel <linux-kernel@vger.kernel.org>,
  virtualization <virtualization@lists.linux-foundation.org>,
- Yongji Xie <xieyongji@bytedance.com>, Zhu Lingshan <lingshan.zhu@intel.com>,
- Eli Cohen <elic@nvidia.com>
+ Gautam Dawar <gautam.dawar@xilinx.com>,
+ Dan Carpenter <dan.carpenter@oracle.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -107,84 +110,74 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
---0000000000001188a805dfa6171f
-Content-Type: text/plain; charset="UTF-8"
-
-On Sat, May 21, 2022 at 10:27 PM Zheyu Ma <zheyuma97@gmail.com> wrote:
+On Sun, May 22, 2022 at 9:59 PM Christophe JAILLET
+<christophe.jaillet@wanadoo.fr> wrote:
 >
-> Hello,
+> In the error paths introduced by the commit in the Fixes tag, a mutex may
+> be left locked.
+> Add the correct goto instead of a direct return.
 >
-> I found a bug in the ifcvf driver.
-> When removing the module, I got the following warning:
+> Fixes: a1468175bb17 ("vhost-vdpa: support ASID based IOTLB API")
+> Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+> ---
+> WARNING: This patch only fixes the goto vs return mix-up in this function.
+> However, the 2nd hunk looks really spurious to me. I think that the:
+> -               return -EINVAL;
+> +               r = -EINVAL;
+> +               goto unlock;
+> should be done only in the 'if (!iotlb)' block.
+
+It should be fine, the error happen if
+
+1) the batched ASID based request is not equal (the first if)
+2) there's no IOTLB for this ASID (the second if)
+
+But I agree the code could be tweaked to use two different if instead
+of using a or condition here.
+
+Acked-by: Jason Wang <jasowang@redhat.com>
+
 >
-> [   14.478123] general protection fault, probably for non-canonical
-> address 0xdffffc0000000005: 0000 [#1] PREEMPT SMP KASAN PTI
-> [   14.478701] KASAN: null-ptr-deref in range
-> [0x0000000000000028-0x000000000000002f]
-> [   14.479922] RIP: 0010:vdpa_mgmtdev_unregister+0x39/0x150
-> [   14.484063] Call Trace:
-> [   14.484186]  <TASK>
-> [   14.484292]  ? _raw_spin_unlock_irqrestore+0x3d/0x60
-> [   14.484536]  ifcvf_remove+0x3a/0x50 [ifcvf]
-> [   14.484743]  pci_device_remove+0x92/0x240
+> As I don't know this code, I just leave it as-is but draw your attention
+> in case this is another bug lurking.
+> ---
+>  drivers/vhost/vdpa.c | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
 >
-> The reason is that the 'ifcvf_mgmt_dev' is zero which means that
-> ifcvf_vdpa_dev_add() was not executed.
-> Since I am not familiar with the driver, I cannot find a proper solution for it.
+> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+> index 1f1d1c425573..3e86080041fc 100644
+> --- a/drivers/vhost/vdpa.c
+> +++ b/drivers/vhost/vdpa.c
+> @@ -1000,7 +1000,8 @@ static int vhost_vdpa_process_iotlb_msg(struct vhost_dev *dev, u32 asid,
+>                 if (!as) {
+>                         dev_err(&v->dev, "can't find and alloc asid %d\n",
+>                                 asid);
+> -                       return -EINVAL;
+> +                       r = -EINVAL;
+> +                       goto unlock;
+>                 }
+>                 iotlb = &as->iotlb;
+>         } else
+> @@ -1013,7 +1014,8 @@ static int vhost_vdpa_process_iotlb_msg(struct vhost_dev *dev, u32 asid,
+>                 }
+>                 if (!iotlb)
+>                         dev_err(&v->dev, "no iotlb for asid %d\n", asid);
+> -               return -EINVAL;
+> +               r = -EINVAL;
+> +               goto unlock;
+>         }
 >
-
-Looks like the drv data needs to be set in probe(). Could you pleas
-try to the attached patch? (compile test only).
-
-Thanks
-
-> Zheyu Ma
+>         switch (msg->type) {
+> --
+> 2.34.1
 >
-
---0000000000001188a805dfa6171f
-Content-Type: application/octet-stream; 
-	name="0001-vdpa-ifcvf-set-pci-driver-data-in-probe.patch"
-Content-Disposition: attachment; 
-	filename="0001-vdpa-ifcvf-set-pci-driver-data-in-probe.patch"
-Content-Transfer-Encoding: base64
-Content-ID: <f_l3i7tfc30>
-X-Attachment-Id: f_l3i7tfc30
-
-RnJvbSBjN2MwMzFkMWE1YzY0ZTBmNThlMDE1NzlmZjc4MjI0YTU4ZDZhNGZhIE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgpEYXRl
-OiBNb24sIDIzIE1heSAyMDIyIDEyOjEyOjAwICswODAwClN1YmplY3Q6IFtQQVRDSF0gdmRwYTog
-aWZjdmY6IHNldCBwY2kgZHJpdmVyIGRhdGEgaW4gcHJvYmUKQ29udGVudC10eXBlOiB0ZXh0L3Bs
-YWluCgpXZSBzaG91bGQgc2V0IHRoZSBwY2kgZHJpdmVyIGRhdGEgaW4gcHJvYmUgaW5zdGVhZCBv
-ZiB0aGUgdmRwYSBkZXZpY2UKYWRkaW5nIGNhbGxiYWNrLiBPdGhlcndpc2UgaWYgbm8gdkRQQSBk
-ZXZpY2UgaXMgY3JlYXRlZCB3ZSB3aWxsIGxvc2UKdGhlIHBvaW50ZXIgdG8gdGhlIG1hbmFnZW1l
-bnQgZGV2aWNlLgoKRml4ZXM6IDZiNWRmMzQ3YzY0ODIgKCJ2RFBBL2lmY3ZmOiBpbXBsZW1lbnQg
-bWFuYWdlbWVudCBuZXRsaW5rIGZyYW1ld29yayBmb3IgaWZjdmYiKQpTaWduZWQtb2ZmLWJ5OiBK
-YXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgotLS0KIGRyaXZlcnMvdmRwYS9pZmN2Zi9p
-ZmN2Zl9tYWluLmMgfCAzICsrLQogMSBmaWxlIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygrKSwgMSBk
-ZWxldGlvbigtKQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmRwYS9pZmN2Zi9pZmN2Zl9tYWluLmMg
-Yi9kcml2ZXJzL3ZkcGEvaWZjdmYvaWZjdmZfbWFpbi5jCmluZGV4IDQzNjYzMjBmYjY4ZC4uMTk3
-ZDUyZTdiODAxIDEwMDY0NAotLS0gYS9kcml2ZXJzL3ZkcGEvaWZjdmYvaWZjdmZfbWFpbi5jCisr
-KyBiL2RyaXZlcnMvdmRwYS9pZmN2Zi9pZmN2Zl9tYWluLmMKQEAgLTc2NSw3ICs3NjUsNiBAQCBz
-dGF0aWMgaW50IGlmY3ZmX3ZkcGFfZGV2X2FkZChzdHJ1Y3QgdmRwYV9tZ210X2RldiAqbWRldiwg
-Y29uc3QgY2hhciAqbmFtZSwKIAl9CiAKIAlpZmN2Zl9tZ210X2Rldi0+YWRhcHRlciA9IGFkYXB0
-ZXI7Ci0JcGNpX3NldF9kcnZkYXRhKHBkZXYsIGlmY3ZmX21nbXRfZGV2KTsKIAogCXZmID0gJmFk
-YXB0ZXItPnZmOwogCXZmLT5kZXZfdHlwZSA9IGdldF9kZXZfdHlwZShwZGV2KTsKQEAgLTg4MCw2
-ICs4NzksOCBAQCBzdGF0aWMgaW50IGlmY3ZmX3Byb2JlKHN0cnVjdCBwY2lfZGV2ICpwZGV2LCBj
-b25zdCBzdHJ1Y3QgcGNpX2RldmljZV9pZCAqaWQpCiAJCWdvdG8gZXJyOwogCX0KIAorCXBjaV9z
-ZXRfZHJ2ZGF0YShwZGV2LCBpZmN2Zl9tZ210X2Rldik7CisKIAlyZXR1cm4gMDsKIAogZXJyOgot
-LSAKMi4yNS4xCgo=
---0000000000001188a805dfa6171f
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---0000000000001188a805dfa6171f--
-
