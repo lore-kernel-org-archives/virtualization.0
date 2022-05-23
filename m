@@ -1,81 +1,81 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id DF68DC433F5
-	for <virtualization@archiver.kernel.org>; Mon, 23 May 2022 09:42:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 37F22C433EF
+	for <virtualization@archiver.kernel.org>; Mon, 23 May 2022 09:43:45 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 635AA405A9;
-	Mon, 23 May 2022 09:42:03 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id C73F9610B3;
+	Mon, 23 May 2022 09:43:44 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id BRZgsDrBPAFQ; Mon, 23 May 2022 09:42:02 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 7kfj2jCODPOm; Mon, 23 May 2022 09:43:43 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id D789340B31;
-	Mon, 23 May 2022 09:42:01 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 4192A60807;
+	Mon, 23 May 2022 09:43:43 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A96FCC0032;
-	Mon, 23 May 2022 09:42:01 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B2592C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 25ED8C0032;
+	Mon, 23 May 2022 09:43:43 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 74EABC002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 23 May 2022 09:42:00 +0000 (UTC)
+ Mon, 23 May 2022 09:43:41 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 92F454194A
+ by smtp4.osuosl.org (Postfix) with ESMTP id 62A3D410C4
  for <virtualization@lists.linux-foundation.org>;
- Mon, 23 May 2022 09:42:00 +0000 (UTC)
+ Mon, 23 May 2022 09:43:41 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp4.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id U3uuI1U_z711
+ with ESMTP id B_EAHc76m9rb
  for <virtualization@lists.linux-foundation.org>;
- Mon, 23 May 2022 09:41:59 +0000 (UTC)
+ Mon, 23 May 2022 09:43:40 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 4D79141945
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 49E43410B7
  for <virtualization@lists.linux-foundation.org>;
- Mon, 23 May 2022 09:41:59 +0000 (UTC)
+ Mon, 23 May 2022 09:43:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1653298918;
+ s=mimecast20190719; t=1653299019;
  h=from:from:reply-to:reply-to:subject:subject:date:date:
  message-id:message-id:to:to:cc:cc:mime-version:mime-version:
  content-type:content-type:in-reply-to:in-reply-to:  references:references;
- bh=IhiwstYkYYpaHuAFd5FkcFzkEqA7mNU5eF+1/Zp3w0k=;
- b=AVq0GqWUEUYxaGErHN/SURHp5zuvX6zmxZU+MkOoj9Vuizgffl6CoQtHG2gU707dWltQSu
- V5F8bXjL2MZz1CU3y97IyzYwySeK5dpOjqpP1XuXCRnhbnfgW5Yv6Jy1c6WuE5shhmfi9E
- 40EkQAWymOy5gl84CwkIqNZGEZ5eS2k=
+ bh=zHdaX4lkGani+Ef/QKOcwQCasmJossQLNme43RH2O2E=;
+ b=ER3mBGEeMVJgUk0DyllilbwQb4VDrWjJTmfTVXtH9OJ/owuCcG502JtlBmGEXS/E0e0tcx
+ SJEoWdHiqntvVrmHsOucFvKUrXWSjqq51Z/t7RgLE0yGwqPm58HmFwNLIihesCAz9JKg2u
+ y4tw6nOOXBBjp8E6fVNPLw0oJDBxJdo=
 Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
  [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-388-qjyrpEHGMsuhgHCdhThIvA-1; Mon, 23 May 2022 05:41:54 -0400
-X-MC-Unique: qjyrpEHGMsuhgHCdhThIvA-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com
- [10.11.54.7])
+ us-mta-79-DkwGMmLoPDWOy0-HAxylew-1; Mon, 23 May 2022 05:43:35 -0400
+X-MC-Unique: DkwGMmLoPDWOy0-HAxylew-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.4])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 4202A101A52C;
- Mon, 23 May 2022 09:41:54 +0000 (UTC)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 77D8085A5B9;
+ Mon, 23 May 2022 09:43:35 +0000 (UTC)
 Received: from redhat.com (unknown [10.33.36.162])
- by smtp.corp.redhat.com (Postfix) with ESMTPS id DAD5E1410DD5;
- Mon, 23 May 2022 09:41:52 +0000 (UTC)
-Date: Mon, 23 May 2022 10:41:50 +0100
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id 06B592026D6A;
+ Mon, 23 May 2022 09:43:33 +0000 (UTC)
+Date: Mon, 23 May 2022 10:43:31 +0100
 From: Daniel =?utf-8?B?UC4gQmVycmFuZ8Op?= <berrange@redhat.com>
 To: zhenwei pi <pizhenwei@bytedance.com>
 Subject: Re: [PATCH v6 5/9] crypto: Implement RSA algorithm by hogweed
-Message-ID: <YotW3ikMeeXAvs8/@redhat.com>
+Message-ID: <YotXQz6rydXN+AtH@redhat.com>
 References: <20220514005504.1042884-1-pizhenwei@bytedance.com>
  <20220514005504.1042884-6-pizhenwei@bytedance.com>
 MIME-Version: 1.0
 Content-Disposition: inline
 In-Reply-To: <20220514005504.1042884-6-pizhenwei@bytedance.com>
 User-Agent: Mutt/2.2.1 (2022-02-19)
-X-Scanned-By: MIMEDefang 2.85 on 10.11.54.7
+X-Scanned-By: MIMEDefang 2.78 on 10.11.54.4
 Cc: helei.sig11@bytedance.com, mst@redhat.com, cohuck@redhat.com,
  qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org,
  linux-crypto@vger.kernel.org
@@ -120,45 +120,22 @@ On Sat, May 14, 2022 at 08:55:00AM +0800, zhenwei pi wrote:
 >  create mode 100644 crypto/rsakey-nettle.c.inc
 >  create mode 100644 crypto/rsakey.c
 >  create mode 100644 crypto/rsakey.h
-> 
-> diff --git a/crypto/akcipher-nettle.c.inc b/crypto/akcipher-nettle.c.inc
+
+
+> diff --git a/crypto/rsakey.h b/crypto/rsakey.h
 > new file mode 100644
-> index 0000000000..0796bddcaa
+> index 0000000000..17bb22333d
 > --- /dev/null
-> +++ b/crypto/akcipher-nettle.c.inc
-
-> +static int qcrypto_nettle_rsa_encrypt(QCryptoAkCipher *akcipher,
-> +                                      const void *data, size_t data_len,
-> +                                      void *enc, size_t enc_len,
-> +                                      Error **errp)
-> +{
+> +++ b/crypto/rsakey.h
+> @@ -0,0 +1,94 @@
 > +
-> +    QCryptoNettleRSA *rsa = (QCryptoNettleRSA *)akcipher;
-> +    mpz_t c;
-> +    int ret = -1;
+> +#ifndef QCRYPTO_RSAKEY_H
+> +#define QCRYPTO_RSAKEY_H
 > +
-> +    if (data_len > rsa->pub.size) {
-> +        error_setg(errp, "Plaintext length should be less than key size: %lu",
-> +                   rsa->pub.size);
-> +        return ret;
-> +    }
+> +#include <nettle/bignum.h>
 
-This needs to include both the good & bad values. I'm going to make
-the following changes to error messages:
-
-ie
-
-+        error_setg(errp, "Plaintext length %zu is greater than key size: %lu"
-+                   data_len, rsa->pub.size);
-         return ret;
-     }
-
-
-But also the '%lu' needs to change to '%zu' because the rsa->pub.size
-parameter is 'size_t'.  %lu doesn't match size_t on 32-bit hosts.
-
-The same issues appear in several other error messages through this
-file
+This should be removed -it isn't needed and breaks build on
+without-nettle build configurations.
 
 With regards,
 Daniel
