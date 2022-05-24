@@ -1,94 +1,124 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3400CC433F5
-	for <virtualization@archiver.kernel.org>; Tue, 24 May 2022 01:58:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9A947C433EF
+	for <virtualization@archiver.kernel.org>; Tue, 24 May 2022 02:46:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id B10694048A;
-	Tue, 24 May 2022 01:58:23 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 41FCD82A7F;
+	Tue, 24 May 2022 02:46:20 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id r9yoSEU5JVDO; Tue, 24 May 2022 01:58:22 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 01A42400C0;
-	Tue, 24 May 2022 01:58:21 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id BmKeUgSAnlGV; Tue, 24 May 2022 02:46:19 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 9CAB082A53;
+	Tue, 24 May 2022 02:46:18 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C4EF3C0032;
-	Tue, 24 May 2022 01:58:21 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 5FD6BC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7B234C0039;
+	Tue, 24 May 2022 02:46:18 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C90CBC002D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 24 May 2022 01:58:20 +0000 (UTC)
+ Tue, 24 May 2022 02:46:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 5554A60C00
+ by smtp1.osuosl.org (Postfix) with ESMTP id A2D7582A5D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 24 May 2022 01:58:20 +0000 (UTC)
+ Tue, 24 May 2022 02:46:17 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=kernel.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id MM_j2nZUHoHn
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id kaqAymRWaUW8
  for <virtualization@lists.linux-foundation.org>;
- Tue, 24 May 2022 01:58:19 +0000 (UTC)
+ Tue, 24 May 2022 02:46:16 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
- by smtp3.osuosl.org (Postfix) with ESMTPS id E6BB460AAF
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 17E4B82A53
  for <virtualization@lists.linux-foundation.org>;
- Tue, 24 May 2022 01:58:18 +0000 (UTC)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by ams.source.kernel.org (Postfix) with ESMTPS id 2A009B8171B;
- Tue, 24 May 2022 01:58:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0355CC385AA;
- Tue, 24 May 2022 01:58:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1653357495;
- bh=Cv9XZBa4Hc/gWPaETmcVdmUQuN7p5/VU3A7uzoNojTk=;
- h=Date:From:To:cc:Subject:In-Reply-To:References:From;
- b=OSoLdx+BBzfvf8wv36fAozO82JJNlzeO9vQ1p/JEsvOCSYSnJbw2wtgCh19TDHhHy
- /BPY1AY423sAwNT2orpFJ7slTyygINF1MK+6dQeA2VOBmNEVvw+sI6H8xvHjtaYd3f
- FDur2l6Rz7WLduTHmfvb6RfgBdvBctbshDJHwVVMXV7gspqB1IwzwQpz4UWL9C30UF
- XztCByCNAXI3IayBHiVgxFrl7fDtalsqMYnoNzg3pQsnBsA6r4tMGYyYD/FF00nHNF
- 5sGFu13IN/UVYghw9VbrG7c44KSxvwomO+GDHsxawwTtbB6PgXN3IJWMIFX/u5Up1k
- obVnFHYKI18kQ==
-Date: Mon, 23 May 2022 18:58:13 -0700 (PDT)
-From: Stefano Stabellini <sstabellini@kernel.org>
-X-X-Sender: sstabellini@ubuntu-linux-20-04-desktop
-To: Oleksandr <olekstysh@gmail.com>
-Subject: Re: [PATCH V2 5/7] dt-bindings: Add xen,
- dev-domid property description for xen-grant DMA ops
-In-Reply-To: <390ba7bb-ee9e-b7b7-5f08-71a7245fa4ec@gmail.com>
-Message-ID: <alpine.DEB.2.22.394.2205231856330.1905099@ubuntu-linux-20-04-desktop>
-References: <1651947548-4055-1-git-send-email-olekstysh@gmail.com>
- <1651947548-4055-6-git-send-email-olekstysh@gmail.com>
- <CAK8P3a2cAnXr8TDDYTiFxTWzQxa67sGnYDQRRD+=Q8_cSb1mEw@mail.gmail.com>
- <56e8c32d-6771-7179-005f-26ca58555659@gmail.com>
- <CAK8P3a1YhkEZ8gcbXHEa5Bwx-4VVRJO8SUHf8=RNWRsc2Yo-+A@mail.gmail.com>
- <460a746c-6b61-214b-4653-44a1430e314d@gmail.com>
- <alpine.DEB.2.22.394.2205181802310.1905099@ubuntu-linux-20-04-desktop>
- <6f469e9c-c26e-f4be-9a85-710afb0d77eb@gmail.com>
- <390ba7bb-ee9e-b7b7-5f08-71a7245fa4ec@gmail.com>
-User-Agent: Alpine 2.22 (DEB 394 2020-01-19)
+ Tue, 24 May 2022 02:46:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1653360374;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=BYJFy+Y4pkEYziHYoAeekoD+3Bc8Qu3A80VyOZfUR80=;
+ b=aTVL06TeGTbwRnkWpt/s3Xfh6fNe5Jiiisi3yF2OydlK1hzagVVgW7t8QfJyIQpVT62L+B
+ BVWE72ObN5KoufZsC0oRAj08RX2LNSnFkwGIg7073mhOwO8pbPPBpcQmvytl7kZe6RPa2S
+ B1qL03s+uPiOjSp4bbSGqpQGlQzIudA=
+Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com
+ [209.85.214.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-310-OYei9djHPJ6KiS71mtOtfQ-1; Mon, 23 May 2022 22:46:13 -0400
+X-MC-Unique: OYei9djHPJ6KiS71mtOtfQ-1
+Received: by mail-pl1-f200.google.com with SMTP id
+ s10-20020a170902a50a00b00162359521c9so1419838plq.23
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 23 May 2022 19:46:13 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+ :content-language:to:cc:references:from:in-reply-to
+ :content-transfer-encoding;
+ bh=BYJFy+Y4pkEYziHYoAeekoD+3Bc8Qu3A80VyOZfUR80=;
+ b=D1RbMWmzfh7Y//zUx449DINSvMIoazEBxEhzPBCunWBcHa0RKk1cL3ujveVZiLHP7P
+ D4G93duDRm0YMVYjz1hqaS/ELlv6r5LReBG1L9nwzZbTc+MNpXpP8MC76feDsu+kmLfx
+ 45J3fiC98S5ERovnR8X2+ZHHkhiIWqpozkpV20PvhE7b5ck7vouhnTcBqoBXSZHPs8p0
+ rl8wlNd7e35Mp5HSzN67SSGjhGZlQB/i74y3PQiCr5GqYNdyck4ZyZlsY6ctC1Vgi/bv
+ uXa86YzGAYBptUP0wkhf/Yrg10VgNUqIhOWaQVyH6WMlh/nENk4k3owjgMEPXo5dLTKW
+ JRug==
+X-Gm-Message-State: AOAM530T5AA3Z33foRpREsbsJ0rhxuQBsx++MKHd4D8/ouQfhjOdwXI7
+ ZFrSVSKaDORTmyQT//bG6yUR48pIE7o/KVKFsY5QnNVx79mvolWVJSxuy1VaIzG0X4XlBKKbkws
+ //OqP15l21F6sG5kKGxE+3S+1cWlzk6F4gJW77uSvAA==
+X-Received: by 2002:a17:903:246:b0:153:87f0:a93e with SMTP id
+ j6-20020a170903024600b0015387f0a93emr25486847plh.171.1653360372501; 
+ Mon, 23 May 2022 19:46:12 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwuBiLXA4Wufa9VWmoox3iYH6eOe66WEUcrf0/HzhdQBGhqcNjN4ti96gSnG5cETtgP3NLFXw==
+X-Received: by 2002:a17:903:246:b0:153:87f0:a93e with SMTP id
+ j6-20020a170903024600b0015387f0a93emr25486789plh.171.1653360372044; 
+ Mon, 23 May 2022 19:46:12 -0700 (PDT)
+Received: from [10.72.12.128] ([209.132.188.80])
+ by smtp.gmail.com with ESMTPSA id
+ l9-20020a17090aaa8900b001cd4989fec6sm417537pjq.18.2022.05.23.19.45.56
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Mon, 23 May 2022 19:46:08 -0700 (PDT)
+Message-ID: <333e957d-af84-24fb-6636-843a9dcfc1e2@redhat.com>
+Date: Tue, 24 May 2022 10:45:54 +0800
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="8323329-279637414-1653357495=:1905099"
-Cc: Juergen Gross <jgross@suse.com>, DTML <devicetree@vger.kernel.org>,
- Stefano Stabellini <sstabellini@kernel.org>, Julien Grall <julien@xen.org>,
- Arnd Bergmann <arnd@arndb.de>, "Michael S. Tsirkin" <mst@redhat.com>,
- Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
- "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE"
- <virtualization@lists.linux-foundation.org>,
- Christoph Hellwig <hch@infradead.org>,
- Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
- Jean-Philippe Brucker <jean-philippe@linaro.org>,
- Rob Herring <robh+dt@kernel.org>, xen-devel <xen-devel@lists.xenproject.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Linux ARM <linux-arm-kernel@lists.infradead.org>
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.9.0
+Subject: Re: [PATCH 1/4] vdpa: Add stop operation
+To: Si-Wei Liu <si-wei.liu@oracle.com>,
+ Eugenio Perez Martin <eperezma@redhat.com>
+References: <20220520172325.980884-1-eperezma@redhat.com>
+ <20220520172325.980884-2-eperezma@redhat.com>
+ <79089dc4-07c4-369b-826c-1c6e12edcaff@oracle.com>
+ <CAJaqyWd3BqZfmJv+eBYOGRwNz3OhNKjvHPiFOafSjzAnRMA_tQ@mail.gmail.com>
+ <4de97962-cf7e-c334-5874-ba739270c705@oracle.com>
+ <9f68802c-2692-7321-f916-670ee0abfc40@oracle.com>
+From: Jason Wang <jasowang@redhat.com>
+In-Reply-To: <9f68802c-2692-7321-f916-670ee0abfc40@oracle.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Cc: tanuj.kamde@amd.com, kvm list <kvm@vger.kernel.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ virtualization <virtualization@lists.linux-foundation.org>,
+ Wu Zongyong <wuzongyong@linux.alibaba.com>, pabloc@xilinx.com,
+ Eli Cohen <elic@nvidia.com>, Zhang Min <zhang.min9@zte.com.cn>,
+ Cindy Lu <lulu@redhat.com>, Martin Petrus Hubertus Habets <martinh@xilinx.com>,
+ Xie Yongji <xieyongji@bytedance.com>, dinang@xilinx.com,
+ habetsm.xilinx@gmail.com, Longpeng <longpeng2@huawei.com>,
+ Dan Carpenter <dan.carpenter@oracle.com>, Laurent Vivier <lvivier@redhat.com>,
+ Christophe JAILLET <christophe.jaillet@wanadoo.fr>, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, ecree.xilinx@gmail.com,
+ Harpreet Singh Anand <hanand@xilinx.com>, martinpo@xilinx.com, "Dawar,
+ Gautam" <gautam.dawar@amd.com>, Zhu Lingshan <lingshan.zhu@intel.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -100,258 +130,116 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-
---8323329-279637414-1653357495=:1905099
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-
-On Mon, 23 May 2022, Oleksandr wrote:
-> > > On Thu, 19 May 2022, Oleksandr wrote:
-> > > > > On Wed, May 18, 2022 at 5:06 PM Oleksandr <olekstysh@gmail.com> wrote:
-> > > > > > On 18.05.22 17:32, Arnd Bergmann wrote:
-> > > > > > > On Sat, May 7, 2022 at 7:19 PM Oleksandr Tyshchenko
-> > > > > > > <olekstysh@gmail.com> wrote:
-> > > > > > >     This would mean having a device
-> > > > > > > node for the grant-table mechanism that can be referred to using
-> > > > > > > the
-> > > > > > > 'iommus'
-> > > > > > > phandle property, with the domid as an additional argument.
-> > > > > > I assume, you are speaking about something like the following?
-> > > > > > 
-> > > > > > 
-> > > > > > xen_dummy_iommu {
-> > > > > >       compatible = "xen,dummy-iommu";
-> > > > > >       #iommu-cells = <1>;
-> > > > > > };
-> > > > > > 
-> > > > > > virtio@3000 {
-> > > > > >       compatible = "virtio,mmio";
-> > > > > >       reg = <0x3000 0x100>;
-> > > > > >       interrupts = <41>;
-> > > > > > 
-> > > > > >       /* The device is located in Xen domain with ID 1 */
-> > > > > >       iommus = <&xen_dummy_iommu 1>;
-> > > > > > };
-> > > > > Right, that's that's the idea,
-> > > > thank you for the confirmation
-> > > > 
-> > > > 
-> > > > 
-> > > > >    except I would not call it a 'dummy'.
-> > > > >   From the perspective of the DT, this behaves just like an IOMMU,
-> > > > > even if the exact mechanism is different from most hardware IOMMU
-> > > > > implementations.
-> > > > well, agree
-> > > > 
-> > > > 
-> > > > > > > It does not quite fit the model that Linux currently uses for
-> > > > > > > iommus,
-> > > > > > > as that has an allocator for dma_addr_t space
-> > > > > > yes (# 3/7 adds grant-table based allocator)
-> > > > > > 
-> > > > > > 
-> > > > > > > , but it would think it's
-> > > > > > > conceptually close enough that it makes sense for the binding.
-> > > > > > Interesting idea. I am wondering, do we need an extra actions for
-> > > > > > this
-> > > > > > to work in Linux guest (dummy IOMMU driver, etc)?
-> > > > > It depends on how closely the guest implementation can be made to
-> > > > > resemble a normal iommu. If you do allocate dma_addr_t addresses,
-> > > > > it may actually be close enough that you can just turn the grant-table
-> > > > > code into a normal iommu driver and change nothing else.
-> > > > Unfortunately, I failed to find a way how use grant references at the
-> > > > iommu_ops level (I mean to fully pretend that we are an IOMMU driver). I
-> > > > am
-> > > > not too familiar with that, so what is written below might be wrong or
-> > > > at
-> > > > least not precise.
-> > > > 
-> > > > The normal IOMMU driver in Linux doesn’t allocate DMA addresses by
-> > > > itself, it
-> > > > just maps (IOVA-PA) what was requested to be mapped by the upper layer.
-> > > > The
-> > > > DMA address allocation is done by the upper layer (DMA-IOMMU which is
-> > > > the glue
-> > > > layer between DMA API and IOMMU API allocates IOVA for PA?). But, all
-> > > > what we
-> > > > need here is just to allocate our specific grant-table based DMA
-> > > > addresses
-> > > > (DMA address = grant reference + offset in the page), so let’s say we
-> > > > need an
-> > > > entity to take a physical address as parameter and return a DMA address
-> > > > (what
-> > > > actually commit #3/7 is doing), and that’s all. So working at the
-> > > > dma_ops
-> > > > layer we get exactly what we need, with the minimal changes to guest
-> > > > infrastructure. In our case the Xen itself acts as an IOMMU.
-> > > > 
-> > > > Assuming that we want to reuse the IOMMU infrastructure somehow for our
-> > > > needs.
-> > > > I think, in that case we will likely need to introduce a new specific
-> > > > IOVA
-> > > > allocator (alongside with a generic one) to be hooked up by the
-> > > > DMA-IOMMU
-> > > > layer if we run on top of Xen. But, even having the specific IOVA
-> > > > allocator to
-> > > > return what we indeed need (DMA address = grant reference + offset in
-> > > > the
-> > > > page) we will still need the specific minimal required IOMMU driver to
-> > > > be
-> > > > present in the system anyway in order to track the mappings(?) and do
-> > > > nothing
-> > > > with them, returning a success (this specific IOMMU driver should have
-> > > > all
-> > > > mandatory callbacks implemented).
-> > > > 
-> > > > I completely agree, it would be really nice to reuse generic IOMMU
-> > > > bindings
-> > > > rather than introducing Xen specific property if what we are trying to
-> > > > implement in current patch series fits in the usage of "iommus" in Linux
-> > > > more-less. But, if we will have to add more complexity/more components
-> > > > to the
-> > > > code for the sake of reusing device tree binding, this raises a question
-> > > > whether that’s worthwhile.
-> > > > 
-> > > > Or I really missed something?
-> > > I think Arnd was primarily suggesting to reuse the IOMMU Device Tree
-> > > bindings, not necessarily the IOMMU drivers framework in Linux (although
-> > > that would be an added bonus.)
-> > > 
-> > > I know from previous discussions with you that making the grant table
-> > > fit in the existing IOMMU drivers model is difficult, but just reusing
-> > > the Device Tree bindings seems feasible?
-> > 
-> > I started experimenting with that. As wrote in a separate email, I got a
-> > deferred probe timeout,
-> > 
-> > after inserting required nodes into guest device tree, which seems to be a
-> > consequence of the unavailability of IOMMU, I will continue to investigate
-> > this question.
-> 
-> 
-> I have experimented with that. Yes, just reusing the Device Tree bindings is
-> technically feasible (and we are able to do this by only touching
-> grant-dma-ops.c), although deferred probe timeout still stands (as there is no
-> IOMMU driver being present actually).
-> 
-> [    0.583771] virtio-mmio 2000000.virtio: deferred probe timeout, ignoring
-> dependency
-> [    0.615556] virtio_blk virtio0: [vda] 4096000 512-byte logical blocks (2.10
-> GB/1.95 GiB)
-> 
-> 
-> Below the working diff (on top of current series):
-> 
-> diff --git a/drivers/xen/grant-dma-ops.c b/drivers/xen/grant-dma-ops.c
-> index da9c7ff..6586152 100644
-> --- a/drivers/xen/grant-dma-ops.c
-> +++ b/drivers/xen/grant-dma-ops.c
-> @@ -272,17 +272,24 @@ static const struct dma_map_ops xen_grant_dma_ops = {
-> 
->  bool xen_is_grant_dma_device(struct device *dev)
->  {
-> +       struct device_node *iommu_np;
-> +       bool has_iommu;
-> +
->         /* XXX Handle only DT devices for now */
->         if (!dev->of_node)
->                 return false;
-> 
-> -       return of_property_read_bool(dev->of_node, "xen,backend-domid");
-> +       iommu_np = of_parse_phandle(dev->of_node, "iommus", 0);
-> +       has_iommu = iommu_np && of_device_is_compatible(iommu_np,
-> "xen,grant-dma");
-> +       of_node_put(iommu_np);
-> +
-> +       return has_iommu;
->  }
-> 
->  void xen_grant_setup_dma_ops(struct device *dev)
->  {
->         struct xen_grant_dma_data *data;
-> -       uint32_t domid;
-> +       struct of_phandle_args iommu_spec;
-> 
->         data = find_xen_grant_dma_data(dev);
->         if (data) {
-> @@ -294,16 +301,30 @@ void xen_grant_setup_dma_ops(struct device *dev)
->         if (!dev->of_node)
->                 goto err;
-> 
-> -       if (of_property_read_u32(dev->of_node, "xen,backend-domid", &domid)) {
-> -               dev_err(dev, "xen,backend-domid property is not present\n");
-> +       if (of_parse_phandle_with_args(dev->of_node, "iommus", "#iommu-cells",
-> +                       0, &iommu_spec)) {
-> +               dev_err(dev, "Cannot parse iommus property\n");
-> +               goto err;
-> +       }
-> +
-> +       if (!of_device_is_compatible(iommu_spec.np, "xen,grant-dma") ||
-> +                       iommu_spec.args_count != 1) {
-> +               dev_err(dev, "Incompatible IOMMU node\n");
-> +               of_node_put(iommu_spec.np);
->                 goto err;
->         }
-> 
-> +       of_node_put(iommu_spec.np);
-> +
->         data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
->         if (!data)
->                 goto err;
-> 
-> -       data->backend_domid = domid;
-> +       /*
-> +        * The endpoint ID here means the ID of the domain where the
-> corresponding
-> +        * backend is running
-> +        */
-> +       data->backend_domid = iommu_spec.args[0];
-> 
->         if (xa_err(xa_store(&xen_grant_dma_devices, (unsigned long)dev, data,
->                         GFP_KERNEL))) {
-> (END)
-> 
-> 
-> 
-> Below, the nodes generated by Xen toolstack:
-> 
->         xen_grant_dma {
->                 compatible = "xen,grant-dma";
->                 #iommu-cells = <0x01>;
->                 phandle = <0xfde9>;
->         };
-> 
->         virtio@2000000 {
->                 compatible = "virtio,mmio";
->                 reg = <0x00 0x2000000 0x00 0x200>;
->                 interrupts = <0x00 0x01 0xf01>;
->                 interrupt-parent = <0xfde8>;
->                 dma-coherent;
->                 iommus = <0xfde9 0x01>;
->         };
- 
-Not bad! I like it.
- 
- 
-> I am wondering, would be the proper solution to eliminate deferred probe
-> timeout issue in our particular case (without introducing an extra IOMMU
-> driver)?
-
-In reality I don't think there is a way to do that. I would create an
-empty skelethon IOMMU driver for xen,grant-dma.
---8323329-279637414-1653357495=:1905099
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---8323329-279637414-1653357495=:1905099--
+CuWcqCAyMDIyLzUvMjQgMDg6MDEsIFNpLVdlaSBMaXUg5YaZ6YGTOgo+Cj4KPiBPbiA1LzIzLzIw
+MjIgNDo1NCBQTSwgU2ktV2VpIExpdSB3cm90ZToKPj4KPj4KPj4gT24gNS8yMy8yMDIyIDEyOjIw
+IFBNLCBFdWdlbmlvIFBlcmV6IE1hcnRpbiB3cm90ZToKPj4+IE9uIFNhdCwgTWF5IDIxLCAyMDIy
+IGF0IDEyOjEzIFBNIFNpLVdlaSBMaXUgPHNpLXdlaS5saXVAb3JhY2xlLmNvbT4gCj4+PiB3cm90
+ZToKPj4+Pgo+Pj4+Cj4+Pj4gT24gNS8yMC8yMDIyIDEwOjIzIEFNLCBFdWdlbmlvIFDDqXJleiB3
+cm90ZToKPj4+Pj4gVGhpcyBvcGVyYXRpb24gaXMgb3B0aW9uYWw6IEl0IGl0J3Mgbm90IGltcGxl
+bWVudGVkLCBiYWNrZW5kIAo+Pj4+PiBmZWF0dXJlIGJpdAo+Pj4+PiB3aWxsIG5vdCBiZSBleHBv
+c2VkLgo+Pj4+Pgo+Pj4+PiBTaWduZWQtb2ZmLWJ5OiBFdWdlbmlvIFDDqXJleiA8ZXBlcmV6bWFA
+cmVkaGF0LmNvbT4KPj4+Pj4gLS0tCj4+Pj4+IMKgwqAgaW5jbHVkZS9saW51eC92ZHBhLmggfCA2
+ICsrKysrKwo+Pj4+PiDCoMKgIDEgZmlsZSBjaGFuZ2VkLCA2IGluc2VydGlvbnMoKykKPj4+Pj4K
+Pj4+Pj4gZGlmZiAtLWdpdCBhL2luY2x1ZGUvbGludXgvdmRwYS5oIGIvaW5jbHVkZS9saW51eC92
+ZHBhLmgKPj4+Pj4gaW5kZXggMTVhZjgwMmQ0MWM0Li5kZGZlYmM0ZTFlMDEgMTAwNjQ0Cj4+Pj4+
+IC0tLSBhL2luY2x1ZGUvbGludXgvdmRwYS5oCj4+Pj4+ICsrKyBiL2luY2x1ZGUvbGludXgvdmRw
+YS5oCj4+Pj4+IEBAIC0yMTUsNiArMjE1LDExIEBAIHN0cnVjdCB2ZHBhX21hcF9maWxlIHsKPj4+
+Pj4gwqDCoMKgICogQHJlc2V0OsKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgUmVz
+ZXQgZGV2aWNlCj4+Pj4+IMKgwqDCoCAqwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqAgQHZkZXY6IHZkcGEgZGV2aWNlCj4+Pj4+IMKgwqDCoCAqwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgUmV0dXJucyBpbnRl
+Z2VyOiBzdWNjZXNzICgwKSBvciAKPj4+Pj4gZXJyb3IgKDwgMCkKPj4+Pj4gKyAqIEBzdG9wOsKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIFN0b3Agb3IgcmVzdW1lIHRoZSBk
+ZXZpY2UgKG9wdGlvbmFsLCAKPj4+Pj4gYnV0IGl0IG11c3QKPj4+Pj4gKyAqwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBiZSBpbXBsZW1lbnRlZCBp
+ZiByZXF1aXJlIGRldmljZSBzdG9wKQo+Pj4+PiArICrCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIEB2ZGV2OiB2ZHBhIGRldmljZQo+Pj4+PiArICrC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIEBzdG9w
+OiBzdG9wICh0cnVlKSwgbm90IHN0b3AgKGZhbHNlKQo+Pj4+PiArICrCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIFJldHVybnMgaW50ZWdlcjogc3Vj
+Y2VzcyAoMCkgb3IgCj4+Pj4+IGVycm9yICg8IDApCj4+Pj4gSXMgdGhpcyB1QVBJIG1lYW50IHRv
+IGFkZHJlc3MgYWxsIHVzZSBjYXNlcyBkZXNjcmliZWQgaW4gdGhlIGZ1bGwgCj4+Pj4gYmxvd24K
+Pj4+PiBfRl9TVE9QIHZpcnRpbyBzcGVjIHByb3Bvc2FsLCBzdWNoIGFzOgo+Pj4+Cj4+Pj4gLS0t
+LS0tLS0tLS0tLS0lPC0tLS0tLS0tLS0tLS0tCj4+Pj4KPj4+PiAuLi4uLi4gdGhlIGRldmljZSBN
+VVNUIGZpbmlzaCBhbnkgaW4gZmxpZ2h0Cj4+Pj4gb3BlcmF0aW9ucyBhZnRlciB0aGUgZHJpdmVy
+IHdyaXRlcyBTVE9QLsKgIERlcGVuZGluZyBvbiB0aGUgZGV2aWNlLCBpdAo+Pj4+IGNhbiBkbyBp
+dAo+Pj4+IGluIG1hbnkgd2F5cyBhcyBsb25nIGFzIHRoZSBkcml2ZXIgY2FuIHJlY292ZXIgaXRz
+IG5vcm1hbCBvcGVyYXRpb24gCj4+Pj4gaWYgaXQKPj4+PiByZXN1bWVzIHRoZSBkZXZpY2Ugd2l0
+aG91dCB0aGUgbmVlZCBvZiByZXNldHRpbmcgaXQ6Cj4+Pj4KPj4+PiAtIERyYWluIGFuZCB3YWl0
+IGZvciB0aGUgY29tcGxldGlvbiBvZiBhbGwgcGVuZGluZyByZXF1ZXN0cyB1bnRpbCBhCj4+Pj4g
+wqDCoMKgIGNvbnZlbmllbnQgYXZhaWwgZGVzY3JpcHRvci4gSWdub3JlIGFueSBvdGhlciBwb3N0
+ZXJpb3IgCj4+Pj4gZGVzY3JpcHRvci4KPj4+PiAtIFJldHVybiBhIGRldmljZS1zcGVjaWZpYyBm
+YWlsdXJlIGZvciB0aGVzZSBkZXNjcmlwdG9ycywgc28gdGhlIAo+Pj4+IGRyaXZlcgo+Pj4+IMKg
+wqDCoCBjYW4gY2hvb3NlIHRvIHJldHJ5IG9yIHRvIGNhbmNlbCB0aGVtLgo+Pj4+IC0gTWFyayB0
+aGVtIGFzIGRvbmUgZXZlbiBpZiB0aGV5IGFyZSBub3QsIGlmIHRoZSBraW5kIG9mIGRldmljZSBj
+YW4KPj4+PiDCoMKgwqAgYXNzdW1lIHRvIGxvc2UgdGhlbS4KPj4+PiAtLS0tLS0tLS0tLS0tLSU8
+LS0tLS0tLS0tLS0tLS0KPj4+Pgo+Pj4gUmlnaHQsIHRoaXMgaXMgdG90YWxseSB1bmRlcnNwZWNp
+ZmllZCBpbiB0aGlzIHNlcmllcy4KPj4+Cj4+PiBJJ2xsIGV4cGFuZCBvbiBpdCBpbiB0aGUgbmV4
+dCB2ZXJzaW9uLCBidXQgdGhhdCB0ZXh0IHByb3Bvc2VkIHRvCj4+PiB2aXJ0aW8tY29tbWVudCB3
+YXMgY29tcGxpY2F0ZWQgYW5kIG1pc2xlYWRpbmcuIEkgZmluZCBiZXR0ZXIgdG8gZ2V0Cj4+PiB0
+aGUgcHJldmlvdXMgdmVyc2lvbiBkZXNjcmlwdGlvbi4gV291bGQgdGhlIG5leHQgZGVzY3JpcHRp
+b24gd29yaz8KPj4+Cj4+PiBgYGAKPj4+IEFmdGVyIHRoZSByZXR1cm4gb2YgaW9jdGwsIHRoZSBk
+ZXZpY2UgTVVTVCBmaW5pc2ggYW55IHBlbmRpbmcgCj4+PiBvcGVyYXRpb25zIGxpa2UKPj4+IGlu
+IGZsaWdodCByZXF1ZXN0cy4gSXQgbXVzdCBhbHNvIHByZXNlcnZlIGFsbCB0aGUgbmVjZXNzYXJ5
+IHN0YXRlICh0aGUKPj4+IHZpcnRxdWV1ZSB2cmluZyBiYXNlIHBsdXMgdGhlIHBvc3NpYmxlIGRl
+dmljZSBzcGVjaWZpYyBzdGF0ZXMpCj4+IEhtbW0sICJwb3NzaWJsZSBkZXZpY2Ugc3BlY2lmaWMg
+c3RhdGVzIiBpcyBhIGJpdCB2YWd1ZS4gRG9lcyBpdCAKPj4gcmVxdWlyZSB0aGUgZGV2aWNlIHRv
+IHNhdmUgYW55IGRldmljZSBpbnRlcm5hbCBzdGF0ZSB0aGF0IGlzIG5vdCAKPj4gZGVmaW5lZCBp
+biB0aGUgdmlydGlvIHNwZWMgLSBzdWNoIGFzIGFueSBmYWlsZWQgaW4tZmxpZ2h0IHJlcXVlc3Rz
+IHRvIAo+PiByZXN1Ym1pdCB1cG9uIHJlc3VtZT8gT3IgeW91IHdvdWxkIGxlYW4gb24gU1ZRIHRv
+IGludGVyY2VwdCBpdCBpbiAKPj4gZGVwdGggYW5kIHNhdmUgaXQgd2l0aCBzb21lIG90aGVyIG1l
+YW5zPyBJIHRoaW5rIG5ldHdvcmsgZGV2aWNlIGFsc28gCj4+IGhhcyBpbnRlcm5hbCBzdGF0ZSBz
+dWNoIGFzIGZsb3cgc3RlZXJpbmcgc3RhdGUgdGhhdCBuZWVkcyBib29ra2VlcGluZyAKPj4gYXMg
+d2VsbC4KPiBOb3RlZCB0aGF0IEkgdW5kZXJzdGFuZCB5b3UgbWF5IGludHJvZHVjZSBhZGRpdGlv
+bmFsIGZlYXR1cmUgY2FsbCAKPiBzaW1pbGFyIHRvIFZIT1NUX1VTRVJfR0VUX0lORkxJR0hUX0ZE
+IGZvciAoZmFpbGVkKSBpbi1mbGlnaHQgcmVxdWVzdCwgCj4gYnV0IHNpbmNlIHRoYXQncyBpcyBh
+IGdldCBpbnRlcmZhY2UsIEkgYXNzdW1lIHRoZSBhY3R1YWwgc3RhdGUgCj4gcHJlc2VydmluZyBz
+aG91bGQgc3RpbGwgdGFrZSBwbGFjZSBpbiB0aGlzIFNUT1AgY2FsbC4KPgoKWWVzLCBJIHRoaW5r
+IHNvLgoKCj4gLVNpd2VpCj4KPj4KPj4gQSBmb2xsb3ctdXAgcXVlc3Rpb24gaXMgd2hhdCBpcyB0
+aGUgdXNlIG9mIHRoZSBgc3RvcGAgYXJndW1lbnQgb2YgCj4+IGZhbHNlLCBkb2VzIGl0IHJlcXVp
+cmUgdGhlIGRldmljZSB0byBzdXBwb3J0IHJlc3VtZT8gCgoKWWVzLCB0aGlzIGlzIHJlcXVpcmVk
+IGJ5IHRoZSBoeXBlcnZpc29yIGUuZyBmb3IgUWVtdSBpdCBzdXBwb3J0cyB2bSAKc3RvcC9yZXN1
+bWUuCgoKPj4gSSBzZWVtIHRvIHJlY2FsbCB0aGlzIGlzIHNvbWV0aGluZyB0byBhYmFuZG9uIGlu
+IGZhdm9yIG9mIGRldmljZSAKPj4gcmVzZXQgcGx1cyBzZXR0aW5nIHF1ZXVlIGJhc2UvYWRkciBh
+ZnRlci4gT3IgaXQncyBqdXN0IGEgb3B0aW9uYWwgCj4+IGZlYXR1cmUgdGhhdCBtYXkgYmUgZGV2
+aWNlIHNwZWNpZmljIChpZiBvbmUgY2FuIGRvIHNvIGluIHNpbXBsZSB3YXkpLgoKClJlc3QgaXMg
+bW9yZSBsaWtlIGEgd29ya2Fyb25kIGNvbnNpZGVyIHdlIGRvbid0IGhhdmUgYSBzdG9wIEFQSS4g
+CkNvbnNpZGVyIHdlIGRvbid0IGFkZCBzdG9wIGF0IHRoZSBiZWdpbm5pbmcsIGl0IGNhbiBvbmx5
+IGJlIGFuIG9wdGlvbmFsIApmZWF0dXJlLgoKVGhhbmtzCgoKPj4KPj4gLVNpd2VpCj4+Cj4+PiDC
+oCB0aGF0IGlzIHJlcXVpcmVkCj4+PiBmb3IgcmVzdG9yaW5nIGluIHRoZSBmdXR1cmUuCj4+Pgo+
+Pj4gSW4gdGhlIGZ1dHVyZSwgd2Ugd2lsbCBwcm92aWRlIGZlYXR1cmVzIHNpbWlsYXIgdG8gCj4+
+PiBWSE9TVF9VU0VSX0dFVF9JTkZMSUdIVF9GRAo+Pj4gc28gdGhlIGRldmljZSBjYW4gc2F2ZSBw
+ZW5kaW5nIG9wZXJhdGlvbnMuCj4+PiBgYGAKPj4+Cj4+PiBUaGFua3MgZm9yIHBvaW50aW5nIGl0
+IG91dCEKPj4+Cj4+Pgo+Pj4KPj4+Cj4+Pgo+Pj4+IEUuZy4gZG8gSSBhc3N1bWUgY29ycmVjdGx5
+IGFsbCBpbiBmbGlnaHQgcmVxdWVzdHMgYXJlIGZsdXNoZWQgYWZ0ZXIKPj4+PiByZXR1cm4gZnJv
+bSB0aGlzIHVBUEkgY2FsbD8gT3Igc29tZSBvZiBwZW5kaW5nIHJlcXVlc3RzIG1heSBiZSBzdWJq
+ZWN0Cj4+Pj4gdG8gbG9zcyBvciBmYWlsdXJlPyBIb3cgZG9lcyB0aGUgY2FsbGVyL3VzZXIgc3Bl
+Y2lmeSB0aGVzZSB2YXJpb3VzCj4+Pj4gb3B0aW9ucyAoaWYgdGhlcmUgYXJlKSBmb3IgZGV2aWNl
+IHN0b3A/Cj4+Pj4KPj4+PiBCVFcsIGl0IHdvdWxkIGJlIG5pY2UgdG8gYWRkIHRoZSBjb3JyZXNw
+b25kaW5nIHN1cHBvcnQgdG8gdmRwYV9zaW1fYmxrCj4+Pj4gYXMgd2VsbCB0byBkZW1vIHRoZSBz
+dG9wIGhhbmRsaW5nLiBUbyBqdXN0IHNob3cgaXQgb24gdmRwYS1zaW0tbmV0IAo+Pj4+IElNSE8K
+Pj4+PiBpcyBwZXJoYXBzIG5vdCBzbyBjb252aW5jaW5nLgo+Pj4+Cj4+Pj4gLVNpd2VpCj4+Pj4K
+Pj4+Pj4gwqDCoMKgICogQGdldF9jb25maWdfc2l6ZTogR2V0IHRoZSBzaXplIG9mIHRoZSBjb25m
+aWd1cmF0aW9uIHNwYWNlIAo+Pj4+PiBpbmNsdWRlcwo+Pj4+PiDCoMKgwqAgKsKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIGZpZWxkcyB0aGF0IGFyZSBj
+b25kaXRpb25hbCBvbiAKPj4+Pj4gZmVhdHVyZSBiaXRzLgo+Pj4+PiDCoMKgwqAgKsKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIEB2ZGV2OiB2ZHBhIGRl
+dmljZQo+Pj4+PiBAQCAtMzE2LDYgKzMyMSw3IEBAIHN0cnVjdCB2ZHBhX2NvbmZpZ19vcHMgewo+
+Pj4+PiDCoMKgwqDCoMKgwqAgdTggKCpnZXRfc3RhdHVzKShzdHJ1Y3QgdmRwYV9kZXZpY2UgKnZk
+ZXYpOwo+Pj4+PiDCoMKgwqDCoMKgwqAgdm9pZCAoKnNldF9zdGF0dXMpKHN0cnVjdCB2ZHBhX2Rl
+dmljZSAqdmRldiwgdTggc3RhdHVzKTsKPj4+Pj4gwqDCoMKgwqDCoMKgIGludCAoKnJlc2V0KShz
+dHJ1Y3QgdmRwYV9kZXZpY2UgKnZkZXYpOwo+Pj4+PiArwqDCoMKgwqAgaW50ICgqc3RvcCkoc3Ry
+dWN0IHZkcGFfZGV2aWNlICp2ZGV2LCBib29sIHN0b3ApOwo+Pj4+PiDCoMKgwqDCoMKgwqAgc2l6
+ZV90ICgqZ2V0X2NvbmZpZ19zaXplKShzdHJ1Y3QgdmRwYV9kZXZpY2UgKnZkZXYpOwo+Pj4+PiDC
+oMKgwqDCoMKgwqAgdm9pZCAoKmdldF9jb25maWcpKHN0cnVjdCB2ZHBhX2RldmljZSAqdmRldiwg
+dW5zaWduZWQgaW50IAo+Pj4+PiBvZmZzZXQsCj4+Pj4+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHZvaWQgKmJ1ZiwgdW5zaWduZWQgaW50IGxlbik7
+Cj4+Cj4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZp
+cnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3Vu
+ZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0
+aW5mby92aXJ0dWFsaXphdGlvbg==
