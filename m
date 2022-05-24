@@ -4,162 +4,91 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6EFAEC433F5
-	for <virtualization@archiver.kernel.org>; Tue, 24 May 2022 01:07:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3400CC433F5
+	for <virtualization@archiver.kernel.org>; Tue, 24 May 2022 01:58:24 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 03AF44016C;
-	Tue, 24 May 2022 01:07:39 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id B10694048A;
+	Tue, 24 May 2022 01:58:23 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 6h3xubDPIemS; Tue, 24 May 2022 01:07:38 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 94B4140BE6;
-	Tue, 24 May 2022 01:07:37 +0000 (UTC)
+	with ESMTP id r9yoSEU5JVDO; Tue, 24 May 2022 01:58:22 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 01A42400C0;
+	Tue, 24 May 2022 01:58:21 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 649A8C0039;
-	Tue, 24 May 2022 01:07:37 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4CA47C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C4EF3C0032;
+	Tue, 24 May 2022 01:58:21 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5FD6BC002D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 24 May 2022 01:07:35 +0000 (UTC)
+ Tue, 24 May 2022 01:58:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 341D440BE6
+ by smtp3.osuosl.org (Postfix) with ESMTP id 5554A60C00
  for <virtualization@lists.linux-foundation.org>;
- Tue, 24 May 2022 01:07:35 +0000 (UTC)
+ Tue, 24 May 2022 01:58:20 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id S6wYkwi2gm4u
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=kernel.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id MM_j2nZUHoHn
  for <virtualization@lists.linux-foundation.org>;
- Tue, 24 May 2022 01:07:33 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from NAM10-DM6-obe.outbound.protection.outlook.com
- (mail-dm6nam10on20619.outbound.protection.outlook.com
- [IPv6:2a01:111:f400:7e88::619])
- by smtp2.osuosl.org (Postfix) with ESMTPS id CE3C64016C
+ Tue, 24 May 2022 01:58:19 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id E6BB460AAF
  for <virtualization@lists.linux-foundation.org>;
- Tue, 24 May 2022 01:07:33 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=iAEi9fN/6FE9spT2CEVxHlIJwikZvO/wHG0EUxeub14yvHYEpVoG+NBF31PmYg6WkhajiH9jRs+a2wPOeKquoy9DDHu6LKjQG1VQ34CtIuyJikwmvyW1iRXA4VRo+eV391DQqf4CZME/nJVqQuaRffGpUVqWWGjifK8/6JuRZwDpZptsktN6M+RuZSE5ajAP0KT1MzFIbehYVoNHeFKYFC+PnqCo91YJ2GYgs99KBlA6KJah8Z+nYygKBmY5udFk2TR2dGsih+X6Ibw8A+RDd3UGUk7CyjGAOsD4KUsPOQnLr3xjpnCvB5/Qpm9Ld9NG/KPv26mQlQYPM9+HEOPnxg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=ARMBtD64waJNylicBFKFKKfgu1lDWPzJUswj7wADqKs=;
- b=A/fHGcn6rbYFtcViCLpwgyq6Hweb7nqKSSI9MddNLN4J5nR1URIGPAj+BiRAgfc7st+wifBRPEAvoXph54tJfQVogvEENirhYu9J9cOZTHD7Il1cucTzSK0EXKQOwJZaA2ROkN9hPSRdVPdqYdK2i767+kODjSTEj4OL5mlpKaN3hqFYcRDnZvKGjrK2acVyddQHAB6wV2amCoXsvuZamyBwWXQdiEnUnIEY8qtN70HzqiKMYJ+miKaafVsyEULmCHlrfSTivd6ODQQRfdHxQSY534VBOrki82/NZ0br/Xf32i7ojTshTszxPjHZ6nracExPlPx+wXeXBHxS/34dRQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ARMBtD64waJNylicBFKFKKfgu1lDWPzJUswj7wADqKs=;
- b=esSSvcNeBBpvAudI6G7N29vxiOcvZc4Vq7flcfrpaXJliPa57LbpH1i4nZDoJ/3x/x8whSZBHjBU0OyZ42xCjrIJWSvp25mZqLY0Pq5wPO9RqVxdyOazgxguaHAj/G8VrIXKhts7p4yeNJt9AggG1Pr0awsliTaqbKDCtDOiDBASgWMLfql6VWISxiKXvXf0fEX/F8mkHM6b2cjegS6jJsjVIn+1itPEo0uBI+mR/xTYlxptj9aYkuYjdchsuRWiUANiGT8s8E09KD6Fveb8ajzlChBOWgxn82C/lJUcNEBa3dmbnLvmMQCrqBb/UCOm4vQs7ucBmZADuvSDe4HC6Q==
-Received: from PH0PR12MB5481.namprd12.prod.outlook.com (2603:10b6:510:d4::15)
- by DM5PR1201MB0153.namprd12.prod.outlook.com (2603:10b6:4:57::19)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5273.14; Tue, 24 May
- 2022 01:07:30 +0000
-Received: from PH0PR12MB5481.namprd12.prod.outlook.com
- ([fe80::489d:7d33:3194:b854]) by PH0PR12MB5481.namprd12.prod.outlook.com
- ([fe80::489d:7d33:3194:b854%3]) with mapi id 15.20.5273.023; Tue, 24 May 2022
- 01:07:30 +0000
-To: Jason Wang <jasowang@redhat.com>
-Subject: RE: [PATCH v2 2/3] vdpa: Add a device object for vdpa management
- device
-Thread-Topic: [PATCH v2 2/3] vdpa: Add a device object for vdpa management
- device
-Thread-Index: AQHYaOqkgz3W9mP+EUqOpcefr9+WPa0h7mWwgAC+VgCAAEk50IAAI2SAgABj/vCAANQvAIAHXd1ggAAsrICAAWTs8A==
-Date: Tue, 24 May 2022 01:07:29 +0000
-Message-ID: <PH0PR12MB54811072034C9FC99945DF50DCD79@PH0PR12MB5481.namprd12.prod.outlook.com>
-References: <20220516060342.106-1-xieyongji@bytedance.com>
- <20220516060342.106-2-xieyongji@bytedance.com>
- <PH0PR12MB54813F96E346D591FBE238C1DCCF9@PH0PR12MB5481.namprd12.prod.outlook.com>
- <CACycT3sRc4bk+3oq7FLzpBMCG_XRN7tOaeEAtNg69o3h8c3=EA@mail.gmail.com>
- <PH0PR12MB5481AD3C1517331EAC4EE078DCCE9@PH0PR12MB5481.namprd12.prod.outlook.com>
- <YoOpBaWcaoujWqO7@kroah.com>
- <PH0PR12MB54819F4E48BE36460BC89457DCCE9@PH0PR12MB5481.namprd12.prod.outlook.com>
- <28a689dc-a9de-ca1f-6b9f-26c735e96781@redhat.com>
- <PH0PR12MB54817B6BE5796E237A50FB2FDCD49@PH0PR12MB5481.namprd12.prod.outlook.com>
- <CACGkMEvrekJFMFLpgUHZ7HOTed7oRSt4Mv2ASUHLNC3ZCs-NEA@mail.gmail.com>
-In-Reply-To: <CACGkMEvrekJFMFLpgUHZ7HOTed7oRSt4Mv2ASUHLNC3ZCs-NEA@mail.gmail.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: aabee70f-a902-4349-9dd1-08da3d21c685
-x-ms-traffictypediagnostic: DM5PR1201MB0153:EE_
-x-microsoft-antispam-prvs: <DM5PR1201MB0153716BFA98FB52CA271DA3DCD79@DM5PR1201MB0153.namprd12.prod.outlook.com>
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: Zum9WpsMYcnhbeVaEz0T0ueBnnORBNOIubK8t+Nv0RxtMCTIdWSSNn+KzUeqvTcBafkeQ1p5AUUElskYd9SO5NrPcwoAnZg4K8R0N0Eb/DuX0dqLkoYCTEROSdTqkhccUHagK8nP3O/vOHqS0qjobAIxFt4PNGTh1/EetvUJbDmKwitO92xRxiHFBUmzaV8izr6Nb12jwAlO1nQVghUzdW4ppRZptKZETfn6GdU8yqcZwkVL/RbcMe+6B/h/BkQNxEdqCQ7DeV3ui+MWqyWannPwveM+5ibYNWt0l0IaRCeT95cf67a+yRZM+tI419NrxJOQ1HmcwIhnq278Xu+ydzs+nXGAfYcMoSMA/aSaDw68yDIIxJOLSJ8DbunL81zrCfN8BUbaU65TyF2aBoCB3d9nsC4mg8bq+S7ArA+yZxZKIHSBg9n+PUiNo/Xz0oZ+WtMJJYZ6zzKLu8ozXrfkEpWO6A2ZHL88klXPCJYViLZkngDomxTL9Cd3EWUT8/misO581Q+X3zeReTmqjCHV7MWYXZRuRHqtiEOUSLgh43gdAeXWDWS/0HS79PQHHNfGH8QHLXcfGCNonshTR2s97vCSViQ50+1P1pUCCVju32XrbaBeyaffkBCkYhuvTCkl9BIhIQcpPXlaOyDDjGeLFjoN+/FT857U0qcHF1s6sMxszDd5MVLTTElQM19Fk284twjl+CiS40Gz5h0zyRwgy2Ocy5XwcpBicPnPeO4BiepfQk0uyqtePtF2dVMrLtuNuq/yBzDHtBTjIwgezaIzKOn+0NH0be7K//8Uz9PMy2M=
-x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:PH0PR12MB5481.namprd12.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230001)(4636009)(366004)(38100700002)(316002)(122000001)(54906003)(6916009)(38070700005)(4326008)(8676002)(66446008)(64756008)(186003)(76116006)(66946007)(66556008)(66476007)(86362001)(508600001)(55016003)(71200400001)(9686003)(53546011)(33656002)(8936002)(7696005)(6506007)(52536014)(2906002)(5660300002);
- DIR:OUT; SFP:1101; 
-x-ms-exchange-antispam-messagedata-chunkcount: 2
-x-ms-exchange-antispam-messagedata-0: =?utf-8?B?V2gxNE5hZUVsSU5KSTlaNWdBZmhhM1dhSWUyc0dsVUhXTFNpelZGcEJKLzVC?=
- =?utf-8?B?cTB4dDNnRzNSckF1T1ZIaTJHRUJRc2dDejBmRFRscVVFbTBueFNWQkJ6NDV5?=
- =?utf-8?B?Z1B3MlBhZUc1Um9kanI5VmxXRTFzTmhZK0kwQVZFWDFUZ1hnZEYvbVYwZzNE?=
- =?utf-8?B?amtTSE03dUk4TGJjV01FVGwycEo3V05MOTNRcVBvVEt1aHkxbWF0TGhlMTAx?=
- =?utf-8?B?S1Q1ak1RVGQ1M1dHVTY3TENmb0VXcDMvWUZjY1ROYXVsdjBHVmkvNCtrVER1?=
- =?utf-8?B?bjFtUW9VcDI3ZkZnVnR2bXRHRmVLZVh0cHhxS1dCZXNXN2RmWi9mY2J4OVFM?=
- =?utf-8?B?bUJFTytQcEFLNjU5MWlDS01XblhsZlFTOGVkNmhqQURGUVpsR1l4S2ZreWl3?=
- =?utf-8?B?Q3BoSkVhT1BLSHREN0lzOHhDUjRVZEEvTkRpTThxMHZxSUJzcEgxdy9kTEtP?=
- =?utf-8?B?SEptVjNWbUxmeGxKd0dzVW1rcmFIMWg1T0pPajBYRGgxR3loSjN0eEROd1hF?=
- =?utf-8?B?cThNOXo5TnpjS1o3MUt2K3premtXMVpjbGV0SUNrSFAvTi9jWm16UUdVNTV5?=
- =?utf-8?B?bmFQVzdoMFlpMk5uUlFQNUFVZ1hxZ3I2Mmo3TFlZTVhma1ZUVUQ2ckVzK09o?=
- =?utf-8?B?azR2S2RxdXpiSnZjT3FEblk0RHRlb204aXV6Rk51R3dTSmVMWmRBc2lqYzlt?=
- =?utf-8?B?b2hncWV0SmF4OXZhRnhReXprYjJsTGh5SFlVaWpKVjBzU1ZQVzNmZmwxL2tJ?=
- =?utf-8?B?bU84LzVHdG4za3VmRHpoTTN1dVhyYm9qeEMzUUZtQnNxQTg3ZFN2bFovZ1RL?=
- =?utf-8?B?eTFJRFdQUlU5SS81UnB5R2tEQTJLZEVSWXQreEhTcmlaK2tyTzUzNFkyaEJ5?=
- =?utf-8?B?bW9xZVV4OTN6NHRXc3drU1IvKzQrMXFGQ1pNODdVZ2todE5Ic1k3WmMyYXkv?=
- =?utf-8?B?SkFaSlZpMTliNG51YmtCQ05RL0s4b2s3Nk94WFhjbUtMajFJdi84bzJQZUkx?=
- =?utf-8?B?UW1IRGpORTJ6bStzb3lGNm90NXVBSVFzSGsyOURCNzJxdnRGUkF1bXBMUVVo?=
- =?utf-8?B?Wklqa0NMMWY0YUJ6YlZ3aW9yeVpYSjVIOWdzNDhaS1M3TldiT2lnUURpWjNn?=
- =?utf-8?B?Q2lWRTFIbkJvRWpkZ3JDTitJV1BYYkE0MmIvMkt1VHAyV1BiWWxkZDJQT2ph?=
- =?utf-8?B?NXpWYWhNcVhndUJ3S0dUWnlhRjVVQlZoMzVtdFNaV0czVG5TV1pQMGp6U3c0?=
- =?utf-8?B?QUR1Q0QyUzVHNGQ4bmdCbXhUVkRLY3lDSXFralFyQkVSN1hNYmlBbzNWR0RT?=
- =?utf-8?B?b05CSVlXeGZlUTF1ckJDaUtIUXYwRlpBbHJrRVlqYzc2U1crWnhVelFrSFRH?=
- =?utf-8?B?aUxpMlhVeS9tVFFzM2F2V25yTGgya1laUWJhcTR2SVh2YmFIY0ZGeWRwcENs?=
- =?utf-8?B?OUJNTUJ5WVp0TEVkcEV0QVJDdWU0YXBGMklkNXNMQndtci9NRjJoM0NJUkZx?=
- =?utf-8?B?dFJlbTI3SFhmdUpFNTU0dmhCTE9RSmdCSWpQL1hhYmJYRXV2ZXM2UFRPbVg1?=
- =?utf-8?B?RnlOTHhrKzNxSFhGb2sxQTE1Y3RzeXlXeEJlbFJUQmw5dk5FdnpaMkE0MGdF?=
- =?utf-8?B?T1pjUWpzbDB6SnloRTJCNDNmODNCZGYxSjdNOEgzYml0VWJYTk1CcUVQVjFz?=
- =?utf-8?B?TW95MEtjRzZKS1VPNVBHN3VrK2hGQVB4akRhVnUzTVZZWnB1cVRzNStLUThB?=
- =?utf-8?B?ZHVVQ3lRdC9IVjRnZEkwZ1dHUFVLYkUwMk1COUxtQlF3Q0ttSXc5K3JoL3ox?=
- =?utf-8?B?VGNNSWl0dHc3MDluOWIwNU9qamV3bGhPdHNPMHJRdVQ1V1J4dmU4MmFEckxz?=
- =?utf-8?B?cHN6N0NBd012YkRwMnZVRHIrSXRBbjdjc2ZmNllxUEZQM3EydHdQL1ZTMkpu?=
- =?utf-8?B?ZXJyVk9kQ1kvTW5HUncrc3EzcHcrWWE4S3dIZ1ppTWxLMWZjY05hSFZKZXh0?=
- =?utf-8?B?NEJGWmc3QTRRaS93K2xBOG5vSGM1a3ZCQXdVb3AvMzJRUzdlZEJBRWNWUnBt?=
- =?utf-8?B?RGFqd3l5WjhEZDNHb2V1ZlNsZEJEdmk3LzJHc1dqZGpIYW1CTXNRbDl4SnJG?=
- =?utf-8?B?dW1qdjhha28wcCtXbDRma0dza0pNSHF0cjVtMUp3ZWRaVUgvUzNKNnlXK21W?=
- =?utf-8?B?TUgrc2k1VXdUUTZvSitTK0JqWVZoYU40RDNjbXFXQjM0cXE4N0QyVW8xNzRh?=
- =?utf-8?B?a042QWxmcCtkenpURlhnaVhLM0VrOEdIczB4VytBTmFzcjE3RzRrdk9iMUwv?=
- =?utf-8?B?amlwaUxZR00zNWJYUUFURTFWdDFVelBPdEd5UkJBWitvbE9xT3hjMXZsbGl6?=
- =?utf-8?Q?vDK5iTe1khHc1JDvkLLmVbL2F1d+MvnrRY80XYQD/ilhn?=
-x-ms-exchange-antispam-messagedata-1: x5XCBPAEHEAaRg==
+ Tue, 24 May 2022 01:58:18 +0000 (UTC)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by ams.source.kernel.org (Postfix) with ESMTPS id 2A009B8171B;
+ Tue, 24 May 2022 01:58:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0355CC385AA;
+ Tue, 24 May 2022 01:58:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1653357495;
+ bh=Cv9XZBa4Hc/gWPaETmcVdmUQuN7p5/VU3A7uzoNojTk=;
+ h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+ b=OSoLdx+BBzfvf8wv36fAozO82JJNlzeO9vQ1p/JEsvOCSYSnJbw2wtgCh19TDHhHy
+ /BPY1AY423sAwNT2orpFJ7slTyygINF1MK+6dQeA2VOBmNEVvw+sI6H8xvHjtaYd3f
+ FDur2l6Rz7WLduTHmfvb6RfgBdvBctbshDJHwVVMXV7gspqB1IwzwQpz4UWL9C30UF
+ XztCByCNAXI3IayBHiVgxFrl7fDtalsqMYnoNzg3pQsnBsA6r4tMGYyYD/FF00nHNF
+ 5sGFu13IN/UVYghw9VbrG7c44KSxvwomO+GDHsxawwTtbB6PgXN3IJWMIFX/u5Up1k
+ obVnFHYKI18kQ==
+Date: Mon, 23 May 2022 18:58:13 -0700 (PDT)
+From: Stefano Stabellini <sstabellini@kernel.org>
+X-X-Sender: sstabellini@ubuntu-linux-20-04-desktop
+To: Oleksandr <olekstysh@gmail.com>
+Subject: Re: [PATCH V2 5/7] dt-bindings: Add xen,
+ dev-domid property description for xen-grant DMA ops
+In-Reply-To: <390ba7bb-ee9e-b7b7-5f08-71a7245fa4ec@gmail.com>
+Message-ID: <alpine.DEB.2.22.394.2205231856330.1905099@ubuntu-linux-20-04-desktop>
+References: <1651947548-4055-1-git-send-email-olekstysh@gmail.com>
+ <1651947548-4055-6-git-send-email-olekstysh@gmail.com>
+ <CAK8P3a2cAnXr8TDDYTiFxTWzQxa67sGnYDQRRD+=Q8_cSb1mEw@mail.gmail.com>
+ <56e8c32d-6771-7179-005f-26ca58555659@gmail.com>
+ <CAK8P3a1YhkEZ8gcbXHEa5Bwx-4VVRJO8SUHf8=RNWRsc2Yo-+A@mail.gmail.com>
+ <460a746c-6b61-214b-4653-44a1430e314d@gmail.com>
+ <alpine.DEB.2.22.394.2205181802310.1905099@ubuntu-linux-20-04-desktop>
+ <6f469e9c-c26e-f4be-9a85-710afb0d77eb@gmail.com>
+ <390ba7bb-ee9e-b7b7-5f08-71a7245fa4ec@gmail.com>
+User-Agent: Alpine 2.22 (DEB 394 2020-01-19)
 MIME-Version: 1.0
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB5481.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: aabee70f-a902-4349-9dd1-08da3d21c685
-X-MS-Exchange-CrossTenant-originalarrivaltime: 24 May 2022 01:07:30.0050 (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: o1hTxe9DAtQ4nc6AMCVHgVQB0go0QYUxI4jjV4HUCJ8MEMYKVoWVihue/67ujPuAuLLTnS4L9pLlrDIw+WTOIQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR1201MB0153
-Cc: "mst@redhat.com" <mst@redhat.com>,
- "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
- "virtualization@lists.linux-foundation.org"
+Content-Type: multipart/mixed; boundary="8323329-279637414-1653357495=:1905099"
+Cc: Juergen Gross <jgross@suse.com>, DTML <devicetree@vger.kernel.org>,
+ Stefano Stabellini <sstabellini@kernel.org>, Julien Grall <julien@xen.org>,
+ Arnd Bergmann <arnd@arndb.de>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+ "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE"
  <virtualization@lists.linux-foundation.org>,
- Yongji Xie <xieyongji@bytedance.com>,
- "lingshan.zhu@intel.com" <lingshan.zhu@intel.com>, Eli Cohen <elic@nvidia.com>
+ Christoph Hellwig <hch@infradead.org>,
+ Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+ Jean-Philippe Brucker <jean-philippe@linaro.org>,
+ Rob Herring <robh+dt@kernel.org>, xen-devel <xen-devel@lists.xenproject.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Linux ARM <linux-arm-kernel@lists.infradead.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -171,49 +100,258 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Parav Pandit via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Parav Pandit <parav@nvidia.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-DQo+IEZyb206IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+DQo+IFNlbnQ6IFN1bmRh
-eSwgTWF5IDIyLCAyMDIyIDExOjQxIFBNDQo+IFRvOiBQYXJhdiBQYW5kaXQgPHBhcmF2QG52aWRp
-YS5jb20+DQo+IENjOiBncmVna2hAbGludXhmb3VuZGF0aW9uLm9yZzsgWW9uZ2ppIFhpZSA8eGll
-eW9uZ2ppQGJ5dGVkYW5jZS5jb20+Ow0KPiBtc3RAcmVkaGF0LmNvbTsgbGluZ3NoYW4uemh1QGlu
-dGVsLmNvbTsgRWxpIENvaGVuIDxlbGljQG52aWRpYS5jb20+Ow0KPiB2aXJ0dWFsaXphdGlvbkBs
-aXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZw0KPiBTdWJqZWN0OiBSZTogW1BBVENIIHYyIDIvM10g
-dmRwYTogQWRkIGEgZGV2aWNlIG9iamVjdCBmb3IgdmRwYSBtYW5hZ2VtZW50DQo+IGRldmljZQ0K
-PiANCj4gT24gTW9uLCBNYXkgMjMsIDIwMjIgYXQgMTA6MDAgQU0gUGFyYXYgUGFuZGl0IDxwYXJh
-dkBudmlkaWEuY29tPg0KPiB3cm90ZToNCj4gPg0KPiA+DQo+ID4gPiBGcm9tOiBKYXNvbiBXYW5n
-IDxqYXNvd2FuZ0ByZWRoYXQuY29tPg0KPiA+ID4gU2VudDogV2VkbmVzZGF5LCBNYXkgMTgsIDIw
-MjIgNDozMiBBTQ0KPiA+ID4NCj4gPiA+IOWcqCAyMDIyLzUvMTggMDc6MDMsIFBhcmF2IFBhbmRp
-dCDlhpnpgZM6DQo+ID4gPiA+Pj4gQW5kIHJlZ2FyZGluZyB2ZHVzZV9kZXZfcmVsZWFzZSgpIGFu
-ZCBleGlzdGluZyBlbXB0eSByZWxlYXNlDQo+ID4gPiA+Pj4gZnVuY3Rpb24sDQo+ID4gPiA+PiB0
-aGV5IGNhbiBiZSBkeW5hbWljYWxseSBhbGxvY2F0ZWQuDQo+ID4gPiA+Pj4gVGhpcyBpcyBiZWNh
-dXNlIHRoZXkgYXJlIHJlYWxseSB0aGUgc3RydWN0IGRldmljZS4NCj4gPiA+ID4+IEkgZG8gbm90
-IHVuZGVyc3RhbmQgdGhpcyBzdGF0ZW1lbnQsIHNvcnJ5Lg0KPiA+ID4gPiBJdCB3YXMgYmFkIHNl
-bnRlbmNlLCBteSBiYWQuDQo+ID4gPiA+DQo+ID4gPiA+IFdoYXQgSSB3YW50ZWQgdG8gc2F5IGlz
-LCBwcm9iYWJseSBiZXR0ZXIgZXhwbGFpbmVkIHdpdGggcmVhbCBwYXRjaA0KPiBiZWxvdy4NCj4g
-PiA+ID4gSW4gY29udGV4dCBvZiBbMV0sIHN0cnVjdCB2ZHVzZV9tZ210ZGV2IGVtcHR5IHJlbGVh
-c2UgZnVuY3Rpb24gY2FuDQo+ID4gPiA+IGJlDQo+ID4gPiBhdm9pZGVkIGJ5IGJlbG93IGlubGlu
-ZSBwYXRjaCBbMl0uDQo+ID4gPiA+DQo+ID4gPiA+IFsxXWh0dHBzOi8vd3d3LnNwaW5pY3MubmV0
-L2xpc3RzL2xpbnV4LXZpcnR1YWxpemF0aW9uL21zZzU2MzcxLmh0bQ0KPiA+ID4gPiBsDQo+ID4g
-PiA+DQo+ID4gPiA+IFsyXSBwYXRjaDoNCj4gPiA+DQo+ID4gPg0KPiA+ID4gT2ssIGlmIHdlIGdv
-IHRoaXMgd2F5IChsb29rcyBtb3JlIGxpa2UgbWRldl9wYXJlbnQpLiBJIHRoaW5rIHdlIG5lZWQN
-Cj4gPiA+IGF0IGxlYXN0IHJlbmFtZSB0aGUgdmRwYV9tZ210X2RldmljZSwgbWF5YmUgdmRwYV9w
-YXJlbnQgKGxpa2UNCj4gbWRldl9wYXJlbnQpPw0KPiA+ID4NCj4gPiBJdCBjYW4gYmUuDQo+ID4g
-UGFyZW50IGlzIGFsc28gYSBkZXZpY2UuIFNvLi4uDQo+IA0KPiBIb3cgYWJvdXQgInZkcGFfcGFy
-ZW50X2RhdGEiPyBOb3QgYSBuYXRpdmUgc3BlYWtlciBidXQgaXQncyBiZXR0ZXIgdG8NCj4gcmVt
-b3ZlICJkZXZpY2UiIGZyb20gdGhlIG5hbWUgYW5ob3cuDQo+IA0KX2RhdGEgaXMgZGlsdXRpbmcg
-dGhlIHJvbGUgd2hhdCB0aGlzIG9iamVjdCBkb2VzIGFzIGhhcyBvcHMuDQpBbmQgb2JqZWN0IGlz
-IG1vcmUgdGhhbiBhIHBhcmVudC4NClNvIG1heSBiZSB2ZHBhX21nbXRfbGluayBhcyBpdCBlbmFi
-bGVzIGhhbmRsaW5nIHZkcGEgZGV2aWNlIG1hbmFnZW1lbnQgYW5kIGxpbmthZ2UgdG8gdGhlICpk
-ZXZpY2UuDQoNCkkgc3RpbGwgZmVlbCB0aGF0IGl0cyBvdmVya2lsbC4NCk1nbXRfZGV2IGlzIHBy
-b2JhYmx5IGp1c3QgZmluZSwgYXMgaXRzIHRha2luZyBjYXJlIG9mIGxpZmUgY3ljbGluZyBtdWx0
-aXBsZSBkZXZpY2VzLi4uDQoNCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0
-cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcv
-bWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+
+--8323329-279637414-1653357495=:1905099
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+
+On Mon, 23 May 2022, Oleksandr wrote:
+> > > On Thu, 19 May 2022, Oleksandr wrote:
+> > > > > On Wed, May 18, 2022 at 5:06 PM Oleksandr <olekstysh@gmail.com> wrote:
+> > > > > > On 18.05.22 17:32, Arnd Bergmann wrote:
+> > > > > > > On Sat, May 7, 2022 at 7:19 PM Oleksandr Tyshchenko
+> > > > > > > <olekstysh@gmail.com> wrote:
+> > > > > > >     This would mean having a device
+> > > > > > > node for the grant-table mechanism that can be referred to using
+> > > > > > > the
+> > > > > > > 'iommus'
+> > > > > > > phandle property, with the domid as an additional argument.
+> > > > > > I assume, you are speaking about something like the following?
+> > > > > > 
+> > > > > > 
+> > > > > > xen_dummy_iommu {
+> > > > > >       compatible = "xen,dummy-iommu";
+> > > > > >       #iommu-cells = <1>;
+> > > > > > };
+> > > > > > 
+> > > > > > virtio@3000 {
+> > > > > >       compatible = "virtio,mmio";
+> > > > > >       reg = <0x3000 0x100>;
+> > > > > >       interrupts = <41>;
+> > > > > > 
+> > > > > >       /* The device is located in Xen domain with ID 1 */
+> > > > > >       iommus = <&xen_dummy_iommu 1>;
+> > > > > > };
+> > > > > Right, that's that's the idea,
+> > > > thank you for the confirmation
+> > > > 
+> > > > 
+> > > > 
+> > > > >    except I would not call it a 'dummy'.
+> > > > >   From the perspective of the DT, this behaves just like an IOMMU,
+> > > > > even if the exact mechanism is different from most hardware IOMMU
+> > > > > implementations.
+> > > > well, agree
+> > > > 
+> > > > 
+> > > > > > > It does not quite fit the model that Linux currently uses for
+> > > > > > > iommus,
+> > > > > > > as that has an allocator for dma_addr_t space
+> > > > > > yes (# 3/7 adds grant-table based allocator)
+> > > > > > 
+> > > > > > 
+> > > > > > > , but it would think it's
+> > > > > > > conceptually close enough that it makes sense for the binding.
+> > > > > > Interesting idea. I am wondering, do we need an extra actions for
+> > > > > > this
+> > > > > > to work in Linux guest (dummy IOMMU driver, etc)?
+> > > > > It depends on how closely the guest implementation can be made to
+> > > > > resemble a normal iommu. If you do allocate dma_addr_t addresses,
+> > > > > it may actually be close enough that you can just turn the grant-table
+> > > > > code into a normal iommu driver and change nothing else.
+> > > > Unfortunately, I failed to find a way how use grant references at the
+> > > > iommu_ops level (I mean to fully pretend that we are an IOMMU driver). I
+> > > > am
+> > > > not too familiar with that, so what is written below might be wrong or
+> > > > at
+> > > > least not precise.
+> > > > 
+> > > > The normal IOMMU driver in Linux doesn’t allocate DMA addresses by
+> > > > itself, it
+> > > > just maps (IOVA-PA) what was requested to be mapped by the upper layer.
+> > > > The
+> > > > DMA address allocation is done by the upper layer (DMA-IOMMU which is
+> > > > the glue
+> > > > layer between DMA API and IOMMU API allocates IOVA for PA?). But, all
+> > > > what we
+> > > > need here is just to allocate our specific grant-table based DMA
+> > > > addresses
+> > > > (DMA address = grant reference + offset in the page), so let’s say we
+> > > > need an
+> > > > entity to take a physical address as parameter and return a DMA address
+> > > > (what
+> > > > actually commit #3/7 is doing), and that’s all. So working at the
+> > > > dma_ops
+> > > > layer we get exactly what we need, with the minimal changes to guest
+> > > > infrastructure. In our case the Xen itself acts as an IOMMU.
+> > > > 
+> > > > Assuming that we want to reuse the IOMMU infrastructure somehow for our
+> > > > needs.
+> > > > I think, in that case we will likely need to introduce a new specific
+> > > > IOVA
+> > > > allocator (alongside with a generic one) to be hooked up by the
+> > > > DMA-IOMMU
+> > > > layer if we run on top of Xen. But, even having the specific IOVA
+> > > > allocator to
+> > > > return what we indeed need (DMA address = grant reference + offset in
+> > > > the
+> > > > page) we will still need the specific minimal required IOMMU driver to
+> > > > be
+> > > > present in the system anyway in order to track the mappings(?) and do
+> > > > nothing
+> > > > with them, returning a success (this specific IOMMU driver should have
+> > > > all
+> > > > mandatory callbacks implemented).
+> > > > 
+> > > > I completely agree, it would be really nice to reuse generic IOMMU
+> > > > bindings
+> > > > rather than introducing Xen specific property if what we are trying to
+> > > > implement in current patch series fits in the usage of "iommus" in Linux
+> > > > more-less. But, if we will have to add more complexity/more components
+> > > > to the
+> > > > code for the sake of reusing device tree binding, this raises a question
+> > > > whether that’s worthwhile.
+> > > > 
+> > > > Or I really missed something?
+> > > I think Arnd was primarily suggesting to reuse the IOMMU Device Tree
+> > > bindings, not necessarily the IOMMU drivers framework in Linux (although
+> > > that would be an added bonus.)
+> > > 
+> > > I know from previous discussions with you that making the grant table
+> > > fit in the existing IOMMU drivers model is difficult, but just reusing
+> > > the Device Tree bindings seems feasible?
+> > 
+> > I started experimenting with that. As wrote in a separate email, I got a
+> > deferred probe timeout,
+> > 
+> > after inserting required nodes into guest device tree, which seems to be a
+> > consequence of the unavailability of IOMMU, I will continue to investigate
+> > this question.
+> 
+> 
+> I have experimented with that. Yes, just reusing the Device Tree bindings is
+> technically feasible (and we are able to do this by only touching
+> grant-dma-ops.c), although deferred probe timeout still stands (as there is no
+> IOMMU driver being present actually).
+> 
+> [    0.583771] virtio-mmio 2000000.virtio: deferred probe timeout, ignoring
+> dependency
+> [    0.615556] virtio_blk virtio0: [vda] 4096000 512-byte logical blocks (2.10
+> GB/1.95 GiB)
+> 
+> 
+> Below the working diff (on top of current series):
+> 
+> diff --git a/drivers/xen/grant-dma-ops.c b/drivers/xen/grant-dma-ops.c
+> index da9c7ff..6586152 100644
+> --- a/drivers/xen/grant-dma-ops.c
+> +++ b/drivers/xen/grant-dma-ops.c
+> @@ -272,17 +272,24 @@ static const struct dma_map_ops xen_grant_dma_ops = {
+> 
+>  bool xen_is_grant_dma_device(struct device *dev)
+>  {
+> +       struct device_node *iommu_np;
+> +       bool has_iommu;
+> +
+>         /* XXX Handle only DT devices for now */
+>         if (!dev->of_node)
+>                 return false;
+> 
+> -       return of_property_read_bool(dev->of_node, "xen,backend-domid");
+> +       iommu_np = of_parse_phandle(dev->of_node, "iommus", 0);
+> +       has_iommu = iommu_np && of_device_is_compatible(iommu_np,
+> "xen,grant-dma");
+> +       of_node_put(iommu_np);
+> +
+> +       return has_iommu;
+>  }
+> 
+>  void xen_grant_setup_dma_ops(struct device *dev)
+>  {
+>         struct xen_grant_dma_data *data;
+> -       uint32_t domid;
+> +       struct of_phandle_args iommu_spec;
+> 
+>         data = find_xen_grant_dma_data(dev);
+>         if (data) {
+> @@ -294,16 +301,30 @@ void xen_grant_setup_dma_ops(struct device *dev)
+>         if (!dev->of_node)
+>                 goto err;
+> 
+> -       if (of_property_read_u32(dev->of_node, "xen,backend-domid", &domid)) {
+> -               dev_err(dev, "xen,backend-domid property is not present\n");
+> +       if (of_parse_phandle_with_args(dev->of_node, "iommus", "#iommu-cells",
+> +                       0, &iommu_spec)) {
+> +               dev_err(dev, "Cannot parse iommus property\n");
+> +               goto err;
+> +       }
+> +
+> +       if (!of_device_is_compatible(iommu_spec.np, "xen,grant-dma") ||
+> +                       iommu_spec.args_count != 1) {
+> +               dev_err(dev, "Incompatible IOMMU node\n");
+> +               of_node_put(iommu_spec.np);
+>                 goto err;
+>         }
+> 
+> +       of_node_put(iommu_spec.np);
+> +
+>         data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
+>         if (!data)
+>                 goto err;
+> 
+> -       data->backend_domid = domid;
+> +       /*
+> +        * The endpoint ID here means the ID of the domain where the
+> corresponding
+> +        * backend is running
+> +        */
+> +       data->backend_domid = iommu_spec.args[0];
+> 
+>         if (xa_err(xa_store(&xen_grant_dma_devices, (unsigned long)dev, data,
+>                         GFP_KERNEL))) {
+> (END)
+> 
+> 
+> 
+> Below, the nodes generated by Xen toolstack:
+> 
+>         xen_grant_dma {
+>                 compatible = "xen,grant-dma";
+>                 #iommu-cells = <0x01>;
+>                 phandle = <0xfde9>;
+>         };
+> 
+>         virtio@2000000 {
+>                 compatible = "virtio,mmio";
+>                 reg = <0x00 0x2000000 0x00 0x200>;
+>                 interrupts = <0x00 0x01 0xf01>;
+>                 interrupt-parent = <0xfde8>;
+>                 dma-coherent;
+>                 iommus = <0xfde9 0x01>;
+>         };
+ 
+Not bad! I like it.
+ 
+ 
+> I am wondering, would be the proper solution to eliminate deferred probe
+> timeout issue in our particular case (without introducing an extra IOMMU
+> driver)?
+
+In reality I don't think there is a way to do that. I would create an
+empty skelethon IOMMU driver for xen,grant-dma.
+--8323329-279637414-1653357495=:1905099
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--8323329-279637414-1653357495=:1905099--
