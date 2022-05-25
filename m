@@ -1,100 +1,114 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1027AC433EF
-	for <virtualization@archiver.kernel.org>; Wed, 25 May 2022 02:48:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id BDFA6C433F5
+	for <virtualization@archiver.kernel.org>; Wed, 25 May 2022 02:50:00 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id A513E40588;
-	Wed, 25 May 2022 02:48:39 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 6CD974191C;
+	Wed, 25 May 2022 02:50:00 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 10ys3CBMGDAL; Wed, 25 May 2022 02:48:38 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id WcFWNeioZAyh; Wed, 25 May 2022 02:49:59 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 21C9E40289;
-	Wed, 25 May 2022 02:48:38 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 7F4F841913;
+	Wed, 25 May 2022 02:49:58 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id F3F4BC0032;
-	Wed, 25 May 2022 02:48:37 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D41BBC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4F834C0032;
+	Wed, 25 May 2022 02:49:58 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id EC74EC002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 May 2022 02:48:36 +0000 (UTC)
+ Wed, 25 May 2022 02:49:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id CA542612AF
+ by smtp1.osuosl.org (Postfix) with ESMTP id D90AF81B98
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 May 2022 02:48:36 +0000 (UTC)
+ Wed, 25 May 2022 02:49:56 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id XMw9TMMXpP43
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id egEyW2d9li9x
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 May 2022 02:48:33 +0000 (UTC)
+ Wed, 25 May 2022 02:49:56 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 24E9260AAC
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 2990381B69
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 May 2022 02:48:32 +0000 (UTC)
+ Wed, 25 May 2022 02:49:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1653446911;
+ s=mimecast20190719; t=1653446994;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=moBf3qLUiMaMEuWifwI/xaF6Fz339bQVKF7DFB/eZLg=;
- b=EkmDOMH9W1WB1fyjW6DFQG+4yoR9U8IQdWylrkCw67wPKzVx2JtweXgb0WA3/xFNWA2P2K
- z1+kVdrH0nKNqSTYq98VS2cBzOmVrlSoJNQxUBkEYn15PPb8KYl0u6nc+YhRcUtiKo7Lc6
- IpP/9MLD7hPaiip45J/xPS5Mw5lrIks=
-Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
- [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=ElTuX9jWxfL0CUwfGnyHCc3cXorhj0tUDVKXC9Pq5yE=;
+ b=CeDcO1kJycPIxgFyyM//EdA3JFr2pgeHm2Ml+JUnVGu9HzB4lCt40rXAg8BlOnArER833+
+ OkE0XrLwKk+ETzEe1rCMoJewnL+E0NN5REkKm0gfEU9izda6GbupvzcV/GsY3kWTkaSkjf
+ 9EsiDJ9FcgBEe+6y2BCyJ/OQ/+SDHfY=
+Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
+ [209.85.167.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-121-D1wJzUK8PGeUPTUqj11Hdg-1; Tue, 24 May 2022 22:48:30 -0400
-X-MC-Unique: D1wJzUK8PGeUPTUqj11Hdg-1
-Received: by mail-lf1-f71.google.com with SMTP id
- n3-20020ac242c3000000b00473d8af3a0cso10025260lfl.21
+ us-mta-86-2MZtJGZFMVqM_w279089qA-1; Tue, 24 May 2022 22:49:53 -0400
+X-MC-Unique: 2MZtJGZFMVqM_w279089qA-1
+Received: by mail-lf1-f72.google.com with SMTP id
+ q17-20020a0565123a9100b0047889d19f70so1995338lfu.5
  for <virtualization@lists.linux-foundation.org>;
- Tue, 24 May 2022 19:48:30 -0700 (PDT)
+ Tue, 24 May 2022 19:49:53 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=moBf3qLUiMaMEuWifwI/xaF6Fz339bQVKF7DFB/eZLg=;
- b=H5ZrSnkGWqVHrr84yIi5V8ZwG43JInYHMaDL8v9XB50sxMxQ3ZGW0iU2gXzd8mtplN
- RnuZo9jsP239TmmkkT2GastNI57/ANF/Zi27m+tQoIgl1yLrW9QzvFJCf9nrX0clt1Z+
- oZJ/yT0nK8CvMnunNVTbwt8FuKsL7mKSF9cbT1Ha9s8Mb1KUV4D2H79AW3gLh52hvXj9
- 9KWqTRgQSgBu6ZvAzvC5KVEIUaNEPj3ObI2UL9uTG/ag7ObcmG/G3IOgcNgUnZ6aDcsB
- Dalbeelv3lHy+auH4u9MGWnCu8KMMCAs+UvUCcc71vpjhm9nGaLeGOci4rnznbDlZYsg
- 05uA==
-X-Gm-Message-State: AOAM532uu5uVtHcQUBokx3yTqQTWRDJHfu2oDlQdob6KRuevfGos97K4
- 3D5ioWe+CB8QZVYRpbwKGD9njTHkJlz4VpDIbEbqhYaXI1jdz23VcSttAy+OsDElz/coXru7lbs
- QOGWCpulg5MDwo7PSu0BNOZcpDMx9kkjq5E0M9GVwRRy90fNGFdB3no+7fw==
-X-Received: by 2002:a05:6512:39d2:b0:478:5ad6:1989 with SMTP id
- k18-20020a05651239d200b004785ad61989mr15438133lfu.98.1653446909112; 
- Tue, 24 May 2022 19:48:29 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzPKntxWVkeik8YG79bT89bb1PnCEmh2seS8IqHocQR2ayMN1K7BGtMlWcKYe0uNqLLrzgobuNsS8hEDO0Z7kA=
-X-Received: by 2002:a05:6512:39d2:b0:478:5ad6:1989 with SMTP id
- k18-20020a05651239d200b004785ad61989mr15438126lfu.98.1653446908927; Tue, 24
- May 2022 19:48:28 -0700 (PDT)
+ :message-id:subject:to:cc:content-transfer-encoding;
+ bh=ElTuX9jWxfL0CUwfGnyHCc3cXorhj0tUDVKXC9Pq5yE=;
+ b=uOZl11uZowXAtYsBswS8g6MeJtz39QLLy4eexunuO9Kj6tsGgBBjiXpXqdxYhMzzLq
+ 5gFefJ+zsVF6aaWJErtsQDqRghKX9K3fL5P0zmC77VkU9sOKddbmx0KO3sO1tct0BPMT
+ yiZ2GBZCbvzLWtEns1ypdJTL00tyvu4662OiseLvHCGXKc2+kCzto+2WtC7c1h3jk/eU
+ xRPRsTx+36SErqu1ihYDszMw8u5zqnW8m9srUxxvKW7tmqIwcYCrvUUJKrSAZUnUtBo4
+ HCycfbbLKgu25vRiZATMWp9hB70ZZeVtSQL2O0XKTeEvZjGG6ErLh92AARHqdZ/mnMF3
+ Q0eQ==
+X-Gm-Message-State: AOAM533dF/U3TtTDJFdrjq7Mz96vSGmpTIhQTBEXAc/m5bMuC0I/aj7U
+ 6xueHXXM+cjux107YXHS5iGqZa7un7q+JLMEHqRWnn1ZlSUV4Igizp6D5df1zp9X+5oD2+Dgpfa
+ ieh4UAJTS/4NxZDi1sPhY6yxGLMYcwYYzmMU1r3QUbp835RazCmoXUKPiEw==
+X-Received: by 2002:a2e:81c1:0:b0:24b:f44:3970 with SMTP id
+ s1-20020a2e81c1000000b0024b0f443970mr17702612ljg.97.1653446992173; 
+ Tue, 24 May 2022 19:49:52 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwaAlxsbkHduKZFbcUP9Q8h4gtKP25cQ1tcIPf8o5riuG1dRzo29yaMgKzd1IjazP5PKoJ9oIdwVR4fFRKu26Q=
+X-Received: by 2002:a2e:81c1:0:b0:24b:f44:3970 with SMTP id
+ s1-20020a2e81c1000000b0024b0f443970mr17702581ljg.97.1653446991974; Tue, 24
+ May 2022 19:49:51 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220524115143.187-1-xieyongji@bytedance.com>
-In-Reply-To: <20220524115143.187-1-xieyongji@bytedance.com>
+References: <20220524170610.2255608-1-eperezma@redhat.com>
+In-Reply-To: <20220524170610.2255608-1-eperezma@redhat.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 25 May 2022 10:48:17 +0800
-Message-ID: <CACGkMEuJeU6c1z8+_FqGtovbF+Sq8w_eQUcG8SHm_GXV5q7yNA@mail.gmail.com>
-Subject: Re: [PATCH] Docs/ABI/testing: Add VDUSE sysfs interface ABI document
-To: Xie Yongji <xieyongji@bytedance.com>
+Date: Wed, 25 May 2022 10:49:40 +0800
+Message-ID: <CACGkMEvHRL7a6njivA0+ae-+nXUB9Dng=oaQny0cHu-Ra+bcFg@mail.gmail.com>
+Subject: Re: [PATCH v2 0/4] Implement vdpasim stop operation
+To: =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: Greg KH <gregkh@linuxfoundation.org>,
+Cc: tanuj.kamde@amd.com, kvm <kvm@vger.kernel.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
  virtualization <virtualization@lists.linux-foundation.org>,
- mst <mst@redhat.com>
+ Wu Zongyong <wuzongyong@linux.alibaba.com>, Si-Wei Liu <si-wei.liu@oracle.com>,
+ Pablo Cascon Katchadourian <pabloc@xilinx.com>, Eli Cohen <elic@nvidia.com>,
+ Zhang Min <zhang.min9@zte.com.cn>, Cindy Lu <lulu@redhat.com>, "Uminski,
+ Piotr" <Piotr.Uminski@intel.com>,
+ Martin Petrus Hubertus Habets <martinh@xilinx.com>,
+ Xie Yongji <xieyongji@bytedance.com>, Dinan Gunawardena <dinang@xilinx.com>,
+ habetsm.xilinx@gmail.com, Longpeng <longpeng2@huawei.com>,
+ Dan Carpenter <dan.carpenter@oracle.com>, Laurent Vivier <lvivier@redhat.com>,
+ netdev <netdev@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>,
+ ecree.xilinx@gmail.com, Harpreet Singh Anand <hanand@xilinx.com>,
+ Martin Porter <martinpo@xilinx.com>, "Dawar, Gautam" <gautam.dawar@amd.com>,
+ Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+ Zhu Lingshan <lingshan.zhu@intel.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -106,82 +120,50 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, May 24, 2022 at 7:51 PM Xie Yongji <xieyongji@bytedance.com> wrote:
->
-> This adds missing documentation for VDUSE sysfs interface ABI
-> under Documentation/ABI/testing.
->
-> Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-
-Acked-by: Jason Wang <jasowang@redhat.com>
-
-> ---
->  Documentation/ABI/testing/sysfs-class-vduse | 33 +++++++++++++++++++++
->  MAINTAINERS                                 |  1 +
->  2 files changed, 34 insertions(+)
->  create mode 100644 Documentation/ABI/testing/sysfs-class-vduse
->
-> diff --git a/Documentation/ABI/testing/sysfs-class-vduse b/Documentation/ABI/testing/sysfs-class-vduse
-> new file mode 100644
-> index 000000000000..2f2bc5c8fc48
-> --- /dev/null
-> +++ b/Documentation/ABI/testing/sysfs-class-vduse
-> @@ -0,0 +1,33 @@
-> +What:          /sys/class/vduse/
-> +Date:          Oct 2021
-> +KernelVersion: 5.15
-> +Contact:       Yongji Xie <xieyongji@bytedance.com>
-> +Description:
-> +               The vduse/ class sub-directory belongs to the VDUSE
-> +               framework and provides a sysfs interface for configuring
-> +               VDUSE devices.
-> +
-> +What:          /sys/class/vduse/control/
-> +Date:          Oct 2021
-> +KernelVersion: 5.15
-> +Contact:       Yongji Xie <xieyongji@bytedance.com>
-> +Description:
-> +               This directory entry is created for the control device
-> +               of VDUSE framework.
-> +
-> +What:          /sys/class/vduse/<device-name>/
-> +Date:          Oct 2021
-> +KernelVersion: 5.15
-> +Contact:       Yongji Xie <xieyongji@bytedance.com>
-> +Description:
-> +               This directory entry is created when a VDUSE device is
-> +               created via the control device.
-> +
-> +What:          /sys/class/vduse/<device-name>/msg_timeout
-> +Date:          Oct 2021
-> +KernelVersion: 5.15
-> +Contact:       Yongji Xie <xieyongji@bytedance.com>
-> +Description:
-> +               (RW) The timeout (in seconds) for waiting for the control
-> +               message's response from userspace. Default value is 30s.
-> +               Writing a '0' to the file means to disable the timeout.
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index d6d879cb0afd..d9a423de2f4d 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -20842,6 +20842,7 @@ M:      Jason Wang <jasowang@redhat.com>
->  L:     virtualization@lists.linux-foundation.org
->  S:     Maintained
->  F:     Documentation/ABI/testing/sysfs-bus-vdpa
-> +F:     Documentation/ABI/testing/sysfs-class-vduse
->  F:     Documentation/devicetree/bindings/virtio/
->  F:     drivers/block/virtio_blk.c
->  F:     drivers/crypto/virtio/
-> --
-> 2.20.1
->
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gV2VkLCBNYXkgMjUsIDIwMjIgYXQgMTowNiBBTSBFdWdlbmlvIFDDqXJleiA8ZXBlcmV6bWFA
+cmVkaGF0LmNvbT4gd3JvdGU6Cj4KPiBJbXBsZW1lbnQgc3RvcCBvcGVyYXRpb24gZm9yIHZkcGFf
+c2ltIGRldmljZXMsIHNvIHZob3N0LXZkcGEgd2lsbCBvZmZlcgo+IHRoYXQgYmFja2VuZCBmZWF0
+dXJlIGFuZCB1c2Vyc3BhY2UgY2FuIGVmZmVjdGl2ZWx5IHN0b3AgdGhlIGRldmljZS4KPgo+IFRo
+aXMgaXMgYSBtdXN0IGJlZm9yZSBnZXQgdmlydHF1ZXVlIGluZGV4ZXMgKGJhc2UpIGZvciBsaXZl
+IG1pZ3JhdGlvbiwKPiBzaW5jZSB0aGUgZGV2aWNlIGNvdWxkIG1vZGlmeSB0aGVtIGFmdGVyIHVz
+ZXJsYW5kIGdldHMgdGhlbS4gVGhlcmUgYXJlCj4gaW5kaXZpZHVhbCB3YXlzIHRvIHBlcmZvcm0g
+dGhhdCBhY3Rpb24gZm9yIHNvbWUgZGV2aWNlcwo+IChWSE9TVF9ORVRfU0VUX0JBQ0tFTkQsIFZI
+T1NUX1ZTT0NLX1NFVF9SVU5OSU5HLCAuLi4pIGJ1dCB0aGVyZSB3YXMgbm8KPiB3YXkgdG8gcGVy
+Zm9ybSBpdCBmb3IgYW55IHZob3N0IGRldmljZSAoYW5kLCBpbiBwYXJ0aWN1bGFyLCB2aG9zdC12
+ZHBhKS4KPgo+IEFmdGVyIHRoZSByZXR1cm4gb2YgaW9jdGwgd2l0aCBzdG9wICE9IDAsIHRoZSBk
+ZXZpY2UgTVVTVCBmaW5pc2ggYW55Cj4gcGVuZGluZyBvcGVyYXRpb25zIGxpa2UgaW4gZmxpZ2h0
+IHJlcXVlc3RzLiBJdCBtdXN0IGFsc28gcHJlc2VydmUgYWxsCj4gdGhlIG5lY2Vzc2FyeSBzdGF0
+ZSAodGhlIHZpcnRxdWV1ZSB2cmluZyBiYXNlIHBsdXMgdGhlIHBvc3NpYmxlIGRldmljZQo+IHNw
+ZWNpZmljIHN0YXRlcykgdGhhdCBpcyByZXF1aXJlZCBmb3IgcmVzdG9yaW5nIGluIHRoZSBmdXR1
+cmUuIFRoZQo+IGRldmljZSBtdXN0IG5vdCBjaGFuZ2UgaXRzIGNvbmZpZ3VyYXRpb24gYWZ0ZXIg
+dGhhdCBwb2ludC4KCkknZCBzdWdnZXN0IGRvY3VtZW50aW5nIHRoaXMgaW4gdGhlIGNvZGUgbWF5
+YmUgYXJvdW5kIG9wcy0+c3RvcCgpPwoKVGhhbmtzCgo+Cj4gQWZ0ZXIgdGhlIHJldHVybiBvZiBp
+b2N0bCB3aXRoIHN0b3AgPT0gMCwgdGhlIGRldmljZSBjYW4gY29udGludWUKPiBwcm9jZXNzaW5n
+IGJ1ZmZlcnMgYXMgbG9uZyBhcyB0eXBpY2FsIGNvbmRpdGlvbnMgYXJlIG1ldCAodnEgaXMgZW5h
+YmxlZCwKPiBEUklWRVJfT0sgc3RhdHVzIGJpdCBpcyBlbmFibGVkLCBldGMpLgo+Cj4gSW4gdGhl
+IGZ1dHVyZSwgd2Ugd2lsbCBwcm92aWRlIGZlYXR1cmVzIHNpbWlsYXIgdG8gVkhPU1RfVVNFUl9H
+RVRfSU5GTElHSFRfRkQKPiBzbyB0aGUgZGV2aWNlIGNhbiBzYXZlIHBlbmRpbmcgb3BlcmF0aW9u
+cy4KPgo+IENvbW1lbnRzIGFyZSB3ZWxjb21lLgo+Cj4gdjI6Cj4gKiBSZXBsYWNlIHJhdyBfRl9T
+VE9QIHdpdGggQklUX1VMTChfRl9TVE9QKS4KPiAqIEZpeCBvYnRhaW5pbmcgb2Ygc3RvcCBpb2N0
+bCBhcmcgKGl0IHdhcyBub3Qgb2J0YWluZWQgYnV0IHdyaXR0ZW4pLgo+ICogQWRkIHN0b3AgdG8g
+dmRwYV9zaW1fYmxrLgo+Cj4gRXVnZW5pbyBQw6lyZXogKDQpOgo+ICAgdmRwYTogQWRkIHN0b3Ag
+b3BlcmF0aW9uCj4gICB2aG9zdC12ZHBhOiBpbnRyb2R1Y2UgU1RPUCBiYWNrZW5kIGZlYXR1cmUg
+Yml0Cj4gICB2aG9zdC12ZHBhOiB1QVBJIHRvIHN0b3AgdGhlIGRldmljZQo+ICAgdmRwYV9zaW06
+IEltcGxlbWVudCBzdG9wIHZkcGEgb3AKPgo+ICBkcml2ZXJzL3ZkcGEvdmRwYV9zaW0vdmRwYV9z
+aW0uYyAgICAgfCAyMSArKysrKysrKysrKysrKysrKwo+ICBkcml2ZXJzL3ZkcGEvdmRwYV9zaW0v
+dmRwYV9zaW0uaCAgICAgfCAgMSArCj4gIGRyaXZlcnMvdmRwYS92ZHBhX3NpbS92ZHBhX3NpbV9i
+bGsuYyB8ICAzICsrKwo+ICBkcml2ZXJzL3ZkcGEvdmRwYV9zaW0vdmRwYV9zaW1fbmV0LmMgfCAg
+MyArKysKPiAgZHJpdmVycy92aG9zdC92ZHBhLmMgICAgICAgICAgICAgICAgIHwgMzQgKysrKysr
+KysrKysrKysrKysrKysrKysrKysrLQo+ICBpbmNsdWRlL2xpbnV4L3ZkcGEuaCAgICAgICAgICAg
+ICAgICAgfCAgNiArKysrKwo+ICBpbmNsdWRlL3VhcGkvbGludXgvdmhvc3QuaCAgICAgICAgICAg
+fCAgMyArKysKPiAgaW5jbHVkZS91YXBpL2xpbnV4L3Zob3N0X3R5cGVzLmggICAgIHwgIDIgKysK
+PiAgOCBmaWxlcyBjaGFuZ2VkLCA3MiBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0pCj4KPiAt
+LQo+IDIuMjcuMAo+Cj4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5s
+aW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFp
+bG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
