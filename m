@@ -1,119 +1,90 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 11789C433EF
-	for <virtualization@archiver.kernel.org>; Wed, 25 May 2022 07:42:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 28508C433FE
+	for <virtualization@archiver.kernel.org>; Wed, 25 May 2022 14:33:12 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id A212A40DC2;
-	Wed, 25 May 2022 07:42:52 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id B0CCC842AC;
+	Wed, 25 May 2022 14:33:11 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id mvS_N7BGgmn6; Wed, 25 May 2022 07:42:51 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id S9-UU0F6Fu9b; Wed, 25 May 2022 14:33:10 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 1665F409C1;
-	Wed, 25 May 2022 07:42:51 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 3D3A784293;
+	Wed, 25 May 2022 14:33:10 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DCCAAC0032;
-	Wed, 25 May 2022 07:42:50 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6C7F4C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id EE1BEC007E;
+	Wed, 25 May 2022 14:33:09 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1D52FC002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 May 2022 07:42:50 +0000 (UTC)
+ Wed, 25 May 2022 14:33:08 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 664724109F
+ by smtp4.osuosl.org (Postfix) with ESMTP id 1626041C32
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 May 2022 07:42:50 +0000 (UTC)
+ Wed, 25 May 2022 14:33:05 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
+ dkim=pass (2048-bit key) header.d=intel.com
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id wmdrExPbKi3Q
+ with ESMTP id 0Q0ArEVeYMp2
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 May 2022 07:42:49 +0000 (UTC)
+ Wed, 25 May 2022 14:33:03 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id E724F40A04
+Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id CDF0341C3F
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 May 2022 07:42:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1653464567;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=Ys9N/aStuUczJG1d59vIuu5WRFG0fOE8qpuySSttVig=;
- b=Y1Mq76RnixPrGz4G/DcEquxLEzxIHFQLAlvQLNSpDoQqsZO+DfxTtIc7db024C+bBBHzev
- zhX6tFzOKNzSq1HVKFxP0qWWgZL/THbP3jHxXgYx36wLR1uyiteMFagvqyB8hKub3X+HSZ
- kd4JOpLO53+1qi16aV6hQ4+OGGuppFE=
-Received: from mail-qt1-f198.google.com (mail-qt1-f198.google.com
- [209.85.160.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-78-5FqGZTxINpKDLmlAUBPSsQ-1; Wed, 25 May 2022 03:42:45 -0400
-X-MC-Unique: 5FqGZTxINpKDLmlAUBPSsQ-1
-Received: by mail-qt1-f198.google.com with SMTP id
- cn8-20020a05622a248800b002f3c7be2744so15628992qtb.17
- for <virtualization@lists.linux-foundation.org>;
- Wed, 25 May 2022 00:42:45 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:content-transfer-encoding
- :in-reply-to;
- bh=Ys9N/aStuUczJG1d59vIuu5WRFG0fOE8qpuySSttVig=;
- b=6M7z53SsGTuUXL6DoNdpy85XOnzFtJihx1oOzy5qstRX8KYtcdOLd+RJ9LIKtfCWn+
- EAqevl4FW341YKdgCT6oEIO1ZJdnxja/BBQfw5cB5D4TzWFuaqrlXRn4iKnzylhCZml5
- CG0PYFwGLhTunGxg8QlWnF0O9fyuTavmKaKaHm7WPgNgu/on1kR4ILWEvY2vxR6eSjT0
- +EB8Q6hudRWota7Cw361HzRjg/LuZjPKzM/jDh1XuM5N7JO3CRq8H7HSukxjgSXyvWgX
- QNQG3k4O+Xtap1mFbA6HxRLkuilgLbqXc1HilM9iluLa9Wwp1U6SCKdq4x6RfTphj7yG
- qd1w==
-X-Gm-Message-State: AOAM531Q1ZKkII5X+QsLZHLBEdnodjH8UohkMWP1JVVRxeb/cm/XbFlW
- ir7ZJh0rrfGXoZAmAW/PhPu3l7cSF9km1eI28LvJQgDrJc0Sel5LbsyodlZXQSwzEbAgM0nkrgW
- veAGw55ho2BhjsWzhfO3zFv5vK9gmsSsVn2ZwMtGHMg==
-X-Received: by 2002:ac8:5813:0:b0:2fa:a441:ba8a with SMTP id
- g19-20020ac85813000000b002faa441ba8amr2204489qtg.162.1653464565029; 
- Wed, 25 May 2022 00:42:45 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJz8/milkg51+yfBQTz/8OhX1w5WPXtXVRPuIhObK5HHUAywQzfC8MVhw6rZ751qf/C+5s+Uqg==
-X-Received: by 2002:ac8:5813:0:b0:2fa:a441:ba8a with SMTP id
- g19-20020ac85813000000b002faa441ba8amr2204464qtg.162.1653464564785; 
- Wed, 25 May 2022 00:42:44 -0700 (PDT)
-Received: from sgarzare-redhat (host-87-12-25-16.business.telecomitalia.it.
- [87.12.25.16]) by smtp.gmail.com with ESMTPSA id
- b14-20020ac84f0e000000b002f96db4519csm922248qte.37.2022.05.25.00.42.39
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 25 May 2022 00:42:44 -0700 (PDT)
-Date: Wed, 25 May 2022 09:41:56 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>
-Subject: Re: [PATCH v2 4/4] vdpa_sim: Implement stop vdpa op
-Message-ID: <20220525074156.rwyesinlzrza72cn@sgarzare-redhat>
-References: <20220524170610.2255608-1-eperezma@redhat.com>
- <20220524170610.2255608-5-eperezma@redhat.com>
+ Wed, 25 May 2022 14:33:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+ d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+ t=1653489183; x=1685025183;
+ h=date:from:to:cc:subject:message-id:references:
+ mime-version:in-reply-to;
+ bh=e8WdMPHPvUxue/jRn47cDBNn5mZvdiHoI8fDLRKx+b4=;
+ b=CyK6SQSUOOhv+w5/q/jod4hDt6Ajmf+9A8l6afxC4zXPb9fXry3yFxUQ
+ De6zfF+1+WljvKD1BeAyMod+trlqTFKefS7Pt/mQMIQUUg+vuACrieJec
+ MNYpMG+SkMmurKtuuvGnkboa/muzvKRG5JJRz3iMcNjgev7vFTuBEOqkr
+ k/YKY00bs5jlt+r76hK7Vpuo7rHA3pNn4bCxX6vgndC7IiggkKogNVpZs
+ V5vShNwXiw8USJUDnP0TfVqas43fZZ7oa+FPnboHb17IYosEBF0mEqfHQ
+ W9WSZYslQeaKamxn2RHuDaGPPw5VCdUrDkQ5cX5dAnjjnYYnbBrWL1Ffe Q==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10358"; a="271402794"
+X-IronPort-AV: E=Sophos;i="5.91,250,1647327600"; d="scan'208";a="271402794"
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+ by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 25 May 2022 07:33:03 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.91,250,1647327600"; d="scan'208";a="573264216"
+Received: from lkp-server01.sh.intel.com (HELO db63a1be7222) ([10.239.97.150])
+ by orsmga007.jf.intel.com with ESMTP; 25 May 2022 07:32:56 -0700
+Received: from kbuild by db63a1be7222 with local (Exim 4.95)
+ (envelope-from <lkp@intel.com>) id 1nts4F-00034E-QU;
+ Wed, 25 May 2022 14:32:55 +0000
+Date: Wed, 25 May 2022 22:32:14 +0800
+From: kernel test robot <lkp@intel.com>
+To: Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH v3 3/4] vhost-vdpa: uAPI to stop the device
+Message-ID: <202205252236.4ysv1ZWg-lkp@intel.com>
+References: <20220525105922.2413991-4-eperezma@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20220524170610.2255608-5-eperezma@redhat.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: tanuj.kamde@amd.com, kvm@vger.kernel.org,
- "Michael S. Tsirkin" <mst@redhat.com>,
- virtualization@lists.linux-foundation.org,
+In-Reply-To: <20220525105922.2413991-4-eperezma@redhat.com>
+Cc: tanuj.kamde@amd.com, Dan Carpenter <error27@gmail.com>,
  Wu Zongyong <wuzongyong@linux.alibaba.com>, Si-Wei Liu <si-wei.liu@oracle.com>,
  pabloc@xilinx.com, Eli Cohen <elic@nvidia.com>,
  Zhang Min <zhang.min9@zte.com.cn>, lulu@redhat.com, Piotr.Uminski@intel.com,
  martinh@xilinx.com, Xie Yongji <xieyongji@bytedance.com>, dinang@xilinx.com,
- habetsm.xilinx@gmail.com, Longpeng <longpeng2@huawei.com>,
- Dan Carpenter <dan.carpenter@oracle.com>, lvivier@redhat.com,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org, ecree.xilinx@gmail.com,
- hanand@xilinx.com, martinpo@xilinx.com, gautam.dawar@amd.com,
- Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
- Zhu Lingshan <lingshan.zhu@intel.com>
+ habetsm.xilinx@gmail.com, Longpeng <longpeng2@huawei.com>, lvivier@redhat.com,
+ Christophe JAILLET <christophe.jaillet@wanadoo.fr>, kbuild-all@lists.01.org,
+ gautam.dawar@amd.com, ecree.xilinx@gmail.com, hanand@xilinx.com,
+ martinpo@xilinx.com, Zhu Lingshan <lingshan.zhu@intel.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -125,166 +96,148 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="iso-8859-1"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, May 24, 2022 at 07:06:10PM +0200, Eugenio P=E9rez wrote:
->Implement stop operation for vdpa_sim devices, so vhost-vdpa will offer
->that backend feature and userspace can effectively stop the device.
->
->This is a must before get virtqueue indexes (base) for live migration,
->since the device could modify them after userland gets them. There are
->individual ways to perform that action for some devices
->(VHOST_NET_SET_BACKEND, VHOST_VSOCK_SET_RUNNING, ...) but there was no
->way to perform it for any vhost device (and, in particular, vhost-vdpa).
->
->After the return of ioctl with stop !=3D 0, the device MUST finish any
->pending operations like in flight requests. It must also preserve all
->the necessary state (the virtqueue vring base plus the possible device
->specific states) that is required for restoring in the future. The
->device must not change its configuration after that point.
->
->After the return of ioctl with stop =3D=3D 0, the device can continue
->processing buffers as long as typical conditions are met (vq is enabled,
->DRIVER_OK status bit is enabled, etc).
->
->In the future, we will provide features similar to
->VHOST_USER_GET_INFLIGHT_FD so the device can save pending operations.
->
->Signed-off-by: Eugenio P=E9rez <eperezma@redhat.com>
->---
-> drivers/vdpa/vdpa_sim/vdpa_sim.c     | 21 +++++++++++++++++++++
-> drivers/vdpa/vdpa_sim/vdpa_sim.h     |  1 +
-> drivers/vdpa/vdpa_sim/vdpa_sim_blk.c |  3 +++
-> drivers/vdpa/vdpa_sim/vdpa_sim_net.c |  3 +++
-> 4 files changed, 28 insertions(+)
->
->diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa=
-_sim.c
->index 50d721072beb..0515cf314bed 100644
->--- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
->+++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
->@@ -107,6 +107,7 @@ static void vdpasim_do_reset(struct vdpasim *vdpasim)
-> 	for (i =3D 0; i < vdpasim->dev_attr.nas; i++)
-> 		vhost_iotlb_reset(&vdpasim->iommu[i]);
->
->+	vdpasim->running =3D true;
-> 	spin_unlock(&vdpasim->iommu_lock);
->
-> 	vdpasim->features =3D 0;
->@@ -505,6 +506,24 @@ static int vdpasim_reset(struct vdpa_device *vdpa)
-> 	return 0;
-> }
->
->+static int vdpasim_stop(struct vdpa_device *vdpa, bool stop)
->+{
->+	struct vdpasim *vdpasim =3D vdpa_to_sim(vdpa);
->+	int i;
->+
->+	spin_lock(&vdpasim->lock);
->+	vdpasim->running =3D !stop;
->+	if (vdpasim->running) {
->+		/* Check for missed buffers */
->+		for (i =3D 0; i < vdpasim->dev_attr.nvqs; ++i)
->+			vdpasim_kick_vq(vdpa, i);
->+
->+	}
->+	spin_unlock(&vdpasim->lock);
->+
->+	return 0;
->+}
->+
-> static size_t vdpasim_get_config_size(struct vdpa_device *vdpa)
-> {
-> 	struct vdpasim *vdpasim =3D vdpa_to_sim(vdpa);
->@@ -694,6 +713,7 @@ static const struct vdpa_config_ops vdpasim_config_ops=
- =3D {
-> 	.get_status             =3D vdpasim_get_status,
-> 	.set_status             =3D vdpasim_set_status,
-> 	.reset			=3D vdpasim_reset,
->+	.stop			=3D vdpasim_stop,
-> 	.get_config_size        =3D vdpasim_get_config_size,
-> 	.get_config             =3D vdpasim_get_config,
-> 	.set_config             =3D vdpasim_set_config,
->@@ -726,6 +746,7 @@ static const struct vdpa_config_ops vdpasim_batch_conf=
-ig_ops =3D {
-> 	.get_status             =3D vdpasim_get_status,
-> 	.set_status             =3D vdpasim_set_status,
-> 	.reset			=3D vdpasim_reset,
->+	.stop			=3D vdpasim_stop,
-> 	.get_config_size        =3D vdpasim_get_config_size,
-> 	.get_config             =3D vdpasim_get_config,
-> 	.set_config             =3D vdpasim_set_config,
->diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.h b/drivers/vdpa/vdpa_sim/vdpa=
-_sim.h
->index 622782e92239..061986f30911 100644
->--- a/drivers/vdpa/vdpa_sim/vdpa_sim.h
->+++ b/drivers/vdpa/vdpa_sim/vdpa_sim.h
->@@ -66,6 +66,7 @@ struct vdpasim {
-> 	u32 generation;
-> 	u64 features;
-> 	u32 groups;
->+	bool running;
-> 	/* spinlock to synchronize iommu table */
-> 	spinlock_t iommu_lock;
-> };
->diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c b/drivers/vdpa/vdpa_sim/=
-vdpa_sim_blk.c
->index 42d401d43911..bcdb1982c378 100644
->--- a/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
->+++ b/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
->@@ -204,6 +204,9 @@ static void vdpasim_blk_work(struct work_struct *work)
-> 	if (!(vdpasim->status & VIRTIO_CONFIG_S_DRIVER_OK))
-> 		goto out;
->
->+	if (!vdpasim->running)
->+		goto out;
->+
+Hi "Eugenio,
 
-Not related to this series, but I think in vdpa_sim_blk.c we should =
+Thank you for the patch! Yet something to improve:
 
-implement something similar to what we already do in vdpa_sim_net.c and =
+[auto build test ERROR on mst-vhost/linux-next]
+[also build test ERROR on next-20220525]
+[cannot apply to horms-ipvs/master linux/master linus/master v5.18]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch]
 
-re-schedule the work after X requests handled, otherwise we risk never =
+url:    https://github.com/intel-lab-lkp/linux/commits/Eugenio-P-rez/Implement-vdpasim-stop-operation/20220525-190143
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git linux-next
+config: x86_64-randconfig-a013 (https://download.01.org/0day-ci/archive/20220525/202205252236.4ysv1ZWg-lkp@intel.com/config)
+compiler: gcc-11 (Debian 11.3.0-1) 11.3.0
+reproduce (this is a W=1 build):
+        # https://github.com/intel-lab-lkp/linux/commit/515f6b6d2a0164df801ddbe61e1cb1ae4e763873
+        git remote add linux-review https://github.com/intel-lab-lkp/linux
+        git fetch --no-tags linux-review Eugenio-P-rez/Implement-vdpasim-stop-operation/20220525-190143
+        git checkout 515f6b6d2a0164df801ddbe61e1cb1ae4e763873
+        # save the config file
+        mkdir build_dir && cp config build_dir/.config
+        make W=1 O=build_dir ARCH=x86_64 SHELL=/bin/bash
 
-stopping if there are always requests to handle.
+If you fix the issue, kindly add following tag where applicable
+Reported-by: kernel test robot <lkp@intel.com>
 
-Also for supporting multiple queues, that could be a problem, but for =
+All errors (new ones prefixed by >>):
 
-now we only support one, so there should be no problem.
+   drivers/vhost/vdpa.c: In function 'vhost_vdpa_unlocked_ioctl':
+>> drivers/vhost/vdpa.c:668:14: error: 'VHOST_STOP' undeclared (first use in this function)
+     668 |         case VHOST_STOP:
+         |              ^~~~~~~~~~
+   drivers/vhost/vdpa.c:668:14: note: each undeclared identifier is reported only once for each function it appears in
 
-I have other patches to send for vdpa_sim_blk.c, so if you want I can do =
 
-that in my series.
+vim +/VHOST_STOP +668 drivers/vhost/vdpa.c
 
-Thanks,
-Stefano
+   587	
+   588	static long vhost_vdpa_unlocked_ioctl(struct file *filep,
+   589					      unsigned int cmd, unsigned long arg)
+   590	{
+   591		struct vhost_vdpa *v = filep->private_data;
+   592		struct vhost_dev *d = &v->vdev;
+   593		void __user *argp = (void __user *)arg;
+   594		u64 __user *featurep = argp;
+   595		u64 features;
+   596		long r = 0;
+   597	
+   598		if (cmd == VHOST_SET_BACKEND_FEATURES) {
+   599			if (copy_from_user(&features, featurep, sizeof(features)))
+   600				return -EFAULT;
+   601			if (features & ~(VHOST_VDPA_BACKEND_FEATURES |
+   602					 BIT_ULL(VHOST_BACKEND_F_STOP)))
+   603				return -EOPNOTSUPP;
+   604			if ((features & BIT_ULL(VHOST_BACKEND_F_STOP)) &&
+   605			     !vhost_vdpa_can_stop(v))
+   606				return -EOPNOTSUPP;
+   607			vhost_set_backend_features(&v->vdev, features);
+   608			return 0;
+   609		}
+   610	
+   611		mutex_lock(&d->mutex);
+   612	
+   613		switch (cmd) {
+   614		case VHOST_VDPA_GET_DEVICE_ID:
+   615			r = vhost_vdpa_get_device_id(v, argp);
+   616			break;
+   617		case VHOST_VDPA_GET_STATUS:
+   618			r = vhost_vdpa_get_status(v, argp);
+   619			break;
+   620		case VHOST_VDPA_SET_STATUS:
+   621			r = vhost_vdpa_set_status(v, argp);
+   622			break;
+   623		case VHOST_VDPA_GET_CONFIG:
+   624			r = vhost_vdpa_get_config(v, argp);
+   625			break;
+   626		case VHOST_VDPA_SET_CONFIG:
+   627			r = vhost_vdpa_set_config(v, argp);
+   628			break;
+   629		case VHOST_GET_FEATURES:
+   630			r = vhost_vdpa_get_features(v, argp);
+   631			break;
+   632		case VHOST_SET_FEATURES:
+   633			r = vhost_vdpa_set_features(v, argp);
+   634			break;
+   635		case VHOST_VDPA_GET_VRING_NUM:
+   636			r = vhost_vdpa_get_vring_num(v, argp);
+   637			break;
+   638		case VHOST_VDPA_GET_GROUP_NUM:
+   639			r = copy_to_user(argp, &v->vdpa->ngroups,
+   640					 sizeof(v->vdpa->ngroups));
+   641			break;
+   642		case VHOST_VDPA_GET_AS_NUM:
+   643			r = copy_to_user(argp, &v->vdpa->nas, sizeof(v->vdpa->nas));
+   644			break;
+   645		case VHOST_SET_LOG_BASE:
+   646		case VHOST_SET_LOG_FD:
+   647			r = -ENOIOCTLCMD;
+   648			break;
+   649		case VHOST_VDPA_SET_CONFIG_CALL:
+   650			r = vhost_vdpa_set_config_call(v, argp);
+   651			break;
+   652		case VHOST_GET_BACKEND_FEATURES:
+   653			features = VHOST_VDPA_BACKEND_FEATURES;
+   654			if (vhost_vdpa_can_stop(v))
+   655				features |= BIT_ULL(VHOST_BACKEND_F_STOP);
+   656			if (copy_to_user(featurep, &features, sizeof(features)))
+   657				r = -EFAULT;
+   658			break;
+   659		case VHOST_VDPA_GET_IOVA_RANGE:
+   660			r = vhost_vdpa_get_iova_range(v, argp);
+   661			break;
+   662		case VHOST_VDPA_GET_CONFIG_SIZE:
+   663			r = vhost_vdpa_get_config_size(v, argp);
+   664			break;
+   665		case VHOST_VDPA_GET_VQS_COUNT:
+   666			r = vhost_vdpa_get_vqs_count(v, argp);
+   667			break;
+ > 668		case VHOST_STOP:
+   669			r = vhost_vdpa_stop(v, argp);
+   670			break;
+   671		default:
+   672			r = vhost_dev_ioctl(&v->vdev, cmd, argp);
+   673			if (r == -ENOIOCTLCMD)
+   674				r = vhost_vdpa_vring_ioctl(v, cmd, argp);
+   675			break;
+   676		}
+   677	
+   678		mutex_unlock(&d->mutex);
+   679		return r;
+   680	}
+   681	
 
-> 	for (i =3D 0; i < VDPASIM_BLK_VQ_NUM; i++) {
-> 		struct vdpasim_virtqueue *vq =3D &vdpasim->vqs[i];
->
->diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim_net.c b/drivers/vdpa/vdpa_sim/=
-vdpa_sim_net.c
->index 5125976a4df8..886449e88502 100644
->--- a/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
->+++ b/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
->@@ -154,6 +154,9 @@ static void vdpasim_net_work(struct work_struct *work)
->
-> 	spin_lock(&vdpasim->lock);
->
->+	if (!vdpasim->running)
->+		goto out;
->+
-> 	if (!(vdpasim->status & VIRTIO_CONFIG_S_DRIVER_OK))
-> 		goto out;
->
->-- =
-
->2.27.0
->
-
+-- 
+0-DAY CI Kernel Test Service
+https://01.org/lkp
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
