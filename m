@@ -1,105 +1,100 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2C8DCC433F5
-	for <virtualization@archiver.kernel.org>; Wed, 25 May 2022 02:33:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1027AC433EF
+	for <virtualization@archiver.kernel.org>; Wed, 25 May 2022 02:48:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id ACCAE41B43;
-	Wed, 25 May 2022 02:33:34 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id A513E40588;
+	Wed, 25 May 2022 02:48:39 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id VTeaNiSLRbbk; Wed, 25 May 2022 02:33:33 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 10ys3CBMGDAL; Wed, 25 May 2022 02:48:38 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id EF3AF419B0;
-	Wed, 25 May 2022 02:33:32 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 21C9E40289;
+	Wed, 25 May 2022 02:48:38 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C911DC0032;
-	Wed, 25 May 2022 02:33:32 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 02514C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id F3F4BC0032;
+	Wed, 25 May 2022 02:48:37 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D41BBC002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 May 2022 02:33:31 +0000 (UTC)
+ Wed, 25 May 2022 02:48:36 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id D7B22612AA
+ by smtp3.osuosl.org (Postfix) with ESMTP id CA542612AF
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 May 2022 02:33:31 +0000 (UTC)
+ Wed, 25 May 2022 02:48:36 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp3.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id D670qfjkzaGw
+ with ESMTP id XMw9TMMXpP43
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 May 2022 02:33:30 +0000 (UTC)
+ Wed, 25 May 2022 02:48:33 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id A28F060A8B
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 24E9260AAC
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 May 2022 02:33:30 +0000 (UTC)
+ Wed, 25 May 2022 02:48:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1653446009;
+ s=mimecast20190719; t=1653446911;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=TUzlT5FItCjrnkA2ba6GnsAuieiG0tvhuEs/Sgn4WbA=;
- b=DUQFa5o3E5EmCdZ3kE1+7h7x4gmrCKZoCqHsUdzJ/BfYlWtHYyr1uqh24zP3xC5ubFXPY2
- p6XFgqmWz7tmgwq3e8INIxqHG3WAIzNO56HM/I2UQVX71I7iT8qnnA5Fxsjhc55SG3vprT
- SQRX9veT4VCH6aDkhpmtR/FCwcdnQ+E=
-Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
- [209.85.167.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=moBf3qLUiMaMEuWifwI/xaF6Fz339bQVKF7DFB/eZLg=;
+ b=EkmDOMH9W1WB1fyjW6DFQG+4yoR9U8IQdWylrkCw67wPKzVx2JtweXgb0WA3/xFNWA2P2K
+ z1+kVdrH0nKNqSTYq98VS2cBzOmVrlSoJNQxUBkEYn15PPb8KYl0u6nc+YhRcUtiKo7Lc6
+ IpP/9MLD7hPaiip45J/xPS5Mw5lrIks=
+Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
+ [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-635-RGxKZE2GM_quDNlWuFNvZw-1; Tue, 24 May 2022 22:33:24 -0400
-X-MC-Unique: RGxKZE2GM_quDNlWuFNvZw-1
-Received: by mail-lf1-f70.google.com with SMTP id
- z14-20020a056512308e00b004786d7fde66so3807517lfd.18
+ us-mta-121-D1wJzUK8PGeUPTUqj11Hdg-1; Tue, 24 May 2022 22:48:30 -0400
+X-MC-Unique: D1wJzUK8PGeUPTUqj11Hdg-1
+Received: by mail-lf1-f71.google.com with SMTP id
+ n3-20020ac242c3000000b00473d8af3a0cso10025260lfl.21
  for <virtualization@lists.linux-foundation.org>;
- Tue, 24 May 2022 19:33:23 -0700 (PDT)
+ Tue, 24 May 2022 19:48:30 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=TUzlT5FItCjrnkA2ba6GnsAuieiG0tvhuEs/Sgn4WbA=;
- b=LeSsceYo+Isel8Fw+9CvWrd5kS7MYcTAHKPn9sj/ZM3DkZ/N4V6uu8Te2O+IkD0A9A
- VIW+zbYVEArt2Hn5aQa+CA/T4yE97A1NhqJsPmeo6+jjUEKhL/AoyxDGsEPra1Sv59jl
- ejs+LETQvRbR6YgYf3wCUzk43NTVyvRyuywNuHvX5VY0Ihz8qUNqcR90L4ov5xOvCMj3
- 4t0VISLedqD+B4Y1pe5QV/9ichQj2COw5vJCt29TLoYEeHvU4QjRbuaoz4zFrNCPeJOr
- pERzXeqiipqmLzwDBR3r4jXgQ3RKr0lnUHMMu49vV68FZ7Oa64/5a97sPK+kPxzdcomr
- etwQ==
-X-Gm-Message-State: AOAM530SUr+YILUGLW0U4/MhJDky/7xYIs2lSrbmaeKE0FKFX/Lo5OZm
- dH9lPSD07KOM8kH4MyrlS8Tqxpy+815j3W9M323GT8ALSLwMQVv6mMKiDVImDKbHQmEJFSSyWEr
- tNnmWmagIOAmJRkjP0/6NfnBKpO1JDcdVcSo/hTYEfuzLY5C/FCOb4xiI9w==
-X-Received: by 2002:a2e:949:0:b0:253:ad20:7638 with SMTP id
- 70-20020a2e0949000000b00253ad207638mr18213286ljj.73.1653446002509; 
- Tue, 24 May 2022 19:33:22 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwaIb2y4xSBunj6Y0Pn0HegD61k8wMpUegglnU6deG7dwCx7EXFGAyqLks58kgg00PxIOV7BLaHbKWxgFww6js=
-X-Received: by 2002:a2e:949:0:b0:253:ad20:7638 with SMTP id
- 70-20020a2e0949000000b00253ad207638mr18213276ljj.73.1653446002298; Tue, 24
- May 2022 19:33:22 -0700 (PDT)
+ bh=moBf3qLUiMaMEuWifwI/xaF6Fz339bQVKF7DFB/eZLg=;
+ b=H5ZrSnkGWqVHrr84yIi5V8ZwG43JInYHMaDL8v9XB50sxMxQ3ZGW0iU2gXzd8mtplN
+ RnuZo9jsP239TmmkkT2GastNI57/ANF/Zi27m+tQoIgl1yLrW9QzvFJCf9nrX0clt1Z+
+ oZJ/yT0nK8CvMnunNVTbwt8FuKsL7mKSF9cbT1Ha9s8Mb1KUV4D2H79AW3gLh52hvXj9
+ 9KWqTRgQSgBu6ZvAzvC5KVEIUaNEPj3ObI2UL9uTG/ag7ObcmG/G3IOgcNgUnZ6aDcsB
+ Dalbeelv3lHy+auH4u9MGWnCu8KMMCAs+UvUCcc71vpjhm9nGaLeGOci4rnznbDlZYsg
+ 05uA==
+X-Gm-Message-State: AOAM532uu5uVtHcQUBokx3yTqQTWRDJHfu2oDlQdob6KRuevfGos97K4
+ 3D5ioWe+CB8QZVYRpbwKGD9njTHkJlz4VpDIbEbqhYaXI1jdz23VcSttAy+OsDElz/coXru7lbs
+ QOGWCpulg5MDwo7PSu0BNOZcpDMx9kkjq5E0M9GVwRRy90fNGFdB3no+7fw==
+X-Received: by 2002:a05:6512:39d2:b0:478:5ad6:1989 with SMTP id
+ k18-20020a05651239d200b004785ad61989mr15438133lfu.98.1653446909112; 
+ Tue, 24 May 2022 19:48:29 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzPKntxWVkeik8YG79bT89bb1PnCEmh2seS8IqHocQR2ayMN1K7BGtMlWcKYe0uNqLLrzgobuNsS8hEDO0Z7kA=
+X-Received: by 2002:a05:6512:39d2:b0:478:5ad6:1989 with SMTP id
+ k18-20020a05651239d200b004785ad61989mr15438126lfu.98.1653446908927; Tue, 24
+ May 2022 19:48:28 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220518035951.94220-1-jasowang@redhat.com>
- <20220523105323.58c28d75.pasic@linux.ibm.com>
- <20220524182751.1d4bf02f.pasic@linux.ibm.com>
-In-Reply-To: <20220524182751.1d4bf02f.pasic@linux.ibm.com>
+References: <20220524115143.187-1-xieyongji@bytedance.com>
+In-Reply-To: <20220524115143.187-1-xieyongji@bytedance.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 25 May 2022 10:33:11 +0800
-Message-ID: <CACGkMEuxdoXoasdAPzAik2Xge7vU5Fp4SMxiqk3eGZCwC8s9eA@mail.gmail.com>
-Subject: Re: [PATCH V5 0/9] rework on the IRQ hardening of virtio
-To: Halil Pasic <pasic@linux.ibm.com>
+Date: Wed, 25 May 2022 10:48:17 +0800
+Message-ID: <CACGkMEuJeU6c1z8+_FqGtovbF+Sq8w_eQUcG8SHm_GXV5q7yNA@mail.gmail.com>
+Subject: Re: [PATCH] Docs/ABI/testing: Add VDUSE sysfs interface ABI document
+To: Xie Yongji <xieyongji@bytedance.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: Cindy Lu <lulu@redhat.com>, "Paul E. McKenney" <paulmck@kernel.org>,
- mst <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>,
- Marc Zyngier <maz@kernel.org>, Cornelia Huck <cohuck@redhat.com>,
- linux-kernel <linux-kernel@vger.kernel.org>,
+Cc: Greg KH <gregkh@linuxfoundation.org>,
  virtualization <virtualization@lists.linux-foundation.org>,
- eperezma <eperezma@redhat.com>, Thomas Gleixner <tglx@linutronix.de>
+ mst <mst@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -116,39 +111,74 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, May 25, 2022 at 12:28 AM Halil Pasic <pasic@linux.ibm.com> wrote:
+On Tue, May 24, 2022 at 7:51 PM Xie Yongji <xieyongji@bytedance.com> wrote:
 >
-> On Mon, 23 May 2022 10:53:23 +0200
-> Halil Pasic <pasic@linux.ibm.com> wrote:
+> This adds missing documentation for VDUSE sysfs interface ABI
+> under Documentation/ABI/testing.
 >
-> > On Wed, 18 May 2022 11:59:42 +0800
-> > Jason Wang <jasowang@redhat.com> wrote:
-> >
-> > > Hi All:
-> >
-> > Sorry for being slow on this one. I'm pretty much under water. Will try
-> > to get some regression-testing done till tomorrow end of day.
-> >
+> Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
+
+Acked-by: Jason Wang <jasowang@redhat.com>
+
+> ---
+>  Documentation/ABI/testing/sysfs-class-vduse | 33 +++++++++++++++++++++
+>  MAINTAINERS                                 |  1 +
+>  2 files changed, 34 insertions(+)
+>  create mode 100644 Documentation/ABI/testing/sysfs-class-vduse
 >
-> Did some testing with the two stage indicators disabled. Didn't see any
-> significant difference in performance, and with that also no performance
-> regression. IMHO we are good to go ahead!
-
-Great!
-
->
-> Sorry it took so long.
-
-No worries and thanks a lot for the help.
-
-I will repost a version with some comments tweaked that is suggested
-by Cornelia Huck.
-
-Thanks
-
->
-> Regards,
-> Halil
+> diff --git a/Documentation/ABI/testing/sysfs-class-vduse b/Documentation/ABI/testing/sysfs-class-vduse
+> new file mode 100644
+> index 000000000000..2f2bc5c8fc48
+> --- /dev/null
+> +++ b/Documentation/ABI/testing/sysfs-class-vduse
+> @@ -0,0 +1,33 @@
+> +What:          /sys/class/vduse/
+> +Date:          Oct 2021
+> +KernelVersion: 5.15
+> +Contact:       Yongji Xie <xieyongji@bytedance.com>
+> +Description:
+> +               The vduse/ class sub-directory belongs to the VDUSE
+> +               framework and provides a sysfs interface for configuring
+> +               VDUSE devices.
+> +
+> +What:          /sys/class/vduse/control/
+> +Date:          Oct 2021
+> +KernelVersion: 5.15
+> +Contact:       Yongji Xie <xieyongji@bytedance.com>
+> +Description:
+> +               This directory entry is created for the control device
+> +               of VDUSE framework.
+> +
+> +What:          /sys/class/vduse/<device-name>/
+> +Date:          Oct 2021
+> +KernelVersion: 5.15
+> +Contact:       Yongji Xie <xieyongji@bytedance.com>
+> +Description:
+> +               This directory entry is created when a VDUSE device is
+> +               created via the control device.
+> +
+> +What:          /sys/class/vduse/<device-name>/msg_timeout
+> +Date:          Oct 2021
+> +KernelVersion: 5.15
+> +Contact:       Yongji Xie <xieyongji@bytedance.com>
+> +Description:
+> +               (RW) The timeout (in seconds) for waiting for the control
+> +               message's response from userspace. Default value is 30s.
+> +               Writing a '0' to the file means to disable the timeout.
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index d6d879cb0afd..d9a423de2f4d 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -20842,6 +20842,7 @@ M:      Jason Wang <jasowang@redhat.com>
+>  L:     virtualization@lists.linux-foundation.org
+>  S:     Maintained
+>  F:     Documentation/ABI/testing/sysfs-bus-vdpa
+> +F:     Documentation/ABI/testing/sysfs-class-vduse
+>  F:     Documentation/devicetree/bindings/virtio/
+>  F:     drivers/block/virtio_blk.c
+>  F:     drivers/crypto/virtio/
+> --
+> 2.20.1
 >
 
 _______________________________________________
