@@ -1,86 +1,87 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 28508C433FE
-	for <virtualization@archiver.kernel.org>; Wed, 25 May 2022 14:33:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A2E92C433EF
+	for <virtualization@archiver.kernel.org>; Wed, 25 May 2022 17:53:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id B0CCC842AC;
-	Wed, 25 May 2022 14:33:11 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 3245841C30;
+	Wed, 25 May 2022 17:53:17 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id S9-UU0F6Fu9b; Wed, 25 May 2022 14:33:10 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 3D3A784293;
-	Wed, 25 May 2022 14:33:10 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id EE1BEC007E;
-	Wed, 25 May 2022 14:33:09 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1D52FC002D
- for <virtualization@lists.linux-foundation.org>;
- Wed, 25 May 2022 14:33:08 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 1626041C32
- for <virtualization@lists.linux-foundation.org>;
- Wed, 25 May 2022 14:33:05 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=intel.com
 Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 0Q0ArEVeYMp2
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ImdD4Yo6rP31; Wed, 25 May 2022 17:53:15 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 3922B41BA5;
+	Wed, 25 May 2022 17:53:15 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id F1243C007C;
+	Wed, 25 May 2022 17:53:14 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id F3A2DC002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 May 2022 14:33:03 +0000 (UTC)
+ Wed, 25 May 2022 17:53:13 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id E083A4107D
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 25 May 2022 17:53:13 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=intel.com
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id gpdON_00rxos
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 25 May 2022 17:53:12 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
- by smtp4.osuosl.org (Postfix) with ESMTPS id CDF0341C3F
+Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id F2D5141085
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 May 2022 14:33:03 +0000 (UTC)
+ Wed, 25 May 2022 17:53:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1653489183; x=1685025183;
+ t=1653501192; x=1685037192;
  h=date:from:to:cc:subject:message-id:references:
  mime-version:in-reply-to;
- bh=e8WdMPHPvUxue/jRn47cDBNn5mZvdiHoI8fDLRKx+b4=;
- b=CyK6SQSUOOhv+w5/q/jod4hDt6Ajmf+9A8l6afxC4zXPb9fXry3yFxUQ
- De6zfF+1+WljvKD1BeAyMod+trlqTFKefS7Pt/mQMIQUUg+vuACrieJec
- MNYpMG+SkMmurKtuuvGnkboa/muzvKRG5JJRz3iMcNjgev7vFTuBEOqkr
- k/YKY00bs5jlt+r76hK7Vpuo7rHA3pNn4bCxX6vgndC7IiggkKogNVpZs
- V5vShNwXiw8USJUDnP0TfVqas43fZZ7oa+FPnboHb17IYosEBF0mEqfHQ
- W9WSZYslQeaKamxn2RHuDaGPPw5VCdUrDkQ5cX5dAnjjnYYnbBrWL1Ffe Q==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10358"; a="271402794"
-X-IronPort-AV: E=Sophos;i="5.91,250,1647327600"; d="scan'208";a="271402794"
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
- by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 25 May 2022 07:33:03 -0700
+ bh=OBl8VqVg26hgXRW1FrdHxYUiLB4y0jncmZM7TnohZuE=;
+ b=TKuIxd39uJ2JbWNp+yIiLWVmhYibnxdc4YakCCsGjmjAd49ymUI25WRe
+ FHH3nQvBBBjclo0/CuNAIOYnM/6tqe1pu2HpBxFIRWKUt+lm3fWoo2iNy
+ +IPGXVN3uwoselHWzFvmDodSQzWREx8dwD+7caVyIn0HqRBPAbRpAH2de
+ BFwpSx+1olJwI0wkgLVfuNRKT81JAdz4tKfzRYwFZ7ozM0bhnCszhlGex
+ eZAkWklcJ22pFQjYcUEdC0oC6+BK17BbQ8majJC9nigKJ2hWbRcVGr2dJ
+ gD4pptXS58lEKL/oe1+LYU9glstUFjtA64KFuHtijkB/cXi7wR21z+bgq A==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10358"; a="272708432"
+X-IronPort-AV: E=Sophos;i="5.91,250,1647327600"; d="scan'208";a="272708432"
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+ by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 25 May 2022 10:53:11 -0700
 X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.91,250,1647327600"; d="scan'208";a="573264216"
+X-IronPort-AV: E=Sophos;i="5.91,250,1647327600"; d="scan'208";a="664528898"
 Received: from lkp-server01.sh.intel.com (HELO db63a1be7222) ([10.239.97.150])
- by orsmga007.jf.intel.com with ESMTP; 25 May 2022 07:32:56 -0700
+ by FMSMGA003.fm.intel.com with ESMTP; 25 May 2022 10:53:04 -0700
 Received: from kbuild by db63a1be7222 with local (Exim 4.95)
- (envelope-from <lkp@intel.com>) id 1nts4F-00034E-QU;
- Wed, 25 May 2022 14:32:55 +0000
-Date: Wed, 25 May 2022 22:32:14 +0800
+ (envelope-from <lkp@intel.com>) id 1ntvBv-0003DC-DD;
+ Wed, 25 May 2022 17:53:03 +0000
+Date: Thu, 26 May 2022 01:52:58 +0800
 From: kernel test robot <lkp@intel.com>
 To: Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
  "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
  linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
  virtualization@lists.linux-foundation.org, Jason Wang <jasowang@redhat.com>
 Subject: Re: [PATCH v3 3/4] vhost-vdpa: uAPI to stop the device
-Message-ID: <202205252236.4ysv1ZWg-lkp@intel.com>
+Message-ID: <202205260121.6V500tTl-lkp@intel.com>
 References: <20220525105922.2413991-4-eperezma@redhat.com>
 MIME-Version: 1.0
 Content-Disposition: inline
 In-Reply-To: <20220525105922.2413991-4-eperezma@redhat.com>
 Cc: tanuj.kamde@amd.com, Dan Carpenter <error27@gmail.com>,
- Wu Zongyong <wuzongyong@linux.alibaba.com>, Si-Wei Liu <si-wei.liu@oracle.com>,
- pabloc@xilinx.com, Eli Cohen <elic@nvidia.com>,
- Zhang Min <zhang.min9@zte.com.cn>, lulu@redhat.com, Piotr.Uminski@intel.com,
- martinh@xilinx.com, Xie Yongji <xieyongji@bytedance.com>, dinang@xilinx.com,
+ llvm@lists.linux.dev, Wu Zongyong <wuzongyong@linux.alibaba.com>,
+ Si-Wei Liu <si-wei.liu@oracle.com>, pabloc@xilinx.com,
+ Eli Cohen <elic@nvidia.com>, Zhang Min <zhang.min9@zte.com.cn>,
+ lulu@redhat.com, Piotr.Uminski@intel.com, martinh@xilinx.com,
+ Xie Yongji <xieyongji@bytedance.com>, dinang@xilinx.com,
  habetsm.xilinx@gmail.com, Longpeng <longpeng2@huawei.com>, lvivier@redhat.com,
  Christophe JAILLET <christophe.jaillet@wanadoo.fr>, kbuild-all@lists.01.org,
  gautam.dawar@amd.com, ecree.xilinx@gmail.com, hanand@xilinx.com,
@@ -114,27 +115,28 @@ https://git-scm.com/docs/git-format-patch]
 
 url:    https://github.com/intel-lab-lkp/linux/commits/Eugenio-P-rez/Implement-vdpasim-stop-operation/20220525-190143
 base:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git linux-next
-config: x86_64-randconfig-a013 (https://download.01.org/0day-ci/archive/20220525/202205252236.4ysv1ZWg-lkp@intel.com/config)
-compiler: gcc-11 (Debian 11.3.0-1) 11.3.0
+config: x86_64-randconfig-a005 (https://download.01.org/0day-ci/archive/20220526/202205260121.6V500tTl-lkp@intel.com/config)
+compiler: clang version 15.0.0 (https://github.com/llvm/llvm-project d52a6e75b0c402c7f3b42a2b1b2873f151220947)
 reproduce (this is a W=1 build):
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
         # https://github.com/intel-lab-lkp/linux/commit/515f6b6d2a0164df801ddbe61e1cb1ae4e763873
         git remote add linux-review https://github.com/intel-lab-lkp/linux
         git fetch --no-tags linux-review Eugenio-P-rez/Implement-vdpasim-stop-operation/20220525-190143
         git checkout 515f6b6d2a0164df801ddbe61e1cb1ae4e763873
         # save the config file
         mkdir build_dir && cp config build_dir/.config
-        make W=1 O=build_dir ARCH=x86_64 SHELL=/bin/bash
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross W=1 O=build_dir ARCH=x86_64 SHELL=/bin/bash drivers/vhost/
 
 If you fix the issue, kindly add following tag where applicable
 Reported-by: kernel test robot <lkp@intel.com>
 
 All errors (new ones prefixed by >>):
 
-   drivers/vhost/vdpa.c: In function 'vhost_vdpa_unlocked_ioctl':
->> drivers/vhost/vdpa.c:668:14: error: 'VHOST_STOP' undeclared (first use in this function)
-     668 |         case VHOST_STOP:
-         |              ^~~~~~~~~~
-   drivers/vhost/vdpa.c:668:14: note: each undeclared identifier is reported only once for each function it appears in
+>> drivers/vhost/vdpa.c:668:7: error: use of undeclared identifier 'VHOST_STOP'
+           case VHOST_STOP:
+                ^
+   1 error generated.
 
 
 vim +/VHOST_STOP +668 drivers/vhost/vdpa.c
