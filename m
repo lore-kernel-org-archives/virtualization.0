@@ -4,187 +4,125 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id F178EC433F5
-	for <virtualization@archiver.kernel.org>; Thu, 26 May 2022 08:49:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 94945C433F5
+	for <virtualization@archiver.kernel.org>; Thu, 26 May 2022 09:07:26 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id A7E664117C;
-	Thu, 26 May 2022 08:49:34 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 2F476404C0;
+	Thu, 26 May 2022 09:07:26 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id epPERLMjlvaC; Thu, 26 May 2022 08:49:33 +0000 (UTC)
+	with ESMTP id b1FYu9Kw_v6f; Thu, 26 May 2022 09:07:25 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 3079841184;
-	Thu, 26 May 2022 08:49:33 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id B320E40541;
+	Thu, 26 May 2022 09:07:24 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0289AC0039;
-	Thu, 26 May 2022 08:49:33 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E5853C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8136FC0039;
+	Thu, 26 May 2022 09:07:24 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5B0BEC002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 May 2022 08:49:31 +0000 (UTC)
+ Thu, 26 May 2022 09:07:22 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id BA871845D0
+ by smtp2.osuosl.org (Postfix) with ESMTP id 4895F40541
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 May 2022 08:49:31 +0000 (UTC)
+ Thu, 26 May 2022 09:07:22 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=oracle.com header.b="N6L8IGIQ";
- dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
- header.b="zA7uTSM7"
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id OqTNB-rv77gf
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id KFkiMO1668gl
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 May 2022 08:49:31 +0000 (UTC)
+ Thu, 26 May 2022 09:07:21 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com
- [205.220.165.32])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 150B3845CF
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id E3F1C404C0
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 May 2022 08:49:30 +0000 (UTC)
-Received: from pps.filterd (m0246617.ppops.net [127.0.0.1])
- by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24Q6TUP5019140;
- Thu, 26 May 2022 08:49:01 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
- h=date : from : to : cc
- : subject : message-id : references : content-type : in-reply-to :
- mime-version; s=corp-2021-07-09;
- bh=gp8R1iDlNHe3KhfyxbkD7LcxRWOfrk8kRSnvpwqyIN8=;
- b=N6L8IGIQjj70heLtzim+83fHGJYaf7iolQ+j1fHsIMVe6yTX4Z2rs+e9X0OwqP1vXlXY
- vpbzP2AzQAa7brjfiuHpDYiqneAqVKsnuE94DPGZUf/33q5SguvgBrnhibhxXj3ouRYC
- FbZYEjW8YMHpU2r9MjraHLa1aSyfQ1voYzFFXDZ4K7XOJLCACpfXwooPKfsECOE+g4Jg
- 9LGFqgrmfFKmQAszdvabOKK41hSdnx52iq27W4+E3IA29qL9MsvSTOIETwVTtv926K19
- C/KrBDAOrEaVcYtpBIlvu2cIgqDjw+hc8GvhJUXldVXJi5jDAZiOCrFKWAnXcOtLOHFK 3A== 
-Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com
- (phxpaimrmta01.appoci.oracle.com [138.1.114.2])
- by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3g93tavart-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Thu, 26 May 2022 08:49:01 +0000
-Received: from pps.filterd
- (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
- by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.16.1.2/8.16.1.2)
- with SMTP id 24Q8gUFi016249; Thu, 26 May 2022 08:49:00 GMT
-Received: from nam10-bn7-obe.outbound.protection.outlook.com
- (mail-bn7nam10lp2102.outbound.protection.outlook.com [104.47.70.102])
- by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com with ESMTP id
- 3g93wx4qe4-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Thu, 26 May 2022 08:49:00 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=HqnPo4eTIJG1ZN66gA/oAbADwqQ0ro52smLjPdNH93ctAhZaxHY7+fxaRDUQ7Nfagm22JAzTEyv/c7BqJ2LgpdtNXbHtcQ+I2vmR4HjSTMTUURK/wApd9QpzgrkCGzToJmFSoxvgDvhsGaPjnuxdnkYX9Vyu+N7sKFKMh7g+PzVU8TdMTyOaqxLoMCIJ9Auvc5ILBZQL0BEWCJYHwyQ2eFEdvBk9J3Y+eddIvfObi9v1/K9ny8ZA7ASG6CmtobJjZtB9Ze8d8Sij4jz5YKvixSC6ZuJ8UYwuNQNL31/sLVNaAqKyvrAEl8XcDgtyzlo3tLOx5ItE/81DMEv+Fmo0dg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=gp8R1iDlNHe3KhfyxbkD7LcxRWOfrk8kRSnvpwqyIN8=;
- b=cufX3CyEu4FSJtUWhhDztdshOErtPgv2LHi+IZteqR10kEQQmPgcWfAwu9Rg6EppT29ruvEyezzwJbPZqBkKzHLWYbzHGoSvklmptauLaSbDArbhChaRb7s2sgShz+iT069CpUvqcYzFT0MBz7PuRYppvOiZakR7UiHToJXApX2Of+4R9jyqhqsd0PKsFxLZGL+TZ/QzgX5lEXBy9Jr/ZRsS6yxCnGOCAVloap5B01+a/M0qU2ApE4gWG+pLllPqnLgoAzyAqKkjxJ0qK+bJJhZVqKUapzXWFYmtz8NVoI7gM+LnDEQzulJSY6911dd12mm+8EFCQcrAw87ZRw6x7w==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=gp8R1iDlNHe3KhfyxbkD7LcxRWOfrk8kRSnvpwqyIN8=;
- b=zA7uTSM7vGs6q9/cXznfrrNjkPuYpoq7bTjDA/asYOifQyu+b+jNaKCkSNbJgMZDHqq1xM67r5yMrpAxDZNoQUH604ve84deNRjD8DWaSQdPhzn58wPTelg3getWcycYnRDELdgCvWP1WpZI7sH/HAE6yTQRwJlkWydWrlCGqpo=
-Received: from MWHPR1001MB2365.namprd10.prod.outlook.com
- (2603:10b6:301:2d::28) by MW5PR10MB5763.namprd10.prod.outlook.com
- (2603:10b6:303:19c::8) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5273.23; Thu, 26 May
- 2022 08:48:58 +0000
-Received: from MWHPR1001MB2365.namprd10.prod.outlook.com
- ([fe80::86f:81ba:9951:5a7e]) by MWHPR1001MB2365.namprd10.prod.outlook.com
- ([fe80::86f:81ba:9951:5a7e%2]) with mapi id 15.20.5273.023; Thu, 26 May 2022
- 08:48:58 +0000
-Date: Thu, 26 May 2022 11:48:32 +0300
-From: Dan Carpenter <dan.carpenter@oracle.com>
-To: Matthew Wilcox <willy@infradead.org>
-Subject: Re: [linux-next:master] BUILD REGRESSION
- 8cb8311e95e3bb58bd84d6350365f14a718faa6d
-Message-ID: <20220526084832.GC2146@kadam>
-References: <628ea118.wJYf60YnZco0hs9o%lkp@intel.com>
- <20220525145056.953631743a4c494aabf000dc@linux-foundation.org>
- <F0E25DFF-8256-48FF-8B88-C0E3730A3E5E@jrtc27.com>
- <20220525152006.e87d3fa50aca58fdc1b43b6a@linux-foundation.org>
- <Yo7U8kglHlcvQ0Ri@casper.infradead.org>
-Content-Disposition: inline
-In-Reply-To: <Yo7U8kglHlcvQ0Ri@casper.infradead.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-ClientProxiedBy: JNAP275CA0049.ZAFP275.PROD.OUTLOOK.COM (2603:1086:0:4e::12)
- To MWHPR1001MB2365.namprd10.prod.outlook.com
- (2603:10b6:301:2d::28)
+ Thu, 26 May 2022 09:07:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1653556039;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=KrhZj/f2a1K5xyngYjaDLFoTBYuesG1Fa4WdS5JUxdc=;
+ b=PqsbdUzHwK3A5hrBfI2O18NMQn7wLtI8TQIn5oZRsAPlgAuhtlki1fOcWkE6dU22yzKPCO
+ D70sUJQpUbXQryivYe9qz6OFubPiffizY1KT2OWb59e0ZjVp5FLkqiNyI5+qBoQzHAamOn
+ oHStQfoK7Ok3q9CIsqS0u4QK9CPUejs=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-590-j_5iBs8fPhujd2NpplmJ7w-1; Thu, 26 May 2022 05:07:18 -0400
+X-MC-Unique: j_5iBs8fPhujd2NpplmJ7w-1
+Received: by mail-wm1-f70.google.com with SMTP id
+ m26-20020a05600c3b1a00b00397220d6329so780854wms.5
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 26 May 2022 02:07:18 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:content-transfer-encoding
+ :in-reply-to;
+ bh=KrhZj/f2a1K5xyngYjaDLFoTBYuesG1Fa4WdS5JUxdc=;
+ b=vAaMLDMbmxPda6ZyZyzr4vojGIjYphd/GvxBryvOOKkf4qASXh/fs2/I/vIGxRojJ8
+ x2REw1Ytka0gKf/SRl/R47UyjS8t9qU1a5HMc9m4jmIe83N/2lKR4//Z4izUuPWDsG9e
+ QLN7I+hz9Y3X+r9eqJTuWE8ooEDmotLPOuTEHvtYbpz8fvYpW+AI+zncr/uiNKl0y5ei
+ Y1J0f2WWhPg1aOLlvifocRJd/jn0YKlBcgQ1EzkF675NZVIFBrXisTzTpbag6SaFfTsi
+ BWbe4Ra/NTEUFxlyjHxbc87fs8pRiAzzcxnoMtfpxNXdeofyJDG/Kg5M2fnCjs9dAw+Z
+ 55fw==
+X-Gm-Message-State: AOAM530tNj3zz015GOUA9igHodZM9Jx7PZ7r3fkVIvNO0hhSoXKNJ7Kv
+ 2tzDfYSASnvbeD+d4rG+n6MJKCWp2ouFn6EzkCQe0u/Pj2AXtYVYt7ZjLv6en6EbJFTpBWQhBfo
+ KiSLB850pxc+c/vPbCobEnrXPAjws6aJSfZW5EjCjew==
+X-Received: by 2002:a05:600c:3d0d:b0:397:460d:3360 with SMTP id
+ bh13-20020a05600c3d0d00b00397460d3360mr1385892wmb.54.1653556037168; 
+ Thu, 26 May 2022 02:07:17 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzsQMSJXaL5D4KLoVhLNCOsXSL5t/a06VfP1CmmgXg13RDPmXb5nBs/26we+aadnB6KRWEdCQ==
+X-Received: by 2002:a05:600c:3d0d:b0:397:460d:3360 with SMTP id
+ bh13-20020a05600c3d0d00b00397460d3360mr1385860wmb.54.1653556036941; 
+ Thu, 26 May 2022 02:07:16 -0700 (PDT)
+Received: from sgarzare-redhat (host-87-12-25-16.business.telecomitalia.it.
+ [87.12.25.16]) by smtp.gmail.com with ESMTPSA id
+ p36-20020a05600c1da400b003974027722csm1247492wms.47.2022.05.26.02.07.10
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 26 May 2022 02:07:16 -0700 (PDT)
+Date: Thu, 26 May 2022 11:07:06 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Eugenio Perez Martin <eperezma@redhat.com>
+Subject: Re: [PATCH v3 2/4] vhost-vdpa: introduce STOP backend feature bit
+Message-ID: <20220526090706.maf645wayelb7mcp@sgarzare-redhat>
+References: <20220525105922.2413991-1-eperezma@redhat.com>
+ <20220525105922.2413991-3-eperezma@redhat.com>
+ <BL1PR12MB582520CC9CE024149141327499D69@BL1PR12MB5825.namprd12.prod.outlook.com>
+ <CAJaqyWc9_ErCg4whLKrjNyP5z2DZno-LJm7PN=-9uk7PUT4fJw@mail.gmail.com>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 5a8480aa-9787-4c8a-788c-08da3ef49261
-X-MS-TrafficTypeDiagnostic: MW5PR10MB5763:EE_
-X-Microsoft-Antispam-PRVS: <MW5PR10MB576391773DA5C21D153594AF8ED99@MW5PR10MB5763.namprd10.prod.outlook.com>
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: UnbmCcXN+b9yKw5ZKUKBbMf6H9DfeTElBOvndXSm4DAUuxQVbLVzcuMg/VQVMhI4uR1vJr2F4nhcuOld5h8QHl6AWa0aQFKJp/jwfoV7kkCT9m8OWUnxCutWPP8+hkA9DL/tkhyKL5RGdAtSW6XFTuQCSwPGbyNMcbdF7OtFgSLZPDw1guAHgSDAYJvPMUYTFBPyutWHBwGYKZECcoWtMYl5UGnz1XkUy6Mjn0RmMrNYPp1fWG7EErO38RqGzPvPwcB6mBNgEvi3qM+BynK8zFNpVyJFmy0HMfRyFtXr8aslPnlgl55wc3HvGLlw7s8yp3z0Q6IxTDu7ZuHNTGOSMTPUXcJ/XHMJehnocuiVmUoOol1y5zUYOVUq01uD5bwo56ilhNuRGYFtrE8s83gcZQsYCYaEuim6tJ1oTBmupUgLEMNivlgxNr/0VuRZ2GS94LlhzoPsFzQniZEGum6ek3ItKc+tAgVaTReLEIm1cs2EXYpWXpyaGK1Uc0QOwaIt+9s1xvF4Zc3h1nw4NYpGY5F8ay2C6KMWTU9IiDD5wpPt9B3CI78V8m9iRJhJmwbwofLa2I/yjcBzR6xoI7ePgiMO+zLvPDlN4BDf3kYN7ccDRpae5f+cv5hWbdP5nQrCiZk+nWk/F8btCel7BwyQrWMPOzrdC+Ptoy161eCiQY0BrT+kFyhDmjd5AEZE1gsc/ZOOJiGqVeOOmfXOc04KPg==
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:MWHPR1001MB2365.namprd10.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230001)(7916004)(366004)(4326008)(6666004)(6506007)(86362001)(52116002)(66476007)(66946007)(9686003)(8676002)(66556008)(6512007)(26005)(6916009)(6486002)(316002)(44832011)(54906003)(508600001)(38100700002)(38350700002)(1076003)(186003)(83380400001)(2906002)(33656002)(5660300002)(33716001)(8936002)(4744005)(7416002);
- DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?zul1lsNQxRYiON0dY2cqMQzZ54UDTG5679WWQxeHa7rPVVQR64+7MLmsArJ1?=
- =?us-ascii?Q?V8DtoKpFqTyOmZ91wPaLJl0XYq2gCE3rsCsJt9rjh0W+dKB1iTYkND2ZFoq5?=
- =?us-ascii?Q?R8hIxgQTfJmpx3n+ES/ww5L6k4TIQ+T3M/0WUP7l6ZRkT8QxHyToqLj7dTAo?=
- =?us-ascii?Q?3nPPvPPMUGiezucB2KD2+MVxC/Evg2IiTxvhwWIjDL6xjswQm+oYUkd1SB2d?=
- =?us-ascii?Q?DH7SJuT9qyteKKYhrdX+8rBj7eY79DRqQeN7Zw6MIF9y7AsEQtoZgdU0QhbZ?=
- =?us-ascii?Q?mDy+yvismRjwwItx0rFfrBpbl3Q3a3PJn1zetfq/0Fbi4WMgiJ2Kf6CfAoT4?=
- =?us-ascii?Q?lv/LTdC8EWqwQJo//4yO9dMPdsJN+qJFHXf9Ud8s89uQMcVLgwC4k09pqiel?=
- =?us-ascii?Q?TuMb0V2P5AEMoMHP/cQ3xpKWnZoj8jdYa/WAjsDXKi6oK7K/ihSPkRiP4WLa?=
- =?us-ascii?Q?JDdR4Y2YxoHYUaLmgaJQKY8LG8lXr/Ev4DUw7mbPMw9jojttovb8DTwGlJLZ?=
- =?us-ascii?Q?yTAnILfCdCFNQKJfgLQbB4Pvjzu9GOMB+FSZEVt51SeVMcK8g8QTmT3bpBLz?=
- =?us-ascii?Q?zWt9Kn4Iaqwe0q2vGxio5utoblFHgWPhSGxoGf6ZGTcntnYYiqVz5krR17RR?=
- =?us-ascii?Q?ut+hNW8mqMx8E+deOOvkrDophMsqjg6LuDyBdqW7yyX2aX6nrHwb5mQIIe2L?=
- =?us-ascii?Q?9kOhg7NCjtoYfQhvRmY7GKS7VSMwRqJ6c/5hFehiq4RoYiizva4Pb6gPWfjn?=
- =?us-ascii?Q?Oz99vMNK+eObEujmH5TYNVvzOfkSB6247RwonXerDAVP/vUvpTu86gGSONOB?=
- =?us-ascii?Q?j5f21mBYF89zfMQ5VW/alhN4BvfCr2oCs6hEa1iEnBQHF+Nur5ztYpcDlDrv?=
- =?us-ascii?Q?fkE69bHEHs+esn47WDFEgFQZHvlFBnPTa5RAAcH3iSE2YK4YMYNGoYwBlQ33?=
- =?us-ascii?Q?oS1mpB6tXi+gYZCqqqfhhSot8xyNtzqpCxqapSXu/VYFJbcH4c2GYcQJ2UVO?=
- =?us-ascii?Q?/xGuxFJB12ACp6Qiq53iNSrxgMo9hdpsNBb/TIDS3AstLEyNpjvL6OAhG4Cj?=
- =?us-ascii?Q?sPE/tdDbc2Fhi8csgma8+Y9ecWDtkKTJePdgBvd3btpWmFsWiA6FeysPqH4K?=
- =?us-ascii?Q?GH+ll3THcizly2pKPx7+ml56F2+PuNCLeqCdS6ksjfyCkPH6Hso/1rgCTUI2?=
- =?us-ascii?Q?P+y1kdG6H5SIJWzKLFIRA2jj5p5x2GVTNv6aLjpO3cjTBm+txrhoUdDkYQBI?=
- =?us-ascii?Q?4wAuOTp9I56ZRF6l6Icy1c06LD6GX/ayc6ax/8DlINa9HzBzolFoNLdU6w/a?=
- =?us-ascii?Q?iyNYFQvNRWImEflUD+nBby4JhxbWUEDBFXX0EqCXTPhyktPSBDRCUq0OAgBp?=
- =?us-ascii?Q?mhB3vAYCL1UKzpyiLS4i213YgRaexCYLHsAAY8BzeqoW3M+J2cLasSeDmNQ9?=
- =?us-ascii?Q?WBLxjdmVO1tEgppjU2Wgxp41pzE7GS1xCWEitctgPbSvuSJg3Q+gBqwRMXhI?=
- =?us-ascii?Q?fHaC9tVpTktAzFndfnuUZODjQZmH08t/QrVEcRUlUE5chVFCy96qqxmtYNst?=
- =?us-ascii?Q?1xv5idClHjZueKJjxsaWhbAFHEgFRKrsDNgBJR2L0MGC93TOrX+nZSlvqtDg?=
- =?us-ascii?Q?Hlxs0XmIcheOQnEU1HNcE6PlR6hLN6S+74DjafzGCH5w1hwb7dBQcOqs0R98?=
- =?us-ascii?Q?qSV3a0f1casEiywUq/o47EJrZqumk3NTxMndu6HlU2o3cWD77FjftQR6zF4H?=
- =?us-ascii?Q?fo8mtMSFEft462iXQk4LId3Yi2Wdfqw=3D?=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5a8480aa-9787-4c8a-788c-08da3ef49261
-X-MS-Exchange-CrossTenant-AuthSource: MWHPR1001MB2365.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 May 2022 08:48:58.0774 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: F8TVMs3YUkyp6UIcO4oQn/Bj0riPTlCb/HWarErHHzM8QLxw0hYPwul3kslzgCRAHW7ZN5hydZ9iR2tljAPmM0lL/x5F1sRaVlzcL2mThjQ=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW5PR10MB5763
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.486, 18.0.874
- definitions=2022-05-26_03:2022-05-25,
- 2022-05-26 signatures=0
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0
- adultscore=0 mlxscore=0
- phishscore=0 spamscore=0 mlxlogscore=999 bulkscore=0 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2204290000
- definitions=main-2205260043
-X-Proofpoint-GUID: Yeg_fN2H03I3-DgomnM61R0bKPzI993G
-X-Proofpoint-ORIG-GUID: Yeg_fN2H03I3-DgomnM61R0bKPzI993G
-Cc: alsa-devel@alsa-project.org, linux-fbdev@vger.kernel.org,
- kernel test robot <lkp@intel.com>, kvm@vger.kernel.org,
- linux-rdma@vger.kernel.org, netdev@vger.kernel.org,
- linux-staging@lists.linux.dev, bpf@vger.kernel.org,
- dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
- linux-mm@kvack.org, amd-gfx@lists.freedesktop.org, linux-pci@vger.kernel.org,
- Andrew Morton <akpm@linux-foundation.org>, linux-omap@vger.kernel.org,
- Jessica Clarke <jrtc27@jrtc27.com>, linux-riscv@lists.infradead.org,
- linux-arm-kernel@lists.infradead.org, linux-parport@lists.infradead.org
+In-Reply-To: <CAJaqyWc9_ErCg4whLKrjNyP5z2DZno-LJm7PN=-9uk7PUT4fJw@mail.gmail.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: "Kamde, Tanuj" <tanuj.kamde@amd.com>,
+ "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ Wu Zongyong <wuzongyong@linux.alibaba.com>, Si-Wei Liu <si-wei.liu@oracle.com>,
+ "pabloc@xilinx.com" <pabloc@xilinx.com>, Eli Cohen <elic@nvidia.com>,
+ Zhang Min <zhang.min9@zte.com.cn>, "lulu@redhat.com" <lulu@redhat.com>,
+ "Piotr.Uminski@intel.com" <Piotr.Uminski@intel.com>,
+ "martinh@xilinx.com" <martinh@xilinx.com>,
+ Xie Yongji <xieyongji@bytedance.com>, "dinang@xilinx.com" <dinang@xilinx.com>,
+ "habetsm.xilinx@gmail.com" <habetsm.xilinx@gmail.com>,
+ Longpeng <longpeng2@huawei.com>, Dan Carpenter <dan.carpenter@oracle.com>,
+ "lvivier@redhat.com" <lvivier@redhat.com>,
+ Christophe JAILLET <christophe.jaillet@wanadoo.fr>, "Dawar,
+ Gautam" <gautam.dawar@amd.com>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ "ecree.xilinx@gmail.com" <ecree.xilinx@gmail.com>,
+ "hanand@xilinx.com" <hanand@xilinx.com>,
+ "martinpo@xilinx.com" <martinpo@xilinx.com>,
+ "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+ Zhu Lingshan <lingshan.zhu@intel.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -196,28 +134,76 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="iso-8859-1"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, May 26, 2022 at 02:16:34AM +0100, Matthew Wilcox wrote:
-> Bizarre this started showing up now.  The recent patch was:
-> 
-> -       info->alloced += compound_nr(page);
-> -       inode->i_blocks += BLOCKS_PER_PAGE << compound_order(page);
-> +       info->alloced += folio_nr_pages(folio);
-> +       inode->i_blocks += BLOCKS_PER_PAGE << folio_order(folio);
-> 
-> so it could tell that compound_order() was small, but folio_order()
-> might be large?
+On Thu, May 26, 2022 at 10:57:03AM +0200, Eugenio Perez Martin wrote:
+>On Wed, May 25, 2022 at 1:23 PM Dawar, Gautam <gautam.dawar@amd.com> wrote:
+>>
+>> [AMD Official Use Only - General]
+>>
+>> -----Original Message-----
+>> From: Eugenio P=E9rez <eperezma@redhat.com>
+>> Sent: Wednesday, May 25, 2022 4:29 PM
+>> To: Michael S. Tsirkin <mst@redhat.com>; netdev@vger.kernel.org; linux-k=
+ernel@vger.kernel.org; kvm@vger.kernel.org; virtualization@lists.linux-foun=
+dation.org; Jason Wang <jasowang@redhat.com>
+>> Cc: Zhu Lingshan <lingshan.zhu@intel.com>; martinh@xilinx.com; Stefano G=
+arzarella <sgarzare@redhat.com>; ecree.xilinx@gmail.com; Eli Cohen <elic@nv=
+idia.com>; Dan Carpenter <dan.carpenter@oracle.com>; Parav Pandit <parav@nv=
+idia.com>; Wu Zongyong <wuzongyong@linux.alibaba.com>; dinang@xilinx.com; C=
+hristophe JAILLET <christophe.jaillet@wanadoo.fr>; Xie Yongji <xieyongji@by=
+tedance.com>; Dawar, Gautam <gautam.dawar@amd.com>; lulu@redhat.com; martin=
+po@xilinx.com; pabloc@xilinx.com; Longpeng <longpeng2@huawei.com>; Piotr.Um=
+inski@intel.com; Kamde, Tanuj <tanuj.kamde@amd.com>; Si-Wei Liu <si-wei.liu=
+@oracle.com>; habetsm.xilinx@gmail.com; lvivier@redhat.com; Zhang Min <zhan=
+g.min9@zte.com.cn>; hanand@xilinx.com
+>> Subject: [PATCH v3 2/4] vhost-vdpa: introduce STOP backend feature bit
+>>
+>> [CAUTION: External Email]
+>>
+>> Userland knows if it can stop the device or not by checking this feature=
+ bit.
+>>
+>> It's only offered if the vdpa driver backend implements the stop() opera=
+tion callback, and try to set it if the backend does not offer that callbac=
+k is an error.
+>>
+>> Signed-off-by: Eugenio P=E9rez <eperezma@redhat.com>
+>> ---
+>>  drivers/vhost/vdpa.c             | 16 +++++++++++++++-
+>>  include/uapi/linux/vhost_types.h |  2 ++
+>>  2 files changed, 17 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c index 1f1d1c425=
+573..32713db5831d 100644
+>> --- a/drivers/vhost/vdpa.c
+>> +++ b/drivers/vhost/vdpa.c
+>> @@ -347,6 +347,14 @@ static long vhost_vdpa_set_config(struct vhost_vdpa=
+ *v,
+>>         return 0;
+>>  }
+>>
+>> +static bool vhost_vdpa_can_stop(const struct vhost_vdpa *v) {
+>> +       struct vdpa_device *vdpa =3D v->vdpa;
+>> +       const struct vdpa_config_ops *ops =3D vdpa->config;
+>> +
+>> +       return ops->stop;
+>> [GD>>] Would it be better to explicitly return a bool to match the retur=
+n type?
+>
+>I'm not sure about the kernel code style regarding that casting. Maybe
+>it's better to return !!ops->stop here. The macros likely and unlikely
+>do that.
 
-The old code also generates a warning on my test system.  Smatch thinks
-both compound_order() and folio_order() are 0-255.  I guess because of
-the "unsigned char compound_order;" in the struct page.
+IIUC `ops->stop` is a function pointer, so what about
 
-regards,
-dan carpenter
+     return ops->stop !=3D NULL;
+
+Thanks,
+Stefano
 
 _______________________________________________
 Virtualization mailing list
