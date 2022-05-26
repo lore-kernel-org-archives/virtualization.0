@@ -1,192 +1,109 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 336C0C433EF
-	for <virtualization@archiver.kernel.org>; Thu, 26 May 2022 15:03:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A90C0C433F5
+	for <virtualization@archiver.kernel.org>; Thu, 26 May 2022 18:37:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id C586C8465D;
-	Thu, 26 May 2022 15:03:49 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 4C35D614F9;
+	Thu, 26 May 2022 18:37:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Lb0q6xY0a1dx; Thu, 26 May 2022 15:03:48 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id J3-G9EgT3K6g; Thu, 26 May 2022 18:37:28 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id A17F484567;
-	Thu, 26 May 2022 15:03:47 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id F315D6104B;
+	Thu, 26 May 2022 18:37:27 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 72814C0039;
-	Thu, 26 May 2022 15:03:47 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 704A3C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B287EC0039;
+	Thu, 26 May 2022 18:37:27 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C99D3C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 May 2022 15:03:46 +0000 (UTC)
+ Thu, 26 May 2022 18:37:25 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 5680140B2E
+ by smtp4.osuosl.org (Postfix) with ESMTP id AC9DD41736
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 May 2022 15:03:46 +0000 (UTC)
+ Thu, 26 May 2022 18:37:25 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=oracle.com header.b="tlwaHAtW";
- dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
- header.b="R1U1gp1G"
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id THW9XvzegS8o
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id imwCzPgBojQX
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 May 2022 15:03:44 +0000 (UTC)
+ Thu, 26 May 2022 18:37:24 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com
- [205.220.177.32])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 8A45140B2B
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 60EE141BA8
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 May 2022 15:03:44 +0000 (UTC)
-Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
- by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24QEIbqw023102;
- Thu, 26 May 2022 15:03:25 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
- h=date : from : to : cc
- : subject : message-id : references : content-type : in-reply-to :
- mime-version; s=corp-2021-07-09;
- bh=A9gYVVzNysph+up9zBB3jlC53MHMwEss4RNCPYTZk/A=;
- b=tlwaHAtWRPD5G1vTjq/lcbCk/m6n32uiYJUF+MurUHIRneTBYSKdLdjN4SZ33NCvbvkL
- ssPcKDtbwCaUj62jR7N9qsZAPj73QGvsV4jon0cHMzgruNI1/fPG5VUJmYGKYHEY1B4n
- RETQSeFy5GmXe407YZTAsBF7aHUkPW8lekOG7c1ZJHLPMKeEnwhUKGbMlX2Ol0DvT4lG
- /cRrdDolcFeSPkf78um+ugFNqeTpTGslHEclOW3imH8KTgzW3RiidLxHwH79Yaonmhgm
- B4uy1xSnxfdapJy718JT8unGHsD/Yhpu/0bRYqw0ZPIp6RIcCDf+CpCc/cm3Q8WXXEvk 0A== 
-Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com
- (phxpaimrmta01.appoci.oracle.com [138.1.114.2])
- by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3g93t9w2w1-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Thu, 26 May 2022 15:03:24 +0000
-Received: from pps.filterd
- (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
- by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.16.1.2/8.16.1.2)
- with SMTP id 24QExMFr012302; Thu, 26 May 2022 15:03:23 GMT
-Received: from nam02-bn1-obe.outbound.protection.outlook.com
- (mail-bn1nam07lp2045.outbound.protection.outlook.com [104.47.51.45])
- by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com with ESMTP id
- 3g93wxe0mc-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Thu, 26 May 2022 15:03:23 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=bh6AW3CZ5bFVjgTD0/+NJG+gmsLH8f5bXnpKFKduDc+3O+WHXiuz1lOszsQkejMxnsW8qrbR9GD8Aehxkd+5XW+CCVAdHnwy8lmvmda//2Cg8tFJ02RFypkB4WyOiMsWBsgk4V/UeEUN8r3QPMjgB7ULCHcXH8bq0MIiy68fzHoVBCDSzjCbAE+HsrsZ6BmxzlGi8TGnLbJF4yJvrAA1KInTu1VYXmkS17oIfLamXTKVJAT+8N6EdkfIQVdGbJlCYcDONrslJIRRO+yqy2F/Cgzaj94xhViW0c6u0t3E5lQDdERZSs2pZHV3dqU3DQ88FOAHjVcpbQ6+nfW9dNiKCg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=A9gYVVzNysph+up9zBB3jlC53MHMwEss4RNCPYTZk/A=;
- b=K+Osf9mLOPZkyngjkYuPAdna3mPifM/kxHWIBsj6s8bShF5IrC36QnT0RWd08J6ZzxRc3UGtwixSMZwpWm/+x9O48qnn6XbnZZBsSkSUnk2QRxNxuce+dPbbtHtYPMkBsysg9fLpYaTg39V0gPG+CuHC266rLx0AOM0I/sPpo9FjDtDpiJcaOuVmzYATJW3FRryqprpgIHLmkTlnKYJYSeCPuyoggdZD6gm3r7cZDRox2BHafeP6CfM58AyJkQrtkZXlhQJmbsR/NcWTLHVQRRRacw+s6hfVX+dO4f7NafBUcOtoiNE7ODL9KYvdUuaAE4d141qoJRCzQKPdUzDr1w==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=A9gYVVzNysph+up9zBB3jlC53MHMwEss4RNCPYTZk/A=;
- b=R1U1gp1GvF1gDYJBl4zBnx/CmNZbv9oRmOVU7WIL5E0Fix87GdHnCeAEnCFUmRuvAHbcwHhK8Gu5Y6hR+/cbOWVaOcZy6fcqdvtJ3RB/PEq+Ix7pSZVU44/N63XGncVxhclYURNWLVJutD/lyFmBKJjTOtM+BObMyIatq8b5VQE=
-Received: from MWHPR1001MB2365.namprd10.prod.outlook.com
- (2603:10b6:301:2d::28) by DS7PR10MB4864.namprd10.prod.outlook.com
- (2603:10b6:5:3a2::5) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5293.13; Thu, 26 May
- 2022 15:03:21 +0000
-Received: from MWHPR1001MB2365.namprd10.prod.outlook.com
- ([fe80::86f:81ba:9951:5a7e]) by MWHPR1001MB2365.namprd10.prod.outlook.com
- ([fe80::86f:81ba:9951:5a7e%2]) with mapi id 15.20.5293.013; Thu, 26 May 2022
- 15:03:20 +0000
-Date: Thu, 26 May 2022 18:03:05 +0300
-From: Dan Carpenter <dan.carpenter@oracle.com>
-To: Matthew Wilcox <willy@infradead.org>
-Subject: Re: [linux-next:master] BUILD REGRESSION
- 8cb8311e95e3bb58bd84d6350365f14a718faa6d
-Message-ID: <20220526150305.GH2168@kadam>
-References: <628ea118.wJYf60YnZco0hs9o%lkp@intel.com>
- <20220525145056.953631743a4c494aabf000dc@linux-foundation.org>
- <F0E25DFF-8256-48FF-8B88-C0E3730A3E5E@jrtc27.com>
- <20220525152006.e87d3fa50aca58fdc1b43b6a@linux-foundation.org>
- <Yo7U8kglHlcvQ0Ri@casper.infradead.org>
- <20220526084832.GC2146@kadam>
- <Yo+OiR6abzVksVTM@casper.infradead.org>
-Content-Disposition: inline
-In-Reply-To: <Yo+OiR6abzVksVTM@casper.infradead.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-ClientProxiedBy: MR2P264CA0027.FRAP264.PROD.OUTLOOK.COM (2603:10a6:500::15)
- To MWHPR1001MB2365.namprd10.prod.outlook.com
- (2603:10b6:301:2d::28)
+ Thu, 26 May 2022 18:37:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1653590243;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=iZXZyOBj9K/G+WFDwIrle6dO9n3UzwXZHEEzIr/nzYk=;
+ b=EcN/9lvQ2vCfiG/e2xYWoODYOQEkXUaYtUvRX8268CA1WFkXVfs8Auaql9IoYONSvGMBJ2
+ 6mBRqFgpr/pG17PrvReBn5zLlg5IX/OcoO4i8GXSCQbuDVXT7FP6pM8DtGv6bu6c+vKTFY
+ TgD6/kjuAvbgplcnNHYCZRAbPn5ChMU=
+Received: from mail-io1-f69.google.com (mail-io1-f69.google.com
+ [209.85.166.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-302-jom_IQKTMs6WSrDlkzj7RQ-1; Thu, 26 May 2022 14:37:22 -0400
+X-MC-Unique: jom_IQKTMs6WSrDlkzj7RQ-1
+Received: by mail-io1-f69.google.com with SMTP id
+ z22-20020a5e8616000000b0066576918849so1501192ioj.1
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 26 May 2022 11:37:21 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=iZXZyOBj9K/G+WFDwIrle6dO9n3UzwXZHEEzIr/nzYk=;
+ b=fjv+1RuTV9b5CvvyGgAWPTZvUC51vewwjAlZCfUuUPMNuNJLTBAPa1X/F2BJj0UQLk
+ sIR9E/0+ZbtaRSWb75bwwnRBoP9kMFg3FwijNj/t1n3w0pNmicGH7HnGnUSuzpqc8CT8
+ aPYiM2NkmjzVB+3iRFaVvq7067QEU8YmgmMS10J62pXzECZv0MqkUeWNrJvIzlK7V5ye
+ n0RVtgo4tUtmfEIeSQaTe8dJiB9eAraXSckk1KtWm7h3jWGHwjH4Tysl324XYFcMgCbB
+ CBARI+ykuzC0KhjxRvLjMXogj4lhSgQ7bQFEr1OkDn97MCZmuBiXJqVxXCIVgO5rvw3m
+ yhTA==
+X-Gm-Message-State: AOAM530M3+RZw5pvX55WLqd0ITOAWAHISA+yCTQXhYEIXFUSBfe8i8IS
+ otAeU7eRrOuvNZPB2UuIIewRzMm1ioqn/tBXJm8PDONF38qnWpIgXhzblVOmhSRAvt2LFtvL3qF
+ JHK8Ad3CNEu/h3AZUOIWXRFxmjGNe/JG06+rtiqqN4Q==
+X-Received: by 2002:a05:6638:4901:b0:32f:d52c:924c with SMTP id
+ cx1-20020a056638490100b0032fd52c924cmr6248115jab.8.1653590241277; 
+ Thu, 26 May 2022 11:37:21 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzpP2TSvS6e9NpQEMUP3qCECYxWtAnkzb4ugRqwUnJ/Y/Oan//xTqCMVr3HgbEkayorckxxRg==
+X-Received: by 2002:a05:6638:4901:b0:32f:d52c:924c with SMTP id
+ cx1-20020a056638490100b0032fd52c924cmr6248102jab.8.1653590241044; 
+ Thu, 26 May 2022 11:37:21 -0700 (PDT)
+Received: from xz-m1.local
+ (cpec09435e3e0ee-cmc09435e3e0ec.cpe.net.cable.rogers.com. [99.241.198.116])
+ by smtp.gmail.com with ESMTPSA id
+ x89-20020a0294e2000000b0032e43cb7344sm575684jah.146.2022.05.26.11.37.19
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 26 May 2022 11:37:20 -0700 (PDT)
+Date: Thu, 26 May 2022 14:37:18 -0400
+From: Peter Xu <peterx@redhat.com>
+To: Jue Wang <juew@google.com>
+Subject: Re: [PATCH 0/3] recover hardware corrupted page by virtio balloon
+Message-ID: <Yo/I3oLkd9OU0ice@xz-m1.local>
+References: <CAPcxDJ5pduUyMA0rf+-aTjK_2eBvig05UTiTptX1nVkWE-_g8w@mail.gmail.com>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: ae00354d-9cee-4d24-b13d-08da3f28df67
-X-MS-TrafficTypeDiagnostic: DS7PR10MB4864:EE_
-X-Microsoft-Antispam-PRVS: <DS7PR10MB4864C5CC12C33A44ECC1124E8ED99@DS7PR10MB4864.namprd10.prod.outlook.com>
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: tnPiCPFlzY6jwItTS5pncvpPP9j2kGbohE1gfbCuVzJLRDhTIYFn7fv+WaVVzEGhXwPjdjmpSd/eEFDwYInnDSWzTGdECtu4V27JJHfgwd+ybhOXLHFp3naKVuL9jCy1g9A9ZvnDBfUmKX94iklJvj2NexaYoKCSeZgn0zXrWS3c8L9bR5Y4bzPYHTSspxneXCxPOxPs9Jct6bmTKYJFfXg5q7/jJXgMFBq93B9nz22i+sxuA5NbChg4IYcb/9TnhPCqPx86jVxZTehk503U3wSi2m/Zk9u8cdkoUExO+AsYnU/D8g7WCZYYqwivg+syFkt6mZubs2UUI3F2T5knPOIFWhFcE+wgX4CxDIzVG3NOZjEHd5pkjbfH6MwI68LOczkkL6g6ePP5at+Yjv7lEOOrfnZs58lYp0WLr9nHBPNWqqVwbTkSvB/23FoHbJ5gr/3d/9/Kei9Dj1QVi5mpJvO2xGU8iHxXOWWMHLmwyvYeezHfeJuHmnDO4VGUZCsQ5ETx75lk7E5ka/JcAf0TmFKhGkUDRK/Ak3EJ7nTdVpcFhaeP1U2i5sczwH6Y3+hPAh59EjX5CCKiYMU11RFnLGHwCJogLdZM+dH0mrmMzU8sBquMpDDPLm1psNm1mVuuqDI1xOEXU9uxvgbJH2w3LfYZ+LCTp8TYoDyft0qGoO/3UQhnNgdzdxnOl8reLNhCBVw1TH6e4HrrWassZg80Jnl7ixcfVi0XNvdX2rws6kq1iXd6MW3CuwgjVyhol3IWKWn6B7lRADKgFzjCPI8662+YVeY5nkqX8t9ThSS1VRk=
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:MWHPR1001MB2365.namprd10.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230001)(7916004)(366004)(38100700002)(316002)(6666004)(38350700002)(8936002)(83380400001)(6486002)(1076003)(2906002)(966005)(186003)(6916009)(54906003)(7416002)(4326008)(66946007)(52116002)(8676002)(44832011)(6506007)(66556008)(9686003)(6512007)(66476007)(26005)(86362001)(33656002)(5660300002)(508600001)(33716001);
- DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?raDkuo2GVu/vCS1uFW/R2WZ5j1q+7rFgh3rRfhEpouijlHkoPITumDK9PExl?=
- =?us-ascii?Q?h5rDl/J51xrdlvJ2pb02djgwYXxg9HN+ZRYYzbaEDhbmEPDa65Skt96sduVo?=
- =?us-ascii?Q?bcopJyo6L2akldrQQ4QacN4aZJiVndcWzi/9L2CxamgdGQSIkyB/+dajnX6E?=
- =?us-ascii?Q?bFsGAfl1vTVdVervMjOexFv/lRRRm6btefxO0xUI+mBVxmz8xhIIy18kt14m?=
- =?us-ascii?Q?Eq/ESWG3Nzyb0x6vCmAz8VqUbNYyxVCwheNEWb7Dz7o0nOYYCWjFIzGM/W0I?=
- =?us-ascii?Q?AMTbh9c5/5qz2BY6eNZTg6JlLAgI2q05H6OqEPfcbODUqnKbCRc7w5AujwqS?=
- =?us-ascii?Q?+71xJhyUpfQwN4DYbqa5sbLLUJocjql+wYI88+zkfVP/fTmTjTWAyHipCtTX?=
- =?us-ascii?Q?OTMGW3pTG9GpHLK6T72zfr1xtTkusMYYimQlUt7brFjKzKAX54fT1fd1MrVg?=
- =?us-ascii?Q?B4Kj9shNeN8Y1IUDCkIntK6MUu2oQieON+Tcz17LbtXY9MMJxgjgsS/hXGgs?=
- =?us-ascii?Q?VUnLPzLJv+RAQPAtjXrwQOjR3GJAUrAA3Y0FwiI7bWGOygbZbjefnz0VZZOQ?=
- =?us-ascii?Q?vu+4rnSFNFtYojd/sUUcEpsNowrmsO8Z9IErUWtiKrhhTYe3kE8DeMgdZ99B?=
- =?us-ascii?Q?tj5J1hFpZxIlkl3ttC9FGGsLsko+TaeDKhHArvwWN+vpUdXsKS7vXcAOpO0t?=
- =?us-ascii?Q?4b3mOIF9gS0RZV+6WJJiGQbrXxc+d41cqg9k7TqjJ0CFlFx1rX9bj7aHAEl5?=
- =?us-ascii?Q?9aPRZHJz4vlwlmrT+8TY93GquGGtl4gvk2ZNQAC0SQ+YoXyz+T6CV7v8UWtn?=
- =?us-ascii?Q?LtOGDFStAvLZ1VcbTLnQctZj/RPiesGSNYJ817skT/A1p496LU9dhktOkd6A?=
- =?us-ascii?Q?QOQunxSZzZGuH7xPvvzRM5ht2NOyK1mXZ8Y/QNd51NPpCePhYvfeaL0xBNkQ?=
- =?us-ascii?Q?J4AkBxJ4ulLRGu1Yi7znAiErsuUiWY8fhKySRqzQwWsq4Ns+JAPyjfWW1z+a?=
- =?us-ascii?Q?AbBdKpeYprbor9UMUriDUshW6lKI7hDdh72PciNYtYKAFJkihtJfVoUVKa+f?=
- =?us-ascii?Q?zUe6hSXDXFOTC6VkItxJ0gYH3HJr7iVyo9vd96BRBEX0d30ejWiZ4k0oK/X2?=
- =?us-ascii?Q?Ycnvdn/HJyvlTqrXP054PBevBh0/cmXQ1jvubJBtaXST9pUIJ/yU29zUKXG6?=
- =?us-ascii?Q?j++3GJB3H8Ap+aInIMPC1Drnb6Srm057zjLLFTZuZcF/uo74elHnNaE2O5ht?=
- =?us-ascii?Q?/nKJkJSRic5PBdedrlIX6i+dCE7HPa4i7pGxrdOL+t/4P2+g7aQMYg4RkPjy?=
- =?us-ascii?Q?REi3LcLUX0me2c6JCO+X/WZuLI8E1IseZ/X6LqmdIR4WktLFf4nBEEfLjpDJ?=
- =?us-ascii?Q?f8IOETtntmlBGtfMPxt8zJ45UTXedAvMEDkGJMKrknqvnGURUMhMzhx1OXc2?=
- =?us-ascii?Q?Wfx+gsZDQQhaLk80nUOYF3k4BSx+fgNAC5ECgz0SA7Dq8oyA7w50vTwB6474?=
- =?us-ascii?Q?27LB6OLJ1c/3pLLrVrZVL8GGe9MWW2kI3iX1uyetIq2WvqLrlpFuwSyM3krd?=
- =?us-ascii?Q?+TDT/wEqbB+yJ1l8m0lfFhL/5iQAl6r4YO7klAEFhagXGNV8DILAs7as1I90?=
- =?us-ascii?Q?cyMJ6WqQ/BtfDPDwwxzgVaRLIPyOhOi7xTESelCHfbtMR5eJy/PtFp5qjOc2?=
- =?us-ascii?Q?MrnZkzal/sItYgK4gGFiDuJNs68NK7mFD79lzmZorc00xtLhkmRKdTHRUXU7?=
- =?us-ascii?Q?RYLx7Whnci5bGG0hG0tz2gf2Kt0Z1B4=3D?=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: ae00354d-9cee-4d24-b13d-08da3f28df67
-X-MS-Exchange-CrossTenant-AuthSource: MWHPR1001MB2365.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 May 2022 15:03:20.6952 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: Vg+ASQsPLS7+2Re+X6SaTzi8KmZj7NDR9lCqb6gz3y2vYDcj76ldNQCmWVtDXAJcXstJCVw0rDAbH/sggJveA9AcutWqbIrl8keD6Okqqts=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS7PR10MB4864
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.486, 18.0.874
- definitions=2022-05-26_06:2022-05-25,
- 2022-05-26 signatures=0
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0
- adultscore=0 mlxscore=0
- phishscore=0 spamscore=0 mlxlogscore=865 bulkscore=0 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2204290000
- definitions=main-2205260072
-X-Proofpoint-ORIG-GUID: 0oDiZ2vguk5fK6cCtV9ekvcyzyyGmwt5
-X-Proofpoint-GUID: 0oDiZ2vguk5fK6cCtV9ekvcyzyyGmwt5
-Cc: alsa-devel@alsa-project.org, linux-fbdev@vger.kernel.org,
- kernel test robot <lkp@intel.com>, kvm@vger.kernel.org,
- linux-rdma@vger.kernel.org, netdev@vger.kernel.org,
- linux-staging@lists.linux.dev, bpf@vger.kernel.org,
- dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
- linux-mm@kvack.org, amd-gfx@lists.freedesktop.org, linux-pci@vger.kernel.org,
- Andrew Morton <akpm@linux-foundation.org>, linux-omap@vger.kernel.org,
- Jessica Clarke <jrtc27@jrtc27.com>, linux-riscv@lists.infradead.org,
- linux-arm-kernel@lists.infradead.org, linux-parport@lists.infradead.org
+In-Reply-To: <CAPcxDJ5pduUyMA0rf+-aTjK_2eBvig05UTiTptX1nVkWE-_g8w@mail.gmail.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=peterx@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: mst@redhat.com, HORIGUCHI =?utf-8?B?TkFPWUEo5aCA5Y+jIOebtOS5nyk=?=
+ <naoya.horiguchi@nec.com>, LKML <linux-kernel@vger.kernel.org>,
+ pizhenwei@bytedance.com, qemu-devel@nongnu.org, Linux MM <linux-mm@kvack.org>,
+ Paolo Bonzini <pbonzini@redhat.com>, Andrew Morton <akpm@linux-foundation.org>,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -203,45 +120,27 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, May 26, 2022 at 03:28:25PM +0100, Matthew Wilcox wrote:
-> On Thu, May 26, 2022 at 11:48:32AM +0300, Dan Carpenter wrote:
-> > On Thu, May 26, 2022 at 02:16:34AM +0100, Matthew Wilcox wrote:
-> > > Bizarre this started showing up now.  The recent patch was:
-> > > 
-> > > -       info->alloced += compound_nr(page);
-> > > -       inode->i_blocks += BLOCKS_PER_PAGE << compound_order(page);
-> > > +       info->alloced += folio_nr_pages(folio);
-> > > +       inode->i_blocks += BLOCKS_PER_PAGE << folio_order(folio);
-> > > 
-> > > so it could tell that compound_order() was small, but folio_order()
-> > > might be large?
-> > 
-> > The old code also generates a warning on my test system.  Smatch thinks
-> > both compound_order() and folio_order() are 0-255.  I guess because of
-> > the "unsigned char compound_order;" in the struct page.
-> 
-> It'd be nice if we could annotate that as "contains a value between
-> 1 and BITS_PER_LONG - PAGE_SHIFT".  Then be able to optionally enable
-> a checker that ensures that's true on loads/stores.  Maybe we need a
-> language that isn't C :-P  Ada can do this ... I don't think Rust can.
+On Wed, May 25, 2022 at 01:16:34PM -0700, Jue Wang wrote:
+> The hypervisor _must_ emulate poisons identified in guest physical
+> address space (could be transported from the source VM), this is to
+> prevent silent data corruption in the guest. With a paravirtual
+> approach like this patch series, the hypervisor can clear some of the
+> poisoned HVAs knowing for certain that the guest OS has isolated the
+> poisoned page. I wonder how much value it provides to the guest if the
+> guest and workload are _not_ in a pressing need for the extra KB/MB
+> worth of memory.
 
-Machine Parsable Comments.  It's a matter of figuring out the best
-format and writing the code.
+I'm curious the same on how unpoisoning could help here.  The reasoning
+behind would be great material to be mentioned in the next cover letter.
 
-In Smatch, I have table of hard coded return values in the format:
-<function> <old return> <new hard coded return>
-https://github.com/error27/smatch/blob/master/smatch_data/db/kernel.return_fixes
-I don't have code to handle something like BITS_PER_LONG or PAGE_SHIFT.
-To be honest, Smatch code always assumes that PAGE_SIZE is 4096 but I
-should actually look it up...  It's not impossible to do.  The GFP_KERNEL
-values changed enough so that I eventually made that look up the actual
-defines.
+Shouldn't we consider migrating serious workloads off the host already
+where there's a sign of more severe hardware issues, instead?
 
-I also have a table in the database where I could edit the values of
-(struct page)->compound_order.
+Thanks,
 
-regards,
-dan carpenter
+-- 
+Peter Xu
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
