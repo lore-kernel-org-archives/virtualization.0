@@ -1,58 +1,59 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6D314C4332F
-	for <virtualization@archiver.kernel.org>; Fri, 27 May 2022 07:49:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5E4F5C433F5
+	for <virtualization@archiver.kernel.org>; Fri, 27 May 2022 07:49:52 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 1776B4052E;
-	Fri, 27 May 2022 07:49:41 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 16AD960B5B;
+	Fri, 27 May 2022 07:49:52 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 6Qt7HbBN6BCL; Fri, 27 May 2022 07:49:51 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id BE88760B53;
+	Fri, 27 May 2022 07:49:50 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A4CB6C0039;
+	Fri, 27 May 2022 07:49:50 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 69AABC002D
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 27 May 2022 07:49:49 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 494ED4056A
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 27 May 2022 07:49:49 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id L3hVxHlKJe9u; Fri, 27 May 2022 07:49:40 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 792B04011D;
-	Fri, 27 May 2022 07:49:39 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5D7F2C0039;
-	Fri, 27 May 2022 07:49:39 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id DA647C002D
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id LS0dTzzx4nsR
  for <virtualization@lists.linux-foundation.org>;
- Fri, 27 May 2022 07:49:37 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id BBF3484935
- for <virtualization@lists.linux-foundation.org>;
- Fri, 27 May 2022 07:49:37 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id sLiw4Y-LZH3o
- for <virtualization@lists.linux-foundation.org>;
- Fri, 27 May 2022 07:49:36 +0000 (UTC)
+ Fri, 27 May 2022 07:49:48 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from out30-130.freemail.mail.aliyun.com
  (out30-130.freemail.mail.aliyun.com [115.124.30.130])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 3D80C84934
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 7995A4055A
  for <virtualization@lists.linux-foundation.org>;
- Fri, 27 May 2022 07:49:35 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R681e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04394; MF=xuanzhuo@linux.alibaba.com;
- NM=1; PH=DS; RN=16; SR=0; TI=SMTPD_---0VEW9I73_1653637770; 
+ Fri, 27 May 2022 07:49:48 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R541e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04423; MF=xuanzhuo@linux.alibaba.com;
+ NM=1; PH=DS; RN=16; SR=0; TI=SMTPD_---0VEW9IBM_1653637784; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VEW9I73_1653637770) by smtp.aliyun-inc.com(127.0.0.1);
- Fri, 27 May 2022 15:49:31 +0800
-Message-ID: <1653637760.5957363-7-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH V6 8/9] virtio: harden vring IRQ
-Date: Fri, 27 May 2022 15:49:20 +0800
+ fp:SMTPD_---0VEW9IBM_1653637784) by smtp.aliyun-inc.com(127.0.0.1);
+ Fri, 27 May 2022 15:49:44 +0800
+Message-ID: <1653637777.3783245-8-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH V6 9/9] virtio: use WARN_ON() to warning illegal status
+ value
+Date: Fri, 27 May 2022 15:49:37 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: Jason Wang <jasowang@redhat.com>
 References: <20220527060120.20964-1-jasowang@redhat.com>
- <20220527060120.20964-9-jasowang@redhat.com>
-In-Reply-To: <20220527060120.20964-9-jasowang@redhat.com>
+ <20220527060120.20964-10-jasowang@redhat.com>
+In-Reply-To: <20220527060120.20964-10-jasowang@redhat.com>
 Cc: linux-s390@vger.kernel.org, lulu@redhat.com, paulmck@kernel.org,
  mst@redhat.com, peterz@infradead.org, maz@kernel.org, cohuck@redhat.com,
  Peter Oberparleiter <oberpar@linux.ibm.com>,
@@ -76,31 +77,10 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, 27 May 2022 14:01:19 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> This is a rework on the previous IRQ hardening that is done for
-> virtio-pci where several drawbacks were found and were reverted:
->
-> 1) try to use IRQF_NO_AUTOEN which is not friendly to affinity managed IRQ
->    that is used by some device such as virtio-blk
-> 2) done only for PCI transport
->
-> The vq->broken is re-used in this patch for implementing the IRQ
-> hardening. The vq->broken is set to true during both initialization
-> and reset. And the vq->broken is set to false in
-> virtio_device_ready(). Then vring_interrupt() can check and return
-> when vq->broken is true. And in this case, switch to return IRQ_NONE
-> to let the interrupt core aware of such invalid interrupt to prevent
-> IRQ storm.
->
-> The reason of using a per queue variable instead of a per device one
-> is that we may need it for per queue reset hardening in the future.
->
-> Note that the hardening is only done for vring interrupt since the
-> config interrupt hardening is already done in commit 22b7050a024d7
-> ("virtio: defer config changed notifications"). But the method that is
-> used by config interrupt can't be reused by the vring interrupt
-> handler because it uses spinlock to do the synchronization which is
-> expensive.
+On Fri, 27 May 2022 14:01:20 +0800, Jason Wang <jasowang@redhat.com> wrote:
+> We used to use BUG_ON() in virtio_device_ready() to detect illegal
+> status value, this seems sub-optimal since the value is under the
+> control of the device. Switch to use WARN_ON() instead.
 >
 > Cc: Thomas Gleixner <tglx@linutronix.de>
 > Cc: Peter Zijlstra <peterz@infradead.org>
@@ -116,168 +96,22 @@ On Fri, 27 May 2022 14:01:19 +0800, Jason Wang <jasowang@redhat.com> wrote:
 Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
 > ---
->  drivers/s390/virtio/virtio_ccw.c       |  4 ++++
->  drivers/virtio/virtio.c                | 15 ++++++++++++---
->  drivers/virtio/virtio_mmio.c           |  5 +++++
->  drivers/virtio/virtio_pci_modern_dev.c |  5 +++++
->  drivers/virtio/virtio_ring.c           | 11 +++++++----
->  include/linux/virtio_config.h          | 20 ++++++++++++++++++++
->  6 files changed, 53 insertions(+), 7 deletions(-)
+>  include/linux/virtio_config.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 >
-> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> index c188e4f20ca3..97e51c34e6cf 100644
-> --- a/drivers/s390/virtio/virtio_ccw.c
-> +++ b/drivers/s390/virtio/virtio_ccw.c
-> @@ -971,6 +971,10 @@ static void virtio_ccw_set_status(struct virtio_device *vdev, u8 status)
->  	ccw->flags = 0;
->  	ccw->count = sizeof(status);
->  	ccw->cda = (__u32)(unsigned long)&vcdev->dma_area->status;
-> +	/* We use ssch for setting the status which is a serializing
-> +	 * instruction that guarantees the memory writes have
-> +	 * completed before ssch.
-> +	 */
->  	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_STATUS);
->  	/* Write failed? We assume status is unchanged. */
->  	if (ret)
-> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> index aa1eb5132767..95fac4c97c8b 100644
-> --- a/drivers/virtio/virtio.c
-> +++ b/drivers/virtio/virtio.c
-> @@ -220,6 +220,15 @@ static int virtio_features_ok(struct virtio_device *dev)
->   * */
->  void virtio_reset_device(struct virtio_device *dev)
->  {
-> +	/*
-> +	 * The below virtio_synchronize_cbs() guarantees that any
-> +	 * interrupt for this line arriving after
-> +	 * virtio_synchronize_vqs() has completed is guaranteed to see
-> +	 * vq->broken as true.
-> +	 */
-> +	virtio_break_device(dev);
-> +	virtio_synchronize_cbs(dev);
-> +
->  	dev->config->reset(dev);
->  }
->  EXPORT_SYMBOL_GPL(virtio_reset_device);
-> @@ -428,6 +437,9 @@ int register_virtio_device(struct virtio_device *dev)
->  	dev->config_enabled = false;
->  	dev->config_change_pending = false;
->
-> +	INIT_LIST_HEAD(&dev->vqs);
-> +	spin_lock_init(&dev->vqs_list_lock);
-> +
->  	/* We always start by resetting the device, in case a previous
->  	 * driver messed it up.  This also tests that code path a little. */
->  	virtio_reset_device(dev);
-> @@ -435,9 +447,6 @@ int register_virtio_device(struct virtio_device *dev)
->  	/* Acknowledge that we've seen the device. */
->  	virtio_add_status(dev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
->
-> -	INIT_LIST_HEAD(&dev->vqs);
-> -	spin_lock_init(&dev->vqs_list_lock);
-> -
->  	/*
->  	 * device_add() causes the bus infrastructure to look for a matching
->  	 * driver.
-> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-> index c9699a59f93c..f9a36bc7ac27 100644
-> --- a/drivers/virtio/virtio_mmio.c
-> +++ b/drivers/virtio/virtio_mmio.c
-> @@ -253,6 +253,11 @@ static void vm_set_status(struct virtio_device *vdev, u8 status)
->  	/* We should never be setting status to 0. */
->  	BUG_ON(status == 0);
->
-> +	/*
-> +	 * Per memory-barriers.txt, wmb() is not needed to guarantee
-> +	 * that the the cache coherent memory writes have completed
-> +	 * before writing to the MMIO region.
-> +	 */
->  	writel(status, vm_dev->base + VIRTIO_MMIO_STATUS);
->  }
->
-> diff --git a/drivers/virtio/virtio_pci_modern_dev.c b/drivers/virtio/virtio_pci_modern_dev.c
-> index 4093f9cca7a6..a0fa14f28a7f 100644
-> --- a/drivers/virtio/virtio_pci_modern_dev.c
-> +++ b/drivers/virtio/virtio_pci_modern_dev.c
-> @@ -467,6 +467,11 @@ void vp_modern_set_status(struct virtio_pci_modern_device *mdev,
->  {
->  	struct virtio_pci_common_cfg __iomem *cfg = mdev->common;
->
-> +	/*
-> +	 * Per memory-barriers.txt, wmb() is not needed to guarantee
-> +	 * that the the cache coherent memory writes have completed
-> +	 * before writing to the MMIO region.
-> +	 */
->  	vp_iowrite8(status, &cfg->device_status);
->  }
->  EXPORT_SYMBOL_GPL(vp_modern_set_status);
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index 9c231e1fded7..13a7348cedff 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -1688,7 +1688,7 @@ static struct virtqueue *vring_create_virtqueue_packed(
->  	vq->we_own_ring = true;
->  	vq->notify = notify;
->  	vq->weak_barriers = weak_barriers;
-> -	vq->broken = false;
-> +	vq->broken = true;
->  	vq->last_used_idx = 0;
->  	vq->event_triggered = false;
->  	vq->num_added = 0;
-> @@ -2134,8 +2134,11 @@ irqreturn_t vring_interrupt(int irq, void *_vq)
->  		return IRQ_NONE;
->  	}
->
-> -	if (unlikely(vq->broken))
-> -		return IRQ_HANDLED;
-> +	if (unlikely(vq->broken)) {
-> +		dev_warn_once(&vq->vq.vdev->dev,
-> +			      "virtio vring IRQ raised before DRIVER_OK");
-> +		return IRQ_NONE;
-> +	}
->
->  	/* Just a hint for performance: so it's ok that this can be racy! */
->  	if (vq->event)
-> @@ -2177,7 +2180,7 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
->  	vq->we_own_ring = false;
->  	vq->notify = notify;
->  	vq->weak_barriers = weak_barriers;
-> -	vq->broken = false;
-> +	vq->broken = true;
->  	vq->last_used_idx = 0;
->  	vq->event_triggered = false;
->  	vq->num_added = 0;
 > diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-> index 25be018810a7..d4edfd7d91bb 100644
+> index d4edfd7d91bb..9a36051ceb76 100644
 > --- a/include/linux/virtio_config.h
 > +++ b/include/linux/virtio_config.h
-> @@ -256,6 +256,26 @@ void virtio_device_ready(struct virtio_device *dev)
+> @@ -255,7 +255,7 @@ void virtio_device_ready(struct virtio_device *dev)
+>  {
 >  	unsigned status = dev->config->get_status(dev);
 >
->  	BUG_ON(status & VIRTIO_CONFIG_S_DRIVER_OK);
-> +
-> +	/*
-> +	 * The virtio_synchronize_cbs() makes sure vring_interrupt()
-> +	 * will see the driver specific setup if it sees vq->broken
-> +	 * as false (even if the notifications come before DRIVER_OK).
-> +	 */
-> +	virtio_synchronize_cbs(dev);
-> +	__virtio_unbreak_device(dev);
-> +	/*
-> +	 * The transport should ensure the visibility of vq->broken
-> +	 * before setting DRIVER_OK. See the comments for the transport
-> +	 * specific set_status() method.
-> +	 *
-> +	 * A well behaved device will only notify a virtqueue after
-> +	 * DRIVER_OK, this means the device should "see" the coherenct
-> +	 * memory write that set vq->broken as false which is done by
-> +	 * the driver when it sees DRIVER_OK, then the following
-> +	 * driver's vring_interrupt() will see vq->broken as false so
-> +	 * we won't lose any notification.
-> +	 */
->  	dev->config->set_status(dev, status | VIRTIO_CONFIG_S_DRIVER_OK);
->  }
+> -	BUG_ON(status & VIRTIO_CONFIG_S_DRIVER_OK);
+> +	WARN_ON(status & VIRTIO_CONFIG_S_DRIVER_OK);
 >
+>  	/*
+>  	 * The virtio_synchronize_cbs() makes sure vring_interrupt()
 > --
 > 2.25.1
 >
