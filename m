@@ -1,122 +1,97 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 91053C433F5
-	for <virtualization@archiver.kernel.org>; Fri, 27 May 2022 02:26:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id EE50AC433FE
+	for <virtualization@archiver.kernel.org>; Fri, 27 May 2022 03:51:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 34C21412A4;
-	Fri, 27 May 2022 02:26:56 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 7F618615C9;
+	Fri, 27 May 2022 03:51:10 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id tthJcS50s5Jp; Fri, 27 May 2022 02:26:55 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id C3A6F4052C;
-	Fri, 27 May 2022 02:26:54 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A68A1C0039;
-	Fri, 27 May 2022 02:26:54 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 10936C002D
- for <virtualization@lists.linux-foundation.org>;
- Fri, 27 May 2022 02:26:53 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id F2C4D60EF9
- for <virtualization@lists.linux-foundation.org>;
- Fri, 27 May 2022 02:26:52 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id AuItag4CBfR1
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id E9f5yv3F6fek; Fri, 27 May 2022 03:51:09 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 01E47615CA;
+	Fri, 27 May 2022 03:51:09 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id AAE90C0032;
+	Fri, 27 May 2022 03:51:08 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id EED89C002D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 27 May 2022 02:26:51 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 9AAE360E90
+ Fri, 27 May 2022 03:51:06 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id C9764412B5
  for <virtualization@lists.linux-foundation.org>;
- Fri, 27 May 2022 02:26:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1653618410;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=oaDAshEcGYeYhJ5+Zo99OPfgNFs1k3b7zVlzbxHYNl0=;
- b=MsoZxVsdQq/zRH23U6ED0gdtz1Yg9cjvDnfEgPZDQ9N4Pxa5/ps8AN/SXeYjIzQ8J3gkWe
- P41sW5r71Ndz4fOchno3wy7tBk1UAVTCV75BTmjC3vn/FZRYi+5Yfb+qPfhvbKGVcig60P
- iUfbLulsOda9qOalJHCsQ+ZwzDfk68o=
-Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
- [209.85.167.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-512-RHFCZJ9PPp6CMp7BbTF5Pw-1; Thu, 26 May 2022 22:26:49 -0400
-X-MC-Unique: RHFCZJ9PPp6CMp7BbTF5Pw-1
-Received: by mail-lf1-f70.google.com with SMTP id
- w38-20020a0565120b2600b00477b08c1730so1344989lfu.13
+ Fri, 27 May 2022 03:51:06 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=bytedance-com.20210112.gappssmtp.com
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id FVqTPDGqQVZg
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 May 2022 19:26:49 -0700 (PDT)
+ Fri, 27 May 2022 03:51:05 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com
+ [IPv6:2607:f8b0:4864:20::530])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 9CC9F41184
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 27 May 2022 03:51:05 +0000 (UTC)
+Received: by mail-pg1-x530.google.com with SMTP id v15so2906869pgk.11
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 26 May 2022 20:51:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=bytedance-com.20210112.gappssmtp.com; s=20210112;
+ h=message-id:date:mime-version:user-agent:subject:content-language:to
+ :cc:references:from:in-reply-to:content-transfer-encoding;
+ bh=j9jk044M9+cYvVEixSPS19EP9SvL+t/qLlqlyuGxZM8=;
+ b=Kb2Tpf83/RKgq6La7zyoqDnn6vsobEKp71dRb7mjiTOPUYH+IgtHlE6f1TsGuBkzlq
+ zk8ScHr3clPBi/fp0b0KggejpFlhgAoYM8H/xBtIxZ2v9hGCd1vL5uMVXtIWavL9t4Y9
+ JWf4KACOV0+0zz8LnmBlpHFReoWwuSbpazzgp7EeApZRHB0IyewrDmjuNm158ZKeZYfy
+ bKp66XYbZMuoWwqPniW8LYvYBSpLq8WGGyhhxmoToYWnpJQTw5BWXghCyDz4aRCDJYN3
+ j7TxCnSVkihYuDcfzyecLjBPPde2J9sn0rNsdkfTHMeKt4D6wBdc8Zoh6D42eJB69+QY
+ 2C7Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc:content-transfer-encoding;
- bh=oaDAshEcGYeYhJ5+Zo99OPfgNFs1k3b7zVlzbxHYNl0=;
- b=dQQERVtJGsLcEWoj7FZ7gdHsdTJDUft55cdY2jv4qTnj5pu2A3X5snqyivATZXBoTH
- oaKW5F1dCKitxvxYUmwd3CSyfXg/kCx0rU/j8lf9TIHeOBkYORtoRNuaJqDJpgvkRxfH
- wh39FHh9KzC1Nbgl2hjIkhL1NKUUI3ugLvSO682XD+K8pvjT/9tZGabaAZDKl9Kc7bwo
- N89osKZ50MzoFZjGnSlVEGUOhWYdZVVG2H0/n6jhaBCfKLTJPFecCBgMmQpQ8pkooJ2o
- I/UHrlIPyXn32x6wLUn6A07pzemuLy+Wrbm7hlEYVnOjn3tZhiZSDcLniTB94/mkSVpD
- e6Gg==
-X-Gm-Message-State: AOAM530v2VoEmCuOGhWIqb3GFUeIzoPMkCRKKJgYZTXGIhZVK5TFx0Mm
- JP35KLhA/NBxANg1SJUfYXL7UuMjvrlv+K4smdXDUdKYk/u3PPT1P6leLDelHOFHhX25SVLhbJN
- klOPlMSfbdf2gHQrxMB3MeWAJsxIFEI5V2UbF6HGbZhpXzow+klrhULr6Ew==
-X-Received: by 2002:a2e:954c:0:b0:253:d9bf:9f55 with SMTP id
- t12-20020a2e954c000000b00253d9bf9f55mr21308457ljh.300.1653618407806; 
- Thu, 26 May 2022 19:26:47 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzHcqEOz1xk1ptv4/JAwcVxyXOZtbrjI3QyKwE3Rw+KFfhLBm5gZOZJQQUeuqyIULlx21HHjnfaD0MAV67KrFc=
-X-Received: by 2002:a2e:954c:0:b0:253:d9bf:9f55 with SMTP id
- t12-20020a2e954c000000b00253d9bf9f55mr21308435ljh.300.1653618407570; Thu, 26
- May 2022 19:26:47 -0700 (PDT)
+ h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+ :content-language:to:cc:references:from:in-reply-to
+ :content-transfer-encoding;
+ bh=j9jk044M9+cYvVEixSPS19EP9SvL+t/qLlqlyuGxZM8=;
+ b=Xrnh/Bxp8AxxDApOlrRViw9sLUsbF/pcfyOvDiIdT5q2gjgz4YmGwXqhJ8GIfP/hFI
+ GuS0y3R5PsVtneoDpis0Gza/tzKWuhN8B+ezcbsrQFV47JRMUR2HV2Oc5VCLMYKcbA1e
+ hcWvaH60wViLFY1d4bwHAhVLZTbD7XWn2Ts3+10+l4petttWRB5ulQERy3V1XOfMCqq5
+ JBCtVPGRcLYEdVM0k4l1Nu6JT8hZHr2Hwqg8o8p0w40uB+wBaeVrTflt69YNyS1Zn0Ef
+ RsdDVzmyGGewwTRIjbYbqtvIWds8ahUYgAGh5WdPFOTr127MqrVH5jLJ0GBhtk52Ve+L
+ kmxg==
+X-Gm-Message-State: AOAM5307VCArY4S40dkYJZHp6UQ+O9b7CZ8XeBpBv+xfFbJhcxOhWR5u
+ 9HBfGWSGGNcg5NDRywzJiKxp1Q==
+X-Google-Smtp-Source: ABdhPJy3h9b0t9+huzLue6kvbq3gMPhl9OzbyMxsuZP1FK+is3ahv5iuUbCsnMJzlrcDe8zU0831QQ==
+X-Received: by 2002:a65:6c06:0:b0:3f5:f29d:e030 with SMTP id
+ y6-20020a656c06000000b003f5f29de030mr34969235pgu.22.1653623464792; 
+ Thu, 26 May 2022 20:51:04 -0700 (PDT)
+Received: from [10.255.70.20] ([139.177.225.235])
+ by smtp.gmail.com with ESMTPSA id
+ s3-20020a170903214300b0015e8d4eb1fcsm2358469ple.70.2022.05.26.20.51.00
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Thu, 26 May 2022 20:51:04 -0700 (PDT)
+Message-ID: <d41bf9f8-9ea2-e4be-7e96-d69d2e4ec5f2@bytedance.com>
+Date: Fri, 27 May 2022 11:47:04 +0800
 MIME-Version: 1.0
-References: <20220526124338.36247-1-eperezma@redhat.com>
- <PH0PR12MB54819C6C6DAF6572AEADC1AEDCD99@PH0PR12MB5481.namprd12.prod.outlook.com>
-In-Reply-To: <PH0PR12MB54819C6C6DAF6572AEADC1AEDCD99@PH0PR12MB5481.namprd12.prod.outlook.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 27 May 2022 10:26:35 +0800
-Message-ID: <CACGkMEu1YenjBHAssP=FvKX6WxDQ5Aa50r-BsnkfR4zqNTk6hg@mail.gmail.com>
-Subject: Re: [PATCH v4 0/4] Implement vdpasim stop operation
-To: Parav Pandit <parav@nvidia.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: "tanuj.kamde@amd.com" <tanuj.kamde@amd.com>,
- "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
- "Michael S. Tsirkin" <mst@redhat.com>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- Wu Zongyong <wuzongyong@linux.alibaba.com>, Si-Wei Liu <si-wei.liu@oracle.com>,
- "pabloc@xilinx.com" <pabloc@xilinx.com>, Eli Cohen <elic@nvidia.com>,
- Zhang Min <zhang.min9@zte.com.cn>, "lulu@redhat.com" <lulu@redhat.com>,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- "Piotr.Uminski@intel.com" <Piotr.Uminski@intel.com>,
- "martinh@xilinx.com" <martinh@xilinx.com>,
- Xie Yongji <xieyongji@bytedance.com>, "dinang@xilinx.com" <dinang@xilinx.com>,
- "habetsm.xilinx@gmail.com" <habetsm.xilinx@gmail.com>,
- Longpeng <longpeng2@huawei.com>, Dan Carpenter <dan.carpenter@oracle.com>,
- "lvivier@redhat.com" <lvivier@redhat.com>,
- Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
- "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "ecree.xilinx@gmail.com" <ecree.xilinx@gmail.com>,
- "hanand@xilinx.com" <hanand@xilinx.com>,
- "martinpo@xilinx.com" <martinpo@xilinx.com>,
- "gautam.dawar@amd.com" <gautam.dawar@amd.com>,
- Zhu Lingshan <lingshan.zhu@intel.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.1
+Subject: Re: [PATCH 0/3] recover hardware corrupted page by virtio balloon
+Content-Language: en-US
+To: akpm@linux-foundation.org, naoya.horiguchi@nec.com
+References: <20220520070648.1794132-1-pizhenwei@bytedance.com>
+From: zhenwei pi <pizhenwei@bytedance.com>
+In-Reply-To: <20220520070648.1794132-1-pizhenwei@bytedance.com>
+Cc: qemu-devel@nongnu.org, mst@redhat.com, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, linux-mm@kvack.org,
+ pbonzini@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -128,47 +103,100 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gVGh1LCBNYXkgMjYsIDIwMjIgYXQgODo1NCBQTSBQYXJhdiBQYW5kaXQgPHBhcmF2QG52aWRp
-YS5jb20+IHdyb3RlOgo+Cj4KPgo+ID4gRnJvbTogRXVnZW5pbyBQw6lyZXogPGVwZXJlem1hQHJl
-ZGhhdC5jb20+Cj4gPiBTZW50OiBUaHVyc2RheSwgTWF5IDI2LCAyMDIyIDg6NDQgQU0KPgo+ID4g
-SW1wbGVtZW50IHN0b3Agb3BlcmF0aW9uIGZvciB2ZHBhX3NpbSBkZXZpY2VzLCBzbyB2aG9zdC12
-ZHBhIHdpbGwgb2ZmZXIKPiA+Cj4gPiB0aGF0IGJhY2tlbmQgZmVhdHVyZSBhbmQgdXNlcnNwYWNl
-IGNhbiBlZmZlY3RpdmVseSBzdG9wIHRoZSBkZXZpY2UuCj4gPgo+ID4KPiA+Cj4gPiBUaGlzIGlz
-IGEgbXVzdCBiZWZvcmUgZ2V0IHZpcnRxdWV1ZSBpbmRleGVzIChiYXNlKSBmb3IgbGl2ZSBtaWdy
-YXRpb24sCj4gPgo+ID4gc2luY2UgdGhlIGRldmljZSBjb3VsZCBtb2RpZnkgdGhlbSBhZnRlciB1
-c2VybGFuZCBnZXRzIHRoZW0uIFRoZXJlIGFyZQo+ID4KPiA+IGluZGl2aWR1YWwgd2F5cyB0byBw
-ZXJmb3JtIHRoYXQgYWN0aW9uIGZvciBzb21lIGRldmljZXMKPiA+Cj4gPiAoVkhPU1RfTkVUX1NF
-VF9CQUNLRU5ELCBWSE9TVF9WU09DS19TRVRfUlVOTklORywgLi4uKSBidXQgdGhlcmUKPiA+IHdh
-cyBubwo+ID4KPiA+IHdheSB0byBwZXJmb3JtIGl0IGZvciBhbnkgdmhvc3QgZGV2aWNlIChhbmQs
-IGluIHBhcnRpY3VsYXIsIHZob3N0LXZkcGEpLgo+ID4KPiA+Cj4gPgo+ID4gQWZ0ZXIgdGhlIHJl
-dHVybiBvZiBpb2N0bCB3aXRoIHN0b3AgIT0gMCwgdGhlIGRldmljZSBNVVNUIGZpbmlzaCBhbnkK
-PiA+Cj4gPiBwZW5kaW5nIG9wZXJhdGlvbnMgbGlrZSBpbiBmbGlnaHQgcmVxdWVzdHMuIEl0IG11
-c3QgYWxzbyBwcmVzZXJ2ZSBhbGwKPiA+Cj4gPiB0aGUgbmVjZXNzYXJ5IHN0YXRlICh0aGUgdmly
-dHF1ZXVlIHZyaW5nIGJhc2UgcGx1cyB0aGUgcG9zc2libGUgZGV2aWNlCj4gPgo+ID4gc3BlY2lm
-aWMgc3RhdGVzKSB0aGF0IGlzIHJlcXVpcmVkIGZvciByZXN0b3JpbmcgaW4gdGhlIGZ1dHVyZS4g
-VGhlCj4gPgo+ID4gZGV2aWNlIG11c3Qgbm90IGNoYW5nZSBpdHMgY29uZmlndXJhdGlvbiBhZnRl
-ciB0aGF0IHBvaW50Lgo+ID4KPiA+Cj4gPgo+ID4gQWZ0ZXIgdGhlIHJldHVybiBvZiBpb2N0bCB3
-aXRoIHN0b3AgPT0gMCwgdGhlIGRldmljZSBjYW4gY29udGludWUKPiA+Cj4gPiBwcm9jZXNzaW5n
-IGJ1ZmZlcnMgYXMgbG9uZyBhcyB0eXBpY2FsIGNvbmRpdGlvbnMgYXJlIG1ldCAodnEgaXMgZW5h
-YmxlZCwKPiA+Cj4gPiBEUklWRVJfT0sgc3RhdHVzIGJpdCBpcyBlbmFibGVkLCBldGMpLgo+Cj4g
-SnVzdCB0byBiZSBjbGVhciwgd2UgYXJlIGFkZGluZyB2ZHBhIGxldmVsIG5ldyBpb2N0bCgpIHRo
-YXQgZG9lc27igJl0IG1hcCB0byBhbnkgbWVjaGFuaXNtIGluIHRoZSB2aXJ0aW8gc3BlYy4KCldl
-IHRyeSB0byBwcm92aWRlIGZvcndhcmQgY29tcGF0aWJpbGl0eSB0byBWSVJUSU9fQ09ORklHX1Nf
-U1RPUC4gVGhhdAptZWFucyBpdCBpcyBleHBlY3RlZCB0byBpbXBsZW1lbnQgYXQgbGVhc3QgYSBz
-dWJzZXQgb2YKVklSVElPX0NPTkZJR19TX1NUT1AuCgo+Cj4gV2h5IGNhbid0IHdlIHVzZSB0aGlz
-IGlvY3RsKCkgdG8gaW5kaWNhdGUgZHJpdmVyIHRvIHN0YXJ0L3N0b3AgdGhlIGRldmljZSBpbnN0
-ZWFkIG9mIGRyaXZpbmcgaXQgdGhyb3VnaCB0aGUgZHJpdmVyX29rPwoKU28gdGhlIGlkZWEgaXMg
-dG8gYWRkIGNhcGFiaWxpdHkgdGhhdCBkb2VzIG5vdCBleGlzdCBpbiB0aGUgc3BlYy4gVGhlbgpj
-YW1lIHRoZSBzdG9wL3Jlc3VtZSB3aGljaCBjYW4ndCBiZSBkb25lIHZpYSBEUklWRVJfT0suIEkg
-dGhpbmsgd2UKc2hvdWxkIG9ubHkgYWxsb3cgdGhlIHN0b3AvcmVzdW1lIHRvIHN1Y2NlZWQgYWZ0
-ZXIgRFJJVkVSX09LIGlzIHNldC4KCj4gVGhpcyBpcyBpbiB0aGUgY29udGV4dCBvZiBvdGhlciBk
-aXNjdXNzaW9uIHdlIGhhZCBpbiB0aGUgTE0gc2VyaWVzLgoKRG8geW91IHNlZSBhbnkgaXNzdWUg
-dGhhdCBibG9ja3MgdGhlIGxpdmUgbWlncmF0aW9uPwoKVGhhbmtzCgpfX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxp
-c3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0
-cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+Hi, Andrew & Naoya
+
+I would appreciate it if you could give me any hint about the changes of 
+memory/memory-failure!
+
+On 5/20/22 15:06, zhenwei pi wrote:
+> Hi,
+> 
+> I'm trying to recover hardware corrupted page by virtio balloon, the
+> workflow of this feature like this:
+> 
+> Guest              5.MF -> 6.RVQ FE    10.Unpoison page
+>                      /           \            /
+> -------------------+-------------+----------+-----------
+>                     |             |          |
+>                  4.MCE        7.RVQ BE   9.RVQ Event
+>   QEMU             /               \       /
+>               3.SIGBUS              8.Remap
+>                  /
+> ----------------+------------------------------------
+>                  |
+>              +--2.MF
+>   Host       /
+>         1.HW error
+> 
+> 1, HardWare page error occurs randomly.
+> 2, host side handles corrupted page by Memory Failure mechanism, sends
+>     SIGBUS to the user process if early-kill is enabled.
+> 3, QEMU handles SIGBUS, if the address belongs to guest RAM, then:
+> 4, QEMU tries to inject MCE into guest.
+> 5, guest handles memory failure again.
+> 
+> 1-5 is already supported for a long time, the next steps are supported
+> in this patch(also related driver patch):
+> 
+> 6, guest balloon driver gets noticed of the corrupted PFN, and sends
+>     request to host side by Recover VQ FrontEnd.
+> 7, QEMU handles request from Recover VQ BackEnd, then:
+> 8, QEMU remaps the corrupted HVA fo fix the memory failure, then:
+> 9, QEMU acks the guest side the result by Recover VQ.
+> 10, guest unpoisons the page if the corrupted page gets recoverd
+>      successfully.
+> 
+> Test:
+> This patch set can be tested with QEMU(also in developing):
+> https://github.com/pizhenwei/qemu/tree/balloon-recover
+> 
+> Emulate MCE by QEMU(guest RAM normal page only, hugepage is not supported):
+> virsh qemu-monitor-command vm --hmp mce 0 9 0xbd000000000000c0 0xd 0x61646678 0x8c
+> 
+> The guest works fine(on Intel Platinum 8260):
+>   mce: [Hardware Error]: Machine check events logged
+>   Memory failure: 0x61646: recovery action for dirty LRU page: Recovered
+>   virtio_balloon virtio5: recovered pfn 0x61646
+>   Unpoison: Unpoisoned page 0x61646 by virtio-balloon
+>   MCE: Killing stress:24502 due to hardware memory corruption fault at 7f5be2e5a010
+> 
+> And the 'HardwareCorrupted' in /proc/meminfo also shows 0 kB.
+> 
+> About the protocol of virtio balloon recover VQ, it's undefined and in
+> developing currently:
+> - 'struct virtio_balloon_recover' defines the structure which is used to
+>    exchange message between guest and host.
+> - '__le32 corrupted_pages' in struct virtio_balloon_config is used in the next
+>    step:
+>    1, a VM uses RAM of 2M huge page, once a MCE occurs, the 2M becomes
+>       unaccessible. Reporting 512 * 4K 'corrupted_pages' to the guest, the guest
+>       has a chance to isolate the 512 pages ahead of time.
+> 
+>    2, after migrating to another host, the corrupted pages are actually recovered,
+>       once the guest gets the 'corrupted_pages' with 0, then the guest could
+>       unpoison all the poisoned pages which are recorded in the balloon driver.
+> 
+> zhenwei pi (3):
+>    memory-failure: Introduce memory failure notifier
+>    mm/memory-failure.c: support reset PTE during unpoison
+>    virtio_balloon: Introduce memory recover
+> 
+>   drivers/virtio/virtio_balloon.c     | 243 ++++++++++++++++++++++++++++
+>   include/linux/mm.h                  |   4 +-
+>   include/uapi/linux/virtio_balloon.h |  16 ++
+>   mm/hwpoison-inject.c                |   2 +-
+>   mm/memory-failure.c                 |  59 ++++++-
+>   5 files changed, 315 insertions(+), 9 deletions(-)
+> 
+
+-- 
+zhenwei pi
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
