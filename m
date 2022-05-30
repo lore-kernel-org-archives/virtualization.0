@@ -1,73 +1,71 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 58799C433F5
-	for <virtualization@archiver.kernel.org>; Mon, 30 May 2022 13:44:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 749D1C433FE
+	for <virtualization@archiver.kernel.org>; Mon, 30 May 2022 13:47:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 02B57611A0;
-	Mon, 30 May 2022 13:44:18 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 18ECD408F3;
+	Mon, 30 May 2022 13:47:10 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id qSDZIiyIyAbt; Mon, 30 May 2022 13:44:17 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 93BF66119B;
-	Mon, 30 May 2022 13:44:16 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1F71AC0082;
-	Mon, 30 May 2022 13:44:16 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D6735C0039
- for <virtualization@lists.linux-foundation.org>;
- Mon, 30 May 2022 13:44:13 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id B000B41A4E
- for <virtualization@lists.linux-foundation.org>;
- Mon, 30 May 2022 13:44:13 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=kernel.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id EmhiJVT7OXHc
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 9tGHuE7MbRnJ; Mon, 30 May 2022 13:47:09 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 4DA6E4093D;
+	Mon, 30 May 2022 13:47:08 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1C6ACC0081;
+	Mon, 30 May 2022 13:47:08 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id F0D35C002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 May 2022 13:44:12 +0000 (UTC)
+ Mon, 30 May 2022 13:47:06 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id C5C5C61174
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 30 May 2022 13:47:06 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=kernel.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id CilLfpnsRATu
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 30 May 2022 13:47:05 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from dfw.source.kernel.org (dfw.source.kernel.org
  [IPv6:2604:1380:4641:c500::1])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 8029C41A2F
+ by smtp3.osuosl.org (Postfix) with ESMTPS id CCF8E60E34
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 May 2022 13:44:12 +0000 (UTC)
+ Mon, 30 May 2022 13:47:05 +0000 (UTC)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by dfw.source.kernel.org (Postfix) with ESMTPS id AAC8260FC6;
- Mon, 30 May 2022 13:44:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 243F9C385B8;
- Mon, 30 May 2022 13:44:10 +0000 (UTC)
+ by dfw.source.kernel.org (Postfix) with ESMTPS id 22F8560F14;
+ Mon, 30 May 2022 13:47:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69210C385B8;
+ Mon, 30 May 2022 13:47:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1653918251;
- bh=BUrobp50XpHRgeWbcvPtI16jIKSjBaUWOdFH+Q30HRU=;
- h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=o45chMRPTBn7fHvzTld7kvjGZdJXbpVwvFzDolMoTOAySIcZNd4mz0Hp0JeCjBjlq
- YH8DyN6cMhNjtER9etr3OBxgZOvIM4AvRP7viE9XV0aFc887DnpWflIIg/CnAptiRn
- 9lDp3+O0YZX9mmeScKGL/qdUIYXS4zyunQ8cWDX9hcymGNUGmhD0z/+kw/uQicP7f+
- ymV2Nfhei496d0BR3lidYX7BtbJw2VC/Oi5WWoRhxuW8qSirXxac7cTef+ob6ExTzk
- ncncdBYZtRa+KKLuKe7dIUhrkHwH8eNFxYXLEwwJmoYeIkfhP6ykH/1pDYEvrI6o8Y
- 9HyMQj/29GCsA==
+ s=k20201202; t=1653918424;
+ bh=TwVHwNN/o9XLM+Y5O2G/KwViT1tktgTbWNFKIcVo8PU=;
+ h=From:To:Cc:Subject:Date:From;
+ b=kU2SVSpdxP+nYkb0vOukbkMlwDeoXgv4tteomo5JlXPbvbKZNBUZfhFDivrPmAmP0
+ xBh4PzP/xn2BwvrUq+YQQm4Dy7e5o/d2P4Yea3VCgILsqCSlMmnkz2eeMMFaBdqj2V
+ /Sjy7oxUY/dLjutOV1tyfPf201JJabcFOnJaOW4KUZHYld4g/36q6QRdpxdQFz9bx0
+ sktv+C+gpiP7Zm4GCOrJWEXpbEeRRiMrNvnRNMHhd66TSw+GwxABbw+8lU5w0P+VPp
+ 70PRfqDZV90A3IjS+JFObi73ZmAQVuv07THxWep5RCWW7a0hGtbZ9yoaAvVEbat0op
+ b/z/pfhiOVhQw==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 02/76] drm/virtio: fix NULL pointer dereference
- in virtio_gpu_conn_get_modes
-Date: Mon, 30 May 2022 09:42:52 -0400
-Message-Id: <20220530134406.1934928-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 01/55] drm/virtio: fix NULL pointer dereference in
+ virtio_gpu_conn_get_modes
+Date: Mon, 30 May 2022 09:46:07 -0400
+Message-Id: <20220530134701.1935933-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220530134406.1934928-1-sashal@kernel.org>
-References: <20220530134406.1934928-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -158,10 +156,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+)
 
 diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-index f84b7e61311b..9b2b99e85342 100644
+index e622485ae826..7e34307eb075 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_display.c
 +++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-@@ -177,6 +177,8 @@ static int virtio_gpu_conn_get_modes(struct drm_connector *connector)
+@@ -174,6 +174,8 @@ static int virtio_gpu_conn_get_modes(struct drm_connector *connector)
  		DRM_DEBUG("add mode: %dx%d\n", width, height);
  		mode = drm_cvt_mode(connector->dev, width, height, 60,
  				    false, false, false);
