@@ -4,71 +4,75 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 632DCC433F5
-	for <virtualization@archiver.kernel.org>; Mon, 30 May 2022 13:31:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6A3C8C433EF
+	for <virtualization@archiver.kernel.org>; Mon, 30 May 2022 13:31:54 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id E736F40C39;
-	Mon, 30 May 2022 13:31:30 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 1E89840C48;
+	Mon, 30 May 2022 13:31:54 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id jHIeovsNQ4EH; Mon, 30 May 2022 13:31:30 +0000 (UTC)
+	with ESMTP id bhhcYkSUSJB4; Mon, 30 May 2022 13:31:53 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 6207040C08;
-	Mon, 30 May 2022 13:31:29 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id AAC1740C42;
+	Mon, 30 May 2022 13:31:52 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0B1BFC0039;
-	Mon, 30 May 2022 13:31:29 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0815DC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 83683C0039;
+	Mon, 30 May 2022 13:31:52 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7797EC002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 May 2022 13:31:28 +0000 (UTC)
+ Mon, 30 May 2022 13:31:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id D881240C08
+ by smtp4.osuosl.org (Postfix) with ESMTP id 6673041A50
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 May 2022 13:31:27 +0000 (UTC)
+ Mon, 30 May 2022 13:31:51 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id wj6gAT5yqUfi
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=kernel.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id UNE0UFPvSnED
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 May 2022 13:31:26 +0000 (UTC)
+ Mon, 30 May 2022 13:31:50 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 4F8F240A79
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 1A60041A4E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 May 2022 13:31:26 +0000 (UTC)
-Received: from kwepemi500012.china.huawei.com (unknown [172.30.72.55])
- by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4LBbqW3LhwzgYJS;
- Mon, 30 May 2022 21:29:43 +0800 (CST)
-Received: from dggpemm500006.china.huawei.com (7.185.36.236) by
- kwepemi500012.china.huawei.com (7.221.188.12) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Mon, 30 May 2022 21:31:20 +0800
-Received: from dggpemm500006.china.huawei.com ([7.185.36.236]) by
- dggpemm500006.china.huawei.com ([7.185.36.236]) with mapi id 15.01.2375.024;
- Mon, 30 May 2022 21:31:20 +0800
-To: zhenwei pi <pizhenwei@bytedance.com>, "mst@redhat.com" <mst@redhat.com>
-Subject: RE: [PATCH v8 1/1] crypto: Introduce RSA algorithm
-Thread-Topic: [PATCH v8 1/1] crypto: Introduce RSA algorithm
-Thread-Index: AQHYcab+Uy73hbBLQEKRln7LUOEy0K03azTg
-Date: Mon, 30 May 2022 13:31:20 +0000
-Message-ID: <848d579e2c504ba493cd57510a7ff3b0@huawei.com>
-References: <20220527084734.2649594-1-pizhenwei@bytedance.com>
- <20220527084734.2649594-2-pizhenwei@bytedance.com>
-In-Reply-To: <20220527084734.2649594-2-pizhenwei@bytedance.com>
-Accept-Language: zh-CN, en-US
-Content-Language: zh-CN
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [10.174.149.11]
+ Mon, 30 May 2022 13:31:49 +0000 (UTC)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by ams.source.kernel.org (Postfix) with ESMTPS id 65C9CB80B3A;
+ Mon, 30 May 2022 13:31:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F537C36AE3;
+ Mon, 30 May 2022 13:31:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1653917507;
+ bh=9KHMSISyzzpbZ2PU0Ypgnuo/zuKW0vT9ok+Fw3ha3Ag=;
+ h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+ b=eIkOTk0L389V8hsD2j0GneM9qxWel08NGXvsk9WxNosoVrZLxaCrWuO3l0kKyJqlp
+ x1FMzUsEB2jpPtVAbiJdNI0Kf5QXyEq1KFK6Y8u4ZA9f4nF9HQ6iipJry4r35Wntwu
+ AgsGaedSl+tLxwOVxihp/YeuEOfsFTZEJ7oKP13Qelsi4mtGJ00+9EfDBrAdEzR1z4
+ LX2Jdg2CTvQfvDKpifIxpgsMfO/DAsEgl2icQH1R8Fzgi7M6UdaX8Y1HiKGtvogct/
+ vT7nVabFpPbVJZlhaVoBHgyQItxYmy8/ufXGOPfrEztzLoQaD9Ux+RyykmseKPy3Z2
+ 5tGbSxtbPGrnA==
+From: Sasha Levin <sashal@kernel.org>
+To: linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 004/135] drm/virtio: fix NULL pointer dereference
+ in virtio_gpu_conn_get_modes
+Date: Mon, 30 May 2022 09:29:22 -0400
+Message-Id: <20220530133133.1931716-4-sashal@kernel.org>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220530133133.1931716-1-sashal@kernel.org>
+References: <20220530133133.1931716-1-sashal@kernel.org>
 MIME-Version: 1.0
-X-CFilter-Loop: Reflected
-Cc: "helei.sig11@bytedance.com" <helei.sig11@bytedance.com>,
- "berrange@redhat.com" <berrange@redhat.com>,
- "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>
+X-stable: review
+X-Patchwork-Hint: Ignore
+Cc: Sasha Levin <sashal@kernel.org>, airlied@linux.ie,
+ Liu Zixian <liuzixian4@huawei.com>, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org, daniel@ffwll.ch
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -80,104 +84,93 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: "Gonglei \(Arei\) via Virtualization"
- <virtualization@lists.linux-foundation.org>
-Reply-To: "Gonglei \(Arei\)" <arei.gonglei@huawei.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+From: Liu Zixian <liuzixian4@huawei.com>
 
+[ Upstream commit 194d250cdc4a40ccbd179afd522a9e9846957402 ]
 
-> -----Original Message-----
-> From: zhenwei pi [mailto:pizhenwei@bytedance.com]
-> Sent: Friday, May 27, 2022 4:48 PM
-> To: mst@redhat.com; Gonglei (Arei) <arei.gonglei@huawei.com>
-> Cc: qemu-devel@nongnu.org; virtualization@lists.linux-foundation.org;
-> helei.sig11@bytedance.com; berrange@redhat.com; zhenwei pi
-> <pizhenwei@bytedance.com>
-> Subject: [PATCH v8 1/1] crypto: Introduce RSA algorithm
-> 
-> 
-Skip...
+drm_cvt_mode may return NULL and we should check it.
 
-> +static int64_t
-> +virtio_crypto_create_asym_session(VirtIOCrypto *vcrypto,
-> +               struct virtio_crypto_akcipher_create_session_req
-> *sess_req,
-> +               uint32_t queue_id, uint32_t opcode,
-> +               struct iovec *iov, unsigned int out_num) {
-> +    VirtIODevice *vdev = VIRTIO_DEVICE(vcrypto);
-> +    CryptoDevBackendSessionInfo info = {0};
-> +    CryptoDevBackendAsymSessionInfo *asym_info;
-> +    int64_t session_id;
-> +    int queue_index;
-> +    uint32_t algo, keytype, keylen;
-> +    g_autofree uint8_t *key = NULL;
-> +    Error *local_err = NULL;
-> +
-> +    algo = ldl_le_p(&sess_req->para.algo);
-> +    keytype = ldl_le_p(&sess_req->para.keytype);
-> +    keylen = ldl_le_p(&sess_req->para.keylen);
-> +
-> +    if ((keytype != VIRTIO_CRYPTO_AKCIPHER_KEY_TYPE_PUBLIC)
-> +         && (keytype != VIRTIO_CRYPTO_AKCIPHER_KEY_TYPE_PRIVATE)) {
-> +        error_report("unsupported asym keytype: %d", keytype);
-> +        return -VIRTIO_CRYPTO_NOTSUPP;
-> +    }
-> +
-> +    if (keylen) {
-> +        key = g_malloc(keylen);
-> +        if (iov_to_buf(iov, out_num, 0, key, keylen) != keylen) {
-> +            virtio_error(vdev, "virtio-crypto asym key incorrect");
-> +            return -EFAULT;
+This bug is found by syzkaller:
 
-Memory leak.
+FAULT_INJECTION stacktrace:
+[  168.567394] FAULT_INJECTION: forcing a failure.
+name failslab, interval 1, probability 0, space 0, times 1
+[  168.567403] CPU: 1 PID: 6425 Comm: syz Kdump: loaded Not tainted 4.19.90-vhulk2201.1.0.h1035.kasan.eulerosv2r10.aarch64 #1
+[  168.567406] Hardware name: QEMU KVM Virtual Machine, BIOS 0.0.0 02/06/2015
+[  168.567408] Call trace:
+[  168.567414]  dump_backtrace+0x0/0x310
+[  168.567418]  show_stack+0x28/0x38
+[  168.567423]  dump_stack+0xec/0x15c
+[  168.567427]  should_fail+0x3ac/0x3d0
+[  168.567437]  __should_failslab+0xb8/0x120
+[  168.567441]  should_failslab+0x28/0xc0
+[  168.567445]  kmem_cache_alloc_trace+0x50/0x640
+[  168.567454]  drm_mode_create+0x40/0x90
+[  168.567458]  drm_cvt_mode+0x48/0xc78
+[  168.567477]  virtio_gpu_conn_get_modes+0xa8/0x140 [virtio_gpu]
+[  168.567485]  drm_helper_probe_single_connector_modes+0x3a4/0xd80
+[  168.567492]  drm_mode_getconnector+0x2e0/0xa70
+[  168.567496]  drm_ioctl_kernel+0x11c/0x1d8
+[  168.567514]  drm_ioctl+0x558/0x6d0
+[  168.567522]  do_vfs_ioctl+0x160/0xf30
+[  168.567525]  ksys_ioctl+0x98/0xd8
+[  168.567530]  __arm64_sys_ioctl+0x50/0xc8
+[  168.567536]  el0_svc_common+0xc8/0x320
+[  168.567540]  el0_svc_handler+0xf8/0x160
+[  168.567544]  el0_svc+0x10/0x218
 
-> +        }
-> +        iov_discard_front(&iov, &out_num, keylen);
-> +    }
-> +
-> +    info.op_code = opcode;
-> +    asym_info = &info.u.asym_sess_info;
-> +    asym_info->algo = algo;
-> +    asym_info->keytype = keytype;
-> +    asym_info->keylen = keylen;
-> +    asym_info->key = key;
-> +    switch (asym_info->algo) {
-> +    case VIRTIO_CRYPTO_AKCIPHER_RSA:
-> +        asym_info->u.rsa.padding_algo =
-> +            ldl_le_p(&sess_req->para.u.rsa.padding_algo);
-> +        asym_info->u.rsa.hash_algo =
-> +            ldl_le_p(&sess_req->para.u.rsa.hash_algo);
-> +        break;
-> +
-> +    /* TODO DSA&ECDSA handling */
-> +
-> +    default:
-> +        return -VIRTIO_CRYPTO_ERR;
-> +    }
-> +
-> +    queue_index = virtio_crypto_vq2q(queue_id);
-> +    session_id = cryptodev_backend_create_session(vcrypto->cryptodev,
-> &info,
-> +                     queue_index, &local_err);
-> +    if (session_id < 0) {
-> +        if (local_err) {
-> +            error_report_err(local_err);
-> +        }
-> +        return -VIRTIO_CRYPTO_ERR;
-> +    }
-> +
-> +    return session_id;
+KASAN stacktrace:
+[  168.567561] BUG: KASAN: null-ptr-deref in virtio_gpu_conn_get_modes+0xb4/0x140 [virtio_gpu]
+[  168.567565] Read of size 4 at addr 0000000000000054 by task syz/6425
+[  168.567566]
+[  168.567571] CPU: 1 PID: 6425 Comm: syz Kdump: loaded Not tainted 4.19.90-vhulk2201.1.0.h1035.kasan.eulerosv2r10.aarch64 #1
+[  168.567573] Hardware name: QEMU KVM Virtual Machine, BIOS 0.0.0 02/06/2015
+[  168.567575] Call trace:
+[  168.567578]  dump_backtrace+0x0/0x310
+[  168.567582]  show_stack+0x28/0x38
+[  168.567586]  dump_stack+0xec/0x15c
+[  168.567591]  kasan_report+0x244/0x2f0
+[  168.567594]  __asan_load4+0x58/0xb0
+[  168.567607]  virtio_gpu_conn_get_modes+0xb4/0x140 [virtio_gpu]
+[  168.567612]  drm_helper_probe_single_connector_modes+0x3a4/0xd80
+[  168.567617]  drm_mode_getconnector+0x2e0/0xa70
+[  168.567621]  drm_ioctl_kernel+0x11c/0x1d8
+[  168.567624]  drm_ioctl+0x558/0x6d0
+[  168.567628]  do_vfs_ioctl+0x160/0xf30
+[  168.567632]  ksys_ioctl+0x98/0xd8
+[  168.567636]  __arm64_sys_ioctl+0x50/0xc8
+[  168.567641]  el0_svc_common+0xc8/0x320
+[  168.567645]  el0_svc_handler+0xf8/0x160
+[  168.567649]  el0_svc+0x10/0x218
 
-Where to free the key at both normal and exceptional paths?
+Signed-off-by: Liu Zixian <liuzixian4@huawei.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/20220322091730.1653-1-liuzixian4@huawei.com
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/gpu/drm/virtio/virtgpu_display.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-
-Regards,
--Gonglei
-
+diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
+index 5b00310ac4cd..f73352e7b832 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_display.c
++++ b/drivers/gpu/drm/virtio/virtgpu_display.c
+@@ -179,6 +179,8 @@ static int virtio_gpu_conn_get_modes(struct drm_connector *connector)
+ 		DRM_DEBUG("add mode: %dx%d\n", width, height);
+ 		mode = drm_cvt_mode(connector->dev, width, height, 60,
+ 				    false, false, false);
++		if (!mode)
++			return count;
+ 		mode->type |= DRM_MODE_TYPE_PREFERRED;
+ 		drm_mode_probed_add(connector, mode);
+ 		count++;
+-- 
+2.35.1
 
 _______________________________________________
 Virtualization mailing list
