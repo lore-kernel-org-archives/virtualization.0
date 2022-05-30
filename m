@@ -4,69 +4,68 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6A3C8C433EF
-	for <virtualization@archiver.kernel.org>; Mon, 30 May 2022 13:31:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id EF8BBC43217
+	for <virtualization@archiver.kernel.org>; Mon, 30 May 2022 13:38:37 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 1E89840C48;
-	Mon, 30 May 2022 13:31:54 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id A133A40C51;
+	Mon, 30 May 2022 13:38:37 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id bhhcYkSUSJB4; Mon, 30 May 2022 13:31:53 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id AAC1740C42;
-	Mon, 30 May 2022 13:31:52 +0000 (UTC)
+	with ESMTP id AYgHSdF2CuoZ; Mon, 30 May 2022 13:38:36 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 301E740191;
+	Mon, 30 May 2022 13:38:36 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 83683C0039;
-	Mon, 30 May 2022 13:31:52 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7797EC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0BF68C0039;
+	Mon, 30 May 2022 13:38:36 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A096AC002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 May 2022 13:31:51 +0000 (UTC)
+ Mon, 30 May 2022 13:38:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 6673041A50
+ by smtp2.osuosl.org (Postfix) with ESMTP id 8EAB140C4A
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 May 2022 13:31:51 +0000 (UTC)
+ Mon, 30 May 2022 13:38:34 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=kernel.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id UNE0UFPvSnED
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id adt8IMmx4oSD
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 May 2022 13:31:50 +0000 (UTC)
+ Mon, 30 May 2022 13:38:33 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 1A60041A4E
+Received: from dfw.source.kernel.org (dfw.source.kernel.org
+ [IPv6:2604:1380:4641:c500::1])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id A33F140A92
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 May 2022 13:31:49 +0000 (UTC)
+ Mon, 30 May 2022 13:38:33 +0000 (UTC)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by ams.source.kernel.org (Postfix) with ESMTPS id 65C9CB80B3A;
- Mon, 30 May 2022 13:31:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F537C36AE3;
- Mon, 30 May 2022 13:31:45 +0000 (UTC)
+ by dfw.source.kernel.org (Postfix) with ESMTPS id DF19260DDE;
+ Mon, 30 May 2022 13:38:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 381BCC3411A;
+ Mon, 30 May 2022 13:38:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1653917507;
- bh=9KHMSISyzzpbZ2PU0Ypgnuo/zuKW0vT9ok+Fw3ha3Ag=;
+ s=k20201202; t=1653917912;
+ bh=RJbgNwALSTmalG7CgWu4bWgSiJ9N0y2sew5DPuI6QgU=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=eIkOTk0L389V8hsD2j0GneM9qxWel08NGXvsk9WxNosoVrZLxaCrWuO3l0kKyJqlp
- x1FMzUsEB2jpPtVAbiJdNI0Kf5QXyEq1KFK6Y8u4ZA9f4nF9HQ6iipJry4r35Wntwu
- AgsGaedSl+tLxwOVxihp/YeuEOfsFTZEJ7oKP13Qelsi4mtGJ00+9EfDBrAdEzR1z4
- LX2Jdg2CTvQfvDKpifIxpgsMfO/DAsEgl2icQH1R8Fzgi7M6UdaX8Y1HiKGtvogct/
- vT7nVabFpPbVJZlhaVoBHgyQItxYmy8/ufXGOPfrEztzLoQaD9Ux+RyykmseKPy3Z2
- 5tGbSxtbPGrnA==
+ b=l+PTqhPBWIuC3m3SIo6g+P3eoPb5v4AsOdRyiJZ+p0aUwrmpCjFx5f+MIxzeOTQvp
+ EDtuk0XFAKhVtFzD2c66KsVKuSshUVakqzaGtu1AWh7SLRs5njVW2CJHFlKTI76oBJ
+ aPFV5B381z7MvRQIwhMf+UJNWsS0NfKOTlC7sLLKlUw0NugNOsNvBcOp8dlhiGVaix
+ GGQDYw7PTT90Z95cj82mKfrcmUmsdd9wB+6LP9YgsVz3Yc4/P5E9fjKfLonZBM8tSr
+ 1Qp7dN/ne6kgLow/P8C661bLOiP5WoZncG5+kYOUOIX7b3rSX9yKd9tritujDKF9RN
+ U5IncQH8m0c9Q==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 004/135] drm/virtio: fix NULL pointer dereference
+Subject: [PATCH AUTOSEL 5.15 003/109] drm/virtio: fix NULL pointer dereference
  in virtio_gpu_conn_get_modes
-Date: Mon, 30 May 2022 09:29:22 -0400
-Message-Id: <20220530133133.1931716-4-sashal@kernel.org>
+Date: Mon, 30 May 2022 09:36:39 -0400
+Message-Id: <20220530133825.1933431-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220530133133.1931716-1-sashal@kernel.org>
-References: <20220530133133.1931716-1-sashal@kernel.org>
+In-Reply-To: <20220530133825.1933431-1-sashal@kernel.org>
+References: <20220530133825.1933431-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -157,7 +156,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+)
 
 diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-index 5b00310ac4cd..f73352e7b832 100644
+index a6caebd4a0dd..ef1f19083cd3 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_display.c
 +++ b/drivers/gpu/drm/virtio/virtgpu_display.c
 @@ -179,6 +179,8 @@ static int virtio_gpu_conn_get_modes(struct drm_connector *connector)
