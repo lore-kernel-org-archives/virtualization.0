@@ -1,103 +1,100 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6F7C0C433F5
-	for <virtualization@archiver.kernel.org>; Mon, 30 May 2022 11:37:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C278DC433EF
+	for <virtualization@archiver.kernel.org>; Mon, 30 May 2022 12:51:40 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 0F2A68289B;
-	Mon, 30 May 2022 11:37:41 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 6A4FD61173;
+	Mon, 30 May 2022 12:51:40 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id KsrhmaBYH_2L; Mon, 30 May 2022 11:37:40 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 8F1E382862;
-	Mon, 30 May 2022 11:37:39 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 50575C0039;
-	Mon, 30 May 2022 11:37:39 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6DE40C002D
- for <virtualization@lists.linux-foundation.org>;
- Mon, 30 May 2022 11:37:37 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 5BCE660EE5
- for <virtualization@lists.linux-foundation.org>;
- Mon, 30 May 2022 11:37:37 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=bytedance-com.20210112.gappssmtp.com
 Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id zCbSew2WMQyg
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id TNZfNikgCVyT; Mon, 30 May 2022 12:51:39 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id CAF4160E4A;
+	Mon, 30 May 2022 12:51:38 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 9F67EC0032;
+	Mon, 30 May 2022 12:51:38 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C63B6C002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 May 2022 11:37:36 +0000 (UTC)
+ Mon, 30 May 2022 12:51:36 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id B084140399
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 30 May 2022 12:51:36 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=bytedance-com.20210112.gappssmtp.com
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id VviSEHJpphFy
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 30 May 2022 12:51:35 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com
- [IPv6:2607:f8b0:4864:20::433])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 6737560EC6
+Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com
+ [IPv6:2607:f8b0:4864:20::1034])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 72FAE400A8
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 May 2022 11:37:36 +0000 (UTC)
-Received: by mail-pf1-x433.google.com with SMTP id j6so10331171pfe.13
+ Mon, 30 May 2022 12:51:35 +0000 (UTC)
+Received: by mail-pj1-x1034.google.com with SMTP id
+ n13-20020a17090a394d00b001e30a60f82dso2086093pjf.5
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 May 2022 04:37:36 -0700 (PDT)
+ Mon, 30 May 2022 05:51:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=bytedance-com.20210112.gappssmtp.com; s=20210112;
  h=message-id:date:mime-version:user-agent:subject:content-language:to
  :cc:references:from:in-reply-to:content-transfer-encoding;
- bh=oTn7xiqfMVG/Ets8BTsPYZb54RZ76weVWzmNwY5pPOo=;
- b=Sh2IF70NIweZY1YxFBbcJj+h+93R3gV45P301sqtBAYvTC1LNCDTVqNx/GSSKFseWa
- 036lnyaVMqBdidXXcWzlLqYbAfPD0hzUxzNox8v3xnfLv+i5LbHZhjiNZ8yWdpfNl3G3
- r4C4g95JJpHGovTumWZYkpfVmrLEopIK4AehBE72PgZl8X4XClsrN0lOOBRnalM+mC5d
- udC0XbG5Vm4ceV5WRHq5u07rZcJdbZW27bvY8sxba93MwzgTx74f1gLC1QMyximZtc/J
- RpJdnh0P03nLKATKs+sTq8cow6FQuGkrgwkTOkS8kMXQexvE3T4U5h29KV6xAdOofSnn
- Saxg==
+ bh=ZvzQrzGqX0fJW9mWiWfNdI5A2ruzfhQVGGg4PFZYL8Y=;
+ b=5LTfDx+bkaTCFM5Negv4ttvuFWwAThetWZq9GeHLSuU8N31iQe1v8qXouG9NSNS0T6
+ Ldm0sm18jhB1MBs9eYRRV7f1xbyELfqCVplUXoMX5P8rOuax3m7DbYSS3HH2p+0C2wXA
+ 25cTRL8bfAHIi1ohekGqUvVk5YCD0/RQk4GlG7kF6iC+nDlmqLXH48VoPgZx8eQzyXfE
+ XX4R12kZTezWJnw+cM1ZBL/I6AzA0V/7qEI9H850um38DokHxOMHJ2mbMcpGIq2TUcBZ
+ UuCPKXlnmfjHYemIDioZETjyYo67acLvfOdphzCFSLNjKWFn7fWOPl6fUo4D5TWaxJNI
+ 9pwQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
  :content-language:to:cc:references:from:in-reply-to
  :content-transfer-encoding;
- bh=oTn7xiqfMVG/Ets8BTsPYZb54RZ76weVWzmNwY5pPOo=;
- b=U5Nuu2NQkC8xSfJmjJN6nFicvRYHQ2IoPtE+7/PMPHi8i1TMOF0jM+ztzwllIi8al/
- nyiS46NFElCOQR7FzQA8HZV1er5YqTH2DS0GFRkWQTdo5kJV1dHlxD2IJW+zbSlLmeaz
- JXxv00eOSv0qA43G4Qpb4TMAwYQHM675615sFK1qxStDeJjlyXq7ZJUOli2Pl8gYS6Sw
- vdDGjR1e2p11aJKMzAmiF1B+IyWv1EqLFsWwEkeOhEZWtRx5a0Jbo5Dronx9q2hTkxp1
- qAN5aWlhWpI1KCt8EV9vhxDRUG2Kvm5IXMzU9z6+LhJaHisjl+qbrZABcTTyOHIGGaEW
- Q9CA==
-X-Gm-Message-State: AOAM530PpjtIjkkyp5oZeMPnnhg3WAJD7d02uqGjc5C0pfI8Z3Bx+brC
- iqPhV5U9NHko/vKHIL3HSiHFiA==
-X-Google-Smtp-Source: ABdhPJzonQ9UZ2K3KajjLc5t3cYmEGAE0YbTTOskwZ6mVqc54jbu+C/Juy1kTZLlt6QZEc2VPOnxMQ==
-X-Received: by 2002:a65:618e:0:b0:3fb:177f:d365 with SMTP id
- c14-20020a65618e000000b003fb177fd365mr17788413pgv.265.1653910655546; 
- Mon, 30 May 2022 04:37:35 -0700 (PDT)
+ bh=ZvzQrzGqX0fJW9mWiWfNdI5A2ruzfhQVGGg4PFZYL8Y=;
+ b=GGDTY9OdeMYMiHM5aNWijYCUfzFSrtuw+1ZIWwxfqNusJUGOgg2KGeweoHLQ0id7vj
+ 6tIHo1jMMW5mnbqAX0foX4udfBui/IlYYy/Dsez5zOJp/qyjLZxobCfwjseD3zJuZP8y
+ Qpw139AiSZr10JVn4fkJHVyXnYL52DvBsEI9Tc7+POJTyfQiYG4zYmMf2sQ698PHLm74
+ MXHzlYPeNa49wbxmXnpZXlkVYaFeEcpMSgexLEQI1Ji1tbaL6jTgYuOX9DGjg3JuYHM4
+ Lld+Wgm09gVqj6QPsnvnKA+bpxj5eFkpPtnTFR1b+IYBJyq+geq9/EemBmUG0dbPEFUq
+ esOA==
+X-Gm-Message-State: AOAM5309dig4mQefFCRxZqO0RQmgzheY4yZW/AIWKsYEkzdZwH1VTIED
+ bBChfiFAtAfTuxZAvi18+zP49A==
+X-Google-Smtp-Source: ABdhPJwTiynlgnZijOQCrJvfmuzkL14Lu9xuJdj0+djeOHFAyAPupu8F5badEOZlrtCuCzbEYSTGWw==
+X-Received: by 2002:a17:902:7b8f:b0:162:467:db7c with SMTP id
+ w15-20020a1709027b8f00b001620467db7cmr43791860pll.140.1653915094829; 
+ Mon, 30 May 2022 05:51:34 -0700 (PDT)
 Received: from [10.255.89.136] ([139.177.225.249])
  by smtp.gmail.com with ESMTPSA id
- i1-20020a17090a718100b001e2608203d4sm4426742pjk.5.2022.05.30.04.37.30
+ u13-20020a170902e5cd00b001624dab05edsm9341931plf.8.2022.05.30.05.51.29
  (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Mon, 30 May 2022 04:37:34 -0700 (PDT)
-Message-ID: <4b0c3e37-b882-681a-36fc-16cee7e1fff0@bytedance.com>
-Date: Mon, 30 May 2022 19:33:35 +0800
+ Mon, 30 May 2022 05:51:34 -0700 (PDT)
+Message-ID: <e870424d-da27-b369-7406-27f7f2983428@bytedance.com>
+Date: Mon, 30 May 2022 20:47:34 +0800
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.8.1
-Subject: Re: Re: [PATCH 0/3] recover hardware corrupted page by virtio balloon
+Subject: Re: Re: [PATCH 3/3] virtio_balloon: Introduce memory recover
 Content-Language: en-US
-To: David Hildenbrand <david@redhat.com>, Peter Xu <peterx@redhat.com>,
- Jue Wang <juew@google.com>, Paolo Bonzini <pbonzini@redhat.com>
-References: <CAPcxDJ5pduUyMA0rf+-aTjK_2eBvig05UTiTptX1nVkWE-_g8w@mail.gmail.com>
- <Yo/I3oLkd9OU0ice@xz-m1.local>
- <24a95dea-9ea6-a904-7c0b-197961afa1d1@bytedance.com>
- <0d266c61-605d-ce0c-4274-b0c7e10f845a@redhat.com>
+To: David Hildenbrand <david@redhat.com>
+References: <20220520070648.1794132-1-pizhenwei@bytedance.com>
+ <20220520070648.1794132-4-pizhenwei@bytedance.com>
+ <612e42f7-1a97-9b01-2d45-d4661911e7a8@redhat.com>
 From: zhenwei pi <pizhenwei@bytedance.com>
-In-Reply-To: <0d266c61-605d-ce0c-4274-b0c7e10f845a@redhat.com>
-Cc: mst@redhat.com, =?UTF-8?B?SE9SSUdVQ0hJIE5BT1lBKOWggOWPoyDnm7TkuZ8p?=
- <naoya.horiguchi@nec.com>, LKML <linux-kernel@vger.kernel.org>,
- qemu-devel@nongnu.org, Linux MM <linux-mm@kvack.org>,
- Andrew Morton <akpm@linux-foundation.org>,
- virtualization@lists.linux-foundation.org
+In-Reply-To: <612e42f7-1a97-9b01-2d45-d4661911e7a8@redhat.com>
+Cc: mst@redhat.com, qemu-devel@nongnu.org, naoya.horiguchi@nec.com,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ linux-mm@kvack.org, pbonzini@redhat.com, akpm@linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -116,86 +113,251 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 
 
-On 5/30/22 15:41, David Hildenbrand wrote:
-> On 27.05.22 08:32, zhenwei pi wrote:
->> On 5/27/22 02:37, Peter Xu wrote:
->>> On Wed, May 25, 2022 at 01:16:34PM -0700, Jue Wang wrote:
->>>> The hypervisor _must_ emulate poisons identified in guest physical
->>>> address space (could be transported from the source VM), this is to
->>>> prevent silent data corruption in the guest. With a paravirtual
->>>> approach like this patch series, the hypervisor can clear some of the
->>>> poisoned HVAs knowing for certain that the guest OS has isolated the
->>>> poisoned page. I wonder how much value it provides to the guest if the
->>>> guest and workload are _not_ in a pressing need for the extra KB/MB
->>>> worth of memory.
->>>
->>> I'm curious the same on how unpoisoning could help here.  The reasoning
->>> behind would be great material to be mentioned in the next cover letter.
->>>
->>> Shouldn't we consider migrating serious workloads off the host already
->>> where there's a sign of more severe hardware issues, instead?
->>>
->>> Thanks,
->>>
->>
->> I'm maintaining 1000,000+ virtual machines, from my experience:
->> UE is quite unusual and occurs randomly, and I did not hit UE storm case
->> in the past years. The memory also has no obvious performance drop after
->> hitting UE.
->>
->> I hit several CE storm case, the performance memory drops a lot. But I
->> can't find obvious relationship between UE and CE.
->>
->> So from the point of my view, to fix the corrupted page for VM seems
->> good enough. And yes, unpoisoning several pages does not help
->> significantly, but it is still a chance to make the virtualization better.
->>
+On 5/30/22 15:48, David Hildenbrand wrote:
 > 
-> I'm curious why we should care about resurrecting a handful of poisoned
-> pages in a VM. The cover letter doesn't touch on that.
+>> +
+>>   struct virtio_balloon {
+>>   	struct virtio_device *vdev;
+>>   	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq, *free_page_vq;
+>> @@ -126,6 +133,16 @@ struct virtio_balloon {
+>>   	/* Free page reporting device */
+>>   	struct virtqueue *reporting_vq;
+>>   	struct page_reporting_dev_info pr_dev_info;
+>> +
+>> +	/* Memory recover VQ - VIRTIO_BALLOON_F_RECOVER */
+>> +	struct virtqueue *recover_vq;
+>> +	spinlock_t recover_vq_lock;
+>> +	struct notifier_block memory_failure_nb;
+>> +	struct list_head corrupted_page_list;
+>> +	struct list_head recovered_page_list;
+>> +	spinlock_t recover_page_list_lock;
+>> +	struct __virtio_balloon_recover in_vbr;
+>> +	struct work_struct unpoison_memory_work;
 > 
-> IOW, I'm missing the motivation why we should add additional
-> code+complexity to unpoison pages at all.
-> 
-> If we're talking about individual 4k pages, it's certainly sub-optimal,
-> but does it matter in practice? I could understand if we're losing
-> megabytes of memory. But then, I assume the workload might be seriously
-> harmed either way already?
+> I assume we want all that only with CONFIG_MEMORY_FAILURE.
 > 
 
-Yes, resurrecting a handful of poisoned pages does not help 
-significantly. And, in some ways, it seems nice to have. :D
+Sorry, I missed this.
 
-A VM uses RAM of 2M huge page. Once a MCE(@HVAy in [HVAx,HVAz)) occurs, 
-the 2M([HVAx,HVAz)) of hypervisor becomes unaccessible, but the guest 
-poisons 4K (@GPAy in [GPAx, GPAz)) only, it may hit another 511 MCE 
-([GPAx, GPAz) except GPAy). This is the worse case, so I want to add
-  '__le32 corrupted_pages' in struct virtio_balloon_config, it is used 
-in the next step: reporting 512 * 4K 'corrupted_pages' to the guest, the 
-guest has a chance to isolate the other 511 pages ahead of time. And the 
-guest actually loses 2M, fixing 512*4K seems to help significantly.
+>>   };
+>>   
+>>   static const struct virtio_device_id id_table[] = {
+>> @@ -494,6 +511,198 @@ static void update_balloon_size_func(struct work_struct *work)
+>>   		queue_work(system_freezable_wq, work);
+>>   }
+>>   
+>> +/*
+>> + * virtballoon_memory_failure - notified by memory failure, try to fix the
+>> + *                              corrupted page.
+>> + * The memory failure notifier is designed to call back when the kernel handled
+>> + * successfully only, WARN_ON_ONCE on the unlikely condition to find out any
+>> + * error(memory error handling is a best effort, not 100% coverd).
+>> + */
+>> +static int virtballoon_memory_failure(struct notifier_block *notifier,
+>> +				      unsigned long pfn, void *parm)
+>> +{
+>> +	struct virtio_balloon *vb = container_of(notifier, struct virtio_balloon,
+>> +						 memory_failure_nb);
+>> +	struct page *page;
+>> +	struct __virtio_balloon_recover *out_vbr;
+>> +	struct scatterlist sg;
+>> +	unsigned long flags;
+>> +	int err;
+>> +
+>> +	page = pfn_to_online_page(pfn);
+>> +	if (WARN_ON_ONCE(!page))
+>> +		return NOTIFY_DONE;
+>> +
+>> +	if (PageHuge(page))
+>> +		return NOTIFY_DONE;
+>> +
+>> +	if (WARN_ON_ONCE(!PageHWPoison(page)))
+>> +		return NOTIFY_DONE;
+>> +
+>> +	if (WARN_ON_ONCE(page_count(page) != 1))
+>> +		return NOTIFY_DONE;
+> 
+> Relying on the page_count to be 1 for correctness is usually a bit
+> shaky, for example, when racing against isolate_movable_page() that
+> might temporarily bump upo the refcount.
+> 
+
+The memory notifier is designed to call the chain if a page gets result 
+MF_RECOVERED only:
+      if (result == MF_RECOVERED)
+          blocking_notifier_call_chain(&mf_notifier_list, pfn, NULL);
+
+
+>> +
+>> +	get_page(page); /* balloon reference */
+>> +
+>> +	out_vbr = kzalloc(sizeof(*out_vbr), GFP_KERNEL);
+> 
+> Are we always guaranteed to be able to use GFP_KERNEL out of MCE
+> context? (IOW, are we never atomic?)
+> 
+>> +	if (WARN_ON_ONCE(!out_vbr))
+>> +		return NOTIFY_BAD;
+>> +
+>> +	spin_lock(&vb->recover_page_list_lock);
+>> +	balloon_page_push(&vb->corrupted_page_list, page);
+>> +	spin_unlock(&vb->recover_page_list_lock);
+>> +
+>> +	out_vbr->vbr.cmd = VIRTIO_BALLOON_R_CMD_RECOVER;
+> 
+> This makes me wonder if we should have a more generic guest->host
+> request queue, similar to what e.g., virtio-mem uses, instead of adding
+> a separate VIRTIO_BALLOON_VQ_RECOVER vq.
+> 
+
+I'm OK with either one, I'll follow your decision! :D
+
+>> +	set_page_pfns(vb, out_vbr->pfns, page);
+>> +	sg_init_one(&sg, out_vbr, sizeof(*out_vbr));
+>> +
+>> +	spin_lock_irqsave(&vb->recover_vq_lock, flags);
+>> +	err = virtqueue_add_outbuf(vb->recover_vq, &sg, 1, out_vbr, GFP_KERNEL);
+>> +	if (unlikely(err)) {
+>> +		spin_unlock_irqrestore(&vb->recover_vq_lock, flags);
+>> +		return NOTIFY_DONE;
+>> +	}
+>> +	virtqueue_kick(vb->recover_vq);
+>> +	spin_unlock_irqrestore(&vb->recover_vq_lock, flags);
+>> +
+>> +	return NOTIFY_OK;
+>> +}
+>> +
+>> +static int recover_vq_get_response(struct virtio_balloon *vb)
+>> +{
+>> +	struct __virtio_balloon_recover *in_vbr;
+>> +	struct scatterlist sg;
+>> +	unsigned long flags;
+>> +	int err;
+>> +
+>> +	spin_lock_irqsave(&vb->recover_vq_lock, flags);
+>> +	in_vbr = &vb->in_vbr;
+>> +	memset(in_vbr, 0x00, sizeof(*in_vbr));
+>> +	sg_init_one(&sg, in_vbr, sizeof(*in_vbr));
+>> +	err = virtqueue_add_inbuf(vb->recover_vq, &sg, 1, in_vbr, GFP_KERNEL);
+>> +	if (unlikely(err)) {
+>> +		spin_unlock_irqrestore(&vb->recover_vq_lock, flags);
+>> +		return err;
+>> +	}
+>> +
+>> +	virtqueue_kick(vb->recover_vq);
+>> +	spin_unlock_irqrestore(&vb->recover_vq_lock, flags);
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +static void recover_vq_handle_response(struct virtio_balloon *vb, unsigned int len)
+>> +{
+>> +	struct __virtio_balloon_recover *in_vbr;
+>> +	struct virtio_balloon_recover *vbr;
+>> +	struct page *page;
+>> +	unsigned int pfns;
+>> +	u32 pfn0, pfn1;
+>> +	__u8 status;
+>> +
+>> +	/* the response is not expected */
+>> +	if (unlikely(len != sizeof(struct __virtio_balloon_recover)))
+>> +		return;
+>> +
+>> +	in_vbr = &vb->in_vbr;
+>> +	vbr = &in_vbr->vbr;
+>> +	if (unlikely(vbr->cmd != VIRTIO_BALLOON_R_CMD_RESPONSE))
+>> +		return;
+>> +
+>> +	/* to make sure the contiguous balloon PFNs */
+>> +	for (pfns = 1; pfns < VIRTIO_BALLOON_PAGES_PER_PAGE; pfns++) {
+>> +		pfn0 = virtio32_to_cpu(vb->vdev, in_vbr->pfns[pfns - 1]);
+>> +		pfn1 = virtio32_to_cpu(vb->vdev, in_vbr->pfns[pfns]);
+>> +		if (pfn1 - pfn0 != 1)
+>> +			return;
+> 
+> Yeah, we really shouldn't be dealing with (legacy) 4k PFNs here, but
+> instead, proper ranges I guess.
+> 
+
+MST also pointed out this, I explained in this link:
+https://lkml.org/lkml/2022/5/26/942
+
+Rather than page reporting style, virtio-mem style should be fine. Ex,
+struct virtio_memory_recover {
+         __virtio64 addr;
+         __virtio32 length;
+         __virtio16 padding[2];
+};
+
+>> +	}
+>> +
+>> +	pfn0 = virtio32_to_cpu(vb->vdev, in_vbr->pfns[0]);
+>> +	if (!pfn_valid(pfn0))
+>> +		return;
+>> +
+>> +	pfn1 = -1;
+>> +	spin_lock(&vb->recover_page_list_lock);
+>> +	list_for_each_entry(page, &vb->corrupted_page_list, lru) {
+>> +		pfn1 = page_to_pfn(page);
+>> +		if (pfn1 == pfn0)
+>> +			break;
+>> +	}
+>> +	spin_unlock(&vb->recover_page_list_lock);
+>> +
+>> +	status = vbr->status;
+>> +	switch (status) {
+>> +	case VIRTIO_BALLOON_R_STATUS_RECOVERED:
+>> +		if (pfn1 == pfn0) {
+>> +			spin_lock(&vb->recover_page_list_lock);
+>> +			list_del(&page->lru);
+>> +			balloon_page_push(&vb->recovered_page_list, page);
+> 
+> We rather not reuse actual balloon functions in !balloon context. Just
+> move the page to the proper list directly.
+> 
+
+OK.
+
+>> +			spin_unlock(&vb->recover_page_list_lock);
+>> +			queue_work(system_freezable_wq, &vb->unpoison_memory_work);
+>> +			dev_info_ratelimited(&vb->vdev->dev, "recovered pfn 0x%x", pfn0);
+> 
+> Well, not yet. Shouldn't this go into unpoison_memory_func() ?
+> 
+
+OK.
+
+[...]
 
 > 
-> I assume when talking about "the performance memory drops a lot", you
-> imply that this patch set can mitigate that performance drop?
+>>   
+>> +out_unregister_reporting:
+>> +	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_REPORTING))
+>> +		page_reporting_unregister(&vb->pr_dev_info);
+>>   out_unregister_oom:
+>>   	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
+>>   		unregister_oom_notifier(&vb->oom_nb);
+>> @@ -1082,6 +1319,11 @@ static void virtballoon_remove(struct virtio_device *vdev)
+>>   		destroy_workqueue(vb->balloon_wq);
+>>   	}
+>>   
+>> +	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_RECOVER)) {
 > 
-> But why do you see a performance drop? Because we might lose some
-> possible THP candidates (in the host or the guest) and you want to plug
-> does holes? I assume you'll see a performance drop simply because
-> poisoning memory is expensive, including migrating pages around on CE.
+> Could the notifier already have been triggered and we might be using the
+> device before already fully initialized from the notifier and might end
+> up leaking memory here that we allocated?
 > 
-> If you have some numbers to share, especially before/after this change,
-> that would be great.
+>> +		unregister_memory_failure_notifier(&vb->memory_failure_nb);
+>> +		cancel_work_sync(&vb->unpoison_memory_work);
+>> +	}
+>> +
+> 
+> Could we be leaking memory from the virtballoon_remove() path?
 > 
 
-The CE storm leads 2 problems I have even seen:
-1, the memory bandwidth slows down to 10%~20%, and the cycles per 
-instruction of CPU increases a lot.
-2, the THR (/proc/interrupts) interrupts frequently, the CPU has to use 
-a lot time to handle IRQ.
+Yes, I'll fix the possible memory leak here.
 
-But no corrupted page occurs. Migrating VM to another healthy host seems 
-a good choice. This patch does not handle CE storm case.
+Thanks a lot.
 
 -- 
 zhenwei pi
