@@ -4,74 +4,64 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 39C84C433FE
-	for <virtualization@archiver.kernel.org>; Tue, 31 May 2022 12:08:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 07C29C433F5
+	for <virtualization@archiver.kernel.org>; Tue, 31 May 2022 12:52:11 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id CCCDD41868;
-	Tue, 31 May 2022 12:08:43 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 9A45140961;
+	Tue, 31 May 2022 12:52:11 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id mlev-zI-HG-r; Tue, 31 May 2022 12:08:42 +0000 (UTC)
+	with ESMTP id p6ovmjiBaH24; Tue, 31 May 2022 12:52:10 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 0A86D4170F;
-	Tue, 31 May 2022 12:08:42 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id EB116408AE;
+	Tue, 31 May 2022 12:52:09 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D62E3C0039;
-	Tue, 31 May 2022 12:08:41 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 84033C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B7F06C0039;
+	Tue, 31 May 2022 12:52:09 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3B673C002D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 31 May 2022 12:08:40 +0000 (UTC)
+ Tue, 31 May 2022 12:52:09 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 635AF60FAA
+ by smtp4.osuosl.org (Postfix) with ESMTP id 22576408B1
  for <virtualization@lists.linux-foundation.org>;
- Tue, 31 May 2022 12:08:40 +0000 (UTC)
+ Tue, 31 May 2022 12:52:09 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 3rzm3LCxq_dL
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Bme4BNkoI5CE
  for <virtualization@lists.linux-foundation.org>;
- Tue, 31 May 2022 12:08:38 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 78E9E60701
+ Tue, 31 May 2022 12:52:07 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+Received: from outgoing-stata.csail.mit.edu (outgoing-stata.csail.mit.edu
+ [128.30.2.210])
+ by smtp4.osuosl.org (Postfix) with ESMTP id D9075408AE
  for <virtualization@lists.linux-foundation.org>;
- Tue, 31 May 2022 12:08:38 +0000 (UTC)
-Received: from kwepemi100014.china.huawei.com (unknown [172.30.72.57])
- by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4LC9xW2lhHz1JCT2;
- Tue, 31 May 2022 20:06:55 +0800 (CST)
-Received: from dggpemm500006.china.huawei.com (7.185.36.236) by
- kwepemi100014.china.huawei.com (7.221.188.106) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Tue, 31 May 2022 20:08:33 +0800
-Received: from dggpemm500006.china.huawei.com ([7.185.36.236]) by
- dggpemm500006.china.huawei.com ([7.185.36.236]) with mapi id 15.01.2375.024;
- Tue, 31 May 2022 20:08:33 +0800
-To: zhenwei pi <pizhenwei@bytedance.com>
-Subject: RE: RE: [PATCH v8 1/1] crypto: Introduce RSA algorithm
-Thread-Topic: RE: [PATCH v8 1/1] crypto: Introduce RSA algorithm
-Thread-Index: AQHYcab+Uy73hbBLQEKRln7LUOEy0K03azTggABMOICAATL30A==
-Date: Tue, 31 May 2022 12:08:33 +0000
-Message-ID: <39f884dbc25d4b0cbec510ab090e6778@huawei.com>
-References: <20220527084734.2649594-1-pizhenwei@bytedance.com>
- <20220527084734.2649594-2-pizhenwei@bytedance.com>
- <848d579e2c504ba493cd57510a7ff3b0@huawei.com>
- <b2ee77ae-2044-32b4-20c5-43fa78e8213c@bytedance.com>
-In-Reply-To: <b2ee77ae-2044-32b4-20c5-43fa78e8213c@bytedance.com>
-Accept-Language: zh-CN, en-US
-Content-Language: zh-CN
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [10.174.149.11]
+ Tue, 31 May 2022 12:52:07 +0000 (UTC)
+Received: from ip4d17f91f.dynamic.kabel-deutschland.de ([77.23.249.31]
+ helo=srivatsab-a02.vmware.com)
+ by outgoing-stata.csail.mit.edu with esmtpsa (TLS1.2:RSA_AES_128_CBC_SHA1:128)
+ (Exim 4.82) (envelope-from <srivatsa@csail.mit.edu>)
+ id 1nw1Lp-000Lu4-Ri; Tue, 31 May 2022 08:51:58 -0400
+To: Peter Zijlstra <peterz@infradead.org>,
+ Shreenidhi Shedi <yesshedi@gmail.com>
+References: <20220527175737.915284-1-sshedi@vmware.com>
+ <YpIpL728ii08D9uK@worktop.programming.kicks-ass.net>
+From: "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>
+Subject: Re: [PATCH v3] x86/vmware: use unsigned integer for shifting
+Message-ID: <5dfc62d1-5778-ed94-3f3e-54e12ee5e4e6@csail.mit.edu>
+Date: Tue, 31 May 2022 14:51:53 +0200
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.12.0
 MIME-Version: 1.0
-X-CFilter-Loop: Reflected
-Cc: "helei.sig11@bytedance.com" <helei.sig11@bytedance.com>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- "berrange@redhat.com" <berrange@redhat.com>,
- "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>,
- "mst@redhat.com" <mst@redhat.com>
+In-Reply-To: <YpIpL728ii08D9uK@worktop.programming.kicks-ass.net>
+Content-Language: en-US
+Cc: x86@kernel.org, amakhalov@vmware.com, Shreenidhi Shedi <sshedi@vmware.com>,
+ pv-drivers@vmware.com, dave.hansen@linux.intel.com,
+ linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, mingo@redhat.com, bp@alien8.de,
+ hpa@zytor.com, tglx@linutronix.de
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -83,130 +73,43 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: "Gonglei \(Arei\) via Virtualization"
- <virtualization@lists.linux-foundation.org>
-Reply-To: "Gonglei \(Arei\)" <arei.gonglei@huawei.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+On 5/28/22 6:52 AM, Peter Zijlstra wrote:
+> On Fri, May 27, 2022 at 11:27:37PM +0530, Shreenidhi Shedi wrote:
+>> From: Shreenidhi Shedi <sshedi@vmware.com>
+>>
+>> Shifting signed 32-bit value by 31 bits is implementation-defined
+>> behaviour. Using unsigned is better option for this.
+> 
+> The kernel builds with -fno-strict-overflow and as such this behaviour
+> is well defined.
+>
 
-
-> -----Original Message-----
-> From: zhenwei pi [mailto:pizhenwei@bytedance.com]
-> Sent: Tuesday, May 31, 2022 9:48 AM
-> To: Gonglei (Arei) <arei.gonglei@huawei.com>
-> Cc: qemu-devel@nongnu.org; mst@redhat.com;
-> virtualization@lists.linux-foundation.org; helei.sig11@bytedance.com;
-> berrange@redhat.com
-> Subject: Re: RE: [PATCH v8 1/1] crypto: Introduce RSA algorithm
+Ah, I see. Thank you, Peter!
+ 
+>> Fixes: 4cca6ea04d31 ("x86/apic: Allow x2apic without IR on VMware platform")
 > 
-> On 5/30/22 21:31, Gonglei (Arei) wrote:
-> >
-> >
-> >> -----Original Message-----
-> >> From: zhenwei pi [mailto:pizhenwei@bytedance.com]
-> >> Sent: Friday, May 27, 2022 4:48 PM
-> >> To: mst@redhat.com; Gonglei (Arei) <arei.gonglei@huawei.com>
-> >> Cc: qemu-devel@nongnu.org; virtualization@lists.linux-foundation.org;
-> >> helei.sig11@bytedance.com; berrange@redhat.com; zhenwei pi
-> >> <pizhenwei@bytedance.com>
-> >> Subject: [PATCH v8 1/1] crypto: Introduce RSA algorithm
-> >>
-> >>
-> > Skip...
-> >
-> >> +static int64_t
-> >> +virtio_crypto_create_asym_session(VirtIOCrypto *vcrypto,
-> >> +               struct virtio_crypto_akcipher_create_session_req
-> >> *sess_req,
-> >> +               uint32_t queue_id, uint32_t opcode,
-> >> +               struct iovec *iov, unsigned int out_num) {
-> >> +    VirtIODevice *vdev = VIRTIO_DEVICE(vcrypto);
-> >> +    CryptoDevBackendSessionInfo info = {0};
-> >> +    CryptoDevBackendAsymSessionInfo *asym_info;
-> >> +    int64_t session_id;
-> >> +    int queue_index;
-> >> +    uint32_t algo, keytype, keylen;
-> >> +    g_autofree uint8_t *key = NULL;
-> >> +    Error *local_err = NULL;
-> >> +
-> >> +    algo = ldl_le_p(&sess_req->para.algo);
-> >> +    keytype = ldl_le_p(&sess_req->para.keytype);
-> >> +    keylen = ldl_le_p(&sess_req->para.keylen);
-> >> +
-> >> +    if ((keytype != VIRTIO_CRYPTO_AKCIPHER_KEY_TYPE_PUBLIC)
-> >> +         && (keytype !=
-> VIRTIO_CRYPTO_AKCIPHER_KEY_TYPE_PRIVATE)) {
-> >> +        error_report("unsupported asym keytype: %d", keytype);
-> >> +        return -VIRTIO_CRYPTO_NOTSUPP;
-> >> +    }
-> >> +
-> >> +    if (keylen) {
-> >> +        key = g_malloc(keylen);
-> >> +        if (iov_to_buf(iov, out_num, 0, key, keylen) != keylen) {
-> >> +            virtio_error(vdev, "virtio-crypto asym key incorrect");
-> >> +            return -EFAULT;
-> >
-> > Memory leak.
-> >
-> >> +        }
-> >> +        iov_discard_front(&iov, &out_num, keylen);
-> >> +    }
-> >> +
-> >> +    info.op_code = opcode;
-> >> +    asym_info = &info.u.asym_sess_info;
-> >> +    asym_info->algo = algo;
-> >> +    asym_info->keytype = keytype;
-> >> +    asym_info->keylen = keylen;
-> >> +    asym_info->key = key;
-> >> +    switch (asym_info->algo) {
-> >> +    case VIRTIO_CRYPTO_AKCIPHER_RSA:
-> >> +        asym_info->u.rsa.padding_algo =
-> >> +            ldl_le_p(&sess_req->para.u.rsa.padding_algo);
-> >> +        asym_info->u.rsa.hash_algo =
-> >> +            ldl_le_p(&sess_req->para.u.rsa.hash_algo);
-> >> +        break;
-> >> +
-> >> +    /* TODO DSA&ECDSA handling */
-> >> +
-> >> +    default:
-> >> +        return -VIRTIO_CRYPTO_ERR;
-> >> +    }
-> >> +
-> >> +    queue_index = virtio_crypto_vq2q(queue_id);
-> >> +    session_id =
-> >> + cryptodev_backend_create_session(vcrypto->cryptodev,
-> >> &info,
-> >> +                     queue_index, &local_err);
-> >> +    if (session_id < 0) {
-> >> +        if (local_err) {
-> >> +            error_report_err(local_err);
-> >> +        }
-> >> +        return -VIRTIO_CRYPTO_ERR;
-> >> +    }
-> >> +
-> >> +    return session_id;
-> >
-> > Where to free the key at both normal and exceptional paths?
-> >
-> 
-> Hi, Lei
-> 
-> The key is declared with g_autofree:
-> g_autofree uint8_t *key = NULL;
+> Nothing broken, therefore nothing fixed.
 > 
 
-OK. For the patch:
+Agreed.
 
-Reviewed-by: Gonglei <arei.gonglei@huawei.com>
+I think using the BIT() macro still provides a nice readability
+improvement. So, Shreenidhi, could you spin a new version of the patch
+with the same code changes but with a different commit message about
+using the BIT() macro to simplify the code, and also include a
+clarification as to why the existing code is correct (which Peter
+pointed out), please?
 
+Thank you!
 
 Regards,
--Gonglei
-    
-
+Srivatsa
+VMware Photon OS
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
