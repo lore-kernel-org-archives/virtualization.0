@@ -4,110 +4,100 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 27E97C433F5
-	for <virtualization@archiver.kernel.org>; Mon, 30 May 2022 15:49:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id DC9E7C433EF
+	for <virtualization@archiver.kernel.org>; Tue, 31 May 2022 01:51:48 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id CEBB841B3A;
-	Mon, 30 May 2022 15:49:40 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 6E1BA41BE6;
+	Tue, 31 May 2022 01:51:48 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id WzuY__CB70ne; Mon, 30 May 2022 15:49:39 +0000 (UTC)
+	with ESMTP id kkFjD8nNMaKc; Tue, 31 May 2022 01:51:47 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id F072D41B31;
-	Mon, 30 May 2022 15:49:38 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 9883B41BE5;
+	Tue, 31 May 2022 01:51:46 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CCACCC0039;
-	Mon, 30 May 2022 15:49:38 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C5C05C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7871BC0039;
+	Tue, 31 May 2022 01:51:46 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4F9F7C002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 May 2022 15:49:37 +0000 (UTC)
+ Tue, 31 May 2022 01:51:44 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 9FFFA83F11
+ by smtp3.osuosl.org (Postfix) with ESMTP id 2FAF860648
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 May 2022 15:49:37 +0000 (UTC)
+ Tue, 31 May 2022 01:51:44 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id BThrMX9bfu7O
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=bytedance-com.20210112.gappssmtp.com
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id fMz-7VkrMFBG
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 May 2022 15:49:37 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id D125B83E09
+ Tue, 31 May 2022 01:51:43 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com
+ [IPv6:2607:f8b0:4864:20::1029])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 5513160634
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 May 2022 15:49:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1653925775;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=3rYstiXH+DFFxpN0eJSYZFfNb9vwPKdu6j6eGmXRMcc=;
- b=JAwscdthbr4lZNUQLHC9qcsZpFrGlkTIG+7bMauksNnlcrx0UHThjQId2sGhrhpPtjGp9W
- hpZ2i1jzucRKxNxKKAy+TgvFJrrDjyxZczBa3a7BeZ9P9OAVopEYUxsediyT6t0K8i1/XQ
- JN049SkwsCfa3LyA2L3GHjQjvxDcnmY=
-Received: from mail-il1-f200.google.com (mail-il1-f200.google.com
- [209.85.166.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-232-T1EdjxoFO6-nTfeL2yLUuw-1; Mon, 30 May 2022 11:49:24 -0400
-X-MC-Unique: T1EdjxoFO6-nTfeL2yLUuw-1
-Received: by mail-il1-f200.google.com with SMTP id
- x8-20020a056e021ca800b002d1332831deso8556355ill.23
+ Tue, 31 May 2022 01:51:43 +0000 (UTC)
+Received: by mail-pj1-x1029.google.com with SMTP id
+ gc3-20020a17090b310300b001e33092c737so828439pjb.3
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 May 2022 08:49:24 -0700 (PDT)
+ Mon, 30 May 2022 18:51:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=bytedance-com.20210112.gappssmtp.com; s=20210112;
+ h=message-id:date:mime-version:user-agent:subject:content-language:to
+ :cc:references:from:in-reply-to:content-transfer-encoding;
+ bh=KmXOhOKHGR1vGePMG8VRHG4c52PZJ9+TG/+1WQ5Zjj0=;
+ b=YmA+1r+7grFxgBZ5EytDPadjP2fm3hIUtwTniDELQlZ6ExHSvcawoPiSH3Y2RTcnBX
+ K7+uewQxw0kPMMtcrAldq8FWWgIbkThUbuKbcvai2Kyj3r12iKoGgxuT66aDUcZntK1f
+ mqVATkfwMFjmQMIFqcWgBFe1UM3/bwMQNd4hFXE7wsG39F4OUgGjJBQjOcK9gNjJ11E6
+ nRPa01iGVXeWgR4gUbs89f1HlVNWGJaQ2KUssLseIZm2RbQBztd+9ZqkTAH+5BHxl4fv
+ PwoGM/txw0J/T3P1Y4Q/L8gSSjkh18E3pP8AlPPeayRFbbXw1T3kxn+OQTsc650SPXQV
+ uTDg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=3rYstiXH+DFFxpN0eJSYZFfNb9vwPKdu6j6eGmXRMcc=;
- b=i2Z4KunZgCLlLcUh9Yi57Decmr1d8j61zw9+lick7n22PzsgNEJr7KiEKi/bbghoUV
- TU/ekzK/r3LnlL2MPW2E2AJw2IghaEzGOp7fNx7Kw/sgHhpKns5BUr9WpUzS0oRH2kCv
- fWKF2b282XoE7s3jD5oQuESNnvk68MnllNGUZeSG4r9RCASHUfmS0TSic22YOoSDf6RO
- 4tIh6EONoz7pTUM1/NoGjRQ6YxNTTQ2cWHs/v24tkiV+X4B4saJYlWptZGUgNALnqVlM
- T3MRZBtM2/q1jnku2maLNJ3tFMuaAZ6mononS3Vo+pk2mVqz/jVjted9cfn1Kn9uEldq
- K0pw==
-X-Gm-Message-State: AOAM533wLWnHK6aX+oj9cBRIig0tFO1TJzUUWm2+xfB0IBDxpjOSURcy
- ylRb9z0b4jwVseIuan1DcNj5YJposYnV/GwbkW6LYJZL/2ifvPWbVmVpdLc00Rts2rEg7iFtHaJ
- 6AKXujMTUHTGzp8oP61s9GvWcvKLDwexqJToD5/KwKA==
-X-Received: by 2002:a05:6e02:1c4e:b0:2d1:a8d:e94d with SMTP id
- d14-20020a056e021c4e00b002d10a8de94dmr29213931ilg.194.1653925763929; 
- Mon, 30 May 2022 08:49:23 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyavXgOOvyHvCgnhXUybuBh2qRd2Dsuuan5kKliX95y7YWU6WnNJ4Q63813uIsXDGIP+OZk1Q==
-X-Received: by 2002:a05:6e02:1c4e:b0:2d1:a8d:e94d with SMTP id
- d14-20020a056e021c4e00b002d10a8de94dmr29213912ilg.194.1653925763620; 
- Mon, 30 May 2022 08:49:23 -0700 (PDT)
-Received: from xz-m1.local
- (cpec09435e3e0ee-cmc09435e3e0ec.cpe.net.cable.rogers.com. [99.241.198.116])
+ h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+ :content-language:to:cc:references:from:in-reply-to
+ :content-transfer-encoding;
+ bh=KmXOhOKHGR1vGePMG8VRHG4c52PZJ9+TG/+1WQ5Zjj0=;
+ b=t9OcX0UKgkXIb+dDKV3m4U827EGE7/1u5daEUSXeBviCbByAeMyXFA1IaDkWX6zZk6
+ IyaVJAjsST9lflbKrimT2IfzHx0rspvFudFbzOFtCcN+LzbODVuWrioY3bZ2ED1q62Lo
+ CKDZhAJjFxxE/Y7FLnC6yan8upsAJ6jY7Dscv+gXWz/S4H59bsZRH6QpZzIvcjxSl+ed
+ u/DxzFI8Yia4VRwuVVGnj7lzBIHqjVIShNtzmPHWAwhUiuQ2l2+bTQFmuUyZIpuzri29
+ yhsywvGfBWDCfCSv3r4EduqLZE3nj8Phm1jc9XqWAp3dDlcOmvYvtCL9NAP+4l629R1U
+ ncIg==
+X-Gm-Message-State: AOAM533IyklJn3VcMz7h0MgCY2ASfWu1tlW3WrDFIgAarqyFGWgexuYR
+ LEllmJDEiWRW1sA6tystBWTl9A==
+X-Google-Smtp-Source: ABdhPJx+3iY92taAy6pVX7D+ECDjEuy9jyUENbikEfIoPMi5rinonne48/JeuRQmz5BxgnmUPTMY3A==
+X-Received: by 2002:a17:90a:2c43:b0:1e0:b3fe:1bf5 with SMTP id
+ p3-20020a17090a2c4300b001e0b3fe1bf5mr26049348pjm.27.1653961902534; 
+ Mon, 30 May 2022 18:51:42 -0700 (PDT)
+Received: from [10.255.89.136] ([139.177.225.233])
  by smtp.gmail.com with ESMTPSA id
- u20-20020a926014000000b002cde6e35302sm3764514ilb.76.2022.05.30.08.49.21
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 30 May 2022 08:49:22 -0700 (PDT)
-Date: Mon, 30 May 2022 11:49:21 -0400
-From: Peter Xu <peterx@redhat.com>
-To: zhenwei pi <pizhenwei@bytedance.com>
-Subject: Re: Re: [PATCH 0/3] recover hardware corrupted page by virtio balloon
-Message-ID: <YpTngZ5Qr0KIvL0H@xz-m1.local>
-References: <CAPcxDJ5pduUyMA0rf+-aTjK_2eBvig05UTiTptX1nVkWE-_g8w@mail.gmail.com>
- <Yo/I3oLkd9OU0ice@xz-m1.local>
- <24a95dea-9ea6-a904-7c0b-197961afa1d1@bytedance.com>
- <0d266c61-605d-ce0c-4274-b0c7e10f845a@redhat.com>
- <4b0c3e37-b882-681a-36fc-16cee7e1fff0@bytedance.com>
+ m2-20020a170902bb8200b0016191b843e2sm9792155pls.235.2022.05.30.18.51.38
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Mon, 30 May 2022 18:51:41 -0700 (PDT)
+Message-ID: <b2ee77ae-2044-32b4-20c5-43fa78e8213c@bytedance.com>
+Date: Tue, 31 May 2022 09:47:43 +0800
 MIME-Version: 1.0
-In-Reply-To: <4b0c3e37-b882-681a-36fc-16cee7e1fff0@bytedance.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=peterx@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: mst@redhat.com, HORIGUCHI =?utf-8?B?TkFPWUEo5aCA5Y+jIOebtOS5nyk=?=
- <naoya.horiguchi@nec.com>, LKML <linux-kernel@vger.kernel.org>,
- qemu-devel@nongnu.org, Linux MM <linux-mm@kvack.org>,
- Paolo Bonzini <pbonzini@redhat.com>, Andrew Morton <akpm@linux-foundation.org>,
- virtualization@lists.linux-foundation.org, Jue Wang <juew@google.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.1
+Subject: Re: RE: [PATCH v8 1/1] crypto: Introduce RSA algorithm
+Content-Language: en-US
+To: "Gonglei (Arei)" <arei.gonglei@huawei.com>
+References: <20220527084734.2649594-1-pizhenwei@bytedance.com>
+ <20220527084734.2649594-2-pizhenwei@bytedance.com>
+ <848d579e2c504ba493cd57510a7ff3b0@huawei.com>
+From: zhenwei pi <pizhenwei@bytedance.com>
+In-Reply-To: <848d579e2c504ba493cd57510a7ff3b0@huawei.com>
+Cc: "helei.sig11@bytedance.com" <helei.sig11@bytedance.com>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ "berrange@redhat.com" <berrange@redhat.com>,
+ "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>,
+ "mst@redhat.com" <mst@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,70 +109,112 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, May 30, 2022 at 07:33:35PM +0800, zhenwei pi wrote:
-> A VM uses RAM of 2M huge page. Once a MCE(@HVAy in [HVAx,HVAz)) occurs, the
-> 2M([HVAx,HVAz)) of hypervisor becomes unaccessible, but the guest poisons 4K
-> (@GPAy in [GPAx, GPAz)) only, it may hit another 511 MCE ([GPAx, GPAz)
-> except GPAy). This is the worse case, so I want to add
->  '__le32 corrupted_pages' in struct virtio_balloon_config, it is used in the
-> next step: reporting 512 * 4K 'corrupted_pages' to the guest, the guest has
-> a chance to isolate the other 511 pages ahead of time. And the guest
-> actually loses 2M, fixing 512*4K seems to help significantly.
+On 5/30/22 21:31, Gonglei (Arei) wrote:
+> 
+> 
+>> -----Original Message-----
+>> From: zhenwei pi [mailto:pizhenwei@bytedance.com]
+>> Sent: Friday, May 27, 2022 4:48 PM
+>> To: mst@redhat.com; Gonglei (Arei) <arei.gonglei@huawei.com>
+>> Cc: qemu-devel@nongnu.org; virtualization@lists.linux-foundation.org;
+>> helei.sig11@bytedance.com; berrange@redhat.com; zhenwei pi
+>> <pizhenwei@bytedance.com>
+>> Subject: [PATCH v8 1/1] crypto: Introduce RSA algorithm
+>>
+>>
+> Skip...
+> 
+>> +static int64_t
+>> +virtio_crypto_create_asym_session(VirtIOCrypto *vcrypto,
+>> +               struct virtio_crypto_akcipher_create_session_req
+>> *sess_req,
+>> +               uint32_t queue_id, uint32_t opcode,
+>> +               struct iovec *iov, unsigned int out_num) {
+>> +    VirtIODevice *vdev = VIRTIO_DEVICE(vcrypto);
+>> +    CryptoDevBackendSessionInfo info = {0};
+>> +    CryptoDevBackendAsymSessionInfo *asym_info;
+>> +    int64_t session_id;
+>> +    int queue_index;
+>> +    uint32_t algo, keytype, keylen;
+>> +    g_autofree uint8_t *key = NULL;
+>> +    Error *local_err = NULL;
+>> +
+>> +    algo = ldl_le_p(&sess_req->para.algo);
+>> +    keytype = ldl_le_p(&sess_req->para.keytype);
+>> +    keylen = ldl_le_p(&sess_req->para.keylen);
+>> +
+>> +    if ((keytype != VIRTIO_CRYPTO_AKCIPHER_KEY_TYPE_PUBLIC)
+>> +         && (keytype != VIRTIO_CRYPTO_AKCIPHER_KEY_TYPE_PRIVATE)) {
+>> +        error_report("unsupported asym keytype: %d", keytype);
+>> +        return -VIRTIO_CRYPTO_NOTSUPP;
+>> +    }
+>> +
+>> +    if (keylen) {
+>> +        key = g_malloc(keylen);
+>> +        if (iov_to_buf(iov, out_num, 0, key, keylen) != keylen) {
+>> +            virtio_error(vdev, "virtio-crypto asym key incorrect");
+>> +            return -EFAULT;
+> 
+> Memory leak.
+> 
+>> +        }
+>> +        iov_discard_front(&iov, &out_num, keylen);
+>> +    }
+>> +
+>> +    info.op_code = opcode;
+>> +    asym_info = &info.u.asym_sess_info;
+>> +    asym_info->algo = algo;
+>> +    asym_info->keytype = keytype;
+>> +    asym_info->keylen = keylen;
+>> +    asym_info->key = key;
+>> +    switch (asym_info->algo) {
+>> +    case VIRTIO_CRYPTO_AKCIPHER_RSA:
+>> +        asym_info->u.rsa.padding_algo =
+>> +            ldl_le_p(&sess_req->para.u.rsa.padding_algo);
+>> +        asym_info->u.rsa.hash_algo =
+>> +            ldl_le_p(&sess_req->para.u.rsa.hash_algo);
+>> +        break;
+>> +
+>> +    /* TODO DSA&ECDSA handling */
+>> +
+>> +    default:
+>> +        return -VIRTIO_CRYPTO_ERR;
+>> +    }
+>> +
+>> +    queue_index = virtio_crypto_vq2q(queue_id);
+>> +    session_id = cryptodev_backend_create_session(vcrypto->cryptodev,
+>> &info,
+>> +                     queue_index, &local_err);
+>> +    if (session_id < 0) {
+>> +        if (local_err) {
+>> +            error_report_err(local_err);
+>> +        }
+>> +        return -VIRTIO_CRYPTO_ERR;
+>> +    }
+>> +
+>> +    return session_id;
+> 
+> Where to free the key at both normal and exceptional paths?
+> 
 
-It sounds hackish to teach a virtio device to assume one page will always
-be poisoned in huge page granule.  That's only a limitation to host kernel
-not virtio itself.
+Hi, Lei
 
-E.g. there're upstream effort ongoing with enabling doublemap on hugetlbfs
-pages so hugetlb pages can be mapped in 4k with it.  It provides potential
-possibility to do page poisoning with huge pages in 4k too.  When that'll
-be ready the assumption can go away, and that does sound like a better
-approach towards this problem.
+The key is declared with g_autofree:
+g_autofree uint8_t *key = NULL;
 
 > 
-> > 
-> > I assume when talking about "the performance memory drops a lot", you
-> > imply that this patch set can mitigate that performance drop?
-> > 
-> > But why do you see a performance drop? Because we might lose some
-> > possible THP candidates (in the host or the guest) and you want to plug
-> > does holes? I assume you'll see a performance drop simply because
-> > poisoning memory is expensive, including migrating pages around on CE.
-> > 
-> > If you have some numbers to share, especially before/after this change,
-> > that would be great.
-> > 
+> Regards,
+> -Gonglei
 > 
-> The CE storm leads 2 problems I have even seen:
-> 1, the memory bandwidth slows down to 10%~20%, and the cycles per
-> instruction of CPU increases a lot.
-> 2, the THR (/proc/interrupts) interrupts frequently, the CPU has to use a
-> lot time to handle IRQ.
-
-Totally no good knowledge on CMCI, but if 2) is true then I'm wondering
-whether it's necessary to handle the interrupts that frequently.  When I
-was reading the Intel CMCI vector handler I stumbled over this comment:
-
-/*
- * The interrupt handler. This is called on every event.
- * Just call the poller directly to log any events.
- * This could in theory increase the threshold under high load,
- * but doesn't for now.
- */
-static void intel_threshold_interrupt(void)
-
-I think that matches with what I was thinking..  I mean for 2) not sure
-whether it can be seen as a CMCI problem and potentially can be optimized
-by adjust the cmci threshold dynamically.
+> 
 
 -- 
-Peter Xu
-
+zhenwei pi
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
