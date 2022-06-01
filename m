@@ -1,102 +1,124 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 05DD0C433EF
-	for <virtualization@archiver.kernel.org>; Wed,  1 Jun 2022 05:52:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C70E5C433F5
+	for <virtualization@archiver.kernel.org>; Wed,  1 Jun 2022 07:59:25 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 8F3F8812E3;
-	Wed,  1 Jun 2022 05:52:10 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 7D9A2605B0;
+	Wed,  1 Jun 2022 07:59:25 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id hHFfNHVvoP3j; Wed,  1 Jun 2022 05:52:09 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id q7986j05e1US; Wed,  1 Jun 2022 07:59:24 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 84DAC80DD1;
-	Wed,  1 Jun 2022 05:52:08 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id F164060BFB;
+	Wed,  1 Jun 2022 07:59:23 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 62D64C0032;
-	Wed,  1 Jun 2022 05:52:08 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 68B02C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C4B8CC0039;
+	Wed,  1 Jun 2022 07:59:23 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4D5B5C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Jun 2022 05:52:06 +0000 (UTC)
+ Wed,  1 Jun 2022 07:59:23 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 4FDB640129
+ by smtp4.osuosl.org (Postfix) with ESMTP id 2A86941716
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Jun 2022 05:52:06 +0000 (UTC)
+ Wed,  1 Jun 2022 07:59:23 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id nLJ5HwL_DHEM
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id aXEKhspvJfRE
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Jun 2022 05:52:05 +0000 (UTC)
+ Wed,  1 Jun 2022 07:59:22 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 55A8F40119
+ by smtp4.osuosl.org (Postfix) with ESMTPS id CF93540865
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Jun 2022 05:52:04 +0000 (UTC)
+ Wed,  1 Jun 2022 07:59:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1654062723;
+ s=mimecast20190719; t=1654070360;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=y9JOZIJzMCYqMfEWPBFqqYJUrPlrgh7JFx4lSGE0nDQ=;
- b=Gz+oYztnV9HpasZY9XQ5+cxvRIOWRGbrBr0CJThs/WpeX6Y4HD3SlIdJm9xyUrQscGljRL
- Nll/vig1ahRYQ02EhozlQTk7iGccEKtwRZcU+5vISvskEQCVOYnPTpdX+eLVS/vMYBIEET
- dVf8shYyBWdWRG/kiMy/2DhiwxBPQFk=
-Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
- [209.85.167.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=X57AV1JS1Mqn7vo0Jw9w21QgY8DunEV7ImYYwrtqE0c=;
+ b=LTSi4cSNBI3BjEicrOTscznyjcjl+kovVb5zCQCmlkGosr8tLL/sInjxdQvPOoGoOVnRGq
+ 5V7Dv3mo9GobwGK19620yq0F9O0lGNhqy6oJLwnFbsrffZTmDF3qZ67FYn+g7dCm/yIOY5
+ nLZ3vqKiVGs3RJx7mc1jivT/j2hHLmU=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-465-bbEWh8qpOquNof2zXq6dVw-1; Wed, 01 Jun 2022 01:52:01 -0400
-X-MC-Unique: bbEWh8qpOquNof2zXq6dVw-1
-Received: by mail-lf1-f70.google.com with SMTP id
- w38-20020a0565120b2600b00477b08c1730so407873lfu.13
+ us-mta-661-1dFxWvBePkaAx826k2xYbA-1; Wed, 01 Jun 2022 03:59:19 -0400
+X-MC-Unique: 1dFxWvBePkaAx826k2xYbA-1
+Received: by mail-wr1-f72.google.com with SMTP id
+ o17-20020a5d4091000000b002102fe310dcso100159wrp.20
  for <virtualization@lists.linux-foundation.org>;
- Tue, 31 May 2022 22:52:01 -0700 (PDT)
+ Wed, 01 Jun 2022 00:59:19 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=y9JOZIJzMCYqMfEWPBFqqYJUrPlrgh7JFx4lSGE0nDQ=;
- b=fOouufP3w82SLqMvXJS7AB3XV2iPBX84XzrlhSy6spna/scZEN7iVgJgijPN4WCVxe
- zu8AuCk0NmvyEcMc43icNCAK4AxkDOGxkKo9/uQ9qHmxkm3h0KlV6KAChDr340VyN185
- eVfMZUFEXAbrrDrtlYxV32y95Q+jF9h6sveoq6qsTzlSBKq/URfhVSuYZsxEHf7oCpft
- jc7XEPyOU6YaA4xRW2MGbTVN23WD9j0pHLuSDRu1sE7xuJ4XujBKk3OmwYUJ1TNEpZ9V
- kFskNCdHPq72GgjgRlOwDv9Eafk7e61S7OCq/bKo1kbX3Z1Gr6dD2CkBDZM0ni3wPexn
- iZYQ==
-X-Gm-Message-State: AOAM532VzDRyJBNcAufPUTLilDp+paNOKdGl+2LSVYKrwNfP7J1I6w6h
- RNoCDgI6S6fVztBjJd4RBTC7Inou92fsaIE+uDBll96jP+22xRGJaExLjz9Ic/Ln8c/6oNAZeFD
- oVHhyYIv5cUyjb7MCxsDciEvGuYD6N5T58vWb4oIV7p4vk+X6SzEl5WeR7Q==
-X-Received: by 2002:a05:6512:1588:b0:477:a556:4ab2 with SMTP id
- bp8-20020a056512158800b00477a5564ab2mr45555249lfb.376.1654062719799; 
- Tue, 31 May 2022 22:51:59 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzQIMc+O8589FvKZlH9mhmIs2iY1bn0MMtGc0qxfXztzit2Ft+gHRfl+AZeKcbAQKv0fY6+x2K+CGpMv86KHx0=
-X-Received: by 2002:a05:6512:1588:b0:477:a556:4ab2 with SMTP id
- bp8-20020a056512158800b00477a5564ab2mr45555235lfb.376.1654062719445; Tue, 31
- May 2022 22:51:59 -0700 (PDT)
+ h=x-gm-message-state:message-id:date:mime-version:user-agent
+ :content-language:to:cc:references:from:organization:subject
+ :in-reply-to:content-transfer-encoding;
+ bh=X57AV1JS1Mqn7vo0Jw9w21QgY8DunEV7ImYYwrtqE0c=;
+ b=fSMqdaS7CMMkH1vn0Bq88etvNFPKuJDEUJW4Whl1yoVpuRNKiEGgM1PnsMXYtOYl6Q
+ ZecXnIn3B+/xMJBgVXR5V93ocykFAOrW5sQ0ATxRmlFuSk4t0EXyEoMHYX5Rz4OJOKbK
+ 2Klkd0RhuSgMaV0FdpKoNUsgAYJyYOB/NXy6yPkDQ3x5KKnu+v1Y6PqtH6TD7QPD3SKN
+ uwU82gVg1SKoN21WOh35gIxy6yt8xzPPUC8ena+d4XHvIabTwddTrXDRHbZdZ7nW2Spp
+ /hv6PGOkuubdO6JTxETW5bvVtkTebdPmBfmhN+itk5DVXpeMDuQZ8Z9OxPItPjAESyPm
+ tBUg==
+X-Gm-Message-State: AOAM533ZMpBejYV1HofJU7YPJ0DkvI6g9o7QjBv/Yv2dCEjuiQuzwvFV
+ 2wBhfE0H0JXfWMlMmgXMZVoCOOuqZpPyTKD1pID2gboMepZRIocS+Z0h2NToaeLdiTcHLxzeEin
+ L5LoB3UEQOTNo68aob/6nCqtkSM5snQtkgJX3JbsY5g==
+X-Received: by 2002:a05:6000:1d86:b0:20f:fcae:57f8 with SMTP id
+ bk6-20020a0560001d8600b0020ffcae57f8mr29128560wrb.262.1654070357987; 
+ Wed, 01 Jun 2022 00:59:17 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwRXopFFdxewjiXZogv3wBRsP/bd8pMpOz5TV6kA8hkaTRFy4NC/B3PyodLYhUx84ns8W9osQ==
+X-Received: by 2002:a05:6000:1d86:b0:20f:fcae:57f8 with SMTP id
+ bk6-20020a0560001d8600b0020ffcae57f8mr29128536wrb.262.1654070357654; 
+ Wed, 01 Jun 2022 00:59:17 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c705:2600:951d:63df:c091:3b45?
+ (p200300cbc7052600951d63dfc0913b45.dip0.t-ipconnect.de.
+ [2003:cb:c705:2600:951d:63df:c091:3b45])
+ by smtp.gmail.com with ESMTPSA id
+ z13-20020a5d44cd000000b0020e6c51f070sm818410wrr.112.2022.06.01.00.59.15
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Wed, 01 Jun 2022 00:59:16 -0700 (PDT)
+Message-ID: <484546da-16cc-8070-2a2c-868717b8a75a@redhat.com>
+Date: Wed, 1 Jun 2022 09:59:15 +0200
 MIME-Version: 1.0
-References: <20220601012019.1102186-1-lulu@redhat.com>
-In-Reply-To: <20220601012019.1102186-1-lulu@redhat.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 1 Jun 2022 13:51:47 +0800
-Message-ID: <CACGkMEv-cfKFgh6MuYzdR4tkZKSNLyFxwc5SgUKXg+DtQBffMQ@mail.gmail.com>
-Subject: Re: [RFC PATCH v2] vdpa: Do not count the pages that were already
- pinned in the vhost-vDPA
-To: Cindy Lu <lulu@redhat.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+To: zhenwei pi <pizhenwei@bytedance.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ =?UTF-8?B?SE9SSUdVQ0hJIE5BT1lBKOWggOWPoyDnm7TkuZ8p?=
+ <naoya.horiguchi@nec.com>
+References: <CAPcxDJ5pduUyMA0rf+-aTjK_2eBvig05UTiTptX1nVkWE-_g8w@mail.gmail.com>
+ <Yo/I3oLkd9OU0ice@xz-m1.local>
+ <24a95dea-9ea6-a904-7c0b-197961afa1d1@bytedance.com>
+ <0d266c61-605d-ce0c-4274-b0c7e10f845a@redhat.com>
+ <4b0c3e37-b882-681a-36fc-16cee7e1fff0@bytedance.com>
+ <YpTngZ5Qr0KIvL0H@xz-m1.local>
+ <CAPcxDJ5UMfpys8KyLQVnkV9BPO1vaubxbhc7f4XC_TdNO7jr7g@mail.gmail.com>
+ <5f622a65-8348-8825-a167-414f2a8cd2eb@bytedance.com>
+From: David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+Subject: Re: [PATCH 0/3] recover hardware corrupted page by virtio balloon
+In-Reply-To: <5f622a65-8348-8825-a167-414f2a8cd2eb@bytedance.com>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=david@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: netdev <netdev@vger.kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>,
- linux-kernel <linux-kernel@vger.kernel.org>, kvm <kvm@vger.kernel.org>,
- mst <mst@redhat.com>
+Content-Language: en-US
+Cc: mst@redhat.com, Jue Wang <juew@google.com>,
+ LKML <linux-kernel@vger.kernel.org>, qemu-devel@nongnu.org,
+ Linux MM <linux-mm@kvack.org>, Paolo Bonzini <pbonzini@redhat.com>,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -113,704 +135,127 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Jun 1, 2022 at 9:20 AM Cindy Lu <lulu@redhat.com> wrote:
->
-> We count pinned_vm as follow in vhost-vDPA
->
-> lock_limit = rlimit(RLIMIT_MEMLOCK) >> PAGE_SHIFT;
-> if (npages + atomic64_read(&dev->mm->pinned_vm) > lock_limit) {
->          ret = -ENOMEM;
->          goto unlock;
-> }
-> This means if we have two vDPA devices for the same VM the pages would be counted twice
-> So we add a tree to save the page that counted and we will not count it
-> again.
+On 01.06.22 04:17, zhenwei pi wrote:
+> On 5/31/22 12:08, Jue Wang wrote:
+>> On Mon, May 30, 2022 at 8:49 AM Peter Xu <peterx@redhat.com> wrote:
+>>>
+>>> On Mon, May 30, 2022 at 07:33:35PM +0800, zhenwei pi wrote:
+>>>> A VM uses RAM of 2M huge page. Once a MCE(@HVAy in [HVAx,HVAz)) occurs, the
+>>>> 2M([HVAx,HVAz)) of hypervisor becomes unaccessible, but the guest poisons 4K
+>>>> (@GPAy in [GPAx, GPAz)) only, it may hit another 511 MCE ([GPAx, GPAz)
+>>>> except GPAy). This is the worse case, so I want to add
+>>>>   '__le32 corrupted_pages' in struct virtio_balloon_config, it is used in the
+>>>> next step: reporting 512 * 4K 'corrupted_pages' to the guest, the guest has
+>>>> a chance to isolate the other 511 pages ahead of time. And the guest
+>>>> actually loses 2M, fixing 512*4K seems to help significantly.
+>>>
+>>> It sounds hackish to teach a virtio device to assume one page will always
+>>> be poisoned in huge page granule.  That's only a limitation to host kernel
+>>> not virtio itself.
+>>>
+>>> E.g. there're upstream effort ongoing with enabling doublemap on hugetlbfs
+>>> pages so hugetlb pages can be mapped in 4k with it.  It provides potential
+>>> possibility to do page poisoning with huge pages in 4k too.  When that'll
+>>> be ready the assumption can go away, and that does sound like a better
+>>> approach towards this problem.
+>>
+>> +1.
+>>
+>> A hypervisor should always strive to minimize the guest memory loss.
+>>
+>> The HugeTLB double mapping enlightened memory poisoning behavior (only
+>> poison 4K out of a 2MB huge page and 4K in guest) is a much better
+>> solution here. To be completely transparent, it's not _strictly_
+>> required to poison the page (whatever the granularity it is) on the
+>> host side, as long as the following are true:
+>>
+>> 1. A hypervisor can emulate the _minimized_ (e.g., 4K) the poison to the guest.
+>> 2. The host page with the UC error is "isolated" (could be PG_HWPOISON
+>> or in some other way) and prevented from being reused by other
+>> processes.
+>>
+>> For #2, PG_HWPOISON and HugeTLB double mapping enlightened memory
+>> poisoning is a good solution.
+>>
+>>>
+>>>>
+>>>>>
+>>>>> I assume when talking about "the performance memory drops a lot", you
+>>>>> imply that this patch set can mitigate that performance drop?
+>>>>>
+>>>>> But why do you see a performance drop? Because we might lose some
+>>>>> possible THP candidates (in the host or the guest) and you want to plug
+>>>>> does holes? I assume you'll see a performance drop simply because
+>>>>> poisoning memory is expensive, including migrating pages around on CE.
+>>>>>
+>>>>> If you have some numbers to share, especially before/after this change,
+>>>>> that would be great.
+>>>>>
+>>>>
+>>>> The CE storm leads 2 problems I have even seen:
+>>>> 1, the memory bandwidth slows down to 10%~20%, and the cycles per
+>>>> instruction of CPU increases a lot.
+>>>> 2, the THR (/proc/interrupts) interrupts frequently, the CPU has to use a
+>>>> lot time to handle IRQ.
+>>>
+>>> Totally no good knowledge on CMCI, but if 2) is true then I'm wondering
+>>> whether it's necessary to handle the interrupts that frequently.  When I
+>>> was reading the Intel CMCI vector handler I stumbled over this comment:
+>>>
+>>> /*
+>>>   * The interrupt handler. This is called on every event.
+>>>   * Just call the poller directly to log any events.
+>>>   * This could in theory increase the threshold under high load,
+>>>   * but doesn't for now.
+>>>   */
+>>> static void intel_threshold_interrupt(void)
+>>>
+>>> I think that matches with what I was thinking..  I mean for 2) not sure
+>>> whether it can be seen as a CMCI problem and potentially can be optimized
+>>> by adjust the cmci threshold dynamically.
+>>
+>> The CE storm caused performance drop is caused by the extra cycles
+>> spent by the ECC steps in memory controller, not in CMCI handling.
+>> This is observed in the Google fleet as well. A good solution is to
+>> monitor the CE rate closely in user space via /dev/mcelog and migrate
+>> all VMs to another host once the CE rate exceeds some threshold.
+>>
+>> CMCI is a _background_ interrupt that is not handled in the process
+>> execution context and its handler is setup to switch to poll (1 / 5
+>> min) mode if there are more than ~ a dozen CEs reported via CMCI per
+>> second.
+>>>
+>>> --
+>>> Peter Xu
+>>>
+> 
+> Hi, Andrew, David, Naoya
+> 
+> According to the suggestions, I'd give up the improvement of memory 
+> failure on huge page in this series.
+> 
+> Is it worth recovering corrupted pages for the guest kernel? I'd follow 
+> your decision.
 
-The code is not easy to be reviewed, some suggestions:
+Well, as I said, I am not sure if we really need/want this for a handful
+of 4k poisoned pages in a VM. As I suspected, doing so might primarily
+be interesting for some sort of de-fragmentation (allow again a higher
+order page to be placed at the affected PFNs), not because of the slight
+reduction of available memory. A simple VM reboot would get the job
+similarly done.
 
-- It's better to explain in general the algorithm you used here
-- Add more comment in the codes to explain the rationale
+As the poisoning refcount code is already a bit shaky as I learned
+recently in the context of memory offlining, I do wonder if we really
+want to expose the unpoisoning code outside of debugfs (hwpoison) usage.
 
-And I still see the above check against the RLIMIT in the code, is it
-intentional?
+Interestingly, unpoison_memory() documents: "This is only done on the
+software-level, so it only works for linux injected failures, not real
+hardware failures" -- ehm?
 
-> Signed-off-by: Cindy Lu <lulu@redhat.com>
-> ---
->  drivers/vhost/vdpa.c  | 542 +++++++++++++++++++++++++++++++++++++++++-
->  drivers/vhost/vhost.h |   1 +
->  2 files changed, 539 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-> index 05f5fd2af58f..1b0da0735efd 100644
-> --- a/drivers/vhost/vdpa.c
-> +++ b/drivers/vhost/vdpa.c
-> @@ -24,6 +24,10 @@
->  #include <linux/vhost.h>
->
->  #include "vhost.h"
-> +#include <linux/rbtree.h>
-> +#include <linux/interval_tree.h>
-> +#include <linux/interval_tree_generic.h>
-> +#include <linux/hashtable.h>
->
->  enum {
->         VHOST_VDPA_BACKEND_FEATURES =
-> @@ -506,12 +510,478 @@ static long vhost_vdpa_unlocked_ioctl(struct file *filep,
->         return r;
->  }
->
-> +struct vdpa_tree_node {
-> +       struct interval_tree_node tree_node;
+-- 
+Thanks,
 
-Can we simply reuse the vhost_iotlb tree? Note that vhost_iotlb_map
-can be associated with a opaque as token which could be used as
-reference count.
-
-> +       int ref;
-
-If it's a refcount, let's use unsigned here.
-
-> +};
-> +struct vdpa_link_node {
-> +       struct vdpa_tree_node *vdpa_node;
-> +       struct vdpa_link_node *next;
-
-Need to explain why we need a linked list here considering we've
-already structured it as an interval tree.
-
-Btw, unless it's performance critical, let's try to re-use kernel list.h.
-
-> +       u64 node_start;
-> +       u64 node_last;
-
-Let's add a comment to explain each member here.
-
-> +};
-> +
-> +int vhost_vdpa_add_range_ctx(struct rb_root_cached *root, u64 start, u64 last,
-> +                            int ref)
-
-We don't want to export this symbol, so let's make the function
-static, so did other functions.
-
-> +{
-> +       struct interval_tree_node *new_node;
-> +       struct vdpa_tree_node *vdpa_node;
-> +
-> +       if (last < start)
-> +               return -EFAULT;
-> +
-> +       /* If the range being mapped is [0, ULONG_MAX], split it into two entries
-> +        * otherwise its size would overflow u64.
-> +        */
-> +       if (start == 0 && last == ULONG_MAX) {
-> +               u64 mid = last / 2;
-> +
-> +               vhost_vdpa_add_range_ctx(root, start, mid, ref);
-> +               start = mid + 1;
-> +       }
-> +       vdpa_node = kmalloc(sizeof(struct vdpa_tree_node), GFP_ATOMIC);
-> +
-
-Let's check if kmalloc succeeds here.
-
-
-> +       new_node = &vdpa_node->tree_node;
-> +       if (!new_node)
-> +               return -ENOMEM;
-> +
-> +       new_node->start = start;
-> +       new_node->last = last;
-> +       vdpa_node->ref = ref;
-> +
-> +       interval_tree_insert(new_node, root);
-> +
-> +       return 0;
-> +}
-> +
-> +u64 vhost_vdpa_range_ref_add(struct rb_root_cached *root,
-> +                            struct vdpa_link_node *link_head, int node_number,
-> +                            u64 start, u64 last)
-> +{
-> +       int i = 0;
-> +       u64 size = 0;
-> +       int new_ref;
-> +       u64 node_start;
-> +       u64 node_last;
-> +       u64 range_start;
-> +       u64 range_last;
-> +       int range_size;
-> +       struct vdpa_link_node *link_node;
-> +       struct vdpa_tree_node *vdpa_node = NULL;
-> +       struct interval_tree_node *node = NULL;
-> +
-> +       if (node_number == 0) {
-> +               vhost_vdpa_add_range_ctx(root, start, last, 1);
-> +
-> +               size = last - start + 1;
-> +               return size;
-> +       }
-> +
-> +       link_node = link_head;
-> +       range_start = start;
-> +       range_last = last;
-> +       range_size = range_start - range_last;
-> +       for (i = 0; i < node_number; i++) {
-> +               vdpa_node = link_node->vdpa_node;
-> +               link_node = link_node->next;
-> +               node = &vdpa_node->tree_node;
-> +               new_ref = vdpa_node->ref;
-> +               node_start = node->start;
-> +               node_last = node->last;
-> +
-> +               if (range_start == node_start) {
-> +                       if (node_last < range_last) {
-> +                               /* range_start= node->start--- node->last--range_last*/
-> +                               vhost_vdpa_add_range_ctx(root, node_start,
-> +                                                        node_last,
-> +                                                        new_ref + 1);
-> +                               /*count the next range */
-> +                       } else if (node_last > range_last) {
-> +                               /* range_start= node->start     ---  last --  node->last*/
-> +                               vhost_vdpa_add_range_ctx(root, node_start,
-> +                                                        range_last,
-> +                                                        new_ref + 1);
-> +                               vhost_vdpa_add_range_ctx(root, range_last + 1,
-> +                                                        node_last, new_ref);
-> +                       } else {
-> +                               vhost_vdpa_add_range_ctx(root, node_start,
-> +                                                        node_last,
-> +                                                        new_ref + 1);
-> +                       }
-> +               } else if (node_start < range_start) {
-> +                       if (range_last < node_last) {
-> +                               /* node->start---  start--- last--- node->last*/
-> +                               /* should the end rang*/
-> +
-> +                               vhost_vdpa_add_range_ctx(root, node_start,
-> +                                                        range_start - 1,
-> +                                                        new_ref);
-> +                               vhost_vdpa_add_range_ctx(root, range_start,
-> +                                                        range_last,
-> +                                                        new_ref + 1);
-> +                               vhost_vdpa_add_range_ctx(root, range_last + 1,
-> +                                                        node_last, new_ref);
-> +
-> +                       } else if (range_last > node_last) {
-> +                               /* node->start---  start--- node->last-- last*/
-> +
-> +                               vhost_vdpa_add_range_ctx(root, node_start,
-> +                                                        range_start - 1,
-> +                                                        new_ref);
-> +                               vhost_vdpa_add_range_ctx(root, range_start,
-> +                                                        node_last,
-> +                                                        new_ref + 1);
-> +                       } else {
-> +                               /* node->start---  start--- node->last= last*/
-> +                               vhost_vdpa_add_range_ctx(root, node_start,
-> +                                                        range_start - 1,
-> +                                                        new_ref);
-> +                               vhost_vdpa_add_range_ctx(root, range_start,
-> +                                                        node_last,
-> +                                                        new_ref + 1);
-> +                               /* should the end rang*/
-> +                       }
-> +               } else {
-> +                       if (node_last < range_last) {
-> +                               /* range_start --- node->start --- node->last ----last  */
-> +
-> +                               vhost_vdpa_add_range_ctx(root, range_start,
-> +                                                        node_start - 1, 1);
-> +                               vhost_vdpa_add_range_ctx(root, node_start,
-> +                                                        node_last,
-> +                                                        new_ref + 1);
-> +                               size += ((node_start - 1) - range_start) + 1;
-> +                       } else if (node_last > range_last) {
-> +                               /* range_start--- node->start   ---  last --  node->last        */
-> +                               vhost_vdpa_add_range_ctx(root, range_start,
-> +                                                        node_start - 1, 1);
-> +                               vhost_vdpa_add_range_ctx(root, node_start,
-> +                                                        range_last,
-> +                                                        new_ref + 1);
-> +                               vhost_vdpa_add_range_ctx(root, range_last + 1,
-> +                                                        node_last, new_ref);
-> +                               size += ((node_start - 1) - range_start) + 1;
-> +
-> +                               /* should the end rang*/
-> +                       } else {
-> +                               /* range_start--- node->start   ---  last =  node->last */
-> +                               vhost_vdpa_add_range_ctx(root, range_start,
-> +                                                        node_start - 1, 1);
-> +                               vhost_vdpa_add_range_ctx(root, node_start,
-> +                                                        node_last,
-> +                                                        new_ref + 1);
-> +                               size += ((node_start - 1) - range_start) + 1;
-> +
-> +                               /* should the end rang*/
-> +                       }
-> +               }
-> +               /* work in next node*/
-> +               range_start = node_last + 1;
-> +               if (range_start > range_last)
-> +                       break;
-> +       }
-> +
-> +       range_size = range_last - range_start;
-> +
-> +       /* last round and still some range*/
-> +
-> +       if ((range_size >= 0) && (range_start >= node_last) &&
-> +           (node_number == i + 1)) {
-> +               vhost_vdpa_add_range_ctx(root, range_start, range_last, 1);
-> +               size = size + (range_last - range_start) + 1;
-> +       } else if ((range_size == -1) && (node_number == i + 1)) {
-> +               return size;
-> +       } else {
-> +               printk(KERN_WARNING,
-> +                      "%s %d FAIL start %lld last %lld node->start %lld  node->last %lld i  %d",
-> +                      __func__, __LINE__, range_start, range_last, node_start,
-> +                      node_last, i);
-> +       }
-> +
-> +       return size;
-> +}
-> +
-> +u64 vhost_vdpa_range_ref_del(struct rb_root_cached *root,
-> +                            struct vdpa_link_node *link_head, int node_number,
-> +                            u64 start, u64 last)
-> +{
-> +       int i = 0;
-> +       u64 size = 0;
-> +       int new_ref;
-> +       u64 node_start;
-> +       u64 node_last;
-> +       u64 range_start;
-> +       u64 range_last;
-> +       int range_size;
-> +       struct vdpa_link_node *link_node;
-> +       struct vdpa_tree_node *vdpa_node = NULL;
-> +       struct interval_tree_node *node = NULL;
-> +
-> +       if (node_number == 0)
-> +               return 0;
-> +
-> +       link_node = link_head;
-> +       range_start = start;
-> +       range_last = last;
-> +
-> +       for (i = 0; i < node_number; i++) {
-> +               vdpa_node = link_node->vdpa_node;
-> +               link_node = link_node->next;
-> +               node = &vdpa_node->tree_node;
-> +               new_ref = vdpa_node->ref;
-> +               node_start = node->start;
-> +               node_last = node->last;
-> +
-> +               if (range_start == node_start) {
-> +                       if (node_last < range_last) {
-> +                               /* range_start =node->start --- node->last ----last*/
-
-The comment needs some tweaking to be understood by the reviewers easily.
-
-
-> +                               if (new_ref > 1) {
-> +                                       vhost_vdpa_add_range_ctx(root,
-> +                                                                node_start,
-> +                                                                node_last,
-> +                                                                new_ref - 1);
-> +                                       /*count the next range */
-> +                               } else {
-> +                                       /* if the ref =0, do not need add it back, count size*/
-> +                                       size += (node_last - node_start) + 1;
-> +                               }
-> +
-> +                       } else if (node_last > range_last) {
-> +                               /* range_start= node->start     ---  last --  node->last*/
-> +
-> +                               if (new_ref > 1) {
-> +                                       vhost_vdpa_add_range_ctx(root,
-> +                                                                node_start,
-> +                                                                range_last,
-> +                                                                new_ref - 1);
-> +                               } else {
-> +                                       size += (range_last - node_start) + 1;
-> +                               }
-> +                               vhost_vdpa_add_range_ctx(root, range_last + 1,
-> +                                                        node_last, new_ref);
-> +                       } else {
-> +                               /* range_start= node->start     ---  last = node->last*/
-> +
-> +                               if (new_ref > 1) {
-> +                                       vhost_vdpa_add_range_ctx(root,
-> +                                                                node_start,
-> +                                                                range_last,
-> +                                                                new_ref - 1);
-> +                               } else {
-> +                                       size += (range_last - node_start) + 1;
-> +                               }
-> +                               /* should be the end */
-> +                       }
-> +               } else if (node_start < range_start) {
-> +                       if (range_last < node_last) {
-> +                               /* node->start---  start--- last--- node->last*/
-> +                               /* should the end rang*/
-> +                               vhost_vdpa_add_range_ctx(root, node_start,
-> +                                                        range_start - 1,
-> +                                                        new_ref);
-> +                               if (new_ref > 1) {
-> +                                       vhost_vdpa_add_range_ctx(root,
-> +                                                                range_start,
-> +                                                                range_last,
-> +                                                                new_ref - 1);
-> +                               } else {
-> +                                       size += (range_last - range_start) + 1;
-> +                               }
-> +                               vhost_vdpa_add_range_ctx(root, range_last + 1,
-> +                                                        node_last, new_ref);
-> +
-> +                       } else if (range_last > node_last) {
-> +                               /* node->start---  start--- node->last--- last*/
-> +
-> +                               vhost_vdpa_add_range_ctx(root, node_start,
-> +                                                        range_start - 1,
-> +                                                        new_ref);
-> +                               if (new_ref > 1) {
-> +                                       vhost_vdpa_add_range_ctx(root,
-> +                                                                range_start,
-> +                                                                node_last,
-> +                                                                new_ref - 1);
-> +                               } else {
-> +                                       size += (node_last - range_start) + 1;
-> +                               }
-> +                       } else {
-> +                               /* node->start---  start--- node->last= last*/
-> +                               vhost_vdpa_add_range_ctx(root, node_start,
-> +                                                        range_start - 1,
-> +                                                        new_ref);
-> +                               if (new_ref > 1) {
-> +                                       vhost_vdpa_add_range_ctx(root,
-> +                                                                range_start,
-> +                                                                range_last,
-> +                                                                new_ref - 1);
-> +                               } else {
-> +                                       size += (range_last - range_start) + 1;
-> +                               }
-> +                               /* should be the end */
-> +                       }
-> +               } else {
-> +                       /* some range not in the node, error*/
-> +                       printk(KERN_WARNING,
-> +                              "%s %d FAIL  start %lld last %lld node->start %lld  node->last %lld new_ref %d",
-> +                              __func__, __LINE__, range_start, range_last,
-> +                              node_start, node_last, new_ref);
-> +               }
-> +
-> +               range_start = node_last + 1;
-> +               if (range_start > range_last)
-> +                       break;
-> +       }
-> +
-> +       range_size = range_last - range_start;
-> +
-> +       /* last round and still some range*/
-> +
-> +       if ((range_size > 0) && (node_number == i + 1)) {
-> +               printk(KERN_WARNING,
-> +                      "%s %d FAIL start %lld last %lld node->start %lld  node->last %lld range_size  %d",
-> +                      __func__, __LINE__, range_start, range_last, node_start,
-> +                      node_last, range_size);
-> +       }
-> +       return size;
-> +}
-> +
-> +struct vdpa_link_node *vhost_vdpa_merge_list(struct vdpa_link_node *list1,
-> +                                            struct vdpa_link_node *list2)
-> +{
-> +       struct vdpa_link_node dummy_head;
-> +       struct vdpa_link_node *ptr = &dummy_head;
-> +
-> +       while (list1 && list2) {
-> +               if (list1->node_start < list2->node_start) {
-> +                       ptr->next = list1;
-> +                       list1 = list1->next;
-> +               } else {
-> +                       ptr->next = list2;
-> +                       list2 = list2->next;
-> +               }
-> +               ptr = ptr->next;
-> +       }
-> +       if (list1)
-> +               ptr->next = list1;
-> +       else
-> +               ptr->next = list2;
-> +
-> +       return dummy_head.next;
-> +}
-> +
-> +struct vdpa_link_node *vhost_vdpa_get_mid(struct vdpa_link_node *head)
-> +{
-> +       struct vdpa_link_node *mid_prev = NULL;
-> +       struct vdpa_link_node *mid;
-> +
-> +       while (head && head->next) {
-> +               mid_prev = (mid_prev == NULL) ? head : mid_prev->next;
-> +               head = head->next->next;
-> +       }
-> +       mid = mid_prev->next;
-> +       mid_prev->next = NULL;
-> +       return mid;
-> +}
-> +struct vdpa_link_node *vhost_vdpa_sort_list(struct vdpa_link_node *head)
-> +{
-> +       struct vdpa_link_node *mid;
-> +       struct vdpa_link_node *left;
-> +       struct vdpa_link_node *right;
-> +
-> +       if (!head || !head->next)
-> +               return head;
-> +
-> +       mid = vhost_vdpa_get_mid(head);
-> +       left = vhost_vdpa_sort_list(head);
-> +       right = vhost_vdpa_sort_list(mid);
-> +       return vhost_vdpa_merge_list(left, right);
-> +}
-> +
-> +u64 vhost_vdpa_range_ops(struct rb_root_cached *root, u64 start, u64 last,
-> +                        bool ops)
-> +{
-> +       struct interval_tree_node *node = NULL;
-> +       struct vdpa_tree_node *vdpa_node;
-> +       int node_number = 0;
-> +       int i = 0;
-> +       u64 size = 0;
-> +       struct vdpa_link_node dummy_head = { 0 };
-> +       struct vdpa_link_node *link_node;
-> +       struct vdpa_link_node *link_head_tmp;
-> +       struct vdpa_link_node *pre_link_node;
-> +
-> +       pre_link_node = &dummy_head;
-> +       /*search the rang overlaped, and del from the tree*/
-> +       for (node = interval_tree_iter_first(root, start, last); node;
-> +            node = interval_tree_iter_next(node, start, last)) {
-> +               link_node = kmalloc(sizeof(struct vdpa_link_node), GFP_ATOMIC);
-> +               if (link_node == NULL) {
-> +                       goto out;
-> +               }
-> +               vdpa_node =
-> +                       container_of(node, struct vdpa_tree_node, tree_node);
-> +               link_node->vdpa_node = vdpa_node;
-> +               link_node->node_start = node->start;
-> +               link_node->node_last = node->last;
-> +
-> +               pre_link_node->next = link_node;
-> +               pre_link_node = link_node;
-> +               pre_link_node->next = NULL;
-> +
-> +               node_number++;
-> +
-> +               interval_tree_remove(node, root);
-> +       }
-> +       /* sorting the node */
-
-The code explains itself, let's explain why we need the sort.
-
-> +       link_head_tmp = vhost_vdpa_sort_list(dummy_head.next);
-> +
-> +       /* these link node are have overlap with range, check the ref and add back to the tree*/
-> +       if (ops == true) {
-> +               size = vhost_vdpa_range_ref_add(root, link_head_tmp,
-> +                                               node_number, start, last);
-> +       } else {
-> +               size = vhost_vdpa_range_ref_del(root, link_head_tmp,
-> +                                               node_number, start, last);
-> +       }
-> +out:
-> +       pre_link_node = link_head_tmp;
-> +
-> +       for (i = 0; i < node_number; i++) {
-> +               vdpa_node = pre_link_node->vdpa_node;
-> +               link_node = pre_link_node->next;
-> +               kfree(vdpa_node);
-> +               kfree(pre_link_node);
-> +               pre_link_node = link_node;
-> +       }
-> +       return size;
-> +}
-> +u64 vhost_vdpa_search_range_add(struct rb_root_cached *root, u64 start,
-> +                               u64 last)
-> +{
-> +       u64 size;
-> +
-> +       size = vhost_vdpa_range_ops(root, start, last, true);
-> +
-> +       return size;
-> +}
-> +
-> +u64 vhost_vdpa_search_range_del(struct rb_root_cached *root, u64 start,
-> +                               u64 last)
-> +{
-> +       u64 size;
-> +
-> +       size = vhost_vdpa_range_ops(root, start, last, false);
-> +
-> +       return size;
-> +}
-> +
->  static void vhost_vdpa_pa_unmap(struct vhost_vdpa *v, u64 start, u64 last)
->  {
->         struct vhost_dev *dev = &v->vdev;
->         struct vhost_iotlb *iotlb = dev->iotlb;
->         struct vhost_iotlb_map *map;
->         struct page *page;
-> +       u64 size;
->         unsigned long pfn, pinned;
->
->         while ((map = vhost_iotlb_itree_first(iotlb, start, last)) != NULL) {
-> @@ -523,7 +993,11 @@ static void vhost_vdpa_pa_unmap(struct vhost_vdpa *v, u64 start, u64 last)
->                                 set_page_dirty_lock(page);
->                         unpin_user_page(page);
->                 }
-> -               atomic64_sub(PFN_DOWN(map->size), &dev->mm->pinned_vm);
-> +
-> +               size = vhost_vdpa_search_range_del(dev->vdpa_mem_tree,
-> +                                                  map->start,
-> +                                                  map->start + map->size - 1);
-> +               atomic64_sub(PFN_DOWN(size), &dev->mm->pinned_vm);
->                 vhost_iotlb_map_free(iotlb, map);
->         }
->  }
-> @@ -591,6 +1065,7 @@ static int vhost_vdpa_map(struct vhost_vdpa *v, u64 iova,
->         struct vdpa_device *vdpa = v->vdpa;
->         const struct vdpa_config_ops *ops = vdpa->config;
->         int r = 0;
-> +       u64 size_count;
->
->         r = vhost_iotlb_add_range_ctx(dev->iotlb, iova, iova + size - 1,
->                                       pa, perm, opaque);
-> @@ -610,9 +1085,11 @@ static int vhost_vdpa_map(struct vhost_vdpa *v, u64 iova,
->                 vhost_iotlb_del_range(dev->iotlb, iova, iova + size - 1);
->                 return r;
->         }
-> -
-> -       if (!vdpa->use_va)
-> -               atomic64_add(PFN_DOWN(size), &dev->mm->pinned_vm);
-> +       if (!vdpa->use_va) {
-> +               size_count = vhost_vdpa_search_range_add(dev->vdpa_mem_tree,
-> +                                                        iova, iova + size - 1);
-> +               atomic64_add(PFN_DOWN(size_count), &dev->mm->pinned_vm);
-> +       }
->
->         return 0;
->  }
-> @@ -946,6 +1423,58 @@ static void vhost_vdpa_set_iova_range(struct vhost_vdpa *v)
->         }
->  }
->
-> +struct root_for_vdpa_node {
-> +       struct hlist_node hlist;
-> +       struct rb_root_cached vdpa_mem_tree;
-> +       pid_t pid_using;
-> +};
-> +static DECLARE_HASHTABLE(root_for_vdpa_node_list, 8);
-> +int status_for_vdpa_tree = 0;
-> +
-> +struct root_for_vdpa_node *vhost_vdpa_get_mem_tree(struct task_struct *task)
-> +{
-
-Any reason we get the tree via task_struct instead of mm_struct?
-
-> +       struct root_for_vdpa_node *root_get_tmp = NULL;
-> +       pid_t pid_using = task_pid_nr(task);
-> +
-> +       /* No hased table, init one */
-> +       if (status_for_vdpa_tree == 0) {
-> +               hash_init(root_for_vdpa_node_list);
-> +               status_for_vdpa_tree = 1;
-> +       }
-> +
-> +       hash_for_each_possible (root_for_vdpa_node_list, root_get_tmp, hlist,
-> +                               pid_using) {
-> +               if (root_get_tmp->pid_using == pid_using)
-> +                       return root_get_tmp;
-> +       }
-> +
-> +       root_get_tmp = kmalloc(sizeof(*root_get_tmp), GFP_KERNEL);
-> +       root_get_tmp->pid_using = pid_using;
-> +
-> +       root_get_tmp->vdpa_mem_tree = RB_ROOT_CACHED;
-> +
-> +       hash_add(root_for_vdpa_node_list, &root_get_tmp->hlist,
-> +                root_get_tmp->pid_using);
-> +
-> +       return root_get_tmp;
-> +}
-> +
-> +void vhost_vdpa_relase_mem_tree(struct task_struct *task)
-> +{
-> +       struct root_for_vdpa_node *root_get_tmp = NULL;
-> +       pid_t pid_using = task_pid_nr(task);
-> +
-> +       /* No hased table, init one */
-> +       hash_for_each_possible (root_for_vdpa_node_list, root_get_tmp, hlist,
-> +                               pid_using) {
-> +               if (root_get_tmp->pid_using == pid_using)
-> +                       kfree(root_get_tmp);
-> +               return;
-> +       }
-> +
-> +       return;
-> +}
-> +
->  static int vhost_vdpa_open(struct inode *inode, struct file *filep)
->  {
->         struct vhost_vdpa *v;
-> @@ -991,10 +1520,13 @@ static int vhost_vdpa_open(struct inode *inode, struct file *filep)
->         vhost_vdpa_set_iova_range(v);
->
->         filep->private_data = v;
-> +       struct root_for_vdpa_node *tmp = vhost_vdpa_get_mem_tree(current);
-
-This looks wrong, the mapping contains VA so it is bound to the owner.
-This means
-
-1) Need to get and put the accounting tree via mm_struct in set_owner
-2) Need to release all mappings during reset owner
-
-Thanks
-
-> +       dev->vdpa_mem_tree = &tmp->vdpa_mem_tree;
->
->         return 0;
->
->  err_init_iotlb:
-> +       vhost_vdpa_relase_mem_tree(current);
->         vhost_dev_cleanup(&v->vdev);
->         kfree(vqs);
->  err:
-> @@ -1016,6 +1548,8 @@ static int vhost_vdpa_release(struct inode *inode, struct file *filep)
->         struct vhost_dev *d = &v->vdev;
->
->         mutex_lock(&d->mutex);
-> +       vhost_vdpa_relase_mem_tree(current);
-> +
->         filep->private_data = NULL;
->         vhost_vdpa_clean_irq(v);
->         vhost_vdpa_reset(v);
-> diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-> index 638bb640d6b4..d1c662eb4f26 100644
-> --- a/drivers/vhost/vhost.h
-> +++ b/drivers/vhost/vhost.h
-> @@ -161,6 +161,7 @@ struct vhost_dev {
->         int byte_weight;
->         u64 kcov_handle;
->         bool use_worker;
-> +       struct rb_root_cached *vdpa_mem_tree;
->         int (*msg_handler)(struct vhost_dev *dev,
->                            struct vhost_iotlb_msg *msg);
->  };
-> --
-> 2.34.3
->
+David / dhildenb
 
 _______________________________________________
 Virtualization mailing list
