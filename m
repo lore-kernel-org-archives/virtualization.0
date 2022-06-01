@@ -4,113 +4,174 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 03059C433EF
-	for <virtualization@archiver.kernel.org>; Wed,  1 Jun 2022 11:04:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0C349C433EF
+	for <virtualization@archiver.kernel.org>; Wed,  1 Jun 2022 18:58:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 7A73683148;
-	Wed,  1 Jun 2022 11:04:02 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 9FF7982F19;
+	Wed,  1 Jun 2022 18:58:57 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id liz6F_LHRmWv; Wed,  1 Jun 2022 11:04:01 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 1BC8C83145;
-	Wed,  1 Jun 2022 11:04:01 +0000 (UTC)
+	with ESMTP id Il0kdueCaFJD; Wed,  1 Jun 2022 18:58:56 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 5312A82EB5;
+	Wed,  1 Jun 2022 18:58:56 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E822AC0039;
-	Wed,  1 Jun 2022 11:04:00 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id CE377C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3156EC0032;
+	Wed,  1 Jun 2022 18:58:56 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3CD0EC002D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Jun 2022 11:03:59 +0000 (UTC)
+ Wed,  1 Jun 2022 18:58:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id BA85240AA1
+ by smtp4.osuosl.org (Postfix) with ESMTP id 14ECC4168E
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Jun 2022 11:03:59 +0000 (UTC)
+ Wed,  1 Jun 2022 18:58:55 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id VHQHCoPAaTum
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=nvidia.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 4UQoart3OE1Y
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Jun 2022 11:03:58 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 7A85040530
+ Wed,  1 Jun 2022 18:58:53 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from NAM12-BN8-obe.outbound.protection.outlook.com
+ (mail-bn8nam12on2060d.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:fe5b::60d])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 58EA641686
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Jun 2022 11:03:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1654081437;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=Tgtl50+cOg4p6sNpA44wE53+ToNHu8zqxjdgIaqTCDg=;
- b=KJrj5FW2RXPCJAq4+3QdbEBw5gCI/Q7id2HOQ8cvmQpEJ5KTHqjEj+74oZODnZB3FLwF6x
- lEY1Pn7y9LVZ/1rG6CotSiQjfkUzVFQoXgTUo1H3CMUaRu3wxb2YnKGTny4qM90le4wUD0
- zKrlV4C7fEnVVqXpqhQCryfm9qLNG8g=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-628-5Jfg6kpBN9y0vYHOaXOgkw-1; Wed, 01 Jun 2022 07:03:54 -0400
-X-MC-Unique: 5Jfg6kpBN9y0vYHOaXOgkw-1
-Received: by mail-wr1-f70.google.com with SMTP id
- n3-20020a5d5983000000b0021021e3036eso228561wri.19
- for <virtualization@lists.linux-foundation.org>;
- Wed, 01 Jun 2022 04:03:53 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:content-transfer-encoding
- :in-reply-to;
- bh=Tgtl50+cOg4p6sNpA44wE53+ToNHu8zqxjdgIaqTCDg=;
- b=Uolt8vUIzJJj3rnMn4ujXZKqsSp+M06P/YfMJeERTWpFXVyDq64HNuN3nQ6NymnyDc
- kQnvZutjOMMrPABB/HKVF2MYVqT9MaKpX7zn42DMy77dI3B5tZIxnw6gruqbYfmCGIBc
- BxSNTY/AwPFRChZBPTAr8Y4zZ3GWyYQPj9ybM6GU0aVgXnAonERI4W7msKRzqfkTnyY+
- tkP4gLzpvsWPAXEeOeRR759Zc3QFwXlsU6lMCksJapcqXA0hOFatL6JcRdsUXWl/N9yQ
- zcUmfeO2m/OCPXU79niGjhukv9pGoe9BxHFzFxVtG+FAh25WgK1MNR1DNZxO6FFR7nvm
- Cvzw==
-X-Gm-Message-State: AOAM532OhzdD0nJOBL8lKnU6gkREj6nJYw1p9uziezgo3wfqtVzA81z8
- WrevfaMk1TpWtlY7cIoVjvpa4pypOpDOm4mGeJKIheXzWH+ZV289gwE9KY5QnnOKcE6JIPbCFfm
- eSpFe+laatfu96hZVHoh2uT15au0fNiAuHsJMajmQZQ==
-X-Received: by 2002:a5d:5145:0:b0:210:55c:4790 with SMTP id
- u5-20020a5d5145000000b00210055c4790mr26849899wrt.714.1654081432924; 
- Wed, 01 Jun 2022 04:03:52 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzgKD3kkMJ5yY3Qc/mDpdOAlutZgyiyXLasWfkgGa3quLXJOeNWzJU9s8z4oSyg2SRWcOUapA==
-X-Received: by 2002:a5d:5145:0:b0:210:55c:4790 with SMTP id
- u5-20020a5d5145000000b00210055c4790mr26849873wrt.714.1654081432646; 
- Wed, 01 Jun 2022 04:03:52 -0700 (PDT)
-Received: from redhat.com ([2.52.157.68]) by smtp.gmail.com with ESMTPSA id
- q15-20020adff50f000000b002102e6b757csm1518657wro.90.2022.06.01.04.03.47
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 01 Jun 2022 04:03:51 -0700 (PDT)
-Date: Wed, 1 Jun 2022 07:03:44 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>
-Subject: Re: [PATCH v4 3/4] vhost-vdpa: uAPI to stop the device
-Message-ID: <20220601070303-mutt-send-email-mst@kernel.org>
+ Wed,  1 Jun 2022 18:58:53 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=gKOJoPC5XHOME4J8+S+w8DzoDchE8ZCsM4U50xd7JFYlgLpp2H2/YjHoNNY4vxK9/crvgtZ0gsZX5594GXCLqJ/M8V80PFBH5JV1rp/inLVGTJvTQe5a2D9CrnNJJAomZ1hsyl6WENPv5p1T+F9pG/uQjJtj9YXkcxWTXMT4c1sic+kD0Ii6Q0ee79MVzsP0qrUsrXe1GgkbK8yFKHZIoIPZCAPUmMmAHj++9cpapoHkitk9panPbghUi2jtMwY5gXPzG+qoDMoGd0hVWV5EL0HnzyvfGp0M8s+x6KyzvYeKoIGKCwofsxNzAAQFiOkl9NTM3Mg4oCcd7sRLeStuoQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=Hn60ivQJmJV+bG6M13r5JDBfKGyc96V3puCHuVeolJw=;
+ b=nuRgLLW8Te6G+Ve202W3CFvTQFcqLuOwegj99I4nBJ/KNtxVI1RmOONib1lI15nmKDQ4CfAhDvAPasjKSIQEnPjschICyYH2oZV/6Rf20ti5LP1Zih9FzKadKVAfJ6Y9bOLJpo4LxyQQjyvsH9JuAfDxkHff2B2upZr06Xk/XJ4Ac5I+2bd7pS0oZrT/GAISPbFUHs4QJzMK+3xsDJyFdq8IhmVta50ygIG+lgSTEKtsomSE92DjYUwPGIpw4vUrFrS9uECbbxAe4Ua3EnBpayZJnLe7POo5RYRXEI5G0IVJ0rC8c5bjO3VRudsEBAxPoUExoJzoMXL/GFqGWSiBdg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Hn60ivQJmJV+bG6M13r5JDBfKGyc96V3puCHuVeolJw=;
+ b=oD1Fxv94RMEAeBcImSlGOcmmZgRlqKd8sKJpoTQowxX0wn/GG+cYqhTzNwALTowFaS08eKLPgC1kdYYGjsyqgHZaU5fTd1yCPFc4nJ6sWZuCXYDVdQOYuUb6QE6njHhXe/NSPdq/413bp7bOPsQObnwwtpz05x2Fmr5NTgDyBJz65TGkQIqlWyuLk21771YOOd0O3dQAutEC5q+fnX+bqOghhs4a2bZQE56bGPzecoviT3y1AOLARxgmfRhv7DPgitkykqcwZ7HK1aM7lAT2ojhDiO35NCUknVlnqYzOHnqabkRxBTrkciWgGRxqdjcUv5qrMH/GBHkgHaakIxmw3w==
+Received: from PH0PR12MB5481.namprd12.prod.outlook.com (2603:10b6:510:d4::15)
+ by BL1PR12MB5320.namprd12.prod.outlook.com (2603:10b6:208:314::17)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5314.12; Wed, 1 Jun
+ 2022 18:58:50 +0000
+Received: from PH0PR12MB5481.namprd12.prod.outlook.com
+ ([fe80::489d:7d33:3194:b854]) by PH0PR12MB5481.namprd12.prod.outlook.com
+ ([fe80::489d:7d33:3194:b854%3]) with mapi id 15.20.5314.013; Wed, 1 Jun 2022
+ 18:58:50 +0000
+To: Jason Wang <jasowang@redhat.com>
+Subject: RE: [PATCH v4 0/4] Implement vdpasim stop operation
+Thread-Topic: [PATCH v4 0/4] Implement vdpasim stop operation
+Thread-Index: AQHYcP5BrBz66eonZEeOxjwIzt98aa0xHKkwgAFx+gCABD0SgIACqRJggABroACAAQ+R4A==
+Date: Wed, 1 Jun 2022 18:58:50 +0000
+Message-ID: <PH0PR12MB5481CAA3F57892FF7F05B004DCDF9@PH0PR12MB5481.namprd12.prod.outlook.com>
 References: <20220526124338.36247-1-eperezma@redhat.com>
- <20220526124338.36247-4-eperezma@redhat.com>
+ <PH0PR12MB54819C6C6DAF6572AEADC1AEDCD99@PH0PR12MB5481.namprd12.prod.outlook.com>
+ <20220527065442-mutt-send-email-mst@kernel.org>
+ <CACGkMEubfv_OJOsJ_ROgei41Qx4mPO0Xz8rMVnO8aPFiEqr8rA@mail.gmail.com>
+ <PH0PR12MB5481695930E7548BAAF1B0D9DCDC9@PH0PR12MB5481.namprd12.prod.outlook.com>
+ <CACGkMEsSKF_MyLgFdzVROptS3PCcp1y865znLWgnzq9L7CpFVQ@mail.gmail.com>
+In-Reply-To: <CACGkMEsSKF_MyLgFdzVROptS3PCcp1y865znLWgnzq9L7CpFVQ@mail.gmail.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: b4a25959-63de-4510-5b56-08da4400c3d8
+x-ms-traffictypediagnostic: BL1PR12MB5320:EE_
+x-microsoft-antispam-prvs: <BL1PR12MB5320CBC9DCF23529BAC7464DDCDF9@BL1PR12MB5320.namprd12.prod.outlook.com>
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: dCn49QPxbJdYjTfpHLo7/hc4GbiHsZlpD2bHK21G2nh352KrTUKnlLqq6P6aEXoG/3hrT5+GYSUcurFmFvjNHEFZSD11qlPRfwi1J2FjNWcE0ZYN94hCu+sLpFx3BFMFrb52DOu1cLsXSS/UW8LgzxsIijPCjbTAGUlwEXInnf54TUWJtkI8YnftCPxv+P0ObkgcBIXzqZIdIXiIJHmUp9+oHWfHzRBMN2eEV75DorSDQD7hGFwkDTWdOoFk5ITzdp6Hmx+GHkEbZdBEfju66Mq8W2cXJnsS1VDg/wilPrZQFHjrxVMciR3hdJnfSz3BhloC7UbaD84T1ho1Ls3B3f2RBu/NXnlBu3X6hvcZwTxmG7rg7hTyhmSI31vpsKLTzqQHxukym8N2lzG5tzw30sc47H7fz+r8lZWZkJaEqY6pDYtD5N7ltQIdyW7G6sajGRul1QEuzdXVLBEbiBuhL0UlCpSLgZtyQ/iI1g1GFB1PnZiXWPxe4i8Ki8G9E+mOcg6Qq3Wl1Ob4SuMcfY114cCr38E4s1QpZnAKw52LMZBSmg30kKhn58LqioMXVYMlyFNC2rBg0SeHwIMeU4nxECvY76anNePXLu2m7xAZH2fCzjQli+8lf9fo3paQKmJ6B+jhZJy0gzhVQBycJvfjV1NQeVX454HqCjRjBV0UosHv4AEu/3pltnZDN4CGJhSmpakxigEFs3NWWeJUdjbwRYufdxyJpocnWoRSwJdWvcvqPnWxibMkcJnIrMqKNRxU+YEEiJt4pIvoVrKhEODoR6N0KkJ1hpsoNe57jKIsrxs=
+x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:PH0PR12MB5481.namprd12.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230001)(4636009)(366004)(7696005)(86362001)(6506007)(38070700005)(52536014)(2906002)(54906003)(316002)(8676002)(4326008)(38100700002)(66556008)(66476007)(76116006)(66446008)(6916009)(66946007)(64756008)(7416002)(55016003)(71200400001)(4744005)(186003)(83380400001)(9686003)(966005)(122000001)(5660300002)(508600001)(33656002)(8936002);
+ DIR:OUT; SFP:1101; 
+x-ms-exchange-antispam-messagedata-chunkcount: 2
+x-ms-exchange-antispam-messagedata-0: =?utf-8?B?WmFPYWpDeU9ERkk0ZlBFTjRsMnJGVG0vNTI0MWNaMnNCWkVHOHpSWUkyWWJz?=
+ =?utf-8?B?ek5QM2hBRW8rOXN1QlhSY0FpOG1RS3Z2ZWtGVkFZbENhYnNvMDBqZmNJTnkr?=
+ =?utf-8?B?VmdnV0o3K2UrNEdjYWdHZDJEVGpiY1VocEFnYWZON1pLaGYzM3pzYm1HTDJn?=
+ =?utf-8?B?S0NNa3lnVWE5ellHNWNZSFo4VDhrSVZKK3FJN0FlbG1xaTNWZHpXbDRQR0dB?=
+ =?utf-8?B?a3hOM1hYaUNuZUJ6Y0trN2NRclRnUGQzbDc5azhReDA0ckhHMVErNithU3Ra?=
+ =?utf-8?B?VGFpblJFYXhYK2pLNkE2VTh3cTFGbGxqSE10ekpxOFJXM3ZycXVsS1BUR1N6?=
+ =?utf-8?B?dWZCWGZrbi9neTRYcEtTUEMxRUtxQlZOaFc4Vlpaa0RQdkZ6Z0QzOERNOVpk?=
+ =?utf-8?B?bDJuL2M1Vk9sY0J2K2JTUWFtL3NQcHkzR2kzaVpRUXNxcnA1ZEVEUDY2YzRw?=
+ =?utf-8?B?cGFHa1ZIVEFncENnMElNY25YTFhnSkp6SXNxQ2Q1UVRiUVN5UXJEZmlra09l?=
+ =?utf-8?B?S3RtVlYzRkJ3MlpPQURlRHpmQWtGYzBKaWhNSjdwSTdINFFDRW1Eb002UlVt?=
+ =?utf-8?B?ZEZ0SUdJVHhaYTJsM3lWcG9RYXJEcVN1cjE2ajl6OGhKRmhlVmxlNUptM0Vr?=
+ =?utf-8?B?U3k5L1RHcXlKeDArVWhFQ2lrQUNsZjFKZDcxTXpmaHhPenpYOTV0MWlqdXRD?=
+ =?utf-8?B?ZzBReXBCSThDNU5Zc1ZFV3V2NlltRE1nVDZKMnZGT0JoUjVEcVhHeHE4SUJt?=
+ =?utf-8?B?dFg2ZEh3VE5VZ3AxbEhYelorTURzeTBrbDVXMnY5Z0lQK3gvaUt5N2RHaS9H?=
+ =?utf-8?B?aVNMcXk0WGhhWUpUQmNGeEhFTzEvL3UxRVRVOEU4T1JURzh2Z05EWHlselFZ?=
+ =?utf-8?B?Q0VrZGVpNnYyaXMvODZEU2JrYjFDU2wxR0tabXFiV2xnMzlsNG5nWmtCYlZw?=
+ =?utf-8?B?dUtDajNLZEtEbU9UYXRCRzkySmxWRHJHL3p5ZkU5T2ZnczZ1V2ZhWFRrUHNY?=
+ =?utf-8?B?MzJSaTB2S0UzN0pBekJOeDBRRVhLa2NsVmpZQjNmSTQvbVNlUDNvMGFOdVdY?=
+ =?utf-8?B?aUdLRTlFeTZ1K0EvaGN6dk1wNFY4Qk9CTmNEZnJxc1RiTE9uYVdGUmYyN0k5?=
+ =?utf-8?B?UFUzRTFia2xHcDkvT3MxNEdyMnBZcjlXSnBBV1pDU2x5YnlHWFNQelVPV2FB?=
+ =?utf-8?B?bkR2OWF1bGVPSys2RkNPb21rQndKbGR1T1IxK1JtT1VvSE5ZQUFmV0JGbHZt?=
+ =?utf-8?B?bFJKZm1LV1hFalBHTStyV2dISDU5bm02R2VRc3dkRXh2M0NiU0NaeEJYVG1W?=
+ =?utf-8?B?cC9Mb1lCY2xmZU1rR0tYNzBIS2NiZDc2ZmNSY3FqanhuaDZKdUc0OW1uemx3?=
+ =?utf-8?B?T0QvNWpZdXZsQjlTWWxTUGhPdkpPNFhUK2ZwM3BIOS9hWXE0b2ovQVZkY0Ji?=
+ =?utf-8?B?RUl5cXNacElNdnR4ME1VNnMremZmaEhLR0ZqemdHTHRFcWJGY3FvdDlpR2VU?=
+ =?utf-8?B?YWYwV1RURGNOMGJqRXZoY3drRnpDeVRYVVh3WHhlaGRsc0lTb0FPQVg5VjQ4?=
+ =?utf-8?B?RmxPK2t5V3lLd0ROZU1ldmxJVWRRU080TXMxUVJsM1NCVzlrVmgrajdwWlRK?=
+ =?utf-8?B?MnlKdjdFeUNRdnA5d3ZkNlJTU3hma0w1Q2hOL1NyV1hGYVZxdzN0c2xZM1pr?=
+ =?utf-8?B?OEk0VWhWS1p2UEM5T0x0NFRxV2lLdVJmS01OS3RSVkJ2ZmpwUmw5dXFwSC9H?=
+ =?utf-8?B?ZGlsanJLK1BMdHdPUEMxTnl2SjFrN1BNMElGK0ZsME5XSWEwcm9hRXpTcC9y?=
+ =?utf-8?B?TW9TMTVUejRVeFp5UjBHYUN5UTZXWFllSDVKYTRDeEhrWHRxSWhTdWh1c0Fp?=
+ =?utf-8?B?ck1TbXpGMG9BRXBiWXV5RTJweXR2eDFoNHlVbFBYTWZrdlhyQnIyeVU1dkMz?=
+ =?utf-8?B?Qks1aVlFbjVQUGRtTnQ3SlZaWXRIR0YzL0d1UWsrUlp3ZnpBYTh2bDVWaCtD?=
+ =?utf-8?B?UDY1ZzF1TlRlekVWRXhOUjVrdlJkTFdHZGJ5NW9PTFZCUVE0bVlyNVZaNmdC?=
+ =?utf-8?B?VW8rL1NBRUJYOWNlbTg2b281cWlOMHRSK3pvclNlWERRcHQyYVE0eVNsUWFL?=
+ =?utf-8?B?bXVaMnp3ay9XMUVtMzlNOFlNUmo2K0JvQm1jYnJCUC91cWlFaVNLTE9BdXBj?=
+ =?utf-8?B?WnNZRTVFMko4N0M4bDNOQUl5K3V1VXVkT3pSVU5qMlUxM3Z6US9mcjNvbVZu?=
+ =?utf-8?B?a2c1SnQwZ1Baa0MzU2U0M0h5SXhsN0VpZEVTZzM0UFFrdU5Tcks5aWhXNEFm?=
+ =?utf-8?B?L0lMbFkwVUFmUlExRVNUNmQ1RDFiNEkzellMV2lxZy9wQmFGT1hvM0c3ZkJo?=
+ =?utf-8?Q?tVxN/wPsS1gaBv+MKGvT99QIt9C99mWFJ3wWSyLITVZYM?=
+x-ms-exchange-antispam-messagedata-1: kLLLBaaw3QEQ1g==
 MIME-Version: 1.0
-In-Reply-To: <20220526124338.36247-4-eperezma@redhat.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: tanuj.kamde@amd.com, kvm@vger.kernel.org,
- virtualization@lists.linux-foundation.org,
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB5481.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: b4a25959-63de-4510-5b56-08da4400c3d8
+X-MS-Exchange-CrossTenant-originalarrivaltime: 01 Jun 2022 18:58:50.2146 (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: DMYXAQdqACFd3kqWqB0gg32nP960djVcPVEf12O6ZC9YdPk0vIZYRQDYpXV4rv8g+ERBwWqm2+o4FLFo09K+Bw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5320
+Cc: "tanuj.kamde@amd.com" <tanuj.kamde@amd.com>,
+ "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
  Wu Zongyong <wuzongyong@linux.alibaba.com>, Si-Wei Liu <si-wei.liu@oracle.com>,
- pabloc@xilinx.com, Eli Cohen <elic@nvidia.com>,
- Zhang Min <zhang.min9@zte.com.cn>, lulu@redhat.com, Piotr.Uminski@intel.com,
- martinh@xilinx.com, Xie Yongji <xieyongji@bytedance.com>, dinang@xilinx.com,
- habetsm.xilinx@gmail.com, Longpeng <longpeng2@huawei.com>,
- Dan Carpenter <dan.carpenter@oracle.com>, lvivier@redhat.com,
- Christophe JAILLET <christophe.jaillet@wanadoo.fr>, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, ecree.xilinx@gmail.com, hanand@xilinx.com,
- martinpo@xilinx.com, gautam.dawar@amd.com,
+ "pabloc@xilinx.com" <pabloc@xilinx.com>, Eli Cohen <elic@nvidia.com>,
+ Zhang Min <zhang.min9@zte.com.cn>, "lulu@redhat.com" <lulu@redhat.com>,
+ =?utf-8?B?RXVnZW5pbyBQw6lyZXo=?= <eperezma@redhat.com>,
+ "Piotr.Uminski@intel.com" <Piotr.Uminski@intel.com>,
+ "martinh@xilinx.com" <martinh@xilinx.com>,
+ Xie Yongji <xieyongji@bytedance.com>, "dinang@xilinx.com" <dinang@xilinx.com>,
+ "habetsm.xilinx@gmail.com" <habetsm.xilinx@gmail.com>,
+ Longpeng <longpeng2@huawei.com>, Dan Carpenter <dan.carpenter@oracle.com>,
+ "lvivier@redhat.com" <lvivier@redhat.com>,
+ Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+ "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ "ecree.xilinx@gmail.com" <ecree.xilinx@gmail.com>,
+ "hanand@xilinx.com" <hanand@xilinx.com>,
+ "martinpo@xilinx.com" <martinpo@xilinx.com>,
+ "gautam.dawar@amd.com" <gautam.dawar@amd.com>,
  Zhu Lingshan <lingshan.zhu@intel.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
@@ -123,98 +184,36 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+From: Parav Pandit via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Parav Pandit <parav@nvidia.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, May 26, 2022 at 02:43:37PM +0200, Eugenio P=E9rez wrote:
-> The ioctl adds support for stop the device from userspace.
-> =
 
-> Signed-off-by: Eugenio P=E9rez <eperezma@redhat.com>
-> ---
->  drivers/vhost/vdpa.c       | 18 ++++++++++++++++++
->  include/uapi/linux/vhost.h | 14 ++++++++++++++
->  2 files changed, 32 insertions(+)
-> =
+> From: Jason Wang <jasowang@redhat.com>
+> Sent: Tuesday, May 31, 2022 10:42 PM
+> 
+> Well, the ability to query the virtqueue state was proposed as another
+> feature (Eugenio, please correct me). This should be sufficient for making
+> virtio-net to be live migrated.
+> 
+The device is stopped, it won't answer to this special vq config done here.
+Programming all of these using cfg registers doesn't scale for on-chip memory and for the speed.
 
-> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-> index 32713db5831d..d1d19555c4b7 100644
-> --- a/drivers/vhost/vdpa.c
-> +++ b/drivers/vhost/vdpa.c
-> @@ -478,6 +478,21 @@ static long vhost_vdpa_get_vqs_count(struct vhost_vd=
-pa *v, u32 __user *argp)
->  	return 0;
->  }
->  =
+Next would be to program hundreds of statistics of the 64 VQs through giant PCI config space register in some busy polling scheme.
 
-> +static long vhost_vdpa_stop(struct vhost_vdpa *v, u32 __user *argp)
-> +{
-> +	struct vdpa_device *vdpa =3D v->vdpa;
-> +	const struct vdpa_config_ops *ops =3D vdpa->config;
-> +	int stop;
-> +
-> +	if (!ops->stop)
-> +		return -EOPNOTSUPP;
-> +
-> +	if (copy_from_user(&stop, argp, sizeof(stop)))
-> +		return -EFAULT;
-> +
-> +	return ops->stop(vdpa, stop);
-> +}
-> +
->  static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cm=
-d,
->  				   void __user *argp)
->  {
-> @@ -650,6 +665,9 @@ static long vhost_vdpa_unlocked_ioctl(struct file *fi=
-lep,
->  	case VHOST_VDPA_GET_VQS_COUNT:
->  		r =3D vhost_vdpa_get_vqs_count(v, argp);
->  		break;
-> +	case VHOST_VDPA_STOP:
-> +		r =3D vhost_vdpa_stop(v, argp);
-> +		break;
->  	default:
->  		r =3D vhost_dev_ioctl(&v->vdev, cmd, argp);
->  		if (r =3D=3D -ENOIOCTLCMD)
-> diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
-> index cab645d4a645..c7e47b29bf61 100644
-> --- a/include/uapi/linux/vhost.h
-> +++ b/include/uapi/linux/vhost.h
-> @@ -171,4 +171,18 @@
->  #define VHOST_VDPA_SET_GROUP_ASID	_IOW(VHOST_VIRTIO, 0x7C, \
->  					     struct vhost_vring_state)
->  =
+I can clearly see how all these are inefficient for faster LM.
+We need an efficient AQ to proceed with at minimum.
 
-> +/* Stop or resume a device so it does not process virtqueue requests any=
-more
-> + *
-> + * After the return of ioctl with stop !=3D 0, the device must finish any
-> + * pending operations like in flight requests. It must also preserve all
-> + * the necessary state (the virtqueue vring base plus the possible device
-> + * specific states) that is required for restoring in the future. The
-> + * device must not change its configuration after that point.
-> + *
-> + * After the return of ioctl with stop =3D=3D 0, the device can continue
-> + * processing buffers as long as typical conditions are met (vq is enabl=
-ed,
-> + * DRIVER_OK status bit is enabled, etc).
-> + */
-> +#define VHOST_VDPA_STOP			_IOW(VHOST_VIRTIO, 0x7D, int)
-> +
->  #endif
-
-I wonder how does this interact with the admin vq idea.
-I.e. if we stop all VQs then apparently admin vq can't
-work either ...
-Thoughts?
-
-> -- =
-
-> 2.31.1
-
+> https://lists.oasis-open.org/archives/virtio-comment/202103/msg00008.html
+> 
+> > Once the device is stopped, its state cannot be queried further as device
+> won't respond.
+> > It has limited use case.
+> > What we need is to stop non admin queue related portion of the device.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
