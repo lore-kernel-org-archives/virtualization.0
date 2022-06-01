@@ -1,124 +1,117 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C70E5C433F5
-	for <virtualization@archiver.kernel.org>; Wed,  1 Jun 2022 07:59:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 03059C433EF
+	for <virtualization@archiver.kernel.org>; Wed,  1 Jun 2022 11:04:02 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 7D9A2605B0;
-	Wed,  1 Jun 2022 07:59:25 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 7A73683148;
+	Wed,  1 Jun 2022 11:04:02 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id q7986j05e1US; Wed,  1 Jun 2022 07:59:24 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id F164060BFB;
-	Wed,  1 Jun 2022 07:59:23 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id liz6F_LHRmWv; Wed,  1 Jun 2022 11:04:01 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 1BC8C83145;
+	Wed,  1 Jun 2022 11:04:01 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C4B8CC0039;
-	Wed,  1 Jun 2022 07:59:23 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4D5B5C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E822AC0039;
+	Wed,  1 Jun 2022 11:04:00 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id CE377C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Jun 2022 07:59:23 +0000 (UTC)
+ Wed,  1 Jun 2022 11:03:59 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 2A86941716
+ by smtp2.osuosl.org (Postfix) with ESMTP id BA85240AA1
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Jun 2022 07:59:23 +0000 (UTC)
+ Wed,  1 Jun 2022 11:03:59 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id aXEKhspvJfRE
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id VHQHCoPAaTum
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Jun 2022 07:59:22 +0000 (UTC)
+ Wed,  1 Jun 2022 11:03:58 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id CF93540865
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 7A85040530
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Jun 2022 07:59:21 +0000 (UTC)
+ Wed,  1 Jun 2022 11:03:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1654070360;
+ s=mimecast20190719; t=1654081437;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=X57AV1JS1Mqn7vo0Jw9w21QgY8DunEV7ImYYwrtqE0c=;
- b=LTSi4cSNBI3BjEicrOTscznyjcjl+kovVb5zCQCmlkGosr8tLL/sInjxdQvPOoGoOVnRGq
- 5V7Dv3mo9GobwGK19620yq0F9O0lGNhqy6oJLwnFbsrffZTmDF3qZ67FYn+g7dCm/yIOY5
- nLZ3vqKiVGs3RJx7mc1jivT/j2hHLmU=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=Tgtl50+cOg4p6sNpA44wE53+ToNHu8zqxjdgIaqTCDg=;
+ b=KJrj5FW2RXPCJAq4+3QdbEBw5gCI/Q7id2HOQ8cvmQpEJ5KTHqjEj+74oZODnZB3FLwF6x
+ lEY1Pn7y9LVZ/1rG6CotSiQjfkUzVFQoXgTUo1H3CMUaRu3wxb2YnKGTny4qM90le4wUD0
+ zKrlV4C7fEnVVqXpqhQCryfm9qLNG8g=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-661-1dFxWvBePkaAx826k2xYbA-1; Wed, 01 Jun 2022 03:59:19 -0400
-X-MC-Unique: 1dFxWvBePkaAx826k2xYbA-1
-Received: by mail-wr1-f72.google.com with SMTP id
- o17-20020a5d4091000000b002102fe310dcso100159wrp.20
+ us-mta-628-5Jfg6kpBN9y0vYHOaXOgkw-1; Wed, 01 Jun 2022 07:03:54 -0400
+X-MC-Unique: 5Jfg6kpBN9y0vYHOaXOgkw-1
+Received: by mail-wr1-f70.google.com with SMTP id
+ n3-20020a5d5983000000b0021021e3036eso228561wri.19
  for <virtualization@lists.linux-foundation.org>;
- Wed, 01 Jun 2022 00:59:19 -0700 (PDT)
+ Wed, 01 Jun 2022 04:03:53 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:message-id:date:mime-version:user-agent
- :content-language:to:cc:references:from:organization:subject
- :in-reply-to:content-transfer-encoding;
- bh=X57AV1JS1Mqn7vo0Jw9w21QgY8DunEV7ImYYwrtqE0c=;
- b=fSMqdaS7CMMkH1vn0Bq88etvNFPKuJDEUJW4Whl1yoVpuRNKiEGgM1PnsMXYtOYl6Q
- ZecXnIn3B+/xMJBgVXR5V93ocykFAOrW5sQ0ATxRmlFuSk4t0EXyEoMHYX5Rz4OJOKbK
- 2Klkd0RhuSgMaV0FdpKoNUsgAYJyYOB/NXy6yPkDQ3x5KKnu+v1Y6PqtH6TD7QPD3SKN
- uwU82gVg1SKoN21WOh35gIxy6yt8xzPPUC8ena+d4XHvIabTwddTrXDRHbZdZ7nW2Spp
- /hv6PGOkuubdO6JTxETW5bvVtkTebdPmBfmhN+itk5DVXpeMDuQZ8Z9OxPItPjAESyPm
- tBUg==
-X-Gm-Message-State: AOAM533ZMpBejYV1HofJU7YPJ0DkvI6g9o7QjBv/Yv2dCEjuiQuzwvFV
- 2wBhfE0H0JXfWMlMmgXMZVoCOOuqZpPyTKD1pID2gboMepZRIocS+Z0h2NToaeLdiTcHLxzeEin
- L5LoB3UEQOTNo68aob/6nCqtkSM5snQtkgJX3JbsY5g==
-X-Received: by 2002:a05:6000:1d86:b0:20f:fcae:57f8 with SMTP id
- bk6-20020a0560001d8600b0020ffcae57f8mr29128560wrb.262.1654070357987; 
- Wed, 01 Jun 2022 00:59:17 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwRXopFFdxewjiXZogv3wBRsP/bd8pMpOz5TV6kA8hkaTRFy4NC/B3PyodLYhUx84ns8W9osQ==
-X-Received: by 2002:a05:6000:1d86:b0:20f:fcae:57f8 with SMTP id
- bk6-20020a0560001d8600b0020ffcae57f8mr29128536wrb.262.1654070357654; 
- Wed, 01 Jun 2022 00:59:17 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c705:2600:951d:63df:c091:3b45?
- (p200300cbc7052600951d63dfc0913b45.dip0.t-ipconnect.de.
- [2003:cb:c705:2600:951d:63df:c091:3b45])
- by smtp.gmail.com with ESMTPSA id
- z13-20020a5d44cd000000b0020e6c51f070sm818410wrr.112.2022.06.01.00.59.15
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Wed, 01 Jun 2022 00:59:16 -0700 (PDT)
-Message-ID: <484546da-16cc-8070-2a2c-868717b8a75a@redhat.com>
-Date: Wed, 1 Jun 2022 09:59:15 +0200
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:content-transfer-encoding
+ :in-reply-to;
+ bh=Tgtl50+cOg4p6sNpA44wE53+ToNHu8zqxjdgIaqTCDg=;
+ b=Uolt8vUIzJJj3rnMn4ujXZKqsSp+M06P/YfMJeERTWpFXVyDq64HNuN3nQ6NymnyDc
+ kQnvZutjOMMrPABB/HKVF2MYVqT9MaKpX7zn42DMy77dI3B5tZIxnw6gruqbYfmCGIBc
+ BxSNTY/AwPFRChZBPTAr8Y4zZ3GWyYQPj9ybM6GU0aVgXnAonERI4W7msKRzqfkTnyY+
+ tkP4gLzpvsWPAXEeOeRR759Zc3QFwXlsU6lMCksJapcqXA0hOFatL6JcRdsUXWl/N9yQ
+ zcUmfeO2m/OCPXU79niGjhukv9pGoe9BxHFzFxVtG+FAh25WgK1MNR1DNZxO6FFR7nvm
+ Cvzw==
+X-Gm-Message-State: AOAM532OhzdD0nJOBL8lKnU6gkREj6nJYw1p9uziezgo3wfqtVzA81z8
+ WrevfaMk1TpWtlY7cIoVjvpa4pypOpDOm4mGeJKIheXzWH+ZV289gwE9KY5QnnOKcE6JIPbCFfm
+ eSpFe+laatfu96hZVHoh2uT15au0fNiAuHsJMajmQZQ==
+X-Received: by 2002:a5d:5145:0:b0:210:55c:4790 with SMTP id
+ u5-20020a5d5145000000b00210055c4790mr26849899wrt.714.1654081432924; 
+ Wed, 01 Jun 2022 04:03:52 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzgKD3kkMJ5yY3Qc/mDpdOAlutZgyiyXLasWfkgGa3quLXJOeNWzJU9s8z4oSyg2SRWcOUapA==
+X-Received: by 2002:a5d:5145:0:b0:210:55c:4790 with SMTP id
+ u5-20020a5d5145000000b00210055c4790mr26849873wrt.714.1654081432646; 
+ Wed, 01 Jun 2022 04:03:52 -0700 (PDT)
+Received: from redhat.com ([2.52.157.68]) by smtp.gmail.com with ESMTPSA id
+ q15-20020adff50f000000b002102e6b757csm1518657wro.90.2022.06.01.04.03.47
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 01 Jun 2022 04:03:51 -0700 (PDT)
+Date: Wed, 1 Jun 2022 07:03:44 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>
+Subject: Re: [PATCH v4 3/4] vhost-vdpa: uAPI to stop the device
+Message-ID: <20220601070303-mutt-send-email-mst@kernel.org>
+References: <20220526124338.36247-1-eperezma@redhat.com>
+ <20220526124338.36247-4-eperezma@redhat.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.0
-To: zhenwei pi <pizhenwei@bytedance.com>,
- Andrew Morton <akpm@linux-foundation.org>,
- =?UTF-8?B?SE9SSUdVQ0hJIE5BT1lBKOWggOWPoyDnm7TkuZ8p?=
- <naoya.horiguchi@nec.com>
-References: <CAPcxDJ5pduUyMA0rf+-aTjK_2eBvig05UTiTptX1nVkWE-_g8w@mail.gmail.com>
- <Yo/I3oLkd9OU0ice@xz-m1.local>
- <24a95dea-9ea6-a904-7c0b-197961afa1d1@bytedance.com>
- <0d266c61-605d-ce0c-4274-b0c7e10f845a@redhat.com>
- <4b0c3e37-b882-681a-36fc-16cee7e1fff0@bytedance.com>
- <YpTngZ5Qr0KIvL0H@xz-m1.local>
- <CAPcxDJ5UMfpys8KyLQVnkV9BPO1vaubxbhc7f4XC_TdNO7jr7g@mail.gmail.com>
- <5f622a65-8348-8825-a167-414f2a8cd2eb@bytedance.com>
-From: David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-Subject: Re: [PATCH 0/3] recover hardware corrupted page by virtio balloon
-In-Reply-To: <5f622a65-8348-8825-a167-414f2a8cd2eb@bytedance.com>
+In-Reply-To: <20220526124338.36247-4-eperezma@redhat.com>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=david@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Cc: mst@redhat.com, Jue Wang <juew@google.com>,
- LKML <linux-kernel@vger.kernel.org>, qemu-devel@nongnu.org,
- Linux MM <linux-mm@kvack.org>, Paolo Bonzini <pbonzini@redhat.com>,
- virtualization@lists.linux-foundation.org
+Content-Disposition: inline
+Cc: tanuj.kamde@amd.com, kvm@vger.kernel.org,
+ virtualization@lists.linux-foundation.org,
+ Wu Zongyong <wuzongyong@linux.alibaba.com>, Si-Wei Liu <si-wei.liu@oracle.com>,
+ pabloc@xilinx.com, Eli Cohen <elic@nvidia.com>,
+ Zhang Min <zhang.min9@zte.com.cn>, lulu@redhat.com, Piotr.Uminski@intel.com,
+ martinh@xilinx.com, Xie Yongji <xieyongji@bytedance.com>, dinang@xilinx.com,
+ habetsm.xilinx@gmail.com, Longpeng <longpeng2@huawei.com>,
+ Dan Carpenter <dan.carpenter@oracle.com>, lvivier@redhat.com,
+ Christophe JAILLET <christophe.jaillet@wanadoo.fr>, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, ecree.xilinx@gmail.com, hanand@xilinx.com,
+ martinpo@xilinx.com, gautam.dawar@amd.com,
+ Zhu Lingshan <lingshan.zhu@intel.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -130,132 +123,97 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 01.06.22 04:17, zhenwei pi wrote:
-> On 5/31/22 12:08, Jue Wang wrote:
->> On Mon, May 30, 2022 at 8:49 AM Peter Xu <peterx@redhat.com> wrote:
->>>
->>> On Mon, May 30, 2022 at 07:33:35PM +0800, zhenwei pi wrote:
->>>> A VM uses RAM of 2M huge page. Once a MCE(@HVAy in [HVAx,HVAz)) occurs, the
->>>> 2M([HVAx,HVAz)) of hypervisor becomes unaccessible, but the guest poisons 4K
->>>> (@GPAy in [GPAx, GPAz)) only, it may hit another 511 MCE ([GPAx, GPAz)
->>>> except GPAy). This is the worse case, so I want to add
->>>>   '__le32 corrupted_pages' in struct virtio_balloon_config, it is used in the
->>>> next step: reporting 512 * 4K 'corrupted_pages' to the guest, the guest has
->>>> a chance to isolate the other 511 pages ahead of time. And the guest
->>>> actually loses 2M, fixing 512*4K seems to help significantly.
->>>
->>> It sounds hackish to teach a virtio device to assume one page will always
->>> be poisoned in huge page granule.  That's only a limitation to host kernel
->>> not virtio itself.
->>>
->>> E.g. there're upstream effort ongoing with enabling doublemap on hugetlbfs
->>> pages so hugetlb pages can be mapped in 4k with it.  It provides potential
->>> possibility to do page poisoning with huge pages in 4k too.  When that'll
->>> be ready the assumption can go away, and that does sound like a better
->>> approach towards this problem.
->>
->> +1.
->>
->> A hypervisor should always strive to minimize the guest memory loss.
->>
->> The HugeTLB double mapping enlightened memory poisoning behavior (only
->> poison 4K out of a 2MB huge page and 4K in guest) is a much better
->> solution here. To be completely transparent, it's not _strictly_
->> required to poison the page (whatever the granularity it is) on the
->> host side, as long as the following are true:
->>
->> 1. A hypervisor can emulate the _minimized_ (e.g., 4K) the poison to the guest.
->> 2. The host page with the UC error is "isolated" (could be PG_HWPOISON
->> or in some other way) and prevented from being reused by other
->> processes.
->>
->> For #2, PG_HWPOISON and HugeTLB double mapping enlightened memory
->> poisoning is a good solution.
->>
->>>
->>>>
->>>>>
->>>>> I assume when talking about "the performance memory drops a lot", you
->>>>> imply that this patch set can mitigate that performance drop?
->>>>>
->>>>> But why do you see a performance drop? Because we might lose some
->>>>> possible THP candidates (in the host or the guest) and you want to plug
->>>>> does holes? I assume you'll see a performance drop simply because
->>>>> poisoning memory is expensive, including migrating pages around on CE.
->>>>>
->>>>> If you have some numbers to share, especially before/after this change,
->>>>> that would be great.
->>>>>
->>>>
->>>> The CE storm leads 2 problems I have even seen:
->>>> 1, the memory bandwidth slows down to 10%~20%, and the cycles per
->>>> instruction of CPU increases a lot.
->>>> 2, the THR (/proc/interrupts) interrupts frequently, the CPU has to use a
->>>> lot time to handle IRQ.
->>>
->>> Totally no good knowledge on CMCI, but if 2) is true then I'm wondering
->>> whether it's necessary to handle the interrupts that frequently.  When I
->>> was reading the Intel CMCI vector handler I stumbled over this comment:
->>>
->>> /*
->>>   * The interrupt handler. This is called on every event.
->>>   * Just call the poller directly to log any events.
->>>   * This could in theory increase the threshold under high load,
->>>   * but doesn't for now.
->>>   */
->>> static void intel_threshold_interrupt(void)
->>>
->>> I think that matches with what I was thinking..  I mean for 2) not sure
->>> whether it can be seen as a CMCI problem and potentially can be optimized
->>> by adjust the cmci threshold dynamically.
->>
->> The CE storm caused performance drop is caused by the extra cycles
->> spent by the ECC steps in memory controller, not in CMCI handling.
->> This is observed in the Google fleet as well. A good solution is to
->> monitor the CE rate closely in user space via /dev/mcelog and migrate
->> all VMs to another host once the CE rate exceeds some threshold.
->>
->> CMCI is a _background_ interrupt that is not handled in the process
->> execution context and its handler is setup to switch to poll (1 / 5
->> min) mode if there are more than ~ a dozen CEs reported via CMCI per
->> second.
->>>
->>> --
->>> Peter Xu
->>>
-> 
-> Hi, Andrew, David, Naoya
-> 
-> According to the suggestions, I'd give up the improvement of memory 
-> failure on huge page in this series.
-> 
-> Is it worth recovering corrupted pages for the guest kernel? I'd follow 
-> your decision.
+On Thu, May 26, 2022 at 02:43:37PM +0200, Eugenio P=E9rez wrote:
+> The ioctl adds support for stop the device from userspace.
+> =
 
-Well, as I said, I am not sure if we really need/want this for a handful
-of 4k poisoned pages in a VM. As I suspected, doing so might primarily
-be interesting for some sort of de-fragmentation (allow again a higher
-order page to be placed at the affected PFNs), not because of the slight
-reduction of available memory. A simple VM reboot would get the job
-similarly done.
+> Signed-off-by: Eugenio P=E9rez <eperezma@redhat.com>
+> ---
+>  drivers/vhost/vdpa.c       | 18 ++++++++++++++++++
+>  include/uapi/linux/vhost.h | 14 ++++++++++++++
+>  2 files changed, 32 insertions(+)
+> =
 
-As the poisoning refcount code is already a bit shaky as I learned
-recently in the context of memory offlining, I do wonder if we really
-want to expose the unpoisoning code outside of debugfs (hwpoison) usage.
+> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+> index 32713db5831d..d1d19555c4b7 100644
+> --- a/drivers/vhost/vdpa.c
+> +++ b/drivers/vhost/vdpa.c
+> @@ -478,6 +478,21 @@ static long vhost_vdpa_get_vqs_count(struct vhost_vd=
+pa *v, u32 __user *argp)
+>  	return 0;
+>  }
+>  =
 
-Interestingly, unpoison_memory() documents: "This is only done on the
-software-level, so it only works for linux injected failures, not real
-hardware failures" -- ehm?
+> +static long vhost_vdpa_stop(struct vhost_vdpa *v, u32 __user *argp)
+> +{
+> +	struct vdpa_device *vdpa =3D v->vdpa;
+> +	const struct vdpa_config_ops *ops =3D vdpa->config;
+> +	int stop;
+> +
+> +	if (!ops->stop)
+> +		return -EOPNOTSUPP;
+> +
+> +	if (copy_from_user(&stop, argp, sizeof(stop)))
+> +		return -EFAULT;
+> +
+> +	return ops->stop(vdpa, stop);
+> +}
+> +
+>  static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cm=
+d,
+>  				   void __user *argp)
+>  {
+> @@ -650,6 +665,9 @@ static long vhost_vdpa_unlocked_ioctl(struct file *fi=
+lep,
+>  	case VHOST_VDPA_GET_VQS_COUNT:
+>  		r =3D vhost_vdpa_get_vqs_count(v, argp);
+>  		break;
+> +	case VHOST_VDPA_STOP:
+> +		r =3D vhost_vdpa_stop(v, argp);
+> +		break;
+>  	default:
+>  		r =3D vhost_dev_ioctl(&v->vdev, cmd, argp);
+>  		if (r =3D=3D -ENOIOCTLCMD)
+> diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
+> index cab645d4a645..c7e47b29bf61 100644
+> --- a/include/uapi/linux/vhost.h
+> +++ b/include/uapi/linux/vhost.h
+> @@ -171,4 +171,18 @@
+>  #define VHOST_VDPA_SET_GROUP_ASID	_IOW(VHOST_VIRTIO, 0x7C, \
+>  					     struct vhost_vring_state)
+>  =
 
--- 
-Thanks,
+> +/* Stop or resume a device so it does not process virtqueue requests any=
+more
+> + *
+> + * After the return of ioctl with stop !=3D 0, the device must finish any
+> + * pending operations like in flight requests. It must also preserve all
+> + * the necessary state (the virtqueue vring base plus the possible device
+> + * specific states) that is required for restoring in the future. The
+> + * device must not change its configuration after that point.
+> + *
+> + * After the return of ioctl with stop =3D=3D 0, the device can continue
+> + * processing buffers as long as typical conditions are met (vq is enabl=
+ed,
+> + * DRIVER_OK status bit is enabled, etc).
+> + */
+> +#define VHOST_VDPA_STOP			_IOW(VHOST_VIRTIO, 0x7D, int)
+> +
+>  #endif
 
-David / dhildenb
+I wonder how does this interact with the admin vq idea.
+I.e. if we stop all VQs then apparently admin vq can't
+work either ...
+Thoughts?
+
+> -- =
+
+> 2.31.1
 
 _______________________________________________
 Virtualization mailing list
