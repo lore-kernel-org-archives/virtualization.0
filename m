@@ -1,185 +1,124 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3D49FC43334
-	for <virtualization@archiver.kernel.org>; Wed,  1 Jun 2022 21:23:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3DAEFCCA473
+	for <virtualization@archiver.kernel.org>; Thu,  2 Jun 2022 02:00:45 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id BC521831F8;
-	Wed,  1 Jun 2022 21:23:36 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id C4DA840154;
+	Thu,  2 Jun 2022 02:00:44 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id zIPwdVMjYG7Q; Wed,  1 Jun 2022 21:23:36 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id M35USoQb-xG6; Thu,  2 Jun 2022 02:00:43 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 5FAAF831DE;
-	Wed,  1 Jun 2022 21:23:35 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 4DC87400D0;
+	Thu,  2 Jun 2022 02:00:43 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2BBB5C0039;
-	Wed,  1 Jun 2022 21:23:35 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 59BCCC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 2B87DC0039;
+	Thu,  2 Jun 2022 02:00:43 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C5FEBC002D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Jun 2022 21:23:34 +0000 (UTC)
+ Thu,  2 Jun 2022 02:00:41 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 3670D831F5
+ by smtp2.osuosl.org (Postfix) with ESMTP id 9F15740154
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Jun 2022 21:23:34 +0000 (UTC)
+ Thu,  2 Jun 2022 02:00:41 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id tb9lgPDDfZ0c
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id tnDd371rf5A6
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Jun 2022 21:23:32 +0000 (UTC)
+ Thu,  2 Jun 2022 02:00:40 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com
- [205.220.177.32])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 5703D831DE
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 811E8400D0
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Jun 2022 21:23:32 +0000 (UTC)
-Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
- by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 251K404O028726;
- Wed, 1 Jun 2022 21:21:23 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
- h=message-id : date :
- subject : from : to : references : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=corp-2021-07-09;
- bh=FT79HAU16+hfEc18DlaVkdlUeVxncDZcnM/SfMJjAjU=;
- b=cQmTWwp0P3ugzD//bGQEf9rJFIqMRJ/U50FJeGw8pi6e+PU+j4+odh8Ny9/juZ8InGQR
- LL0zIFCBfrGhu15rJplxpVaiiLR8xnfQCnlBcAS9DqMrqrOagfxAI24iOubb9gGWSFiM
- FwP6OBU9g2M4TQo+QB/1qe+lpu7F5HmeoogwM63CO4x6foj5R7Ls/r/ZDsud7B9/4tcM
- 9Fgm9ZeuGQl4m7p/4JUJzegyrj1Te0Rj7clOm2WQR/fODw2WO9zxVvae1kw6B4tJgcW/
- pm8LP5PFuW3ADDi0qrCUNh0jgprYGTUzH1okPXP0vWVLNbEdrFuETgF0RCrKsQzkCvDj Fw== 
-Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com
- (iadpaimrmta03.appoci.oracle.com [130.35.103.27])
- by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3gbc4xrxtv-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Wed, 01 Jun 2022 21:21:23 +0000
-Received: from pps.filterd
- (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
- by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (8.16.1.2/8.16.1.2)
- with SMTP id 251KtpOK009729; Wed, 1 Jun 2022 21:21:22 GMT
-Received: from nam11-co1-obe.outbound.protection.outlook.com
- (mail-co1nam11lp2176.outbound.protection.outlook.com [104.47.56.176])
- by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com with ESMTP id
- 3gc8khegkw-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Wed, 01 Jun 2022 21:21:22 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Hu/vcd1CHT7uPQIYbMB+A1iGeDqqtk7+fLUfpTv6N/GscxTsPH4VRZwU0Q4oMc+RZ75T3byLCIxuYHU7rCzeyPM9iyfTS4DcHk8x5i3BjXAwuvK60vUMLZTTOKugYWTWnWqudJEwr45xq8qWS30kg+OGf2ZY+hAzaSa4LDc0b7DzSaKvPrq3XWXbysY3rPHANhzXkrV2NM5IeYiQB+rBWISh/6JNAu0N7ByhLLM/Y+Rg8upT8k1xrWDwMXNU1GLhdkA8C5mkZEc1fAtZV5O+j/iuF+9EN7wUb7vBbPZGkk8D5Nxbmcz+zaq8P3SYEhVvpCIFcudEB+bmmJwToK9AQA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=FT79HAU16+hfEc18DlaVkdlUeVxncDZcnM/SfMJjAjU=;
- b=nxypiE71idCaOFhz8+AqrKnr5lneOPIyCPu1XMg6ZqSbtfXmcBNTSGpauhyW4AxDoJA/AtZjcuzcTVhlOxPS/Zx+0oMSE602XH7QFcxAp93td+aTnH4bFEVeR42FB3/DR3YvTxsnRI5IfyjrrnVEgA7ayQffRn8LsKDn01jaASDszHRsjwC2WR1E/Fq7kcFCK1E9zTB30v59sTTINI2UhK7WVIZdbDdRFL3eTavX04bCZTBfA4oF13jIF2XnTQgMId5pqLLOWQQVFtaJTtNoFXRbBLNrh9/oMvo97HRVSPiDxntMj4uEMq2NvXgJbdZFEY1VPsZJ4ddw/KBnslgpAA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=FT79HAU16+hfEc18DlaVkdlUeVxncDZcnM/SfMJjAjU=;
- b=D0LULfLnyYm69LlMusNHaADLiFejkD6GQzL9NbGuJat2+s/rXWwafOFP4uIqvN+Ar1MiETbMGnd8+P4C3BRIuOgmZfkkbLOU8hQWX6hA0nHfgP6k2FsfzuzrPGtRu75BoZVh4YKdTxOlf23yosYUnMbXRsF0q2F9ij8CK1EVnrs=
-Received: from DM5PR10MB1466.namprd10.prod.outlook.com (2603:10b6:3:b::7) by
- DS7PR10MB5216.namprd10.prod.outlook.com (2603:10b6:5:38e::23) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.5314.13; Wed, 1 Jun 2022 21:21:20 +0000
-Received: from DM5PR10MB1466.namprd10.prod.outlook.com
- ([fe80::f81d:b8ef:c5a4:9c9b]) by DM5PR10MB1466.namprd10.prod.outlook.com
- ([fe80::f81d:b8ef:c5a4:9c9b%3]) with mapi id 15.20.5293.019; Wed, 1 Jun 2022
- 21:21:20 +0000
-Message-ID: <1c315745-3456-6f8f-ed36-39b02ed86044@oracle.com>
-Date: Wed, 1 Jun 2022 16:21:12 -0500
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.9.1
-Subject: Re: [PATCH V9 0/8] Use copy_process in vhost layer
-Content-Language: en-US
-From: michael.christie@oracle.com
-To: hch@infradead.org, stefanha@redhat.com, jasowang@redhat.com,
- mst@redhat.com, sgarzare@redhat.com,
- virtualization@lists.linux-foundation.org, brauner@kernel.org,
- ebiederm@xmission.com, linux-kernel@vger.kernel.org
-References: <20220512214704.104472-1-michael.christie@oracle.com>
-In-Reply-To: <20220512214704.104472-1-michael.christie@oracle.com>
-X-ClientProxiedBy: SN4PR0501CA0011.namprd05.prod.outlook.com
- (2603:10b6:803:40::24) To DM5PR10MB1466.namprd10.prod.outlook.com
- (2603:10b6:3:b::7)
+ Thu,  2 Jun 2022 02:00:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1654135239;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=YBAqPDemohDoYgk1aoIRFIJVsyNoi84c0I5WJRZqFf4=;
+ b=NXaS8eyjnLBPEoVMVgukUkDgGYVjNg0wrNQBx87jVa8MddOZB8qB0Mhzw6MsUve8V0YZ61
+ 57XnzueQtGs+ZxXu2sBnTa+UiqdPElnXzO4U+2lMoqIVhULEsazWWso+7XqrurSzIW9PCD
+ xUA2gn3CvTUeDzO3Zqo+9TvzlHNtzmY=
+Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
+ [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-137-BJvBvATEMACFt37-BbyEEg-1; Wed, 01 Jun 2022 22:00:37 -0400
+X-MC-Unique: BJvBvATEMACFt37-BbyEEg-1
+Received: by mail-lf1-f71.google.com with SMTP id
+ b2-20020a0565120b8200b00477a4532448so1758835lfv.22
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 01 Jun 2022 19:00:37 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=YBAqPDemohDoYgk1aoIRFIJVsyNoi84c0I5WJRZqFf4=;
+ b=k1LtF/9/QjfMXj8XMUlVJXpvZokycioBFKVK+aVRLn2mbf3SVQrY2Wtdz0dlbhI7yP
+ 5RBM98r2UEE4FUzbL/bMAGhU/hOxhJVpjYoNe5JwuEDOSnmLNQ05aLmos6vFOWWAcc37
+ Cw3/ZkQnFqUulBLwNvKd0FW3Iy7rC34tB/riW0LmxCAOIrsWX/aoFN8vNJET2/gxF356
+ MZe/U4zgOWM/tSdC0cEZ0jCy5ryfcXPE1hRiDZxB5dl2PlTzxzFVckaeKNxc9CB4cLPB
+ djhV9+25LPEog0zWDxZRFEtC4eE9IqWtrkZ8QucyV+TzEUc8FcXFiS0fFV/td6YHsPp+
+ 8fVw==
+X-Gm-Message-State: AOAM530wQkTL+yiYXq1Ehj+HgEOYDJ04awR3CsWWW2f+Zy9+GM1CnW7a
+ BUPW0CGs3AMVdSgtOqnA3m79hgwaOaoHdkfVld6MJD9Lsi6YjG9icRq1z/KXnXlYg3M1Lb5SJbV
+ 515Se99ruhUXIjFlFsGxldhx8Zu41nBifnL/piyehb3m0J/GGFFLkzkfmlw==
+X-Received: by 2002:a05:6512:1588:b0:477:a556:4ab2 with SMTP id
+ bp8-20020a056512158800b00477a5564ab2mr1731821lfb.376.1654135236349; 
+ Wed, 01 Jun 2022 19:00:36 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwUrUCq3RcCVi51UnrwoiRoYGBE/u1c2zqyot4xytMyyLYLnsA4frnYnk43vssnr4u4dIBnj0FY2DMvEmzTEsY=
+X-Received: by 2002:a05:6512:1588:b0:477:a556:4ab2 with SMTP id
+ bp8-20020a056512158800b00477a5564ab2mr1731798lfb.376.1654135236157; Wed, 01
+ Jun 2022 19:00:36 -0700 (PDT)
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 67af4109-1760-4652-d752-08da4414ab8e
-X-MS-TrafficTypeDiagnostic: DS7PR10MB5216:EE_
-X-Microsoft-Antispam-PRVS: <DS7PR10MB52166FC7763820E1AD7EDA91F1DF9@DS7PR10MB5216.namprd10.prod.outlook.com>
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: dHgM/2YVXz3qkzOPN273ssBfbd3AEQqLmgGI20ps0cYtosGbTxPnXz7Ct0n/B0oymCfOPPjwYqRept+Qwrkglvs+J8neDqut3Kt88Y1FWRLr9hbhxl0P197EB3n5hAo4UIStGeBYwK55lVYYezdPZcrEHAAwbjC7faFE1a0SyWCnniOsLSBW1tUX/yiEYC9oZUWb52cTiwLiqxq5otp2s/WIZp4kbKLbQgbXMoS/q1EvytDn0i60Hfeap9jpzpBrleVpKUKzTRdCqnfGRIF/vdyk+/dlOG0jZ45ejv0chMyYyA11t2cUKRH3P6eIA0FfZRptBy/Q0UmGEfmt6EjfSQX0BzAdezi0ZbCguoiVTURiwe5hiJe1eCj8PqM7uPHnsuTuAQttyZ5BJV3W4Bu7Sei7xzrJXo7jJ0ISTd5gUcQahBcPjvH1XcRvBKtLsc23hUxLLpB5NjrFDbbkHiqBs+924E/4JSmaYP3AR4v+OetJrSF+Qk6N6oxsUkIVrFur5y4RwN58XZSTJjyUtIKM2Az46IDLQl0TeHl5BUgPACCmHHHRlkB1ZzUfh8sKsQkubtYdDxgQsziM1uQH1T3yDE/qhaKk775OI2iqns6Ps7lNdm5b85zn/CAyNy3SoYU36ZOS6jzYih/1pK1w7ycIhtrOZV5MO9r+A7d48oSkptZYt2iJXywGmpvrIiZmDEroCWu/KTyPK0I4Woy5/fLs6Q==
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:DM5PR10MB1466.namprd10.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230001)(366004)(2616005)(66946007)(66556008)(4744005)(38100700002)(36756003)(508600001)(31686004)(5660300002)(8936002)(2906002)(316002)(26005)(6666004)(8676002)(9686003)(6512007)(66476007)(6486002)(83380400001)(86362001)(31696002)(186003)(53546011)(6506007)(43740500002);
- DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?dXJ5VmwyOGhTd3VDWE1ZUi9VeUxMNFhnVG9GSDA0b2VjYXNiVFpudFlqWkc0?=
- =?utf-8?B?WjNDSUl1a1cwZFJ5OFhMaEdMbHdkYU56ZmJ0ZHFWZ2pnN09SSjRiQ1NNd21Y?=
- =?utf-8?B?dnlyWjBhVzRkVnp1NXE1YitZSDN4bUVOUVFMaTB2N1pJeUJ4ODh1bTRGU24y?=
- =?utf-8?B?Nlo3cmlEdTNjSXIvNy8xK1E2SEpvUjFOYjBFVGhCanF2c1RWeEg4NzFXQUlI?=
- =?utf-8?B?WE0wOTAxWTNnVktDcG9Jak5XcXFlSnZjeE14bGtPeE1EWUZqQXc2SU90blUy?=
- =?utf-8?B?QlFxTDFsT0pQMWxYcEN2T0xnMTJJWjVIazQ2S3pFQWpuTjl6OTZJZUtPZ1Vu?=
- =?utf-8?B?N0NyRDlYUXVlbTdHWHBOTVE1Vzk1S2JGZ1BaY1krN0pabWRTemhBVU9aT01s?=
- =?utf-8?B?aUdzbVVSR1pCbDdncG43dWtmWTNaRnI4UFVNUGJLREp6QnNmdmVKU1pySmV5?=
- =?utf-8?B?aFVyOWFJLzBSOVNhVWhnWHlhRG9ETG9RcW16RTE5cXBBc3pUSmFxTDU5N3ly?=
- =?utf-8?B?K05XR3dpd0tyU1JlYVh6SURLQmRQWHVrSExqSHU1Vlp4dkw0aWtvUWtxWWdu?=
- =?utf-8?B?Nkhzb0tSQ0s0Y1Vldk00VCtwK1J0dFNlaGVrUCt1c0FMZDcrSXRUY0RjbVY3?=
- =?utf-8?B?NnBHem9na3FOcXM0QlVRN2hmNDNoMUJlM1czUkQrOERDams4SGx5OFRHWU8v?=
- =?utf-8?B?NmxxYzRQdHZtamxLbUNSL2FHUU5WeVNXUTdNcDAwZVRUYTgwV2pnZmFPRXov?=
- =?utf-8?B?Y0JFQk1haGdHZWxQaGFWYnV1bTlxMTB2MEVHTTB2NkNDUlJnRm5HS3F0dHV5?=
- =?utf-8?B?QVQrdFhlNTlwTmw1cWhWUllLTnVUVXlPODhWelJNemJxMDkwU3J4ZkdkbXBI?=
- =?utf-8?B?d1VnQWFYaXdqaFRPRGhKamxkUE4vdDIrTktGOWVvODRoYlNUR3lpV0I5OVR5?=
- =?utf-8?B?cElySnd0aTdJbWpyc0Jmb1BLcXB4SDlwck5MZElNQ09IL0N2alZqMmZMc1FS?=
- =?utf-8?B?MEd4Qm5xdzBNaHpaTHJ2OGtzY1dCOUdCelBsNWhLS0xjOVBjRGFXYzhEYkFl?=
- =?utf-8?B?anVFaEFtYTN1Zkt1RmJmZTdzNnBvTVRSUk9JdnNkL0lzYmRyMitNNUFxMEsy?=
- =?utf-8?B?Yk9KODhPdW91VkU5M0ZwTVJyU0N5a0ZtdjZybXNJTUNNL2dLZ0Q3TW13cHNi?=
- =?utf-8?B?ZVJ5UmR6WEl6NmNEQ29VaXo3UXp6L0tMd2xTZk5EakZPa3oySHFxN2F5Vndx?=
- =?utf-8?B?UVhLYzQ3eHRHaG4zb2dBbUFTZWdJVDJaWnhHc2Nza041cm9ONU9LRUNoSHlP?=
- =?utf-8?B?S21tNmcxK1FwTUNMWUU3NG1TbzdPZk04TVNGakF6cGpqSkV0cC9XWm41V0Js?=
- =?utf-8?B?WFJQa3dtamdUbk9QN29hUHlTNGd0NWpzZ3lnSG51ckpYV0lDTG5vcjd2NE1G?=
- =?utf-8?B?REZvb0J1WDlVMmRRbzJmT1BSMzFGdXVnN3JSV0d1djBKZWhnMmptb0ZRc0Jz?=
- =?utf-8?B?QUJqNTJPZVJzOXFybUE4dEJXSlpTM2Rock84YXR4OHZGZnBIcnFSVExRRmtN?=
- =?utf-8?B?bTd6OURzRUR2ZnJFNlV2MWU4NzA0QklIaldFelV5M0MyL2ZidEhVdllOWEZm?=
- =?utf-8?B?ZUUzbDkzcWNlVTFaL3ZIeTVYT3ZOL1ZUbUozUVR1Z0JKcDE0aHgwM1V5Si95?=
- =?utf-8?B?dnBDekdlNlVsejVhby9KRnorNTdBRjk2WHBaUGxRL3RjYndHM3NkVUJlNmVF?=
- =?utf-8?B?RWNzUGh0Y2QxY2hMMjM4YzBBdHdlcU9CTVN0ZjNaRDM4TUxLb1lvUVhqcVZi?=
- =?utf-8?B?ZytCOVVJbWJpRk05TkVzSnNXYjFkTERFUTlFNVgxRzNLY0x1cW03RDN6OEdB?=
- =?utf-8?B?NHZaaExiK3Z4Z1VobEpZUTQwTXI5SXBRamlwN0hpRWxWZmVlTWh4a2dIT09u?=
- =?utf-8?B?SFNxWHJmYjI5K0ZSUUIrd1hNQVFudzJBVWljTHRLVm9PRjVSeE43bkVsNzdw?=
- =?utf-8?B?KzVtTDlKUTFlTFVOYWJGMFdRSjBrVXV2Q2NQR0pIaHY1czdZaS9mMDVhblZB?=
- =?utf-8?B?S3RJZ2ZVRGpBM3JhVHg2V2FrdUsycUsrVERjd1JoWExSamZSR3IwUEVGQkp1?=
- =?utf-8?B?LzB0NTJXSmNWUStjZmdlUGZDOXovaVJDUWtiVUpoSi9WYlhTcG9jUllRTk9l?=
- =?utf-8?B?RmF4YlpLdlhMWDk1clZHSjBqMVRlbjZTb1FXbmZpNzhBTVY4NHA1RUZCWkNS?=
- =?utf-8?B?dDJ6bWpRMStDRUhNNDNFUFV6QlVRV2d3dHl1cTlZWm8yRDZDRDB2cVpjUWd6?=
- =?utf-8?B?QzI2M3B1UGN4WDJaQXNQUkhYR1pYNmR1SWxMN1d6SlR4bFBxNWNoSE02Tzc0?=
- =?utf-8?Q?jUBe7WRSM26VTAXQ=3D?=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 67af4109-1760-4652-d752-08da4414ab8e
-X-MS-Exchange-CrossTenant-AuthSource: DM5PR10MB1466.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Jun 2022 21:21:19.9177 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: KdQSwSkXZMAiLgzg8P+Q0X8d1FWu/Hjb93f0+Pir1cJLUrX+2lfnnfA5jubyOMresQCgh/FC6xPhY/EYfMSG/UTxMC5NFDLEU4NSQBtMiGU=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS7PR10MB5216
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.517, 18.0.874
- definitions=2022-06-01_08:2022-06-01,
- 2022-06-01 signatures=0
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0
- mlxscore=0 phishscore=0
- suspectscore=0 mlxlogscore=999 bulkscore=0 spamscore=0 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2204290000
- definitions=main-2206010084
-X-Proofpoint-GUID: J7tDdTCu0izz8hiA3JiUUkjv4LJunMlB
-X-Proofpoint-ORIG-GUID: J7tDdTCu0izz8hiA3JiUUkjv4LJunMlB
+References: <20220526124338.36247-1-eperezma@redhat.com>
+ <PH0PR12MB54819C6C6DAF6572AEADC1AEDCD99@PH0PR12MB5481.namprd12.prod.outlook.com>
+ <20220527065442-mutt-send-email-mst@kernel.org>
+ <CACGkMEubfv_OJOsJ_ROgei41Qx4mPO0Xz8rMVnO8aPFiEqr8rA@mail.gmail.com>
+ <PH0PR12MB5481695930E7548BAAF1B0D9DCDC9@PH0PR12MB5481.namprd12.prod.outlook.com>
+ <CACGkMEsSKF_MyLgFdzVROptS3PCcp1y865znLWgnzq9L7CpFVQ@mail.gmail.com>
+ <PH0PR12MB5481CAA3F57892FF7F05B004DCDF9@PH0PR12MB5481.namprd12.prod.outlook.com>
+In-Reply-To: <PH0PR12MB5481CAA3F57892FF7F05B004DCDF9@PH0PR12MB5481.namprd12.prod.outlook.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 2 Jun 2022 10:00:24 +0800
+Message-ID: <CACGkMEsJJL34iUYQMxHguOV2cQ7rts+hRG5Gp3XKCGuqNdnNQg@mail.gmail.com>
+Subject: Re: [PATCH v4 0/4] Implement vdpasim stop operation
+To: Parav Pandit <parav@nvidia.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: "tanuj.kamde@amd.com" <tanuj.kamde@amd.com>,
+ "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ Wu Zongyong <wuzongyong@linux.alibaba.com>, Si-Wei Liu <si-wei.liu@oracle.com>,
+ "pabloc@xilinx.com" <pabloc@xilinx.com>, Eli Cohen <elic@nvidia.com>,
+ Zhang Min <zhang.min9@zte.com.cn>, "lulu@redhat.com" <lulu@redhat.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ "Piotr.Uminski@intel.com" <Piotr.Uminski@intel.com>,
+ "martinh@xilinx.com" <martinh@xilinx.com>,
+ Xie Yongji <xieyongji@bytedance.com>, "dinang@xilinx.com" <dinang@xilinx.com>,
+ "habetsm.xilinx@gmail.com" <habetsm.xilinx@gmail.com>,
+ Longpeng <longpeng2@huawei.com>, Dan Carpenter <dan.carpenter@oracle.com>,
+ "lvivier@redhat.com" <lvivier@redhat.com>,
+ Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+ "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ "ecree.xilinx@gmail.com" <ecree.xilinx@gmail.com>,
+ "hanand@xilinx.com" <hanand@xilinx.com>,
+ "martinpo@xilinx.com" <martinpo@xilinx.com>,
+ "gautam.dawar@amd.com" <gautam.dawar@amd.com>,
+ Zhu Lingshan <lingshan.zhu@intel.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -196,25 +135,54 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 5/12/22 4:46 PM, Mike Christie wrote:
-> The following patches were made over Eric's tree:
-> 
-> git://git.kernel.org/pub/scm/linux/kernel/git/ebiederm/user-namespace.git
-> 
-> and his kthread-cleanups-for-v5.19 branch.
+On Thu, Jun 2, 2022 at 2:58 AM Parav Pandit <parav@nvidia.com> wrote:
+>
+>
+> > From: Jason Wang <jasowang@redhat.com>
+> > Sent: Tuesday, May 31, 2022 10:42 PM
+> >
+> > Well, the ability to query the virtqueue state was proposed as another
+> > feature (Eugenio, please correct me). This should be sufficient for making
+> > virtio-net to be live migrated.
+> >
+> The device is stopped, it won't answer to this special vq config done here.
 
-Hi Eric,
+This depends on the definition of the stop. Any query to the device
+state should be allowed otherwise it's meaningless for us.
 
-Did you have more review comments for the patches or are you ok with them
-now? I haven't seen any comments the last couple of postings. I've
-been watching your trees, so I know you are doing cleanup/improvements
-in the areas I needed help with so I know it's still on your radar, but
-now I'm worried I'm missing emails/reviews from you :)
+> Programming all of these using cfg registers doesn't scale for on-chip memory and for the speed.
 
-Are you also going to push the kthread-cleanups for 5.19 still or is that
-going to be 5.20? I have patches that depend and/or have conflicts with
-this set so I'm trying to figure out what I should be rebasing and testing
-against.
+Well, they are orthogonal and what I want to say is, we should first
+define the semantics of stop and state of the virtqueue.
+
+Such a facility could be accessed by either transport specific method
+or admin virtqueue, it totally depends on the hardware architecture of
+the vendor.
+
+>
+> Next would be to program hundreds of statistics of the 64 VQs through a giant PCI config space register in some busy polling scheme.
+
+We don't need giant config space, and this method has been implemented
+by some vDPA vendors.
+
+>
+> I can clearly see how all these are inefficient for faster LM.
+> We need an efficient AQ to proceed with at minimum.
+
+I'm fine with admin virtqueue, but the stop and state are orthogonal
+to that. And using admin virtqueue for stop/state will be more natural
+if we use admin virtqueue as a transport.
+
+Thanks
+
+>
+> > https://lists.oasis-open.org/archives/virtio-comment/202103/msg00008.html
+> >
+> > > Once the device is stopped, its state cannot be queried further as device
+> > won't respond.
+> > > It has limited use case.
+> > > What we need is to stop non admin queue related portion of the device.
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
