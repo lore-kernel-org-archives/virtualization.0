@@ -4,79 +4,78 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 68DEEC43334
-	for <virtualization@archiver.kernel.org>; Thu,  2 Jun 2022 22:06:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 40F9BC43334
+	for <virtualization@archiver.kernel.org>; Thu,  2 Jun 2022 23:27:06 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id DEB8283E6D;
-	Thu,  2 Jun 2022 22:06:44 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id CF36183E12;
+	Thu,  2 Jun 2022 23:27:05 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Z0f7Tjrl0Q6p; Thu,  2 Jun 2022 22:06:44 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 60CF883E52;
-	Thu,  2 Jun 2022 22:06:43 +0000 (UTC)
+	with ESMTP id TnDnSGJQivj9; Thu,  2 Jun 2022 23:27:04 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 4461F82CE4;
+	Thu,  2 Jun 2022 23:27:04 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1FFEEC0032;
-	Thu,  2 Jun 2022 22:06:43 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B5CC7C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 12994C0032;
+	Thu,  2 Jun 2022 23:27:04 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 409A5C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Jun 2022 22:06:41 +0000 (UTC)
+ Thu,  2 Jun 2022 23:27:02 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 9E67F405C1
+ by smtp1.osuosl.org (Postfix) with ESMTP id 381BF830DE
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Jun 2022 22:06:41 +0000 (UTC)
+ Thu,  2 Jun 2022 23:27:02 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=intel.com
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id vsfzwM0eFYXN
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id yCnG_VDvDJ_f
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Jun 2022 22:06:40 +0000 (UTC)
+ Thu,  2 Jun 2022 23:27:01 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 4378E40120
+Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 204F982CE4
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Jun 2022 22:06:39 +0000 (UTC)
+ Thu,  2 Jun 2022 23:27:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1654207600; x=1685743600;
+ t=1654212421; x=1685748421;
  h=date:from:to:cc:subject:message-id:references:
  mime-version:in-reply-to;
- bh=AKU2IG+YtECdmg0JbSDlVYGZXgmDcaF6I/51w4mVsVM=;
- b=MQJZj00nnrRbudpbWhUFI70RheJtkd/fMqNwstR5BYkZtGvxGN3Hd4y/
- Wy21gtVU3GSWi31jxPQbjjs3udmrJb8Q5vuCwC+lWAK0L3UnJt+er9+MB
- RsqTlxndYFhAxCIHZKKff/lZnRMN+i67GUWXsSKjXiTT2JYwLD2K5hs+i
- UIXAixRq7YMO/XU6xdW/KrN8JZFDtjprxcpOtmvNL9f4fq76Y0zrIVjOn
- HNEiTA6GepLCm5BS0JMfSMRmuf/cVx81FL9bPhVUuAOkDplJbwnkeepX0
- p1hZ+dxa9qQXHr/6n6GoGDsXIq9DIpCj0+fWwc7ObB3mlJSuf5KowugrY Q==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10366"; a="273660195"
-X-IronPort-AV: E=Sophos;i="5.91,272,1647327600"; d="scan'208";a="273660195"
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
- by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 02 Jun 2022 15:05:56 -0700
+ bh=GRhPAQ2CU2PMb7oMPFXlMaxADdhIAO/5kxDqAOm3iB0=;
+ b=aLGF0v7PIzF4p7rcIB3yFUcLVwsmsQs3q6L64tScaEHKcbbGZjfrYMGx
+ 1W/pe0xmP9qs6OPRI/EJWOQQ+f9BdjLhDrLj2E3nSGdtzmSWxt+IM0IXN
+ iODDDGY+XSKxO/+ZGPC8+pHz/Z043HZAs8Ko3+DRwpK6+ztzPlTtiYENk
+ ZjTrJEEFFK0oDsXP5mgJYQIN+2oDydXJZO9R81mRaSVBB7n3EP62CIYAK
+ GZAh5+K8nZTwd52nZiAWUfgqXdYP8DqONdHd8E5R36hthjkhJ2QSOFgf6
+ R4nkUiYsq0RVRcT6J0MFB3lMEsFWz1dGZYBy0il6f6a8EHS4eblEYODnp Q==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10366"; a="256591921"
+X-IronPort-AV: E=Sophos;i="5.91,272,1647327600"; d="scan'208";a="256591921"
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+ by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 02 Jun 2022 16:26:58 -0700
 X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.91,272,1647327600"; d="scan'208";a="553049411"
+X-IronPort-AV: E=Sophos;i="5.91,272,1647327600"; d="scan'208";a="563544713"
 Received: from lkp-server01.sh.intel.com (HELO 60dabacc1df6) ([10.239.97.150])
- by orsmga006.jf.intel.com with ESMTP; 02 Jun 2022 15:05:53 -0700
+ by orsmga002.jf.intel.com with ESMTP; 02 Jun 2022 16:26:54 -0700
 Received: from kbuild by 60dabacc1df6 with local (Exim 4.95)
- (envelope-from <lkp@intel.com>) id 1nwswy-0005Tw-Fl;
- Thu, 02 Jun 2022 22:05:52 +0000
-Date: Fri, 3 Jun 2022 06:05:15 +0800
+ (envelope-from <lkp@intel.com>) id 1nwuDN-0005WF-L0;
+ Thu, 02 Jun 2022 23:26:53 +0000
+Date: Fri, 3 Jun 2022 07:26:44 +0800
 From: kernel test robot <lkp@intel.com>
 To: Zack Rusin <zack@kde.org>, dri-devel@lists.freedesktop.org
 Subject: Re: [PATCH 3/6] drm/qxl: Create mouse hotspot properties on cursor
  planes
-Message-ID: <202206030624.TdMaRYS5-lkp@intel.com>
+Message-ID: <202206030750.8hv8vdBA-lkp@intel.com>
 References: <20220602154243.1015688-4-zack@kde.org>
 MIME-Version: 1.0
 Content-Disposition: inline
 In-Reply-To: <20220602154243.1015688-4-zack@kde.org>
-Cc: kbuild-all@lists.01.org, virtualization@lists.linux-foundation.org,
- krastevm@vmware.com, Dave Airlie <airlied@redhat.com>,
- spice-devel@lists.freedesktop.org, mombasawalam@vmware.com
+Cc: kbuild-all@lists.01.org, llvm@lists.linux.dev,
+ virtualization@lists.linux-foundation.org, krastevm@vmware.com,
+ Dave Airlie <airlied@redhat.com>, spice-devel@lists.freedesktop.org,
+ mombasawalam@vmware.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -106,30 +105,31 @@ https://git-scm.com/docs/git-format-patch]
 
 url:    https://github.com/intel-lab-lkp/linux/commits/Zack-Rusin/drm-Add-mouse-cursor-hotspot-support-to-atomic-KMS/20220602-234633
 base:   git://anongit.freedesktop.org/drm/drm drm-next
-config: x86_64-randconfig-a011 (https://download.01.org/0day-ci/archive/20220603/202206030624.TdMaRYS5-lkp@intel.com/config)
-compiler: gcc-11 (Debian 11.3.0-1) 11.3.0
+config: i386-randconfig-a013 (https://download.01.org/0day-ci/archive/20220603/202206030750.8hv8vdBA-lkp@intel.com/config)
+compiler: clang version 15.0.0 (https://github.com/llvm/llvm-project b364c76683f8ef241025a9556300778c07b590c2)
 reproduce (this is a W=1 build):
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
         # https://github.com/intel-lab-lkp/linux/commit/0bf2395ee17bd25ae6411c560de883496256195d
         git remote add linux-review https://github.com/intel-lab-lkp/linux
         git fetch --no-tags linux-review Zack-Rusin/drm-Add-mouse-cursor-hotspot-support-to-atomic-KMS/20220602-234633
         git checkout 0bf2395ee17bd25ae6411c560de883496256195d
         # save the config file
         mkdir build_dir && cp config build_dir/.config
-        make W=1 O=build_dir ARCH=x86_64 SHELL=/bin/bash drivers/gpu/drm/qxl/
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross W=1 O=build_dir ARCH=i386 SHELL=/bin/bash drivers/gpu/drm/qxl/
 
 If you fix the issue, kindly add following tag where applicable
 Reported-by: kernel test robot <lkp@intel.com>
 
 All warnings (new ones prefixed by >>):
 
-   drivers/gpu/drm/qxl/qxl_display.c: In function 'qxl_primary_apply_cursor':
->> drivers/gpu/drm/qxl/qxl_display.c:486:33: warning: unused variable 'fb' [-Wunused-variable]
-     486 |         struct drm_framebuffer *fb = plane_state->fb;
-         |                                 ^~
-   drivers/gpu/drm/qxl/qxl_display.c: In function 'qxl_primary_move_cursor':
-   drivers/gpu/drm/qxl/qxl_display.c:532:33: warning: unused variable 'fb' [-Wunused-variable]
-     532 |         struct drm_framebuffer *fb = plane_state->fb;
-         |                                 ^~
+>> drivers/gpu/drm/qxl/qxl_display.c:486:26: warning: unused variable 'fb' [-Wunused-variable]
+           struct drm_framebuffer *fb = plane_state->fb;
+                                   ^
+   drivers/gpu/drm/qxl/qxl_display.c:532:26: warning: unused variable 'fb' [-Wunused-variable]
+           struct drm_framebuffer *fb = plane_state->fb;
+                                   ^
+   2 warnings generated.
 
 
 vim +/fb +486 drivers/gpu/drm/qxl/qxl_display.c
