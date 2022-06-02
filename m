@@ -1,128 +1,102 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 57556C433EF
-	for <virtualization@archiver.kernel.org>; Thu,  2 Jun 2022 03:53:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AF03DC43334
+	for <virtualization@archiver.kernel.org>; Thu,  2 Jun 2022 07:11:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id DA3C0607CA;
-	Thu,  2 Jun 2022 03:53:57 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 4071C40025;
+	Thu,  2 Jun 2022 07:11:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id sqDgDWLPv2Az; Thu,  2 Jun 2022 03:53:57 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 4F9D660774;
-	Thu,  2 Jun 2022 03:53:56 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id MlshHIibT8WV; Thu,  2 Jun 2022 07:11:28 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id DED4C40526;
+	Thu,  2 Jun 2022 07:11:27 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 216FEC0039;
-	Thu,  2 Jun 2022 03:53:56 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7C293C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id AE682C0039;
+	Thu,  2 Jun 2022 07:11:27 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D1D68C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Jun 2022 03:53:55 +0000 (UTC)
+ Thu,  2 Jun 2022 07:11:25 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 648AD82BC4
+ by smtp4.osuosl.org (Postfix) with ESMTP id B939D410E6
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Jun 2022 03:53:55 +0000 (UTC)
+ Thu,  2 Jun 2022 07:11:25 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id qjdwbku3MmwJ
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 7ihvCAZMnDF1
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Jun 2022 03:53:54 +0000 (UTC)
+ Thu,  2 Jun 2022 07:11:23 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 91FB982BC0
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 60D7A4097D
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Jun 2022 03:53:54 +0000 (UTC)
+ Thu,  2 Jun 2022 07:11:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1654142033;
+ s=mimecast20190719; t=1654153882;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=3nhZSbN+Ew1mV2HyhEGIhPum4yYB0PCOS8RQvOZHGfg=;
- b=EbueC4Ek4SCHEGKpbe9TcZm+cERk+MjUTz5qx/k68szCuMilSg+eJiApbVfxBpfvW26F57
- uonwI+lctnkHvExVgLTJRTExWqPXcuJT7GXnHvX2bDV/dHvNZuEW4NuAN5ZAD8ue/UD1ue
- SG+KaQeDk50O1G8n3dbJ9uOx2Ji4tMk=
-Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
- [209.85.167.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=LQg4+c50YvWCQtzqLAPVbSBhXMgvtlCDtHeV4wCuhWA=;
+ b=IPnbga4SZ5xm6QvihvzsH1BYuu5p66p1RkSyGueiCKGyPwkvVnr3HEqc4XI8nu0TU8iT1e
+ zjkN1LDMpx1oVPbmrHpQISDEGraTS/gBCLhEGsc8DySkBi3w95hYHvo5ogT+RmvV1ieq40
+ +3t36lLjLqBUrV1zM85EkDkwrCFEbh4=
+Received: from mail-yw1-f200.google.com (mail-yw1-f200.google.com
+ [209.85.128.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-100-gErIQP8qNAmEASyyEbLdig-1; Wed, 01 Jun 2022 23:53:52 -0400
-X-MC-Unique: gErIQP8qNAmEASyyEbLdig-1
-Received: by mail-lf1-f72.google.com with SMTP id
- c6-20020a056512104600b00477b25bfdf8so1880002lfb.9
+ us-mta-86-WCeNxzFIODGLapiTy_OkKA-1; Thu, 02 Jun 2022 03:11:21 -0400
+X-MC-Unique: WCeNxzFIODGLapiTy_OkKA-1
+Received: by mail-yw1-f200.google.com with SMTP id
+ 00721157ae682-30026cf9af8so36138197b3.3
  for <virtualization@lists.linux-foundation.org>;
- Wed, 01 Jun 2022 20:53:51 -0700 (PDT)
+ Thu, 02 Jun 2022 00:11:20 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=3nhZSbN+Ew1mV2HyhEGIhPum4yYB0PCOS8RQvOZHGfg=;
- b=2aexsqXX59lPilj7nJv83Rx1sBV8TSagDl95CNBKTzhK7nFVBWYnTmfXZMQsdl7Eb8
- KOIVLPt2+A2Uhkx4GtsraJrVq4oIdDbIRN+dmAQOvWxKgwSQGHHfTVVufcW2+GjrqHnL
- xLntAuVbiPWBp9l0jmi39Bk7/V34nTz+hTP5O6Bt3BVa2BcAEa2u2OplrD26+a88XtyS
- y6A4ii0u7esw1q/sYyj/c8O7S3cpEP4JyVcoh8TEtGl2DNqPilatzYrYHargz1ZA0BIg
- 8tCY1nwWmjd2CAkTsU8KhHft/kazyFYnEPys0JPCLM1zTuve7Mz09skz5g+GwOEmwIdr
- CU9g==
-X-Gm-Message-State: AOAM533gLlEfukopcynkK+ow8B8eWli/pMdSYPc5IXjTsPH3Wja/pMv4
- 3PncDpjvIEfpZU1YxnSnxHCvG9/ui4vfEPaTWx9rHgZowJ2SXaQr/Hh4rpj0lB/xnWqL/1qjdrh
- HYlCgCQLEA+AmQAu3IfZLkJlXhJF/mfYSGbY7wVjAp0OkyPuLq+/63FW8Zg==
-X-Received: by 2002:a2e:910e:0:b0:255:4a7e:b42e with SMTP id
- m14-20020a2e910e000000b002554a7eb42emr13517226ljg.492.1654142030533; 
- Wed, 01 Jun 2022 20:53:50 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwJM9qe1ZzH7Y7RYWXggUuk3BevCy6i+Cbv2/YzP3wdLzlzwEekNr9HqR9L31QhUD0/KMuoWmCNycyMXglwQmk=
-X-Received: by 2002:a2e:910e:0:b0:255:4a7e:b42e with SMTP id
- m14-20020a2e910e000000b002554a7eb42emr13517199ljg.492.1654142030349; Wed, 01
- Jun 2022 20:53:50 -0700 (PDT)
+ bh=LQg4+c50YvWCQtzqLAPVbSBhXMgvtlCDtHeV4wCuhWA=;
+ b=yH0D5po1eLYEyOsJpMGSiWZuXGNECcmCn+dea8qLbZ2zo70spF339Vz6GVYOkGu93P
+ P5sJ82hdzk9nZ5R3yoJZ1iymR3tHnjbrIOoIEyvHGsRdg2EE/HwSvVT45TJ/Yc5mYuxB
+ jx9mCWQyaLp6iAlKj3V6m/80+00zuzBqXNpUzLd6Xg45jM5zYXERitfEv0kBmdH9P4u0
+ uAzR1ZpWdBBgl45RFHND3ZRfHvMIqgduUKawzlPVi7q1qN0dSq9H01BYBbHFie+x0x27
+ HlnsrKOVmGTmGwBADUbV02f1zCTYypqu0P64aRFNt/2OtY6biQYsbXwp3LZ/ZeqonRF4
+ V7MQ==
+X-Gm-Message-State: AOAM5331FYBSE8wudB8wrIsXtxFPTI/OFGDZTn8SlEz67KlDfpANKN2P
+ hXUmMU2N56a++oi2PhGw/gnKfMkHDtlfjoTK/OH+HgjuL7COS9J1G98xkOlwPgsqwo1ER857cMK
+ OuLPVlw2ydmd//jTpwP5C4O7xj4FVyI5xoXp32rve9Wh+eQ7hp+YvkYjmmQ==
+X-Received: by 2002:a25:2256:0:b0:65d:4d94:17c7 with SMTP id
+ i83-20020a252256000000b0065d4d9417c7mr3660445ybi.173.1654153880495; 
+ Thu, 02 Jun 2022 00:11:20 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwbq8mjNNskHu3ozeHpHlg+DaZHTBjyfJsEZXunCVoF4eQaVmhhytLgz9Ko+0MwYH/GiB6jkyIDuIrxlLkS4i8=
+X-Received: by 2002:a25:2256:0:b0:65d:4d94:17c7 with SMTP id
+ i83-20020a252256000000b0065d4d9417c7mr3660430ybi.173.1654153880277; Thu, 02
+ Jun 2022 00:11:20 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220526124338.36247-1-eperezma@redhat.com>
- <PH0PR12MB54819C6C6DAF6572AEADC1AEDCD99@PH0PR12MB5481.namprd12.prod.outlook.com>
- <20220527065442-mutt-send-email-mst@kernel.org>
- <CACGkMEubfv_OJOsJ_ROgei41Qx4mPO0Xz8rMVnO8aPFiEqr8rA@mail.gmail.com>
- <PH0PR12MB5481695930E7548BAAF1B0D9DCDC9@PH0PR12MB5481.namprd12.prod.outlook.com>
- <CACGkMEsSKF_MyLgFdzVROptS3PCcp1y865znLWgnzq9L7CpFVQ@mail.gmail.com>
- <PH0PR12MB5481CAA3F57892FF7F05B004DCDF9@PH0PR12MB5481.namprd12.prod.outlook.com>
- <CACGkMEsJJL34iUYQMxHguOV2cQ7rts+hRG5Gp3XKCGuqNdnNQg@mail.gmail.com>
- <PH0PR12MB5481D099A324C91DAF01259BDCDE9@PH0PR12MB5481.namprd12.prod.outlook.com>
-In-Reply-To: <PH0PR12MB5481D099A324C91DAF01259BDCDE9@PH0PR12MB5481.namprd12.prod.outlook.com>
+References: <20220602023845.2596397-1-lingshan.zhu@intel.com>
+ <20220602023845.2596397-2-lingshan.zhu@intel.com>
+In-Reply-To: <20220602023845.2596397-2-lingshan.zhu@intel.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 2 Jun 2022 11:53:39 +0800
-Message-ID: <CACGkMEueG76L8H+F70D=T5kjK_+J68ARNQmQQo51rq3CfcOdRA@mail.gmail.com>
-Subject: Re: [PATCH v4 0/4] Implement vdpasim stop operation
-To: Parav Pandit <parav@nvidia.com>
+Date: Thu, 2 Jun 2022 15:11:09 +0800
+Message-ID: <CACGkMEsdKaWjmOncpLo1MO1DM2KDpE61KbH8uKBrnCqCxFubvw@mail.gmail.com>
+Subject: Re: [PATCH 1/6] vDPA/ifcvf: get_config_size should return a value no
+ greater than dev implementation
+To: Zhu Lingshan <lingshan.zhu@intel.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: "tanuj.kamde@amd.com" <tanuj.kamde@amd.com>,
- "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
- "Michael S. Tsirkin" <mst@redhat.com>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- Wu Zongyong <wuzongyong@linux.alibaba.com>, Si-Wei Liu <si-wei.liu@oracle.com>,
- "pabloc@xilinx.com" <pabloc@xilinx.com>, Eli Cohen <elic@nvidia.com>,
- Zhang Min <zhang.min9@zte.com.cn>, "lulu@redhat.com" <lulu@redhat.com>,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- "Piotr.Uminski@intel.com" <Piotr.Uminski@intel.com>,
- "martinh@xilinx.com" <martinh@xilinx.com>,
- Xie Yongji <xieyongji@bytedance.com>, "dinang@xilinx.com" <dinang@xilinx.com>,
- "habetsm.xilinx@gmail.com" <habetsm.xilinx@gmail.com>,
- Longpeng <longpeng2@huawei.com>, Dan Carpenter <dan.carpenter@oracle.com>,
- "lvivier@redhat.com" <lvivier@redhat.com>,
- Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
- "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "ecree.xilinx@gmail.com" <ecree.xilinx@gmail.com>,
- "hanand@xilinx.com" <hanand@xilinx.com>,
- "martinpo@xilinx.com" <martinpo@xilinx.com>,
- "gautam.dawar@amd.com" <gautam.dawar@amd.com>,
- Zhu Lingshan <lingshan.zhu@intel.com>
+Cc: netdev <netdev@vger.kernel.org>,
+ virtualization <virtualization@lists.linux-foundation.org>,
+ mst <mst@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -139,92 +113,83 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Jun 2, 2022 at 10:59 AM Parav Pandit <parav@nvidia.com> wrote:
+On Thu, Jun 2, 2022 at 10:48 AM Zhu Lingshan <lingshan.zhu@intel.com> wrote:
 >
+> ifcvf_get_config_size() should return a virtio device type specific value,
+> however the ret_value should not be greater than the onboard size of
+> the device implementation. E.g., for virtio_net, config_size should be
+> the minimum value of sizeof(struct virtio_net_config) and the onboard
+> cap size.
 >
-> > From: Jason Wang <jasowang@redhat.com>
-> > Sent: Wednesday, June 1, 2022 10:00 PM
-> >
-> > On Thu, Jun 2, 2022 at 2:58 AM Parav Pandit <parav@nvidia.com> wrote:
-> > >
-> > >
-> > > > From: Jason Wang <jasowang@redhat.com>
-> > > > Sent: Tuesday, May 31, 2022 10:42 PM
-> > > >
-> > > > Well, the ability to query the virtqueue state was proposed as
-> > > > another feature (Eugenio, please correct me). This should be
-> > > > sufficient for making virtio-net to be live migrated.
-> > > >
-> > > The device is stopped, it won't answer to this special vq config done here.
-> >
-> > This depends on the definition of the stop. Any query to the device state
-> > should be allowed otherwise it's meaningless for us.
-> >
-> > > Programming all of these using cfg registers doesn't scale for on-chip
-> > memory and for the speed.
-> >
-> > Well, they are orthogonal and what I want to say is, we should first define
-> > the semantics of stop and state of the virtqueue.
-> >
-> > Such a facility could be accessed by either transport specific method or admin
-> > virtqueue, it totally depends on the hardware architecture of the vendor.
-> >
-> I find it hard to believe that a vendor can implement a CVQ but not AQ and chose to expose tens of hundreds of registers.
-> But maybe, it fits some specific hw.
+> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
+> ---
+>  drivers/vdpa/ifcvf/ifcvf_base.c | 8 ++++++--
+>  drivers/vdpa/ifcvf/ifcvf_base.h | 2 ++
+>  2 files changed, 8 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/vdpa/ifcvf/ifcvf_base.c b/drivers/vdpa/ifcvf/ifcvf_base.c
+> index 48c4dadb0c7c..6bccc8291c26 100644
+> --- a/drivers/vdpa/ifcvf/ifcvf_base.c
+> +++ b/drivers/vdpa/ifcvf/ifcvf_base.c
+> @@ -128,6 +128,7 @@ int ifcvf_init_hw(struct ifcvf_hw *hw, struct pci_dev *pdev)
+>                         break;
+>                 case VIRTIO_PCI_CAP_DEVICE_CFG:
+>                         hw->dev_cfg = get_cap_addr(hw, &cap);
+> +                       hw->cap_dev_config_size = le32_to_cpu(cap.length);
 
-You can have a look at the ifcvf dpdk driver as an example.
+One possible issue here is that, if the hardware have more size than
+spec, we may end up with a migration compatibility issue.
 
-But another thing that is unrelated to hardware architecture is the
-nesting support. Having admin virtqueue in a nesting environment looks
-like an overkill. Presenting a register in L1 and map it to L0's admin
-should be good enough.
+It looks to me we'd better build the config size based on the
+features, e.g it looks to me for net, we should probably use
 
->
-> I like to learn the advantages of such method other than simplicity.
->
-> We can clearly that we are shifting away from such PCI registers with SIOV, IMS and other scalable solutions.
-> virtio drifting in reverse direction by introducing more registers as transport.
-> I expect it to an optional transport like AQ.
+offset_of(struct virtio_net_config, mtu)?
 
-Actually, I had a proposal of using admin virtqueue as a transport,
-it's designed to be SIOV/IMS capable. And it's not hard to extend it
-with the state/stop support etc.
+>                         IFCVF_DBG(pdev, "hw->dev_cfg = %p\n", hw->dev_cfg);
+>                         break;
+>                 }
+> @@ -233,15 +234,18 @@ int ifcvf_verify_min_features(struct ifcvf_hw *hw, u64 features)
+>  u32 ifcvf_get_config_size(struct ifcvf_hw *hw)
+>  {
+>         struct ifcvf_adapter *adapter;
+> +       u32 net_config_size = sizeof(struct virtio_net_config);
+> +       u32 blk_config_size = sizeof(struct virtio_blk_config);
+> +       u32 cap_size = hw->cap_dev_config_size;
+>         u32 config_size;
+>
+>         adapter = vf_to_adapter(hw);
+>         switch (hw->dev_type) {
+>         case VIRTIO_ID_NET:
+> -               config_size = sizeof(struct virtio_net_config);
+> +               config_size = cap_size >= net_config_size ? net_config_size : cap_size;
 
->
-> > >
-> > > Next would be to program hundreds of statistics of the 64 VQs through a
-> > giant PCI config space register in some busy polling scheme.
-> >
-> > We don't need giant config space, and this method has been implemented
-> > by some vDPA vendors.
-> >
-> There are tens of 64-bit counters per VQs. These needs to programmed on destination side.
-> Programming these via registers requires exposing them on the registers.
-> In one of the proposals, I see them being queried via CVQ from the device.
-
-I didn't see a proposal like this. And I don't think querying general
-virtio state like idx with a device specific CVQ is a good design.
-
->
-> Programming them via cfg registers requires large cfg space or synchronous programming until receiving ACK from it.
-> This means one entry at a time...
->
-> Programming them via CVQ needs replicate and align cmd values etc on all device types. All duplicate and hard to maintain.
->
->
-> > >
-> > > I can clearly see how all these are inefficient for faster LM.
-> > > We need an efficient AQ to proceed with at minimum.
-> >
-> > I'm fine with admin virtqueue, but the stop and state are orthogonal to that.
-> > And using admin virtqueue for stop/state will be more natural if we use
-> > admin virtqueue as a transport.
-> Ok.
-> We should have defined it bit earlier that all vendors can use. :(
-
-I agree.
+I don't get the code here, any chance that net_config_size could be zero?
 
 Thanks
+
+>                 break;
+>         case VIRTIO_ID_BLOCK:
+> -               config_size = sizeof(struct virtio_blk_config);
+> +               config_size = cap_size >= blk_config_size ? blk_config_size : cap_size;
+>                 break;
+>         default:
+>                 config_size = 0;
+> diff --git a/drivers/vdpa/ifcvf/ifcvf_base.h b/drivers/vdpa/ifcvf/ifcvf_base.h
+> index 115b61f4924b..f5563f665cc6 100644
+> --- a/drivers/vdpa/ifcvf/ifcvf_base.h
+> +++ b/drivers/vdpa/ifcvf/ifcvf_base.h
+> @@ -87,6 +87,8 @@ struct ifcvf_hw {
+>         int config_irq;
+>         int vqs_reused_irq;
+>         u16 nr_vring;
+> +       /* VIRTIO_PCI_CAP_DEVICE_CFG size */
+> +       u32 cap_dev_config_size;
+>  };
+>
+>  struct ifcvf_adapter {
+> --
+> 2.31.1
+>
 
 _______________________________________________
 Virtualization mailing list
