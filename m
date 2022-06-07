@@ -1,104 +1,103 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 47B4BC43334
-	for <virtualization@archiver.kernel.org>; Tue,  7 Jun 2022 06:16:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 95F37C433EF
+	for <virtualization@archiver.kernel.org>; Tue,  7 Jun 2022 06:38:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id D385C4174E;
-	Tue,  7 Jun 2022 06:16:11 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 078F4802EE;
+	Tue,  7 Jun 2022 06:38:30 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 3d2tTchrmt3R; Tue,  7 Jun 2022 06:16:10 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 0H5rwa73T_d0; Tue,  7 Jun 2022 06:38:28 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 352634177E;
-	Tue,  7 Jun 2022 06:16:10 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 3676484164;
+	Tue,  7 Jun 2022 06:38:28 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D2C9FC0039;
-	Tue,  7 Jun 2022 06:16:09 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id F2F49C0039;
+	Tue,  7 Jun 2022 06:38:27 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id EA157C002D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 21674C002D
  for <virtualization@lists.linux-foundation.org>;
- Tue,  7 Jun 2022 06:16:08 +0000 (UTC)
+ Tue,  7 Jun 2022 06:38:27 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id C8FE6410AB
+ by smtp2.osuosl.org (Postfix) with ESMTP id 1E09D410B1
  for <virtualization@lists.linux-foundation.org>;
- Tue,  7 Jun 2022 06:16:08 +0000 (UTC)
+ Tue,  7 Jun 2022 06:38:27 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp2.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id CtzCmASfDvMt
+ with ESMTP id YZO7sEdr2KLk
  for <virtualization@lists.linux-foundation.org>;
- Tue,  7 Jun 2022 06:16:07 +0000 (UTC)
+ Tue,  7 Jun 2022 06:38:26 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 7E54E410AA
+ by smtp2.osuosl.org (Postfix) with ESMTPS id CB243410AE
  for <virtualization@lists.linux-foundation.org>;
- Tue,  7 Jun 2022 06:16:07 +0000 (UTC)
+ Tue,  7 Jun 2022 06:38:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1654582566;
+ s=mimecast20190719; t=1654583904;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=mfFt9YB7FAG4KKOd5cKTjk9ERTgqrvpSR7iiUCrN8L4=;
- b=e31n8+tDgGpKfw/0G4mYfc4YOTJyeIDparNVt4o2uwJJb9oM5hhSHRuqi6hznbUrkXTzNn
- UKUb/BwXkxQjptNWWP9G+CnL/OdrpnmIXvai6jMBnCvnbtKffXD5wLKhBTcaMOepk+94NK
- 7BiOUFUfCf59wGCTqOBqCR6g65k3Tu4=
-Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
- [209.85.167.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=Wbmh+cLiNUkJ2GMihMw3AGFn+jmS9SCo8bwKY106OII=;
+ b=Fk4Z8L541KWUU4lvlpo5Yf6XAdSr/sLsL3A/J2QBG+LpVwTwTaWgpBK6ljk11hy+8CDfsQ
+ G6ZUdVHqcNVf4voD0f3IHwr5NeUXq5LHmcX9G47sAoA6xnn6ysL+bMZOPTllgdQcS6w5du
+ TEztM8SJ0DpQMcbUkb9QnIcpSvBgtc8=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-470-oCOloJMBPgav_Kcc-vGVYQ-1; Tue, 07 Jun 2022 02:16:03 -0400
-X-MC-Unique: oCOloJMBPgav_Kcc-vGVYQ-1
-Received: by mail-lf1-f69.google.com with SMTP id
- bu3-20020a056512168300b0047791fb1d68so8315578lfb.23
+ us-mta-270-Wh4e7ahRMlOvOAc640lcNg-1; Tue, 07 Jun 2022 02:38:22 -0400
+X-MC-Unique: Wh4e7ahRMlOvOAc640lcNg-1
+Received: by mail-ed1-f70.google.com with SMTP id
+ x8-20020a056402414800b0042d8498f50aso12018375eda.23
  for <virtualization@lists.linux-foundation.org>;
- Mon, 06 Jun 2022 23:16:02 -0700 (PDT)
+ Mon, 06 Jun 2022 23:38:21 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=mfFt9YB7FAG4KKOd5cKTjk9ERTgqrvpSR7iiUCrN8L4=;
- b=jtcFxLci6tGNH3nwfDGEC372uKryarUhzl1UhI25DHvqoOQY2BDcNbxDuMkpoDIP+M
- QqoVskd9eyhgurPJgQz9yD5NTStrbJeOfFUwm5Qhh3s8hOabntJAmQIa+bKdXEI7aKB/
- lpTIFks8VuwmeTg7Ug8dV/flBk8KF8FpIp1qRyyTn5d5eEJkzkuhmLPlt0EXh7pSURII
- CgKraiPZekM2Y4ckk0FisPNpoxclzJ8v1jHnFkwh+DlZRUrAnBnNEZCR040Zn6Pt449S
- XN6Bo7+8DWA3jzxJyEpFJlXQket1MncidcHNH9ecOEzAyoS4mk+8Q4QdO5Hf9L5SVA6K
- H8Dg==
-X-Gm-Message-State: AOAM533C6YFoyhea6f9mVeodbMZf5QQXBLOtMd82EVPcEKIHbS/akU9Z
- QHS76mn4Hs3VJbyuM8xGKCQU7hSdKhhsSMwpnsrR+Sxbh/gjWp2Sld550ZoFD7Krf3fCm0J6mQT
- sK+dNcb91liHGkGxPbxVN+JhkahzTx0PxBhR/39qBrUAWwqhdW0VYWeG+iw==
-X-Received: by 2002:a05:6512:3e1d:b0:479:3cfa:f2c4 with SMTP id
- i29-20020a0565123e1d00b004793cfaf2c4mr6986709lfv.98.1654582561644; 
- Mon, 06 Jun 2022 23:16:01 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzZzTuBn3IIguYCiZKP5oHvXhD16W7D6wTFb71MJ8M2FxxZx+S93j4cdDUj1/zy38Fq4cdFG9Ckb6I3T6j/8GY=
-X-Received: by 2002:a05:6512:3e1d:b0:479:3cfa:f2c4 with SMTP id
- i29-20020a0565123e1d00b004793cfaf2c4mr6986701lfv.98.1654582561471; Mon, 06
- Jun 2022 23:16:01 -0700 (PDT)
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=Wbmh+cLiNUkJ2GMihMw3AGFn+jmS9SCo8bwKY106OII=;
+ b=LCs6Kjhxx0iwMivdOEiPDIxnJnuH8DvP38ctQKW0/zB8xg6GQxBO7Eya+bp7ttx9gG
+ niWn64cnoTj9AgVXk5scBh5wXxZ9GtzzOQFdJUOedanMnNKZbQ3jxbKBAtRJSUBOnuEc
+ /FxoWwOE9q/o6UHROh3JkvyOb3brsYJ0wCTSuEafWfY83zAX2kgtOd1eeCl/+xe3/vKH
+ NRkuwgU5+lq5VpQN5lZYV/zW50EcnTLuLEOn1YtScy+MJuuzBfAmg7SeV3IfepV3z95k
+ 4p+SiQf8eE3z119Sia6otPStBrK3wpvVQp5X/oHzfjywhzrXNCOn5d+Swq3UktPZjqQz
+ vzvg==
+X-Gm-Message-State: AOAM531NJlTzIFbJQA3/ZC5rrcv0XDJP7R3DzNy3ESc0AC41CoSW54QF
+ 7nFeA9Yd4czQ3I0luqt7QFrt7R9Mso5D9HRuGRznn9rFMIme9slgfu6bBMnl3Hu8u1C2UVUci5p
+ jx3illRoLWskjwdG0hXFE+JZd+BcLYwM/ny3484OJog==
+X-Received: by 2002:a05:6402:51c7:b0:42d:f4ea:c09 with SMTP id
+ r7-20020a05640251c700b0042df4ea0c09mr31162733edd.319.1654583900914; 
+ Mon, 06 Jun 2022 23:38:20 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJx1Jps7kQ/xohH/8dtmq4OQwlyD81Z2cqYGOAsw9R6m19VYfQyyVmkIypwUyyL51/3gQ8oV5Q==
+X-Received: by 2002:a05:6402:51c7:b0:42d:f4ea:c09 with SMTP id
+ r7-20020a05640251c700b0042df4ea0c09mr31162718edd.319.1654583900647; 
+ Mon, 06 Jun 2022 23:38:20 -0700 (PDT)
+Received: from redhat.com ([2.55.169.1]) by smtp.gmail.com with ESMTPSA id
+ en22-20020a056402529600b0043120d5f3dcsm4829582edb.14.2022.06.06.23.38.18
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 06 Jun 2022 23:38:20 -0700 (PDT)
+Date: Tue, 7 Jun 2022 02:38:16 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Bo Liu <liubo03@inspur.com>
+Subject: Re: [PATCH] virtio_ring: remove unnecessary to_vvq call
+Message-ID: <20220607023646-mutt-send-email-mst@kernel.org>
+References: <20220607005951.2221-1-liubo03@inspur.com>
 MIME-Version: 1.0
-References: <20220602023845.2596397-1-lingshan.zhu@intel.com>
- <20220602023845.2596397-7-lingshan.zhu@intel.com>
- <CACGkMEtS6W8wXdrXbQuniZ-ox1WsCAc1UQHJGD=J4PViviQYpA@mail.gmail.com>
- <054679a9-16ed-6cf6-ba8d-037aedc29357@intel.com>
-In-Reply-To: <054679a9-16ed-6cf6-ba8d-037aedc29357@intel.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 7 Jun 2022 14:15:50 +0800
-Message-ID: <CACGkMEvGidNuYJ6Lww7CgAAx8Es7UvoDNfwDB_pJY7b0W3U6cQ@mail.gmail.com>
-Subject: Re: [PATCH 6/6] vDPA: fix 'cast to restricted le16' warnings in
- vdpa_dev_net_config_fill()
-To: "Zhu, Lingshan" <lingshan.zhu@intel.com>
+In-Reply-To: <20220607005951.2221-1-liubo03@inspur.com>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: netdev <netdev@vger.kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>,
- mst <mst@redhat.com>
+Content-Disposition: inline
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -115,55 +114,346 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Jun 6, 2022 at 4:22 PM Zhu, Lingshan <lingshan.zhu@intel.com> wrote:
->
->
->
-> On 6/2/2022 3:40 PM, Jason Wang wrote:
-> > On Thu, Jun 2, 2022 at 10:48 AM Zhu Lingshan <lingshan.zhu@intel.com> wrote:
-> >> This commit fixes spars warnings: cast to restricted __le16
-> >> in function vdpa_dev_net_config_fill()
-> >>
-> >> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
-> >> ---
-> >>   drivers/vdpa/vdpa.c | 4 ++--
-> >>   1 file changed, 2 insertions(+), 2 deletions(-)
-> >>
-> >> diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
-> >> index 50a11ece603e..2719ce9962fc 100644
-> >> --- a/drivers/vdpa/vdpa.c
-> >> +++ b/drivers/vdpa/vdpa.c
-> >> @@ -837,11 +837,11 @@ static int vdpa_dev_net_config_fill(struct vdpa_device *vdev, struct sk_buff *ms
-> >>                      config.mac))
-> >>                  return -EMSGSIZE;
-> >>
-> >> -       val_u16 = le16_to_cpu(config.status);
-> >> +       val_u16 = le16_to_cpu((__force __le16)config.status);
-> > Can we use virtio accessors like virtio16_to_cpu()?
-> I will work out a vdpa16_to_cpu()
+On Mon, Jun 06, 2022 at 08:59:51PM -0400, Bo Liu wrote:
+> In many functions, the parameter passed in is "_vq", which still call
+> to_vvq() to get 'vq'. It can avoid unnecessary call of to_vvq() by directly
+> passing in the parameter "vq".
+> 
+> Signed-off-by: Bo Liu <liubo03@inspur.com>
 
-I meant __virtio16_to_cpu(true, xxx) actually here.
+What does the patch accomplish? Is the generated binary faster? smaller?
 
-Thanks
-
->
-> Thanks,
-> Zhu Lingshan
-> >
-> > Thanks
-> >
-> >>          if (nla_put_u16(msg, VDPA_ATTR_DEV_NET_STATUS, val_u16))
-> >>                  return -EMSGSIZE;
-> >>
-> >> -       val_u16 = le16_to_cpu(config.mtu);
-> >> +       val_u16 = le16_to_cpu((__force __le16)config.mtu);
-> >>          if (nla_put_u16(msg, VDPA_ATTR_DEV_NET_CFG_MTU, val_u16))
-> >>                  return -EMSGSIZE;
-> >>
-> >> --
-> >> 2.31.1
-> >>
->
+> ---
+>  drivers/virtio/virtio_ring.c | 100 ++++++++++++++---------------------
+>  1 file changed, 41 insertions(+), 59 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index 13a7348cedff..f82db59fdbdc 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -648,9 +648,8 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
+>  	return -ENOMEM;
+>  }
+>  
+> -static bool virtqueue_kick_prepare_split(struct virtqueue *_vq)
+> +static bool virtqueue_kick_prepare_split(struct vring_virtqueue *vq)
+>  {
+> -	struct vring_virtqueue *vq = to_vvq(_vq);
+>  	u16 new, old;
+>  	bool needs_kick;
+>  
+> @@ -667,12 +666,12 @@ static bool virtqueue_kick_prepare_split(struct virtqueue *_vq)
+>  	LAST_ADD_TIME_INVALID(vq);
+>  
+>  	if (vq->event) {
+> -		needs_kick = vring_need_event(virtio16_to_cpu(_vq->vdev,
+> +		needs_kick = vring_need_event(virtio16_to_cpu(vq->vq.vdev,
+>  					vring_avail_event(&vq->split.vring)),
+>  					      new, old);
+>  	} else {
+>  		needs_kick = !(vq->split.vring.used->flags &
+> -					cpu_to_virtio16(_vq->vdev,
+> +					cpu_to_virtio16(vq->vq.vdev,
+>  						VRING_USED_F_NO_NOTIFY));
+>  	}
+>  	END_USE(vq);
+> @@ -735,11 +734,10 @@ static inline bool more_used_split(const struct vring_virtqueue *vq)
+>  			vq->split.vring.used->idx);
+>  }
+>  
+> -static void *virtqueue_get_buf_ctx_split(struct virtqueue *_vq,
+> +static void *virtqueue_get_buf_ctx_split(struct vring_virtqueue *vq,
+>  					 unsigned int *len,
+>  					 void **ctx)
+>  {
+> -	struct vring_virtqueue *vq = to_vvq(_vq);
+>  	void *ret;
+>  	unsigned int i;
+>  	u16 last_used;
+> @@ -761,9 +759,9 @@ static void *virtqueue_get_buf_ctx_split(struct virtqueue *_vq,
+>  	virtio_rmb(vq->weak_barriers);
+>  
+>  	last_used = (vq->last_used_idx & (vq->split.vring.num - 1));
+> -	i = virtio32_to_cpu(_vq->vdev,
+> +	i = virtio32_to_cpu(vq->vq.vdev,
+>  			vq->split.vring.used->ring[last_used].id);
+> -	*len = virtio32_to_cpu(_vq->vdev,
+> +	*len = virtio32_to_cpu(vq->vq.vdev,
+>  			vq->split.vring.used->ring[last_used].len);
+>  
+>  	if (unlikely(i >= vq->split.vring.num)) {
+> @@ -785,7 +783,7 @@ static void *virtqueue_get_buf_ctx_split(struct virtqueue *_vq,
+>  	if (!(vq->split.avail_flags_shadow & VRING_AVAIL_F_NO_INTERRUPT))
+>  		virtio_store_mb(vq->weak_barriers,
+>  				&vring_used_event(&vq->split.vring),
+> -				cpu_to_virtio16(_vq->vdev, vq->last_used_idx));
+> +				cpu_to_virtio16(vq->vq.vdev, vq->last_used_idx));
+>  
+>  	LAST_ADD_TIME_INVALID(vq);
+>  
+> @@ -793,10 +791,8 @@ static void *virtqueue_get_buf_ctx_split(struct virtqueue *_vq,
+>  	return ret;
+>  }
+>  
+> -static void virtqueue_disable_cb_split(struct virtqueue *_vq)
+> +static void virtqueue_disable_cb_split(struct vring_virtqueue *vq)
+>  {
+> -	struct vring_virtqueue *vq = to_vvq(_vq);
+> -
+>  	if (!(vq->split.avail_flags_shadow & VRING_AVAIL_F_NO_INTERRUPT)) {
+>  		vq->split.avail_flags_shadow |= VRING_AVAIL_F_NO_INTERRUPT;
+>  		if (vq->event)
+> @@ -804,14 +800,13 @@ static void virtqueue_disable_cb_split(struct virtqueue *_vq)
+>  			vring_used_event(&vq->split.vring) = 0x0;
+>  		else
+>  			vq->split.vring.avail->flags =
+> -				cpu_to_virtio16(_vq->vdev,
+> +				cpu_to_virtio16(vq->vq.vdev,
+>  						vq->split.avail_flags_shadow);
+>  	}
+>  }
+>  
+> -static unsigned int virtqueue_enable_cb_prepare_split(struct virtqueue *_vq)
+> +static unsigned int virtqueue_enable_cb_prepare_split(struct vring_virtqueue *vq)
+>  {
+> -	struct vring_virtqueue *vq = to_vvq(_vq);
+>  	u16 last_used_idx;
+>  
+>  	START_USE(vq);
+> @@ -825,26 +820,23 @@ static unsigned int virtqueue_enable_cb_prepare_split(struct virtqueue *_vq)
+>  		vq->split.avail_flags_shadow &= ~VRING_AVAIL_F_NO_INTERRUPT;
+>  		if (!vq->event)
+>  			vq->split.vring.avail->flags =
+> -				cpu_to_virtio16(_vq->vdev,
+> +				cpu_to_virtio16(vq->vq.vdev,
+>  						vq->split.avail_flags_shadow);
+>  	}
+> -	vring_used_event(&vq->split.vring) = cpu_to_virtio16(_vq->vdev,
+> +	vring_used_event(&vq->split.vring) = cpu_to_virtio16(vq->vq.vdev,
+>  			last_used_idx = vq->last_used_idx);
+>  	END_USE(vq);
+>  	return last_used_idx;
+>  }
+>  
+> -static bool virtqueue_poll_split(struct virtqueue *_vq, unsigned int last_used_idx)
+> +static bool virtqueue_poll_split(struct vring_virtqueue *vq, unsigned int last_used_idx)
+>  {
+> -	struct vring_virtqueue *vq = to_vvq(_vq);
+> -
+> -	return (u16)last_used_idx != virtio16_to_cpu(_vq->vdev,
+> +	return (u16)last_used_idx != virtio16_to_cpu(vq->vq.vdev,
+>  			vq->split.vring.used->idx);
+>  }
+>  
+> -static bool virtqueue_enable_cb_delayed_split(struct virtqueue *_vq)
+> +static bool virtqueue_enable_cb_delayed_split(struct vring_virtqueue *vq)
+>  {
+> -	struct vring_virtqueue *vq = to_vvq(_vq);
+>  	u16 bufs;
+>  
+>  	START_USE(vq);
+> @@ -858,7 +850,7 @@ static bool virtqueue_enable_cb_delayed_split(struct virtqueue *_vq)
+>  		vq->split.avail_flags_shadow &= ~VRING_AVAIL_F_NO_INTERRUPT;
+>  		if (!vq->event)
+>  			vq->split.vring.avail->flags =
+> -				cpu_to_virtio16(_vq->vdev,
+> +				cpu_to_virtio16(vq->vq.vdev,
+>  						vq->split.avail_flags_shadow);
+>  	}
+>  	/* TODO: tune this threshold */
+> @@ -866,9 +858,9 @@ static bool virtqueue_enable_cb_delayed_split(struct virtqueue *_vq)
+>  
+>  	virtio_store_mb(vq->weak_barriers,
+>  			&vring_used_event(&vq->split.vring),
+> -			cpu_to_virtio16(_vq->vdev, vq->last_used_idx + bufs));
+> +			cpu_to_virtio16(vq->vq.vdev, vq->last_used_idx + bufs));
+>  
+> -	if (unlikely((u16)(virtio16_to_cpu(_vq->vdev, vq->split.vring.used->idx)
+> +	if (unlikely((u16)(virtio16_to_cpu(vq->vq.vdev, vq->split.vring.used->idx)
+>  					- vq->last_used_idx) > bufs)) {
+>  		END_USE(vq);
+>  		return false;
+> @@ -878,9 +870,8 @@ static bool virtqueue_enable_cb_delayed_split(struct virtqueue *_vq)
+>  	return true;
+>  }
+>  
+> -static void *virtqueue_detach_unused_buf_split(struct virtqueue *_vq)
+> +static void *virtqueue_detach_unused_buf_split(struct vring_virtqueue *vq)
+>  {
+> -	struct vring_virtqueue *vq = to_vvq(_vq);
+>  	unsigned int i;
+>  	void *buf;
+>  
+> @@ -893,7 +884,7 @@ static void *virtqueue_detach_unused_buf_split(struct virtqueue *_vq)
+>  		buf = vq->split.desc_state[i].data;
+>  		detach_buf_split(vq, i, NULL);
+>  		vq->split.avail_idx_shadow--;
+> -		vq->split.vring.avail->idx = cpu_to_virtio16(_vq->vdev,
+> +		vq->split.vring.avail->idx = cpu_to_virtio16(vq->vq.vdev,
+>  				vq->split.avail_idx_shadow);
+>  		END_USE(vq);
+>  		return buf;
+> @@ -1296,9 +1287,8 @@ static inline int virtqueue_add_packed(struct virtqueue *_vq,
+>  	return -EIO;
+>  }
+>  
+> -static bool virtqueue_kick_prepare_packed(struct virtqueue *_vq)
+> +static bool virtqueue_kick_prepare_packed(struct vring_virtqueue *vq)
+>  {
+> -	struct vring_virtqueue *vq = to_vvq(_vq);
+>  	u16 new, old, off_wrap, flags, wrap_counter, event_idx;
+>  	bool needs_kick;
+>  	union {
+> @@ -1410,11 +1400,10 @@ static inline bool more_used_packed(const struct vring_virtqueue *vq)
+>  			vq->packed.used_wrap_counter);
+>  }
+>  
+> -static void *virtqueue_get_buf_ctx_packed(struct virtqueue *_vq,
+> +static void *virtqueue_get_buf_ctx_packed(struct vring_virtqueue *vq,
+>  					  unsigned int *len,
+>  					  void **ctx)
+>  {
+> -	struct vring_virtqueue *vq = to_vvq(_vq);
+>  	u16 last_used, id;
+>  	void *ret;
+>  
+> @@ -1475,10 +1464,8 @@ static void *virtqueue_get_buf_ctx_packed(struct virtqueue *_vq,
+>  	return ret;
+>  }
+>  
+> -static void virtqueue_disable_cb_packed(struct virtqueue *_vq)
+> +static void virtqueue_disable_cb_packed(struct vring_virtqueue *vq)
+>  {
+> -	struct vring_virtqueue *vq = to_vvq(_vq);
+> -
+>  	if (vq->packed.event_flags_shadow != VRING_PACKED_EVENT_FLAG_DISABLE) {
+>  		vq->packed.event_flags_shadow = VRING_PACKED_EVENT_FLAG_DISABLE;
+>  		vq->packed.vring.driver->flags =
+> @@ -1486,10 +1473,8 @@ static void virtqueue_disable_cb_packed(struct virtqueue *_vq)
+>  	}
+>  }
+>  
+> -static unsigned int virtqueue_enable_cb_prepare_packed(struct virtqueue *_vq)
+> +static unsigned int virtqueue_enable_cb_prepare_packed(struct vring_virtqueue *vq)
+>  {
+> -	struct vring_virtqueue *vq = to_vvq(_vq);
+> -
+>  	START_USE(vq);
+>  
+>  	/*
+> @@ -1522,9 +1507,8 @@ static unsigned int virtqueue_enable_cb_prepare_packed(struct virtqueue *_vq)
+>  			VRING_PACKED_EVENT_F_WRAP_CTR);
+>  }
+>  
+> -static bool virtqueue_poll_packed(struct virtqueue *_vq, u16 off_wrap)
+> +static bool virtqueue_poll_packed(struct vring_virtqueue *vq, u16 off_wrap)
+>  {
+> -	struct vring_virtqueue *vq = to_vvq(_vq);
+>  	bool wrap_counter;
+>  	u16 used_idx;
+>  
+> @@ -1534,9 +1518,8 @@ static bool virtqueue_poll_packed(struct virtqueue *_vq, u16 off_wrap)
+>  	return is_used_desc_packed(vq, used_idx, wrap_counter);
+>  }
+>  
+> -static bool virtqueue_enable_cb_delayed_packed(struct virtqueue *_vq)
+> +static bool virtqueue_enable_cb_delayed_packed(struct vring_virtqueue *vq)
+>  {
+> -	struct vring_virtqueue *vq = to_vvq(_vq);
+>  	u16 used_idx, wrap_counter;
+>  	u16 bufs;
+>  
+> @@ -1593,9 +1576,8 @@ static bool virtqueue_enable_cb_delayed_packed(struct virtqueue *_vq)
+>  	return true;
+>  }
+>  
+> -static void *virtqueue_detach_unused_buf_packed(struct virtqueue *_vq)
+> +static void *virtqueue_detach_unused_buf_packed(struct vring_virtqueue *vq)
+>  {
+> -	struct vring_virtqueue *vq = to_vvq(_vq);
+>  	unsigned int i;
+>  	void *buf;
+>  
+> @@ -1906,8 +1888,8 @@ bool virtqueue_kick_prepare(struct virtqueue *_vq)
+>  {
+>  	struct vring_virtqueue *vq = to_vvq(_vq);
+>  
+> -	return vq->packed_ring ? virtqueue_kick_prepare_packed(_vq) :
+> -				 virtqueue_kick_prepare_split(_vq);
+> +	return vq->packed_ring ? virtqueue_kick_prepare_packed(vq) :
+> +				 virtqueue_kick_prepare_split(vq);
+>  }
+>  EXPORT_SYMBOL_GPL(virtqueue_kick_prepare);
+>  
+> @@ -1977,8 +1959,8 @@ void *virtqueue_get_buf_ctx(struct virtqueue *_vq, unsigned int *len,
+>  {
+>  	struct vring_virtqueue *vq = to_vvq(_vq);
+>  
+> -	return vq->packed_ring ? virtqueue_get_buf_ctx_packed(_vq, len, ctx) :
+> -				 virtqueue_get_buf_ctx_split(_vq, len, ctx);
+> +	return vq->packed_ring ? virtqueue_get_buf_ctx_packed(vq, len, ctx) :
+> +				 virtqueue_get_buf_ctx_split(vq, len, ctx);
+>  }
+>  EXPORT_SYMBOL_GPL(virtqueue_get_buf_ctx);
+>  
+> @@ -2007,9 +1989,9 @@ void virtqueue_disable_cb(struct virtqueue *_vq)
+>  		return;
+>  
+>  	if (vq->packed_ring)
+> -		virtqueue_disable_cb_packed(_vq);
+> +		virtqueue_disable_cb_packed(vq);
+>  	else
+> -		virtqueue_disable_cb_split(_vq);
+> +		virtqueue_disable_cb_split(vq);
+>  }
+>  EXPORT_SYMBOL_GPL(virtqueue_disable_cb);
+>  
+> @@ -2032,8 +2014,8 @@ unsigned int virtqueue_enable_cb_prepare(struct virtqueue *_vq)
+>  	if (vq->event_triggered)
+>  		vq->event_triggered = false;
+>  
+> -	return vq->packed_ring ? virtqueue_enable_cb_prepare_packed(_vq) :
+> -				 virtqueue_enable_cb_prepare_split(_vq);
+> +	return vq->packed_ring ? virtqueue_enable_cb_prepare_packed(vq) :
+> +				 virtqueue_enable_cb_prepare_split(vq);
+>  }
+>  EXPORT_SYMBOL_GPL(virtqueue_enable_cb_prepare);
+>  
+> @@ -2054,8 +2036,8 @@ bool virtqueue_poll(struct virtqueue *_vq, unsigned int last_used_idx)
+>  		return false;
+>  
+>  	virtio_mb(vq->weak_barriers);
+> -	return vq->packed_ring ? virtqueue_poll_packed(_vq, last_used_idx) :
+> -				 virtqueue_poll_split(_vq, last_used_idx);
+> +	return vq->packed_ring ? virtqueue_poll_packed(vq, last_used_idx) :
+> +				 virtqueue_poll_split(vq, last_used_idx);
+>  }
+>  EXPORT_SYMBOL_GPL(virtqueue_poll);
+>  
+> @@ -2098,8 +2080,8 @@ bool virtqueue_enable_cb_delayed(struct virtqueue *_vq)
+>  	if (vq->event_triggered)
+>  		vq->event_triggered = false;
+>  
+> -	return vq->packed_ring ? virtqueue_enable_cb_delayed_packed(_vq) :
+> -				 virtqueue_enable_cb_delayed_split(_vq);
+> +	return vq->packed_ring ? virtqueue_enable_cb_delayed_packed(vq) :
+> +				 virtqueue_enable_cb_delayed_split(vq);
+>  }
+>  EXPORT_SYMBOL_GPL(virtqueue_enable_cb_delayed);
+>  
+> @@ -2115,8 +2097,8 @@ void *virtqueue_detach_unused_buf(struct virtqueue *_vq)
+>  {
+>  	struct vring_virtqueue *vq = to_vvq(_vq);
+>  
+> -	return vq->packed_ring ? virtqueue_detach_unused_buf_packed(_vq) :
+> -				 virtqueue_detach_unused_buf_split(_vq);
+> +	return vq->packed_ring ? virtqueue_detach_unused_buf_packed(vq) :
+> +				 virtqueue_detach_unused_buf_split(vq);
+>  }
+>  EXPORT_SYMBOL_GPL(virtqueue_detach_unused_buf);
+>  
+> -- 
+> 2.27.0
 
 _______________________________________________
 Virtualization mailing list
