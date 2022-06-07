@@ -1,103 +1,174 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 95F37C433EF
-	for <virtualization@archiver.kernel.org>; Tue,  7 Jun 2022 06:38:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 41973C43334
+	for <virtualization@archiver.kernel.org>; Tue,  7 Jun 2022 06:49:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 078F4802EE;
-	Tue,  7 Jun 2022 06:38:30 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id E817640500;
+	Tue,  7 Jun 2022 06:49:45 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 0H5rwa73T_d0; Tue,  7 Jun 2022 06:38:28 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 3676484164;
-	Tue,  7 Jun 2022 06:38:28 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id F2F49C0039;
-	Tue,  7 Jun 2022 06:38:27 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 21674C002D
- for <virtualization@lists.linux-foundation.org>;
- Tue,  7 Jun 2022 06:38:27 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 1E09D410B1
- for <virtualization@lists.linux-foundation.org>;
- Tue,  7 Jun 2022 06:38:27 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id YZO7sEdr2KLk
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id VnpzsX54VN7k; Tue,  7 Jun 2022 06:49:45 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 854F5410B2;
+	Tue,  7 Jun 2022 06:49:44 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 59E37C0039;
+	Tue,  7 Jun 2022 06:49:44 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 60668C002D
  for <virtualization@lists.linux-foundation.org>;
- Tue,  7 Jun 2022 06:38:26 +0000 (UTC)
+ Tue,  7 Jun 2022 06:49:43 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 5CF4F60BBD
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  7 Jun 2022 06:49:43 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=oracle.com header.b="mDQXek5y";
+ dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
+ header.b="t1ALRsbX"
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id GiofkPaCRGat
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  7 Jun 2022 06:49:41 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id CB243410AE
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com
+ [205.220.177.32])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 8E1AE60B12
  for <virtualization@lists.linux-foundation.org>;
- Tue,  7 Jun 2022 06:38:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1654583904;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=Wbmh+cLiNUkJ2GMihMw3AGFn+jmS9SCo8bwKY106OII=;
- b=Fk4Z8L541KWUU4lvlpo5Yf6XAdSr/sLsL3A/J2QBG+LpVwTwTaWgpBK6ljk11hy+8CDfsQ
- G6ZUdVHqcNVf4voD0f3IHwr5NeUXq5LHmcX9G47sAoA6xnn6ysL+bMZOPTllgdQcS6w5du
- TEztM8SJ0DpQMcbUkb9QnIcpSvBgtc8=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-270-Wh4e7ahRMlOvOAc640lcNg-1; Tue, 07 Jun 2022 02:38:22 -0400
-X-MC-Unique: Wh4e7ahRMlOvOAc640lcNg-1
-Received: by mail-ed1-f70.google.com with SMTP id
- x8-20020a056402414800b0042d8498f50aso12018375eda.23
- for <virtualization@lists.linux-foundation.org>;
- Mon, 06 Jun 2022 23:38:21 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=Wbmh+cLiNUkJ2GMihMw3AGFn+jmS9SCo8bwKY106OII=;
- b=LCs6Kjhxx0iwMivdOEiPDIxnJnuH8DvP38ctQKW0/zB8xg6GQxBO7Eya+bp7ttx9gG
- niWn64cnoTj9AgVXk5scBh5wXxZ9GtzzOQFdJUOedanMnNKZbQ3jxbKBAtRJSUBOnuEc
- /FxoWwOE9q/o6UHROh3JkvyOb3brsYJ0wCTSuEafWfY83zAX2kgtOd1eeCl/+xe3/vKH
- NRkuwgU5+lq5VpQN5lZYV/zW50EcnTLuLEOn1YtScy+MJuuzBfAmg7SeV3IfepV3z95k
- 4p+SiQf8eE3z119Sia6otPStBrK3wpvVQp5X/oHzfjywhzrXNCOn5d+Swq3UktPZjqQz
- vzvg==
-X-Gm-Message-State: AOAM531NJlTzIFbJQA3/ZC5rrcv0XDJP7R3DzNy3ESc0AC41CoSW54QF
- 7nFeA9Yd4czQ3I0luqt7QFrt7R9Mso5D9HRuGRznn9rFMIme9slgfu6bBMnl3Hu8u1C2UVUci5p
- jx3illRoLWskjwdG0hXFE+JZd+BcLYwM/ny3484OJog==
-X-Received: by 2002:a05:6402:51c7:b0:42d:f4ea:c09 with SMTP id
- r7-20020a05640251c700b0042df4ea0c09mr31162733edd.319.1654583900914; 
- Mon, 06 Jun 2022 23:38:20 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJx1Jps7kQ/xohH/8dtmq4OQwlyD81Z2cqYGOAsw9R6m19VYfQyyVmkIypwUyyL51/3gQ8oV5Q==
-X-Received: by 2002:a05:6402:51c7:b0:42d:f4ea:c09 with SMTP id
- r7-20020a05640251c700b0042df4ea0c09mr31162718edd.319.1654583900647; 
- Mon, 06 Jun 2022 23:38:20 -0700 (PDT)
-Received: from redhat.com ([2.55.169.1]) by smtp.gmail.com with ESMTPSA id
- en22-20020a056402529600b0043120d5f3dcsm4829582edb.14.2022.06.06.23.38.18
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 06 Jun 2022 23:38:20 -0700 (PDT)
-Date: Tue, 7 Jun 2022 02:38:16 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Bo Liu <liubo03@inspur.com>
-Subject: Re: [PATCH] virtio_ring: remove unnecessary to_vvq call
-Message-ID: <20220607023646-mutt-send-email-mst@kernel.org>
-References: <20220607005951.2221-1-liubo03@inspur.com>
-MIME-Version: 1.0
-In-Reply-To: <20220607005951.2221-1-liubo03@inspur.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
+ Tue,  7 Jun 2022 06:49:41 +0000 (UTC)
+Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
+ by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2575kc1m011536;
+ Tue, 7 Jun 2022 06:49:40 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+ h=date : from : to : cc
+ : subject : message-id : content-type : mime-version; s=corp-2021-07-09;
+ bh=6qtDwlKvjfK7zKvrNToarR+1YcevBJua6gWRMNVtf74=;
+ b=mDQXek5yNGeoPwz+7BLjxBEQrhAwmrvcdYX9Z4suvcBAUe8/jwxALSV8IMQcEUi0A/mC
+ 8GbQphkBCSGunTZngS25iMnBXGzEc1JKKwmbkewj3dbgdeFn4Ihz2xQbEfIxpMnqUJrf
+ /qQ8rIxuoRrEROMOA+5SaD+B3d75UUHFCGq+WnjgWhIwDbkKXnFCjmU4wgIhDedXWEsT
+ oZyYX0lk2h+zwhOSriHMyP9u3WIQYeK3um1mem4RUUCqueys7EuWK8duwB+HUGYDvzkO
+ L06R8NbTdfPamXGlvQfyRHkf3GLMwDF3W/lGZ7gqz1bjOp4Xv/VDlS+XoFBLz3wXYMxk Xg== 
+Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com
+ (phxpaimrmta01.appoci.oracle.com [138.1.114.2])
+ by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3gfyekctt9-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Tue, 07 Jun 2022 06:49:40 +0000
+Received: from pps.filterd
+ (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+ by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.16.1.2/8.16.1.2)
+ with SMTP id 2576kTZJ032811; Tue, 7 Jun 2022 06:49:39 GMT
+Received: from nam10-dm6-obe.outbound.protection.outlook.com
+ (mail-dm6nam10lp2103.outbound.protection.outlook.com [104.47.58.103])
+ by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com with ESMTP id
+ 3gfwu274w8-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Tue, 07 Jun 2022 06:49:39 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Xo0U7iWm5UoTNhCLAJf5yRtHY+KuGfbUa5snjzB/x0ht8HqCh+x2f2qvcZsixgk7DwVMHk3b9BTavFcs4G+0b1eAzglZwQFMSEY9c/y1ZmUnwqTqYlwVxKZ/BImqu1KVyeNWrKBWYWOR09/xPvi/qO/euZB6LdB6Hr7/6STZII5+imCx3/0YZGRrP5dnFkkRt7AtGTDycyJLeurkfK2AucoDiFpPhzrPCr5r5uwKewbneTPUcRgF4Y2o4zft3TnPU8INMtufuhOpOQGmyuXAFBKjWH4JP1NNCJ5IcctNkbLAjVTmA8YgvML6T2Q+1nI0CN4j37byomWKImYY4+ztYw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=6qtDwlKvjfK7zKvrNToarR+1YcevBJua6gWRMNVtf74=;
+ b=PAkh/mjRZDwV/LFd60xFR0CctwvUYoMDbzauob+QPgUSNP+zPhHIbipNT/AGhR3wuZZS1nBAadjOE+IuyTlMs1+rQ1CG075fcplaligDglnL8KqCb28bxkXAIt4q3qUwCDQGwug9axmO2rZ+oUbjHZatCn8GLcADapm4fxGGjSb3HPT8y3iNOPTjdXczNKEhHsvVBs2NE7lYXwdFFPNzA9aDSeT284QRa6m3dE45wrpvlU02WPwFGNN0rqQvZjfRpPgKwkDnL9ITIg1aPS+hFkDKqwHpzLFPoMtmHnnmwfTL5gR1raU9tyfYpKtVNe46niJ9Zyiz/pV7FMw62mMixw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=6qtDwlKvjfK7zKvrNToarR+1YcevBJua6gWRMNVtf74=;
+ b=t1ALRsbXnaKDOmQYln2ac/VJKdx73jVUhRltO2ubp297H5wbq1vYkSfF6PrClk1YS+SV0UfiwzHSQxMse/AERCHgzoX6MZfosHZ0ajSw1SFtfmo4GOuAIIug/vSH+y5JLCUY7x9hyvroFjaqMEAOCrhqgZzfq/t7XOx/xUGGnWA=
+Received: from MWHPR1001MB2365.namprd10.prod.outlook.com
+ (2603:10b6:301:2d::28) by BYAPR10MB2616.namprd10.prod.outlook.com
+ (2603:10b6:a02:af::10) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5314.13; Tue, 7 Jun
+ 2022 06:49:37 +0000
+Received: from MWHPR1001MB2365.namprd10.prod.outlook.com
+ ([fe80::5020:9b82:5917:40b]) by MWHPR1001MB2365.namprd10.prod.outlook.com
+ ([fe80::5020:9b82:5917:40b%6]) with mapi id 15.20.5314.019; Tue, 7 Jun 2022
+ 06:49:37 +0000
+Date: Tue, 7 Jun 2022 09:49:25 +0300
+From: Dan Carpenter <dan.carpenter@oracle.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>, Eli Cohen <elic@nvidia.com>
+Subject: [PATCH 1/2] vdpa/mlx5: fix error code for deleting vlan
+Message-ID: <Yp709f1g9NcMBCHg@kili>
 Content-Disposition: inline
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+X-Mailer: git-send-email haha only kidding
+X-ClientProxiedBy: ZR0P278CA0190.CHEP278.PROD.OUTLOOK.COM
+ (2603:10a6:910:44::17) To MWHPR1001MB2365.namprd10.prod.outlook.com
+ (2603:10b6:301:2d::28)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: f1172cac-4b93-4371-1344-08da4851e34d
+X-MS-TrafficTypeDiagnostic: BYAPR10MB2616:EE_
+X-Microsoft-Antispam-PRVS: <BYAPR10MB2616B661B4E37F18E4524CC18EA59@BYAPR10MB2616.namprd10.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: sQDDEYX/IbNtHDFZwDh0xNZJi+M3MJa5XLeV+wa91tZgywq1q5Rib1v6glfALavDlQJHPB42gHA9ins2B5XjicFE1WBNeaO/1vitHxmsJomcM2IDU3sQNhiU/OLSBKAicCDnaXM9yYMbLLlz9dcMrj+M69wD/RLgUeYkXuSmiCQ++sUB0A6qolhnwxFRp6/8jfAIjeMfu/8iApAUicfCMMbfIY04+Z1YTn0YzAgk/XCYFoqL4FSakQ+OficIeTXzDdYmyMalBn59b+eQIWpdOu2RFOndAVpyF+7bU5UyyNV/+gjSVBIAig6LkIGeRnjSNmkGB8F/cAb5WS3kd34xRJ40YvADMesJaMULsCLq0GWx60AeCUWSrg8ZAwHGlF98e8n002w3omVJMHMSTNU2r/OcXVVD7FQjYyW8OwmrKLPBc3upZcU/SpsP0Epk0d5s4Pqlivx7QmOFJYubuN4Sw+r7aiYSjtxS1vEiQPnMsSp0XXHQ1rfcewMlsywRJRXogjqHmCj6obuIeb9oGsuZohuk9z+9SN+MDzLKlodIBhBFHPPUqTx+/7aX3a1S8KyjuWQsoFr+SUKSaocV+gmrB5NBjlUHjDJYaiqfYlDBOEmtCD4a16b0Jk96mJpIqry47HAzKP0qhioIhm3zc6pDk3w0nrI8HoJezOGE1uqepir6dEetzjMaPppNFff+CcMApvKFbr0bZx8Sd9FrbyzUFg==
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:MWHPR1001MB2365.namprd10.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230001)(7916004)(366004)(8936002)(8676002)(83380400001)(4326008)(52116002)(54906003)(110136005)(66946007)(66556008)(6486002)(66476007)(6666004)(316002)(2906002)(4744005)(38350700002)(508600001)(5660300002)(44832011)(6506007)(9686003)(86362001)(6512007)(186003)(26005)(33716001)(38100700002);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?XLHJNG6Ai/VO1OO90XYFr4mRLkgcHf4qpOfVEt2IPQfe6rUQVXtObwYm1JNB?=
+ =?us-ascii?Q?P+l33Ig2wJqrqwRDyQQj09Q/TRmEvuWncNElwpdldKEobmC97un/gROw3COx?=
+ =?us-ascii?Q?ojs6j7Kl8IRfyqBjUlS3xgw/qrfpm0G0rzDFiZchlf7/wqYbjaK997LzC7so?=
+ =?us-ascii?Q?UyEwbT7xMb34BT5PMiFik4pZzIOZKwL5kO1aZfkF6Y5XeNDw/o73h2gvckKd?=
+ =?us-ascii?Q?BLN5ltVeOOrkyobXM4a51tncXwEeNmoypM7uJaTFwehgrFQ1VCpKObvZMWFW?=
+ =?us-ascii?Q?iE5dJZyywK5ulfW9n01hlzd7eqH9lsUIWIas85nJS28xWUuUIaCzaNFE4QEg?=
+ =?us-ascii?Q?Un5NBWuG2Wv1HJoHnB0O1yfqsuIm4IctYuQEAg3ITDmIn1sARvU9LPAhC4Vw?=
+ =?us-ascii?Q?tdni2+xrIcAfh57V8mu3a+nT+vwoIuqEcaUPXyezbG+iIkREOiYryI/Tshd6?=
+ =?us-ascii?Q?z8xZVD1rX0aaOv0fhXgLR6Wdtusj8h6XGfRONPcOAOnAR6JjhYIpuqOYvSRU?=
+ =?us-ascii?Q?kidy9uW7CvPdV6/Nxt1peTTxUxgS3pHlJEHerew0WdkaAG2K3lTTrggj3ifK?=
+ =?us-ascii?Q?u1mNB5foK0WwgIq/tWGfwMN9wLaK24IewTEh7ZU+hbam5CKxT53aVCW6S+0x?=
+ =?us-ascii?Q?nNfTokM4Hn2rJXs9Ul6IuMt2NRkizxM7RvtZ0TOHvXAvErtYhCZptYjAgfdi?=
+ =?us-ascii?Q?NKdqbexJdVgdTICHCdXAVSK8kJKzBh9atD/qFkdsKDzAGq93qy/D7DIJZzMv?=
+ =?us-ascii?Q?56wLsR/NvA5yo/TaD8FLfVJYj8+qq3yIgQhc2bsY8Gz82n4E8A+8XYk5L6Oe?=
+ =?us-ascii?Q?DqyYG0NQjXvCp2t6bye+3KbDaoRjgVFt2Wp9+e6kpp6e+5NX7BcizdxsAEa3?=
+ =?us-ascii?Q?ftbiJbS2peBfQpvIWIsxusb1JLT4U7X7V7flc9rWIsa+dKzwHnTi+6rRKaLD?=
+ =?us-ascii?Q?bDapZLcYjxoe5GOT8CZn2RGdrWJbQJOLyCV3vKILJZCQJggvfOgHJrR2VYkY?=
+ =?us-ascii?Q?kJCy8xLji6V0WxD9C0vpbOlGuihdMDg199KTF9lXP30lWkkEVE3YOltfDIjS?=
+ =?us-ascii?Q?c5rrw3xLkUQl00r+O1B0AjeNL/81vyNrErEmGMvzB1Phbxd4ZPNJJq8zMJeV?=
+ =?us-ascii?Q?e3LJoaSUUtgdiMdWngPygTblnNUi0eyALQL+irxrBAKjrwKcvS+1g66nq5f5?=
+ =?us-ascii?Q?M95P2Q/+0JkEqQevKTXlSq8o/oyBdr7/70n8wuCevUHZg4LyNt7h/Bt9atSd?=
+ =?us-ascii?Q?O1+Q+61qxdHDOg806mdmiF3PS2j6gNcty6XytVcghnnwmDW20CqvcHEajK2d?=
+ =?us-ascii?Q?tQP59uUVGGKS+3u7KreZ/r71x2E6AGdnCIifDRc6lIJN0l0w7ZwZcB7rxLov?=
+ =?us-ascii?Q?m1+6lKXJUzt4Lq+8CCSPI3PpHhjikEzg8DFyt+hnijqIJiwM1O8MmRLZ2lyx?=
+ =?us-ascii?Q?LLjbKVOA/3ZKnhc9Zcel/th35MqboKkXBIcZmTrEgVgQbXl1ofkUmN2kPe0k?=
+ =?us-ascii?Q?GaC+XLm7agVdujTR+FELBcv8B6OoSYIZaFyQv1QITNx38Wdlt/Ms9xU7W95g?=
+ =?us-ascii?Q?AXYkRyq07F16MVdYH0pDLE76uMBu3p/31MjUU2ZUknBG+aItx+e+kGHXjLG8?=
+ =?us-ascii?Q?3LQugCzTjTnpzLWPrqJ+Iy+7BKwT+blBEjMxlu5AeAeH1m04TL2K50tl/iWT?=
+ =?us-ascii?Q?rc+GoLynoQw7plZXzx106OdTOrAoIpOLtRkTt2dZO1GE60enXxxr4meZbvXB?=
+ =?us-ascii?Q?CGhl3Co7A1kQFjEOPO4BRA+8HEic3Ck=3D?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: f1172cac-4b93-4371-1344-08da4851e34d
+X-MS-Exchange-CrossTenant-AuthSource: MWHPR1001MB2365.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Jun 2022 06:49:37.1095 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: U92L1E9Dt/Qy15a8zMmFQSTOGC/sCwP0nWbL19NWooh9uqZ1Xm3z82TtbBNKbv3gQjo6TxRHg8jl4MyNJEVZ5//LXh0JLrELx950UMNWn0s=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR10MB2616
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.517, 18.0.874
+ definitions=2022-06-07_02:2022-06-02,
+ 2022-06-07 signatures=0
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0
+ bulkscore=0 spamscore=0
+ phishscore=0 mlxscore=0 adultscore=0 suspectscore=0 mlxlogscore=999
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2204290000
+ definitions=main-2206070027
+X-Proofpoint-GUID: iiHQ4rAbAAwLVuLWoCTR-BDUqZTGrVVk
+X-Proofpoint-ORIG-GUID: iiHQ4rAbAAwLVuLWoCTR-BDUqZTGrVVk
+Cc: kernel-janitors@vger.kernel.org, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -114,346 +185,31 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Jun 06, 2022 at 08:59:51PM -0400, Bo Liu wrote:
-> In many functions, the parameter passed in is "_vq", which still call
-> to_vvq() to get 'vq'. It can avoid unnecessary call of to_vvq() by directly
-> passing in the parameter "vq".
-> 
-> Signed-off-by: Bo Liu <liubo03@inspur.com>
+Return success if we were able to delete a vlan.  The current code
+always returns failure.
 
-What does the patch accomplish? Is the generated binary faster? smaller?
+Fixes: baf2ad3f6a98 ("vdpa/mlx5: Add RX MAC VLAN filter support")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+---
+From review.  (Not tested).
 
-> ---
->  drivers/virtio/virtio_ring.c | 100 ++++++++++++++---------------------
->  1 file changed, 41 insertions(+), 59 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index 13a7348cedff..f82db59fdbdc 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -648,9 +648,8 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
->  	return -ENOMEM;
->  }
->  
-> -static bool virtqueue_kick_prepare_split(struct virtqueue *_vq)
-> +static bool virtqueue_kick_prepare_split(struct vring_virtqueue *vq)
->  {
-> -	struct vring_virtqueue *vq = to_vvq(_vq);
->  	u16 new, old;
->  	bool needs_kick;
->  
-> @@ -667,12 +666,12 @@ static bool virtqueue_kick_prepare_split(struct virtqueue *_vq)
->  	LAST_ADD_TIME_INVALID(vq);
->  
->  	if (vq->event) {
-> -		needs_kick = vring_need_event(virtio16_to_cpu(_vq->vdev,
-> +		needs_kick = vring_need_event(virtio16_to_cpu(vq->vq.vdev,
->  					vring_avail_event(&vq->split.vring)),
->  					      new, old);
->  	} else {
->  		needs_kick = !(vq->split.vring.used->flags &
-> -					cpu_to_virtio16(_vq->vdev,
-> +					cpu_to_virtio16(vq->vq.vdev,
->  						VRING_USED_F_NO_NOTIFY));
->  	}
->  	END_USE(vq);
-> @@ -735,11 +734,10 @@ static inline bool more_used_split(const struct vring_virtqueue *vq)
->  			vq->split.vring.used->idx);
->  }
->  
-> -static void *virtqueue_get_buf_ctx_split(struct virtqueue *_vq,
-> +static void *virtqueue_get_buf_ctx_split(struct vring_virtqueue *vq,
->  					 unsigned int *len,
->  					 void **ctx)
->  {
-> -	struct vring_virtqueue *vq = to_vvq(_vq);
->  	void *ret;
->  	unsigned int i;
->  	u16 last_used;
-> @@ -761,9 +759,9 @@ static void *virtqueue_get_buf_ctx_split(struct virtqueue *_vq,
->  	virtio_rmb(vq->weak_barriers);
->  
->  	last_used = (vq->last_used_idx & (vq->split.vring.num - 1));
-> -	i = virtio32_to_cpu(_vq->vdev,
-> +	i = virtio32_to_cpu(vq->vq.vdev,
->  			vq->split.vring.used->ring[last_used].id);
-> -	*len = virtio32_to_cpu(_vq->vdev,
-> +	*len = virtio32_to_cpu(vq->vq.vdev,
->  			vq->split.vring.used->ring[last_used].len);
->  
->  	if (unlikely(i >= vq->split.vring.num)) {
-> @@ -785,7 +783,7 @@ static void *virtqueue_get_buf_ctx_split(struct virtqueue *_vq,
->  	if (!(vq->split.avail_flags_shadow & VRING_AVAIL_F_NO_INTERRUPT))
->  		virtio_store_mb(vq->weak_barriers,
->  				&vring_used_event(&vq->split.vring),
-> -				cpu_to_virtio16(_vq->vdev, vq->last_used_idx));
-> +				cpu_to_virtio16(vq->vq.vdev, vq->last_used_idx));
->  
->  	LAST_ADD_TIME_INVALID(vq);
->  
-> @@ -793,10 +791,8 @@ static void *virtqueue_get_buf_ctx_split(struct virtqueue *_vq,
->  	return ret;
->  }
->  
-> -static void virtqueue_disable_cb_split(struct virtqueue *_vq)
-> +static void virtqueue_disable_cb_split(struct vring_virtqueue *vq)
->  {
-> -	struct vring_virtqueue *vq = to_vvq(_vq);
-> -
->  	if (!(vq->split.avail_flags_shadow & VRING_AVAIL_F_NO_INTERRUPT)) {
->  		vq->split.avail_flags_shadow |= VRING_AVAIL_F_NO_INTERRUPT;
->  		if (vq->event)
-> @@ -804,14 +800,13 @@ static void virtqueue_disable_cb_split(struct virtqueue *_vq)
->  			vring_used_event(&vq->split.vring) = 0x0;
->  		else
->  			vq->split.vring.avail->flags =
-> -				cpu_to_virtio16(_vq->vdev,
-> +				cpu_to_virtio16(vq->vq.vdev,
->  						vq->split.avail_flags_shadow);
->  	}
->  }
->  
-> -static unsigned int virtqueue_enable_cb_prepare_split(struct virtqueue *_vq)
-> +static unsigned int virtqueue_enable_cb_prepare_split(struct vring_virtqueue *vq)
->  {
-> -	struct vring_virtqueue *vq = to_vvq(_vq);
->  	u16 last_used_idx;
->  
->  	START_USE(vq);
-> @@ -825,26 +820,23 @@ static unsigned int virtqueue_enable_cb_prepare_split(struct virtqueue *_vq)
->  		vq->split.avail_flags_shadow &= ~VRING_AVAIL_F_NO_INTERRUPT;
->  		if (!vq->event)
->  			vq->split.vring.avail->flags =
-> -				cpu_to_virtio16(_vq->vdev,
-> +				cpu_to_virtio16(vq->vq.vdev,
->  						vq->split.avail_flags_shadow);
->  	}
-> -	vring_used_event(&vq->split.vring) = cpu_to_virtio16(_vq->vdev,
-> +	vring_used_event(&vq->split.vring) = cpu_to_virtio16(vq->vq.vdev,
->  			last_used_idx = vq->last_used_idx);
->  	END_USE(vq);
->  	return last_used_idx;
->  }
->  
-> -static bool virtqueue_poll_split(struct virtqueue *_vq, unsigned int last_used_idx)
-> +static bool virtqueue_poll_split(struct vring_virtqueue *vq, unsigned int last_used_idx)
->  {
-> -	struct vring_virtqueue *vq = to_vvq(_vq);
-> -
-> -	return (u16)last_used_idx != virtio16_to_cpu(_vq->vdev,
-> +	return (u16)last_used_idx != virtio16_to_cpu(vq->vq.vdev,
->  			vq->split.vring.used->idx);
->  }
->  
-> -static bool virtqueue_enable_cb_delayed_split(struct virtqueue *_vq)
-> +static bool virtqueue_enable_cb_delayed_split(struct vring_virtqueue *vq)
->  {
-> -	struct vring_virtqueue *vq = to_vvq(_vq);
->  	u16 bufs;
->  
->  	START_USE(vq);
-> @@ -858,7 +850,7 @@ static bool virtqueue_enable_cb_delayed_split(struct virtqueue *_vq)
->  		vq->split.avail_flags_shadow &= ~VRING_AVAIL_F_NO_INTERRUPT;
->  		if (!vq->event)
->  			vq->split.vring.avail->flags =
-> -				cpu_to_virtio16(_vq->vdev,
-> +				cpu_to_virtio16(vq->vq.vdev,
->  						vq->split.avail_flags_shadow);
->  	}
->  	/* TODO: tune this threshold */
-> @@ -866,9 +858,9 @@ static bool virtqueue_enable_cb_delayed_split(struct virtqueue *_vq)
->  
->  	virtio_store_mb(vq->weak_barriers,
->  			&vring_used_event(&vq->split.vring),
-> -			cpu_to_virtio16(_vq->vdev, vq->last_used_idx + bufs));
-> +			cpu_to_virtio16(vq->vq.vdev, vq->last_used_idx + bufs));
->  
-> -	if (unlikely((u16)(virtio16_to_cpu(_vq->vdev, vq->split.vring.used->idx)
-> +	if (unlikely((u16)(virtio16_to_cpu(vq->vq.vdev, vq->split.vring.used->idx)
->  					- vq->last_used_idx) > bufs)) {
->  		END_USE(vq);
->  		return false;
-> @@ -878,9 +870,8 @@ static bool virtqueue_enable_cb_delayed_split(struct virtqueue *_vq)
->  	return true;
->  }
->  
-> -static void *virtqueue_detach_unused_buf_split(struct virtqueue *_vq)
-> +static void *virtqueue_detach_unused_buf_split(struct vring_virtqueue *vq)
->  {
-> -	struct vring_virtqueue *vq = to_vvq(_vq);
->  	unsigned int i;
->  	void *buf;
->  
-> @@ -893,7 +884,7 @@ static void *virtqueue_detach_unused_buf_split(struct virtqueue *_vq)
->  		buf = vq->split.desc_state[i].data;
->  		detach_buf_split(vq, i, NULL);
->  		vq->split.avail_idx_shadow--;
-> -		vq->split.vring.avail->idx = cpu_to_virtio16(_vq->vdev,
-> +		vq->split.vring.avail->idx = cpu_to_virtio16(vq->vq.vdev,
->  				vq->split.avail_idx_shadow);
->  		END_USE(vq);
->  		return buf;
-> @@ -1296,9 +1287,8 @@ static inline int virtqueue_add_packed(struct virtqueue *_vq,
->  	return -EIO;
->  }
->  
-> -static bool virtqueue_kick_prepare_packed(struct virtqueue *_vq)
-> +static bool virtqueue_kick_prepare_packed(struct vring_virtqueue *vq)
->  {
-> -	struct vring_virtqueue *vq = to_vvq(_vq);
->  	u16 new, old, off_wrap, flags, wrap_counter, event_idx;
->  	bool needs_kick;
->  	union {
-> @@ -1410,11 +1400,10 @@ static inline bool more_used_packed(const struct vring_virtqueue *vq)
->  			vq->packed.used_wrap_counter);
->  }
->  
-> -static void *virtqueue_get_buf_ctx_packed(struct virtqueue *_vq,
-> +static void *virtqueue_get_buf_ctx_packed(struct vring_virtqueue *vq,
->  					  unsigned int *len,
->  					  void **ctx)
->  {
-> -	struct vring_virtqueue *vq = to_vvq(_vq);
->  	u16 last_used, id;
->  	void *ret;
->  
-> @@ -1475,10 +1464,8 @@ static void *virtqueue_get_buf_ctx_packed(struct virtqueue *_vq,
->  	return ret;
->  }
->  
-> -static void virtqueue_disable_cb_packed(struct virtqueue *_vq)
-> +static void virtqueue_disable_cb_packed(struct vring_virtqueue *vq)
->  {
-> -	struct vring_virtqueue *vq = to_vvq(_vq);
-> -
->  	if (vq->packed.event_flags_shadow != VRING_PACKED_EVENT_FLAG_DISABLE) {
->  		vq->packed.event_flags_shadow = VRING_PACKED_EVENT_FLAG_DISABLE;
->  		vq->packed.vring.driver->flags =
-> @@ -1486,10 +1473,8 @@ static void virtqueue_disable_cb_packed(struct virtqueue *_vq)
->  	}
->  }
->  
-> -static unsigned int virtqueue_enable_cb_prepare_packed(struct virtqueue *_vq)
-> +static unsigned int virtqueue_enable_cb_prepare_packed(struct vring_virtqueue *vq)
->  {
-> -	struct vring_virtqueue *vq = to_vvq(_vq);
-> -
->  	START_USE(vq);
->  
->  	/*
-> @@ -1522,9 +1507,8 @@ static unsigned int virtqueue_enable_cb_prepare_packed(struct virtqueue *_vq)
->  			VRING_PACKED_EVENT_F_WRAP_CTR);
->  }
->  
-> -static bool virtqueue_poll_packed(struct virtqueue *_vq, u16 off_wrap)
-> +static bool virtqueue_poll_packed(struct vring_virtqueue *vq, u16 off_wrap)
->  {
-> -	struct vring_virtqueue *vq = to_vvq(_vq);
->  	bool wrap_counter;
->  	u16 used_idx;
->  
-> @@ -1534,9 +1518,8 @@ static bool virtqueue_poll_packed(struct virtqueue *_vq, u16 off_wrap)
->  	return is_used_desc_packed(vq, used_idx, wrap_counter);
->  }
->  
-> -static bool virtqueue_enable_cb_delayed_packed(struct virtqueue *_vq)
-> +static bool virtqueue_enable_cb_delayed_packed(struct vring_virtqueue *vq)
->  {
-> -	struct vring_virtqueue *vq = to_vvq(_vq);
->  	u16 used_idx, wrap_counter;
->  	u16 bufs;
->  
-> @@ -1593,9 +1576,8 @@ static bool virtqueue_enable_cb_delayed_packed(struct virtqueue *_vq)
->  	return true;
->  }
->  
-> -static void *virtqueue_detach_unused_buf_packed(struct virtqueue *_vq)
-> +static void *virtqueue_detach_unused_buf_packed(struct vring_virtqueue *vq)
->  {
-> -	struct vring_virtqueue *vq = to_vvq(_vq);
->  	unsigned int i;
->  	void *buf;
->  
-> @@ -1906,8 +1888,8 @@ bool virtqueue_kick_prepare(struct virtqueue *_vq)
->  {
->  	struct vring_virtqueue *vq = to_vvq(_vq);
->  
-> -	return vq->packed_ring ? virtqueue_kick_prepare_packed(_vq) :
-> -				 virtqueue_kick_prepare_split(_vq);
-> +	return vq->packed_ring ? virtqueue_kick_prepare_packed(vq) :
-> +				 virtqueue_kick_prepare_split(vq);
->  }
->  EXPORT_SYMBOL_GPL(virtqueue_kick_prepare);
->  
-> @@ -1977,8 +1959,8 @@ void *virtqueue_get_buf_ctx(struct virtqueue *_vq, unsigned int *len,
->  {
->  	struct vring_virtqueue *vq = to_vvq(_vq);
->  
-> -	return vq->packed_ring ? virtqueue_get_buf_ctx_packed(_vq, len, ctx) :
-> -				 virtqueue_get_buf_ctx_split(_vq, len, ctx);
-> +	return vq->packed_ring ? virtqueue_get_buf_ctx_packed(vq, len, ctx) :
-> +				 virtqueue_get_buf_ctx_split(vq, len, ctx);
->  }
->  EXPORT_SYMBOL_GPL(virtqueue_get_buf_ctx);
->  
-> @@ -2007,9 +1989,9 @@ void virtqueue_disable_cb(struct virtqueue *_vq)
->  		return;
->  
->  	if (vq->packed_ring)
-> -		virtqueue_disable_cb_packed(_vq);
-> +		virtqueue_disable_cb_packed(vq);
->  	else
-> -		virtqueue_disable_cb_split(_vq);
-> +		virtqueue_disable_cb_split(vq);
->  }
->  EXPORT_SYMBOL_GPL(virtqueue_disable_cb);
->  
-> @@ -2032,8 +2014,8 @@ unsigned int virtqueue_enable_cb_prepare(struct virtqueue *_vq)
->  	if (vq->event_triggered)
->  		vq->event_triggered = false;
->  
-> -	return vq->packed_ring ? virtqueue_enable_cb_prepare_packed(_vq) :
-> -				 virtqueue_enable_cb_prepare_split(_vq);
-> +	return vq->packed_ring ? virtqueue_enable_cb_prepare_packed(vq) :
-> +				 virtqueue_enable_cb_prepare_split(vq);
->  }
->  EXPORT_SYMBOL_GPL(virtqueue_enable_cb_prepare);
->  
-> @@ -2054,8 +2036,8 @@ bool virtqueue_poll(struct virtqueue *_vq, unsigned int last_used_idx)
->  		return false;
->  
->  	virtio_mb(vq->weak_barriers);
-> -	return vq->packed_ring ? virtqueue_poll_packed(_vq, last_used_idx) :
-> -				 virtqueue_poll_split(_vq, last_used_idx);
-> +	return vq->packed_ring ? virtqueue_poll_packed(vq, last_used_idx) :
-> +				 virtqueue_poll_split(vq, last_used_idx);
->  }
->  EXPORT_SYMBOL_GPL(virtqueue_poll);
->  
-> @@ -2098,8 +2080,8 @@ bool virtqueue_enable_cb_delayed(struct virtqueue *_vq)
->  	if (vq->event_triggered)
->  		vq->event_triggered = false;
->  
-> -	return vq->packed_ring ? virtqueue_enable_cb_delayed_packed(_vq) :
-> -				 virtqueue_enable_cb_delayed_split(_vq);
-> +	return vq->packed_ring ? virtqueue_enable_cb_delayed_packed(vq) :
-> +				 virtqueue_enable_cb_delayed_split(vq);
->  }
->  EXPORT_SYMBOL_GPL(virtqueue_enable_cb_delayed);
->  
-> @@ -2115,8 +2097,8 @@ void *virtqueue_detach_unused_buf(struct virtqueue *_vq)
->  {
->  	struct vring_virtqueue *vq = to_vvq(_vq);
->  
-> -	return vq->packed_ring ? virtqueue_detach_unused_buf_packed(_vq) :
-> -				 virtqueue_detach_unused_buf_split(_vq);
-> +	return vq->packed_ring ? virtqueue_detach_unused_buf_packed(vq) :
-> +				 virtqueue_detach_unused_buf_split(vq);
->  }
->  EXPORT_SYMBOL_GPL(virtqueue_detach_unused_buf);
->  
-> -- 
-> 2.27.0
+ drivers/vdpa/mlx5/net/mlx5_vnet.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+index b7a955479156..c964f4161d7f 100644
+--- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
++++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+@@ -1814,6 +1814,7 @@ static virtio_net_ctrl_ack handle_ctrl_vlan(struct mlx5_vdpa_dev *mvdev, u8 cmd)
+ 
+ 		id = mlx5vdpa16_to_cpu(mvdev, vlan);
+ 		mac_vlan_del(ndev, ndev->config.mac, id, true);
++		status = VIRTIO_NET_OK;
+ 		break;
+ 	default:
+ 	break;
+-- 
+2.35.1
 
 _______________________________________________
 Virtualization mailing list
