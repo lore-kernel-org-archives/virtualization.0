@@ -1,68 +1,69 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9B63FC433EF
-	for <virtualization@archiver.kernel.org>; Tue,  7 Jun 2022 14:12:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id CEF30C433EF
+	for <virtualization@archiver.kernel.org>; Tue,  7 Jun 2022 14:24:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 546F26100D;
-	Tue,  7 Jun 2022 14:12:13 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 8B05C424A0;
+	Tue,  7 Jun 2022 14:24:33 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id sYSM24eHETZd; Tue,  7 Jun 2022 14:12:11 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 03C7260D6E;
-	Tue,  7 Jun 2022 14:12:11 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Z3bxQDOukZQ7; Tue,  7 Jun 2022 14:24:32 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id D462D4248F;
+	Tue,  7 Jun 2022 14:24:31 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CA998C0032;
-	Tue,  7 Jun 2022 14:12:10 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 57A09C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B30B5C0032;
+	Tue,  7 Jun 2022 14:24:31 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 02358C002D
  for <virtualization@lists.linux-foundation.org>;
- Tue,  7 Jun 2022 14:12:08 +0000 (UTC)
+ Tue,  7 Jun 2022 14:24:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 3FBF960D6E
+ by smtp2.osuosl.org (Postfix) with ESMTP id D652240B9F
  for <virtualization@lists.linux-foundation.org>;
- Tue,  7 Jun 2022 14:12:08 +0000 (UTC)
+ Tue,  7 Jun 2022 14:24:28 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id GcgenUKhMc_3
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=infradead.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id vbquTIvj9186
  for <virtualization@lists.linux-foundation.org>;
- Tue,  7 Jun 2022 14:12:04 +0000 (UTC)
+ Tue,  7 Jun 2022 14:24:28 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from casper.infradead.org (casper.infradead.org
  [IPv6:2001:8b0:10b:1236::1])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 227B760D61
+ by smtp2.osuosl.org (Postfix) with ESMTPS id D801A40A9A
  for <virtualization@lists.linux-foundation.org>;
- Tue,  7 Jun 2022 14:12:04 +0000 (UTC)
+ Tue,  7 Jun 2022 14:24:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
  References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
  Content-Transfer-Encoding:Content-ID:Content-Description;
- bh=4nUpYTI4YzQUWe3MX/DeuqIdjPgTHj7mksBWnabO8pk=; b=IoritkaL90aqbR+RUHZKoSo8fb
- np1ux4ttns5tYj2sJk/FAj12Ak/CQ/wW4eIuwXN5ulK6rhUSeL7wfME8a6K9gYUgIYgqg08BNe9+I
- tus3kQ04SmPJZl9V4GH+E2xTibe280AETqIE3sbtSug/TUXDR0128c42jRa/+qeI8q7uri0dQOk1f
- wWHM11+pgzBreVL8bkL3da/JDGIf99g2HUm8tnTrzT4cPM9I17c3dxlon1CkQMKJOgWEf9FbWmKJ9
- h7TOtnv+jsL8ABFyKBR86bb03b2ZVDj0NIek4XcowncLGE0YjVino+xsZhqucJvOU+7lO9abDpL7s
- BM8iPWpg==;
+ bh=TMQU2bbtV5kjI1Y7uBOgpmsi6MujvLdf4se1f0ultbQ=; b=T3tONSSZEZI3TnW91MAPGKwqdn
+ ynmJAoI6mOfrbbq8Jqf2czJGvi9Q0ukvLmmikcGSI8ZqHSwvRkTwLUTylDBqG6RaX8/3fM9Nvve4c
+ VqFvCNQX2J5+bZcWx69Xcxl0FnIF/+ozKW4FHlSZHfTn6FEQTfoWOYo1nVdtg5lJcedIUJr0ygYNv
+ BxeGZpOaFU4iqywNAUPFsAq2KhxI0Hbg9OXTdHy26nItEezSSsuIGEVlhH9A3QRH3TI9Fv56fknf8
+ 0pc9AkwczXake1fj6Qt6cCxOadkgaG3Xkumb8mMGujy60/hhxbEX20y0v48fX/CV/o6oaLLnenmYd
+ w0xneMdA==;
 Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red
- Hat Linux)) id 1nyZvo-00BhC6-Sq; Tue, 07 Jun 2022 14:11:40 +0000
-Date: Tue, 7 Jun 2022 15:11:40 +0100
+ Hat Linux)) id 1nya7z-00BhZy-2Z; Tue, 07 Jun 2022 14:24:15 +0000
+Date: Tue, 7 Jun 2022 15:24:15 +0100
 From: Matthew Wilcox <willy@infradead.org>
-To: Brian Foster <bfoster@redhat.com>
-Subject: Re: [PATCH 05/20] mm/migrate: Convert expected_page_refs() to
- folio_expected_refs()
-Message-ID: <Yp9cnCaZ1O4qHFEp@casper.infradead.org>
+To: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH 15/20] balloon: Convert to migrate_folio
+Message-ID: <Yp9fj/Si2qyb61Y3@casper.infradead.org>
 References: <20220606204050.2625949-1-willy@infradead.org>
- <20220606204050.2625949-6-willy@infradead.org>
- <Yp9VpZDsUEAZHEuy@bfoster>
+ <20220606204050.2625949-16-willy@infradead.org>
+ <e4d017a4-556d-bb5f-9830-a8843591bc8d@redhat.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <Yp9VpZDsUEAZHEuy@bfoster>
+In-Reply-To: <e4d017a4-556d-bb5f-9830-a8843591bc8d@redhat.com>
 Cc: linux-aio@kvack.org, linux-nfs@vger.kernel.org, cluster-devel@redhat.com,
  linux-ntfs-dev@lists.sourceforge.net, linux-kernel@vger.kernel.org,
  linux-f2fs-devel@lists.sourceforge.net, linux-block@vger.kernel.org,
@@ -86,59 +87,29 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Jun 07, 2022 at 09:41:57AM -0400, Brian Foster wrote:
-> On Mon, Jun 06, 2022 at 09:40:35PM +0100, Matthew Wilcox (Oracle) wrote:
-> > -static int expected_page_refs(struct address_space *mapping, struct page *page)
-> > +static int folio_expected_refs(struct address_space *mapping,
-> > +		struct folio *folio)
-> >  {
-> > -	int expected_count = 1;
-> > +	int refs = 1;
-> > +	if (!mapping)
-> > +		return refs;
-> >  
-> > -	if (mapping)
-> > -		expected_count += compound_nr(page) + page_has_private(page);
-> > -	return expected_count;
-> > +	refs += folio_nr_pages(folio);
-> > +	if (folio_get_private(folio))
-> > +		refs++;
+On Tue, Jun 07, 2022 at 09:36:21AM +0200, David Hildenbrand wrote:
+> On 06.06.22 22:40, Matthew Wilcox (Oracle) wrote:
+> >  const struct address_space_operations balloon_aops = {
+> > -	.migratepage = balloon_page_migrate,
+> > +	.migrate_folio = balloon_migrate_folio,
+> >  	.isolate_page = balloon_page_isolate,
+> >  	.putback_page = balloon_page_putback,
+> >  };
 > 
-> Why not folio_has_private() (as seems to be used for later
-> page_has_private() conversions) here?
+> I assume you're working on conversion of the other callbacks as well,
+> because otherwise, this ends up looking a bit inconsistent and confusing :)
 
-We have a horrid confusion that I'm trying to clean up stealthily
-without anyone noticing.  I would have gotten away with it too if it
-weren't for you pesky kids.
+My intention was to finish converting aops for the next merge window.
 
-#define PAGE_FLAGS_PRIVATE                              \
-        (1UL << PG_private | 1UL << PG_private_2)
+However, it seems to me that we goofed back in 2016 by merging
+commit bda807d44454.  isolate_page() and putback_page() should
+never have been part of address_space_operations.
 
-static inline int page_has_private(struct page *page)
-{
-        return !!(page->flags & PAGE_FLAGS_PRIVATE);
-}
-
-So what this function is saying is that there is one extra refcount
-expected on the struct page if PG_private _or_ PG_private_2 is set.
-
-How are filesystems expected to manage their page's refcount with this
-rule?  Increment the refcount when setting PG_private unless
-PG_private_2 is already set?  Decrement the refcount when clearing
-PG_private_2 unless PG_private is set?
-
-This is garbage.  IMO, PG_private_2 should have no bearing on the page's
-refcount.  Only btrfs and the netfs's use private_2 and neither of them
-do anything to the refcount when setting/clearing it.  So that's what
-I'm implementing here.
-
-> > +
-> > +	return refs;;
-> 
-> Nit: extra ;
-
-Oh, that's where it went ;-)  I had a compile error due to a missing
-semicolon at some point, and thought it was just a typo ...
+I'm about to embark on creating a new migrate_operations struct
+for drivers to use that contains only isolate/putback/migrate.
+No filesystem uses isolate/putback, so those can just be deleted.
+Both migrate_operations & address_space_operations will contain a
+migrate callback.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
