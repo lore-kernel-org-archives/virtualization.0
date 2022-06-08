@@ -4,60 +4,59 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C7440CCA483
-	for <virtualization@archiver.kernel.org>; Wed,  8 Jun 2022 15:03:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A1F30CCA48B
+	for <virtualization@archiver.kernel.org>; Wed,  8 Jun 2022 15:03:44 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id BEE0A41171;
-	Wed,  8 Jun 2022 15:03:42 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id ED4BE4116A;
+	Wed,  8 Jun 2022 15:03:43 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 9TCatyJmZKQB; Wed,  8 Jun 2022 15:03:41 +0000 (UTC)
+	with ESMTP id eDnFwwRGCKuX; Wed,  8 Jun 2022 15:03:42 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 2A20B41167;
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 002F44116D;
 	Wed,  8 Jun 2022 15:03:41 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6EEF0C0082;
-	Wed,  8 Jun 2022 15:03:40 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0838AC007C
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C6C6FC0081;
+	Wed,  8 Jun 2022 15:03:41 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 428A9C007C
  for <virtualization@lists.linux-foundation.org>;
  Wed,  8 Jun 2022 15:03:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 247F38191E
+ by smtp2.osuosl.org (Postfix) with ESMTP id 4AE624097E
  for <virtualization@lists.linux-foundation.org>;
  Wed,  8 Jun 2022 15:03:37 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=infradead.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id mgnRURRl__mb
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id IFyZZogNPk_v
  for <virtualization@lists.linux-foundation.org>;
  Wed,  8 Jun 2022 15:03:36 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from casper.infradead.org (casper.infradead.org
  [IPv6:2001:8b0:10b:1236::1])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 793D0827F3
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 8AF9440B24
  for <virtualization@lists.linux-foundation.org>;
  Wed,  8 Jun 2022 15:03:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
  References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
  Content-Type:Content-ID:Content-Description;
- bh=3fQqNRsX2k9U5g+9eAzNLqy1rB1a5hC9OuR/TIVAv1c=; b=BzgCA3dtIfrrNOFOqZw+rQudkD
- nQHTv0fThp0cTrpRot0mmwRsAJIVnWEYdCMHR9+BI2vGiioilWMA0f5/jrc3m/9O4FeZRtFwrPPEc
- CRfaG1TVqvJZrjE8U7i8Qn0EyWZ+Huymk4p+kP5MwP0AvEE0aparXlmBO+8OO8YLNJ/O8TNmYzM1V
- BXTwncOLifnP30UapOFmT9Bg5IFrHfXxgFF0f3vKoRKkVZZE0LLbqRMWs/kl31OrOiRyD/mlQMkWG
- nU/8onyZGsVXhJq4qZ+wDdd8mdRf0/qTyqE2iJ8XwE6Cg7sqF/OMB+hYJd6qhVzvrxdp3ZngOZ9qD
- bKJsjzIg==;
+ bh=5npsXdc68IkdHS9QQplhoGS3mgY+20vmpxeIh5k5guo=; b=rXc5AtDvvG/hpa8vIqf6R/xPw6
+ UrL+UsKwmXkyxMDVbzTujwyYLJghxfRH0Y7eFEuTzXeh86YeTZSNKnJAoOk2pT9ySfX0BDNY0qoWf
+ c4S41cnxl9Vs1Uv12emgfIP+2QwFm7qe5ajKnz2gRn0OZ8/pvGgtsH2hFBxivh+TWayhD2uWm91po
+ r5gpL3IQVa82F0QOi8df2oIU4B0IbUcBa/7kE5VbK1SmP360/uLbJZMvBxXy81emTvrRMM8EsTr5I
+ AIcJ+wWTSDwunW6H2g3K8ov7+QfKhotHG6sv9TDj0IMbxfaYaI+1wzgwFqX5SjiNRGBVEYir/fv6U
+ eTdszuHg==;
 Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red
- Hat Linux)) id 1nyxCu-00CjFO-89; Wed, 08 Jun 2022 15:02:52 +0000
+ Hat Linux)) id 1nyxCv-00CjFq-E2; Wed, 08 Jun 2022 15:02:53 +0000
 From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
 To: linux-fsdevel@vger.kernel.org
-Subject: [PATCH v2 05/19] mm/migrate: Convert writeout() to take a folio
-Date: Wed,  8 Jun 2022 16:02:35 +0100
-Message-Id: <20220608150249.3033815-6-willy@infradead.org>
+Subject: [PATCH v2 19/19] mm/folio-compat: Remove migration compatibility
+ functions
+Date: Wed,  8 Jun 2022 16:02:49 +0100
+Message-Id: <20220608150249.3033815-20-willy@infradead.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20220608150249.3033815-1-willy@infradead.org>
 References: <20220608150249.3033815-1-willy@infradead.org>
@@ -86,74 +85,95 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Use a folio throughout this function.
+migrate_page_move_mapping(), migrate_page_copy() and migrate_page_states()
+are all now unused after converting all the filesystems from
+aops->migratepage() to aops->migrate_folio().
 
 Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
 Reviewed-by: Christoph Hellwig <hch@lst.de>
 ---
- mm/migrate.c | 21 ++++++++++-----------
- 1 file changed, 10 insertions(+), 11 deletions(-)
+ include/linux/migrate.h | 11 -----------
+ mm/folio-compat.c       | 22 ----------------------
+ mm/ksm.c                |  2 +-
+ 3 files changed, 1 insertion(+), 34 deletions(-)
 
-diff --git a/mm/migrate.c b/mm/migrate.c
-index 1878de817a01..6b6fec26f4d0 100644
---- a/mm/migrate.c
-+++ b/mm/migrate.c
-@@ -761,11 +761,10 @@ int buffer_migrate_page_norefs(struct address_space *mapping,
- #endif
+diff --git a/include/linux/migrate.h b/include/linux/migrate.h
+index 59d64a1e6b4b..3e18c7048506 100644
+--- a/include/linux/migrate.h
++++ b/include/linux/migrate.h
+@@ -40,12 +40,8 @@ extern int migrate_pages(struct list_head *l, new_page_t new, free_page_t free,
+ extern struct page *alloc_migration_target(struct page *page, unsigned long private);
+ extern int isolate_movable_page(struct page *page, isolate_mode_t mode);
  
- /*
-- * Writeback a page to clean the dirty state
-+ * Writeback a folio to clean the dirty state
-  */
--static int writeout(struct address_space *mapping, struct page *page)
-+static int writeout(struct address_space *mapping, struct folio *folio)
+-extern void migrate_page_states(struct page *newpage, struct page *page);
+-extern void migrate_page_copy(struct page *newpage, struct page *page);
+ int migrate_huge_page_move_mapping(struct address_space *mapping,
+ 		struct folio *dst, struct folio *src);
+-extern int migrate_page_move_mapping(struct address_space *mapping,
+-		struct page *newpage, struct page *page, int extra_count);
+ void migration_entry_wait_on_locked(swp_entry_t entry, pte_t *ptep,
+ 				spinlock_t *ptl);
+ void folio_migrate_flags(struct folio *newfolio, struct folio *folio);
+@@ -66,13 +62,6 @@ static inline struct page *alloc_migration_target(struct page *page,
+ static inline int isolate_movable_page(struct page *page, isolate_mode_t mode)
+ 	{ return -EBUSY; }
+ 
+-static inline void migrate_page_states(struct page *newpage, struct page *page)
+-{
+-}
+-
+-static inline void migrate_page_copy(struct page *newpage,
+-				     struct page *page) {}
+-
+ static inline int migrate_huge_page_move_mapping(struct address_space *mapping,
+ 				  struct folio *dst, struct folio *src)
  {
--	struct folio *folio = page_folio(page);
- 	struct writeback_control wbc = {
- 		.sync_mode = WB_SYNC_NONE,
- 		.nr_to_write = 1,
-@@ -779,25 +778,25 @@ static int writeout(struct address_space *mapping, struct page *page)
- 		/* No write method for the address space */
- 		return -EINVAL;
- 
--	if (!clear_page_dirty_for_io(page))
-+	if (!folio_clear_dirty_for_io(folio))
- 		/* Someone else already triggered a write */
- 		return -EAGAIN;
- 
- 	/*
--	 * A dirty page may imply that the underlying filesystem has
--	 * the page on some queue. So the page must be clean for
--	 * migration. Writeout may mean we loose the lock and the
--	 * page state is no longer what we checked for earlier.
-+	 * A dirty folio may imply that the underlying filesystem has
-+	 * the folio on some queue. So the folio must be clean for
-+	 * migration. Writeout may mean we lose the lock and the
-+	 * folio state is no longer what we checked for earlier.
- 	 * At this point we know that the migration attempt cannot
- 	 * be successful.
- 	 */
- 	remove_migration_ptes(folio, folio, false);
- 
--	rc = mapping->a_ops->writepage(page, &wbc);
-+	rc = mapping->a_ops->writepage(&folio->page, &wbc);
- 
- 	if (rc != AOP_WRITEPAGE_ACTIVATE)
- 		/* unlocked. Relock */
--		lock_page(page);
-+		folio_lock(folio);
- 
- 	return (rc < 0) ? -EIO : -EAGAIN;
+diff --git a/mm/folio-compat.c b/mm/folio-compat.c
+index 20bc15b57d93..458618c7302c 100644
+--- a/mm/folio-compat.c
++++ b/mm/folio-compat.c
+@@ -51,28 +51,6 @@ void mark_page_accessed(struct page *page)
  }
-@@ -817,7 +816,7 @@ static int fallback_migrate_folio(struct address_space *mapping,
- 		default:
- 			return -EBUSY;
- 		}
--		return writeout(mapping, &src->page);
-+		return writeout(mapping, src);
- 	}
+ EXPORT_SYMBOL(mark_page_accessed);
  
- 	/*
+-#ifdef CONFIG_MIGRATION
+-int migrate_page_move_mapping(struct address_space *mapping,
+-		struct page *newpage, struct page *page, int extra_count)
+-{
+-	return folio_migrate_mapping(mapping, page_folio(newpage),
+-					page_folio(page), extra_count);
+-}
+-EXPORT_SYMBOL(migrate_page_move_mapping);
+-
+-void migrate_page_states(struct page *newpage, struct page *page)
+-{
+-	folio_migrate_flags(page_folio(newpage), page_folio(page));
+-}
+-EXPORT_SYMBOL(migrate_page_states);
+-
+-void migrate_page_copy(struct page *newpage, struct page *page)
+-{
+-	folio_migrate_copy(page_folio(newpage), page_folio(page));
+-}
+-EXPORT_SYMBOL(migrate_page_copy);
+-#endif
+-
+ bool set_page_writeback(struct page *page)
+ {
+ 	return folio_start_writeback(page_folio(page));
+diff --git a/mm/ksm.c b/mm/ksm.c
+index 54f78c9eecae..e8f8c1a2bb39 100644
+--- a/mm/ksm.c
++++ b/mm/ksm.c
+@@ -712,7 +712,7 @@ static struct page *get_ksm_page(struct stable_node *stable_node,
+ 	 * however, it might mean that the page is under page_ref_freeze().
+ 	 * The __remove_mapping() case is easy, again the node is now stale;
+ 	 * the same is in reuse_ksm_page() case; but if page is swapcache
+-	 * in migrate_page_move_mapping(), it might still be our page,
++	 * in folio_migrate_mapping(), it might still be our page,
+ 	 * in which case it's essential to keep the node.
+ 	 */
+ 	while (!get_page_unless_zero(page)) {
 -- 
 2.35.1
 
