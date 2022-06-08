@@ -1,75 +1,75 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3824CCCA496
-	for <virtualization@archiver.kernel.org>; Wed,  8 Jun 2022 14:47:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A4903CCA499
+	for <virtualization@archiver.kernel.org>; Wed,  8 Jun 2022 14:47:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 9A75761456;
-	Wed,  8 Jun 2022 14:47:19 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 3B55441A4C;
+	Wed,  8 Jun 2022 14:47:21 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id gXRxjowMLG8r; Wed,  8 Jun 2022 14:47:18 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id F184A6144E;
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id blhpj2YmWHZ9; Wed,  8 Jun 2022 14:47:19 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 4C1CE42519;
 	Wed,  8 Jun 2022 14:47:17 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1A55FC0081;
-	Wed,  8 Jun 2022 14:47:17 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A4C3EC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5228DC0087;
+	Wed,  8 Jun 2022 14:47:16 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2AC4CC002D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Jun 2022 14:47:10 +0000 (UTC)
+ Wed,  8 Jun 2022 14:47:09 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 9CA7A4116B
+ by smtp3.osuosl.org (Postfix) with ESMTP id CD35060E27
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Jun 2022 14:47:10 +0000 (UTC)
+ Wed,  8 Jun 2022 14:47:07 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
  dkim=pass (2048-bit key) header.d=infradead.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id DTfnEMtt8LEj
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Nd2lghZj9AVy
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Jun 2022 14:47:09 +0000 (UTC)
+ Wed,  8 Jun 2022 14:47:05 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from desiato.infradead.org (desiato.infradead.org
- [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
- by smtp2.osuosl.org (Postfix) with ESMTPS id B976141174
+Received: from casper.infradead.org (casper.infradead.org
+ [IPv6:2001:8b0:10b:1236::1])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 88DA360A78
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Jun 2022 14:47:09 +0000 (UTC)
+ Wed,  8 Jun 2022 14:47:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=desiato.20200630; h=Content-Type:MIME-Version:References:
+ d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
  Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
  Content-ID:Content-Description:In-Reply-To;
- bh=O62myI6pQAS8t81lbED6UulH15u+VxDiccCxL8l46b0=; b=gT8EMkBd6bMPLcSrcn+tIlmqrQ
- gTlIn15eBCUJQJ7odUKeDR2ZWGk6cr6CL+IgYOg0zC0XwW4KvSjAi4QIaQShcZztyyB5uW4tjGOZ+
- Xx0k619Zyq8PzUIepWyk++0mEYVwQwRDrMoV5OMsBFqmPNytGFdVmw1KNESQJd2/bvekElwzIcwfq
- h9dM8RgSuGh8dAJ/hoh8FLTtUTAzinFeiF1y1HPLwogXCp0Uo4fTbKBO+SfwljZRT7cvOxCuC5v2c
- rVPi+OaAn7J4nbIx17Sn50Rh+9lBzO0j0yDzRiHN+flr/WJFb/Do9/yGDSiiRsQ1W4fIUFcfmvAbk
- rGLVyLLg==;
+ bh=zScd4cADrYcj3rMhEyHUI7u7RAFkUNduwGg8qRRyi/k=; b=lMeZtUCMmLelJdq3AWi7ufvFy9
+ zlr0j5q30DieJ7hrCz8do1dwuurdkRTVZkClv5qAsNNY34C5+J1MisafZfl5mqNbyVj29S2tZDxtK
+ LEpTKomujvoW1TCLYxlDbZt43UH74WE9L7Lh3HKWRXe6UR3tN8vTT5ffsmmFmxd0VHkpTlLfEISj7
+ 1YiC/dMdRcaQcaLa3hWd6i2S9Ph6nB4hTbaK6IoI8FUNQvFYBexxYiq+T8SJikPxMDFN+B/sZWVMO
+ b9LXaI8a06LKzZOZDbTdvz+wlt156y7IT5OCrJlji47mznjmSKwwwdv64p++NrqDV4Nf5RRQ6f3GK
+ cjl+uyVg==;
 Received: from dhcp-077-249-017-003.chello.nl ([77.249.17.3]
  helo=noisy.programming.kicks-ass.net)
- by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1nywww-0066AY-GC; Wed, 08 Jun 2022 14:46:23 +0000
+ by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+ id 1nywwz-00ChWi-PN; Wed, 08 Jun 2022 14:46:25 +0000
 Received: from hirez.programming.kicks-ass.net
  (hirez.programming.kicks-ass.net [192.168.1.225])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (4096 bits))
  (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 7B1E63021D5;
- Wed,  8 Jun 2022 16:46:20 +0200 (CEST)
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 2A2ED302E59;
+ Wed,  8 Jun 2022 16:46:23 +0200 (CEST)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
- id 3CA0E20C0F9A5; Wed,  8 Jun 2022 16:46:18 +0200 (CEST)
-Message-ID: <20220608144516.047149313@infradead.org>
+ id 7DA0620C10EC7; Wed,  8 Jun 2022 16:46:18 +0200 (CEST)
+Message-ID: <20220608144516.998681585@infradead.org>
 User-Agent: quilt/0.66
-Date: Wed, 08 Jun 2022 16:27:25 +0200
+Date: Wed, 08 Jun 2022 16:27:40 +0200
 From: Peter Zijlstra <peterz@infradead.org>
 To: peterz@infradead.org
-Subject: [PATCH 02/36] x86/idle: Replace x86_idle with a static_call
+Subject: [PATCH 17/36] acpi_idle: Remove tracing
 References: <20220608142723.103523089@infradead.org>
 MIME-Version: 1.0
 Cc: juri.lelli@redhat.com, rafael@kernel.org, benh@kernel.crashing.org,
@@ -135,117 +135,74 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Typical boot time setup; no need to suffer an indirect call for that.
+All the idle routines are called with RCU disabled, as such there must
+not be any tracing inside.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
 ---
- arch/x86/kernel/process.c |   50 +++++++++++++++++++++++++---------------------
- 1 file changed, 28 insertions(+), 22 deletions(-)
+ drivers/acpi/processor_idle.c |   24 +++++++++++++-----------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
 
---- a/arch/x86/kernel/process.c
-+++ b/arch/x86/kernel/process.c
-@@ -24,6 +24,7 @@
- #include <linux/cpuidle.h>
- #include <linux/acpi.h>
- #include <linux/elf-randomize.h>
-+#include <linux/static_call.h>
- #include <trace/events/power.h>
- #include <linux/hw_breakpoint.h>
- #include <asm/cpu.h>
-@@ -692,7 +693,23 @@ void __switch_to_xtra(struct task_struct
- unsigned long boot_option_idle_override = IDLE_NO_OVERRIDE;
- EXPORT_SYMBOL(boot_option_idle_override);
- 
--static void (*x86_idle)(void);
-+/*
-+ * We use this if we don't have any better idle routine..
-+ */
-+void __cpuidle default_idle(void)
-+{
-+	raw_safe_halt();
-+}
-+#if defined(CONFIG_APM_MODULE) || defined(CONFIG_HALTPOLL_CPUIDLE_MODULE)
-+EXPORT_SYMBOL(default_idle);
-+#endif
-+
-+DEFINE_STATIC_CALL_NULL(x86_idle, default_idle);
-+
-+static bool x86_idle_set(void)
-+{
-+	return !!static_call_query(x86_idle);
-+}
- 
- #ifndef CONFIG_SMP
- static inline void play_dead(void)
-@@ -715,28 +732,17 @@ void arch_cpu_idle_dead(void)
- /*
-  * Called from the generic idle code.
-  */
--void arch_cpu_idle(void)
--{
--	x86_idle();
--}
--
--/*
-- * We use this if we don't have any better idle routine..
-- */
--void __cpuidle default_idle(void)
-+void __cpuidle arch_cpu_idle(void)
+--- a/drivers/acpi/processor_idle.c
++++ b/drivers/acpi/processor_idle.c
+@@ -108,8 +108,8 @@ static const struct dmi_system_id proces
+ static void __cpuidle acpi_safe_halt(void)
  {
--	raw_safe_halt();
-+	static_call(x86_idle)();
+ 	if (!tif_need_resched()) {
+-		safe_halt();
+-		local_irq_disable();
++		raw_safe_halt();
++		raw_local_irq_disable();
+ 	}
  }
--#if defined(CONFIG_APM_MODULE) || defined(CONFIG_HALTPOLL_CPUIDLE_MODULE)
--EXPORT_SYMBOL(default_idle);
--#endif
  
- #ifdef CONFIG_XEN
- bool xen_set_default_idle(void)
+@@ -524,16 +524,21 @@ static int acpi_idle_bm_check(void)
+ 	return bm_status;
+ }
+ 
+-static void wait_for_freeze(void)
++static __cpuidle void io_idle(unsigned long addr)
  {
--	bool ret = !!x86_idle;
-+	bool ret = x86_idle_set();
- 
--	x86_idle = default_idle;
-+	static_call_update(x86_idle, default_idle);
- 
- 	return ret;
- }
-@@ -859,20 +865,20 @@ void select_idle_routine(const struct cp
- 	if (boot_option_idle_override == IDLE_POLL && smp_num_siblings > 1)
- 		pr_warn_once("WARNING: polling idle and HT enabled, performance may degrade\n");
- #endif
--	if (x86_idle || boot_option_idle_override == IDLE_POLL)
-+	if (x86_idle_set() || boot_option_idle_override == IDLE_POLL)
++	/* IO port based C-state */
++	inb(addr);
++
+ #ifdef	CONFIG_X86
+ 	/* No delay is needed if we are in guest */
+ 	if (boot_cpu_has(X86_FEATURE_HYPERVISOR))
  		return;
- 
- 	if (boot_cpu_has_bug(X86_BUG_AMD_E400)) {
- 		pr_info("using AMD E400 aware idle routine\n");
--		x86_idle = amd_e400_idle;
-+		static_call_update(x86_idle, amd_e400_idle);
- 	} else if (prefer_mwait_c1_over_halt(c)) {
- 		pr_info("using mwait in idle threads\n");
--		x86_idle = mwait_idle;
-+		static_call_update(x86_idle, mwait_idle);
- 	} else if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST)) {
- 		pr_info("using TDX aware idle routine\n");
--		x86_idle = tdx_safe_halt;
-+		static_call_update(x86_idle, tdx_safe_halt);
- 	} else
--		x86_idle = default_idle;
-+		static_call_update(x86_idle, default_idle);
+ #endif
+-	/* Dummy wait op - must do something useless after P_LVL2 read
+-	   because chipsets cannot guarantee that STPCLK# signal
+-	   gets asserted in time to freeze execution properly. */
++	/*
++	 * Dummy wait op - must do something useless after P_LVL2 read
++	 * because chipsets cannot guarantee that STPCLK# signal
++	 * gets asserted in time to freeze execution properly.
++	 */
+ 	inl(acpi_gbl_FADT.xpm_timer_block.address);
  }
  
- void amd_e400_c1e_apic_setup(void)
-@@ -925,7 +931,7 @@ static int __init idle_setup(char *str)
- 		 * To continue to load the CPU idle driver, don't touch
- 		 * the boot_option_idle_override.
- 		 */
--		x86_idle = default_idle;
-+		static_call_update(x86_idle, default_idle);
- 		boot_option_idle_override = IDLE_HALT;
- 	} else if (!strcmp(str, "nomwait")) {
- 		/*
+@@ -553,9 +558,7 @@ static void __cpuidle acpi_idle_do_entry
+ 	} else if (cx->entry_method == ACPI_CSTATE_HALT) {
+ 		acpi_safe_halt();
+ 	} else {
+-		/* IO port based C-state */
+-		inb(cx->address);
+-		wait_for_freeze();
++		io_idle(cx->address);
+ 	}
+ 
+ 	perf_lopwr_cb(false);
+@@ -577,8 +580,7 @@ static int acpi_idle_play_dead(struct cp
+ 		if (cx->entry_method == ACPI_CSTATE_HALT)
+ 			safe_halt();
+ 		else if (cx->entry_method == ACPI_CSTATE_SYSTEMIO) {
+-			inb(cx->address);
+-			wait_for_freeze();
++			io_idle(cx->address);
+ 		} else
+ 			return -ENODEV;
+ 
 
 
 _______________________________________________
