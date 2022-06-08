@@ -1,85 +1,85 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 28D8EC433EF
-	for <virtualization@archiver.kernel.org>; Wed,  8 Jun 2022 18:24:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0760CC43334
+	for <virtualization@archiver.kernel.org>; Wed,  8 Jun 2022 20:23:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id D5C52403A5;
-	Wed,  8 Jun 2022 18:24:47 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 921FA83E15;
+	Wed,  8 Jun 2022 20:23:17 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id AkoWfIghk9ea; Wed,  8 Jun 2022 18:24:46 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 52EFB405EF;
-	Wed,  8 Jun 2022 18:24:46 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 6ajLwydfZaPA; Wed,  8 Jun 2022 20:23:16 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 1D43981254;
+	Wed,  8 Jun 2022 20:23:15 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 22D9BC0039;
-	Wed,  8 Jun 2022 18:24:46 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D6E35C0039;
+	Wed,  8 Jun 2022 20:23:15 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 713D1C002D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 33B27C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Jun 2022 18:24:44 +0000 (UTC)
+ Wed,  8 Jun 2022 20:23:15 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 45AF7418CE
+ by smtp4.osuosl.org (Postfix) with ESMTP id 1802D419B9
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Jun 2022 18:24:44 +0000 (UTC)
+ Wed,  8 Jun 2022 20:23:15 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id jxWsLTLofM2L
+ with ESMTP id h7gqIR7YCIek
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Jun 2022 18:24:43 +0000 (UTC)
+ Wed,  8 Jun 2022 20:23:14 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from mout.kundenserver.de (mout.kundenserver.de [217.72.192.74])
- by smtp4.osuosl.org (Postfix) with ESMTPS id A1722418B4
+Received: from mout.kundenserver.de (mout.kundenserver.de [212.227.126.134])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id B8DC241974
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Jun 2022 18:24:42 +0000 (UTC)
-Received: from mail-ot1-f50.google.com ([209.85.210.50]) by
- mrelayeu.kundenserver.de (mreue106 [213.165.67.113]) with ESMTPSA (Nemesis)
- id 1MEmtx-1nxbZs2XNr-00GDxH for <virtualization@lists.linux-foundation.org>;
- Wed, 08 Jun 2022 20:24:39 +0200
-Received: by mail-ot1-f50.google.com with SMTP id
- w19-20020a9d6393000000b0060aeb359ca8so15695487otk.6
+ Wed,  8 Jun 2022 20:23:13 +0000 (UTC)
+Received: from mail-ot1-f41.google.com ([209.85.210.41]) by
+ mrelayeu.kundenserver.de (mreue012 [213.165.67.97]) with ESMTPSA (Nemesis) id
+ 1M9ZRc-1o4XzG1oxA-005blU for <virtualization@lists.linux-foundation.org>;
+ Wed, 08 Jun 2022 22:23:10 +0200
+Received: by mail-ot1-f41.google.com with SMTP id
+ w19-20020a9d6393000000b0060aeb359ca8so15911946otk.6
  for <virtualization@lists.linux-foundation.org>;
- Wed, 08 Jun 2022 11:24:39 -0700 (PDT)
-X-Gm-Message-State: AOAM532bauBH0H42CcBTyg+OJyeEYvZElqQtzGUP51neGmkfm4/o7m/i
- nyWmy4iUCFMsRYHFPsgwIqBHEs4LK5BuIL/Odew=
-X-Google-Smtp-Source: ABdhPJzNVjvOg+I4TKoqtI9Mj5r7eGnKl4yZEYVHLzTr22uimte8bgKc1nTgREfDsecVqzQDeuxH8v8jGezndj85u8s=
-X-Received: by 2002:a25:e64b:0:b0:663:ffad:eac5 with SMTP id
- d72-20020a25e64b000000b00663ffadeac5mr3789690ybh.550.1654705730388; Wed, 08
- Jun 2022 09:28:50 -0700 (PDT)
+ Wed, 08 Jun 2022 13:23:09 -0700 (PDT)
+X-Gm-Message-State: AOAM531az9BTAL6oS4hkuW439CpGDu6uEQY+F9vpjNcyxH9DN55gl4HQ
+ M17dr4Nzefsh4XxjzKX0sAoQLNrhKYnHl3Kw7PQ=
+X-Google-Smtp-Source: ABdhPJzN5kbTwiXruPcKSpnmqojFIl1cGQUBuhNCCdRneCrpSwm0deMOGKvKLmavgOJ05DHkpAoCHNV4Fm5CQu/QOU4=
+X-Received: by 2002:a0d:efc2:0:b0:2fe:d2b7:da8 with SMTP id
+ y185-20020a0defc2000000b002fed2b70da8mr36982567ywe.42.1654705351589; Wed, 08
+ Jun 2022 09:22:31 -0700 (PDT)
 MIME-Version: 1.0
 References: <20220608142723.103523089@infradead.org>
- <20220608144518.010587032@infradead.org>
-In-Reply-To: <20220608144518.010587032@infradead.org>
+ <20220608144517.188449351@infradead.org>
+In-Reply-To: <20220608144517.188449351@infradead.org>
 From: Arnd Bergmann <arnd@arndb.de>
-Date: Wed, 8 Jun 2022 18:28:33 +0200
-X-Gmail-Original-Message-ID: <CAK8P3a0g-fNu9=BUECSXcNeWT7XWHQMnSXZE-XYE+5eakHxKxA@mail.gmail.com>
-Message-ID: <CAK8P3a0g-fNu9=BUECSXcNeWT7XWHQMnSXZE-XYE+5eakHxKxA@mail.gmail.com>
-Subject: Re: [PATCH 33/36] cpuidle,omap3: Use WFI for omap3_pm_idle()
+Date: Wed, 8 Jun 2022 18:22:12 +0200
+X-Gmail-Original-Message-ID: <CAK8P3a2y5+nrQFzhjrTTZe+d57Ug261J3kwLNe8Mu8i2qxtG2w@mail.gmail.com>
+Message-ID: <CAK8P3a2y5+nrQFzhjrTTZe+d57Ug261J3kwLNe8Mu8i2qxtG2w@mail.gmail.com>
+Subject: Re: [PATCH 20/36] arch/idle: Change arch_cpu_idle() IRQ behaviour
 To: Peter Zijlstra <peterz@infradead.org>
-X-Provags-ID: V03:K1:EqHtu5F4s4EiCtmCb/MQ7bgF2gj+Rx5Y5RKIVf66BSuQbrMvdsq
- /ENJlKd63PrIbeU8Z385XVkiJr1bOqfd+cGvMQ4oGAhPQF5emtQLxHKR3hfEc7et7Teho8u
- Nk+BdTgiPoEdosJwtndzR3Mk8jqsDYgSwm/UlSivr5FKro8MLYQR72389zRkMnEZX976ocI
- 4nkJ/GgwRTKTwWX8pGXLA==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:tZO6EXPfTwc=:feiA9yfDvv42izKA2gWaRg
- o/o8BVR3CaBJuMb/fZbBPD9BQTbG7iqFGlmXUhAJQk+1GPZcSQ9QjD0t4pD4RQdoPUkeWr+Qu
- 003dvzOC76leahaHj0+l5nvBlw0OgvJlhh+EIiz8w72joCHm99NjYt46Uy1ZZGtv8Aln6x9iC
- 7s+NCh84dew7XRdPEyB5axtgBtlUsC57+KJLPHAQF7lrQUTrXWBOorTyL8q4iDRkZ043LGEi3
- N8eCZZ7PCn5Jckf65FeGPt0ovyeksRDcnCfIdjTIUjpE93M1+RYDtZdUmbcC/3+JQMT53ZLND
- 3GuSCUH7/Uodki9BoVkp5qTOYRO3oZyyxfVCltIdV4LTXViy4YW2+TlzWq8aR0eH46Xjt1J/3
- 5XOfwhSJaInbBqPipSuwCIHCDyQB0bgUJC1Nc5LzwFj8reX/RoDE/yU8v3j3xGGT5u4knl+WZ
- X1dGQTFlHHZl9OUjvGu4hL9ITci9OaG/tYQZl/by0vb2L016ciqzYjyhFbC0P0bM71qIQm5GM
- T4rFkJFEb+SXzbDimauMqGio+GKj67DezA16NgMFm/S5K0XNMHnyDYWhPcUVFZj/mzoZ9ygWT
- zmu+hNVa+eWSpjO6MzdPESgKsL26sT/jNJatOSwSn976np1l86gD6VyOg8aq8a5HOY+5mAt36
- x/kriNXXjZZtH3XTTEVd6ByufdXhFXR5maPe/kfkJyS8x5SVYXQZw7lQBFA0WnjYG1x0uPtlJ
- Oh9gsLSEw+R0E5BgXcrqCIzkiCM1z5SbWqVUr7QvwUr9yte0jghz5YvCHt6wlACjYCT95EFr+
- +cNbaU6tw0bbQYlLAlhGmsvbQh3Y9rvC4yEY3+Aq5mgJjuwrbekftZU/fmUf5LFFnKIsTpIfq
- ns8GXGtvTuqvDIbHfKVw==
+X-Provags-ID: V03:K1:e6NLLVOTCfI5J5o9DqhayBw8ZPRSYyM8kG6DeAJgju2+38XLZr8
+ dCouy5BJzyRXwEU1AQw9AX+5dnMM3vWAJt5K7Zln12wSndB7nrOFlACOpnURlYtTpv8ui1l
+ MEQYor+bOHg1Ji41DR3pYk2acg0YjYBhIhzPuzpw2t7URBtpSfYz0tW36uwPKwm0uZXwYrN
+ ulat1Gl+pbfvFg4KzgYsA==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:JHI9O7Jkx5Y=:V3h5aFxY4V/LGlus1C1rKD
+ LhQb5DGOS1aglOopvD8ytO6bS33oqs751YBC4ua3vuPfWsQBj8VRFOeG/UUnzukfN9MzwN+hv
+ 9tgPY6XkAsDToxQXG/uUo+Vn12Kt/pMlunH8K8Bg6z7eNlZAsyVCcg0/H/ph5233DPu9dfLj1
+ bbo+V2iO+uT4G/7qlO4G+WPeMCMhZRVV7ibwKreA0EKbH+t3wX0aor7NPZSIgarZ6oOwBvll+
+ atcVolxJF8OWlyOXQKjV7wHu7sIBFt7TjW9h8HDx5QoysKwi7uMBOjg5RPKkI7jN298Dl+5I8
+ ydkCkaYfHz8lmISPVUoqDPi4A84WZ0mFI2Mm/2GwEYneqkfXdy7+JTHSyn4gnJ9GPNphETtWs
+ BxjhF70ZmIJ+6XdbeOk9P4I0nAlpowMGOAHwCbpsy+QsZ21uwlcXkJEnFMDP5J3mjOVXkHZxz
+ 395SLQqrpSP/AUeCTL7Es6HeYl7RvPa0fFlLuF+ojATCg/medmaL3xoQ63VQvx3vs3ov3H4uf
+ U9XnLgukunyTsL74YJLWJpS4jE2BpKwCM/kzdq6Q7pKRKToNLB3F5Pd4McHCY+QU/JqnoOGG2
+ 3j42a7e4cj6M8ARSImHJOiBF+/OKWqlX6G+sBMEr94hUZJb7SATS5QM2xU15Vi664jdwy3V4Z
+ wSZuFyOgq2PpawMgZ34TbUfjj2nn5zgoDpkjLRZyVqkYEnsrw54OY8FFDzeU+xMlBwNR7v9tm
+ bZ6oxRRdwQ6MpECw9cPt6j9TgZzBXWYo8aOfWUDeN9EDp3hJvN1dwa7TB+5zOiLSbILqqIEr7
+ x8H3Rhgrq0TgwRZ4tTuG63Ftb03wSu3bXYEX4g43nTRX8ii9meyPYISnQPFAfoZqtj9BVkoLa
+ 2BY67d6K0mMCefwxtr/Q==
 Cc: Juri Lelli <juri.lelli@redhat.com>, Rafael Wysocki <rafael@kernel.org>,
  Benjamin Herrenschmidt <benh@kernel.crashing.org>,
  Linus Walleij <linus.walleij@linaro.org>, Ben Segall <bsegall@google.com>,
@@ -187,25 +187,23 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 On Wed, Jun 8, 2022 at 4:27 PM Peter Zijlstra <peterz@infradead.org> wrote:
 >
-> arch_cpu_idle() is a very simple idle interface and exposes only a
-> single idle state and is expected to not require RCU and not do any
-> tracing/instrumentation.
+> Current arch_cpu_idle() is called with IRQs disabled, but will return
+> with IRQs enabled.
 >
-> As such, omap_sram_idle() is not a valid implementation. Replace it
-> with the simple (shallow) omap3_do_wfi() call. Leaving the more
-> complicated idle states for the cpuidle driver.
+> However, the very first thing the generic code does after calling
+> arch_cpu_idle() is raw_local_irq_disable(). This means that
+> architectures that can idle with IRQs disabled end up doing a
+> pointless 'enable-disable' dance.
+>
+> Therefore, push this IRQ disabling into the idle function, meaning
+> that those architectures can avoid the pointless IRQ state flipping.
 >
 > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 
-I see similar code in omap2:
+I think you now need to add the a raw_local_irq_disable(); in loongarch
+as well.
 
-omap2_pm_idle()
- -> omap2_enter_full_retention()
-     -> omap2_sram_suspend()
-
-Is that code path safe to use without RCU or does it need a similar change?
-
-        Arnd
+       Arnd
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
