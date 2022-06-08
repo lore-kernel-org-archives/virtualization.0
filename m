@@ -1,97 +1,77 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 20A73C433EF
-	for <virtualization@archiver.kernel.org>; Wed,  8 Jun 2022 08:15:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id BE607C43334
+	for <virtualization@archiver.kernel.org>; Wed,  8 Jun 2022 08:16:53 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id CC9D140B7C;
-	Wed,  8 Jun 2022 08:15:16 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 61CE441952;
+	Wed,  8 Jun 2022 08:16:53 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Lw7x-Uk_RGJ9; Wed,  8 Jun 2022 08:15:16 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id CLVf--SIqSMM; Wed,  8 Jun 2022 08:16:52 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 6FC1740B6D;
-	Wed,  8 Jun 2022 08:15:15 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id D070741625;
+	Wed,  8 Jun 2022 08:16:51 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 497A0C0039;
-	Wed,  8 Jun 2022 08:15:15 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 9F6A1C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id AFC51C0039;
+	Wed,  8 Jun 2022 08:16:51 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4BD13C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Jun 2022 08:15:14 +0000 (UTC)
+ Wed,  8 Jun 2022 08:16:50 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 8F40640B77
+ by smtp1.osuosl.org (Postfix) with ESMTP id 2D12483EE0
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Jun 2022 08:15:14 +0000 (UTC)
+ Wed,  8 Jun 2022 08:16:50 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id rmceB23anwJo
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=infradead.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id f_pfRH9yyodk
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Jun 2022 08:15:14 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id E6AA440B6D
+ Wed,  8 Jun 2022 08:16:49 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+Received: from bombadil.infradead.org (bombadil.infradead.org
+ [IPv6:2607:7c80:54:3::133])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id C0D8283EA0
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Jun 2022 08:15:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1654676112;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=Jz5q+YjZAkyfToJ2c95DtkbkAjaLs7+ZTPGj5+BkvEk=;
- b=hIhH6/xQo1/T2Awc5xQd/WVFiiy7RYOog6kfsyjIXxGBX4t9mLzU78c1VU4XNaew3zf+/4
- nlRgS9E3eRU9zDCDV7FrUiD3GmAdjLovFlGLt+4yG1EDhZGL6wM/k8tFmDrDHOryQ0fBO4
- WBu7O5dmaxtEZVLo5EbMjNNt2lJv7MA=
-Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
- [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-61-_NHKGJSjPUOyOCF69VRvLA-1; Wed, 08 Jun 2022 04:15:09 -0400
-X-MC-Unique: _NHKGJSjPUOyOCF69VRvLA-1
-Received: by mail-lf1-f71.google.com with SMTP id
- u5-20020a056512128500b00479784f526cso987535lfs.13
- for <virtualization@lists.linux-foundation.org>;
- Wed, 08 Jun 2022 01:15:09 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=Jz5q+YjZAkyfToJ2c95DtkbkAjaLs7+ZTPGj5+BkvEk=;
- b=pYxsNH7cNbDUBouXk5DEX67uyP4qGm9wvbzJtL6O+2at501vWQw6CMYyZtrTIIqADt
- OfNYhQ6+Dq2eYmxGbt/S9N6GWL9k+MwyZlGmZLkPPonx+Eacb3drnj5fTUYlKigoe9UO
- 2s0AbcK/+tVVqrEW2guboc2yePATIO005Bo11IPNbFz0AyFJipUVAw0svapW/CI+CZ3A
- 7Fi3fTEpfE7zEEIW+cUjKAREBMavnhtDZwrDuODWg+OUBDefMAW9SSsxzskHt4CDYGAo
- KA1iW+Xx1/00EXbP/LINw6l+11D0nLzwvvd6j5CYdZ7JRL6X6Zm0GdsrhnhL9ImeObPF
- Ieug==
-X-Gm-Message-State: AOAM533onSPeqa8VGKMz2OtMZ0V0rwxiUAUiH2C8s+DIKy43UMbV2IH+
- OwnSMLxVNPK6B4Mi7hl6LFu9lpvQvEzBhrHuODY906IKiJB29tPC/BlRkvhQ7XMvAgvoHFCOyuK
- ie3BnvyJZZT3DRT3F3KTkLh8lqHUe+PPovhX4QmKBO5ByDJDh0HQsqUdNpg==
-X-Received: by 2002:a05:6512:5cc:b0:47a:bf7:f1ab with SMTP id
- o12-20020a05651205cc00b0047a0bf7f1abmr521607lfo.397.1654676108374; 
- Wed, 08 Jun 2022 01:15:08 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyY1+iIQeufl0PI6M0pxOr2OD+lyDsrI90C2L8v6cQJkrGmLHN5yVXtHbpPbGCBoud3azvKXHalfitf8gmL8hg=
-X-Received: by 2002:a05:6512:5cc:b0:47a:bf7:f1ab with SMTP id
- o12-20020a05651205cc00b0047a0bf7f1abmr521603lfo.397.1654676108211; Wed, 08
- Jun 2022 01:15:08 -0700 (PDT)
+ Wed,  8 Jun 2022 08:16:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
+ :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+ Content-Transfer-Encoding:Content-ID:Content-Description;
+ bh=M7NmYC/Iylm9myghHwqILim55SAUt9QrM+UZYk0eJlw=; b=FO21TYVkz1GrrEA1IBdTPO89xn
+ 0ZhoZYnarKm0rAuq/YROa1HKdkFK7QK0hedDX/nrx+C0C2WNrc/8GnSud7y6U9FtPf82+dd7N0Y3l
+ YkFhhl+68leXo0KExqTjSVhImfkr7x818ptZ7rQAQnAkTTOK+3RQ8NAQ4BjzwC9dwB3ryaKIKFgst
+ 1az6zm3xoKy7M0JoPyTQjX3ItTvX0lzR7C46szzxNnX5fxrRlYwh8C8eGy+4fFWsfWohqoXnJV1lk
+ NUoZvYeV3VZL9xeXVFDRQELmcTse8V//KXOCpI/WLAYTfRuTB+WtV9TBIRC4l0VSz8+pKNnzTprVG
+ gQVinkwQ==;
+Received: from hch by bombadil.infradead.org with local (Exim 4.94.2 #2 (Red
+ Hat Linux)) id 1nyqrs-00BsOk-6N; Wed, 08 Jun 2022 08:16:44 +0000
+Date: Wed, 8 Jun 2022 01:16:44 -0700
+From: Christoph Hellwig <hch@infradead.org>
+To: "Matthew Wilcox (Oracle)" <willy@infradead.org>
+Subject: Re: [PATCH 06/20] btrfs: Convert btree_migratepage to migrate_folio
+Message-ID: <YqBa7ENPoZ1ofJZj@infradead.org>
+References: <20220606204050.2625949-1-willy@infradead.org>
+ <20220606204050.2625949-7-willy@infradead.org>
 MIME-Version: 1.0
-References: <20220604143858.16073-1-wangxiang@cdjrlc.com>
-In-Reply-To: <20220604143858.16073-1-wangxiang@cdjrlc.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 8 Jun 2022 16:14:57 +0800
-Message-ID: <CACGkMEsL513A2Wq2y9GS0yF-FB85gEqJABAULUAjF0aQb0Fmmw@mail.gmail.com>
-Subject: Re: [PATCH] vdpa/mlx5: Fix syntax errors in comments
-To: Xiang wangx <wangxiang@cdjrlc.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: virtualization <virtualization@lists.linux-foundation.org>,
- linux-kernel <linux-kernel@vger.kernel.org>, mst <mst@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20220606204050.2625949-7-willy@infradead.org>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by
+ bombadil.infradead.org. See http://www.infradead.org/rpr.html
+Cc: linux-aio@kvack.org, linux-nfs@vger.kernel.org, cluster-devel@redhat.com,
+ linux-ntfs-dev@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+ linux-f2fs-devel@lists.sourceforge.net, linux-block@vger.kernel.org,
+ linux-mm@kvack.org, linux-mtd@lists.infradead.org, ocfs2-devel@oss.oracle.com,
+ linux-fsdevel@vger.kernel.org, linux-ext4@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, linux-xfs@vger.kernel.org,
+ linux-btrfs@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -108,35 +88,9 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sat, Jun 4, 2022 at 10:40 PM Xiang wangx <wangxiang@cdjrlc.com> wrote:
->
-> Delete the redundant word 'is'.
->
-> Signed-off-by: Xiang wangx <wangxiang@cdjrlc.com>
+Looks good:
 
-Acked-by: Jason Wang <jasowang@redhat.com>
-
-> ---
->  drivers/vdpa/mlx5/net/mlx5_vnet.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> index dcca782c698e..3569c782c8a0 100644
-> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> @@ -105,7 +105,7 @@ struct mlx5_vdpa_virtqueue {
->
->         /* Resources for implementing the notification channel from the device
->          * to the driver. fwqp is the firmware end of an RC connection; the
-> -        * other end is vqqp used by the driver. cq is is where completions are
-> +        * other end is vqqp used by the driver. cq is where completions are
->          * reported.
->          */
->         struct mlx5_vdpa_cq cq;
-> --
-> 2.36.1
->
-
+Reviewed-by: Christoph Hellwig <hch@lst.de>
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
