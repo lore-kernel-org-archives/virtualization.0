@@ -1,73 +1,75 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id F1DFECCA489
-	for <virtualization@archiver.kernel.org>; Wed,  8 Jun 2022 14:47:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C379AC43334
+	for <virtualization@archiver.kernel.org>; Wed,  8 Jun 2022 14:47:08 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id A7A8B83EF4;
-	Wed,  8 Jun 2022 14:47:06 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 748084116A;
+	Wed,  8 Jun 2022 14:47:08 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id cbLFdjZ1hZco; Wed,  8 Jun 2022 14:47:05 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 7BC8983E8A;
-	Wed,  8 Jun 2022 14:47:04 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 9I9I6ECbv4TY; Wed,  8 Jun 2022 14:47:07 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 1EEBB41167;
+	Wed,  8 Jun 2022 14:47:07 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 46073C0085;
-	Wed,  8 Jun 2022 14:47:04 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 18A3BC0039
+	by lists.linuxfoundation.org (Postfix) with ESMTP id DD063C002D;
+	Wed,  8 Jun 2022 14:47:06 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4CE52C007C
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Jun 2022 14:47:02 +0000 (UTC)
+ Wed,  8 Jun 2022 14:47:03 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 90D6783E7A
+ by smtp3.osuosl.org (Postfix) with ESMTP id 8936060D68
  for <virtualization@lists.linux-foundation.org>;
  Wed,  8 Jun 2022 14:46:58 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id oe63Z4BHgQ_J
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=infradead.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id ot4q-N7zpdM4
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Jun 2022 14:46:58 +0000 (UTC)
+ Wed,  8 Jun 2022 14:46:56 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from casper.infradead.org (casper.infradead.org
  [IPv6:2001:8b0:10b:1236::1])
- by smtp1.osuosl.org (Postfix) with ESMTPS id DE84983E93
+ by smtp3.osuosl.org (Postfix) with ESMTPS id E915460E24
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Jun 2022 14:46:57 +0000 (UTC)
+ Wed,  8 Jun 2022 14:46:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
  Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
  Content-ID:Content-Description:In-Reply-To;
- bh=y6I/0XZeW+SwdAeAR3t2m034incS08IQBnZfBcNKYzA=; b=pV/EkEgKRIpeKvq5HN3+CCEy73
- r8xSxfvRwX0Hp/RbmQEkGGqgtSQmt2V7wVKm/Dgh7gCxT8VN3Zd3ykv33oYJXDZhFrsOiZzgqwZwN
- mYfnoNbn4mkY4D0X7knpoC+PXyRY28u9ZWLLFNEC02wY4oKlFNPo5yScw7t5dA1Upkyps4KrRMpkG
- hdfHf70HVdGxmq1amZj2pji0fv+Uuwf5Bh2HdSJMzH66/m6rsKuia+FhR3TxjdKwxLuBcApt1D03J
- veIlHyJOTL69bf8GkRxQ0BEOGIuKD5pe0mKmy/Kj0wSR+O/rPyAwmL/tyBM+mm2nltdjhcArwd3n8
- F0v7I28w==;
+ bh=cRgbn3QvpupGZaeUDgwKs7FEGzBWq3dUbK0A/YX8NGM=; b=PSLeO/yNb1FdwotZ74TIoxbYsI
+ soiM9zNMO7t19/qdX6p+jhtYuw+jlgRDVggbwYw5y93wJ9B0AEFFNitZiOLiLqvrO6WYzTd3Ks6/N
+ j6ONiLqH02pSUgCxo2FohIp7YpPnZGRJFJTWnKXkMEaG1p9PIY+g1hJZEWjA2DvWqfDzZ864CPgsH
+ JZUmgyUVfTzWlN2taLJ537IYJBncAgv7L7CMo71dRetIsfM+fYr9nFmmPfnAie7VS2DskPrxSiIFO
+ ifFfahGR54R38dhYOg0BWoewZIQRuCcVUmaPuAuM9Fgo4uTkuRaQcDupqqv1VST4cbPCmhIiOv9NB
+ 7YdXlpfg==;
 Received: from dhcp-077-249-017-003.chello.nl ([77.249.17.3]
  helo=noisy.programming.kicks-ass.net)
  by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1nywwz-00ChW4-1y; Wed, 08 Jun 2022 14:46:25 +0000
+ id 1nywwy-00ChW2-V1; Wed, 08 Jun 2022 14:46:25 +0000
 Received: from hirez.programming.kicks-ass.net
  (hirez.programming.kicks-ass.net [192.168.1.225])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (4096 bits))
  (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id AC095302D9E;
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 9A5BD302D93;
  Wed,  8 Jun 2022 16:46:22 +0200 (CEST)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
- id 598CC20C0FC8A; Wed,  8 Jun 2022 16:46:18 +0200 (CEST)
-Message-ID: <20220608144516.426117259@infradead.org>
+ id 4EAD120C0F9B6; Wed,  8 Jun 2022 16:46:18 +0200 (CEST)
+Message-ID: <20220608144516.297980240@infradead.org>
 User-Agent: quilt/0.66
-Date: Wed, 08 Jun 2022 16:27:31 +0200
+Date: Wed, 08 Jun 2022 16:27:29 +0200
 From: Peter Zijlstra <peterz@infradead.org>
 To: peterz@infradead.org
-Subject: [PATCH 08/36] cpuidle,psci: Push RCU-idle into driver
+Subject: [PATCH 06/36] cpuidle,riscv: Push RCU-idle into driver
 References: <20220608142723.103523089@infradead.org>
 MIME-Version: 1.0
 Cc: juri.lelli@redhat.com, rafael@kernel.org, benh@kernel.crashing.org,
@@ -138,12 +140,12 @@ again, at least twice, before going idle is daft.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 ---
- drivers/cpuidle/cpuidle-psci.c |    9 +++++----
+ drivers/cpuidle/cpuidle-riscv-sbi.c |    9 +++++----
  1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/drivers/cpuidle/cpuidle-psci.c
-+++ b/drivers/cpuidle/cpuidle-psci.c
-@@ -69,12 +69,12 @@ static int __psci_enter_domain_idle_stat
+--- a/drivers/cpuidle/cpuidle-riscv-sbi.c
++++ b/drivers/cpuidle/cpuidle-riscv-sbi.c
+@@ -116,12 +116,12 @@ static int __sbi_enter_domain_idle_state
  		return -1;
  
  	/* Do runtime PM to manage a hierarchical CPU toplogy. */
@@ -156,11 +158,11 @@ Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 +
 +	rcu_idle_enter();
  
- 	state = psci_get_domain_state();
- 	if (!state)
-@@ -82,12 +82,12 @@ static int __psci_enter_domain_idle_stat
+ 	if (sbi_is_domain_state_available())
+ 		state = sbi_get_domain_state();
+@@ -130,12 +130,12 @@ static int __sbi_enter_domain_idle_state
  
- 	ret = psci_cpu_suspend_enter(state) ? -1 : idx;
+ 	ret = sbi_suspend(state) ? -1 : idx;
  
 -	rcu_irq_enter_irqson();
 +	rcu_idle_exit();
@@ -173,14 +175,14 @@ Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
  
  	cpu_pm_exit();
  
-@@ -240,6 +240,7 @@ static int psci_dt_cpu_init_topology(str
+@@ -246,6 +246,7 @@ static int sbi_dt_cpu_init_topology(stru
  	 * of a shared state for the domain, assumes the domain states are all
  	 * deeper states.
  	 */
 +	drv->states[state_count - 1].flags |= CPUIDLE_FLAG_RCU_IDLE;
- 	drv->states[state_count - 1].enter = psci_enter_domain_idle_state;
- 	drv->states[state_count - 1].enter_s2idle = psci_enter_s2idle_domain_idle_state;
- 	psci_cpuidle_use_cpuhp = true;
+ 	drv->states[state_count - 1].enter = sbi_enter_domain_idle_state;
+ 	drv->states[state_count - 1].enter_s2idle =
+ 					sbi_enter_s2idle_domain_idle_state;
 
 
 _______________________________________________
