@@ -4,72 +4,70 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D700AC433EF
-	for <virtualization@archiver.kernel.org>; Wed,  8 Jun 2022 14:47:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 71B77CCA483
+	for <virtualization@archiver.kernel.org>; Wed,  8 Jun 2022 14:47:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 6C23261430;
-	Wed,  8 Jun 2022 14:47:16 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 21E6161448;
+	Wed,  8 Jun 2022 14:47:17 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id QPIpaqGfOdMg; Wed,  8 Jun 2022 14:47:15 +0000 (UTC)
+	with ESMTP id Ctv1N6s7d_7m; Wed,  8 Jun 2022 14:47:16 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 8FC766143D;
-	Wed,  8 Jun 2022 14:47:14 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 6207961435;
+	Wed,  8 Jun 2022 14:47:15 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 63995C0039;
-	Wed,  8 Jun 2022 14:47:14 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 15812C0087
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0F988C0089;
+	Wed,  8 Jun 2022 14:47:15 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 287B1C008A
  for <virtualization@lists.linux-foundation.org>;
  Wed,  8 Jun 2022 14:47:08 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 2321083EEC
+ by smtp3.osuosl.org (Postfix) with ESMTP id 9E9DE607A1
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Jun 2022 14:47:07 +0000 (UTC)
+ Wed,  8 Jun 2022 14:47:06 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=infradead.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id tNV0sgw311vF
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id UKGDr5kMWuYO
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Jun 2022 14:47:05 +0000 (UTC)
+ Wed,  8 Jun 2022 14:47:06 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from casper.infradead.org (casper.infradead.org
  [IPv6:2001:8b0:10b:1236::1])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 4485183F3A
+ by smtp3.osuosl.org (Postfix) with ESMTPS id E98E560E7C
  for <virtualization@lists.linux-foundation.org>;
  Wed,  8 Jun 2022 14:47:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
  Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
  Content-ID:Content-Description:In-Reply-To;
- bh=rYkYazBjkfDgerhAXoQmSQo0bqbhUZdR/pxZJBUI/ng=; b=vu07N0jdKUpflmoXw9ffNL6Z73
- erDS9h9Rs2elipxuuO4E6oiZH+Xt8Kduq8uIy0K8+Ab0UB0Ng85EAEgq7IePggGQkxci90i2DCS1y
- 8hasm97zpwVR42qXyoEVcdAAXC0o1yjBEf2zXDXzDeV7u6KYIrksdlid9J/WVIYBdEcU6d6Gvdj7E
- u0DN3Ge62DOP6wTTVj2hf27+jjO+Ouhx1rAS3CxarHAIYXw+7tlexjGWTNw7nu0E3iu6Ok6OCplMs
- JoqeWWF7u27G3D9d8dvjFXenflW76lfCYePvRuxdlq/eC0M85xlj/iHefoDUVMnKfItqMCLHKrmNd
- qd303QFw==;
+ bh=72Sb3LM19KDQn37emviwOKsQWcEROOYn6vEWI6g4O0g=; b=EIStTNEvIWCOhCtVS6i/K7y72k
+ Z2/y8QVivxbrQMzv70rV/xYI1TqoeKXswIk5VnUpw0+4RhgOORQAEqSaWWFcpGN/Ozze52Ug5i0sI
+ TleRT/9YHz6wiGFbGNdRNWgltUsVvJQ/VjZwME/1FoaZpc7a2ndwOU/eD8GtMnigWvtYOtoQbNZbT
+ YAEGoBE1YPDvgKLkfYqGdKYI7530FqsneWIVYclJ5CEXvPE38a9eC2TbKb0SOYjj+vs7v40/yoQE7
+ k4NN68jbT7q4/PIwEPV2vzemhXOOO98Uy9H+Lq6ErhVJIdH1jDJG5a7zOOPhARBO9XvArNFyyMFwC
+ hXw9kkBw==;
 Received: from dhcp-077-249-017-003.chello.nl ([77.249.17.3]
  helo=noisy.programming.kicks-ass.net)
  by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1nywx6-00ChZm-Gu; Wed, 08 Jun 2022 14:46:32 +0000
+ id 1nywx6-00ChZS-6w; Wed, 08 Jun 2022 14:46:32 +0000
 Received: from hirez.programming.kicks-ass.net
  (hirez.programming.kicks-ass.net [192.168.1.225])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (4096 bits))
  (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id D3A8C302F34;
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id E2347302F4B;
  Wed,  8 Jun 2022 16:46:23 +0200 (CEST)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
- id B3C6F20C119AC; Wed,  8 Jun 2022 16:46:18 +0200 (CEST)
-Message-ID: <20220608144517.822208471@infradead.org>
+ id C09F920C119B6; Wed,  8 Jun 2022 16:46:18 +0200 (CEST)
+Message-ID: <20220608144518.010587032@infradead.org>
 User-Agent: quilt/0.66
-Date: Wed, 08 Jun 2022 16:27:53 +0200
+Date: Wed, 08 Jun 2022 16:27:56 +0200
 From: Peter Zijlstra <peterz@infradead.org>
 To: peterz@infradead.org
-Subject: [PATCH 30/36] cpuidle,nospec: Make noinstr clean
+Subject: [PATCH 33/36] cpuidle,omap3: Use WFI for omap3_pm_idle()
 References: <20220608142723.103523089@infradead.org>
 MIME-Version: 1.0
 Cc: juri.lelli@redhat.com, rafael@kernel.org, benh@kernel.crashing.org,
@@ -135,28 +133,30 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-vmlinux.o: warning: objtool: mwait_idle+0x47: call to mds_idle_clear_cpu_buffers() leaves .noinstr.text section
-vmlinux.o: warning: objtool: acpi_processor_ffh_cstate_enter+0xa2: call to mds_idle_clear_cpu_buffers() leaves .noinstr.text section
-vmlinux.o: warning: objtool: intel_idle+0x91: call to mds_idle_clear_cpu_buffers() leaves .noinstr.text section
-vmlinux.o: warning: objtool: intel_idle_s2idle+0x8c: call to mds_idle_clear_cpu_buffers() leaves .noinstr.text section
-vmlinux.o: warning: objtool: intel_idle_irq+0xaa: call to mds_idle_clear_cpu_buffers() leaves .noinstr.text section
+arch_cpu_idle() is a very simple idle interface and exposes only a
+single idle state and is expected to not require RCU and not do any
+tracing/instrumentation.
+
+As such, omap_sram_idle() is not a valid implementation. Replace it
+with the simple (shallow) omap3_do_wfi() call. Leaving the more
+complicated idle states for the cpuidle driver.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 ---
- arch/x86/include/asm/nospec-branch.h |    2 +-
+ arch/arm/mach-omap2/pm34xx.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/include/asm/nospec-branch.h
-+++ b/arch/x86/include/asm/nospec-branch.h
-@@ -310,7 +310,7 @@ static __always_inline void mds_user_cle
-  *
-  * Clear CPU buffers if the corresponding static key is enabled
-  */
--static inline void mds_idle_clear_cpu_buffers(void)
-+static __always_inline void mds_idle_clear_cpu_buffers(void)
- {
- 	if (static_branch_likely(&mds_idle_clear))
- 		mds_clear_cpu_buffers();
+--- a/arch/arm/mach-omap2/pm34xx.c
++++ b/arch/arm/mach-omap2/pm34xx.c
+@@ -294,7 +294,7 @@ static void omap3_pm_idle(void)
+ 	if (omap_irq_pending())
+ 		return;
+ 
+-	omap_sram_idle();
++	omap3_do_wfi();
+ }
+ 
+ #ifdef CONFIG_SUSPEND
 
 
 _______________________________________________
