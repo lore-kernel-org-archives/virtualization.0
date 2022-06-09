@@ -1,99 +1,103 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 30829C43334
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D505CCCA47E
 	for <virtualization@archiver.kernel.org>; Thu,  9 Jun 2022 00:59:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id E40F540AF5;
-	Thu,  9 Jun 2022 00:59:38 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 7134A610AD;
+	Thu,  9 Jun 2022 00:59:39 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 2l3Wf79kBeqR; Thu,  9 Jun 2022 00:59:38 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 6A0F940AF9;
-	Thu,  9 Jun 2022 00:59:37 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 4BEIMat7FVap; Thu,  9 Jun 2022 00:59:38 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 138F7610B8;
+	Thu,  9 Jun 2022 00:59:38 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 7EB1EC0085;
-	Thu,  9 Jun 2022 00:59:36 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6B0DEC0039;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3FA3CC008B;
+	Thu,  9 Jun 2022 00:59:37 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 89A4EC002D;
  Thu,  9 Jun 2022 00:59:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 4D72640BCF;
+ by smtp4.osuosl.org (Postfix) with ESMTP id 7C751415DB;
  Thu,  9 Jun 2022 00:59:35 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 7KvnbV6O4-Rd; Thu,  9 Jun 2022 00:59:34 +0000 (UTC)
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=oracle.com header.b="Gya0bw4J";
+ dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
+ header.b="kz7d9eEY"
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 0R2JPYqxdDpp; Thu,  9 Jun 2022 00:59:34 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com
  [205.220.177.32])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 7BE9640AE2;
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 8AE96416A3;
  Thu,  9 Jun 2022 00:59:34 +0000 (UTC)
-Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
- by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 258LSC3N017882;
- Thu, 9 Jun 2022 00:58:50 GMT
+Received: from pps.filterd (m0246630.ppops.net [127.0.0.1])
+ by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 258Lidrt019514;
+ Thu, 9 Jun 2022 00:58:48 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
  h=from : to : cc :
  subject : date : message-id : in-reply-to : references : content-type :
  mime-version; s=corp-2021-07-09;
- bh=6xdMcHGrZJvq1N3Xs9DS/AuUbrlxyN/JsBYOw/WhJRg=;
- b=t6xvKWaUO1Cb0ACv7O02JNBKWpGQyRAYaff/9fxmix1NDt/jq8NGujUtmuPavqtyrum3
- 61g0bZzyTMIaO6JROS9hBKDXKiWJ89lItnvbssDhRA1WibklKPZ+xDd/uGbAQQq8nPgq
- LDnvShp5gIqP7Vs1eXsbyphCOE5Hslnk8GjOwUeOLRpnuIfBlBgo9jyAm0ksr3bBYIAc
- jVindzTJHJGCX2KArbxTZU6+GjOlC8eoyXJFRWv5QvsJnmFfNt7HPikFhYLDIZ5S1Bgk
- oENEGNVWEyoCic4H+Uk/AWeRDyXxOJh6plef058kgU1srT3p1UUIKPzyRuQZA2OsnIdj IQ== 
+ bh=M/N7o1znb6+4t73Rt8rz95E2Jxw2jCfaHcqkKvbe9ys=;
+ b=Gya0bw4JEUWXE/atEtc5x/alQ08k/QUchkav3+RzJUTpBnltxNj1U6d6nrZ+bG1YnwuF
+ 8Y+SmNNcRbaIEuiTJuipSUO2Hri1T8eDz7UHRMc+XhRLa3B51BZE01LRp0UU7SJ3MTHl
+ 0cwI7+3//OQwsnAxQ070KUix4owodF4AaZHU77LEwJ5OGcx4DSj7tuoiU0NLgZpTnOSd
+ rb5kkN9iH7SZbll2odesOVekqkza0OCKjyMjT4YiYWO7s92qA9xivXd2AoHfWkUgn/8n
+ j5UD4j9A7DCBZ5BflvUGJNVNX1FVWnkXceLQvYAqC+V95aSi30tdGFbN7PZ06rPsoRgO 2w== 
 Received: from phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com
  (phxpaimrmta02.appoci.oracle.com [147.154.114.232])
- by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3ghexefa63-1
+ by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3ggvxmyyx8-1
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Thu, 09 Jun 2022 00:58:50 +0000
+ Thu, 09 Jun 2022 00:58:48 +0000
 Received: from pps.filterd
  (phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
  by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (8.16.1.2/8.16.1.2)
- with SMTP id 2590ub33032517; Thu, 9 Jun 2022 00:58:49 GMT
+ with SMTP id 2590ub30032517; Thu, 9 Jun 2022 00:58:47 GMT
 Received: from nam12-mw2-obe.outbound.protection.outlook.com
  (mail-mw2nam12lp2049.outbound.protection.outlook.com [104.47.66.49])
  by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com with ESMTP id
- 3gfwu433k8-7
+ 3gfwu433k8-4
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Thu, 09 Jun 2022 00:58:49 +0000
+ Thu, 09 Jun 2022 00:58:47 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=juVTivBgEKe7m9kue76MVZTdZz5I+lX5bC3X1Dwiev8pMdPfD/lPoPq7i70s+l2AiDQkGz4jutHa87Y98v2KjGfj2ICGGe2cZUN3KssJmb21PVOjoCxiMRyjXawcpQxN2M+eX5Jv6VYQzbC3xTmWXUMMrljq6QFxUbKEK1oBg1WbZ36hxudQ5hmNmJ5k01wRx3/zNQ7DEgud31mJFWTUtlMy1W5j5tA3WoqwaDFuL5ERuc8swc23L2YE+XVChddl31WEi1Kb8xlqZAUjWnhCLaHxXBaf64JXPHcn3SjE1/+dU41gZ7a+SpklOOZy44jh+P/YtaJgfWWHd1jRak2ukQ==
+ b=UrEJa2uSqi+BAtxWq+iBQ/ga37NHjFLPktbd/xc5ovtpitnSoP9QSineRW7YquRy0jVtdXp9FupCpztSFmKQE6NIzIZ/OA0jFPWF79OBTNTGCWglo/Q4WMtpiR62doLKD8BXKb1zxsdxqdHMhXySyU4AOTzDeUx00pBcGUtegbG/Vek4P9EL+WvcF+aBeQZYooHXu/o2aQy9STv/AD7io+d6pRyFtqvAMgcC/d4kIfGoOK+B83eaKe2cxn2UJTgKJ92zOW3plD7KfiCZnbd04gppM0HCeSeivoBFQ7Inc0/XkUz6CEFu3uwYTBKdEg2FKEc3vGBvaAEDsuVzJ9uxwA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=6xdMcHGrZJvq1N3Xs9DS/AuUbrlxyN/JsBYOw/WhJRg=;
- b=UOrm/8bzwY6vzTqms06n9LxCxUm0IvSQYGX2ohMKLoNGTkS8yIBhn99g9T/kEhZUL/+TeOTRi7vRKX1AMwXT2WN7HsbNEGEyEhx/gVMFok24s1PivrEdEISEgjOIYzadq9UtDy7lXf9X4XWgdVFha/4jMUof/EBgmOr+ABUopPGxZtWV0JIF+hfh/WZ3s3593D2PmASjJh5uAnFxm4DpMmWLtSIVDp28OoF3sMeZBaTARFIPKMrLdB5rTK6mc9jZtDdECKJwLxIbWOXJ6jlOs5Izh3WQKQm7sFKmxTRsluEWeIm9X90+3mzzFUWttyG7GIsmZeBWV0DedinpoJ/0rw==
+ bh=M/N7o1znb6+4t73Rt8rz95E2Jxw2jCfaHcqkKvbe9ys=;
+ b=NSbA6ZqeZ4xy4CiAFscA/20R0/xH1OsoqjS5b2ZqWD9v2ZvUBKeKgQ9EJ7ADzqGtfbvLUA2XpGbrV41A0yLwoI5MYDb0Jkf/n9zoAMsVMfhB4MDF9xoxJ5fdJ+i6i1OAWwYUAXeprqaqmPexaXpdhvWtrfb7kDOuo45fuWo2CtLpQx8/PCm22HTtEHDQXcLN6TJ9jdTBq4LyE+Yb38Q+IvoLo9ucjy2z1ZDwDGU0ksDGnQWfEY7dQDdQSBKkIUP5qJLIFgVcqggPSYGoPQx3eC09/vQy1gZbwXqVZoj50rBsTU1HkEY7lky3evZO/mu3ROhn+rdxpVQHAZL30S+PAA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
  dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=6xdMcHGrZJvq1N3Xs9DS/AuUbrlxyN/JsBYOw/WhJRg=;
- b=Vfuabbv9gyNMxOOTQHPlq6zEnEPwT/NoDVlapjk4vEFzTw/JUnh7f1GLHNZaytGKdDZx8OAutG2dw4e6wW7apwMY9kJ2t2NGyQF+yyhzoTnNvYR0kAtBc06IYVVmAPOEqCs4TvGvcFEHnNiKYubHeKcYFue+ifvEXq9OhXGauig=
+ bh=M/N7o1znb6+4t73Rt8rz95E2Jxw2jCfaHcqkKvbe9ys=;
+ b=kz7d9eEYc1z3c4MrHkpSPwQd/nqcZ4UCFnvKXZlzNxjtHNyqxwMzqpjDhRsjjbD8y1SQkrpN5yKWJpq//cQa2clMWs1UrhYA8dDtBNmwgaCL2mdgPILUnZf+h2/iohElky11JTuoiU/0kRGiDFJAzYaZs8WdEDgtevRMoY6vTX8=
 Received: from BYAPR10MB2663.namprd10.prod.outlook.com (2603:10b6:a02:a9::20)
  by BN0PR10MB5126.namprd10.prod.outlook.com (2603:10b6:408:129::8)
  with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5314.13; Thu, 9 Jun
- 2022 00:58:46 +0000
+ 2022 00:58:44 +0000
 Received: from BYAPR10MB2663.namprd10.prod.outlook.com
  ([fe80::7081:e264:cc58:37b9]) by BYAPR10MB2663.namprd10.prod.outlook.com
  ([fe80::7081:e264:cc58:37b9%3]) with mapi id 15.20.5314.019; Thu, 9 Jun 2022
- 00:58:46 +0000
+ 00:58:44 +0000
 From: Dongli Zhang <dongli.zhang@oracle.com>
 To: iommu@lists.linux-foundation.org, xen-devel@lists.xenproject.org,
  x86@kernel.org, linuxppc-dev@lists.ozlabs.org,
  virtualization@lists.linux-foundation.org
-Subject: [PATCH RFC v1 7/7] swiotlb: fix the slot_addr() overflow
-Date: Wed,  8 Jun 2022 17:55:53 -0700
-Message-Id: <20220609005553.30954-8-dongli.zhang@oracle.com>
+Subject: [PATCH RFC v1 3/7] swiotlb-xen: support highmem for xen specific code
+Date: Wed,  8 Jun 2022 17:55:49 -0700
+Message-Id: <20220609005553.30954-4-dongli.zhang@oracle.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20220609005553.30954-1-dongli.zhang@oracle.com>
 References: <20220609005553.30954-1-dongli.zhang@oracle.com>
@@ -102,57 +106,57 @@ X-ClientProxiedBy: SJ0PR05CA0075.namprd05.prod.outlook.com
  (2603:10b6:a02:a9::20)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 3528f4e0-24bd-4d9d-6194-08da49b3341f
+X-MS-Office365-Filtering-Correlation-Id: ecf46f83-b4e4-4d7c-6f67-08da49b33346
 X-MS-TrafficTypeDiagnostic: BN0PR10MB5126:EE_
-X-Microsoft-Antispam-PRVS: <BN0PR10MB51262F3B4A18265C2FB742C3F0A79@BN0PR10MB5126.namprd10.prod.outlook.com>
+X-Microsoft-Antispam-PRVS: <BN0PR10MB5126D6F1ED1C21EA78AB5946F0A79@BN0PR10MB5126.namprd10.prod.outlook.com>
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: Hw2XOLWs69rmJbKaYgjiBO5Ff1axa/FesU6+5saE+jEdk3I74upd15GtORLYL8fmC50GmuHG9nOetokT4cjgZAgGn1rkVA33D0Mf5/CL90JvOF5E6RQe0ExgKWAqo8uweE60/DNKne5LGZ30/rHKxAWBWfTgVym+o3q64Zp1N8iS4NGMgggat0AWtvPKD4hAkwDjAVAGdFY7TBXmNtKU9RGpDvOQ7Cuc8S9Dxuw6XKrcRpNMg/oOKJ9PRlsVJaC9p1vzOU3VxsR0EmX3+lnFWrmitbTnRYC4Xvy9oSwopXdRdti2DV1VQ88QO9rAUw7ZEr1+X8IOxoIBtfZX/x3z8wPls5hf6CrsvGIBGB+jSbxXQvF+o9/uUUTJpODDlOnpe3tcUq09H5Nvl8UO6O6/HhwFkUgWzm2j32+kcOXTRNTQ7JJZv+71KmNvsS+aUjpy03/IfU+zPFWFp1D6jPZbEygyvIygUTx5nVtQL66Iir/5rPg+COv+6rHy0tSwqqTQmxrtTTD0uSRLLFGLbkTUGz5RLGa90ro+ato+ohXuvOu0FiDKcIvfSJSYkZ64e++x/Uq2RcMvUvKmtGqAIK5TXaJtWYdsWbH8f0W8gj1QbuGspqX0oyVln3auTvRGBxhTE4fNO8ytQqLrrlA2GDRmbGt7HqZVCmzVAAsenohRhczDmkoaRg9ewjasXNESP02CNHhN9TaRwXlkNZ+HBl/YGQ==
+X-Microsoft-Antispam-Message-Info: 3sK869Yt+t4hcqRY8O5IczGhj4jkhP3lpnIE7kDM1DEGTJOIi0fv7I78m0N7kpbrdCTNaOiWHwuu3sXNF289GBHaP903eyAadm6Uo2DXtnGgkvJWzhi0TKkFpINf8Fo9g4VzQ7d0/fp1yzpomuayG3WJyvBY3pLWv60vSvCx6skdM2quROsETipfArrmlx2hpyzCij5huL8kLAZKLb8/NrrmW8nUTOeUZcchb9mIJ4T8Yh8fgES3t9aQ42U7z8eNt7031TFLEL9CXWFZTiEEbogfuzMaayoeVxPaZRUqsBc4LYpJK8MWEvePeKmGBq0nFBI5yEadA1AnhVDLRW528acSmDb0tdwGWvdRhybLVPhV31YazlmzVKQ6lhRUx0fzpY1wSI5U2aG7nMi2jMU9v7+kK4cXu3lmsfZSqIu2YF2Fy5si0N/B1QQSfbYQHHPAapV5Z6Ki4sENdy0Z2bNRqqWkIJHzsGF3bnqUwGwfFJ5y54Yb7bW1j23rkShFM1yezKQuDh9dX4rkRI00waWugCCtzlC91bmXFn67rUzDg3XkArI/wB90avNI1u2y+SGHltNB4QkffyBNEk+NZ6A2hH1dbdGVY1SLk4L+7x4p1F6ZjRhFBuAbCAsS60O2ybFoVfUsGk0OxNJExKSN7KiAgiuKKS364Afz7yFalcQuCOpEk4CnGaFrBszvlrqQPSlaLCkn68ns+P0RvFe6glI6MQ==
 X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
  IPV:NLI; SFV:NSPM; H:BYAPR10MB2663.namprd10.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230001)(366004)(8936002)(6486002)(5660300002)(186003)(66556008)(508600001)(4326008)(66946007)(7416002)(66476007)(2616005)(8676002)(107886003)(1076003)(2906002)(38100700002)(38350700002)(26005)(6666004)(316002)(6512007)(36756003)(83380400001)(86362001)(44832011)(6506007)(52116002);
+ SFS:(13230001)(366004)(8936002)(6486002)(5660300002)(186003)(66556008)(508600001)(4326008)(66946007)(7416002)(66476007)(2616005)(8676002)(107886003)(1076003)(2906002)(38100700002)(38350700002)(26005)(316002)(6512007)(36756003)(83380400001)(86362001)(44832011)(6506007)(52116002);
  DIR:OUT; SFP:1101; 
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?dO7j1OhcZpj0eBaof3FrgXcevtMQyym3E7YKNGKux9JDsaueQyGsMMZvtMVQ?=
- =?us-ascii?Q?aU7V5UaNG28P4P1grx+GwcIR6OTDHrTFqPvn87xipS3mABbVgAzpexuF0Cuo?=
- =?us-ascii?Q?6O9a8qmN0d1UTbMobhkZZaxlkrNzGrVrhMXco28+DS6c9p4M4CVeyiLC8Pnj?=
- =?us-ascii?Q?tsPZ7skYRxxrEzfeH5e5IHBiSXMGJKh8Muu2jjSj01e2YH+1tyq8u7Ci2Cdz?=
- =?us-ascii?Q?k3ISjZeCyA0k4YP/ywgUi2fmGKJFxWQB+jcJUl9gZudTmi6wBBv0A4D+h+ux?=
- =?us-ascii?Q?JR9AlRc4SbGda4kP5Gy1RsBAurPLyQm8IvCRUZLeW37nPezImK0ZDPXd0GgS?=
- =?us-ascii?Q?CKUPPteMHlH4cOxVLHu5UIeBkLdbnJ6CwBtPWyK1US/pm6Bu5Up4+HRm4ZJI?=
- =?us-ascii?Q?hOP0vqMyuY0q9T0WqjOHnNPwXteClHBPxXej2NinuXC4oAd4AKUDHkdDlvJo?=
- =?us-ascii?Q?SXJLpptiUtnv99bdYuJceuCPURjKeoxDIb2zUOvG3zwziLbWgbDONCMciorQ?=
- =?us-ascii?Q?DBxZt0VfT+T0stcAbwoOtdMUlYdOdLPMJoa2WX++yra+/fdSSKUmBPZcdc+1?=
- =?us-ascii?Q?MbIi0aQYSDPBOzTQEBPWbEuhBWDBSGk/uCv/pcjnBuA9FvnVbPdoPtO5ynav?=
- =?us-ascii?Q?lXOpo9GDBeBElYoHEL6lBvp184CH9FubB97hC82DnQdHLery5QAI4iJ6AQO3?=
- =?us-ascii?Q?UdtRAWCVOyMuSEONOPMuZNtHZ2JkCSQtWPsPafi2r1bagIbZMzongwcn0G4z?=
- =?us-ascii?Q?WJM3MJM5Dz3OMC70Bjivn9V0eiapGoytm0z563HChmYEh/mVaalzRr+bBMZj?=
- =?us-ascii?Q?CWdDbZAZjXPqJlY8vXFFjZYVRq0ru/ZS3BY7i2AReDNtcF0BfMgzHFRlOwVU?=
- =?us-ascii?Q?i8a+qeHg0jBS3+8HpXlJe+reA0tOBBn1aoaiKwY3nC64lY1+626KDkWB1w/C?=
- =?us-ascii?Q?FU8ad/7Eu44zwTeRw2OYOOE3yLgvHj8++Q5VstgOPu2+e//pWEFUl/TcVIwX?=
- =?us-ascii?Q?hiKMDf0RGOXPjMfwMyWZXxn9ks3wm8qpAEHV388EfOKabGWnCO7PhWsUKicB?=
- =?us-ascii?Q?8Vo0jNvFRM4lEYA6sKoWdyG6UnSyB4DuBN12s7waou5XGDRh5KSW6Akmuius?=
- =?us-ascii?Q?wo0NGzsGMFHl4UYAZki63ChGSIrWnVjSXyBKmHpMeIGLCaMluxhB4ZdIwmi1?=
- =?us-ascii?Q?Y+ay7ALFja1b7XdncJS+/t6evV/Yoj98/C0yeO21K7k7MQ28gMJsW4Fe1Yvp?=
- =?us-ascii?Q?AsWmRJZ9UJHPA/IQowgSPWHPqVAqUY+Zm4k+WcUUw+4sac7e4oKMfyMouC2n?=
- =?us-ascii?Q?GkiCgY2hMwPVdbnXVgwSHToHHanzkmWvA2AYN5Ffp0MkFEiIrhC6hREgg7SO?=
- =?us-ascii?Q?NEMhsxQqsWw00MnYzlFThWZfkDh6IuESZSACZV+fl6qOWvptaz1pCrjhq8Tb?=
- =?us-ascii?Q?viSLey238jUqMRamaJGvXgUb7VzV6T+R67t7OS3ptLiGzWbYJxqHMFPfTJBa?=
- =?us-ascii?Q?iFyrlHubVuuehP0EKsn/rsAtZDutPjzJrc+95Ly2Oa9MBZNeeJferjb2urGr?=
- =?us-ascii?Q?mG4tQNtBHkCEdIRMoD2CfyMYM5F3FU02bps13LwACyiHw3nVJy6zsG1BGN3V?=
- =?us-ascii?Q?Aiu6gyzI0JyUanedCBbJWCWGUYVcJGrepWi4z/ImP6sx2N2+hjOTJ0wTXDIh?=
- =?us-ascii?Q?YJU2weah4Mdf6YGVAsvS2y2Vyqi/aK8LWcvZE8KL07+X3bdjOXAq07jEanhO?=
- =?us-ascii?Q?f0WS05q6ebjMtvkXLMgE6WkRKs0/boI=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?sfgOr+8UOIHRQ9h1HrP2h4gTUpqVmHaZY3cOSyzq5TX5E60Iix8nNwlOk6op?=
+ =?us-ascii?Q?qQ3FUKz8pPs+VSYbysYg1f+Zc/RIwYtXJAk7uZtegageY8Y3gpJ0GJWdesSW?=
+ =?us-ascii?Q?OqR3i/iFMiwupduy5ShrUFx4QH7+6ZKGQ893NRbONBzLYnM/JAB3KS7YySuq?=
+ =?us-ascii?Q?uywklzD1ibTWugePuvfwtNG2UOYqwyFIsgeZefsf7eYCbIxMPsL22XKNPxnk?=
+ =?us-ascii?Q?AUBsRhUx1+sJLpwpeC3dil3tfSiW5LOr+24uIArUmddVWZFYvg9obOvlhe3a?=
+ =?us-ascii?Q?SV+Aj+wkMgyJEZDduc3pbrNokfU3b2IWl/EtmHyJCveiXXcyXS6dkstYCepl?=
+ =?us-ascii?Q?lRsiGM704IVQ0SgB5S8v+uQfaRq/UxPk81XNt1nC6D8RNduVLV5C3FhJ33Z3?=
+ =?us-ascii?Q?F6Y7oxSiBwOleP7IHrnN0f/HzZUz+ankO2Pu8EnpPU9YfhHc0AttAa1FV0rd?=
+ =?us-ascii?Q?SFlCj2Gl2qBTpxqvP0iPzyrX6h1ayfiLbjt0Y8+RAqtieqKO57JGeKl6EW6/?=
+ =?us-ascii?Q?ma6h+KfS2BxlEamK/w+oNnAdTqLb3ZR1cV8VaubQ+x+dAQpfx/f6cBtOw3yI?=
+ =?us-ascii?Q?BYmChkUJpDnV9U/uU2pcMzMrvBCtLsPZHp66bf7I1xSCVxXqzQMSw4cHv5H0?=
+ =?us-ascii?Q?3bfjCJhsO8ZNjJo+rWIYkRgD61hQNHLqipEqKGPhSPrVKsfo/MuEUatNpeY0?=
+ =?us-ascii?Q?cc71RP7PH1RFqwWhWvB3G5TfR6x/RTzqhY5hJLA5TIn2PUJDDMp9NwgaAOH6?=
+ =?us-ascii?Q?TUrjrIxdwNQYOyRTuEFSOJ3tT/sZp3x5ZRrwWm5CuO9ypNiEftYGE0P7IACM?=
+ =?us-ascii?Q?Rgq3l1HoglWCknpoeHz5nQooVaHj+dcpeaa0Z5BWK71H+XvxMNK/tb5LP0mm?=
+ =?us-ascii?Q?YZ5P+Y2DP+GkT6gU4oIm+dZHJmSHB8ChtJ8WoZX1E/ZIuCP7tEdN7enAYaML?=
+ =?us-ascii?Q?RpFd8RYnkrh2cCQswC/tbO+aa8PEZ9utW/yz5/Kbi7nULi9T9fsdEUpYPQ83?=
+ =?us-ascii?Q?dfat2rgVFZVxafSSgj+U0B2jijQsAkzPlriQdaF7gyeY+v1YZMXne2UPh+76?=
+ =?us-ascii?Q?57zwKBjFhHtpyg8voeQwX3x4Fq2wiB3RqP2eashyM0JRmzos8YML92oze6LT?=
+ =?us-ascii?Q?l2eZQnQzPDrrE4EDDEr7TJUcsDOzCBVBmmUDhlHMbDSMSeGDPbJ3sUeprYE7?=
+ =?us-ascii?Q?JVAdVWYZeoYG9TsYm6UDBVZVwoL6Qe5nhBvBvW2au8ms/o2L+df3QmwS8Vy+?=
+ =?us-ascii?Q?WsU/i+E2RS7VW8NgDM2U9qAsARspmwhq8NJdUY3v7x85VW2XATottkAj9z6K?=
+ =?us-ascii?Q?XNayvuYuAwHII1JrKC2BMqMnynBEmVyhJZbIU+qfURKBX9cB84zFjILyiQic?=
+ =?us-ascii?Q?5lWCQXKq5mFP0U+dwg76H0KHNpdFe3tn4dE68xHALh5Xz62smoE4RcO+gDr2?=
+ =?us-ascii?Q?H8buvZd5cCXFhRmrfpja0q4moCPVJM8c8J9nH/O3VcprC9sUDrcm4/sgWcyq?=
+ =?us-ascii?Q?73rYESTIGmeczX3PrS8ZBS4jWSnYgBaWjQOkz+D8eE0BZuyvK6G1F8kGUJNY?=
+ =?us-ascii?Q?6zNXgZpz95Awa2Vs7KOVxz2YBL2xnp1T8g7LSDxz2FocrNZqxuIOvCectB+A?=
+ =?us-ascii?Q?QHsrpC++9DuIPaB4JMZ2Gre+qG3nSF+4AHsf4QnW8yJlwZH9tsoHHy74nx29?=
+ =?us-ascii?Q?+cnx3vLpqNhHFiob6Cz1zakOqzRxnuQmTTneTBIPS09+A59IvR/zH/W/+2hu?=
+ =?us-ascii?Q?CFOVTAIO6QZ0qroxi9FBwSHupoKI2Xc=3D?=
 X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 3528f4e0-24bd-4d9d-6194-08da49b3341f
+X-MS-Exchange-CrossTenant-Network-Message-Id: ecf46f83-b4e4-4d7c-6f67-08da49b33346
 X-MS-Exchange-CrossTenant-AuthSource: BYAPR10MB2663.namprd10.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Jun 2022 00:58:45.0198 (UTC)
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Jun 2022 00:58:43.5667 (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: fsHhpKgQMAFV5IQe9XonvZ6LuEuKA2pc/dZM/yLoQf3ZVc0AGoosmfav76kRqOvKRnjd5EMw+vsDJQK2bGEACw==
+X-MS-Exchange-CrossTenant-UserPrincipalName: JbPhiEqyQnVmI+eCEuwlTjZtQpRe2rp1ezhhToipkCg2LIAnizsl7/YPuKNfQXMLxyuF5+GehHtTpKxnEUC5LQ==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN0PR10MB5126
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.517, 18.0.874
  definitions=2022-06-08_04:2022-06-07,
@@ -162,8 +166,8 @@ X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999
  adultscore=0 suspectscore=0 malwarescore=0 phishscore=0 bulkscore=0
  mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2204290000 definitions=main-2206090001
-X-Proofpoint-GUID: UjsT3auR4N1lgfozhTWirii4iLwJ428y
-X-Proofpoint-ORIG-GUID: UjsT3auR4N1lgfozhTWirii4iLwJ428y
+X-Proofpoint-GUID: 3b6ywZH7eCaeEphEqt9imafHd3QE9lGi
+X-Proofpoint-ORIG-GUID: 3b6ywZH7eCaeEphEqt9imafHd3QE9lGi
 Cc: jgross@suse.com, sstabellini@kernel.org, mst@redhat.com,
  konrad.wilk@oracle.com, mpe@ellerman.id.au, dave.hansen@linux.intel.com,
  joe.jin@oracle.com, linux-kernel@vger.kernel.org, hch@infradead.org,
@@ -184,35 +188,71 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Since the type of swiotlb slot index is a signed integer, the
-"((idx) << IO_TLB_SHIFT)" will returns incorrect value. As a result, the
-slot_addr() returns a value which is smaller than the expected one.
+While for most of times the swiotlb-xen relies on the generic swiotlb api
+to initialize and use swiotlb, this patch is to support highmem swiotlb
+for swiotlb-xen specific code.
 
-E.g., the 'tlb_addr' generated in swiotlb_tbl_map_single() may return a
-value smaller than the expected one. As a result, the swiotlb_bounce()
-will access a wrong swiotlb slot.
+E.g., the xen_swiotlb_fixup() may request the hypervisor to provide
+64-bit memory pages as swiotlb buffer.
 
 Cc: Konrad Wilk <konrad.wilk@oracle.com>
 Cc: Joe Jin <joe.jin@oracle.com>
 Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
 ---
- kernel/dma/swiotlb.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/xen/swiotlb-xen.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
-index 0dcdd25ea95d..c64e557de55c 100644
---- a/kernel/dma/swiotlb.c
-+++ b/kernel/dma/swiotlb.c
-@@ -531,7 +531,8 @@ static void swiotlb_bounce(struct device *dev, phys_addr_t tlb_addr, size_t size
- 	}
- }
+diff --git a/drivers/xen/swiotlb-xen.c b/drivers/xen/swiotlb-xen.c
+index 339f46e21053..d15321e9f9db 100644
+--- a/drivers/xen/swiotlb-xen.c
++++ b/drivers/xen/swiotlb-xen.c
+@@ -38,7 +38,8 @@
+ #include <asm/dma-mapping.h>
  
--#define slot_addr(start, idx)	((start) + ((idx) << IO_TLB_SHIFT))
-+#define slot_addr(start, idx)	((start) + \
-+				(((unsigned long)idx) << IO_TLB_SHIFT))
+ #include <trace/events/swiotlb.h>
+-#define MAX_DMA_BITS 32
++#define MAX_DMA32_BITS 32
++#define MAX_DMA64_BITS 64
  
  /*
-  * Carefully handle integer overflow which can occur when boundary_mask == ~0UL.
+  * Quick lookup value of the bus address of the IOTLB.
+@@ -109,19 +110,25 @@ int xen_swiotlb_fixup(void *buf, unsigned long nslabs, bool high)
+ 	int rc;
+ 	unsigned int order = get_order(IO_TLB_SEGSIZE << IO_TLB_SHIFT);
+ 	unsigned int i, dma_bits = order + PAGE_SHIFT;
++	unsigned int max_dma_bits = MAX_DMA32_BITS;
+ 	dma_addr_t dma_handle;
+ 	phys_addr_t p = virt_to_phys(buf);
+ 
+ 	BUILD_BUG_ON(IO_TLB_SEGSIZE & (IO_TLB_SEGSIZE - 1));
+ 	BUG_ON(nslabs % IO_TLB_SEGSIZE);
+ 
++	if (high) {
++		dma_bits = MAX_DMA64_BITS;
++		max_dma_bits = MAX_DMA64_BITS;
++	}
++
+ 	i = 0;
+ 	do {
+ 		do {
+ 			rc = xen_create_contiguous_region(
+ 				p + (i << IO_TLB_SHIFT), order,
+ 				dma_bits, &dma_handle);
+-		} while (rc && dma_bits++ < MAX_DMA_BITS);
++		} while (rc && dma_bits++ < max_dma_bits);
+ 		if (rc)
+ 			return rc;
+ 
+@@ -381,7 +388,8 @@ xen_swiotlb_sync_sg_for_device(struct device *dev, struct scatterlist *sgl,
+ static int
+ xen_swiotlb_dma_supported(struct device *hwdev, u64 mask)
+ {
+-	return xen_phys_to_dma(hwdev, io_tlb_default_mem.end - 1) <= mask;
++	return xen_phys_to_dma(hwdev, io_tlb_default_mem.end - 1) <= mask ||
++	       xen_phys_to_dma(hwdev, io_tlb_high_mem.end - 1) <= mask;
+ }
+ 
+ const struct dma_map_ops xen_swiotlb_dma_ops = {
 -- 
 2.17.1
 
