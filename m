@@ -4,112 +4,115 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 35387CCA485
-	for <virtualization@archiver.kernel.org>; Thu,  9 Jun 2022 10:14:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C51D8C433EF
+	for <virtualization@archiver.kernel.org>; Thu,  9 Jun 2022 10:24:09 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id D2C19610C6;
-	Thu,  9 Jun 2022 10:14:54 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 729ED6101A;
+	Thu,  9 Jun 2022 10:24:09 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 504MWlWVPlfK; Thu,  9 Jun 2022 10:14:54 +0000 (UTC)
+	with ESMTP id tBjOHRkMEjh5; Thu,  9 Jun 2022 10:24:08 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 78E6C60E77;
-	Thu,  9 Jun 2022 10:14:53 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 1280860B15;
+	Thu,  9 Jun 2022 10:24:08 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 42F99C0039;
-	Thu,  9 Jun 2022 10:14:53 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 97FF2C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E7860C0039;
+	Thu,  9 Jun 2022 10:24:07 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0DCF1C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Jun 2022 10:14:51 +0000 (UTC)
+ Thu,  9 Jun 2022 10:24:06 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 7ECAD6101A
+ by smtp1.osuosl.org (Postfix) with ESMTP id E224983E42
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Jun 2022 10:14:51 +0000 (UTC)
+ Thu,  9 Jun 2022 10:24:05 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id lJmbKADzoz5W
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id QsyDO2x_p0i0
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Jun 2022 10:14:50 +0000 (UTC)
+ Thu,  9 Jun 2022 10:24:05 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
- by smtp3.osuosl.org (Postfix) with ESMTPS id B67F960E77
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id D85A28343E
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Jun 2022 10:14:50 +0000 (UTC)
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
- by smtp-out1.suse.de (Postfix) with ESMTP id 8501C21E03;
- Thu,  9 Jun 2022 10:14:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
- t=1654769687; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
+ Thu,  9 Jun 2022 10:24:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1654770243;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=DrcvBEFljM5p6TtbSeEidSTZ/fg57f/9Kkfw39rL09Y=;
- b=DMcdvAORR690fi8pr+U8fk3+hyZsj7Tt5x9qwl047KjZChmxVjUcAfS5VoE+jvBI94jRA8
- x1qWl9NmnYPcL1/wsN/jGmXJEl3+KOTwVVBHmebd33G6ciWPS6jZdzz9VOlvQCAFmLQ8Zj
- Z7XOIERpCYK8sshW0SQuT7wCuIg0KcE=
-Received: from suse.cz (unknown [10.100.208.146])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by relay2.suse.de (Postfix) with ESMTPS id 311FB2C141;
- Thu,  9 Jun 2022 10:14:40 +0000 (UTC)
-Date: Thu, 9 Jun 2022 12:14:42 +0200
-To: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH 24/36] printk: Remove trace_.*_rcuidle() usage
-Message-ID: <YqHIEthhhi5e+Mtb@alley>
-References: <20220608142723.103523089@infradead.org>
- <20220608144517.444659212@infradead.org>
+ bh=6a5SsgsnTuFo9sIZWQwmUlikCgiuGiGF/De3NllGDd0=;
+ b=O1xC9fxZOMxaqC6rSRf/wp7oRubAOdtuQF660ZO5XT5/cyF74PDWeE2QN9m27mc+BMztdJ
+ 4cTCEIEgzKecWwUfZ7+HFqcmlsf3bRPqSVsgzJFiymh+8vAQB/cUacDsI0Qr52taSElHs3
+ mqthmRsXI3hdg1HfHwjn9aCD07YEUwY=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-333-CkWM0C7APru6eOFK5-0FNg-1; Thu, 09 Jun 2022 06:24:02 -0400
+X-MC-Unique: CkWM0C7APru6eOFK5-0FNg-1
+Received: by mail-wm1-f72.google.com with SMTP id
+ k32-20020a05600c1ca000b0039c4cf75023so6811421wms.9
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 09 Jun 2022 03:24:02 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+ :content-language:to:cc:references:from:organization:in-reply-to
+ :content-transfer-encoding;
+ bh=6a5SsgsnTuFo9sIZWQwmUlikCgiuGiGF/De3NllGDd0=;
+ b=hAt+7NhHsk213bKKrKFu9Wvwd6VVLaDe4S2ltrsHoMzVL4tldFiGLmGrr8Fz/Usr80
+ HJxwVwlpKNfVjUbGajJHBSxUzUQttQjfRrzPbKgAmy6L/aerdKTtHEVJ/w0U96elQ1DD
+ T2NvFexh1AC7HWhS7b8YADy0mu6avgevQU5E4yfOOxeFZAL72S/pAqCktUs0rq+HUPAe
+ uxnlNozODzjghg6xqIamZfHvuAmCaZMyELZ0O2dNShn84/2UI1eQf7PNP1aHMUPqeV06
+ KQhS7Ea3GAo/Y6YpQ7g1+XZzPiyKPfXp1HtXf8yaYR7sEiVINgs5zFDwqzhbJxabX6mE
+ nPCA==
+X-Gm-Message-State: AOAM532wqUaBv+J+DTyG8di1x6R5GuGyOwZ79mGiAZaXsSPFYqtSTK+b
+ uGT/hGu3yUOSgrxuj2nfyD5D0tZqOYXXyCBbC2EcDjdnNRUZRgTjRKYmHRLKA65AKqMr5rvDlH8
+ QchLrdOMK2VwiGGgg8xSKdSbrsDXghjwYgaLxsVvq+Q==
+X-Received: by 2002:a1c:a301:0:b0:392:9bc5:203c with SMTP id
+ m1-20020a1ca301000000b003929bc5203cmr2594383wme.67.1654770241338; 
+ Thu, 09 Jun 2022 03:24:01 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJy58rh3fuuccVM2J0IS1QrE1vJ3CH41QyKYHa1IrWm/Rvain2xs2JDw35eE5SOSwtsykjkKLA==
+X-Received: by 2002:a1c:a301:0:b0:392:9bc5:203c with SMTP id
+ m1-20020a1ca301000000b003929bc5203cmr2594345wme.67.1654770240948; 
+ Thu, 09 Jun 2022 03:24:00 -0700 (PDT)
+Received: from ?IPV6:2a09:80c0:192:0:20af:34be:985b:b6c8?
+ ([2a09:80c0:192:0:20af:34be:985b:b6c8])
+ by smtp.gmail.com with ESMTPSA id
+ t10-20020a5d460a000000b0021552eebde6sm17782568wrq.32.2022.06.09.03.23.59
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Thu, 09 Jun 2022 03:23:59 -0700 (PDT)
+Message-ID: <a079ed41-1978-0551-2b5c-6d61aff7ddf2@redhat.com>
+Date: Thu, 9 Jun 2022 12:23:58 +0200
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20220608144517.444659212@infradead.org>
-Cc: juri.lelli@redhat.com, rafael@kernel.org, benh@kernel.crashing.org,
- linus.walleij@linaro.org, bsegall@google.com, guoren@kernel.org, pavel@ucw.cz,
- agordeev@linux.ibm.com, linux-arch@vger.kernel.org, vincent.guittot@linaro.org,
- mpe@ellerman.id.au, chenhuacai@kernel.org, linux-acpi@vger.kernel.org,
- agross@kernel.org, geert@linux-m68k.org, linux-imx@nxp.com,
- catalin.marinas@arm.com, xen-devel@lists.xenproject.org, mattst88@gmail.com,
- mturquette@baylibre.com, sammy@sammy.net, linux-pm@vger.kernel.org,
- jiangshanlai@gmail.com, Sascha Hauer <s.hauer@pengutronix.de>,
- linux-um@lists.infradead.org, acme@kernel.org, tglx@linutronix.de,
- linux-omap@vger.kernel.org, dietmar.eggemann@arm.com,
- gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org,
- linux-perf-users@vger.kernel.org, senozhatsky@chromium.org,
- svens@linux.ibm.com, jolsa@kernel.org, paulus@samba.org, mark.rutland@arm.com,
- linux-ia64@vger.kernel.org, dave.hansen@linux.intel.com,
- virtualization@lists.linux-foundation.org,
- James.Bottomley@hansenpartnership.com, jcmvbkbc@gmail.com,
- thierry.reding@gmail.com, kernel@xen0n.name, quic_neeraju@quicinc.com,
- linux-s390@vger.kernel.org, vschneid@redhat.com, john.ogness@linutronix.de,
- ysato@users.sourceforge.jp, linux-sh@vger.kernel.org, festevam@gmail.com,
- deller@gmx.de, daniel.lezcano@linaro.org, jonathanh@nvidia.com,
- mathieu.desnoyers@efficios.com, frederic@kernel.org, lenb@kernel.org,
- linux-xtensa@linux-xtensa.org, kernel@pengutronix.de, gor@linux.ibm.com,
- linux-arm-msm@vger.kernel.org, linux-alpha@vger.kernel.org,
- linux-m68k@lists.linux-m68k.org, shorne@gmail.com,
- linux-arm-kernel@lists.infradead.org, chris@zankel.net, sboyd@kernel.org,
- dinguyen@kernel.org, bristot@redhat.com, alexander.shishkin@linux.intel.com,
- lpieralisi@kernel.org, linux@rasmusvillemoes.dk, joel@joelfernandes.org,
- will@kernel.org, boris.ostrovsky@oracle.com, khilman@kernel.org,
- linux-csky@vger.kernel.org, pv-drivers@vmware.com,
- linux-snps-arc@lists.infradead.org, mgorman@suse.de,
- jacob.jun.pan@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
- ulli.kroll@googlemail.com, vgupta@kernel.org, linux-clk@vger.kernel.org,
- josh@joshtriplett.org, rostedt@goodmis.org, rcu@vger.kernel.org, bp@alien8.de,
- bcain@quicinc.com, tsbogend@alpha.franken.de, linux-parisc@vger.kernel.org,
- sudeep.holla@arm.com, shawnguo@kernel.org, davem@davemloft.net,
- dalias@libc.org, tony@atomide.com, amakhalov@vmware.com,
- bjorn.andersson@linaro.org, hpa@zytor.com, sparclinux@vger.kernel.org,
- linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org,
- anton.ivanov@cambridgegreys.com, jonas@southpole.se, yury.norov@gmail.com,
- richard@nod.at, x86@kernel.org, linux@armlinux.org.uk, mingo@redhat.com,
- aou@eecs.berkeley.edu, paulmck@kernel.org, hca@linux.ibm.com,
- stefan.kristiansson@saunalahti.fi, openrisc@lists.librecores.org,
- paul.walmsley@sifive.com, linux-tegra@vger.kernel.org, namhyung@kernel.org,
- andriy.shevchenko@linux.intel.com, jpoimboe@kernel.org, jgross@suse.com,
- monstr@monstr.eu, linux-mips@vger.kernel.org, palmer@dabbelt.com,
- anup@brainfault.org, ink@jurassic.park.msu.ru, johannes@sipsolutions.net,
- linuxppc-dev@lists.ozlabs.org
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Subject: Re: [PATCH v2 02/19] mm: Convert all PageMovable users to
+ movable_operations
+To: "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+ linux-fsdevel@vger.kernel.org
+References: <20220608150249.3033815-1-willy@infradead.org>
+ <20220608150249.3033815-3-willy@infradead.org>
+From: David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+In-Reply-To: <20220608150249.3033815-3-willy@infradead.org>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=david@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Cc: linux-aio@kvack.org, linux-nfs@vger.kernel.org, cluster-devel@redhat.com,
+ linux-ntfs-dev@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+ linux-f2fs-devel@lists.sourceforge.net, linux-block@vger.kernel.org,
+ linux-mm@kvack.org, linux-mtd@lists.infradead.org, ocfs2-devel@oss.oracle.com,
+ linux-ext4@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ linux-xfs@vger.kernel.org, linux-btrfs@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -121,64 +124,46 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Petr Mladek via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Petr Mladek <pmladek@suse.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Sending again. The previous attempt was rejected by several
-recipients. It was caused by a mail server changes on my side.
-
-I am sorry for spamming those who got the 1st mail already.
-
-On Wed 2022-06-08 16:27:47, Peter Zijlstra wrote:
-> The problem, per commit fc98c3c8c9dc ("printk: use rcuidle console
-> tracepoint"), was printk usage from the cpuidle path where RCU was
-> already disabled.
+On 08.06.22 17:02, Matthew Wilcox (Oracle) wrote:
+> These drivers are rather uncomfortably hammered into the
+> address_space_operations hole.  They aren't filesystems and don't behave
+> like filesystems.  They just need their own movable_operations structure,
+> which we can point to directly from page->mapping.
 > 
-> Per the patches earlier in this series, this is no longer the case.
-
-My understanding is that this series reduces a lot the amount
-of code called with RCU disabled. As a result the particular printk()
-call mentioned by commit fc98c3c8c9dc ("printk: use rcuidle console
-tracepoint") is called with RCU enabled now. Hence this particular
-problem is fixed better way now.
-
-But is this true in general?
-Does this "prevent" calling printk() a safe way in code with
-RCU disabled?
-
-I am not sure if anyone cares. printk() is the best effort
-functionality because of the consoles code anyway. Also I wonder
-if anyone uses this trace_console().
-
-Therefore if this patch allows to remove some tricky tracing
-code then it might be worth it. But if trace_console_rcuidle()
-variant is still going to be available then I would keep using it.
-
-Best Regards,
-Petr
-
-> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
 > ---
->  kernel/printk/printk.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> --- a/kernel/printk/printk.c
-> +++ b/kernel/printk/printk.c
-> @@ -2238,7 +2238,7 @@ static u16 printk_sprint(char *text, u16
->  		}
->  	}
->  
-> -	trace_console_rcuidle(text, text_len);
-> +	trace_console(text, text_len);
->  
->  	return text_len;
->  }
-> 
+>  arch/powerpc/platforms/pseries/cmm.c |  60 +---------------
+>  drivers/misc/vmw_balloon.c           |  61 +---------------
+>  drivers/virtio/virtio_balloon.c      |  47 +-----------
+>  include/linux/balloon_compaction.h   |   6 +-
+>  include/linux/fs.h                   |   2 -
+>  include/linux/migrate.h              |  26 +++++--
+>  include/linux/page-flags.h           |   2 +-
+>  include/uapi/linux/magic.h           |   4 --
+>  mm/balloon_compaction.c              |  10 ++-
+>  mm/compaction.c                      |  29 ++++----
+>  mm/migrate.c                         |  24 +++----
+>  mm/util.c                            |   4 +-
+>  mm/z3fold.c                          |  82 +++------------------
+>  mm/zsmalloc.c                        | 102 ++++++---------------------
+>  14 files changed, 94 insertions(+), 365 deletions(-)
+
+You probably should have cc'ed the relevant maintainers (including me :P ).
+
+For everything except z3fold.c and zsmalloc.c,
+
+Reviewed-by: David Hildenbrand <david@redhat.com>
+
+-- 
+Thanks,
+
+David / dhildenb
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
