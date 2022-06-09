@@ -1,103 +1,103 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 376B0C433EF
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E7E6DCCA47A
 	for <virtualization@archiver.kernel.org>; Thu,  9 Jun 2022 00:59:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id C7829403D6;
-	Thu,  9 Jun 2022 00:59:32 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id A5290416C0;
+	Thu,  9 Jun 2022 00:59:34 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id d8GUMd_yf_Oe; Thu,  9 Jun 2022 00:59:31 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 0B3DB40B0D;
-	Thu,  9 Jun 2022 00:59:30 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id wtJ2NePhLt-g; Thu,  9 Jun 2022 00:59:33 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id DF739416D4;
+	Thu,  9 Jun 2022 00:59:32 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 08082C0089;
-	Thu,  9 Jun 2022 00:59:30 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B0949C0039;
+	Thu,  9 Jun 2022 00:59:32 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 24B10C002D;
- Thu,  9 Jun 2022 00:59:29 +0000 (UTC)
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 29FA4C008B;
+ Thu,  9 Jun 2022 00:59:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 42CFC61045;
+ by smtp3.osuosl.org (Postfix) with ESMTP id 6D32261059;
  Thu,  9 Jun 2022 00:59:28 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=oracle.com header.b="krZCYtRp";
+ dkim=pass (2048-bit key) header.d=oracle.com header.b="GMBqDZK+";
  dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
- header.b="yD4NrIHT"
+ header.b="dojvVz+u"
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Byf1iySvn_kb; Thu,  9 Jun 2022 00:59:27 +0000 (UTC)
+ with ESMTP id xEvJWG5PSylu; Thu,  9 Jun 2022 00:59:27 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com
  [205.220.177.32])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 591E361059;
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 5923661069;
  Thu,  9 Jun 2022 00:59:27 +0000 (UTC)
-Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
- by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 258LWK4l005800;
- Thu, 9 Jun 2022 00:58:48 GMT
+Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
+ by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 258LYAah017875;
+ Thu, 9 Jun 2022 00:58:49 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
  h=from : to : cc :
  subject : date : message-id : in-reply-to : references : content-type :
  mime-version; s=corp-2021-07-09;
- bh=f3aDaHRkXv0/EyEdApnYiM6tML432+yHUf7g7UhEaI4=;
- b=krZCYtRptY/9JXFUuiGNW2ubs398VBe3AyIpDRJm37tR777mNTBpAsR47cqy/q1BGymT
- jvHnamm/n5JE+D/DMFaeX6RU/nzR3grp0d0w2KlM6iPc8oMdeybT0cQDd/bAvm9iHONI
- fNRVzJpIuAvcHxPWzOKfGanmAcW4GTRnPyYj04pdugs1+LudUle0zpi2wmkFlNPx511Y
- LZ4d9QHtcmwxr/ZZS0Y59n3SCz/XNHxxbx/YVI6+IH6+l1pj8KJk94NqnJR2wES2/wp9
- xVe1IlxZqQG/VZmFzdb9Ik+uZdKlSV1Wpy6uJ3LrLRvCk1nl5tg9NTcpO+0OUcLLSyVe dw== 
+ bh=nekokp8TW4nxfgOy/dsnG3rVJSWVzWzy9psuFT1B75U=;
+ b=GMBqDZK+PAwYlUzMbGQhxJM5l0kHoHp/ZTShoUcvDMnTueiJYk7+aWp6Dj8jhcWPSI85
+ HeFi1msOXWEebXsuQs1i7XKs3ebwu6vMtnK/JARTCRvIUgDqmFHyy/W4PCC00z8ijQvQ
+ 4r20InFx8Xhj4L/EnpqcmmpVxVMhXYAhwqK7sJiKY6BlaVmjw/zVzW8m/gdyN4iI70VW
+ Ded2/qDF/G0dNbQ1PaqJRau4rQ5AjJ0Amm2C05c+iSglP36FPGwDtyIyakQ9DDsja2aq
+ W7PbYRN+70zFkFMWe1whg4CYR1RfWkWgVDagxpmagbGN9jAEQf0kX71EqvCueEscQ/1c XQ== 
 Received: from phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com
  (phxpaimrmta02.appoci.oracle.com [147.154.114.232])
- by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3gfyekhsex-1
+ by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3ghexefa62-1
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Thu, 09 Jun 2022 00:58:47 +0000
+ Thu, 09 Jun 2022 00:58:49 +0000
 Received: from pps.filterd
  (phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
  by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (8.16.1.2/8.16.1.2)
- with SMTP id 2590ub2x032517; Thu, 9 Jun 2022 00:58:46 GMT
+ with SMTP id 2590ub31032517; Thu, 9 Jun 2022 00:58:48 GMT
 Received: from nam12-mw2-obe.outbound.protection.outlook.com
  (mail-mw2nam12lp2049.outbound.protection.outlook.com [104.47.66.49])
  by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com with ESMTP id
- 3gfwu433k8-3
+ 3gfwu433k8-5
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Thu, 09 Jun 2022 00:58:46 +0000
+ Thu, 09 Jun 2022 00:58:48 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Dl/7qCFk6Zi0YyW1kD9O59E4x+jk8hvLrXYZMFiQbI5NTSATY3uDQyT4RIpsdeAwlh9mYssu/Nkc0gq9mYXeH/2+qCBSwgpdiIxCTVbYr3X+Sc1ycpwgOS51I/ol6wBj2WEw0Koss5ti/GRaeUimbMHZF3LSqxGHgWBRCM3csXz6vOMkKdSYGIsU8iW+lHuQfNwFDntcfSz3JzCvA2c4X6CxS3HagBFRcwiV/4mPo4p/9ijLGGjZnKtLxX+l8HBMZOh/+31Rxe2giRxP5knRBpSFUSzVPP6j58uCIFVWtVous6SycD2npZMCVGZYFTPIPSLEDY7YxxdjUD2N6kTJ2Q==
+ b=WgZ33u82gVHs+34+LlKyvBPTKxqgvVMrF7pZnmHxZoHs4VsmdXTjQEMQ56/POBJxCufdYYdhrz83mDE0B4QLYIf665CyWmISA+qnx5hgDmIRuzQcgjYtK0psUtczzzhLVPDMN9es9WbCt6aFkFy82Winj5Ikgke0rFySDD7/X4EJ0d2f0yf9rtbxnOOA9E/4E5dz1RVShZ0bbLu8UZjdUGV0y+5/oz8OpsCFKeXCLzG6jn2VB7EgoOH2/X/vQJeP6Z+pxYGy5YW4q1wIed8LPB1Pbt2LjfYs86+OwwsGt5+LhuohRVe41kR6w3VHiOhUXcHWvZCKkvPSJSkHXJO4eA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=f3aDaHRkXv0/EyEdApnYiM6tML432+yHUf7g7UhEaI4=;
- b=OsGVVgm2So6jXcub7ie1Np9quv4OUQQZKxQCdN6Eun7aqMDtzDEB0FYI5P8J5tM1sPxg36UX6GxDfZdfvGcgFcKfLfXAXyypOFaRB3PJA4BO2QzlWVNqOfsQ7WS+IfOrwP3snW8FrAnHyqBHNyjE3rnzc9lrLy9qkGUHKqAH3FWXze5DrV6eMKjK4sZgY4+89foglRXqxGjFBsn1F9YCQHqnXT+moUyT15QJ6sS1jCREgjfPfhuzqijkhR5bOB55wnzTjKCY2ZvlN0zwVIUaOmiwgFYALntmAcSe3XxKhPb6Of4+2wUGfIisRzU8bDf7pb1lo794kWWozq3EyI8xJg==
+ bh=nekokp8TW4nxfgOy/dsnG3rVJSWVzWzy9psuFT1B75U=;
+ b=LGgfjynM+7CwFq5AdgRrUhcTWXYmRVXc1aqmvpTcUeIirRwi1ZoO993xAbmC6vp988oyQAP0BJ2+E/E4VA0xSVRe8oFj93rt7Jm7Ye+WgxpVzO5CCYkbHj6xNwcfjx283HBB75OGDKrlDF1+6PtZWgPa0XxGVemfV7KfmfuYq46fMWvMAsMq08M1HxXFjLj3SLVi5VYwUXyqBQMgGqh1HkkgNd3wahqvJLxEXUhXfELMViecAqofkTYI938n39nKzW2H7HoiDcU+TVKKgTt5J0tYw8F8efuItONUq/ILwMq9Mq+br9jqlxMYLKao/jcQ3fYFD21TtN6JDcjRCL44eg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
  dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=f3aDaHRkXv0/EyEdApnYiM6tML432+yHUf7g7UhEaI4=;
- b=yD4NrIHTaAosLTX0AeFyVcvi2Xc1vPM4bdzr6OdLxGTYQaoMTmPedYD6maoTKkP7buwKeOhH1lJNg7iSURQlIEIsJehZbUO2ONIeDX+TjcMTQ28iJCt1Hs+2DXablEoVaXuzxpK9mHEH/VUW3Tvf4sxRPZ3v15jeyWCDq8phBOQ=
+ bh=nekokp8TW4nxfgOy/dsnG3rVJSWVzWzy9psuFT1B75U=;
+ b=dojvVz+u0/uvYoSYrL0wtDfV4g0AvMj6XWxh0nY0t+RCakvbkLBxGGndrgt+UGfpmA7BzLpm+LMNziv0ffJG5xiPDAmSkMNzCK0/L9YwbNBqZd7UOay0Z4WH68HPd2OKtiktyYDwF3IIRyR3rq7bA/dFxDup7+u7IlnYgVWbRcg=
 Received: from BYAPR10MB2663.namprd10.prod.outlook.com (2603:10b6:a02:a9::20)
  by BN0PR10MB5126.namprd10.prod.outlook.com (2603:10b6:408:129::8)
  with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5314.13; Thu, 9 Jun
- 2022 00:58:44 +0000
+ 2022 00:58:45 +0000
 Received: from BYAPR10MB2663.namprd10.prod.outlook.com
  ([fe80::7081:e264:cc58:37b9]) by BYAPR10MB2663.namprd10.prod.outlook.com
  ([fe80::7081:e264:cc58:37b9%3]) with mapi id 15.20.5314.019; Thu, 9 Jun 2022
- 00:58:44 +0000
+ 00:58:45 +0000
 From: Dongli Zhang <dongli.zhang@oracle.com>
 To: iommu@lists.linux-foundation.org, xen-devel@lists.xenproject.org,
  x86@kernel.org, linuxppc-dev@lists.ozlabs.org,
  virtualization@lists.linux-foundation.org
-Subject: [PATCH RFC v1 2/7] swiotlb: change the signature of remap function
-Date: Wed,  8 Jun 2022 17:55:48 -0700
-Message-Id: <20220609005553.30954-3-dongli.zhang@oracle.com>
+Subject: [PATCH RFC v1 4/7] swiotlb: to implement io_tlb_high_mem
+Date: Wed,  8 Jun 2022 17:55:50 -0700
+Message-Id: <20220609005553.30954-5-dongli.zhang@oracle.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20220609005553.30954-1-dongli.zhang@oracle.com>
 References: <20220609005553.30954-1-dongli.zhang@oracle.com>
@@ -106,57 +106,57 @@ X-ClientProxiedBy: SJ0PR05CA0075.namprd05.prod.outlook.com
  (2603:10b6:a02:a9::20)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 6cfee2df-580d-4d88-9a45-08da49b3330f
+X-MS-Office365-Filtering-Correlation-Id: f6344bf6-302d-401e-7fea-08da49b33378
 X-MS-TrafficTypeDiagnostic: BN0PR10MB5126:EE_
-X-Microsoft-Antispam-PRVS: <BN0PR10MB512603C19E6E2E0980C6A807F0A79@BN0PR10MB5126.namprd10.prod.outlook.com>
+X-Microsoft-Antispam-PRVS: <BN0PR10MB5126C91F431E8CD443CABD44F0A79@BN0PR10MB5126.namprd10.prod.outlook.com>
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: FswaP8XQL8bIWGofFyszNMc6YneHl5NhOP8rWVrcfD3g+lVIqE1VTDuZIwAq0PLXvVBRMD48ZPbLbfG5mJB8ubZI49ESmC8FYYbwnPT2fv7M0ns9BmfRyMTxw7fvfiNTFFIqCeUIwwmJriOniXlSAbx4rO7DpTwDmN8D54i3ZcIjAkhGJqAjml35gQNE3ko2oAla0rz8jJKHMbbLSAE4iXZitGJB8Y4nFVeGJkKD69djAUJBe9MSpKL7A7twttOy63lfoRDIRrquD2uTUAyVwkGAeLrtARZ2Dban1RkdiRrCFRw3uplrJ76AtW/FnjfEg55ksKDcVLrjtXDBdN9TEtzs13Fyd/jxPa5pbiRDyKZ1OJWrSKBgSa/ihl1C39W8xx4zO0V7oPcmZo8KHbMPBLaRueiEOzW1iBLNcqY6mWgnL57wVtl5IkzCvh329Nxd3pWdDqZZOI2xQBmXzoEAf+uJnP1imX/6MY25hnULMV15pUMU5nE300HcEfmLha07ILmBRydU9ngmrDv8oGV6C02DDFGTpyrSQHvCaMwh/j2Iuga6sKpIPm8xzQwgpKc71dGGq6B5sG0Dbm5QosjL62erYyjuilZGTFQyPAqHDS6gPsuKnGUMFsSfqMaQ76VTkNvgPF2v7ahH5RLV8cd6+DGbnHtSIvAJrMpOj9k+OHAtQ8yi1QNliqzK5HDt/UdK/0T4svCHGLTdJ4c3p9tLsw==
+X-Microsoft-Antispam-Message-Info: 3AvNmZ5CCbdviHODH6y40fVAdyczC50JrU2fTllizQb59n8MhDlm8SZEkseXDAEeDHWBLifws7IWqQOkcOZPR2OVPpRRTgt5SC1nQm5iM27IzypGZINdflLDL6Auj807bsC74y2XMW1Ng3LV4GE20UR4+mNpWss/3Ob4V7lMx8Tmt2jFNGvcOg9GjVsIPrLbSytpXSRRnKfYm+7UvYQ6CKlGyMFly1Q4JLgezsxSEd9uJMbBiqshXmcADXPOfrFSTNuI9VvvvgdJX65Ny5QQFclwEV/URAWY79qVFLy8bagdBBsP0JmXgydi1XrpIDV0p6TXXb1a1dzBtD3BNnW8nFx67xtFSpnGxW1dK08FXCUEPPlT92Bqd5Q4BAY7gx5b/+5y5yDVuI0m/gZKqxsmF4zCG4OD7wb0lDRdfWkh8oJNN2iPd+uPTgAHGBsvEAIA7+kdt5SX3XqfJwKru28/GMJ271AoTcTNxWQTqqGF5HRf5rsiLdpMIZ163wg1nj9tmmYIETm3s1tXJc399/fBE8FiyxdGpNZ8vz59anD9JuLHP10UqBNk8MyT4xGEImA+jVNHHcGSQ4aI78BMItdRCgsk9ENcMDwyHk841vno8ubcUCWbVsp+i5fAZT4k3x01RLtO56QIey15lnfBGRZMzggG5lIfw+7Qw42xZ0M2zkUMvXNgPd0cXuUpf/PYvjdYnQWag9b3C7WtnyFnxYceIQ==
 X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
  IPV:NLI; SFV:NSPM; H:BYAPR10MB2663.namprd10.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230001)(366004)(8936002)(6486002)(5660300002)(186003)(66556008)(508600001)(4326008)(66946007)(7416002)(66476007)(2616005)(8676002)(107886003)(1076003)(2906002)(38100700002)(38350700002)(26005)(316002)(6512007)(36756003)(83380400001)(86362001)(44832011)(6506007)(52116002);
+ SFS:(13230001)(366004)(8936002)(6486002)(5660300002)(186003)(66556008)(508600001)(4326008)(66946007)(7416002)(66476007)(2616005)(8676002)(107886003)(1076003)(2906002)(38100700002)(38350700002)(26005)(6666004)(316002)(6512007)(36756003)(83380400001)(86362001)(44832011)(6506007)(52116002);
  DIR:OUT; SFP:1101; 
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?bAQ65IoHBanKWnf96lQ/GtiTzzzbD20JDMAxTFLCSsV0Cberu4AZhhqjv0V/?=
- =?us-ascii?Q?/Xvs9DUhBD6jZcEMrQq+YnnWZZzQgmp1toOFnAY6QtKD4iQeb6gHVsk5eQM6?=
- =?us-ascii?Q?ElXxn52wtsiYN8luWYDE5Ihlxjq9UgqcmSuq5CzX9oKuZE3FXlaXzLDEjiEp?=
- =?us-ascii?Q?YiWtbagRHfta2CI5nWGKcz1Y7NchUp7YhExJcnM+TSU/yXtMaAFEDkr10QSE?=
- =?us-ascii?Q?P/iskNzO6L7vwNdCXijgwzOnwqYtKVbJW6iaIxsrCsPt/UVMAbqWs2yoC8DD?=
- =?us-ascii?Q?b8n04EPZcYcQIrLBcSCM5gNej+gZoRg859a/N/tfm7UbYYFebHGbt6hjTxCe?=
- =?us-ascii?Q?zcdcbJ5ksdLRD8Ge5edlqNVWhiGMES0B2BvIjPyBr1x8wd4CveOzhKOV55lf?=
- =?us-ascii?Q?i1ElyTS+rYm5YtqVRnm8Yx+06JCmB69JlxmdiML/CoK3WptmRLREQiYMP0Is?=
- =?us-ascii?Q?rySmueKlXBTU10hbwk0Bea5XNDyHbsLfLmJV/T7Cxcqm9BOE850t9muvjgzq?=
- =?us-ascii?Q?x+AEjuoYAlL8aK21No+4R+S4Jqi02+k5ZQWDCOpCm0SGKFQAWi8mC6XG50vN?=
- =?us-ascii?Q?z7X3Z64pljZsWte9Dj2w2syIgPgLkJPKCwGgDYLVxBzAz/7f5gl3oS2EEefw?=
- =?us-ascii?Q?oGgRoZS1KT8ordB5mpmtLAjtgzjQwukbnwlZqa78RVcqa3jxeuudjcNvnfKM?=
- =?us-ascii?Q?7h9t3A3jXAacVd+YS0TD53GnQ2M4auDwktwczIxNqG1DWBn6kCVUeSDw+KOX?=
- =?us-ascii?Q?4UJGM3i1PP1n94xi6pq2K2cH71ys+tC4f9RAor2xCirOkT2gIaReVVzXjR6y?=
- =?us-ascii?Q?MsR7jzqvZOTtQHAs0iLAZIJy8XsGtmjt0ScPdRG42XU9I7ABPX3he7xTNN0K?=
- =?us-ascii?Q?PEToFphiXB5dy3DqUDgw/Zgk30KjB4enfribdcmeiMOxhAKF1dfoxGBWtXFj?=
- =?us-ascii?Q?/2lB+OpBJhXVkmbGROZZObMMiNKzC1Lz3VB+bTW3/FLI5qUYCevgpcl6/Wdn?=
- =?us-ascii?Q?rasdNnvl54h+WaiyQUYrPGn0XRhU8foLkNZhSLxDS4XTHU0wJf1I1Tiam9jv?=
- =?us-ascii?Q?kUoX1GWNm8tuuzS0gt5HWnl495QmFv5qLeLagweVpX6u//I7RKzFOVRzpdZJ?=
- =?us-ascii?Q?tlsrC89eq0Acn4m8GKbTJu9cLej99CSkhSK4xjKMo/ncDnU42yF03IiqyOmq?=
- =?us-ascii?Q?GxzAz2Alf5KmNkO7ZOVBvNP5q/RMoQ0w4avFR2xaPrQC7rv0IpC6MvhbZQUB?=
- =?us-ascii?Q?NFngheo+b43C68dOl1I4FtrrwbxnHXZK3mTYNGnSmfPr7++N0SKdMaPlsiTE?=
- =?us-ascii?Q?NUX1+kP/Fhw1umorxsDRPVubNoNsA0wHwsgpg83iq/XLGXK+a1I/rdC2sR9A?=
- =?us-ascii?Q?o7CVA8aI3EF4rm67bUsL32MmAmYDw98ADZxTkPGZmgzlD8Uk3fExPl8k8meB?=
- =?us-ascii?Q?38622evBIJ2djfUH80faWu94Cax29I2h1xzgU1NZ6XiTvquWNEeSwlVzE4uE?=
- =?us-ascii?Q?CxE9uh+h4Tr1+/X/xSlcK5o3alHGr8pgcpSWCpJXOOguBsuFPlhRtJ4bCmCI?=
- =?us-ascii?Q?fsTzG+wUbsArZuTNM0G8I5xGR6Nbf7F8NpLRiCtBz+ppTti/NZRhnEwWRDfA?=
- =?us-ascii?Q?6KOnmVrjf8H/mZJoJjXp5oHiGGTibF+FMVnxPSHxvZBRPL7zsrsui6UKORUh?=
- =?us-ascii?Q?XCY3JqXXhLsqf4LNxd7xJ4srBMlEcWSHkfvcLrCInkIfx9D2T1Fw6Q+KvFoY?=
- =?us-ascii?Q?Uo2GqakYv3YXTWJgKqjf+GlUqw9x6FM=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?0qxQmydipRe6x+4KxK/g0yP+vjf71C3oD4ELdMTU1X/iKIpS+rxB2yX5GvM3?=
+ =?us-ascii?Q?6MtwxwutCpdqbBYsfo3VT9u3RSG76AeGDcE1ucqRUEE+gR/Y/+miL7ipgUSa?=
+ =?us-ascii?Q?aegXAuOF8vpCiMuoiUXymqfPoQQIwqZdhqorKtfLN13LJYLZ+FtH/3RS353c?=
+ =?us-ascii?Q?EXJogWzkX/XDGwDKL9lVyJETfVqAkDhFq/m/MpY4aXdHXvMk0+4Ud2VGWEQS?=
+ =?us-ascii?Q?yvhNYimXq0fh6vkXIGwiYMAU6y9v5kipTvr9lKlF5CRMEBi3YNWkZhRjjgf2?=
+ =?us-ascii?Q?UTT0GW4kuCXH89ZRI/o2fw198IQqazPm2N0K60oK27B1LH8KfcOs86klF2xK?=
+ =?us-ascii?Q?6KPvQjXVo7HqKpDriZgVBEbQQ0utNRanaOiiIm+pNH1phpwugf0Se2ihR2a1?=
+ =?us-ascii?Q?8fjEeMDBGEfHVkpbzuEkgm+nyvfGdy3xwVFOCgrrHeyus4Sh/A6HzYnsK/L/?=
+ =?us-ascii?Q?9M+lujldAGUX62k1Mq/bjRZ28fqENPpxWYGTfQR4TgfnnshYvfGHU+AmkLvL?=
+ =?us-ascii?Q?dGIMlRW7Bd9QXtDVhUDFXiYyWqWQzplmhuba8A2B5DQEIzIjWmzXEX6B/nKB?=
+ =?us-ascii?Q?/rsNPtny1+F5RcuNFYCvgobBcTQGXUulYsxgSgx12YG3RbjKs+P9DucAalP+?=
+ =?us-ascii?Q?003uhcfM7IL2XPhSlDnzwKIp6SUAawebkfjhyFgJZ8p02QOh33F1pcBEszlp?=
+ =?us-ascii?Q?Q9TgWlYulY/I8ZJHrWdNi1cM+tWrNlx1w0tx+WVUOz328tDrbzRJJKsXO7mq?=
+ =?us-ascii?Q?kG9zYI04x7URSothWZgPiyfQlw1CUHBxb+hHRsRnawGys2LUXG5haUzxr1+M?=
+ =?us-ascii?Q?F8Qo6ky6PQeXaDtF5rGpAG8u8K/pnOJ/T0jlzZxkbnJTw+V19S0143VQXJzR?=
+ =?us-ascii?Q?n+ijzGDkK7CG0dFizF2nQkJ9F/6M3yHL6CN/hya2RG3hFswMSnxSnlDOfY0f?=
+ =?us-ascii?Q?7txGA9j0jJlbGn9H3ea1yCkWk5fWsUcACyBzAb8BTaZti/dq6y6x5qBhtZbw?=
+ =?us-ascii?Q?+mTj6AUSIMdqgX0UBUEDs/smbljYrdVT1J+VlLRicdNVgMw58bQy3JJ4RukZ?=
+ =?us-ascii?Q?QkbQC3KZM+Wri4UBNdERQa6GfJMIaSCyNb9bpUfbiuxcLt6C6pdxj/11gyEv?=
+ =?us-ascii?Q?qIbdFMtw9+hu6Necp2x0aCk2Jb7Y6ceGd5+MF8zlLuIC/TXeJeUCs0pOLOqy?=
+ =?us-ascii?Q?bik+I+aPJ45+RXQQ8PnuaJG2rXGUxY9B9nRjpyBA+1OUk7egs8RFKJkrZBMa?=
+ =?us-ascii?Q?z6X+3PnfrpccXeVz71pXC9rh7oe9exNxMSBA4Mq3UMJpxL1V1CMLh2CplbJj?=
+ =?us-ascii?Q?GR3XK3vBpn3CIB0b+lAW+ywA69KMx1RbICb8OFfYHMu7rsLLx5r3DDHKgMTN?=
+ =?us-ascii?Q?DbBtqRC9uMF/yBg9GpFy9ZCFhM1FHy2r5SN8il6c9SOJGeAdHI9CnR8xf5sI?=
+ =?us-ascii?Q?GedOgs+Q1a9zKnRb8FZqgxzXq4pxrL3Fp3kax/TIbApfT8iaYoksiyZP5kme?=
+ =?us-ascii?Q?JM7pkU+oHFfbpnwm6BYH+JWnuC5zoutucLIVtZB0v6Q9dKOBqXszL+OdHFf+?=
+ =?us-ascii?Q?Sgz/okE2R/63J7LqBfOVv4thINQQHneM8TJnQOWirmgbpkGPxsRXdYk7Jtsi?=
+ =?us-ascii?Q?WkZ5zG5vX8uGJPjyp7+JwEXbCEDZiCspHkafW/XjyhX5yIh6Ucchra4RINU8?=
+ =?us-ascii?Q?VT8Jzs2qNRxmts7a3BUn2iQ1QaxYjgQLJSMbINAJNmza9Nd5VPKjjLybRuNF?=
+ =?us-ascii?Q?e13WfbMEfIezRj5QybDpVXZUPH9CzB8=3D?=
 X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6cfee2df-580d-4d88-9a45-08da49b3330f
+X-MS-Exchange-CrossTenant-Network-Message-Id: f6344bf6-302d-401e-7fea-08da49b33378
 X-MS-Exchange-CrossTenant-AuthSource: BYAPR10MB2663.namprd10.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Jun 2022 00:58:43.2074 (UTC)
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Jun 2022 00:58:43.9105 (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: i7XSW3AdSZuwdXzKFG8yrqlLCtdev5kwrWoBl9pljLl63defgaTd41SKif7StP3ocU339+PNitBuNtrsZg40tQ==
+X-MS-Exchange-CrossTenant-UserPrincipalName: QbmrOfoWVaceqq7p3y9j6JLtOdNu500cOzOywMJ88LRFf9Aw04woiaUj2UrEnUplKciIQVh3+lFqRiN3fhajwQ==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN0PR10MB5126
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.517, 18.0.874
  definitions=2022-06-08_04:2022-06-07,
@@ -166,8 +166,8 @@ X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999
  adultscore=0 suspectscore=0 malwarescore=0 phishscore=0 bulkscore=0
  mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2204290000 definitions=main-2206090001
-X-Proofpoint-GUID: jwdl0rZLCrlF0D9S45XOnf0OHrDPWVww
-X-Proofpoint-ORIG-GUID: jwdl0rZLCrlF0D9S45XOnf0OHrDPWVww
+X-Proofpoint-GUID: jVJJJsSBSr0KhW_JAr0g-MNbDxv5_E8_
+X-Proofpoint-ORIG-GUID: jVJJJsSBSr0KhW_JAr0g-MNbDxv5_E8_
 Cc: jgross@suse.com, sstabellini@kernel.org, mst@redhat.com,
  konrad.wilk@oracle.com, mpe@ellerman.id.au, dave.hansen@linux.intel.com,
  joe.jin@oracle.com, linux-kernel@vger.kernel.org, hch@infradead.org,
@@ -188,103 +188,266 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Add new argument 'high' to remap function, so that it will be able to
-remap the swiotlb buffer based on whether the swiotlb is 32-bit or
-64-bit.
+This patch is to implement the extra 'io_tlb_high_mem'. In the future, the
+device drivers may choose to use either 'io_tlb_default_mem' or
+'io_tlb_high_mem' as dev->dma_io_tlb_mem.
 
-Currently the only remap function is xen_swiotlb_fixup().
+The highmem buffer is regarded as active if
+(high_nslabs && io_tlb_high_mem.nslabs) returns true.
 
 Cc: Konrad Wilk <konrad.wilk@oracle.com>
 Cc: Joe Jin <joe.jin@oracle.com>
 Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
 ---
- arch/x86/include/asm/xen/swiotlb-xen.h | 2 +-
- drivers/xen/swiotlb-xen.c              | 2 +-
- include/linux/swiotlb.h                | 4 ++--
- kernel/dma/swiotlb.c                   | 8 ++++----
- 4 files changed, 8 insertions(+), 8 deletions(-)
+ arch/powerpc/kernel/dma-swiotlb.c |   8 ++-
+ arch/x86/kernel/pci-dma.c         |   5 +-
+ include/linux/swiotlb.h           |   2 +-
+ kernel/dma/swiotlb.c              | 103 +++++++++++++++++++++---------
+ 4 files changed, 84 insertions(+), 34 deletions(-)
 
-diff --git a/arch/x86/include/asm/xen/swiotlb-xen.h b/arch/x86/include/asm/xen/swiotlb-xen.h
-index 77a2d19cc990..a54eae15605e 100644
---- a/arch/x86/include/asm/xen/swiotlb-xen.h
-+++ b/arch/x86/include/asm/xen/swiotlb-xen.h
-@@ -8,7 +8,7 @@ extern int pci_xen_swiotlb_init_late(void);
- static inline int pci_xen_swiotlb_init_late(void) { return -ENXIO; }
- #endif
+diff --git a/arch/powerpc/kernel/dma-swiotlb.c b/arch/powerpc/kernel/dma-swiotlb.c
+index ba256c37bcc0..f18694881264 100644
+--- a/arch/powerpc/kernel/dma-swiotlb.c
++++ b/arch/powerpc/kernel/dma-swiotlb.c
+@@ -20,9 +20,11 @@ void __init swiotlb_detect_4g(void)
  
--int xen_swiotlb_fixup(void *buf, unsigned long nslabs);
-+int xen_swiotlb_fixup(void *buf, unsigned long nslabs, bool high);
- int xen_create_contiguous_region(phys_addr_t pstart, unsigned int order,
- 				unsigned int address_bits,
- 				dma_addr_t *dma_handle);
-diff --git a/drivers/xen/swiotlb-xen.c b/drivers/xen/swiotlb-xen.c
-index 67aa74d20162..339f46e21053 100644
---- a/drivers/xen/swiotlb-xen.c
-+++ b/drivers/xen/swiotlb-xen.c
-@@ -104,7 +104,7 @@ static int is_xen_swiotlb_buffer(struct device *dev, dma_addr_t dma_addr)
- }
- 
- #ifdef CONFIG_X86
--int xen_swiotlb_fixup(void *buf, unsigned long nslabs)
-+int xen_swiotlb_fixup(void *buf, unsigned long nslabs, bool high)
+ static int __init check_swiotlb_enabled(void)
  {
- 	int rc;
- 	unsigned int order = get_order(IO_TLB_SEGSIZE << IO_TLB_SHIFT);
+-	if (ppc_swiotlb_enable)
+-		swiotlb_print_info();
+-	else
++	if (ppc_swiotlb_enable) {
++		swiotlb_print_info(false);
++		if (swiotlb_high_active())
++			swiotlb_print_info(true);
++	} else
+ 		swiotlb_exit();
+ 
+ 	return 0;
+diff --git a/arch/x86/kernel/pci-dma.c b/arch/x86/kernel/pci-dma.c
+index 30bbe4abb5d6..1504b349b312 100644
+--- a/arch/x86/kernel/pci-dma.c
++++ b/arch/x86/kernel/pci-dma.c
+@@ -196,7 +196,10 @@ static int __init pci_iommu_init(void)
+ 	/* An IOMMU turned us off. */
+ 	if (x86_swiotlb_enable) {
+ 		pr_info("PCI-DMA: Using software bounce buffering for IO (SWIOTLB)\n");
+-		swiotlb_print_info();
++
++		swiotlb_print_info(false);
++		if (swiotlb_high_active())
++			swiotlb_print_info(true);
+ 	} else {
+ 		swiotlb_exit();
+ 	}
 diff --git a/include/linux/swiotlb.h b/include/linux/swiotlb.h
-index e67e605af2dd..e61c074c55eb 100644
+index e61c074c55eb..8196bf961aab 100644
 --- a/include/linux/swiotlb.h
 +++ b/include/linux/swiotlb.h
-@@ -36,9 +36,9 @@ struct scatterlist;
+@@ -166,7 +166,7 @@ static inline void swiotlb_adjust_size(unsigned long size)
+ #endif /* CONFIG_SWIOTLB */
  
- unsigned long swiotlb_size_or_default(void);
- void __init swiotlb_init_remap(bool addressing_limit, unsigned int flags,
--	int (*remap)(void *tlb, unsigned long nslabs));
-+	int (*remap)(void *tlb, unsigned long nslabs, bool high));
- int swiotlb_init_late(size_t size, gfp_t gfp_mask,
--	int (*remap)(void *tlb, unsigned long nslabs));
-+	int (*remap)(void *tlb, unsigned long nslabs, bool high));
- extern void __init swiotlb_update_mem_attributes(void);
+ extern bool swiotlb_high_active(void);
+-extern void swiotlb_print_info(void);
++extern void swiotlb_print_info(bool high);
  
- phys_addr_t swiotlb_tbl_map_single(struct device *hwdev, phys_addr_t phys,
+ #ifdef CONFIG_DMA_RESTRICTED_POOL
+ struct page *swiotlb_alloc(struct device *dev, size_t size);
 diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
-index 569bc30e7b7a..7988883ca7f9 100644
+index 7988883ca7f9..ff82b281ce01 100644
 --- a/kernel/dma/swiotlb.c
 +++ b/kernel/dma/swiotlb.c
-@@ -245,7 +245,7 @@ static void swiotlb_init_io_tlb_mem(struct io_tlb_mem *mem, phys_addr_t start,
-  * structures for the software IO TLB used to implement the DMA API.
-  */
- void __init swiotlb_init_remap(bool addressing_limit, unsigned int flags,
--		int (*remap)(void *tlb, unsigned long nslabs))
-+		int (*remap)(void *tlb, unsigned long nslabs, bool high))
+@@ -101,6 +101,21 @@ setup_io_tlb_npages(char *str)
+ }
+ early_param("swiotlb", setup_io_tlb_npages);
+ 
++static struct io_tlb_mem *io_tlb_mem_get(bool high)
++{
++	return high ? &io_tlb_high_mem : &io_tlb_default_mem;
++}
++
++static unsigned long nslabs_get(bool high)
++{
++	return high ? high_nslabs : default_nslabs;
++}
++
++static char *swiotlb_name_get(bool high)
++{
++	return high ? "high" : "default";
++}
++
+ bool swiotlb_high_active(void)
  {
- 	struct io_tlb_mem *mem = &io_tlb_default_mem;
- 	unsigned long nslabs = default_nslabs;
-@@ -274,7 +274,7 @@ void __init swiotlb_init_remap(bool addressing_limit, unsigned int flags,
+ 	return high_nslabs && io_tlb_high_mem.nslabs;
+@@ -133,17 +148,18 @@ void __init swiotlb_adjust_size(unsigned long size)
+ 	pr_info("SWIOTLB bounce buffer size adjusted to %luMB", size >> 20);
+ }
+ 
+-void swiotlb_print_info(void)
++void swiotlb_print_info(bool high)
+ {
+-	struct io_tlb_mem *mem = &io_tlb_default_mem;
++	struct io_tlb_mem *mem = io_tlb_mem_get(high);
+ 
+ 	if (!mem->nslabs) {
+ 		pr_warn("No low mem\n");
  		return;
  	}
  
--	if (remap && remap(tlb, nslabs) < 0) {
-+	if (remap && remap(tlb, nslabs, false) < 0) {
+-	pr_info("mapped [mem %pa-%pa] (%luMB)\n", &mem->start, &mem->end,
+-	       (mem->nslabs << IO_TLB_SHIFT) >> 20);
++	pr_info("%s mapped [mem %pa-%pa] (%luMB)\n",
++		swiotlb_name_get(high), &mem->start, &mem->end,
++		(mem->nslabs << IO_TLB_SHIFT) >> 20);
+ }
+ 
+ static inline unsigned long io_tlb_offset(unsigned long val)
+@@ -184,15 +200,9 @@ static void *swiotlb_mem_remap(struct io_tlb_mem *mem, unsigned long bytes)
+ }
+ #endif
+ 
+-/*
+- * Early SWIOTLB allocation may be too early to allow an architecture to
+- * perform the desired operations.  This function allows the architecture to
+- * call SWIOTLB when the operations are possible.  It needs to be called
+- * before the SWIOTLB memory is used.
+- */
+-void __init swiotlb_update_mem_attributes(void)
++static void __init __swiotlb_update_mem_attributes(bool high)
+ {
+-	struct io_tlb_mem *mem = &io_tlb_default_mem;
++	struct io_tlb_mem *mem = io_tlb_mem_get(high);
+ 	void *vaddr;
+ 	unsigned long bytes;
+ 
+@@ -207,6 +217,19 @@ void __init swiotlb_update_mem_attributes(void)
+ 		mem->vaddr = vaddr;
+ }
+ 
++/*
++ * Early SWIOTLB allocation may be too early to allow an architecture to
++ * perform the desired operations.  This function allows the architecture to
++ * call SWIOTLB when the operations are possible.  It needs to be called
++ * before the SWIOTLB memory is used.
++ */
++void __init swiotlb_update_mem_attributes(void)
++{
++	__swiotlb_update_mem_attributes(false);
++	if (swiotlb_high_active())
++		__swiotlb_update_mem_attributes(true);
++}
++
+ static void swiotlb_init_io_tlb_mem(struct io_tlb_mem *mem, phys_addr_t start,
+ 		unsigned long nslabs, unsigned int flags, bool late_alloc)
+ {
+@@ -240,15 +263,13 @@ static void swiotlb_init_io_tlb_mem(struct io_tlb_mem *mem, phys_addr_t start,
+ 	return;
+ }
+ 
+-/*
+- * Statically reserve bounce buffer space and initialize bounce buffer data
+- * structures for the software IO TLB used to implement the DMA API.
+- */
+-void __init swiotlb_init_remap(bool addressing_limit, unsigned int flags,
+-		int (*remap)(void *tlb, unsigned long nslabs, bool high))
++static void __init
++__swiotlb_init_remap(bool addressing_limit, unsigned int flags,
++		     int (*remap)(void *tlb, unsigned long nslabs, bool high),
++		     bool high)
+ {
+-	struct io_tlb_mem *mem = &io_tlb_default_mem;
+-	unsigned long nslabs = default_nslabs;
++	struct io_tlb_mem *mem = io_tlb_mem_get(high);
++	unsigned long nslabs = nslabs_get(high);
+ 	size_t alloc_size;
+ 	size_t bytes;
+ 	void *tlb;
+@@ -274,7 +295,7 @@ void __init swiotlb_init_remap(bool addressing_limit, unsigned int flags,
+ 		return;
+ 	}
+ 
+-	if (remap && remap(tlb, nslabs, false) < 0) {
++	if (remap && remap(tlb, nslabs, high) < 0) {
  		memblock_free(tlb, PAGE_ALIGN(bytes));
  
  		nslabs = ALIGN(nslabs >> 1, IO_TLB_SEGSIZE);
-@@ -307,7 +307,7 @@ void __init swiotlb_init(bool addressing_limit, unsigned int flags)
-  * This should be just like above, but with some error catching.
-  */
- int swiotlb_init_late(size_t size, gfp_t gfp_mask,
--		int (*remap)(void *tlb, unsigned long nslabs))
-+		int (*remap)(void *tlb, unsigned long nslabs, bool high))
- {
- 	struct io_tlb_mem *mem = &io_tlb_default_mem;
- 	unsigned long nslabs = ALIGN(size >> IO_TLB_SHIFT, IO_TLB_SEGSIZE);
-@@ -337,7 +337,7 @@ int swiotlb_init_late(size_t size, gfp_t gfp_mask,
- 		return -ENOMEM;
+@@ -293,7 +314,20 @@ void __init swiotlb_init_remap(bool addressing_limit, unsigned int flags,
+ 	swiotlb_init_io_tlb_mem(mem, __pa(tlb), nslabs, flags, false);
  
- 	if (remap)
--		rc = remap(vstart, nslabs);
-+		rc = remap(vstart, nslabs, false);
- 	if (rc) {
- 		free_pages((unsigned long)vstart, order);
+ 	if (flags & SWIOTLB_VERBOSE)
+-		swiotlb_print_info();
++		swiotlb_print_info(high);
++}
++
++/*
++ * Statically reserve bounce buffer space and initialize bounce buffer data
++ * structures for the software IO TLB used to implement the DMA API.
++ */
++void __init swiotlb_init_remap(bool addressing_limit, unsigned int flags,
++		int (*remap)(void *tlb, unsigned long nslabs, bool high))
++{
++	__swiotlb_init_remap(addressing_limit, flags, remap, false);
++	if (high_nslabs)
++		__swiotlb_init_remap(addressing_limit, flags | SWIOTLB_ANY,
++				     remap, true);
+ }
+ 
+ void __init swiotlb_init(bool addressing_limit, unsigned int flags)
+@@ -364,23 +398,20 @@ int swiotlb_init_late(size_t size, gfp_t gfp_mask,
+ 			     (nslabs << IO_TLB_SHIFT) >> PAGE_SHIFT);
+ 	swiotlb_init_io_tlb_mem(mem, virt_to_phys(vstart), nslabs, 0, true);
+ 
+-	swiotlb_print_info();
++	swiotlb_print_info(false);
+ 	return 0;
+ }
+ 
+-void __init swiotlb_exit(void)
++static void __init __swiotlb_exit(bool high)
+ {
+-	struct io_tlb_mem *mem = &io_tlb_default_mem;
++	struct io_tlb_mem *mem = io_tlb_mem_get(high);
+ 	unsigned long tbl_vaddr;
+ 	size_t tbl_size, slots_size;
+ 
+-	if (swiotlb_force_bounce)
+-		return;
+-
+ 	if (!mem->nslabs)
+ 		return;
+ 
+-	pr_info("tearing down default memory pool\n");
++	pr_info("tearing down %s memory pool\n", swiotlb_name_get(high));
+ 	tbl_vaddr = (unsigned long)phys_to_virt(mem->start);
+ 	tbl_size = PAGE_ALIGN(mem->end - mem->start);
+ 	slots_size = PAGE_ALIGN(array_size(sizeof(*mem->slots), mem->nslabs));
+@@ -397,6 +428,16 @@ void __init swiotlb_exit(void)
+ 	memset(mem, 0, sizeof(*mem));
+ }
+ 
++void __init swiotlb_exit(void)
++{
++	if (swiotlb_force_bounce)
++		return;
++
++	__swiotlb_exit(false);
++	if (swiotlb_high_active())
++		__swiotlb_exit(true);
++}
++
+ /*
+  * Return the offset into a iotlb slot required to keep the device happy.
+  */
+@@ -786,6 +827,10 @@ static void swiotlb_create_debugfs_files(struct io_tlb_mem *mem,
+ static int __init __maybe_unused swiotlb_create_default_debugfs(void)
+ {
+ 	swiotlb_create_debugfs_files(&io_tlb_default_mem, "swiotlb");
++
++	if (swiotlb_high_active())
++		swiotlb_create_debugfs_files(&io_tlb_high_mem, "swiotlb-hi");
++
+ 	return 0;
+ }
  
 -- 
 2.17.1
