@@ -4,73 +4,54 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E8977C43334
-	for <virtualization@archiver.kernel.org>; Thu,  9 Jun 2022 14:35:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 803E3C43334
+	for <virtualization@archiver.kernel.org>; Thu,  9 Jun 2022 15:36:27 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 7908860AEB;
-	Thu,  9 Jun 2022 14:35:37 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 124D360AE9;
+	Thu,  9 Jun 2022 15:36:27 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id t9P6fY4SYB1Y; Thu,  9 Jun 2022 14:35:36 +0000 (UTC)
+	with ESMTP id EPQ4NFvv0AIV; Thu,  9 Jun 2022 15:36:25 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id A897860ABD;
-	Thu,  9 Jun 2022 14:35:35 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 3AD086076C;
+	Thu,  9 Jun 2022 15:36:25 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 882E7C0039;
-	Thu,  9 Jun 2022 14:35:35 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8DE89C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0E305C0032;
+	Thu,  9 Jun 2022 15:36:25 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9D500C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Jun 2022 14:35:33 +0000 (UTC)
+ Thu,  9 Jun 2022 15:36:23 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 7AAB741D07
+ by smtp4.osuosl.org (Postfix) with ESMTP id 8B7E6415BE
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Jun 2022 14:35:33 +0000 (UTC)
+ Thu,  9 Jun 2022 15:36:23 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=infradead.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 2W0do5E0aE1f
+ with ESMTP id SEcP4OlVvGRc
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Jun 2022 14:35:30 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from casper.infradead.org (casper.infradead.org
- [IPv6:2001:8b0:10b:1236::1])
- by smtp4.osuosl.org (Postfix) with ESMTPS id EFED841D06
+ Thu,  9 Jun 2022 15:36:21 +0000 (UTC)
+X-Greylist: delayed 00:29:57 by SQLgrey-1.8.0
+Received: from s052d7dde.fastvps-server.com (s052d7dde.fastvps-server.com
+ [IPv6:2a03:f480:1:14::7d])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 2EB53415FC
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Jun 2022 14:35:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
- References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
- Content-Transfer-Encoding:Content-ID:Content-Description;
- bh=TA+NCKNN+eR/98pPS94dU7ufUL4m7Zs6MV61a+jrgiQ=; b=mJcV7mgbC23cOsHdB1405TagzU
- l6AFmpVy5mLOXT20rfyqUCs8GP1EArGlIG1d+bclAU46G00m8RJH75DYvbpvKFAoiuSJW6O1QFxtc
- 2ZX4fS2+npBuj7sf3RvxFNkEweZex+Vj5ENrzd+I9sLOEiAHImqAtc2JJMmXz3zh4NxdT+iutq57l
- sa2BrKvjamqY1v2cSnnX2SVKVkgqfyixklYyUbrljPQ6xD47cyaOzZMoDzKBVpqtqSMOytkWZDuBZ
- F+RQnbBADziujlHBIVHKfnYLbBNznbuZDQFAQyeC1t2Akp4vpvYgdDPkd6Xi/SQT+RWagEzzXyc1U
- YnTwbbOg==;
-Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red
- Hat Linux)) id 1nzJFc-00DcSb-SM; Thu, 09 Jun 2022 14:35:08 +0000
-Date: Thu, 9 Jun 2022 15:35:08 +0100
-From: Matthew Wilcox <willy@infradead.org>
-To: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH v2 03/19] fs: Add aops->migrate_folio
-Message-ID: <YqIFHPJZNMrmtXlh@casper.infradead.org>
-References: <20220608150249.3033815-1-willy@infradead.org>
- <20220608150249.3033815-4-willy@infradead.org>
- <b2a81248-03fc-afb3-1041-d8206e95e08a@redhat.com>
+ Thu,  9 Jun 2022 15:36:21 +0000 (UTC)
+Received: from 157.81.37.188.rev.vodafone.pt ([188.37.81.157]
+ helo=LAPTOP-EPOV2LRR)
+ by s052d7dde.fastvps-server.com with esmtpa (Exim 4.89)
+ (envelope-from <marle@saisti.eu>) id 1nzJet-0005ro-Ts
+ for virtualization@lists.linux-foundation.org; Thu, 09 Jun 2022 18:01:16 +0300
+From: "ICITS-2023" <marialemos72@gmail.com>
+Subject: ICITS'2023 | Cusco, Peru | Deadline: September 4
+To: virtualization@lists.linux-foundation.org
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <b2a81248-03fc-afb3-1041-d8206e95e08a@redhat.com>
-Cc: linux-aio@kvack.org, linux-nfs@vger.kernel.org, cluster-devel@redhat.com,
- linux-ntfs-dev@lists.sourceforge.net, Christoph Hellwig <hch@lst.de>,
- linux-kernel@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
- linux-block@vger.kernel.org, linux-mm@kvack.org, linux-mtd@lists.infradead.org,
- ocfs2-devel@oss.oracle.com, linux-fsdevel@vger.kernel.org,
- linux-ext4@vger.kernel.org, virtualization@lists.linux-foundation.org,
- linux-xfs@vger.kernel.org, linux-btrfs@vger.kernel.org
+Date: Thu, 9 Jun 2022 16:01:15 +0100
+Message-ID: <1380078694468@gmail-com>
+X-Antivirus: AVG (VPS 220609-2, 9/6/2022), Outbound message
+X-Antivirus-Status: Clean
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -82,255 +63,427 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Reply-To: intercits@gmail.com
+Content-Type: multipart/mixed; boundary="===============7932155504213806214=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Jun 09, 2022 at 02:50:20PM +0200, David Hildenbrand wrote:
-> On 08.06.22 17:02, Matthew Wilcox (Oracle) wrote:
-> > diff --git a/Documentation/filesystems/locking.rst b/Documentation/filesystems/locking.rst
-> > index c0fe711f14d3..3d28b23676bd 100644
-> > --- a/Documentation/filesystems/locking.rst
-> > +++ b/Documentation/filesystems/locking.rst
-> > @@ -253,7 +253,8 @@ prototypes::
-> >  	void (*free_folio)(struct folio *);
-> >  	int (*direct_IO)(struct kiocb *, struct iov_iter *iter);
-> >  	bool (*isolate_page) (struct page *, isolate_mode_t);
-> > -	int (*migratepage)(struct address_space *, struct page *, struct page *);
-> > +	int (*migrate_folio)(struct address_space *, struct folio *dst,
-> > +			struct folio *src, enum migrate_mode);
-> >  	void (*putback_page) (struct page *);
-> 
-> isolate_page/putback_page are leftovers from the previous patch, no?
+This is a multi-part message in MIME format
 
-Argh, right, I completely forgot I needed to update the documentation in
-that patch.
+--===============7932155504213806214==
+Content-Type: multipart/alternative; charset=utf-8; boundary="hF78b0U11x9=_mSJ7IAaPTHw6kBillqudk"
 
-> > +++ b/Documentation/vm/page_migration.rst
-> > @@ -181,22 +181,23 @@ which are function pointers of struct address_space_operations.
-> >     Once page is successfully isolated, VM uses page.lru fields so driver
-> >     shouldn't expect to preserve values in those fields.
-> >  
-> > -2. ``int (*migratepage) (struct address_space *mapping,``
-> > -|	``struct page *newpage, struct page *oldpage, enum migrate_mode);``
-> > -
-> > -   After isolation, VM calls migratepage() of driver with the isolated page.
-> > -   The function of migratepage() is to move the contents of the old page to the
-> > -   new page
-> > -   and set up fields of struct page newpage. Keep in mind that you should
-> > -   indicate to the VM the oldpage is no longer movable via __ClearPageMovable()
-> > -   under page_lock if you migrated the oldpage successfully and returned
-> > -   MIGRATEPAGE_SUCCESS. If driver cannot migrate the page at the moment, driver
-> > -   can return -EAGAIN. On -EAGAIN, VM will retry page migration in a short time
-> > -   because VM interprets -EAGAIN as "temporary migration failure". On returning
-> > -   any error except -EAGAIN, VM will give up the page migration without
-> > -   retrying.
-> > -
-> > -   Driver shouldn't touch the page.lru field while in the migratepage() function.
-> > +2. ``int (*migrate_folio) (struct address_space *mapping,``
-> > +|	``struct folio *dst, struct folio *src, enum migrate_mode);``
-> > +
-> > +   After isolation, VM calls the driver's migrate_folio() with the
-> > +   isolated folio.  The purpose of migrate_folio() is to move the contents
-> > +   of the source folio to the destination folio and set up the fields
-> > +   of destination folio.  Keep in mind that you should indicate to the
-> > +   VM the source folio is no longer movable via __ClearPageMovable()
-> > +   under folio if you migrated the source successfully and returned
-> > +   MIGRATEPAGE_SUCCESS.  If driver cannot migrate the folio at the
-> > +   moment, driver can return -EAGAIN. On -EAGAIN, VM will retry folio
-> > +   migration in a short time because VM interprets -EAGAIN as "temporary
-> > +   migration failure".  On returning any error except -EAGAIN, VM will
-> > +   give up the folio migration without retrying.
-> > +
-> > +   Driver shouldn't touch the folio.lru field while in the migrate_folio()
-> > +   function.
-> >  
-> >  3. ``void (*putback_page)(struct page *);``
-> 
-> Hmm, here it's a bit more complicated now, because we essentially have
-> two paths: LRU+migrate_folio or !LRU+movable_ops
-> (isolate/migrate/putback page)
+This is a multi-part message in MIME format
 
-Oh ... actually, this is just documenting the driver side of things.
-I don't really like how it's written.  Here, have some rewritten
-documentation (which is now part of the previous patch):
+--hF78b0U11x9=_mSJ7IAaPTHw6kBillqudk
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-+++ b/Documentation/vm/page_migration.rst
-@@ -152,110 +152,15 @@ Steps:
- Non-LRU page migration
- ======================
+---------------------------------------------------------------------------=
+-----------------------------------------
+ICITS'23 - The 6th International Conference on Information Technology & Sys=
+tems
+Cusco, Peru, 8 - 10 February 2023
+http://icits.me <http://icits.me/>
+---------------------------------------------------------------------------=
+-----------------------------------------
+ 
+Scope
 
--Although migration originally aimed for reducing the latency of memory accesses
--for NUMA, compaction also uses migration to create high-order pages.
-+Although migration originally aimed for reducing the latency of memory
-+accesses for NUMA, compaction also uses migration to create high-order
-+pages.  For compaction purposes, it is also useful to be able to move
-+non-LRU pages, such as zsmalloc and virtio-balloon pages.
+ICITS'23 - The 6th International Conference on Information Technology & Sys=
+tems, to be held at Universidad Nacional de San Antonio Abad del Cusco, in =
+Cusco, Peru, between the 8th and the 10th of February 2023, is an internati=
+onal forum for researchers and practitioners to present and discuss the mos=
+t recent innovations, trends, results, experiences and concerns in the seve=
+ral perspectives of Information Technology & Systems.
 
--Current problem of the implementation is that it is designed to migrate only
--*LRU* pages. However, there are potential non-LRU pages which can be migrated
--in drivers, for example, zsmalloc, virtio-balloon pages.
--
--For virtio-balloon pages, some parts of migration code path have been hooked
--up and added virtio-balloon specific functions to intercept migration logics.
--It's too specific to a driver so other drivers who want to make their pages
--movable would have to add their own specific hooks in the migration path.
--
--To overcome the problem, VM supports non-LRU page migration which provides
--generic functions for non-LRU movable pages without driver specific hooks
--in the migration path.
--
--If a driver wants to make its pages movable, it should define three functions
--which are function pointers of struct address_space_operations.
--
--1. ``bool (*isolate_page) (struct page *page, isolate_mode_t mode);``
--
--   What VM expects from isolate_page() function of driver is to return *true*
--   if driver isolates the page successfully. On returning true, VM marks the page
--   as PG_isolated so concurrent isolation in several CPUs skip the page
--   for isolation. If a driver cannot isolate the page, it should return *false*.
--
--   Once page is successfully isolated, VM uses page.lru fields so driver
--   shouldn't expect to preserve values in those fields.
--
--2. ``int (*migratepage) (struct address_space *mapping,``
--|      ``struct page *newpage, struct page *oldpage, enum migrate_mode);``
--
--   After isolation, VM calls migratepage() of driver with the isolated page.
--   The function of migratepage() is to move the contents of the old page to the
--   new page
--   and set up fields of struct page newpage. Keep in mind that you should
--   indicate to the VM the oldpage is no longer movable via __ClearPageMovable()
--   under page_lock if you migrated the oldpage successfully and returned
--   MIGRATEPAGE_SUCCESS. If driver cannot migrate the page at the moment, driver
--   can return -EAGAIN. On -EAGAIN, VM will retry page migration in a short time
--   because VM interprets -EAGAIN as "temporary migration failure". On returning
--   any error except -EAGAIN, VM will give up the page migration without
--   retrying.
--
--   Driver shouldn't touch the page.lru field while in the migratepage() function.
--
--3. ``void (*putback_page)(struct page *);``
--
--   If migration fails on the isolated page, VM should return the isolated page
--   to the driver so VM calls the driver's putback_page() with the isolated page.
--   In this function, the driver should put the isolated page back into its own data
--   structure.
--
--Non-LRU movable page flags
--
--   There are two page flags for supporting non-LRU movable page.
--
--   * PG_movable
--
--     Driver should use the function below to make page movable under page_lock::
--
--       void __SetPageMovable(struct page *page, struct address_space *mapping)
--
--     It needs argument of address_space for registering migration
--     family functions which will be called by VM. Exactly speaking,
--     PG_movable is not a real flag of struct page. Rather, VM
--     reuses the page->mapping's lower bits to represent it::
--
--       #define PAGE_MAPPING_MOVABLE 0x2
--       page->mapping = page->mapping | PAGE_MAPPING_MOVABLE;
--
--     so driver shouldn't access page->mapping directly. Instead, driver should
--     use page_mapping() which masks off the low two bits of page->mapping under
--     page lock so it can get the right struct address_space.
--
--     For testing of non-LRU movable pages, VM supports __PageMovable() function.
--     However, it doesn't guarantee to identify non-LRU movable pages because
--     the page->mapping field is unified with other variables in struct page.
--     If the driver releases the page after isolation by VM, page->mapping
--     doesn't have a stable value although it has PAGE_MAPPING_MOVABLE set
--     (look at __ClearPageMovable). But __PageMovable() is cheap to call whether
--     page is LRU or non-LRU movable once the page has been isolated because LRU
--     pages can never have PAGE_MAPPING_MOVABLE set in page->mapping. It is also
--     good for just peeking to test non-LRU movable pages before more expensive
--     checking with lock_page() in pfn scanning to select a victim.
--
--     For guaranteeing non-LRU movable page, VM provides PageMovable() function.
--     Unlike __PageMovable(), PageMovable() validates page->mapping and
--     mapping->a_ops->isolate_page under lock_page(). The lock_page() prevents
--     sudden destroying of page->mapping.
--
--     Drivers using __SetPageMovable() should clear the flag via
--     __ClearMovablePage() under page_lock() before the releasing the page.
--
--   * PG_isolated
--
--     To prevent concurrent isolation among several CPUs, VM marks isolated page
--     as PG_isolated under lock_page(). So if a CPU encounters PG_isolated
--     non-LRU movable page, it can skip it. Driver doesn't need to manipulate the
--     flag because VM will set/clear it automatically. Keep in mind that if the
--     driver sees a PG_isolated page, it means the page has been isolated by the
--     VM so it shouldn't touch the page.lru field.
--     The PG_isolated flag is aliased with the PG_reclaim flag so drivers
--     shouldn't use PG_isolated for its own purposes.
-+If a driver wants to make its pages movable, it should define a struct
-+movable_operations.  It then needs to call __SetPageMovable() on each
-+page that it may be able to move.  This uses the ``page->mapping`` field,
-+so this field is not available for the driver to use for other purposes.
+We are pleased to invite you to submit your papers to ICITS'23. They can be=
+ written in English, Spanish or Portuguese. All submissions will be reviewe=
+d on the basis of relevance, originality, importance and clarity.
 
- Monitoring Migration
- =====================
-@@ -286,3 +191,5 @@ THP_MIGRATION_FAIL and PGMIGRATE_FAIL to increase.
+ 
 
- Christoph Lameter, May 8, 2006.
- Minchan Kim, Mar 28, 2016.
-+
-+.. kernel-doc:: include/linux/migrate.h
-+++ b/include/linux/migrate.h
-@@ -19,6 +19,43 @@ struct migration_target_control;
-  */
- #define MIGRATEPAGE_SUCCESS            0
+Topics
 
-+/**
-+ * struct movable_operations - Driver page migration
-+ * @isolate_page:
-+ * The VM calls this function to prepare the page to be moved.  The page
-+ * is locked and the driver should not unlock it.  The driver should
-+ * return ``true`` if the page is movable and ``false`` if it is not
-+ * currently movable.  After this function returns, the VM uses the
-+ * page->lru field, so the driver must preserve any information which
-+ * is usually stored here.
-+ *
-+ * @migrate_page:
-+ * After isolation, the VM calls this function with the isolated
-+ * @src page.  The driver should copy the contents of the
-+ * @src page to the @dst page and set up the fields of @dst page.
-+ * Both pages are locked.
-+ * If page migration is successful, the driver should call
-+ * __ClearPageMovable(@src) and return MIGRATEPAGE_SUCCESS.
-+ * If the driver cannot migrate the page at the moment, it can return
-+ * -EAGAIN.  The VM interprets this as a temporary migration failure and
-+ * will retry it later.  Any other error value is a permanent migration
-+ * failure and migration will not be retried.
-+ * The driver shouldn't touch the @src->lru field while in the
-+ * migrate_page() function.  It may write to @dst->lru.
-+ *
-+ * @putback_page:
-+ * If migration fails on the isolated page, the VM informs the driver
-+ * that the page is no longer a candidate for migration by calling
-+ * this function.  The driver should put the isolated page back into
-+ * its own data structure.
-+ */
-+struct movable_operations {
-+       bool (*isolate_page)(struct page *, isolate_mode_t);
-+       int (*migrate_page)(struct page *dst, struct page *src,
-+                       enum migrate_mode);
-+       void (*putback_page)(struct page *);
-+};
-+
- /* Defined in mm/debug.c: */
- extern const char *migrate_reason_names[MR_TYPES];
+Submitted papers should be related with one or more of the main themes prop=
+osed for the Conference:
+
+A) Information and Knowledge Management (IKM);
+
+B) Organizational Models and Information Systems (OMIS);
+
+C) Software and Systems Modeling (SSM);
+
+D) Software Systems, Architectures, Applications and Tools (SSAAT);
+
+E) Multimedia Systems and Applications (MSA);
+
+F) Computer Networks, Mobility and Pervasive Systems (CNMPS);
+
+G) Intelligent and Decision Support Systems (IDSS);
+
+H) Big Data Analytics and Applications (BDAA);
+
+I) Human-Computer Interaction (HCI);
+
+J) Ethics, Computers and Security (ECS)
+
+K) Health Informatics (HIS);
+
+L) Information Technologies in Education (ITE);
+
+M) Media, Applied Technology and Communication (MATC).
+
+ 
+
+Submission and Decision
+
+Submitted papers written in English (until 10-page limit) must comply with =
+the format of the Lecture Notes in Networks and Systems series (see Instruc=
+tions for Authors at Springer Website <https://www.springer.com/us/authors-=
+editors/conference-proceedings/conference-proceedings-guidelines>), must no=
+t have been published before, not be under review for any other conference =
+or publication and not include any information leading to the authors=E2=80=
+=99 identification. Therefore, the authors=E2=80=99 names and affiliations =
+should not be included in the version for evaluation by the Scientific Comm=
+ittee. This information should only be included in the camera-ready version=
+, saved in Word or Latex format and also in PDF format. These files must be=
+ accompanied by the Consent to Publish form <http://www.icits.me/copyright.=
+docx> filled out, in a ZIP file, and uploaded at the conference management =
+system.
+
+Submitted papers written in Spanish or Portuguese (until 15-page limit) mus=
+t comply with the format of RISTI <http://www.risti.xyz/> - Revista Ib=C3=
+=A9rica de Sistemas e Tecnologias de Informa=C3=A7=C3=A3o (download instruc=
+tions/template for authors in Spanish <http://www.risti.xyz/formato-es.doc>=
+ or Portuguese <http://www.risti.xyz/formato-pt.doc>), must not have been p=
+ublished before, not be under review for any other conference or publicatio=
+n and not include any information leading to the authors=E2=80=99 identific=
+ation. Therefore, the authors=E2=80=99 names and affiliations should not be=
+ included in the version for evaluation by the Scientific Committee. This i=
+nformation should only be included in the camera-ready version, saved in Wo=
+rd. These files must be uploaded at the conference management system in a Z=
+IP file.
+
+All papers will be subjected to a =E2=80=9Cdouble-blind review=E2=80=9D by =
+at least two members of the Scientific Committee.
+
+Based on Scientific Committee evaluation, a paper can be rejected or accept=
+ed by the Conference Chairs. In the later case, it can be accepted as paper=
+ or poster.
+
+The authors of papers accepted as posters must build and print a poster to =
+be exhibited during the Conference. This poster must follow an A1 or A2 ver=
+tical format. The Conference can include Work Sessions where these posters =
+are presented and orally discussed, with a 7 minute limit per poster.
+
+The authors of accepted papers will have 15 minutes to present their work i=
+n a Conference Work Session; approximately 5 minutes of discussion will fol=
+low each presentation.
+
+ 
+
+Publication and Indexing
+
+Papers accepted as posters are not published; they are only exhibited, pres=
+ented and discussed during the conference.
+
+To ensure that a paper accepted as paper is published, at least one of the =
+authors must be fully registered by the 4th of November 2022, and the paper=
+ must comply with the suggested layout and page-limit. Additionally, all re=
+commended changes must be addressed by the authors before they submit the c=
+amera-ready version.
+
+No more than one paper per registration will be published. An extra fee mus=
+t be paid for publication of additional papers, with a maximum of one addit=
+ional paper per registration. One registration permits only the participati=
+on of one author in the conference.
+
+Papers written in English and accepted and registered will be published in =
+Proceedings by Springer, in a book of the Lecture Notes in Networks and Sys=
+tems series, will  be submitted for indexation by Scopus, WoS, DBLP, Google=
+ Scholar, among others, and will be available in the SpringerLink Digital L=
+ibrary <http://link.springer.com/>.
+
+Papers written in Spanish or Portuguese and accepted and registered will be=
+ published in a Special Issue of RISTI <http://www.risti.xyz/> and will be =
+submitted for indexation by Scopus, among others.
+
+ 
+
+Important Dates
+
+Paper Submission: September 4 13, 2022
+
+Notification of Acceptance: October 16, 2022
+
+Payment of Registration, to ensure the inclusion of an accepted paper in th=
+e conference proceedings: November 4, 2022.
+
+Camera-ready Submission: November 4, 2022
+
+ 
+ 
+Website of ICITS'23: http://icits.me <http://icits.me/>
+ 
+ 
+ICITS'23 Team
+http://icits.me <http://icits.me/>
 
 
+-- 
+This email has been checked for viruses by AVG.
+https://www.avg.com
 
+--hF78b0U11x9=_mSJ7IAaPTHw6kBillqudk
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+<html>
+  <head>
+    <title></title>
+    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content-Type=
+" />
+  </head>
+  <body>
+    <div class=3D"adn ads" data-message-id=3D"#msg-a:r-1499474762405574081"=
+ data-legacy-message-id=3D"17a812a84db16fcf">
+      <div class=3D"gs">
+        <div>
+          <div id=3D":19a" class=3D"ii gt">
+            <div id=3D":199" class=3D"a3s aiL " align=3D"center">----------=
+---------------------------------------------------------------------------=
+-------------------------------</div>
+            <div class=3D"a3s aiL " align=3D"center"><strong>ICITS'23 - The=
+&nbsp;6th International Conference on Information Technology &amp; Systems<=
+/strong></div>
+            <div class=3D"a3s aiL " align=3D"center"><strong>Cusco, Peru,&n=
+bsp;8 - 10 February 2023</strong></div>
+            <div class=3D"a3s aiL " align=3D"center"><a href=3D"http://icit=
+s.me/"><strong>http://icits.me</strong></a><br />--------------------------=
+---------------------------------------------------------------------------=
+---------------<br />&nbsp;</div>
+            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
+va, sans-serif"><font face=3D"Times New Roman"><strong>Scope</strong></font=
+></span></p>
+            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
+va, sans-serif"><font face=3D"Times New Roman">ICITS'23 - The 6th Internati=
+onal Conference on Information Technology &amp; Systems, to be held at Univ=
+ersidad Nacional de San Antonio Abad del Cusco, in Cusco, Peru, between the=
+ 8th and the 10th of February 2023, is an international forum for researche=
+rs and practitioners to present and discuss the most recent innovations, tr=
+ends, results, experiences and concerns in the several perspectives of Info=
+rmation Technology &amp; Systems.</font></span></p>
+            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
+va, sans-serif"><font face=3D"Times New Roman">We are pleased to invite you=
+ to submit your papers to ICITS'23. They can be written in English, Spanish=
+ or Portuguese. All submissions will be reviewed on the basis of relevance,=
+ originality, importance and clarity.</font></span></p>
+            <p class=3D"a3s aiL ">&nbsp;</p>
+            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
+va, sans-serif"><strong><font face=3D"Times New Roman">Topics</font></stron=
+g></span></p>
+            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
+va, sans-serif"><font face=3D"Times New Roman">Submitted papers should be r=
+elated with one or more of the main themes proposed for the Conference:</fo=
+nt></span></p>
+            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
+va, sans-serif"><font face=3D"Times New Roman">A) Information and Knowledge=
+ Management (IKM);</font></span></p>
+            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
+va, sans-serif"><font face=3D"Times New Roman">B) Organizational Models and=
+ Information Systems (OMIS);</font></span></p>
+            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
+va, sans-serif"><font face=3D"Times New Roman">C) Software and Systems Mode=
+ling (SSM);</font></span></p>
+            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
+va, sans-serif"><font face=3D"Times New Roman">D) Software Systems, Archite=
+ctures, Applications and Tools (SSAAT);</font></span></p>
+            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
+va, sans-serif"><font face=3D"Times New Roman">E) Multimedia Systems and Ap=
+plications (MSA);</font></span></p>
+            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
+va, sans-serif"><font face=3D"Times New Roman">F) Computer Networks, Mobili=
+ty and Pervasive Systems (CNMPS);</font></span></p>
+            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
+va, sans-serif"><font face=3D"Times New Roman">G) Intelligent and Decision =
+Support Systems (IDSS);</font></span></p>
+            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
+va, sans-serif"><font face=3D"Times New Roman">H) Big Data Analytics and Ap=
+plications (BDAA);</font></span></p>
+            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
+va, sans-serif"><font face=3D"Times New Roman">I) Human-Computer Interactio=
+n (HCI);</font></span></p>
+            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
+va, sans-serif"><font face=3D"Times New Roman">J) Ethics, Computers and Sec=
+urity (ECS)</font></span></p>
+            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
+va, sans-serif"><font face=3D"Times New Roman">K) Health Informatics (HIS);=
+</font></span></p>
+            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
+va, sans-serif"><font face=3D"Times New Roman">L) Information Technologies =
+in Education (ITE);</font></span></p>
+            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
+va, sans-serif"><font face=3D"Times New Roman">M) Media, Applied Technology=
+ and Communication (MATC).</font></span></p>
+            <p class=3D"a3s aiL ">&nbsp;</p>
+            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
+va, sans-serif"><strong><font face=3D"Times New Roman">Submission and Decis=
+ion</font></strong></span></p>
+            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
+va, sans-serif"><font face=3D"Times New Roman">Submitted papers written in =
+English (until 10-page limit) must comply with the format of the Lecture No=
+tes in Networks and Systems series (see&nbsp;</font><a href=3D"https://www.=
+springer.com/us/authors-editors/conference-proceedings/conference-proceedin=
+gs-guidelines" rel=3D"noopener" target=3D"_blank"><font face=3D"Times New R=
+oman">Instructions for Authors at Springer Website</font></a><font face=3D"=
+Times New Roman">), must not have been published before, not be under revie=
+w for any other conference or publication and not include any information l=
+eading to the authors&rsquo; identification. Therefore, the authors&rsquo; =
+names and affiliations should not be included in the version for evaluation=
+ by the Scientific Committee. This information should only be included in t=
+he camera-ready version, saved in Word or Latex format and also in PDF form=
+at.&nbsp;<span lang=3D"en" id=3D"result_box">These files&nbsp;must&nbsp;be =
+accompanied by the&nbsp;<a href=3D"http://www.icits.me/copyright.docx" rel=
+=3D"noopener" target=3D"_blank">Consent to Publish form</a>&nbsp;filled out=
+,&nbsp;</span><span lang=3D"en" id=3D"result_box">in a ZIP file, and upload=
+ed at the conference management system.</span></font></span></p>
+            <p class=3D"a3s aiL "><span lang=3D"en" style=3D"font-family: v=
+erdana, geneva, sans-serif"><font face=3D"Times New Roman">Submitted papers=
+ written in Spanish or Portuguese (until 15-page limit) must comply with th=
+e format of&nbsp;</font><a href=3D"http://www.risti.xyz/" rel=3D"noopener" =
+target=3D"_blank"><font face=3D"Times New Roman">RISTI</font></a><font face=
+=3D"Times New Roman">&nbsp;- Revista Ib&eacute;rica de Sistemas e Tecnologi=
+as de Informa&ccedil;&atilde;o (download instructions/template for authors =
+in&nbsp;</font><a href=3D"http://www.risti.xyz/formato-es.doc" rel=3D"noope=
+ner" target=3D"_blank"><font face=3D"Times New Roman">Spanish</font></a><fo=
+nt face=3D"Times New Roman">&nbsp;or&nbsp;</font><a href=3D"http://www.rist=
+i.xyz/formato-pt.doc" rel=3D"noopener" target=3D"_blank"><font face=3D"Time=
+s New Roman">Portuguese</font></a><font face=3D"Times New Roman">), must no=
+t have been published before, not be under review for any other conference =
+or publication and not include any information leading to the authors&rsquo=
+; identification. Therefore, the authors&rsquo; names and affiliations shou=
+ld not be included in the version for evaluation by the Scientific Committe=
+e. This information should only be included in the camera-ready version, sa=
+ved in Word.&nbsp;<span lang=3D"en" id=3D"result_box">These files must&nbsp=
+;be&nbsp;</span><span lang=3D"en" id=3D"result_box">uploaded at the confere=
+nce management system in a ZIP file.</span></font></span></p>
+            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
+va, sans-serif"><font face=3D"Times New Roman">All papers will be subjected=
+ to a &ldquo;double-blind review&rdquo; by at least two members of the Scie=
+ntific Committee.</font></span></p>
+            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
+va, sans-serif"><font face=3D"Times New Roman">Based on Scientific Committe=
+e evaluation, a paper can be rejected or accepted by the Conference Chairs.=
+ In the later case, it can be accepted as paper or poster.</font></span></p=
+>
+            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
+va, sans-serif"><font face=3D"Times New Roman">The authors of papers accept=
+ed as posters must build and print a poster to be exhibited during the Conf=
+erence. This poster must follow an A1 or A2 vertical format. The Conference=
+ can include Work Sessions where these posters are presented and orally dis=
+cussed, with a 7 minute limit per poster.</font></span></p>
+            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
+va, sans-serif"><font face=3D"Times New Roman">The authors of accepted pape=
+rs will have 15 minutes to present their work in a Conference Work Session;=
+ approximately 5 minutes of discussion will follow each presentation.</font=
+></span></p>
+            <p class=3D"a3s aiL ">&nbsp;</p>
+            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
+va, sans-serif"><strong><font face=3D"Times New Roman">Publication and Inde=
+xing</font></strong></span></p>
+            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
+va, sans-serif"><font face=3D"Times New Roman">Papers accepted as posters a=
+re not published; they are only exhibited, presented and discussed during t=
+he conference.</font></span></p>
+            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
+va, sans-serif"><font face=3D"Times New Roman">To ensure that a paper accep=
+ted as paper is published, at least one of the authors must be fully regist=
+ered by the 4th of November 2022, and the paper must comply with the sugges=
+ted layout and page-limit. Additionally, all recommended changes must be ad=
+dressed by the authors before they submit the camera-ready version.</font><=
+/span></p>
+            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
+va, sans-serif"><font face=3D"Times New Roman">No more than one paper per r=
+egistration will be published. An extra fee must be paid for publication of=
+ additional papers, with a maximum of one additional paper per registration=
+=2E One registration permits only the participation of one author in the co=
+nference.</font></span></p>
+            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
+va, sans-serif"><font face=3D"Times New Roman">Papers written in English an=
+d accepted and registered will be published in Proceedings by Springer, in =
+a book of the Lecture Notes in Networks and Systems series, will&nbsp; be s=
+ubmitted for indexation by Scopus, WoS, DBLP, Google Scholar, among others,=
+ and will be available in the </font><a href=3D"http://link.springer.com/" =
+rel=3D"noopener" target=3D"_blank"><font face=3D"Times New Roman">SpringerL=
+ink Digital Library</font></a><font face=3D"Times New Roman">.</font></span=
+></p>
+            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
+va, sans-serif"><font face=3D"Times New Roman">Papers written in Spanish or=
+ Portuguese and accepted and registered will be published in a Special Issu=
+e of&nbsp;</font><a href=3D"http://www.risti.xyz/" rel=3D"noopener" target=
+=3D"_blank"><font face=3D"Times New Roman">RISTI</font></a><font face=3D"Ti=
+mes New Roman"> and will be submitted for indexation by Scopus, among other=
+s.</font></span></p>
+            <p class=3D"a3s aiL ">&nbsp;</p>
+            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
+va, sans-serif"><strong><font face=3D"Times New Roman">Important Dates</fon=
+t></strong></span></p>
+            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
+va, sans-serif"><font face=3D"Times New Roman">Paper Submission: September =
+4 13, 2022</font></span></p>
+            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
+va, sans-serif"><font face=3D"Times New Roman">Notification of Acceptance: =
+October 16, 2022</font></span></p>
+            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
+va, sans-serif"><font face=3D"Times New Roman">Payment of Registration, to =
+ensure the inclusion of an accepted paper in the conference proceedings: No=
+vember 4, 2022.</font></span></p>
+            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
+va, sans-serif"><font face=3D"Times New Roman">Camera-ready Submission: Nov=
+ember 4, 2022</font></span></p>
+            <div class=3D"a3s aiL ">&nbsp;<br />&nbsp;<br /><strong>Website=
+ of ICITS'23</strong>: <a href=3D"http://icits.me/">http://icits.me</a><br =
+/>&nbsp;<br />&nbsp;<br />ICITS'23 Team<br /><a href=3D"http://icits.me/">h=
+ttp://icits.me</a></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <div id=3D"DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2"><br />
+<table style=3D"border-top: 1px solid #D3D4DE;">
+	<tr>
+        <td style=3D"width: 55px; padding-top: 13px;"><a href=3D"http://www=
+=2Eavg.com/email-signature?utm_medium=3Demail&utm_source=3Dlink&utm_campaig=
+n=3Dsig-email&utm_content=3Demailclient" target=3D"_blank"><img src=3D"http=
+s://ipmcdn.avast.com/images/icons/icon-envelope-tick-green-avg-v1.png" alt=
+=3D""  width=3D"46" height=3D"29" style=3D"width: 46px; height: 29px;" /></=
+a></td>
+		<td style=3D"width: 470px; padding-top: 12px; color: #41424e; font-size: =
+13px; font-family: Arial, Helvetica, sans-serif; line-height: 18px;">Virus-=
+free. <a href=3D"http://www.avg.com/email-signature?utm_medium=3Demail&utm_=
+source=3Dlink&utm_campaign=3Dsig-email&utm_content=3Demailclient" target=3D=
+"_blank" style=3D"color: #4453ea;">www.avg.com</a>
+		</td>
+	</tr>
+</table><a href=3D"#DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2" width=3D"1" heigh=
+t=3D"1"> </a></div></body>
+</html>
+
+--hF78b0U11x9=_mSJ7IAaPTHw6kBillqudk--
+
+
+--===============7932155504213806214==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============7932155504213806214==--
+
