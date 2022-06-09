@@ -1,179 +1,104 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 06A75C43334
-	for <virtualization@archiver.kernel.org>; Thu,  9 Jun 2022 01:00:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 26B1BC43334
+	for <virtualization@archiver.kernel.org>; Thu,  9 Jun 2022 01:02:24 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id A29E540BB9;
-	Thu,  9 Jun 2022 01:00:31 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id D414F41610;
+	Thu,  9 Jun 2022 01:02:23 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Zalp8NumTpZw; Thu,  9 Jun 2022 01:00:30 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 27FF140AF9;
-	Thu,  9 Jun 2022 01:00:30 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id CKwtLX0Z2Wna; Thu,  9 Jun 2022 01:02:22 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id D18A8415CC;
+	Thu,  9 Jun 2022 01:02:21 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 02185C0039;
-	Thu,  9 Jun 2022 01:00:30 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 99936C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 9EF65C0039;
+	Thu,  9 Jun 2022 01:02:21 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6B840C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Jun 2022 01:00:28 +0000 (UTC)
+ Thu,  9 Jun 2022 01:02:18 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 693E982EFC
+ by smtp2.osuosl.org (Postfix) with ESMTP id 4A61B40AF9
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Jun 2022 01:00:28 +0000 (UTC)
+ Thu,  9 Jun 2022 01:02:18 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=oracle.com header.b="M7ozWCOa";
- dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
- header.b="NXncSQgf"
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 0purY6xQDZ6V
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=bytedance-com.20210112.gappssmtp.com
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id u8hyRSuTRrRN
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Jun 2022 01:00:27 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com
- [205.220.177.32])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 6CD1082779
+ Thu,  9 Jun 2022 01:02:17 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com
+ [IPv6:2607:f8b0:4864:20::1029])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 549A740AE2
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Jun 2022 01:00:27 +0000 (UTC)
-Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
- by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 258LZ7rl017866;
- Thu, 9 Jun 2022 00:58:46 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
- h=from : to : cc :
- subject : date : message-id : content-type : mime-version;
- s=corp-2021-07-09; bh=3SsoYUhartg9823tFAK+tRiIVPElf2jSv9+cjvVkLE8=;
- b=M7ozWCOa3+TfeNQwOa7gpxd6yF1zY09Ju/Ua5AF2i4a+U0N0tYT6jd4AgcPfgt3VJg4L
- mf43BzUEdhRAyNu9OJXAG7BmRswA912dPbMmBC4czuQUiufxvHP8zkmjUCN/oPjc5fqe
- /07g4anPGymLFyAqaBykDLXyvCKuio5RL/xHeJeXdvV4BuYj4QCsuNjHBMGFj5hLfw8/
- QxzsXc+LSifuibdoZtGFiVe/t7uCQQo42tuDKldAJBynWlMP9zOTw2rJXXpbHU/G5oTw
- I4x3Xt0UDGKNwmMfJbyeR8oPodKHdovuWA0+Bp1ku29N9/ITu6tsNs6teSxg6h5phS6O QQ== 
-Received: from phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com
- (phxpaimrmta02.appoci.oracle.com [147.154.114.232])
- by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3ghexefa60-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Thu, 09 Jun 2022 00:58:46 +0000
-Received: from pps.filterd
- (phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
- by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (8.16.1.2/8.16.1.2)
- with SMTP id 2590ub2v032517; Thu, 9 Jun 2022 00:58:45 GMT
-Received: from nam12-mw2-obe.outbound.protection.outlook.com
- (mail-mw2nam12lp2049.outbound.protection.outlook.com [104.47.66.49])
- by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com with ESMTP id
- 3gfwu433k8-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Thu, 09 Jun 2022 00:58:45 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=idy4vGYje4vaAx7bI5YnHt2whCNmdGL3p1mv7u9rNj4WZ9iMgD5paaaqFCcqaNPcCTAdF/VZJanjvYcNAJYHfnKG5A6HFVtS7juVmr6umgM0FTXp4YU7NXRpZPSonbkTPk2fbFNKXYXG9MPr3DB9fU+2uOkHCObu7trKnZOb4yawwFEttsO/ZiSEBy7hUfRgIcJvwmPb2Luq2XT8lpjl+05O/SaCbBDCSRvAqHzVIxbI/guMSFMvyCglMU+6QKmfPksYe88L42eLV5LNziZ4ktacscyaraznquN6IE9apVVW2Vk6XUOfhqLCRI6CepTGUsXpaBKoe9PvrWJYVXwtvg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=3SsoYUhartg9823tFAK+tRiIVPElf2jSv9+cjvVkLE8=;
- b=OrzNLs5L2oDowsnZEhb9imoQmZGNI1om7SDzWikUSRhgHvYwrjIeWZ4ZLAsxHtV1hpfkK2nDtNLIezUGAlBy4AkxwsANj5tRlfVY4Yhdynrditrm8XAeMfhtVVa+KGF2dV+ARsqWg0YMZSwtWu0H1tkJw0fq5QbAfiOVnbvLyGdMO0/3iRL+qoGD1uMi1o5JMs9Ev/zdraYJW6RImQId2h20D2ONdqMadjvLK61VJsifO2SbKXk+hMXMcThWli+CckbWW4gnP3etp+iKuTeo4t2PXYKy7yVlhiyuFya8G49nHtMNYKfRFaZ15t9VtIEJUNxHdRaeIA6ccyCypWCezA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
+ Thu,  9 Jun 2022 01:02:17 +0000 (UTC)
+Received: by mail-pj1-x1029.google.com with SMTP id
+ d12-20020a17090abf8c00b001e2eb431ce4so19804300pjs.1
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 08 Jun 2022 18:02:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=3SsoYUhartg9823tFAK+tRiIVPElf2jSv9+cjvVkLE8=;
- b=NXncSQgfGOTZYlykBnhqLvNUMWyXStN+cMfunC05/2R/j5aV5n/M90jBRFomdHVEHjemXHEBPKy8IjiWhwznojDtUcLYRYIWIgN8gs6EYtYijHRTsbk33AZuimaOSOE9Qx4JWqWle878j7LbIiNoW0La0JpOwPgjuQ6+majAVQI=
-Received: from BYAPR10MB2663.namprd10.prod.outlook.com (2603:10b6:a02:a9::20)
- by BN0PR10MB5126.namprd10.prod.outlook.com (2603:10b6:408:129::8)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5314.13; Thu, 9 Jun
- 2022 00:58:42 +0000
-Received: from BYAPR10MB2663.namprd10.prod.outlook.com
- ([fe80::7081:e264:cc58:37b9]) by BYAPR10MB2663.namprd10.prod.outlook.com
- ([fe80::7081:e264:cc58:37b9%3]) with mapi id 15.20.5314.019; Thu, 9 Jun 2022
- 00:58:42 +0000
-From: Dongli Zhang <dongli.zhang@oracle.com>
-To: iommu@lists.linux-foundation.org, xen-devel@lists.xenproject.org,
- x86@kernel.org, linuxppc-dev@lists.ozlabs.org,
- virtualization@lists.linux-foundation.org
-Subject: [PATCH RFC v1 0/7] swiotlb: extra 64-bit buffer for
- dev->dma_io_tlb_mem
-Date: Wed,  8 Jun 2022 17:55:46 -0700
-Message-Id: <20220609005553.30954-1-dongli.zhang@oracle.com>
-X-Mailer: git-send-email 2.17.1
-X-ClientProxiedBy: SJ0PR05CA0075.namprd05.prod.outlook.com
- (2603:10b6:a03:332::20) To BYAPR10MB2663.namprd10.prod.outlook.com
- (2603:10b6:a02:a9::20)
+ d=bytedance-com.20210112.gappssmtp.com; s=20210112;
+ h=message-id:date:mime-version:user-agent:subject:content-language:to
+ :cc:references:from:in-reply-to:content-transfer-encoding;
+ bh=VhCSI4/82p7maI+6hlpm39k7fZXsdvnmQOl9zbSCHak=;
+ b=Kx2ZWz/2O8/FyqkIAzfWB3nPuVCn1WoKkcUfxzFGZUaAomsE01EcPN5ZWNlFJcLOT2
+ 2D74wXTyQCgqGl4cL+LMwuTPgsj1g0zkvTpZV/7jSSDf1eBJaGvycPwUrcpOzs1mbxnE
+ aQfgbRwexqw5Jl2Meuqwh99hihxeNWN4kIJ0vS88GlpNPDigi8Gk+FcOnQoTQmmi/ebo
+ Yeg9BjYAm87Zf8UPkbGs67JgX2Nc9vkucKujrU950le5hWcSOtp6nb5ZqMcOBpGgLXH6
+ L77Rvf4Gmo1fKKC/Gl5DLfVgbAPCSKK0A/+MnXP++8RWgc6dbxRzlAHJyuNyl+i8Fc3N
+ Si+w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+ :content-language:to:cc:references:from:in-reply-to
+ :content-transfer-encoding;
+ bh=VhCSI4/82p7maI+6hlpm39k7fZXsdvnmQOl9zbSCHak=;
+ b=FmnLmOA8DB6D2vsivB4krax1zft6akn++/Vej9MjW8JrxjC8ME8dbhF2s8MSobG4YD
+ qATABVECcLIBe6ZPXruA4jzNHaAX5R/hRP1nQi1oqdDrXnPqjZ/qfTM5+PdJm8nBT1EI
+ B2gwYksGWVcNUDTuqeCtSP6qwNuEc3WDYS4Wed8pwMswG1gppmvzvtMSKIsX2pQPvFeG
+ j0ph0mJFGCtFUDSqj8flpZd9Ztz2nVoiEKoZjXM69szXTrccNvUquUdsS1Qo7maGXPdv
+ u6mFSlJBTCewjKB5VrVTRAWBTsHAe8QjbPGgxvKvDNqNz8LWKFsqJmMC4FROJzfTUAxZ
+ xrPQ==
+X-Gm-Message-State: AOAM531/Uw4y8sH5R8Eplrz9FV7YjeLRSzMsbTDtjhXj706EFI5xXdsb
+ XkYQ8+v9GMe+Jak8BI8vK4zQiA==
+X-Google-Smtp-Source: ABdhPJzPbYlu81kIpByG9BMXMf41AW8Z/E2L0Wt/v+mXSqWzgIZA4Diie6fnPh+SLJDwLNhS0n6FpQ==
+X-Received: by 2002:a17:903:230e:b0:166:3781:1e50 with SMTP id
+ d14-20020a170903230e00b0016637811e50mr36887944plh.20.1654736536513; 
+ Wed, 08 Jun 2022 18:02:16 -0700 (PDT)
+Received: from [10.76.15.169] ([61.120.150.70])
+ by smtp.gmail.com with ESMTPSA id
+ x193-20020a6286ca000000b0051ceaa47cbdsm484753pfd.79.2022.06.08.18.02.13
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Wed, 08 Jun 2022 18:02:15 -0700 (PDT)
+Message-ID: <e1a2af04-ef33-60df-0ada-a17a7d508344@bytedance.com>
+Date: Thu, 9 Jun 2022 08:57:34 +0800
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 2cb2e478-077a-4474-2b82-08da49b3329d
-X-MS-TrafficTypeDiagnostic: BN0PR10MB5126:EE_
-X-Microsoft-Antispam-PRVS: <BN0PR10MB512612A37D72D4478347F88AF0A79@BN0PR10MB5126.namprd10.prod.outlook.com>
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: phOFzr6us0qxhf4BlGC3EWXqNEz4CBGDjH5s96GZyLoh7N7Uncb5zBgg9UZs1cWlABTdKJf3vVcy6UmmAe1FwkKCHedsPsZ3H66G/pLWfxIfF8ung6ESlpj1+wKgmZ2t8ar9tRRY7m/rj6de43oS32Ixsa1WrhOnpOUPdjIQKHAclCD1b9jmp0WGnC68WQk8arYJDaMd0KuAFAe5HPzu6JY+cqhD+lAt2e6f94pzitLkW5GG6h9k7ccFEhxsmEhRk0RVbKI3laZ3EyuvS7s8jFwBWnH0S1niRu7jR52/HWQ8JN5ocj8w9r0sFL36Mdr0JReqh5O4gHzs0QnHlbJQrv3OUYK6DivggUKlG/teKz0f+QbGmGgeCgqNEKM77uFBIeNJunDSbCYY5UJcrXNjC74s7eW5csyNUJzt3fW4vEcdB3hSaYa/zUTOk69jLrWK8taPs/XkVxSHl5MT8ugrEiR0yon9SEkVjBBvSYbDOuA1G9ahAWHTp7yzqhV2Msdic4ZYt/Uh3vsrFSTFFYam7FBaInuPUUvp9VKonsmBIgnv6OgXx5/03R7JcpE1/PlDarM0ixweZt8OBrQYU6DQl1oBacXHBiFOH37pbjaNS5oZa5jobwFRbA5CTBX8K4HiZNtvcJCQlGtbyJafF7ABgIYnhjwmnP+cCzJMKnEZgn3kq8tfoGbubGD6eM2EzwQHX8olfXNxDpUFKAXDwLXvVaSZkF63C1FiYaos4aASYkWTDv3ezZCM6v2ZZ5pfO/yUkVeJnsPHfOz5uIzx1XEG27QkgyqaFFQWzoA6NceVcOY=
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:BYAPR10MB2663.namprd10.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230001)(366004)(8936002)(6486002)(966005)(5660300002)(186003)(66556008)(508600001)(4326008)(66946007)(7416002)(66476007)(2616005)(8676002)(107886003)(1076003)(2906002)(38100700002)(38350700002)(26005)(316002)(6512007)(36756003)(83380400001)(86362001)(44832011)(6506007)(52116002);
- DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?pBO4BPbogLXOZu6vcAtGBYD2Ytg0IwKr8vEIZF/oWiSMFol+V2mrETdzXMMy?=
- =?us-ascii?Q?RJZuyCI8Jn+4MwL9ESFnHzPQpHjV0YWAXpC/IAHuyMPuUH+JE7GdFRHal5lL?=
- =?us-ascii?Q?rofuZhUPvU157zGW0V8sssCE/racWWq7ixXUOp3gDPoSHBHKabOXHCE+HEEm?=
- =?us-ascii?Q?H1yfS/a6Tms6oxIASg4FtKjSdzI0HPHHOsAEqkD0J2Gos0kuLp2HpelOUuFs?=
- =?us-ascii?Q?J7mueZgg7b8o7ndpugpXcG+ksyGd5EmGRQlgpGgQLBotFD7ChbOekaQeY7JU?=
- =?us-ascii?Q?IsHP4BovrgCHVvA4xJ+3mz4AAWwSWmL9wgJeEmv4j9W7uQSHFBSM8+CHr/6f?=
- =?us-ascii?Q?QlH+eH3wtS4XS6cUE90EQ7jR5UyI2UhJn5J/wE3Wb2khsNoBlm3TnulBVOQx?=
- =?us-ascii?Q?Vu2A474nl6ZkutUCasH7oaOtEuVOoi0u3pgo9RBD38DGRNt15QDfS7ODiS0w?=
- =?us-ascii?Q?w9ffKLh2PdQTaDgJpyz97jgVb4nAYvRb7PCOdlXeVHkpyP73GPPKKKY9uLQ0?=
- =?us-ascii?Q?CBPbziO/bLFHGZmU1sLGOU7WXWy/6HNiUvzBS5lV//Fwx30wibzQAW9ZIynl?=
- =?us-ascii?Q?Ikuw58DrW1xSDAEbnRKqRIM3IFj1G3h0s8Rm94i8fsbjs76ini8UsfSnz7Vz?=
- =?us-ascii?Q?rrJvkT4ZkuMJbAsZIT9MKUVlS5f3atIFr1yGE0WdaDMPdfktXnolOEuHG/vf?=
- =?us-ascii?Q?p4PfN0BW5eOmjqaW3eZ8UmKDyBx9c1/owhR+zQUCtmEuzbCXTbkmojk6DfUN?=
- =?us-ascii?Q?K4f/ncRuLApExOnX2f/8U/dt+r3MhQtkB1L5bfM4qUVtKiylYQGNyUVzYo9H?=
- =?us-ascii?Q?yJiZPlkX8XnikFLZcjm6pGre5oD/9RVz4aB/L+8DKgJggpmbXtqeKJti1kRA?=
- =?us-ascii?Q?Lzg+L3SoduiF5Zbygo5JPk34J65BTsBQFy05MWitv0txouxXVsJbl1YulBH1?=
- =?us-ascii?Q?PK9mfQvo6lYzrjWrYOG0w5KlFKWBJ+wcYkYAmL7Wl90cuzpYe4sUO0cteCUo?=
- =?us-ascii?Q?Smr2IRaJxAkzmylP9IEHBHQFkI0sC/X2IIWry7Lx7XEr42OlPgT6ta++5MKe?=
- =?us-ascii?Q?xHDjrLSCfZLkuhRqfK6yoluD+MEDinjpm4n1tBSZe7iSHXflMx1kOyjQqfO+?=
- =?us-ascii?Q?8XC+uIjHeVrEGXvsbenYPE6b6mSdzatBmFWMMY/6vbu2ttN9WbFhfgJ5//VJ?=
- =?us-ascii?Q?IkWFfA0knnqk5Xy0Z/nCCH2Mt5spgiHPsdduCXDRDYSnWQCQKM8uejH7hH9N?=
- =?us-ascii?Q?If6gj8TN1WhdvXDFjdewbR4zRDfz2KeURnp0Qq4gdx/Wn8rt9wLoGhBIdqey?=
- =?us-ascii?Q?rD+wPBor5Yx3leapfg9c2xG6JJeZHvCyMJaFGHnE8gKR//J3ZbADpveVGz92?=
- =?us-ascii?Q?LlOyrvOjSqaIOlAHGH5Th+uqLKi1UAV1tsvBu5wy5ub2M/lArZQflQ1qf5i0?=
- =?us-ascii?Q?QY9IbOAIQicb3hRE8QatxxUOSN1lRG4NvfzN0pIOnyQWp4+g+CNij4xHQF+J?=
- =?us-ascii?Q?7lH7mEMURJjAMJTRMQnj1zpfa4MA3yYuV3SvxgrfN7C1Q+7LN/QY4uTK9Jg2?=
- =?us-ascii?Q?8CxYSRXdCswRp3xmCt9fXbcnv77AkCk2ed3x1+IsymnKL1WKzKL69798mvKt?=
- =?us-ascii?Q?RcwC2hWB/fD1saq523+lxUz5udoypGglKYB11mfIYhpdiph6UZePHPSFdfcH?=
- =?us-ascii?Q?2Vlh1metT/Nc9OMwlsrC1lPfEhXad9mHU6QcZzpIjvd/liUtYYMcL3nBhxTR?=
- =?us-ascii?Q?ErEl00F4MWXhCg2PWr9NV+5MweXyXX4=3D?=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 2cb2e478-077a-4474-2b82-08da49b3329d
-X-MS-Exchange-CrossTenant-AuthSource: BYAPR10MB2663.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Jun 2022 00:58:42.5199 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: V3CtjPGlpYbIwnKPmsX+TYmcM+xROYmmG5MAt7VRiQB4NPCI9kvN1yLPZJGKUDf05jU/U/2TttCXRFFAEQIScQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN0PR10MB5126
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.517, 18.0.874
- definitions=2022-06-08_04:2022-06-07,
- 2022-06-08 signatures=0
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999
- spamscore=0
- adultscore=0 suspectscore=0 malwarescore=0 phishscore=0 bulkscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2204290000 definitions=main-2206090001
-X-Proofpoint-GUID: dNBDCVqEeGfksdhDcpmZcy8m6vklENs5
-X-Proofpoint-ORIG-GUID: dNBDCVqEeGfksdhDcpmZcy8m6vklENs5
-Cc: jgross@suse.com, sstabellini@kernel.org, mst@redhat.com,
- konrad.wilk@oracle.com, mpe@ellerman.id.au, dave.hansen@linux.intel.com,
- joe.jin@oracle.com, linux-kernel@vger.kernel.org, hch@infradead.org,
- mingo@redhat.com, bp@alien8.de, tglx@linutronix.de, m.szyprowski@samsung.com
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.1
+Subject: PING: RE: RE: [PATCH v8 1/1] crypto: Introduce RSA algorithm
+Content-Language: en-US
+To: "mst@redhat.com" <mst@redhat.com>
+References: <20220527084734.2649594-1-pizhenwei@bytedance.com>
+ <20220527084734.2649594-2-pizhenwei@bytedance.com>
+ <848d579e2c504ba493cd57510a7ff3b0@huawei.com>
+ <b2ee77ae-2044-32b4-20c5-43fa78e8213c@bytedance.com>
+ <39f884dbc25d4b0cbec510ab090e6778@huawei.com>
+From: zhenwei pi <pizhenwei@bytedance.com>
+In-Reply-To: <39f884dbc25d4b0cbec510ab090e6778@huawei.com>
+Cc: "helei.sig11@bytedance.com" <helei.sig11@bytedance.com>,
+ "berrange@redhat.com" <berrange@redhat.com>,
+ "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -185,93 +110,136 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hello,
+Hi, Michael
 
-I used to send out a patchset on 64-bit buffer and people thought it was
-the same as Restricted DMA. However, the 64-bit buffer is still not supported.
+QEMU side was reviewed by Gonglei a week ago. To avoid this to be 
+ignored, PING!
 
-https://lore.kernel.org/all/20210203233709.19819-1-dongli.zhang@oracle.com/
+On 5/31/22 20:08, Gonglei (Arei) wrote:
+> 
+> 
+>> -----Original Message-----
+>> From: zhenwei pi [mailto:pizhenwei@bytedance.com]
+>> Sent: Tuesday, May 31, 2022 9:48 AM
+>> To: Gonglei (Arei) <arei.gonglei@huawei.com>
+>> Cc: qemu-devel@nongnu.org; mst@redhat.com;
+>> virtualization@lists.linux-foundation.org; helei.sig11@bytedance.com;
+>> berrange@redhat.com
+>> Subject: Re: RE: [PATCH v8 1/1] crypto: Introduce RSA algorithm
+>>
+>> On 5/30/22 21:31, Gonglei (Arei) wrote:
+>>>
+>>>
+>>>> -----Original Message-----
+>>>> From: zhenwei pi [mailto:pizhenwei@bytedance.com]
+>>>> Sent: Friday, May 27, 2022 4:48 PM
+>>>> To: mst@redhat.com; Gonglei (Arei) <arei.gonglei@huawei.com>
+>>>> Cc: qemu-devel@nongnu.org; virtualization@lists.linux-foundation.org;
+>>>> helei.sig11@bytedance.com; berrange@redhat.com; zhenwei pi
+>>>> <pizhenwei@bytedance.com>
+>>>> Subject: [PATCH v8 1/1] crypto: Introduce RSA algorithm
+>>>>
+>>>>
+>>> Skip...
+>>>
+>>>> +static int64_t
+>>>> +virtio_crypto_create_asym_session(VirtIOCrypto *vcrypto,
+>>>> +               struct virtio_crypto_akcipher_create_session_req
+>>>> *sess_req,
+>>>> +               uint32_t queue_id, uint32_t opcode,
+>>>> +               struct iovec *iov, unsigned int out_num) {
+>>>> +    VirtIODevice *vdev = VIRTIO_DEVICE(vcrypto);
+>>>> +    CryptoDevBackendSessionInfo info = {0};
+>>>> +    CryptoDevBackendAsymSessionInfo *asym_info;
+>>>> +    int64_t session_id;
+>>>> +    int queue_index;
+>>>> +    uint32_t algo, keytype, keylen;
+>>>> +    g_autofree uint8_t *key = NULL;
+>>>> +    Error *local_err = NULL;
+>>>> +
+>>>> +    algo = ldl_le_p(&sess_req->para.algo);
+>>>> +    keytype = ldl_le_p(&sess_req->para.keytype);
+>>>> +    keylen = ldl_le_p(&sess_req->para.keylen);
+>>>> +
+>>>> +    if ((keytype != VIRTIO_CRYPTO_AKCIPHER_KEY_TYPE_PUBLIC)
+>>>> +         && (keytype !=
+>> VIRTIO_CRYPTO_AKCIPHER_KEY_TYPE_PRIVATE)) {
+>>>> +        error_report("unsupported asym keytype: %d", keytype);
+>>>> +        return -VIRTIO_CRYPTO_NOTSUPP;
+>>>> +    }
+>>>> +
+>>>> +    if (keylen) {
+>>>> +        key = g_malloc(keylen);
+>>>> +        if (iov_to_buf(iov, out_num, 0, key, keylen) != keylen) {
+>>>> +            virtio_error(vdev, "virtio-crypto asym key incorrect");
+>>>> +            return -EFAULT;
+>>>
+>>> Memory leak.
+>>>
+>>>> +        }
+>>>> +        iov_discard_front(&iov, &out_num, keylen);
+>>>> +    }
+>>>> +
+>>>> +    info.op_code = opcode;
+>>>> +    asym_info = &info.u.asym_sess_info;
+>>>> +    asym_info->algo = algo;
+>>>> +    asym_info->keytype = keytype;
+>>>> +    asym_info->keylen = keylen;
+>>>> +    asym_info->key = key;
+>>>> +    switch (asym_info->algo) {
+>>>> +    case VIRTIO_CRYPTO_AKCIPHER_RSA:
+>>>> +        asym_info->u.rsa.padding_algo =
+>>>> +            ldl_le_p(&sess_req->para.u.rsa.padding_algo);
+>>>> +        asym_info->u.rsa.hash_algo =
+>>>> +            ldl_le_p(&sess_req->para.u.rsa.hash_algo);
+>>>> +        break;
+>>>> +
+>>>> +    /* TODO DSA&ECDSA handling */
+>>>> +
+>>>> +    default:
+>>>> +        return -VIRTIO_CRYPTO_ERR;
+>>>> +    }
+>>>> +
+>>>> +    queue_index = virtio_crypto_vq2q(queue_id);
+>>>> +    session_id =
+>>>> + cryptodev_backend_create_session(vcrypto->cryptodev,
+>>>> &info,
+>>>> +                     queue_index, &local_err);
+>>>> +    if (session_id < 0) {
+>>>> +        if (local_err) {
+>>>> +            error_report_err(local_err);
+>>>> +        }
+>>>> +        return -VIRTIO_CRYPTO_ERR;
+>>>> +    }
+>>>> +
+>>>> +    return session_id;
+>>>
+>>> Where to free the key at both normal and exceptional paths?
+>>>
+>>
+>> Hi, Lei
+>>
+>> The key is declared with g_autofree:
+>> g_autofree uint8_t *key = NULL;
+>>
+> 
+> OK. For the patch:
+> 
+> Reviewed-by: Gonglei <arei.gonglei@huawei.com>
+> 
+> 
+> Regards,
+> -Gonglei
+>      
+> 
 
-This RFC is to introduce the extra swiotlb buffer with SWIOTLB_ANY flag,
-to support 64-bit swiotlb.
-
-The core ideas are:
-
-1. Create an extra io_tlb_mem with SWIOTLB_ANY flags.
-
-2. The dev->dma_io_tlb_mem is set to either default or the extra io_tlb_mem,
-   depending on dma mask.
-
-
-Would you please help suggest for below questions in the RFC?
-
-- Is it fine to create the extra io_tlb_mem?
-
-- Which one is better: to create a separate variable for the extra
-  io_tlb_mem, or make it an array of two io_tlb_mem?
-
-- Should I set dev->dma_io_tlb_mem in each driver (e.g., virtio driver as
-  in this patchset)based on the value of
-  min_not_zero(*dev->dma_mask, dev->bus_dma_limit), or at higher level
-  (e.g., post pci driver)?
-
-
-This patchset is to demonstrate that the idea works. Since this is just a
-RFC, I have only tested virtio-blk on qemu-7.0 by enforcing swiotlb. It is
-not tested on AMD SEV environment.
-
-qemu-system-x86_64 -cpu host -name debug-threads=on \
--smp 8 -m 16G -machine q35,accel=kvm -vnc :5 -hda boot.img \
--kernel mainline-linux/arch/x86_64/boot/bzImage \
--append "root=/dev/sda1 init=/sbin/init text console=ttyS0 loglevel=7 swiotlb=327680,3145728,force" \
--device virtio-blk-pci,id=vblk0,num-queues=8,drive=drive0,disable-legacy=on,iommu_platform=true \
--drive file=test.raw,if=none,id=drive0,cache=none \
--net nic -net user,hostfwd=tcp::5025-:22 -serial stdio
-
-
-The kernel command line "swiotlb=327680,3145728,force" is to allocate 6GB for
-the extra swiotlb.
-
-[    2.826676] PCI-DMA: Using software bounce buffering for IO (SWIOTLB)
-[    2.826693] software IO TLB: default mapped [mem 0x0000000037000000-0x000000005f000000] (640MB)
-[    2.826697] software IO TLB: high mapped [mem 0x00000002edc80000-0x000000046dc80000] (6144MB)
-
-The highmem swiotlb is being used by virtio-blk.
-
-$ cat /sys/kernel/debug/swiotlb/swiotlb-hi/io_tlb_nslabs 
-3145728
-$ cat /sys/kernel/debug/swiotlb/swiotlb-hi/io_tlb_used 
-8960
-
-
-Dongli Zhang (7):
-  swiotlb: introduce the highmem swiotlb buffer
-  swiotlb: change the signature of remap function
-  swiotlb-xen: support highmem for xen specific code
-  swiotlb: to implement io_tlb_high_mem
-  swiotlb: add interface to set dev->dma_io_tlb_mem
-  virtio: use io_tlb_high_mem if it is active
-  swiotlb: fix the slot_addr() overflow
-
-arch/powerpc/kernel/dma-swiotlb.c      |   8 +-
-arch/x86/include/asm/xen/swiotlb-xen.h |   2 +-
-arch/x86/kernel/pci-dma.c              |   5 +-
-drivers/virtio/virtio.c                |   8 ++
-drivers/xen/swiotlb-xen.c              |  16 +++-
-include/linux/swiotlb.h                |  14 ++-
-kernel/dma/swiotlb.c                   | 136 +++++++++++++++++++++-------
-7 files changed, 145 insertions(+), 44 deletions(-)
-
-Thank you very much for feedback and suggestion!
-
-Dongli Zhang
-
-
+-- 
+zhenwei pi
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
