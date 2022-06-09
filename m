@@ -4,104 +4,101 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C51D8C433EF
-	for <virtualization@archiver.kernel.org>; Thu,  9 Jun 2022 10:24:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2C21FCCA47F
+	for <virtualization@archiver.kernel.org>; Thu,  9 Jun 2022 12:46:23 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 729ED6101A;
-	Thu,  9 Jun 2022 10:24:09 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id BB397610F0;
+	Thu,  9 Jun 2022 12:46:22 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id tBjOHRkMEjh5; Thu,  9 Jun 2022 10:24:08 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 1280860B15;
-	Thu,  9 Jun 2022 10:24:08 +0000 (UTC)
+	with ESMTP id kqt1jXxsogWp; Thu,  9 Jun 2022 12:46:21 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 522D3610EC;
+	Thu,  9 Jun 2022 12:46:21 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E7860C0039;
-	Thu,  9 Jun 2022 10:24:07 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0DCF1C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 27285C0039;
+	Thu,  9 Jun 2022 12:46:21 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3CEF8C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Jun 2022 10:24:06 +0000 (UTC)
+ Thu,  9 Jun 2022 12:46:19 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id E224983E42
+ by smtp3.osuosl.org (Postfix) with ESMTP id 1D8D2610E8
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Jun 2022 10:24:05 +0000 (UTC)
+ Thu,  9 Jun 2022 12:46:19 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id QsyDO2x_p0i0
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id MVoGcuQ3Xgau
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Jun 2022 10:24:05 +0000 (UTC)
+ Thu,  9 Jun 2022 12:46:18 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id D85A28343E
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 4E100610E6
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Jun 2022 10:24:04 +0000 (UTC)
+ Thu,  9 Jun 2022 12:46:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1654770243;
+ s=mimecast20190719; t=1654778776;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=6a5SsgsnTuFo9sIZWQwmUlikCgiuGiGF/De3NllGDd0=;
- b=O1xC9fxZOMxaqC6rSRf/wp7oRubAOdtuQF660ZO5XT5/cyF74PDWeE2QN9m27mc+BMztdJ
- 4cTCEIEgzKecWwUfZ7+HFqcmlsf3bRPqSVsgzJFiymh+8vAQB/cUacDsI0Qr52taSElHs3
- mqthmRsXI3hdg1HfHwjn9aCD07YEUwY=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=zufIRXqzWNkS/vBQ6LnlofDt3t0aO0GgELLgxZEV3qM=;
+ b=bfaVa0reba5JNx1JCCi449akB/iE7w7HJkh+iPewcoKUtXRVntBOZRj18BsRFXEJQD7Xt3
+ GObsr5AzbK9k5Qx9iLnaJWAyVgOUUAb6wweVt7qXGOICRsO1ol959im5WFYdFixia0rC7b
+ ZHeTquzJ+C6aZV+E1vVG8wDxl9vLE1g=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-333-CkWM0C7APru6eOFK5-0FNg-1; Thu, 09 Jun 2022 06:24:02 -0400
-X-MC-Unique: CkWM0C7APru6eOFK5-0FNg-1
-Received: by mail-wm1-f72.google.com with SMTP id
- k32-20020a05600c1ca000b0039c4cf75023so6811421wms.9
+ us-mta-173-i7VOkGf_PVaKV6J9BGozJA-1; Thu, 09 Jun 2022 08:46:15 -0400
+X-MC-Unique: i7VOkGf_PVaKV6J9BGozJA-1
+Received: by mail-wm1-f69.google.com with SMTP id
+ k32-20020a05600c1ca000b0039c4cf75023so6958060wms.9
  for <virtualization@lists.linux-foundation.org>;
- Thu, 09 Jun 2022 03:24:02 -0700 (PDT)
+ Thu, 09 Jun 2022 05:46:14 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
  :content-language:to:cc:references:from:organization:in-reply-to
  :content-transfer-encoding;
- bh=6a5SsgsnTuFo9sIZWQwmUlikCgiuGiGF/De3NllGDd0=;
- b=hAt+7NhHsk213bKKrKFu9Wvwd6VVLaDe4S2ltrsHoMzVL4tldFiGLmGrr8Fz/Usr80
- HJxwVwlpKNfVjUbGajJHBSxUzUQttQjfRrzPbKgAmy6L/aerdKTtHEVJ/w0U96elQ1DD
- T2NvFexh1AC7HWhS7b8YADy0mu6avgevQU5E4yfOOxeFZAL72S/pAqCktUs0rq+HUPAe
- uxnlNozODzjghg6xqIamZfHvuAmCaZMyELZ0O2dNShn84/2UI1eQf7PNP1aHMUPqeV06
- KQhS7Ea3GAo/Y6YpQ7g1+XZzPiyKPfXp1HtXf8yaYR7sEiVINgs5zFDwqzhbJxabX6mE
- nPCA==
-X-Gm-Message-State: AOAM532wqUaBv+J+DTyG8di1x6R5GuGyOwZ79mGiAZaXsSPFYqtSTK+b
- uGT/hGu3yUOSgrxuj2nfyD5D0tZqOYXXyCBbC2EcDjdnNRUZRgTjRKYmHRLKA65AKqMr5rvDlH8
- QchLrdOMK2VwiGGgg8xSKdSbrsDXghjwYgaLxsVvq+Q==
-X-Received: by 2002:a1c:a301:0:b0:392:9bc5:203c with SMTP id
- m1-20020a1ca301000000b003929bc5203cmr2594383wme.67.1654770241338; 
- Thu, 09 Jun 2022 03:24:01 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJy58rh3fuuccVM2J0IS1QrE1vJ3CH41QyKYHa1IrWm/Rvain2xs2JDw35eE5SOSwtsykjkKLA==
-X-Received: by 2002:a1c:a301:0:b0:392:9bc5:203c with SMTP id
- m1-20020a1ca301000000b003929bc5203cmr2594345wme.67.1654770240948; 
- Thu, 09 Jun 2022 03:24:00 -0700 (PDT)
+ bh=zufIRXqzWNkS/vBQ6LnlofDt3t0aO0GgELLgxZEV3qM=;
+ b=X8fNwgjvgbHFw7Sl36YyaWwNCK7hB8gAwb84vpHkQAlBiFoUEFxyalbXRCHrY8MnCE
+ fhINojyY2DGqEs3uhNFYY1QUI6bUl+qt6hEwF28cViIgQ8AcUzddftcc45F8MtkOFHzD
+ l6agoEsLCiQR9/ncVdz4TZRr0G6v+87OHCkF6LCw+hneqOKxGFPBs35Pk9kZ/P+MFwXT
+ kGW/DgUP9jCfdO7W7hQXxiplEoE87zrDn06imCQ/AybgPSUKy0iFQn0hUq6tGQ8RAHYE
+ f0eP3TPUXCpGvzK46jjOEOc6YDoiDb9f29FEw48bV1JIvwnODg1Lyd1AHbOLEzJCqqsu
+ aq9g==
+X-Gm-Message-State: AOAM533iu1XTMYhrJdTDe73o8EEuOUBH5KJck+J09cVVK14aZbr+lwoJ
+ e8kZ79vhA2ibsMghNa1SZDF7b1m8Pg0co581PT5Y7ESN8vjtRS3yyrM5aCAn1mZVg88k9YVFQ2X
+ VWF0MJDgn8IIgCmrFEApNwhGrvAL9j6DmJczCEqeYiQ==
+X-Received: by 2002:a05:6000:168b:b0:218:54da:90ba with SMTP id
+ y11-20020a056000168b00b0021854da90bamr12022153wrd.283.1654778773731; 
+ Thu, 09 Jun 2022 05:46:13 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxFg5i2EPJ88Gv87gtw7EHVrLhSwsyQAltgpPZk1DxRKIUlDObIOhdmhH9jKki5ThpOI9Vqng==
+X-Received: by 2002:a05:6000:168b:b0:218:54da:90ba with SMTP id
+ y11-20020a056000168b00b0021854da90bamr12022117wrd.283.1654778773451; 
+ Thu, 09 Jun 2022 05:46:13 -0700 (PDT)
 Received: from ?IPV6:2a09:80c0:192:0:20af:34be:985b:b6c8?
  ([2a09:80c0:192:0:20af:34be:985b:b6c8])
  by smtp.gmail.com with ESMTPSA id
- t10-20020a5d460a000000b0021552eebde6sm17782568wrq.32.2022.06.09.03.23.59
+ a7-20020a05600c224700b0039c693a54ecsm3854607wmm.23.2022.06.09.05.46.12
  (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Thu, 09 Jun 2022 03:23:59 -0700 (PDT)
-Message-ID: <a079ed41-1978-0551-2b5c-6d61aff7ddf2@redhat.com>
-Date: Thu, 9 Jun 2022 12:23:58 +0200
+ Thu, 09 Jun 2022 05:46:12 -0700 (PDT)
+Message-ID: <c204c627-ec6b-cd8c-412d-57c8f55c61fa@redhat.com>
+Date: Thu, 9 Jun 2022 14:46:11 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.9.0
-Subject: Re: [PATCH v2 02/19] mm: Convert all PageMovable users to
- movable_operations
+Subject: Re: [PATCH v2 01/19] secretmem: Remove isolate_page
 To: "Matthew Wilcox (Oracle)" <willy@infradead.org>,
  linux-fsdevel@vger.kernel.org
 References: <20220608150249.3033815-1-willy@infradead.org>
- <20220608150249.3033815-3-willy@infradead.org>
+ <20220608150249.3033815-2-willy@infradead.org>
 From: David Hildenbrand <david@redhat.com>
 Organization: Red Hat
-In-Reply-To: <20220608150249.3033815-3-willy@infradead.org>
+In-Reply-To: <20220608150249.3033815-2-willy@infradead.org>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=david@redhat.com
 X-Mimecast-Spam-Score: 0
@@ -130,32 +127,38 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 On 08.06.22 17:02, Matthew Wilcox (Oracle) wrote:
-> These drivers are rather uncomfortably hammered into the
-> address_space_operations hole.  They aren't filesystems and don't behave
-> like filesystems.  They just need their own movable_operations structure,
-> which we can point to directly from page->mapping.
+> The isolate_page operation is never called for filesystems, only
+> for device drivers which call SetPageMovable.
 > 
 > Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
 > ---
->  arch/powerpc/platforms/pseries/cmm.c |  60 +---------------
->  drivers/misc/vmw_balloon.c           |  61 +---------------
->  drivers/virtio/virtio_balloon.c      |  47 +-----------
->  include/linux/balloon_compaction.h   |   6 +-
->  include/linux/fs.h                   |   2 -
->  include/linux/migrate.h              |  26 +++++--
->  include/linux/page-flags.h           |   2 +-
->  include/uapi/linux/magic.h           |   4 --
->  mm/balloon_compaction.c              |  10 ++-
->  mm/compaction.c                      |  29 ++++----
->  mm/migrate.c                         |  24 +++----
->  mm/util.c                            |   4 +-
->  mm/z3fold.c                          |  82 +++------------------
->  mm/zsmalloc.c                        | 102 ++++++---------------------
->  14 files changed, 94 insertions(+), 365 deletions(-)
-
-You probably should have cc'ed the relevant maintainers (including me :P ).
-
-For everything except z3fold.c and zsmalloc.c,
+>  mm/secretmem.c | 6 ------
+>  1 file changed, 6 deletions(-)
+> 
+> diff --git a/mm/secretmem.c b/mm/secretmem.c
+> index 206ed6b40c1d..1c7f1775b56e 100644
+> --- a/mm/secretmem.c
+> +++ b/mm/secretmem.c
+> @@ -133,11 +133,6 @@ static const struct file_operations secretmem_fops = {
+>  	.mmap		= secretmem_mmap,
+>  };
+>  
+> -static bool secretmem_isolate_page(struct page *page, isolate_mode_t mode)
+> -{
+> -	return false;
+> -}
+> -
+>  static int secretmem_migratepage(struct address_space *mapping,
+>  				 struct page *newpage, struct page *page,
+>  				 enum migrate_mode mode)
+> @@ -155,7 +150,6 @@ const struct address_space_operations secretmem_aops = {
+>  	.dirty_folio	= noop_dirty_folio,
+>  	.free_folio	= secretmem_free_folio,
+>  	.migratepage	= secretmem_migratepage,
+> -	.isolate_page	= secretmem_isolate_page,
+>  };
+>  
+>  static int secretmem_setattr(struct user_namespace *mnt_userns,
 
 Reviewed-by: David Hildenbrand <david@redhat.com>
 
