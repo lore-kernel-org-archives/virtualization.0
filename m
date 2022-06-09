@@ -1,84 +1,81 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 63C24CCA47D
-	for <virtualization@archiver.kernel.org>; Thu,  9 Jun 2022 16:30:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id BAD17C43334
+	for <virtualization@archiver.kernel.org>; Thu,  9 Jun 2022 16:30:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 0B0D140C3E;
-	Thu,  9 Jun 2022 16:30:28 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 4F661610FF;
+	Thu,  9 Jun 2022 16:30:51 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id sjkko6DOdxoh; Thu,  9 Jun 2022 16:30:27 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 8iYhl3PaIpax; Thu,  9 Jun 2022 16:30:50 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id AC27C4058F;
-	Thu,  9 Jun 2022 16:30:26 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 08445610F6;
+	Thu,  9 Jun 2022 16:30:49 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6BEE4C0039;
-	Thu,  9 Jun 2022 16:30:26 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 34AFEC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C41B8C0039;
+	Thu,  9 Jun 2022 16:30:49 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id CB381C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Jun 2022 16:30:25 +0000 (UTC)
+ Thu,  9 Jun 2022 16:30:48 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 1BE5541CD0
+ by smtp3.osuosl.org (Postfix) with ESMTP id ABD8E610FE
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Jun 2022 16:30:25 +0000 (UTC)
+ Thu,  9 Jun 2022 16:30:48 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=suse.cz header.b="DwYTzXJj";
- dkim=neutral reason="invalid (unsupported algorithm ed25519-sha256)"
- header.d=suse.cz header.b="r711ZorC"
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id dAOn_w6n4gfH
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 4g5bzJWdfc99
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Jun 2022 16:30:23 +0000 (UTC)
+ Thu,  9 Jun 2022 16:30:47 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
- by smtp4.osuosl.org (Postfix) with ESMTPS id C592541CAD
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 5F49F610F6
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Jun 2022 16:30:23 +0000 (UTC)
+ Thu,  9 Jun 2022 16:30:47 +0000 (UTC)
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
  (No client certificate requested)
- by smtp-out1.suse.de (Postfix) with ESMTPS id B0F6121F84;
- Thu,  9 Jun 2022 16:30:20 +0000 (UTC)
+ by smtp-out2.suse.de (Postfix) with ESMTPS id C82491FEAA;
+ Thu,  9 Jun 2022 16:30:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
- t=1654792220;
+ t=1654792244;
  h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
  cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=DRY3PTJ3qzHWltMKRtpiQYHbxR9H9lvdTVSDJqkZDfo=;
- b=DwYTzXJjJEcZyVTnR2LXUD9bO582jfvat2LZZMaNEJEzhW48fA0IdNDUNIrqkGRtMEgNRw
- eDsjd8JfQMK+DXVsQFfhFbWfQDLFw4FjQ0HtFU2P8ZpenpzC58c2iQ0OIdKwpO6xDUb7fH
- SKQMK5thmUS9fW7CcZdcVt6AHZMg5tw=
+ bh=Y2i6/2xfXmqrG3UQrxWuJBZA/au7sKNam077cWguoHI=;
+ b=WAFGqmnIhYNvM2ssVKG3KczLLHpzVExLaqbMNaaD4TxG3LoWXkMqgKnr5sAnFUCBPyx6Bj
+ RhP7Axe2UJS1vtWME26BQmMzF4seMk852MkeYIJ1XbXQW9TzZc/m/RdeIYLyaRgTqpIusE
+ ixbzVs/BQECC0I+aIWNnX7/19GjySKk=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
- s=susede2_ed25519; t=1654792220;
+ s=susede2_ed25519; t=1654792244;
  h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
  cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=DRY3PTJ3qzHWltMKRtpiQYHbxR9H9lvdTVSDJqkZDfo=;
- b=r711ZorCuK6qm0qrAc7rlFb1iJZ1hwrAWtDVvOq4y49i+HhbE2GKNA0i1qsunxQawdIutH
- dMWes8/2VlE/dzBA==
+ bh=Y2i6/2xfXmqrG3UQrxWuJBZA/au7sKNam077cWguoHI=;
+ b=OcorPq9pvgFSPMUepbubrqyCj9P6m8KkNJ5KgBjsd3ExzLQ6RMGB6JpwEUQqKFOx6b3ocZ
+ x6fso1mpPJmN9sCA==
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
  (No client certificate requested)
- by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 33DD413A8C;
- Thu,  9 Jun 2022 16:30:20 +0000 (UTC)
+ by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 5E9DB13A8C;
+ Thu,  9 Jun 2022 16:30:44 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([192.168.254.65])
- by imap2.suse-dmz.suse.de with ESMTPSA id SM9zCxwgomKzJQAAMHmgww
- (envelope-from <dsterba@suse.cz>); Thu, 09 Jun 2022 16:30:20 +0000
-Date: Thu, 9 Jun 2022 18:25:49 +0200
+ by imap2.suse-dmz.suse.de with ESMTPSA id s5sbFjQgomLwJQAAMHmgww
+ (envelope-from <dsterba@suse.cz>); Thu, 09 Jun 2022 16:30:44 +0000
+Date: Thu, 9 Jun 2022 18:26:14 +0200
 From: David Sterba <dsterba@suse.cz>
 To: "Matthew Wilcox (Oracle)" <willy@infradead.org>
-Subject: Re: [PATCH v2 08/19] btrfs: Convert btree_migratepage to migrate_folio
-Message-ID: <20220609162548.GT20633@twin.jikos.cz>
+Subject: Re: [PATCH v2 10/19] mm/migrate: Convert migrate_page() to
+ migrate_folio()
+Message-ID: <20220609162614.GU20633@twin.jikos.cz>
 Mail-Followup-To: dsterba@suse.cz,
  "Matthew Wilcox (Oracle)" <willy@infradead.org>,
  linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
@@ -91,10 +88,10 @@ Mail-Followup-To: dsterba@suse.cz,
  virtualization@lists.linux-foundation.org,
  Christoph Hellwig <hch@lst.de>
 References: <20220608150249.3033815-1-willy@infradead.org>
- <20220608150249.3033815-9-willy@infradead.org>
+ <20220608150249.3033815-11-willy@infradead.org>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20220608150249.3033815-9-willy@infradead.org>
+In-Reply-To: <20220608150249.3033815-11-willy@infradead.org>
 User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
 Cc: linux-aio@kvack.org, linux-nfs@vger.kernel.org, cluster-devel@redhat.com,
  linux-ntfs-dev@lists.sourceforge.net, Christoph Hellwig <hch@lst.de>,
@@ -120,12 +117,19 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Jun 08, 2022 at 04:02:38PM +0100, Matthew Wilcox (Oracle) wrote:
-> Use a folio throughout this function.  migrate_page() will be converted
-> later.
+On Wed, Jun 08, 2022 at 04:02:40PM +0100, Matthew Wilcox (Oracle) wrote:
+> Convert all callers to pass a folio.  Most have the folio
+> already available.  Switch all users from aops->migratepage to
+> aops->migrate_folio.  Also turn the documentation into kerneldoc.
 > 
 > Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
 > Reviewed-by: Christoph Hellwig <hch@lst.de>
+> ---
+>  drivers/gpu/drm/i915/gem/i915_gem_userptr.c |  4 +--
+
+For
+
+>  fs/btrfs/disk-io.c                          |  2 +-
 
 Acked-by: David Sterba <dsterba@suse.com>
 _______________________________________________
