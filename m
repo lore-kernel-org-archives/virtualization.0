@@ -4,107 +4,107 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 20E13C433EF
-	for <virtualization@archiver.kernel.org>; Thu,  9 Jun 2022 23:09:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E15A1C433EF
+	for <virtualization@archiver.kernel.org>; Fri, 10 Jun 2022 05:44:53 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id A5C3560F9E;
-	Thu,  9 Jun 2022 23:09:44 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 805146080A;
+	Fri, 10 Jun 2022 05:44:53 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id rD1AsZaVVRNX; Thu,  9 Jun 2022 23:09:42 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 097DD60E09;
-	Thu,  9 Jun 2022 23:09:42 +0000 (UTC)
+	with ESMTP id vxMsw6uuflJU; Fri, 10 Jun 2022 05:44:52 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 2E5AB60FAE;
+	Fri, 10 Jun 2022 05:44:52 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C7DC0C0039;
-	Thu,  9 Jun 2022 23:09:41 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 44144C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id DDE5BC0039;
+	Fri, 10 Jun 2022 05:44:51 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 962AEC002D
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Jun 2022 23:09:40 +0000 (UTC)
+ Fri, 10 Jun 2022 05:44:50 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 1F0FA8316F
+ by smtp2.osuosl.org (Postfix) with ESMTP id 84722402A8
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Jun 2022 23:09:40 +0000 (UTC)
+ Fri, 10 Jun 2022 05:44:50 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=suse.cz header.b="I4/06b2l";
- dkim=neutral reason="invalid (unsupported algorithm ed25519-sha256)"
- header.d=suse.cz header.b="L3W4XRXz"
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ztCR4vShUzul
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id jYnCvfWL2ujF
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Jun 2022 23:09:36 +0000 (UTC)
+ Fri, 10 Jun 2022 05:44:47 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
- by smtp1.osuosl.org (Postfix) with ESMTPS id F41B883133
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id DA75340195
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Jun 2022 23:09:35 +0000 (UTC)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by smtp-out2.suse.de (Postfix) with ESMTPS id A49541FF09;
- Thu,  9 Jun 2022 23:09:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
- t=1654816172;
- h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
- cc:cc:mime-version:mime-version:content-type:content-type:
+ Fri, 10 Jun 2022 05:44:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1654839885;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=qJ6CI0mpfkDIaS/pnwJC/3BIuCFzValbcslJLDqCmdg=;
- b=I4/06b2ltiKrPbL7GgKqUfyrBDeCyX3UBUG59EJr4ULzJeSHMklpbChcFfJ1kbSeucBXix
- La6qOv94FBGz6zARxy9vvZ/rfr+o4fJAO1+4sOg84lO5ESeVeDRRH4GNx2iw82Lzfy4RBp
- n/81rXgBPEK2N99/Wl5n9BN9FjCnnSs=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
- s=susede2_ed25519; t=1654816172;
- h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
- cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=qJ6CI0mpfkDIaS/pnwJC/3BIuCFzValbcslJLDqCmdg=;
- b=L3W4XRXz86YAqVEeWGz5ZqCwllS9CYkUvRzkZLgLEjLQjJDb2qGw16RPUqD736ufsddkqi
- GP6X1OhCsdJk3BBQ==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 31C9113456;
- Thu,  9 Jun 2022 23:09:32 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
- by imap2.suse-dmz.suse.de with ESMTPSA id kuItC6x9omLpJgAAMHmgww
- (envelope-from <dsterba@suse.cz>); Thu, 09 Jun 2022 23:09:32 +0000
-Date: Fri, 10 Jun 2022 01:05:01 +0200
-From: David Sterba <dsterba@suse.cz>
-To: Matthew Wilcox <willy@infradead.org>
-Subject: Re: [PATCH v2 12/19] btrfs: Convert btrfs_migratepage to migrate_folio
-Message-ID: <20220609230501.GY20633@twin.jikos.cz>
-Mail-Followup-To: dsterba@suse.cz, Matthew Wilcox <willy@infradead.org>,
- linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-block@vger.kernel.org, linux-aio@kvack.org,
- linux-btrfs@vger.kernel.org, linux-ext4@vger.kernel.org,
- linux-f2fs-devel@lists.sourceforge.net, cluster-devel@redhat.com,
- linux-mm@kvack.org, linux-xfs@vger.kernel.org,
- linux-nfs@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net,
- ocfs2-devel@oss.oracle.com, linux-mtd@lists.infradead.org,
- virtualization@lists.linux-foundation.org,
- Christoph Hellwig <hch@lst.de>
-References: <20220608150249.3033815-1-willy@infradead.org>
- <20220608150249.3033815-13-willy@infradead.org>
- <20220609163323.GV20633@twin.jikos.cz>
- <YqIwjEO1a0Sbxbym@casper.infradead.org>
+ bh=ShE1FlsmSfqxYvr7PfIooFDqvA9+xWO6036Ml2D5cEU=;
+ b=QeXbnUzRGBBRuFEPYp6L46BUvSxvkUiRMIh1lJjAPlbcrlC78auJ4c6nO1X0fMp93qbMRM
+ Hs1M9iR8XMfSHzNjNHlvkNtpZHDJfbg6BlDJaqka4+iArQy5NCXsss5ezcc+Fk9MPs7X0k
+ QauBrz0sRwyniTlAsRh8BtY59hGo9VI=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-637-tbxvzeNRMdKQb49fH8v7KA-1; Fri, 10 Jun 2022 01:44:42 -0400
+X-MC-Unique: tbxvzeNRMdKQb49fH8v7KA-1
+Received: by mail-wm1-f70.google.com with SMTP id
+ k15-20020a7bc40f000000b0039c4b7f7d09so769803wmi.8
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 09 Jun 2022 22:44:42 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=ShE1FlsmSfqxYvr7PfIooFDqvA9+xWO6036Ml2D5cEU=;
+ b=TzmaA6Si1VL7Jh7bd4LLiiPrQjiMAbFAGpt7YwIepajqfJUjvZRWYwb7xmEMMftj0V
+ kt7EzWxctV0lJh8+NUi5y1lMM1yddoC1nmoiMUVvOTh79jl94KCfmzoCLHy+I/qLz9M/
+ ndykJ79sGuIBJb8cyOONHrfdacRb5EfoJx+4g44wkEzeumsEowPOtWKyc3xSN+sFBBgT
+ I8SGJth+3C5Va92an1FGZKqsdqWR00pVFkNnWH2BnI+jHGFeUx5UYRCrxk2KtkhpelAB
+ 96YMZtMCLnbODYnN9gwGApcoU7Y4Ke7+8TQMP4VYHu0acnbSMh4iUAstHrsQ3Igugtv0
+ miBg==
+X-Gm-Message-State: AOAM532gLGsLcjPi4S8HqZS2LFS15nj5z4e0SepPKSzC0zjK0w5DUAGc
+ G/pDYrFm3Djj5McZgBpNzpA6NHj11m9kak+QdvKng9DDcqYyv29YJGvwTGS0mExqy6f1zdubey3
+ 3Xn5ssEowkJlfsaRjSRWI0iiMhSICF/PglZVj0cLfFA==
+X-Received: by 2002:a5d:4d01:0:b0:219:e782:786e with SMTP id
+ z1-20020a5d4d01000000b00219e782786emr1109612wrt.29.1654839881185; 
+ Thu, 09 Jun 2022 22:44:41 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxEmWQHVgI7mLEv3SkzwqsG0Oxbqj8p8QyhoSd4ME6IUhU+HW5jSNN0aKke5wjImdfMPeuohQ==
+X-Received: by 2002:a5d:4d01:0:b0:219:e782:786e with SMTP id
+ z1-20020a5d4d01000000b00219e782786emr1109594wrt.29.1654839880990; 
+ Thu, 09 Jun 2022 22:44:40 -0700 (PDT)
+Received: from redhat.com ([212.116.178.142]) by smtp.gmail.com with ESMTPSA id
+ q9-20020a5d6589000000b00219e758ff4fsm666864wru.59.2022.06.09.22.44.38
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 09 Jun 2022 22:44:39 -0700 (PDT)
+Date: Fri, 10 Jun 2022 01:44:36 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Minghao Xue <quic_mingxue@quicinc.com>
+Subject: Re: [PATCH v2 1/2] dt-bindings: virtio: mmio: add optional
+ wakeup-source property
+Message-ID: <20220610014330-mutt-send-email-mst@kernel.org>
+References: <20220325015945.GA17578@mingxue-gv.qualcomm.com>
+ <20220328164228-mutt-send-email-mst@kernel.org>
+ <20220329074610.GA20342@mingxue-gv.qualcomm.com>
+ <a35529be-d9cb-9913-76aa-653faed87b54@linaro.org>
+ <20220519071958.GA24236@mingxue-gv.qualcomm.com>
 MIME-Version: 1.0
+In-Reply-To: <20220519071958.GA24236@mingxue-gv.qualcomm.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-In-Reply-To: <YqIwjEO1a0Sbxbym@casper.infradead.org>
-User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
-Cc: linux-aio@kvack.org, linux-nfs@vger.kernel.org,
- linux-f2fs-devel@lists.sourceforge.net, linux-ntfs-dev@lists.sourceforge.net,
- Christoph Hellwig <hch@lst.de>, dsterba@suse.cz, linux-kernel@vger.kernel.org,
- linux-block@vger.kernel.org, linux-mm@kvack.org, cluster-devel@redhat.com,
- linux-mtd@lists.infradead.org, ocfs2-devel@oss.oracle.com,
- linux-fsdevel@vger.kernel.org, linux-ext4@vger.kernel.org,
- virtualization@lists.linux-foundation.org, linux-xfs@vger.kernel.org,
- linux-btrfs@vger.kernel.org
+Cc: jean-philippe@linaro.org, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ krzysztof.kozlowski@linaro.org, robh+dt@kernel.org, quic_ztu@quicinc.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -116,49 +116,54 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Reply-To: dsterba@suse.cz
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Jun 09, 2022 at 06:40:28PM +0100, Matthew Wilcox wrote:
-> On Thu, Jun 09, 2022 at 06:33:23PM +0200, David Sterba wrote:
-> > On Wed, Jun 08, 2022 at 04:02:42PM +0100, Matthew Wilcox (Oracle) wrote:
-> > > Use filemap_migrate_folio() to do the bulk of the work, and then copy
-> > > the ordered flag across if needed.
+On Thu, May 19, 2022 at 03:23:02PM +0800, Minghao Xue wrote:
+> On Tue, Mar 29, 2022 at 09:59:31AM +0200, Krzysztof Kozlowski wrote:
+> > On 29/03/2022 09:46, Minghao Xue wrote:
+> > > On Mon, Mar 28, 2022 at 04:42:59PM -0400, Michael S. Tsirkin wrote:
+> > >> On Fri, Mar 25, 2022 at 09:59:45AM +0800, Minghao Xue wrote:
+> > >>> Some systems want to set the interrupt of virtio_mmio device
+> > >>> as a wakeup source. On such systems, we'll use the existence
+> > >>> of the "wakeup-source" property as a signal of requirement.
+> > >>>
+> > >>> Signed-off-by: Minghao Xue <quic_mingxue@quicinc.com>
+> > >>
+> > >> I don't have enough of a clue about dt to review this.
+> > >> Pls get some acks from people with DT expertise.
+> > >>
+> > > Hi Michael,
+> > > I had a discussion with Krzysztof on the first version of patch. And we've
+> > > got aligned. 
 > > > 
-> > > Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-> > > Reviewed-by: Christoph Hellwig <hch@lst.de>
 > > 
-> > Acked-by: David Sterba <dsterba@suse.com>
+> > I thought I reviewed this and provided an ack, but apparently I did not.
+> > Sorry for late response.
 > > 
-> > > +static int btrfs_migrate_folio(struct address_space *mapping,
-> > > +			     struct folio *dst, struct folio *src,
-> > >  			     enum migrate_mode mode)
-> > >  {
-> > > -	int ret;
-> > > +	int ret = filemap_migrate_folio(mapping, dst, src, mode);
-> > >  
-> > > -	ret = migrate_page_move_mapping(mapping, newpage, page, 0);
-> > >  	if (ret != MIGRATEPAGE_SUCCESS)
-> > >  		return ret;
-> > >  
-> > > -	if (page_has_private(page))
-> > > -		attach_page_private(newpage, detach_page_private(page));
+> > Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 > > 
-> > If I'm reading it correctly, the private pointer does not need to be set
-> > like that anymore because it's done somewhere during the
-> > filemap_migrate_folio() call.
+> > Best regards,
+> > Krzysztof
 > 
-> That's correct.  Everything except moving the ordered flag across is
-> done for you, and I'm kind of tempted to modify folio_migrate_flags()
-> to copy the ordered flag across as well.  Then you could just use
-> filemap_migrate_folio() directly.
+> Hi Michael and Jason,
+> As this patch has been reviewed by Krzysztof. Would you help upstream
+> these two patches? And is there any progress on it?
+> 
+> Regards,
+> Minghao
 
-Either way it works for me. If it would mean an unsafe change in folios
-or complicate other code I'm fine with the migration callback that
-does additional work for btrfs that could be changed later.
+Hi!
+Sorry about the delay - the issue with the patchset is it was not
+threaded correctly and so can not get handled properly by
+automated scripts. Can you please repost threading properly,
+preferably with a cover letter?
+
+-- 
+MST
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
