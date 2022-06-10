@@ -1,110 +1,79 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E15A1C433EF
-	for <virtualization@archiver.kernel.org>; Fri, 10 Jun 2022 05:44:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7F278C433EF
+	for <virtualization@archiver.kernel.org>; Fri, 10 Jun 2022 09:47:48 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 805146080A;
-	Fri, 10 Jun 2022 05:44:53 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id EC7E0842E3;
+	Fri, 10 Jun 2022 09:47:47 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id vxMsw6uuflJU; Fri, 10 Jun 2022 05:44:52 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 2E5AB60FAE;
-	Fri, 10 Jun 2022 05:44:52 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id XiRxqOsPb-NF; Fri, 10 Jun 2022 09:47:47 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id B53A2842D5;
+	Fri, 10 Jun 2022 09:47:46 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DDE5BC0039;
-	Fri, 10 Jun 2022 05:44:51 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 962AEC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 915B6C0039;
+	Fri, 10 Jun 2022 09:47:46 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2C3F3C002D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 10 Jun 2022 05:44:50 +0000 (UTC)
+ Fri, 10 Jun 2022 09:47:45 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 84722402A8
+ by smtp4.osuosl.org (Postfix) with ESMTP id 1539F419B1
  for <virtualization@lists.linux-foundation.org>;
- Fri, 10 Jun 2022 05:44:50 +0000 (UTC)
+ Fri, 10 Jun 2022 09:47:45 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id jYnCvfWL2ujF
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id VXGb5qVtSuCz
  for <virtualization@lists.linux-foundation.org>;
- Fri, 10 Jun 2022 05:44:47 +0000 (UTC)
+ Fri, 10 Jun 2022 09:47:44 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id DA75340195
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 1BCB541994
  for <virtualization@lists.linux-foundation.org>;
- Fri, 10 Jun 2022 05:44:46 +0000 (UTC)
+ Fri, 10 Jun 2022 09:47:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1654839885;
+ s=mimecast20190719; t=1654854462;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=ShE1FlsmSfqxYvr7PfIooFDqvA9+xWO6036Ml2D5cEU=;
- b=QeXbnUzRGBBRuFEPYp6L46BUvSxvkUiRMIh1lJjAPlbcrlC78auJ4c6nO1X0fMp93qbMRM
- Hs1M9iR8XMfSHzNjNHlvkNtpZHDJfbg6BlDJaqka4+iArQy5NCXsss5ezcc+Fk9MPs7X0k
- QauBrz0sRwyniTlAsRh8BtY59hGo9VI=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ to:to:cc:cc:mime-version:mime-version:
+ content-transfer-encoding:content-transfer-encoding;
+ bh=Iej305ZrS3cI+u8eOot8avD0go/WsD4iT9qMHnSK6K8=;
+ b=dX/MWqZKrD/f+pAA4XrZ45DAUOB469+x9OJkgG140EU8YsUzAjDdYC03InuLwHdSBwmNNW
+ A7Ge3U6ySIhNSOb6qepEJWwr/kqXMrEhEc++uHbT4+FWHoFPPHLuDt6+ied0p0tZ9fK9b3
+ qx970TCtde4Xr8m0rangs+XSH4Im/YY=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-637-tbxvzeNRMdKQb49fH8v7KA-1; Fri, 10 Jun 2022 01:44:42 -0400
-X-MC-Unique: tbxvzeNRMdKQb49fH8v7KA-1
-Received: by mail-wm1-f70.google.com with SMTP id
- k15-20020a7bc40f000000b0039c4b7f7d09so769803wmi.8
- for <virtualization@lists.linux-foundation.org>;
- Thu, 09 Jun 2022 22:44:42 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=ShE1FlsmSfqxYvr7PfIooFDqvA9+xWO6036Ml2D5cEU=;
- b=TzmaA6Si1VL7Jh7bd4LLiiPrQjiMAbFAGpt7YwIepajqfJUjvZRWYwb7xmEMMftj0V
- kt7EzWxctV0lJh8+NUi5y1lMM1yddoC1nmoiMUVvOTh79jl94KCfmzoCLHy+I/qLz9M/
- ndykJ79sGuIBJb8cyOONHrfdacRb5EfoJx+4g44wkEzeumsEowPOtWKyc3xSN+sFBBgT
- I8SGJth+3C5Va92an1FGZKqsdqWR00pVFkNnWH2BnI+jHGFeUx5UYRCrxk2KtkhpelAB
- 96YMZtMCLnbODYnN9gwGApcoU7Y4Ke7+8TQMP4VYHu0acnbSMh4iUAstHrsQ3Igugtv0
- miBg==
-X-Gm-Message-State: AOAM532gLGsLcjPi4S8HqZS2LFS15nj5z4e0SepPKSzC0zjK0w5DUAGc
- G/pDYrFm3Djj5McZgBpNzpA6NHj11m9kak+QdvKng9DDcqYyv29YJGvwTGS0mExqy6f1zdubey3
- 3Xn5ssEowkJlfsaRjSRWI0iiMhSICF/PglZVj0cLfFA==
-X-Received: by 2002:a5d:4d01:0:b0:219:e782:786e with SMTP id
- z1-20020a5d4d01000000b00219e782786emr1109612wrt.29.1654839881185; 
- Thu, 09 Jun 2022 22:44:41 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxEmWQHVgI7mLEv3SkzwqsG0Oxbqj8p8QyhoSd4ME6IUhU+HW5jSNN0aKke5wjImdfMPeuohQ==
-X-Received: by 2002:a5d:4d01:0:b0:219:e782:786e with SMTP id
- z1-20020a5d4d01000000b00219e782786emr1109594wrt.29.1654839880990; 
- Thu, 09 Jun 2022 22:44:40 -0700 (PDT)
-Received: from redhat.com ([212.116.178.142]) by smtp.gmail.com with ESMTPSA id
- q9-20020a5d6589000000b00219e758ff4fsm666864wru.59.2022.06.09.22.44.38
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 09 Jun 2022 22:44:39 -0700 (PDT)
-Date: Fri, 10 Jun 2022 01:44:36 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Minghao Xue <quic_mingxue@quicinc.com>
-Subject: Re: [PATCH v2 1/2] dt-bindings: virtio: mmio: add optional
- wakeup-source property
-Message-ID: <20220610014330-mutt-send-email-mst@kernel.org>
-References: <20220325015945.GA17578@mingxue-gv.qualcomm.com>
- <20220328164228-mutt-send-email-mst@kernel.org>
- <20220329074610.GA20342@mingxue-gv.qualcomm.com>
- <a35529be-d9cb-9913-76aa-653faed87b54@linaro.org>
- <20220519071958.GA24236@mingxue-gv.qualcomm.com>
+ us-mta-424-CD6ZHAqePD205X0fXSOnrQ-1; Fri, 10 Jun 2022 05:47:41 -0400
+X-MC-Unique: CD6ZHAqePD205X0fXSOnrQ-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.5])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id C9E8D801E67;
+ Fri, 10 Jun 2022 09:47:40 +0000 (UTC)
+Received: from t480s.redhat.com (unknown [10.39.193.213])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 2B05818EA7;
+ Fri, 10 Jun 2022 09:47:38 +0000 (UTC)
+From: David Hildenbrand <david@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH v1] drivers/virtio: Clarify CONFIG_VIRTIO_MEM for unsupported
+ architectures
+Date: Fri, 10 Jun 2022 11:47:37 +0200
+Message-Id: <20220610094737.65254-1-david@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20220519071958.GA24236@mingxue-gv.qualcomm.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: jean-philippe@linaro.org, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- krzysztof.kozlowski@linaro.org, robh+dt@kernel.org, quic_ztu@quicinc.com
+X-Scanned-By: MIMEDefang 2.79 on 10.11.54.5
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -121,48 +90,39 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, May 19, 2022 at 03:23:02PM +0800, Minghao Xue wrote:
-> On Tue, Mar 29, 2022 at 09:59:31AM +0200, Krzysztof Kozlowski wrote:
-> > On 29/03/2022 09:46, Minghao Xue wrote:
-> > > On Mon, Mar 28, 2022 at 04:42:59PM -0400, Michael S. Tsirkin wrote:
-> > >> On Fri, Mar 25, 2022 at 09:59:45AM +0800, Minghao Xue wrote:
-> > >>> Some systems want to set the interrupt of virtio_mmio device
-> > >>> as a wakeup source. On such systems, we'll use the existence
-> > >>> of the "wakeup-source" property as a signal of requirement.
-> > >>>
-> > >>> Signed-off-by: Minghao Xue <quic_mingxue@quicinc.com>
-> > >>
-> > >> I don't have enough of a clue about dt to review this.
-> > >> Pls get some acks from people with DT expertise.
-> > >>
-> > > Hi Michael,
-> > > I had a discussion with Krzysztof on the first version of patch. And we've
-> > > got aligned. 
-> > > 
-> > 
-> > I thought I reviewed this and provided an ack, but apparently I did not.
-> > Sorry for late response.
-> > 
-> > Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-> > 
-> > Best regards,
-> > Krzysztof
-> 
-> Hi Michael and Jason,
-> As this patch has been reviewed by Krzysztof. Would you help upstream
-> these two patches? And is there any progress on it?
-> 
-> Regards,
-> Minghao
+Let's make it clearer that simply unlocking CONFIG_VIRTIO_MEM on an
+architecture is most probably not sufficient to have it working as
+expected.
 
-Hi!
-Sorry about the delay - the issue with the patchset is it was not
-threaded correctly and so can not get handled properly by
-automated scripts. Can you please repost threading properly,
-preferably with a cover letter?
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Gavin Shan <gshan@redhat.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
+---
+ drivers/virtio/Kconfig | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
+diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
+index b5adf6abd241..f86b6a988b63 100644
+--- a/drivers/virtio/Kconfig
++++ b/drivers/virtio/Kconfig
+@@ -115,9 +115,11 @@ config VIRTIO_MEM
+ 	 This driver provides access to virtio-mem paravirtualized memory
+ 	 devices, allowing to hotplug and hotunplug memory.
+ 
+-	 This driver was only tested under x86-64 and arm64, but should
+-	 theoretically work on all architectures that support memory hotplug
+-	 and hotremove.
++	 This driver currently only supports x86-64 and arm64. Although it
++	 should compile on other architectures that implement memory
++	 hot(un)plug, architecture-specific and/or common
++	 code changes may be required for virtio-mem, kdump and kexec to work as
++	 expected.
+ 
+ 	 If unsure, say M.
+ 
 -- 
-MST
+2.35.3
 
 _______________________________________________
 Virtualization mailing list
