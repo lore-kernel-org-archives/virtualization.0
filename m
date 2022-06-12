@@ -1,110 +1,124 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1D674C43334
-	for <virtualization@archiver.kernel.org>; Sun, 12 Jun 2022 14:13:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 050F1C43334
+	for <virtualization@archiver.kernel.org>; Sun, 12 Jun 2022 18:02:32 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 7D60C4108F;
-	Sun, 12 Jun 2022 14:13:41 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 85E5541797;
+	Sun, 12 Jun 2022 18:02:32 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id O3gWd271JEEs; Sun, 12 Jun 2022 14:13:40 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 2rTn0t4SB_FV; Sun, 12 Jun 2022 18:02:31 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id E34714019A;
-	Sun, 12 Jun 2022 14:13:39 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id D68E2417A7;
+	Sun, 12 Jun 2022 18:02:30 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B6AD3C0032;
-	Sun, 12 Jun 2022 14:13:39 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A7D19C0039;
+	Sun, 12 Jun 2022 18:02:30 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8C443C002D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 319A9C002D
  for <virtualization@lists.linux-foundation.org>;
- Sun, 12 Jun 2022 14:13:38 +0000 (UTC)
+ Sun, 12 Jun 2022 18:02:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 757C68132F
+ by smtp1.osuosl.org (Postfix) with ESMTP id 18A0B83E03
  for <virtualization@lists.linux-foundation.org>;
- Sun, 12 Jun 2022 14:13:38 +0000 (UTC)
+ Sun, 12 Jun 2022 18:02:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
+ dkim=pass (2048-bit key) header.d=nvidia.com
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 8-5ruYHA9S4M
+ with ESMTP id bJMXcI5ZV0d5
  for <virtualization@lists.linux-foundation.org>;
- Sun, 12 Jun 2022 14:13:37 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 214BB81327
+ Sun, 12 Jun 2022 18:02:27 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from NAM04-BN8-obe.outbound.protection.outlook.com
+ (mail-bn8nam04on20619.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:7e8d::619])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id A93F28329D
  for <virtualization@lists.linux-foundation.org>;
- Sun, 12 Jun 2022 14:13:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1655043215;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=uY/1FXsx9O5koHqCs/XSCktrCHMDbUDFOPZy1ri1C3c=;
- b=UaFPlh0DCiLu9r/nN9LQWoc2i9YvVutsnHDo8xj1Q74HyR5j3SIkQ/cSTx4DaSy7eDSdOk
- WNH0tnl5byaQ0CxlpwvPTCTAuRlv4gNY3spxejfuAhsJIb2JiScdNG6tZmFkWJZolXVwXz
- pFmUk7qQamMBXzetdCOk7eCNhypgaGk=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-146-bJj38UbrNQmGkZL82Q5jjg-1; Sun, 12 Jun 2022 10:13:34 -0400
-X-MC-Unique: bJj38UbrNQmGkZL82Q5jjg-1
-Received: by mail-wm1-f69.google.com with SMTP id
- o23-20020a05600c511700b0039743cd8093so1634979wms.6
- for <virtualization@lists.linux-foundation.org>;
- Sun, 12 Jun 2022 07:13:34 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:content-transfer-encoding
- :in-reply-to;
- bh=uY/1FXsx9O5koHqCs/XSCktrCHMDbUDFOPZy1ri1C3c=;
- b=kq2oOogsp8ibd391YpY9FppTspFfzVeE/qA7CJz3C1NWMR7VK5TSEaKBTwVUU8nuub
- yisimnmVmVtAYwguTy9wsYUXN7MKBL++0kfqLEpLSYXPzMLOPwxumT66VedsUxwneQcX
- GsJq811Oll1yJ+sC3A+nfK5SeNV18KxB7dRqvCvjWh1nSTLMsAVfSspRgYQm7VClwoS2
- l5YzxJRrZPwTUM3i8oOxBPOv69ipEXG8jicZ97ULzRGzJoo4nj3eH31izhL6TvLB7nWS
- gjRuuFjpjz51uPRNBhY8XuzekUEhzb3pX8cY46+vzkvEdDK36HBjlezRIUEtuHC4pAN/
- O1Cw==
-X-Gm-Message-State: AOAM5322YJqVRTXFbOQwii3vM8BPhId8YtLrN9fUSUa6r1CP+EyjzrKp
- PisMqbF/sRlDiQeaJaWvVuAGzXp0btcHzKtyG26slbguaHN49XPJJOSff2o+ITgiEnkhQb2lCgk
- 5VkvUS3rF8tcG29PoPm3vQywGIE9CRso3usqwHaG8NA==
-X-Received: by 2002:a05:600c:4ca7:b0:39c:422a:fc6f with SMTP id
- g39-20020a05600c4ca700b0039c422afc6fmr9744689wmp.55.1655043213115; 
- Sun, 12 Jun 2022 07:13:33 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzJzi2V2qnwgQB063G1Yn3kDLjmdIoCmF8eMxiSLWTAUUu3mFWcKLdDx/hgB0Qpl1DNx5gLFA==
-X-Received: by 2002:a05:600c:4ca7:b0:39c:422a:fc6f with SMTP id
- g39-20020a05600c4ca700b0039c422afc6fmr9744666wmp.55.1655043212819; 
- Sun, 12 Jun 2022 07:13:32 -0700 (PDT)
-Received: from redhat.com ([2.55.40.97]) by smtp.gmail.com with ESMTPSA id
- d9-20020a5d6449000000b002101ed6e70fsm5704709wrw.37.2022.06.12.07.13.31
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sun, 12 Jun 2022 07:13:32 -0700 (PDT)
-Date: Sun, 12 Jun 2022 10:13:29 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: =?utf-8?B?6buE5p2w?= <huangjie.albert@bytedance.com>
-Subject: Re: [External] Re: [PATCH] virtio_ring : fix vring_packed_desc
- memory out of bounds bug
-Message-ID: <20220612100945-mutt-send-email-mst@kernel.org>
-References: <20220610103314.61577-1-huangjie.albert@bytedance.com>
- <20220610103905-mutt-send-email-mst@kernel.org>
- <CABKxMyPTLJ0bbxb23C_aeucVEP8MYNiFz1y9d8eGA4Bvdyey3g@mail.gmail.com>
- <20220610203449-mutt-send-email-mst@kernel.org>
- <CABKxMyOYrjUDvWggK=rnBZcRuaO9x=wHWq15MgAQz5_Fbtypxg@mail.gmail.com>
+ Sun, 12 Jun 2022 18:02:27 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=nCJ9a+GwWxEMqh+rTSfStom4KNI9viVW4+Zym2QZLlJ6hstgjeidUw4cScqWVW8HBRFP4uXBNjPnbpwugjKaVrQycMFOUEdviOP4MQCT0Fmy1DHTPS9IDFc1tSDwIX/nrmOe/+gW9FSFRJI4lbLK/CtX9PLc7ukaSBH5z78Cx/LPfdOY0jnOoJN5WqP10IKd41AymCfrygForFb43lAWJvONWZY8kNxvgah0shj+318MgvK5/0ElPXka/Rvni1Nv+AgiwXyJTX1bQNvcFvT3mRUfbMp+2y6h29kUs8WZN/UY35f0ksVWz868qoYvRUC94Q6HQ22Wjf7v8pkk/AqA8g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=grqvNznNv+2WGJmi4q2wCXJRN77Iez7ewfUaf6YfrPI=;
+ b=JXZbG5QzNt6lo1CDWeJLNDtC8Vp8GzOdnqarh6aye/ljM/qfqNcwuQ2Xf8jSWrkbzFJSvYRTymQtwUvZ6vVNkTYiFEY83iPfo5C01ji5XGp6v3kJdXbb+KQhBdvuoV8cUsh/HwY8eAYM61yIf/ZNWdioE7pv1Re+KDLg39UfZTT827pon288jlY0PvuGTr8CGUX8C1KlsZLW2mtTRICmUV9nLXD5hLKTQE1i5r0yE6UjZ3OWIYocH7JbryZ8CXPM9r56bCEOjizuIk3BI3pFP+nuiB7ss5XMfTmngVvT2wGMWZLCTH85dxmTcujcDDCptkscYzWRu61A45rufvZCQg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 12.22.5.234) smtp.rcpttodomain=bytedance.com smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=grqvNznNv+2WGJmi4q2wCXJRN77Iez7ewfUaf6YfrPI=;
+ b=rXBM+QI7JUdwahBSAJLS0JdicqFycicr/QhtOLZMdbmdthhqPnVAhFI4QSM8Gjn9aLGbtuYjS6rni4XzaKPBkflQ6U0Ue0+6zLmxU2kEdSGWVjxsWCckq6pTFobUHXXXp2Sgk70aW0kXDrnxJf33k+ksVhVLq2rX554jCFvs8n2a857RIGh8ANa84UsudEuuv9MGrDLBu45mEGUAC8Sh8gyk/5Ef8yXABQQszcsnERVg9FA3X4I3U3pwKjivKTqG4CLf/k+IzaurJMjJ5Cyg6f//jy+Q/JeheLkg+H7ZHHs3DYdBFjjV6Yod2zhx/rJ0OBwYsZ0HG84N2Fm6sLJfGg==
+Received: from BN8PR04CA0032.namprd04.prod.outlook.com (2603:10b6:408:70::45)
+ by BY5PR12MB5016.namprd12.prod.outlook.com (2603:10b6:a03:1c5::20)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5332.12; Sun, 12 Jun
+ 2022 18:02:23 +0000
+Received: from BN8NAM11FT006.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:408:70:cafe::cc) by BN8PR04CA0032.outlook.office365.com
+ (2603:10b6:408:70::45) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5332.15 via Frontend
+ Transport; Sun, 12 Jun 2022 18:02:23 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 12.22.5.234)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 12.22.5.234 as permitted sender) receiver=protection.outlook.com;
+ client-ip=12.22.5.234; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (12.22.5.234) by
+ BN8NAM11FT006.mail.protection.outlook.com (10.13.177.21) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.5332.12 via Frontend Transport; Sun, 12 Jun 2022 18:02:23 +0000
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by DRHQMAIL101.nvidia.com
+ (10.27.9.10) with Microsoft SMTP Server (TLS) id 15.0.1497.32;
+ Sun, 12 Jun 2022 18:02:22 +0000
+Received: from sw-mtx-036.mtx.labs.mlnx (10.126.230.35) by
+ rnnvmail201.nvidia.com (10.129.68.8) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.986.22; Sun, 12 Jun 2022 11:02:21 -0700
+To: <virtualization@lists.linux-foundation.org>, <mst@redhat.com>,
+ <jasowang@redhat.com>
+Subject: [PATCH] vduse: Tie vduse mgmtdev and its device
+Date: Sun, 12 Jun 2022 21:01:58 +0300
+Message-ID: <20220612180158.462192-1-parav@nvidia.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-In-Reply-To: <CABKxMyOYrjUDvWggK=rnBZcRuaO9x=wHWq15MgAQz5_Fbtypxg@mail.gmail.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: yuanzhu@bytedance.com, virtualization@lists.linux-foundation.org
+X-Originating-IP: [10.126.230.35]
+X-ClientProxiedBy: rnnvmail203.nvidia.com (10.129.68.9) To
+ rnnvmail201.nvidia.com (10.129.68.8)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: a0bf5c07-2ca7-49e8-83e4-08da4c9db39b
+X-MS-TrafficTypeDiagnostic: BY5PR12MB5016:EE_
+X-Microsoft-Antispam-PRVS: <BY5PR12MB501618011B61C41AE7177AB9DCA89@BY5PR12MB5016.namprd12.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 36tDYMv7J7StkhYk/n+G4GIidxnJayby+R31hCg8jZ/+Q0qf45QE+b36znTfYv4VV64UThhoBgtLDNhHKmkH2nteFGuZxPpr3w0o//fNt5DINhgXnLsq7OGFzEMIbT0QEfBH6ems9otQ/MY/U65mV/o2zFulpLAhpVGCI7FuI5cu//7viM52t7Bjx722Fs5fCcJwr2FQFkUTDw9VnUyo6dLYDRmmlugUMrTzkULJ3kwf1jha9SDnaRwIkYYvPMx+EhXOe/8Uh7zGvWXj/eU0q2T7L4tynF2dCDnSZZwFAFgfpjEpTkIpwq/brkIC0L7sq/5SZm6fXSKi/0IUU/1PfgEIpYT9X/h7jjpJeQKLxxX2PsgVx4WGPFgmzgKpE5WMB77tbxmR+OV7SjF1VVeEWngKjc+yjpIyYwgHk0wHsKyvbsSc6JKm5WDSB0Uz1fKRTjVViEL31ubcH/1/DbYgH3l/nFHgJR7C3FmzuhznKlaSasValbCZDM2gQfmuZzSYj/TPbRT8iUhKtp386Ty1zpatsmqtkqnMm4rXZKD5wda20cMI+KZ6WS0xdcjP8dAiHwkCbwN376cWGJsbI7JdsE2YDtSbZPlOlhS1CnayEDXMY65Kz7FbYgvCowdn3/WnM6s8wlYA+mfLxMKccJMX0i5xMXERyRaDi2FSgOQ02ADdAfs610uYw75v1sitS5Nllpnajn4wYMuFufoj9DKUq5DtWfQlZ4sWAdx2awHPQ0/XYxgJE2IdJ7ViuOqvFLi1tEahbQrMvK9ROt3ev3UldILHLTGtJNpUUvBtknfhxkM=
+X-Forefront-Antispam-Report: CIP:12.22.5.234; CTRY:US; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:mail.nvidia.com; PTR:InfoNoRecords; CAT:NONE;
+ SFS:(13230016)(4636009)(36840700001)(40470700004)(46966006)(1076003)(426003)(47076005)(336012)(40460700003)(16526019)(186003)(81166007)(83380400001)(82310400005)(356005)(36860700001)(6666004)(86362001)(8676002)(26005)(110136005)(54906003)(316002)(70586007)(966005)(508600001)(70206006)(2616005)(2906002)(107886003)(4326008)(5660300002)(8936002)(36756003)(36900700001);
+ DIR:OUT; SFP:1101; 
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Jun 2022 18:02:23.1361 (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: a0bf5c07-2ca7-49e8-83e4-08da4c9db39b
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a; Ip=[12.22.5.234];
+ Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT006.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR12MB5016
+Cc: xieyongji@bytedance.com, lingshan.zhu@intel.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -116,101 +130,135 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Parav Pandit via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Parav Pandit <parav@nvidia.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gU3VuLCBKdW4gMTIsIDIwMjIgYXQgMDc6MDI6MjVQTSArMDgwMCwg6buE5p2wIHdyb3RlOgo+
-IE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+IOS6jjIwMjLlubQ25pyIMTHml6Xl
-kajlha0gMDg6MzXlhpnpgZPvvJoKPiA+Cj4gPiBPbiBTYXQsIEp1biAxMSwgMjAyMiBhdCAxMjoz
-ODoxMEFNICswODAwLCDpu4TmnbAgd3JvdGU6Cj4gPiA+ID4gVGhpcyBwYXR0ZXJuIHdhcyBhbHdh
-eXMgaWZmeSwgYnV0IEkgZG9uJ3QgdGhpbmsgdGhlIHBhdGNoCj4gPiA+ID4gaW1wcm92ZXMgdGhl
-IHNpdHVhdGlvbiBtdWNoLiBsYXN0X3VzZWRfaWR4IGFuZCB2cS0+cGFja2VkLnVzZWRfd3JhcF9j
-b3VudGVyCj4gPiA+ID4gY2FuIHN0aWxsIGdldCBvdXQgb2Ygc3luYy4KPiA+ID4KPiA+ID4gWWVz
-77yMIFlvdSBhcmUgYWJzb2x1dGVseSBjb3JyZWN0LCB0aGFua3MgZm9yIHBvaW50aW5nIG91dCB0
-aGlzIGlzc3VlLCBJCj4gPiA+IGRpZG4ndCB0YWtlIHRoYXQgaW50byBjb25zaWRlcmF0aW9uLAo+
-ID4gPiBob3cgYWJvdXQgZGlzYWJsaW5nIGludGVycnVwdHMgYmVmb3JlIHRoaXMgY29kZSBiZWxv
-dzoKPiA+ID4KPiA+ID4gPiB2cS0+bGFzdF91c2VkX2lkeCArPSB2cS0+cGFja2VkLmRlc2Nfc3Rh
-dGVbaWRdLm51bTsKPiA+ID4gPiBpZiAodW5saWtlbHkodnEtPmxhc3RfdXNlZF9pZHggPj0gdnEt
-PnBhY2tlZC52cmluZy5udW0pKSB7Cj4gPiA+ID4gICAgICAgICAgdnEtPmxhc3RfdXNlZF9pZHgg
-LT0gdnEtPnBhY2tlZC52cmluZy5udW07Cj4gPiA+ID4gICAgICAgICAgdnEtPnBhY2tlZC51c2Vk
-X3dyYXBfY291bnRlciBePSAxOwo+ID4gPiA+IH0KPiA+ID4KPiA+ID4gaXQgc2VlbXMgdG8gYmUg
-ZmluZSB0byBqdXN0IHR1cm4gb2ZmIHRoZSBpbnRlcnJ1cHRzIG9mIHRoZSBjdXJyZW50IHZyaW5n
-Lgo+ID4gPgo+ID4gPiBCUgo+ID4KPiA+IFRoYXQgd291bGQgbWFrZSBkYXRhcGF0aCBzaWduaWZp
-Y2FudGx5IHNsb3dlci4KPiA+Cj4gPiA+Cj4gPiA+IE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0QHJl
-ZGhhdC5jb20+IOS6jjIwMjLlubQ25pyIMTDml6XlkajkupQgMjI6NTDlhpnpgZPvvJoKPiA+ID4g
-Pgo+ID4gPiA+IE9uIEZyaSwgSnVuIDEwLCAyMDIyIGF0IDA2OjMzOjE0UE0gKzA4MDAsIGh1YW5n
-amllLmFsYmVydCB3cm90ZToKPiA+ID4gPiA+IGtzb2Z0aXJxZCBtYXkgY29uc3VtZSB0aGUgcGFj
-a2V0IGFuZCBpdCB3aWxsIGNhbGw6Cj4gPiA+ID4gPiB2aXJ0bmV0X3BvbGwKPiA+ID4gPiA+ICAg
-ICAgIC0tPnZpcnRuZXRfcmVjZWl2ZQo+ID4gPiA+ID4gICAgICAgICAgICAgICAtLT52aXJ0cXVl
-dWVfZ2V0X2J1Zl9jdHgKPiA+ID4gPiA+ICAgICAgICAgICAgICAgICAgICAgICAtLT52aXJ0cXVl
-dWVfZ2V0X2J1Zl9jdHhfcGFja2VkCj4gPiA+ID4gPiBhbmQgaW4gdmlydHF1ZXVlX2dldF9idWZf
-Y3R4X3BhY2tlZDoKPiA+ID4gPiA+Cj4gPiA+ID4gPiB2cS0+bGFzdF91c2VkX2lkeCArPSB2cS0+
-cGFja2VkLmRlc2Nfc3RhdGVbaWRdLm51bTsKPiA+ID4gPiA+IGlmICh1bmxpa2VseSh2cS0+bGFz
-dF91c2VkX2lkeCA+PSB2cS0+cGFja2VkLnZyaW5nLm51bSkpIHsKPiA+ID4gPiA+ICAgICAgICAg
-IHZxLT5sYXN0X3VzZWRfaWR4IC09IHZxLT5wYWNrZWQudnJpbmcubnVtOwo+ID4gPiA+ID4gICAg
-ICAgICAgdnEtPnBhY2tlZC51c2VkX3dyYXBfY291bnRlciBePSAxOwo+ID4gPiA+ID4gfQo+ID4g
-PiA+ID4KPiA+ID4gPiA+IGlmIGF0IHRoZSBzYW1lIHRpbWUsIHRoZXJlIGNvbWVzIGEgdnJpbmcg
-aW50ZXJydXB077yMaW4gdnJpbmdfaW50ZXJydXB0Ogo+ID4gPiA+ID4gd2Ugd2lsbCBjYWxsOgo+
-ID4gPiA+ID4gdnJpbmdfaW50ZXJydXB0Cj4gPiA+ID4gPiAgICAgICAtLT5tb3JlX3VzZWQKPiA+
-ID4gPiA+ICAgICAgICAgICAgICAgLS0+bW9yZV91c2VkX3BhY2tlZAo+ID4gPiA+ID4gICAgICAg
-ICAgICAgICAgICAgICAgIC0tPmlzX3VzZWRfZGVzY19wYWNrZWQKPiA+ID4gPiA+IGluIGlzX3Vz
-ZWRfZGVzY19wYWNrZWQsIHRoZSBsYXN0X3VzZWRfaWR4IG1heWJlID49IHZxLT5wYWNrZWQudnJp
-bmcubnVtLgo+ID4gPiA+ID4gc28gdGhpcyBjb3VsZCBjYXNlIGEgbWVtb3J5IG91dCBvZiBib3Vu
-ZHMgYnVnLgo+ID4gPiA+ID4KPiA+ID4gPiA+IHRoaXMgcGF0Y2ggaXMgdG8gZml4IHRoaXMuCj4g
-PiA+ID4gPgo+ID4gPiA+ID4gU2lnbmVkLW9mZi1ieTogaHVhbmdqaWUuYWxiZXJ0IDxodWFuZ2pp
-ZS5hbGJlcnRAYnl0ZWRhbmNlLmNvbT4KPiA+ID4gPgo+ID4gPiA+Cj4gPiA+ID4gVGhpcyBwYXR0
-ZXJuIHdhcyBhbHdheXMgaWZmeSwgYnV0IEkgZG9uJ3QgdGhpbmsgdGhlIHBhdGNoCj4gPiA+ID4g
-aW1wcm92ZXMgdGhlIHNpdHVhdGlvbiBtdWNoLiBsYXN0X3VzZWRfaWR4IGFuZCB2cS0+cGFja2Vk
-LnVzZWRfd3JhcF9jb3VudGVyCj4gPiA+ID4gY2FuIHN0aWxsIGdldCBvdXQgb2Ygc3luYy4KPiA+
-ID4gPgo+ID4gPiA+IE1heWJlIHJlZmFjdG9yIGNvZGUgdG8ga2VlcCBldmVyeXRoaW5nIGluIHZx
-LT5sYXN0X3VzZWRfaWR4Pwo+ID4gPiA+Cj4gPiA+ID4gSmFzb24gd2hhdCBpcyB5b3VyIHRha2U/
-Cj4gPiA+ID4KPiA+ID4gPgo+ID4gPiA+ID4gLS0tCj4gPiA+ID4gPiAgZHJpdmVycy92aXJ0aW8v
-dmlydGlvX3JpbmcuYyB8IDMgKysrCj4gPiA+ID4gPiAgMSBmaWxlIGNoYW5nZWQsIDMgaW5zZXJ0
-aW9ucygrKQo+ID4gPiA+ID4KPiA+ID4gPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZpcnRpby92
-aXJ0aW9fcmluZy5jIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYwo+ID4gPiA+ID4gaW5k
-ZXggMTNhNzM0OGNlZGZmLi5kMmFiYmIzYTgxODcgMTAwNjQ0Cj4gPiA+ID4gPiAtLS0gYS9kcml2
-ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jCj4gPiA+ID4gPiArKysgYi9kcml2ZXJzL3ZpcnRpby92
-aXJ0aW9fcmluZy5jCj4gPiA+ID4gPiBAQCAtMTM5Nyw2ICsxMzk3LDkgQEAgc3RhdGljIGlubGlu
-ZSBib29sIGlzX3VzZWRfZGVzY19wYWNrZWQoY29uc3Qgc3RydWN0IHZyaW5nX3ZpcnRxdWV1ZSAq
-dnEsCj4gPiA+ID4gPiAgICAgICBib29sIGF2YWlsLCB1c2VkOwo+ID4gPiA+ID4gICAgICAgdTE2
-IGZsYWdzOwo+ID4gPiA+ID4KPiA+ID4gPiA+ICsgICAgIGlmIChpZHggPj0gdnEtPnBhY2tlZC52
-cmluZy5udW0pCj4gPiA+ID4gPiArICAgICAgICAgICAgIHJldHVybiBmYWxzZTsKPiA+ID4gPiA+
-ICsKPiA+ID4gPiA+ICAgICAgIGZsYWdzID0gbGUxNl90b19jcHUodnEtPnBhY2tlZC52cmluZy5k
-ZXNjW2lkeF0uZmxhZ3MpOwo+ID4gPiA+ID4gICAgICAgYXZhaWwgPSAhIShmbGFncyAmICgxIDw8
-IFZSSU5HX1BBQ0tFRF9ERVNDX0ZfQVZBSUwpKTsKPiA+ID4gPiA+ICAgICAgIHVzZWQgPSAhIShm
-bGFncyAmICgxIDw8IFZSSU5HX1BBQ0tFRF9ERVNDX0ZfVVNFRCkpOwo+ID4gPiA+ID4gLS0KPiA+
-ID4gPiA+IDIuMjcuMAo+ID4gPiA+Cj4gPgo+IAo+IE1pY2hhZWwgUyAsIHRoYW5rcyBmb3IgeW91
-ciBjb3JyZWN0aW9uLCB0aGVyZSBtYXkgYmUgYW5vdGhlciBzaW1wbGUKPiBzb2x1dGlvbiBoZXJl
-Ogo+IAo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jIGIvZHJpdmVy
-cy92aXJ0aW8vdmlydGlvX3JpbmcuYwo+IGluZGV4IDEzYTczNDhjZWRmZi4uNGRiNGRiMTlmOTRh
-IDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMKPiArKysgYi9kcml2
-ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jCj4gQEAgLTEzOTcsNiArMTM5Nyw5IEBAIHN0YXRpYyBp
-bmxpbmUgYm9vbCBpc191c2VkX2Rlc2NfcGFja2VkKGNvbnN0Cj4gc3RydWN0IHZyaW5nX3ZpcnRx
-dWV1ZSAqdnEsCj4gICAgICAgICBib29sIGF2YWlsLCB1c2VkOwo+ICAgICAgICAgdTE2IGZsYWdz
-Owo+IAo+ICsgICAgICAgaWYgKGlkeCA+PSB2cS0+cGFja2VkLnZyaW5nLm51bSkKPiArICAgICAg
-ICAgICAgICAgcmV0dXJuIGZhbHNlOwo+ICsKPiAgICAgICAgIGZsYWdzID0gbGUxNl90b19jcHUo
-dnEtPnBhY2tlZC52cmluZy5kZXNjW2lkeF0uZmxhZ3MpOwo+ICAgICAgICAgYXZhaWwgPSAhIShm
-bGFncyAmICgxIDw8IFZSSU5HX1BBQ0tFRF9ERVNDX0ZfQVZBSUwpKTsKPiAgICAgICAgIHVzZWQg
-PSAhIShmbGFncyAmICgxIDw8IFZSSU5HX1BBQ0tFRF9ERVNDX0ZfVVNFRCkpOwo+IEBAIC0xNDUz
-LDggKzE0NTYsOSBAQCBzdGF0aWMgdm9pZCAqdmlydHF1ZXVlX2dldF9idWZfY3R4X3BhY2tlZChz
-dHJ1Y3QKPiB2aXJ0cXVldWUgKl92cSwKPiAKPiAgICAgICAgIHZxLT5sYXN0X3VzZWRfaWR4ICs9
-IHZxLT5wYWNrZWQuZGVzY19zdGF0ZVtpZF0ubnVtOwo+ICAgICAgICAgaWYgKHVubGlrZWx5KHZx
-LT5sYXN0X3VzZWRfaWR4ID49IHZxLT5wYWNrZWQudnJpbmcubnVtKSkgewo+IC0gICAgICAgICAg
-ICAgICB2cS0+bGFzdF91c2VkX2lkeCAtPSB2cS0+cGFja2VkLnZyaW5nLm51bTsKPiAgICAgICAg
-ICAgICAgICAgdnEtPnBhY2tlZC51c2VkX3dyYXBfY291bnRlciBePSAxOwo+ICsgICAgICAgICAg
-ICAgICBiYXJyaWVyKCk7Cj4gKyAgICAgICAgICAgICAgIHZxLT5sYXN0X3VzZWRfaWR4IC09IHZx
-LT5wYWNrZWQudnJpbmcubnVtOwo+ICAgICAgICAgfQo+IAo+ICAgICAgICAgLyoKPiAKPiB2cS0+
-cGFja2VkLnVzZWRfd3JhcF9jb3VudGVyICBhbmQgIHZxLT5sYXN0X3VzZWRfaWR4IG9ubHkgaW5j
-cmVhc2VkCj4gYnkgdGhlIHZpcnRxdWV1ZV9nZXRfYnVmX2N0eF9wYWNrZWQsIGFuZAo+IHNvIHdl
-IGNhbiBhZGQgYSBtZW1vcnkgYmFycmllciBhbmQgQ2hhbmdpbmcgdGhlIG9yZGVyIGluIHdoaWNo
-Cj4gbGFzdF91c2VkX2lkeCAgYW5kIHVzZWRfd3JhcF9jb3VudGVyICBhcmUgYXNzaWduZWQKPiBz
-aG91bGQgdGVtcG9yYXJpbHkgc29sdmUgdGhlIHByb2JsZW0uIEJ1dCBhcyB5b3Ugc2FpZCwgdGhl
-IGNvZGUgbWF5Cj4gbmVlZCB0byBiZSByZWZhY3RvcmVkIHRvIGZ1bGx5IGFkZHJlc3MgdGhlc2Ug
-a2luZHMgb2YgaXNzdWVzLgo+IAo+IEJSCgp0aGlzIG1pZ2h0IHNvbHZlIHRoZSBPT0IgYWNjZXNz
-IGJ1dCBub3QgdGhlIHByb2JsZW0gdGhhdCBpbnRlcnJ1cHQKbWlnaHQgdXNlIGFuIGluY29ycmVj
-dCB2YWx1ZSB0byBjaGVjayBmb3IgdGhlIHVzZWQgaW5kZXguCgpfX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QK
-VmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5s
-aW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+vduse devices are not backed by any real devices such as PCI. Hence it
+doesn't have any parent device linked to it.
+
+Kernel driver model in [1] suggests to avoid an empty device
+release callback.
+
+Hence tie the mgmtdevice object's life cycle to an allocate dummy struct
+device instead of static one.
+
+[1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/core-api/kobject.rst?h=v5.18-rc7#n284
+
+Signed-off-by: Parav Pandit <parav@nvidia.com>
+---
+ drivers/vdpa/vdpa_user/vduse_dev.c | 60 ++++++++++++++++++------------
+ 1 file changed, 37 insertions(+), 23 deletions(-)
+
+diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
+index f85d1a08ed87..ebe272575fb8 100644
+--- a/drivers/vdpa/vdpa_user/vduse_dev.c
++++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+@@ -1475,16 +1475,12 @@ static char *vduse_devnode(struct device *dev, umode_t *mode)
+ 	return kasprintf(GFP_KERNEL, "vduse/%s", dev_name(dev));
+ }
+ 
+-static void vduse_mgmtdev_release(struct device *dev)
+-{
+-}
+-
+-static struct device vduse_mgmtdev = {
+-	.init_name = "vduse",
+-	.release = vduse_mgmtdev_release,
++struct vduse_mgmt_dev {
++	struct vdpa_mgmt_dev mgmt_dev;
++	struct device dev;
+ };
+ 
+-static struct vdpa_mgmt_dev mgmt_dev;
++static struct vduse_mgmt_dev *vduse_mgmt;
+ 
+ static int vduse_dev_init_vdpa(struct vduse_dev *dev, const char *name)
+ {
+@@ -1509,7 +1505,7 @@ static int vduse_dev_init_vdpa(struct vduse_dev *dev, const char *name)
+ 	}
+ 	set_dma_ops(&vdev->vdpa.dev, &vduse_dev_dma_ops);
+ 	vdev->vdpa.dma_dev = &vdev->vdpa.dev;
+-	vdev->vdpa.mdev = &mgmt_dev;
++	vdev->vdpa.mdev = &vduse_mgmt->mgmt_dev;
+ 
+ 	return 0;
+ }
+@@ -1555,34 +1551,52 @@ static struct virtio_device_id id_table[] = {
+ 	{ 0 },
+ };
+ 
+-static struct vdpa_mgmt_dev mgmt_dev = {
+-	.device = &vduse_mgmtdev,
+-	.id_table = id_table,
+-	.ops = &vdpa_dev_mgmtdev_ops,
+-};
++static void vduse_mgmtdev_release(struct device *dev)
++{
++	struct vduse_mgmt_dev *mgmt_dev;
++
++	mgmt_dev = container_of(dev, struct vduse_mgmt_dev, dev);
++	kfree(mgmt_dev);
++}
+ 
+ static int vduse_mgmtdev_init(void)
+ {
+ 	int ret;
+ 
+-	ret = device_register(&vduse_mgmtdev);
+-	if (ret)
++	vduse_mgmt = kzalloc(sizeof(*vduse_mgmt), GFP_KERNEL);
++	if (!vduse_mgmt)
++		return -ENOMEM;
++
++	ret = dev_set_name(&vduse_mgmt->dev, "vduse-la");
++	if (ret) {
++		kfree(vduse_mgmt);
+ 		return ret;
++	}
+ 
+-	ret = vdpa_mgmtdev_register(&mgmt_dev);
++	vduse_mgmt->dev.release = vduse_mgmtdev_release;
++
++	ret = device_register(&vduse_mgmt->dev);
+ 	if (ret)
+-		goto err;
++		goto dev_reg_err;
+ 
+-	return 0;
+-err:
+-	device_unregister(&vduse_mgmtdev);
++	vduse_mgmt->mgmt_dev.id_table = id_table;
++	vduse_mgmt->mgmt_dev.ops = &vdpa_dev_mgmtdev_ops;
++	vduse_mgmt->mgmt_dev.device = &vduse_mgmt->dev;
++	ret = vdpa_mgmtdev_register(&vduse_mgmt->mgmt_dev);
++	if (ret)
++		device_unregister(&vduse_mgmt->dev);
++
++	return ret;
++
++dev_reg_err:
++	put_device(&vduse_mgmt->dev);
+ 	return ret;
+ }
+ 
+ static void vduse_mgmtdev_exit(void)
+ {
+-	vdpa_mgmtdev_unregister(&mgmt_dev);
+-	device_unregister(&vduse_mgmtdev);
++	vdpa_mgmtdev_unregister(&vduse_mgmt->mgmt_dev);
++	device_unregister(&vduse_mgmt->dev);
+ }
+ 
+ static int vduse_init(void)
+-- 
+2.26.2
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
