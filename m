@@ -1,162 +1,106 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A88E4CCA473
-	for <virtualization@archiver.kernel.org>; Sun, 12 Jun 2022 18:08:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 31404C43334
+	for <virtualization@archiver.kernel.org>; Mon, 13 Jun 2022 05:27:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 3D14E60E8A;
-	Sun, 12 Jun 2022 18:08:10 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id BF5D6408B2;
+	Mon, 13 Jun 2022 05:27:20 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id OCiCKxj5bXc1; Sun, 12 Jun 2022 18:08:09 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id B582260B45;
-	Sun, 12 Jun 2022 18:08:08 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 921D0C0039;
-	Sun, 12 Jun 2022 18:08:08 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 21795C002D
- for <virtualization@lists.linux-foundation.org>;
- Sun, 12 Jun 2022 18:08:07 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 01DC9400DA
- for <virtualization@lists.linux-foundation.org>;
- Sun, 12 Jun 2022 18:08:07 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=nvidia.com
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id L_CriOAINdvn
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 3UzawTl99WwS; Mon, 13 Jun 2022 05:27:19 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 2414140194;
+	Mon, 13 Jun 2022 05:27:19 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CC3B4C0039;
+	Mon, 13 Jun 2022 05:27:18 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id EC97EC002D
  for <virtualization@lists.linux-foundation.org>;
- Sun, 12 Jun 2022 18:08:06 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from NAM10-DM6-obe.outbound.protection.outlook.com
- (mail-dm6nam10on20626.outbound.protection.outlook.com
- [IPv6:2a01:111:f400:7e88::626])
- by smtp2.osuosl.org (Postfix) with ESMTPS id F17CD400D2
+ Mon, 13 Jun 2022 05:27:17 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp4.osuosl.org (Postfix) with ESMTP id D2659415DD
  for <virtualization@lists.linux-foundation.org>;
- Sun, 12 Jun 2022 18:08:05 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=BdUezFz9mIe7GaZ2bFuZHtlBgxNwm4bWFtuKruHqnMUw3QKL0D8DZFEhXVvFmoIkC8V05dj6EgSi1lr3UwaLwmWBfq6bpE9hzjIk/02QVW3fP5Fp1kOh6uSwhILXeIVCQz4wZj8xiCC6j4xDyHB37AaQnIKEzWzilC8uVR6UViAZUemb+kmgRyVEXvoPBRlIPKuz6GBAtUcVbb4Awdmfhj+aFLWvEqc5XUQd/GCkm4nFgexXewoIhp3SOLr9XhdivxUQKapG0tMBkU4cENSv5lfihGlr9TfMo2DigwEK/RxPSWDoeXt1MeWaK/VCocfIz77v29VvhbyXWdqkREssxg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=iVyJVaAirM1Whq7sz1bBmYq/C/JFmkQ7RkzL+tToFzA=;
- b=lR9FUkGbNx3muJpSYpoJ/8YbXG10MD036rrWRX5bVxQeGi61/mvbBrIkPKHbAzUCxVdp7TusGcbNeRsyWkTuLBs/QD1ynoQ87MXHIYk0abd54nw7taRLojYctTIXLgH/a6vO4bFkJdmsF/pmyEWuUYp1eD1iHB1Ca+8rwRTS1FHCvNkKKncEppCtk7L527UadGIuVunoJIJ+TXMR+xpfK8JAlZvAnaRxHjUi0CMewZjmJSwkvnhim0pC2Cf3Cz7DAIs+Kt0Mqeed/vR323fMrIQJ84mrq3nPwtAei6dk8GYUR7mk9SCS9MtUE55fTL9TWyyDvPRAorT/7/3/azPTog==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=iVyJVaAirM1Whq7sz1bBmYq/C/JFmkQ7RkzL+tToFzA=;
- b=JjepXGOB5osSXxVVQNTUFADICxmKiSR50ax1n3lpWKcgd29B344CAgQBjUD4Vc3z6xsJAxZEdgrOy8O+6hv1HTDi0rl54UjdpvoWlQO0r2yze1K4EOPsvzHhv9NBYUtBbSFX+1ZHCHUbVu0ZtHi/RlHQ8MkH3mBLJ1CovTINYlhEX7gNtZrUGPPhWyVcGDJvuM5eMWM0ftieWiuvDxgeLkiMCgFlrDlrh2A4KSUXLhyG9ff8wZV/Ufn+GtFt4fhX6ywlQnN9wbOlU1LuHj4CFFaXLevmNBBMeF4UMmsPupVjlgfh/IqcE9EmAik4II/cSVq9PDOHwuUQ94fDcu1J6w==
-Received: from PH0PR12MB5481.namprd12.prod.outlook.com (2603:10b6:510:d4::15)
- by DM4PR12MB6350.namprd12.prod.outlook.com (2603:10b6:8:a3::17) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5332.19; Sun, 12 Jun
- 2022 18:08:02 +0000
-Received: from PH0PR12MB5481.namprd12.prod.outlook.com
- ([fe80::8c53:1666:6a81:943e]) by PH0PR12MB5481.namprd12.prod.outlook.com
- ([fe80::8c53:1666:6a81:943e%3]) with mapi id 15.20.5332.019; Sun, 12 Jun 2022
- 18:08:02 +0000
-To: Jason Wang <jasowang@redhat.com>
-Subject: RE: [PATCH] vdpa: allow vdpa dev_del management operation to return
- failure
-Thread-Topic: [PATCH] vdpa: allow vdpa dev_del management operation to return
- failure
-Thread-Index: AQHYdzWCFlBft4OJgU6WbdwBNZYD461FMSUAgAAlyoCAAAMLQIABWhYAgAVqxWA=
-Date: Sun, 12 Jun 2022 18:08:02 +0000
-Message-ID: <PH0PR12MB54810E6652F03788A4975BE6DCA89@PH0PR12MB5481.namprd12.prod.outlook.com>
-References: <20220603103356.26564-1-gautam.dawar@amd.com>
- <CACGkMEs38ycmAaDc48_rt5BeBHq4tzKH39gj=KczYFQC16ns5Q@mail.gmail.com>
- <DM4PR12MB5841EB20B82969B6D67638AF99A49@DM4PR12MB5841.namprd12.prod.outlook.com>
- <PH0PR12MB54814B1D6E884E50E5C26786DCA49@PH0PR12MB5481.namprd12.prod.outlook.com>
- <CACGkMEsdMzLb+JtdZ7vTmMb=jU7PpM5GaJT1uD6t_tty46x2OA@mail.gmail.com>
-In-Reply-To: <CACGkMEsdMzLb+JtdZ7vTmMb=jU7PpM5GaJT1uD6t_tty46x2OA@mail.gmail.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 9eee9864-c990-4be4-3720-08da4c9e7db5
-x-ms-traffictypediagnostic: DM4PR12MB6350:EE_
-x-microsoft-antispam-prvs: <DM4PR12MB63509952B0AE9EA0579E4D02DCA89@DM4PR12MB6350.namprd12.prod.outlook.com>
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: cnBWgFR9e3mK+6xQccUvIquiJMkEOCdzNFpAxKo9L09D46M31APx7PclHZqKW32uA4nP6mQZP19YLbALB3Q6PFCJ5T9rRsbi6HRt8nN7O40BWvKP4e5429VGnvCLqK1n/pdG7IARuJPcCyxPsW6l7bJFhRORlfyqQr2etnr8IRcHo3RuqCOcWReSl7ycnY1Nb7QreK/eFBeUAbRYURoUnilu5oCp/yQMQe4Wu1RtHBv/WpE/nkAadLAIom8l6goMi9Q4yz+C8rPE0Q1PsVB94CCZfZKloyWA4Spmmr+uLfn7C02iyI4x/gwGRWF8WojlfZWQSjSsCuZmWuw0NQbbRIeUcF1PR+bxiSUQ8hrstKGBup+cX9hxtoPmqtsKT/gWIkuTEMA1fSwxyS4QK7Z2WdRGPdaptFsIo66VIWWBLx5FGIzkr3WTMA5yUq37QUBYzEnvZbecM6h3gO/aeDnkv7TdRqdErpxqhJ9F4PH6n8tCiLaU4TW8GBiBNNSNNQnGS4ExIV81kzNXxMNjuyArnqOXVHKf4Q6Dn9hG5UUVfQC6cMI4V9MclFPWEqOgSAtgVq1eYTt3tu54n4T4fyn9JoU0eTe7I/3+MhGeOMnNec/t+8LU34uU/plV1YN9/6X3P5++hPEV9ZgWzscSWRZKo8TiqO+qGzK4SLarlaRT/+5J4a2Wgkuf+fk4HLt20xxtglB+Q5fLkO4B4O25+Yxul5xQ0kgWWfQShBdBxPQa1JDBdpNpt9Doe0+xbXajP3G5krcPFj2xnqL+L6ImkFzOzaGBiGji/a/YD7560XDJpLM=
-x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:PH0PR12MB5481.namprd12.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230016)(4636009)(366004)(38100700002)(26005)(9686003)(5660300002)(7696005)(6506007)(33656002)(2906002)(7416002)(52536014)(55016003)(8936002)(66946007)(76116006)(71200400001)(122000001)(508600001)(8676002)(86362001)(4326008)(66476007)(66556008)(64756008)(66446008)(38070700005)(83380400001)(966005)(186003)(6916009)(54906003)(316002);
- DIR:OUT; SFP:1101; 
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?utf-8?B?QS9SUVdDZjlPN3lZRjNKMzhwcDNJdERlRVZ0RkxQU25IdjlGekVIUnFVL2FP?=
- =?utf-8?B?KzExYjFIekRPazNKalJiUW9pV2J1Nk1qNnpkcmtZc1FoRTFwVmg2K1d6WExO?=
- =?utf-8?B?cHAweXpuaUpkSzNhRTNQUWNOMko4aVcwMVpTNk5HNzZwTVNLb1BVN0xML2lJ?=
- =?utf-8?B?L0pINkZjMURDazdTYi9jSDREWXh4U25JZThkcmFlRmFpSkJiK3ErU3M2WDRt?=
- =?utf-8?B?SVZBK2hLWS9SYTZRVElWczZ4WmZtS0VCS2F5bktjd0ltbkJzdWJNL1pETS9Y?=
- =?utf-8?B?SkRwQ2YxRUMyUlRMcWNlQ00wOHU3bW0rWG1kVTAwTGMvc2YvRGI5ZDc0b1c4?=
- =?utf-8?B?SS9Nb3hRdjJUNklTSjBmMExmMTNBQVhuOGdYcVhiL1VtQXRaaThXTWozeVdP?=
- =?utf-8?B?TzVrNy96dEhkdFBVdy9XVzJ3b3lubVVpckxsVEtuOVlFOWhIamE1UlRETmZv?=
- =?utf-8?B?SFgybmVvK3E1OFlMb2tEOS94aVpxWVlTT2NYNENYa0cvWUNjTHJsalFvWnd5?=
- =?utf-8?B?VWFVa2J4bTJBS01ZUWpaQWJkQ3NxVmo4aEtPbzlqaytYTHMvTEpuaVRJMHI3?=
- =?utf-8?B?Slg5eURXQUlNcXNiSkh1NWdEblBxckxPUFNLTS9wc1B1cWZEZnhuSzZ2dlZl?=
- =?utf-8?B?NXJaSVRDTXVPdko1dWxRS0x4OEVNU3UrZHdaMVc5Tk5CZEZYTU1jV1ZDUmZk?=
- =?utf-8?B?V0l6SmpnMFFTMmJWTStaMVQ3OHdZcEdOM2Z1eVR1ZnhLSDk5cmRJa25wR2Q0?=
- =?utf-8?B?VlJobXRxalpGbFp3TEFWSVFXTG5vRlY5dzViV3JsOEdhSHY2SS9oS0Vzbk82?=
- =?utf-8?B?MlBDNi9tNEN5WkRieTV4ZFdpcnVvQ3BXZ0FxU1hvL2xXNmVtZUgrc2FZSTVV?=
- =?utf-8?B?ZG1sc1JkOGNVNEFvZVpnY3N4Vm5rSEtGZ2k4ZVlOZFF2OVhKWjdPSmZKQzdP?=
- =?utf-8?B?Rm9jYk9PWkdsSk04aEZPMUxKOVVlR1hqUmtuaDcrSFFJbHZVSFRUcXZvdGt6?=
- =?utf-8?B?bG8xL1lvazIvWkxjZmxSZWZmK1NFcFFMb2tBb2V6dlllY2pwNWsyRVhDaVFa?=
- =?utf-8?B?NEJLMHBYenQrSXM3SzB3K3hzV1BJMXZwa1Z5YUdnUmFsd3RBM1duZVpvcHpX?=
- =?utf-8?B?azMxRHJia3ozN0l6T0NkRkRzajFNNWRGa1NHTW45dHJoVUVpeHdVc3E4bTl2?=
- =?utf-8?B?SXJKSXB2cjBkWm04OHVQMW9nSEJhdHJUUjU4dlZhU3J1Z0JUWUY0R0xJYlVz?=
- =?utf-8?B?N2JWNEdNT21jc1RYSkRkU2JiQTVuVGRwcjFJbGFPV01xRnFVeWRzT3VlUVcv?=
- =?utf-8?B?QnEvVHlyQWpKWEpHTmdDaytvVTlHL1ZrY1BTSUdZc0c1Vm9Ta0xEZk0xUE1H?=
- =?utf-8?B?MVJWNlVpUHFCenBnMHNEM1N4NHpkNE1wRkwwajdya0pVaTU5TUpQUG9pQXh6?=
- =?utf-8?B?TEk5cFV2cW9hRkhFUzlsdmNhdVF6VStVU2VzNnFTckxxVEQyOFlzYmRKZk5q?=
- =?utf-8?B?MUREaEVGYVhZaWJSbDlyMXhpbWlDa3RLWlpYdXdpeWM4MnozYXAyZ250TVMr?=
- =?utf-8?B?aTFBckxnN0pOZ3RxTTd2SlNCUDRGeUIzWGh3QnllMlREcXdHWVN6ajZpVlRC?=
- =?utf-8?B?M3B5TGJYeFU1THlxV1VDUUFNS2g1c3FZdmo3R0IrcXFMcE9mb1dzVHlObEI3?=
- =?utf-8?B?c0ltR1VvTkkvSmt5U2hyWDVGNWJzRHNJcmFJeURvMHBtRjJQRnJDVFFPWFBl?=
- =?utf-8?B?TWdFV0IwNzJWM08ycDR3ZDNMS29DN1FySDkxQ1BySlpqcFZEenBiTnBCZHA2?=
- =?utf-8?B?d0RQaWlCWmhUNDBnY1hBY08vZW85T0ZHbDhUS0x6VFVqcFBIdVF4OHNYRm1N?=
- =?utf-8?B?YWxWdEp0d0M0ZElibUw5K2FCL051Sm0vaGpGazgzNVk4VHlvYzAyZHFkVDJC?=
- =?utf-8?B?TnZFcmY5ek5ybnZ3SEtMMFphaFNTeVJZZkN2RnVuSXpYTG1jYkNOY1NXdlRv?=
- =?utf-8?B?S0lJRTV3SnduRWYzbHl4elNuMWVtWGpSN0JERjlISnBlM21TTU5tbzYzSDJT?=
- =?utf-8?B?aDNYZ2ttcTVJaUhnSWJFY3hDalUrYUZibDhsTHpNblhtTWs3WWtsUVY2ZEEv?=
- =?utf-8?B?N2ZQb2lMN2RGV0RsVjFnclhkNDgxdHVaQ1NQU0xqMjZoM3NiUmpsbThWZ01B?=
- =?utf-8?B?eWU0bFNtQnFnbWtVYjdrc0QzWU5tUW0xVFlkT0YvQXRRZklsdzI2c1RnUzVp?=
- =?utf-8?B?MXNMMzVCSmNGSlJxeitPcTE0ZlpkaG5hZE5sMEprbHB0QTNkeEcyM3FzdDZH?=
- =?utf-8?Q?8NYii942dTXq30nUFz?=
+ Mon, 13 Jun 2022 05:27:17 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 66UfQ5jdQ8cJ
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 13 Jun 2022 05:27:16 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 15493415DA
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 13 Jun 2022 05:27:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1655098034;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=IL4VED6YmG0etJ0q08o0zkJsamndtz5NfelOHtzFlL0=;
+ b=Xo4vBQpMbnjlXt9g24H9vqLldl4R7sK3e2K4Gln+7xAHxu2klLO3CegO4g0n/1Qkwy4+0+
+ +RtgVaIxmN2lOvdQNViL92ggnp1QOwgeSyUJ4MTNl1l4uQZ+2tNz2NwlHGxJmtwKIidBKs
+ zVL70cN3+Xy2fEp2ROmhCvggAKJPYaQ=
+Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com
+ [209.85.208.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-140-G78PHHMGMmCHbzN0eOk0Fg-1; Mon, 13 Jun 2022 01:27:12 -0400
+X-MC-Unique: G78PHHMGMmCHbzN0eOk0Fg-1
+Received: by mail-lj1-f200.google.com with SMTP id
+ u9-20020a2e91c9000000b0025569a92731so386858ljg.3
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 12 Jun 2022 22:27:12 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=IL4VED6YmG0etJ0q08o0zkJsamndtz5NfelOHtzFlL0=;
+ b=J0VlVK/OQMhQZX+oP/nv4M3JRGcz9L2qeJdPt+llm0fupx22kVAneN7TLEo2X2Az8v
+ wd3DcAa377ZQoQKQLBwm+Xfn7SRz13U+ARX/J96Cqxu2mlNMinfObtCstGGGdqTrv0gU
+ IxoJA/6NE8XEBQM2WmSp8OWzoCTTldRhFRJ2+XGj+tcy0jbeoLbWJPmtWwrkCQZNZFBA
+ DQy2Ij3c/VYFgyf3LirJ3GHVnF8CRo0Zn+mcLjHCWNX/F2rcHTVz7BKNXwxWrWiQqbIJ
+ UKAcSYtMraRPw2uaDkIXyA/tAIugaqJzOo56HLwpj23qW+b/SRGQm0M6ZvJhmwA7ZdeY
+ Z5pw==
+X-Gm-Message-State: AOAM532/2RTHi1wdRiVcW1EvNJzgs6+DnFWMbJ2Q8crNJwKvvLWFUd1B
+ yPWaEp5cSnXREA8QzSJd4HBaoWRB6H35YWRdyr2i1a42eOceUDUvdpjcinmxNcJp8skRjmq53oV
+ fKw5ArmFcR5W009ZtNHdXJQh07Feg7dn7apHQQRRZJihoWlqjbetcAhk2ig==
+X-Received: by 2002:a05:6512:13a5:b0:47d:c1d9:dea8 with SMTP id
+ p37-20020a05651213a500b0047dc1d9dea8mr6054152lfa.442.1655098031007; 
+ Sun, 12 Jun 2022 22:27:11 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyrjsUIFndhLZ+ji5u0Oc//Oq8SKHIyK4PKaIhDleqMoDxCdG5Si3MDbzSXElfeanurs80dUc4XDYmMZ/DV+r8=
+X-Received: by 2002:a05:6512:13a5:b0:47d:c1d9:dea8 with SMTP id
+ p37-20020a05651213a500b0047dc1d9dea8mr6054138lfa.442.1655098030791; Sun, 12
+ Jun 2022 22:27:10 -0700 (PDT)
 MIME-Version: 1.0
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB5481.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 9eee9864-c990-4be4-3720-08da4c9e7db5
-X-MS-Exchange-CrossTenant-originalarrivaltime: 12 Jun 2022 18:08:02.3293 (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: q6o2aNX6VhaGM74MmXSZA9ueUMh/fzk8QOEbzQMZ0ASPQCjdLQk/QI81T1dEsHGj88Ljng2vSSwouQM0W1ANfg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB6350
-Cc: Wan Jiabing <wanjiabing@vivo.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- "linux-net-drivers \(AMD-Xilinx\)" <linux-net-drivers@amd.com>, "Dawar,
- Gautam" <gautam.dawar@amd.com>, "Anand, 
- Harpreet" <harpreet.anand@amd.com>, linux-kernel <linux-kernel@vger.kernel.org>,
+References: <20220527060120.20964-1-jasowang@redhat.com>
+ <20220527060120.20964-9-jasowang@redhat.com>
+ <20220611010747-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20220611010747-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 13 Jun 2022 13:26:59 +0800
+Message-ID: <CACGkMEtRP+0Xy63g0SF_y1avv=3rFv6P9+Z7kp9XBS5d+_py8w@mail.gmail.com>
+Subject: Re: [PATCH V6 8/9] virtio: harden vring IRQ
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: Peter Oberparleiter <oberpar@linux.ibm.com>, Cindy Lu <lulu@redhat.com>,
+ "Paul E. McKenney" <paulmck@kernel.org>, linux-s390@vger.kernel.org,
+ Peter Zijlstra <peterz@infradead.org>, Marc Zyngier <maz@kernel.org>,
+ Cornelia Huck <cohuck@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>,
  virtualization <virtualization@lists.linux-foundation.org>,
- Xie Yongji <xieyongji@bytedance.com>, netdev <netdev@vger.kernel.org>,
- Zhu Lingshan <lingshan.zhu@intel.com>, Eli Cohen <elic@nvidia.com>,
- Dan Carpenter <dan.carpenter@oracle.com>
+ Halil Pasic <pasic@linux.ibm.com>, eperezma <eperezma@redhat.com>,
+ Vineeth Vijayan <vneethv@linux.ibm.com>, Thomas Gleixner <tglx@linutronix.de>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -168,43 +112,246 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Parav Pandit via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Parav Pandit <parav@nvidia.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-DQoNCj4gRnJvbTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4NCj4gU2VudDogVGh1
-cnNkYXksIEp1bmUgOSwgMjAyMiAzOjE5IEFNDQoNClsuLl0NCg0KPiA+ID4gVGhpcyBpcyB0byBh
-dm9pZCBzaWRlLWVmZmVjdHMgYXMgbm90ZWQgaW4NCj4gPiA+IGh0dHBzOi8vYnVnemlsbGEua2Vy
-bmVsLm9yZy9zaG93X2J1Zy5jZ2k/aWQ9MjEzMTc5IGNhdXNlZCBieQ0KPiA+ID4gZGVsZXRpbmcg
-dGhlIHZkcGEgZGV2aWNlIHdoZW4gaXQgaXMgYmVpbmcgdXNlZC4NCj4gPiA+ID4NCj4gPiBVc2Vy
-IHNob3VsZCBiZSBhYmxlIHRvIGRlbGV0ZSB0aGUgZGV2aWNlIGFueXRpbWUuDQo+IA0KPiBJdCBy
-ZXF1aXJlcyBhIHBvbGwgZXZlbnQgdG8gdXNlciBzcGFjZSBhbmQgdGhlbiBRZW11IGNhbiByZWxl
-YXNlIHRoZSB2aG9zdC0NCj4gdkRQQSBkZXZpY2UuIFRoaXMgaXMgaG93IFZGSU8gd29ya3MuIFdl
-IHByb2JhYmx5IG5lZWQgdG8gaW1wbGVtZW50DQo+IHNvbWV0aGluZyBsaWtlIHRoaXMuDQo+IA0K
-WWVzLCBJIHJlbWVtYmVyIGhhbmcgd2l0aCBlaXRoZXIgdmZpbyBvciB2ZmlvLW1kZXYuDQoNCj4g
-QnV0IG5vdGljZSB0aGF0LCBhdCB0aGUgd29yc3QgY2FzZSwgdXNlcnNhcGNlIG1heSBub3QgcmVz
-cG9uZCB0byB0aGlzIGV2ZW50LA0KPiBzbyB0aGVyZSdzIG5vdGhpbmcgbW9yZSBrZW5yZWwgY2Fu
-IGRvIGV4ZWNwdCBmb3Igd2FpdGluZy4NCj4gDQo+IFdlIG5lZWQgdG8gY29uc2lkZXIgc29tZXRo
-aW5nIGRpZmZlcmVudC4gSSB1c2VkIHRvIGhhdmUgYW4gaWRlYSB0byBtYWtlDQo+IHZob3N0LXZk
-cGEgY291cGxlIHdpdGggdkRQQSBsb29zZWx5IHdpdGggU1JDVS9SQ1UuIFdlIG1pZ2h0IGNvbnNp
-ZGVyDQo+IGltcGxlbWVudGluZyB0aGF0Lg0KPg0KUmlnaHQuIEl0IG5lZWRzIGEgZGlmZmVyZW50
-IHNvbHV0aW9uLiBBcyB5b3UgZGVzY3JpYmVkLCB2aG9zdC12ZHBhIGNhbm5vdCByZWx5IG9uIHRo
-ZSB1c2VyIHNwYWNlIGludm9sdmVtZW50IGluIGZyZWVpbmcuDQpSZG1hIHV2ZXJicyBkb2VzIHRo
-YXQgZm9yIGRldmljZSByZW1vdmFsIGNhc2VzIHRvIGRldGFjaCB0aGUgdXNlciBzcGFjZSBpb2N0
-bCgpIGNvbnRleHQgd2l0aCBsb3cgbGV2ZWwgZGV2aWNlLg0KDQo+ID4gVXBwZXIgbGF5ZXJzIHdo
-byBhcmUgdW5hYmxlIHRvIHBlcmZvcm0gdGVhcmRvd24gc2VxdWVuY2Ugc2hvdWxkIGJlDQo+IGZp
-eGVkLg0KPiANCj4gSSB0aGluayB3ZSBwcm9iYWJseSBkb24ndCBuZWVkIHRvIGJvdGhlciB3aXRo
-IGZhaWxpbmcgdGhlIGRldl9kZWwoKS4NCj4gV2UgY2FuIGNvbnNpZGVyIHRvIGZpeC93b3JrYXJv
-dW5kIHRoZSB3YWl0aW5nIGZpcnN0Lg0KPiANCkxldHMgZml4IGl0IGFzIHlvdSBoaW50ZWQgd2l0
-aCBTL1JDVS4NCldlIGRvbuKAmXQgbmVlZCB0byBhZGQgVUFQSSBmb3IgdGhlIGZpeC4NClVBUEkg
-YW55d2F5IGRvZXNu4oCZdCB3b3JrLCB3aGVuIGRyaXZlci9zeXN0ZW0gbGV2ZWwgZXZlbnQgb2Nj
-dXJzIHN1Y2ggYXMgZGV2aWNlIGZhdGFsIGVycm9yLCBzcmlvdiBkaXNhYmxlbWVudCwgc2YgcmVt
-b3ZhbCBhbmQgbW9yZS4NClZob3N0LXZkcGEgc2hvdWxkIGJlIGFibGUgdG8gZGV0YWNoIGl0IGZy
-b20gdGhlIHVuZGVybHlpbmcgZGV2aWNlLg0KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0
-aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0
-aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Sat, Jun 11, 2022 at 1:12 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+>
+> On Fri, May 27, 2022 at 02:01:19PM +0800, Jason Wang wrote:
+> > This is a rework on the previous IRQ hardening that is done for
+> > virtio-pci where several drawbacks were found and were reverted:
+> >
+> > 1) try to use IRQF_NO_AUTOEN which is not friendly to affinity managed IRQ
+> >    that is used by some device such as virtio-blk
+> > 2) done only for PCI transport
+> >
+> > The vq->broken is re-used in this patch for implementing the IRQ
+> > hardening. The vq->broken is set to true during both initialization
+> > and reset. And the vq->broken is set to false in
+> > virtio_device_ready(). Then vring_interrupt() can check and return
+> > when vq->broken is true. And in this case, switch to return IRQ_NONE
+> > to let the interrupt core aware of such invalid interrupt to prevent
+> > IRQ storm.
+> >
+> > The reason of using a per queue variable instead of a per device one
+> > is that we may need it for per queue reset hardening in the future.
+> >
+> > Note that the hardening is only done for vring interrupt since the
+> > config interrupt hardening is already done in commit 22b7050a024d7
+> > ("virtio: defer config changed notifications"). But the method that is
+> > used by config interrupt can't be reused by the vring interrupt
+> > handler because it uses spinlock to do the synchronization which is
+> > expensive.
+> >
+> > Cc: Thomas Gleixner <tglx@linutronix.de>
+> > Cc: Peter Zijlstra <peterz@infradead.org>
+> > Cc: "Paul E. McKenney" <paulmck@kernel.org>
+> > Cc: Marc Zyngier <maz@kernel.org>
+> > Cc: Halil Pasic <pasic@linux.ibm.com>
+> > Cc: Cornelia Huck <cohuck@redhat.com>
+> > Cc: Vineeth Vijayan <vneethv@linux.ibm.com>
+> > Cc: Peter Oberparleiter <oberpar@linux.ibm.com>
+> > Cc: linux-s390@vger.kernel.org
+> > Signed-off-by: Jason Wang <jasowang@redhat.com>
+>
+>
+> Jason, I am really concerned by all the fallout.
+> I propose adding a flag to suppress the hardening -
+> this will be a debugging aid and a work around for
+> users if we find more buggy drivers.
+>
+> suppress_interrupt_hardening ?
+
+I can post a patch but I'm afraid if we disable it by default, it
+won't be used by the users so there's no way for us to receive the bug
+report. Or we need a plan to enable it by default.
+
+It's rc2, how about waiting for 1 and 2 rc? Or it looks better if we
+simply warn instead of disable it by default.
+
+Thanks
+
+>
+>
+> > ---
+> >  drivers/s390/virtio/virtio_ccw.c       |  4 ++++
+> >  drivers/virtio/virtio.c                | 15 ++++++++++++---
+> >  drivers/virtio/virtio_mmio.c           |  5 +++++
+> >  drivers/virtio/virtio_pci_modern_dev.c |  5 +++++
+> >  drivers/virtio/virtio_ring.c           | 11 +++++++----
+> >  include/linux/virtio_config.h          | 20 ++++++++++++++++++++
+> >  6 files changed, 53 insertions(+), 7 deletions(-)
+> >
+> > diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+> > index c188e4f20ca3..97e51c34e6cf 100644
+> > --- a/drivers/s390/virtio/virtio_ccw.c
+> > +++ b/drivers/s390/virtio/virtio_ccw.c
+> > @@ -971,6 +971,10 @@ static void virtio_ccw_set_status(struct virtio_device *vdev, u8 status)
+> >       ccw->flags = 0;
+> >       ccw->count = sizeof(status);
+> >       ccw->cda = (__u32)(unsigned long)&vcdev->dma_area->status;
+> > +     /* We use ssch for setting the status which is a serializing
+> > +      * instruction that guarantees the memory writes have
+> > +      * completed before ssch.
+> > +      */
+> >       ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_STATUS);
+> >       /* Write failed? We assume status is unchanged. */
+> >       if (ret)
+> > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> > index aa1eb5132767..95fac4c97c8b 100644
+> > --- a/drivers/virtio/virtio.c
+> > +++ b/drivers/virtio/virtio.c
+> > @@ -220,6 +220,15 @@ static int virtio_features_ok(struct virtio_device *dev)
+> >   * */
+> >  void virtio_reset_device(struct virtio_device *dev)
+> >  {
+> > +     /*
+> > +      * The below virtio_synchronize_cbs() guarantees that any
+> > +      * interrupt for this line arriving after
+> > +      * virtio_synchronize_vqs() has completed is guaranteed to see
+> > +      * vq->broken as true.
+> > +      */
+> > +     virtio_break_device(dev);
+>
+> So make this conditional
+>
+> > +     virtio_synchronize_cbs(dev);
+> > +
+> >       dev->config->reset(dev);
+> >  }
+> >  EXPORT_SYMBOL_GPL(virtio_reset_device);
+> > @@ -428,6 +437,9 @@ int register_virtio_device(struct virtio_device *dev)
+> >       dev->config_enabled = false;
+> >       dev->config_change_pending = false;
+> >
+> > +     INIT_LIST_HEAD(&dev->vqs);
+> > +     spin_lock_init(&dev->vqs_list_lock);
+> > +
+> >       /* We always start by resetting the device, in case a previous
+> >        * driver messed it up.  This also tests that code path a little. */
+> >       virtio_reset_device(dev);
+> > @@ -435,9 +447,6 @@ int register_virtio_device(struct virtio_device *dev)
+> >       /* Acknowledge that we've seen the device. */
+> >       virtio_add_status(dev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
+> >
+> > -     INIT_LIST_HEAD(&dev->vqs);
+> > -     spin_lock_init(&dev->vqs_list_lock);
+> > -
+> >       /*
+> >        * device_add() causes the bus infrastructure to look for a matching
+> >        * driver.
+> > diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+> > index c9699a59f93c..f9a36bc7ac27 100644
+> > --- a/drivers/virtio/virtio_mmio.c
+> > +++ b/drivers/virtio/virtio_mmio.c
+> > @@ -253,6 +253,11 @@ static void vm_set_status(struct virtio_device *vdev, u8 status)
+> >       /* We should never be setting status to 0. */
+> >       BUG_ON(status == 0);
+> >
+> > +     /*
+> > +      * Per memory-barriers.txt, wmb() is not needed to guarantee
+> > +      * that the the cache coherent memory writes have completed
+> > +      * before writing to the MMIO region.
+> > +      */
+> >       writel(status, vm_dev->base + VIRTIO_MMIO_STATUS);
+> >  }
+> >
+> > diff --git a/drivers/virtio/virtio_pci_modern_dev.c b/drivers/virtio/virtio_pci_modern_dev.c
+> > index 4093f9cca7a6..a0fa14f28a7f 100644
+> > --- a/drivers/virtio/virtio_pci_modern_dev.c
+> > +++ b/drivers/virtio/virtio_pci_modern_dev.c
+> > @@ -467,6 +467,11 @@ void vp_modern_set_status(struct virtio_pci_modern_device *mdev,
+> >  {
+> >       struct virtio_pci_common_cfg __iomem *cfg = mdev->common;
+> >
+> > +     /*
+> > +      * Per memory-barriers.txt, wmb() is not needed to guarantee
+> > +      * that the the cache coherent memory writes have completed
+> > +      * before writing to the MMIO region.
+> > +      */
+> >       vp_iowrite8(status, &cfg->device_status);
+> >  }
+> >  EXPORT_SYMBOL_GPL(vp_modern_set_status);
+> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> > index 9c231e1fded7..13a7348cedff 100644
+> > --- a/drivers/virtio/virtio_ring.c
+> > +++ b/drivers/virtio/virtio_ring.c
+> > @@ -1688,7 +1688,7 @@ static struct virtqueue *vring_create_virtqueue_packed(
+> >       vq->we_own_ring = true;
+> >       vq->notify = notify;
+> >       vq->weak_barriers = weak_barriers;
+> > -     vq->broken = false;
+> > +     vq->broken = true;
+> >       vq->last_used_idx = 0;
+> >       vq->event_triggered = false;
+> >       vq->num_added = 0;
+>
+> and make this conditional
+>
+> > @@ -2134,8 +2134,11 @@ irqreturn_t vring_interrupt(int irq, void *_vq)
+> >               return IRQ_NONE;
+> >       }
+> >
+> > -     if (unlikely(vq->broken))
+> > -             return IRQ_HANDLED;
+> > +     if (unlikely(vq->broken)) {
+> > +             dev_warn_once(&vq->vq.vdev->dev,
+> > +                           "virtio vring IRQ raised before DRIVER_OK");
+> > +             return IRQ_NONE;
+> > +     }
+> >
+> >       /* Just a hint for performance: so it's ok that this can be racy! */
+> >       if (vq->event)
+> > @@ -2177,7 +2180,7 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
+> >       vq->we_own_ring = false;
+> >       vq->notify = notify;
+> >       vq->weak_barriers = weak_barriers;
+> > -     vq->broken = false;
+> > +     vq->broken = true;
+> >       vq->last_used_idx = 0;
+> >       vq->event_triggered = false;
+> >       vq->num_added = 0;
+>
+> and make this conditional
+>
+> > diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+> > index 25be018810a7..d4edfd7d91bb 100644
+> > --- a/include/linux/virtio_config.h
+> > +++ b/include/linux/virtio_config.h
+> > @@ -256,6 +256,26 @@ void virtio_device_ready(struct virtio_device *dev)
+> >       unsigned status = dev->config->get_status(dev);
+> >
+> >       BUG_ON(status & VIRTIO_CONFIG_S_DRIVER_OK);
+> > +
+> > +     /*
+> > +      * The virtio_synchronize_cbs() makes sure vring_interrupt()
+> > +      * will see the driver specific setup if it sees vq->broken
+> > +      * as false (even if the notifications come before DRIVER_OK).
+> > +      */
+> > +     virtio_synchronize_cbs(dev);
+> > +     __virtio_unbreak_device(dev);
+> > +     /*
+> > +      * The transport should ensure the visibility of vq->broken
+> > +      * before setting DRIVER_OK. See the comments for the transport
+> > +      * specific set_status() method.
+> > +      *
+> > +      * A well behaved device will only notify a virtqueue after
+> > +      * DRIVER_OK, this means the device should "see" the coherenct
+> > +      * memory write that set vq->broken as false which is done by
+> > +      * the driver when it sees DRIVER_OK, then the following
+> > +      * driver's vring_interrupt() will see vq->broken as false so
+> > +      * we won't lose any notification.
+> > +      */
+> >       dev->config->set_status(dev, status | VIRTIO_CONFIG_S_DRIVER_OK);
+> >  }
+> >
+> > --
+> > 2.25.1
+>
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
