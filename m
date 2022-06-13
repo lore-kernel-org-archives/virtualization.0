@@ -1,113 +1,134 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 241A1C433EF
-	for <virtualization@archiver.kernel.org>; Mon, 13 Jun 2022 08:19:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 540ADC433EF
+	for <virtualization@archiver.kernel.org>; Mon, 13 Jun 2022 08:42:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id CB170415CF;
-	Mon, 13 Jun 2022 08:19:28 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 01AD340904;
+	Mon, 13 Jun 2022 08:42:17 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 6YISUpKfeKYL; Mon, 13 Jun 2022 08:19:27 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id VHXbEjFLheYD; Mon, 13 Jun 2022 08:42:16 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 806F0415C7;
-	Mon, 13 Jun 2022 08:19:26 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 739D54090E;
+	Mon, 13 Jun 2022 08:42:15 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 543F2C0039;
-	Mon, 13 Jun 2022 08:19:26 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 535E1C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 45AFDC007C;
+	Mon, 13 Jun 2022 08:42:15 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BF671C002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Jun 2022 08:19:25 +0000 (UTC)
+ Mon, 13 Jun 2022 08:42:13 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 34BFF415C4
+ by smtp3.osuosl.org (Postfix) with ESMTP id 9D31160F1E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Jun 2022 08:19:25 +0000 (UTC)
+ Mon, 13 Jun 2022 08:42:13 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id R89ceeaRCNHA
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=infradead.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id gW3CkAvBZMhd
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Jun 2022 08:19:23 +0000 (UTC)
+ Mon, 13 Jun 2022 08:42:12 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 7B1F7415C1
+Received: from casper.infradead.org (casper.infradead.org
+ [IPv6:2001:8b0:10b:1236::1])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id D83FF60888
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Jun 2022 08:19:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1655108362;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=D+bE/eIwnNG9XOCQ/1sWd0v88bQkbotgG2HKdCFfZRY=;
- b=SFeuyHxHdItmqNjL85fhp7R5haQzNKrcwE1Xdh5iai5HonsRJwDDOmu99yJwmuerIf9fMl
- nLcDgBbGliE71iknjPQTpW7cHx/PVL0nBkbjsf9N04KYQDVRdEf5CUHoZTz6CCUaSM9X6d
- 58SSdhR2QvOA8DYRnpYrcgR51Rgrn8k=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-288-o18JHLOKNvC5sVqdrbSaXQ-1; Mon, 13 Jun 2022 04:19:21 -0400
-X-MC-Unique: o18JHLOKNvC5sVqdrbSaXQ-1
-Received: by mail-ed1-f70.google.com with SMTP id
- g3-20020a056402320300b0042dc956d80eso3487067eda.14
- for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Jun 2022 01:19:20 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=D+bE/eIwnNG9XOCQ/1sWd0v88bQkbotgG2HKdCFfZRY=;
- b=chXhJ+viO4wF1eHnnDB+y7uOENjoBQDv1Ejbx0eC0LzBeyH2CLPJLlIdprI7/PPdsx
- HpC/O1fUxyOUkEEK47tR/8vllRL40THdO7QLIbMbc6XCdK3tcpOnS0Ue4G+GH7cqSZLy
- /NiJwz+REeacEySqooGxoxQbJrY6SCdG3NJmQTVOEcbh7z8DhyyaxMyjzUVvScGyPD+A
- pZQlvQRplbUPhNQYBFLfNPzWg3bl8mwtLW8prTq7z+wcNCvu+l8O9c1D+lIKuK0zg1Y3
- HyEOqui4naM/zSqln9SBvjAnYlJbvWMSsVF/w6n5BG7dVIJTwybQoX5+7aFGE5qtDH4T
- L6og==
-X-Gm-Message-State: AOAM530z4UWl9Kuij5BTk/N5t0ia5bdGSX1N7+gFZqVSy/UpG7eTa20X
- wOumMqjJe9cncL2uwAss5K0m15q8CvJ/GP2jiYx8IvNDkpp4qzsS0QGvyG0Vgdhf473jTmyBH07
- rdvIoOGKwkXK5niQMQVrsS6/yeTB4kgVkAb0ZycASWA==
-X-Received: by 2002:a05:6402:51d3:b0:431:6c7b:28d with SMTP id
- r19-20020a05640251d300b004316c7b028dmr39827809edd.281.1655108360014; 
- Mon, 13 Jun 2022 01:19:20 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzedJt36QP43DZ3lXCcLhyT5+s+fFXlsi68dqAyaPTqNbf7jaGH7clhvwaAkZwTjn/VAEM3wA==
-X-Received: by 2002:a05:6402:51d3:b0:431:6c7b:28d with SMTP id
- r19-20020a05640251d300b004316c7b028dmr39827797edd.281.1655108359802; 
- Mon, 13 Jun 2022 01:19:19 -0700 (PDT)
-Received: from redhat.com ([2a03:c5c0:107c:be5a:1a30:9f6d:4400:4adc])
- by smtp.gmail.com with ESMTPSA id
- d1-20020a056402144100b00431665f1203sm4473490edx.73.2022.06.13.01.19.15
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 13 Jun 2022 01:19:19 -0700 (PDT)
-Date: Mon, 13 Jun 2022 04:19:13 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V6 8/9] virtio: harden vring IRQ
-Message-ID: <20220613041416-mutt-send-email-mst@kernel.org>
-References: <20220527060120.20964-1-jasowang@redhat.com>
- <20220527060120.20964-9-jasowang@redhat.com>
- <20220611010747-mutt-send-email-mst@kernel.org>
- <CACGkMEtRP+0Xy63g0SF_y1avv=3rFv6P9+Z7kp9XBS5d+_py8w@mail.gmail.com>
- <20220613023337-mutt-send-email-mst@kernel.org>
- <CACGkMEs05ZisiPW+7H6Omp80MzmZWZCpc1mf5Vd99C3H-KUtgA@mail.gmail.com>
+ Mon, 13 Jun 2022 08:42:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+ References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+ Content-Transfer-Encoding:Content-ID:Content-Description;
+ bh=TBu1hM1Fbte1hrb329bc3ivTNLPSxYZoE9gYu5eRiHg=; b=AYS6grJVD8NMmpEvSXoRmqR/m5
+ NEo85wVpnYAfEDlJuO/EUebdXwmtGi7E1hfXWnzD4xJRKZ83szCruTMmPOs7xBMJ6Aw1UFgllIdA2
+ DrNCgkjyxwSlCkaYvmrnpeyVHjsekjBUo+W+kPzFmB2XaZh0Vpc97VCHNs1UCeL3PGYHI9qxJxVu/
+ DaFylVxmC0fZNsBkd3ExUz+u7t35uoUT8AamFGd6WJIWdTb36E6JQrKM1QWtIzoeKjuNFK4QcGaGj
+ jl+nLLuCaTmbWLVhpIZJqu3xqI2+WRMTvXP48+Wg/el92i2X48vydvI85ds5VF4NfA6ZUW+2+coel
+ hUXUv0FQ==;
+Received: from dhcp-077-249-017-003.chello.nl ([77.249.17.3]
+ helo=noisy.programming.kicks-ass.net)
+ by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+ id 1o0fdb-00Gf1z-43; Mon, 13 Jun 2022 08:41:31 +0000
+Received: from hirez.programming.kicks-ass.net
+ (hirez.programming.kicks-ass.net [192.168.1.225])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+ (Client did not present a certificate)
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 600BB300472;
+ Mon, 13 Jun 2022 10:41:27 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+ id 42FA02849859B; Mon, 13 Jun 2022 10:41:27 +0200 (CEST)
+Date: Mon, 13 Jun 2022 10:41:27 +0200
+From: Peter Zijlstra <peterz@infradead.org>
+To: Lai Jiangshan <jiangshanlai@gmail.com>
+Subject: Re: [PATCH 21/36] x86/tdx: Remove TDX_HCALL_ISSUE_STI
+Message-ID: <Yqb4N3iwh1X7378o@hirez.programming.kicks-ass.net>
+References: <20220608142723.103523089@infradead.org>
+ <20220608144517.251109029@infradead.org>
+ <CAJhGHyCnu_BsKf5STMMJKMWm0NVZ8qXT8Qh=BhhCjSSgwchL3Q@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEs05ZisiPW+7H6Omp80MzmZWZCpc1mf5Vd99C3H-KUtgA@mail.gmail.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Peter Oberparleiter <oberpar@linux.ibm.com>, Cindy Lu <lulu@redhat.com>,
- "Paul E. McKenney" <paulmck@kernel.org>, linux-s390@vger.kernel.org,
- Peter Zijlstra <peterz@infradead.org>, Marc Zyngier <maz@kernel.org>,
- Cornelia Huck <cohuck@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>,
- Halil Pasic <pasic@linux.ibm.com>, eperezma <eperezma@redhat.com>,
- Vineeth Vijayan <vneethv@linux.ibm.com>, Thomas Gleixner <tglx@linutronix.de>
+In-Reply-To: <CAJhGHyCnu_BsKf5STMMJKMWm0NVZ8qXT8Qh=BhhCjSSgwchL3Q@mail.gmail.com>
+Cc: juri.lelli@redhat.com, rafael@kernel.org, benh@kernel.crashing.org,
+ linus.walleij@linaro.org, bsegall@google.com, guoren@kernel.org, pavel@ucw.cz,
+ agordeev@linux.ibm.com, linux-arch@vger.kernel.org, vincent.guittot@linaro.org,
+ Michael Ellerman <mpe@ellerman.id.au>, Huacai Chen <chenhuacai@kernel.org>,
+ linux-acpi@vger.kernel.org, agross@kernel.org, geert@linux-m68k.org,
+ linux-imx@nxp.com, catalin.marinas@arm.com, xen-devel@lists.xenproject.org,
+ mattst88@gmail.com, mturquette@baylibre.com, sammy@sammy.net, pmladek@suse.com,
+ linux-pm@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
+ linux-um@lists.infradead.org, acme <acme@kernel.org>,
+ Thomas Gleixner <tglx@linutronix.de>, linux-omap@vger.kernel.org,
+ dietmar.eggemann@arm.com, Richard Henderson <rth@twiddle.net>,
+ gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org,
+ linux-perf-users@vger.kernel.org, senozhatsky@chromium.org,
+ svens@linux.ibm.com, jolsa@kernel.org, paulus@samba.org,
+ Mark Rutland <mark.rutland@arm.com>, linux-ia64@vger.kernel.org,
+ Dave Hansen <dave.hansen@linux.intel.com>,
+ virtualization@lists.linux-foundation.org,
+ James.Bottomley@hansenpartnership.com, jcmvbkbc@gmail.com,
+ thierry.reding@gmail.com, kernel@xen0n.name, quic_neeraju@quicinc.com,
+ linux-s390@vger.kernel.org, vschneid@redhat.com, john.ogness@linutronix.de,
+ ysato@users.sourceforge.jp, linux-sh@vger.kernel.org, festevam@gmail.com,
+ deller@gmx.de, daniel.lezcano@linaro.org, jonathanh@nvidia.com,
+ mathieu.desnoyers@efficios.com, frederic@kernel.org, lenb@kernel.org,
+ linux-xtensa@linux-xtensa.org, kernel@pengutronix.de, gor@linux.ibm.com,
+ linux-arm-msm@vger.kernel.org, linux-alpha@vger.kernel.org,
+ linux-m68k@lists.linux-m68k.org, shorne@gmail.com,
+ linux-arm-kernel@lists.infradead.org, chris@zankel.net, sboyd@kernel.org,
+ dinguyen@kernel.org, bristot@redhat.com,
+ Alexander Shishkin <alexander.shishkin@linux.intel.com>, lpieralisi@kernel.org,
+ linux@rasmusvillemoes.dk, joel@joelfernandes.org,
+ Will Deacon <will@kernel.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+ khilman@kernel.org, linux-csky@vger.kernel.org,
+ VMware Inc <pv-drivers@vmware.com>, linux-snps-arc@lists.infradead.org,
+ mgorman@suse.de, jacob.jun.pan@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
+ ulli.kroll@googlemail.com, vgupta@kernel.org, linux-clk@vger.kernel.org,
+ josh@joshtriplett.org, rostedt@goodmis.org, rcu@vger.kernel.org,
+ Borislav Petkov <bp@alien8.de>, bcain@quicinc.com, tsbogend@alpha.franken.de,
+ linux-parisc@vger.kernel.org, sudeep.holla@arm.com, shawnguo@kernel.org,
+ davem@davemloft.net, kirill.shutemov@linux.intel.com, dalias@libc.org,
+ tony@atomide.com, amakhalov@vmware.com, bjorn.andersson@linaro.org,
+ "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org,
+ linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org,
+ Isaku Yamahata <isaku.yamahata@gmail.com>, anton.ivanov@cambridgegreys.com,
+ jonas@southpole.se, yury.norov@gmail.com, Richard Weinberger <richard@nod.at>,
+ X86 ML <x86@kernel.org>, linux@armlinux.org.uk, Ingo Molnar <mingo@redhat.com>,
+ Albert Ou <aou@eecs.berkeley.edu>, paulmck@kernel.org, hca@linux.ibm.com,
+ stefan.kristiansson@saunalahti.fi, openrisc@lists.librecores.org,
+ Paul Walmsley <paul.walmsley@sifive.com>, linux-tegra@vger.kernel.org,
+ Namhyung Kim <namhyung@kernel.org>,
+ Andy Shevchenko <andriy.shevchenko@linux.intel.com>, jpoimboe@kernel.org,
+ Juergen Gross <jgross@suse.com>, monstr@monstr.eu, linux-mips@vger.kernel.org,
+ Palmer Dabbelt <palmer@dabbelt.com>, Anup Patel <anup@brainfault.org>,
+ ink@jurassic.park.msu.ru, Johannes Berg <johannes@sipsolutions.net>,
+ linuxppc-dev@lists.ozlabs.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -124,287 +145,41 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Jun 13, 2022 at 04:07:09PM +0800, Jason Wang wrote:
-> On Mon, Jun 13, 2022 at 3:23 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+On Mon, Jun 13, 2022 at 04:26:01PM +0800, Lai Jiangshan wrote:
+> On Wed, Jun 8, 2022 at 10:48 PM Peter Zijlstra <peterz@infradead.org> wrote:
 > >
-> > On Mon, Jun 13, 2022 at 01:26:59PM +0800, Jason Wang wrote:
-> > > On Sat, Jun 11, 2022 at 1:12 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > >
-> > > > On Fri, May 27, 2022 at 02:01:19PM +0800, Jason Wang wrote:
-> > > > > This is a rework on the previous IRQ hardening that is done for
-> > > > > virtio-pci where several drawbacks were found and were reverted:
-> > > > >
-> > > > > 1) try to use IRQF_NO_AUTOEN which is not friendly to affinity managed IRQ
-> > > > >    that is used by some device such as virtio-blk
-> > > > > 2) done only for PCI transport
-> > > > >
-> > > > > The vq->broken is re-used in this patch for implementing the IRQ
-> > > > > hardening. The vq->broken is set to true during both initialization
-> > > > > and reset. And the vq->broken is set to false in
-> > > > > virtio_device_ready(). Then vring_interrupt() can check and return
-> > > > > when vq->broken is true. And in this case, switch to return IRQ_NONE
-> > > > > to let the interrupt core aware of such invalid interrupt to prevent
-> > > > > IRQ storm.
-> > > > >
-> > > > > The reason of using a per queue variable instead of a per device one
-> > > > > is that we may need it for per queue reset hardening in the future.
-> > > > >
-> > > > > Note that the hardening is only done for vring interrupt since the
-> > > > > config interrupt hardening is already done in commit 22b7050a024d7
-> > > > > ("virtio: defer config changed notifications"). But the method that is
-> > > > > used by config interrupt can't be reused by the vring interrupt
-> > > > > handler because it uses spinlock to do the synchronization which is
-> > > > > expensive.
-> > > > >
-> > > > > Cc: Thomas Gleixner <tglx@linutronix.de>
-> > > > > Cc: Peter Zijlstra <peterz@infradead.org>
-> > > > > Cc: "Paul E. McKenney" <paulmck@kernel.org>
-> > > > > Cc: Marc Zyngier <maz@kernel.org>
-> > > > > Cc: Halil Pasic <pasic@linux.ibm.com>
-> > > > > Cc: Cornelia Huck <cohuck@redhat.com>
-> > > > > Cc: Vineeth Vijayan <vneethv@linux.ibm.com>
-> > > > > Cc: Peter Oberparleiter <oberpar@linux.ibm.com>
-> > > > > Cc: linux-s390@vger.kernel.org
-> > > > > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > > >
-> > > >
-> > > > Jason, I am really concerned by all the fallout.
-> > > > I propose adding a flag to suppress the hardening -
-> > > > this will be a debugging aid and a work around for
-> > > > users if we find more buggy drivers.
-> > > >
-> > > > suppress_interrupt_hardening ?
-> > >
-> > > I can post a patch but I'm afraid if we disable it by default, it
-> > > won't be used by the users so there's no way for us to receive the bug
-> > > report. Or we need a plan to enable it by default.
-> > >
-> > > It's rc2, how about waiting for 1 and 2 rc? Or it looks better if we
-> > > simply warn instead of disable it by default.
-> > >
-> > > Thanks
+> > Now that arch_cpu_idle() is expected to return with IRQs disabled,
+> > avoid the useless STI/CLI dance.
 > >
-> > I meant more like a flag in struct virtio_driver.
-> > For now, could you audit all drivers which don't call _ready?
-> > I found 5 of these:
-> >
-> > drivers/bluetooth/virtio_bt.c
+> > Per the specs this is supposed to work, but nobody has yet relied up
+> > this behaviour so broken implementations are possible.
 > 
-> This driver seems to be fine, it doesn't use the device/vq in its probe().
-
-
-But it calls hci_register_dev and that in turn queues all kind of
-work. Also, can linux start using the device immediately after
-it's registered?
-
-
-> > drivers/gpu/drm/virtio/virtgpu_drv.c
+> I'm totally newbie here.
 > 
-> It calles virtio_device_ready() in virtio_gpu_init(), and it looks to
-> me the code is correct.
+> The point of safe_halt() is that STI must be used and be used
+> directly before HLT to enable IRQ during the halting and stop
+> the halting if there is any IRQ.
 
-OK.
+Correct; on real hardware. But this is virt...
 
-> > drivers/i2c/busses/i2c-virtio.c
-> > drivers/net/caif/caif_virtio.c
-> > drivers/nvdimm/virtio_pmem.c
+> In TDX case, STI must be used directly before the hypercall.
+> Otherwise, no IRQ can come and the vcpu would be stalled forever.
 > 
-> The above looks fine and we have three more:
-> 
-> arm_scmi: probe() doesn't use vq
-> mac80211_hwsim.c: doesn't use vq (only fill rx), but it kicks the rx,
-> it looks to me we need a device_ready before the kick.
-> virtio_rpmsg_bus.c: doesn't use vq
-> 
-> I will post a patch for mac80211_hwsim.c.
-> Thanks
+> Although the hypercall has an "irq_disabled" argument.
+> But the hypervisor doesn't (and can't) touch the IRQ flags no matter
+> what the "irq_disabled" argument is.  The IRQ is not enabled during
+> the halting if the IRQ is disabled before the hypercall even if
+> irq_disabled=false.
 
-Same comments for all of the above. Might linux not start using the
-device once it's registered?
+All we need the VMM to do is wake the vCPU, and it can do that,
+irrespective of the guest's IF.
 
-> >
-> >
-> >
-> >
-> > > >
-> > > >
-> > > > > ---
-> > > > >  drivers/s390/virtio/virtio_ccw.c       |  4 ++++
-> > > > >  drivers/virtio/virtio.c                | 15 ++++++++++++---
-> > > > >  drivers/virtio/virtio_mmio.c           |  5 +++++
-> > > > >  drivers/virtio/virtio_pci_modern_dev.c |  5 +++++
-> > > > >  drivers/virtio/virtio_ring.c           | 11 +++++++----
-> > > > >  include/linux/virtio_config.h          | 20 ++++++++++++++++++++
-> > > > >  6 files changed, 53 insertions(+), 7 deletions(-)
-> > > > >
-> > > > > diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> > > > > index c188e4f20ca3..97e51c34e6cf 100644
-> > > > > --- a/drivers/s390/virtio/virtio_ccw.c
-> > > > > +++ b/drivers/s390/virtio/virtio_ccw.c
-> > > > > @@ -971,6 +971,10 @@ static void virtio_ccw_set_status(struct virtio_device *vdev, u8 status)
-> > > > >       ccw->flags = 0;
-> > > > >       ccw->count = sizeof(status);
-> > > > >       ccw->cda = (__u32)(unsigned long)&vcdev->dma_area->status;
-> > > > > +     /* We use ssch for setting the status which is a serializing
-> > > > > +      * instruction that guarantees the memory writes have
-> > > > > +      * completed before ssch.
-> > > > > +      */
-> > > > >       ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_STATUS);
-> > > > >       /* Write failed? We assume status is unchanged. */
-> > > > >       if (ret)
-> > > > > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> > > > > index aa1eb5132767..95fac4c97c8b 100644
-> > > > > --- a/drivers/virtio/virtio.c
-> > > > > +++ b/drivers/virtio/virtio.c
-> > > > > @@ -220,6 +220,15 @@ static int virtio_features_ok(struct virtio_device *dev)
-> > > > >   * */
-> > > > >  void virtio_reset_device(struct virtio_device *dev)
-> > > > >  {
-> > > > > +     /*
-> > > > > +      * The below virtio_synchronize_cbs() guarantees that any
-> > > > > +      * interrupt for this line arriving after
-> > > > > +      * virtio_synchronize_vqs() has completed is guaranteed to see
-> > > > > +      * vq->broken as true.
-> > > > > +      */
-> > > > > +     virtio_break_device(dev);
-> > > >
-> > > > So make this conditional
-> > > >
-> > > > > +     virtio_synchronize_cbs(dev);
-> > > > > +
-> > > > >       dev->config->reset(dev);
-> > > > >  }
-> > > > >  EXPORT_SYMBOL_GPL(virtio_reset_device);
-> > > > > @@ -428,6 +437,9 @@ int register_virtio_device(struct virtio_device *dev)
-> > > > >       dev->config_enabled = false;
-> > > > >       dev->config_change_pending = false;
-> > > > >
-> > > > > +     INIT_LIST_HEAD(&dev->vqs);
-> > > > > +     spin_lock_init(&dev->vqs_list_lock);
-> > > > > +
-> > > > >       /* We always start by resetting the device, in case a previous
-> > > > >        * driver messed it up.  This also tests that code path a little. */
-> > > > >       virtio_reset_device(dev);
-> > > > > @@ -435,9 +447,6 @@ int register_virtio_device(struct virtio_device *dev)
-> > > > >       /* Acknowledge that we've seen the device. */
-> > > > >       virtio_add_status(dev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
-> > > > >
-> > > > > -     INIT_LIST_HEAD(&dev->vqs);
-> > > > > -     spin_lock_init(&dev->vqs_list_lock);
-> > > > > -
-> > > > >       /*
-> > > > >        * device_add() causes the bus infrastructure to look for a matching
-> > > > >        * driver.
-> > > > > diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-> > > > > index c9699a59f93c..f9a36bc7ac27 100644
-> > > > > --- a/drivers/virtio/virtio_mmio.c
-> > > > > +++ b/drivers/virtio/virtio_mmio.c
-> > > > > @@ -253,6 +253,11 @@ static void vm_set_status(struct virtio_device *vdev, u8 status)
-> > > > >       /* We should never be setting status to 0. */
-> > > > >       BUG_ON(status == 0);
-> > > > >
-> > > > > +     /*
-> > > > > +      * Per memory-barriers.txt, wmb() is not needed to guarantee
-> > > > > +      * that the the cache coherent memory writes have completed
-> > > > > +      * before writing to the MMIO region.
-> > > > > +      */
-> > > > >       writel(status, vm_dev->base + VIRTIO_MMIO_STATUS);
-> > > > >  }
-> > > > >
-> > > > > diff --git a/drivers/virtio/virtio_pci_modern_dev.c b/drivers/virtio/virtio_pci_modern_dev.c
-> > > > > index 4093f9cca7a6..a0fa14f28a7f 100644
-> > > > > --- a/drivers/virtio/virtio_pci_modern_dev.c
-> > > > > +++ b/drivers/virtio/virtio_pci_modern_dev.c
-> > > > > @@ -467,6 +467,11 @@ void vp_modern_set_status(struct virtio_pci_modern_device *mdev,
-> > > > >  {
-> > > > >       struct virtio_pci_common_cfg __iomem *cfg = mdev->common;
-> > > > >
-> > > > > +     /*
-> > > > > +      * Per memory-barriers.txt, wmb() is not needed to guarantee
-> > > > > +      * that the the cache coherent memory writes have completed
-> > > > > +      * before writing to the MMIO region.
-> > > > > +      */
-> > > > >       vp_iowrite8(status, &cfg->device_status);
-> > > > >  }
-> > > > >  EXPORT_SYMBOL_GPL(vp_modern_set_status);
-> > > > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> > > > > index 9c231e1fded7..13a7348cedff 100644
-> > > > > --- a/drivers/virtio/virtio_ring.c
-> > > > > +++ b/drivers/virtio/virtio_ring.c
-> > > > > @@ -1688,7 +1688,7 @@ static struct virtqueue *vring_create_virtqueue_packed(
-> > > > >       vq->we_own_ring = true;
-> > > > >       vq->notify = notify;
-> > > > >       vq->weak_barriers = weak_barriers;
-> > > > > -     vq->broken = false;
-> > > > > +     vq->broken = true;
-> > > > >       vq->last_used_idx = 0;
-> > > > >       vq->event_triggered = false;
-> > > > >       vq->num_added = 0;
-> > > >
-> > > > and make this conditional
-> > > >
-> > > > > @@ -2134,8 +2134,11 @@ irqreturn_t vring_interrupt(int irq, void *_vq)
-> > > > >               return IRQ_NONE;
-> > > > >       }
-> > > > >
-> > > > > -     if (unlikely(vq->broken))
-> > > > > -             return IRQ_HANDLED;
-> > > > > +     if (unlikely(vq->broken)) {
-> > > > > +             dev_warn_once(&vq->vq.vdev->dev,
-> > > > > +                           "virtio vring IRQ raised before DRIVER_OK");
-> > > > > +             return IRQ_NONE;
-> > > > > +     }
-> > > > >
-> > > > >       /* Just a hint for performance: so it's ok that this can be racy! */
-> > > > >       if (vq->event)
-> > > > > @@ -2177,7 +2180,7 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
-> > > > >       vq->we_own_ring = false;
-> > > > >       vq->notify = notify;
-> > > > >       vq->weak_barriers = weak_barriers;
-> > > > > -     vq->broken = false;
-> > > > > +     vq->broken = true;
-> > > > >       vq->last_used_idx = 0;
-> > > > >       vq->event_triggered = false;
-> > > > >       vq->num_added = 0;
-> > > >
-> > > > and make this conditional
-> > > >
-> > > > > diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-> > > > > index 25be018810a7..d4edfd7d91bb 100644
-> > > > > --- a/include/linux/virtio_config.h
-> > > > > +++ b/include/linux/virtio_config.h
-> > > > > @@ -256,6 +256,26 @@ void virtio_device_ready(struct virtio_device *dev)
-> > > > >       unsigned status = dev->config->get_status(dev);
-> > > > >
-> > > > >       BUG_ON(status & VIRTIO_CONFIG_S_DRIVER_OK);
-> > > > > +
-> > > > > +     /*
-> > > > > +      * The virtio_synchronize_cbs() makes sure vring_interrupt()
-> > > > > +      * will see the driver specific setup if it sees vq->broken
-> > > > > +      * as false (even if the notifications come before DRIVER_OK).
-> > > > > +      */
-> > > > > +     virtio_synchronize_cbs(dev);
-> > > > > +     __virtio_unbreak_device(dev);
-> > > > > +     /*
-> > > > > +      * The transport should ensure the visibility of vq->broken
-> > > > > +      * before setting DRIVER_OK. See the comments for the transport
-> > > > > +      * specific set_status() method.
-> > > > > +      *
-> > > > > +      * A well behaved device will only notify a virtqueue after
-> > > > > +      * DRIVER_OK, this means the device should "see" the coherenct
-> > > > > +      * memory write that set vq->broken as false which is done by
-> > > > > +      * the driver when it sees DRIVER_OK, then the following
-> > > > > +      * driver's vring_interrupt() will see vq->broken as false so
-> > > > > +      * we won't lose any notification.
-> > > > > +      */
-> > > > >       dev->config->set_status(dev, status | VIRTIO_CONFIG_S_DRIVER_OK);
-> > > > >  }
-> > > > >
-> > > > > --
-> > > > > 2.25.1
-> > > >
-> >
+So the VMM can (and does) know if there's an interrupt pending, and
+that's all that's needed to wake from this hypercall. Once the vCPU is
+back up and running again, we'll eventually set IF again and the pending
+interrupt will get delivered and all's well.
 
+Think of this like MWAIT with ECX[0] set if you will.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
