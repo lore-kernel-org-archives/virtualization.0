@@ -4,94 +4,92 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 540ADC433EF
-	for <virtualization@archiver.kernel.org>; Mon, 13 Jun 2022 08:42:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id CBB0EC43334
+	for <virtualization@archiver.kernel.org>; Mon, 13 Jun 2022 08:45:09 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 01AD340904;
-	Mon, 13 Jun 2022 08:42:17 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 830D040911;
+	Mon, 13 Jun 2022 08:45:09 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id VHXbEjFLheYD; Mon, 13 Jun 2022 08:42:16 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 739D54090E;
-	Mon, 13 Jun 2022 08:42:15 +0000 (UTC)
+	with ESMTP id 1EaDcVAa1YRM; Mon, 13 Jun 2022 08:45:08 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 263D34090E;
+	Mon, 13 Jun 2022 08:45:08 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 45AFDC007C;
-	Mon, 13 Jun 2022 08:42:15 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id BF671C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id ED4F7C0039;
+	Mon, 13 Jun 2022 08:45:07 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6B95BC002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Jun 2022 08:42:13 +0000 (UTC)
+ Mon, 13 Jun 2022 08:45:06 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 9D31160F1E
+ by smtp1.osuosl.org (Postfix) with ESMTP id 594A08269C
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Jun 2022 08:42:13 +0000 (UTC)
+ Mon, 13 Jun 2022 08:45:06 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
  dkim=pass (2048-bit key) header.d=infradead.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id gW3CkAvBZMhd
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id IDfQvfxFQCSG
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Jun 2022 08:42:12 +0000 (UTC)
+ Mon, 13 Jun 2022 08:45:05 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from casper.infradead.org (casper.infradead.org
- [IPv6:2001:8b0:10b:1236::1])
- by smtp3.osuosl.org (Postfix) with ESMTPS id D83FF60888
+Received: from desiato.infradead.org (desiato.infradead.org
+ [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 2FE00823A0
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Jun 2022 08:42:11 +0000 (UTC)
+ Mon, 13 Jun 2022 08:45:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+ d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
  References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
  Content-Transfer-Encoding:Content-ID:Content-Description;
- bh=TBu1hM1Fbte1hrb329bc3ivTNLPSxYZoE9gYu5eRiHg=; b=AYS6grJVD8NMmpEvSXoRmqR/m5
- NEo85wVpnYAfEDlJuO/EUebdXwmtGi7E1hfXWnzD4xJRKZ83szCruTMmPOs7xBMJ6Aw1UFgllIdA2
- DrNCgkjyxwSlCkaYvmrnpeyVHjsekjBUo+W+kPzFmB2XaZh0Vpc97VCHNs1UCeL3PGYHI9qxJxVu/
- DaFylVxmC0fZNsBkd3ExUz+u7t35uoUT8AamFGd6WJIWdTb36E6JQrKM1QWtIzoeKjuNFK4QcGaGj
- jl+nLLuCaTmbWLVhpIZJqu3xqI2+WRMTvXP48+Wg/el92i2X48vydvI85ds5VF4NfA6ZUW+2+coel
- hUXUv0FQ==;
+ bh=pN3d4KEFcv2ptnSv0mvCj6MvUML0g63O/kngZ8T7P5U=; b=jHY41velXm5OfTDUZVWOgGoGBS
+ 3XcfJnIs2Kw4MnQzhXHXXp0NuTvYgWNNcy9H8ZMc64VSaMQLttlBqVnSkycnBSdvSyy0Jak2Oc/oh
+ vvGayo0C9yY99bqhrLdUZmtWJXcMrqnljzCxzdeOwv7I5/kT19cRmZ3SrWtebHTgXMFdZAZxKh/LD
+ FLvZqYIpmAvjq1lnM+gSi7696QvqdD2nf0hqYc6h4USx92PA9LVEoUSL3WQM5ig7zhrj1+/gECYeb
+ R1xWNHwwSLm1F21Q9Cu7wJn7J1PofxmN5bqxHgiOokEGCrOE72TMA7ta7eHf7Pxf1c+Q+Jc6wUzzF
+ Why4PJmw==;
 Received: from dhcp-077-249-017-003.chello.nl ([77.249.17.3]
  helo=noisy.programming.kicks-ass.net)
- by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1o0fdb-00Gf1z-43; Mon, 13 Jun 2022 08:41:31 +0000
+ by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+ id 1o0fgN-007Vf8-Ah; Mon, 13 Jun 2022 08:44:23 +0000
 Received: from hirez.programming.kicks-ass.net
  (hirez.programming.kicks-ass.net [192.168.1.225])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+ key-exchange X25519 server-signature RSA-PSS (4096 bits))
  (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 600BB300472;
- Mon, 13 Jun 2022 10:41:27 +0200 (CEST)
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id D73DB302D9E;
+ Mon, 13 Jun 2022 10:44:22 +0200 (CEST)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
- id 42FA02849859B; Mon, 13 Jun 2022 10:41:27 +0200 (CEST)
-Date: Mon, 13 Jun 2022 10:41:27 +0200
+ id BB85B200C72F2; Mon, 13 Jun 2022 10:44:22 +0200 (CEST)
+Date: Mon, 13 Jun 2022 10:44:22 +0200
 From: Peter Zijlstra <peterz@infradead.org>
-To: Lai Jiangshan <jiangshanlai@gmail.com>
-Subject: Re: [PATCH 21/36] x86/tdx: Remove TDX_HCALL_ISSUE_STI
-Message-ID: <Yqb4N3iwh1X7378o@hirez.programming.kicks-ass.net>
+To: Jacob Pan <jacob.jun.pan@linux.intel.com>
+Subject: Re: [PATCH 04/36] cpuidle,intel_idle: Fix CPUIDLE_FLAG_IRQ_ENABLE
+Message-ID: <Yqb45vclY2KVL0wZ@hirez.programming.kicks-ass.net>
 References: <20220608142723.103523089@infradead.org>
- <20220608144517.251109029@infradead.org>
- <CAJhGHyCnu_BsKf5STMMJKMWm0NVZ8qXT8Qh=BhhCjSSgwchL3Q@mail.gmail.com>
+ <20220608144516.172460444@infradead.org>
+ <20220609164921.5e61711d@jacob-builder>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <CAJhGHyCnu_BsKf5STMMJKMWm0NVZ8qXT8Qh=BhhCjSSgwchL3Q@mail.gmail.com>
+In-Reply-To: <20220609164921.5e61711d@jacob-builder>
 Cc: juri.lelli@redhat.com, rafael@kernel.org, benh@kernel.crashing.org,
  linus.walleij@linaro.org, bsegall@google.com, guoren@kernel.org, pavel@ucw.cz,
  agordeev@linux.ibm.com, linux-arch@vger.kernel.org, vincent.guittot@linaro.org,
- Michael Ellerman <mpe@ellerman.id.au>, Huacai Chen <chenhuacai@kernel.org>,
- linux-acpi@vger.kernel.org, agross@kernel.org, geert@linux-m68k.org,
- linux-imx@nxp.com, catalin.marinas@arm.com, xen-devel@lists.xenproject.org,
- mattst88@gmail.com, mturquette@baylibre.com, sammy@sammy.net, pmladek@suse.com,
- linux-pm@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
- linux-um@lists.infradead.org, acme <acme@kernel.org>,
- Thomas Gleixner <tglx@linutronix.de>, linux-omap@vger.kernel.org,
- dietmar.eggemann@arm.com, Richard Henderson <rth@twiddle.net>,
- gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org,
- linux-perf-users@vger.kernel.org, senozhatsky@chromium.org,
- svens@linux.ibm.com, jolsa@kernel.org, paulus@samba.org,
- Mark Rutland <mark.rutland@arm.com>, linux-ia64@vger.kernel.org,
- Dave Hansen <dave.hansen@linux.intel.com>,
- virtualization@lists.linux-foundation.org,
+ mpe@ellerman.id.au, chenhuacai@kernel.org, linux-acpi@vger.kernel.org,
+ agross@kernel.org, geert@linux-m68k.org, linux-imx@nxp.com,
+ catalin.marinas@arm.com, xen-devel@lists.xenproject.org, mattst88@gmail.com,
+ mturquette@baylibre.com, sammy@sammy.net, pmladek@suse.com,
+ linux-pm@vger.kernel.org, jiangshanlai@gmail.com,
+ Sascha Hauer <s.hauer@pengutronix.de>, linux-um@lists.infradead.org,
+ acme@kernel.org, tglx@linutronix.de, linux-omap@vger.kernel.org,
+ dietmar.eggemann@arm.com, rth@twiddle.net, gregkh@linuxfoundation.org,
+ linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
+ senozhatsky@chromium.org, svens@linux.ibm.com, jolsa@kernel.org,
+ paulus@samba.org, mark.rutland@arm.com, linux-ia64@vger.kernel.org,
+ dave.hansen@linux.intel.com, virtualization@lists.linux-foundation.org,
  James.Bottomley@hansenpartnership.com, jcmvbkbc@gmail.com,
  thierry.reding@gmail.com, kernel@xen0n.name, quic_neeraju@quicinc.com,
  linux-s390@vger.kernel.org, vschneid@redhat.com, john.ogness@linutronix.de,
@@ -102,32 +100,27 @@ Cc: juri.lelli@redhat.com, rafael@kernel.org, benh@kernel.crashing.org,
  linux-arm-msm@vger.kernel.org, linux-alpha@vger.kernel.org,
  linux-m68k@lists.linux-m68k.org, shorne@gmail.com,
  linux-arm-kernel@lists.infradead.org, chris@zankel.net, sboyd@kernel.org,
- dinguyen@kernel.org, bristot@redhat.com,
- Alexander Shishkin <alexander.shishkin@linux.intel.com>, lpieralisi@kernel.org,
- linux@rasmusvillemoes.dk, joel@joelfernandes.org,
- Will Deacon <will@kernel.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>,
- khilman@kernel.org, linux-csky@vger.kernel.org,
- VMware Inc <pv-drivers@vmware.com>, linux-snps-arc@lists.infradead.org,
- mgorman@suse.de, jacob.jun.pan@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
- ulli.kroll@googlemail.com, vgupta@kernel.org, linux-clk@vger.kernel.org,
- josh@joshtriplett.org, rostedt@goodmis.org, rcu@vger.kernel.org,
- Borislav Petkov <bp@alien8.de>, bcain@quicinc.com, tsbogend@alpha.franken.de,
- linux-parisc@vger.kernel.org, sudeep.holla@arm.com, shawnguo@kernel.org,
- davem@davemloft.net, kirill.shutemov@linux.intel.com, dalias@libc.org,
- tony@atomide.com, amakhalov@vmware.com, bjorn.andersson@linaro.org,
- "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org,
- linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org,
- Isaku Yamahata <isaku.yamahata@gmail.com>, anton.ivanov@cambridgegreys.com,
- jonas@southpole.se, yury.norov@gmail.com, Richard Weinberger <richard@nod.at>,
- X86 ML <x86@kernel.org>, linux@armlinux.org.uk, Ingo Molnar <mingo@redhat.com>,
- Albert Ou <aou@eecs.berkeley.edu>, paulmck@kernel.org, hca@linux.ibm.com,
- stefan.kristiansson@saunalahti.fi, openrisc@lists.librecores.org,
- Paul Walmsley <paul.walmsley@sifive.com>, linux-tegra@vger.kernel.org,
- Namhyung Kim <namhyung@kernel.org>,
- Andy Shevchenko <andriy.shevchenko@linux.intel.com>, jpoimboe@kernel.org,
- Juergen Gross <jgross@suse.com>, monstr@monstr.eu, linux-mips@vger.kernel.org,
- Palmer Dabbelt <palmer@dabbelt.com>, Anup Patel <anup@brainfault.org>,
- ink@jurassic.park.msu.ru, Johannes Berg <johannes@sipsolutions.net>,
+ dinguyen@kernel.org, bristot@redhat.com, alexander.shishkin@linux.intel.com,
+ lpieralisi@kernel.org, linux@rasmusvillemoes.dk, joel@joelfernandes.org,
+ will@kernel.org, boris.ostrovsky@oracle.com, khilman@kernel.org,
+ linux-csky@vger.kernel.org, pv-drivers@vmware.com,
+ linux-snps-arc@lists.infradead.org, mgorman@suse.de,
+ Arnd Bergmann <arnd@arndb.de>, ulli.kroll@googlemail.com, vgupta@kernel.org,
+ linux-clk@vger.kernel.org, josh@joshtriplett.org, rostedt@goodmis.org,
+ rcu@vger.kernel.org, bp@alien8.de, bcain@quicinc.com,
+ tsbogend@alpha.franken.de, linux-parisc@vger.kernel.org, sudeep.holla@arm.com,
+ shawnguo@kernel.org, davem@davemloft.net, dalias@libc.org, tony@atomide.com,
+ amakhalov@vmware.com, bjorn.andersson@linaro.org, hpa@zytor.com,
+ sparclinux@vger.kernel.org, linux-hexagon@vger.kernel.org,
+ linux-riscv@lists.infradead.org, anton.ivanov@cambridgegreys.com,
+ jonas@southpole.se, yury.norov@gmail.com, richard@nod.at, x86@kernel.org,
+ linux@armlinux.org.uk, mingo@redhat.com, aou@eecs.berkeley.edu,
+ paulmck@kernel.org, hca@linux.ibm.com, stefan.kristiansson@saunalahti.fi,
+ openrisc@lists.librecores.org, paul.walmsley@sifive.com,
+ linux-tegra@vger.kernel.org, namhyung@kernel.org,
+ andriy.shevchenko@linux.intel.com, jpoimboe@kernel.org, jgross@suse.com,
+ monstr@monstr.eu, linux-mips@vger.kernel.org, palmer@dabbelt.com,
+ anup@brainfault.org, ink@jurassic.park.msu.ru, johannes@sipsolutions.net,
  linuxppc-dev@lists.ozlabs.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
@@ -145,41 +138,41 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Jun 13, 2022 at 04:26:01PM +0800, Lai Jiangshan wrote:
-> On Wed, Jun 8, 2022 at 10:48 PM Peter Zijlstra <peterz@infradead.org> wrote:
-> >
-> > Now that arch_cpu_idle() is expected to return with IRQs disabled,
-> > avoid the useless STI/CLI dance.
-> >
-> > Per the specs this is supposed to work, but nobody has yet relied up
-> > this behaviour so broken implementations are possible.
+On Thu, Jun 09, 2022 at 04:49:21PM -0700, Jacob Pan wrote:
+> Hi Peter,
 > 
-> I'm totally newbie here.
+> On Wed, 08 Jun 2022 16:27:27 +0200, Peter Zijlstra <peterz@infradead.org>
+> wrote:
 > 
-> The point of safe_halt() is that STI must be used and be used
-> directly before HLT to enable IRQ during the halting and stop
-> the halting if there is any IRQ.
+> > Commit c227233ad64c ("intel_idle: enable interrupts before C1 on
+> > Xeons") wrecked intel_idle in two ways:
+> > 
+> >  - must not have tracing in idle functions
+> >  - must return with IRQs disabled
+> > 
+> > Additionally, it added a branch for no good reason.
+> > 
+> > Fixes: c227233ad64c ("intel_idle: enable interrupts before C1 on Xeons")
+> > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> > ---
+> >  drivers/idle/intel_idle.c |   48
+> > +++++++++++++++++++++++++++++++++++----------- 1 file changed, 37
+> > insertions(+), 11 deletions(-)
+> > 
+> > --- a/drivers/idle/intel_idle.c
+> > +++ b/drivers/idle/intel_idle.c
+> > @@ -129,21 +137,37 @@ static unsigned int mwait_substates __in
+> >   *
+> >   * Must be called under local_irq_disable().
+> >   */
+> nit: this comment is no long true, right?
 
-Correct; on real hardware. But this is virt...
+It still is, all the idle routines are called with interrupts disabled,
+but must also exit with interrupts disabled.
 
-> In TDX case, STI must be used directly before the hypercall.
-> Otherwise, no IRQ can come and the vcpu would be stalled forever.
-> 
-> Although the hypercall has an "irq_disabled" argument.
-> But the hypervisor doesn't (and can't) touch the IRQ flags no matter
-> what the "irq_disabled" argument is.  The IRQ is not enabled during
-> the halting if the IRQ is disabled before the hypercall even if
-> irq_disabled=false.
-
-All we need the VMM to do is wake the vCPU, and it can do that,
-irrespective of the guest's IF.
-
-So the VMM can (and does) know if there's an interrupt pending, and
-that's all that's needed to wake from this hypercall. Once the vCPU is
-back up and running again, we'll eventually set IF again and the pending
-interrupt will get delivered and all's well.
-
-Think of this like MWAIT with ECX[0] set if you will.
+If the idle method requires interrupts to be enabled, it must be sure to
+disable them again before returning. Given all the RCU/tracing concerns
+it must use raw_local_irq_*() for this though.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
