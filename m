@@ -4,81 +4,92 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6CF5FC433EF
-	for <virtualization@archiver.kernel.org>; Mon, 13 Jun 2022 09:15:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 67448C43334
+	for <virtualization@archiver.kernel.org>; Mon, 13 Jun 2022 09:26:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id D870D4090E;
-	Mon, 13 Jun 2022 09:15:25 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id EC490409EA;
+	Mon, 13 Jun 2022 09:26:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id om-jVYkpLdN8; Mon, 13 Jun 2022 09:15:24 +0000 (UTC)
+	with ESMTP id 6KHDmIJcHsOh; Mon, 13 Jun 2022 09:26:28 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id CB11E4048A;
-	Mon, 13 Jun 2022 09:15:23 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id D79D1409D6;
+	Mon, 13 Jun 2022 09:26:27 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 81F7BC0032;
-	Mon, 13 Jun 2022 09:15:23 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3C185C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id AA5C1C0032;
+	Mon, 13 Jun 2022 09:26:27 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id AE8CFC002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Jun 2022 09:15:22 +0000 (UTC)
+ Mon, 13 Jun 2022 09:26:25 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 29D6A4090E
+ by smtp4.osuosl.org (Postfix) with ESMTP id 8CA374150E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Jun 2022 09:15:22 +0000 (UTC)
+ Mon, 13 Jun 2022 09:26:25 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id aSYzTHYGH6Yt
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id bYDBKxtB14nq
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Jun 2022 09:15:20 +0000 (UTC)
+ Mon, 13 Jun 2022 09:26:24 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 93C0C4048A
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id B4810414D1
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Jun 2022 09:15:20 +0000 (UTC)
+ Mon, 13 Jun 2022 09:26:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1655111719;
+ s=mimecast20190719; t=1655112382;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=4163k2G4PNay9ZvnAmlzd+L8qEED08eAIAcL+6va3Jk=;
- b=ZVLJg9esPti9r6vq45HeWKpQK3fHQD9hpSeWVupwOcp++Zra4q9tuzLZyojPqfGs3V4x4e
- XVv3EZxx2/gJrkjrYVk5P5ZfCdwCRIcxXG+R2MCj25noJdj0uZo6xHrWIyew20nt8S5vzu
- rTR0nJSjKDcZKsNI93LsaAJWgIV78Tc=
-Received: from mail-lj1-f197.google.com (mail-lj1-f197.google.com
- [209.85.208.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=pQSWDMDAg13N5Nm4eRLth6XqzruYqVjrrj+dGNp7E/Y=;
+ b=LeRFnwLmAhwPaHRpNcmEeg00XFddN9vv4anyUlXCdv7mYLAQGrWXvLm/6NZmzsacg/BE2M
+ ChWp6WgfaBGS0DYjgkVyTRsYIpB4t7l31CbHVqj/UhcKX9Jdao1Xthu0oBx8WPwqY6isTB
+ r3Z6oo0uv2j9zgkGkE3N0mR1BuCYtB8=
+Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
+ [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-534-9NZXBtFFMp2eRdd-wwOyhw-1; Mon, 13 Jun 2022 05:15:12 -0400
-X-MC-Unique: 9NZXBtFFMp2eRdd-wwOyhw-1
-Received: by mail-lj1-f197.google.com with SMTP id
- u9-20020a2e91c9000000b0025569a92731so516469ljg.3
+ us-mta-597-OlXPdmwEPbydlj07oVzF5Q-1; Mon, 13 Jun 2022 05:26:21 -0400
+X-MC-Unique: OlXPdmwEPbydlj07oVzF5Q-1
+Received: by mail-ej1-f70.google.com with SMTP id
+ kf3-20020a17090776c300b0070d149300e9so1561168ejc.15
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Jun 2022 02:15:12 -0700 (PDT)
+ Mon, 13 Jun 2022 02:26:21 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=4163k2G4PNay9ZvnAmlzd+L8qEED08eAIAcL+6va3Jk=;
- b=R6rvykaxQKsTBvdmWajHXQqhMC4B3uNEVFqa2Au83RMzz/4E6rwS4DlWK7CEJ+GT3m
- 07jTcCNIEJd69H/U/pEJT70w6guVfv8GcbNJtgT275rqVmK6gK/C57mgfEGaGYQDc6bg
- ErMj/kYvsQoJu61G50dSuHwfM7qlYt+9Fs7+KDc6+cZt3+aHPrdVISfDuL+l9zn9xgvZ
- iO32n45I68WzRrInI/WDjlS9kJGXWLMaDAgelMDEf0y1Gw30Zc6bCGKghYID8ztBhokP
- QoN7g9+L5pyBIJPBaA4bqIGvrOyi1/s7sAjktj1RKKP1psGScj2+M6AueWmxqM/00lDY
- RHxQ==
-X-Gm-Message-State: AOAM532Rfi0IHYYfgDCcfGWdSthBhhxwQZBbtQlqoUGwyh1CVKPe6YIw
- /4io5qWSM/q2zGWv1snc26Q0SVVHwXn3k8VPvTOlRwSRlcdcnK5aybJ2b4GcxXqVX9onHPB+O4Q
- Uq4GP+82V0sXrES9qEiRTAgGgnm1zgaY8acg8wLcigfVK5BicVIN5I5JpOQ==
-X-Received: by 2002:a05:6512:304d:b0:47d:c236:566f with SMTP id
- b13-20020a056512304d00b0047dc236566fmr6227814lfb.641.1655111710865; 
- Mon, 13 Jun 2022 02:15:10 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwOUNntj4fLgglp8jEBJ7+oi4nAOQbBLnrNiI1L9KbX31NjJY1VyetTerNn3U6W9fLZ53aRUVSXkvJGB+q2YJw=
-X-Received: by 2002:a05:6512:304d:b0:47d:c236:566f with SMTP id
- b13-20020a056512304d00b0047dc236566fmr6227796lfb.641.1655111710556; Mon, 13
- Jun 2022 02:15:10 -0700 (PDT)
-MIME-Version: 1.0
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=pQSWDMDAg13N5Nm4eRLth6XqzruYqVjrrj+dGNp7E/Y=;
+ b=72ypduOm0H8UQeK5fN0xRGNXF5HarCn1upjKDCNYIAfJfISXUpKUJ2XnesumA6QV8+
+ L+4VDIbRZBLYUQxiy/Zvia3qyL/YQG/yU4n9A1qZ6hEzBeLS+fksANU08pViGbP2Mxq5
+ ewaHJDyQYzcTSk69mCSNucW2SY0Piyp3XQdDIaHkJKAK/OnaBUHIhPjVpqv5OzrTvFGj
+ tmcBPYOHHmoySOB/rtTY9DfdWOoNHZ/wf86i9K4k/WGbyFoLU6K+EW47EVp1lYkZqzEZ
+ dL9w34OnVm8CqYKTxP6nNdeIYFRA+iPCpZSqjswihCe7n+rjBxYGZVnboaSZg5BwWob1
+ iqyA==
+X-Gm-Message-State: AOAM533ShQY9W3NtEEdn1F7mtB12BgjSAAMD+tU9h3ASBTP3eW9Wlb87
+ ham4M216UaDeVwZ7h4u7JzBcoMaMe/ib5L03OMISyoDGCgIHskKU9I0/L7J7CSbluDcpySzIyuV
+ NXLnCjHb2U46AI2BSGgqR2atScLNdOW+v+FCosfFCtA==
+X-Received: by 2002:a17:907:160c:b0:711:3b56:dc7 with SMTP id
+ hb12-20020a170907160c00b007113b560dc7mr40038101ejc.587.1655112380135; 
+ Mon, 13 Jun 2022 02:26:20 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxdXdTs84dvpM2QFRJYtjDoW7pLstRCb0XkrTo8OUA8JIqj6OWVQ569cPLEL2DUBpdhBwmKrQ==
+X-Received: by 2002:a17:907:160c:b0:711:3b56:dc7 with SMTP id
+ hb12-20020a170907160c00b007113b560dc7mr40038082ejc.587.1655112379895; 
+ Mon, 13 Jun 2022 02:26:19 -0700 (PDT)
+Received: from redhat.com ([2a03:c5c0:107c:be5a:1a30:9f6d:4400:4adc])
+ by smtp.gmail.com with ESMTPSA id
+ za14-20020a170906878e00b00706c1327f4bsm3619895ejb.23.2022.06.13.02.26.15
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 13 Jun 2022 02:26:19 -0700 (PDT)
+Date: Mon, 13 Jun 2022 05:26:12 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH V6 8/9] virtio: harden vring IRQ
+Message-ID: <20220613052221-mutt-send-email-mst@kernel.org>
 References: <20220527060120.20964-1-jasowang@redhat.com>
  <20220527060120.20964-9-jasowang@redhat.com>
  <20220611010747-mutt-send-email-mst@kernel.org>
@@ -89,16 +100,13 @@ References: <20220527060120.20964-1-jasowang@redhat.com>
  <CACGkMEsT_fWdPxN1cTWOX=vu-ntp3Xo4j46-ZKALeSXr7DmJFQ@mail.gmail.com>
  <20220613045606-mutt-send-email-mst@kernel.org>
  <CACGkMEtAQck7Nr6SP_pD0MGT3njnwZSyT=xPyYzUU3c5GNNM_w@mail.gmail.com>
+MIME-Version: 1.0
 In-Reply-To: <CACGkMEtAQck7Nr6SP_pD0MGT3njnwZSyT=xPyYzUU3c5GNNM_w@mail.gmail.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 13 Jun 2022 17:14:59 +0800
-Message-ID: <CACGkMEvUFJkC=mnvL2PSH6-3RMcJUk84f-9X46JVcj2vTAr4SQ@mail.gmail.com>
-Subject: Re: [PATCH V6 8/9] virtio: harden vring IRQ
-To: "Michael S. Tsirkin" <mst@redhat.com>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
 Cc: Peter Oberparleiter <oberpar@linux.ibm.com>, Cindy Lu <lulu@redhat.com>,
  "Paul E. McKenney" <paulmck@kernel.org>, linux-s390@vger.kernel.org,
  Peter Zijlstra <peterz@infradead.org>, Marc Zyngier <maz@kernel.org>,
@@ -122,8 +130,7 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Jun 13, 2022 at 5:08 PM Jason Wang <jasowang@redhat.com> wrote:
->
+On Mon, Jun 13, 2022 at 05:08:20PM +0800, Jason Wang wrote:
 > On Mon, Jun 13, 2022 at 4:59 PM Michael S. Tsirkin <mst@redhat.com> wrote:
 > >
 > > On Mon, Jun 13, 2022 at 04:51:08PM +0800, Jason Wang wrote:
@@ -205,44 +212,45 @@ On Mon, Jun 13, 2022 at 5:08 PM Jason Wang <jasowang@redhat.com> wrote:
 > > > So I think the driver is allowed to queue before DRIVER_OK.
 > >
 > > it's not allowed to kick
->
+> 
 > Yes.
->
+> 
 > >
 > > > If yes,
 > > > the only side effect is the delay of the tx interrupt after DRIVER_OK
 > > > for a well behaved device.
 > >
 > > your patches drop the interrupt though, it won't be just delayed.
->
+> 
 > For a well behaved device, it can only trigger the interrupt after DRIVER_OK.
->
+> 
 > So for virtio bt, it works like:
->
+> 
 > 1) driver queue buffer and kick
 > 2) driver set DRIVER_OK
 > 3) device start to process the buffer
 > 4) device send an notification
->
+> 
 > The only risk is that the virtqueue could be filled before DRIVER_OK,
 > or anything I missed?
-
-btw, hci has an open and close method and we do rx refill in
-hdev->open, so we're probably fine here.
-
-Thanks
-
->
+> 
 > >
 > > > If not, we need to clarify it in the spec
 > > > and call virtio_device_ready() before subsystem registration.
 > >
 > > hmm, i don't get what we need to clarify
->
+> 
 > E.g the driver is not allowed to kick or after DRIVER_OK should the
 > device only process the buffer after a kick after DRIVER_OK (I think
 > no)?
->
+
+I am not sure I understand. Are you asking whether device
+must check vqs for buffers upon DRIVER_OK? I don't think so,
+if driver wants buffers processed it must kick after DRIVER_OK.
+
+And kicking before DRIVER_OK is out of spec.
+
+
 > >
 > > > >
 > > > >
@@ -286,14 +294,16 @@ Thanks
 > > > DRIVER_OK.
 > >
 > > Well first won't driver code normally kick as well?
->
+> 
 > Kick itself is not blocked.
->
+
+It is out of spec though.
+
 > > And without kick, won't everything just be blocked?
->
+> 
 > It depends on the subsystem. E.g driver can choose to use a callback
 > instead of polling the used buffer in the probe.
->
+> 
 > >
 > >
 > > > For the rest we need to do virtio_device_ready() before registration.
@@ -301,20 +311,23 @@ Thanks
 > > > Thanks
 > >
 > > Then we can get an interrupt for an unregistered device.
->
+> 
 > It depends on the device. For the device that doesn't have an rx queue
 > (or device to driver queue), we are fine:
->
+> 
 > E.g in virtio-blk:
->
+> 
 >         virtio_device_ready(vdev);
->
+> 
 >         err = device_add_disk(&vdev->dev, vblk->disk, virtblk_attr_groups);
 >         if (err)
 >                 goto out_cleanup_disk;
->
+> 
 > Thanks
->
+
+yes - as long as no buffers are used, no callback is expected.
+However wasn't the point of your patches to handle a malicious device?
+
 > >
 > >
 > > > >
