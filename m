@@ -4,55 +4,56 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C18AFCCA47A
-	for <virtualization@archiver.kernel.org>; Tue, 14 Jun 2022 11:20:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id F01F0C43334
+	for <virtualization@archiver.kernel.org>; Tue, 14 Jun 2022 12:41:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 3CB6260EBF;
-	Tue, 14 Jun 2022 11:20:06 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 805FA60EB6;
+	Tue, 14 Jun 2022 12:41:39 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id KeT8Jq_yXIyR; Tue, 14 Jun 2022 11:20:04 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 574DA60615;
-	Tue, 14 Jun 2022 11:20:04 +0000 (UTC)
+	with ESMTP id 8sWnEkCZQxHh; Tue, 14 Jun 2022 12:41:38 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 0DC486058F;
+	Tue, 14 Jun 2022 12:41:38 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DD8C1C0032;
-	Tue, 14 Jun 2022 11:20:03 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 2CA22C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D3C5CC0039;
+	Tue, 14 Jun 2022 12:41:37 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6A3DEC002D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Jun 2022 11:20:02 +0000 (UTC)
+ Tue, 14 Jun 2022 12:41:37 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 0EE9D4015A
+ by smtp2.osuosl.org (Postfix) with ESMTP id 484E04028D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Jun 2022 11:20:02 +0000 (UTC)
+ Tue, 14 Jun 2022 12:41:37 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id y_PKmPufJ9pr
+ with ESMTP id 7DEh-lsHd9sI
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Jun 2022 11:20:01 +0000 (UTC)
+ Tue, 14 Jun 2022 12:41:36 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
- by smtp2.osuosl.org (Postfix) with ESMTP id 0B4544000B
+ by smtp2.osuosl.org (Postfix) with ESMTP id 551A2400FE
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Jun 2022 11:20:00 +0000 (UTC)
+ Tue, 14 Jun 2022 12:41:36 +0000 (UTC)
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
- by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 223061516;
- Tue, 14 Jun 2022 04:20:00 -0700 (PDT)
+ by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 78E001650;
+ Tue, 14 Jun 2022 05:41:35 -0700 (PDT)
 Received: from FVFF77S0Q05N (unknown [10.57.41.154])
- by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 47D093F73B;
- Tue, 14 Jun 2022 04:19:42 -0700 (PDT)
-Date: Tue, 14 Jun 2022 12:19:29 +0100
+ by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 9CDCF3F73B;
+ Tue, 14 Jun 2022 05:41:17 -0700 (PDT)
+Date: Tue, 14 Jun 2022 13:41:13 +0100
 From: Mark Rutland <mark.rutland@arm.com>
 To: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH 00/36] cpuidle,rcu: Cleanup the mess
-Message-ID: <YqhuwQjmZyOVSiLI@FVFF77S0Q05N>
+Subject: Re: [PATCH 14/36] cpuidle: Fix rcu_idle_*() usage
+Message-ID: <YqiB6YpVqq4wuDtO@FVFF77S0Q05N>
 References: <20220608142723.103523089@infradead.org>
+ <20220608144516.808451191@infradead.org>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20220608142723.103523089@infradead.org>
+In-Reply-To: <20220608144516.808451191@infradead.org>
 Cc: juri.lelli@redhat.com, rafael@kernel.org, benh@kernel.crashing.org,
  linus.walleij@linaro.org, bsegall@google.com, guoren@kernel.org, pavel@ucw.cz,
  agordeev@linux.ibm.com, linux-arch@vger.kernel.org, vincent.guittot@linaro.org,
@@ -116,65 +117,27 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Jun 08, 2022 at 04:27:23PM +0200, Peter Zijlstra wrote:
-> Hi All! (omg so many)
+On Wed, Jun 08, 2022 at 04:27:37PM +0200, Peter Zijlstra wrote:
+> --- a/kernel/time/tick-broadcast.c
+> +++ b/kernel/time/tick-broadcast.c
+> @@ -622,9 +622,13 @@ struct cpumask *tick_get_broadcast_onesh
+>   * to avoid a deep idle transition as we are about to get the
+>   * broadcast IPI right away.
+>   */
+> -int tick_check_broadcast_expired(void)
+> +noinstr int tick_check_broadcast_expired(void)
+>  {
+> +#ifdef _ASM_GENERIC_BITOPS_INSTRUMENTED_NON_ATOMIC_H
+> +	return arch_test_bit(smp_processor_id(), cpumask_bits(tick_broadcast_force_mask));
+> +#else
+>  	return cpumask_test_cpu(smp_processor_id(), tick_broadcast_force_mask);
+> +#endif
+>  }
 
-Hi Peter,
+This is somewhat not-ideal. :/
 
-Sorry for the delay; my plate has also been rather full recently. I'm beginning
-to page this in now.
-
-> These here few patches mostly clear out the utter mess that is cpuidle vs rcuidle.
-> 
-> At the end of the ride there's only 2 real RCU_NONIDLE() users left
-> 
->   arch/arm64/kernel/suspend.c:            RCU_NONIDLE(__cpu_suspend_exit());
->   drivers/perf/arm_pmu.c:                 RCU_NONIDLE(armpmu_start(event, PERF_EF_RELOAD));
-
-The latter of these is necessary because apparently PM notifiers are called
-with RCU not watching. Is that still the case today (or at the end of this
-series)? If so, that feels like fertile land for more issues (yaey...). If not,
-we should be able to drop this.
-
-I can go dig into that some more.
-
->   kernel/cfi.c:   RCU_NONIDLE({
-> 
-> (the CFI one is likely dead in the kCFI rewrite) and there's only a hand full
-> of trace_.*_rcuidle() left:
-> 
->   kernel/trace/trace_preemptirq.c:                        trace_irq_enable_rcuidle(CALLER_ADDR0, CALLER_ADDR1);
->   kernel/trace/trace_preemptirq.c:                        trace_irq_disable_rcuidle(CALLER_ADDR0, CALLER_ADDR1);
->   kernel/trace/trace_preemptirq.c:                        trace_irq_enable_rcuidle(CALLER_ADDR0, caller_addr);
->   kernel/trace/trace_preemptirq.c:                        trace_irq_disable_rcuidle(CALLER_ADDR0, caller_addr);
->   kernel/trace/trace_preemptirq.c:                trace_preempt_enable_rcuidle(a0, a1);
->   kernel/trace/trace_preemptirq.c:                trace_preempt_disable_rcuidle(a0, a1);
-> 
-> All of them are in 'deprecated' code that is unused for GENERIC_ENTRY.
-
-I think those are also unused on arm64 too?
-
-If not, I can go attack that.
-
-> I've touched a _lot_ of code that I can't test and likely broken some of it :/
-> In particular, the whole ARM cpuidle stuff was quite involved with OMAP being
-> the absolute 'winner'.
-> 
-> I'm hoping Mark can help me sort the remaining ARM64 bits as he moves that to
-> GENERIC_ENTRY.
-
-Moving to GENERIC_ENTRY as a whole is going to take a tonne of work
-(refactoring both arm64 and the generic portion to be more amenable to each
-other), but we can certainly move closer to that for the bits that matter here.
-
-Maybe we want a STRICT_ENTRY option to get rid of all the deprecated stuff that
-we can select regardless of GENERIC_ENTRY to make that easier.
-
-> I've also got a note that says ARM64 can probably do a WFE based
-> idle state and employ TIF_POLLING_NRFLAG to avoid some IPIs.
-
-Possibly; I'm not sure how much of a win that'll be given that by default we'll
-have a ~10KHz WFE wakeup from the timer, but we could take a peek.
+Could we unconditionally do the arch_test_bit() variant, with a comment, or
+does that not exist in some cases?
 
 Thanks,
 Mark.
