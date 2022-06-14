@@ -1,107 +1,159 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 08BA2CCA47A
-	for <virtualization@archiver.kernel.org>; Tue, 14 Jun 2022 17:33:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 49DB3C433EF
+	for <virtualization@archiver.kernel.org>; Tue, 14 Jun 2022 18:38:25 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 8D09783495;
-	Tue, 14 Jun 2022 17:33:27 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 4055760034;
+	Tue, 14 Jun 2022 18:38:24 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id fml3po95NOcX; Tue, 14 Jun 2022 17:33:26 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id IdFzK_pw4Co2; Tue, 14 Jun 2022 18:38:23 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 1DB23833CA;
-	Tue, 14 Jun 2022 17:33:26 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id C85BD60E4A;
+	Tue, 14 Jun 2022 18:38:22 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E1F0DC0032;
-	Tue, 14 Jun 2022 17:33:25 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 31A87C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 91B21C0039;
+	Tue, 14 Jun 2022 18:38:22 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1D4E9C002D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Jun 2022 17:33:25 +0000 (UTC)
+ Tue, 14 Jun 2022 18:38:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 1E59140A97
+ by smtp4.osuosl.org (Postfix) with ESMTP id 13BAE40384
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Jun 2022 17:33:25 +0000 (UTC)
+ Tue, 14 Jun 2022 18:38:21 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 4mZU_vVKYkaG
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=nvidia.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 1rvcDIwkkqO9
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Jun 2022 17:33:23 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
- by smtp2.osuosl.org (Postfix) with ESMTP id 9A46C40A96
+ Tue, 14 Jun 2022 18:38:19 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com
+ (mail-dm6nam11on2060f.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:7eaa::60f])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 11E5D40281
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Jun 2022 17:33:23 +0000 (UTC)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
- by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id CB3DE175A;
- Tue, 14 Jun 2022 10:33:22 -0700 (PDT)
-Received: from FVFF77S0Q05N (unknown [10.57.41.154])
- by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 3C0913F66F;
- Tue, 14 Jun 2022 10:33:04 -0700 (PDT)
-Date: Tue, 14 Jun 2022 18:33:00 +0100
-From: Mark Rutland <mark.rutland@arm.com>
-To: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH 00/36] cpuidle,rcu: Cleanup the mess
-Message-ID: <YqjGTFEWSJGGOjNA@FVFF77S0Q05N>
-References: <20220608142723.103523089@infradead.org>
- <YqhuwQjmZyOVSiLI@FVFF77S0Q05N>
- <Yqi+Nqz1J8wI5GcX@hirez.programming.kicks-ass.net>
+ Tue, 14 Jun 2022 18:38:18 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=FJqMgzHh2f0S9P2ombqXEmKi6A62FARIh/U1O9R350Lb8zhSgkLSd0RyeDpTA5VF76PeLSngrnlOdLwJizeEqEdwg/0tncNShCQT6IumSDjF87aEeo0y42CBWzukZmW6qfEzrdmz/NbzpupmbacNsih7kDbuOIVi0IMTqBmUhwIxBRk3ZQw44ls+eYGBQggQ7jvYQeW4Y0pFrlHrTCMJk5OJe+m4gHH15I0rx6xUUhQOgY9vc1tFX1Vm7k3wq94doLnYZ3m0Tza3ocRZJqjBe8EYzDIgrHWGiZpZFaprtTf2dZpXt5ykd80Fjve4rV0oeyEMgKnjzE8cD6ezAh2CuA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=Fj6gQY1EfVe3G9A0UXJUYSe2gS2oonChOeLVsxp0cd4=;
+ b=jXScUCQk2sw3KmzUw5YaTzgZ2po+7oKaSg5E9c/NhGncBFzFi782t8851+svvUQoeEMuY4N9f1tbSpk16IJHq1Hmo3oAdLmZZRtJa8VU1lr8H+JnvIGqVdrjOVgsRXHLAxTCsYG/3aXVXORXAC8WlPljAaFGXC6riYruA/Ln9AcfltINJLR17R5ij8AHnV+uRH6f9EvROJIlgNvfv9GsCCEK3uztf4bMTMM2bukM2X/MYV+06T0z7Q1U78xpYv5l/+Dltmiwkrgb1L9EskDzkFsZq+mkgM6bFD6icUw26eNs+SSBcQybBPp06+2PI8fWQ3Ic9iTCdyF7qvxM5slktA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Fj6gQY1EfVe3G9A0UXJUYSe2gS2oonChOeLVsxp0cd4=;
+ b=qeT27vwBrlEHtojiV6o1kYVRwXzOHuexAHjGqOnDOuB4aQHVRzICKrcJcQbkbOwVC+4lOjeUeIUJNKsIm5mZjHHoBjmD+MvFZjfHP+H8EMw2EXGfR3CCrKroHBsfFOiF2E7PJAhLsNBLvLMyMJo2Lw17ckY6NUwysBSArY0fjLIElUNBTMPbibUZQRLYVBLGpI9+iK7AytO6g711t59q2hsrDc31EVYi37iwpAFLcGgSEouroBoINo+e+E4DnxHKYJizHwBFuzqlVpjuoHYiwlVYuclAAeR2Tt0EdFOMcJxRCPu9FiGi2tc460nsADZI83aIMOb7FcMkgvC3PO6Bww==
+Received: from PH0PR12MB5481.namprd12.prod.outlook.com (2603:10b6:510:d4::15)
+ by MN2PR12MB2974.namprd12.prod.outlook.com (2603:10b6:208:c1::11)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5332.17; Tue, 14 Jun
+ 2022 18:38:16 +0000
+Received: from PH0PR12MB5481.namprd12.prod.outlook.com
+ ([fe80::8c53:1666:6a81:943e]) by PH0PR12MB5481.namprd12.prod.outlook.com
+ ([fe80::8c53:1666:6a81:943e%3]) with mapi id 15.20.5332.022; Tue, 14 Jun 2022
+ 18:38:16 +0000
+To: "Zhu, Lingshan" <lingshan.zhu@intel.com>, "jasowang@redhat.com"
+ <jasowang@redhat.com>, "mst@redhat.com" <mst@redhat.com>
+Subject: RE: [PATCH V2 3/6] vDPA: allow userspace to query features of a vDPA
+ device
+Thread-Topic: [PATCH V2 3/6] vDPA: allow userspace to query features of a vDPA
+ device
+Thread-Index: AQHYfw/QFftqwiWMMkaiRAN4I7mCTa1NzPiQgABoqwCAAQZfMA==
+Date: Tue, 14 Jun 2022 18:38:16 +0000
+Message-ID: <PH0PR12MB54816E481633EEB9C24D4D5CDCAA9@PH0PR12MB5481.namprd12.prod.outlook.com>
+References: <20220613101652.195216-1-lingshan.zhu@intel.com>
+ <20220613101652.195216-4-lingshan.zhu@intel.com>
+ <PH0PR12MB548173EB919A97FF82E5E62BDCAB9@PH0PR12MB5481.namprd12.prod.outlook.com>
+ <9ed635bf-1c92-f3c6-f6c6-5715a5a5ac92@intel.com>
+In-Reply-To: <9ed635bf-1c92-f3c6-f6c6-5715a5a5ac92@intel.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 5c3fb4fe-bce3-4385-3fb6-08da4e350b99
+x-ms-traffictypediagnostic: MN2PR12MB2974:EE_
+x-microsoft-antispam-prvs: <MN2PR12MB2974AF3E2787881D5508F54CDCAA9@MN2PR12MB2974.namprd12.prod.outlook.com>
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: YHpsnI8apTYO6Q4iDTnl/xfFxNISNPvzshErujpyFQAz/vrQlD41tfhs5LxDAxlkMYwDdUXt+VtX8v4OanwfDvoOzC0I936+1ZbmDCqn97cEQJPVZhvlFt3iesQOn35XjKb0F7d4AC2xNbixW9YmIzkLYy+mboQX/h5ZV1ExiwmQmpIXCHrsMcP7Od4iCLy02X7/nWuUOglPko2qjBGmkQeC6t4HFdx9NzNT3nqlbhTtxYFAUQVMHV07lHkwoMqsYYM0Yy/v64BDdtU7hgCkfaenbHZYCvq/BK5TYkmgGSztbR9ff910VJ/A0TPCDVwTgIHIxauyC97A8NSppngscoiTOR6U61Wv1DIouuKJhpZhyY470SPfFEvJ6H56KTu5Hnza4OF6zuxpXS0fUMhM18gz/W1Yf+x0hvBl2NaN5wVNU4vkIi+G2buPiXWt/8YxdN9zMth1cvn0QAUXsFpD+LybgvjgLlAu0Db/PfH6KfT65SOj0gInatWOQM9hfldOKwC6JmvFEBC2wOm7Z/Js57vAJGka0jgVqb87ZiZAqvzxB9EpxmKU9OU50mlVwtnDL2kv7j2ZRkXbLuM4aAhg1Iiv/V5ZlKhEb9eDKBifZS/njH4PRitjDF3dWRWR4G4pQgy/mBdilI0RLqqqAcuN9UY4WKVx0SWYwTZSySjIvJ46+RN3jXGY3qHnWFJ2muv6iIZmlEXNRZvo05naIDU6PQ==
+x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:PH0PR12MB5481.namprd12.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230016)(4636009)(366004)(508600001)(8936002)(5660300002)(316002)(52536014)(122000001)(38070700005)(54906003)(110136005)(86362001)(71200400001)(8676002)(66446008)(66476007)(4326008)(64756008)(66946007)(66556008)(76116006)(33656002)(26005)(53546011)(83380400001)(186003)(9686003)(38100700002)(2906002)(6506007)(7696005)(55016003);
+ DIR:OUT; SFP:1101; 
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?utf-8?B?U1NWZCtDcm92R21Rd1NWL1BzejVzVDVsSWdVcDRwNnJIcDJ3ejZsSGpiUFBV?=
+ =?utf-8?B?TUxjdTBGYWRmWVdrYU1ualB4cm9MdWxEQXduWWZGS1NRamxRMFBMZlluNzhk?=
+ =?utf-8?B?aFZCcWJZZVFqVWpDdFhxNDRPSTQ0WDZ0T0NkZGp1Vk1RRUg5cStURjkzTC9t?=
+ =?utf-8?B?Z2YvaUJMMjhETWp3d0UxQzNXRkFiNU9razVNanNXNW50ekoyekZOTHRHTmd3?=
+ =?utf-8?B?L2x3QnlXeEJwNldTMkkvY2E2OFA1d0VxMCtDVGNBYTNmdDhJd2x3UUIwbVJ3?=
+ =?utf-8?B?K0VZSzNibW1nbXNEMFc5MkE5cDhjcytPNmVkOUNZajZCa0pVd1BSeHlKbEhv?=
+ =?utf-8?B?aFlRZEh3QWNNbURXRzJ6VVR3WkYvV2ZIQzJRTmRDNEJUdFQ3aG9YQmxMTXkr?=
+ =?utf-8?B?MmhrbnVHVUFjaVNaNG16R21nWjlYelBWLzV3RC9leWdGeXRSQnJCZEgwY0JB?=
+ =?utf-8?B?TUZUY1BkYVl5eWJEUmt2Y2hycFlMKzdqL0pwVUpCSS9GREZ1V1N2YmtjQ1NP?=
+ =?utf-8?B?T21RbHBHMjR5QTByOGQ4N0IvaDdTaC9GOExFczI0NFJIOEJGaEdwN2lySjFD?=
+ =?utf-8?B?SDg2V3k1VEVqeU9aMnpsMWdXdGFWbUtUem1GeThHVlNkN3N1VmgzT09oM0Qy?=
+ =?utf-8?B?dXNBY2xRYlRiZE1tMDVrTEI5aU04aHpUTmZ0ck1Xcko4UWZWbklLZmhrN28y?=
+ =?utf-8?B?bGhqQk1zYVNTaHp0YVhtUzVPSFhZN2dKY3B6cXhLYjY5dlBKQzMxQnNHVnN6?=
+ =?utf-8?B?V0dZdHUyK0x1dHRYOXB5dEdXZzM3U1p0M2hyWGQwV3hjNlFqRzVlWUtwbFlt?=
+ =?utf-8?B?OHg2SG9BZFYzY2Z2a0F6TUZDT2xldVFETWpXZS92UWVOZXNtZXJqZXJHeWls?=
+ =?utf-8?B?ZmdhMnpRWFNoNi9LYkFSaTFneDZvSXZCQi8zR3E0ZnUxK0Q2aWJqRnQ1MGZZ?=
+ =?utf-8?B?dGMzMEVONG9mVHNndi8zWnpLSU1zemk0cWxUc2xYWmdQWklDeEQ4UjBWWVRK?=
+ =?utf-8?B?VWloSzFjMzNQOHpidlZDaU5tN2JHK0N0Sm40Vm5oYVlldytEZ3JMcWUxNWJv?=
+ =?utf-8?B?WDVoUUVyYTVqaHcxK2thZUNocXpSWVdTM0dWWHFORW0zT1p5Witnb2tCbklU?=
+ =?utf-8?B?L05hOGJ0K3lWSVBlekFic21XekdYcGdjdWlDY0hMcU9zcU50YzNpWkNKOUFq?=
+ =?utf-8?B?a1ZqMUJ0ZXpFQUZObW0xS2NOakxYb2xwTlJYRmR6OFo0RTU5blN1RWV1OEJm?=
+ =?utf-8?B?b05uekVIM3lFdSsxOE1LUFZyZWJJbzFtclVpV05WaHM1bHNlOW02YjdGUSs5?=
+ =?utf-8?B?OHVHMHk0UTRkSE9lOHhRTHFWSFdXb2daZVI5NnJSRTZXZDk1YmhwSTlLYXhF?=
+ =?utf-8?B?bEtReTNoQXNTRlFDMXA5U29JemdGSS94THJkYVFzSVRpd1BUc3FzWU9aanJU?=
+ =?utf-8?B?UVUwZldRY0dOUmdvQjlBWmF6RDFqemlhdy9WdklMOEZiZEtHbWpVZ1Jmak5n?=
+ =?utf-8?B?OUlBL2FyM2xhazltV3VYU3FTSTgveGFFVmdoUUk2ZHhubjdPYm1VbUtKRXpJ?=
+ =?utf-8?B?UzI5K1Z0bVhVSUVrblZ2SW0wNjBhUU9HVmhtQVQ2Q3M1ZlBOc1paTDlPZlU1?=
+ =?utf-8?B?VHhQWlY4cTlEeFFpckdPVGJscE9kNEY0aGpkZllxYlFVUm1RdG4wY0dBY1d5?=
+ =?utf-8?B?Z1d1bDRSNUowTjJxQk1vMyt3Y2Y1MWRCVWNpWWJ5eWN5MzNTbUg0NCt5Zkg3?=
+ =?utf-8?B?K1BOUmtRK0RldHdrdHRUL0laUWNkMUwveXhTc3NEMUJjRDdjb3NCVlBDRFRD?=
+ =?utf-8?B?UktRbU8xblF0d2xNR1REa08rcS9OZ2xxcTB2YkUra1NkeUd2Ym82aTZadG51?=
+ =?utf-8?B?azZGYm1RQ2lSRzZPOEh4ejA4dFZuMXlOa3BITVVvelRpd1VDRHovdGFRTmI5?=
+ =?utf-8?B?cjRlV2lHblA5K0tHa3dOTHJmTDdlWEdNMzFpV1VCZ0gzWkNzTjRkV3ozME85?=
+ =?utf-8?B?TmtyUVpJNjI4aXJnSzBnYkhYb2k4TlZONzFENUM5NHYrZll0Yk0vMkJVVEJF?=
+ =?utf-8?B?VDJZa1lidXlWSmFDTWhxdGFxZDhkZWlBeFZUSDZlTnpTd2szT0ZIYlBEalI5?=
+ =?utf-8?B?eFJCcUFoU1pYV2F0bkJxdVVDM3JKK0Mxa3dOdDVyOFU3Y2xHcVZZdyt0YXZp?=
+ =?utf-8?B?NHBtSzNYZmR6S25RYU5YQnBIdHM1bFpLSkNKY2hHRDdQMndoUDB1UnIvK3lQ?=
+ =?utf-8?B?ejM2Q2VzcktyY0VCSzJocGxuZlNOU3VXd0RCajJONmlOWC9rY2dNZUZ6WnhO?=
+ =?utf-8?Q?gG0eoaLtpGGFEMqf2G?=
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <Yqi+Nqz1J8wI5GcX@hirez.programming.kicks-ass.net>
-Cc: juri.lelli@redhat.com, rafael@kernel.org, benh@kernel.crashing.org,
- linus.walleij@linaro.org, bsegall@google.com, guoren@kernel.org, pavel@ucw.cz,
- agordeev@linux.ibm.com, linux-arch@vger.kernel.org, vincent.guittot@linaro.org,
- mpe@ellerman.id.au, chenhuacai@kernel.org, linux-acpi@vger.kernel.org,
- agross@kernel.org, geert@linux-m68k.org, linux-imx@nxp.com,
- catalin.marinas@arm.com, xen-devel@lists.xenproject.org, mattst88@gmail.com,
- mturquette@baylibre.com, sammy@sammy.net, pmladek@suse.com,
- linux-pm@vger.kernel.org, jiangshanlai@gmail.com,
- Sascha Hauer <s.hauer@pengutronix.de>, linux-um@lists.infradead.org,
- acme@kernel.org, tglx@linutronix.de, linux-omap@vger.kernel.org,
- dietmar.eggemann@arm.com, rth@twiddle.net, gregkh@linuxfoundation.org,
- linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
- senozhatsky@chromium.org, svens@linux.ibm.com, jolsa@kernel.org,
- paulus@samba.org, linux-ia64@vger.kernel.org, dave.hansen@linux.intel.com,
- virtualization@lists.linux-foundation.org,
- James.Bottomley@hansenpartnership.com, jcmvbkbc@gmail.com,
- thierry.reding@gmail.com, kernel@xen0n.name, quic_neeraju@quicinc.com,
- linux-s390@vger.kernel.org, vschneid@redhat.com, john.ogness@linutronix.de,
- ysato@users.sourceforge.jp, linux-sh@vger.kernel.org, festevam@gmail.com,
- deller@gmx.de, daniel.lezcano@linaro.org, jonathanh@nvidia.com,
- mathieu.desnoyers@efficios.com, frederic@kernel.org, lenb@kernel.org,
- linux-xtensa@linux-xtensa.org, kernel@pengutronix.de, gor@linux.ibm.com,
- linux-arm-msm@vger.kernel.org, linux-alpha@vger.kernel.org,
- linux-m68k@lists.linux-m68k.org, shorne@gmail.com,
- linux-arm-kernel@lists.infradead.org, chris@zankel.net, sboyd@kernel.org,
- dinguyen@kernel.org, bristot@redhat.com, alexander.shishkin@linux.intel.com,
- lpieralisi@kernel.org, linux@rasmusvillemoes.dk, joel@joelfernandes.org,
- will@kernel.org, boris.ostrovsky@oracle.com, khilman@kernel.org,
- linux-csky@vger.kernel.org, pv-drivers@vmware.com,
- linux-snps-arc@lists.infradead.org, mgorman@suse.de,
- jacob.jun.pan@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
- ulli.kroll@googlemail.com, vgupta@kernel.org, linux-clk@vger.kernel.org,
- josh@joshtriplett.org, rostedt@goodmis.org, rcu@vger.kernel.org, bp@alien8.de,
- bcain@quicinc.com, tsbogend@alpha.franken.de, linux-parisc@vger.kernel.org,
- sudeep.holla@arm.com, shawnguo@kernel.org, davem@davemloft.net,
- dalias@libc.org, tony@atomide.com, amakhalov@vmware.com,
- bjorn.andersson@linaro.org, hpa@zytor.com, sparclinux@vger.kernel.org,
- linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org,
- anton.ivanov@cambridgegreys.com, jonas@southpole.se, yury.norov@gmail.com,
- richard@nod.at, x86@kernel.org, linux@armlinux.org.uk, mingo@redhat.com,
- aou@eecs.berkeley.edu, paulmck@kernel.org, hca@linux.ibm.com,
- stefan.kristiansson@saunalahti.fi, openrisc@lists.librecores.org,
- paul.walmsley@sifive.com, linux-tegra@vger.kernel.org, namhyung@kernel.org,
- andriy.shevchenko@linux.intel.com, jpoimboe@kernel.org, jgross@suse.com,
- monstr@monstr.eu, linux-mips@vger.kernel.org, palmer@dabbelt.com,
- anup@brainfault.org, ink@jurassic.park.msu.ru, johannes@sipsolutions.net,
- linuxppc-dev@lists.ozlabs.org
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB5481.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 5c3fb4fe-bce3-4385-3fb6-08da4e350b99
+X-MS-Exchange-CrossTenant-originalarrivaltime: 14 Jun 2022 18:38:16.0548 (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 29vclzK2rEvoet5eP+qitqNyo187/+OPavYbdv8pT1z9joqwiipI69G8XHF/TGYpYlcVW6bwaRzw9vR/9kT8ag==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB2974
+Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+ "xieyongji@bytedance.com" <xieyongji@bytedance.com>,
+ "gautam.dawar@amd.com" <gautam.dawar@amd.com>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -113,127 +165,104 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+From: Parav Pandit via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Parav Pandit <parav@nvidia.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Jun 14, 2022 at 06:58:30PM +0200, Peter Zijlstra wrote:
-> On Tue, Jun 14, 2022 at 12:19:29PM +0100, Mark Rutland wrote:
-> > On Wed, Jun 08, 2022 at 04:27:23PM +0200, Peter Zijlstra wrote:
-> > > Hi All! (omg so many)
-> > 
-> > Hi Peter,
-> > 
-> > Sorry for the delay; my plate has also been rather full recently. I'm beginning
-> > to page this in now.
-> 
-> No worries; we all have too much to do ;-)
-> 
-> > > These here few patches mostly clear out the utter mess that is cpuidle vs rcuidle.
-> > > 
-> > > At the end of the ride there's only 2 real RCU_NONIDLE() users left
-> > > 
-> > >   arch/arm64/kernel/suspend.c:            RCU_NONIDLE(__cpu_suspend_exit());
-> > >   drivers/perf/arm_pmu.c:                 RCU_NONIDLE(armpmu_start(event, PERF_EF_RELOAD));
-> > 
-> > The latter of these is necessary because apparently PM notifiers are called
-> > with RCU not watching. Is that still the case today (or at the end of this
-> > series)? If so, that feels like fertile land for more issues (yaey...). If not,
-> > we should be able to drop this.
-> 
-> That should be fixed; fingers crossed :-)
 
-Cool; I'll try to give that a spin when I'm sat next to some relevant hardware. :)
 
-> > >   kernel/cfi.c:   RCU_NONIDLE({
-> > > 
-> > > (the CFI one is likely dead in the kCFI rewrite) and there's only a hand full
-> > > of trace_.*_rcuidle() left:
-> > > 
-> > >   kernel/trace/trace_preemptirq.c:                        trace_irq_enable_rcuidle(CALLER_ADDR0, CALLER_ADDR1);
-> > >   kernel/trace/trace_preemptirq.c:                        trace_irq_disable_rcuidle(CALLER_ADDR0, CALLER_ADDR1);
-> > >   kernel/trace/trace_preemptirq.c:                        trace_irq_enable_rcuidle(CALLER_ADDR0, caller_addr);
-> > >   kernel/trace/trace_preemptirq.c:                        trace_irq_disable_rcuidle(CALLER_ADDR0, caller_addr);
-> > >   kernel/trace/trace_preemptirq.c:                trace_preempt_enable_rcuidle(a0, a1);
-> > >   kernel/trace/trace_preemptirq.c:                trace_preempt_disable_rcuidle(a0, a1);
-> > > 
-> > > All of them are in 'deprecated' code that is unused for GENERIC_ENTRY.
-> > I think those are also unused on arm64 too?
-> > 
-> > If not, I can go attack that.
+> From: Zhu, Lingshan <lingshan.zhu@intel.com>
+> Sent: Monday, June 13, 2022 10:53 PM
 > 
-> My grep spots:
 > 
-> arch/arm64/kernel/entry-common.c:               trace_hardirqs_on();
-> arch/arm64/include/asm/daifflags.h:     trace_hardirqs_off();
-> arch/arm64/include/asm/daifflags.h:             trace_hardirqs_off();
+> On 6/14/2022 4:42 AM, Parav Pandit wrote:
+> >
+> >> From: Zhu Lingshan <lingshan.zhu@intel.com>
+> >> Sent: Monday, June 13, 2022 6:17 AM
+> >> device
+> >>
+> >> This commit adds a new vDPA netlink attribution
+> >> VDPA_ATTR_VDPA_DEV_SUPPORTED_FEATURES. Userspace can query
+> features
+> >> of vDPA devices through this new attr.
+> >>
+> >> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
+> >> ---
+> >>   drivers/vdpa/vdpa.c       | 13 +++++++++----
+> >>   include/uapi/linux/vdpa.h |  1 +
+> >>   2 files changed, 10 insertions(+), 4 deletions(-)
+> >>
+> >> diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c index
+> >> ebf2f363fbe7..9b0e39b2f022 100644
+> >> --- a/drivers/vdpa/vdpa.c
+> >> +++ b/drivers/vdpa/vdpa.c
+> >> @@ -815,7 +815,7 @@ static int vdpa_dev_net_mq_config_fill(struct
+> >> vdpa_device *vdev,  static int vdpa_dev_net_config_fill(struct
+> >> vdpa_device *vdev, struct sk_buff *msg)  {
+> >>   	struct virtio_net_config config = {};
+> >> -	u64 features;
+> >> +	u64 features_device, features_driver;
+> >>   	u16 val_u16;
+> >>
+> >>   	vdpa_get_config_unlocked(vdev, 0, &config, sizeof(config)); @@ -
+> >> 832,12 +832,17 @@ static int vdpa_dev_net_config_fill(struct
+> >> vdpa_device *vdev, struct sk_buff *ms
+> >>   	if (nla_put_u16(msg, VDPA_ATTR_DEV_NET_CFG_MTU, val_u16))
+> >>   		return -EMSGSIZE;
+> >>
+> >> -	features = vdev->config->get_driver_features(vdev);
+> >> -	if (nla_put_u64_64bit(msg,
+> >> VDPA_ATTR_DEV_NEGOTIATED_FEATURES, features,
+> >> +	features_driver = vdev->config->get_driver_features(vdev);
+> >> +	if (nla_put_u64_64bit(msg,
+> >> VDPA_ATTR_DEV_NEGOTIATED_FEATURES, features_driver,
+> >> +			      VDPA_ATTR_PAD))
+> >> +		return -EMSGSIZE;
+> >> +
+> >> +	features_device = vdev->config->get_device_features(vdev);
+> >> +	if (nla_put_u64_64bit(msg,
+> >> VDPA_ATTR_VDPA_DEV_SUPPORTED_FEATURES,
+> >> +features_device,
+> >>   			      VDPA_ATTR_PAD))
+> >>   		return -EMSGSIZE;
+> >>
+> >> -	return vdpa_dev_net_mq_config_fill(vdev, msg, features, &config);
+> >> +	return vdpa_dev_net_mq_config_fill(vdev, msg, features_driver,
+> >> +&config);
+> >>   }
+> >>
+> >>   static int
+> >> diff --git a/include/uapi/linux/vdpa.h b/include/uapi/linux/vdpa.h
+> >> index
+> >> 25c55cab3d7c..39f1c3d7c112 100644
+> >> --- a/include/uapi/linux/vdpa.h
+> >> +++ b/include/uapi/linux/vdpa.h
+> >> @@ -47,6 +47,7 @@ enum vdpa_attr {
+> >>   	VDPA_ATTR_DEV_NEGOTIATED_FEATURES,	/* u64 */
+> >>   	VDPA_ATTR_DEV_MGMTDEV_MAX_VQS,		/* u32 */
+> >>   	VDPA_ATTR_DEV_SUPPORTED_FEATURES,	/* u64 */
+> > I see now what was done incorrectly with commit cd2629f6df1ca.
+> >
+> > Above was done with wrong name prefix that missed MGMTDEV_. :(
+> Please
+> > don't add VDPA_ prefix due to one mistake.
+> > Please reuse this VDPA_ATTR_DEV_SUPPORTED_FEATURES for device
+> attribute as well.
+> currently we can reuse VDPA_ATTR_DEV_SUPPORTED_FEATURES to report
+> device features for sure, however this could confuse the readers since every
+> attr should has its own unique purpose.
+VDPA_ATTR_DEV_SUPPORTED_FEATURES is supposed to be VDPA_ATTR_MGMTDEV_SUPPORTED_FEATURES
+And device specific features is supposed to be named as,
+VDPA_ATTR_DEV_SUPPORTED_FEATURES.
 
-Ah; I hadn't realised those used trace_.*_rcuidle() behind the scenes.
+But it was not done this way in commit cd2629f6df1ca.
+This leads to the finding good name problem now.
 
-That affects local_irq_{enable,disable,restore}() too (which is what the
-daifflags.h bits are emulating), and also the generic entry code's
-irqentry_exit().
-
-So it feels to me like we should be fixing those more generally? e.g. say that
-with a new STRICT_ENTRY[_RCU], we can only call trace_hardirqs_{on,off}() with
-RCU watching, and alter the definition of those?
-
-> The _on thing should be replaced with something like:
-> 
-> 	trace_hardirqs_on_prepare();
-> 	lockdep_hardirqs_on_prepare();
-> 	instrumentation_end();
-> 	rcu_irq_exit();
-> 	lockdep_hardirqs_on(CALLER_ADDR0);
-> 
-> (as I think you know, since you have some of that already). And
-> something similar for the _off thing, but with _off_finish().
-
-Sure; I knew that was necessary for the outermost parts of entry (and I think
-that's all handled), I just hadn't realised that trace_hardirqs_{on,off} did
-the rcuidle thing in the middle.
-
-It'd be nice to not have to open-code the whole sequence everywhere for the
-portions which run after entry and are instrumentable, so (as above) I reckon
-we want to make trace_hardirqs_{on,off}() not do the rcuidle part
-unnecessarily (which IIUC is an end-goal anyway)?
-
-> > > I've touched a _lot_ of code that I can't test and likely broken some of it :/
-> > > In particular, the whole ARM cpuidle stuff was quite involved with OMAP being
-> > > the absolute 'winner'.
-> > > 
-> > > I'm hoping Mark can help me sort the remaining ARM64 bits as he moves that to
-> > > GENERIC_ENTRY.
-> > 
-> > Moving to GENERIC_ENTRY as a whole is going to take a tonne of work
-> > (refactoring both arm64 and the generic portion to be more amenable to each
-> > other), but we can certainly move closer to that for the bits that matter here.
-> 
-> I know ... been there etc.. :-)
-> 
-> > Maybe we want a STRICT_ENTRY option to get rid of all the deprecated stuff that
-> > we can select regardless of GENERIC_ENTRY to make that easier.
-> 
-> Possible yeah.
-> 
-> > > I've also got a note that says ARM64 can probably do a WFE based
-> > > idle state and employ TIF_POLLING_NRFLAG to avoid some IPIs.
-> > 
-> > Possibly; I'm not sure how much of a win that'll be given that by default we'll
-> > have a ~10KHz WFE wakeup from the timer, but we could take a peek.
-> 
-> Ohh.. I didn't know it woke up *that* often. I just know Will made use
-> of it in things like smp_cond_load_relaxed() which would be somewhat
-> similar to a very shallow idle state that looks at the TIF word.
-
-We'll get some saving, I'm just not sure where that falls on the curve of idle
-states. FWIW the wakeup *can* be disabled (and it'd be nice to when we have
-WFxT instructions which take a timeout), it jsut happens to be on by default
-for reasons.
-
-Thanks,
-Mark.
+Given that this new attribute is going to show same or subset of the features of the management device supported features, it is fine to reuse with exception with explicit comment in the UAPI header file.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
