@@ -1,59 +1,59 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8F1D3C433EF
-	for <virtualization@archiver.kernel.org>; Tue, 14 Jun 2022 16:25:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5B143C43334
+	for <virtualization@archiver.kernel.org>; Tue, 14 Jun 2022 16:28:28 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 3903460E4A;
-	Tue, 14 Jun 2022 16:25:15 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id DF59E83231;
+	Tue, 14 Jun 2022 16:28:27 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Ua_qVjKAVqd9; Tue, 14 Jun 2022 16:25:14 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id LMElJedRylyM; Tue, 14 Jun 2022 16:28:27 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id CED30605EE;
-	Tue, 14 Jun 2022 16:25:13 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 8B14C83279;
+	Tue, 14 Jun 2022 16:28:26 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A8EF4C0039;
-	Tue, 14 Jun 2022 16:25:13 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 77B6AC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5CFE9C0039;
+	Tue, 14 Jun 2022 16:28:26 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9D746C002D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Jun 2022 16:25:12 +0000 (UTC)
+ Tue, 14 Jun 2022 16:28:25 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 4FADF4032A
+ by smtp2.osuosl.org (Postfix) with ESMTP id 9318740B63
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Jun 2022 16:25:12 +0000 (UTC)
+ Tue, 14 Jun 2022 16:28:25 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id P-LQsOytjw1U
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id IHIcAuog-yMK
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Jun 2022 16:25:11 +0000 (UTC)
+ Tue, 14 Jun 2022 16:28:24 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
- by smtp4.osuosl.org (Postfix) with ESMTP id 27FA7408E8
+ by smtp2.osuosl.org (Postfix) with ESMTP id C750C40B41
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Jun 2022 16:25:11 +0000 (UTC)
+ Tue, 14 Jun 2022 16:28:24 +0000 (UTC)
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
- by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 983DA16A3;
- Tue, 14 Jun 2022 09:25:10 -0700 (PDT)
+ by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id D221916F3;
+ Tue, 14 Jun 2022 09:28:23 -0700 (PDT)
 Received: from FVFF77S0Q05N (unknown [10.57.41.154])
- by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id A00683F66F;
- Tue, 14 Jun 2022 09:24:52 -0700 (PDT)
-Date: Tue, 14 Jun 2022 17:24:48 +0100
+ by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id EEF753F66F;
+ Tue, 14 Jun 2022 09:28:05 -0700 (PDT)
+Date: Tue, 14 Jun 2022 17:28:02 +0100
 From: Mark Rutland <mark.rutland@arm.com>
 To: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH 23/36] arm64,smp: Remove trace_.*_rcuidle() usage
-Message-ID: <Yqi2UGb4alCAR5s4@FVFF77S0Q05N>
+Subject: Re: [PATCH 25/36] time/tick-broadcast: Remove RCU_NONIDLE usage
+Message-ID: <Yqi3EmHbuvf3ItMI@FVFF77S0Q05N>
 References: <20220608142723.103523089@infradead.org>
- <20220608144517.380962958@infradead.org>
+ <20220608144517.507286638@infradead.org>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20220608144517.380962958@infradead.org>
+In-Reply-To: <20220608144517.507286638@infradead.org>
 Cc: juri.lelli@redhat.com, rafael@kernel.org, benh@kernel.crashing.org,
  linus.walleij@linaro.org, bsegall@google.com, guoren@kernel.org, pavel@ucw.cz,
  agordeev@linux.ibm.com, linux-arch@vger.kernel.org, vincent.guittot@linaro.org,
@@ -92,9 +92,9 @@ Cc: juri.lelli@redhat.com, rafael@kernel.org, benh@kernel.crashing.org,
  dalias@libc.org, tony@atomide.com, amakhalov@vmware.com,
  bjorn.andersson@linaro.org, hpa@zytor.com, sparclinux@vger.kernel.org,
  linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org,
- anton.ivanov@cambridgegreys.com, jonas@southpole.se, maz@kernel.org,
- yury.norov@gmail.com, richard@nod.at, x86@kernel.org, linux@armlinux.org.uk,
- mingo@redhat.com, aou@eecs.berkeley.edu, paulmck@kernel.org, hca@linux.ibm.com,
+ anton.ivanov@cambridgegreys.com, jonas@southpole.se, yury.norov@gmail.com,
+ richard@nod.at, x86@kernel.org, linux@armlinux.org.uk, mingo@redhat.com,
+ aou@eecs.berkeley.edu, paulmck@kernel.org, hca@linux.ibm.com,
  stefan.kristiansson@saunalahti.fi, openrisc@lists.librecores.org,
  paul.walmsley@sifive.com, linux-tegra@vger.kernel.org, namhyung@kernel.org,
  andriy.shevchenko@linux.intel.com, jpoimboe@kernel.org, jgross@suse.com,
@@ -117,44 +117,59 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Jun 08, 2022 at 04:27:46PM +0200, Peter Zijlstra wrote:
-> Ever since commit d3afc7f12987 ("arm64: Allow IPIs to be handled as
-> normal interrupts") this function is called in regular IRQ context.
+On Wed, Jun 08, 2022 at 04:27:48PM +0200, Peter Zijlstra wrote:
+> No callers left that have already disabled RCU.
 > 
 > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 
-[adding Marc since he authored that commit]
-
-Makes sense to me:
-
-  Acked-by: Mark Rutland <mark.rutland@arm.com>
+Acked-by: Mark Rutland <mark.rutland@arm.com>
 
 Mark.
 
 > ---
->  arch/arm64/kernel/smp.c |    4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+>  kernel/time/tick-broadcast-hrtimer.c |   29 ++++++++++++-----------------
+>  1 file changed, 12 insertions(+), 17 deletions(-)
 > 
-> --- a/arch/arm64/kernel/smp.c
-> +++ b/arch/arm64/kernel/smp.c
-> @@ -865,7 +865,7 @@ static void do_handle_IPI(int ipinr)
->  	unsigned int cpu = smp_processor_id();
->  
->  	if ((unsigned)ipinr < NR_IPI)
-> -		trace_ipi_entry_rcuidle(ipi_types[ipinr]);
-> +		trace_ipi_entry(ipi_types[ipinr]);
->  
->  	switch (ipinr) {
->  	case IPI_RESCHEDULE:
-> @@ -914,7 +914,7 @@ static void do_handle_IPI(int ipinr)
->  	}
->  
->  	if ((unsigned)ipinr < NR_IPI)
-> -		trace_ipi_exit_rcuidle(ipi_types[ipinr]);
-> +		trace_ipi_exit(ipi_types[ipinr]);
+> --- a/kernel/time/tick-broadcast-hrtimer.c
+> +++ b/kernel/time/tick-broadcast-hrtimer.c
+> @@ -56,25 +56,20 @@ static int bc_set_next(ktime_t expires,
+>  	 * hrtimer callback function is currently running, then
+>  	 * hrtimer_start() cannot move it and the timer stays on the CPU on
+>  	 * which it is assigned at the moment.
+> +	 */
+> +	hrtimer_start(&bctimer, expires, HRTIMER_MODE_ABS_PINNED_HARD);
+> +	/*
+> +	 * The core tick broadcast mode expects bc->bound_on to be set
+> +	 * correctly to prevent a CPU which has the broadcast hrtimer
+> +	 * armed from going deep idle.
+>  	 *
+> -	 * As this can be called from idle code, the hrtimer_start()
+> -	 * invocation has to be wrapped with RCU_NONIDLE() as
+> -	 * hrtimer_start() can call into tracing.
+> +	 * As tick_broadcast_lock is held, nothing can change the cpu
+> +	 * base which was just established in hrtimer_start() above. So
+> +	 * the below access is safe even without holding the hrtimer
+> +	 * base lock.
+>  	 */
+> -	RCU_NONIDLE( {
+> -		hrtimer_start(&bctimer, expires, HRTIMER_MODE_ABS_PINNED_HARD);
+> -		/*
+> -		 * The core tick broadcast mode expects bc->bound_on to be set
+> -		 * correctly to prevent a CPU which has the broadcast hrtimer
+> -		 * armed from going deep idle.
+> -		 *
+> -		 * As tick_broadcast_lock is held, nothing can change the cpu
+> -		 * base which was just established in hrtimer_start() above. So
+> -		 * the below access is safe even without holding the hrtimer
+> -		 * base lock.
+> -		 */
+> -		bc->bound_on = bctimer.base->cpu_base->cpu;
+> -	} );
+> +	bc->bound_on = bctimer.base->cpu_base->cpu;
+> +
+>  	return 0;
 >  }
 >  
->  static irqreturn_t ipi_handler(int irq, void *data)
 > 
 > 
 _______________________________________________
