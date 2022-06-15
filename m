@@ -1,85 +1,85 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id ABCF3C43334
-	for <virtualization@archiver.kernel.org>; Wed, 15 Jun 2022 01:33:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0674EC433EF
+	for <virtualization@archiver.kernel.org>; Wed, 15 Jun 2022 01:38:40 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 4C67C60FF1;
-	Wed, 15 Jun 2022 01:33:07 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 9681540383;
+	Wed, 15 Jun 2022 01:38:40 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id sJ98LipgGzCt; Wed, 15 Jun 2022 01:33:05 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 6530460FD5;
-	Wed, 15 Jun 2022 01:33:04 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 322F8C0032;
-	Wed, 15 Jun 2022 01:33:04 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6C4C1C002D
- for <virtualization@lists.linux-foundation.org>;
- Wed, 15 Jun 2022 01:33:03 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 4288F40236
- for <virtualization@lists.linux-foundation.org>;
- Wed, 15 Jun 2022 01:33:03 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ggoY5gcBvOw1
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id W2IRWR_D7aGv; Wed, 15 Jun 2022 01:38:38 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 4D2684002B;
+	Wed, 15 Jun 2022 01:38:38 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1566EC0032;
+	Wed, 15 Jun 2022 01:38:38 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 69D2DC002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 15 Jun 2022 01:33:01 +0000 (UTC)
+ Wed, 15 Jun 2022 01:38:36 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 505D7607D1
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 15 Jun 2022 01:38:36 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id bvXLQiov9AY3
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 15 Jun 2022 01:38:34 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 735284002B
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 717B4607CE
  for <virtualization@lists.linux-foundation.org>;
- Wed, 15 Jun 2022 01:33:01 +0000 (UTC)
+ Wed, 15 Jun 2022 01:38:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1655256780;
+ s=mimecast20190719; t=1655257113;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=ZcDP8s6xBnMoZnXRP58Aj3LatGWJup4YNVIRqqEjjLo=;
- b=bs72pBoBpXVHzMq3CfdcfRCzUpjlSCLKBFxtZ3itOr7eGOi4M2QErPJV6PyT80oRRsw0k4
- gFhWK3mSrUSajFrYy7ahivlMBIGnvxqWwbIfyJv4JAig6A1qoQJsPd0a5diUlRiwrdDy5C
- 85ScnE1v2Spd5PwUcG1jq1Zg7Ds3bQ8=
+ bh=rURo3kVZKHi2ZU5DspRIcPyr1kcTzuXSnx2MKQKNzvc=;
+ b=Uj1o3Fh5UX5qeZucBFVKFMVibQ1O0mhQv1byHPK8eomHpptLPYHLkVHkB7y7xjE2IN0N6G
+ qkesbZULzQ2bCutMEzLzv7R+WHNgoKYuMnExA5WIwIB9yN6SyZxuZItQAp9Ai3E+yoS086
+ Os2kkSi0s5WGVuUZ329WiJieUcx54ng=
 Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
  [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-146-9b9ABInXOxKbNGtFTD9zaQ-1; Tue, 14 Jun 2022 21:32:51 -0400
-X-MC-Unique: 9b9ABInXOxKbNGtFTD9zaQ-1
+ us-mta-536-y2m_wkuOOQGu3Y54ixepKA-1; Tue, 14 Jun 2022 21:38:31 -0400
+X-MC-Unique: y2m_wkuOOQGu3Y54ixepKA-1
 Received: by mail-lf1-f71.google.com with SMTP id
- c25-20020ac25f79000000b00478f05f8f49so5275305lfc.20
+ b2-20020a0565120b8200b00477a4532448so5307070lfv.22
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Jun 2022 18:32:50 -0700 (PDT)
+ Tue, 14 Jun 2022 18:38:31 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=ZcDP8s6xBnMoZnXRP58Aj3LatGWJup4YNVIRqqEjjLo=;
- b=xhNVThUGiL5TXukd1hIA+wAcpsrEgFGG9IN0NB+qacVBjmDTnM8fx5PabwUPx9Yw0r
- UpnxbJTydBHuUqUIF59YSsqY7S7/MwMCHjUJ35Gs1o1+6FFVHWghX2oew+diHzI+YFF6
- LNSRiI9A37Az3FULCR7SU6f6h3oS7WZ/8dG9dZD9oDaqP9O127+ILkttAlWjdrl//U2x
- 4zddi/nteOIEQVCvFJCi9vOKm0GoJyBY4UJK5/ivsOn6wnCcfexb1DUtCGaIutSz33gR
- ihQ9b9klV4C9wgYDh2xsyGsI3O4+n7lEOqQ81kh5s3c8O0pSXFXwRFiS11vCV2zYqIFF
- k+TQ==
-X-Gm-Message-State: AJIora/PyIwb/Rq8vElpVVD1oIOgYbPFsF6bTwRfTiPr+1kD3EkVEain
- XJiyQTOKrYP2m7WEbKtSYMWryQ/PaaCMVHPXJHRU+PasqkUzpS++4KI9sCPbulXeOYpL/5HxDNi
- wRk4EGEmAfsjYfCgDgqA4io3mvY4ysLvOR+pxisHp0k5n0/Z5ZxDunNWRaw==
-X-Received: by 2002:a2e:3a16:0:b0:255:7811:2827 with SMTP id
- h22-20020a2e3a16000000b0025578112827mr4027602lja.130.1655256769566; 
- Tue, 14 Jun 2022 18:32:49 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1uMwd0c2Sr2LPJ9/U4Ryzx4YOyqLwF3zPfXTxPbkb91T862PbQExiJRt2ktRwaj6Qfthz+EXyD0oPSKiF0NB1w=
-X-Received: by 2002:a2e:3a16:0:b0:255:7811:2827 with SMTP id
- h22-20020a2e3a16000000b0025578112827mr4027594lja.130.1655256769269; Tue, 14
- Jun 2022 18:32:49 -0700 (PDT)
+ bh=rURo3kVZKHi2ZU5DspRIcPyr1kcTzuXSnx2MKQKNzvc=;
+ b=WM7VqpEaBKre2uVpxFzJX3O1HddTBCV0lipzMhukzbFufFOfWVEviKksp5xHo0H4oi
+ +gMkpaerZ2nWu2KIdQZa5asf4ZOT5JAxOo3ltnClF8ieONgQ+utWCObdpSkxwfGgq5nU
+ V6eK0h6dUCklf0QSLWd5T4DYyQCxJOAuQVRX3rxGKh2OaexRixucr6QColKRW13FxveR
+ kXIks38WYUiSZgoygVizVMl0sG++J/VS/yb34DXhrJFf7OfJyMxr3dGKTb8U5BnKxEwr
+ /aJ+8Lbp5DzLZ4yIy+fhQQuqJVIgfhRNDGz6udbv/Sz+HQB6B7Cps0TqZLw/OMjJYK/+
+ M+5g==
+X-Gm-Message-State: AJIora8hS270Di2F6sYi0uL6HRcBELuEYQ0J15wo1xw5MDakM4iw8+ZQ
+ aOCGhABRnRTvVQjWvcZxKDkgLFYdLsYcJVWV2A8KetRY1ccWv7VLnNuwOcUkKe0QNWImLvoqMaf
+ yvvEmMv2VpRZRpwzFXpFNH20AwN4L44vRv4LEfeTs+dJiaBbnVzNhh6ywVw==
+X-Received: by 2002:a05:651c:306:b0:258:f7fa:e549 with SMTP id
+ a6-20020a05651c030600b00258f7fae549mr3804036ljp.243.1655257109836; 
+ Tue, 14 Jun 2022 18:38:29 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1tF4/qGYFV4FHPqwC9Y7l6dBiWT88H+APD7VAAhW4KXIedUPk96pJR+OsOs9qykk3NSxw5rvZc5aZna9dYIZ5c=
+X-Received: by 2002:a05:651c:306:b0:258:f7fa:e549 with SMTP id
+ a6-20020a05651c030600b00258f7fae549mr3804015ljp.243.1655257109556; Tue, 14
+ Jun 2022 18:38:29 -0700 (PDT)
 MIME-Version: 1.0
 References: <CACGkMEtRP+0Xy63g0SF_y1avv=3rFv6P9+Z7kp9XBS5d+_py8w@mail.gmail.com>
  <20220613023337-mutt-send-email-mst@kernel.org>
@@ -91,11 +91,11 @@ References: <CACGkMEtRP+0Xy63g0SF_y1avv=3rFv6P9+Z7kp9XBS5d+_py8w@mail.gmail.com>
  <CACGkMEvUFJkC=mnvL2PSH6-3RMcJUk84f-9X46JVcj2vTAr4SQ@mail.gmail.com>
  <20220613052644-mutt-send-email-mst@kernel.org>
  <CACGkMEstGvhETXThuwO+tLVBuRgQb8uC_6DdAM8ZxOi5UKBRbg@mail.gmail.com>
- <20220614094821-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20220614094821-mutt-send-email-mst@kernel.org>
+ <20220614114839-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20220614114839-mutt-send-email-mst@kernel.org>
 From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 15 Jun 2022 09:32:37 +0800
-Message-ID: <CACGkMEsJELwjnLm4VA7gKiNu2EcRCyM=exEo9xyf0jpPphVRcA@mail.gmail.com>
+Date: Wed, 15 Jun 2022 09:38:18 +0800
+Message-ID: <CACGkMEthExrqFNkOzLGwaffvHw=Tc3MXPtTTiRsnpFDGKPRP=A@mail.gmail.com>
 Subject: Re: [PATCH V6 8/9] virtio: harden vring IRQ
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Authentication-Results: relay.mimecast.com;
@@ -130,7 +130,7 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Jun 14, 2022 at 9:50 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+On Tue, Jun 14, 2022 at 11:49 PM Michael S. Tsirkin <mst@redhat.com> wrote:
 >
 > On Tue, Jun 14, 2022 at 03:40:21PM +0800, Jason Wang wrote:
 > > On Mon, Jun 13, 2022 at 5:28 PM Michael S. Tsirkin <mst@redhat.com> wrote:
@@ -265,16 +265,7 @@ On Tue, Jun 14, 2022 at 9:50 PM Michael S. Tsirkin <mst@redhat.com> wrote:
 > > A networking device, RX is backed by vringh so we don't need to
 > > refill. TX is backed by virtio and is available until ndo_open. So
 > > it's fine to let the core to set DRIVER_OK after probe().
->
-> How about we just add an explicit ready in the driver anyway?
-> I think the implicit ready is just creating a mess as people
-> tend to forget to think about it.
-
-This is possible, and we could fail the probe if ready is not set by a driver.
-
-Thanks
-
->
+> >
 > > >  drivers/nvdimm/virtio_pmem.c
 > >
 > > It doesn't use interrupt so far, so it has nothing to do with the IRQ hardening.
@@ -319,7 +310,40 @@ Thanks
 > > It requires more thoughts.
 > >
 > > Thanks
-> >
+>
+> I think at this point let's do it before so we at least do not
+> get a regression with your patches, add a big comment and work
+> on fixing properly in the next Linux version. Do you think you can
+> commit to a full fix in the next linux version?
+
+I think it should be ok.
+
+If I understand you correctly, you meant to disable the hardening in
+this release?
+
+(Actually, my understanding is that since we are developing mainline
+instead of a downstream version with a hardening features, bug reports
+are somehow expected, especially consider most of the bugs are not
+related to hardening itself)
+
+Thanks
+
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 13a7348cedff..7ef3115efbad 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -1688,7 +1688,7 @@ static struct virtqueue *vring_create_virtqueue_packed(
+        vq->we_own_ring = true;
+        vq->notify = notify;
+        vq->weak_barriers = weak_barriers;
+-       vq->broken = true;
++       vq->broken = false;
+        vq->last_used_idx = 0;
+        vq->event_triggered = false;
+        vq->num_added = 0;
+
+>
+>
 > > >
 > > >
 > > > > >
