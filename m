@@ -4,107 +4,97 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B63F0C433EF
-	for <virtualization@archiver.kernel.org>; Fri, 17 Jun 2022 12:36:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 61F6CC433EF
+	for <virtualization@archiver.kernel.org>; Fri, 17 Jun 2022 14:34:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 4A2024051C;
-	Fri, 17 Jun 2022 12:36:37 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4A2024051C
+	by smtp2.osuosl.org (Postfix) with ESMTP id 0F49F40A06;
+	Fri, 17 Jun 2022 14:34:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0F49F40A06
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=JLceM910
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=V9GiLKMH
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id nFHRfkjGrPPu; Fri, 17 Jun 2022 12:36:36 +0000 (UTC)
+	with ESMTP id dSff9R5AlZ_y; Fri, 17 Jun 2022 14:34:29 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 9888E400E5;
-	Fri, 17 Jun 2022 12:36:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9888E400E5
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 9CB1C400E5;
+	Fri, 17 Jun 2022 14:34:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9CB1C400E5
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 65B6CC0032;
-	Fri, 17 Jun 2022 12:36:35 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id ED242C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 6D539C0032;
+	Fri, 17 Jun 2022 14:34:28 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E28F8C002D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 17 Jun 2022 12:36:33 +0000 (UTC)
+ Fri, 17 Jun 2022 14:34:26 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id B3D444099E
+ by smtp3.osuosl.org (Postfix) with ESMTP id B5E62612DB
  for <virtualization@lists.linux-foundation.org>;
- Fri, 17 Jun 2022 12:36:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B3D444099E
-Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=JLceM910
+ Fri, 17 Jun 2022 14:34:26 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B5E62612DB
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org
+ header.a=rsa-sha256 header.s=casper.20170209 header.b=V9GiLKMH
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id BXvCMJNqv6cL
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id T7OQxEzcfQel
  for <virtualization@lists.linux-foundation.org>;
- Fri, 17 Jun 2022 12:36:32 +0000 (UTC)
+ Fri, 17 Jun 2022 14:34:24 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6A04140995
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 6A04140995
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8D8DD60B13
+Received: from casper.infradead.org (casper.infradead.org
+ [IPv6:2001:8b0:10b:1236::1])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 8D8DD60B13
  for <virtualization@lists.linux-foundation.org>;
- Fri, 17 Jun 2022 12:36:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1655469391;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=RNdSBmShYOKDsuGy06c+NrA70N8YaR9zjSa+aBwZad0=;
- b=JLceM910HFeTjjQtaTmOdQWsMr5INNLT5y0DrELWPbVDecWvDDT5zwBl+FKlkK/cGtIdGt
- bw/zJK0qkupuKx55cv8+ib/2+t+0OeQd6BsoN72dVbV1NhUQXKap1oOF+KZdWsBm8MgKZW
- O5Dj34tANr5hiZ5VHDZO9zcrTpK6fo0=
-Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
- [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-29-B7pzwDS1NoiF1zJ_omVr5w-1; Fri, 17 Jun 2022 08:36:30 -0400
-X-MC-Unique: B7pzwDS1NoiF1zJ_omVr5w-1
-Received: by mail-ej1-f71.google.com with SMTP id
- mb1-20020a170906eb0100b00710c3b46a9aso2003970ejb.22
- for <virtualization@lists.linux-foundation.org>;
- Fri, 17 Jun 2022 05:36:29 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=RNdSBmShYOKDsuGy06c+NrA70N8YaR9zjSa+aBwZad0=;
- b=hNIswmvbKn32UEbrAnP9pnjmU71PYRjyopd401z4kW/6dIL5+D8lHxSXvQ01vvwSTC
- XfhDegvOXEb3ltxAsRFNz62WjJS5dzPtgQt9NwioRjHqKy1uyapB6tDnu6mPAtpvffg2
- qwv6Nxc+ZKIhwmlvuoYjuBlJjPl+z4/0T9cflgEqTpbaPUucJ+SvHSTxflbYQnCCWphg
- 6lanEO62ihMc14TXVNcQvTrh6uY0DaGXjN3BzSl9HmS8kF81V8uYp3XX7mdtRkS1m8Kn
- Z+6rBfvBSSt0MhfYg65xbraFm4PF9Z72pGmxIz4x9Yo2HQE0nVrbPE3BoC1CIJ+fgkb3
- Q0JA==
-X-Gm-Message-State: AJIora+VRJqqvMAQKsORnudZSn8J82hmRhxh/HGmf+s3DSfoTrJrzMwi
- QJR4QcUR1uyheJpdje7yY1JQdOmudsjHYW7U8UmVKdg9D+UJF4izmq0w0cP/rPcw8ATHX8rm1cJ
- TYLu85c7ohnrI6F2VvOO3RQpw6sdsq/VaJLCE42/l7Q==
-X-Received: by 2002:a17:906:1b19:b0:70d:6fe8:eb44 with SMTP id
- o25-20020a1709061b1900b0070d6fe8eb44mr9235503ejg.129.1655469388913; 
- Fri, 17 Jun 2022 05:36:28 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1umHXhoj133SUaYQ2dFkPt30Rc7hAXn4S/0TBhCi0UQuwOhLRoLLmk8YQXjeYRRgEr50dRwPA==
-X-Received: by 2002:a17:906:1b19:b0:70d:6fe8:eb44 with SMTP id
- o25-20020a1709061b1900b0070d6fe8eb44mr9235488ejg.129.1655469388662; 
- Fri, 17 Jun 2022 05:36:28 -0700 (PDT)
-Received: from redhat.com ([2.54.189.19]) by smtp.gmail.com with ESMTPSA id
- g10-20020a056402424a00b00435390befe2sm2934123edb.58.2022.06.17.05.36.27
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 17 Jun 2022 05:36:28 -0700 (PDT)
-Date: Fri, 17 Jun 2022 08:36:24 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
+ Fri, 17 Jun 2022 14:34:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+ References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+ Content-Transfer-Encoding:Content-ID:Content-Description;
+ bh=zCYLBNrpsWXnOqcC5wJ/hD9iA4hBnMBniae3jFnLY4g=; b=V9GiLKMHEe+HEZjsJZ2Pb5P6ea
+ d9D0pHgbo5JQRZoFL9HsbHI9Gdr4THYdrwvU9KtY2IcnhaclV//MKCurCrfsFBLpDYU+0XWi6zy00
+ CStKpcL2cDfbTxFxY0Tf8zjpQNcUymWJ+YlY+fvPV1PcHXf0aNed562ttdg9wfTK0LHPZcFN+moY9
+ tMgzajAbEMzya03pEkrkuFtIIygfEX8crLwpznvIEfcuhfXxChDJxrCJuIvuwz9tf/8Nlf/KxPo9t
+ V2t5D5TgWuKJjFc4BX7Pk7tMX90ySuSVuqT+pniMH+AdHEAlxqqdkTfsfegVm8+GJB4P0Y2RxckVb
+ hytS0s1Q==;
+Received: from dhcp-077-249-017-003.chello.nl ([77.249.17.3]
+ helo=worktop.programming.kicks-ass.net)
+ by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+ id 1o2D2o-002tnV-Hz; Fri, 17 Jun 2022 14:33:54 +0000
+Received: by worktop.programming.kicks-ass.net (Postfix, from userid 1000)
+ id 065709816B5; Fri, 17 Jun 2022 16:33:54 +0200 (CEST)
+Date: Fri, 17 Jun 2022 16:33:53 +0200
+From: Peter Zijlstra <peterz@infradead.org>
 To: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] virtio: disable notification hardening by default
-Message-ID: <20220617083420-mutt-send-email-mst@kernel.org>
-References: <20220617072626.30503-1-jasowang@redhat.com>
+Subject: Re: [PATCH V6 8/9] virtio: harden vring IRQ
+Message-ID: <YqyQ0bMF1EM8E6BW@worktop.programming.kicks-ass.net>
+References: <CACGkMEtAQck7Nr6SP_pD0MGT3njnwZSyT=xPyYzUU3c5GNNM_w@mail.gmail.com>
+ <CACGkMEvUFJkC=mnvL2PSH6-3RMcJUk84f-9X46JVcj2vTAr4SQ@mail.gmail.com>
+ <20220613052644-mutt-send-email-mst@kernel.org>
+ <CACGkMEstGvhETXThuwO+tLVBuRgQb8uC_6DdAM8ZxOi5UKBRbg@mail.gmail.com>
+ <20220614114839-mutt-send-email-mst@kernel.org>
+ <CACGkMEthExrqFNkOzLGwaffvHw=Tc3MXPtTTiRsnpFDGKPRP=A@mail.gmail.com>
+ <20220616130945-mutt-send-email-mst@kernel.org>
+ <CACGkMEuSX-wg-VQzVLRhE_9wmQVpCQo5cxQ-by3N6v7gaBNsrg@mail.gmail.com>
+ <20220617013147-mutt-send-email-mst@kernel.org>
+ <CACGkMEuaxpgGt38anCYfQfy_OOKf0HCmSonC7cBD9-jrgWQ+Ow@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20220617072626.30503-1-jasowang@redhat.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+In-Reply-To: <CACGkMEuaxpgGt38anCYfQfy_OOKf0HCmSonC7cBD9-jrgWQ+Ow@mail.gmail.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+ Viresh Kumar <viresh.kumar@linaro.org>,
+ linux-kernel <linux-kernel@vger.kernel.org>,
+ Vineeth Vijayan <vneethv@linux.ibm.com>, Cindy Lu <lulu@redhat.com>,
+ Marc Zyngier <maz@kernel.org>, Halil Pasic <pasic@linux.ibm.com>,
+ eperezma <eperezma@redhat.com>, "Paul E. McKenney" <paulmck@kernel.org>,
+ linux-s390@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+ virtualization <virtualization@lists.linux-foundation.org>,
+ conghui.chen@intel.com, Cristian Marussi <cristian.marussi@arm.com>,
+ pankaj.gupta.linux@gmail.com, Mathieu Poirier <mathieu.poirier@linaro.org>,
+ netdev <netdev@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>,
+ Peter Oberparleiter <oberpar@linux.ibm.com>,
+ Bjorn Andersson <bjorn.andersson@linaro.org>, sudeep.holla@arm.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -121,141 +111,36 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Jun 17, 2022 at 03:26:26PM +0800, Jason Wang wrote:
-> We try to harden virtio device notifications in 8b4ec69d7e09 ("virtio:
-> harden vring IRQ"). It works with the assumption that the driver or
-> core can properly call virtio_device_ready() at the right
-> place. Unfortunately, this seems to be not true and uncover various
-> bugs of the existing drivers, mainly the issue of using
-> virtio_device_ready() incorrectly.
-> 
-> So let's having a Kconfig option and disable it by default. It gives
-> us a breath to fix the drivers and then we can consider to enable it
-> by default.
-> 
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
->  drivers/virtio/Kconfig        |  6 ++++++
->  drivers/virtio/virtio.c       |  2 ++
->  drivers/virtio/virtio_ring.c  | 12 ++++++++++++
->  include/linux/virtio_config.h |  2 ++
->  4 files changed, 22 insertions(+)
-> 
-> diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
-> index b5adf6abd241..b059c39af3d4 100644
-> --- a/drivers/virtio/Kconfig
-> +++ b/drivers/virtio/Kconfig
-> @@ -35,6 +35,12 @@ menuconfig VIRTIO_MENU
->  
->  if VIRTIO_MENU
->  
-> +config VIRTIO_HARDEN_NOTIFICATION
-> +        bool "Harden virtio notification"
-> +        help
-> +          Enable to this
+On Fri, Jun 17, 2022 at 03:26:16PM +0800, Jason Wang wrote:
+> On Fri, Jun 17, 2022 at 1:36 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> >
+> > On Fri, Jun 17, 2022 at 09:24:57AM +0800, Jason Wang wrote:
+> > > On Fri, Jun 17, 2022 at 1:11 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > >
+> > > > On Wed, Jun 15, 2022 at 09:38:18AM +0800, Jason Wang wrote:
+> > > > > On Tue, Jun 14, 2022 at 11:49 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > > > >
+> > > > > > On Tue, Jun 14, 2022 at 03:40:21PM +0800, Jason Wang wrote:
+> > > > > > > On Mon, Jun 13, 2022 at 5:28 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > > > > > >
+> > > > > > > > On Mon, Jun 13, 2022 at 05:14:59PM +0800, Jason Wang wrote:
+> > > > > > > > > On Mon, Jun 13, 2022 at 5:08 PM Jason Wang <jasowang@redhat.com> wrote:
+> > > > > > > > > >
+> > > > > > > > > > On Mon, Jun 13, 2022 at 4:59 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > > > > > > > > >
+> > > > > > > > > > > On Mon, Jun 13, 2022 at 04:51:08PM +0800, Jason Wang wrote:
+> > > > > > > > > > > > On Mon, Jun 13, 2022 at 4:19 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > > > > > > > > > > >
+> > > > > > > > > > > > > On Mon, Jun 13, 2022 at 04:07:09PM +0800, Jason Wang wrote:
+> > > > > > > > > > > > > > On Mon, Jun 13, 2022 at 3:23 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > > > > > > > > > > > > >
+> > > > > > > > > > > > > > > On Mon, Jun 13, 2022 at 01:26:59PM +0800, Jason Wang wrote:
+> > > > > > > > > > > > > > > > On Sat, Jun 11, 2022 at 1:12 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > > > > > > > > > > > > > > >
+> > > > > > > > > > > > > > > > > On Fri, May 27, 2022 at 02:01:19PM +0800, Jason Wang wrote:
+> > > > > > > > > > > > > > > > > > This is a rework on the previous IRQ hardening that is done for
 
-Enable this
-
-> to harden the
-
-handling of 
-
-> device notifications and
-> +          supress the ones that are illegal.
-
-Experimental: not all drivers handle this correctly at this point.
-If unsure, say N.
-
-
-> +
->  config VIRTIO_PCI
->  	tristate "PCI driver for virtio devices"
->  	depends on PCI
-> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> index ef04a96942bf..21dc08d2f32d 100644
-> --- a/drivers/virtio/virtio.c
-> +++ b/drivers/virtio/virtio.c
-> @@ -220,6 +220,7 @@ static int virtio_features_ok(struct virtio_device *dev)
->   * */
->  void virtio_reset_device(struct virtio_device *dev)
->  {
-> +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
->  	/*
->  	 * The below virtio_synchronize_cbs() guarantees that any
->  	 * interrupt for this line arriving after
-> @@ -228,6 +229,7 @@ void virtio_reset_device(struct virtio_device *dev)
->  	 */
->  	virtio_break_device(dev);
->  	virtio_synchronize_cbs(dev);
-> +#endif
->  
->  	dev->config->reset(dev);
->  }
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index 13a7348cedff..d9d3b6e201fb 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -1688,7 +1688,11 @@ static struct virtqueue *vring_create_virtqueue_packed(
->  	vq->we_own_ring = true;
->  	vq->notify = notify;
->  	vq->weak_barriers = weak_barriers;
-> +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
->  	vq->broken = true;
-> +#else
-> +	vq->broken = false;
-> +#endif
->  	vq->last_used_idx = 0;
->  	vq->event_triggered = false;
->  	vq->num_added = 0;
-> @@ -2135,9 +2139,13 @@ irqreturn_t vring_interrupt(int irq, void *_vq)
->  	}
->  
->  	if (unlikely(vq->broken)) {
-> +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
->  		dev_warn_once(&vq->vq.vdev->dev,
->  			      "virtio vring IRQ raised before DRIVER_OK");
->  		return IRQ_NONE;
-> +#else
-> +		return IRQ_HANDLED;
-> +#endif
->  	}
->  
->  	/* Just a hint for performance: so it's ok that this can be racy! */
-> @@ -2180,7 +2188,11 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
->  	vq->we_own_ring = false;
->  	vq->notify = notify;
->  	vq->weak_barriers = weak_barriers;
-> +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
->  	vq->broken = true;
-> +#else
-> +	vq->broken = false;
-> +#endif
->  	vq->last_used_idx = 0;
->  	vq->event_triggered = false;
->  	vq->num_added = 0;
-> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-> index 9a36051ceb76..d15c3cdda2d2 100644
-> --- a/include/linux/virtio_config.h
-> +++ b/include/linux/virtio_config.h
-> @@ -257,6 +257,7 @@ void virtio_device_ready(struct virtio_device *dev)
->  
->  	WARN_ON(status & VIRTIO_CONFIG_S_DRIVER_OK);
->  
-> +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
->  	/*
->  	 * The virtio_synchronize_cbs() makes sure vring_interrupt()
->  	 * will see the driver specific setup if it sees vq->broken
-> @@ -264,6 +265,7 @@ void virtio_device_ready(struct virtio_device *dev)
->  	 */
->  	virtio_synchronize_cbs(dev);
->  	__virtio_unbreak_device(dev);
-> +#endif
->  	/*
->  	 * The transport should ensure the visibility of vq->broken
->  	 * before setting DRIVER_OK. See the comments for the transport
-> -- 
-> 2.25.1
-
+Guys; have you heard about trimming emails on reply?
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
