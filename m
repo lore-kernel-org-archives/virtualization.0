@@ -1,98 +1,71 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6664AC43334
-	for <virtualization@archiver.kernel.org>; Fri, 17 Jun 2022 07:31:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AC57DC433EF
+	for <virtualization@archiver.kernel.org>; Fri, 17 Jun 2022 09:02:36 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 0386D409D5;
-	Fri, 17 Jun 2022 07:31:51 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0386D409D5
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=vt-edu.20210112.gappssmtp.com header.i=@vt-edu.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=FlfHKex5
+	by smtp1.osuosl.org (Postfix) with ESMTP id 385E9844F9;
+	Fri, 17 Jun 2022 09:02:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 385E9844F9
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 1633pMvQxboP; Fri, 17 Jun 2022 07:31:50 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 73EB140992;
-	Fri, 17 Jun 2022 07:31:49 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 73EB140992
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Vfrz0bdpZAZJ; Fri, 17 Jun 2022 09:02:35 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id AA3E0844F1;
+	Fri, 17 Jun 2022 09:02:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AA3E0844F1
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 45BBEC0039;
-	Fri, 17 Jun 2022 07:31:49 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7AD08C002D
- for <virtualization@lists.linux-foundation.org>;
- Fri, 17 Jun 2022 07:31:47 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 31D80C002D;
+	Fri, 17 Jun 2022 09:02:34 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 18CD1C002D;
+ Fri, 17 Jun 2022 09:02:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 546E0402AF
- for <virtualization@lists.linux-foundation.org>;
- Fri, 17 Jun 2022 07:31:47 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 546E0402AF
-Authentication-Results: smtp4.osuosl.org;
- dkim=pass (2048-bit key) header.d=vt-edu.20210112.gappssmtp.com
- header.i=@vt-edu.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112
- header.b=FlfHKex5
+ by smtp3.osuosl.org (Postfix) with ESMTP id 715856128B;
+ Fri, 17 Jun 2022 09:02:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 715856128B
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id FBCEq7PmsqMT
- for <virtualization@lists.linux-foundation.org>;
- Fri, 17 Jun 2022 07:31:46 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org F17C5402A9
-Received: from mail-vs1-xe34.google.com (mail-vs1-xe34.google.com
- [IPv6:2607:f8b0:4864:20::e34])
- by smtp4.osuosl.org (Postfix) with ESMTPS id F17C5402A9
- for <virtualization@lists.linux-foundation.org>;
- Fri, 17 Jun 2022 07:31:45 +0000 (UTC)
-Received: by mail-vs1-xe34.google.com with SMTP id i186so3316184vsc.9
- for <virtualization@lists.linux-foundation.org>;
- Fri, 17 Jun 2022 00:31:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=vt-edu.20210112.gappssmtp.com; s=20210112;
- h=mime-version:from:date:message-id:subject:to;
- bh=NgEHMiKa/NQ1V8Jl2ni2bsc1tqjylrPz+4zH0cfph6g=;
- b=FlfHKex5L6jzP0cbtbTWHHGkI9hU+UzECDqVSIonxgfagfjOKj6THsVtkGRwHJr7cp
- Qw1gzu2QXuVwDp5K1kc4jMSpAuxRWbiT8whGVK/9NDMtiQbB2a0xqciEo1J5YEyguPCE
- CQb69t0BfP3t4BGzBaSlacUbzXaV5pmK88TI4xQGMvI0dy6BuMNFyH7/6NreXMdrSAC/
- SOaMfyY7I+sng3iXBR4keXVyolDV/2Zr+hE78XYfzaq4Hu7KMW1X2daSBKjyC/P9isNf
- 1jBCBQVeajxilP2WtvuqRb95gYnjZu6iAMDeHUqla15AV5rznFBZMvyE9Nnup454pmBz
- lctQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
- bh=NgEHMiKa/NQ1V8Jl2ni2bsc1tqjylrPz+4zH0cfph6g=;
- b=RhbLtiQ978RDuev02BS0gy8jRfyad9NXaWBv14FFCLgAFa4PEy2Nm+5jBBVzy2P/ml
- SwzfHhnohnCtHtmvehdf4DOiYzno2APxlCAEJdRvFJ1jbnMJ7pSkp80iyH83vT1tkIDn
- +QRXb49xt6nmnfh7RJVTjd6/siM5983ucWVjImtAGnkDHztQdLvky2ay6gfV4fGZf5z3
- MaXHUsBIRFK01+AWtP8G7ConQfds63yve+c7D5FKFwykn1GklK2U6jd7pFFaDwXytq8O
- CA1hQuOn7qpv+v/T66BLH2LniZ3bEgUYUfKOTNYGaVjAAO5eyFKmypUTDR16gNoNmIUa
- WJjw==
-X-Gm-Message-State: AJIora9a807oLBi2LUjDYbziuytHrHTA764dvZXfqQdlYuvb+n/FSt7w
- IFhvGZMyTd8a3NxrbAdEDApdSws31F6x2v4yp3a44w==
-X-Google-Smtp-Source: AGRyM1to/7GJ8XKfAdvZxlfaKxE72oky115VdZo1a/HrWjAuyxA23FnWt840u5Pb3ZIZmgw+jFHyNxPa+K5ovIWuhJ8=
-X-Received: by 2002:a67:e441:0:b0:34c:9008:4cc4 with SMTP id
- n1-20020a67e441000000b0034c90084cc4mr4015376vsm.87.1655451104609; Fri, 17 Jun
- 2022 00:31:44 -0700 (PDT)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id AFkTqvpOATkW; Fri, 17 Jun 2022 09:02:29 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CAAD9612AE
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+Received: from theia.8bytes.org (8bytes.org
+ [IPv6:2a01:238:4383:600:38bc:a715:4b6d:a889])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id CAAD9612AE;
+ Fri, 17 Jun 2022 09:02:23 +0000 (UTC)
+Received: by theia.8bytes.org (Postfix, from userid 1000)
+ id EBA0379E; Fri, 17 Jun 2022 11:02:19 +0200 (CEST)
+Date: Fri, 17 Jun 2022 11:02:14 +0200
+From: =?iso-8859-1?Q?J=F6rg_R=F6del?= <joro@8bytes.org>
+To: linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org,
+ linux-pci@vger.kernel.org, iommu@lists.linux.dev,
+ kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Subject: [CFP LPC 2022] VFIO/IOMMU/PCI Microconference
+Message-ID: <YqxDFkAFdLjqnW8O@8bytes.org>
 MIME-Version: 1.0
-From: Ali Anwar <ali@vt.edu>
-Date: Fri, 17 Jun 2022 03:31:08 -0400
-Message-ID: <CA+Vr5cscu04ut=O22TduZ=4k1P0b71Gqas-=YrKyF_PBp+=4nQ@mail.gmail.com>
-Subject: Call For Participation: ACM Workshop on Hot Topics in Storage and
- File Systems
-To: tci-announce@computer.org, tcde-announce@computer.org, 
- tcpp-announce@computer.org, tcbis-announce@computer.org, 
- "HPC-MEMBERS@listserv.acm.org" <HPC-MEMBERS@listserv.acm.org>, 
- sc-workshop-attendee-cfp@group.supercomputing.org, 
- hpc-india@mailman.serc.iisc.in, hipeac.publicity@lists.ugent.be, 
- sigops-announce@listserv.acm.org, publicity@hipeac.net, 
- htcondor-users@cs.wisc.edu, dbworld@cs.wisc.edu, 
- virtualization@lists.linux-foundation.org, users@planet-lab.org, 
- infodir_sigcomm@acm.org, sigplan-l@acm.uiuc.edu, hpc-announce@mcs.anl.gov
+Content-Disposition: inline
+Cc: Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kw@linux.com>,
+ Peter Zijlstra <peterz@infradead.org>,
+ Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+ Lorenzo Pieralisi <lpieralisi@kernel.org>, Will Deacon <will@kernel.org>,
+ Dan Williams <dan.j.williams@intel.com>,
+ Jean-Philippe Brucker <jean-philippe@linaro.org>,
+ Ashok Raj <ashok.raj@intel.com>, Marc Zyngier <maz@kernel.org>,
+ Joerg Roedel <joro@8bytes.org>, Bjorn Helgaas <helgaas@kernel.org>,
+ Jason Gunthorpe <jgg@nvidia.com>, Jacob Pan <jacob.jun.pan@linux.intel.com>,
+ Eric Auger <eric.auger@redhat.com>,
+ Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+ Thomas Gleixner <tglx@linutronix.de>, Arnd Bergmann <arnd@kernel.org>,
+ Vasant Hegde <vasant.hegde@amd.com>,
+ Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+ Pali =?iso-8859-1?Q?Roh=E1r?= <pali@kernel.org>,
+ Baolu Lu <baolu.lu@linux.intel.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -104,54 +77,59 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-[Apologies for cross-posting]
-
-===================================================================
-C A L L    F O R    O N L I N E    P A R T I C I P A T I O N
-ACM Workshop on Hot Topics in Storage and File Systems (HotStorage '22)
-June 27 - 28, 2022, Online
-https://www.hotstorage.org/2022/
-===================================================================
-
-Program:
-==================================
-The full program is available at:
-https://www.hotstorage.org/2022/program.html
-
-Registration:
-==================================
-Registration is $20-$50, please see registration information at:
-https://www.hotstorage.org/2022/attend.html
-
-Accepter Papers:
-==================================
-https://www.hotstorage.org/2022/accepted.html
-
-Keynote Talks:
-==================================
-Ted Tso (Google)
-Steven Swanson (Univ. of California San Diego)
-
-Conference Scope:
-==================================
-The HotStorage workshop provides a forum for cutting-edge storage
-research, a place where researchers and industry practitioners can
-discuss new opportunities and challenges in storage technology. The
-program includes 19 papers and keynote talks by Ted Tso (Google) and
-Steve Swanson (UCSD). The research papers propose new research
-directions, explore non-traditional approaches, or report on
-noteworthy or counterintuitive learnings and experience in emerging
-areas. They are expected to lead to insightful discussions that will
-influence future storage systems design and applications. ACM
-HotStorage is designed to appeal to academic and industrial
-researchers and practitioners, welcoming both students and seasoned
-professionals.
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+SGVsbG8gZXZlcnlvbmUhCgpXZSBhcmUgcGxlYXNlZCB0byBhbm5vdW5jZSB0aGF0IHRoZXJlIHdp
+bGwgYmUgYW5vdGhlcgoKCVZGSU8vSU9NTVUvUENJIE1pY3JvY29uZmVyZW5jZQoKYXQgdGhpcyB5
+ZWFyJ3MgTGludXggUGx1bWJlcnMgQ29uZmVyZW5jZSAoTFBDKSwgZnJvbSAxMnRoIHRvIHRoZSAx
+NHRoIG9mClNlcHRlbWJlciBpbiBEdWJsaW4sIElyZWxhbmQuIExQQyBpcyBhIGh5YnJpZCBldmVu
+dCB0aGlzIHllYXI7CmF0dGVuZGFuY2UgY2FuIGJlIGluIHBlcnNvbiBvciByZW1vdGUuCgpJbiB0
+aGlzIG1pY3JvY29uZmVyZW5jZSB3ZSB3YW50IHRvIGRpc2N1c3Mgb25nb2luZyBkZXZlbG9wbWVu
+dHMgYXJvdW5kCnRoZSBWRklPLCBJT01NVSBhbmQgUENJIHN1YnN5c3RlbXMgYW5kIHRoZWlyIGlu
+dGVyYWN0aW9ucyBpbiBMaW51eC4KClRlbnRhdGl2ZSB0b3BpY3MgdGhhdCBhcmUgdW5kZXIgY29u
+c2lkZXJhdGlvbiBmb3IgdGhpcyB5ZWFyIGluY2x1ZGUgKGJ1dApub3QgbGltaXRlZCB0byk6CgoJ
+KiBQQ0k6CgkgIC0gQ2FjaGUgQ29oZXJlbnQgSW50ZXJjb25uZWN0IGZvciBBY2NlbGVyYXRvcnMg
+KENDSVgpL0NvbXB1dGUKCSAgICBFeHByZXNzIExpbmsgKENYTCkgZXhwYW5zaW9uIG1lbW9yeSBh
+bmQgYWNjZWxlcmF0b3JzCgkgICAgbWFuYWdlbWVudAoJICAtIERhdGEgT2JqZWN0IEV4Y2hhbmdl
+IChET0UpCgkgIC0gSW50ZWdyaXR5IGFuZCBEYXRhIEVuY3J5cHRpb24gKElERSkKCSAgLSBDb21w
+b25lbnQgTWVhc3VyZW1lbnQgYW5kIEF1dGhlbnRpY2F0aW9uIChDTUEpCgkgIC0gU2VjdXJpdHkg
+UHJvdG9jb2wgYW5kIERhdGEgTW9kZWwgKFNQRE0pCgkgIC0gSS9PIEFkZHJlc3MgU3BhY2UgSUQg
+QWxsb2NhdG9yIChJT0FTSUQpCgkgIC0gSU5UWC9NU0kgSVJRIGRvbWFpbiBjb25zb2xpZGF0aW9u
+CgkgIC0gR2VuLVogaW50ZXJjb25uZWN0IGZhYnJpYwoJICAtIEFSTTY0IGFyY2hpdGVjdHVyZSBh
+bmQgaGFyZHdhcmUKCSAgLSBQQ0kgbmF0aXZlIGhvc3QgY29udHJvbGxlcnMvZW5kcG9pbnRzIGRy
+aXZlcnMgY3VycmVudAoJICAgIGNoYWxsZW5nZXMgYW5kIGltcHJvdmVtZW50cyAoZS5nLiwgc3Rh
+dGUgb2YgUENJIHF1aXJrcywgZXRjLikKCSAgLSBQQ0kgZXJyb3IgaGFuZGxpbmcgYW5kIG1hbmFn
+ZW1lbnQgZS5nLiwgQWR2YW5jZWQgRXJyb3IKCSAgICBSZXBvcnRpbmcgKEFFUiksIERvd25zdHJl
+YW0gUG9ydCBDb250YWlubWVudCAoRFBDKSwgQUNQSQoJICAgIFBsYXRmb3JtIEVycm9yIEludGVy
+ZmFjZSAoQVBFSSkgYW5kIEVycm9yIERpc2Nvbm5lY3QgUmVjb3ZlcgoJICAgIChFRFIpCgkgIC0g
+UG93ZXIgbWFuYWdlbWVudCBhbmQgZGV2aWNlcyBzdXBwb3J0aW5nIEFjdGl2ZS1zdGF0ZSBQb3dl
+cgoJICAgIE1hbmFnZW1lbnQgKEFTUE0pCgkgIC0gUGVlci10by1QZWVyIERNQSAoUDJQRE1BKQoJ
+ICAtIFJlc291cmNlcyBjbGFpbWluZy9hc3NpZ25tZW50IGNvbnNvbGlkYXRpb24KCSAgLSBQcm9i
+aW5nIG9mIG5hdGl2ZSBQQ0llIGNvbnRyb2xsZXJzIGFuZCBnZW5lcmFsIHJlc2V0CgkgICAgaW1w
+bGVtZW50YXRpb24KCSAgLSBQcmVmZXRjaGFibGUgdnMgbm9uLXByZWZldGNoYWJsZSBCQVIgYWRk
+cmVzcyBtYXBwaW5ncwoJICAtIFVudHJ1c3RlZC9leHRlcm5hbCBkZXZpY2VzIG1hbmFnZW1lbnQK
+CSAgLSBETUEgb3duZXJzaGlwIG1vZGVscwoJICAtIFRodW5kZXJib2x0LCBETUEsIFJETUEgYW5k
+IFVTQjQgc2VjdXJpdHkKCgkqIFZGSU86CgkgIC0gV3JpdGUtY29tYmluZSBvbiBub24teDg2IGFy
+Y2hpdGVjdHVyZXMKCSAgLSBJL08gUGFnZSBGYXVsdCAoSU9QRikgZm9yIHBhc3N0aHJvdWdoIGRl
+dmljZXMKCSAgLSBTaGFyZWQgVmlydHVhbCBBZGRyZXNzaW5nIChTVkEpIGludGVyZmFjZQoJICAt
+IFNpbmdsZS1yb290IEkvTyBWaXJ0dWFsaXphdGlvbihTUklPVikvUHJvY2VzcyBBZGRyZXNzIFNw
+YWNlCgkgICAgSUQgKFBBU0lEKSBpbnRlZ3JhdGlvbgoJICAtIFBBU0lEIGluIFNSSU9WIHZpcnR1
+YWwgZnVuY3Rpb25zCgkgIC0gRGV2aWNlIGFzc2lnbm1lbnQvc3ViLWFzc2lnbm1lbnQKCgkqIElP
+TU1VOgoJICAtIC9kZXYvaW9tbXVmZCBkZXZlbG9wbWVudAoJICAtIElPTU1VIHZpcnR1YWxpemF0
+aW9uCgkgIC0gSU9NTVUgZHJpdmVycyBTVkEgaW50ZXJmYWNlCgkgIC0gRE1BLUFQSSBsYXllciBp
+bnRlcmFjdGlvbnMgYW5kIHRoZSBtb3ZlIHRvd2FyZHMgZ2VuZXJpYwoJICAgIGRtYS1vcHMgZm9y
+IElPTU1VIGRyaXZlcnMKCSAgLSBQb3NzaWJsZSBJT01NVSBjb3JlIGNoYW5nZXMgKGUuZy4sIGJl
+dHRlciBpbnRlZ3JhdGlvbiB3aXRoCgkgICAgZGV2aWNlLWRyaXZlciBjb3JlLCBldGMuKQoKUGxl
+YXNlIHN1Ym1pdCB5b3VyIHByb3Bvc2FscyBvbiB0aGUgTFBDIHdlYnNpdGUgYXQ6CgoJaHR0cHM6
+Ly9scGMuZXZlbnRzL2V2ZW50LzE2L2Fic3RyYWN0cy8KCk1ha2Ugc3VyZSB0byBzZWxlY3QgdGhl
+ICJWRklPL0lPTU1VL1BDSSBNQyIgaW4gdGhlIFRyYWNrIHB1bGxkb3duCm1lbnUuCgpMb29raW5n
+IGZvcndhcmQgdG8gc2VlaW5nIHlvdSBhbGwgdGhlcmUsIGVpdGhlciBpbiBEdWJsaW4gb3Igdmly
+dHVhbCEgOikKClRoZSBvcmdhbml6ZXJzLAoKCUFsZXggV2lsbGlhbXNvbgoJQmpvcm4gSGVsZ2Fh
+cwoJSsO2cmcgUsO2ZGVsCglMb3JlbnpvIFBpZXJhbGlzaQoJS3J6eXN6dG9mIFdpbGN6ecWEc2tp
+CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFs
+aXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlv
+bi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8v
+dmlydHVhbGl6YXRpb24=
