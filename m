@@ -1,210 +1,126 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 719DBC433EF
-	for <virtualization@archiver.kernel.org>; Fri, 17 Jun 2022 02:53:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 29F6EC43334
+	for <virtualization@archiver.kernel.org>; Fri, 17 Jun 2022 03:15:12 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 85B8660B5F;
-	Fri, 17 Jun 2022 02:53:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 85B8660B5F
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=NanT2T8T
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id zUe845dRxNNV; Fri, 17 Jun 2022 02:53:23 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 1710260C30;
-	Fri, 17 Jun 2022 02:53:23 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1710260C30
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 685D1C0083;
-	Fri, 17 Jun 2022 02:53:22 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 76F42C002D;
- Fri, 17 Jun 2022 02:53:21 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 50CBB81470;
- Fri, 17 Jun 2022 02:53:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 50CBB81470
+	by smtp1.osuosl.org (Postfix) with ESMTP id A57C4840CD;
+	Fri, 17 Jun 2022 03:15:11 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A57C4840CD
 Authentication-Results: smtp1.osuosl.org;
- dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com
- header.a=rsa-sha256 header.s=Intel header.b=NanT2T8T
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=FpGlBWWr
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id nLzNasdK2OOB; Fri, 17 Jun 2022 02:53:20 +0000 (UTC)
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id AojkGXu1_eZl; Fri, 17 Jun 2022 03:15:10 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 0FB638405D;
+	Fri, 17 Jun 2022 03:15:09 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0FB638405D
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E3FBDC0032;
+	Fri, 17 Jun 2022 03:15:09 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B768EC002D
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 17 Jun 2022 03:15:08 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 8B96A60EF8
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 17 Jun 2022 03:15:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8B96A60EF8
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=FpGlBWWr
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id kzoEk5z_vzYz
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 17 Jun 2022 03:15:07 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2CFEE8146D
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 2CFEE8146D;
- Fri, 17 Jun 2022 02:53:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
- d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1655434400; x=1686970400;
- h=from:to:cc:subject:date:message-id:references:
- in-reply-to:content-transfer-encoding:mime-version;
- bh=2Le/cUDeQ3fVHTzWwi8s6g5GhAwassRMhG4UvW4l4M0=;
- b=NanT2T8TipnS6bCeznI4HhqcxUXrFLcbNRzQ3oRIirZMGPD66ggWYhEy
- srr8UsGwfebpv8Y1pXX24fBigL381tiR8zsjmrax0MTM++15Ud8/gHWXc
- jFnmnHQEhmeo+hu+EiRgBaSsSWPY2D1IMLfq4/i71PShabthRTyiRf+RL
- 1NI/1mmTZWo1+O1laLEy7+7mjPSSU6r2nXnRL5lh8jncmR3YGrQuVtz4z
- 6VBaJE/PONSP7PscNhYO+BJtdc/1aAFx4Nis0u53YSYYCGG7qoOw5hNPm
- Xq8wZtn2yCtHUetHc5iWLV8mEgqI2pmG2COGMB+ky5Rm0s57fT4zYIBiL Q==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10380"; a="341059127"
-X-IronPort-AV: E=Sophos;i="5.92,306,1650956400"; d="scan'208";a="341059127"
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
- by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 16 Jun 2022 19:53:18 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.92,306,1650956400"; d="scan'208";a="560183594"
-Received: from fmsmsx602.amr.corp.intel.com ([10.18.126.82])
- by orsmga006.jf.intel.com with ESMTP; 16 Jun 2022 19:53:17 -0700
-Received: from fmsmsx607.amr.corp.intel.com (10.18.126.87) by
- fmsmsx602.amr.corp.intel.com (10.18.126.82) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.27; Thu, 16 Jun 2022 19:53:16 -0700
-Received: from fmsmsx602.amr.corp.intel.com (10.18.126.82) by
- fmsmsx607.amr.corp.intel.com (10.18.126.87) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.27; Thu, 16 Jun 2022 19:53:16 -0700
-Received: from fmsedg601.ED.cps.intel.com (10.1.192.135) by
- fmsmsx602.amr.corp.intel.com (10.18.126.82) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.27 via Frontend Transport; Thu, 16 Jun 2022 19:53:16 -0700
-Received: from NAM12-MW2-obe.outbound.protection.outlook.com (104.47.66.49) by
- edgegateway.intel.com (192.55.55.70) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2308.27; Thu, 16 Jun 2022 19:53:15 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Pl10RGwB5t1tCmCbyNXyrll3IcJLIjw9m8P5c+1dzFyBAvIprsMnKCUhxoKsPTzzLkW5vVDb6p17ZzRWUN1G8FGnWrHTzsv/hFEkPcaJkX31TLs4r6JUVKLSTXmxeAvA7N1Q2MWygmsi+IYK6LYR4Dj5kZ1JUXynkZjX6JpzUgbOGGJzkrRcWeEcxkrdESTd7fnkgpzp8y4GKv74wYJD1B9bvIVttK+K8mmjU9Lcml+m9sU75G1O1PtUcxiOr2osBNQ6ccbHAa54IhRaJCkIEFGqsPz9PADOwcsZh2iBdwLorG/+DmVH2i47AakzvxY2q9Wam2QSUt61gpgPnWgLFA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=yPnaR3oeG9KD4dYZ61Yls2r2JyUJaYA7pG76XgATqjA=;
- b=ZzTM5dbX3UNFH/jHR380Mt73/3yIhceIQBWIy2LOOqwjr9LTGHlwXqnnJtub0RePW+X/XM+egzeC5zYqts6ek6q0RqJcrzFsxVyHXcFOxGoOPiDciZkuQpp4iuDigkzhIMQRbHEDtUqO20uoVaK6sSwALdoVR7hOIrJ0v0fDvT+pws6gsr3zcteS+UZfKCbWo0HqSyuo8wN4v07WEQ9K0wS8+i31cORb3YcS6WBiWErn400h3iwzW3/0gVCIPmy/cL8fEZu3tV9qFbk8l3nmEL34eMnoeXK9Xn/zQHrHEMucb5HFL714OLWRJCpkz3xwcMCTZqmEheuxAh3i1Npr4g==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com (2603:10b6:408:135::18)
- by BL3PR11MB6364.namprd11.prod.outlook.com (2603:10b6:208:3b7::12)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5332.17; Fri, 17 Jun
- 2022 02:53:13 +0000
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::8435:5a99:1e28:b38c]) by BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::8435:5a99:1e28:b38c%2]) with mapi id 15.20.5353.016; Fri, 17 Jun 2022
- 02:53:13 +0000
-From: "Tian, Kevin" <kevin.tian@intel.com>
-To: Nicolin Chen <nicolinc@nvidia.com>
-Subject: RE: [PATCH v2 5/5] vfio/iommu_type1: Simplify group attachment
-Thread-Topic: [PATCH v2 5/5] vfio/iommu_type1: Simplify group attachment
-Thread-Index: AQHYgRSKHdu8hpsyN0qjOVzlAFzvDq1RlxsAgAEK+wCAAERFoA==
-Date: Fri, 17 Jun 2022 02:53:13 +0000
-Message-ID: <BN9PR11MB5276C7BFA77C2C176491B56A8CAF9@BN9PR11MB5276.namprd11.prod.outlook.com>
-References: <20220616000304.23890-1-nicolinc@nvidia.com>
- <20220616000304.23890-6-nicolinc@nvidia.com>
- <BL1PR11MB52710E360B50DDA99C9A65D18CAC9@BL1PR11MB5271.namprd11.prod.outlook.com>
- <YquxcH2S1fM+llOf@Asurada-Nvidia>
-In-Reply-To: <YquxcH2S1fM+llOf@Asurada-Nvidia>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 5147c22a-1f2e-4e1e-86eb-08da500c8596
-x-ms-traffictypediagnostic: BL3PR11MB6364:EE_
-x-microsoft-antispam-prvs: <BL3PR11MB6364D7D831E4B3EC36093BC68CAF9@BL3PR11MB6364.namprd11.prod.outlook.com>
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: V9STjNJLVCbisCsbaj1azUPXnO0ZIcwsFI7Gthg6kPd7aP0t2dSRxQ2Qxjhhy96BRHvZoT2/d9UyF5YdvCqFcHnEkTWYXBo+eD0uiHC1hJKVGmAmL6GwRei1SNl/bDV23QAFQ26Xc1HubgXb7O2V/pIvKTRbZUpiSZNn7GwSVubrJzZa3Om2jImvTkAAm22INVjvsRWT7Z2K2URhpqSUe6bUOt1mqPTpjndJcIz3LD+ejKYcBGL3292OQMNaRJNfGKWa6vJuPaCdtTs7v5LKmoG8InNKJZUgpwNrm1utv4EPQIzS/AxlEN2TQPaPrjvIuNSjaDskuHTOzP9nocR7PMFuqDNsxCV+Kgdd3WViKFftxAhXWbKZ0tNe+t+CBsAMAXEbVmUXz8k1l3bXq30EH5NPmZy6BU4Cd/sgj+huCPunxkU9gOrLXOswv6I4o+zoM0RlzK6ouE13rFWy/aNgYDOkgSx6dT8LBYvC+nlrkch1f/jvx8cYFRnCh4ueT6QOmeEjwZ/qMc/y79n6MGsrVSrowA74yLhTH2SwgeiH8eqrLWXz2shmV4E0z+KOGQr3Dh5w2cpUTaRJeH13DuPO3hsxsKpMOnPAIuIQOiQZKMXSQXbbk2l08ME65DilEDUHhF1BMGxYsxF1ib/5gTL2biWpXgDMOQovHpob3HJ/GTwdgDRyJHw/MmpwGHgsZIHNDN4JEslnqlgg5SXLYR2Iaw==
-x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:BN9PR11MB5276.namprd11.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230016)(366004)(7406005)(66476007)(83380400001)(7696005)(66946007)(66556008)(2906002)(66446008)(64756008)(5660300002)(76116006)(33656002)(52536014)(6506007)(4326008)(86362001)(8676002)(508600001)(8936002)(82960400001)(71200400001)(38100700002)(122000001)(6916009)(55016003)(9686003)(54906003)(316002)(186003)(26005)(7416002)(38070700005);
- DIR:OUT; SFP:1102; 
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?lyTN/2amkbHeY/hzFVNHHa0JM68w7YyJZNnFnS4vR0vKqvybaTFEdm5OIC43?=
- =?us-ascii?Q?axmtD9/j+HlbM8OFFS7t+qaz0bnTcO+jDzpnu3rZvzMmHgT2RBTxScoB96pR?=
- =?us-ascii?Q?4CJHkN6dtBFcX2sg6OfTR/6zwWidQ31M3JG5sOnBWGjVTn+u/rF4OYZVVAtM?=
- =?us-ascii?Q?L5a8V82zyJQbTv75i2ejDfzTwZA+2H/r11StA9441Kf6TW2dpz/KKwZsnnMq?=
- =?us-ascii?Q?So2bp9mgVCpt3lAtqC+FuqbS9ULSg9212+2bxQb53hlCETOc2oQwCMVD9Br3?=
- =?us-ascii?Q?nikmSCCHgdmgSOBlIju4OJyDEteYU1p4bBdgpdKWdElHdRioD/eMJGB0EpSO?=
- =?us-ascii?Q?qF+q/TFoIdkQwjeJT3JZ21hQest/H9nuo+Rstx8TsOYJtM+bIkOQClb40kQs?=
- =?us-ascii?Q?ejPAYXc1E8F/8LV08JJ4Jl0bkbzO651S4prnPCZvTd2Lmw7WC1lVhIPk0OX1?=
- =?us-ascii?Q?YsI+w4cs9fykfYPY5uAmtmOJ4Cq1idSCtG29xPPdMdkVdPHfIx+XdJGGvyIr?=
- =?us-ascii?Q?fw3VltI29BQFBW0Cimohic+7XcbK3IVvo+0o3+RkZewyBPL5dgvxDrJk0N4B?=
- =?us-ascii?Q?KBzr17EbnjVVXUXahlgoNbhiZoyAua3G4Pl2uCD2RdPqt8UBRB3N49WQq3Gp?=
- =?us-ascii?Q?O6fjvQNdg4dHPsuBWhe4s+dpuKLTQr60rPtYFzJrDwkRKoIvzRO1+Tj+kS1f?=
- =?us-ascii?Q?NWoSTbt/Uz5azhWju8Bd6hltmmmT6RVYMvzEIsZhMqEJKwsm7U1q8y12LggH?=
- =?us-ascii?Q?zUrQWZA0eRUQ5Ik0witljrGWFeX+mfSFFQIDrCZ+VushsZOehP42Kd963nRA?=
- =?us-ascii?Q?qga9hnyEwXPFASO6yt+pfabVeW9xad91MX66q4p0wlThdYkB4Eifbob8nonc?=
- =?us-ascii?Q?JAjoKgy9rbOM4NDmE1qlWVBm4xDm3o8eJAOJX6CLf8FNYfCr7rxPcCGk8VMH?=
- =?us-ascii?Q?47WQAvMSdmypNXk83zJVwYzra2BKjOglSdWXl5shQ+MiQ6/NvA6gsihJ/02A?=
- =?us-ascii?Q?6o2mRevL6uBByM00Kh+FVFJsPwyexKeoYkwvh7m2ZpLEmmvEuqLjSHmLvINv?=
- =?us-ascii?Q?IHGA5BJEtt9z9oIEEty4npvobI82+AW/xB4ba6dsdikuoMK900ftxoGJ0KYP?=
- =?us-ascii?Q?MBkg8CJWCZp1oRgDGOoDR00XsXcdnRjGnbnnymyhMfrFrjGjno0+alim3xG/?=
- =?us-ascii?Q?F5SiTqNkzpfQTyifmRaRSuOx1lK99CgoAj6Ycx7tx/yxAFrX8nhWBA/am8o6?=
- =?us-ascii?Q?RRhih5NonYCMlJ3Au27hLroZVWhIxz7dzSwktf+ddj2RywTZO7JePEFuoR2K?=
- =?us-ascii?Q?dycdiT2ttjZJ6BWGPcOp3SYBSzD7VaET/wBKK3/ntuz951GCG6ZQCEFdgBWI?=
- =?us-ascii?Q?k1j27NinOj4WlBCeWl2D9FfBIqcg2Mo776eWh3nuIlRthgthSV50oDoRzOph?=
- =?us-ascii?Q?gHhUO/yXPTdvbu9x6RV7A3Uws1hOKrRdj6oJVKzhAlMApNT90JeXsEPdhl8n?=
- =?us-ascii?Q?YF0Z73PxOV3nJUmwgFBGlpXvSnjkfnuwLx0nOaFxz8ybtBBkDqWNS++8Svxo?=
- =?us-ascii?Q?qohhRYFBN87kmLIsNlhtM6M1vAXCBxVZa5XQP8QuuRMc53JviB+l3ujsv4tV?=
- =?us-ascii?Q?5XnU73nukDhpDUzFXNFCStiYl4XJB+Q+OTl0DJkFD0w31ZVk7lqRsr8KDjFt?=
- =?us-ascii?Q?wtMQIdJr1JnECuW7SMfPAsW07i2GCsg/hQmnwUvstMTM4HdaowTL66R/g2z4?=
- =?us-ascii?Q?EUnm3uaz4w=3D=3D?=
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2F284607C7
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 2F284607C7
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 17 Jun 2022 03:15:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1655435705;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=zyXdUs74Sn1gokvnhKFxRwfNZUQVkLFJThbXXT8GKOo=;
+ b=FpGlBWWrV1qfjPPvo3gQvmv/oFAqtoyoS3Tv/qymj6piv4j491bd+Gxqtnge8Y/tdiW/zN
+ 32KSs9k0pSkFFkt6Yo4LDJpkVwy9Krap/TWNZaw/1yJvDc0aMvbdBPzMNTBCs+osV+y+Sh
+ QtQ/be8q4276AvwQDpIBv6WOljpBWX0=
+Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com
+ [209.85.208.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-347-TLfDA1SyNpy0US8QozxU9A-1; Thu, 16 Jun 2022 23:15:03 -0400
+X-MC-Unique: TLfDA1SyNpy0US8QozxU9A-1
+Received: by mail-lj1-f198.google.com with SMTP id
+ m14-20020a2e97ce000000b002556f5f731dso403274ljj.5
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 16 Jun 2022 20:15:03 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=zyXdUs74Sn1gokvnhKFxRwfNZUQVkLFJThbXXT8GKOo=;
+ b=T+d5m4KJjVxbxND/56Kp+zXjI5XIJxEu3ZT0q3+b+GjJBB2ksIBdAAdu2P/NP0nSQt
+ gkAnduCIUJLk3tg744yJ7Op5/rCUPQp+C+w/4IPUAAgRRsyeqTVMdPBeHgX568z+4L89
+ lGxBXpBmp2rspYkTY51nJPuftcsJr83uOJ2ssqgtesszkBBoUTZhGIY5IaXktRhh+YgG
+ +bRLzt1RhmiUTwNJIFWY2/u17f5JkFTwr6UPMoCYllj3ZIk3m231Mg9fyNu4LAvkpoT9
+ /K14UHaC22R+rYbmQpi08GsaTfzETv5N9CnFzUo4IcHOcN3Bm+splXggsfZRcihYKlAq
+ U8Fw==
+X-Gm-Message-State: AJIora+SE4FARDFX1N5OZDusoSRRf++/ksvnyhBHLjeIsSGF0xURdN40
+ SDdRA2Y9ee1OG21hlPe9cHJNEJeW6WtWkB4+/WjlpBnkS0TZtTIiANccnyz345cOBG1/srW0dhT
+ YoiRXL9Xd27Q0laGqq/IsWDLlNjU2p52OAxL0z+rAukJU1FoBJftnyG5khg==
+X-Received: by 2002:a19:4352:0:b0:479:5d1:3fef with SMTP id
+ m18-20020a194352000000b0047905d13fefmr4339505lfj.411.1655435701800; 
+ Thu, 16 Jun 2022 20:15:01 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1vrhZSavPJtlgCcYBizs4v7LLbX7WbLjH0ir+NVgTVj79Hn7OdCFvYsSXLKV5EDBsPKindEevKRIpCVFBpp9dE=
+X-Received: by 2002:a19:4352:0:b0:479:5d1:3fef with SMTP id
+ m18-20020a194352000000b0047905d13fefmr4339489lfj.411.1655435701522; Thu, 16
+ Jun 2022 20:15:01 -0700 (PDT)
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BN9PR11MB5276.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5147c22a-1f2e-4e1e-86eb-08da500c8596
-X-MS-Exchange-CrossTenant-originalarrivaltime: 17 Jun 2022 02:53:13.7254 (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 7yUlOT25uayJzx73Rv7IGqb0mK4ZbUqUwe7NsHX4YpxMBVGEhxkIZOlbdE5zx9cWX4zQUHQ3SNFZFp6lMrfRmA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL3PR11MB6364
-X-OriginatorOrg: intel.com
-Cc: "cohuck@redhat.com" <cohuck@redhat.com>,
- "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
- "jordan@cosmicpenguin.net" <jordan@cosmicpenguin.net>,
- "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
- "thierry.reding@gmail.com" <thierry.reding@gmail.com>,
- "will@kernel.org" <will@kernel.org>,
- "alyssa@rosenzweig.io" <alyssa@rosenzweig.io>,
- "jean-philippe@linaro.org" <jean-philippe@linaro.org>,
- "saiprakash.ranjan@codeaurora.org" <saiprakash.ranjan@codeaurora.org>,
- "zhang.lyra@gmail.com" <zhang.lyra@gmail.com>,
- "joro@8bytes.org" <joro@8bytes.org>, "sven@svenpeter.dev" <sven@svenpeter.dev>,
- "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>,
- "jonathanh@nvidia.com" <jonathanh@nvidia.com>,
- "jgg@nvidia.com" <jgg@nvidia.com>,
- "yangyingliang@huawei.com" <yangyingliang@huawei.com>,
- "orsonzhai@gmail.com" <orsonzhai@gmail.com>,
- "gerald.schaefer@linux.ibm.com" <gerald.schaefer@linux.ibm.com>,
- "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
- "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>,
- "christophe.jaillet@wanadoo.fr" <christophe.jaillet@wanadoo.fr>,
- "matthias.bgg@gmail.com" <matthias.bgg@gmail.com>,
- "tglx@linutronix.de" <tglx@linutronix.de>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
- "isaacm@codeaurora.org" <isaacm@codeaurora.org>,
- "dwmw2@infradead.org" <dwmw2@infradead.org>,
- "marcan@marcan.st" <marcan@marcan.st>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "robdclark@gmail.com" <robdclark@gmail.com>,
- "baolin.wang7@gmail.com" <baolin.wang7@gmail.com>,
- "linux-mediatek@lists.infradead.org" <linux-mediatek@lists.infradead.org>,
- "robin.murphy@arm.com" <robin.murphy@arm.com>,
- "baolu.lu@linux.intel.com" <baolu.lu@linux.intel.com>
+References: <CACGkMEs05ZisiPW+7H6Omp80MzmZWZCpc1mf5Vd99C3H-KUtgA@mail.gmail.com>
+ <20220613041416-mutt-send-email-mst@kernel.org>
+ <CACGkMEsT_fWdPxN1cTWOX=vu-ntp3Xo4j46-ZKALeSXr7DmJFQ@mail.gmail.com>
+ <20220613045606-mutt-send-email-mst@kernel.org>
+ <CACGkMEtAQck7Nr6SP_pD0MGT3njnwZSyT=xPyYzUU3c5GNNM_w@mail.gmail.com>
+ <CACGkMEvUFJkC=mnvL2PSH6-3RMcJUk84f-9X46JVcj2vTAr4SQ@mail.gmail.com>
+ <20220613052644-mutt-send-email-mst@kernel.org>
+ <CACGkMEstGvhETXThuwO+tLVBuRgQb8uC_6DdAM8ZxOi5UKBRbg@mail.gmail.com>
+ <Yqi7UhasBDPKCpuV@e120937-lin>
+ <CACGkMEv2A7ZHQTrdg9H=xZScAf2DE=Dguaz60ykd4KQGNLrn2Q@mail.gmail.com>
+ <YqojyHuocSoZ0v/Y@e120937-lin>
+In-Reply-To: <YqojyHuocSoZ0v/Y@e120937-lin>
+From: Jason Wang <jasowang@redhat.com>
+Date: Fri, 17 Jun 2022 11:14:50 +0800
+Message-ID: <CACGkMEsdhCx8mmGn+axjM-+Psep4jVN2zzbBQhjW3y6gvHXxXQ@mail.gmail.com>
+Subject: Re: [PATCH V6 8/9] virtio: harden vring IRQ
+To: Cristian Marussi <cristian.marussi@arm.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+ Peter Zijlstra <peterz@infradead.org>, Viresh Kumar <viresh.kumar@linaro.org>,
+ linux-kernel <linux-kernel@vger.kernel.org>,
+ Vineeth Vijayan <vneethv@linux.ibm.com>, Cindy Lu <lulu@redhat.com>,
+ Marc Zyngier <maz@kernel.org>, Halil Pasic <pasic@linux.ibm.com>,
+ eperezma <eperezma@redhat.com>, "Paul E. McKenney" <paulmck@kernel.org>,
+ linux-s390@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+ virtualization <virtualization@lists.linux-foundation.org>,
+ conghui.chen@intel.com, pankaj.gupta.linux@gmail.com,
+ Mathieu Poirier <mathieu.poirier@linaro.org>, netdev <netdev@vger.kernel.org>,
+ Cornelia Huck <cohuck@redhat.com>, Peter Oberparleiter <oberpar@linux.ibm.com>,
+ Bjorn Andersson <bjorn.andersson@linaro.org>, sudeep.holla@arm.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -221,80 +137,116 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-> From: Nicolin Chen <nicolinc@nvidia.com>
-> Sent: Friday, June 17, 2022 6:41 AM
-> 
-> > ...
-> > > -     if (resv_msi) {
-> > > +     if (resv_msi && !domain->msi_cookie) {
-> > >               ret = iommu_get_msi_cookie(domain->domain,
-> > > resv_msi_base);
-> > >               if (ret && ret != -ENODEV)
-> > >                       goto out_detach;
-> > > +             domain->msi_cookie = true;
-> > >       }
-> >
-> > why not moving to alloc_attach_domain() then no need for the new
-> > domain field? It's required only when a new domain is allocated.
-> 
-> When reusing an existing domain that doesn't have an msi_cookie,
-> we can do iommu_get_msi_cookie() if resv_msi is found. So it is
-> not limited to a new domain.
-
-Looks msi_cookie requirement is per platform (currently only
-for smmu. see arm_smmu_get_resv_regions()). If there is
-no mixed case then above check is not required.
-
-But let's hear whether Robin has a different thought here.
-
-> 
-> > ...
-> > > -             if (list_empty(&domain->group_list)) {
-> > > -                     if (list_is_singular(&iommu->domain_list)) {
-> > > -                             if (list_empty(&iommu-
-> > > >emulated_iommu_groups)) {
-> > > -                                     WARN_ON(iommu->notifier.head);
-> > > -
-> > >       vfio_iommu_unmap_unpin_all(iommu);
-> > > -                             } else {
-> > > -
-> > >       vfio_iommu_unmap_unpin_reaccount(iommu);
-> > > -                             }
-> > > -                     }
-> > > -                     iommu_domain_free(domain->domain);
-> > > -                     list_del(&domain->next);
-> > > -                     kfree(domain);
-> > > -                     vfio_iommu_aper_expand(iommu, &iova_copy);
-> >
-> > Previously the aperture is adjusted when a domain is freed...
-> >
-> > > -                     vfio_update_pgsize_bitmap(iommu);
-> > > -             }
-> > > -             /*
-> > > -              * Removal of a group without dirty tracking may allow
-> > > -              * the iommu scope to be promoted.
-> > > -              */
-> > > -             if (!group->pinned_page_dirty_scope) {
-> > > -                     iommu->num_non_pinned_groups--;
-> > > -                     if (iommu->dirty_page_tracking)
-> > > -                             vfio_iommu_populate_bitmap_full(iommu);
-> > > -             }
-> > > +             vfio_iommu_detach_destroy_domain(domain, iommu,
-> > > group);
-> > >               kfree(group);
-> > >               break;
-> > >       }
+On Thu, Jun 16, 2022 at 2:24 AM Cristian Marussi
+<cristian.marussi@arm.com> wrote:
+>
+> On Wed, Jun 15, 2022 at 09:41:18AM +0800, Jason Wang wrote:
+> > On Wed, Jun 15, 2022 at 12:46 AM Cristian Marussi
+> > <cristian.marussi@arm.com> wrote:
+>
+> Hi Jason,
+>
 > > >
-> > > +     vfio_iommu_aper_expand(iommu, &iova_copy);
+> > > On Tue, Jun 14, 2022 at 03:40:21PM +0800, Jason Wang wrote:
+> > > > On Mon, Jun 13, 2022 at 5:28 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > > >
+> > >
+>
+> [snip]
+>
+> > > >
+> > > > >  arm_scmi
+> > > >
+> > > > It looks to me the singleton device could be used by SCMI immediately after
+> > > >
+> > > >         /* Ensure initialized scmi_vdev is visible */
+> > > >         smp_store_mb(scmi_vdev, vdev);
+> > > >
+> > > > So we probably need to do virtio_device_ready() before that. It has an
+> > > > optional rx queue but the filling is done after the above assignment,
+> > > > so it's safe. And the callback looks safe is a callback is triggered
+> > > > after virtio_device_ready() buy before the above assignment.
+> > > >
+> > >
+> > > I wanted to give it a go at this series testing it on the context of
+> > > SCMI but it does not apply
+> > >
+> > > - not on a v5.18:
+> > >
+> > > 17:33 $ git rebase -i v5.18
+> > > 17:33 $ git am ./v6_20220527_jasowang_rework_on_the_irq_hardening_of_virtio.mbx
+> > > Applying: virtio: use virtio_device_ready() in virtio_device_restore()
+> > > Applying: virtio: use virtio_reset_device() when possible
+> > > Applying: virtio: introduce config op to synchronize vring callbacks
+> > > Applying: virtio-pci: implement synchronize_cbs()
+> > > Applying: virtio-mmio: implement synchronize_cbs()
+> > > error: patch failed: drivers/virtio/virtio_mmio.c:345
+> > > error: drivers/virtio/virtio_mmio.c: patch does not apply
+> > > Patch failed at 0005 virtio-mmio: implement synchronize_cbs()
+> > >
+> > > - neither on a v5.19-rc2:
+> > >
+> > > 17:33 $ git rebase -i v5.19-rc2
+> > > 17:35 $ git am ./v6_20220527_jasowang_rework_on_the_irq_hardening_of_virtio.mbx
+> > > Applying: virtio: use virtio_device_ready() in virtio_device_restore()
+> > > error: patch failed: drivers/virtio/virtio.c:526
+> > > error: drivers/virtio/virtio.c: patch does not apply
+> > > Patch failed at 0001 virtio: use virtio_device_ready() in
+> > > virtio_device_restore()
+> > > hint: Use 'git am --show-current-patch=diff' to see the failed patch
+> > > When you have resolved this problem, run "git am --continue".
+> > >
+> > > ... what I should take as base ?
 > >
-> > but now it's done for every group detach. The aperture is decided
-> > by domain geometry which is not affected by attached groups.
-> 
-> Yea, I've noticed this part. Actually Jason did this change for
-> simplicity, and I think it'd be safe to do so?
+> > It should have already been included in rc2, so there's no need to
+> > apply patch manually.
+> >
+>
+> I tested this series as included in v5.19-rc2 (WITHOUT adding a virtio_device_ready
+> in SCMI virtio as you mentioned above ... if I got it right) and I have NOT seen any
+> issue around SCMI virtio using my usual test setup (using both SCMI vqueues).
+>
+> No anomalies even when using SCMI virtio in atomic/polling mode.
+>
+> Adding a virtio_device_ready() at the end of the SCMI virtio probe()
+> works fine either, it does not make any difference in my setup.
+> (both using QEMU and kvmtool with this latter NOT supporting
+>  virtio_V1...not sure if it makes a difference but I thought was worth
+>  mentioning)
 
-Perhaps detach_destroy() can return a Boolean to indicate whether
-a domain is destroyed.
+Thanks a lot for the testing.
+
+We want to prevent malicious hypervisors from attacking us. So more questions:
+
+Assuming we do:
+
+virtio_device_ready();
+/* Ensure initialized scmi_vdev is visible */
+smp_store_mb(scmi_vdev, vdev);
+
+This means we allow the callbacks (scmi_vio_complete) to be called
+before smp_store_mb(). We need to make sure the callbacks are robust.
+And this looks fine since we have the check of
+scmi_vio_channel_acquire() and if the notification is called before
+smp_store_mb(), the acquire will fail.
+
+If we put virtio_device_ready() after smp_store_mb() like:
+
+/* Ensure initialized scmi_vdev is visible */
+smp_store_mb(scmi_vdev, vdev);
+virtio_device_ready();
+
+If I understand correctly, there will be a race since the SCMI may try
+to use the device before virtio_device_ready(), this violates the
+virtio spec somehow.
+
+Thanks
+
+>
+> Thanks,
+> Cristian
+>
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
