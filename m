@@ -1,84 +1,86 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5A2FECCA479
-	for <virtualization@archiver.kernel.org>; Fri, 17 Jun 2022 07:26:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E6C39C43334
+	for <virtualization@archiver.kernel.org>; Fri, 17 Jun 2022 07:30:01 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id E834940A09;
-	Fri, 17 Jun 2022 07:26:41 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E834940A09
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ctD5eM55
+	by smtp1.osuosl.org (Postfix) with ESMTP id 6F50C84221;
+	Fri, 17 Jun 2022 07:30:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6F50C84221
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Hk25/02d
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id q-QLPk62970m; Fri, 17 Jun 2022 07:26:41 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 6D639409D7;
-	Fri, 17 Jun 2022 07:26:40 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6D639409D7
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id whWSNnAwroQC; Fri, 17 Jun 2022 07:30:00 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id EEF9F84105;
+	Fri, 17 Jun 2022 07:29:59 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org EEF9F84105
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4A76EC0039;
-	Fri, 17 Jun 2022 07:26:40 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id CB747C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CCAC5C0039;
+	Fri, 17 Jun 2022 07:29:59 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8A0F1C002D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 17 Jun 2022 07:26:38 +0000 (UTC)
+ Fri, 17 Jun 2022 07:29:59 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 9D7404026E
+ by smtp3.osuosl.org (Postfix) with ESMTP id 4ED9260A79
  for <virtualization@lists.linux-foundation.org>;
- Fri, 17 Jun 2022 07:26:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9D7404026E
-Authentication-Results: smtp4.osuosl.org;
+ Fri, 17 Jun 2022 07:29:59 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4ED9260A79
+Authentication-Results: smtp3.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=ctD5eM55
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=Hk25/02d
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id szKsgEsEcldB
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id jVBn44HlrOsK
  for <virtualization@lists.linux-foundation.org>;
- Fri, 17 Jun 2022 07:26:37 +0000 (UTC)
+ Fri, 17 Jun 2022 07:29:58 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6557640248
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8877360A92
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 6557640248
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 8877360A92
  for <virtualization@lists.linux-foundation.org>;
- Fri, 17 Jun 2022 07:26:37 +0000 (UTC)
+ Fri, 17 Jun 2022 07:29:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1655450795;
+ s=mimecast20190719; t=1655450997;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:mime-version:mime-version:content-type:content-type:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding;
- bh=v1OzxUTdVxm25FyB56AWfj0qHOMIBXGWkHMr1WYBfyA=;
- b=ctD5eM550QlkuYp9dKkZZSiJ9bLVj5Ficba/1fdMFfrUlsJoq4RdvYYEoDR7RzMt40IG/g
- /9T6ics5yt0nZx6Zx9q3cAQjPfD3H4UZsjmZtWwExa7UUwUKVzB8wBnd7mAf+Luxg4yhhH
- bQ12MKRbe4lICiSmaYX+/5PSNXDzJjI=
+ bh=Fl5g9NFjvXIN0xGJA157NHcsEoJ12uvuRlfGLrOUGTg=;
+ b=Hk25/02docKdvaTRTzLoThgVJyqwH7CRB/VKsV75cz+r21QazBJuFlco5szcQDXWQBUKDQ
+ VJLLvUhxScdn08ctU9h2qlnfw9BKXRN7oXW3d0Bj/QcsnmqdQB27UzjgZUlv3dttXOBZU4
+ hK4obk3jbkqAcYtbb/r8QeaAszj76ls=
 Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
  [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-278-h6hkhi_fM2KAFgmeglqjfw-1; Fri, 17 Jun 2022 03:26:31 -0400
-X-MC-Unique: h6hkhi_fM2KAFgmeglqjfw-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com
- [10.11.54.5])
+ us-mta-656-ndiwV_2hPRySbG87GwEyPg-1; Fri, 17 Jun 2022 03:29:55 -0400
+X-MC-Unique: ndiwV_2hPRySbG87GwEyPg-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.2])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 180A4101AA46;
- Fri, 17 Jun 2022 07:26:31 +0000 (UTC)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 5CD8D802C17;
+ Fri, 17 Jun 2022 07:29:55 +0000 (UTC)
 Received: from localhost.localdomain (ovpn-13-87.pek2.redhat.com [10.72.13.87])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 0694910725;
- Fri, 17 Jun 2022 07:26:28 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 68F4740C141F;
+ Fri, 17 Jun 2022 07:29:52 +0000 (UTC)
 From: Jason Wang <jasowang@redhat.com>
-To: mst@redhat.com, jasowang@redhat.com,
- virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] virtio: disable notification hardening by default
-Date: Fri, 17 Jun 2022 15:26:26 +0800
-Message-Id: <20220617072626.30503-1-jasowang@redhat.com>
+To: mst@redhat.com, jasowang@redhat.com, davem@davemloft.net, kuba@kernel.org
+Subject: [PATCH] virtio-net: fix race between ndo_open() and
+ virtio_device_ready()
+Date: Fri, 17 Jun 2022 15:29:49 +0800
+Message-Id: <20220617072949.30734-1-jasowang@redhat.com>
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.11.54.5
+X-Scanned-By: MIMEDefang 2.84 on 10.11.54.2
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -95,124 +97,47 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-We try to harden virtio device notifications in 8b4ec69d7e09 ("virtio:
-harden vring IRQ"). It works with the assumption that the driver or
-core can properly call virtio_device_ready() at the right
-place. Unfortunately, this seems to be not true and uncover various
-bugs of the existing drivers, mainly the issue of using
-virtio_device_ready() incorrectly.
+We used to call virtio_device_ready() after netdev registration. This
+cause a race between ndo_open() and virtio_device_ready(): if
+ndo_open() is called before virtio_device_ready(), the driver may
+start to use the device before DRIVER_OK which violates the spec.
 
-So let's having a Kconfig option and disable it by default. It gives
-us a breath to fix the drivers and then we can consider to enable it
-by default.
+Fixing this by switching to use register_netdevice() and protect the
+virtio_device_ready() with rtnl_lock() to make sure ndo_open() can
+only be called after virtio_device_ready().
 
+Fixes: 4baf1e33d0842 ("virtio_net: enable VQs early")
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/virtio/Kconfig        |  6 ++++++
- drivers/virtio/virtio.c       |  2 ++
- drivers/virtio/virtio_ring.c  | 12 ++++++++++++
- include/linux/virtio_config.h |  2 ++
- 4 files changed, 22 insertions(+)
+ drivers/net/virtio_net.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
-index b5adf6abd241..b059c39af3d4 100644
---- a/drivers/virtio/Kconfig
-+++ b/drivers/virtio/Kconfig
-@@ -35,6 +35,12 @@ menuconfig VIRTIO_MENU
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index db05b5e930be..8a5810bcb839 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -3655,14 +3655,20 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 	if (vi->has_rss || vi->has_rss_hash_report)
+ 		virtnet_init_default_rss(vi);
  
- if VIRTIO_MENU
- 
-+config VIRTIO_HARDEN_NOTIFICATION
-+        bool "Harden virtio notification"
-+        help
-+          Enable to this to harden the device notifications and
-+          supress the ones that are illegal.
+-	err = register_netdev(dev);
++	/* serialize netdev register + virtio_device_ready() with ndo_open() */
++	rtnl_lock();
 +
- config VIRTIO_PCI
- 	tristate "PCI driver for virtio devices"
- 	depends on PCI
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index ef04a96942bf..21dc08d2f32d 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -220,6 +220,7 @@ static int virtio_features_ok(struct virtio_device *dev)
-  * */
- void virtio_reset_device(struct virtio_device *dev)
- {
-+#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
- 	/*
- 	 * The below virtio_synchronize_cbs() guarantees that any
- 	 * interrupt for this line arriving after
-@@ -228,6 +229,7 @@ void virtio_reset_device(struct virtio_device *dev)
- 	 */
- 	virtio_break_device(dev);
- 	virtio_synchronize_cbs(dev);
-+#endif
- 
- 	dev->config->reset(dev);
- }
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 13a7348cedff..d9d3b6e201fb 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -1688,7 +1688,11 @@ static struct virtqueue *vring_create_virtqueue_packed(
- 	vq->we_own_ring = true;
- 	vq->notify = notify;
- 	vq->weak_barriers = weak_barriers;
-+#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
- 	vq->broken = true;
-+#else
-+	vq->broken = false;
-+#endif
- 	vq->last_used_idx = 0;
- 	vq->event_triggered = false;
- 	vq->num_added = 0;
-@@ -2135,9 +2139,13 @@ irqreturn_t vring_interrupt(int irq, void *_vq)
++	err = register_netdevice(dev);
+ 	if (err) {
+ 		pr_debug("virtio_net: registering device failed\n");
++		rtnl_unlock();
+ 		goto free_failover;
  	}
  
- 	if (unlikely(vq->broken)) {
-+#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
- 		dev_warn_once(&vq->vq.vdev->dev,
- 			      "virtio vring IRQ raised before DRIVER_OK");
- 		return IRQ_NONE;
-+#else
-+		return IRQ_HANDLED;
-+#endif
- 	}
+ 	virtio_device_ready(vdev);
  
- 	/* Just a hint for performance: so it's ok that this can be racy! */
-@@ -2180,7 +2188,11 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
- 	vq->we_own_ring = false;
- 	vq->notify = notify;
- 	vq->weak_barriers = weak_barriers;
-+#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
- 	vq->broken = true;
-+#else
-+	vq->broken = false;
-+#endif
- 	vq->last_used_idx = 0;
- 	vq->event_triggered = false;
- 	vq->num_added = 0;
-diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-index 9a36051ceb76..d15c3cdda2d2 100644
---- a/include/linux/virtio_config.h
-+++ b/include/linux/virtio_config.h
-@@ -257,6 +257,7 @@ void virtio_device_ready(struct virtio_device *dev)
- 
- 	WARN_ON(status & VIRTIO_CONFIG_S_DRIVER_OK);
- 
-+#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
- 	/*
- 	 * The virtio_synchronize_cbs() makes sure vring_interrupt()
- 	 * will see the driver specific setup if it sees vq->broken
-@@ -264,6 +265,7 @@ void virtio_device_ready(struct virtio_device *dev)
- 	 */
- 	virtio_synchronize_cbs(dev);
- 	__virtio_unbreak_device(dev);
-+#endif
- 	/*
- 	 * The transport should ensure the visibility of vq->broken
- 	 * before setting DRIVER_OK. See the comments for the transport
++	rtnl_unlock();
++
+ 	err = virtnet_cpu_notif_add(vi);
+ 	if (err) {
+ 		pr_debug("virtio_net: registering cpu notifier failed\n");
 -- 
 2.25.1
 
