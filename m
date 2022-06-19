@@ -4,97 +4,106 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 61F6CC433EF
-	for <virtualization@archiver.kernel.org>; Fri, 17 Jun 2022 14:34:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 424FCC43334
+	for <virtualization@archiver.kernel.org>; Sun, 19 Jun 2022 16:54:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 0F49F40A06;
-	Fri, 17 Jun 2022 14:34:30 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0F49F40A06
+	by smtp2.osuosl.org (Postfix) with ESMTP id D4D8940167;
+	Sun, 19 Jun 2022 16:54:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D4D8940167
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=V9GiLKMH
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=qxkUuo8N
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id dSff9R5AlZ_y; Fri, 17 Jun 2022 14:34:29 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 9CB1C400E5;
-	Fri, 17 Jun 2022 14:34:28 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9CB1C400E5
+	with ESMTP id D1t8Yk_AQ-Dh; Sun, 19 Jun 2022 16:54:30 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 1BBFB400CC;
+	Sun, 19 Jun 2022 16:54:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1BBFB400CC
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6D539C0032;
-	Fri, 17 Jun 2022 14:34:28 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E28F8C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D48C9C0039;
+	Sun, 19 Jun 2022 16:54:29 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id CCF23C002D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 17 Jun 2022 14:34:26 +0000 (UTC)
+ Sun, 19 Jun 2022 16:54:27 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id B5E62612DB
+ by smtp3.osuosl.org (Postfix) with ESMTP id A148660B15
  for <virtualization@lists.linux-foundation.org>;
- Fri, 17 Jun 2022 14:34:26 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B5E62612DB
+ Sun, 19 Jun 2022 16:54:27 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A148660B15
 Authentication-Results: smtp3.osuosl.org;
- dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org
- header.a=rsa-sha256 header.s=casper.20170209 header.b=V9GiLKMH
+ dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com
+ header.a=rsa-sha256 header.s=20210112 header.b=qxkUuo8N
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id T7OQxEzcfQel
+ with ESMTP id G2hu0fNrKC2Z
  for <virtualization@lists.linux-foundation.org>;
- Fri, 17 Jun 2022 14:34:24 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8D8DD60B13
-Received: from casper.infradead.org (casper.infradead.org
- [IPv6:2001:8b0:10b:1236::1])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 8D8DD60B13
+ Sun, 19 Jun 2022 16:54:26 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0655260A90
+Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com
+ [IPv6:2a00:1450:4864:20::333])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 0655260A90
  for <virtualization@lists.linux-foundation.org>;
- Fri, 17 Jun 2022 14:34:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
- References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
- Content-Transfer-Encoding:Content-ID:Content-Description;
- bh=zCYLBNrpsWXnOqcC5wJ/hD9iA4hBnMBniae3jFnLY4g=; b=V9GiLKMHEe+HEZjsJZ2Pb5P6ea
- d9D0pHgbo5JQRZoFL9HsbHI9Gdr4THYdrwvU9KtY2IcnhaclV//MKCurCrfsFBLpDYU+0XWi6zy00
- CStKpcL2cDfbTxFxY0Tf8zjpQNcUymWJ+YlY+fvPV1PcHXf0aNed562ttdg9wfTK0LHPZcFN+moY9
- tMgzajAbEMzya03pEkrkuFtIIygfEX8crLwpznvIEfcuhfXxChDJxrCJuIvuwz9tf/8Nlf/KxPo9t
- V2t5D5TgWuKJjFc4BX7Pk7tMX90ySuSVuqT+pniMH+AdHEAlxqqdkTfsfegVm8+GJB4P0Y2RxckVb
- hytS0s1Q==;
-Received: from dhcp-077-249-017-003.chello.nl ([77.249.17.3]
- helo=worktop.programming.kicks-ass.net)
- by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1o2D2o-002tnV-Hz; Fri, 17 Jun 2022 14:33:54 +0000
-Received: by worktop.programming.kicks-ass.net (Postfix, from userid 1000)
- id 065709816B5; Fri, 17 Jun 2022 16:33:54 +0200 (CEST)
-Date: Fri, 17 Jun 2022 16:33:53 +0200
-From: Peter Zijlstra <peterz@infradead.org>
-To: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V6 8/9] virtio: harden vring IRQ
-Message-ID: <YqyQ0bMF1EM8E6BW@worktop.programming.kicks-ass.net>
-References: <CACGkMEtAQck7Nr6SP_pD0MGT3njnwZSyT=xPyYzUU3c5GNNM_w@mail.gmail.com>
- <CACGkMEvUFJkC=mnvL2PSH6-3RMcJUk84f-9X46JVcj2vTAr4SQ@mail.gmail.com>
- <20220613052644-mutt-send-email-mst@kernel.org>
- <CACGkMEstGvhETXThuwO+tLVBuRgQb8uC_6DdAM8ZxOi5UKBRbg@mail.gmail.com>
- <20220614114839-mutt-send-email-mst@kernel.org>
- <CACGkMEthExrqFNkOzLGwaffvHw=Tc3MXPtTTiRsnpFDGKPRP=A@mail.gmail.com>
- <20220616130945-mutt-send-email-mst@kernel.org>
- <CACGkMEuSX-wg-VQzVLRhE_9wmQVpCQo5cxQ-by3N6v7gaBNsrg@mail.gmail.com>
- <20220617013147-mutt-send-email-mst@kernel.org>
- <CACGkMEuaxpgGt38anCYfQfy_OOKf0HCmSonC7cBD9-jrgWQ+Ow@mail.gmail.com>
+ Sun, 19 Jun 2022 16:54:25 +0000 (UTC)
+Received: by mail-wm1-x333.google.com with SMTP id
+ i81-20020a1c3b54000000b0039c76434147so6690300wma.1
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 19 Jun 2022 09:54:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=ppe60HQahHXkVgrLDnvEMDFmqydMingxcaLG2h2tDds=;
+ b=qxkUuo8NTQLsBXbC5E8aEudBiPLOEZnwA8sAT7qMmQnOtoXaMIFLE2b2Rh6GsCR1iX
+ eTMB0aRfMUV6EhJULo2lYtlqSNFJBDW1/T8YnkLYz9iVdpV2PaW/gv2/pYXZKi4kJIaK
+ Eh4aUOd/ejGue0WhZBu9d9Qa6OScUi8JU5HrV5jPauscIwvqVOc3X2XBk4dSCai16mSR
+ nKbWPnD2A4qCGNVc26/CDPOkeN0m2s127eULGFiB+LAy2n1WU5/Bs3JfIo0uzY6Gn+Vv
+ UZ/xD1G7K4taW+3lkPaR7WAYnibTueIyoqqyjp7MK3qR7PEz4LRrxytX28QMGelFGiYX
+ b7Pg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=ppe60HQahHXkVgrLDnvEMDFmqydMingxcaLG2h2tDds=;
+ b=WuaAZtKK5WXtqU/H9CKsLD2/Hh6B4a/8ml3IH/rMVpxz96kb0SY2NjMlPL71vhVtS1
+ SWDwXUceLO+QUGHooW4QPt3zLC5+BiTbQgSNPVjL0UoH/MHGQcpin0kz0diTBoSedTtX
+ eemGqJlq/hWtU473aSUzwK6DGzTF1KT8+Nt0ZEZ1OfAzpPHxdtuJBPlRgD76QvNkKISZ
+ ipUwaQ/UEPwQn3tMIc2zeyJMhVAjltULnaBJk/zVzAotTklTe60llaACoXDM0NEzsYW5
+ zbvp7tzhsCJylyokbmkgkVOzDishzFKVVVvSCUhC92LooRtEKsXCKSresy0Uj72cZtw4
+ +Fww==
+X-Gm-Message-State: AJIora8U2O+DumPAGIwiO9aksVI2EqFYZU7Sc7qiAUuB586T/rKE+iX1
+ AlFVOJFjP7vqR1sYphDbARIcM2iezBqcSXmKKI0=
+X-Google-Smtp-Source: AGRyM1vJxucAo7NyQedHr+J7ZKfZwcPS1woLMItoupvs0NPu85vC8esgfxIn4fhc7YSYwpnKaxRZjEN9IEzWuaS5J5c=
+X-Received: by 2002:a05:600c:4f96:b0:39c:951e:66b7 with SMTP id
+ n22-20020a05600c4f9600b0039c951e66b7mr20699190wmq.84.1655657664103; Sun, 19
+ Jun 2022 09:54:24 -0700 (PDT)
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <CACGkMEuaxpgGt38anCYfQfy_OOKf0HCmSonC7cBD9-jrgWQ+Ow@mail.gmail.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
- Viresh Kumar <viresh.kumar@linaro.org>,
- linux-kernel <linux-kernel@vger.kernel.org>,
- Vineeth Vijayan <vneethv@linux.ibm.com>, Cindy Lu <lulu@redhat.com>,
- Marc Zyngier <maz@kernel.org>, Halil Pasic <pasic@linux.ibm.com>,
- eperezma <eperezma@redhat.com>, "Paul E. McKenney" <paulmck@kernel.org>,
- linux-s390@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
- virtualization <virtualization@lists.linux-foundation.org>,
- conghui.chen@intel.com, Cristian Marussi <cristian.marussi@arm.com>,
- pankaj.gupta.linux@gmail.com, Mathieu Poirier <mathieu.poirier@linaro.org>,
- netdev <netdev@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>,
- Peter Oberparleiter <oberpar@linux.ibm.com>,
- Bjorn Andersson <bjorn.andersson@linaro.org>, sudeep.holla@arm.com
+References: <20220417223707.157113-1-dmitry.osipenko@collabora.com>
+ <20220417223707.157113-12-dmitry.osipenko@collabora.com>
+ <ebe3dfdb-04ac-9ab1-64ff-9d54f96afe57@suse.de>
+ <7f497f99-f4c1-33d6-46cf-95bd90188fe3@collabora.com>
+ <YmlbXoeaVds/bjYn@phenom.ffwll.local>
+ <d0970dbd-e6e7-afa0-fdfd-b755008e371f@collabora.com>
+In-Reply-To: <d0970dbd-e6e7-afa0-fdfd-b755008e371f@collabora.com>
+From: Rob Clark <robdclark@gmail.com>
+Date: Sun, 19 Jun 2022 09:54:29 -0700
+Message-ID: <CAF6AEGvn062FVS-sbAnZq5pdVYdcdbmoZrZ8Wz6mp8EjsU3aXA@mail.gmail.com>
+Subject: Re: [PATCH v4 11/15] drm/shmem-helper: Add generic memory shrinker
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Cc: Maxime Ripard <mripard@kernel.org>, Rob Herring <robh@kernel.org>,
+ Gert Wollny <gert.wollny@collabora.com>,
+ Tomeu Vizoso <tomeu.vizoso@collabora.com>,
+ Gustavo Padovan <gustavo.padovan@collabora.com>,
+ David Airlie <airlied@linux.ie>, Emil Velikov <emil.l.velikov@gmail.com>,
+ dri-devel@lists.freedesktop.org,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ linux-kernel@vger.kernel.org, Daniel Stone <daniel@fooishbar.org>,
+ Gurchetan Singh <gurchetansingh@chromium.org>,
+ Thomas Zimmermann <tzimmermann@suse.de>, Dmitry Osipenko <digetx@gmail.com>,
+ Steven Price <steven.price@arm.com>, Robin Murphy <robin.murphy@arm.com>,
+ Chia-I Wu <olvaffe@gmail.com>, virtualization@lists.linux-foundation.org,
+ Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -111,36 +120,325 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Jun 17, 2022 at 03:26:16PM +0800, Jason Wang wrote:
-> On Fri, Jun 17, 2022 at 1:36 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+On Thu, Apr 28, 2022 at 11:20 AM Dmitry Osipenko
+<dmitry.osipenko@collabora.com> wrote:
+>
+> 27.04.2022 18:03, Daniel Vetter wrote:
+> >> ...
+> >>>> @@ -172,6 +172,41 @@ struct drm_gem_object_funcs {
+> >>>>        * This is optional but necessary for mmap support.
+> >>>>        */
+> >>>>       const struct vm_operations_struct *vm_ops;
+> >>>> +
+> >>>> +    /**
+> >>>> +     * @purge:
+> >>>> +     *
+> >>>> +     * Releases the GEM object's allocated backing storage to the
+> >>>> system.
+> >>>> +     *
+> >>>> +     * Returns the number of pages that have been freed by purging
+> >>>> the GEM object.
+> >>>> +     *
+> >>>> +     * This callback is used by the GEM shrinker.
+> >>>> +     */
+> >>>> +    unsigned long (*purge)(struct drm_gem_object *obj);
 > >
-> > On Fri, Jun 17, 2022 at 09:24:57AM +0800, Jason Wang wrote:
-> > > On Fri, Jun 17, 2022 at 1:11 AM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > >
-> > > > On Wed, Jun 15, 2022 at 09:38:18AM +0800, Jason Wang wrote:
-> > > > > On Tue, Jun 14, 2022 at 11:49 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > > > >
-> > > > > > On Tue, Jun 14, 2022 at 03:40:21PM +0800, Jason Wang wrote:
-> > > > > > > On Mon, Jun 13, 2022 at 5:28 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > > > > > >
-> > > > > > > > On Mon, Jun 13, 2022 at 05:14:59PM +0800, Jason Wang wrote:
-> > > > > > > > > On Mon, Jun 13, 2022 at 5:08 PM Jason Wang <jasowang@redhat.com> wrote:
-> > > > > > > > > >
-> > > > > > > > > > On Mon, Jun 13, 2022 at 4:59 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > > > > > > > > >
-> > > > > > > > > > > On Mon, Jun 13, 2022 at 04:51:08PM +0800, Jason Wang wrote:
-> > > > > > > > > > > > On Mon, Jun 13, 2022 at 4:19 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > > > > > > > > > > >
-> > > > > > > > > > > > > On Mon, Jun 13, 2022 at 04:07:09PM +0800, Jason Wang wrote:
-> > > > > > > > > > > > > > On Mon, Jun 13, 2022 at 3:23 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > > > > > > > > > > > > >
-> > > > > > > > > > > > > > > On Mon, Jun 13, 2022 at 01:26:59PM +0800, Jason Wang wrote:
-> > > > > > > > > > > > > > > > On Sat, Jun 11, 2022 at 1:12 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > > > > > > > > > > > > > > >
-> > > > > > > > > > > > > > > > > On Fri, May 27, 2022 at 02:01:19PM +0800, Jason Wang wrote:
-> > > > > > > > > > > > > > > > > > This is a rework on the previous IRQ hardening that is done for
+> > Hm I feel like drivers shouldn't need to know the difference here?
+> >
+> > Like shmem helpers can track what's purgeable, and for eviction/purging
+> > the driver callback should do the same?
+> >
+> > The only difference is when we try to re-reserve the backing storage. When
+> > the object has been evicted that should suceed, but when the object is
+> > purged that will fail.
+> >
+> > That's the difference between evict and purge for drivers?
+>
+> When buffer is purged, we can permanently release the backing storage
+> and the reserved IOV space, re-using the freed space by new BOs.
+>
+> When buffer is evicted, the BO's IOV should be kept reserved and the
+> re-reservation of the backing storage should succeed.
+>
+> >>>> +
+> >>>> +    /**
+> >>>> +     * @evict:
+> >>>> +     *
+> >>>> +     * Unpins the GEM object's allocated backing storage, allowing
+> >>>> shmem pages
+> >>>> +     * to be swapped out.
+> >>>
+> >>> What's the difference to the existing unpin() callback?
+> >>
+> >> Drivers need to do more than just unpinning pages when GEMs are evicted.
+> >> Unpinning is only a part of the eviction process. I'll improve the
+> >> doc-comment in v5.
+> >>
+> >> For example, for VirtIO-GPU driver we need to to detach host from the
+> >> guest's memory before pages are evicted [1].
+> >>
+> >> [1]
+> >> https://gitlab.collabora.com/dmitry.osipenko/linux-kernel-rd/-/blob/932eb03198bce3a21353b09ab71e95f1c19b84c2/drivers/gpu/drm/virtio/virtgpu_object.c#L145
+> >>
+> >> In case of Panfrost driver, we will need to remove mappings before pages
+> >> are evicted.
+> >
+> > It might be good to align this with ttm, otoh that all works quite a bit
+> > differently for ttm since ttm supports buffer moves and a lot more fancy
+> > stuff.
+> >
+> > I'm bringing this up since I have this fancy idea that eventually we could
+> > glue shmem helpers into ttm in some cases for managing buffers when they
+> > sit in system memory (as opposed to vram).
+>
+> I'll take a look at ttm for v6.
+>
+> >>>> +     *
+> >>>> +     * Returns the number of pages that have been unpinned.
+> >>>> +     *
+> >>>> +     * This callback is used by the GEM shrinker.
+> >>>> +     */
+> >>>> +    unsigned long (*evict)(struct drm_gem_object *obj);
+> >>>> +
+> >>>> +    /**
+> >>>> +     * @swap_in:
+> >>>> +     *
+> >>>> +     * Pins GEM object's allocated backing storage if it was
+> >>>> previously evicted,
+> >>>> +     * moving swapped out pages back to memory.
+> >>>> +     *
+> >>>> +     * Returns 0 on success, or -errno on error.
+> >>>> +     *
+> >>>> +     * This callback is used by the GEM shrinker.
+> >>>> +     */
+> >>>> +    int (*swap_in)(struct drm_gem_object *obj);
+> >>>
+> >>> Why do you need swap_in()? This can be done on-demand as part of a pin
+> >>> or vmap operation.
+> >>
+> >> Similarly to the unpinning, the pining of pages is only a part of what
+> >> needs to be done for GPU drivers. Besides of returning pages back to
+> >> memory, we also need to make them accessible to GPU and this is a
+> >> driver-specific process. This why we need the additional callbacks.
+> >
+> > This is a bit much midlayer. The way this works in ttm is you reserve all
+> > the objects you need (which makes sure they're physically available
+> > again), and then the driver goes through and makes sure the page tables
+> > are all set up again.
+> >
+> > Once you get towards gpu vm that's really the only approach, since your
+> > swap_in has no idea for which vm it needs to restore pagetables (and
+> > restoring it for all is a bit meh).
+> >
+> > If drivers want to optimize this they can adjust/set any tracking
+> > information from their evict callback as needed.
+>
+> In practice, majority of BOs have only one mapping. Only shared BOs
+> usually have extra mappings and shared BOs aren't evictable.
+>
+> When memory pages are gone, then all the GPU mappings also should be
+> gone. Perhaps it's indeed won't be a bad idea to move out the restoring
+> of h/w VMs from the swap_in() and make drivers to handle the restoring
+> by themselves, so swap_in() will be only about restoring the pages. I'll
+> try to improve it in v6.
+>
+> >>>>   };
+> >>>>     /**
+> >>>> diff --git a/include/drm/drm_gem_shmem_helper.h
+> >>>> b/include/drm/drm_gem_shmem_helper.h
+> >>>> index 70889533962a..a65557b446e6 100644
+> >>>> --- a/include/drm/drm_gem_shmem_helper.h
+> >>>> +++ b/include/drm/drm_gem_shmem_helper.h
+> >>>> @@ -6,6 +6,7 @@
+> >>>>   #include <linux/fs.h>
+> >>>>   #include <linux/mm.h>
+> >>>>   #include <linux/mutex.h>
+> >>>> +#include <linux/shrinker.h>
+> >>>>     #include <drm/drm_file.h>
+> >>>>   #include <drm/drm_gem.h>
+> >>>> @@ -15,8 +16,18 @@
+> >>>>   struct dma_buf_attachment;
+> >>>>   struct drm_mode_create_dumb;
+> >>>>   struct drm_printer;
+> >>>> +struct drm_device;
+> >>>>   struct sg_table;
+> >>>>   +enum drm_gem_shmem_pages_state {
+> >>>> +    DRM_GEM_SHMEM_PAGES_STATE_PURGED = -2,
+> >>>> +    DRM_GEM_SHMEM_PAGES_STATE_EVICTED = -1,
+> >>>> +    DRM_GEM_SHMEM_PAGES_STATE_UNPINNED = 0,
+> >>>> +    DRM_GEM_SHMEM_PAGES_STATE_PINNED = 1,
+> >>>> +    DRM_GEM_SHMEM_PAGES_STATE_EVICTABLE = 2,
+> >>>> +    DRM_GEM_SHMEM_PAGES_STATE_PURGEABLE = 3,
+> >>>> +};
+> >>>
+> >>> These states can be detected by looking at the vmap and pin refcounts.
+> >>> No need to store them explicitly.
+> >>
+> >> I'll try to revisit this, but I was finding that it's much more
+> >> difficult to follow and debug code without the explicit states.
+> >
+> > purgeable/purged needs some state, but pinned shouldn't be duplicated, so
+> > I concur here a bit.
+> >
+> >>> In your patch, they also come with a
+> >>> big zoo of trivial helpers. None of that seems necessary AFAICT.
+> >>
+> >> There are couple functions which could be squashed, although this may
+> >> hurt readability of the code a tad. I'll try to take another look at
+> >> this for v5.
+> >>
+> >>> What's the difference between purge and evict BTW?
+> >>
+> >> The evicted pages are moved out from memory to a SWAP partition or file.
+> >>
+> >> The purged pages are destroyed permanently.
+> >>
+> >>>> +
+> >>>>   /**
+> >>>>    * struct drm_gem_shmem_object - GEM object backed by shmem
+> >>>>    */
+> >>>> @@ -43,8 +54,8 @@ struct drm_gem_shmem_object {
+> >>>>        * @madv: State for madvise
+> >>>>        *
+> >>>>        * 0 is active/inuse.
+> >>>> +     * 1 is not-needed/can-be-purged
+> >>>>        * A negative value is the object is purged.
+> >>>> -     * Positive values are driver specific and not used by the helpers.
+> >>>>        */
+> >>>>       int madv;
+> >>>>   @@ -91,6 +102,40 @@ struct drm_gem_shmem_object {
+> >>>>        * @map_wc: map object write-combined (instead of using shmem
+> >>>> defaults).
+> >>>>        */
+> >>>>       bool map_wc;
+> >>>> +
+> >>>> +    /**
+> >>>> +     * @eviction_disable_count:
+> >>>> +     *
+> >>>> +     * The shmem pages are disallowed to be evicted by the memory
+> >>>> shrinker
+> >>>> +     * while count is non-zero. Used internally by memory shrinker.
+> >>>> +     */
+> >>>> +    unsigned int eviction_disable_count;
+> >>>> +
+> >>>> +    /**
+> >>>> +     * @purging_disable_count:
+> >>>> +     *
+> >>>> +     * The shmem pages are disallowed to be purged by the memory
+> >>>> shrinker
+> >>>> +     * while count is non-zero. Used internally by memory shrinker.
+> >>>> +     */
+> >>>> +    unsigned int purging_disable_count;
+> >
+> > What are these disable counts for?
+>
+> Some of BO types should stay pinned permanently, this applies to both
+> VirtIO and Panfrost drivers that make use of the generic shrinker in
+> this patchset. Hence I made objects unpurgeable and unevictable by default.
+>
+> Initially the idea of these counts was to allow drivers to explicitly
+> disable purging and eviction, and do it multiple times. If driver
+> disables eviction in two different places in the code, then we need to
+> track the eviction-disable count.
+>
+> In the v5 of this patchset drivers don't need to explicitly disable
+> shrinking anymore, they only need to enable it. The counts are also used
+> internally by DRM SHMEM core to track the vmappings and pinnings, but
+> perhaps pages_use_count could be used for that instead. I'll revisit it
+> for v6.
+>
+> > The way purgeable works in other drivers is that userspace sets purgeable
+> > or not, and it's up to userspace to not make a mess of this.
+> >
+> > There's also some interactions, and I guess a bunch of drivers get this
+> > wrong in funny ways. Not sure how to best clean this up.
+> >
+> > - Once you have a shrinker/dynamic memory management you should _not_ pin
+> >   pages, except when it's truly permanent like for scanout. Instead
+> >   drivers should attach dma_fence to the dma_resv to denote in-flight
+> >   access.
+>
+> By default pages are pinned when drm_gem_shmem_get_pages_sgt() is
+> invoked by drivers during of BO creation time.
+>
+> We could declare that pages_use_count=1 means the pages are allowed to
+> be evicted and purged if shrinker is enabled. Then the further
+> drm_gem_shmem_pin/vmap() calls will bump the pages_use_count,
+> disallowing the eviction and purging, like you're suggesting, and we
+> won't need the explicit counts.
+>
+> > - A pinned buffer object is not allowed to be put into purgeable state,
+> >   and a bo in purgeable state should not be allowed to be pinned.
+> >
+> > - Drivers need to hold dma_resv_lock for long enough in their command
+> >   submission, i.e. from the point where the reserve the buffers and make
+> >   sure that mappings exists, to the point where the request is submitted
+> >   to hw or drm/sched and fences are installed.
+> >
+> > But I think a lot of current shmem users just pin as part of execbuf, so
+> > this won't work quite so well right out of the box.
+>
+> The current shmem users assume that BO is pinned permanently once it has
+> been created.
+>
+> > Anyway with that design I don't think there should ever be a need to
+> > disable shrinking.
+>
+> To me what you described mostly matches to what I did in the v5.
+>
+> >>>> +
+> >>>> +    /**
+> >>>> +     * @pages_state: Current state of shmem pages. Used internally by
+> >>>> +     * memory shrinker.
+> >>>> +     */
+> >>>> +    enum drm_gem_shmem_pages_state pages_state;
+> >>>> +
+> >>>> +    /**
+> >>>> +     * @evicted: True if shmem pages were evicted by the memory
+> >>>> shrinker.
+> >>>> +     * Used internally by memory shrinker.
+> >>>> +     */
+> >>>> +    bool evicted;
+> >>>> +
+> >>>> +    /**
+> >>>> +     * @pages_shrinkable: True if shmem pages can be evicted or purged
+> >>>> +     * by the memory shrinker. Used internally by memory shrinker.
+> >>>> +     */
+> >>>> +    bool pages_shrinkable;
+> >>>
+> >>> As commented before, this state can be foundby looking at existing
+> >>> fields. No need to store it separately.
+> >>
+> >> When we're transitioning from "evictable" to a "purgeable" state, we
+> >> must not add pages twice to the "shrinkable_count" variable. Hence this
+> >> is not a state, but a variable which prevents the double accounting of
+> >> the pages. Please see drm_gem_shmem_add_pages_to_shrinker() in this patch.
+> >>
+> >> Perhaps something like "pages_accounted_by_shrinker" could be a better
+> >> name for the variable. I'll revisit this for v5.
+> >
+> > Hm not sure we need to account this? Usually the shrinker just counts when
+> > it's asked to do so, not practively maintain that count. Once you start
+> > shrinking burning cpu time is generally not too terrible.
+>
+> We could count pages on demand by walking up the "evictable" list, but
+> then the shrinker's lock needs to be taken by the
+> drm_gem_shmem_shrinker_count_objects() to protect the list.
+>
+> Previously Rob Clark said that the profiling of freedreno's shrinker
+> showed that it's worthwhile to reduce the locks as much as possible,
+> including the case of counting shrinkable objects.
 
-Guys; have you heard about trimming emails on reply?
+Sorry I missed this earlier, but danvet is giving some bad advice here ;-)
+
+You *really* need count_objects() to be lockless and fast, ie. no list
+iteration.  It doesn't have to return the "perfect" value, so it is ok
+if it is racy / not-atomic / etc.  Otherwise you will have bad system
+performance issues when you start hitting do_shrink_slab() on many
+threads at once.
+
+BR,
+-R
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
