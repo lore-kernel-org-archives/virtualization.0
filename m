@@ -1,101 +1,101 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 43C61C43334
-	for <virtualization@archiver.kernel.org>; Mon, 20 Jun 2022 08:47:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A3366C433EF
+	for <virtualization@archiver.kernel.org>; Mon, 20 Jun 2022 08:48:07 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id CD69540919;
-	Mon, 20 Jun 2022 08:47:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org CD69540919
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=E2DBoyh4
+	by smtp4.osuosl.org (Postfix) with ESMTP id 2782B4182E;
+	Mon, 20 Jun 2022 08:48:07 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2782B4182E
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=WtGrjTha
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id gar-sQjfPl5S; Mon, 20 Jun 2022 08:47:23 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id IBJYldWf4bSY; Mon, 20 Jun 2022 08:48:06 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 1342F40491;
-	Mon, 20 Jun 2022 08:47:23 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1342F40491
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 6D8D14093D;
+	Mon, 20 Jun 2022 08:48:05 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6D8D14093D
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id BE92CC0032;
-	Mon, 20 Jun 2022 08:47:22 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E350EC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4502DC0032;
+	Mon, 20 Jun 2022 08:48:05 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BCF04C002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Jun 2022 08:47:20 +0000 (UTC)
+ Mon, 20 Jun 2022 08:48:04 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id AD35360F31
+ by smtp1.osuosl.org (Postfix) with ESMTP id 98ABE8308B
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Jun 2022 08:47:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org AD35360F31
-Authentication-Results: smtp3.osuosl.org;
+ Mon, 20 Jun 2022 08:48:04 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 98ABE8308B
+Authentication-Results: smtp1.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=E2DBoyh4
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=WtGrjTha
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id E46tf8XES6t8
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id OuY0c3ooBYqf
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Jun 2022 08:47:19 +0000 (UTC)
+ Mon, 20 Jun 2022 08:48:03 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 92ADE60D88
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5CF8382F6C
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 92ADE60D88
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 5CF8382F6C
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Jun 2022 08:47:19 +0000 (UTC)
+ Mon, 20 Jun 2022 08:48:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1655714838;
+ s=mimecast20190719; t=1655714882;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=Z08htlmkz0DJSJ9iXibcm1dQjAm709AtQlsm4GUcgAE=;
- b=E2DBoyh4hy6fSc0cGSJSOy1MKMtzSkwSwM+qdspxAGS2wNfdjFFQJNU5fyLmDD1gI1K2E/
- nQEFgYnpN+7rQ/9VD263ePAVP2/rNbSkkG9EVnGj4iBLdZMLM2LX5Cjxt1GCnTXndJzKuM
- vf76A2cU6igmSVtHKQukvobbXUI4TZw=
-Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
- [209.85.208.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=dTV1FjdagOn2blPRO899RL2TzF/ALoz6Mi1x3g7dZ+g=;
+ b=WtGrjThaLnNXRcz+IZb7Z1OcdaTF/3tiw9K4fQkCG3KMMVH9lN1hOlfld9A5rmAgYwPlRC
+ 3Hf8lS/bUn4P6GzIb8sDrK8ngRnIHAMCNmY55qQFZfP3P57HIf1MtoFa9jdmRChXtnj7HV
+ 5EwthMSzS9gm+G++9Wfj8vHHTp+Ve40=
+Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com
+ [209.85.208.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-121-ZDS1SgZ1O0eIDEv4eMe3gw-1; Mon, 20 Jun 2022 04:47:16 -0400
-X-MC-Unique: ZDS1SgZ1O0eIDEv4eMe3gw-1
-Received: by mail-lj1-f199.google.com with SMTP id
- h23-20020a2e3a17000000b00255788e9a7fso1173830lja.10
+ us-mta-612-Kp8s9ZeCPDS97WSa4G18og-1; Mon, 20 Jun 2022 04:48:01 -0400
+X-MC-Unique: Kp8s9ZeCPDS97WSa4G18og-1
+Received: by mail-lj1-f200.google.com with SMTP id
+ g3-20020a2e9cc3000000b00253cc2b5ab5so1166842ljj.19
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Jun 2022 01:47:16 -0700 (PDT)
+ Mon, 20 Jun 2022 01:48:00 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=Z08htlmkz0DJSJ9iXibcm1dQjAm709AtQlsm4GUcgAE=;
- b=GMGeSsM0wGFvZDOnWnJOPE9S7evRUdwgbyBXqGBM5aw9c1seVhPv4UCUb6dg0VLACx
- ZMzD3scyqFMsUqMqfdk0sNw7gIm4KfFQyoFs1fFNV8xYA59T5MJc2DM3bBOd04zxYjAr
- a53BTnPSIYgsRykT4aCq9zpXBL0EW/RTPy2L4eLyzRVD2BaZOeUo7WXFHW5PALh64ilX
- oNYLEIwZOeYh4AMnpR4aLXQX5e6sZiw8VHN5ksJa2EYuQIc2x4HX+SG9RMQKaJJa/2Ej
- SBxHRvcf4be/Z1jMwIfKZvqrLlJKjxFSzIzJT/dGTK96CJKGc5ScE4JuyzBwvrx8CNlB
- E1MQ==
-X-Gm-Message-State: AJIora/Ans68rFEUIN4/LZKifEgg+LKilAFY++zd2pmKhKKA7ZZ2Oa3m
- 10nhBYfojocBhbz+Hs5Hei6JrVqOSyho0kf4wCbTnVY13shpjsMdmC7OqgpWUxDwZPhB/xalqkP
- YR/O86Wfn7pTMuEyyKDfW9cvghLKt+SSrc3Hqgfrcq6biuOosuAtLPM8VZg==
-X-Received: by 2002:a05:6512:13a5:b0:47d:c1d9:dea8 with SMTP id
- p37-20020a05651213a500b0047dc1d9dea8mr13075770lfa.442.1655714834746; 
- Mon, 20 Jun 2022 01:47:14 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1uKP8ya4VfsM1ESebwQFSfbkCuQe28Qt530QfjyBFRu/sbl9mK0K7BZV6nvwX4m222XkknjqyatpsHjPlqKpEo=
-X-Received: by 2002:a05:6512:13a5:b0:47d:c1d9:dea8 with SMTP id
- p37-20020a05651213a500b0047dc1d9dea8mr13075757lfa.442.1655714834499; Mon, 20
- Jun 2022 01:47:14 -0700 (PDT)
+ bh=dTV1FjdagOn2blPRO899RL2TzF/ALoz6Mi1x3g7dZ+g=;
+ b=KA0qU/3Be5hNHJO1GEIVQoErHP4KtTVSNfwkgfA9awWh9lAxxH1IiSm3hI3NgJV+fK
+ ghXNfGuL+Ac5z717kv0139/xmrhIO9ey4JOs1I0UDh40v3/cnzwUz2Nn5Gn4MJF1jrdz
+ 5uugm1moSw2OKy30KgQkkXaRM1TMHzqgtcleWDnIZP9wg53XIX52DV8EAXH/P82yYdff
+ gd+f80B9IobaeEOWc7T8LQkxIkc+gLH0ZinfRXl1BgigL2upuvjaoZdNFVP0hpkhiYVr
+ 9zD8PHf/9fZ5rZh5gJT5QfkSxWRRjAZT2umVM44GjwIJQjX3TfmbFQja2ndCNuRVP3/g
+ Me/Q==
+X-Gm-Message-State: AJIora9gCzzPATGZiFzhvKEWZwF6Zit32+6L37o46YR1VCvtO8luiOtx
+ Slw9eupZsPGiuwraEdliYkVJU91UkzOib0zhb5+z6zTfgm5XST66rP48d2WBeq6AXGjdfg/I1Jx
+ mNReTFAx0rW8BsYYCRLD93OUT7b9NbVKwpSWp7jwwgS2z31H6mPtEwK24sw==
+X-Received: by 2002:a2e:9ad0:0:b0:25a:7156:26bb with SMTP id
+ p16-20020a2e9ad0000000b0025a715626bbmr1150479ljj.141.1655714879455; 
+ Mon, 20 Jun 2022 01:47:59 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1v/LDcG35w7DbXZQTaNe4ORqCwTHWzas403SEZk1fkPHDUk1WsNFgdf4HVm1WbWhZ7zTeeuxuJ6DXuvyewdpwQ=
+X-Received: by 2002:a2e:9ad0:0:b0:25a:7156:26bb with SMTP id
+ p16-20020a2e9ad0000000b0025a715626bbmr1150470ljj.141.1655714879288; Mon, 20
+ Jun 2022 01:47:59 -0700 (PDT)
 MIME-Version: 1.0
 References: <20220616132725.50599-1-elic@nvidia.com>
- <20220616132725.50599-3-elic@nvidia.com>
-In-Reply-To: <20220616132725.50599-3-elic@nvidia.com>
+ <20220616132725.50599-4-elic@nvidia.com>
+In-Reply-To: <20220616132725.50599-4-elic@nvidia.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 20 Jun 2022 16:47:03 +0800
-Message-ID: <CACGkMEuhBApyg3mgXYWZntKfv60kGnRx5-oBnbhX7yaKaQtW6A@mail.gmail.com>
-Subject: Re: [PATCH RFC 2/3] vdpa/mlx5: Support different address spaces for
- control and data
+Date: Mon, 20 Jun 2022 16:47:48 +0800
+Message-ID: <CACGkMEsc+MCsRq6aA1vLXE3OJ0buX-0g73qaz72Px-ismfMKLA@mail.gmail.com>
+Subject: Re: [PATCH RFC 3/3] vdpa/mlx5: Disable VLAN support to support live
+ migration
 To: Eli Cohen <elic@nvidia.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
@@ -120,224 +120,35 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Jun 16, 2022 at 9:27 PM Eli Cohen <elic@nvidia.com> wrote:
+On Thu, Jun 16, 2022 at 9:28 PM Eli Cohen <elic@nvidia.com> wrote:
 >
-> Partition virtqueues to two different address spaces: oce for control
+> Current qemu code does not support live migration for devices supporting
+> VLAN. Disable it.
 
-Typo, should be "one"
+This looks like a bug that we need to fix in Qemu.
 
-> virtqueue which is implemented in software, and one for data virtqueus.
+Thanks
 
-And should be "virtqueues".
-
-Other than this.
-
-Acked-by: Jason Wang <jasowang@redhat.com>
-
+>
+> Note: this patch is provided just to enable testing with current qemu.
 >
 > Signed-off-by: Eli Cohen <elic@nvidia.com>
 > ---
->  drivers/vdpa/mlx5/core/mlx5_vdpa.h |  11 ++++
->  drivers/vdpa/mlx5/net/mlx5_vnet.c  | 101 +++++++++++++++++++++++++----
->  2 files changed, 101 insertions(+), 11 deletions(-)
+>  drivers/vdpa/mlx5/net/mlx5_vnet.c | 1 -
+>  1 file changed, 1 deletion(-)
 >
-> diff --git a/drivers/vdpa/mlx5/core/mlx5_vdpa.h b/drivers/vdpa/mlx5/core/mlx5_vdpa.h
-> index 44104093163b..6af9fdbb86b7 100644
-> --- a/drivers/vdpa/mlx5/core/mlx5_vdpa.h
-> +++ b/drivers/vdpa/mlx5/core/mlx5_vdpa.h
-> @@ -70,6 +70,16 @@ struct mlx5_vdpa_wq_ent {
->         struct mlx5_vdpa_dev *mvdev;
->  };
->
-> +enum {
-> +       MLX5_VDPA_DATAVQ_GROUP,
-> +       MLX5_VDPA_CVQ_GROUP,
-> +       MLX5_VDPA_NUMVQ_GROUPS
-> +};
-> +
-> +enum {
-> +       MLX5_VDPA_NUM_AS = MLX5_VDPA_NUMVQ_GROUPS
-> +};
-> +
->  struct mlx5_vdpa_dev {
->         struct vdpa_device vdev;
->         struct mlx5_core_dev *mdev;
-> @@ -85,6 +95,7 @@ struct mlx5_vdpa_dev {
->         struct mlx5_vdpa_mr mr;
->         struct mlx5_control_vq cvq;
->         struct workqueue_struct *wq;
-> +       unsigned int group2asid[MLX5_VDPA_NUMVQ_GROUPS];
->  };
->
->  int mlx5_vdpa_alloc_pd(struct mlx5_vdpa_dev *dev, u32 *pdn, u16 uid);
 > diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> index ea4bc8a0cd25..34bd81cb697c 100644
+> index 34bd81cb697c..1568cfdf07e6 100644
 > --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
 > +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> @@ -2125,9 +2125,14 @@ static u32 mlx5_vdpa_get_vq_align(struct vdpa_device *vdev)
->         return PAGE_SIZE;
+> @@ -2172,7 +2172,6 @@ static u64 get_supported_features(struct mlx5_core_dev *mdev)
+>         mlx_vdpa_features |= BIT_ULL(VIRTIO_NET_F_MQ);
+>         mlx_vdpa_features |= BIT_ULL(VIRTIO_NET_F_STATUS);
+>         mlx_vdpa_features |= BIT_ULL(VIRTIO_NET_F_MTU);
+> -       mlx_vdpa_features |= BIT_ULL(VIRTIO_NET_F_CTRL_VLAN);
+>
+>         return mlx_vdpa_features;
 >  }
->
-> -static u32 mlx5_vdpa_get_vq_group(struct vdpa_device *vdpa, u16 idx)
-> +static u32 mlx5_vdpa_get_vq_group(struct vdpa_device *vdev, u16 idx)
->  {
-> -       return 0;
-> +       struct mlx5_vdpa_dev *mvdev = to_mvdev(vdev);
-> +
-> +       if (is_ctrl_vq_idx(mvdev, idx))
-> +               return MLX5_VDPA_CVQ_GROUP;
-> +
-> +       return MLX5_VDPA_DATAVQ_GROUP;
->  }
->
->  enum { MLX5_VIRTIO_NET_F_GUEST_CSUM = 1 << 9,
-> @@ -2541,6 +2546,15 @@ static void mlx5_vdpa_set_status(struct vdpa_device *vdev, u8 status)
->         up_write(&ndev->reslock);
->  }
->
-> +static void init_group_to_asid_map(struct mlx5_vdpa_dev *mvdev)
-> +{
-> +       int i;
-> +
-> +       /* default mapping all groups are mapped to asid 0 */
-> +       for (i = 0; i < MLX5_VDPA_NUMVQ_GROUPS; i++)
-> +               mvdev->group2asid[i] = 0;
-> +}
-> +
->  static int mlx5_vdpa_reset(struct vdpa_device *vdev)
->  {
->         struct mlx5_vdpa_dev *mvdev = to_mvdev(vdev);
-> @@ -2559,7 +2573,9 @@ static int mlx5_vdpa_reset(struct vdpa_device *vdev)
->         ndev->mvdev.cvq.completed_desc = 0;
->         memset(ndev->event_cbs, 0, sizeof(*ndev->event_cbs) * (mvdev->max_vqs + 1));
->         ndev->mvdev.actual_features = 0;
-> +       init_group_to_asid_map(mvdev);
->         ++mvdev->generation;
-> +
->         if (MLX5_CAP_GEN(mvdev->mdev, umem_uid_0)) {
->                 if (mlx5_vdpa_create_mr(mvdev, NULL))
->                         mlx5_vdpa_warn(mvdev, "create MR failed\n");
-> @@ -2597,26 +2613,76 @@ static u32 mlx5_vdpa_get_generation(struct vdpa_device *vdev)
->         return mvdev->generation;
->  }
->
-> -static int mlx5_vdpa_set_map(struct vdpa_device *vdev, unsigned int asid,
-> -                            struct vhost_iotlb *iotlb)
-> +static u32 get_group(struct mlx5_vdpa_dev *mvdev, unsigned int asid)
-> +{
-> +       u32 group;
-> +
-> +       for (group = 0; group < MLX5_VDPA_NUMVQ_GROUPS; group++) {
-> +               if (mvdev->group2asid[group] == asid)
-> +                       return group;
-> +       }
-> +       return -EINVAL;
-> +}
-> +
-> +static int set_map_control(struct mlx5_vdpa_dev *mvdev, struct vhost_iotlb *iotlb)
-> +{
-> +       u64 start = 0ULL, last = 0ULL - 1;
-> +       struct vhost_iotlb_map *map;
-> +       int err = 0;
-> +
-> +       spin_lock(&mvdev->cvq.iommu_lock);
-> +       vhost_iotlb_reset(mvdev->cvq.iotlb);
-> +
-> +       for (map = vhost_iotlb_itree_first(iotlb, start, last); map;
-> +            map = vhost_iotlb_itree_next(map, start, last)) {
-> +               err = vhost_iotlb_add_range(mvdev->cvq.iotlb, map->start,
-> +                                           map->last, map->addr, map->perm);
-> +               if (err)
-> +                       goto out;
-> +       }
-> +
-> +out:
-> +       spin_unlock(&mvdev->cvq.iommu_lock);
-> +       return err;
-> +}
-> +
-> +static int set_map_data(struct mlx5_vdpa_dev *mvdev, struct vhost_iotlb *iotlb)
->  {
-> -       struct mlx5_vdpa_dev *mvdev = to_mvdev(vdev);
-> -       struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
->         bool change_map;
->         int err;
->
-> -       down_write(&ndev->reslock);
-> -
->         err = mlx5_vdpa_handle_set_map(mvdev, iotlb, &change_map);
->         if (err) {
->                 mlx5_vdpa_warn(mvdev, "set map failed(%d)\n", err);
-> -               goto err;
-> +               return err;
->         }
->
->         if (change_map)
->                 err = mlx5_vdpa_change_map(mvdev, iotlb);
->
-> -err:
-> +       return err;
-> +}
-> +
-> +static int mlx5_vdpa_set_map(struct vdpa_device *vdev, unsigned int asid,
-> +                            struct vhost_iotlb *iotlb)
-> +{
-> +       struct mlx5_vdpa_dev *mvdev = to_mvdev(vdev);
-> +       struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
-> +       u32 group;
-> +       int err;
-> +
-> +       down_write(&ndev->reslock);
-> +       group = get_group(mvdev, asid);
-> +       switch (group) {
-> +       case MLX5_VDPA_DATAVQ_GROUP:
-> +               err = set_map_data(mvdev, iotlb);
-> +               break;
-> +       case MLX5_VDPA_CVQ_GROUP:
-> +               err = set_map_control(mvdev, iotlb);
-> +               break;
-> +       default:
-> +               err = -EINVAL;
-> +       }
->         up_write(&ndev->reslock);
->         return err;
->  }
-> @@ -2796,6 +2862,18 @@ static int mlx5_vdpa_suspend(struct vdpa_device *vdev, bool suspend)
->         return 0;
->  }
->
-> +static int mlx5_set_group_asid(struct vdpa_device *vdev, u32 group,
-> +                              unsigned int asid)
-> +{
-> +       struct mlx5_vdpa_dev *mvdev = to_mvdev(vdev);
-> +
-> +       if (group >= MLX5_VDPA_NUMVQ_GROUPS)
-> +               return -EINVAL;
-> +
-> +       mvdev->group2asid[group] = asid;
-> +       return 0;
-> +}
-> +
->  static const struct vdpa_config_ops mlx5_vdpa_ops = {
->         .set_vq_address = mlx5_vdpa_set_vq_address,
->         .set_vq_num = mlx5_vdpa_set_vq_num,
-> @@ -2825,6 +2903,7 @@ static const struct vdpa_config_ops mlx5_vdpa_ops = {
->         .set_config = mlx5_vdpa_set_config,
->         .get_generation = mlx5_vdpa_get_generation,
->         .set_map = mlx5_vdpa_set_map,
-> +       .set_group_asid = mlx5_set_group_asid,
->         .free = mlx5_vdpa_free,
->         .suspend = mlx5_vdpa_suspend,
->  };
-> @@ -3047,7 +3126,7 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name,
->         }
->
->         ndev = vdpa_alloc_device(struct mlx5_vdpa_net, mvdev.vdev, mdev->device, &mlx5_vdpa_ops,
-> -                                1, 1, name, false);
-> +                                MLX5_VDPA_NUMVQ_GROUPS, MLX5_VDPA_NUM_AS, name, false);
->         if (IS_ERR(ndev))
->                 return PTR_ERR(ndev);
->
 > --
 > 2.35.1
 >
