@@ -4,112 +4,91 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8E6B2C43334
-	for <virtualization@archiver.kernel.org>; Mon, 20 Jun 2022 10:07:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 740CEC433EF
+	for <virtualization@archiver.kernel.org>; Mon, 20 Jun 2022 10:11:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 289C440AE0;
-	Mon, 20 Jun 2022 10:07:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 289C440AE0
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=EAmZH1+m
+	by smtp2.osuosl.org (Postfix) with ESMTP id 50B4C40AE9;
+	Mon, 20 Jun 2022 10:11:16 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 50B4C40AE9
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id EPqrfgcRbEkg; Mon, 20 Jun 2022 10:07:11 +0000 (UTC)
+	with ESMTP id G23n1ZfNmVdD; Mon, 20 Jun 2022 10:11:15 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 8BB6040AE6;
-	Mon, 20 Jun 2022 10:07:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8BB6040AE6
+	by smtp2.osuosl.org (Postfix) with ESMTPS id D261A40AE6;
+	Mon, 20 Jun 2022 10:11:14 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D261A40AE6
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 57AA9C0039;
-	Mon, 20 Jun 2022 10:07:10 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 90E21C002D
- for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Jun 2022 10:07:09 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 58059C0083;
+	Mon, 20 Jun 2022 10:11:14 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D12DDC002D;
+ Mon, 20 Jun 2022 10:11:12 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 5C6DF415AD
- for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Jun 2022 10:07:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5C6DF415AD
-Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=EAmZH1+m
+ by smtp1.osuosl.org (Postfix) with ESMTP id A63EA83265;
+ Mon, 20 Jun 2022 10:11:12 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A63EA83265
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id cIBcFFNca0ho
- for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Jun 2022 10:07:08 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id BxYa6qmdaejp; Mon, 20 Jun 2022 10:11:11 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0F615409C6
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 0F615409C6
- for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Jun 2022 10:07:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1655719626;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=H8+oyhT+8f+yjPHoPC8FgRV/Li3g70WqJrxyO3naqDE=;
- b=EAmZH1+m3thmANW/n2fx8fBSupJd4IqbP0wSkINtUuQ7srhdASm4rAu5WtDoRBEPXO2QXr
- DbHtEK2BA9A72uTez9CZ8qmjAJXa5Ysa+yNOFsDSACNNWi8IZoFLZTAcNU8uWa+RbahsJC
- J1sxfUDRe2d6ETWtYDKPN2l7UrRuvFA=
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
- [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-302-rzE_mZg1MLuyfBNfkowh3w-1; Mon, 20 Jun 2022 06:07:05 -0400
-X-MC-Unique: rzE_mZg1MLuyfBNfkowh3w-1
-Received: by mail-ed1-f71.google.com with SMTP id
- g8-20020a056402090800b00433940d207eso8414555edz.1
- for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Jun 2022 03:07:05 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=H8+oyhT+8f+yjPHoPC8FgRV/Li3g70WqJrxyO3naqDE=;
- b=le1w3YiT8tiDFLnW7CCMXXEnIp88ts/393KB60qf5wo6MxchDa4Oavyd0ZF6oePIKx
- +b4GW4QS8YHT3oNWorY26yO+aGQBv4JXxVe/gyC8GNHGUVuNjQoSXBMnIha8UJk1MzQ3
- JFL4SSn12FnjlwIXMNV3WRVVc5e/gaT06ue6rszabYr5btn6Ec1lOdfktiudKNaZnMMj
- bvD2bWJu107f8twRwmv8XIao9a9PI8+zSMoYacOA7J7SbyD1BLmTV8xq4mDUbrtB//QR
- UHU9GIoK1sGidoFBI6SHXKdhIyab7TtTC/Zo6Qy1gHutGzF8vHstK54yRdtz7rO1MkCs
- z7Lg==
-X-Gm-Message-State: AJIora+jKhIH5fivS2gwbZNXYyTq7utlKmAoaBOVwmg1PBTZfcfQzOuL
- oCxyg2kohTv/ck0fMicQTh3V8hSpcwU1ThcQXq58pJ7sJ1p0Om69HwTiEROTPLEddTON3TmbIq/
- Owi+oDhwwnyAWh7j8EqKfw+MJbNQJ7ofc2I8lqL8zBw==
-X-Received: by 2002:a17:906:6947:b0:711:a86b:6780 with SMTP id
- c7-20020a170906694700b00711a86b6780mr20685668ejs.686.1655719624524; 
- Mon, 20 Jun 2022 03:07:04 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1u/bE5PbUXYWNZC5VVu4LfaqOg1wJkcAHhTMKdsDxWystOWTHiclgbd+3CabgeQZjeuhlnZxg==
-X-Received: by 2002:a17:906:6947:b0:711:a86b:6780 with SMTP id
- c7-20020a170906694700b00711a86b6780mr20685640ejs.686.1655719624264; 
- Mon, 20 Jun 2022 03:07:04 -0700 (PDT)
-Received: from redhat.com ([2.52.146.221]) by smtp.gmail.com with ESMTPSA id
- m13-20020a056402510d00b0042ddd08d5f8sm10152736edd.2.2022.06.20.03.07.02
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 20 Jun 2022 03:07:03 -0700 (PDT)
-Date: Mon, 20 Jun 2022 06:06:59 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Eugenio Perez Martin <eperezma@redhat.com>
-Subject: Re: [PATCH RFC 1/3] vdpa/mlx5: Implement susupend virtqueue callback
-Message-ID: <20220620060312-mutt-send-email-mst@kernel.org>
-References: <20220616132725.50599-1-elic@nvidia.com>
- <20220616132725.50599-2-elic@nvidia.com>
- <CACGkMEue-X8-u0Z=EwUbBSV6vmomwNy52Tot3Zf+0pu4Pztutg@mail.gmail.com>
- <CAJaqyWfTG_jVW6Vzf64QO=255kfwWKn4gCUMeGog-1shHx3O_g@mail.gmail.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B1FCB83231
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+ by smtp1.osuosl.org (Postfix) with ESMTP id B1FCB83231;
+ Mon, 20 Jun 2022 10:11:11 +0000 (UTC)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+ by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id C40DE113E;
+ Mon, 20 Jun 2022 03:11:10 -0700 (PDT)
+Received: from [10.57.84.159] (unknown [10.57.84.159])
+ by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 162D83F7D7;
+ Mon, 20 Jun 2022 03:11:05 -0700 (PDT)
+Message-ID: <55e352d5-3fea-7e46-0530-b41d323b6fcf@arm.com>
+Date: Mon, 20 Jun 2022 11:11:01 +0100
 MIME-Version: 1.0
-In-Reply-To: <CAJaqyWfTG_jVW6Vzf64QO=255kfwWKn4gCUMeGog-1shHx3O_g@mail.gmail.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>,
- Eli Cohen <elic@nvidia.com>
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101
+ Thunderbird/91.10.0
+Subject: Re: [PATCH v2 5/5] vfio/iommu_type1: Simplify group attachment
+Content-Language: en-GB
+To: "Tian, Kevin" <kevin.tian@intel.com>, Nicolin Chen <nicolinc@nvidia.com>
+References: <20220616000304.23890-1-nicolinc@nvidia.com>
+ <20220616000304.23890-6-nicolinc@nvidia.com>
+ <BL1PR11MB52710E360B50DDA99C9A65D18CAC9@BL1PR11MB5271.namprd11.prod.outlook.com>
+ <YquxcH2S1fM+llOf@Asurada-Nvidia>
+ <BN9PR11MB5276C7BFA77C2C176491B56A8CAF9@BN9PR11MB5276.namprd11.prod.outlook.com>
+From: Robin Murphy <robin.murphy@arm.com>
+In-Reply-To: <BN9PR11MB5276C7BFA77C2C176491B56A8CAF9@BN9PR11MB5276.namprd11.prod.outlook.com>
+Cc: "marcan@marcan.st" <marcan@marcan.st>,
+ "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+ "jordan@cosmicpenguin.net" <jordan@cosmicpenguin.net>,
+ "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
+ "thierry.reding@gmail.com" <thierry.reding@gmail.com>,
+ "will@kernel.org" <will@kernel.org>,
+ "alyssa@rosenzweig.io" <alyssa@rosenzweig.io>,
+ "jean-philippe@linaro.org" <jean-philippe@linaro.org>,
+ "saiprakash.ranjan@codeaurora.org" <saiprakash.ranjan@codeaurora.org>,
+ "zhang.lyra@gmail.com" <zhang.lyra@gmail.com>,
+ "jonathanh@nvidia.com" <jonathanh@nvidia.com>,
+ "jgg@nvidia.com" <jgg@nvidia.com>,
+ "yangyingliang@huawei.com" <yangyingliang@huawei.com>,
+ "orsonzhai@gmail.com" <orsonzhai@gmail.com>,
+ "gerald.schaefer@linux.ibm.com" <gerald.schaefer@linux.ibm.com>,
+ "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+ "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>,
+ "christophe.jaillet@wanadoo.fr" <christophe.jaillet@wanadoo.fr>,
+ "matthias.bgg@gmail.com" <matthias.bgg@gmail.com>,
+ "tglx@linutronix.de" <tglx@linutronix.de>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+ "isaacm@codeaurora.org" <isaacm@codeaurora.org>,
+ "cohuck@redhat.com" <cohuck@redhat.com>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>,
+ "baolin.wang7@gmail.com" <baolin.wang7@gmail.com>,
+ "linux-mediatek@lists.infradead.org" <linux-mediatek@lists.infradead.org>,
+ "dwmw2@infradead.org" <dwmw2@infradead.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -121,210 +100,44 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Jun 20, 2022 at 11:58:33AM +0200, Eugenio Perez Martin wrote:
-> On Mon, Jun 20, 2022 at 10:56 AM Jason Wang <jasowang@redhat.com> wrote:
-> >
-> > On Thu, Jun 16, 2022 at 9:27 PM Eli Cohen <elic@nvidia.com> wrote:
-> > >
-> > > Implement the suspend callback allowing to suspend the virtqueues so
-> > > they stop processing descriptors. This is required to allow the shadow
-> > > virtqueue to kick in.
-> > >
-> > > Signed-off-by: Eli Cohen <elic@nvidia.com>
-> > > ---
-> > >  drivers/vdpa/mlx5/net/mlx5_vnet.c  | 68 +++++++++++++++++++++++++++++-
-> > >  include/linux/mlx5/mlx5_ifc_vdpa.h |  8 ++++
-> > >  2 files changed, 75 insertions(+), 1 deletion(-)
-> > >
-> > > diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> > > index fb0b23e71383..ea4bc8a0cd25 100644
-> > > --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> > > +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> > > @@ -895,6 +895,7 @@ static int create_virtqueue(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtque
-> > >         if (err)
-> > >                 goto err_cmd;
-> > >
-> > > +       mvq->fw_state = MLX5_VIRTIO_NET_Q_OBJECT_STATE_INIT;
-> > >         kfree(in);
-> > >         mvq->virtq_id = MLX5_GET(general_obj_out_cmd_hdr, out, obj_id);
-> > >
-> > > @@ -922,6 +923,7 @@ static void destroy_virtqueue(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtq
-> > >                 mlx5_vdpa_warn(&ndev->mvdev, "destroy virtqueue 0x%x\n", mvq->virtq_id);
-> > >                 return;
-> > >         }
-> > > +       mvq->fw_state = MLX5_VIRTIO_NET_Q_OBJECT_NONE;
-> > >         umems_destroy(ndev, mvq);
-> > >  }
-> > >
-> > > @@ -1121,6 +1123,20 @@ static int query_virtqueue(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueu
-> > >         return err;
-> > >  }
-> > >
-> > > +static bool is_valid_state_change(int oldstate, int newstate)
-> > > +{
-> > > +       switch (oldstate) {
-> > > +       case MLX5_VIRTIO_NET_Q_OBJECT_STATE_INIT:
-> > > +               return newstate == MLX5_VIRTIO_NET_Q_OBJECT_STATE_RDY;
-> > > +       case MLX5_VIRTIO_NET_Q_OBJECT_STATE_RDY:
-> > > +               return newstate == MLX5_VIRTIO_NET_Q_OBJECT_STATE_SUSPEND;
-> > > +       case MLX5_VIRTIO_NET_Q_OBJECT_STATE_SUSPEND:
-> > > +       case MLX5_VIRTIO_NET_Q_OBJECT_STATE_ERR:
-> > > +       default:
-> > > +               return false;
-> > > +       }
-> > > +}
-> > > +
-> > >  static int modify_virtqueue(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueue *mvq, int state)
-> > >  {
-> > >         int inlen = MLX5_ST_SZ_BYTES(modify_virtio_net_q_in);
-> > > @@ -1130,6 +1146,12 @@ static int modify_virtqueue(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtque
-> > >         void *in;
-> > >         int err;
-> > >
-> > > +       if (mvq->fw_state == MLX5_VIRTIO_NET_Q_OBJECT_NONE)
-> > > +               return 0;
-> > > +
-> > > +       if (!is_valid_state_change(mvq->fw_state, state))
-> > > +               return -EINVAL;
-> > > +
-> > >         in = kzalloc(inlen, GFP_KERNEL);
-> > >         if (!in)
-> > >                 return -ENOMEM;
-> > > @@ -1991,6 +2013,7 @@ static void mlx5_vdpa_set_vq_ready(struct vdpa_device *vdev, u16 idx, bool ready
-> > >         struct mlx5_vdpa_dev *mvdev = to_mvdev(vdev);
-> > >         struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
-> > >         struct mlx5_vdpa_virtqueue *mvq;
-> > > +       int err;
-> > >
-> > >         if (!mvdev->actual_features)
-> > >                 return;
-> > > @@ -2004,8 +2027,16 @@ static void mlx5_vdpa_set_vq_ready(struct vdpa_device *vdev, u16 idx, bool ready
-> > >         }
-> > >
-> > >         mvq = &ndev->vqs[idx];
-> > > -       if (!ready)
-> > > +       if (!ready) {
-> > >                 suspend_vq(ndev, mvq);
-> > > +       } else {
-> > > +               err = modify_virtqueue(ndev, mvq, MLX5_VIRTIO_NET_Q_OBJECT_STATE_RDY);
-> > > +               if (err) {
-> > > +                       mlx5_vdpa_warn(mvdev, "modify VQ %d to ready failed (%d)\n", idx, err);
-> > > +                       ready = false;
-> > > +               }
-> > > +       }
-> > > +
-> > >
-> > >         mvq->ready = ready;
-> > >  }
-> > > @@ -2732,6 +2763,39 @@ static int mlx5_vdpa_get_vendor_vq_stats(struct vdpa_device *vdev, u16 idx,
-> > >         return err;
-> > >  }
-> > >
-> > > +static void mlx5_vdpa_cvq_suspend(struct mlx5_vdpa_dev *mvdev, bool suspend)
-> > > +{
-> > > +       struct mlx5_control_vq *cvq;
-> > > +
-> > > +       if (!(mvdev->actual_features & BIT_ULL(VIRTIO_NET_F_CTRL_VQ)))
-> > > +               return;
-> > > +
-> > > +       cvq = &mvdev->cvq;
-> > > +       cvq->ready = !suspend;
-> > > +}
-> >
-> > It looks to me we need to synchronize this with reslock. And this
-> > probably deserve a dedicated fix.
-> >
-> > > +
-> > > +static int mlx5_vdpa_suspend(struct vdpa_device *vdev, bool suspend)
-> > > +{
-> > > +       struct mlx5_vdpa_dev *mvdev = to_mvdev(vdev);
-> > > +       struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
-> > > +       struct mlx5_vdpa_virtqueue *mvq;
-> > > +       int i;
-> > > +
-> > > +       if (!suspend) {
-> > > +               mlx5_vdpa_warn(mvdev, "Resume of virtqueues is not supported\n");
-> > > +               return -EOPNOTSUPP;
-> > > +       }
-> > > +
-> > > +       down_write(&ndev->reslock);
-> > > +       for (i = 0; i < ndev->cur_num_vqs; i++) {
-> > > +               mvq = &ndev->vqs[i];
-> > > +               suspend_vq(ndev, mvq);
-> > > +       }
-> > > +       mlx5_vdpa_cvq_suspend(mvdev, suspend);
-> >
-> > Do we need to synchronize with the carrier work here? Otherwise we may
-> > get config notification after suspending.
-> >
-> > > +       up_write(&ndev->reslock);
-> > > +       return 0;
-> > > +}
-> > > +
-> > >  static const struct vdpa_config_ops mlx5_vdpa_ops = {
-> > >         .set_vq_address = mlx5_vdpa_set_vq_address,
-> > >         .set_vq_num = mlx5_vdpa_set_vq_num,
-> > > @@ -2762,6 +2826,7 @@ static const struct vdpa_config_ops mlx5_vdpa_ops = {
-> > >         .get_generation = mlx5_vdpa_get_generation,
-> > >         .set_map = mlx5_vdpa_set_map,
-> > >         .free = mlx5_vdpa_free,
-> > > +       .suspend = mlx5_vdpa_suspend,
-> >
-> > I don't see the vDPA bus patch to enable this method. Or anything I missed here?
-> >
+On 2022-06-17 03:53, Tian, Kevin wrote:
+>> From: Nicolin Chen <nicolinc@nvidia.com>
+>> Sent: Friday, June 17, 2022 6:41 AM
+>>
+>>> ...
+>>>> -     if (resv_msi) {
+>>>> +     if (resv_msi && !domain->msi_cookie) {
+>>>>                ret = iommu_get_msi_cookie(domain->domain,
+>>>> resv_msi_base);
+>>>>                if (ret && ret != -ENODEV)
+>>>>                        goto out_detach;
+>>>> +             domain->msi_cookie = true;
+>>>>        }
+>>>
+>>> why not moving to alloc_attach_domain() then no need for the new
+>>> domain field? It's required only when a new domain is allocated.
+>>
+>> When reusing an existing domain that doesn't have an msi_cookie,
+>> we can do iommu_get_msi_cookie() if resv_msi is found. So it is
+>> not limited to a new domain.
 > 
-> Should we add
-> Based-on: <20220526124338.36247-1-eperezma@redhat.com>
+> Looks msi_cookie requirement is per platform (currently only
+> for smmu. see arm_smmu_get_resv_regions()). If there is
+> no mixed case then above check is not required.
 > 
-> To this series?
+> But let's hear whether Robin has a different thought here.
 
-If it's based on your patch then mentioning this in the log and
-including the S.O.B. is customary. what would this tag add?
-was there relevant discussion?
+Yes, the cookie should logically be tied to the lifetime of the domain 
+itself. In the relevant context, "an existing domain that doesn't have 
+an msi_cookie" should never exist.
 
-
-> > Thanks
-> >
-> > >  };
-> > >
-> > >  static int query_mtu(struct mlx5_core_dev *mdev, u16 *mtu)
-> > > @@ -2827,6 +2892,7 @@ static void init_mvqs(struct mlx5_vdpa_net *ndev)
-> > >                 mvq->index = i;
-> > >                 mvq->ndev = ndev;
-> > >                 mvq->fwqp.fw = true;
-> > > +               mvq->fw_state = MLX5_VIRTIO_NET_Q_OBJECT_NONE;
-> > >         }
-> > >         for (; i < ndev->mvdev.max_vqs; i++) {
-> > >                 mvq = &ndev->vqs[i];
-> > > diff --git a/include/linux/mlx5/mlx5_ifc_vdpa.h b/include/linux/mlx5/mlx5_ifc_vdpa.h
-> > > index 4414ed5b6ed2..423562f39d3c 100644
-> > > --- a/include/linux/mlx5/mlx5_ifc_vdpa.h
-> > > +++ b/include/linux/mlx5/mlx5_ifc_vdpa.h
-> > > @@ -150,6 +150,14 @@ enum {
-> > >         MLX5_VIRTIO_NET_Q_OBJECT_STATE_ERR      = 0x3,
-> > >  };
-> > >
-> > > +/* This indicates that the object was not created or has alreadyi
-> > > + * been desroyed. It is very safe to assume that this object will never
-> > > + * have so many states
-> > > + */
-> > > +enum {
-> > > +       MLX5_VIRTIO_NET_Q_OBJECT_NONE = 0xffffffff
-> > > +};
-> > > +
-> > >  enum {
-> > >         MLX5_RQTC_LIST_Q_TYPE_RQ            = 0x0,
-> > >         MLX5_RQTC_LIST_Q_TYPE_VIRTIO_NET_Q  = 0x1,
-> > > --
-> > > 2.35.1
-> > >
-> >
-
+Thanks,
+Robin.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
