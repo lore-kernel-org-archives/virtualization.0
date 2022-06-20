@@ -1,83 +1,118 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 084EBCCA47A
-	for <virtualization@archiver.kernel.org>; Mon, 20 Jun 2022 02:42:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 58997C433EF
+	for <virtualization@archiver.kernel.org>; Mon, 20 Jun 2022 03:34:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 752F682F39;
-	Mon, 20 Jun 2022 02:42:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 752F682F39
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=HXDz325o
+	by smtp3.osuosl.org (Postfix) with ESMTP id B68A660E72;
+	Mon, 20 Jun 2022 03:34:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B68A660E72
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=engERVEp
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 2ErvEOwUvahr; Mon, 20 Jun 2022 02:42:20 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ORDZiPgZPepG; Mon, 20 Jun 2022 03:34:32 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id CFDC882ECF;
-	Mon, 20 Jun 2022 02:42:19 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CFDC882ECF
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 86C1660ABE;
+	Mon, 20 Jun 2022 03:34:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 86C1660ABE
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 9B9CBC0039;
-	Mon, 20 Jun 2022 02:42:19 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 91739C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4F298C0032;
+	Mon, 20 Jun 2022 03:34:31 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7273BC002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Jun 2022 02:42:17 +0000 (UTC)
+ Mon, 20 Jun 2022 03:34:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 5D2AA82EDB
+ by smtp3.osuosl.org (Postfix) with ESMTP id 38CA660E72
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Jun 2022 02:42:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5D2AA82EDB
+ Mon, 20 Jun 2022 03:34:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 38CA660E72
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 3fZLSlTWKvYr
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id wcVurrznbiwV
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Jun 2022 02:42:16 +0000 (UTC)
+ Mon, 20 Jun 2022 03:34:25 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2927F82ECF
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7033F60ABE
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 2927F82ECF
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 7033F60ABE
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Jun 2022 02:42:15 +0000 (UTC)
+ Mon, 20 Jun 2022 03:34:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1655692934;
+ s=mimecast20190719; t=1655696064;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding;
- bh=/oknfccPAIxyEAuYdT4y1IrsCu7NWdjJuGzW6X5z710=;
- b=HXDz325oPXHTNJoGVdKbvLFRUtJihHyHUxPOLeOQmFKIhMsGJRXCsbiRp1JecyYyk8f7ll
- 7MNxPw5PsFXNEFL9+tSlX2wlS0AYx0eaGZ3OtMBcdrAq0tWw2VQp+9PWUexZSXBWQVqMvT
- l6yVNUlL3HyhZeQHAwbJDBJp1EfgxY8=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=dfwEK1sq7rdGyo7PvaKmvL8otVhWygQzLxR6ANVD3rU=;
+ b=engERVEp4IuWjDkmM87RS7B/er3Kw1f69Vf9wbtfYVKMESWU/0PCiMh+O6L8w6VW6GuKto
+ K11sw1xn9phVNrJQzDbvhbYU/BJatfo8Otpg0NSPRyAz96R+UviXRD1DN5q/LLbZfmRjxh
+ p5TebB6kt/bgad7ZF/g4jbZ+G+nuCcQ=
+Received: from mail-pg1-f200.google.com (mail-pg1-f200.google.com
+ [209.85.215.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-147-ROevF3OlOLOOELPM_umplw-1; Sun, 19 Jun 2022 22:42:06 -0400
-X-MC-Unique: ROevF3OlOLOOELPM_umplw-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com
- [10.11.54.8])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 66EDE101A56C;
- Mon, 20 Jun 2022 02:42:05 +0000 (UTC)
-Received: from localhost.localdomain (ovpn-12-16.pek2.redhat.com [10.72.12.16])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 2CB65C08087;
- Mon, 20 Jun 2022 02:42:00 +0000 (UTC)
-From: Jason Wang <jasowang@redhat.com>
-To: cohuck@redhat.com, pasic@linux.ibm.com, jasowang@redhat.com, mst@redhat.com
-Subject: [PATCH V2] virtio: disable notification hardening by default
-Date: Mon, 20 Jun 2022 10:41:58 +0800
-Message-Id: <20220620024158.2505-1-jasowang@redhat.com>
+ us-mta-329-bq5slzzTNcGDmmty99CRzw-1; Sun, 19 Jun 2022 23:34:15 -0400
+X-MC-Unique: bq5slzzTNcGDmmty99CRzw-1
+Received: by mail-pg1-f200.google.com with SMTP id
+ 194-20020a6307cb000000b0040c7d803242so2685227pgh.2
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 19 Jun 2022 20:34:15 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+ :content-language:to:cc:references:from:in-reply-to
+ :content-transfer-encoding;
+ bh=dfwEK1sq7rdGyo7PvaKmvL8otVhWygQzLxR6ANVD3rU=;
+ b=M83eEP1QnL5GyWQhK3on+VkLs5LjxduPLkAIpzW787skhv5hT0GQY5abn+Tu73N3RU
+ QAkT6rIxpqWpu1oKYpJ0QnWmZyp3cJYyNqCaWi2QuaPZtYhmnezWBcas9dy9Ovm+HtiV
+ Wzfm/21Q9jGrvUaWloYe0xxPQbQ/0rWe5Y3CXvCX58AdZ6c1543VvYTyiaFGeQTwU249
+ JiWzkoJ6fEjMR1DFSS4WfiLvdfOV5FmvszABnthVpkftv6VSjGw7n3sYVhekYnc6x85A
+ KjKfc2hVENv31pRnFOY9gZDd2DWublOdWj3cq0lJvuWtfFPgZddY+1ldi40JVIE/0k+B
+ J73A==
+X-Gm-Message-State: AJIora95aU2uLU4oOTCIu4tTzIKwzhS5nIB8vFd0Fkb/tigswkVOxqtM
+ fuMvhV6xaadSdSgUZDikHQxVDyjiuQS9wGHbCWi+Zp6TbidYXeYZEEm/41RXYFlDa62MdWiow1C
+ H9VR7/S6nkXxTprFfWOni72js/LM/RroOlmmMuO7bqg==
+X-Received: by 2002:a05:6a00:170b:b0:51b:d1fd:5335 with SMTP id
+ h11-20020a056a00170b00b0051bd1fd5335mr22346551pfc.28.1655696054175; 
+ Sun, 19 Jun 2022 20:34:14 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1uYN9VMFAa2HlkmqX/qFWqSRenF42IdfOZYHLpfaUTJHe10i9fpjJMcSHXQutXOkNBszTIlmw==
+X-Received: by 2002:a05:6a00:170b:b0:51b:d1fd:5335 with SMTP id
+ h11-20020a056a00170b00b0051bd1fd5335mr22346531pfc.28.1655696053829; 
+ Sun, 19 Jun 2022 20:34:13 -0700 (PDT)
+Received: from [10.72.12.16] ([209.132.188.80])
+ by smtp.gmail.com with ESMTPSA id
+ a1-20020a170902710100b001634d581adfsm7383215pll.157.2022.06.19.20.34.10
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Sun, 19 Jun 2022 20:34:13 -0700 (PDT)
+Message-ID: <78d6d295-4694-c2db-5689-f0e366da9a07@redhat.com>
+Date: Mon, 20 Jun 2022 11:34:08 +0800
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.85 on 10.11.54.8
-Cc: linux-s390@vger.kernel.org, gor@linux.ibm.com, kvm@vger.kernel.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- borntraeger@de.ibm.com, agordeev@linux.ibm.com
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.10.0
+Subject: Re: [PATCH] virtio-net: fix race between ndo_open() and
+ virtio_device_ready()
+To: "Michael S. Tsirkin" <mst@redhat.com>
+References: <20220617072949.30734-1-jasowang@redhat.com>
+ <20220617060632-mutt-send-email-mst@kernel.org>
+ <CACGkMEtTVs5W+qqt9Z6BcorJ6wcqcnSVuCBrHrLZbbKzG-7ULQ@mail.gmail.com>
+ <20220617083141-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+In-Reply-To: <20220617083141-mutt-send-email-mst@kernel.org>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Cc: Jakub Kicinski <kuba@kernel.org>, netdev <netdev@vger.kernel.org>,
+ davem <davem@davemloft.net>, linux-kernel <linux-kernel@vger.kernel.org>,
+ virtualization <virtualization@lists.linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -89,168 +124,80 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-We try to harden virtio device notifications in 8b4ec69d7e09 ("virtio:
-harden vring IRQ"). It works with the assumption that the driver or
-core can properly call virtio_device_ready() at the right
-place. Unfortunately, this seems to be not true and uncover various
-bugs of the existing drivers, mainly the issue of using
-virtio_device_ready() incorrectly.
-
-So let's having a Kconfig option and disable it by default. It gives
-us a breath to fix the drivers and then we can consider to enable it
-by default.
-
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
-Changes since V1:
-- tweak the Kconfig prompt
-- don't hold spinlock for IRQ path in s390
----
- drivers/s390/virtio/virtio_ccw.c |  4 ++++
- drivers/virtio/Kconfig           | 11 +++++++++++
- drivers/virtio/virtio.c          |  2 ++
- drivers/virtio/virtio_ring.c     | 12 ++++++++++++
- include/linux/virtio_config.h    |  2 ++
- 5 files changed, 31 insertions(+)
-
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index 97e51c34e6cf..89bbf7ccfdd1 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -1136,8 +1136,10 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
- 			vcdev->err = -EIO;
- 	}
- 	virtio_ccw_check_activity(vcdev, activity);
-+#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
- 	/* Interrupts are disabled here */
- 	read_lock(&vcdev->irq_lock);
-+#endif
- 	for_each_set_bit(i, indicators(vcdev),
- 			 sizeof(*indicators(vcdev)) * BITS_PER_BYTE) {
- 		/* The bit clear must happen before the vring kick. */
-@@ -1146,7 +1148,9 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
- 		vq = virtio_ccw_vq_by_ind(vcdev, i);
- 		vring_interrupt(0, vq);
- 	}
-+#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
- 	read_unlock(&vcdev->irq_lock);
-+#endif
- 	if (test_bit(0, indicators2(vcdev))) {
- 		virtio_config_changed(&vcdev->vdev);
- 		clear_bit(0, indicators2(vcdev));
-diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
-index b5adf6abd241..96ec56d44b91 100644
---- a/drivers/virtio/Kconfig
-+++ b/drivers/virtio/Kconfig
-@@ -35,6 +35,17 @@ menuconfig VIRTIO_MENU
- 
- if VIRTIO_MENU
- 
-+config VIRTIO_HARDEN_NOTIFICATION
-+        bool "Harden virtio notification"
-+        help
-+          Enable this to harden the device notifications and supress
-+          the ones that are illegal.
-+
-+          Experimental: not all drivers handle this correctly at this
-+          point.
-+
-+          If unsure, say N.
-+
- config VIRTIO_PCI
- 	tristate "PCI driver for virtio devices"
- 	depends on PCI
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index ef04a96942bf..21dc08d2f32d 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -220,6 +220,7 @@ static int virtio_features_ok(struct virtio_device *dev)
-  * */
- void virtio_reset_device(struct virtio_device *dev)
- {
-+#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
- 	/*
- 	 * The below virtio_synchronize_cbs() guarantees that any
- 	 * interrupt for this line arriving after
-@@ -228,6 +229,7 @@ void virtio_reset_device(struct virtio_device *dev)
- 	 */
- 	virtio_break_device(dev);
- 	virtio_synchronize_cbs(dev);
-+#endif
- 
- 	dev->config->reset(dev);
- }
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 13a7348cedff..d9d3b6e201fb 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -1688,7 +1688,11 @@ static struct virtqueue *vring_create_virtqueue_packed(
- 	vq->we_own_ring = true;
- 	vq->notify = notify;
- 	vq->weak_barriers = weak_barriers;
-+#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
- 	vq->broken = true;
-+#else
-+	vq->broken = false;
-+#endif
- 	vq->last_used_idx = 0;
- 	vq->event_triggered = false;
- 	vq->num_added = 0;
-@@ -2135,9 +2139,13 @@ irqreturn_t vring_interrupt(int irq, void *_vq)
- 	}
- 
- 	if (unlikely(vq->broken)) {
-+#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
- 		dev_warn_once(&vq->vq.vdev->dev,
- 			      "virtio vring IRQ raised before DRIVER_OK");
- 		return IRQ_NONE;
-+#else
-+		return IRQ_HANDLED;
-+#endif
- 	}
- 
- 	/* Just a hint for performance: so it's ok that this can be racy! */
-@@ -2180,7 +2188,11 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
- 	vq->we_own_ring = false;
- 	vq->notify = notify;
- 	vq->weak_barriers = weak_barriers;
-+#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
- 	vq->broken = true;
-+#else
-+	vq->broken = false;
-+#endif
- 	vq->last_used_idx = 0;
- 	vq->event_triggered = false;
- 	vq->num_added = 0;
-diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-index 9a36051ceb76..d15c3cdda2d2 100644
---- a/include/linux/virtio_config.h
-+++ b/include/linux/virtio_config.h
-@@ -257,6 +257,7 @@ void virtio_device_ready(struct virtio_device *dev)
- 
- 	WARN_ON(status & VIRTIO_CONFIG_S_DRIVER_OK);
- 
-+#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
- 	/*
- 	 * The virtio_synchronize_cbs() makes sure vring_interrupt()
- 	 * will see the driver specific setup if it sees vq->broken
-@@ -264,6 +265,7 @@ void virtio_device_ready(struct virtio_device *dev)
- 	 */
- 	virtio_synchronize_cbs(dev);
- 	__virtio_unbreak_device(dev);
-+#endif
- 	/*
- 	 * The transport should ensure the visibility of vq->broken
- 	 * before setting DRIVER_OK. See the comments for the transport
--- 
-2.25.1
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+CuWcqCAyMDIyLzYvMTcgMjA6MzIsIE1pY2hhZWwgUy4gVHNpcmtpbiDlhpnpgZM6Cj4gT24gRnJp
+LCBKdW4gMTcsIDIwMjIgYXQgMDc6NDY6MjNQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToKPj4g
+T24gRnJpLCBKdW4gMTcsIDIwMjIgYXQgNjoxMyBQTSBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEBy
+ZWRoYXQuY29tPiB3cm90ZToKPj4+IE9uIEZyaSwgSnVuIDE3LCAyMDIyIGF0IDAzOjI5OjQ5UE0g
+KzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+Pj4gV2UgdXNlZCB0byBjYWxsIHZpcnRpb19kZXZp
+Y2VfcmVhZHkoKSBhZnRlciBuZXRkZXYgcmVnaXN0cmF0aW9uLiBUaGlzCj4+Pj4gY2F1c2UgYSBy
+YWNlIGJldHdlZW4gbmRvX29wZW4oKSBhbmQgdmlydGlvX2RldmljZV9yZWFkeSgpOiBpZgo+Pj4+
+IG5kb19vcGVuKCkgaXMgY2FsbGVkIGJlZm9yZSB2aXJ0aW9fZGV2aWNlX3JlYWR5KCksIHRoZSBk
+cml2ZXIgbWF5Cj4+Pj4gc3RhcnQgdG8gdXNlIHRoZSBkZXZpY2UgYmVmb3JlIERSSVZFUl9PSyB3
+aGljaCB2aW9sYXRlcyB0aGUgc3BlYy4KPj4+Pgo+Pj4+IEZpeGluZyB0aGlzIGJ5IHN3aXRjaGlu
+ZyB0byB1c2UgcmVnaXN0ZXJfbmV0ZGV2aWNlKCkgYW5kIHByb3RlY3QgdGhlCj4+Pj4gdmlydGlv
+X2RldmljZV9yZWFkeSgpIHdpdGggcnRubF9sb2NrKCkgdG8gbWFrZSBzdXJlIG5kb19vcGVuKCkg
+Y2FuCj4+Pj4gb25seSBiZSBjYWxsZWQgYWZ0ZXIgdmlydGlvX2RldmljZV9yZWFkeSgpLgo+Pj4+
+Cj4+Pj4gRml4ZXM6IDRiYWYxZTMzZDA4NDIgKCJ2aXJ0aW9fbmV0OiBlbmFibGUgVlFzIGVhcmx5
+IikKPj4+PiBTaWduZWQtb2ZmLWJ5OiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgo+
+Pj4+IC0tLQo+Pj4+ICAgZHJpdmVycy9uZXQvdmlydGlvX25ldC5jIHwgOCArKysrKysrLQo+Pj4+
+ICAgMSBmaWxlIGNoYW5nZWQsIDcgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQo+Pj4+Cj4+
+Pj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyBiL2RyaXZlcnMvbmV0L3Zp
+cnRpb19uZXQuYwo+Pj4+IGluZGV4IGRiMDViNWU5MzBiZS4uOGE1ODEwYmNiODM5IDEwMDY0NAo+
+Pj4+IC0tLSBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+Pj4+ICsrKyBiL2RyaXZlcnMvbmV0
+L3ZpcnRpb19uZXQuYwo+Pj4+IEBAIC0zNjU1LDE0ICszNjU1LDIwIEBAIHN0YXRpYyBpbnQgdmly
+dG5ldF9wcm9iZShzdHJ1Y3QgdmlydGlvX2RldmljZSAqdmRldikKPj4+PiAgICAgICAgaWYgKHZp
+LT5oYXNfcnNzIHx8IHZpLT5oYXNfcnNzX2hhc2hfcmVwb3J0KQo+Pj4+ICAgICAgICAgICAgICAg
+IHZpcnRuZXRfaW5pdF9kZWZhdWx0X3Jzcyh2aSk7Cj4+Pj4KPj4+PiAtICAgICBlcnIgPSByZWdp
+c3Rlcl9uZXRkZXYoZGV2KTsKPj4+PiArICAgICAvKiBzZXJpYWxpemUgbmV0ZGV2IHJlZ2lzdGVy
+ICsgdmlydGlvX2RldmljZV9yZWFkeSgpIHdpdGggbmRvX29wZW4oKSAqLwo+Pj4+ICsgICAgIHJ0
+bmxfbG9jaygpOwo+Pj4+ICsKPj4+PiArICAgICBlcnIgPSByZWdpc3Rlcl9uZXRkZXZpY2UoZGV2
+KTsKPj4+PiAgICAgICAgaWYgKGVycikgewo+Pj4+ICAgICAgICAgICAgICAgIHByX2RlYnVnKCJ2
+aXJ0aW9fbmV0OiByZWdpc3RlcmluZyBkZXZpY2UgZmFpbGVkXG4iKTsKPj4+PiArICAgICAgICAg
+ICAgIHJ0bmxfdW5sb2NrKCk7Cj4+Pj4gICAgICAgICAgICAgICAgZ290byBmcmVlX2ZhaWxvdmVy
+Owo+Pj4+ICAgICAgICB9Cj4+Pj4KPj4+PiAgICAgICAgdmlydGlvX2RldmljZV9yZWFkeSh2ZGV2
+KTsKPj4+Pgo+Pj4+ICsgICAgIHJ0bmxfdW5sb2NrKCk7Cj4+Pj4gKwo+Pj4+ICAgICAgICBlcnIg
+PSB2aXJ0bmV0X2NwdV9ub3RpZl9hZGQodmkpOwo+Pj4+ICAgICAgICBpZiAoZXJyKSB7Cj4+Pj4g
+ICAgICAgICAgICAgICAgcHJfZGVidWcoInZpcnRpb19uZXQ6IHJlZ2lzdGVyaW5nIGNwdSBub3Rp
+ZmllciBmYWlsZWRcbiIpOwo+Pj4KPj4+IExvb2tzIGdvb2QgYnV0IHRoZW4gZG9uJ3Qgd2UgaGF2
+ZSB0aGUgc2FtZSBpc3N1ZSB3aGVuIHJlbW92aW5nIHRoZQo+Pj4gZGV2aWNlPwo+Pj4KPj4+IEFj
+dHVhbGx5IEkgbG9va2VkIGF0ICB2aXJ0bmV0X3JlbW92ZSBhbmQgSSBzZWUKPj4+ICAgICAgICAg
+IHVucmVnaXN0ZXJfbmV0ZGV2KHZpLT5kZXYpOwo+Pj4KPj4+ICAgICAgICAgIG5ldF9mYWlsb3Zl
+cl9kZXN0cm95KHZpLT5mYWlsb3Zlcik7Cj4+Pgo+Pj4gICAgICAgICAgcmVtb3ZlX3ZxX2NvbW1v
+bih2aSk7IDwtIHRoaXMgd2lsbCByZXNldCB0aGUgZGV2aWNlCj4+Pgo+Pj4gYSB3aW5kb3cgaGVy
+ZT8KPj4gUHJvYmFibHkuIEZvciBzYWZldHksIHdlIHByb2JhYmx5IG5lZWQgdG8gcmVzZXQgYmVm
+b3JlIHVucmVnaXN0ZXJpbmcuCj4KPiBjYXJlZnVsIG5vdCB0byBjcmVhdGUgbmV3IHJhY2VzLCBs
+ZXQncyBhbmFseXNlIHRoaXMgb25lIHRvIGJlCj4gc3VyZSBmaXJzdC4KCgpZZXMsIGlmIHdlIGRv
+IHRoYXQsIHRoZXJlIGNvdWxkIGJlIGFuIGluZmluaXRlIHdhaXQgaW4gY3RybCBjb21tYW5kcy4K
+ClNvIHdlIGFyZSBwcm9iYWJseSBmaW5lIGhlcmUgc2luY2UgdW5yZWdpc3Rlcl9uZXRkZXYoKSB3
+aWxsIG1ha2Ugc3VyZSAKKG90aGVyd2lzZSBpdCBzaG91bGQgYmUgYSBidWcgb2YgdW5yZWdpc3Rl
+cl9uZXRkZXYoKSk6CgoxKSBOQVBJIGlzIGRpc2FibGVkIChhbmQgc3luY2VkKSBzbyBubyBuZXcg
+TkFQSSBjb3VsZCBiZSBlbmFibGVkIGJ5IHRoZSAKY2FsbGJhY2tzCjIpIFRYIGlzIGRpc2FibGVk
+IChhbmQgc3luY2VkKSBzbyB0aGUgcWRpc2MgY291bGQgbm90IGJlIHNjaGVkdWxlZCBldmVuIApp
+ZiBza2JfeG1pdF9kb25lKCkgaXMgY2FsbGVkIGJldHdlZW4gdGhlIHdpbmRvdwoKCj4KPj4+Cj4+
+PiBSZWFsbHksIEkgdGhpbmsgd2hhdCB3ZSBoYWQgb3JpZ2luYWxseSB3YXMgYSBiZXR0ZXIgaWRl
+YSAtCj4+PiBpbnN0ZWFkIG9mIGRyb3BwaW5nIGludGVycnVwdHMgdGhleSB3ZXJlIGRlbGF5ZWQg
+YW5kCj4+PiB3aGVuIGRyaXZlciBpcyByZWFkeSB0byBhY2NlcHQgdGhlbSBpdCBqdXN0IGVuYWJs
+ZXMgdGhlbS4KPj4gVGhlIHByb2JsZW0gaXMgdGhhdCBpdCB3b3JrcyBvbmx5IG9uIHNvbWUgc3Bl
+Y2lmaWMgc2V0dXA6Cj4+Cj4+IC0gZG9lc24ndCB3b3JrIG9uIHNoYXJlZCBJUlEKPj4gLSBkb2Vz
+bid0IHdvcmsgb24gc29tZSBzcGVjaWZpYyBkcml2ZXIgZS5nIHZpcnRpby1ibGsKPiBjYW4gc29t
+ZSBjb3JlIGlycSB3b3JrIGZpeCB0aGF0PwoKCk5vdCBzdXJlLiBBdCBsZWFzdCBmb3IgdGhlIHNo
+YXJlZCBJUlEgcGFydCwgdGhlcmUncyBubyB3YXkgdG8gZGlzYWJsZSBhIApzcGVjaWZpYyBoYW5k
+bGVyIGN1cnJlbnRseS4gTW9yZSBiZWxvdy4KCgo+Cj4+PiBXZSBqdXN0IG5lZWQgdG8gbWFrZSBz
+dXJlIGRyaXZlciBkb2VzIG5vdCB3YWl0IGZvcgo+Pj4gaW50ZXJydXB0cyBiZWZvcmUgZW5hYmxp
+bmcgdGhlbS4KCgpUaGlzIG9ubHkgaGVscCBmb3IgdGhlIGNhc2U6CgoxKSB0aGUgdmlydGlvX2Rl
+dmljZV9yZWFkeSgpIGlzIGNhbGxlZCBhZnRlciBzdWJzeXN0ZW0gCmluaXRpYWxpemF0aW9uL3Jl
+Z2lzdHJhdGlvbgoyKSB0aGUgZHJpdmVyIHVzZSByeCBpbnRlcnJ1cHQKCkl0IGRvZXNuJ3Qgc29s
+dmUgdGhlIHJhY2UgYmV0d2VlbiBzdWJzeXN0ZW0gcmVnaXN0cmF0aW9uL2luaXRpYWxpemF0aW9u
+IAphbmQgdmlydGlvX2RldmljZV9yZWFkeSgpIG9yIHRoZSBjYXNlIHdoZW4gdGhlIHZpcnRpb19k
+ZXZpY2VfcmVhZHkoKSAKbmVlZHMgdG8gYmUgY2FsbGVkIGJlZm9yZSBzdWJzeXN0ZW0gcmVnaXN0
+cmF0aW9uLgoKVGhhbmtzCgoKPj4+Cj4+PiBBbmQgSSBzdXNwZWN0IHdlIG5lZWQgdG8gbWFrZSB0
+aGlzIG9wdC1pbiBvbiBhIHBlciBkcml2ZXIKPj4+IGJhc2lzLgo+PiBFeGFjdGx5Lgo+Pgo+PiBU
+aGFua3MKPj4KPj4+Cj4+Pgo+Pj4+IC0tCj4+Pj4gMi4yNS4xCgpfX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QK
+VmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5s
+aW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
