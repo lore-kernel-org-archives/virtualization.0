@@ -1,110 +1,107 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 162E4C433EF
-	for <virtualization@archiver.kernel.org>; Tue, 21 Jun 2022 02:59:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 75E7AC43334
+	for <virtualization@archiver.kernel.org>; Tue, 21 Jun 2022 03:05:16 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 99C2A41876;
-	Tue, 21 Jun 2022 02:59:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 99C2A41876
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=XVjDyTmp
+	by smtp3.osuosl.org (Postfix) with ESMTP id 044D661024;
+	Tue, 21 Jun 2022 03:05:16 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 044D661024
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RU9cwfsV
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id UAxmtyLwrIOy; Tue, 21 Jun 2022 02:59:11 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id zrO5NJNnyW66; Tue, 21 Jun 2022 03:05:15 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 812FA417E3;
-	Tue, 21 Jun 2022 02:59:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 812FA417E3
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 508C360D6D;
+	Tue, 21 Jun 2022 03:05:14 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 508C360D6D
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5E1DBC0032;
-	Tue, 21 Jun 2022 02:59:10 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 827CDC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 30080C0032;
+	Tue, 21 Jun 2022 03:05:14 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 523F3C002D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Jun 2022 02:59:08 +0000 (UTC)
+ Tue, 21 Jun 2022 03:05:13 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 47AC040194
+ by smtp3.osuosl.org (Postfix) with ESMTP id 1EC7E61024
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Jun 2022 02:59:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 47AC040194
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=XVjDyTmp
+ Tue, 21 Jun 2022 03:05:13 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1EC7E61024
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Kxas3nmVfnDi
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id RyZ3ddi53SrK
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Jun 2022 02:59:07 +0000 (UTC)
+ Tue, 21 Jun 2022 03:05:12 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DA24F40135
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 17E0960D6D
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id DA24F40135
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 17E0960D6D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Jun 2022 02:59:06 +0000 (UTC)
+ Tue, 21 Jun 2022 03:05:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1655780345;
+ s=mimecast20190719; t=1655780707;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=dhNf5VQ2CZlb1zUdYetihyiK9C1Amm6yrig07SxOLrA=;
- b=XVjDyTmpMNVSouaW12zb3WMTNxS7i9oRC94wJ6JWeJOG19GMpnbx8SZBv2VZgxOquJwJNA
- dS3vuJ6PQG9OjSajFRelIzT3DrlZGNNOjfmPY9uvF+WnVzgv7GdtSt37VhG1MJ/5pI3ok1
- N47V477PpdAD/Hwe1t3Nyliu/N4Ljz0=
-Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
- [209.85.167.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=IEDQbrqCDnnzlN2lESJGmEW8kKV42M3tmKohr7BwJIQ=;
+ b=RU9cwfsVAXWn9RyPKJ/yDeSwOvB+Y4ljRwlvWpDi+VtoTlmbMsKnsnf7UNJRvuYNPUyRyi
+ H0Lcm7/QwwiHhEJ+e7wGo5Ds3iEhp3/0j2agoQ6zqIdTrrBosNchJF/j+mS8ty8oHWsb3T
+ 5y14Gx4hy4I1PDnWNbSsa8HrS8x5dK0=
+Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
+ [209.85.167.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-29-Qor4mhAaNQSl_2KejwNmJA-1; Mon, 20 Jun 2022 22:59:04 -0400
-X-MC-Unique: Qor4mhAaNQSl_2KejwNmJA-1
-Received: by mail-lf1-f72.google.com with SMTP id
- i3-20020a056512318300b0047f86b47910so3585lfe.14
+ us-mta-184-TGNktfGgM4y-NsnlA2c4dA-1; Mon, 20 Jun 2022 23:05:05 -0400
+X-MC-Unique: TGNktfGgM4y-NsnlA2c4dA-1
+Received: by mail-lf1-f69.google.com with SMTP id
+ j3-20020a05651231c300b0047dbea7b031so6265711lfe.19
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Jun 2022 19:59:04 -0700 (PDT)
+ Mon, 20 Jun 2022 20:05:04 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=dhNf5VQ2CZlb1zUdYetihyiK9C1Amm6yrig07SxOLrA=;
- b=1HrXxN/LE/5pWCvUjJvSzmIcpvfCccR09o7Vae2u7mOBjIISz6SDF5B2TH5X1UoOOp
- +Mr7Ksjfteo769THDhujnMvZ1pNkN49yw7lC+lT/IpTVg/8tH4ubMU/61W7Qt3qUH9U+
- ZXs7KaK74HrmD21A204FL0+TEh7RtohxNYYOpGoUfNO0KX93tacvD1VLWOonYXFsXR8M
- GXsroZchQnTO+asSkhbKzCzzn2WFxzL1XxvhTVf74moy2AkqnU/3kYCdKy+pjB8SMvXh
- qSGpR4ZhGkOAirBuFgodSk3VZ9sXFPUxSsV/KIe9Hc5psA9eEJC3YKHH3S119MMM/Zzr
- NeYA==
-X-Gm-Message-State: AJIora9al764XKzDqUeGSuMjfSx9gqcLBT4ZI2VUyA6s2zZPa7qXwGXt
- vGAfCWkmL2/mkadVQeie1R01izRBBvwsR5TK8dfwsyfgDQsfeyTT7NKQ5ShxR1+bxztiLJpRP+i
- A2Yo4mizXnMzXgv8XmgEyUQak+T/Kw+//WYUqnrkxrdIaypCd9JWr0qrr0A==
-X-Received: by 2002:a05:651c:895:b0:250:c5ec:bc89 with SMTP id
- d21-20020a05651c089500b00250c5ecbc89mr13499810ljq.251.1655780342878; 
- Mon, 20 Jun 2022 19:59:02 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1s5BLy+ZqwEf9mB09ZKSQV92I6GPkiZ5JusIUOOeAvPSFUNj/tkmDvxSH81jDgGB5d0TqIUiNTGN8kE+P9NQhQ=
-X-Received: by 2002:a05:651c:895:b0:250:c5ec:bc89 with SMTP id
- d21-20020a05651c089500b00250c5ecbc89mr13499797ljq.251.1655780342664; Mon, 20
- Jun 2022 19:59:02 -0700 (PDT)
+ bh=IEDQbrqCDnnzlN2lESJGmEW8kKV42M3tmKohr7BwJIQ=;
+ b=L3QetiaaaktNP5GaTEbv7lHEo73LrGX6eXvciCB4TJxwqPDvicVvi5yb9Nj1QWQUqW
+ y3wGEj75goXHJjmyZAXy/QU/5H+um7srdensaaB0qScRaDaKnq//H6zeuucKkhOybqa0
+ 5p2CsKVBt+mS04Ov1Sk/y7sGqpaIwQETeIdr6DSDgX5uuozBRpid58THovtGaDtHWxC5
+ aJvKR4hUuZrNjLOdBflfff5iodf5IQdhcSngl22Q6vE0RSA/2UJAFFt8UwIxTkvDJfh+
+ z21ZMzNhD+RZ9462NPzF1iJ5v3hdOD5PrqQ1FAVdu55eicpMjcYfI6BcqWvv3JeW7ItA
+ j1UQ==
+X-Gm-Message-State: AJIora8BYvMXUTxzZe72B6GfIEl7RCn5P4MdGPkNcpg8TUN5SqJAc1yA
+ LgJu5LIYVh8Bkt5Vu/xJzX40LvidTqRjSWucdxRH5fQO5/P5qKqXy/Xi/ldtsc69i0jsJNVQSE7
+ 36b/i+WlY50OoQ3pwv8AwXXCUH1zq106E8/GQuFKtrmxyV3QhrfsyendTsQ==
+X-Received: by 2002:a05:6512:13a5:b0:47d:c1d9:dea8 with SMTP id
+ p37-20020a05651213a500b0047dc1d9dea8mr15453652lfa.442.1655780701979; 
+ Mon, 20 Jun 2022 20:05:01 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1ve2/AO9/k7M96rrzDPn68BkBow1Mx7UHpUi3NZ41WbMnslBgJ0QvWYbJnGXCZahSfxmqxjVuchsJS0VLaHD/c=
+X-Received: by 2002:a05:6512:13a5:b0:47d:c1d9:dea8 with SMTP id
+ p37-20020a05651213a500b0047dc1d9dea8mr15453640lfa.442.1655780701719; Mon, 20
+ Jun 2022 20:05:01 -0700 (PDT)
 MIME-Version: 1.0
 References: <20220616132725.50599-1-elic@nvidia.com>
  <20220616132725.50599-2-elic@nvidia.com>
  <CACGkMEue-X8-u0Z=EwUbBSV6vmomwNy52Tot3Zf+0pu4Pztutg@mail.gmail.com>
- <DM8PR12MB54004277F21D682A3EE6D1C1ABB09@DM8PR12MB5400.namprd12.prod.outlook.com>
-In-Reply-To: <DM8PR12MB54004277F21D682A3EE6D1C1ABB09@DM8PR12MB5400.namprd12.prod.outlook.com>
+ <CAJaqyWfTG_jVW6Vzf64QO=255kfwWKn4gCUMeGog-1shHx3O_g@mail.gmail.com>
+In-Reply-To: <CAJaqyWfTG_jVW6Vzf64QO=255kfwWKn4gCUMeGog-1shHx3O_g@mail.gmail.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 21 Jun 2022 10:58:51 +0800
-Message-ID: <CACGkMEth7Nw4pwsa9zwmhacZ22Oue44gSa+YaCKF8qP_R+3gJw@mail.gmail.com>
+Date: Tue, 21 Jun 2022 11:04:50 +0800
+Message-ID: <CACGkMEtcs9e1NJ7ArkibQSrDN7j_eyciZo=yDfbd5Jsb4gvzZA@mail.gmail.com>
 Subject: Re: [PATCH RFC 1/3] vdpa/mlx5: Implement susupend virtqueue callback
-To: Eli Cohen <elic@nvidia.com>
+To: Eugenio Perez Martin <eperezma@redhat.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Cc: mst <mst@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>,
  virtualization <virtualization@lists.linux-foundation.org>,
- eperezma <eperezma@redhat.com>
+ Eli Cohen <elic@nvidia.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -121,15 +118,10 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Jun 20, 2022 at 9:09 PM Eli Cohen <elic@nvidia.com> wrote:
+On Mon, Jun 20, 2022 at 5:59 PM Eugenio Perez Martin
+<eperezma@redhat.com> wrote:
 >
-> > -----Original Message-----
-> > From: Jason Wang <jasowang@redhat.com>
-> > Sent: Monday, June 20, 2022 11:56 AM
-> > To: Eli Cohen <elic@nvidia.com>
-> > Cc: eperezma <eperezma@redhat.com>; mst <mst@redhat.com>; virtualization <virtualization@lists.linux-foundation.org>; linux-
-> > kernel <linux-kernel@vger.kernel.org>; Si-Wei Liu <si-wei.liu@oracle.com>; Parav Pandit <parav@nvidia.com>
-> > Subject: Re: [PATCH RFC 1/3] vdpa/mlx5: Implement susupend virtqueue callback
+> On Mon, Jun 20, 2022 at 10:56 AM Jason Wang <jasowang@redhat.com> wrote:
 > >
 > > On Thu, Jun 16, 2022 at 9:27 PM Eli Cohen <elic@nvidia.com> wrote:
 > > >
@@ -241,13 +233,6 @@ On Mon, Jun 20, 2022 at 9:09 PM Eli Cohen <elic@nvidia.com> wrote:
 > > It looks to me we need to synchronize this with reslock. And this
 > > probably deserve a dedicated fix.
 > >
->
-> It's already being held by mlx5_vdpa_suspend
-
-Right, but I meant this seems kind of duplicated with set_cvq_ready(),
-can we unify them? (We don't hold reslock there).
-
->
 > > > +
 > > > +static int mlx5_vdpa_suspend(struct vdpa_device *vdev, bool suspend)
 > > > +{
@@ -271,16 +256,6 @@ can we unify them? (We don't hold reslock there).
 > > Do we need to synchronize with the carrier work here? Otherwise we may
 > > get config notification after suspending.
 > >
->
-> Are you saying we should not allow carrier updates after the VQs have been suspended?
-> Link state should not be related to suspension of VQs.
-
-Yes, it's not related to the VQ but we suspend the device here. So we
-probably need to flush the carrier work.
-
-Thanks
-
->
 > > > +       up_write(&ndev->reslock);
 > > > +       return 0;
 > > > +}
@@ -296,6 +271,22 @@ Thanks
 > >
 > > I don't see the vDPA bus patch to enable this method. Or anything I missed here?
 > >
+>
+> Should we add
+> Based-on: <20220526124338.36247-1-eperezma@redhat.com>
+>
+> To this series?
+
+Probably, but that series seems to support resume while this series doesn't.
+
+Any reason for this?
+
+(I don't see any blocker for this especially considering parents can
+choose to do reset + set_vring_state etc.)
+
+Thanks
+
+>
 > > Thanks
 > >
 > > >  };
@@ -331,6 +322,7 @@ Thanks
 > > > --
 > > > 2.35.1
 > > >
+> >
 >
 
 _______________________________________________
