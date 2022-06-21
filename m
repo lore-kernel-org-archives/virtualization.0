@@ -4,105 +4,106 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 13985C433EF
-	for <virtualization@archiver.kernel.org>; Tue, 21 Jun 2022 09:34:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 00072C43334
+	for <virtualization@archiver.kernel.org>; Tue, 21 Jun 2022 09:36:43 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id AE3794151E;
-	Tue, 21 Jun 2022 09:34:45 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org AE3794151E
+	by smtp4.osuosl.org (Postfix) with ESMTP id 7DA5D408DD;
+	Tue, 21 Jun 2022 09:36:43 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7DA5D408DD
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=MuLSNFge
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=i4KS9I/2
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id jNgpXEVqtq9N; Tue, 21 Jun 2022 09:34:44 +0000 (UTC)
+	with ESMTP id mZYJ0cwe9cJW; Tue, 21 Jun 2022 09:36:42 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 0C981414C7;
-	Tue, 21 Jun 2022 09:34:44 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0C981414C7
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 8E9C24091D;
+	Tue, 21 Jun 2022 09:36:41 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8E9C24091D
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C9BC8C007A;
-	Tue, 21 Jun 2022 09:34:43 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 5408FC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 6F8EBC0032;
+	Tue, 21 Jun 2022 09:36:41 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E288FC002D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Jun 2022 09:34:42 +0000 (UTC)
+ Tue, 21 Jun 2022 09:36:40 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 2E70360D5E
+ by smtp4.osuosl.org (Postfix) with ESMTP id CB3BF4091D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Jun 2022 09:34:42 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2E70360D5E
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=MuLSNFge
+ Tue, 21 Jun 2022 09:36:40 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org CB3BF4091D
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 9wr5o0M5Gt5o
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id DWp81fP51-8J
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Jun 2022 09:34:41 +0000 (UTC)
+ Tue, 21 Jun 2022 09:36:39 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 34D43606A9
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4FF23408DD
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 34D43606A9
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 4FF23408DD
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Jun 2022 09:34:41 +0000 (UTC)
+ Tue, 21 Jun 2022 09:36:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1655804079;
+ s=mimecast20190719; t=1655804197;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=rdnHvjh3c/TdBfAELRt/q8PZAC75UkXxMtsykTE+gc0=;
- b=MuLSNFgeQRBT49H4t8jiiIu3sv6M+QIAALsDOGdwQJalZK8PSGmR95HmMEZZFJyCFI0IOZ
- FEhxHNReS/hl4D9WzCt4rQWinsFfAqUzfvmXMFCAD5wOYRQDuaRzmh+3Fx+Q1KWLUg4duy
- nK3pq1q8ACzdvpqpD6m0v8UmP93Gl1Q=
-Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com
- [209.85.208.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=NcXrei2y1YJ8W4iMhBTE/8lC+VPJchskiCKRKCR2d9s=;
+ b=i4KS9I/2XQCQTAPK5aPHsCn79CcE0vQYaDZSk40VxSdne0XByS80xZ+v0Z0EtQnqFkr3bm
+ iPzeBE3CF3bygg25ueG/zQFKSriJsrUf00uPzCZG/Wtvf7/zX9AnF2sdvHWjrOZNXHQQca
+ vsnla0Rc2ugbC/wNEO2/y9MDyZSbGJo=
+Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
+ [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-118-59i4UVC-MUeP6KyEeSigDQ-1; Tue, 21 Jun 2022 05:34:38 -0400
-X-MC-Unique: 59i4UVC-MUeP6KyEeSigDQ-1
-Received: by mail-lj1-f198.google.com with SMTP id
- c12-20020a2ebf0c000000b00258e5e6e125so1664550ljr.17
+ us-mta-483-kYoZjSl-ORyxf2lnaZRupQ-1; Tue, 21 Jun 2022 05:36:36 -0400
+X-MC-Unique: kYoZjSl-ORyxf2lnaZRupQ-1
+Received: by mail-lf1-f71.google.com with SMTP id
+ bi38-20020a0565120ea600b0047f640eaee0so3386181lfb.4
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Jun 2022 02:34:38 -0700 (PDT)
+ Tue, 21 Jun 2022 02:36:36 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=rdnHvjh3c/TdBfAELRt/q8PZAC75UkXxMtsykTE+gc0=;
- b=6TYjs4MrLQZVZsZoIrq6aH7hFnmnrYuM72CIUGgPQhEV87d+FjiqyNoXAIW6hMwxK8
- 9KUo16wImZ5xMVYdqbjYSE1M+n71JWfSff0bqWKsyDltTrfxG87a+xPccu+W0gdDrMlp
- MWzHCj+5q9YMiXyY8m3NdUKQZ00svnvS2WuuTydHCk7AdR9Pvgaxp1OGAEqoN+u8YZOl
- KSEgfXsksIgmvDDpyRLTrw+MSUtbyvU3kXDYa3IARpJT9NyX0Iu2QI/aPOk8E5LChcOM
- MQeLWzMh0llbeSV26784PtUUX8RDelhCJ0KaYdyoTFWDjzIHK+QvQISJD8/DgcJEQ4Qh
- ULQQ==
-X-Gm-Message-State: AJIora+weZKGwMf8GjwWbHEbqC1aXeqWX3FVD/RoBcG3KVu0AphowG9K
- IyTlDsIkVyg5YhV1TpGsIy15oXQr0LEffyJbQJI46lEAI7qkE7qhVYC/T0R5XZEjcssTuikfbqR
- OJ/XVpLGd5mVhkYHXAespEKGsglXL8dOuYrKESc16AyN/lRqT4QHqXA+oiw==
-X-Received: by 2002:a05:6512:1047:b0:479:7805:5f with SMTP id
- c7-20020a056512104700b004797805005fmr16283822lfb.238.1655804076822; 
- Tue, 21 Jun 2022 02:34:36 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1tvc4aS+o6BmysM9ZX2dC3UwcA6yK8pDUkRVJNA80xsBX7M610OWX2btmXntFaxgbxW5Bsc8Klk4dlvEGmCDTk=
-X-Received: by 2002:a05:6512:1047:b0:479:7805:5f with SMTP id
- c7-20020a056512104700b004797805005fmr16283813lfb.238.1655804076551; Tue, 21
- Jun 2022 02:34:36 -0700 (PDT)
+ bh=NcXrei2y1YJ8W4iMhBTE/8lC+VPJchskiCKRKCR2d9s=;
+ b=iZ1iMinlR9yAA/KWm1NGbG00PpRO0OnaDvCuB3ZoSdG1xuj9YiDIMUGH3bWjeBNNUp
+ U62ozhwuDpwXG1tfM7cgS1zPaq8dtT/WWtCPD2wTuHgI7SLYVli7Q6bOEnkt1OG9IEh+
+ IWCs2j3sZWeDWgb03I3rJftujXIIddPdtjvcLzP0Xkl5d1U7s17OPvETvm03XhNj2aAT
+ HlDWLjYu9TBs0dd0MsUO54dT/SW8BVbulcN9C2XoRliKWFKB9/jHKecPVRGIopaE5Cek
+ 3CSljzKRECdqejoJEMQM5hKvSrbjzmKoaEDQPuWEkbBQjxnkydAjTCW+6+u7Z5WW+vs3
+ Kn0A==
+X-Gm-Message-State: AJIora8vsOTPmp/onKHXNa+t7JFaZO1t/3Wlu1UaZuI2HNOQ3bmraEd6
+ XMtNky1/bNb0fUqp5jUIm5wc5Nuac2shc3DYX3wrsYnWKWyMx7RFen0aIN863Z8sOhw8J9SRogU
+ 1pBk5Yc42otvy6zKYh/B9Xx1FyZSKiT1sLuOlQZiKTjLmvCYt0xFBlfDTxQ==
+X-Received: by 2002:a05:6512:13a5:b0:47d:c1d9:dea8 with SMTP id
+ p37-20020a05651213a500b0047dc1d9dea8mr16179013lfa.442.1655804194871; 
+ Tue, 21 Jun 2022 02:36:34 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1vYHin7RcteM0oZeoqpcOaahexAusmGmc0X7KmU5H3LSzGjszNsAIJFXEvBb7MZram6VDes8GvKxQzQWHh+L8w=
+X-Received: by 2002:a05:6512:13a5:b0:47d:c1d9:dea8 with SMTP id
+ p37-20020a05651213a500b0047dc1d9dea8mr16178998lfa.442.1655804194646; Tue, 21
+ Jun 2022 02:36:34 -0700 (PDT)
 MIME-Version: 1.0
-References: <64c567bc77c4fbe7bfe37467cc1c89d24a45c37a.camel@decadent.org.uk>
- <402bb9b5-7d6e-ed69-8b66-3ebefd80ff15@redhat.com>
-In-Reply-To: <402bb9b5-7d6e-ed69-8b66-3ebefd80ff15@redhat.com>
+References: <20220620024158.2505-1-jasowang@redhat.com>
+ <87y1xq8jgw.fsf@redhat.com>
+In-Reply-To: <87y1xq8jgw.fsf@redhat.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 21 Jun 2022 17:34:25 +0800
-Message-ID: <CACGkMEs45CCniTjbxr3OThdbG=Q4nGrm_11LLDfR4rRLetSx0A@mail.gmail.com>
-Subject: Re: virtio_balloon regression in 5.19-rc3
-To: David Hildenbrand <david@redhat.com>
+Date: Tue, 21 Jun 2022 17:36:23 +0800
+Message-ID: <CACGkMEun6C9RgQVGq1B8BJMd9DyRQkSXj8shXVVhDymQYQLxgA@mail.gmail.com>
+Subject: Re: [PATCH V2] virtio: disable notification hardening by default
+To: Cornelia Huck <cohuck@redhat.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: debian-kernel@lists.debian.org, Ben Hutchings <ben@decadent.org.uk>,
- "Michael S. Tsirkin" <mst@redhat.com>,
- virtualization <virtualization@lists.linux-foundation.org>
+Cc: linux-s390@vger.kernel.org, kvm <kvm@vger.kernel.org>,
+ Vasily Gorbik <gor@linux.ibm.com>, mst <mst@redhat.com>,
+ linux-kernel <linux-kernel@vger.kernel.org>,
+ virtualization <virtualization@lists.linux-foundation.org>,
+ Halil Pasic <pasic@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@de.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,45 +120,117 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Jun 21, 2022 at 5:24 PM David Hildenbrand <david@redhat.com> wrote:
+On Tue, Jun 21, 2022 at 5:16 PM Cornelia Huck <cohuck@redhat.com> wrote:
 >
-> On 20.06.22 20:49, Ben Hutchings wrote:
-> > I've tested a 5.19-rc3 kernel on top of QEMU/KVM with machine type
-> > pc-q35-5.2.  It has a virtio balloon device defined in libvirt as:
+> On Mon, Jun 20 2022, Jason Wang <jasowang@redhat.com> wrote:
+>
+> > We try to harden virtio device notifications in 8b4ec69d7e09 ("virtio:
+> > harden vring IRQ"). It works with the assumption that the driver or
+> > core can properly call virtio_device_ready() at the right
+> > place. Unfortunately, this seems to be not true and uncover various
+> > bugs of the existing drivers, mainly the issue of using
+> > virtio_device_ready() incorrectly.
 > >
-> >     <memballoon model="virtio">
-> >       <address type="pci" domain="0x0000" bus="0x05" slot="0x00" function="0x0"/>
-> >     </memballoon>
+> > So let's having a Kconfig option and disable it by default. It gives
+> > us a breath to fix the drivers and then we can consider to enable it
+> > by default.
 > >
-> > but the virtio_balloon driver fails to bind to it:
+> > Signed-off-by: Jason Wang <jasowang@redhat.com>
+> > ---
+> > Changes since V1:
+> > - tweak the Kconfig prompt
+> > - don't hold spinlock for IRQ path in s390
+> > ---
+> >  drivers/s390/virtio/virtio_ccw.c |  4 ++++
+> >  drivers/virtio/Kconfig           | 11 +++++++++++
+> >  drivers/virtio/virtio.c          |  2 ++
+> >  drivers/virtio/virtio_ring.c     | 12 ++++++++++++
+> >  include/linux/virtio_config.h    |  2 ++
+> >  5 files changed, 31 insertions(+)
 > >
-> >     virtio_balloon virtio4: init_vqs: add stat_vq failed
-> >     virtio_balloon: probe of virtio4 failed with error -5
+> > diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+> > index 97e51c34e6cf..89bbf7ccfdd1 100644
+> > --- a/drivers/s390/virtio/virtio_ccw.c
+> > +++ b/drivers/s390/virtio/virtio_ccw.c
+> > @@ -1136,8 +1136,10 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
+> >                       vcdev->err = -EIO;
+> >       }
+> >       virtio_ccw_check_activity(vcdev, activity);
+> > +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
+> >       /* Interrupts are disabled here */
+> >       read_lock(&vcdev->irq_lock);
+>
+> Should we add a comment that this pairs with
+> virtio_ccw_synchronize_cbs()? Just to avoid future headscratching as to
+> why this lock is only needed when notification hardening is enabled.
+
+Fine.
+
+>
+> > +#endif
+> >       for_each_set_bit(i, indicators(vcdev),
+> >                        sizeof(*indicators(vcdev)) * BITS_PER_BYTE) {
+> >               /* The bit clear must happen before the vring kick. */
+> > @@ -1146,7 +1148,9 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
+> >               vq = virtio_ccw_vq_by_ind(vcdev, i);
+> >               vring_interrupt(0, vq);
+> >       }
+> > +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
+> >       read_unlock(&vcdev->irq_lock);
+> > +#endif
+> >       if (test_bit(0, indicators2(vcdev))) {
+> >               virtio_config_changed(&vcdev->vdev);
+> >               clear_bit(0, indicators2(vcdev));
+> > diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
+> > index b5adf6abd241..96ec56d44b91 100644
+> > --- a/drivers/virtio/Kconfig
+> > +++ b/drivers/virtio/Kconfig
+> > @@ -35,6 +35,17 @@ menuconfig VIRTIO_MENU
 > >
+> >  if VIRTIO_MENU
+> >
+> > +config VIRTIO_HARDEN_NOTIFICATION
+> > +        bool "Harden virtio notification"
+> > +        help
+> > +          Enable this to harden the device notifications and supress
+> > +          the ones that are illegal.
 >
-> Hmm, I don't see any recent changes to drivers/virtio/virtio_balloon.c
->
-> virtqueue_add_outbuf() fails with -EIO if I'm not wrong. That's the
-> first call of virtqueue_add_outbuf() when virtio_balloon initializes.
->
->
-> Maybe something in generic virtio code changed?
+> "...and suppress those that happen at a time where notifications are
+> illegal." ?
 
-Yes, we introduced the IRQ hardening. That could be the root cause and
-we've received lots of reports so we decide to disable it by default.
-
-Ben, could you please try this patch: (and make sure
-CONFIG_VIRTIO_HARDEN_NOTIFICATION is not set)
-
-https://lore.kernel.org/lkml/20220620024158.2505-1-jasowang@redhat.com/T/
-
-Thanks
+Ok.
 
 >
-> --
-> Thanks,
+> > +
+> > +          Experimental: not all drivers handle this correctly at this
+> > +          point.
 >
-> David / dhildenb
+> "Note that several drivers still have bugs that may cause crashes or
+> hangs when correct handling of notifications is enforced; depending on
+> the subset of drivers and devices you use, this may or may not work."
+>
+> Or is that too verbose?
+
+Looks fine.
+
+>
+> > +
+> > +          If unsure, say N.
+> > +
+> >  config VIRTIO_PCI
+> >       tristate "PCI driver for virtio devices"
+> >       depends on PCI
+>
+> The ifdeffery looks a big ugly, but I don't have a better idea.
+
+I guess you meant the ccw part, I leave the spinlock here in V1, but
+Michael prefers to have that.
+
+In the future, we may consider removing that, one possible way is to
+have a per driver boolean for the hardening.
+
+Tanks
+
 >
 
 _______________________________________________
