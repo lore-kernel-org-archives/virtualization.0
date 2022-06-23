@@ -1,106 +1,104 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C7B03C433EF
-	for <virtualization@archiver.kernel.org>; Thu, 23 Jun 2022 03:55:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B51D8C43334
+	for <virtualization@archiver.kernel.org>; Thu, 23 Jun 2022 04:00:18 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 56F20846C8;
-	Thu, 23 Jun 2022 03:55:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 56F20846C8
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ZZZALthz
+	by smtp3.osuosl.org (Postfix) with ESMTP id 2897261344;
+	Thu, 23 Jun 2022 04:00:18 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2897261344
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=OUmxjqpt
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id NR3I8CYIfPka; Thu, 23 Jun 2022 03:55:08 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 89b08NxpXXzE; Thu, 23 Jun 2022 04:00:17 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id E7E2384621;
-	Thu, 23 Jun 2022 03:55:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E7E2384621
+	by smtp3.osuosl.org (Postfix) with ESMTPS id AC56261345;
+	Thu, 23 Jun 2022 04:00:16 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org AC56261345
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B68ADC0032;
-	Thu, 23 Jun 2022 03:55:07 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D559FC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7D746C0032;
+	Thu, 23 Jun 2022 04:00:16 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5DFCDC002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 23 Jun 2022 03:55:06 +0000 (UTC)
+ Thu, 23 Jun 2022 04:00:15 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id A638C84608
+ by smtp3.osuosl.org (Postfix) with ESMTP id 3F6E161345
  for <virtualization@lists.linux-foundation.org>;
- Thu, 23 Jun 2022 03:55:06 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A638C84608
+ Thu, 23 Jun 2022 04:00:15 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3F6E161345
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id qFnngylBNkl3
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id q2U8wo5sNmfg
  for <virtualization@lists.linux-foundation.org>;
- Thu, 23 Jun 2022 03:55:06 +0000 (UTC)
+ Thu, 23 Jun 2022 04:00:13 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AA07E84605
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 16D9061344
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id AA07E84605
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 16D9061344
  for <virtualization@lists.linux-foundation.org>;
- Thu, 23 Jun 2022 03:55:05 +0000 (UTC)
+ Thu, 23 Jun 2022 04:00:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1655956504;
+ s=mimecast20190719; t=1655956811;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=7r6qmkZmyFSR/QZW2a5u/i7ubHA3ZPKofanFmUp6yzI=;
- b=ZZZALthzClg5hfQdPBIOWRdi8c3cCzxaoCjGU4mbumLOqUBHg2F7YiCyJ+Y6b1n8X8Nz7K
- y6BBqd/QUN9PQOw5JkYoHebD2tezIB/XQ237hlxIMZNvtoiSU3WBhU9zABppaJUVBVub1j
- SL2HSW9BmYxQN7lKrsn9BjjeBoAffh4=
-Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
- [209.85.167.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=DFJiCCiUdpJFyvkqsgfrNR9atyVk/WWb+BR9ISMMgCc=;
+ b=OUmxjqptZE8Ju3ugdmrFBZljUgiUEpLDa5rg46/uG4voR4ociP00qpA7Ea7y15KXhnqZyW
+ iLkLUOLhWifFR8T9wDglqRu4Ko0LM21WlLV1FVGvFfGmbO0e8BzqAO/kMnGL83+OHjaA54
+ THjc9Uk27+n5JUUIubknlPL51U6cmI4=
+Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
+ [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-408-Qg6JvVF1O1GLJz83BRuYCA-1; Wed, 22 Jun 2022 23:55:03 -0400
-X-MC-Unique: Qg6JvVF1O1GLJz83BRuYCA-1
-Received: by mail-lf1-f70.google.com with SMTP id
- bq4-20020a056512150400b0047f7f36efc6so3367762lfb.9
+ us-mta-516-_7c8_dnSOxiYpfOTnqBgDg-1; Thu, 23 Jun 2022 00:00:09 -0400
+X-MC-Unique: _7c8_dnSOxiYpfOTnqBgDg-1
+Received: by mail-lf1-f71.google.com with SMTP id
+ bi38-20020a0565120ea600b0047f640eaee0so6087365lfb.4
  for <virtualization@lists.linux-foundation.org>;
- Wed, 22 Jun 2022 20:55:02 -0700 (PDT)
+ Wed, 22 Jun 2022 21:00:08 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=7r6qmkZmyFSR/QZW2a5u/i7ubHA3ZPKofanFmUp6yzI=;
- b=luJ42hMI85NkaFfHYNhunDcrOCKa1alL1Rk2JSMTeIGL5t4/WHDuZbAlUcSsPtjBnc
- 0tyz6HdWvbrMXuUktrPtyJ4fdzc34BphVi58SAcM/3v1Y1EGb+AgZmPWa9kz8nzj6wF0
- jrlWrafZzgVA/FTVKs+GuU7WCl1ADWznzf0zYvw86C4j5GjDCDRmqZMfRdixR0zCuKRo
- f5UMUi+URNfA3fjqzPBO7MxENZQwia7dJxqAkwcboFt2vTUjC6Gq2WYoI5jRwlUBXSpZ
- zOjAYdqSWFQXo5cVY6lW8iLHNHO54nGN2naYp1vjm9yAT9SfHjkO2tKWCveY/nSnnvm0
- 27VA==
-X-Gm-Message-State: AJIora/rtBAzemJuKtDO3zZSnoGNzNvrhPiq9OQYnjSUTXrgITsJM8Ty
- znliuwKyh5wHQuPwpr/T9cmACuyIM2LlLx+6FNk2AV7UbBWro8GxtWJgFb48KyGYtA6FCzqziJU
- 6OkySI2EoO40JFXu92LVKDZM7K1mSvgelRXVeIQgihINkipR4WQNII4GVCg==
-X-Received: by 2002:a2e:8958:0:b0:25a:852a:c302 with SMTP id
- b24-20020a2e8958000000b0025a852ac302mr3663579ljk.130.1655956501262; 
- Wed, 22 Jun 2022 20:55:01 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1vrF3BW4ecp7uMp7ixhwZNP6zrC/7mtr9RBqWZSr7h7Xd5f5VroJYLw4ej6faDfjvvTZLb0DpnhA3R+kdmS/XI=
-X-Received: by 2002:a2e:8958:0:b0:25a:852a:c302 with SMTP id
- b24-20020a2e8958000000b0025a852ac302mr3663568ljk.130.1655956501094; Wed, 22
- Jun 2022 20:55:01 -0700 (PDT)
+ bh=DFJiCCiUdpJFyvkqsgfrNR9atyVk/WWb+BR9ISMMgCc=;
+ b=qEE2JpZG+ryh7c6WOUraDvj2C/eqxJCNh24YnJgSjjBacFe0jigJRKNZ94P9ien384
+ 08z6Z5lvSt9lgTgoJiwR6LLHl0haty2r160osNmawD31rI3j+GDzwaTxsKo8Yk2pa58Y
+ 7v853phhgwA7AeTNgbguR04MhQaP7u0YLRfdfjPCOCAyiStbpYzraKZuYOYGKlycL1FV
+ 6gQSMpJPsRAjhJBwxav+x/7MhfAJWcOgeydb9+HJXEoklkzhYCyU1dlkakR0qV3Yv6Sy
+ GA4ceUfg0QvDGS6iHcecpLtz5gVY/Ino+H+/Iy6MirtHzglnJ9lHxXALNsyDMXaEm9rj
+ absw==
+X-Gm-Message-State: AJIora/pk3souVba2rzPvnPMwvlt2THE6Pan73tUWuCemk0nthk2DUxD
+ U/FyYWknGGYl/Tkz1apRIZJnrBx5qFf7sWWshj+a31YoPW9itVb06xfm9V9lXqMqNKfkZUnQApS
+ RET9mCsM/Gp3LrU5GHIwxSRMAbLKjk4Kp+fw31xVbghQw2QATfSzfWu5cUA==
+X-Received: by 2002:a05:651c:88f:b0:253:f747:2fd8 with SMTP id
+ d15-20020a05651c088f00b00253f7472fd8mr3484120ljq.496.1655956807539; 
+ Wed, 22 Jun 2022 21:00:07 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1v72o2N38SMxSlozjDx2TPcJlvx8ZLCicgrI030RtlrGiCZEN6ihlvpcHYIZOvlx9ZLZwYkpX5amBXIG/pi+0s=
+X-Received: by 2002:a05:651c:88f:b0:253:f747:2fd8 with SMTP id
+ d15-20020a05651c088f00b00253f7472fd8mr3484114ljq.496.1655956807342; Wed, 22
+ Jun 2022 21:00:07 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220622151407.51232-1-sgarzare@redhat.com>
-In-Reply-To: <20220622151407.51232-1-sgarzare@redhat.com>
+References: <20220622153936.to2yh5zixjevy4r4@sgarzare-redhat>
+ <CAJaqyWdBjJ2AUQL2hHAgEMQG1Gqp5vMj5Wrpz2p+hpXQGzKPLA@mail.gmail.com>
+In-Reply-To: <CAJaqyWdBjJ2AUQL2hHAgEMQG1Gqp5vMj5Wrpz2p+hpXQGzKPLA@mail.gmail.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 23 Jun 2022 11:54:50 +0800
-Message-ID: <CACGkMEsW7OAWHZvD6rjGtCE6t3BmEvpz=PmQvbHh1hMq-6RwhA@mail.gmail.com>
-Subject: Re: [PATCH] vhost-vdpa: call vhost_vdpa_cleanup during the release
-To: Stefano Garzarella <sgarzare@redhat.com>
+Date: Thu, 23 Jun 2022 11:59:56 +0800
+Message-ID: <CACGkMEv0w8MdVwTX_G1k8uSqPDY2XWVA2Mhw=Zop-TZA97-+4w@mail.gmail.com>
+Subject: Re: vhost-vdpa tests in tools/virtio
+To: Eugenio Perez Martin <eperezma@redhat.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: kvm <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>,
- netdev <netdev@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- Gautam Dawar <gautam.dawar@xilinx.com>
+Cc: Michael Tsirkin <mst@redhat.com>,
+ virtualization <virtualization@lists.linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -117,51 +115,42 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Jun 22, 2022 at 11:14 PM Stefano Garzarella <sgarzare@redhat.com> wrote:
+On Thu, Jun 23, 2022 at 3:21 AM Eugenio Perez Martin
+<eperezma@redhat.com> wrote:
 >
-> Before commit 3d5698793897 ("vhost-vdpa: introduce asid based IOTLB")
-> we call vhost_vdpa_iotlb_free() during the release to clean all regions
-> mapped in the iotlb.
+> On Wed, Jun 22, 2022 at 5:39 PM Stefano Garzarella <sgarzare@redhat.com> wrote:
+> >
+> > Hi,
+> > while developing/testing the vdpa-blk support in libblkio [1], I
+> > realized that we added several regressions with the "[PATCH v2 00/19]
+> > Control VQ support in vDPA" series (patches/clarifications already
+> > sent).
+> >
+> > To minimize these problems in the future, I was thinking of adding tests
+> > for vhost_vdpa in tools/virtio using vDPA simulators as devices.
+> >
+> > What do you think about this?
 >
-> That commit removed vhost_vdpa_iotlb_free() and added vhost_vdpa_cleanup()
-> to do some cleanup, including deleting all mappings, but we forgot to call
-> it in vhost_vdpa_release().
+> I think it's definitely a good idea. Maybe a good starting point is to
+> copy the virtio_test for the moment?
 >
-> This causes that if an application does not remove all mappings explicitly
-> (or it crashes), the mappings remain in the iotlb and subsequent
-> applications may fail if they map the same addresses.
->
-> Calling vhost_vdpa_cleanup() also fixes a memory leak since we are not
-> freeing `v->vdev.vqs` during the release from the same commit.
->
-> Since vhost_vdpa_cleanup() calls vhost_dev_cleanup() we can remove its
-> call from vhost_vdpa_release().
->
-> Fixes: 3d5698793897 ("vhost-vdpa: introduce asid based IOTLB")
-> Cc: gautam.dawar@xilinx.com
-> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+> Maybe to add a new parameter to tell it it will test a vhost-vdpa
+> device? Initialization is pretty similar.
 
-Acked-by: Jason Wang <jasowang@redhat.com>
++1
 
-> ---
->  drivers/vhost/vdpa.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+Thanks
+
 >
-> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-> index 5ad2596c6e8a..23dcbfdfa13b 100644
-> --- a/drivers/vhost/vdpa.c
-> +++ b/drivers/vhost/vdpa.c
-> @@ -1209,7 +1209,7 @@ static int vhost_vdpa_release(struct inode *inode, struct file *filep)
->         vhost_dev_stop(&v->vdev);
->         vhost_vdpa_free_domain(v);
->         vhost_vdpa_config_put(v);
-> -       vhost_dev_cleanup(&v->vdev);
-> +       vhost_vdpa_cleanup(v);
->         mutex_unlock(&d->mutex);
+> Thanks!
 >
->         atomic_dec(&v->opened);
-> --
-> 2.36.1
+> > Before starting, please let me know if we already have something.
+> >
+> > Thanks,
+> > Stefano
+> >
+> > [1] https://gitlab.com/libblkio/libblkio
+> >
 >
 
 _______________________________________________
