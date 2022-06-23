@@ -1,119 +1,90 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 54934C433EF
-	for <virtualization@archiver.kernel.org>; Thu, 23 Jun 2022 08:58:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9DBFFCCA47C
+	for <virtualization@archiver.kernel.org>; Thu, 23 Jun 2022 12:48:12 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id BE3A540123;
-	Thu, 23 Jun 2022 08:58:43 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BE3A540123
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=PFj8nsoy
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id nFY6Ugqvt-YM; Thu, 23 Jun 2022 08:58:43 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 33C5D405A9;
-	Thu, 23 Jun 2022 08:58:42 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 33C5D405A9
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CCD35C0032;
-	Thu, 23 Jun 2022 08:58:41 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 311A7C002D
- for <virtualization@lists.linux-foundation.org>;
- Thu, 23 Jun 2022 08:58:40 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 03B6C60E86
- for <virtualization@lists.linux-foundation.org>;
- Thu, 23 Jun 2022 08:58:40 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 03B6C60E86
+	by smtp3.osuosl.org (Postfix) with ESMTP id 19A7D613FD;
+	Thu, 23 Jun 2022 12:48:12 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 19A7D613FD
 Authentication-Results: smtp3.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=PFj8nsoy
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=OLGR6SK5
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id qBXqWUMOQ0CT
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id TYzSuMiMf-x4; Thu, 23 Jun 2022 12:48:11 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id A3176613FB;
+	Thu, 23 Jun 2022 12:48:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A3176613FB
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 79FA9C0032;
+	Thu, 23 Jun 2022 12:48:10 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 95AC7C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 23 Jun 2022 08:58:38 +0000 (UTC)
+ Thu, 23 Jun 2022 12:48:09 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 68F7D40607
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 23 Jun 2022 12:48:09 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 68F7D40607
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=OLGR6SK5
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id tUQHIywIoSD5
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 23 Jun 2022 12:48:08 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 99EB760B54
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A47EC400AF
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 99EB760B54
+ by smtp2.osuosl.org (Postfix) with ESMTPS id A47EC400AF
  for <virtualization@lists.linux-foundation.org>;
- Thu, 23 Jun 2022 08:58:38 +0000 (UTC)
+ Thu, 23 Jun 2022 12:48:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1655974716;
+ s=mimecast20190719; t=1655988487;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=QA4QBFkDM19s/kmNbbq6WAZHuSSj0hjTnufoIU8Ro9o=;
- b=PFj8nsoygWTg1I9lkxPLpzZMRczDLd5VAgMHyPm2XaonF2hOft7ui29OaVieedGV1eaPSk
- nNgVAfYYtlRiPqsxzexezqZZns1zWYr8u0jO4Z4b4NlQzbbCL+FPx3Ut26NXUJvi2LVarc
- k3d4vIBKnekE2UHZQT4BFnssmAtw3mc=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=RrgA3QRhrviuqlVZS1DqYvEOCwDo7gxdsScFtfx3ONI=;
+ b=OLGR6SK585WEwjfClEH5A8Yu3rF2JG7eRKit9Izq8UnlMQPzxE9ct2kMuTWM8yEiN1ubML
+ y9ZdBqkFt6T5RY5GhQ98oIeTu/ecBPAMQT9Id4whOAJc2Wfnh/F63r3q3WJzsZveFsbSoF
+ R4wkn5B2zAdar6y46zQu2tmmb7AjcKU=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-475-TAxjICeYOfmcqc6lg2XXqA-1; Thu, 23 Jun 2022 04:58:35 -0400
-X-MC-Unique: TAxjICeYOfmcqc6lg2XXqA-1
-Received: by mail-wm1-f72.google.com with SMTP id
- c187-20020a1c35c4000000b003970013833aso6690379wma.1
- for <virtualization@lists.linux-foundation.org>;
- Thu, 23 Jun 2022 01:58:34 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:content-transfer-encoding
- :in-reply-to;
- bh=QA4QBFkDM19s/kmNbbq6WAZHuSSj0hjTnufoIU8Ro9o=;
- b=PWzT/CCxtSZ5Cg01t2hfbzu9fKGjsePsm42TiCFunqkcb29ydNeXKdMMcMtvDawt2I
- MCGsIeYK1TRh5TwcTxKp9PCdmGlJneUwhIuC8mh4exO3wsUWt4zoWDAa24zUYdN1/2Em
- BebkyX3Lt+WcHgrTAI5xS0SYbtuNxJTwoyUJqnPCAOB4fJeVftoxxt03xXMqXNbRdvvz
- wpzW6nbxIAVfi2LJZj7sINr0lPLnek9t7/SdbnBLOwcfb9xrCRXF4hr3xj75dzuDUc5K
- ZEEqBWJfgy5AKNSB/PLuNDw26/6nwGelxCnmBq/8yoC7DHDLVu0GAeO/jXnHZfcvC94F
- fBCA==
-X-Gm-Message-State: AJIora9Yr9l9Fe8zU+JSI9YVB5iV6NSzV9IDNS8yCAIA4D185vEbPA0Q
- zICyphPG1RqAiwjN6TME9Zher79cZDG1cCA8NyJNGS74/8A5BKGNmimAK3NeF1Mzn9o8QZdo6aX
- gFPW/eaFzllnJ121Io2SvAW7/fEg+ezIghb8G4KvGWQ==
-X-Received: by 2002:a05:600c:1553:b0:39c:87fc:5784 with SMTP id
- f19-20020a05600c155300b0039c87fc5784mr2834936wmg.90.1655974713530; 
- Thu, 23 Jun 2022 01:58:33 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1uKzKYT9XjrtQPHP5sn9zFHwuvBaPFsVvMSjtZr6AU7TKAY9p+ZWuznb3fG50371xljWLlAVQ==
-X-Received: by 2002:a05:600c:1553:b0:39c:87fc:5784 with SMTP id
- f19-20020a05600c155300b0039c87fc5784mr2834921wmg.90.1655974713318; 
- Thu, 23 Jun 2022 01:58:33 -0700 (PDT)
-Received: from sgarzare-redhat (host-79-46-200-40.retail.telecomitalia.it.
- [79.46.200.40]) by smtp.gmail.com with ESMTPSA id
- b1-20020adfe301000000b00219b391c2d2sm26623088wrj.36.2022.06.23.01.58.32
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 23 Jun 2022 01:58:32 -0700 (PDT)
-Date: Thu, 23 Jun 2022 10:58:30 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 2/3] vdpa_sim_blk: limit the number of request handled
- per batch
-Message-ID: <20220623085830.voi6gixpikz64nm2@sgarzare-redhat>
-References: <20220621160859.196646-1-sgarzare@redhat.com>
- <20220621160859.196646-3-sgarzare@redhat.com>
- <CACGkMEsk-O=dVwKoEHRY-nL3XEQktPWiBot2NfOUYNdkoL-s=Q@mail.gmail.com>
+ us-mta-445-pmhPhQ4JNM-M5mO90PjKCQ-1; Thu, 23 Jun 2022 08:48:02 -0400
+X-MC-Unique: pmhPhQ4JNM-M5mO90PjKCQ-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.8])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 6D7E5811E76;
+ Thu, 23 Jun 2022 12:48:02 +0000 (UTC)
+Received: from horse.redhat.com (unknown [10.18.25.210])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id E0D19C28115;
+ Thu, 23 Jun 2022 12:48:01 +0000 (UTC)
+Received: by horse.redhat.com (Postfix, from userid 10451)
+ id 5DF042209F9; Thu, 23 Jun 2022 08:48:01 -0400 (EDT)
+Date: Thu, 23 Jun 2022 08:48:01 -0400
+From: Vivek Goyal <vgoyal@redhat.com>
+To: Deming Wang <wangdeming@inspur.com>
+Subject: Re: [PATCH] virtio_fs: Modify format for virtio_fs_direct_access
+Message-ID: <YrRhAZA1Enez0WRA@redhat.com>
+References: <20220622211758.4728-1-wangdeming@inspur.com>
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEsk-O=dVwKoEHRY-nL3XEQktPWiBot2NfOUYNdkoL-s=Q@mail.gmail.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
- "Michael S. Tsirkin" <mst@redhat.com>,
- linux-kernel <linux-kernel@vger.kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>
+In-Reply-To: <20220622211758.4728-1-wangdeming@inspur.com>
+X-Scanned-By: MIMEDefang 2.85 on 10.11.54.8
+Cc: linux-fsdevel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ linux-kernel@vger.kernel.org, stefanha@redhat.com, miklos@szeredi.hu
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -125,73 +96,42 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="iso-8859-1"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Jun 23, 2022 at 11:50:22AM +0800, Jason Wang wrote:
->On Wed, Jun 22, 2022 at 12:09 AM Stefano Garzarella <sgarzare@redhat.com> =
-wrote:
->>
->> Limit the number of requests (4 per queue as for vdpa_sim_net) handled
->> in a batch to prevent the worker from using the CPU for too long.
->>
->> Suggested-by: Eugenio P=E9rez <eperezma@redhat.com>
->> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
->> ---
->>  drivers/vdpa/vdpa_sim/vdpa_sim_blk.c | 15 ++++++++++++++-
->>  1 file changed, 14 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c b/drivers/vdpa/vdpa_si=
-m/vdpa_sim_blk.c
->> index a83a5c76f620..ac86478845b6 100644
->> --- a/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
->> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
->> @@ -197,6 +197,7 @@ static bool vdpasim_blk_handle_req(struct vdpasim *v=
-dpasim,
->>  static void vdpasim_blk_work(struct work_struct *work)
->>  {
->>         struct vdpasim *vdpasim =3D container_of(work, struct vdpasim, w=
-ork);
->> +       bool reschedule =3D false;
->>         int i;
->>
->>         spin_lock(&vdpasim->lock);
->> @@ -206,11 +207,15 @@ static void vdpasim_blk_work(struct work_struct *w=
-ork)
->>
->>         for (i =3D 0; i < VDPASIM_BLK_VQ_NUM; i++) {
->>                 struct vdpasim_virtqueue *vq =3D &vdpasim->vqs[i];
->> +               bool vq_work =3D true;
->> +               int reqs =3D 0;
->>
->>                 if (!vq->ready)
->>                         continue;
->>
->> -               while (vdpasim_blk_handle_req(vdpasim, vq)) {
->> +               while (vq_work) {
->> +                       vq_work =3D vdpasim_blk_handle_req(vdpasim, vq);
->> +
->
->Is it better to check and exit the loop early here?
+On Wed, Jun 22, 2022 at 05:17:58PM -0400, Deming Wang wrote:
+> We should isolate operators with spaces.
+> 
+> Signed-off-by: Deming Wang <wangdeming@inspur.com>
 
-Maybe, but I'm not sure.
+Looks good to me.
 
-In vdpa_sim_net we call vringh_complete_iotlb() and send notification =
+Reviewed-by: Vivek Goyal <vgoyal@redhat.com>
 
-also in the error path, so I thought was better to send notification =
+Vivek
 
-also when vdpasim_blk_handle_req() return false, since we will update =
-
-the used.idx.
-
-However, I don't think it's a common path, so if you think it's better =
-
-to exit the loop early, I can do it.
-
-Thanks,
-Stefano
+> ---
+>  fs/fuse/virtio_fs.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+> index 8db53fa67359..e962c29967eb 100644
+> --- a/fs/fuse/virtio_fs.c
+> +++ b/fs/fuse/virtio_fs.c
+> @@ -757,7 +757,7 @@ static long virtio_fs_direct_access(struct dax_device *dax_dev, pgoff_t pgoff,
+>  {
+>  	struct virtio_fs *fs = dax_get_private(dax_dev);
+>  	phys_addr_t offset = PFN_PHYS(pgoff);
+> -	size_t max_nr_pages = fs->window_len/PAGE_SIZE - pgoff;
+> +	size_t max_nr_pages = fs->window_len / PAGE_SIZE - pgoff;
+>  
+>  	if (kaddr)
+>  		*kaddr = fs->window_kaddr + offset;
+> -- 
+> 2.27.0
+> 
 
 _______________________________________________
 Virtualization mailing list
