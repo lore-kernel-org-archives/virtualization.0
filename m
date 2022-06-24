@@ -4,103 +4,156 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id AC2E3C43334
-	for <virtualization@archiver.kernel.org>; Fri, 24 Jun 2022 18:32:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2127FC433EF
+	for <virtualization@archiver.kernel.org>; Fri, 24 Jun 2022 20:22:03 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 4019B41556;
-	Fri, 24 Jun 2022 18:32:06 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4019B41556
+	by smtp4.osuosl.org (Postfix) with ESMTP id A0930416AF;
+	Fri, 24 Jun 2022 20:22:02 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A0930416AF
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=ffwll.ch header.i=@ffwll.ch header.a=rsa-sha256 header.s=google header.b=DSfCIl93
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id uuUJmW_Un-xH; Fri, 24 Jun 2022 18:32:04 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 1208641561;
-	Fri, 24 Jun 2022 18:32:04 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1208641561
+	with ESMTP id hMaYzCyjvNIb; Fri, 24 Jun 2022 20:22:01 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id C9833415F0;
+	Fri, 24 Jun 2022 20:22:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C9833415F0
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 672BDC0080;
-	Fri, 24 Jun 2022 18:32:03 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id AAE28C002D;
- Fri, 24 Jun 2022 18:32:01 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 9E1B2C0039;
+	Fri, 24 Jun 2022 20:22:00 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id ACE33C002D
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 24 Jun 2022 20:21:58 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 7F71F84956;
- Fri, 24 Jun 2022 18:32:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7F71F84956
+ by smtp1.osuosl.org (Postfix) with ESMTP id 73D25849B0
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 24 Jun 2022 20:21:58 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 73D25849B0
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (1024-bit key) header.d=ffwll.ch header.i=@ffwll.ch
+ header.a=rsa-sha256 header.s=google header.b=DSfCIl93
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Ieq6n2JTHTNZ; Fri, 24 Jun 2022 18:32:00 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8CD2A84950
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
- by smtp1.osuosl.org (Postfix) with ESMTP id 8CD2A84950;
- Fri, 24 Jun 2022 18:32:00 +0000 (UTC)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
- by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id E9BE31042;
- Fri, 24 Jun 2022 11:31:59 -0700 (PDT)
-Received: from [10.57.84.111] (unknown [10.57.84.111])
- by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 862573F792;
- Fri, 24 Jun 2022 11:31:53 -0700 (PDT)
-Message-ID: <c9dee5e3-4525-b9bf-3775-30995d59af9e@arm.com>
-Date: Fri, 24 Jun 2022 19:31:47 +0100
+ with ESMTP id a1CJFAlJTQzS
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 24 Jun 2022 20:21:57 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4F68484847
+Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com
+ [IPv6:2a00:1450:4864:20::62c])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 4F68484847
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 24 Jun 2022 20:21:57 +0000 (UTC)
+Received: by mail-ej1-x62c.google.com with SMTP id h23so6846970ejj.12
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 24 Jun 2022 13:21:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ffwll.ch; s=google;
+ h=date:from:to:cc:subject:message-id:mail-followup-to:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=aI/Wm30z63oEYhq+jLGxZI/tPMnn/tbFlzZ2xbhv+F4=;
+ b=DSfCIl93ErkZQTmodLqWf6MxjRIpF1ZnQis6V2AmfYLHN/rGtlxKfpfQusYdU3/UoQ
+ cGZ9t8NGw8N1UESLaZQtt9KE8BCcJRvCrZjHW4cY3x/vspkpF+H+OZ9YyYSAm/sR4To9
+ S80AKWsZyDrPVwQDWYceohfI1JDJJuzPD7o2I=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id
+ :mail-followup-to:references:mime-version:content-disposition
+ :in-reply-to;
+ bh=aI/Wm30z63oEYhq+jLGxZI/tPMnn/tbFlzZ2xbhv+F4=;
+ b=WTVbOtFlyKPeqtIwtYnYyHyeVyut8d4QezClgCzohoFs57UET+B/gST/Ysa06BnmjU
+ 3FzPPl9+zPU/mPOrgcFEtfotKZv0x4PXl3Hn3c7lgPwnxnGEBm7LDicrG0rbXSIo7mQU
+ 90jU9PGabcVblNQe9L5Vn3rhdVLqBv9OgIBYBclzc9037LeZF3BpAAXwpKLzwaVPAYgj
+ 1OHpiPojND8mTT3SkMkQmvyoa3HTaDUlKS7WyruK5MEn4RlKKMqrMRurLL5wwvVkujaT
+ nEWFfUbZaCVxFfEqEaACjtjfq2CqcUXNZ/nl9wzcgPRpPmlFGIF0pte78VNNnSapLCBL
+ Cu8Q==
+X-Gm-Message-State: AJIora8BLhHF0YpAzUbtTbyEGZHf55ichBLEeEKtDM1FnQyyWclBMxNx
+ ocJhLFpVFPHLUIBmRSFR8ubpXQ==
+X-Google-Smtp-Source: AGRyM1vMLazEoSIRdqrX8zCM+3y9xklBh+nj+P3ouSsHUhI81GOe3I6uIj9foVrhcJrq+L6LjvY0lQ==
+X-Received: by 2002:a17:906:72d1:b0:722:e714:e9ff with SMTP id
+ m17-20020a17090672d100b00722e714e9ffmr758067ejl.748.1656102115311; 
+ Fri, 24 Jun 2022 13:21:55 -0700 (PDT)
+Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
+ by smtp.gmail.com with ESMTPSA id
+ y22-20020a170906559600b00722e7919835sm1623844ejp.111.2022.06.24.13.21.53
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Fri, 24 Jun 2022 13:21:54 -0700 (PDT)
+Date: Fri, 24 Jun 2022 22:21:52 +0200
+From: Daniel Vetter <daniel@ffwll.ch>
+To: Rob Clark <robdclark@gmail.com>
+Subject: Re: [PATCH v6 17/22] drm/shmem-helper: Add generic memory shrinker
+Message-ID: <YrYc4IUHJWSbC6AX@phenom.ffwll.local>
+Mail-Followup-To: Rob Clark <robdclark@gmail.com>,
+ Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ David Airlie <airlied@linux.ie>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>,
+ Chia-I Wu <olvaffe@gmail.com>,
+ Daniel Almeida <daniel.almeida@collabora.com>,
+ Gert Wollny <gert.wollny@collabora.com>,
+ Gustavo Padovan <gustavo.padovan@collabora.com>,
+ Daniel Stone <daniel@fooishbar.org>,
+ Tomeu Vizoso <tomeu.vizoso@collabora.com>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>,
+ Thomas Zimmermann <tzimmermann@suse.de>,
+ Rob Herring <robh@kernel.org>, Steven Price <steven.price@arm.com>,
+ Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
+ Emil Velikov <emil.l.velikov@gmail.com>,
+ Robin Murphy <robin.murphy@arm.com>, Qiang Yu <yuq825@gmail.com>,
+ Sumit Semwal <sumit.semwal@linaro.org>,
+ Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
+ "Pan, Xinhui" <Xinhui.Pan@amd.com>,
+ Thierry Reding <thierry.reding@gmail.com>,
+ Tomasz Figa <tfiga@chromium.org>,
+ Marek Szyprowski <m.szyprowski@samsung.com>,
+ Mauro Carvalho Chehab <mchehab@kernel.org>,
+ Alex Deucher <alexander.deucher@amd.com>,
+ Jani Nikula <jani.nikula@linux.intel.com>,
+ Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+ Rodrigo Vivi <rodrigo.vivi@intel.com>,
+ Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+ dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org,
+ Dmitry Osipenko <digetx@gmail.com>, linux-tegra@vger.kernel.org,
+ linux-media@vger.kernel.org, linaro-mm-sig@lists.linaro.org,
+ amd-gfx@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
+ kernel@collabora.com
+References: <20220526235040.678984-1-dmitry.osipenko@collabora.com>
+ <20220526235040.678984-18-dmitry.osipenko@collabora.com>
+ <CAF6AEGt61t2truYDCxm17hqUPV-UdEdHjLs+6vmj5RPoPuVBYg@mail.gmail.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101
- Thunderbird/91.10.0
-Subject: Re: [PATCH v2 3/5] vfio/iommu_type1: Remove the domain->ops comparison
-Content-Language: en-GB
-To: Jason Gunthorpe <jgg@nvidia.com>
-References: <20220616000304.23890-1-nicolinc@nvidia.com>
- <20220616000304.23890-4-nicolinc@nvidia.com>
- <BL1PR11MB52717050DBDE29A81637BBFA8CAC9@BL1PR11MB5271.namprd11.prod.outlook.com>
- <YqutYjgtFOTXCF0+@Asurada-Nvidia>
- <6e1280c5-4b22-ebb3-3912-6c72bc169982@arm.com>
- <20220624131611.GM4147@nvidia.com>
-From: Robin Murphy <robin.murphy@arm.com>
-In-Reply-To: <20220624131611.GM4147@nvidia.com>
-Cc: "cohuck@redhat.com" <cohuck@redhat.com>,
- "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
- "jordan@cosmicpenguin.net" <jordan@cosmicpenguin.net>,
- "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
- "thierry.reding@gmail.com" <thierry.reding@gmail.com>,
- "will@kernel.org" <will@kernel.org>,
- "alyssa@rosenzweig.io" <alyssa@rosenzweig.io>,
- "jean-philippe@linaro.org" <jean-philippe@linaro.org>,
- "saiprakash.ranjan@codeaurora.org" <saiprakash.ranjan@codeaurora.org>,
- "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
- "zhang.lyra@gmail.com" <zhang.lyra@gmail.com>,
- "joro@8bytes.org" <joro@8bytes.org>,
- "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>,
- "jonathanh@nvidia.com" <jonathanh@nvidia.com>,
- Nicolin Chen <nicolinc@nvidia.com>,
- "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
- "yangyingliang@huawei.com" <yangyingliang@huawei.com>,
- "orsonzhai@gmail.com" <orsonzhai@gmail.com>,
- "gerald.schaefer@linux.ibm.com" <gerald.schaefer@linux.ibm.com>,
- "sven@svenpeter.dev" <sven@svenpeter.dev>,
- "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>,
- "john.garry@huawei.com" <john.garry@huawei.com>,
- "vdumpa@nvidia.com" <vdumpa@nvidia.com>,
- "christophe.jaillet@wanadoo.fr" <christophe.jaillet@wanadoo.fr>,
- "thunder.leizhen@huawei.com" <thunder.leizhen@huawei.com>,
- "matthias.bgg@gmail.com" <matthias.bgg@gmail.com>,
- "tglx@linutronix.de" <tglx@linutronix.de>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- "yong.wu@mediatek.com" <yong.wu@mediatek.com>,
- "isaacm@codeaurora.org" <isaacm@codeaurora.org>,
- "chenxiang66@hisilicon.com" <chenxiang66@hisilicon.com>,
- "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
- "marcan@marcan.st" <marcan@marcan.st>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "robdclark@gmail.com" <robdclark@gmail.com>,
- "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
- "baolin.wang7@gmail.com" <baolin.wang7@gmail.com>,
- "linux-mediatek@lists.infradead.org" <linux-mediatek@lists.infradead.org>,
- "dwmw2@infradead.org" <dwmw2@infradead.org>,
- "baolu.lu@linux.intel.com" <baolu.lu@linux.intel.com>
+Content-Disposition: inline
+In-Reply-To: <CAF6AEGt61t2truYDCxm17hqUPV-UdEdHjLs+6vmj5RPoPuVBYg@mail.gmail.com>
+X-Operating-System: Linux phenom 5.10.0-8-amd64 
+Cc: David Airlie <airlied@linux.ie>,
+ Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+ dri-devel@lists.freedesktop.org, Gurchetan Singh <gurchetansingh@chromium.org>,
+ Thierry Reding <thierry.reding@gmail.com>, Dmitry Osipenko <digetx@gmail.com>,
+ kernel@collabora.com, Sumit Semwal <sumit.semwal@linaro.org>,
+ Marek Szyprowski <m.szyprowski@samsung.com>, Rob Herring <robh@kernel.org>,
+ Daniel Stone <daniel@fooishbar.org>, Steven Price <steven.price@arm.com>,
+ Gustavo Padovan <gustavo.padovan@collabora.com>,
+ Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
+ Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ virtualization@lists.linux-foundation.org, Chia-I Wu <olvaffe@gmail.com>,
+ linux-media@vger.kernel.org, Daniel Vetter <daniel@ffwll.ch>,
+ intel-gfx@lists.freedesktop.org,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, linaro-mm-sig@lists.linaro.org,
+ Jani Nikula <jani.nikula@linux.intel.com>,
+ Rodrigo Vivi <rodrigo.vivi@intel.com>, linux-tegra@vger.kernel.org,
+ Mauro Carvalho Chehab <mchehab@kernel.org>,
+ Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>, amd-gfx@lists.freedesktop.org,
+ Tomeu Vizoso <tomeu.vizoso@collabora.com>,
+ Gert Wollny <gert.wollny@collabora.com>, "Pan, Xinhui" <Xinhui.Pan@amd.com>,
+ Emil Velikov <emil.l.velikov@gmail.com>, linux-kernel@vger.kernel.org,
+ Tomasz Figa <tfiga@chromium.org>, Qiang Yu <yuq825@gmail.com>,
+ Thomas Zimmermann <tzimmermann@suse.de>,
+ Alex Deucher <alexander.deucher@amd.com>, Robin Murphy <robin.murphy@arm.com>,
+ Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -112,57 +165,48 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gMjAyMi0wNi0yNCAxNDoxNiwgSmFzb24gR3VudGhvcnBlIHdyb3RlOgo+IE9uIFdlZCwgSnVu
-IDIyLCAyMDIyIGF0IDA4OjU0OjQ1QU0gKzAxMDAsIFJvYmluIE11cnBoeSB3cm90ZToKPj4gT24g
-MjAyMi0wNi0xNiAyMzoyMywgTmljb2xpbiBDaGVuIHdyb3RlOgo+Pj4gT24gVGh1LCBKdW4gMTYs
-IDIwMjIgYXQgMDY6NDA6MTRBTSArMDAwMCwgVGlhbiwgS2V2aW4gd3JvdGU6Cj4+Pgo+Pj4+PiBU
-aGUgZG9tYWluLT5vcHMgdmFsaWRhdGlvbiB3YXMgYWRkZWQsIGFzIGEgcHJlY2F1dGlvbiwgZm9y
-IG1peGVkLWRyaXZlcgo+Pj4+PiBzeXN0ZW1zLiBIb3dldmVyLCBhdCB0aGlzIG1vbWVudCBvbmx5
-IG9uZSBpb21tdSBkcml2ZXIgaXMgcG9zc2libGUuIFNvCj4+Pj4+IHJlbW92ZSBpdC4KPj4+Pgo+
-Pj4+IEl0J3MgdHJ1ZSBvbiBhIHBoeXNpY2FsIHBsYXRmb3JtLiBCdXQgSSdtIG5vdCBzdXJlIHdo
-ZXRoZXIgYSB2aXJ0dWFsIHBsYXRmb3JtCj4+Pj4gaXMgYWxsb3dlZCB0byBpbmNsdWRlIG11bHRp
-cGxlIGUuZy4gb25lIHZpcnRpby1pb21tdSBhbG9uZ3NpZGUgYSB2aXJ0dWFsIFZULWQKPj4+PiBv
-ciBhIHZpcnR1YWwgc21tdS4gSXQgbWlnaHQgYmUgY2xlYXJlciB0byBjbGFpbSB0aGF0IChhcyBS
-b2JpbiBwb2ludGVkIG91dCkKPj4+PiB0aGVyZSBpcyBwbGVudHkgbW9yZSBzaWduaWZpY2FudCBw
-cm9ibGVtcyB0aGFuIHRoaXMgdG8gc29sdmUgaW5zdGVhZCBvZiBzaW1wbHkKPj4+PiBzYXlpbmcg
-dGhhdCBvbmx5IG9uZSBpb21tdSBkcml2ZXIgaXMgcG9zc2libGUgaWYgd2UgZG9uJ3QgaGF2ZSBl
-eHBsaWNpdCBjb2RlCj4+Pj4gdG8gcmVqZWN0IHN1Y2ggY29uZmlndXJhdGlvbi4g8J+Yigo+Pj4K
-Pj4+IFdpbGwgZWRpdCB0aGlzIHBhcnQuIFRoYW5rcyEKPj4KPj4gT2gsIHBoeXNpY2FsIHBsYXRm
-b3JtcyB3aXRoIG1peGVkIElPTU1VcyBkZWZpbml0ZWx5IGV4aXN0IGFscmVhZHkuIFRoZSBtYWlu
-Cj4+IHBvaW50IGlzIHRoYXQgd2hpbGUgYnVzX3NldF9pb21tdSBzdGlsbCBleGlzdHMsIHRoZSBj
-b3JlIGNvZGUgZWZmZWN0aXZlbHkKPj4gKmRvZXMqIHByZXZlbnQgbXVsdGlwbGUgZHJpdmVycyBm
-cm9tIHJlZ2lzdGVyaW5nIC0gZXZlbiBpbiBlbXVsYXRlZCBjYXNlcwo+PiBsaWtlIHRoZSBleGFt
-cGxlIGFib3ZlLCB2aXJ0aW8taW9tbXUgYW5kIFZULWQgd291bGQgYm90aCB0cnkgdG8KPj4gYnVz
-X3NldF9pb21tdSgmcGNpX2J1c190eXBlKSwgYW5kIG9uZSBvZiB0aGVtIHdpbGwgbG9zZS4gVGhl
-IGFzcGVjdCB3aGljaAo+PiBtaWdodCB3YXJyYW50IGNsYXJpZmljYXRpb24gaXMgdGhhdCB0aGVy
-ZSdzIG5vIGNvbWJpbmF0aW9uIG9mIHN1cHBvcnRlZAo+PiBkcml2ZXJzIHdoaWNoIGNsYWltIG5v
-bi1vdmVybGFwcGluZyBidXNlcyAqYW5kKiBjb3VsZCBhcHBlYXIgaW4gdGhlIHNhbWUKPj4gc3lz
-dGVtIC0gZXZlbiBpZiB5b3UgdHJpZWQgdG8gY29udHJpdmUgc29tZXRoaW5nIGJ5IGVtdWxhdGlu
-Zywgc2F5LCBWVC1kCj4+IChQQ0kpIGFsb25nc2lkZSByb2NrY2hpcC1pb21tdSAocGxhdGZvcm0p
-LCB5b3UgY291bGQgc3RpbGwgb25seSBkZXNjcmliZSBvbmUKPj4gb3IgdGhlIG90aGVyIGR1ZSB0
-byBBQ1BJIHZzLiBEZXZpY2V0cmVlLgo+IAo+IFJpZ2h0LCBhbmQgdGhhdCBpcyBzdGlsbCBzb21l
-dGhpbmcgd2UgbmVlZCB0byBwcm90ZWN0IGFnYWluc3Qgd2l0aAo+IHRoaXMgb3BzIGNoZWNrLiBW
-RklPIGlzIG5vdCBjaGVja2luZyB0aGF0IHRoZSBidXMncyBhcmUgdGhlIHNhbWUKPiBiZWZvcmUg
-YXR0ZW1wdGluZyB0byByZS11c2UgYSBkb21haW4uCj4gCj4gU28gaXQgaXMgYWN0dWFsbHkgZnVu
-Y3Rpb25hbCBhbmQgZG9lcyBwcm90ZWN0IGFnYWluc3Qgc3lzdGVtcyB3aXRoCj4gbXVsdGlwbGUg
-aW9tbXUgZHJpdmVycyBvbiBkaWZmZXJlbnQgYnVzc2VzLgoKQnV0IGFzIGFib3ZlLCB3aGljaCBz
-eXN0ZW1zICphcmUqIHRob3NlPyBFdmVyeXRoaW5nIHRoYXQncyBvbiBteSByYWRhciAKd291bGQg
-aGF2ZSBkcml2ZXJzIGFsbCBjb21wZXRpbmcgZm9yIHRoZSBwbGF0Zm9ybSBidXMgLSBJbnRlbCBh
-bmQgczM5MCAKYXJlIHNvbWV3aGF0IHRoZSBvZGQgb25lcyBvdXQgaW4gdGhhdCByZXNwZWN0LCBi
-dXQgYXJlIGFsc28gbm9uLWlzc3VlcyAKYXMgYWJvdmUuIEZXSVcgbXkgaW9tbXUvYnVzIGRldiBi
-cmFuY2ggaGFzIGdvdCBhcyBmYXIgYXMgdGhlIGZpbmFsIGJ1cyAKb3BzIHJlbW92YWwgYW5kIGFs
-bG93aW5nIG11bHRpcGxlIGRyaXZlciByZWdpc3RyYXRpb25zLCBhbmQgYmVmb3JlIGl0IAphbGxv
-d3MgdGhhdCwgaXQgZG9lcyBub3cgaGF2ZSB0aGUgY29tbW9uIGF0dGFjaCBjaGVjayB0aGF0IEkg
-c2tldGNoZWQgCm91dCBpbiB0aGUgcHJldmlvdXMgZGlzY3Vzc2lvbiBvZiB0aGlzLgoKSXQncyBw
-cm9iYWJseSBhbHNvIG5vdGV3b3J0aHkgdGhhdCBkb21haW4tPm9wcyBpcyBubyBsb25nZXIgdGhl
-IHNhbWUgCmRvbWFpbi0+b3BzIHRoYXQgdGhpcyBjb2RlIHdhcyB3cml0dGVuIHRvIGNoZWNrLCBh
-bmQgbWF5IG5vdyBiZSAKZGlmZmVyZW50IGJldHdlZW4gZG9tYWlucyBmcm9tIHRoZSBzYW1lIGRy
-aXZlci4KClRoYW5rcywKUm9iaW4uCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBs
-aXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5v
-cmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Sun, Jun 19, 2022 at 10:53:03AM -0700, Rob Clark wrote:
+> On Thu, May 26, 2022 at 4:55 PM Dmitry Osipenko
+> <dmitry.osipenko@collabora.com> wrote:
+> > +       mutex_unlock(&gem_shrinker->lock);
+> 
+> As I mentioned on other thread, count_objects, being approximate but
+> lockless and fast is the important thing.  Otherwise when you start
+> hitting the shrinker on many threads, you end up serializing them all,
+> even if you have no pages to return to the system at that point.
+
+Yeah agreed, seems like I was wrong here :-) Atomic counter or something
+would also be in link the the lru_list stuff.
+
+It would be to record this in the kerneldoc for the shrinker structure
+though, to make sure this is all understood.
+
+> > +               /* prevent racing with the dma-buf importing/exporting */
+> > +               if (!mutex_trylock(&gem_shrinker->dev->object_name_lock)) {
+> > +                       *lock_contention |= true;
+> > +                       goto resv_unlock;
+> > +               }
+> 
+> I'm not sure this is a good idea to serialize on object_name_lock.
+> Purgeable buffers should never be shared (imported or exported).  So
+> at best you are avoiding evicting and immediately swapping back in, in
+> a rare case, at the cost of serializing multiple threads trying to
+> reclaim pages in parallel.
+
+Yeah this sounds really bad. Plus this is a per-device lock, and doing
+those with trylock means the shrinker will fail to find shrinkable memory
+way too often. We need to engineer this out somehow.
+-Daniel
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
