@@ -4,100 +4,98 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id F043BC43334
-	for <virtualization@archiver.kernel.org>; Fri, 24 Jun 2022 06:59:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6F4D7C433EF
+	for <virtualization@archiver.kernel.org>; Fri, 24 Jun 2022 07:00:28 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 7D6C340CB7;
-	Fri, 24 Jun 2022 06:59:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7D6C340CB7
+	by smtp2.osuosl.org (Postfix) with ESMTP id 03FAF40CD1;
+	Fri, 24 Jun 2022 07:00:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 03FAF40CD1
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=i9nOA8ti
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=NyHCQyoP
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id RAq3yCHfqaIG; Fri, 24 Jun 2022 06:59:57 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 1396A4042B;
-	Fri, 24 Jun 2022 06:59:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1396A4042B
+	with ESMTP id Py4hlFmskPSf; Fri, 24 Jun 2022 07:00:27 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 6494D4046B;
+	Fri, 24 Jun 2022 07:00:26 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6494D4046B
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D8CA1C007B;
-	Fri, 24 Jun 2022 06:59:56 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3E7C0C0039;
+	Fri, 24 Jun 2022 07:00:26 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 58C10C002D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1B940C002D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 24 Jun 2022 06:59:55 +0000 (UTC)
+ Fri, 24 Jun 2022 07:00:25 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 33A264046B
+ by smtp2.osuosl.org (Postfix) with ESMTP id E898E40C76
  for <virtualization@lists.linux-foundation.org>;
- Fri, 24 Jun 2022 06:59:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 33A264046B
+ Fri, 24 Jun 2022 07:00:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E898E40C76
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id fPS2r72jJhNY
+ with ESMTP id 1bvxmX5fS8M5
  for <virtualization@lists.linux-foundation.org>;
- Fri, 24 Jun 2022 06:59:54 +0000 (UTC)
+ Fri, 24 Jun 2022 07:00:23 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 451DC4042B
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B82304046B
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 451DC4042B
+ by smtp2.osuosl.org (Postfix) with ESMTPS id B82304046B
  for <virtualization@lists.linux-foundation.org>;
- Fri, 24 Jun 2022 06:59:54 +0000 (UTC)
+ Fri, 24 Jun 2022 07:00:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1656053992;
+ s=mimecast20190719; t=1656054022;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=+FWCkGupGlsZhDvUF+chx88Z13TTRnc4OkTdsQ7elnE=;
- b=i9nOA8tidr8vr+EgGLUER/bvbW4tIdNQxluM98Es2W3gAXa4Pf94kxFnFgK7j50tJU6rk7
- X7LuJDBSH2RkKDhCqE4SX1k7Khxm3+jDLIJLeatiqoSvDjaavUlgChSJc9Pexr/r/sgHtS
- VMsSA8hdrDXCzCTB7vB8d0No4TR2gLM=
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
- [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=wmJan+T8jkPhz0Jx0HS+GqAkBjBvRA/O1PfxaSokA/k=;
+ b=NyHCQyoPKW4PTip4n4FFTTjsk+AkhOupO2tpMY4Np7kS3dVm+rGrJMTqGiWvoc+wIMUD8K
+ 9jla6Je3Ev5F61bllpvv44BLwhWarkuUtpay2ETRzAAaQtYmVS1gJxal4E2dfqnfEMJo5l
+ iRoG/ylAU3LiXb0X3e0e57YW9NnELMQ=
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
+ [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-482-Gcns41NDPmqXXPUMnxPDsg-1; Fri, 24 Jun 2022 02:59:49 -0400
-X-MC-Unique: Gcns41NDPmqXXPUMnxPDsg-1
-Received: by mail-ed1-f69.google.com with SMTP id
- r12-20020a05640251cc00b00435afb01d7fso1193981edd.18
+ us-mta-404--S2Wpzo7Pzq2ySuldnRWOw-1; Fri, 24 Jun 2022 03:00:21 -0400
+X-MC-Unique: -S2Wpzo7Pzq2ySuldnRWOw-1
+Received: by mail-ej1-f72.google.com with SMTP id
+ sg40-20020a170907a42800b00722faf0aacbso483450ejc.3
  for <virtualization@lists.linux-foundation.org>;
- Thu, 23 Jun 2022 23:59:48 -0700 (PDT)
+ Fri, 24 Jun 2022 00:00:21 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=+FWCkGupGlsZhDvUF+chx88Z13TTRnc4OkTdsQ7elnE=;
- b=CMO0l/Ifi2iWcq+0sUWx32f+1x3A63SLokofUxllsAeajvjIdPbiNcwqsNeDFvwxAF
- 38A4MMPZBVaZuAgApThbrL8Vp0pAMQoRIAAtlJSitTmiOqtwWR4EfIU3RmwcEQc3PliO
- 4DTwElgpDodP/XCsC6aHDdJbFU35vJECQD8iNxgkM7bLUV8ORD5rP/2lrRaw2c2xtn1I
- 376OV+o6YPoIoYQKDaf+NyaPNO8jEn1TDtJ40I/5SORAj/5rqLH9kiboI+vySnKzmKDN
- F6V2dUCdSvkBxhxYTH1tmVISqpUPb3SeZ8R8a2ulHKNPZD9Y+qP0OotZXto2Hv/ogqGs
- UuoA==
-X-Gm-Message-State: AJIora9Th/CCn3GSgqySkya5q9XQJwlsU8iu2hMcLhA3NviWYb2xIp+e
- tvuP/pOss6a3ROhwj3RWbRFbWYbOgP8Ck9u5bCuoSSB9YnH9htiaYptvRDnxbv/gcfXjzZCL+ln
- 56Y0XenQ04bvbBkvE625ift1/U+eZlEDDB0K53ZowBg==
-X-Received: by 2002:a17:906:dc8f:b0:725:28d1:422d with SMTP id
- cs15-20020a170906dc8f00b0072528d1422dmr6755873ejc.131.1656053987947; 
- Thu, 23 Jun 2022 23:59:47 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1te/UstSdzxfRYfD6/tSqZXRF+jwCBe0/TwLXdOIJy4AlZcp3dqgfDv8QmtvsXyUBUV1p/nQw==
-X-Received: by 2002:a17:906:dc8f:b0:725:28d1:422d with SMTP id
- cs15-20020a170906dc8f00b0072528d1422dmr6755835ejc.131.1656053987674; 
- Thu, 23 Jun 2022 23:59:47 -0700 (PDT)
+ bh=wmJan+T8jkPhz0Jx0HS+GqAkBjBvRA/O1PfxaSokA/k=;
+ b=i6yl8lrT43YsLNJ3emnCAJp8FzseL39uXpKK4WejrYs+XvBwBr44/aNrkZsnYmAkWj
+ F/0gVY1+gGrWjhKhSpaYgPV/aq8wRsRNHJAQXc4n65jplVLvSHAkQZfOEp/U1z2aY55v
+ i9LhZNcGPL5RX/nqd5uS5ZwhZV3j/HqWEQjXEhq6bM1y7c/xGvhRApNN7+MbLEXa6IH3
+ K1druy607qy95yCrTRiCvSnPQH7pyyWQFS8ealnYKufy82CX2JKVPfSjC3ZNc2+pFjFt
+ n+y6Njpr4V3G242WosEReEKvW6jW1UWSfn3TqQRsZpe4OK5uyveZwxER6KnDkzHYhx2W
+ udlg==
+X-Gm-Message-State: AJIora9Sc1/XEBUhfkWy0Tgn4sTl+2N4/VOOK7lzaUoI9wGbYl70WPrB
+ bftBtmymFa7Qv6VNh7wEgQdaQwqGqErKbgQDwikomAi4mB5EdJR2hViEy0R8FgoSOEQDYQsvawU
+ w7b4uyEvmke1X7YYyVCwVMRw2psl8+CpWbS29CrYHDg==
+X-Received: by 2002:a17:906:51de:b0:722:e9a7:83de with SMTP id
+ v30-20020a17090651de00b00722e9a783demr11981774ejk.130.1656054020053; 
+ Fri, 24 Jun 2022 00:00:20 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1vuZPrYT6oN35kbqkreO6xutvaC1wAQFjbV9H/fxZNSgI7sAYj2ZRT+vtMwhuJY/8e+TdPqZg==
+X-Received: by 2002:a17:906:51de:b0:722:e9a7:83de with SMTP id
+ v30-20020a17090651de00b00722e9a783demr11981742ejk.130.1656054019815; 
+ Fri, 24 Jun 2022 00:00:19 -0700 (PDT)
 Received: from redhat.com ([2.55.188.216]) by smtp.gmail.com with ESMTPSA id
- ec35-20020a0564020d6300b004316f94ec4esm1262273edb.66.2022.06.23.23.59.41
+ n22-20020a1709067b5600b00722ea7a7febsm576805ejo.194.2022.06.24.00.00.15
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 23 Jun 2022 23:59:46 -0700 (PDT)
-Date: Fri, 24 Jun 2022 02:59:39 -0400
+ Fri, 24 Jun 2022 00:00:19 -0700 (PDT)
+Date: Fri, 24 Jun 2022 03:00:12 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH v10 25/41] virtio_pci: struct virtio_pci_common_cfg add
- queue_notify_data
-Message-ID: <20220624025817-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH v10 00/41] virtio pci support VIRTIO_F_RING_RESET
+Message-ID: <20220624025954-mutt-send-email-mst@kernel.org>
 References: <20220624025621.128843-1-xuanzhuo@linux.alibaba.com>
- <20220624025621.128843-26-xuanzhuo@linux.alibaba.com>
 MIME-Version: 1.0
-In-Reply-To: <20220624025621.128843-26-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20220624025621.128843-1-xuanzhuo@linux.alibaba.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
@@ -137,44 +135,151 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Jun 24, 2022 at 10:56:05AM +0800, Xuan Zhuo wrote:
-> Add queue_notify_data in struct virtio_pci_common_cfg, which comes from
-> here https://github.com/oasis-tcs/virtio-spec/issues/89
+On Fri, Jun 24, 2022 at 10:55:40AM +0800, Xuan Zhuo wrote:
+> The virtio spec already supports the virtio queue reset function. This patch set
+> is to add this function to the kernel. The relevant virtio spec information is
+> here:
 > 
-> For not breaks uABI, add a new struct virtio_pci_common_cfg_notify.
-
-What exactly is meant by not breaking uABI?
-Users are supposed to be prepared for struct size to change ... no?
-
-
-> Since I want to add queue_reset after queue_notify_data, I submitted
-> this patch first.
+>     https://github.com/oasis-tcs/virtio-spec/issues/124
+>     https://github.com/oasis-tcs/virtio-spec/issues/139
 > 
-> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> Acked-by: Jason Wang <jasowang@redhat.com>
-> ---
->  include/uapi/linux/virtio_pci.h | 7 +++++++
->  1 file changed, 7 insertions(+)
+> Also regarding MMIO support for queue reset, I plan to support it after this
+> patch is passed.
 > 
-> diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
-> index 3a86f36d7e3d..22bec9bd0dfc 100644
-> --- a/include/uapi/linux/virtio_pci.h
-> +++ b/include/uapi/linux/virtio_pci.h
-> @@ -166,6 +166,13 @@ struct virtio_pci_common_cfg {
->  	__le32 queue_used_hi;		/* read-write */
->  };
->  
-> +struct virtio_pci_common_cfg_notify {
-> +	struct virtio_pci_common_cfg cfg;
-> +
-> +	__le16 queue_notify_data;	/* read-write */
-> +	__le16 padding;
-> +};
-> +
->  /* Fields in VIRTIO_PCI_CAP_PCI_CFG: */
->  struct virtio_pci_cfg_cap {
->  	struct virtio_pci_cap cap;
-> -- 
+> This patch set implements the refactoring of vring. Finally, the
+> virtuque_resize() interface is provided based on the reset function of the
+> transport layer.
+> 
+> Test environment:
+>     Host: 4.19.91
+>     Qemu: QEMU emulator version 6.2.50 (with vq reset support)
+>     Test Cmd:  ethtool -G eth1 rx $1 tx $2; ethtool -g eth1
+> 
+>     The default is split mode, modify Qemu virtio-net to add PACKED feature to test
+>     packed mode.
+> 
+> Qemu code:
+>     https://github.com/fengidri/qemu/compare/89f3bfa3265554d1d591ee4d7f1197b6e3397e84...master
+
+
+Pls rebase on top of my latest tree, there are some conflicts.
+
+> In order to simplify the review of this patch set, the function of reusing
+> the old buffers after resize will be introduced in subsequent patch sets.
+> 
+> Please review. Thanks.
+> 
+> v10:
+>   1. on top of the harden vring IRQ
+>   2. factor out split and packed from struct vring_virtqueue
+>   3. some suggest from @Jason Wang
+> 
+> v9:
+>   1. Provide a virtqueue_resize() interface directly
+>   2. A patch set including vring resize, virtio pci reset, virtio-net resize
+>   3. No more separate structs
+> 
+> v8:
+>   1. Provide a virtqueue_reset() interface directly
+>   2. Split the two patch sets, this is the first part
+>   3. Add independent allocation helper for allocating state, extra
+> 
+> v7:
+>   1. fix #6 subject typo
+>   2. fix #6 ring_size_in_bytes is uninitialized
+>   3. check by: make W=12
+> 
+> v6:
+>   1. virtio_pci: use synchronize_irq(irq) to sync the irq callbacks
+>   2. Introduce virtqueue_reset_vring() to implement the reset of vring during
+>      the reset process. May use the old vring if num of the vq not change.
+>   3. find_vqs() support sizes to special the max size of each vq
+> 
+> v5:
+>   1. add virtio-net support set_ringparam
+> 
+> v4:
+>   1. just the code of virtio, without virtio-net
+>   2. Performing reset on a queue is divided into these steps:
+>     1. reset_vq: reset one vq
+>     2. recycle the buffer from vq by virtqueue_detach_unused_buf()
+>     3. release the ring of the vq by vring_release_virtqueue()
+>     4. enable_reset_vq: re-enable the reset queue
+>   3. Simplify the parameters of enable_reset_vq()
+>   4. add container structures for virtio_pci_common_cfg
+> 
+> v3:
+>   1. keep vq, irq unreleased
+> 
+> *** BLURB HERE ***
+> 
+> Xuan Zhuo (41):
+>   remoteproc: rename len of rpoc_vring to num
+>   virtio: add helper virtqueue_get_vring_max_size()
+>   virtio: struct virtio_config_ops add callbacks for queue_reset
+>   virtio_ring: update the document of the virtqueue_detach_unused_buf
+>     for queue reset
+>   virtio_ring: remove the arg vq of vring_alloc_desc_extra()
+>   virtio_ring: extract the logic of freeing vring
+>   virtio_ring: split vring_virtqueue
+>   virtio_ring: introduce virtqueue_init()
+>   virtio_ring: split: introduce vring_free_split()
+>   virtio_ring: split: extract the logic of alloc queue
+>   virtio_ring: split: extract the logic of alloc state and extra
+>   virtio_ring: split: extract the logic of attach vring
+>   virtio_ring: split: extract the logic of vring init
+>   virtio_ring: split: introduce virtqueue_reinit_split()
+>   virtio_ring: split: reserve vring_align, may_reduce_num
+>   virtio_ring: split: introduce virtqueue_resize_split()
+>   virtio_ring: packed: introduce vring_free_packed
+>   virtio_ring: packed: extract the logic of alloc queue
+>   virtio_ring: packed: extract the logic of alloc state and extra
+>   virtio_ring: packed: extract the logic of attach vring
+>   virtio_ring: packed: extract the logic of vring init
+>   virtio_ring: packed: introduce virtqueue_reinit_packed()
+>   virtio_ring: packed: introduce virtqueue_resize_packed()
+>   virtio_ring: introduce virtqueue_resize()
+>   virtio_pci: struct virtio_pci_common_cfg add queue_notify_data
+>   virtio: queue_reset: add VIRTIO_F_RING_RESET
+>   virtio: allow to unbreak/break virtqueue individually
+>   virtio_pci: update struct virtio_pci_common_cfg
+>   virtio_pci: introduce helper to get/set queue reset
+>   virtio_pci: extract the logic of active vq for modern pci
+>   virtio_pci: support VIRTIO_F_RING_RESET
+>   virtio: find_vqs() add arg sizes
+>   virtio_pci: support the arg sizes of find_vqs()
+>   virtio_mmio: support the arg sizes of find_vqs()
+>   virtio: add helper virtio_find_vqs_ctx_size()
+>   virtio_net: set the default max ring size by find_vqs()
+>   virtio_net: get ringparam by virtqueue_get_vring_max_size()
+>   virtio_net: split free_unused_bufs()
+>   virtio_net: support rx queue resize
+>   virtio_net: support tx queue resize
+>   virtio_net: support set_ringparam
+> 
+>  arch/um/drivers/virtio_uml.c             |   3 +-
+>  drivers/net/virtio_net.c                 | 209 +++++-
+>  drivers/platform/mellanox/mlxbf-tmfifo.c |   3 +
+>  drivers/remoteproc/remoteproc_core.c     |   4 +-
+>  drivers/remoteproc/remoteproc_virtio.c   |  13 +-
+>  drivers/s390/virtio/virtio_ccw.c         |   4 +
+>  drivers/virtio/virtio_mmio.c             |  11 +-
+>  drivers/virtio/virtio_pci_common.c       |  32 +-
+>  drivers/virtio/virtio_pci_common.h       |   3 +-
+>  drivers/virtio/virtio_pci_legacy.c       |   8 +-
+>  drivers/virtio/virtio_pci_modern.c       | 157 ++++-
+>  drivers/virtio/virtio_pci_modern_dev.c   |  39 ++
+>  drivers/virtio/virtio_ring.c             | 794 +++++++++++++++++------
+>  drivers/virtio/virtio_vdpa.c             |   3 +
+>  include/linux/remoteproc.h               |   4 +-
+>  include/linux/virtio.h                   |   9 +
+>  include/linux/virtio_config.h            |  38 +-
+>  include/linux/virtio_pci_modern.h        |   2 +
+>  include/uapi/linux/virtio_config.h       |   7 +-
+>  include/uapi/linux/virtio_pci.h          |  14 +
+>  20 files changed, 1063 insertions(+), 294 deletions(-)
+> 
+> --
 > 2.31.0
 
 _______________________________________________
