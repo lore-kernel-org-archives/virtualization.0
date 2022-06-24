@@ -1,60 +1,60 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5AE72CCA47C
-	for <virtualization@archiver.kernel.org>; Fri, 24 Jun 2022 02:58:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 76434C433EF
+	for <virtualization@archiver.kernel.org>; Fri, 24 Jun 2022 02:58:08 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 0E0E884816;
-	Fri, 24 Jun 2022 02:58:03 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0E0E884816
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id emqNqxmW0ow0; Fri, 24 Jun 2022 02:58:02 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 8E50784880;
-	Fri, 24 Jun 2022 02:58:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8E50784880
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 678FEC0032;
-	Fri, 24 Jun 2022 02:58:01 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B03CFC0086
- for <virtualization@lists.linux-foundation.org>;
- Fri, 24 Jun 2022 02:58:00 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 88E2D4253F
- for <virtualization@lists.linux-foundation.org>;
- Fri, 24 Jun 2022 02:58:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 88E2D4253F
+	by smtp4.osuosl.org (Postfix) with ESMTP id 1AC6542590;
+	Fri, 24 Jun 2022 02:58:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1AC6542590
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id DbB6zL1AlE24
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id lmigP8EROTVO; Fri, 24 Jun 2022 02:58:07 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 3F73D4257D;
+	Fri, 24 Jun 2022 02:58:06 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3F73D4257D
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0FF93C0032;
+	Fri, 24 Jun 2022 02:58:06 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 46159C002D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 24 Jun 2022 02:57:59 +0000 (UTC)
+ Fri, 24 Jun 2022 02:58:04 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 143D98486D
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 24 Jun 2022 02:58:04 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 143D98486D
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id kqeZElm7ktBm
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 24 Jun 2022 02:58:03 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 248E442582
-Received: from out30-54.freemail.mail.aliyun.com
- (out30-54.freemail.mail.aliyun.com [115.124.30.54])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 248E442582
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E49328488B
+Received: from out199-15.us.a.mail.aliyun.com (out199-15.us.a.mail.aliyun.com
+ [47.90.199.15])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id E49328488B
  for <virtualization@lists.linux-foundation.org>;
- Fri, 24 Jun 2022 02:57:58 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R201e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046059;
+ Fri, 24 Jun 2022 02:58:02 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R951e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046050;
  MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=37; SR=0;
- TI=SMTPD_---0VHF16hP_1656039472; 
+ TI=SMTPD_---0VHErt5V_1656039474; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VHF16hP_1656039472) by smtp.aliyun-inc.com;
- Fri, 24 Jun 2022 10:57:53 +0800
+ fp:SMTPD_---0VHErt5V_1656039474) by smtp.aliyun-inc.com;
+ Fri, 24 Jun 2022 10:57:55 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: virtualization@lists.linux-foundation.org
-Subject: [PATCH v10 40/41] virtio_net: support tx queue resize
-Date: Fri, 24 Jun 2022 10:56:20 +0800
-Message-Id: <20220624025621.128843-41-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH v10 41/41] virtio_net: support set_ringparam
+Date: Fri, 24 Jun 2022 10:56:21 +0800
+Message-Id: <20220624025621.128843-42-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20220624025621.128843-1-xuanzhuo@linux.alibaba.com>
 References: <20220624025621.128843-1-xuanzhuo@linux.alibaba.com>
@@ -95,95 +95,83 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This patch implements the resize function of the tx queues.
-Based on this function, it is possible to modify the ring num of the
-queue.
+Support set_ringparam based on virtio queue reset.
+
+Users can use ethtool -G eth0 <ring_num> to modify the ring size of
+virtio-net.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
 ---
  drivers/net/virtio_net.c | 48 ++++++++++++++++++++++++++++++++++++++++
  1 file changed, 48 insertions(+)
 
 diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 21b5c5fa9423..2aedfd056fa7 100644
+index 2aedfd056fa7..bf25a1f21695 100644
 --- a/drivers/net/virtio_net.c
 +++ b/drivers/net/virtio_net.c
-@@ -135,6 +135,9 @@ struct send_queue {
- 	struct virtnet_sq_stats stats;
- 
- 	struct napi_struct napi;
-+
-+	/* Record whether sq is in reset state. */
-+	bool reset;
- };
- 
- /* Internal representation of a receive virtqueue */
-@@ -279,6 +282,7 @@ struct padded_vnet_hdr {
- };
- 
- static void virtnet_rq_free_unused_buf(struct virtqueue *vq, void *buf);
-+static void virtnet_sq_free_unused_buf(struct virtqueue *vq, void *buf);
- 
- static bool is_xdp_frame(void *ptr)
- {
-@@ -1603,6 +1607,11 @@ static void virtnet_poll_cleantx(struct receive_queue *rq)
- 		return;
- 
- 	if (__netif_tx_trylock(txq)) {
-+		if (READ_ONCE(sq->reset)) {
-+			__netif_tx_unlock(txq);
-+			return;
-+		}
-+
- 		do {
- 			virtqueue_disable_cb(sq->vq);
- 			free_old_xmit_skbs(sq, true);
-@@ -1868,6 +1877,45 @@ static int virtnet_rx_resize(struct virtnet_info *vi,
- 	return err;
+@@ -2330,6 +2330,53 @@ static void virtnet_get_ringparam(struct net_device *dev,
+ 	ring->tx_pending = virtqueue_get_vring_size(vi->sq[0].vq);
  }
  
-+static int virtnet_tx_resize(struct virtnet_info *vi,
-+			     struct send_queue *sq, u32 ring_num)
++static int virtnet_set_ringparam(struct net_device *dev,
++				 struct ethtool_ringparam *ring,
++				 struct kernel_ethtool_ringparam *kernel_ring,
++				 struct netlink_ext_ack *extack)
 +{
-+	struct netdev_queue *txq;
-+	int err, qindex;
++	struct virtnet_info *vi = netdev_priv(dev);
++	u32 rx_pending, tx_pending;
++	struct receive_queue *rq;
++	struct send_queue *sq;
++	int i, err;
 +
-+	qindex = sq - vi->sq;
++	if (ring->rx_mini_pending || ring->rx_jumbo_pending)
++		return -EINVAL;
 +
-+	virtnet_napi_tx_disable(&sq->napi);
++	rx_pending = virtqueue_get_vring_size(vi->rq[0].vq);
++	tx_pending = virtqueue_get_vring_size(vi->sq[0].vq);
 +
-+	txq = netdev_get_tx_queue(vi->dev, qindex);
++	if (ring->rx_pending == rx_pending &&
++	    ring->tx_pending == tx_pending)
++		return 0;
 +
-+	/* 1. wait all ximt complete
-+	 * 2. fix the race of netif_stop_subqueue() vs netif_start_subqueue()
-+	 */
-+	__netif_tx_lock_bh(txq);
++	if (ring->rx_pending > virtqueue_get_vring_max_size(vi->rq[0].vq))
++		return -EINVAL;
 +
-+	/* Prevent rx poll from accessing sq. */
-+	WRITE_ONCE(sq->reset, true);
++	if (ring->tx_pending > virtqueue_get_vring_max_size(vi->sq[0].vq))
++		return -EINVAL;
 +
-+	/* Prevent the upper layer from trying to send packets. */
-+	netif_stop_subqueue(vi->dev, qindex);
++	for (i = 0; i < vi->max_queue_pairs; i++) {
++		rq = vi->rq + i;
++		sq = vi->sq + i;
 +
-+	__netif_tx_unlock_bh(txq);
++		if (ring->tx_pending != tx_pending) {
++			err = virtnet_tx_resize(vi, sq, ring->tx_pending);
++			if (err)
++				return err;
++		}
 +
-+	err = virtqueue_resize(sq->vq, ring_num, virtnet_sq_free_unused_buf);
-+	if (err)
-+		netdev_err(vi->dev, "resize tx fail: tx queue index: %d err: %d\n", qindex, err);
++		if (ring->rx_pending != rx_pending) {
++			err = virtnet_rx_resize(vi, rq, ring->rx_pending);
++			if (err)
++				return err;
++		}
++	}
 +
-+	/* Memory barrier before set reset and start subqueue. */
-+	smp_mb();
-+
-+	WRITE_ONCE(sq->reset, false);
-+	netif_tx_wake_queue(txq);
-+
-+	virtnet_napi_tx_enable(vi, sq->vq, &sq->napi);
-+	return err;
++	return 0;
 +}
 +
- /*
-  * Send command via the control virtqueue and check status.  Commands
-  * supported by the hypervisor, as indicated by feature bits, should
+ static bool virtnet_commit_rss_command(struct virtnet_info *vi)
+ {
+ 	struct net_device *dev = vi->dev;
+@@ -2817,6 +2864,7 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
+ 	.get_drvinfo = virtnet_get_drvinfo,
+ 	.get_link = ethtool_op_get_link,
+ 	.get_ringparam = virtnet_get_ringparam,
++	.set_ringparam = virtnet_set_ringparam,
+ 	.get_strings = virtnet_get_strings,
+ 	.get_sset_count = virtnet_get_sset_count,
+ 	.get_ethtool_stats = virtnet_get_ethtool_stats,
 -- 
 2.31.0
 
