@@ -1,61 +1,60 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A8C59C43334
-	for <virtualization@archiver.kernel.org>; Fri, 24 Jun 2022 02:57:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8FFA4C43334
+	for <virtualization@archiver.kernel.org>; Fri, 24 Jun 2022 02:57:32 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 416294254F;
-	Fri, 24 Jun 2022 02:57:30 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 416294254F
+	by smtp3.osuosl.org (Postfix) with ESMTP id 3C5476140B;
+	Fri, 24 Jun 2022 02:57:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3C5476140B
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id xni8fzpdf9Xg; Fri, 24 Jun 2022 02:57:29 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 6Ta6WYtBpmDS; Fri, 24 Jun 2022 02:57:31 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id A048942579;
-	Fri, 24 Jun 2022 02:57:28 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A048942579
+	by smtp3.osuosl.org (Postfix) with ESMTPS id C4B81612AD;
+	Fri, 24 Jun 2022 02:57:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C4B81612AD
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 785D3C0032;
-	Fri, 24 Jun 2022 02:57:28 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4E2AAC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id AB780C0032;
+	Fri, 24 Jun 2022 02:57:30 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 02728C002D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 24 Jun 2022 02:57:27 +0000 (UTC)
+ Fri, 24 Jun 2022 02:57:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 231E542582
+ by smtp4.osuosl.org (Postfix) with ESMTP id C3ABA4254F
  for <virtualization@lists.linux-foundation.org>;
- Fri, 24 Jun 2022 02:57:27 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 231E542582
+ Fri, 24 Jun 2022 02:57:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C3ABA4254F
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id wbkyMdfT0_13
+ with ESMTP id lpLndpcIan5n
  for <virtualization@lists.linux-foundation.org>;
- Fri, 24 Jun 2022 02:57:26 +0000 (UTC)
+ Fri, 24 Jun 2022 02:57:28 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6851C4254B
-Received: from out30-57.freemail.mail.aliyun.com
- (out30-57.freemail.mail.aliyun.com [115.124.30.57])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 6851C4254B
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3DEAF4255A
+Received: from out30-130.freemail.mail.aliyun.com
+ (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 3DEAF4255A
  for <virtualization@lists.linux-foundation.org>;
- Fri, 24 Jun 2022 02:57:24 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R141e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046051;
+ Fri, 24 Jun 2022 02:57:27 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R101e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046060;
  MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=37; SR=0;
- TI=SMTPD_---0VHErstf_1656039438; 
+ TI=SMTPD_---0VHEuW4S_1656039440; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VHErstf_1656039438) by smtp.aliyun-inc.com;
- Fri, 24 Jun 2022 10:57:19 +0800
+ fp:SMTPD_---0VHEuW4S_1656039440) by smtp.aliyun-inc.com;
+ Fri, 24 Jun 2022 10:57:21 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: virtualization@lists.linux-foundation.org
-Subject: [PATCH v10 25/41] virtio_pci: struct virtio_pci_common_cfg add
- queue_notify_data
-Date: Fri, 24 Jun 2022 10:56:05 +0800
-Message-Id: <20220624025621.128843-26-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH v10 26/41] virtio: queue_reset: add VIRTIO_F_RING_RESET
+Date: Fri, 24 Jun 2022 10:56:06 +0800
+Message-Id: <20220624025621.128843-27-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20220624025621.128843-1-xuanzhuo@linux.alibaba.com>
 References: <20220624025621.128843-1-xuanzhuo@linux.alibaba.com>
@@ -96,38 +95,42 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Add queue_notify_data in struct virtio_pci_common_cfg, which comes from
-here https://github.com/oasis-tcs/virtio-spec/issues/89
+Added VIRTIO_F_RING_RESET, it came from here
 
-For not breaks uABI, add a new struct virtio_pci_common_cfg_notify.
+https://github.com/oasis-tcs/virtio-spec/issues/124
+https://github.com/oasis-tcs/virtio-spec/issues/139
 
-Since I want to add queue_reset after queue_notify_data, I submitted
-this patch first.
+This feature indicates that the driver can reset a queue individually.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Acked-by: Jason Wang <jasowang@redhat.com>
 ---
- include/uapi/linux/virtio_pci.h | 7 +++++++
- 1 file changed, 7 insertions(+)
+ include/uapi/linux/virtio_config.h | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
-index 3a86f36d7e3d..22bec9bd0dfc 100644
---- a/include/uapi/linux/virtio_pci.h
-+++ b/include/uapi/linux/virtio_pci.h
-@@ -166,6 +166,13 @@ struct virtio_pci_common_cfg {
- 	__le32 queue_used_hi;		/* read-write */
- };
+diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
+index f0fb0ae021c0..3c05162bc988 100644
+--- a/include/uapi/linux/virtio_config.h
++++ b/include/uapi/linux/virtio_config.h
+@@ -52,7 +52,7 @@
+  * rest are per-device feature bits.
+  */
+ #define VIRTIO_TRANSPORT_F_START	28
+-#define VIRTIO_TRANSPORT_F_END		38
++#define VIRTIO_TRANSPORT_F_END		41
  
-+struct virtio_pci_common_cfg_notify {
-+	struct virtio_pci_common_cfg cfg;
+ #ifndef VIRTIO_CONFIG_NO_LEGACY
+ /* Do we get callbacks when the ring is completely used, even if we've
+@@ -98,4 +98,9 @@
+  * Does the device support Single Root I/O Virtualization?
+  */
+ #define VIRTIO_F_SR_IOV			37
 +
-+	__le16 queue_notify_data;	/* read-write */
-+	__le16 padding;
-+};
-+
- /* Fields in VIRTIO_PCI_CAP_PCI_CFG: */
- struct virtio_pci_cfg_cap {
- 	struct virtio_pci_cap cap;
++/*
++ * This feature indicates that the driver can reset a queue individually.
++ */
++#define VIRTIO_F_RING_RESET		40
+ #endif /* _UAPI_LINUX_VIRTIO_CONFIG_H */
 -- 
 2.31.0
 
