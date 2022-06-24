@@ -1,91 +1,91 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2127FC433EF
-	for <virtualization@archiver.kernel.org>; Fri, 24 Jun 2022 20:22:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id F0450C433EF
+	for <virtualization@archiver.kernel.org>; Fri, 24 Jun 2022 20:23:58 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id A0930416AF;
-	Fri, 24 Jun 2022 20:22:02 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A0930416AF
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=ffwll.ch header.i=@ffwll.ch header.a=rsa-sha256 header.s=google header.b=DSfCIl93
+	by smtp3.osuosl.org (Postfix) with ESMTP id 8BB2C611DB;
+	Fri, 24 Jun 2022 20:23:58 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8BB2C611DB
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=ffwll.ch header.i=@ffwll.ch header.a=rsa-sha256 header.s=google header.b=VYViBvea
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id hMaYzCyjvNIb; Fri, 24 Jun 2022 20:22:01 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 2Dw5xX9s_g24; Fri, 24 Jun 2022 20:23:57 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id C9833415F0;
-	Fri, 24 Jun 2022 20:22:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C9833415F0
+	by smtp3.osuosl.org (Postfix) with ESMTPS id ECDE4611CF;
+	Fri, 24 Jun 2022 20:23:56 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org ECDE4611CF
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 9E1B2C0039;
-	Fri, 24 Jun 2022 20:22:00 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id ACE33C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C5515C0039;
+	Fri, 24 Jun 2022 20:23:56 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A7BA6C002D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 24 Jun 2022 20:21:58 +0000 (UTC)
+ Fri, 24 Jun 2022 20:23:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 73D25849B0
+ by smtp1.osuosl.org (Postfix) with ESMTP id 7439C849D5
  for <virtualization@lists.linux-foundation.org>;
- Fri, 24 Jun 2022 20:21:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 73D25849B0
+ Fri, 24 Jun 2022 20:23:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7439C849D5
 Authentication-Results: smtp1.osuosl.org;
  dkim=pass (1024-bit key) header.d=ffwll.ch header.i=@ffwll.ch
- header.a=rsa-sha256 header.s=google header.b=DSfCIl93
+ header.a=rsa-sha256 header.s=google header.b=VYViBvea
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id a1CJFAlJTQzS
+ with ESMTP id 6B5WQ_FP3CJc
  for <virtualization@lists.linux-foundation.org>;
- Fri, 24 Jun 2022 20:21:57 +0000 (UTC)
+ Fri, 24 Jun 2022 20:23:54 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4F68484847
-Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com
- [IPv6:2a00:1450:4864:20::62c])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 4F68484847
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 01FFE83E8B
+Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com
+ [IPv6:2a00:1450:4864:20::536])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 01FFE83E8B
  for <virtualization@lists.linux-foundation.org>;
- Fri, 24 Jun 2022 20:21:57 +0000 (UTC)
-Received: by mail-ej1-x62c.google.com with SMTP id h23so6846970ejj.12
+ Fri, 24 Jun 2022 20:23:53 +0000 (UTC)
+Received: by mail-ed1-x536.google.com with SMTP id eq6so4974270edb.6
  for <virtualization@lists.linux-foundation.org>;
- Fri, 24 Jun 2022 13:21:56 -0700 (PDT)
+ Fri, 24 Jun 2022 13:23:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ffwll.ch; s=google;
  h=date:from:to:cc:subject:message-id:mail-followup-to:references
  :mime-version:content-disposition:in-reply-to;
- bh=aI/Wm30z63oEYhq+jLGxZI/tPMnn/tbFlzZ2xbhv+F4=;
- b=DSfCIl93ErkZQTmodLqWf6MxjRIpF1ZnQis6V2AmfYLHN/rGtlxKfpfQusYdU3/UoQ
- cGZ9t8NGw8N1UESLaZQtt9KE8BCcJRvCrZjHW4cY3x/vspkpF+H+OZ9YyYSAm/sR4To9
- S80AKWsZyDrPVwQDWYceohfI1JDJJuzPD7o2I=
+ bh=rM6StsZ/3rmWNZ6eG3nFC9QNenxnUOTVwI/HAfEm2EQ=;
+ b=VYViBveaMX2iHovNjImE8ft1aL8oby/bDvJodcDA4y4Eo+tutY1hGinHsM3aKTvLEE
+ UKfzf6+eCMmxZ49Ku37S9pc+tHn/uh5pXrCXh3E8Ggw/FSYRFeIyB8RDclfGgyvtHmNh
+ MqpcvSiLK6jgmcJHZD8u3uLJ1nBF6f8mOUmtg=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id
  :mail-followup-to:references:mime-version:content-disposition
  :in-reply-to;
- bh=aI/Wm30z63oEYhq+jLGxZI/tPMnn/tbFlzZ2xbhv+F4=;
- b=WTVbOtFlyKPeqtIwtYnYyHyeVyut8d4QezClgCzohoFs57UET+B/gST/Ysa06BnmjU
- 3FzPPl9+zPU/mPOrgcFEtfotKZv0x4PXl3Hn3c7lgPwnxnGEBm7LDicrG0rbXSIo7mQU
- 90jU9PGabcVblNQe9L5Vn3rhdVLqBv9OgIBYBclzc9037LeZF3BpAAXwpKLzwaVPAYgj
- 1OHpiPojND8mTT3SkMkQmvyoa3HTaDUlKS7WyruK5MEn4RlKKMqrMRurLL5wwvVkujaT
- nEWFfUbZaCVxFfEqEaACjtjfq2CqcUXNZ/nl9wzcgPRpPmlFGIF0pte78VNNnSapLCBL
- Cu8Q==
-X-Gm-Message-State: AJIora8BLhHF0YpAzUbtTbyEGZHf55ichBLEeEKtDM1FnQyyWclBMxNx
- ocJhLFpVFPHLUIBmRSFR8ubpXQ==
-X-Google-Smtp-Source: AGRyM1vMLazEoSIRdqrX8zCM+3y9xklBh+nj+P3ouSsHUhI81GOe3I6uIj9foVrhcJrq+L6LjvY0lQ==
-X-Received: by 2002:a17:906:72d1:b0:722:e714:e9ff with SMTP id
- m17-20020a17090672d100b00722e714e9ffmr758067ejl.748.1656102115311; 
- Fri, 24 Jun 2022 13:21:55 -0700 (PDT)
+ bh=rM6StsZ/3rmWNZ6eG3nFC9QNenxnUOTVwI/HAfEm2EQ=;
+ b=o9HMZI7UDCYLecvSt4lNCDVLpkBEOE9P7+n+dKPltuAT5FlV4EEbBrS8WSrqagBMFn
+ pF7vZMTfG6btqyY7a93R5WxI7SDT6Qjry0s0HqKxILXKrkdW4SBWPS9BbWqgppDF5Qr3
+ /lW88vy5zNonw2dTy7l3LuRkgbafCzYhwcQHZRb0bhkceuuAzFQAv50Nzv+ztGmhzJLz
+ 5dyiDcFUzT4uwfQx4Fh+R8Pjf1dkig42rCW+t71Zd/xn0G7/r7ZeeHkTEBdcjOXLZXXQ
+ /02rzLTnjLb+QZkVfQ3CwQPSCKGuP6eT12bJS1nxxnNaOn6USDQfg+EecC7ifnNeRERH
+ 7tsA==
+X-Gm-Message-State: AJIora/KDnLf7mxQrO+HufjHTwOCWwfgx85VKg8CJiO176MBwC1lWECZ
+ D1zJIK45dj+H8Pi1gJq0Y5OhIw==
+X-Google-Smtp-Source: AGRyM1uJnErMjUto5d2AkMD9qcjjZpgW235kvjYxoK3tSLlU8a0umCcexISHAvYdIuLK226BGQhyeA==
+X-Received: by 2002:a05:6402:4248:b0:435:9150:ccfb with SMTP id
+ g8-20020a056402424800b004359150ccfbmr1101365edb.374.1656102232134; 
+ Fri, 24 Jun 2022 13:23:52 -0700 (PDT)
 Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
  by smtp.gmail.com with ESMTPSA id
- y22-20020a170906559600b00722e7919835sm1623844ejp.111.2022.06.24.13.21.53
+ z23-20020a170906435700b007094f98788csm1630637ejm.113.2022.06.24.13.23.50
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 24 Jun 2022 13:21:54 -0700 (PDT)
-Date: Fri, 24 Jun 2022 22:21:52 +0200
+ Fri, 24 Jun 2022 13:23:51 -0700 (PDT)
+Date: Fri, 24 Jun 2022 22:23:49 +0200
 From: Daniel Vetter <daniel@ffwll.ch>
 To: Rob Clark <robdclark@gmail.com>
 Subject: Re: [PATCH v6 17/22] drm/shmem-helper: Add generic memory shrinker
-Message-ID: <YrYc4IUHJWSbC6AX@phenom.ffwll.local>
+Message-ID: <YrYdVRMjK4YS33hO@phenom.ffwll.local>
 Mail-Followup-To: Rob Clark <robdclark@gmail.com>,
  Dmitry Osipenko <dmitry.osipenko@collabora.com>,
  David Airlie <airlied@linux.ie>, Gerd Hoffmann <kraxel@redhat.com>,
@@ -124,9 +124,11 @@ Mail-Followup-To: Rob Clark <robdclark@gmail.com>,
 References: <20220526235040.678984-1-dmitry.osipenko@collabora.com>
  <20220526235040.678984-18-dmitry.osipenko@collabora.com>
  <CAF6AEGt61t2truYDCxm17hqUPV-UdEdHjLs+6vmj5RPoPuVBYg@mail.gmail.com>
+ <3bb3dc53-69fc-8cdb-ae37-583b9b2660a3@collabora.com>
+ <CAF6AEGus7R_i7RMWGmbawVi62xCk5mhLTWGq2QEkcWY+XaJBAQ@mail.gmail.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <CAF6AEGt61t2truYDCxm17hqUPV-UdEdHjLs+6vmj5RPoPuVBYg@mail.gmail.com>
+In-Reply-To: <CAF6AEGus7R_i7RMWGmbawVi62xCk5mhLTWGq2QEkcWY+XaJBAQ@mail.gmail.com>
 X-Operating-System: Linux phenom 5.10.0-8-amd64 
 Cc: David Airlie <airlied@linux.ie>,
  Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
@@ -170,37 +172,95 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sun, Jun 19, 2022 at 10:53:03AM -0700, Rob Clark wrote:
-> On Thu, May 26, 2022 at 4:55 PM Dmitry Osipenko
+On Mon, Jun 20, 2022 at 08:18:04AM -0700, Rob Clark wrote:
+> On Mon, Jun 20, 2022 at 7:09 AM Dmitry Osipenko
 > <dmitry.osipenko@collabora.com> wrote:
-> > +       mutex_unlock(&gem_shrinker->lock);
+> >
+> > On 6/19/22 20:53, Rob Clark wrote:
+> > ...
+> > >> +static unsigned long
+> > >> +drm_gem_shmem_shrinker_count_objects(struct shrinker *shrinker,
+> > >> +                                    struct shrink_control *sc)
+> > >> +{
+> > >> +       struct drm_gem_shmem_shrinker *gem_shrinker = to_drm_shrinker(shrinker);
+> > >> +       struct drm_gem_shmem_object *shmem;
+> > >> +       unsigned long count = 0;
+> > >> +
+> > >> +       if (!mutex_trylock(&gem_shrinker->lock))
+> > >> +               return 0;
+> > >> +
+> > >> +       list_for_each_entry(shmem, &gem_shrinker->lru_evictable, madv_list) {
+> > >> +               count += shmem->base.size;
+> > >> +
+> > >> +               if (count >= SHRINK_EMPTY)
+> > >> +                       break;
+> > >> +       }
+> > >> +
+> > >> +       mutex_unlock(&gem_shrinker->lock);
+> > >
+> > > As I mentioned on other thread, count_objects, being approximate but
+> > > lockless and fast is the important thing.  Otherwise when you start
+> > > hitting the shrinker on many threads, you end up serializing them all,
+> > > even if you have no pages to return to the system at that point.
+> >
+> > Daniel's point for dropping the lockless variant was that we're already
+> > in trouble if we're hitting shrinker too often and extra optimizations
+> > won't bring much benefits to us.
 > 
-> As I mentioned on other thread, count_objects, being approximate but
-> lockless and fast is the important thing.  Otherwise when you start
-> hitting the shrinker on many threads, you end up serializing them all,
-> even if you have no pages to return to the system at that point.
-
-Yeah agreed, seems like I was wrong here :-) Atomic counter or something
-would also be in link the the lru_list stuff.
-
-It would be to record this in the kerneldoc for the shrinker structure
-though, to make sure this is all understood.
-
-> > +               /* prevent racing with the dma-buf importing/exporting */
-> > +               if (!mutex_trylock(&gem_shrinker->dev->object_name_lock)) {
-> > +                       *lock_contention |= true;
-> > +                       goto resv_unlock;
-> > +               }
+> At least with zram swap (which I highly recommend using even if you
+> are not using a physical swap file/partition), swapin/out is actually
+> quite fast.  And if you are leaning on zram swap to fit 8GB of chrome
+> browser on a 4GB device, the shrinker gets hit quite a lot.  Lower
+> spec (4GB RAM) chromebooks can be under constant memory pressure and
+> can quite easily get into a situation where you are hitting the
+> shrinker on many threads simultaneously.  So it is pretty important
+> for all shrinkers in the system (not just drm driver) to be as
+> concurrent as possible.  As long as you avoid serializing reclaim on
+> all the threads, performance can still be quite good, but if you don't
+> performance will fall off a cliff.
 > 
-> I'm not sure this is a good idea to serialize on object_name_lock.
-> Purgeable buffers should never be shared (imported or exported).  So
-> at best you are avoiding evicting and immediately swapping back in, in
-> a rare case, at the cost of serializing multiple threads trying to
-> reclaim pages in parallel.
+> jfwiw, we are seeing pretty good results (iirc 40-70% increase in open
+> tab counts) with the combination of eviction + multigen LRU[1] +
+> sizing zram swap to be 2x physical RAM
+> 
+> [1] https://lwn.net/Articles/856931/
+> 
+> > Alright, I'll add back the lockless variant (or will use yours
+> > drm_gem_lru) in the next revision. The code difference is very small
+> > after all.
+> >
+> > ...
+> > >> +               /* prevent racing with the dma-buf importing/exporting */
+> > >> +               if (!mutex_trylock(&gem_shrinker->dev->object_name_lock)) {
+> > >> +                       *lock_contention |= true;
+> > >> +                       goto resv_unlock;
+> > >> +               }
+> > >
+> > > I'm not sure this is a good idea to serialize on object_name_lock.
+> > > Purgeable buffers should never be shared (imported or exported).  So
+> > > at best you are avoiding evicting and immediately swapping back in, in
+> > > a rare case, at the cost of serializing multiple threads trying to
+> > > reclaim pages in parallel.
+> >
+> > The object_name_lock shouldn't cause contention in practice. But objects
+> > are also pinned on attachment, hence maybe this lock is indeed
+> > unnecessary.. I'll re-check it.
+> 
+> I'm not worried about contention with export/import/etc, but
+> contention between multiple threads hitting the shrinker in parallel.
+> I guess since you are using trylock, it won't *block* the other
+> threads hitting shrinker, but they'll just end up looping in
+> do_shrink_slab() because they are hitting contention.
+> 
+> I'd have to do some experiments to see how it works out in practice,
+> but my gut feel is that it isn't a good idea
 
-Yeah this sounds really bad. Plus this is a per-device lock, and doing
-those with trylock means the shrinker will fail to find shrinkable memory
-way too often. We need to engineer this out somehow.
+Yeah trylock on anything else than the object lock is No Good in the
+shrinker. And it really shouldn't be needed, since import/export should
+pin stuff as needed. Which should be protected by the dma_resv object
+lock. If not, we need to fix that.
+
+Picking a random drm-internal lock like this is definitely no good design.
 -Daniel
 -- 
 Daniel Vetter
