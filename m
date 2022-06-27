@@ -4,112 +4,93 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4FB3AC433EF
-	for <virtualization@archiver.kernel.org>; Mon, 27 Jun 2022 02:50:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A5415C433EF
+	for <virtualization@archiver.kernel.org>; Mon, 27 Jun 2022 03:02:28 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id E1B6D40BC5;
-	Mon, 27 Jun 2022 02:50:37 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E1B6D40BC5
+	by smtp2.osuosl.org (Postfix) with ESMTP id 2B14B40590;
+	Mon, 27 Jun 2022 03:02:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2B14B40590
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=dmAfLFQ7
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ho9eNOLc
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id A8HY4EAddwao; Mon, 27 Jun 2022 02:50:36 +0000 (UTC)
+	with ESMTP id cOCpoAJ8mHH9; Mon, 27 Jun 2022 03:02:27 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 1A94D400F2;
-	Mon, 27 Jun 2022 02:50:36 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1A94D400F2
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 7347B400F2;
+	Mon, 27 Jun 2022 03:02:26 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7347B400F2
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E5120C007A;
-	Mon, 27 Jun 2022 02:50:35 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4A138C0032;
+	Mon, 27 Jun 2022 03:02:26 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id BD65AC002D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 328B2C002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Jun 2022 02:50:34 +0000 (UTC)
+ Mon, 27 Jun 2022 03:02:25 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 8398182B1E
+ by smtp1.osuosl.org (Postfix) with ESMTP id EBF5482CC7
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Jun 2022 02:50:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8398182B1E
+ Mon, 27 Jun 2022 03:02:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org EBF5482CC7
 Authentication-Results: smtp1.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=dmAfLFQ7
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=ho9eNOLc
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id i02agt1sbCfp
+ with ESMTP id rK4sxij8sGC8
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Jun 2022 02:50:33 +0000 (UTC)
+ Mon, 27 Jun 2022 03:02:22 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6F0E6828DA
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E171F82CB7
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 6F0E6828DA
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id E171F82CB7
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Jun 2022 02:50:33 +0000 (UTC)
+ Mon, 27 Jun 2022 03:02:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1656298232;
+ s=mimecast20190719; t=1656298940;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=biN1ia1/BQslLYkymJMJ0pnjqHIpxR4UA9N5HO9QFXs=;
- b=dmAfLFQ7jwfZ1yMDaSzIvJBwCZi/zH3HTz8fOYRBUQFkr5CIQj5lFlrZwYpbZzspp/QXkF
- tGc6qmgnO8+ephCxEO7+NzTpJZs4u8YDd44wZ+q/NU23bA9w1UnIMVAAabM8RrH1fAkJ07
- 0gCz9p2JdPnYuL2LyrqEOLydLPdEm4o=
-Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
- [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=hEhVbVAlzfBZtzXNd2XXxlARCTohOEunStuxgNOGE38=;
+ b=ho9eNOLcmC0ezOZomlHvmYwiIdrYwtOJIw91Bm0Wqsl40HtdrgQ5fiDeeXBxLQm1xhcxNz
+ bjTJsbFwSrjc113FzhpCmJVkvDzKmbuxphCUkKeoDNWRBmmRP/nFkoJpv8PsnLhyfojAZ0
+ NdqnSsf+gxdFv2mnPCQmkB357426StQ=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-308-duL3g6_EO0u9OACUXQ7zCg-1; Sun, 26 Jun 2022 22:50:30 -0400
-X-MC-Unique: duL3g6_EO0u9OACUXQ7zCg-1
-Received: by mail-lf1-f71.google.com with SMTP id
- r28-20020ac25c1c000000b004809e9d21e5so2751630lfp.18
- for <virtualization@lists.linux-foundation.org>;
- Sun, 26 Jun 2022 19:50:30 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=biN1ia1/BQslLYkymJMJ0pnjqHIpxR4UA9N5HO9QFXs=;
- b=h4jDaiKMeJs+XiEOvrF71qLWmBIDWyvvvllLyIXykzPZKSXeYRT3P9qxcJUnGfNGk7
- fdN+pszkq/p4BqwOwoH4001Oy5AzgInY7QzBV062aop2blZGGxFYMT/j0mig4i04U0cy
- E53Pk2nGJm9mSSKrGbvDqWpFiPmmR2qknRFzvheeokbstFqvxZkJnFBypbEbfan10vfF
- 62v91llf4ARqQtKe5NR2jsDvjc6o6+EwSCZk+PSwJLAbxYTSG87gja1P/q9N5gnT32vL
- brrcm1NvOb/D2uxD2kay60D298V1bdDNcxJEq/rZVWQEo/Qqz8lyAebulgpfyZhTHZ5P
- KGrA==
-X-Gm-Message-State: AJIora8PMFkgAykhjWX4LTuNOUi3HO2IxqMoOtUAFlcv+02vLt8x2MHB
- UwPYNCOpmuTjm0GHUCPPDeWjtFxUp+ysBCpO6Zrkq3wgQoKiqza7LXLKtFGz7/c8mhAGdZYGffV
- Dw/a3MGKZCdiH0liD9rgHuo1ftUQlPsVx51gTcKm0lwyVK7KsGXFM62cPoQ==
-X-Received: by 2002:a05:6512:158d:b0:47f:718c:28b5 with SMTP id
- bp13-20020a056512158d00b0047f718c28b5mr7251018lfb.397.1656298228911; 
- Sun, 26 Jun 2022 19:50:28 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1ulCpLKIjQVszdgxVzjALf9iZpks66eBcENKIOyoL8+jUQn7V87hzr7NV3Fmj3jrJlmXUV/mhE9ythg/IWkCgA=
-X-Received: by 2002:a05:6512:158d:b0:47f:718c:28b5 with SMTP id
- bp13-20020a056512158d00b0047f718c28b5mr7250996lfb.397.1656298228615; Sun, 26
- Jun 2022 19:50:28 -0700 (PDT)
+ us-mta-373-aaIyQsndM9SXMa9x7w_qog-1; Sun, 26 Jun 2022 23:02:17 -0400
+X-MC-Unique: aaIyQsndM9SXMa9x7w_qog-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.5])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 268D7800971;
+ Mon, 27 Jun 2022 03:02:16 +0000 (UTC)
+Received: from [10.22.16.87] (unknown [10.22.16.87])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 441E418EAB;
+ Mon, 27 Jun 2022 03:02:15 +0000 (UTC)
+Message-ID: <e57ab7f6-09e0-9189-8b08-4d68be76f518@redhat.com>
+Date: Sun, 26 Jun 2022 23:02:14 -0400
 MIME-Version: 1.0
-References: <20220622012940.21441-1-jasowang@redhat.com>
- <20220622025047-mutt-send-email-mst@kernel.org>
- <CACGkMEtJY2ioD0L8ifTrCPatG6-NqQ01V=d2L1FeoweKV74LaA@mail.gmail.com>
- <20220624022622-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20220624022622-mutt-send-email-mst@kernel.org>
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 27 Jun 2022 10:50:17 +0800
-Message-ID: <CACGkMEuurobpUWmDL8zmZ6T6Ygc0OEMx6vx2EDCSoGNnZQ0r-w@mail.gmail.com>
-Subject: Re: [PATCH V3] virtio: disable notification hardening by default
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: linux-s390@vger.kernel.org, kvm <kvm@vger.kernel.org>,
- Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
- Cornelia Huck <cohuck@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>,
- Halil Pasic <pasic@linux.ibm.com>,
- Christian Borntraeger <borntraeger@de.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Ben Hutchings <ben@decadent.org.uk>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.1
+Subject: Re: [PATCH v2] x86/paravirt: useless assignment instructions cause
+ Unixbench full core performance degradation
+Content-Language: en-US
+To: Guo Hui <guohui@uniontech.com>, peterz@infradead.org
+References: <f6b68466-968c-4a91-655a-23970280a072@redhat.com>
+ <20220627021350.25714-1-guohui@uniontech.com>
+From: Waiman Long <longman@redhat.com>
+In-Reply-To: <20220627021350.25714-1-guohui@uniontech.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.11.54.5
+Cc: jgross@suse.com, x86@kernel.org, hpa@zytor.com, pv-drivers@vmware.com,
+ boqun.feng@gmail.com, dave.hansen@linux.intel.com,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ mingo@redhat.com, bp@alien8.de, amakhalov@vmware.com, tglx@linutronix.de,
+ will@kernel.org, wangxiaohua@uniontech.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -121,237 +102,191 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Jun 24, 2022 at 2:31 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+On 6/26/22 22:13, Guo Hui wrote:
+> The instructions assigned to the vcpu_is_preempted function parameter
+> in the X86 architecture physical machine are redundant instructions,
+> causing the multi-core performance of Unixbench to drop by about 4% to 5%.
+> The C function is as follows:
+> static bool vcpu_is_preempted(long vcpu);
 >
-> On Wed, Jun 22, 2022 at 03:09:31PM +0800, Jason Wang wrote:
-> > On Wed, Jun 22, 2022 at 3:03 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > >
-> > > On Wed, Jun 22, 2022 at 09:29:40AM +0800, Jason Wang wrote:
-> > > > We try to harden virtio device notifications in 8b4ec69d7e09 ("virtio:
-> > > > harden vring IRQ"). It works with the assumption that the driver or
-> > > > core can properly call virtio_device_ready() at the right
-> > > > place. Unfortunately, this seems to be not true and uncover various
-> > > > bugs of the existing drivers, mainly the issue of using
-> > > > virtio_device_ready() incorrectly.
-> > > >
-> > > > So let's having a Kconfig option and disable it by default. It gives
-> > > > us a breath to fix the drivers and then we can consider to enable it
-> > > > by default.
-> > > >
-> > > > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > >
-> > >
-> > > OK I will queue, but I think the problem is fundamental.
-> >
-> > If I understand correctly, you want some core IRQ work?
+> The parameter 'vcpu' in the function osq_lock
+> that calls the function vcpu_is_preempted is assigned as follows:
 >
-> Yes.
+> The C code is in the function node_cpu:
+> cpu = node->cpu - 1;
 >
-> > As discussed
-> > before, it doesn't solve all the problems, we still need to do per
-> > driver audit.
-> >
-> > Thanks
+> The instructions corresponding to the C code are:
+> mov 0x14(%rax),%edi
+> sub $0x1,%edi
 >
-> Maybe, but we don't need to tie things to device_ready then.
-> We can do
+> The above instructions are unnecessary
+> in the X86 Native operating environment,
+> causing high cache-misses and degrading performance.
 >
-> - disable irqs
-> - device ready
-> - setup everything
-> - enable irqs
+> This patch uses static_key to not execute this instruction
+> in the Native runtime environment.
 >
+> The code is as follows:
 >
-> and this works for most things, the only issue is
-> this deadlocks if "setup everything" waits for interrupts.
+> DEFINE_STATIC_KEY_FALSE(preemted_key);
 >
+> static inline int node_cpu(struct optimistic_spin_node *node)
+> {
+>       int cpu = 0;
 >
-> With the current approach there's really no good time:
-> 1.- setup everything
-> - device ready
+>       if (!static_branch_unlikely(&preemted_key))
+>               cpu = node->cpu - 1;
 >
-> can cause kicks before device is ready
+>       return cpu;
+> }
 >
-> 2.- device ready
-> - setup everything
+> The patch effect is as follows two machines,
+> Unixbench runs with full core score:
 >
-> can cause callbacks before setup.
+> 1. Machine configuration:
+> Intel(R) Xeon(R) Silver 4210 CPU @ 2.20GHz
+> CPU core: 40
+> Memory: 256G
+> OS Kernel: 5.19-rc3
 >
-> So I prefer the 1. and fix the hardening in the core.
+> Before using the patch:
+> System Benchmarks Index Values               BASELINE       RESULT    INDEX
+> Dhrystone 2 using register variables         116700.0  948326591.2  81261.9
+> Double-Precision Whetstone                       55.0     211986.3  38543.0
+> Execl Throughput                                 43.0      43453.2  10105.4
+> File Copy 1024 bufsize 2000 maxblocks          3960.0     438936.2   1108.4
+> File Copy 256 bufsize 500 maxblocks            1655.0     118197.4    714.2
+> File Copy 4096 bufsize 8000 maxblocks          5800.0    1534674.7   2646.0
+> Pipe Throughput                               12440.0   46482107.6  37365.0
+> Pipe-based Context Switching                   4000.0    1915094.2   4787.7
+> Process Creation                                126.0      85442.2   6781.1
+> Shell Scripts (1 concurrent)                     42.4      69400.7  16368.1
+> Shell Scripts (8 concurrent)                      6.0       8877.2  14795.3
+> System Call Overhead                          15000.0    4714906.1   3143.3
+>                                                                     ========
+> System Benchmarks Index Score                                        7923.3
+>
+> After using the patch:
+> System Benchmarks Index Values               BASELINE       RESULT    INDEX
+> Dhrystone 2 using register variables         116700.0  947032915.5  81151.1
+> Double-Precision Whetstone                       55.0     211971.2  38540.2
+> Execl Throughput                                 43.0      45054.8  10477.9
+> File Copy 1024 bufsize 2000 maxblocks          3960.0     515024.9   1300.6
+> File Copy 256 bufsize 500 maxblocks            1655.0     146354.6    884.3
+> File Copy 4096 bufsize 8000 maxblocks          5800.0    1679995.9   2896.5
+> Pipe Throughput                               12440.0   46466394.2  37352.4
+> Pipe-based Context Switching                   4000.0    1898221.4   4745.6
+> Process Creation                                126.0      85653.1   6797.9
+> Shell Scripts (1 concurrent)                     42.4      69437.3  16376.7
+> Shell Scripts (8 concurrent)                      6.0       8898.9  14831.4
+> System Call Overhead                          15000.0    4658746.7   3105.8
+>                                                                     ========
+> System Benchmarks Index Score                                        8248.8
+>
+> 2. Machine configuration:
+> Hygon C86 7185 32-core Processor
+> CPU core: 128
+> Memory: 256G
+> OS Kernel: 5.19-rc3
+>
+> Before using the patch:
+> System Benchmarks Index Values               BASELINE       RESULT    INDEX
+> Dhrystone 2 using register variables         116700.0 2256644068.3 193371.4
+> Double-Precision Whetstone                       55.0     438969.9  79812.7
+> Execl Throughput                                 43.0      10108.6   2350.8
+> File Copy 1024 bufsize 2000 maxblocks          3960.0     275892.8    696.7
+> File Copy 256 bufsize 500 maxblocks            1655.0      72082.7    435.5
+> File Copy 4096 bufsize 8000 maxblocks          5800.0     925043.4   1594.9
+> Pipe Throughput                               12440.0  118905512.5  95583.2
+> Pipe-based Context Switching                   4000.0    7820945.7  19552.4
+> Process Creation                                126.0      31233.3   2478.8
+> Shell Scripts (1 concurrent)                     42.4      49042.8  11566.7
+> Shell Scripts (8 concurrent)                      6.0       6656.0  11093.3
+> System Call Overhead                          15000.0    6816047.5   4544.0
+>                                                                     ========
+> System Benchmarks Index Score                                        7756.6
+>
+> After using the patch:
+> System Benchmarks Index Values               BASELINE       RESULT    INDEX
+> Dhrystone 2 using register variables         116700.0 2252272929.4 192996.8
+> Double-Precision Whetstone                       55.0     451847.2  82154.0
+> Execl Throughput                                 43.0      10595.1   2464.0
+> File Copy 1024 bufsize 2000 maxblocks          3960.0     301279.3    760.8
+> File Copy 256 bufsize 500 maxblocks            1655.0      79291.3    479.1
+> File Copy 4096 bufsize 8000 maxblocks          5800.0    1039755.2   1792.7
+> Pipe Throughput                               12440.0  118701468.1  95419.2
+> Pipe-based Context Switching                   4000.0    8073453.3  20183.6
+> Process Creation                                126.0      33440.9   2654.0
+> Shell Scripts (1 concurrent)                     42.4      52722.6  12434.6
+> Shell Scripts (8 concurrent)                      6.0       7050.4  11750.6
+> System Call Overhead                          15000.0    6834371.5   4556.2
+>                                                                     ========
+> System Benchmarks Index Score                                        8157.8
+>
+> Signed-off-by: Guo Hui <guohui@uniontech.com>
+> ---
+>   arch/x86/kernel/paravirt-spinlocks.c | 4 ++++
+>   kernel/locking/osq_lock.c            | 9 ++++++++-
+>   2 files changed, 12 insertions(+), 1 deletion(-)
+>
+> diff --git a/arch/x86/kernel/paravirt-spinlocks.c b/arch/x86/kernel/paravirt-spinlocks.c
+> index 9e1ea99ad..7a55f8407 100644
+> --- a/arch/x86/kernel/paravirt-spinlocks.c
+> +++ b/arch/x86/kernel/paravirt-spinlocks.c
+> @@ -33,6 +33,8 @@ bool pv_is_native_vcpu_is_preempted(void)
+>   		__raw_callee_save___native_vcpu_is_preempted;
+>   }
+>   
+> +DECLARE_STATIC_KEY_FALSE(preemted_key);
+> +
+>   void __init paravirt_set_cap(void)
+>   {
+>   	if (!pv_is_native_spin_unlock())
+> @@ -40,4 +42,6 @@ void __init paravirt_set_cap(void)
+>   
+>   	if (!pv_is_native_vcpu_is_preempted())
+>   		setup_force_cpu_cap(X86_FEATURE_VCPUPREEMPT);
+> +	else
+> +		static_branch_enable(&preemted_key);
+>   }
+> diff --git a/kernel/locking/osq_lock.c b/kernel/locking/osq_lock.c
+> index d5610ad52..a8798e701 100644
+> --- a/kernel/locking/osq_lock.c
+> +++ b/kernel/locking/osq_lock.c
+> @@ -22,9 +22,16 @@ static inline int encode_cpu(int cpu_nr)
+>   	return cpu_nr + 1;
+>   }
+>   
+> +DEFINE_STATIC_KEY_FALSE(preemted_key);
+> +
+>   static inline int node_cpu(struct optimistic_spin_node *node)
+>   {
+> -	return node->cpu - 1;
+> +	int cpu = 0;
+> +
+> +	if (!static_branch_unlikely(&preemted_key))
+> +		cpu = node->cpu - 1;
+> +
+> +	return cpu;
+>   }
+>   
+>   static inline struct optimistic_spin_node *decode_cpu(int encoded_cpu_val)
 
-So my question is:
+This looks much better now.
 
-1) do similar hardening like config interrupt
-or
-2) per transport notification work (e.g for PCI core IRQ work)
+However vcpu_is_preempted() is not just used by x86, it is also used in 
+arm64, powerpc and s390. If you want to default disable node_cpu(), you 
+have to either make the necessary changes in all those places or you 
+have to change it a way that won't affect other arches while disabling 
+it for the x86 case.
 
-1) seems easier and universal, but we pay little overhead which could
-be eliminated by the config option.
-2) seems require more work in the IRQ core and it can not work for all
-transports (e.g vDPA would be kind of difficult)
-
-Thanks
-
->
->
-> > >
-> > >
-> > > > ---
-> > > > Changes since V2:
-> > > > - Tweak the Kconfig help
-> > > > - Add comment for the read_lock() pairing in virtio_ccw
-> > > > ---
-> > > >  drivers/s390/virtio/virtio_ccw.c |  9 ++++++++-
-> > > >  drivers/virtio/Kconfig           | 13 +++++++++++++
-> > > >  drivers/virtio/virtio.c          |  2 ++
-> > > >  drivers/virtio/virtio_ring.c     | 12 ++++++++++++
-> > > >  include/linux/virtio_config.h    |  2 ++
-> > > >  5 files changed, 37 insertions(+), 1 deletion(-)
-> > > >
-> > > > diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> > > > index 97e51c34e6cf..1f6a358f65f0 100644
-> > > > --- a/drivers/s390/virtio/virtio_ccw.c
-> > > > +++ b/drivers/s390/virtio/virtio_ccw.c
-> > > > @@ -1136,8 +1136,13 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
-> > > >                       vcdev->err = -EIO;
-> > > >       }
-> > > >       virtio_ccw_check_activity(vcdev, activity);
-> > > > -     /* Interrupts are disabled here */
-> > > > +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
-> > > > +     /*
-> > > > +      * Paried with virtio_ccw_synchronize_cbs() and interrupts are
-> > > > +      * disabled here.
-> > > > +      */
-> > > >       read_lock(&vcdev->irq_lock);
-> > > > +#endif
-> > > >       for_each_set_bit(i, indicators(vcdev),
-> > > >                        sizeof(*indicators(vcdev)) * BITS_PER_BYTE) {
-> > > >               /* The bit clear must happen before the vring kick. */
-> > > > @@ -1146,7 +1151,9 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
-> > > >               vq = virtio_ccw_vq_by_ind(vcdev, i);
-> > > >               vring_interrupt(0, vq);
-> > > >       }
-> > > > +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
-> > > >       read_unlock(&vcdev->irq_lock);
-> > > > +#endif
-> > > >       if (test_bit(0, indicators2(vcdev))) {
-> > > >               virtio_config_changed(&vcdev->vdev);
-> > > >               clear_bit(0, indicators2(vcdev));
-> > > > diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
-> > > > index b5adf6abd241..c04f370a1e5c 100644
-> > > > --- a/drivers/virtio/Kconfig
-> > > > +++ b/drivers/virtio/Kconfig
-> > > > @@ -35,6 +35,19 @@ menuconfig VIRTIO_MENU
-> > > >
-> > > >  if VIRTIO_MENU
-> > > >
-> > > > +config VIRTIO_HARDEN_NOTIFICATION
-> > > > +        bool "Harden virtio notification"
-> > > > +        help
-> > > > +          Enable this to harden the device notifications and suppress
-> > > > +          those that happen at a time where notifications are illegal.
-> > > > +
-> > > > +          Experimental: Note that several drivers still have bugs that
-> > > > +          may cause crashes or hangs when correct handling of
-> > > > +          notifications is enforced; depending on the subset of
-> > > > +          drivers and devices you use, this may or may not work.
-> > > > +
-> > > > +          If unsure, say N.
-> > > > +
-> > > >  config VIRTIO_PCI
-> > > >       tristate "PCI driver for virtio devices"
-> > > >       depends on PCI
-> > > > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> > > > index ef04a96942bf..21dc08d2f32d 100644
-> > > > --- a/drivers/virtio/virtio.c
-> > > > +++ b/drivers/virtio/virtio.c
-> > > > @@ -220,6 +220,7 @@ static int virtio_features_ok(struct virtio_device *dev)
-> > > >   * */
-> > > >  void virtio_reset_device(struct virtio_device *dev)
-> > > >  {
-> > > > +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
-> > > >       /*
-> > > >        * The below virtio_synchronize_cbs() guarantees that any
-> > > >        * interrupt for this line arriving after
-> > > > @@ -228,6 +229,7 @@ void virtio_reset_device(struct virtio_device *dev)
-> > > >        */
-> > > >       virtio_break_device(dev);
-> > > >       virtio_synchronize_cbs(dev);
-> > > > +#endif
-> > > >
-> > > >       dev->config->reset(dev);
-> > > >  }
-> > > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> > > > index 13a7348cedff..d9d3b6e201fb 100644
-> > > > --- a/drivers/virtio/virtio_ring.c
-> > > > +++ b/drivers/virtio/virtio_ring.c
-> > > > @@ -1688,7 +1688,11 @@ static struct virtqueue *vring_create_virtqueue_packed(
-> > > >       vq->we_own_ring = true;
-> > > >       vq->notify = notify;
-> > > >       vq->weak_barriers = weak_barriers;
-> > > > +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
-> > > >       vq->broken = true;
-> > > > +#else
-> > > > +     vq->broken = false;
-> > > > +#endif
-> > > >       vq->last_used_idx = 0;
-> > > >       vq->event_triggered = false;
-> > > >       vq->num_added = 0;
-> > > > @@ -2135,9 +2139,13 @@ irqreturn_t vring_interrupt(int irq, void *_vq)
-> > > >       }
-> > > >
-> > > >       if (unlikely(vq->broken)) {
-> > > > +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
-> > > >               dev_warn_once(&vq->vq.vdev->dev,
-> > > >                             "virtio vring IRQ raised before DRIVER_OK");
-> > > >               return IRQ_NONE;
-> > > > +#else
-> > > > +             return IRQ_HANDLED;
-> > > > +#endif
-> > > >       }
-> > > >
-> > > >       /* Just a hint for performance: so it's ok that this can be racy! */
-> > > > @@ -2180,7 +2188,11 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
-> > > >       vq->we_own_ring = false;
-> > > >       vq->notify = notify;
-> > > >       vq->weak_barriers = weak_barriers;
-> > > > +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
-> > > >       vq->broken = true;
-> > > > +#else
-> > > > +     vq->broken = false;
-> > > > +#endif
-> > > >       vq->last_used_idx = 0;
-> > > >       vq->event_triggered = false;
-> > > >       vq->num_added = 0;
-> > > > diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-> > > > index 9a36051ceb76..d15c3cdda2d2 100644
-> > > > --- a/include/linux/virtio_config.h
-> > > > +++ b/include/linux/virtio_config.h
-> > > > @@ -257,6 +257,7 @@ void virtio_device_ready(struct virtio_device *dev)
-> > > >
-> > > >       WARN_ON(status & VIRTIO_CONFIG_S_DRIVER_OK);
-> > > >
-> > > > +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
-> > > >       /*
-> > > >        * The virtio_synchronize_cbs() makes sure vring_interrupt()
-> > > >        * will see the driver specific setup if it sees vq->broken
-> > > > @@ -264,6 +265,7 @@ void virtio_device_ready(struct virtio_device *dev)
-> > > >        */
-> > > >       virtio_synchronize_cbs(dev);
-> > > >       __virtio_unbreak_device(dev);
-> > > > +#endif
-> > > >       /*
-> > > >        * The transport should ensure the visibility of vq->broken
-> > > >        * before setting DRIVER_OK. See the comments for the transport
-> > > > --
-> > > > 2.25.1
-> > >
->
+Cheers,
+Longman
 
 _______________________________________________
 Virtualization mailing list
