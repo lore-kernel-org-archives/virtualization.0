@@ -1,92 +1,135 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A5570C43334
-	for <virtualization@archiver.kernel.org>; Mon, 27 Jun 2022 07:50:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 77C2CCCA473
+	for <virtualization@archiver.kernel.org>; Mon, 27 Jun 2022 07:58:19 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 00D5A6104C;
-	Mon, 27 Jun 2022 07:50:26 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 00D5A6104C
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=cSfth6hd
+	by smtp4.osuosl.org (Postfix) with ESMTP id EBF7F409BB;
+	Mon, 27 Jun 2022 07:58:18 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org EBF7F409BB
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=C7ttxDhF
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 4QmwBIswQ8P0; Mon, 27 Jun 2022 07:50:26 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id eya-uD-wPFtA; Mon, 27 Jun 2022 07:58:17 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 531756105A;
-	Mon, 27 Jun 2022 07:50:25 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 531756105A
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 14F1840948;
+	Mon, 27 Jun 2022 07:58:17 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 14F1840948
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1A95BC0039;
-	Mon, 27 Jun 2022 07:50:25 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D8759C0039;
+	Mon, 27 Jun 2022 07:58:16 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 74257C002D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2806BC002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Jun 2022 07:50:23 +0000 (UTC)
+ Mon, 27 Jun 2022 07:58:15 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 38DE2828A5
+ by smtp1.osuosl.org (Postfix) with ESMTP id 0297D82F92
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Jun 2022 07:50:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 38DE2828A5
+ Mon, 27 Jun 2022 07:58:15 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0297D82F92
 Authentication-Results: smtp1.osuosl.org;
- dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org
- header.a=rsa-sha256 header.s=casper.20170209 header.b=cSfth6hd
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=C7ttxDhF
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id z9mjpuIjdoqu
+ with ESMTP id vpeIDL5KtmzX
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Jun 2022 07:50:19 +0000 (UTC)
+ Mon, 27 Jun 2022 07:58:14 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 815EE8291A
-Received: from casper.infradead.org (casper.infradead.org
- [IPv6:2001:8b0:10b:1236::1])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 815EE8291A
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 01F6B82F6C
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 01F6B82F6C
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Jun 2022 07:50:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
- References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
- Content-Transfer-Encoding:Content-ID:Content-Description;
- bh=is7Eu+0H7HDxhCl/shZXvpRh5hl4o3ATrtA6ia1L7MM=; b=cSfth6hdEoIZb/zjDZH/w6rGSn
- R76PdgIKZ780DCSfYzkJXp5IBZDMxb52+uXGZiXBQjbKo5KL/rvd9a3nSyGT1rZNPRxLIZMgkjVQp
- rowAaHtUyn4/S/pZYfBZ6y/fHhNtO2Uv9Hac8y7aycjck1LMAU7YqAbvoAN4KeoNY54Hife7bxzjt
- bHkmaLXfjmW8vCSJqvr2DK+vEbtTLzCqOyiom77U+hkUBs/gN27FZ4vbBQcNZrBBXnXP+LPXYqBt1
- HyEpIHQ24fVwDJ1nqwfbt24kSsqwElik2fssi8berbCwF+1T2fHgjvz/Y537eLPmDTe1/6q3usZdq
- ytKmRQDQ==;
-Received: from dhcp-077-249-017-003.chello.nl ([77.249.17.3]
- helo=noisy.programming.kicks-ass.net)
- by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1o5jVF-00BAP8-KF; Mon, 27 Jun 2022 07:49:49 +0000
-Received: from hirez.programming.kicks-ass.net
- (hirez.programming.kicks-ass.net [192.168.1.225])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature RSA-PSS (4096 bits))
- (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id ED45A300091;
- Mon, 27 Jun 2022 09:49:46 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
- id AFAE429BBBBC2; Mon, 27 Jun 2022 09:49:46 +0200 (CEST)
-Date: Mon, 27 Jun 2022 09:49:46 +0200
-From: Peter Zijlstra <peterz@infradead.org>
-To: Guo Hui <guohui@uniontech.com>
-Subject: Re: [PATCH v2] x86/paravirt: useless assignment instructions cause
- Unixbench full core   performance degradation
-Message-ID: <YrlhGqqce0NCQ6hi@hirez.programming.kicks-ass.net>
-References: <f6b68466-968c-4a91-655a-23970280a072@redhat.com>
- <20220627021350.25714-1-guohui@uniontech.com>
+ Mon, 27 Jun 2022 07:58:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1656316692;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=gR36iGOYPRI7XA3wSmeHv9qI5C/E+Rq80TLdrN+txO0=;
+ b=C7ttxDhFu9D1WNQgJBoQgtayXbJONFghhNeTPD2Hzv4XcsffMOr2ladR+Z01wcr7PnlEhK
+ rXVNjveDFR387D8vebOR8DROc6IxFyLhRY7Z8DLfMUthRM8XX5PxnaE7tk5lINMYSaCJGg
+ 8TF0wYlHByrkfs6ydoPTO9Hwnkqdg24=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-230-HfPLeMm4OBenCfZntIfYOw-1; Mon, 27 Jun 2022 03:58:09 -0400
+X-MC-Unique: HfPLeMm4OBenCfZntIfYOw-1
+Received: by mail-wr1-f69.google.com with SMTP id
+ j14-20020adfa54e000000b0021b8c8204easo963808wrb.0
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 27 Jun 2022 00:58:09 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=gR36iGOYPRI7XA3wSmeHv9qI5C/E+Rq80TLdrN+txO0=;
+ b=e+mN7/NMWKH/u6OU+DH25TVIl0n6vKS295kiRdAFz5jd4QJZ6X+h/zNDVS5+616sIY
+ vVb6lShizjtmdyFLa3j1nnFLli2A8qWvK4t0PiWPGfUx86B9A/6/u8McEozXuyYmjru1
+ z/ZJIMGxBBeNqvT5ckFoJ33eMhT889xfrkHCsc8eyxP1Vlj7O8qZeV0UrCcOXxXl6CRt
+ onrM/2BQfv977mxKaSTxKfZXD2GK5SunEPCeNGdF6iKC6BpHz3e7+OkMwQz1koGG/2ec
+ zLVXalfUHWl1VQx8b9A5OEUaEeMLOFMgZ6Qziu9qaVYy1ZetiliHClnOGqcdzb61iFgR
+ IRKw==
+X-Gm-Message-State: AJIora/2rd+zoOFEeD0re56+eRSWaW+rWSWCtCJJDWKbpWaDB5SjXwTA
+ ZlImvU25P3n4QV2ej/9ggZteBn98Z9K0mJbmnJY6i8fhRvl0Ba8d/4tsfAlzB6l9lpANrEviNS4
+ 7tjIHwgoA57Nrnhz7Kp1UHQpg+IhDRyQCD/t+7pPSmw==
+X-Received: by 2002:a5d:6d8b:0:b0:21b:9804:1959 with SMTP id
+ l11-20020a5d6d8b000000b0021b98041959mr10779912wrs.605.1656316688454; 
+ Mon, 27 Jun 2022 00:58:08 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1u006yfHOEqWpSmwDiypaX+nb3Ki7jpntJhsVXGDo34rsHtagr1loLXbMMVyBM9VityuTjV+A==
+X-Received: by 2002:a5d:6d8b:0:b0:21b:9804:1959 with SMTP id
+ l11-20020a5d6d8b000000b0021b98041959mr10779871wrs.605.1656316688168; 
+ Mon, 27 Jun 2022 00:58:08 -0700 (PDT)
+Received: from redhat.com ([2.54.45.90]) by smtp.gmail.com with ESMTPSA id
+ l13-20020a5d674d000000b0021bbdc3375fsm6171009wrw.68.2022.06.27.00.58.01
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 27 Jun 2022 00:58:07 -0700 (PDT)
+Date: Mon, 27 Jun 2022 03:57:59 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH v10 25/41] virtio_pci: struct virtio_pci_common_cfg add
+ queue_notify_data
+Message-ID: <20220627034733-mutt-send-email-mst@kernel.org>
+References: <20220624025621.128843-1-xuanzhuo@linux.alibaba.com>
+ <20220624025621.128843-26-xuanzhuo@linux.alibaba.com>
+ <20220624025817-mutt-send-email-mst@kernel.org>
+ <CACGkMEseptD=45j3kQr0yciRxR679Jcig=292H07-RYC2vXmFQ@mail.gmail.com>
+ <20220627023841-mutt-send-email-mst@kernel.org>
+ <CACGkMEvy8xF2T_vubKeUEPC2aroO_fbB0Xe8nnxK4OBUgAS+Gw@mail.gmail.com>
 MIME-Version: 1.0
+In-Reply-To: <CACGkMEvy8xF2T_vubKeUEPC2aroO_fbB0Xe8nnxK4OBUgAS+Gw@mail.gmail.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-In-Reply-To: <20220627021350.25714-1-guohui@uniontech.com>
-Cc: jgross@suse.com, x86@kernel.org, hpa@zytor.com, pv-drivers@vmware.com,
- boqun.feng@gmail.com, dave.hansen@linux.intel.com,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- mingo@redhat.com, bp@alien8.de, amakhalov@vmware.com, longman@redhat.com,
- tglx@linutronix.de, will@kernel.org, wangxiaohua@uniontech.com
+Cc: Vadim Pasternak <vadimp@nvidia.com>, linux-remoteproc@vger.kernel.org,
+ Alexei Starovoitov <ast@kernel.org>,
+ virtualization <virtualization@lists.linux-foundation.org>,
+ Eric Dumazet <edumazet@google.com>, Alexander Gordeev <agordeev@linux.ibm.com>,
+ kangjie.xu@linux.alibaba.com, Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+ kvm <kvm@vger.kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
+ Richard Weinberger <richard@nod.at>,
+ Vincent Whitchurch <vincent.whitchurch@axis.com>,
+ John Fastabend <john.fastabend@gmail.com>, Halil Pasic <pasic@linux.ibm.com>,
+ Jakub Kicinski <kuba@kernel.org>, platform-driver-x86@vger.kernel.org,
+ Eric Farman <farman@linux.ibm.com>, Jesper Dangaard Brouer <hawk@kernel.org>,
+ Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
+ Heiko Carstens <hca@linux.ibm.com>, linux-um@lists.infradead.org,
+ Mark Gross <markgross@kernel.org>, Hans de Goede <hdegoede@redhat.com>,
+ Bjorn Andersson <bjorn.andersson@linaro.org>,
+ "open list:XDP \(eXpress Data Path\)" <bpf@vger.kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Mathieu Poirier <mathieu.poirier@linaro.org>,
+ netdev <netdev@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Johannes Berg <johannes@sipsolutions.net>,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -103,98 +146,83 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Jun 27, 2022 at 10:13:50AM +0800, Guo Hui wrote:
-> The instructions assigned to the vcpu_is_preempted function parameter
-> in the X86 architecture physical machine are redundant instructions,
-> causing the multi-core performance of Unixbench to drop by about 4% to 5%.
-> The C function is as follows:
-> static bool vcpu_is_preempted(long vcpu);
+On Mon, Jun 27, 2022 at 03:45:30PM +0800, Jason Wang wrote:
+> On Mon, Jun 27, 2022 at 2:39 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> >
+> > On Mon, Jun 27, 2022 at 10:30:42AM +0800, Jason Wang wrote:
+> > > On Fri, Jun 24, 2022 at 2:59 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > >
+> > > > On Fri, Jun 24, 2022 at 10:56:05AM +0800, Xuan Zhuo wrote:
+> > > > > Add queue_notify_data in struct virtio_pci_common_cfg, which comes from
+> > > > > here https://github.com/oasis-tcs/virtio-spec/issues/89
+> > > > >
+> > > > > For not breaks uABI, add a new struct virtio_pci_common_cfg_notify.
+> > > >
+> > > > What exactly is meant by not breaking uABI?
+> > > > Users are supposed to be prepared for struct size to change ... no?
+> > >
+> > > Not sure, any doc for this?
+> > >
+> > > Thanks
+> >
+> >
+> > Well we have this:
+> >
+> >         The drivers SHOULD only map part of configuration structure
+> >         large enough for device operation.  The drivers MUST handle
+> >         an unexpectedly large \field{length}, but MAY check that \field{length}
+> >         is large enough for device operation.
 > 
-> The parameter 'vcpu' in the function osq_lock
-> that calls the function vcpu_is_preempted is assigned as follows:
+> Yes, but that's the device/driver interface. What's done here is the
+> userspace/kernel.
 > 
-> The C code is in the function node_cpu:
-> cpu = node->cpu - 1;
+> Userspace may break if it uses e.g sizeof(struct virtio_pci_common_cfg)?
 > 
-> The instructions corresponding to the C code are:
-> mov 0x14(%rax),%edi
-> sub $0x1,%edi
-> 
-> The above instructions are unnecessary
-> in the X86 Native operating environment,
-> causing high cache-misses and degrading performance.
+> Thanks
 
-The above basically says that argument setup is not patched out and
-causes significant pain due to a cache-miss.
+Hmm I guess there's risk... but then how are we going to maintain this
+going forward?  Add a new struct on any change? Can we at least
+prevent this going forward somehow?
 
-> Signed-off-by: Guo Hui <guohui@uniontech.com>
-> ---
->  arch/x86/kernel/paravirt-spinlocks.c | 4 ++++
->  kernel/locking/osq_lock.c            | 9 ++++++++-
->  2 files changed, 12 insertions(+), 1 deletion(-)
-> 
-> diff --git a/arch/x86/kernel/paravirt-spinlocks.c b/arch/x86/kernel/paravirt-spinlocks.c
-> index 9e1ea99ad..7a55f8407 100644
-> --- a/arch/x86/kernel/paravirt-spinlocks.c
-> +++ b/arch/x86/kernel/paravirt-spinlocks.c
-> @@ -33,6 +33,8 @@ bool pv_is_native_vcpu_is_preempted(void)
->  		__raw_callee_save___native_vcpu_is_preempted;
->  }
->  
-> +DECLARE_STATIC_KEY_FALSE(preemted_key);
-> +
->  void __init paravirt_set_cap(void)
->  {
->  	if (!pv_is_native_spin_unlock())
-> @@ -40,4 +42,6 @@ void __init paravirt_set_cap(void)
->  
->  	if (!pv_is_native_vcpu_is_preempted())
->  		setup_force_cpu_cap(X86_FEATURE_VCPUPREEMPT);
-> +	else
-> +		static_branch_enable(&preemted_key);
->  }
 
-At least for x86 it makes sense to have the static_key default the other
-way around. That is, enable it along with vcpu_is_preempted().
+> >
+> >
+> >
+> > >
+> > > >
+> > > >
+> > > > > Since I want to add queue_reset after queue_notify_data, I submitted
+> > > > > this patch first.
+> > > > >
+> > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > > > Acked-by: Jason Wang <jasowang@redhat.com>
+> > > > > ---
+> > > > >  include/uapi/linux/virtio_pci.h | 7 +++++++
+> > > > >  1 file changed, 7 insertions(+)
+> > > > >
+> > > > > diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
+> > > > > index 3a86f36d7e3d..22bec9bd0dfc 100644
+> > > > > --- a/include/uapi/linux/virtio_pci.h
+> > > > > +++ b/include/uapi/linux/virtio_pci.h
+> > > > > @@ -166,6 +166,13 @@ struct virtio_pci_common_cfg {
+> > > > >       __le32 queue_used_hi;           /* read-write */
+> > > > >  };
+> > > > >
+> > > > > +struct virtio_pci_common_cfg_notify {
+> > > > > +     struct virtio_pci_common_cfg cfg;
+> > > > > +
+> > > > > +     __le16 queue_notify_data;       /* read-write */
+> > > > > +     __le16 padding;
+> > > > > +};
+> > > > > +
+> > > > >  /* Fields in VIRTIO_PCI_CAP_PCI_CFG: */
+> > > > >  struct virtio_pci_cfg_cap {
+> > > > >       struct virtio_pci_cap cap;
+> > > > > --
+> > > > > 2.31.0
+> > > >
+> >
 
-> diff --git a/kernel/locking/osq_lock.c b/kernel/locking/osq_lock.c
-> index d5610ad52..a8798e701 100644
-> --- a/kernel/locking/osq_lock.c
-> +++ b/kernel/locking/osq_lock.c
-> @@ -22,9 +22,16 @@ static inline int encode_cpu(int cpu_nr)
->  	return cpu_nr + 1;
->  }
->  
-> +DEFINE_STATIC_KEY_FALSE(preemted_key);
-> +
->  static inline int node_cpu(struct optimistic_spin_node *node)
->  {
-> -	return node->cpu - 1;
-> +	int cpu = 0;
-> +
-> +	if (!static_branch_unlikely(&preemted_key))
-> +		cpu = node->cpu - 1;
-> +
-> +	return cpu;
->  }
-
-Would not something like:
-
-static inline bool
-vcpu_is_preempted_node(struct optimistic_spin_node *node)
-{
-	if (!static_branch_unlikely(&vcpu_has_preemption))
-		return false;
-
-	return vcpu_is_preempted(node_cpu(node->prev));
-}
-
-And then use that like:
-
-	if (smp_cond_load_relaxed(&node->locked, VAL || need_resched() ||
-				  vcpu_is_preempted_node(node)))
-
-Not generate better code still?
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
