@@ -1,92 +1,113 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5A889C433EF
-	for <virtualization@archiver.kernel.org>; Mon, 27 Jun 2022 15:42:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AE99FC433EF
+	for <virtualization@archiver.kernel.org>; Mon, 27 Jun 2022 15:50:43 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id D802A4194B;
-	Mon, 27 Jun 2022 15:42:50 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D802A4194B
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=susede1 header.b=O4sPJ9Is
+	by smtp1.osuosl.org (Postfix) with ESMTP id 45C1F826C8;
+	Mon, 27 Jun 2022 15:50:43 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 45C1F826C8
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=SN6LFtaZ
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id owcfaN8ZrtPt; Mon, 27 Jun 2022 15:42:49 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id BF9E4417C9;
-	Mon, 27 Jun 2022 15:42:48 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org BF9E4417C9
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id sX9MkmSdfvK0; Mon, 27 Jun 2022 15:50:42 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id CE6DD8244D;
+	Mon, 27 Jun 2022 15:50:41 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CE6DD8244D
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8DADEC0039;
-	Mon, 27 Jun 2022 15:42:48 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 67CD8C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 84FA6C0039;
+	Mon, 27 Jun 2022 15:50:41 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1149CC002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Jun 2022 15:42:47 +0000 (UTC)
+ Mon, 27 Jun 2022 15:50:40 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 3AD3D60BBE
+ by smtp2.osuosl.org (Postfix) with ESMTP id CB7B240472
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Jun 2022 15:42:47 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3AD3D60BBE
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com
- header.a=rsa-sha256 header.s=susede1 header.b=O4sPJ9Is
+ Mon, 27 Jun 2022 15:50:39 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org CB7B240472
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=SN6LFtaZ
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id cbvb2lO1KR0j
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id YcwTHpZnpIiC
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Jun 2022 15:42:46 +0000 (UTC)
+ Mon, 27 Jun 2022 15:50:39 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D5FA360B53
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
- by smtp3.osuosl.org (Postfix) with ESMTPS id D5FA360B53
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C90864021C
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id C90864021C
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Jun 2022 15:42:45 +0000 (UTC)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by smtp-out1.suse.de (Postfix) with ESMTPS id 3CC3521D83;
- Mon, 27 Jun 2022 15:42:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
- t=1656344562; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=pQybKn32N48HmEhihiaHspXbcJxTi0638ZiC2Fawxw4=;
- b=O4sPJ9IsI0U9zHRnmQ3Jw+6+3mM9sWtFjV6FKGKf1VLOU6oxPkk8Yb/wynPtiv3w9dpRno
- ljegzUU5AxWUDroi5N9ZUehJhQoFgoU35jpmgu8sigensn3usuKl73+XZgF93XESzsHhN1
- sk5xXviPW1D4+AQ99R/Mtiv1jZQ8dB8=
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id A7C9213AB2;
- Mon, 27 Jun 2022 15:42:41 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
- by imap2.suse-dmz.suse.de with ESMTPSA id 3r2oJ/HPuWIdXQAAMHmgww
- (envelope-from <jgross@suse.com>); Mon, 27 Jun 2022 15:42:41 +0000
-Message-ID: <85b1fc01-ff9b-7802-d624-1450c9b9bae5@suse.com>
-Date: Mon, 27 Jun 2022 17:42:41 +0200
+ Mon, 27 Jun 2022 15:50:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1656345037;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+ bh=d2N3t1uLLFd3tbeSCYzNndzlSKHoLHoiZV7zauWsqwQ=;
+ b=SN6LFtaZA9loga4a+zsprkppHXSNgPe1rc/weX3p/Z0UjoQdM8+qAI2IeKPJN/l0PNXnsf
+ L2RaRlqLjKPqEbo0YLG36z6tBz1euFyWY98sZZ1TjJbFWJp4awdLlTdvvduTtZEeDoPqbI
+ Ue9B1ryDlGsA0tAiJzdPJiV2r+rKHNQ=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-240-2Ll_NXOcMgu4Doyn78Pjtg-1; Mon, 27 Jun 2022 11:50:36 -0400
+X-MC-Unique: 2Ll_NXOcMgu4Doyn78Pjtg-1
+Received: by mail-ed1-f72.google.com with SMTP id
+ h16-20020a05640250d000b00435bab1a7b4so7488382edb.10
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 27 Jun 2022 08:50:35 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+ :content-disposition;
+ bh=d2N3t1uLLFd3tbeSCYzNndzlSKHoLHoiZV7zauWsqwQ=;
+ b=5R89+3JRqOCoIpJKFLv6O+e2HmhSRmBkEQpRJEy9I2ocW2LpGBd2Hl06htOJKxNa6t
+ svocgoy/q9e57RUWFmFMkiPSfgpX4sOjxNxijyWfMoC84e3zZBMwqZqxzlIaPqwauX1p
+ GJqxcwTZowsuGlvqBbPiEvl6/yTU3+XkDmDiYCZY3BJlBM/+egcqzZG5EtMxSrtZGB/B
+ SF2OP/hcFV4h9MiACWXO79C8H/ERIamBw4WvjpEEB93+Rwu1cwRMtNQ4IcYnbRTtpmod
+ 5BkY0DV65RdFKTt7WblpbWatQg8Up7XLNwTAH9TJQ+eLt7mZcuwfg+siOATBsPSx+IKc
+ 1tTg==
+X-Gm-Message-State: AJIora+EzKd52ShmFnUxnh9VwZ+s/ba/4/7SaHLAOqUKLBXArda3LrqC
+ xg2FXUngYyGxeB3r01IA1KfVfIn8YBgvHsFyjgF9Sk9HY+HjK6VXZ06KPyvb8vlFBMjA76ahz4J
+ R+zCsyr6JJswxHKXfLPSJA8xpYpT+wXdeBISEBF3nBQ==
+X-Received: by 2002:a05:6402:2929:b0:435:6dfc:c4f2 with SMTP id
+ ee41-20020a056402292900b004356dfcc4f2mr17235994edb.284.1656345034861; 
+ Mon, 27 Jun 2022 08:50:34 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1t9WduttwuVIwVX53FDNgXbP08lIvO3IwG/IkW/gZFLxJ/LK30Gor89dpwiWdlE1Y3HvzMjUQ==
+X-Received: by 2002:a05:6402:2929:b0:435:6dfc:c4f2 with SMTP id
+ ee41-20020a056402292900b004356dfcc4f2mr17235967edb.284.1656345034631; 
+ Mon, 27 Jun 2022 08:50:34 -0700 (PDT)
+Received: from redhat.com ([2a03:c5c0:207e:1f30:b6f8:324d:b101:20ff])
+ by smtp.gmail.com with ESMTPSA id
+ c20-20020a056402101400b004358cec9ce1sm7776739edu.65.2022.06.27.08.50.28
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 27 Jun 2022 08:50:33 -0700 (PDT)
+Date: Mon, 27 Jun 2022 11:50:24 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [GIT PULL] virtio,vdpa: fixes
+Message-ID: <20220627115024-mutt-send-email-mst@kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.10.0
-Subject: Re: [PATCH v4] x86/paravirt: useless assignment instructions cause
- Unixbench full core performance degradation
-Content-Language: en-US
-To: Guo Hui <guohui@uniontech.com>, peterz@infradead.org
-References: <YrlhGqqce0NCQ6hi@hirez.programming.kicks-ass.net>
- <20220627142732.31067-1-guohui@uniontech.com>
-In-Reply-To: <20220627142732.31067-1-guohui@uniontech.com>
-Cc: x86@kernel.org, hpa@zytor.com, pv-drivers@vmware.com, boqun.feng@gmail.com,
- dave.hansen@linux.intel.com, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, mingo@redhat.com, bp@alien8.de,
- amakhalov@vmware.com, longman@redhat.com, tglx@linutronix.de, will@kernel.org,
- wangxiaohua@uniontech.com
+X-Mutt-Fcc: =sent
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: stephan.gerhold@kernkonzept.com, kvm@vger.kernel.org, mst@redhat.com,
+ huangjie.albert@bytedance.com, netdev@vger.kernel.org, wangdeming@inspur.com,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ eperezma@redhat.com, liubo03@inspur.com, elic@nvidia.com,
+ gautam.dawar@xilinx.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -98,248 +119,75 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Juergen Gross via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Juergen Gross <jgross@suse.com>
-Content-Type: multipart/mixed; boundary="===============5608524173452789905=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============5608524173452789905==
-Content-Language: en-US
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------iSCdADmpAVLIlhHV90TlIiWG"
+The following changes since commit a111daf0c53ae91e71fd2bfe7497862d14132e3e:
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------iSCdADmpAVLIlhHV90TlIiWG
-Content-Type: multipart/mixed; boundary="------------xsQPT0vigC0MDWDdXN0Qc0gT";
- protected-headers="v1"
-From: Juergen Gross <jgross@suse.com>
-To: Guo Hui <guohui@uniontech.com>, peterz@infradead.org
-Cc: longman@redhat.com, srivatsa@csail.mit.edu, amakhalov@vmware.com,
- pv-drivers@vmware.com, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
- dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com, will@kernel.org,
- boqun.feng@gmail.com, virtualization@lists.linux-foundation.org,
- wangxiaohua@uniontech.com, linux-kernel@vger.kernel.org
-Message-ID: <85b1fc01-ff9b-7802-d624-1450c9b9bae5@suse.com>
-Subject: Re: [PATCH v4] x86/paravirt: useless assignment instructions cause
- Unixbench full core performance degradation
-References: <YrlhGqqce0NCQ6hi@hirez.programming.kicks-ass.net>
- <20220627142732.31067-1-guohui@uniontech.com>
-In-Reply-To: <20220627142732.31067-1-guohui@uniontech.com>
+  Linux 5.19-rc3 (2022-06-19 15:06:47 -0500)
 
---------------xsQPT0vigC0MDWDdXN0Qc0gT
-Content-Type: multipart/mixed; boundary="------------1MO0WdrZO2ScBFqWZ9ToNh1A"
+are available in the Git repository at:
 
---------------1MO0WdrZO2ScBFqWZ9ToNh1A
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
 
-T24gMjcuMDYuMjIgMTY6MjcsIEd1byBIdWkgd3JvdGU6DQo+IFRoZSBpbnN0cnVjdGlvbnMg
-YXNzaWduZWQgdG8gdGhlIHZjcHVfaXNfcHJlZW1wdGVkIGZ1bmN0aW9uIHBhcmFtZXRlcg0K
-PiBpbiB0aGUgWDg2IGFyY2hpdGVjdHVyZSBwaHlzaWNhbCBtYWNoaW5lIGFyZSByZWR1bmRh
-bnQgaW5zdHJ1Y3Rpb25zLA0KPiBjYXVzaW5nIHRoZSBtdWx0aS1jb3JlIHBlcmZvcm1hbmNl
-IG9mIFVuaXhiZW5jaCB0byBkcm9wIGJ5IGFib3V0IDQlIHRvIDUlLg0KPiBUaGUgQyBmdW5j
-dGlvbiBpcyBhcyBmb2xsb3dzOg0KPiBzdGF0aWMgYm9vbCB2Y3B1X2lzX3ByZWVtcHRlZChs
-b25nIHZjcHUpOw0KPiANCj4gVGhlIHBhcmFtZXRlciAndmNwdScgaW4gdGhlIGZ1bmN0aW9u
-IG9zcV9sb2NrDQo+IHRoYXQgY2FsbHMgdGhlIGZ1bmN0aW9uIHZjcHVfaXNfcHJlZW1wdGVk
-IGlzIGFzc2lnbmVkIGFzIGZvbGxvd3M6DQo+IA0KPiBUaGUgQyBjb2RlIGlzIGluIHRoZSBm
-dW5jdGlvbiBub2RlX2NwdToNCj4gY3B1ID0gbm9kZS0+Y3B1IC0gMTsNCj4gDQo+IFRoZSBp
-bnN0cnVjdGlvbnMgY29ycmVzcG9uZGluZyB0byB0aGUgQyBjb2RlIGFyZToNCj4gbW92IDB4
-MTQoJXJheCksJWVkaQ0KPiBzdWIgJDB4MSwlZWRpDQo+IA0KPiBUaGUgYWJvdmUgaW5zdHJ1
-Y3Rpb25zIGFyZSB1bm5lY2Vzc2FyeQ0KPiBpbiB0aGUgWDg2IE5hdGl2ZSBvcGVyYXRpbmcg
-ZW52aXJvbm1lbnQsDQo+IGNhdXNpbmcgaGlnaCBjYWNoZS1taXNzZXMgYW5kIGRlZ3JhZGlu
-ZyBwZXJmb3JtYW5jZS4NCj4gDQo+IFRoaXMgcGF0Y2ggdXNlcyBzdGF0aWNfa2V5IHRvIG5v
-dCBleGVjdXRlIHRoaXMgaW5zdHJ1Y3Rpb24NCj4gaW4gdGhlIE5hdGl2ZSBydW50aW1lIGVu
-dmlyb25tZW50Lg0KPiANCj4gVGhlIHBhdGNoIGVmZmVjdCBpcyBhcyBmb2xsb3dzIHR3byBt
-YWNoaW5lcywNCj4gVW5peGJlbmNoIHJ1bnMgd2l0aCBmdWxsIGNvcmUgc2NvcmU6DQo+IA0K
-PiAxLiBNYWNoaW5lIGNvbmZpZ3VyYXRpb246DQo+IEludGVsKFIpIFhlb24oUikgU2lsdmVy
-IDQyMTAgQ1BVIEAgMi4yMEdIeg0KPiBDUFUgY29yZTogNDANCj4gTWVtb3J5OiAyNTZHDQo+
-IE9TIEtlcm5lbDogNS4xOS1yYzMNCj4gDQo+IEJlZm9yZSB1c2luZyB0aGUgcGF0Y2g6DQo+
-IFN5c3RlbSBCZW5jaG1hcmtzIEluZGV4IFZhbHVlcyAgICAgICAgICAgICAgIEJBU0VMSU5F
-ICAgICAgIFJFU1VMVCAgICBJTkRFWA0KPiBEaHJ5c3RvbmUgMiB1c2luZyByZWdpc3RlciB2
-YXJpYWJsZXMgICAgICAgICAxMTY3MDAuMCAgOTQ4MzI2NTkxLjIgIDgxMjYxLjkNCj4gRG91
-YmxlLVByZWNpc2lvbiBXaGV0c3RvbmUgICAgICAgICAgICAgICAgICAgICAgIDU1LjAgICAg
-IDIxMTk4Ni4zICAzODU0My4wDQo+IEV4ZWNsIFRocm91Z2hwdXQgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICA0My4wICAgICAgNDM0NTMuMiAgMTAxMDUuNA0KPiBGaWxlIENv
-cHkgMTAyNCBidWZzaXplIDIwMDAgbWF4YmxvY2tzICAgICAgICAgIDM5NjAuMCAgICAgNDM4
-OTM2LjIgICAxMTA4LjQNCj4gRmlsZSBDb3B5IDI1NiBidWZzaXplIDUwMCBtYXhibG9ja3Mg
-ICAgICAgICAgICAxNjU1LjAgICAgIDExODE5Ny40ICAgIDcxNC4yDQo+IEZpbGUgQ29weSA0
-MDk2IGJ1ZnNpemUgODAwMCBtYXhibG9ja3MgICAgICAgICAgNTgwMC4wICAgIDE1MzQ2NzQu
-NyAgIDI2NDYuMA0KPiBQaXBlIFRocm91Z2hwdXQgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgMTI0NDAuMCAgIDQ2NDgyMTA3LjYgIDM3MzY1LjANCj4gUGlwZS1iYXNlZCBDb250
-ZXh0IFN3aXRjaGluZyAgICAgICAgICAgICAgICAgICA0MDAwLjAgICAgMTkxNTA5NC4yICAg
-NDc4Ny43DQo+IFByb2Nlc3MgQ3JlYXRpb24gICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgIDEyNi4wICAgICAgODU0NDIuMiAgIDY3ODEuMQ0KPiBTaGVsbCBTY3JpcHRzICgxIGNv
-bmN1cnJlbnQpICAgICAgICAgICAgICAgICAgICAgNDIuNCAgICAgIDY5NDAwLjcgIDE2MzY4
-LjENCj4gU2hlbGwgU2NyaXB0cyAoOCBjb25jdXJyZW50KSAgICAgICAgICAgICAgICAgICAg
-ICA2LjAgICAgICAgODg3Ny4yICAxNDc5NS4zDQo+IFN5c3RlbSBDYWxsIE92ZXJoZWFkICAg
-ICAgICAgICAgICAgICAgICAgICAgICAxNTAwMC4wICAgIDQ3MTQ5MDYuMSAgIDMxNDMuMw0K
-PiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgID09PT09PT09DQo+IFN5c3RlbSBCZW5jaG1hcmtzIEluZGV4IFNj
-b3JlICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDc5MjMuMw0KPiAN
-Cj4gQWZ0ZXIgdXNpbmcgdGhlIHBhdGNoOg0KPiBTeXN0ZW0gQmVuY2htYXJrcyBJbmRleCBW
-YWx1ZXMgICAgICAgICAgICAgICBCQVNFTElORSAgICAgICBSRVNVTFQgICAgSU5ERVgNCj4g
-RGhyeXN0b25lIDIgdXNpbmcgcmVnaXN0ZXIgdmFyaWFibGVzICAgICAgICAgMTE2NzAwLjAg
-IDk0NzAzMjkxNS41ICA4MTE1MS4xDQo+IERvdWJsZS1QcmVjaXNpb24gV2hldHN0b25lICAg
-ICAgICAgICAgICAgICAgICAgICA1NS4wICAgICAyMTE5NzEuMiAgMzg1NDAuMg0KPiBFeGVj
-bCBUaHJvdWdocHV0ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgNDMuMCAgICAg
-IDQ1MDU0LjggIDEwNDc3LjkNCj4gRmlsZSBDb3B5IDEwMjQgYnVmc2l6ZSAyMDAwIG1heGJs
-b2NrcyAgICAgICAgICAzOTYwLjAgICAgIDUxNTAyNC45ICAgMTMwMC42DQo+IEZpbGUgQ29w
-eSAyNTYgYnVmc2l6ZSA1MDAgbWF4YmxvY2tzICAgICAgICAgICAgMTY1NS4wICAgICAxNDYz
-NTQuNiAgICA4ODQuMw0KPiBGaWxlIENvcHkgNDA5NiBidWZzaXplIDgwMDAgbWF4YmxvY2tz
-ICAgICAgICAgIDU4MDAuMCAgICAxNjc5OTk1LjkgICAyODk2LjUNCj4gUGlwZSBUaHJvdWdo
-cHV0ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDEyNDQwLjAgICA0NjQ2NjM5NC4y
-ICAzNzM1Mi40DQo+IFBpcGUtYmFzZWQgQ29udGV4dCBTd2l0Y2hpbmcgICAgICAgICAgICAg
-ICAgICAgNDAwMC4wICAgIDE4OTgyMjEuNCAgIDQ3NDUuNg0KPiBQcm9jZXNzIENyZWF0aW9u
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAxMjYuMCAgICAgIDg1NjUzLjEgICA2
-Nzk3LjkNCj4gU2hlbGwgU2NyaXB0cyAoMSBjb25jdXJyZW50KSAgICAgICAgICAgICAgICAg
-ICAgIDQyLjQgICAgICA2OTQzNy4zICAxNjM3Ni43DQo+IFNoZWxsIFNjcmlwdHMgKDggY29u
-Y3VycmVudCkgICAgICAgICAgICAgICAgICAgICAgNi4wICAgICAgIDg4OTguOSAgMTQ4MzEu
-NA0KPiBTeXN0ZW0gQ2FsbCBPdmVyaGVhZCAgICAgICAgICAgICAgICAgICAgICAgICAgMTUw
-MDAuMCAgICA0NjU4NzQ2LjcgICAzMTA1LjgNCj4gICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA9PT09PT09PQ0K
-PiBTeXN0ZW0gQmVuY2htYXJrcyBJbmRleCBTY29yZSAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICA4MjQ4LjgNCj4gDQo+IDIuIE1hY2hpbmUgY29uZmlndXJhdGlv
-bjoNCj4gSHlnb24gQzg2IDcxODUgMzItY29yZSBQcm9jZXNzb3INCj4gQ1BVIGNvcmU6IDEy
-OA0KPiBNZW1vcnk6IDI1NkcNCj4gT1MgS2VybmVsOiA1LjE5LXJjMw0KPiANCj4gQmVmb3Jl
-IHVzaW5nIHRoZSBwYXRjaDoNCj4gU3lzdGVtIEJlbmNobWFya3MgSW5kZXggVmFsdWVzICAg
-ICAgICAgICAgICAgQkFTRUxJTkUgICAgICAgUkVTVUxUICAgIElOREVYDQo+IERocnlzdG9u
-ZSAyIHVzaW5nIHJlZ2lzdGVyIHZhcmlhYmxlcyAgICAgICAgIDExNjcwMC4wIDIyNTY2NDQw
-NjguMyAxOTMzNzEuNA0KPiBEb3VibGUtUHJlY2lzaW9uIFdoZXRzdG9uZSAgICAgICAgICAg
-ICAgICAgICAgICAgNTUuMCAgICAgNDM4OTY5LjkgIDc5ODEyLjcNCj4gRXhlY2wgVGhyb3Vn
-aHB1dCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDQzLjAgICAgICAxMDEwOC42
-ICAgMjM1MC44DQo+IEZpbGUgQ29weSAxMDI0IGJ1ZnNpemUgMjAwMCBtYXhibG9ja3MgICAg
-ICAgICAgMzk2MC4wICAgICAyNzU4OTIuOCAgICA2OTYuNw0KPiBGaWxlIENvcHkgMjU2IGJ1
-ZnNpemUgNTAwIG1heGJsb2NrcyAgICAgICAgICAgIDE2NTUuMCAgICAgIDcyMDgyLjcgICAg
-NDM1LjUNCj4gRmlsZSBDb3B5IDQwOTYgYnVmc2l6ZSA4MDAwIG1heGJsb2NrcyAgICAgICAg
-ICA1ODAwLjAgICAgIDkyNTA0My40ICAgMTU5NC45DQo+IFBpcGUgVGhyb3VnaHB1dCAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAxMjQ0MC4wICAxMTg5MDU1MTIuNSAgOTU1ODMu
-Mg0KPiBQaXBlLWJhc2VkIENvbnRleHQgU3dpdGNoaW5nICAgICAgICAgICAgICAgICAgIDQw
-MDAuMCAgICA3ODIwOTQ1LjcgIDE5NTUyLjQNCj4gUHJvY2VzcyBDcmVhdGlvbiAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgMTI2LjAgICAgICAzMTIzMy4zICAgMjQ3OC44DQo+
-IFNoZWxsIFNjcmlwdHMgKDEgY29uY3VycmVudCkgICAgICAgICAgICAgICAgICAgICA0Mi40
-ICAgICAgNDkwNDIuOCAgMTE1NjYuNw0KPiBTaGVsbCBTY3JpcHRzICg4IGNvbmN1cnJlbnQp
-ICAgICAgICAgICAgICAgICAgICAgIDYuMCAgICAgICA2NjU2LjAgIDExMDkzLjMNCj4gU3lz
-dGVtIENhbGwgT3ZlcmhlYWQgICAgICAgICAgICAgICAgICAgICAgICAgIDE1MDAwLjAgICAg
-NjgxNjA0Ny41ICAgNDU0NC4wDQo+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPT09PT09PT0NCj4gU3lzdGVt
-IEJlbmNobWFya3MgSW5kZXggU2NvcmUgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgNzc1Ni42DQo+IA0KPiBBZnRlciB1c2luZyB0aGUgcGF0Y2g6DQo+IFN5c3Rl
-bSBCZW5jaG1hcmtzIEluZGV4IFZhbHVlcyAgICAgICAgICAgICAgIEJBU0VMSU5FICAgICAg
-IFJFU1VMVCAgICBJTkRFWA0KPiBEaHJ5c3RvbmUgMiB1c2luZyByZWdpc3RlciB2YXJpYWJs
-ZXMgICAgICAgICAxMTY3MDAuMCAyMjUyMjcyOTI5LjQgMTkyOTk2LjgNCj4gRG91YmxlLVBy
-ZWNpc2lvbiBXaGV0c3RvbmUgICAgICAgICAgICAgICAgICAgICAgIDU1LjAgICAgIDQ1MTg0
-Ny4yICA4MjE1NC4wDQo+IEV4ZWNsIFRocm91Z2hwdXQgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICA0My4wICAgICAgMTA1OTUuMSAgIDI0NjQuMA0KPiBGaWxlIENvcHkgMTAy
-NCBidWZzaXplIDIwMDAgbWF4YmxvY2tzICAgICAgICAgIDM5NjAuMCAgICAgMzAxMjc5LjMg
-ICAgNzYwLjgNCj4gRmlsZSBDb3B5IDI1NiBidWZzaXplIDUwMCBtYXhibG9ja3MgICAgICAg
-ICAgICAxNjU1LjAgICAgICA3OTI5MS4zICAgIDQ3OS4xDQo+IEZpbGUgQ29weSA0MDk2IGJ1
-ZnNpemUgODAwMCBtYXhibG9ja3MgICAgICAgICAgNTgwMC4wICAgIDEwMzk3NTUuMiAgIDE3
-OTIuNw0KPiBQaXBlIFRocm91Z2hwdXQgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-MTI0NDAuMCAgMTE4NzAxNDY4LjEgIDk1NDE5LjINCj4gUGlwZS1iYXNlZCBDb250ZXh0IFN3
-aXRjaGluZyAgICAgICAgICAgICAgICAgICA0MDAwLjAgICAgODA3MzQ1My4zICAyMDE4My42
-DQo+IFByb2Nlc3MgQ3JlYXRpb24gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDEy
-Ni4wICAgICAgMzM0NDAuOSAgIDI2NTQuMA0KPiBTaGVsbCBTY3JpcHRzICgxIGNvbmN1cnJl
-bnQpICAgICAgICAgICAgICAgICAgICAgNDIuNCAgICAgIDUyNzIyLjYgIDEyNDM0LjYNCj4g
-U2hlbGwgU2NyaXB0cyAoOCBjb25jdXJyZW50KSAgICAgICAgICAgICAgICAgICAgICA2LjAg
-ICAgICAgNzA1MC40ICAxMTc1MC42DQo+IFN5c3RlbSBDYWxsIE92ZXJoZWFkICAgICAgICAg
-ICAgICAgICAgICAgICAgICAxNTAwMC4wICAgIDY4MzQzNzEuNSAgIDQ1NTYuMg0KPiAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgID09PT09PT09DQo+IFN5c3RlbSBCZW5jaG1hcmtzIEluZGV4IFNjb3JlICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDgxNTcuOA0KPiANCj4gU2ln
-bmVkLW9mZi1ieTogR3VvIEh1aSA8Z3VvaHVpQHVuaW9udGVjaC5jb20+DQoNClJldmlld2Vk
-LWJ5OiBKdWVyZ2VuIEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+DQoNCg0KSnVlcmdlbg0K
---------------1MO0WdrZO2ScBFqWZ9ToNh1A
-Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Description: OpenPGP public key
-Content-Transfer-Encoding: quoted-printable
+for you to fetch changes up to c7cc29aaebf9eaa543b4c70801e0ecef1101b3c8:
 
------BEGIN PGP PUBLIC KEY BLOCK-----
+  virtio_ring: make vring_create_virtqueue_split prettier (2022-06-27 08:05:35 -0400)
 
-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
-jR/i1DG86lem3iBDXzXsZDn8R38=3D
-=3D2wuH
------END PGP PUBLIC KEY BLOCK-----
+----------------------------------------------------------------
+virtio,vdpa: fixes
 
---------------1MO0WdrZO2ScBFqWZ9ToNh1A--
+Fixes all over the place, most notably we are disabling
+IRQ hardening (again!).
 
---------------xsQPT0vigC0MDWDdXN0Qc0gT--
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
---------------iSCdADmpAVLIlhHV90TlIiWG
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
+----------------------------------------------------------------
+Bo Liu (1):
+      virtio: Remove unnecessary variable assignments
 
------BEGIN PGP SIGNATURE-----
+Deming Wang (1):
+      virtio_ring: make vring_create_virtqueue_split prettier
 
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmK5z/EFAwAAAAAACgkQsN6d1ii/Ey/J
-zwf9FZgEbdraRn5G+NoeRnlfdtIBcSciN4n5gKYGDUsmCRAG0eSCaebbCDNIJQHgXDEVjQwVlOLZ
-YQuLbEWI5g2NRZZMBjEgLF9IXJOVhEo09dlrWCFlASeIkV6wTFgsuP/G8GlLbYReONAEYpUjjDuO
-ldytTU3OOH3jhah+/s2LAhepgcEUgImgAFrd5SLw8mNHqYng/qwEGCAgixWFUD0Uo3lhZFvp5Hgl
-ARSzag4jS/rdkQYBUaS/CwzhQ/fMPS6uAr8PGyHIjxByRRAvKG8Her9AJKtxstC2DOyaWgT/LM+m
-1WroP9hGXUm3ByKpbFb0tHin2eb4J99IR/6KcCKsbQ==
-=ixpK
------END PGP SIGNATURE-----
+Eli Cohen (2):
+      vdpa/mlx5: Update Control VQ callback information
+      vdpa/mlx5: Initialize CVQ vringh only once
 
---------------iSCdADmpAVLIlhHV90TlIiWG--
+Jason Wang (3):
+      virtio: disable notification hardening by default
+      virtio-net: fix race between ndo_open() and virtio_device_ready()
+      caif_virtio: fix race between virtio_device_ready() and ndo_open()
 
---===============5608524173452789905==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Parav Pandit (1):
+      vduse: Tie vduse mgmtdev and its device
+
+Stefano Garzarella (1):
+      vhost-vdpa: call vhost_vdpa_cleanup during the release
+
+Stephan Gerhold (2):
+      virtio_mmio: Add missing PM calls to freeze/restore
+      virtio_mmio: Restore guest page size on resume
+
+huangjie.albert (1):
+      virtio_ring : keep used_wrap_counter in vq->last_used_idx
+
+ drivers/net/caif/caif_virtio.c         | 10 +++-
+ drivers/net/virtio_net.c               |  8 ++-
+ drivers/s390/virtio/virtio_ccw.c       |  9 +++-
+ drivers/vdpa/mlx5/net/mlx5_vnet.c      | 33 ++++++++-----
+ drivers/vdpa/vdpa_user/vduse_dev.c     | 60 ++++++++++++++---------
+ drivers/vhost/vdpa.c                   |  2 +-
+ drivers/virtio/Kconfig                 | 13 +++++
+ drivers/virtio/virtio.c                |  2 +
+ drivers/virtio/virtio_mmio.c           | 26 ++++++++++
+ drivers/virtio/virtio_pci_modern_dev.c |  2 -
+ drivers/virtio/virtio_ring.c           | 89 +++++++++++++++++++++++-----------
+ include/linux/virtio_config.h          |  2 +
+ 12 files changed, 187 insertions(+), 69 deletions(-)
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============5608524173452789905==--
