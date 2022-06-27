@@ -1,123 +1,114 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id ED5D1C433EF
-	for <virtualization@archiver.kernel.org>; Mon, 27 Jun 2022 09:52:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 17211C433EF
+	for <virtualization@archiver.kernel.org>; Mon, 27 Jun 2022 10:01:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 767F040136;
-	Mon, 27 Jun 2022 09:52:42 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 767F040136
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=a2iihYPH
+	by smtp1.osuosl.org (Postfix) with ESMTP id 916BD83DEE;
+	Mon, 27 Jun 2022 10:01:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 916BD83DEE
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=WjnT3nZ0
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id pdZVTgoOIu9W; Mon, 27 Jun 2022 09:52:41 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 49FCF40BE3;
-	Mon, 27 Jun 2022 09:52:40 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 49FCF40BE3
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id awJYk04S-OmF; Mon, 27 Jun 2022 10:01:33 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id F3524837AC;
+	Mon, 27 Jun 2022 10:01:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org F3524837AC
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E989DC0039;
-	Mon, 27 Jun 2022 09:52:39 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D4AD3C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D0011C0039;
+	Mon, 27 Jun 2022 10:01:32 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 89364C002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Jun 2022 09:52:38 +0000 (UTC)
+ Mon, 27 Jun 2022 10:01:31 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id A061660B0F
+ by smtp4.osuosl.org (Postfix) with ESMTP id 638C741904
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Jun 2022 09:52:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A061660B0F
-Authentication-Results: smtp3.osuosl.org;
+ Mon, 27 Jun 2022 10:01:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 638C741904
+Authentication-Results: smtp4.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=a2iihYPH
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=WjnT3nZ0
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id xUXd32iokDu3
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id gDSTcIBZ27ES
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Jun 2022 09:52:37 +0000 (UTC)
+ Mon, 27 Jun 2022 10:01:30 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 43A6460B0B
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2BC9A415BA
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 43A6460B0B
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 2BC9A415BA
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Jun 2022 09:52:37 +0000 (UTC)
+ Mon, 27 Jun 2022 10:01:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1656323556;
+ s=mimecast20190719; t=1656324088;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=FA4/e7nzPal3eOwEx0TnFAtrjsOunXWeNfCJ/Hz8a2U=;
- b=a2iihYPHZCzxkdUUsW2fxnJiyHELP/kD0q6+omFfZpiYSrZ7OiurQ1N8PKVvYeCme+H4LP
- JdWk3288iUIO7loDgRd6V5UrW8XJt/p8t+/bWKNQmy5zM4zkfqFe84Lc1kvSWCfSVg4823
- jRepUH4eoCHTJ/Bi5k7QXj9zgXwFpEw=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=XfIYzOFq9+jwXTV0OEEFxQKh2b4fXVCS3UReweWTk08=;
+ b=WjnT3nZ0TJW/DocrYhkxmD1ysgBXs7SfBNp9jPUZWfAYjX1hAgHYsQ4sdIWURUaA/4EZkc
+ o71lfUC9VXHeXTIC3aQFlAAklA3R9AqgpEhM6Q8fVhcRgTgmVwVSqCorCQeiQivjxmg0P9
+ /iXoNYm5MYa/rolOddVPmeuggkwwIus=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-205-9BcwmBE-Pom4HdGJn0rT8w-1; Mon, 27 Jun 2022 05:52:34 -0400
-X-MC-Unique: 9BcwmBE-Pom4HdGJn0rT8w-1
-Received: by mail-wm1-f71.google.com with SMTP id
- k32-20020a05600c1ca000b0039c4cf75023so7074688wms.9
+ us-mta-522-pl1z_j70MES1kCxzZ2fJ6A-1; Mon, 27 Jun 2022 06:01:27 -0400
+X-MC-Unique: pl1z_j70MES1kCxzZ2fJ6A-1
+Received: by mail-wm1-f70.google.com with SMTP id
+ bg6-20020a05600c3c8600b003a03d5d19e4so4264292wmb.1
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Jun 2022 02:52:34 -0700 (PDT)
+ Mon, 27 Jun 2022 03:01:27 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=FA4/e7nzPal3eOwEx0TnFAtrjsOunXWeNfCJ/Hz8a2U=;
- b=fjHf2ynBvEYryTb45o+/eSNoj1RRI9P74rzGb76/OlpHX1+npJ+d5PJw3PgoD9wfZK
- cOEwDPxpfuzWiIgxh4aq0qc8LJgJchanwWpP5FFeXFDTF+BnL/H4Tat8vfF3+hrKQGiy
- KGaPwKMtHzr08dFYfv2qnT9VFDdae3rOiH5eCADKg2VxyknfRyL6jlFbEuCSoR85eHH9
- FrHBEcDEljakcWSyHXtn2Q5KRlksH/9FVZtC7M6ATsCKpHSxMojiCnPBmlBUcZXEmEDt
- k6zeg4Hd/SjfKJMwty1B54NdBSk71GzzkmET9qOSD/yh1lTZKOLg7a6Zqagorg4cWz2J
- 4W+g==
-X-Gm-Message-State: AJIora8t/Ryr+I/+HNJp3QjC5Q28ffguMAdZE0HhkZ+G3Mj/u6Ewz5v7
- +rSF74ynirXSur4MGEq05cBbQ1Ba3emer3HMUy3hLW3ZzcVqn+XBp8RuYZYVvXsNu7IzmVDMy3g
- t/TsbKCFiyTqdsjA+yXzYAPLocHA9i/hjD6LVRq0PRw==
-X-Received: by 2002:a05:6000:5c5:b0:21b:9b11:9128 with SMTP id
- bh5-20020a05600005c500b0021b9b119128mr11703383wrb.492.1656323553153; 
- Mon, 27 Jun 2022 02:52:33 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1sCxfv3KriW5BqnNxFUoTxKqQuPPHKNNy+QToEfQnWFhS08FguZ0weFalXCc3i4zDfmqBw1gQ==
-X-Received: by 2002:a05:6000:5c5:b0:21b:9b11:9128 with SMTP id
- bh5-20020a05600005c500b0021b9b119128mr11703360wrb.492.1656323552827; 
- Mon, 27 Jun 2022 02:52:32 -0700 (PDT)
+ bh=XfIYzOFq9+jwXTV0OEEFxQKh2b4fXVCS3UReweWTk08=;
+ b=nxJzXF1YzP7KaBw3wPRLJdKqbjcJZhNicVkAVwys7fi1YGc0kyfAYEdiEBUQYaUNoW
+ oRkeZq+mjaN/QyYy6FehjHeqeTXp6E5yYUBjOvL+oTcfuV1dgjsQz5rOXuUHpBNZn8g/
+ ZyEZKZmnKOSLPaIQEXF7QCtt+uTQCP8Q9aIvxHvmjlVUdpWteLkhVxcSt+P/MfSm5wmp
+ suvv2Lw1+7+eHmPLDytaCCEqObFQb89AJQJ6LeJVp88dzbVjMIxRKEy7HBxhcK8QgUT+
+ xELnAhijvAPwOg92mk1JmEDgeempvTUOLarcF9NOFuMXs0xJmdsBsfOKQc7lePwHhF1a
+ SP7Q==
+X-Gm-Message-State: AJIora+hHuS9jcU9XMa0Em4fKe1dl/7AU5V42RQQlEHXaHhl7c28fxwF
+ 1wWamXsTk1lhz7C5l9ZZUjySRpArXGL0Q+9zJrn77h1FO1yCurgloxGVwx04QCVqYiQB4JGiEDM
+ fZ0xE0daxFZZP8D9dh48wzuTXgvBXj+iHnDxdXpNtVw==
+X-Received: by 2002:adf:d20e:0:b0:21b:9bf8:75e with SMTP id
+ j14-20020adfd20e000000b0021b9bf8075emr11372947wrh.416.1656324086148; 
+ Mon, 27 Jun 2022 03:01:26 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1u71NWi+QLUpjcQmtx2VVGYmH07xgw2ZqtlMg5pGrYX9gCttKo+VrvS67vS2J5YcclFCLqr9Q==
+X-Received: by 2002:adf:d20e:0:b0:21b:9bf8:75e with SMTP id
+ j14-20020adfd20e000000b0021b9bf8075emr11372921wrh.416.1656324085841; 
+ Mon, 27 Jun 2022 03:01:25 -0700 (PDT)
 Received: from redhat.com ([2.54.45.90]) by smtp.gmail.com with ESMTPSA id
- l16-20020adffe90000000b0021b9a4a75e2sm9888998wrr.30.2022.06.27.02.52.29
+ c17-20020a05600c0ad100b003973ea7e725sm23047559wmr.0.2022.06.27.03.01.24
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 27 Jun 2022 02:52:32 -0700 (PDT)
-Date: Mon, 27 Jun 2022 05:52:27 -0400
+ Mon, 27 Jun 2022 03:01:25 -0700 (PDT)
+Date: Mon, 27 Jun 2022 06:01:21 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V3] virtio: disable notification hardening by default
-Message-ID: <20220627053820-mutt-send-email-mst@kernel.org>
-References: <20220622012940.21441-1-jasowang@redhat.com>
- <20220622025047-mutt-send-email-mst@kernel.org>
- <CACGkMEtJY2ioD0L8ifTrCPatG6-NqQ01V=d2L1FeoweKV74LaA@mail.gmail.com>
- <20220624022622-mutt-send-email-mst@kernel.org>
- <CACGkMEuurobpUWmDL8zmZ6T6Ygc0OEMx6vx2EDCSoGNnZQ0r-w@mail.gmail.com>
- <20220627024049-mutt-send-email-mst@kernel.org>
- <CACGkMEvrDXDN7FH1vKoYCob2rkxUsctE_=g61kzHSZ8tNNr6vA@mail.gmail.com>
+To: Cindy Lu <lulu@redhat.com>
+Subject: Re: [PATCH v3 1/2] vhost: Add rbtree vdpa_mem_tree to saved the
+ counted mem
+Message-ID: <20220627055826-mutt-send-email-mst@kernel.org>
+References: <20220626090409.1011144-1-lulu@redhat.com>
+ <20220626055420-mutt-send-email-mst@kernel.org>
+ <CACLfguVMfqAiCVoNVr7J8ooQa35tNJOSK-XHqsdE3hdXsfOZ+A@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEvrDXDN7FH1vKoYCob2rkxUsctE_=g61kzHSZ8tNNr6vA@mail.gmail.com>
+In-Reply-To: <CACLfguVMfqAiCVoNVr7J8ooQa35tNJOSK-XHqsdE3hdXsfOZ+A@mail.gmail.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: linux-s390@vger.kernel.org, kvm <kvm@vger.kernel.org>,
- Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
- Cornelia Huck <cohuck@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>,
- Halil Pasic <pasic@linux.ibm.com>,
- Christian Borntraeger <borntraeger@de.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Ben Hutchings <ben@decadent.org.uk>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+ virtualization <virtualization@lists.linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -134,348 +125,169 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Jun 27, 2022 at 04:11:18PM +0800, Jason Wang wrote:
-> On Mon, Jun 27, 2022 at 3:33 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+On Mon, Jun 27, 2022 at 04:12:57PM +0800, Cindy Lu wrote:
+> On Sun, Jun 26, 2022 at 6:01 PM Michael S. Tsirkin <mst@redhat.com> wrote:
 > >
-> > On Mon, Jun 27, 2022 at 10:50:17AM +0800, Jason Wang wrote:
-> > > On Fri, Jun 24, 2022 at 2:31 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > >
-> > > > On Wed, Jun 22, 2022 at 03:09:31PM +0800, Jason Wang wrote:
-> > > > > On Wed, Jun 22, 2022 at 3:03 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > > > >
-> > > > > > On Wed, Jun 22, 2022 at 09:29:40AM +0800, Jason Wang wrote:
-> > > > > > > We try to harden virtio device notifications in 8b4ec69d7e09 ("virtio:
-> > > > > > > harden vring IRQ"). It works with the assumption that the driver or
-> > > > > > > core can properly call virtio_device_ready() at the right
-> > > > > > > place. Unfortunately, this seems to be not true and uncover various
-> > > > > > > bugs of the existing drivers, mainly the issue of using
-> > > > > > > virtio_device_ready() incorrectly.
-> > > > > > >
-> > > > > > > So let's having a Kconfig option and disable it by default. It gives
-> > > > > > > us a breath to fix the drivers and then we can consider to enable it
-> > > > > > > by default.
-> > > > > > >
-> > > > > > > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > > > > >
-> > > > > >
-> > > > > > OK I will queue, but I think the problem is fundamental.
-> > > > >
-> > > > > If I understand correctly, you want some core IRQ work?
-> > > >
-> > > > Yes.
-> > > >
-> > > > > As discussed
-> > > > > before, it doesn't solve all the problems, we still need to do per
-> > > > > driver audit.
-> > > > >
-> > > > > Thanks
-> > > >
-> > > > Maybe, but we don't need to tie things to device_ready then.
-> > > > We can do
-> > > >
-> > > > - disable irqs
-> > > > - device ready
-> > > > - setup everything
-> > > > - enable irqs
-> > > >
-> > > >
-> > > > and this works for most things, the only issue is
-> > > > this deadlocks if "setup everything" waits for interrupts.
-> > > >
-> > > >
-> > > > With the current approach there's really no good time:
-> > > > 1.- setup everything
-> > > > - device ready
-> > > >
-> > > > can cause kicks before device is ready
-> > > >
-> > > > 2.- device ready
-> > > > - setup everything
-> > > >
-> > > > can cause callbacks before setup.
-> > > >
-> > > > So I prefer the 1. and fix the hardening in the core.
+> > On Sun, Jun 26, 2022 at 05:04:08PM +0800, Cindy Lu wrote:
+> > > We count pinned_vm as follow in vhost-vDPA
 > > >
-> > > So my question is:
+> > > lock_limit = rlimit(RLIMIT_MEMLOCK) >> PAGE_SHIFT;
+> > > if (npages + atomic64_read(&dev->mm->pinned_vm) > lock_limit) {
+> > >          ret = -ENOMEM;
+> > >          goto unlock;
+> > > }
+> > > This means if we have two vDPA devices for the same VM the pages
+> > > would be counted twice. So we add a tree to save the page that
+> > > counted and we will not count it again.
 > > >
-> > > 1) do similar hardening like config interrupt
-> > > or
-> > > 2) per transport notification work (e.g for PCI core IRQ work)
+> > > Add vdpa_mem_tree to saved the mem that already counted.
+> > > use a hlist to saved the root for vdpa_mem_tree.
 > > >
-> > > 1) seems easier and universal, but we pay little overhead which could
-> > > be eliminated by the config option.
-> >
-> > I doubt 1 is easy and I am not even sure core IRQ changes will help.
-> 
-> Core IRQ won't help in 1), the changes are limited in the virtio.
-> 
-> > My concern with adding overhead is that I'm not sure these are not just
-> > wasted CPU cycles.  We spent a bunch of time on irq hardening and so far
-> > we are still at the "all drivers need to be fixed" stage.
-> 
-> It's not the fault of hardening but the drivers. The hardening just
-> expose those bugs.
-
-Heh. Yea sure. But things work fine for people. What is the chance
-your review found and fixed all driver bugs? After two attempts
-I don't feel like hoping audit will fix all bugs.
-
-
-> >
-> > The reason config was kind of easy is that config interrupt is rarely
-> > vital for device function so arbitrarily deferring that does not lead to
-> > deadlocks - what you are trying to do with VQ interrupts is
-> > fundamentally different. Things are especially bad if we just drop
-> > an interrupt but deferring can lead to problems too.
-> 
-> I'm not sure I see the difference, disable_irq() stuffs also delay the
-> interrupt processing until enable_irq().
-
-
-Absolutely. I am not at all sure disable_irq fixes all problems.
-
-> >
-> > Consider as an example
-> >     virtio-net: fix race between ndo_open() and virtio_device_ready()
-> > if you just defer vq interrupts you get deadlocks.
-> >
-> >
-> 
-> I don't see a deadlock here, maybe you can show more detail on this?
-
-What I mean is this: if we revert the above commit, things still
-work (out of spec, but still). If we revert and defer interrupts until
-device ready then ndo_open that triggers before device ready deadlocks.
-
-
-> >
-> > So, thinking about all this, how about a simple per vq flag meaning
-> > "this vq was kicked since reset"?
-> 
-> And ignore the notification if vq is not kicked? It sounds like the
-> callback needs to be synchronized with the kick.
-
-Note we only need to synchronize it when it changes, which is
-only during initialization and reset.
-
-
-> >
-> > If driver does not kick then it's not ready to get callbacks, right?
-> >
-> > Sounds quite clean, but we need to think through memory ordering
-> > concerns - I guess it's only when we change the value so
-> >         if (!vq->kicked) {
-> >                 vq->kicked = true;
-> >                 mb();
-> >         }
-> >
-> > will do the trick, right?
-> 
-> There's no much difference with the existing approach:
-> 
-> 1) your proposal implicitly makes callbacks ready in virtqueue_kick()
-> 2) my proposal explicitly makes callbacks ready via virtio_device_ready()
-> 
-> Both require careful auditing of all the existing drivers to make sure
-> no kick before DRIVER_OK.
-
-Jason, kick before DRIVER_OK is out of spec, sure. But it is unrelated
-to hardening and in absence of config interrupts is generally easily
-fixed just by sticking virtio_device_ready early in initialization.
-With the current approach one has to *also* not do virtio_device_ready
-too early - and it's really tricky.
-
-With the proposal I think that we don't need to fix all drivers and
-in my eyes that is a huge advantage because frankly I'm fine with
-more work on strict spec compliance taking more than expected
-but I would like the hardening work to finally be done.
-I am not sure the amount of effort expended on the hardening here is
-proportionate to the benefit it provides.
-
-
-
-> >
-> > need to think about the reset path - it already synchronizes callbacks
-> > and already can lose interrupts so we just need to clear vq->kicked
-> > before that, right?
-> 
-> Probably.
-> 
-> >
-> >
-> > > 2) seems require more work in the IRQ core and it can not work for all
-> > > transports (e.g vDPA would be kind of difficult)
+> > > Signed-off-by: Cindy Lu <lulu@redhat.com>
+> > > ---
+> > >  drivers/vhost/vhost.c | 63 +++++++++++++++++++++++++++++++++++++++++++
+> > >  drivers/vhost/vhost.h |  1 +
+> > >  2 files changed, 64 insertions(+)
 > > >
-> > > Thanks
+> > > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> > > index 40097826cff0..4ca8b1ed944b 100644
+> > > --- a/drivers/vhost/vhost.c
+> > > +++ b/drivers/vhost/vhost.c
+> > > @@ -32,6 +32,8 @@
+> > >  #include <linux/kcov.h>
+> > >
+> > >  #include "vhost.h"
+> > > +#include <linux/hashtable.h>
+> > > +#include <linux/jhash.h>
+> > >
+> > >  static ushort max_mem_regions = 64;
+> > >  module_param(max_mem_regions, ushort, 0444);
+> > > @@ -49,6 +51,14 @@ enum {
+> > >  #define vhost_used_event(vq) ((__virtio16 __user *)&vq->avail->ring[vq->num])
+> > >  #define vhost_avail_event(vq) ((__virtio16 __user *)&vq->used->ring[vq->num])
+> > >
+> > > +struct vhost_vdpa_rbtree_node {
+> > > +     struct hlist_node node;
+> > > +     struct rb_root_cached vdpa_mem_tree;
+> > > +     struct mm_struct *mm_using;
+> > > +};
+> > > +static DECLARE_HASHTABLE(vhost_vdpa_rbtree_hlist, 8);
+> > > +int vhost_vdpa_rbtree_hlist_status;
+> > > +
+> > >  #ifdef CONFIG_VHOST_CROSS_ENDIAN_LEGACY
+> > >  static void vhost_disable_cross_endian(struct vhost_virtqueue *vq)
+> > >  {
 > >
-> > Hmm I don't really get why would it be difficult.
-> > VDPA is mostly PCI isn't it? With PCI both level INT#x and edge MSI
-> > have interrupt masking support.
-> 
-> Yes, but consider the case of mlx5_vdpa, PCI stuff was hidden under
-> the auxiliary bus. And that is the way another vendor will go.
-> 
+> > Are you trying to save some per-mm information here?
+> > Can't we just add it to mm_struct?
+> >
+> yes, this is a per-mm information, but I have checked with jason before,
+> seems it maybe difficult to change the mm_struct in upstream
+> so I add an to add a hlist  instead
 > Thanks
+> Cindy
 
-A bunch of callbacks will do it I guess.
+Difficult how? You get more scrutiny if you try, for sure,
+and you need to need to generalize it enough that it looks
+useful outside the driver. But I guess that's good?
 
 > >
 > >
-> > > >
-> > > >
-> > > > > >
-> > > > > >
-> > > > > > > ---
-> > > > > > > Changes since V2:
-> > > > > > > - Tweak the Kconfig help
-> > > > > > > - Add comment for the read_lock() pairing in virtio_ccw
-> > > > > > > ---
-> > > > > > >  drivers/s390/virtio/virtio_ccw.c |  9 ++++++++-
-> > > > > > >  drivers/virtio/Kconfig           | 13 +++++++++++++
-> > > > > > >  drivers/virtio/virtio.c          |  2 ++
-> > > > > > >  drivers/virtio/virtio_ring.c     | 12 ++++++++++++
-> > > > > > >  include/linux/virtio_config.h    |  2 ++
-> > > > > > >  5 files changed, 37 insertions(+), 1 deletion(-)
-> > > > > > >
-> > > > > > > diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> > > > > > > index 97e51c34e6cf..1f6a358f65f0 100644
-> > > > > > > --- a/drivers/s390/virtio/virtio_ccw.c
-> > > > > > > +++ b/drivers/s390/virtio/virtio_ccw.c
-> > > > > > > @@ -1136,8 +1136,13 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
-> > > > > > >                       vcdev->err = -EIO;
-> > > > > > >       }
-> > > > > > >       virtio_ccw_check_activity(vcdev, activity);
-> > > > > > > -     /* Interrupts are disabled here */
-> > > > > > > +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
-> > > > > > > +     /*
-> > > > > > > +      * Paried with virtio_ccw_synchronize_cbs() and interrupts are
-> > > > > > > +      * disabled here.
-> > > > > > > +      */
-> > > > > > >       read_lock(&vcdev->irq_lock);
-> > > > > > > +#endif
-> > > > > > >       for_each_set_bit(i, indicators(vcdev),
-> > > > > > >                        sizeof(*indicators(vcdev)) * BITS_PER_BYTE) {
-> > > > > > >               /* The bit clear must happen before the vring kick. */
-> > > > > > > @@ -1146,7 +1151,9 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
-> > > > > > >               vq = virtio_ccw_vq_by_ind(vcdev, i);
-> > > > > > >               vring_interrupt(0, vq);
-> > > > > > >       }
-> > > > > > > +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
-> > > > > > >       read_unlock(&vcdev->irq_lock);
-> > > > > > > +#endif
-> > > > > > >       if (test_bit(0, indicators2(vcdev))) {
-> > > > > > >               virtio_config_changed(&vcdev->vdev);
-> > > > > > >               clear_bit(0, indicators2(vcdev));
-> > > > > > > diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
-> > > > > > > index b5adf6abd241..c04f370a1e5c 100644
-> > > > > > > --- a/drivers/virtio/Kconfig
-> > > > > > > +++ b/drivers/virtio/Kconfig
-> > > > > > > @@ -35,6 +35,19 @@ menuconfig VIRTIO_MENU
-> > > > > > >
-> > > > > > >  if VIRTIO_MENU
-> > > > > > >
-> > > > > > > +config VIRTIO_HARDEN_NOTIFICATION
-> > > > > > > +        bool "Harden virtio notification"
-> > > > > > > +        help
-> > > > > > > +          Enable this to harden the device notifications and suppress
-> > > > > > > +          those that happen at a time where notifications are illegal.
-> > > > > > > +
-> > > > > > > +          Experimental: Note that several drivers still have bugs that
-> > > > > > > +          may cause crashes or hangs when correct handling of
-> > > > > > > +          notifications is enforced; depending on the subset of
-> > > > > > > +          drivers and devices you use, this may or may not work.
-> > > > > > > +
-> > > > > > > +          If unsure, say N.
-> > > > > > > +
-> > > > > > >  config VIRTIO_PCI
-> > > > > > >       tristate "PCI driver for virtio devices"
-> > > > > > >       depends on PCI
-> > > > > > > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> > > > > > > index ef04a96942bf..21dc08d2f32d 100644
-> > > > > > > --- a/drivers/virtio/virtio.c
-> > > > > > > +++ b/drivers/virtio/virtio.c
-> > > > > > > @@ -220,6 +220,7 @@ static int virtio_features_ok(struct virtio_device *dev)
-> > > > > > >   * */
-> > > > > > >  void virtio_reset_device(struct virtio_device *dev)
-> > > > > > >  {
-> > > > > > > +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
-> > > > > > >       /*
-> > > > > > >        * The below virtio_synchronize_cbs() guarantees that any
-> > > > > > >        * interrupt for this line arriving after
-> > > > > > > @@ -228,6 +229,7 @@ void virtio_reset_device(struct virtio_device *dev)
-> > > > > > >        */
-> > > > > > >       virtio_break_device(dev);
-> > > > > > >       virtio_synchronize_cbs(dev);
-> > > > > > > +#endif
-> > > > > > >
-> > > > > > >       dev->config->reset(dev);
-> > > > > > >  }
-> > > > > > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> > > > > > > index 13a7348cedff..d9d3b6e201fb 100644
-> > > > > > > --- a/drivers/virtio/virtio_ring.c
-> > > > > > > +++ b/drivers/virtio/virtio_ring.c
-> > > > > > > @@ -1688,7 +1688,11 @@ static struct virtqueue *vring_create_virtqueue_packed(
-> > > > > > >       vq->we_own_ring = true;
-> > > > > > >       vq->notify = notify;
-> > > > > > >       vq->weak_barriers = weak_barriers;
-> > > > > > > +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
-> > > > > > >       vq->broken = true;
-> > > > > > > +#else
-> > > > > > > +     vq->broken = false;
-> > > > > > > +#endif
-> > > > > > >       vq->last_used_idx = 0;
-> > > > > > >       vq->event_triggered = false;
-> > > > > > >       vq->num_added = 0;
-> > > > > > > @@ -2135,9 +2139,13 @@ irqreturn_t vring_interrupt(int irq, void *_vq)
-> > > > > > >       }
-> > > > > > >
-> > > > > > >       if (unlikely(vq->broken)) {
-> > > > > > > +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
-> > > > > > >               dev_warn_once(&vq->vq.vdev->dev,
-> > > > > > >                             "virtio vring IRQ raised before DRIVER_OK");
-> > > > > > >               return IRQ_NONE;
-> > > > > > > +#else
-> > > > > > > +             return IRQ_HANDLED;
-> > > > > > > +#endif
-> > > > > > >       }
-> > > > > > >
-> > > > > > >       /* Just a hint for performance: so it's ok that this can be racy! */
-> > > > > > > @@ -2180,7 +2188,11 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
-> > > > > > >       vq->we_own_ring = false;
-> > > > > > >       vq->notify = notify;
-> > > > > > >       vq->weak_barriers = weak_barriers;
-> > > > > > > +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
-> > > > > > >       vq->broken = true;
-> > > > > > > +#else
-> > > > > > > +     vq->broken = false;
-> > > > > > > +#endif
-> > > > > > >       vq->last_used_idx = 0;
-> > > > > > >       vq->event_triggered = false;
-> > > > > > >       vq->num_added = 0;
-> > > > > > > diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-> > > > > > > index 9a36051ceb76..d15c3cdda2d2 100644
-> > > > > > > --- a/include/linux/virtio_config.h
-> > > > > > > +++ b/include/linux/virtio_config.h
-> > > > > > > @@ -257,6 +257,7 @@ void virtio_device_ready(struct virtio_device *dev)
-> > > > > > >
-> > > > > > >       WARN_ON(status & VIRTIO_CONFIG_S_DRIVER_OK);
-> > > > > > >
-> > > > > > > +#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
-> > > > > > >       /*
-> > > > > > >        * The virtio_synchronize_cbs() makes sure vring_interrupt()
-> > > > > > >        * will see the driver specific setup if it sees vq->broken
-> > > > > > > @@ -264,6 +265,7 @@ void virtio_device_ready(struct virtio_device *dev)
-> > > > > > >        */
-> > > > > > >       virtio_synchronize_cbs(dev);
-> > > > > > >       __virtio_unbreak_device(dev);
-> > > > > > > +#endif
-> > > > > > >       /*
-> > > > > > >        * The transport should ensure the visibility of vq->broken
-> > > > > > >        * before setting DRIVER_OK. See the comments for the transport
-> > > > > > > --
-> > > > > > > 2.25.1
-> > > > > >
-> > > >
+> > > @@ -571,6 +581,51 @@ static void vhost_detach_mm(struct vhost_dev *dev)
+> > >       dev->mm = NULL;
+> > >  }
+> > >
+> > > +struct rb_root_cached *vhost_vdpa_get_mem_tree(struct mm_struct *mm)
+> > > +{
+> > > +     struct vhost_vdpa_rbtree_node *rbtree_root = NULL;
+> > > +     struct rb_root_cached *vdpa_tree;
+> > > +     u32 key;
+> > > +
+> > > +     /* No hased table, init one */
+> > > +     if (vhost_vdpa_rbtree_hlist_status == 0) {
+> > > +             hash_init(vhost_vdpa_rbtree_hlist);
+> > > +             vhost_vdpa_rbtree_hlist_status = 1;
+> > > +     }
+> > > +
+> > > +     key = jhash_1word((u64)mm, JHASH_INITVAL);
+> > > +     hash_for_each_possible(vhost_vdpa_rbtree_hlist, rbtree_root, node,
+> > > +                            key) {
+> > > +             if (rbtree_root->mm_using == mm)
+> > > +                     return &(rbtree_root->vdpa_mem_tree);
+> > > +     }
+> > > +     rbtree_root = kmalloc(sizeof(*rbtree_root), GFP_KERNEL);
+> > > +     if (!rbtree_root)
+> > > +             return NULL;
+> > > +     rbtree_root->mm_using = mm;
+> > > +     rbtree_root->vdpa_mem_tree = RB_ROOT_CACHED;
+> > > +     hash_add(vhost_vdpa_rbtree_hlist, &rbtree_root->node, key);
+> > > +     vdpa_tree = &(rbtree_root->vdpa_mem_tree);
+> > > +     return vdpa_tree;
+> > > +}
+> > > +
+> > > +void vhost_vdpa_relase_mem_tree(struct mm_struct *mm)
+> > > +{
+> > > +     struct vhost_vdpa_rbtree_node *rbtree_root = NULL;
+> > > +     u32 key;
+> > > +
+> > > +     key = jhash_1word((u64)mm, JHASH_INITVAL);
+> > > +
+> > > +     /* No hased table, init one */
+> > > +     hash_for_each_possible(vhost_vdpa_rbtree_hlist, rbtree_root, node,
+> > > +                            key) {
+> > > +             if (rbtree_root->mm_using == mm) {
+> > > +                     hash_del(&rbtree_root->node);
+> > > +                     kfree(rbtree_root);
+> > > +             }
+> > > +     }
+> > > +}
+> > > +
+> > >  /* Caller should have device mutex */
+> > >  long vhost_dev_set_owner(struct vhost_dev *dev)
+> > >  {
+> > > @@ -605,6 +660,11 @@ long vhost_dev_set_owner(struct vhost_dev *dev)
+> > >       err = vhost_dev_alloc_iovecs(dev);
+> > >       if (err)
+> > >               goto err_cgroup;
+> > > +     dev->vdpa_mem_tree = vhost_vdpa_get_mem_tree(dev->mm);
+> > > +     if (dev->vdpa_mem_tree == NULL) {
+> > > +             err = -ENOMEM;
+> > > +             goto err_cgroup;
+> > > +     }
+> > >
+> > >       return 0;
+> > >  err_cgroup:
+> > > @@ -613,6 +673,7 @@ long vhost_dev_set_owner(struct vhost_dev *dev)
+> > >               dev->worker = NULL;
+> > >       }
+> > >  err_worker:
+> > > +     vhost_vdpa_relase_mem_tree(dev->mm);
+> > >       vhost_detach_mm(dev);
+> > >       dev->kcov_handle = 0;
+> > >  err_mm:
+> > > @@ -710,6 +771,8 @@ void vhost_dev_cleanup(struct vhost_dev *dev)
+> > >               dev->worker = NULL;
+> > >               dev->kcov_handle = 0;
+> > >       }
+> > > +
+> > > +     vhost_vdpa_relase_mem_tree(dev->mm);
+> > >       vhost_detach_mm(dev);
+> > >  }
+> > >  EXPORT_SYMBOL_GPL(vhost_dev_cleanup);
+> > > diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+> > > index d9109107af08..84de33de3abf 100644
+> > > --- a/drivers/vhost/vhost.h
+> > > +++ b/drivers/vhost/vhost.h
+> > > @@ -160,6 +160,7 @@ struct vhost_dev {
+> > >       int byte_weight;
+> > >       u64 kcov_handle;
+> > >       bool use_worker;
+> > > +     struct rb_root_cached *vdpa_mem_tree;
+> > >       int (*msg_handler)(struct vhost_dev *dev, u32 asid,
+> > >                          struct vhost_iotlb_msg *msg);
+> > >  };
+> > > --
+> > > 2.34.3
 > >
 
 _______________________________________________
