@@ -1,114 +1,137 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 17211C433EF
-	for <virtualization@archiver.kernel.org>; Mon, 27 Jun 2022 10:01:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 06BE9CCA483
+	for <virtualization@archiver.kernel.org>; Mon, 27 Jun 2022 11:53:40 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 916BD83DEE;
-	Mon, 27 Jun 2022 10:01:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 916BD83DEE
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=WjnT3nZ0
+	by smtp3.osuosl.org (Postfix) with ESMTP id 7CA1A60B58;
+	Mon, 27 Jun 2022 11:53:40 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7CA1A60B58
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=FeIcQ6e3
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id awJYk04S-OmF; Mon, 27 Jun 2022 10:01:33 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id jWSwBvqoCEAc; Mon, 27 Jun 2022 11:53:39 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id F3524837AC;
-	Mon, 27 Jun 2022 10:01:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org F3524837AC
+	by smtp3.osuosl.org (Postfix) with ESMTPS id F0E76600C6;
+	Mon, 27 Jun 2022 11:53:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org F0E76600C6
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D0011C0039;
-	Mon, 27 Jun 2022 10:01:32 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 89364C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D6F07C0039;
+	Mon, 27 Jun 2022 11:53:38 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4E8EFC002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Jun 2022 10:01:31 +0000 (UTC)
+ Mon, 27 Jun 2022 11:53:37 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 638C741904
+ by smtp4.osuosl.org (Postfix) with ESMTP id 1ACB5409F9
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Jun 2022 10:01:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 638C741904
+ Mon, 27 Jun 2022 11:53:37 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1ACB5409F9
 Authentication-Results: smtp4.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=WjnT3nZ0
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=FeIcQ6e3
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id gDSTcIBZ27ES
+ with ESMTP id FQi6Dm6gPgnc
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Jun 2022 10:01:30 +0000 (UTC)
+ Mon, 27 Jun 2022 11:53:36 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2BC9A415BA
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org BE833409C3
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 2BC9A415BA
+ by smtp4.osuosl.org (Postfix) with ESMTPS id BE833409C3
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Jun 2022 10:01:29 +0000 (UTC)
+ Mon, 27 Jun 2022 11:53:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1656324088;
+ s=mimecast20190719; t=1656330814;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=XfIYzOFq9+jwXTV0OEEFxQKh2b4fXVCS3UReweWTk08=;
- b=WjnT3nZ0TJW/DocrYhkxmD1ysgBXs7SfBNp9jPUZWfAYjX1hAgHYsQ4sdIWURUaA/4EZkc
- o71lfUC9VXHeXTIC3aQFlAAklA3R9AqgpEhM6Q8fVhcRgTgmVwVSqCorCQeiQivjxmg0P9
- /iXoNYm5MYa/rolOddVPmeuggkwwIus=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=R4iA+zJThegEvaay5X9bkB6r2mlx5a4ueL2JEW4gqMI=;
+ b=FeIcQ6e3yng56d8qz4G1TEH7FOaa21sxSkkHSwZRFcwQoyZDYGGFGk7IFi83nRaVUDsawO
+ mHlmCSM5MmfdvfNq67xjo7rCZqKe0k6eGCzA+GEA8TiPA+hmqfCH/lyAHbDWzkXdtWrG1b
+ XegJPHGGm8nzABbCuz9nZ03O+Am/Zkc=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-522-pl1z_j70MES1kCxzZ2fJ6A-1; Mon, 27 Jun 2022 06:01:27 -0400
-X-MC-Unique: pl1z_j70MES1kCxzZ2fJ6A-1
-Received: by mail-wm1-f70.google.com with SMTP id
- bg6-20020a05600c3c8600b003a03d5d19e4so4264292wmb.1
+ us-mta-608-RYiMPgucOq-4X73oUjbcJw-1; Mon, 27 Jun 2022 07:53:31 -0400
+X-MC-Unique: RYiMPgucOq-4X73oUjbcJw-1
+Received: by mail-wm1-f69.google.com with SMTP id
+ p6-20020a05600c358600b003a0483b3c2eso2125634wmq.3
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Jun 2022 03:01:27 -0700 (PDT)
+ Mon, 27 Jun 2022 04:53:31 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=XfIYzOFq9+jwXTV0OEEFxQKh2b4fXVCS3UReweWTk08=;
- b=nxJzXF1YzP7KaBw3wPRLJdKqbjcJZhNicVkAVwys7fi1YGc0kyfAYEdiEBUQYaUNoW
- oRkeZq+mjaN/QyYy6FehjHeqeTXp6E5yYUBjOvL+oTcfuV1dgjsQz5rOXuUHpBNZn8g/
- ZyEZKZmnKOSLPaIQEXF7QCtt+uTQCP8Q9aIvxHvmjlVUdpWteLkhVxcSt+P/MfSm5wmp
- suvv2Lw1+7+eHmPLDytaCCEqObFQb89AJQJ6LeJVp88dzbVjMIxRKEy7HBxhcK8QgUT+
- xELnAhijvAPwOg92mk1JmEDgeempvTUOLarcF9NOFuMXs0xJmdsBsfOKQc7lePwHhF1a
- SP7Q==
-X-Gm-Message-State: AJIora+hHuS9jcU9XMa0Em4fKe1dl/7AU5V42RQQlEHXaHhl7c28fxwF
- 1wWamXsTk1lhz7C5l9ZZUjySRpArXGL0Q+9zJrn77h1FO1yCurgloxGVwx04QCVqYiQB4JGiEDM
- fZ0xE0daxFZZP8D9dh48wzuTXgvBXj+iHnDxdXpNtVw==
-X-Received: by 2002:adf:d20e:0:b0:21b:9bf8:75e with SMTP id
- j14-20020adfd20e000000b0021b9bf8075emr11372947wrh.416.1656324086148; 
- Mon, 27 Jun 2022 03:01:26 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1u71NWi+QLUpjcQmtx2VVGYmH07xgw2ZqtlMg5pGrYX9gCttKo+VrvS67vS2J5YcclFCLqr9Q==
-X-Received: by 2002:adf:d20e:0:b0:21b:9bf8:75e with SMTP id
- j14-20020adfd20e000000b0021b9bf8075emr11372921wrh.416.1656324085841; 
- Mon, 27 Jun 2022 03:01:25 -0700 (PDT)
+ bh=R4iA+zJThegEvaay5X9bkB6r2mlx5a4ueL2JEW4gqMI=;
+ b=XIMIYhonkGbhu2LE7gonWYrBYDDn0MAsU0uhaqle1AIuH0M5TX/x1fENK/SsPhnzJc
+ jogqPLi+iKNUzFoCszvc2VKqFP7JmIp1ryHbG3lZNNvdw8H/0SupicpS5JKBJukMpOvR
+ JZFF5JIf3XMebVMhYwx+93xlHjzqOQi7FG9jhB/GDzAc+F8eBU0TXHiBisReFw9r+xOg
+ EWnKBNY+hrJGAF9gM1LldrtQiR+qXL8NPuOramFv+U2VUD8UHRko7KoULKhVO9QTquFf
+ z7C+obTpFURKmHJYPTtgW04jKP1hwxg+8iVwUBWD8kOURRw1mccxMp8hpJXhmEE1qa4K
+ Nh0Q==
+X-Gm-Message-State: AJIora8K9SH9OVGLTuLFmjXANzkP2oAWXzkpE4qqiNYvHQdex+oGmL+0
+ o85ynYZ+5fgbBdWmj9hofOZKraHmbODgOPH7blzx5s7p1z6MmfbwPPg0U2o5m/gh8UWcJibcltF
+ g0vuE5PTC2Xn/xOaHa//AcpMt9M4YeUvTguLps5g6DA==
+X-Received: by 2002:a1c:7c18:0:b0:3a0:39b1:3403 with SMTP id
+ x24-20020a1c7c18000000b003a039b13403mr21172900wmc.84.1656330810173; 
+ Mon, 27 Jun 2022 04:53:30 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1umV07YHfv9l89u85pmjMFPA0YWmqYXm7VuXyf0J+ISW9dEoHO5P2MBiXRfYI/0CpLN0ZOgWg==
+X-Received: by 2002:a1c:7c18:0:b0:3a0:39b1:3403 with SMTP id
+ x24-20020a1c7c18000000b003a039b13403mr21172868wmc.84.1656330809951; 
+ Mon, 27 Jun 2022 04:53:29 -0700 (PDT)
 Received: from redhat.com ([2.54.45.90]) by smtp.gmail.com with ESMTPSA id
- c17-20020a05600c0ad100b003973ea7e725sm23047559wmr.0.2022.06.27.03.01.24
+ a19-20020a05600c349300b0039db500714fsm13454861wmq.6.2022.06.27.04.53.24
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 27 Jun 2022 03:01:25 -0700 (PDT)
-Date: Mon, 27 Jun 2022 06:01:21 -0400
+ Mon, 27 Jun 2022 04:53:29 -0700 (PDT)
+Date: Mon, 27 Jun 2022 07:53:22 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Cindy Lu <lulu@redhat.com>
-Subject: Re: [PATCH v3 1/2] vhost: Add rbtree vdpa_mem_tree to saved the
- counted mem
-Message-ID: <20220627055826-mutt-send-email-mst@kernel.org>
-References: <20220626090409.1011144-1-lulu@redhat.com>
- <20220626055420-mutt-send-email-mst@kernel.org>
- <CACLfguVMfqAiCVoNVr7J8ooQa35tNJOSK-XHqsdE3hdXsfOZ+A@mail.gmail.com>
+To: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH v10 25/41] virtio_pci: struct virtio_pci_common_cfg add
+ queue_notify_data
+Message-ID: <20220627074723-mutt-send-email-mst@kernel.org>
+References: <20220624025621.128843-1-xuanzhuo@linux.alibaba.com>
+ <20220624025621.128843-26-xuanzhuo@linux.alibaba.com>
+ <20220624025817-mutt-send-email-mst@kernel.org>
+ <CACGkMEseptD=45j3kQr0yciRxR679Jcig=292H07-RYC2vXmFQ@mail.gmail.com>
+ <20220627023841-mutt-send-email-mst@kernel.org>
+ <CACGkMEvy8xF2T_vubKeUEPC2aroO_fbB0Xe8nnxK4OBUgAS+Gw@mail.gmail.com>
+ <20220627034733-mutt-send-email-mst@kernel.org>
+ <CACGkMEtpjUBaUML=fEs5hR66rzNTBhBXOmfpzyXV1F-6BqvsGg@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <CACLfguVMfqAiCVoNVr7J8ooQa35tNJOSK-XHqsdE3hdXsfOZ+A@mail.gmail.com>
+In-Reply-To: <CACGkMEtpjUBaUML=fEs5hR66rzNTBhBXOmfpzyXV1F-6BqvsGg@mail.gmail.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>
+Cc: Vadim Pasternak <vadimp@nvidia.com>, linux-remoteproc@vger.kernel.org,
+ Alexei Starovoitov <ast@kernel.org>,
+ virtualization <virtualization@lists.linux-foundation.org>,
+ Eric Dumazet <edumazet@google.com>, Alexander Gordeev <agordeev@linux.ibm.com>,
+ kangjie.xu@linux.alibaba.com, Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+ kvm <kvm@vger.kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
+ Richard Weinberger <richard@nod.at>,
+ Vincent Whitchurch <vincent.whitchurch@axis.com>,
+ John Fastabend <john.fastabend@gmail.com>, Halil Pasic <pasic@linux.ibm.com>,
+ Jakub Kicinski <kuba@kernel.org>, platform-driver-x86@vger.kernel.org,
+ Eric Farman <farman@linux.ibm.com>, Jesper Dangaard Brouer <hawk@kernel.org>,
+ Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
+ Heiko Carstens <hca@linux.ibm.com>, linux-um@lists.infradead.org,
+ Mark Gross <markgross@kernel.org>, Hans de Goede <hdegoede@redhat.com>,
+ Bjorn Andersson <bjorn.andersson@linaro.org>,
+ "open list:XDP \(eXpress Data Path\)" <bpf@vger.kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Mathieu Poirier <mathieu.poirier@linaro.org>,
+ netdev <netdev@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Johannes Berg <johannes@sipsolutions.net>,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -125,169 +148,97 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Jun 27, 2022 at 04:12:57PM +0800, Cindy Lu wrote:
-> On Sun, Jun 26, 2022 at 6:01 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+On Mon, Jun 27, 2022 at 04:14:20PM +0800, Jason Wang wrote:
+> On Mon, Jun 27, 2022 at 3:58 PM Michael S. Tsirkin <mst@redhat.com> wrote:
 > >
-> > On Sun, Jun 26, 2022 at 05:04:08PM +0800, Cindy Lu wrote:
-> > > We count pinned_vm as follow in vhost-vDPA
+> > On Mon, Jun 27, 2022 at 03:45:30PM +0800, Jason Wang wrote:
+> > > On Mon, Jun 27, 2022 at 2:39 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > >
+> > > > On Mon, Jun 27, 2022 at 10:30:42AM +0800, Jason Wang wrote:
+> > > > > On Fri, Jun 24, 2022 at 2:59 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > > > >
+> > > > > > On Fri, Jun 24, 2022 at 10:56:05AM +0800, Xuan Zhuo wrote:
+> > > > > > > Add queue_notify_data in struct virtio_pci_common_cfg, which comes from
+> > > > > > > here https://github.com/oasis-tcs/virtio-spec/issues/89
+> > > > > > >
+> > > > > > > For not breaks uABI, add a new struct virtio_pci_common_cfg_notify.
+> > > > > >
+> > > > > > What exactly is meant by not breaking uABI?
+> > > > > > Users are supposed to be prepared for struct size to change ... no?
+> > > > >
+> > > > > Not sure, any doc for this?
+> > > > >
+> > > > > Thanks
+> > > >
+> > > >
+> > > > Well we have this:
+> > > >
+> > > >         The drivers SHOULD only map part of configuration structure
+> > > >         large enough for device operation.  The drivers MUST handle
+> > > >         an unexpectedly large \field{length}, but MAY check that \field{length}
+> > > >         is large enough for device operation.
 > > >
-> > > lock_limit = rlimit(RLIMIT_MEMLOCK) >> PAGE_SHIFT;
-> > > if (npages + atomic64_read(&dev->mm->pinned_vm) > lock_limit) {
-> > >          ret = -ENOMEM;
-> > >          goto unlock;
-> > > }
-> > > This means if we have two vDPA devices for the same VM the pages
-> > > would be counted twice. So we add a tree to save the page that
-> > > counted and we will not count it again.
+> > > Yes, but that's the device/driver interface. What's done here is the
+> > > userspace/kernel.
 > > >
-> > > Add vdpa_mem_tree to saved the mem that already counted.
-> > > use a hlist to saved the root for vdpa_mem_tree.
+> > > Userspace may break if it uses e.g sizeof(struct virtio_pci_common_cfg)?
 > > >
-> > > Signed-off-by: Cindy Lu <lulu@redhat.com>
-> > > ---
-> > >  drivers/vhost/vhost.c | 63 +++++++++++++++++++++++++++++++++++++++++++
-> > >  drivers/vhost/vhost.h |  1 +
-> > >  2 files changed, 64 insertions(+)
-> > >
-> > > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> > > index 40097826cff0..4ca8b1ed944b 100644
-> > > --- a/drivers/vhost/vhost.c
-> > > +++ b/drivers/vhost/vhost.c
-> > > @@ -32,6 +32,8 @@
-> > >  #include <linux/kcov.h>
-> > >
-> > >  #include "vhost.h"
-> > > +#include <linux/hashtable.h>
-> > > +#include <linux/jhash.h>
-> > >
-> > >  static ushort max_mem_regions = 64;
-> > >  module_param(max_mem_regions, ushort, 0444);
-> > > @@ -49,6 +51,14 @@ enum {
-> > >  #define vhost_used_event(vq) ((__virtio16 __user *)&vq->avail->ring[vq->num])
-> > >  #define vhost_avail_event(vq) ((__virtio16 __user *)&vq->used->ring[vq->num])
-> > >
-> > > +struct vhost_vdpa_rbtree_node {
-> > > +     struct hlist_node node;
-> > > +     struct rb_root_cached vdpa_mem_tree;
-> > > +     struct mm_struct *mm_using;
-> > > +};
-> > > +static DECLARE_HASHTABLE(vhost_vdpa_rbtree_hlist, 8);
-> > > +int vhost_vdpa_rbtree_hlist_status;
-> > > +
-> > >  #ifdef CONFIG_VHOST_CROSS_ENDIAN_LEGACY
-> > >  static void vhost_disable_cross_endian(struct vhost_virtqueue *vq)
-> > >  {
+> > > Thanks
 > >
-> > Are you trying to save some per-mm information here?
-> > Can't we just add it to mm_struct?
-> >
-> yes, this is a per-mm information, but I have checked with jason before,
-> seems it maybe difficult to change the mm_struct in upstream
-> so I add an to add a hlist  instead
+> > Hmm I guess there's risk... but then how are we going to maintain this
+> > going forward?  Add a new struct on any change?
+> 
+> This is the way we have used it for the past 5 or more years. I don't
+> see why this must be handled in the vq reset feature.
+> 
+> >Can we at least
+> > prevent this going forward somehow?
+> 
+> Like have some padding?
+> 
 > Thanks
-> Cindy
 
-Difficult how? You get more scrutiny if you try, for sure,
-and you need to need to generalize it enough that it looks
-useful outside the driver. But I guess that's good?
+Maybe - this is what QEMU does ...
 
 > >
 > >
-> > > @@ -571,6 +581,51 @@ static void vhost_detach_mm(struct vhost_dev *dev)
-> > >       dev->mm = NULL;
-> > >  }
-> > >
-> > > +struct rb_root_cached *vhost_vdpa_get_mem_tree(struct mm_struct *mm)
-> > > +{
-> > > +     struct vhost_vdpa_rbtree_node *rbtree_root = NULL;
-> > > +     struct rb_root_cached *vdpa_tree;
-> > > +     u32 key;
-> > > +
-> > > +     /* No hased table, init one */
-> > > +     if (vhost_vdpa_rbtree_hlist_status == 0) {
-> > > +             hash_init(vhost_vdpa_rbtree_hlist);
-> > > +             vhost_vdpa_rbtree_hlist_status = 1;
-> > > +     }
-> > > +
-> > > +     key = jhash_1word((u64)mm, JHASH_INITVAL);
-> > > +     hash_for_each_possible(vhost_vdpa_rbtree_hlist, rbtree_root, node,
-> > > +                            key) {
-> > > +             if (rbtree_root->mm_using == mm)
-> > > +                     return &(rbtree_root->vdpa_mem_tree);
-> > > +     }
-> > > +     rbtree_root = kmalloc(sizeof(*rbtree_root), GFP_KERNEL);
-> > > +     if (!rbtree_root)
-> > > +             return NULL;
-> > > +     rbtree_root->mm_using = mm;
-> > > +     rbtree_root->vdpa_mem_tree = RB_ROOT_CACHED;
-> > > +     hash_add(vhost_vdpa_rbtree_hlist, &rbtree_root->node, key);
-> > > +     vdpa_tree = &(rbtree_root->vdpa_mem_tree);
-> > > +     return vdpa_tree;
-> > > +}
-> > > +
-> > > +void vhost_vdpa_relase_mem_tree(struct mm_struct *mm)
-> > > +{
-> > > +     struct vhost_vdpa_rbtree_node *rbtree_root = NULL;
-> > > +     u32 key;
-> > > +
-> > > +     key = jhash_1word((u64)mm, JHASH_INITVAL);
-> > > +
-> > > +     /* No hased table, init one */
-> > > +     hash_for_each_possible(vhost_vdpa_rbtree_hlist, rbtree_root, node,
-> > > +                            key) {
-> > > +             if (rbtree_root->mm_using == mm) {
-> > > +                     hash_del(&rbtree_root->node);
-> > > +                     kfree(rbtree_root);
-> > > +             }
-> > > +     }
-> > > +}
-> > > +
-> > >  /* Caller should have device mutex */
-> > >  long vhost_dev_set_owner(struct vhost_dev *dev)
-> > >  {
-> > > @@ -605,6 +660,11 @@ long vhost_dev_set_owner(struct vhost_dev *dev)
-> > >       err = vhost_dev_alloc_iovecs(dev);
-> > >       if (err)
-> > >               goto err_cgroup;
-> > > +     dev->vdpa_mem_tree = vhost_vdpa_get_mem_tree(dev->mm);
-> > > +     if (dev->vdpa_mem_tree == NULL) {
-> > > +             err = -ENOMEM;
-> > > +             goto err_cgroup;
-> > > +     }
-> > >
-> > >       return 0;
-> > >  err_cgroup:
-> > > @@ -613,6 +673,7 @@ long vhost_dev_set_owner(struct vhost_dev *dev)
-> > >               dev->worker = NULL;
-> > >       }
-> > >  err_worker:
-> > > +     vhost_vdpa_relase_mem_tree(dev->mm);
-> > >       vhost_detach_mm(dev);
-> > >       dev->kcov_handle = 0;
-> > >  err_mm:
-> > > @@ -710,6 +771,8 @@ void vhost_dev_cleanup(struct vhost_dev *dev)
-> > >               dev->worker = NULL;
-> > >               dev->kcov_handle = 0;
-> > >       }
-> > > +
-> > > +     vhost_vdpa_relase_mem_tree(dev->mm);
-> > >       vhost_detach_mm(dev);
-> > >  }
-> > >  EXPORT_SYMBOL_GPL(vhost_dev_cleanup);
-> > > diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-> > > index d9109107af08..84de33de3abf 100644
-> > > --- a/drivers/vhost/vhost.h
-> > > +++ b/drivers/vhost/vhost.h
-> > > @@ -160,6 +160,7 @@ struct vhost_dev {
-> > >       int byte_weight;
-> > >       u64 kcov_handle;
-> > >       bool use_worker;
-> > > +     struct rb_root_cached *vdpa_mem_tree;
-> > >       int (*msg_handler)(struct vhost_dev *dev, u32 asid,
-> > >                          struct vhost_iotlb_msg *msg);
-> > >  };
-> > > --
-> > > 2.34.3
+> > > >
+> > > >
+> > > >
+> > > > >
+> > > > > >
+> > > > > >
+> > > > > > > Since I want to add queue_reset after queue_notify_data, I submitted
+> > > > > > > this patch first.
+> > > > > > >
+> > > > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > > > > > Acked-by: Jason Wang <jasowang@redhat.com>
+> > > > > > > ---
+> > > > > > >  include/uapi/linux/virtio_pci.h | 7 +++++++
+> > > > > > >  1 file changed, 7 insertions(+)
+> > > > > > >
+> > > > > > > diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
+> > > > > > > index 3a86f36d7e3d..22bec9bd0dfc 100644
+> > > > > > > --- a/include/uapi/linux/virtio_pci.h
+> > > > > > > +++ b/include/uapi/linux/virtio_pci.h
+> > > > > > > @@ -166,6 +166,13 @@ struct virtio_pci_common_cfg {
+> > > > > > >       __le32 queue_used_hi;           /* read-write */
+> > > > > > >  };
+> > > > > > >
+> > > > > > > +struct virtio_pci_common_cfg_notify {
+> > > > > > > +     struct virtio_pci_common_cfg cfg;
+> > > > > > > +
+> > > > > > > +     __le16 queue_notify_data;       /* read-write */
+> > > > > > > +     __le16 padding;
+> > > > > > > +};
+> > > > > > > +
+> > > > > > >  /* Fields in VIRTIO_PCI_CAP_PCI_CFG: */
+> > > > > > >  struct virtio_pci_cfg_cap {
+> > > > > > >       struct virtio_pci_cap cap;
+> > > > > > > --
+> > > > > > > 2.31.0
+> > > > > >
+> > > >
 > >
 
 _______________________________________________
