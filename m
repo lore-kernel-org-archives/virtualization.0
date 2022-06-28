@@ -1,123 +1,123 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0ED29C43334
-	for <virtualization@archiver.kernel.org>; Tue, 28 Jun 2022 13:37:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 655EFC43334
+	for <virtualization@archiver.kernel.org>; Tue, 28 Jun 2022 13:40:14 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 7B00B83EE3;
-	Tue, 28 Jun 2022 13:37:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7B00B83EE3
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=SRPS2zIE
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id bLltCPYdzqQj; Tue, 28 Jun 2022 13:36:59 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 30A7E83EE0;
-	Tue, 28 Jun 2022 13:36:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 30A7E83EE0
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0447AC0032;
-	Tue, 28 Jun 2022 13:36:58 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 297D9C002D
- for <virtualization@lists.linux-foundation.org>;
- Tue, 28 Jun 2022 13:36:56 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 11AE3408DE
- for <virtualization@lists.linux-foundation.org>;
- Tue, 28 Jun 2022 13:36:56 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 11AE3408DE
+	by smtp4.osuosl.org (Postfix) with ESMTP id C1AAA4175B;
+	Tue, 28 Jun 2022 13:40:13 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C1AAA4175B
 Authentication-Results: smtp4.osuosl.org;
- dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca
- header.a=rsa-sha256 header.s=google header.b=SRPS2zIE
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=N34XgfuT
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 9o-gi7wB-1Gn; Tue, 28 Jun 2022 13:40:12 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id F2693417AE;
+	Tue, 28 Jun 2022 13:40:11 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org F2693417AE
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id AA8B5C0032;
+	Tue, 28 Jun 2022 13:40:11 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 61B23C002D
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 28 Jun 2022 13:40:10 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp4.osuosl.org (Postfix) with ESMTP id 2CC3C416C4
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 28 Jun 2022 13:40:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2CC3C416C4
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id q4DhRhG3IiNl
+ with ESMTP id P698gq2S3FEh
  for <virtualization@lists.linux-foundation.org>;
- Tue, 28 Jun 2022 13:36:54 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 92542408DB
-Received: from mail-qv1-xf32.google.com (mail-qv1-xf32.google.com
- [IPv6:2607:f8b0:4864:20::f32])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 92542408DB
+ Tue, 28 Jun 2022 13:40:09 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org F3949415C3
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id F3949415C3
  for <virtualization@lists.linux-foundation.org>;
- Tue, 28 Jun 2022 13:36:54 +0000 (UTC)
-Received: by mail-qv1-xf32.google.com with SMTP id i17so19855440qvo.13
+ Tue, 28 Jun 2022 13:40:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1656423607;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=JI0SMOllATTHDDnFWqGpyGyrKVYRMdL/R18gEZANfRM=;
+ b=N34XgfuTdposPCi0F6k6e4iuPT82msTP2J4ss2z7m/um3AtaLhefhSKPt1tBD0K8XGMBKl
+ dGl3VwoiOZCTdPvwm2CAxh5o6WnVizKMRpVZGlAahX2bYrEnBu9ojLXMunA/HbuwxoHnAK
+ 9Er1GQfW+qlcQfiIJMV/WOuTPJwQskI=
+Received: from mail-qv1-f72.google.com (mail-qv1-f72.google.com
+ [209.85.219.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-625-QW1o-qV5Ne22hHi9PuZLew-1; Tue, 28 Jun 2022 09:40:06 -0400
+X-MC-Unique: QW1o-qV5Ne22hHi9PuZLew-1
+Received: by mail-qv1-f72.google.com with SMTP id
+ jv13-20020a05621429ed00b0047048fce5bdso12268949qvb.5
  for <virtualization@lists.linux-foundation.org>;
- Tue, 28 Jun 2022 06:36:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ziepe.ca; s=google;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to;
- bh=gN4ZNyT9GRZ46Vwx3CUzNgwGxKE3ptwelsb3O/2waMc=;
- b=SRPS2zIET11DP06FAnMANUW30rX+F+KLnmvgpItTZuHDiHMYbx191l+udZ0BIKVo+p
- DUqKNFcRnPxEdciA9v/rjMoUuUABeinU5a59o91m7mO0ei+LjGwfeqP1sFK6bST4r2Sc
- +kwNrequilw+r3whlSvEqjUrw7uEou8aBEv26lUqmckZs7QEO1gxqNAIdKmR6ixdoBBW
- VwXL+VitONeiHER4+6czyOuvux/gSa01CsajOGl6xQeKgTZdOU9/PF5ai6yeP3/8Na6A
- VkyCaiWAoLiX3IML+rZ/qAH9obhof6Stg3VEpk4n7D6sOfmWV6A4zI2itZ9nI+NyrBEn
- GAtg==
+ Tue, 28 Jun 2022 06:40:06 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=gN4ZNyT9GRZ46Vwx3CUzNgwGxKE3ptwelsb3O/2waMc=;
- b=Ko6vu4R5Je5h/oUoxRlU6rgnHWVGDrmYKgsSyOvSnfdZ4l5pXyapdZVkV2kn9pR89t
- 3iZgUmT3J1ktUqTUu5owZZ7iLNjQBU+7ahl02doSQs7190p4IxvG5QUIq+2ZvuaTr2Lr
- 6YGuRs7pkbDO5rKx7QG0RXCmZ5EBNM4OUVrvSF8RX1YSRPpQvacRqoMrAt0DRzBbJCtZ
- 4I3M5Unbw4usazl6kz5IEB5SwGQ8bZk/w8SDJrONb9Rp1CzvUVyacsGoM6mKq9e1f+nK
- q7MEue3U2FlKREhtSgFozA3VoEx0czEHpTrrqkChZpthORLSo5Z7/V4f+sqFD4It51DS
- Qirw==
-X-Gm-Message-State: AJIora8Q++dnviOLtqnEr3zFTLA8/2c3CaiDI+zHqF8ejJdRslAEx8dO
- KOgVKYV9hbAs49AYAXBVFGGtPg==
-X-Google-Smtp-Source: AGRyM1uooXTVlKXYemR9EvbrrQp4i2XA4BpQT09bjvN7I6xIwm3cKCnpXCNHNGqwd+HxVz52pv3Omw==
-X-Received: by 2002:ac8:5b0d:0:b0:31b:f519:4107 with SMTP id
- m13-20020ac85b0d000000b0031bf5194107mr1237416qtw.331.1656423413317; 
- Tue, 28 Jun 2022 06:36:53 -0700 (PDT)
-Received: from ziepe.ca
- (hlfxns017vw-142-162-113-129.dhcp-dynamic.fibreop.ns.bellaliant.net.
- [142.162.113.129]) by smtp.gmail.com with ESMTPSA id
- s10-20020a05620a29ca00b006a79479657fsm708363qkp.108.2022.06.28.06.36.52
+ :mime-version:content-disposition:content-transfer-encoding
+ :in-reply-to;
+ bh=JI0SMOllATTHDDnFWqGpyGyrKVYRMdL/R18gEZANfRM=;
+ b=QYkqzqHsZOvpCcoexLnhn6nADBw6FQRCZv1hlqujMQLD4ETsDUB/9txaT5LTAiZTeq
+ 8/QKJGRhwm0RR9EpmY5zOytt1uGnE///tGX8HtNDn89yZenT/l01Xq6W7UtQCdWe6H+p
+ vr+Sg1urhrrsGq2J20LOPd/TYp2lwTObRVVxqPeQZKESD0q2Fp8/pTh7Bm/MulEpO/za
+ p90e7rS9pD+KUywwId+O/XutgCCHLq45hrE5BCyGUyrQ0+zFITGj0qyM83kkoNdl3OIx
+ YL3qHptQ8ZnZe+FYYmkRazWSFq1Te2NRaJeJoGxaCgPBzWG3nMGRLPjstnWSs+rG8kB0
+ LqVw==
+X-Gm-Message-State: AJIora+cGdBz+VGeo3oMEH5xVqNMNHoU8lJSzNWZaLhL+KCK4ifKRv6C
+ xa7O/nnAsM/jhIMKGDIwuGt9S6jW5lxvLxQt5f20louKO7kGswk0IDJ4gpnHsWhiWSz5AmnOstk
+ ARSFT7PwfCimm54gestuyrbndbZ6b/npCTgxNsJ8TyA==
+X-Received: by 2002:a05:6214:509c:b0:470:529a:1d76 with SMTP id
+ kk28-20020a056214509c00b00470529a1d76mr3556360qvb.7.1656423605661; 
+ Tue, 28 Jun 2022 06:40:05 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1uR1KivmrgHGt9XzHfmrBurNzgAa+UdSQyz20DSSdlK3mKA/+nt175Sp7jgxeEBsCjfL+bPrw==
+X-Received: by 2002:a05:6214:509c:b0:470:529a:1d76 with SMTP id
+ kk28-20020a056214509c00b00470529a1d76mr3556306qvb.7.1656423605246; 
+ Tue, 28 Jun 2022 06:40:05 -0700 (PDT)
+Received: from sgarzare-redhat (host-87-11-6-149.retail.telecomitalia.it.
+ [87.11.6.149]) by smtp.gmail.com with ESMTPSA id
+ bl10-20020a05620a1a8a00b006a67eb4610fsm11214694qkb.116.2022.06.28.06.39.58
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 28 Jun 2022 06:36:52 -0700 (PDT)
-Received: from jgg by mlx with local (Exim 4.94) (envelope-from <jgg@ziepe.ca>)
- id 1o6BOd-002vAA-VA; Tue, 28 Jun 2022 10:36:51 -0300
-Date: Tue, 28 Jun 2022 10:36:51 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: "Gustavo A. R. Silva" <gustavoars@kernel.org>
-Subject: Re: [PATCH][next] treewide: uapi: Replace zero-length arrays with
- flexible-array members
-Message-ID: <20220628133651.GO23621@ziepe.ca>
-References: <20220627180432.GA136081@embeddedor>
- <6bc1e94c-ce1d-a074-7d0c-8dbe6ce22637@iogearbox.net>
- <20220628004052.GM23621@ziepe.ca>
- <20220628005825.GA161566@embeddedor>
- <20220628022129.GA8452@embeddedor>
+ Tue, 28 Jun 2022 06:40:04 -0700 (PDT)
+Date: Tue, 28 Jun 2022 15:39:55 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>
+Subject: Re: [PATCH v6 1/4] vdpa: Add suspend operation
+Message-ID: <20220628133955.sj32sfounu4byggl@sgarzare-redhat>
+References: <20220623160738.632852-1-eperezma@redhat.com>
+ <20220623160738.632852-2-eperezma@redhat.com>
 MIME-Version: 1.0
+In-Reply-To: <20220623160738.632852-2-eperezma@redhat.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-In-Reply-To: <20220628022129.GA8452@embeddedor>
-Cc: nvdimm@lists.linux.dev, alsa-devel@alsa-project.org, kvm@vger.kernel.org,
- dri-devel@lists.freedesktop.org, linux-mips@vger.kernel.org,
- dm-devel@redhat.com, target-devel@vger.kernel.org,
- linux-mtd@lists.infradead.org, linux-hardening@vger.kernel.org,
- linux1394-devel@lists.sourceforge.net,
- linux-stm32@st-md-mailman.stormreply.com, linux-s390@vger.kernel.org,
- Daniel Borkmann <daniel@iogearbox.net>, linux-rdma@vger.kernel.org,
- x86@kernel.org, kasan-dev@googlegroups.com, lvs-devel@vger.kernel.org,
- coreteam@netfilter.org, v9fs-developer@lists.sourceforge.net,
- Kees Cook <keescook@chromium.org>, intel-gfx@lists.freedesktop.org,
- linux-can@vger.kernel.org, linux-raid@vger.kernel.org,
- linux-m68k@lists.linux-m68k.org, virtualization@lists.linux-foundation.org,
- io-uring@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-scsi@vger.kernel.org, netdev@vger.kernel.org, linux-usb@vger.kernel.org,
- linux-mmc@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-perf-users@vger.kernel.org, linux-sctp@vger.kernel.org,
- netfilter-devel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
- bpf@vger.kernel.org, linux-btrfs@vger.kernel.org
+Cc: tanuj.kamde@amd.com, kvm@vger.kernel.org,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ virtualization@lists.linux-foundation.org,
+ Wu Zongyong <wuzongyong@linux.alibaba.com>, pabloc@xilinx.com,
+ Eli Cohen <elic@nvidia.com>, Zhang Min <zhang.min9@zte.com.cn>,
+ lulu@redhat.com, Piotr.Uminski@intel.com, martinh@xilinx.com,
+ Xie Yongji <xieyongji@bytedance.com>, dinang@xilinx.com,
+ habetsm.xilinx@gmail.com, Longpeng <longpeng2@huawei.com>,
+ Dan Carpenter <dan.carpenter@oracle.com>, lvivier@redhat.com,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org, ecree.xilinx@gmail.com,
+ hanand@xilinx.com, martinpo@xilinx.com, gautam.dawar@amd.com,
+ Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+ Zhu Lingshan <lingshan.zhu@intel.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -129,35 +129,54 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="iso-8859-1"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Jun 28, 2022 at 04:21:29AM +0200, Gustavo A. R. Silva wrote:
+On Thu, Jun 23, 2022 at 06:07:35PM +0200, Eugenio P=E9rez wrote:
+>This operation is optional: It it's not implemented, backend feature bit
+>will not be exposed.
+>
+>Signed-off-by: Eugenio P=E9rez <eperezma@redhat.com>
+>---
+> include/linux/vdpa.h | 4 ++++
+> 1 file changed, 4 insertions(+)
+>
+>diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
+>index 7b4a13d3bd91..d282f464d2f1 100644
+>--- a/include/linux/vdpa.h
+>+++ b/include/linux/vdpa.h
+>@@ -218,6 +218,9 @@ struct vdpa_map_file {
+>  * @reset:			Reset device
+>  *				@vdev: vdpa device
+>  *				Returns integer: success (0) or error (< 0)
+>+ * @suspend:			Suspend or resume the device (optional)
+                                            ^
+IIUC we removed the resume operation (that should be done with reset),
+so should we update this documentation?
 
-> > > Though maybe we could just switch off -Wgnu-variable-sized-type-not-at-end  during configuration ?
+Thanks,
+Stefano
 
-> We need to think in a different strategy.
+>+ *				@vdev: vdpa device
+>+ *				Returns integer: success (0) or error (< 0)
+>  * @get_config_size:		Get the size of the configuration space includes
+>  *				fields that are conditional on feature bits.
+>  *				@vdev: vdpa device
+>@@ -319,6 +322,7 @@ struct vdpa_config_ops {
+> 	u8 (*get_status)(struct vdpa_device *vdev);
+> 	void (*set_status)(struct vdpa_device *vdev, u8 status);
+> 	int (*reset)(struct vdpa_device *vdev);
+>+	int (*suspend)(struct vdpa_device *vdev);
+> 	size_t (*get_config_size)(struct vdpa_device *vdev);
+> 	void (*get_config)(struct vdpa_device *vdev, unsigned int offset,
+> 			   void *buf, unsigned int len);
+>-- =
 
-I think we will need to switch off the warning in userspace - this is
-doable for rdma-core.
+>2.31.1
+>
 
-On the other hand, if the goal is to enable the array size check
-compiler warning I would suggest focusing only on those structs that
-actually hit that warning in the kernel. IIRC infiniband doesn't
-trigger it because it just pointer casts the flex array to some other
-struct.
-
-It isn't actually an array it is a placeholder for a trailing
-structure, so it is never indexed.
-
-This is also why we hit the warning because the convient way for
-userspace to compose the message is to squash the header and trailer
-structs together in a super struct on the stack, then invoke the
-ioctl.
-
-Jason 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
