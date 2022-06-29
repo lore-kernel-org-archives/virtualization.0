@@ -4,105 +4,107 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 715D7C433EF
-	for <virtualization@archiver.kernel.org>; Wed, 29 Jun 2022 08:36:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9B16AC433EF
+	for <virtualization@archiver.kernel.org>; Wed, 29 Jun 2022 08:43:08 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 0350140600;
-	Wed, 29 Jun 2022 08:36:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0350140600
+	by smtp2.osuosl.org (Postfix) with ESMTP id 3EFFC40D7D;
+	Wed, 29 Jun 2022 08:43:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3EFFC40D7D
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=bfFc/nRG
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=dfkizzwA
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 3pRnENAHY38h; Wed, 29 Jun 2022 08:36:34 +0000 (UTC)
+	with ESMTP id QkB2nHS05quU; Wed, 29 Jun 2022 08:43:07 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 4A975401A3;
-	Wed, 29 Jun 2022 08:36:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4A975401A3
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 7866D40CD7;
+	Wed, 29 Jun 2022 08:43:06 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7866D40CD7
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2AF9AC0032;
-	Wed, 29 Jun 2022 08:36:33 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 300FBC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 333E8C0032;
+	Wed, 29 Jun 2022 08:43:06 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4C2C1C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Jun 2022 08:36:32 +0000 (UTC)
+ Wed, 29 Jun 2022 08:43:04 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id F0F3A83F57
+ by smtp2.osuosl.org (Postfix) with ESMTP id 184C240CD7
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Jun 2022 08:36:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org F0F3A83F57
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=bfFc/nRG
+ Wed, 29 Jun 2022 08:43:04 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 184C240CD7
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 8Nn9W-bi7lPu
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 5TbIzbMYPWE5
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Jun 2022 08:36:30 +0000 (UTC)
+ Wed, 29 Jun 2022 08:43:03 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 984BA83F53
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org F2A2B40C76
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 984BA83F53
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id F2A2B40C76
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Jun 2022 08:36:30 +0000 (UTC)
+ Wed, 29 Jun 2022 08:43:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1656491789;
+ s=mimecast20190719; t=1656492181;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=Bet7RPOPoI6qEqFJfuyVXTSgqEPE876J831j55LAYEI=;
- b=bfFc/nRG8xxYNgBQDk4ejxP0El0LwlCg0Ddeq5s7TFWxBBA5dLi8wsO3PRhj/lUH1Tnrs7
- e/RZ6PCNVRRQt5NIsn6Vw47/6+nVqURp9UA71B3xaeQdAXZ5L0gQ7II9/VLjBMZKPVx/b+
- rAbKnk6LvGkbL5MHBJOSj0iLyDJ6UU4=
-Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com
- [209.85.208.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=GlGCypZ1cQvv3V+v5q9PQcrqSY8WL1ipwnqeNBFmu7E=;
+ b=dfkizzwAEO2P5GQ6TRWnWOiTzXPOGGS+HVZRb970qoJiNeqmUGg8RUdvHvfcgLIXAcqbuh
+ oLnXio5dETwp+AMoETtUP/lPMgKzTWbtTRG5O7/gLgLoLw6liBfXHulPmArHK7Wixjumef
+ 1ads3qT+ZXVvx4iob3qKc0oTqCh0WZI=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-374-0fwjcyJ8NU-n51RD3ARogA-1; Wed, 29 Jun 2022 04:36:26 -0400
-X-MC-Unique: 0fwjcyJ8NU-n51RD3ARogA-1
-Received: by mail-lj1-f198.google.com with SMTP id
- x7-20020a05651c024700b002594efe50f0so2141069ljn.21
+ us-mta-581-KaH0gFLsOS6h2o2P-Kebhg-1; Wed, 29 Jun 2022 04:43:00 -0400
+X-MC-Unique: KaH0gFLsOS6h2o2P-Kebhg-1
+Received: by mail-wm1-f69.google.com with SMTP id
+ i184-20020a1c3bc1000000b003a026f48333so6312462wma.4
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Jun 2022 01:36:25 -0700 (PDT)
+ Wed, 29 Jun 2022 01:43:00 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=Bet7RPOPoI6qEqFJfuyVXTSgqEPE876J831j55LAYEI=;
- b=KkoqzjCES3yWFh7tl/RFO1lTCZ9k+EyQ0FzxsXLtaBSZPSuEfDpxoLq/XLMPkNbDO3
- nuBWrTH9dmKVPy+eiaW5dss9d8FthyzweNVMWTBAECv2rWQUiq1o646RvlZigda89Cia
- gHba+O3yHz3IVSBOnoOqse9Rl/EmdxVXiiyLwwVhnw9iZCG5aUJ8IoZcpbay4cxtGotH
- vAr0/OTuVmulxY5UuhSHNUOpGJquVYiCKK5vARZFdqLNCg0VT5eWm2yxaO7OYxeYUTM3
- S40ia0fIR8dSs40dM/NpYe2GeUihRFmJdDjhx5NVGVGP4s1R5ai1o9XItBWkxkuRJsop
- LeFg==
-X-Gm-Message-State: AJIora+61bH25mPdnzOehQt8antjfwQqW7zWeQ4YPYGCEDePqopE8AI+
- 5TiBC+5dBZU6g53n5jZ6WCZsKki8joB+8LF5CUQctDlqILVw8gP/IOIt+eUsxXLLG75MB2nkv2j
- z95aNmCeHZSfNVizImOHYLkjBObIo7Wq+ntq77BcLrh5vn5+PDbDZqi9kVA==
-X-Received: by 2002:a05:651c:895:b0:250:c5ec:bc89 with SMTP id
- d21-20020a05651c089500b00250c5ecbc89mr1000415ljq.251.1656491784164; 
- Wed, 29 Jun 2022 01:36:24 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1vBelXp7oblduZwmkq8dd6rRu3tkscsPBwJaVedQQ56Gmdo+PJ5Ijy22sPBo/8FbgLCMMKyAjmHBfc3NkfgJ8g=
-X-Received: by 2002:a05:651c:895:b0:250:c5ec:bc89 with SMTP id
- d21-20020a05651c089500b00250c5ecbc89mr1000402ljq.251.1656491783902; Wed, 29
- Jun 2022 01:36:23 -0700 (PDT)
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=GlGCypZ1cQvv3V+v5q9PQcrqSY8WL1ipwnqeNBFmu7E=;
+ b=BgWjMVxUaJFPH/ACoWNjbH45GRfDAzyMW4N6YNPtvrURxGKLuohZkpUULV4mLFj4VB
+ h8jLKG2l6qYnKHDJr38swWHeHbsUjcwTVWIvsmEfo72LqWVHb4EtXxMAUucBwLOnKstJ
+ q08Cq+g1jGUpTRmUSzAiou3eKmfKH2wxXZP42c62EF8/+XGxIe8uQNuEs4sDbhnB4msq
+ ZrAUGn5edfP7Jmchnyz12bxyLRYEreX1QfVvHrwAVohQtJb3AlT4R6n0d7CwvKu3A431
+ rCaNkBnbPBE9KB+xWHm6FaPO6XP86MpupcvVflYz49dVZ/BNsnsF8M+TkkLF6xfF+eoS
+ hagg==
+X-Gm-Message-State: AJIora99/XKkhTlsiBcNjtkH1ohBbMBERTB9WJ8dQeymGascFGuCn3CM
+ 9Xl+c0xs+7oVvnBAXETNjRQ8yWL65DECxF0h2A7qR7vu/dRBOzleRC/2UWWx9GelbjfxXqfjDpy
+ K6GVoCvA9C5oXDI+bWcchAYjltpXIf3JjLRjlAXaGwQ==
+X-Received: by 2002:a5d:6d46:0:b0:21b:933d:7950 with SMTP id
+ k6-20020a5d6d46000000b0021b933d7950mr1852051wri.679.1656492179498; 
+ Wed, 29 Jun 2022 01:42:59 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1uIEG67vGMX2iL8I9wiTWD5Lhbc4JZvMuvX48MEPvoxGxQdvBECJ+sJEgCSzEzGIw7mI5Hmbg==
+X-Received: by 2002:a5d:6d46:0:b0:21b:933d:7950 with SMTP id
+ k6-20020a5d6d46000000b0021b933d7950mr1852030wri.679.1656492179238; 
+ Wed, 29 Jun 2022 01:42:59 -0700 (PDT)
+Received: from redhat.com ([2.52.23.204]) by smtp.gmail.com with ESMTPSA id
+ t3-20020a0560001a4300b0021b9cc87aa9sm16130444wry.111.2022.06.29.01.42.56
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 29 Jun 2022 01:42:58 -0700 (PDT)
+Date: Wed, 29 Jun 2022 04:42:54 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Xie Yongji <xieyongji@bytedance.com>
+Subject: Re: [PATCH 5/6] vduse: Support registering userspace memory for IOTLB
+Message-ID: <20220629043539-mutt-send-email-mst@kernel.org>
+References: <20220629082541.118-1-xieyongji@bytedance.com>
+ <20220629082541.118-6-xieyongji@bytedance.com>
 MIME-Version: 1.0
-References: <20220628090324.62219-1-jasowang@redhat.com>
- <20220629032106-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20220629032106-mutt-send-email-mst@kernel.org>
-From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 29 Jun 2022 16:36:12 +0800
-Message-ID: <CACGkMEutEYHf8kO_6gpk5BrMAndJPd8wDAPG2_Z9pxSiXXNDCw@mail.gmail.com>
-Subject: Re: [PATCH] virtio-net: fix the race between refill work and close
-To: "Michael S. Tsirkin" <mst@redhat.com>
+In-Reply-To: <20220629082541.118-6-xieyongji@bytedance.com>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: Jakub Kicinski <kuba@kernel.org>, netdev <netdev@vger.kernel.org>,
- davem <davem@davemloft.net>, linux-kernel <linux-kernel@vger.kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>
+Content-Disposition: inline
+Cc: xiaodong.liu@intel.com, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, maxime.coquelin@redhat.com,
+ stefanha@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,177 +121,277 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Jun 29, 2022 at 3:29 PM Michael S. Tsirkin <mst@redhat.com> wrote:
->
-> On Tue, Jun 28, 2022 at 05:03:24PM +0800, Jason Wang wrote:
-> > We try using cancel_delayed_work_sync() to prevent the work from
-> > enabling NAPI. This is insufficient since we don't disable the the
-> > source the scheduling
->
-> can't parse this sentence
+On Wed, Jun 29, 2022 at 04:25:40PM +0800, Xie Yongji wrote:
+> Introduce two ioctls: VDUSE_IOTLB_REG_UMEM and
+> VDUSE_IOTLB_DEREG_UMEM to support registering
+> and de-registering userspace memory for IOTLB
+> in virtio-vdpa case.
+> 
+> Now it only supports registering userspace memory
+> for IOTLB as bounce buffer.
+> 
+> Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
+> ---
+>  drivers/vdpa/vdpa_user/vduse_dev.c | 138 +++++++++++++++++++++++++++++
+>  include/uapi/linux/vduse.h         |  28 ++++++
+>  2 files changed, 166 insertions(+)
+> 
+> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
+> index c47a5d9765cf..7b2ea7612da9 100644
+> --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> @@ -21,6 +21,7 @@
+>  #include <linux/uio.h>
+>  #include <linux/vdpa.h>
+>  #include <linux/nospec.h>
+> +#include <linux/sched/mm.h>
+>  #include <uapi/linux/vduse.h>
+>  #include <uapi/linux/vdpa.h>
+>  #include <uapi/linux/virtio_config.h>
+> @@ -64,6 +65,13 @@ struct vduse_vdpa {
+>  	struct vduse_dev *dev;
+>  };
+>  
+> +struct vduse_iotlb_mem {
+> +	unsigned long iova;
+> +	unsigned long npages;
+> +	struct page **pages;
+> +	struct mm_struct *mm;
+> +};
+> +
+>  struct vduse_dev {
+>  	struct vduse_vdpa *vdev;
+>  	struct device *dev;
+> @@ -95,6 +103,8 @@ struct vduse_dev {
+>  	u8 status;
+>  	u32 vq_num;
+>  	u32 vq_align;
+> +	struct vduse_iotlb_mem *iotlb_mem;
+> +	struct mutex mem_lock;
+>  };
+>  
+>  struct vduse_dev_msg {
+> @@ -917,6 +927,100 @@ static int vduse_dev_queue_irq_work(struct vduse_dev *dev,
+>  	return ret;
+>  }
+>  
+> +static int vduse_dev_dereg_iotlb_mem(struct vduse_dev *dev,
+> +				     u64 iova, u64 size)
+> +{
+> +	int ret;
+> +
+> +	mutex_lock(&dev->mem_lock);
+> +	ret = -ENOENT;
+> +	if (!dev->iotlb_mem)
+> +		goto unlock;
+> +
+> +	ret = -EINVAL;
+> +	if (dev->iotlb_mem->iova != iova || size != dev->domain->bounce_size)
+> +		goto unlock;
+> +
+> +	vduse_domain_remove_user_bounce_pages(dev->domain);
+> +	unpin_user_pages(dev->iotlb_mem->pages, dev->iotlb_mem->npages);
 
-I actually meant "we don't disable the source of the refill work scheduling".
+I notice you don't mark the pages dirty. This is going to be a problem.
 
->
-> > of the refill work. This means an NAPI
->
-> what do you mean "an NAPI"? a NAPI poll callback?
+> +	atomic64_sub(dev->iotlb_mem->npages, &dev->iotlb_mem->mm->pinned_vm);
+> +	mmdrop(dev->iotlb_mem->mm);
+> +	vfree(dev->iotlb_mem->pages);
+> +	kfree(dev->iotlb_mem);
+> +	dev->iotlb_mem = NULL;
+> +	ret = 0;
+> +unlock:
+> +	mutex_unlock(&dev->mem_lock);
+> +	return ret;
+> +}
+> +
+> +static int vduse_dev_reg_iotlb_mem(struct vduse_dev *dev,
+> +				   u64 iova, u64 uaddr, u64 size)
+> +{
+> +	struct page **page_list = NULL;
+> +	struct vduse_iotlb_mem *mem = NULL;
+> +	long pinned = 0;
+> +	unsigned long npages, lock_limit;
+> +	int ret;
+> +
+> +	if (size != dev->domain->bounce_size ||
+> +	    iova != 0 || uaddr & ~PAGE_MASK)
+> +		return -EINVAL;
+> +
+> +	mutex_lock(&dev->mem_lock);
+> +	ret = -EEXIST;
+> +	if (dev->iotlb_mem)
+> +		goto unlock;
+> +
+> +	ret = -ENOMEM;
+> +	npages = size >> PAGE_SHIFT;
+> +	page_list = vmalloc(array_size(npages,
+> +			    sizeof(struct page *)));
 
-Yes.
+Is this basically trying to do a vmalloc with userspace-controlled size?
+That's an easy DOS vector.
 
->
-> > after
-> > cancel_delayed_work_sync() can schedule the refill work then can
-> > re-enable the NAPI that leads to use-after-free [1].
-> >
-> > Since the work can enable NAPI, we can't simply disable NAPI before
-> > calling cancel_delayed_work_sync(). So fix this by introducing a
-> > dedicated boolean to control whether or not the work could be
-> > scheduled from NAPI.
-> >
-> > [1]
-> > ==================================================================
-> > BUG: KASAN: use-after-free in refill_work+0x43/0xd4
-> > Read of size 2 at addr ffff88810562c92e by task kworker/2:1/42
-> >
-> > CPU: 2 PID: 42 Comm: kworker/2:1 Not tainted 5.19.0-rc1+ #480
-> > Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.16.0-0-gd239552ce722-prebuilt.qemu.org 04/01/2014
-> > Workqueue: events refill_work
-> > Call Trace:
-> >  <TASK>
-> >  dump_stack_lvl+0x34/0x44
-> >  print_report.cold+0xbb/0x6ac
-> >  ? _printk+0xad/0xde
-> >  ? refill_work+0x43/0xd4
-> >  kasan_report+0xa8/0x130
-> >  ? refill_work+0x43/0xd4
-> >  refill_work+0x43/0xd4
-> >  process_one_work+0x43d/0x780
-> >  worker_thread+0x2a0/0x6f0
-> >  ? process_one_work+0x780/0x780
-> >  kthread+0x167/0x1a0
-> >  ? kthread_exit+0x50/0x50
-> >  ret_from_fork+0x22/0x30
-> >  </TASK>
-> > ...
-> >
-> > Fixes: b2baed69e605c ("virtio_net: set/cancel work on ndo_open/ndo_stop")
-> > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > ---
-> >  drivers/net/virtio_net.c | 38 ++++++++++++++++++++++++++++++++++++--
-> >  1 file changed, 36 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index db05b5e930be..21bf1e5c81ef 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -251,6 +251,12 @@ struct virtnet_info {
-> >       /* Does the affinity hint is set for virtqueues? */
-> >       bool affinity_hint_set;
-> >
-> > +     /* Is refill work enabled? */
-> > +     bool refill_work_enabled;
-> > +
-> > +     /* The lock to synchronize the access to refill_work_enabled */
-> > +     spinlock_t refill_lock;
-> > +
-> >       /* CPU hotplug instances for online & dead */
-> >       struct hlist_node node;
-> >       struct hlist_node node_dead;
-> > @@ -348,6 +354,20 @@ static struct page *get_a_page(struct receive_queue *rq, gfp_t gfp_mask)
-> >       return p;
-> >  }
-> >
-> > +static void enable_refill_work(struct virtnet_info *vi)
-> > +{
-> > +     spin_lock(&vi->refill_lock);
-> > +     vi->refill_work_enabled = true;
-> > +     spin_unlock(&vi->refill_lock);
-> > +}
-> > +
-> > +static void disable_refill_work(struct virtnet_info *vi)
-> > +{
-> > +     spin_lock(&vi->refill_lock);
-> > +     vi->refill_work_enabled = false;
-> > +     spin_unlock(&vi->refill_lock);
-> > +}
-> > +
-> >  static void virtqueue_napi_schedule(struct napi_struct *napi,
-> >                                   struct virtqueue *vq)
-> >  {
-> > @@ -1527,8 +1547,12 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
-> >       }
-> >
-> >       if (rq->vq->num_free > min((unsigned int)budget, virtqueue_get_vring_size(rq->vq)) / 2) {
-> > -             if (!try_fill_recv(vi, rq, GFP_ATOMIC))
-> > -                     schedule_delayed_work(&vi->refill, 0);
-> > +             if (!try_fill_recv(vi, rq, GFP_ATOMIC)) {
-> > +                     spin_lock(&vi->refill_lock);
-> > +                     if (vi->refill_work_enabled)
-> > +                             schedule_delayed_work(&vi->refill, 0);
-> > +                     spin_unlock(&vi->refill_lock);
-> > +             }
-> >       }
-> >
-> >       u64_stats_update_begin(&rq->stats.syncp);
-> > @@ -1651,6 +1675,8 @@ static int virtnet_open(struct net_device *dev)
-> >       struct virtnet_info *vi = netdev_priv(dev);
-> >       int i, err;
-> >
-> > +     enable_refill_work(vi);
-> > +
-> >       for (i = 0; i < vi->max_queue_pairs; i++) {
-> >               if (i < vi->curr_queue_pairs)
-> >                       /* Make sure we have some buffers: if oom use wq. */
-> > @@ -2033,6 +2059,8 @@ static int virtnet_close(struct net_device *dev)
-> >       struct virtnet_info *vi = netdev_priv(dev);
-> >       int i;
-> >
-> > +     /* Make sure NAPI doesn't schedule refill work */
-> > +     disable_refill_work(vi);
-> >       /* Make sure refill_work doesn't re-enable napi! */
-> >       cancel_delayed_work_sync(&vi->refill);
-> >
-> > @@ -2776,6 +2804,9 @@ static void virtnet_freeze_down(struct virtio_device *vdev)
-> >       netif_tx_lock_bh(vi->dev);
-> >       netif_device_detach(vi->dev);
-> >       netif_tx_unlock_bh(vi->dev);
-> > +     /* Make sure NAPI doesn't schedule refill work */
-> > +     disable_refill_work(vi);
-> > +     /* Make sure refill_work doesn't re-enable napi! */
-> >       cancel_delayed_work_sync(&vi->refill);
-> >
-> >       if (netif_running(vi->dev)) {
-> > @@ -2799,6 +2830,8 @@ static int virtnet_restore_up(struct virtio_device *vdev)
-> >
-> >       virtio_device_ready(vdev);
-> >
-> > +     enable_refill_work(vi);
-> > +
-> >       if (netif_running(vi->dev)) {
-> >               for (i = 0; i < vi->curr_queue_pairs; i++)
-> >                       if (!try_fill_recv(vi, &vi->rq[i], GFP_KERNEL))
-> > @@ -3548,6 +3581,7 @@ static int virtnet_probe(struct virtio_device *vdev)
-> >       vdev->priv = vi;
-> >
-> >       INIT_WORK(&vi->config_work, virtnet_config_changed_work);
-> > +     spin_lock_init(&vi->refill_lock);
-> >
-> >       /* If we can receive ANY GSO packets, we must allocate large ones. */
-> >       if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO4) ||
->
->
-> Can't say I love all the extra state but oh well.
+> +	mem = kzalloc(sizeof(*mem), GFP_KERNEL);
+> +	if (!page_list || !mem)
+> +		goto unlock;
+> +
+> +	mmap_read_lock(current->mm);
+> +
+> +	lock_limit = PFN_DOWN(rlimit(RLIMIT_MEMLOCK));
+> +	if (npages + atomic64_read(&current->mm->pinned_vm) > lock_limit)
+> +		goto out;
+> +
+> +	pinned = pin_user_pages(uaddr, npages, FOLL_LONGTERM | FOLL_WRITE,
+> +				page_list, NULL);
+> +	if (pinned != npages) {
+> +		ret = pinned < 0 ? pinned : -ENOMEM;
+> +		goto out;
+> +	}
 
-I couldn't find a better way. The tricky part is that NAPI and refill
-can schedule each other so we need a third state.
 
-Thanks
+This is a popular approach but it's problematic if multiple
+devices try to pin the same page.
+Can this happen here?
 
->
-> > --
-> > 2.25.1
->
+> +
+> +	ret = vduse_domain_add_user_bounce_pages(dev->domain,
+> +						 page_list, pinned);
+> +	if (ret)
+> +		goto out;
+> +
+> +	atomic64_add(npages, &current->mm->pinned_vm);
+> +
+> +	mem->pages = page_list;
+> +	mem->npages = pinned;
+> +	mem->iova = iova;
+> +	mem->mm = current->mm;
+> +	mmgrab(current->mm);
+> +
+> +	dev->iotlb_mem = mem;
+> +out:
+> +	if (ret && pinned > 0)
+> +		unpin_user_pages(page_list, pinned);
+> +
+> +	mmap_read_unlock(current->mm);
+> +unlock:
+> +	if (ret) {
+> +		vfree(page_list);
+> +		kfree(mem);
+> +	}
+> +	mutex_unlock(&dev->mem_lock);
+> +	return ret;
+> +}
+> +
+>  static long vduse_dev_ioctl(struct file *file, unsigned int cmd,
+>  			    unsigned long arg)
+>  {
+> @@ -943,6 +1047,16 @@ static long vduse_dev_ioctl(struct file *file, unsigned int cmd,
+>  		if (entry.start > entry.last)
+>  			break;
+>  
+> +		if (domain->bounce_map && dev->iotlb_mem) {
+> +			ret = -EEXIST;
+> +			if (entry.start >= 0 &&
+> +			    entry.last < domain->bounce_size)
+> +				break;
+> +
+> +			if (entry.start < domain->bounce_size)
+> +				entry.start = domain->bounce_size;
+> +		}
+> +
+>  		spin_lock(&domain->iotlb_lock);
+>  		map = vhost_iotlb_itree_first(domain->iotlb,
+>  					      entry.start, entry.last);
+> @@ -1102,6 +1216,28 @@ static long vduse_dev_ioctl(struct file *file, unsigned int cmd,
+>  		ret = 0;
+>  		break;
+>  	}
+> +	case VDUSE_IOTLB_REG_UMEM: {
+> +		struct vduse_iotlb_umem umem;
+> +
+> +		ret = -EFAULT;
+> +		if (copy_from_user(&umem, argp, sizeof(umem)))
+> +			break;
+> +
+> +		ret = vduse_dev_reg_iotlb_mem(dev, umem.iova,
+> +					      umem.uaddr, umem.size);
+> +		break;
+> +	}
+> +	case VDUSE_IOTLB_DEREG_UMEM: {
+> +		struct vduse_iotlb_umem umem;
+> +
+> +		ret = -EFAULT;
+> +		if (copy_from_user(&umem, argp, sizeof(umem)))
+> +			break;
+> +
+> +		ret = vduse_dev_dereg_iotlb_mem(dev, umem.iova,
+> +						umem.size);
+> +		break;
+> +	}
+>  	default:
+>  		ret = -ENOIOCTLCMD;
+>  		break;
+> @@ -1114,6 +1250,7 @@ static int vduse_dev_release(struct inode *inode, struct file *file)
+>  {
+>  	struct vduse_dev *dev = file->private_data;
+>  
+> +	vduse_dev_dereg_iotlb_mem(dev, 0, dev->domain->bounce_size);
+>  	spin_lock(&dev->msg_lock);
+>  	/* Make sure the inflight messages can processed after reconncection */
+>  	list_splice_init(&dev->recv_list, &dev->send_list);
+> @@ -1176,6 +1313,7 @@ static struct vduse_dev *vduse_dev_create(void)
+>  		return NULL;
+>  
+>  	mutex_init(&dev->lock);
+> +	mutex_init(&dev->mem_lock);
+>  	spin_lock_init(&dev->msg_lock);
+>  	INIT_LIST_HEAD(&dev->send_list);
+>  	INIT_LIST_HEAD(&dev->recv_list);
+> diff --git a/include/uapi/linux/vduse.h b/include/uapi/linux/vduse.h
+> index c201b7a77c2c..1b17391e228f 100644
+> --- a/include/uapi/linux/vduse.h
+> +++ b/include/uapi/linux/vduse.h
+> @@ -227,6 +227,34 @@ struct vduse_iotlb_info {
+>  /* Get IOTLB information, e.g. bounce buffer size */
+>  #define VDUSE_IOTLB_GET_INFO    _IOR(VDUSE_BASE, 0x18, struct vduse_iotlb_info)
+>  
+> +/**
+> + * struct vduse_iotlb_umem - userspace memory configuration
+> + * @uaddr: start address of userspace memory, it must be aligned to page size
+> + * @iova: IOVA of userspace memory, it must be equal to bounce iova returned
+> + *        by VDUSE_IOTLB_GET_INFO now
+> + * @size: size of userspace memory, it must be equal to bounce size returned
+> + *        by VDUSE_IOTLB_GET_INFO now
+> + * @reserved: for future use, needs to be initialized to zero
+
+You should check that it's 0 in that case, otherwise userspace
+will conveniently forget.
+
+> + *
+> + * Structure used by VDUSE_IOTLB_REG_UMEM and VDUSE_IOTLB_DEREG_UMEM
+> + * ioctls to register/de-register userspace memory for IOTLB.
+> + */
+> +struct vduse_iotlb_umem {
+> +	__u64 uaddr;
+> +	__u64 iova;
+> +	__u64 size;
+> +	__u64 reserved[3];
+> +};
+> +
+> +/*
+> + * Register userspace memory for IOTLB. Now we only support registering
+> + * userspace memory as bounce buffer.
+> + */
+> +#define VDUSE_IOTLB_REG_UMEM	_IOW(VDUSE_BASE, 0x19, struct vduse_iotlb_umem)
+> +
+> +/* De-register the userspace memory. Caller should set iova and size field. */
+> +#define VDUSE_IOTLB_DEREG_UMEM	_IOW(VDUSE_BASE, 0x1a, struct vduse_iotlb_umem)
+> +
+>  /* The control messages definition for read(2)/write(2) on /dev/vduse/$NAME */
+>  
+>  /**
+> -- 
+> 2.20.1
 
 _______________________________________________
 Virtualization mailing list
