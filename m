@@ -1,61 +1,60 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id ECD3CCCA481
-	for <virtualization@archiver.kernel.org>; Wed, 29 Jun 2022 06:58:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 65F65CCA47F
+	for <virtualization@archiver.kernel.org>; Wed, 29 Jun 2022 06:58:06 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 933FA40C1E;
-	Wed, 29 Jun 2022 06:58:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 933FA40C1E
+	by smtp1.osuosl.org (Postfix) with ESMTP id 1C99784002;
+	Wed, 29 Jun 2022 06:58:06 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1C99784002
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ko-TSe4k8Mc7; Wed, 29 Jun 2022 06:57:59 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 3B55840CD4;
-	Wed, 29 Jun 2022 06:57:59 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3B55840CD4
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Zq4kZa1HaX6x; Wed, 29 Jun 2022 06:58:05 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id A8B3083F53;
+	Wed, 29 Jun 2022 06:58:04 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A8B3083F53
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 12F78C007C;
-	Wed, 29 Jun 2022 06:57:59 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 32B0AC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E678FC007F;
+	Wed, 29 Jun 2022 06:58:03 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 158ACC002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Jun 2022 06:57:58 +0000 (UTC)
+ Wed, 29 Jun 2022 06:58:03 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 0A21040CD4
+ by smtp4.osuosl.org (Postfix) with ESMTP id DD9EE41A26
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Jun 2022 06:57:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0A21040CD4
+ Wed, 29 Jun 2022 06:58:02 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org DD9EE41A26
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id rR9OCW0GNdzK
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 10hQqDiEqaR7
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Jun 2022 06:57:57 +0000 (UTC)
+ Wed, 29 Jun 2022 06:58:02 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9A66140BEB
-Received: from out30-56.freemail.mail.aliyun.com
- (out30-56.freemail.mail.aliyun.com [115.124.30.56])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 9A66140BEB
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6443641A34
+Received: from out30-132.freemail.mail.aliyun.com
+ (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 6443641A34
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Jun 2022 06:57:56 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R191e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046051;
+ Wed, 29 Jun 2022 06:58:01 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R121e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046049;
  MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=37; SR=0;
- TI=SMTPD_---0VHmjewn_1656485868; 
+ TI=SMTPD_---0VHmjeyR_1656485872; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VHmjewn_1656485868) by smtp.aliyun-inc.com;
- Wed, 29 Jun 2022 14:57:49 +0800
+ fp:SMTPD_---0VHmjeyR_1656485872) by smtp.aliyun-inc.com;
+ Wed, 29 Jun 2022 14:57:54 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: virtualization@lists.linux-foundation.org
-Subject: [PATCH v11 24/40] virtio_pci: struct virtio_pci_common_cfg add
- queue_notify_data
-Date: Wed, 29 Jun 2022 14:56:40 +0800
-Message-Id: <20220629065656.54420-25-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH v11 26/40] virtio: queue_reset: add VIRTIO_F_RING_RESET
+Date: Wed, 29 Jun 2022 14:56:42 +0800
+Message-Id: <20220629065656.54420-27-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20220629065656.54420-1-xuanzhuo@linux.alibaba.com>
 References: <20220629065656.54420-1-xuanzhuo@linux.alibaba.com>
@@ -96,44 +95,42 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Add queue_notify_data in struct virtio_pci_common_cfg, which comes from
-here https://github.com/oasis-tcs/virtio-spec/issues/89
+Added VIRTIO_F_RING_RESET, it came from here
 
-Since I want to add queue_reset after queue_notify_data, I submitted
-this patch first.
+https://github.com/oasis-tcs/virtio-spec/issues/124
+https://github.com/oasis-tcs/virtio-spec/issues/139
+
+This feature indicates that the driver can reset a queue individually.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Acked-by: Jason Wang <jasowang@redhat.com>
 ---
- include/linux/virtio_pci_modern.h | 2 ++
- include/uapi/linux/virtio_pci.h   | 1 +
- 2 files changed, 3 insertions(+)
+ include/uapi/linux/virtio_config.h | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/virtio_pci_modern.h b/include/linux/virtio_pci_modern.h
-index c4f7ffbacb4e..9f31dde46f57 100644
---- a/include/linux/virtio_pci_modern.h
-+++ b/include/linux/virtio_pci_modern.h
-@@ -29,6 +29,8 @@ struct virtio_pci_common_cfg {
- 	__le32 queue_avail_hi;		/* read-write */
- 	__le32 queue_used_lo;		/* read-write */
- 	__le32 queue_used_hi;		/* read-write */
-+	__le16 queue_notify_data;	/* read-write */
-+	__le16 padding;
- };
+diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
+index f0fb0ae021c0..3c05162bc988 100644
+--- a/include/uapi/linux/virtio_config.h
++++ b/include/uapi/linux/virtio_config.h
+@@ -52,7 +52,7 @@
+  * rest are per-device feature bits.
+  */
+ #define VIRTIO_TRANSPORT_F_START	28
+-#define VIRTIO_TRANSPORT_F_END		38
++#define VIRTIO_TRANSPORT_F_END		41
  
- struct virtio_pci_modern_device {
-diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
-index 247ec42af2c8..748b3eb62d2f 100644
---- a/include/uapi/linux/virtio_pci.h
-+++ b/include/uapi/linux/virtio_pci.h
-@@ -176,6 +176,7 @@ struct virtio_pci_cfg_cap {
- #define VIRTIO_PCI_COMMON_Q_AVAILHI	44
- #define VIRTIO_PCI_COMMON_Q_USEDLO	48
- #define VIRTIO_PCI_COMMON_Q_USEDHI	52
-+#define VIRTIO_PCI_COMMON_Q_NDATA	56
- 
- #endif /* VIRTIO_PCI_NO_MODERN */
- 
+ #ifndef VIRTIO_CONFIG_NO_LEGACY
+ /* Do we get callbacks when the ring is completely used, even if we've
+@@ -98,4 +98,9 @@
+  * Does the device support Single Root I/O Virtualization?
+  */
+ #define VIRTIO_F_SR_IOV			37
++
++/*
++ * This feature indicates that the driver can reset a queue individually.
++ */
++#define VIRTIO_F_RING_RESET		40
+ #endif /* _UAPI_LINUX_VIRTIO_CONFIG_H */
 -- 
 2.31.0
 
