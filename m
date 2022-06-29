@@ -1,122 +1,126 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0FB0AC43334
-	for <virtualization@archiver.kernel.org>; Wed, 29 Jun 2022 04:18:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 76922C43334
+	for <virtualization@archiver.kernel.org>; Wed, 29 Jun 2022 06:31:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 7CCDF60BE1;
-	Wed, 29 Jun 2022 04:18:49 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7CCDF60BE1
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=KuDIBN5y
+	by smtp4.osuosl.org (Postfix) with ESMTP id ED8D241A03;
+	Wed, 29 Jun 2022 06:31:19 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org ED8D241A03
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=IxZyt3Gx
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 45Smu3QgWNUd; Wed, 29 Jun 2022 04:18:48 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Xc24HGzd4j-p; Wed, 29 Jun 2022 06:31:18 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id F1CD460A80;
-	Wed, 29 Jun 2022 04:18:47 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org F1CD460A80
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 9A5FC41978;
+	Wed, 29 Jun 2022 06:31:17 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9A5FC41978
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C05A2C0039;
-	Wed, 29 Jun 2022 04:18:47 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5BC4FC0032;
+	Wed, 29 Jun 2022 06:31:17 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 42868C002D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4E8D9C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Jun 2022 04:18:46 +0000 (UTC)
+ Wed, 29 Jun 2022 06:31:16 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 2550581678
+ by smtp1.osuosl.org (Postfix) with ESMTP id 23F90827F0
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Jun 2022 04:18:46 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2550581678
+ Wed, 29 Jun 2022 06:31:16 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 23F90827F0
 Authentication-Results: smtp1.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=KuDIBN5y
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=IxZyt3Gx
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id HX3jjzvrZ4hx
+ with ESMTP id ke3OCVp9buzq
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Jun 2022 04:18:45 +0000 (UTC)
+ Wed, 29 Jun 2022 06:31:15 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3F979815AC
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BA63C828AA
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 3F979815AC
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id BA63C828AA
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Jun 2022 04:18:45 +0000 (UTC)
+ Wed, 29 Jun 2022 06:31:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1656476323;
+ s=mimecast20190719; t=1656484273;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=2h8ccNqJU95HAa4G/EVV71yAZ0Ts5Xe8taofTuRNpD4=;
- b=KuDIBN5yCUclroqoOwQEEe+1GRPs7moeAaCagkOez2LA2HxlTdGBKRHEfTy97okg1TcutR
- u5dpZk3tZGnjDngPpj6jot48sihQtrDCPMtguaV4UmhJAkZG5Z3o7M/xaXBg8rGgESUa7O
- g9boLwJMdik1nl0s5YVAxdD7JaJp3ZI=
-Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
- [209.85.167.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=I+9RF1q6D/YnV5nX1dRXvF5cHfzPeG8DFYB/pyH/RHQ=;
+ b=IxZyt3GxVy0nYYFsur7j+23T2I8DRhfjzu/PA08cGkAysn5axhZlir+jkdYJrdAVn8/O1L
+ 2qBRSLbGQlnv3rFeI3IXJySE/CItgBUgjJzWqUvqvUFZwcPGrz9AgJymhU/vFy/KgfemPg
+ peDjC00KKiYT2j9ZO7hmLdkBlhSJLgQ=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-45-rDPk8JOuNC2qRKLuctw0GQ-1; Wed, 29 Jun 2022 00:18:40 -0400
-X-MC-Unique: rDPk8JOuNC2qRKLuctw0GQ-1
-Received: by mail-lf1-f69.google.com with SMTP id
- z13-20020a056512308d00b004811694f893so4106600lfd.6
+ us-mta-536-kPH41nmfPteCFBn2YnNnPQ-1; Wed, 29 Jun 2022 02:31:11 -0400
+X-MC-Unique: kPH41nmfPteCFBn2YnNnPQ-1
+Received: by mail-wm1-f72.google.com with SMTP id
+ v184-20020a1cacc1000000b0039c7efa3e95so6182858wme.3
  for <virtualization@lists.linux-foundation.org>;
- Tue, 28 Jun 2022 21:18:40 -0700 (PDT)
+ Tue, 28 Jun 2022 23:31:11 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc:content-transfer-encoding;
- bh=2h8ccNqJU95HAa4G/EVV71yAZ0Ts5Xe8taofTuRNpD4=;
- b=215oixxnlmSRsq3WRH/4iuID/SC+pQvJh5p/mZlkOsTc0NWN4QCLBCO6ebCJa7xJ4I
- byCSByO4Ke4ElIUAPlSwem0F6/k61fSpF0X6OsZmevFC3XvwbZ/3BJVR9l96VQ55xDRr
- BK4G8Z/S9JbIXeeKIxf40YiqaL/5FRJwZUtNEAvKyFYghTKt5XKDsygGuUIJwLn14MqI
- kXSgDz2NzRj2IsZwbLEw+ahJELCWvWL8sxfl2Isgi/GSWHEPI8p7kuA359xoaWeL+eOx
- 4PAUERV8jUdrfFqte/HgUr/9gGpwGqhAiGSuIG0C8zyD0b0pV7HC05GI9KgjrZtuAvq6
- 7KuA==
-X-Gm-Message-State: AJIora/PPlEvfno0TlkQb5g4i0dcNpzYpbWAgjb0sT0DO5BwbKsGAOfH
- BxtxgmNofGAL5/T16nKeO6Nwn2z44+8FtcCqEAKNLL62NI7vBpNo5ytL9ip9sAPNX4jpYajV8Yv
- bqJVNOQQRN80hqkUPqQiaqZq9B8OMVloa6hV1TqfqqjBlLNiq7ZQ/u/ynxg==
-X-Received: by 2002:a05:6512:158d:b0:47f:718c:28b5 with SMTP id
- bp13-20020a056512158d00b0047f718c28b5mr811927lfb.397.1656476318742; 
- Tue, 28 Jun 2022 21:18:38 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1vZ6G4jroIyi6EDss7eqJRupKjJ6aAZH6PLBk1sX8uk6DRDfTN14oyEf9afhAJidDtEIQTSOcMcEre11YiA3MQ=
-X-Received: by 2002:a05:6512:158d:b0:47f:718c:28b5 with SMTP id
- bp13-20020a056512158d00b0047f718c28b5mr811892lfb.397.1656476318523; Tue, 28
- Jun 2022 21:18:38 -0700 (PDT)
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=I+9RF1q6D/YnV5nX1dRXvF5cHfzPeG8DFYB/pyH/RHQ=;
+ b=Hc/lMPFmbuGtJmX/SVSF46HyJ+j2C+mF8WEbtJ/XRjO2qpkuT0KnT/rUi+/7cuCwoI
+ ZF1o3QID2Gz0+GM0gOuVvEsUUNxbHHQ3/wqrJEUDbPzeDxqZ1NwbfwcMBFPiv9zU0HFX
+ FxeS9SSOKqVVSS1AiiNtD+qbfV5G7d/TTmCOeiuzutPesZKnFAaw2V2afndev6JVnJR+
+ kQa2P3xiyAtrKGH/HGQffwXatkW80r/Au1SZ3whHmufD8ha28BkTUNyW0t5pgkFnthRO
+ cftWy95RqDTeegu7zqPxCJ2Eo6gdu86Gy5NtM+L/JmYBpPTNBuyTVs+C2lRIB5hQSrEi
+ +pAQ==
+X-Gm-Message-State: AJIora8j/rALRXVabSvJUxRpesFPdIKXwuxUlgcUJPRPaKFvjzk+947Y
+ fr1pkFnVPN8u+/TbELwiYmela65lFC9QGjay6gms9YgbAbW2RsgARhDMKx3tfSTZ2tegr4gH6M5
+ IDNJqou36BCIihdwDHkFiUrpumT08xD87iBsfvrEE3A==
+X-Received: by 2002:adf:ea09:0:b0:21d:2245:ab84 with SMTP id
+ q9-20020adfea09000000b0021d2245ab84mr1359551wrm.542.1656484270100; 
+ Tue, 28 Jun 2022 23:31:10 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1swmf1jxmlPCLuJbv6FmUELagisBcAc6WrE9BmWf7vexeigm9UUyTGKSYWbKyWsf7t3JFfr6Q==
+X-Received: by 2002:adf:ea09:0:b0:21d:2245:ab84 with SMTP id
+ q9-20020adfea09000000b0021d2245ab84mr1359515wrm.542.1656484269797; 
+ Tue, 28 Jun 2022 23:31:09 -0700 (PDT)
+Received: from redhat.com ([2.52.23.204]) by smtp.gmail.com with ESMTPSA id
+ o18-20020a05600c379200b003a033177655sm1853981wmr.29.2022.06.28.23.31.06
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 28 Jun 2022 23:31:09 -0700 (PDT)
+Date: Wed, 29 Jun 2022 02:31:04 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH V3] virtio: disable notification hardening by default
+Message-ID: <20220629022223-mutt-send-email-mst@kernel.org>
+References: <CACGkMEtJY2ioD0L8ifTrCPatG6-NqQ01V=d2L1FeoweKV74LaA@mail.gmail.com>
+ <20220624022622-mutt-send-email-mst@kernel.org>
+ <CACGkMEuurobpUWmDL8zmZ6T6Ygc0OEMx6vx2EDCSoGNnZQ0r-w@mail.gmail.com>
+ <20220627024049-mutt-send-email-mst@kernel.org>
+ <CACGkMEvrDXDN7FH1vKoYCob2rkxUsctE_=g61kzHSZ8tNNr6vA@mail.gmail.com>
+ <20220627053820-mutt-send-email-mst@kernel.org>
+ <CACGkMEvcs+9_SHmO1s3nyzgU7oq7jhU2gircVVR3KDsGDikh5Q@mail.gmail.com>
+ <20220628004614-mutt-send-email-mst@kernel.org>
+ <CACGkMEsC4A+3WejLSOZoH3enXtai=+JyRNbxcpzK4vODYzhaFw@mail.gmail.com>
+ <CACGkMEvu0D0XD7udz0ebVjNM0h5+K9Rjd-5ed=PY_+-aduzG2g@mail.gmail.com>
 MIME-Version: 1.0
-References: <20220623160738.632852-1-eperezma@redhat.com>
- <20220623160738.632852-5-eperezma@redhat.com>
-In-Reply-To: <20220623160738.632852-5-eperezma@redhat.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 29 Jun 2022 12:18:27 +0800
-Message-ID: <CACGkMEtbukb4gcCHytotZr7FA+Dp1cFs4BpPJatR98zqAnNZjA@mail.gmail.com>
-Subject: Re: [PATCH v6 4/4] vdpa_sim: Implement suspend vdpa op
-To: =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>
+In-Reply-To: <CACGkMEvu0D0XD7udz0ebVjNM0h5+K9Rjd-5ed=PY_+-aduzG2g@mail.gmail.com>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: "Kamde, Tanuj" <tanuj.kamde@amd.com>, kvm <kvm@vger.kernel.org>,
- "Michael S. Tsirkin" <mst@redhat.com>,
+Content-Disposition: inline
+Cc: linux-s390@vger.kernel.org, kvm <kvm@vger.kernel.org>,
+ Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+ Cornelia Huck <cohuck@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>,
  virtualization <virtualization@lists.linux-foundation.org>,
- Wu Zongyong <wuzongyong@linux.alibaba.com>,
- Pablo Cascon Katchadourian <pabloc@xilinx.com>, Eli Cohen <elic@nvidia.com>,
- Zhang Min <zhang.min9@zte.com.cn>, Cindy Lu <lulu@redhat.com>, "Uminski,
- Piotr" <Piotr.Uminski@intel.com>,
- Martin Petrus Hubertus Habets <martinh@xilinx.com>,
- Xie Yongji <xieyongji@bytedance.com>, Dinan Gunawardena <dinang@xilinx.com>,
- habetsm.xilinx@gmail.com, Longpeng <longpeng2@huawei.com>,
- Dan Carpenter <dan.carpenter@oracle.com>, Laurent Vivier <lvivier@redhat.com>,
- netdev <netdev@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>,
- ecree.xilinx@gmail.com, Harpreet Singh Anand <hanand@xilinx.com>,
- Martin Porter <martinpo@xilinx.com>, "Dawar, Gautam" <gautam.dawar@amd.com>,
- Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
- Zhu Lingshan <lingshan.zhu@intel.com>
+ Halil Pasic <pasic@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@de.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Ben Hutchings <ben@decadent.org.uk>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -128,94 +132,191 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gRnJpLCBKdW4gMjQsIDIwMjIgYXQgMTI6MDggQU0gRXVnZW5pbyBQw6lyZXogPGVwZXJlem1h
-QHJlZGhhdC5jb20+IHdyb3RlOgo+Cj4gSW1wbGVtZW50IHN1c3BlbmQgb3BlcmF0aW9uIGZvciB2
-ZHBhX3NpbSBkZXZpY2VzLCBzbyB2aG9zdC12ZHBhIHdpbGwKPiBvZmZlciB0aGF0IGJhY2tlbmQg
-ZmVhdHVyZSBhbmQgdXNlcnNwYWNlIGNhbiBlZmZlY3RpdmVseSBzdXNwZW5kIHRoZQo+IGRldmlj
-ZS4KPgo+IFRoaXMgaXMgYSBtdXN0IGJlZm9yZSBnZXQgdmlydHF1ZXVlIGluZGV4ZXMgKGJhc2Up
-IGZvciBsaXZlIG1pZ3JhdGlvbiwKPiBzaW5jZSB0aGUgZGV2aWNlIGNvdWxkIG1vZGlmeSB0aGVt
-IGFmdGVyIHVzZXJsYW5kIGdldHMgdGhlbS4gVGhlcmUgYXJlCj4gaW5kaXZpZHVhbCB3YXlzIHRv
-IHBlcmZvcm0gdGhhdCBhY3Rpb24gZm9yIHNvbWUgZGV2aWNlcwo+IChWSE9TVF9ORVRfU0VUX0JB
-Q0tFTkQsIFZIT1NUX1ZTT0NLX1NFVF9SVU5OSU5HLCAuLi4pIGJ1dCB0aGVyZSB3YXMgbm8KPiB3
-YXkgdG8gcGVyZm9ybSBpdCBmb3IgYW55IHZob3N0IGRldmljZSAoYW5kLCBpbiBwYXJ0aWN1bGFy
-LCB2aG9zdC12ZHBhKS4KPgo+IFJldmlld2VkLWJ5OiBTdGVmYW5vIEdhcnphcmVsbGEgPHNnYXJ6
-YXJlQHJlZGhhdC5jb20+Cj4gU2lnbmVkLW9mZi1ieTogRXVnZW5pbyBQw6lyZXogPGVwZXJlem1h
-QHJlZGhhdC5jb20+Cj4gLS0tCj4gIGRyaXZlcnMvdmRwYS92ZHBhX3NpbS92ZHBhX3NpbS5jICAg
-ICB8IDIxICsrKysrKysrKysrKysrKysrKysrKwo+ICBkcml2ZXJzL3ZkcGEvdmRwYV9zaW0vdmRw
-YV9zaW0uaCAgICAgfCAgMSArCj4gIGRyaXZlcnMvdmRwYS92ZHBhX3NpbS92ZHBhX3NpbV9ibGsu
-YyB8ICAzICsrKwo+ICBkcml2ZXJzL3ZkcGEvdmRwYV9zaW0vdmRwYV9zaW1fbmV0LmMgfCAgMyAr
-KysKPiAgNCBmaWxlcyBjaGFuZ2VkLCAyOCBpbnNlcnRpb25zKCspCj4KPiBkaWZmIC0tZ2l0IGEv
-ZHJpdmVycy92ZHBhL3ZkcGFfc2ltL3ZkcGFfc2ltLmMgYi9kcml2ZXJzL3ZkcGEvdmRwYV9zaW0v
-dmRwYV9zaW0uYwo+IGluZGV4IDBmMjg2NTg5OTY0Ny4uMjEzODgzNDg3ZjliIDEwMDY0NAo+IC0t
-LSBhL2RyaXZlcnMvdmRwYS92ZHBhX3NpbS92ZHBhX3NpbS5jCj4gKysrIGIvZHJpdmVycy92ZHBh
-L3ZkcGFfc2ltL3ZkcGFfc2ltLmMKPiBAQCAtMTA3LDYgKzEwNyw3IEBAIHN0YXRpYyB2b2lkIHZk
-cGFzaW1fZG9fcmVzZXQoc3RydWN0IHZkcGFzaW0gKnZkcGFzaW0pCj4gICAgICAgICBmb3IgKGkg
-PSAwOyBpIDwgdmRwYXNpbS0+ZGV2X2F0dHIubmFzOyBpKyspCj4gICAgICAgICAgICAgICAgIHZo
-b3N0X2lvdGxiX3Jlc2V0KCZ2ZHBhc2ltLT5pb21tdVtpXSk7Cj4KPiArICAgICAgIHZkcGFzaW0t
-PnJ1bm5pbmcgPSB0cnVlOwo+ICAgICAgICAgc3Bpbl91bmxvY2soJnZkcGFzaW0tPmlvbW11X2xv
-Y2spOwo+Cj4gICAgICAgICB2ZHBhc2ltLT5mZWF0dXJlcyA9IDA7Cj4gQEAgLTUwNSw2ICs1MDYs
-MjQgQEAgc3RhdGljIGludCB2ZHBhc2ltX3Jlc2V0KHN0cnVjdCB2ZHBhX2RldmljZSAqdmRwYSkK
-PiAgICAgICAgIHJldHVybiAwOwo+ICB9Cj4KPiArc3RhdGljIGludCB2ZHBhc2ltX3N1c3BlbmQo
-c3RydWN0IHZkcGFfZGV2aWNlICp2ZHBhKQo+ICt7Cj4gKyAgICAgICBzdHJ1Y3QgdmRwYXNpbSAq
-dmRwYXNpbSA9IHZkcGFfdG9fc2ltKHZkcGEpOwo+ICsgICAgICAgaW50IGk7Cj4gKwo+ICsgICAg
-ICAgc3Bpbl9sb2NrKCZ2ZHBhc2ltLT5sb2NrKTsKPiArICAgICAgIHZkcGFzaW0tPnJ1bm5pbmcg
-PSBmYWxzZTsKPiArICAgICAgIGlmICh2ZHBhc2ltLT5ydW5uaW5nKSB7Cj4gKyAgICAgICAgICAg
-ICAgIC8qIENoZWNrIGZvciBtaXNzZWQgYnVmZmVycyAqLwo+ICsgICAgICAgICAgICAgICBmb3Ig
-KGkgPSAwOyBpIDwgdmRwYXNpbS0+ZGV2X2F0dHIubnZxczsgKytpKQo+ICsgICAgICAgICAgICAg
-ICAgICAgICAgIHZkcGFzaW1fa2lja192cSh2ZHBhLCBpKTsKClRoaXMgc2VlbXMgb25seSB2YWxp
-ZCBpZiB3ZSBhbGxvdyByZXN1bWluZz8KClRoYW5rcwoKPiArCj4gKyAgICAgICB9Cj4gKyAgICAg
-ICBzcGluX3VubG9jaygmdmRwYXNpbS0+bG9jayk7Cj4gKwo+ICsgICAgICAgcmV0dXJuIDA7Cj4g
-K30KPiArCj4gIHN0YXRpYyBzaXplX3QgdmRwYXNpbV9nZXRfY29uZmlnX3NpemUoc3RydWN0IHZk
-cGFfZGV2aWNlICp2ZHBhKQo+ICB7Cj4gICAgICAgICBzdHJ1Y3QgdmRwYXNpbSAqdmRwYXNpbSA9
-IHZkcGFfdG9fc2ltKHZkcGEpOwo+IEBAIC02OTQsNiArNzEzLDcgQEAgc3RhdGljIGNvbnN0IHN0
-cnVjdCB2ZHBhX2NvbmZpZ19vcHMgdmRwYXNpbV9jb25maWdfb3BzID0gewo+ICAgICAgICAgLmdl
-dF9zdGF0dXMgICAgICAgICAgICAgPSB2ZHBhc2ltX2dldF9zdGF0dXMsCj4gICAgICAgICAuc2V0
-X3N0YXR1cyAgICAgICAgICAgICA9IHZkcGFzaW1fc2V0X3N0YXR1cywKPiAgICAgICAgIC5yZXNl
-dCAgICAgICAgICAgICAgICAgID0gdmRwYXNpbV9yZXNldCwKPiArICAgICAgIC5zdXNwZW5kICAg
-ICAgICAgICAgICAgID0gdmRwYXNpbV9zdXNwZW5kLAo+ICAgICAgICAgLmdldF9jb25maWdfc2l6
-ZSAgICAgICAgPSB2ZHBhc2ltX2dldF9jb25maWdfc2l6ZSwKPiAgICAgICAgIC5nZXRfY29uZmln
-ICAgICAgICAgICAgID0gdmRwYXNpbV9nZXRfY29uZmlnLAo+ICAgICAgICAgLnNldF9jb25maWcg
-ICAgICAgICAgICAgPSB2ZHBhc2ltX3NldF9jb25maWcsCj4gQEAgLTcyNiw2ICs3NDYsNyBAQCBz
-dGF0aWMgY29uc3Qgc3RydWN0IHZkcGFfY29uZmlnX29wcyB2ZHBhc2ltX2JhdGNoX2NvbmZpZ19v
-cHMgPSB7Cj4gICAgICAgICAuZ2V0X3N0YXR1cyAgICAgICAgICAgICA9IHZkcGFzaW1fZ2V0X3N0
-YXR1cywKPiAgICAgICAgIC5zZXRfc3RhdHVzICAgICAgICAgICAgID0gdmRwYXNpbV9zZXRfc3Rh
-dHVzLAo+ICAgICAgICAgLnJlc2V0ICAgICAgICAgICAgICAgICAgPSB2ZHBhc2ltX3Jlc2V0LAo+
-ICsgICAgICAgLnN1c3BlbmQgICAgICAgICAgICAgICAgPSB2ZHBhc2ltX3N1c3BlbmQsCj4gICAg
-ICAgICAuZ2V0X2NvbmZpZ19zaXplICAgICAgICA9IHZkcGFzaW1fZ2V0X2NvbmZpZ19zaXplLAo+
-ICAgICAgICAgLmdldF9jb25maWcgICAgICAgICAgICAgPSB2ZHBhc2ltX2dldF9jb25maWcsCj4g
-ICAgICAgICAuc2V0X2NvbmZpZyAgICAgICAgICAgICA9IHZkcGFzaW1fc2V0X2NvbmZpZywKPiBk
-aWZmIC0tZ2l0IGEvZHJpdmVycy92ZHBhL3ZkcGFfc2ltL3ZkcGFfc2ltLmggYi9kcml2ZXJzL3Zk
-cGEvdmRwYV9zaW0vdmRwYV9zaW0uaAo+IGluZGV4IDYyMjc4MmU5MjIzOS4uMDYxOTg2ZjMwOTEx
-IDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvdmRwYS92ZHBhX3NpbS92ZHBhX3NpbS5oCj4gKysrIGIv
-ZHJpdmVycy92ZHBhL3ZkcGFfc2ltL3ZkcGFfc2ltLmgKPiBAQCAtNjYsNiArNjYsNyBAQCBzdHJ1
-Y3QgdmRwYXNpbSB7Cj4gICAgICAgICB1MzIgZ2VuZXJhdGlvbjsKPiAgICAgICAgIHU2NCBmZWF0
-dXJlczsKPiAgICAgICAgIHUzMiBncm91cHM7Cj4gKyAgICAgICBib29sIHJ1bm5pbmc7Cj4gICAg
-ICAgICAvKiBzcGlubG9jayB0byBzeW5jaHJvbml6ZSBpb21tdSB0YWJsZSAqLwo+ICAgICAgICAg
-c3BpbmxvY2tfdCBpb21tdV9sb2NrOwo+ICB9Owo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZkcGEv
-dmRwYV9zaW0vdmRwYV9zaW1fYmxrLmMgYi9kcml2ZXJzL3ZkcGEvdmRwYV9zaW0vdmRwYV9zaW1f
-YmxrLmMKPiBpbmRleCA0MmQ0MDFkNDM5MTEuLmJjZGIxOTgyYzM3OCAxMDA2NDQKPiAtLS0gYS9k
-cml2ZXJzL3ZkcGEvdmRwYV9zaW0vdmRwYV9zaW1fYmxrLmMKPiArKysgYi9kcml2ZXJzL3ZkcGEv
-dmRwYV9zaW0vdmRwYV9zaW1fYmxrLmMKPiBAQCAtMjA0LDYgKzIwNCw5IEBAIHN0YXRpYyB2b2lk
-IHZkcGFzaW1fYmxrX3dvcmsoc3RydWN0IHdvcmtfc3RydWN0ICp3b3JrKQo+ICAgICAgICAgaWYg
-KCEodmRwYXNpbS0+c3RhdHVzICYgVklSVElPX0NPTkZJR19TX0RSSVZFUl9PSykpCj4gICAgICAg
-ICAgICAgICAgIGdvdG8gb3V0Owo+Cj4gKyAgICAgICBpZiAoIXZkcGFzaW0tPnJ1bm5pbmcpCj4g
-KyAgICAgICAgICAgICAgIGdvdG8gb3V0Owo+ICsKPiAgICAgICAgIGZvciAoaSA9IDA7IGkgPCBW
-RFBBU0lNX0JMS19WUV9OVU07IGkrKykgewo+ICAgICAgICAgICAgICAgICBzdHJ1Y3QgdmRwYXNp
-bV92aXJ0cXVldWUgKnZxID0gJnZkcGFzaW0tPnZxc1tpXTsKPgo+IGRpZmYgLS1naXQgYS9kcml2
-ZXJzL3ZkcGEvdmRwYV9zaW0vdmRwYV9zaW1fbmV0LmMgYi9kcml2ZXJzL3ZkcGEvdmRwYV9zaW0v
-dmRwYV9zaW1fbmV0LmMKPiBpbmRleCA1MTI1OTc2YTRkZjguLjg4NjQ0OWU4ODUwMiAxMDA2NDQK
-PiAtLS0gYS9kcml2ZXJzL3ZkcGEvdmRwYV9zaW0vdmRwYV9zaW1fbmV0LmMKPiArKysgYi9kcml2
-ZXJzL3ZkcGEvdmRwYV9zaW0vdmRwYV9zaW1fbmV0LmMKPiBAQCAtMTU0LDYgKzE1NCw5IEBAIHN0
-YXRpYyB2b2lkIHZkcGFzaW1fbmV0X3dvcmsoc3RydWN0IHdvcmtfc3RydWN0ICp3b3JrKQo+Cj4g
-ICAgICAgICBzcGluX2xvY2soJnZkcGFzaW0tPmxvY2spOwo+Cj4gKyAgICAgICBpZiAoIXZkcGFz
-aW0tPnJ1bm5pbmcpCj4gKyAgICAgICAgICAgICAgIGdvdG8gb3V0Owo+ICsKPiAgICAgICAgIGlm
-ICghKHZkcGFzaW0tPnN0YXR1cyAmIFZJUlRJT19DT05GSUdfU19EUklWRVJfT0spKQo+ICAgICAg
-ICAgICAgICAgICBnb3RvIG91dDsKPgo+IC0tCj4gMi4zMS4xCj4KCl9fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlz
-dApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3Rz
-LmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Wed, Jun 29, 2022 at 12:07:11PM +0800, Jason Wang wrote:
+> On Tue, Jun 28, 2022 at 2:17 PM Jason Wang <jasowang@redhat.com> wrote:
+> >
+> > On Tue, Jun 28, 2022 at 1:00 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > >
+> > > On Tue, Jun 28, 2022 at 11:49:12AM +0800, Jason Wang wrote:
+> > > > > Heh. Yea sure. But things work fine for people. What is the chance
+> > > > > your review found and fixed all driver bugs?
+> > > >
+> > > > I don't/can't audit all bugs but the race between open/close against
+> > > > ready/reset. It looks to me a good chance to fix them all but if you
+> > > > think differently, let me know
+> > > >
+> > > > > After two attempts
+> > > > > I don't feel like hoping audit will fix all bugs.
+> > > >
+> > > > I've started the auditing and have 15+ patches in the queue. (only
+> > > > covers bluetooth, console, pmem, virtio-net and caif). Spotting the
+> > > > issue is not hard but the testing, It would take at least the time of
+> > > > one release to finalize I guess.
+> > >
+> > > Absolutely. So I am looking for a way to implement hardening that does
+> > > not break existing drivers.
+> >
+> > I totally agree with you to seek a way without bothering the drivers.
+> > Just wonder if this is possbile.
+> >
+> > >
+> > >
+> > > > >
+> > > > >
+> > > > > > >
+> > > > > > > The reason config was kind of easy is that config interrupt is rarely
+> > > > > > > vital for device function so arbitrarily deferring that does not lead to
+> > > > > > > deadlocks - what you are trying to do with VQ interrupts is
+> > > > > > > fundamentally different. Things are especially bad if we just drop
+> > > > > > > an interrupt but deferring can lead to problems too.
+> > > > > >
+> > > > > > I'm not sure I see the difference, disable_irq() stuffs also delay the
+> > > > > > interrupt processing until enable_irq().
+> > > > >
+> > > > >
+> > > > > Absolutely. I am not at all sure disable_irq fixes all problems.
+> > > > >
+> > > > > > >
+> > > > > > > Consider as an example
+> > > > > > >     virtio-net: fix race between ndo_open() and virtio_device_ready()
+> > > > > > > if you just defer vq interrupts you get deadlocks.
+> > > > > > >
+> > > > > > >
+> > > > > >
+> > > > > > I don't see a deadlock here, maybe you can show more detail on this?
+> > > > >
+> > > > > What I mean is this: if we revert the above commit, things still
+> > > > > work (out of spec, but still). If we revert and defer interrupts until
+> > > > > device ready then ndo_open that triggers before device ready deadlocks.
+> > > >
+> > > > Ok, I guess you meant on a hypervisor that is strictly written with spec.
+> > >
+> > > I mean on hypervisor that starts processing queues after getting a kick
+> > > even without DRIVER_OK.
+> >
+> > Oh right.
+> >
+> > >
+> > > > >
+> > > > >
+> > > > > > >
+> > > > > > > So, thinking about all this, how about a simple per vq flag meaning
+> > > > > > > "this vq was kicked since reset"?
+> > > > > >
+> > > > > > And ignore the notification if vq is not kicked? It sounds like the
+> > > > > > callback needs to be synchronized with the kick.
+> > > > >
+> > > > > Note we only need to synchronize it when it changes, which is
+> > > > > only during initialization and reset.
+> > > >
+> > > > Yes.
+> > > >
+> > > > >
+> > > > >
+> > > > > > >
+> > > > > > > If driver does not kick then it's not ready to get callbacks, right?
+> > > > > > >
+> > > > > > > Sounds quite clean, but we need to think through memory ordering
+> > > > > > > concerns - I guess it's only when we change the value so
+> > > > > > >         if (!vq->kicked) {
+> > > > > > >                 vq->kicked = true;
+> > > > > > >                 mb();
+> > > > > > >         }
+> > > > > > >
+> > > > > > > will do the trick, right?
+> > > > > >
+> > > > > > There's no much difference with the existing approach:
+> > > > > >
+> > > > > > 1) your proposal implicitly makes callbacks ready in virtqueue_kick()
+> > > > > > 2) my proposal explicitly makes callbacks ready via virtio_device_ready()
+> > > > > >
+> > > > > > Both require careful auditing of all the existing drivers to make sure
+> > > > > > no kick before DRIVER_OK.
+> > > > >
+> > > > > Jason, kick before DRIVER_OK is out of spec, sure. But it is unrelated
+> > > > > to hardening
+> > > >
+> > > > Yes but with your proposal, it seems to couple kick with DRIVER_OK somehow.
+> > >
+> > > I don't see how - my proposal ignores DRIVER_OK issues.
+> >
+> > Yes, what I meant is, in your proposal, the first kick after rest is a
+> > hint that the driver is ok (but actually it could not).
+> >
+> > >
+> > > > > and in absence of config interrupts is generally easily
+> > > > > fixed just by sticking virtio_device_ready early in initialization.
+> > > >
+> > > > So if the kick is done before the subsystem registration, there's
+> > > > still a window in the middle (assuming we stick virtio_device_ready()
+> > > > early):
+> > > >
+> > > > virtio_device_ready()
+> > > > virtqueue_kick()
+> > > > /* the window */
+> > > > subsystem_registration()
+> > >
+> > > Absolutely, however, I do not think we really have many such drivers
+> > > since this has been known as a wrong thing to do since the beginning.
+> > > Want to try to find any?
+> >
+> > Yes, let me try and update.
+> 
+> This is basically the device that have an RX queue, so I've found the
+> following drivers:
+> 
+> scmi, mac80211_hwsim, vsock, bt, balloon.
+
+Looked and I don't see it yet. Let's consider
+./net/vmw_vsock/virtio_transport.c for example. Assuming we block
+callbacks until the first kick, what is the issue with probe exactly?
+
+
+> >
+> > >I couldn't ... except maybe bluetooth
+> > > but that's just maintainer nacking fixes saying he'll fix it
+> > > his way ...
+> > >
+> > > > And during remove(), we get another window:
+> > > >
+> > > > subsysrem_unregistration()
+> > > > /* the window */
+> > > > virtio_device_reset()
+> > >
+> > > Same here.
+> 
+> Basically for the drivers that set driver_ok before registration,
+
+I don't see what does driver_ok have to do with it.
+
+> so
+> we have a lot:
+> 
+> blk, net, mac80211_hwsim, scsi, vsock, bt, crypto, gpio, gpu, i2c,
+> iommu, caif, pmem, input, mem
+> 
+> So I think there's no easy way to harden the notification without
+> auditing the driver one by one (especially considering the driver may
+> use bh or workqueue). The problem is the notification hardening
+> depends on a correct or race-free probe/remove. So we need to fix the
+> issues in probe/remove then do the hardening on the notification.
+> 
+> Thanks
+
+So if drivers kick but are not ready to get callbacks then let's fix
+that first of all, these are racy with existing qemu even ignoring
+spec compliance.
+
+
+-- 
+MST
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
