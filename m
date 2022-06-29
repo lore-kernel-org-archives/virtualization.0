@@ -1,60 +1,61 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 17BE7C433EF
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 58EDFC43334
 	for <virtualization@archiver.kernel.org>; Wed, 29 Jun 2022 06:57:59 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id B1B8C41A37;
-	Wed, 29 Jun 2022 06:57:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B1B8C41A37
+	by smtp1.osuosl.org (Postfix) with ESMTP id 040A283F9A;
+	Wed, 29 Jun 2022 06:57:59 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 040A283F9A
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id I0xyxphxZju9; Wed, 29 Jun 2022 06:57:57 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id C5F2141A30;
-	Wed, 29 Jun 2022 06:57:56 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C5F2141A30
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id O39JK3purSVs; Wed, 29 Jun 2022 06:57:58 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 990AC83FAB;
+	Wed, 29 Jun 2022 06:57:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 990AC83FAB
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8955CC0032;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C1AF9C0080;
 	Wed, 29 Jun 2022 06:57:56 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 39A47C002D
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 99B0CC0080
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Jun 2022 06:57:53 +0000 (UTC)
+ Wed, 29 Jun 2022 06:57:54 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 1176F41A30
+ by smtp1.osuosl.org (Postfix) with ESMTP id 75F1183F8F
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 29 Jun 2022 06:57:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 75F1183F8F
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 21_aj9Z5_NQA
  for <virtualization@lists.linux-foundation.org>;
  Wed, 29 Jun 2022 06:57:53 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1176F41A30
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id eqFVS7cXsCAk
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4765882BC4
+Received: from out30-54.freemail.mail.aliyun.com
+ (out30-54.freemail.mail.aliyun.com [115.124.30.54])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 4765882BC4
  for <virtualization@lists.linux-foundation.org>;
  Wed, 29 Jun 2022 06:57:52 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7561B41A37
-Received: from out30-131.freemail.mail.aliyun.com
- (out30-131.freemail.mail.aliyun.com [115.124.30.131])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 7561B41A37
- for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Jun 2022 06:57:51 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R951e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018045168;
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R121e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046049;
  MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=37; SR=0;
- TI=SMTPD_---0VHmddn-_1656485864; 
+ TI=SMTPD_---0VHmddo1_1656485866; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VHmddn-_1656485864) by smtp.aliyun-inc.com;
- Wed, 29 Jun 2022 14:57:45 +0800
+ fp:SMTPD_---0VHmddo1_1656485866) by smtp.aliyun-inc.com;
+ Wed, 29 Jun 2022 14:57:47 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: virtualization@lists.linux-foundation.org
-Subject: [PATCH v11 22/40] virtio_ring: introduce virtqueue_resize()
-Date: Wed, 29 Jun 2022 14:56:38 +0800
-Message-Id: <20220629065656.54420-23-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH v11 23/40] virtio_pci: move struct virtio_pci_common_cfg to
+ virtio_pci_modern.h
+Date: Wed, 29 Jun 2022 14:56:39 +0800
+Message-Id: <20220629065656.54420-24-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20220629065656.54420-1-xuanzhuo@linux.alibaba.com>
 References: <20220629065656.54420-1-xuanzhuo@linux.alibaba.com>
@@ -95,123 +96,93 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Introduce virtqueue_resize() to implement the resize of vring.
-Based on these, the driver can dynamically adjust the size of the vring.
-For example: ethtool -G.
+In order to facilitate the expansion of virtio_pci_common_cfg in the
+future, move it from uapi to virtio_pci_modern.h. In this way, we can
+freely expand virtio_pci_common_cfg in the future.
 
-virtqueue_resize() implements resize based on the vq reset function. In
-case of failure to allocate a new vring, it will give up resize and use
-the original vring.
-
-During this process, if the re-enable reset vq fails, the vq can no
-longer be used. Although the probability of this situation is not high.
-
-The parameter recycle is used to recycle the buffer that is no longer
-used.
+Other projects using virtio_pci_common_cfg in uapi need to maintain a
+separate virtio_pci_common_cfg or use the offset macro defined in uapi.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 ---
- drivers/virtio/virtio_ring.c | 72 ++++++++++++++++++++++++++++++++++++
- include/linux/virtio.h       |  3 ++
- 2 files changed, 75 insertions(+)
+ include/linux/virtio_pci_modern.h | 26 ++++++++++++++++++++++++++
+ include/uapi/linux/virtio_pci.h   | 26 --------------------------
+ 2 files changed, 26 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 4860787286db..5ec43607cc15 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -2542,6 +2542,78 @@ struct virtqueue *vring_create_virtqueue(
- }
- EXPORT_SYMBOL_GPL(vring_create_virtqueue);
+diff --git a/include/linux/virtio_pci_modern.h b/include/linux/virtio_pci_modern.h
+index eb2bd9b4077d..c4f7ffbacb4e 100644
+--- a/include/linux/virtio_pci_modern.h
++++ b/include/linux/virtio_pci_modern.h
+@@ -5,6 +5,32 @@
+ #include <linux/pci.h>
+ #include <linux/virtio_pci.h>
  
-+/**
-+ * virtqueue_resize - resize the vring of vq
-+ * @_vq: the struct virtqueue we're talking about.
-+ * @num: new ring num
-+ * @recycle: callback for recycle the useless buffer
-+ *
-+ * When it is really necessary to create a new vring, it will set the current vq
-+ * into the reset state. Then call the passed callback to recycle the buffer
-+ * that is no longer used. Only after the new vring is successfully created, the
-+ * old vring will be released.
-+ *
-+ * Caller must ensure we don't call this with other virtqueue operations
-+ * at the same time (except where noted).
-+ *
-+ * Returns zero or a negative error.
-+ * 0: success.
-+ * -ENOMEM: Failed to allocate a new ring, fall back to the original ring size.
-+ *  vq can still work normally
-+ * -EBUSY: Failed to sync with device, vq may not work properly
-+ * -ENOENT: Transport or device not supported
-+ * -E2BIG/-EINVAL: num error
-+ * -EPERM: Operation not permitted
-+ *
-+ */
-+int virtqueue_resize(struct virtqueue *_vq, u32 num,
-+		     void (*recycle)(struct virtqueue *vq, void *buf))
-+{
-+	struct vring_virtqueue *vq = to_vvq(_vq);
-+	struct virtio_device *vdev = vq->vq.vdev;
-+	bool packed;
-+	void *buf;
-+	int err;
++/* Fields in VIRTIO_PCI_CAP_COMMON_CFG: */
++struct virtio_pci_common_cfg {
++	/* About the whole device. */
++	__le32 device_feature_select;	/* read-write */
++	__le32 device_feature;		/* read-only */
++	__le32 guest_feature_select;	/* read-write */
++	__le32 guest_feature;		/* read-write */
++	__le16 msix_config;		/* read-write */
++	__le16 num_queues;		/* read-only */
++	__u8 device_status;		/* read-write */
++	__u8 config_generation;		/* read-only */
 +
-+	if (!vq->we_own_ring)
-+		return -EPERM;
++	/* About a specific virtqueue. */
++	__le16 queue_select;		/* read-write */
++	__le16 queue_size;		/* read-write, power of 2. */
++	__le16 queue_msix_vector;	/* read-write */
++	__le16 queue_enable;		/* read-write */
++	__le16 queue_notify_off;	/* read-only */
++	__le32 queue_desc_lo;		/* read-write */
++	__le32 queue_desc_hi;		/* read-write */
++	__le32 queue_avail_lo;		/* read-write */
++	__le32 queue_avail_hi;		/* read-write */
++	__le32 queue_used_lo;		/* read-write */
++	__le32 queue_used_hi;		/* read-write */
++};
 +
-+	if (num > vq->vq.num_max)
-+		return -E2BIG;
-+
-+	if (!num)
-+		return -EINVAL;
-+
-+	packed = virtio_has_feature(vdev, VIRTIO_F_RING_PACKED) ? true : false;
-+
-+	if ((packed ? vq->packed.vring.num : vq->split.vring.num) == num)
-+		return 0;
-+
-+	if (!vdev->config->reset_vq)
-+		return -ENOENT;
-+
-+	if (!vdev->config->enable_reset_vq)
-+		return -ENOENT;
-+
-+	err = vdev->config->reset_vq(_vq);
-+	if (err)
-+		return err;
-+
-+	while ((buf = virtqueue_detach_unused_buf(_vq)) != NULL)
-+		recycle(_vq, buf);
-+
-+	if (packed)
-+		err = virtqueue_resize_packed(_vq, num);
-+	else
-+		err = virtqueue_resize_split(_vq, num);
-+
-+	if (vdev->config->enable_reset_vq(_vq))
-+		return -EBUSY;
-+
-+	return err;
-+}
-+EXPORT_SYMBOL_GPL(virtqueue_resize);
-+
- /* Only available for split ring */
- struct virtqueue *vring_new_virtqueue(unsigned int index,
- 				      unsigned int num,
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index a82620032e43..1272566adec6 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -91,6 +91,9 @@ dma_addr_t virtqueue_get_desc_addr(struct virtqueue *vq);
- dma_addr_t virtqueue_get_avail_addr(struct virtqueue *vq);
- dma_addr_t virtqueue_get_used_addr(struct virtqueue *vq);
+ struct virtio_pci_modern_device {
+ 	struct pci_dev *pci_dev;
  
-+int virtqueue_resize(struct virtqueue *vq, u32 num,
-+		     void (*recycle)(struct virtqueue *vq, void *buf));
-+
- /**
-  * virtio_device - representation of a device using virtio
-  * @index: unique position on the virtio bus
+diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
+index 3a86f36d7e3d..247ec42af2c8 100644
+--- a/include/uapi/linux/virtio_pci.h
++++ b/include/uapi/linux/virtio_pci.h
+@@ -140,32 +140,6 @@ struct virtio_pci_notify_cap {
+ 	__le32 notify_off_multiplier;	/* Multiplier for queue_notify_off. */
+ };
+ 
+-/* Fields in VIRTIO_PCI_CAP_COMMON_CFG: */
+-struct virtio_pci_common_cfg {
+-	/* About the whole device. */
+-	__le32 device_feature_select;	/* read-write */
+-	__le32 device_feature;		/* read-only */
+-	__le32 guest_feature_select;	/* read-write */
+-	__le32 guest_feature;		/* read-write */
+-	__le16 msix_config;		/* read-write */
+-	__le16 num_queues;		/* read-only */
+-	__u8 device_status;		/* read-write */
+-	__u8 config_generation;		/* read-only */
+-
+-	/* About a specific virtqueue. */
+-	__le16 queue_select;		/* read-write */
+-	__le16 queue_size;		/* read-write, power of 2. */
+-	__le16 queue_msix_vector;	/* read-write */
+-	__le16 queue_enable;		/* read-write */
+-	__le16 queue_notify_off;	/* read-only */
+-	__le32 queue_desc_lo;		/* read-write */
+-	__le32 queue_desc_hi;		/* read-write */
+-	__le32 queue_avail_lo;		/* read-write */
+-	__le32 queue_avail_hi;		/* read-write */
+-	__le32 queue_used_lo;		/* read-write */
+-	__le32 queue_used_hi;		/* read-write */
+-};
+-
+ /* Fields in VIRTIO_PCI_CAP_PCI_CFG: */
+ struct virtio_pci_cfg_cap {
+ 	struct virtio_pci_cap cap;
 -- 
 2.31.0
 
