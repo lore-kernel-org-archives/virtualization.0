@@ -4,123 +4,114 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A13A8C43334
-	for <virtualization@archiver.kernel.org>; Wed, 29 Jun 2022 08:52:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C3079C433EF
+	for <virtualization@archiver.kernel.org>; Wed, 29 Jun 2022 09:23:00 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 3ADC383F9C;
-	Wed, 29 Jun 2022 08:52:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3ADC383F9C
+	by smtp1.osuosl.org (Postfix) with ESMTP id 4C4DB82F32;
+	Wed, 29 Jun 2022 09:23:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4C4DB82F32
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=SejwiNU6
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RdIDpeCN
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id dL24kwrYvz-7; Wed, 29 Jun 2022 08:52:53 +0000 (UTC)
+	with ESMTP id pLtnjkelbmkX; Wed, 29 Jun 2022 09:22:59 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 6014F82A2D;
-	Wed, 29 Jun 2022 08:52:52 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6014F82A2D
+	by smtp1.osuosl.org (Postfix) with ESMTPS id BECDE82B1B;
+	Wed, 29 Jun 2022 09:22:58 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BECDE82B1B
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2240BC0032;
-	Wed, 29 Jun 2022 08:52:52 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8095EC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A304BC0039;
+	Wed, 29 Jun 2022 09:22:58 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7B605C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Jun 2022 08:52:49 +0000 (UTC)
+ Wed, 29 Jun 2022 09:22:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 40AF940600
+ by smtp4.osuosl.org (Postfix) with ESMTP id 4F16140227
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Jun 2022 08:52:49 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 40AF940600
-Authentication-Results: smtp2.osuosl.org;
+ Wed, 29 Jun 2022 09:22:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4F16140227
+Authentication-Results: smtp4.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=SejwiNU6
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=RdIDpeCN
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id NGfTnjLb8CNy
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id NJ3fXWGGK9U8
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Jun 2022 08:52:48 +0000 (UTC)
+ Wed, 29 Jun 2022 09:22:56 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org ECAAF4012B
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5421F409A2
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id ECAAF4012B
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 5421F409A2
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Jun 2022 08:52:47 +0000 (UTC)
+ Wed, 29 Jun 2022 09:22:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1656492766;
+ s=mimecast20190719; t=1656494574;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=tjHgFOOMuwf6AeuJnxaWU75Wb4tjTVtbPHKN66dUZeM=;
- b=SejwiNU6/ldjq8ODuv4TePqwzD6DDkhtnd2fA3i8nKWH1aaRR7CBe/sRWEda4MUK1gRrE4
- kIpU7PQoqdjovYS9Dx2i7JhH+SX7XAwxUyks92OkrtrKTG9w2ldD63Hpe+Vw+QH+qUTEgQ
- 8NkYRHLkf2gKNlKecSFY0Y0oDl7jlHc=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=3T3KoZe6xrSR0yQtVMqOrhBkODeV64PTbOu8+iOAQkg=;
+ b=RdIDpeCN+4q4OqoiR8Sjx0FZU8DRIq//nSnFFoUqM7Qnq4ZesdEDFheeZlWKgK0yZf4Tn2
+ FIhTse3O3hs7P6Vjycns1MWOXksoPaQdKlyq0oaGfJbMlysg2d2QKKODPsK8IXAAA2pbQL
+ cdCRwqlVe9GWxjaYqeJUPFupE0ZPAUo=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-62-zb-AcYz6ODafZcY_kSZ4Wg-1; Wed, 29 Jun 2022 04:52:45 -0400
-X-MC-Unique: zb-AcYz6ODafZcY_kSZ4Wg-1
-Received: by mail-wr1-f69.google.com with SMTP id
- s14-20020adfa28e000000b0020ac7532f08so2191813wra.15
+ us-mta-326-hBncr2bQN46eQIbCpbX79A-1; Wed, 29 Jun 2022 05:22:53 -0400
+X-MC-Unique: hBncr2bQN46eQIbCpbX79A-1
+Received: by mail-wm1-f69.google.com with SMTP id
+ h125-20020a1c2183000000b003a0374f1eb8so9150442wmh.8
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Jun 2022 01:52:44 -0700 (PDT)
+ Wed, 29 Jun 2022 02:22:53 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=tjHgFOOMuwf6AeuJnxaWU75Wb4tjTVtbPHKN66dUZeM=;
- b=ZWZpuJUFocY1L15AqcFQBn7vzpcS5wKhnzZVyx89E52+A0nC7QmJZ3M8wHB6rJwLJI
- LBR2RIh2rxLAwiRh1PhnYw17yaBDyFEbLlnIaZqS9gICTGvO5urLmU5/e/KbdoV4hORd
- ZE4fI//GNfkdrkWSUvcS9aEV+6JInGbQiAdLWmAT4TDXgn2tcaBYAfcRgPx+TJgVBZhc
- 0E6zECaarCXCHgMmvjdL85XmEx3YZ0jro9yp8wkHy9XZ1TpONO7o2IoI2YqokvWASqjh
- oWl6Icpvp8Xohe1j8d7KNjgyoFyRkG4t3ptE3wkjPjppswb9+4L1CA/pU7BrPOm+s8Ye
- LO1A==
-X-Gm-Message-State: AJIora8e86i5Q6bp/xd3MkjAJkxT+e9o2cmbPVkSC1/kmKqzBYgEZAqd
- CITQgz1Muj4oCmE9kWsa3JIKTZse/+liI2Fwp6KI6LaddU5ZDtMTPrVFr3TVdRPotSMM5yJRD7u
- ZRE5mVu8qASJKJsOGto5NFO7NHsfR/cKjQB2qj0GIJQ==
-X-Received: by 2002:adf:d1e9:0:b0:21b:c8f8:3c16 with SMTP id
- g9-20020adfd1e9000000b0021bc8f83c16mr1873034wrd.659.1656492763815; 
- Wed, 29 Jun 2022 01:52:43 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1tnrgKv64tg1zyPl055DmvcOx5lZT7xnZAKvFjKTcNvVC5btuOpowGMnA/4sz0hlWnQATLe7A==
-X-Received: by 2002:adf:d1e9:0:b0:21b:c8f8:3c16 with SMTP id
- g9-20020adfd1e9000000b0021bc8f83c16mr1873015wrd.659.1656492763509; 
- Wed, 29 Jun 2022 01:52:43 -0700 (PDT)
+ bh=3T3KoZe6xrSR0yQtVMqOrhBkODeV64PTbOu8+iOAQkg=;
+ b=VTt83VQPWNM/GuCWU6940Rq/t2VQYBIMjPXWZBbYU9Utxg+uyYcy2PYao9DhpXqDAj
+ JHV/dYXW8ahcgkAaOUyTbCzxxx5fUfYXQOxjHHeS5ZRSaDvgexxcEF3M5sPxO61IBjGO
+ HVTXPv2K1dDCgDNw5BeI85XEMPKdKYy019yLMxfhh5JTDu3DU9/N3Yndo+tTSdb4tlbJ
+ RHHnZjn5jDYR/zriAN7sBciHxilV8bKbzSqjDzD7vqXbZvaTw486f93zejNeTPVG6o+l
+ BKf+/RbcVMF1UHYx0M20npS96r1R4p68Ypnvkl6MSEcKvHXXNsjHirYAq6DQTzzAQK1C
+ AWWg==
+X-Gm-Message-State: AJIora8AllN3xMGHtVxKHVN+t9TOoZQa4O7VeqVbyxVibrxXlgqXfO53
+ 9VOzqNhry/2rbqTruTpzH/PAJxqF3kIfPH0Erc3e7KON0eM+BXMCxKEnGueqtmcqDCPxMAga+po
+ CEC7cENCGCEx90JISIOOL1ju4pUvIEKDfdp9bwMai4g==
+X-Received: by 2002:a05:600c:4fc9:b0:3a0:4d54:b315 with SMTP id
+ o9-20020a05600c4fc900b003a04d54b315mr2464372wmq.62.1656494572271; 
+ Wed, 29 Jun 2022 02:22:52 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1uxC/Xv2PCl30ysM0HmldDOVWW/6SECfAu75JVsX0/hX7re1RKv0XaHkkLAz5M55BrTVL72bw==
+X-Received: by 2002:a05:600c:4fc9:b0:3a0:4d54:b315 with SMTP id
+ o9-20020a05600c4fc900b003a04d54b315mr2464356wmq.62.1656494572066; 
+ Wed, 29 Jun 2022 02:22:52 -0700 (PDT)
 Received: from redhat.com ([2.52.23.204]) by smtp.gmail.com with ESMTPSA id
- l20-20020a05600c4f1400b003a02b9c47e4sm2953183wmq.27.2022.06.29.01.52.39
+ x2-20020a7bc202000000b0039c18d3fe27sm2433190wmi.19.2022.06.29.02.22.49
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 29 Jun 2022 01:52:42 -0700 (PDT)
-Date: Wed, 29 Jun 2022 04:52:37 -0400
+ Wed, 29 Jun 2022 02:22:51 -0700 (PDT)
+Date: Wed, 29 Jun 2022 05:22:47 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V3] virtio: disable notification hardening by default
-Message-ID: <20220629044514-mutt-send-email-mst@kernel.org>
-References: <CACGkMEvrDXDN7FH1vKoYCob2rkxUsctE_=g61kzHSZ8tNNr6vA@mail.gmail.com>
- <20220627053820-mutt-send-email-mst@kernel.org>
- <CACGkMEvcs+9_SHmO1s3nyzgU7oq7jhU2gircVVR3KDsGDikh5Q@mail.gmail.com>
- <20220628004614-mutt-send-email-mst@kernel.org>
- <CACGkMEsC4A+3WejLSOZoH3enXtai=+JyRNbxcpzK4vODYzhaFw@mail.gmail.com>
- <CACGkMEvu0D0XD7udz0ebVjNM0h5+K9Rjd-5ed=PY_+-aduzG2g@mail.gmail.com>
- <20220629022223-mutt-send-email-mst@kernel.org>
- <CACGkMEuwvzkbPUSFueCOjit7pRJ81v3-W3SZD+7jQJN8btEFdg@mail.gmail.com>
- <20220629030600-mutt-send-email-mst@kernel.org>
- <CACGkMEvnUj622FyROUftifSB47wytPg0YAdVO7fdRQmCE+WuBg@mail.gmail.com>
+To: Yongji Xie <xieyongji@bytedance.com>
+Subject: Re: [PATCH 6/6] vduse: Update api version to 1
+Message-ID: <20220629052130-mutt-send-email-mst@kernel.org>
+References: <20220629082541.118-1-xieyongji@bytedance.com>
+ <20220629082541.118-7-xieyongji@bytedance.com>
+ <20220629042856-mutt-send-email-mst@kernel.org>
+ <CACycT3sZXwunA_UOCriSv=f2VARMnPb1mNU2GAUd9BLCU-Hg8w@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEvnUj622FyROUftifSB47wytPg0YAdVO7fdRQmCE+WuBg@mail.gmail.com>
+In-Reply-To: <CACycT3sZXwunA_UOCriSv=f2VARMnPb1mNU2GAUd9BLCU-Hg8w@mail.gmail.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: linux-s390@vger.kernel.org, kvm <kvm@vger.kernel.org>,
- Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
- Cornelia Huck <cohuck@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>,
+Cc: Liu Xiaodong <xiaodong.liu@intel.com>,
+ linux-kernel <linux-kernel@vger.kernel.org>,
  virtualization <virtualization@lists.linux-foundation.org>,
- Halil Pasic <pasic@linux.ibm.com>,
- Christian Borntraeger <borntraeger@de.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Ben Hutchings <ben@decadent.org.uk>
+ Maxime Coquelin <maxime.coquelin@redhat.com>,
+ Stefan Hajnoczi <stefanha@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -137,267 +128,69 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Jun 29, 2022 at 04:34:36PM +0800, Jason Wang wrote:
-> On Wed, Jun 29, 2022 at 3:15 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+On Wed, Jun 29, 2022 at 05:02:40PM +0800, Yongji Xie wrote:
+> On Wed, Jun 29, 2022 at 4:33 PM Michael S. Tsirkin <mst@redhat.com> wrote:
 > >
-> > On Wed, Jun 29, 2022 at 03:02:21PM +0800, Jason Wang wrote:
-> > > On Wed, Jun 29, 2022 at 2:31 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > >
-> > > > On Wed, Jun 29, 2022 at 12:07:11PM +0800, Jason Wang wrote:
-> > > > > On Tue, Jun 28, 2022 at 2:17 PM Jason Wang <jasowang@redhat.com> wrote:
-> > > > > >
-> > > > > > On Tue, Jun 28, 2022 at 1:00 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > > > > >
-> > > > > > > On Tue, Jun 28, 2022 at 11:49:12AM +0800, Jason Wang wrote:
-> > > > > > > > > Heh. Yea sure. But things work fine for people. What is the chance
-> > > > > > > > > your review found and fixed all driver bugs?
-> > > > > > > >
-> > > > > > > > I don't/can't audit all bugs but the race between open/close against
-> > > > > > > > ready/reset. It looks to me a good chance to fix them all but if you
-> > > > > > > > think differently, let me know
-> > > > > > > >
-> > > > > > > > > After two attempts
-> > > > > > > > > I don't feel like hoping audit will fix all bugs.
-> > > > > > > >
-> > > > > > > > I've started the auditing and have 15+ patches in the queue. (only
-> > > > > > > > covers bluetooth, console, pmem, virtio-net and caif). Spotting the
-> > > > > > > > issue is not hard but the testing, It would take at least the time of
-> > > > > > > > one release to finalize I guess.
-> > > > > > >
-> > > > > > > Absolutely. So I am looking for a way to implement hardening that does
-> > > > > > > not break existing drivers.
-> > > > > >
-> > > > > > I totally agree with you to seek a way without bothering the drivers.
-> > > > > > Just wonder if this is possbile.
-> > > > > >
-> > > > > > >
-> > > > > > >
-> > > > > > > > >
-> > > > > > > > >
-> > > > > > > > > > >
-> > > > > > > > > > > The reason config was kind of easy is that config interrupt is rarely
-> > > > > > > > > > > vital for device function so arbitrarily deferring that does not lead to
-> > > > > > > > > > > deadlocks - what you are trying to do with VQ interrupts is
-> > > > > > > > > > > fundamentally different. Things are especially bad if we just drop
-> > > > > > > > > > > an interrupt but deferring can lead to problems too.
-> > > > > > > > > >
-> > > > > > > > > > I'm not sure I see the difference, disable_irq() stuffs also delay the
-> > > > > > > > > > interrupt processing until enable_irq().
-> > > > > > > > >
-> > > > > > > > >
-> > > > > > > > > Absolutely. I am not at all sure disable_irq fixes all problems.
-> > > > > > > > >
-> > > > > > > > > > >
-> > > > > > > > > > > Consider as an example
-> > > > > > > > > > >     virtio-net: fix race between ndo_open() and virtio_device_ready()
-> > > > > > > > > > > if you just defer vq interrupts you get deadlocks.
-> > > > > > > > > > >
-> > > > > > > > > > >
-> > > > > > > > > >
-> > > > > > > > > > I don't see a deadlock here, maybe you can show more detail on this?
-> > > > > > > > >
-> > > > > > > > > What I mean is this: if we revert the above commit, things still
-> > > > > > > > > work (out of spec, but still). If we revert and defer interrupts until
-> > > > > > > > > device ready then ndo_open that triggers before device ready deadlocks.
-> > > > > > > >
-> > > > > > > > Ok, I guess you meant on a hypervisor that is strictly written with spec.
-> > > > > > >
-> > > > > > > I mean on hypervisor that starts processing queues after getting a kick
-> > > > > > > even without DRIVER_OK.
-> > > > > >
-> > > > > > Oh right.
-> > > > > >
-> > > > > > >
-> > > > > > > > >
-> > > > > > > > >
-> > > > > > > > > > >
-> > > > > > > > > > > So, thinking about all this, how about a simple per vq flag meaning
-> > > > > > > > > > > "this vq was kicked since reset"?
-> > > > > > > > > >
-> > > > > > > > > > And ignore the notification if vq is not kicked? It sounds like the
-> > > > > > > > > > callback needs to be synchronized with the kick.
-> > > > > > > > >
-> > > > > > > > > Note we only need to synchronize it when it changes, which is
-> > > > > > > > > only during initialization and reset.
-> > > > > > > >
-> > > > > > > > Yes.
-> > > > > > > >
-> > > > > > > > >
-> > > > > > > > >
-> > > > > > > > > > >
-> > > > > > > > > > > If driver does not kick then it's not ready to get callbacks, right?
-> > > > > > > > > > >
-> > > > > > > > > > > Sounds quite clean, but we need to think through memory ordering
-> > > > > > > > > > > concerns - I guess it's only when we change the value so
-> > > > > > > > > > >         if (!vq->kicked) {
-> > > > > > > > > > >                 vq->kicked = true;
-> > > > > > > > > > >                 mb();
-> > > > > > > > > > >         }
-> > > > > > > > > > >
-> > > > > > > > > > > will do the trick, right?
-> > > > > > > > > >
-> > > > > > > > > > There's no much difference with the existing approach:
-> > > > > > > > > >
-> > > > > > > > > > 1) your proposal implicitly makes callbacks ready in virtqueue_kick()
-> > > > > > > > > > 2) my proposal explicitly makes callbacks ready via virtio_device_ready()
-> > > > > > > > > >
-> > > > > > > > > > Both require careful auditing of all the existing drivers to make sure
-> > > > > > > > > > no kick before DRIVER_OK.
-> > > > > > > > >
-> > > > > > > > > Jason, kick before DRIVER_OK is out of spec, sure. But it is unrelated
-> > > > > > > > > to hardening
-> > > > > > > >
-> > > > > > > > Yes but with your proposal, it seems to couple kick with DRIVER_OK somehow.
-> > > > > > >
-> > > > > > > I don't see how - my proposal ignores DRIVER_OK issues.
-> > > > > >
-> > > > > > Yes, what I meant is, in your proposal, the first kick after rest is a
-> > > > > > hint that the driver is ok (but actually it could not).
-> > > > > >
-> > > > > > >
-> > > > > > > > > and in absence of config interrupts is generally easily
-> > > > > > > > > fixed just by sticking virtio_device_ready early in initialization.
-> > > > > > > >
-> > > > > > > > So if the kick is done before the subsystem registration, there's
-> > > > > > > > still a window in the middle (assuming we stick virtio_device_ready()
-> > > > > > > > early):
-> > > > > > > >
-> > > > > > > > virtio_device_ready()
-> > > > > > > > virtqueue_kick()
-> > > > > > > > /* the window */
-> > > > > > > > subsystem_registration()
-> > > > > > >
-> > > > > > > Absolutely, however, I do not think we really have many such drivers
-> > > > > > > since this has been known as a wrong thing to do since the beginning.
-> > > > > > > Want to try to find any?
-> > > > > >
-> > > > > > Yes, let me try and update.
-> > > > >
-> > > > > This is basically the device that have an RX queue, so I've found the
-> > > > > following drivers:
-> > > > >
-> > > > > scmi, mac80211_hwsim, vsock, bt, balloon.
-> > > >
-> > > > Looked and I don't see it yet. Let's consider
-> > > > ./net/vmw_vsock/virtio_transport.c for example. Assuming we block
-> > > > callbacks until the first kick, what is the issue with probe exactly?
+> > On Wed, Jun 29, 2022 at 04:25:41PM +0800, Xie Yongji wrote:
+> > > Let's update api version to 1 since we introduced
+> > > some new ioctls to support registering userspace
+> > > memory for IOTLB.
 > > >
-> > > We need to make sure the callback can survive when it runs before sub
-> > > system registration.
+> > > Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
 > >
-> > With my proposal no - only if we also kick before registration.
-> > So I do not see the issue yet.
 > >
-> > Consider ./net/vmw_vsock/virtio_transport.c
+> > Adding new ioctls does not justify things like this.
 > >
-> > kicks: virtio_transport_send_pkt_work,
-> > virtio_vsock_rx_fill, virtio_vsock_event_fill
-> >
-> > which of these triggers before we are ready to
-> > handle callbacks?
 > 
-> So:
+> What I want to do here is make userspace know whether this feature is
+> supported or not in the kernel. So do you think we need to add
+> something like CHECK_EXTENSION ioctl here?
+
+Why bother? unsupported ioctls just return an error code.
+
+> > Besides, adding UAPI then changing it is not nice
+> > since it makes git bisect behave incorrectly.
+> >
+> > > ---
+> > >  drivers/vdpa/vdpa_user/vduse_dev.c | 12 ++++++++++++
+> > >  include/uapi/linux/vduse.h         |  8 +++++++-
+> > >  2 files changed, 19 insertions(+), 1 deletion(-)
+> > >
+> > > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > index 7b2ea7612da9..2795785ca6a2 100644
+> > > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > @@ -1206,6 +1206,10 @@ static long vduse_dev_ioctl(struct file *file, unsigned int cmd,
+> > >       case VDUSE_IOTLB_GET_INFO: {
+> > >               struct vduse_iotlb_info iotlb;
+> > >
+> > > +             ret = -EPERM;
+> >
+> >
+> > Almost for sure a wrong error code.
+> >
+> > > +             if (dev->api_version < 1)
+> > > +                     break;
+> > > +
+> > >               iotlb.bounce_iova = 0;
+> > >               iotlb.bounce_size = dev->domain->bounce_size;
+> > >
+> >
+> >
+> > Wait a second. so you are intentionally breaking any userspace
+> > that called VDUSE_SET_API_VERSION with version 0?
+> >
+> > Please don't.
+> >
 > 
-> virtio_vsock_vqs_init()
->     virtio_device_ready()
->     virtio_vsock_rx_fill() /* kick there */
-> rcu_assign_pointer(the_virtio_vsock, vsock)
+> Yes, I'd like to let userspace know we don't support this feature.
 > 
-> It means at least virtio_vsock_rx_done()/virtio_vsock_workqueue needs
-> to survive. I don't say it has a bug but we do need to audit the code
-> in this case. The implication is: the virtqueue callback should be
-> written with no assumption that the driver has registered in the
-> subsystem. We don't or can't assume all drivers are written in this
-> way.
+> Thanks.
+> Yongji
 
 
-I thought you said you audited code and found bugs.
-
-My claim is that simply because qemu starts processing
-packets immediately upon kick, if bugs like this
-existed we would have noticed by now.
-
-In this case the_virtio_vsock is used for xmit things,
-callbacks do not seem to use it at all.
-
-> >
-> >
-> > > >
-> > > >
-> > > > > >
-> > > > > > >I couldn't ... except maybe bluetooth
-> > > > > > > but that's just maintainer nacking fixes saying he'll fix it
-> > > > > > > his way ...
-> > > > > > >
-> > > > > > > > And during remove(), we get another window:
-> > > > > > > >
-> > > > > > > > subsysrem_unregistration()
-> > > > > > > > /* the window */
-> > > > > > > > virtio_device_reset()
-> > > > > > >
-> > > > > > > Same here.
-> > > > >
-> > > > > Basically for the drivers that set driver_ok before registration,
-> > > >
-> > > > I don't see what does driver_ok have to do with it.
-> > >
-> > > I meant for those driver, in probe they do()
-> > >
-> > > virtio_device_ready()
-> > > subsystem_register()
-> > >
-> > > In remove() they do
-> > >
-> > > subsystem_unregister()
-> > > virtio_device_reset()
-> > >
-> > > for symmetry
-> >
-> > Let's leave remove alone for now. I am close to 100% sure we have *lots*
-> > of issues around it, but while probe is unavoidable remove can be
-> > avoided by blocking hotplug.
-> 
-> Unbind can trigger this path as well.
-> 
-> >
-> >
-> > > >
-> > > > > so
-> > > > > we have a lot:
-> > > > >
-> > > > > blk, net, mac80211_hwsim, scsi, vsock, bt, crypto, gpio, gpu, i2c,
-> > > > > iommu, caif, pmem, input, mem
-> > > > >
-> > > > > So I think there's no easy way to harden the notification without
-> > > > > auditing the driver one by one (especially considering the driver may
-> > > > > use bh or workqueue). The problem is the notification hardening
-> > > > > depends on a correct or race-free probe/remove. So we need to fix the
-> > > > > issues in probe/remove then do the hardening on the notification.
-> > > > >
-> > > > > Thanks
-> > > >
-> > > > So if drivers kick but are not ready to get callbacks then let's fix
-> > > > that first of all, these are racy with existing qemu even ignoring
-> > > > spec compliance.
-> > >
-> > > Yes, (the patches I've posted so far exist even with a well-behaved device).
-> > >
-> > > Thanks
-> >
-> > patches you posted deal with DRIVER_OK spec compliance.
-> > I do not see patches for kicks before callbacks are ready to run.
-> 
-> Yes.
-> 
-> Thanks
-> 
-> >
-> > > >
-> > > >
-> > > > --
-> > > > MST
-> > > >
-> >
+-- 
+MST
 
 _______________________________________________
 Virtualization mailing list
