@@ -4,81 +4,81 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B476CC433EF
-	for <virtualization@archiver.kernel.org>; Thu, 30 Jun 2022 02:08:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 75A69C433EF
+	for <virtualization@archiver.kernel.org>; Thu, 30 Jun 2022 02:08:24 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 2B48C414C6;
-	Thu, 30 Jun 2022 02:08:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2B48C414C6
+	by smtp4.osuosl.org (Postfix) with ESMTP id E414A41765;
+	Thu, 30 Jun 2022 02:08:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E414A41765
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=SxM0q7A0
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=imObbxbj
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id H5sliFoQGAwN; Thu, 30 Jun 2022 02:08:19 +0000 (UTC)
+	with ESMTP id TI8Z2pU-Lf2N; Thu, 30 Jun 2022 02:08:22 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id E7D0E410E0;
-	Thu, 30 Jun 2022 02:08:18 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E7D0E410E0
+	by smtp4.osuosl.org (Postfix) with ESMTPS id F405B410E6;
+	Thu, 30 Jun 2022 02:08:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org F405B410E6
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 92410C002D;
-	Thu, 30 Jun 2022 02:08:18 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 2A9A5C0011
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D6DB0C002D;
+	Thu, 30 Jun 2022 02:08:21 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B2B3AC0011
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Jun 2022 02:08:17 +0000 (UTC)
+ Thu, 30 Jun 2022 02:08:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id F2B15408D2
+ by smtp4.osuosl.org (Postfix) with ESMTP id 85F9E41708
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Jun 2022 02:08:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org F2B15408D2
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=SxM0q7A0
+ Thu, 30 Jun 2022 02:08:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 85F9E41708
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id MxiynPbTAQuw
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id gNxagu5kJ-XF
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Jun 2022 02:08:16 +0000 (UTC)
+ Thu, 30 Jun 2022 02:08:19 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1D3C440176
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 18051414C6
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 1D3C440176
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 18051414C6
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Jun 2022 02:08:15 +0000 (UTC)
+ Thu, 30 Jun 2022 02:08:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1656554894;
+ s=mimecast20190719; t=1656554897;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding;
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
  bh=rdzs+ejxlay4oS8U29luxVEbd5hmptD+SpCokSpGfUE=;
- b=SxM0q7A0iUGRGEHB6VPgjaqh99MBqy3VMwIWCZVxKyxTlARTJy0rZIu24nnBErARskASuw
- RzceX1xouCeEUC2xJlVKyfb32JCfbs2XnjAM7nPYDaywFMifXjxOJC3KZxouXzr0dpVMMj
- C3yVa2/cPIRtoZJ3LZRE2ysSyOgmquA=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ b=imObbxbjgJXjW1T/IXZUN5ynf+5HMJFPtu7iCIsSk+xSrVQlOBJcyY/Q+iJLDDSevQyfhj
+ i71/ErqZCd384+0RdmjZ10ohalYc3bPz78cOnor3OR8CLm67cqT6DExKMKbXnLPRHfBDxm
+ ALsCuW0NQ2TbErTRxpdlKz+rsYTolK8=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-363-_hjto7RuNAajHfm7IQHkQg-1; Wed, 29 Jun 2022 22:08:11 -0400
-X-MC-Unique: _hjto7RuNAajHfm7IQHkQg-1
+ us-mta-247-Tv97MKRaPRClFVcgWokWtw-1; Wed, 29 Jun 2022 22:08:15 -0400
+X-MC-Unique: Tv97MKRaPRClFVcgWokWtw-1
 Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com
  [10.11.54.9])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id DD43D85A581;
- Thu, 30 Jun 2022 02:08:10 +0000 (UTC)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 7D6153C01DA3;
+ Thu, 30 Jun 2022 02:08:14 +0000 (UTC)
 Received: from localhost.localdomain (ovpn-12-189.pek2.redhat.com
  [10.72.12.189])
- by smtp.corp.redhat.com (Postfix) with ESMTP id EEFEB492C3B;
- Thu, 30 Jun 2022 02:08:07 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 83BE3492CA3;
+ Thu, 30 Jun 2022 02:08:11 +0000 (UTC)
 From: Jason Wang <jasowang@redhat.com>
 To: mst@redhat.com, jasowang@redhat.com, davem@davemloft.net, kuba@kernel.org,
  virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
  linux-kernel@vger.kernel.org
 Subject: [PATCH V2] virtio-net: fix the race between refill work and close
-Date: Thu, 30 Jun 2022 10:08:04 +0800
-Message-Id: <20220630020805.74658-1-jasowang@redhat.com>
+Date: Thu, 30 Jun 2022 10:08:05 +0800
+Message-Id: <20220630020805.74658-2-jasowang@redhat.com>
+In-Reply-To: <20220630020805.74658-1-jasowang@redhat.com>
+References: <20220630020805.74658-1-jasowang@redhat.com>
 MIME-Version: 1.0
 X-Scanned-By: MIMEDefang 2.85 on 10.11.54.9
 X-BeenThere: virtualization@lists.linux-foundation.org
