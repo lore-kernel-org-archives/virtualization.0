@@ -1,111 +1,123 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6F26CC433EF
-	for <virtualization@archiver.kernel.org>; Thu, 30 Jun 2022 06:32:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 42850CCA482
+	for <virtualization@archiver.kernel.org>; Thu, 30 Jun 2022 06:35:59 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 847CB61314;
-	Thu, 30 Jun 2022 06:32:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 847CB61314
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=W5+fGtS6
+	by smtp1.osuosl.org (Postfix) with ESMTP id C0AF68416C;
+	Thu, 30 Jun 2022 06:35:58 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C0AF68416C
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=TxVuz6wJ
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id QMSJpiwPlz3H; Thu, 30 Jun 2022 06:32:09 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 286Le-zUahCr; Thu, 30 Jun 2022 06:35:57 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id E519F61316;
-	Thu, 30 Jun 2022 06:32:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E519F61316
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 21D128275C;
+	Thu, 30 Jun 2022 06:35:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 21D128275C
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A3AADC002D;
-	Thu, 30 Jun 2022 06:32:08 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8D61CC0011
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 068D2C002D;
+	Thu, 30 Jun 2022 06:35:57 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A6AA3C0011
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Jun 2022 06:32:07 +0000 (UTC)
+ Thu, 30 Jun 2022 06:35:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 6067140966
+ by smtp1.osuosl.org (Postfix) with ESMTP id 739E983F70
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Jun 2022 06:32:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6067140966
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=W5+fGtS6
+ Thu, 30 Jun 2022 06:35:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 739E983F70
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id CY3-RcAt1RNI
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Lht8zTUKlqPC
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Jun 2022 06:32:06 +0000 (UTC)
+ Thu, 30 Jun 2022 06:35:54 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 454AE40A65
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 52F218275C
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 454AE40A65
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 52F218275C
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Jun 2022 06:32:06 +0000 (UTC)
+ Thu, 30 Jun 2022 06:35:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1656570725;
+ s=mimecast20190719; t=1656570953;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=JCFLB3gZtfT5O37DFv5kX6RHaI4wR9lTgo57exxBmSc=;
- b=W5+fGtS6FlGDxqxEaZBliOhFWiEwvXXg1CdL5xCSsZ/QF2uzufHCBfQV/eBAOny1dleUCi
- W/Jqua3fPAlEUbCqr9YO23HnzjPg3mhPOGPN0IE56DqkLJfqvrMUA8TmvS3Q6nIVheTzE2
- DR2CDPLmJEjrEf9Sd2oweidF1CQXkkY=
-Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com
- [209.85.208.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=njLH7GFfaOXROEX4o3ayXFUqakNk2re9lthQMqB92Q8=;
+ b=TxVuz6wJlDPJ6SwZhuBGaruh2de0lB7yjGdSgmY9fvSY7WM+/MSGYQ8g3fr8h7w5SLPQe+
+ XIIugHYf5cZVmXKuoLwsMGjSWICI6+OnGFEhcm2V7H/o/B/2d1FIVl7mv704HWrJmBTyop
+ K4EB4b/+XlsDcSE66vl50xTsu7RT/G0=
+Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
+ [209.85.167.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-572-TZVqs6IAOGGFwa6lmB4HYA-1; Thu, 30 Jun 2022 02:32:03 -0400
-X-MC-Unique: TZVqs6IAOGGFwa6lmB4HYA-1
-Received: by mail-lj1-f198.google.com with SMTP id
- k3-20020a2ea283000000b0025bcd580d43so1906722lja.2
+ us-mta-606-QJkKCbzKOOWw10dGKqX28A-1; Thu, 30 Jun 2022 02:35:52 -0400
+X-MC-Unique: QJkKCbzKOOWw10dGKqX28A-1
+Received: by mail-lf1-f70.google.com with SMTP id
+ p2-20020a05651212c200b004814102d512so1748197lfg.1
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Jun 2022 23:32:03 -0700 (PDT)
+ Wed, 29 Jun 2022 23:35:51 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=JCFLB3gZtfT5O37DFv5kX6RHaI4wR9lTgo57exxBmSc=;
- b=RMYYgn9qlIkR0c4Bli36PYp7kB2XOEQeY0YrmEUMbPwGFruZTTUlgOXzFdbw3Is6pb
- zJTJfQ5dy81FMej6IRTDzTDUYU7PAmVBiCOGx4oInN2lJ7X2TlnPscW0CzhGbEbT4bF6
- gAxMNnteU9QINyK68OS20Q0ohtuew5bqULO8IdlUz+PtGxNdQzKoCCz99aAKtVSWNm+i
- uAYCEgccFUFJNYBNp2TGPG7mkNBLFTWxfFAGh/Luipf8toIgqmLNl4BlCkoRwY7zLFya
- +eJV5dZsA9MGr5LAHLZTnb0iYYajHcgCeXk92Q+W+IG3jObO9cbSGjs48Htn0Ym1GgG/
- 3x+g==
-X-Gm-Message-State: AJIora9Dn6wwCOArkwP/aNAsO063ibiUal3lx7DDkBwKcMQYRzfDVDuz
- 7FW8538hibKWhEbvSF5fmgl13Y2iA6L0/9a5QHBnCuwJtQHptqmTiRrG470ax8TYKe+ywHyXLix
- EEdJnOsdNMg6TNPgyZUHVN0/Msfad2+o9iE8o9N+3ASsrFbw/JBrTxnk6tA==
-X-Received: by 2002:a05:6512:13a5:b0:47d:c1d9:dea8 with SMTP id
- p37-20020a05651213a500b0047dc1d9dea8mr4362246lfa.442.1656570721725; 
- Wed, 29 Jun 2022 23:32:01 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1tce7yU1sJnXz77ARVxInNfPquob/R63ZeXhVpWoKTGT/+yZHlqbZssYwg4b69Y4LOXiaqvhMzHYERN/zHh6lE=
-X-Received: by 2002:a05:6512:13a5:b0:47d:c1d9:dea8 with SMTP id
- p37-20020a05651213a500b0047dc1d9dea8mr4362230lfa.442.1656570721449; Wed, 29
- Jun 2022 23:32:01 -0700 (PDT)
+ bh=njLH7GFfaOXROEX4o3ayXFUqakNk2re9lthQMqB92Q8=;
+ b=SJHltW7DjxSZwg7Cv29knkuowgY91KifFi3w0NvMz0W6W+j3klgF5KWe0SMF5fBql1
+ f7DIR56gAaEv+Dn0zJ7sf7ebwuRv0sNcARZkyU20UrJW0ZG/36SY+PV/ITsLUjKNWczt
+ KFtROsC40CsL/FqMeEWNhlb48AWGedOBcR97OXaqtcQZppSMV1Qt7b+hPNaJWyr+2PFG
+ c6jD3XpcDwo3KuOlNzre1fjzfTmSYqUwu06JKvU3rRC4CKpu8i3ZCeX87wL+epLbzbKR
+ C4xyFzKDz25nwxsdDbGUBZGMJ0JmkRtwSzgIyliR550PYcoBHR1H3bXn9I5Y5p17Q/Fy
+ LVbA==
+X-Gm-Message-State: AJIora9dGhWEYJwqGL9cee0pXPre6qjzfY16YrWtrCKTua7fO9HytOJn
+ kekOvZr393ln1lPO6X6XBf1Ss1a1q/TX3ojUMwtZ67dZMRUe4b3FH7ZqDT1LpJUwzptmr6Cygj/
+ wyEManpsSRcULejVIzkgQm9JjXZt2WqiMRwWfDOCo/nWvdk+iYY1hkrBWjQ==
+X-Received: by 2002:a05:6512:158d:b0:47f:718c:28b5 with SMTP id
+ bp13-20020a056512158d00b0047f718c28b5mr4745092lfb.397.1656570950074; 
+ Wed, 29 Jun 2022 23:35:50 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1tJKVtY+Zl0/40XEr/wn6beDS0TB6Ve6wa1Oo7+BpbGVCUvzB09kLNntuaMrZWqNzwTBjf08mKnZiCH+Ir+mBo=
+X-Received: by 2002:a05:6512:158d:b0:47f:718c:28b5 with SMTP id
+ bp13-20020a056512158d00b0047f718c28b5mr4745069lfb.397.1656570949818; Wed, 29
+ Jun 2022 23:35:49 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220630020805.74658-1-jasowang@redhat.com>
- <1656555045.7370687-2-xuanzhuo@linux.alibaba.com>
- <CACGkMEvMrxWRNY_NbujLsWff4zMVELr7C9CJ77k_m5OTFEe0dA@mail.gmail.com>
- <1656569481.3897407-1-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <1656569481.3897407-1-xuanzhuo@linux.alibaba.com>
+References: <20220629065656.54420-1-xuanzhuo@linux.alibaba.com>
+ <20220629065656.54420-2-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20220629065656.54420-2-xuanzhuo@linux.alibaba.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 30 Jun 2022 14:31:50 +0800
-Message-ID: <CACGkMEtYnAEJv3BQd9DEeTAqyOTU166mu8d8_uzrJLs9qj6Edw@mail.gmail.com>
-Subject: Re: [PATCH V2] virtio-net: fix the race between refill work and close
+Date: Thu, 30 Jun 2022 14:35:38 +0800
+Message-ID: <CACGkMEuWK5i4pyvzN306v2ijstFQQbuspNCcNRJrw0kskvcozg@mail.gmail.com>
+Subject: Re: [PATCH v11 01/40] virtio: add helper
+ virtqueue_get_vring_max_size()
 To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: mst <mst@redhat.com>, netdev <netdev@vger.kernel.org>,
- linux-kernel <linux-kernel@vger.kernel.org>,
+Cc: Vadim Pasternak <vadimp@nvidia.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ linux-remoteproc@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
  virtualization <virtualization@lists.linux-foundation.org>,
- Jakub Kicinski <kuba@kernel.org>, davem <davem@davemloft.net>
+ Eric Dumazet <edumazet@google.com>, Alexander Gordeev <agordeev@linux.ibm.com>,
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>, linux-s390@vger.kernel.org,
+ kvm <kvm@vger.kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
+ Richard Weinberger <richard@nod.at>,
+ Vincent Whitchurch <vincent.whitchurch@axis.com>,
+ John Fastabend <john.fastabend@gmail.com>, Halil Pasic <pasic@linux.ibm.com>,
+ Jakub Kicinski <kuba@kernel.org>, platform-driver-x86@vger.kernel.org,
+ Eric Farman <farman@linux.ibm.com>, Jesper Dangaard Brouer <hawk@kernel.org>,
+ Vasily Gorbik <gor@linux.ibm.com>, kangjie.xu@linux.alibaba.com,
+ Heiko Carstens <hca@linux.ibm.com>, linux-um@lists.infradead.org,
+ Mark Gross <markgross@kernel.org>, Hans de Goede <hdegoede@redhat.com>,
+ Bjorn Andersson <bjorn.andersson@linaro.org>,
+ "open list:XDP \(eXpress Data Path\)" <bpf@vger.kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Mathieu Poirier <mathieu.poirier@linaro.org>,
+ netdev <netdev@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Johannes Berg <johannes@sipsolutions.net>,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -122,219 +134,189 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Jun 30, 2022 at 2:26 PM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
+On Wed, Jun 29, 2022 at 2:57 PM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
 >
-> On Thu, 30 Jun 2022 14:07:52 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> > On Thu, Jun 30, 2022 at 10:22 AM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
-> > >
-> > > On Thu, 30 Jun 2022 10:08:04 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> > > > We try using cancel_delayed_work_sync() to prevent the work from
-> > > > enabling NAPI. This is insufficient since we don't disable the source
-> > > > of the refill work scheduling. This means an NAPI poll callback after
-> > > > cancel_delayed_work_sync() can schedule the refill work then can
-> > > > re-enable the NAPI that leads to use-after-free [1].
-> > >
-> > >
-> > > Can you explain in more detail how this happened?
-> > >
-> > > napi_disable() is normally called after cancel_delayed_work_sync(). This ensures
-> > > that all napi callbacks will end, and the new napi_disable() will wait.
-> > > There will be no re-enable napi.
-> >
-> > An rx interrupt that may come between after the cancel_delayed_work()
-> > but before the napi_disable(). It schedules a refill_work that may run
-> > after the napi_disable() in virtnet_close().
+> Record the maximum queue num supported by the device.
 >
-> Yes
+> virtio-net can display the maximum (supported by hardware) ring size in
+> ethtool -g eth0.
 >
+> When the subsequent patch implements vring reset, it can judge whether
+> the ring size passed by the driver is legal based on this.
 >
-> >
-> > >
-> > > So I guess the use-after-free is caused by refill_work being called after
-> > > dev/vi/napi is released. In this way, we can just call
-> > > cancel_delayed_work_sync() after napi_disalbe().
-> >
-> > So the refill_work can re-enable the NAPI when it is run after
-> > napi_disable() in this case.
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> ---
+>  arch/um/drivers/virtio_uml.c             |  1 +
+>  drivers/platform/mellanox/mlxbf-tmfifo.c |  2 ++
+>  drivers/remoteproc/remoteproc_virtio.c   |  2 ++
+>  drivers/s390/virtio/virtio_ccw.c         |  3 +++
+>  drivers/virtio/virtio_mmio.c             |  2 ++
+>  drivers/virtio/virtio_pci_legacy.c       |  2 ++
+>  drivers/virtio/virtio_pci_modern.c       |  2 ++
+>  drivers/virtio/virtio_ring.c             | 14 ++++++++++++++
+>  drivers/virtio/virtio_vdpa.c             |  2 ++
+>  include/linux/virtio.h                   |  2 ++
+>  10 files changed, 32 insertions(+)
 >
+> diff --git a/arch/um/drivers/virtio_uml.c b/arch/um/drivers/virtio_uml.c
+> index 82ff3785bf69..e719af8bdf56 100644
+> --- a/arch/um/drivers/virtio_uml.c
+> +++ b/arch/um/drivers/virtio_uml.c
+> @@ -958,6 +958,7 @@ static struct virtqueue *vu_setup_vq(struct virtio_device *vdev,
+>                 goto error_create;
+>         }
+>         vq->priv = info;
+> +       vq->num_max = num;
+>         num = virtqueue_get_vring_size(vq);
 >
-> Since napi_disable() has been called in virtnet_close(), it will get stuck when
-> napi_disable() in refill_work().
+>         if (vu_dev->protocol_features &
+> diff --git a/drivers/platform/mellanox/mlxbf-tmfifo.c b/drivers/platform/mellanox/mlxbf-tmfifo.c
+> index 38800e86ed8a..1ae3c56b66b0 100644
+> --- a/drivers/platform/mellanox/mlxbf-tmfifo.c
+> +++ b/drivers/platform/mellanox/mlxbf-tmfifo.c
+> @@ -959,6 +959,8 @@ static int mlxbf_tmfifo_virtio_find_vqs(struct virtio_device *vdev,
+>                         goto error;
+>                 }
+>
+> +               vq->num_max = vring->num;
+> +
+>                 vqs[i] = vq;
+>                 vring->vq = vq;
+>                 vq->priv = vring;
+> diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
+> index d43d74733f0a..0f7706e23eb9 100644
+> --- a/drivers/remoteproc/remoteproc_virtio.c
+> +++ b/drivers/remoteproc/remoteproc_virtio.c
+> @@ -125,6 +125,8 @@ static struct virtqueue *rp_find_vq(struct virtio_device *vdev,
+>                 return ERR_PTR(-ENOMEM);
+>         }
+>
+> +       vq->num_max = num;
+> +
+>         rvring->vq = vq;
+>         vq->priv = rvring;
+>
+> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+> index 161d3b141f0d..6b86d0280d6b 100644
+> --- a/drivers/s390/virtio/virtio_ccw.c
+> +++ b/drivers/s390/virtio/virtio_ccw.c
+> @@ -530,6 +530,9 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
+>                 err = -ENOMEM;
+>                 goto out_err;
+>         }
+> +
+> +       vq->num_max = info->num;
+> +
+>         /* it may have been reduced */
+>         info->num = virtqueue_get_vring_size(vq);
+>
+> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+> index 083ff1eb743d..a20d5a6b5819 100644
+> --- a/drivers/virtio/virtio_mmio.c
+> +++ b/drivers/virtio/virtio_mmio.c
+> @@ -403,6 +403,8 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned int in
+>                 goto error_new_virtqueue;
+>         }
+>
+> +       vq->num_max = num;
+> +
+>         /* Activate the queue */
+>         writel(virtqueue_get_vring_size(vq), vm_dev->base + VIRTIO_MMIO_QUEUE_NUM);
+>         if (vm_dev->version == 1) {
+> diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
+> index a5e5721145c7..2257f1b3d8ae 100644
+> --- a/drivers/virtio/virtio_pci_legacy.c
+> +++ b/drivers/virtio/virtio_pci_legacy.c
+> @@ -135,6 +135,8 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
+>         if (!vq)
+>                 return ERR_PTR(-ENOMEM);
+>
+> +       vq->num_max = num;
+> +
+>         q_pfn = virtqueue_get_desc_addr(vq) >> VIRTIO_PCI_QUEUE_ADDR_SHIFT;
+>         if (q_pfn >> 32) {
+>                 dev_err(&vp_dev->pci_dev->dev,
+> diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
+> index 623906b4996c..e7e0b8c850f6 100644
+> --- a/drivers/virtio/virtio_pci_modern.c
+> +++ b/drivers/virtio/virtio_pci_modern.c
+> @@ -218,6 +218,8 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
+>         if (!vq)
+>                 return ERR_PTR(-ENOMEM);
+>
+> +       vq->num_max = num;
+> +
+>         /* activate the queue */
+>         vp_modern_set_queue_size(mdev, index, virtqueue_get_vring_size(vq));
+>         vp_modern_queue_address(mdev, index, virtqueue_get_desc_addr(vq),
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index a5ec724c01d8..4cac600856ad 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -2385,6 +2385,20 @@ void vring_transport_features(struct virtio_device *vdev)
+>  }
+>  EXPORT_SYMBOL_GPL(vring_transport_features);
+>
+> +/**
+> + * virtqueue_get_vring_max_size - return the max size of the virtqueue's vring
+> + * @_vq: the struct virtqueue containing the vring of interest.
+> + *
+> + * Returns the max size of the vring.
+> + *
+> + * Unlike other operations, this need not be serialized.
+> + */
+> +unsigned int virtqueue_get_vring_max_size(struct virtqueue *_vq)
+> +{
+> +       return _vq->num_max;
+> +}
+> +EXPORT_SYMBOL_GPL(virtqueue_get_vring_max_size);
+> +
+>  /**
+>   * virtqueue_get_vring_size - return the size of the virtqueue's vring
+>   * @_vq: the struct virtqueue containing the vring of interest.
+> diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
+> index c40f7deb6b5a..9670cc79371d 100644
+> --- a/drivers/virtio/virtio_vdpa.c
+> +++ b/drivers/virtio/virtio_vdpa.c
+> @@ -183,6 +183,8 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
+>                 goto error_new_virtqueue;
+>         }
+>
+> +       vq->num_max = max_num;
+> +
+>         /* Setup virtqueue callback */
+>         cb.callback = callback ? virtio_vdpa_virtqueue_cb : NULL;
+>         cb.private = info;
+> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+> index d8fdf170637c..a82620032e43 100644
+> --- a/include/linux/virtio.h
+> +++ b/include/linux/virtio.h
+> @@ -31,6 +31,7 @@ struct virtqueue {
+>         struct virtio_device *vdev;
+>         unsigned int index;
+>         unsigned int num_free;
+> +       unsigned int num_max;
 
-Right because e.g NAPIF_STATE_SCHED has been set by napi_disable() before.
+A question, since we export virtqueue to drivers, this means they can
+access vq->num_max directly.
 
-> I think use-after-free is because vi/napi etc.
-> have been released, refill_work() going to access again causes an exception.
-
-Yes, this is the use-after-free I mentioned above.
-
->
-> napi will not be re-enable.
->
-> I would like to call cancel_delayed_work_sync() after napi_disable()
-> to solve this problem. But this also has a problem, refill_work() can get stuck
-> on napi_disable() and cannot exit. In this way, we want napi_disable() to check
-> that the current state is disabled and exit directly.
-
-Not sure this is a good design and it doesn't fit for -stable.
-
-I think the design of NAPI is to pair napi_enable() and napi_disable()
-instead of allowing napi_disable() to be called twice.
+So we probably don't need a helper here.
 
 Thanks
 
+>         void *priv;
+>  };
 >
-> Thanks.
+> @@ -80,6 +81,7 @@ bool virtqueue_enable_cb_delayed(struct virtqueue *vq);
 >
+>  void *virtqueue_detach_unused_buf(struct virtqueue *vq);
 >
-> >
-> > Thanks
-> >
-> >
-> > >
-> > > Thanks.
-> > >
-> > > >
-> > > > Since the work can enable NAPI, we can't simply disable NAPI before
-> > > > calling cancel_delayed_work_sync(). So fix this by introducing a
-> > > > dedicated boolean to control whether or not the work could be
-> > > > scheduled from NAPI.
-> > > >
-> > > > [1]
-> > > > ==================================================================
-> > > > BUG: KASAN: use-after-free in refill_work+0x43/0xd4
-> > > > Read of size 2 at addr ffff88810562c92e by task kworker/2:1/42
-> > > >
-> > > > CPU: 2 PID: 42 Comm: kworker/2:1 Not tainted 5.19.0-rc1+ #480
-> > > > Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.16.0-0-gd239552ce722-prebuilt.qemu.org 04/01/2014
-> > > > Workqueue: events refill_work
-> > > > Call Trace:
-> > > >  <TASK>
-> > > >  dump_stack_lvl+0x34/0x44
-> > > >  print_report.cold+0xbb/0x6ac
-> > > >  ? _printk+0xad/0xde
-> > > >  ? refill_work+0x43/0xd4
-> > > >  kasan_report+0xa8/0x130
-> > > >  ? refill_work+0x43/0xd4
-> > > >  refill_work+0x43/0xd4
-> > > >  process_one_work+0x43d/0x780
-> > > >  worker_thread+0x2a0/0x6f0
-> > > >  ? process_one_work+0x780/0x780
-> > > >  kthread+0x167/0x1a0
-> > > >  ? kthread_exit+0x50/0x50
-> > > >  ret_from_fork+0x22/0x30
-> > > >  </TASK>
-> > > > ...
-> > > >
-> > > > Fixes: b2baed69e605c ("virtio_net: set/cancel work on ndo_open/ndo_stop")
-> > > > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > > > ---
-> > > >  drivers/net/virtio_net.c | 38 ++++++++++++++++++++++++++++++++++++--
-> > > >  1 file changed, 36 insertions(+), 2 deletions(-)
-> > > >
-> > > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > > > index db05b5e930be..21bf1e5c81ef 100644
-> > > > --- a/drivers/net/virtio_net.c
-> > > > +++ b/drivers/net/virtio_net.c
-> > > > @@ -251,6 +251,12 @@ struct virtnet_info {
-> > > >       /* Does the affinity hint is set for virtqueues? */
-> > > >       bool affinity_hint_set;
-> > > >
-> > > > +     /* Is refill work enabled? */
-> > > > +     bool refill_work_enabled;
-> > > > +
-> > > > +     /* The lock to synchronize the access to refill_work_enabled */
-> > > > +     spinlock_t refill_lock;
-> > > > +
-> > > >       /* CPU hotplug instances for online & dead */
-> > > >       struct hlist_node node;
-> > > >       struct hlist_node node_dead;
-> > > > @@ -348,6 +354,20 @@ static struct page *get_a_page(struct receive_queue *rq, gfp_t gfp_mask)
-> > > >       return p;
-> > > >  }
-> > > >
-> > > > +static void enable_refill_work(struct virtnet_info *vi)
-> > > > +{
-> > > > +     spin_lock(&vi->refill_lock);
-> > > > +     vi->refill_work_enabled = true;
-> > > > +     spin_unlock(&vi->refill_lock);
-> > > > +}
-> > > > +
-> > > > +static void disable_refill_work(struct virtnet_info *vi)
-> > > > +{
-> > > > +     spin_lock(&vi->refill_lock);
-> > > > +     vi->refill_work_enabled = false;
-> > > > +     spin_unlock(&vi->refill_lock);
-> > > > +}
-> > > > +
-> > > >  static void virtqueue_napi_schedule(struct napi_struct *napi,
-> > > >                                   struct virtqueue *vq)
-> > > >  {
-> > > > @@ -1527,8 +1547,12 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
-> > > >       }
-> > > >
-> > > >       if (rq->vq->num_free > min((unsigned int)budget, virtqueue_get_vring_size(rq->vq)) / 2) {
-> > > > -             if (!try_fill_recv(vi, rq, GFP_ATOMIC))
-> > > > -                     schedule_delayed_work(&vi->refill, 0);
-> > > > +             if (!try_fill_recv(vi, rq, GFP_ATOMIC)) {
-> > > > +                     spin_lock(&vi->refill_lock);
-> > > > +                     if (vi->refill_work_enabled)
-> > > > +                             schedule_delayed_work(&vi->refill, 0);
-> > > > +                     spin_unlock(&vi->refill_lock);
-> > > > +             }
-> > > >       }
-> > > >
-> > > >       u64_stats_update_begin(&rq->stats.syncp);
-> > > > @@ -1651,6 +1675,8 @@ static int virtnet_open(struct net_device *dev)
-> > > >       struct virtnet_info *vi = netdev_priv(dev);
-> > > >       int i, err;
-> > > >
-> > > > +     enable_refill_work(vi);
-> > > > +
-> > > >       for (i = 0; i < vi->max_queue_pairs; i++) {
-> > > >               if (i < vi->curr_queue_pairs)
-> > > >                       /* Make sure we have some buffers: if oom use wq. */
-> > > > @@ -2033,6 +2059,8 @@ static int virtnet_close(struct net_device *dev)
-> > > >       struct virtnet_info *vi = netdev_priv(dev);
-> > > >       int i;
-> > > >
-> > > > +     /* Make sure NAPI doesn't schedule refill work */
-> > > > +     disable_refill_work(vi);
-> > > >       /* Make sure refill_work doesn't re-enable napi! */
-> > > >       cancel_delayed_work_sync(&vi->refill);
-> > > >
-> > > > @@ -2776,6 +2804,9 @@ static void virtnet_freeze_down(struct virtio_device *vdev)
-> > > >       netif_tx_lock_bh(vi->dev);
-> > > >       netif_device_detach(vi->dev);
-> > > >       netif_tx_unlock_bh(vi->dev);
-> > > > +     /* Make sure NAPI doesn't schedule refill work */
-> > > > +     disable_refill_work(vi);
-> > > > +     /* Make sure refill_work doesn't re-enable napi! */
-> > > >       cancel_delayed_work_sync(&vi->refill);
-> > > >
-> > > >       if (netif_running(vi->dev)) {
-> > > > @@ -2799,6 +2830,8 @@ static int virtnet_restore_up(struct virtio_device *vdev)
-> > > >
-> > > >       virtio_device_ready(vdev);
-> > > >
-> > > > +     enable_refill_work(vi);
-> > > > +
-> > > >       if (netif_running(vi->dev)) {
-> > > >               for (i = 0; i < vi->curr_queue_pairs; i++)
-> > > >                       if (!try_fill_recv(vi, &vi->rq[i], GFP_KERNEL))
-> > > > @@ -3548,6 +3581,7 @@ static int virtnet_probe(struct virtio_device *vdev)
-> > > >       vdev->priv = vi;
-> > > >
-> > > >       INIT_WORK(&vi->config_work, virtnet_config_changed_work);
-> > > > +     spin_lock_init(&vi->refill_lock);
-> > > >
-> > > >       /* If we can receive ANY GSO packets, we must allocate large ones. */
-> > > >       if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO4) ||
-> > > > --
-> > > > 2.25.1
-> > > >
-> > >
-> >
+> +unsigned int virtqueue_get_vring_max_size(struct virtqueue *vq);
+>  unsigned int virtqueue_get_vring_size(struct virtqueue *vq);
+>
+>  bool virtqueue_is_broken(struct virtqueue *vq);
+> --
+> 2.31.0
 >
 
 _______________________________________________
