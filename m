@@ -1,98 +1,101 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 42850CCA482
-	for <virtualization@archiver.kernel.org>; Thu, 30 Jun 2022 06:35:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1A1B0C43334
+	for <virtualization@archiver.kernel.org>; Thu, 30 Jun 2022 06:39:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id C0AF68416C;
-	Thu, 30 Jun 2022 06:35:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C0AF68416C
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=TxVuz6wJ
+	by smtp2.osuosl.org (Postfix) with ESMTP id A018440A6A;
+	Thu, 30 Jun 2022 06:39:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A018440A6A
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=aB34Winu
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 286Le-zUahCr; Thu, 30 Jun 2022 06:35:57 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id FzRKuaEi3SKs; Thu, 30 Jun 2022 06:39:27 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 21D128275C;
-	Thu, 30 Jun 2022 06:35:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 21D128275C
+	by smtp2.osuosl.org (Postfix) with ESMTPS id EF2BF40926;
+	Thu, 30 Jun 2022 06:39:26 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org EF2BF40926
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 068D2C002D;
-	Thu, 30 Jun 2022 06:35:57 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A6AA3C0011
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CFFF9C0021;
+	Thu, 30 Jun 2022 06:39:26 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 590ECC0011
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Jun 2022 06:35:55 +0000 (UTC)
+ Thu, 30 Jun 2022 06:39:25 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 739E983F70
+ by smtp3.osuosl.org (Postfix) with ESMTP id 3C76760EF6
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Jun 2022 06:35:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 739E983F70
+ Thu, 30 Jun 2022 06:39:25 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3C76760EF6
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=aB34Winu
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Lht8zTUKlqPC
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id X9XCXor0eRRh
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Jun 2022 06:35:54 +0000 (UTC)
+ Thu, 30 Jun 2022 06:39:24 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 52F218275C
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 76B4F600C6
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 52F218275C
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 76B4F600C6
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Jun 2022 06:35:54 +0000 (UTC)
+ Thu, 30 Jun 2022 06:39:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1656570953;
+ s=mimecast20190719; t=1656571162;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=njLH7GFfaOXROEX4o3ayXFUqakNk2re9lthQMqB92Q8=;
- b=TxVuz6wJlDPJ6SwZhuBGaruh2de0lB7yjGdSgmY9fvSY7WM+/MSGYQ8g3fr8h7w5SLPQe+
- XIIugHYf5cZVmXKuoLwsMGjSWICI6+OnGFEhcm2V7H/o/B/2d1FIVl7mv704HWrJmBTyop
- K4EB4b/+XlsDcSE66vl50xTsu7RT/G0=
+ bh=pJ9PIxLLsVzCuVJJtdE0cxnl/Cjc0vCs0BsaA2nNYcE=;
+ b=aB34Winu/D156bIStCjvVDN5cjEezUDmqIVIxb8fuDQv8Vr2QEBuxDTpH0aZmQDfZha2WF
+ MtQVwWg2V4EnFdFb4oSkLD96f9bi+YGjA4AHs8gahfemgM26IXQyaG+71fx/1mKfAGkz2a
+ X9uhlbD+RvF/ioPShPRPxh6iep179VA=
 Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
  [209.85.167.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-606-QJkKCbzKOOWw10dGKqX28A-1; Thu, 30 Jun 2022 02:35:52 -0400
-X-MC-Unique: QJkKCbzKOOWw10dGKqX28A-1
+ us-mta-454-MdUZVomFOsiQIKfXWe_aOg-1; Thu, 30 Jun 2022 02:39:21 -0400
+X-MC-Unique: MdUZVomFOsiQIKfXWe_aOg-1
 Received: by mail-lf1-f70.google.com with SMTP id
- p2-20020a05651212c200b004814102d512so1748197lfg.1
+ o7-20020a056512230700b004810a865709so6376240lfu.3
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Jun 2022 23:35:51 -0700 (PDT)
+ Wed, 29 Jun 2022 23:39:21 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=njLH7GFfaOXROEX4o3ayXFUqakNk2re9lthQMqB92Q8=;
- b=SJHltW7DjxSZwg7Cv29knkuowgY91KifFi3w0NvMz0W6W+j3klgF5KWe0SMF5fBql1
- f7DIR56gAaEv+Dn0zJ7sf7ebwuRv0sNcARZkyU20UrJW0ZG/36SY+PV/ITsLUjKNWczt
- KFtROsC40CsL/FqMeEWNhlb48AWGedOBcR97OXaqtcQZppSMV1Qt7b+hPNaJWyr+2PFG
- c6jD3XpcDwo3KuOlNzre1fjzfTmSYqUwu06JKvU3rRC4CKpu8i3ZCeX87wL+epLbzbKR
- C4xyFzKDz25nwxsdDbGUBZGMJ0JmkRtwSzgIyliR550PYcoBHR1H3bXn9I5Y5p17Q/Fy
- LVbA==
-X-Gm-Message-State: AJIora9dGhWEYJwqGL9cee0pXPre6qjzfY16YrWtrCKTua7fO9HytOJn
- kekOvZr393ln1lPO6X6XBf1Ss1a1q/TX3ojUMwtZ67dZMRUe4b3FH7ZqDT1LpJUwzptmr6Cygj/
- wyEManpsSRcULejVIzkgQm9JjXZt2WqiMRwWfDOCo/nWvdk+iYY1hkrBWjQ==
-X-Received: by 2002:a05:6512:158d:b0:47f:718c:28b5 with SMTP id
- bp13-20020a056512158d00b0047f718c28b5mr4745092lfb.397.1656570950074; 
- Wed, 29 Jun 2022 23:35:50 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1tJKVtY+Zl0/40XEr/wn6beDS0TB6Ve6wa1Oo7+BpbGVCUvzB09kLNntuaMrZWqNzwTBjf08mKnZiCH+Ir+mBo=
-X-Received: by 2002:a05:6512:158d:b0:47f:718c:28b5 with SMTP id
- bp13-20020a056512158d00b0047f718c28b5mr4745069lfb.397.1656570949818; Wed, 29
- Jun 2022 23:35:49 -0700 (PDT)
+ bh=pJ9PIxLLsVzCuVJJtdE0cxnl/Cjc0vCs0BsaA2nNYcE=;
+ b=iP7yiEsk+cebqHF7lQpzIry6ifNBxNFWSOpns8k8Bp/ptwxWcgrSd8IFrSkT1EJ8kD
+ 5fIhrDCBmrlPOaI9kkI8HGsJGXAYsVZFs9QKK1oV7HYLhJO+nRGU6NAA5tCbu2DYuWKp
+ rapR+rAEjhkicBG1RZwR5WKAoG+UkVo5uOXZxxcbQ4gQA1wnH5CFb0VveVq3vgha36jr
+ 9H35VDm8R8ZlW/TnHfhB7eJmhydgDwqp5SgkSu0gwsIJnBwVzNyPH5UjSZEzCd7zTF5S
+ ULC/EH6UuPhQL40ZqNZE61M6JEz+bqz4I2HcI4FDmf1loAFdixwa+Hos0LgdVYGdysNH
+ nDgQ==
+X-Gm-Message-State: AJIora9UyS7FLw1ZzKXGbfxqN0ZdlnPfub6+HwQq7Vv5tRJ6fN7i32Yf
+ p/hSWNo9LjpP9V8OyYBC/fIgFXbMWlxvAS+G5AnBEpL1PrN/JWfVUAoMYl9v9zY5PnPJn6Z/oQ0
+ jRdoggJREhpqL+q2dWEhfTglOPFH7XlxSRnSo+jZEF4zSyJASB+jW+FBOyw==
+X-Received: by 2002:a05:6512:3f0f:b0:47f:6f89:326 with SMTP id
+ y15-20020a0565123f0f00b0047f6f890326mr4440367lfa.124.1656571159803; 
+ Wed, 29 Jun 2022 23:39:19 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1tqG3rBVpPZppnWzT9+UoAeK5eCUmyrl/4NUFplfIBffY69P4EaE37IkoiuXbBcVcsUA6aouX0dtgCqbLTS49I=
+X-Received: by 2002:a05:6512:3f0f:b0:47f:6f89:326 with SMTP id
+ y15-20020a0565123f0f00b0047f6f890326mr4440343lfa.124.1656571159618; Wed, 29
+ Jun 2022 23:39:19 -0700 (PDT)
 MIME-Version: 1.0
 References: <20220629065656.54420-1-xuanzhuo@linux.alibaba.com>
- <20220629065656.54420-2-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <20220629065656.54420-2-xuanzhuo@linux.alibaba.com>
+ <20220629065656.54420-3-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20220629065656.54420-3-xuanzhuo@linux.alibaba.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 30 Jun 2022 14:35:38 +0800
-Message-ID: <CACGkMEuWK5i4pyvzN306v2ijstFQQbuspNCcNRJrw0kskvcozg@mail.gmail.com>
-Subject: Re: [PATCH v11 01/40] virtio: add helper
- virtqueue_get_vring_max_size()
+Date: Thu, 30 Jun 2022 14:39:08 +0800
+Message-ID: <CACGkMEuM3rZwQ8dKUQovwpf+JVvp53SY=2ANVeKw746e3o0_xg@mail.gmail.com>
+Subject: Re: [PATCH v11 02/40] virtio: struct virtio_config_ops add callbacks
+ for queue_reset
 To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
@@ -136,185 +139,55 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 On Wed, Jun 29, 2022 at 2:57 PM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
 >
-> Record the maximum queue num supported by the device.
+> reset can be divided into the following four steps (example):
+>  1. transport: notify the device to reset the queue
+>  2. vring:     recycle the buffer submitted
+>  3. vring:     reset/resize the vring (may re-alloc)
+>  4. transport: mmap vring to device, and enable the queue
 >
-> virtio-net can display the maximum (supported by hardware) ring size in
-> ethtool -g eth0.
->
-> When the subsequent patch implements vring reset, it can judge whether
-> the ring size passed by the driver is legal based on this.
+> In order to support queue reset, add two callbacks(reset_vq,
+> enable_reset_vq) in struct virtio_config_ops to implement steps 1 and 4.
 >
 > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 > ---
->  arch/um/drivers/virtio_uml.c             |  1 +
->  drivers/platform/mellanox/mlxbf-tmfifo.c |  2 ++
->  drivers/remoteproc/remoteproc_virtio.c   |  2 ++
->  drivers/s390/virtio/virtio_ccw.c         |  3 +++
->  drivers/virtio/virtio_mmio.c             |  2 ++
->  drivers/virtio/virtio_pci_legacy.c       |  2 ++
->  drivers/virtio/virtio_pci_modern.c       |  2 ++
->  drivers/virtio/virtio_ring.c             | 14 ++++++++++++++
->  drivers/virtio/virtio_vdpa.c             |  2 ++
->  include/linux/virtio.h                   |  2 ++
->  10 files changed, 32 insertions(+)
+>  include/linux/virtio_config.h | 12 ++++++++++++
+>  1 file changed, 12 insertions(+)
 >
-> diff --git a/arch/um/drivers/virtio_uml.c b/arch/um/drivers/virtio_uml.c
-> index 82ff3785bf69..e719af8bdf56 100644
-> --- a/arch/um/drivers/virtio_uml.c
-> +++ b/arch/um/drivers/virtio_uml.c
-> @@ -958,6 +958,7 @@ static struct virtqueue *vu_setup_vq(struct virtio_device *vdev,
->                 goto error_create;
->         }
->         vq->priv = info;
-> +       vq->num_max = num;
->         num = virtqueue_get_vring_size(vq);
->
->         if (vu_dev->protocol_features &
-> diff --git a/drivers/platform/mellanox/mlxbf-tmfifo.c b/drivers/platform/mellanox/mlxbf-tmfifo.c
-> index 38800e86ed8a..1ae3c56b66b0 100644
-> --- a/drivers/platform/mellanox/mlxbf-tmfifo.c
-> +++ b/drivers/platform/mellanox/mlxbf-tmfifo.c
-> @@ -959,6 +959,8 @@ static int mlxbf_tmfifo_virtio_find_vqs(struct virtio_device *vdev,
->                         goto error;
->                 }
->
-> +               vq->num_max = vring->num;
-> +
->                 vqs[i] = vq;
->                 vring->vq = vq;
->                 vq->priv = vring;
-> diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
-> index d43d74733f0a..0f7706e23eb9 100644
-> --- a/drivers/remoteproc/remoteproc_virtio.c
-> +++ b/drivers/remoteproc/remoteproc_virtio.c
-> @@ -125,6 +125,8 @@ static struct virtqueue *rp_find_vq(struct virtio_device *vdev,
->                 return ERR_PTR(-ENOMEM);
->         }
->
-> +       vq->num_max = num;
-> +
->         rvring->vq = vq;
->         vq->priv = rvring;
->
-> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> index 161d3b141f0d..6b86d0280d6b 100644
-> --- a/drivers/s390/virtio/virtio_ccw.c
-> +++ b/drivers/s390/virtio/virtio_ccw.c
-> @@ -530,6 +530,9 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
->                 err = -ENOMEM;
->                 goto out_err;
->         }
-> +
-> +       vq->num_max = info->num;
-> +
->         /* it may have been reduced */
->         info->num = virtqueue_get_vring_size(vq);
->
-> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-> index 083ff1eb743d..a20d5a6b5819 100644
-> --- a/drivers/virtio/virtio_mmio.c
-> +++ b/drivers/virtio/virtio_mmio.c
-> @@ -403,6 +403,8 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned int in
->                 goto error_new_virtqueue;
->         }
->
-> +       vq->num_max = num;
-> +
->         /* Activate the queue */
->         writel(virtqueue_get_vring_size(vq), vm_dev->base + VIRTIO_MMIO_QUEUE_NUM);
->         if (vm_dev->version == 1) {
-> diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
-> index a5e5721145c7..2257f1b3d8ae 100644
-> --- a/drivers/virtio/virtio_pci_legacy.c
-> +++ b/drivers/virtio/virtio_pci_legacy.c
-> @@ -135,6 +135,8 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
->         if (!vq)
->                 return ERR_PTR(-ENOMEM);
->
-> +       vq->num_max = num;
-> +
->         q_pfn = virtqueue_get_desc_addr(vq) >> VIRTIO_PCI_QUEUE_ADDR_SHIFT;
->         if (q_pfn >> 32) {
->                 dev_err(&vp_dev->pci_dev->dev,
-> diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-> index 623906b4996c..e7e0b8c850f6 100644
-> --- a/drivers/virtio/virtio_pci_modern.c
-> +++ b/drivers/virtio/virtio_pci_modern.c
-> @@ -218,6 +218,8 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
->         if (!vq)
->                 return ERR_PTR(-ENOMEM);
->
-> +       vq->num_max = num;
-> +
->         /* activate the queue */
->         vp_modern_set_queue_size(mdev, index, virtqueue_get_vring_size(vq));
->         vp_modern_queue_address(mdev, index, virtqueue_get_desc_addr(vq),
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index a5ec724c01d8..4cac600856ad 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -2385,6 +2385,20 @@ void vring_transport_features(struct virtio_device *vdev)
->  }
->  EXPORT_SYMBOL_GPL(vring_transport_features);
->
-> +/**
-> + * virtqueue_get_vring_max_size - return the max size of the virtqueue's vring
-> + * @_vq: the struct virtqueue containing the vring of interest.
-> + *
-> + * Returns the max size of the vring.
-> + *
-> + * Unlike other operations, this need not be serialized.
-> + */
-> +unsigned int virtqueue_get_vring_max_size(struct virtqueue *_vq)
-> +{
-> +       return _vq->num_max;
-> +}
-> +EXPORT_SYMBOL_GPL(virtqueue_get_vring_max_size);
-> +
->  /**
->   * virtqueue_get_vring_size - return the size of the virtqueue's vring
->   * @_vq: the struct virtqueue containing the vring of interest.
-> diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
-> index c40f7deb6b5a..9670cc79371d 100644
-> --- a/drivers/virtio/virtio_vdpa.c
-> +++ b/drivers/virtio/virtio_vdpa.c
-> @@ -183,6 +183,8 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
->                 goto error_new_virtqueue;
->         }
->
-> +       vq->num_max = max_num;
-> +
->         /* Setup virtqueue callback */
->         cb.callback = callback ? virtio_vdpa_virtqueue_cb : NULL;
->         cb.private = info;
-> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-> index d8fdf170637c..a82620032e43 100644
-> --- a/include/linux/virtio.h
-> +++ b/include/linux/virtio.h
-> @@ -31,6 +31,7 @@ struct virtqueue {
->         struct virtio_device *vdev;
->         unsigned int index;
->         unsigned int num_free;
-> +       unsigned int num_max;
+> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+> index b47c2e7ed0ee..ded51b0d4823 100644
+> --- a/include/linux/virtio_config.h
+> +++ b/include/linux/virtio_config.h
+> @@ -78,6 +78,16 @@ struct virtio_shm_region {
+>   * @set_vq_affinity: set the affinity for a virtqueue (optional).
+>   * @get_vq_affinity: get the affinity for a virtqueue (optional).
+>   * @get_shm_region: get a shared memory region based on the index.
+> + * @reset_vq: reset a queue individually (optional).
+> + *     vq: the virtqueue
+> + *     Returns 0 on success or error status
+> + *     reset_vq will guarantee that the callbacks are disabled and synchronized.
+> + *     Except for the callback, the caller should guarantee that the vring is
+> + *     not accessed by any functions of virtqueue.
+> + * @enable_reset_vq: enable a reset queue
+> + *     vq: the virtqueue
+> + *     Returns 0 on success or error status
+> + *     If reset_vq is set, then enable_reset_vq must also be set.
+>   */
+>  typedef void vq_callback_t(struct virtqueue *);
+>  struct virtio_config_ops {
+> @@ -104,6 +114,8 @@ struct virtio_config_ops {
+>                         int index);
+>         bool (*get_shm_region)(struct virtio_device *vdev,
+>                                struct virtio_shm_region *region, u8 id);
+> +       int (*reset_vq)(struct virtqueue *vq);
+> +       int (*enable_reset_vq)(struct virtqueue *vq);
 
-A question, since we export virtqueue to drivers, this means they can
-access vq->num_max directly.
-
-So we probably don't need a helper here.
+I wonder if a single op with a boolean parameter is sufficient here.
 
 Thanks
 
->         void *priv;
 >  };
 >
-> @@ -80,6 +81,7 @@ bool virtqueue_enable_cb_delayed(struct virtqueue *vq);
->
->  void *virtqueue_detach_unused_buf(struct virtqueue *vq);
->
-> +unsigned int virtqueue_get_vring_max_size(struct virtqueue *vq);
->  unsigned int virtqueue_get_vring_size(struct virtqueue *vq);
->
->  bool virtqueue_is_broken(struct virtqueue *vq);
+>  /* If driver didn't advertise the feature, it will never appear. */
 > --
 > 2.31.0
 >
