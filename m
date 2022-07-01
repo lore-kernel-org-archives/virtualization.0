@@ -4,74 +4,147 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C8059C43334
-	for <virtualization@archiver.kernel.org>; Fri,  1 Jul 2022 18:17:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id BD463C43334
+	for <virtualization@archiver.kernel.org>; Fri,  1 Jul 2022 22:02:50 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 47E78405A6;
-	Fri,  1 Jul 2022 18:17:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 47E78405A6
+	by smtp4.osuosl.org (Postfix) with ESMTP id 263484035E;
+	Fri,  1 Jul 2022 22:02:50 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 263484035E
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=MFQh/hpi
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 0kGEgDptcydC; Fri,  1 Jul 2022 18:17:54 +0000 (UTC)
+	with ESMTP id b_2bU--9JLUJ; Fri,  1 Jul 2022 22:02:48 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 4F368403C8;
-	Fri,  1 Jul 2022 18:17:53 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4F368403C8
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 0EEA340384;
+	Fri,  1 Jul 2022 22:02:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0EEA340384
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0C5FFC0032;
-	Fri,  1 Jul 2022 18:17:53 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id BFA80C002D;
- Fri,  1 Jul 2022 18:17:50 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CD2EBC0035;
+	Fri,  1 Jul 2022 22:02:47 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8DE44C002D
+ for <virtualization@lists.linux-foundation.org>;
+ Fri,  1 Jul 2022 22:02:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id A492F60BFE;
- Fri,  1 Jul 2022 18:17:50 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A492F60BFE
+ by smtp2.osuosl.org (Postfix) with ESMTP id 5886E40448
+ for <virtualization@lists.linux-foundation.org>;
+ Fri,  1 Jul 2022 22:02:46 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5886E40448
+Authentication-Results: smtp2.osuosl.org; dkim=pass (2048-bit key,
+ unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256
+ header.s=selector2 header.b=MFQh/hpi
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id PPGKjPQiso62; Fri,  1 Jul 2022 18:17:49 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 362D060017
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
- by smtp3.osuosl.org (Postfix) with ESMTP id 362D060017;
- Fri,  1 Jul 2022 18:17:49 +0000 (UTC)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
- by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id A6BA4113E;
- Fri,  1 Jul 2022 11:17:48 -0700 (PDT)
-Received: from [10.1.196.40] (e121345-lin.cambridge.arm.com [10.1.196.40])
- by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id DDCD33F5A1;
- Fri,  1 Jul 2022 11:17:43 -0700 (PDT)
-Message-ID: <2ccb6033-4c34-ff59-50a8-549c924d269d@arm.com>
-Date: Fri, 1 Jul 2022 19:17:38 +0100
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id jYFZ5PG1Dkyq
+ for <virtualization@lists.linux-foundation.org>;
+ Fri,  1 Jul 2022 22:02:43 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4A78D4011F
+Received: from NAM10-BN7-obe.outbound.protection.outlook.com
+ (mail-bn7nam10on2079.outbound.protection.outlook.com [40.107.92.79])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 4A78D4011F
+ for <virtualization@lists.linux-foundation.org>;
+ Fri,  1 Jul 2022 22:02:42 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=JTChxqBfRe45p9i6Md5MkXo/HnR+P+H9lSEZe7GdSrY+4Y4D0BAOKz7OliYWe1+cEq7Ja/jW8BcmbJ1x2kMa/dJ71zzor/eWEhdpn4+sbWTZhUEHED71QcLEi7LxjLUkin2G9xXnyRp7lqa4P+icSg4nQvtQSWsP9UEif+N6iTMqzLv4FWAT7QxGXeLF9YR2b0PMkHrHNxdb0JYrBOWkHUgqRJGLCRHg1uq9FTFleOwBGYCUvLxLrz7SS/u03S7r6UIHHTWpUbK7tv2p088VimhCx7GRT51+aIC69KBvTiyie5Xt7XfyaXd+u1AJ5ParZuDQT3/JBmC1MMV1K68fDA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=ZNa3U95dcgCpq68d7tHlRE4W1bSNJ1iXChOdNaDZKOo=;
+ b=YHdG+StRtJp1M058ak7M1y7v92aEDKwF353MCrvGPGBb5dM3d2aWlJU45QmrEC+mv0lrIWvZ44E3TwvDlB+7DF+kJ5gtzf9+y4uP9dn2cdtZoWxrChVxNN3azC/zW9SC1KPudojjNz2FQYz5rRzFPFT3EXhKU6WF0RQc+mYs7jBQyIj9bes2UV9EtbluEUn1FA7Eynp8rTGRZbpZ05Oe+bsaQ6X+I/zJoEPG4AI2SYoAHZ4gw/V6bp+dEoTU0ZiCUWQSe02XfmrTVUDNkUChSrgXEvdAR/cFDmfPPZGT90T+zl68DZlvWj0fsgKcDib+Q5dfqqxcE4TvSiXp7OePMw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ZNa3U95dcgCpq68d7tHlRE4W1bSNJ1iXChOdNaDZKOo=;
+ b=MFQh/hpivfaOZcmK2YZqgm18HkRwtll3/CWPlyAbGYSKxF93ZPODKKI6LJsVNe5DQyxIFBWMpvbB7iC3nk9xpzXpRrfFfeX3vi2kQR1p1HcepSHJtasdrSGhFsfwOHwtfgcuNCvIhp6260dk4spwa7O9ADxYUraL9ejJ1OTlq3j01110XjHZonhFueh1NQNpOvdYcXVFolCJvz6jkeA959iVlQUCicrMElwmSRGRUpCej3SuhtqZ0OkFN2S7I2mUHOiGHIBZDj5r9qX4VmXCpq8QdUG2NVG8zbz9gLk+zJnuNwpsB0rT8GO0/gEVMHl+W3bUemruA6rCsSzxrgdZJg==
+Received: from PH0PR12MB5481.namprd12.prod.outlook.com (2603:10b6:510:d4::15)
+ by CY4PR12MB1255.namprd12.prod.outlook.com (2603:10b6:903:36::18)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5395.17; Fri, 1 Jul
+ 2022 22:02:40 +0000
+Received: from PH0PR12MB5481.namprd12.prod.outlook.com
+ ([fe80::544b:6e21:453e:d3d6]) by PH0PR12MB5481.namprd12.prod.outlook.com
+ ([fe80::544b:6e21:453e:d3d6%9]) with mapi id 15.20.5395.017; Fri, 1 Jul 2022
+ 22:02:40 +0000
+To: Zhu Lingshan <lingshan.zhu@intel.com>, "jasowang@redhat.com"
+ <jasowang@redhat.com>, "mst@redhat.com" <mst@redhat.com>
+Subject: RE: [PATCH V3 3/6] vDPA: allow userspace to query features of a vDPA
+ device
+Thread-Topic: [PATCH V3 3/6] vDPA: allow userspace to query features of a vDPA
+ device
+Thread-Index: AQHYjU+MYrbSKcBokU6ni+IvOk3zwK1qDqQg
+Date: Fri, 1 Jul 2022 22:02:39 +0000
+Message-ID: <PH0PR12MB5481AEB53864F35A79AAD7F5DCBD9@PH0PR12MB5481.namprd12.prod.outlook.com>
+References: <20220701132826.8132-1-lingshan.zhu@intel.com>
+ <20220701132826.8132-4-lingshan.zhu@intel.com>
+In-Reply-To: <20220701132826.8132-4-lingshan.zhu@intel.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 2d75d183-99f3-4d93-d0ff-08da5bad6a80
+x-ms-traffictypediagnostic: CY4PR12MB1255:EE_
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: xWbSRgqmp9LJO6/QijT0CBp9E5U+wBlNKTpBOLhF1zR6cs0AkXRh0qHjOcjauRE6wody0fppatx1d4z3Im42OoUSUddRyd3y01NqNgRhX+WSdL9qlXErW1Rlo+FAjJMr8xld8cBfKRmeHsnpaD7PH4oZh+LzQtPK4+K6Dg8cJMP+jFIsEGkUQeZT8e99s5Tosw9525wku7353Y8h18hlR+tNz6O9sHICue7iviYM11Iv3Od5vBQki5LFSZXC+z3qoI5EcPVeEM067NaFMOSuR9aQCpvho8MW/Zx22ilU8Hvz68pNwYSHwdkoQy/8uPFzWdQ0pnJBCuHVFtKzO7sB6gZOhnrVr7aw3ocGKSmNy8QR3S0gT48XvLaRbyJl7DgVMszUS3XHsAo4KX3ym61FMSrLDPWmlbVtrrgdMcb9b4hwXORF/ck3Z+NwO6wslMMxJfWFN5Ikfx666WfJnqsKFL+actCHoZqJMzehXGO/I1nh+8qA25Q/UJ3Oc7sQFOSWVtGaG4A6HGqZOnUug1HwzGmJv2XPoNl7pc/SldO50IM/fjiFZUM0pH+kjthiVeC7MuWoixeJ6iWb+XHDEfB3i+/SXmtwBosGcizt5WpDEkVClhJv83B5e6UBiHX+9dotMz7oG8n1BMrEeJk7aYbnQ1uZGCfBP6fMCYhtA1PmyYw8IKUWdY5H/BECHiPGkoUKzCgeaCY2NvAF2gTA0hPyY688w5VihxmUmUGqCah4hyyTa5Egsl0PWQWirdckWWBlLM50GltUh9ww3hCCOaZ/as6wREfB8M3RcOU63QZheCiQZshh07/GlpCdQ191PW6a
+x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:PH0PR12MB5481.namprd12.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230016)(4636009)(366004)(396003)(376002)(346002)(39860400002)(136003)(52536014)(186003)(83380400001)(38100700002)(76116006)(110136005)(66946007)(316002)(66476007)(54906003)(66556008)(5660300002)(8936002)(7696005)(66446008)(8676002)(4326008)(41300700001)(2906002)(6506007)(9686003)(71200400001)(26005)(64756008)(33656002)(38070700005)(478600001)(55016003)(86362001)(122000001);
+ DIR:OUT; SFP:1101; 
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?M+h/49B3R//ShqmTkrjtS49dfddT79Qv6WHhw22PCM9BlxHpoDHiv6rnhied?=
+ =?us-ascii?Q?Sk0fIA8rRL6oPgWdqjKgasaFxfLw4Epw9dSPSP5bkjw6ypdBx0WfUqaN41vk?=
+ =?us-ascii?Q?MR4P4726snK1ktnf3KyPCy0BfrKUfaxksAd69Qm5FTVg1sLsjdSjvbTulSCD?=
+ =?us-ascii?Q?Ym7wpXpetrnaONhxrWaC677ImJgwDxw1w2GGeln49g6aCGS2FoqCMqDTrhQi?=
+ =?us-ascii?Q?+TxvzsUia8K9V86In0LxCudH6RH1O1MMdZ7k/jRQ/FUVu8CgnhshUbcbdo2g?=
+ =?us-ascii?Q?0EagMhwZMlcbfh4uLccARi6hOTPa8cxxK2DxAqIW/HJLrTWBFKQmAX6pOAWI?=
+ =?us-ascii?Q?UFj8gw0+DB4TWoWBKDAEGXQAaqLDjAeYRw/L9nepVVFANvB772nh0E52AYBM?=
+ =?us-ascii?Q?+8X2pdkk4YN9Y/6gHFJQF2VKYmv7Rz0gvry9pFfq5RrCNTn4PFVEleKcsrgR?=
+ =?us-ascii?Q?3XjY6x6qmevYpFNQfczgwN+Zf2gmIP2+MSR5s9oT0bdL5hdofs3sgsAV9hOP?=
+ =?us-ascii?Q?Rxg596SKch5Zj90H+uSyZUP/EXzlzD0cI2PF8lxX0xpscQtZbLjI24Kikl8Z?=
+ =?us-ascii?Q?UrbhvBYoT3Sfz/m92VEpy+oaaf21Zx+72cETNsXvNO7KcnFllMLnkL/nTFrX?=
+ =?us-ascii?Q?q6DapiRYMf046mcGoimxF9WKvs00heET/I72HNKZtm83y9vtDjVDhaRR0wvh?=
+ =?us-ascii?Q?/eezUMaio94t20UmJE4f99xO3I4iycz9JE84WB1w8qjmkgfq8+m/wUAe20ww?=
+ =?us-ascii?Q?IxxphY650IhV1CrPyL6AtPWOaHEvNQSmZkKSb5uTjAPHfe07MVu89RPbTIWB?=
+ =?us-ascii?Q?egDiT9UveKO37kJtkezA/+NT7S9Aup+GLd6tfI5HsUIq1+PnPBvtJFghWqHH?=
+ =?us-ascii?Q?i8RqQMSk/LdLM/1Db6aXJOWcDtcZT0Izsp6SS2FoN2rZmc3j5/P+K7l3yk4q?=
+ =?us-ascii?Q?4emQm2SeL3FC6fjNRXAfP82MV1n/SLOgknX1ujSPVE2HHK2PAXq6fYBflRgN?=
+ =?us-ascii?Q?Ta6pK3iv/YSrnGc/XJwnVGIjWuPxPS87RQ4fGbITKaH0vFGP5OXYRd6jMusr?=
+ =?us-ascii?Q?/1a0xN+Zh8CG1dosVLkmEci8m6vOeMQt/hdD7GN4fxMfETwUsTjOQdelOJdF?=
+ =?us-ascii?Q?ojJ4hN8KIpiBSxa8FLSYXn4CnyfX3KGlYRJVIgv+Qe35f7WNUFv7PwSnVUR9?=
+ =?us-ascii?Q?nSL1ozbGtWOVcM0UCGgGEAMJ31DNWKytrntSA4dQDZyeqoa/2eK0+i3n+oW4?=
+ =?us-ascii?Q?SXk03oBN4DYrJbu4RqM+KUgQrPKKVydJB3qPIsyds9Vn27DCzI88IHWsiBUa?=
+ =?us-ascii?Q?Y4axzc6YB1Vq30fTqBuKC3GzrO57P4BMbAQQfUFD5VTHDZjXhqZtkum+wFDO?=
+ =?us-ascii?Q?jv0GOxQhJRlUl+a0T1ELlF3eFHm4xUM2YvJVPunrxRs8519b4XA4CX+A/EMz?=
+ =?us-ascii?Q?IiHib4X0+MLK4cw4CoQ42K9p9gLrV39m3I7BI+VlGYWC5gViwPFv+n7ZkpI1?=
+ =?us-ascii?Q?7WLDxt99K/UkQfdO5uMIs9ljJpCC6spezD622KmEKXZu88b/X9SazZ3HTO15?=
+ =?us-ascii?Q?894L7a+GgYSy2fsjIbs=3D?=
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.1
-Subject: Re: [PATCH v4 1/5] iommu: Return -EMEDIUMTYPE for incompatible domain
- and device/group
-Content-Language: en-GB
-To: Nicolin Chen <nicolinc@nvidia.com>
-References: <20220630203635.33200-1-nicolinc@nvidia.com>
- <20220630203635.33200-2-nicolinc@nvidia.com>
- <fab41f28-8f48-9f40-09c8-fd5f0714a9e0@arm.com>
- <Yr8kHnK7xRx2DZus@Asurada-Nvidia>
-From: Robin Murphy <robin.murphy@arm.com>
-In-Reply-To: <Yr8kHnK7xRx2DZus@Asurada-Nvidia>
-Cc: marcan@marcan.st, mjrosato@linux.ibm.com, linux-kernel@vger.kernel.org,
- thierry.reding@gmail.com, will@kernel.org, alyssa@rosenzweig.io,
- jean-philippe@linaro.org, kvm@vger.kernel.org, zhang.lyra@gmail.com,
- joro@8bytes.org, iommu@lists.linux-foundation.org, jonathanh@nvidia.com,
- iommu@lists.linux.dev, jgg@nvidia.com, yangyingliang@huawei.com,
- orsonzhai@gmail.com, gerald.schaefer@linux.ibm.com, sven@svenpeter.dev,
- linux-arm-msm@vger.kernel.org, john.garry@huawei.com,
- christophe.jaillet@wanadoo.fr, thunder.leizhen@huawei.com,
- linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org,
- linux-arm-kernel@lists.infradead.org, chenxiang66@hisilicon.com,
- linux-s390@vger.kernel.org, cohuck@redhat.com, vdumpa@nvidia.com,
- robdclark@gmail.com, suravee.suthikulpanit@amd.com, baolin.wang7@gmail.com,
- dwmw2@infradead.org, baolu.lu@linux.intel.com
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB5481.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 2d75d183-99f3-4d93-d0ff-08da5bad6a80
+X-MS-Exchange-CrossTenant-originalarrivaltime: 01 Jul 2022 22:02:40.0018 (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 2rcVruDyg/5puhuDzmCULjoBMltU/XS475wRCLd16R4JJfvQr6NwWryOpga3EkIViwB/0LdI0AkGa1Ie/ivbBQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY4PR12MB1255
+Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+ "xieyongji@bytedance.com" <xieyongji@bytedance.com>,
+ "gautam.dawar@amd.com" <gautam.dawar@amd.com>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -83,63 +156,118 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+From: Parav Pandit via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Parav Pandit <parav@nvidia.com>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 01/07/2022 5:43 pm, Nicolin Chen wrote:
-> On Fri, Jul 01, 2022 at 11:21:48AM +0100, Robin Murphy wrote:
-> 
->>> diff --git a/drivers/iommu/arm/arm-smmu/arm-smmu.c b/drivers/iommu/arm/arm-smmu/arm-smmu.c
->>> index 2ed3594f384e..072cac5ab5a4 100644
->>> --- a/drivers/iommu/arm/arm-smmu/arm-smmu.c
->>> +++ b/drivers/iommu/arm/arm-smmu/arm-smmu.c
->>> @@ -1135,10 +1135,8 @@ static int arm_smmu_attach_dev(struct iommu_domain *domain, struct device *dev)
->>>        struct arm_smmu_device *smmu;
->>>        int ret;
->>>
->>> -     if (!fwspec || fwspec->ops != &arm_smmu_ops) {
->>> -             dev_err(dev, "cannot attach to SMMU, is it on the same bus?\n");
->>> -             return -ENXIO;
->>> -     }
->>> +     if (!fwspec || fwspec->ops != &arm_smmu_ops)
->>> +             return -EMEDIUMTYPE;
->>
->> This is the wrong check, you want the "if (smmu_domain->smmu != smmu)"
->> condition further down. If this one fails it's effectively because the
->> device doesn't have an IOMMU at all, and similar to patch #3 it will be
-> 
-> Thanks for the review! I will fix that. The "on the same bus" is
-> quite eye-catching.
-> 
->> removed once the core code takes over properly (I even have both those
->> patches written now!)
-> 
-> Actually in my v1 the proposal for ops check returned -EMEDIUMTYPE
-> also upon an ops mismatch, treating that too as an incompatibility.
-> Do you mean that we should have fine-grained it further?
 
-On second look, I think this particular check was already entirely 
-redundant by the time I made the fwspec conversion to it, oh well. Since 
-it remains harmless for the time being, let's just ignore it entirely 
-until we can confidently say goodbye to the whole lot[1].
 
-I don't think there's any need to differentiate an instance mismatch 
-from a driver mismatch, once the latter becomes realistically possible, 
-mostly due to iommu_domain_alloc() also having to become device-aware to 
-know which driver to allocate from. Thus as far as a user is concerned, 
-if attaching a device to an existing domain fails with -EMEDIUMTYPE, 
-allocating a new domain using the given device, and attaching to that, 
-can be expected to succeed, regardless of why the original attempt was 
-rejected. In fact even in the theoretical different-driver-per-bus model 
-the same principle still holds up.
+> From: Zhu Lingshan <lingshan.zhu@intel.com>
+> Sent: Friday, July 1, 2022 9:28 AM
+> 
+> This commit adds a new vDPA netlink attribution
+> VDPA_ATTR_VDPA_DEV_SUPPORTED_FEATURES. Userspace can query
+> features of vDPA devices through this new attr.
+> 
+> Fixes: a64917bc2e9b vdpa: (Provide interface to read driver feature)
+Missing the "" in the line.
+I reviewed the patches again.
 
-Thanks,
-Robin.
+However, this is not the fix.
+A fix cannot add a new UAPI.
 
-[1] 
-https://gitlab.arm.com/linux-arm/linux-rm/-/commit/aa4accfa4a10e92daad0d51095918e8a89014393
+Code is already considering negotiated driver features to return the device config space.
+Hence it is fine.
+
+This patch intents to provide device features to user space.
+First what vdpa device are capable of, are already returned by features attribute on the management device.
+This is done in commit [1].
+
+The only reason to have it is, when one management device indicates that feature is supported, but device may end up not supporting this feature if such feature is shared with other devices on same physical device.
+For example all VFs may not be symmetric after large number of them are in use. In such case features bit of management device can differ (more features) than the vdpa device of this VF.
+Hence, showing on the device is useful.
+
+As mentioned before in V2, commit [1] has wrongly named the attribute to VDPA_ATTR_DEV_SUPPORTED_FEATURES.
+It should have been, VDPA_ATTR_DEV_MGMTDEV_SUPPORTED_FEATURES.
+Because it is in UAPI, and since we don't want to break compilation of iproute2,
+It cannot be renamed anymore.
+
+Given that, we do not want to start trend of naming device attributes with additional _VDPA_ to it as done in this patch.
+Error in commit [1] was exception.
+
+Hence, please reuse VDPA_ATTR_DEV_SUPPORTED_FEATURES to return for device features too.
+
+Secondly, you need output example for showing device features in the commit log.
+
+3rd, please drop the fixes tag as new capability is not a fix.
+
+[1] cd2629f6df1c ("vdpa: Support reporting max device capabilities ")
+
+> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
+> ---
+>  drivers/vdpa/vdpa.c       | 13 +++++++++----
+>  include/uapi/linux/vdpa.h |  1 +
+>  2 files changed, 10 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c index
+> ebf2f363fbe7..9b0e39b2f022 100644
+> --- a/drivers/vdpa/vdpa.c
+> +++ b/drivers/vdpa/vdpa.c
+> @@ -815,7 +815,7 @@ static int vdpa_dev_net_mq_config_fill(struct
+> vdpa_device *vdev,  static int vdpa_dev_net_config_fill(struct vdpa_device
+> *vdev, struct sk_buff *msg)  {
+>  	struct virtio_net_config config = {};
+> -	u64 features;
+> +	u64 features_device, features_driver;
+>  	u16 val_u16;
+> 
+>  	vdpa_get_config_unlocked(vdev, 0, &config, sizeof(config)); @@ -
+> 832,12 +832,17 @@ static int vdpa_dev_net_config_fill(struct vdpa_device
+> *vdev, struct sk_buff *ms
+>  	if (nla_put_u16(msg, VDPA_ATTR_DEV_NET_CFG_MTU, val_u16))
+>  		return -EMSGSIZE;
+> 
+> -	features = vdev->config->get_driver_features(vdev);
+> -	if (nla_put_u64_64bit(msg,
+> VDPA_ATTR_DEV_NEGOTIATED_FEATURES, features,
+> +	features_driver = vdev->config->get_driver_features(vdev);
+> +	if (nla_put_u64_64bit(msg,
+> VDPA_ATTR_DEV_NEGOTIATED_FEATURES, features_driver,
+> +			      VDPA_ATTR_PAD))
+> +		return -EMSGSIZE;
+> +
+> +	features_device = vdev->config->get_device_features(vdev);
+> +	if (nla_put_u64_64bit(msg,
+> VDPA_ATTR_VDPA_DEV_SUPPORTED_FEATURES,
+> +features_device,
+>  			      VDPA_ATTR_PAD))
+>  		return -EMSGSIZE;
+> 
+> -	return vdpa_dev_net_mq_config_fill(vdev, msg, features, &config);
+> +	return vdpa_dev_net_mq_config_fill(vdev, msg, features_driver,
+> +&config);
+>  }
+> 
+>  static int
+> diff --git a/include/uapi/linux/vdpa.h b/include/uapi/linux/vdpa.h index
+> 25c55cab3d7c..39f1c3d7c112 100644
+> --- a/include/uapi/linux/vdpa.h
+> +++ b/include/uapi/linux/vdpa.h
+> @@ -47,6 +47,7 @@ enum vdpa_attr {
+>  	VDPA_ATTR_DEV_NEGOTIATED_FEATURES,	/* u64 */
+>  	VDPA_ATTR_DEV_MGMTDEV_MAX_VQS,		/* u32 */
+>  	VDPA_ATTR_DEV_SUPPORTED_FEATURES,	/* u64 */
+> +	VDPA_ATTR_VDPA_DEV_SUPPORTED_FEATURES,	/* u64 */
+> 
+>  	VDPA_ATTR_DEV_QUEUE_INDEX,              /* u32 */
+>  	VDPA_ATTR_DEV_VENDOR_ATTR_NAME,		/* string */
+> --
+> 2.31.1
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
