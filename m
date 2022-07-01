@@ -1,116 +1,87 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A5DF7C433EF
-	for <virtualization@archiver.kernel.org>; Fri,  1 Jul 2022 01:22:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A64CAC43334
+	for <virtualization@archiver.kernel.org>; Fri,  1 Jul 2022 02:07:13 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 4CC27813EC;
-	Fri,  1 Jul 2022 01:22:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4CC27813EC
+	by smtp2.osuosl.org (Postfix) with ESMTP id 165F040B59;
+	Fri,  1 Jul 2022 02:07:13 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 165F040B59
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=i4zIE8d9
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id q0yY8cfhwI2f; Fri,  1 Jul 2022 02:07:12 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 616094025D;
+	Fri,  1 Jul 2022 02:07:11 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 616094025D
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 45831C002D;
+	Fri,  1 Jul 2022 02:07:11 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5F843C0011
+ for <virtualization@lists.linux-foundation.org>;
+ Fri,  1 Jul 2022 02:07:09 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 339F384619
+ for <virtualization@lists.linux-foundation.org>;
+ Fri,  1 Jul 2022 02:07:09 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 339F384619
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=aQAxS48R
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=i4zIE8d9
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id sviG8aO4TAHV; Fri,  1 Jul 2022 01:22:33 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id C1DBE813CC;
-	Fri,  1 Jul 2022 01:22:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C1DBE813CC
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 99F3DC002D;
-	Fri,  1 Jul 2022 01:22:32 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3AFCDC0011
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id oiO0k_NSiQ4E
  for <virtualization@lists.linux-foundation.org>;
- Fri,  1 Jul 2022 01:22:32 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 05C7360FAF
- for <virtualization@lists.linux-foundation.org>;
- Fri,  1 Jul 2022 01:22:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 05C7360FAF
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=aQAxS48R
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id SO_fMy9Y_IxG
- for <virtualization@lists.linux-foundation.org>;
- Fri,  1 Jul 2022 01:22:30 +0000 (UTC)
+ Fri,  1 Jul 2022 02:07:08 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9BABB60F40
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4E9AC84505
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 9BABB60F40
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 4E9AC84505
  for <virtualization@lists.linux-foundation.org>;
- Fri,  1 Jul 2022 01:22:30 +0000 (UTC)
+ Fri,  1 Jul 2022 02:07:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1656638549;
+ s=mimecast20190719; t=1656641226;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=2KH53Wl1gr5UMbynLfVT+FjBM4ZDGlsSeHT6iWm6OnU=;
- b=aQAxS48R1Lnx1vlEDG9WdVZ/k6U/4yWAr4kdTOqZ3NYMcRFzgWOtTPeEiVT0MqDlgV3Vx+
- I78i5ndM77LFzFqpQGfjuKtfOiyWjn8hJohtbKGm8yIPf1BcElr12H6MXx06dMa+9DCKIE
- 9l02JafxDLFaTEWftOxjarUwa8NTp8o=
-Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com
- [209.85.208.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ content-transfer-encoding:content-transfer-encoding;
+ bh=Sdi8jNSnOdvWHR3wh2tv72zEmX4j3iNwttocgDASpHc=;
+ b=i4zIE8d9P4/9iHJTU09HDshShdbEP+Okle+e3LB0Z/DPmGcn6F4uprg20f+qOq8fO41/rG
+ 8mn+7Onf6ErkGzAyFwOPKjxpQFzWtdocgfdfDoZDnHu7pgg4RH8+OJdb7qkxZb7WDsQeZ8
+ QVny9ZKbPFvcxOjSjzCeP3rpBdDZav8=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-64-N0rEDQ07OuODfkI-S-VxwA-1; Thu, 30 Jun 2022 21:22:28 -0400
-X-MC-Unique: N0rEDQ07OuODfkI-S-VxwA-1
-Received: by mail-lj1-f198.google.com with SMTP id
- y8-20020a2eb008000000b0025bf6ec0c6cso55036ljk.20
- for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Jun 2022 18:22:27 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=2KH53Wl1gr5UMbynLfVT+FjBM4ZDGlsSeHT6iWm6OnU=;
- b=fwoS/N0Gr4NEr6UrTcDwZx4g/uL+FBCxiEG2V4gdDUAwzxx74hrynLKxQUUe8Fida3
- wYAdYIgGSoBq72erfN4BgPCIKQG6WLzDzcFqSInZCByLwK7wyOeQKyPMvUQm7hpZ1iNM
- Lqe2fDnaBryEO+kN5rEE9jgvVGxvpTLUvTVewWZou0+6fx7grh75JTSiHqGs6m+rcAJe
- mOo1e99Z+Po17fYuDNb6r4yhLVRAIJmAKOLgE2q9oV98dSQBhMo/suwtlt//nC82LaHS
- 09WUU9JpyJ46zTzr/hFN+QA1kYztq7J7GN+YiZBz9vFmfJ4vactSXidaDYO/QZihDu91
- GZMQ==
-X-Gm-Message-State: AJIora8m4m0JP9iLmHk3DIM+WeWqO/VG9oMHPm/2DoTVgDZYBmyhO9TM
- oZOsR5lBSVtKAncDPfLoMTBuQe+F2r6H6vYGtCcSHYd6GsG2oQrPgtAVLS3vLR1YVvzPVU95+Jx
- 1F2hcwyiyaGwRAxKhJlR+9sEaEntKgve1Q/O7qErPMX/E/xCACrVqcO1aWA==
-X-Received: by 2002:a05:6512:22c3:b0:47f:704b:3820 with SMTP id
- g3-20020a05651222c300b0047f704b3820mr7390622lfu.411.1656638546148; 
- Thu, 30 Jun 2022 18:22:26 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1vr8HxTtR3VyCNAME9Etu0HGTUwoK8NFuuJdU03zhtIJfCQW8P7Cfwl91EkAy5W/C6W4aZiLeDVgXy6h3cd8Cw=
-X-Received: by 2002:a05:6512:22c3:b0:47f:704b:3820 with SMTP id
- g3-20020a05651222c300b0047f704b3820mr7390605lfu.411.1656638545914; Thu, 30
- Jun 2022 18:22:25 -0700 (PDT)
-MIME-Version: 1.0
-References: <20220608171334.730739-1-apatel@ventanamicro.com>
- <20220629174318.GB2018382@p14s>
- <bf87a50c-6d92-8657-72a9-75af81d2489f@foss.st.com>
- <CANLsYkzHZMV3eVUn3Xpk0eiAexyr9HC5__K9xfAwfm23nuQj=A@mail.gmail.com>
- <20220630152003-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20220630152003-mutt-send-email-mst@kernel.org>
+ us-mta-104-l4E0IiP5PuKJpYdZoUpoqw-1; Thu, 30 Jun 2022 22:07:03 -0400
+X-MC-Unique: l4E0IiP5PuKJpYdZoUpoqw-1
+Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.10])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id D0B11101A588;
+ Fri,  1 Jul 2022 02:07:02 +0000 (UTC)
+Received: from localhost.localdomain (ovpn-12-241.pek2.redhat.com
+ [10.72.12.241])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id CA6B041615A;
+ Fri,  1 Jul 2022 02:06:58 +0000 (UTC)
 From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 1 Jul 2022 09:22:15 +0800
-Message-ID: <CACGkMEtHuoHT6meHacsie8M87yjUX3jGEvP7BuU_Vrb3yqkDWw@mail.gmail.com>
-Subject: Re: [PATCH] rpmsg: virtio: Fix broken rpmsg_probe()
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: Anup Patel <apatel@ventanamicro.com>,
- Mathieu Poirier <mathieu.poirier@linaro.org>, Anup Patel <anup@brainfault.org>,
- linux-remoteproc@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>,
- Bjorn Andersson <bjorn.andersson@linaro.org>,
- Alistair Francis <Alistair.Francis@wdc.com>, kvm-riscv@lists.infradead.org,
- Atish Patra <atishp@atishpatra.org>,
- Arnaud POULIQUEN <arnaud.pouliquen@foss.st.com>,
- virtualization <virtualization@lists.linux-foundation.org>
+To: mst@redhat.com, jasowang@redhat.com, davem@davemloft.net,
+ edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+ virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+Subject: [PATCH net V3] virtio-net: fix the race between refill work and close
+Date: Fri,  1 Jul 2022 10:06:55 +0800
+Message-Id: <20220701020655.86532-1-jasowang@redhat.com>
+MIME-Version: 1.0
+X-Scanned-By: MIMEDefang 2.85 on 10.11.54.10
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -127,120 +98,154 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Jul 1, 2022 at 3:20 AM Michael S. Tsirkin <mst@redhat.com> wrote:
->
-> On Thu, Jun 30, 2022 at 11:51:30AM -0600, Mathieu Poirier wrote:
-> > + virtualization@lists.linux-foundation.org
-> > + jasowang@redhat.com
-> > + mst@redhat.com
-> >
-> > On Thu, 30 Jun 2022 at 10:20, Arnaud POULIQUEN
-> > <arnaud.pouliquen@foss.st.com> wrote:
-> > >
-> > > Hi,
-> > >
-> > > On 6/29/22 19:43, Mathieu Poirier wrote:
-> > > > Hi Anup,
-> > > >
-> > > > On Wed, Jun 08, 2022 at 10:43:34PM +0530, Anup Patel wrote:
-> > > >> The rpmsg_probe() is broken at the moment because virtqueue_add_inbuf()
-> > > >> fails due to both virtqueues (Rx and Tx) marked as broken by the
-> > > >> __vring_new_virtqueue() function. To solve this, virtio_device_ready()
-> > > >> (which unbreaks queues) should be called before virtqueue_add_inbuf().
-> > > >>
-> > > >> Fixes: 8b4ec69d7e09 ("virtio: harden vring IRQ")
-> > > >> Signed-off-by: Anup Patel <apatel@ventanamicro.com>
-> > > >> ---
-> > > >>  drivers/rpmsg/virtio_rpmsg_bus.c | 6 +++---
-> > > >>  1 file changed, 3 insertions(+), 3 deletions(-)
-> > > >>
-> > > >> diff --git a/drivers/rpmsg/virtio_rpmsg_bus.c b/drivers/rpmsg/virtio_rpmsg_bus.c
-> > > >> index 905ac7910c98..71a64d2c7644 100644
-> > > >> --- a/drivers/rpmsg/virtio_rpmsg_bus.c
-> > > >> +++ b/drivers/rpmsg/virtio_rpmsg_bus.c
-> > > >> @@ -929,6 +929,9 @@ static int rpmsg_probe(struct virtio_device *vdev)
-> > > >>      /* and half is dedicated for TX */
-> > > >>      vrp->sbufs = bufs_va + total_buf_space / 2;
-> > > >>
-> > > >> +    /* From this point on, we can notify and get callbacks. */
-> > > >> +    virtio_device_ready(vdev);
-> > > >> +
-> > > >
-> > > > Calling virtio_device_ready() here means that virtqueue_get_buf_ctx_split() can
-> > > > potentially be called (by way of rpmsg_recv_done()), which will race with
-> > > > virtqueue_add_inbuf().  If buffers in the virtqueue aren't available then
-> > > > rpmsg_recv_done() will fail, potentially breaking remote processors' state
-> > > > machines that don't expect their initial name service to fail when the "device"
-> > > > has been marked as ready.
-> > > >
-> > > > What does make me curious though is that nobody on the remoteproc mailing list
-> > > > has complained about commit 8b4ec69d7e09 breaking their environment... By now,
-> > > > i.e rc4, that should have happened.  Anyone from TI, ST and Xilinx care to test this on
-> > > > their rig?
-> > >
-> > > I tested on STm32mp1 board using tag v5.19-rc4(03c765b0e3b4)
-> > > I confirm the issue!
-> > >
-> > > Concerning the solution, I share Mathieu's concern. This could break legacy.
-> > > I made a short test and I would suggest to use __virtio_unbreak_device instead, tounbreak the virtqueues without changing the init sequence.
-> > >
-> > > I this case the patch would be:
-> > >
-> > > +       /*
-> > > +        * Unbreak the virtqueues to allow to add buffers before setting the vdev status
-> > > +        * to ready
-> > > +        */
-> > > +       __virtio_unbreak_device(vdev);
-> > > +
-> > >
-> > >         /* set up the receive buffers */
-> > >         for (i = 0; i < vrp->num_bufs / 2; i++) {
-> > >                 struct scatterlist sg;
-> > >                 void *cpu_addr = vrp->rbufs + i * vrp->buf_size;
-> >
-> > This will indeed fix the problem.  On the flip side the kernel
-> > documentation for __virtio_unbreak_device() puzzles me...
-> > It clearly states that it should be used for probing and restoring but
-> > _not_ directly by the driver.  Function rpmsg_probe() is part of
-> > probing but also the entry point to a driver.
-> >
-> > Michael and virtualisation folks, is this the right way to move forward?
->
-> I don't think it is, __virtio_unbreak_device is intended for core use.
+We try using cancel_delayed_work_sync() to prevent the work from
+enabling NAPI. This is insufficient since we don't disable the source
+of the refill work scheduling. This means an NAPI poll callback after
+cancel_delayed_work_sync() can schedule the refill work then can
+re-enable the NAPI that leads to use-after-free [1].
 
-Can we fill the rx after virtio_device_ready() in this case?
+Since the work can enable NAPI, we can't simply disable NAPI before
+calling cancel_delayed_work_sync(). So fix this by introducing a
+dedicated boolean to control whether or not the work could be
+scheduled from NAPI.
 
-Btw, the driver set driver ok after registering, we probably get a svq
-kick before DRIVER_OK?
+[1]
+==================================================================
+BUG: KASAN: use-after-free in refill_work+0x43/0xd4
+Read of size 2 at addr ffff88810562c92e by task kworker/2:1/42
 
-Thanks
+CPU: 2 PID: 42 Comm: kworker/2:1 Not tainted 5.19.0-rc1+ #480
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.16.0-0-gd239552ce722-prebuilt.qemu.org 04/01/2014
+Workqueue: events refill_work
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x34/0x44
+ print_report.cold+0xbb/0x6ac
+ ? _printk+0xad/0xde
+ ? refill_work+0x43/0xd4
+ kasan_report+0xa8/0x130
+ ? refill_work+0x43/0xd4
+ refill_work+0x43/0xd4
+ process_one_work+0x43d/0x780
+ worker_thread+0x2a0/0x6f0
+ ? process_one_work+0x780/0x780
+ kthread+0x167/0x1a0
+ ? kthread_exit+0x50/0x50
+ ret_from_fork+0x22/0x30
+ </TASK>
+...
 
->
-> > >
-> > > Regards,
-> > > Arnaud
-> > >
-> > > >
-> > > > Thanks,
-> > > > Mathieu
-> > > >
-> > > >>      /* set up the receive buffers */
-> > > >>      for (i = 0; i < vrp->num_bufs / 2; i++) {
-> > > >>              struct scatterlist sg;
-> > > >> @@ -983,9 +986,6 @@ static int rpmsg_probe(struct virtio_device *vdev)
-> > > >>       */
-> > > >>      notify = virtqueue_kick_prepare(vrp->rvq);
-> > > >>
-> > > >> -    /* From this point on, we can notify and get callbacks. */
-> > > >> -    virtio_device_ready(vdev);
-> > > >> -
-> > > >>      /* tell the remote processor it can start sending messages */
-> > > >>      /*
-> > > >>       * this might be concurrent with callbacks, but we are only
-> > > >> --
-> > > >> 2.34.1
-> > > >>
->
+Fixes: b2baed69e605c ("virtio_net: set/cancel work on ndo_open/ndo_stop")
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+Changes since V2:
+- use spin_unlock()/lock_bh() in open/stop to synchronize with bh
+Changes since V1:
+- Tweak the changelog
+---
+ drivers/net/virtio_net.c | 38 ++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 36 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index db05b5e930be..83ea57ad4eb5 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -251,6 +251,12 @@ struct virtnet_info {
+ 	/* Does the affinity hint is set for virtqueues? */
+ 	bool affinity_hint_set;
+ 
++	/* Is refill work enabled? */
++	bool refill_work_enabled;
++
++	/* The lock to synchronize the access to refill_work_enabled */
++	spinlock_t refill_lock;
++
+ 	/* CPU hotplug instances for online & dead */
+ 	struct hlist_node node;
+ 	struct hlist_node node_dead;
+@@ -348,6 +354,20 @@ static struct page *get_a_page(struct receive_queue *rq, gfp_t gfp_mask)
+ 	return p;
+ }
+ 
++static void enable_refill_work(struct virtnet_info *vi)
++{
++	spin_lock_bh(&vi->refill_lock);
++	vi->refill_work_enabled = true;
++	spin_unlock_bh(&vi->refill_lock);
++}
++
++static void disable_refill_work(struct virtnet_info *vi)
++{
++	spin_lock_bh(&vi->refill_lock);
++	vi->refill_work_enabled = false;
++	spin_unlock_bh(&vi->refill_lock);
++}
++
+ static void virtqueue_napi_schedule(struct napi_struct *napi,
+ 				    struct virtqueue *vq)
+ {
+@@ -1527,8 +1547,12 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
+ 	}
+ 
+ 	if (rq->vq->num_free > min((unsigned int)budget, virtqueue_get_vring_size(rq->vq)) / 2) {
+-		if (!try_fill_recv(vi, rq, GFP_ATOMIC))
+-			schedule_delayed_work(&vi->refill, 0);
++		if (!try_fill_recv(vi, rq, GFP_ATOMIC)) {
++			spin_lock(&vi->refill_lock);
++			if (vi->refill_work_enabled)
++				schedule_delayed_work(&vi->refill, 0);
++			spin_unlock(&vi->refill_lock);
++		}
+ 	}
+ 
+ 	u64_stats_update_begin(&rq->stats.syncp);
+@@ -1651,6 +1675,8 @@ static int virtnet_open(struct net_device *dev)
+ 	struct virtnet_info *vi = netdev_priv(dev);
+ 	int i, err;
+ 
++	enable_refill_work(vi);
++
+ 	for (i = 0; i < vi->max_queue_pairs; i++) {
+ 		if (i < vi->curr_queue_pairs)
+ 			/* Make sure we have some buffers: if oom use wq. */
+@@ -2033,6 +2059,8 @@ static int virtnet_close(struct net_device *dev)
+ 	struct virtnet_info *vi = netdev_priv(dev);
+ 	int i;
+ 
++	/* Make sure NAPI doesn't schedule refill work */
++	disable_refill_work(vi);
+ 	/* Make sure refill_work doesn't re-enable napi! */
+ 	cancel_delayed_work_sync(&vi->refill);
+ 
+@@ -2776,6 +2804,9 @@ static void virtnet_freeze_down(struct virtio_device *vdev)
+ 	netif_tx_lock_bh(vi->dev);
+ 	netif_device_detach(vi->dev);
+ 	netif_tx_unlock_bh(vi->dev);
++	/* Make sure NAPI doesn't schedule refill work */
++	disable_refill_work(vi);
++	/* Make sure refill_work doesn't re-enable napi! */
+ 	cancel_delayed_work_sync(&vi->refill);
+ 
+ 	if (netif_running(vi->dev)) {
+@@ -2799,6 +2830,8 @@ static int virtnet_restore_up(struct virtio_device *vdev)
+ 
+ 	virtio_device_ready(vdev);
+ 
++	enable_refill_work(vi);
++
+ 	if (netif_running(vi->dev)) {
+ 		for (i = 0; i < vi->curr_queue_pairs; i++)
+ 			if (!try_fill_recv(vi, &vi->rq[i], GFP_KERNEL))
+@@ -3548,6 +3581,7 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 	vdev->priv = vi;
+ 
+ 	INIT_WORK(&vi->config_work, virtnet_config_changed_work);
++	spin_lock_init(&vi->refill_lock);
+ 
+ 	/* If we can receive ANY GSO packets, we must allocate large ones. */
+ 	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO4) ||
+-- 
+2.25.1
 
 _______________________________________________
 Virtualization mailing list
