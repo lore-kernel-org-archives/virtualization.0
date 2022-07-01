@@ -4,105 +4,62 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8510ACCA479
-	for <virtualization@archiver.kernel.org>; Fri,  1 Jul 2022 06:31:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B25EBCCA482
+	for <virtualization@archiver.kernel.org>; Fri,  1 Jul 2022 06:43:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 1FC8A60759;
-	Fri,  1 Jul 2022 06:31:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1FC8A60759
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=bU69NfJk
+	by smtp3.osuosl.org (Postfix) with ESMTP id 2AEA160FAD;
+	Fri,  1 Jul 2022 06:43:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2AEA160FAD
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 5M_5S0oegOde; Fri,  1 Jul 2022 06:31:34 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id A1543600B8;
-	Fri,  1 Jul 2022 06:31:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A1543600B8
+	with ESMTP id MCgo8G5J4cBi; Fri,  1 Jul 2022 06:43:41 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id A2FCF607E3;
+	Fri,  1 Jul 2022 06:43:40 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A2FCF607E3
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8196CC0035;
-	Fri,  1 Jul 2022 06:31:33 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 701AAC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5E398C0035;
+	Fri,  1 Jul 2022 06:43:40 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4A8CAC002D
  for <virtualization@lists.linux-foundation.org>;
- Fri,  1 Jul 2022 06:31:32 +0000 (UTC)
+ Fri,  1 Jul 2022 06:43:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 3BDF760759
+ by smtp1.osuosl.org (Postfix) with ESMTP id 11B5E83F20
  for <virtualization@lists.linux-foundation.org>;
- Fri,  1 Jul 2022 06:31:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3BDF760759
+ Fri,  1 Jul 2022 06:43:39 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 11B5E83F20
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id rAX9BMPdAoQf
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 4PhAvq8UdfA6
  for <virtualization@lists.linux-foundation.org>;
- Fri,  1 Jul 2022 06:31:31 +0000 (UTC)
+ Fri,  1 Jul 2022 06:43:37 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5DC8B600B8
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 5DC8B600B8
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1B62483F12
+Received: from out30-42.freemail.mail.aliyun.com
+ (out30-42.freemail.mail.aliyun.com [115.124.30.42])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 1B62483F12
  for <virtualization@lists.linux-foundation.org>;
- Fri,  1 Jul 2022 06:31:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1656657090;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=t4mq0djcD9YM3JASrOeZhnSSARiulyBSa0GkqeNjlYw=;
- b=bU69NfJkl5wzR+EZzFFH60Ir/vJFkdIgIPJSQ/qMrTms5mUlkH+afpUGD7tFdhF6h9cNY2
- U9G5BLTc1b7pd3N11TT8o1x+oqy7DJFnQyX43CGUnOb/9rbmRWVKZQM15mR8nw5RFxUtml
- pXN6tL60gxtp4xpxuQuDE/cCTTRG9w8=
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
- [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-48-t-Utz2zwOMmYi_m3GqWTzA-1; Fri, 01 Jul 2022 02:31:27 -0400
-X-MC-Unique: t-Utz2zwOMmYi_m3GqWTzA-1
-Received: by mail-ed1-f69.google.com with SMTP id
- z13-20020a056402274d00b004357fcdd51fso1085649edd.17
- for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Jun 2022 23:31:26 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=t4mq0djcD9YM3JASrOeZhnSSARiulyBSa0GkqeNjlYw=;
- b=OXbXHRCLLRCIV5DqWSAy02jLF1WLQKv8ksNQxMgICyuOCKduuAPdZ4kgD/pjmFKi9O
- j5WuoDx0Op6pgPqfzKrFy/i47FnGhMrSj4XV+59I+kuVwrkfZrrUP6SwTTBQtyoTvgP9
- hWIbAuIx17x0N75vLfbwF6Oou/zL0bM+B/7HokYUo97FaTH1GprdcmhILM0d+gF2PCF7
- WeAEkcmPGnO8rNYnunRPvIZI2+GBcoxWKcDi3q15do/V8i1ZCJALOzxz7H4SQnFJrt8q
- kBT0+NdrjAF0n4gC+BnJ45MvraTpKVSsk06S6dn1apFfX2AzVBnmp5hJRGmgRwsjClyY
- WT8g==
-X-Gm-Message-State: AJIora8WcR9j12IPq6d2+WH5UgBoUaNr5WkYSqRReEkaZfu2cD3UKn8+
- DKPXmt+9h91MAC/gJWbvjC7mnD/RMN4ek/YcQEqVbgfGTCNSwOD79lBbbuBiOi5uuC7DEZ/MTUS
- ikPxSZ5PkX+qmwyxsXCEVJMlqxe+Ii+iDJCoNdPGQog==
-X-Received: by 2002:a17:907:2704:b0:72a:596f:8b9f with SMTP id
- w4-20020a170907270400b0072a596f8b9fmr7711911ejk.761.1656657086007; 
- Thu, 30 Jun 2022 23:31:26 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1uBC6Csq0KK3mHQr921uHGRsVzPm9YamAGsOXqm/7tt8aIzVOGmGN35oK+8gpDy+vr5kzch1Q==
-X-Received: by 2002:a17:907:2704:b0:72a:596f:8b9f with SMTP id
- w4-20020a170907270400b0072a596f8b9fmr7711894ejk.761.1656657085791; 
- Thu, 30 Jun 2022 23:31:25 -0700 (PDT)
-Received: from redhat.com ([2.55.3.188]) by smtp.gmail.com with ESMTPSA id
- ia10-20020a170907a06a00b0070b7875aa6asm9874051ejc.166.2022.06.30.23.31.20
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 30 Jun 2022 23:31:25 -0700 (PDT)
-Date: Fri, 1 Jul 2022 02:31:18 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH v11 25/40] virtio: allow to unbreak/break virtqueue
- individually
-Message-ID: <20220701022950-mutt-send-email-mst@kernel.org>
+ Fri,  1 Jul 2022 06:43:36 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R801e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046049;
+ MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=36; SR=0;
+ TI=SMTPD_---0VHzJr.6_1656657809; 
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
+ fp:SMTPD_---0VHzJr.6_1656657809) by smtp.aliyun-inc.com;
+ Fri, 01 Jul 2022 14:43:30 +0800
+Message-ID: <1656657725.7418885-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH v11 02/40] virtio: struct virtio_config_ops add callbacks
+ for queue_reset
+Date: Fri, 1 Jul 2022 14:42:05 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 References: <20220629065656.54420-1-xuanzhuo@linux.alibaba.com>
- <20220629065656.54420-26-xuanzhuo@linux.alibaba.com>
-MIME-Version: 1.0
-In-Reply-To: <20220629065656.54420-26-xuanzhuo@linux.alibaba.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
+ <20220629065656.54420-3-xuanzhuo@linux.alibaba.com>
+ <20220701022728-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20220701022728-mutt-send-email-mst@kernel.org>
 Cc: Vadim Pasternak <vadimp@nvidia.com>, linux-remoteproc@vger.kernel.org,
  Alexei Starovoitov <ast@kernel.org>, virtualization@lists.linux-foundation.org,
  Eric Dumazet <edumazet@google.com>, Alexander Gordeev <agordeev@linux.ibm.com>,
@@ -132,82 +89,75 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Jun 29, 2022 at 02:56:41PM +0800, Xuan Zhuo wrote:
-> This patch allows the new introduced
-> __virtqueue_break()/__virtqueue_unbreak() to break/unbreak the
-> virtqueue.
-> 
-> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+On Fri, 1 Jul 2022 02:28:46 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> On Wed, Jun 29, 2022 at 02:56:18PM +0800, Xuan Zhuo wrote:
+> > reset can be divided into the following four steps (example):
+> >  1. transport: notify the device to reset the queue
+> >  2. vring:     recycle the buffer submitted
+> >  3. vring:     reset/resize the vring (may re-alloc)
+> >  4. transport: mmap vring to device, and enable the queue
+> >
+> > In order to support queue reset, add two callbacks(reset_vq,
+> > enable_reset_vq) in struct virtio_config_ops to implement steps 1 and 4.
+> >
+> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > ---
+> >  include/linux/virtio_config.h | 12 ++++++++++++
+> >  1 file changed, 12 insertions(+)
+> >
+> > diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+> > index b47c2e7ed0ee..ded51b0d4823 100644
+> > --- a/include/linux/virtio_config.h
+> > +++ b/include/linux/virtio_config.h
+> > @@ -78,6 +78,16 @@ struct virtio_shm_region {
+> >   * @set_vq_affinity: set the affinity for a virtqueue (optional).
+> >   * @get_vq_affinity: get the affinity for a virtqueue (optional).
+> >   * @get_shm_region: get a shared memory region based on the index.
+> > + * @reset_vq: reset a queue individually (optional).
+> > + *	vq: the virtqueue
+> > + *	Returns 0 on success or error status
+> > + *	reset_vq will guarantee that the callbacks are disabled and synchronized.
+> > + *	Except for the callback, the caller should guarantee that the vring is
+> > + *	not accessed by any functions of virtqueue.
+> > + * @enable_reset_vq: enable a reset queue
+> > + *	vq: the virtqueue
+> > + *	Returns 0 on success or error status
+> > + *	If reset_vq is set, then enable_reset_vq must also be set.
+> >   */
+> >  typedef void vq_callback_t(struct virtqueue *);
+> >  struct virtio_config_ops {
+> > @@ -104,6 +114,8 @@ struct virtio_config_ops {
+> >  			int index);
+> >  	bool (*get_shm_region)(struct virtio_device *vdev,
+> >  			       struct virtio_shm_region *region, u8 id);
+> > +	int (*reset_vq)(struct virtqueue *vq);
+> > +	int (*enable_reset_vq)(struct virtqueue *vq);
+> >  };
+>
+> The names need some tweaking.
+> I came up with
+>  	int (*disable_vq_and_reset)(struct virtqueue *vq);
+>  	int (*enable_vq_after_reset)(struct virtqueue *vq);
 
-I wonder how this interacts with the hardening patches.
-Jason?
+OK, I will use these two names in the next version.
 
-> ---
->  drivers/virtio/virtio_ring.c | 24 ++++++++++++++++++++++++
->  include/linux/virtio.h       |  3 +++
->  2 files changed, 27 insertions(+)
-> 
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index 5ec43607cc15..7b02be7fce67 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -2744,6 +2744,30 @@ unsigned int virtqueue_get_vring_size(struct virtqueue *_vq)
->  }
->  EXPORT_SYMBOL_GPL(virtqueue_get_vring_size);
->  
-> +/*
-> + * This function should only be called by the core, not directly by the driver.
-> + */
-> +void __virtqueue_break(struct virtqueue *_vq)
-> +{
-> +	struct vring_virtqueue *vq = to_vvq(_vq);
-> +
-> +	/* Pairs with READ_ONCE() in virtqueue_is_broken(). */
-> +	WRITE_ONCE(vq->broken, true);
-> +}
-> +EXPORT_SYMBOL_GPL(__virtqueue_break);
-> +
-> +/*
-> + * This function should only be called by the core, not directly by the driver.
-> + */
-> +void __virtqueue_unbreak(struct virtqueue *_vq)
-> +{
-> +	struct vring_virtqueue *vq = to_vvq(_vq);
-> +
-> +	/* Pairs with READ_ONCE() in virtqueue_is_broken(). */
-> +	WRITE_ONCE(vq->broken, false);
-> +}
+Hope Jason likes it too.
 
-I don't think these "Pairs" comments have any value.
+Thanks.
 
 
-> +EXPORT_SYMBOL_GPL(__virtqueue_unbreak);
-> +
->  bool virtqueue_is_broken(struct virtqueue *_vq)
->  {
->  	struct vring_virtqueue *vq = to_vvq(_vq);
-> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-> index 1272566adec6..dc474a0d48d1 100644
-> --- a/include/linux/virtio.h
-> +++ b/include/linux/virtio.h
-> @@ -138,6 +138,9 @@ bool is_virtio_device(struct device *dev);
->  void virtio_break_device(struct virtio_device *dev);
->  void __virtio_unbreak_device(struct virtio_device *dev);
->  
-> +void __virtqueue_break(struct virtqueue *_vq);
-> +void __virtqueue_unbreak(struct virtqueue *_vq);
-> +
->  void virtio_config_changed(struct virtio_device *dev);
->  #ifdef CONFIG_PM_SLEEP
->  int virtio_device_freeze(struct virtio_device *dev);
-> -- 
-> 2.31.0
-
+>
+>
+> >  /* If driver didn't advertise the feature, it will never appear. */
+> > --
+> > 2.31.0
+>
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
