@@ -4,114 +4,113 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 502BDC43334
-	for <virtualization@archiver.kernel.org>; Fri,  1 Jul 2022 01:13:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A5DF7C433EF
+	for <virtualization@archiver.kernel.org>; Fri,  1 Jul 2022 01:22:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id E15748459A;
-	Fri,  1 Jul 2022 01:13:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E15748459A
+	by smtp1.osuosl.org (Postfix) with ESMTP id 4CC27813EC;
+	Fri,  1 Jul 2022 01:22:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4CC27813EC
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ZvJ2qwhx
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=aQAxS48R
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id P51TZuasFjoG; Fri,  1 Jul 2022 01:13:19 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 306A483F7B;
-	Fri,  1 Jul 2022 01:13:19 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 306A483F7B
+	with ESMTP id sviG8aO4TAHV; Fri,  1 Jul 2022 01:22:33 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id C1DBE813CC;
+	Fri,  1 Jul 2022 01:22:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C1DBE813CC
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0308FC002D;
-	Fri,  1 Jul 2022 01:13:19 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B1523C0011
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 99F3DC002D;
+	Fri,  1 Jul 2022 01:22:32 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3AFCDC0011
  for <virtualization@lists.linux-foundation.org>;
- Fri,  1 Jul 2022 01:13:17 +0000 (UTC)
+ Fri,  1 Jul 2022 01:22:32 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 987D4404A6
+ by smtp3.osuosl.org (Postfix) with ESMTP id 05C7360FAF
  for <virtualization@lists.linux-foundation.org>;
- Fri,  1 Jul 2022 01:13:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 987D4404A6
-Authentication-Results: smtp4.osuosl.org;
+ Fri,  1 Jul 2022 01:22:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 05C7360FAF
+Authentication-Results: smtp3.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=ZvJ2qwhx
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=aQAxS48R
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id wnQyTAy_sPGW
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id SO_fMy9Y_IxG
  for <virtualization@lists.linux-foundation.org>;
- Fri,  1 Jul 2022 01:13:16 +0000 (UTC)
+ Fri,  1 Jul 2022 01:22:30 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1373C40400
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9BABB60F40
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 1373C40400
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 9BABB60F40
  for <virtualization@lists.linux-foundation.org>;
- Fri,  1 Jul 2022 01:13:15 +0000 (UTC)
+ Fri,  1 Jul 2022 01:22:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1656637994;
+ s=mimecast20190719; t=1656638549;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=mHIcLw7pckZjHMylrVXWs14MwZyr4H5GlIN38XtwRj0=;
- b=ZvJ2qwhx0lPJo5Dv5MPoQ3o7aae6h9brCRqlX1Fd4YY1cKqd9xDpMIM/h5bBkdlDXfgcNa
- ZFttxQ7csX2qqd7c+eVV5vXfKRRWdUJFihbEhKbn6t+oEPfsf4b4bosRSAr90Y1e0N7qY3
- /VYYtHLGOib1+O9IW/JHQzdE+PhB/fs=
-Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
- [209.85.167.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=2KH53Wl1gr5UMbynLfVT+FjBM4ZDGlsSeHT6iWm6OnU=;
+ b=aQAxS48R1Lnx1vlEDG9WdVZ/k6U/4yWAr4kdTOqZ3NYMcRFzgWOtTPeEiVT0MqDlgV3Vx+
+ I78i5ndM77LFzFqpQGfjuKtfOiyWjn8hJohtbKGm8yIPf1BcElr12H6MXx06dMa+9DCKIE
+ 9l02JafxDLFaTEWftOxjarUwa8NTp8o=
+Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com
+ [209.85.208.198]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-478-gMxdJvrlOo-vlOa9W3R67A-1; Thu, 30 Jun 2022 21:13:11 -0400
-X-MC-Unique: gMxdJvrlOo-vlOa9W3R67A-1
-Received: by mail-lf1-f72.google.com with SMTP id
- be18-20020a056512251200b0048120ff434dso365404lfb.19
+ us-mta-64-N0rEDQ07OuODfkI-S-VxwA-1; Thu, 30 Jun 2022 21:22:28 -0400
+X-MC-Unique: N0rEDQ07OuODfkI-S-VxwA-1
+Received: by mail-lj1-f198.google.com with SMTP id
+ y8-20020a2eb008000000b0025bf6ec0c6cso55036ljk.20
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Jun 2022 18:13:11 -0700 (PDT)
+ Thu, 30 Jun 2022 18:22:27 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=mHIcLw7pckZjHMylrVXWs14MwZyr4H5GlIN38XtwRj0=;
- b=k0TCUSSMvt5T6dFHh92htniLC5csK4Shr4jlkhrK/iFWQ49yWcvSA5EktTfgSNGq4C
- L8C1jdGvzriXoVzBe1M3i6YSoOmHTUk4vOYGDIDsPuHb49hMOmffal+rbYIAgEjqzKwK
- yqtO5jvuuNpWlSOoAhRhPe2I9V4Nw42Bd9jQYvccHFrSi10Xia6OppNYXqcp7yt9jToe
- LQGyuAAuXiophAIFI8Q7/GGXT9zzgWK8XX1I/tNJSrXeuxFs60lrScMfQ5i8TvYGQ6jm
- 2tvOSFn9tGEad2RS5ri96tn5S4PgvGpubcCfiYLy5NbifftLVisOFC/dRowtgF3Os4NB
- sYGg==
-X-Gm-Message-State: AJIora9CuS2B5M4kFXYQ3+Ctol+glEpQ6vReajqpUY0Zdlfuz3aP7ufQ
- md8cdxCo3NWDWBChg8RezGuMCsQeNVPwk58mM3ehqMI7qbMqpAp+xe80canoudsvnM513OOlkMs
- oNfaWE5RJsIAgjYotCSD9hsfmpnT9G9Zj+IUVBmet6Yg43TgSvXPlgw1MrQ==
-X-Received: by 2002:a05:6512:ba1:b0:47f:c0bd:7105 with SMTP id
- b33-20020a0565120ba100b0047fc0bd7105mr7746025lfv.641.1656637989857; 
- Thu, 30 Jun 2022 18:13:09 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1tE9sKiw19iClNSpGyRB5bLrIMAYPAdVd/55zNdTvF9bO+RCFqmgSklgVhniJ1SY8s0pzBU71cda0VOoGkaSGw=
-X-Received: by 2002:a05:6512:ba1:b0:47f:c0bd:7105 with SMTP id
- b33-20020a0565120ba100b0047fc0bd7105mr7746005lfv.641.1656637989637; Thu, 30
- Jun 2022 18:13:09 -0700 (PDT)
+ bh=2KH53Wl1gr5UMbynLfVT+FjBM4ZDGlsSeHT6iWm6OnU=;
+ b=fwoS/N0Gr4NEr6UrTcDwZx4g/uL+FBCxiEG2V4gdDUAwzxx74hrynLKxQUUe8Fida3
+ wYAdYIgGSoBq72erfN4BgPCIKQG6WLzDzcFqSInZCByLwK7wyOeQKyPMvUQm7hpZ1iNM
+ Lqe2fDnaBryEO+kN5rEE9jgvVGxvpTLUvTVewWZou0+6fx7grh75JTSiHqGs6m+rcAJe
+ mOo1e99Z+Po17fYuDNb6r4yhLVRAIJmAKOLgE2q9oV98dSQBhMo/suwtlt//nC82LaHS
+ 09WUU9JpyJ46zTzr/hFN+QA1kYztq7J7GN+YiZBz9vFmfJ4vactSXidaDYO/QZihDu91
+ GZMQ==
+X-Gm-Message-State: AJIora8m4m0JP9iLmHk3DIM+WeWqO/VG9oMHPm/2DoTVgDZYBmyhO9TM
+ oZOsR5lBSVtKAncDPfLoMTBuQe+F2r6H6vYGtCcSHYd6GsG2oQrPgtAVLS3vLR1YVvzPVU95+Jx
+ 1F2hcwyiyaGwRAxKhJlR+9sEaEntKgve1Q/O7qErPMX/E/xCACrVqcO1aWA==
+X-Received: by 2002:a05:6512:22c3:b0:47f:704b:3820 with SMTP id
+ g3-20020a05651222c300b0047f704b3820mr7390622lfu.411.1656638546148; 
+ Thu, 30 Jun 2022 18:22:26 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1vr8HxTtR3VyCNAME9Etu0HGTUwoK8NFuuJdU03zhtIJfCQW8P7Cfwl91EkAy5W/C6W4aZiLeDVgXy6h3cd8Cw=
+X-Received: by 2002:a05:6512:22c3:b0:47f:704b:3820 with SMTP id
+ g3-20020a05651222c300b0047f704b3820mr7390605lfu.411.1656638545914; Thu, 30
+ Jun 2022 18:22:25 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220630093651.25981-1-alexander.atanasov@virtuozzo.com>
- <20220630054532-mutt-send-email-mst@kernel.org>
- <1c72645a-f162-2649-bdb6-a28ba93bccd2@virtuozzo.com>
- <20220630114142-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20220630114142-mutt-send-email-mst@kernel.org>
+References: <20220608171334.730739-1-apatel@ventanamicro.com>
+ <20220629174318.GB2018382@p14s>
+ <bf87a50c-6d92-8657-72a9-75af81d2489f@foss.st.com>
+ <CANLsYkzHZMV3eVUn3Xpk0eiAexyr9HC5__K9xfAwfm23nuQj=A@mail.gmail.com>
+ <20220630152003-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20220630152003-mutt-send-email-mst@kernel.org>
 From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 1 Jul 2022 09:12:58 +0800
-Message-ID: <CACGkMEu0qZJ34XjbTfp6pTp43bAuhGSgMc=HVepn8UxeQCx9gw@mail.gmail.com>
-Subject: Re: [PATCH v1 1/1] virtio: Restore semantics of vq->broken in
- virtqueues
+Date: Fri, 1 Jul 2022 09:22:15 +0800
+Message-ID: <CACGkMEtHuoHT6meHacsie8M87yjUX3jGEvP7BuU_Vrb3yqkDWw@mail.gmail.com>
+Subject: Re: [PATCH] rpmsg: virtio: Fix broken rpmsg_probe()
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: linux-s390@vger.kernel.org, "Paul E. McKenney" <paulmck@kernel.org>,
- Peter Zijlstra <peterz@infradead.org>, Marc Zyngier <maz@kernel.org>,
- Cornelia Huck <cohuck@redhat.com>,
- Alexander Atanasov <alexander.atanasov@virtuozzo.com>,
- Peter Oberparleiter <oberpar@linux.ibm.com>,
- virtualization <virtualization@lists.linux-foundation.org>,
- Halil Pasic <pasic@linux.ibm.com>, kernel@openvz.org,
- Vineeth Vijayan <vneethv@linux.ibm.com>, Thomas Gleixner <tglx@linutronix.de>,
- linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Anup Patel <apatel@ventanamicro.com>,
+ Mathieu Poirier <mathieu.poirier@linaro.org>, Anup Patel <anup@brainfault.org>,
+ linux-remoteproc@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>,
+ Bjorn Andersson <bjorn.andersson@linaro.org>,
+ Alistair Francis <Alistair.Francis@wdc.com>, kvm-riscv@lists.infradead.org,
+ Atish Patra <atishp@atishpatra.org>,
+ Arnaud POULIQUEN <arnaud.pouliquen@foss.st.com>,
+ virtualization <virtualization@lists.linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -128,198 +127,119 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Jun 30, 2022 at 11:44 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+On Fri, Jul 1, 2022 at 3:20 AM Michael S. Tsirkin <mst@redhat.com> wrote:
 >
-> On Thu, Jun 30, 2022 at 01:08:53PM +0300, Alexander Atanasov wrote:
-> > Hello,
+> On Thu, Jun 30, 2022 at 11:51:30AM -0600, Mathieu Poirier wrote:
+> > + virtualization@lists.linux-foundation.org
+> > + jasowang@redhat.com
+> > + mst@redhat.com
 > >
-> > On 30/06/2022 12:46, Michael S. Tsirkin wrote:
-> > > On Thu, Jun 30, 2022 at 09:36:46AM +0000, Alexander Atanasov wrote:
-> > > > virtio: harden vring IRQ (8b4ec69d7e09) changed the use
-> > > > of vq->broken. As result vring_interrupt handles IRQs for
-> > > > broken drivers as IRQ_NONE and not IRQ_HANDLED and made impossible
-> > > > to initiallize vqs before the driver is ready, i.e. in probe method.
-> > > > Balloon driver does this and it can not load because it fails in
-> > > > vqs_init with -EIO.
+> > On Thu, 30 Jun 2022 at 10:20, Arnaud POULIQUEN
+> > <arnaud.pouliquen@foss.st.com> wrote:
+> > >
+> > > Hi,
+> > >
+> > > On 6/29/22 19:43, Mathieu Poirier wrote:
+> > > > Hi Anup,
 > > > >
-> > > > So instead of changing the original intent ot the flag introduce
-> > > > a new flag vq->ready which servers the purpose to check of early IRQs
-> > > > and restore the behaviour of the vq->broken flag.
+> > > > On Wed, Jun 08, 2022 at 10:43:34PM +0530, Anup Patel wrote:
+> > > >> The rpmsg_probe() is broken at the moment because virtqueue_add_inbuf()
+> > > >> fails due to both virtqueues (Rx and Tx) marked as broken by the
+> > > >> __vring_new_virtqueue() function. To solve this, virtio_device_ready()
+> > > >> (which unbreaks queues) should be called before virtqueue_add_inbuf().
+> > > >>
+> > > >> Fixes: 8b4ec69d7e09 ("virtio: harden vring IRQ")
+> > > >> Signed-off-by: Anup Patel <apatel@ventanamicro.com>
+> > > >> ---
+> > > >>  drivers/rpmsg/virtio_rpmsg_bus.c | 6 +++---
+> > > >>  1 file changed, 3 insertions(+), 3 deletions(-)
+> > > >>
+> > > >> diff --git a/drivers/rpmsg/virtio_rpmsg_bus.c b/drivers/rpmsg/virtio_rpmsg_bus.c
+> > > >> index 905ac7910c98..71a64d2c7644 100644
+> > > >> --- a/drivers/rpmsg/virtio_rpmsg_bus.c
+> > > >> +++ b/drivers/rpmsg/virtio_rpmsg_bus.c
+> > > >> @@ -929,6 +929,9 @@ static int rpmsg_probe(struct virtio_device *vdev)
+> > > >>      /* and half is dedicated for TX */
+> > > >>      vrp->sbufs = bufs_va + total_buf_space / 2;
+> > > >>
+> > > >> +    /* From this point on, we can notify and get callbacks. */
+> > > >> +    virtio_device_ready(vdev);
+> > > >> +
 > > > >
-> > > > Signed-off-by: Alexander Atanasov <alexander.atanasov@virtuozzo.com>
+> > > > Calling virtio_device_ready() here means that virtqueue_get_buf_ctx_split() can
+> > > > potentially be called (by way of rpmsg_recv_done()), which will race with
+> > > > virtqueue_add_inbuf().  If buffers in the virtqueue aren't available then
+> > > > rpmsg_recv_done() will fail, potentially breaking remote processors' state
+> > > > machines that don't expect their initial name service to fail when the "device"
+> > > > has been marked as ready.
+> > > >
+> > > > What does make me curious though is that nobody on the remoteproc mailing list
+> > > > has complained about commit 8b4ec69d7e09 breaking their environment... By now,
+> > > > i.e rc4, that should have happened.  Anyone from TI, ST and Xilinx care to test this on
+> > > > their rig?
 > > >
-> > > Does
+> > > I tested on STm32mp1 board using tag v5.19-rc4(03c765b0e3b4)
+> > > I confirm the issue!
 > > >
-> > > commit c346dae4f3fbce51bbd4f2ec5e8c6f9b91e93163
-> > > Author: Jason Wang <jasowang@redhat.com>
-> > > Date:   Wed Jun 22 09:29:40 2022 +0800
+> > > Concerning the solution, I share Mathieu's concern. This could break legacy.
+> > > I made a short test and I would suggest to use __virtio_unbreak_device instead, tounbreak the virtqueues without changing the init sequence.
 > > >
-> > >      virtio: disable notification hardening by default
+> > > I this case the patch would be:
 > > >
+> > > +       /*
+> > > +        * Unbreak the virtqueues to allow to add buffers before setting the vdev status
+> > > +        * to ready
+> > > +        */
+> > > +       __virtio_unbreak_device(vdev);
+> > > +
 > > >
-> > > solve the problem for you?
+> > >         /* set up the receive buffers */
+> > >         for (i = 0; i < vrp->num_bufs / 2; i++) {
+> > >                 struct scatterlist sg;
+> > >                 void *cpu_addr = vrp->rbufs + i * vrp->buf_size;
 > >
+> > This will indeed fix the problem.  On the flip side the kernel
+> > documentation for __virtio_unbreak_device() puzzles me...
+> > It clearly states that it should be used for probing and restoring but
+> > _not_ directly by the driver.  Function rpmsg_probe() is part of
+> > probing but also the entry point to a driver.
 > >
-> > No, it won't if CONFIG_VIRTIO_HARDEN_NOTIFICATION is enabled - balloon still
-> > won't be able to init vqs.
+> > Michael and virtualisation folks, is this the right way to move forward?
 >
-> Yea I intend to make CONFIG_VIRTIO_HARDEN_NOTIFICATION
-> depend on BROKEN for now.
->
-> > The problem is in virtqueue_add_split and virtqueue_add_packed - can not set
-> > driver_ok without queues.
-> >
-> > The return value of the vring_interrupt gets different - and iirc IRQ_NONE
-> > for broken device can lead to interrupt storms - i am not sure if that is
-> > valid for virtio devices yet but for real harware most likely.
->
-> No, I think it's the reverse. With IRQ_HANDLED an interrupt
-> storm will keep overloading the CPU since driver tells
-> kernel all is well. With IRQ_NONE kernel will eventually
-> intervene and disable the irq.
+> I don't think it is, __virtio_unbreak_device is intended for core use.
 
-Yes, and users may get a warn.
+Can we fill the rx after virtio_device_ready() in this case?
 
-For IRQ_HANDLED, it has an issue when the driver is sharing IRQ with
-other drivers.
+Btw, the driver set driver ok after registering, we probably get a svq
+kick before DRIVER_OK?
 
 Thanks
 
 >
-> > Either way if
-> > you have a mix of  drivers working differently depending on return of the
-> > handler  it would get really messy.
-> >
-> > RR's original intent was to flag a driver as bad why reuse it like that  ?
-> >
-> >
-> > > >   drivers/virtio/virtio_ring.c  | 20 ++++++++++++++------
-> > > >   include/linux/virtio.h        |  2 +-
-> > > >   include/linux/virtio_config.h | 10 +++++-----
-> > > >   3 files changed, 20 insertions(+), 12 deletions(-)
+> > >
+> > > Regards,
+> > > Arnaud
+> > >
 > > > >
-> > > > Cc: Thomas Gleixner <tglx@linutronix.de>
-> > > > Cc: Peter Zijlstra <peterz@infradead.org>
-> > > > Cc: "Paul E. McKenney" <paulmck@kernel.org>
-> > > > Cc: Marc Zyngier <maz@kernel.org>
-> > > > Cc: Halil Pasic <pasic@linux.ibm.com>
-> > > > Cc: Cornelia Huck <cohuck@redhat.com>
-> > > > Cc: Vineeth Vijayan <vneethv@linux.ibm.com>
-> > > > Cc: Peter Oberparleiter <oberpar@linux.ibm.com>
-> > > > Cc: linux-s390@vger.kernel.org
-> > > > Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > > Thanks,
+> > > > Mathieu
 > > > >
-> > > >
-> > > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> > > > index 13a7348cedff..dca3cc774584 100644
-> > > > --- a/drivers/virtio/virtio_ring.c
-> > > > +++ b/drivers/virtio/virtio_ring.c
-> > > > @@ -100,6 +100,9 @@ struct vring_virtqueue {
-> > > >           /* Other side has made a mess, don't try any more. */
-> > > >           bool broken;
-> > > > + /* the queue is ready to handle interrupts  */
-> > > > + bool ready;
-> > > > +
-> > > >           /* Host supports indirect buffers */
-> > > >           bool indirect;
-> > > > @@ -1688,7 +1691,8 @@ static struct virtqueue *vring_create_virtqueue_packed(
-> > > >           vq->we_own_ring = true;
-> > > >           vq->notify = notify;
-> > > >           vq->weak_barriers = weak_barriers;
-> > > > - vq->broken = true;
-> > > > + vq->broken = false;
-> > > > + vq->ready = false;
-> > > >           vq->last_used_idx = 0;
-> > > >           vq->event_triggered = false;
-> > > >           vq->num_added = 0;
-> > > > @@ -2134,7 +2138,10 @@ irqreturn_t vring_interrupt(int irq, void *_vq)
-> > > >                   return IRQ_NONE;
-> > > >           }
-> > > > - if (unlikely(vq->broken)) {
-> > > > + if (unlikely(vq->broken))
-> > > > +         return IRQ_HANDLED;
-> > > > +
-> > > > + if (unlikely(!vq->ready)) {
-> > > >                   dev_warn_once(&vq->vq.vdev->dev,
-> > > >                                 "virtio vring IRQ raised before DRIVER_OK");
-> > > >                   return IRQ_NONE;
-> > > > @@ -2180,7 +2187,8 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
-> > > >           vq->we_own_ring = false;
-> > > >           vq->notify = notify;
-> > > >           vq->weak_barriers = weak_barriers;
-> > > > - vq->broken = true;
-> > > > + vq->broken = false;
-> > > > + vq->ready = false;
-> > > >           vq->last_used_idx = 0;
-> > > >           vq->event_triggered = false;
-> > > >           vq->num_added = 0;
-> > > > @@ -2405,7 +2413,7 @@ EXPORT_SYMBOL_GPL(virtio_break_device);
-> > > >    * (probing and restoring). This function should only be called by the
-> > > >    * core, not directly by the driver.
-> > > >    */
-> > > > -void __virtio_unbreak_device(struct virtio_device *dev)
-> > > > +void __virtio_device_ready(struct virtio_device *dev)
-> > > >   {
-> > > >           struct virtqueue *_vq;
-> > > > @@ -2414,11 +2422,11 @@ void __virtio_unbreak_device(struct virtio_device *dev)
-> > > >                   struct vring_virtqueue *vq = to_vvq(_vq);
-> > > >                   /* Pairs with READ_ONCE() in virtqueue_is_broken(). */
-> > > > -         WRITE_ONCE(vq->broken, false);
-> > > > +         WRITE_ONCE(vq->ready, true);
-> > > >           }
-> > > >           spin_unlock(&dev->vqs_list_lock);
-> > > >   }
-> > > > -EXPORT_SYMBOL_GPL(__virtio_unbreak_device);
-> > > > +EXPORT_SYMBOL_GPL(__virtio_device_ready);
-> > > >   dma_addr_t virtqueue_get_desc_addr(struct virtqueue *_vq)
-> > > >   {
-> > > > diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-> > > > index d8fdf170637c..538c5959949a 100644
-> > > > --- a/include/linux/virtio.h
-> > > > +++ b/include/linux/virtio.h
-> > > > @@ -131,7 +131,7 @@ void unregister_virtio_device(struct virtio_device *dev);
-> > > >   bool is_virtio_device(struct device *dev);
-> > > >   void virtio_break_device(struct virtio_device *dev);
-> > > > -void __virtio_unbreak_device(struct virtio_device *dev);
-> > > > +void __virtio_device_ready(struct virtio_device *dev);
-> > > >   void virtio_config_changed(struct virtio_device *dev);
-> > > >   #ifdef CONFIG_PM_SLEEP
-> > > > diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-> > > > index 49c7c32815f1..35cf1b26e05a 100644
-> > > > --- a/include/linux/virtio_config.h
-> > > > +++ b/include/linux/virtio_config.h
-> > > > @@ -259,21 +259,21 @@ void virtio_device_ready(struct virtio_device *dev)
-> > > >           /*
-> > > >            * The virtio_synchronize_cbs() makes sure vring_interrupt()
-> > > > -  * will see the driver specific setup if it sees vq->broken
-> > > > +  * will see the driver specific setup if it sees vq->ready
-> > > >            * as false (even if the notifications come before DRIVER_OK).
-> > > >            */
-> > > >           virtio_synchronize_cbs(dev);
-> > > > - __virtio_unbreak_device(dev);
-> > > > + __virtio_device_ready(dev);
-> > > >           /*
-> > > > -  * The transport should ensure the visibility of vq->broken
-> > > > +  * The transport should ensure the visibility of vq->ready
-> > > >            * before setting DRIVER_OK. See the comments for the transport
-> > > >            * specific set_status() method.
-> > > >            *
-> > > >            * A well behaved device will only notify a virtqueue after
-> > > >            * DRIVER_OK, this means the device should "see" the coherenct
-> > > > -  * memory write that set vq->broken as false which is done by
-> > > > +  * memory write that set vq->ready as true which is done by
-> > > >            * the driver when it sees DRIVER_OK, then the following
-> > > > -  * driver's vring_interrupt() will see vq->broken as false so
-> > > > +  * driver's vring_interrupt() will see vq->true as true so
-> > > >            * we won't lose any notification.
-> > > >            */
-> > > >           dev->config->set_status(dev, status | VIRTIO_CONFIG_S_DRIVER_OK);
-> > > > --
-> > > > 2.25.1
-> >
-> > --
-> > Regards,
-> > Alexander Atanasov
+> > > >>      /* set up the receive buffers */
+> > > >>      for (i = 0; i < vrp->num_bufs / 2; i++) {
+> > > >>              struct scatterlist sg;
+> > > >> @@ -983,9 +986,6 @@ static int rpmsg_probe(struct virtio_device *vdev)
+> > > >>       */
+> > > >>      notify = virtqueue_kick_prepare(vrp->rvq);
+> > > >>
+> > > >> -    /* From this point on, we can notify and get callbacks. */
+> > > >> -    virtio_device_ready(vdev);
+> > > >> -
+> > > >>      /* tell the remote processor it can start sending messages */
+> > > >>      /*
+> > > >>       * this might be concurrent with callbacks, but we are only
+> > > >> --
+> > > >> 2.34.1
+> > > >>
 >
 
 _______________________________________________
