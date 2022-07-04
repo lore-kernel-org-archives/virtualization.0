@@ -1,118 +1,109 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2AADEC433EF
-	for <virtualization@archiver.kernel.org>; Mon,  4 Jul 2022 04:35:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E9A23C433EF
+	for <virtualization@archiver.kernel.org>; Mon,  4 Jul 2022 04:39:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 9F9A440121;
-	Mon,  4 Jul 2022 04:35:56 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9F9A440121
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=FFcmiqlX
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ogKavSzW5UfU; Mon,  4 Jul 2022 04:35:55 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id F3E7F40114;
-	Mon,  4 Jul 2022 04:35:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org F3E7F40114
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D1933C0032;
-	Mon,  4 Jul 2022 04:35:54 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7449CC002D
- for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Jul 2022 04:35:53 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 57260826A8
- for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Jul 2022 04:35:53 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 57260826A8
+	by smtp1.osuosl.org (Postfix) with ESMTP id 69021826E7;
+	Mon,  4 Jul 2022 04:39:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 69021826E7
 Authentication-Results: smtp1.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=FFcmiqlX
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=fKWP1eFk
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id YYZWpogNtczF
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id bm6QI9JfKp7z; Mon,  4 Jul 2022 04:39:56 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id C0D1D826C0;
+	Mon,  4 Jul 2022 04:39:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C0D1D826C0
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 92590C0032;
+	Mon,  4 Jul 2022 04:39:55 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2CB2DC002D
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Jul 2022 04:35:52 +0000 (UTC)
+ Mon,  4 Jul 2022 04:39:54 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id B0BC860A80
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  4 Jul 2022 04:39:53 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B0BC860A80
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=fKWP1eFk
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id xRw3o3wxYc8r
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  4 Jul 2022 04:39:53 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 20A6782681
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org BA5AB60888
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 20A6782681
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id BA5AB60888
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Jul 2022 04:35:51 +0000 (UTC)
+ Mon,  4 Jul 2022 04:39:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1656909350;
+ s=mimecast20190719; t=1656909591;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=OCkbv3Cf/ewB5K2eBAbJzqiucJZei1sySPuP3qYRfnk=;
- b=FFcmiqlXd3r6zgs5LGqDVWm8mf0ISvB43tZJ+bwwOEndLZX0oVxvnX1ewedzbxUlsdlXOs
- h75UQCS+tl1foq5H4g+bdRDioqUkw0m7Lro0E5OyyLjhAeiN/ohzWUUjej4RzRI41X8mMw
- OEZQwLoHH738wKHKAsQv9cILjfTaM7Y=
-Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
- [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=34NQkLuDu70RYtu7A5zt/ESnLEXxvA0x7SQgJUnytlU=;
+ b=fKWP1eFkNvo4NO3XlPf+y5I1ImPLwGF6dsZ4obd0lgIDO47/tlnmIfXgsuTb9ZNycuSYsb
+ E/FPBamyia4TWxOt7mCvv900N89imtZXMi8gBcAG37WytGH9XurzaWu8YswmQhA0rl44XM
+ 47i15M3wmLlHGI9R4lqYcLmdLJtiN6A=
+Received: from mail-lj1-f197.google.com (mail-lj1-f197.google.com
+ [209.85.208.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-131-tDAIk2YpMX2av2ddNYMljA-1; Mon, 04 Jul 2022 00:35:50 -0400
-X-MC-Unique: tDAIk2YpMX2av2ddNYMljA-1
-Received: by mail-lf1-f71.google.com with SMTP id
- f29-20020a19dc5d000000b004811c8d1918so2570928lfj.2
+ us-mta-190-G7dp3oUDMpKdCtZNmHNicg-1; Mon, 04 Jul 2022 00:39:48 -0400
+X-MC-Unique: G7dp3oUDMpKdCtZNmHNicg-1
+Received: by mail-lj1-f197.google.com with SMTP id
+ m8-20020a2eb6c8000000b0025aa0530107so2385013ljo.6
  for <virtualization@lists.linux-foundation.org>;
- Sun, 03 Jul 2022 21:35:49 -0700 (PDT)
+ Sun, 03 Jul 2022 21:39:48 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=OCkbv3Cf/ewB5K2eBAbJzqiucJZei1sySPuP3qYRfnk=;
- b=osHGew11qCmsLZlJWmic+XtPRJc/NNyw8j5po2wL0YBnVxzMuzy2eHh5DhaadD/OaS
- +ErJSFANfRF4lTlkwgCS1Cr4GrZPTWFHtNhZADjE39WMcf5tCF9VITk6pB0hJqTUP0ij
- OzjsDBllajs8JkcSeHYhxemXfr9ZwtsZu3RpelxgBlfe7MpR7Z+3YmfQ5swOReRDFYfq
- f/KFLo5825TCG0g0H9B+Rh0jG35/sE0Vjcf0V2sv2QjF1n8yqahHPHO4whckvBD6F6Fq
- soAzrv9QFjZ0hHeLI8J+6f5Z0g5s7jdVn67mjai/jjWaiMSfPi9QfC5TVcaygz0O7H+M
- CIFw==
-X-Gm-Message-State: AJIora8Ksz/yfh79IgG8IKI4GZ2FVStu1e6nNxX+LXQLCV5sRgml4BMy
- 9cOnPr0b5CGnhsDJgTUiYvIO4+e5zzFfyheq9EcYid9wKJRpFxKsc8Ne+Aj+kjUD8yHVHtqVLkI
- h01xSSgTagsdsCHyiYt7lXFUNvUSqFEGUlKC9F4Y4laWCF/Hy/0b1FNhaIw==
-X-Received: by 2002:a2e:9799:0:b0:25d:15f5:228e with SMTP id
- y25-20020a2e9799000000b0025d15f5228emr4942284lji.251.1656909347697; 
- Sun, 03 Jul 2022 21:35:47 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1tcvswtM6JMnT0NY9Gc4qiCju7VRajzTVCSlRuuO9lTUrwgo9jWzyBeZSF0aiVmkCjl7CaDYPK6X+E1ASeWrF8=
-X-Received: by 2002:a2e:9799:0:b0:25d:15f5:228e with SMTP id
- y25-20020a2e9799000000b0025d15f5228emr4942267lji.251.1656909347454; Sun, 03
- Jul 2022 21:35:47 -0700 (PDT)
+ bh=34NQkLuDu70RYtu7A5zt/ESnLEXxvA0x7SQgJUnytlU=;
+ b=Z4GEbypqR35SNqvUEYFBzPfnPFoStZ/MdE9pl3LrmLcE9bHw93eDnNO5dxVy6ffTzI
+ ja5xOik11Ys+JFYNe2SUO+DuhOUsZPIaHU8/Nx/bvToT9e7f/AdBiv+RvUnsTmkvK/xJ
+ MAE5+spmCy4t48PChQ+izO1D26Z+AhWVi3qyJ9SsYC4dE7uPuFoqkW/ZQusMGiTPyZ6J
+ szvUfcEdmFsgRIrasutgyiQ7EF/2DmLXUOWhPq2METxklRFs4pFnqCQRDlGtobGq8hpw
+ MCMxSgrGPqBI/RaJ5X0qrtbcRoqgnYH2SoEAFTI/pW3SRorP+gChkmeO+vICAeWsqyAD
+ 4XmA==
+X-Gm-Message-State: AJIora9Lpv+cXzU3BbeimQhpKjYiEOyUl9L9c5TuS5wVeOV1uMf4WbLz
+ LfcnuAZX9Hq4ncLJ3FR0HxLWQVd5ircsgQg/XU3osvNt0LQV3CJW9xkHwKE7ulduiQxqn2Tl9fn
+ UpzV9hwBB7Wi1I4lmcUekoqL8StWVSPCsBObpLbPMqLQWkTOcbYEJTsdhJw==
+X-Received: by 2002:a05:6512:b0d:b0:481:5cb4:cf1e with SMTP id
+ w13-20020a0565120b0d00b004815cb4cf1emr10153638lfu.442.1656909586924; 
+ Sun, 03 Jul 2022 21:39:46 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1sbGuL+fn0YCwy3PFvwHzJchJaTph3jj60D8dfYlVR8XTdiZAzAbGETkaVrvpPHFEGBOLc9W/txx60ltVFAKow=
+X-Received: by 2002:a05:6512:b0d:b0:481:5cb4:cf1e with SMTP id
+ w13-20020a0565120b0d00b004815cb4cf1emr10153626lfu.442.1656909586743; Sun, 03
+ Jul 2022 21:39:46 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220608171334.730739-1-apatel@ventanamicro.com>
- <20220629174318.GB2018382@p14s>
- <bf87a50c-6d92-8657-72a9-75af81d2489f@foss.st.com>
- <CANLsYkzHZMV3eVUn3Xpk0eiAexyr9HC5__K9xfAwfm23nuQj=A@mail.gmail.com>
- <20220630152003-mutt-send-email-mst@kernel.org>
- <CACGkMEtHuoHT6meHacsie8M87yjUX3jGEvP7BuU_Vrb3yqkDWw@mail.gmail.com>
- <20220701021536-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20220701021536-mutt-send-email-mst@kernel.org>
+References: <20220701132826.8132-1-lingshan.zhu@intel.com>
+ <20220701132826.8132-2-lingshan.zhu@intel.com>
+In-Reply-To: <20220701132826.8132-2-lingshan.zhu@intel.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 4 Jul 2022 12:35:36 +0800
-Message-ID: <CACGkMEtkVmq2+NtDpp-XWZFD_WO6Dzm4=pcVwg-aKmStAqJCVg@mail.gmail.com>
-Subject: Re: [PATCH] rpmsg: virtio: Fix broken rpmsg_probe()
-To: "Michael S. Tsirkin" <mst@redhat.com>
+Date: Mon, 4 Jul 2022 12:39:35 +0800
+Message-ID: <CACGkMEvGo2urfPriS3f6dCxT+41KJ0E-KUd4-GvUrX81BVy8Og@mail.gmail.com>
+Subject: Re: [PATCH V3 1/6] vDPA/ifcvf: get_config_size should return a value
+ no greater than dev implementation
+To: Zhu Lingshan <lingshan.zhu@intel.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: Anup Patel <apatel@ventanamicro.com>,
- Mathieu Poirier <mathieu.poirier@linaro.org>, Anup Patel <anup@brainfault.org>,
- linux-remoteproc@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>,
- Bjorn Andersson <bjorn.andersson@linaro.org>,
- Alistair Francis <Alistair.Francis@wdc.com>, kvm-riscv@lists.infradead.org,
- Atish Patra <atishp@atishpatra.org>,
- Arnaud POULIQUEN <arnaud.pouliquen@foss.st.com>,
- virtualization <virtualization@lists.linux-foundation.org>
+Cc: mst <mst@redhat.com>, netdev <netdev@vger.kernel.org>,
+ virtualization <virtualization@lists.linux-foundation.org>,
+ Yongji Xie <xieyongji@bytedance.com>, "Dawar, Gautam" <gautam.dawar@amd.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -129,131 +120,82 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Jul 1, 2022 at 2:16 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+On Fri, Jul 1, 2022 at 9:36 PM Zhu Lingshan <lingshan.zhu@intel.com> wrote:
 >
-> On Fri, Jul 01, 2022 at 09:22:15AM +0800, Jason Wang wrote:
-> > On Fri, Jul 1, 2022 at 3:20 AM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > >
-> > > On Thu, Jun 30, 2022 at 11:51:30AM -0600, Mathieu Poirier wrote:
-> > > > + virtualization@lists.linux-foundation.org
-> > > > + jasowang@redhat.com
-> > > > + mst@redhat.com
-> > > >
-> > > > On Thu, 30 Jun 2022 at 10:20, Arnaud POULIQUEN
-> > > > <arnaud.pouliquen@foss.st.com> wrote:
-> > > > >
-> > > > > Hi,
-> > > > >
-> > > > > On 6/29/22 19:43, Mathieu Poirier wrote:
-> > > > > > Hi Anup,
-> > > > > >
-> > > > > > On Wed, Jun 08, 2022 at 10:43:34PM +0530, Anup Patel wrote:
-> > > > > >> The rpmsg_probe() is broken at the moment because virtqueue_add_inbuf()
-> > > > > >> fails due to both virtqueues (Rx and Tx) marked as broken by the
-> > > > > >> __vring_new_virtqueue() function. To solve this, virtio_device_ready()
-> > > > > >> (which unbreaks queues) should be called before virtqueue_add_inbuf().
-> > > > > >>
-> > > > > >> Fixes: 8b4ec69d7e09 ("virtio: harden vring IRQ")
-> > > > > >> Signed-off-by: Anup Patel <apatel@ventanamicro.com>
-> > > > > >> ---
-> > > > > >>  drivers/rpmsg/virtio_rpmsg_bus.c | 6 +++---
-> > > > > >>  1 file changed, 3 insertions(+), 3 deletions(-)
-> > > > > >>
-> > > > > >> diff --git a/drivers/rpmsg/virtio_rpmsg_bus.c b/drivers/rpmsg/virtio_rpmsg_bus.c
-> > > > > >> index 905ac7910c98..71a64d2c7644 100644
-> > > > > >> --- a/drivers/rpmsg/virtio_rpmsg_bus.c
-> > > > > >> +++ b/drivers/rpmsg/virtio_rpmsg_bus.c
-> > > > > >> @@ -929,6 +929,9 @@ static int rpmsg_probe(struct virtio_device *vdev)
-> > > > > >>      /* and half is dedicated for TX */
-> > > > > >>      vrp->sbufs = bufs_va + total_buf_space / 2;
-> > > > > >>
-> > > > > >> +    /* From this point on, we can notify and get callbacks. */
-> > > > > >> +    virtio_device_ready(vdev);
-> > > > > >> +
-> > > > > >
-> > > > > > Calling virtio_device_ready() here means that virtqueue_get_buf_ctx_split() can
-> > > > > > potentially be called (by way of rpmsg_recv_done()), which will race with
-> > > > > > virtqueue_add_inbuf().  If buffers in the virtqueue aren't available then
-> > > > > > rpmsg_recv_done() will fail, potentially breaking remote processors' state
-> > > > > > machines that don't expect their initial name service to fail when the "device"
-> > > > > > has been marked as ready.
-> > > > > >
-> > > > > > What does make me curious though is that nobody on the remoteproc mailing list
-> > > > > > has complained about commit 8b4ec69d7e09 breaking their environment... By now,
-> > > > > > i.e rc4, that should have happened.  Anyone from TI, ST and Xilinx care to test this on
-> > > > > > their rig?
-> > > > >
-> > > > > I tested on STm32mp1 board using tag v5.19-rc4(03c765b0e3b4)
-> > > > > I confirm the issue!
-> > > > >
-> > > > > Concerning the solution, I share Mathieu's concern. This could break legacy.
-> > > > > I made a short test and I would suggest to use __virtio_unbreak_device instead, tounbreak the virtqueues without changing the init sequence.
-> > > > >
-> > > > > I this case the patch would be:
-> > > > >
-> > > > > +       /*
-> > > > > +        * Unbreak the virtqueues to allow to add buffers before setting the vdev status
-> > > > > +        * to ready
-> > > > > +        */
-> > > > > +       __virtio_unbreak_device(vdev);
-> > > > > +
-> > > > >
-> > > > >         /* set up the receive buffers */
-> > > > >         for (i = 0; i < vrp->num_bufs / 2; i++) {
-> > > > >                 struct scatterlist sg;
-> > > > >                 void *cpu_addr = vrp->rbufs + i * vrp->buf_size;
-> > > >
-> > > > This will indeed fix the problem.  On the flip side the kernel
-> > > > documentation for __virtio_unbreak_device() puzzles me...
-> > > > It clearly states that it should be used for probing and restoring but
-> > > > _not_ directly by the driver.  Function rpmsg_probe() is part of
-> > > > probing but also the entry point to a driver.
-> > > >
-> > > > Michael and virtualisation folks, is this the right way to move forward?
-> > >
-> > > I don't think it is, __virtio_unbreak_device is intended for core use.
-> >
-> > Can we fill the rx after virtio_device_ready() in this case?
-> >
-> > Btw, the driver set driver ok after registering, we probably get a svq
-> > kick before DRIVER_OK?
-> >
-> > Thanks
->
-> Is this an ack for the original patch?
+> ifcvf_get_config_size() should return a virtio device type specific value,
+> however the ret_value should not be greater than the onboard size of
+> the device implementation. E.g., for virtio_net, config_size should be
+> the minimum value of sizeof(struct virtio_net_config) and the onboard
+> cap size.
 
-Nope, I meant, instead of moving virtio_device_ready() a little bit
-earlier, can we only move the rvq filling after virtio_device_ready().
+Rethink of this, I wonder what's the value of exposing device
+implementation details to users? Anyhow the parent is in charge of
+"emulating" config space accessing.
+
+If we do this, it's probably a blocker for cross vendor stuff.
 
 Thanks
 
 >
-> > >
-> > > > >
-> > > > > Regards,
-> > > > > Arnaud
-> > > > >
-> > > > > >
-> > > > > > Thanks,
-> > > > > > Mathieu
-> > > > > >
-> > > > > >>      /* set up the receive buffers */
-> > > > > >>      for (i = 0; i < vrp->num_bufs / 2; i++) {
-> > > > > >>              struct scatterlist sg;
-> > > > > >> @@ -983,9 +986,6 @@ static int rpmsg_probe(struct virtio_device *vdev)
-> > > > > >>       */
-> > > > > >>      notify = virtqueue_kick_prepare(vrp->rvq);
-> > > > > >>
-> > > > > >> -    /* From this point on, we can notify and get callbacks. */
-> > > > > >> -    virtio_device_ready(vdev);
-> > > > > >> -
-> > > > > >>      /* tell the remote processor it can start sending messages */
-> > > > > >>      /*
-> > > > > >>       * this might be concurrent with callbacks, but we are only
-> > > > > >> --
-> > > > > >> 2.34.1
-> > > > > >>
-> > >
+> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
+> ---
+>  drivers/vdpa/ifcvf/ifcvf_base.c | 13 +++++++++++--
+>  drivers/vdpa/ifcvf/ifcvf_base.h |  2 ++
+>  2 files changed, 13 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/vdpa/ifcvf/ifcvf_base.c b/drivers/vdpa/ifcvf/ifcvf_base.c
+> index 48c4dadb0c7c..fb957b57941e 100644
+> --- a/drivers/vdpa/ifcvf/ifcvf_base.c
+> +++ b/drivers/vdpa/ifcvf/ifcvf_base.c
+> @@ -128,6 +128,7 @@ int ifcvf_init_hw(struct ifcvf_hw *hw, struct pci_dev *pdev)
+>                         break;
+>                 case VIRTIO_PCI_CAP_DEVICE_CFG:
+>                         hw->dev_cfg = get_cap_addr(hw, &cap);
+> +                       hw->cap_dev_config_size = le32_to_cpu(cap.length);
+>                         IFCVF_DBG(pdev, "hw->dev_cfg = %p\n", hw->dev_cfg);
+>                         break;
+>                 }
+> @@ -233,15 +234,23 @@ int ifcvf_verify_min_features(struct ifcvf_hw *hw, u64 features)
+>  u32 ifcvf_get_config_size(struct ifcvf_hw *hw)
+>  {
+>         struct ifcvf_adapter *adapter;
+> +       u32 net_config_size = sizeof(struct virtio_net_config);
+> +       u32 blk_config_size = sizeof(struct virtio_blk_config);
+> +       u32 cap_size = hw->cap_dev_config_size;
+>         u32 config_size;
+>
+>         adapter = vf_to_adapter(hw);
+> +       /* If the onboard device config space size is greater than
+> +        * the size of struct virtio_net/blk_config, only the spec
+> +        * implementing contents size is returned, this is very
+> +        * unlikely, defensive programming.
+> +        */
+>         switch (hw->dev_type) {
+>         case VIRTIO_ID_NET:
+> -               config_size = sizeof(struct virtio_net_config);
+> +               config_size = cap_size >= net_config_size ? net_config_size : cap_size;
+>                 break;
+>         case VIRTIO_ID_BLOCK:
+> -               config_size = sizeof(struct virtio_blk_config);
+> +               config_size = cap_size >= blk_config_size ? blk_config_size : cap_size;
+>                 break;
+>         default:
+>                 config_size = 0;
+> diff --git a/drivers/vdpa/ifcvf/ifcvf_base.h b/drivers/vdpa/ifcvf/ifcvf_base.h
+> index 115b61f4924b..f5563f665cc6 100644
+> --- a/drivers/vdpa/ifcvf/ifcvf_base.h
+> +++ b/drivers/vdpa/ifcvf/ifcvf_base.h
+> @@ -87,6 +87,8 @@ struct ifcvf_hw {
+>         int config_irq;
+>         int vqs_reused_irq;
+>         u16 nr_vring;
+> +       /* VIRTIO_PCI_CAP_DEVICE_CFG size */
+> +       u32 cap_dev_config_size;
+>  };
+>
+>  struct ifcvf_adapter {
+> --
+> 2.31.1
 >
 
 _______________________________________________
