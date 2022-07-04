@@ -4,101 +4,101 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 04C40C433EF
-	for <virtualization@archiver.kernel.org>; Mon,  4 Jul 2022 17:17:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3A25EC433EF
+	for <virtualization@archiver.kernel.org>; Mon,  4 Jul 2022 17:17:18 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 7FFFB812BD;
-	Mon,  4 Jul 2022 17:17:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7FFFB812BD
+	by smtp1.osuosl.org (Postfix) with ESMTP id DAE56812DB;
+	Mon,  4 Jul 2022 17:17:17 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DAE56812DB
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cjU8wuQ4
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=APwHpzRL
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id SiOu5gkSauzT; Mon,  4 Jul 2022 17:17:14 +0000 (UTC)
+	with ESMTP id rthrDY0sPpyj; Mon,  4 Jul 2022 17:17:17 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 23F9981290;
-	Mon,  4 Jul 2022 17:17:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 23F9981290
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 870F981297;
+	Mon,  4 Jul 2022 17:17:16 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 870F981297
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E593EC0032;
-	Mon,  4 Jul 2022 17:17:13 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id F241CC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4084EC0032;
+	Mon,  4 Jul 2022 17:17:16 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E2162C002D
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Jul 2022 17:17:12 +0000 (UTC)
+ Mon,  4 Jul 2022 17:17:14 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id B979240382
+ by smtp2.osuosl.org (Postfix) with ESMTP id AEA2C408C0
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Jul 2022 17:17:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B979240382
-Authentication-Results: smtp4.osuosl.org;
+ Mon,  4 Jul 2022 17:17:14 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org AEA2C408C0
+Authentication-Results: smtp2.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=cjU8wuQ4
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=APwHpzRL
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id D16728KmiB5N
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Ba4OxjERKpIH
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Jul 2022 17:17:11 +0000 (UTC)
+ Mon,  4 Jul 2022 17:17:14 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org AC31A4035A
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org F23104000B
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id AC31A4035A
+ by smtp2.osuosl.org (Postfix) with ESMTPS id F23104000B
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Jul 2022 17:17:11 +0000 (UTC)
+ Mon,  4 Jul 2022 17:17:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1656955030;
+ s=mimecast20190719; t=1656955032;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=N/ASHfBlGwx6CPom7xa9MrPgEDXvopeeCGbYV8xojNw=;
- b=cjU8wuQ4NDW5GShDIBDWY5xbCgKIGczF9Rt9/bwoGqb5zr+W6Lr08PB5r7XUwJgX2Njij1
- aMESe2VAqSW34vDa/RcmjES4ptFgJ0KA5a6aTYEP223tYuxri7oLfECi2ElspmK9lFJWho
- HSWLqtELk88+VTELCdeqnGuGn6aCRKo=
-Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com
- [209.85.222.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=tKnKGcPQx2M8z8doipgVBVXWw9daoK1UODE6Y0G/spw=;
+ b=APwHpzRLemvWDKpjK3QENGhFkSDSyuWH9h/A4Teak2K3oPQYcX+wCUUZVS4nWAues81fyt
+ 6bxxJ2q3RrRecJmqzZI7WGInkLEjtoL+W9XJmS0VBOgJrWNbRrnSfhVvVPpN37yCJPMblr
+ RyJibm8/hCklc/JKyEc69yWuiCndU9g=
+Received: from mail-qk1-f197.google.com (mail-qk1-f197.google.com
+ [209.85.222.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-634-t3otmXeqO6unw6UiZwlnjQ-1; Mon, 04 Jul 2022 13:17:09 -0400
-X-MC-Unique: t3otmXeqO6unw6UiZwlnjQ-1
-Received: by mail-qk1-f200.google.com with SMTP id
- bm2-20020a05620a198200b006a5dac37fa2so9205177qkb.16
+ us-mta-436-7PLM8YnfOqaGHuTs7Sl1UA-1; Mon, 04 Jul 2022 13:17:12 -0400
+X-MC-Unique: 7PLM8YnfOqaGHuTs7Sl1UA-1
+Received: by mail-qk1-f197.google.com with SMTP id
+ g194-20020a379dcb000000b006aef700d954so9163964qke.1
  for <virtualization@lists.linux-foundation.org>;
- Mon, 04 Jul 2022 10:17:09 -0700 (PDT)
+ Mon, 04 Jul 2022 10:17:12 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
  :references:mime-version:content-transfer-encoding;
- bh=N/ASHfBlGwx6CPom7xa9MrPgEDXvopeeCGbYV8xojNw=;
- b=4p58xOURMidyG0MTBdf2UkZ30atr03D/E3rztUxMtZLQlmrc4vRavf5E58FG//ViCU
- McKTVCZOOC/SXwj9CAQYDoPLv3M/ZVFr/HMDGabHgxbV4Kx+scGqJgKwp0ZssKNeMuu7
- xBAZHpK5uR12hPvUiDTkyLeb5fo88K5Qru/ytli3Gehkf9G8VuA2Tze+yCgKICwxbiSR
- HjivqTJ5EisMktLkzq9PIw7MfBKat63wp+eAQt9no8LpSgOx96xYrw6XiZE5tuWVXDNb
- 0FLdW73ECwCx0KQvSVo39xTkY9LOS1UytYxiiRcRvC+SCQSX931+lyXoBj5L+OaEe2Aw
- NLgw==
-X-Gm-Message-State: AJIora9ABsDSDRdD0sHN43RlWfDUc84Fnd0jmjtEYPRLKzYm2sD2TKuA
- J8k9fw01dpm1PJdQUZgb6GifMDV4+AeDl8+X1GNgYL9aZThAidQTarrU/uqIXVXQIDxUxaLY6S/
- cHNmUJyB73NkV1hYysLzDDoNp/9MVj0DvmnnVU2PKO2f9dJCHhDJ1K7FZFaQNElPfBNi+6Dot8A
- duAUayihAsYOjFlaRy4Q==
-X-Received: by 2002:a05:620a:469e:b0:6b0:e66a:6bd with SMTP id
- bq30-20020a05620a469e00b006b0e66a06bdmr19691316qkb.285.1656955028449; 
- Mon, 04 Jul 2022 10:17:08 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1um6olL36YJnCCSnK21iQMhdkBq5wN6w2T59beszRdcjnFkROIHM2UBY5D60rK6HejU80TvYQ==
-X-Received: by 2002:a05:620a:469e:b0:6b0:e66a:6bd with SMTP id
- bq30-20020a05620a469e00b006b0e66a06bdmr19691298qkb.285.1656955028170; 
- Mon, 04 Jul 2022 10:17:08 -0700 (PDT)
+ bh=tKnKGcPQx2M8z8doipgVBVXWw9daoK1UODE6Y0G/spw=;
+ b=llLZ+cOBN0WVmyBpHAtlJiZIAbvV4symOGZMEAXQsnSotU7rGWaHHNVw9EMIriRT+K
+ fTX/iaUyr1L8GtwS5BB0hHPH8sCNrd9fAgc7xLklkrMiuQ13iEKnX7+Gg9VGIwt55g4W
+ F81DYp8EfmHSV+QrqEDGo0/p6bo4qNPKAvNyeQGR4JqUHkofgPp6PQInTn0ocb/mE+AX
+ 8MRtRdueCogegkqZ2DcKIFf84phNMYtUA2D9kIm38tw1Axp4klxIVxjgcUY9CJib7G0C
+ AcVN0NHp112mrpU+aukFRAvvYf2/119PBaOZSl15qevZW5NIMCGiUwOok0RLh4bNsOkp
+ h/xQ==
+X-Gm-Message-State: AJIora90XZfo4JleKiF4g3oKUNEr3+aGjzsgJ3zCOXJcceidzCV6A4In
+ Ipa9db5Z2JxvcYQFJ+HJXFVVQXUtBGXMQbm+WcFSX7s+donOvH3dVj6YYhnRsdQ2zHAOQ46kl/C
+ AupOsEfQmMTfbsPZVtiZvqgH65hu4sPWtPCCp2emTmpzwJkXrx01FDmZq9Yne2PNpD2LmBfTs5p
+ vilDdPDQQFRMlWRWXJwQ==
+X-Received: by 2002:a05:620a:f89:b0:6ae:d418:f478 with SMTP id
+ b9-20020a05620a0f8900b006aed418f478mr20154060qkn.344.1656955031166; 
+ Mon, 04 Jul 2022 10:17:11 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1v5kru0aGtinN6uCz+3PHhaYe1+jzHnVC9+Cwzy5758LJyRQ9emh0kO9BDMsxacR8UMuY7ZQw==
+X-Received: by 2002:a05:620a:f89:b0:6ae:d418:f478 with SMTP id
+ b9-20020a05620a0f8900b006aed418f478mr20154038qkn.344.1656955030805; 
+ Mon, 04 Jul 2022 10:17:10 -0700 (PDT)
 Received: from step1.redhat.com (host-79-46-200-206.retail.telecomitalia.it.
  [79.46.200.206]) by smtp.gmail.com with ESMTPSA id
- o16-20020a05620a2a1000b006a68fdc2d18sm21656078qkp.130.2022.07.04.10.17.05
+ o16-20020a05620a2a1000b006a68fdc2d18sm21656078qkp.130.2022.07.04.10.17.08
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 04 Jul 2022 10:17:07 -0700 (PDT)
+ Mon, 04 Jul 2022 10:17:10 -0700 (PDT)
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: virtualization@lists.linux-foundation.org
-Subject: [RFC PATCH 1/6] tools/virtio: fix build
-Date: Mon,  4 Jul 2022 19:16:56 +0200
-Message-Id: <20220704171701.127665-2-sgarzare@redhat.com>
+Subject: [RFC PATCH 2/6] vhost_test: add $(srctree) on the included path
+Date: Mon,  4 Jul 2022 19:16:57 +0200
+Message-Id: <20220704171701.127665-3-sgarzare@redhat.com>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220704171701.127665-1-sgarzare@redhat.com>
 References: <20220704171701.127665-1-sgarzare@redhat.com>
@@ -125,44 +125,25 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Fix the build caused by the following changes:
-- phys_addr_t is now defined in tools/include/linux/types.h
-- dev_warn_once() is used in drivers/virtio/virtio_ring.c
-- linux/uio.h included by vringh.h use INT_MAX defined in limits.h
+Adding $(srctree) on the included path we can build vhost_test
+also when the kernel is not built in the source tree (make O=...).
+
+Use of EXTRA_CFLAGS is deprecated, so let's use ccflags-y.
 
 Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 ---
- tools/virtio/linux/kernel.h | 2 +-
- tools/virtio/linux/vringh.h | 1 +
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ tools/virtio/vhost_test/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/virtio/linux/kernel.h b/tools/virtio/linux/kernel.h
-index 0b493542e61a..21593bf97755 100644
---- a/tools/virtio/linux/kernel.h
-+++ b/tools/virtio/linux/kernel.h
-@@ -29,7 +29,6 @@
- #define READ                    0
- #define WRITE                   1
- 
--typedef unsigned long long phys_addr_t;
- typedef unsigned long long dma_addr_t;
- typedef size_t __kernel_size_t;
- typedef unsigned int __wsum;
-@@ -136,6 +135,7 @@ static inline void *krealloc_array(void *p, size_t new_n, size_t new_size, gfp_t
- #endif
- #define dev_err(dev, format, ...) fprintf (stderr, format, ## __VA_ARGS__)
- #define dev_warn(dev, format, ...) fprintf (stderr, format, ## __VA_ARGS__)
-+#define dev_warn_once(dev, format, ...) fprintf (stderr, format, ## __VA_ARGS__)
- 
- #define min(x, y) ({				\
- 	typeof(x) _min1 = (x);			\
-diff --git a/tools/virtio/linux/vringh.h b/tools/virtio/linux/vringh.h
-index 9348957be56e..e11c6aece734 100644
---- a/tools/virtio/linux/vringh.h
-+++ b/tools/virtio/linux/vringh.h
-@@ -1 +1,2 @@
-+#include <limits.h>
- #include "../../../include/linux/vringh.h"
+diff --git a/tools/virtio/vhost_test/Makefile b/tools/virtio/vhost_test/Makefile
+index 94d3aff987dc..df5ad39e2520 100644
+--- a/tools/virtio/vhost_test/Makefile
++++ b/tools/virtio/vhost_test/Makefile
+@@ -1,3 +1,3 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+ obj-m += vhost_test.o
+-EXTRA_CFLAGS += -Idrivers/vhost
++ccflags-y += -I$(srctree)/drivers/vhost
 -- 
 2.36.1
 
