@@ -1,104 +1,105 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A1EF8C433EF
-	for <virtualization@archiver.kernel.org>; Mon,  4 Jul 2022 17:17:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AA66CC433EF
+	for <virtualization@archiver.kernel.org>; Mon,  4 Jul 2022 17:17:45 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 3722F408D4;
-	Mon,  4 Jul 2022 17:17:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3722F408D4
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RSPITYAp
+	by smtp1.osuosl.org (Postfix) with ESMTP id 60C968191E;
+	Mon,  4 Jul 2022 17:17:45 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 60C968191E
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=H2jIeC7p
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ofzYjuru0yIA; Mon,  4 Jul 2022 17:17:23 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 1qT_MuQmX_pa; Mon,  4 Jul 2022 17:17:44 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id CC82040600;
-	Mon,  4 Jul 2022 17:17:22 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org CC82040600
+	by smtp1.osuosl.org (Postfix) with ESMTPS id F139D818C4;
+	Mon,  4 Jul 2022 17:17:43 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org F139D818C4
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 9E615C0032;
-	Mon,  4 Jul 2022 17:17:22 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id DE84DC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D7CC9C0032;
+	Mon,  4 Jul 2022 17:17:43 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B810BC002D
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Jul 2022 17:17:20 +0000 (UTC)
+ Mon,  4 Jul 2022 17:17:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id C672160B9A
+ by smtp4.osuosl.org (Postfix) with ESMTP id 9270940325
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Jul 2022 17:17:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C672160B9A
-Authentication-Results: smtp3.osuosl.org;
+ Mon,  4 Jul 2022 17:17:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9270940325
+Authentication-Results: smtp4.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=RSPITYAp
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=H2jIeC7p
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id k0fMEqA2WwiZ
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 0nN4o_KKsude
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Jul 2022 17:17:20 +0000 (UTC)
+ Mon,  4 Jul 2022 17:17:41 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0FC716001B
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 98D714030F
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 0FC716001B
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 98D714030F
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Jul 2022 17:17:19 +0000 (UTC)
+ Mon,  4 Jul 2022 17:17:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1656955038;
+ s=mimecast20190719; t=1656955060;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=eVND3GM+OEtAkbTKlrFfIkv0IqFoHwP40bUkEd6doGs=;
- b=RSPITYApMKz1cM4nlVsIYDVBJZqtYpti3pqvkVjkuD+pr+zI3Hyd3otsHJqNbc0vL6nVnz
- HgomKnYFykRxFP2NgLs/S39fUJAK5/7qMaae25CkJZUEz9RLk6jkEMhM8YWbKfuxVXEhrw
- 6R3yfYOYMewAdcXktSyHQv/eSHwLezk=
-Received: from mail-qk1-f197.google.com (mail-qk1-f197.google.com
- [209.85.222.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=tSo0TPjRmSn1V/oaklydrMSZvzy1inQBu0gNIodOnPc=;
+ b=H2jIeC7p3D/Ftmxf3HlM4JMRG7r310U0C2OSMKOKmah9QupLXxyc34WU9kAS0ZRqLa6vP5
+ ZqcRAisjKj7Ask4nCfJ6Jwfrv/20Fn+I2LGjbh4dDnjPw82hCyrMRcfP59ojoCbWU4OsRN
+ 9HTEb/ofGHoktpJPeLOMeg9dXNRKdtc=
+Received: from mail-qt1-f198.google.com (mail-qt1-f198.google.com
+ [209.85.160.198]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-277-oUyfB8jJPB2TD_tGERXEOQ-1; Mon, 04 Jul 2022 13:17:15 -0400
-X-MC-Unique: oUyfB8jJPB2TD_tGERXEOQ-1
-Received: by mail-qk1-f197.google.com with SMTP id
- u17-20020a05620a0c5100b006b28349b67fso4646684qki.19
+ us-mta-611-y1WSk7E2MMaKkWoz9vKF6Q-1; Mon, 04 Jul 2022 13:17:39 -0400
+X-MC-Unique: y1WSk7E2MMaKkWoz9vKF6Q-1
+Received: by mail-qt1-f198.google.com with SMTP id
+ ck12-20020a05622a230c00b00304ee787b02so6199861qtb.11
  for <virtualization@lists.linux-foundation.org>;
- Mon, 04 Jul 2022 10:17:15 -0700 (PDT)
+ Mon, 04 Jul 2022 10:17:39 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
  :references:mime-version:content-transfer-encoding;
- bh=eVND3GM+OEtAkbTKlrFfIkv0IqFoHwP40bUkEd6doGs=;
- b=5uysY+SDu+RaDbYLuBuEfNJz+BGf3AjZpeyL4QubPIDZneTAfKPK4SPUPWHlZDdt6Z
- +v4TwEeeB1rVCAAXYFmIGVu0FcTfPNXE7s6ra6CQOOSl2eVRV+eWVZA9baJD5yOHgSfC
- FsMAw14SUFhVmR2WWYVogOozwsMgeOUH3aGl0Eu4aIcoyVSaPWKhgKBnhQF9uTifmMeI
- RBhSmQfEGwY9UI/7J41bz3Pif0oWsrCbqmv7w4EvXqgVLALW1tNFq1EJmcIqxC6YrcxN
- k7WGzeBvC+F0IXW0Yc6EC8PFV85oaMDmDpebSGbW+MzbOxMtvCkfGDS/9i3SmyoktP6C
- ZliA==
-X-Gm-Message-State: AJIora+X8W+scmxEjsVM+iwMEIlbMrcgHVehriZTE4gZWId01VLX8Zh4
- B+JyT8vivBt6sAfwXxHmY7G3gKoqH0g1kNBzR9cNJPejd/302MOTx1jJGhhzogsUkmTbvAZGp2E
- 7GYD6CrJ3B5HIjny3zG2afyxO8V4vgUCV6fwLECNKc8AMhbCYtBkbGEMqqbRWudY6cv1dFyIMNx
- WI1w9YJjNp1F69PtUHvQ==
-X-Received: by 2002:ac8:5b44:0:b0:318:291d:8f59 with SMTP id
- n4-20020ac85b44000000b00318291d8f59mr24361556qtw.22.1656955033451; 
- Mon, 04 Jul 2022 10:17:13 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1srxXAHH5r1Kdxl8lINLquxuasM0BWZ/em5yNCcgZULj5nIl3JWsRbNRPyI0zQuAgROZCfdxw==
-X-Received: by 2002:ac8:5b44:0:b0:318:291d:8f59 with SMTP id
- n4-20020ac85b44000000b00318291d8f59mr24361526qtw.22.1656955033118; 
- Mon, 04 Jul 2022 10:17:13 -0700 (PDT)
+ bh=tSo0TPjRmSn1V/oaklydrMSZvzy1inQBu0gNIodOnPc=;
+ b=SVT7UjwS/Ikc9AbRFTd0O4uqX5Ced3RFI14fDgeqtWASMd4VrZy/Ndhurza+b0Bmt6
+ xA7O4o6nXSj90gDj0oux2GtnXhabr8T8aoZO+EQrYGyswniYTI65b4GJOZy08Nj5Mk+l
+ i6Ga6+ypPTySh3Ctdx6CQwjfxiNBbP0nP/7prVglSJgRZwnbyO3HG1a0x1M49RVQtkuG
+ s9IqC4iCOKpcNwUQncY6dIW6tzkLtzIVN+CUPyVW0PP/xv70gZgpiejRfcEUWiQsvL62
+ UAq2LfNmRNTpTw8o1idlv4Omx5mm7kObUeA9j2qygYA1vGxfK3ikg3w2P5JMj4g6UkdY
+ VPJw==
+X-Gm-Message-State: AJIora/r1ousdMC5TVgt4Y8q5IB7a8xu19SGQKI4t2JNckNo053jErt3
+ Lqj+LgDsTSgn+u/VJHVbtKAXwezHc9qni9ZBNKKUW6ctPMyDP+NGLAME1S+gIRwuT2SbcjUBSbm
+ enfN5si2qHY2ObKiBwjL3CsSZJCuqWdDlaCFKeub4bUJ6YSnAvqfyEDSZ7T/gM8FixRA0ipSppM
+ HmH/idltpcvslJIMT6og==
+X-Received: by 2002:a05:620a:2697:b0:699:cca7:f8b2 with SMTP id
+ c23-20020a05620a269700b00699cca7f8b2mr20820473qkp.738.1656955058240; 
+ Mon, 04 Jul 2022 10:17:38 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1uc6e9t+TDjozVIHS20Xkm/89T4WuJyrekSiGRvrPx9nG54HgL0oXw8KiDuQ3MmSutE1rHC3Q==
+X-Received: by 2002:a05:620a:2697:b0:699:cca7:f8b2 with SMTP id
+ c23-20020a05620a269700b00699cca7f8b2mr20820452qkp.738.1656955057917; 
+ Mon, 04 Jul 2022 10:17:37 -0700 (PDT)
 Received: from step1.redhat.com (host-79-46-200-206.retail.telecomitalia.it.
  [79.46.200.206]) by smtp.gmail.com with ESMTPSA id
- o16-20020a05620a2a1000b006a68fdc2d18sm21656078qkp.130.2022.07.04.10.17.11
+ y7-20020a37f607000000b006a75e8d920bsm10788838qkj.88.2022.07.04.10.17.35
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 04 Jul 2022 10:17:12 -0700 (PDT)
+ Mon, 04 Jul 2022 10:17:37 -0700 (PDT)
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: virtualization@lists.linux-foundation.org
-Subject: [RFC PATCH 3/6] virtio_test: call __virtio_unbreak_device
-Date: Mon,  4 Jul 2022 19:16:58 +0200
-Message-Id: <20220704171701.127665-4-sgarzare@redhat.com>
+Subject: [RFC PATCH 4/6] tools/virtio: move feature negotiation in
+ vdev_info_init()
+Date: Mon,  4 Jul 2022 19:16:59 +0200
+Message-Id: <20220704171701.127665-5-sgarzare@redhat.com>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220704171701.127665-1-sgarzare@redhat.com>
 References: <20220704171701.127665-1-sgarzare@redhat.com>
@@ -125,39 +126,45 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Commit 8b4ec69d7e09 ("virtio: harden vring IRQ") initialize vq->broken
-to true, so we need to call __virtio_unbreak_device() before starting
-to use it.
+The feature negotiation are per device, so it' s better to move them
+earlier in vdev_info_init() since vhost_vq_setup() contains the code
+to initialize virtqueue.
 
 Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 ---
- tools/virtio/linux/virtio.h | 2 ++
- tools/virtio/virtio_test.c  | 1 +
- 2 files changed, 3 insertions(+)
+ tools/virtio/virtio_test.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/tools/virtio/linux/virtio.h b/tools/virtio/linux/virtio.h
-index 363b98228301..feb720d4304f 100644
---- a/tools/virtio/linux/virtio.h
-+++ b/tools/virtio/linux/virtio.h
-@@ -66,4 +66,6 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
- 				      const char *name);
- void vring_del_virtqueue(struct virtqueue *vq);
- 
-+void __virtio_unbreak_device(struct virtio_device *dev);
-+
- #endif
 diff --git a/tools/virtio/virtio_test.c b/tools/virtio/virtio_test.c
-index 23f142af544a..765e64895dab 100644
+index 765e64895dab..2d8a3e881637 100644
 --- a/tools/virtio/virtio_test.c
 +++ b/tools/virtio/virtio_test.c
-@@ -177,6 +177,7 @@ static void run_test(struct vdev_info *dev, struct vq_info *vq,
- 	long long spurious = 0;
- 	const bool random_batch = batch == RANDOM_BATCH;
- 
-+	__virtio_unbreak_device(&dev->vdev);
- 	r = ioctl(dev->control, VHOST_TEST_RUN, &test);
+@@ -69,7 +69,6 @@ void vhost_vq_setup(struct vdev_info *dev, struct vq_info *info)
+ {
+ 	struct vhost_vring_state state = { .index = info->idx };
+ 	struct vhost_vring_file file = { .index = info->idx };
+-	unsigned long long features = dev->vdev.features;
+ 	struct vhost_vring_addr addr = {
+ 		.index = info->idx,
+ 		.desc_user_addr = (uint64_t)(unsigned long)info->vring.desc,
+@@ -77,8 +76,6 @@ void vhost_vq_setup(struct vdev_info *dev, struct vq_info *info)
+ 		.used_user_addr = (uint64_t)(unsigned long)info->vring.used,
+ 	};
+ 	int r;
+-	r = ioctl(dev->control, VHOST_SET_FEATURES, &features);
+-	assert(r >= 0);
+ 	state.num = info->vring.num;
+ 	r = ioctl(dev->control, VHOST_SET_VRING_NUM, &state);
  	assert(r >= 0);
- 	if (!reset_n) {
+@@ -149,6 +146,8 @@ static void vdev_info_init(struct vdev_info* dev, unsigned long long features)
+ 	dev->mem->regions[0].memory_size = dev->buf_size;
+ 	r = ioctl(dev->control, VHOST_SET_MEM_TABLE, dev->mem);
+ 	assert(r >= 0);
++	r = ioctl(dev->control, VHOST_SET_FEATURES, &features);
++	assert(r >= 0);
+ }
+ 
+ /* TODO: this is pretty bad: we get a cache line bounce
 -- 
 2.36.1
 
