@@ -4,123 +4,108 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id EE552C43334
-	for <virtualization@archiver.kernel.org>; Mon,  4 Jul 2022 06:22:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 32241C433EF
+	for <virtualization@archiver.kernel.org>; Mon,  4 Jul 2022 06:33:08 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 605C34099C;
-	Mon,  4 Jul 2022 06:22:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 605C34099C
+	by smtp4.osuosl.org (Postfix) with ESMTP id C54514090D;
+	Mon,  4 Jul 2022 06:33:07 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C54514090D
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=h3lsq+Xq
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=SAjE2Kg2
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id tTNQtJMqMLzz; Mon,  4 Jul 2022 06:22:19 +0000 (UTC)
+	with ESMTP id N209XXgMS76f; Mon,  4 Jul 2022 06:33:06 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 613DF40992;
-	Mon,  4 Jul 2022 06:22:18 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 613DF40992
+	by smtp4.osuosl.org (Postfix) with ESMTPS id B039C40904;
+	Mon,  4 Jul 2022 06:33:05 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B039C40904
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 402D4C0032;
-	Mon,  4 Jul 2022 06:22:18 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B26BEC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 841FFC0032;
+	Mon,  4 Jul 2022 06:33:05 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BE968C002D
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Jul 2022 06:22:16 +0000 (UTC)
+ Mon,  4 Jul 2022 06:33:03 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 2AFA7402F6
+ by smtp3.osuosl.org (Postfix) with ESMTP id 871B260BA4
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Jul 2022 06:22:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2AFA7402F6
-Authentication-Results: smtp2.osuosl.org;
+ Mon,  4 Jul 2022 06:33:03 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 871B260BA4
+Authentication-Results: smtp3.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=h3lsq+Xq
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=SAjE2Kg2
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id rtPLRGHTQAqQ
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Ww-H5ZsfGERQ
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Jul 2022 06:22:14 +0000 (UTC)
+ Mon,  4 Jul 2022 06:33:02 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BC6B5400F6
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7E7B060B0E
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id BC6B5400F6
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 7E7B060B0E
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Jul 2022 06:22:14 +0000 (UTC)
+ Mon,  4 Jul 2022 06:33:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1656915733;
+ s=mimecast20190719; t=1656916381;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=w4yN5Zty763Hq+nXi9QxVE0HKoTohjtCixEdlzzySCo=;
- b=h3lsq+Xq4IIZOZtHsYN6DX07wJofeyn0GurRN/ONoKaUyJv/uV1b3j5BGsHn+e7hKLnt8Y
- jxUMQ2nAmdnAd+adx8o+TXbzBRR3xNaaf80KJZ5ROIeqImeGOa+8N4GPqDM181h1o3MgDv
- emRst/WxSToSZ3Zzb35t1QgGLStSrdI=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=Jsi3avIxmMGxTKw1aGqIAuD2WCID2wcXC2eB5pAWD08=;
+ b=SAjE2Kg2XEm+jdiFWM3/Ytssr7w/MCLFsXPG5Bue9h2ZVMh8kxu60XUQZflkI0/VlQ0DiT
+ i2BCs6B68Yx9aB4IdjfEU5+Z8kueEpHMjP4ZTIbw8K4bA1BeN8n6MiDyDcUFmzgsDFvgDI
+ C7oYNOCPyYMvh9spYqnGMX/9bKlNKDg=
+Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
+ [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-408-N4Z3Ec_mPaSRlB_vz3e0Vg-1; Mon, 04 Jul 2022 02:22:12 -0400
-X-MC-Unique: N4Z3Ec_mPaSRlB_vz3e0Vg-1
-Received: by mail-wm1-f70.google.com with SMTP id
- r4-20020a1c4404000000b003a02fa133ceso3638981wma.2
+ us-mta-94-FzozxW9sP_S6kEUrfTfosQ-1; Mon, 04 Jul 2022 02:32:59 -0400
+X-MC-Unique: FzozxW9sP_S6kEUrfTfosQ-1
+Received: by mail-lf1-f71.google.com with SMTP id
+ f29-20020a19dc5d000000b004811c8d1918so2682983lfj.2
  for <virtualization@lists.linux-foundation.org>;
- Sun, 03 Jul 2022 23:22:11 -0700 (PDT)
+ Sun, 03 Jul 2022 23:32:59 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=w4yN5Zty763Hq+nXi9QxVE0HKoTohjtCixEdlzzySCo=;
- b=1c17IDccMRvqgWKBpd1RNrbCfYJQit8tCoS55+IwPxY0cLbpGe4SPmTdrE7X6E/LKa
- KN27zxYOzYrgMoipuX3tCsW/l8eiMA2KBEH32TrCDfnsXJf6daLWL3faexT3IFl4iG+6
- ++6Xza4e/5JGugrH1VXHPaoWnSFNFclpavymn2Mcd5G0CkIGvIlkLC/yeQ3jDOix8PHg
- 6lVX7XfQVrXerYPSJO7HZ9Sc0SNEX1zZlKRFzYvwYiWEYRkS5ItUT7D/2mc4IzbAtwZ6
- qIPuyLGaNz4tk97i+VjxnqdbcmLiWMztilgOEViSVNnMTIfqe0fNFYunZGPLawazY497
- EH5A==
-X-Gm-Message-State: AJIora83oE1FJJpwwotFf//q/qPF+QxTNo6Cs6+YsSWElLGDjXNLwpU1
- vANq+Ut05SUHY69ihz7/anJzb9ZaMfJt2XQ3LcSA/lHQ7f/rXEuS4idSEtxBuJLMZ7/zUjIkVnb
- FgMJ1AwuN2xcjA2blsAAF1yGIjHJ7NQ4v2WGjr33Xcg==
-X-Received: by 2002:a5d:4387:0:b0:21d:6983:13fc with SMTP id
- i7-20020a5d4387000000b0021d698313fcmr3928712wrq.696.1656915730996; 
- Sun, 03 Jul 2022 23:22:10 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1v5n38T2ZOszfGvZ5G4OUbtnwwbSZSx7PamIw2e0xfqqOoITQOPCURZq3WhZI490y8B9npKeQ==
-X-Received: by 2002:a5d:4387:0:b0:21d:6983:13fc with SMTP id
- i7-20020a5d4387000000b0021d698313fcmr3928689wrq.696.1656915730781; 
- Sun, 03 Jul 2022 23:22:10 -0700 (PDT)
-Received: from redhat.com ([2.55.3.188]) by smtp.gmail.com with ESMTPSA id
- g3-20020a05600c140300b0039c96b97359sm18771641wmi.37.2022.07.03.23.22.06
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sun, 03 Jul 2022 23:22:09 -0700 (PDT)
-Date: Mon, 4 Jul 2022 02:22:04 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V3] virtio: disable notification hardening by default
-Message-ID: <20220704021950-mutt-send-email-mst@kernel.org>
-References: <CACGkMEsC4A+3WejLSOZoH3enXtai=+JyRNbxcpzK4vODYzhaFw@mail.gmail.com>
- <CACGkMEvu0D0XD7udz0ebVjNM0h5+K9Rjd-5ed=PY_+-aduzG2g@mail.gmail.com>
- <20220629022223-mutt-send-email-mst@kernel.org>
- <CACGkMEuwvzkbPUSFueCOjit7pRJ81v3-W3SZD+7jQJN8btEFdg@mail.gmail.com>
- <20220629030600-mutt-send-email-mst@kernel.org>
- <CACGkMEvnUj622FyROUftifSB47wytPg0YAdVO7fdRQmCE+WuBg@mail.gmail.com>
- <20220629044514-mutt-send-email-mst@kernel.org>
- <CACGkMEsW02a1LeiWwUgHfVmDEnC8i49h1L7qHmeoLyJyRS6-zA@mail.gmail.com>
- <20220630043219-mutt-send-email-mst@kernel.org>
- <CACGkMEtgnHDEUOHQxqUFn2ngOpUGcVu4NSQBqfYYZRMPA2H2LQ@mail.gmail.com>
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=Jsi3avIxmMGxTKw1aGqIAuD2WCID2wcXC2eB5pAWD08=;
+ b=FJk0oPU+UAviNbUCrt6hDsgDgmOTGHiPW6M8Xv9XM30vGiGEmG4PG16sAjhncgwtUy
+ qfj6fXbIQr9xzQ8wiE08M7VFlw1mT0g/qPqrMM/63nSUQljITnwabbwSzMOYFbjsmhPm
+ HZ/qEwy4k4648Sk0zgQvUVVft+Ys7ibdg0szANejQo439szJmHMbxAnhM1hjksnfeN85
+ TjfaYIbiJZEPb9coZEktxRRS6faHrLr8NLXu7IGBnASTQELjD5QyKOtECKPjU3a5Ct3R
+ Hy3TW6HJGQx/TY3ESnAROTquhIhYcmb0GjBGglSSTDb1ONYVM3uQSmJoly7qYZFq6K7O
+ 7a5w==
+X-Gm-Message-State: AJIora/bBWacXiPsUO8xisWcR/i860Oa+gXukDEBGZoFOYXDWni+4b5o
+ f8G4b0dzHt9FTAuIK1gFJQW9RYQkZfh2nxCp1Tx26jT59G27qJC9ZiOtCrelclSMEWKjRkIAmzV
+ po2oRHIwHem1cERL5I4lm6u2upfKlASkO3pOBU0IN9aAxj5bqm+4VPrY2HQ==
+X-Received: by 2002:ac2:51a5:0:b0:47f:79a1:5c02 with SMTP id
+ f5-20020ac251a5000000b0047f79a15c02mr17490265lfk.575.1656916376666; 
+ Sun, 03 Jul 2022 23:32:56 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1uORGpDtsB7c/lUXEJ6N5XOEgAx1/QiZYY6pFzgBAqyhXLVuiz7tnNs76oGZuafDE/1EJkPEynxHvMS+XBJBD4=
+X-Received: by 2002:ac2:51a5:0:b0:47f:79a1:5c02 with SMTP id
+ f5-20020ac251a5000000b0047f79a15c02mr17490247lfk.575.1656916376418; Sun, 03
+ Jul 2022 23:32:56 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEtgnHDEUOHQxqUFn2ngOpUGcVu4NSQBqfYYZRMPA2H2LQ@mail.gmail.com>
+References: <20220704041948.13212-1-jasowang@redhat.com>
+ <20220704021656-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20220704021656-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 4 Jul 2022 14:32:45 +0800
+Message-ID: <CACGkMEsOy6kgaj+Q0vYxDBy7JEd=DUm7KLKo7AjGCi2ay5ciKQ@mail.gmail.com>
+Subject: Re: [PATCH net V4] virtio-net: fix the race between refill work and
+ close
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: linux-s390@vger.kernel.org, kvm <kvm@vger.kernel.org>,
- Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
- Cornelia Huck <cohuck@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>,
+Cc: netdev <netdev@vger.kernel.org>,
+ linux-kernel <linux-kernel@vger.kernel.org>,
  virtualization <virtualization@lists.linux-foundation.org>,
- Halil Pasic <pasic@linux.ibm.com>,
- Christian Borntraeger <borntraeger@de.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Ben Hutchings <ben@decadent.org.uk>
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, davem <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -137,101 +122,171 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Jul 04, 2022 at 12:23:27PM +0800, Jason Wang wrote:
-> > So if there are not examples of callbacks not ready after kick
-> > then let us block callbacks until first kick. That is my idea.
-> 
-> Ok, let me try. I need to drain my queue of fixes first.
-> 
-> Thanks
+On Mon, Jul 4, 2022 at 2:19 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+>
+> On Mon, Jul 04, 2022 at 12:19:48PM +0800, Jason Wang wrote:
+> > We try using cancel_delayed_work_sync() to prevent the work from
+> > enabling NAPI. This is insufficient since we don't disable the source
+> > of the refill work scheduling. This means an NAPI poll callback after
+> > cancel_delayed_work_sync() can schedule the refill work then can
+> > re-enable the NAPI that leads to use-after-free [1].
+> >
+> > Since the work can enable NAPI, we can't simply disable NAPI before
+> > calling cancel_delayed_work_sync(). So fix this by introducing a
+> > dedicated boolean to control whether or not the work could be
+> > scheduled from NAPI.
+> >
+> > [1]
+> > ==================================================================
+> > BUG: KASAN: use-after-free in refill_work+0x43/0xd4
+> > Read of size 2 at addr ffff88810562c92e by task kworker/2:1/42
+> >
+> > CPU: 2 PID: 42 Comm: kworker/2:1 Not tainted 5.19.0-rc1+ #480
+> > Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.16.0-0-gd239552ce722-prebuilt.qemu.org 04/01/2014
+> > Workqueue: events refill_work
+> > Call Trace:
+> >  <TASK>
+> >  dump_stack_lvl+0x34/0x44
+> >  print_report.cold+0xbb/0x6ac
+> >  ? _printk+0xad/0xde
+> >  ? refill_work+0x43/0xd4
+> >  kasan_report+0xa8/0x130
+> >  ? refill_work+0x43/0xd4
+> >  refill_work+0x43/0xd4
+> >  process_one_work+0x43d/0x780
+> >  worker_thread+0x2a0/0x6f0
+> >  ? process_one_work+0x780/0x780
+> >  kthread+0x167/0x1a0
+> >  ? kthread_exit+0x50/0x50
+> >  ret_from_fork+0x22/0x30
+> >  </TASK>
+> > ...
+> >
+> > Fixes: b2baed69e605c ("virtio_net: set/cancel work on ndo_open/ndo_stop")
+> > Signed-off-by: Jason Wang <jasowang@redhat.com>
+> > ---
+> > Changes since V3:
+> > - rebase to -net
+> > Changes since V2:
+> > - use spin_unlock()/lock_bh() in open/stop to synchronize with bh
+> > Changes since V1:
+> > - Tweak the changelog
+> > ---
+> >  drivers/net/virtio_net.c | 35 +++++++++++++++++++++++++++++++++--
+> >  1 file changed, 33 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > index 356cf8dd4164..68430d7923ac 100644
+> > --- a/drivers/net/virtio_net.c
+> > +++ b/drivers/net/virtio_net.c
+> > @@ -251,6 +251,12 @@ struct virtnet_info {
+> >       /* Does the affinity hint is set for virtqueues? */
+> >       bool affinity_hint_set;
+> >
+> > +     /* Is refill work enabled? */
+>
+> refilling enabled
 
-If we do find issues, another option is blocking callbacks until the
-first add. A bit higher overhead as add is a more common operation
-but it has even less of a chance to introduce regressions.
+I think it should be reill work, we try refill first, if fail we
+schedule the work:
 
+                if (!try_fill_recv(vi, rq, GFP_ATOMIC))
+                        schedule_delayed_work(&vi->refill, 0);
+
+Thanks
+
+>
+> > +     bool refill_work_enabled;
+>
+>
+> refill_work -> refill?
+>
+> > +
+> > +     /* The lock to synchronize the access to refill_work_enabled */
+>
+> .. and refill
+>
+> And maybe put these field near the refill field.
+>
+> > +     spinlock_t refill_lock;
+> > +
+> >       /* CPU hotplug instances for online & dead */
+> >       struct hlist_node node;
+> >       struct hlist_node node_dead;
+> > @@ -348,6 +354,20 @@ static struct page *get_a_page(struct receive_queue *rq, gfp_t gfp_mask)
+> >       return p;
+> >  }
 > >
+> > +static void enable_refill_work(struct virtnet_info *vi)
+> > +{
+> > +     spin_lock_bh(&vi->refill_lock);
+> > +     vi->refill_work_enabled = true;
+> > +     spin_unlock_bh(&vi->refill_lock);
+> > +}
+> > +
+> > +static void disable_refill_work(struct virtnet_info *vi)
+> > +{
+> > +     spin_lock_bh(&vi->refill_lock);
+> > +     vi->refill_work_enabled = false;
+> > +     spin_unlock_bh(&vi->refill_lock);
+> > +}
+> > +
+> >  static void virtqueue_napi_schedule(struct napi_struct *napi,
+> >                                   struct virtqueue *vq)
+> >  {
+> > @@ -1527,8 +1547,12 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
+> >       }
 > >
-> > > >
-> > > > > >
-> > > > > >
-> > > > > > > >
-> > > > > > > >
-> > > > > > > > > >
-> > > > > > > > > > >I couldn't ... except maybe bluetooth
-> > > > > > > > > > > but that's just maintainer nacking fixes saying he'll fix it
-> > > > > > > > > > > his way ...
-> > > > > > > > > > >
-> > > > > > > > > > > > And during remove(), we get another window:
-> > > > > > > > > > > >
-> > > > > > > > > > > > subsysrem_unregistration()
-> > > > > > > > > > > > /* the window */
-> > > > > > > > > > > > virtio_device_reset()
-> > > > > > > > > > >
-> > > > > > > > > > > Same here.
-> > > > > > > > >
-> > > > > > > > > Basically for the drivers that set driver_ok before registration,
-> > > > > > > >
-> > > > > > > > I don't see what does driver_ok have to do with it.
-> > > > > > >
-> > > > > > > I meant for those driver, in probe they do()
-> > > > > > >
-> > > > > > > virtio_device_ready()
-> > > > > > > subsystem_register()
-> > > > > > >
-> > > > > > > In remove() they do
-> > > > > > >
-> > > > > > > subsystem_unregister()
-> > > > > > > virtio_device_reset()
-> > > > > > >
-> > > > > > > for symmetry
-> > > > > >
-> > > > > > Let's leave remove alone for now. I am close to 100% sure we have *lots*
-> > > > > > of issues around it, but while probe is unavoidable remove can be
-> > > > > > avoided by blocking hotplug.
-> > > > >
-> > > > > Unbind can trigger this path as well.
-> > > > >
-> > > > > >
-> > > > > >
-> > > > > > > >
-> > > > > > > > > so
-> > > > > > > > > we have a lot:
-> > > > > > > > >
-> > > > > > > > > blk, net, mac80211_hwsim, scsi, vsock, bt, crypto, gpio, gpu, i2c,
-> > > > > > > > > iommu, caif, pmem, input, mem
-> > > > > > > > >
-> > > > > > > > > So I think there's no easy way to harden the notification without
-> > > > > > > > > auditing the driver one by one (especially considering the driver may
-> > > > > > > > > use bh or workqueue). The problem is the notification hardening
-> > > > > > > > > depends on a correct or race-free probe/remove. So we need to fix the
-> > > > > > > > > issues in probe/remove then do the hardening on the notification.
-> > > > > > > > >
-> > > > > > > > > Thanks
-> > > > > > > >
-> > > > > > > > So if drivers kick but are not ready to get callbacks then let's fix
-> > > > > > > > that first of all, these are racy with existing qemu even ignoring
-> > > > > > > > spec compliance.
-> > > > > > >
-> > > > > > > Yes, (the patches I've posted so far exist even with a well-behaved device).
-> > > > > > >
-> > > > > > > Thanks
-> > > > > >
-> > > > > > patches you posted deal with DRIVER_OK spec compliance.
-> > > > > > I do not see patches for kicks before callbacks are ready to run.
-> > > > >
-> > > > > Yes.
-> > > > >
-> > > > > Thanks
-> > > > >
-> > > > > >
-> > > > > > > >
-> > > > > > > >
-> > > > > > > > --
-> > > > > > > > MST
-> > > > > > > >
-> > > > > >
-> > > >
+> >       if (rq->vq->num_free > min((unsigned int)budget, virtqueue_get_vring_size(rq->vq)) / 2) {
+> > -             if (!try_fill_recv(vi, rq, GFP_ATOMIC))
+> > -                     schedule_delayed_work(&vi->refill, 0);
+> > +             if (!try_fill_recv(vi, rq, GFP_ATOMIC)) {
+> > +                     spin_lock(&vi->refill_lock);
+> > +                     if (vi->refill_work_enabled)
+> > +                             schedule_delayed_work(&vi->refill, 0);
+> > +                     spin_unlock(&vi->refill_lock);
+> > +             }
+> >       }
 > >
+> >       u64_stats_update_begin(&rq->stats.syncp);
+> > @@ -1651,6 +1675,8 @@ static int virtnet_open(struct net_device *dev)
+> >       struct virtnet_info *vi = netdev_priv(dev);
+> >       int i, err;
+> >
+> > +     enable_refill_work(vi);
+> > +
+> >       for (i = 0; i < vi->max_queue_pairs; i++) {
+> >               if (i < vi->curr_queue_pairs)
+> >                       /* Make sure we have some buffers: if oom use wq. */
+> > @@ -2033,6 +2059,8 @@ static int virtnet_close(struct net_device *dev)
+> >       struct virtnet_info *vi = netdev_priv(dev);
+> >       int i;
+> >
+> > +     /* Make sure NAPI doesn't schedule refill work */
+> > +     disable_refill_work(vi);
+> >       /* Make sure refill_work doesn't re-enable napi! */
+> >       cancel_delayed_work_sync(&vi->refill);
+> >
+> > @@ -2792,6 +2820,8 @@ static int virtnet_restore_up(struct virtio_device *vdev)
+> >
+> >       virtio_device_ready(vdev);
+> >
+> > +     enable_refill_work(vi);
+> > +
+> >       if (netif_running(vi->dev)) {
+> >               err = virtnet_open(vi->dev);
+> >               if (err)
+> > @@ -3535,6 +3565,7 @@ static int virtnet_probe(struct virtio_device *vdev)
+> >       vdev->priv = vi;
+> >
+> >       INIT_WORK(&vi->config_work, virtnet_config_changed_work);
+> > +     spin_lock_init(&vi->refill_lock);
+> >
+> >       /* If we can receive ANY GSO packets, we must allocate large ones. */
+> >       if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO4) ||
+> > --
+> > 2.25.1
+>
 
 _______________________________________________
 Virtualization mailing list
