@@ -4,106 +4,115 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E9A23C433EF
-	for <virtualization@archiver.kernel.org>; Mon,  4 Jul 2022 04:39:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 46806C43334
+	for <virtualization@archiver.kernel.org>; Mon,  4 Jul 2022 04:44:02 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 69021826E7;
-	Mon,  4 Jul 2022 04:39:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 69021826E7
+	by smtp1.osuosl.org (Postfix) with ESMTP id D854A8138B;
+	Mon,  4 Jul 2022 04:44:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D854A8138B
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=fKWP1eFk
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Ctf7ihZS
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id bm6QI9JfKp7z; Mon,  4 Jul 2022 04:39:56 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id C0D1D826C0;
-	Mon,  4 Jul 2022 04:39:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C0D1D826C0
+	with ESMTP id TmUdDYM4XpHp; Mon,  4 Jul 2022 04:44:01 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 67C2281367;
+	Mon,  4 Jul 2022 04:44:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 67C2281367
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 92590C0032;
-	Mon,  4 Jul 2022 04:39:55 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 2CB2DC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 314E1C0032;
+	Mon,  4 Jul 2022 04:44:00 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4B86CC002D
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Jul 2022 04:39:54 +0000 (UTC)
+ Mon,  4 Jul 2022 04:43:58 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id B0BC860A80
+ by smtp2.osuosl.org (Postfix) with ESMTP id 3304640121
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Jul 2022 04:39:53 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B0BC860A80
-Authentication-Results: smtp3.osuosl.org;
+ Mon,  4 Jul 2022 04:43:58 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3304640121
+Authentication-Results: smtp2.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=fKWP1eFk
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=Ctf7ihZS
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id xRw3o3wxYc8r
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id drwzGZojkbs8
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Jul 2022 04:39:53 +0000 (UTC)
+ Mon,  4 Jul 2022 04:43:56 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org BA5AB60888
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org F00FC40114
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id BA5AB60888
+ by smtp2.osuosl.org (Postfix) with ESMTPS id F00FC40114
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Jul 2022 04:39:52 +0000 (UTC)
+ Mon,  4 Jul 2022 04:43:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1656909591;
+ s=mimecast20190719; t=1656909834;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=34NQkLuDu70RYtu7A5zt/ESnLEXxvA0x7SQgJUnytlU=;
- b=fKWP1eFkNvo4NO3XlPf+y5I1ImPLwGF6dsZ4obd0lgIDO47/tlnmIfXgsuTb9ZNycuSYsb
- E/FPBamyia4TWxOt7mCvv900N89imtZXMi8gBcAG37WytGH9XurzaWu8YswmQhA0rl44XM
- 47i15M3wmLlHGI9R4lqYcLmdLJtiN6A=
-Received: from mail-lj1-f197.google.com (mail-lj1-f197.google.com
- [209.85.208.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=i7iwf0AkIgxRzHQgP0FEutfReQrr2UT7CGP9VnI7Q4k=;
+ b=Ctf7ihZSLQdgvVoXF839MS/AKgV7j8CPCF7qIZf2FGiZawiAh0pbWk9gnwwCgLRJlwZe3p
+ oY77kb0EtViAVjwzICiesJhuMGiAejzQJAyAHBBx7wX/Qx0cMzoegSfMGP6idF2p9qkmb6
+ HrhhG9Pt6CLLdB14p8zPwPxbV2vDSf4=
+Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
+ [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-190-G7dp3oUDMpKdCtZNmHNicg-1; Mon, 04 Jul 2022 00:39:48 -0400
-X-MC-Unique: G7dp3oUDMpKdCtZNmHNicg-1
-Received: by mail-lj1-f197.google.com with SMTP id
- m8-20020a2eb6c8000000b0025aa0530107so2385013ljo.6
+ us-mta-250-G56S_La_OvGAy2K0Yo7Yxw-1; Mon, 04 Jul 2022 00:43:52 -0400
+X-MC-Unique: G56S_La_OvGAy2K0Yo7Yxw-1
+Received: by mail-pj1-f70.google.com with SMTP id
+ i15-20020a17090a2a0f00b001ef826b921dso1767142pjd.5
  for <virtualization@lists.linux-foundation.org>;
- Sun, 03 Jul 2022 21:39:48 -0700 (PDT)
+ Sun, 03 Jul 2022 21:43:52 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=34NQkLuDu70RYtu7A5zt/ESnLEXxvA0x7SQgJUnytlU=;
- b=Z4GEbypqR35SNqvUEYFBzPfnPFoStZ/MdE9pl3LrmLcE9bHw93eDnNO5dxVy6ffTzI
- ja5xOik11Ys+JFYNe2SUO+DuhOUsZPIaHU8/Nx/bvToT9e7f/AdBiv+RvUnsTmkvK/xJ
- MAE5+spmCy4t48PChQ+izO1D26Z+AhWVi3qyJ9SsYC4dE7uPuFoqkW/ZQusMGiTPyZ6J
- szvUfcEdmFsgRIrasutgyiQ7EF/2DmLXUOWhPq2METxklRFs4pFnqCQRDlGtobGq8hpw
- MCMxSgrGPqBI/RaJ5X0qrtbcRoqgnYH2SoEAFTI/pW3SRorP+gChkmeO+vICAeWsqyAD
- 4XmA==
-X-Gm-Message-State: AJIora9Lpv+cXzU3BbeimQhpKjYiEOyUl9L9c5TuS5wVeOV1uMf4WbLz
- LfcnuAZX9Hq4ncLJ3FR0HxLWQVd5ircsgQg/XU3osvNt0LQV3CJW9xkHwKE7ulduiQxqn2Tl9fn
- UpzV9hwBB7Wi1I4lmcUekoqL8StWVSPCsBObpLbPMqLQWkTOcbYEJTsdhJw==
-X-Received: by 2002:a05:6512:b0d:b0:481:5cb4:cf1e with SMTP id
- w13-20020a0565120b0d00b004815cb4cf1emr10153638lfu.442.1656909586924; 
- Sun, 03 Jul 2022 21:39:46 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1sbGuL+fn0YCwy3PFvwHzJchJaTph3jj60D8dfYlVR8XTdiZAzAbGETkaVrvpPHFEGBOLc9W/txx60ltVFAKow=
-X-Received: by 2002:a05:6512:b0d:b0:481:5cb4:cf1e with SMTP id
- w13-20020a0565120b0d00b004815cb4cf1emr10153626lfu.442.1656909586743; Sun, 03
- Jul 2022 21:39:46 -0700 (PDT)
+ h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+ :content-language:to:cc:references:from:in-reply-to
+ :content-transfer-encoding;
+ bh=i7iwf0AkIgxRzHQgP0FEutfReQrr2UT7CGP9VnI7Q4k=;
+ b=jmu88vnjObUhFtPMuxF0/UbuTdNbmDIH0EzwxNxQmfs5H72ZcMRqk9RbuA8hthAn8E
+ wAogkC1Sq1tXPJd1EgiFeA09Q+aH44RbmdDDUMFbnlxBU/3cxtGy2rJv4Tzs1H9hIncF
+ +c+1uEiq2pCpW+tav1fWlD+d1vHZhc9j64r53+kcEHSLHSvt4grbU+LP4Bx+Sp0K3nXW
+ lKvhOhAoBMskNYfr1W1T3zdg1Hwjf3J3r7itHt+fCTAZWIPwkAFrbAiVmVa4nVtkFKq4
+ V7uKdcdicXyfJwhI5Ui4pty/9l1wImchWm/CesaHuCOXvF6GDOIFV5xCKY8IF6mRIlQ4
+ Loqg==
+X-Gm-Message-State: AJIora/7+DDeubUY6wSzjv/Pwd8jMhQNQ730auIKT9A8Y4k5M7tlI0tI
+ OP76vJ/Xj8VfQMaI/FbcwHn0eTl3Hz+BPnN04ZbXK/YAJIzlGY3ew1wqUcpggiDffQHw6zVKKKw
+ 2bVV0xwdrEGNme/xyS3TI8hYr86xuTEPTSe4iXzrWFg==
+X-Received: by 2002:a62:1606:0:b0:525:2679:f9d0 with SMTP id
+ 6-20020a621606000000b005252679f9d0mr35334631pfw.65.1656909831198; 
+ Sun, 03 Jul 2022 21:43:51 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1vd5ABgEadTDyD7ArHJ2WciogVXo3weq1+LT6uq0isirV16fZ5AZFT11uG+GvRGAq8yT91fQQ==
+X-Received: by 2002:a62:1606:0:b0:525:2679:f9d0 with SMTP id
+ 6-20020a621606000000b005252679f9d0mr35334613pfw.65.1656909830941; 
+ Sun, 03 Jul 2022 21:43:50 -0700 (PDT)
+Received: from [10.72.13.251] ([209.132.188.80])
+ by smtp.gmail.com with ESMTPSA id
+ t2-20020a1709028c8200b0016a3248376esm19724732plo.181.2022.07.03.21.43.48
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Sun, 03 Jul 2022 21:43:50 -0700 (PDT)
+Message-ID: <c602c6c3-b38a-9543-2bb5-03be7d99fef3@redhat.com>
+Date: Mon, 4 Jul 2022 12:43:43 +0800
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.11.0
+Subject: Re: [PATCH V3 2/6] vDPA/ifcvf: support userspace to query features
+ and MQ of a management device
+To: Zhu Lingshan <lingshan.zhu@intel.com>, mst@redhat.com
 References: <20220701132826.8132-1-lingshan.zhu@intel.com>
- <20220701132826.8132-2-lingshan.zhu@intel.com>
-In-Reply-To: <20220701132826.8132-2-lingshan.zhu@intel.com>
+ <20220701132826.8132-3-lingshan.zhu@intel.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 4 Jul 2022 12:39:35 +0800
-Message-ID: <CACGkMEvGo2urfPriS3f6dCxT+41KJ0E-KUd4-GvUrX81BVy8Og@mail.gmail.com>
-Subject: Re: [PATCH V3 1/6] vDPA/ifcvf: get_config_size should return a value
- no greater than dev implementation
-To: Zhu Lingshan <lingshan.zhu@intel.com>
+In-Reply-To: <20220701132826.8132-3-lingshan.zhu@intel.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: mst <mst@redhat.com>, netdev <netdev@vger.kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>,
- Yongji Xie <xieyongji@bytedance.com>, "Dawar, Gautam" <gautam.dawar@amd.com>
+Content-Language: en-US
+Cc: netdev@vger.kernel.org, xieyongji@bytedance.com, gautam.dawar@amd.com,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -115,90 +124,58 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Jul 1, 2022 at 9:36 PM Zhu Lingshan <lingshan.zhu@intel.com> wrote:
->
-> ifcvf_get_config_size() should return a virtio device type specific value,
-> however the ret_value should not be greater than the onboard size of
-> the device implementation. E.g., for virtio_net, config_size should be
-> the minimum value of sizeof(struct virtio_net_config) and the onboard
-> cap size.
-
-Rethink of this, I wonder what's the value of exposing device
-implementation details to users? Anyhow the parent is in charge of
-"emulating" config space accessing.
-
-If we do this, it's probably a blocker for cross vendor stuff.
-
-Thanks
-
->
-> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
-> ---
->  drivers/vdpa/ifcvf/ifcvf_base.c | 13 +++++++++++--
->  drivers/vdpa/ifcvf/ifcvf_base.h |  2 ++
->  2 files changed, 13 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/vdpa/ifcvf/ifcvf_base.c b/drivers/vdpa/ifcvf/ifcvf_base.c
-> index 48c4dadb0c7c..fb957b57941e 100644
-> --- a/drivers/vdpa/ifcvf/ifcvf_base.c
-> +++ b/drivers/vdpa/ifcvf/ifcvf_base.c
-> @@ -128,6 +128,7 @@ int ifcvf_init_hw(struct ifcvf_hw *hw, struct pci_dev *pdev)
->                         break;
->                 case VIRTIO_PCI_CAP_DEVICE_CFG:
->                         hw->dev_cfg = get_cap_addr(hw, &cap);
-> +                       hw->cap_dev_config_size = le32_to_cpu(cap.length);
->                         IFCVF_DBG(pdev, "hw->dev_cfg = %p\n", hw->dev_cfg);
->                         break;
->                 }
-> @@ -233,15 +234,23 @@ int ifcvf_verify_min_features(struct ifcvf_hw *hw, u64 features)
->  u32 ifcvf_get_config_size(struct ifcvf_hw *hw)
->  {
->         struct ifcvf_adapter *adapter;
-> +       u32 net_config_size = sizeof(struct virtio_net_config);
-> +       u32 blk_config_size = sizeof(struct virtio_blk_config);
-> +       u32 cap_size = hw->cap_dev_config_size;
->         u32 config_size;
->
->         adapter = vf_to_adapter(hw);
-> +       /* If the onboard device config space size is greater than
-> +        * the size of struct virtio_net/blk_config, only the spec
-> +        * implementing contents size is returned, this is very
-> +        * unlikely, defensive programming.
-> +        */
->         switch (hw->dev_type) {
->         case VIRTIO_ID_NET:
-> -               config_size = sizeof(struct virtio_net_config);
-> +               config_size = cap_size >= net_config_size ? net_config_size : cap_size;
->                 break;
->         case VIRTIO_ID_BLOCK:
-> -               config_size = sizeof(struct virtio_blk_config);
-> +               config_size = cap_size >= blk_config_size ? blk_config_size : cap_size;
->                 break;
->         default:
->                 config_size = 0;
-> diff --git a/drivers/vdpa/ifcvf/ifcvf_base.h b/drivers/vdpa/ifcvf/ifcvf_base.h
-> index 115b61f4924b..f5563f665cc6 100644
-> --- a/drivers/vdpa/ifcvf/ifcvf_base.h
-> +++ b/drivers/vdpa/ifcvf/ifcvf_base.h
-> @@ -87,6 +87,8 @@ struct ifcvf_hw {
->         int config_irq;
->         int vqs_reused_irq;
->         u16 nr_vring;
-> +       /* VIRTIO_PCI_CAP_DEVICE_CFG size */
-> +       u32 cap_dev_config_size;
->  };
->
->  struct ifcvf_adapter {
-> --
-> 2.31.1
->
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+CuWcqCAyMDIyLzcvMSAyMToyOCwgWmh1IExpbmdzaGFuIOWGmemBkzoKPiBBZGFwdGluZyB0byBj
+dXJyZW50IG5ldGxpbmsgaW50ZXJmYWNlcywgdGhpcyBjb21taXQgYWxsb3dzIHVzZXJzcGFjZQo+
+IHRvIHF1ZXJ5IGZlYXR1cmUgYml0cyBhbmQgTVEgY2FwYWJpbGl0eSBvZiBhIG1hbmFnZW1lbnQg
+ZGV2aWNlLgo+Cj4gU2lnbmVkLW9mZi1ieTogWmh1IExpbmdzaGFuIDxsaW5nc2hhbi56aHVAaW50
+ZWwuY29tPgo+IC0tLQo+ICAgZHJpdmVycy92ZHBhL2lmY3ZmL2lmY3ZmX2Jhc2UuYyB8IDEyICsr
+KysrKysrKysrKwo+ICAgZHJpdmVycy92ZHBhL2lmY3ZmL2lmY3ZmX2Jhc2UuaCB8ICAxICsKPiAg
+IGRyaXZlcnMvdmRwYS9pZmN2Zi9pZmN2Zl9tYWluLmMgfCAgMyArKysKPiAgIDMgZmlsZXMgY2hh
+bmdlZCwgMTYgaW5zZXJ0aW9ucygrKQo+Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmRwYS9pZmN2
+Zi9pZmN2Zl9iYXNlLmMgYi9kcml2ZXJzL3ZkcGEvaWZjdmYvaWZjdmZfYmFzZS5jCj4gaW5kZXgg
+ZmI5NTdiNTc5NDFlLi43YzVmMWNjOTNhZDkgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy92ZHBhL2lm
+Y3ZmL2lmY3ZmX2Jhc2UuYwo+ICsrKyBiL2RyaXZlcnMvdmRwYS9pZmN2Zi9pZmN2Zl9iYXNlLmMK
+PiBAQCAtMzQ2LDYgKzM0NiwxOCBAQCBpbnQgaWZjdmZfc2V0X3ZxX3N0YXRlKHN0cnVjdCBpZmN2
+Zl9odyAqaHcsIHUxNiBxaWQsIHUxNiBudW0pCj4gICAJcmV0dXJuIDA7Cj4gICB9Cj4gICAKPiAr
+dTE2IGlmY3ZmX2dldF9tYXhfdnFfcGFpcnMoc3RydWN0IGlmY3ZmX2h3ICpodykKPiArewo+ICsJ
+c3RydWN0IHZpcnRpb19uZXRfY29uZmlnIF9faW9tZW0gKmNvbmZpZzsKPiArCXUxNiB2YWwsIG1x
+Owo+ICsKPiArCWNvbmZpZyA9IGh3LT5kZXZfY2ZnOwo+ICsJdmFsID0gdnBfaW9yZWFkMTYoKF9f
+bGUxNiBfX2lvbWVtICopJmNvbmZpZy0+bWF4X3ZpcnRxdWV1ZV9wYWlycyk7Cj4gKwltcSA9IGxl
+MTZfdG9fY3B1KChfX2ZvcmNlIF9fbGUxNil2YWwpOwo+ICsKPiArCXJldHVybiBtcTsKPiArfQo+
+ICsKPiAgIHN0YXRpYyBpbnQgaWZjdmZfaHdfZW5hYmxlKHN0cnVjdCBpZmN2Zl9odyAqaHcpCj4g
+ICB7Cj4gICAJc3RydWN0IHZpcnRpb19wY2lfY29tbW9uX2NmZyBfX2lvbWVtICpjZmc7Cj4gZGlm
+ZiAtLWdpdCBhL2RyaXZlcnMvdmRwYS9pZmN2Zi9pZmN2Zl9iYXNlLmggYi9kcml2ZXJzL3ZkcGEv
+aWZjdmYvaWZjdmZfYmFzZS5oCj4gaW5kZXggZjU1NjNmNjY1Y2M2Li5kNTRhMWJlZDIxMmUgMTAw
+NjQ0Cj4gLS0tIGEvZHJpdmVycy92ZHBhL2lmY3ZmL2lmY3ZmX2Jhc2UuaAo+ICsrKyBiL2RyaXZl
+cnMvdmRwYS9pZmN2Zi9pZmN2Zl9iYXNlLmgKPiBAQCAtMTMwLDYgKzEzMCw3IEBAIHU2NCBpZmN2
+Zl9nZXRfaHdfZmVhdHVyZXMoc3RydWN0IGlmY3ZmX2h3ICpodyk7Cj4gICBpbnQgaWZjdmZfdmVy
+aWZ5X21pbl9mZWF0dXJlcyhzdHJ1Y3QgaWZjdmZfaHcgKmh3LCB1NjQgZmVhdHVyZXMpOwo+ICAg
+dTE2IGlmY3ZmX2dldF92cV9zdGF0ZShzdHJ1Y3QgaWZjdmZfaHcgKmh3LCB1MTYgcWlkKTsKPiAg
+IGludCBpZmN2Zl9zZXRfdnFfc3RhdGUoc3RydWN0IGlmY3ZmX2h3ICpodywgdTE2IHFpZCwgdTE2
+IG51bSk7Cj4gK3UxNiBpZmN2Zl9nZXRfbWF4X3ZxX3BhaXJzKHN0cnVjdCBpZmN2Zl9odyAqaHcp
+Owo+ICAgc3RydWN0IGlmY3ZmX2FkYXB0ZXIgKnZmX3RvX2FkYXB0ZXIoc3RydWN0IGlmY3ZmX2h3
+ICpodyk7Cj4gICBpbnQgaWZjdmZfcHJvYmVkX3ZpcnRpb19uZXQoc3RydWN0IGlmY3ZmX2h3ICpo
+dyk7Cj4gICB1MzIgaWZjdmZfZ2V0X2NvbmZpZ19zaXplKHN0cnVjdCBpZmN2Zl9odyAqaHcpOwo+
+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZkcGEvaWZjdmYvaWZjdmZfbWFpbi5jIGIvZHJpdmVycy92
+ZHBhL2lmY3ZmL2lmY3ZmX21haW4uYwo+IGluZGV4IDBhNTY3MDcyOTQxMi4uM2ZmNzA5NmQzMGYx
+IDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvdmRwYS9pZmN2Zi9pZmN2Zl9tYWluLmMKPiArKysgYi9k
+cml2ZXJzL3ZkcGEvaWZjdmYvaWZjdmZfbWFpbi5jCj4gQEAgLTc5MSw2ICs3OTEsOSBAQCBzdGF0
+aWMgaW50IGlmY3ZmX3ZkcGFfZGV2X2FkZChzdHJ1Y3QgdmRwYV9tZ210X2RldiAqbWRldiwgY29u
+c3QgY2hhciAqbmFtZSwKPiAgIAl2Zi0+aHdfZmVhdHVyZXMgPSBpZmN2Zl9nZXRfaHdfZmVhdHVy
+ZXModmYpOwo+ICAgCXZmLT5jb25maWdfc2l6ZSA9IGlmY3ZmX2dldF9jb25maWdfc2l6ZSh2Zik7
+Cj4gICAKPiArCWlmY3ZmX21nbXRfZGV2LT5tZGV2Lm1heF9zdXBwb3J0ZWRfdnFzID0gaWZjdmZf
+Z2V0X21heF92cV9wYWlycyh2Zik7CgoKRG8gd2Ugd2FudCAjcXBzIG9yICNxdWV1ZXM/CgpGWUks
+IHZwX3ZkcGEgZGlkOgoKZHJpdmVycy92ZHBhL3ZpcnRpb19wY2kvdnBfdmRwYS5jOiBtZ3RkZXYt
+Pm1heF9zdXBwb3J0ZWRfdnFzID0gCnZwX21vZGVybl9nZXRfbnVtX3F1ZXVlcyhtZGV2KTsKClRo
+YW5rcwoKCj4gKwlpZmN2Zl9tZ210X2Rldi0+bWRldi5zdXBwb3J0ZWRfZmVhdHVyZXMgPSB2Zi0+
+aHdfZmVhdHVyZXM7Cj4gKwo+ICAgCWFkYXB0ZXItPnZkcGEubWRldiA9ICZpZmN2Zl9tZ210X2Rl
+di0+bWRldjsKPiAgIAlyZXQgPSBfdmRwYV9yZWdpc3Rlcl9kZXZpY2UoJmFkYXB0ZXItPnZkcGEs
+IHZmLT5ucl92cmluZyk7Cj4gICAJaWYgKHJldCkgewoKX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1
+YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhm
+b3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
