@@ -4,109 +4,96 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3015DC433EF
-	for <virtualization@archiver.kernel.org>; Tue,  5 Jul 2022 08:59:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 742AACCA47B
+	for <virtualization@archiver.kernel.org>; Tue,  5 Jul 2022 11:16:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id AF6F260EFB;
-	Tue,  5 Jul 2022 08:59:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org AF6F260EFB
+	by smtp3.osuosl.org (Postfix) with ESMTP id B352660A8C;
+	Tue,  5 Jul 2022 11:16:19 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B352660A8C
 Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=G3fJbUOi
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=susede1 header.b=tafgg8VI
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id PxALjON2Uv11; Tue,  5 Jul 2022 08:59:54 +0000 (UTC)
+	with ESMTP id inOVs_b177Sh; Tue,  5 Jul 2022 11:16:19 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 1F5B960EEC;
-	Tue,  5 Jul 2022 08:59:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1F5B960EEC
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 459E060DFA;
+	Tue,  5 Jul 2022 11:16:18 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 459E060DFA
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id EC52FC0032;
-	Tue,  5 Jul 2022 08:59:53 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E86FEC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1B375C0032;
+	Tue,  5 Jul 2022 11:16:18 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 26DBAC002D
  for <virtualization@lists.linux-foundation.org>;
- Tue,  5 Jul 2022 08:59:51 +0000 (UTC)
+ Tue,  5 Jul 2022 11:16:16 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id C1ED940502
+ by smtp4.osuosl.org (Postfix) with ESMTP id F41E441716
  for <virtualization@lists.linux-foundation.org>;
- Tue,  5 Jul 2022 08:59:51 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C1ED940502
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=G3fJbUOi
+ Tue,  5 Jul 2022 11:16:15 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org F41E441716
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com
+ header.a=rsa-sha256 header.s=susede1 header.b=tafgg8VI
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id tVCEjLh7BmEb
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id z42vAIkBWjzf
  for <virtualization@lists.linux-foundation.org>;
- Tue,  5 Jul 2022 08:59:50 +0000 (UTC)
+ Tue,  5 Jul 2022 11:16:14 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9721C400EF
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 9721C400EF
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 54F32416D6
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 54F32416D6
  for <virtualization@lists.linux-foundation.org>;
- Tue,  5 Jul 2022 08:59:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1657011589;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ Tue,  5 Jul 2022 11:16:14 +0000 (UTC)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by smtp-out2.suse.de (Postfix) with ESMTPS id 1809E1FFEC;
+ Tue,  5 Jul 2022 11:16:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+ t=1657019770; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=+UC/vpAZ24B41yJaSERUjpzXj/4P7BrqzPeTPZNYUSk=;
- b=G3fJbUOiMCS8QXvoYVdzzkPgJbm5Ql1H3ZWQBbW4oNAjaaYzQBvqrUU7EvC0gsfnJmSZOO
- nSSPjZlVRrhM4QeS2bVufvM2UwVJ8puJMrvN0i6ju13MoeBoYiTuYJQQyw/l0RhqvG7JFa
- KlWE9dY1U0VmlVtX880BhbXUQORqJro=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-670-f5fGhfRRNb2om5pNduiRzg-1; Tue, 05 Jul 2022 04:59:47 -0400
-X-MC-Unique: f5fGhfRRNb2om5pNduiRzg-1
-Received: by mail-ed1-f70.google.com with SMTP id
- i9-20020a05640242c900b004373cd1c4d5so8818223edc.2
- for <virtualization@lists.linux-foundation.org>;
- Tue, 05 Jul 2022 01:59:47 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=+UC/vpAZ24B41yJaSERUjpzXj/4P7BrqzPeTPZNYUSk=;
- b=ZqbdZJl1DVFVg8W5GOWgOzmJTb4FdLWYntpQoTPRbNtWHjq8WCW5Gkh0YSXU39ZX/E
- o0iWaK8/l8CrFmWPw9mSGNExWc49BdSynkRSNyGffXFjVfuiilWhoVuwPzFQYPffBHs9
- ZxpfdL0CDPyp2jpq49LyREed5UFIiIjyy1YVAxmh7FvvxmUy8S4hY15D6isgZf5AFrcQ
- 0cp9ffRhCtlJNMdcy2sN1As+8v0+fbON0RzpuMPkLUpnYapEJCNtLhDkp41yoPjC76Wb
- +sLxIe8pKE1H+UZLMzrFVQ7OsX++/gE8lD1zr/GZYFU6YuZB/V8iEthR4UDkpIuLCrfr
- yiOw==
-X-Gm-Message-State: AJIora9LXIvI034pzADqwqU7Jp46m+Y3rieGNPsaPedngIir/QNEOHJF
- PoPNznZRhBdV2QICow5xwmKw4MmdX6hrzJ1xJD2IuHcAyZp6U/enaQOmjgPYvYf7S1MmRR0QEkT
- QrPe0qm+nVPfM1CfLnnOGfXARKTbyM2qs/NlCKU0rwg==
-X-Received: by 2002:a17:907:6d1d:b0:726:363e:cca3 with SMTP id
- sa29-20020a1709076d1d00b00726363ecca3mr32657356ejc.713.1657011586767; 
- Tue, 05 Jul 2022 01:59:46 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1t8yxRBy3xDLi7w7e5LNzTm1PgIo8eoKRWrZOilTxJAHABYZhdkwvgHvAIzrmk1L4W21Ao6Wg==
-X-Received: by 2002:a17:907:6d1d:b0:726:363e:cca3 with SMTP id
- sa29-20020a1709076d1d00b00726363ecca3mr32657342ejc.713.1657011586452; 
- Tue, 05 Jul 2022 01:59:46 -0700 (PDT)
-Received: from redhat.com ([2.54.184.191]) by smtp.gmail.com with ESMTPSA id
- uz12-20020a170907118c00b00711aed17047sm15357907ejb.28.2022.07.05.01.59.44
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 05 Jul 2022 01:59:45 -0700 (PDT)
-Date: Tue, 5 Jul 2022 04:59:41 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Alexander Atanasov <alexander.atanasov@virtuozzo.com>
-Subject: Re: [PATCH v4 1/1] Create debugfs file with virtio balloon usage
- information
-Message-ID: <20220705045912-mutt-send-email-mst@kernel.org>
-References: <20220705083638.29669-1-alexander.atanasov@virtuozzo.com>
+ bh=TaWxCdjvaRes7WYd6QLi0mKZlR/DFE5akzRD/3c4d7Q=;
+ b=tafgg8VIoYtJNLTJM9zO+BZhAdpEZjcPq4vTPCC5msgt80X6QpRwhjFvl/z2Xdb6wqH+AW
+ xsZhiVbkX3KdqgLhAkaMee39rlsQOaBeSbYVAXpHNZepQqnnevMEyKuT0jKNGD7CIZnOkH
+ pU7Etwl/pKP8hdq+R+w3XiAbMruByx0=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 662E313A79;
+ Tue,  5 Jul 2022 11:16:09 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+ by imap2.suse-dmz.suse.de with ESMTPSA id hzNoF3kdxGJ/JQAAMHmgww
+ (envelope-from <jgross@suse.com>); Tue, 05 Jul 2022 11:16:09 +0000
+Message-ID: <89608dee-20d3-e580-a47c-dfdfdd7e5064@suse.com>
+Date: Tue, 5 Jul 2022 13:16:08 +0200
 MIME-Version: 1.0
-In-Reply-To: <20220705083638.29669-1-alexander.atanasov@virtuozzo.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: virtualization@lists.linux-foundation.org, kernel@openvz.org,
- linux-kernel@vger.kernel.org
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.10.0
+Subject: Re: [PATCH v3 0/3] virtio: support requiring restricted access per
+ device
+Content-Language: en-US
+To: xen-devel@lists.xenproject.org, x86@kernel.org,
+ linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, linux-arch@vger.kernel.org
+References: <20220622063838.8854-1-jgross@suse.com>
+In-Reply-To: <20220622063838.8854-1-jgross@suse.com>
+Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+ Stefano Stabellini <sstabellini@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+ Vasily Gorbik <gor@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Peter Zijlstra <peterz@infradead.org>, Heiko Carstens <hca@linux.ibm.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>,
+ Russell King <linux@armlinux.org.uk>,
+ Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+ Sven Schnelle <svens@linux.ibm.com>, Andy Lutomirski <luto@kernel.org>,
+ "H. Peter Anvin" <hpa@zytor.com>, Alexander Gordeev <agordeev@linux.ibm.com>,
+ Thomas Gleixner <tglx@linutronix.de>, linux-arm-kernel@lists.infradead.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -118,162 +105,152 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+From: Juergen Gross via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Juergen Gross <jgross@suse.com>
+Content-Type: multipart/mixed; boundary="===============2284552706188364958=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Jul 05, 2022 at 08:36:37AM +0000, Alexander Atanasov wrote:
-> Allow the guest to know how much it is ballooned by the host.
-> It is useful when debugging out of memory conditions.
-> 
-> When host gets back memory from the guest it is accounted
-> as used memory in the guest but the guest have no way to know
-> how much it is actually ballooned.
-> 
-> Signed-off-by: Alexander Atanasov <alexander.atanasov@virtuozzo.com>
-> ---
->  drivers/virtio/virtio_balloon.c     | 77 +++++++++++++++++++++++++++++
->  include/uapi/linux/virtio_balloon.h |  1 +
->  2 files changed, 78 insertions(+)
-> 
-> V2:
->  - fixed coding style
->  - removed pretty print
-> V3:
->  - removed dublicate of features
->  - comment about balooned_pages more clear
->  - convert host pages to balloon pages
-> V4:
->  - added a define for BALLOON_PAGE_SIZE to make things clear
-> 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index b9737da6c4dd..dc4ad584b947 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -10,6 +10,7 @@
->  #include <linux/virtio_balloon.h>
->  #include <linux/swap.h>
->  #include <linux/workqueue.h>
-> +#include <linux/debugfs.h>
->  #include <linux/delay.h>
->  #include <linux/slab.h>
->  #include <linux/module.h>
-> @@ -731,6 +732,77 @@ static void report_free_page_func(struct work_struct *work)
->  	}
->  }
->  
-> +/*
-> + * DEBUGFS Interface
-> + */
-> +#ifdef CONFIG_DEBUG_FS
-> +
-> +#define guest_to_balloon_pages(i) ((i)*VIRTIO_BALLOON_PAGES_PER_PAGE)
-> +/**
-> + * virtio_balloon_debug_show - shows statistics of balloon operations.
-> + * @f: pointer to the &struct seq_file.
-> + * @offset: ignored.
-> + *
-> + * Provides the statistics that can be accessed in virtio-balloon in the debugfs.
-> + *
-> + * Return: zero on success or an error code.
-> + */
-> +
-> +static int virtio_balloon_debug_show(struct seq_file *f, void *offset)
-> +{
-> +	struct virtio_balloon *b = f->private;
-> +	u32 num_pages;
-> +	struct sysinfo i;
-> +
-> +	si_meminfo(&i);
-> +
-> +	seq_printf(f, "%-22s: %d\n", "page_size", VIRTIO_BALLOON_PAGE_SIZE);
-> +
-> +	virtio_cread_le(b->vdev, struct virtio_balloon_config, actual,
-> +			&num_pages);
-> +	/*
-> +	 * Pages allocated by host from the guest memory.
-> +	 * Host inflates the balloon to get more memory.
-> +	 * Guest needs to deflate the balloon to get more memory.
-> +	 */
-> +	seq_printf(f, "%-22s: %u\n", "ballooned_pages", num_pages);
-> +
-> +	/* Total Memory for the guest from host */
-> +	seq_printf(f, "%-22s: %lu\n", "total_pages",
-> +			guest_to_balloon_pages(i.totalram));
-> +
-> +	/* Current memory for the guest */
-> +	seq_printf(f, "%-22s: %lu\n", "current_pages",
-> +			guest_to_balloon_pages(i.totalram) - num_pages);
-> +
-> +	return 0;
-> +}
-> +
-> +DEFINE_SHOW_ATTRIBUTE(virtio_balloon_debug);
-> +
-> +static void  virtio_balloon_debugfs_init(struct virtio_balloon *b)
-> +{
-> +	debugfs_create_file("virtio-balloon", 0444, NULL, b,
-> +			    &virtio_balloon_debug_fops);
-> +}
-> +
-> +static void  virtio_balloon_debugfs_exit(struct virtio_balloon *b)
-> +{
-> +	debugfs_remove(debugfs_lookup("virtio-balloon", NULL));
-> +}
-> +
-> +#else
-> +
-> +static inline void virtio_balloon_debugfs_init(struct virtio_balloon *b)
-> +{
-> +}
-> +
-> +static inline void virtio_balloon_debugfs_exit(struct virtio_balloon *b)
-> +{
-> +}
-> +
-> +#endif	/* CONFIG_DEBUG_FS */
-> +
->  #ifdef CONFIG_BALLOON_COMPACTION
->  /*
->   * virtballoon_migratepage - perform the balloon page migration on behalf of
-> @@ -1019,6 +1091,9 @@ static int virtballoon_probe(struct virtio_device *vdev)
->  
->  	if (towards_target(vb))
->  		virtballoon_changed(vdev);
-> +
-> +	virtio_balloon_debugfs_init(vb);
-> +
->  	return 0;
->  
->  out_unregister_oom:
-> @@ -1065,6 +1140,8 @@ static void virtballoon_remove(struct virtio_device *vdev)
->  {
->  	struct virtio_balloon *vb = vdev->priv;
->  
-> +	virtio_balloon_debugfs_exit(vb);
-> +
->  	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_REPORTING))
->  		page_reporting_unregister(&vb->pr_dev_info);
->  	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
-> diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
-> index ddaa45e723c4..f3ff7c4e5884 100644
-> --- a/include/uapi/linux/virtio_balloon.h
-> +++ b/include/uapi/linux/virtio_balloon.h
-> @@ -40,6 +40,7 @@
->  
->  /* Size of a PFN in the balloon interface. */
->  #define VIRTIO_BALLOON_PFN_SHIFT 12
-> +#define VIRTIO_BALLOON_PAGE_SIZE (1<<VIRTIO_BALLOON_PFN_SHIFT)
->  #define VIRTIO_BALLOON_CMD_ID_STOP	0
->  #define VIRTIO_BALLOON_CMD_ID_DONE	1
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--===============2284552706188364958==
+Content-Language: en-US
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------YrKAGapgLp1zY4xUN1376H0w"
 
-Did you run checkpatch on this?
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------YrKAGapgLp1zY4xUN1376H0w
+Content-Type: multipart/mixed; boundary="------------jpSLB39kfCLZNXM8IIs95MDN";
+ protected-headers="v1"
+From: Juergen Gross <jgross@suse.com>
+To: xen-devel@lists.xenproject.org, x86@kernel.org,
+ linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, linux-arch@vger.kernel.org
+Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski
+ <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
+ Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Stefano Stabellini <sstabellini@kernel.org>,
+ Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+ Arnd Bergmann <arnd@arndb.de>, Russell King <linux@armlinux.org.uk>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+ linux-arm-kernel@lists.infradead.org
+Message-ID: <89608dee-20d3-e580-a47c-dfdfdd7e5064@suse.com>
+Subject: Re: [PATCH v3 0/3] virtio: support requiring restricted access per
+ device
+References: <20220622063838.8854-1-jgross@suse.com>
+In-Reply-To: <20220622063838.8854-1-jgross@suse.com>
 
-> -- 
-> 2.25.1
+--------------jpSLB39kfCLZNXM8IIs95MDN
+Content-Type: multipart/mixed; boundary="------------CJCnuUWxe21ySz0VL0WYBQeV"
+
+--------------CJCnuUWxe21ySz0VL0WYBQeV
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
+
+T24gMjIuMDYuMjIgMDg6MzgsIEp1ZXJnZW4gR3Jvc3Mgd3JvdGU6DQo+IEluc3RlYWQgb2Yg
+YW4gYWxsIG9yIG5vdGhpbmcgYXBwcm9hY2ggYWRkIHN1cHBvcnQgZm9yIHJlcXVpcmluZw0K
+PiByZXN0cmljdGVkIG1lbW9yeSBhY2Nlc3MgcGVyIGRldmljZS4NCj4gDQo+IENoYW5nZXMg
+aW4gVjM6DQo+IC0gbmV3IHBhdGNoZXMgMSArIDINCj4gLSBiYXNpY2FsbHkgY29tcGxldGUg
+cmV3b3JrIG9mIHBhdGNoIDMNCj4gDQo+IEp1ZXJnZW4gR3Jvc3MgKDMpOg0KPiAgICB2aXJ0
+aW86IHJlcGxhY2UgcmVzdHJpY3RlZCBtZW0gYWNjZXNzIGZsYWcgd2l0aCBjYWxsYmFjaw0K
+PiAgICBrZXJuZWw6IHJlbW92ZSBwbGF0Zm9ybV9oYXMoKSBpbmZyYXN0cnVjdHVyZQ0KPiAg
+ICB4ZW46IGRvbid0IHJlcXVpcmUgdmlydGlvIHdpdGggZ3JhbnRzIGZvciBub24tUFYgZ3Vl
+c3RzDQoNCkFueSBmdXJ0aGVyIGNvbW1lbnRzPw0KDQoNCkp1ZXJnZW4NCg==
+--------------CJCnuUWxe21ySz0VL0WYBQeV
+Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Description: OpenPGP public key
+Content-Transfer-Encoding: quoted-printable
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+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
+jR/i1DG86lem3iBDXzXsZDn8R38=3D
+=3D2wuH
+-----END PGP PUBLIC KEY BLOCK-----
+
+--------------CJCnuUWxe21ySz0VL0WYBQeV--
+
+--------------jpSLB39kfCLZNXM8IIs95MDN--
+
+--------------YrKAGapgLp1zY4xUN1376H0w
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmLEHXgFAwAAAAAACgkQsN6d1ii/Ey8f
+dgf9HGUvKWq5gvG8sQv3deiL+6OJosApTovIh1v8jrEiqfeQBmOitoLnVLxgCtmf0St06X0trCWo
+U3lZjAkEtLcKCEmhy+4wRW6uXl4TWieYFFJMycMfQh5eJj+IjcQtF7Zae0heo+JJynWw5t/qcFYS
+y5EFaFYFX5fAKlnZ4XRY0eAgH0UZDXJn+vEFHQ+4Ef5WcmKzQnPhZPNn8Mt64qYMU7vuy3KhsO+V
+QuhjKFCR58eqt0cBq4j/1a8k1f42DVaHdJouTXfF1eVD7Dr3K/KRQsfGTP5pj7EM6WxQQYL+/n7v
+xNyDSvmaDigB79VbVtcrOxorjiTB738EDIDxh6lcJQ==
+=nl6Z
+-----END PGP SIGNATURE-----
+
+--------------YrKAGapgLp1zY4xUN1376H0w--
+
+--===============2284552706188364958==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============2284552706188364958==--
