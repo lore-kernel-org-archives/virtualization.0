@@ -1,104 +1,105 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 83FA4C433EF
-	for <virtualization@archiver.kernel.org>; Tue,  5 Jul 2022 21:39:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2E6E4C43334
+	for <virtualization@archiver.kernel.org>; Tue,  5 Jul 2022 21:48:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 03DE940ABC;
-	Tue,  5 Jul 2022 21:39:49 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 03DE940ABC
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=C94wUsjH
+	by smtp3.osuosl.org (Postfix) with ESMTP id A38DC60D50;
+	Tue,  5 Jul 2022 21:48:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A38DC60D50
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=VWKoc1vT
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id xsQAHpsjTK9P; Tue,  5 Jul 2022 21:39:47 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id D365E400A8;
-	Tue,  5 Jul 2022 21:39:46 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D365E400A8
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id B3AcsHMzSy1N; Tue,  5 Jul 2022 21:48:27 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 33BD660B44;
+	Tue,  5 Jul 2022 21:48:27 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 33BD660B44
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 93673C0032;
-	Tue,  5 Jul 2022 21:39:46 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id AE61EC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 086FFC0032;
+	Tue,  5 Jul 2022 21:48:27 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C0266C002D
  for <virtualization@lists.linux-foundation.org>;
- Tue,  5 Jul 2022 21:39:45 +0000 (UTC)
+ Tue,  5 Jul 2022 21:48:25 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 8FE7D81D4F
+ by smtp1.osuosl.org (Postfix) with ESMTP id 9480E81A3E
  for <virtualization@lists.linux-foundation.org>;
- Tue,  5 Jul 2022 21:39:45 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8FE7D81D4F
+ Tue,  5 Jul 2022 21:48:25 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9480E81A3E
 Authentication-Results: smtp1.osuosl.org;
  dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com
- header.a=rsa-sha256 header.s=20210112 header.b=C94wUsjH
+ header.a=rsa-sha256 header.s=20210112 header.b=VWKoc1vT
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id amjnpzwka7_l
+ with ESMTP id P5aorPhTzQPr
  for <virtualization@lists.linux-foundation.org>;
- Tue,  5 Jul 2022 21:39:45 +0000 (UTC)
+ Tue,  5 Jul 2022 21:48:24 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9D97581B99
-Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com
- [IPv6:2a00:1450:4864:20::32d])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 9D97581B99
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4038681985
+Received: from mail-wm1-x32a.google.com (mail-wm1-x32a.google.com
+ [IPv6:2a00:1450:4864:20::32a])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 4038681985
  for <virtualization@lists.linux-foundation.org>;
- Tue,  5 Jul 2022 21:39:44 +0000 (UTC)
-Received: by mail-wm1-x32d.google.com with SMTP id m184so7799959wme.1
+ Tue,  5 Jul 2022 21:48:24 +0000 (UTC)
+Received: by mail-wm1-x32a.google.com with SMTP id j7so7804889wmp.2
  for <virtualization@lists.linux-foundation.org>;
- Tue, 05 Jul 2022 14:39:44 -0700 (PDT)
+ Tue, 05 Jul 2022 14:48:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
  h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=uVq3SS5z0OOLu4Dz+fgC14BcaabN+0EvMUub15/aayE=;
- b=C94wUsjHGErDEFfla43eG5MzlsxSHvDnvrDe/Xrq4j16p0QUv7EPUUdY8qfT32N8PO
- AkNo/0UsK88y1OWqCBOYj46lR/3MdEhmM+drGL8ytyaLNB5DkDjEP00OCpzW+m2wAelp
- TCjJ7vUiUbhEC8mlleJNOTcqUVGV/ivrW9GKS7hh9oDIOodvDUlUbW4gWh8hHeIPGFRb
- GmN849Dm7RTsKEWdgUCm5Wtd0phCicceWYfNP3NI0E3rA+EjSvilom+GgarNgzMePkLI
- YUu9amjiRtd4qbZYzhVluqdxKr3YKYOQtRIAdp1MD6idcW/oD9wi9ffHBAtQrXAenSTI
- kDhQ==
+ :cc:content-transfer-encoding;
+ bh=PU7Lk/8Sax5XmlQiaVaA1dEst+rO/Dc76xfk8EMg5rU=;
+ b=VWKoc1vTC7dmodEJ7AnbFDZ5fs/4+Nq8GI6aDF//zH1sFJE8ous9N8DVmhCdNBDu7J
+ TEV0OZ7bot7bTz3H4yd56ZRrkwxGIFMbiNXyMqyxTYq3VKR1u9rg6rHhTYMEXhscqSPb
+ Ccm6AxwWMhv1d8/+zxJYMjbHjFhlhaXe+b5fXKLXVU2U8ZbZY80EwHbaMEMkj/MpnXbt
+ Uw0LZyDNux3g8GLLZXWynLp0GUTzkeUfRCaJubH+VuWeVBLJXqR6LPAfYZV768F05DkS
+ 81qT5rHG43qh7gdNNw7b8ZC4JsCyyDamnVIJ9F70HPL12MxnnMZIoo1SVum0jci5LIaF
+ DoNw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=uVq3SS5z0OOLu4Dz+fgC14BcaabN+0EvMUub15/aayE=;
- b=nnLaRAXtL6lqsxQDMc+4+0HiCicL6O00rK4On1rPpC9ZbXQZBkMS3YngzsfGQm7o43
- 6763AjkTh/GmtzLqCElPcbITmYFge8pi1Ak4jNqcDQ54frChvuQV8I0NxPF8y6vTuod4
- o75tuFOKd5D6VUZpiQFHQEna3Ni9RSuCOzmny8y8UjUYllnUYI+DiTyhlqhcgfHKolFv
- eMe33G4aoFFs74nXwfM7DCAoJpWw0t73XiA1sN5JqL/3uYxL2n2S2GUUy3gY/jhHXr6I
- LS1CD2qLAvv7Sxw2h+50HvTdEhVgGiQjP1rxPR0EUKgjgCZ+sXPAMBHRibpEx+bujxWE
- npHA==
-X-Gm-Message-State: AJIora+tZmLKgHT/Yxu+3O9n0K7tO/QqHnINUtUC9x+ghgVYvp3lgtUd
- XB0KIX0SXAQZNomHK6lgXhOJly5Rfrkra7bS8Mc=
-X-Google-Smtp-Source: AGRyM1t4PnuQ4FyRFI1FjuAnfXAuz8RC8AR6+hfD0f99JNKIvcxLDBodEWidId40zCkDUWQDdpcm5SB+uKOKRjrDWac=
-X-Received: by 2002:a05:600c:3ac3:b0:3a0:45b6:7efb with SMTP id
- d3-20020a05600c3ac300b003a045b67efbmr40084996wms.183.1657057182563; Tue, 05
- Jul 2022 14:39:42 -0700 (PDT)
+ :message-id:subject:to:cc:content-transfer-encoding;
+ bh=PU7Lk/8Sax5XmlQiaVaA1dEst+rO/Dc76xfk8EMg5rU=;
+ b=Z7HcrZRB4TWmXI2ohwvmFxm2SOytEuYpUh4GOkPP6XpcYqr1OASzVG9ohFGYblGQ1U
+ JEr67MiTDWUHcmzpltb7UHcvbAiJX1t0FEuHf8KYPd31FYNMalw32zgINGu4QJsxmycg
+ 824rJo0DMWl+JzJNM4qOiivUlZ9St122n4C6bE+smmT8GQxdFyGmRcl8E0jqQeXOcd0a
+ JWghJP/O7RzJs9S9s5+hj22ZY4kfheS7dT/oCHiuSk6XLgjBc2147V+3alzRe0EMwbMC
+ J0A0StmpzqS/XB7OCcyonoGYlD8cjkZuNbxV60BhAzYfUGYuL3NacMz3UC0waZN63ZsF
+ WBOQ==
+X-Gm-Message-State: AJIora8X3rG1Zk4hSUgN4+FSSzbPGOtDWKIB+qH8d6k33YxQQ0auT705
+ 72XfQPvEBU/26qHsgXTdOn60V9o9qVQsVxd4d3U=
+X-Google-Smtp-Source: AGRyM1s4DVmvwO3UYi3am/1hl7v5k+11uGFQz8SR7b/jLPUtCXxxfUROpF6gbwNkgnUr5Rze8aRIMeW9WGiopFicipE=
+X-Received: by 2002:a05:600c:4f83:b0:3a1:7310:62e7 with SMTP id
+ n3-20020a05600c4f8300b003a1731062e7mr36978255wmq.84.1657057702289; Tue, 05
+ Jul 2022 14:48:22 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220630200726.1884320-1-dmitry.osipenko@collabora.com>
- <20220630200726.1884320-8-dmitry.osipenko@collabora.com>
- <20220705135323.emr4gdbcxoisdcxe@sirius.home.kraxel.org>
- <d2c64d09-c4bb-9aed-069d-a9b4d07a1f66@collabora.com>
- <20220705154507.67ovlun4m26xzppn@sirius.home.kraxel.org>
- <1380526d-17fb-6eb2-0fd5-5cddbdf0a92e@collabora.com>
-In-Reply-To: <1380526d-17fb-6eb2-0fd5-5cddbdf0a92e@collabora.com>
+References: <20220701090240.1896131-1-dmitry.osipenko@collabora.com>
+ <20220701090240.1896131-3-dmitry.osipenko@collabora.com>
+ <2bb95e80-b60a-36c0-76c8-a06833032c77@amd.com>
+In-Reply-To: <2bb95e80-b60a-36c0-76c8-a06833032c77@amd.com>
 From: Rob Clark <robdclark@gmail.com>
-Date: Tue, 5 Jul 2022 14:39:54 -0700
-Message-ID: <CAF6AEGtE+3AbaJnSZ07VY0xMOJMNz6BSQ+mPKmPYLi_Z-CLAig@mail.gmail.com>
-Subject: Re: [PATCH v7 7/9] drm/virtio: Improve DMA API usage for shmem BOs
-To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Cc: David Airlie <airlied@linux.ie>,
+Date: Tue, 5 Jul 2022 14:48:34 -0700
+Message-ID: <CAF6AEGtqPeF1DjmBKgzWK39Yi81YiNjTjDNn85TKx7uwicFTSA@mail.gmail.com>
+Subject: Re: [PATCH v8 2/2] drm/gem: Don't map imported GEMs
+To: =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>
+Cc: dri-devel <dri-devel@lists.freedesktop.org>, kernel@collabora.com,
+ Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ David Airlie <airlied@linux.ie>, Thomas Zimmermann <tzimmermann@suse.de>,
  =?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas_os@shipmail.org>,
- Emil Velikov <emil.l.velikov@gmail.com>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
  Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
- dri-devel <dri-devel@lists.freedesktop.org>,
+ Maxime Ripard <mripard@kernel.org>,
  Gurchetan Singh <gurchetansingh@chromium.org>,
- Thomas Zimmermann <tzimmermann@suse.de>, Dmitry Osipenko <digetx@gmail.com>,
- kernel@collabora.com, Robin Murphy <robin.murphy@arm.com>,
- "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+ Emil Velikov <emil.l.velikov@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
+ linux-tegra@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
+ "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>,
+ Chia-I Wu <olvaffe@gmail.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -110,64 +111,70 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Jul 5, 2022 at 10:02 AM Dmitry Osipenko
-<dmitry.osipenko@collabora.com> wrote:
->
-> On 7/5/22 18:45, Gerd Hoffmann wrote:
-> >   Hi,
-> >
-> >>> Also note that pci is not the only virtio transport we have.
-> >>
-> >> The VirtIO indeed has other transports, but only PCI is really supported
-> >> in case of the VirtIO-GPU in kernel and in Qemu/crosvm, AFAICT. Hence
-> >> only the PCI transport was tested.
-> >
-> > qemu -M microvm \
-> >   -global virtio-mmio.force-legacy=false \
-> >   -device virtio-gpu-device
-> >
-> > Gives you a functional virtio-gpu device on virtio-mmio.
-> >
-> > aarch64 virt machines support both pci and mmio too.
-> > s390x has virtio-gpu-ccw ...
->
-> Gerd, thank you very much! It's was indeed unclear to me how to test the
-> MMIO GPU, but yours variant with microvm works! I was looking for trying
-> aarch64 in the past, but it also was unclear how to do it since there is
-> no DT support for the VirtIO-GPU, AFAICS.
-
-just a drive-by note, IME on aarch64 kernels, at least with crosvm,
-virtgpu is also a pci device.. the non-pci things in the guest kernel
-use dt, but devices on discoverable busses like pci don't need dt
-nodes (which is true also in the non-vm case)
-
-BR,
--R
-
-
-> I booted kernel with this patchset applied and everything is okay, Xorg
-> works.
->
->  [drm] Initialized virtio_gpu 0.1.0 0 for LNRO0005:01 on minor 0
->  virtio-mmio LNRO0005:01: [drm] drm_plane_enable_fb_damage_clips() not
-> called
->  virtio-mmio LNRO0005:01: [drm] fb0: virtio_gpudrmfb frame buffer device
->
-> There is no virgl support because it's a virtio-gpu-device and not
-> virtio-gpu-device-gl that is PCI-only in Qemu. Hence everything seems good.
->
-> I'd appreciate if you could give s390x a test.. I never touched s390x
-> and it will probably take some extra effort to get into it.
->
-> --
-> Best regards,
-> Dmitry
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gVHVlLCBKdWwgNSwgMjAyMiBhdCA0OjUxIEFNIENocmlzdGlhbiBLw7ZuaWcgPGNocmlzdGlh
+bi5rb2VuaWdAYW1kLmNvbT4gd3JvdGU6Cj4KPiBBbSAwMS4wNy4yMiB1bSAxMTowMiBzY2hyaWVi
+IERtaXRyeSBPc2lwZW5rbzoKPiA+IERyaXZlcnMgdGhhdCB1c2UgZHJtX2dlbV9tbWFwKCkgYW5k
+IGRybV9nZW1fbW1hcF9vYmooKSBoZWxwZXJzIGRvbid0Cj4gPiBoYW5kbGUgaW1wb3J0ZWQgZG1h
+LWJ1ZnMgcHJvcGVybHksIHdoaWNoIHJlc3VsdHMgaW4gbWFwcGluZyBvZiBzb21ldGhpbmcKPiA+
+IGVsc2UgdGhhbiB0aGUgaW1wb3J0ZWQgZG1hLWJ1Zi4gT24gTlZJRElBIFRlZ3JhIHdlIGdldCBh
+IGhhcmQgbG9ja3VwIHdoZW4KPiA+IHVzZXJzcGFjZSB3cml0ZXMgdG8gdGhlIG1lbW9yeSBtYXBw
+aW5nIG9mIGEgZG1hLWJ1ZiB0aGF0IHdhcyBpbXBvcnRlZCBpbnRvCj4gPiBUZWdyYSdzIERSTSBH
+RU0uCj4gPgo+ID4gTWFqb3JpdHkgb2YgRFJNIGRyaXZlcnMgcHJvaGliaXQgbWFwcGluZyBvZiB0
+aGUgaW1wb3J0ZWQgR0VNIG9iamVjdHMuCj4gPiBNYXBwaW5nIG9mIGltcG9ydGVkIEdFTXMgcmVx
+dWlyZSBzcGVjaWFsIGNhcmUgZnJvbSB1c2Vyc3BhY2Ugc2luY2UgaXQKPiA+IHNob3VsZCBzeW5j
+IGRtYS1idWYgYmVjYXVzZSBtYXBwaW5nIGNvaGVyZW5jeSBvZiB0aGUgZXhwb3J0ZXIgZGV2aWNl
+IG1heQo+ID4gbm90IG1hdGNoIHRoZSBEUk0gZGV2aWNlLiBMZXQncyBwcm9oaWJpdCB0aGUgbWFw
+cGluZyBmb3IgYWxsIERSTSBkcml2ZXJzCj4gPiBmb3IgY29uc2lzdGVuY3kuCj4gPgo+ID4gU3Vn
+Z2VzdGVkLWJ5OiBUaG9tYXMgSGVsbHN0csO2bSA8dGhvbWFzLmhlbGxzdHJvbUBsaW51eC5pbnRl
+bC5jb20+Cj4gPiBTaWduZWQtb2ZmLWJ5OiBEbWl0cnkgT3NpcGVua28gPGRtaXRyeS5vc2lwZW5r
+b0Bjb2xsYWJvcmEuY29tPgo+Cj4gSSdtIHByZXR0eSBzdXJlIHRoYXQgdGhpcyBpcyB0aGUgcmln
+aHQgYXBwcm9hY2gsIGJ1dCBpdCdzIGNlcnRhaW5seSBtb3JlCj4gdGhhbiBwb3NzaWJsZSB0aGF0
+IHNvbWVib2R5IGFidXNlZCB0aGlzIGFscmVhZHkuCgpJIHN1c3BlY3QgdGhhdCB0aGlzIGlzIGFi
+dXNlZCBpZiB5b3UgcnVuIGRlcXAgY3RzIG9uIGFuZHJvaWQuLiBpZS4gYWxsCndpbnN5cyBidWZm
+ZXJzIGFyZSBkbWEtYnVmIGltcG9ydHMgZnJvbSBncmFsbG9jLiAgQW5kIHRoZW4gd2hlbiB5b3UK
+aGl0IHJlYWRwaXguLi4KCllvdSBtaWdodCBvbmx5IGhpdCB0aGlzIGluIHNjZW5hcmlvcyB3aXRo
+IHNlcGFyYXRlIGdwdSBhbmQgZGlzcGxheSAob3IKZEdQVStpR1BVKSBiZWNhdXNlIHNlbGYtaW1w
+b3J0cyBhcmUgaGFuZGxlZCBkaWZmZXJlbnRseSBpbgpkcm1fZ2VtX3ByaW1lX2ltcG9ydF9kZXYo
+KS4uIGFuZCBtYXliZSBub3QgaW4gY2FzZXMgd2hlcmUgeW91IGVuZCB1cAp3aXRoIGEgYmxpdCBm
+cm9tIHRpbGVkL2NvbXByZXNzZWQgdG8gbGluZWFyLi4gbWF5YmUgdGhhdCBuYXJyb3dzIHRoZQpz
+Y29wZSBlbm91Z2ggdG8ganVzdCBmaXggaXQgaW4gdXNlcnNwYWNlPwoKQlIsCi1SCgo+IEFueXdh
+eSBwYXRjaCBpcyBSZXZpZXdlZC1ieTogQ2hyaXN0aWFuIEvDtm5pZyA8Y2hyaXN0aWFuLmtvZW5p
+Z0BhbWQuY29tPgo+IHNpbmNlIHlvdSBhcmUgcmVhbGx5IGZpeGluZyBhIG1ham9yIHN0YWJpbGl0
+eSBwcm9ibGVtIGhlcmUuCj4KPiBSZWdhcmRzLAo+IENocmlzdGlhbi4KPgo+ID4gLS0tCj4gPiAg
+IGRyaXZlcnMvZ3B1L2RybS9kcm1fZ2VtLmMgICAgICAgICAgICAgIHwgNCArKysrCj4gPiAgIGRy
+aXZlcnMvZ3B1L2RybS9kcm1fZ2VtX3NobWVtX2hlbHBlci5jIHwgOSAtLS0tLS0tLS0KPiA+ICAg
+MiBmaWxlcyBjaGFuZ2VkLCA0IGluc2VydGlvbnMoKyksIDkgZGVsZXRpb25zKC0pCj4gPgo+ID4g
+ZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2RybS9kcm1fZ2VtLmMgYi9kcml2ZXJzL2dwdS9kcm0v
+ZHJtX2dlbS5jCj4gPiBpbmRleCA4NmQ2NzBjNzEyODYuLmZjOWVjNDJmYTBhYiAxMDA2NDQKPiA+
+IC0tLSBhL2RyaXZlcnMvZ3B1L2RybS9kcm1fZ2VtLmMKPiA+ICsrKyBiL2RyaXZlcnMvZ3B1L2Ry
+bS9kcm1fZ2VtLmMKPiA+IEBAIC0xMDM0LDYgKzEwMzQsMTAgQEAgaW50IGRybV9nZW1fbW1hcF9v
+Ymooc3RydWN0IGRybV9nZW1fb2JqZWN0ICpvYmosIHVuc2lnbmVkIGxvbmcgb2JqX3NpemUsCj4g
+PiAgIHsKPiA+ICAgICAgIGludCByZXQ7Cj4gPgo+ID4gKyAgICAgLyogRG9uJ3QgYWxsb3cgaW1w
+b3J0ZWQgb2JqZWN0cyB0byBiZSBtYXBwZWQgKi8KPiA+ICsgICAgIGlmIChvYmotPmltcG9ydF9h
+dHRhY2gpCj4gPiArICAgICAgICAgICAgIHJldHVybiAtRUlOVkFMOwo+ID4gKwo+ID4gICAgICAg
+LyogQ2hlY2sgZm9yIHZhbGlkIHNpemUuICovCj4gPiAgICAgICBpZiAob2JqX3NpemUgPCB2bWEt
+PnZtX2VuZCAtIHZtYS0+dm1fc3RhcnQpCj4gPiAgICAgICAgICAgICAgIHJldHVybiAtRUlOVkFM
+Owo+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2RybS9kcm1fZ2VtX3NobWVtX2hlbHBlci5j
+IGIvZHJpdmVycy9ncHUvZHJtL2RybV9nZW1fc2htZW1faGVscGVyLmMKPiA+IGluZGV4IDhhZDBl
+MDI5OTFjYS4uNjE5MGY1MDE4OTg2IDEwMDY0NAo+ID4gLS0tIGEvZHJpdmVycy9ncHUvZHJtL2Ry
+bV9nZW1fc2htZW1faGVscGVyLmMKPiA+ICsrKyBiL2RyaXZlcnMvZ3B1L2RybS9kcm1fZ2VtX3No
+bWVtX2hlbHBlci5jCj4gPiBAQCAtNjA5LDE3ICs2MDksOCBAQCBFWFBPUlRfU1lNQk9MX0dQTChk
+cm1fZ2VtX3NobWVtX3ZtX29wcyk7Cj4gPiAgICAqLwo+ID4gICBpbnQgZHJtX2dlbV9zaG1lbV9t
+bWFwKHN0cnVjdCBkcm1fZ2VtX3NobWVtX29iamVjdCAqc2htZW0sIHN0cnVjdCB2bV9hcmVhX3N0
+cnVjdCAqdm1hKQo+ID4gICB7Cj4gPiAtICAgICBzdHJ1Y3QgZHJtX2dlbV9vYmplY3QgKm9iaiA9
+ICZzaG1lbS0+YmFzZTsKPiA+ICAgICAgIGludCByZXQ7Cj4gPgo+ID4gLSAgICAgaWYgKG9iai0+
+aW1wb3J0X2F0dGFjaCkgewo+ID4gLSAgICAgICAgICAgICAvKiBEcm9wIHRoZSByZWZlcmVuY2Ug
+ZHJtX2dlbV9tbWFwX29iaigpIGFjcXVpcmVkLiovCj4gPiAtICAgICAgICAgICAgIGRybV9nZW1f
+b2JqZWN0X3B1dChvYmopOwo+ID4gLSAgICAgICAgICAgICB2bWEtPnZtX3ByaXZhdGVfZGF0YSA9
+IE5VTEw7Cj4gPiAtCj4gPiAtICAgICAgICAgICAgIHJldHVybiBkbWFfYnVmX21tYXAob2JqLT5k
+bWFfYnVmLCB2bWEsIDApOwo+ID4gLSAgICAgfQo+ID4gLQo+ID4gICAgICAgcmV0ID0gZHJtX2dl
+bV9zaG1lbV9nZXRfcGFnZXMoc2htZW0pOwo+ID4gICAgICAgaWYgKHJldCkgewo+ID4gICAgICAg
+ICAgICAgICBkcm1fZ2VtX3ZtX2Nsb3NlKHZtYSk7Cj4KX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1
+YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhm
+b3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
