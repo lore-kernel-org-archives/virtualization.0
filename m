@@ -1,108 +1,114 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B2AB8C433EF
-	for <virtualization@archiver.kernel.org>; Tue,  5 Jul 2022 03:15:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B885EC433EF
+	for <virtualization@archiver.kernel.org>; Tue,  5 Jul 2022 07:11:23 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 4757A82C61;
-	Tue,  5 Jul 2022 03:15:19 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4757A82C61
+	by smtp3.osuosl.org (Postfix) with ESMTP id 326AE60ECB;
+	Tue,  5 Jul 2022 07:11:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 326AE60ECB
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=GTdd2ECP
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id bSl-m1q_aLtW; Tue,  5 Jul 2022 07:11:22 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 8123F60A72;
+	Tue,  5 Jul 2022 07:11:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8123F60A72
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5FBB3C0032;
+	Tue,  5 Jul 2022 07:11:21 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 32558C002D
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  5 Jul 2022 07:11:20 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id EDDA081D3A
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  5 Jul 2022 07:11:19 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org EDDA081D3A
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=YI2rSS0a
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=GTdd2ECP
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id NUVWzdkDB3HC; Tue,  5 Jul 2022 03:15:18 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id B2C3182C89;
-	Tue,  5 Jul 2022 03:15:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B2C3182C89
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 79CE0C0032;
-	Tue,  5 Jul 2022 03:15:17 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 07BE0C002D
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id aLLjuftGJ2-w
  for <virtualization@lists.linux-foundation.org>;
- Tue,  5 Jul 2022 03:15:16 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id D4DB141710
- for <virtualization@lists.linux-foundation.org>;
- Tue,  5 Jul 2022 03:15:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D4DB141710
-Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=YI2rSS0a
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id w2wyQuXaRIL9
- for <virtualization@lists.linux-foundation.org>;
- Tue,  5 Jul 2022 03:15:13 +0000 (UTC)
+ Tue,  5 Jul 2022 07:11:19 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9813C415FD
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2694E81D35
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 9813C415FD
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 2694E81D35
  for <virtualization@lists.linux-foundation.org>;
- Tue,  5 Jul 2022 03:15:13 +0000 (UTC)
+ Tue,  5 Jul 2022 07:11:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1656990912;
+ s=mimecast20190719; t=1657005077;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=MPiLYuaQHJ/dNIyImBUJeFklEe+TyW/wfcZITbRD1eI=;
- b=YI2rSS0aZkJKff79sKa8cJsbhM9xSs5ZFvATUpJh9Y43HKEL7Xr2bw4kk0QNw8RfJ1b61i
- 5SouEEYvZDnacIOGuaeyhmUhu+oQoNugMNB3FDYFoH0hTlhjpSUpCrVB096fSexxyUeXT4
- Z7Okt2y8wgOSyr7aHc2hKdVY7S+/lvk=
-Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com
- [209.85.208.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=pJXN8MigLI7PutDCLu0w7BuxFejNMyCNinj+kATd3bo=;
+ b=GTdd2ECPsGdu0rYFxaXS1rKI4asfWMmjB5Laj5Y9UaIT8pCTx8L3Cyx75fvTtTyNdd70Es
+ bv0loXgJNVpVP6+t7n4oBC7Ev0mMDTsDkSgH21NDPq9Y48CLwEeoTVxPA/rg6MHHgMqO1M
+ h/bn1PQ4iUoeOk6bh1JFpJo0bXnt91I=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-196-QUIAkN07MKeYguU7q49GOA-1; Mon, 04 Jul 2022 23:15:11 -0400
-X-MC-Unique: QUIAkN07MKeYguU7q49GOA-1
-Received: by mail-lj1-f198.google.com with SMTP id
- g25-20020a2e9e59000000b0025baf0470feso3165690ljk.8
+ us-mta-202-eXuB3GLFPvOGJFwtWSXqrw-1; Tue, 05 Jul 2022 03:11:16 -0400
+X-MC-Unique: eXuB3GLFPvOGJFwtWSXqrw-1
+Received: by mail-wm1-f72.google.com with SMTP id
+ i184-20020a1c3bc1000000b003a026f48333so4903488wma.4
  for <virtualization@lists.linux-foundation.org>;
- Mon, 04 Jul 2022 20:15:10 -0700 (PDT)
+ Tue, 05 Jul 2022 00:11:16 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=MPiLYuaQHJ/dNIyImBUJeFklEe+TyW/wfcZITbRD1eI=;
- b=j4fSIYeB22JDRQeUjk/am+RZcj0/fyCnD6cIITAyW85unqCqgpF6TLp0PbYmG+fCgn
- NL4Ok0MlC2S9AqTL16JsOLWMD1x+PR4F1Q+rahNNz0tT3EHOqtdh6JXwrnyHwUe6wHMP
- jw5VA2ha8HStVWV2D9S2Xv6+4PuO8a836+RprihfZnf7uLHvpvM5RoaiPIpGLhlLqu8F
- 8+VXTCNXOz7eAqHZ6v7PBdY7p9buLrTGNhBvr+lxlpfbWI5OLiLycFXCxKD4Ia+8N8lz
- MtTwYcw6r1gG2L52txqB1oRXBzso32rYmvMDaF8VYcVfXqbx+9rnCYRlo4GyHEgJWXpl
- wz0g==
-X-Gm-Message-State: AJIora8RNCPdmUqPW2ZmV38oiKT7CdTuKnkvKXDdKWNk3X1o6LK8SsYF
- VBD6B6Ej2NadEkSwrQZY/blT4hVErtWeNxNQmeteZ16yShnM20GpzxUz7BoHnIo7goUhIaF1zns
- FMvTcwK16sUcmRMCThijOnP4n4Jd9ofmW6+FiqNlkdjrdVkqUlcwsN3UIng==
-X-Received: by 2002:a05:6512:3f0f:b0:47f:6f89:326 with SMTP id
- y15-20020a0565123f0f00b0047f6f890326mr19728901lfa.124.1656990909241; 
- Mon, 04 Jul 2022 20:15:09 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1tza1pmpMAWjNhoieZO4QqKWL1/YPqUOvpoVjPyKy0BY4OsaLw+4a3jzDRxrl7JkPP/xB1zCm2drjENV6/171U=
-X-Received: by 2002:a05:6512:3f0f:b0:47f:6f89:326 with SMTP id
- y15-20020a0565123f0f00b0047f6f890326mr19728895lfa.124.1656990909097; Mon, 04
- Jul 2022 20:15:09 -0700 (PDT)
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=pJXN8MigLI7PutDCLu0w7BuxFejNMyCNinj+kATd3bo=;
+ b=mor65/j8o0layDd31sExWsAzA+yT6qjbRg94hR0HJfkP+hSOBHBagu1+8N7APxQEWk
+ sTbqiUHTwjQ6kMuN4YRwiIhsJ6HnFKOhhOIFubm3Cd0P70Q93cgycBz8vcAaaIZG4eMB
+ UcMzXdwRqibiwdAgT+r6Pvoj4bahjR+QvuoDXlx5/FIeGFsPiynQUmaZ6OSUDxxphqna
+ NqHUe8iigU1PVxityJLkoeY8RNt41timyfy5hdfGRSYBataquedoetePP6nYmYp4pYPx
+ XiP+5uKQmhbbPk/e8xAEAQzCU3zrLZbI9SqIe/C+AQDlcFJmJ/bzhoE2DqdusARXEM+Y
+ 4uXg==
+X-Gm-Message-State: AJIora/a6toiceSns2eB6FGPA5L8zJWtGPBMWBO/B4axJKFo1UbmdY6g
+ 0+lFF7PoFWq4ukdUNQ34LE4Z2w0goohetcgaNkq8ibkTHIZ/XCw8o4v6B6JjK9hmHcVIWM9n4Vk
+ 3+0X7nAAi4Q/IizGO0xcPzYSVttIIPMu5pPv+H/PSqg==
+X-Received: by 2002:a05:600c:1f0d:b0:3a1:a05c:13c5 with SMTP id
+ bd13-20020a05600c1f0d00b003a1a05c13c5mr10501982wmb.146.1657005074500; 
+ Tue, 05 Jul 2022 00:11:14 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1sWjWhrCzGRvoHfRF4VGqhhX94VqJHSrSBXKRmAVO2iCxkXT//j3aoBo3tr1QCnHGg/Q9WPhw==
+X-Received: by 2002:a05:600c:1f0d:b0:3a1:a05c:13c5 with SMTP id
+ bd13-20020a05600c1f0d00b003a1a05c13c5mr10501966wmb.146.1657005074306; 
+ Tue, 05 Jul 2022 00:11:14 -0700 (PDT)
+Received: from sgarzare-redhat (host-79-46-200-206.retail.telecomitalia.it.
+ [79.46.200.206]) by smtp.gmail.com with ESMTPSA id
+ q5-20020adff945000000b0021b9585276dsm31484278wrr.101.2022.07.05.00.11.13
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 05 Jul 2022 00:11:13 -0700 (PDT)
+Date: Tue, 5 Jul 2022 09:11:10 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [RFC PATCH 3/6] virtio_test: call __virtio_unbreak_device
+Message-ID: <20220705071110.xqerzycco3pziwbk@sgarzare-redhat>
+References: <20220704171701.127665-1-sgarzare@redhat.com>
+ <20220704171701.127665-4-sgarzare@redhat.com>
+ <20220704150450-mutt-send-email-mst@kernel.org>
 MIME-Version: 1.0
-References: <20220704190456.593464-1-colin.i.king@gmail.com>
-In-Reply-To: <20220704190456.593464-1-colin.i.king@gmail.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 5 Jul 2022 11:14:58 +0800
-Message-ID: <CACGkMEsEZjmG8JV6hz4=a=hWLFxeGom6sGs7LSYzTZnoC-M7jQ@mail.gmail.com>
-Subject: Re: [PATCH] vDPA/ifcvf: remove duplicated assignment to pointer cfg
-To: Colin Ian King <colin.i.king@gmail.com>
+In-Reply-To: <20220704150450-mutt-send-email-mst@kernel.org>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: Zhu Lingshan <lingshan.zhu@intel.com>,
- virtualization <virtualization@lists.linux-foundation.org>,
- kernel-janitors@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>,
- "Michael S . Tsirkin" <mst@redhat.com>
+Content-Disposition: inline
+Cc: Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -114,38 +120,60 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Jul 5, 2022 at 3:05 AM Colin Ian King <colin.i.king@gmail.com> wrote:
+On Mon, Jul 04, 2022 at 03:06:39PM -0400, Michael S. Tsirkin wrote:
+>On Mon, Jul 04, 2022 at 07:16:58PM +0200, Stefano Garzarella wrote:
+>> Commit 8b4ec69d7e09 ("virtio: harden vring IRQ") initialize vq->broken
+>> to true, so we need to call __virtio_unbreak_device() before starting
+>> to use it.
+>>
+>> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 >
-> The assignment to pointer cfg is duplicated, the second assignment
-> is redundant and can be removed.
->
-> Signed-off-by: Colin Ian King <colin.i.king@gmail.com>
+>I think this shouldn't be necessary with latest master.
 
-Acked-by: Jason Wang <jasowang@redhat.com>
+Right, c346dae4f3fb ("virtio: disable notification hardening by default")
+is merged now.
 
-> ---
->  drivers/vdpa/ifcvf/ifcvf_base.c | 1 -
->  1 file changed, 1 deletion(-)
+I'll remove this patch.
+
+Thanks,
+Stefano
+
 >
-> diff --git a/drivers/vdpa/ifcvf/ifcvf_base.c b/drivers/vdpa/ifcvf/ifcvf_base.c
-> index 48c4dadb0c7c..47b94091733c 100644
-> --- a/drivers/vdpa/ifcvf/ifcvf_base.c
-> +++ b/drivers/vdpa/ifcvf/ifcvf_base.c
-> @@ -29,7 +29,6 @@ u16 ifcvf_set_config_vector(struct ifcvf_hw *hw, int vector)
->  {
->         struct virtio_pci_common_cfg __iomem *cfg = hw->common_cfg;
->
-> -       cfg = hw->common_cfg;
->         vp_iowrite16(vector,  &cfg->msix_config);
->
->         return vp_ioread16(&cfg->msix_config);
-> --
-> 2.35.3
+>> ---
+>>  tools/virtio/linux/virtio.h | 2 ++
+>>  tools/virtio/virtio_test.c  | 1 +
+>>  2 files changed, 3 insertions(+)
+>>
+>> diff --git a/tools/virtio/linux/virtio.h b/tools/virtio/linux/virtio.h
+>> index 363b98228301..feb720d4304f 100644
+>> --- a/tools/virtio/linux/virtio.h
+>> +++ b/tools/virtio/linux/virtio.h
+>> @@ -66,4 +66,6 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
+>>  				      const char *name);
+>>  void vring_del_virtqueue(struct virtqueue *vq);
+>>
+>> +void __virtio_unbreak_device(struct virtio_device *dev);
+>> +
+>>  #endif
+>> diff --git a/tools/virtio/virtio_test.c b/tools/virtio/virtio_test.c
+>> index 23f142af544a..765e64895dab 100644
+>> --- a/tools/virtio/virtio_test.c
+>> +++ b/tools/virtio/virtio_test.c
+>> @@ -177,6 +177,7 @@ static void run_test(struct vdev_info *dev, struct vq_info *vq,
+>>  	long long spurious = 0;
+>>  	const bool random_batch = batch == RANDOM_BATCH;
+>>
+>> +	__virtio_unbreak_device(&dev->vdev);
+>>  	r = ioctl(dev->control, VHOST_TEST_RUN, &test);
+>>  	assert(r >= 0);
+>>  	if (!reset_n) {
+>> --
+>> 2.36.1
 >
 
 _______________________________________________
