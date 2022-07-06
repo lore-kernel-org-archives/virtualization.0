@@ -4,153 +4,79 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A280ECCA486
-	for <virtualization@archiver.kernel.org>; Wed,  6 Jul 2022 14:04:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 44BD4C433EF
+	for <virtualization@archiver.kernel.org>; Wed,  6 Jul 2022 15:31:06 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 4A9C560FF2;
-	Wed,  6 Jul 2022 14:04:59 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4A9C560FF2
+	by smtp3.osuosl.org (Postfix) with ESMTP id D462460FCC;
+	Wed,  6 Jul 2022 15:31:05 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D462460FCC
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=sWPlmUVD
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id kCwZb-u_cZhc; Wed,  6 Jul 2022 14:04:58 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id BA53760644;
-	Wed,  6 Jul 2022 14:04:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org BA53760644
+	with ESMTP id xLKU4LAVXfNT; Wed,  6 Jul 2022 15:31:00 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id F3446605D5;
+	Wed,  6 Jul 2022 15:30:59 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org F3446605D5
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 86453C0035;
-	Wed,  6 Jul 2022 14:04:57 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id AC5F5C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B06E9C0035;
+	Wed,  6 Jul 2022 15:30:59 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5817FC002D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Jul 2022 14:04:55 +0000 (UTC)
+ Wed,  6 Jul 2022 15:30:58 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 9237441717
+ by smtp3.osuosl.org (Postfix) with ESMTP id 1DC4F605E8
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Jul 2022 14:04:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9237441717
+ Wed,  6 Jul 2022 15:30:58 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1DC4F605E8
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id MisTF6f0BH2l
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 7ySmrHL0DvN8
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Jul 2022 14:04:54 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 81D1A41706
-Received: from mail-yw1-f169.google.com (mail-yw1-f169.google.com
- [209.85.128.169])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 81D1A41706
+ Wed,  6 Jul 2022 15:30:57 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 00A38605D5
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 00A38605D5
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Jul 2022 14:04:54 +0000 (UTC)
-Received: by mail-yw1-f169.google.com with SMTP id
- 00721157ae682-31bf3656517so140694147b3.12
- for <virtualization@lists.linux-foundation.org>;
- Wed, 06 Jul 2022 07:04:54 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=UBE539EKjjJ8zkn99yLgr6sf0hQeHTgO/l2k1f9VAKg=;
- b=ABy6bXo2jgWrxTT5UdLrGLwXs0wPKjk3b6HveQdGvmgYYjNTsOl9OXGvChcm2ZmwQh
- ez1FvzQoTun9GzpEcbszAgjDZ6aL1dA/+pDHouv8S+namzD3nt0negS3p8XAwMirHSxz
- cxtjNf+QjMJOxE4tI6+tq6z9ea99KkqykA2G+J400UmJg9PXsgNdJYlYDxU4NkWFjesD
- myuX2+YOEkrBf2TAwuN+O7Ac+OiOiXklsr9z92boPl8LhKQ6YRNG9qnv75BKzoGZI7D8
- 0tQfzIsVU/p4Fsu2jhWWprWxwtvFfznLkM5w9rJw0uacGLF71014hfNa14e/kdB9lxo8
- Ve3Q==
-X-Gm-Message-State: AJIora/M4Q3FTkwJVT/sCAVpiJVvTx8x+qfx0WXza6Sg94aNblPYCYZz
- qHDdwfbjOdw/Zbvt6zBivtCpeHydwKoMRTDLxoA=
-X-Google-Smtp-Source: AGRyM1tzweDvK/HpOTrEcMtuYgu75xJlbU4wLmWYqVeEsIhNId5gL4a/NC1jAK4t+CVNf/Oa7/ufr1ZdqBFMCfc4FVA=
-X-Received: by 2002:a81:24c7:0:b0:314:1e60:a885 with SMTP id
- k190-20020a8124c7000000b003141e60a885mr46512506ywk.301.1657116293184; Wed, 06
- Jul 2022 07:04:53 -0700 (PDT)
+ Wed,  6 Jul 2022 15:30:56 +0000 (UTC)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by ams.source.kernel.org (Postfix) with ESMTPS id E0537B81D91;
+ Wed,  6 Jul 2022 15:30:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95330C3411C;
+ Wed,  6 Jul 2022 15:30:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1657121452;
+ bh=iV5ZZQrFXrNWeuWkNiulO784lH1m5ZZ2FXPHiNAMDoE=;
+ h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+ b=sWPlmUVDcS1ye1X9D6XnjUou88BtlbvOvjt31h2TBewmQvSdf69imwL/glPd8yT11
+ x0U2++N4z1emzEzRD6cjyyMnYmXTuTuVGf5MqqJwdsAu3br5LlHGHfTJREzs+mT2mB
+ 40bcxp+WzN9nbEMvW0SJwr/zFh4kdlZpGe0s8VdxDsz1pWp5HJXlHh1rDpXdj0ZrHy
+ gle+PNmijMhRxLCYVABxRNbL6t5PE/TcraAWIJdKWd4FBaVWWjL3/qHxnE3Z4qUmsF
+ y8cJCUezvooPVW49yDyXWxU9yr9w2PdpvZEoPG69Pj+Xd5FFPxyjhf9/bDS3FgyQ/Y
+ 3pvtFpIZpyvJA==
+From: Sasha Levin <sashal@kernel.org>
+To: linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 03/22] vdpa/mlx5: Initialize CVQ vringh only once
+Date: Wed,  6 Jul 2022 11:30:21 -0400
+Message-Id: <20220706153041.1597639-3-sashal@kernel.org>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220706153041.1597639-1-sashal@kernel.org>
+References: <20220706153041.1597639-1-sashal@kernel.org>
 MIME-Version: 1.0
-References: <20220608142723.103523089@infradead.org>
- <20220608144517.885263942@infradead.org>
-In-Reply-To: <20220608144517.885263942@infradead.org>
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-Date: Wed, 6 Jul 2022 16:04:42 +0200
-Message-ID: <CAJZ5v0j6=x-u3dorwQNd6Sihaa1rx1-uaFXbL1Kc37Hu-fcH3A@mail.gmail.com>
-Subject: Re: [PATCH 31/36] cpuidle,acpi: Make noinstr clean
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Juri Lelli <juri.lelli@redhat.com>, "Rafael J. Wysocki" <rafael@kernel.org>,
- Benjamin Herrenschmidt <benh@kernel.crashing.org>,
- Linus Walleij <linus.walleij@linaro.org>, Benjamin Segall <bsegall@google.com>,
- Guo Ren <guoren@kernel.org>, Pavel Machek <pavel@ucw.cz>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- linux-arch <linux-arch@vger.kernel.org>,
- Vincent Guittot <vincent.guittot@linaro.org>,
- Michael Ellerman <mpe@ellerman.id.au>, Huacai Chen <chenhuacai@kernel.org>,
- ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
- Andy Gross <agross@kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>,
- dl-linux-imx <linux-imx@nxp.com>, Catalin Marinas <catalin.marinas@arm.com>,
- xen-devel@lists.xenproject.org, mattst88@gmail.com,
- Michael Turquette <mturquette@baylibre.com>, sammy@sammy.net,
- Petr Mladek <pmladek@suse.com>, Linux PM <linux-pm@vger.kernel.org>,
- Lai Jiangshan <jiangshanlai@gmail.com>, Sascha Hauer <s.hauer@pengutronix.de>,
- linux-um@lists.infradead.org, acme@kernel.org,
- Thomas Gleixner <tglx@linutronix.de>,
- Linux OMAP Mailing List <linux-omap@vger.kernel.org>,
- Dietmar Eggemann <dietmar.eggemann@arm.com>, rth@twiddle.net,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
- linux-perf-users@vger.kernel.org, senozhatsky@chromium.org,
- Sven Schnelle <svens@linux.ibm.com>, jolsa@kernel.org,
- Paul Mackerras <paulus@samba.org>, Mark Rutland <mark.rutland@arm.com>,
- linux-ia64@vger.kernel.org, Dave Hansen <dave.hansen@linux.intel.com>,
+X-stable: review
+X-Patchwork-Hint: Ignore
+Cc: Sasha Levin <sashal@kernel.org>, "Michael S . Tsirkin" <mst@redhat.com>,
  virtualization@lists.linux-foundation.org,
- James Bottomley <James.Bottomley@hansenpartnership.com>, jcmvbkbc@gmail.com,
- Thierry Reding <thierry.reding@gmail.com>, kernel@xen0n.name,
- quic_neeraju@quicinc.com, linux-s390@vger.kernel.org, vschneid@redhat.com,
- John Ogness <john.ogness@linutronix.de>,
- Yoshinori Sato <ysato@users.sourceforge.jp>,
- Linux-sh list <linux-sh@vger.kernel.org>, Fabio Estevam <festevam@gmail.com>,
- Helge Deller <deller@gmx.de>, Daniel Lezcano <daniel.lezcano@linaro.org>,
- Jon Hunter <jonathanh@nvidia.com>,
- Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
- Frederic Weisbecker <frederic@kernel.org>, Len Brown <lenb@kernel.org>,
- linux-xtensa@linux-xtensa.org, Sascha Hauer <kernel@pengutronix.de>,
- Vasily Gorbik <gor@linux.ibm.com>,
- linux-arm-msm <linux-arm-msm@vger.kernel.org>, linux-alpha@vger.kernel.org,
- linux-m68k <linux-m68k@lists.linux-m68k.org>,
- Stafford Horne <shorne@gmail.com>,
- Linux ARM <linux-arm-kernel@lists.infradead.org>,
- Chris Zankel <chris@zankel.net>, Stephen Boyd <sboyd@kernel.org>,
- dinguyen@kernel.org, Daniel Bristot de Oliveira <bristot@redhat.com>,
- Alexander Shishkin <alexander.shishkin@linux.intel.com>,
- Lorenzo Pieralisi <lpieralisi@kernel.org>,
- Rasmus Villemoes <linux@rasmusvillemoes.dk>,
- Joel Fernandes <joel@joelfernandes.org>, Will Deacon <will@kernel.org>,
- Boris Ostrovsky <boris.ostrovsky@oracle.com>,
- Kevin Hilman <khilman@kernel.org>, linux-csky@vger.kernel.org,
- pv-drivers@vmware.com, linux-snps-arc@lists.infradead.org,
- Mel Gorman <mgorman@suse.de>, Jacob Pan <jacob.jun.pan@linux.intel.com>,
- Arnd Bergmann <arnd@arndb.de>, ulli.kroll@googlemail.com, vgupta@kernel.org,
- linux-clk <linux-clk@vger.kernel.org>, Josh Triplett <josh@joshtriplett.org>,
- Steven Rostedt <rostedt@goodmis.org>, rcu@vger.kernel.org,
- Borislav Petkov <bp@alien8.de>, bcain@quicinc.com,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- Parisc List <linux-parisc@vger.kernel.org>,
- Sudeep Holla <sudeep.holla@arm.com>, Shawn Guo <shawnguo@kernel.org>,
- David Miller <davem@davemloft.net>, Rich Felker <dalias@libc.org>,
- Tony Lindgren <tony@atomide.com>, amakhalov@vmware.com,
- Bjorn Andersson <bjorn.andersson@linaro.org>, "H. Peter Anvin" <hpa@zytor.com>,
- sparclinux@vger.kernel.org, linux-hexagon@vger.kernel.org,
- linux-riscv <linux-riscv@lists.infradead.org>, anton.ivanov@cambridgegreys.com,
- jonas@southpole.se, Yury Norov <yury.norov@gmail.com>,
- Richard Weinberger <richard@nod.at>, the arch/x86 maintainers <x86@kernel.org>,
- Russell King - ARM Linux <linux@armlinux.org.uk>,
- Ingo Molnar <mingo@redhat.com>, Albert Ou <aou@eecs.berkeley.edu>,
- "Paul E. McKenney" <paulmck@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
- stefan.kristiansson@saunalahti.fi, openrisc@lists.librecores.org,
- Paul Walmsley <paul.walmsley@sifive.com>,
- linux-tegra <linux-tegra@vger.kernel.org>, namhyung@kernel.org,
- Andy Shevchenko <andriy.shevchenko@linux.intel.com>, jpoimboe@kernel.org,
- Juergen Gross <jgross@suse.com>, Michal Simek <monstr@monstr.eu>,
- "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
- Palmer Dabbelt <palmer@dabbelt.com>, Anup Patel <anup@brainfault.org>,
- ink@jurassic.park.msu.ru, Johannes Berg <johannes@sipsolutions.net>,
- linuxppc-dev <linuxppc-dev@lists.ozlabs.org>
+ =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+ Eli Cohen <elic@nvidia.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -162,73 +88,64 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Jun 8, 2022 at 4:47 PM Peter Zijlstra <peterz@infradead.org> wrote:
->
-> vmlinux.o: warning: objtool: io_idle+0xc: call to __inb.isra.0() leaves .noinstr.text section
-> vmlinux.o: warning: objtool: acpi_idle_enter+0xfe: call to num_online_cpus() leaves .noinstr.text section
-> vmlinux.o: warning: objtool: acpi_idle_enter+0x115: call to acpi_idle_fallback_to_c1.isra.0() leaves .noinstr.text section
->
-> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-
-> ---
->  arch/x86/include/asm/shared/io.h |    4 ++--
->  drivers/acpi/processor_idle.c    |    2 +-
->  include/linux/cpumask.h          |    4 ++--
->  3 files changed, 5 insertions(+), 5 deletions(-)
->
-> --- a/arch/x86/include/asm/shared/io.h
-> +++ b/arch/x86/include/asm/shared/io.h
-> @@ -5,13 +5,13 @@
->  #include <linux/types.h>
->
->  #define BUILDIO(bwl, bw, type)                                         \
-> -static inline void __out##bwl(type value, u16 port)                    \
-> +static __always_inline void __out##bwl(type value, u16 port)           \
->  {                                                                      \
->         asm volatile("out" #bwl " %" #bw "0, %w1"                       \
->                      : : "a"(value), "Nd"(port));                       \
->  }                                                                      \
->                                                                         \
-> -static inline type __in##bwl(u16 port)                                 \
-> +static __always_inline type __in##bwl(u16 port)                                \
->  {                                                                      \
->         type value;                                                     \
->         asm volatile("in" #bwl " %w1, %" #bw "0"                        \
-> --- a/drivers/acpi/processor_idle.c
-> +++ b/drivers/acpi/processor_idle.c
-> @@ -593,7 +593,7 @@ static int acpi_idle_play_dead(struct cp
->         return 0;
->  }
->
-> -static bool acpi_idle_fallback_to_c1(struct acpi_processor *pr)
-> +static __always_inline bool acpi_idle_fallback_to_c1(struct acpi_processor *pr)
->  {
->         return IS_ENABLED(CONFIG_HOTPLUG_CPU) && !pr->flags.has_cst &&
->                 !(acpi_gbl_FADT.flags & ACPI_FADT_C2_MP_SUPPORTED);
-> --- a/include/linux/cpumask.h
-> +++ b/include/linux/cpumask.h
-> @@ -908,9 +908,9 @@ static inline const struct cpumask *get_
->   * concurrent CPU hotplug operations unless invoked from a cpuhp_lock held
->   * region.
->   */
-> -static inline unsigned int num_online_cpus(void)
-> +static __always_inline unsigned int num_online_cpus(void)
->  {
-> -       return atomic_read(&__num_online_cpus);
-> +       return arch_atomic_read(&__num_online_cpus);
->  }
->  #define num_possible_cpus()    cpumask_weight(cpu_possible_mask)
->  #define num_present_cpus()     cpumask_weight(cpu_present_mask)
->
->
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+RnJvbTogRWxpIENvaGVuIDxlbGljQG52aWRpYS5jb20+CgpbIFVwc3RyZWFtIGNvbW1pdCBhY2U5
+MjUyNDQ2ZWM2MTVjZDc5YTVmNzdkOTBlZGIyNWMwYjlkMDI0IF0KCkN1cnJlbnRseSwgQ1ZRIHZy
+aW5naCBpcyBpbml0aWFsaXplZCBpbnNpZGUgc2V0dXBfdmlydHF1ZXVlcygpIHdoaWNoIGlzCmNh
+bGxlZCBldmVyeSB0aW1lIGEgbWVtb3J5IHVwZGF0ZSBpcyBkb25lLiBUaGlzIGlzIHVuZGVzaXJh
+YmxlIHNpbmNlIGl0CnJlc2V0cyBhbGwgdGhlIGNvbnRleHQgb2YgdGhlIHZyaW5nLCBpbmNsdWRp
+bmcgdGhlIGF2YWlsYWJsZSBhbmQgdXNlZAppbmRpY2VzLgoKTW92ZSB0aGUgaW5pdGlhbGl6YXRp
+b24gdG8gbWx4NV92ZHBhX3NldF9zdGF0dXMoKSB3aGVuClZJUlRJT19DT05GSUdfU19EUklWRVJf
+T0sgaXMgc2V0LgoKU2lnbmVkLW9mZi1ieTogRWxpIENvaGVuIDxlbGljQG52aWRpYS5jb20+Ck1l
+c3NhZ2UtSWQ6IDwyMDIyMDYxMzA3NTk1OC41MTEwNjQtMi1lbGljQG52aWRpYS5jb20+ClNpZ25l
+ZC1vZmYtYnk6IE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+CkFja2VkLWJ5OiBK
+YXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgpBY2tlZC1ieTogRXVnZW5pbyBQw6lyZXog
+PGVwZXJlem1hQHJlZGhhdC5jb20+ClNpZ25lZC1vZmYtYnk6IFNhc2hhIExldmluIDxzYXNoYWxA
+a2VybmVsLm9yZz4KLS0tCiBkcml2ZXJzL3ZkcGEvbWx4NS9uZXQvbWx4NV92bmV0LmMgfCAzMSAr
+KysrKysrKysrKysrKysrKysrKy0tLS0tLS0tLS0tCiAxIGZpbGUgY2hhbmdlZCwgMjAgaW5zZXJ0
+aW9ucygrKSwgMTEgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy92ZHBhL21seDUv
+bmV0L21seDVfdm5ldC5jIGIvZHJpdmVycy92ZHBhL21seDUvbmV0L21seDVfdm5ldC5jCmluZGV4
+IGUwZGU0NDAwMGQ5Mi4uMmJhYWI5NGJmODA2IDEwMDY0NAotLS0gYS9kcml2ZXJzL3ZkcGEvbWx4
+NS9uZXQvbWx4NV92bmV0LmMKKysrIGIvZHJpdmVycy92ZHBhL21seDUvbmV0L21seDVfdm5ldC5j
+CkBAIC0xOTYzLDcgKzE5NjMsNiBAQCBzdGF0aWMgaW50IHZlcmlmeV9kcml2ZXJfZmVhdHVyZXMo
+c3RydWN0IG1seDVfdmRwYV9kZXYgKm12ZGV2LCB1NjQgZmVhdHVyZXMpCiBzdGF0aWMgaW50IHNl
+dHVwX3ZpcnRxdWV1ZXMoc3RydWN0IG1seDVfdmRwYV9kZXYgKm12ZGV2KQogewogCXN0cnVjdCBt
+bHg1X3ZkcGFfbmV0ICpuZGV2ID0gdG9fbWx4NV92ZHBhX25kZXYobXZkZXYpOwotCXN0cnVjdCBt
+bHg1X2NvbnRyb2xfdnEgKmN2cSA9ICZtdmRldi0+Y3ZxOwogCWludCBlcnI7CiAJaW50IGk7CiAK
+QEAgLTE5NzMsMTYgKzE5NzIsNiBAQCBzdGF0aWMgaW50IHNldHVwX3ZpcnRxdWV1ZXMoc3RydWN0
+IG1seDVfdmRwYV9kZXYgKm12ZGV2KQogCQkJZ290byBlcnJfdnE7CiAJfQogCi0JaWYgKG12ZGV2
+LT5hY3R1YWxfZmVhdHVyZXMgJiBCSVRfVUxMKFZJUlRJT19ORVRfRl9DVFJMX1ZRKSkgewotCQll
+cnIgPSB2cmluZ2hfaW5pdF9pb3RsYigmY3ZxLT52cmluZywgbXZkZXYtPmFjdHVhbF9mZWF0dXJl
+cywKLQkJCQkJTUxYNV9DVlFfTUFYX0VOVCwgZmFsc2UsCi0JCQkJCShzdHJ1Y3QgdnJpbmdfZGVz
+YyAqKSh1aW50cHRyX3QpY3ZxLT5kZXNjX2FkZHIsCi0JCQkJCShzdHJ1Y3QgdnJpbmdfYXZhaWwg
+KikodWludHB0cl90KWN2cS0+ZHJpdmVyX2FkZHIsCi0JCQkJCShzdHJ1Y3QgdnJpbmdfdXNlZCAq
+KSh1aW50cHRyX3QpY3ZxLT5kZXZpY2VfYWRkcik7Ci0JCWlmIChlcnIpCi0JCQlnb3RvIGVycl92
+cTsKLQl9Ci0KIAlyZXR1cm4gMDsKIAogZXJyX3ZxOgpAQCAtMjI1NSw2ICsyMjQ0LDIxIEBAIHN0
+YXRpYyB2b2lkIGNsZWFyX3Zxc19yZWFkeShzdHJ1Y3QgbWx4NV92ZHBhX25ldCAqbmRldikKIAlu
+ZGV2LT5tdmRldi5jdnEucmVhZHkgPSBmYWxzZTsKIH0KIAorc3RhdGljIGludCBzZXR1cF9jdnFf
+dnJpbmcoc3RydWN0IG1seDVfdmRwYV9kZXYgKm12ZGV2KQoreworCXN0cnVjdCBtbHg1X2NvbnRy
+b2xfdnEgKmN2cSA9ICZtdmRldi0+Y3ZxOworCWludCBlcnIgPSAwOworCisJaWYgKG12ZGV2LT5h
+Y3R1YWxfZmVhdHVyZXMgJiBCSVRfVUxMKFZJUlRJT19ORVRfRl9DVFJMX1ZRKSkKKwkJZXJyID0g
+dnJpbmdoX2luaXRfaW90bGIoJmN2cS0+dnJpbmcsIG12ZGV2LT5hY3R1YWxfZmVhdHVyZXMsCisJ
+CQkJCU1MWDVfQ1ZRX01BWF9FTlQsIGZhbHNlLAorCQkJCQkoc3RydWN0IHZyaW5nX2Rlc2MgKiko
+dWludHB0cl90KWN2cS0+ZGVzY19hZGRyLAorCQkJCQkoc3RydWN0IHZyaW5nX2F2YWlsICopKHVp
+bnRwdHJfdCljdnEtPmRyaXZlcl9hZGRyLAorCQkJCQkoc3RydWN0IHZyaW5nX3VzZWQgKikodWlu
+dHB0cl90KWN2cS0+ZGV2aWNlX2FkZHIpOworCisJcmV0dXJuIGVycjsKK30KKwogc3RhdGljIHZv
+aWQgbWx4NV92ZHBhX3NldF9zdGF0dXMoc3RydWN0IHZkcGFfZGV2aWNlICp2ZGV2LCB1OCBzdGF0
+dXMpCiB7CiAJc3RydWN0IG1seDVfdmRwYV9kZXYgKm12ZGV2ID0gdG9fbXZkZXYodmRldik7CkBA
+IC0yMjY3LDYgKzIyNzEsMTEgQEAgc3RhdGljIHZvaWQgbWx4NV92ZHBhX3NldF9zdGF0dXMoc3Ry
+dWN0IHZkcGFfZGV2aWNlICp2ZGV2LCB1OCBzdGF0dXMpCiAKIAlpZiAoKHN0YXR1cyBeIG5kZXYt
+Pm12ZGV2LnN0YXR1cykgJiBWSVJUSU9fQ09ORklHX1NfRFJJVkVSX09LKSB7CiAJCWlmIChzdGF0
+dXMgJiBWSVJUSU9fQ09ORklHX1NfRFJJVkVSX09LKSB7CisJCQllcnIgPSBzZXR1cF9jdnFfdnJp
+bmcobXZkZXYpOworCQkJaWYgKGVycikgeworCQkJCW1seDVfdmRwYV93YXJuKG12ZGV2LCAiZmFp
+bGVkIHRvIHNldHVwIGNvbnRyb2wgVlEgdnJpbmdcbiIpOworCQkJCWdvdG8gZXJyX3NldHVwOwor
+CQkJfQogCQkJZXJyID0gc2V0dXBfZHJpdmVyKG12ZGV2KTsKIAkJCWlmIChlcnIpIHsKIAkJCQlt
+bHg1X3ZkcGFfd2FybihtdmRldiwgImZhaWxlZCB0byBzZXR1cCBkcml2ZXJcbiIpOwotLSAKMi4z
+NS4xCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0
+dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRh
+dGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGlu
+Zm8vdmlydHVhbGl6YXRpb24=
