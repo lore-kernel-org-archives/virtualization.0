@@ -4,69 +4,73 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id CE9D6CCA47C
-	for <virtualization@archiver.kernel.org>; Wed,  6 Jul 2022 12:01:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 40F6DC43334
+	for <virtualization@archiver.kernel.org>; Wed,  6 Jul 2022 12:11:16 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 6935D60FCC;
-	Wed,  6 Jul 2022 12:01:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6935D60FCC
+	by smtp3.osuosl.org (Postfix) with ESMTP id D6B8C60FCF;
+	Wed,  6 Jul 2022 12:11:15 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D6B8C60FCF
 Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=dOArfIuH
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=e2hOt58q
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id cfB-sKMdOPH9; Wed,  6 Jul 2022 12:01:11 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id F003960FCF;
-	Wed,  6 Jul 2022 12:01:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org F003960FCF
+	with ESMTP id mspHQOCgXBoZ; Wed,  6 Jul 2022 12:11:15 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 7AB5A6074C;
+	Wed,  6 Jul 2022 12:11:14 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7AB5A6074C
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6CA70C007B;
-	Wed,  6 Jul 2022 12:01:10 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 2C508C002D;
- Wed,  6 Jul 2022 12:01:09 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4923FC0033;
+	Wed,  6 Jul 2022 12:11:14 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B96EEC002D;
+ Wed,  6 Jul 2022 12:11:13 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id ED08160FCE;
- Wed,  6 Jul 2022 12:01:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org ED08160FCE
+ by smtp4.osuosl.org (Postfix) with ESMTP id 8D28541839;
+ Wed,  6 Jul 2022 12:11:13 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8D28541839
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org
+ header.a=rsa-sha256 header.s=k20201202 header.b=e2hOt58q
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id P2ipZV10jwgr; Wed,  6 Jul 2022 12:01:07 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id bJthZlDn17jw; Wed,  6 Jul 2022 12:11:12 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CF0E660FCC
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 42F54417A1
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
- by smtp3.osuosl.org (Postfix) with ESMTPS id CF0E660FCC;
- Wed,  6 Jul 2022 12:01:06 +0000 (UTC)
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 42F54417A1;
+ Wed,  6 Jul 2022 12:11:12 +0000 (UTC)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by dfw.source.kernel.org (Postfix) with ESMTPS id 2DBCB61F1A;
- Wed,  6 Jul 2022 12:01:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4789DC3411C;
- Wed,  6 Jul 2022 12:01:03 +0000 (UTC)
+ by sin.source.kernel.org (Postfix) with ESMTPS id 1B7EACE1F6F;
+ Wed,  6 Jul 2022 12:11:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3170CC3411C;
+ Wed,  6 Jul 2022 12:11:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1657108865;
- bh=SxZ5gPnL1lJYbbdKlvmsQFgB0lgS1A3kcbUqEn7xBRQ=;
+ s=k20201202; t=1657109467;
+ bh=2CdrEErWvvgDIbUAWRkAn9JrX8b38GrwM68HdHXvssc=;
  h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=dOArfIuHLw6DUXMjueXyFAFj2MCvfGU248UeblIvaB8Mdpjk6cKv5QRgDqMx2lFNo
- YPquuSW2tGbSY4szUZ8AsXJ4UhyUu1n+0QYBcu2OKEtSIXoGnTmJMDgFU10bCKD1UL
- kTnHNnB+u3RvZbLvXiZ4nnoDTn7mOJkFjkNN0pgpo/ij/+tCmur3TTu/VtbTwNvhtJ
- tLdFw/1/d+h2fNSstaH8dYTmHFiRXZKq0PA7IBfzs3FJSGEA7r1h/dWZxCuN2gcEEg
- H0JWBi9zioTiZ6u/011hT2D6fRfJ5QMJUeEFfe4rD6K5t9G4KLgqCqr/9rntIR/yjN
- e9jWJXYnSBCpg==
-Date: Wed, 6 Jul 2022 13:00:59 +0100
+ b=e2hOt58qeJS6fCVticXw4yTeuBWlWu3CG/wLEvQpxwYWciMwrI+LbKIJOFBwcx/3N
+ 1zDF8dkkBsL36piFRDcqZ9s2OGoEnF7n5AzzOrwO6f2CstMObJlJ2YB6kkvRIEFvYW
+ MmXyN0iZ1p18q+GY8lDVpwXFX3VwnYeRYpyGr4m011ppQUF/JyTLcaV4vb+y9MjrKT
+ Kb2gZr2RD8wRj/WqCZH4ExnlSuX+B+rBUKGNpTdnReiypBJJloiHYkXhsk/RPCvoyp
+ QVWRnwk3Fdfv8nq2ihMCoR8+0+DEXz8ZWtxXPlIiH1HdMk3u9+aHeizJ6BQ1bPGtL+
+ azJTkU8IJFXdw==
+Date: Wed, 6 Jul 2022 13:10:58 +0100
 From: Will Deacon <will@kernel.org>
 To: John Garry <john.garry@huawei.com>
-Subject: Re: [PATCH RESEND v5 1/5] iommu: Refactor iommu_group_store_type()
-Message-ID: <20220706120059.GE2403@willie-the-truck>
+Subject: Re: [PATCH RESEND v5 2/5] iova: Allow rcache range upper limit to be
+ flexible
+Message-ID: <20220706121057.GF2403@willie-the-truck>
 References: <1649071634-188535-1-git-send-email-john.garry@huawei.com>
- <1649071634-188535-2-git-send-email-john.garry@huawei.com>
+ <1649071634-188535-3-git-send-email-john.garry@huawei.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <1649071634-188535-2-git-send-email-john.garry@huawei.com>
+In-Reply-To: <1649071634-188535-3-git-send-email-john.garry@huawei.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Cc: jean-philippe@linaro.org, mst@redhat.com, joro@8bytes.org,
  chenxiang66@hisilicon.com, linuxarm@huawei.com, linux-kernel@vger.kernel.org,
@@ -88,25 +92,29 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Apr 04, 2022 at 07:27:10PM +0800, John Garry wrote:
-> Function iommu_group_store_type() supports changing the default domain
-> of an IOMMU group.
+On Mon, Apr 04, 2022 at 07:27:11PM +0800, John Garry wrote:
+> Some low-level drivers may request DMA mappings whose IOVA length exceeds
+> that of the current rcache upper limit.
 > 
-> Many conditions need to be satisfied and steps taken for this action to be
-> successful.
+> This means that allocations for those IOVAs will never be cached, and
+> always must be allocated and freed from the RB tree per DMA mapping cycle.
+> This has a significant effect on performance, more so since commit
+> 4e89dce72521 ("iommu/iova: Retry from last rb tree node if iova search
+> fails"), as discussed at [0].
 > 
-> Satisfying these conditions and steps will be required for setting other
-> IOMMU group attributes, so factor into a common part and a part specific
-> to update the IOMMU group attribute.
+> As a first step towards allowing the rcache range upper limit be
+> configured, hold this value in the IOVA rcache structure, and allocate
+> the rcaches separately.
 > 
-> No functional change intended.
+> Delete macro IOVA_RANGE_CACHE_MAX_SIZE in case it's reused by mistake.
 > 
-> Some code comments are tidied up also.
+> [0] https://lore.kernel.org/linux-iommu/20210129092120.1482-1-thunder.leizhen@huawei.com/
 > 
 > Signed-off-by: John Garry <john.garry@huawei.com>
 > ---
->  drivers/iommu/iommu.c | 96 ++++++++++++++++++++++++++++---------------
->  1 file changed, 62 insertions(+), 34 deletions(-)
+>  drivers/iommu/iova.c | 20 ++++++++++----------
+>  include/linux/iova.h |  3 +++
+>  2 files changed, 13 insertions(+), 10 deletions(-)
 
 Acked-by: Will Deacon <will@kernel.org>
 
