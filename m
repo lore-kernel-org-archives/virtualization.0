@@ -1,77 +1,76 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7659BC433EF
-	for <virtualization@archiver.kernel.org>; Wed,  6 Jul 2022 13:59:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7092BC433EF
+	for <virtualization@archiver.kernel.org>; Wed,  6 Jul 2022 14:00:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 0FB8560FFD;
-	Wed,  6 Jul 2022 13:59:42 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0FB8560FFD
+	by smtp4.osuosl.org (Postfix) with ESMTP id 0E1064171E;
+	Wed,  6 Jul 2022 14:00:46 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0E1064171E
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id H0pBGfEzISEJ; Wed,  6 Jul 2022 13:59:41 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 505EF60FFB;
-	Wed,  6 Jul 2022 13:59:40 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 505EF60FFB
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 2RztNiHLB8vl; Wed,  6 Jul 2022 14:00:44 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id CE598408BA;
+	Wed,  6 Jul 2022 14:00:43 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org CE598408BA
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 185DBC0071;
-	Wed,  6 Jul 2022 13:59:40 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A17D0C0035;
+	Wed,  6 Jul 2022 14:00:43 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D8C9EC002D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E6767C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Jul 2022 13:59:38 +0000 (UTC)
+ Wed,  6 Jul 2022 14:00:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 3F77840B44
+ by smtp2.osuosl.org (Postfix) with ESMTP id B3B0C40B33
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Jul 2022 13:59:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3F77840B44
+ Wed,  6 Jul 2022 14:00:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B3B0C40B33
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id XR0-pW3D5sQw
+ with ESMTP id yucVXQQJVYA3
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Jul 2022 13:59:33 +0000 (UTC)
+ Wed,  6 Jul 2022 14:00:40 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 76E8F40B49
-Received: from mail-yw1-f182.google.com (mail-yw1-f182.google.com
- [209.85.128.182])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 76E8F40B49
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B522240119
+Received: from mail-yb1-f173.google.com (mail-yb1-f173.google.com
+ [209.85.219.173])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id B522240119
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Jul 2022 13:59:33 +0000 (UTC)
-Received: by mail-yw1-f182.google.com with SMTP id
- 00721157ae682-31c8a1e9e33so88626877b3.5
+ Wed,  6 Jul 2022 14:00:40 +0000 (UTC)
+Received: by mail-yb1-f173.google.com with SMTP id 64so18183937ybt.12
  for <virtualization@lists.linux-foundation.org>;
- Wed, 06 Jul 2022 06:59:33 -0700 (PDT)
+ Wed, 06 Jul 2022 07:00:40 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=Onduqp6mjVbUTy8onn0jWt/mqpI9kGBQEYh+QUeZcBU=;
- b=F/N788NX5a5sve4HvgIgTwfUjo1r+WAT/EUPeGN0nLoLP7FSfFbtVUCAyUJVjwaWm0
- bHfr2IuFFQfxDuOubj8s4NjVoL29JpOFZH6V5z9NNXVz4NE7gLPIU4YMk97auhj6Cpg3
- XP8n7RPTaEZwaT5N8Powwen+lICOQYYM4eGRLpjcPma/aODsBRUM8BMCTEYC9SO1uxYG
- UqmhCJVAC07HO5HePF8iURvGa6On4JpJzoHJXprm9Rd0jIPDmpIXtjMTWy/77CdLLZCf
- gHngJOzhsrU11u6RP7W95nITOyPGZeIMOs6MS0lgo/m+2aVBfOzUjktYHFRxQNUI1puw
- p9vQ==
-X-Gm-Message-State: AJIora8d4m/OnhJbj7u8uHozGTIy833dQnipRJTrncIboPBqrozAoVAf
- oa3NNGYyG9g87yPLXXi3rI567KUrrJ4+/oAblmM=
-X-Google-Smtp-Source: AGRyM1tNbC/Hml4tsQcA7xFkjwPTBe4V9sculTi4g4WqVg8ltnNA+flCFfg0CHpb2ZdV5OvqewQ30xyxgoEo0qXCWHo=
-X-Received: by 2002:a81:1b97:0:b0:2db:640f:49d8 with SMTP id
- b145-20020a811b97000000b002db640f49d8mr45117410ywb.326.1657115972382; Wed, 06
- Jul 2022 06:59:32 -0700 (PDT)
+ bh=Lln/3deL7qOtLziJcXYPqqy6CqnXU6Vj8A13Rxsyfck=;
+ b=I74eLBDTTy0QP/dIjZNpShVzUs0ncZEUl5Kbqg8UH/Sazzv+v+2ZTTPcuQxgpQsUfc
+ 8rraCqc7jCHoZdv3Rd4UvrOzHzV9i3p4j2suegsOob6uRi1O0rLEZbKuTirgDkDG+4bw
+ ub48a0VFkRp91+gyu8ThNLNG5FjA0WJynoAXS/pTOLbo7MX/02/pnYiCC1KaKTkqnfpn
+ L+KgceF5eG98q8ae7rZTvBGhcVfjZWh6J36NKiZzGay43iSDuQFKiisgVEJKb3C9pYHc
+ YlBvfdrKuJYgvuA3uzHP4xy0PH4p4VLT+VTLaZ8sfmy31PkuLL8t0azjIOVdAgR3zSRz
+ 73wg==
+X-Gm-Message-State: AJIora+/ptzxozYWZiQlFfnjkMrGYB2ye2r3Yc65ZVO2mI/y3p9TIKop
+ AiuglPA7EZbuIpOZiQRgdwTqvLdywbmxj3Jlyvw=
+X-Google-Smtp-Source: AGRyM1vGBIO6ejUezqbzrzuaUC5etUaxh8lxWDh293Sam2Jc/zFfeBj4g08hdYpvSA8zzuIj5u2PxdHOfRWqZSWT82c=
+X-Received: by 2002:a05:6902:50e:b0:66e:7f55:7a66 with SMTP id
+ x14-20020a056902050e00b0066e7f557a66mr7763507ybs.365.1657116039561; Wed, 06
+ Jul 2022 07:00:39 -0700 (PDT)
 MIME-Version: 1.0
 References: <20220608142723.103523089@infradead.org>
- <20220608144516.998681585@infradead.org>
-In-Reply-To: <20220608144516.998681585@infradead.org>
+ <20220608144517.061583457@infradead.org>
+In-Reply-To: <20220608144517.061583457@infradead.org>
 From: "Rafael J. Wysocki" <rafael@kernel.org>
-Date: Wed, 6 Jul 2022 15:59:21 +0200
-Message-ID: <CAJZ5v0jSfvUoReFHjA5A+brExnnEKidak-GnjTbY0CKoaWpGVQ@mail.gmail.com>
-Subject: Re: [PATCH 17/36] acpi_idle: Remove tracing
+Date: Wed, 6 Jul 2022 16:00:28 +0200
+Message-ID: <CAJZ5v0iBAt7xyBzrFwgVSOk7dLx017X_naLZAjnDuwi=oUmREg@mail.gmail.com>
+Subject: Re: [PATCH 18/36] cpuidle: Annotate poll_idle()
 To: Peter Zijlstra <peterz@infradead.org>
 Cc: Juri Lelli <juri.lelli@redhat.com>, "Rafael J. Wysocki" <rafael@kernel.org>,
  Benjamin Herrenschmidt <benh@kernel.crashing.org>,
@@ -167,83 +166,41 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Jun 8, 2022 at 4:47 PM Peter Zijlstra <peterz@infradead.org> wrote:
+On Wed, Jun 8, 2022 at 4:46 PM Peter Zijlstra <peterz@infradead.org> wrote:
 >
-> All the idle routines are called with RCU disabled, as such there must
-> not be any tracing inside.
+> The __cpuidle functions will become a noinstr class, as such they need
+> explicit annotations.
 >
 > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 
-This actually does some additional code duplication cleanup which
-would be good to mention in the changelog.  Or even move to a separate
-patch for that matter.
-
-Otherwise LGTM.
+Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
 > ---
->  drivers/acpi/processor_idle.c |   24 +++++++++++++-----------
->  1 file changed, 13 insertions(+), 11 deletions(-)
+>  drivers/cpuidle/poll_state.c |    6 +++++-
+>  1 file changed, 5 insertions(+), 1 deletion(-)
 >
-> --- a/drivers/acpi/processor_idle.c
-> +++ b/drivers/acpi/processor_idle.c
-> @@ -108,8 +108,8 @@ static const struct dmi_system_id proces
->  static void __cpuidle acpi_safe_halt(void)
+> --- a/drivers/cpuidle/poll_state.c
+> +++ b/drivers/cpuidle/poll_state.c
+> @@ -13,7 +13,10 @@
+>  static int __cpuidle poll_idle(struct cpuidle_device *dev,
+>                                struct cpuidle_driver *drv, int index)
 >  {
->         if (!tif_need_resched()) {
-> -               safe_halt();
-> -               local_irq_disable();
-> +               raw_safe_halt();
-> +               raw_local_irq_disable();
->         }
->  }
->
-> @@ -524,16 +524,21 @@ static int acpi_idle_bm_check(void)
->         return bm_status;
->  }
->
-> -static void wait_for_freeze(void)
-> +static __cpuidle void io_idle(unsigned long addr)
->  {
-> +       /* IO port based C-state */
-> +       inb(addr);
+> -       u64 time_start = local_clock();
+> +       u64 time_start;
 > +
->  #ifdef CONFIG_X86
->         /* No delay is needed if we are in guest */
->         if (boot_cpu_has(X86_FEATURE_HYPERVISOR))
->                 return;
->  #endif
-> -       /* Dummy wait op - must do something useless after P_LVL2 read
-> -          because chipsets cannot guarantee that STPCLK# signal
-> -          gets asserted in time to freeze execution properly. */
-> +       /*
-> +        * Dummy wait op - must do something useless after P_LVL2 read
-> +        * because chipsets cannot guarantee that STPCLK# signal
-> +        * gets asserted in time to freeze execution properly.
-> +        */
->         inl(acpi_gbl_FADT.xpm_timer_block.address);
+> +       instrumentation_begin();
+> +       time_start = local_clock();
+>
+>         dev->poll_time_limit = false;
+>
+> @@ -39,6 +42,7 @@ static int __cpuidle poll_idle(struct cp
+>         raw_local_irq_disable();
+>
+>         current_clr_polling();
+> +       instrumentation_end();
+>
+>         return index;
 >  }
->
-> @@ -553,9 +558,7 @@ static void __cpuidle acpi_idle_do_entry
->         } else if (cx->entry_method == ACPI_CSTATE_HALT) {
->                 acpi_safe_halt();
->         } else {
-> -               /* IO port based C-state */
-> -               inb(cx->address);
-> -               wait_for_freeze();
-> +               io_idle(cx->address);
->         }
->
->         perf_lopwr_cb(false);
-> @@ -577,8 +580,7 @@ static int acpi_idle_play_dead(struct cp
->                 if (cx->entry_method == ACPI_CSTATE_HALT)
->                         safe_halt();
->                 else if (cx->entry_method == ACPI_CSTATE_SYSTEMIO) {
-> -                       inb(cx->address);
-> -                       wait_for_freeze();
-> +                       io_idle(cx->address);
->                 } else
->                         return -ENODEV;
->
 >
 >
 _______________________________________________
