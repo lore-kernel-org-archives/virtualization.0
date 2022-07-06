@@ -1,141 +1,100 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 17010CCA47C
-	for <virtualization@archiver.kernel.org>; Wed,  6 Jul 2022 09:51:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B259BC433EF
+	for <virtualization@archiver.kernel.org>; Wed,  6 Jul 2022 10:30:59 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 8EE7683DB7;
-	Wed,  6 Jul 2022 09:51:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8EE7683DB7
+	by smtp2.osuosl.org (Postfix) with ESMTP id 2E9404049D;
+	Wed,  6 Jul 2022 10:30:59 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2E9404049D
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Sa09H8ly
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id DOpMvEybuL4S; Wed,  6 Jul 2022 09:51:56 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id qdujAxKW-96E; Wed,  6 Jul 2022 10:30:58 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id EFA2F833CD;
-	Wed,  6 Jul 2022 09:51:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org EFA2F833CD
+	by smtp2.osuosl.org (Postfix) with ESMTPS id B2F20404AB;
+	Wed,  6 Jul 2022 10:30:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B2F20404AB
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id AEA72C0035;
-	Wed,  6 Jul 2022 09:51:55 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C4AA0C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7A4B4C0033;
+	Wed,  6 Jul 2022 10:30:57 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id F12A0C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Jul 2022 09:51:53 +0000 (UTC)
+ Wed,  6 Jul 2022 10:30:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 8C7ED8348C
+ by smtp1.osuosl.org (Postfix) with ESMTP id CB8C280C58
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Jul 2022 09:51:53 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8C7ED8348C
+ Wed,  6 Jul 2022 10:30:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CB8C280C58
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=Sa09H8ly
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id OnWyN8wsVbNu
+ with ESMTP id hQeK8j-6SDtc
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Jul 2022 09:51:51 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9EE25833CD
-Received: from mail-vk1-f171.google.com (mail-vk1-f171.google.com
- [209.85.221.171])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 9EE25833CD
+ Wed,  6 Jul 2022 10:30:54 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org ADE1F80C34
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id ADE1F80C34
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Jul 2022 09:51:51 +0000 (UTC)
-Received: by mail-vk1-f171.google.com with SMTP id az35so7148432vkb.0
- for <virtualization@lists.linux-foundation.org>;
- Wed, 06 Jul 2022 02:51:51 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=o8jOPstF035V3JBIGTjyEra8xnCZ4RAIho4NrHeIzoU=;
- b=NtoIWZEe5D15jTBPx1G7gwiJQVVs4XAE/ZkRFk5M2zuulB0V+/P5pewEwwBUDkue0A
- NxoU2J5icCq5GCuEW+eVKr09Bbty9/2ZCxtWKBHObceRo3+NhGvgbWeCkt3nChUfPl3T
- w0qifOgiroEHTVFXXKg7zCsN4ZwaokPrJJsGN1Hy/DNxjj5ODiTFdwxN7fip6NvnZPaG
- FJs+5FtFjST3JMgleW9NyMZa5HCbV6kSKBouOCgoiNw+4B8q7m+fZeg8ooLxVxhnnJ0F
- srKJn01dnfRI8BtcJLVQFTddWKPoGTEABd+BhCx3B+6OFnlJRD/85vB8LAbpBcGeLYlq
- XqXQ==
-X-Gm-Message-State: AJIora/zCD9tzqEeDmupwyxDgLLed66nl3EapcTdEG3okpj0h+G10n8r
- v9dnc2G95KpdUmqxWqw56M1Y/LSo5dCrS/1u
-X-Google-Smtp-Source: AGRyM1vliFGzI5EQE/8051mFQ91mMVbjG8HHGKdEf5QwVgV8DNUHzi9GhfyNYGFPJcLvRK5CX9ldPQ==
-X-Received: by 2002:ac5:cdcc:0:b0:36c:547d:d9c4 with SMTP id
- u12-20020ac5cdcc000000b0036c547dd9c4mr23210919vkn.2.1657101110271; 
- Wed, 06 Jul 2022 02:51:50 -0700 (PDT)
-Received: from mail-ua1-f44.google.com (mail-ua1-f44.google.com.
- [209.85.222.44]) by smtp.gmail.com with ESMTPSA id
- j78-20020a1f2351000000b00373f71d8a34sm4596879vkj.48.2022.07.06.02.51.49
- for <virtualization@lists.linux-foundation.org>
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Wed, 06 Jul 2022 02:51:50 -0700 (PDT)
-Received: by mail-ua1-f44.google.com with SMTP id x31so248749uaf.10
- for <virtualization@lists.linux-foundation.org>;
- Wed, 06 Jul 2022 02:51:49 -0700 (PDT)
-X-Received: by 2002:a05:6902:50e:b0:66e:7f55:7a66 with SMTP id
- x14-20020a056902050e00b0066e7f557a66mr6648581ybs.365.1657100796735; Wed, 06
- Jul 2022 02:46:36 -0700 (PDT)
+ Wed,  6 Jul 2022 10:30:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1657103453;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=ui9lVcAZsrGbvPVS6CAZzPnKKC1Klf1sd+F6uPmz44s=;
+ b=Sa09H8ly++FWwaXTKeyuzjRn22DZDmFbpFOIolh1rMfILwDrj5E6jTrWBh02g+JQkVZXXi
+ ws8VfpmR1aLkVCMGT3qfwF0oZQ6sqXaS4+N5GiTtJA6vj1lUIR/SG4cVK8GqUC2FVfK6uO
+ GFFzFK2sKxQ+Cqnue++9zeTpXrGEcKg=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-377-wVju4HtROw-Fx_EFFXn8AQ-1; Wed, 06 Jul 2022 06:30:48 -0400
+X-MC-Unique: wVju4HtROw-Fx_EFFXn8AQ-1
+Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.9])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id C6B28101A54E;
+ Wed,  6 Jul 2022 10:30:47 +0000 (UTC)
+Received: from lacos-laptop-7.usersys.redhat.com (unknown [10.39.194.100])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id 96FF6492C3B;
+ Wed,  6 Jul 2022 10:30:44 +0000 (UTC)
+Subject: Re: [PATCH v7 7/9] drm/virtio: Improve DMA API usage for shmem BOs
+To: Emil Velikov <emil.velikov@collabora.com>,
+ Dmitry Osipenko <dmitry.osipenko@collabora.com>
+References: <20220630200726.1884320-1-dmitry.osipenko@collabora.com>
+ <20220630200726.1884320-8-dmitry.osipenko@collabora.com>
+ <20220705135323.emr4gdbcxoisdcxe@sirius.home.kraxel.org>
+ <d2c64d09-c4bb-9aed-069d-a9b4d07a1f66@collabora.com>
+ <20220705154507.67ovlun4m26xzppn@sirius.home.kraxel.org>
+ <1380526d-17fb-6eb2-0fd5-5cddbdf0a92e@collabora.com>
+ <YsSlcStOXz2fnlON@arch-x1c3>
+From: Laszlo Ersek <lersek@redhat.com>
+Message-ID: <b2682447-cccd-18cb-865b-3cfd8d8b4125@redhat.com>
+Date: Wed, 6 Jul 2022 12:30:42 +0200
 MIME-Version: 1.0
-References: <20220608142723.103523089@infradead.org>
- <20220608144517.124597382@infradead.org>
-In-Reply-To: <20220608144517.124597382@infradead.org>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Wed, 6 Jul 2022 11:46:25 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdW4pT+YQfLzLTegFu1M3v9-9vaFDFAama7mc82=x6R__w@mail.gmail.com>
-Message-ID: <CAMuHMdW4pT+YQfLzLTegFu1M3v9-9vaFDFAama7mc82=x6R__w@mail.gmail.com>
-Subject: Re: [PATCH 19/36] objtool/idle: Validate __cpuidle code as noinstr
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: juri.lelli@redhat.com, rafael@kernel.org, benh@kernel.crashing.org,
- Linus Walleij <linus.walleij@linaro.org>, bsegall@google.com,
- guoren@kernel.org, pavel@ucw.cz, agordeev@linux.ibm.com,
- linux-arch@vger.kernel.org, vincent.guittot@linaro.org, mpe@ellerman.id.au,
- chenhuacai@kernel.org, linux-acpi@vger.kernel.org, agross@kernel.org,
- NXP Linux Team <linux-imx@nxp.com>, catalin.marinas@arm.com,
- xen-devel@lists.xenproject.org, Matt Turner <mattst88@gmail.com>,
- mturquette@baylibre.com, sammy@sammy.net, pmladek@suse.com,
- linux-pm@vger.kernel.org, jiangshanlai@gmail.com,
- Sascha Hauer <s.hauer@pengutronix.de>, linux-um@lists.infradead.org,
- acme@kernel.org, tglx@linutronix.de, linux-omap@vger.kernel.org,
- dietmar.eggemann@arm.com, Richard Henderson <rth@twiddle.net>,
- gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org,
- linux-perf-users@vger.kernel.org, senozhatsky@chromium.org,
- svens@linux.ibm.com, jolsa@kernel.org, paulus@samba.org, mark.rutland@arm.com,
- linux-ia64@vger.kernel.org, dave.hansen@linux.intel.com,
- virtualization@lists.linux-foundation.org,
- James.Bottomley@hansenpartnership.com, jcmvbkbc@gmail.com,
- thierry.reding@gmail.com, kernel@xen0n.name, quic_neeraju@quicinc.com,
- linux-s390@vger.kernel.org, vschneid@redhat.com, john.ogness@linutronix.de,
- ysato@users.sourceforge.jp, linux-sh@vger.kernel.org,
- Fabio Estevam <festevam@gmail.com>, deller@gmx.de, daniel.lezcano@linaro.org,
- jonathanh@nvidia.com, mathieu.desnoyers@efficios.com, frederic@kernel.org,
- lenb@kernel.org, linux-xtensa@linux-xtensa.org,
- Sascha Hauer <kernel@pengutronix.de>, gor@linux.ibm.com,
- linux-arm-msm@vger.kernel.org, linux-alpha@vger.kernel.org,
- linux-m68k@lists.linux-m68k.org, shorne@gmail.com,
- linux-arm-kernel@lists.infradead.org, chris@zankel.net, sboyd@kernel.org,
- dinguyen@kernel.org, bristot@redhat.com, alexander.shishkin@linux.intel.com,
- lpieralisi@kernel.org, linux@rasmusvillemoes.dk, joel@joelfernandes.org,
- will@kernel.org, boris.ostrovsky@oracle.com, khilman@kernel.org,
- linux-csky@vger.kernel.org, pv-drivers@vmware.com,
- linux-snps-arc@lists.infradead.org, mgorman@suse.de,
- jacob.jun.pan@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
- Hans Ulli Kroll <ulli.kroll@googlemail.com>, Vineet Gupta <vgupta@kernel.org>,
- linux-clk@vger.kernel.org, josh@joshtriplett.org, rostedt@goodmis.org,
- rcu@vger.kernel.org, bp@alien8.de, bcain@quicinc.com,
- tsbogend@alpha.franken.de, linux-parisc@vger.kernel.org, sudeep.holla@arm.com,
- Shawn Guo <shawnguo@kernel.org>, davem@davemloft.net, dalias@libc.org,
- tony@atomide.com, amakhalov@vmware.com, bjorn.andersson@linaro.org,
- hpa@zytor.com, sparclinux@vger.kernel.org, linux-hexagon@vger.kernel.org,
- linux-riscv@lists.infradead.org, anton.ivanov@cambridgegreys.com,
- jonas@southpole.se, yury.norov@gmail.com, richard@nod.at, x86@kernel.org,
- Russell King <linux@armlinux.org.uk>, mingo@redhat.com, aou@eecs.berkeley.edu,
- paulmck@kernel.org, hca@linux.ibm.com, stefan.kristiansson@saunalahti.fi,
- openrisc@lists.librecores.org, paul.walmsley@sifive.com,
- linux-tegra@vger.kernel.org, namhyung@kernel.org,
- andriy.shevchenko@linux.intel.com, jpoimboe@kernel.org, jgross@suse.com,
- monstr@monstr.eu, linux-mips@vger.kernel.org, palmer@dabbelt.com,
- anup@brainfault.org, Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
- johannes@sipsolutions.net, linuxppc-dev@lists.ozlabs.org
+In-Reply-To: <YsSlcStOXz2fnlON@arch-x1c3>
+Content-Language: en-US
+X-Scanned-By: MIMEDefang 2.85 on 10.11.54.9
+Cc: David Airlie <airlied@linux.ie>, Robin Murphy <robin.murphy@arm.com>,
+ =?UTF-8?Q?Thomas_Hellstr=c3=b6m?= <thomas_os@shipmail.org>,
+ Emil Velikov <emil.l.velikov@gmail.com>, linux-kernel@vger.kernel.org,
+ dri-devel@lists.freedesktop.org, Gurchetan Singh <gurchetansingh@chromium.org>,
+ Thomas Zimmermann <tzimmermann@suse.de>, Dmitry Osipenko <digetx@gmail.com>,
+ kernel@collabora.com, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -152,29 +111,63 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Jun 8, 2022 at 4:46 PM Peter Zijlstra <peterz@infradead.org> wrote:
-> Idle code is very like entry code in that RCU isn't available. As
-> such, add a little validation.
->
-> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Hi Emil,
 
->  arch/m68k/kernel/vmlinux-nommu.lds   |    1 -
->  arch/m68k/kernel/vmlinux-std.lds     |    1 -
->  arch/m68k/kernel/vmlinux-sun3.lds    |    1 -
+On 07/05/22 22:56, Emil Velikov wrote:
+> On 2022/07/05, Dmitry Osipenko wrote:
+>> On 7/5/22 18:45, Gerd Hoffmann wrote:
+>>>   Hi,
+>>>
+>>>>> Also note that pci is not the only virtio transport we have.
+>>>>
+>>>> The VirtIO indeed has other transports, but only PCI is really supported
+>>>> in case of the VirtIO-GPU in kernel and in Qemu/crosvm, AFAICT. Hence
+>>>> only the PCI transport was tested.
+>>>
+>>> qemu -M microvm \
+>>>   -global virtio-mmio.force-legacy=false \
+>>>   -device virtio-gpu-device
+>>>
+>>> Gives you a functional virtio-gpu device on virtio-mmio.
+>>>
+>>> aarch64 virt machines support both pci and mmio too.
+>>> s390x has virtio-gpu-ccw ...
+>>
+>> Gerd, thank you very much! It's was indeed unclear to me how to test the
+>> MMIO GPU, but yours variant with microvm works! I was looking for trying
+>> aarch64 in the past, but it also was unclear how to do it since there is
+>> no DT support for the VirtIO-GPU, AFAICS.
+>>
+>> I booted kernel with this patchset applied and everything is okay, Xorg
+>> works.
+>>
+>>  [drm] Initialized virtio_gpu 0.1.0 0 for LNRO0005:01 on minor 0
+>>  virtio-mmio LNRO0005:01: [drm] drm_plane_enable_fb_damage_clips() not
+>> called
+>>  virtio-mmio LNRO0005:01: [drm] fb0: virtio_gpudrmfb frame buffer device
+>>
+>> There is no virgl support because it's a virtio-gpu-device and not
+>> virtio-gpu-device-gl that is PCI-only in Qemu. Hence everything seems good.
+>>
+>> I'd appreciate if you could give s390x a test.. I never touched s390x
+>> and it will probably take some extra effort to get into it.
+>>
+> 
+> Adding Laszlo Ersek, who debugged and tested this the last time.
+> 
+> Laszlo Ersek do ypu have some tips for Dmitry? Xorg seems to be
+> working on his end with the drm_drv_set_unique(... "pci:...") call
+> removed.
+> 
+> Original patch can be found at:
+> https://lore.kernel.org/dri-devel/1380526d-17fb-6eb2-0fd5-5cddbdf0a92e@collabora.com/T/#mbc1a1bedc91d1855007188a725c5c75bbc771cf0
 
-FWIW
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
+thanks for recalling this, but... I've moved to different projects, and
+I'm already scraping the bottom of the barrel for every chunk of time I
+can find :(
 
-Gr{oetje,eeting}s,
+Laszlo
 
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
