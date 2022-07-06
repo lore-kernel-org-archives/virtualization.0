@@ -1,77 +1,76 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9870CCCA485
-	for <virtualization@archiver.kernel.org>; Wed,  6 Jul 2022 13:51:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8658DC433EF
+	for <virtualization@archiver.kernel.org>; Wed,  6 Jul 2022 13:54:48 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 317BF8316A;
-	Wed,  6 Jul 2022 13:51:26 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 317BF8316A
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id zdq0WDpL5YiF; Wed,  6 Jul 2022 13:51:25 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id AF9F78300C;
-	Wed,  6 Jul 2022 13:51:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AF9F78300C
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 7C42AC0035;
-	Wed,  6 Jul 2022 13:51:24 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7EEB5C002D
- for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Jul 2022 13:51:23 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 4B95660FF0
- for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Jul 2022 13:51:23 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4B95660FF0
+	by smtp3.osuosl.org (Postfix) with ESMTP id 0A20160FF1;
+	Wed,  6 Jul 2022 13:54:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0A20160FF1
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id eee3cdoLWzSv
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id JLl7r-zRTno7; Wed,  6 Jul 2022 13:54:47 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 6EE7A60D55;
+	Wed,  6 Jul 2022 13:54:46 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6EE7A60D55
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3A922C0035;
+	Wed,  6 Jul 2022 13:54:46 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 01757C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Jul 2022 13:51:22 +0000 (UTC)
+ Wed,  6 Jul 2022 13:54:45 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id C28148126A
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  6 Jul 2022 13:54:44 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C28148126A
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Vqg0n96Hk8nM
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  6 Jul 2022 13:54:44 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0B8F660FE3
-Received: from mail-yw1-f177.google.com (mail-yw1-f177.google.com
- [209.85.128.177])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 0B8F660FE3
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 12CB780C93
+Received: from mail-yb1-f181.google.com (mail-yb1-f181.google.com
+ [209.85.219.181])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 12CB780C93
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Jul 2022 13:51:21 +0000 (UTC)
-Received: by mail-yw1-f177.google.com with SMTP id
- 00721157ae682-31c9b70c382so78190547b3.6
+ Wed,  6 Jul 2022 13:54:44 +0000 (UTC)
+Received: by mail-yb1-f181.google.com with SMTP id l144so14941347ybl.5
  for <virtualization@lists.linux-foundation.org>;
- Wed, 06 Jul 2022 06:51:21 -0700 (PDT)
+ Wed, 06 Jul 2022 06:54:43 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=5SiPC3jj492VC8TfaG5lxiX62rjLNKysidcQlbSYqow=;
- b=duxmRzfckokRuBDZ7Ad/KTo5lZWF6O/acuU5CcLzw/9RTztohhQY72R7dkeHdhLKh4
- 3GRfriq6cCDu7U6Pt2rKWEiaXAmwaEMsYDguFp1FHepm8oNdFAWy1e6pP7hnNVZIJnvT
- EUm06OKnW16Wb6tvFqO9EQe47KK/Zb4mv05yD8TmUOjXWovAsRL4jrTJQaY4uT7LKTse
- jbgeyhSMxmD8rBrB/wBZT4YTgXMNAMTU0J/OFm4FRp/zs/t95dA1EyqJc0ZIhkTuKccI
- ZFdA+bKT+mZClrWjcEnqmOPkDIsm/7/luv/SxGWl39gzMXm3XDvwl2bP0XJXxEgZm/zG
- EMWA==
-X-Gm-Message-State: AJIora/mLCyDhNbdODl56MctIfysQbT92Y6ZXzUDHYtZqYOL7XH6psNC
- ci45rdBETk4qi+psXiRyX8JMSKM9y4qcU4gbWT4=
-X-Google-Smtp-Source: AGRyM1t2zFLeLAi3TOz/3FKNOaozLIghzMJavy2698E42fvxt6d4SsTob1/anQx1a1kTDZPSEUZEInHEN/JL2sa2rXc=
-X-Received: by 2002:a81:1b97:0:b0:2db:640f:49d8 with SMTP id
- b145-20020a811b97000000b002db640f49d8mr45075306ywb.326.1657115480888; Wed, 06
- Jul 2022 06:51:20 -0700 (PDT)
+ bh=nGlq0tAOl9peVDy+2hDU8oij0psSLrDezDLIhvJH3CU=;
+ b=pkm083VwmJjOgoYkdThEIN+hp+DJuOOvAcGws0iXAWWbezjtyn8izju2jy32UfZIS9
+ h3feMGOUqHYVADJewpb4lDPU0cL+usdXdaHLpXCX3mXmbCj8M9Y97IBZX6YBYmtT3P9t
+ 69D74HGX2Ms89ITrzBzGmo1zMKijBYoDXturl3svAb/fJLMFAm6BmTssUhYNvM5LJXVP
+ 5RRWSMNVtA5qKGuVV7MqJw9TCuRDhv7mxLSdb4+mKy1WjZeX7VhuzypEvO3GGdnAuAKe
+ LIg8Kxn6HHta2JSjN4+maiupLGVoniGrSyUgr27BxM7/X+KKiq42dJyzH1QmtBq5+sw0
+ VlcQ==
+X-Gm-Message-State: AJIora+YdNLoI9vuXVRTMnr220AFpstizA55FLzpLrhPX950B2dYekt/
+ haJ8jlvqtlmArCdCMlswvl5ulRX0WJDkk1E3z4k=
+X-Google-Smtp-Source: AGRyM1tDetZqwrRScub6Y4Pn1s0tSkry0FvKlyTlHU1qOUr14WujFHx6NLxGPd7DkQtOavHEbmevSefDFcyAl6P8ZZY=
+X-Received: by 2002:a25:fb02:0:b0:66e:3db9:5d49 with SMTP id
+ j2-20020a25fb02000000b0066e3db95d49mr20145358ybe.137.1657115683016; Wed, 06
+ Jul 2022 06:54:43 -0700 (PDT)
 MIME-Version: 1.0
 References: <20220608142723.103523089@infradead.org>
- <20220608144516.109792837@infradead.org>
-In-Reply-To: <20220608144516.109792837@infradead.org>
+ <20220608144516.235041924@infradead.org>
+In-Reply-To: <20220608144516.235041924@infradead.org>
 From: "Rafael J. Wysocki" <rafael@kernel.org>
-Date: Wed, 6 Jul 2022 15:51:09 +0200
-Message-ID: <CAJZ5v0jO9+jRSm3d58K15JaO3=kgM2Ueo7W+Smi3WCBPR_VM5Q@mail.gmail.com>
-Subject: Re: [PATCH 03/36] cpuidle/poll: Ensure IRQ state is invariant
+Date: Wed, 6 Jul 2022 15:54:32 +0200
+Message-ID: <CAJZ5v0g0fCNxsc1mg9aL+ieQ1uMVS+RWqesHKoZ_zeL7cx655A@mail.gmail.com>
+Subject: Re: [PATCH 05/36] cpuidle: Move IRQ state validation
 To: Peter Zijlstra <peterz@infradead.org>
 Cc: Juri Lelli <juri.lelli@redhat.com>, "Rafael J. Wysocki" <rafael@kernel.org>,
  Benjamin Herrenschmidt <benh@kernel.crashing.org>,
@@ -169,36 +168,50 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 On Wed, Jun 8, 2022 at 4:47 PM Peter Zijlstra <peterz@infradead.org> wrote:
 >
-> cpuidle_state::enter() methods should be IRQ invariant
+> Make cpuidle_enter_state() consistent with the s2idle variant and
+> verify ->enter() always returns with interrupts disabled.
 >
 > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-
-Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-
 > ---
->  drivers/cpuidle/poll_state.c |    4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
+>  drivers/cpuidle/cpuidle.c |   10 +++++-----
+>  1 file changed, 5 insertions(+), 5 deletions(-)
 >
-> --- a/drivers/cpuidle/poll_state.c
-> +++ b/drivers/cpuidle/poll_state.c
-> @@ -17,7 +17,7 @@ static int __cpuidle poll_idle(struct cp
->
->         dev->poll_time_limit = false;
->
-> -       local_irq_enable();
-> +       raw_local_irq_enable();
->         if (!current_set_polling_and_test()) {
->                 unsigned int loop_count = 0;
->                 u64 limit;
-> @@ -36,6 +36,8 @@ static int __cpuidle poll_idle(struct cp
->                         }
->                 }
->         }
-> +       raw_local_irq_disable();
+> --- a/drivers/cpuidle/cpuidle.c
+> +++ b/drivers/cpuidle/cpuidle.c
+> @@ -234,7 +234,11 @@ int cpuidle_enter_state(struct cpuidle_d
+>         stop_critical_timings();
+>         if (!(target_state->flags & CPUIDLE_FLAG_RCU_IDLE))
+>                 rcu_idle_enter();
 > +
->         current_clr_polling();
+>         entered_state = target_state->enter(dev, drv, index);
+> +       if (WARN_ONCE(!irqs_disabled(), "%ps leaked IRQ state", target_state->enter))
+
+I'm not sure if dumping a call trace here is really useful and
+WARN_ON() often gets converted to panic().
+
+I would print an error message with pr_warn_once().
+
+Otherwise LGTM.
+
+> +               raw_local_irq_disable();
+> +
+>         if (!(target_state->flags & CPUIDLE_FLAG_RCU_IDLE))
+>                 rcu_idle_exit();
+>         start_critical_timings();
+> @@ -246,12 +250,8 @@ int cpuidle_enter_state(struct cpuidle_d
+>         /* The cpu is no longer idle or about to enter idle. */
+>         sched_idle_set_state(NULL);
 >
->         return index;
+> -       if (broadcast) {
+> -               if (WARN_ON_ONCE(!irqs_disabled()))
+> -                       local_irq_disable();
+> -
+> +       if (broadcast)
+>                 tick_broadcast_exit();
+> -       }
+>
+>         if (!cpuidle_state_is_coupled(drv, index))
+>                 local_irq_enable();
 >
 >
 _______________________________________________
