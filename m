@@ -1,90 +1,87 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 80777C43334
-	for <virtualization@archiver.kernel.org>; Thu,  7 Jul 2022 23:02:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3D0DBC43334
+	for <virtualization@archiver.kernel.org>; Fri,  8 Jul 2022 01:14:25 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id DBF2641161;
-	Thu,  7 Jul 2022 23:02:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DBF2641161
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=Os06izds
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id NWu65Z8A1zH0; Thu,  7 Jul 2022 23:02:19 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 208CF4014B;
-	Thu,  7 Jul 2022 23:02:19 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 208CF4014B
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id EF6F2C0035;
-	Thu,  7 Jul 2022 23:02:18 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 5EB70C002D
- for <virtualization@lists.linux-foundation.org>;
- Thu,  7 Jul 2022 23:02:17 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 4144B81747
- for <virtualization@lists.linux-foundation.org>;
- Thu,  7 Jul 2022 23:02:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4144B81747
+	by smtp1.osuosl.org (Postfix) with ESMTP id A2FA0840F9;
+	Fri,  8 Jul 2022 01:14:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A2FA0840F9
 Authentication-Results: smtp1.osuosl.org;
- dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com
- header.a=rsa-sha256 header.s=Intel header.b=Os06izds
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=dor+TBRo
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id JmK8Os6TLfqV; Fri,  8 Jul 2022 01:14:23 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id E929E84615;
+	Fri,  8 Jul 2022 01:14:22 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E929E84615
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id BC921C0033;
+	Fri,  8 Jul 2022 01:14:22 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 74544C002D
+ for <virtualization@lists.linux-foundation.org>;
+ Fri,  8 Jul 2022 01:14:21 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 568B284615
+ for <virtualization@lists.linux-foundation.org>;
+ Fri,  8 Jul 2022 01:14:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 568B284615
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id EFB9Nb57S4bl
+ with ESMTP id mns5oCueyrdf
  for <virtualization@lists.linux-foundation.org>;
- Thu,  7 Jul 2022 23:02:14 +0000 (UTC)
+ Fri,  8 Jul 2022 01:14:20 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6FC7F816F5
-Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 6FC7F816F5
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1F02D840F9
+Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 1F02D840F9
  for <virtualization@lists.linux-foundation.org>;
- Thu,  7 Jul 2022 23:02:13 +0000 (UTC)
+ Fri,  8 Jul 2022 01:14:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1657234933; x=1688770933;
+ t=1657242860; x=1688778860;
  h=date:from:to:cc:subject:message-id:references:
  mime-version:in-reply-to;
- bh=3byBZehLtKcDOmjsnhhmWfxIRWZEBDCHys/67WVncWE=;
- b=Os06izdskIxiC3FDKrZIFtnU8mEPwtbEimClMFh2zwaqYjq+sAW7qQM9
- r7R0nvWgi4o3AZF6O3IMws6MygzNVWoVAskDrLoJoiwM0kM8IlkjCj7dc
- nJJFp3Kb3dj+owt+hdeCpFbJJO0onW+/6jzmHG4y6hqfucBq2wuHFMzIh
- hPj3+ju3Uvwe4RBNKsmSgHXekT2EWcKq2O6/1jQyg4N5ovJ22Awr9RzGu
- 4TcMn5RDM2741MqN8rkStuClPfYN/iMEa9wrKbygy6nFPQMkjmcTOChaG
- AQ1yFrllLfJ1NAjHoEy7Dxsbhm7EVjeD7k2Enhb8j04oJNnTuLxFjdQCy A==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10401"; a="282891998"
-X-IronPort-AV: E=Sophos;i="5.92,253,1650956400"; d="scan'208";a="282891998"
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
- by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 07 Jul 2022 16:02:12 -0700
+ bh=wxI3VmblkWkttFlRKDyLAHaqzg9O9oOsJXYXSJn1xFc=;
+ b=dor+TBRoxuxwpaCUO+jiPwLHBpKJOjdH+5w/N/9iFrN9/yKfrpjTvlDh
+ DwcpiW/nB3vaGrZPzKqsECUz7BW71e6TdhSBeBwS5e2A9316EcluSwH4X
+ kcJyjqdwLGo+yGEVSXMyjZSW57sDBFBA6oaBYKodpWS5pKtjQVUBWRb4Z
+ Y6ayu5+6QpUSaM/rRT600rAl/14KBk2Ih1a7J4HVfjAahjPdOqQdU4L7B
+ R6f378uPyUVBiB4cSZ71d/NadcWBhh6clqXRn6uZcEyBdQEoZ9XohoYyZ
+ JprTR/gw+L8ZkJWTBx3oG5kqj6qZOBMSQeruQw4vNkfP/A6g3APtE9bEQ A==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10401"; a="263940564"
+X-IronPort-AV: E=Sophos;i="5.92,254,1650956400"; d="scan'208";a="263940564"
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+ by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 07 Jul 2022 18:14:19 -0700
 X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.92,253,1650956400"; d="scan'208";a="543990636"
+X-IronPort-AV: E=Sophos;i="5.92,253,1650956400"; d="scan'208";a="626529390"
 Received: from lkp-server01.sh.intel.com (HELO 68b931ab7ac1) ([10.239.97.150])
- by orsmga003.jf.intel.com with ESMTP; 07 Jul 2022 16:02:09 -0700
+ by orsmga001.jf.intel.com with ESMTP; 07 Jul 2022 18:14:16 -0700
 Received: from kbuild by 68b931ab7ac1 with local (Exim 4.95)
- (envelope-from <lkp@intel.com>) id 1o9aVc-000MZv-R3;
- Thu, 07 Jul 2022 23:02:08 +0000
-Date: Fri, 8 Jul 2022 07:01:25 +0800
+ (envelope-from <lkp@intel.com>) id 1o9cZT-000Mi1-CM;
+ Fri, 08 Jul 2022 01:14:15 +0000
+Date: Fri, 8 Jul 2022 09:14:08 +0800
 From: kernel test robot <lkp@intel.com>
 To: Xie Yongji <xieyongji@bytedance.com>, mst@redhat.com,
  jasowang@redhat.com, xiaodong.liu@intel.com,
  maxime.coquelin@redhat.com, stefanha@redhat.com
 Subject: Re: [PATCH v2 5/5] vduse: Support registering userspace memory for
  IOTLB
-Message-ID: <202207080640.p8q3NqHB-lkp@intel.com>
+Message-ID: <202207080910.VfMFrTtN-lkp@intel.com>
 References: <20220706050503.171-6-xieyongji@bytedance.com>
 MIME-Version: 1.0
 Content-Disposition: inline
 In-Reply-To: <20220706050503.171-6-xieyongji@bytedance.com>
-Cc: llvm@lists.linux.dev, kbuild-all@lists.01.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, songmuchun@bytedance.com
+Cc: virtualization@lists.linux-foundation.org, kbuild-all@lists.01.org,
+ linux-kernel@vger.kernel.org, songmuchun@bytedance.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -113,8 +110,8 @@ https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
 url:    https://github.com/intel-lab-lkp/linux/commits/Xie-Yongji/VDUSE-Support-registering-userspace-memory-as-bounce-buffer/20220706-130802
 base:   https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git e35e5b6f695d241ffb1d223207da58a1fbcdff4b
-config: hexagon-randconfig-r005-20220707 (https://download.01.org/0day-ci/archive/20220708/202207080640.p8q3NqHB-lkp@intel.com/config)
-compiler: clang version 15.0.0 (https://github.com/llvm/llvm-project 66ae1d60bb278793fd651cece264699d522bab84)
+config: parisc-randconfig-r003-20220707 (https://download.01.org/0day-ci/archive/20220708/202207080910.VfMFrTtN-lkp@intel.com/config)
+compiler: hppa-linux-gcc (GCC) 11.3.0
 reproduce (this is a W=1 build):
         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
         chmod +x ~/bin/make.cross
@@ -124,39 +121,36 @@ reproduce (this is a W=1 build):
         git checkout 9be699264e4fede9c3be913b2d1003c260d9fa05
         # save the config file
         mkdir build_dir && cp config build_dir/.config
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross W=1 O=build_dir ARCH=hexagon SHELL=/bin/bash drivers/vdpa/vdpa_user/
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-11.3.0 make.cross W=1 O=build_dir ARCH=parisc SHELL=/bin/bash drivers/vdpa/vdpa_user/
 
 If you fix the issue, kindly add following tag where applicable
 Reported-by: kernel test robot <lkp@intel.com>
 
 All error/warnings (new ones prefixed by >>):
 
->> drivers/vdpa/vdpa_user/vduse_dev.c:949:2: error: call to undeclared function 'vfree'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-           vfree(dev->iotlb_mem->pages);
-           ^
->> drivers/vdpa/vdpa_user/vduse_dev.c:978:14: error: call to undeclared function '__vmalloc'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-           page_list = __vmalloc(array_size(npages, sizeof(struct page *)),
-                       ^
-   drivers/vdpa/vdpa_user/vduse_dev.c:978:14: note: did you mean '__kmalloc'?
-   include/linux/slab.h:434:7: note: '__kmalloc' declared here
-   void *__kmalloc(size_t size, gfp_t flags) __assume_kmalloc_alignment __alloc_size(1);
-         ^
->> drivers/vdpa/vdpa_user/vduse_dev.c:978:12: warning: incompatible integer to pointer conversion assigning to 'struct page **' from 'int' [-Wint-conversion]
-           page_list = __vmalloc(array_size(npages, sizeof(struct page *)),
-                     ^ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   drivers/vdpa/vdpa_user/vduse_dev.c:1018:3: error: call to undeclared function 'vfree'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-                   vfree(page_list);
-                   ^
-   drivers/vdpa/vdpa_user/vduse_dev.c:1654:51: warning: shift count >= width of type [-Wshift-count-overflow]
-           ret = dma_set_mask_and_coherent(&vdev->vdpa.dev, DMA_BIT_MASK(64));
-                                                            ^~~~~~~~~~~~~~~~
-   include/linux/dma-mapping.h:76:54: note: expanded from macro 'DMA_BIT_MASK'
-   #define DMA_BIT_MASK(n) (((n) == 64) ? ~0ULL : ((1ULL<<(n))-1))
-                                                        ^ ~~~
-   2 warnings and 3 errors generated.
+   drivers/vdpa/vdpa_user/vduse_dev.c: In function 'vduse_dev_dereg_iotlb_mem':
+>> drivers/vdpa/vdpa_user/vduse_dev.c:949:9: error: implicit declaration of function 'vfree'; did you mean 'kvfree'? [-Werror=implicit-function-declaration]
+     949 |         vfree(dev->iotlb_mem->pages);
+         |         ^~~~~
+         |         kvfree
+   drivers/vdpa/vdpa_user/vduse_dev.c: In function 'vduse_dev_reg_iotlb_mem':
+>> drivers/vdpa/vdpa_user/vduse_dev.c:978:21: error: implicit declaration of function '__vmalloc'; did you mean '__kmalloc'? [-Werror=implicit-function-declaration]
+     978 |         page_list = __vmalloc(array_size(npages, sizeof(struct page *)),
+         |                     ^~~~~~~~~
+         |                     __kmalloc
+>> drivers/vdpa/vdpa_user/vduse_dev.c:978:19: warning: assignment to 'struct page **' from 'int' makes pointer from integer without a cast [-Wint-conversion]
+     978 |         page_list = __vmalloc(array_size(npages, sizeof(struct page *)),
+         |                   ^
+   cc1: some warnings being treated as errors
+
+Kconfig warnings: (for reference only)
+   WARNING: unmet direct dependencies detected for DRM_DP_AUX_BUS
+   Depends on HAS_IOMEM && DRM && OF
+   Selected by
+   - DRM_MSM && HAS_IOMEM && DRM && (ARCH_QCOM || SOC_IMX5 || COMPILE_TEST && COMMON_CLK && IOMMU_SUPPORT && (QCOM_OCMEM || QCOM_OCMEM && (QCOM_LLCC || QCOM_LLCC && (QCOM_COMMAND_DB || QCOM_COMMAND_DB
 
 
-vim +/vfree +949 drivers/vdpa/vdpa_user/vduse_dev.c
+vim +949 drivers/vdpa/vdpa_user/vduse_dev.c
 
    929	
    930	static int vduse_dev_dereg_iotlb_mem(struct vduse_dev *dev,
