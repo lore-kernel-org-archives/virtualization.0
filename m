@@ -1,122 +1,126 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id AD7B5C43334
-	for <virtualization@archiver.kernel.org>; Fri,  8 Jul 2022 06:19:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E51A4C43334
+	for <virtualization@archiver.kernel.org>; Fri,  8 Jul 2022 06:21:12 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 1F2F561315;
-	Fri,  8 Jul 2022 06:19:56 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1F2F561315
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=iYGaJ5+U
+	by smtp1.osuosl.org (Postfix) with ESMTP id 6AD9B84653;
+	Fri,  8 Jul 2022 06:21:12 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6AD9B84653
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=NMCPerRJ
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id iEhc38ehy1iW; Fri,  8 Jul 2022 06:19:55 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 5C7C960B55;
-	Fri,  8 Jul 2022 06:19:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5C7C960B55
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id lDpVTXH7boo2; Fri,  8 Jul 2022 06:21:11 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id C766884082;
+	Fri,  8 Jul 2022 06:21:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C766884082
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0CDD4C0033;
-	Fri,  8 Jul 2022 06:19:54 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 81904C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8D611C0033;
+	Fri,  8 Jul 2022 06:21:10 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E5EDDC002D
  for <virtualization@lists.linux-foundation.org>;
- Fri,  8 Jul 2022 06:19:52 +0000 (UTC)
+ Fri,  8 Jul 2022 06:21:08 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 47F2F402E0
+ by smtp1.osuosl.org (Postfix) with ESMTP id B2D15844E6
  for <virtualization@lists.linux-foundation.org>;
- Fri,  8 Jul 2022 06:19:52 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 47F2F402E0
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=iYGaJ5+U
+ Fri,  8 Jul 2022 06:21:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B2D15844E6
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id EE4CRRNrdK92
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id MuAb42vwmYLF
  for <virtualization@lists.linux-foundation.org>;
- Fri,  8 Jul 2022 06:19:51 +0000 (UTC)
+ Fri,  8 Jul 2022 06:21:08 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org CFB2540207
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CD32B84082
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id CFB2540207
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id CD32B84082
  for <virtualization@lists.linux-foundation.org>;
- Fri,  8 Jul 2022 06:19:50 +0000 (UTC)
+ Fri,  8 Jul 2022 06:21:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1657261189;
+ s=mimecast20190719; t=1657261266;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=a5vVz27zbJ4/4jSjRREMpd6iOsJvh9+pVel0XkOEnwA=;
- b=iYGaJ5+Uyaf3OjOo0he8knirKI8lrADbqPFTlko0f14aM6XauLbLhJRSVSNXbCN8nm4JTG
- G0OFdpw/KZfRNLD7VutmuVjWijORxr3uW/zSCxIqs8K8UsFCYE0+eJQ7pbA8h+Zc7uIM+z
- CMglw578CjAQxSDNsHlXI8bFS9Cvqaw=
-Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
- [209.85.208.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=vucI6v2UNiSkfdv0+LNa4VjRInUBJ0CkIXv+ERyy8hk=;
+ b=NMCPerRJwoV39q27Be+W+HBa96X3E4jiRbNkxqn4Cckn5/mWlv04rxvNNDAWUcmXxpCq4U
+ MxyeLt6BRV3zva9KEoAfHccUGIvl4jbPtatSw/9Y2vE+d8QwA0q61JkbKnk90ug7X2yyPi
+ I+ZEPGVbjSdYR+R0cyDLsLbgbkeUVHo=
+Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
+ [209.85.167.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-442-IjAa9EZ8MUOA4z-Rig9Biw-1; Fri, 08 Jul 2022 02:19:36 -0400
-X-MC-Unique: IjAa9EZ8MUOA4z-Rig9Biw-1
-Received: by mail-lj1-f199.google.com with SMTP id
- m16-20020a2e8710000000b0025d46f0cfb1so1766495lji.16
+ us-mta-7-yZuer-VMNpW65jI5OTdPAg-1; Fri, 08 Jul 2022 02:21:05 -0400
+X-MC-Unique: yZuer-VMNpW65jI5OTdPAg-1
+Received: by mail-lf1-f72.google.com with SMTP id
+ e8-20020ac24e08000000b0047fad5770d2so7425024lfr.17
  for <virtualization@lists.linux-foundation.org>;
- Thu, 07 Jul 2022 23:19:36 -0700 (PDT)
+ Thu, 07 Jul 2022 23:21:05 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=a5vVz27zbJ4/4jSjRREMpd6iOsJvh9+pVel0XkOEnwA=;
- b=xnhhqSKQQzkppRL4V4rQfwdp1KnKQ6HqT3Tj2mkEi5/ixwO/xBgP9MLuOn2W6cKcNX
- EpKC8fZy9lOFZM30gGlLRcDxYCQ/RB/hHp/JU/3l+LhzMS9y5K4tMK8xPoHVnfIcdwji
- 0QsXXCsUUPY67BjVjFSxWW6WELMQzwOaoSFiml3obGK5v1sVs0fQOJu5HVTB6T/GP0TC
- xrybIS91h+jQ5Dw7dcOcaAGcRULLURBXEsPg4Rzq8OGvkeP5wzGFlN+2xzIKe5+kgjQv
- 6lMQz5m7i7jghuFw1Me83s3fLu0MbKTZmJ3TJfuTXsc5DZRdRP3ybz2p8ovLKJ/iW85y
- KC6A==
-X-Gm-Message-State: AJIora82VKxIWhLQ9/SeC3zLWHoO7vLaxGwxFSX35s2vzdpyxDnbWenK
- hK7c5FjGaXlNNM/ix1+4YpSHylqJ1pVPzSUuMr2svKNLm8UynercG7kc8Stl/SC51OFjM6bTR78
- 6vfp25HN2TXVPHqtsj0Wxi147m3ugfH/IzGhrjs33YytIMSoR3rowIg35Hg==
-X-Received: by 2002:a2e:9799:0:b0:25d:15f5:228e with SMTP id
- y25-20020a2e9799000000b0025d15f5228emr978138lji.251.1657261174843; 
- Thu, 07 Jul 2022 23:19:34 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1uxJ/EKfFxMF/iaKBUmWK7QlG1NIa4793e3lxK+/z85nn1vFfdUQodKjT54juGd6oAmZdCrdadH0Z92bRjEZeU=
-X-Received: by 2002:a2e:9799:0:b0:25d:15f5:228e with SMTP id
- y25-20020a2e9799000000b0025d15f5228emr978131lji.251.1657261174573; Thu, 07
- Jul 2022 23:19:34 -0700 (PDT)
+ :message-id:subject:to:cc:content-transfer-encoding;
+ bh=vucI6v2UNiSkfdv0+LNa4VjRInUBJ0CkIXv+ERyy8hk=;
+ b=skvSRU2M3IUYDG85uE+fXnO8muBLdZvK+KaXaRd3DGM2DfAVZGcoFW17WJDmS84mAy
+ 9DLAx25Jfb9YGiTNeLNWTVfdgigHTAif0Srsw2uFz28W8SSxadRv3+QRS+SKYEu33fjZ
+ slmLFV0AufsgwbObXD+84pZRY8ryDarWVSXHHYpla1pLHINVR2J8PxFOn2UnQpWI8DhN
+ At7XmAtridpYaZJamim5qvFJkFYomWSx43C/Q+xI8ERexjsub64EvdXZ2FOVG8F7DOYh
+ Y064OdSBfCWNsmXHmfbPsM9OulwP1A2brM5zeHGo1Fm1zfnktxBZkU4OBceS/x4lcDk6
+ D7Ag==
+X-Gm-Message-State: AJIora+Ncw3BLJ0zqWx092mFPkr0SHJHL9sJxKieV3E5uXCK2mNlWByX
+ 632CfJO4Z03t/j67pDyy8bjdHeRdd9q/+WQvqDjHNjeGBL9v0u93VUgvB8xCghTG7InSI14sASx
+ bgen7qSoKw9CnNMw6thOcI0bw1CV4+1durwKsMgo4iakLxR8DsANuoEyKUA==
+X-Received: by 2002:a2e:9ad0:0:b0:25a:7156:26bb with SMTP id
+ p16-20020a2e9ad0000000b0025a715626bbmr999504ljj.141.1657261264043; 
+ Thu, 07 Jul 2022 23:21:04 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1siGvuif2Z3b/qz6BV5rwXiRX4Y2KnHOm/sW0UQhHOR8L3Ua/tIp6J6o+V7iV6847cM54TvfHUP9+sN1Wog1zw=
+X-Received: by 2002:a2e:9ad0:0:b0:25a:7156:26bb with SMTP id
+ p16-20020a2e9ad0000000b0025a715626bbmr999458ljj.141.1657261263714; Thu, 07
+ Jul 2022 23:21:03 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220608171334.730739-1-apatel@ventanamicro.com>
- <20220629174318.GB2018382@p14s>
- <bf87a50c-6d92-8657-72a9-75af81d2489f@foss.st.com>
- <CANLsYkzHZMV3eVUn3Xpk0eiAexyr9HC5__K9xfAwfm23nuQj=A@mail.gmail.com>
- <20220630152003-mutt-send-email-mst@kernel.org>
- <CACGkMEtHuoHT6meHacsie8M87yjUX3jGEvP7BuU_Vrb3yqkDWw@mail.gmail.com>
- <20220701021536-mutt-send-email-mst@kernel.org>
- <CACGkMEtkVmq2+NtDpp-XWZFD_WO6Dzm4=pcVwg-aKmStAqJCVg@mail.gmail.com>
- <66323a79-48a7-853e-1c44-9e62fcc5b775@foss.st.com>
- <CACGkMEt53Qd0m9sKjmPsHgBLWX=fkujD8hq6nNu3BSthAAGWwQ@mail.gmail.com>
- <dbca5ff7-d681-606e-7574-93280b981ccd@foss.st.com>
-In-Reply-To: <dbca5ff7-d681-606e-7574-93280b981ccd@foss.st.com>
+References: <20220629065656.54420-1-xuanzhuo@linux.alibaba.com>
+ <20220629065656.54420-39-xuanzhuo@linux.alibaba.com>
+ <c0747cbc-685b-85a9-1931-0124124755f2@redhat.com>
+ <1656986375.3420787-1-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <1656986375.3420787-1-xuanzhuo@linux.alibaba.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 8 Jul 2022 14:19:23 +0800
-Message-ID: <CACGkMEtOpG4LoNOVAfRkxziM-v09ZC=-Zn0O++8v_U66fNOp0g@mail.gmail.com>
-Subject: Re: [PATCH] rpmsg: virtio: Fix broken rpmsg_probe()
-To: Arnaud POULIQUEN <arnaud.pouliquen@foss.st.com>
+Date: Fri, 8 Jul 2022 14:20:52 +0800
+Message-ID: <CACGkMEu80KP-ULz_CBvauRk_3XsCubMkkWv0uLnbt-wib5KOnA@mail.gmail.com>
+Subject: Re: [PATCH v11 38/40] virtio_net: support rx queue resize
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: Anup Patel <apatel@ventanamicro.com>,
- Mathieu Poirier <mathieu.poirier@linaro.org>,
- "Michael S. Tsirkin" <mst@redhat.com>, Anup Patel <anup@brainfault.org>,
- linux-remoteproc@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>,
+Cc: Vadim Pasternak <vadimp@nvidia.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ linux-remoteproc@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
  Bjorn Andersson <bjorn.andersson@linaro.org>,
- Alistair Francis <Alistair.Francis@wdc.com>, kvm-riscv@lists.infradead.org,
- Atish Patra <atishp@atishpatra.org>,
- virtualization <virtualization@lists.linux-foundation.org>
+ Eric Dumazet <edumazet@google.com>, Alexander Gordeev <agordeev@linux.ibm.com>,
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>, linux-s390@vger.kernel.org,
+ kvm <kvm@vger.kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
+ Richard Weinberger <richard@nod.at>,
+ Vincent Whitchurch <vincent.whitchurch@axis.com>,
+ John Fastabend <john.fastabend@gmail.com>, Halil Pasic <pasic@linux.ibm.com>,
+ Jakub Kicinski <kuba@kernel.org>,
+ virtualization <virtualization@lists.linux-foundation.org>,
+ Eric Farman <farman@linux.ibm.com>, Jesper Dangaard Brouer <hawk@kernel.org>,
+ Vasily Gorbik <gor@linux.ibm.com>, kangjie.xu@linux.alibaba.com,
+ Heiko Carstens <hca@linux.ibm.com>, linux-um@lists.infradead.org,
+ Mark Gross <markgross@kernel.org>, Hans de Goede <hdegoede@redhat.com>,
+ platform-driver-x86@vger.kernel.org,
+ "open list:XDP \(eXpress Data Path\)" <bpf@vger.kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Mathieu Poirier <mathieu.poirier@linaro.org>,
+ netdev <netdev@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Johannes Berg <johannes@sipsolutions.net>,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -128,256 +132,54 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Jul 6, 2022 at 2:57 PM Arnaud POULIQUEN
-<arnaud.pouliquen@foss.st.com> wrote:
->
->
->
-> On 7/6/22 06:03, Jason Wang wrote:
-> > On Mon, Jul 4, 2022 at 5:45 PM Arnaud POULIQUEN
-> > <arnaud.pouliquen@foss.st.com> wrote:
-> >>
-> >> Hello Jason,
-> >>
-> >> On 7/4/22 06:35, Jason Wang wrote:
-> >>> On Fri, Jul 1, 2022 at 2:16 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> >>>>
-> >>>> On Fri, Jul 01, 2022 at 09:22:15AM +0800, Jason Wang wrote:
-> >>>>> On Fri, Jul 1, 2022 at 3:20 AM Michael S. Tsirkin <mst@redhat.com> wrote:
-> >>>>>>
-> >>>>>> On Thu, Jun 30, 2022 at 11:51:30AM -0600, Mathieu Poirier wrote:
-> >>>>>>> + virtualization@lists.linux-foundation.org
-> >>>>>>> + jasowang@redhat.com
-> >>>>>>> + mst@redhat.com
-> >>>>>>>
-> >>>>>>> On Thu, 30 Jun 2022 at 10:20, Arnaud POULIQUEN
-> >>>>>>> <arnaud.pouliquen@foss.st.com> wrote:
-> >>>>>>>>
-> >>>>>>>> Hi,
-> >>>>>>>>
-> >>>>>>>> On 6/29/22 19:43, Mathieu Poirier wrote:
-> >>>>>>>>> Hi Anup,
-> >>>>>>>>>
-> >>>>>>>>> On Wed, Jun 08, 2022 at 10:43:34PM +0530, Anup Patel wrote:
-> >>>>>>>>>> The rpmsg_probe() is broken at the moment because virtqueue_add_inbuf()
-> >>>>>>>>>> fails due to both virtqueues (Rx and Tx) marked as broken by the
-> >>>>>>>>>> __vring_new_virtqueue() function. To solve this, virtio_device_ready()
-> >>>>>>>>>> (which unbreaks queues) should be called before virtqueue_add_inbuf().
-> >>>>>>>>>>
-> >>>>>>>>>> Fixes: 8b4ec69d7e09 ("virtio: harden vring IRQ")
-> >>>>>>>>>> Signed-off-by: Anup Patel <apatel@ventanamicro.com>
-> >>>>>>>>>> ---
-> >>>>>>>>>>  drivers/rpmsg/virtio_rpmsg_bus.c | 6 +++---
-> >>>>>>>>>>  1 file changed, 3 insertions(+), 3 deletions(-)
-> >>>>>>>>>>
-> >>>>>>>>>> diff --git a/drivers/rpmsg/virtio_rpmsg_bus.c b/drivers/rpmsg/virtio_rpmsg_bus.c
-> >>>>>>>>>> index 905ac7910c98..71a64d2c7644 100644
-> >>>>>>>>>> --- a/drivers/rpmsg/virtio_rpmsg_bus.c
-> >>>>>>>>>> +++ b/drivers/rpmsg/virtio_rpmsg_bus.c
-> >>>>>>>>>> @@ -929,6 +929,9 @@ static int rpmsg_probe(struct virtio_device *vdev)
-> >>>>>>>>>>      /* and half is dedicated for TX */
-> >>>>>>>>>>      vrp->sbufs = bufs_va + total_buf_space / 2;
-> >>>>>>>>>>
-> >>>>>>>>>> +    /* From this point on, we can notify and get callbacks. */
-> >>>>>>>>>> +    virtio_device_ready(vdev);
-> >>>>>>>>>> +
-> >>>>>>>>>
-> >>>>>>>>> Calling virtio_device_ready() here means that virtqueue_get_buf_ctx_split() can
-> >>>>>>>>> potentially be called (by way of rpmsg_recv_done()), which will race with
-> >>>>>>>>> virtqueue_add_inbuf().  If buffers in the virtqueue aren't available then
-> >>>>>>>>> rpmsg_recv_done() will fail, potentially breaking remote processors' state
-> >>>>>>>>> machines that don't expect their initial name service to fail when the "device"
-> >>>>>>>>> has been marked as ready.
-> >>>>>>>>>
-> >>>>>>>>> What does make me curious though is that nobody on the remoteproc mailing list
-> >>>>>>>>> has complained about commit 8b4ec69d7e09 breaking their environment... By now,
-> >>>>>>>>> i.e rc4, that should have happened.  Anyone from TI, ST and Xilinx care to test this on
-> >>>>>>>>> their rig?
-> >>>>>>>>
-> >>>>>>>> I tested on STm32mp1 board using tag v5.19-rc4(03c765b0e3b4)
-> >>>>>>>> I confirm the issue!
-> >>>>>>>>
-> >>>>>>>> Concerning the solution, I share Mathieu's concern. This could break legacy.
-> >>>>>>>> I made a short test and I would suggest to use __virtio_unbreak_device instead, tounbreak the virtqueues without changing the init sequence.
-> >>>>>>>>
-> >>>>>>>> I this case the patch would be:
-> >>>>>>>>
-> >>>>>>>> +       /*
-> >>>>>>>> +        * Unbreak the virtqueues to allow to add buffers before setting the vdev status
-> >>>>>>>> +        * to ready
-> >>>>>>>> +        */
-> >>>>>>>> +       __virtio_unbreak_device(vdev);
-> >>>>>>>> +
-> >>>>>>>>
-> >>>>>>>>         /* set up the receive buffers */
-> >>>>>>>>         for (i = 0; i < vrp->num_bufs / 2; i++) {
-> >>>>>>>>                 struct scatterlist sg;
-> >>>>>>>>                 void *cpu_addr = vrp->rbufs + i * vrp->buf_size;
-> >>>>>>>
-> >>>>>>> This will indeed fix the problem.  On the flip side the kernel
-> >>>>>>> documentation for __virtio_unbreak_device() puzzles me...
-> >>>>>>> It clearly states that it should be used for probing and restoring but
-> >>>>>>> _not_ directly by the driver.  Function rpmsg_probe() is part of
-> >>>>>>> probing but also the entry point to a driver.
-> >>>>>>>
-> >>>>>>> Michael and virtualisation folks, is this the right way to move forward?
-> >>>>>>
-> >>>>>> I don't think it is, __virtio_unbreak_device is intended for core use.
-> >>>>>
-> >>>>> Can we fill the rx after virtio_device_ready() in this case?
-> >>>>>
-> >>>>> Btw, the driver set driver ok after registering, we probably get a svq
-> >>>>> kick before DRIVER_OK?
-> >>
-> >> By "registering" you mean calling rpmsg_virtio_add_ctrl_dev and
-> >> rpmsg_ns_register_device?
-> >
-> > Yes.
-> >
-> >>
-> >> The rpmsg_ns_register_device has to be called before. Because it has to be
-> >> probed to handle the first message coming from the remote side to create
-> >> associated rpmsg local device.
-> >
-> > I couldn't find the code to do this, maybe you can give me some hint on this.
->
-> The rpmsg_ns is available here :
-> https://elixir.bootlin.com/linux/latest/source/drivers/rpmsg/rpmsg_ns.c
->
-> It is probed on rpmsg_ns_register_device call.
-> https://elixir.bootlin.com/linux/latest/source/drivers/rpmsg/virtio_rpmsg_bus.c#L974
-
-Yes but what I want to ask is, it looks to me
-rpmsg_ns_register_device() only creates a rpmsg device. Do you mean
-the rpmsg driver that will handle the first message during its probe?
-
->
->
-> >
-> >> It doesn't send message.
-> >
-> > I see the function register the device to the bus, I wonder if this
-> > means the device could be probed and used by the driver before
-> > virtio_device_ready().
-> >
-> >>
-> >> The risk could be for the rpmsg_ctrl device. Registering it
-> >> after the virtio_device_ready(vdev) call could make sense...
-> >
-> > I see.
-> >
-> >>
-> >>>>>
-> >>>>> Thanks
-> >>>>
-> >>>> Is this an ack for the original patch?
-> >>>
-> >>> Nope, I meant, instead of moving virtio_device_ready() a little bit
-> >>> earlier, can we only move the rvq filling after virtio_device_ready().
-> >>>
-> >>> Thanks
-> >>
-> >> Please find some concerns about this inversion here:
-> >> https://lore.kernel.org/lkml/20220701053813-mutt-send-email-mst@kernel.org/
-> >>
-> >> Regarding __virtio_unbreak_device. The pending virtio_break_device is
-> >> used by some virtio driver.
-> >> Could we consider that it makes sense to also have a
-> >> virtio_unbreak_device interface?
-> >
-> > We don't want to allow the driver to unbreak a device since it's
-> > easier to have bugs.
-> >
-> >>
-> >>
-> >> I do not well understand the reason of the commit:
-> >> 8b4ec69d7e09 ("virtio: harden vring IRQ", 2022-05-27)
-> >
-> > It tries to forbid the virtqueue callbacks to be called before
-> > virtio_device_ready(). This helps to prevent the malicious device from
-> > attacking the driver.
-> >
-> > But unfortunately, it breaks several driver because:
-> >
-> > 1) some driver have races in probe/remove
-> > 2) it tries to reuse vq->broken which may break the driver that call
-> > virqueue_add() before virtio_device_ready() which is allowed by the
-> > spec
-> >
-> > There's a discussion to have a better behavior that doesn't break the
-> > existing drivers. And the IRQ hardening feature is marked as broken
-> > now, so rpmsg should be fine without any extra effort.
->
-> Thanks for the explanations.
-> If the discussions are in a mail thread could you give me the reference?
-
-Here're the discussions and commits:
-
-https://lore.kernel.org/lkml/20220622012940.21441-1-jasowang@redhat.com/
-
-https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git/commit/?h=linux-next&id=c346dae4f3fbce51bbd4f2ec5e8c6f9b91e93163
-https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git/commit/?h=linux-next&id=6a9720576cd00d30722c5f755bd17d4cfa9df636
-
-Thanks
-
->
-> Thanks,
-> Arnaud
->
-> >
-> >> So following alternative is probably pretty naive:
-> >> Is the use of virtqueue_disable_cb could be an alternative to the
-> >> vq->broken usage allowing to register buffer while preventing virtqueue IRQ?
-> >
-> > Probably not, there's no guarantee that the device will not send
-> > notification after virqtueue_disable_cb().
-> >
-> > Thanks
-> >
-> >>
-> >> Thanks,
-> >> Arnaud
-> >>
-> >>>
-> >>>>
-> >>>>>>
-> >>>>>>>>
-> >>>>>>>> Regards,
-> >>>>>>>> Arnaud
-> >>>>>>>>
-> >>>>>>>>>
-> >>>>>>>>> Thanks,
-> >>>>>>>>> Mathieu
-> >>>>>>>>>
-> >>>>>>>>>>      /* set up the receive buffers */
-> >>>>>>>>>>      for (i = 0; i < vrp->num_bufs / 2; i++) {
-> >>>>>>>>>>              struct scatterlist sg;
-> >>>>>>>>>> @@ -983,9 +986,6 @@ static int rpmsg_probe(struct virtio_device *vdev)
-> >>>>>>>>>>       */
-> >>>>>>>>>>      notify = virtqueue_kick_prepare(vrp->rvq);
-> >>>>>>>>>>
-> >>>>>>>>>> -    /* From this point on, we can notify and get callbacks. */
-> >>>>>>>>>> -    virtio_device_ready(vdev);
-> >>>>>>>>>> -
-> >>>>>>>>>>      /* tell the remote processor it can start sending messages */
-> >>>>>>>>>>      /*
-> >>>>>>>>>>       * this might be concurrent with callbacks, but we are only
-> >>>>>>>>>> --
-> >>>>>>>>>> 2.34.1
-> >>>>>>>>>>
-> >>>>>>
-> >>>>
-> >>>
-> >>
-> >
->
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gVHVlLCBKdWwgNSwgMjAyMiBhdCAxMDowMCBBTSBYdWFuIFpodW8gPHh1YW56aHVvQGxpbnV4
+LmFsaWJhYmEuY29tPiB3cm90ZToKPgo+IE9uIE1vbiwgNCBKdWwgMjAyMiAxMTo0NDoxMiArMDgw
+MCwgSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4gd3JvdGU6Cj4gPgo+ID4g5ZyoIDIw
+MjIvNi8yOSAxNDo1NiwgWHVhbiBaaHVvIOWGmemBkzoKPiA+ID4gVGhpcyBwYXRjaCBpbXBsZW1l
+bnRzIHRoZSByZXNpemUgZnVuY3Rpb24gb2YgdGhlIHJ4IHF1ZXVlcy4KPiA+ID4gQmFzZWQgb24g
+dGhpcyBmdW5jdGlvbiwgaXQgaXMgcG9zc2libGUgdG8gbW9kaWZ5IHRoZSByaW5nIG51bSBvZiB0
+aGUKPiA+ID4gcXVldWUuCj4gPiA+Cj4gPiA+IFNpZ25lZC1vZmYtYnk6IFh1YW4gWmh1byA8eHVh
+bnpodW9AbGludXguYWxpYmFiYS5jb20+Cj4gPiA+IC0tLQo+ID4gPiAgIGRyaXZlcnMvbmV0L3Zp
+cnRpb19uZXQuYyB8IDIyICsrKysrKysrKysrKysrKysrKysrKysKPiA+ID4gICAxIGZpbGUgY2hh
+bmdlZCwgMjIgaW5zZXJ0aW9ucygrKQo+ID4gPgo+ID4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9u
+ZXQvdmlydGlvX25ldC5jIGIvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4gPiA+IGluZGV4IDlm
+ZTIyMmEzNjYzYS4uNmFiMTZmZDE5M2U1IDEwMDY0NAo+ID4gPiAtLS0gYS9kcml2ZXJzL25ldC92
+aXJ0aW9fbmV0LmMKPiA+ID4gKysrIGIvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4gPiA+IEBA
+IC0yNzgsNiArMjc4LDggQEAgc3RydWN0IHBhZGRlZF92bmV0X2hkciB7Cj4gPiA+ICAgICBjaGFy
+IHBhZGRpbmdbMTJdOwo+ID4gPiAgIH07Cj4gPiA+Cj4gPiA+ICtzdGF0aWMgdm9pZCB2aXJ0bmV0
+X3JxX2ZyZWVfdW51c2VkX2J1ZihzdHJ1Y3QgdmlydHF1ZXVlICp2cSwgdm9pZCAqYnVmKTsKPiA+
+ID4gKwo+ID4gPiAgIHN0YXRpYyBib29sIGlzX3hkcF9mcmFtZSh2b2lkICpwdHIpCj4gPiA+ICAg
+ewo+ID4gPiAgICAgcmV0dXJuICh1bnNpZ25lZCBsb25nKXB0ciAmIFZJUlRJT19YRFBfRkxBRzsK
+PiA+ID4gQEAgLTE4NDYsNiArMTg0OCwyNiBAQCBzdGF0aWMgbmV0ZGV2X3R4X3Qgc3RhcnRfeG1p
+dChzdHJ1Y3Qgc2tfYnVmZiAqc2tiLCBzdHJ1Y3QgbmV0X2RldmljZSAqZGV2KQo+ID4gPiAgICAg
+cmV0dXJuIE5FVERFVl9UWF9PSzsKPiA+ID4gICB9Cj4gPiA+Cj4gPiA+ICtzdGF0aWMgaW50IHZp
+cnRuZXRfcnhfcmVzaXplKHN0cnVjdCB2aXJ0bmV0X2luZm8gKnZpLAo+ID4gPiArICAgICAgICAg
+ICAgICAgICAgICAgICAgc3RydWN0IHJlY2VpdmVfcXVldWUgKnJxLCB1MzIgcmluZ19udW0pCj4g
+PiA+ICt7Cj4gPiA+ICsgICBpbnQgZXJyLCBxaW5kZXg7Cj4gPiA+ICsKPiA+ID4gKyAgIHFpbmRl
+eCA9IHJxIC0gdmktPnJxOwo+ID4gPiArCj4gPiA+ICsgICBuYXBpX2Rpc2FibGUoJnJxLT5uYXBp
+KTsKPiA+Cj4gPgo+ID4gRG8gd2UgbmVlZCB0byBjYW5jZWwgdGhlIHJlZmlsbCB3b3JrIGhlcmU/
+Cj4KPgo+IEkgdGhpbmsgbm8sIG5hcGlfZGlzYWJsZSBpcyBtdXR1YWxseSBleGNsdXNpdmUsIHdo
+aWNoIGVuc3VyZXMgdGhhdCB0aGVyZSB3aWxsIGJlCj4gbm8gY29uZmxpY3RzIGJldHdlZW4gdGhl
+bS4KClNvIHRoaXMgc291bmRzIHNpbWlsYXIgdG8gd2hhdCBJJ3ZlIGZpeGVkIHJlY2VudGx5LgoK
+MSkgTkFQSSBzY2hlZHVsZSBkZWxheWVkIHdvcmsuCjIpIHdlIGRpc2FibGUgTkFQSSBoZXJlCjMp
+IGRlbGF5ZWQgd29yayBnZXQgc2NoZWR1bGUgYW5kIGNhbGwgTkFQSSBhZ2FpbgoKPwoKVGhhbmtz
+Cgo+Cj4gVGhhbmtzLgo+Cj4gPgo+ID4gVGhhbmtzCj4gPgo+ID4KPiA+ID4gKwo+ID4gPiArICAg
+ZXJyID0gdmlydHF1ZXVlX3Jlc2l6ZShycS0+dnEsIHJpbmdfbnVtLCB2aXJ0bmV0X3JxX2ZyZWVf
+dW51c2VkX2J1Zik7Cj4gPiA+ICsgICBpZiAoZXJyKQo+ID4gPiArICAgICAgICAgICBuZXRkZXZf
+ZXJyKHZpLT5kZXYsICJyZXNpemUgcnggZmFpbDogcnggcXVldWUgaW5kZXg6ICVkIGVycjogJWRc
+biIsIHFpbmRleCwgZXJyKTsKPiA+ID4gKwo+ID4gPiArICAgaWYgKCF0cnlfZmlsbF9yZWN2KHZp
+LCBycSwgR0ZQX0tFUk5FTCkpCj4gPiA+ICsgICAgICAgICAgIHNjaGVkdWxlX2RlbGF5ZWRfd29y
+aygmdmktPnJlZmlsbCwgMCk7Cj4gPiA+ICsKPiA+ID4gKyAgIHZpcnRuZXRfbmFwaV9lbmFibGUo
+cnEtPnZxLCAmcnEtPm5hcGkpOwo+ID4gPiArICAgcmV0dXJuIGVycjsKPiA+ID4gK30KPiA+ID4g
+Kwo+ID4gPiAgIC8qCj4gPiA+ICAgICogU2VuZCBjb21tYW5kIHZpYSB0aGUgY29udHJvbCB2aXJ0
+cXVldWUgYW5kIGNoZWNrIHN0YXR1cy4gIENvbW1hbmRzCj4gPiA+ICAgICogc3VwcG9ydGVkIGJ5
+IHRoZSBoeXBlcnZpc29yLCBhcyBpbmRpY2F0ZWQgYnkgZmVhdHVyZSBiaXRzLCBzaG91bGQKPiA+
+Cj4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1
+YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0
+aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5m
+by92aXJ0dWFsaXphdGlvbg==
