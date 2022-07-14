@@ -4,105 +4,93 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5BFE9C433EF
-	for <virtualization@archiver.kernel.org>; Thu, 14 Jul 2022 06:51:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B8372C433EF
+	for <virtualization@archiver.kernel.org>; Thu, 14 Jul 2022 11:14:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id CD909404AE;
-	Thu, 14 Jul 2022 06:51:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org CD909404AE
+	by smtp2.osuosl.org (Postfix) with ESMTP id 2F2E640443;
+	Thu, 14 Jul 2022 11:14:17 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2F2E640443
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Iv+PWzrE
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=A0fZCQUj
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id uwwEAe8VgbJr; Thu, 14 Jul 2022 06:51:20 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 1ECF0400E7;
-	Thu, 14 Jul 2022 06:51:19 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1ECF0400E7
+	with ESMTP id sZKhhyukYaiP; Thu, 14 Jul 2022 11:14:16 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id BAB74416D0;
+	Thu, 14 Jul 2022 11:14:15 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BAB74416D0
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CE864C0035;
-	Thu, 14 Jul 2022 06:51:18 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3D5B9C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 998F7C0035;
+	Thu, 14 Jul 2022 11:14:15 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8BD60C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 14 Jul 2022 06:51:17 +0000 (UTC)
+ Thu, 14 Jul 2022 11:14:14 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 11B2B60B3F
+ by smtp2.osuosl.org (Postfix) with ESMTP id 73DF840510
  for <virtualization@lists.linux-foundation.org>;
- Thu, 14 Jul 2022 06:51:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 11B2B60B3F
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=Iv+PWzrE
+ Thu, 14 Jul 2022 11:14:14 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 73DF840510
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 5STHghkAFUVu
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id IhzpX4GnXk-y
  for <virtualization@lists.linux-foundation.org>;
- Thu, 14 Jul 2022 06:51:16 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3A7B360ADE
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 3A7B360ADE
+ Thu, 14 Jul 2022 11:14:13 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7FD3B40443
+Received: from mail-wm1-x336.google.com (mail-wm1-x336.google.com
+ [IPv6:2a00:1450:4864:20::336])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 7FD3B40443
  for <virtualization@lists.linux-foundation.org>;
- Thu, 14 Jul 2022 06:51:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1657781474;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=HbT2JvBc2XqkJKnBxgeNM/Rmvyhm52QxegxVfT/r/zs=;
- b=Iv+PWzrEIeJXPZ8SEAqIO8wcYpLN88pJJw4CiaDxZsYrNvLOKFXasG6rHDW00gOZaZCLAI
- XWxy50KNZHliMVjrS0WN6xMfT75XPa5sB/cxn872wKneWeHcsbsGGq9apxdxyObNzYo5gz
- pZFaHxlpCPRT/PmPtNZOtLHfh1UB2SM=
-Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
- [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-26-03ky6IsUPaCAhB3KTfx-nQ-1; Thu, 14 Jul 2022 02:51:13 -0400
-X-MC-Unique: 03ky6IsUPaCAhB3KTfx-nQ-1
-Received: by mail-lf1-f71.google.com with SMTP id
- t7-20020ac243a7000000b00489e8cb9450so392188lfl.21
+ Thu, 14 Jul 2022 11:14:13 +0000 (UTC)
+Received: by mail-wm1-x336.google.com with SMTP id b6so295711wmq.5
  for <virtualization@lists.linux-foundation.org>;
- Wed, 13 Jul 2022 23:51:13 -0700 (PDT)
+ Thu, 14 Jul 2022 04:14:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
+ h=from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=1mXResJww73UpBUgXzU26mfeHumFONoVe1fD4+eidgY=;
+ b=A0fZCQUjeq/rnKRmKsFqQikxnljB0/oTNVfWBPFQQ840VUkpTS5fWUl/5L+rCXf7Hm
+ AikKqmPcSJSZAEwCWh4LQCHP5j6HOzz5AA7t6vJfQ/IAB8Opt5PAzalXMoHTNnxDTh2z
+ JU/GlYXx6OCGVBY1F0XpsnrE7PA2IYvudA4RUi4rAz4ecUSN8LwoufL75PXZKnUo+Lcg
+ tuOIWx7p4AUWrhIa3o9i+G4PS/JmVsC4qAHnb0qCE8HTuUyBkfdo6UEzOklU4xUwyl8f
+ ObGzdQw0PvBpl7WrkTa+ns6aiNp2CR2KK/fSrXdyrV8j5qjvhqoZiUGDVwFa92y9kVDQ
+ n8NQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=HbT2JvBc2XqkJKnBxgeNM/Rmvyhm52QxegxVfT/r/zs=;
- b=ah23AXzCgX2gRNJgQeslp4D2AourT0PQ9Bzwdv9ze/tQn+ocWs3PghfL3ij3akti/Q
- lKhMO4QSPuEnhyv8XpDtNpAe/e221NkxnuLidkXk442E8JGkyI19WuonJaM1Ly/NLe/b
- 8wzlTHj1Wroot/Zr12GzhW4L9JFWx0v7ahq0/7ZnTCXRQn4u8/woogLx18hLiMuUJutg
- Ut1zb4bZQLXL8/WbAZzNU96/qEOhcRe8KPySmrNzP+pewl6gcxfUlNkuIgj4/6smR59k
- /dQZDyNKR+eBHNAFtdAWGC64vhi6vIO58W7Wvlm0L5xjDwSz+JXrDv5bdqiZzF3Z+tOD
- KZPg==
-X-Gm-Message-State: AJIora89SsVi1eWWlgEytOi1ADsD+gZgWAIE3aApDj7i8uRe3Xc9BDYp
- hPUFlV1E0rDH1NPElkdGzgDvSarh2Uu9JGUBX3If1YD5OPbKuUXnXJiZhHk6VOwP1Mp7SxcfUVm
- NZyRrapZg0Iwk/bHnbrmFXnVT5WYw9zm1215H9b0Gp4ZT/XH7XP1S2pLSSQ==
-X-Received: by 2002:a2e:a9a6:0:b0:25d:601a:d3d8 with SMTP id
- x38-20020a2ea9a6000000b0025d601ad3d8mr3681061ljq.141.1657781472165; 
- Wed, 13 Jul 2022 23:51:12 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1uI/eLMRQBpNcuUML+TJyS/PbgkDhlRg3/cP/cM2G/aS/R9MQtHzAiT4CpQCq4CSLsyduUHxZSeAECkmeRWAsU=
-X-Received: by 2002:a2e:a9a6:0:b0:25d:601a:d3d8 with SMTP id
- x38-20020a2ea9a6000000b0025d601ad3d8mr3681050ljq.141.1657781471977; Wed, 13
- Jul 2022 23:51:11 -0700 (PDT)
+ h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=1mXResJww73UpBUgXzU26mfeHumFONoVe1fD4+eidgY=;
+ b=Cxo+0f2Ft5lWZNCS4J8wsv2/DhtGstybjkNvAWmuwfPPkw/3EP6NeJdbHhCcR8pNoP
+ 8S61YSCUe8kD0OZ4onfiSWEhjjBdSkdCx5rVi/GKZor3UOdmwQXV9yNQ1j8OOTzwb/ZH
+ DNujru3ueYU/QJjNoatM1NZzDEbA0tf0tNoYU5ICNCuwPG+6bfxPvRMtqixtVdbM7SCF
+ bWKFrDLjrf5A+dpAs2Xa9BnIdJDbFjMlEciIRhNp+LTm3LobZX6jnzVb1m7AacsIBOCn
+ WF+iuoBsnrYyLDuCUQ0Xt05l9MHJ1umIfMJqT2i0eUxOEpWckDCUDF8CEjiaFx+NtUFW
+ 8Pdg==
+X-Gm-Message-State: AJIora9rJyMGpxgiypxFmZj/Xh8mlfvMhmRLD2B0xRZL7thuDHtFHE4z
+ mkGzS79h1OceHnO6r/BL7dcU3g==
+X-Google-Smtp-Source: AGRyM1uIAChlItXoVW28WYAYQc/hahdPbVdJHphRVg5mE36QmQZpgZSceexJEoWn6QBcqzQFpoiNvg==
+X-Received: by 2002:a05:600c:41c2:b0:3a2:dc9f:959e with SMTP id
+ t2-20020a05600c41c200b003a2dc9f959emr8797324wmh.166.1657797251503; 
+ Thu, 14 Jul 2022 04:14:11 -0700 (PDT)
+Received: from localhost.localdomain
+ (cpc92880-cmbg19-2-0-cust679.5-4.cable.virginm.net. [82.27.106.168])
+ by smtp.gmail.com with ESMTPSA id
+ a8-20020a056000100800b0021db2dcd0aasm1357609wrx.108.2022.07.14.04.14.10
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 14 Jul 2022 04:14:11 -0700 (PDT)
+From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+To: joro@8bytes.org
+Subject: [PATCH] iommu/virtio: Advertise IOMMU_CAP_CACHE_COHERENCY
+Date: Thu, 14 Jul 2022 12:11:01 +0100
+Message-Id: <20220714111059.708735-1-jean-philippe@linaro.org>
+X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
-References: <20220708030525.5065-1-michael.christie@oracle.com>
- <20220708030525.5065-2-michael.christie@oracle.com>
-In-Reply-To: <20220708030525.5065-2-michael.christie@oracle.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 14 Jul 2022 14:51:00 +0800
-Message-ID: <CACGkMEvrFQeKSc552Pk3fAvPmaGRa+VS05h=gL4DbQ0GL_OxDQ@mail.gmail.com>
-Subject: Re: [PATCH 1/2] vhost-scsi: Fix max number of virtqueues
-To: Mike Christie <michael.christie@oracle.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: pbonzini <pbonzini@redhat.com>, mst <mst@redhat.com>,
- Stefan Hajnoczi <stefanha@redhat.com>,
- virtualization <virtualization@lists.linux-foundation.org>
+Cc: eric.auger@redhat.com, iommu@lists.linux.dev, will@kernel.org,
+ Jean-Philippe Brucker <jean-philippe@linaro.org>,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,44 +107,41 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Jul 8, 2022 at 11:05 AM Mike Christie
-<michael.christie@oracle.com> wrote:
->
-> Qemu takes it's num_queues limit then adds the fixed queues (control and
-> event) to the total it will request from the kernel. So when a user
-> requests 128 (or qemu does it's num_queues calculation based on vCPUS
-> and other system limits), we hit errors due to userspace trying to setup
-> 130 queues when vhost-scsi has a hard coded limit of 128.
->
-> This has vhost-scsi adjust it's max so we can do a total of 130 virtqueues
-> (128 IO and 2 fixed). For the case where the user has 128 vCPUs the guest
-> OS can then nicely map each IO virtqueue to a vCPU and not have the odd case
-> where 2 vCPUs share a virtqueue.
->
-> Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Fix virtio-iommu interaction with VFIO, as VFIO now requires
+IOMMU_CAP_CACHE_COHERENCY. virtio-iommu does not support non-cacheable
+mappings, and always expects to be called with IOMMU_CACHE.
 
-Acked-by: Jason Wang <jasowang@redhat.com>
+Fixes: e8ae0e140c05 ("vfio: Require that devices support DMA cache coherence")
+Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
+---
+ drivers/iommu/virtio-iommu.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-> ---
->  drivers/vhost/scsi.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-> index ffd9e6c2ffc1..8d6b4eef554d 100644
-> --- a/drivers/vhost/scsi.c
-> +++ b/drivers/vhost/scsi.c
-> @@ -159,7 +159,7 @@ enum {
->  };
->
->  #define VHOST_SCSI_MAX_TARGET  256
-> -#define VHOST_SCSI_MAX_VQ      128
-> +#define VHOST_SCSI_MAX_VQ      128 + VHOST_SCSI_VQ_IO
->  #define VHOST_SCSI_MAX_EVENT   128
->
->  struct vhost_scsi_virtqueue {
-> --
-> 2.25.1
->
+diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
+index 25be4b822aa0..bf340d779c10 100644
+--- a/drivers/iommu/virtio-iommu.c
++++ b/drivers/iommu/virtio-iommu.c
+@@ -1006,7 +1006,18 @@ static int viommu_of_xlate(struct device *dev, struct of_phandle_args *args)
+ 	return iommu_fwspec_add_ids(dev, args->args, 1);
+ }
+ 
++static bool viommu_capable(enum iommu_cap cap)
++{
++	switch (cap) {
++	case IOMMU_CAP_CACHE_COHERENCY:
++		return true;
++	default:
++		return false;
++	}
++}
++
+ static struct iommu_ops viommu_ops = {
++	.capable		= viommu_capable,
+ 	.domain_alloc		= viommu_domain_alloc,
+ 	.probe_device		= viommu_probe_device,
+ 	.probe_finalize		= viommu_probe_finalize,
+-- 
+2.36.1
 
 _______________________________________________
 Virtualization mailing list
