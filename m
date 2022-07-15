@@ -1,180 +1,87 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id EF13DC433EF
-	for <virtualization@archiver.kernel.org>; Fri, 15 Jul 2022 07:31:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 26BC6C43334
+	for <virtualization@archiver.kernel.org>; Fri, 15 Jul 2022 08:31:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 59678616C5;
-	Fri, 15 Jul 2022 07:31:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 59678616C5
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=AzygjbT2
+	by smtp1.osuosl.org (Postfix) with ESMTP id 7038E8498F;
+	Fri, 15 Jul 2022 08:31:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7038E8498F
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id G37IUsBXItMs; Fri, 15 Jul 2022 08:31:56 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id DFEBA84913;
+	Fri, 15 Jul 2022 08:31:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DFEBA84913
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A555DC0033;
+	Fri, 15 Jul 2022 08:31:55 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9EFADC002D
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 15 Jul 2022 08:31:54 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 5F6B6616AD
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 15 Jul 2022 08:31:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5F6B6616AD
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 9Pu8I7vorZZy; Fri, 15 Jul 2022 07:31:30 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 7DC61616C1;
-	Fri, 15 Jul 2022 07:31:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7DC61616C1
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 48E78C0033;
-	Fri, 15 Jul 2022 07:31:29 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1D1D4C002D
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id SH0Is1rWZhmB
  for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Jul 2022 07:31:27 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id BF3724067B
+ Fri, 15 Jul 2022 08:31:51 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 04EFD60A79
+Received: from out30-56.freemail.mail.aliyun.com
+ (out30-56.freemail.mail.aliyun.com [115.124.30.56])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 04EFD60A79
  for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Jul 2022 07:31:26 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BF3724067B
-Authentication-Results: smtp2.osuosl.org; dkim=pass (1024-bit key,
- unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256
- header.s=selector1 header.b=AzygjbT2
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ZOGwo8s6oFeJ
- for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Jul 2022 07:31:25 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3D24740002
-Received: from NAM11-CO1-obe.outbound.protection.outlook.com
- (mail-co1nam11on2067.outbound.protection.outlook.com [40.107.220.67])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 3D24740002
- for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Jul 2022 07:31:25 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=lRqZAAfux1nyiMlhkGz1oQeyvfRyYYjd33GPEv9FF+ULuaViZwz30JNm7RWjAP9RlX7TCWvsFiThN2MCAOJY6QnLLEUGWWt77pOfXG8xugPhSlxUpzyIrnbvjcIaLSyK0LVS6Z62rmRJcMN6HMgmYTltwt73NJfHDkmM4tajewuIqDpJCo8kyf+OGT8XXTeInJDdg+OAr9iSfdT4K3ozOWKcZIB8PWuNf4tv6PwNv5GC8bfXED8r4P9TQicw2j1xKj9Kk5uzk4WrpN23V7nXbLzgk6eHOup7Jr7yBYcae7ueslmqLiblmhy6UTimH4kC7789gpU9nqXemjB+Qlaffg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=u7bwDf0qM/tQuy+789QAkidbPdSab2SEqKFy5qDE2ow=;
- b=oOm3FKNsRcTWb+lYjZJqDvOEdz8OCUqlWKvHgYJbjF3yItja9u1XnxDY+PaF8pDT9D+jqPUf6aHQqGsunKQ7jYDvSvjoIjp2htDMzbyMppU86loepYIxXBEox22y3IzXglq4SZ8r9XbqzYXLv7qdeh7WS6up1ZPb92xXVFlq5om1F8WX/xhqjkc3fGV067KAas4HeEqj5DhXylGREr0kBd+j150E+ca0jJYdJqlUTp3KNGqMecYm2dVUCU8UzKcIDsTtfxKVQIKUOr1GMO3lus9/AVRLUMZEe62/vz5/4MasZZMdykSq9gNYtD+9MK4eCY3RhaE+x38JMoBzkNyynA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1; 
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=u7bwDf0qM/tQuy+789QAkidbPdSab2SEqKFy5qDE2ow=;
- b=AzygjbT2i+TV3XGyRZYsuV1GO/G63GmnWwAibfhtq3f0MLOXA1XRYc+eUyw04L9G37waAxBNMjAQ9t7zZxHF2vPKVfmPfYS/8ymWBREtiYqat/TIBXGQKNDUy74hCQXwvGEXxvhBPR2tPUB9pO8+BJ9aRkowQUHIPcgpPZDH2y0=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from BN8PR12MB3587.namprd12.prod.outlook.com (2603:10b6:408:43::13)
- by DM6PR12MB4338.namprd12.prod.outlook.com (2603:10b6:5:2a2::21) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5438.14; Fri, 15 Jul
- 2022 07:31:21 +0000
-Received: from BN8PR12MB3587.namprd12.prod.outlook.com
- ([fe80::905:1701:3b51:7e39]) by BN8PR12MB3587.namprd12.prod.outlook.com
- ([fe80::905:1701:3b51:7e39%2]) with mapi id 15.20.5438.013; Fri, 15 Jul 2022
- 07:31:21 +0000
-Message-ID: <138407a9-e97f-001e-6e87-e5d92a55c8e8@amd.com>
-Date: Fri, 15 Jul 2022 09:31:12 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.1
-Subject: Re: [PATCH v1 2/6] drm/gem: Take reservation lock for vmap/vunmap
- operations
-Content-Language: en-US
-To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
- David Airlie <airlied@linux.ie>, Gerd Hoffmann <kraxel@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
- Daniel Almeida <daniel.almeida@collabora.com>,
- Gert Wollny <gert.wollny@collabora.com>,
- Gustavo Padovan <gustavo.padovan@collabora.com>,
- Daniel Stone <daniel@fooishbar.org>,
- Tomeu Vizoso <tomeu.vizoso@collabora.com>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- Rob Clark <robdclark@gmail.com>, Sumit Semwal <sumit.semwal@linaro.org>,
- "Pan, Xinhui" <Xinhui.Pan@amd.com>, Thierry Reding
- <thierry.reding@gmail.com>, Tomasz Figa <tfiga@chromium.org>,
- Marek Szyprowski <m.szyprowski@samsung.com>,
- Mauro Carvalho Chehab <mchehab@kernel.org>,
- Alex Deucher <alexander.deucher@amd.com>,
- Jani Nikula <jani.nikula@linux.intel.com>,
- Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
- Rodrigo Vivi <rodrigo.vivi@intel.com>,
- Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
- =?UTF-8?Q?Thomas_Hellstr=c3=b6m?= <thomas_os@shipmail.org>,
- Thomas Zimmermann <tzimmermann@suse.de>
-References: <20220715005244.42198-1-dmitry.osipenko@collabora.com>
- <20220715005244.42198-3-dmitry.osipenko@collabora.com>
-In-Reply-To: <20220715005244.42198-3-dmitry.osipenko@collabora.com>
-X-ClientProxiedBy: FR3P281CA0096.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:d10:a1::8) To BN8PR12MB3587.namprd12.prod.outlook.com
- (2603:10b6:408:43::13)
-MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: a4804b5a-7352-469f-3eaa-08da663403b0
-X-MS-TrafficTypeDiagnostic: DM6PR12MB4338:EE_
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: y9BIhgcKhrwO2Wi+KpxBTiMCjT2gE7YIfKVQu71l+MYSa2zWeH+fEYE+jchr5RyzUK8DdPAH6exQ9SGMh60dOTIuByPUoJW3Hkq5ckMHswmw5QWYJcSXZhbA8BOKnECX+fHvxG9vrPtVRk4d20L4y2m71iDSHdvarvaGxlCZShGF2z/YrXDa1Rt7R+ld0/vRwFt6TFczwZgfHwYsHZRLeSCsBT2zAbGFC5d5RLh/pCQ/BSp4DJ9IbaAK/sG1mc0j7njP+Mg2ubudzGN57JsJ2/cnKgowhbT7VOvj+lG1kAQCbFePIaVFPJIwCSBOJCfiNkMwhEKcFG9vIYI4LqXLRaLzI5CCiDg4nB/ZofO7AlqeucoRu/TKA34JH6Dfc+tj+/MR9yDbI/RqJrFLeOui3Azivm2yPwQ5STE0n0n3wIEhLAjurvL4XT6eJRbaLjWbovPsWux1RAmKGSMNDLn3ws8foThus52yetfrp/rVCyYk20x/5RHAR3Phr5OF1DzGiTyPj6qUJEJTsCP7nxvxUfoar5mLdV6BV516F7MZmrCJ79kOYrDW3wJ2nsaLJHCnglcQnlCGZJUzn5xxZrMnnqxdFNfVF2RqmNZLEUi96PDJcLvndhFPKvriSkyenQpizDImPWgfVGYoQt2rCXT7YxEkuYZOAJoVsWGSfeBAySrbWJcmV88ooq04wC+XIvYkUf1E3Zj+JEW42PwF61jIntAj1/fMOE+t0gKRnd2vigC5AG/M+IW+lHiJM52RiHu+xZvndxieb7gWjs+ZR1G2HuhJnn+zzD7H235PsconYTmbyVrkWUyE3qj0s6tb9PO23TrmOg0wpm2SXOvGskqMZqUXcAnar1Cf3Ib2PmSW7q8=
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:BN8PR12MB3587.namprd12.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230016)(4636009)(396003)(376002)(39860400002)(346002)(366004)(136003)(316002)(41300700001)(83380400001)(6666004)(2906002)(31696002)(86362001)(478600001)(110136005)(2616005)(6506007)(6486002)(186003)(6512007)(36756003)(7416002)(5660300002)(38100700002)(7406005)(66476007)(4326008)(8936002)(8676002)(66556008)(31686004)(66946007)(921005)(43740500002)(45980500001);
- DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?MU9tVHpqUFZMQ2h6Z2NEQlFCcExOdFR6aFVCOHBhU3p1MVZ2NzQyMURUZGw1?=
- =?utf-8?B?MFZhZm45WW1UVEkyZTY4MWhPSFFaYk0yaE9hOGZXSWM0elJCaWQ2cjFBdFNj?=
- =?utf-8?B?c1IwbVBnalNET0NUbzdhM1pxOTFFdVl1T1k5L0xZd2NMclVyM1NXUGFmWmhG?=
- =?utf-8?B?dkhWbWVQZGlJdHpTaWRaZ3QyLy8vallXeHhmL2pvRFllV1VNbWZGeEpvZnYx?=
- =?utf-8?B?OUYvNHd3cXJyVm5wL3Roajh2NTFuVm1BYncwRmpGbERjWFk1UFpWbHZEd1ZH?=
- =?utf-8?B?eDg2VTcxQlFuaEhmU1dQV0d3U2JMQjJkOU1OaGVqM1FaRUpZZVV0YlBWbktr?=
- =?utf-8?B?MDBlTXUwVWRTY25Hc254OGZzR0dZd2VwSkdkVElUR2hRWDJRSko3VFErSDJh?=
- =?utf-8?B?UUxtL0hlTERmSlRqNDdMTFdzN0RkWTUwbFVWOXpJalhCNWlxSUQwemN6Vits?=
- =?utf-8?B?R0pQMjJOVlYzM24vUHVBMzkwbEliaThMYzdXVXp4c0FqaWx6RW5IZmJhdDRX?=
- =?utf-8?B?Y1ZtQ0M0ait0S25MVkczUTVHQlUySmlhQWxQY3JvMXVjR0JObHdoN1h4MzVR?=
- =?utf-8?B?N2tPZlJpbTUxc3lzTWloQUxqcWxMK2tjU0gzL2hIdVRkWVhtR05hWmlrZDFZ?=
- =?utf-8?B?M25WbEhJNjJDQ0VTanJyblBLUHp1RTUrYlJuczJUMWRRSHBQK3FGRU40Q09L?=
- =?utf-8?B?Wk1Ga2NraVZtYWVNU0xYU2hWMTBsb2dIaG5oV1FCdXVEZGlad2pxOGx5cUtt?=
- =?utf-8?B?Z1NveS9ycXpKaTBsdHpDSzhPWUJTcUhBbUlJa0cwaWIxd21rV0FSeFFQVkhl?=
- =?utf-8?B?eHh0VlpQVWpkb3NnYjUvVW1KZWFkRkVyVG1TdFFHbEpXS3ZnS3FxUitEaWJZ?=
- =?utf-8?B?VmlEaEdaYW8zSUN1cWlPS1pJMVBFREpkemFtTzBmamdyL3hKcXVjNHlzbjhk?=
- =?utf-8?B?d1hjcDg0Q3RDRHV6Vkk1ckJEVWRQNmcwNHdyenN3czJxYzB4NUt4WTFOdWNt?=
- =?utf-8?B?UXRKdWcyMjJNN1NJd3ZSNjlhTWMxaGNDQWJjeE9PcGJrYXAxZ2NkVExLcVNy?=
- =?utf-8?B?Umo5dHc2YkhjSVgvZXpoUnhJdC9TK0RMeU9EYmNVNVA0T1V5MFNwckJIK0xF?=
- =?utf-8?B?czhLdDFwR05yU2x6ZklVblIyWDc3WjlNbzFYek1CN3hYcXorMTdFMFFZL3ZC?=
- =?utf-8?B?SDRjTndnVzFocm1QU1pmZmZtenFSTlhKQ2JOdHp6b3JnUXpQQlJjVHNTNEE0?=
- =?utf-8?B?UTQ2R3o3UUF4NzFRVEFEb3QxUktwZFdNMEcyZXpaenNBUGdNN0JYNHQyc2dT?=
- =?utf-8?B?VWU4L214U1RlQWx1aDN2amxHSENrV0xXYzhSemRISHU5WWRaSFhHcTBkL3NM?=
- =?utf-8?B?aFl4SGhVV0ZuUGZ5bUMyTUV1VkhtWWxPeFhmRFZaZ3d2OWFvTERhL0xyMjNl?=
- =?utf-8?B?bUpTdGpsRE84OGlFTXRhV3BYWUNLeGJBdHB1cU9sT2VISnJ2Q1k0cjRxZ015?=
- =?utf-8?B?SExCUTVyUys3NXBWZGJrMm1OYnBDeklGeENMM28waXNrdFVPMDR6eFp5b1dw?=
- =?utf-8?B?NFArYXdxS3Vqc28zNThtMlBoK2p1eU1rNHV5VUVvWkViUEthUVEvMW5wclg5?=
- =?utf-8?B?NjJxeTdMZDBvc0gyLys5RmM4NDVuSUlVbUtIOUlNNmxDaTVtL0FiOXJFNmJV?=
- =?utf-8?B?RDM5Z05XNlVSMnQ4emovbk5DVXB4V3RBN1hsRlRnZS9ZTTJLRmlvV2x3QW1m?=
- =?utf-8?B?d29PRWxRNXBjTVB2bVByTjE5M0srS2V2dDIvQjdibUQ2VmF3UG03cmRNREFq?=
- =?utf-8?B?d3FhNGE4Y01EUkRzWllxWE8zcFU3dTVzUTFOd2kvd2Z6K0JLWlJzQ2xzVkdt?=
- =?utf-8?B?QjVLK040ZVE4UU5yWFVEVElOOEZTbjhnWHYyV1pTdXRqWUV2WmtPelgzSEQv?=
- =?utf-8?B?cFl1RTEvdUZORzBudU1vUzN0U09SbVFGdkw4b2xLdHl0UVBjanEzb09LWjVI?=
- =?utf-8?B?b3d6bFM1NXF3cS9valNpMHlXdVI3VTF5TXQrQVZmQVZ4clJ2L0N5dDJvb09Z?=
- =?utf-8?B?aW1CQkg1RXYrV09jMHoyK1NJZWdpNzhHekgySlByNjhlREpFM3E5OVNLZ0pE?=
- =?utf-8?B?c3ZGMEJDbHJ4L2ZOVGZQNnJ0a3c1L3VPS3Bkb3o3bm1jU01ZMEU4V3RqSXR2?=
- =?utf-8?Q?bZJsAarfJw11WK3HN8PWk+Vs08qIqcpBc49hznLHfovR?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: a4804b5a-7352-469f-3eaa-08da663403b0
-X-MS-Exchange-CrossTenant-AuthSource: BN8PR12MB3587.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Jul 2022 07:31:21.3654 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: sIVSt/Kz3qpSEQ1FdbHocGr+ZKk3MC6frNNvwEg1e45w/VcWB6JgRx5nl94FwCDU
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB4338
-Cc: linux-rdma@vger.kernel.org, linux-arm-msm@vger.kernel.org,
- intel-gfx@lists.freedesktop.org, linux-kernel@vger.kernel.org,
- amd-gfx@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
- linaro-mm-sig@lists.linaro.org, dri-devel@lists.freedesktop.org,
- spice-devel@lists.freedesktop.org, Dmitry Osipenko <digetx@gmail.com>,
- kernel@collabora.com, linux-media@vger.kernel.org
+ Fri, 15 Jul 2022 08:31:50 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R971e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018045170;
+ MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=36; SR=0;
+ TI=SMTPD_---0VJOUor5_1657873898; 
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
+ fp:SMTPD_---0VJOUor5_1657873898) by smtp.aliyun-inc.com;
+ Fri, 15 Jul 2022 16:31:40 +0800
+Message-ID: <1657873703.9301925-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH v11 39/40] virtio_net: support tx queue resize
+Date: Fri, 15 Jul 2022 16:28:23 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Jason Wang <jasowang@redhat.com>
+References: <20220629065656.54420-1-xuanzhuo@linux.alibaba.com>
+ <20220629065656.54420-40-xuanzhuo@linux.alibaba.com>
+ <102d3b83-1ae9-a59a-16ce-251c22b7afb0@redhat.com>
+ <1656986432.1164997-2-xuanzhuo@linux.alibaba.com>
+ <CACGkMEt8MSS=tcn=Hd6WF9+btT0ccocxEd1ighRgK-V1uiWmCQ@mail.gmail.com>
+In-Reply-To: <CACGkMEt8MSS=tcn=Hd6WF9+btT0ccocxEd1ighRgK-V1uiWmCQ@mail.gmail.com>
+Cc: Vadim Pasternak <vadimp@nvidia.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ linux-remoteproc@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
+ Bjorn Andersson <bjorn.andersson@linaro.org>,
+ Eric Dumazet <edumazet@google.com>, Alexander Gordeev <agordeev@linux.ibm.com>,
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>, linux-s390@vger.kernel.org,
+ kvm <kvm@vger.kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
+ Richard Weinberger <richard@nod.at>,
+ Vincent Whitchurch <vincent.whitchurch@axis.com>,
+ John Fastabend <john.fastabend@gmail.com>, Halil Pasic <pasic@linux.ibm.com>,
+ Jakub Kicinski <kuba@kernel.org>,
+ virtualization <virtualization@lists.linux-foundation.org>,
+ Eric Farman <farman@linux.ibm.com>, Jesper Dangaard Brouer <hawk@kernel.org>,
+ Vasily Gorbik <gor@linux.ibm.com>, kangjie.xu@linux.alibaba.com,
+ Heiko Carstens <hca@linux.ibm.com>, linux-um@lists.infradead.org,
+ Mark Gross <markgross@kernel.org>, Hans de Goede <hdegoede@redhat.com>,
+ platform-driver-x86@vger.kernel.org,
+ "open list:XDP \(eXpress Data Path\)" <bpf@vger.kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Mathieu Poirier <mathieu.poirier@linaro.org>,
+ netdev <netdev@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Johannes Berg <johannes@sipsolutions.net>,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -186,289 +93,85 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: =?UTF-8?Q?Christian_K=c3=b6nig?= via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Am 15.07.22 um 02:52 schrieb Dmitry Osipenko:
-> The new common dma-buf locking convention will require buffer importers
-> to hold the reservation lock around mapping operations. Make DRM GEM core
-> to take the lock around the vmapping operations and update QXL and i915
-> drivers to use the locked functions for the case where DRM core now holds
-> the lock. This patch prepares DRM core and drivers to transition to the
-> common dma-buf locking convention where vmapping of exported GEMs will
-> be done under the held reservation lock.
-
-Oh ^^ That looks like a bug fix to me!
-
-At least drm_gem_ttm_vmap() and drm_gem_ttm_vunmap() already expected 
-that they are called with the reservation lock held.
-
-Otherwise you could mess up internal structures in the TTM buffer object 
-while vmapping it.
-
-I will take a deeper look at this.
-
-Regards,
-Christian.
-
->
-> Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-> ---
->   drivers/gpu/drm/drm_client.c                 |  4 +--
->   drivers/gpu/drm/drm_gem.c                    | 28 ++++++++++++++++++++
->   drivers/gpu/drm/drm_gem_framebuffer_helper.c |  6 ++---
->   drivers/gpu/drm/drm_prime.c                  |  4 +--
->   drivers/gpu/drm/i915/gem/i915_gem_dmabuf.c   |  2 +-
->   drivers/gpu/drm/qxl/qxl_object.c             | 17 ++++++------
->   drivers/gpu/drm/qxl/qxl_prime.c              |  4 +--
->   include/drm/drm_gem.h                        |  3 +++
->   8 files changed, 50 insertions(+), 18 deletions(-)
->
-> diff --git a/drivers/gpu/drm/drm_client.c b/drivers/gpu/drm/drm_client.c
-> index 2b230b4d6942..fbcb1e995384 100644
-> --- a/drivers/gpu/drm/drm_client.c
-> +++ b/drivers/gpu/drm/drm_client.c
-> @@ -323,7 +323,7 @@ drm_client_buffer_vmap(struct drm_client_buffer *buffer,
->   	 * fd_install step out of the driver backend hooks, to make that
->   	 * final step optional for internal users.
->   	 */
-> -	ret = drm_gem_vmap(buffer->gem, map);
-> +	ret = drm_gem_vmap_unlocked(buffer->gem, map);
->   	if (ret)
->   		return ret;
->   
-> @@ -345,7 +345,7 @@ void drm_client_buffer_vunmap(struct drm_client_buffer *buffer)
->   {
->   	struct iosys_map *map = &buffer->map;
->   
-> -	drm_gem_vunmap(buffer->gem, map);
-> +	drm_gem_vunmap_unlocked(buffer->gem, map);
->   }
->   EXPORT_SYMBOL(drm_client_buffer_vunmap);
->   
-> diff --git a/drivers/gpu/drm/drm_gem.c b/drivers/gpu/drm/drm_gem.c
-> index eb0c2d041f13..9769c33cad99 100644
-> --- a/drivers/gpu/drm/drm_gem.c
-> +++ b/drivers/gpu/drm/drm_gem.c
-> @@ -1155,6 +1155,8 @@ void drm_gem_print_info(struct drm_printer *p, unsigned int indent,
->   
->   int drm_gem_pin(struct drm_gem_object *obj)
->   {
-> +	dma_resv_assert_held(obj->resv);
-> +
->   	if (obj->funcs->pin)
->   		return obj->funcs->pin(obj);
->   	else
-> @@ -1163,6 +1165,8 @@ int drm_gem_pin(struct drm_gem_object *obj)
->   
->   void drm_gem_unpin(struct drm_gem_object *obj)
->   {
-> +	dma_resv_assert_held(obj->resv);
-> +
->   	if (obj->funcs->unpin)
->   		obj->funcs->unpin(obj);
->   }
-> @@ -1171,6 +1175,8 @@ int drm_gem_vmap(struct drm_gem_object *obj, struct iosys_map *map)
->   {
->   	int ret;
->   
-> +	dma_resv_assert_held(obj->resv);
-> +
->   	if (!obj->funcs->vmap)
->   		return -EOPNOTSUPP;
->   
-> @@ -1186,6 +1192,8 @@ EXPORT_SYMBOL(drm_gem_vmap);
->   
->   void drm_gem_vunmap(struct drm_gem_object *obj, struct iosys_map *map)
->   {
-> +	dma_resv_assert_held(obj->resv);
-> +
->   	if (iosys_map_is_null(map))
->   		return;
->   
-> @@ -1197,6 +1205,26 @@ void drm_gem_vunmap(struct drm_gem_object *obj, struct iosys_map *map)
->   }
->   EXPORT_SYMBOL(drm_gem_vunmap);
->   
-> +int drm_gem_vmap_unlocked(struct drm_gem_object *obj, struct iosys_map *map)
-> +{
-> +	int ret;
-> +
-> +	dma_resv_lock(obj->resv, NULL);
-> +	ret = drm_gem_vmap(obj, map);
-> +	dma_resv_unlock(obj->resv);
-> +
-> +	return ret;
-> +}
-> +EXPORT_SYMBOL(drm_gem_vmap_unlocked);
-> +
-> +void drm_gem_vunmap_unlocked(struct drm_gem_object *obj, struct iosys_map *map)
-> +{
-> +	dma_resv_lock(obj->resv, NULL);
-> +	drm_gem_vunmap(obj, map);
-> +	dma_resv_unlock(obj->resv);
-> +}
-> +EXPORT_SYMBOL(drm_gem_vunmap_unlocked);
-> +
->   /**
->    * drm_gem_lock_reservations - Sets up the ww context and acquires
->    * the lock on an array of GEM objects.
-> diff --git a/drivers/gpu/drm/drm_gem_framebuffer_helper.c b/drivers/gpu/drm/drm_gem_framebuffer_helper.c
-> index 880a4975507f..e35e224e6303 100644
-> --- a/drivers/gpu/drm/drm_gem_framebuffer_helper.c
-> +++ b/drivers/gpu/drm/drm_gem_framebuffer_helper.c
-> @@ -354,7 +354,7 @@ int drm_gem_fb_vmap(struct drm_framebuffer *fb, struct iosys_map *map,
->   			ret = -EINVAL;
->   			goto err_drm_gem_vunmap;
->   		}
-> -		ret = drm_gem_vmap(obj, &map[i]);
-> +		ret = drm_gem_vmap_unlocked(obj, &map[i]);
->   		if (ret)
->   			goto err_drm_gem_vunmap;
->   	}
-> @@ -376,7 +376,7 @@ int drm_gem_fb_vmap(struct drm_framebuffer *fb, struct iosys_map *map,
->   		obj = drm_gem_fb_get_obj(fb, i);
->   		if (!obj)
->   			continue;
-> -		drm_gem_vunmap(obj, &map[i]);
-> +		drm_gem_vunmap_unlocked(obj, &map[i]);
->   	}
->   	return ret;
->   }
-> @@ -403,7 +403,7 @@ void drm_gem_fb_vunmap(struct drm_framebuffer *fb, struct iosys_map *map)
->   			continue;
->   		if (iosys_map_is_null(&map[i]))
->   			continue;
-> -		drm_gem_vunmap(obj, &map[i]);
-> +		drm_gem_vunmap_unlocked(obj, &map[i]);
->   	}
->   }
->   EXPORT_SYMBOL(drm_gem_fb_vunmap);
-> diff --git a/drivers/gpu/drm/drm_prime.c b/drivers/gpu/drm/drm_prime.c
-> index b75ef1756873..1bd234fd21a5 100644
-> --- a/drivers/gpu/drm/drm_prime.c
-> +++ b/drivers/gpu/drm/drm_prime.c
-> @@ -678,7 +678,7 @@ int drm_gem_dmabuf_vmap(struct dma_buf *dma_buf, struct iosys_map *map)
->   {
->   	struct drm_gem_object *obj = dma_buf->priv;
->   
-> -	return drm_gem_vmap(obj, map);
-> +	return drm_gem_vmap_unlocked(obj, map);
->   }
->   EXPORT_SYMBOL(drm_gem_dmabuf_vmap);
->   
-> @@ -694,7 +694,7 @@ void drm_gem_dmabuf_vunmap(struct dma_buf *dma_buf, struct iosys_map *map)
->   {
->   	struct drm_gem_object *obj = dma_buf->priv;
->   
-> -	drm_gem_vunmap(obj, map);
-> +	drm_gem_vunmap_unlocked(obj, map);
->   }
->   EXPORT_SYMBOL(drm_gem_dmabuf_vunmap);
->   
-> diff --git a/drivers/gpu/drm/i915/gem/i915_gem_dmabuf.c b/drivers/gpu/drm/i915/gem/i915_gem_dmabuf.c
-> index 5ecea7df98b1..cc54a5b1d6ae 100644
-> --- a/drivers/gpu/drm/i915/gem/i915_gem_dmabuf.c
-> +++ b/drivers/gpu/drm/i915/gem/i915_gem_dmabuf.c
-> @@ -72,7 +72,7 @@ static int i915_gem_dmabuf_vmap(struct dma_buf *dma_buf,
->   	struct drm_i915_gem_object *obj = dma_buf_to_obj(dma_buf);
->   	void *vaddr;
->   
-> -	vaddr = i915_gem_object_pin_map_unlocked(obj, I915_MAP_WB);
-> +	vaddr = i915_gem_object_pin_map(obj, I915_MAP_WB);
->   	if (IS_ERR(vaddr))
->   		return PTR_ERR(vaddr);
->   
-> diff --git a/drivers/gpu/drm/qxl/qxl_object.c b/drivers/gpu/drm/qxl/qxl_object.c
-> index 695d9308d1f0..06a58dad5f5c 100644
-> --- a/drivers/gpu/drm/qxl/qxl_object.c
-> +++ b/drivers/gpu/drm/qxl/qxl_object.c
-> @@ -168,9 +168,16 @@ int qxl_bo_vmap_locked(struct qxl_bo *bo, struct iosys_map *map)
->   		bo->map_count++;
->   		goto out;
->   	}
-> -	r = ttm_bo_vmap(&bo->tbo, &bo->map);
-> +
-> +	r = __qxl_bo_pin(bo);
->   	if (r)
->   		return r;
-> +
-> +	r = ttm_bo_vmap(&bo->tbo, &bo->map);
-> +	if (r) {
-> +		__qxl_bo_unpin(bo);
-> +		return r;
-> +	}
->   	bo->map_count = 1;
->   
->   	/* TODO: Remove kptr in favor of map everywhere. */
-> @@ -192,12 +199,6 @@ int qxl_bo_vmap(struct qxl_bo *bo, struct iosys_map *map)
->   	if (r)
->   		return r;
->   
-> -	r = __qxl_bo_pin(bo);
-> -	if (r) {
-> -		qxl_bo_unreserve(bo);
-> -		return r;
-> -	}
-> -
->   	r = qxl_bo_vmap_locked(bo, map);
->   	qxl_bo_unreserve(bo);
->   	return r;
-> @@ -247,6 +248,7 @@ void qxl_bo_vunmap_locked(struct qxl_bo *bo)
->   		return;
->   	bo->kptr = NULL;
->   	ttm_bo_vunmap(&bo->tbo, &bo->map);
-> +	__qxl_bo_unpin(bo);
->   }
->   
->   int qxl_bo_vunmap(struct qxl_bo *bo)
-> @@ -258,7 +260,6 @@ int qxl_bo_vunmap(struct qxl_bo *bo)
->   		return r;
->   
->   	qxl_bo_vunmap_locked(bo);
-> -	__qxl_bo_unpin(bo);
->   	qxl_bo_unreserve(bo);
->   	return 0;
->   }
-> diff --git a/drivers/gpu/drm/qxl/qxl_prime.c b/drivers/gpu/drm/qxl/qxl_prime.c
-> index 142d01415acb..9169c26357d3 100644
-> --- a/drivers/gpu/drm/qxl/qxl_prime.c
-> +++ b/drivers/gpu/drm/qxl/qxl_prime.c
-> @@ -59,7 +59,7 @@ int qxl_gem_prime_vmap(struct drm_gem_object *obj, struct iosys_map *map)
->   	struct qxl_bo *bo = gem_to_qxl_bo(obj);
->   	int ret;
->   
-> -	ret = qxl_bo_vmap(bo, map);
-> +	ret = qxl_bo_vmap_locked(bo, map);
->   	if (ret < 0)
->   		return ret;
->   
-> @@ -71,5 +71,5 @@ void qxl_gem_prime_vunmap(struct drm_gem_object *obj,
->   {
->   	struct qxl_bo *bo = gem_to_qxl_bo(obj);
->   
-> -	qxl_bo_vunmap(bo);
-> +	qxl_bo_vunmap_locked(bo);
->   }
-> diff --git a/include/drm/drm_gem.h b/include/drm/drm_gem.h
-> index 87cffc9efa85..bf3700415229 100644
-> --- a/include/drm/drm_gem.h
-> +++ b/include/drm/drm_gem.h
-> @@ -420,4 +420,7 @@ void drm_gem_unlock_reservations(struct drm_gem_object **objs, int count,
->   int drm_gem_dumb_map_offset(struct drm_file *file, struct drm_device *dev,
->   			    u32 handle, u64 *offset);
->   
-> +int drm_gem_vmap_unlocked(struct drm_gem_object *obj, struct iosys_map *map);
-> +void drm_gem_vunmap_unlocked(struct drm_gem_object *obj, struct iosys_map *map);
-> +
->   #endif /* __DRM_GEM_H__ */
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gRnJpLCA4IEp1bCAyMDIyIDE0OjIzOjU3ICswODAwLCBKYXNvbiBXYW5nIDxqYXNvd2FuZ0By
+ZWRoYXQuY29tPiB3cm90ZToKPiBPbiBUdWUsIEp1bCA1LCAyMDIyIGF0IDEwOjAxIEFNIFh1YW4g
+Wmh1byA8eHVhbnpodW9AbGludXguYWxpYmFiYS5jb20+IHdyb3RlOgo+ID4KPiA+IE9uIE1vbiwg
+NCBKdWwgMjAyMiAxMTo0NTo1MiArMDgwMCwgSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNv
+bT4gd3JvdGU6Cj4gPiA+Cj4gPiA+IOWcqCAyMDIyLzYvMjkgMTQ6NTYsIFh1YW4gWmh1byDlhpnp
+gZM6Cj4gPiA+ID4gVGhpcyBwYXRjaCBpbXBsZW1lbnRzIHRoZSByZXNpemUgZnVuY3Rpb24gb2Yg
+dGhlIHR4IHF1ZXVlcy4KPiA+ID4gPiBCYXNlZCBvbiB0aGlzIGZ1bmN0aW9uLCBpdCBpcyBwb3Nz
+aWJsZSB0byBtb2RpZnkgdGhlIHJpbmcgbnVtIG9mIHRoZQo+ID4gPiA+IHF1ZXVlLgo+ID4gPiA+
+Cj4gPiA+ID4gU2lnbmVkLW9mZi1ieTogWHVhbiBaaHVvIDx4dWFuemh1b0BsaW51eC5hbGliYWJh
+LmNvbT4KPiA+ID4gPiAtLS0KPiA+ID4gPiAgIGRyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyB8IDQ4
+ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysKPiA+ID4gPiAgIDEgZmls
+ZSBjaGFuZ2VkLCA0OCBpbnNlcnRpb25zKCspCj4gPiA+ID4KPiA+ID4gPiBkaWZmIC0tZ2l0IGEv
+ZHJpdmVycy9uZXQvdmlydGlvX25ldC5jIGIvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4gPiA+
+ID4gaW5kZXggNmFiMTZmZDE5M2U1Li5mZDM1ODQ2MmY4MDIgMTAwNjQ0Cj4gPiA+ID4gLS0tIGEv
+ZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4gPiA+ID4gKysrIGIvZHJpdmVycy9uZXQvdmlydGlv
+X25ldC5jCj4gPiA+ID4gQEAgLTEzNSw2ICsxMzUsOSBAQCBzdHJ1Y3Qgc2VuZF9xdWV1ZSB7Cj4g
+PiA+ID4gICAgIHN0cnVjdCB2aXJ0bmV0X3NxX3N0YXRzIHN0YXRzOwo+ID4gPiA+Cj4gPiA+ID4g
+ICAgIHN0cnVjdCBuYXBpX3N0cnVjdCBuYXBpOwo+ID4gPiA+ICsKPiA+ID4gPiArICAgLyogUmVj
+b3JkIHdoZXRoZXIgc3EgaXMgaW4gcmVzZXQgc3RhdGUuICovCj4gPiA+ID4gKyAgIGJvb2wgcmVz
+ZXQ7Cj4gPiA+ID4gICB9Owo+ID4gPiA+Cj4gPiA+ID4gICAvKiBJbnRlcm5hbCByZXByZXNlbnRh
+dGlvbiBvZiBhIHJlY2VpdmUgdmlydHF1ZXVlICovCj4gPiA+ID4gQEAgLTI3OSw2ICsyODIsNyBA
+QCBzdHJ1Y3QgcGFkZGVkX3ZuZXRfaGRyIHsKPiA+ID4gPiAgIH07Cj4gPiA+ID4KPiA+ID4gPiAg
+IHN0YXRpYyB2b2lkIHZpcnRuZXRfcnFfZnJlZV91bnVzZWRfYnVmKHN0cnVjdCB2aXJ0cXVldWUg
+KnZxLCB2b2lkICpidWYpOwo+ID4gPiA+ICtzdGF0aWMgdm9pZCB2aXJ0bmV0X3NxX2ZyZWVfdW51
+c2VkX2J1ZihzdHJ1Y3QgdmlydHF1ZXVlICp2cSwgdm9pZCAqYnVmKTsKPiA+ID4gPgo+ID4gPiA+
+ICAgc3RhdGljIGJvb2wgaXNfeGRwX2ZyYW1lKHZvaWQgKnB0cikKPiA+ID4gPiAgIHsKPiA+ID4g
+PiBAQCAtMTYwMyw2ICsxNjA3LDExIEBAIHN0YXRpYyB2b2lkIHZpcnRuZXRfcG9sbF9jbGVhbnR4
+KHN0cnVjdCByZWNlaXZlX3F1ZXVlICpycSkKPiA+ID4gPiAgICAgICAgICAgICByZXR1cm47Cj4g
+PiA+ID4KPiA+ID4gPiAgICAgaWYgKF9fbmV0aWZfdHhfdHJ5bG9jayh0eHEpKSB7Cj4gPiA+ID4g
+KyAgICAgICAgICAgaWYgKFJFQURfT05DRShzcS0+cmVzZXQpKSB7Cj4gPiA+ID4gKyAgICAgICAg
+ICAgICAgICAgICBfX25ldGlmX3R4X3VubG9jayh0eHEpOwo+ID4gPiA+ICsgICAgICAgICAgICAg
+ICAgICAgcmV0dXJuOwo+ID4gPiA+ICsgICAgICAgICAgIH0KPiA+ID4gPiArCj4gPiA+ID4gICAg
+ICAgICAgICAgZG8gewo+ID4gPiA+ICAgICAgICAgICAgICAgICAgICAgdmlydHF1ZXVlX2Rpc2Fi
+bGVfY2Ioc3EtPnZxKTsKPiA+ID4gPiAgICAgICAgICAgICAgICAgICAgIGZyZWVfb2xkX3htaXRf
+c2ticyhzcSwgdHJ1ZSk7Cj4gPiA+ID4gQEAgLTE4NjgsNiArMTg3Nyw0NSBAQCBzdGF0aWMgaW50
+IHZpcnRuZXRfcnhfcmVzaXplKHN0cnVjdCB2aXJ0bmV0X2luZm8gKnZpLAo+ID4gPiA+ICAgICBy
+ZXR1cm4gZXJyOwo+ID4gPiA+ICAgfQo+ID4gPiA+Cj4gPiA+ID4gK3N0YXRpYyBpbnQgdmlydG5l
+dF90eF9yZXNpemUoc3RydWN0IHZpcnRuZXRfaW5mbyAqdmksCj4gPiA+ID4gKyAgICAgICAgICAg
+ICAgICAgICAgICAgIHN0cnVjdCBzZW5kX3F1ZXVlICpzcSwgdTMyIHJpbmdfbnVtKQo+ID4gPiA+
+ICt7Cj4gPiA+ID4gKyAgIHN0cnVjdCBuZXRkZXZfcXVldWUgKnR4cTsKPiA+ID4gPiArICAgaW50
+IGVyciwgcWluZGV4Owo+ID4gPiA+ICsKPiA+ID4gPiArICAgcWluZGV4ID0gc3EgLSB2aS0+c3E7
+Cj4gPiA+ID4gKwo+ID4gPiA+ICsgICB2aXJ0bmV0X25hcGlfdHhfZGlzYWJsZSgmc3EtPm5hcGkp
+Owo+ID4gPiA+ICsKPiA+ID4gPiArICAgdHhxID0gbmV0ZGV2X2dldF90eF9xdWV1ZSh2aS0+ZGV2
+LCBxaW5kZXgpOwo+ID4gPiA+ICsKPiA+ID4gPiArICAgLyogMS4gd2FpdCBhbGwgeGltdCBjb21w
+bGV0ZQo+ID4gPiA+ICsgICAgKiAyLiBmaXggdGhlIHJhY2Ugb2YgbmV0aWZfc3RvcF9zdWJxdWV1
+ZSgpIHZzIG5ldGlmX3N0YXJ0X3N1YnF1ZXVlKCkKPiA+ID4gPiArICAgICovCj4gPiA+ID4gKyAg
+IF9fbmV0aWZfdHhfbG9ja19iaCh0eHEpOwo+ID4gPiA+ICsKPiA+ID4gPiArICAgLyogUHJldmVu
+dCByeCBwb2xsIGZyb20gYWNjZXNzaW5nIHNxLiAqLwo+ID4gPiA+ICsgICBXUklURV9PTkNFKHNx
+LT5yZXNldCwgdHJ1ZSk7Cj4gPiA+Cj4gPiA+Cj4gPiA+IENhbiB3ZSBzaW1wbHkgZGlzYWJsZSBS
+WCBOQVBJIGhlcmU/Cj4gPgo+ID4gRGlzYWJsZSByeCBuYXBpIGlzIGluZGVlZCBhIHNpbXBsZSBz
+b2x1dGlvbi4gQnV0IEkgaG9wZSB0aGF0IHdoZW4gZGVhbGluZyB3aXRoCj4gPiB0eCwgaXQgd2ls
+bCBub3QgYWZmZWN0IHJ4Lgo+Cj4gT2ssIGJ1dCBJIHRoaW5rIHdlJ3ZlIGFscmVhZHkgc3luY2hy
+b25pemVkIHdpdGggdHggbG9jayBoZXJlLCBpc24ndCBpdD8KClllcywgZG8geW91IGhhdmUgYW55
+IHF1ZXN0aW9ucyBhYm91dCBXUklURV9PTkNFKCk/IFRoZXJlIGlzIGEgc2V0IGZhbHNlIG9wZXJh
+dGlvbgpsYXRlciwgSSBkaWQgbm90IHVzZSBsb2NrIHRoZXJlLCBzbyBJIHVzZWQgV1JJVEUvUkVB
+RF9PTkNFCnVuaWZvcm1seS4KClRoYW5rcy4KCj4KPiBUaGFua3MKPgo+ID4KPiA+IFRoYW5rcy4K
+PiA+Cj4gPgo+ID4gPgo+ID4gPiBUaGFua3MKPiA+ID4KPiA+ID4KPiA+ID4gPiArCj4gPiA+ID4g
+KyAgIC8qIFByZXZlbnQgdGhlIHVwcGVyIGxheWVyIGZyb20gdHJ5aW5nIHRvIHNlbmQgcGFja2V0
+cy4gKi8KPiA+ID4gPiArICAgbmV0aWZfc3RvcF9zdWJxdWV1ZSh2aS0+ZGV2LCBxaW5kZXgpOwo+
+ID4gPiA+ICsKPiA+ID4gPiArICAgX19uZXRpZl90eF91bmxvY2tfYmgodHhxKTsKPiA+ID4gPiAr
+Cj4gPiA+ID4gKyAgIGVyciA9IHZpcnRxdWV1ZV9yZXNpemUoc3EtPnZxLCByaW5nX251bSwgdmly
+dG5ldF9zcV9mcmVlX3VudXNlZF9idWYpOwo+ID4gPiA+ICsgICBpZiAoZXJyKQo+ID4gPiA+ICsg
+ICAgICAgICAgIG5ldGRldl9lcnIodmktPmRldiwgInJlc2l6ZSB0eCBmYWlsOiB0eCBxdWV1ZSBp
+bmRleDogJWQgZXJyOiAlZFxuIiwgcWluZGV4LCBlcnIpOwo+ID4gPiA+ICsKPiA+ID4gPiArICAg
+LyogTWVtb3J5IGJhcnJpZXIgYmVmb3JlIHNldCByZXNldCBhbmQgc3RhcnQgc3VicXVldWUuICov
+Cj4gPiA+ID4gKyAgIHNtcF9tYigpOwo+ID4gPiA+ICsKPiA+ID4gPiArICAgV1JJVEVfT05DRShz
+cS0+cmVzZXQsIGZhbHNlKTsKPiA+ID4gPiArICAgbmV0aWZfdHhfd2FrZV9xdWV1ZSh0eHEpOwo+
+ID4gPiA+ICsKPiA+ID4gPiArICAgdmlydG5ldF9uYXBpX3R4X2VuYWJsZSh2aSwgc3EtPnZxLCAm
+c3EtPm5hcGkpOwo+ID4gPiA+ICsgICByZXR1cm4gZXJyOwo+ID4gPiA+ICt9Cj4gPiA+ID4gKwo+
+ID4gPiA+ICAgLyoKPiA+ID4gPiAgICAqIFNlbmQgY29tbWFuZCB2aWEgdGhlIGNvbnRyb2wgdmly
+dHF1ZXVlIGFuZCBjaGVjayBzdGF0dXMuICBDb21tYW5kcwo+ID4gPiA+ICAgICogc3VwcG9ydGVk
+IGJ5IHRoZSBoeXBlcnZpc29yLCBhcyBpbmRpY2F0ZWQgYnkgZmVhdHVyZSBiaXRzLCBzaG91bGQK
+PiA+ID4KPiA+Cj4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4
+LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFu
+L2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
