@@ -1,89 +1,122 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1457EC433EF
-	for <virtualization@archiver.kernel.org>; Mon, 18 Jul 2022 09:14:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C8369C43334
+	for <virtualization@archiver.kernel.org>; Mon, 18 Jul 2022 11:35:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id A022F830FB;
-	Mon, 18 Jul 2022 09:14:42 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A022F830FB
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id dInb3rag1Tae; Mon, 18 Jul 2022 09:14:41 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 0F89182FA9;
-	Mon, 18 Jul 2022 09:14:41 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0F89182FA9
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C7E36C0033;
-	Mon, 18 Jul 2022 09:14:40 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 9182DC002D
- for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Jul 2022 09:14:39 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 6AD9F415BE
- for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Jul 2022 09:14:39 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6AD9F415BE
+	by smtp4.osuosl.org (Postfix) with ESMTP id 32CB2415B3;
+	Mon, 18 Jul 2022 11:35:35 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 32CB2415B3
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=HBG1mZ2s
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id BzyTZjqYd4jx
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id t8Xb-ODaC1IC; Mon, 18 Jul 2022 11:35:33 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id F08634159D;
+	Mon, 18 Jul 2022 11:35:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org F08634159D
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C3495C0033;
+	Mon, 18 Jul 2022 11:35:32 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0CC6EC002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Jul 2022 09:14:36 +0000 (UTC)
+ Mon, 18 Jul 2022 11:35:31 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id DA5A440AD1
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 18 Jul 2022 11:35:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DA5A440AD1
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=HBG1mZ2s
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id aoCEyo174NVV
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 18 Jul 2022 11:35:30 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 53EC8415BC
-Received: from out30-43.freemail.mail.aliyun.com
- (out30-43.freemail.mail.aliyun.com [115.124.30.43])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 53EC8415BC
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org F21CB40A59
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id F21CB40A59
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Jul 2022 09:14:35 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R811e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046059;
- MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=36; SR=0;
- TI=SMTPD_---0VJhAxgV_1658135667; 
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VJhAxgV_1658135667) by smtp.aliyun-inc.com;
- Mon, 18 Jul 2022 17:14:29 +0800
-Message-ID: <1658135504.1522465-2-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH v11 39/40] virtio_net: support tx queue resize
-Date: Mon, 18 Jul 2022 17:11:44 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Jason Wang <jasowang@redhat.com>
-References: <20220629065656.54420-1-xuanzhuo@linux.alibaba.com>
- <20220629065656.54420-40-xuanzhuo@linux.alibaba.com>
- <102d3b83-1ae9-a59a-16ce-251c22b7afb0@redhat.com>
- <1656986432.1164997-2-xuanzhuo@linux.alibaba.com>
- <CACGkMEt8MSS=tcn=Hd6WF9+btT0ccocxEd1ighRgK-V1uiWmCQ@mail.gmail.com>
- <1657873703.9301925-1-xuanzhuo@linux.alibaba.com>
- <CACGkMEvgjX+67NxwrUym7CnbNFU2-=CbAXPN_UmtvDOTS1LrHA@mail.gmail.com>
-In-Reply-To: <CACGkMEvgjX+67NxwrUym7CnbNFU2-=CbAXPN_UmtvDOTS1LrHA@mail.gmail.com>
-Cc: Vadim Pasternak <vadimp@nvidia.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- linux-remoteproc@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
- Bjorn Andersson <bjorn.andersson@linaro.org>,
- Eric Dumazet <edumazet@google.com>, Alexander Gordeev <agordeev@linux.ibm.com>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>, linux-s390@vger.kernel.org,
- kvm <kvm@vger.kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
- Richard Weinberger <richard@nod.at>,
- Vincent Whitchurch <vincent.whitchurch@axis.com>,
- John Fastabend <john.fastabend@gmail.com>, Halil Pasic <pasic@linux.ibm.com>,
- Jakub Kicinski <kuba@kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>,
- Eric Farman <farman@linux.ibm.com>, Jesper Dangaard Brouer <hawk@kernel.org>,
- Vasily Gorbik <gor@linux.ibm.com>, kangjie.xu@linux.alibaba.com,
- Heiko Carstens <hca@linux.ibm.com>, linux-um@lists.infradead.org,
- Mark Gross <markgross@kernel.org>, Hans de Goede <hdegoede@redhat.com>,
- platform-driver-x86@vger.kernel.org,
- "open list:XDP \(eXpress Data Path\)" <bpf@vger.kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Mathieu Poirier <mathieu.poirier@linaro.org>,
- netdev <netdev@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>,
- Sven Schnelle <svens@linux.ibm.com>, Johannes Berg <johannes@sipsolutions.net>,
- "David S. Miller" <davem@davemloft.net>
+ Mon, 18 Jul 2022 11:35:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1658144128;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=9JCm/b/mjt4LZBLzHear3EHHnOGBIPoSaVrBJk+/RAA=;
+ b=HBG1mZ2sdw8IWf/Evo5Nmy+T10VBBxV4L0VR8b2IuTx0wN0r+1Hxk9vrPit0b73Yox0ZSh
+ rFy5btP9GwZDecRldSFskK5x8e+dLgxK5Lvvj6NhyYX/p/80KEr/GvDLUaf2JKHp6k9TzT
+ yGjucukNimq80So2CpeNBA8QgrVzh8I=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-580-6YO43v11PoClj7RetzbGbw-1; Mon, 18 Jul 2022 07:35:24 -0400
+X-MC-Unique: 6YO43v11PoClj7RetzbGbw-1
+Received: by mail-wm1-f72.google.com with SMTP id
+ ay19-20020a05600c1e1300b003a315c2c1c0so3148440wmb.7
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 18 Jul 2022 04:35:24 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:message-id:date:mime-version:user-agent
+ :content-language:to:cc:references:from:organization:subject
+ :in-reply-to:content-transfer-encoding;
+ bh=9JCm/b/mjt4LZBLzHear3EHHnOGBIPoSaVrBJk+/RAA=;
+ b=OY8/ctaa89gXY9NriAP11jevUXW853kwfpXArFQTHelWX0lnctg+wBSW2MfrJ+wJw3
+ ZUbvLnxlNbEZRO7tP0wHo75VgN7aqI02sizqplWmHvonvHwD8LaZA0r8MOxyWz+yTwhP
+ +SQOfWrb7iJYoNhRqlDZTCRWej9PwUP/GEfCCwKEe1jwVqrGepNezk28zzPA/Qm5JFPR
+ lK64pywhVDD/Oxsl4g7wuqujyagyaNJ+EzTR3ZDoBKQRvC+ZgkJRSxiW7qTrri+BYHSq
+ welh51pkZ8LXAd7onG+l+KIMFBUw/JPHuAZ9pk1Gypb0W/8aULAx6TCd4jCqI9LYSMDP
+ W9+Q==
+X-Gm-Message-State: AJIora84dxTYBYPYP607Eoy0ewYBVNM0tQc9vsmS/HVPTLgSjZuRGM8h
+ gS7HC+W9T6OZKyJoXH9j0LpeXOdsQX6Ax6BSNhBZBdlwLwUrlBIjTGt4RTweGpPZQwyqpQ6o7oz
+ ru7GQcv0bS9JTkuzc1WncrMSeGujBRNABLELgbuIy/w==
+X-Received: by 2002:a7b:c381:0:b0:3a2:fe96:2ce4 with SMTP id
+ s1-20020a7bc381000000b003a2fe962ce4mr23293122wmj.70.1658144123695; 
+ Mon, 18 Jul 2022 04:35:23 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1viP2cnS2guKXxZTHu+eZiJoLsbXgWsbMOQJGktyyp94smBfBZj8OyeafS+IH7srVRiUt/CHQ==
+X-Received: by 2002:a7b:c381:0:b0:3a2:fe96:2ce4 with SMTP id
+ s1-20020a7bc381000000b003a2fe962ce4mr23293097wmj.70.1658144123376; 
+ Mon, 18 Jul 2022 04:35:23 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c705:7400:6b3a:a74a:bd53:a018?
+ (p200300cbc70574006b3aa74abd53a018.dip0.t-ipconnect.de.
+ [2003:cb:c705:7400:6b3a:a74a:bd53:a018])
+ by smtp.gmail.com with ESMTPSA id
+ m24-20020a056000181800b0021d68e1fd42sm10736132wrh.89.2022.07.18.04.35.22
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Mon, 18 Jul 2022 04:35:23 -0700 (PDT)
+Message-ID: <0b660226-28dc-1f1d-e22e-34805dc5b25d@redhat.com>
+Date: Mon, 18 Jul 2022 13:35:22 +0200
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+To: Alexander Atanasov <alexander.atanasov@virtuozzo.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+References: <7fd5e645-3892-6e0d-de80-08728e29b150@redhat.com>
+ <20220714132053.56323-1-alexander.atanasov@virtuozzo.com>
+From: David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+Subject: Re: [PATCH v5 1/1] Create debugfs file with virtio balloon usage
+ information
+In-Reply-To: <20220714132053.56323-1-alexander.atanasov@virtuozzo.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=david@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Cc: kernel@openvz.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -95,115 +128,187 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gTW9uLCAxOCBKdWwgMjAyMiAxNjo1Nzo1MyArMDgwMCwgSmFzb24gV2FuZyA8amFzb3dhbmdA
-cmVkaGF0LmNvbT4gd3JvdGU6Cj4gT24gRnJpLCBKdWwgMTUsIDIwMjIgYXQgNDozMiBQTSBYdWFu
-IFpodW8gPHh1YW56aHVvQGxpbnV4LmFsaWJhYmEuY29tPiB3cm90ZToKPiA+Cj4gPiBPbiBGcmks
-IDggSnVsIDIwMjIgMTQ6MjM6NTcgKzA4MDAsIEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5j
-b20+IHdyb3RlOgo+ID4gPiBPbiBUdWUsIEp1bCA1LCAyMDIyIGF0IDEwOjAxIEFNIFh1YW4gWmh1
-byA8eHVhbnpodW9AbGludXguYWxpYmFiYS5jb20+IHdyb3RlOgo+ID4gPiA+Cj4gPiA+ID4gT24g
-TW9uLCA0IEp1bCAyMDIyIDExOjQ1OjUyICswODAwLCBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRo
-YXQuY29tPiB3cm90ZToKPiA+ID4gPiA+Cj4gPiA+ID4gPiDlnKggMjAyMi82LzI5IDE0OjU2LCBY
-dWFuIFpodW8g5YaZ6YGTOgo+ID4gPiA+ID4gPiBUaGlzIHBhdGNoIGltcGxlbWVudHMgdGhlIHJl
-c2l6ZSBmdW5jdGlvbiBvZiB0aGUgdHggcXVldWVzLgo+ID4gPiA+ID4gPiBCYXNlZCBvbiB0aGlz
-IGZ1bmN0aW9uLCBpdCBpcyBwb3NzaWJsZSB0byBtb2RpZnkgdGhlIHJpbmcgbnVtIG9mIHRoZQo+
-ID4gPiA+ID4gPiBxdWV1ZS4KPiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4gU2lnbmVkLW9mZi1ieTog
-WHVhbiBaaHVvIDx4dWFuemh1b0BsaW51eC5hbGliYWJhLmNvbT4KPiA+ID4gPiA+ID4gLS0tCj4g
-PiA+ID4gPiA+ICAgZHJpdmVycy9uZXQvdmlydGlvX25ldC5jIHwgNDggKysrKysrKysrKysrKysr
-KysrKysrKysrKysrKysrKysrKysrKysrKwo+ID4gPiA+ID4gPiAgIDEgZmlsZSBjaGFuZ2VkLCA0
-OCBpbnNlcnRpb25zKCspCj4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+IGRpZmYgLS1naXQgYS9kcml2
-ZXJzL25ldC92aXJ0aW9fbmV0LmMgYi9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPiA+ID4gPiA+
-ID4gaW5kZXggNmFiMTZmZDE5M2U1Li5mZDM1ODQ2MmY4MDIgMTAwNjQ0Cj4gPiA+ID4gPiA+IC0t
-LSBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+ID4gPiA+ID4gPiArKysgYi9kcml2ZXJzL25l
-dC92aXJ0aW9fbmV0LmMKPiA+ID4gPiA+ID4gQEAgLTEzNSw2ICsxMzUsOSBAQCBzdHJ1Y3Qgc2Vu
-ZF9xdWV1ZSB7Cj4gPiA+ID4gPiA+ICAgICBzdHJ1Y3QgdmlydG5ldF9zcV9zdGF0cyBzdGF0czsK
-PiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4gICAgIHN0cnVjdCBuYXBpX3N0cnVjdCBuYXBpOwo+ID4g
-PiA+ID4gPiArCj4gPiA+ID4gPiA+ICsgICAvKiBSZWNvcmQgd2hldGhlciBzcSBpcyBpbiByZXNl
-dCBzdGF0ZS4gKi8KPiA+ID4gPiA+ID4gKyAgIGJvb2wgcmVzZXQ7Cj4gPiA+ID4gPiA+ICAgfTsK
-PiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4gICAvKiBJbnRlcm5hbCByZXByZXNlbnRhdGlvbiBvZiBh
-IHJlY2VpdmUgdmlydHF1ZXVlICovCj4gPiA+ID4gPiA+IEBAIC0yNzksNiArMjgyLDcgQEAgc3Ry
-dWN0IHBhZGRlZF92bmV0X2hkciB7Cj4gPiA+ID4gPiA+ICAgfTsKPiA+ID4gPiA+ID4KPiA+ID4g
-PiA+ID4gICBzdGF0aWMgdm9pZCB2aXJ0bmV0X3JxX2ZyZWVfdW51c2VkX2J1ZihzdHJ1Y3Qgdmly
-dHF1ZXVlICp2cSwgdm9pZCAqYnVmKTsKPiA+ID4gPiA+ID4gK3N0YXRpYyB2b2lkIHZpcnRuZXRf
-c3FfZnJlZV91bnVzZWRfYnVmKHN0cnVjdCB2aXJ0cXVldWUgKnZxLCB2b2lkICpidWYpOwo+ID4g
-PiA+ID4gPgo+ID4gPiA+ID4gPiAgIHN0YXRpYyBib29sIGlzX3hkcF9mcmFtZSh2b2lkICpwdHIp
-Cj4gPiA+ID4gPiA+ICAgewo+ID4gPiA+ID4gPiBAQCAtMTYwMyw2ICsxNjA3LDExIEBAIHN0YXRp
-YyB2b2lkIHZpcnRuZXRfcG9sbF9jbGVhbnR4KHN0cnVjdCByZWNlaXZlX3F1ZXVlICpycSkKPiA+
-ID4gPiA+ID4gICAgICAgICAgICAgcmV0dXJuOwo+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiAgICAg
-aWYgKF9fbmV0aWZfdHhfdHJ5bG9jayh0eHEpKSB7Cj4gPiA+ID4gPiA+ICsgICAgICAgICAgIGlm
-IChSRUFEX09OQ0Uoc3EtPnJlc2V0KSkgewo+ID4gPiA+ID4gPiArICAgICAgICAgICAgICAgICAg
-IF9fbmV0aWZfdHhfdW5sb2NrKHR4cSk7Cj4gPiA+ID4gPiA+ICsgICAgICAgICAgICAgICAgICAg
-cmV0dXJuOwo+ID4gPiA+ID4gPiArICAgICAgICAgICB9Cj4gPiA+ID4gPiA+ICsKPiA+ID4gPiA+
-ID4gICAgICAgICAgICAgZG8gewo+ID4gPiA+ID4gPiAgICAgICAgICAgICAgICAgICAgIHZpcnRx
-dWV1ZV9kaXNhYmxlX2NiKHNxLT52cSk7Cj4gPiA+ID4gPiA+ICAgICAgICAgICAgICAgICAgICAg
-ZnJlZV9vbGRfeG1pdF9za2JzKHNxLCB0cnVlKTsKPiA+ID4gPiA+ID4gQEAgLTE4NjgsNiArMTg3
-Nyw0NSBAQCBzdGF0aWMgaW50IHZpcnRuZXRfcnhfcmVzaXplKHN0cnVjdCB2aXJ0bmV0X2luZm8g
-KnZpLAo+ID4gPiA+ID4gPiAgICAgcmV0dXJuIGVycjsKPiA+ID4gPiA+ID4gICB9Cj4gPiA+ID4g
-PiA+Cj4gPiA+ID4gPiA+ICtzdGF0aWMgaW50IHZpcnRuZXRfdHhfcmVzaXplKHN0cnVjdCB2aXJ0
-bmV0X2luZm8gKnZpLAo+ID4gPiA+ID4gPiArICAgICAgICAgICAgICAgICAgICAgICAgc3RydWN0
-IHNlbmRfcXVldWUgKnNxLCB1MzIgcmluZ19udW0pCj4gPiA+ID4gPiA+ICt7Cj4gPiA+ID4gPiA+
-ICsgICBzdHJ1Y3QgbmV0ZGV2X3F1ZXVlICp0eHE7Cj4gPiA+ID4gPiA+ICsgICBpbnQgZXJyLCBx
-aW5kZXg7Cj4gPiA+ID4gPiA+ICsKPiA+ID4gPiA+ID4gKyAgIHFpbmRleCA9IHNxIC0gdmktPnNx
-Owo+ID4gPiA+ID4gPiArCj4gPiA+ID4gPiA+ICsgICB2aXJ0bmV0X25hcGlfdHhfZGlzYWJsZSgm
-c3EtPm5hcGkpOwo+ID4gPiA+ID4gPiArCj4gPiA+ID4gPiA+ICsgICB0eHEgPSBuZXRkZXZfZ2V0
-X3R4X3F1ZXVlKHZpLT5kZXYsIHFpbmRleCk7Cj4gPiA+ID4gPiA+ICsKPiA+ID4gPiA+ID4gKyAg
-IC8qIDEuIHdhaXQgYWxsIHhpbXQgY29tcGxldGUKPiA+ID4gPiA+ID4gKyAgICAqIDIuIGZpeCB0
-aGUgcmFjZSBvZiBuZXRpZl9zdG9wX3N1YnF1ZXVlKCkgdnMgbmV0aWZfc3RhcnRfc3VicXVldWUo
-KQo+ID4gPiA+ID4gPiArICAgICovCj4gPiA+ID4gPiA+ICsgICBfX25ldGlmX3R4X2xvY2tfYmgo
-dHhxKTsKPiA+ID4gPiA+ID4gKwo+ID4gPiA+ID4gPiArICAgLyogUHJldmVudCByeCBwb2xsIGZy
-b20gYWNjZXNzaW5nIHNxLiAqLwo+ID4gPiA+ID4gPiArICAgV1JJVEVfT05DRShzcS0+cmVzZXQs
-IHRydWUpOwo+ID4gPiA+ID4KPiA+ID4gPiA+Cj4gPiA+ID4gPiBDYW4gd2Ugc2ltcGx5IGRpc2Fi
-bGUgUlggTkFQSSBoZXJlPwo+ID4gPiA+Cj4gPiA+ID4gRGlzYWJsZSByeCBuYXBpIGlzIGluZGVl
-ZCBhIHNpbXBsZSBzb2x1dGlvbi4gQnV0IEkgaG9wZSB0aGF0IHdoZW4gZGVhbGluZyB3aXRoCj4g
-PiA+ID4gdHgsIGl0IHdpbGwgbm90IGFmZmVjdCByeC4KPiA+ID4KPiA+ID4gT2ssIGJ1dCBJIHRo
-aW5rIHdlJ3ZlIGFscmVhZHkgc3luY2hyb25pemVkIHdpdGggdHggbG9jayBoZXJlLCBpc24ndCBp
-dD8KPiA+Cj4gPiBZZXMsIGRvIHlvdSBoYXZlIGFueSBxdWVzdGlvbnMgYWJvdXQgV1JJVEVfT05D
-RSgpPyBUaGVyZSBpcyBhIHNldCBmYWxzZSBvcGVyYXRpb24KPiA+IGxhdGVyLCBJIGRpZCBub3Qg
-dXNlIGxvY2sgdGhlcmUsIHNvIEkgdXNlZCBXUklURS9SRUFEX09OQ0UKPiA+IHVuaWZvcm1seS4K
-Pgo+IEkgbWVhbiwgc2luY2Ugd2UndmUgYWxyZWFkeSB1c2VkIHR4IGxvY2tzIHNvbWV3aGVyZSwg
-d2UnZCBiZXR0ZXIgdXNlCj4gdGhlbSBoZXJlIGFzIHdlbGwgYXQgbGVhc3QgYXMgYSBzdGFydC4K
-CgpPSy4gbmV4dCB2ZXJzaW9uIHdpbGwgZml4LgoKVGhhbmtzLgoKK3N0YXRpYyBpbnQgdmlydG5l
-dF90eF9yZXNpemUoc3RydWN0IHZpcnRuZXRfaW5mbyAqdmksCisJCQkgICAgIHN0cnVjdCBzZW5k
-X3F1ZXVlICpzcSwgdTMyIHJpbmdfbnVtKQoreworCXN0cnVjdCBuZXRkZXZfcXVldWUgKnR4cTsK
-KwlpbnQgZXJyLCBxaW5kZXg7CisKKwlxaW5kZXggPSBzcSAtIHZpLT5zcTsKKworCXZpcnRuZXRf
-bmFwaV90eF9kaXNhYmxlKCZzcS0+bmFwaSk7CisKKwl0eHEgPSBuZXRkZXZfZ2V0X3R4X3F1ZXVl
-KHZpLT5kZXYsIHFpbmRleCk7CisKKwkvKiAxLiB3YWl0IGFsbCB4aW10IGNvbXBsZXRlCisJICog
-Mi4gZml4IHRoZSByYWNlIG9mIG5ldGlmX3N0b3Bfc3VicXVldWUoKSB2cyBuZXRpZl9zdGFydF9z
-dWJxdWV1ZSgpCisJICovCisJX19uZXRpZl90eF9sb2NrX2JoKHR4cSk7CisKKwlzcS0+cmVzZXQg
-PSB0cnVlOworCisJLyogUHJldmVudCB0aGUgdXBwZXIgbGF5ZXIgZnJvbSB0cnlpbmcgdG8gc2Vu
-ZCBwYWNrZXRzLiAqLworCW5ldGlmX3N0b3Bfc3VicXVldWUodmktPmRldiwgcWluZGV4KTsKKwor
-CV9fbmV0aWZfdHhfdW5sb2NrX2JoKHR4cSk7CisKKwllcnIgPSB2aXJ0cXVldWVfcmVzaXplKHNx
-LT52cSwgcmluZ19udW0sIHZpcnRuZXRfc3FfZnJlZV91bnVzZWRfYnVmKTsKKwlpZiAoZXJyKQor
-CQluZXRkZXZfZXJyKHZpLT5kZXYsICJyZXNpemUgdHggZmFpbDogdHggcXVldWUgaW5kZXg6ICVk
-IGVycjogJWRcbiIsIHFpbmRleCwgZXJyKTsKKworCV9fbmV0aWZfdHhfbG9ja19iaCh0eHEpOwor
-CXNxLT5yZXNldCA9IGZhbHNlOworCW5ldGlmX3R4X3dha2VfcXVldWUodHhxKTsKKwlfX25ldGlm
-X3R4X3VubG9ja19iaCh0eHEpOworCisJdmlydG5ldF9uYXBpX3R4X2VuYWJsZSh2aSwgc3EtPnZx
-LCAmc3EtPm5hcGkpOworCXJldHVybiBlcnI7Cit9CgoKPgo+IFRoYW5rcwo+Cj4gPgo+ID4gVGhh
-bmtzLgo+ID4KPiA+ID4KPiA+ID4gVGhhbmtzCj4gPiA+Cj4gPiA+ID4KPiA+ID4gPiBUaGFua3Mu
-Cj4gPiA+ID4KPiA+ID4gPgo+ID4gPiA+ID4KPiA+ID4gPiA+IFRoYW5rcwo+ID4gPiA+ID4KPiA+
-ID4gPiA+Cj4gPiA+ID4gPiA+ICsKPiA+ID4gPiA+ID4gKyAgIC8qIFByZXZlbnQgdGhlIHVwcGVy
-IGxheWVyIGZyb20gdHJ5aW5nIHRvIHNlbmQgcGFja2V0cy4gKi8KPiA+ID4gPiA+ID4gKyAgIG5l
-dGlmX3N0b3Bfc3VicXVldWUodmktPmRldiwgcWluZGV4KTsKPiA+ID4gPiA+ID4gKwo+ID4gPiA+
-ID4gPiArICAgX19uZXRpZl90eF91bmxvY2tfYmgodHhxKTsKPiA+ID4gPiA+ID4gKwo+ID4gPiA+
-ID4gPiArICAgZXJyID0gdmlydHF1ZXVlX3Jlc2l6ZShzcS0+dnEsIHJpbmdfbnVtLCB2aXJ0bmV0
-X3NxX2ZyZWVfdW51c2VkX2J1Zik7Cj4gPiA+ID4gPiA+ICsgICBpZiAoZXJyKQo+ID4gPiA+ID4g
-PiArICAgICAgICAgICBuZXRkZXZfZXJyKHZpLT5kZXYsICJyZXNpemUgdHggZmFpbDogdHggcXVl
-dWUgaW5kZXg6ICVkIGVycjogJWRcbiIsIHFpbmRleCwgZXJyKTsKPiA+ID4gPiA+ID4gKwo+ID4g
-PiA+ID4gPiArICAgLyogTWVtb3J5IGJhcnJpZXIgYmVmb3JlIHNldCByZXNldCBhbmQgc3RhcnQg
-c3VicXVldWUuICovCj4gPiA+ID4gPiA+ICsgICBzbXBfbWIoKTsKPiA+ID4gPiA+ID4gKwo+ID4g
-PiA+ID4gPiArICAgV1JJVEVfT05DRShzcS0+cmVzZXQsIGZhbHNlKTsKPiA+ID4gPiA+ID4gKyAg
-IG5ldGlmX3R4X3dha2VfcXVldWUodHhxKTsKPiA+ID4gPiA+ID4gKwo+ID4gPiA+ID4gPiArICAg
-dmlydG5ldF9uYXBpX3R4X2VuYWJsZSh2aSwgc3EtPnZxLCAmc3EtPm5hcGkpOwo+ID4gPiA+ID4g
-PiArICAgcmV0dXJuIGVycjsKPiA+ID4gPiA+ID4gK30KPiA+ID4gPiA+ID4gKwo+ID4gPiA+ID4g
-PiAgIC8qCj4gPiA+ID4gPiA+ICAgICogU2VuZCBjb21tYW5kIHZpYSB0aGUgY29udHJvbCB2aXJ0
-cXVldWUgYW5kIGNoZWNrIHN0YXR1cy4gIENvbW1hbmRzCj4gPiA+ID4gPiA+ICAgICogc3VwcG9y
-dGVkIGJ5IHRoZSBoeXBlcnZpc29yLCBhcyBpbmRpY2F0ZWQgYnkgZmVhdHVyZSBiaXRzLCBzaG91
-bGQKPiA+ID4gPiA+Cj4gPiA+ID4KPiA+ID4KPiA+Cj4KX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1
-YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhm
-b3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On 14.07.22 15:20, Alexander Atanasov wrote:
+> Allow the guest to know how much it is ballooned by the host.
+> It is useful when debugging out of memory conditions.
+> 
+> When host gets back memory from the guest it is accounted
+> as used memory in the guest but the guest have no way to know
+> how much it is actually ballooned.
+> 
+> Signed-off-by: Alexander Atanasov <alexander.atanasov@virtuozzo.com>
+> ---
+>  drivers/virtio/virtio_balloon.c     | 79 +++++++++++++++++++++++++++++
+>  include/uapi/linux/virtio_balloon.h |  1 +
+>  2 files changed, 80 insertions(+)
+> 
+> V2:
+>  - fixed coding style
+>  - removed pretty print
+> V3:
+>  - removed dublicate of features
+>  - comment about balooned_pages more clear
+>  - convert host pages to balloon pages
+> V4:
+>  - added a define for BALLOON_PAGE_SIZE to make things clear
+> V5:
+>  - Made the calculatons work properly for both ways of memory accounting
+>    with or without deflate_on_oom
+>  - dropped comment 
+> 
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index b9737da6c4dd..e17f8cc71ba4 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -10,6 +10,7 @@
+>  #include <linux/virtio_balloon.h>
+>  #include <linux/swap.h>
+>  #include <linux/workqueue.h>
+> +#include <linux/debugfs.h>
+>  #include <linux/delay.h>
+>  #include <linux/slab.h>
+>  #include <linux/module.h>
+> @@ -731,6 +732,79 @@ static void report_free_page_func(struct work_struct *work)
+>  	}
+>  }
+>  
+> +/*
+> + * DEBUGFS Interface
+> + */
+> +#ifdef CONFIG_DEBUG_FS
+> +
+> +#define guest_to_balloon_pages(i) ((i)*VIRTIO_BALLOON_PAGES_PER_PAGE)
+> +/**
+> + * virtio_balloon_debug_show - shows statistics of balloon operations.
+> + * @f: pointer to the &struct seq_file.
+> + * @offset: ignored.
+> + *
+> + * Provides the statistics that can be accessed in virtio-balloon in the debugfs.
+> + *
+> + * Return: zero on success or an error code.
+> + */
+> +
+> +static int virtio_balloon_debug_show(struct seq_file *f, void *offset)
+> +{
+> +	struct virtio_balloon *b = f->private;
+
+Most other functions call this "vb".
+
+> +	u32 num_pages, total_pages, current_pages;
+> +	struct sysinfo i;
+> +
+> +	si_meminfo(&i);
+> +
+> +	seq_printf(f, "%-22s: %d\n", "page_size", VIRTIO_BALLOON_PAGE_SIZE);
+
+Why? Either export all in ordinary page size or in kB. No need to
+over-complicate the interface with a different page size that users
+don't actually care about.
+
+I'd just stick to /proc/meminfo and use kB.
+
+> +
+> +	virtio_cread_le(b->vdev, struct virtio_balloon_config, actual,
+> +			&num_pages);
+
+What's wrong with vb->num_pages? I'd prefer not doing config access, if
+it can be avoided.
+
+> +
+> +	seq_printf(f, "%-22s: %u\n", "ballooned_pages", num_pages);
+> +
+> +	if (virtio_has_feature(b->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM)) {
+> +		total_pages = guest_to_balloon_pages(i.totalram);
+> +		current_pages = guest_to_balloon_pages(i.totalram) - num_pages;
+> +	} else {
+> +		total_pages = guest_to_balloon_pages(i.totalram) +  num_pages;
+> +		current_pages = guest_to_balloon_pages(i.totalram);
+> +	}
+> +
+> +	/* Total Memory for the guest from host */
+> +	seq_printf(f, "%-22s: %u\n", "total_pages", total_pages);
+> +
+> +	/* Current memory for the guest */
+> +	seq_printf(f, "%-22s: %u\n", "current_pages", current_pages);
+
+The think I detest about that interface (total/current) is that it's
+simply not correct -- because i.totalram for example doesn't include
+things like (similar to MemTotal in /proc/meminfo)
+
+a) crashkernel
+b) early boot allocations (e.g., memmap)
+c) any kind of possible memory (un)hotplug in the future
+
+I'd really suggest to just KIS and not mess with i.totalram.
+
+Exposing how much memory is inflated and some way to identify how that
+memory is accounted in /proc/meminfo should be good enough.
+
+E.g., the output here could simply be
+
+"Inflated: 1024 kB"
+"MemTotalReduced: 1024 kB"
+
+That would even allow in the future for flexibility when it comes to how
+much/what was actually subtracted from MemTotal.
+
+> +
+> +	return 0;
+> +}
+> +
+> +DEFINE_SHOW_ATTRIBUTE(virtio_balloon_debug);
+> +
+> +static void  virtio_balloon_debugfs_init(struct virtio_balloon *b)
+> +{
+> +	debugfs_create_file("virtio-balloon", 0444, NULL, b,
+> +			    &virtio_balloon_debug_fops);
+> +}
+> +
+> +static void  virtio_balloon_debugfs_exit(struct virtio_balloon *b)
+> +{
+> +	debugfs_remove(debugfs_lookup("virtio-balloon", NULL));
+> +}
+> +
+> +#else
+> +
+> +static inline void virtio_balloon_debugfs_init(struct virtio_balloon *b)
+> +{
+> +}
+> +
+> +static inline void virtio_balloon_debugfs_exit(struct virtio_balloon *b)
+> +{
+> +}
+> +
+> +#endif	/* CONFIG_DEBUG_FS */
+
+[...]
+
+> diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
+> index ddaa45e723c4..f3ff7c4e5884 100644
+> --- a/include/uapi/linux/virtio_balloon.h
+> +++ b/include/uapi/linux/virtio_balloon.h
+> @@ -40,6 +40,7 @@
+>  
+>  /* Size of a PFN in the balloon interface. */
+>  #define VIRTIO_BALLOON_PFN_SHIFT 12
+> +#define VIRTIO_BALLOON_PAGE_SIZE (1<<VIRTIO_BALLOON_PFN_SHIFT)
+
+We prefer extra spacing
+
+ (1 << VIRTIO_BALLOON_PFN_SHIFT)
+
+
+-- 
+Thanks,
+
+David / dhildenb
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
