@@ -4,110 +4,86 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 77B06C43334
-	for <virtualization@archiver.kernel.org>; Mon, 18 Jul 2022 09:04:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1457EC433EF
+	for <virtualization@archiver.kernel.org>; Mon, 18 Jul 2022 09:14:43 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 15A7C82D04;
-	Mon, 18 Jul 2022 09:04:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 15A7C82D04
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=NNTqL+lz
+	by smtp1.osuosl.org (Postfix) with ESMTP id A022F830FB;
+	Mon, 18 Jul 2022 09:14:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A022F830FB
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Jwg91gQS72Z4; Mon, 18 Jul 2022 09:04:12 +0000 (UTC)
+	with ESMTP id dInb3rag1Tae; Mon, 18 Jul 2022 09:14:41 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 28E0782C33;
-	Mon, 18 Jul 2022 09:04:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 28E0782C33
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 0F89182FA9;
+	Mon, 18 Jul 2022 09:14:41 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0F89182FA9
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DB8C9C0033;
-	Mon, 18 Jul 2022 09:04:11 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 611BCC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C7E36C0033;
+	Mon, 18 Jul 2022 09:14:40 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9182DC002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Jul 2022 09:04:10 +0000 (UTC)
+ Mon, 18 Jul 2022 09:14:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 2D1C982D04
+ by smtp4.osuosl.org (Postfix) with ESMTP id 6AD9F415BE
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Jul 2022 09:04:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2D1C982D04
+ Mon, 18 Jul 2022 09:14:39 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6AD9F415BE
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 96yZLbZYShyE
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id BzyTZjqYd4jx
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Jul 2022 09:04:09 +0000 (UTC)
+ Mon, 18 Jul 2022 09:14:36 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E98CA82C33
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id E98CA82C33
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 53EC8415BC
+Received: from out30-43.freemail.mail.aliyun.com
+ (out30-43.freemail.mail.aliyun.com [115.124.30.43])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 53EC8415BC
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Jul 2022 09:04:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1658135047;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=agckOinCzDcYOPro7emOixGeA1c49jhzY5NQYNGFsdI=;
- b=NNTqL+lzRl+1MsKZmFBCH5EJBo8pkuBYLWjS8VmdbqFk2BkCBzCrO6V09M9qQNHAVamQvy
- h9a99t/Z9IEzxizN+i4nAFA1zS1WdHRUoy0BcBsIlPuWS1Wsha5Bjk9NLCO7KDSL547YUn
- 51bTcxL0RWXnB7mXWrymcK2BQ7vXkoA=
-Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
- [209.85.167.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-518-vxivoob5PlWSLkvoaH749Q-1; Mon, 18 Jul 2022 05:04:04 -0400
-X-MC-Unique: vxivoob5PlWSLkvoaH749Q-1
-Received: by mail-lf1-f69.google.com with SMTP id
- v4-20020a056512348400b0048a22a5f359so2819244lfr.6
- for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Jul 2022 02:04:03 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=agckOinCzDcYOPro7emOixGeA1c49jhzY5NQYNGFsdI=;
- b=PKp6uFIKYZfVejJDm/Utrnt03tVGaefaaZZxk8g/WuafPRM+U4na9pDMN5P5ZMTyFR
- y0vX5knR84dzz4AYo4IvsTU4km8uOf3H7390lqAkggdradH77Q4/0LatPpRZoPauMlkr
- WmD96J8R6EIZ3Z0xWC8+FHJtrJLURQGOGyd2RPacMnB/X+kjH8D4CTMDVZwixAHT4qls
- h4Gs1bVA+nhu14me+MPjqfB35IebMfy9Y7NS+5DEioe4MbRSL93emBL+OILQlYjlfmVu
- E4WGDGSURjxIDg2/K6XyhNTnqBZUEqtl1NBsGswBH8MY7AY9SIBkJE21Z6AIGutgmXSS
- 6djQ==
-X-Gm-Message-State: AJIora+DZk1usA+0CxuVeirib2/OJJaUf9tlvGmV5C3ldaMMzJPKdk4A
- k4Pz+/oGP3jinjxhhQvG1PutO58ZBaOOyr+650GPdS3xbC0W6fcSVn7Oj06PCI/YcSNkimHYbtx
- 59Yi9WhHvGDARNbvQIEHkkvTxE4UmNkzh9LrzNvlLGB0NVY7VUhryRCG+Og==
-X-Received: by 2002:a05:6512:313a:b0:489:caea:7e27 with SMTP id
- p26-20020a056512313a00b00489caea7e27mr14810204lfd.397.1658135042594; 
- Mon, 18 Jul 2022 02:04:02 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1tmfCWJpHOeqbRDiJ1Ogzo7DdOMES+cPp4bBhODSIqr31Bc5xrX87t+oKCHjSiQh9uTzPDsaJ4W7xnIGoEb5Kg=
-X-Received: by 2002:a05:6512:313a:b0:489:caea:7e27 with SMTP id
- p26-20020a056512313a00b00489caea7e27mr14810192lfd.397.1658135042365; Mon, 18
- Jul 2022 02:04:02 -0700 (PDT)
-MIME-Version: 1.0
-References: <20220616132725.50599-1-elic@nvidia.com>
- <20220616132725.50599-2-elic@nvidia.com>
- <CACGkMEue-X8-u0Z=EwUbBSV6vmomwNy52Tot3Zf+0pu4Pztutg@mail.gmail.com>
- <CAJaqyWfTG_jVW6Vzf64QO=255kfwWKn4gCUMeGog-1shHx3O_g@mail.gmail.com>
- <CACGkMEtcs9e1NJ7ArkibQSrDN7j_eyciZo=yDfbd5Jsb4gvzZA@mail.gmail.com>
- <DM8PR12MB5400FDBB177693A55074D19EAB879@DM8PR12MB5400.namprd12.prod.outlook.com>
- <CACGkMEu4iRHa_D+1jQHq65UZch-102-MhnRD22Umz94XP9+CJA@mail.gmail.com>
- <CAJaqyWcUUk1H2+aeoj7yAFKXSg1gdV2GzTdWUTAGi0AiW9r64w@mail.gmail.com>
- <CACGkMEvGQrDdZ+g3jJF6kM=cTqi+tmxiddZYLGP6gMPKC2A68Q@mail.gmail.com>
- <DM8PR12MB5400DBB3EBA91C250E703E1EAB899@DM8PR12MB5400.namprd12.prod.outlook.com>
-In-Reply-To: <DM8PR12MB5400DBB3EBA91C250E703E1EAB899@DM8PR12MB5400.namprd12.prod.outlook.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 18 Jul 2022 17:03:51 +0800
-Message-ID: <CACGkMEvCdg8pheddm7iTAJcvPhaWHA0nagASREf8F1zcGZ6AiA@mail.gmail.com>
-Subject: Re: [PATCH RFC 1/3] vdpa/mlx5: Implement susupend virtqueue callback
-To: Eli Cohen <elic@nvidia.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: mst <mst@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>,
+ Mon, 18 Jul 2022 09:14:35 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R811e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046059;
+ MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=36; SR=0;
+ TI=SMTPD_---0VJhAxgV_1658135667; 
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
+ fp:SMTPD_---0VJhAxgV_1658135667) by smtp.aliyun-inc.com;
+ Mon, 18 Jul 2022 17:14:29 +0800
+Message-ID: <1658135504.1522465-2-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH v11 39/40] virtio_net: support tx queue resize
+Date: Mon, 18 Jul 2022 17:11:44 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Jason Wang <jasowang@redhat.com>
+References: <20220629065656.54420-1-xuanzhuo@linux.alibaba.com>
+ <20220629065656.54420-40-xuanzhuo@linux.alibaba.com>
+ <102d3b83-1ae9-a59a-16ce-251c22b7afb0@redhat.com>
+ <1656986432.1164997-2-xuanzhuo@linux.alibaba.com>
+ <CACGkMEt8MSS=tcn=Hd6WF9+btT0ccocxEd1ighRgK-V1uiWmCQ@mail.gmail.com>
+ <1657873703.9301925-1-xuanzhuo@linux.alibaba.com>
+ <CACGkMEvgjX+67NxwrUym7CnbNFU2-=CbAXPN_UmtvDOTS1LrHA@mail.gmail.com>
+In-Reply-To: <CACGkMEvgjX+67NxwrUym7CnbNFU2-=CbAXPN_UmtvDOTS1LrHA@mail.gmail.com>
+Cc: Vadim Pasternak <vadimp@nvidia.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ linux-remoteproc@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
+ Bjorn Andersson <bjorn.andersson@linaro.org>,
+ Eric Dumazet <edumazet@google.com>, Alexander Gordeev <agordeev@linux.ibm.com>,
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>, linux-s390@vger.kernel.org,
+ kvm <kvm@vger.kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
+ Richard Weinberger <richard@nod.at>,
+ Vincent Whitchurch <vincent.whitchurch@axis.com>,
+ John Fastabend <john.fastabend@gmail.com>, Halil Pasic <pasic@linux.ibm.com>,
+ Jakub Kicinski <kuba@kernel.org>,
  virtualization <virtualization@lists.linux-foundation.org>,
- Eugenio Perez Martin <eperezma@redhat.com>
+ Eric Farman <farman@linux.ibm.com>, Jesper Dangaard Brouer <hawk@kernel.org>,
+ Vasily Gorbik <gor@linux.ibm.com>, kangjie.xu@linux.alibaba.com,
+ Heiko Carstens <hca@linux.ibm.com>, linux-um@lists.infradead.org,
+ Mark Gross <markgross@kernel.org>, Hans de Goede <hdegoede@redhat.com>,
+ platform-driver-x86@vger.kernel.org,
+ "open list:XDP \(eXpress Data Path\)" <bpf@vger.kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Mathieu Poirier <mathieu.poirier@linaro.org>,
+ netdev <netdev@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Johannes Berg <johannes@sipsolutions.net>,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,249 +95,115 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Jul 13, 2022 at 1:18 PM Eli Cohen <elic@nvidia.com> wrote:
->
-> > From: Jason Wang <jasowang@redhat.com>
-> > Sent: Wednesday, July 13, 2022 6:29 AM
-> > To: Eugenio Perez Martin <eperezma@redhat.com>
-> > Cc: Eli Cohen <elic@nvidia.com>; mst <mst@redhat.com>; virtualization <virtualization@lists.linux-foundation.org>; linux-kernel
-> > <linux-kernel@vger.kernel.org>; Si-Wei Liu <si-wei.liu@oracle.com>; Parav Pandit <parav@nvidia.com>
-> > Subject: Re: [PATCH RFC 1/3] vdpa/mlx5: Implement susupend virtqueue callback
-> >
-> > On Tue, Jul 12, 2022 at 5:16 PM Eugenio Perez Martin
-> > <eperezma@redhat.com> wrote:
-> > >
-> > > On Tue, Jul 12, 2022 at 10:14 AM Jason Wang <jasowang@redhat.com> wrote:
-> > > >
-> > > > On Mon, Jul 11, 2022 at 2:14 PM Eli Cohen <elic@nvidia.com> wrote:
-> > > > >
-> > > > > > From: Jason Wang <jasowang@redhat.com>
-> > > > > > Sent: Tuesday, June 21, 2022 6:05 AM
-> > > > > > To: Eugenio Perez Martin <eperezma@redhat.com>
-> > > > > > Cc: Eli Cohen <elic@nvidia.com>; mst <mst@redhat.com>; virtualization <virtualization@lists.linux-foundation.org>; linux-
-> > kernel
-> > > > > > <linux-kernel@vger.kernel.org>; Si-Wei Liu <si-wei.liu@oracle.com>; Parav Pandit <parav@nvidia.com>
-> > > > > > Subject: Re: [PATCH RFC 1/3] vdpa/mlx5: Implement susupend virtqueue callback
-> > > > > >
-> > > > > > On Mon, Jun 20, 2022 at 5:59 PM Eugenio Perez Martin
-> > > > > > <eperezma@redhat.com> wrote:
-> > > > > > >
-> > > > > > > On Mon, Jun 20, 2022 at 10:56 AM Jason Wang <jasowang@redhat.com> wrote:
-> > > > > > > >
-> > > > > > > > On Thu, Jun 16, 2022 at 9:27 PM Eli Cohen <elic@nvidia.com> wrote:
-> > > > > > > > >
-> > > > > > > > > Implement the suspend callback allowing to suspend the virtqueues so
-> > > > > > > > > they stop processing descriptors. This is required to allow the shadow
-> > > > > > > > > virtqueue to kick in.
-> > > > > > > > >
-> > > > > > > > > Signed-off-by: Eli Cohen <elic@nvidia.com>
-> > > > > > > > > ---
-> > > > > > > > >  drivers/vdpa/mlx5/net/mlx5_vnet.c  | 68 +++++++++++++++++++++++++++++-
-> > > > > > > > >  include/linux/mlx5/mlx5_ifc_vdpa.h |  8 ++++
-> > > > > > > > >  2 files changed, 75 insertions(+), 1 deletion(-)
-> > > > > > > > >
-> > > > > > > > > diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> > > > > > > > > index fb0b23e71383..ea4bc8a0cd25 100644
-> > > > > > > > > --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> > > > > > > > > +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> > > > > > > > > @@ -895,6 +895,7 @@ static int create_virtqueue(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtque
-> > > > > > > > >         if (err)
-> > > > > > > > >                 goto err_cmd;
-> > > > > > > > >
-> > > > > > > > > +       mvq->fw_state = MLX5_VIRTIO_NET_Q_OBJECT_STATE_INIT;
-> > > > > > > > >         kfree(in);
-> > > > > > > > >         mvq->virtq_id = MLX5_GET(general_obj_out_cmd_hdr, out, obj_id);
-> > > > > > > > >
-> > > > > > > > > @@ -922,6 +923,7 @@ static void destroy_virtqueue(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtq
-> > > > > > > > >                 mlx5_vdpa_warn(&ndev->mvdev, "destroy virtqueue 0x%x\n", mvq->virtq_id);
-> > > > > > > > >                 return;
-> > > > > > > > >         }
-> > > > > > > > > +       mvq->fw_state = MLX5_VIRTIO_NET_Q_OBJECT_NONE;
-> > > > > > > > >         umems_destroy(ndev, mvq);
-> > > > > > > > >  }
-> > > > > > > > >
-> > > > > > > > > @@ -1121,6 +1123,20 @@ static int query_virtqueue(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueu
-> > > > > > > > >         return err;
-> > > > > > > > >  }
-> > > > > > > > >
-> > > > > > > > > +static bool is_valid_state_change(int oldstate, int newstate)
-> > > > > > > > > +{
-> > > > > > > > > +       switch (oldstate) {
-> > > > > > > > > +       case MLX5_VIRTIO_NET_Q_OBJECT_STATE_INIT:
-> > > > > > > > > +               return newstate == MLX5_VIRTIO_NET_Q_OBJECT_STATE_RDY;
-> > > > > > > > > +       case MLX5_VIRTIO_NET_Q_OBJECT_STATE_RDY:
-> > > > > > > > > +               return newstate == MLX5_VIRTIO_NET_Q_OBJECT_STATE_SUSPEND;
-> > > > > > > > > +       case MLX5_VIRTIO_NET_Q_OBJECT_STATE_SUSPEND:
-> > > > > > > > > +       case MLX5_VIRTIO_NET_Q_OBJECT_STATE_ERR:
-> > > > > > > > > +       default:
-> > > > > > > > > +               return false;
-> > > > > > > > > +       }
-> > > > > > > > > +}
-> > > > > > > > > +
-> > > > > > > > >  static int modify_virtqueue(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueue *mvq, int state)
-> > > > > > > > >  {
-> > > > > > > > >         int inlen = MLX5_ST_SZ_BYTES(modify_virtio_net_q_in);
-> > > > > > > > > @@ -1130,6 +1146,12 @@ static int modify_virtqueue(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtque
-> > > > > > > > >         void *in;
-> > > > > > > > >         int err;
-> > > > > > > > >
-> > > > > > > > > +       if (mvq->fw_state == MLX5_VIRTIO_NET_Q_OBJECT_NONE)
-> > > > > > > > > +               return 0;
-> > > > > > > > > +
-> > > > > > > > > +       if (!is_valid_state_change(mvq->fw_state, state))
-> > > > > > > > > +               return -EINVAL;
-> > > > > > > > > +
-> > > > > > > > >         in = kzalloc(inlen, GFP_KERNEL);
-> > > > > > > > >         if (!in)
-> > > > > > > > >                 return -ENOMEM;
-> > > > > > > > > @@ -1991,6 +2013,7 @@ static void mlx5_vdpa_set_vq_ready(struct vdpa_device *vdev, u16 idx, bool ready
-> > > > > > > > >         struct mlx5_vdpa_dev *mvdev = to_mvdev(vdev);
-> > > > > > > > >         struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
-> > > > > > > > >         struct mlx5_vdpa_virtqueue *mvq;
-> > > > > > > > > +       int err;
-> > > > > > > > >
-> > > > > > > > >         if (!mvdev->actual_features)
-> > > > > > > > >                 return;
-> > > > > > > > > @@ -2004,8 +2027,16 @@ static void mlx5_vdpa_set_vq_ready(struct vdpa_device *vdev, u16 idx, bool ready
-> > > > > > > > >         }
-> > > > > > > > >
-> > > > > > > > >         mvq = &ndev->vqs[idx];
-> > > > > > > > > -       if (!ready)
-> > > > > > > > > +       if (!ready) {
-> > > > > > > > >                 suspend_vq(ndev, mvq);
-> > > > > > > > > +       } else {
-> > > > > > > > > +               err = modify_virtqueue(ndev, mvq, MLX5_VIRTIO_NET_Q_OBJECT_STATE_RDY);
-> > > > > > > > > +               if (err) {
-> > > > > > > > > +                       mlx5_vdpa_warn(mvdev, "modify VQ %d to ready failed (%d)\n", idx, err);
-> > > > > > > > > +                       ready = false;
-> > > > > > > > > +               }
-> > > > > > > > > +       }
-> > > > > > > > > +
-> > > > > > > > >
-> > > > > > > > >         mvq->ready = ready;
-> > > > > > > > >  }
-> > > > > > > > > @@ -2732,6 +2763,39 @@ static int mlx5_vdpa_get_vendor_vq_stats(struct vdpa_device *vdev, u16 idx,
-> > > > > > > > >         return err;
-> > > > > > > > >  }
-> > > > > > > > >
-> > > > > > > > > +static void mlx5_vdpa_cvq_suspend(struct mlx5_vdpa_dev *mvdev, bool suspend)
-> > > > > > > > > +{
-> > > > > > > > > +       struct mlx5_control_vq *cvq;
-> > > > > > > > > +
-> > > > > > > > > +       if (!(mvdev->actual_features & BIT_ULL(VIRTIO_NET_F_CTRL_VQ)))
-> > > > > > > > > +               return;
-> > > > > > > > > +
-> > > > > > > > > +       cvq = &mvdev->cvq;
-> > > > > > > > > +       cvq->ready = !suspend;
-> > > > > > > > > +}
-> > > > > > > >
-> > > > > > > > It looks to me we need to synchronize this with reslock. And this
-> > > > > > > > probably deserve a dedicated fix.
-> > > > > > > >
-> > > > > > > > > +
-> > > > > > > > > +static int mlx5_vdpa_suspend(struct vdpa_device *vdev, bool suspend)
-> > > > > > > > > +{
-> > > > > > > > > +       struct mlx5_vdpa_dev *mvdev = to_mvdev(vdev);
-> > > > > > > > > +       struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
-> > > > > > > > > +       struct mlx5_vdpa_virtqueue *mvq;
-> > > > > > > > > +       int i;
-> > > > > > > > > +
-> > > > > > > > > +       if (!suspend) {
-> > > > > > > > > +               mlx5_vdpa_warn(mvdev, "Resume of virtqueues is not supported\n");
-> > > > > > > > > +               return -EOPNOTSUPP;
-> > > > > > > > > +       }
-> > > > > > > > > +
-> > > > > > > > > +       down_write(&ndev->reslock);
-> > > > > > > > > +       for (i = 0; i < ndev->cur_num_vqs; i++) {
-> > > > > > > > > +               mvq = &ndev->vqs[i];
-> > > > > > > > > +               suspend_vq(ndev, mvq);
-> > > > > > > > > +       }
-> > > > > > > > > +       mlx5_vdpa_cvq_suspend(mvdev, suspend);
-> > > > > > > >
-> > > > > > > > Do we need to synchronize with the carrier work here? Otherwise we may
-> > > > > > > > get config notification after suspending.
-> > > > > > > >
-> > > > > > > > > +       up_write(&ndev->reslock);
-> > > > > > > > > +       return 0;
-> > > > > > > > > +}
-> > > > > > > > > +
-> > > > > > > > >  static const struct vdpa_config_ops mlx5_vdpa_ops = {
-> > > > > > > > >         .set_vq_address = mlx5_vdpa_set_vq_address,
-> > > > > > > > >         .set_vq_num = mlx5_vdpa_set_vq_num,
-> > > > > > > > > @@ -2762,6 +2826,7 @@ static const struct vdpa_config_ops mlx5_vdpa_ops = {
-> > > > > > > > >         .get_generation = mlx5_vdpa_get_generation,
-> > > > > > > > >         .set_map = mlx5_vdpa_set_map,
-> > > > > > > > >         .free = mlx5_vdpa_free,
-> > > > > > > > > +       .suspend = mlx5_vdpa_suspend,
-> > > > > > > >
-> > > > > > > > I don't see the vDPA bus patch to enable this method. Or anything I missed here?
-> > > > > > > >
-> > > > > > >
-> > > > > > > Should we add
-> > > > > > > Based-on: <20220526124338.36247-1-eperezma@redhat.com>
-> > > > > > >
-> > > > > > > To this series?
-> > > > > >
-> > > > > > Probably, but that series seems to support resume while this series doesn't.
-> > > > > >
-> > > > > > Any reason for this?
-> > > > >
-> > > > > I think Eugenio agreed that resume is not really required since we're going stop using this
-> > > > > instance and migrate. In any case, we don't support resume for the hardware object
-> > > > > though it could be simulated should it be absolutely necessary.
-> > > >
-> > > > This is fine if everything is fine during the live migration. But when
-> > > > migration fails due to some reason, management (libvirt) may choose to
-> > > > restart the device in the source.
-> > > >
-> > > > This means we should either
-> > > >
-> > > > 1) support resume in the parent
-> > > > 2) emulate it in the qemu (with a lot of restoring of the states)
-> > > >
-> > >
-> > > I think it should be handled in qemu (at least the POC reset the
-> > > device), but I didn't exercise a lot of the failure paths there
-> > > because, well, it was a POC :).
-> >
-> > It looks like a must in the production environment. The failure is not
-> > necessarily related to shadow virtqueue itself.
-> >
->
-> I don't see a specific interface to resume the device after suspend.
-> Reset however could do the job and we already have it.
-
-Yes, this is fine as long as we can emulate it via set_vq_state + reset.
-
-Thanks
-
->
-> > Thanks
-> >
-> > >
-> > > > And it is not only used for live migration, it could be used for vmstop/start.
-> > > >
-> > >
-> > > I think it would be easier if we dedicate a feature flag for resuming
-> > > the device in the future. Qemu could take advantage of it at some
-> > > error paths of live migration, but less than it seems because it
-> > > overrides things like ring addresses. And, obviously, in the
-> > > vmstop/vmstart.
-> > >
-> > > Actually, net devices should be ok to restore with a full reset. The
-> > > problem should be filesystems etc that are not part of vdpa at the
-> > > moment.
-> > >
-> > > Thanks!
-> > >
->
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gTW9uLCAxOCBKdWwgMjAyMiAxNjo1Nzo1MyArMDgwMCwgSmFzb24gV2FuZyA8amFzb3dhbmdA
+cmVkaGF0LmNvbT4gd3JvdGU6Cj4gT24gRnJpLCBKdWwgMTUsIDIwMjIgYXQgNDozMiBQTSBYdWFu
+IFpodW8gPHh1YW56aHVvQGxpbnV4LmFsaWJhYmEuY29tPiB3cm90ZToKPiA+Cj4gPiBPbiBGcmks
+IDggSnVsIDIwMjIgMTQ6MjM6NTcgKzA4MDAsIEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5j
+b20+IHdyb3RlOgo+ID4gPiBPbiBUdWUsIEp1bCA1LCAyMDIyIGF0IDEwOjAxIEFNIFh1YW4gWmh1
+byA8eHVhbnpodW9AbGludXguYWxpYmFiYS5jb20+IHdyb3RlOgo+ID4gPiA+Cj4gPiA+ID4gT24g
+TW9uLCA0IEp1bCAyMDIyIDExOjQ1OjUyICswODAwLCBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRo
+YXQuY29tPiB3cm90ZToKPiA+ID4gPiA+Cj4gPiA+ID4gPiDlnKggMjAyMi82LzI5IDE0OjU2LCBY
+dWFuIFpodW8g5YaZ6YGTOgo+ID4gPiA+ID4gPiBUaGlzIHBhdGNoIGltcGxlbWVudHMgdGhlIHJl
+c2l6ZSBmdW5jdGlvbiBvZiB0aGUgdHggcXVldWVzLgo+ID4gPiA+ID4gPiBCYXNlZCBvbiB0aGlz
+IGZ1bmN0aW9uLCBpdCBpcyBwb3NzaWJsZSB0byBtb2RpZnkgdGhlIHJpbmcgbnVtIG9mIHRoZQo+
+ID4gPiA+ID4gPiBxdWV1ZS4KPiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4gU2lnbmVkLW9mZi1ieTog
+WHVhbiBaaHVvIDx4dWFuemh1b0BsaW51eC5hbGliYWJhLmNvbT4KPiA+ID4gPiA+ID4gLS0tCj4g
+PiA+ID4gPiA+ICAgZHJpdmVycy9uZXQvdmlydGlvX25ldC5jIHwgNDggKysrKysrKysrKysrKysr
+KysrKysrKysrKysrKysrKysrKysrKysrKwo+ID4gPiA+ID4gPiAgIDEgZmlsZSBjaGFuZ2VkLCA0
+OCBpbnNlcnRpb25zKCspCj4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+IGRpZmYgLS1naXQgYS9kcml2
+ZXJzL25ldC92aXJ0aW9fbmV0LmMgYi9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPiA+ID4gPiA+
+ID4gaW5kZXggNmFiMTZmZDE5M2U1Li5mZDM1ODQ2MmY4MDIgMTAwNjQ0Cj4gPiA+ID4gPiA+IC0t
+LSBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+ID4gPiA+ID4gPiArKysgYi9kcml2ZXJzL25l
+dC92aXJ0aW9fbmV0LmMKPiA+ID4gPiA+ID4gQEAgLTEzNSw2ICsxMzUsOSBAQCBzdHJ1Y3Qgc2Vu
+ZF9xdWV1ZSB7Cj4gPiA+ID4gPiA+ICAgICBzdHJ1Y3QgdmlydG5ldF9zcV9zdGF0cyBzdGF0czsK
+PiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4gICAgIHN0cnVjdCBuYXBpX3N0cnVjdCBuYXBpOwo+ID4g
+PiA+ID4gPiArCj4gPiA+ID4gPiA+ICsgICAvKiBSZWNvcmQgd2hldGhlciBzcSBpcyBpbiByZXNl
+dCBzdGF0ZS4gKi8KPiA+ID4gPiA+ID4gKyAgIGJvb2wgcmVzZXQ7Cj4gPiA+ID4gPiA+ICAgfTsK
+PiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4gICAvKiBJbnRlcm5hbCByZXByZXNlbnRhdGlvbiBvZiBh
+IHJlY2VpdmUgdmlydHF1ZXVlICovCj4gPiA+ID4gPiA+IEBAIC0yNzksNiArMjgyLDcgQEAgc3Ry
+dWN0IHBhZGRlZF92bmV0X2hkciB7Cj4gPiA+ID4gPiA+ICAgfTsKPiA+ID4gPiA+ID4KPiA+ID4g
+PiA+ID4gICBzdGF0aWMgdm9pZCB2aXJ0bmV0X3JxX2ZyZWVfdW51c2VkX2J1ZihzdHJ1Y3Qgdmly
+dHF1ZXVlICp2cSwgdm9pZCAqYnVmKTsKPiA+ID4gPiA+ID4gK3N0YXRpYyB2b2lkIHZpcnRuZXRf
+c3FfZnJlZV91bnVzZWRfYnVmKHN0cnVjdCB2aXJ0cXVldWUgKnZxLCB2b2lkICpidWYpOwo+ID4g
+PiA+ID4gPgo+ID4gPiA+ID4gPiAgIHN0YXRpYyBib29sIGlzX3hkcF9mcmFtZSh2b2lkICpwdHIp
+Cj4gPiA+ID4gPiA+ICAgewo+ID4gPiA+ID4gPiBAQCAtMTYwMyw2ICsxNjA3LDExIEBAIHN0YXRp
+YyB2b2lkIHZpcnRuZXRfcG9sbF9jbGVhbnR4KHN0cnVjdCByZWNlaXZlX3F1ZXVlICpycSkKPiA+
+ID4gPiA+ID4gICAgICAgICAgICAgcmV0dXJuOwo+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiAgICAg
+aWYgKF9fbmV0aWZfdHhfdHJ5bG9jayh0eHEpKSB7Cj4gPiA+ID4gPiA+ICsgICAgICAgICAgIGlm
+IChSRUFEX09OQ0Uoc3EtPnJlc2V0KSkgewo+ID4gPiA+ID4gPiArICAgICAgICAgICAgICAgICAg
+IF9fbmV0aWZfdHhfdW5sb2NrKHR4cSk7Cj4gPiA+ID4gPiA+ICsgICAgICAgICAgICAgICAgICAg
+cmV0dXJuOwo+ID4gPiA+ID4gPiArICAgICAgICAgICB9Cj4gPiA+ID4gPiA+ICsKPiA+ID4gPiA+
+ID4gICAgICAgICAgICAgZG8gewo+ID4gPiA+ID4gPiAgICAgICAgICAgICAgICAgICAgIHZpcnRx
+dWV1ZV9kaXNhYmxlX2NiKHNxLT52cSk7Cj4gPiA+ID4gPiA+ICAgICAgICAgICAgICAgICAgICAg
+ZnJlZV9vbGRfeG1pdF9za2JzKHNxLCB0cnVlKTsKPiA+ID4gPiA+ID4gQEAgLTE4NjgsNiArMTg3
+Nyw0NSBAQCBzdGF0aWMgaW50IHZpcnRuZXRfcnhfcmVzaXplKHN0cnVjdCB2aXJ0bmV0X2luZm8g
+KnZpLAo+ID4gPiA+ID4gPiAgICAgcmV0dXJuIGVycjsKPiA+ID4gPiA+ID4gICB9Cj4gPiA+ID4g
+PiA+Cj4gPiA+ID4gPiA+ICtzdGF0aWMgaW50IHZpcnRuZXRfdHhfcmVzaXplKHN0cnVjdCB2aXJ0
+bmV0X2luZm8gKnZpLAo+ID4gPiA+ID4gPiArICAgICAgICAgICAgICAgICAgICAgICAgc3RydWN0
+IHNlbmRfcXVldWUgKnNxLCB1MzIgcmluZ19udW0pCj4gPiA+ID4gPiA+ICt7Cj4gPiA+ID4gPiA+
+ICsgICBzdHJ1Y3QgbmV0ZGV2X3F1ZXVlICp0eHE7Cj4gPiA+ID4gPiA+ICsgICBpbnQgZXJyLCBx
+aW5kZXg7Cj4gPiA+ID4gPiA+ICsKPiA+ID4gPiA+ID4gKyAgIHFpbmRleCA9IHNxIC0gdmktPnNx
+Owo+ID4gPiA+ID4gPiArCj4gPiA+ID4gPiA+ICsgICB2aXJ0bmV0X25hcGlfdHhfZGlzYWJsZSgm
+c3EtPm5hcGkpOwo+ID4gPiA+ID4gPiArCj4gPiA+ID4gPiA+ICsgICB0eHEgPSBuZXRkZXZfZ2V0
+X3R4X3F1ZXVlKHZpLT5kZXYsIHFpbmRleCk7Cj4gPiA+ID4gPiA+ICsKPiA+ID4gPiA+ID4gKyAg
+IC8qIDEuIHdhaXQgYWxsIHhpbXQgY29tcGxldGUKPiA+ID4gPiA+ID4gKyAgICAqIDIuIGZpeCB0
+aGUgcmFjZSBvZiBuZXRpZl9zdG9wX3N1YnF1ZXVlKCkgdnMgbmV0aWZfc3RhcnRfc3VicXVldWUo
+KQo+ID4gPiA+ID4gPiArICAgICovCj4gPiA+ID4gPiA+ICsgICBfX25ldGlmX3R4X2xvY2tfYmgo
+dHhxKTsKPiA+ID4gPiA+ID4gKwo+ID4gPiA+ID4gPiArICAgLyogUHJldmVudCByeCBwb2xsIGZy
+b20gYWNjZXNzaW5nIHNxLiAqLwo+ID4gPiA+ID4gPiArICAgV1JJVEVfT05DRShzcS0+cmVzZXQs
+IHRydWUpOwo+ID4gPiA+ID4KPiA+ID4gPiA+Cj4gPiA+ID4gPiBDYW4gd2Ugc2ltcGx5IGRpc2Fi
+bGUgUlggTkFQSSBoZXJlPwo+ID4gPiA+Cj4gPiA+ID4gRGlzYWJsZSByeCBuYXBpIGlzIGluZGVl
+ZCBhIHNpbXBsZSBzb2x1dGlvbi4gQnV0IEkgaG9wZSB0aGF0IHdoZW4gZGVhbGluZyB3aXRoCj4g
+PiA+ID4gdHgsIGl0IHdpbGwgbm90IGFmZmVjdCByeC4KPiA+ID4KPiA+ID4gT2ssIGJ1dCBJIHRo
+aW5rIHdlJ3ZlIGFscmVhZHkgc3luY2hyb25pemVkIHdpdGggdHggbG9jayBoZXJlLCBpc24ndCBp
+dD8KPiA+Cj4gPiBZZXMsIGRvIHlvdSBoYXZlIGFueSBxdWVzdGlvbnMgYWJvdXQgV1JJVEVfT05D
+RSgpPyBUaGVyZSBpcyBhIHNldCBmYWxzZSBvcGVyYXRpb24KPiA+IGxhdGVyLCBJIGRpZCBub3Qg
+dXNlIGxvY2sgdGhlcmUsIHNvIEkgdXNlZCBXUklURS9SRUFEX09OQ0UKPiA+IHVuaWZvcm1seS4K
+Pgo+IEkgbWVhbiwgc2luY2Ugd2UndmUgYWxyZWFkeSB1c2VkIHR4IGxvY2tzIHNvbWV3aGVyZSwg
+d2UnZCBiZXR0ZXIgdXNlCj4gdGhlbSBoZXJlIGFzIHdlbGwgYXQgbGVhc3QgYXMgYSBzdGFydC4K
+CgpPSy4gbmV4dCB2ZXJzaW9uIHdpbGwgZml4LgoKVGhhbmtzLgoKK3N0YXRpYyBpbnQgdmlydG5l
+dF90eF9yZXNpemUoc3RydWN0IHZpcnRuZXRfaW5mbyAqdmksCisJCQkgICAgIHN0cnVjdCBzZW5k
+X3F1ZXVlICpzcSwgdTMyIHJpbmdfbnVtKQoreworCXN0cnVjdCBuZXRkZXZfcXVldWUgKnR4cTsK
+KwlpbnQgZXJyLCBxaW5kZXg7CisKKwlxaW5kZXggPSBzcSAtIHZpLT5zcTsKKworCXZpcnRuZXRf
+bmFwaV90eF9kaXNhYmxlKCZzcS0+bmFwaSk7CisKKwl0eHEgPSBuZXRkZXZfZ2V0X3R4X3F1ZXVl
+KHZpLT5kZXYsIHFpbmRleCk7CisKKwkvKiAxLiB3YWl0IGFsbCB4aW10IGNvbXBsZXRlCisJICog
+Mi4gZml4IHRoZSByYWNlIG9mIG5ldGlmX3N0b3Bfc3VicXVldWUoKSB2cyBuZXRpZl9zdGFydF9z
+dWJxdWV1ZSgpCisJICovCisJX19uZXRpZl90eF9sb2NrX2JoKHR4cSk7CisKKwlzcS0+cmVzZXQg
+PSB0cnVlOworCisJLyogUHJldmVudCB0aGUgdXBwZXIgbGF5ZXIgZnJvbSB0cnlpbmcgdG8gc2Vu
+ZCBwYWNrZXRzLiAqLworCW5ldGlmX3N0b3Bfc3VicXVldWUodmktPmRldiwgcWluZGV4KTsKKwor
+CV9fbmV0aWZfdHhfdW5sb2NrX2JoKHR4cSk7CisKKwllcnIgPSB2aXJ0cXVldWVfcmVzaXplKHNx
+LT52cSwgcmluZ19udW0sIHZpcnRuZXRfc3FfZnJlZV91bnVzZWRfYnVmKTsKKwlpZiAoZXJyKQor
+CQluZXRkZXZfZXJyKHZpLT5kZXYsICJyZXNpemUgdHggZmFpbDogdHggcXVldWUgaW5kZXg6ICVk
+IGVycjogJWRcbiIsIHFpbmRleCwgZXJyKTsKKworCV9fbmV0aWZfdHhfbG9ja19iaCh0eHEpOwor
+CXNxLT5yZXNldCA9IGZhbHNlOworCW5ldGlmX3R4X3dha2VfcXVldWUodHhxKTsKKwlfX25ldGlm
+X3R4X3VubG9ja19iaCh0eHEpOworCisJdmlydG5ldF9uYXBpX3R4X2VuYWJsZSh2aSwgc3EtPnZx
+LCAmc3EtPm5hcGkpOworCXJldHVybiBlcnI7Cit9CgoKPgo+IFRoYW5rcwo+Cj4gPgo+ID4gVGhh
+bmtzLgo+ID4KPiA+ID4KPiA+ID4gVGhhbmtzCj4gPiA+Cj4gPiA+ID4KPiA+ID4gPiBUaGFua3Mu
+Cj4gPiA+ID4KPiA+ID4gPgo+ID4gPiA+ID4KPiA+ID4gPiA+IFRoYW5rcwo+ID4gPiA+ID4KPiA+
+ID4gPiA+Cj4gPiA+ID4gPiA+ICsKPiA+ID4gPiA+ID4gKyAgIC8qIFByZXZlbnQgdGhlIHVwcGVy
+IGxheWVyIGZyb20gdHJ5aW5nIHRvIHNlbmQgcGFja2V0cy4gKi8KPiA+ID4gPiA+ID4gKyAgIG5l
+dGlmX3N0b3Bfc3VicXVldWUodmktPmRldiwgcWluZGV4KTsKPiA+ID4gPiA+ID4gKwo+ID4gPiA+
+ID4gPiArICAgX19uZXRpZl90eF91bmxvY2tfYmgodHhxKTsKPiA+ID4gPiA+ID4gKwo+ID4gPiA+
+ID4gPiArICAgZXJyID0gdmlydHF1ZXVlX3Jlc2l6ZShzcS0+dnEsIHJpbmdfbnVtLCB2aXJ0bmV0
+X3NxX2ZyZWVfdW51c2VkX2J1Zik7Cj4gPiA+ID4gPiA+ICsgICBpZiAoZXJyKQo+ID4gPiA+ID4g
+PiArICAgICAgICAgICBuZXRkZXZfZXJyKHZpLT5kZXYsICJyZXNpemUgdHggZmFpbDogdHggcXVl
+dWUgaW5kZXg6ICVkIGVycjogJWRcbiIsIHFpbmRleCwgZXJyKTsKPiA+ID4gPiA+ID4gKwo+ID4g
+PiA+ID4gPiArICAgLyogTWVtb3J5IGJhcnJpZXIgYmVmb3JlIHNldCByZXNldCBhbmQgc3RhcnQg
+c3VicXVldWUuICovCj4gPiA+ID4gPiA+ICsgICBzbXBfbWIoKTsKPiA+ID4gPiA+ID4gKwo+ID4g
+PiA+ID4gPiArICAgV1JJVEVfT05DRShzcS0+cmVzZXQsIGZhbHNlKTsKPiA+ID4gPiA+ID4gKyAg
+IG5ldGlmX3R4X3dha2VfcXVldWUodHhxKTsKPiA+ID4gPiA+ID4gKwo+ID4gPiA+ID4gPiArICAg
+dmlydG5ldF9uYXBpX3R4X2VuYWJsZSh2aSwgc3EtPnZxLCAmc3EtPm5hcGkpOwo+ID4gPiA+ID4g
+PiArICAgcmV0dXJuIGVycjsKPiA+ID4gPiA+ID4gK30KPiA+ID4gPiA+ID4gKwo+ID4gPiA+ID4g
+PiAgIC8qCj4gPiA+ID4gPiA+ICAgICogU2VuZCBjb21tYW5kIHZpYSB0aGUgY29udHJvbCB2aXJ0
+cXVldWUgYW5kIGNoZWNrIHN0YXR1cy4gIENvbW1hbmRzCj4gPiA+ID4gPiA+ICAgICogc3VwcG9y
+dGVkIGJ5IHRoZSBoeXBlcnZpc29yLCBhcyBpbmRpY2F0ZWQgYnkgZmVhdHVyZSBiaXRzLCBzaG91
+bGQKPiA+ID4gPiA+Cj4gPiA+ID4KPiA+ID4KPiA+Cj4KX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1
+YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhm
+b3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
