@@ -1,98 +1,111 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 686FBC433EF
-	for <virtualization@archiver.kernel.org>; Tue, 19 Jul 2022 10:31:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A514EC433EF
+	for <virtualization@archiver.kernel.org>; Tue, 19 Jul 2022 11:56:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id CE2C44109E;
-	Tue, 19 Jul 2022 10:31:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org CE2C44109E
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=h63D6aj5
+	by smtp2.osuosl.org (Postfix) with ESMTP id 19CA5400CE;
+	Tue, 19 Jul 2022 11:56:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 19CA5400CE
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=E6ozbs9v
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 7HRN2l1E1YSq; Tue, 19 Jul 2022 10:31:28 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id C711940903;
-	Tue, 19 Jul 2022 10:31:27 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C711940903
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 938909QGfhlD; Tue, 19 Jul 2022 11:56:20 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 8F9FD40B57;
+	Tue, 19 Jul 2022 11:56:19 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8F9FD40B57
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 9027AC0033;
-	Tue, 19 Jul 2022 10:31:27 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7DBF7C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 60FEBC0035;
+	Tue, 19 Jul 2022 11:56:19 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id F3649C002D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 19 Jul 2022 10:31:25 +0000 (UTC)
+ Tue, 19 Jul 2022 11:56:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 42A534109E
+ by smtp1.osuosl.org (Postfix) with ESMTP id C7D6B830C0
  for <virtualization@lists.linux-foundation.org>;
- Tue, 19 Jul 2022 10:31:25 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 42A534109E
+ Tue, 19 Jul 2022 11:56:17 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C7D6B830C0
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=E6ozbs9v
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id cnjgloGvMc-D
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 50gNQ9ByOuXS
  for <virtualization@lists.linux-foundation.org>;
- Tue, 19 Jul 2022 10:31:23 +0000 (UTC)
+ Tue, 19 Jul 2022 11:56:17 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9F81F40903
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 025868308B
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 9F81F40903
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 025868308B
  for <virtualization@lists.linux-foundation.org>;
- Tue, 19 Jul 2022 10:31:23 +0000 (UTC)
+ Tue, 19 Jul 2022 11:56:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1658226682;
+ s=mimecast20190719; t=1658231775;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=Pulf+GTQxk5uin6YUOuCzeis2FI3CtuvGLbmZk5/0oY=;
- b=h63D6aj5gTLJX/X1wLLG07Csoo65t6QHxJGH4TC+Z6Tn0SCZUlPux+GlpS2SzxbRzdZNoY
- Jkf8zLO3OpWf06++QB2Isu5dOVHVu1tYQ7DZFHzBcyACRH0bZwdFZFzlQy/eUo72y2PEr/
- NFQC5hBCLuGS+B/wG0GpqX1mNM//Ed4=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=I1KTsZFixJ+o97iKP2ncjBSYXhYH2jprWjMoHsMt0Ik=;
+ b=E6ozbs9vsxs1qQGOY67qGRVFB6lMmgAyjPvWX5JWV+SqWMUS2jP3snEVXPgI2woPU0mCEQ
+ 72dbn9vRVkd/AU6yocq+94UeKCs9sNSztc/8oTqqhmkAMdi57VZoWc/YTFJDrUVI/A3fuh
+ IxHekYPoTFVFOOqTKoP2xKnGLpizVd8=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-458-Quqbb-BjMrWIOgrgNYImrA-1; Tue, 19 Jul 2022 06:31:08 -0400
-X-MC-Unique: Quqbb-BjMrWIOgrgNYImrA-1
-Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com
- [10.11.54.10])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 4AC8F8039A2;
- Tue, 19 Jul 2022 10:31:08 +0000 (UTC)
-Received: from sirius.home.kraxel.org (unknown [10.39.192.39])
- by smtp.corp.redhat.com (Postfix) with ESMTPS id D0460492C3B;
- Tue, 19 Jul 2022 10:31:07 +0000 (UTC)
-Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
- id 62DE21800098; Tue, 19 Jul 2022 12:31:06 +0200 (CEST)
-Date: Tue, 19 Jul 2022 12:31:06 +0200
-From: Gerd Hoffmann <kraxel@redhat.com>
-To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Subject: Re: [PATCH v7 7/9] drm/virtio: Improve DMA API usage for shmem BOs
-Message-ID: <20220719103106.gttro4tjjbis6pgg@sirius.home.kraxel.org>
-References: <20220630200726.1884320-1-dmitry.osipenko@collabora.com>
- <20220630200726.1884320-8-dmitry.osipenko@collabora.com>
- <20220705135323.emr4gdbcxoisdcxe@sirius.home.kraxel.org>
- <d2c64d09-c4bb-9aed-069d-a9b4d07a1f66@collabora.com>
- <20220705154507.67ovlun4m26xzppn@sirius.home.kraxel.org>
- <1380526d-17fb-6eb2-0fd5-5cddbdf0a92e@collabora.com>
- <20220706071301.43fvbioka4iksqup@sirius.home.kraxel.org>
- <05a5608b-899d-71de-a7d7-406334c5604b@collabora.com>
+ us-mta-278-3yYxw3HKPT2MtIDRkbU81Q-1; Tue, 19 Jul 2022 07:56:14 -0400
+X-MC-Unique: 3yYxw3HKPT2MtIDRkbU81Q-1
+Received: by mail-ed1-f70.google.com with SMTP id
+ f9-20020a056402354900b0043a902b7452so9703609edd.13
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 19 Jul 2022 04:56:14 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=I1KTsZFixJ+o97iKP2ncjBSYXhYH2jprWjMoHsMt0Ik=;
+ b=lcH5Z/Zs0I0uuY6xtcKhJndTwPrAi+uDBLmPoHHTG1/Z5PCNwiVMkRNm8CW3G60VQH
+ 2esbAcQZjpk3h4aO0YJyicCKKtNjro/3gyOKeTDShxUQrjKqMXIKmaTDMHQJd2at3rN2
+ YfFfrEkq3PA2i9HU3yR0vtMIaIKjpqlQsvacLXn8vcvILAA/e04kCECQWLku6iIdk4xK
+ RpILsks6C+4wEWXzW1BsaYCpyN+bt/371V1MBpAz6rFREnDZCXa29vf90GTznKf+dyPl
+ 8ZxK00fpisz3apOJqXcEqS13nDxYjEIBmG0a5dpycap/2GIM8LeYD9fFCcRuQd6RmR6J
+ FG+A==
+X-Gm-Message-State: AJIora9fZsh+pvwp7CNoEFW1UGjJ3VXMWln6prcOUaete6pexgUHirut
+ hjqllbWNAyoUji4dwDzTUZuratH/DF5tIQdQJ/VxwMISvzdVA+uJ01gneDqL2faTveL7e/QA2i3
+ LNNi46ZU5WVdSopOKeuF4QSWhtajQSKZ+edxCvtcPeQ==
+X-Received: by 2002:aa7:c0c4:0:b0:43a:20cf:3c68 with SMTP id
+ j4-20020aa7c0c4000000b0043a20cf3c68mr43811834edp.172.1658231773259; 
+ Tue, 19 Jul 2022 04:56:13 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1uIlp8Z82V49PuiO1hwXvHoZ//n+lr0dXOdhOppU3nk5LuUcwp4ZCXhdr7YYQkvNbC+bnR/zw==
+X-Received: by 2002:aa7:c0c4:0:b0:43a:20cf:3c68 with SMTP id
+ j4-20020aa7c0c4000000b0043a20cf3c68mr43811817edp.172.1658231773057; 
+ Tue, 19 Jul 2022 04:56:13 -0700 (PDT)
+Received: from redhat.com ([2.55.46.60]) by smtp.gmail.com with ESMTPSA id
+ x7-20020a05640225c700b0043ac761db43sm10242169edb.55.2022.07.19.04.56.11
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 19 Jul 2022 04:56:12 -0700 (PDT)
+Date: Tue, 19 Jul 2022 07:56:09 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Keir Fraser <keirf@google.com>
+Subject: Re: [PATCH] virtio: Force DMA restricted devices through DMA API
+Message-ID: <20220719074941-mutt-send-email-mst@kernel.org>
+References: <20220719100256.419780-1-keirf@google.com>
 MIME-Version: 1.0
+In-Reply-To: <20220719100256.419780-1-keirf@google.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-In-Reply-To: <05a5608b-899d-71de-a7d7-406334c5604b@collabora.com>
-X-Scanned-By: MIMEDefang 2.85 on 10.11.54.10
-Cc: David Airlie <airlied@linux.ie>, Robin Murphy <robin.murphy@arm.com>,
- Thomas =?utf-8?Q?Hellstr=C3=B6m?= <thomas_os@shipmail.org>,
- Emil Velikov <emil.l.velikov@gmail.com>, linux-kernel@vger.kernel.org,
- dri-devel@lists.freedesktop.org, Gurchetan Singh <gurchetansingh@chromium.org>,
- Thomas Zimmermann <tzimmermann@suse.de>, Dmitry Osipenko <digetx@gmail.com>,
- kernel@collabora.com, virtualization@lists.linux-foundation.org
+Cc: kernel-team@android.com, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -109,48 +122,63 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Jul 06, 2022 at 10:22:52AM +0300, Dmitry Osipenko wrote:
-> On 7/6/22 10:13, Gerd Hoffmann wrote:
-> >   Hi,
-> > 
-> >> Gerd, thank you very much! It's was indeed unclear to me how to test the
-> >> MMIO GPU, but yours variant with microvm works! I was looking for trying
-> >> aarch64 in the past, but it also was unclear how to do it since there is
-> >> no DT support for the VirtIO-GPU, AFAICS.
-> > 
-> > aarch64 uses acpi by default (can be disabled via 'qemu -no-acpi').
-> > Not fully sure about arm(v7).
-> > 
-> > Even with DT it should work because DT only describes the virtio-mmio
-> > 'slots', not the actual virtio devices.
-> > 
-> >> There is no virgl support because it's a virtio-gpu-device and not
-> >> virtio-gpu-device-gl that is PCI-only in Qemu. Hence everything seems good.
-> > 
-> > It's named 'virtio-gpu-gl-device'
+On Tue, Jul 19, 2022 at 10:02:56AM +0000, Keir Fraser wrote:
+> If virtio devices are tagged for "restricted-dma-pool", then that
+> pool should be used for virtio ring setup, via the DMA API.
 > 
-> Ah, thanks again! Just quickly tested virtio-gpu-gl-device and
-> everything works too for MMIO GPU on microvm, including virgl and Xorg
-> (glamor).
+> In particular, this fixes virtio_balloon for ARM PKVM, where the usual
+> workaround of setting VIRTIO_F_ACCESS_PLATFORM in the virtio device
+> doesn't work because the virtio_balloon driver clears the flag. This
+> seems a more robust fix than fiddling the flag again.
 > 
-> [drm] features: +virgl +edid -resource_blob -host_visible
-> [drm] features: -context_init
-> [drm] number of scanouts: 1
-> [drm] number of cap sets: 2
-> [drm] cap set 0: id 1, max-version 1, max-size 308
-> [drm] cap set 1: id 2, max-version 2, max-size 696
-> [drm] Initialized virtio_gpu 0.1.0 0 for LNRO0005:01 on minor 0
-> virtio-mmio LNRO0005:01: [drm] drm_plane_enable_fb_damage_clips() not called
+> Signed-off-by: Keir Fraser <keirf@google.com>
 
-Cool.  Havn't found the time to try s390x, so I'm taking that as good
-enough test that we don't have any unnoticed dependencies on pci.
 
-Queued up.  I'll go over a few more pending patches, and assuming no
-issues show up in testing this should land in drm-misc-next in a few
-hours.
+So the reason balloon disables ACCESS_PLATFORM is simply
+because it passes physical addresses to device and
+expects device to be able to poke at them.
 
-take care,
-  Gerd
+I worry about modifying DMA semantics yet again - it has as much of a
+chance to break some legacy configs as it has to fix some.
+
+
+And I don't really know much about restricted-dma-pool but
+I'd like to understand why does it make sense to set it for
+the balloon since it pokes at all and any system memory.
+
+
+> ---
+>  drivers/virtio/virtio_ring.c | 8 ++++++++
+>  1 file changed, 8 insertions(+)
+> 
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index a5ec724c01d8..12be2607c648 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -12,6 +12,7 @@
+>  #include <linux/hrtimer.h>
+>  #include <linux/dma-mapping.h>
+>  #include <linux/spinlock.h>
+> +#include <linux/swiotlb.h>
+>  #include <xen/xen.h>
+>  
+>  #ifdef DEBUG
+> @@ -248,6 +249,13 @@ static bool vring_use_dma_api(struct virtio_device *vdev)
+>  	if (!virtio_has_dma_quirk(vdev))
+>  		return true;
+>  
+> +	/* If the device is configured to use a DMA restricted pool,
+> +	 * we had better use it.
+> +	 */
+> +	if (IS_ENABLED(CONFIG_DMA_RESTRICTED_POOL) &&
+> +	    is_swiotlb_for_alloc(vdev->dev.parent))
+> +		return true;
+> +
+>  	/* Otherwise, we are left to guess. */
+>  	/*
+>  	 * In theory, it's possible to have a buggy QEMU-supposed
+> -- 
+> 2.37.0.170.g444d1eabd0-goog
 
 _______________________________________________
 Virtualization mailing list
