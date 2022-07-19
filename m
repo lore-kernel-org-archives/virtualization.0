@@ -4,119 +4,95 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C8369C43334
-	for <virtualization@archiver.kernel.org>; Mon, 18 Jul 2022 11:35:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 686FBC433EF
+	for <virtualization@archiver.kernel.org>; Tue, 19 Jul 2022 10:31:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 32CB2415B3;
-	Mon, 18 Jul 2022 11:35:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 32CB2415B3
+	by smtp4.osuosl.org (Postfix) with ESMTP id CE2C44109E;
+	Tue, 19 Jul 2022 10:31:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org CE2C44109E
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=HBG1mZ2s
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=h63D6aj5
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id t8Xb-ODaC1IC; Mon, 18 Jul 2022 11:35:33 +0000 (UTC)
+	with ESMTP id 7HRN2l1E1YSq; Tue, 19 Jul 2022 10:31:28 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id F08634159D;
-	Mon, 18 Jul 2022 11:35:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org F08634159D
+	by smtp4.osuosl.org (Postfix) with ESMTPS id C711940903;
+	Tue, 19 Jul 2022 10:31:27 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C711940903
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C3495C0033;
-	Mon, 18 Jul 2022 11:35:32 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0CC6EC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 9027AC0033;
+	Tue, 19 Jul 2022 10:31:27 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7DBF7C002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Jul 2022 11:35:31 +0000 (UTC)
+ Tue, 19 Jul 2022 10:31:25 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id DA5A440AD1
+ by smtp4.osuosl.org (Postfix) with ESMTP id 42A534109E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Jul 2022 11:35:30 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DA5A440AD1
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=HBG1mZ2s
+ Tue, 19 Jul 2022 10:31:25 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 42A534109E
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id aoCEyo174NVV
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id cnjgloGvMc-D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Jul 2022 11:35:30 +0000 (UTC)
+ Tue, 19 Jul 2022 10:31:23 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org F21CB40A59
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9F81F40903
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id F21CB40A59
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 9F81F40903
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Jul 2022 11:35:29 +0000 (UTC)
+ Tue, 19 Jul 2022 10:31:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1658144128;
+ s=mimecast20190719; t=1658226682;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=9JCm/b/mjt4LZBLzHear3EHHnOGBIPoSaVrBJk+/RAA=;
- b=HBG1mZ2sdw8IWf/Evo5Nmy+T10VBBxV4L0VR8b2IuTx0wN0r+1Hxk9vrPit0b73Yox0ZSh
- rFy5btP9GwZDecRldSFskK5x8e+dLgxK5Lvvj6NhyYX/p/80KEr/GvDLUaf2JKHp6k9TzT
- yGjucukNimq80So2CpeNBA8QgrVzh8I=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=Pulf+GTQxk5uin6YUOuCzeis2FI3CtuvGLbmZk5/0oY=;
+ b=h63D6aj5gTLJX/X1wLLG07Csoo65t6QHxJGH4TC+Z6Tn0SCZUlPux+GlpS2SzxbRzdZNoY
+ Jkf8zLO3OpWf06++QB2Isu5dOVHVu1tYQ7DZFHzBcyACRH0bZwdFZFzlQy/eUo72y2PEr/
+ NFQC5hBCLuGS+B/wG0GpqX1mNM//Ed4=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-580-6YO43v11PoClj7RetzbGbw-1; Mon, 18 Jul 2022 07:35:24 -0400
-X-MC-Unique: 6YO43v11PoClj7RetzbGbw-1
-Received: by mail-wm1-f72.google.com with SMTP id
- ay19-20020a05600c1e1300b003a315c2c1c0so3148440wmb.7
- for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Jul 2022 04:35:24 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:message-id:date:mime-version:user-agent
- :content-language:to:cc:references:from:organization:subject
- :in-reply-to:content-transfer-encoding;
- bh=9JCm/b/mjt4LZBLzHear3EHHnOGBIPoSaVrBJk+/RAA=;
- b=OY8/ctaa89gXY9NriAP11jevUXW853kwfpXArFQTHelWX0lnctg+wBSW2MfrJ+wJw3
- ZUbvLnxlNbEZRO7tP0wHo75VgN7aqI02sizqplWmHvonvHwD8LaZA0r8MOxyWz+yTwhP
- +SQOfWrb7iJYoNhRqlDZTCRWej9PwUP/GEfCCwKEe1jwVqrGepNezk28zzPA/Qm5JFPR
- lK64pywhVDD/Oxsl4g7wuqujyagyaNJ+EzTR3ZDoBKQRvC+ZgkJRSxiW7qTrri+BYHSq
- welh51pkZ8LXAd7onG+l+KIMFBUw/JPHuAZ9pk1Gypb0W/8aULAx6TCd4jCqI9LYSMDP
- W9+Q==
-X-Gm-Message-State: AJIora84dxTYBYPYP607Eoy0ewYBVNM0tQc9vsmS/HVPTLgSjZuRGM8h
- gS7HC+W9T6OZKyJoXH9j0LpeXOdsQX6Ax6BSNhBZBdlwLwUrlBIjTGt4RTweGpPZQwyqpQ6o7oz
- ru7GQcv0bS9JTkuzc1WncrMSeGujBRNABLELgbuIy/w==
-X-Received: by 2002:a7b:c381:0:b0:3a2:fe96:2ce4 with SMTP id
- s1-20020a7bc381000000b003a2fe962ce4mr23293122wmj.70.1658144123695; 
- Mon, 18 Jul 2022 04:35:23 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1viP2cnS2guKXxZTHu+eZiJoLsbXgWsbMOQJGktyyp94smBfBZj8OyeafS+IH7srVRiUt/CHQ==
-X-Received: by 2002:a7b:c381:0:b0:3a2:fe96:2ce4 with SMTP id
- s1-20020a7bc381000000b003a2fe962ce4mr23293097wmj.70.1658144123376; 
- Mon, 18 Jul 2022 04:35:23 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c705:7400:6b3a:a74a:bd53:a018?
- (p200300cbc70574006b3aa74abd53a018.dip0.t-ipconnect.de.
- [2003:cb:c705:7400:6b3a:a74a:bd53:a018])
- by smtp.gmail.com with ESMTPSA id
- m24-20020a056000181800b0021d68e1fd42sm10736132wrh.89.2022.07.18.04.35.22
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Mon, 18 Jul 2022 04:35:23 -0700 (PDT)
-Message-ID: <0b660226-28dc-1f1d-e22e-34805dc5b25d@redhat.com>
-Date: Mon, 18 Jul 2022 13:35:22 +0200
+ us-mta-458-Quqbb-BjMrWIOgrgNYImrA-1; Tue, 19 Jul 2022 06:31:08 -0400
+X-MC-Unique: Quqbb-BjMrWIOgrgNYImrA-1
+Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.10])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 4AC8F8039A2;
+ Tue, 19 Jul 2022 10:31:08 +0000 (UTC)
+Received: from sirius.home.kraxel.org (unknown [10.39.192.39])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id D0460492C3B;
+ Tue, 19 Jul 2022 10:31:07 +0000 (UTC)
+Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
+ id 62DE21800098; Tue, 19 Jul 2022 12:31:06 +0200 (CEST)
+Date: Tue, 19 Jul 2022 12:31:06 +0200
+From: Gerd Hoffmann <kraxel@redhat.com>
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Subject: Re: [PATCH v7 7/9] drm/virtio: Improve DMA API usage for shmem BOs
+Message-ID: <20220719103106.gttro4tjjbis6pgg@sirius.home.kraxel.org>
+References: <20220630200726.1884320-1-dmitry.osipenko@collabora.com>
+ <20220630200726.1884320-8-dmitry.osipenko@collabora.com>
+ <20220705135323.emr4gdbcxoisdcxe@sirius.home.kraxel.org>
+ <d2c64d09-c4bb-9aed-069d-a9b4d07a1f66@collabora.com>
+ <20220705154507.67ovlun4m26xzppn@sirius.home.kraxel.org>
+ <1380526d-17fb-6eb2-0fd5-5cddbdf0a92e@collabora.com>
+ <20220706071301.43fvbioka4iksqup@sirius.home.kraxel.org>
+ <05a5608b-899d-71de-a7d7-406334c5604b@collabora.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-To: Alexander Atanasov <alexander.atanasov@virtuozzo.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-References: <7fd5e645-3892-6e0d-de80-08728e29b150@redhat.com>
- <20220714132053.56323-1-alexander.atanasov@virtuozzo.com>
-From: David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-Subject: Re: [PATCH v5 1/1] Create debugfs file with virtio balloon usage
- information
-In-Reply-To: <20220714132053.56323-1-alexander.atanasov@virtuozzo.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=david@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Cc: kernel@openvz.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org
+Content-Disposition: inline
+In-Reply-To: <05a5608b-899d-71de-a7d7-406334c5604b@collabora.com>
+X-Scanned-By: MIMEDefang 2.85 on 10.11.54.10
+Cc: David Airlie <airlied@linux.ie>, Robin Murphy <robin.murphy@arm.com>,
+ Thomas =?utf-8?Q?Hellstr=C3=B6m?= <thomas_os@shipmail.org>,
+ Emil Velikov <emil.l.velikov@gmail.com>, linux-kernel@vger.kernel.org,
+ dri-devel@lists.freedesktop.org, Gurchetan Singh <gurchetansingh@chromium.org>,
+ Thomas Zimmermann <tzimmermann@suse.de>, Dmitry Osipenko <digetx@gmail.com>,
+ kernel@collabora.com, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -133,180 +109,48 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 14.07.22 15:20, Alexander Atanasov wrote:
-> Allow the guest to know how much it is ballooned by the host.
-> It is useful when debugging out of memory conditions.
+On Wed, Jul 06, 2022 at 10:22:52AM +0300, Dmitry Osipenko wrote:
+> On 7/6/22 10:13, Gerd Hoffmann wrote:
+> >   Hi,
+> > 
+> >> Gerd, thank you very much! It's was indeed unclear to me how to test the
+> >> MMIO GPU, but yours variant with microvm works! I was looking for trying
+> >> aarch64 in the past, but it also was unclear how to do it since there is
+> >> no DT support for the VirtIO-GPU, AFAICS.
+> > 
+> > aarch64 uses acpi by default (can be disabled via 'qemu -no-acpi').
+> > Not fully sure about arm(v7).
+> > 
+> > Even with DT it should work because DT only describes the virtio-mmio
+> > 'slots', not the actual virtio devices.
+> > 
+> >> There is no virgl support because it's a virtio-gpu-device and not
+> >> virtio-gpu-device-gl that is PCI-only in Qemu. Hence everything seems good.
+> > 
+> > It's named 'virtio-gpu-gl-device'
 > 
-> When host gets back memory from the guest it is accounted
-> as used memory in the guest but the guest have no way to know
-> how much it is actually ballooned.
+> Ah, thanks again! Just quickly tested virtio-gpu-gl-device and
+> everything works too for MMIO GPU on microvm, including virgl and Xorg
+> (glamor).
 > 
-> Signed-off-by: Alexander Atanasov <alexander.atanasov@virtuozzo.com>
-> ---
->  drivers/virtio/virtio_balloon.c     | 79 +++++++++++++++++++++++++++++
->  include/uapi/linux/virtio_balloon.h |  1 +
->  2 files changed, 80 insertions(+)
-> 
-> V2:
->  - fixed coding style
->  - removed pretty print
-> V3:
->  - removed dublicate of features
->  - comment about balooned_pages more clear
->  - convert host pages to balloon pages
-> V4:
->  - added a define for BALLOON_PAGE_SIZE to make things clear
-> V5:
->  - Made the calculatons work properly for both ways of memory accounting
->    with or without deflate_on_oom
->  - dropped comment 
-> 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index b9737da6c4dd..e17f8cc71ba4 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -10,6 +10,7 @@
->  #include <linux/virtio_balloon.h>
->  #include <linux/swap.h>
->  #include <linux/workqueue.h>
-> +#include <linux/debugfs.h>
->  #include <linux/delay.h>
->  #include <linux/slab.h>
->  #include <linux/module.h>
-> @@ -731,6 +732,79 @@ static void report_free_page_func(struct work_struct *work)
->  	}
->  }
->  
-> +/*
-> + * DEBUGFS Interface
-> + */
-> +#ifdef CONFIG_DEBUG_FS
-> +
-> +#define guest_to_balloon_pages(i) ((i)*VIRTIO_BALLOON_PAGES_PER_PAGE)
-> +/**
-> + * virtio_balloon_debug_show - shows statistics of balloon operations.
-> + * @f: pointer to the &struct seq_file.
-> + * @offset: ignored.
-> + *
-> + * Provides the statistics that can be accessed in virtio-balloon in the debugfs.
-> + *
-> + * Return: zero on success or an error code.
-> + */
-> +
-> +static int virtio_balloon_debug_show(struct seq_file *f, void *offset)
-> +{
-> +	struct virtio_balloon *b = f->private;
+> [drm] features: +virgl +edid -resource_blob -host_visible
+> [drm] features: -context_init
+> [drm] number of scanouts: 1
+> [drm] number of cap sets: 2
+> [drm] cap set 0: id 1, max-version 1, max-size 308
+> [drm] cap set 1: id 2, max-version 2, max-size 696
+> [drm] Initialized virtio_gpu 0.1.0 0 for LNRO0005:01 on minor 0
+> virtio-mmio LNRO0005:01: [drm] drm_plane_enable_fb_damage_clips() not called
 
-Most other functions call this "vb".
+Cool.  Havn't found the time to try s390x, so I'm taking that as good
+enough test that we don't have any unnoticed dependencies on pci.
 
-> +	u32 num_pages, total_pages, current_pages;
-> +	struct sysinfo i;
-> +
-> +	si_meminfo(&i);
-> +
-> +	seq_printf(f, "%-22s: %d\n", "page_size", VIRTIO_BALLOON_PAGE_SIZE);
+Queued up.  I'll go over a few more pending patches, and assuming no
+issues show up in testing this should land in drm-misc-next in a few
+hours.
 
-Why? Either export all in ordinary page size or in kB. No need to
-over-complicate the interface with a different page size that users
-don't actually care about.
-
-I'd just stick to /proc/meminfo and use kB.
-
-> +
-> +	virtio_cread_le(b->vdev, struct virtio_balloon_config, actual,
-> +			&num_pages);
-
-What's wrong with vb->num_pages? I'd prefer not doing config access, if
-it can be avoided.
-
-> +
-> +	seq_printf(f, "%-22s: %u\n", "ballooned_pages", num_pages);
-> +
-> +	if (virtio_has_feature(b->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM)) {
-> +		total_pages = guest_to_balloon_pages(i.totalram);
-> +		current_pages = guest_to_balloon_pages(i.totalram) - num_pages;
-> +	} else {
-> +		total_pages = guest_to_balloon_pages(i.totalram) +  num_pages;
-> +		current_pages = guest_to_balloon_pages(i.totalram);
-> +	}
-> +
-> +	/* Total Memory for the guest from host */
-> +	seq_printf(f, "%-22s: %u\n", "total_pages", total_pages);
-> +
-> +	/* Current memory for the guest */
-> +	seq_printf(f, "%-22s: %u\n", "current_pages", current_pages);
-
-The think I detest about that interface (total/current) is that it's
-simply not correct -- because i.totalram for example doesn't include
-things like (similar to MemTotal in /proc/meminfo)
-
-a) crashkernel
-b) early boot allocations (e.g., memmap)
-c) any kind of possible memory (un)hotplug in the future
-
-I'd really suggest to just KIS and not mess with i.totalram.
-
-Exposing how much memory is inflated and some way to identify how that
-memory is accounted in /proc/meminfo should be good enough.
-
-E.g., the output here could simply be
-
-"Inflated: 1024 kB"
-"MemTotalReduced: 1024 kB"
-
-That would even allow in the future for flexibility when it comes to how
-much/what was actually subtracted from MemTotal.
-
-> +
-> +	return 0;
-> +}
-> +
-> +DEFINE_SHOW_ATTRIBUTE(virtio_balloon_debug);
-> +
-> +static void  virtio_balloon_debugfs_init(struct virtio_balloon *b)
-> +{
-> +	debugfs_create_file("virtio-balloon", 0444, NULL, b,
-> +			    &virtio_balloon_debug_fops);
-> +}
-> +
-> +static void  virtio_balloon_debugfs_exit(struct virtio_balloon *b)
-> +{
-> +	debugfs_remove(debugfs_lookup("virtio-balloon", NULL));
-> +}
-> +
-> +#else
-> +
-> +static inline void virtio_balloon_debugfs_init(struct virtio_balloon *b)
-> +{
-> +}
-> +
-> +static inline void virtio_balloon_debugfs_exit(struct virtio_balloon *b)
-> +{
-> +}
-> +
-> +#endif	/* CONFIG_DEBUG_FS */
-
-[...]
-
-> diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
-> index ddaa45e723c4..f3ff7c4e5884 100644
-> --- a/include/uapi/linux/virtio_balloon.h
-> +++ b/include/uapi/linux/virtio_balloon.h
-> @@ -40,6 +40,7 @@
->  
->  /* Size of a PFN in the balloon interface. */
->  #define VIRTIO_BALLOON_PFN_SHIFT 12
-> +#define VIRTIO_BALLOON_PAGE_SIZE (1<<VIRTIO_BALLOON_PFN_SHIFT)
-
-We prefer extra spacing
-
- (1 << VIRTIO_BALLOON_PFN_SHIFT)
-
-
--- 
-Thanks,
-
-David / dhildenb
+take care,
+  Gerd
 
 _______________________________________________
 Virtualization mailing list
