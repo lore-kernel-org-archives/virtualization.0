@@ -1,111 +1,82 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E4BA0C433EF
-	for <virtualization@archiver.kernel.org>; Tue, 19 Jul 2022 21:31:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 67721CCA485
+	for <virtualization@archiver.kernel.org>; Wed, 20 Jul 2022 03:04:53 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 5AF9F82EDB;
-	Tue, 19 Jul 2022 21:31:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5AF9F82EDB
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=YLKquV8K
+	by smtp4.osuosl.org (Postfix) with ESMTP id D35854198A;
+	Wed, 20 Jul 2022 03:04:52 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D35854198A
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id RWApdvFBssFm; Tue, 19 Jul 2022 21:31:57 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id CA66A80A9A;
-	Tue, 19 Jul 2022 21:31:56 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CA66A80A9A
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id GAi4wuoru1FX; Wed, 20 Jul 2022 03:04:51 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 7888241972;
+	Wed, 20 Jul 2022 03:04:50 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7888241972
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A8E3AC0033;
-	Tue, 19 Jul 2022 21:31:56 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 5F27AC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 478E2C0033;
+	Wed, 20 Jul 2022 03:04:50 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 93B20C002D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 19 Jul 2022 21:31:55 +0000 (UTC)
+ Wed, 20 Jul 2022 03:04:48 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 2EDBB82E95
+ by smtp2.osuosl.org (Postfix) with ESMTP id 588AC40390
  for <virtualization@lists.linux-foundation.org>;
- Tue, 19 Jul 2022 21:31:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2EDBB82E95
+ Wed, 20 Jul 2022 03:04:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 588AC40390
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id DamugC31XbRu
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Sdce_dhsAQPl
  for <virtualization@lists.linux-foundation.org>;
- Tue, 19 Jul 2022 21:31:54 +0000 (UTC)
+ Wed, 20 Jul 2022 03:04:46 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DDD5080A9A
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id DDD5080A9A
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 73777400DB
+Received: from out30-131.freemail.mail.aliyun.com
+ (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 73777400DB
  for <virtualization@lists.linux-foundation.org>;
- Tue, 19 Jul 2022 21:31:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1658266312;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=BZUhztkXgylP7x29mvXh1lO6FSwsyErGTF/6AoFUmjY=;
- b=YLKquV8KBofeS8w1CioxdJl5SlWfqHQgPEp5r/OkKDtfN3mIUE+nORfVGCOI245YvxAEay
- oCX5SmIBN4ERTxkk9ebvDilUftaq90JWTS34CsCZ3B8ifOC92MqZeTG0bjKIYObjaO7TBO
- ruEeSeeHScrnx9eJP7d7nqJv/Uce2CY=
-Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
- [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-634-vtIBt4bUPEexkKCjX1z8SQ-1; Tue, 19 Jul 2022 17:31:51 -0400
-X-MC-Unique: vtIBt4bUPEexkKCjX1z8SQ-1
-Received: by mail-ed1-f72.google.com with SMTP id
- b15-20020a056402278f00b0043acaf76f8dso10834202ede.21
- for <virtualization@lists.linux-foundation.org>;
- Tue, 19 Jul 2022 14:31:51 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=BZUhztkXgylP7x29mvXh1lO6FSwsyErGTF/6AoFUmjY=;
- b=SS23W1aDV5jAMdSI6Z2eLaS3zrKWB4jXk9HxmE4GGqnNfgTYXEeMPg3ugIvDj8KA30
- LlCgjDBTWUN0O1tgPRKZADrowTq2M3PlMaU1V84s8CNHvbNSUZ5Ry/+G5WmBhNADQk61
- Y1KsbyjXICkM2NyjUSRyjrUzRz4zskruiGtgX9SLHuBW4qCj9mM2Uobc9bAUK17EO4Fz
- u1eoHKvThwKOfKLuyuUwpYh/krZfJ5mQO+Ovhad5OmWHgDSxmBL9Mgnfh/TGVMxWHwG3
- 0wHlICpl6yspFETdZu69wODxN6j2YK/Wp13/gbziTskYdMmy3FRs8ufsLHjG0tWE9GCl
- bJeQ==
-X-Gm-Message-State: AJIora/fL9Qv2VTAXego8KbOcOg+o69KqEPjxlPPrydNhIyO0Rmhh8QU
- EyhrJKYc6SLPY9f4nKRn4l6FkoNcsoWAM9/v8u6ukAQ7bOqlvNnmMvIo6bNUkPhb/9rO8ufq7mL
- w8+EhNNJj3yS9Oc4nWsQEoRWZ04/aFxJnCM4kv6tT6w==
-X-Received: by 2002:a17:907:6d26:b0:72b:3a72:a117 with SMTP id
- sa38-20020a1709076d2600b0072b3a72a117mr31945706ejc.280.1658266310153; 
- Tue, 19 Jul 2022 14:31:50 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1s5iAzLyUDTj2fQ0Ll1zvPxL/U2luYNZUH/ySNV2VfBHAvovv/mA383vCir7H2KGbK6FCcfdQ==
-X-Received: by 2002:a17:907:6d26:b0:72b:3a72:a117 with SMTP id
- sa38-20020a1709076d2600b0072b3a72a117mr31945691ejc.280.1658266309866; 
- Tue, 19 Jul 2022 14:31:49 -0700 (PDT)
-Received: from redhat.com ([2a03:c5c0:207e:f101:7ade:a844:162d:171a])
- by smtp.gmail.com with ESMTPSA id
- o18-20020a170906769200b00726abf9a32bsm7166887ejm.138.2022.07.19.14.31.47
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 19 Jul 2022 14:31:49 -0700 (PDT)
-Date: Tue, 19 Jul 2022 17:31:45 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Keir Fraser <keirf@google.com>
-Subject: Re: [PATCH] virtio: Force DMA restricted devices through DMA API
-Message-ID: <20220719172607-mutt-send-email-mst@kernel.org>
-References: <20220719100256.419780-1-keirf@google.com>
- <20220719074941-mutt-send-email-mst@kernel.org>
- <Yta6RowkzVbXaSt2@google.com>
+ Wed, 20 Jul 2022 03:04:44 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R151e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046051;
+ MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=37; SR=0;
+ TI=SMTPD_---0VJuvIOR_1658286276; 
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
+ fp:SMTPD_---0VJuvIOR_1658286276) by smtp.aliyun-inc.com;
+ Wed, 20 Jul 2022 11:04:37 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: virtualization@lists.linux-foundation.org
+Subject: [PATCH v12 00/40] virtio pci support VIRTIO_F_RING_RESET
+Date: Wed, 20 Jul 2022 11:03:56 +0800
+Message-Id: <20220720030436.79520-1-xuanzhuo@linux.alibaba.com>
+X-Mailer: git-send-email 2.31.0
 MIME-Version: 1.0
-In-Reply-To: <Yta6RowkzVbXaSt2@google.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: kernel-team@android.com, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org
+X-Git-Hash: 366032b2ffac
+Cc: Vadim Pasternak <vadimp@nvidia.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ linux-remoteproc@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
+ Bjorn Andersson <bjorn.andersson@linaro.org>,
+ Eric Dumazet <edumazet@google.com>, Alexander Gordeev <agordeev@linux.ibm.com>,
+ kangjie.xu@linux.alibaba.com, Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+ kvm@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
+ Richard Weinberger <richard@nod.at>,
+ Vincent Whitchurch <vincent.whitchurch@axis.com>,
+ John Fastabend <john.fastabend@gmail.com>, Halil Pasic <pasic@linux.ibm.com>,
+ Jakub Kicinski <kuba@kernel.org>, Eric Farman <farman@linux.ibm.com>,
+ Jesper Dangaard Brouer <hawk@kernel.org>, Vasily Gorbik <gor@linux.ibm.com>,
+ linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+ linux-um@lists.infradead.org, Mark Gross <markgross@kernel.org>,
+ Hans de Goede <hdegoede@redhat.com>, platform-driver-x86@vger.kernel.org,
+ bpf@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+ Mathieu Poirier <mathieu.poirier@linaro.org>, netdev@vger.kernel.org,
+ Cornelia Huck <cohuck@redhat.com>, Sven Schnelle <svens@linux.ibm.com>,
+ Johannes Berg <johannes@sipsolutions.net>,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -122,85 +93,156 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Jul 19, 2022 at 02:05:58PM +0000, Keir Fraser wrote:
-> On Tue, Jul 19, 2022 at 07:56:09AM -0400, Michael S. Tsirkin wrote:
-> > On Tue, Jul 19, 2022 at 10:02:56AM +0000, Keir Fraser wrote:
-> > > If virtio devices are tagged for "restricted-dma-pool", then that
-> > > pool should be used for virtio ring setup, via the DMA API.
-> > > 
-> > > In particular, this fixes virtio_balloon for ARM PKVM, where the usual
-> > > workaround of setting VIRTIO_F_ACCESS_PLATFORM in the virtio device
-> > > doesn't work because the virtio_balloon driver clears the flag. This
-> > > seems a more robust fix than fiddling the flag again.
-> > > 
-> > > Signed-off-by: Keir Fraser <keirf@google.com>
-> > 
-> > 
-> > So the reason balloon disables ACCESS_PLATFORM is simply
-> > because it passes physical addresses to device and
-> > expects device to be able to poke at them.
-> > 
-> > I worry about modifying DMA semantics yet again - it has as much of a
-> > chance to break some legacy configs as it has to fix some.
-> > 
-> > 
-> > And I don't really know much about restricted-dma-pool but
-> > I'd like to understand why does it make sense to set it for
-> > the balloon since it pokes at all and any system memory.
-> 
-> So this is set in the device tree by the host, telling it to bounce all DMA
-> through a restricted memory window (basically swiotlb). The original reason
-> is simply to isolate DMA, to the extent possible, on IOMMU-less systems.
-> 
-> However it is also useful for PKVM because the host is not trusted to access
-> ordinary protected VM memory.
+The virtio spec already supports the virtio queue reset function. This patch set
+is to add this function to the kernel. The relevant virtio spec information is
+here:
 
-I'll have to read up on pKVM. Will get back to you.
+    https://github.com/oasis-tcs/virtio-spec/issues/124
+    https://github.com/oasis-tcs/virtio-spec/issues/139
 
-> To allow I/O via the host, restricted-dma-pool
-> is used to cause a bounce aperture to be allocated during VM boot, which is
-> then explicitly shared with the host. For correct PKVM virtio operation, all
-> data *and metadata* (virtio rings and descriptors) must be allocated in or
-> bounced through this aperture.
->
-> Insofar as virtio device accesses to virtio rings in guest memory essentially
-> *are* DMA (from the pov of the guest), I think it makes sense to respect the
-> bounce buffer for those rings, if so configured by the device tree.
->
-> > > ---
-> > >  drivers/virtio/virtio_ring.c | 8 ++++++++
-> > >  1 file changed, 8 insertions(+)
-> > > 
-> > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> > > index a5ec724c01d8..12be2607c648 100644
-> > > --- a/drivers/virtio/virtio_ring.c
-> > > +++ b/drivers/virtio/virtio_ring.c
-> > > @@ -12,6 +12,7 @@
-> > >  #include <linux/hrtimer.h>
-> > >  #include <linux/dma-mapping.h>
-> > >  #include <linux/spinlock.h>
-> > > +#include <linux/swiotlb.h>
-> > >  #include <xen/xen.h>
-> > >  
-> > >  #ifdef DEBUG
-> > > @@ -248,6 +249,13 @@ static bool vring_use_dma_api(struct virtio_device *vdev)
-> > >  	if (!virtio_has_dma_quirk(vdev))
-> > >  		return true;
-> > >  
-> > > +	/* If the device is configured to use a DMA restricted pool,
-> > > +	 * we had better use it.
-> > > +	 */
-> > > +	if (IS_ENABLED(CONFIG_DMA_RESTRICTED_POOL) &&
-> > > +	    is_swiotlb_for_alloc(vdev->dev.parent))
-> > > +		return true;
-> > > +
-> > >  	/* Otherwise, we are left to guess. */
-> > >  	/*
-> > >  	 * In theory, it's possible to have a buggy QEMU-supposed
-> > > -- 
-> > > 2.37.0.170.g444d1eabd0-goog
-> > 
-> > 
+Also regarding MMIO support for queue reset, I plan to support it after this
+patch is passed.
+
+This patch set implements the refactoring of vring. Finally, the
+virtuque_resize() interface is provided based on the reset function of the
+transport layer.
+
+Test environment:
+    Host: 4.19.91
+    Qemu: QEMU emulator version 6.2.50 (with vq reset support)
+    Test Cmd:  ethtool -G eth1 rx $1 tx $2; ethtool -g eth1
+
+    The default is split mode, modify Qemu virtio-net to add PACKED feature to test
+    packed mode.
+
+Qemu code:
+    https://github.com/fengidri/qemu/compare/89f3bfa3265554d1d591ee4d7f1197b6e3397e84...master
+
+In order to simplify the review of this patch set, the function of reusing
+the old buffers after resize will be introduced in subsequent patch sets.
+
+Please review. Thanks.
+
+v12:
+  1. access vq->num_max directly without helper
+  2. rename the vq reset callbacks:
+ 	     int (*disable_vq_and_reset)(struct virtqueue *vq);
+ 	     int (*enable_vq_after_reset)(struct virtqueue *vq);
+
+  3. rename vring to vring_split, vring_packed
+  4. protect sq->reset by tx lock
+
+v11:
+  1. struct virtio_pci_common_cfg to virtio_pci_modern.h
+  2. conflict resolution
+
+v10:
+  1. on top of the harden vring IRQ
+  2. factor out split and packed from struct vring_virtqueue
+  3. some suggest from @Jason Wang
+
+v9:
+  1. Provide a virtqueue_resize() interface directly
+  2. A patch set including vring resize, virtio pci reset, virtio-net resize
+  3. No more separate structs
+
+v8:
+  1. Provide a virtqueue_reset() interface directly
+  2. Split the two patch sets, this is the first part
+  3. Add independent allocation helper for allocating state, extra
+
+v7:
+  1. fix #6 subject typo
+  2. fix #6 ring_size_in_bytes is uninitialized
+  3. check by: make W=12
+
+v6:
+  1. virtio_pci: use synchronize_irq(irq) to sync the irq callbacks
+  2. Introduce virtqueue_reset_vring() to implement the reset of vring during
+     the reset process. May use the old vring if num of the vq not change.
+  3. find_vqs() support sizes to special the max size of each vq
+
+v5:
+  1. add virtio-net support set_ringparam
+
+v4:
+  1. just the code of virtio, without virtio-net
+  2. Performing reset on a queue is divided into these steps:
+    1. reset_vq: reset one vq
+    2. recycle the buffer from vq by virtqueue_detach_unused_buf()
+    3. release the ring of the vq by vring_release_virtqueue()
+    4. enable_reset_vq: re-enable the reset queue
+  3. Simplify the parameters of enable_reset_vq()
+  4. add container structures for virtio_pci_common_cfg
+
+v3:
+  1. keep vq, irq unreleased
+
+Xuan Zhuo (40):
+  virtio: record the maximum queue num supported by the device.
+  virtio: struct virtio_config_ops add callbacks for queue_reset
+  virtio_ring: update the document of the virtqueue_detach_unused_buf
+    for queue reset
+  virtio_ring: extract the logic of freeing vring
+  virtio_ring: split vring_virtqueue
+  virtio_ring: introduce virtqueue_init()
+  virtio_ring: split: introduce vring_free_split()
+  virtio_ring: split: extract the logic of alloc queue
+  virtio_ring: split: extract the logic of alloc state and extra
+  virtio_ring: split: extract the logic of attach vring
+  virtio_ring: split: extract the logic of vring init
+  virtio_ring: split: introduce virtqueue_reinit_split()
+  virtio_ring: split: reserve vring_align, may_reduce_num
+  virtio_ring: split: introduce virtqueue_resize_split()
+  virtio_ring: packed: introduce vring_free_packed
+  virtio_ring: packed: extract the logic of alloc queue
+  virtio_ring: packed: extract the logic of alloc state and extra
+  virtio_ring: packed: extract the logic of attach vring
+  virtio_ring: packed: extract the logic of vring init
+  virtio_ring: packed: introduce virtqueue_reinit_packed()
+  virtio_ring: packed: introduce virtqueue_resize_packed()
+  virtio_ring: introduce virtqueue_resize()
+  virtio_pci: struct virtio_pci_common_cfg add queue_notify_data
+  virtio: allow to unbreak/break virtqueue individually
+  virtio: queue_reset: add VIRTIO_F_RING_RESET
+  virtio_ring: struct virtqueue introduce reset
+  virtio_pci: struct virtio_pci_common_cfg add queue_reset
+  virtio_pci: introduce helper to get/set queue reset
+  virtio_pci: extract the logic of active vq for modern pci
+  virtio_pci: support VIRTIO_F_RING_RESET
+  virtio: find_vqs() add arg sizes
+  virtio_pci: support the arg sizes of find_vqs()
+  virtio_mmio: support the arg sizes of find_vqs()
+  virtio: add helper virtio_find_vqs_ctx_size()
+  virtio_net: set the default max ring size by find_vqs()
+  virtio_net: get ringparam by virtqueue_get_vring_max_size()
+  virtio_net: split free_unused_bufs()
+  virtio_net: support rx queue resize
+  virtio_net: support tx queue resize
+  virtio_net: support set_ringparam
+
+ arch/um/drivers/virtio_uml.c             |   3 +-
+ drivers/net/virtio_net.c                 | 208 +++++-
+ drivers/platform/mellanox/mlxbf-tmfifo.c |   3 +
+ drivers/remoteproc/remoteproc_virtio.c   |   3 +
+ drivers/s390/virtio/virtio_ccw.c         |   4 +
+ drivers/virtio/virtio_mmio.c             |  11 +-
+ drivers/virtio/virtio_pci_common.c       |  32 +-
+ drivers/virtio/virtio_pci_common.h       |   3 +-
+ drivers/virtio/virtio_pci_legacy.c       |   8 +-
+ drivers/virtio/virtio_pci_modern.c       | 161 ++++-
+ drivers/virtio/virtio_pci_modern_dev.c   |  39 ++
+ drivers/virtio/virtio_ring.c             | 769 +++++++++++++++++------
+ drivers/virtio/virtio_vdpa.c             |   3 +
+ include/linux/virtio.h                   |  10 +
+ include/linux/virtio_config.h            |  40 +-
+ include/linux/virtio_pci_modern.h        |   9 +
+ include/uapi/linux/virtio_config.h       |   7 +-
+ include/uapi/linux/virtio_pci.h          |   2 +
+ 18 files changed, 1038 insertions(+), 277 deletions(-)
+
+--
+2.31.0
 
 _______________________________________________
 Virtualization mailing list
