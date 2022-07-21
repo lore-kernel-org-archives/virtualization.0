@@ -1,112 +1,111 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A5BB0CCA488
-	for <virtualization@archiver.kernel.org>; Thu, 21 Jul 2022 09:14:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id DE751C433EF
+	for <virtualization@archiver.kernel.org>; Thu, 21 Jul 2022 09:14:49 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 3E50F60EDA;
-	Thu, 21 Jul 2022 09:14:30 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3E50F60EDA
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=VEsIW9UG
+	by smtp1.osuosl.org (Postfix) with ESMTP id 63DA78477F;
+	Thu, 21 Jul 2022 09:14:49 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 63DA78477F
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ht9iHBb7
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id JSPEHUjISICd; Thu, 21 Jul 2022 09:14:29 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id A6CD160D70;
-	Thu, 21 Jul 2022 09:14:28 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A6CD160D70
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id GT0Jl5gUk990; Thu, 21 Jul 2022 09:14:48 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 016788476E;
+	Thu, 21 Jul 2022 09:14:47 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 016788476E
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 7A26FC0033;
-	Thu, 21 Jul 2022 09:14:28 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6BB0CC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CF0E1C0033;
+	Thu, 21 Jul 2022 09:14:47 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8BC0FC002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 21 Jul 2022 09:14:26 +0000 (UTC)
+ Thu, 21 Jul 2022 09:14:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 34BCC405AC
+ by smtp4.osuosl.org (Postfix) with ESMTP id 63841422DF
  for <virtualization@lists.linux-foundation.org>;
- Thu, 21 Jul 2022 09:14:26 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 34BCC405AC
-Authentication-Results: smtp2.osuosl.org;
+ Thu, 21 Jul 2022 09:14:46 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 63841422DF
+Authentication-Results: smtp4.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=VEsIW9UG
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=ht9iHBb7
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id BtuFyobaNU8T
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id YJ5pSEm1V5Rl
  for <virtualization@lists.linux-foundation.org>;
- Thu, 21 Jul 2022 09:14:25 +0000 (UTC)
+ Thu, 21 Jul 2022 09:14:45 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6483B4018F
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4FF02422DD
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 6483B4018F
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 4FF02422DD
  for <virtualization@lists.linux-foundation.org>;
- Thu, 21 Jul 2022 09:14:25 +0000 (UTC)
+ Thu, 21 Jul 2022 09:14:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1658394864;
+ s=mimecast20190719; t=1658394884;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=ppSpnW8bYqIzLlwJTJe7LMpqbChLBLEyuLzj0jwDOCg=;
- b=VEsIW9UG0RAFm0+Cpb6g4Up5yJk2fw5OXClI+Qq38VR8kXTeZtDqWJnab2lnGYSQJl/xMb
- NLXpSHIL3G28Z9+j7GCpjkaAKj0+ZhQ9wZYAQU3xijqLG6mUR48Ya3WQLV3cTwlD/nRjzf
- owSAS0web1ILpP11FEs0eTtH4uZCCpQ=
-Received: from mail-pf1-f198.google.com (mail-pf1-f198.google.com
- [209.85.210.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=Qsc4liwturFJYHAITq0jfAcGv5JnVY7R1RVgysjsWkI=;
+ b=ht9iHBb7wDvinRuLOPw2KXXXxh1SIXRRqM2B7PFqaXNzr1c5fRrm04TN4CcHZYWBlIpXTe
+ DTEykRgzTAXN6AIo0oQZ/tnH6hzvEE4veg0ATXLoqeEJ3OSTx32xskeYa6V95Fd3H0Cw51
+ d0qm8zB5x24eUFXubt0PkMvF/of06a8=
+Received: from mail-pg1-f198.google.com (mail-pg1-f198.google.com
+ [209.85.215.198]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-120-SGHSyLM-Ox639tPEiIN8Sg-1; Thu, 21 Jul 2022 05:14:22 -0400
-X-MC-Unique: SGHSyLM-Ox639tPEiIN8Sg-1
-Received: by mail-pf1-f198.google.com with SMTP id
- a16-20020a056a001d1000b0052b39ee38c4so614245pfx.15
+ us-mta-288-ZFPx57WpP_GEnxPszVKM9w-1; Thu, 21 Jul 2022 05:14:43 -0400
+X-MC-Unique: ZFPx57WpP_GEnxPszVKM9w-1
+Received: by mail-pg1-f198.google.com with SMTP id
+ a24-20020a63e418000000b0041a20e8c1d3so680834pgi.0
  for <virtualization@lists.linux-foundation.org>;
- Thu, 21 Jul 2022 02:14:22 -0700 (PDT)
+ Thu, 21 Jul 2022 02:14:42 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
  :content-language:to:cc:references:from:in-reply-to
  :content-transfer-encoding;
- bh=ppSpnW8bYqIzLlwJTJe7LMpqbChLBLEyuLzj0jwDOCg=;
- b=DhHRhhNjEbOUJH+8XdgOckGyK37VSZAy2urnaYwASUz2rgZwxoFa0lQgX2ilP7nPjk
- GxD51Q00y4fQSkzcZmEihT4LSZCepBHEVxtI9rG1CdV2PSAKNK5unSdhjsiEpLM+vfC/
- 8F/rkx3HNsZ1QcUfBPd3hK4ZNEkeLULE9BptAM8cD9GpI3ZHap6cZ+DLcsXcs/MUT7av
- IrC4Otagp2FiR87WeJLEakPllsTgiYXw/SYHfTnceYm9612dNC60Y+rFQt5tWnoY13Pr
- X3bCt+iAUlgbJCXHsurk5q1hffv6I8xtfHi6yTaxv5GW1x4MtAlzuoCyqXeiBv8MBKDT
- nSCg==
-X-Gm-Message-State: AJIora8JNft1n5haKVvrhrMJPL99sC3a3OU07wEq2+BZwCvU3rN1CkCm
- /AlhjiqbqKpJQ8jpdHxqIrY1i7h/LGDSQy7BZfLU8sHPCO1nh3Houg8TAxf6xMB8khDR/kkgPY4
- ya/dN2udnOL6ga0Fy2RcINjQBfYcjAGdvfUHSouk4kA==
-X-Received: by 2002:a17:902:ab0e:b0:16d:e87:ce8d with SMTP id
- ik14-20020a170902ab0e00b0016d0e87ce8dmr12288663plb.53.1658394861561; 
- Thu, 21 Jul 2022 02:14:21 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1tdQQvXxoAsILo5kGUhAyFtFd7+hyXAVcy5eO+xsnDpHiLynC44NTrLJew4cMcMMUejlOtfhg==
-X-Received: by 2002:a17:902:ab0e:b0:16d:e87:ce8d with SMTP id
- ik14-20020a170902ab0e00b0016d0e87ce8dmr12288621plb.53.1658394861264; 
- Thu, 21 Jul 2022 02:14:21 -0700 (PDT)
+ bh=Qsc4liwturFJYHAITq0jfAcGv5JnVY7R1RVgysjsWkI=;
+ b=t9HvtBV8nWJ+iGaDzKgjKX6L3If12HyqQf7n4Z31gfVPSR4JiO6jhTe2JOBN7PHZQP
+ pMoj1GXzPwyo/emRXQcnzGurfoegEf1Ry+9c+X+sfBj/odUN4b571lSpAu7deS4TVGr1
+ imsg8dWlkepxK3LAYqAGg8OP2NH585V7bB6uRaM/DhioVCG13txkNUE82po2yzPprrdq
+ ciqov1UWqY+1ECwiPlAyMt/aqO1PyUtC5T9at6GhXUejocSBZGDOII7SdFPuV6+YngYs
+ Uh1jnfkHG4pEQYqyfYmmGTkHCcdVlR++ghxnA/sxBLantRxbImReNtxfY1QRbcBFGBFq
+ vHSQ==
+X-Gm-Message-State: AJIora9QnxxUbcZvwKHssqQA0mBsgOR4XF9HCqsEHpLt/njaMIgC2I+v
+ PZkx9oexu/D74wX3CoMXzWuQP6MfeSpE4xCx1Z57hwOamSyaOeeZJt8RHdocYfqWwrhKS8afgYM
+ I03Cudz9jH23Nb9ATHlI3fFA45zTKk/cB5oqpTr5Hyw==
+X-Received: by 2002:a17:902:f54e:b0:16c:5119:d4a8 with SMTP id
+ h14-20020a170902f54e00b0016c5119d4a8mr41391774plf.22.1658394881757; 
+ Thu, 21 Jul 2022 02:14:41 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1vZasibIAHQ47D1+cg3lbZlHNL9q45E+5hv7aYoBqQJppes7C+ekD1lr5quAazlbWW4qs7GdA==
+X-Received: by 2002:a17:902:f54e:b0:16c:5119:d4a8 with SMTP id
+ h14-20020a170902f54e00b0016c5119d4a8mr41391753plf.22.1658394881472; 
+ Thu, 21 Jul 2022 02:14:41 -0700 (PDT)
 Received: from [10.72.12.47] ([209.132.188.80])
  by smtp.gmail.com with ESMTPSA id
- l4-20020a170903244400b0016c454598b5sm1116942pls.167.2022.07.21.02.14.11
+ x8-20020a170902a38800b0016bebb0cb96sm1114154pla.266.2022.07.21.02.14.30
  (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Thu, 21 Jul 2022 02:14:20 -0700 (PDT)
-Message-ID: <da5ddf3b-3db7-7f25-a0f6-63a39e6af2a2@redhat.com>
-Date: Thu, 21 Jul 2022 17:14:10 +0800
+ Thu, 21 Jul 2022 02:14:40 -0700 (PDT)
+Message-ID: <e760bce5-2ead-8be4-6a86-0f453b30dcc3@redhat.com>
+Date: Thu, 21 Jul 2022 17:14:29 +0800
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
  Gecko/20100101 Thunderbird/91.11.0
-Subject: Re: [PATCH v12 24/40] virtio: allow to unbreak/break virtqueue
- individually
+Subject: Re: [PATCH v12 26/40] virtio_ring: struct virtqueue introduce reset
 To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
  virtualization@lists.linux-foundation.org
 References: <20220720030436.79520-1-xuanzhuo@linux.alibaba.com>
- <20220720030436.79520-25-xuanzhuo@linux.alibaba.com>
+ <20220720030436.79520-27-xuanzhuo@linux.alibaba.com>
 From: Jason Wang <jasowang@redhat.com>
-In-Reply-To: <20220720030436.79520-25-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20220720030436.79520-27-xuanzhuo@linux.alibaba.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
 X-Mimecast-Spam-Score: 0
@@ -147,44 +146,41 @@ Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-CuWcqCAyMDIyLzcvMjAgMTE6MDQsIFh1YW4gWmh1byDlhpnpgZM6Cj4gVGhpcyBwYXRjaCBhbGxv
-d3MgdGhlIG5ldyBpbnRyb2R1Y2VkCj4gX192aXJ0cXVldWVfYnJlYWsoKS9fX3ZpcnRxdWV1ZV91
-bmJyZWFrKCkgdG8gYnJlYWsvdW5icmVhayB0aGUKPiB2aXJ0cXVldWUuCj4KPiBTaWduZWQtb2Zm
-LWJ5OiBYdWFuIFpodW8gPHh1YW56aHVvQGxpbnV4LmFsaWJhYmEuY29tPgoKCkFja2VkLWJ5OiBK
-YXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgoKCj4gLS0tCj4gICBkcml2ZXJzL3ZpcnRp
-by92aXJ0aW9fcmluZy5jIHwgMjQgKysrKysrKysrKysrKysrKysrKysrKysrCj4gICBpbmNsdWRl
-L2xpbnV4L3ZpcnRpby5oICAgICAgIHwgIDMgKysrCj4gICAyIGZpbGVzIGNoYW5nZWQsIDI3IGlu
-c2VydGlvbnMoKykKPgo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5j
-IGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYwo+IGluZGV4IGNmNDM3OTE3NTE2My4uYmY2
-NjZkYWQ5OTA0IDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMKPiAr
-KysgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jCj4gQEAgLTI3MzAsNiArMjczMCwzMCBA
-QCB1bnNpZ25lZCBpbnQgdmlydHF1ZXVlX2dldF92cmluZ19zaXplKHN0cnVjdCB2aXJ0cXVldWUg
-Kl92cSkKPiAgIH0KPiAgIEVYUE9SVF9TWU1CT0xfR1BMKHZpcnRxdWV1ZV9nZXRfdnJpbmdfc2l6
-ZSk7Cj4gICAKPiArLyoKPiArICogVGhpcyBmdW5jdGlvbiBzaG91bGQgb25seSBiZSBjYWxsZWQg
-YnkgdGhlIGNvcmUsIG5vdCBkaXJlY3RseSBieSB0aGUgZHJpdmVyLgo+ICsgKi8KPiArdm9pZCBf
-X3ZpcnRxdWV1ZV9icmVhayhzdHJ1Y3QgdmlydHF1ZXVlICpfdnEpCj4gK3sKPiArCXN0cnVjdCB2
-cmluZ192aXJ0cXVldWUgKnZxID0gdG9fdnZxKF92cSk7Cj4gKwo+ICsJLyogUGFpcnMgd2l0aCBS
-RUFEX09OQ0UoKSBpbiB2aXJ0cXVldWVfaXNfYnJva2VuKCkuICovCj4gKwlXUklURV9PTkNFKHZx
-LT5icm9rZW4sIHRydWUpOwo+ICt9Cj4gK0VYUE9SVF9TWU1CT0xfR1BMKF9fdmlydHF1ZXVlX2Jy
-ZWFrKTsKPiArCj4gKy8qCj4gKyAqIFRoaXMgZnVuY3Rpb24gc2hvdWxkIG9ubHkgYmUgY2FsbGVk
-IGJ5IHRoZSBjb3JlLCBub3QgZGlyZWN0bHkgYnkgdGhlIGRyaXZlci4KPiArICovCj4gK3ZvaWQg
-X192aXJ0cXVldWVfdW5icmVhayhzdHJ1Y3QgdmlydHF1ZXVlICpfdnEpCj4gK3sKPiArCXN0cnVj
-dCB2cmluZ192aXJ0cXVldWUgKnZxID0gdG9fdnZxKF92cSk7Cj4gKwo+ICsJLyogUGFpcnMgd2l0
-aCBSRUFEX09OQ0UoKSBpbiB2aXJ0cXVldWVfaXNfYnJva2VuKCkuICovCj4gKwlXUklURV9PTkNF
-KHZxLT5icm9rZW4sIGZhbHNlKTsKPiArfQo+ICtFWFBPUlRfU1lNQk9MX0dQTChfX3ZpcnRxdWV1
-ZV91bmJyZWFrKTsKPiArCj4gICBib29sIHZpcnRxdWV1ZV9pc19icm9rZW4oc3RydWN0IHZpcnRx
-dWV1ZSAqX3ZxKQo+ICAgewo+ICAgCXN0cnVjdCB2cmluZ192aXJ0cXVldWUgKnZxID0gdG9fdnZx
-KF92cSk7Cj4gZGlmZiAtLWdpdCBhL2luY2x1ZGUvbGludXgvdmlydGlvLmggYi9pbmNsdWRlL2xp
-bnV4L3ZpcnRpby5oCj4gaW5kZXggNjJlMzFiY2E1NjAyLi5kNDVlZTgyYTQ0NzAgMTAwNjQ0Cj4g
-LS0tIGEvaW5jbHVkZS9saW51eC92aXJ0aW8uaAo+ICsrKyBiL2luY2x1ZGUvbGludXgvdmlydGlv
-LmgKPiBAQCAtMTM4LDYgKzEzOCw5IEBAIGJvb2wgaXNfdmlydGlvX2RldmljZShzdHJ1Y3QgZGV2
-aWNlICpkZXYpOwo+ICAgdm9pZCB2aXJ0aW9fYnJlYWtfZGV2aWNlKHN0cnVjdCB2aXJ0aW9fZGV2
-aWNlICpkZXYpOwo+ICAgdm9pZCBfX3ZpcnRpb191bmJyZWFrX2RldmljZShzdHJ1Y3QgdmlydGlv
-X2RldmljZSAqZGV2KTsKPiAgIAo+ICt2b2lkIF9fdmlydHF1ZXVlX2JyZWFrKHN0cnVjdCB2aXJ0
-cXVldWUgKl92cSk7Cj4gK3ZvaWQgX192aXJ0cXVldWVfdW5icmVhayhzdHJ1Y3QgdmlydHF1ZXVl
-ICpfdnEpOwo+ICsKPiAgIHZvaWQgdmlydGlvX2NvbmZpZ19jaGFuZ2VkKHN0cnVjdCB2aXJ0aW9f
-ZGV2aWNlICpkZXYpOwo+ICAgI2lmZGVmIENPTkZJR19QTV9TTEVFUAo+ICAgaW50IHZpcnRpb19k
-ZXZpY2VfZnJlZXplKHN0cnVjdCB2aXJ0aW9fZGV2aWNlICpkZXYpOwoKX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBs
-aXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlz
-dHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+CuWcqCAyMDIyLzcvMjAgMTE6MDQsIFh1YW4gWmh1byDlhpnpgZM6Cj4gSW50cm9kdWNlIGEgbmV3
+IG1lbWJlciByZXNldCB0byB0aGUgc3RydWN0dXJlIHZpcnRxdWV1ZSB0byBkZXRlcm1pbmUKPiB3
+aGV0aGVyIHRoZSBjdXJyZW50IHZxIGlzIGluIHRoZSByZXNldCBzdGF0ZS4gU3Vic2VxdWVudCBw
+YXRjaGVzIHdpbGwKPiB1c2UgaXQuCj4KPiBTaWduZWQtb2ZmLWJ5OiBYdWFuIFpodW8gPHh1YW56
+aHVvQGxpbnV4LmFsaWJhYmEuY29tPgoKCkFja2VkLWJ5OiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0By
+ZWRoYXQuY29tPgoKCj4gLS0tCj4gICBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jIHwgMiAr
+Kwo+ICAgaW5jbHVkZS9saW51eC92aXJ0aW8uaCAgICAgICB8IDIgKysKPiAgIDIgZmlsZXMgY2hh
+bmdlZCwgNCBpbnNlcnRpb25zKCspCj4KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aXJ0aW8vdmly
+dGlvX3JpbmcuYyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMKPiBpbmRleCBiZjY2NmRh
+ZDk5MDQuLjgyNzhiOTE3YWQ2NCAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9f
+cmluZy5jCj4gKysrIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYwo+IEBAIC0yMDExLDYg
+KzIwMTEsNyBAQCBzdGF0aWMgc3RydWN0IHZpcnRxdWV1ZSAqdnJpbmdfY3JlYXRlX3ZpcnRxdWV1
+ZV9wYWNrZWQoCj4gICAJdnEtPnZxLnZkZXYgPSB2ZGV2Owo+ICAgCXZxLT52cS5uYW1lID0gbmFt
+ZTsKPiAgIAl2cS0+dnEuaW5kZXggPSBpbmRleDsKPiArCXZxLT52cS5yZXNldCA9IGZhbHNlOwo+
+ICAgCXZxLT53ZV9vd25fcmluZyA9IHRydWU7Cj4gICAJdnEtPm5vdGlmeSA9IG5vdGlmeTsKPiAg
+IAl2cS0+d2Vha19iYXJyaWVycyA9IHdlYWtfYmFycmllcnM7Cj4gQEAgLTI0OTAsNiArMjQ5MSw3
+IEBAIHN0cnVjdCB2aXJ0cXVldWUgKl9fdnJpbmdfbmV3X3ZpcnRxdWV1ZSh1bnNpZ25lZCBpbnQg
+aW5kZXgsCj4gICAJdnEtPnZxLnZkZXYgPSB2ZGV2Owo+ICAgCXZxLT52cS5uYW1lID0gbmFtZTsK
+PiAgIAl2cS0+dnEuaW5kZXggPSBpbmRleDsKPiArCXZxLT52cS5yZXNldCA9IGZhbHNlOwo+ICAg
+CXZxLT53ZV9vd25fcmluZyA9IGZhbHNlOwo+ICAgCXZxLT5ub3RpZnkgPSBub3RpZnk7Cj4gICAJ
+dnEtPndlYWtfYmFycmllcnMgPSB3ZWFrX2JhcnJpZXJzOwo+IGRpZmYgLS1naXQgYS9pbmNsdWRl
+L2xpbnV4L3ZpcnRpby5oIGIvaW5jbHVkZS9saW51eC92aXJ0aW8uaAo+IGluZGV4IGQ0NWVlODJh
+NDQ3MC4uYTNmNzNiYjY3MzNlIDEwMDY0NAo+IC0tLSBhL2luY2x1ZGUvbGludXgvdmlydGlvLmgK
+PiArKysgYi9pbmNsdWRlL2xpbnV4L3ZpcnRpby5oCj4gQEAgLTIwLDYgKzIwLDcgQEAKPiAgICAq
+IEBpbmRleDogdGhlIHplcm8tYmFzZWQgb3JkaW5hbCBudW1iZXIgZm9yIHRoaXMgcXVldWUuCj4g
+ICAgKiBAbnVtX2ZyZWU6IG51bWJlciBvZiBlbGVtZW50cyB3ZSBleHBlY3QgdG8gYmUgYWJsZSB0
+byBmaXQuCj4gICAgKiBAbnVtX21heDogdGhlIG1heGltdW0gbnVtYmVyIG9mIGVsZW1lbnRzIHN1
+cHBvcnRlZCBieSB0aGUgZGV2aWNlLgo+ICsgKiBAcmVzZXQ6IHZxIGlzIGluIHJlc2V0IHN0YXRl
+IG9yIG5vdC4KPiAgICAqCj4gICAgKiBBIG5vdGUgb24gQG51bV9mcmVlOiB3aXRoIGluZGlyZWN0
+IGJ1ZmZlcnMsIGVhY2ggYnVmZmVyIG5lZWRzIG9uZQo+ICAgICogZWxlbWVudCBpbiB0aGUgcXVl
+dWUsIG90aGVyd2lzZSBhIGJ1ZmZlciB3aWxsIG5lZWQgb25lIGVsZW1lbnQgcGVyCj4gQEAgLTM0
+LDYgKzM1LDcgQEAgc3RydWN0IHZpcnRxdWV1ZSB7Cj4gICAJdW5zaWduZWQgaW50IG51bV9mcmVl
+Owo+ICAgCXVuc2lnbmVkIGludCBudW1fbWF4Owo+ICAgCXZvaWQgKnByaXY7Cj4gKwlib29sIHJl
+c2V0Owo+ICAgfTsKPiAgIAo+ICAgaW50IHZpcnRxdWV1ZV9hZGRfb3V0YnVmKHN0cnVjdCB2aXJ0
+cXVldWUgKnZxLAoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4
+LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFu
+L2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
