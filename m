@@ -1,129 +1,87 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 41033C433EF
-	for <virtualization@archiver.kernel.org>; Mon, 25 Jul 2022 06:57:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 90006C43334
+	for <virtualization@archiver.kernel.org>; Mon, 25 Jul 2022 07:22:16 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id C568283EC9;
-	Mon, 25 Jul 2022 06:57:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C568283EC9
+	by smtp4.osuosl.org (Postfix) with ESMTP id 05E3C4188E;
+	Mon, 25 Jul 2022 07:22:16 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 05E3C4188E
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=hDMbpJuT
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id GarhIO6us7bB; Mon, 25 Jul 2022 07:22:14 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 19CD241881;
+	Mon, 25 Jul 2022 07:22:14 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 19CD241881
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E257DC0033;
+	Mon, 25 Jul 2022 07:22:13 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 24EECC002D
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 25 Jul 2022 07:22:12 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id F307583F23
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 25 Jul 2022 07:22:11 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org F307583F23
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=PPhGBllW
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=hDMbpJuT
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Q3_GKeP6XM1B; Mon, 25 Jul 2022 06:57:31 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 3AC6783E96;
-	Mon, 25 Jul 2022 06:57:30 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3AC6783E96
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 14E4DC0035;
-	Mon, 25 Jul 2022 06:57:30 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 2B8EBC002D
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id nGfq1Ebp6tR3
  for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Jul 2022 06:57:29 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 0365E40CB7
- for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Jul 2022 06:57:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0365E40CB7
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=PPhGBllW
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id bD1oYByi3MI6
- for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Jul 2022 06:57:27 +0000 (UTC)
+ Mon, 25 Jul 2022 07:22:11 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7FD9440CB0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1FE8683F07
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 7FD9440CB0
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 1FE8683F07
  for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Jul 2022 06:57:27 +0000 (UTC)
+ Mon, 25 Jul 2022 07:22:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1658732245;
+ s=mimecast20190719; t=1658733729;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=qmW1hBnXSgXOK1sS9gN4+759LGb0Ym1b2aF+Hz+Xy9U=;
- b=PPhGBllWVvabbVQVeGNpYrkjYRPiC085JZEIVLd7t+hZcTZgbjXxReeX4mRTi7cA7d8JMx
- xvTPwn1baLVaMDK8Ah94ChDeZDn3KXQ9kzEkD7poe6BkiO50WsVb9xfV/rTnGLDzNmooe5
- DbN8EundsC8we50zNOqvnSirdBQlxsI=
-Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com
- [209.85.208.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ content-transfer-encoding:content-transfer-encoding;
+ bh=XpnZEgUDGFJ7/tPXmFNs0Qsxnf0jlZgl0StS1M1G4/k=;
+ b=hDMbpJuTw+M1OXAqeXXdOVaybC8oVrC0wkbk/B/MUrZxP1EfejF9ftJxR8Pfj6AHDNDkAY
+ dzJO6OvWUGJ4Gor7e32eLOZPeFcH6xREWd2qbPWXhGJThcW/X92GPIt4EzH1lpSQRP+uJj
+ x1kWvUKELTHuKBiSOS6pev3vOtU+5jE=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-29-NQwcKrhrNtWkN2DJ83n1bw-1; Mon, 25 Jul 2022 02:57:24 -0400
-X-MC-Unique: NQwcKrhrNtWkN2DJ83n1bw-1
-Received: by mail-lj1-f200.google.com with SMTP id
- f8-20020a05651c02c800b0025deec855c6so1602943ljo.15
- for <virtualization@lists.linux-foundation.org>;
- Sun, 24 Jul 2022 23:57:23 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc:content-transfer-encoding;
- bh=qmW1hBnXSgXOK1sS9gN4+759LGb0Ym1b2aF+Hz+Xy9U=;
- b=pKGl/nCp7v4Y3VBvtBmei63uj88a3RlRhzlyynOiQ/h9TQm4KzzgVSlW1w7PUPwIjo
- POBN6tBB3GiJY3vQqIHXUnMNgaBxFVqGQL7/3GuStwRybMSb7VKZTUXIdcN58wQ3zZsb
- GdBFHbh7TucsknSTGI5XfdZzzMPSYucS1qL2D9z+XX/+ZUgK62yX1VG+ozTnmPpddl8z
- gGgBoHw2w/8nuk4S0nItkfMseZOPm84vIl5atMLFN5j0rS8+qvrASEfSdEQtqioVdHZD
- YX/aB2d4r356qOkg2osMRXNTzBpc8whJNGBhav74Or+y+zOX9enjWIhXL8zfKww3bES9
- PAIw==
-X-Gm-Message-State: AJIora/F2Hz1zM0U/iCHZz1xV15WgaagmLAZIpU55b2JHiroEd/6nUsE
- UCH3NcuhTfGrg/76e9IkKsNQ9uaaRPDqtfmhHky3TfRYisVrAAnLBBsm6LAPCoCfFTafNbIeqkd
- m8JWq80nljroj8/8ywEA3TnAEtBl6zYGw7T/ek/wG/U8WCxkg/ivNpIjEJQ==
-X-Received: by 2002:ac2:4205:0:b0:48a:95e6:395c with SMTP id
- y5-20020ac24205000000b0048a95e6395cmr365159lfh.238.1658732242419; 
- Sun, 24 Jul 2022 23:57:22 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1unkGiIlKuXLUSHpJBWTVSAU4zhX72Do0K+zbnbWWScjjTYkm8xiqqQ6k0g8uFHQC6oNFJAAG44P+Vps9/gr6o=
-X-Received: by 2002:ac2:4205:0:b0:48a:95e6:395c with SMTP id
- y5-20020ac24205000000b0048a95e6395cmr365123lfh.238.1658732242186; Sun, 24 Jul
- 2022 23:57:22 -0700 (PDT)
-MIME-Version: 1.0
-References: <20220720030436.79520-1-xuanzhuo@linux.alibaba.com>
- <20220720030436.79520-39-xuanzhuo@linux.alibaba.com>
- <726a5056-789a-b445-a2c6-879008ad270a@redhat.com>
- <1658731116.1695666-1-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <1658731116.1695666-1-xuanzhuo@linux.alibaba.com>
+ us-mta-397-QtdWvxcNOhGiduhTnmv9Rw-1; Mon, 25 Jul 2022 03:22:06 -0400
+X-MC-Unique: QtdWvxcNOhGiduhTnmv9Rw-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.8])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 251578032F6;
+ Mon, 25 Jul 2022 07:22:06 +0000 (UTC)
+Received: from localhost.localdomain (ovpn-13-203.pek2.redhat.com
+ [10.72.13.203])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id ECB9EC27D95;
+ Mon, 25 Jul 2022 07:22:01 +0000 (UTC)
 From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 25 Jul 2022 14:57:11 +0800
-Message-ID: <CACGkMEvsAyR5uRprobv-bQYPOKKOM4sZzQ-Vw5ZiETMjiCkdRQ@mail.gmail.com>
-Subject: Re: [PATCH v12 38/40] virtio_net: support rx queue resize
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: Vadim Pasternak <vadimp@nvidia.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- linux-remoteproc@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
- Bjorn Andersson <bjorn.andersson@linaro.org>,
- Eric Dumazet <edumazet@google.com>, Alexander Gordeev <agordeev@linux.ibm.com>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>, linux-s390@vger.kernel.org,
- kvm <kvm@vger.kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
- Richard Weinberger <richard@nod.at>,
- Vincent Whitchurch <vincent.whitchurch@axis.com>,
- John Fastabend <john.fastabend@gmail.com>, Halil Pasic <pasic@linux.ibm.com>,
- Jakub Kicinski <kuba@kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>,
- Eric Farman <farman@linux.ibm.com>, Jesper Dangaard Brouer <hawk@kernel.org>,
- Vasily Gorbik <gor@linux.ibm.com>, Kangjie Xu <kangjie.xu@linux.alibaba.com>,
- Heiko Carstens <hca@linux.ibm.com>, linux-um@lists.infradead.org,
- Mark Gross <markgross@kernel.org>, Hans de Goede <hdegoede@redhat.com>,
- platform-driver-x86@vger.kernel.org,
- "open list:XDP \(eXpress Data Path\)" <bpf@vger.kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Mathieu Poirier <mathieu.poirier@linaro.org>,
- netdev <netdev@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>,
- Sven Schnelle <svens@linux.ibm.com>, Johannes Berg <johannes@sipsolutions.net>,
- "David S. Miller" <davem@davemloft.net>
+To: mst@redhat.com, davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+ pabeni@redhat.com
+Subject: [PATCH V6] virtio-net: fix the race between refill work and close
+Date: Mon, 25 Jul 2022 15:21:59 +0800
+Message-Id: <20220725072159.3577-1-jasowang@redhat.com>
+MIME-Version: 1.0
+X-Scanned-By: MIMEDefang 2.85 on 10.11.54.8
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -135,57 +93,150 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gTW9uLCBKdWwgMjUsIDIwMjIgYXQgMjo0MyBQTSBYdWFuIFpodW8gPHh1YW56aHVvQGxpbnV4
-LmFsaWJhYmEuY29tPiB3cm90ZToKPgo+IE9uIFRodSwgMjEgSnVsIDIwMjIgMTc6MjU6NTkgKzA4
-MDAsIEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+IHdyb3RlOgo+ID4KPiA+IOWcqCAy
-MDIyLzcvMjAgMTE6MDQsIFh1YW4gWmh1byDlhpnpgZM6Cj4gPiA+IFRoaXMgcGF0Y2ggaW1wbGVt
-ZW50cyB0aGUgcmVzaXplIGZ1bmN0aW9uIG9mIHRoZSByeCBxdWV1ZXMuCj4gPiA+IEJhc2VkIG9u
-IHRoaXMgZnVuY3Rpb24sIGl0IGlzIHBvc3NpYmxlIHRvIG1vZGlmeSB0aGUgcmluZyBudW0gb2Yg
-dGhlCj4gPiA+IHF1ZXVlLgo+ID4gPgo+ID4gPiBTaWduZWQtb2ZmLWJ5OiBYdWFuIFpodW8gPHh1
-YW56aHVvQGxpbnV4LmFsaWJhYmEuY29tPgo+ID4gPiAtLS0KPiA+ID4gICBkcml2ZXJzL25ldC92
-aXJ0aW9fbmV0LmMgfCAyMiArKysrKysrKysrKysrKysrKysrKysrCj4gPiA+ICAgMSBmaWxlIGNo
-YW5nZWQsIDIyIGluc2VydGlvbnMoKykKPiA+ID4KPiA+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMv
-bmV0L3ZpcnRpb19uZXQuYyBiL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+ID4gPiBpbmRleCBm
-ZTRkYzQzYzA1YTEuLjExMTVhOGI1OWEwOCAxMDA2NDQKPiA+ID4gLS0tIGEvZHJpdmVycy9uZXQv
-dmlydGlvX25ldC5jCj4gPiA+ICsrKyBiL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+ID4gPiBA
-QCAtMjc4LDYgKzI3OCw4IEBAIHN0cnVjdCBwYWRkZWRfdm5ldF9oZHIgewo+ID4gPiAgICAgY2hh
-ciBwYWRkaW5nWzEyXTsKPiA+ID4gICB9Owo+ID4gPgo+ID4gPiArc3RhdGljIHZvaWQgdmlydG5l
-dF9ycV9mcmVlX3VudXNlZF9idWYoc3RydWN0IHZpcnRxdWV1ZSAqdnEsIHZvaWQgKmJ1Zik7Cj4g
-PiA+ICsKPiA+ID4gICBzdGF0aWMgYm9vbCBpc194ZHBfZnJhbWUodm9pZCAqcHRyKQo+ID4gPiAg
-IHsKPiA+ID4gICAgIHJldHVybiAodW5zaWduZWQgbG9uZylwdHIgJiBWSVJUSU9fWERQX0ZMQUc7
-Cj4gPiA+IEBAIC0xODQ2LDYgKzE4NDgsMjYgQEAgc3RhdGljIG5ldGRldl90eF90IHN0YXJ0X3ht
-aXQoc3RydWN0IHNrX2J1ZmYgKnNrYiwgc3RydWN0IG5ldF9kZXZpY2UgKmRldikKPiA+ID4gICAg
-IHJldHVybiBORVRERVZfVFhfT0s7Cj4gPiA+ICAgfQo+ID4gPgo+ID4gPiArc3RhdGljIGludCB2
-aXJ0bmV0X3J4X3Jlc2l6ZShzdHJ1Y3QgdmlydG5ldF9pbmZvICp2aSwKPiA+ID4gKyAgICAgICAg
-ICAgICAgICAgICAgICAgIHN0cnVjdCByZWNlaXZlX3F1ZXVlICpycSwgdTMyIHJpbmdfbnVtKQo+
-ID4gPiArewo+ID4gPiArICAgaW50IGVyciwgcWluZGV4Owo+ID4gPiArCj4gPiA+ICsgICBxaW5k
-ZXggPSBycSAtIHZpLT5ycTsKPiA+ID4gKwo+ID4gPiArICAgbmFwaV9kaXNhYmxlKCZycS0+bmFw
-aSk7Cj4gPgo+ID4KPiA+IFdlIG5lZWQgdG8gZGlzYWJsZSByZWZpbGwgd29yayBhcyB3ZWxsLiBT
-byB0aGlzIHNlcmllcyBtaWdodCBuZWVkCj4gPiByZWJhc2luZyBvbiB0b3Agb2YKPiA+Cj4gPiBo
-dHRwczovL2xvcmUua2VybmVsLm9yZy9uZXRkZXYvMjAyMjA3MDQwNzQ4NTkuMTY5MTItMS1qYXNv
-d2FuZ0ByZWRoYXQuY29tLwo+Cj4gSSB1bmRlcnN0YW5kIHRoYXQgeW91ciBwYXRjaCBpcyB1c2Vk
-IHRvIHNvbHZlIHRoZSBzaXR1YXRpb24gd2hlcmUgZGV2IGlzCj4gZGVzdG9yeWVkIGJ1dCByZWZp
-bGwgd29yayBpcyBydW5uaW5nLgo+Cj4gQW5kIGlzIHRoZXJlIHN1Y2ggYSBwb3NzaWJpbGl0eSBo
-ZXJlPwoKRS5nIHRoZSByZWZpbGwgd29yayBydW5zIGluIHBhcmFsbGVsIHdpdGggdGhpcyBmdW5j
-dGlvbj8KClRoYW5rcwoKPiBPciBpcyB0aGVyZSBhbnkgb3RoZXIgc2NlbmFyaW8gdGhhdCBJJ20K
-PiBub3QgZXhwZWN0aW5nPwo+Cj4gVGhhbmtzLgo+Cj4KPiA+Cj4gPiBJIHdpbGwgc2VuZCBhIG5l
-dyB2ZXJzaW9uIChwcm9iYWJseSB0b21vcnJvdykuCj4gPgo+ID4gVGhhbmtzCj4gPgo+ID4KPiA+
-ID4gKwo+ID4gPiArICAgZXJyID0gdmlydHF1ZXVlX3Jlc2l6ZShycS0+dnEsIHJpbmdfbnVtLCB2
-aXJ0bmV0X3JxX2ZyZWVfdW51c2VkX2J1Zik7Cj4gPiA+ICsgICBpZiAoZXJyKQo+ID4gPiArICAg
-ICAgICAgICBuZXRkZXZfZXJyKHZpLT5kZXYsICJyZXNpemUgcnggZmFpbDogcnggcXVldWUgaW5k
-ZXg6ICVkIGVycjogJWRcbiIsIHFpbmRleCwgZXJyKTsKPiA+ID4gKwo+ID4gPiArICAgaWYgKCF0
-cnlfZmlsbF9yZWN2KHZpLCBycSwgR0ZQX0tFUk5FTCkpCj4gPiA+ICsgICAgICAgICAgIHNjaGVk
-dWxlX2RlbGF5ZWRfd29yaygmdmktPnJlZmlsbCwgMCk7Cj4gPiA+ICsKPiA+ID4gKyAgIHZpcnRu
-ZXRfbmFwaV9lbmFibGUocnEtPnZxLCAmcnEtPm5hcGkpOwo+ID4gPiArICAgcmV0dXJuIGVycjsK
-PiA+ID4gK30KPiA+ID4gKwo+ID4gPiAgIC8qCj4gPiA+ICAgICogU2VuZCBjb21tYW5kIHZpYSB0
-aGUgY29udHJvbCB2aXJ0cXVldWUgYW5kIGNoZWNrIHN0YXR1cy4gIENvbW1hbmRzCj4gPiA+ICAg
-ICogc3VwcG9ydGVkIGJ5IHRoZSBoeXBlcnZpc29yLCBhcyBpbmRpY2F0ZWQgYnkgZmVhdHVyZSBi
-aXRzLCBzaG91bGQKPiA+Cj4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0
-cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcv
-bWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+We try using cancel_delayed_work_sync() to prevent the work from
+enabling NAPI. This is insufficient since we don't disable the source
+of the refill work scheduling. This means an NAPI poll callback after
+cancel_delayed_work_sync() can schedule the refill work then can
+re-enable the NAPI that leads to use-after-free [1].
+
+Since the work can enable NAPI, we can't simply disable NAPI before
+calling cancel_delayed_work_sync(). So fix this by introducing a
+dedicated boolean to control whether or not the work could be
+scheduled from NAPI.
+
+[1]
+==================================================================
+BUG: KASAN: use-after-free in refill_work+0x43/0xd4
+Read of size 2 at addr ffff88810562c92e by task kworker/2:1/42
+
+CPU: 2 PID: 42 Comm: kworker/2:1 Not tainted 5.19.0-rc1+ #480
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.16.0-0-gd239552ce722-prebuilt.qemu.org 04/01/2014
+Workqueue: events refill_work
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x34/0x44
+ print_report.cold+0xbb/0x6ac
+ ? _printk+0xad/0xde
+ ? refill_work+0x43/0xd4
+ kasan_report+0xa8/0x130
+ ? refill_work+0x43/0xd4
+ refill_work+0x43/0xd4
+ process_one_work+0x43d/0x780
+ worker_thread+0x2a0/0x6f0
+ ? process_one_work+0x780/0x780
+ kthread+0x167/0x1a0
+ ? kthread_exit+0x50/0x50
+ ret_from_fork+0x22/0x30
+ </TASK>
+...
+
+Fixes: b2baed69e605c ("virtio_net: set/cancel work on ndo_open/ndo_stop")
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/net/virtio_net.c | 37 ++++++++++++++++++++++++++++++++++---
+ 1 file changed, 34 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 356cf8dd4164..ec8e1b3108c3 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -242,9 +242,15 @@ struct virtnet_info {
+ 	/* Packet virtio header size */
+ 	u8 hdr_len;
+ 
+-	/* Work struct for refilling if we run low on memory. */
++	/* Work struct for delayed refilling if we run low on memory. */
+ 	struct delayed_work refill;
+ 
++	/* Is delayed refill enabled? */
++	bool refill_enabled;
++
++	/* The lock to synchronize the access to refill_enabled */
++	spinlock_t refill_lock;
++
+ 	/* Work struct for config space updates */
+ 	struct work_struct config_work;
+ 
+@@ -348,6 +354,20 @@ static struct page *get_a_page(struct receive_queue *rq, gfp_t gfp_mask)
+ 	return p;
+ }
+ 
++static void enable_delayed_refill(struct virtnet_info *vi)
++{
++	spin_lock_bh(&vi->refill_lock);
++	vi->refill_enabled = true;
++	spin_unlock_bh(&vi->refill_lock);
++}
++
++static void disable_delayed_refill(struct virtnet_info *vi)
++{
++	spin_lock_bh(&vi->refill_lock);
++	vi->refill_enabled = false;
++	spin_unlock_bh(&vi->refill_lock);
++}
++
+ static void virtqueue_napi_schedule(struct napi_struct *napi,
+ 				    struct virtqueue *vq)
+ {
+@@ -1527,8 +1547,12 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
+ 	}
+ 
+ 	if (rq->vq->num_free > min((unsigned int)budget, virtqueue_get_vring_size(rq->vq)) / 2) {
+-		if (!try_fill_recv(vi, rq, GFP_ATOMIC))
+-			schedule_delayed_work(&vi->refill, 0);
++		if (!try_fill_recv(vi, rq, GFP_ATOMIC)) {
++			spin_lock(&vi->refill_lock);
++			if (vi->refill_enabled)
++				schedule_delayed_work(&vi->refill, 0);
++			spin_unlock(&vi->refill_lock);
++		}
+ 	}
+ 
+ 	u64_stats_update_begin(&rq->stats.syncp);
+@@ -1651,6 +1675,8 @@ static int virtnet_open(struct net_device *dev)
+ 	struct virtnet_info *vi = netdev_priv(dev);
+ 	int i, err;
+ 
++	enable_delayed_refill(vi);
++
+ 	for (i = 0; i < vi->max_queue_pairs; i++) {
+ 		if (i < vi->curr_queue_pairs)
+ 			/* Make sure we have some buffers: if oom use wq. */
+@@ -2033,6 +2059,8 @@ static int virtnet_close(struct net_device *dev)
+ 	struct virtnet_info *vi = netdev_priv(dev);
+ 	int i;
+ 
++	/* Make sure NAPI doesn't schedule refill work */
++	disable_delayed_refill(vi);
+ 	/* Make sure refill_work doesn't re-enable napi! */
+ 	cancel_delayed_work_sync(&vi->refill);
+ 
+@@ -2792,6 +2820,8 @@ static int virtnet_restore_up(struct virtio_device *vdev)
+ 
+ 	virtio_device_ready(vdev);
+ 
++	enable_delayed_refill(vi);
++
+ 	if (netif_running(vi->dev)) {
+ 		err = virtnet_open(vi->dev);
+ 		if (err)
+@@ -3535,6 +3565,7 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 	vdev->priv = vi;
+ 
+ 	INIT_WORK(&vi->config_work, virtnet_config_changed_work);
++	spin_lock_init(&vi->refill_lock);
+ 
+ 	/* If we can receive ANY GSO packets, we must allocate large ones. */
+ 	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO4) ||
+-- 
+2.25.1
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
