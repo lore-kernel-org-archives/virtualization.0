@@ -1,60 +1,60 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id BAC0DCCA48E
-	for <virtualization@archiver.kernel.org>; Tue, 26 Jul 2022 07:23:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D55ADCCA494
+	for <virtualization@archiver.kernel.org>; Tue, 26 Jul 2022 07:23:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 6FB43416FE;
-	Tue, 26 Jul 2022 07:23:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6FB43416FE
+	by smtp3.osuosl.org (Postfix) with ESMTP id 814A7612F9;
+	Tue, 26 Jul 2022 07:23:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 814A7612F9
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id PnlWp04Q2PUb; Tue, 26 Jul 2022 07:23:53 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id CK5im2SBDJtN; Tue, 26 Jul 2022 07:23:54 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id E8D484171F;
-	Tue, 26 Jul 2022 07:23:52 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E8D484171F
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 16A2A612E3;
+	Tue, 26 Jul 2022 07:23:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 16A2A612E3
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id AC238C007F;
-	Tue, 26 Jul 2022 07:23:52 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 44B4FC007D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id ED728C0033;
+	Tue, 26 Jul 2022 07:23:53 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id DE411C0082
  for <virtualization@lists.linux-foundation.org>;
- Tue, 26 Jul 2022 07:23:51 +0000 (UTC)
+ Tue, 26 Jul 2022 07:23:52 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 1269E4170F
+ by smtp4.osuosl.org (Postfix) with ESMTP id B792F42548
  for <virtualization@lists.linux-foundation.org>;
- Tue, 26 Jul 2022 07:23:51 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1269E4170F
+ Tue, 26 Jul 2022 07:23:52 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B792F42548
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id zrxjLW1FC1fi
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id aKtU5MmPBAyw
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 26 Jul 2022 07:23:52 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 543204225B
+Received: from out30-43.freemail.mail.aliyun.com
+ (out30-43.freemail.mail.aliyun.com [115.124.30.43])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 543204225B
  for <virtualization@lists.linux-foundation.org>;
  Tue, 26 Jul 2022 07:23:50 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E7E9D415B0
-Received: from out30-45.freemail.mail.aliyun.com
- (out30-45.freemail.mail.aliyun.com [115.124.30.45])
- by smtp2.osuosl.org (Postfix) with ESMTPS id E7E9D415B0
- for <virtualization@lists.linux-foundation.org>;
- Tue, 26 Jul 2022 07:23:49 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R601e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018045170;
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R161e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046050;
  MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=37; SR=0;
- TI=SMTPD_---0VKUB9Km_1658820223; 
+ TI=SMTPD_---0VKUNVUE_1658820219; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VKUB9Km_1658820223) by smtp.aliyun-inc.com;
- Tue, 26 Jul 2022 15:23:44 +0800
+ fp:SMTPD_---0VKUNVUE_1658820219) by smtp.aliyun-inc.com;
+ Tue, 26 Jul 2022 15:23:40 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: virtualization@lists.linux-foundation.org
-Subject: [PATCH v13 41/42] virtio_net: support tx queue resize
-Date: Tue, 26 Jul 2022 15:22:24 +0800
-Message-Id: <20220726072225.19884-42-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH v13 39/42] virtio_net: split free_unused_bufs()
+Date: Tue, 26 Jul 2022 15:22:22 +0800
+Message-Id: <20220726072225.19884-40-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20220726072225.19884-1-xuanzhuo@linux.alibaba.com>
 References: <20220726072225.19884-1-xuanzhuo@linux.alibaba.com>
@@ -95,95 +95,81 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This patch implements the resize function of the tx queues.
-Based on this function, it is possible to modify the ring num of the
-queue.
+This patch separates two functions for freeing sq buf and rq buf from
+free_unused_bufs().
+
+When supporting the enable/disable tx/rq queue in the future, it is
+necessary to support separate recovery of a sq buf or a rq buf.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Acked-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/net/virtio_net.c | 47 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 47 insertions(+)
+ drivers/net/virtio_net.c | 41 ++++++++++++++++++++++++----------------
+ 1 file changed, 25 insertions(+), 16 deletions(-)
 
 diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 1115a8b59a08..d1e6940b46d8 100644
+index 981ef8ea4d58..fe4dc43c05a1 100644
 --- a/drivers/net/virtio_net.c
 +++ b/drivers/net/virtio_net.c
-@@ -135,6 +135,9 @@ struct send_queue {
- 	struct virtnet_sq_stats stats;
- 
- 	struct napi_struct napi;
-+
-+	/* Record whether sq is in reset state. */
-+	bool reset;
- };
- 
- /* Internal representation of a receive virtqueue */
-@@ -279,6 +282,7 @@ struct padded_vnet_hdr {
- };
- 
- static void virtnet_rq_free_unused_buf(struct virtqueue *vq, void *buf);
-+static void virtnet_sq_free_unused_buf(struct virtqueue *vq, void *buf);
- 
- static bool is_xdp_frame(void *ptr)
- {
-@@ -1603,6 +1607,11 @@ static void virtnet_poll_cleantx(struct receive_queue *rq)
- 		return;
- 
- 	if (__netif_tx_trylock(txq)) {
-+		if (sq->reset) {
-+			__netif_tx_unlock(txq);
-+			return;
-+		}
-+
- 		do {
- 			virtqueue_disable_cb(sq->vq);
- 			free_old_xmit_skbs(sq, true);
-@@ -1868,6 +1877,44 @@ static int virtnet_rx_resize(struct virtnet_info *vi,
- 	return err;
+@@ -3151,6 +3151,27 @@ static void free_receive_page_frags(struct virtnet_info *vi)
+ 			put_page(vi->rq[i].alloc_frag.page);
  }
  
-+static int virtnet_tx_resize(struct virtnet_info *vi,
-+			     struct send_queue *sq, u32 ring_num)
++static void virtnet_sq_free_unused_buf(struct virtqueue *vq, void *buf)
 +{
-+	struct netdev_queue *txq;
-+	int err, qindex;
-+
-+	qindex = sq - vi->sq;
-+
-+	virtnet_napi_tx_disable(&sq->napi);
-+
-+	txq = netdev_get_tx_queue(vi->dev, qindex);
-+
-+	/* 1. wait all ximt complete
-+	 * 2. fix the race of netif_stop_subqueue() vs netif_start_subqueue()
-+	 */
-+	__netif_tx_lock_bh(txq);
-+
-+	/* Prevent rx poll from accessing sq. */
-+	sq->reset = true;
-+
-+	/* Prevent the upper layer from trying to send packets. */
-+	netif_stop_subqueue(vi->dev, qindex);
-+
-+	__netif_tx_unlock_bh(txq);
-+
-+	err = virtqueue_resize(sq->vq, ring_num, virtnet_sq_free_unused_buf);
-+	if (err)
-+		netdev_err(vi->dev, "resize tx fail: tx queue index: %d err: %d\n", qindex, err);
-+
-+	__netif_tx_lock_bh(txq);
-+	sq->reset = false;
-+	netif_tx_wake_queue(txq);
-+	__netif_tx_unlock_bh(txq);
-+
-+	virtnet_napi_tx_enable(vi, sq->vq, &sq->napi);
-+	return err;
++	if (!is_xdp_frame(buf))
++		dev_kfree_skb(buf);
++	else
++		xdp_return_frame(ptr_to_xdp(buf));
 +}
 +
- /*
-  * Send command via the control virtqueue and check status.  Commands
-  * supported by the hypervisor, as indicated by feature bits, should
++static void virtnet_rq_free_unused_buf(struct virtqueue *vq, void *buf)
++{
++	struct virtnet_info *vi = vq->vdev->priv;
++	int i = vq2rxq(vq);
++
++	if (vi->mergeable_rx_bufs)
++		put_page(virt_to_head_page(buf));
++	else if (vi->big_packets)
++		give_pages(&vi->rq[i], buf);
++	else
++		put_page(virt_to_head_page(buf));
++}
++
+ static void free_unused_bufs(struct virtnet_info *vi)
+ {
+ 	void *buf;
+@@ -3158,26 +3179,14 @@ static void free_unused_bufs(struct virtnet_info *vi)
+ 
+ 	for (i = 0; i < vi->max_queue_pairs; i++) {
+ 		struct virtqueue *vq = vi->sq[i].vq;
+-		while ((buf = virtqueue_detach_unused_buf(vq)) != NULL) {
+-			if (!is_xdp_frame(buf))
+-				dev_kfree_skb(buf);
+-			else
+-				xdp_return_frame(ptr_to_xdp(buf));
+-		}
++		while ((buf = virtqueue_detach_unused_buf(vq)) != NULL)
++			virtnet_sq_free_unused_buf(vq, buf);
+ 	}
+ 
+ 	for (i = 0; i < vi->max_queue_pairs; i++) {
+ 		struct virtqueue *vq = vi->rq[i].vq;
+-
+-		while ((buf = virtqueue_detach_unused_buf(vq)) != NULL) {
+-			if (vi->mergeable_rx_bufs) {
+-				put_page(virt_to_head_page(buf));
+-			} else if (vi->big_packets) {
+-				give_pages(&vi->rq[i], buf);
+-			} else {
+-				put_page(virt_to_head_page(buf));
+-			}
+-		}
++		while ((buf = virtqueue_detach_unused_buf(vq)) != NULL)
++			virtnet_rq_free_unused_buf(vq, buf);
+ 	}
+ }
+ 
 -- 
 2.31.0
 
