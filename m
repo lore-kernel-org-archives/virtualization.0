@@ -4,109 +4,152 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8F06FC04A68
-	for <virtualization@archiver.kernel.org>; Tue, 26 Jul 2022 14:45:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 98C3CC00144
+	for <virtualization@archiver.kernel.org>; Tue, 26 Jul 2022 15:06:13 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 09C1A84C8B;
-	Tue, 26 Jul 2022 14:45:51 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 09C1A84C8B
+	by smtp1.osuosl.org (Postfix) with ESMTP id 2807E84057;
+	Tue, 26 Jul 2022 15:06:13 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2807E84057
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=GgUymXk1
+	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=virtuozzo.com header.i=@virtuozzo.com header.a=rsa-sha256 header.s=selector2 header.b=dLEgAIgT
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id oGE2rwZl4fgq; Tue, 26 Jul 2022 14:45:49 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id B743584761;
-	Tue, 26 Jul 2022 14:45:48 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B743584761
+	with ESMTP id D1TbgfS-I8Tw; Tue, 26 Jul 2022 15:06:12 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 7DDD28404E;
+	Tue, 26 Jul 2022 15:06:11 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7DDD28404E
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 996F5C0035;
-	Tue, 26 Jul 2022 14:45:48 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 07ABAC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 560C8C0033;
+	Tue, 26 Jul 2022 15:06:11 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 10980C002D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 26 Jul 2022 14:45:48 +0000 (UTC)
+ Tue, 26 Jul 2022 15:06:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id D45CA60E7B
+ by smtp4.osuosl.org (Postfix) with ESMTP id D60394087B
  for <virtualization@lists.linux-foundation.org>;
- Tue, 26 Jul 2022 14:45:47 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D45CA60E7B
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=GgUymXk1
+ Tue, 26 Jul 2022 15:06:09 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D60394087B
+Authentication-Results: smtp4.osuosl.org; dkim=pass (2048-bit key,
+ unprotected) header.d=virtuozzo.com header.i=@virtuozzo.com
+ header.a=rsa-sha256 header.s=selector2 header.b=dLEgAIgT
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 81l4bS0O0nu5
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id b5NYCj_HtX-A
  for <virtualization@lists.linux-foundation.org>;
- Tue, 26 Jul 2022 14:45:46 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0ECB060FC1
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 0ECB060FC1
+ Tue, 26 Jul 2022 15:06:08 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9FF1440248
+Received: from EUR05-DB8-obe.outbound.protection.outlook.com
+ (mail-db8eur05on2115.outbound.protection.outlook.com [40.107.20.115])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 9FF1440248
  for <virtualization@lists.linux-foundation.org>;
- Tue, 26 Jul 2022 14:45:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1658846744;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=84ZfrNa5yoHAhq0ZrcLkroLHzQItjvunPyOhWeRCkPs=;
- b=GgUymXk1LHP3rMO9OorTUXCim7hjYpI2cEvse3Z3t2jhp76PgXzPfHKAPhqA/3Z2at+iHq
- dti4Hu4IUi/XPYw0ySlR/dt8qLbA8I2sBlTuDz+w74zZ+nNhrM5+JFoioaR7dVixVcqa5c
- Ec8S1tzrDemjj0HtAjRHEltK3i531AM=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-158-Mm7YgChvOX2zd85SOQXSNg-1; Tue, 26 Jul 2022 10:45:43 -0400
-X-MC-Unique: Mm7YgChvOX2zd85SOQXSNg-1
-Received: by mail-wm1-f71.google.com with SMTP id
- az39-20020a05600c602700b003a321d33238so7773282wmb.1
- for <virtualization@lists.linux-foundation.org>;
- Tue, 26 Jul 2022 07:45:43 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc;
- bh=84ZfrNa5yoHAhq0ZrcLkroLHzQItjvunPyOhWeRCkPs=;
- b=uuAZHCeYWJ6xFr2DG+k5GXmYw0HIMNs1Vx7PbEUHf6/ypj6AOgQ3sTad47rQmvay3Z
- ajz5VygnxoQxH5UdxQ6xIc0tyCcR+U46xy/o/GcLOid17AwrVxivFMM30ToPio6m8Kcg
- HBuAMp6TfxzY/37WQg58bP2MPIOknbhF+qRGBnYRXvC+WCbNfhpxp81c7/rM/bpoZJop
- Bcl3wibb5krcjixnILXCqT8G7RvvIIDJOdjPeXp4gjmVigFgipEFupThQFuz7mi+qE7l
- jFSc4j6mbcylMR0b0hVk0PYcQ/3V/uuqWNjjzFQi0ROSZAO1hp2I36OK0B6F04xlQTLh
- IDbw==
-X-Gm-Message-State: AJIora8LHy3Fs7upNkKecE8ZWam7BL+iXwydo36FOuTnvL/9XjgyBwit
- YCitIrGJZA8GnGRNpjtHRZ/ZHv+86AUYT9xe6A1kaawQ6ILUcgpgobbJlTDWr8CA2mni2r+WJg8
- zvLsfQ4hVun1PDT+C9MiO5z3bIUA+BcsQATyna3Gh4g==
-X-Received: by 2002:a05:600c:4e94:b0:3a3:4448:62cc with SMTP id
- f20-20020a05600c4e9400b003a3444862ccmr12345486wmq.108.1658846742100; 
- Tue, 26 Jul 2022 07:45:42 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1s5kPAQ12tYkaxnjB3qywnwU12zef+zBnYHWHd5Bzd65n/uF+pqQGFvOqoRAt/Pccw/ZzniBA==
-X-Received: by 2002:a05:600c:4e94:b0:3a3:4448:62cc with SMTP id
- f20-20020a05600c4e9400b003a3444862ccmr12345457wmq.108.1658846741408; 
- Tue, 26 Jul 2022 07:45:41 -0700 (PDT)
-Received: from redhat.com ([2.55.4.105]) by smtp.gmail.com with ESMTPSA id
- r8-20020adfdc88000000b0021e13efa17esm14531398wrj.70.2022.07.26.07.45.39
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 26 Jul 2022 07:45:40 -0700 (PDT)
-Date: Tue, 26 Jul 2022 10:45:37 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Andrey Zhadchenko <andrey.zhadchenko@virtuozzo.com>
+ Tue, 26 Jul 2022 15:06:08 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=REU4cE861VmUKL13QwY8AMQxXxyUY5SqUPNoVfho5dws6EyqipihF3gLjldwd7352e66vojhQ24CZ4oDmib4XM5oTrrM2AZO+vsZ/m7b/lfNaJPcZnzqS4TNRfH679HibP5bjJD66xA1tTlRyqdmwzR/Galkll9WNPNoTaT6+Fic31eNABFBqJgadC4kb8cmE9VSr3ozMjYdYX0KI2OuOAFmKNAozX02sXbGTbR7qYjatl0sxaqEs/U3RW7SZiPF7AQ8Q3ydIiTZ1WDwmmT6R2qVZzqB8ICN8ETLNH1/8PY5xF92+3P1tt3Xbv3KXJiGG7pyJ6NDnSxR7Evyi7YoPg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=8iUFKjpQMt1qzvlvR7Qmcc+dwM+QaBqyqsfYUP6XGjA=;
+ b=irh3V0AY5Z2nXPYYnbL7YNKN5Sh7hDRXHXjfOhJqsYLDNS3t9/1nD5SEHjnaRrlf+OQIzbbgUTgdJouzWP0/YzsV5geNA6AFivt04yIJXyVnAzQIEj++M03+8OL3wlXa15PpHxY5e2vD0xyNmo5OJsIkejPaSz1CaFLeWiFQf04lPk6DwfMQPk5f+Uqe06DIcoLZcl97GlqNcwUURvE6ANbek8EUH+xxIi+ObKlL3OTGDO+KCFeeO+AY2Np66tsm+jY+Ecp4qXKsOUdxJhkn1k0RmZyTBV5sblZbVWMumVzem458mkhW5x+PULPpESx5xNPWg3GwbFwXlCuKjFqf5g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=virtuozzo.com; dmarc=pass action=none
+ header.from=virtuozzo.com; dkim=pass header.d=virtuozzo.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=virtuozzo.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=8iUFKjpQMt1qzvlvR7Qmcc+dwM+QaBqyqsfYUP6XGjA=;
+ b=dLEgAIgTY6M6MZ/vZzvmixso5Rnx0Y0jYdO0NMrI3d0BwFqK2/pWS62mxMuK95pXftJMdhDZiLf6J1KG/7WapuIfSpV/McijEIYZBVCrzsNrlmfC9u3Nc3vexMhsQFyT5TYPtRNLRk7jE+9HbqyWUYfS1AavKqmEVAW+4imrwkM9k2HRBILkMLCFggbXz/GhsLDFIf5N6A48Q3bKzQJsL3ts+RsR9tJAccgNI+aNDNY1MmivxOf7IZYO+pCHzN4tY62+ASRjSHX2TMBykP23195db4XuZD5EuDPSoJgwyTEwg4X0dzjecfz8Ap7CIoS5bWFujDejWjVceWwXvCOLJg==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=virtuozzo.com;
+Received: from PAXPR08MB6956.eurprd08.prod.outlook.com (2603:10a6:102:1db::9)
+ by DB9PR08MB7129.eurprd08.prod.outlook.com (2603:10a6:10:2c7::8) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5458.19; Tue, 26 Jul
+ 2022 15:06:04 +0000
+Received: from PAXPR08MB6956.eurprd08.prod.outlook.com
+ ([fe80::813d:902d:17e5:499d]) by PAXPR08MB6956.eurprd08.prod.outlook.com
+ ([fe80::813d:902d:17e5:499d%3]) with mapi id 15.20.5458.025; Tue, 26 Jul 2022
+ 15:06:04 +0000
+Message-ID: <1cc04c01-ab10-8fa7-e2c2-3a835cb0de10@virtuozzo.com>
+Date: Tue, 26 Jul 2022 17:06:02 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
 Subject: Re: [RFC PATCH 1/1] drivers/vhost: vhost-blk accelerator for
  virtio-blk guests
-Message-ID: <20220726104354-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+To: "Michael S. Tsirkin" <mst@redhat.com>,
+ Andrey Zhadchenko <andrey.zhadchenko@virtuozzo.com>
 References: <20220725202753.298725-1-andrey.zhadchenko@virtuozzo.com>
  <20220725202753.298725-2-andrey.zhadchenko@virtuozzo.com>
+ <20220726104354-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20220726104354-mutt-send-email-mst@kernel.org>
+X-ClientProxiedBy: VI1P194CA0052.EURP194.PROD.OUTLOOK.COM
+ (2603:10a6:803:3c::41) To PAXPR08MB6956.eurprd08.prod.outlook.com
+ (2603:10a6:102:1db::9)
 MIME-Version: 1.0
-In-Reply-To: <20220725202753.298725-2-andrey.zhadchenko@virtuozzo.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: den@virtuozzo.com, asias@redhat.com, kvm@vger.kernel.org,
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 64063b9b-11b8-4bbb-e185-08da6f185beb
+X-MS-TrafficTypeDiagnostic: DB9PR08MB7129:EE_
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: MPptsXcdDW9VPVzyhdKRgePdJNbADPE6DXfTEigqtN/KTUvK/K9cVJbZ0U4lx7o6JOWb2Cmcmqn8QpO8U4kL5ykCKzd5djSjp6gSBHyUqLHpA4aY/G7xwgpX3B59ux7RuW/i6phU3yMw0WspezqZ1xI8rz4a2KNMijk5lEM1ZNzyFpdfFrwcGXwSmEyiXpafqpKGZBXKk0b8JbLQgc3SuEE5TERCj7G5FYG8+Ar/+wyZlJlPMQqMt/TuUCwgRNGKzvRWkLBvYLPX+E5fFPVIottKN9EIkQgXpMOG7fNIwoIDokJ6FveUGpQHlTWaU4iV7GcqAufLYWc3PMV31FqxgxuylVj3v0TPVwiHVgpunRAnO+D/pjaOpkiIrw+wHw+yUhugZ9o9GOMO4IcGbqJeQY83VHj/fzJ7/W4HxX3bgtolJbyB2v6YHU051f+m85lhxi+stJozgNubXrDQOEGl+m8u9cEliRbfOwPDCvjAKQ/+WoeoOkLFQb7EPqpM68DiVVxv5v+18JonA/AWmxKkvQ5Rzb81s4BeDyHY/kOvnfgF37S0gOe1/ElGZW4zymewKYsZ0sYhj+6RCRpvK8HOPehzANHAGrBvUY/JaCZXPqwAQgRJ6tOQ+1vIyG3h5lq44mgK1rtg6k4A7xtKh1YL9mDrMqWBnk/Um2lunrcIt5jyff+DDtyt8GY113U/v5FsOPon4BLSP7B87t2aNHIyHA11DTY4ItUPNtEaN1AaHbsmB1nuRWs+0jbwKg5Jvr90SpA4IEcF5q/Rx5q1e8NELqmOWMaEcAurVKwbTmGB9D7iw3EGUKFtvg8uGLJ+TawqKN/d8yiHl6iIpNRk1YeLtaXuTwInkHfHisx6c2LdHOZtw+VIN76q4Fnxt6ZH6NKS
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:PAXPR08MB6956.eurprd08.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230016)(4636009)(346002)(396003)(376002)(366004)(39850400004)(136003)(4326008)(8676002)(6506007)(66556008)(66476007)(66946007)(2906002)(31696002)(5660300002)(41300700001)(86362001)(8936002)(478600001)(52116002)(26005)(6486002)(53546011)(6512007)(2616005)(83380400001)(31686004)(316002)(36756003)(110136005)(186003)(6636002)(38100700002)(38350700002)(43740500002)(45980500001);
+ DIR:OUT; SFP:1102; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?V1F6OGVEZnN4NW50SkozaFJTU09UNEZ6UWJYM3M0Ry9pbWhBRVR1akJMby94?=
+ =?utf-8?B?bXhNdUVkK3c4dVdYcXkwajhUSFZLWEQwTCs4R0t6VzFxN2pzZ2oyV2tVWncx?=
+ =?utf-8?B?ZUpNQXEzM1l3T1RVc1BhM0xsZXJBTEJObStybDVaMEdzdS95bFUzcVZ2Sm1n?=
+ =?utf-8?B?ZnJuZGdqSUN5Qmw1RWYzQi85Z1djSk5hQUpFNDdudjZiYmxPYTVTalQ0V2d6?=
+ =?utf-8?B?YUM2bDlSczZyeVZBYkZFWEhUN0ZCNm5mVXVKeGtMbzFxM3djcmtiOUU0S2Jn?=
+ =?utf-8?B?QmwzOVRwSWJDSlJRbFpkait1bkNLMCt6dWcxNFhTRXZPNG01dmFDcm9aRzU2?=
+ =?utf-8?B?Q1Q1RTVtbzlOODhmdlRHM2JWeTk1aTlMZS92L2xWQWx1a04vTjdxTVN5WmVV?=
+ =?utf-8?B?cWw1T05TQ1dyU3hwdXhNMlJsc25IZ1lSL2VKWHlnaGQrSFhlTGE4RkVXU1RB?=
+ =?utf-8?B?QzdFVkh0WDYreXMvUVdXMWxpU1RLQXFvdHBlU2hTM2hua0lEdmJrR1BsaE9l?=
+ =?utf-8?B?R1NITXpwOTM0ZE03NU1pb1dkcmV0WkpzQWxIZFJ1ei83Qzd0RmtGR2o3THgy?=
+ =?utf-8?B?NDZuaVdxSjVLa3FJMGNERmMyeUpaTzM1OWowS2dhRmVrak42bmovL2FqNHhT?=
+ =?utf-8?B?RzVYYXlsRCtDOWZjMzZKbDdIdmFaYzRGaG9OZzg1QU1FalhjUmQ0QXZqaTl0?=
+ =?utf-8?B?Rnc0RVBKVkNwS2YwSEtmOUxFcmVzWTBxNThCNkZZRzUvZS9kamhldzZSVHBS?=
+ =?utf-8?B?TVI4VlQ2M3ppKzBINmR2eExVbzNmWTRyT3B1UDJCUnZaM25pRnZUSGJzcjVh?=
+ =?utf-8?B?bm1HQkdxWitvV1M2dTRUcjBVNzR3WXYrZ2NLRktZMHY1NEhlQ3gxdW1sZ1RB?=
+ =?utf-8?B?UHV4SWNFcDJ0VEFVRmsyR0s2WFJLeVpaeEV0VmwxWlc1aHJrSURJdG9qSjBq?=
+ =?utf-8?B?OHFlWVNUdkhTTkJjQzJyNHZpbGhybmZoOU5IQUJjZ2tGV0dqQVdVemtEeVIx?=
+ =?utf-8?B?R2RKeEZVNGpKRTM5eWpWWnIwM29CYUxmYVlPcE4wc2k5RWZMMjlmNUZnUXMw?=
+ =?utf-8?B?REdOODZNSWJ1SGo2K2ZEWmkrbDVzdkdPNDV1YzNzd05mbldxUnNyMjBkV3pY?=
+ =?utf-8?B?L0dwZTVCeGNESVd3amJOZEEyOC8yY2FMYVF0Q2k1YlRyTnlHUW42amlsL0pS?=
+ =?utf-8?B?NGorczRHTEtIOGgzellpVzJxbEVPVlZyamR1VTVzeEVDVnB2TlFmQWVhVndP?=
+ =?utf-8?B?MUVsMVdVZXlzQVVxR3hYclFHV1JqeTJSTjRkWTNJcjl0c0lrMHhpY0xFWmVG?=
+ =?utf-8?B?c2xnZUlPZnpvRFRtaUhVZkhxNGRnc0dvZmN4VEtNeDZQcTl6ZmdXVytlL25t?=
+ =?utf-8?B?Ti9JMGEvWDRNa3ZSeWNEamYrQjRUdVRXQmF1cFAxZCs4dExIQ2NPbmQ3K1ZW?=
+ =?utf-8?B?WnhWanI0T2ZWR1FNSDBRcTRwWXZmSGtyd2loOWJzblhzZzJyb0NKYlc2RFJO?=
+ =?utf-8?B?aEVZRm1KdDBTSzhrZzNTS2NLcktPL1B5MDl6eDIvVkpDSGdESm92WEhvU1Bi?=
+ =?utf-8?B?QTZwc1h1NkU2ZW9tWnM5bWk1NEhsYmVLYVlsaUQxcGJGNlhHRXExNDJKeDBs?=
+ =?utf-8?B?c3VYUnFBdkxQcU56TGY3RDgveXZOclBOSlJGdXR0enNyUjZ2M0FJa1JPNno0?=
+ =?utf-8?B?MUh4alpuWHJTSVRLR21RY0NMLzdYRk1MMkZlMzNydk12TFJONWRmcFI5S3ZG?=
+ =?utf-8?B?V1czK0Rjc0dxaElyK0FtalpmQWFINXlmTENrNUMyTEh5ajl0Nk9WQ3VSdjJ0?=
+ =?utf-8?B?QThQZVJMOUNVRkNuaFFlWFZwb3dkNUFsTzM5Qy82aXYxQTQzUVViSDRvVk80?=
+ =?utf-8?B?d1hvNndwa3pMRnRtbisrMzRMV1ZCcFlTYkVwL2taa1AyMENNcEJ6VU9USHVM?=
+ =?utf-8?B?M2JoUUlTeWw5blVudC9JL3hIN3Z4Uk5VaTJ0d1Z4NkxKdW84MTFKbC9PZnZB?=
+ =?utf-8?B?SFZQUEFCNC9Da1VUem5hT0dkZzhjNG81TU90djl6dTVtdFFKb0dHS2lybjU3?=
+ =?utf-8?B?OUQvNWU5ajJJRmIydHN2UVg4eHpONUN1bnQ2RXUyd1pOSW8vWElWbUthMVJ0?=
+ =?utf-8?Q?oE7TzxjAsqMvamXlDzDtLtb95?=
+X-OriginatorOrg: virtuozzo.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 64063b9b-11b8-4bbb-e185-08da6f185beb
+X-MS-Exchange-CrossTenant-AuthSource: PAXPR08MB6956.eurprd08.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Jul 2022 15:06:04.0304 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 0bc7f26d-0264-416e-a6fc-8352af79c58f
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: p8bLGoamKfaF3diZDAAo1IJmbA75XnvzQhtDPwLfLmFTuPdaA4+ujs1LFxFcUB3sdzaq5poKbarGAbmFB+HTsw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB9PR08MB7129
+Cc: asias@redhat.com, kvm@vger.kernel.org,
  virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
@@ -119,938 +162,59 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
+From: "Denis V. Lunev via Virtualization"
+ <virtualization@lists.linux-foundation.org>
+Reply-To: "Denis V. Lunev" <den@virtuozzo.com>
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Jul 25, 2022 at 11:27:53PM +0300, Andrey Zhadchenko wrote:
-> Although QEMU virtio is quite fast, there is still some room for
-> improvements. Disk latency can be reduced if we handle virito-blk requests
-> in host kernel istead of passing them to QEMU. The patch adds vhost-blk
-> kernel module to do so.
-> 
-> Some test setups:
-> fio --direct=1 --rw=randread  --bs=4k  --ioengine=libaio --iodepth=128
-> QEMU drive options: cache=none
-> filesystem: xfs
-> 
-> SSD:
->                | randread, IOPS  | randwrite, IOPS |
-> Host           |      95.8k      |      85.3k      |
-> QEMU virtio    |      57.5k      |      79.4k      |
-> QEMU vhost-blk |      95.6k      |      84.3k      |
-> 
-> RAMDISK (vq == vcpu):
->                  | randread, IOPS | randwrite, IOPS |
-> virtio, 1vcpu    |      123k      |      129k       |
-> virtio, 2vcpu    |      253k (??) |      250k (??)  |
-> virtio, 4vcpu    |      158k      |      154k       |
-> vhost-blk, 1vcpu |      110k      |      113k       |
-> vhost-blk, 2vcpu |      247k      |      252k       |
-> vhost-blk, 4vcpu |      576k      |      567k       |
-> 
-> Signed-off-by: Andrey Zhadchenko <andrey.zhadchenko@virtuozzo.com>
+On 26.07.2022 16:45, Michael S. Tsirkin wrote:
+> On Mon, Jul 25, 2022 at 11:27:53PM +0300, Andrey Zhadchenko wrote:
+>> Although QEMU virtio is quite fast, there is still some room for
+>> improvements. Disk latency can be reduced if we handle virito-blk requests
+>> in host kernel istead of passing them to QEMU. The patch adds vhost-blk
+>> kernel module to do so.
+>>
+>> Some test setups:
+>> fio --direct=1 --rw=randread  --bs=4k  --ioengine=libaio --iodepth=128
+>> QEMU drive options: cache=none
+>> filesystem: xfs
+>>
+>> SSD:
+>>                 | randread, IOPS  | randwrite, IOPS |
+>> Host           |      95.8k      |      85.3k      |
+>> QEMU virtio    |      57.5k      |      79.4k      |
+>> QEMU vhost-blk |      95.6k      |      84.3k      |
+>>
+>> RAMDISK (vq == vcpu):
+>>                   | randread, IOPS | randwrite, IOPS |
+>> virtio, 1vcpu    |      123k      |      129k       |
+>> virtio, 2vcpu    |      253k (??) |      250k (??)  |
+>> virtio, 4vcpu    |      158k      |      154k       |
+>> vhost-blk, 1vcpu |      110k      |      113k       |
+>> vhost-blk, 2vcpu |      247k      |      252k       |
+>> vhost-blk, 4vcpu |      576k      |      567k       |
+>>
+>> Signed-off-by: Andrey Zhadchenko <andrey.zhadchenko@virtuozzo.com>
+>
+> Sounds good to me. What this depends on is whether some userspace
+> will actually use it. In the past QEMU rejected support for vhost-blk,
+> if this time it fares better then I won't have a problem merging
+> the kernel bits.
 
+In general, we are going to use this in production for our
+next generation product and thus we would be very glad
+to see both parts, i.e. in-kernel and in-QEMU to be merged
+to reduce our support costs.
 
-Sounds good to me. What this depends on is whether some userspace
-will actually use it. In the past QEMU rejected support for vhost-blk,
-if this time it fares better then I won't have a problem merging
-the kernel bits.
+I think that numbers are talking on themselves and this
+would be quite beneficial for all parties especially keeping
+in mind that QCOW2 is also now supported for this kind
+of IO engine.
 
-> ---
->  drivers/vhost/Kconfig      |  12 +
->  drivers/vhost/Makefile     |   3 +
->  drivers/vhost/blk.c        | 831 +++++++++++++++++++++++++++++++++++++
->  include/uapi/linux/vhost.h |   4 +
->  4 files changed, 850 insertions(+)
->  create mode 100644 drivers/vhost/blk.c
-> 
-> diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
-> index 587fbae06182..bcd21a434885 100644
-> --- a/drivers/vhost/Kconfig
-> +++ b/drivers/vhost/Kconfig
-> @@ -89,4 +89,16 @@ config VHOST_CROSS_ENDIAN_LEGACY
->  
->  	  If unsure, say "N".
->  
-> +config VHOST_BLK
-> +	tristate "Host kernel accelerator for virtio-blk (EXPERIMENTAL)"
-> +	depends on BLOCK && EVENTFD
-> +	select VHOST
-> +	default n
-> +	help
-> +	  This kernel module can be loaded in host kernel to accelerate
-> +	  guest vm with virtio-blk driver.
-> +
-> +	  To compile this driver as a module, choose M here: the module will
-> +	  be called vhost_blk.
-> +
->  endif
-> diff --git a/drivers/vhost/Makefile b/drivers/vhost/Makefile
-> index f3e1897cce85..c76cc4f5fcd8 100644
-> --- a/drivers/vhost/Makefile
-> +++ b/drivers/vhost/Makefile
-> @@ -17,3 +17,6 @@ obj-$(CONFIG_VHOST)	+= vhost.o
->  
->  obj-$(CONFIG_VHOST_IOTLB) += vhost_iotlb.o
->  vhost_iotlb-y := iotlb.o
-> +
-> +obj-$(CONFIG_VHOST_BLK) += vhost_blk.o
-> +vhost_blk-y := blk.o
-> diff --git a/drivers/vhost/blk.c b/drivers/vhost/blk.c
-> new file mode 100644
-> index 000000000000..2c3cda47b54f
-> --- /dev/null
-> +++ b/drivers/vhost/blk.c
-> @@ -0,0 +1,831 @@
-> +// SPDX-License-Identifier: GPL-2.0-only
-> +/*
-> + * Copyright (C) 2011 Taobao, Inc.
-> + * Author: Liu Yuan <tailai.ly@taobao.com>
-> + *
-> + * Copyright (C) 2012 Red Hat, Inc.
-> + * Author: Asias He <asias@redhat.com>
-> + *
-> + * Copyright (c) 2022 Virtuozzo International GmbH.
-> + * Author: Andrey Zhadchenko <andrey.zhadchenko@virtuozzo.com>
-> + *
-> + * virtio-blk host kernel accelerator.
-> + */
-> +
-> +#include <linux/miscdevice.h>
-> +#include <linux/module.h>
-> +#include <linux/vhost.h>
-> +#include <linux/virtio_blk.h>
-> +#include <linux/mutex.h>
-> +#include <linux/file.h>
-> +#include <linux/kthread.h>
-> +#include <linux/blkdev.h>
-> +#include <linux/llist.h>
-> +
-> +#include "vhost.h"
-> +
-> +enum {
-> +	VHOST_BLK_FEATURES = VHOST_FEATURES |
-> +			     (1ULL << VIRTIO_RING_F_INDIRECT_DESC) |
-> +			     (1ULL << VIRTIO_RING_F_EVENT_IDX) |
-> +			     (1ULL << VIRTIO_BLK_F_MQ) |
-> +			     (1ULL << VIRTIO_BLK_F_FLUSH),
-> +};
-> +
-> +/*
-> + * Max number of bytes transferred before requeueing the job.
-> + * Using this limit prevents one virtqueue from starving others.
-> + */
-> +#define VHOST_DEV_WEIGHT 0x80000
-> +
-> +/*
-> + * Max number of packets transferred before requeueing the job.
-> + * Using this limit prevents one virtqueue from starving others with
-> + * pkts.
-> + */
-> +#define VHOST_DEV_PKT_WEIGHT 256
-> +
-> +enum {
-> +	VHOST_BLK_VQ = 0,
-> +	VHOST_BLK_VQ_MAX = 8,
-> +};
-> +
-> +#define VHOST_MAX_METADATA_IOV 1
-> +
-> +struct req_page_list {
-> +	struct page **pages;
-> +	int pages_nr;
-> +};
-> +
-> +#define NR_INLINE 16
-> +
-> +struct vhost_blk_req {
-> +	struct req_page_list inline_pl[NR_INLINE];
-> +	struct page *inline_page[NR_INLINE];
-> +	struct bio *inline_bio[NR_INLINE];
-> +	struct req_page_list *pl;
-> +	int during_flush;
-> +	bool use_inline;
-> +
-> +	struct llist_node llnode;
-> +
-> +	struct vhost_blk *blk;
-> +
-> +	struct iovec *iov;
-> +	int iov_nr;
-> +
-> +	struct bio **bio;
-> +	atomic_t bio_nr;
-> +
-> +	struct iovec status[VHOST_MAX_METADATA_IOV];
-> +
-> +	sector_t sector;
-> +	int bi_opf;
-> +	u16 head;
-> +	long len;
-> +	int bio_err;
-> +
-> +	struct vhost_blk_vq *blk_vq;
-> +};
-> +
-> +struct vhost_blk_vq {
-> +	struct vhost_virtqueue vq;
-> +	struct vhost_blk_req *req;
-> +	struct iovec iov[UIO_MAXIOV];
-> +	struct llist_head llhead;
-> +	struct vhost_work work;
-> +};
-> +
-> +struct vhost_blk {
-> +	wait_queue_head_t flush_wait;
-> +	struct vhost_blk_vq vqs[VHOST_BLK_VQ_MAX];
-> +	atomic_t req_inflight[2];
-> +	spinlock_t flush_lock;
-> +	struct vhost_dev dev;
-> +	int during_flush;
-> +	struct file *backend;
-> +	int index;
-> +};
-> +
-> +static int gen;
-> +
-> +static int move_iovec(struct iovec *from, struct iovec *to,
-> +		      size_t len, int iov_count_from, int iov_count_to)
-> +{
-> +	int moved_seg = 0, spent_seg = 0;
-> +	size_t size;
-> +
-> +	while (len && spent_seg < iov_count_from && moved_seg < iov_count_to) {
-> +		if (from->iov_len == 0) {
-> +			++from;
-> +			++spent_seg;
-> +			continue;
-> +		}
-> +		size = min(from->iov_len, len);
-> +		to->iov_base = from->iov_base;
-> +		to->iov_len = size;
-> +		from->iov_len -= size;
-> +		from->iov_base += size;
-> +		len -= size;
-> +		++from;
-> +		++to;
-> +		++moved_seg;
-> +		++spent_seg;
-> +	}
-> +
-> +	return len ? -1 : moved_seg;
-> +}
-> +
-> +static inline int iov_num_pages(struct iovec *iov)
-> +{
-> +	return (PAGE_ALIGN((unsigned long)iov->iov_base + iov->iov_len) -
-> +	       ((unsigned long)iov->iov_base & PAGE_MASK)) >> PAGE_SHIFT;
-> +}
-> +
-> +static inline int vhost_blk_set_status(struct vhost_blk_req *req, u8 status)
-> +{
-> +	struct iov_iter iter;
-> +	int ret;
-> +
-> +	iov_iter_init(&iter, WRITE, req->status, ARRAY_SIZE(req->status), sizeof(status));
-> +	ret = copy_to_iter(&status, sizeof(status), &iter);
-> +	if (ret != sizeof(status)) {
-> +		vq_err(&req->blk_vq->vq, "Failed to write status\n");
-> +		return -EFAULT;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static void vhost_blk_req_done(struct bio *bio)
-> +{
-> +	struct vhost_blk_req *req = bio->bi_private;
-> +	struct vhost_blk *blk = req->blk;
-> +
-> +	req->bio_err = blk_status_to_errno(bio->bi_status);
-> +
-> +	if (atomic_dec_and_test(&req->bio_nr)) {
-> +		llist_add(&req->llnode, &req->blk_vq->llhead);
-> +		vhost_work_queue(&blk->dev, &req->blk_vq->work);
-> +	}
-> +
-> +	bio_put(bio);
-> +}
-> +
-> +static void vhost_blk_req_umap(struct vhost_blk_req *req)
-> +{
-> +	struct req_page_list *pl;
-> +	int i, j;
-> +
-> +	if (req->pl) {
-> +		for (i = 0; i < req->iov_nr; i++) {
-> +			pl = &req->pl[i];
-> +
-> +			for (j = 0; j < pl->pages_nr; j++) {
-> +				if (!req->bi_opf)
-> +					set_page_dirty_lock(pl->pages[j]);
-> +				put_page(pl->pages[j]);
-> +			}
-> +		}
-> +	}
-> +
-> +	if (!req->use_inline)
-> +		kfree(req->pl);
-> +}
-> +
-> +static int vhost_blk_bio_make_simple(struct vhost_blk_req *req,
-> +				     struct block_device *bdev)
-> +{
-> +	struct bio *bio;
-> +
-> +	req->use_inline = true;
-> +	req->pl = NULL;
-> +	req->bio = req->inline_bio;
-> +
-> +	bio = bio_alloc(GFP_KERNEL, 1);
-> +	if (!bio)
-> +		return -ENOMEM;
-> +
-> +	bio->bi_iter.bi_sector = req->sector;
-> +	bio_set_dev(bio, bdev);
-> +	bio->bi_private = req;
-> +	bio->bi_end_io  = vhost_blk_req_done;
-> +	bio->bi_opf	= req->bi_opf;
-> +	req->bio[0] = bio;
-> +
-> +	atomic_set(&req->bio_nr, 1);
-> +
-> +	return 0;
-> +}
-> +
-> +static struct page **vhost_blk_prepare_req(struct vhost_blk_req *req,
-> +				 int total_pages, int iov_nr)
-> +{
-> +	int pl_len, page_len, bio_len;
-> +	void *buf;
-> +
-> +	req->use_inline = false;
-> +	pl_len = iov_nr * sizeof(req->pl[0]);
-> +	page_len = total_pages * sizeof(struct page *);
-> +	bio_len = total_pages * sizeof(struct bio *);
-> +
-> +	buf = kmalloc(pl_len + page_len + bio_len, GFP_KERNEL);
-> +	if (!buf)
-> +		return NULL;
-> +
-> +	req->pl	= buf;
-> +	req->bio = buf + pl_len + page_len;
-> +
-> +	return buf + pl_len;
-> +}
-> +
-> +static int vhost_blk_bio_make(struct vhost_blk_req *req,
-> +			      struct block_device *bdev)
-> +{
-> +	int pages_nr_total, i, j, ret;
-> +	struct iovec *iov = req->iov;
-> +	int iov_nr = req->iov_nr;
-> +	struct page **pages, *page;
-> +	struct bio *bio = NULL;
-> +	int bio_nr = 0;
-> +
-> +	if (unlikely(req->bi_opf == REQ_OP_FLUSH))
-> +		return vhost_blk_bio_make_simple(req, bdev);
-> +
-> +	pages_nr_total = 0;
-> +	for (i = 0; i < iov_nr; i++)
-> +		pages_nr_total += iov_num_pages(&iov[i]);
-> +
-> +	if (pages_nr_total > NR_INLINE) {
-> +		pages = vhost_blk_prepare_req(req, pages_nr_total, iov_nr);
-> +		if (!pages)
-> +			return -ENOMEM;
-> +	} else {
-> +		req->use_inline = true;
-> +		req->pl = req->inline_pl;
-> +		pages = req->inline_page;
-> +		req->bio = req->inline_bio;
-> +	}
-> +
-> +	req->iov_nr = 0;
-> +	for (i = 0; i < iov_nr; i++) {
-> +		int pages_nr = iov_num_pages(&iov[i]);
-> +		unsigned long iov_base, iov_len;
-> +		struct req_page_list *pl;
-> +
-> +		iov_base = (unsigned long)iov[i].iov_base;
-> +		iov_len  = (unsigned long)iov[i].iov_len;
-> +
-> +		ret = get_user_pages_fast(iov_base, pages_nr,
-> +					  !req->bi_opf, pages);
-> +		if (ret != pages_nr)
-> +			goto fail;
-> +
-> +		req->iov_nr++;
-> +		pl = &req->pl[i];
-> +		pl->pages_nr = pages_nr;
-> +		pl->pages = pages;
-> +
-> +		for (j = 0; j < pages_nr; j++) {
-> +			unsigned int off, len;
-> +
-> +			page = pages[j];
-> +			off = iov_base & ~PAGE_MASK;
-> +			len = PAGE_SIZE - off;
-> +			if (len > iov_len)
-> +				len = iov_len;
-> +
-> +			bio = bio_alloc(GFP_KERNEL, 1);
-> +			if (!bio)
-> +				goto fail;
-> +			bio->bi_iter.bi_sector  = req->sector;
-> +			bio_set_dev(bio, bdev);
-> +			bio->bi_private = req;
-> +			bio->bi_end_io  = vhost_blk_req_done;
-> +			bio->bi_opf	= req->bi_opf;
-> +			req->bio[bio_nr++] = bio;
-> +			bio_add_page(bio, page, len, off);
-> +			req->sector	+= len >> 9;
-> +			iov_base	+= len;
-> +			iov_len		-= len;
-> +		}
-> +
-> +		pages += pages_nr;
-> +	}
-> +	atomic_set(&req->bio_nr, bio_nr);
-> +	return 0;
-> +
-> +fail:
-> +	for (i = 0; i < bio_nr; i++)
-> +		bio_put(req->bio[i]);
-> +	vhost_blk_req_umap(req);
-> +	return -ENOMEM;
-> +}
-> +
-> +static inline void vhost_blk_bio_send(struct vhost_blk_req *req)
-> +{
-> +	struct blk_plug plug;
-> +	int i, bio_nr;
-> +
-> +	bio_nr = atomic_read(&req->bio_nr);
-> +	blk_start_plug(&plug);
-> +	for (i = 0; i < bio_nr; i++)
-> +		submit_bio(req->bio[i]);
-> +
-> +	blk_finish_plug(&plug);
-> +}
-> +
-> +static int vhost_blk_req_submit(struct vhost_blk_req *req, struct file *file)
-> +{
-> +
-> +	struct inode *inode = file->f_mapping->host;
-> +	struct block_device *bdev = I_BDEV(inode);
-> +	int ret;
-> +
-> +	ret = vhost_blk_bio_make(req, bdev);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	vhost_blk_bio_send(req);
-> +
-> +	spin_lock(&req->blk->flush_lock);
-> +	req->during_flush = req->blk->during_flush;
-> +	atomic_inc(&req->blk->req_inflight[req->during_flush]);
-> +	spin_unlock(&req->blk->flush_lock);
-> +
-> +	return ret;
-> +}
-> +
-> +static int vhost_blk_req_handle(struct vhost_virtqueue *vq,
-> +				struct virtio_blk_outhdr *hdr,
-> +				u16 head, u16 total_iov_nr,
-> +				struct file *file)
-> +{
-> +	struct vhost_blk *blk = container_of(vq->dev, struct vhost_blk, dev);
-> +	struct vhost_blk_vq *blk_vq = container_of(vq, struct vhost_blk_vq, vq);
-> +	unsigned char id[VIRTIO_BLK_ID_BYTES];
-> +	struct vhost_blk_req *req;
-> +	struct iov_iter iter;
-> +	int ret, len;
-> +	u8 status;
-> +
-> +	req		= &blk_vq->req[head];
-> +	req->blk_vq	= blk_vq;
-> +	req->head	= head;
-> +	req->blk	= blk;
-> +	req->sector	= hdr->sector;
-> +	req->iov	= blk_vq->iov;
-> +
-> +	req->len	= iov_length(vq->iov, total_iov_nr) - sizeof(status);
-> +	req->iov_nr	= move_iovec(vq->iov, req->iov, req->len, total_iov_nr,
-> +				     ARRAY_SIZE(blk_vq->iov));
-> +
-> +	move_iovec(vq->iov, req->status, sizeof(status), total_iov_nr, ARRAY_SIZE(req->status));
-> +	if (req->iov_nr < 0)
-> +		return -EINVAL;
-> +
-> +	switch (hdr->type) {
-> +	case VIRTIO_BLK_T_OUT:
-> +		req->bi_opf = REQ_OP_WRITE;
-> +		ret = vhost_blk_req_submit(req, file);
-> +		break;
-> +	case VIRTIO_BLK_T_IN:
-> +		req->bi_opf = REQ_OP_READ;
-> +		ret = vhost_blk_req_submit(req, file);
-> +		break;
-> +	case VIRTIO_BLK_T_FLUSH:
-> +		req->bi_opf = REQ_OP_FLUSH;
-> +		ret = vhost_blk_req_submit(req, file);
-> +		break;
-> +	case VIRTIO_BLK_T_GET_ID:
-> +		ret = snprintf(id, VIRTIO_BLK_ID_BYTES,
-> +			       "vhost-blk%d", blk->index);
-> +		if (ret < 0)
-> +			break;
-> +		len = ret;
-> +		iov_iter_init(&iter, WRITE, req->iov, req->iov_nr, req->len);
-> +		ret = copy_to_iter(id, len, &iter);
-> +		status = ret < 0 ? VIRTIO_BLK_S_IOERR : VIRTIO_BLK_S_OK;
-> +		ret = vhost_blk_set_status(req, status);
-> +		if (ret)
-> +			break;
-> +		vhost_add_used_and_signal(&blk->dev, vq, head, len);
-> +		break;
-> +	default:
-> +		vq_err(vq, "Unsupported request type %d\n", hdr->type);
-> +		status = VIRTIO_BLK_S_UNSUPP;
-> +		ret = vhost_blk_set_status(req, status);
-> +		if (ret)
-> +			break;
-> +		vhost_add_used_and_signal(&blk->dev, vq, head, 0);
-> +	}
-> +
-> +	return ret;
-> +}
-> +
-> +static void vhost_blk_handle_guest_kick(struct vhost_work *work)
-> +{
-> +	struct virtio_blk_outhdr hdr;
-> +	struct vhost_blk_vq *blk_vq;
-> +	struct vhost_virtqueue *vq;
-> +	struct iovec hdr_iovec[VHOST_MAX_METADATA_IOV];
-> +	struct vhost_blk *blk;
-> +	struct iov_iter iter;
-> +	int in, out, ret;
-> +	struct file *f;
-> +	u16 head;
-> +
-> +	vq = container_of(work, struct vhost_virtqueue, poll.work);
-> +	blk = container_of(vq->dev, struct vhost_blk, dev);
-> +	blk_vq = container_of(vq, struct vhost_blk_vq, vq);
-> +
-> +	f = vhost_vq_get_backend(vq);
-> +	if (!f)
-> +		return;
-> +
-> +	vhost_disable_notify(&blk->dev, vq);
-> +	for (;;) {
-> +		head = vhost_get_vq_desc(vq, vq->iov,
-> +					 ARRAY_SIZE(vq->iov),
-> +					 &out, &in, NULL, NULL);
-> +		if (unlikely(head < 0))
-> +			break;
-> +
-> +		if (unlikely(head == vq->num)) {
-> +			if (unlikely(vhost_enable_notify(&blk->dev, vq))) {
-> +				vhost_disable_notify(&blk->dev, vq);
-> +				continue;
-> +			}
-> +			break;
-> +		}
-> +
-> +		ret = move_iovec(vq->iov, hdr_iovec, sizeof(hdr), in + out, ARRAY_SIZE(hdr_iovec));
-> +		if (ret < 0) {
-> +			vq_err(vq, "virtio_blk_hdr is too split!");
-> +			vhost_discard_vq_desc(vq, 1);
-> +			break;
-> +		}
-> +
-> +		iov_iter_init(&iter, READ, hdr_iovec, ARRAY_SIZE(hdr_iovec), sizeof(hdr));
-> +		ret = copy_from_iter(&hdr, sizeof(hdr), &iter);
-> +		if (ret != sizeof(hdr)) {
-> +			vq_err(vq, "Failed to get block header: read %d bytes instead of %ld!\n",
-> +			       ret, sizeof(hdr));
-> +			vhost_discard_vq_desc(vq, 1);
-> +			break;
-> +		}
-> +
-> +		if (vhost_blk_req_handle(vq, &hdr, head, out + in, f) < 0)
-> +			break;
-> +
-> +		if (!llist_empty(&blk_vq->llhead)) {
-> +			vhost_poll_queue(&vq->poll);
-> +			break;
-> +		}
-> +	}
-> +}
-> +
-> +static void vhost_blk_handle_host_kick(struct vhost_work *work)
-> +{
-> +	struct vhost_blk_vq *blk_vq;
-> +	struct vhost_virtqueue *vq;
-> +	struct vhost_blk_req *req;
-> +	struct llist_node *llnode;
-> +	struct vhost_blk *blk = NULL;
-> +	bool added, zero;
-> +	u8 status;
-> +	int ret;
-> +
-> +	blk_vq = container_of(work, struct vhost_blk_vq, work);
-> +	vq = &blk_vq->vq;
-> +	llnode = llist_del_all(&blk_vq->llhead);
-> +	added = false;
-> +	while (llnode) {
-> +		req = llist_entry(llnode, struct vhost_blk_req, llnode);
-> +		llnode = llist_next(llnode);
-> +
-> +		if (!blk)
-> +			blk = req->blk;
-> +
-> +		vhost_blk_req_umap(req);
-> +
-> +		status = req->bio_err == 0 ?  VIRTIO_BLK_S_OK : VIRTIO_BLK_S_IOERR;
-> +		ret = vhost_blk_set_status(req, status);
-> +		if (unlikely(ret))
-> +			continue;
-> +
-> +		vhost_add_used(vq, req->head, req->len);
-> +		added = true;
-> +
-> +		spin_lock(&req->blk->flush_lock);
-> +		zero = atomic_dec_and_test(
-> +				&req->blk->req_inflight[req->during_flush]);
-> +		if (zero && !req->during_flush)
-> +			wake_up(&blk->flush_wait);
-> +		spin_unlock(&req->blk->flush_lock);
-> +
-> +	}
-> +
-> +	if (likely(added))
-> +		vhost_signal(&blk->dev, vq);
-> +}
-> +
-> +static void vhost_blk_flush(struct vhost_blk *blk)
-> +{
-> +	int i;
-> +
-> +	spin_lock(&blk->flush_lock);
-> +	blk->during_flush = 1;
-> +	spin_unlock(&blk->flush_lock);
-> +
-> +	for (i = 0; i < VHOST_BLK_VQ_MAX; i++)
-> +		vhost_poll_flush(&blk->vqs[i].vq.poll);
-> +	vhost_work_dev_flush(&blk->dev);
-> +	/*
-> +	 * Wait until requests fired before the flush to be finished
-> +	 * req_inflight[0] is used to track the requests fired before the flush
-> +	 * req_inflight[1] is used to track the requests fired during the flush
-> +	 */
-> +	wait_event(blk->flush_wait, !atomic_read(&blk->req_inflight[0]));
-> +
-> +	spin_lock(&blk->flush_lock);
-> +	blk->during_flush = 0;
-> +	spin_unlock(&blk->flush_lock);
-> +}
-> +
-> +static inline void vhost_blk_drop_backends(struct vhost_blk *blk)
-> +{
-> +	struct vhost_virtqueue *vq;
-> +	int i;
-> +
-> +	for (i = 0; i < VHOST_BLK_VQ_MAX; i++) {
-> +		vq = &blk->vqs[i].vq;
-> +
-> +		mutex_lock(&vq->mutex);
-> +		vhost_vq_set_backend(vq, NULL);
-> +		mutex_unlock(&vq->mutex);
-> +	}
-> +}
-> +
-> +static int vhost_blk_open(struct inode *inode, struct file *file)
-> +{
-> +	struct vhost_blk *blk;
-> +	struct vhost_virtqueue **vqs;
-> +	int ret = 0, i = 0;
-> +
-> +	blk = kvzalloc(sizeof(*blk), GFP_KERNEL);
-> +	if (!blk) {
-> +		ret = -ENOMEM;
-> +		goto out;
-> +	}
-> +
-> +	vqs = kcalloc(VHOST_BLK_VQ_MAX, sizeof(*vqs), GFP_KERNEL);
-> +	if (!vqs) {
-> +		ret = -ENOMEM;
-> +		goto out_blk;
-> +	}
-> +
-> +	for (i = 0; i < VHOST_BLK_VQ_MAX; i++) {
-> +		blk->vqs[i].vq.handle_kick = vhost_blk_handle_guest_kick;
-> +		vqs[i] = &blk->vqs[i].vq;
-> +	}
-> +
-> +	blk->index = gen++;
-> +
-> +	atomic_set(&blk->req_inflight[0], 0);
-> +	atomic_set(&blk->req_inflight[1], 0);
-> +	blk->during_flush = 0;
-> +	spin_lock_init(&blk->flush_lock);
-> +	init_waitqueue_head(&blk->flush_wait);
-> +
-> +	vhost_dev_init(&blk->dev, vqs, VHOST_BLK_VQ_MAX, UIO_MAXIOV,
-> +		       VHOST_DEV_WEIGHT, VHOST_DEV_PKT_WEIGHT, true, NULL);
-> +	file->private_data = blk;
-> +
-> +	for (i = 0; i < VHOST_BLK_VQ_MAX; i++)
-> +		vhost_work_init(&blk->vqs[i].work, vhost_blk_handle_host_kick);
-> +
-> +	return ret;
-> +out_blk:
-> +	kvfree(blk);
-> +out:
-> +	return ret;
-> +}
-> +
-> +static int vhost_blk_release(struct inode *inode, struct file *f)
-> +{
-> +	struct vhost_blk *blk = f->private_data;
-> +	int i;
-> +
-> +	vhost_blk_drop_backends(blk);
-> +	vhost_blk_flush(blk);
-> +	vhost_dev_stop(&blk->dev);
-> +	if (blk->backend)
-> +		fput(blk->backend);
-> +	vhost_dev_cleanup(&blk->dev);
-> +	for (i = 0; i < VHOST_BLK_VQ_MAX; i++)
-> +		kvfree(blk->vqs[i].req);
-> +	kfree(blk->dev.vqs);
-> +	kvfree(blk);
-> +
-> +	return 0;
-> +}
-> +
-> +static int vhost_blk_set_features(struct vhost_blk *blk, u64 features)
-> +{
-> +	struct vhost_virtqueue *vq;
-> +	int i;
-> +
-> +	mutex_lock(&blk->dev.mutex);
-> +	if ((features & (1 << VHOST_F_LOG_ALL)) &&
-> +	    !vhost_log_access_ok(&blk->dev)) {
-> +		mutex_unlock(&blk->dev.mutex);
-> +		return -EFAULT;
-> +	}
-> +
-> +	for (i = 0; i < VHOST_BLK_VQ_MAX; i++) {
-> +		vq = &blk->vqs[i].vq;
-> +		mutex_lock(&vq->mutex);
-> +		vq->acked_features = features & (VHOST_BLK_FEATURES);
-> +		mutex_unlock(&vq->mutex);
-> +	}
-> +
-> +	vhost_blk_flush(blk);
-> +	mutex_unlock(&blk->dev.mutex);
-> +
-> +	return 0;
-> +}
-> +
-> +static long vhost_blk_set_backend(struct vhost_blk *blk, int fd)
-> +{
-> +	struct vhost_virtqueue *vq;
-> +	struct file *file, *oldfile = NULL;
-> +	struct inode *inode;
-> +	int ret, i;
-> +
-> +	mutex_lock(&blk->dev.mutex);
-> +	ret = vhost_dev_check_owner(&blk->dev);
-> +	if (ret)
-> +		goto out_dev;
-> +
-> +	file = fget(fd);
-> +	if (IS_ERR(file)) {
-> +		ret = PTR_ERR(file);
-> +		goto out_dev;
-> +	}
-> +
-> +	if (file == blk->backend) {
-> +		fput(file);
-> +		goto out_dev;
-> +	}
-> +
-> +	oldfile = blk->backend;
-> +	blk->backend = file;
-> +
-> +	inode = file->f_mapping->host;
-> +	if (!S_ISBLK(inode->i_mode)) {
-> +		ret = -EFAULT;
-> +		goto out_file;
-> +	}
-> +
-> +	for (i = 0; i < VHOST_BLK_VQ_MAX; i++) {
-> +		vq = &blk->vqs[i].vq;
-> +		if (!vhost_vq_access_ok(vq)) {
-> +			ret = -EFAULT;
-> +			goto out_drop;
-> +		}
-> +
-> +		mutex_lock(&vq->mutex);
-> +		vhost_vq_set_backend(vq, file);
-> +		ret = vhost_vq_init_access(vq);
-> +		mutex_unlock(&vq->mutex);
-> +	}
-> +
-> +	if (oldfile) {
-> +		vhost_blk_flush(blk);
-> +		fput(oldfile);
-> +	}
-> +
-> +	mutex_unlock(&blk->dev.mutex);
-> +	return 0;
-> +
-> +out_drop:
-> +	vhost_blk_drop_backends(blk);
-> +out_file:
-> +	fput(file);
-> +	blk->backend = NULL;
-> +out_dev:
-> +	mutex_unlock(&blk->dev.mutex);
-> +	return ret;
-> +}
-> +
-> +static long vhost_blk_reset_owner(struct vhost_blk *blk)
-> +{
-> +	struct vhost_iotlb *umem;
-> +	int err, i;
-> +
-> +	mutex_lock(&blk->dev.mutex);
-> +	err = vhost_dev_check_owner(&blk->dev);
-> +	if (err)
-> +		goto done;
-> +	umem = vhost_dev_reset_owner_prepare();
-> +	if (!umem) {
-> +		err = -ENOMEM;
-> +		goto done;
-> +	}
-> +	vhost_blk_drop_backends(blk);
-> +	if (blk->backend) {
-> +		fput(blk->backend);
-> +		blk->backend = NULL;
-> +	}
-> +	vhost_blk_flush(blk);
-> +	vhost_dev_stop(&blk->dev);
-> +	vhost_dev_reset_owner(&blk->dev, umem);
-> +
-> +	for (i = 0; i < VHOST_BLK_VQ_MAX; i++) {
-> +		kvfree(blk->vqs[i].req);
-> +		blk->vqs[i].req = NULL;
-> +	}
-> +
-> +done:
-> +	mutex_unlock(&blk->dev.mutex);
-> +	return err;
-> +}
-> +
-> +static int vhost_blk_setup(struct vhost_blk *blk, void __user *argp)
-> +{
-> +	struct vhost_vring_state s;
-> +
-> +	if (copy_from_user(&s, argp, sizeof(s)))
-> +		return -EFAULT;
-> +
-> +	if (blk->vqs[s.index].req)
-> +		return 0;
-> +
-> +	blk->vqs[s.index].req = kvmalloc(sizeof(struct vhost_blk_req) * s.num, GFP_KERNEL);
-> +	if (!blk->vqs[s.index].req)
-> +		return -ENOMEM;
-> +
-> +	return 0;
-> +}
-> +
-> +static long vhost_blk_ioctl(struct file *f, unsigned int ioctl,
-> +			    unsigned long arg)
-> +{
-> +	struct vhost_blk *blk = f->private_data;
-> +	void __user *argp = (void __user *)arg;
-> +	struct vhost_vring_file backend;
-> +	u64 __user *featurep = argp;
-> +	u64 features;
-> +	int ret;
-> +
-> +	switch (ioctl) {
-> +	case VHOST_BLK_SET_BACKEND:
-> +		if (copy_from_user(&backend, argp, sizeof(backend)))
-> +			return -EFAULT;
-> +		return vhost_blk_set_backend(blk, backend.fd);
-> +	case VHOST_GET_FEATURES:
-> +		features = VHOST_BLK_FEATURES;
-> +		if (copy_to_user(featurep, &features, sizeof(features)))
-> +			return -EFAULT;
-> +		return 0;
-> +	case VHOST_SET_FEATURES:
-> +		if (copy_from_user(&features, featurep, sizeof(features)))
-> +			return -EFAULT;
-> +		if (features & ~VHOST_BLK_FEATURES)
-> +			return -EOPNOTSUPP;
-> +		return vhost_blk_set_features(blk, features);
-> +	case VHOST_RESET_OWNER:
-> +		return vhost_blk_reset_owner(blk);
-> +	default:
-> +		mutex_lock(&blk->dev.mutex);
-> +		ret = vhost_dev_ioctl(&blk->dev, ioctl, argp);
-> +		if (ret == -ENOIOCTLCMD)
-> +			ret = vhost_vring_ioctl(&blk->dev, ioctl, argp);
-> +		if (!ret && ioctl == VHOST_SET_VRING_NUM)
-> +			ret = vhost_blk_setup(blk, argp);
-> +		vhost_blk_flush(blk);
-> +		mutex_unlock(&blk->dev.mutex);
-> +		return ret;
-> +	}
-> +}
-> +
-> +static const struct file_operations vhost_blk_fops = {
-> +	.owner          = THIS_MODULE,
-> +	.open           = vhost_blk_open,
-> +	.release        = vhost_blk_release,
-> +	.llseek		= noop_llseek,
-> +	.unlocked_ioctl = vhost_blk_ioctl,
-> +};
-> +
-> +static struct miscdevice vhost_blk_misc = {
-> +	MISC_DYNAMIC_MINOR,
-> +	"vhost-blk",
-> +	&vhost_blk_fops,
-> +};
-> +module_misc_device(vhost_blk_misc);
-> +
-> +MODULE_VERSION("0.0.1");
-> +MODULE_LICENSE("GPL v2");
-> +MODULE_AUTHOR("Andrey Zhadchenko");
-> +MODULE_DESCRIPTION("Host kernel accelerator for virtio_blk");
-> diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
-> index cab645d4a645..a54861e9633e 100644
-> --- a/include/uapi/linux/vhost.h
-> +++ b/include/uapi/linux/vhost.h
-> @@ -171,4 +171,8 @@
->  #define VHOST_VDPA_SET_GROUP_ASID	_IOW(VHOST_VIRTIO, 0x7C, \
->  					     struct vhost_vring_state)
->  
-> +/* VHOST_BLK specific defines */
-> +#define VHOST_BLK_SET_BACKEND		_IOW(VHOST_VIRTIO, 0x90, \
-> +					     struct vhost_vring_file)
-> +
->  #endif
-> -- 
-> 2.31.1
-
+Den
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
