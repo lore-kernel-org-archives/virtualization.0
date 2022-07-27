@@ -1,96 +1,97 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 92BACC19F29
-	for <virtualization@archiver.kernel.org>; Wed, 27 Jul 2022 11:33:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4B1F1C04A68
+	for <virtualization@archiver.kernel.org>; Wed, 27 Jul 2022 11:33:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 387BC60BAD;
+	by smtp4.osuosl.org (Postfix) with ESMTP id B0625410E1;
 	Wed, 27 Jul 2022 11:33:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 387BC60BAD
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=2BwEajnd;
-	dkim=fail reason="signature verification failed" header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=bMh3ENmZ
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B0625410E1
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=Dl6ovlWb;
+	dkim=fail reason="signature verification failed" header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=Na5sJKMB
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 5tQ_SftQa07d; Wed, 27 Jul 2022 11:33:52 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 103ED60BD6;
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Kqv9Nuzyr12w; Wed, 27 Jul 2022 11:33:53 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 85BCC410C9;
 	Wed, 27 Jul 2022 11:33:52 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 103ED60BD6
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 85BCC410C9
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5D2CDC008C;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C992BC0081;
 	Wed, 27 Jul 2022 11:33:50 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 35BF6C002D
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 51F1FC0078
  for <virtualization@lists.linux-foundation.org>;
  Wed, 27 Jul 2022 11:33:44 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 9D81A410A1
+ by smtp3.osuosl.org (Postfix) with ESMTP id 0F2B260BA9
  for <virtualization@lists.linux-foundation.org>;
  Wed, 27 Jul 2022 11:33:43 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9D81A410A1
-Authentication-Results: smtp4.osuosl.org;
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0F2B260BA9
+Authentication-Results: smtp3.osuosl.org;
  dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de
- header.a=rsa-sha256 header.s=susede2_rsa header.b=2BwEajnd; 
+ header.a=rsa-sha256 header.s=susede2_rsa header.b=Dl6ovlWb; 
  dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256
- header.s=susede2_ed25519 header.b=bMh3ENmZ
+ header.s=susede2_ed25519 header.b=Na5sJKMB
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id CgyQaaXJuz0n
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id sWcn-IMFZ2Vl
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Jul 2022 11:33:42 +0000 (UTC)
+ Wed, 27 Jul 2022 11:33:40 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5AB5640977
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 5AB5640977
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3F23560B94
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 3F23560B94
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Jul 2022 11:33:42 +0000 (UTC)
+ Wed, 27 Jul 2022 11:33:40 +0000 (UTC)
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
  (No client certificate requested)
- by smtp-out2.suse.de (Postfix) with ESMTPS id 92B99206EC;
- Wed, 27 Jul 2022 11:33:40 +0000 (UTC)
+ by smtp-out1.suse.de (Postfix) with ESMTPS id 7ADC1385B7;
+ Wed, 27 Jul 2022 11:33:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
- t=1658921620; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ t=1658921617; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
  mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=m3ye5YFE6FWCO34pPhwH7FYqvHHyopdPXCSXU7WfEcs=;
- b=2BwEajnd362zdO1WrVA9nT1hvMtEws3jfpXU93c0IuSHpXuWLQC9pCg72EK6ONjXzA9NmH
- TGQHFT6Yp+EIJCZ2ugN3C3x9SuUMZVE1q5RLZkXiPY662fRWhN5HY359i/uwGxWqhA68Hl
- 2W+l193IZksKFbGR6sav9wLat3AUgv8=
+ bh=1tx4xT9H8VpACCR2MYf2EKEWAn/IBCrTdYUBs4LfPm8=;
+ b=Dl6ovlWbMj+PHyx9Hq+uEcPD0FJwMk+kP1dPTaj4MHDU7blShx8EhxfvPSHn/YVBnoBf0b
+ srh9i1DrYAp300+8BDL01EKE662uK4vHmiyag1nWCx2Ia6sUklr55DNI572eXjmepbJbm7
+ 11Blj6v56OJSIZ36lgXbaa8AZwXvdL8=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
- s=susede2_ed25519; t=1658921620;
+ s=susede2_ed25519; t=1658921617;
  h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
  mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=m3ye5YFE6FWCO34pPhwH7FYqvHHyopdPXCSXU7WfEcs=;
- b=bMh3ENmZn4MA5W9ZmJkwOKaOrb1mopxVh45GdA0RHQkpaySimczUYz7vJH+mT5hCyd68Ok
- oAZw4ZcpSuthdlCw==
+ bh=1tx4xT9H8VpACCR2MYf2EKEWAn/IBCrTdYUBs4LfPm8=;
+ b=Na5sJKMBSgNVgOJSmGrJvbE+o/67nadQ9WPZu2Q5GBKQWF+2MzEbkONcWVXup1PpJwSdl/
+ bx+s3c46HaZv3TAw==
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
  (No client certificate requested)
- by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 44CE113AD7;
- Wed, 27 Jul 2022 11:33:40 +0000 (UTC)
+ by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 3107013A8E;
+ Wed, 27 Jul 2022 11:33:37 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([192.168.254.65])
- by imap2.suse-dmz.suse.de with ESMTPSA id 2Cv7D5Qi4WJmBAAAMHmgww
- (envelope-from <tzimmermann@suse.de>); Wed, 27 Jul 2022 11:33:40 +0000
+ by imap2.suse-dmz.suse.de with ESMTPSA id iKX5CpEi4WJmBAAAMHmgww
+ (envelope-from <tzimmermann@suse.de>); Wed, 27 Jul 2022 11:33:37 +0000
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: sam@ravnborg.org, noralf@tronnes.org, daniel@ffwll.ch, airlied@linux.ie,
  mripard@kernel.org, maarten.lankhorst@linux.intel.com, airlied@redhat.com,
  javierm@redhat.com, drawat.floss@gmail.com, kraxel@redhat.com,
  david@lechnology.com, jose.exposito89@gmail.com
-Subject: [PATCH 11/12] drm/format-helper: Rework XRGB8888-to-MONO conversion
-Date: Wed, 27 Jul 2022 13:33:11 +0200
-Message-Id: <20220727113312.22407-12-tzimmermann@suse.de>
+Subject: [PATCH 02/12] drm/format-helper: Merge drm_fb_memcpy() and
+ drm_fb_memcpy_toio()
+Date: Wed, 27 Jul 2022 13:33:02 +0200
+Message-Id: <20220727113312.22407-3-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220727113312.22407-1-tzimmermann@suse.de>
 References: <20220727113312.22407-1-tzimmermann@suse.de>
@@ -113,154 +114,295 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Update XRGB8888-to-MONO conversion to support struct iosys_map
-and convert all users. Although these are single-plane color formats,
-the new interface supports multi-plane formats for consistency with
-drm_fb_blit().
+Merge drm_fb_memcpy() and drm_fb_memcpy() into drm_fb_memcpy() that
+uses struct iosys_map for buffers. The new function also supports
+multi-plane color formats. Convert all users of the original helpers.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/gpu/drm/drm_format_helper.c | 28 +++++++++++++++++++---------
- drivers/gpu/drm/solomon/ssd130x.c   |  7 ++++---
- drivers/gpu/drm/tiny/repaper.c      |  6 +++++-
- include/drm/drm_format_helper.h     |  5 +++--
- 4 files changed, 31 insertions(+), 15 deletions(-)
+ drivers/gpu/drm/drm_format_helper.c         | 77 +++++++++------------
+ drivers/gpu/drm/drm_mipi_dbi.c              |  3 +-
+ drivers/gpu/drm/gud/gud_pipe.c              |  4 +-
+ drivers/gpu/drm/hyperv/hyperv_drm_modeset.c | 11 +--
+ drivers/gpu/drm/mgag200/mgag200_mode.c      | 11 +--
+ drivers/gpu/drm/tiny/cirrus.c               | 21 +++---
+ include/drm/drm_format_helper.h             |  7 +-
+ 7 files changed, 63 insertions(+), 71 deletions(-)
 
 diff --git a/drivers/gpu/drm/drm_format_helper.c b/drivers/gpu/drm/drm_format_helper.c
-index 521932fac491..d296d181659d 100644
+index 4d74d46ab155..49589b442f18 100644
 --- a/drivers/gpu/drm/drm_format_helper.c
 +++ b/drivers/gpu/drm/drm_format_helper.c
-@@ -680,9 +680,9 @@ static void drm_fb_gray8_to_mono_line(void *dbuf, const void *sbuf, unsigned int
+@@ -131,63 +131,48 @@ static int drm_fb_xfrm_toio(void __iomem *dst, unsigned long dst_pitch, unsigned
  
  /**
-  * drm_fb_xrgb8888_to_mono - Convert XRGB8888 to monochrome
-- * @dst: monochrome destination buffer (0=black, 1=white)
+  * drm_fb_memcpy - Copy clip buffer
+- * @dst: Destination buffer
 - * @dst_pitch: Number of bytes between two consecutive scanlines within dst
-- * @vaddr: XRGB8888 source buffer
-+ * @dst: Array of monochrome destination buffers (0=black, 1=white)
+- * @vaddr: Source buffer
++ * @dst: Array of destination buffers
 + * @dst_pitch: Array of numbers of bytes between two consecutive scanlines within dst
-+ * @vmap: Array of XRGB8888 source buffers
++ * @vmap: Array of source buffers
   * @fb: DRM framebuffer
   * @clip: Clip rectangle area to copy
   *
-@@ -700,26 +700,36 @@ static void drm_fb_gray8_to_mono_line(void *dbuf, const void *sbuf, unsigned int
-  * x-coordinate that is a multiple of 8, then the caller must take care itself
-  * of supplying a suitable clip rectangle.
+  * This function does not apply clipping on dst, i.e. the destination
+  * is at the top-left corner.
   */
--void drm_fb_xrgb8888_to_mono(void *dst, unsigned int dst_pitch, const void *vaddr,
--			     const struct drm_framebuffer *fb, const struct drm_rect *clip)
-+void drm_fb_xrgb8888_to_mono(struct iosys_map *dst, const unsigned int *dst_pitch,
-+			     const struct iosys_map *vmap, const struct drm_framebuffer *fb,
-+			     const struct drm_rect *clip)
+-void drm_fb_memcpy(void *dst, unsigned int dst_pitch, const void *vaddr,
+-		   const struct drm_framebuffer *fb, const struct drm_rect *clip)
++void drm_fb_memcpy(struct iosys_map *dst, const unsigned int *dst_pitch,
++		   const struct iosys_map *vmap, const struct drm_framebuffer *fb,
++		   const struct drm_rect *clip)
  {
+-	unsigned int cpp = fb->format->cpp[0];
+-	size_t len = (clip->x2 - clip->x1) * cpp;
+-	unsigned int y, lines = clip->y2 - clip->y1;
+-
+-	if (!dst_pitch)
+-		dst_pitch = len;
 +	static const unsigned int default_dst_pitch[DRM_FORMAT_MAX_PLANES] = {
 +		0, 0, 0, 0
 +	};
- 	unsigned int linepixels = drm_rect_width(clip);
- 	unsigned int lines = drm_rect_height(clip);
- 	unsigned int cpp = fb->format->cpp[0];
- 	unsigned int len_src32 = linepixels * cpp;
- 	struct drm_device *dev = fb->dev;
-+	void *vaddr = vmap[0].vaddr;
-+	unsigned int dst_pitch_0;
- 	unsigned int y;
--	u8 *mono = dst, *gray8;
-+	u8 *mono = dst[0].vaddr, *gray8;
- 	u32 *src32;
  
- 	if (drm_WARN_ON(dev, fb->format->format != DRM_FORMAT_XRGB8888))
- 		return;
+-	vaddr += clip_offset(clip, fb->pitches[0], cpp);
+-	for (y = 0; y < lines; y++) {
+-		memcpy(dst, vaddr, len);
+-		vaddr += fb->pitches[0];
+-		dst += dst_pitch;
+-	}
+-}
+-EXPORT_SYMBOL(drm_fb_memcpy);
+-
+-/**
+- * drm_fb_memcpy_toio - Copy clip buffer
+- * @dst: Destination buffer (iomem)
+- * @dst_pitch: Number of bytes between two consecutive scanlines within dst
+- * @vaddr: Source buffer
+- * @fb: DRM framebuffer
+- * @clip: Clip rectangle area to copy
+- *
+- * This function does not apply clipping on dst, i.e. the destination
+- * is at the top-left corner.
+- */
+-void drm_fb_memcpy_toio(void __iomem *dst, unsigned int dst_pitch, const void *vaddr,
+-			const struct drm_framebuffer *fb, const struct drm_rect *clip)
+-{
+-	unsigned int cpp = fb->format->cpp[0];
+-	size_t len = (clip->x2 - clip->x1) * cpp;
+-	unsigned int y, lines = clip->y2 - clip->y1;
++	const struct drm_format_info *format = fb->format;
++	unsigned int i, y, lines = drm_rect_height(clip);
  
-+	if (!dst_pitch)
+ 	if (!dst_pitch)
+-		dst_pitch = len;
+-
+-	vaddr += clip_offset(clip, fb->pitches[0], cpp);
+-	for (y = 0; y < lines; y++) {
+-		memcpy_toio(dst, vaddr, len);
+-		vaddr += fb->pitches[0];
+-		dst += dst_pitch;
 +		dst_pitch = default_dst_pitch;
-+	dst_pitch_0 = dst_pitch[0];
 +
- 	/*
- 	 * The mono destination buffer contains 1 bit per pixel
- 	 */
--	if (!dst_pitch)
--		dst_pitch = DIV_ROUND_UP(linepixels, 8);
-+	if (!dst_pitch_0)
-+		dst_pitch_0 = DIV_ROUND_UP(linepixels, 8);
++	for (i = 0; i < format->num_planes; ++i) {
++		unsigned int cpp_i = format->cpp[i];
++		size_t len_i = drm_rect_width(clip) * cpp_i;
++		unsigned int dst_pitch_i = dst_pitch[i];
++		struct iosys_map dst_i = dst[i];
++		struct iosys_map vmap_i = vmap[i];
++
++		if (!dst_pitch_i)
++			dst_pitch_i = len_i;
++
++		iosys_map_incr(&vmap_i, clip_offset(clip, fb->pitches[i], cpp_i));
++		for (y = 0; y < lines; y++) {
++			iosys_map_memcpy_to(&dst_i, 0, vmap_i.vaddr, len_i);
++			iosys_map_incr(&vmap_i, fb->pitches[i]);
++			iosys_map_incr(&dst_i, dst_pitch_i);
++		}
+ 	}
+ }
+-EXPORT_SYMBOL(drm_fb_memcpy_toio);
++EXPORT_SYMBOL(drm_fb_memcpy);
+ 
+ static void drm_fb_swab16_line(void *dbuf, const void *sbuf, unsigned int pixels)
+ {
+@@ -584,7 +569,7 @@ int drm_fb_blit(struct iosys_map *dst, const unsigned int *dst_pitch, uint32_t d
+ 		dst_format = DRM_FORMAT_XRGB2101010;
+ 
+ 	if (dst_format == fb_format) {
+-		drm_fb_memcpy_toio(dst[0].vaddr_iomem, dst_pitch[0], vmap[0].vaddr, fb, clip);
++		drm_fb_memcpy(dst, dst_pitch, vmap, fb, clip);
+ 		return 0;
+ 
+ 	} else if (dst_format == DRM_FORMAT_RGB565) {
+diff --git a/drivers/gpu/drm/drm_mipi_dbi.c b/drivers/gpu/drm/drm_mipi_dbi.c
+index 2f61f53d472f..22451806fb5c 100644
+--- a/drivers/gpu/drm/drm_mipi_dbi.c
++++ b/drivers/gpu/drm/drm_mipi_dbi.c
+@@ -205,6 +205,7 @@ int mipi_dbi_buf_copy(void *dst, struct drm_framebuffer *fb,
+ 	struct drm_gem_object *gem = drm_gem_fb_get_obj(fb, 0);
+ 	struct iosys_map map[DRM_FORMAT_MAX_PLANES];
+ 	struct iosys_map data[DRM_FORMAT_MAX_PLANES];
++	struct iosys_map dst_map = IOSYS_MAP_INIT_VADDR(dst);
+ 	void *src;
+ 	int ret;
+ 
+@@ -222,7 +223,7 @@ int mipi_dbi_buf_copy(void *dst, struct drm_framebuffer *fb,
+ 		if (swap)
+ 			drm_fb_swab(dst, 0, src, fb, clip, !gem->import_attach);
+ 		else
+-			drm_fb_memcpy(dst, 0, src, fb, clip);
++			drm_fb_memcpy(&dst_map, NULL, data, fb, clip);
+ 		break;
+ 	case DRM_FORMAT_XRGB8888:
+ 		drm_fb_xrgb8888_to_rgb565(dst, 0, src, fb, clip, swap);
+diff --git a/drivers/gpu/drm/gud/gud_pipe.c b/drivers/gpu/drm/gud/gud_pipe.c
+index d42592f6daab..449c95a4aee0 100644
+--- a/drivers/gpu/drm/gud/gud_pipe.c
++++ b/drivers/gpu/drm/gud/gud_pipe.c
+@@ -156,6 +156,7 @@ static int gud_prep_flush(struct gud_device *gdrm, struct drm_framebuffer *fb,
+ 	u8 compression = gdrm->compression;
+ 	struct iosys_map map[DRM_FORMAT_MAX_PLANES];
+ 	struct iosys_map map_data[DRM_FORMAT_MAX_PLANES];
++	struct iosys_map dst;
+ 	void *vaddr, *buf;
+ 	size_t pitch, len;
+ 	int ret = 0;
+@@ -179,6 +180,7 @@ static int gud_prep_flush(struct gud_device *gdrm, struct drm_framebuffer *fb,
+ 		buf = gdrm->compress_buf;
+ 	else
+ 		buf = gdrm->bulk_buf;
++	iosys_map_set_vaddr(&dst, buf);
  
  	/*
- 	 * The cma memory is write-combined so reads are uncached.
-@@ -744,7 +754,7 @@ void drm_fb_xrgb8888_to_mono(void *dst, unsigned int dst_pitch, const void *vadd
- 		drm_fb_xrgb8888_to_gray8_line(gray8, src32, linepixels);
- 		drm_fb_gray8_to_mono_line(mono, gray8, linepixels);
- 		vaddr += fb->pitches[0];
--		mono += dst_pitch;
-+		mono += dst_pitch_0;
+ 	 * Imported buffers are assumed to be write-combined and thus uncached
+@@ -208,7 +210,7 @@ static int gud_prep_flush(struct gud_device *gdrm, struct drm_framebuffer *fb,
+ 		/* can compress directly from the framebuffer */
+ 		buf = vaddr + rect->y1 * pitch;
+ 	} else {
+-		drm_fb_memcpy(buf, 0, vaddr, fb, rect);
++		drm_fb_memcpy(&dst, NULL, map_data, fb, rect);
  	}
  
- 	kfree(src32);
-diff --git a/drivers/gpu/drm/solomon/ssd130x.c b/drivers/gpu/drm/solomon/ssd130x.c
-index 5a3e3b78cd9e..aa7329a65c98 100644
---- a/drivers/gpu/drm/solomon/ssd130x.c
-+++ b/drivers/gpu/drm/solomon/ssd130x.c
-@@ -537,11 +537,11 @@ static void ssd130x_clear_screen(struct ssd130x_device *ssd130x)
- 	kfree(buf);
- }
+ 	memset(req, 0, sizeof(*req));
+diff --git a/drivers/gpu/drm/hyperv/hyperv_drm_modeset.c b/drivers/gpu/drm/hyperv/hyperv_drm_modeset.c
+index b8e64dd8d3a6..26e63148e226 100644
+--- a/drivers/gpu/drm/hyperv/hyperv_drm_modeset.c
++++ b/drivers/gpu/drm/hyperv/hyperv_drm_modeset.c
+@@ -21,19 +21,20 @@
+ #include "hyperv_drm.h"
  
--static int ssd130x_fb_blit_rect(struct drm_framebuffer *fb, const struct iosys_map *map,
-+static int ssd130x_fb_blit_rect(struct drm_framebuffer *fb, const struct iosys_map *vmap,
- 				struct drm_rect *rect)
+ static int hyperv_blit_to_vram_rect(struct drm_framebuffer *fb,
+-				    const struct iosys_map *map,
++				    const struct iosys_map *vmap,
+ 				    struct drm_rect *rect)
  {
- 	struct ssd130x_device *ssd130x = drm_to_ssd130x(fb->dev);
+ 	struct hyperv_drm_device *hv = to_hv(fb->dev);
+-	void __iomem *dst = hv->vram;
 -	void *vmap = map->vaddr; /* TODO: Use mapping abstraction properly */
 +	struct iosys_map dst;
- 	unsigned int dst_pitch;
- 	int ret = 0;
- 	u8 *buf = NULL;
-@@ -555,7 +555,8 @@ static int ssd130x_fb_blit_rect(struct drm_framebuffer *fb, const struct iosys_m
- 	if (!buf)
- 		return -ENOMEM;
+ 	int idx;
  
--	drm_fb_xrgb8888_to_mono(buf, dst_pitch, vmap, fb, rect);
-+	iosys_map_set_vaddr(&dst, buf);
-+	drm_fb_xrgb8888_to_mono(&dst, &dst_pitch, vmap, fb, rect);
+ 	if (!drm_dev_enter(&hv->dev, &idx))
+ 		return -ENODEV;
  
- 	ssd130x_update_rect(ssd130x, buf, rect);
+-	dst += drm_fb_clip_offset(fb->pitches[0], fb->format, rect);
+-	drm_fb_memcpy_toio(dst, fb->pitches[0], vmap, fb, rect);
++	iosys_map_set_vaddr_iomem(&dst, hv->vram);
++	iosys_map_incr(&dst, drm_fb_clip_offset(fb->pitches[0], fb->format, rect));
++
++	drm_fb_memcpy(&dst, fb->pitches, vmap, fb, rect);
  
-diff --git a/drivers/gpu/drm/tiny/repaper.c b/drivers/gpu/drm/tiny/repaper.c
-index 013790c45d0a..0cdf6ab8fcc5 100644
---- a/drivers/gpu/drm/tiny/repaper.c
-+++ b/drivers/gpu/drm/tiny/repaper.c
-@@ -513,6 +513,8 @@ static int repaper_fb_dirty(struct drm_framebuffer *fb)
+ 	drm_dev_exit(idx);
+ 
+diff --git a/drivers/gpu/drm/mgag200/mgag200_mode.c b/drivers/gpu/drm/mgag200/mgag200_mode.c
+index a02f599cb9cf..a79a0ee3a50d 100644
+--- a/drivers/gpu/drm/mgag200/mgag200_mode.c
++++ b/drivers/gpu/drm/mgag200/mgag200_mode.c
+@@ -755,13 +755,14 @@ mgag200_simple_display_pipe_mode_valid(struct drm_simple_display_pipe *pipe,
+ 
+ static void
+ mgag200_handle_damage(struct mga_device *mdev, struct drm_framebuffer *fb,
+-		      struct drm_rect *clip, const struct iosys_map *map)
++		      struct drm_rect *clip, const struct iosys_map *vmap)
  {
- 	struct drm_gem_cma_object *cma_obj = drm_fb_cma_get_gem_obj(fb, 0);
- 	struct repaper_epd *epd = drm_to_epd(fb->dev);
-+	unsigned int dst_pitch = 0;
-+	struct iosys_map dst, vmap;
- 	struct drm_rect clip;
- 	int idx, ret = 0;
- 	u8 *buf = NULL;
-@@ -541,7 +543,9 @@ static int repaper_fb_dirty(struct drm_framebuffer *fb)
- 	if (ret)
- 		goto out_free;
+-	void __iomem *dst = mdev->vram;
+-	void *vmap = map->vaddr; /* TODO: Use mapping abstraction properly */
++	struct iosys_map dst;
  
--	drm_fb_xrgb8888_to_mono(buf, 0, cma_obj->vaddr, fb, &clip);
-+	iosys_map_set_vaddr(&dst, buf);
-+	iosys_map_set_vaddr(&vmap, cma_obj->vaddr);
-+	drm_fb_xrgb8888_to_mono(&dst, &dst_pitch, &vmap, fb, &clip);
+-	dst += drm_fb_clip_offset(fb->pitches[0], fb->format, clip);
+-	drm_fb_memcpy_toio(dst, fb->pitches[0], vmap, fb, clip);
++	iosys_map_set_vaddr_iomem(&dst, mdev->vram);
++	iosys_map_incr(&dst, drm_fb_clip_offset(fb->pitches[0], fb->format, clip));
++
++	drm_fb_memcpy(&dst, fb->pitches, vmap, fb, clip);
+ }
  
- 	drm_gem_fb_end_cpu_access(fb, DMA_FROM_DEVICE);
+ static void
+diff --git a/drivers/gpu/drm/tiny/cirrus.c b/drivers/gpu/drm/tiny/cirrus.c
+index c4f5beea1f90..73fb9f63d227 100644
+--- a/drivers/gpu/drm/tiny/cirrus.c
++++ b/drivers/gpu/drm/tiny/cirrus.c
+@@ -316,28 +316,31 @@ static int cirrus_mode_set(struct cirrus_device *cirrus,
+ }
  
+ static int cirrus_fb_blit_rect(struct drm_framebuffer *fb,
+-			       const struct iosys_map *map,
++			       const struct iosys_map *vmap,
+ 			       struct drm_rect *rect)
+ {
+ 	struct cirrus_device *cirrus = to_cirrus(fb->dev);
+-	void __iomem *dst = cirrus->vram;
+-	void *vmap = map->vaddr; /* TODO: Use mapping abstraction properly */
++	struct iosys_map dst;
++	void *vaddr = vmap->vaddr; /* TODO: Use mapping abstraction properly */
+ 	int idx;
+ 
+ 	if (!drm_dev_enter(&cirrus->dev, &idx))
+ 		return -ENODEV;
+ 
++	iosys_map_set_vaddr_iomem(&dst, cirrus->vram);
++
+ 	if (cirrus->cpp == fb->format->cpp[0]) {
+-		dst += drm_fb_clip_offset(fb->pitches[0], fb->format, rect);
+-		drm_fb_memcpy_toio(dst, fb->pitches[0], vmap, fb, rect);
++		iosys_map_incr(&dst, drm_fb_clip_offset(fb->pitches[0], fb->format, rect));
++		drm_fb_memcpy(&dst, fb->pitches, vmap, fb, rect);
+ 
+ 	} else if (fb->format->cpp[0] == 4 && cirrus->cpp == 2) {
+-		dst += drm_fb_clip_offset(cirrus->pitch, fb->format, rect);
+-		drm_fb_xrgb8888_to_rgb565_toio(dst, cirrus->pitch, vmap, fb, rect, false);
++		iosys_map_incr(&dst, drm_fb_clip_offset(cirrus->pitch, fb->format, rect));
++		drm_fb_xrgb8888_to_rgb565_toio(dst.vaddr_iomem, cirrus->pitch, vaddr, fb, rect,
++					       false);
+ 
+ 	} else if (fb->format->cpp[0] == 4 && cirrus->cpp == 3) {
+-		dst += drm_fb_clip_offset(cirrus->pitch, fb->format, rect);
+-		drm_fb_xrgb8888_to_rgb888_toio(dst, cirrus->pitch, vmap, fb, rect);
++		iosys_map_incr(&dst, drm_fb_clip_offset(cirrus->pitch, fb->format, rect));
++		drm_fb_xrgb8888_to_rgb888_toio(dst.vaddr_iomem, cirrus->pitch, vaddr, fb, rect);
+ 
+ 	} else {
+ 		WARN_ON_ONCE("cpp mismatch");
 diff --git a/include/drm/drm_format_helper.h b/include/drm/drm_format_helper.h
-index 68087c982497..1e1d8f356cc1 100644
+index 21daea7fda99..8af6a2717bc9 100644
 --- a/include/drm/drm_format_helper.h
 +++ b/include/drm/drm_format_helper.h
-@@ -40,7 +40,8 @@ int drm_fb_blit(struct iosys_map *dst, const unsigned int *dst_pitch, uint32_t d
- 		const struct iosys_map *vmap, const struct drm_framebuffer *fb,
- 		const struct drm_rect *rect);
+@@ -14,10 +14,9 @@ struct drm_rect;
+ unsigned int drm_fb_clip_offset(unsigned int pitch, const struct drm_format_info *format,
+ 				const struct drm_rect *clip);
  
--void drm_fb_xrgb8888_to_mono(void *dst, unsigned int dst_pitch, const void *src,
--			     const struct drm_framebuffer *fb, const struct drm_rect *clip);
-+void drm_fb_xrgb8888_to_mono(struct iosys_map *dst, const unsigned int *dst_pitch,
-+			     const struct iosys_map *vmap, const struct drm_framebuffer *fb,
-+			     const struct drm_rect *clip);
- 
- #endif /* __LINUX_DRM_FORMAT_HELPER_H */
+-void drm_fb_memcpy(void *dst, unsigned int dst_pitch, const void *vaddr,
+-		   const struct drm_framebuffer *fb, const struct drm_rect *clip);
+-void drm_fb_memcpy_toio(void __iomem *dst, unsigned int dst_pitch, const void *vaddr,
+-			const struct drm_framebuffer *fb, const struct drm_rect *clip);
++void drm_fb_memcpy(struct iosys_map *dst, const unsigned int *dst_pitch,
++		   const struct iosys_map *vmap, const struct drm_framebuffer *fb,
++		   const struct drm_rect *clip);
+ void drm_fb_swab(void *dst, unsigned int dst_pitch, const void *src,
+ 		 const struct drm_framebuffer *fb, const struct drm_rect *clip,
+ 		 bool cached);
 -- 
 2.37.1
 
