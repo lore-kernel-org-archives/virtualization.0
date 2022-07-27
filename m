@@ -1,108 +1,109 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 41312C19F21
-	for <virtualization@archiver.kernel.org>; Wed, 27 Jul 2022 12:24:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1153DC19F2B
+	for <virtualization@archiver.kernel.org>; Wed, 27 Jul 2022 12:30:03 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id A45EC40942;
-	Wed, 27 Jul 2022 12:24:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A45EC40942
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=i7a1tQy/
+	by smtp3.osuosl.org (Postfix) with ESMTP id A984960BE9;
+	Wed, 27 Jul 2022 12:30:02 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A984960BE9
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Lkakvun1
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Czblhf_vqFFC; Wed, 27 Jul 2022 12:24:30 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id A2904408D3;
-	Wed, 27 Jul 2022 12:24:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A2904408D3
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id pFJs7XBmZq8Y; Wed, 27 Jul 2022 12:30:01 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 3FEDB60BEC;
+	Wed, 27 Jul 2022 12:30:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3FEDB60BEC
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 718F3C0033;
-	Wed, 27 Jul 2022 12:24:29 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 38D2EC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id F2626C0033;
+	Wed, 27 Jul 2022 12:30:00 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id CBD9AC002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Jul 2022 12:24:28 +0000 (UTC)
+ Wed, 27 Jul 2022 12:29:59 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 1F007408ED
+ by smtp1.osuosl.org (Postfix) with ESMTP id 8638E81BD6
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Jul 2022 12:24:28 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1F007408ED
+ Wed, 27 Jul 2022 12:29:59 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8638E81BD6
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=Lkakvun1
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id rdOlhhsHo04N
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 4uzv9yf5CxWv
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Jul 2022 12:24:27 +0000 (UTC)
+ Wed, 27 Jul 2022 12:29:58 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 01866408D3
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3069B81BC2
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 01866408D3
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 3069B81BC2
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Jul 2022 12:24:26 +0000 (UTC)
+ Wed, 27 Jul 2022 12:29:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1658924665;
+ s=mimecast20190719; t=1658924996;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=dapYisiCBXlgZkwMi+Hyveg1G9f8dLox6yKCT12ZMlw=;
- b=i7a1tQy/3alEra/5NDgbi/JF1nt6QgHJKmeMbxH1qm0cCVxSX9/nPffTP3Y1FZvAXIlN4c
- Y09InLtxv0rYyYCQ8sHYIB99OkzizV8biR6x8nZR696nlGciOCzxVA8HR05f5y+f7YbQZH
- Wg8rOheOipWKFz1WnsN7uNwpNoOcVzs=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=AxBuSirLSlmCaBjX7uKmZi3DKKvsk0CPMisH3i3PiEM=;
+ b=Lkakvun1qpweTuNHK6RPZOedtFYlgl2IV45eNeBnQqFXsfVq9IU/QpUSxF4M3XY3YM4dDo
+ iqafHn4v+M6J9MpPZmSbKhI+ohgfOi25ViY73of4brZaoPRKigzTln5Zy1zkSuIp/O9Tyj
+ /bCDBWMrYGI2JMeq/AXM9yZLua7iTnM=
+Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com
+ [209.85.208.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-113-NknvHWvuPSO3BYxBquCBrg-1; Wed, 27 Jul 2022 08:24:24 -0400
-X-MC-Unique: NknvHWvuPSO3BYxBquCBrg-1
-Received: by mail-wm1-f71.google.com with SMTP id
- z20-20020a1c4c14000000b003a3020da654so484185wmf.5
+ us-mta-360-WCENyJ92NjysmsTYvMyyuA-1; Wed, 27 Jul 2022 08:29:55 -0400
+X-MC-Unique: WCENyJ92NjysmsTYvMyyuA-1
+Received: by mail-lj1-f200.google.com with SMTP id
+ bx35-20020a05651c19a300b0025e0c4331c6so2108989ljb.13
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Jul 2022 05:24:24 -0700 (PDT)
+ Wed, 27 Jul 2022 05:29:55 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=dapYisiCBXlgZkwMi+Hyveg1G9f8dLox6yKCT12ZMlw=;
- b=YH9tfn7hXwvoL9BMjITUz+kaGeIsckC2jUcnm0aICWs93d/Rf479BROfKEg/N0abSC
- lgd1IT21eHcCvTT6T7bQX7hYgQuTNf1q3+9lyXvndGrpf3b5SDLERfdAl8a6VGTKZE85
- fdnDJg5h78HgkjsIBPyZ4KCN/Zhc+1OkiNfk2rwyHdsRu0CSJchmW8+PSfrDq5sQK7Mj
- dFnnpiSmKOEC5utd2uUA/6koHS5uUK0jswJHi+ex3etbo6uGOO6FwJEn1reF8sQs6dMs
- GYYQ3IpnT9NHkfGquogPy2Z+x/SIBYY9pRu+1llaTQv4I5NLlp2xj6HYEt06nn3qK3A0
- Cb/A==
-X-Gm-Message-State: AJIora8NjktxyO3nazKP62+tLfP36GKDXx25zKD43uCTWRuNTlFD//RM
- Z138dHt8bG7/0sW1h8Tw2ItHP8nQhhbSke5hDc3IMfKV781W/HPbbTIMprSFWhaV/NrvAwLpTUW
- NiH6Uh8WX5BOKgK8c9SOrWMD4m+FX5pQCC+HsHvklGg==
-X-Received: by 2002:a05:6000:1541:b0:21d:b298:96be with SMTP id
- 1-20020a056000154100b0021db29896bemr13644426wry.206.1658924663475; 
- Wed, 27 Jul 2022 05:24:23 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1vC2MGRjFi3qSHZ2fm0BkjEDxRi6ABSiXhvcdsFTw4lBpGNZw6+Ua7w1AgH+IiVMbwoDfqM2g==
-X-Received: by 2002:a05:6000:1541:b0:21d:b298:96be with SMTP id
- 1-20020a056000154100b0021db29896bemr13644403wry.206.1658924663274; 
- Wed, 27 Jul 2022 05:24:23 -0700 (PDT)
-Received: from sgarzare-redhat (host-79-46-200-178.retail.telecomitalia.it.
- [79.46.200.178]) by smtp.gmail.com with ESMTPSA id
- bg26-20020a05600c3c9a00b003a3279b9037sm2308365wmb.16.2022.07.27.05.24.21
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 27 Jul 2022 05:24:22 -0700 (PDT)
-Date: Wed, 27 Jul 2022 14:24:17 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
-Subject: Re: [RFC PATCH v2 5/9] vsock: SO_RCVLOWAT transport set callback
-Message-ID: <20220727122417.jvdfjnuybk3mwxkq@sgarzare-redhat>
-References: <19e25833-5f5c-f9b9-ac0f-1945ea17638d@sberdevices.ru>
- <8baa2e3a-af6b-c0fe-9bfb-7cf89506474a@sberdevices.ru>
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=AxBuSirLSlmCaBjX7uKmZi3DKKvsk0CPMisH3i3PiEM=;
+ b=zYbVMyIap68Ooia07/2iaAC6InBs3Cg447pYVQ8aHK+MXZE0+0Y6nEDRU44X8Qyhhl
+ HweJiklI/4FCUp2q4lf53eehbHS2O+RVaVDr3RfMgFJdYoD3xpoHZjR+bF6D00y+nwa2
+ L3lxdcNC8weaAHSuBYIXYsSFULkf9kdnZ9QkUb0EREF+gklJKIz3cEPgoHsw+456JumR
+ o8Vtw6QQj5mvTvlKRcHD103C6Un1Xls6WJ8UI5/eo9WBTkbOFGJdPlQWd5VwDX3n9zoR
+ JXtgS9s5zKKo4EqOQZJUU97OIv+A31OFiTF/2K7xrx0KZT4D7xXX0WhyHPzQG9l3m4tU
+ HRKg==
+X-Gm-Message-State: AJIora/BlDeELoVWEJ41hRhWSYa7uci4G+Qn8dl55kpkgYRjz9kfBeql
+ iDoERLhq/TBbqzbBQuhiHQQQmZZC6aISbKnj8bsV/dyQRAomIkeESyqnoq919+LARdbFzBdp7MZ
+ 5CNtmIf1ojjMyl/fTt7iGdjuWuaNQF2MUFga3xktD7uotCuJ5yrwsl3xMjA==
+X-Received: by 2002:a05:6512:31ca:b0:48a:2e3:db41 with SMTP id
+ j10-20020a05651231ca00b0048a02e3db41mr7946391lfe.285.1658924994158; 
+ Wed, 27 Jul 2022 05:29:54 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1usleWIBkFGXVgg8pf87FeBHyq3CnAy0dTxHgebzQtlLd72pXddpA1ORMMZjBTZ4Ut4Od8ZGxlwfL8cz5Y/fek=
+X-Received: by 2002:a05:6512:31ca:b0:48a:2e3:db41 with SMTP id
+ j10-20020a05651231ca00b0048a02e3db41mr7946372lfe.285.1658924993965; Wed, 27
+ Jul 2022 05:29:53 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <8baa2e3a-af6b-c0fe-9bfb-7cf89506474a@sberdevices.ru>
+References: <19e25833-5f5c-f9b9-ac0f-1945ea17638d@sberdevices.ru>
+ <355f4bb6-82e7-2400-83e9-c704a7ef92f3@sberdevices.ru>
+ <20220727122241.mrafnepbelcboo5i@sgarzare-redhat>
+In-Reply-To: <20220727122241.mrafnepbelcboo5i@sgarzare-redhat>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Date: Wed, 27 Jul 2022 14:29:42 +0200
+Message-ID: <CAGxU2F7uw8fo4bn7t+3L2-irvxtCY+KchzPSXayimZZjdM1sdQ@mail.gmail.com>
+Subject: Re: [RFC PATCH v2 3/9] vmci/vsock: use 'target' in notify_poll_in,
+ callback
+To: Arseniy Krasnov <AVKrasnov@sberdevices.ru>, Bryan Tan <bryantan@vmware.com>,
+ Rajesh Jalisatgi <rjalisatgi@vmware.com>, Vishnu Dasa <vdasa@vmware.com>, 
+ VMware PV-Drivers Reviewers <pv-drivers@vmware.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
 Cc: "wei.liu@kernel.org" <wei.liu@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
  "sthemmin@microsoft.com" <sthemmin@microsoft.com>,
  Krasnov Arseniy <oxffffaa@gmail.com>,
@@ -128,69 +129,69 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Jul 25, 2022 at 08:05:28AM +0000, Arseniy Krasnov wrote:
->This adds transport specific callback for SO_RCVLOWAT, because in some
->transports it may be difficult to know current available number of bytes
->ready to read. Thus, when SO_RCVLOWAT is set, transport may reject it.
+On Wed, Jul 27, 2022 at 2:22 PM Stefano Garzarella <sgarzare@redhat.com> wrote:
 >
->Signed-off-by: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
->---
-> include/net/af_vsock.h   |  1 +
-> net/vmw_vsock/af_vsock.c | 19 +++++++++++++++++++
-> 2 files changed, 20 insertions(+)
->
->diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
->index f742e50207fb..eae5874bae35 100644
->--- a/include/net/af_vsock.h
->+++ b/include/net/af_vsock.h
->@@ -134,6 +134,7 @@ struct vsock_transport {
-> 	u64 (*stream_rcvhiwat)(struct vsock_sock *);
-> 	bool (*stream_is_active)(struct vsock_sock *);
-> 	bool (*stream_allow)(u32 cid, u32 port);
->+	int (*set_rcvlowat)(struct vsock_sock *, int);
->
-> 	/* SEQ_PACKET. */
-> 	ssize_t (*seqpacket_dequeue)(struct vsock_sock *vsk, struct msghdr *msg,
->diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
->index 63a13fa2686a..b7a286db4af1 100644
->--- a/net/vmw_vsock/af_vsock.c
->+++ b/net/vmw_vsock/af_vsock.c
->@@ -2130,6 +2130,24 @@ vsock_connectible_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
-> 	return err;
-> }
->
->+static int vsock_set_rcvlowat(struct sock *sk, int val)
->+{
->+	const struct vsock_transport *transport;
->+	struct vsock_sock *vsk;
->+	int err = 0;
->+
->+	vsk = vsock_sk(sk);
->+	transport = vsk->transport;
+> @Jorgen can you take a look at this series, especially this patch?
 
-`transport` can be NULL if the user call SO_RCVLOWAT before we assign 
-it, so we should check it.
+Jorgen's email bounced back, so I'm CCing VMCI maintainers.
 
-I think if the transport implements `set_rcvlowat`, maybe we should set 
-there sk->sk_rcvlowat, so I would do something like that:
-
-     if (transport && transport->set_rcvlowat)
-         err = transport->set_rcvlowat(vsk, val);
-     else
-         WRITE_ONCE(sk->sk_rcvlowat, val ? : 1);
-
-     return err;
-
-In addition I think we should check that val does not exceed 
-vsk->buffer_size, something similar of what tcp_set_rcvlowat() does.
+Bryan, Rajesh, Vishnu, can you take a look?
 
 Thanks,
 Stefano
+
+>
+> Maybe we need to update the comments in the else branch, something like
+> s/there is nothing/there is not enough data
+>
+> Thanks,
+> Stefano
+>
+> On Mon, Jul 25, 2022 at 08:01:01AM +0000, Arseniy Krasnov wrote:
+> >This callback controls setting of POLLIN,POLLRDNORM output bits of poll()
+> >syscall,but in some cases,it is incorrectly to set it, when socket has
+> >at least 1 bytes of available data. Use 'target' which is already exists
+> >and equal to sk_rcvlowat in this case.
+> >
+> >Signed-off-by: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
+> >---
+> > net/vmw_vsock/vmci_transport_notify.c        | 2 +-
+> > net/vmw_vsock/vmci_transport_notify_qstate.c | 2 +-
+> > 2 files changed, 2 insertions(+), 2 deletions(-)
+> >
+> >diff --git a/net/vmw_vsock/vmci_transport_notify.c b/net/vmw_vsock/vmci_transport_notify.c
+> >index d69fc4b595ad..1684b85b0660 100644
+> >--- a/net/vmw_vsock/vmci_transport_notify.c
+> >+++ b/net/vmw_vsock/vmci_transport_notify.c
+> >@@ -340,7 +340,7 @@ vmci_transport_notify_pkt_poll_in(struct sock *sk,
+> > {
+> >       struct vsock_sock *vsk = vsock_sk(sk);
+> >
+> >-      if (vsock_stream_has_data(vsk)) {
+> >+      if (vsock_stream_has_data(vsk) >= target) {
+> >               *data_ready_now = true;
+> >       } else {
+> >               /* We can't read right now because there is nothing in the
+> >diff --git a/net/vmw_vsock/vmci_transport_notify_qstate.c b/net/vmw_vsock/vmci_transport_notify_qstate.c
+> >index 0f36d7c45db3..a40407872b53 100644
+> >--- a/net/vmw_vsock/vmci_transport_notify_qstate.c
+> >+++ b/net/vmw_vsock/vmci_transport_notify_qstate.c
+> >@@ -161,7 +161,7 @@ vmci_transport_notify_pkt_poll_in(struct sock *sk,
+> > {
+> >       struct vsock_sock *vsk = vsock_sk(sk);
+> >
+> >-      if (vsock_stream_has_data(vsk)) {
+> >+      if (vsock_stream_has_data(vsk) >= target) {
+> >               *data_ready_now = true;
+> >       } else {
+> >               /* We can't read right now because there is nothing in the
+> >--
+> >2.25.1
 
 _______________________________________________
 Virtualization mailing list
