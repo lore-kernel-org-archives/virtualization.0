@@ -1,90 +1,204 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id BFD00C19F29
-	for <virtualization@archiver.kernel.org>; Thu, 28 Jul 2022 08:18:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E87AEC04A68
+	for <virtualization@archiver.kernel.org>; Thu, 28 Jul 2022 08:20:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 23E1F83396;
-	Thu, 28 Jul 2022 08:18:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 23E1F83396
+	by smtp3.osuosl.org (Postfix) with ESMTP id 6040160F2C;
+	Thu, 28 Jul 2022 08:20:46 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6040160F2C
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=cVru/+7U;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=RYS9SAUw
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id p8WKWaQvITNG; Thu, 28 Jul 2022 08:18:23 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 909A3833A7;
-	Thu, 28 Jul 2022 08:18:22 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 909A3833A7
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id emFtXVHDjBsk; Thu, 28 Jul 2022 08:20:45 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id BC50560B50;
+	Thu, 28 Jul 2022 08:20:44 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org BC50560B50
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 64A5AC0035;
-	Thu, 28 Jul 2022 08:18:22 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8F8A6C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 758B5C0035;
+	Thu, 28 Jul 2022 08:20:44 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E9805C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Jul 2022 08:18:20 +0000 (UTC)
+ Thu, 28 Jul 2022 08:20:41 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 71A95606A9
+ by smtp3.osuosl.org (Postfix) with ESMTP id C142560B50
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Jul 2022 08:18:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 71A95606A9
+ Thu, 28 Jul 2022 08:20:41 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C142560B50
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 8qQZnwqQd1a7
+ with ESMTP id Zbu1FCBW7CtI
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Jul 2022 08:18:19 +0000 (UTC)
+ Thu, 28 Jul 2022 08:20:40 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8627E60608
-Received: from out30-133.freemail.mail.aliyun.com
- (out30-133.freemail.mail.aliyun.com [115.124.30.133])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 8627E60608
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1B03A60B38
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com
+ [205.220.165.32])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 1B03A60B38
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Jul 2022 08:18:17 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R721e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018045168;
- MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=36; SR=0;
- TI=SMTPD_---0VKefuGf_1658996289; 
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VKefuGf_1658996289) by smtp.aliyun-inc.com;
- Thu, 28 Jul 2022 16:18:10 +0800
-Message-ID: <1658995783.1026692-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH v13 16/42] virtio_ring: split: introduce
- virtqueue_resize_split()
-Date: Thu, 28 Jul 2022 16:09:43 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Jason Wang <jasowang@redhat.com>
-References: <20220726072225.19884-1-xuanzhuo@linux.alibaba.com>
- <20220726072225.19884-17-xuanzhuo@linux.alibaba.com>
- <15aa26f2-f8af-5dbd-f2b2-9270ad873412@redhat.com>
- <1658907413.1860468-2-xuanzhuo@linux.alibaba.com>
- <CACGkMEvxsOfiiaWWAR8P68GY1yfwgTvaAbHk1JF7pTw-o2k25w@mail.gmail.com>
- <1658992162.584327-1-xuanzhuo@linux.alibaba.com>
- <CACGkMEv-KYieHKXY_Qn0nfcnLMOSF=TowF5PwLKOxESL3KQ40Q@mail.gmail.com>
-In-Reply-To: <CACGkMEv-KYieHKXY_Qn0nfcnLMOSF=TowF5PwLKOxESL3KQ40Q@mail.gmail.com>
-Cc: Vadim Pasternak <vadimp@nvidia.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- linux-remoteproc@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
- Bjorn Andersson <bjorn.andersson@linaro.org>,
- Eric Dumazet <edumazet@google.com>, Alexander Gordeev <agordeev@linux.ibm.com>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>, linux-s390@vger.kernel.org,
- kvm <kvm@vger.kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
- Richard Weinberger <richard@nod.at>,
- Vincent Whitchurch <vincent.whitchurch@axis.com>,
- John Fastabend <john.fastabend@gmail.com>, Halil Pasic <pasic@linux.ibm.com>,
- Jakub Kicinski <kuba@kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>,
- Eric Farman <farman@linux.ibm.com>, Jesper Dangaard Brouer <hawk@kernel.org>,
- Vasily Gorbik <gor@linux.ibm.com>, Kangjie Xu <kangjie.xu@linux.alibaba.com>,
- Heiko Carstens <hca@linux.ibm.com>, linux-um@lists.infradead.org,
- Mark Gross <markgross@kernel.org>, Hans de Goede <hdegoede@redhat.com>,
- platform-driver-x86@vger.kernel.org,
- "open list:XDP \(eXpress Data Path\)" <bpf@vger.kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Mathieu Poirier <mathieu.poirier@linaro.org>,
- netdev <netdev@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>,
- Sven Schnelle <svens@linux.ibm.com>, Johannes Berg <johannes@sipsolutions.net>,
- "David S. Miller" <davem@davemloft.net>
+ Thu, 28 Jul 2022 08:20:40 +0000 (UTC)
+Received: from pps.filterd (m0246617.ppops.net [127.0.0.1])
+ by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26S8ItdS004207;
+ Thu, 28 Jul 2022 08:20:35 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+ h=content-type :
+ message-id : date : subject : to : cc : references : from : in-reply-to :
+ mime-version; s=corp-2022-7-12;
+ bh=ck56QVdwZE2BEarl6UdYrz71/3MchFCyqpLEL3Gu6M0=;
+ b=cVru/+7UkoRybnw6Kkms2j83FfziInGXar5aZVz6ZjSPuUSKLnvrgbkgNQdA+kcLMjyF
+ QVi19oDPPXedbH2YAgtObDqYZqEcCcXfJAfHZbHOXjGHj3fFL6BJvFom7CvDM12/nmsP
+ 0dTpgz/Ris/ULcmQ/u4sFxJznnCmxsJr7HmbmXpOlQCymIV4mCM3FGieaoIuSLI+ngak
+ Y+55oTlgkkdUbWxdlpjD13mC288KcyUL23Sr6K6HcgOi1DeB9f/d4LEtEoUYmwcae4+d
+ P+p74LMqdDor2I/tpq0BNzBfnRNfALBZ2pRigrp94vQZcjbV6l2rmVetdpHgPAQJeXl5 Hg== 
+Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com
+ (iadpaimrmta03.appoci.oracle.com [130.35.103.27])
+ by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3hg9hsv9x5-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Thu, 28 Jul 2022 08:20:35 +0000
+Received: from pps.filterd
+ (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+ by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.5/8.17.1.5)
+ with ESMTP id 26S8KIbj020567; Thu, 28 Jul 2022 08:20:34 GMT
+Received: from nam12-mw2-obe.outbound.protection.outlook.com
+ (mail-mw2nam12lp2043.outbound.protection.outlook.com [104.47.66.43])
+ by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id
+ 3hh63a8rdu-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Thu, 28 Jul 2022 08:20:34 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=L1xLTOqAJ95/CjYmq5IkKKjIvGr0hWzM2KMtroKAyaT5rS2lZBxcs3JUfwC9jbhFaHsrTRkiaGlUYuMaexSAOlk+9QaefvupdMgh6YZ6u2pSvFDRXv0KRaEYNV8sD7Pq40JPwOPH2/V85zKnQsxvWIN4iScow/StIIcbHSdWiipBMBSa1oIxRbFTKY7IJ6HU+TD4LC43y4rNTrv6eyb+6/BbqhX8Y0db0SBtsFAoGuVi4wd8ReB7kKDSvvE5/hmcruQqaNDV6AAGxyOuO8Mgjs4QW256hFi5Y/Ywe73PKncbaZSgAcNW0tGOnz6Hz0F/0YqS0l78TSurPF7D3/gfCQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=ck56QVdwZE2BEarl6UdYrz71/3MchFCyqpLEL3Gu6M0=;
+ b=EH1M3shlpvm25P1sD2GJQyY6iup+84wM9vCUgx6eR1LppWpk/VwZ+zBIC7rZuIcdQ+QTODa/l+/h8Pli1FlaAX7LOb+CTrBWdv3zLW5wFM3o8ewtNGr2ze2Pnk87M2UeUYjudWmOPplQerf78cq9QTdW4TZ5PFL7jQibEiLcpGXgszH3lLb9cZrVdCuf5iM+y80HcuK3zzMweqDA9noVAeAC/znfuQpKx7pHG/Xu5FQxeISK9b7fLeRCstAuC7gWLr68Vp45X8FCXsNQEtjObhhaaKoPe5zIqJNscLaxIOgi9Sad3Ll+c9nSkjv46gFXNazr26LP5SQN/RJGa8UMfQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ck56QVdwZE2BEarl6UdYrz71/3MchFCyqpLEL3Gu6M0=;
+ b=RYS9SAUw9vG2arr/wcsMeb8/eIbU+OFX+DWfOPUbNDtxPd74DkNDYZXXbl443QmYpBfpzMji7jbzmvBxwJ6vOI6/i30Js9z5JA2oV82bBNue5t/c2F6qM9GQxVcQHtWnv1cOPrSExdR1SX4BZIVJcz22RvbJg1IXpTAMQuKD17I=
+Received: from BYAPR10MB3287.namprd10.prod.outlook.com (2603:10b6:a03:15c::11)
+ by BLAPR10MB5156.namprd10.prod.outlook.com (2603:10b6:208:321::24)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5482.6; Thu, 28 Jul
+ 2022 08:20:31 +0000
+Received: from BYAPR10MB3287.namprd10.prod.outlook.com
+ ([fe80::c846:d8e4:8631:9803]) by BYAPR10MB3287.namprd10.prod.outlook.com
+ ([fe80::c846:d8e4:8631:9803%4]) with mapi id 15.20.5458.026; Thu, 28 Jul 2022
+ 08:20:31 +0000
+Message-ID: <2dfff5f3-3100-4a63-6da3-3e3d21ffb364@oracle.com>
+Date: Thu, 28 Jul 2022 01:20:26 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: spec clarification (was Re: [PATCH V3 4/6] vDPA: !FEATURES_OK should
+ not block querying device config space)
+Content-Language: en-US
+To: Jason Wang <jasowang@redhat.com>, "mst@redhat.com" <mst@redhat.com>
+References: <20220701132826.8132-1-lingshan.zhu@intel.com>
+ <20220701132826.8132-5-lingshan.zhu@intel.com>
+ <PH0PR12MB548190DE76CC64E56DA2DF13DCBD9@PH0PR12MB5481.namprd12.prod.outlook.com>
+ <00889067-50ac-d2cd-675f-748f171e5c83@oracle.com>
+ <63242254-ba84-6810-dad8-34f900b97f2f@intel.com>
+ <8002554a-a77c-7b25-8f99-8d68248a741d@oracle.com>
+ <c8bd5396-84f2-e782-79d7-f493aca95781@redhat.com>
+ <f3fd203d-a3ad-4c36-ddbc-01f061f4f99e@oracle.com>
+ <CACGkMEtvVOtqAgY4Yzt_4=t8yfGJho4d9C=X8MQhW0ZKw1sDNA@mail.gmail.com>
+From: Si-Wei Liu <si-wei.liu@oracle.com>
+Organization: Oracle Corporation
+In-Reply-To: <CACGkMEtvVOtqAgY4Yzt_4=t8yfGJho4d9C=X8MQhW0ZKw1sDNA@mail.gmail.com>
+X-ClientProxiedBy: SA1PR03CA0014.namprd03.prod.outlook.com
+ (2603:10b6:806:2d3::10) To BYAPR10MB3287.namprd10.prod.outlook.com
+ (2603:10b6:a03:15c::11)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 6393ce6a-afc3-40df-7f3f-08da70720964
+X-MS-TrafficTypeDiagnostic: BLAPR10MB5156:EE_
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 0QYJ6e0Ef4VroRgC348pLm/Ss5lFfI7/+IYUUYzyITJplP/R+pP2n95/akYCWO0t9XvqFs4NlfPoV0dSRUZKV5Ib3VfRvi3hbgTRTgH9yjvpeGP15x0rtGhw70Waw+gEXuzZ/k1Cl9fOjpUfv3V1rZG0sbGAMw+H3BetK+/zvgfpdvI1iR5pWbp5VTBPW4bs8HShCCEGVIujxcOkM13UAu62x618QotNEWlEaHmmd5MUNVXDSisxtk4OhgiLHaeqgzfoSnCmZ8FOwq7lTLMOt6A25nEnzkrCOekoUpiWQmAZCawgAMKWpmjfJ4Mx/D8E8MrWklczP98zGMNSW5Hw/iiER6/78wbuaaqU7a+jI2J+VDjNxyj650UxG4ilTd+5imQBe0yHWvzoEcFtPO7jJMfiRGYR6yn1Np6xTrAb3+Q/tYce/VbWOGJH76QOOiyHfCLeN/rdyx4PJmrJeFMxEu6UJtwutywuqcKDupwvTsMFbl5j3BxMvb/05cvvIrwY4rJwW6NsXZ7YjKdvzv1us303K8pOCnWBwCgvMDQw6yB0NQyaY9lAYv9S/URT/483lWL7GslBRAQ0sQEOzglsL93Tik+eW18r4PPcDx1WfjmFH0gd5p2FluQy+HP7c2JubZ7lXlsssHalUevMPyA7oRVqYzwqgFz0Gn3axPMlhHU8jeF+OAx/18w5knTWF5WApooMbu3ixqmqVLAe/zICrQQMqYxQsajNwgzEsKMJL4DpyTf8WZ8oajc9kj0n0iuaqkJZ1/mwlWTRk79QlTpR7Oo67dat5RGjXrh908D0tCSDAYPxu/Ds9aBc0e20emQkefL5NqYR7lcxqmCyd3/FQA==
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:BYAPR10MB3287.namprd10.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230016)(396003)(136003)(346002)(376002)(39860400002)(366004)(41300700001)(2616005)(2906002)(86362001)(6666004)(186003)(33964004)(31696002)(26005)(6512007)(36916002)(38100700002)(6506007)(53546011)(83380400001)(66476007)(31686004)(478600001)(4326008)(8676002)(66946007)(8936002)(6486002)(54906003)(316002)(110136005)(66556008)(7416002)(5660300002)(36756003)(43740500002)(45980500001);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?a3NCVmgvU3l5RFAyNm9iVWVHZnFSWnlNenRESWt5RUNkcUJneTlmK3B6RDJk?=
+ =?utf-8?B?clhtUTl5aVJ4WTZILzgzWDBOcmFzRjNuUDZyT2VkNFNTTFQzQVBMUUxXd09x?=
+ =?utf-8?B?MWcvSGhoTTVBSEZXdkZEK1ZJVW9yZmd3K0tSU05YOVZEYlRyMmlSOFV3OGt0?=
+ =?utf-8?B?VlhsR0hHdGI5dXluQXFjM0x2VzNRc2VpRE9SWklTMTA4WVBGVXZ1R3JIMmk2?=
+ =?utf-8?B?K1VpcG5hWEx5a09mQTVQVit2MXhVNkwxTGlrTEZqM0lYdkJTL1gzRmdlVUl6?=
+ =?utf-8?B?ejhPMmNXYVRIT21yeDVLMWF2Smo2NkxxQ3VkTXAyd0VtU2pxNWFacEoyWTEx?=
+ =?utf-8?B?MnY1OWVsU0FwTjFIbGt3Zll5bkU2QVZmUmJhMUhYSjB0S3hqaE1EYUx1SmRW?=
+ =?utf-8?B?Um40VnczNEgwRGJUVVVKc1dQTWdnYXJFN2YxQWZyNGZjdnNXL0l5VXc5QWd6?=
+ =?utf-8?B?VU9WTit0enFmVmRIczdhL1QrOUNTOGpWTEQzb3RWMnFIT3h2UWFrcHFBYThN?=
+ =?utf-8?B?N0t6MldLOXhrMFVsZ20wYXgrZjl3MENaakpSeHRtTVpMVjR0Z3FxaTNUeTll?=
+ =?utf-8?B?KzZWVGdVY1BLSnJwMzNkcHpWcTJxYm5wU2I4ZmZkaTdUTE82M2Z3YkhUejlP?=
+ =?utf-8?B?ZUNWdTZHRVRUb1ZOOXpETlFMWWFSUTlzMWpYNUVIZmU2TlN2RGVreTdaTEtN?=
+ =?utf-8?B?eiswTGYxak5sTDJDNEJxUHNCb2JUWmtYMVNKRzVXeDZGQ0JGTGdmdXNXQ0Jn?=
+ =?utf-8?B?dmR3elRWVjhYd0hDb0NDSmpMdVRwc1I5Rnd0VGhyRkhRb3R4MTRzQThBdXZp?=
+ =?utf-8?B?VnAweWV0R1ptQzR2UVFiWWVOb2lqZDYxRm5McmtLTnIrTE5kZk4ybmpHbmFE?=
+ =?utf-8?B?eGl0ZTBjYzNMK243MFVFWVlMUzdnVmJGS1R2bVN2QUFxV1VhOGg1NHZkcVBy?=
+ =?utf-8?B?OC81SmdTd1VOblBWNjlUOVNFU1BXaFppOUhuQnRWbVRNV2JOYVUyOEVDNk1M?=
+ =?utf-8?B?dlpjdHVjNVYxYmRVTXprQjVKTjB1Rmk0cHFFblNmeE9NY1c1SERKTnJqeC92?=
+ =?utf-8?B?M25zRnNOYTdxVUIyR1lVNDRWVWhJVDRhai9BUndUUkxpWWhCMXN2NExHMURI?=
+ =?utf-8?B?RTI0YkgwdCtjU29rTU9zaDR1MGZ6c3YyS01McFBSeEd6LzhpUTY3bnl0eElp?=
+ =?utf-8?B?TkZrZEQweVVzWTdZa0x1eXl6dXM1d044bGRvLy9idlpnMDIzR2JXcEgrNFo2?=
+ =?utf-8?B?bnIrMzVSMmdKTlhiZ3ZzdWdRcVdMZngrOFVJaERKODBNOVBTbmZhT0xORmhK?=
+ =?utf-8?B?UU9mK0tCWmNtdHlTRFFWNUkxa2E4eUppcytvVU82RzRsb1U0aWF0M3UrQjB6?=
+ =?utf-8?B?UWRYRGk2RGNPQllKei9ibGpjODN3L1lFTng4bGY3Z09QbXVkaGVpOWpGTnBQ?=
+ =?utf-8?B?Z0NZbk5JZlI4REZJdGpjN0IwSjEyZm8zRzYxK0ttcFNUWENvVm1vRjZiVFNH?=
+ =?utf-8?B?MG9QQUhTNTZkUTRlOC9MYmlmWWdpOHhLMUhhcjNLdWhUYTRiVHd3bHl6dFBT?=
+ =?utf-8?B?ZFBud0o5QjYwQldYWC91K2l0SkFLTEFoL0FuaVh2THFYaUdQL1l2YmdramY0?=
+ =?utf-8?B?ZWVJT2ZyNmVhTllIT2lkakhvWWhJS0NTTFQ1QlhtT0c3akRkL05EcTh0emln?=
+ =?utf-8?B?YTQ5ZGI2REZTeW1mWjcwZ3BUZGpQK0owOGpMSURnS29Bc1dpbmNNQWFtaFY5?=
+ =?utf-8?B?aUtLMWR2ZFFXcHBqaE9aemk0Y1g4OFdiaVgreEpVaXdvc3dpM09XRFFkSnM5?=
+ =?utf-8?B?WDVDQlR1eTJtMDZzNkRRWTVLUDlaSlI0QlNDWHNOYjJId0x6REIxQ2xkNFNz?=
+ =?utf-8?B?dmlvN0JGY3pLNFhFKzBCM0VZL0xWRVFlbFQyd2l2YUVJVXFlQkFSaEx2RC9N?=
+ =?utf-8?B?RklKL1gyOXFpVWFtS002dXk5TEE5VTZPOUx0YmxoQjNJN1dEQytRbllDZVNq?=
+ =?utf-8?B?TzdONjJBUnJCQmdRU0RqMVBvY3dpSlRvd1ZyMDIzWko5NWxDYS9ZaU9aVFFo?=
+ =?utf-8?B?cFJpRVJ3YUE0dVBVM1pWYlBwTUllTWN3bW1SWFZpakY4RkNqSGlyeWRrTHVo?=
+ =?utf-8?B?Rlp6SjV1SUM2N2VCOUt1U1hyQy9JOGVNVXdKNWY3UWRjWTh6NEhiN1UxejA1?=
+ =?utf-8?B?M1E9PQ==?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 6393ce6a-afc3-40df-7f3f-08da70720964
+X-MS-Exchange-CrossTenant-AuthSource: BYAPR10MB3287.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Jul 2022 08:20:31.3916 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: IMIAfH2UDdhv8GA92wsLVcomi8GC9I5G5K8LZoNovVwzl2jae8lsifJMpk8o3HuzqYD/GC1SHMhiaMurbxb8YA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BLAPR10MB5156
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-07-28_01,2022-07-28_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999
+ malwarescore=0
+ suspectscore=0 mlxscore=0 bulkscore=0 adultscore=0 spamscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2206140000 definitions=main-2207280034
+X-Proofpoint-ORIG-GUID: U5lCgzduF0BqCxugABnHGn8WiQOauJ3d
+X-Proofpoint-GUID: U5lCgzduF0BqCxugABnHGn8WiQOauJ3d
+Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+ virtio-comment@lists.oasis-open.org,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ "xieyongji@bytedance.com" <xieyongji@bytedance.com>,
+ "gautam.dawar@amd.com" <gautam.dawar@amd.com>, "Zhu,
+ Lingshan" <lingshan.zhu@intel.com>, virtio@lists.oasis-open.org,
+ Eli Cohen <elic@nvidia.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -96,120 +210,157 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============7722777312296396865=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gVGh1LCAyOCBKdWwgMjAyMiAxNTo0Mjo1MCArMDgwMCwgSmFzb24gV2FuZyA8amFzb3dhbmdA
-cmVkaGF0LmNvbT4gd3JvdGU6Cj4gT24gVGh1LCBKdWwgMjgsIDIwMjIgYXQgMzoyNCBQTSBYdWFu
-IFpodW8gPHh1YW56aHVvQGxpbnV4LmFsaWJhYmEuY29tPiB3cm90ZToKPiA+Cj4gPiBPbiBUaHUs
-IDI4IEp1bCAyMDIyIDEwOjM4OjUxICswODAwLCBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQu
-Y29tPiB3cm90ZToKPiA+ID4gT24gV2VkLCBKdWwgMjcsIDIwMjIgYXQgMzo0NCBQTSBYdWFuIFpo
-dW8gPHh1YW56aHVvQGxpbnV4LmFsaWJhYmEuY29tPiB3cm90ZToKPiA+ID4gPgo+ID4gPiA+IE9u
-IFdlZCwgMjcgSnVsIDIwMjIgMTE6MTI6MTkgKzA4MDAsIEphc29uIFdhbmcgPGphc293YW5nQHJl
-ZGhhdC5jb20+IHdyb3RlOgo+ID4gPiA+ID4KPiA+ID4gPiA+IOWcqCAyMDIyLzcvMjYgMTU6MjEs
-IFh1YW4gWmh1byDlhpnpgZM6Cj4gPiA+ID4gPiA+IHZpcnRpbyByaW5nIHNwbGl0IHN1cHBvcnRz
-IHJlc2l6ZS4KPiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4gT25seSBhZnRlciB0aGUgbmV3IHZyaW5n
-IGlzIHN1Y2Nlc3NmdWxseSBhbGxvY2F0ZWQgYmFzZWQgb24gdGhlIG5ldyBudW0sCj4gPiA+ID4g
-PiA+IHdlIHdpbGwgcmVsZWFzZSB0aGUgb2xkIHZyaW5nLiBJbiBhbnkgY2FzZSwgYW4gZXJyb3Ig
-aXMgcmV0dXJuZWQsCj4gPiA+ID4gPiA+IGluZGljYXRpbmcgdGhhdCB0aGUgdnJpbmcgc3RpbGwg
-cG9pbnRzIHRvIHRoZSBvbGQgdnJpbmcuCj4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+IEluIHRoZSBj
-YXNlIG9mIGFuIGVycm9yLCByZS1pbml0aWFsaXplKHZpcnRxdWV1ZV9yZWluaXRfc3BsaXQoKSkg
-dGhlCj4gPiA+ID4gPiA+IHZpcnRxdWV1ZSB0byBlbnN1cmUgdGhhdCB0aGUgdnJpbmcgY2FuIGJl
-IHVzZWQuCj4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+IFNpZ25lZC1vZmYtYnk6IFh1YW4gWmh1byA8
-eHVhbnpodW9AbGludXguYWxpYmFiYS5jb20+Cj4gPiA+ID4gPiA+IEFja2VkLWJ5OiBKYXNvbiBX
-YW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgo+ID4gPiA+ID4gPiAtLS0KPiA+ID4gPiA+ID4gICBk
-cml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jIHwgMzQgKysrKysrKysrKysrKysrKysrKysrKysr
-KysrKysrKysrKwo+ID4gPiA+ID4gPiAgIDEgZmlsZSBjaGFuZ2VkLCAzNCBpbnNlcnRpb25zKCsp
-Cj4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZpcnRpby92aXJ0
-aW9fcmluZy5jIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYwo+ID4gPiA+ID4gPiBpbmRl
-eCBiNmZkYTkxYzgwNTkuLjU4MzU1ZTFhYzdkNyAxMDA2NDQKPiA+ID4gPiA+ID4gLS0tIGEvZHJp
-dmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYwo+ID4gPiA+ID4gPiArKysgYi9kcml2ZXJzL3ZpcnRp
-by92aXJ0aW9fcmluZy5jCj4gPiA+ID4gPiA+IEBAIC0yMjAsNiArMjIwLDcgQEAgc3RhdGljIHN0
-cnVjdCB2aXJ0cXVldWUgKl9fdnJpbmdfbmV3X3ZpcnRxdWV1ZSh1bnNpZ25lZCBpbnQgaW5kZXgs
-Cj4gPiA+ID4gPiA+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB2
-b2lkICgqY2FsbGJhY2spKHN0cnVjdCB2aXJ0cXVldWUgKiksCj4gPiA+ID4gPiA+ICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBjb25zdCBjaGFyICpuYW1lKTsKPiA+
-ID4gPiA+ID4gICBzdGF0aWMgc3RydWN0IHZyaW5nX2Rlc2NfZXh0cmEgKnZyaW5nX2FsbG9jX2Rl
-c2NfZXh0cmEodW5zaWduZWQgaW50IG51bSk7Cj4gPiA+ID4gPiA+ICtzdGF0aWMgdm9pZCB2cmlu
-Z19mcmVlKHN0cnVjdCB2aXJ0cXVldWUgKl92cSk7Cj4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+ICAg
-LyoKPiA+ID4gPiA+ID4gICAgKiBIZWxwZXJzLgo+ID4gPiA+ID4gPiBAQCAtMTExNyw2ICsxMTE4
-LDM5IEBAIHN0YXRpYyBzdHJ1Y3QgdmlydHF1ZXVlICp2cmluZ19jcmVhdGVfdmlydHF1ZXVlX3Nw
-bGl0KAo+ID4gPiA+ID4gPiAgICAgcmV0dXJuIHZxOwo+ID4gPiA+ID4gPiAgIH0KPiA+ID4gPiA+
-ID4KPiA+ID4gPiA+ID4gK3N0YXRpYyBpbnQgdmlydHF1ZXVlX3Jlc2l6ZV9zcGxpdChzdHJ1Y3Qg
-dmlydHF1ZXVlICpfdnEsIHUzMiBudW0pCj4gPiA+ID4gPiA+ICt7Cj4gPiA+ID4gPiA+ICsgICBz
-dHJ1Y3QgdnJpbmdfdmlydHF1ZXVlX3NwbGl0IHZyaW5nX3NwbGl0ID0ge307Cj4gPiA+ID4gPiA+
-ICsgICBzdHJ1Y3QgdnJpbmdfdmlydHF1ZXVlICp2cSA9IHRvX3Z2cShfdnEpOwo+ID4gPiA+ID4g
-PiArICAgc3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYgPSBfdnEtPnZkZXY7Cj4gPiA+ID4gPiA+
-ICsgICBpbnQgZXJyOwo+ID4gPiA+ID4gPiArCj4gPiA+ID4gPiA+ICsgICBlcnIgPSB2cmluZ19h
-bGxvY19xdWV1ZV9zcGxpdCgmdnJpbmdfc3BsaXQsIHZkZXYsIG51bSwKPiA+ID4gPiA+ID4gKyAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHZxLT5zcGxpdC52cmluZ19hbGlnbiwKPiA+
-ID4gPiA+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHZxLT5zcGxpdC5tYXlf
-cmVkdWNlX251bSk7Cj4gPiA+ID4gPiA+ICsgICBpZiAoZXJyKQo+ID4gPiA+ID4gPiArICAgICAg
-ICAgICBnb3RvIGVycjsKPiA+ID4gPiA+Cj4gPiA+ID4gPgo+ID4gPiA+ID4gSSB0aGluayB3ZSBk
-b24ndCBuZWVkIHRvIGRvIGFueXRoaW5nIGhlcmU/Cj4gPiA+ID4KPiA+ID4gPiBBbSBJIG1pc3Np
-bmcgc29tZXRoaW5nPwo+ID4gPgo+ID4gPiBJIG1lYW50IGl0IGxvb2tzIHRvIG1lIG1vc3Qgb2Yg
-dGhlIHZpcnRxdWV1ZV9yZWluaXQoKSBpcyB1bm5lY2Vzc2FyeS4KPiA+ID4gV2UgcHJvYmFibHkg
-b25seSBuZWVkIHRvIHJlaW5pdCBhdmFpbC91c2VkIGlkeCB0aGVyZS4KPiA+Cj4gPgo+ID4gSW4g
-dGhpcyBmdW5jdGlvbiwgd2UgY2FuIGluZGVlZCByZW1vdmUgc29tZSBjb2RlLgo+ID4KPiA+ID4g
-ICAgICAgc3RhdGljIHZvaWQgdmlydHF1ZXVlX3JlaW5pdF9zcGxpdChzdHJ1Y3QgdnJpbmdfdmly
-dHF1ZXVlICp2cSkKPiA+ID4gICAgICAgewo+ID4gPiAgICAgICAgICAgICAgIGludCBzaXplLCBp
-Owo+ID4gPgo+ID4gPiAgICAgICAgICAgICAgIG1lbXNldCh2cS0+c3BsaXQudnJpbmcuZGVzYywg
-MCwgdnEtPnNwbGl0LnF1ZXVlX3NpemVfaW5fYnl0ZXMpOwo+ID4gPgo+ID4gPiAgICAgICAgICAg
-ICAgIHNpemUgPSBzaXplb2Yoc3RydWN0IHZyaW5nX2Rlc2Nfc3RhdGVfc3BsaXQpICogdnEtPnNw
-bGl0LnZyaW5nLm51bTsKPiA+ID4gICAgICAgICAgICAgICBtZW1zZXQodnEtPnNwbGl0LmRlc2Nf
-c3RhdGUsIDAsIHNpemUpOwo+ID4gPgo+ID4gPiAgICAgICAgICAgICAgIHNpemUgPSBzaXplb2Yo
-c3RydWN0IHZyaW5nX2Rlc2NfZXh0cmEpICogdnEtPnNwbGl0LnZyaW5nLm51bTsKPiA+ID4gICAg
-ICAgICAgICAgICBtZW1zZXQodnEtPnNwbGl0LmRlc2NfZXh0cmEsIDAsIHNpemUpOwo+ID4KPiA+
-IFRoZXNlIG1lbXNldHMgY2FuIGJlIHJlbW92ZWQsIGFuZCB0aGVvcmV0aWNhbGx5IGl0IHdpbGwg
-bm90IGNhdXNlIGFueQo+ID4gZXhjZXB0aW9ucy4KPgo+IFllcywgb3RoZXJ3aXNlIHdlIGhhdmUg
-YnVncyBpbiBkZXRhY2hfYnVmKCkuCj4KPiA+Cj4gPiA+Cj4gPiA+Cj4gPiA+Cj4gPiA+ICAgICAg
-ICAgICAgICAgZm9yIChpID0gMDsgaSA8IHZxLT5zcGxpdC52cmluZy5udW0gLSAxOyBpKyspCj4g
-PiA+ICAgICAgICAgICAgICAgICAgICAgICB2cS0+c3BsaXQuZGVzY19leHRyYVtpXS5uZXh0ID0g
-aSArIDE7Cj4gPgo+ID4gVGhpcyBjYW4gYWxzbyBiZSByZW1vdmVkLCBidXQgd2UgbmVlZCB0byBy
-ZWNvcmQgZnJlZV9oZWFkIHRoYXQgd2lsbCBiZWVuIHVwZGF0ZQo+ID4gaW5zaWRlIHZpcnRxdWV1
-ZV9pbml0KCkuCj4KPiBXZSBjYW4gc2ltcGx5IGtlZXAgZnJlZV9oZWFkIHVuY2hhbmdlZD8gT3Ro
-ZXJ3aXNlIGl0J3MgYSBidWcgc29tZXdoZXJlIEkgZ3Vlc3MuCj4KPgo+ID4KPiA+ID4KPiA+ID4g
-ICAgICAgICAgICAgICB2aXJ0cXVldWVfaW5pdCh2cSwgdnEtPnNwbGl0LnZyaW5nLm51bSk7Cj4g
-Pgo+ID4gVGhlcmUgYXJlIHNvbWUgb3BlcmF0aW9ucyBpbiB0aGlzLCB3aGljaCBjYW4gYWxzbyBi
-ZSBza2lwcGVkLCBzdWNoIGFzIHNldHRpbmcKPiA+IHVzZV9kbWFfYXBpLiBCdXQgSSB0aGluayBj
-YWxsaW5nIHRoaXMgZnVuY3Rpb24gZGlyZWN0bHkgd2lsbCBiZSBtb3JlIGNvbnZlbmllbnQKPiA+
-IGZvciBtYWludGVuYW5jZS4KPgo+IEkgZG9uJ3Qgc2VlIGFueXRoaW5nIHRoYXQgaXMgbmVjZXNz
-YXJ5IGhlcmUuCgpUaGVzZSB0aHJlZSBhcmUgY3VycmVudGx5IGluc2lkZSB2aXJ0cXVldWVfaW5p
-dCgpCgp2cS0+bGFzdF91c2VkX2lkeCA9IDA7CnZxLT5ldmVudF90cmlnZ2VyZWQgPSBmYWxzZTsK
-dnEtPm51bV9hZGRlZCA9IDA7CgpUaGFua3MuCgoKPgo+ID4KPiA+Cj4gPiA+ICAgICAgICAgICAg
-ICAgdmlydHF1ZXVlX3ZyaW5nX2luaXRfc3BsaXQoJnZxLT5zcGxpdCwgdnEpOwo+ID4KPiA+IHZp
-cnRxdWV1ZV92cmluZ19pbml0X3NwbGl0KCkgaXMgbmVjZXNzYXJ5Lgo+Cj4gUmlnaHQuCj4KPiA+
-Cj4gPiA+ICAgICAgIH0KPiA+Cj4gPiBBbm90aGVyIG1ldGhvZCwgd2UgY2FuIHRha2Ugb3V0IGFs
-bCB0aGUgdmFyaWFibGVzIHRvIGJlIHJlaW5pdGlhbGl6ZWQKPiA+IHNlcGFyYXRlbHksIGFuZCBy
-ZXBhY2thZ2UgdGhlbSBpbnRvIGEgbmV3IGZ1bmN0aW9uLiBJIGRvbuKAmXQgdGhpbmsgaXTigJlz
-IHdvcnRoCj4gPiBpdCwgYmVjYXVzZSB0aGlzIHBhdGggd2lsbCBvbmx5IGJlIHJlYWNoZWQgaWYg
-dGhlIG1lbW9yeSBhbGxvY2F0aW9uIGZhaWxzLCB3aGljaAo+ID4gaXMgYSByYXJlIG9jY3VycmVu
-Y2UuIEluIHRoaXMgY2FzZSwgZG9pbmcgc28gd2lsbCBpbmNyZWFzZSB0aGUgY29zdCBvZgo+ID4g
-bWFpbnRlbmFuY2UuIElmIHlvdSB0aGluayBzbyBhbHNvLCBJIHdpbGwgcmVtb3ZlIHRoZSBhYm92
-ZSBtZW1zZXQgaW4gdGhlIG5leHQKPiA+IHZlcnNpb24uCj4KPiBJIGFncmVlLgo+Cj4gVGhhbmtz
-Cj4KPiA+Cj4gPiBUaGFua3MuCj4gPgo+ID4KPiA+ID4KPiA+ID4gVGhhbmtzCj4gPiA+Cj4gPiA+
-ID4KPiA+ID4gPiA+Cj4gPiA+ID4gPgo+ID4gPiA+ID4gPiArCj4gPiA+ID4gPiA+ICsgICBlcnIg
-PSB2cmluZ19hbGxvY19zdGF0ZV9leHRyYV9zcGxpdCgmdnJpbmdfc3BsaXQpOwo+ID4gPiA+ID4g
-PiArICAgaWYgKGVycikgewo+ID4gPiA+ID4gPiArICAgICAgICAgICB2cmluZ19mcmVlX3NwbGl0
-KCZ2cmluZ19zcGxpdCwgdmRldik7Cj4gPiA+ID4gPiA+ICsgICAgICAgICAgIGdvdG8gZXJyOwo+
-ID4gPiA+ID4KPiA+ID4gPiA+Cj4gPiA+ID4gPiBJIHN1Z2dlc3QgdG8gbW92ZSB2cmluZ19mcmVl
-X3NwbGl0KCkgaW50byBhIGRlZGljYXRlZCBlcnJvciBsYWJlbC4KPiA+ID4gPgo+ID4gPiA+IFdp
-bGwgY2hhbmdlLgo+ID4gPiA+Cj4gPiA+ID4gVGhhbmtzLgo+ID4gPiA+Cj4gPiA+ID4KPiA+ID4g
-PiA+Cj4gPiA+ID4gPiBUaGFua3MKPiA+ID4gPiA+Cj4gPiA+ID4gPgo+ID4gPiA+ID4gPiArICAg
-fQo+ID4gPiA+ID4gPiArCj4gPiA+ID4gPiA+ICsgICB2cmluZ19mcmVlKCZ2cS0+dnEpOwo+ID4g
-PiA+ID4gPiArCj4gPiA+ID4gPiA+ICsgICB2aXJ0cXVldWVfdnJpbmdfaW5pdF9zcGxpdCgmdnJp
-bmdfc3BsaXQsIHZxKTsKPiA+ID4gPiA+ID4gKwo+ID4gPiA+ID4gPiArICAgdmlydHF1ZXVlX2lu
-aXQodnEsIHZyaW5nX3NwbGl0LnZyaW5nLm51bSk7Cj4gPiA+ID4gPiA+ICsgICB2aXJ0cXVldWVf
-dnJpbmdfYXR0YWNoX3NwbGl0KHZxLCAmdnJpbmdfc3BsaXQpOwo+ID4gPiA+ID4gPiArCj4gPiA+
-ID4gPiA+ICsgICByZXR1cm4gMDsKPiA+ID4gPiA+ID4gKwo+ID4gPiA+ID4gPiArZXJyOgo+ID4g
-PiA+ID4gPiArICAgdmlydHF1ZXVlX3JlaW5pdF9zcGxpdCh2cSk7Cj4gPiA+ID4gPiA+ICsgICBy
-ZXR1cm4gLUVOT01FTTsKPiA+ID4gPiA+ID4gK30KPiA+ID4gPiA+ID4gKwo+ID4gPiA+ID4gPgo+
-ID4gPiA+ID4gPiAgIC8qCj4gPiA+ID4gPiA+ICAgICogUGFja2VkIHJpbmcgc3BlY2lmaWMgZnVu
-Y3Rpb25zIC0gKl9wYWNrZWQoKS4KPiA+ID4gPiA+Cj4gPiA+ID4KPiA+ID4KPiA+Cj4KX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24g
-bWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0
-dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxp
-emF0aW9u
+--===============7722777312296396865==
+Content-Type: multipart/alternative;
+ boundary="------------WDzLQcrmCNlMb0eWacTVI30R"
+Content-Language: en-US
+
+--------------WDzLQcrmCNlMb0eWacTVI30R
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Hi Michael,
+
+Could you please comment on the different wording between "exist" and 
+"valid" in spec? Having seen quite a few relevant discussions regarding 
+MTU validation and VERSION_1 negotiation on s390, I was in the 
+impression this is not the first time people getting confused because of 
+ambiguity of random wording without detailed example helping to clarify 
+around the context, or due lack of clear definition set ahead. I like 
+your idea to keep things consistent (conditional depending on feature 
+presence), however, without proper interpretation of how spec is 
+supposed to work, we are on a slippery slope towards inconsistency.
+
+On 7/28/2022 12:36 AM, Jason Wang wrote:
+>> And looking at:
+>>
+>> "The mac address field always exists (though is only valid if
+>> VIRTIO_NET_F_MAC is set), and status only exists if VIRTIO_NET_F_STATUS
+>> is set."
+>>
+>> It appears to me there's a border line set between "exist" and "valid".
+>> If I understand the spec wording correctly, a spec-conforming device
+>> implementation may or may not offer valid status value in the config
+>> space when VIRTIO_NET_F_STATUS is offered, but before the feature is
+>> negotiated.
+> That's not what I read, maybe Michael can clarify this.
+>
+
+And Jason and I find below normatives are conflict with each other.
+>> "The device MUST allow reading of any device-specific configuration 
+>> field before FEATURES_OK is set by the driver. This includes fields 
+>> which are conditional on feature bits, as long as those feature bits 
+>> are offered by the device." 
+> ...
+>> And also there are special cases where the read of specific
+>> configuration space field MUST be deferred to until FEATURES_OK is set:
+>>
+>> "If the VIRTIO_BLK_F_CONFIG_WCE feature is negotiated, the cache mode
+>> can be read or set through the writeback field. 0 corresponds to a
+>> writethrough cache, 1 to a writeback cache11. The cache mode after reset
+>> can be either writeback or writethrough. The actual mode can be
+>> determined by reading writeback after feature negotiation."
+>> "The driver MUST NOT read writeback before setting the FEATURES_OK
+>> device status bit."
+> This seems to conflict with the normatives I quoted above, and I don't
+> get why we need this.
+>
+
+Thanks,
+-Siwei
+--------------WDzLQcrmCNlMb0eWacTVI30R
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  </head>
+  <body>
+    Hi Michael,<br>
+    <br>
+    Could you please comment on the different wording between &quot;exist&quot;
+    and &quot;valid&quot; in spec? Having seen quite a few relevant discussions
+    regarding MTU validation and VERSION_1 negotiation on s390, I was in
+    the impression this is not the first time people getting confused
+    because of ambiguity of random wording without detailed example
+    helping to clarify around the context, or due lack of clear
+    definition set ahead. I like your idea to keep things consistent
+    (conditional depending on feature presence), however, without proper
+    interpretation of how spec is supposed to work, we are on a slippery
+    slope towards inconsistency.<br>
+    <br>
+    <div class="moz-cite-prefix">On 7/28/2022 12:36 AM, Jason Wang
+      wrote:<br>
+    </div>
+    <blockquote type="cite" cite="mid:CACGkMEtvVOtqAgY4Yzt_4=t8yfGJho4d9C=X8MQhW0ZKw1sDNA@mail.gmail.com">
+      <blockquote type="cite" style="color: #007cff;">
+        <pre class="moz-quote-pre" wrap="">And looking at:
+
+&quot;The mac address field always exists (though is only valid if
+VIRTIO_NET_F_MAC is set), and status only exists if VIRTIO_NET_F_STATUS
+is set.&quot;
+
+It appears to me there's a border line set between &quot;exist&quot; and &quot;valid&quot;.
+If I understand the spec wording correctly, a spec-conforming device
+implementation may or may not offer valid status value in the config
+space when VIRTIO_NET_F_STATUS is offered, but before the feature is
+negotiated.
+</pre>
+      </blockquote>
+      <pre class="moz-quote-pre" wrap="">That's not what I read, maybe Michael can clarify this.
+
+</pre>
+    </blockquote>
+    <br>
+    And Jason and I find below normatives are conflict with each other.<br>
+    <blockquote type="cite">
+      <pre class="moz-quote-pre" wrap=""><blockquote type="cite">
+&quot;The device MUST allow reading of any device-specific configuration 
+field before FEATURES_OK is set by the driver. This includes fields 
+which are conditional on feature bits, as long as those feature bits are 
+offered by the device.&quot;
+
+
+</blockquote>...
+</pre>
+      <blockquote type="cite" style="color: #007cff;">
+        <pre class="moz-quote-pre" wrap="">And also there are special cases where the read of specific
+configuration space field MUST be deferred to until FEATURES_OK is set:
+
+&quot;If the VIRTIO_BLK_F_CONFIG_WCE feature is negotiated, the cache mode
+can be read or set through the writeback field. 0 corresponds to a
+writethrough cache, 1 to a writeback cache11. The cache mode after reset
+can be either writeback or writethrough. The actual mode can be
+determined by reading writeback after feature negotiation.&quot;
+&quot;The driver MUST NOT read writeback before setting the FEATURES_OK
+device status bit.&quot;
+</pre>
+      </blockquote>
+      <pre class="moz-quote-pre" wrap="">This seems to conflict with the normatives I quoted above, and I don't
+get why we need this.
+
+</pre>
+    </blockquote>
+    <br>
+    Thanks,<br>
+    -Siwei<br>
+  </body>
+</html>
+
+--------------WDzLQcrmCNlMb0eWacTVI30R--
+
+--===============7722777312296396865==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============7722777312296396865==--
