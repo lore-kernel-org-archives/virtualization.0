@@ -1,125 +1,206 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9151CC3F6B0
-	for <virtualization@archiver.kernel.org>; Thu, 28 Jul 2022 11:36:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C259FC04A68
+	for <virtualization@archiver.kernel.org>; Thu, 28 Jul 2022 21:48:53 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 2114E408DC;
-	Thu, 28 Jul 2022 11:36:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2114E408DC
+	by smtp4.osuosl.org (Postfix) with ESMTP id 2C3D44173B;
+	Thu, 28 Jul 2022 21:48:53 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2C3D44173B
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=1Gj1KU8o;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=UcHibRs1
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id d83lLnPGxq_s; Thu, 28 Jul 2022 21:48:50 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 2B7D041732;
+	Thu, 28 Jul 2022 21:48:50 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2B7D041732
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id DF763C0033;
+	Thu, 28 Jul 2022 21:48:49 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8CC5EC002D
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 28 Jul 2022 21:48:48 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 53309404A9
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 28 Jul 2022 21:48:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 53309404A9
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=TcEYBaHi
+ dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com
+ header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=1Gj1KU8o; 
+ dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
+ header.i=@oracle.onmicrosoft.com header.a=rsa-sha256
+ header.s=selector2-oracle-onmicrosoft-com header.b=UcHibRs1
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 24tA5lmc178E; Thu, 28 Jul 2022 11:35:58 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 2E97E4010C;
-	Thu, 28 Jul 2022 11:35:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2E97E4010C
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id EFF32C0033;
-	Thu, 28 Jul 2022 11:35:57 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 52021C002D
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id mEIrCF3uE00p
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Jul 2022 11:35:57 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 18E3960AC2
- for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Jul 2022 11:35:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 18E3960AC2
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=TcEYBaHi
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 88t822AecL1J
- for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Jul 2022 11:35:55 +0000 (UTC)
+ Thu, 28 Jul 2022 21:48:46 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 26D6160A6A
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 26D6160A6A
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 47CB9402F2
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com
+ [205.220.177.32])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 47CB9402F2
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Jul 2022 11:35:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1659008154;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=3glIxZaqq5f+8fsJCyQrd3AE4XUDNsGL8GSWslp2h18=;
- b=TcEYBaHig8JvFzwLhsdyCRpbG6V049TDu57JErxMi1nYcgBOHPOxrbBmOkm66oEzvyQxrs
- +FvdmA3bI4Qvp5qb3FKGThfMRe9ADBKj0UbxLgQ7e11NHJnaH8Xlov84kl5yVG/B6F7BVC
- +2EFU9R0/b0vUzQ6BgCPaixv2IHWBQ8=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-131-Q1NDtHRAPN6Fb7C-1fpJew-1; Thu, 28 Jul 2022 07:35:51 -0400
-X-MC-Unique: Q1NDtHRAPN6Fb7C-1fpJew-1
-Received: by mail-wr1-f71.google.com with SMTP id
- m7-20020adfa3c7000000b0021ef71807e3so310269wrb.9
- for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Jul 2022 04:35:51 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=in-reply-to:content-transfer-encoding:content-disposition
- :mime-version:references:message-id:subject:cc:to:from:date
- :x-gm-message-state:from:to:cc;
- bh=3glIxZaqq5f+8fsJCyQrd3AE4XUDNsGL8GSWslp2h18=;
- b=A8N4YmVPWp+WTf+WnGpw0oUZPedQMG14t4ox4fQxONDpRyYl+ZZ6VJ2pdawfsHV+d1
- DxcQ/mfH/lt+bXmYgSZhfH7Xwly/hIFi1CQph0+aNK9qz+LgKFsHapgZJabQVJbB8XLV
- wOmgHp1SzF0y2Ybivxq5zOTuPbQzBB3Svlr9Bu1jLF+fzyUkui7HKl4iZRyvMmqVxemM
- etejdwXVRO8muElGyemhoDKOkQqg1VGYkJd3yverRhL1xgPTXwNz6iiVOlesDCON9ZHn
- KcPxyEdfIsJBpCkd7QANMPYv832LFymMv/5SQeJbkVDuXKUF3COxXlRqnVci5sngsgdP
- R7yQ==
-X-Gm-Message-State: AJIora+hKtDghH1UrZwXuEzs4uJchPsuhZR86geOORj5XPnzfKdNFwTe
- 94IxN0lI31F+U6538VCEOskUqeSSd3KDDxpa80cpyMebs4xueR7z+l67VpkBGsXTr83qSJNXQTt
- kDIGXAYT33XxKI8ycMVYx95SSjvb6oytCLoQqaXuTxQ==
-X-Received: by 2002:a5d:4a51:0:b0:21e:f85c:822 with SMTP id
- v17-20020a5d4a51000000b0021ef85c0822mr1837903wrs.453.1659008150528; 
- Thu, 28 Jul 2022 04:35:50 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1vx0lU2KLqoCgJu+RxA1icVdh+IT2crfqWruai2VCjvh6nenoVX9Rt/UwSpQ38O/enkBZPAoQ==
-X-Received: by 2002:a5d:4a51:0:b0:21e:f85c:822 with SMTP id
- v17-20020a5d4a51000000b0021ef85c0822mr1837872wrs.453.1659008150209; 
- Thu, 28 Jul 2022 04:35:50 -0700 (PDT)
-Received: from redhat.com ([2.54.183.236]) by smtp.gmail.com with ESMTPSA id
- e14-20020a5d594e000000b0021ec503075fsm811648wri.31.2022.07.28.04.35.47
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 28 Jul 2022 04:35:49 -0700 (PDT)
-Date: Thu, 28 Jul 2022 07:35:45 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Si-Wei Liu <si-wei.liu@oracle.com>
+ Thu, 28 Jul 2022 21:48:46 +0000 (UTC)
+Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
+ by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26SKIkwD021661;
+ Thu, 28 Jul 2022 21:48:41 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+ h=content-type :
+ message-id : date : subject : to : cc : references : from : in-reply-to :
+ mime-version; s=corp-2022-7-12;
+ bh=GKcQt0tQwsmsV4yN+3a1ey08wq7Iun7alwnmW6ELgZY=;
+ b=1Gj1KU8omBoCVMgG1IC5iq7vjOI2IGwTMA6RBEenG2kolKritZVBRUEzIUV36/EOonUS
+ HPrYKRFWVbfY6MB57Y9EkFz6JFbnuEz5fnRXIobszvkcKvDtCsiKrGRPG2D1BhdaVyJ1
+ eLjzZvhoxpTYRmxG6mrRlT6yzQXo1RO5TAi3OO5uNVKoG4Z0APhU9ANqJ61yX9iAGrdy
+ evyTJ2/b1i4SyHSwqKyUDfjwrEskluIVMO0otljsi95ZnGFKfQV6VkRraYtavIZQD9JL
+ JxV/FiLuG9KIA7f7Hw4OMo7ZN7/czF4I6QQM4h1DfYNf13kpJfpBmLl82anZ7/9Fb+n+ 2g== 
+Received: from phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com
+ (phxpaimrmta02.appoci.oracle.com [147.154.114.232])
+ by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3hg9a9nwfr-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Thu, 28 Jul 2022 21:48:41 +0000
+Received: from pps.filterd
+ (phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+ by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.5/8.17.1.5)
+ with ESMTP id 26SKghCn016627; Thu, 28 Jul 2022 21:48:40 GMT
+Received: from nam11-co1-obe.outbound.protection.outlook.com
+ (mail-co1nam11lp2177.outbound.protection.outlook.com [104.47.56.177])
+ by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id
+ 3hh653qu08-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Thu, 28 Jul 2022 21:48:40 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=hDgogyq7/E//ChoECdjXOwClaMnHDhCq3cuC84nsNTzUpdxwsujAgLd40puBvMV6IueSP+6RIAiR62eYZ2yetpDoIdQ4cbpn3dciV3EnetVt4DjTU5HMYAWUruvBBjg/etU0/79K8/B2IMgqZgjdqjz/IzEH4m4KbklQpAuWukci+ziwgrY6yNx2ZbNDVrkOZx03bvFLcPfxZoDJIeofBFrO1SxvNFb8dtOFUEbB1AH8E9UsaLwbCF/PPUbD8TK/uJcNTQQhLOXppMfhTquBauXKkWjVoFOFQYqz6tDhzVDLj5bQkFJahW0T41XA10g7V7DFcdb6vMB8XUKUAWmwlg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=GKcQt0tQwsmsV4yN+3a1ey08wq7Iun7alwnmW6ELgZY=;
+ b=VqMXnaUOraxiUvPV7jfDK2yi8o82Mox0sfD+hk01flqzfbsH2yiGVM6er2V+q2PY9pX8OZQM2GWTojP2uhS3c/wd5pT/Ej4d3xIuTQlsnJz4bI5iBDDdsk3gTRHllcAXSVP+gmpqfZJzb0S48T7tPh0FuT9wU59pH5ND/OWrwymYrmGDz09yNOk9vfV26DdFlad9bNAxZbcXBaVdoBtqdq21pXzyOCk4PfyR/E2wV14mJGW3Cg54irGqCtMStjit/Dp2SGiPNzRNzP24C1kgje9cBooW1W+1R5O6ERqe1/d6XXlRNWjc7RknduK6YuBIDJSpfi0VdA/xLmQO48b7Bg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=GKcQt0tQwsmsV4yN+3a1ey08wq7Iun7alwnmW6ELgZY=;
+ b=UcHibRs1bdDyEJ7tSNvaBw9OU9nNClux2+OIa608awBfMVs3HgEuDK0N2hTHeJLz3upB9jLsRRFy/T5ZnChz7Ymy0uc0Q3BubOXEEyJUXk2O9UdfoW1obt5ax8u4f+UFKU29YSHAru8fX7Fx1dIa5Go423KwmSHzf7Z7jS5zxHk=
+Received: from BYAPR10MB3287.namprd10.prod.outlook.com (2603:10b6:a03:15c::11)
+ by SA1PR10MB6296.namprd10.prod.outlook.com (2603:10b6:806:253::6)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5458.18; Thu, 28 Jul
+ 2022 21:48:37 +0000
+Received: from BYAPR10MB3287.namprd10.prod.outlook.com
+ ([fe80::c846:d8e4:8631:9803]) by BYAPR10MB3287.namprd10.prod.outlook.com
+ ([fe80::c846:d8e4:8631:9803%4]) with mapi id 15.20.5458.026; Thu, 28 Jul 2022
+ 21:48:37 +0000
+Message-ID: <b58dba25-3258-d600-ea06-879094639852@oracle.com>
+Date: Thu, 28 Jul 2022 14:48:35 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
 Subject: Re: [PATCH V3 4/6] vDPA: !FEATURES_OK should not block querying
  device config space
-Message-ID: <20220728070409-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+To: "Zhu, Lingshan" <lingshan.zhu@intel.com>, Parav Pandit <parav@nvidia.com>,
+ "jasowang@redhat.com" <jasowang@redhat.com>,
+ "mst@redhat.com" <mst@redhat.com>, Eli Cohen <elic@nvidia.com>
 References: <20220701132826.8132-1-lingshan.zhu@intel.com>
  <20220701132826.8132-5-lingshan.zhu@intel.com>
  <PH0PR12MB548190DE76CC64E56DA2DF13DCBD9@PH0PR12MB5481.namprd12.prod.outlook.com>
  <00889067-50ac-d2cd-675f-748f171e5c83@oracle.com>
  <63242254-ba84-6810-dad8-34f900b97f2f@intel.com>
  <8002554a-a77c-7b25-8f99-8d68248a741d@oracle.com>
- <c8bd5396-84f2-e782-79d7-f493aca95781@redhat.com>
- <f3fd203d-a3ad-4c36-ddbc-01f061f4f99e@oracle.com>
+ <00e2e07e-1a2e-7af8-a060-cc9034e0d33f@intel.com>
+From: Si-Wei Liu <si-wei.liu@oracle.com>
+Organization: Oracle Corporation
+In-Reply-To: <00e2e07e-1a2e-7af8-a060-cc9034e0d33f@intel.com>
+X-ClientProxiedBy: SJ0PR05CA0169.namprd05.prod.outlook.com
+ (2603:10b6:a03:339::24) To BYAPR10MB3287.namprd10.prod.outlook.com
+ (2603:10b6:a03:15c::11)
 MIME-Version: 1.0
-In-Reply-To: <f3fd203d-a3ad-4c36-ddbc-01f061f4f99e@oracle.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: d2b98fba-6690-4af2-654e-08da70e2ed73
+X-MS-TrafficTypeDiagnostic: SA1PR10MB6296:EE_
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: FI54EKvmUpsp7q+hxBUXMkAwlB/YD2brldGjMccHzM7N9m8LSaAJtSDKshgvdD0fmjv9DoVQHR9QC9cukhZua4ncQcZw/1wJ6X6xPSStxJkgeUf0nqSmfilhWYgCSBoCbKsiHYJewjmQ34rZUKIa5aQs5KoDz4kESR5mm1t+MgpBNlarIqQbzNMmAAouy+xdTgiC3V8PkDHIYVZTYzDgLsSjravkr8FKs6AgqCOKkOWpJre6w65bPnBSMW7lv7GVfq1RhUZLAjKSyn3iYemtfc/MkNyHUkKPWSxrYcbDr1RwBAc0/1s0xMtSlsqWKp80CdV93BGfpdibJ5KExEu8nm7LNGkj+kX9PisdgLRYuxGSykr64IKmYCDprDv2fZId9uGapFS9wy/xB1Zx5ZRAy+V39PmUCuWw1Jtyp/7pJDkNv5jnIrNkB2G2DxShJRL8FYv2VEVV0mc9PfK+WEYV29l+0wIQKqChcbWV4BI+8X9CQfUDxl/QoMqkFO8zS3u+6O4JttYX8j/INSTVZ1vtB5SPY5w0XGPXI2fJxNZAuXPvAcC9IMOSTu0rSuVAkYuook8yRZDD+9W7NEtDPitLDJh8SMNLJueT+JYCrJnCFDXApilFwf4aPBG5Kde76fH+n6ddEFAo3ciIHx++gg677qCwQ3ch8831OryH5R/EuePOvHPOPcNVCzYTtbiedHPr1M/s/GSBBMNlPK0kodWapsVZExJVIQwz6NHUruArjPPrFdi7cDMbHrOZiDBMj8YLLdC0ApsMgmkOdEckvBAku466/BRZghB1pGg6H8HD3ldo77GSvhILBpD1UzZXxvxZ5QHg8LNA+78j6oTWx10+7oGMcUoaJZvYJm/Tf9NoCzE=
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:BYAPR10MB3287.namprd10.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230016)(39860400002)(366004)(376002)(346002)(136003)(396003)(2616005)(6486002)(166002)(41300700001)(186003)(110136005)(83380400001)(30864003)(38100700002)(66946007)(6506007)(31696002)(54906003)(8676002)(4326008)(316002)(66476007)(966005)(6512007)(8936002)(53546011)(86362001)(66556008)(26005)(33964004)(2906002)(36756003)(36916002)(478600001)(5660300002)(31686004)(45980500001)(43740500002);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?YkpoNFZBcUdPYjdTVi9CaDFPanNGbkpHaHNCNEJtL2ZnQTJsd3NJaWdRVUlZ?=
+ =?utf-8?B?STZmdHoralZUWHZXMWxjd0lBK1RGaWNrcXZEdWgyM2l1ZjJhSlltWlM5R1Y0?=
+ =?utf-8?B?Z3NQL1c3L2lzWVN2TTc2QTk3RG1yc3JJRTRtZHdBUGJpU0p6c1A3YjF1UG0r?=
+ =?utf-8?B?dXJKQjgwSk9ldG1zdU1zeHFvazh1TCs1QjJkdUt3N0lGVkl4NlJRaFNQZERY?=
+ =?utf-8?B?akR1djhaTFE1Qm1la293SjhFcldQS1RSbDNPOFhFK0tGNXp1V0hBRW1tYWlI?=
+ =?utf-8?B?T3VoVzdjVFRUL2N5V1E1S3dWbHpWcnJrZ3FDTWZiVWdwMmZOL1JEM042cHRu?=
+ =?utf-8?B?SVdwRTBSTXJPTjJuRHJYK3dyYnlXVWsrNmhybjZBWTdjNUJsZ0dkb1MwOG0w?=
+ =?utf-8?B?MjNoVFl5T0FRZ05jaUZNMXZMbnhkUkFqbUZVQ3RjWjZtS2pTSHNuVy9Wc0VJ?=
+ =?utf-8?B?Yk9DUjRmYmJWOFZDN3pJUm9Fc29HeDBkdDRHb2htQTVJNVNvUEVta1Q0S3cv?=
+ =?utf-8?B?aW1xKzl5SjNzQm5jOEUxYk5ENnd2dmxWaWIyRFpjSXkzZ2tIcU5QeTBxNjBn?=
+ =?utf-8?B?SzJCTGh0aGtMaG1xbzdTVDB2ODd4d1l2N2M5Ym1aMXhwRzRJZm1maVY1c2Ny?=
+ =?utf-8?B?dzBIQ3lsRkVVSGJhUU9ZTFNESkdGUFRySURieGZzYk1PaW1XYTRpYmYrVkVR?=
+ =?utf-8?B?R1pVTXdDOUM3N0hmMkh2a2drWE9CMFlXZVdtTXZlQ2tNVHBqQXlBS0E2QlFk?=
+ =?utf-8?B?eUZqNFZEekJuN3EvN1RlcTRkVXRoTElEdzJUVmZSU09KMFpGc1U4UWV1YUMz?=
+ =?utf-8?B?MjNUTlA4ejcwUmU4STdSaUpHNFJtUGJGai9yU1NiZEwrOGh3bXJhUCtRMUwv?=
+ =?utf-8?B?RHk4WVBtVmg3YmNNQmU0S2JVVlUzZHhBNDZ6YkI0YUVuL0l6WlBPbTh5M2Za?=
+ =?utf-8?B?OUx1eTJGT01hUmU4Z1BlMERTelAzKzdvUDZjTFFFclJSVEorbHlXNS9qNXFB?=
+ =?utf-8?B?M3ZZK25UTi9FUnFhMjRYVDh5TXNiWG5KRUNPM2ZNNm9xd1RET1ZOMW1xNWxm?=
+ =?utf-8?B?a1AwMHoxMTNTN0RSTlRsenRtTitRc0lPQ0x2QVF4TDdzc3ZMQ01OUlhrZnM5?=
+ =?utf-8?B?K3VleDV3TVdjODN3d3lhTDRhR0gzOWtBMjNGaTRodkRha055cndmcjVhU3lV?=
+ =?utf-8?B?di9wcXNTdmlja25WLzY2OGJRaVUwdTVKdExZOXlseXVrRnpPM1FlTEhudHBX?=
+ =?utf-8?B?L1R2TjdCMWdsak9lYUsyY1ZVR0ZLZTcrWmIwdThPbFRPNCtsSmQwK0FHMWNG?=
+ =?utf-8?B?d29VYUFDbEdTQU1NdWVGYWk5VCtxVklaWlRZT1plTzlWeFM4bE9aU3plT3ls?=
+ =?utf-8?B?L2Q0Z3lkb3JXbU5qYkczdkhILzFyei83NEl4LzhkemlaSTk5MkhXN3M4NzhV?=
+ =?utf-8?B?K1ptY25KQ2VNUlhTVW1SNks1MVNRMlQ3MGRCWlVzZEJPTGRYTnUwRGQ3TjFM?=
+ =?utf-8?B?NXZxUTlyYWdDMWpsVVJOWEJHWXlJWkh5WEUrZGxEcCtNbFhLNWIydWVMVU94?=
+ =?utf-8?B?QWNZSUY4SGpHQ1JHQ1ZlWVFtRU5idUxPOGN0NlNuaWpDd0xzNytUT1hTVnVL?=
+ =?utf-8?B?QzJ6N0VxVWw5eDZYdUpEc3BPSytUV0tZOHlDNEZZSWhDWkFkeTBnQ3lpZkps?=
+ =?utf-8?B?TFZtUkVhM0lyYkN1enBVOXhGKzFhTDJ0b1dIWkNJZGUvVnMvdFNuNEhSenVH?=
+ =?utf-8?B?VDhqVUxJSXZvS1dsZ3FCNEtQTUt4cjd4QVZvT1JKUW1zSWdjYlN5dERjSERj?=
+ =?utf-8?B?eVlLSlQwazRIV0xLeER6Ni93cEdNdGZGR0NybExlR2wwU2pVaFpKWGhqdnlX?=
+ =?utf-8?B?OXkwOTMwbU1la055Z1Y4KytCZTkrbTVoWHRPeks5eHB1MXgrRUlaQ3BkaStF?=
+ =?utf-8?B?NDhTRUk2RmNRUHJQdXg4UmJqWW93SVdWaGhBc3BMUXFvc1crQmdhV2xxamdt?=
+ =?utf-8?B?MCt1VHg0TGdLRkpHaUl5Rm9Pb0tyN09Db3ptYWovcnQ1d0lXNFFVcHg4cVJn?=
+ =?utf-8?B?SUJYd2VkRmM4eGF6Szh2eDYweEJtMEhEUzZnalRtL2k5d2NkMVpFak1mNm1C?=
+ =?utf-8?Q?4z3QY8wJWEhopPmGtl+NeLjFA?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: d2b98fba-6690-4af2-654e-08da70e2ed73
+X-MS-Exchange-CrossTenant-AuthSource: BYAPR10MB3287.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Jul 2022 21:48:37.6903 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 0a/kWNevdnbI0lzi9EG4uRSAWodNBqnNk4RDsmkYHiShFXkzLdePAPsYsXksNAKiFEps16DJcb1vX9Cj6t1XkQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR10MB6296
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-07-28_06,2022-07-28_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0
+ phishscore=0 bulkscore=0
+ adultscore=0 mlxscore=0 mlxlogscore=999 spamscore=0 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2206140000
+ definitions=main-2207280097
+X-Proofpoint-GUID: cSEvCWaP1PZEiNO_LUZ8l3d1SkjEueRf
+X-Proofpoint-ORIG-GUID: cSEvCWaP1PZEiNO_LUZ8l3d1SkjEueRf
 Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+ "gautam.dawar@amd.com" <gautam.dawar@amd.com>,
  "virtualization@lists.linux-foundation.org"
  <virtualization@lists.linux-foundation.org>,
- "xieyongji@bytedance.com" <xieyongji@bytedance.com>,
- "gautam.dawar@amd.com" <gautam.dawar@amd.com>, "Zhu,
- Lingshan" <lingshan.zhu@intel.com>, Eli Cohen <elic@nvidia.com>
+ "xieyongji@bytedance.com" <xieyongji@bytedance.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -131,227 +212,496 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============5070048044420088093=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gVGh1LCBKdWwgMjgsIDIwMjIgYXQgMTI6MDg6NTNBTSAtMDcwMCwgU2ktV2VpIExpdSB3cm90
-ZToKPiAKPiAKPiBPbiA3LzI3LzIwMjIgNzowNiBQTSwgSmFzb24gV2FuZyB3cm90ZToKPiA+IAo+
-ID4g5ZyoIDIwMjIvNy8yOCAwODo1NiwgU2ktV2VpIExpdSDlhpnpgZM6Cj4gPiA+IAo+ID4gPiAK
-PiA+ID4gT24gNy8yNy8yMDIyIDQ6NDcgQU0sIFpodSwgTGluZ3NoYW4gd3JvdGU6Cj4gPiA+ID4g
-Cj4gPiA+ID4gCj4gPiA+ID4gT24gNy8yNy8yMDIyIDU6NDMgUE0sIFNpLVdlaSBMaXUgd3JvdGU6
-Cj4gPiA+ID4gPiBTb3JyeSB0byBjaGltZSBpbiBsYXRlIGluIHRoZSBnYW1lLiBGb3Igc29tZSBy
-ZWFzb24gSQo+ID4gPiA+ID4gY291bGRuJ3QgZ2V0IHRvIG1vc3QgZW1haWxzIGZvciB0aGlzIGRp
-c2N1c3Npb24gKEkgb25seQo+ID4gPiA+ID4gc3Vic2NyaWJlZCB0byB0aGUgdmlydHVhbGl6YXRp
-b24gbGlzdCksIHdoaWxlIEkgd2FzIHRha2luZwo+ID4gPiA+ID4gb2ZmIGFtb25nc3QgdGhlIHBh
-c3QgZmV3IHdlZWtzLgo+ID4gPiA+ID4gCj4gPiA+ID4gPiBJdCBsb29rcyB0byBtZSB0aGlzIHBh
-dGNoIGlzIGluY29tcGxldGUuIE5vdGVkIGRvd24gdGhlIHdheQo+ID4gPiA+ID4gaW4gdmRwYV9k
-ZXZfbmV0X2NvbmZpZ19maWxsKCksIHdlIGhhdmUgdGhlIGZvbGxvd2luZzoKPiA+ID4gPiA+IMKg
-wqDCoMKgwqDCoMKgwqAgZmVhdHVyZXMgPSB2ZGV2LT5jb25maWctPmdldF9kcml2ZXJfZmVhdHVy
-ZXModmRldik7Cj4gPiA+ID4gPiDCoMKgwqDCoMKgwqDCoMKgIGlmIChubGFfcHV0X3U2NF82NGJp
-dChtc2csCj4gPiA+ID4gPiBWRFBBX0FUVFJfREVWX05FR09USUFURURfRkVBVFVSRVMsIGZlYXR1
-cmVzLAo+ID4gPiA+ID4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgIFZEUEFfQVRUUl9QQUQpKQo+ID4gPiA+ID4gwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqAgcmV0dXJuIC1FTVNHU0laRTsKPiA+ID4gPiA+IAo+ID4gPiA+
-ID4gTWFraW5nIGNhbGwgdG8gLmdldF9kcml2ZXJfZmVhdHVyZXMoKSBkb2Vzbid0IG1ha2Ugc2Vu
-c2UKPiA+ID4gPiA+IHdoZW4gZmVhdHVyZSBuZWdvdGlhdGlvbiBpc24ndCBjb21wbGV0ZS4gTmVp
-dGhlciBzaG91bGQKPiA+ID4gPiA+IHByZXNlbnQgbmVnb3RpYXRlZF9mZWF0dXJlcyB0byB1c2Vy
-c3BhY2UgYmVmb3JlIG5lZ290aWF0aW9uCj4gPiA+ID4gPiBpcyBkb25lLgo+ID4gPiA+ID4gCj4g
-PiA+ID4gPiBTaW1pbGFybHksIG1heF92cXAgdGhyb3VnaCB2ZHBhX2Rldl9uZXRfbXFfY29uZmln
-X2ZpbGwoKQo+ID4gPiA+ID4gcHJvYmFibHkgc2hvdWxkIG5vdCBzaG93IGJlZm9yZSBuZWdvdGlh
-dGlvbiBpcyBkb25lIC0gaXQKPiA+ID4gPiA+IGRlcGVuZHMgb24gZHJpdmVyIGZlYXR1cmVzIG5l
-Z290aWF0ZWQuCj4gPiA+ID4gSSBoYXZlIGFub3RoZXIgcGF0Y2ggaW4gdGhpcyBzZXJpZXMgaW50
-cm9kdWNlcyBkZXZpY2VfZmVhdHVyZXMKPiA+ID4gPiBhbmQgd2lsbCByZXBvcnQgZGV2aWNlX2Zl
-YXR1cmVzIHRvIHRoZSB1c2Vyc3BhY2UgZXZlbiBmZWF0dXJlcwo+ID4gPiA+IG5lZ290aWF0aW9u
-IG5vdCBkb25lLiBCZWNhdXNlIHRoZSBzcGVjIHNheXMgd2Ugc2hvdWxkIGFsbG93Cj4gPiA+ID4g
-ZHJpdmVyIGFjY2VzcyB0aGUgY29uZmlnIHNwYWNlIGJlZm9yZSBGRUFUVVJFU19PSy4KPiA+ID4g
-VGhlIGNvbmZpZyBzcGFjZSBjYW4gYmUgYWNjZXNzZWQgYnkgZ3Vlc3QgYmVmb3JlIGZlYXR1cmVz
-X29rIGRvZXNuJ3QKPiA+ID4gbmVjZXNzYXJpbHkgbWVhbiB0aGUgdmFsdWUgaXMgdmFsaWQuCj4g
-PiAKPiA+IAo+ID4gSXQncyB2YWxpZCBhcyBsb25nIGFzIHRoZSBkZXZpY2Ugb2ZmZXJzIHRoZSBm
-ZWF0dXJlOgo+ID4gCj4gPiAiVGhlIGRldmljZSBNVVNUIGFsbG93IHJlYWRpbmcgb2YgYW55IGRl
-dmljZS1zcGVjaWZpYyBjb25maWd1cmF0aW9uCj4gPiBmaWVsZCBiZWZvcmUgRkVBVFVSRVNfT0sg
-aXMgc2V0IGJ5IHRoZSBkcml2ZXIuIFRoaXMgaW5jbHVkZXMgZmllbGRzCj4gPiB3aGljaCBhcmUg
-Y29uZGl0aW9uYWwgb24gZmVhdHVyZSBiaXRzLCBhcyBsb25nIGFzIHRob3NlIGZlYXR1cmUgYml0
-cyBhcmUKPiA+IG9mZmVyZWQgYnkgdGhlIGRldmljZS4iCj4gSSBndWVzcyB0aGlzIHN0YXRlbWVu
-dCBvbmx5IGNvbnZleXMgdGhhdCB0aGUgZmllbGQgaW4gY29uZmlnIHNwYWNlIGNhbiBiZQo+IHJl
-YWQgYmVmb3JlIEZFQVRVUkVTX09LIGlzIHNldCwgdGhvdWdoIGl0IGRvZXMgbm90ICpleHBsaWNp
-dGx5KiBzdGF0ZXMgdGhlCj4gdmFsaWRpdHkgb2YgZmllbGQuCj4gCj4gQW5kIGxvb2tpbmcgYXQ6
-Cj4gCj4gIlRoZSBtYWMgYWRkcmVzcyBmaWVsZCBhbHdheXMgZXhpc3RzICh0aG91Z2ggaXMgb25s
-eSB2YWxpZCBpZgo+IFZJUlRJT19ORVRfRl9NQUMgaXMgc2V0KSwgYW5kIHN0YXR1cyBvbmx5IGV4
-aXN0cyBpZiBWSVJUSU9fTkVUX0ZfU1RBVFVTIGlzCj4gc2V0LiIKPiAKPiBJdCBhcHBlYXJzIHRv
-IG1lIHRoZXJlJ3MgYSBib3JkZXIgbGluZSBzZXQgYmV0d2VlbiAiZXhpc3QiIGFuZCAidmFsaWQi
-LiBJZiBJCj4gdW5kZXJzdGFuZCB0aGUgc3BlYyB3b3JkaW5nIGNvcnJlY3RseSwgYSBzcGVjLWNv
-bmZvcm1pbmcgZGV2aWNlCj4gaW1wbGVtZW50YXRpb24gbWF5IG9yIG1heSBub3Qgb2ZmZXIgdmFs
-aWQgc3RhdHVzIHZhbHVlIGluIHRoZSBjb25maWcgc3BhY2UKPiB3aGVuIFZJUlRJT19ORVRfRl9T
-VEFUVVMgaXMgb2ZmZXJlZCwgYnV0IGJlZm9yZSB0aGUgZmVhdHVyZSBpcyBuZWdvdGlhdGVkLgo+
-IE9uIHRoZSBvdGhlciBoYW5kLCBjb25maWcgc3BhY2Ugc2hvdWxkIGNvbnRhaW4gdmFsaWQgbWFj
-IGFkZHJlc3MgdGhlIG1vbWVudAo+IFZJUlRJT19ORVRfRl9NQUMgZmVhdHVyZSBpcyBvZmZlcmVk
-LCByZWdhcmRsZXNzIGJlaW5nIG5lZ290aWF0ZWQgb3Igbm90LiBCeQo+IHRoYXQsIHRoZXJlIHNl
-ZW1zIHRvIGJlIGxlZXdheSBmb3IgdGhlIGRldmljZSBpbXBsZW1lbnRhdGlvbiB0byBkZWNpZGUg
-d2hlbgo+IGNvbmZpZyBzcGFjZSBmaWVsZCBtYXkgYmVjb21lIHZhbGlkLCB0aG91Z2ggZm9yIG1v
-c3Qgb2YgUUVNVSdzIHNvZnR3YXJlCj4gdmlydGlvIGRldmljZXMsIHZhbGlkIHZhbHVlIGlzIHBy
-ZXNlbnQgdG8gY29uZmlnIHNwYWNlIHRoZSB2ZXJ5IGZpcnN0IG1vbWVudAo+IHdoZW4gZmVhdHVy
-ZSBpcyBvZmZlcmVkLgo+IAo+ICJJZiB0aGUgVklSVElPX05FVF9GX01BQyBmZWF0dXJlIGJpdCBp
-cyBzZXQsIHRoZSBjb25maWd1cmF0aW9uIHNwYWNlIG1hYwo+IGVudHJ5IGluZGljYXRlcyB0aGUg
-4oCccGh5c2ljYWzigJ0gYWRkcmVzcyBvZiB0aGUgbmV0d29yayBjYXJkLCBvdGhlcndpc2UgdGhl
-Cj4gZHJpdmVyIHdvdWxkIHR5cGljYWxseSBnZW5lcmF0ZSBhIHJhbmRvbSBsb2NhbCBNQUMgYWRk
-cmVzcy4iCj4gIklmIHRoZSBWSVJUSU9fTkVUX0ZfU1RBVFVTIGZlYXR1cmUgYml0IGlzIG5lZ290
-aWF0ZWQsIHRoZSBsaW5rIHN0YXR1cyBjb21lcwo+IGZyb20gdGhlIGJvdHRvbSBiaXQgb2Ygc3Rh
-dHVzLiBPdGhlcndpc2UsIHRoZSBkcml2ZXIgYXNzdW1lcyBpdOKAmXMgYWN0aXZlLiIKPiAKPiBB
-bmQgYWxzbyB0aGVyZSBhcmUgc3BlY2lhbCBjYXNlcyB3aGVyZSB0aGUgcmVhZCBvZiBzcGVjaWZp
-YyBjb25maWd1cmF0aW9uCj4gc3BhY2UgZmllbGQgTVVTVCBiZSBkZWZlcnJlZCB0byB1bnRpbCBG
-RUFUVVJFU19PSyBpcyBzZXQ6Cj4gCj4gIklmIHRoZSBWSVJUSU9fQkxLX0ZfQ09ORklHX1dDRSBm
-ZWF0dXJlIGlzIG5lZ290aWF0ZWQsIHRoZSBjYWNoZSBtb2RlIGNhbiBiZQo+IHJlYWQgb3Igc2V0
-IHRocm91Z2ggdGhlIHdyaXRlYmFjayBmaWVsZC4gMCBjb3JyZXNwb25kcyB0byBhIHdyaXRldGhy
-b3VnaAo+IGNhY2hlLCAxIHRvIGEgd3JpdGViYWNrIGNhY2hlMTEuIFRoZSBjYWNoZSBtb2RlIGFm
-dGVyIHJlc2V0IGNhbiBiZSBlaXRoZXIKPiB3cml0ZWJhY2sgb3Igd3JpdGV0aHJvdWdoLiBUaGUg
-YWN0dWFsIG1vZGUgY2FuIGJlIGRldGVybWluZWQgYnkgcmVhZGluZwo+IHdyaXRlYmFjayBhZnRl
-ciBmZWF0dXJlIG5lZ290aWF0aW9uLiIKPiAiVGhlIGRyaXZlciBNVVNUIE5PVCByZWFkIHdyaXRl
-YmFjayBiZWZvcmUgc2V0dGluZyB0aGUgRkVBVFVSRVNfT0sgZGV2aWNlCj4gc3RhdHVzIGJpdC4i
-Cj4gIklmIFZJUlRJT19CTEtfRl9DT05GSUdfV0NFIGlzIG5lZ290aWF0ZWQgYnV0IFZJUlRJT19C
-TEtfRl9GTFVTSCBpcyBub3QsIHRoZQo+IGRldmljZSBNVVNUIGluaXRpYWxpemUgd3JpdGViYWNr
-IHRvIDAuIgo+IAo+IFNpbmNlIHRoZSBzcGVjIGRvZXNuJ3QgZXhwbGljaXRseSBtYW5kYXRlIHRo
-ZSB2YWxpZGl0eSBvZiBlYWNoIGNvbmZpZyBzcGFjZQo+IGZpZWxkIHdoZW4gZmVhdHVyZSBvZiBj
-b25jZXJuIGlzIG9mZmVyZWQsIHRvIGJlIHNhZmVyIHdlJ2QgaGF2ZSB0byBsaXZlIHdpdGgKPiBv
-ZGQgZGV2aWNlIGltcGxlbWVudGF0aW9uLiBJIGtub3cgZm9yIHN1cmUgUUVNVSBzb2Z0d2FyZSBk
-ZXZpY2VzIHdvbid0IGZvcgo+IDk5JSBvZiB0aGVzZSBjYXNlcywgYnV0IHRoYXQncyBub3Qgd2hh
-dCBpcyBjdXJyZW50bHkgZGVmaW5lZCBpbiB0aGUgc3BlYy4KCgpUaGFua3MgZm9yIHJhaXNpbmcg
-dGhpcyBzdWJqZWN0LiBJIHN0YXJ0ZWQgd29ya2luZyBvbiB0aGlzIGluIEFwcmlsOgoKaHR0cHM6
-Ly9saXN0cy5vYXNpcy1vcGVuLm9yZy9hcmNoaXZlcy92aXJ0aW8tY29tbWVudC8yMDIyMDEvbXNn
-MDAwNjguaHRtbAoKd29ya2luZyBub3cgdG8gYWRkcmVzcyB0aGUgY29tbWVudHMuCgoKPiA+IAo+
-ID4gCj4gPiA+IFlvdSBtYXkgd2FudCB0byBkb3VibGUgY2hlY2sgd2l0aCBNaWNoYWVsIGZvciB3
-aGF0IGhlIHF1b3RlZCBlYXJsaWVyOgo+ID4gPiA+IE5vcGU6Cj4gPiA+ID4gCj4gPiA+ID4gMi41
-LjHCoCBEcml2ZXIgUmVxdWlyZW1lbnRzOiBEZXZpY2UgQ29uZmlndXJhdGlvbiBTcGFjZQo+ID4g
-PiA+IAo+ID4gPiA+IC4uLgo+ID4gPiA+IAo+ID4gPiA+IEZvciBvcHRpb25hbCBjb25maWd1cmF0
-aW9uIHNwYWNlIGZpZWxkcywgdGhlIGRyaXZlciBNVVNUIGNoZWNrCj4gPiA+ID4gdGhhdCB0aGUg
-Y29ycmVzcG9uZGluZyBmZWF0dXJlIGlzIG9mZmVyZWQKPiA+ID4gPiBiZWZvcmUgYWNjZXNzaW5n
-IHRoYXQgcGFydCBvZiB0aGUgY29uZmlndXJhdGlvbiBzcGFjZS4KPiA+ID4gCj4gPiA+IGFuZCBo
-b3cgbWFueSBkcml2ZXIgYnVncyB0YWtpbmcgd3JvbmcgYXNzdW1wdGlvbiBvZiB0aGUgdmFsaWRp
-dHkgb2YKPiA+ID4gY29uZmlnIHNwYWNlIGZpZWxkIHdpdGhvdXQgZmVhdHVyZXNfb2suIEkgYW0g
-bm90IHN1cmUgd2hhdCB1c2UgY2FzZQo+ID4gPiB5b3Ugd2FudCB0byBleHBvc2UgY29uZmlnIHJl
-c2lzdGVyIHZhbHVlcyBmb3IgYmVmb3JlIGZlYXR1cmVzX29rLCBpZgo+ID4gPiBpdCdzIG1vc3Rs
-eSBmb3IgbGl2ZSBtaWdyYXRpb24gSSBndWVzcyBpdCdzIHByb2JhYmx5IGhlYWRpbmcgYSB3cm9u
-Zwo+ID4gPiBkaXJlY3Rpb24uCj4gPiAKPiA+IAo+ID4gSSBndWVzcyBpdCdzIG5vdCBmb3IgbWln
-cmF0aW9uLgo+IFRoZW4gd2hhdCdzIHRoZSBvdGhlciBwb3NzaWJsZSB1c2UgY2FzZSB0aGFuIGxp
-dmUgbWlncmF0aW9uLCB3ZXJlIHRvIGV4cG9zZQo+IGNvbmZpZyBzcGFjZSB2YWx1ZXM/IFRyb3Vi
-bGVzaG9vdGluZyBjb25maWcgc3BhY2UgZGlzY3JlcGFuY3kgYmV0d2VlbiB2RFBBCj4gYW5kIHRo
-ZSBlbXVsYXRlZCB2aXJ0aW8gZGV2aWNlIGluIHVzZXJzcGFjZT8gT3IgdHJhY2tpbmcgY2hhbmdl
-cyBpbiBjb25maWcKPiBzcGFjZSBhY3Jvc3MgZmVhdHVyZSBuZWdvdGlhdGlvbiwgYnV0IGZvciB3
-aGF0PyBJdCdkIGJlIGJlbmVmaWNpYWwgdG8gdGhlCj4gaW50ZXJmYWNlIGRlc2lnbiBpZiB0aGUg
-c3BlY2lmaWMgdXNlIGNhc2UgY2FuIGJlIGNsZWFybHkgZGVzY3JpYmVkLi4uCj4gCj4gCj4gPiBG
-b3IgbWlncmF0aW9uLCBhIHByb3Zpc2lvbiB3aXRoIHRoZSBjb3JyZWN0IGZlYXR1cmVzL2NhcGFi
-aWxpdHkgd291bGQgYmUKPiA+IHN1ZmZpY2llbnQuCj4gUmlnaHQsIHRoYXQncyB3aGF0IEkgdGhv
-dWdodCB0b28uIEl0IGRvZXNuJ3QgbmVlZCB0byBleHBvc2UgY29uZmlnIHNwYWNlCj4gdmFsdWVz
-LCBzaW1wbHkgZXhwb3J0aW5nIGFsbCBhdHRyaWJ1dGVzIGZvciB2ZHBhIGRldmljZSBjcmVhdGlv
-biB3aWxsIGRvIHRoZQo+IHdvcmsuCj4gCj4gLVNpd2VpCj4gCj4gPiAKPiA+IFRoYW5rcwo+ID4g
-Cj4gPiAKPiA+ID4gCj4gPiA+IAo+ID4gPiA+ID4gCj4gPiA+ID4gPiAKPiA+ID4gPiA+IExhc3Qg
-YnV0IG5vdCB0aGUgbGVhc3QsIHRoaXMgInZkcGEgZGV2IGNvbmZpZyIgY29tbWFuZCB3YXMKPiA+
-ID4gPiA+IG5vdCBkZXNpZ25lZCB0byBkaXNwbGF5IHRoZSByZWFsIGNvbmZpZyBzcGFjZSByZWdp
-c3Rlcgo+ID4gPiA+ID4gdmFsdWVzIGluIHRoZSBmaXJzdCBwbGFjZS4gUXVvdGluZyB0aGUgdmRw
-YS1kZXYoOCkgbWFuIHBhZ2U6Cj4gPiA+ID4gPiAKPiA+ID4gPiA+ID4gdmRwYSBkZXYgY29uZmln
-IHNob3cgLSBTaG93IGNvbmZpZ3VyYXRpb24gb2Ygc3BlY2lmaWMKPiA+ID4gPiA+ID4gZGV2aWNl
-IG9yIGFsbCBkZXZpY2VzLgo+ID4gPiA+ID4gPiBERVYgLSBzcGVjaWZpZXMgdGhlIHZkcGEgZGV2
-aWNlIHRvIHNob3cgaXRzCj4gPiA+ID4gPiA+IGNvbmZpZ3VyYXRpb24uIElmIHRoaXMgYXJndW1l
-bnQgaXMgb21pdHRlZCBhbGwgZGV2aWNlcwo+ID4gPiA+ID4gPiBjb25maWd1cmF0aW9uIGlzIGxp
-c3RlZC4KPiA+ID4gPiA+IEl0IGRvZXNuJ3Qgc2F5IGFueXRoaW5nIGFib3V0IGNvbmZpZ3VyYXRp
-b24gc3BhY2Ugb3IKPiA+ID4gPiA+IHJlZ2lzdGVyIHZhbHVlcyBpbiBjb25maWcgc3BhY2UuIEFz
-IGxvbmcgYXMgaXQgY2FuIGNvbnZleQo+ID4gPiA+ID4gdGhlIGNvbmZpZyBhdHRyaWJ1dGUgd2hl
-biBpbnN0YW50aWF0aW5nIHZEUEEgZGV2aWNlCj4gPiA+ID4gPiBpbnN0YW5jZSwgYW5kIG1vcmUg
-aW1wb3J0YW50bHksIHRoZSBjb25maWcgY2FuIGJlIGVhc2lseQo+ID4gPiA+ID4gaW1wb3J0ZWQg
-ZnJvbSBvciBleHBvcnRlZCB0byB1c2Vyc3BhY2UgdG9vbHMgd2hlbiB0cnlpbmcgdG8KPiA+ID4g
-PiA+IHJlY29uc3RydWN0IHZkcGEgaW5zdGFuY2UgaW50YWN0IG9uIGRlc3RpbmF0aW9uIGhvc3Qg
-Zm9yCj4gPiA+ID4gPiBsaXZlIG1pZ3JhdGlvbiwgSU1ITyBpbiBteSBwZXJzb25hbCBpbnRlcnBy
-ZXRhdGlvbiBpdAo+ID4gPiA+ID4gZG9lc24ndCBtYXR0ZXIgd2hhdCB0aGUgY29uZmlnIHNwYWNl
-IG1heSBwcmVzZW50LiBJdCBtYXkgYmUKPiA+ID4gPiA+IHdvcnRoIHdoaWxlIGFkZGluZyBhIG5l
-dyBkZWJ1ZyBjb21tYW5kIHRvIGV4cG9zZSB0aGUgcmVhbAo+ID4gPiA+ID4gcmVnaXN0ZXIgdmFs
-dWUsIGJ1dCB0aGF0J3MgYW5vdGhlciBzdG9yeS4KPiA+ID4gPiBJIGFtIG5vdCBzdXJlIGdldHRp
-bmcgeW91ciBwb2ludHMuIHZEUEEgbm93IHJlcG9ydHMgZGV2aWNlCj4gPiA+ID4gZmVhdHVyZSBi
-aXRzKGRldmljZV9mZWF0dXJlcykgYW5kIG5lZ290aWF0ZWQgZmVhdHVyZQo+ID4gPiA+IGJpdHMo
-ZHJpdmVyX2ZlYXR1cmVzKSwgYW5kIHllcywgdGhlIGRyaXZlcnMgZmVhdHVyZXMgY2FuIGJlIGEK
-PiA+ID4gPiBzdWJzZXQgb2YgdGhlIGRldmljZSBmZWF0dXJlczsgYW5kIHRoZSB2RFBBIGRldmlj
-ZSBmZWF0dXJlcyBjYW4KPiA+ID4gPiBiZSBhIHN1YnNldCBvZiB0aGUgbWFuYWdlbWVudCBkZXZp
-Y2UgZmVhdHVyZXMuCj4gPiA+IFdoYXQgSSBzYWlkIGlzIGFmdGVyIHVuYmxvY2tpbmcgdGhlIGNv
-bmRpdGlvbmFsIGNoZWNrLCB5b3UnZCBoYXZlIHRvCj4gPiA+IGhhbmRsZSB0aGUgY2FzZSBmb3Ig
-ZWFjaCBvZiB0aGUgdmRwYSBhdHRyaWJ1dGUgd2hlbiBmZWF0dXJlCj4gPiA+IG5lZ290aWF0aW9u
-IGlzIG5vdCB5ZXQgZG9uZTogYmFzaWNhbGx5IHRoZSByZWdpc3RlciB2YWx1ZXMgeW91IGdvdAo+
-ID4gPiBmcm9tIGNvbmZpZyBzcGFjZSB2aWEgdGhlIHZkcGFfZ2V0X2NvbmZpZ191bmxvY2tlZCgp
-IGNhbGwgaXMgbm90Cj4gPiA+IGNvbnNpZGVyZWQgdG8gYmUgdmFsaWQgYmVmb3JlIGZlYXR1cmVz
-X29rIChwZXItc3BlYykuIEFsdGhvdWdoIGluCj4gPiA+IHNvbWUgY2FzZSB5b3UgbWF5IGdldCBz
-YW5lIHZhbHVlLCBzdWNoIGJlaGF2aW9yIGlzIGdlbmVyYWxseQo+ID4gPiB1bmRlZmluZWQuIElm
-IHlvdSBkZXNpcmUgdG8gc2hvdyBqdXN0IHRoZSBkZXZpY2VfZmVhdHVyZXMgYWxvbmUKPiA+ID4g
-d2l0aG91dCBhbnkgY29uZmlnIHNwYWNlIGZpZWxkLCB3aGljaCB0aGUgZGV2aWNlIGhhZCBhZHZl
-cnRpc2VkCj4gPiA+ICpiZWZvcmUgZmVhdHVyZSBuZWdvdGlhdGlvbiBpcyBjb21wbGV0ZSosIHRo
-YXQnbGwgYmUgZmluZS4gQnV0IGxvb2tzCj4gPiA+IHRvIG1lIHRoaXMgaXMgbm90IGhvdyBwYXRj
-aCBoYXMgYmVlbiBpbXBsZW1lbnRlZC4gUHJvYmFibHkgbmVlZCBzb21lCj4gPiA+IG1vcmUgd29y
-az8KPiA+ID4gCj4gPiA+IFJlZ2FyZHMsCj4gPiA+IC1TaXdlaQo+ID4gPiAKPiA+ID4gPiA+IAo+
-ID4gPiA+ID4gSGF2aW5nIHNhaWQsIHBsZWFzZSBjb25zaWRlciB0byBkcm9wIHRoZSBGaXhlcyB0
-YWcsIGFzCj4gPiA+ID4gPiBhcHBlYXJzIHRvIG1lIHlvdSdyZSBwcm9wb3NpbmcgYSBuZXcgZmVh
-dHVyZSByYXRoZXIgdGhhbgo+ID4gPiA+ID4gZml4aW5nIGEgcmVhbCBpc3N1ZS4KPiA+ID4gPiBp
-dCdzIGEgbmV3IGZlYXR1cmUgdG8gcmVwb3J0IHRoZSBkZXZpY2UgZmVhdHVyZSBiaXRzIHRoYW4g
-b25seQo+ID4gPiA+IG5lZ290aWF0ZWQgZmVhdHVyZXMsIGhvd2V2ZXIgdGhpcyBwYXRjaCBpcyBh
-IG11c3QsIG9yIGl0IHdpbGwKPiA+ID4gPiBibG9jayB0aGUgZGV2aWNlIGZlYXR1cmUgYml0cyBy
-ZXBvcnRpbmcuIGJ1dCBJIGFncmVlLCB0aGUgZml4Cj4gPiA+ID4gdGFnIGlzIG5vdCBhIG11c3Qu
-Cj4gPiA+ID4gPiAKPiA+ID4gPiA+IFRoYW5rcywKPiA+ID4gPiA+IC1TaXdlaQo+ID4gPiA+ID4g
-Cj4gPiA+ID4gPiBPbiA3LzEvMjAyMiAzOjEyIFBNLCBQYXJhdiBQYW5kaXQgdmlhIFZpcnR1YWxp
-emF0aW9uIHdyb3RlOgo+ID4gPiA+ID4gPiA+IEZyb206IFpodSBMaW5nc2hhbjxsaW5nc2hhbi56
-aHVAaW50ZWwuY29tPgo+ID4gPiA+ID4gPiA+IFNlbnQ6IEZyaWRheSwgSnVseSAxLCAyMDIyIDk6
-MjggQU0KPiA+ID4gPiA+ID4gPiAKPiA+ID4gPiA+ID4gPiBVc2VycyBtYXkgd2FudCB0byBxdWVy
-eSB0aGUgY29uZmlnIHNwYWNlIG9mIGEgdkRQQQo+ID4gPiA+ID4gPiA+IGRldmljZSwgdG8gY2hv
-b3NlIGEKPiA+ID4gPiA+ID4gPiBhcHByb3ByaWF0ZSBvbmUgZm9yIGEgY2VydGFpbiBndWVzdC4g
-VGhpcyBtZWFucyB0aGUKPiA+ID4gPiA+ID4gPiB1c2VycyBuZWVkIHRvIHJlYWQgdGhlCj4gPiA+
-ID4gPiA+ID4gY29uZmlnIHNwYWNlIGJlZm9yZSBGRUFUVVJFU19PSywgYW5kIHRoZSBleGlzdGVu
-Y2Ugb2YgY29uZmlnIHNwYWNlCj4gPiA+ID4gPiA+ID4gY29udGVudHMgZG9lcyBub3QgZGVwZW5k
-IG9uIEZFQVRVUkVTX09LLgo+ID4gPiA+ID4gPiA+IAo+ID4gPiA+ID4gPiA+IFRoZSBzcGVjIHNh
-eXM6Cj4gPiA+ID4gPiA+ID4gVGhlIGRldmljZSBNVVNUIGFsbG93IHJlYWRpbmcgb2YgYW55IGRl
-dmljZS1zcGVjaWZpYwo+ID4gPiA+ID4gPiA+IGNvbmZpZ3VyYXRpb24gZmllbGQKPiA+ID4gPiA+
-ID4gPiBiZWZvcmUgRkVBVFVSRVNfT0sgaXMgc2V0IGJ5IHRoZSBkcml2ZXIuIFRoaXMKPiA+ID4g
-PiA+ID4gPiBpbmNsdWRlcyBmaWVsZHMgd2hpY2ggYXJlCj4gPiA+ID4gPiA+ID4gY29uZGl0aW9u
-YWwgb24gZmVhdHVyZSBiaXRzLCBhcyBsb25nIGFzIHRob3NlCj4gPiA+ID4gPiA+ID4gZmVhdHVy
-ZSBiaXRzIGFyZSBvZmZlcmVkIGJ5IHRoZQo+ID4gPiA+ID4gPiA+IGRldmljZS4KPiA+ID4gPiA+
-ID4gPiAKPiA+ID4gPiA+ID4gPiBGaXhlczogMzBlZjdhOGFjOGEwNyAodmRwYTogUmVhZCBkZXZp
-Y2UKPiA+ID4gPiA+ID4gPiBjb25maWd1cmF0aW9uIG9ubHkgaWYgRkVBVFVSRVNfT0spCj4gPiA+
-ID4gPiA+IEZpeCBpcyBmaW5lLCBidXQgZml4ZXMgdGFnIG5lZWRzIGNvcnJlY3Rpb24gZGVzY3Jp
-YmVkIGJlbG93Lgo+ID4gPiA+ID4gPiAKPiA+ID4gPiA+ID4gQWJvdmUgY29tbWl0IGlkIGlzIDEz
-IGxldHRlcnMgc2hvdWxkIGJlIDEyLgo+ID4gPiA+ID4gPiBBbmQKPiA+ID4gPiA+ID4gSXQgc2hv
-dWxkIGJlIGluIGZvcm1hdAo+ID4gPiA+ID4gPiBGaXhlczogMzBlZjdhOGFjOGEwICgidmRwYTog
-UmVhZCBkZXZpY2UgY29uZmlndXJhdGlvbgo+ID4gPiA+ID4gPiBvbmx5IGlmIEZFQVRVUkVTX09L
-IikKPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+IFBsZWFzZSB1c2UgY2hlY2twYXRjaC5wbCBzY3Jp
-cHQgYmVmb3JlIHBvc3RpbmcgdGhlCj4gPiA+ID4gPiA+IHBhdGNoZXMgdG8gY2F0Y2ggdGhlc2Ug
-ZXJyb3JzLgo+ID4gPiA+ID4gPiBUaGVyZSBpcyBhIGJvdCB0aGF0IGxvb2tzIGF0IHRoZSBmaXhl
-cyB0YWcgYW5kCj4gPiA+ID4gPiA+IGlkZW50aWZpZXMgdGhlIHJpZ2h0IGtlcm5lbCB2ZXJzaW9u
-IHRvIGFwcGx5IHRoaXMgZml4Lgo+ID4gPiA+ID4gPiAKPiA+ID4gPiA+ID4gPiBTaWduZWQtb2Zm
-LWJ5OiBaaHUgTGluZ3NoYW48bGluZ3NoYW4uemh1QGludGVsLmNvbT4KPiA+ID4gPiA+ID4gPiAt
-LS0KPiA+ID4gPiA+ID4gPiDCoCBkcml2ZXJzL3ZkcGEvdmRwYS5jIHwgOCAtLS0tLS0tLQo+ID4g
-PiA+ID4gPiA+IMKgIDEgZmlsZSBjaGFuZ2VkLCA4IGRlbGV0aW9ucygtKQo+ID4gPiA+ID4gPiA+
-IAo+ID4gPiA+ID4gPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZkcGEvdmRwYS5jIGIvZHJpdmVy
-cy92ZHBhL3ZkcGEuYyBpbmRleAo+ID4gPiA+ID4gPiA+IDliMGUzOWIyZjAyMi4uZDc2YjIyYjJm
-N2FlIDEwMDY0NAo+ID4gPiA+ID4gPiA+IC0tLSBhL2RyaXZlcnMvdmRwYS92ZHBhLmMKPiA+ID4g
-PiA+ID4gPiArKysgYi9kcml2ZXJzL3ZkcGEvdmRwYS5jCj4gPiA+ID4gPiA+ID4gQEAgLTg1MSwx
-NyArODUxLDkgQEAgdmRwYV9kZXZfY29uZmlnX2ZpbGwoc3RydWN0IHZkcGFfZGV2aWNlICp2ZGV2
-LAo+ID4gPiA+ID4gPiA+IHN0cnVjdCBza19idWZmICptc2csIHUzMiBwb3J0aWQswqAgewo+ID4g
-PiA+ID4gPiA+IMKgwqDCoMKgwqAgdTMyIGRldmljZV9pZDsKPiA+ID4gPiA+ID4gPiDCoMKgwqDC
-oMKgIHZvaWQgKmhkcjsKPiA+ID4gPiA+ID4gPiAtwqDCoMKgIHU4IHN0YXR1czsKPiA+ID4gPiA+
-ID4gPiDCoMKgwqDCoMKgIGludCBlcnI7Cj4gPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+ID4gwqDC
-oMKgwqDCoCBkb3duX3JlYWQoJnZkZXYtPmNmX2xvY2spOwo+ID4gPiA+ID4gPiA+IC3CoMKgwqAg
-c3RhdHVzID0gdmRldi0+Y29uZmlnLT5nZXRfc3RhdHVzKHZkZXYpOwo+ID4gPiA+ID4gPiA+IC3C
-oMKgwqAgaWYgKCEoc3RhdHVzICYgVklSVElPX0NPTkZJR19TX0ZFQVRVUkVTX09LKSkgewo+ID4g
-PiA+ID4gPiA+IC3CoMKgwqDCoMKgwqDCoCBOTF9TRVRfRVJSX01TR19NT0QoZXh0YWNrLCAiRmVh
-dHVyZXMgbmVnb3RpYXRpb24gbm90Cj4gPiA+ID4gPiA+ID4gY29tcGxldGVkIik7Cj4gPiA+ID4g
-PiA+ID4gLcKgwqDCoMKgwqDCoMKgIGVyciA9IC1FQUdBSU47Cj4gPiA+ID4gPiA+ID4gLcKgwqDC
-oMKgwqDCoMKgIGdvdG8gb3V0Owo+ID4gPiA+ID4gPiA+IC3CoMKgwqAgfQo+ID4gPiA+ID4gPiA+
-IC0KPiA+ID4gPiA+ID4gPiDCoMKgwqDCoMKgIGhkciA9IGdlbmxtc2dfcHV0KG1zZywgcG9ydGlk
-LCBzZXEsICZ2ZHBhX25sX2ZhbWlseSwgZmxhZ3MsCj4gPiA+ID4gPiA+ID4gwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgIFZEUEFfQ01EX0RFVl9DT05GSUdfR0VUKTsKPiA+ID4gPiA+ID4g
-PiDCoMKgwqDCoMKgIGlmICghaGRyKSB7Cj4gPiA+ID4gPiA+ID4gLS0gCj4gPiA+ID4gPiA+ID4g
-Mi4zMS4xCj4gPiA+ID4gPiA+IF9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fCj4gPiA+ID4gPiA+IFZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdAo+ID4gPiA+
-ID4gPiBWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwo+ID4gPiA+ID4g
-PiBodHRwczovL3VybGRlZmVuc2UuY29tL3YzL19faHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRp
-b24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb25fXzshIUFDV1Y1TjlNMlJWOTlo
-USFQa3d5bTdPQWpvRHVjVXFzMmZBd2NoeHFMOC1CR2Q2d09sLTUxeGNnQl95Q053UEpfY3M4QTF5
-LWNZbXJMVEI0T0JOc2ltblp1cUpQY3ZRSWwzZyQKPiA+ID4gPiA+IAo+ID4gPiA+ID4gCj4gPiA+
-ID4gCj4gPiA+IAo+ID4gCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMu
-bGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21h
-aWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+--===============5070048044420088093==
+Content-Type: multipart/alternative;
+ boundary="------------OeNK0JD9uLvIIq5f1y4H8FIc"
+Content-Language: en-US
+
+--------------OeNK0JD9uLvIIq5f1y4H8FIc
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+
+
+
+On 7/27/2022 7:43 PM, Zhu, Lingshan wrote:
+>
+>
+> On 7/28/2022 8:56 AM, Si-Wei Liu wrote:
+>>
+>>
+>> On 7/27/2022 4:47 AM, Zhu, Lingshan wrote:
+>>>
+>>>
+>>> On 7/27/2022 5:43 PM, Si-Wei Liu wrote:
+>>>> Sorry to chime in late in the game. For some reason I couldn't get 
+>>>> to most emails for this discussion (I only subscribed to the 
+>>>> virtualization list), while I was taking off amongst the past few 
+>>>> weeks.
+>>>>
+>>>> It looks to me this patch is incomplete. Noted down the way in 
+>>>> vdpa_dev_net_config_fill(), we have the following:
+>>>>          features = vdev->config->get_driver_features(vdev);
+>>>>          if (nla_put_u64_64bit(msg, VDPA_ATTR_DEV_NEGOTIATED_FEATURES, features,
+>>>>                                VDPA_ATTR_PAD))
+>>>>                  return -EMSGSIZE;
+>>>>
+>>>> Making call to .get_driver_features() doesn't make sense when 
+>>>> feature negotiation isn't complete. Neither should present 
+>>>> negotiated_features to userspace before negotiation is done.
+>>>>
+>>>> Similarly, max_vqp through vdpa_dev_net_mq_config_fill() probably 
+>>>> should not show before negotiation is done - it depends on driver 
+>>>> features negotiated.
+>>> I have another patch in this series introduces device_features and 
+>>> will report device_features to the userspace even features 
+>>> negotiation not done. Because the spec says we should allow driver 
+>>> access the config space before FEATURES_OK.
+>> The config space can be accessed by guest before features_ok doesn't 
+>> necessarily mean the value is valid. You may want to double check 
+>> with Michael for what he quoted earlier:
+> that's why I proposed to fix these issues, e.g., if no _F_MAC, vDPA 
+> kernel should not return a mac to the userspace, there is not a 
+> default value for mac.
+Then please show us the code, as I can only comment based on your latest 
+(v4) patch and it was not there.. To be honest, I don't understand the 
+motivation and the use cases you have, is it for debugging/monitoring or 
+there's really a use case for live migration? For the former, you can do 
+a direct dump on all config space fields regardless of endianess and 
+feature negotiation without having to worry about validity (meaningful 
+to present to admin user). To me these are conflict asks that is 
+impossible to mix in exact one command.
+
+>>> Nope:
+>>>
+>>> 2.5.1  Driver Requirements: Device Configuration Space
+>>>
+>>> ...
+>>>
+>>> For optional configuration space fields, the driver MUST check that the corresponding feature is offered
+>>> before accessing that part of the configuration space.
+>>
+>> and how many driver bugs taking wrong assumption of the validity of 
+>> config space field without features_ok. I am not sure what use case 
+>> you want to expose config resister values for before features_ok, if 
+>> it's mostly for live migration I guess it's probably heading a wrong 
+>> direction.
+>>
+>>
+>>>>
+>>>>
+>>>> Last but not the least, this "vdpa dev config" command was not 
+>>>> designed to display the real config space register values in the 
+>>>> first place. Quoting the vdpa-dev(8) man page:
+>>>>
+>>>>> vdpa dev config show - Show configuration of specific device or 
+>>>>> all devices.
+>>>>> DEV - specifies the vdpa device to show its configuration. If this 
+>>>>> argument is omitted all devices configuration is listed.
+>>>> It doesn't say anything about configuration space or register 
+>>>> values in config space. As long as it can convey the config 
+>>>> attribute when instantiating vDPA device instance, and more 
+>>>> importantly, the config can be easily imported from or exported to 
+>>>> userspace tools when trying to reconstruct vdpa instance intact on 
+>>>> destination host for live migration, IMHO in my personal 
+>>>> interpretation it doesn't matter what the config space may present. 
+>>>> It may be worth while adding a new debug command to expose the real 
+>>>> register value, but that's another story.
+>>> I am not sure getting your points. vDPA now reports device feature 
+>>> bits(device_features) and negotiated feature bits(driver_features), 
+>>> and yes, the drivers features can be a subset of the device 
+>>> features; and the vDPA device features can be a subset of the 
+>>> management device features.
+>> What I said is after unblocking the conditional check, you'd have to 
+>> handle the case for each of the vdpa attribute when feature 
+>> negotiation is not yet done: basically the register values you got 
+>> from config space via the vdpa_get_config_unlocked() call is not 
+>> considered to be valid before features_ok (per-spec). Although in 
+>> some case you may get sane value, such behavior is generally 
+>> undefined. If you desire to show just the device_features alone 
+>> without any config space field, which the device had advertised 
+>> *before feature negotiation is complete*, that'll be fine. But looks 
+>> to me this is not how patch has been implemented. Probably need some 
+>> more work?
+> They are driver_features(negotiated) and the device_features(which 
+> comes with the device), and the config space fields that depend on 
+> them. In this series, we report both to the userspace.
+I fail to understand what you want to present from your description. May 
+be worth showing some example outputs that at least include the 
+following cases: 1) when device offers features but not yet acknowledge 
+by guest 2) when guest acknowledged features and device is yet to accept 
+3) after guest feature negotiation is completed (agreed upon between 
+guest and device).
+
+Thanks,
+-Siwei
+>>
+>> Regards,
+>> -Siwei
+>>
+>>>>
+>>>> Having said, please consider to drop the Fixes tag, as appears to 
+>>>> me you're proposing a new feature rather than fixing a real issue.
+>>> it's a new feature to report the device feature bits than only 
+>>> negotiated features, however this patch is a must, or it will block 
+>>> the device feature bits reporting. but I agree, the fix tag is not a 
+>>> must.
+>>>>
+>>>> Thanks,
+>>>> -Siwei
+>>>>
+>>>> On 7/1/2022 3:12 PM, Parav Pandit via Virtualization wrote:
+>>>>>> From: Zhu Lingshan<lingshan.zhu@intel.com>
+>>>>>> Sent: Friday, July 1, 2022 9:28 AM
+>>>>>>
+>>>>>> Users may want to query the config space of a vDPA device, to choose a
+>>>>>> appropriate one for a certain guest. This means the users need to read the
+>>>>>> config space before FEATURES_OK, and the existence of config space
+>>>>>> contents does not depend on FEATURES_OK.
+>>>>>>
+>>>>>> The spec says:
+>>>>>> The device MUST allow reading of any device-specific configuration field
+>>>>>> before FEATURES_OK is set by the driver. This includes fields which are
+>>>>>> conditional on feature bits, as long as those feature bits are offered by the
+>>>>>> device.
+>>>>>>
+>>>>>> Fixes: 30ef7a8ac8a07 (vdpa: Read device configuration only if FEATURES_OK)
+>>>>> Fix is fine, but fixes tag needs correction described below.
+>>>>>
+>>>>> Above commit id is 13 letters should be 12.
+>>>>> And
+>>>>> It should be in format
+>>>>> Fixes: 30ef7a8ac8a0 ("vdpa: Read device configuration only if FEATURES_OK")
+>>>>>
+>>>>> Please use checkpatch.pl script before posting the patches to catch these errors.
+>>>>> There is a bot that looks at the fixes tag and identifies the right kernel version to apply this fix.
+>>>>>
+>>>>>> Signed-off-by: Zhu Lingshan<lingshan.zhu@intel.com>
+>>>>>> ---
+>>>>>>   drivers/vdpa/vdpa.c | 8 --------
+>>>>>>   1 file changed, 8 deletions(-)
+>>>>>>
+>>>>>> diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c index
+>>>>>> 9b0e39b2f022..d76b22b2f7ae 100644
+>>>>>> --- a/drivers/vdpa/vdpa.c
+>>>>>> +++ b/drivers/vdpa/vdpa.c
+>>>>>> @@ -851,17 +851,9 @@ vdpa_dev_config_fill(struct vdpa_device *vdev,
+>>>>>> struct sk_buff *msg, u32 portid,  {
+>>>>>>   	u32 device_id;
+>>>>>>   	void *hdr;
+>>>>>> -	u8 status;
+>>>>>>   	int err;
+>>>>>>
+>>>>>>   	down_read(&vdev->cf_lock);
+>>>>>> -	status = vdev->config->get_status(vdev);
+>>>>>> -	if (!(status & VIRTIO_CONFIG_S_FEATURES_OK)) {
+>>>>>> -		NL_SET_ERR_MSG_MOD(extack, "Features negotiation not
+>>>>>> completed");
+>>>>>> -		err = -EAGAIN;
+>>>>>> -		goto out;
+>>>>>> -	}
+>>>>>> -
+>>>>>>   	hdr = genlmsg_put(msg, portid, seq, &vdpa_nl_family, flags,
+>>>>>>   			  VDPA_CMD_DEV_CONFIG_GET);
+>>>>>>   	if (!hdr) {
+>>>>>> --
+>>>>>> 2.31.1
+>>>>> _______________________________________________
+>>>>> Virtualization mailing list
+>>>>> Virtualization@lists.linux-foundation.org
+>>>>> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+>>>>
+>>>
+>>
+>
+
+--------------OeNK0JD9uLvIIq5f1y4H8FIc
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  </head>
+  <body>
+    <br>
+    <br>
+    <div class="moz-cite-prefix">On 7/27/2022 7:43 PM, Zhu, Lingshan
+      wrote:<br>
+    </div>
+    <blockquote type="cite" cite="mid:00e2e07e-1a2e-7af8-a060-cc9034e0d33f@intel.com">
+      
+      <font face="monospace"><br>
+        <br>
+      </font>
+      <div class="moz-cite-prefix"><font face="monospace">On 7/28/2022
+          8:56 AM, Si-Wei Liu wrote:<br>
+        </font></div>
+      <blockquote type="cite" cite="mid:8002554a-a77c-7b25-8f99-8d68248a741d@oracle.com"> <font face="monospace"> <br>
+        </font> <font face="monospace"><br>
+        </font>
+        <div class="moz-cite-prefix"><font face="monospace">On 7/27/2022
+            4:47 AM, Zhu, Lingshan wrote:<br>
+          </font> </div>
+        <blockquote type="cite" cite="mid:63242254-ba84-6810-dad8-34f900b97f2f@intel.com"> <font face="monospace"><br>
+          </font> <font face="monospace"><br>
+          </font>
+          <div class="moz-cite-prefix"><font face="monospace">On
+              7/27/2022 5:43 PM, Si-Wei Liu wrote:<br>
+            </font> </div>
+          <blockquote type="cite" cite="mid:00889067-50ac-d2cd-675f-748f171e5c83@oracle.com">
+            <font face="monospace"> Sorry to chime in late in the game.
+              For some reason I couldn't get to most emails for this
+              discussion (I only subscribed to the virtualization list),
+              while I was taking off amongst the past few weeks. <br>
+            </font> <font face="monospace"><br>
+              It looks to me this patch is incomplete. Noted down the
+              way in vdpa_dev_net_config_fill(), we have the following:
+            </font>
+            <pre id="b" style="font-size: 13px; background: rgb(255, 255, 255) none repeat scroll 0% 0%; color: rgb(0, 0, 51); white-space: pre-wrap; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; text-align: start; text-indent: 0px; text-transform: none; word-spacing: 0px; -webkit-text-stroke-width: 0px; text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;">        features = vdev-&gt;config-&gt;get_driver_features(vdev);
+        if (nla_put_u64_64bit(msg, VDPA_ATTR_DEV_NEGOTIATED_FEATURES, features,
+                              VDPA_ATTR_PAD))
+                return -EMSGSIZE;
+
+</pre>
+            <font face="monospace"> Making call to
+              .get_driver_features() doesn't make sense when feature
+              negotiation isn't complete. Neither should present
+              negotiated_features to userspace before negotiation is
+              done.<br>
+            </font> <font face="monospace"><br>
+              Similarly, max_vqp through vdpa_dev_net_mq_config_fill()
+              probably should not show before negotiation is done - it
+              depends on driver features negotiated.</font></blockquote>
+          <font face="monospace">I have another patch in this series
+            introduces device_features and will report device_features
+            to the userspace even features negotiation not done. Because
+            the spec says we should allow driver access the config space
+            before FEATURES_OK.<br>
+          </font> </blockquote>
+        <font face="monospace"> The config space can be accessed by
+          guest before features_ok doesn't necessarily mean the value is
+          valid. You may want to double check with Michael for what he
+          quoted earlier:<br>
+        </font></blockquote>
+      <font face="monospace">that's why I proposed to fix these issues,
+        e.g., if no _F_MAC, vDPA kernel should not return a mac to the
+        userspace, there is not a default value for mac.</font><br>
+    </blockquote>
+    Then please show us the code, as I can only comment based on your
+    latest (v4) patch and it was not there.. To be honest, I don't
+    understand the motivation and the use cases you have, is it for
+    debugging/monitoring or there's really a use case for live
+    migration? For the former, you can do a direct dump on all config
+    space fields regardless of endianess and feature negotiation without
+    having to worry about validity (meaningful to present to admin
+    user). To me these are conflict asks that is impossible to mix in
+    exact one command.<br>
+    <br>
+    <blockquote type="cite" cite="mid:00e2e07e-1a2e-7af8-a060-cc9034e0d33f@intel.com">
+      <blockquote type="cite" cite="mid:8002554a-a77c-7b25-8f99-8d68248a741d@oracle.com">
+        <blockquote type="cite">
+          <pre class="moz-quote-pre" wrap="">Nope:
+
+2.5.1  Driver Requirements: Device Configuration Space
+
+...
+
+For optional configuration space fields, the driver MUST check that the corresponding feature is offered
+before accessing that part of the configuration space.
+</pre>
+        </blockquote>
+        <font face="monospace"><br>
+          and how many driver bugs taking wrong assumption of the
+          validity of config space field without features_ok. I am not
+          sure what use case you want to expose config resister values
+          for before features_ok, if it's mostly for live migration I
+          guess it's probably heading a wrong direction.<br>
+        </font> <font face="monospace"><br>
+        </font> <font face="monospace"><br>
+        </font>
+        <blockquote type="cite" cite="mid:63242254-ba84-6810-dad8-34f900b97f2f@intel.com">
+          <blockquote type="cite" cite="mid:00889067-50ac-d2cd-675f-748f171e5c83@oracle.com">
+            <font face="monospace"><br>
+            </font> <font face="monospace"><br>
+              Last but not the least, this &quot;vdpa dev config&quot; command was
+              not designed to display the real config space register
+              values in the first place. Quoting the vdpa-dev(8) man
+              page:<br>
+            </font> <font face="monospace"><br>
+            </font>
+            <blockquote type="cite"><font face="monospace">vdpa dev
+                config show - Show configuration of specific device or
+                all devices.<br>
+                DEV - specifies the vdpa device to show its
+                configuration. If this argument is omitted all devices
+                configuration is listed.</font></blockquote>
+            <font face="monospace"> It doesn't say anything about
+              configuration space or register values in config space. As
+              long as it can convey the config attribute when
+              instantiating vDPA device instance, and more importantly,
+              the config can be easily imported from or exported to
+              userspace tools when trying to reconstruct vdpa instance
+              intact on destination host for live migration, IMHO in my
+              personal interpretation it doesn't matter what the config
+              space may present. It may be worth while adding a new
+              debug command to expose the real register value, but
+              that's another story.<br>
+            </font> </blockquote>
+          <font face="monospace">I am not sure getting your points. vDPA
+            now reports device feature bits(device_features) and
+            negotiated feature bits(driver_features), and yes, the
+            drivers features can be a subset of the device features; and
+            the vDPA device features can be a subset of the management
+            device features. <br>
+          </font> </blockquote>
+        <font face="monospace"> What I said is after unblocking the
+          conditional check, you'd have to handle the case for each of
+          the vdpa attribute when feature negotiation is not yet done:
+          basically the register values you got from config space via
+          the vdpa_get_config_unlocked() call is not considered to be
+          valid before features_ok (per-spec). Although in some case you
+          may get sane value, such behavior is generally undefined. If
+          you desire to show just the device_features alone without any
+          config space field, which the device had advertised *before
+          feature negotiation is complete*, that'll be fine. But looks
+          to me this is not how patch has been implemented. Probably
+          need some more work?<br>
+        </font></blockquote>
+      <font face="monospace">They are driver_features(negotiated) and
+        the device_features(which comes with the device), and the config
+        space fields that depend on them. In this series, we report both
+        to the userspace.</font><br>
+    </blockquote>
+    I fail to understand what you want to present from your description.
+    May be worth showing some example outputs that at least include the
+    following cases: 1) when device offers features but not yet
+    acknowledge by guest 2) when guest acknowledged features and device
+    is yet to accept 3) after guest feature negotiation is completed
+    (agreed upon between guest and device).<br>
+    <br>
+    Thanks,<br>
+    -Siwei<br>
+    <blockquote type="cite" cite="mid:00e2e07e-1a2e-7af8-a060-cc9034e0d33f@intel.com">
+      <blockquote type="cite" cite="mid:8002554a-a77c-7b25-8f99-8d68248a741d@oracle.com"> <font face="monospace"><br>
+          Regards,<br>
+          -Siwei<br>
+        </font> <font face="monospace"><br>
+        </font>
+        <blockquote type="cite" cite="mid:63242254-ba84-6810-dad8-34f900b97f2f@intel.com">
+          <blockquote type="cite" cite="mid:00889067-50ac-d2cd-675f-748f171e5c83@oracle.com">
+            <font face="monospace"><br>
+              Having said, please consider to drop the Fixes tag, as
+              appears to me you're proposing a new feature rather than
+              fixing a real issue.<br>
+            </font> </blockquote>
+          <font face="monospace">it's a new feature to report the device
+            feature bits than only negotiated features, however this
+            patch is a must, or it will block the device feature bits
+            reporting. but I agree, the fix tag is not a must.<br>
+          </font>
+          <blockquote type="cite" cite="mid:00889067-50ac-d2cd-675f-748f171e5c83@oracle.com">
+            <font face="monospace"><br>
+              Thanks,<br>
+              -Siwei<br>
+            </font> <font face="monospace"><br>
+            </font>
+            <div class="moz-cite-prefix"><font face="monospace">On
+                7/1/2022 3:12 PM, Parav Pandit via Virtualization wrote:<br>
+              </font> </div>
+            <blockquote type="cite" cite="mid:PH0PR12MB548190DE76CC64E56DA2DF13DCBD9@PH0PR12MB5481.namprd12.prod.outlook.com">
+              <blockquote type="cite">
+                <pre class="moz-quote-pre" wrap="">From: Zhu Lingshan <a class="moz-txt-link-rfc2396E" href="mailto:lingshan.zhu@intel.com" moz-do-not-send="true">&lt;lingshan.zhu@intel.com&gt;</a>
+Sent: Friday, July 1, 2022 9:28 AM
+
+Users may want to query the config space of a vDPA device, to choose a
+appropriate one for a certain guest. This means the users need to read the
+config space before FEATURES_OK, and the existence of config space
+contents does not depend on FEATURES_OK.
+
+The spec says:
+The device MUST allow reading of any device-specific configuration field
+before FEATURES_OK is set by the driver. This includes fields which are
+conditional on feature bits, as long as those feature bits are offered by the
+device.
+
+Fixes: 30ef7a8ac8a07 (vdpa: Read device configuration only if FEATURES_OK)
+</pre>
+              </blockquote>
+              <pre class="moz-quote-pre" wrap="">Fix is fine, but fixes tag needs correction described below.
+
+Above commit id is 13 letters should be 12.
+And 
+It should be in format
+Fixes: 30ef7a8ac8a0 (&quot;vdpa: Read device configuration only if FEATURES_OK&quot;)
+
+Please use checkpatch.pl script before posting the patches to catch these errors.
+There is a bot that looks at the fixes tag and identifies the right kernel version to apply this fix.
+
+</pre>
+              <blockquote type="cite">
+                <pre class="moz-quote-pre" wrap="">Signed-off-by: Zhu Lingshan <a class="moz-txt-link-rfc2396E" href="mailto:lingshan.zhu@intel.com" moz-do-not-send="true">&lt;lingshan.zhu@intel.com&gt;</a>
+---
+ drivers/vdpa/vdpa.c | 8 --------
+ 1 file changed, 8 deletions(-)
+
+diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c index
+9b0e39b2f022..d76b22b2f7ae 100644
+--- a/drivers/vdpa/vdpa.c
++++ b/drivers/vdpa/vdpa.c
+@@ -851,17 +851,9 @@ vdpa_dev_config_fill(struct vdpa_device *vdev,
+struct sk_buff *msg, u32 portid,  {
+ 	u32 device_id;
+ 	void *hdr;
+-	u8 status;
+ 	int err;
+
+ 	down_read(&amp;vdev-&gt;cf_lock);
+-	status = vdev-&gt;config-&gt;get_status(vdev);
+-	if (!(status &amp; VIRTIO_CONFIG_S_FEATURES_OK)) {
+-		NL_SET_ERR_MSG_MOD(extack, &quot;Features negotiation not
+completed&quot;);
+-		err = -EAGAIN;
+-		goto out;
+-	}
+-
+ 	hdr = genlmsg_put(msg, portid, seq, &amp;vdpa_nl_family, flags,
+ 			  VDPA_CMD_DEV_CONFIG_GET);
+ 	if (!hdr) {
+--
+2.31.1
+</pre>
+              </blockquote>
+              <pre class="moz-quote-pre" wrap="">_______________________________________________
+Virtualization mailing list
+<a class="moz-txt-link-abbreviated moz-txt-link-freetext" href="mailto:Virtualization@lists.linux-foundation.org" moz-do-not-send="true">Virtualization@lists.linux-foundation.org</a>
+<a class="moz-txt-link-freetext" href="https://urldefense.com/v3/__https://lists.linuxfoundation.org/mailman/listinfo/virtualization__;!!ACWV5N9M2RV99hQ!LDynmbymNkIgZ-j_42iYXBJp8Vhi4QiQkE8Q0FdeqMPWsM_uIZ4pT5CnK8kWg9c8kmxlTr-37myDtRbsLlTaVuA$" moz-do-not-send="true">https://lists.linuxfoundation.org/mailman/listinfo/virtualization</a>
+</pre>
+            </blockquote>
+            <font face="monospace"><br>
+            </font> </blockquote>
+          <font face="monospace"><br>
+          </font> </blockquote>
+        <font face="monospace"><br>
+        </font> </blockquote>
+      <font face="monospace"><br>
+      </font> </blockquote>
+    <br>
+  </body>
+</html>
+
+--------------OeNK0JD9uLvIIq5f1y4H8FIc--
+
+--===============5070048044420088093==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============5070048044420088093==--
