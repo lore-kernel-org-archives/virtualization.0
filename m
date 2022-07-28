@@ -1,185 +1,194 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 763FAC04A68
-	for <virtualization@archiver.kernel.org>; Thu, 28 Jul 2022 07:09:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 72FC0C04A68
+	for <virtualization@archiver.kernel.org>; Thu, 28 Jul 2022 07:23:06 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id EAF81828BA;
-	Thu, 28 Jul 2022 07:09:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org EAF81828BA
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=gYkJbRfa;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=lo8q9nyK
+	by smtp4.osuosl.org (Postfix) with ESMTP id 6388D40095;
+	Thu, 28 Jul 2022 07:23:05 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6388D40095
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=OvP+xePI;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=Oi8xt7tI
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Mcbm_jnNQvlm; Thu, 28 Jul 2022 07:09:34 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id LJGfwKsbJxcD; Thu, 28 Jul 2022 07:23:03 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 1CCC382883;
-	Thu, 28 Jul 2022 07:09:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1CCC382883
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 0052D419B7;
+	Thu, 28 Jul 2022 07:23:02 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0052D419B7
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D9BC0C0035;
-	Thu, 28 Jul 2022 07:09:33 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C711AC0033;
+	Thu, 28 Jul 2022 07:23:02 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A56FDC002D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 89501C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Jul 2022 07:09:32 +0000 (UTC)
+ Thu, 28 Jul 2022 07:23:01 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 78F2F82884
+ by smtp1.osuosl.org (Postfix) with ESMTP id 56831832D1
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Jul 2022 07:09:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 78F2F82884
+ Thu, 28 Jul 2022 07:23:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 56831832D1
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com
+ header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=OvP+xePI; 
+ dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
+ header.i=@oracle.onmicrosoft.com header.a=rsa-sha256
+ header.s=selector2-oracle-onmicrosoft-com header.b=Oi8xt7tI
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id SAhwzCq4VPOG
+ with ESMTP id MKqtfMVOfjJv
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Jul 2022 07:09:28 +0000 (UTC)
+ Thu, 28 Jul 2022 07:23:00 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 44AAB82883
-Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com
- [205.220.165.32])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 44AAB82883
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org F289483299
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com
+ [205.220.177.32])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id F289483299
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Jul 2022 07:09:28 +0000 (UTC)
-Received: from pps.filterd (m0246617.ppops.net [127.0.0.1])
- by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26S64Fmn020314;
- Thu, 28 Jul 2022 07:09:10 GMT
+ Thu, 28 Jul 2022 07:22:59 +0000 (UTC)
+Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
+ by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26S5vu6n009662;
+ Thu, 28 Jul 2022 07:22:48 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
- h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=corp-2022-7-12;
- bh=xR5gwm8RNMPuzwLkDQv6OnU1Xe8BcB34mQuo57yr89A=;
- b=gYkJbRfaU1gNquNzfInaRM62nN3mm2A35N4L426hXlGtpFk8XmeddCNljd+rl08qkSnw
- jJjA5F44H285+S6FnJTnyRrizufnKsCeVUPG7UBW97wQ0sBoFUcbRJ9geUlWnxwg4m6y
- ID1UuYjNW+T5nCYajAetXVjVJfcCLgp27jcT8/+D97aj45Dasi8fpBdS0z/GXin7cTCP
- cF6FfAr6O6WqnLcXQWNbwtwXN6DRCRwBLMtzHf4rQBNePUFPshvISwaI6aN/CzCd46kY
- xBioMXaxdUPBW9+hgV2N18Vu6UjTYONRBLj7uUJGcVTGIZzapVcSVcDzmLKC188JNC0q Uw== 
+ h=content-type :
+ message-id : date : subject : to : cc : references : from : in-reply-to :
+ mime-version; s=corp-2022-7-12;
+ bh=21XNGYZkSraMmOQEGzNsFoMfhtKisyM+GvCZkxkA278=;
+ b=OvP+xePIXmjs9Y8gywGeJG/YD0BLwe4jeHFX74HzL8TGG3fxYAdfnWyCGCA2Sv7QvZAB
+ /IsStri+TJ+7sPk7rU6qpV1Q4ei3YJGprWh74n4Nq7IxE5pJMEnN5gqV4F3dXzpbcZem
+ dqnwhkLn55NQPCO/FfpOAh/tQNf/avUy9uDwMQf8emqKeMnSrb8JiTPoa3vGRsoINqcA
+ q/NZKvj5O/+9DCCjefN1WRno13RC8rDTsoVczrOyFN+zPdw5BuwOgXE0tOzF48Hzdmwu
+ cEv7B80nuq64dtQUSd7Mr77FRRcc4SGe6CV3gJGB8I8Ox3UG4UqDGUOP9R11RLC9KbqD Cw== 
 Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com
  (iadpaimrmta01.appoci.oracle.com [130.35.100.223])
- by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3hg9hsv4nn-1
+ by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3hg9a4uv8p-1
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Thu, 28 Jul 2022 07:09:10 +0000
+ Thu, 28 Jul 2022 07:22:47 +0000
 Received: from pps.filterd
  (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
  by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.5/8.17.1.5)
- with ESMTP id 26S6xf5x035300; Thu, 28 Jul 2022 07:09:00 GMT
-Received: from nam10-dm6-obe.outbound.protection.outlook.com
- (mail-dm6nam10lp2107.outbound.protection.outlook.com [104.47.58.107])
+ with ESMTP id 26S4JfHb034538; Thu, 28 Jul 2022 07:22:47 GMT
+Received: from nam11-dm6-obe.outbound.protection.outlook.com
+ (mail-dm6nam11lp2176.outbound.protection.outlook.com [104.47.57.176])
  by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id
- 3hh6358fh9-1
+ 3hh6358rx9-1
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Thu, 28 Jul 2022 07:09:00 +0000
+ Thu, 28 Jul 2022 07:22:47 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=d7YNo2RpfivHc6LcCASSlUDmnqvaJofU2AraP02BITSzBUMJyk+X86g/4DM7Q5Za1ka4v0s3sqPqf1/hi1Oz4e6kVj9wCQ/rz841PjKbWsTZ7mwUr09zo+FQWtxhe4vE8QT/I02yUtvlPNuhRoyj1Rzu1ux+yH4X3g3w01trLUmL7Pd9ftlagOx/ZNc5HkTeTpDI8NgyLzUFC1cawRdF5A6hsU9SYFt1oRsVFHuSDnXxepOjNSlbsDuJmuyQeQrMTdNdpvPG+o/fAzN5FEQDSQSMw79SrN+Ntz5OgvypWrcQokMqKcrtKTCt/EvD/acE+qkfPipCJFQYfY2bQfwUIA==
+ b=QUmLRMJwjPIbvnwOesvN8u9LY/wlPFFcSITMgSfiH7mJAWp7I87X34chUkDWNh8/ige07UYzjDcJRAhECbrGwTNv7Wqyx90l0Ua1/VhONAcKiW9VmKyUohU7o4OJFEItD3opY9PQA9c/v33bmDc7cyho79NWJOH7h63dOANethMNOytfXrGaMXj/y4psqgRwCqC51dxnJh8UD4Vvae/N2eTE4tdGbwWj4RwEzKpF5bMmPn8UD8YOefmf75v+wKYJLEXcPPmNWXGJBSbSXoECt5FLFTS9DDpk55S6pGa5ar/9pcRZ56YEjzOhQPPIc9bACvce74CLEvgWBCJoCcSpMw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=xR5gwm8RNMPuzwLkDQv6OnU1Xe8BcB34mQuo57yr89A=;
- b=OOYSZgrKgAoSnKr41Ml2mNN1xrmC5xWeL/5BrWRxnP9QJnJeHCcMUt8QFKaQ0JoznEHmZwfp/tFuPM/1NLMVWnMeWkDlqA7v6HeNyB1JHSDp4ZSK/e+glCA9KluuW26b3plxqxlM9YYFdbyTlTePs2GqwHanCqsPXgPozSPZQqDc0g2WaVMVEML4WM4fEFOgIWKli+fnJ3KQ7cmCSE8FgVG2BhSBU6/P9sxw0kf/xJadHWCbFiX/MijZ1mbRmzwSxDi9oOcyE577dFWN1eyNvLVpAsKpAy84OEdI88SsyPBHh0uFuNMnJK01oEL1FQ+T61RcxzyKDZGiQxKCPlAexA==
+ bh=21XNGYZkSraMmOQEGzNsFoMfhtKisyM+GvCZkxkA278=;
+ b=BOy+rgYnZ+zbLVkoBXukKtdFlyZ2rdvJDwHFJ+k96BA8w4Xe7NJA/knn+cYuJG6wqxe4ZGLvE7nxjlisGygvm6qiT4J8q/xYPFEFqcpv6+ZRR7VfCZL0e9WfU/njIYpbOQTRI4056aTHAo10JS/bR4ge6BXgNlScyxViH4bkJtoR8Y4cxxXr8Jwt0MZeilXH/KbB32o8i3uHJplF8OSrbbY2FDcurXMwwrYmHGfeBSELSPZhXgWkVYfSefZC7yDpr/oEP8WRtn7qz5k2MPgq2wQOxSHzdz1TUbY23UMExONtA9XSvO6GenSupAkWb7yBku4CNskb0SneXcWTIIjTSw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
  dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=xR5gwm8RNMPuzwLkDQv6OnU1Xe8BcB34mQuo57yr89A=;
- b=lo8q9nyK7bS31CKdsZ+OF3M70UtWoC3cPrEP3fi7L6L6PQ+EfC2kCEVZXVX9xlXNBJZHbSonX+/DzHWNDANWuX7uLBHJE/GDRDVHX7xCvgjUbH0lFIiooZ67flxPBvTnjzlFheYUrVWEXrcjwgDfmHBnz0xhednvVSsEhQOZSd4=
+ bh=21XNGYZkSraMmOQEGzNsFoMfhtKisyM+GvCZkxkA278=;
+ b=Oi8xt7tIv/+DE5qfwrTxEbNBGljZfYGY9mlYnpXz+lFbFj1HKxXDHUUtAmalB1ZU8PIosyy9zdULp/arPZQU8+el5e6r9pwbj5fOxmIWEDmrpOxN2TpfsfC+g+Op/rFhlc81m9Nl6r4aDMIYiLlaJpEMx1oc4KTFhzNIj2FfXQc=
 Received: from BYAPR10MB3287.namprd10.prod.outlook.com (2603:10b6:a03:15c::11)
- by CY4PR10MB1672.namprd10.prod.outlook.com (2603:10b6:910:9::7) with
- Microsoft SMTP Server (version=TLS1_2,
+ by CY4PR10MB1462.namprd10.prod.outlook.com (2603:10b6:903:28::15)
+ with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5458.20; Thu, 28 Jul
- 2022 07:08:58 +0000
+ 2022 07:22:44 +0000
 Received: from BYAPR10MB3287.namprd10.prod.outlook.com
  ([fe80::c846:d8e4:8631:9803]) by BYAPR10MB3287.namprd10.prod.outlook.com
  ([fe80::c846:d8e4:8631:9803%4]) with mapi id 15.20.5458.026; Thu, 28 Jul 2022
- 07:08:58 +0000
-Message-ID: <f3fd203d-a3ad-4c36-ddbc-01f061f4f99e@oracle.com>
-Date: Thu, 28 Jul 2022 00:08:53 -0700
+ 07:22:44 +0000
+Message-ID: <535306b8-b33e-b65e-af50-5b1c562aec63@oracle.com>
+Date: Thu, 28 Jul 2022 00:22:39 -0700
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
  Thunderbird/91.11.0
-Subject: Re: [PATCH V3 4/6] vDPA: !FEATURES_OK should not block querying
- device config space
+Subject: Re: [PATCH V3 5/6] vDPA: answer num of queue pairs = 1 to userspace
+ when VIRTIO_NET_F_MQ == 0
 Content-Language: en-US
-To: Jason Wang <jasowang@redhat.com>, "Zhu, Lingshan" <lingshan.zhu@intel.com>,
- Parav Pandit <parav@nvidia.com>, "mst@redhat.com" <mst@redhat.com>,
- Eli Cohen <elic@nvidia.com>
-References: <20220701132826.8132-1-lingshan.zhu@intel.com>
- <20220701132826.8132-5-lingshan.zhu@intel.com>
- <PH0PR12MB548190DE76CC64E56DA2DF13DCBD9@PH0PR12MB5481.namprd12.prod.outlook.com>
- <00889067-50ac-d2cd-675f-748f171e5c83@oracle.com>
- <63242254-ba84-6810-dad8-34f900b97f2f@intel.com>
- <8002554a-a77c-7b25-8f99-8d68248a741d@oracle.com>
- <c8bd5396-84f2-e782-79d7-f493aca95781@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+References: <1246d2f1-2822-0edb-cd57-efc4015f05a2@intel.com>
+ <PH0PR12MB54815985C202E81122459DFFDC949@PH0PR12MB5481.namprd12.prod.outlook.com>
+ <19681358-fc81-be5b-c20b-7394a549f0be@intel.com>
+ <PH0PR12MB54818158D4F7F9F556022857DC979@PH0PR12MB5481.namprd12.prod.outlook.com>
+ <e98fc062-021b-848b-5cf4-15bd63a11c5c@intel.com>
+ <PH0PR12MB54815AD7D0674FEB1D63EB61DC979@PH0PR12MB5481.namprd12.prod.outlook.com>
+ <20220727015626-mutt-send-email-mst@kernel.org>
+ <66291287-fcb3-be8d-2c1b-dd44533ed8b3@oracle.com>
+ <20220727050102-mutt-send-email-mst@kernel.org>
+ <6d5b03ee-5362-8534-5881-a34c9ea626f0@oracle.com>
+ <20220727114602-mutt-send-email-mst@kernel.org>
 From: Si-Wei Liu <si-wei.liu@oracle.com>
 Organization: Oracle Corporation
-In-Reply-To: <c8bd5396-84f2-e782-79d7-f493aca95781@redhat.com>
-X-ClientProxiedBy: DM6PR02CA0096.namprd02.prod.outlook.com
- (2603:10b6:5:1f4::37) To BYAPR10MB3287.namprd10.prod.outlook.com
+In-Reply-To: <20220727114602-mutt-send-email-mst@kernel.org>
+X-ClientProxiedBy: SA9PR13CA0037.namprd13.prod.outlook.com
+ (2603:10b6:806:22::12) To BYAPR10MB3287.namprd10.prod.outlook.com
  (2603:10b6:a03:15c::11)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 572562c7-614f-41e4-fbc9-08da70680a51
-X-MS-TrafficTypeDiagnostic: CY4PR10MB1672:EE_
+X-MS-Office365-Filtering-Correlation-Id: 1dd03e47-9e7b-4c17-6053-08da7069f6ca
+X-MS-TrafficTypeDiagnostic: CY4PR10MB1462:EE_
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 5kOoISs3s1nKd0So9fvcvK3aoeD1QhPX9XuEg727VFJOaR+XSnfJJQE/FW2cq9pkRld5THRJvzeHl0BM/xJ+ZII8YqYc9LBukzjjAPdw7CSRfnm4vkeJi6X2GkXQcdJ4Y9fu2tEwJSzZtEi2OhJKNQ404aaCCP9ELrFOhuW4cZ1J7ChYvtjXXopRm/sMBFLA8Q6tSoQ01tdTufwi+oyn8AShEubKbl7cwD+wIFybdVNXfNwZIQWUJxpGSMmXlIbisUrjNhV32VvkRR+kTOMz1zEYpOagrzqF7Q/kENwQv3eF8hH2L5QskNFtfUEyWPZmpvO5TrG8KJjjh5Q+bFgUAhRdH0fdk7TOcvBuaJ6sNs2dMQI+Oqy/gFAq8MgvDsazHlpl3qZBXN7iRXLIUDemrVMkxaW4oE6ceyilDEqi5pzXyz1riK4qe6Ph+pMVSjdmBlJgmMrdqARPkbLTIWwG4ABJsUfbpqiPyf3dIvO4DcViSc8bn5M1JKPUpcNd0UE1eiFr6Y/JyMgxBwl6uGfhkJPx1nAkDwKGnFgg+1ep9mCtcXkomRtSRNSpkQP/Q30aCWSQpQob3uwzSqFlPdsPbVq7XWZYSv3srasVHpB3PlIR5KRrEb/aYiyxR1D+xHvQdZrPit4UgrbelTE/V+IxKnC9DCghx7EQaobYpT3IWJXtOxWVXD47XZR7ZZG9N3gOpC6BZbGwnC45oelo0SuRNVEaw02is4S30SflEPLBvXGGXBEyqMEt2iT3MnYWiWMU3UXPu5l7ji5boCvj+mJ6ij9oXAZqzTzty0HXMHOSJ8+BPxexMnYuIXH1R6sQi2nT84qMlvpQMm93cNwtM6aFANb7NZGTbsKpstTD2pjeQRI=
+X-Microsoft-Antispam-Message-Info: fbTIAHB4nSxKbTaO4w3hYABLl7y3oYw9uZIag+DMYXHKHFhBLqUFvpLbDsPbue4A38WwZHO4xlAJW3vfEsw85lYUZWaXP3MkEa12PiBmSb9B3WJ44ijgsbDl06Oehyv27Bld3tCYXFZUamXGVo2Yb4l/FbocCrSwDFk+GKag87EUreoGD3vu2gzYnDmOeWUnh3pjQblSq93IfV2Uz0P95P9/7ZBYEg9utsmVgY49ekKFY1SvvR8ed7yJZx5MSlUz3h6JPOPpme0jdRCDccm4qTeiAR0Lu2vV7PE9gpQmNlUWT80T2UAj/IbgPBZAMHSBkUuPeDp1na9r0yQJic3Glv4NAUoK04qMVPagd1ZgK2+48qzjw1p/IH1h545FiGJqhOTzFSLfaQ5yHW2qKjAjDyy+1/sF79V+aCPMLF+ht1Rh3IQpftnemwriz2pcMyh6omurPjhcl/EOQyjmejRAVD4iX93lhOtR2utFWK1AQIUy68jKfNReQ24+BMDLDTf63fbNN7fivr9/l5YYvYddjRmdkYTg8IAZ4r2VodaWmCmGx8jG3g6wG2FGs/5ajUD+5GTbZMWHFTR2wy/keemYn7uzJXSlHeTshTvUvySwH8lVyW1ZdAhMBcOQ0s2nG4OHpIy0SnPnUqwBfjd3/0dyeOnZ8aikZ0HcW4oTiABVMFN8Rcw29p9RylTvFbj5hw8J79oKJvb3ktRzXv5EyADvsuNgjV1rrH/JG0ZOnfA2z8NoOKX9McUbOIzmUuGQBZADCx9YEoVx1tZt00C9siG4GIba7bz9FjnTsfoL9X6sKwQYZzPmEjTEadFgM3Ra2q6VdVa1+4vo+TxAhJPxadaniA==
 X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
  IPV:NLI; SFV:NSPM; H:BYAPR10MB3287.namprd10.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230016)(39860400002)(136003)(366004)(396003)(376002)(346002)(26005)(4326008)(6666004)(8676002)(54906003)(6512007)(110136005)(966005)(53546011)(6506007)(66556008)(66476007)(66946007)(86362001)(186003)(36916002)(83380400001)(8936002)(2616005)(316002)(478600001)(41300700001)(31696002)(5660300002)(31686004)(2906002)(30864003)(38100700002)(36756003)(6486002)(43740500002)(45980500001);
+ SFS:(13230016)(396003)(366004)(346002)(39860400002)(136003)(376002)(2616005)(316002)(86362001)(38100700002)(8936002)(6486002)(31686004)(41300700001)(36756003)(2906002)(478600001)(31696002)(5660300002)(83380400001)(6916009)(33964004)(26005)(6512007)(54906003)(6666004)(4326008)(66946007)(66476007)(186003)(53546011)(36916002)(8676002)(66556008)(6506007)(45980500001)(43740500002);
  DIR:OUT; SFP:1101; 
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?SXRNK0RuMEpJRXJpcGpxb1BiTUpZcUlHYklUcUxyTEtvdVpPaU9XelByWWlF?=
- =?utf-8?B?TXo2RzZnbEhLUU9VNTFzNzBGbUtZMTBwc2tDVFpEVlJWd1UvQmVBL2ltcnZp?=
- =?utf-8?B?RkJSSko4WVFyMEszTXVjUEpnejF1aGdnc1Qyb1Y4aTZUelVqZ0RpZnhINGVE?=
- =?utf-8?B?S0F2QlRnUUxyVXFmbjIxengwQktWK09Fd2p2Tjd1Mm1BQ3ZTVlg3RTByampq?=
- =?utf-8?B?cjUvbURKcHJFVzdENnhrWm5UWWh4TUFTOVZsQlZvdDNDVVFFaGNQV1IreWI5?=
- =?utf-8?B?U0xlaG5pK08vWHhnTDgrR1B2VUlJOExadzlHa2VSVkw2SDgvWTFlTDZlendW?=
- =?utf-8?B?OXQ2cmpaV2s2Uzg5SzlNUjVFMmJWNDZTVUdWQndRUnJxd1d6ZkFpOUZYcDdN?=
- =?utf-8?B?YjQ4RVVsY1dNUTArVkZtOHRRVEZ5cUxzMVNFdUxna2krTHNDcXNwaDNGcm4y?=
- =?utf-8?B?QzJSUUlkcDFncnQrenROTFZYRDh3RE1BWXpLblZkUk9MeDBSTlpQZXEyOVcz?=
- =?utf-8?B?ZUMxTjFzNW1kbmk2VUErWFR1ejZ0U0g5V1BpOGVFT05EaHgvcEh3ZjNBelkr?=
- =?utf-8?B?UGZWOXRGRDA2eVVkbUtVajRoOW5RQUZYTjNWMjlWcGV6N2trblE4aGNMVVph?=
- =?utf-8?B?bkdaVERSbjdnRzVFNDBXVHlnRjhlU2hvS2ZZOU54OCswd1RZejF2QWZZYkxS?=
- =?utf-8?B?eGE2SXlhUFUzdzJFRDdCWkJHcmNxaHBpOVp4WVB5bUV2VnlTZjZZQTZYZ2Rl?=
- =?utf-8?B?cm96SzhZbXEzZmw3VUF3Z2p5OU4yNHY3ZUdFOGd1OEl6RkUyYkN2RWNGR3Uz?=
- =?utf-8?B?eTBvajhtRjdDV09DV1Q0aGNQd2tPR01xZFYrS1FZNW9jdUtKTW9oTjNNcFps?=
- =?utf-8?B?alNNQmpicTF2WnBuNWg3Rkk2S3lvaGxwUXpTdHlNbExRamxSMzQ5U3poZW15?=
- =?utf-8?B?SkplSUxzbUltUWlMekwyT2I0S0psVHlHdXF5ODFOL29QUFp2Q0ZwM1JxQ0RO?=
- =?utf-8?B?THYwZHA5bUFHcXJveWw5WXpiTWtOSzhDdFAzdE1hRUFoa1ZPNzhJVS9hd2JU?=
- =?utf-8?B?TzhnRjlWelN1aU5YbnVPRklobXd2RDJXRmtIRStnVWowc3ppN0I5QkF1U2px?=
- =?utf-8?B?TTBUc3RYS0VlWHJhZUJlL0xNZjN6OHNVRmE4K1Yya3FLcU1Na3JxR0RYZ1cy?=
- =?utf-8?B?eXpzb1FJVy9JNXg1aTljM3dUdGZjQk9WMmhSK0RFWXp6c0NHcEpvZ2V6ZGQw?=
- =?utf-8?B?ek1XZ01qWkFYN2xmbUlZR3dqby8wWlBMM0tLcnZITUFTY2VJd1VjdzlVM3Jj?=
- =?utf-8?B?QmpqK1VtR0w1WFNSOGV2UUpsT2tmejJDMklyTmkwSFlDVmtoSDg3dEhLUXRI?=
- =?utf-8?B?Z3NXNkRxRWhXMVlEd2lCL013VzBGdzFXc3BpUWcvbTZNL0lObWhGSEJybGI2?=
- =?utf-8?B?Z0NHR0hqVVpSaFdKakI2V3RzRExjMUZTbmUxMUtYNnFhVlphWG5iNVZjYnY2?=
- =?utf-8?B?eGZQVmsxckYvNTU3d2FmT05QaHBZKzVlK24vUWJtcVNWRlNsM2psQTRvMFFl?=
- =?utf-8?B?cXJGZHl4Q0xpa1lOMjFiaW5sMmRIMGZuMCtBVnBxREJUR3FpQVJEaUw3MkFx?=
- =?utf-8?B?M2FkRllxRE4wMFg2RmNIQ09GNzNLWmMvUkdkVlNodVE5R1hXdWJUYmRvQjJp?=
- =?utf-8?B?VWVadFBHUnByLzVmMzBpZmRKdHFLZEU0WllXT1RxVmV2QTdHZDRDU3JmeWFa?=
- =?utf-8?B?R1RtOGFqenhiR2pmTjFpU1FKTTZlNUo3Tkp2TjNYOG5sbHo2NkxyWXFJVUhv?=
- =?utf-8?B?ajF3NWp2cjJXUmJZcHhsQVc1S2hBZHRKRUFXcmU2aWxMc2RvZk5idkZrdWx0?=
- =?utf-8?B?T3ZPVmIrdi8rZzBBbVJvTVl1SjBEeE1rb1lnZ3ZiZk5BdncwZXNTVG1NVFBu?=
- =?utf-8?B?UExrczNyNnVkUlBiNUZjMDl2RDFmMWtwdlJLLytoRTFQTlptRWlPakx1N1F3?=
- =?utf-8?B?WCtNOEZDWWY2V3lNK3FzUDQ5WHBIMGEyTUJBb1A3VzZGRTJiSm9BcnNlU3cy?=
- =?utf-8?B?UG94bWlPNExsTXphNUU0cnV5TEtHRGEwR1RORXhwSGI4SGJ0V0I2dDJCRXFV?=
- =?utf-8?Q?kCPjyTGmVt118HeF10BxE2ilq?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?VG1EMEREV2h5ZjVucGdGOTFPU0tvVWJZZGdCejIzYm9YY0xQaXdPMjFtVW1m?=
+ =?utf-8?B?dkNjRVBuK2xpNytDc3M2eTRwUWQxUnV4dlRvaHNIa2JwR1F5NmJWVEZyWVA5?=
+ =?utf-8?B?Q3BsdGtDaGtuT254SkRzUHg1Sk4zSUNMYWUra0ZTbk1LRTJ4YXM0Skd3SSs3?=
+ =?utf-8?B?QjhOVGE4S0NmUVYzWldhNWxybEFDSmxKTjJFbGJJRDZCc0oyRy94djNlalBi?=
+ =?utf-8?B?S1Y1WURCd1VJdnhUczRlNjkzRjErbEtTeWpLSmVEcWFGNjZSdURjSFBKMXMv?=
+ =?utf-8?B?b3ozemJqZ0ZxWDErOUFweEwyZnlya1hicDVramFZRUY5NXFybmw1WjMrbDJB?=
+ =?utf-8?B?U0tlZU5CSUJvUnMwNS9NR04vTVdyUmZxbFlXS0ZWSmtGNVh6dU5zcGxyQTJT?=
+ =?utf-8?B?aGxHUHc2YW1ocWFDQ2hsSENIbVkrN2ZzMEVWTExMR1Erdmx2R1dhZWZkNVFt?=
+ =?utf-8?B?ZXVZZU5ZY3JrcjVmbGUycDM2aFA3RmpWYWcxUGd1M2lCdGpkSkg3TWxPQlp3?=
+ =?utf-8?B?S0hpTE85K0FXUXQ1RDNCcXd5U2l6M3prUVBOcjVaYzlGVldjUGN1bGEwRU1v?=
+ =?utf-8?B?cSt1bmY3NUNZM2svRkRobkd1T2JlWHhTQndzekw3emxuYmFFeW91a2NSWGdt?=
+ =?utf-8?B?cjNZVU9iRVQxUlNtMFp6T29FdWowVXgrV3F2WHpwQ1VQNG1jK1NwNGo3UjJG?=
+ =?utf-8?B?ckxQU0tvOExUZnlXSGU5YXVIRXZLMkpBOWhITFduU0dWYkg0V2liOGZDeEhI?=
+ =?utf-8?B?RTRCSDZ1V3Vxd2RtNnNsQmVWcVdhWStLNWhDYzFiUE4xQlV1RmgxZG4rOVlN?=
+ =?utf-8?B?dXk5NW9GQ1JuT1pjUXIvQ05Bcm9Pb0ZrSHM5enN6Vi9NcjJWK1JwZGJQLzVZ?=
+ =?utf-8?B?bnhIa0taMFpHZTlEKzVPdmEwb2c5YVVFSEFEUDF3SFRlVVkwbzh4K2dLa3BW?=
+ =?utf-8?B?YmlNL3NNWnNMUTd5MVA3ZGMvVlF2eGJJaysyc0d3R2Q0Ym1hajVHSmVzUGoy?=
+ =?utf-8?B?djU3c2MyTTdIRXNaU2ZtZW91UTRQTEpvdmVEQzk2aTI0THViTmlZOXlzeXNF?=
+ =?utf-8?B?NGRFREVSMEpidWFuRWNGYVZaTWZER0dRYmh1Zk9OajV1ZVBlR3RGUVpKT1NW?=
+ =?utf-8?B?Qm9jdDQ1QnZYSno0THQ0aUtQNDc5T3BKYXhDRHp2K1dhUVVtMi81Z1NhbGJN?=
+ =?utf-8?B?QmRSU3hmU1c2VmNkcnF4bUJRS2piSHArSXZwU3hja0FtcVIzRStiK24yMDFh?=
+ =?utf-8?B?cHpjR0xHVlJGNHk3U2VLdnpoNWlRTkoxRlk1WjNhNFJoWnEvOGdSaVFiazU2?=
+ =?utf-8?B?N3ZYdXB3YWF5UTFxSWhseUludWpSUG10S202S1ZCdUhhNDQzbFRNdno5ZGZG?=
+ =?utf-8?B?R2kvdzloc1NyWjRVK0hZQ0ZCMkhxYWtRM2FLZ0tWVnJUbks2bVE5emZhWGxI?=
+ =?utf-8?B?QkRjK0JyTW5Lamd1amFXbjkra2J5Y1ZxMDF2MTRhanJleGpxUkZBWEMxMVli?=
+ =?utf-8?B?QXFDdEYwNFBYbzA3QnVwS0JRd3ZaUHlmd2prOTBaTlJWUVkvRkpZWXdneGly?=
+ =?utf-8?B?OEZFRUx6RjJwYXJjU2dqRW0zWW5OdFFpQXRWSnEreHl4RkZPRzVzdE80Q3hk?=
+ =?utf-8?B?SWlVRlBUcnN5VERWRnJFSERPQ1lvK1pCVTdqZDhzYXhlYW9oY0VONDBkZFNP?=
+ =?utf-8?B?TkJveG5hUE9tS05rTDMwSVJOVzFpSmVNK3JsL0lRQ3I5N2gwN0EvVy8ybFkv?=
+ =?utf-8?B?M3B4ZmM5aVpqUlZpb2xUVmhYcGt0elRFN1cwanJHajN1SmphamxoMVBqZEI2?=
+ =?utf-8?B?S08rWW0zNXZMUXAydTIwYkFVeGN1ZUsrK281NVpzOU9MVnJDV0JpNG9DeTA0?=
+ =?utf-8?B?ZkdvSTZkUGdSc2ZlTmhOWHA5K3lJRUk1eU5FSVRTV1BkR2RFeVM5VWdXbnFB?=
+ =?utf-8?B?WHJLRzhDQ0hrQXhGcXVWNTZMRDl6eGtvcWZmRTgvWVVZWVZPcEt5d0h0SitC?=
+ =?utf-8?B?Zld4M2ZsMFRXTnNJenhVL0VndlZTM1lhYUVRbmx2eW1hYk5UZUhWZnF0bjhn?=
+ =?utf-8?B?WGdCcG1BTFl3L0dSTStXRDFWeUticDJsZHJIcmdTRTNoQ3lZU0tCOU81Z0Mx?=
+ =?utf-8?B?S0QrL1JhQVE3UlVtYVJMYno3SWZTc2RCNFUzVVUybmEyMTVHU29qNjUyeXB2?=
+ =?utf-8?B?ZGc9PQ==?=
 X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 572562c7-614f-41e4-fbc9-08da70680a51
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1dd03e47-9e7b-4c17-6053-08da7069f6ca
 X-MS-Exchange-CrossTenant-AuthSource: BYAPR10MB3287.namprd10.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Jul 2022 07:08:58.0276 (UTC)
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Jul 2022 07:22:44.2400 (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: boRY15vOsNA0g23e5glPJ4D7u8Qxr0fVFZPhsv9EgBd43eH6vyF2J4nkS93uyaNtMuztdde+yPdtdChzN0KK5A==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY4PR10MB1672
+X-MS-Exchange-CrossTenant-UserPrincipalName: m9JOd3++QT+NQ92N40G7hHKEARTb4iL3JoS1Hbl3zGuRwtd7YJIlNC2VF8SprsLcyOiLI0YGZzWzPKlirzt0KQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY4PR10MB1462
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
  definitions=2022-07-28_01,2022-07-28_01,2022-06-22_01
@@ -187,14 +196,15 @@ X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0
  bulkscore=0 malwarescore=0
  adultscore=0 mlxscore=0 mlxlogscore=999 suspectscore=0 spamscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2206140000
- definitions=main-2207280028
-X-Proofpoint-ORIG-GUID: B5mvQxUaWQ0sk5eqFVsKGI_yQKL4hBO8
-X-Proofpoint-GUID: B5mvQxUaWQ0sk5eqFVsKGI_yQKL4hBO8
+ definitions=main-2207280029
+X-Proofpoint-ORIG-GUID: J37dbAgAfnUYJ4XZocx6DJlmcGPEu1xi
+X-Proofpoint-GUID: J37dbAgAfnUYJ4XZocx6DJlmcGPEu1xi
 Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
- "gautam.dawar@amd.com" <gautam.dawar@amd.com>,
  "virtualization@lists.linux-foundation.org"
  <virtualization@lists.linux-foundation.org>,
- "xieyongji@bytedance.com" <xieyongji@bytedance.com>
+ "xieyongji@bytedance.com" <xieyongji@bytedance.com>,
+ "gautam.dawar@amd.com" <gautam.dawar@amd.com>, "Zhu,
+ Lingshan" <lingshan.zhu@intel.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -206,204 +216,365 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: multipart/mixed; boundary="===============8147000425820472179=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-CgpPbiA3LzI3LzIwMjIgNzowNiBQTSwgSmFzb24gV2FuZyB3cm90ZToKPgo+IOWcqCAyMDIyLzcv
-MjggMDg6NTYsIFNpLVdlaSBMaXUg5YaZ6YGTOgo+Pgo+Pgo+PiBPbiA3LzI3LzIwMjIgNDo0NyBB
-TSwgWmh1LCBMaW5nc2hhbiB3cm90ZToKPj4+Cj4+Pgo+Pj4gT24gNy8yNy8yMDIyIDU6NDMgUE0s
-IFNpLVdlaSBMaXUgd3JvdGU6Cj4+Pj4gU29ycnkgdG8gY2hpbWUgaW4gbGF0ZSBpbiB0aGUgZ2Ft
-ZS4gRm9yIHNvbWUgcmVhc29uIEkgY291bGRuJ3QgZ2V0IAo+Pj4+IHRvIG1vc3QgZW1haWxzIGZv
-ciB0aGlzIGRpc2N1c3Npb24gKEkgb25seSBzdWJzY3JpYmVkIHRvIHRoZSAKPj4+PiB2aXJ0dWFs
-aXphdGlvbiBsaXN0KSwgd2hpbGUgSSB3YXMgdGFraW5nIG9mZiBhbW9uZ3N0IHRoZSBwYXN0IGZl
-dyAKPj4+PiB3ZWVrcy4KPj4+Pgo+Pj4+IEl0IGxvb2tzIHRvIG1lIHRoaXMgcGF0Y2ggaXMgaW5j
-b21wbGV0ZS4gTm90ZWQgZG93biB0aGUgd2F5IGluIAo+Pj4+IHZkcGFfZGV2X25ldF9jb25maWdf
-ZmlsbCgpLCB3ZSBoYXZlIHRoZSBmb2xsb3dpbmc6Cj4+Pj4gwqDCoMKgwqDCoMKgwqDCoCBmZWF0
-dXJlcyA9IHZkZXYtPmNvbmZpZy0+Z2V0X2RyaXZlcl9mZWF0dXJlcyh2ZGV2KTsKPj4+PiDCoMKg
-wqDCoMKgwqDCoMKgIGlmIChubGFfcHV0X3U2NF82NGJpdChtc2csIAo+Pj4+IFZEUEFfQVRUUl9E
-RVZfTkVHT1RJQVRFRF9GRUFUVVJFUywgZmVhdHVyZXMsCj4+Pj4gwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIFZEUEFfQVRUUl9QQUQp
-KQo+Pj4+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHJldHVybiAtRU1TR1NJWkU7
-Cj4+Pj4KPj4+PiBNYWtpbmcgY2FsbCB0byAuZ2V0X2RyaXZlcl9mZWF0dXJlcygpIGRvZXNuJ3Qg
-bWFrZSBzZW5zZSB3aGVuIAo+Pj4+IGZlYXR1cmUgbmVnb3RpYXRpb24gaXNuJ3QgY29tcGxldGUu
-IE5laXRoZXIgc2hvdWxkIHByZXNlbnQgCj4+Pj4gbmVnb3RpYXRlZF9mZWF0dXJlcyB0byB1c2Vy
-c3BhY2UgYmVmb3JlIG5lZ290aWF0aW9uIGlzIGRvbmUuCj4+Pj4KPj4+PiBTaW1pbGFybHksIG1h
-eF92cXAgdGhyb3VnaCB2ZHBhX2Rldl9uZXRfbXFfY29uZmlnX2ZpbGwoKSBwcm9iYWJseSAKPj4+
-PiBzaG91bGQgbm90IHNob3cgYmVmb3JlIG5lZ290aWF0aW9uIGlzIGRvbmUgLSBpdCBkZXBlbmRz
-IG9uIGRyaXZlciAKPj4+PiBmZWF0dXJlcyBuZWdvdGlhdGVkLgo+Pj4gSSBoYXZlIGFub3RoZXIg
-cGF0Y2ggaW4gdGhpcyBzZXJpZXMgaW50cm9kdWNlcyBkZXZpY2VfZmVhdHVyZXMgYW5kIAo+Pj4g
-d2lsbCByZXBvcnQgZGV2aWNlX2ZlYXR1cmVzIHRvIHRoZSB1c2Vyc3BhY2UgZXZlbiBmZWF0dXJl
-cyAKPj4+IG5lZ290aWF0aW9uIG5vdCBkb25lLiBCZWNhdXNlIHRoZSBzcGVjIHNheXMgd2Ugc2hv
-dWxkIGFsbG93IGRyaXZlciAKPj4+IGFjY2VzcyB0aGUgY29uZmlnIHNwYWNlIGJlZm9yZSBGRUFU
-VVJFU19PSy4KPj4gVGhlIGNvbmZpZyBzcGFjZSBjYW4gYmUgYWNjZXNzZWQgYnkgZ3Vlc3QgYmVm
-b3JlIGZlYXR1cmVzX29rIGRvZXNuJ3QgCj4+IG5lY2Vzc2FyaWx5IG1lYW4gdGhlIHZhbHVlIGlz
-IHZhbGlkLiAKPgo+Cj4gSXQncyB2YWxpZCBhcyBsb25nIGFzIHRoZSBkZXZpY2Ugb2ZmZXJzIHRo
-ZSBmZWF0dXJlOgo+Cj4gIlRoZSBkZXZpY2UgTVVTVCBhbGxvdyByZWFkaW5nIG9mIGFueSBkZXZp
-Y2Utc3BlY2lmaWMgY29uZmlndXJhdGlvbiAKPiBmaWVsZCBiZWZvcmUgRkVBVFVSRVNfT0sgaXMg
-c2V0IGJ5IHRoZSBkcml2ZXIuIFRoaXMgaW5jbHVkZXMgZmllbGRzIAo+IHdoaWNoIGFyZSBjb25k
-aXRpb25hbCBvbiBmZWF0dXJlIGJpdHMsIGFzIGxvbmcgYXMgdGhvc2UgZmVhdHVyZSBiaXRzIAo+
-IGFyZSBvZmZlcmVkIGJ5IHRoZSBkZXZpY2UuIgpJIGd1ZXNzIHRoaXMgc3RhdGVtZW50IG9ubHkg
-Y29udmV5cyB0aGF0IHRoZSBmaWVsZCBpbiBjb25maWcgc3BhY2UgY2FuIApiZSByZWFkIGJlZm9y
-ZSBGRUFUVVJFU19PSyBpcyBzZXQsIHRob3VnaCBpdCBkb2VzIG5vdCAqZXhwbGljaXRseSogCnN0
-YXRlcyB0aGUgdmFsaWRpdHkgb2YgZmllbGQuCgpBbmQgbG9va2luZyBhdDoKCiJUaGUgbWFjIGFk
-ZHJlc3MgZmllbGQgYWx3YXlzIGV4aXN0cyAodGhvdWdoIGlzIG9ubHkgdmFsaWQgaWYgClZJUlRJ
-T19ORVRfRl9NQUMgaXMgc2V0KSwgYW5kIHN0YXR1cyBvbmx5IGV4aXN0cyBpZiBWSVJUSU9fTkVU
-X0ZfU1RBVFVTIAppcyBzZXQuIgoKSXQgYXBwZWFycyB0byBtZSB0aGVyZSdzIGEgYm9yZGVyIGxp
-bmUgc2V0IGJldHdlZW4gImV4aXN0IiBhbmQgInZhbGlkIi4gCklmIEkgdW5kZXJzdGFuZCB0aGUg
-c3BlYyB3b3JkaW5nIGNvcnJlY3RseSwgYSBzcGVjLWNvbmZvcm1pbmcgZGV2aWNlIAppbXBsZW1l
-bnRhdGlvbiBtYXkgb3IgbWF5IG5vdCBvZmZlciB2YWxpZCBzdGF0dXMgdmFsdWUgaW4gdGhlIGNv
-bmZpZyAKc3BhY2Ugd2hlbiBWSVJUSU9fTkVUX0ZfU1RBVFVTIGlzIG9mZmVyZWQsIGJ1dCBiZWZv
-cmUgdGhlIGZlYXR1cmUgaXMgCm5lZ290aWF0ZWQuIE9uIHRoZSBvdGhlciBoYW5kLCBjb25maWcg
-c3BhY2Ugc2hvdWxkIGNvbnRhaW4gdmFsaWQgbWFjIAphZGRyZXNzIHRoZSBtb21lbnQgVklSVElP
-X05FVF9GX01BQyBmZWF0dXJlIGlzIG9mZmVyZWQsIHJlZ2FyZGxlc3MgYmVpbmcgCm5lZ290aWF0
-ZWQgb3Igbm90LiBCeSB0aGF0LCB0aGVyZSBzZWVtcyB0byBiZSBsZWV3YXkgZm9yIHRoZSBkZXZp
-Y2UgCmltcGxlbWVudGF0aW9uIHRvIGRlY2lkZSB3aGVuIGNvbmZpZyBzcGFjZSBmaWVsZCBtYXkg
-YmVjb21lIHZhbGlkLCAKdGhvdWdoIGZvciBtb3N0IG9mIFFFTVUncyBzb2Z0d2FyZSB2aXJ0aW8g
-ZGV2aWNlcywgdmFsaWQgdmFsdWUgaXMgCnByZXNlbnQgdG8gY29uZmlnIHNwYWNlIHRoZSB2ZXJ5
-IGZpcnN0IG1vbWVudCB3aGVuIGZlYXR1cmUgaXMgb2ZmZXJlZC4KCiJJZiB0aGUgVklSVElPX05F
-VF9GX01BQyBmZWF0dXJlIGJpdCBpcyBzZXQsIHRoZSBjb25maWd1cmF0aW9uIHNwYWNlIG1hYyAK
-ZW50cnkgaW5kaWNhdGVzIHRoZSDigJxwaHlzaWNhbOKAnSBhZGRyZXNzIG9mIHRoZSBuZXR3b3Jr
-IGNhcmQsIG90aGVyd2lzZSAKdGhlIGRyaXZlciB3b3VsZCB0eXBpY2FsbHkgZ2VuZXJhdGUgYSBy
-YW5kb20gbG9jYWwgTUFDIGFkZHJlc3MuIgoiSWYgdGhlIFZJUlRJT19ORVRfRl9TVEFUVVMgZmVh
-dHVyZSBiaXQgaXMgbmVnb3RpYXRlZCwgdGhlIGxpbmsgc3RhdHVzIApjb21lcyBmcm9tIHRoZSBi
-b3R0b20gYml0IG9mIHN0YXR1cy4gT3RoZXJ3aXNlLCB0aGUgZHJpdmVyIGFzc3VtZXMgaXTigJlz
-IAphY3RpdmUuIgoKQW5kIGFsc28gdGhlcmUgYXJlIHNwZWNpYWwgY2FzZXMgd2hlcmUgdGhlIHJl
-YWQgb2Ygc3BlY2lmaWMgCmNvbmZpZ3VyYXRpb24gc3BhY2UgZmllbGQgTVVTVCBiZSBkZWZlcnJl
-ZCB0byB1bnRpbCBGRUFUVVJFU19PSyBpcyBzZXQ6CgoiSWYgdGhlIFZJUlRJT19CTEtfRl9DT05G
-SUdfV0NFIGZlYXR1cmUgaXMgbmVnb3RpYXRlZCwgdGhlIGNhY2hlIG1vZGUgCmNhbiBiZSByZWFk
-IG9yIHNldCB0aHJvdWdoIHRoZSB3cml0ZWJhY2sgZmllbGQuIDAgY29ycmVzcG9uZHMgdG8gYSAK
-d3JpdGV0aHJvdWdoIGNhY2hlLCAxIHRvIGEgd3JpdGViYWNrIGNhY2hlMTEuIFRoZSBjYWNoZSBt
-b2RlIGFmdGVyIHJlc2V0IApjYW4gYmUgZWl0aGVyIHdyaXRlYmFjayBvciB3cml0ZXRocm91Z2gu
-IFRoZSBhY3R1YWwgbW9kZSBjYW4gYmUgCmRldGVybWluZWQgYnkgcmVhZGluZyB3cml0ZWJhY2sg
-YWZ0ZXIgZmVhdHVyZSBuZWdvdGlhdGlvbi4iCiJUaGUgZHJpdmVyIE1VU1QgTk9UIHJlYWQgd3Jp
-dGViYWNrIGJlZm9yZSBzZXR0aW5nIHRoZSBGRUFUVVJFU19PSyAKZGV2aWNlIHN0YXR1cyBiaXQu
-IgoiSWYgVklSVElPX0JMS19GX0NPTkZJR19XQ0UgaXMgbmVnb3RpYXRlZCBidXQgVklSVElPX0JM
-S19GX0ZMVVNIIGlzIG5vdCwgCnRoZSBkZXZpY2UgTVVTVCBpbml0aWFsaXplIHdyaXRlYmFjayB0
-byAwLiIKClNpbmNlIHRoZSBzcGVjIGRvZXNuJ3QgZXhwbGljaXRseSBtYW5kYXRlIHRoZSB2YWxp
-ZGl0eSBvZiBlYWNoIGNvbmZpZyAKc3BhY2UgZmllbGQgd2hlbiBmZWF0dXJlIG9mIGNvbmNlcm4g
-aXMgb2ZmZXJlZCwgdG8gYmUgc2FmZXIgd2UnZCBoYXZlIHRvIApsaXZlIHdpdGggb2RkIGRldmlj
-ZSBpbXBsZW1lbnRhdGlvbi4gSSBrbm93IGZvciBzdXJlIFFFTVUgc29mdHdhcmUgCmRldmljZXMg
-d29uJ3QgZm9yIDk5JSBvZiB0aGVzZSBjYXNlcywgYnV0IHRoYXQncyBub3Qgd2hhdCBpcyBjdXJy
-ZW50bHkgCmRlZmluZWQgaW4gdGhlIHNwZWMuCgo+Cj4KPj4gWW91IG1heSB3YW50IHRvIGRvdWJs
-ZSBjaGVjayB3aXRoIE1pY2hhZWwgZm9yIHdoYXQgaGUgcXVvdGVkIGVhcmxpZXI6Cj4+PiBOb3Bl
-Ogo+Pj4KPj4+IDIuNS4xwqAgRHJpdmVyIFJlcXVpcmVtZW50czogRGV2aWNlIENvbmZpZ3VyYXRp
-b24gU3BhY2UKPj4+Cj4+PiAuLi4KPj4+Cj4+PiBGb3Igb3B0aW9uYWwgY29uZmlndXJhdGlvbiBz
-cGFjZSBmaWVsZHMsIHRoZSBkcml2ZXIgTVVTVCBjaGVjayB0aGF0IAo+Pj4gdGhlIGNvcnJlc3Bv
-bmRpbmcgZmVhdHVyZSBpcyBvZmZlcmVkCj4+PiBiZWZvcmUgYWNjZXNzaW5nIHRoYXQgcGFydCBv
-ZiB0aGUgY29uZmlndXJhdGlvbiBzcGFjZS4KPj4KPj4gYW5kIGhvdyBtYW55IGRyaXZlciBidWdz
-IHRha2luZyB3cm9uZyBhc3N1bXB0aW9uIG9mIHRoZSB2YWxpZGl0eSBvZiAKPj4gY29uZmlnIHNw
-YWNlIGZpZWxkIHdpdGhvdXQgZmVhdHVyZXNfb2suIEkgYW0gbm90IHN1cmUgd2hhdCB1c2UgY2Fz
-ZSAKPj4geW91IHdhbnQgdG8gZXhwb3NlIGNvbmZpZyByZXNpc3RlciB2YWx1ZXMgZm9yIGJlZm9y
-ZSBmZWF0dXJlc19vaywgaWYgCj4+IGl0J3MgbW9zdGx5IGZvciBsaXZlIG1pZ3JhdGlvbiBJIGd1
-ZXNzIGl0J3MgcHJvYmFibHkgaGVhZGluZyBhIHdyb25nIAo+PiBkaXJlY3Rpb24uCj4KPgo+IEkg
-Z3Vlc3MgaXQncyBub3QgZm9yIG1pZ3JhdGlvbi4gClRoZW4gd2hhdCdzIHRoZSBvdGhlciBwb3Nz
-aWJsZSB1c2UgY2FzZSB0aGFuIGxpdmUgbWlncmF0aW9uLCB3ZXJlIHRvIApleHBvc2UgY29uZmln
-IHNwYWNlIHZhbHVlcz8gVHJvdWJsZXNob290aW5nIGNvbmZpZyBzcGFjZSBkaXNjcmVwYW5jeSAK
-YmV0d2VlbiB2RFBBIGFuZCB0aGUgZW11bGF0ZWQgdmlydGlvIGRldmljZSBpbiB1c2Vyc3BhY2U/
-IE9yIHRyYWNraW5nIApjaGFuZ2VzIGluIGNvbmZpZyBzcGFjZSBhY3Jvc3MgZmVhdHVyZSBuZWdv
-dGlhdGlvbiwgYnV0IGZvciB3aGF0PyBJdCdkIApiZSBiZW5lZmljaWFsIHRvIHRoZSBpbnRlcmZh
-Y2UgZGVzaWduIGlmIHRoZSBzcGVjaWZpYyB1c2UgY2FzZSBjYW4gYmUgCmNsZWFybHkgZGVzY3Jp
-YmVkLi4uCgoKPiBGb3IgbWlncmF0aW9uLCBhIHByb3Zpc2lvbiB3aXRoIHRoZSBjb3JyZWN0IGZl
-YXR1cmVzL2NhcGFiaWxpdHkgd291bGQgCj4gYmUgc3VmZmljaWVudC4KUmlnaHQsIHRoYXQncyB3
-aGF0IEkgdGhvdWdodCB0b28uIEl0IGRvZXNuJ3QgbmVlZCB0byBleHBvc2UgY29uZmlnIHNwYWNl
-IAp2YWx1ZXMsIHNpbXBseSBleHBvcnRpbmcgYWxsIGF0dHJpYnV0ZXMgZm9yIHZkcGEgZGV2aWNl
-IGNyZWF0aW9uIHdpbGwgZG8gCnRoZSB3b3JrLgoKLVNpd2VpCgo+Cj4gVGhhbmtzCj4KPgo+Pgo+
-Pgo+Pj4+Cj4+Pj4KPj4+PiBMYXN0IGJ1dCBub3QgdGhlIGxlYXN0LCB0aGlzICJ2ZHBhIGRldiBj
-b25maWciIGNvbW1hbmQgd2FzIG5vdCAKPj4+PiBkZXNpZ25lZCB0byBkaXNwbGF5IHRoZSByZWFs
-IGNvbmZpZyBzcGFjZSByZWdpc3RlciB2YWx1ZXMgaW4gdGhlIAo+Pj4+IGZpcnN0IHBsYWNlLiBR
-dW90aW5nIHRoZSB2ZHBhLWRldig4KSBtYW4gcGFnZToKPj4+Pgo+Pj4+PiB2ZHBhIGRldiBjb25m
-aWcgc2hvdyAtIFNob3cgY29uZmlndXJhdGlvbiBvZiBzcGVjaWZpYyBkZXZpY2Ugb3IgCj4+Pj4+
-IGFsbCBkZXZpY2VzLgo+Pj4+PiBERVYgLSBzcGVjaWZpZXMgdGhlIHZkcGEgZGV2aWNlIHRvIHNo
-b3cgaXRzIGNvbmZpZ3VyYXRpb24uIElmIHRoaXMgCj4+Pj4+IGFyZ3VtZW50IGlzIG9taXR0ZWQg
-YWxsIGRldmljZXMgY29uZmlndXJhdGlvbiBpcyBsaXN0ZWQuCj4+Pj4gSXQgZG9lc24ndCBzYXkg
-YW55dGhpbmcgYWJvdXQgY29uZmlndXJhdGlvbiBzcGFjZSBvciByZWdpc3RlciAKPj4+PiB2YWx1
-ZXMgaW4gY29uZmlnIHNwYWNlLiBBcyBsb25nIGFzIGl0IGNhbiBjb252ZXkgdGhlIGNvbmZpZyAK
-Pj4+PiBhdHRyaWJ1dGUgd2hlbiBpbnN0YW50aWF0aW5nIHZEUEEgZGV2aWNlIGluc3RhbmNlLCBh
-bmQgbW9yZSAKPj4+PiBpbXBvcnRhbnRseSwgdGhlIGNvbmZpZyBjYW4gYmUgZWFzaWx5IGltcG9y
-dGVkIGZyb20gb3IgZXhwb3J0ZWQgdG8gCj4+Pj4gdXNlcnNwYWNlIHRvb2xzIHdoZW4gdHJ5aW5n
-IHRvIHJlY29uc3RydWN0IHZkcGEgaW5zdGFuY2UgaW50YWN0IG9uIAo+Pj4+IGRlc3RpbmF0aW9u
-IGhvc3QgZm9yIGxpdmUgbWlncmF0aW9uLCBJTUhPIGluIG15IHBlcnNvbmFsIAo+Pj4+IGludGVy
-cHJldGF0aW9uIGl0IGRvZXNuJ3QgbWF0dGVyIHdoYXQgdGhlIGNvbmZpZyBzcGFjZSBtYXkgcHJl
-c2VudC4gCj4+Pj4gSXQgbWF5IGJlIHdvcnRoIHdoaWxlIGFkZGluZyBhIG5ldyBkZWJ1ZyBjb21t
-YW5kIHRvIGV4cG9zZSB0aGUgcmVhbCAKPj4+PiByZWdpc3RlciB2YWx1ZSwgYnV0IHRoYXQncyBh
-bm90aGVyIHN0b3J5Lgo+Pj4gSSBhbSBub3Qgc3VyZSBnZXR0aW5nIHlvdXIgcG9pbnRzLiB2RFBB
-IG5vdyByZXBvcnRzIGRldmljZSBmZWF0dXJlIAo+Pj4gYml0cyhkZXZpY2VfZmVhdHVyZXMpIGFu
-ZCBuZWdvdGlhdGVkIGZlYXR1cmUgYml0cyhkcml2ZXJfZmVhdHVyZXMpLCAKPj4+IGFuZCB5ZXMs
-IHRoZSBkcml2ZXJzIGZlYXR1cmVzIGNhbiBiZSBhIHN1YnNldCBvZiB0aGUgZGV2aWNlIAo+Pj4g
-ZmVhdHVyZXM7IGFuZCB0aGUgdkRQQSBkZXZpY2UgZmVhdHVyZXMgY2FuIGJlIGEgc3Vic2V0IG9m
-IHRoZSAKPj4+IG1hbmFnZW1lbnQgZGV2aWNlIGZlYXR1cmVzLgo+PiBXaGF0IEkgc2FpZCBpcyBh
-ZnRlciB1bmJsb2NraW5nIHRoZSBjb25kaXRpb25hbCBjaGVjaywgeW91J2QgaGF2ZSB0byAKPj4g
-aGFuZGxlIHRoZSBjYXNlIGZvciBlYWNoIG9mIHRoZSB2ZHBhIGF0dHJpYnV0ZSB3aGVuIGZlYXR1
-cmUgCj4+IG5lZ290aWF0aW9uIGlzIG5vdCB5ZXQgZG9uZTogYmFzaWNhbGx5IHRoZSByZWdpc3Rl
-ciB2YWx1ZXMgeW91IGdvdCAKPj4gZnJvbSBjb25maWcgc3BhY2UgdmlhIHRoZSB2ZHBhX2dldF9j
-b25maWdfdW5sb2NrZWQoKSBjYWxsIGlzIG5vdCAKPj4gY29uc2lkZXJlZCB0byBiZSB2YWxpZCBi
-ZWZvcmUgZmVhdHVyZXNfb2sgKHBlci1zcGVjKS4gQWx0aG91Z2ggaW4gCj4+IHNvbWUgY2FzZSB5
-b3UgbWF5IGdldCBzYW5lIHZhbHVlLCBzdWNoIGJlaGF2aW9yIGlzIGdlbmVyYWxseSAKPj4gdW5k
-ZWZpbmVkLiBJZiB5b3UgZGVzaXJlIHRvIHNob3cganVzdCB0aGUgZGV2aWNlX2ZlYXR1cmVzIGFs
-b25lIAo+PiB3aXRob3V0IGFueSBjb25maWcgc3BhY2UgZmllbGQsIHdoaWNoIHRoZSBkZXZpY2Ug
-aGFkIGFkdmVydGlzZWQgCj4+ICpiZWZvcmUgZmVhdHVyZSBuZWdvdGlhdGlvbiBpcyBjb21wbGV0
-ZSosIHRoYXQnbGwgYmUgZmluZS4gQnV0IGxvb2tzIAo+PiB0byBtZSB0aGlzIGlzIG5vdCBob3cg
-cGF0Y2ggaGFzIGJlZW4gaW1wbGVtZW50ZWQuIFByb2JhYmx5IG5lZWQgc29tZSAKPj4gbW9yZSB3
-b3JrPwo+Pgo+PiBSZWdhcmRzLAo+PiAtU2l3ZWkKPj4KPj4+Pgo+Pj4+IEhhdmluZyBzYWlkLCBw
-bGVhc2UgY29uc2lkZXIgdG8gZHJvcCB0aGUgRml4ZXMgdGFnLCBhcyBhcHBlYXJzIHRvIAo+Pj4+
-IG1lIHlvdSdyZSBwcm9wb3NpbmcgYSBuZXcgZmVhdHVyZSByYXRoZXIgdGhhbiBmaXhpbmcgYSBy
-ZWFsIGlzc3VlLgo+Pj4gaXQncyBhIG5ldyBmZWF0dXJlIHRvIHJlcG9ydCB0aGUgZGV2aWNlIGZl
-YXR1cmUgYml0cyB0aGFuIG9ubHkgCj4+PiBuZWdvdGlhdGVkIGZlYXR1cmVzLCBob3dldmVyIHRo
-aXMgcGF0Y2ggaXMgYSBtdXN0LCBvciBpdCB3aWxsIGJsb2NrIAo+Pj4gdGhlIGRldmljZSBmZWF0
-dXJlIGJpdHMgcmVwb3J0aW5nLiBidXQgSSBhZ3JlZSwgdGhlIGZpeCB0YWcgaXMgbm90IGEgCj4+
-PiBtdXN0Lgo+Pj4+Cj4+Pj4gVGhhbmtzLAo+Pj4+IC1TaXdlaQo+Pj4+Cj4+Pj4gT24gNy8xLzIw
-MjIgMzoxMiBQTSwgUGFyYXYgUGFuZGl0IHZpYSBWaXJ0dWFsaXphdGlvbiB3cm90ZToKPj4+Pj4+
-IEZyb206IFpodSBMaW5nc2hhbjxsaW5nc2hhbi56aHVAaW50ZWwuY29tPgo+Pj4+Pj4gU2VudDog
-RnJpZGF5LCBKdWx5IDEsIDIwMjIgOToyOCBBTQo+Pj4+Pj4KPj4+Pj4+IFVzZXJzIG1heSB3YW50
-IHRvIHF1ZXJ5IHRoZSBjb25maWcgc3BhY2Ugb2YgYSB2RFBBIGRldmljZSwgdG8gCj4+Pj4+PiBj
-aG9vc2UgYQo+Pj4+Pj4gYXBwcm9wcmlhdGUgb25lIGZvciBhIGNlcnRhaW4gZ3Vlc3QuIFRoaXMg
-bWVhbnMgdGhlIHVzZXJzIG5lZWQgdG8gCj4+Pj4+PiByZWFkIHRoZQo+Pj4+Pj4gY29uZmlnIHNw
-YWNlIGJlZm9yZSBGRUFUVVJFU19PSywgYW5kIHRoZSBleGlzdGVuY2Ugb2YgY29uZmlnIHNwYWNl
-Cj4+Pj4+PiBjb250ZW50cyBkb2VzIG5vdCBkZXBlbmQgb24gRkVBVFVSRVNfT0suCj4+Pj4+Pgo+
-Pj4+Pj4gVGhlIHNwZWMgc2F5czoKPj4+Pj4+IFRoZSBkZXZpY2UgTVVTVCBhbGxvdyByZWFkaW5n
-IG9mIGFueSBkZXZpY2Utc3BlY2lmaWMgCj4+Pj4+PiBjb25maWd1cmF0aW9uIGZpZWxkCj4+Pj4+
-PiBiZWZvcmUgRkVBVFVSRVNfT0sgaXMgc2V0IGJ5IHRoZSBkcml2ZXIuIFRoaXMgaW5jbHVkZXMg
-ZmllbGRzIAo+Pj4+Pj4gd2hpY2ggYXJlCj4+Pj4+PiBjb25kaXRpb25hbCBvbiBmZWF0dXJlIGJp
-dHMsIGFzIGxvbmcgYXMgdGhvc2UgZmVhdHVyZSBiaXRzIGFyZSAKPj4+Pj4+IG9mZmVyZWQgYnkg
-dGhlCj4+Pj4+PiBkZXZpY2UuCj4+Pj4+Pgo+Pj4+Pj4gRml4ZXM6IDMwZWY3YThhYzhhMDcgKHZk
-cGE6IFJlYWQgZGV2aWNlIGNvbmZpZ3VyYXRpb24gb25seSBpZiAKPj4+Pj4+IEZFQVRVUkVTX09L
-KQo+Pj4+PiBGaXggaXMgZmluZSwgYnV0IGZpeGVzIHRhZyBuZWVkcyBjb3JyZWN0aW9uIGRlc2Ny
-aWJlZCBiZWxvdy4KPj4+Pj4KPj4+Pj4gQWJvdmUgY29tbWl0IGlkIGlzIDEzIGxldHRlcnMgc2hv
-dWxkIGJlIDEyLgo+Pj4+PiBBbmQKPj4+Pj4gSXQgc2hvdWxkIGJlIGluIGZvcm1hdAo+Pj4+PiBG
-aXhlczogMzBlZjdhOGFjOGEwICgidmRwYTogUmVhZCBkZXZpY2UgY29uZmlndXJhdGlvbiBvbmx5
-IGlmIAo+Pj4+PiBGRUFUVVJFU19PSyIpCj4+Pj4+Cj4+Pj4+IFBsZWFzZSB1c2UgY2hlY2twYXRj
-aC5wbCBzY3JpcHQgYmVmb3JlIHBvc3RpbmcgdGhlIHBhdGNoZXMgdG8gCj4+Pj4+IGNhdGNoIHRo
-ZXNlIGVycm9ycy4KPj4+Pj4gVGhlcmUgaXMgYSBib3QgdGhhdCBsb29rcyBhdCB0aGUgZml4ZXMg
-dGFnIGFuZCBpZGVudGlmaWVzIHRoZSAKPj4+Pj4gcmlnaHQga2VybmVsIHZlcnNpb24gdG8gYXBw
-bHkgdGhpcyBmaXguCj4+Pj4+Cj4+Pj4+PiBTaWduZWQtb2ZmLWJ5OiBaaHUgTGluZ3NoYW48bGlu
-Z3NoYW4uemh1QGludGVsLmNvbT4KPj4+Pj4+IC0tLQo+Pj4+Pj4gwqAgZHJpdmVycy92ZHBhL3Zk
-cGEuYyB8IDggLS0tLS0tLS0KPj4+Pj4+IMKgIDEgZmlsZSBjaGFuZ2VkLCA4IGRlbGV0aW9ucygt
-KQo+Pj4+Pj4KPj4+Pj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZkcGEvdmRwYS5jIGIvZHJpdmVy
-cy92ZHBhL3ZkcGEuYyBpbmRleAo+Pj4+Pj4gOWIwZTM5YjJmMDIyLi5kNzZiMjJiMmY3YWUgMTAw
-NjQ0Cj4+Pj4+PiAtLS0gYS9kcml2ZXJzL3ZkcGEvdmRwYS5jCj4+Pj4+PiArKysgYi9kcml2ZXJz
-L3ZkcGEvdmRwYS5jCj4+Pj4+PiBAQCAtODUxLDE3ICs4NTEsOSBAQCB2ZHBhX2Rldl9jb25maWdf
-ZmlsbChzdHJ1Y3QgdmRwYV9kZXZpY2UgKnZkZXYsCj4+Pj4+PiBzdHJ1Y3Qgc2tfYnVmZiAqbXNn
-LCB1MzIgcG9ydGlkLMKgIHsKPj4+Pj4+IMKgwqDCoMKgwqAgdTMyIGRldmljZV9pZDsKPj4+Pj4+
-IMKgwqDCoMKgwqAgdm9pZCAqaGRyOwo+Pj4+Pj4gLcKgwqDCoCB1OCBzdGF0dXM7Cj4+Pj4+PiDC
-oMKgwqDCoMKgIGludCBlcnI7Cj4+Pj4+Pgo+Pj4+Pj4gwqDCoMKgwqDCoCBkb3duX3JlYWQoJnZk
-ZXYtPmNmX2xvY2spOwo+Pj4+Pj4gLcKgwqDCoCBzdGF0dXMgPSB2ZGV2LT5jb25maWctPmdldF9z
-dGF0dXModmRldik7Cj4+Pj4+PiAtwqDCoMKgIGlmICghKHN0YXR1cyAmIFZJUlRJT19DT05GSUdf
-U19GRUFUVVJFU19PSykpIHsKPj4+Pj4+IC3CoMKgwqDCoMKgwqDCoCBOTF9TRVRfRVJSX01TR19N
-T0QoZXh0YWNrLCAiRmVhdHVyZXMgbmVnb3RpYXRpb24gbm90Cj4+Pj4+PiBjb21wbGV0ZWQiKTsK
-Pj4+Pj4+IC3CoMKgwqDCoMKgwqDCoCBlcnIgPSAtRUFHQUlOOwo+Pj4+Pj4gLcKgwqDCoMKgwqDC
-oMKgIGdvdG8gb3V0Owo+Pj4+Pj4gLcKgwqDCoCB9Cj4+Pj4+PiAtCj4+Pj4+PiDCoMKgwqDCoMKg
-IGhkciA9IGdlbmxtc2dfcHV0KG1zZywgcG9ydGlkLCBzZXEsICZ2ZHBhX25sX2ZhbWlseSwgZmxh
-Z3MsCj4+Pj4+PiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgVkRQQV9DTURfREVWX0NP
-TkZJR19HRVQpOwo+Pj4+Pj4gwqDCoMKgwqDCoCBpZiAoIWhkcikgewo+Pj4+Pj4gLS0gCj4+Pj4+
-PiAyLjMxLjEKPj4+Pj4gX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX18KPj4+Pj4gVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0Cj4+Pj4+IFZpcnR1YWxpemF0
-aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCj4+Pj4+IGh0dHBzOi8vdXJsZGVmZW5zZS5j
-b20vdjMvX19odHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5m
-by92aXJ0dWFsaXphdGlvbl9fOyEhQUNXVjVOOU0yUlY5OWhRIVBrd3ltN09Bam9EdWNVcXMyZkF3
-Y2h4cUw4LUJHZDZ3T2wtNTF4Y2dCX3lDTndQSl9jczhBMXktY1ltckxUQjRPQk5zaW1uWnVxSlBj
-dlFJbDNnJCAKPj4+Pgo+Pj4+Cj4+Pgo+Pgo+CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6
-YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5k
-YXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+--===============8147000425820472179==
+Content-Type: multipart/alternative;
+ boundary="------------VKm9Wwb7oxdrUsJ69c6ObYFi"
+Content-Language: en-US
+
+--------------VKm9Wwb7oxdrUsJ69c6ObYFi
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+
+
+
+On 7/27/2022 8:48 AM, Michael S. Tsirkin wrote:
+> On Wed, Jul 27, 2022 at 03:09:43AM -0700, Si-Wei Liu wrote:
+>>
+>> On 7/27/2022 2:01 AM, Michael S. Tsirkin wrote:
+>>> On Wed, Jul 27, 2022 at 12:50:33AM -0700, Si-Wei Liu wrote:
+>>>> On 7/26/2022 11:01 PM, Michael S. Tsirkin wrote:
+>>>>> On Wed, Jul 27, 2022 at 03:47:35AM +0000, Parav Pandit wrote:
+>>>>>>> From: Zhu, Lingshan<lingshan.zhu@intel.com>
+>>>>>>> Sent: Tuesday, July 26, 2022 10:53 PM
+>>>>>>>
+>>>>>>> On 7/27/2022 10:17 AM, Parav Pandit wrote:
+>>>>>>>>> From: Zhu, Lingshan<lingshan.zhu@intel.com>
+>>>>>>>>> Sent: Tuesday, July 26, 2022 10:15 PM
+>>>>>>>>>
+>>>>>>>>> On 7/26/2022 11:56 PM, Parav Pandit wrote:
+>>>>>>>>>>> From: Zhu, Lingshan<lingshan.zhu@intel.com>
+>>>>>>>>>>> Sent: Tuesday, July 12, 2022 11:46 PM
+>>>>>>>>>>>> When the user space which invokes netlink commands, detects that
+>>>>>>>>> _MQ
+>>>>>>>>>>> is not supported, hence it takes max_queue_pair = 1 by itself.
+>>>>>>>>>>> I think the kernel module have all necessary information and it is
+>>>>>>>>>>> the only one which have precise information of a device, so it
+>>>>>>>>>>> should answer precisely than let the user space guess. The kernel
+>>>>>>>>>>> module should be reliable than stay silent, leave the question to
+>>>>>>>>>>> the user space
+>>>>>>>>> tool.
+>>>>>>>>>> Kernel is reliable. It doesn’t expose a config space field if the
+>>>>>>>>>> field doesn’t
+>>>>>>>>> exist regardless of field should have default or no default.
+>>>>>>>>> so when you know it is one queue pair, you should answer one, not try
+>>>>>>>>> to guess.
+>>>>>>>>>> User space should not guess either. User space gets to see if _MQ
+>>>>>>>>> present/not present. If _MQ present than get reliable data from kernel.
+>>>>>>>>>> If _MQ not present, it means this device has one VQ pair.
+>>>>>>>>> it is still a guess, right? And all user space tools implemented this
+>>>>>>>>> feature need to guess
+>>>>>>>> No. it is not a guess.
+>>>>>>>> It is explicitly checking the _MQ feature and deriving the value.
+>>>>>>>> The code you proposed will be present in the user space.
+>>>>>>>> It will be uniform for _MQ and 10 other features that are present now and
+>>>>>>> in the future.
+>>>>>>> MQ and other features like RSS are different. If there is no _RSS_XX, there
+>>>>>>> are no attributes like max_rss_key_size, and there is not a default value.
+>>>>>>> But for MQ, we know it has to be 1 wihtout _MQ.
+>>>>>> "we" = user space.
+>>>>>> To keep the consistency among all the config space fields.
+>>>>> Actually I looked and the code some more and I'm puzzled:
+>>>>>
+>>>>>
+>>>>> 	struct virtio_net_config config = {};
+>>>>> 	u64 features;
+>>>>> 	u16 val_u16;
+>>>>>
+>>>>> 	vdpa_get_config_unlocked(vdev, 0, &config, sizeof(config));
+>>>>>
+>>>>> 	if (nla_put(msg, VDPA_ATTR_DEV_NET_CFG_MACADDR, sizeof(config.mac),
+>>>>> 		    config.mac))
+>>>>> 		return -EMSGSIZE;
+>>>>>
+>>>>>
+>>>>> Mac returned even without VIRTIO_NET_F_MAC
+>>>>>
+>>>>>
+>>>>> 	val_u16 = le16_to_cpu(config.status);
+>>>>> 	if (nla_put_u16(msg, VDPA_ATTR_DEV_NET_STATUS, val_u16))
+>>>>> 		return -EMSGSIZE;
+>>>>>
+>>>>>
+>>>>> status returned even without VIRTIO_NET_F_STATUS
+>>>>>
+>>>>> 	val_u16 = le16_to_cpu(config.mtu);
+>>>>> 	if (nla_put_u16(msg, VDPA_ATTR_DEV_NET_CFG_MTU, val_u16))
+>>>>> 		return -EMSGSIZE;
+>>>>>
+>>>>>
+>>>>> MTU returned even without VIRTIO_NET_F_MTU
+>>>>>
+>>>>>
+>>>>> What's going on here?
+>>>>>
+>>>>>
+>>>> I guess this is spec thing (historical debt), I vaguely recall these fields
+>>>> are always present in config space regardless the existence of corresponding
+>>>> feature bit.
+>>>>
+>>>> -Siwei
+>>> Nope:
+>>>
+>>> 2.5.1  Driver Requirements: Device Configuration Space
+>>>
+>>> ...
+>>>
+>>> For optional configuration space fields, the driver MUST check that the corresponding feature is offered
+>>> before accessing that part of the configuration space.
+>> Well, this is driver side of requirement.
+>
+> Well driver and device are the only two entities in the spec.
+We should mostly concern with device side requirement as this is what 
+the vdpa admin tool is targeted for. Please refer to my earlier 
+email//addressed to Jason.
+
+>
+>> As this interface is for host
+>> admin tool to query or configure vdpa device, we don't have to wait until
+>> feature negotiation is done on guest driver to extract vdpa
+>> attributes/parameters, say if we want to replicate another vdpa device with
+>> the same config on migration destination. I think what may need to be fix is
+>> to move off from using .vdpa_get_config_unlocked() which depends on feature
+>> negotiation. And/or expose config space register values through another set
+>> of attributes.
+>>
+>> -Siwei
+>>
+>>
+> Sounds like something that might use the proposed admin queue maybe.
+> Hope that makes progress ...
+Well it doesn't need to be that complex. Depending on need we may 
+extract device configs pre-negotiation from vendor's vdpa device via 
+some other op, but I doubt worth doing so. I don't quite understand the 
+use case why we need to expose those values.
+
+-Siwei
+
+
+--------------VKm9Wwb7oxdrUsJ69c6ObYFi
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  </head>
+  <body>
+    <br>
+    <br>
+    <div class="moz-cite-prefix">On 7/27/2022 8:48 AM, Michael S.
+      Tsirkin wrote:<br>
+    </div>
+    <blockquote type="cite" cite="mid:20220727114602-mutt-send-email-mst@kernel.org">
+      <pre class="moz-quote-pre" wrap="">On Wed, Jul 27, 2022 at 03:09:43AM -0700, Si-Wei Liu wrote:
+</pre>
+      <blockquote type="cite">
+        <pre class="moz-quote-pre" wrap="">
+
+On 7/27/2022 2:01 AM, Michael S. Tsirkin wrote:
+</pre>
+        <blockquote type="cite">
+          <pre class="moz-quote-pre" wrap="">On Wed, Jul 27, 2022 at 12:50:33AM -0700, Si-Wei Liu wrote:
+</pre>
+          <blockquote type="cite">
+            <pre class="moz-quote-pre" wrap="">
+On 7/26/2022 11:01 PM, Michael S. Tsirkin wrote:
+</pre>
+            <blockquote type="cite">
+              <pre class="moz-quote-pre" wrap="">On Wed, Jul 27, 2022 at 03:47:35AM +0000, Parav Pandit wrote:
+</pre>
+              <blockquote type="cite">
+                <blockquote type="cite">
+                  <pre class="moz-quote-pre" wrap="">From: Zhu, Lingshan <a class="moz-txt-link-rfc2396E" href="mailto:lingshan.zhu@intel.com">&lt;lingshan.zhu@intel.com&gt;</a>
+Sent: Tuesday, July 26, 2022 10:53 PM
+
+On 7/27/2022 10:17 AM, Parav Pandit wrote:
+</pre>
+                  <blockquote type="cite">
+                    <blockquote type="cite">
+                      <pre class="moz-quote-pre" wrap="">From: Zhu, Lingshan <a class="moz-txt-link-rfc2396E" href="mailto:lingshan.zhu@intel.com">&lt;lingshan.zhu@intel.com&gt;</a>
+Sent: Tuesday, July 26, 2022 10:15 PM
+
+On 7/26/2022 11:56 PM, Parav Pandit wrote:
+</pre>
+                      <blockquote type="cite">
+                        <blockquote type="cite">
+                          <pre class="moz-quote-pre" wrap="">From: Zhu, Lingshan <a class="moz-txt-link-rfc2396E" href="mailto:lingshan.zhu@intel.com">&lt;lingshan.zhu@intel.com&gt;</a>
+Sent: Tuesday, July 12, 2022 11:46 PM
+</pre>
+                          <blockquote type="cite">
+                            <pre class="moz-quote-pre" wrap="">When the user space which invokes netlink commands, detects that
+</pre>
+                          </blockquote>
+                        </blockquote>
+                      </blockquote>
+                      <pre class="moz-quote-pre" wrap="">_MQ
+</pre>
+                      <blockquote type="cite">
+                        <blockquote type="cite">
+                          <pre class="moz-quote-pre" wrap="">is not supported, hence it takes max_queue_pair = 1 by itself.
+I think the kernel module have all necessary information and it is
+the only one which have precise information of a device, so it
+should answer precisely than let the user space guess. The kernel
+module should be reliable than stay silent, leave the question to
+the user space
+</pre>
+                        </blockquote>
+                      </blockquote>
+                      <pre class="moz-quote-pre" wrap="">tool.
+</pre>
+                      <blockquote type="cite">
+                        <pre class="moz-quote-pre" wrap="">Kernel is reliable. It doesn’t expose a config space field if the
+field doesn’t
+</pre>
+                      </blockquote>
+                      <pre class="moz-quote-pre" wrap="">exist regardless of field should have default or no default.
+so when you know it is one queue pair, you should answer one, not try
+to guess.
+</pre>
+                      <blockquote type="cite">
+                        <pre class="moz-quote-pre" wrap="">User space should not guess either. User space gets to see if _MQ
+</pre>
+                      </blockquote>
+                      <pre class="moz-quote-pre" wrap="">present/not present. If _MQ present than get reliable data from kernel.
+</pre>
+                      <blockquote type="cite">
+                        <pre class="moz-quote-pre" wrap="">If _MQ not present, it means this device has one VQ pair.
+</pre>
+                      </blockquote>
+                      <pre class="moz-quote-pre" wrap="">it is still a guess, right? And all user space tools implemented this
+feature need to guess
+</pre>
+                    </blockquote>
+                    <pre class="moz-quote-pre" wrap="">No. it is not a guess.
+It is explicitly checking the _MQ feature and deriving the value.
+The code you proposed will be present in the user space.
+It will be uniform for _MQ and 10 other features that are present now and
+</pre>
+                  </blockquote>
+                  <pre class="moz-quote-pre" wrap="">in the future.
+MQ and other features like RSS are different. If there is no _RSS_XX, there
+are no attributes like max_rss_key_size, and there is not a default value.
+But for MQ, we know it has to be 1 wihtout _MQ.
+</pre>
+                </blockquote>
+                <pre class="moz-quote-pre" wrap="">&quot;we&quot; = user space.
+To keep the consistency among all the config space fields.
+</pre>
+              </blockquote>
+              <pre class="moz-quote-pre" wrap="">Actually I looked and the code some more and I'm puzzled:
+
+
+	struct virtio_net_config config = {};
+	u64 features;
+	u16 val_u16;
+
+	vdpa_get_config_unlocked(vdev, 0, &amp;config, sizeof(config));
+
+	if (nla_put(msg, VDPA_ATTR_DEV_NET_CFG_MACADDR, sizeof(config.mac),
+		    config.mac))
+		return -EMSGSIZE;
+
+
+Mac returned even without VIRTIO_NET_F_MAC
+
+
+	val_u16 = le16_to_cpu(config.status);
+	if (nla_put_u16(msg, VDPA_ATTR_DEV_NET_STATUS, val_u16))
+		return -EMSGSIZE;
+
+
+status returned even without VIRTIO_NET_F_STATUS
+
+	val_u16 = le16_to_cpu(config.mtu);
+	if (nla_put_u16(msg, VDPA_ATTR_DEV_NET_CFG_MTU, val_u16))
+		return -EMSGSIZE;
+
+
+MTU returned even without VIRTIO_NET_F_MTU
+
+
+What's going on here?
+
+
+</pre>
+            </blockquote>
+            <pre class="moz-quote-pre" wrap="">I guess this is spec thing (historical debt), I vaguely recall these fields
+are always present in config space regardless the existence of corresponding
+feature bit.
+
+-Siwei
+</pre>
+          </blockquote>
+          <pre class="moz-quote-pre" wrap="">Nope:
+
+2.5.1  Driver Requirements: Device Configuration Space
+
+...
+
+For optional configuration space fields, the driver MUST check that the corresponding feature is offered
+before accessing that part of the configuration space.
+</pre>
+        </blockquote>
+        <pre class="moz-quote-pre" wrap="">Well, this is driver side of requirement.
+</pre>
+      </blockquote>
+      <pre class="moz-quote-pre" wrap="">
+
+Well driver and device are the only two entities in the spec.</pre>
+    </blockquote>
+    We should mostly concern with device side requirement as this is
+    what the vdpa admin tool is targeted for. Please refer to my earlier
+    email<i> </i>addressed to Jason.<br>
+    <br>
+    <blockquote type="cite" cite="mid:20220727114602-mutt-send-email-mst@kernel.org">
+      <pre class="moz-quote-pre" wrap="">
+
+</pre>
+      <blockquote type="cite">
+        <pre class="moz-quote-pre" wrap="">As this interface is for host
+admin tool to query or configure vdpa device, we don't have to wait until
+feature negotiation is done on guest driver to extract vdpa
+attributes/parameters, say if we want to replicate another vdpa device with
+the same config on migration destination. I think what may need to be fix is
+to move off from using .vdpa_get_config_unlocked() which depends on feature
+negotiation. And/or expose config space register values through another set
+of attributes.
+
+-Siwei
+
+
+</pre>
+      </blockquote>
+      <pre class="moz-quote-pre" wrap="">
+Sounds like something that might use the proposed admin queue maybe.
+Hope that makes progress ...
+</pre>
+    </blockquote>
+    Well it doesn't need to be that complex. Depending on need we may
+    extract device configs pre-negotiation from vendor's vdpa device via
+    some other op, but I doubt worth doing so. I don't quite understand
+    the use case why we need to expose those values.<br>
+    <br>
+    -Siwei<br>
+    <br>
+    <br>
+  </body>
+</html>
+
+--------------VKm9Wwb7oxdrUsJ69c6ObYFi--
+
+--===============8147000425820472179==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============8147000425820472179==--
