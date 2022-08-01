@@ -1,84 +1,117 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4E213C19F2B
-	for <virtualization@archiver.kernel.org>; Mon,  1 Aug 2022 06:40:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 06636C19F2B
+	for <virtualization@archiver.kernel.org>; Mon,  1 Aug 2022 15:13:28 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 0319441198;
-	Mon,  1 Aug 2022 06:40:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0319441198
+	by smtp4.osuosl.org (Postfix) with ESMTP id 7E92B4088D;
+	Mon,  1 Aug 2022 15:13:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7E92B4088D
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Z2MRSpMt
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 030MDHOo3ysp; Mon,  1 Aug 2022 06:40:37 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id T4P0NeNotSY9; Mon,  1 Aug 2022 15:13:27 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 927C841053;
-	Mon,  1 Aug 2022 06:40:36 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 927C841053
+	by smtp4.osuosl.org (Postfix) with ESMTPS id B86D24086B;
+	Mon,  1 Aug 2022 15:13:26 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B86D24086B
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6A0B2C0032;
-	Mon,  1 Aug 2022 06:40:36 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7A3CBC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 84F65C0033;
+	Mon,  1 Aug 2022 15:13:26 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0114EC002D
  for <virtualization@lists.linux-foundation.org>;
- Mon,  1 Aug 2022 06:40:33 +0000 (UTC)
+ Mon,  1 Aug 2022 15:13:24 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 41F46845C4
+ by smtp4.osuosl.org (Postfix) with ESMTP id BA11D4088D
  for <virtualization@lists.linux-foundation.org>;
- Mon,  1 Aug 2022 06:40:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 41F46845C4
+ Mon,  1 Aug 2022 15:13:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org BA11D4088D
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id kXo54omQUsLf
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id VTOMPWB14kcH
  for <virtualization@lists.linux-foundation.org>;
- Mon,  1 Aug 2022 06:40:32 +0000 (UTC)
+ Mon,  1 Aug 2022 15:13:23 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 27CE28426B
-Received: from out30-133.freemail.mail.aliyun.com
- (out30-133.freemail.mail.aliyun.com [115.124.30.133])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 27CE28426B
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A180F4086B
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id A180F4086B
  for <virtualization@lists.linux-foundation.org>;
- Mon,  1 Aug 2022 06:40:31 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R341e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046050;
- MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=37; SR=0;
- TI=SMTPD_---0VL1cDS1_1659336023; 
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VL1cDS1_1659336023) by smtp.aliyun-inc.com;
- Mon, 01 Aug 2022 14:40:24 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: virtualization@lists.linux-foundation.org
-Subject: [PATCH v14 42/42] virtio_net: support set_ringparam
-Date: Mon,  1 Aug 2022 14:39:02 +0800
-Message-Id: <20220801063902.129329-43-xuanzhuo@linux.alibaba.com>
-X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20220801063902.129329-1-xuanzhuo@linux.alibaba.com>
-References: <20220801063902.129329-1-xuanzhuo@linux.alibaba.com>
+ Mon,  1 Aug 2022 15:13:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1659366802;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=nsD/rgTzse5a0ywH6Izn9rMfo/95Q7JbCqp8jKzGMjM=;
+ b=Z2MRSpMtJ7EooOFl/w/Z8argW0SDP9SNMMgtwaP/qyuhe+7+ZJDD2PiK7g9+XknhDEpt3U
+ O/Aqxl+ywrWp/bnUsg/kjWLi1c1/VVAkyss9ZXY2rEPrdiQc5ckX57Pl3z+kXUvT84sXGu
+ pubr9VFEg5qoCwz0s5Jlt2qNSKWTkks=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-644-hlNZXLqENkW8ZWGan5NxVA-1; Mon, 01 Aug 2022 11:13:20 -0400
+X-MC-Unique: hlNZXLqENkW8ZWGan5NxVA-1
+Received: by mail-wr1-f72.google.com with SMTP id
+ w22-20020adf8bd6000000b002206311fb96so747127wra.12
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 01 Aug 2022 08:13:20 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+ :content-language:to:cc:references:from:organization:in-reply-to
+ :content-transfer-encoding;
+ bh=nsD/rgTzse5a0ywH6Izn9rMfo/95Q7JbCqp8jKzGMjM=;
+ b=7d7LLsf8+iEeWCy76NhR3FPbBBaJGfTOVoPnn5OwuphJlU/62Crq5cStetRkvoMteW
+ waIKWnCVJV6PFMZrWQp47EP60VW5ye0Kr8mBUW2Ll0Dwpilp2NVMkr+p6SBZuDJ0yK2O
+ ZUaoh0MUwmTL8oLcEGytNeZqMuYOQRjHRClod+irhS5hupsHwVnPQcn6VzO7kj0HPWwf
+ 04o/TsQ4BhlIgfmRD08fjQ8WiDbJikeZ6GDKth9PpnNGs/wgAk7oAXYVAW0QYlUhaKFd
+ ZCfE9+KDh42PMX4pu1UX7M2hJzlBrGYe/fn+QsJZDw2hrxuKa1IgjVQIL8/Om8b3+XgE
+ AYVQ==
+X-Gm-Message-State: ACgBeo06i9mhDO2l2r5flhbpT703NimHoXSzZNh1w+g5qJCNUhh8LmpO
+ l+RFyWyx2Uyjf338eQlZ2P5gMctB/s4lm0XgUZzc2nCdzBfxqBuzVw2iHUWX+iGepVONDQ7BDM/
+ X1l+CiZ1X1dPaBAd65rq/fjru9SJKd2uqWXeLyUYeyQ==
+X-Received: by 2002:a5d:6b50:0:b0:21e:298c:caad with SMTP id
+ x16-20020a5d6b50000000b0021e298ccaadmr10078129wrw.509.1659366799349; 
+ Mon, 01 Aug 2022 08:13:19 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR6SFeifuzPYHVAqFr8/wF0WF/GYI/razjAjzF4+8/U33L470f+d6kBv248bmE1Rqf3OzIa40Q==
+X-Received: by 2002:a5d:6b50:0:b0:21e:298c:caad with SMTP id
+ x16-20020a5d6b50000000b0021e298ccaadmr10078114wrw.509.1659366799134; 
+ Mon, 01 Aug 2022 08:13:19 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c704:6900:6d08:8df1:dd2c:bf00?
+ (p200300cbc70469006d088df1dd2cbf00.dip0.t-ipconnect.de.
+ [2003:cb:c704:6900:6d08:8df1:dd2c:bf00])
+ by smtp.gmail.com with ESMTPSA id
+ bs22-20020a056000071600b002206d5fded3sm358369wrb.104.2022.08.01.08.13.18
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Mon, 01 Aug 2022 08:13:18 -0700 (PDT)
+Message-ID: <8ee986d7-0e3e-6b66-8c13-61fc70fa538e@redhat.com>
+Date: Mon, 1 Aug 2022 17:13:17 +0200
 MIME-Version: 1.0
-X-Git-Hash: 0f12e405b061
-Cc: Vadim Pasternak <vadimp@nvidia.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- linux-remoteproc@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
- Bjorn Andersson <bjorn.andersson@linaro.org>,
- Eric Dumazet <edumazet@google.com>, Alexander Gordeev <agordeev@linux.ibm.com>,
- kangjie.xu@linux.alibaba.com, Anton Ivanov <anton.ivanov@cambridgegreys.com>,
- kvm@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
- Richard Weinberger <richard@nod.at>,
- Vincent Whitchurch <vincent.whitchurch@axis.com>,
- John Fastabend <john.fastabend@gmail.com>, Halil Pasic <pasic@linux.ibm.com>,
- Jakub Kicinski <kuba@kernel.org>, Eric Farman <farman@linux.ibm.com>,
- Jesper Dangaard Brouer <hawk@kernel.org>, Vasily Gorbik <gor@linux.ibm.com>,
- linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
- linux-um@lists.infradead.org, Mark Gross <markgross@kernel.org>,
- Hans de Goede <hdegoede@redhat.com>, platform-driver-x86@vger.kernel.org,
- bpf@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
- Mathieu Poirier <mathieu.poirier@linaro.org>, netdev@vger.kernel.org,
- Cornelia Huck <cohuck@redhat.com>, Sven Schnelle <svens@linux.ibm.com>,
- Johannes Berg <johannes@sipsolutions.net>,
- "David S. Miller" <davem@davemloft.net>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [PATCH v6 2/2] Unify how inflated memory is accounted in virtio
+ balloon driver
+To: Alexander Atanasov <alexander.atanasov@virtuozzo.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+References: <20220726140831.72816-1-alexander.atanasov@virtuozzo.com>
+ <20220726141047.72913-1-alexander.atanasov@virtuozzo.com>
+From: David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+In-Reply-To: <20220726141047.72913-1-alexander.atanasov@virtuozzo.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Cc: kernel@openvz.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -95,85 +128,36 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Support set_ringparam based on virtio queue reset.
+On 26.07.22 16:10, Alexander Atanasov wrote:
+> Always account inflated memory as used for both cases - with and
+> without deflate on oom. Do not change total ram which can confuse
+> userspace and users.
 
-Users can use ethtool -G eth0 <ring_num> to modify the ring size of
-virtio-net.
+Sorry, but NAK.
 
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
----
- drivers/net/virtio_net.c | 48 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 48 insertions(+)
+This would affect existing users / user space / balloon stats. For example
+HV just recently switch to properly using adjust_managed_page_count()
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index d1e6940b46d8..59fc48c60403 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -2329,6 +2329,53 @@ static void virtnet_get_ringparam(struct net_device *dev,
- 	ring->tx_pending = virtqueue_get_vring_size(vi->sq[0].vq);
- }
- 
-+static int virtnet_set_ringparam(struct net_device *dev,
-+				 struct ethtool_ringparam *ring,
-+				 struct kernel_ethtool_ringparam *kernel_ring,
-+				 struct netlink_ext_ack *extack)
-+{
-+	struct virtnet_info *vi = netdev_priv(dev);
-+	u32 rx_pending, tx_pending;
-+	struct receive_queue *rq;
-+	struct send_queue *sq;
-+	int i, err;
-+
-+	if (ring->rx_mini_pending || ring->rx_jumbo_pending)
-+		return -EINVAL;
-+
-+	rx_pending = virtqueue_get_vring_size(vi->rq[0].vq);
-+	tx_pending = virtqueue_get_vring_size(vi->sq[0].vq);
-+
-+	if (ring->rx_pending == rx_pending &&
-+	    ring->tx_pending == tx_pending)
-+		return 0;
-+
-+	if (ring->rx_pending > vi->rq[0].vq->num_max)
-+		return -EINVAL;
-+
-+	if (ring->tx_pending > vi->sq[0].vq->num_max)
-+		return -EINVAL;
-+
-+	for (i = 0; i < vi->max_queue_pairs; i++) {
-+		rq = vi->rq + i;
-+		sq = vi->sq + i;
-+
-+		if (ring->tx_pending != tx_pending) {
-+			err = virtnet_tx_resize(vi, sq, ring->tx_pending);
-+			if (err)
-+				return err;
-+		}
-+
-+		if (ring->rx_pending != rx_pending) {
-+			err = virtnet_rx_resize(vi, rq, ring->rx_pending);
-+			if (err)
-+				return err;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
- static bool virtnet_commit_rss_command(struct virtnet_info *vi)
- {
- 	struct net_device *dev = vi->dev;
-@@ -2816,6 +2863,7 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
- 	.get_drvinfo = virtnet_get_drvinfo,
- 	.get_link = ethtool_op_get_link,
- 	.get_ringparam = virtnet_get_ringparam,
-+	.set_ringparam = virtnet_set_ringparam,
- 	.get_strings = virtnet_get_strings,
- 	.get_sset_count = virtnet_get_sset_count,
- 	.get_ethtool_stats = virtnet_get_ethtool_stats,
+
+commit d1df458cbfdb0c3384c03c7fbcb1689bc02a746c
+Author: Vitaly Kuznetsov <vkuznets@redhat.com>
+Date:   Wed Dec 2 17:12:45 2020 +0100
+
+    hv_balloon: do adjust_managed_page_count() when ballooning/un-ballooning
+    
+    Unlike virtio_balloon/virtio_mem/xen balloon drivers, Hyper-V balloon driver
+    does not adjust managed pages count when ballooning/un-ballooning and this leads
+    to incorrect stats being reported, e.g. unexpected 'free' output.
+    
+    Note, the calculation in post_status() seems to remain correct: ballooned out
+    pages are never 'available' and we manually add dm->num_pages_ballooned to
+    'commited'.
+
+
 -- 
-2.31.0
+Thanks,
+
+David / dhildenb
 
 _______________________________________________
 Virtualization mailing list
