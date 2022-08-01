@@ -4,58 +4,57 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 96C47C19F2C
-	for <virtualization@archiver.kernel.org>; Mon,  1 Aug 2022 06:40:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id F3874C19F2C
+	for <virtualization@archiver.kernel.org>; Mon,  1 Aug 2022 06:40:03 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 36D2E611D1;
-	Mon,  1 Aug 2022 06:40:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 36D2E611D1
+	by smtp3.osuosl.org (Postfix) with ESMTP id A0433611C0;
+	Mon,  1 Aug 2022 06:40:03 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A0433611C0
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id IZkg1YKL_wmA; Mon,  1 Aug 2022 06:39:59 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id CB99760F1F;
-	Mon,  1 Aug 2022 06:39:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CB99760F1F
+	with ESMTP id pHyuKO-P9CxV; Mon,  1 Aug 2022 06:40:02 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 0E21C60F1F;
+	Mon,  1 Aug 2022 06:40:02 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0E21C60F1F
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A5125C0032;
-	Mon,  1 Aug 2022 06:39:58 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7E686C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id DE3BAC0032;
+	Mon,  1 Aug 2022 06:40:01 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 880A2C002D
  for <virtualization@lists.linux-foundation.org>;
- Mon,  1 Aug 2022 06:39:57 +0000 (UTC)
+ Mon,  1 Aug 2022 06:40:00 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 59EE584188
+ by smtp2.osuosl.org (Postfix) with ESMTP id 618CD4105F
  for <virtualization@lists.linux-foundation.org>;
- Mon,  1 Aug 2022 06:39:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 59EE584188
+ Mon,  1 Aug 2022 06:40:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 618CD4105F
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id sYTSaesCwb4c
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id ag1FbVOI1wO2
  for <virtualization@lists.linux-foundation.org>;
- Mon,  1 Aug 2022 06:39:56 +0000 (UTC)
+ Mon,  1 Aug 2022 06:39:59 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4E1B484074
-Received: from out30-45.freemail.mail.aliyun.com
- (out30-45.freemail.mail.aliyun.com [115.124.30.45])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 4E1B484074
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 00C18401E1
+Received: from out199-2.us.a.mail.aliyun.com (out199-2.us.a.mail.aliyun.com
+ [47.90.199.2])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 00C18401E1
  for <virtualization@lists.linux-foundation.org>;
- Mon,  1 Aug 2022 06:39:55 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R131e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018045170;
+ Mon,  1 Aug 2022 06:39:58 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R401e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018045192;
  MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=37; SR=0;
- TI=SMTPD_---0VL1cCjy_1659335985; 
+ TI=SMTPD_---0VL1ss2F_1659335989; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VL1cCjy_1659335985) by smtp.aliyun-inc.com;
- Mon, 01 Aug 2022 14:39:46 +0800
+ fp:SMTPD_---0VL1ss2F_1659335989) by smtp.aliyun-inc.com;
+ Mon, 01 Aug 2022 14:39:50 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: virtualization@lists.linux-foundation.org
-Subject: [PATCH v14 22/42] virtio_ring: packed: introduce
- virtqueue_reinit_packed()
-Date: Mon,  1 Aug 2022 14:38:42 +0800
-Message-Id: <20220801063902.129329-23-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH v14 24/42] virtio_ring: introduce virtqueue_resize()
+Date: Mon,  1 Aug 2022 14:38:44 +0800
+Message-Id: <20220801063902.129329-25-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20220801063902.129329-1-xuanzhuo@linux.alibaba.com>
 References: <20220801063902.129329-1-xuanzhuo@linux.alibaba.com>
@@ -96,41 +95,121 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Introduce a function to initialize vq without allocating new ring,
-desc_state, desc_extra.
+Introduce virtqueue_resize() to implement the resize of vring.
+Based on these, the driver can dynamically adjust the size of the vring.
+For example: ethtool -G.
 
-Subsequent patches will call this function after reset vq to
-reinitialize vq.
+virtqueue_resize() implements resize based on the vq reset function. In
+case of failure to allocate a new vring, it will give up resize and use
+the original vring.
+
+During this process, if the re-enable reset vq fails, the vq can no
+longer be used. Although the probability of this situation is not high.
+
+The parameter recycle is used to recycle the buffer that is no longer
+used.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Acked-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/virtio/virtio_ring.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/virtio/virtio_ring.c | 69 ++++++++++++++++++++++++++++++++++++
+ include/linux/virtio.h       |  3 ++
+ 2 files changed, 72 insertions(+)
 
 diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 93d2a950f536..db06fb0ddfd6 100644
+index bea5a3448217..6447a09e2e38 100644
 --- a/drivers/virtio/virtio_ring.c
 +++ b/drivers/virtio/virtio_ring.c
-@@ -1957,6 +1957,18 @@ static void virtqueue_vring_attach_packed(struct vring_virtqueue *vq,
- 	vq->free_head = 0;
+@@ -2539,6 +2539,75 @@ struct virtqueue *vring_create_virtqueue(
  }
+ EXPORT_SYMBOL_GPL(vring_create_virtqueue);
  
-+static void virtqueue_reinit_packed(struct vring_virtqueue *vq)
++/**
++ * virtqueue_resize - resize the vring of vq
++ * @_vq: the struct virtqueue we're talking about.
++ * @num: new ring num
++ * @recycle: callback for recycle the useless buffer
++ *
++ * When it is really necessary to create a new vring, it will set the current vq
++ * into the reset state. Then call the passed callback to recycle the buffer
++ * that is no longer used. Only after the new vring is successfully created, the
++ * old vring will be released.
++ *
++ * Caller must ensure we don't call this with other virtqueue operations
++ * at the same time (except where noted).
++ *
++ * Returns zero or a negative error.
++ * 0: success.
++ * -ENOMEM: Failed to allocate a new ring, fall back to the original ring size.
++ *  vq can still work normally
++ * -EBUSY: Failed to sync with device, vq may not work properly
++ * -ENOENT: Transport or device not supported
++ * -E2BIG/-EINVAL: num error
++ * -EPERM: Operation not permitted
++ *
++ */
++int virtqueue_resize(struct virtqueue *_vq, u32 num,
++		     void (*recycle)(struct virtqueue *vq, void *buf))
 +{
-+	memset(vq->packed.vring.device, 0, vq->packed.event_size_in_bytes);
-+	memset(vq->packed.vring.driver, 0, vq->packed.event_size_in_bytes);
++	struct vring_virtqueue *vq = to_vvq(_vq);
++	struct virtio_device *vdev = vq->vq.vdev;
++	void *buf;
++	int err;
 +
-+	/* we need to reset the desc.flags. For more, see is_used_desc_packed() */
-+	memset(vq->packed.vring.desc, 0, vq->packed.ring_size_in_bytes);
++	if (!vq->we_own_ring)
++		return -EPERM;
 +
-+	virtqueue_init(vq, vq->packed.vring.num);
-+	virtqueue_vring_init_packed(&vq->packed, !!vq->vq.callback);
++	if (num > vq->vq.num_max)
++		return -E2BIG;
++
++	if (!num)
++		return -EINVAL;
++
++	if ((vq->packed_ring ? vq->packed.vring.num : vq->split.vring.num) == num)
++		return 0;
++
++	if (!vdev->config->disable_vq_and_reset)
++		return -ENOENT;
++
++	if (!vdev->config->enable_vq_after_reset)
++		return -ENOENT;
++
++	err = vdev->config->disable_vq_and_reset(_vq);
++	if (err)
++		return err;
++
++	while ((buf = virtqueue_detach_unused_buf(_vq)) != NULL)
++		recycle(_vq, buf);
++
++	if (vq->packed_ring)
++		err = virtqueue_resize_packed(_vq, num);
++	else
++		err = virtqueue_resize_split(_vq, num);
++
++	if (vdev->config->enable_vq_after_reset(_vq))
++		return -EBUSY;
++
++	return err;
 +}
++EXPORT_SYMBOL_GPL(virtqueue_resize);
 +
- static struct virtqueue *vring_create_virtqueue_packed(
- 	unsigned int index,
- 	unsigned int num,
+ /* Only available for split ring */
+ struct virtqueue *vring_new_virtqueue(unsigned int index,
+ 				      unsigned int num,
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index 129bde7521e3..62e31bca5602 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -91,6 +91,9 @@ dma_addr_t virtqueue_get_desc_addr(struct virtqueue *vq);
+ dma_addr_t virtqueue_get_avail_addr(struct virtqueue *vq);
+ dma_addr_t virtqueue_get_used_addr(struct virtqueue *vq);
+ 
++int virtqueue_resize(struct virtqueue *vq, u32 num,
++		     void (*recycle)(struct virtqueue *vq, void *buf));
++
+ /**
+  * virtio_device - representation of a device using virtio
+  * @index: unique position on the virtio bus
 -- 
 2.31.0
 
