@@ -1,61 +1,61 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 18036C19F2C
-	for <virtualization@archiver.kernel.org>; Mon,  1 Aug 2022 06:40:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3A37FC00144
+	for <virtualization@archiver.kernel.org>; Mon,  1 Aug 2022 06:40:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id B4DF0611F6;
-	Mon,  1 Aug 2022 06:40:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B4DF0611F6
+	by smtp1.osuosl.org (Postfix) with ESMTP id DF21D8463F;
+	Mon,  1 Aug 2022 06:40:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DF21D8463F
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id mlx6yF4Qz_pJ; Mon,  1 Aug 2022 06:40:28 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id qN2ZqZx_chSJ; Mon,  1 Aug 2022 06:40:32 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 3DC84611AF;
-	Mon,  1 Aug 2022 06:40:28 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3DC84611AF
+	by smtp1.osuosl.org (Postfix) with ESMTPS id C94A284180;
+	Mon,  1 Aug 2022 06:40:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C94A284180
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id EE310C0032;
-	Mon,  1 Aug 2022 06:40:27 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E1A1CC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 971C7C0032;
+	Mon,  1 Aug 2022 06:40:31 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C130EC002D
  for <virtualization@lists.linux-foundation.org>;
- Mon,  1 Aug 2022 06:40:25 +0000 (UTC)
+ Mon,  1 Aug 2022 06:40:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 9B271611F0
+ by smtp2.osuosl.org (Postfix) with ESMTP id 9B39941193
  for <virtualization@lists.linux-foundation.org>;
- Mon,  1 Aug 2022 06:40:25 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9B271611F0
+ Mon,  1 Aug 2022 06:40:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9B39941193
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id yyLlZdRQHpiJ
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Je9ugP-jnksQ
  for <virtualization@lists.linux-foundation.org>;
- Mon,  1 Aug 2022 06:40:24 +0000 (UTC)
+ Mon,  1 Aug 2022 06:40:30 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 445B8611F1
-Received: from out30-44.freemail.mail.aliyun.com
- (out30-44.freemail.mail.aliyun.com [115.124.30.44])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 445B8611F1
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8611141044
+Received: from out30-131.freemail.mail.aliyun.com
+ (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 8611141044
  for <virtualization@lists.linux-foundation.org>;
- Mon,  1 Aug 2022 06:40:23 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R191e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046050;
+ Mon,  1 Aug 2022 06:40:29 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R821e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018045192;
  MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=37; SR=0;
- TI=SMTPD_---0VL1vTOb_1659336014; 
+ TI=SMTPD_---0VL1cDJJ_1659336015; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VL1vTOb_1659336014) by smtp.aliyun-inc.com;
- Mon, 01 Aug 2022 14:40:15 +0800
+ fp:SMTPD_---0VL1cDJJ_1659336015) by smtp.aliyun-inc.com;
+ Mon, 01 Aug 2022 14:40:17 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: virtualization@lists.linux-foundation.org
-Subject: [PATCH v14 37/42] virtio_net: set the default max ring size by
- find_vqs()
-Date: Mon,  1 Aug 2022 14:38:57 +0800
-Message-Id: <20220801063902.129329-38-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH v14 38/42] virtio_net: get ringparam by
+ virtqueue_get_vring_max_size()
+Date: Mon,  1 Aug 2022 14:38:58 +0800
+Message-Id: <20220801063902.129329-39-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20220801063902.129329-1-xuanzhuo@linux.alibaba.com>
 References: <20220801063902.129329-1-xuanzhuo@linux.alibaba.com>
@@ -96,123 +96,34 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Use virtio_find_vqs_ctx_size() to specify the maximum ring size of tx,
-rx at the same time.
-
-                         | rx/tx ring size
--------------------------------------------
-speed == UNKNOWN or < 10G| 1024
-speed < 40G              | 4096
-speed >= 40G             | 8192
-
-Call virtnet_update_settings() once before calling init_vqs() to update
-speed.
+Use virtqueue_get_vring_max_size() in virtnet_get_ringparam() to set
+tx,rx_max_pending.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Acked-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/net/virtio_net.c | 42 ++++++++++++++++++++++++++++++++++++----
- 1 file changed, 38 insertions(+), 4 deletions(-)
+ drivers/net/virtio_net.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 8a5810bcb839..40532ecbe7fc 100644
+index 40532ecbe7fc..981ef8ea4d58 100644
 --- a/drivers/net/virtio_net.c
 +++ b/drivers/net/virtio_net.c
-@@ -3208,6 +3208,29 @@ static unsigned int mergeable_min_buf_len(struct virtnet_info *vi, struct virtqu
- 		   (unsigned int)GOOD_PACKET_LEN);
+@@ -2254,10 +2254,10 @@ static void virtnet_get_ringparam(struct net_device *dev,
+ {
+ 	struct virtnet_info *vi = netdev_priv(dev);
+ 
+-	ring->rx_max_pending = virtqueue_get_vring_size(vi->rq[0].vq);
+-	ring->tx_max_pending = virtqueue_get_vring_size(vi->sq[0].vq);
+-	ring->rx_pending = ring->rx_max_pending;
+-	ring->tx_pending = ring->tx_max_pending;
++	ring->rx_max_pending = vi->rq[0].vq->num_max;
++	ring->tx_max_pending = vi->sq[0].vq->num_max;
++	ring->rx_pending = virtqueue_get_vring_size(vi->rq[0].vq);
++	ring->tx_pending = virtqueue_get_vring_size(vi->sq[0].vq);
  }
  
-+static void virtnet_config_sizes(struct virtnet_info *vi, u32 *sizes)
-+{
-+	u32 i, rx_size, tx_size;
-+
-+	if (vi->speed == SPEED_UNKNOWN || vi->speed < SPEED_10000) {
-+		rx_size = 1024;
-+		tx_size = 1024;
-+
-+	} else if (vi->speed < SPEED_40000) {
-+		rx_size = 1024 * 4;
-+		tx_size = 1024 * 4;
-+
-+	} else {
-+		rx_size = 1024 * 8;
-+		tx_size = 1024 * 8;
-+	}
-+
-+	for (i = 0; i < vi->max_queue_pairs; i++) {
-+		sizes[rxq2vq(i)] = rx_size;
-+		sizes[txq2vq(i)] = tx_size;
-+	}
-+}
-+
- static int virtnet_find_vqs(struct virtnet_info *vi)
- {
- 	vq_callback_t **callbacks;
-@@ -3215,6 +3238,7 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
- 	int ret = -ENOMEM;
- 	int i, total_vqs;
- 	const char **names;
-+	u32 *sizes;
- 	bool *ctx;
- 
- 	/* We expect 1 RX virtqueue followed by 1 TX virtqueue, followed by
-@@ -3242,10 +3266,15 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
- 		ctx = NULL;
- 	}
- 
-+	sizes = kmalloc_array(total_vqs, sizeof(*sizes), GFP_KERNEL);
-+	if (!sizes)
-+		goto err_sizes;
-+
- 	/* Parameters for control virtqueue, if any */
- 	if (vi->has_cvq) {
- 		callbacks[total_vqs - 1] = NULL;
- 		names[total_vqs - 1] = "control";
-+		sizes[total_vqs - 1] = 64;
- 	}
- 
- 	/* Allocate/initialize parameters for send/receive virtqueues */
-@@ -3260,8 +3289,10 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
- 			ctx[rxq2vq(i)] = true;
- 	}
- 
--	ret = virtio_find_vqs_ctx(vi->vdev, total_vqs, vqs, callbacks,
--				  names, ctx, NULL);
-+	virtnet_config_sizes(vi, sizes);
-+
-+	ret = virtio_find_vqs_ctx_size(vi->vdev, total_vqs, vqs, callbacks,
-+				       names, sizes, ctx, NULL);
- 	if (ret)
- 		goto err_find;
- 
-@@ -3281,6 +3312,8 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
- 
- 
- err_find:
-+	kfree(sizes);
-+err_sizes:
- 	kfree(ctx);
- err_ctx:
- 	kfree(names);
-@@ -3630,6 +3663,9 @@ static int virtnet_probe(struct virtio_device *vdev)
- 		vi->curr_queue_pairs = num_online_cpus();
- 	vi->max_queue_pairs = max_queue_pairs;
- 
-+	virtnet_init_settings(dev);
-+	virtnet_update_settings(vi);
-+
- 	/* Allocate/initialize the rx/tx queues, and invoke find_vqs */
- 	err = init_vqs(vi);
- 	if (err)
-@@ -3642,8 +3678,6 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	netif_set_real_num_tx_queues(dev, vi->curr_queue_pairs);
- 	netif_set_real_num_rx_queues(dev, vi->curr_queue_pairs);
- 
--	virtnet_init_settings(dev);
--
- 	if (virtio_has_feature(vdev, VIRTIO_NET_F_STANDBY)) {
- 		vi->failover = net_failover_create(vi->dev);
- 		if (IS_ERR(vi->failover)) {
+ static bool virtnet_commit_rss_command(struct virtnet_info *vi)
 -- 
 2.31.0
 
