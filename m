@@ -4,102 +4,105 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 94199C19F29
-	for <virtualization@archiver.kernel.org>; Thu,  4 Aug 2022 01:53:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 32A29C00144
+	for <virtualization@archiver.kernel.org>; Thu,  4 Aug 2022 04:53:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id F384060B16;
-	Thu,  4 Aug 2022 01:53:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org F384060B16
+	by smtp3.osuosl.org (Postfix) with ESMTP id 7697E60B72;
+	Thu,  4 Aug 2022 04:53:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7697E60B72
 Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Fdwa3Vay
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=OoRCKScc
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id uqbS5OmxnY3A; Thu,  4 Aug 2022 01:53:07 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 58A8E60B13;
-	Thu,  4 Aug 2022 01:53:06 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 58A8E60B13
+	with ESMTP id 6TlLPxUIwTww; Thu,  4 Aug 2022 04:53:27 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id E1C8460B73;
+	Thu,  4 Aug 2022 04:53:26 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E1C8460B73
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2E489C0033;
-	Thu,  4 Aug 2022 01:53:06 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E3AFFC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A10DCC0032;
+	Thu,  4 Aug 2022 04:53:26 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 66B44C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Aug 2022 01:53:04 +0000 (UTC)
+ Thu,  4 Aug 2022 04:53:25 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id B3583410E9
+ by smtp2.osuosl.org (Postfix) with ESMTP id 2D9E940338
  for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Aug 2022 01:53:04 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B3583410E9
-Authentication-Results: smtp4.osuosl.org;
+ Thu,  4 Aug 2022 04:53:25 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2D9E940338
+Authentication-Results: smtp2.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=Fdwa3Vay
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=OoRCKScc
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id xGabHz8Qnt1C
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id FYZ_qh72O260
  for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Aug 2022 01:53:03 +0000 (UTC)
+ Thu,  4 Aug 2022 04:53:24 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4E880410DC
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2F7FE400F8
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 4E880410DC
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 2F7FE400F8
  for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Aug 2022 01:53:03 +0000 (UTC)
+ Thu,  4 Aug 2022 04:53:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1659577981;
+ s=mimecast20190719; t=1659588802;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=AsI/NhjU6yMBNdeLq/0YK3Gb8vQgw9K6id4Hte5Tdgs=;
- b=Fdwa3VayeSgGZUBY2aTiN1XqG6Boo550J1b7YIVZa5WVNFuZLiVzUHXjji+EaV3jIqRpgn
- OQ49+VUfWywJU47HlcQvqtBOkqD6bwu5da/IgBStPTAkibgQGXpo8ykCA396izax6FAh+6
- Hc6K1FqEPn7WGRgr1Pg9nKa1zG1Ay/M=
-Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
- [209.85.208.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=OLmka0NC3UlfBuYckPNASUIU1cERM9leULZwcp5E6j4=;
+ b=OoRCKSccQaf5Rr/bScBSZNNgKNx3tDgSD2F7NI606Mg6wz7I0UPbDQvaQn5em264z6JhC7
+ ZLf+6AIJwKKoiec2DZLTMnPpE+4R8XzjaWve+uLEsIvhDrg8ZAKLST+XiSSulxUjOcG5e6
+ e9xpw3Wj/yJ+MuDr4ZSRKqDhdUwvhyE=
+Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
+ [209.85.167.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-649-ts-ULeyANjiF3JoQxuY1Dw-1; Wed, 03 Aug 2022 21:53:00 -0400
-X-MC-Unique: ts-ULeyANjiF3JoQxuY1Dw-1
-Received: by mail-lj1-f199.google.com with SMTP id
- z7-20020a2ebe07000000b0025e5c7d6a2eso2031492ljq.20
+ us-mta-655-55Hi1WYrP0Kr5zd1TFZs5g-1; Thu, 04 Aug 2022 00:53:21 -0400
+X-MC-Unique: 55Hi1WYrP0Kr5zd1TFZs5g-1
+Received: by mail-lf1-f69.google.com with SMTP id
+ k25-20020a195619000000b00489e6a6527eso5552710lfb.8
  for <virtualization@lists.linux-foundation.org>;
- Wed, 03 Aug 2022 18:53:00 -0700 (PDT)
+ Wed, 03 Aug 2022 21:53:21 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=AsI/NhjU6yMBNdeLq/0YK3Gb8vQgw9K6id4Hte5Tdgs=;
- b=N+PEPucsZqyXy7WBMcgBsRWQMhm54dQ08z0Qqx0JvMNDvhjLnnYBkh7l6pcU9n0tXX
- mO3lk4NePwKZKBPJ8cGpJd3VMs9jNwPAlAR7JhLKEnzTfp5jB3u5xgb63Yp7obdfJEh0
- T2CNNqvpbT+WEdj4+RnRF3qQpN2+QIrTzQhoXdOwBT+jfhqTOwgSFQUb9Zc587aKAdbR
- xPTL1F4Tqh/1Dnb6cW47Cmyy3/+O+GwMBYYM6iJMlQUyL2S+bh9uScTvvG2lafrq5X+d
- zDpxPEjmc10SpBa+SOwOdCggiBNcEyoXYUI0v/k8159mnXr3EJz3438lUzuvgd4BZRo9
- Bp5A==
-X-Gm-Message-State: AJIora/w1XWgBrhkGPWCcN6GRk2Zl8nhv3pxBz043WeOGVfd6Ibtw7z6
- MEYxBAo+/T16UuxBj8pBYlP9VtRUVC+h29V8PGksR8AkORhqtv18fi5XxC5jlsla1HOGIsfkY7A
- vblylvtEYbiisuf7F3bDynmSIO4GgQIwmT+GOMQR8sP9aNV/b64IBuQ5IVg==
+ bh=OLmka0NC3UlfBuYckPNASUIU1cERM9leULZwcp5E6j4=;
+ b=N+gWQvEmm3Uig42GaQ+G28Xkulagi1sWIx9J1xVs7a3OGUJDcWAZx58AwArktoOUKS
+ K8PgnXrKdf10FTO0eVYUcwFTZv+BEMUOM+EM9oY01HN3DBa1jOReXdOFhXVa2y/cWxI1
+ +95MTNyLrQsOyovRqatmtStohOT/l1C0zTQQu5V8aDRTYiLHMR0upAOjiCFapkMEX+r/
+ uyhXZe4FWO7V1IE/YzmXUhHU6kk0tOEvl0t89xMsZ5SPD6T/hi61Irw1QkaoYlaCJEj7
+ X2xxvu9Hw4fEYic19BEFrMTC5Ez7Q/AlbZD3A0oziRjbo5pWgdMBwB95CxN7RwnLq4vf
+ xViQ==
+X-Gm-Message-State: ACgBeo22NupX4witUH6HXFGQyVJKpqhXNiis2DujD7Y68jQiTkrAP8/D
+ U6bk9ZD08U5+KCaZVIUi/eUEGzad+yPx199E4H4i1HdmUSxVAmQK/9pbFVO8nEdn1hwzqH0Jxh8
+ L9oQxbaHu5LvExzmvF842Ob8y/5xyZ12Sm3lHUtl65B6xjLTKFquw54zwAg==
 X-Received: by 2002:a05:6512:3f0e:b0:48a:5edd:99b2 with SMTP id
- y14-20020a0565123f0e00b0048a5edd99b2mr9319858lfa.124.1659577979002; 
- Wed, 03 Aug 2022 18:52:59 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1v6TmHP+7QTxMF41xeroeqy88xlUwsR9qDN6TweJlkm4FZvP2FssJD9lRjXMdhGjKQNkhOQ5YjYGJbofOIPROE=
+ y14-20020a0565123f0e00b0048a5edd99b2mr82489lfa.124.1659588800240; 
+ Wed, 03 Aug 2022 21:53:20 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR4E+uvfcwgkuiwuzZB+8RJjAjNJM0hEmaUlpNaRuyeUjSSQarpOIMjsof16sQtNs6Wj+6Y44uUEG5p2j1j0Q+g=
 X-Received: by 2002:a05:6512:3f0e:b0:48a:5edd:99b2 with SMTP id
- y14-20020a0565123f0e00b0048a5edd99b2mr9319851lfa.124.1659577978710; Wed, 03
- Aug 2022 18:52:58 -0700 (PDT)
+ y14-20020a0565123f0e00b0048a5edd99b2mr82481lfa.124.1659588800034; Wed, 03 Aug
+ 2022 21:53:20 -0700 (PDT)
 MIME-Version: 1.0
-References: <780fba4c-458f-0abc-ae48-4cf806401228@virtuozzo.com>
-In-Reply-To: <780fba4c-458f-0abc-ae48-4cf806401228@virtuozzo.com>
+References: <20220803045523.23851-1-xieyongji@bytedance.com>
+ <20220803045523.23851-6-xieyongji@bytedance.com>
+In-Reply-To: <20220803045523.23851-6-xieyongji@bytedance.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 4 Aug 2022 09:52:47 +0800
-Message-ID: <CACGkMEtLutWVnG_SHbP9+K851k4ZN3hdtZGxaYpbAz3wzEvSGA@mail.gmail.com>
-Subject: Re: memory locking in vhost-vdpa
-To: Andrey Zhadchenko <andrey.zhadchenko@virtuozzo.com>
+Date: Thu, 4 Aug 2022 12:53:09 +0800
+Message-ID: <CACGkMEs4LxYh1K3O=ycu-r+AJjSmvrJpHZbw+i+SDM-w-pbm+A@mail.gmail.com>
+Subject: Re: [PATCH v5 5/5] vduse: Support querying information of IOVA regions
+To: Xie Yongji <xieyongji@bytedance.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: den@virtuozzo.com,
+Cc: mst <mst@redhat.com>, Liu Xiaodong <xiaodong.liu@intel.com>,
+ linux-kernel <linux-kernel@vger.kernel.org>,
  virtualization <virtualization@lists.linux-foundation.org>,
- "Michael S. Tsirkin" <mst@redhat.com>
+ Maxime Coquelin <maxime.coquelin@redhat.com>,
+ Stefan Hajnoczi <stefanha@redhat.com>, songmuchun@bytedance.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -116,49 +119,110 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Aug 4, 2022 at 1:46 AM Andrey Zhadchenko
-<andrey.zhadchenko@virtuozzo.com> wrote:
+On Wed, Aug 3, 2022 at 12:56 PM Xie Yongji <xieyongji@bytedance.com> wrote:
 >
-> Hi!
+> This introduces a new ioctl: VDUSE_IOTLB_GET_INFO to
+> support querying some information of IOVA regions.
 >
-> Recently I sent vhost-blk patchset and Stefano suggested to instead join
-> efforts on developing vdpa-blk.
-> I played with it a bit and looks like vdpa itself pins the whole guest
-> memory. Is there a way to control it or reduce pinned amount to the
-> device pages?
-> Looks like even vdpa-sim requires all memory to be pinned [1]. Pinning
-> this much will surely impact guest density.
-
-It depends on the parent.
-
-When allocating the vDPA device, the parent can clams it supports
-virtual address then pinning is avoided:
-
-/**
- * __vdpa_alloc_device - allocate and initilaize a vDPA device
- * This allows driver to some prepartion after device is
- * initialized but before registered.
-...
- * @use_va: indicate whether virtual address must be used by this device
- */
-
-The only user so far is VDUSE which is a software parent in the
-userspace with a customized swiotlb for kernel drivers.
-
-Simulator came before this feature so we stick to the pinning method,
-technically we can switch to use the va mode, but it might have some
-performance impact (mostly the copy_from|to_user()).
-
-This option might be useful for hardware parent if PRI or device page
-fault is supported in the future.
-
-Thanks
-
+> Now it can be used to query whether the IOVA region
+> supports userspace memory registration.
 >
-> Kind regards,
-> Andrey
+> Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
+
+Acked-by: Jason Wang <jasowang@redhat.com>
+
+> ---
+>  drivers/vdpa/vdpa_user/vduse_dev.c | 39 ++++++++++++++++++++++++++++++
+>  include/uapi/linux/vduse.h         | 24 ++++++++++++++++++
+>  2 files changed, 63 insertions(+)
 >
-> [1] https://bugzilla.redhat.com/show_bug.cgi?id=1868535
+> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
+> index eedff0a3885a..41c0b29739f1 100644
+> --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> @@ -1228,6 +1228,45 @@ static long vduse_dev_ioctl(struct file *file, unsigned int cmd,
+>                                            umem.size);
+>                 break;
+>         }
+> +       case VDUSE_IOTLB_GET_INFO: {
+> +               struct vduse_iova_info info;
+> +               struct vhost_iotlb_map *map;
+> +               struct vduse_iova_domain *domain = dev->domain;
+> +
+> +               ret = -EFAULT;
+> +               if (copy_from_user(&info, argp, sizeof(info)))
+> +                       break;
+> +
+> +               ret = -EINVAL;
+> +               if (info.start > info.last)
+> +                       break;
+> +
+> +               if (!is_mem_zero((const char *)info.reserved,
+> +                                sizeof(info.reserved)))
+> +                       break;
+> +
+> +               spin_lock(&domain->iotlb_lock);
+> +               map = vhost_iotlb_itree_first(domain->iotlb,
+> +                                             info.start, info.last);
+> +               if (map) {
+> +                       info.start = map->start;
+> +                       info.last = map->last;
+> +                       info.capability = 0;
+> +                       if (domain->bounce_map && map->start == 0 &&
+> +                           map->last == domain->bounce_size - 1)
+> +                               info.capability |= VDUSE_IOVA_CAP_UMEM;
+> +               }
+> +               spin_unlock(&domain->iotlb_lock);
+> +               if (!map)
+> +                       break;
+> +
+> +               ret = -EFAULT;
+> +               if (copy_to_user(argp, &info, sizeof(info)))
+> +                       break;
+> +
+> +               ret = 0;
+> +               break;
+> +       }
+>         default:
+>                 ret = -ENOIOCTLCMD;
+>                 break;
+> diff --git a/include/uapi/linux/vduse.h b/include/uapi/linux/vduse.h
+> index 9885e0571f09..11bd48c72c6c 100644
+> --- a/include/uapi/linux/vduse.h
+> +++ b/include/uapi/linux/vduse.h
+> @@ -233,6 +233,30 @@ struct vduse_iova_umem {
+>  /* De-register the userspace memory. Caller should set iova and size field. */
+>  #define VDUSE_IOTLB_DEREG_UMEM _IOW(VDUSE_BASE, 0x19, struct vduse_iova_umem)
+>
+> +/**
+> + * struct vduse_iova_info - information of one IOVA region
+> + * @start: start of the IOVA region
+> + * @last: last of the IOVA region
+> + * @capability: capability of the IOVA regsion
+> + * @reserved: for future use, needs to be initialized to zero
+> + *
+> + * Structure used by VDUSE_IOTLB_GET_INFO ioctl to get information of
+> + * one IOVA region.
+> + */
+> +struct vduse_iova_info {
+> +       __u64 start;
+> +       __u64 last;
+> +#define VDUSE_IOVA_CAP_UMEM (1 << 0)
+> +       __u64 capability;
+> +       __u64 reserved[3];
+> +};
+> +
+> +/*
+> + * Find the first IOVA region that overlaps with the range [start, last]
+> + * and return some information on it. Caller should set start and last fields.
+> + */
+> +#define VDUSE_IOTLB_GET_INFO   _IOWR(VDUSE_BASE, 0x1a, struct vduse_iova_info)
+> +
+>  /* The control messages definition for read(2)/write(2) on /dev/vduse/$NAME */
+>
+>  /**
+> --
+> 2.20.1
 >
 
 _______________________________________________
