@@ -1,84 +1,111 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0FA3BC25B0C
-	for <virtualization@archiver.kernel.org>; Sat,  6 Aug 2022 09:43:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8E43FC25B07
+	for <virtualization@archiver.kernel.org>; Sat,  6 Aug 2022 10:52:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 878E383386;
-	Sat,  6 Aug 2022 09:43:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 878E383386
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=io6jGK2e
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id JLVD-J1c3FMY; Sat,  6 Aug 2022 09:43:11 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 28D748300C;
-	Sat,  6 Aug 2022 09:43:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 28D748300C
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 117D5C0032;
-	Sat,  6 Aug 2022 09:43:11 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 82E38C002D
- for <virtualization@lists.linux-foundation.org>;
- Sat,  6 Aug 2022 09:43:10 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 4ED2C40294
- for <virtualization@lists.linux-foundation.org>;
- Sat,  6 Aug 2022 09:43:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4ED2C40294
+	by smtp4.osuosl.org (Postfix) with ESMTP id D9228417A1;
+	Sat,  6 Aug 2022 10:52:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D9228417A1
 Authentication-Results: smtp4.osuosl.org;
- dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org
- header.a=rsa-sha256 header.s=k20201202 header.b=io6jGK2e
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=YFayHWfs
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id iQzzPX0ENT6Y; Sat,  6 Aug 2022 10:52:37 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 0D865417A4;
+	Sat,  6 Aug 2022 10:52:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0D865417A4
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C1FB4C0033;
+	Sat,  6 Aug 2022 10:52:36 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 87FD3C002D
+ for <virtualization@lists.linux-foundation.org>;
+ Sat,  6 Aug 2022 10:52:35 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp4.osuosl.org (Postfix) with ESMTP id 6208E417A1
+ for <virtualization@lists.linux-foundation.org>;
+ Sat,  6 Aug 2022 10:52:35 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6208E417A1
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ZufUtOsmxpP1
+ with ESMTP id j6gTuODIMUKv
  for <virtualization@lists.linux-foundation.org>;
- Sat,  6 Aug 2022 09:43:09 +0000 (UTC)
+ Sat,  6 Aug 2022 10:52:34 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4CC5040258
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 4CC5040258
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 30E964179E
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 30E964179E
  for <virtualization@lists.linux-foundation.org>;
- Sat,  6 Aug 2022 09:43:09 +0000 (UTC)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by dfw.source.kernel.org (Postfix) with ESMTPS id 8BB0060DC9;
- Sat,  6 Aug 2022 09:43:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71D6FC433D6;
- Sat,  6 Aug 2022 09:43:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1659778988;
- bh=DG8963oGkbXx7+vUNEIN89246XtvxOsDYOhzpif+4Bw=;
- h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=io6jGK2eLDlbNgZznh0Ml+gDbu6fzixfoCSL47VciYG0jkJktTJNV5U6ODlOag2D1
- SfxqOnCxchomXiDfDdbM0boizya5mW1o3S3EKHTxSa62vxV5KUptQiEOhHO+WcPWcN
- SD4+iNrrxzIhVUabAejBiec8+aBbrkbIdrPINdHwQV7w4G3IfVE2GQqoWOv1/SE2Tu
- /d7SfuZfdemcTZCVtff9izuNa+TiDG4PZdbYRgoqt8VajXSO/P4PUyBKZh8YSTtU69
- GiWxC1GhlpfYFT9wq4bOg10Twx1ni2lKLQHQCROFKDDImoq5HacC76ngLh2Q5WkWbS
- U0SXB8xCiscdQ==
-Date: Sat, 6 Aug 2022 10:42:59 +0100
-From: Will Deacon <will@kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
+ Sat,  6 Aug 2022 10:52:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1659783152;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=0/qh9jmfLwd9OiFNoPZvZ2ai/xbAjj6lvYqq0LiV4GY=;
+ b=YFayHWfsSqvd1UWEmJO0jYKAJUzlQZXmUmKIhfyOSn3rnS8KMU8o3LE8NR7AR7TatroZxl
+ dx54wDnoKN4Kzxi7CoDZB52EflzMZHnJCcp4toIt8/BMBLARs8+/QLCYhPr532fofP37/+
+ 5aL79TP3hTXgDfEkTj7AjxwjTMBaaK0=
+Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
+ [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-220-8XWJgPHWNzWC8F32DoNJdQ-1; Sat, 06 Aug 2022 06:52:31 -0400
+X-MC-Unique: 8XWJgPHWNzWC8F32DoNJdQ-1
+Received: by mail-ed1-f71.google.com with SMTP id
+ m22-20020a056402431600b0043d6a88130aso3025049edc.18
+ for <virtualization@lists.linux-foundation.org>;
+ Sat, 06 Aug 2022 03:52:31 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc;
+ bh=0/qh9jmfLwd9OiFNoPZvZ2ai/xbAjj6lvYqq0LiV4GY=;
+ b=N5ZLADZrNQ21+A69tCf/3wTdde/sOWf8mRE0qJt5ecNTinlTQJB1xHGBTEx+xjM4hX
+ qs+7l8C7Bhx0WLqheRyFwB6zFCUZKk1KQKsE4HDQe2RRsXVwSYBwcWJJ7fma5vmeurtz
+ LQ6iqz6kBwt014n6UMDYM4X5RQAS+EF2IOuAxbik9H9Azq53JW6A8CxCoW2cF7d24MTQ
+ w28ZpXQKrNIHqeo4O9lXRlepaCM4PD0RRFvSKspji8ECWe7twt9jcw3rNX8lOckQJ+q/
+ /Pzbh8lydrfWnsNlghy0cza2NwZQzwa7Xsdw5KVchPHBETsG8J/3yWyHeC0HDLGCDbN4
+ /Qbg==
+X-Gm-Message-State: ACgBeo0R+k6931BW+cqIsSUPh2N1/i3rn4TyZNke44KLzXsLfq7QnCz1
+ xPVsUpQP6abtrK9kaRaZNzYKSK/c+Y5Jyl0L0ioPIofptxUkC3XB1AXSuyyI2pupPWl2UoB831o
+ gybzknVSKfjUISG3AkxhBWUcND53r8sOzddKhRmdswg==
+X-Received: by 2002:a17:906:9bc9:b0:730:6595:dfc8 with SMTP id
+ de9-20020a1709069bc900b007306595dfc8mr7963493ejc.286.1659783150514; 
+ Sat, 06 Aug 2022 03:52:30 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR7HQzhwXQO5W/vBjDoNvbpv3Lfd+BpG+2vIUeviBxP2TGtghFHSnafgjrZHJe1Foup75+pBNA==
+X-Received: by 2002:a17:906:9bc9:b0:730:6595:dfc8 with SMTP id
+ de9-20020a1709069bc900b007306595dfc8mr7963477ejc.286.1659783150311; 
+ Sat, 06 Aug 2022 03:52:30 -0700 (PDT)
+Received: from sgarzare-redhat (host-79-46-200-178.retail.telecomitalia.it.
+ [79.46.200.178]) by smtp.gmail.com with ESMTPSA id
+ kx11-20020a170907774b00b00730df07629fsm2358448ejc.174.2022.08.06.03.52.28
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Sat, 06 Aug 2022 03:52:29 -0700 (PDT)
+Date: Sat, 6 Aug 2022 12:52:25 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Will Deacon <will@kernel.org>
 Subject: Re: IOTLB support for vhost/vsock breaks crosvm on Android
-Message-ID: <20220806094258.GB30268@willie-the-truck>
+Message-ID: <20220806105225.crkui6nw53kbm5ge@sgarzare-redhat>
 References: <20220805181105.GA29848@willie-the-truck>
- <CAHk-=wip-Lju3ZdNwknS6ouyw+nKXeRSnhqVyNo8WSEdk-BfGw@mail.gmail.com>
+ <20220806074828.zwzgn5gj47gjx5og@sgarzare-redhat>
+ <20220806094239.GA30268@willie-the-truck>
 MIME-Version: 1.0
+In-Reply-To: <20220806094239.GA30268@willie-the-truck>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-In-Reply-To: <CAHk-=wip-Lju3ZdNwknS6ouyw+nKXeRSnhqVyNo8WSEdk-BfGw@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
 Cc: jiyong@google.com, kvm@vger.kernel.org, mst@redhat.com, maz@kernel.org,
  keirf@google.com, linux-kernel@vger.kernel.org,
  virtualization@lists.linux-foundation.org, ascull@google.com,
- stefanha@redhat.com, kernel-team@android.com
+ stefanha@redhat.com, kernel-team@android.com, torvalds@linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -90,89 +117,86 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Aug 05, 2022 at 03:57:08PM -0700, Linus Torvalds wrote:
-> On Fri, Aug 5, 2022 at 11:11 AM Will Deacon <will@kernel.org> wrote:
-> >
-> > [tl;dr a change from ~18 months ago breaks Android userspace and I don't
-> >  know what to do about it]
-> 
-> Augh.
-> 
-> I had hoped that android being "closer" to upstream would have meant
-> that somebody actually tests android with upstream kernels. People
-> occasionally talk about it, but apparently it's not actually done.
-> 
-> Or maybe it's done onl;y with a very limited android user space.
+On Sat, Aug 06, 2022 at 10:42:40AM +0100, Will Deacon wrote:
+>Hi Stefano,
+>
+>On Sat, Aug 06, 2022 at 09:48:28AM +0200, Stefano Garzarella wrote:
+>> On Fri, Aug 05, 2022 at 07:11:06PM +0100, Will Deacon wrote:
+>> > The fundamental issue is, I think, that VIRTIO_F_ACCESS_PLATFORM is
+>> > being used for two very different things within the same device; for the
+>> > guest it basically means "use the DMA API, it knows what to do" but for
+>> > vhost it very specifically means "enable IOTLB". We've recently had
+>> > other problems with this flag [3] but in this case it used to work
+>> > reliably and now it doesn't anymore.
+>> >
+>> > So how should we fix this? One possibility is for us to hack crosvm to
+>> > clear the VIRTIO_F_ACCESS_PLATFORM flag when setting the vhost
+>>
+>> Why do you consider this a hack?
+>
+>I think it's a hack for two reasons:
+>
+>  (1) We're changing userspace to avoid a breaking change in kernel behaviour
+>  (2) I think that crosvm's approach is actually pretty reasonable
+>
+>To elaborate on (2), crosvm has a set of device features that it has
+>negotiated with the guest. It then takes the intersection of these features
+>with those advertised by VHOST_GET_FEATURES and calls VHOST_SET_FEATURES
+>with the result. If there was a common interpretation of what these features
+>do, then this would work and would mean we wouldn't have to opt-in on a
+>per-flag basis for vhost. Since VIRTIO_F_ACCESS_PLATFORM is being overloaded
+>to mean two completely different things, then it breaks and I think masking
+>out that specific flag is a hack because it's basically crosvm saying "yeah,
+>I may have negotiated this with the driver but vhost _actually_ means
+>'IOTLB' when it says it supports this flag so I'll mask it out because I
+>know better".
 
-We do actually test every -rc with Android (and run a whole bunch of
-regression tests), this is largely using x86 builds for convenience
-but we've been bringing up arm64 recently and are getting increasingly
-more coverage there. So this _will_ improve and relatively soon.
+Thanks for elaborating, now I think I get your point!
 
-The kicker in this case is that we'd only catch it on systems using pKVM
-(arm64 host only; upstreaming ongoing) with restricted DMA (requires
-device-tree) and so it slipped through. This is made more challenging
-for CI because arm64 devices don't tend to have support for nested
-virtualisation and so we have to run bare-metal but, as I say, we're
-getting there.
+If I understand you correctly, what you would like is that GET_FEATURES 
+should return only the data path features (thus exposed to the guest) 
+and not the features for the VMM, right?
 
-> > After some digging, we narrowed this change in behaviour down to
-> > e13a6915a03f ("vhost/vsock: add IOTLB API support") and further digging
-> > reveals that the infamous VIRTIO_F_ACCESS_PLATFORM feature flag is to
-> > blame. Indeed, our tests once again pass if we revert that patch (there's
-> > a trivial conflict with the later addition of VIRTIO_VSOCK_F_SEQPACKET
-> > but otherwise it reverts cleanly).
-> 
-> I have to say, this smells for *so* many reasons.
-> 
-> Why is "IOMMU support" called "VIRTIO_F_ACCESS_PLATFORM"?
+In that case, since we also negotiate backend features (with
+SET|GET_BACKEND_FEATURES ioctls) for IOTLB messages to work, maybe we 
+could only expose that feature if VHOST_BACKEND_F_IOTLB_MSG_V2 has been 
+negotiated
 
-It was already renamed once (!) It used to be VIRTIO_F_IOMMU_PLATFORM...
+@Michael, @Jason, do you think this could be doable?
 
-> That seems insane, but seems fundamental in that commit e13a6915a03f
-> ("vhost/vsock: add IOTLB API support")
-> 
-> This code
-> 
->         if ((features & (1ULL << VIRTIO_F_ACCESS_PLATFORM))) {
->                 if (vhost_init_device_iotlb(&vsock->dev, true))
->                         goto err;
->         }
-> 
-> just makes me go "What?"  It makes no sense. Why isn't that feature
-> called something-something-IOTLB?
-> 
-> Can we please just split that flag into two, and have that odd
-> "platform access" be one bit, and the "enable iommu" be an entirely
-> different bit?
+>
+>> If the VMM implements the translation feature, it is right in my opinion
+>> that it does not enable the feature for the vhost device. Otherwise, if it
+>> wants the vhost device to do the translation, enable the feature and send
+>> the IOTLB messages to set the translation.
+>>
+>> QEMU for example masks features when not required or supported.
+>> crosvm should negotiate only the features it supports.
+>>
+>> @Michael and @Jason can correct me, but if a vhost device negotiates
+>> VIRTIO_F_ACCESS_PLATFORM, then it expects the VMM to send IOTLB messages to
+>> set the translation.
+>
+>As above, the issue is that vhost now unconditionally advertises this in
+>VHOST_GET_FEATURES and so a VMM with no knowledge of IOTLB can end up
+>enabling it by accident.
 
-Something along those lines makes sense to me, but it's fiddly because
-the bits being used here are part of the virtio spec and we can't freely
-allocate them in Linux. I reckon it would probably be better to have a
-separate mechanism to enable IOTLB and not repurpose this flag for it.
-Hindsight is a wonderful thing.
+I honestly don't know what the initial design was, though, from what
+I've seen in QEMU, it only enables the known features, in fact for
+example when we added F_SEQPACKET for vhost-vsock, we had to update QEMU
+to pass the feature to the guest, so I think the initial idea was to not
+unconditionally accept all the features exposed by the vhost device.
 
-> And hey, it's possible that the bit encoding is *so* incestuous that
-> it's really hard to split it into two. But it really sounds to me like
-> somebody mindlessly re-used a feature bit for a *completely* different
-> thing. Why?
-> 
-> Why have feature bits at all, when you then re-use the same bit for
-> two different features? It kind of seems to defeat the whole purpose.
+Maybe this part should be clarified.
 
-No argument here, and it's a big part of the reason I made the effort to
-write this up. Yes, we hit this in Android. Yes, we should've hit it
-sooner.  But is it specific to Android? No. Anybody wanting a guest to
-use the DMA API for its virtio devices is going to be setting this flag
-and if they implement the same algorithm as crosvm then they're going to
-hit exactly the same problem that we did.
+Thanks,
+Stefano
 
-Will
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
