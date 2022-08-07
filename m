@@ -4,111 +4,105 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 69825C19F2A
-	for <virtualization@archiver.kernel.org>; Sun,  7 Aug 2022 13:35:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3875BC19F2A
+	for <virtualization@archiver.kernel.org>; Sun,  7 Aug 2022 22:57:11 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id D0EB082AC8;
-	Sun,  7 Aug 2022 13:35:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D0EB082AC8
+	by smtp1.osuosl.org (Postfix) with ESMTP id 7A914818DC;
+	Sun,  7 Aug 2022 22:57:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7A914818DC
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=O3wQz7IE
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=LTmyR3cT
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ISYct8BYsy31; Sun,  7 Aug 2022 13:35:21 +0000 (UTC)
+	with ESMTP id 39K00r3BxRAP; Sun,  7 Aug 2022 22:57:09 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 7317582A7F;
-	Sun,  7 Aug 2022 13:35:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7317582A7F
+	by smtp1.osuosl.org (Postfix) with ESMTPS id E7AFF82702;
+	Sun,  7 Aug 2022 22:57:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E7AFF82702
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2CB6BC0033;
-	Sun,  7 Aug 2022 13:35:20 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 92FE4C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id BC057C0032;
+	Sun,  7 Aug 2022 22:57:08 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 74C2FC002D
  for <virtualization@lists.linux-foundation.org>;
- Sun,  7 Aug 2022 13:35:18 +0000 (UTC)
+ Sun,  7 Aug 2022 22:57:07 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 5D45340475
+ by smtp2.osuosl.org (Postfix) with ESMTP id 492D8405A8
  for <virtualization@lists.linux-foundation.org>;
- Sun,  7 Aug 2022 13:35:18 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5D45340475
+ Sun,  7 Aug 2022 22:57:07 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 492D8405A8
 Authentication-Results: smtp2.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=O3wQz7IE
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=LTmyR3cT
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 8IdltHfsrXWj
+ with ESMTP id No2mChbFJxPI
  for <virtualization@lists.linux-foundation.org>;
- Sun,  7 Aug 2022 13:35:17 +0000 (UTC)
+ Sun,  7 Aug 2022 22:57:06 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7B17A400B9
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 373E340181
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 7B17A400B9
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 373E340181
  for <virtualization@lists.linux-foundation.org>;
- Sun,  7 Aug 2022 13:35:17 +0000 (UTC)
+ Sun,  7 Aug 2022 22:57:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1659879315;
+ s=mimecast20190719; t=1659913024;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=kUQoZ+Z3T3noJLGRnWhyvuGBcgQof1Le7Re/cjImcLw=;
- b=O3wQz7IEr8AyBH53UrbV+N8ZjvDixx5BvWma5nwK5jFNyc7Mc/+WbYJC/u6g19I1FCDPPu
- 1EnEv2RqHwnL7sHpkr8VZd50AGh6QIK83NDRu22IxoS77aXwmPGtD37tczYgibRgcTCwOc
- OIeR7hJ/tKGRSXFZm0XazeaxtRD0f/E=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=DRG3kxi36PNmVinjdItykZfWEJs1QIH2+MUoMsMB+M0=;
+ b=LTmyR3cThuKtgkMgp9HiJdX4j0nr5jymPxJf6yy2Rpw/E2xCrE5q1LfSsaXygS5LvAwB22
+ uaw58RhoizljZzALDueoT/3PRuZEBLs0DYVu8Lay7M9NexFX96lvsp5aQ10I6xOYuJ1lQv
+ cWfbge9oOAjIrhICuSDLMpxDuMYyNLo=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-265-fkJuVQQiOQuQ2-1wBWR7IA-1; Sun, 07 Aug 2022 09:35:14 -0400
-X-MC-Unique: fkJuVQQiOQuQ2-1wBWR7IA-1
-Received: by mail-wm1-f72.google.com with SMTP id
- v64-20020a1cac43000000b003a4bea31b4dso6958288wme.3
+ us-mta-226--_EwYm-HNCaL-tj6n9y3aw-1; Sun, 07 Aug 2022 18:57:03 -0400
+X-MC-Unique: -_EwYm-HNCaL-tj6n9y3aw-1
+Received: by mail-wm1-f69.google.com with SMTP id
+ bh18-20020a05600c3d1200b003a32044cc9fso3947880wmb.6
  for <virtualization@lists.linux-foundation.org>;
- Sun, 07 Aug 2022 06:35:14 -0700 (PDT)
+ Sun, 07 Aug 2022 15:57:02 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc;
- bh=kUQoZ+Z3T3noJLGRnWhyvuGBcgQof1Le7Re/cjImcLw=;
- b=XmLS6+vZF1CfTP5oANoNsmv7u2Ww9rkxdbq/BLU+GZ5EcVeKrbTL+S5d57oyLbfSDS
- v0GG7Xuq1KzPxce/uv+rNqKLvbZsQd/LJvqougVg37GhINWnONokfcO13mApFUB5jGgK
- fBl7Rp6TozNj6AmWly/ZD6iyvq9D5zL1vATmLfHq+P7hJTL3cfG9iVsBw4PatFoQpUvW
- TMEveFPITzgZgxQQAM/DDwlc831NRNz6Jqev3X3ZsGOMJ7BehwpxK7Xa1Gk/m4sIqTZl
- Bx8ZrvnSoe7i/DYa91L+HIhtj2HyycFaA21PIjOuwfcG3GtDH/O3KD0PbVBoLdYTTB1x
- qNpQ==
-X-Gm-Message-State: ACgBeo2w6woJbHIPWJjvxKKNbyaYnFqr559jZfEcHJJavO/aiS0zSioe
- W7/WMTqxqqKt1zGXReEr2VxysL22eDrCN042l0GfvAhHWCeqrOKjxsFf0OFONtJI+XgpJN3xmad
- ilrcjo02MATSFZnu2dkIDQ6WnK4hHWrUIqn+SCrXlCA==
-X-Received: by 2002:a05:600c:35c7:b0:3a3:2612:f823 with SMTP id
- r7-20020a05600c35c700b003a32612f823mr9706775wmq.33.1659879313165; 
- Sun, 07 Aug 2022 06:35:13 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR6b3gJMHnoTNtj37IngASsHIWEjuA+66KHlhEYj9gzwpL5gbhYjiJ9U3VuycAq+eyh6uwiMbA==
-X-Received: by 2002:a05:600c:35c7:b0:3a3:2612:f823 with SMTP id
- r7-20020a05600c35c700b003a32612f823mr9706761wmq.33.1659879312980; 
- Sun, 07 Aug 2022 06:35:12 -0700 (PDT)
+ bh=DRG3kxi36PNmVinjdItykZfWEJs1QIH2+MUoMsMB+M0=;
+ b=eOlHY1r7g8ANA8WmFIsLDVjSiD173aCQ44hgyucPvDVDz/WAqIPRWfwgp29aYu3QG4
+ 3bXJpgvaj2hPyLf6M3CYXdLA6KeVFOOtftsV/8Q3PLPPAJJn7tbujvvRLZJA3UHftRuq
+ 3KwO/QFtRuvuBnpSdtPoMDzaB8pxPOw4F4cGzX2M0IKiSvrx7AXDDAiy6TqdIBo5K3o0
+ 13AX7e+NTFuoj6RalEjIObsf2ARphDEUcGVP3QBCCO1r8WGKMiQgRyDHla2Htg5zdhHI
+ QA16Z0qHi5BzbXBuhRSrG45+pzlm54x5zFpg7aW4pYH+oO44hRh90E9ytvEiBl+jFwYl
+ SnWQ==
+X-Gm-Message-State: ACgBeo1tSWpyjvPIT163ea5ECvCSuXQw3me2a+dIHt96M1uzYu6yE3G0
+ KuetbTlIBh8fAxa7TA1IUZnEsfDaVwCmDqbgMHUzicyup5TGtpiXaeMr4a/v2aa4sEy/YfQDLhH
+ mzNXmacCzCE3QyO12lH0hoDkBaN2dD6K5fK+mxvFBbw==
+X-Received: by 2002:adf:dfca:0:b0:21f:c93:5c36 with SMTP id
+ q10-20020adfdfca000000b0021f0c935c36mr9565187wrn.41.1659913021920; 
+ Sun, 07 Aug 2022 15:57:01 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR4DQBpZdhf0pAyeZfbLu4dv8LJ5Uprgoh7hJXP8hoIGau82PS3zKRDTJ/sqZNm7PtU1kq2lQA==
+X-Received: by 2002:adf:dfca:0:b0:21f:c93:5c36 with SMTP id
+ q10-20020adfdfca000000b0021f0c935c36mr9565176wrn.41.1659913021591; 
+ Sun, 07 Aug 2022 15:57:01 -0700 (PDT)
 Received: from redhat.com ([2.52.21.123]) by smtp.gmail.com with ESMTPSA id
- y12-20020adfdf0c000000b0021f138e07acsm8993628wrl.35.2022.08.07.06.35.10
+ w11-20020a1cf60b000000b003a5260b8392sm4523962wmc.23.2022.08.07.15.56.59
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sun, 07 Aug 2022 06:35:12 -0700 (PDT)
-Date: Sun, 7 Aug 2022 09:35:07 -0400
+ Sun, 07 Aug 2022 15:57:01 -0700 (PDT)
+Date: Sun, 7 Aug 2022 18:56:57 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Christoph Hellwig <hch@infradead.org>
-Subject: Re: IOTLB support for vhost/vsock breaks crosvm on Android
-Message-ID: <20220807092733-mutt-send-email-mst@kernel.org>
-References: <20220805181105.GA29848@willie-the-truck>
- <CAHk-=wip-Lju3ZdNwknS6ouyw+nKXeRSnhqVyNo8WSEdk-BfGw@mail.gmail.com>
- <Yu9hHef3VawCbJT9@infradead.org>
+To: Igor Skalkin <Igor.Skalkin@opensynergy.com>
+Subject: Re: [PATCH] virtio-mmio: Introduce virtio_mmio hotplug
+Message-ID: <20220807185612-mutt-send-email-mst@kernel.org>
+References: <20220807215226.36507-1-Igor.Skalkin@opensynergy.com>
 MIME-Version: 1.0
-In-Reply-To: <Yu9hHef3VawCbJT9@infradead.org>
+In-Reply-To: <20220807215226.36507-1-Igor.Skalkin@opensynergy.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: jiyong@google.com, kvm@vger.kernel.org, kernel-team@android.com,
- Linus Torvalds <torvalds@linux-foundation.org>, keirf@google.com,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- ascull@google.com, stefanha@redhat.com, maz@kernel.org,
- Will Deacon <will@kernel.org>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -125,27 +119,119 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sat, Aug 06, 2022 at 11:52:13PM -0700, Christoph Hellwig wrote:
-> It really is vhost that seems to abuse it so that if the guest
-> claims it can handle VIRTIO_F_ACCESS_PLATFORM (which every modern
-> guest should) it enables magic behavior, which I don't think is what
-> the virtio spec intended.
+On Sun, Aug 07, 2022 at 11:52:26PM +0200, Igor Skalkin wrote:
+> From: Igor Skalkin <igor.skalkin@opensynergy.com>
+> 
+> While the virtio device is not yet running, the virtual machine manager
+> advertises the device with device_id set to 0.
+> During virtio mmio probing, the device_id is checked, and if it is 0,
+> the rest of the probing function is deferred until the interrupt arrives.
+> 
+> Signed-off-by: Igor Skalkin <igor.skalkin@opensynergy.com>
 
-Well the magic behavour happens to be used by QEMU to
-implement a virtual IOMMU. And when you have a virtual
-IOMMU you generally want VIRTIO_F_ACCESS_PLATFORM.
-This is how it came to be reused for that.
+Given this is clearly an extension to host/guest ABI, please
+propose this on the virtio TC mailing list.
 
-And since QEMU never passed guest features to vhost
-unfiltered we never saw the issue even with old QEMU
-versions on new kernels.
 
-It seems natural to pass features unfiltered and we never even said
-userspace should not do it, so it's quite understandable that this is
-what corsvm did.
-
--- 
-MST
+> ---
+> In our setup, we have a Linux host running virtio devices and virtualised
+> Linux/Android Guest[s] running virtio drivers.
+> Situation "the guest OS calls the probe() function for the virtio driver,
+> but the virtio device has not yet started in the host OS." keeps happening.
+> Also, some devices need to be hot-plugged later instead of starting during
+> system sturtup.
+> 
+> Probing of the guest virtio drivers should be deferred until the host device
+> has started.
+> ---
+>  drivers/virtio/virtio_mmio.c | 58 ++++++++++++++++++++++++++++++++++++
+>  1 file changed, 58 insertions(+)
+> 
+> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+> index 083ff1eb743d..c2e28a8faaaa 100644
+> --- a/drivers/virtio/virtio_mmio.c
+> +++ b/drivers/virtio/virtio_mmio.c
+> @@ -91,6 +91,8 @@ struct virtio_mmio_device {
+>  	/* a list of queues so we can dispatch IRQs */
+>  	spinlock_t lock;
+>  	struct list_head virtqueues;
+> +
+> +	struct work_struct hotplug_work;
+>  };
+>  
+>  struct virtio_mmio_vq_info {
+> @@ -592,6 +594,43 @@ static void virtio_mmio_release_dev(struct device *_d)
+>  
+>  /* Platform device */
+>  
+> +static irqreturn_t hotplug_interrupt(int irq, void *opaque)
+> +{
+> +	struct virtio_mmio_device *vm_dev = opaque;
+> +
+> +	if (readl(vm_dev->base + VIRTIO_MMIO_DEVICE_ID))
+> +		schedule_work(&vm_dev->hotplug_work);
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static int virtio_mmio_request_irq(irq_handler_t handler,
+> +				   struct virtio_mmio_device *vm_dev)
+> +{
+> +	int err;
+> +
+> +	err = request_irq(platform_get_irq(vm_dev->pdev, 0), handler,
+> +			  IRQF_SHARED, dev_name(&vm_dev->pdev->dev), vm_dev);
+> +	if (err)
+> +		dev_err(&vm_dev->pdev->dev, "request_irq(%s) returns %d\n",
+> +			dev_name(&vm_dev->pdev->dev), err);
+> +
+> +	return err;
+> +}
+> +
+> +static int finish_probe(struct virtio_mmio_device *vm_dev);
+> +static void virtio_mmio_hotplug_work(struct work_struct *hotplug_work)
+> +{
+> +	struct virtio_mmio_device *vm_dev =
+> +		container_of(hotplug_work, struct virtio_mmio_device,
+> +			    hotplug_work);
+> +
+> +	free_irq(platform_get_irq(vm_dev->pdev, 0), vm_dev);
+> +
+> +	if (finish_probe(vm_dev))
+> +		virtio_mmio_request_irq(hotplug_interrupt, vm_dev);
+> +}
+> +
+>  static int virtio_mmio_probe(struct platform_device *pdev)
+>  {
+>  	struct virtio_mmio_device *vm_dev;
+> @@ -628,6 +667,25 @@ static int virtio_mmio_probe(struct platform_device *pdev)
+>  		return -ENXIO;
+>  	}
+>  
+> +	vm_dev->vdev.id.device = readl(vm_dev->base + VIRTIO_MMIO_DEVICE_ID);
+> +	if (!vm_dev->vdev.id.device) {
+> +		rc = virtio_mmio_request_irq(hotplug_interrupt, vm_dev);
+> +		if (rc)
+> +			return rc;
+> +
+> +		INIT_WORK(&vm_dev->hotplug_work, virtio_mmio_hotplug_work);
+> +
+> +		return 0;
+> +	}
+> +
+> +	return finish_probe(vm_dev);
+> +}
+> +
+> +static int finish_probe(struct virtio_mmio_device *vm_dev)
+> +{
+> +	struct platform_device *pdev = vm_dev->pdev;
+> +	int rc;
+> +
+>  	vm_dev->vdev.id.device = readl(vm_dev->base + VIRTIO_MMIO_DEVICE_ID);
+>  	if (vm_dev->vdev.id.device == 0) {
+>  		/*
+> -- 
+> 2.37.1
 
 _______________________________________________
 Virtualization mailing list
