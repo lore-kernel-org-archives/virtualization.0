@@ -1,103 +1,105 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7F14CC25B0C
-	for <virtualization@archiver.kernel.org>; Mon,  8 Aug 2022 11:14:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B844CC00140
+	for <virtualization@archiver.kernel.org>; Mon,  8 Aug 2022 11:22:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 1A2D940931;
-	Mon,  8 Aug 2022 11:14:30 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1A2D940931
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=g5INBvX+
+	by smtp1.osuosl.org (Postfix) with ESMTP id 2FFD881C67;
+	Mon,  8 Aug 2022 11:22:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2FFD881C67
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Meln5ggV
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id jCC0OXR1EMOa; Mon,  8 Aug 2022 11:14:29 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 3dKj6gN7cx1J; Mon,  8 Aug 2022 11:22:56 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 84E4940121;
-	Mon,  8 Aug 2022 11:14:28 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 84E4940121
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 880D681450;
+	Mon,  8 Aug 2022 11:22:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 880D681450
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5DA59C0033;
-	Mon,  8 Aug 2022 11:14:28 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 60F75C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5D0BEC0032;
+	Mon,  8 Aug 2022 11:22:55 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7140FC002D
  for <virtualization@lists.linux-foundation.org>;
- Mon,  8 Aug 2022 11:14:27 +0000 (UTC)
+ Mon,  8 Aug 2022 11:22:53 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 24FFC40609
+ by smtp3.osuosl.org (Postfix) with ESMTP id 3987960E24
  for <virtualization@lists.linux-foundation.org>;
- Mon,  8 Aug 2022 11:14:27 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 24FFC40609
+ Mon,  8 Aug 2022 11:22:53 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3987960E24
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=Meln5ggV
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Pm8EQxIsTAv9
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id LUbdcRNtv5HH
  for <virtualization@lists.linux-foundation.org>;
- Mon,  8 Aug 2022 11:14:26 +0000 (UTC)
+ Mon,  8 Aug 2022 11:22:52 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 54F0C40121
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D52AA60E1D
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 54F0C40121
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id D52AA60E1D
  for <virtualization@lists.linux-foundation.org>;
- Mon,  8 Aug 2022 11:14:26 +0000 (UTC)
+ Mon,  8 Aug 2022 11:22:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1659957265;
+ s=mimecast20190719; t=1659957770;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=yY0JFPsIeaqtqI4iFArqAoOxJZBsLvWKUrWCsvYe/Bc=;
- b=g5INBvX+6CvKAqjWw2DupmWSeLQhrfClfnREWRG+f5r64a4dVFAIFqEeJ71jRvItmTqlWz
- 6ZI1n/LaDmtHQij4QY0n6vdF46VILNDzhHeAaDasqvJtHMkfbh/va1a+2c2A9gNBgPwG8n
- vQ7HYvUsRJIvtubc2cunhBPo7YpCmr4=
-Received: from mail-qv1-f69.google.com (mail-qv1-f69.google.com
- [209.85.219.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=URbW2eSWd9Zk4XsSgq7TMx84SxxtNx0WE1Teja98lDs=;
+ b=Meln5ggVtFtV7fMXRCk93yxBCAC0N3HI5JzgFdrHH+8PwgA+CFEqp8SuwdfiT3P9OJBiF+
+ RaYhEYxaiEuG4nHD443rdfDrFEEov299f6XdF8ZrtJnh6pL+Yzst1AZ7575G4/vZULMPh3
+ GW8PvilMYKdQbQ1YXT2PLjsJ+1yBjnU=
+Received: from mail-qv1-f72.google.com (mail-qv1-f72.google.com
+ [209.85.219.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-304-7zUBPSUZNmC8ADP_5q5Mzw-1; Mon, 08 Aug 2022 07:14:24 -0400
-X-MC-Unique: 7zUBPSUZNmC8ADP_5q5Mzw-1
-Received: by mail-qv1-f69.google.com with SMTP id
- dc13-20020a056214174d00b0047b6f9a1a9aso69406qvb.23
+ us-mta-75-3UciDMaBMNe9jROU12hlFg-1; Mon, 08 Aug 2022 07:22:49 -0400
+X-MC-Unique: 3UciDMaBMNe9jROU12hlFg-1
+Received: by mail-qv1-f72.google.com with SMTP id
+ o9-20020a0cecc9000000b0047491274bb1so4274656qvq.19
  for <virtualization@lists.linux-foundation.org>;
- Mon, 08 Aug 2022 04:14:24 -0700 (PDT)
+ Mon, 08 Aug 2022 04:22:49 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc;
- bh=yY0JFPsIeaqtqI4iFArqAoOxJZBsLvWKUrWCsvYe/Bc=;
- b=6asxDFuwW6A0NIGuCfWLm4vzuF3B5m/APNfWigXuCvSiuaI+SmSjVDfgfZ3fELA4in
- LlZWMWyHko5ladi2Uqppi+0Rq0wydmKgvl+O9k4EqruRxNx7FhHSpl5JhSWb3WRhtbBY
- ngXY19piKYIBhHZNrw7oLDdUt438GBsG+CRyOhPyx82+7bWsYVKG7dU42BYPkBr7nFCs
- uM1hA2XEV6LKVFepJIiZxqh6g3jQ5je0SzzAt5JU3NioWCRTSh9SSq5Gcnly9OoglB3t
- 4xsTmq720T6gw7iibyPzjy2+xxLSNCp3EJPoZP5pziCUbzToNnbFW00CTS4441ZWy1q0
- D3mg==
-X-Gm-Message-State: ACgBeo2bHvXIXigI4jaHlhSNdn4rLivFvkS0nN0ldIhYVaeMJuLe1abE
- tuCWqcFl/EsmlB5l8fPMnnI9b+ZKiLZIK+HnqjmOHwZz4gYStrvKY8OCAzi9+eh8jUk08YJUBGT
- kYHqGMXzjtr8aIZMrGtOkZxiOlZCgo194Av3oY/DmJg==
-X-Received: by 2002:a37:9602:0:b0:6b8:753c:729d with SMTP id
- y2-20020a379602000000b006b8753c729dmr13647138qkd.83.1659957263906; 
- Mon, 08 Aug 2022 04:14:23 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR639ZIMRG4InAc+BbR2p/NP4CtcHRuLRLUW7+Hgtww1NkwTDOVGrJ0yy9vLlJVxPTxPb1lKOQ==
-X-Received: by 2002:a37:9602:0:b0:6b8:753c:729d with SMTP id
- y2-20020a379602000000b006b8753c729dmr13647106qkd.83.1659957263654; 
- Mon, 08 Aug 2022 04:14:23 -0700 (PDT)
+ bh=URbW2eSWd9Zk4XsSgq7TMx84SxxtNx0WE1Teja98lDs=;
+ b=SLBz7bmM80SNo/9DXMMSj7W1A0+YJZp+qJP9hJqMjojjUp2PJKlI8MyltchMOAFf63
+ ZGcCp+1llABxYTiWpCy/uZPT0L8uo9Vw9RMfbzRxKWFydUyYb7IpCx1TsCJ+Og4jAi7J
+ T6GlKc/5G7noO6uB4Qg7yxu6GaSDacm3GnOqIgey6cspHwzmLhkMuNsqKikM2UriLmys
+ RdHETKhzV36ybcP66RcXU2iBGp5/iywh9i2G4bRK4SRTdT03XHRcydmtLxrAPEiblMDQ
+ p3ainqjIEafTlJ30TgTTH+JrAYhza541dq+mIu+3aC2rEtp8Cs6FMKjo9VjA513/COvw
+ kfkw==
+X-Gm-Message-State: ACgBeo1QUiFsc4BAeevotn5MA96gKHN3JioNhu43Xosc/h+0dEuQOaa5
+ d4bKRyRSjAief8eBp9XtRWytMLCmQZXB7XGNa4xLq8O2u3lWfQxEiWDVB4HZd3N5hEMf6brA/gn
+ zhQc9hLrcEp87vLryuSQWyelSj1ynBqt7wWc4ugS7pw==
+X-Received: by 2002:ac8:7d4c:0:b0:31f:344c:d843 with SMTP id
+ h12-20020ac87d4c000000b0031f344cd843mr15965569qtb.391.1659957769098; 
+ Mon, 08 Aug 2022 04:22:49 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR4Y11HcDyoSXw2Ny4GAR0UM/JIRPfgg4DREbcZuxzaq//Kny6tPDJul5MmPL+netL0Z9mFe1A==
+X-Received: by 2002:ac8:7d4c:0:b0:31f:344c:d843 with SMTP id
+ h12-20020ac87d4c000000b0031f344cd843mr15965542qtb.391.1659957768859; 
+ Mon, 08 Aug 2022 04:22:48 -0700 (PDT)
 Received: from sgarzare-redhat (host-79-46-200-178.retail.telecomitalia.it.
  [79.46.200.178]) by smtp.gmail.com with ESMTPSA id
- n1-20020ac86741000000b00342f932c47csm1906952qtp.46.2022.08.08.04.14.19
+ g3-20020a05620a40c300b006b919c6749esm7398094qko.91.2022.08.08.04.22.44
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 08 Aug 2022 04:14:22 -0700 (PDT)
-Date: Mon, 8 Aug 2022 13:14:12 +0200
+ Mon, 08 Aug 2022 04:22:48 -0700 (PDT)
+Date: Mon, 8 Aug 2022 13:22:39 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
-Subject: Re: [RFC PATCH v3 9/9] vsock_test: POLLIN + SO_RCVLOWAT test
-Message-ID: <20220808111412.iywihoyszvswomlb@sgarzare-redhat>
+Subject: Re: [RFC PATCH v3 0/9] vsock: updates for SO_RCVLOWAT handling
+Message-ID: <20220808112239.jwzrp7krsyk6za5s@sgarzare-redhat>
 References: <2ac35e2c-26a8-6f6d-2236-c4692600db9e@sberdevices.ru>
- <1f50d595-cd37-ad61-f165-5632162dc682@sberdevices.ru>
 MIME-Version: 1.0
-In-Reply-To: <1f50d595-cd37-ad61-f165-5632162dc682@sberdevices.ru>
+In-Reply-To: <2ac35e2c-26a8-6f6d-2236-c4692600db9e@sberdevices.ru>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
@@ -133,86 +135,29 @@ Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Aug 03, 2022 at 02:07:58PM +0000, Arseniy Krasnov wrote:
->This adds test to check,that when poll() returns POLLIN,POLLRDNORM bits,
->next read call won't block.
->
->Signed-off-by: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
->---
-> tools/testing/vsock/vsock_test.c | 107 +++++++++++++++++++++++++++++++
-> 1 file changed, 107 insertions(+)
->
->diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
->index dc577461afc2..920dc5d5d979 100644
->--- a/tools/testing/vsock/vsock_test.c
->+++ b/tools/testing/vsock/vsock_test.c
->@@ -18,6 +18,7 @@
-> #include <sys/socket.h>
-> #include <time.h>
-> #include <sys/mman.h>
->+#include <poll.h>
->
-> #include "timeout.h"
-> #include "control.h"
->@@ -596,6 +597,107 @@ static void test_seqpacket_invalid_rec_buffer_server(const struct test_opts *opt
-> 	close(fd);
-> }
->
->+static void test_stream_poll_rcvlowat_server(const struct test_opts *opts)
->+{
->+#define RCVLOWAT_BUF_SIZE 128
->+	int fd;
->+	int i;
->+
->+	fd = vsock_stream_accept(VMADDR_CID_ANY, 1234, NULL);
->+	if (fd < 0) {
->+		perror("accept");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	/* Send 1 byte. */
->+	send_byte(fd, 1, 0);
->+
->+	control_writeln("SRVSENT");
->+
->+	/* Wait until client is ready to receive rest of data. */
->+	control_expectln("CLNSENT");
->+
->+	for (i = 0; i < RCVLOWAT_BUF_SIZE - 1; i++)
->+		send_byte(fd, 1, 0);
->+
->+	/* Keep socket in active state. */
->+	control_expectln("POLLDONE");
->+
->+	close(fd);
->+}
->+
->+static void test_stream_poll_rcvlowat_client(const struct test_opts *opts)
->+{
->+	unsigned long lowat_val = RCVLOWAT_BUF_SIZE;
->+	char buf[RCVLOWAT_BUF_SIZE];
->+	struct pollfd fds;
->+	ssize_t read_res;
->+	short poll_flags;
->+	int fd;
->+
->+	fd = vsock_stream_connect(opts->peer_cid, 1234);
->+	if (fd < 0) {
->+		perror("connect");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	if (setsockopt(fd, SOL_SOCKET, SO_RCVLOWAT,
->+			&lowat_val, sizeof(lowat_val))) {
+Hi Arseniy,
 
-A small checkpatch warning that you can fix since you have to resend:
+On Wed, Aug 03, 2022 at 01:48:06PM +0000, Arseniy Krasnov wrote:
+>Hello,
+>
+>This patchset includes some updates for SO_RCVLOWAT:
 
-CHECK: Alignment should match open parenthesis
-#76: FILE: tools/testing/vsock/vsock_test.c:645:
-+	if (setsockopt(fd, SOL_SOCKET, SO_RCVLOWAT,
-+			&lowat_val, sizeof(lowat_val))) {
+I have reviewed all the patches, run tests and everything seems okay :-)
 
-total: 0 errors, 0 warnings, 1 checks, 125 lines checked
+I left some minor comments and asked Bryan and Vishnu to take a better 
+look at VMCI patches.
+
+In general I ask you to revisit the patch descriptions a bit (for 
+example adding a space after punctuation). The next version I think can 
+be without RFC.
+
+Remember to send it with the net-next tag.
+Note: net-next is closed for now since we are in the merge window.
+It should re-open in a week (you can check here: 
+http://vger.kernel.org/~davem/net-next.html).
+
+I'll be on vacation the next 2 weeks (Aug 15 - 28), but I'll try to 
+check out your patches!
 
 Thanks,
 Stefano
