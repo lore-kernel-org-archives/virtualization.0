@@ -1,99 +1,99 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 67529C25B06
-	for <virtualization@archiver.kernel.org>; Tue,  9 Aug 2022 09:22:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id EBECBC19F2D
+	for <virtualization@archiver.kernel.org>; Tue,  9 Aug 2022 09:25:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id ED77940579;
-	Tue,  9 Aug 2022 09:22:25 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org ED77940579
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=OFVoCMpO
+	by smtp1.osuosl.org (Postfix) with ESMTP id 7A6A881886;
+	Tue,  9 Aug 2022 09:25:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7A6A881886
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=VdHhcNKG
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id IYNfAgdqeAgq; Tue,  9 Aug 2022 09:22:25 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id edQqS1OBkZiq; Tue,  9 Aug 2022 09:25:32 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 8DC6040503;
-	Tue,  9 Aug 2022 09:22:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8DC6040503
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 2C0AD81489;
+	Tue,  9 Aug 2022 09:25:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2C0AD81489
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4C248C0033;
-	Tue,  9 Aug 2022 09:22:24 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 12D56C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E91FFC0033;
+	Tue,  9 Aug 2022 09:25:31 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 109F4C002D
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Aug 2022 09:22:23 +0000 (UTC)
+ Tue,  9 Aug 2022 09:25:31 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id E460440503
+ by smtp1.osuosl.org (Postfix) with ESMTP id D20A981886
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Aug 2022 09:22:22 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E460440503
+ Tue,  9 Aug 2022 09:25:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D20A981886
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id cvUzo1mM7IU6
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id YUZjbkrtd2VV
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Aug 2022 09:22:21 +0000 (UTC)
+ Tue,  9 Aug 2022 09:25:30 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8F4CD40151
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2FAE581489
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 8F4CD40151
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 2FAE581489
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Aug 2022 09:22:21 +0000 (UTC)
+ Tue,  9 Aug 2022 09:25:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1660036940;
+ s=mimecast20190719; t=1660037129;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=f8CuRu0VaRqFFkHthq9Qm7LWJtiPIdDgB+lUrPINM48=;
- b=OFVoCMpOr8qhujYBSG/2VyGhauEd2vQo7ziv6l/uPNFVLGv+zKSu1Z+sGtlVRUSy14l+lh
- RM32v4CiW0DbljuY7NRfTeKBQhIgMM0Edp2zBqbBiga3du2uY8zwtuh0aFrgp9dzimjcNj
- JPUM0z4qJtpxUXDWN1iyDk9RG3t2beU=
+ bh=Aqqu+qFj/qakh8EzyhZVSFcztg52TURh0kXItW5DWGY=;
+ b=VdHhcNKGtUru1jucOkqtbpzNpelElBmcdR4WaEbejxtUy1SvTgoT3HNwBXtme7wzj6JY7Z
+ Z+GMccgHUEsdQfLVbKTLSlMR9Q77Jvvcyz48x3yHTELlLIZNpip7lLa1gQKr6bQOKVwEkt
+ NfgORZ8PpTyTlicxKg7OGAOrlR7foVY=
 Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
  [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-248-ZU2JwFr8N0KN5LLxE-T2xQ-1; Tue, 09 Aug 2022 05:22:19 -0400
-X-MC-Unique: ZU2JwFr8N0KN5LLxE-T2xQ-1
+ us-mta-235-OwKpxMhMP36hCR_YZN2z_Q-1; Tue, 09 Aug 2022 05:25:27 -0400
+X-MC-Unique: OwKpxMhMP36hCR_YZN2z_Q-1
 Received: by mail-ed1-f71.google.com with SMTP id
- m22-20020a056402431600b0043d6a88130aso6890941edc.18
+ m18-20020a056402511200b0043d601a8035so7094418edd.20
  for <virtualization@lists.linux-foundation.org>;
- Tue, 09 Aug 2022 02:22:19 -0700 (PDT)
+ Tue, 09 Aug 2022 02:25:27 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc;
- bh=f8CuRu0VaRqFFkHthq9Qm7LWJtiPIdDgB+lUrPINM48=;
- b=0tfwfzENi1Yn0MzY6Ji5CtpE6+OEiZXWk1YYgr6URuwroTPXFe+1ZonACbobO7AxIs
- 5QQ+5nNXW29EzzOiaeSSgJ1wb4I3ikFmBfiPT54fPCiPwTgD6+OA2ph3868xfCUkOtJZ
- 8SnFlsALYBvDl9u+80SgtSvJS1AFgD7HKK6INGH1IP8a4VxijXmz36i3e2rZHfBYIn5q
- 0itWJ1UyP4McyuynuUrZ1Ti60mZ7a+fRKU+VTydHWWiXs7H2aKX2KpX5qQpXjhZFhGb4
- /EYS9YUHZhM2gMHBa7CnHjRvJ80Zu0L8I4yB0RgDWyx3MTSKB2ZQov43sfjX6QDWKYq4
- 8pIA==
-X-Gm-Message-State: ACgBeo1S5W+qCWezwo7G3CetoTLm9vyWP39ggofckHiHW1A3Fu7mErJd
- PJf1rxMtb7c4iYMKwkccYDCazBZ5k+zwrxJhw1+Ck7k/tMqXkplCBWvNBKv6roxLuKC47sHZzMz
- VreC9WV0zUIF1gXjtK+L/S4ZnVi61diGZDiA4TCzQkg==
-X-Received: by 2002:a05:6402:5008:b0:440:941a:93c3 with SMTP id
- p8-20020a056402500800b00440941a93c3mr9349650eda.47.1660036938121; 
- Tue, 09 Aug 2022 02:22:18 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR7DZZ5SjiqXbps99Gb9SDnhMqX0r6RmLl+9aqtFop1SYkG8shBFFJetIyxpIPxZN30eOUwbtQ==
-X-Received: by 2002:a05:6402:5008:b0:440:941a:93c3 with SMTP id
- p8-20020a056402500800b00440941a93c3mr9349630eda.47.1660036937876; 
- Tue, 09 Aug 2022 02:22:17 -0700 (PDT)
+ bh=Aqqu+qFj/qakh8EzyhZVSFcztg52TURh0kXItW5DWGY=;
+ b=YGxQiujWvxP5pbcrMRGQvcFyWRHr8WpBAwStPF7qO7W5X0o0WY5JfSkcNw9nZaMC3h
+ zU/gpzOZb3hF8XS7VKrZm3DKsOTjLsXrql/1kUVIl0frligeyFHsMv340d0U89TWsgoL
+ SVFLZrYqDozie/uXGg02x0l5IxObq/8DloYOz1f8UBQ7r4QupFkpcjdMAtt2FokCc0fR
+ 5l99K1vK+mALxegJGHTTubPtrLxuFuv3o9M1pOeFqHFUoLVdwJ51QUnvJebqI5mEnYY2
+ 6qVqAYjT04FETYVUNq5kL/rBjQvvZBgRAumQO/xom4Psyr7QPTLM2cid6iyN8GTA8MDC
+ +x2w==
+X-Gm-Message-State: ACgBeo0ohvs2SYeOG2juioR93vW1r+mrbVIQUzw6oS3Uq6ECWiuNauLe
+ tLIiof+EC7SnXO/oSNB+hh0ZzC+gM+NgLWLD/4nRQeet91LYLIGN5NvrLszhJiFPTZIFOE8mKTm
+ DzfPaC3OSoi4RBkhE/FUYUjrV6LGhj+7OgS+pbnMsDQ==
+X-Received: by 2002:a05:6402:510a:b0:43d:ab25:7d68 with SMTP id
+ m10-20020a056402510a00b0043dab257d68mr21090043edd.102.1660037126631; 
+ Tue, 09 Aug 2022 02:25:26 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR6eE+E+X7HTYgNjlay6I8fMcGTMKGud1u7UurOKOIqoEMTlzHF+m9fWUv7dW698xmTfN0bSYA==
+X-Received: by 2002:a05:6402:510a:b0:43d:ab25:7d68 with SMTP id
+ m10-20020a056402510a00b0043dab257d68mr21090030edd.102.1660037126461; 
+ Tue, 09 Aug 2022 02:25:26 -0700 (PDT)
 Received: from redhat.com ([2.52.152.113]) by smtp.gmail.com with ESMTPSA id
- bx7-20020a0564020b4700b0043577da51f1sm5709186edb.81.2022.08.09.02.22.15
+ n25-20020a17090695d900b007305c007e43sm908561ejy.135.2022.08.09.02.25.24
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 09 Aug 2022 02:22:17 -0700 (PDT)
-Date: Tue, 9 Aug 2022 05:22:13 -0400
+ Tue, 09 Aug 2022 02:25:25 -0700 (PDT)
+Date: Tue, 9 Aug 2022 05:25:22 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Jason Wang <jasowang@redhat.com>
 Subject: Re: [virtio-dev] [PATCH] virtio-net: use mtu size as buffer length
  for big packets
-Message-ID: <20220809051849-mutt-send-email-mst@kernel.org>
+Message-ID: <20220809052255-mutt-send-email-mst@kernel.org>
 References: <20220802044548.9031-1-gavinl@nvidia.com>
  <973632c6-3606-01fb-c584-a6d4774647d8@oracle.com>
  <c4c42174-dcf0-b1e1-a483-0447fbdb1c48@nvidia.com>
@@ -127,35 +127,13 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 On Tue, Aug 09, 2022 at 03:44:22PM +0800, Jason Wang wrote:
-> > @@ -3571,8 +3581,10 @@ static int virtnet_probe(struct virtio_device
-> > *vdev)
-> >       if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO4) ||
-> >           virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO6) ||
-> >           virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_ECN) ||
-> > -         virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_UFO))
-> > +         virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_UFO)) {
-> >               vi->big_packets = true;
-> > +             vi->gso_is_supported = true;
-> >
-> > Please do the same for virtnet_clear_guest_offloads(), and
-> > correspondingly virtnet_restore_guest_offloads() as well. Not sure why
-> > virtnet_clear_guest_offloads() or the caller doesn't unset big_packet on
-> > successful return, seems like a bug to me.
-> 
-> It is fine as long as
-> 
-> 1) we don't implement ethtool API for changing guest offloads
-> 2) big mode XDP is not enabled
-> 
-> So that code works only for XDP but we forbid big packets in the case
-> of XDP right now.
-> 
-> Thanks
+> > +             unsigned int mtu = vi->dev->mtu;
 
-To put it another way, changing big_packets after probe requires a bunch
-of work as current code assumes this flag never changes.
-Adding a TODO to handle dynamic offload config is fine but
-I don't think it should block this.
+BTW should this not be max_mtu?  Otherwise if user configures mtu that
+is too small we'll add buffers that are too small.  some backends simply
+lock up if this happens (I think vhost does).
+Maybe we should add a feature to allow packet drop if it's too small.
+And send mtu guest to host while we are at it?
 
 -- 
 MST
