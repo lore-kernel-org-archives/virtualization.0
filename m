@@ -1,102 +1,117 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D87DCC19F2D
-	for <virtualization@archiver.kernel.org>; Tue,  9 Aug 2022 22:27:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9A091C19F2D
+	for <virtualization@archiver.kernel.org>; Tue,  9 Aug 2022 22:32:47 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 350E94091F;
-	Tue,  9 Aug 2022 22:27:48 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 350E94091F
+	by smtp1.osuosl.org (Postfix) with ESMTP id 0909381970;
+	Tue,  9 Aug 2022 22:32:47 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0909381970
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=f7P94IbJ;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=Sk4h+0o5
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id lBBgqi3Md4WR; Tue,  9 Aug 2022 22:32:44 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 2A7EE81926;
+	Tue,  9 Aug 2022 22:32:44 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2A7EE81926
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CD768C0033;
+	Tue,  9 Aug 2022 22:32:43 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id F190DC002D
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  9 Aug 2022 22:32:41 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp4.osuosl.org (Postfix) with ESMTP id BC85A40923
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  9 Aug 2022 22:32:41 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org BC85A40923
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=XaFCm9e8
+ dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com
+ header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=f7P94IbJ; 
+ dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
+ header.i=@oracle.onmicrosoft.com header.a=rsa-sha256
+ header.s=selector2-oracle-onmicrosoft-com header.b=Sk4h+0o5
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id sjee4eoiimM0; Tue,  9 Aug 2022 22:27:46 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 88756408CF;
-	Tue,  9 Aug 2022 22:27:45 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 88756408CF
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 33C07C0033;
-	Tue,  9 Aug 2022 22:27:45 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id ED4D0C002D
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id vAi_2VWPsHDW
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Aug 2022 22:27:43 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id AB6F160EA1
- for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Aug 2022 22:27:43 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org AB6F160EA1
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=XaFCm9e8
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id aVlfb7FO5ZBn
- for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Aug 2022 22:27:42 +0000 (UTC)
+ Tue,  9 Aug 2022 22:32:40 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 93C7460071
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 93C7460071
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 56A2640921
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com
+ [205.220.165.32])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 56A2640921
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Aug 2022 22:27:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1660084061;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=zNtCeA4IILsPNY9eYYcUyayGGgKKNZA7UEK+VR51Vow=;
- b=XaFCm9e8RApJv9vb+Dns9JDFUgkw94PrqrQ0cTukWgRmhgZqZpl/dxKpMw9H8aLlm36EAr
- vyP9R9OMlranBA2jo1QLx9lp86QU34NGC2CaTwtchFr3xWa4rtb5c/iRQDgIs3vuRrPCvy
- 6J8jk6sVUCGdO7fCjJZ8ag9ks057v1M=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-62-hwEQ6ZV6OEmSxLymeX2teQ-1; Tue, 09 Aug 2022 18:27:40 -0400
-X-MC-Unique: hwEQ6ZV6OEmSxLymeX2teQ-1
-Received: by mail-wm1-f70.google.com with SMTP id
- v130-20020a1cac88000000b003a4f057ed9fso6595293wme.7
- for <virtualization@lists.linux-foundation.org>;
- Tue, 09 Aug 2022 15:27:39 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc;
- bh=zNtCeA4IILsPNY9eYYcUyayGGgKKNZA7UEK+VR51Vow=;
- b=pPJZCWTfXoffFmGgNedHW/d8+Y1LP1frRYO0j5fzG2ikwLyAwRojjoM8DCJpRV4e/A
- g6vI2teWa0go+gG3wqNTMh7NL/feQiBd2s+kPb8rhORTw5qCxlyzpPM7QD6BZHHDdcLR
- 8BH/Oh/EHJxn0wvBvZhIMxjsoyFgl08JELX7Fz9e3yvxO8JuVzwbGXBRKqGO7aLdX1ZT
- 4QvnXhg1GH1I+Jf/eFiOre+Aj0wOYw4OildnzS+JFxABNxUXFl3ocPNBVEriWT8U0c3K
- Aj9jyHJ/gMskwGjrsar6Vf3Dh60ojZG0v/XWJwLSRSHmriu7NDDYfqhjaFdmc+wMjTVr
- 5bOA==
-X-Gm-Message-State: ACgBeo0apFYRSjpXk4usKXIjrQqgiJnN3KH6Udic2nTPTjqG65tZe4fJ
- vZA2K4YojjZhcyvFkSDSRGev/QTg85YmXP7kaE1jJwkzX4Xit/QiBkrRtYTuhVj+Kh8XbBBPbnA
- XDYjLDshY9+xYIgnjPc3X9DsXZ03KTu8HqESMdIww0g==
-X-Received: by 2002:a5d:4dcb:0:b0:220:60c0:dc4b with SMTP id
- f11-20020a5d4dcb000000b0022060c0dc4bmr15433866wru.401.1660084058590; 
- Tue, 09 Aug 2022 15:27:38 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR6VYrlnyFDq/VPhwAr9fkknMUOIAY6WQHdqrN0qVA0a4Y9zv2HjxidPIf/wH8aEZbjPdPBmYg==
-X-Received: by 2002:a5d:4dcb:0:b0:220:60c0:dc4b with SMTP id
- f11-20020a5d4dcb000000b0022060c0dc4bmr15433850wru.401.1660084058264; 
- Tue, 09 Aug 2022 15:27:38 -0700 (PDT)
-Received: from redhat.com ([2.52.152.113]) by smtp.gmail.com with ESMTPSA id
- d2-20020a5d6dc2000000b002235eb9d200sm4209640wrz.10.2022.08.09.15.27.35
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 09 Aug 2022 15:27:37 -0700 (PDT)
-Date: Tue, 9 Aug 2022 18:27:33 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Si-Wei Liu <si-wei.liu@oracle.com>
+ Tue,  9 Aug 2022 22:32:39 +0000 (UTC)
+Received: from pps.filterd (m0246627.ppops.net [127.0.0.1])
+ by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 279M98ZP028635;
+ Tue, 9 Aug 2022 22:32:35 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+ h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=corp-2022-7-12;
+ bh=KyB+ynfY2Z8jm9ldrzE17+GMquqvKWnhK4UHK+4yTCI=;
+ b=f7P94IbJMGMWWv/aAZUO6DTtUpzAcmP+3CwSaCSRpfFg4cT3lzohMA/uhkuZ/QQkk75b
+ /8QajdZDe3Sny8esga8jM9F0AAnYO3uPNV+nq7sYkOEaof2esPy9GXnJNAqKh5+zlxIt
+ zFgmS2R+St8LiCU91WrR5pNFrwsAQEQCk2wMARtSOSImvA/dQi8UBc+txnocR5lToZUZ
+ +yYkqyCtO9i5UjJSaUKMEzXqNd0St+vjl8XdcqoVmMVC9GQjL6/fz06kOnzt2Cey/LUL
+ R2tRitfMhLR11kjzT6lbv61tLJTM+UYwiv+ouoK92H4GIbH5ziHDDSyZbtYnwAZoRc1B kw== 
+Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com
+ (phxpaimrmta01.appoci.oracle.com [138.1.114.2])
+ by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3huwqj0bk5-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Tue, 09 Aug 2022 22:32:35 +0000
+Received: from pps.filterd
+ (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+ by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.5/8.17.1.5)
+ with ESMTP id 279Kf3AY019927; Tue, 9 Aug 2022 22:32:35 GMT
+Received: from nam04-dm6-obe.outbound.protection.outlook.com
+ (mail-dm6nam04lp2049.outbound.protection.outlook.com [104.47.73.49])
+ by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id
+ 3huwqhm1fv-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Tue, 09 Aug 2022 22:32:34 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=iBy+vHnCDZ1tDrzxBWCT4SCV+6Bogud4lqXdpOZRh8pwA45UuruJlfZYUpJyB+tdLovt5Lt3fByAiY5eG+ya0/YKe6goqzRMexH5fxNGI0po+m35FgmqfkApZINlSxFs+vLCc9FLLwGqXAq1/CJnLasWQQKVC1MA6x7Q1IL8rsJBPenl/j6L09o0ue8bSr0R7rKBt/VUYGQvJUDEqpeyNofmhWU5Jw/SgSET81EKeXCE9Pg4+J7j9e0v+DCgER7xDUToOjXE6sh6zMVMWKFi3ulG7dVas1PHIAhm/Ouwt7tx9PVESpqXxnvO9GLyL4x8a3ch9Dd3zm8xfvvXwfXctg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=KyB+ynfY2Z8jm9ldrzE17+GMquqvKWnhK4UHK+4yTCI=;
+ b=I7n7EtAss0J2KyTgfVX/qhP64PEG9pLQjQLwHD6u5HQK8kR2dgCyYqq/fFXnRLvW1xPxdduKlFksm1ld8TPSxRe8kXpd+1ntt2F2o+4c3veN+XF6kZs2o0SPzdFnVZEWbFvv5CW60YX390XZnBjB7YzfuhaxSKhH/WkvIpnFsNx7mzOkjFxjJp9SKEGjkoWRuoU68ZrICvnYTb4zU3Np54HUg6YEZhdFLoCU+TdDiKPaXtbIVbfT0rdb0gJzRRANTI/gEmyc3jzdx5CoelpYtuzbm9t9k1xkCIARp5lpZvr/LbvJqYB9ekXCDJ4OQUocqtaEYvbSaKax7DA9Om8CJw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=KyB+ynfY2Z8jm9ldrzE17+GMquqvKWnhK4UHK+4yTCI=;
+ b=Sk4h+0o5IKfspJ/f9KTnWIajn6i85bGxY7C3wViig6YBhbleWscyGWESyily0hSyw0rly9+IFY25ocUKbAGlrSYtxHw1T2LqD+O4XI0UvFsO5XcW1+78N2Asc+4zy+DpxsWWJ7UsiuVm9rhYW11Jz1BxvkcFxnJsMMjC7xCaXCE=
+Received: from BYAPR10MB3287.namprd10.prod.outlook.com (2603:10b6:a03:15c::11)
+ by PH0PR10MB4648.namprd10.prod.outlook.com (2603:10b6:510:30::5) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5504.16; Tue, 9 Aug
+ 2022 22:32:33 +0000
+Received: from BYAPR10MB3287.namprd10.prod.outlook.com
+ ([fe80::dcf7:95c3:9991:e649]) by BYAPR10MB3287.namprd10.prod.outlook.com
+ ([fe80::dcf7:95c3:9991:e649%7]) with mapi id 15.20.5525.010; Tue, 9 Aug 2022
+ 22:32:31 +0000
+Message-ID: <19a564f0-d90c-1264-ba20-dcdfec887051@oracle.com>
+Date: Tue, 9 Aug 2022 15:32:26 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
 Subject: Re: [virtio-dev] [PATCH] virtio-net: use mtu size as buffer length
  for big packets
-Message-ID: <20220809182627-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+To: "Michael S. Tsirkin" <mst@redhat.com>, Parav Pandit <parav@nvidia.com>
 References: <20220802044548.9031-1-gavinl@nvidia.com>
  <973632c6-3606-01fb-c584-a6d4774647d8@oracle.com>
  <c4c42174-dcf0-b1e1-a483-0447fbdb1c48@nvidia.com>
@@ -104,18 +119,95 @@ References: <20220802044548.9031-1-gavinl@nvidia.com>
  <465efc4c-f41f-494e-8f2d-a87deae90c5d@nvidia.com>
  <CACGkMEsVG_62yJ5nGmp5ufF_xiEJk2TezQz-QFftF8ezKYLB8A@mail.gmail.com>
  <06bf192a-d310-943e-bbe1-1c53108db892@oracle.com>
- <20220809173305-mutt-send-email-mst@kernel.org>
- <866794a0-a3a7-c097-abff-f544a9b6cc54@oracle.com>
+ <PH0PR12MB54819B1419EF8D7AF306EE2CDC629@PH0PR12MB5481.namprd12.prod.outlook.com>
+ <3b87cc07-525a-6753-6224-37ebc2503e65@oracle.com>
+ <PH0PR12MB54810721EF477C778FDE3B98DC629@PH0PR12MB5481.namprd12.prod.outlook.com>
+ <20220809173542-mutt-send-email-mst@kernel.org>
+From: Si-Wei Liu <si-wei.liu@oracle.com>
+Organization: Oracle Corporation
+In-Reply-To: <20220809173542-mutt-send-email-mst@kernel.org>
+X-ClientProxiedBy: SA1P222CA0009.NAMP222.PROD.OUTLOOK.COM
+ (2603:10b6:806:22c::25) To BYAPR10MB3287.namprd10.prod.outlook.com
+ (2603:10b6:a03:15c::11)
 MIME-Version: 1.0
-In-Reply-To: <866794a0-a3a7-c097-abff-f544a9b6cc54@oracle.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: alexander.h.duyck@intel.com, Virtio-Dev <virtio-dev@lists.oasis-open.org>,
- kubakici@wp.pl, sridhar.samudrala@intel.com, jesse.brandeburg@intel.com,
- gavi@nvidia.com, virtualization <virtualization@lists.linux-foundation.org>,
- "Hemminger, Stephen" <stephen@networkplumber.org>, loseweigh@gmail.com,
- davem <davem@davemloft.net>, Gavin Li <gavinl@nvidia.com>
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 9f71ba72-01bb-4b45-b4ea-08da7a570c72
+X-MS-TrafficTypeDiagnostic: PH0PR10MB4648:EE_
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: uXpO8P0+vY7/r5p0tcrexw/9o7iBf418L4CPUwuycl9lvG+GBE4xenY745Hj2qHne7Y8V7c/GOn4+mJGi4c2nIuPPaVrJhil4XvSdKzq6QcaST89nRGNNXTfxbK9lueCfExcV3kDIaCj2VT8ljFVxELb0TcSjCGlMpitLuUIP/GQ+6PVu0HrAUc/uKtw3XdtZlxcsQWSvi2jUbZtcXZ/LFSVInrwuIQ7Q5wSls2gen1p8B2rltsBuVxWFaLMhNTzQ63xj+eSZB37F5ZSBjygL802p2yRa9X1fWhFUb9/Wkz6STG/0x5uzXflOu60R07LK/D7xRKPPO/tLuzisW04XGlomU7+5y+RLFxJeomq7FqF+TlcNIyOVRZ4HzGfNG+FGx2bAbIS5ZcdNbQ4TfZKQaahVtnMoY921lD9ddhxS5mi9KmZXbf4KVVFlOgNqqHw/zyTVLdThcyEaBgOAFLvAegvD/EXaHOMgX15wS2fx1rFqR6E3wsf6hh5s0hjgHrOqgevwccSm6ykN7y8FIG4br8OeG2HkWFZzVdgv81bV37P6X20D1ilYLF8TTLIA1obAPFeAhrhunxqjt3Z0F1O0XhAlVRjLFnrsJGMY0Ddq/mNh2Cjp4vL0wdBSIcslfvbx7S8kyHqxY5wUsqKVSTqnkdfOkvNC/IPf45rhrzKa8Q0/RYiHHLpIPrdmz+ehHioleD//PF9/XpY4wNO3qaKdepFS0GbsfUq+wWmVF/ESqMiF3wNg+7+eIxmv5wGKf7JJKcUtcvrPJ2iVUyVhsto3mtQI7/3vnf3pRHsPtJ/Xr2mPJQ05ZnOqpN2SHbi3Eh0Lz0h9UQElVeKOCWWdD+eRQ==
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:BYAPR10MB3287.namprd10.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230016)(366004)(346002)(376002)(396003)(136003)(39860400002)(2906002)(38100700002)(6486002)(54906003)(26005)(316002)(31696002)(7416002)(41300700001)(110136005)(8676002)(83380400001)(5660300002)(66946007)(66556008)(8936002)(53546011)(478600001)(6512007)(36916002)(6666004)(6506007)(4326008)(36756003)(2616005)(186003)(66476007)(86362001)(31686004)(45980500001)(43740500002);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?cWlkMndqWndCbmllc2p0eWxhVStucU9WQlRBV3drblNaU21Ua1pEOTNiK1k3?=
+ =?utf-8?B?bEh6QThGTjhpQk10RlQrWEliVE53L2JWNjhodzlMeEhEMnVDbFN5L3NFUkFn?=
+ =?utf-8?B?blBhWmJ0TitLalg5c200c05CVm1IczRROGQwOE9yUnlKSTNsUGRYaFAyS2Ra?=
+ =?utf-8?B?TmlhZVZZelVTWHlKV0ZlQ0xsRlo0ZE11TzNuMkpPeFl5VXRieXQxeHJ2TCtr?=
+ =?utf-8?B?TE5VTkxtRWk4YWE1RmppN2ZPR2oraHBUZUt3M2JEMndvcmtIY3NtRGxKMkZI?=
+ =?utf-8?B?MVVHR0FmMDYvVGphUk1FeHg3WlNpUGhFdTRqczdBdjJvRHlCYWJWOWFxUVRn?=
+ =?utf-8?B?NU9UNlZzWU0rRHh3Qlc5VVN2N3VUTEdnZDZxR1poQWtLUGRNNnlsV3Vva3U1?=
+ =?utf-8?B?eG9ZeS9sS1ZEbWorOFkrZFNGai8xOXQ4Y2p5M2FkTUsvN3Q3aS9lS21aRzFo?=
+ =?utf-8?B?OFAwTWx0UkdtNGQrQU5LR1JJWTNQcnBISFhJR3JKcWNwK2tQS0dtZlhnM2Nq?=
+ =?utf-8?B?cFJxVzBzWTFSQUx0WkJrQXAzSmJHRjVCZDVGd01vaU1MakdZTWc3UXNkeWN5?=
+ =?utf-8?B?OXp2bFU0T0lpbnRoYXlaTkZQcXBaaG1BcURNYk9hd1ZHb3QrV3NyTkdXaGNu?=
+ =?utf-8?B?UWhyQmk0bllqMkgrcjRXUFRzbkF5dGtwZytiWTR4elFFVjVmVi9UQXk1UGh5?=
+ =?utf-8?B?TGQ5NFQ1RmEyRURBY2J6b1dpSm13Mkk0YW9xSDMyOG1heHBZZmgxK2cxSVZT?=
+ =?utf-8?B?SGl0alc5UTl4VU1RVEdvOHZwM1NwTjgxUE5qZGczU3lYancvWHhHN0hPaVk3?=
+ =?utf-8?B?S09xSzA5YzIwMnMzenMwMHVQdTlrMHU2S1NUMVBEamYwZGhRYWNVRTJWdXU2?=
+ =?utf-8?B?MFIrN2U2TTcrcG9ROVRZYko1L2Q3eTJCMkRlaWl4WFY4R2t1OXpLbVlTQmRx?=
+ =?utf-8?B?OWcwbGFhd2k1NTk0LzYxRTM2Z200cTZWWXRzZ3RMeitNeEJmR3p1bGpCTVZO?=
+ =?utf-8?B?V1RGWWszQThOYTNWS0FnK0lhcDYzODZSUS9JZ1ZmQTJ2YitqYUU1TmJwZUVw?=
+ =?utf-8?B?Uk5mcHVVbUNOZ3pLUmdXUS9TMTNydCt4SDFNdUR4NU8wWENEWWlETGJiS0lv?=
+ =?utf-8?B?MkNnbjQ5cEVnOU51N2pEUnJLdTlsOSsxdGNQUjYvSGJRdVh3ejdkWjkwbVZx?=
+ =?utf-8?B?VFBISGZDNjNnQy9hSi9Jd3lNUDJqeFk0SjdEU0k3bml1MnJDN0g1R1A2UFRs?=
+ =?utf-8?B?VkNWZ2hGVGxHY2ZrcXdpSUhrODM4RThrTEFOeGFVUmZWNUxZUVIrUWlUS3lv?=
+ =?utf-8?B?SFhkaWhPQ1YwRXJGTnFaSG42TWhpRUc4allVWHc2dytOQkQwTVpZZnh4MEpn?=
+ =?utf-8?B?VE53NTZVaklvSmRHUnQzOTcvQVo3b2FVWWp0alVSTWRDYnlHRlgwaW9yWEg4?=
+ =?utf-8?B?Vi9Ob2R1ejRSSmswRXRneUwwakZlbzNOWCs3Y0RYRUdzUytOMEJkYnVUN1Vj?=
+ =?utf-8?B?Tk9yVGgzQ09vbVRzVk1DS2pPM0FIc0pxSnc0eW9FaTAyT2E4emFLVlYzdUdh?=
+ =?utf-8?B?QUgwWjRWTlFMRmxFdFExSFlEQmNFK29rdDJXWUtPbGkzVXI0eE9OQjNSSlVv?=
+ =?utf-8?B?ekw1RFNsQXEwNWQ5ZVYxS0ZPZzJzQ0QyYVJTQkxsblB4ZVVZYkg2eEo3eExV?=
+ =?utf-8?B?YklDTnFVK2hIUDBnbGkzUEFhR3R5aVpvNk1rQWhjZWRhMmhSamtEcmIwMUdD?=
+ =?utf-8?B?elltRkJFRDlma3lXK1E4d1JwU3VSS0VoTjM1Q2pLL09tMFF5eCtBTFRWanRz?=
+ =?utf-8?B?Z2QzL0s5SWVUcDdwamZpa2lkVythRDBmby92NU5ZbGlzcnN5dnJ4Vnk2RVRr?=
+ =?utf-8?B?TnNPUFBYcHN4UjZkMFRFYWJzeG16RUxMV28yWlNtRVk0b1hHdVplOWN0WGFU?=
+ =?utf-8?B?UHE5Um5wSEd0eVdTaTJJZ0p0L204SitQUHBmTzQrY2F6NXFvQ2NZWHdEWEpX?=
+ =?utf-8?B?S05xMjRCQzc1cHRvckE2NDdraFlZMm4xS3hmdlBMOTRWekkvcytNUkptcVQv?=
+ =?utf-8?B?NlFmUUttWUlPRUQrQ2JFR1lRVDhDMTlTNHNQMkh3YkJTcDZENXNpMFRhL2pk?=
+ =?utf-8?Q?/CWvgR4WTC6oowGya5WkNDd2Q?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 9f71ba72-01bb-4b45-b4ea-08da7a570c72
+X-MS-Exchange-CrossTenant-AuthSource: BYAPR10MB3287.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Aug 2022 22:32:31.8277 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 8Rzex55zz11suqSnYB5/daagcWLV0/+ybyL83A6mQFZNf98tFZxQGc2VJXILl01QuCbUZHi7IaE9fkv2qjFcwA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR10MB4648
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-08-09_05,2022-08-09_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999
+ suspectscore=0
+ spamscore=0 phishscore=0 adultscore=0 mlxscore=0 malwarescore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2207270000 definitions=main-2208090083
+X-Proofpoint-ORIG-GUID: KezaSCTce5lvdzn5J4olzKE8XfdqgWH6
+X-Proofpoint-GUID: KezaSCTce5lvdzn5J4olzKE8XfdqgWH6
+Cc: "alexander.h.duyck@intel.com" <alexander.h.duyck@intel.com>,
+ Virtio-Dev <virtio-dev@lists.oasis-open.org>,
+ "kubakici@wp.pl" <kubakici@wp.pl>,
+ "sridhar.samudrala@intel.com" <sridhar.samudrala@intel.com>,
+ "jesse.brandeburg@intel.com" <jesse.brandeburg@intel.com>,
+ Gavi Teitz <gavi@nvidia.com>,
+ virtualization <virtualization@lists.linux-foundation.org>, "Hemminger,
+ Stephen" <stephen@networkplumber.org>,
+ "loseweigh@gmail.com" <loseweigh@gmail.com>, davem <davem@davemloft.net>,
+ Gavin Li <gavinl@nvidia.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -127,238 +219,52 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Aug 09, 2022 at 02:39:49PM -0700, Si-Wei Liu wrote:
-> 
-> 
-> On 8/9/2022 2:34 PM, Michael S. Tsirkin wrote:
-> > On Tue, Aug 09, 2022 at 11:38:52AM -0700, Si-Wei Liu wrote:
-> > > 
-> > > On 8/9/2022 12:44 AM, Jason Wang wrote:
-> > > > On Tue, Aug 9, 2022 at 3:07 PM Gavin Li <gavinl@nvidia.com> wrote:
-> > > > > On 8/9/2022 7:56 AM, Si-Wei Liu wrote:
-> > > > > 
-> > > > > External email: Use caution opening links or attachments
-> > > > > 
-> > > > > 
-> > > > > On 8/8/2022 12:31 AM, Gavin Li wrote:
-> > > > > 
-> > > > > 
-> > > > > On 8/6/2022 6:11 AM, Si-Wei Liu wrote:
-> > > > > 
-> > > > > External email: Use caution opening links or attachments
-> > > > > 
-> > > > > 
-> > > > > On 8/1/2022 9:45 PM, Gavin Li wrote:
-> > > > > 
-> > > > > Currently add_recvbuf_big() allocates MAX_SKB_FRAGS segments for big
-> > > > > packets even when GUEST_* offloads are not present on the device.
-> > > > > However, if GSO is not supported,
-> > > > > 
-> > > > > GUEST GSO (virtio term), or GRO HW (netdev core term) it should have
-> > > > > been be called.
-> > > > > 
-> > > > > ACK
-> > > > > 
-> > > > > 
-> > > > >     it would be sufficient to allocate
-> > > > > segments to cover just up the MTU size and no further. Allocating the
-> > > > > maximum amount of segments results in a large waste of buffer space in
-> > > > > the queue, which limits the number of packets that can be buffered and
-> > > > > can result in reduced performance.
-> > > > > 
-> > > > > Therefore, if GSO is not supported,
-> > > > > 
-> > > > > Ditto.
-> > > > > 
-> > > > > ACK
-> > > > > 
-> > > > > 
-> > > > > use the MTU to calculate the
-> > > > > optimal amount of segments required.
-> > > > > 
-> > > > > Below is the iperf TCP test results over a Mellanox NIC, using vDPA for
-> > > > > 1 VQ, queue size 1024, before and after the change, with the iperf
-> > > > > server running over the virtio-net interface.
-> > > > > 
-> > > > > MTU(Bytes)/Bandwidth (Gbit/s)
-> > > > >                 Before   After
-> > > > >      1500        22.5     22.4
-> > > > >      9000        12.8     25.9
-> > > > > 
-> > > > > Signed-off-by: Gavin Li <gavinl@nvidia.com>
-> > > > > Reviewed-by: Gavi Teitz <gavi@nvidia.com>
-> > > > > Reviewed-by: Parav Pandit <parav@nvidia.com>
-> > > > > ---
-> > > > >     drivers/net/virtio_net.c | 20 ++++++++++++++++----
-> > > > >     1 file changed, 16 insertions(+), 4 deletions(-)
-> > > > > 
-> > > > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > > > > index ec8e1b3108c3..d36918c1809d 100644
-> > > > > --- a/drivers/net/virtio_net.c
-> > > > > +++ b/drivers/net/virtio_net.c
-> > > > > @@ -222,6 +222,9 @@ struct virtnet_info {
-> > > > >         /* I like... big packets and I cannot lie! */
-> > > > >         bool big_packets;
-> > > > > 
-> > > > > +     /* Indicates GSO support */
-> > > > > +     bool gso_is_supported;
-> > > > > +
-> > > > >         /* Host will merge rx buffers for big packets (shake it! shake
-> > > > > it!) */
-> > > > >         bool mergeable_rx_bufs;
-> > > > > 
-> > > > > @@ -1312,14 +1315,21 @@ static int add_recvbuf_small(struct
-> > > > > virtnet_info *vi, struct receive_queue *rq,
-> > > > >     static int add_recvbuf_big(struct virtnet_info *vi, struct
-> > > > > receive_queue *rq,
-> > > > >                            gfp_t gfp)
-> > > > >     {
-> > > > > +     unsigned int sg_num = MAX_SKB_FRAGS;
-> > > > >         struct page *first, *list = NULL;
-> > > > >         char *p;
-> > > > >         int i, err, offset;
-> > > > > 
-> > > > > -     sg_init_table(rq->sg, MAX_SKB_FRAGS + 2);
-> > > > > +     if (!vi->gso_is_supported) {
-> > > > > +             unsigned int mtu = vi->dev->mtu;
-> > > > > +
-> > > > > +             sg_num = (mtu % PAGE_SIZE) ? mtu / PAGE_SIZE + 1 : mtu
-> > > > > / PAGE_SIZE;
-> > > > > 
-> > > > > DIV_ROUND_UP() can be used?
-> > > > > 
-> > > > > ACK
-> > > > > 
-> > > > > 
-> > > > > Since this branch slightly adds up cost to the datapath, I wonder if
-> > > > > this sg_num can be saved and set only once (generally in virtnet_probe
-> > > > > time) in struct virtnet_info?
-> > > > > 
-> > > > > Not sure how to do it and align it with align with new mtu during
-> > > > > .ndo_change_mtu()---as you mentioned in the following mail. Any idea?
-> > > > > ndo_change_mtu might be in vendor specific code and unmanageable. In
-> > > > > my case, the mtu can only be changed in the xml of the guest vm.
-> > > > > 
-> > > > > Nope, for e.g. "ip link dev eth0 set mtu 1500" can be done from guest on
-> > > > > a virtio-net device with 9000 MTU (as defined in guest xml). Basically
-> > > > > guest user can set MTU to any valid value lower than the original
-> > > > > HOST_MTU. In the vendor defined .ndo_change_mtu() op, dev_validate_mtu()
-> > > > > should have validated the MTU value before coming down to it. And I
-> > > > > suspect you might want to do virtnet_close() and virtnet_open()
-> > > > > before/after changing the buffer size on the fly (the netif_running()
-> > > > > case), implementing .ndo_change_mtu() will be needed anyway.
-> > > > > 
-> > > > > a guest VM driver changing mtu to smaller one is valid use case. However, current optimization suggested in the patch doesn't degrade any performance. Performing close() and open() sequence is good idea, that I would like to take up next after this patch as its going to be more than one patch to achieve it.
-> > > > Right, it could be done on top.
-> > > > 
-> > > > But another note is that, it would still be better to support GUEST GSO feature:
-> > > > 
-> > > > 1) can work for the case for path MTU
-> > > > 2) (migration)compatibility with software backends
-> > > > 
-> > > > > +     }
-> > > > > +
-> > > > > +     sg_init_table(rq->sg, sg_num + 2);
-> > > > > 
-> > > > >         /* page in rq->sg[MAX_SKB_FRAGS + 1] is list tail */
-> > > > > 
-> > > > > Comment doesn't match code.
-> > > > > 
-> > > > > ACK
-> > > > > 
-> > > > > -     for (i = MAX_SKB_FRAGS + 1; i > 1; --i) {
-> > > > > +     for (i = sg_num + 1; i > 1; --i) {
-> > > > >                 first = get_a_page(rq, gfp);
-> > > > >                 if (!first) {
-> > > > >                         if (list)
-> > > > > @@ -1350,7 +1360,7 @@ static int add_recvbuf_big(struct virtnet_info
-> > > > > *vi, struct receive_queue *rq,
-> > > > > 
-> > > > >         /* chain first in list head */
-> > > > >         first->private = (unsigned long)list;
-> > > > > -     err = virtqueue_add_inbuf(rq->vq, rq->sg, MAX_SKB_FRAGS + 2,
-> > > > > +     err = virtqueue_add_inbuf(rq->vq, rq->sg, sg_num + 2,
-> > > > >                                   first, gfp);
-> > > > >         if (err < 0)
-> > > > >                 give_pages(rq, first);
-> > > > > @@ -3571,8 +3581,10 @@ static int virtnet_probe(struct virtio_device
-> > > > > *vdev)
-> > > > >         if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO4) ||
-> > > > >             virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO6) ||
-> > > > >             virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_ECN) ||
-> > > > > -         virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_UFO))
-> > > > > +         virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_UFO)) {
-> > > > >                 vi->big_packets = true;
-> > > > > +             vi->gso_is_supported = true;
-> > > > > 
-> > > > > Please do the same for virtnet_clear_guest_offloads(), and
-> > > > > correspondingly virtnet_restore_guest_offloads() as well. Not sure why
-> > > > > virtnet_clear_guest_offloads() or the caller doesn't unset big_packet on
-> > > > > successful return, seems like a bug to me.
-> > > > It is fine as long as
-> > > > 
-> > > > 1) we don't implement ethtool API for changing guest offloads
-> > > Not sure if I missed something, but it looks the current
-> > > virtnet_set_features() already supports toggling on/off GRO HW through
-> > > commit a02e8964eaf9271a8a5fcc0c55bd13f933bafc56 (formerly misnamed as LRO).
-> > > Sorry, I realized I had a typo in email: "virtnet_set_guest_offloads() or
-> > > the caller doesn't unset big_packet ...".
-> > "we" here is the device, not the driver.
-> What is the ethtool API from device level? VIRTIO_NET_F_CTRL_GUEST_OFFLOADS
-> for sure, right?
-
-Yes.
-
-> It's implemented in software backend as far as I know. I see no reason
-> *technically* this is infeasible, regardless what you name it, being a bug
-> or TODO.
-> 
-> -Siwei
-
-It's feasible but it's more work. Whether we bother depends in
-particular on whether anyone cares.
-
-> > 
-> > > > 2) big mode XDP is not enabled
-> > > Currently it is not. Not a single patch nor this patch, but the context for
-> > > the eventual goal is to allow XDP on a MTU=9000 link when guest users
-> > > intentionally lower down MTU to 1500.
-> > > 
-> > > Regards,
-> > > -Siwei
-> > > > So that code works only for XDP but we forbid big packets in the case
-> > > > of XDP right now.
-> > > > 
-> > > > Thanks
-> > > > 
-> > > > > ACK. The two calls virtnet_set_guest_offloads and
-> > > > > virtnet_set_guest_offloads is also called by virtnet_set_features. Do
-> > > > > you think if I can do this in virtnet_set_guest_offloads?
-> > > > > 
-> > > > > I think that it should be fine, though you may want to deal with the XDP
-> > > > > path not to regress it.
-> > > > > 
-> > > > > -Siwei
-> > > > > 
-> > > > > 
-> > > > > 
-> > > > > Thanks,
-> > > > > -Siwei
-> > > > > 
-> > > > > +     }
-> > > > > 
-> > > > >         if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF))
-> > > > >                 vi->mergeable_rx_bufs = true;
-> > > > > 
-> > > > > 
-> > > > > 
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+CgpPbiA4LzkvMjAyMiAyOjM3IFBNLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gT24gVHVl
+LCBBdWcgMDksIDIwMjIgYXQgMDc6MTg6MzBQTSArMDAwMCwgUGFyYXYgUGFuZGl0IHdyb3RlOgo+
+Pj4gRnJvbTogU2ktV2VpIExpdSA8c2ktd2VpLmxpdUBvcmFjbGUuY29tPgo+Pj4gU2VudDogVHVl
+c2RheSwgQXVndXN0IDksIDIwMjIgMzowOSBQTQo+Pj4+PiBGcm9tOiBTaS1XZWkgTGl1IDxzaS13
+ZWkubGl1QG9yYWNsZS5jb20+Cj4+Pj4+IFNlbnQ6IFR1ZXNkYXksIEF1Z3VzdCA5LCAyMDIyIDI6
+MzkgUE0gQ3VycmVudGx5IGl0IGlzIG5vdC4gTm90IGEKPj4+Pj4gc2luZ2xlIHBhdGNoIG5vciB0
+aGlzIHBhdGNoLCBidXQgdGhlIGNvbnRleHQgZm9yIHRoZSBldmVudHVhbCBnb2FsIGlzCj4+Pj4+
+IHRvIGFsbG93IFhEUCBvbiBhIE1UVT05MDAwIGxpbmsgd2hlbiBndWVzdCB1c2VycyBpbnRlbnRp
+b25hbGx5IGxvd2VyCj4+Pj4+IGRvd24gTVRVIHRvIDE1MDAuCj4+Pj4gV2hpY2ggYXBwbGljYXRp
+b24gYmVuZWZpdCBieSBoYXZpbmcgYXN5bW1ldHJ5IGJ5IGxvd2VyaW5nIG10dSB0byAxNTAwCj4+
+PiB0byBzZW5kIHBhY2tldHMgYnV0IHdhbnQgdG8gcmVjZWl2ZSA5SyBwYWNrZXRzPwo+PiBCZWxv
+dyBkZXRhaWxzIGRvZXNu4oCZdCBhbnN3ZXIgdGhlIHF1ZXN0aW9uIG9mIGFzeW1tZXRyeS4gOikK
+Pj4KPj4+IEkgdGhpbmsgdmlydGlvLW5ldCBkcml2ZXIgZG9lc24ndCBkaWZmZXJlbnRpYXRlIE1U
+VSBhbmQgTVJVLCBpbiB3aGljaCBjYXNlCj4+PiB0aGUgcmVjZWl2ZSBidWZmZXIgd2lsbCBiZSBy
+ZWR1Y2VkIHRvIGZpdCB0aGUgMTUwMEIgcGF5bG9hZCBzaXplIHdoZW4gbXR1IGlzCj4+PiBsb3dl
+cmVkIGRvd24gdG8gMTUwMCBmcm9tIDkwMDAuCj4+IEhvdz8gRHJpdmVyIHJlZHVjZWQgdGhlIG1Y
+dSB0byAxNTAwLCBzYXkgaXQgaXMgaW1wcm92ZWQgdG8gcG9zdCBidWZmZXJzIG9mIDE1MDAgYnl0
+ZXMuCj4+Cj4+IERldmljZSBkb2Vzbid0IGtub3cgYWJvdXQgaXQgYmVjYXVzZSBtdHUgaW4gY29u
+ZmlnIHNwYWNlIGlzIFJPIGZpZWxkLgo+PiBEZXZpY2Uga2VlcCBkcm9wcGluZyA5SyBwYWNrZXRz
+IGJlY2F1c2UgYnVmZmVycyBwb3N0ZWQgYXJlIDE1MDAgYnl0ZXMuCj4+IFRoaXMgaXMgYmVjYXVz
+ZSBkZXZpY2UgZm9sbG93cyB0aGUgc3BlYyAiIFRoZSBkZXZpY2UgTVVTVCBOT1QgcGFzcyByZWNl
+aXZlZCBwYWNrZXRzIHRoYXQgZXhjZWVkIG10dSIuCj4KPiBUaGUgIm10dSIgaGVyZSBpcyB0aGUg
+ZGV2aWNlIGNvbmZpZyBmaWVsZCwgd2hpY2ggaXMKPgo+ICAgICAgICAgIC8qIERlZmF1bHQgbWF4
+aW11bSB0cmFuc21pdCB1bml0IGFkdmljZSAqLwo+Cj4gdGhlcmUgaXMgbm8gZ3VhcmFudGVlIGRl
+dmljZSB3aWxsIG5vdCBnZXQgYSBiaWdnZXIgcGFja2V0Lgo+IEFuZCB0aGVyZSBpcyBubyBndWFy
+YW50ZWUgc3VjaCBhIHBhY2tldCB3aWxsIGJlIGRyb3BwZWQKPiBhcyBvcHBvc2VkIHRvIHdlZGdp
+bmcgdGhlIGRldmljZSBpZiB1c2Vyc3BhY2UgaW5zaXN0cyBvbgo+IGFkZGluZyBzbWFsbGVyIGJ1
+ZmZlcnMuCkl0J2QgYmUgbmljZSB0byBkb2N1bWVudCB0aGlzIHJlcXVpcmVtZW50IG9yIHN0YXRl
+bWVudCB0byB0aGUgc3BlYyBmb3IgCmNsYXJpdHkgcHVycG9zZS4gT3RoZXJ3aXNlIHZhcmlvdXMg
+ZGV2aWNlIGltcGxlbWVudGF0aW9ucyBhcmUgaGFyZCB0byAKZm9sbG93LiBUaGUgY2FwdHVyZSBp
+cyB0aGF0IHZob3N0LW5ldCBkcm9wcyBiaWdnZXIgcGFja2V0cyB3aGlsZSB0aGUgCmRyaXZlciBv
+bmx5IHN1cHBsaWVkIHNtYWxsZXIgYnVmZmVycy4gVGhpcyBpcyB0aGUgc3RhdHVzIHF1bywgYW5k
+IHVzZXJzIApzZWVtaW5nbHkgaGF2ZSByZWxpZWQgb24gdGhpcyBiZWhhdmlvciBmb3Igc29tZSB3
+aGlsZS4KCi1TaXdlaQo+Cj4KPj4gU28sIEkgYW0gbG9zdCB3aGF0IHZpcnRpbyBuZXQgZGV2aWNl
+IHVzZXIgYXBwbGljYXRpb24gaXMgdHJ5aW5nIHRvIGFjaGlldmUgYnkgc2VuZGluZyBzbWFsbGVy
+IHBhY2tldHMgYW5kIGRyb3BwaW5nIGFsbCByZWNlaXZlIHBhY2tldHMuCj4+IChpdCBkb2VzbuKA
+mXQgaGF2ZSBhbnkgcmVsYXRpb24gdG8gbWVyZ2VhYmxlIG9yIG90aGVyd2lzZSkuCj4KPiAtLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0KPiBUbyB1bnN1YnNjcmliZSwgZS1tYWlsOiB2aXJ0aW8tZGV2LXVuc3Vic2NyaWJl
+QGxpc3RzLm9hc2lzLW9wZW4ub3JnCj4gRm9yIGFkZGl0aW9uYWwgY29tbWFuZHMsIGUtbWFpbDog
+dmlydGlvLWRldi1oZWxwQGxpc3RzLm9hc2lzLW9wZW4ub3JnCj4KCl9fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlz
+dApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3Rz
+LmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
