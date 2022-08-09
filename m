@@ -4,99 +4,101 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8CAFDC19F2D
-	for <virtualization@archiver.kernel.org>; Tue,  9 Aug 2022 23:00:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5FF99C19F2D
+	for <virtualization@archiver.kernel.org>; Tue,  9 Aug 2022 23:03:23 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id EC7D94091F;
-	Tue,  9 Aug 2022 23:00:05 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org EC7D94091F
+	by smtp4.osuosl.org (Postfix) with ESMTP id EED8F4009E;
+	Tue,  9 Aug 2022 23:03:22 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org EED8F4009E
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=WmstzEuU
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=b4v13WVt
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id OIwTx-ItEW4m; Tue,  9 Aug 2022 23:00:04 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id B0D0C404F7;
-	Tue,  9 Aug 2022 23:00:03 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B0D0C404F7
+	with ESMTP id DNVITWNtgICQ; Tue,  9 Aug 2022 23:03:21 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id CFF8E40334;
+	Tue,  9 Aug 2022 23:03:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org CFF8E40334
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 7CC81C0033;
-	Tue,  9 Aug 2022 23:00:03 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 60EF1C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8DFEAC0033;
+	Tue,  9 Aug 2022 23:03:20 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B165AC002D
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Aug 2022 23:00:02 +0000 (UTC)
+ Tue,  9 Aug 2022 23:03:18 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 31B2960F47
+ by smtp1.osuosl.org (Postfix) with ESMTP id 723738195C
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Aug 2022 23:00:02 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 31B2960F47
-Authentication-Results: smtp3.osuosl.org;
+ Tue,  9 Aug 2022 23:03:18 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 723738195C
+Authentication-Results: smtp1.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=WmstzEuU
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=b4v13WVt
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id PsaaZUDiMopO
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id GM1zVsMtka0P
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Aug 2022 23:00:01 +0000 (UTC)
+ Tue,  9 Aug 2022 23:03:17 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1496060E2A
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5F14481926
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 1496060E2A
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 5F14481926
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Aug 2022 23:00:00 +0000 (UTC)
+ Tue,  9 Aug 2022 23:03:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1660085999;
+ s=mimecast20190719; t=1660086195;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=WdN1PCCmzFmqOUUGd3iFnY3Ss4PEp01M/IinHaruQzA=;
- b=WmstzEuUUkSw948978Z9dpuU41Er2zFBZszpAjdivTEXva3UrRtyJ8Z6t9KJ3Ib0/D4PQZ
- WBsOmxSE7uVmBMtxFoT1KExsJXhkdeHaqHMFRGHeONlHIyU2O2izdJlHgTyMQkzrF8oW2V
- dKLVOv9DB/5KPY/iMyxWR8LpsN2ki1s=
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
- [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-152-_h3V84-DO5CYU5i0iRXS2g-1; Tue, 09 Aug 2022 18:59:56 -0400
-X-MC-Unique: _h3V84-DO5CYU5i0iRXS2g-1
-Received: by mail-ed1-f69.google.com with SMTP id
- o2-20020a056402438200b0043d552deb2aso8047924edc.0
+ bh=dB8DtdFIR5845rfyCyVPy/T7oF4TwroIO3oXHVl5Zr0=;
+ b=b4v13WVtiT0j2fPk7mWZJpaldzehmboSOiFbmoAba6LrGn/+QPP7tAlbwfs11Sh/yJA5fS
+ We7nn4ehvSwICo/+hqm1eXJq2ATq8RVlOwbbOyvqjA/KX6AVCIsT5KZQV+v5B6ekNJeDcb
+ 3aB0rB+erVbGadT3Gy/k5fVRkBdasNg=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-552-50Sw2JQ1PXiKbvo7CxvbcA-1; Tue, 09 Aug 2022 19:03:14 -0400
+X-MC-Unique: 50Sw2JQ1PXiKbvo7CxvbcA-1
+Received: by mail-ej1-f71.google.com with SMTP id
+ nb10-20020a1709071c8a00b006e8f89863ceso3741635ejc.18
  for <virtualization@lists.linux-foundation.org>;
- Tue, 09 Aug 2022 15:59:56 -0700 (PDT)
+ Tue, 09 Aug 2022 16:03:14 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc;
- bh=WdN1PCCmzFmqOUUGd3iFnY3Ss4PEp01M/IinHaruQzA=;
- b=iD+arZMqPlAe4BvOpaBzqCHG47fdfXdaUKM5CcKvfRDVJhrBY0YEOfgdEsPQj29hHW
- exO7OA+QELvpwC7xsbqzV6KCjSoD+A7LdGpz9HOeBni0b66NlhQcco5ueRKFWq1el1Tg
- NO/PDTj68RuyL1cG9gwHO2qXnPZ8CPVKb44o+FXrvVEo3SPEeFOapRbM3TeANDR8Rbw4
- DCa7Ee4H9M2TPUJn7MpAdyFGbwIij7YPpS+hT37QhC2XqgbHjBiFEdtiqp6xZaAb+fbL
- SvUPmecS8h/wct0YmqYJudntosT6FWOiAWn8gPUBa8379np90l14fftHAQMNWNy0GzBG
- w76A==
-X-Gm-Message-State: ACgBeo3vAD05VXeAH0DwwHSDQ+Ez7+ub84qYwt81WYxWe1nXNdhZL0Nf
- MQP/7tBhwupaEv0Nj/uoL1aPgAlCroyDIVTWNclQ4LSk5XbhOfkG5VN3+S4/J1J3Tg1adNNAag9
- WC0WbGk4sUDjT8dcYrt6i/cGrKR8FWA7pcepF/pPAYg==
-X-Received: by 2002:a17:907:1dee:b0:730:b7d9:626 with SMTP id
- og46-20020a1709071dee00b00730b7d90626mr17762934ejc.135.1660085995648; 
- Tue, 09 Aug 2022 15:59:55 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR5r1pz21iGyGZPF2WvyCM+v84pgqDj6vNv+NfsSdsv/GR1SmfTUWMtU/C8IDY2sKhc18c/K0A==
-X-Received: by 2002:a17:907:1dee:b0:730:b7d9:626 with SMTP id
- og46-20020a1709071dee00b00730b7d90626mr17762919ejc.135.1660085995404; 
- Tue, 09 Aug 2022 15:59:55 -0700 (PDT)
+ h=in-reply-to:content-transfer-encoding:content-disposition
+ :mime-version:references:message-id:subject:cc:to:from:date
+ :x-gm-message-state:from:to:cc;
+ bh=dB8DtdFIR5845rfyCyVPy/T7oF4TwroIO3oXHVl5Zr0=;
+ b=Nt4Nnr7kL0IBVzykoc3x/cIyaUcwRj/Ln5dn3zZENcaB78jb8nh0dlM+/dt5LOPel7
+ dzhXy1C4BmYFUaXjhtYb3SuFzIv0qSPZQtj1HANOsdLxSFWmLxQhHF8cCIsX2XGr0JME
+ qoedrrK04DaVXHuGKSvF85E0/rw+9R+I63wX/GO8kYChn7vTWfsc208zWXwgxygISNI5
+ 92c/HXzwm6e1qoEC9wBR7Izw16u01teZmBeaEJ9prNhyJQYicf9mjxkpOT8+iPPZwUGo
+ qI5ShyhGVeqiY5jkqaYT0BLuqGc3eq4/GvrgRCqCWmbStDwWpLzFj3MX051UmzeHsZ1Y
+ hNCA==
+X-Gm-Message-State: ACgBeo01qtvDbHdkkwHunoWx4GlujCHl6jAvVVqpS66kwPelM960CgxJ
+ kkVzzowm3wqZTUBZl4hWU1fmHxQMvqz+lfirlANXXnoXKo4Hy2jvUTbJYGLW3Rus1wLu6xu0uYp
+ PghLhD3Z5kTNt164uRnH7nVT63nVaCP2+MhM1RaYK4w==
+X-Received: by 2002:a05:6402:1cc4:b0:440:5af8:41c9 with SMTP id
+ ds4-20020a0564021cc400b004405af841c9mr15748673edb.339.1660086193654; 
+ Tue, 09 Aug 2022 16:03:13 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR5MEzi986rayK1XTUXbjmF0RPHv5oqNxgBKGzDfDMZHVnEEHEobmn6ENnLyh93SNSwv6im8HA==
+X-Received: by 2002:a05:6402:1cc4:b0:440:5af8:41c9 with SMTP id
+ ds4-20020a0564021cc400b004405af841c9mr15748662edb.339.1660086193486; 
+ Tue, 09 Aug 2022 16:03:13 -0700 (PDT)
 Received: from redhat.com ([2.52.152.113]) by smtp.gmail.com with ESMTPSA id
- c6-20020a1709060fc600b0072b592ee073sm1628193ejk.147.2022.08.09.15.59.52
+ da13-20020a056402176d00b00442b388c743sm377956edb.14.2022.08.09.16.03.11
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 09 Aug 2022 15:59:54 -0700 (PDT)
-Date: Tue, 9 Aug 2022 18:59:50 -0400
+ Tue, 09 Aug 2022 16:03:12 -0700 (PDT)
+Date: Tue, 9 Aug 2022 19:03:09 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Parav Pandit <parav@nvidia.com>
+To: Si-Wei Liu <si-wei.liu@oracle.com>
 Subject: Re: [virtio-dev] [PATCH] virtio-net: use mtu size as buffer length
  for big packets
-Message-ID: <20220809185747-mutt-send-email-mst@kernel.org>
+Message-ID: <20220809190206-mutt-send-email-mst@kernel.org>
 References: <465efc4c-f41f-494e-8f2d-a87deae90c5d@nvidia.com>
  <CACGkMEsVG_62yJ5nGmp5ufF_xiEJk2TezQz-QFftF8ezKYLB8A@mail.gmail.com>
  <06bf192a-d310-943e-bbe1-1c53108db892@oracle.com>
@@ -104,11 +106,11 @@ References: <465efc4c-f41f-494e-8f2d-a87deae90c5d@nvidia.com>
  <3b87cc07-525a-6753-6224-37ebc2503e65@oracle.com>
  <PH0PR12MB54810721EF477C778FDE3B98DC629@PH0PR12MB5481.namprd12.prod.outlook.com>
  <20220809173542-mutt-send-email-mst@kernel.org>
- <PH0PR12MB5481101A8414FAAB5FCAC537DC629@PH0PR12MB5481.namprd12.prod.outlook.com>
- <20220809182306-mutt-send-email-mst@kernel.org>
- <PH0PR12MB54816FFF167D3EA3EF5F075FDC629@PH0PR12MB5481.namprd12.prod.outlook.com>
+ <19a564f0-d90c-1264-ba20-dcdfec887051@oracle.com>
+ <20220809183516-mutt-send-email-mst@kernel.org>
+ <0c6c876b-1d52-bfc8-87d4-edbe6b8581bc@oracle.com>
 MIME-Version: 1.0
-In-Reply-To: <PH0PR12MB54816FFF167D3EA3EF5F075FDC629@PH0PR12MB5481.namprd12.prod.outlook.com>
+In-Reply-To: <0c6c876b-1d52-bfc8-87d4-edbe6b8581bc@oracle.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
@@ -133,114 +135,104 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Aug 09, 2022 at 10:49:48PM +0000, Parav Pandit wrote:
-> > From: Michael S. Tsirkin <mst@redhat.com>
-> > Sent: Tuesday, August 9, 2022 6:26 PM
-> > To: Parav Pandit <parav@nvidia.com>
-> > Cc: Si-Wei Liu <si-wei.liu@oracle.com>; Jason Wang
-> > <jasowang@redhat.com>; Gavin Li <gavinl@nvidia.com>; Hemminger,
-> > Stephen <stephen@networkplumber.org>; davem
-> > <davem@davemloft.net>; virtualization <virtualization@lists.linux-
-> > foundation.org>; Virtio-Dev <virtio-dev@lists.oasis-open.org>;
-> > jesse.brandeburg@intel.com; alexander.h.duyck@intel.com;
-> > kubakici@wp.pl; sridhar.samudrala@intel.com; loseweigh@gmail.com; Gavi
-> > Teitz <gavi@nvidia.com>
-> > Subject: Re: [virtio-dev] [PATCH] virtio-net: use mtu size as buffer length for
-> > big packets
-> > 
-> > On Tue, Aug 09, 2022 at 09:49:03PM +0000, Parav Pandit wrote:
-> > > > From: Michael S. Tsirkin <mst@redhat.com>
-> > > > Sent: Tuesday, August 9, 2022 5:38 PM
-> > >
-> > > [..]
-> > > > > > I think virtio-net driver doesn't differentiate MTU and MRU, in
-> > > > > > which case the receive buffer will be reduced to fit the 1500B
-> > > > > > payload size when mtu is lowered down to 1500 from 9000.
-> > > > > How? Driver reduced the mXu to 1500, say it is improved to post
-> > > > > buffers of
-> > > > 1500 bytes.
-> > > > >
-> > > > > Device doesn't know about it because mtu in config space is RO field.
-> > > > > Device keep dropping 9K packets because buffers posted are 1500
-> > bytes.
-> > > > > This is because device follows the spec " The device MUST NOT pass
-> > > > received packets that exceed mtu".
-> > > >
-> > > >
-> > > > The "mtu" here is the device config field, which is
-> > > >
-> > > >         /* Default maximum transmit unit advice */
-> > > >
-> > >
-> > > It is the field from struct virtio_net_config.mtu. right?
-> > > This is RO field for driver.
-> > >
-> > > > there is no guarantee device will not get a bigger packet.
-> > > Right. That is what I also hinted.
-> > > Hence, allocating buffers worth upto mtu is safer.
-> > 
-> > yes
-> > 
-> > > When user overrides it, driver can be further optimized to honor such new
-> > value on rx buffer posting.
-> > 
-> > no, not without a feature bit promising device won't get wedged.
-> > 
-> I mean to say as_it_stands today, driver can decide to post smaller buffers with larger mtu.
-> Why device should be affected with it?
-> ( I am not proposing such weird configuration but asking for sake of correctness).
-
-They just are because drivers did not do this.
-
-> > > > And there is no guarantee such a packet will be dropped as opposed
-> > > > to wedging the device if userspace insists on adding smaller buffers.
-> > > >
-> > > If user space insists on small buffers, so be it.
-> > 
-> > If previously things worked, the "so be it" is a regression and blaming users
-> > won't help us.
-> > 
-> I am not suggesting above.
-> This was Si-Wei's suggestion that somehow driver wants to post smaller buffers than the mtu because user knows what peer is doing.
-> So may be driver can be extended to give more weight on user config.
-> 
-> > > It only works when user exactly know what user is doing in the whole
-> > network.
-> > 
-> > If you want to claim this you need a new feature bit.
-> > 
-> Why is a new bit needed to tell device?
-> User is doing something its own config mismatching the buffers and mtu.
-> A solid use case hasn't emerged for this yet.
-> 
-> If user wants to modify the mtu, we should just make virtio_net_config.mtu as RW field using new feature bit.
-> Is that what you mean?
-> If so, yes, it makes things very neat where driver and device are aligned to each other, the way they are today.
-> Only limitation is that its one-way. = device tells to driver.
-> 
-> > > When user prefers to override the device RO field, device is in the dark and
-> > things work on best effort basis.
-> > 
-> > Dropping packets is best effort. Getting stuck forever isn't, that's a quality of
-> > implementation issue.
-> >
-> Not sure, why things get stuck for ever. Maybe you have example to explain.
-> I am mostly missing something.
-
-I sent an explanation a bit earlier. It's more or less a bug.
-
-> > > This must be a reasonably advance user who has good knowledge of its
-> > network topology etc.
-> > >
-> > > For such case, may be yes, driver should be further optimized.
-> > >
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gVHVlLCBBdWcgMDksIDIwMjIgYXQgMDM6NTQ6NTdQTSAtMDcwMCwgU2ktV2VpIExpdSB3cm90
+ZToKPiAKPiAKPiBPbiA4LzkvMjAyMiAzOjM3IFBNLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6
+Cj4gPiBPbiBUdWUsIEF1ZyAwOSwgMjAyMiBhdCAwMzozMjoyNlBNIC0wNzAwLCBTaS1XZWkgTGl1
+IHdyb3RlOgo+ID4gPiAKPiA+ID4gT24gOC85LzIwMjIgMjozNyBQTSwgTWljaGFlbCBTLiBUc2ly
+a2luIHdyb3RlOgo+ID4gPiA+IE9uIFR1ZSwgQXVnIDA5LCAyMDIyIGF0IDA3OjE4OjMwUE0gKzAw
+MDAsIFBhcmF2IFBhbmRpdCB3cm90ZToKPiA+ID4gPiA+ID4gRnJvbTogU2ktV2VpIExpdSA8c2kt
+d2VpLmxpdUBvcmFjbGUuY29tPgo+ID4gPiA+ID4gPiBTZW50OiBUdWVzZGF5LCBBdWd1c3QgOSwg
+MjAyMiAzOjA5IFBNCj4gPiA+ID4gPiA+ID4gPiBGcm9tOiBTaS1XZWkgTGl1IDxzaS13ZWkubGl1
+QG9yYWNsZS5jb20+Cj4gPiA+ID4gPiA+ID4gPiBTZW50OiBUdWVzZGF5LCBBdWd1c3QgOSwgMjAy
+MiAyOjM5IFBNIEN1cnJlbnRseSBpdCBpcyBub3QuIE5vdCBhCj4gPiA+ID4gPiA+ID4gPiBzaW5n
+bGUgcGF0Y2ggbm9yIHRoaXMgcGF0Y2gsIGJ1dCB0aGUgY29udGV4dCBmb3IgdGhlIGV2ZW50dWFs
+IGdvYWwgaXMKPiA+ID4gPiA+ID4gPiA+IHRvIGFsbG93IFhEUCBvbiBhIE1UVT05MDAwIGxpbmsg
+d2hlbiBndWVzdCB1c2VycyBpbnRlbnRpb25hbGx5IGxvd2VyCj4gPiA+ID4gPiA+ID4gPiBkb3du
+IE1UVSB0byAxNTAwLgo+ID4gPiA+ID4gPiA+IFdoaWNoIGFwcGxpY2F0aW9uIGJlbmVmaXQgYnkg
+aGF2aW5nIGFzeW1tZXRyeSBieSBsb3dlcmluZyBtdHUgdG8gMTUwMAo+ID4gPiA+ID4gPiB0byBz
+ZW5kIHBhY2tldHMgYnV0IHdhbnQgdG8gcmVjZWl2ZSA5SyBwYWNrZXRzPwo+ID4gPiA+ID4gQmVs
+b3cgZGV0YWlscyBkb2VzbuKAmXQgYW5zd2VyIHRoZSBxdWVzdGlvbiBvZiBhc3ltbWV0cnkuIDop
+Cj4gPiA+ID4gPiAKPiA+ID4gPiA+ID4gSSB0aGluayB2aXJ0aW8tbmV0IGRyaXZlciBkb2Vzbid0
+IGRpZmZlcmVudGlhdGUgTVRVIGFuZCBNUlUsIGluIHdoaWNoIGNhc2UKPiA+ID4gPiA+ID4gdGhl
+IHJlY2VpdmUgYnVmZmVyIHdpbGwgYmUgcmVkdWNlZCB0byBmaXQgdGhlIDE1MDBCIHBheWxvYWQg
+c2l6ZSB3aGVuIG10dSBpcwo+ID4gPiA+ID4gPiBsb3dlcmVkIGRvd24gdG8gMTUwMCBmcm9tIDkw
+MDAuCj4gPiA+ID4gPiBIb3c/IERyaXZlciByZWR1Y2VkIHRoZSBtWHUgdG8gMTUwMCwgc2F5IGl0
+IGlzIGltcHJvdmVkIHRvIHBvc3QgYnVmZmVycyBvZiAxNTAwIGJ5dGVzLgo+ID4gPiA+ID4gCj4g
+PiA+ID4gPiBEZXZpY2UgZG9lc24ndCBrbm93IGFib3V0IGl0IGJlY2F1c2UgbXR1IGluIGNvbmZp
+ZyBzcGFjZSBpcyBSTyBmaWVsZC4KPiA+ID4gPiA+IERldmljZSBrZWVwIGRyb3BwaW5nIDlLIHBh
+Y2tldHMgYmVjYXVzZSBidWZmZXJzIHBvc3RlZCBhcmUgMTUwMCBieXRlcy4KPiA+ID4gPiA+IFRo
+aXMgaXMgYmVjYXVzZSBkZXZpY2UgZm9sbG93cyB0aGUgc3BlYyAiIFRoZSBkZXZpY2UgTVVTVCBO
+T1QgcGFzcyByZWNlaXZlZCBwYWNrZXRzIHRoYXQgZXhjZWVkIG10dSIuCj4gPiA+ID4gVGhlICJt
+dHUiIGhlcmUgaXMgdGhlIGRldmljZSBjb25maWcgZmllbGQsIHdoaWNoIGlzCj4gPiA+ID4gCj4g
+PiA+ID4gICAgICAgICAgIC8qIERlZmF1bHQgbWF4aW11bSB0cmFuc21pdCB1bml0IGFkdmljZSAq
+Lwo+ID4gPiA+IAo+ID4gPiA+IHRoZXJlIGlzIG5vIGd1YXJhbnRlZSBkZXZpY2Ugd2lsbCBub3Qg
+Z2V0IGEgYmlnZ2VyIHBhY2tldC4KPiA+ID4gPiBBbmQgdGhlcmUgaXMgbm8gZ3VhcmFudGVlIHN1
+Y2ggYSBwYWNrZXQgd2lsbCBiZSBkcm9wcGVkCj4gPiA+ID4gYXMgb3Bwb3NlZCB0byB3ZWRnaW5n
+IHRoZSBkZXZpY2UgaWYgdXNlcnNwYWNlIGluc2lzdHMgb24KPiA+ID4gPiBhZGRpbmcgc21hbGxl
+ciBidWZmZXJzLgo+ID4gPiBJdCdkIGJlIG5pY2UgdG8gZG9jdW1lbnQgdGhpcyByZXF1aXJlbWVu
+dCBvciBzdGF0ZW1lbnQgdG8gdGhlIHNwZWMgZm9yCj4gPiA+IGNsYXJpdHkgcHVycG9zZS4KPiA+
+IEl0J3Mgbm90IGEgcmVxdWlyZW1lbnQsIG1vcmUgb2YgYSBidWcuIEJ1dCBpdCdzIGJlZW4gbGlr
+ZSB0aGlzIGZvcgo+ID4geWVhcnMuCj4gV2VsbCwgSSdtIG5vdCBzdXJlIGhvdyBpdCBtYXkgd2Vk
+Z2UgdGhlIGRldmljZSBpZiBub3QgY2FwYWJsZSBvZiBwb3N0aW5nIHRvCj4gc21hbGxlciBidWZm
+ZXJzLCBpcyB0aGVyZSBvdGhlciBvcHRpb24gdGhhbiBkcm9wPyBUcnVuY2F0ZSB0byB3aGF0IHRo
+ZQo+IGJ1ZmZlciBzaXplIG1heSBmaXQgYW5kIGRlbGl2ZXIgdXA/IFNlZW1zIGV2ZW4gd29yc2Ug
+dGhhbiBkcm9wLi4uCj4gCj4gPiAKPiA+ID4gT3RoZXJ3aXNlIHZhcmlvdXMgZGV2aWNlIGltcGxl
+bWVudGF0aW9ucyBhcmUgaGFyZCB0bwo+ID4gPiBmb2xsb3cuIFRoZSBjYXB0dXJlIGlzIHRoYXQg
+dmhvc3QtbmV0IGRyb3BzIGJpZ2dlciBwYWNrZXRzIHdoaWxlIHRoZSBkcml2ZXIKPiA+ID4gb25s
+eSBzdXBwbGllZCBzbWFsbGVyIGJ1ZmZlcnMuIFRoaXMgaXMgdGhlIHN0YXR1cyBxdW8sIGFuZCB1
+c2VycyBzZWVtaW5nbHkKPiA+ID4gaGF2ZSByZWxpZWQgb24gdGhpcyBiZWhhdmlvciBmb3Igc29t
+ZSB3aGlsZS4KPiA+ID4gCj4gPiA+IC1TaXdlaQo+ID4gV2VpcmQgd2hlcmUgZG8geW91IHNlZSB0
+aGlzIGluIGNvZGU/IEkgc2VlCj4gPiAKPiA+ICAgICAgICAgICAgICAgICAgc29ja19sZW4gPSB2
+aG9zdF9uZXRfcnhfcGVla19oZWFkX2xlbihuZXQsIHNvY2stPnNrLAo+ID4gICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICZidXN5bG9vcF9pbnRy
+KTsKPiA+ICAgICAgICAgICAgICAgICAgaWYgKCFzb2NrX2xlbikKPiA+ICAgICAgICAgICAgICAg
+ICAgICAgICAgICBicmVhazsKPiA+ICAgICAgICAgICAgICAgICAgc29ja19sZW4gKz0gc29ja19o
+bGVuOwo+ID4gICAgICAgICAgICAgICAgICB2aG9zdF9sZW4gPSBzb2NrX2xlbiArIHZob3N0X2hs
+ZW47Cj4gPiAgICAgICAgICAgICAgICAgIGhlYWRjb3VudCA9IGdldF9yeF9idWZzKHZxLCB2cS0+
+aGVhZHMgKyBudnEtPmRvbmVfaWR4LAo+ID4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICB2aG9zdF9sZW4sICZpbiwgdnFfbG9nLCAmbG9nLAo+ID4gICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICBsaWtlbHkobWVyZ2VhYmxlKSA/IFVJT19NQVhJ
+T1YgOiAxKTsKPiA+ICAgICAgICAgICAgICAgICAgLyogT24gZXJyb3IsIHN0b3AgaGFuZGxpbmcg
+dW50aWwgdGhlIG5leHQga2ljay4gKi8KPiA+ICAgICAgICAgICAgICAgICAgaWYgKHVubGlrZWx5
+KGhlYWRjb3VudCA8IDApKQo+ID4gICAgICAgICAgICAgICAgICAgICAgICAgIGdvdG8gb3V0Owo+
+ID4gCj4gPiAKPiA+IHNvIGl0IGRvZXMgbm90IGRyb3AgYSBwYWNrZXQsIGl0IGp1c3Qgc3RvcHMg
+cHJvY2Vzc2luZyB0aGUgcXVldWUuCj4gSGVyZQo+IAo+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoCAvKiBPbiBvdmVycnVuLCB0cnVuY2F0ZSBhbmQgZGlzY2FyZCAqLwo+IMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBpZiAodW5saWtlbHkoaGVhZGNvdW50ID4gVUlPX01BWElP
+VikpIHsKPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIGlv
+dl9pdGVyX2luaXQoJm1zZy5tc2dfaXRlciwgUkVBRCwgdnEtPmlvdiwgMSwgMSk7Cj4gwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBlcnIgPSBzb2NrLT5vcHMt
+PnJlY3Ztc2coc29jaywgJm1zZywKPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqAgMSwgTVNHX0RPTlRXQUlUIHwKPiBNU0dfVFJVTkMpOwo+IMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgcHJfZGVidWcoIkRpc2NhcmRlZCByeCBwYWNr
+ZXQ6IGxlbiAlemRcbiIsCj4gc29ja19sZW4pOwo+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqAgY29udGludWU7Cj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgIH0KPiAKPiByZWN2bXNnKCwgLCAxLCApIGlzIGVzc2VudGlhbGx5IHRvIGRyb3AgdGhl
+IG92ZXJzaXplZCBwYWNrZXQuCj4gCj4gCj4gSW4gZ2V0X3J4X2J1ZnMoKSwgb3ZlcnJ1biBkZXRl
+Y3Rpb24gd2lsbCByZXR1cm4gc29tZXRoaW5nIGxhcmdlciB0aGFuCj4gVUlPX01BWElPViBhcyBp
+bmRpY2F0b3I6Cj4gCj4gc3RhdGljIGludCBnZXRfcnhfYnVmcygpCj4gewo+IDoKPiA7Cj4gwqDC
+oMKgwqDCoMKgwqAgLyogRGV0ZWN0IG92ZXJydW4gKi8KPiDCoMKgwqDCoMKgwqDCoCBpZiAodW5s
+aWtlbHkoZGF0YWxlbiA+IDApKSB7Cj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHIg
+PSBVSU9fTUFYSU9WICsgMTsKPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgZ290byBl
+cnI7Cj4gwqDCoMKgwqDCoMKgwqAgfQo+IDoKPiA6Cj4gCj4gCj4gLVNpd2VpCgoKSG1tIHlvdSBh
+cmUgcmlnaHQuIEknbGwgY2hlY2sgYnV0IGl0IHNlZW1zIEkgaGF2ZSBtaXNyZWFkIHRoZSBjb2Rl
+LgpTb3JyeSBhYm91dCB3YXN0aW5nIHlvdXIgdGltZSBvbiB0aGlzLgpTbyBtYXliZSB0aGUgYXBw
+cm9hY2ggaXMgb2sgdGhlbi4KSXQncyBsYXRlLCBJJ2xsIHJlY2hlY2sgdG9tb3Jyb3cuCgoKPiA+
+IAo+ID4gCj4gPiA+ID4gCj4gPiA+ID4gPiBTbywgSSBhbSBsb3N0IHdoYXQgdmlydGlvIG5ldCBk
+ZXZpY2UgdXNlciBhcHBsaWNhdGlvbiBpcyB0cnlpbmcgdG8gYWNoaWV2ZSBieSBzZW5kaW5nIHNt
+YWxsZXIgcGFja2V0cyBhbmQgZHJvcHBpbmcgYWxsIHJlY2VpdmUgcGFja2V0cy4KPiA+ID4gPiA+
+IChpdCBkb2VzbuKAmXQgaGF2ZSBhbnkgcmVsYXRpb24gdG8gbWVyZ2VhYmxlIG9yIG90aGVyd2lz
+ZSkuCj4gPiA+ID4gLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCj4gPiA+ID4gVG8gdW5zdWJzY3JpYmUsIGUtbWFpbDog
+dmlydGlvLWRldi11bnN1YnNjcmliZUBsaXN0cy5vYXNpcy1vcGVuLm9yZwo+ID4gPiA+IEZvciBh
+ZGRpdGlvbmFsIGNvbW1hbmRzLCBlLW1haWw6IHZpcnRpby1kZXYtaGVscEBsaXN0cy5vYXNpcy1v
+cGVuLm9yZwo+ID4gPiA+IAoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3Rz
+LmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9t
+YWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
