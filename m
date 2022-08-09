@@ -1,152 +1,123 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9A880C19F2D
-	for <virtualization@archiver.kernel.org>; Tue,  9 Aug 2022 19:49:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7DE4DC19F2D
+	for <virtualization@archiver.kernel.org>; Tue,  9 Aug 2022 20:16:59 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 2BC2A81393;
-	Tue,  9 Aug 2022 19:49:06 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2BC2A81393
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=eUX0Z/Wt
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Rciqya90SfwZ; Tue,  9 Aug 2022 19:49:05 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 83CA58135D;
-	Tue,  9 Aug 2022 19:49:04 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 83CA58135D
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4DA71C0032;
-	Tue,  9 Aug 2022 19:49:04 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A8A21C002D
- for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Aug 2022 19:49:02 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 4B0F1404F6
- for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Aug 2022 19:49:02 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4B0F1404F6
-Authentication-Results: smtp2.osuosl.org; dkim=pass (2048-bit key,
- unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256
- header.s=selector2 header.b=eUX0Z/Wt
+	by smtp2.osuosl.org (Postfix) with ESMTP id 0490B4018A;
+	Tue,  9 Aug 2022 20:16:59 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0490B4018A
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=MdzPaxfH
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id YXz-Ea2zdx8E
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id q2FAtZlZu821; Tue,  9 Aug 2022 20:16:57 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 2381C400E4;
+	Tue,  9 Aug 2022 20:16:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2381C400E4
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E2D53C0033;
+	Tue,  9 Aug 2022 20:16:56 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 851EAC002D
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Aug 2022 19:49:00 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 686E4400E4
-Received: from NAM04-MW2-obe.outbound.protection.outlook.com
- (mail-mw2nam04on2062.outbound.protection.outlook.com [40.107.101.62])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 686E4400E4
+ Tue,  9 Aug 2022 20:16:55 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 388AD60A83
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Aug 2022 19:49:00 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ftbugF4id8A8VQ7mgNfabTmtaH2AkwVSlqL1qUo48yYbwLt3wyCbooi8xlEzabbaddi//GNEqEABHajqRhjrrBvstcceH/dMFGBUyjrNpznkI1XIpnMk01DakExQSSrupIJkZklrCkJCorpvnj1PyGt+Jtvx/AJDjv+sCL1PKi2uzbkK0RI/SG6T4NEaH2X6BgzX3sIcn9sxMhtnF1tc8t/ZwGJit7zwD8wnmxkyz+J4dT9fQ03yJdQ6WARLPQtz5RBJBpwus3kycu4MMJVSg5oJJKbIWdMe9o6M9N4yVlEeENuV+pHG8PuBh8GQHwMtldq5l9Tsedft90oZJtoQcg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=k+NY0tmSk98bxoq2ZE8VIrdTeu5juSycP9BuvXLrXV0=;
- b=jj7sRickK2AhNI2XQUNTgZN89FMPnyDtdxCu6JK/9nc9VLDJGFFmMPovRv6EvBHrEl1vG8Y/ppndu3bE99AGiAKo6LWqQCxSeQx2fFTetPmoOJXMDEzbHr3tWtfAnJbNEkLOKXXiqlNfUGTh+jR1DuqxpI7YGbtLAH9PJbzYWiTb1QyhpqyudxpA1MdbXNqgGlkXsS7wt/9QyiS8ppJWtz1y3nOHZdy19FVJkXD4/PqKhr9yoc4drUn2NDoOd3i1Epbk+O0KiqUWRmXRi6n4xiHw725gXv6Pljr0dw/xRmyl92Qipxde8r2fsobJ1xu2CTQRzcPTdXxiv0GJ1Zh0lA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=k+NY0tmSk98bxoq2ZE8VIrdTeu5juSycP9BuvXLrXV0=;
- b=eUX0Z/Wt497phPtu90/kzF955qrvXZ9Dlg+UNl3bJvQfpCuIjrGbHLaPn/bop++XgHYKdl+U/Gkeht6R9CaULWG3Zw4Z9jONizWibfg2TJ8fH/Ul3VaR/+vsq+yZlGboM8346QJk/RfeW59UbR6BsnaX0tb3YntIIpeYCi/vSRkphVBMA1j/lM2l14qY50+fPhz0meqTO126o6X9E/qgKKK7h07IhB6nXqM9BybwQo42DEmAwI7rmJgxB5RSPuwatODOtbxeFsnpAr8Cw5kV2rUR4O4CZw9bXbo8Z6N9vVt+503QqtKV1m0u2j3+poJdUKBafUJms2jLYXBXv9fwJQ==
-Received: from PH0PR12MB5481.namprd12.prod.outlook.com (2603:10b6:510:d4::15)
- by SJ0PR12MB6966.namprd12.prod.outlook.com (2603:10b6:a03:449::14)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5504.16; Tue, 9 Aug
- 2022 19:48:57 +0000
-Received: from PH0PR12MB5481.namprd12.prod.outlook.com
- ([fe80::957c:a0c7:9353:411e]) by PH0PR12MB5481.namprd12.prod.outlook.com
- ([fe80::957c:a0c7:9353:411e%5]) with mapi id 15.20.5504.020; Tue, 9 Aug 2022
- 19:48:57 +0000
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: RE: [PATCH V4 5/6] vDPA: answer num of queue pairs = 1 to userspace
- when VIRTIO_NET_F_MQ == 0
-Thread-Topic: [PATCH V4 5/6] vDPA: answer num of queue pairs = 1 to userspace
- when VIRTIO_NET_F_MQ == 0
-Thread-Index: AQHYncLEMRm26lhNu0yNCaNFKnyXX62KXhiQgBy05YCAAAFAYA==
-Date: Tue, 9 Aug 2022 19:48:57 +0000
-Message-ID: <PH0PR12MB54818103964517F3B1746C9ADC629@PH0PR12MB5481.namprd12.prod.outlook.com>
-References: <20220722115309.82746-1-lingshan.zhu@intel.com>
- <20220722115309.82746-6-lingshan.zhu@intel.com>
- <PH0PR12MB5481AC83A7C7B0320D6FB44CDC909@PH0PR12MB5481.namprd12.prod.outlook.com>
- <20220809152457-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20220809152457-mutt-send-email-mst@kernel.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 14e683c1-03a6-4e36-cbae-08da7a4032d9
-x-ms-traffictypediagnostic: SJ0PR12MB6966:EE_
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: BHr7YpbwYbys1hVKmfuaOelbMm+135nrBkG73B2SeAE9ikopega+lcmCeag112RcMKw4mS2gMFq/Fq/eTzK8bKBHHZG9GYdybLpLL4p3+3rhZO2BJYqYB41sCajGh339NK8uahC5rTfYA6g4u7y7/Ty2YcMtTZ9RwuerApK++bti1dR8WyvGZiaUAvaEWlaIDELLTwXPeNMtlaRdRmAA8T1ce3aiimqThO5/u+yzBirUmQOE17lTHYRf4lsX98FNqczuOW8dRYxSqmot8RDL7w5N+yNGnGjHH3Xa7tufcq+kHxPAeAXPodBmRzrFmD7ctfCKzU1giZ6TyDMu8Az2uZSDQwC5C5+U+SvxcGvd0LIQ3wPVp0NXiPtvpvScV++2U1x6wkjhY+knstxCWV9LswfoD1GAY4V2SgtkuPO9I7SIXzkunuISccjFGZx303yY07GP2Sn0KGQJvjM7l+0iyCVEbayRUItqbzWezNdsTi9tX5PbGYvB95+ZsbcA5y6RLKtPM6N3f68Xb2PaAI9lBjCIAbPotOMhJEq7noJjTdU1X1R4yUtaVRo4ZNnDWL3H0FtBHnnGxZB+KSP1vWh+hr1/6L15prWFAA4yrnrXKe3xT7r/JjXHZ1giynPaMdNRKha3kFIOC9bndHIi4GzOypEPE7eQmxcL5dElW34i04fCkqH087mU3JE0tnzpGwWM2z0pq1+ojWmzjqsnb1simk2oMM4hEOhBRA458GMzvwxk0lyA0ABWapzdQiNR53IIB+rDx69A1xvWNjVstnoK9Dv5/pPKKWQMX3vl/AuTn5R/b+iYHTaPjodKBRk+laaK
-x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:PH0PR12MB5481.namprd12.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230016)(4636009)(396003)(39860400002)(366004)(346002)(376002)(136003)(2906002)(38070700005)(8936002)(38100700002)(122000001)(52536014)(66946007)(66446008)(8676002)(54906003)(64756008)(478600001)(186003)(55016003)(66476007)(76116006)(66556008)(6916009)(9686003)(5660300002)(86362001)(41300700001)(6506007)(7696005)(4326008)(26005)(33656002)(71200400001)(316002);
- DIR:OUT; SFP:1101; 
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?FvkGt3SahyUB9hly5Ry31FajcYLwrxfG039oI2B+c7yXSgNZCdMI/nB2WjTS?=
- =?us-ascii?Q?VAEnq6FvJowBtG4sCQbAECHSSzaWV3v5SK926L9Jzu6NN0d1m+bEEbCbi+fl?=
- =?us-ascii?Q?j/LVZomxF9qKdRFLFur/Wlw0AqZl3TslsIpFq3sZ5YQh5uzA2R8WtRpCm54R?=
- =?us-ascii?Q?wina9xOmrQadBva6pURS7sy3bVFyFAxPKOS2oy/3bXaT4VuCe6dc0wjxw2Dy?=
- =?us-ascii?Q?mkdbQn0B6zVMzvvjK7G9e/oSf/9E1sFnE9Q2tvF8BBvKuV6sFgdMIY/JSdmJ?=
- =?us-ascii?Q?DzfJgcEQ81sACljh3mQ+m769titWOVW3CnfOaUdj5b3ojeDUeJYPhrdxmYUs?=
- =?us-ascii?Q?4d/pv53AfTACblNJ4aLIQ7mzfI331nEJPJ+Lc/8IklI7Ok5mZeUFaaOlWUMP?=
- =?us-ascii?Q?dW+Iv5lKNRN6//1utSdp8p6cqsryVChrBWFustvz2vQ5GSAVvsdD3Z5e6tL1?=
- =?us-ascii?Q?8ymIbq46Upg7MoDiYHlPuzwICgrM07y8N++hzuwBlTl/y1Z1o9pZRV4HGOAr?=
- =?us-ascii?Q?RhR1MauMLt5gfOPHlID3pIK1r3ycdcneTC5yoaePU2X7XA5QXtEv18Yq75HO?=
- =?us-ascii?Q?+rxnw+c20hlXEF5aIuyrjmpL84rjO2CGnlUNjCuc1L6Tu09FOFXsOREuvmL4?=
- =?us-ascii?Q?Ru7vhUqWfcD+C1duSDHaauxfGgHgOcwj+rnRV8Z2dIvIg5GlP/KI/kL2Zlpq?=
- =?us-ascii?Q?f8viTvMcoCczbvOHfcOuCZmFeyj3wwh4DBybvwCHLnCttmxLY1My1Yq1uu56?=
- =?us-ascii?Q?PEn93SnhHPRb9gx0SI2UufXZsycncZ33YEfsUvIHKJ/+mSDg4F5WkLdRNuHZ?=
- =?us-ascii?Q?er31IPGUtoOh3OloPhXqQ0NWpZ+HbUaerdYASL45+8NP2G1aJFBb7sGFGCLv?=
- =?us-ascii?Q?ginyLZZiMuPifb0SAVlc6eevEVtsclAar8UY8HA+DRP/OZ5jfxnnTBnGtDgq?=
- =?us-ascii?Q?EXSkUQcdEHulA6SaHq4lEDhAQM2Zg/F2nMgqEI97X/kGubdRLpaHNnYlXbKJ?=
- =?us-ascii?Q?VPEpOWJ/epzraDQGhPRBAazMk6RBJx8kIAS70OFZ9sDmf5X37jMDDFx6Q8Gb?=
- =?us-ascii?Q?LMGPAbBNUXqn2P8zojXeFyNy3Q69RnIazpr2QnHJ6PcDnyQjDIQ3jGgwikMs?=
- =?us-ascii?Q?41sTT+rN/9Gl8e4EUgzEi0hnfbuwGsD7OABspHDJHCoVFvplcQXwsPk6MZ64?=
- =?us-ascii?Q?o2GKGojFzy/Q8JOLmQdtibhZQXQeN/rTbvIivNcr54HWyY2zPyqx+NJHjTMD?=
- =?us-ascii?Q?ygQExZLTcZ+Iymb7tkwVlykBiKmLd+H4dxQcpsfMd40U4C7nlahIMpgpARYo?=
- =?us-ascii?Q?Y+TSG9LRSe9kVb7Ivc+AbCGnUhXZS4mmfs7qDNChPO4ZgBSaspb/waQlYdds?=
- =?us-ascii?Q?R+fzGe6tgEUxXxb+sDAwgib2NKeeIA7UmWsTSfR596Q8omw3k3CgXSXtPPg1?=
- =?us-ascii?Q?CemueaEW/+RByaYt/Vwncm77ZIMrRRKKxaPrp/IQqsAPEGUHtWFYSvTnYYnN?=
- =?us-ascii?Q?Ab5TmcdzRbdIDQJOlPt2NSKW1U8BaCKIrWQYtCpmGR/31LsKpNSICzmYbr8e?=
- =?us-ascii?Q?EMUPyoKTdm7Is8zeoCU=3D?=
+ Tue,  9 Aug 2022 20:16:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 388AD60A83
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=MdzPaxfH
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id MOkBb6iQsTvV
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  9 Aug 2022 20:16:53 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DA51660A4F
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id DA51660A4F
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  9 Aug 2022 20:16:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1660076211;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=XYkeLySuoO63EbUsVhpOWeDjHFCcBc523fF2RaZ/lEI=;
+ b=MdzPaxfHP1Q4pOuopHyA9s/gfq+LNpihTN5YeKyGv4AA8E1gfuAS6ZZDue7vDJdCj+8klU
+ lEwBCeVRx0aZBg7NDhBhGHr+3fAz2fSyEkuNYEM7Ue8SvHNRGiEGuGDV7J+qeNOD44mU66
+ 9L1A6NfOR3keGKytSpXD+4N1qIEhLqc=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-193-T3wnosjQNr2B2yWnoBCy1A-1; Tue, 09 Aug 2022 16:16:50 -0400
+X-MC-Unique: T3wnosjQNr2B2yWnoBCy1A-1
+Received: by mail-ed1-f72.google.com with SMTP id
+ g8-20020a056402424800b0043e81c582a4so7894412edb.17
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 09 Aug 2022 13:16:50 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc;
+ bh=XYkeLySuoO63EbUsVhpOWeDjHFCcBc523fF2RaZ/lEI=;
+ b=moUOBKpMQP1+2hPyPTbTqIKkd81EMzOKLVGXB04fwTXQ7FPHkcOhV6P5ay8JmGGB1E
+ EZl6T42g+Gesdv8WdSLFjGaKDhkELcrcYFHGDJMFXo09IzTP0Zv7OfwBOuqX9TIbU+MS
+ T9VyBrBbTzmk9pKXKL34ztaV1rl7fXU6/gnNOeuxpp8rdot43cegZ5vsgvD3SjUNFEmy
+ ryScNnExi5Hj09AfwHzWxcB1le7YCT2ZFKwlfYi67tRALQGX1Cd0/Kdq9JdtPoAy0JUr
+ qUKtpCEzrOIfZnX/vA7/zE3ZyDJRO5wb08H85kappkaNlXSaZJDiNiJlJKALHq3GBL31
+ js5w==
+X-Gm-Message-State: ACgBeo3/xjyPMznR63pjIIezcEyScK32zO0Qnh1B4JUVMG8Dy50LfFgD
+ m8K8gwdu+3464APq2Xd1D/Y8CH4QhfeybaS+WzdRgStG3zumDysVGhQAGD2P4SSGzN2lvVI3sfn
+ fY8yj/9uzXvr2R8VS5ftwQjUnTpn/xLsqftskrs6qOw==
+X-Received: by 2002:a17:907:3e21:b0:730:92bb:7fcd with SMTP id
+ hp33-20020a1709073e2100b0073092bb7fcdmr17888391ejc.170.1660076209037; 
+ Tue, 09 Aug 2022 13:16:49 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR40FcDWCVKiWVQE/jialHJimTEIGYpSEUwJ3TAcfINgunPOgf2z6iQ3ExreeybMeYfgQLpt/Q==
+X-Received: by 2002:a17:907:3e21:b0:730:92bb:7fcd with SMTP id
+ hp33-20020a1709073e2100b0073092bb7fcdmr17888366ejc.170.1660076208746; 
+ Tue, 09 Aug 2022 13:16:48 -0700 (PDT)
+Received: from redhat.com ([2.52.152.113]) by smtp.gmail.com with ESMTPSA id
+ t16-20020a1709066bd000b007308bdef04bsm1481466ejs.103.2022.08.09.13.16.46
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 09 Aug 2022 13:16:48 -0700 (PDT)
+Date: Tue, 9 Aug 2022 16:16:44 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Vladimir Murzin <vladimir.murzin@arm.com>
+Subject: Re: [PATCH v2 4/4] hwrng: virtio - always add a pending request
+Message-ID: <20220809161554-mutt-send-email-mst@kernel.org>
+References: <20211028101111.128049-1-lvivier@redhat.com>
+ <20211028101111.128049-5-lvivier@redhat.com>
+ <7e64ce61-89b1-40aa-8295-00ca42b9a959@arm.com>
+ <2c1198c4-77aa-5cb8-6bb4-b974850651be@arm.com>
+ <20220803073243-mutt-send-email-mst@kernel.org>
+ <33f0f429-491c-49da-bd2e-bf9f62cb3efb@arm.com>
+ <20220803083406-mutt-send-email-mst@kernel.org>
+ <a18f9406-fdc5-130b-0460-eb5ad75d8876@arm.com>
 MIME-Version: 1.0
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB5481.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 14e683c1-03a6-4e36-cbae-08da7a4032d9
-X-MS-Exchange-CrossTenant-originalarrivaltime: 09 Aug 2022 19:48:57.5820 (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 2atbJkeIPGLwuR8hfodjidq+P5eESL+6+VtMPYq4I6za6rF2vFcRX45yjMUKpv5p7dSbv2fA6moMqybEmnrh3Q==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR12MB6966
-Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- "xieyongji@bytedance.com" <xieyongji@bytedance.com>,
- "gautam.dawar@amd.com" <gautam.dawar@amd.com>,
- Zhu Lingshan <lingshan.zhu@intel.com>
+In-Reply-To: <a18f9406-fdc5-130b-0460-eb5ad75d8876@arm.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: Laurent Vivier <lvivier@redhat.com>,
+ Mauricio De Carvalho <Mauricio.DeCarvalho@arm.com>,
+ Kevin Brodsky <Kevin.Brodsky@arm.com>,
+ Herbert Xu <herbert@gondor.apana.org.au>, amit@kernel.org,
+ rusty@rustcorp.com.au, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org,
+ Alexander Potapenko <glider@google.com>, linux-crypto@vger.kernel.org,
+ Matt Mackall <mpm@selenic.com>, akong@redhat.com,
+ Dmitriy Vyukov <dvyukov@google.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -158,40 +129,339 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Parav Pandit via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Parav Pandit <parav@nvidia.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-> From: Michael S. Tsirkin <mst@redhat.com>
-> Sent: Tuesday, August 9, 2022 3:36 PM
-
-> > > After applying this commit, when MQ = 0, iproute2 output:
-> > > $vdpa dev config show vdpa0
-> > > vdpa0: mac 00:e8:ca:11:be:05 link up link_announce false
-> > > max_vq_pairs 1 mtu 1500
-> > >
-> > No. We do not want to diverge returning values of config space for fields
-> which are not present as discussed in previous versions.
-> > Please drop this patch.
-> > Nack on this patch.
+On Wed, Aug 03, 2022 at 02:12:25PM +0100, Vladimir Murzin wrote:
+> On 8/3/22 13:55, Michael S. Tsirkin wrote:
+> > On Wed, Aug 03, 2022 at 01:25:15PM +0100, Vladimir Murzin wrote:
+> >> On 8/3/22 12:39, Michael S. Tsirkin wrote:
+> >>> On Wed, Aug 03, 2022 at 09:57:35AM +0100, Vladimir Murzin wrote:
+> >>>> On 8/2/22 13:49, Vladimir Murzin wrote:
+> >>>>> Hi Laurent,
+> >>>>>
+> >>>>> On 10/28/21 11:11, Laurent Vivier wrote:
+> >>>>>> If we ensure we have already some data available by enqueuing
+> >>>>>> again the buffer once data are exhausted, we can return what we
+> >>>>>> have without waiting for the device answer.
+> >>>>>>
+> >>>>>> Signed-off-by: Laurent Vivier <lvivier@redhat.com>
+> >>>>>> ---
+> >>>>>>  drivers/char/hw_random/virtio-rng.c | 26 ++++++++++++--------------
+> >>>>>>  1 file changed, 12 insertions(+), 14 deletions(-)
+> >>>>>>
+> >>>>>> diff --git a/drivers/char/hw_random/virtio-rng.c b/drivers/char/hw_random/virtio-rng.c
+> >>>>>> index 8ba97cf4ca8f..0a7dde135db1 100644
+> >>>>>> --- a/drivers/char/hw_random/virtio-rng.c
+> >>>>>> +++ b/drivers/char/hw_random/virtio-rng.c
+> >>>>>> @@ -20,7 +20,6 @@ struct virtrng_info {
+> >>>>>>          struct virtqueue *vq;
+> >>>>>>          char name[25];
+> >>>>>>          int index;
+> >>>>>> -        bool busy;
+> >>>>>>          bool hwrng_register_done;
+> >>>>>>          bool hwrng_removed;
+> >>>>>>          /* data transfer */
+> >>>>>> @@ -44,16 +43,18 @@ static void random_recv_done(struct virtqueue *vq)
+> >>>>>>                  return;
+> >>>>>>
+> >>>>>>          vi->data_idx = 0;
+> >>>>>> -        vi->busy = false;
+> >>>>>>
+> >>>>>>          complete(&vi->have_data);
+> >>>>>>  }
+> >>>>>>
+> >>>>>> -/* The host will fill any buffer we give it with sweet, sweet randomness. */
+> >>>>>> -static void register_buffer(struct virtrng_info *vi)
+> >>>>>> +static void request_entropy(struct virtrng_info *vi)
+> >>>>>>  {
+> >>>>>>          struct scatterlist sg;
+> >>>>>>
+> >>>>>> +        reinit_completion(&vi->have_data);
+> >>>>>> +        vi->data_avail = 0;
+> >>>>>> +        vi->data_idx = 0;
+> >>>>>> +
+> >>>>>>          sg_init_one(&sg, vi->data, sizeof(vi->data));
+> >>>>>>
+> >>>>>>          /* There should always be room for one buffer. */
+> >>>>>> @@ -69,6 +70,8 @@ static unsigned int copy_data(struct virtrng_info *vi, void *buf,
+> >>>>>>          memcpy(buf, vi->data + vi->data_idx, size);
+> >>>>>>          vi->data_idx += size;
+> >>>>>>          vi->data_avail -= size;
+> >>>>>> +        if (vi->data_avail == 0)
+> >>>>>> +                request_entropy(vi);
+> >>>>>>          return size;
+> >>>>>>  }
+> >>>>>>
+> >>>>>> @@ -98,13 +101,7 @@ static int virtio_read(struct hwrng *rng, void *buf, size_t size, bool wait)
+> >>>>>>           * so either size is 0 or data_avail is 0
+> >>>>>>           */
+> >>>>>>          while (size != 0) {
+> >>>>>> -                /* data_avail is 0 */
+> >>>>>> -                if (!vi->busy) {
+> >>>>>> -                        /* no pending request, ask for more */
+> >>>>>> -                        vi->busy = true;
+> >>>>>> -                        reinit_completion(&vi->have_data);
+> >>>>>> -                        register_buffer(vi);
+> >>>>>> -                }
+> >>>>>> +                /* data_avail is 0 but a request is pending */
+> >>>>>>                  ret = wait_for_completion_killable(&vi->have_data);
+> >>>>>>                  if (ret < 0)
+> >>>>>>                          return ret;
+> >>>>>> @@ -126,8 +123,7 @@ static void virtio_cleanup(struct hwrng *rng)
+> >>>>>>  {
+> >>>>>>          struct virtrng_info *vi = (struct virtrng_info *)rng->priv;
+> >>>>>>
+> >>>>>> -        if (vi->busy)
+> >>>>>> -                complete(&vi->have_data);
+> >>>>>> +        complete(&vi->have_data);
+> >>>>>>  }
+> >>>>>>
+> >>>>>>  static int probe_common(struct virtio_device *vdev)
+> >>>>>> @@ -163,6 +159,9 @@ static int probe_common(struct virtio_device *vdev)
+> >>>>>>                  goto err_find;
+> >>>>>>          }
+> >>>>>>
+> >>>>>> +        /* we always have a pending entropy request */
+> >>>>>> +        request_entropy(vi);
+> >>>>>> +
+> >>>>>>          return 0;
+> >>>>>>
+> >>>>>>  err_find:
+> >>>>>> @@ -181,7 +180,6 @@ static void remove_common(struct virtio_device *vdev)
+> >>>>>>          vi->data_idx = 0;
+> >>>>>>          complete(&vi->have_data);
+> >>>>>>          vdev->config->reset(vdev);
+> >>>>>> -        vi->busy = false;
+> >>>>>>          if (vi->hwrng_register_done)
+> >>>>>>                  hwrng_unregister(&vi->hwrng);
+> >>>>>>          vdev->config->del_vqs(vdev);
+> >>>>>
+> >>>>> We observed that after this commit virtio-rng implementation in FVP doesn't
+> >>>>> work
+> >>>>>
+> >>>>> INFO: bp.virtio_rng: Selected Random Generator Device: XORSHIFT DEVICE
+> >>>>> INFO: bp.virtio_rng: Using seed value: 0x5674bba8
+> >>>>> Error: FVP_Base_AEMvA: bp.virtio_rng: <vq0-requestq> Found invalid descriptor index
+> >>>>> In file: (unknown):0
+> >>>>> In process: FVP_Base_AEMvA.thread_p_12 @ 935500020 ns
+> >>>>> Info: FVP_Base_AEMvA: bp.virtio_rng: Could not extract buffer
+> >>>>>
+> >>>>> while basic baremetal test works as expected
+> >>>>>
+> >>>>> INFO: bp.virtio_rng: Selected Random Generator Device: XORSHIFT DEVICE
+> >>>>> INFO: bp.virtio_rng: Using seed value: 0x541c142e
+> >>>>> Info: FVP_Base_AEMv8A: bp.virtio_rng: Generated Number: 0x4b098991ceb377e6
+> >>>>> Info: FVP_Base_AEMv8A: bp.virtio_rng: Generated Number: 0xbdcbe3f765ba62f7
+> >>>>>
+> >>>>> We are trying to get an idea what is missing and where, yet none of us familiar
+> >>>>> with the driver :(
+> >>>>>
+> >>>>> I'm looping Kevin who originally reported that and Mauricio who is looking form
+> >>>>> the FVP side.
+> >>>>
+> >>>> With the following diff FVP works agin
+> >>>>
+> >>>> diff --git a/drivers/char/hw_random/virtio-rng.c b/drivers/char/hw_random/virtio-rng.c
+> >>>> index a6f3a8a2ac..042503ad6c 100644
+> >>>> --- a/drivers/char/hw_random/virtio-rng.c
+> >>>> +++ b/drivers/char/hw_random/virtio-rng.c
+> >>>> @@ -54,6 +54,7 @@ static void request_entropy(struct virtrng_info *vi)
+> >>>>         reinit_completion(&vi->have_data);
+> >>>>         vi->data_avail = 0;
+> >>>>         vi->data_idx = 0;
+> >>>> +       smp_mb();
+> >>>>
+> >>>>         sg_init_one(&sg, vi->data, sizeof(vi->data));
+> >>>>
+> >>>>
+> >>>> What do you reckon?
+> >>>>
+> >>>> Cheers
+> >>>> Vladimir
+> >>>
+> >>> Thanks for debugging this!
+> >>>
+> >>> OK, interesting.
+> >>>
+> >>> data_idx and data_avail are accessed from virtio_read.
+> >>>
+> >>> Which as far as I can tell is invoked just with reading_mutex.
+> >>>
+> >>>
+> >>> But, request_entropy is called from probe when device is registered
+> >>> this time without locks
+> >>> so it can trigger while another thread is calling virtio_read.
+> >>>
+> >>> Second request_entropy is called from a callback random_recv_done
+> >>> also without locks.
+> >>>
+> >>> So it's great that smp_mb helped here but I suspect in fact we
+> >>> need locking. Laurent?
+> >>>
+> >>
+> >> I'm sorry for the noise, but it looks like I'm seeing issue for some different reasons.
+> >> I manage to reproduce issue even with smb_mb() in place. The reason I though it helped
+> >> is because I changed both environment and added smb_mb().
+> >>
+> >> Anyway, thank you for your time!
+> >>
+> >> Cheers
+> >> Vladimir
+> >
+> > Well we at least have a race condition found by code review here. Here's
+> > a quick hack attempting to fix it. I don't like it much since
+> > it adds buffers with GFP_ATOMIC and kicks under a spinlock, but
+> > for now we can at least test it. I did a quick build but that's
+> > all, a bit rushed now sorry. Would appreciate knowing whether
+> > this addresses the issue for you.
+> >
+> >
+> > diff --git a/drivers/char/hw_random/virtio-rng.c b/drivers/char/hw_random/virtio-rng.c
+> > index a6f3a8a2aca6..36121c8d0315 100644
+> > --- a/drivers/char/hw_random/virtio-rng.c
+> > +++ b/drivers/char/hw_random/virtio-rng.c
+> > @@ -23,6 +23,7 @@ struct virtrng_info {
+> >       bool hwrng_register_done;
+> >       bool hwrng_removed;
+> >       /* data transfer */
+> > +     spinlock_t lock;
+> >       struct completion have_data;
+> >       unsigned int data_avail;
+> >       unsigned int data_idx;
+> > @@ -37,6 +38,9 @@ struct virtrng_info {
+> >  static void random_recv_done(struct virtqueue *vq)
+> >  {
+> >       struct virtrng_info *vi = vq->vdev->priv;
+> > +     unsigned long flags;
+> > +
+> > +     spin_lock_irqsave(&vi->lock, flags);
+> >
+> >       /* We can get spurious callbacks, e.g. shared IRQs + virtio_pci. */
+> >       if (!virtqueue_get_buf(vi->vq, &vi->data_avail))
+> > @@ -45,20 +49,20 @@ static void random_recv_done(struct virtqueue *vq)
+> >       vi->data_idx = 0;
+> >
+> >       complete(&vi->have_data);
+> > +     spin_unlock_irqrestore(&vi->lock, flags);
+> >  }
+> >
+> >  static void request_entropy(struct virtrng_info *vi)
+> >  {
+> >       struct scatterlist sg;
+> >
+> > -     reinit_completion(&vi->have_data);
+> > -     vi->data_avail = 0;
+> > +     BUG_ON(vi->data_avail != 0);
+> >       vi->data_idx = 0;
+> >
+> >       sg_init_one(&sg, vi->data, sizeof(vi->data));
+> >
+> >       /* There should always be room for one buffer. */
+> > -     virtqueue_add_inbuf(vi->vq, &sg, 1, vi->data, GFP_KERNEL);
+> > +     virtqueue_add_inbuf(vi->vq, &sg, 1, vi->data, GFP_ATOMIC);
+> >
+> >       virtqueue_kick(vi->vq);
+> >  }
+> > @@ -70,8 +74,10 @@ static unsigned int copy_data(struct virtrng_info *vi, void *buf,
+> >       memcpy(buf, vi->data + vi->data_idx, size);
+> >       vi->data_idx += size;
+> >       vi->data_avail -= size;
+> > -     if (vi->data_avail == 0)
+> > +     if (vi->data_avail == 0) {
+> > +             reinit_completion(&vi->have_data);
+> >               request_entropy(vi);
+> > +     }
+> >       return size;
+> >  }
+> >
+> > @@ -81,18 +87,21 @@ static int virtio_read(struct hwrng *rng, void *buf, size_t size, bool wait)
+> >       struct virtrng_info *vi = (struct virtrng_info *)rng->priv;
+> >       unsigned int chunk;
+> >       size_t read;
+> > +     unsigned long flags;
+> >
+> >       if (vi->hwrng_removed)
+> >               return -ENODEV;
+> >
+> >       read = 0;
+> >
+> > +     spin_lock_irqsave(&vi->lock, flags);
+> >       /* copy available data */
+> >       if (vi->data_avail) {
+> >               chunk = copy_data(vi, buf, size);
+> >               size -= chunk;
+> >               read += chunk;
+> >       }
+> > +     spin_unlock_irqrestore(&vi->lock, flags);
+> >
+> >       if (!wait)
+> >               return read;
+> > @@ -108,12 +117,14 @@ static int virtio_read(struct hwrng *rng, void *buf, size_t size, bool wait)
+> >               /* if vi->data_avail is 0, we have been interrupted
+> >                * by a cleanup, but buffer stays in the queue
+> >                */
+> > +             spin_lock_irqsave(&vi->lock, flags);
+> >               if (vi->data_avail == 0)
+> >                       return read;
+> >
+> >               chunk = copy_data(vi, buf + read, size);
+> >               size -= chunk;
+> >               read += chunk;
+> > +             spin_unlock_irqrestore(&vi->lock, flags);
+> >       }
+> >
+> >       return read;
+> > @@ -122,19 +133,25 @@ static int virtio_read(struct hwrng *rng, void *buf, size_t size, bool wait)
+> >  static void virtio_cleanup(struct hwrng *rng)
+> >  {
+> >       struct virtrng_info *vi = (struct virtrng_info *)rng->priv;
+> > +     unsigned long flags;
+> >
+> > +     spin_lock_irqsave(&vi->lock, flags);
+> >       complete(&vi->have_data);
+> > +     spin_unlock_irqrestore(&vi->lock, flags);
+> >  }
+> >
+> >  static int probe_common(struct virtio_device *vdev)
+> >  {
+> >       int err, index;
+> >       struct virtrng_info *vi = NULL;
+> > +     unsigned long flags;
+> >
+> >       vi = kzalloc(sizeof(struct virtrng_info), GFP_KERNEL);
+> >       if (!vi)
+> >               return -ENOMEM;
+> >
+> > +     spin_lock_init(&vi->lock);
+> > +
+> >       vi->index = index = ida_simple_get(&rng_index_ida, 0, 0, GFP_KERNEL);
+> >       if (index < 0) {
+> >               err = index;
+> > @@ -162,7 +179,10 @@ static int probe_common(struct virtio_device *vdev)
+> >       virtio_device_ready(vdev);
+> >
+> >       /* we always have a pending entropy request */
+> > -     request_entropy(vi);
+> > +     spin_lock_irqsave(&vi->lock, flags);
+> > +     if (vi->data_avail == 0)
+> > +             request_entropy(vi);
+> > +     spin_unlock_irqrestore(&vi->lock, flags);
+> >
+> >       return 0;
+> >
+> >
 > 
-> Wrt this patch as far as I'm concerned you guys are bikeshedding.
-> 
-> Parav generally don't send nacks please they are not helpful.
+> Thanks a lot! I gave it a go and it did not help. I think I need to find out how exactly
+> my environment affected... it not necessary need to be kernel related.
 
-Ok. I explained the technical reasoning that we don't diverge in fields. All are linked to the respective feature bits uniformly.
-This I explained repeatedly in almost v1 to v3.
-And reporting 1 is mis-leading, because it says _MQ is not negotiated, how come this device tells its config space has max_qp = 1.
+Okay ... I'll wait to hear your report then. You are saying maybe
+there's no bug in kernel, something else changed in your environment?
 
-But if you want to proceed to diverge kernel on feature bits go ahead. It requires inspection feature but feature.
-I just don't see how this can be well maintained.
-
-Commit log doesn't even describe the weird use case that says "as user space, I do not want to read device feature bits and just want to read config space to decide...".
-Odd..
+-- 
+MST
 
 _______________________________________________
 Virtualization mailing list
