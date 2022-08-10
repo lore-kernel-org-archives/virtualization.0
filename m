@@ -4,98 +4,101 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 68B7FC00140
-	for <virtualization@archiver.kernel.org>; Wed, 10 Aug 2022 09:44:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1826CC00140
+	for <virtualization@archiver.kernel.org>; Wed, 10 Aug 2022 09:44:26 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id F2924402AA;
-	Wed, 10 Aug 2022 09:44:02 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org F2924402AA
+	by smtp4.osuosl.org (Postfix) with ESMTP id B002140345;
+	Wed, 10 Aug 2022 09:44:25 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B002140345
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=g6d+2kmn
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RH1SFAqf
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id QSgV9yU932Zj; Wed, 10 Aug 2022 09:44:02 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 4EBD2402D2;
-	Wed, 10 Aug 2022 09:44:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4EBD2402D2
+	with ESMTP id ZJHpmMANz5yq; Wed, 10 Aug 2022 09:44:24 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id AD28540327;
+	Wed, 10 Aug 2022 09:44:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org AD28540327
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 265C9C0033;
-	Wed, 10 Aug 2022 09:44:01 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8062EC0033
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 67AF2C0033;
+	Wed, 10 Aug 2022 09:44:23 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 07FC9C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Aug 2022 09:44:00 +0000 (UTC)
+ Wed, 10 Aug 2022 09:44:22 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 4A15A402BA
+ by smtp3.osuosl.org (Postfix) with ESMTP id D6F3B60B8F
  for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Aug 2022 09:44:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4A15A402BA
+ Wed, 10 Aug 2022 09:44:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D6F3B60B8F
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=RH1SFAqf
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id u7hIqYrT3q_F
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id IbuB6jMLYOXl
  for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Aug 2022 09:43:59 +0000 (UTC)
+ Wed, 10 Aug 2022 09:44:21 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5340140289
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 09C7660ACA
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 5340140289
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 09C7660ACA
  for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Aug 2022 09:43:59 +0000 (UTC)
+ Wed, 10 Aug 2022 09:44:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1660124638;
+ s=mimecast20190719; t=1660124659;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=b2PRyz9SGjKoLZlYF6JLzg9mzaDVsgEeEMI7cjuKE+0=;
- b=g6d+2kmnbpU+XRHrLhl5UCgqPqPjfHibfiADYpHaHU23kdsPBy2QWnoxxTutypr82XFh8W
- WG8iA66rinu/H+Tz7FqgGDpYddgT4xwvGAiKdgzGqxR4KlgQmRYdAItXNObAVKNFQH5ZRB
- aTwn+gDGji1Rz39Ky9Dtvy7DWW0r3AE=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-652--KLc3Q05Nq6-dsb_izImZA-1; Wed, 10 Aug 2022 05:43:57 -0400
-X-MC-Unique: -KLc3Q05Nq6-dsb_izImZA-1
-Received: by mail-wm1-f70.google.com with SMTP id
- a17-20020a05600c349100b003a545125f6eso844721wmq.4
+ bh=k7/Qe+5eTUGxbNC+s2zlukeDJxV02+FkntfjhZmwiRA=;
+ b=RH1SFAqfFEgSEZujQvvi1PXd8rQpk2lsDjH3aXMIGguM8HnX4ZC4YIaRC9sOH1DqgmvRqt
+ g40DwRLqsDZTI77N7e8eOZArxgpe3jK649gHP9IRhnKiWcuaZObVSslWfBbMoNNOiRo5vd
+ e0JoZ/5aAsQebYpq5/WbJcJjj7MaGgE=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-155-tLDtsXHLNXCEfY0Wx2Uhkw-1; Wed, 10 Aug 2022 05:44:19 -0400
+X-MC-Unique: tLDtsXHLNXCEfY0Wx2Uhkw-1
+Received: by mail-wm1-f72.google.com with SMTP id
+ v24-20020a7bcb58000000b003a37681b861so391016wmj.9
  for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Aug 2022 02:43:57 -0700 (PDT)
+ Wed, 10 Aug 2022 02:44:18 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=content-transfer-encoding:mime-version:references:in-reply-to
  :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc;
- bh=b2PRyz9SGjKoLZlYF6JLzg9mzaDVsgEeEMI7cjuKE+0=;
- b=qLpHuriwuNq359fQ3PZqtpElPtVT4H0tRmCaoafcj4SmO8vEE1BRP04dgrddGdnF5F
- XveuOCgjYVuyB2e4NP4MFbrKYzMF+60VUiDzlr4e9bb3uXAVPKc/PPDLciRyuO3iv0+q
- SxSKau7xZpm4GXx5SF3atD8OdUOQeJAH84krotPbdYRwrRwTu838Xy48LSHs1HvhxtT/
- nksP+PagThOj4FTy4BMrgxqIb5eBXD/0RG1guY3sh/a/yKIuuf3R0jmYlEbn8q0lovhl
- TL8wyQtrj6bRod1XaQllkqLjDpAic+iENjzpD/XAZhkVQwtvAJtHFniQ5sHfN6p1cK+g
- Uh7w==
-X-Gm-Message-State: ACgBeo01VDF5LQuVMxdg5ed07Tt7nW9fy+XH2jiEN3+jDs9tx7d5DSkc
- V7PBMymRnQlWjdnVy0l1Eq/wsXZTJ4YfTyKunvf1cHZMIEE32rRD2f3Kb5z9Mt08yALjzz9cfoN
- 1aHN/eWJQ3ahyCOGibPVWxA6gAKqHb58QqgEME+rtPpt97BrsL/sQ8wYrTJiAPtukZaqE1GCm3j
- ZIw5WZ4Iajjaf0/TcKtQ==
-X-Received: by 2002:adf:d1c9:0:b0:20f:c3dc:e980 with SMTP id
- b9-20020adfd1c9000000b0020fc3dce980mr16506754wrd.552.1660124635515; 
- Wed, 10 Aug 2022 02:43:55 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR5G624psAQ0CDHz/tX9HGp8fAwlc2Q6jgDrVstRV8Ex4w7YsTXeGAp2caKRmTJ7VelfCf8tkg==
-X-Received: by 2002:adf:d1c9:0:b0:20f:c3dc:e980 with SMTP id
- b9-20020adfd1c9000000b0020fc3dce980mr16506738wrd.552.1660124635306; 
- Wed, 10 Aug 2022 02:43:55 -0700 (PDT)
+ bh=k7/Qe+5eTUGxbNC+s2zlukeDJxV02+FkntfjhZmwiRA=;
+ b=fu1Eb6hB6c1t9JMs4gLoDkxlz2Zy4yPkPJmaIdv3rm7mIIAC87M6nQVK1pSul4JAPH
+ PY6U5QJ+LVRVigF2uK5kFbg/AsKprjmDRGCYyoPtJko1JtMbU8wR+ngVFSWGNP0O0pnL
+ Tc5b2kcKlndey4LsYDxMjlFcrvobCBdQXWhQEHa7Es7t/9CUKiNWbuoohvAWve2UYVS4
+ i1bNO1tHfnZ6nal5sMOXeBr/L9RxJqPU1P7/x1ll78D9fyom2ChlLvWDk+vpBPIhLbhh
+ ikpvkKeDk2KZcZnAuZOdlKkclXOQOWoF1t4Y4fL9bKTDy8wG91bpK6zNari1Pa83mUak
+ SdMw==
+X-Gm-Message-State: ACgBeo0UbL5LgD3mO2fA8NW9IKNajW+eqEChOOyz5pb6ptEBihfmSxrD
+ f2fPzIzL9gVvLjAc/Jy6RBwZONFUxSiRMH/lutMl2UgQ2iGkEPN1r0kJFKZhIMGCVN8Q5QnjhjK
+ rYPw5w7JwbkMzjULzL9Cp9ZMm4O2VtN0xWQYDcHQg5ILl8hXsTnXOa1tLoGOc9AB8rzYCAfpKGU
+ zgvhNACR0M71Y35sV9bg==
+X-Received: by 2002:a05:6000:1542:b0:220:603d:ec93 with SMTP id
+ 2-20020a056000154200b00220603dec93mr17536690wry.73.1660124657636; 
+ Wed, 10 Aug 2022 02:44:17 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR6iclGAZJP+HWE3V0NXvbb7Pj7rFr6PGzc2/8kqTzVx9Xl8yB8UdjXdKIphvt2YtlzIaVYsVg==
+X-Received: by 2002:a05:6000:1542:b0:220:603d:ec93 with SMTP id
+ 2-20020a056000154200b00220603dec93mr17536672wry.73.1660124657375; 
+ Wed, 10 Aug 2022 02:44:17 -0700 (PDT)
 Received: from step1.redhat.com (host-79-46-200-178.retail.telecomitalia.it.
  [79.46.200.178]) by smtp.gmail.com with ESMTPSA id
- q11-20020a5d658b000000b0021e4bc9edbfsm12921743wru.112.2022.08.10.02.43.53
+ t188-20020a1c46c5000000b003a327f19bf9sm1729195wma.14.2022.08.10.02.44.16
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 10 Aug 2022 02:43:54 -0700 (PDT)
+ Wed, 10 Aug 2022 02:44:16 -0700 (PDT)
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: virtualization@lists.linux-foundation.org
-Subject: [PATCH v2 3/4] vdpa_sim_blk: add support for VIRTIO_BLK_T_FLUSH
-Date: Wed, 10 Aug 2022 11:43:46 +0200
-Message-Id: <20220810094347.20449-4-sgarzare@redhat.com>
+Subject: [PATCH v2 4/4] vdpa_sim_blk: add support for discard and write-zeroes
+Date: Wed, 10 Aug 2022 11:43:47 +0200
+Message-Id: <20220810094347.20449-5-sgarzare@redhat.com>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220810094347.20449-1-sgarzare@redhat.com>
 References: <20220810094347.20449-1-sgarzare@redhat.com>
@@ -119,41 +122,122 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-The simulator behaves like a ramdisk, so we don't have to do
-anything when a VIRTIO_BLK_T_FLUSH request is received, but it
-could be useful to test driver behavior.
+Expose VIRTIO_BLK_F_DISCARD and VIRTIO_BLK_F_WRITE_ZEROES features
+to the drivers and handle VIRTIO_BLK_T_DISCARD and
+VIRTIO_BLK_T_WRITE_ZEROES requests checking ranges and flags.
 
-Let's expose the VIRTIO_BLK_F_FLUSH feature to inform the driver
-that we support the flush command.
+The simulator behaves like a ramdisk, so for VIRTIO_BLK_F_DISCARD
+does nothing, while for VIRTIO_BLK_T_WRITE_ZEROES sets to 0 the
+specified region.
 
 Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 ---
- drivers/vdpa/vdpa_sim/vdpa_sim_blk.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/vdpa/vdpa_sim/vdpa_sim_blk.c | 74 +++++++++++++++++++++++++++-
+ 1 file changed, 73 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c b/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
-index 24dd9cae6450..1f18f336cf0c 100644
+index 1f18f336cf0c..db85df1d5073 100644
 --- a/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
 +++ b/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
-@@ -25,6 +25,7 @@
- #define DRV_LICENSE  "GPL v2"
- 
- #define VDPASIM_BLK_FEATURES	(VDPASIM_FEATURES | \
-+				 (1ULL << VIRTIO_BLK_F_FLUSH)    | \
- 				 (1ULL << VIRTIO_BLK_F_SIZE_MAX) | \
+@@ -30,11 +30,14 @@
  				 (1ULL << VIRTIO_BLK_F_SEG_MAX)  | \
  				 (1ULL << VIRTIO_BLK_F_BLK_SIZE) | \
-@@ -188,6 +189,10 @@ static bool vdpasim_blk_handle_req(struct vdpasim *vdpasim,
- 		pushed += bytes;
+ 				 (1ULL << VIRTIO_BLK_F_TOPOLOGY) | \
+-				 (1ULL << VIRTIO_BLK_F_MQ))
++				 (1ULL << VIRTIO_BLK_F_MQ)       | \
++				 (1ULL << VIRTIO_BLK_F_DISCARD)  | \
++				 (1ULL << VIRTIO_BLK_F_WRITE_ZEROES))
+ 
+ #define VDPASIM_BLK_CAPACITY	0x40000
+ #define VDPASIM_BLK_SIZE_MAX	0x1000
+ #define VDPASIM_BLK_SEG_MAX	32
++#define VDPASIM_BLK_DWZ_MAX_SECTORS UINT_MAX
+ 
+ /* 1 virtqueue, 1 address space, 1 virtqueue group */
+ #define VDPASIM_BLK_VQ_NUM	1
+@@ -193,6 +196,64 @@ static bool vdpasim_blk_handle_req(struct vdpasim *vdpasim,
+ 		/* nothing to do */
  		break;
  
-+	case VIRTIO_BLK_T_FLUSH:
-+		/* nothing to do */
++	case VIRTIO_BLK_T_DISCARD:
++	case VIRTIO_BLK_T_WRITE_ZEROES:
++		struct virtio_blk_discard_write_zeroes range;
++		u32 num_sectors, flags;
++
++		if (to_pull != sizeof(range)) {
++			dev_dbg(&vdpasim->vdpa.dev,
++				"discard/write_zeroes header len: 0x%zx [expected: 0x%zx]\n",
++				to_pull, sizeof(range));
++			status = VIRTIO_BLK_S_IOERR;
++			break;
++		}
++
++		bytes = vringh_iov_pull_iotlb(&vq->vring, &vq->out_iov, &range,
++					      to_pull);
++		if (bytes < 0) {
++			dev_dbg(&vdpasim->vdpa.dev,
++				"vringh_iov_pull_iotlb() error: %zd offset: 0x%llx len: 0x%zx\n",
++				bytes, offset, to_pull);
++			status = VIRTIO_BLK_S_IOERR;
++			break;
++		}
++
++		sector = vdpasim64_to_cpu(vdpasim, range.sector);
++		offset = sector << SECTOR_SHIFT;
++		num_sectors = vdpasim32_to_cpu(vdpasim, range.num_sectors);
++		flags = vdpasim32_to_cpu(vdpasim, range.flags);
++
++		if (type == VIRTIO_BLK_T_DISCARD && flags != 0) {
++			dev_dbg(&vdpasim->vdpa.dev,
++				"discard unexpected flags set - flags: 0x%x\n",
++				flags);
++			status = VIRTIO_BLK_S_UNSUPP;
++			break;
++		}
++
++		if (type == VIRTIO_BLK_T_WRITE_ZEROES &&
++		    flags & ~VIRTIO_BLK_WRITE_ZEROES_FLAG_UNMAP) {
++			dev_dbg(&vdpasim->vdpa.dev,
++				"write_zeroes unexpected flags set - flags: 0x%x\n",
++				flags);
++			status = VIRTIO_BLK_S_UNSUPP;
++			break;
++		}
++
++		if (!vdpasim_blk_check_range(vdpasim, sector, num_sectors,
++					     VDPASIM_BLK_DWZ_MAX_SECTORS)) {
++			status = VIRTIO_BLK_S_IOERR;
++			break;
++		}
++
++		if (type == VIRTIO_BLK_T_WRITE_ZEROES) {
++			memset(vdpasim->buffer + offset, 0,
++			       num_sectors << SECTOR_SHIFT);
++		}
++
 +		break;
 +
  	default:
  		dev_dbg(&vdpasim->vdpa.dev,
  			"Unsupported request type %d\n", type);
+@@ -281,6 +342,17 @@ static void vdpasim_blk_get_config(struct vdpasim *vdpasim, void *config)
+ 	blk_config->min_io_size = cpu_to_vdpasim16(vdpasim, 1);
+ 	blk_config->opt_io_size = cpu_to_vdpasim32(vdpasim, 1);
+ 	blk_config->blk_size = cpu_to_vdpasim32(vdpasim, SECTOR_SIZE);
++	/* VIRTIO_BLK_F_DISCARD */
++	blk_config->discard_sector_alignment =
++		cpu_to_vdpasim32(vdpasim, SECTOR_SIZE);
++	blk_config->max_discard_sectors =
++		cpu_to_vdpasim32(vdpasim, VDPASIM_BLK_DWZ_MAX_SECTORS);
++	blk_config->max_discard_seg = cpu_to_vdpasim32(vdpasim, 1);
++	/* VIRTIO_BLK_F_WRITE_ZEROES */
++	blk_config->max_write_zeroes_sectors =
++		cpu_to_vdpasim32(vdpasim, VDPASIM_BLK_DWZ_MAX_SECTORS);
++	blk_config->max_write_zeroes_seg = cpu_to_vdpasim32(vdpasim, 1);
++
+ }
+ 
+ static void vdpasim_blk_mgmtdev_release(struct device *dev)
 -- 
 2.37.1
 
