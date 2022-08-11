@@ -4,105 +4,108 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id CBB82C19F2D
-	for <virtualization@archiver.kernel.org>; Thu, 11 Aug 2022 08:48:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 13D13C19F2D
+	for <virtualization@archiver.kernel.org>; Thu, 11 Aug 2022 08:53:23 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 436F681AAB;
-	Thu, 11 Aug 2022 08:48:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 436F681AAB
+	by smtp1.osuosl.org (Postfix) with ESMTP id 86F13827AF;
+	Thu, 11 Aug 2022 08:53:22 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 86F13827AF
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=TYgUbMUc
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=FISvsLL9
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Np05cSN7Fotl; Thu, 11 Aug 2022 08:48:00 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id CBF3681A92;
-	Thu, 11 Aug 2022 08:47:59 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CBF3681A92
+	with ESMTP id MBeJscHwbm07; Thu, 11 Aug 2022 08:53:21 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 0FD968271A;
+	Thu, 11 Aug 2022 08:53:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0FD968271A
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 97376C0033;
-	Thu, 11 Aug 2022 08:47:59 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 99359C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id AB0AEC0033;
+	Thu, 11 Aug 2022 08:53:20 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 00D09C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Aug 2022 08:47:58 +0000 (UTC)
+ Thu, 11 Aug 2022 08:53:18 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 5B0BC60FD1
+ by smtp4.osuosl.org (Postfix) with ESMTP id A8C1240332
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Aug 2022 08:47:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5B0BC60FD1
-Authentication-Results: smtp3.osuosl.org;
+ Thu, 11 Aug 2022 08:53:18 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A8C1240332
+Authentication-Results: smtp4.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=TYgUbMUc
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=FISvsLL9
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id s1hRNWOUgpcj
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id sMQan_UyYK5y
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Aug 2022 08:47:57 +0000 (UTC)
+ Thu, 11 Aug 2022 08:53:16 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9F1CE60E64
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 77AD3402FB
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 9F1CE60E64
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 77AD3402FB
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Aug 2022 08:47:57 +0000 (UTC)
+ Thu, 11 Aug 2022 08:53:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1660207676;
+ s=mimecast20190719; t=1660207995;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding;
- bh=5AXFiHe2CmpDevMhSkIWn01i/EnbWuauw5G+9+V6hIc=;
- b=TYgUbMUckLuMewBM9neph44utKZwrWX/25Zs6dJECma3vF5M8s53Xl0fyP8rpIA0eMsv27
- rPOflv0QmAAXaZqogqstX+sadjSz9N7xKMPip+DgcAdQXTgd43VJOTBagFztWi/NSPdSPs
- gL//3JV6LGZ/Gx63bNldP5Cvo+Mnkx8=
-Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com
- [209.85.160.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ in-reply-to:in-reply-to:references:references;
+ bh=lJ6dO5FkJbRlPuu7ETIUoBKLHvygzrFjGVpCJhy/afY=;
+ b=FISvsLL9AIRklPe3jUWy152LyJMShmT0b+K/kroUwJtsPfCE+jifgbXQnFOLJCL7DyatV7
+ 080iVo20G2/mylcRLw/7qWVHuzbnDLj8iQIxMnUfAvqL1Rjg8FCWBPk/yG2/ZoDtmjdYZt
+ kNFuD/y+OJCBqOvgUQOF9UI9M5K/Vrc=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-423-_Z0dszYpNxG_vlSMh-ZoDg-1; Thu, 11 Aug 2022 04:47:55 -0400
-X-MC-Unique: _Z0dszYpNxG_vlSMh-ZoDg-1
-Received: by mail-qt1-f197.google.com with SMTP id
- e30-20020ac8011e000000b00342f61e67aeso8836542qtg.3
+ us-mta-556-fQ4WbSRDNUGZVSNwjiBReQ-1; Thu, 11 Aug 2022 04:53:13 -0400
+X-MC-Unique: fQ4WbSRDNUGZVSNwjiBReQ-1
+Received: by mail-ed1-f72.google.com with SMTP id
+ y14-20020a056402440e00b0044301c7ccd9so512683eda.19
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Aug 2022 01:47:55 -0700 (PDT)
+ Thu, 11 Aug 2022 01:53:13 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=content-transfer-encoding:mime-version:message-id:date:subject:cc
- :to:from:x-gm-message-state:from:to:cc;
- bh=5AXFiHe2CmpDevMhSkIWn01i/EnbWuauw5G+9+V6hIc=;
- b=4wDNfYYqhKkWvANTMEPm0Y1geamLOJcZtvWXU3lKi/3mFazNHAKaenVhh3WA8nyZ7+
- IUNHDxeDD6GwhgCMVtaTClIiLO/Ry/BGFHU6BnZhgLbpieOdeme3RO5PsGpW1qtwwWjB
- takc0z7adJFnMio1sPBhHIuZ+qoXluwRmG7DrxaiiSzE1dQTsn7EJh7+9x/vehvL7s1h
- ZQAM+o0jMpKIzVlQfJH2SWmOt9/VvHx9LE89qLS6nl7dF7uGQ63VUeqKWZu4WySknY6F
- fQYRewd8H0OGozCrueagFx/+PIQpWSSmsnbhG7PM+EGUhpAjxRKOraqLKT/4sBR+SUrI
- k28Q==
-X-Gm-Message-State: ACgBeo1HnwrrjS3oOtRcaSAw2emJu/LIkTktypI1ONWVFPPd1taKTf5c
- g5cO2Nff3C3K5f7MiYJPgclmYAs1+ModOJD2QhaszSj1HT4QCQD3nZCSCy/hdhhRpJn/+oKPU/0
- Ascr6i71J/YEyRiEgP8A35ZFudmWQaJu/ldDv96iJ1E5cIT9I998vIbiWBXZVXNrX2pBCo9Jb2h
- c0w65YcRHk9lgm3XsV0w==
-X-Received: by 2002:a05:620a:170d:b0:6b8:fd9c:da91 with SMTP id
- az13-20020a05620a170d00b006b8fd9cda91mr22778160qkb.683.1660207673938; 
- Thu, 11 Aug 2022 01:47:53 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR44pcESFHkNdNM3Yf3jmpUmzHiMOEidvVu/fsIBlqr+kIf/Fux++cUEWpNdKhU50QGFjuV0EQ==
-X-Received: by 2002:a05:620a:170d:b0:6b8:fd9c:da91 with SMTP id
- az13-20020a05620a170d00b006b8fd9cda91mr22778151qkb.683.1660207673670; 
- Thu, 11 Aug 2022 01:47:53 -0700 (PDT)
-Received: from step1.redhat.com (host-79-46-200-178.retail.telecomitalia.it.
- [79.46.200.178]) by smtp.gmail.com with ESMTPSA id
- q31-20020a05620a2a5f00b006a793bde241sm21508qkp.63.2022.08.11.01.47.51
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc;
+ bh=lJ6dO5FkJbRlPuu7ETIUoBKLHvygzrFjGVpCJhy/afY=;
+ b=4UdzmNA46H2JuZ+wH3HMsUnypSfQAA+V2KlWXS2Ggd5I991mZIo6y+Bf5jLqRnbzl2
+ EEp17rNsxbCw4rPJjftgOxirRHprfdJzHHR5Ls/K2mlU35LWfcfSI7tjjPApYFVxKYB8
+ bhazZF5R4inoDBjn578NUyHS20iYCmZ/LZYsrKEzS+zkw7nlXtais0qb6gdj7SUCElFl
+ YbLMBFgx6Qli5fh8+wL9R0Hy2Sa2w6G+40cGPJnTQjerwJ3oh+rJfjLz1c9JtAQHAjEF
+ G3uuXoWuGATblSsIezVNoKrKfFzFTJ0u9myXlj9QiskKNTbeoZzYJRAjpuzMxIgKpoeo
+ t7Eg==
+X-Gm-Message-State: ACgBeo0hWL9If87iRCIXEpASKGs8k2Es3pX/7m+WGGmEgT1K3x03eLfw
+ omjAAY+d+kID9g3K388rj9QGxS92/5quNNNZJNNiZdzWM6+i49Oqd4yGtTZaezygPRAfFVn+VcZ
+ zrhMZfJq3HoUdvmwz3u8Yhj/DKTUEeiDXJzITlxQ+Yw==
+X-Received: by 2002:a17:907:3e06:b0:733:693:600e with SMTP id
+ hp6-20020a1709073e0600b007330693600emr5126999ejc.410.1660207992767; 
+ Thu, 11 Aug 2022 01:53:12 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR4/6esuEFdoJ5rOUNg2auAt+loCsh2rGaNBovidkUuVarDYw91Xl8Xc9+Wbs3oYAcm7LRxQiA==
+X-Received: by 2002:a17:907:3e06:b0:733:693:600e with SMTP id
+ hp6-20020a1709073e0600b007330693600emr5126985ejc.410.1660207992576; 
+ Thu, 11 Aug 2022 01:53:12 -0700 (PDT)
+Received: from redhat.com ([2.52.152.113]) by smtp.gmail.com with ESMTPSA id
+ k21-20020aa7c395000000b0043cc66d7accsm8823638edq.36.2022.08.11.01.53.10
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 11 Aug 2022 01:47:52 -0700 (PDT)
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: virtualization@lists.linux-foundation.org
-Subject: [PATCH] vdpa: fix warning casts when building with C=2
-Date: Thu, 11 Aug 2022 10:47:49 +0200
-Message-Id: <20220811084749.83809-1-sgarzare@redhat.com>
-X-Mailer: git-send-email 2.37.1
+ Thu, 11 Aug 2022 01:53:12 -0700 (PDT)
+Date: Thu, 11 Aug 2022 04:53:08 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Andrew Melnychenko <andrew@daynix.com>
+Subject: Re: [PATCH v5 3/4] drivers/net/virtio_net: Added RSS hash report.
+Message-ID: <20220811045005-mutt-send-email-mst@kernel.org>
+References: <20220328175336.10802-1-andrew@daynix.com>
+ <20220328175336.10802-4-andrew@daynix.com>
 MIME-Version: 1.0
+In-Reply-To: <20220328175336.10802-4-andrew@daynix.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+Content-Disposition: inline
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, yuri.benditovich@daynix.com,
+ yan@daynix.com, kuba@kernel.org, davem@davemloft.net
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,34 +122,45 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Use __virtio16_to_cpu() to read `max_virtqueue_pairs` field in
-virtio_net_config since its type is __virtio16.
+On Mon, Mar 28, 2022 at 08:53:35PM +0300, Andrew Melnychenko wrote:
+> +static void virtio_skb_set_hash(const struct virtio_net_hdr_v1_hash *hdr_hash,
+> +				struct sk_buff *skb)
+> +{
+> +	enum pkt_hash_types rss_hash_type;
+> +
+> +	if (!hdr_hash || !skb)
+> +		return;
+> +
+> +	switch ((int)hdr_hash->hash_report) {
+> +	case VIRTIO_NET_HASH_REPORT_TCPv4:
+> +	case VIRTIO_NET_HASH_REPORT_UDPv4:
+> +	case VIRTIO_NET_HASH_REPORT_TCPv6:
+> +	case VIRTIO_NET_HASH_REPORT_UDPv6:
+> +	case VIRTIO_NET_HASH_REPORT_TCPv6_EX:
+> +	case VIRTIO_NET_HASH_REPORT_UDPv6_EX:
+> +		rss_hash_type = PKT_HASH_TYPE_L4;
+> +		break;
+> +	case VIRTIO_NET_HASH_REPORT_IPv4:
+> +	case VIRTIO_NET_HASH_REPORT_IPv6:
+> +	case VIRTIO_NET_HASH_REPORT_IPv6_EX:
+> +		rss_hash_type = PKT_HASH_TYPE_L3;
+> +		break;
+> +	case VIRTIO_NET_HASH_REPORT_NONE:
+> +	default:
+> +		rss_hash_type = PKT_HASH_TYPE_NONE;
+> +	}
+> +	skb_set_hash(skb, (unsigned int)hdr_hash->hash_value, rss_hash_type);
+> +}
+> +
+>  static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
+>  			void *buf, unsigned int len, void **ctx,
+>  			unsigned int *xdp_xmit,
 
-This silences the following warning when building with `make C=2`:
+I just noticed this- endian-ness broken here, you need _le16_to_cpu for
+hash_report and __le_32_to_cpu for hash_value.
 
-    ../drivers/vdpa/vdpa.c:811:19: warning: cast to restricted __le16
-    ../drivers/vdpa/vdpa.c:811:19: warning: cast from restricted __virtio16
-
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
----
- drivers/vdpa/vdpa.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
-index c06c02704461..2466d5087478 100644
---- a/drivers/vdpa/vdpa.c
-+++ b/drivers/vdpa/vdpa.c
-@@ -808,7 +808,7 @@ static int vdpa_dev_net_mq_config_fill(struct vdpa_device *vdev,
- 	if ((features & BIT_ULL(VIRTIO_NET_F_MQ)) == 0)
- 		return 0;
- 
--	val_u16 = le16_to_cpu(config->max_virtqueue_pairs);
-+	val_u16 = __virtio16_to_cpu(true, config->max_virtqueue_pairs);
- 	return nla_put_u16(msg, VDPA_ATTR_DEV_NET_CFG_MAX_VQP, val_u16);
- }
- 
 -- 
-2.37.1
+MST
 
 _______________________________________________
 Virtualization mailing list
