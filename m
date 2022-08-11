@@ -1,88 +1,113 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 581C5C25B0C
-	for <virtualization@archiver.kernel.org>; Thu, 11 Aug 2022 17:23:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id F3E51C25B0C
+	for <virtualization@archiver.kernel.org>; Thu, 11 Aug 2022 18:33:22 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id E2851813E8;
-	Thu, 11 Aug 2022 17:23:49 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E2851813E8
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=XoDmTM4N
+	by smtp2.osuosl.org (Postfix) with ESMTP id 7679440593;
+	Thu, 11 Aug 2022 18:33:22 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7679440593
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=J68bB5KR
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 19f6JkTAki-9; Thu, 11 Aug 2022 17:23:49 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 7C999813DD;
-	Thu, 11 Aug 2022 17:23:48 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7C999813DD
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 8diYZQJt_wgJ; Thu, 11 Aug 2022 18:33:21 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id B737440502;
+	Thu, 11 Aug 2022 18:33:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B737440502
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5FE12C0032;
-	Thu, 11 Aug 2022 17:23:48 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 14E27C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 97608C0033;
+	Thu, 11 Aug 2022 18:33:20 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0751FC002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Aug 2022 17:23:47 +0000 (UTC)
+ Thu, 11 Aug 2022 18:33:19 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id E04866108A
+ by smtp4.osuosl.org (Postfix) with ESMTP id C193440060
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Aug 2022 17:23:46 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E04866108A
-Authentication-Results: smtp3.osuosl.org;
+ Thu, 11 Aug 2022 18:33:18 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C193440060
+Authentication-Results: smtp4.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=XoDmTM4N
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=J68bB5KR
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id axxSAvN0_roX
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 2b81y1JnZdJa
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Aug 2022 17:23:45 +0000 (UTC)
+ Thu, 11 Aug 2022 18:33:17 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 63A1760758
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 454B840029
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 63A1760758
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 454B840029
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Aug 2022 17:23:45 +0000 (UTC)
+ Thu, 11 Aug 2022 18:33:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1660238624;
+ s=mimecast20190719; t=1660242796;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=B7I5PAOOErv1ZVcauTUvvJBXgNSfohhWYbnS90qn2T8=;
- b=XoDmTM4NGIpJKDPqybJo58q37laLxjo+apnmdjtEaWiDwgxEoqtNiAoCLEDW/py9FQ5i/n
- 62MHunMHV1hsE++OofJMcGg6M02LO9mvBSuPC7cpkGYcm8sTKEc0WP87WYBt0qv0pVUUEg
- v+mkn7W1iMc/023eJ3njOp99ZOA15Ug=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-131-ltHPr13nPyKPSQAq_Ja6Kw-1; Thu, 11 Aug 2022 13:23:40 -0400
-X-MC-Unique: ltHPr13nPyKPSQAq_Ja6Kw-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com
- [10.11.54.1])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 2C608811E81;
- Thu, 11 Aug 2022 17:23:40 +0000 (UTC)
-Received: from localhost (unknown [10.39.192.120])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 9051C40CF8E7;
- Thu, 11 Aug 2022 17:23:39 +0000 (UTC)
-Date: Thu, 11 Aug 2022 13:23:37 -0400
-From: Stefan Hajnoczi <stefanha@redhat.com>
-To: Shigeru Yoshida <syoshida@redhat.com>
-Subject: Re: [PATCH v2] virtio-blk: Avoid use-after-free on suspend/resume
-Message-ID: <YvU7GdBMNy7NbQLe@fedora>
-References: <20220810160948.959781-1-syoshida@redhat.com>
+ bh=7dz5R5ZNw+F9/FGCaE9Xpa/l+1/FjVP8+1bl2Y6XNQU=;
+ b=J68bB5KRh1VOKItiBTk2gHvFcL8VIdwq6dIWj4zYw8+eLNePPCDPcf3+kPCJ+V9bOyn7J8
+ fiHvRxLqqwxQjh38G/4vbUHWfIf/iaua0SlAVJ864o+Bha9b/uwfWmUHe3D2qni0dADVDv
+ MwZGlqjribEwp7S0F0UxdFX8ccLvt4I=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-114-dq2NRLJyNMefQA-wMCm39Q-1; Thu, 11 Aug 2022 14:33:14 -0400
+X-MC-Unique: dq2NRLJyNMefQA-wMCm39Q-1
+Received: by mail-ej1-f71.google.com with SMTP id
+ sc31-20020a1709078a1f00b0073096c2b4e1so5868277ejc.22
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 11 Aug 2022 11:33:14 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc;
+ bh=7dz5R5ZNw+F9/FGCaE9Xpa/l+1/FjVP8+1bl2Y6XNQU=;
+ b=Wu+8o1QE1l1KLyb9plQBPM1dkXgQqu7t1ibMGcTww9w1dAE0gFfv57ZZTsfhfxVKDu
+ 5NC66mp+uXaPSQZoZx8nElCGOCnCFozI/D75bQBP0JHgc3eOfIJ7orVN1SQvr2TTIujQ
+ 7KwuOYGXitQR5AxYGUM37382Ut/jS1+cImXbxZOU2NOMxlsJksY6HOopaOk2qTrXtZMU
+ 4eSrBKMRbaM+IdvSphuMsETz2ayrqXhBu40HZB4gXSjEf1Y+7y64v2cAGNfgfcTq14rO
+ 0wYHOF+p+EWkaiWjThpTkbCGSOhCZKfss1MYZNYmjvLAK3OXD6Na4pmm0XIgCOmGBunT
+ SGRA==
+X-Gm-Message-State: ACgBeo2y0q5jxJadVFdlFlwna7LrmSehDG5pcnray1mTQIMmbjaZS4hh
+ 4Zvmq7b869F6gKFoonG1KekPJkd6q8Xc9c88r8G2WT31tbWDCw0+Ihh8bIlQ1BE9rUtBK7tLbub
+ NRPGj8VeE7wC90qxv+/QIbVjeUtiORpGNSzu4O11ZHg==
+X-Received: by 2002:a17:907:8b97:b0:730:9480:972a with SMTP id
+ tb23-20020a1709078b9700b007309480972amr245531ejc.648.1660242793777; 
+ Thu, 11 Aug 2022 11:33:13 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR7WllUicIl5uwdNr8dGWulKl9BvguFKH+7knv9r4HZiA3AtTg9mny3d4uq2XI+aRsoV3gOabQ==
+X-Received: by 2002:a17:907:8b97:b0:730:9480:972a with SMTP id
+ tb23-20020a1709078b9700b007309480972amr245507ejc.648.1660242793510; 
+ Thu, 11 Aug 2022 11:33:13 -0700 (PDT)
+Received: from sgarzare-redhat (host-79-46-200-178.retail.telecomitalia.it.
+ [79.46.200.178]) by smtp.gmail.com with ESMTPSA id
+ l10-20020a1709063d2a00b0072ecef772acsm3794657ejf.2.2022.08.11.11.33.12
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 11 Aug 2022 11:33:12 -0700 (PDT)
+Date: Thu, 11 Aug 2022 20:33:10 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: "Sudip Mukherjee (Codethink)" <sudipm.mukherjee@gmail.com>
+Subject: Re: build failure of next-20220811 due to d79b32c2e4a4
+ ("vdpa_sim_blk: add support for discard and write-zeroes")
+Message-ID: <20220811183310.ttewcrfhvs4mfohz@sgarzare-redhat>
+References: <YvU67iF4z5gB4ZYk@debian>
 MIME-Version: 1.0
-In-Reply-To: <20220810160948.959781-1-syoshida@redhat.com>
-X-Scanned-By: MIMEDefang 2.84 on 10.11.54.1
-Cc: axboe@kernel.dk, mst@redhat.com, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org,
- pbonzini@redhat.com, suwan.kim027@gmail.com
+In-Reply-To: <YvU67iF4z5gB4ZYk@debian>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+ clang-built-linux <llvm@lists.linux.dev>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org,
+ Nathan Chancellor <nathan@kernel.org>, linux-next@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -94,94 +119,62 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============2634556155633668248=="
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+Hi Sudip,
 
---===============2634556155633668248==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="bcLkh93uF3UZp5A6"
-Content-Disposition: inline
+On Thu, Aug 11, 2022 at 06:22:54PM +0100, Sudip Mukherjee (Codethink) wrote:
+>Hi All,
+>
+>Not sure if it has been reported, builds of arm64 with clang failed to
+>build next-20220811 with the error:
+>
+>drivers/vdpa/vdpa_sim/vdpa_sim_blk.c:201:3: error: expected expression
+>                struct virtio_blk_discard_write_zeroes range;
+>                ^
+>drivers/vdpa/vdpa_sim/vdpa_sim_blk.c:204:25: error: use of undeclared identifier 'range'
+>                if (to_pull != sizeof(range)) {
+>                                      ^
+>drivers/vdpa/vdpa_sim/vdpa_sim_blk.c:207:21: error: use of undeclared identifier 'range'
+>                                to_pull, sizeof(range));
+>                                                ^
+>drivers/vdpa/vdpa_sim/vdpa_sim_blk.c:212:60: error: use of undeclared identifier 'range'
+>                bytes = vringh_iov_pull_iotlb(&vq->vring, &vq->out_iov, &range,
+>                                                                         ^
+>drivers/vdpa/vdpa_sim/vdpa_sim_blk.c:222:38: error: use of undeclared identifier 'range'
+>                sector = vdpasim64_to_cpu(vdpasim, range.sector);
+>                                                   ^
+>drivers/vdpa/vdpa_sim/vdpa_sim_blk.c:224:43: error: use of undeclared identifier 'range'
+>                num_sectors = vdpasim32_to_cpu(vdpasim, range.num_sectors);
+>                                                        ^
+>drivers/vdpa/vdpa_sim/vdpa_sim_blk.c:225:37: error: use of undeclared identifier 'range'
+>                flags = vdpasim32_to_cpu(vdpasim, range.flags);
+>                                                  ^
+>drivers/vdpa/vdpa_sim/vdpa_sim_blk.c:202:7: error: mixing declarations and code is incompatible with standards before C99 [-Werror,-Wdeclaration-after-statement]
+>                u32 num_sectors, flags;
+>                    ^
+>8 errors generated.
+>
+>
+>git bisect pointed to d79b32c2e4a4 ("vdpa_sim_blk: add support for discard and write-zeroes").
+>And, reverting that commit has fixed the build failure.
+>
+>I will be happy to test any patch or provide any extra log if needed.
 
+Thanks for the report, I already re-sent a new series with that patch 
+fixed:
+https://lore.kernel.org/virtualization/20220811083632.77525-1-sgarzare@redhat.com/T/#t
 
---bcLkh93uF3UZp5A6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+And it looks like it's already in Michael's tree:
+https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git linux-next
 
-On Thu, Aug 11, 2022 at 01:09:48AM +0900, Shigeru Yoshida wrote:
-> hctx->user_data is set to vq in virtblk_init_hctx().  However, vq is
-> freed on suspend and reallocated on resume.  So, hctx->user_data is
-> invalid after resume, and it will cause use-after-free accessing which
-> will result in the kernel crash something like below:
->=20
-> [   22.428391] Call Trace:
-> [   22.428899]  <TASK>
-> [   22.429339]  virtqueue_add_split+0x3eb/0x620
-> [   22.430035]  ? __blk_mq_alloc_requests+0x17f/0x2d0
-> [   22.430789]  ? kvm_clock_get_cycles+0x14/0x30
-> [   22.431496]  virtqueue_add_sgs+0xad/0xd0
-> [   22.432108]  virtblk_add_req+0xe8/0x150
-> [   22.432692]  virtio_queue_rqs+0xeb/0x210
-> [   22.433330]  blk_mq_flush_plug_list+0x1b8/0x280
-> [   22.434059]  __blk_flush_plug+0xe1/0x140
-> [   22.434853]  blk_finish_plug+0x20/0x40
-> [   22.435512]  read_pages+0x20a/0x2e0
-> [   22.436063]  ? folio_add_lru+0x62/0xa0
-> [   22.436652]  page_cache_ra_unbounded+0x112/0x160
-> [   22.437365]  filemap_get_pages+0xe1/0x5b0
-> [   22.437964]  ? context_to_sid+0x70/0x100
-> [   22.438580]  ? sidtab_context_to_sid+0x32/0x400
-> [   22.439979]  filemap_read+0xcd/0x3d0
-> [   22.440917]  xfs_file_buffered_read+0x4a/0xc0
-> [   22.441984]  xfs_file_read_iter+0x65/0xd0
-> [   22.442970]  __kernel_read+0x160/0x2e0
-> [   22.443921]  bprm_execve+0x21b/0x640
-> [   22.444809]  do_execveat_common.isra.0+0x1a8/0x220
-> [   22.446008]  __x64_sys_execve+0x2d/0x40
-> [   22.446920]  do_syscall_64+0x37/0x90
-> [   22.447773]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
->=20
-> This patch fixes this issue by getting vq from vblk, and removes
-> virtblk_init_hctx().
->=20
-> Fixes: 4e0400525691 ("virtio-blk: support polling I/O")
-> Cc: "Suwan Kim" <suwan.kim027@gmail.com>
-> Signed-off-by: Shigeru Yoshida <syoshida@redhat.com>
-> ---
->  drivers/block/virtio_blk.c | 24 ++++++++++--------------
->  1 file changed, 10 insertions(+), 14 deletions(-)
-
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-
---bcLkh93uF3UZp5A6
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmL1OxkACgkQnKSrs4Gr
-c8hvGQgAqb5zIzRaOEaXZ2ivoG7O2wTwm7oCynRmDbLHG4d/ZMPYmpapXg8I9ZIu
-qmcawFnB0ebhD0RfOqPTUSKWvdc8AbT0G+zZimwgp+k+4iNxmXCSE7cLeS559TMt
-AFi2nuaOzSaEXUOy6K3QmVjvlqS+qPfWXUju8mfz9d+DoL0jhpYWUOdiq4ZWrUii
-cLHZyDYJC5yn5n26r0YWxNLwekUmcvxT/izwb+rEjFGoCxePM0+5svWnbslFg1Sl
-S9BdUDtbwpmqEcT+RGFJjlhgqemKn0w3CusuDS1Niz+F3EnoHNKUlJNojFjbgqq8
-OGfKcERg/0sOByl/McAVu9IgygYmIQ==
-=nxpY
------END PGP SIGNATURE-----
-
---bcLkh93uF3UZp5A6--
-
-
---===============2634556155633668248==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Thanks,
+Stefano
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============2634556155633668248==--
-
