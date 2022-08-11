@@ -4,104 +4,101 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6D69EC19F2D
-	for <virtualization@archiver.kernel.org>; Thu, 11 Aug 2022 08:27:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 26DE8C25B0C
+	for <virtualization@archiver.kernel.org>; Thu, 11 Aug 2022 08:29:22 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id E859B40C6B;
-	Thu, 11 Aug 2022 08:27:48 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E859B40C6B
+	by smtp2.osuosl.org (Postfix) with ESMTP id 940A040C5E;
+	Thu, 11 Aug 2022 08:29:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 940A040C5E
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=fQJPS1wr
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=BaJ3u1qi
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id p43tPM5Wfcou; Thu, 11 Aug 2022 08:27:48 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 4E7D640C62;
-	Thu, 11 Aug 2022 08:27:47 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4E7D640C62
+	with ESMTP id mbHg-CLVIaeW; Thu, 11 Aug 2022 08:29:20 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 976A140128;
+	Thu, 11 Aug 2022 08:29:19 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 976A140128
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2861CC0033;
-	Thu, 11 Aug 2022 08:27:47 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7CDDCC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7C021C0033;
+	Thu, 11 Aug 2022 08:29:19 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 215D3C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Aug 2022 08:27:45 +0000 (UTC)
+ Thu, 11 Aug 2022 08:29:18 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 56B8C60FAE
+ by smtp2.osuosl.org (Postfix) with ESMTP id E2770402E8
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Aug 2022 08:27:45 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 56B8C60FAE
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=fQJPS1wr
+ Thu, 11 Aug 2022 08:29:17 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E2770402E8
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id pr7686_3Wfqy
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id EwIq04TbHRbs
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Aug 2022 08:27:44 +0000 (UTC)
+ Thu, 11 Aug 2022 08:29:17 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9332460E64
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 05EF840128
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 9332460E64
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 05EF840128
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Aug 2022 08:27:44 +0000 (UTC)
+ Thu, 11 Aug 2022 08:29:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1660206463;
+ s=mimecast20190719; t=1660206555;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=fRCed6nnEDFTJS61x3dawnYdkP8v3FkULNF0fZ1BK3g=;
- b=fQJPS1wrc72d7UNWjKfB2ZZ9RJ+tJDqjzbfBeVCmgyzavPpEE9bCF9+Nr9QAOigB3YK+5o
- 3zL18Yx0y5eOaqR5u0ofABAe4AbrSP+5OwceQ3kW0l1zsIM7MNYWsM4lLDvZ77cUZ6hfEc
- sngEKRcfGG+vq3GXlQCyxYy+jz9GyG0=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=FxVByzSzFDmsCiLB/TiRSXnYOQzfrWFzUNaldqvoDEA=;
+ b=BaJ3u1qi9tgl72ibhxNdY8wqQhE42VfvUvl5PdBNjcjwAD2z2gp1EeMDafOoSVH0Qu3weC
+ 55759HZvW1/lBgKChDZwHIwl2GBZ1NVAJ60oHRQx7fv7PqVjlNRZOSTBywrzA566meSk79
+ tf2e14qO6WFZJEhgmS7XKyVzrsdSXZA=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-491-gvsXvpthM_qcSn24u7T7QQ-1; Thu, 11 Aug 2022 04:27:40 -0400
-X-MC-Unique: gvsXvpthM_qcSn24u7T7QQ-1
-Received: by mail-wm1-f72.google.com with SMTP id
- n30-20020a05600c501e00b003a3264465ebso2416169wmr.1
+ us-mta-126-7oJONk6VPZ2AgG8x51RTAw-1; Thu, 11 Aug 2022 04:29:14 -0400
+X-MC-Unique: 7oJONk6VPZ2AgG8x51RTAw-1
+Received: by mail-wm1-f69.google.com with SMTP id
+ v24-20020a7bcb58000000b003a37681b861so1417467wmj.9
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Aug 2022 01:27:39 -0700 (PDT)
+ Thu, 11 Aug 2022 01:29:14 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=in-reply-to:content-transfer-encoding:content-disposition
  :mime-version:references:message-id:subject:cc:to:from:date
  :x-gm-message-state:from:to:cc;
- bh=fRCed6nnEDFTJS61x3dawnYdkP8v3FkULNF0fZ1BK3g=;
- b=21lgQyd5c03vKH/lftrTRWpp+qWI1GCKV0RQISUS4pYdW8go4kaYC7vertalPZWmNV
- 5idCa3UJR1Tv1fuztaygrZhfK1fuZ2LruToLm2ZgAidhCcvn+EEylyOTG8AVXFShmxFk
- Evt6VpGJRxGO/6huA9u1mXas8JfbKeRm1zpe6Rg2bWsdlOYf/jxMmlAvMpaJG7bzr3QB
- 5M+jv7/i7MM+jvKmZYKnL0HDOMa3yQ2edYKh7eL4mUs6f4aa+43n7QnV0nr7GDMSPHX4
- ZxAbyEs3XOqpLanyV8OufKJeH2B1sKc898wKZg7vWMhZ08oLoR9pF9qDPk23Zkg/TrcV
- SH0g==
-X-Gm-Message-State: ACgBeo129urA0No6ZJzIwWJoe9cv3IN+T8pK1vaMxRxAJqR2Ub2JnAI3
- v7Ofb/uVDX5512tUTzb1ItY6PzdAHtvj1cm8Z6Ntd2PRaiegZKe42qklvX/x1g49qEu9Vu5UKW2
- qGWNYf18MkiZl9rTpt4om3oC8a17lL2s4M4433p2sIg==
-X-Received: by 2002:a1c:a3c4:0:b0:3a5:512f:717a with SMTP id
- m187-20020a1ca3c4000000b003a5512f717amr4823096wme.192.1660206458779; 
- Thu, 11 Aug 2022 01:27:38 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR5sw3H77GbQvlSeiH8m701pegTIDjU8UzoPnZf53/Xhmt7IzjB7QDado1bpqhPaIYYSo6lqUw==
-X-Received: by 2002:a1c:a3c4:0:b0:3a5:512f:717a with SMTP id
- m187-20020a1ca3c4000000b003a5512f717amr4823072wme.192.1660206458571; 
- Thu, 11 Aug 2022 01:27:38 -0700 (PDT)
+ bh=FxVByzSzFDmsCiLB/TiRSXnYOQzfrWFzUNaldqvoDEA=;
+ b=ImTmJAk8rDgXf4Um+IVsuc2oTagPsXT6irRICu4O8gFYJf/zbJ8lAwaQgUllPzFkg4
+ O7dSfkq2dZaoilw89vRm8uJ7qlQhRlIAFv6UUgskIwyjqaVOALkWFOz92dhLNX5SEj6F
+ p5Orw/eJPzZPLaJt2rB4lr+Tm7WI2ahTo0/elOdOl12dJqTNxDZZ0zi2QInU2+cID5+t
+ yI04osv7Z8FsiZjMSrBYC3n0M8Q0MElXs/p1bs045POdXx5CJza43aboX2Simho6BBXE
+ I3/IS/oqtkojs7zXsv3J+VefX6bsVMkpN/p0zJq5RcevwHwZNzVMfoW7+1b2C74lBHa4
+ GkvQ==
+X-Gm-Message-State: ACgBeo2iwvEFyoeifgvcy6n4Hbq2gghxWvrjPOOgOKxDTLIJlDVcZ+By
+ A/7nCc80t+J/ZtjGL0YPuE8zDRqfDsQl91qQbCsonBPJ2zRQxIol8u3BBtz6DrARUA++XFWpO81
+ 4iD9bGjv9CAdp12NjhkofRmvhhEMFX89knXBWZTZCzw==
+X-Received: by 2002:a7b:cbd7:0:b0:3a5:500e:13bc with SMTP id
+ n23-20020a7bcbd7000000b003a5500e13bcmr4872390wmi.83.1660206553688; 
+ Thu, 11 Aug 2022 01:29:13 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR66zsuUOgvuqZVbOtSOAaY+Zmwp04081qg20ikPfEaP/6IS6rnkd3YWhqyK4i6W0P73yvfqIw==
+X-Received: by 2002:a7b:cbd7:0:b0:3a5:500e:13bc with SMTP id
+ n23-20020a7bcbd7000000b003a5500e13bcmr4872374wmi.83.1660206553473; 
+ Thu, 11 Aug 2022 01:29:13 -0700 (PDT)
 Received: from redhat.com ([2.52.152.113]) by smtp.gmail.com with ESMTPSA id
- m7-20020a056000008700b00222ed7ea203sm8822453wrx.100.2022.08.11.01.27.34
+ m21-20020a05600c3b1500b003a317ee3036sm5522733wms.2.2022.08.11.01.29.09
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 11 Aug 2022 01:27:37 -0700 (PDT)
-Date: Thu, 11 Aug 2022 04:27:32 -0400
+ Thu, 11 Aug 2022 01:29:12 -0700 (PDT)
+Date: Thu, 11 Aug 2022 04:29:06 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>
-Subject: Re: [PATCH v7 1/4] vdpa: Add suspend operation
-Message-ID: <20220811042717-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH v7 3/4] vhost-vdpa: uAPI to suspend the device
+Message-ID: <20220811042847-mutt-send-email-mst@kernel.org>
 References: <20220810171512.2343333-1-eperezma@redhat.com>
- <20220810171512.2343333-2-eperezma@redhat.com>
+ <20220810171512.2343333-4-eperezma@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20220810171512.2343333-2-eperezma@redhat.com>
+In-Reply-To: <20220810171512.2343333-4-eperezma@redhat.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
@@ -133,44 +130,103 @@ Content-Transfer-Encoding: quoted-printable
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Aug 10, 2022 at 07:15:09PM +0200, Eugenio P=E9rez wrote:
-> This operation is optional: It it's not implemented, backend feature bit
-> will not be exposed.
+On Wed, Aug 10, 2022 at 07:15:11PM +0200, Eugenio P=E9rez wrote:
+> The ioctl adds support for suspending the device from userspace.
+> =
+
+> This is a must before getting virtqueue indexes (base) for live migration,
+> since the device could modify them after userland gets them. There are
+> individual ways to perform that action for some devices
+> (VHOST_NET_SET_BACKEND, VHOST_VSOCK_SET_RUNNING, ...) but there was no
+> way to perform it for any vhost device (and, in particular, vhost-vdpa).
+> =
+
+> After a successful return of the ioctl call the device must not process
+> more virtqueue descriptors. The device can answer to read or writes of
+> config fields as if it were not suspended. In particular, writing to
+> "queue_enable" with a value of 1 will not make the device start
+> processing buffers of the virtqueue.
 > =
 
 > Signed-off-by: Eugenio P=E9rez <eperezma@redhat.com>
-> Message-Id: <20220623160738.632852-2-eperezma@redhat.com>
+> Message-Id: <20220623160738.632852-4-eperezma@redhat.com>
 > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-What is this message id doing here?
+You are not supposed to include upstream maintainer's signoff
+like this.
 
 > ---
->  include/linux/vdpa.h | 4 ++++
->  1 file changed, 4 insertions(+)
+> v7: Delete argument to ioctl, unused
+> ---
+>  drivers/vhost/vdpa.c       | 19 +++++++++++++++++++
+>  include/uapi/linux/vhost.h |  9 +++++++++
+>  2 files changed, 28 insertions(+)
 > =
 
-> diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
-> index 7b4a13d3bd91..d282f464d2f1 100644
-> --- a/include/linux/vdpa.h
-> +++ b/include/linux/vdpa.h
-> @@ -218,6 +218,9 @@ struct vdpa_map_file {
->   * @reset:			Reset device
->   *				@vdev: vdpa device
->   *				Returns integer: success (0) or error (< 0)
-> + * @suspend:			Suspend or resume the device (optional)
-> + *				@vdev: vdpa device
-> + *				Returns integer: success (0) or error (< 0)
->   * @get_config_size:		Get the size of the configuration space includes
->   *				fields that are conditional on feature bits.
->   *				@vdev: vdpa device
-> @@ -319,6 +322,7 @@ struct vdpa_config_ops {
->  	u8 (*get_status)(struct vdpa_device *vdev);
->  	void (*set_status)(struct vdpa_device *vdev, u8 status);
->  	int (*reset)(struct vdpa_device *vdev);
-> +	int (*suspend)(struct vdpa_device *vdev);
->  	size_t (*get_config_size)(struct vdpa_device *vdev);
->  	void (*get_config)(struct vdpa_device *vdev, unsigned int offset,
->  			   void *buf, unsigned int len);
+> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+> index 3d636e192061..7fa671ac4bdf 100644
+> --- a/drivers/vhost/vdpa.c
+> +++ b/drivers/vhost/vdpa.c
+> @@ -478,6 +478,22 @@ static long vhost_vdpa_get_vqs_count(struct vhost_vd=
+pa *v, u32 __user *argp)
+>  	return 0;
+>  }
+>  =
+
+> +/* After a successful return of ioctl the device must not process more
+> + * virtqueue descriptors. The device can answer to read or writes of con=
+fig
+> + * fields as if it were not suspended. In particular, writing to "queue_=
+enable"
+> + * with a value of 1 will not make the device start processing buffers.
+> + */
+> +static long vhost_vdpa_suspend(struct vhost_vdpa *v)
+> +{
+> +	struct vdpa_device *vdpa =3D v->vdpa;
+> +	const struct vdpa_config_ops *ops =3D vdpa->config;
+> +
+> +	if (!ops->suspend)
+> +		return -EOPNOTSUPP;
+> +
+> +	return ops->suspend(vdpa);
+> +}
+> +
+>  static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cm=
+d,
+>  				   void __user *argp)
+>  {
+> @@ -654,6 +670,9 @@ static long vhost_vdpa_unlocked_ioctl(struct file *fi=
+lep,
+>  	case VHOST_VDPA_GET_VQS_COUNT:
+>  		r =3D vhost_vdpa_get_vqs_count(v, argp);
+>  		break;
+> +	case VHOST_VDPA_SUSPEND:
+> +		r =3D vhost_vdpa_suspend(v);
+> +		break;
+>  	default:
+>  		r =3D vhost_dev_ioctl(&v->vdev, cmd, argp);
+>  		if (r =3D=3D -ENOIOCTLCMD)
+> diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
+> index cab645d4a645..f9f115a7c75b 100644
+> --- a/include/uapi/linux/vhost.h
+> +++ b/include/uapi/linux/vhost.h
+> @@ -171,4 +171,13 @@
+>  #define VHOST_VDPA_SET_GROUP_ASID	_IOW(VHOST_VIRTIO, 0x7C, \
+>  					     struct vhost_vring_state)
+>  =
+
+> +/* Suspend a device so it does not process virtqueue requests anymore
+> + *
+> + * After the return of ioctl the device must preserve all the necessary =
+state
+> + * (the virtqueue vring base plus the possible device specific states) t=
+hat is
+> + * required for restoring in the future. The device must not change its
+> + * configuration after that point.
+> + */
+> +#define VHOST_VDPA_SUSPEND		_IO(VHOST_VIRTIO, 0x7D)
+> +
+>  #endif
 > -- =
 
 > 2.31.1
