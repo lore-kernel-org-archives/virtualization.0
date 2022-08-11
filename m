@@ -4,107 +4,110 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8F7C9C19F2A
-	for <virtualization@archiver.kernel.org>; Thu, 11 Aug 2022 12:52:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7C0FAC19F2A
+	for <virtualization@archiver.kernel.org>; Thu, 11 Aug 2022 13:06:05 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 1604E610D2;
-	Thu, 11 Aug 2022 12:52:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1604E610D2
+	by smtp3.osuosl.org (Postfix) with ESMTP id 1AA81610F1;
+	Thu, 11 Aug 2022 13:06:05 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1AA81610F1
 Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=HFnYWFvr
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Kd+pM7jy
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id w9P8Rsm8CG0w; Thu, 11 Aug 2022 12:52:09 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 89A13610C5;
-	Thu, 11 Aug 2022 12:52:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 89A13610C5
+	with ESMTP id 2Om5f5pUY5rb; Thu, 11 Aug 2022 13:06:04 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 97931610EE;
+	Thu, 11 Aug 2022 13:06:03 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 97931610EE
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 576DBC0033;
-	Thu, 11 Aug 2022 12:52:08 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B1FF0C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 2723EC0033;
+	Thu, 11 Aug 2022 13:06:03 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id EDFF0C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Aug 2022 12:52:07 +0000 (UTC)
+ Thu, 11 Aug 2022 13:06:01 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 7BF594014D
+ by smtp1.osuosl.org (Postfix) with ESMTP id C1C5483083
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Aug 2022 12:52:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7BF594014D
-Authentication-Results: smtp2.osuosl.org;
+ Thu, 11 Aug 2022 13:06:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C1C5483083
+Authentication-Results: smtp1.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=HFnYWFvr
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=Kd+pM7jy
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id tXtYAvTgxvIe
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id kypiWogYVmGV
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Aug 2022 12:52:06 +0000 (UTC)
+ Thu, 11 Aug 2022 13:06:01 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 18C0E403E0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org ED62D8305C
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 18C0E403E0
+ by smtp1.osuosl.org (Postfix) with ESMTPS id ED62D8305C
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Aug 2022 12:52:05 +0000 (UTC)
+ Thu, 11 Aug 2022 13:06:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1660222324;
+ s=mimecast20190719; t=1660223159;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type;
- bh=fZR1rg29jmUTn0ZaHr80FrLXJcO6qark0sdTnOhFYqg=;
- b=HFnYWFvrW0S1b8SA++vbvHv6cX+cebH6rqoqjHPwZiDE/YuHxJJbIF8Fu7MorqbBNGkDbN
- iAritYp9Om/J/Hx9a2hQabwEaHYzlUICaY1Tr2VAjiMCZnz4LO7+Jq858ENNFHMUD7e1Lm
- yuVFSYvwS5p5n4lzX9ZFoIAWM2DT4Ls=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=DD8tZMy2hsby/h4jj66LofzE7ALVQ9/itpXRAfTrj1A=;
+ b=Kd+pM7jyjWFZcA4/ZiV46Gzi2+nwRjlql6r7YZcpGGkguVhMrhtn82KWu7a8hiVXHIebHU
+ /JfoUfw4YuWYrZfllRzaNDLp0BMIwYHdtsu16Vm8wzCJ18kUfuAgYuwY9U56ZHbm+JXnbC
+ epGKITV0h+YF5LNQqHoVRgIhtlmDUVE=
+Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
+ [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-79-PU_CTHSfNzavdl_GtK6cWg-1; Thu, 11 Aug 2022 08:52:03 -0400
-X-MC-Unique: PU_CTHSfNzavdl_GtK6cWg-1
-Received: by mail-ed1-f70.google.com with SMTP id
- y16-20020a056402359000b0043db5186943so10830416edc.3
+ us-mta-657-YzPcW9TJNeC2SkDA1s4HBQ-1; Thu, 11 Aug 2022 09:05:58 -0400
+X-MC-Unique: YzPcW9TJNeC2SkDA1s4HBQ-1
+Received: by mail-ej1-f70.google.com with SMTP id
+ js11-20020a17090797cb00b00730d73eac83so5425404ejc.19
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Aug 2022 05:52:03 -0700 (PDT)
+ Thu, 11 Aug 2022 06:05:58 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=content-disposition:mime-version:message-id:subject:cc:to:from:date
- :x-gm-message-state:from:to:cc;
- bh=fZR1rg29jmUTn0ZaHr80FrLXJcO6qark0sdTnOhFYqg=;
- b=NaN8FNrz6GjW0azY2LVQIr1J+hivS1v7p0o8iXHPNwHwbCKDVaXkEtP8ruwN6vf487
- b+u3UvpJ0hgVercr5g1VsPjST79pQdcOVcWqtwYCMQPfskoMsTFSKaxSLDno8IlG4TXt
- d5YgTGqqPAjN0sajcdyLPhB2VZizEHNMBS9tsldfOSTv8fZM2+Otdo65bzzF76qcst3q
- ibgC0EVpDSbEqvTdaBugZ0L/bWwjBxMqXPCZ86uvFbdfXK79RlvXsiklh2U+oJeeZHC6
- HYmjGolcwjwH6M3jM2W38+HtJICPdS5giS/KfgTnFNK0OOwBskIZTrIfr+1+OhwRbzlt
- TKvA==
-X-Gm-Message-State: ACgBeo2svkD9G19kPpNKEZDpWOcgMf4j7mX6xMRktHOLwzHfGOx0zi/c
- NV2d6JHb6E5qxnSh8iFYUgPXRZgkuM5lvRAs7fWoHPh5Umr4iKreBvs1qsTnRz6oFRUs+PORnEZ
- a7JXUYl+wrs+jJ4aVTWKrurUaScHzIz5xziaLADiWgg==
-X-Received: by 2002:a05:6402:424e:b0:43d:9d9f:38f9 with SMTP id
- g14-20020a056402424e00b0043d9d9f38f9mr30995447edb.411.1660222322560; 
- Thu, 11 Aug 2022 05:52:02 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR4Uonm4Tt4dUrVuSW7DOj4CixZE71gE99A8Xg5JVQuHVDIdMz6RS86ZeW5EQJ50fie/SzlXCQ==
-X-Received: by 2002:a05:6402:424e:b0:43d:9d9f:38f9 with SMTP id
- g14-20020a056402424e00b0043d9d9f38f9mr30995425edb.411.1660222322396; 
- Thu, 11 Aug 2022 05:52:02 -0700 (PDT)
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc;
+ bh=DD8tZMy2hsby/h4jj66LofzE7ALVQ9/itpXRAfTrj1A=;
+ b=7aGRKoEQXMKsP412WQnnd+jnWnk4iiu9HvOOkBUWsjOYt9dqXM4n4dcxf7kGIiMDaA
+ wAhD7aYoCLDLGIHQ6j9oJKof6Hbs0tp71wGSqEKeI88A0GBKTVmrjGsBpoGGLhGaSOuR
+ uxZgDKBwtpNIfT8tp0DSmQ2mAb8AI7bRoduuyO/+fUzG3T8F0/v2mWTnr3Q8NUYnG3x7
+ 5nOM6zCbuc8UlcyYLR9MpiYlp356uPSMJ0YRTV8iehwkDC/FA8GOBAhDllPwbuy3QgUM
+ 8dguhquXTIiUxqidfXZDhVf/GeuyXTyY/L4EBZptcvREi+e7cJNZiNIaG5OIE97iEaFs
+ I3QA==
+X-Gm-Message-State: ACgBeo14UpvxZgTkfxflDIkj/KTa2E6u4VeJ14MA+WsBFv43dAI1XJYD
+ brJXJk2XDx+MyFrlwh+eQ9rJeWbed1LYEIgt+Wl90mSH2hiArvkDRAzAUxcPPcpogdhruY/vBQI
+ QNGT/sWxx41QN9BtKhvDT8lssBxuxAmiDwPEzNFRHPg==
+X-Received: by 2002:a17:907:2bc4:b0:730:aa9c:bd86 with SMTP id
+ gv4-20020a1709072bc400b00730aa9cbd86mr24445823ejc.341.1660223157739; 
+ Thu, 11 Aug 2022 06:05:57 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR4/WV9sQs77DWIC6jZmsofcpXPUJzwlmh0eIkhWZrNZmesghCJTA/ShsGVSoerPC0/kNiT5zQ==
+X-Received: by 2002:a17:907:2bc4:b0:730:aa9c:bd86 with SMTP id
+ gv4-20020a1709072bc400b00730aa9cbd86mr24445800ejc.341.1660223157481; 
+ Thu, 11 Aug 2022 06:05:57 -0700 (PDT)
 Received: from redhat.com ([2.52.152.113]) by smtp.gmail.com with ESMTPSA id
- w21-20020a170906131500b0072ab06bf296sm3424029ejb.23.2022.08.11.05.51.59
+ s15-20020a170906284f00b0072f9dc2c246sm3470265ejc.133.2022.08.11.06.05.55
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 11 Aug 2022 05:52:01 -0700 (PDT)
-Date: Thu, 11 Aug 2022 08:51:58 -0400
+ Thu, 11 Aug 2022 06:05:57 -0700 (PDT)
+Date: Thu, 11 Aug 2022 09:05:53 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] virtio_net: fix endian-ness for RSS
-Message-ID: <20220811125156.293825-1-mst@redhat.com>
+To: Eli Cohen <elic@nvidia.com>
+Subject: Re: [bug report] vdpa/mlx5: Support different address spaces for
+ control and data
+Message-ID: <20220811090529-mutt-send-email-mst@kernel.org>
+References: <YvTcabeJrDkd7/MP@kili>
+ <DM8PR12MB54007865AC6BC6FCEC9911FCAB649@DM8PR12MB5400.namprd12.prod.outlook.com>
 MIME-Version: 1.0
-X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
-X-Mutt-Fcc: =sent
+In-Reply-To: <DM8PR12MB54007865AC6BC6FCEC9911FCAB649@DM8PR12MB5400.namprd12.prod.outlook.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Andrew Melnychenko <andrew@daynix.com>, netdev@vger.kernel.org,
- virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- "David S. Miller" <davem@davemloft.net>
+Cc: Eugenio Perez Martin <eperezma@redhat.com>,
+ Dan Carpenter <dan.carpenter@oracle.com>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -121,40 +124,67 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Using native endian-ness for device supplied fields is wrong
-on BE platforms. Sparse warns about this.
+On Thu, Aug 11, 2022 at 12:40:09PM +0000, Eli Cohen wrote:
+> > From: Dan Carpenter <dan.carpenter@oracle.com>
+> > Sent: Thursday, August 11, 2022 1:40 PM
+> > To: Eli Cohen <elic@nvidia.com>
+> > Cc: virtualization@lists.linux-foundation.org
+> > Subject: [bug report] vdpa/mlx5: Support different address spaces for control and data
+> > 
+> > Hello Eli Cohen,
+> > 
+> > The patch d5358cd0e369: "vdpa/mlx5: Support different address spaces
+> > for control and data" from Jul 14, 2022, leads to the following
+> > Smatch static checker warning:
+> > 
+> > 	drivers/vdpa/mlx5/net/mlx5_vnet.c:2676 mlx5_vdpa_set_map()
+> > 	error: uninitialized symbol 'err'.
+> > 
+> > drivers/vdpa/mlx5/net/mlx5_vnet.c
+> >     2657 static int mlx5_vdpa_set_map(struct vdpa_device *vdev, unsigned int asid,
+> >     2658                              struct vhost_iotlb *iotlb)
+> >     2659 {
+> >     2660         struct mlx5_vdpa_dev *mvdev = to_mvdev(vdev);
+> >     2661         struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
+> >     2662         int err;
+> >     2663
+> >     2664         down_write(&ndev->reslock);
+> >     2665         if (mvdev->group2asid[MLX5_VDPA_DATAVQ_GROUP] == asid) {
+> >     2666                 err = set_map_data(mvdev, iotlb);
+> >     2667                 if (err)
+> >     2668                         goto out;
+> >     2669         }
+> >     2670
+> >     2671         if (mvdev->group2asid[MLX5_VDPA_CVQ_GROUP] == asid)
+> >     2672                 err = set_map_control(mvdev, iotlb);
+> > 
+> > err not initialized on else path.  My guess is that one or both of these
+> > conditions has to be true and this is a false positive but I don't know
+> > the code well enough to be sure.
+> 
+> Thanks for reporting this.
+> I think it would be better to return an error if the provided asid is not recognized.
+> 
+> Therefore I am thinking about adding something like this:
+> 
+>         if (asid != mvdev->group2asid[MLX5_VDPA_DATAVQ_GROUP] &&
+>             asid != mvdev->group2asid[MLX5_VDPA_CVQ_GROUP]) {
+>                 err = -EINVAL;
+>                 goto out;
+>         }
 
-Fixes: 91f41f01d219 ("drivers/net/virtio_net: Added RSS hash report.")
-Cc: "Andrew Melnychenko" <andrew@daynix.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- drivers/net/virtio_net.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Patch on top pls? Time's running short.
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index d9c434b00e9b..6e9868c860bc 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -1208,7 +1208,7 @@ static void virtio_skb_set_hash(const struct virtio_net_hdr_v1_hash *hdr_hash,
- 	if (!hdr_hash || !skb)
- 		return;
- 
--	switch ((int)hdr_hash->hash_report) {
-+	switch (__le16_to_cpu(hdr_hash->hash_report)) {
- 	case VIRTIO_NET_HASH_REPORT_TCPv4:
- 	case VIRTIO_NET_HASH_REPORT_UDPv4:
- 	case VIRTIO_NET_HASH_REPORT_TCPv6:
-@@ -1226,7 +1226,7 @@ static void virtio_skb_set_hash(const struct virtio_net_hdr_v1_hash *hdr_hash,
- 	default:
- 		rss_hash_type = PKT_HASH_TYPE_NONE;
- 	}
--	skb_set_hash(skb, (unsigned int)hdr_hash->hash_value, rss_hash_type);
-+	skb_set_hash(skb, __le32_to_cpu(hdr_hash->hash_value), rss_hash_type);
- }
- 
- static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
--- 
-MST
+
+> > 
+> >     2673
+> >     2674 out:
+> >     2675         up_write(&ndev->reslock);
+> > --> 2676         return err;
+> >     2677 }
+> > 
+> > regards,
+> > dan carpenter
 
 _______________________________________________
 Virtualization mailing list
