@@ -1,106 +1,65 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A9056C00140
-	for <virtualization@archiver.kernel.org>; Mon, 15 Aug 2022 06:07:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id CC4F7C00140
+	for <virtualization@archiver.kernel.org>; Mon, 15 Aug 2022 06:58:32 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 1BD4C40146;
-	Mon, 15 Aug 2022 06:07:27 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1BD4C40146
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gCRLsCmU
+	by smtp4.osuosl.org (Postfix) with ESMTP id 22FD2409C1;
+	Mon, 15 Aug 2022 06:58:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 22FD2409C1
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id CNYNw-QCNo31; Mon, 15 Aug 2022 06:07:26 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id G7QHyqczFAGi; Mon, 15 Aug 2022 06:58:30 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id A910940347;
-	Mon, 15 Aug 2022 06:07:25 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A910940347
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 12B96408D3;
+	Mon, 15 Aug 2022 06:58:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 12B96408D3
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5B88BC0032;
-	Mon, 15 Aug 2022 06:07:25 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 54E7AC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C1542C0032;
+	Mon, 15 Aug 2022 06:58:29 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4C4DFC002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Aug 2022 06:07:24 +0000 (UTC)
+ Mon, 15 Aug 2022 06:58:28 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 30A7740347
+ by smtp1.osuosl.org (Postfix) with ESMTP id 20EF281A5C
  for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Aug 2022 06:07:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 30A7740347
+ Mon, 15 Aug 2022 06:58:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 20EF281A5C
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id MRAqGUTgQXjI
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id SUfINJFO5Sfe
  for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Aug 2022 06:07:23 +0000 (UTC)
+ Mon, 15 Aug 2022 06:58:24 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 24EFF40146
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 24EFF40146
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7628481A24
+Received: from out30-56.freemail.mail.aliyun.com
+ (out30-56.freemail.mail.aliyun.com [115.124.30.56])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 7628481A24
  for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Aug 2022 06:07:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1660543641;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=miQ+LrhTjrCdn3JmNHg0o7+cx9B77lvSoDGipC2aLoI=;
- b=gCRLsCmU5qBm7RYQM5TiNiCjAbT54/l672AqTMt2S/9IhZg/Uy90wHll2jhhx1dfwGZCEQ
- 0PseWTKjSQWvMtZ1szN8SAdkULaBym2yukH1k6Mr8oSDlbys4WUdfDDxa3sjAPkMDCvXD2
- 8GlpGr7Pcd+H3F2+rtTqEQhR2P7hXdY=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-395-ea1a1irWP-avYarqDITIOw-1; Mon, 15 Aug 2022 02:07:15 -0400
-X-MC-Unique: ea1a1irWP-avYarqDITIOw-1
-Received: by mail-ed1-f70.google.com with SMTP id
- z6-20020a05640240c600b0043e1d52fd98so4235226edb.22
- for <virtualization@lists.linux-foundation.org>;
- Sun, 14 Aug 2022 23:07:15 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc;
- bh=miQ+LrhTjrCdn3JmNHg0o7+cx9B77lvSoDGipC2aLoI=;
- b=n3a+uuVW1+KhGdfKKB9pBwaN5XCo7IS4lreMUGaAmmcrlwC3gl3NeOq1cGOdIZR+9W
- TBUZh/E5DoRXhXBlwtVtC/xZsHfsYiUAEjw+qehzHT66fSM3AGl2C8h5MtxvXLMxQwOz
- IlrRjc7WDWou1mnxRPYZk152DW4zexNlDpP0raDaIUdDtmshObgak6S5h7x4sR7ACRzd
- kVZpa8SX+xCfIcZ/R4koLh78At2+CaufFFYBAagxY+89epmZGE6jEgYb1RdLwmMe1NQi
- nUvuqawU6kbh0MOBq2zwOZ6WPTqGUsUNR0+y/6F5koA9g3uvADX06xD+VUtd3CnW0BCO
- YKGg==
-X-Gm-Message-State: ACgBeo1r+vA/37DpKfsrDk3ONp76yZPNdm0NAcw/rWXFepG2y6qaAtOi
- 9bv/QakhSVVmQJzLDmi3rg/U16Flnr5QVsYmEIxxgTpT+R77w7ncsq9YSckJD+f/sXynI/GEvBC
- 5JgYARYJ6zPxQyC3dhvpnSLJpencZdlD9K7FnH5AvxA==
-X-Received: by 2002:a05:6402:40c9:b0:43d:cc0d:e9de with SMTP id
- z9-20020a05640240c900b0043dcc0de9demr13192944edb.319.1660543634274; 
- Sun, 14 Aug 2022 23:07:14 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR5IxHumafujgE9z2U2QiRC8adJ4lPgnG3uYrrXb/EOiabr2Dh6aNojO23Eqns8Uqq534VjGmQ==
-X-Received: by 2002:a05:6402:40c9:b0:43d:cc0d:e9de with SMTP id
- z9-20020a05640240c900b0043dcc0de9demr13192925edb.319.1660543634027; 
- Sun, 14 Aug 2022 23:07:14 -0700 (PDT)
-Received: from redhat.com ([2.54.169.49]) by smtp.gmail.com with ESMTPSA id
- z7-20020a170906d00700b00726c0e63b94sm3688949ejy.27.2022.08.14.23.07.07
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sun, 14 Aug 2022 23:07:13 -0700 (PDT)
-Date: Mon, 15 Aug 2022 02:07:05 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH v14 30/42] virtio_pci: introduce helper to get/set queue
- reset
-Message-ID: <20220815020548-mutt-send-email-mst@kernel.org>
+ Mon, 15 Aug 2022 06:58:21 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R201e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046056;
+ MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=36; SR=0;
+ TI=SMTPD_---0VMEFdj9_1660546694; 
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
+ fp:SMTPD_---0VMEFdj9_1660546694) by smtp.aliyun-inc.com;
+ Mon, 15 Aug 2022 14:58:15 +0800
+Message-ID: <1660545303.436073-9-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH v14 37/42] virtio_net: set the default max ring size by
+ find_vqs()
+Date: Mon, 15 Aug 2022 14:35:03 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 References: <20220801063902.129329-1-xuanzhuo@linux.alibaba.com>
- <20220801063902.129329-31-xuanzhuo@linux.alibaba.com>
-MIME-Version: 1.0
-In-Reply-To: <20220801063902.129329-31-xuanzhuo@linux.alibaba.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
+ <20220801063902.129329-38-xuanzhuo@linux.alibaba.com>
+ <20220815015405-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20220815015405-mutt-send-email-mst@kernel.org>
 Cc: Vadim Pasternak <vadimp@nvidia.com>, linux-remoteproc@vger.kernel.org,
  Alexei Starovoitov <ast@kernel.org>, virtualization@lists.linux-foundation.org,
  Eric Dumazet <edumazet@google.com>, Alexander Gordeev <agordeev@linux.ibm.com>,
@@ -130,100 +89,188 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Aug 01, 2022 at 02:38:50PM +0800, Xuan Zhuo wrote:
-> Introduce new helpers to implement queue reset and get queue reset
-> status.
-> 
->  https://github.com/oasis-tcs/virtio-spec/issues/124
->  https://github.com/oasis-tcs/virtio-spec/issues/139
-> 
-> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> Acked-by: Jason Wang <jasowang@redhat.com>
-> ---
->  drivers/virtio/virtio_pci_modern_dev.c | 39 ++++++++++++++++++++++++++
->  include/linux/virtio_pci_modern.h      |  2 ++
->  2 files changed, 41 insertions(+)
-> 
-> diff --git a/drivers/virtio/virtio_pci_modern_dev.c b/drivers/virtio/virtio_pci_modern_dev.c
-> index fa2a9445bb18..869cb46bef96 100644
-> --- a/drivers/virtio/virtio_pci_modern_dev.c
-> +++ b/drivers/virtio/virtio_pci_modern_dev.c
-> @@ -3,6 +3,7 @@
->  #include <linux/virtio_pci_modern.h>
->  #include <linux/module.h>
->  #include <linux/pci.h>
-> +#include <linux/delay.h>
->  
->  /*
->   * vp_modern_map_capability - map a part of virtio pci capability
-> @@ -474,6 +475,44 @@ void vp_modern_set_status(struct virtio_pci_modern_device *mdev,
->  }
->  EXPORT_SYMBOL_GPL(vp_modern_set_status);
->  
-> +/*
-> + * vp_modern_get_queue_reset - get the queue reset status
-> + * @mdev: the modern virtio-pci device
-> + * @index: queue index
-> + */
-> +int vp_modern_get_queue_reset(struct virtio_pci_modern_device *mdev, u16 index)
-> +{
-> +	struct virtio_pci_modern_common_cfg __iomem *cfg;
-> +
-> +	cfg = (struct virtio_pci_modern_common_cfg __iomem *)mdev->common;
+On Mon, 15 Aug 2022 02:00:16 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> On Mon, Aug 01, 2022 at 02:38:57PM +0800, Xuan Zhuo wrote:
+> > Use virtio_find_vqs_ctx_size() to specify the maximum ring size of tx,
+> > rx at the same time.
+> >
+> >                          | rx/tx ring size
+> > -------------------------------------------
+> > speed == UNKNOWN or < 10G| 1024
+> > speed < 40G              | 4096
+> > speed >= 40G             | 8192
+> >
+> > Call virtnet_update_settings() once before calling init_vqs() to update
+> > speed.
+> >
+> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > Acked-by: Jason Wang <jasowang@redhat.com>
+>
+> I've been looking at this patchset because of the resent
+> reported crashes, and I'm having second thoughts about this.
+>
+> Do we really want to second-guess the device supplied
+> max ring size? If yes why?
+>
+> Could you please share some performance data that motivated this
+> specific set of numbers?
 
-This should use container_of, and assignment combined with the
-declaration.
 
-> +
-> +	vp_iowrite16(index, &cfg->cfg.queue_select);
-> +	return vp_ioread16(&cfg->queue_reset);
-> +}
-> +EXPORT_SYMBOL_GPL(vp_modern_get_queue_reset);
-> +
-> +/*
-> + * vp_modern_set_queue_reset - reset the queue
-> + * @mdev: the modern virtio-pci device
-> + * @index: queue index
-> + */
-> +void vp_modern_set_queue_reset(struct virtio_pci_modern_device *mdev, u16 index)
-> +{
-> +	struct virtio_pci_modern_common_cfg __iomem *cfg;
-> +
-> +	cfg = (struct virtio_pci_modern_common_cfg __iomem *)mdev->common;
-> +
-> +	vp_iowrite16(index, &cfg->cfg.queue_select);
-> +	vp_iowrite16(1, &cfg->queue_reset);
-> +
-> +	while (vp_ioread16(&cfg->queue_reset))
-> +		msleep(1);
-> +
-> +	while (vp_ioread16(&cfg->cfg.queue_enable))
-> +		msleep(1);
-> +}
-> +EXPORT_SYMBOL_GPL(vp_modern_set_queue_reset);
-> +
->  /*
->   * vp_modern_queue_vector - set the MSIX vector for a specific virtqueue
->   * @mdev: the modern virtio-pci device
-> diff --git a/include/linux/virtio_pci_modern.h b/include/linux/virtio_pci_modern.h
-> index 05123b9a606f..c4eeb79b0139 100644
-> --- a/include/linux/virtio_pci_modern.h
-> +++ b/include/linux/virtio_pci_modern.h
-> @@ -113,4 +113,6 @@ void __iomem * vp_modern_map_vq_notify(struct virtio_pci_modern_device *mdev,
->  				       u16 index, resource_size_t *pa);
->  int vp_modern_probe(struct virtio_pci_modern_device *mdev);
->  void vp_modern_remove(struct virtio_pci_modern_device *mdev);
-> +int vp_modern_get_queue_reset(struct virtio_pci_modern_device *mdev, u16 index);
-> +void vp_modern_set_queue_reset(struct virtio_pci_modern_device *mdev, u16 index);
->  #endif
-> -- 
-> 2.31.0
+The impact of this value on performance is as follows. The larger the value, the
+throughput can be increased, but the delay will also increase accordingly. It is
+a maximum limit for the ring size under the corresponding speed. The purpose of
+this limitation is not to improve performance, but more to reduce memory usage.
 
+These data come from many other network cards and some network optimization
+experience.
+
+For example, in the case of speed = 20G, the impact of ring size greater
+than 4096 on performance has no meaning. At this time, if the device supports
+8192, we limit it to 4096 through this, the real meaning is to reduce the memory
+usage.
+
+
+>
+> Also why do we intepret UNKNOWN as "very low"?
+> I'm thinking that should definitely be "don't change anything".
+>
+
+Generally speaking, for a network card with a high speed, it will return a
+correct speed. But I think it is a good idea to do nothing.
+
+
+> Finally if all this makes sense then shouldn't we react when
+> speed changes?
+
+This is the feedback of the network card when it is started, and theoretically
+it should not change in the future.
+
+>
+> Could you try reverting this and showing performance results
+> before and after please? Thanks!
+
+I hope the above reply can help you, if there is anything else you need me to
+cooperate with, I am very happy.
+
+If you think it's ok, I can resubmit a commit with 'UNKNOW' set to unlimited. I
+can submit it with the issue of #30.
+
+Thanks.
+
+
+>
+> > ---
+> >  drivers/net/virtio_net.c | 42 ++++++++++++++++++++++++++++++++++++----
+> >  1 file changed, 38 insertions(+), 4 deletions(-)
+> >
+> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > index 8a5810bcb839..40532ecbe7fc 100644
+> > --- a/drivers/net/virtio_net.c
+> > +++ b/drivers/net/virtio_net.c
+> > @@ -3208,6 +3208,29 @@ static unsigned int mergeable_min_buf_len(struct virtnet_info *vi, struct virtqu
+> >  		   (unsigned int)GOOD_PACKET_LEN);
+> >  }
+> >
+> > +static void virtnet_config_sizes(struct virtnet_info *vi, u32 *sizes)
+> > +{
+> > +	u32 i, rx_size, tx_size;
+> > +
+> > +	if (vi->speed == SPEED_UNKNOWN || vi->speed < SPEED_10000) {
+> > +		rx_size = 1024;
+> > +		tx_size = 1024;
+> > +
+> > +	} else if (vi->speed < SPEED_40000) {
+> > +		rx_size = 1024 * 4;
+> > +		tx_size = 1024 * 4;
+> > +
+> > +	} else {
+> > +		rx_size = 1024 * 8;
+> > +		tx_size = 1024 * 8;
+> > +	}
+> > +
+> > +	for (i = 0; i < vi->max_queue_pairs; i++) {
+> > +		sizes[rxq2vq(i)] = rx_size;
+> > +		sizes[txq2vq(i)] = tx_size;
+> > +	}
+> > +}
+> > +
+> >  static int virtnet_find_vqs(struct virtnet_info *vi)
+> >  {
+> >  	vq_callback_t **callbacks;
+> > @@ -3215,6 +3238,7 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
+> >  	int ret = -ENOMEM;
+> >  	int i, total_vqs;
+> >  	const char **names;
+> > +	u32 *sizes;
+> >  	bool *ctx;
+> >
+> >  	/* We expect 1 RX virtqueue followed by 1 TX virtqueue, followed by
+> > @@ -3242,10 +3266,15 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
+> >  		ctx = NULL;
+> >  	}
+> >
+> > +	sizes = kmalloc_array(total_vqs, sizeof(*sizes), GFP_KERNEL);
+> > +	if (!sizes)
+> > +		goto err_sizes;
+> > +
+> >  	/* Parameters for control virtqueue, if any */
+> >  	if (vi->has_cvq) {
+> >  		callbacks[total_vqs - 1] = NULL;
+> >  		names[total_vqs - 1] = "control";
+> > +		sizes[total_vqs - 1] = 64;
+> >  	}
+> >
+> >  	/* Allocate/initialize parameters for send/receive virtqueues */
+> > @@ -3260,8 +3289,10 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
+> >  			ctx[rxq2vq(i)] = true;
+> >  	}
+> >
+> > -	ret = virtio_find_vqs_ctx(vi->vdev, total_vqs, vqs, callbacks,
+> > -				  names, ctx, NULL);
+> > +	virtnet_config_sizes(vi, sizes);
+> > +
+> > +	ret = virtio_find_vqs_ctx_size(vi->vdev, total_vqs, vqs, callbacks,
+> > +				       names, sizes, ctx, NULL);
+> >  	if (ret)
+> >  		goto err_find;
+> >
+> > @@ -3281,6 +3312,8 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
+> >
+> >
+> >  err_find:
+> > +	kfree(sizes);
+> > +err_sizes:
+> >  	kfree(ctx);
+> >  err_ctx:
+> >  	kfree(names);
+> > @@ -3630,6 +3663,9 @@ static int virtnet_probe(struct virtio_device *vdev)
+> >  		vi->curr_queue_pairs = num_online_cpus();
+> >  	vi->max_queue_pairs = max_queue_pairs;
+> >
+> > +	virtnet_init_settings(dev);
+> > +	virtnet_update_settings(vi);
+> > +
+> >  	/* Allocate/initialize the rx/tx queues, and invoke find_vqs */
+> >  	err = init_vqs(vi);
+> >  	if (err)
+> > @@ -3642,8 +3678,6 @@ static int virtnet_probe(struct virtio_device *vdev)
+> >  	netif_set_real_num_tx_queues(dev, vi->curr_queue_pairs);
+> >  	netif_set_real_num_rx_queues(dev, vi->curr_queue_pairs);
+> >
+> > -	virtnet_init_settings(dev);
+> > -
+> >  	if (virtio_has_feature(vdev, VIRTIO_NET_F_STANDBY)) {
+> >  		vi->failover = net_failover_create(vi->dev);
+> >  		if (IS_ERR(vi->failover)) {
+> > --
+> > 2.31.0
+>
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
