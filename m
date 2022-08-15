@@ -4,113 +4,151 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4E8BBC00140
-	for <virtualization@archiver.kernel.org>; Mon, 15 Aug 2022 09:17:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 952D7C25B0E
+	for <virtualization@archiver.kernel.org>; Mon, 15 Aug 2022 10:05:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id A3E1860F1B;
-	Mon, 15 Aug 2022 09:17:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A3E1860F1B
+	by smtp3.osuosl.org (Postfix) with ESMTP id 005F160767;
+	Mon, 15 Aug 2022 10:05:35 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 005F160767
 Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=KoqsX+Hx
+	dkim=fail reason="signature verification failed" (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=sw8LnHqj
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 01r_4wJjfGaG; Mon, 15 Aug 2022 09:17:05 +0000 (UTC)
+	with ESMTP id VnQKDkoLw3aq; Mon, 15 Aug 2022 10:05:34 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id C128360BC2;
-	Mon, 15 Aug 2022 09:17:04 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C128360BC2
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 3D718605A7;
+	Mon, 15 Aug 2022 10:05:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3D718605A7
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 84984C0033;
-	Mon, 15 Aug 2022 09:17:04 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id F289DC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D61AAC0032;
+	Mon, 15 Aug 2022 10:05:32 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 425AFC002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Aug 2022 09:17:03 +0000 (UTC)
+ Mon, 15 Aug 2022 10:05:31 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id B8143408D0
+ by smtp3.osuosl.org (Postfix) with ESMTP id 079EA60767
  for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Aug 2022 09:17:03 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B8143408D0
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=KoqsX+Hx
+ Mon, 15 Aug 2022 10:05:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 079EA60767
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id IZe_MwN8HwEr
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id aNCamqnDJUPD
  for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Aug 2022 09:17:02 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9927740146
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 9927740146
+ Mon, 15 Aug 2022 10:05:29 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0F0F9605A7
+Received: from NAM04-MW2-obe.outbound.protection.outlook.com
+ (mail-mw2nam04on2084.outbound.protection.outlook.com [40.107.101.84])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 0F0F9605A7
  for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Aug 2022 09:17:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1660555021;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type;
- bh=+lgH1hBRD1m/mzbQi1aYCWsf/2qMXaicGixcF+IMRPc=;
- b=KoqsX+Hx+/OsLZ98dyu6MVmoAOlultSiJ4MUjiRfyTYH/0js45wKLxEbKEVFfCt1/c8ceC
- 8LfmCU1ox/jZJecq0Dggx7MLQMRBxDpHEe0PF0yX2LzX8dL8BHlzPgjmjtDsc8WCP5nVgM
- YOtUQq/+nlDgFVJpkKUQvqU8v6A+7Cc=
-Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
- [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-558-yf0fwPiYPASBDS56aHHHzA-1; Mon, 15 Aug 2022 05:16:58 -0400
-X-MC-Unique: yf0fwPiYPASBDS56aHHHzA-1
-Received: by mail-ej1-f71.google.com with SMTP id
- oz39-20020a1709077da700b007313bf43f0dso971292ejc.0
- for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Aug 2022 02:16:57 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=content-disposition:mime-version:message-id:subject:cc:to:from:date
- :x-gm-message-state:from:to:cc;
- bh=+lgH1hBRD1m/mzbQi1aYCWsf/2qMXaicGixcF+IMRPc=;
- b=ov5q/jY9sA2FcMDtZ8LYyJcIF5E72qbSbZk01lenng1GTLqfI8rGqeMTKulQVwPIg4
- 0s1USLWqC2GPNIoYBIcCRNGocoDnEcM20Ql6SLf7TXOw09MPcj8Xd17wo9CNysg9rwJP
- Fzn+ZaEdfsLfEQU/LRbIu2ti+zJVsP82Vi9/8ejxMidK8uLli/Kqv+oqSow6VhLOipV4
- dCWRbjsoaUGLv1XfF5PVOFxZLf29bhd13YBBi2HDSlagf7NUlv3g3F/W6ycKWA5r+PmU
- 7jpQ1pAdLNInHDsYpYLgaCW9IKjizIn745cwAHuuuyshJk+ZN4FSmkU1XQxW8V2g8Cvs
- G7aQ==
-X-Gm-Message-State: ACgBeo0TdxCKeoy69nzibYXaNuJsKoLqbSL3GhDjksUYAQKDBDDRys18
- CL0Aq67ezC0abQJEBiQId3TrwU/HBZbGoZsqpL06lpwYLXpwe7B3whHS2VynYdJzFadqkt1lf91
- niGquhOGl2kJ0U99elgh64pASHPSBhvxygJn5a1ubxg==
-X-Received: by 2002:a05:6402:1e8d:b0:441:58db:b6a2 with SMTP id
- f13-20020a0564021e8d00b0044158dbb6a2mr13472962edf.277.1660555017049; 
- Mon, 15 Aug 2022 02:16:57 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR4TUuxXLf4X9ZxvGDLmurzNR+B1PhAkCo7uKtZy520YFWqKHF1q3eDJtrRUZuNuy6tNLwZeog==
-X-Received: by 2002:a05:6402:1e8d:b0:441:58db:b6a2 with SMTP id
- f13-20020a0564021e8d00b0044158dbb6a2mr13472939edf.277.1660555016769; 
- Mon, 15 Aug 2022 02:16:56 -0700 (PDT)
-Received: from redhat.com ([2.54.169.49]) by smtp.gmail.com with ESMTPSA id
- i20-20020a17090685d400b00722e50dab2csm3817610ejy.109.2022.08.15.02.16.52
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 15 Aug 2022 02:16:56 -0700 (PDT)
-Date: Mon, 15 Aug 2022 05:16:50 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] virtio_net: Revert "virtio_net: set the default max ring
- size by find_vqs()"
-Message-ID: <20220815090521.127607-1-mst@redhat.com>
+ Mon, 15 Aug 2022 10:05:28 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=jvKUIBhcYs3cwj07ePQUrVgnZeMDygvgHT16W4zEiHvuIBG1OwI4RuQw+GruLnBE7Nigvzq6kwPo1TLhuM8clwfJR6AAL+mH8HMGy75YXUXx5i5lxQE9umFK5EOf8ivYTVCCYD5v20KkGQUzzZetCXfxxc5t+/r9WeTbuu7DkRjbCvU1mkwuPsUAIQDwVdNvlylQB8or+m/kzJamJAKY4uzS15b9wlmKPEU8EYhPmDI9WH1k4w15bdnzp2JbfMXrPeQqE+puG5RNUt4RtqQv8LdwcdJ3EWyP+opZaga/2CgehEIhwmwKkDlzRyr3QuxIan0x+ocpH6sZ/EX4SVs8jA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=busVxPcjXjU9hp8tSTZVrMBu+u+r/efknOGGHNiBqzQ=;
+ b=eIJkDc5qUgmWpuX8GQ/wkOwktSkRr6aoK2QtAwoRwpH/B3l/XDrcrUpxiP4DgfQDkKzsvFr2B6ZeS9153etDhXESBpqeiVgm/9g/YoRjzqdT/uE0bvF6Lj79KOBOro5dT1UG+wMlIPj8gqpOd69SqINWbkPrfaDPjdV4uVEMCNZX9wnsoeXbmBklEnsVNYtK+5ukWHZobzNkrrPfdispq+iHT9pzo3vayh2SArO85qiErL35j2umr2QLxdMmtAc0dABAAEXSfKg2iP6XMIUHhM09Q0JEZ4WuAd2se4kspmXZIxaggJ/SEVyRhMZq+FDaNz/FAZ99X6AVjWbmqESnuA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1; 
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=busVxPcjXjU9hp8tSTZVrMBu+u+r/efknOGGHNiBqzQ=;
+ b=sw8LnHqjRnRdbltKu/pIkVHNiiflFDmaY60ZRZTt9W1/CX76bPvvpRYgmqpEXYBMEdDenFuVWGYClzgr7vRf4VRrOWRQG8xLwfN3WcdlBFRnMSHP7Xj7C7bLicaXGdibEWXYSrAUDk5QnGzcH9YYuth2WVM8FkwfUEOdp3cShMY=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+Received: from BN8PR12MB3587.namprd12.prod.outlook.com (2603:10b6:408:43::13)
+ by PH7PR12MB5735.namprd12.prod.outlook.com (2603:10b6:510:1e2::16)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5525.10; Mon, 15 Aug
+ 2022 10:05:25 +0000
+Received: from BN8PR12MB3587.namprd12.prod.outlook.com
+ ([fe80::905:1701:3b51:7e39]) by BN8PR12MB3587.namprd12.prod.outlook.com
+ ([fe80::905:1701:3b51:7e39%2]) with mapi id 15.20.5504.020; Mon, 15 Aug 2022
+ 10:05:25 +0000
+Message-ID: <8230a356-be38-f228-4a8e-95124e8e8db6@amd.com>
+Date: Mon, 15 Aug 2022 12:05:19 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [PATCH v1] drm/ttm: Refcount allocated tail pages
+Content-Language: en-US
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ David Airlie <airlied@linux.ie>, Huang Rui <ray.huang@amd.com>,
+ Daniel Vetter <daniel@ffwll.ch>, Trigger Huang <Trigger.Huang@gmail.com>,
+ Gert Wollny <gert.wollny@collabora.com>,
+ Antonio Caggiano <antonio.caggiano@collabora.com>
+References: <20220815095423.11131-1-dmitry.osipenko@collabora.com>
+In-Reply-To: <20220815095423.11131-1-dmitry.osipenko@collabora.com>
+X-ClientProxiedBy: AM6PR10CA0067.EURPRD10.PROD.OUTLOOK.COM
+ (2603:10a6:209:80::44) To BN8PR12MB3587.namprd12.prod.outlook.com
+ (2603:10b6:408:43::13)
 MIME-Version: 1.0
-X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
-X-Mutt-Fcc: =sent
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: Jens Axboe <axboe@kernel.dk>,
- "Martin K. Petersen" <martin.petersen@oracle.com>, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- James Bottomley <James.Bottomley@hansenpartnership.com>,
- Linus Torvalds <torvalds@linux-foundation.org>,
- Eric Dumazet <edumazet@google.com>, Greg KH <gregkh@linuxfoundation.org>,
- c@redhat.com, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Andres Freund <andres@anarazel.de>,
- "David S. Miller" <davem@davemloft.net>, Guenter Roeck <linux@roeck-us.net>
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 43f5057b-5ebd-49f9-e908-08da7ea5ac77
+X-MS-TrafficTypeDiagnostic: PH7PR12MB5735:EE_
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: QRnFXOo35VrhHrsU8m7Dapit6e57JzZ2elIV3z/ptjSPbBnjWiWiHvLIpCNn2S/E8JXXn9rxJCQ7ZQGee/fB/shC0nxeG/jnWqCZtTj85yy4Frkc3nlYmaUH5XTcz712yNek5CfJXdEjzdcQj5ucfC87k5ToEad+JkxnZhFood/aKIuUNeUVQai19Ru/I0+Ur96wtpYd6ijC7M8n2NZMdgz3JJucDuXPnH5XPk10D8oVUwigRBYuhg538sh04+YKK3xL/eU9c0t5uU0wxl4S8mlRPc5rTx8aIfEmBCIoO66a8DQhYuk0mIM4Y5i0DPiQLsL39HskKqcurq82tXhCTNtvBWFffyXtfs9cVjSBSKH4uLKmISaRAhbl2VI2G++6taZa8UdOuwYRtQHvWiAWR6UQfAQ41NZqs91Vv7qSaPJIz2nTAz3nPCPhUbu+QI45WzjJvpTIQTFxblytsTNqxNiRrg+uNp/q5o3n8iNIEERsKGI2G4enjsM+BHi9+V/9SXs6bDrLojqSxb8Dj0Sf+UwGq8nH54nxaBFUSgkRqaiBI8OKHXnPE81pqK73k6X5Ahf7hOD0YTkGsM+2nN8+5w2h9BEgcXiJswF6JZq2vfyAoAAdXs4/NWQajopHIk6Nl6KY+J9eOLV1ngT0pmABmL1IjCAu6K63A8mdgl9yGFXF8U8cAd5YdqMgZUwDL3ASx8fhnBeO6+0GfZzrqeh8xcJvPnoesjiiy1YbhGL0GSDN8D/v/mV9frD+3f2Ozq9D8MeYGEl9GsUTcNeSD890wWLYv6ZpemfFaOVLLb/eMDYCEkxiEZ/HnqPyYQ/+nL6vKTIEHDqsHzoNwuf6oPYBr0mAGaVFJf0CV+93smNcnS8=
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:BN8PR12MB3587.namprd12.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230016)(4636009)(376002)(136003)(346002)(396003)(39860400002)(366004)(6506007)(478600001)(41300700001)(6486002)(966005)(83380400001)(5660300002)(2616005)(6666004)(6512007)(7416002)(2906002)(110136005)(8936002)(4326008)(8676002)(66946007)(316002)(31686004)(66476007)(31696002)(36756003)(86362001)(38100700002)(186003)(66556008)(45980500001)(43740500002);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?dmx0WWZRZk9lcWZGN3ZuNXJaczNTaE92N3loNklxM0RtNE1DU01oNUkyY2FS?=
+ =?utf-8?B?cVNvWVB0bFh4TkptSWV4a2pYb0twcFFCYmFxT0hOb28zejJHYlhmOUpKSWNT?=
+ =?utf-8?B?eUhuREhDKzQyRVpwYlJHTUtINTBKL3hrOUtWRnVBdjRIRS9XbEttRk5SMmFy?=
+ =?utf-8?B?cmwyQTVPQkU5TVRsWUE5WTRtVHVLd0VqZzJ3TEMyRS9SZFV3NkJleG1mV0JR?=
+ =?utf-8?B?a0kxZitjcUNzdlVtYU1UQmNkTGtIczFISlJsSmZNZGF5clhFYmhmZjBiUnpN?=
+ =?utf-8?B?dlE0NU1KZndURnl2L2xjTGc3WFpVamFlSm9xOW5ISHBjbElMaXZOVnkvd21T?=
+ =?utf-8?B?S3VTVk1WcTl5dUprSkRocVlRa1hhc05LM1ErY3BtL3lmQ0hwOGNjOWlDR3FR?=
+ =?utf-8?B?UVFoZWM2NDZOZFRFRUNBVm41aUlPdGtwQWxRTDVCMTVaQkVwWVJMZ29EOS9W?=
+ =?utf-8?B?aDdqcHFXV1RxMkdnVW5GeityUWJyK2p6L1VodFI1Z05mTUVUdThkUWVocVN1?=
+ =?utf-8?B?UWpSVTdlZmlLYlhSSk5HeXI2TTBVMCtBSXl4SFRuSFBlZ3VobjVHTW5QdzFW?=
+ =?utf-8?B?TUE4MThCMzRIVzJiZE8vWllEM216WWZqU2FWS1RWNFcydWh0c0MyVk5GQnR5?=
+ =?utf-8?B?eVNoOVZ4MG9id0tXU21VdGFaWDJqMHY3UnFOM05zZnNLOU5POGl2dk1YVEli?=
+ =?utf-8?B?MXhpL1NWZUZtVXh6SE1GbmZLZGFQcEgwNWVTODhIOG1NMVc5TnNlWk9xS3Fu?=
+ =?utf-8?B?RjRYRXBmQWNJTXV1bEpKaDJEenRWMVl3eHpTbzFBV3RyR0oySXFOQTJBSi9p?=
+ =?utf-8?B?R1hCb0RvS2M1S0dVUGtUb2sva2FxMWNMdWdUclN0YUpRbFZORnR2RE9iMU42?=
+ =?utf-8?B?M0lnemZLalBVZzZQMmRlNnZ5ZFBNVU1yUjlHdFhZZGt5RzZBWUt3MFhOY2RR?=
+ =?utf-8?B?WmVoRjVuaXpNdlEyT1UyaFd4TWhaSEZXZWpodjQxOVV5U0RaaS9OL0FNeGhX?=
+ =?utf-8?B?dkI5RXpHWUNrK3NCb3dRYWJYWVptOGMrY3gwWlN2SVVWNnZiU2dIZWJyRDJk?=
+ =?utf-8?B?ZjNobHA5UzV1cTVPeTExR2NySnNCc2VjNXlkYzFGaXZ3RmlsZ2I2dHgyWU1E?=
+ =?utf-8?B?eG0zaUtMSlNIT3hZc0d1eGQ5Q0x2RGpwT2VZeXZUUHhPNnhhMkhiTTBnK1ph?=
+ =?utf-8?B?N3UrMHFJQnNZZDZFMUpraWEvSjY5L3J1UFJKNWhWRXpLZ1FaUnR5eWRabkt0?=
+ =?utf-8?B?a1N6YVUzaU5qc0VCbmJnSmh5bmFMWCtpOHN5ZmZZN2Y3VVczZTdDSjRKeUVt?=
+ =?utf-8?B?QWk0emJ0M0pBSStXYW9OR3p2WmNKU3psS1cveHR0bXpIVENyaEVGSmNqb3U3?=
+ =?utf-8?B?VWlEM1lORFBWVGxNZXJ1M3pCdlFvd2VCV3lzUVVtdHJnRE5qbmpsSUY0WFlo?=
+ =?utf-8?B?UXVVOXU5eW1Wb0poY2FwK1dJb01ldDFKdXlOdjdZd0FVZURLeW8zMzNibTZl?=
+ =?utf-8?B?eXdlcEhGTFZNVXhWSm9PMDNRK0doOFp2MWErMzU0bEN0VXpNR2tlR2VEclNm?=
+ =?utf-8?B?Z0xnZFBQQ001cCtFbFJEM0dDTUdHeC9URTVuSFNlSy90a2JlTzRxa00xWktW?=
+ =?utf-8?B?bzdPeFI3djBBSVB0MWFId2lOekE2aFRsbUQvUFpYMmcxbU41eDM0MUk5NkMw?=
+ =?utf-8?B?YkxkbFowWEgrVEVhRkdJalpkUnFxVVl4djNBNnNtNVhGWGk0Vk5TRHY0RjBS?=
+ =?utf-8?B?V0xoTkpRVG51UzM5WTBGalZJZDk5V1VqVyszVUZnZTNRV0xhSXN1NzloNy9n?=
+ =?utf-8?B?U0xqWGVISFJrRFlIZjVmQ1Bpb2xETTRvc3A2MUdONkhCN2hzNndDcFFRekxY?=
+ =?utf-8?B?WFRBS2o2N2dHajl2UTZkVUt1c29mOTJaUG5qa21xcmFGWldIQnNWZWV2T3F6?=
+ =?utf-8?B?ZkhGeE15UEJqK1BYMFJLZkhLNmk3RnNIbkR1YVdUakVCMG1RODA1ZmhMZkMx?=
+ =?utf-8?B?VFVkOVFFRmlMcW81bHB5SS9RODNEVHFEcFpZYTAzQnRHdkRwdFFQcXIzK2Jl?=
+ =?utf-8?B?Y2hJRUFWY1BPaEs4aVNuRVNDRGpRQjFwbEQ4T20zN1JXbGlvakhlUy9nc0Y2?=
+ =?utf-8?B?L05acDI5bTVhUk5hUVFzRmZIQmJRK2p4dG12VWdNR2tSdjZiZmUvNUl4czZ5?=
+ =?utf-8?Q?YRulCpjWSN9gBvcXl37DYsB2haquMC4cR9kcVk4JhaId?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 43f5057b-5ebd-49f9-e908-08da7ea5ac77
+X-MS-Exchange-CrossTenant-AuthSource: BN8PR12MB3587.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Aug 2022 10:05:25.7558 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: /6VRfjQV4flZGWYcvu0D+TA48xXe33CXtvuInsmpz82IXHhCjx7m0d1VoFVZLNwl
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB5735
+Cc: kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+ dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
+ Dmitry Osipenko <digetx@gmail.com>, kernel@collabora.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -122,142 +160,114 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
+From: =?UTF-8?Q?Christian_K=c3=b6nig?= via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This reverts commit 762faee5a2678559d3dc09d95f8f2c54cd0466a7.
+Am 15.08.22 um 11:54 schrieb Dmitry Osipenko:
+> Higher order pages allocated using alloc_pages() aren't refcounted and they
+> need to be refcounted, otherwise it's impossible to map them by KVM. This
+> patch sets the refcount of the tail pages and fixes the KVM memory mapping
+> faults.
+>
+> Without this change guest virgl driver can't map host buffers into guest
+> and can't provide OpenGL 4.5 profile support to the guest. The host
+> mappings are also needed for enabling the Venus driver using host GPU
+> drivers that are utilizing TTM.
+>
+> Based on a patch proposed by Trigger Huang.
 
-This has been reported to trip up guests on GCP (Google Cloud).  Why is
-not yet clear - to be debugged, but the patch itself has several other
-issues:
+Well I can't count how often I have repeated this: This is an absolutely 
+clear NAK!
 
-- It treats unknown speed as < 10G
-- It leaves userspace no way to find out the ring size set by hypervisor
-- It tests speed when link is down
-- It ignores the virtio spec advice:
-        Both \field{speed} and \field{duplex} can change, thus the driver
-        is expected to re-read these values after receiving a
-        configuration change notification.
-- It is not clear the performance impact has been tested properly
+TTM pages are not reference counted in the first place and because of 
+this giving them to virgl is illegal.
 
-Revert the patch for now.
+Please immediately stop this completely broken approach. We have 
+discussed this multiple times now.
 
-Link: https://lore.kernel.org/r/20220814212610.GA3690074%40roeck-us.net
-Link: https://lore.kernel.org/r/20220815070203.plwjx7b3cyugpdt7%40awork3.anarazel.de
-Link: https://lore.kernel.org/r/3df6bb82-1951-455d-a768-e9e1513eb667%40www.fastmail.com
-Link: https://lore.kernel.org/r/FCDC5DDE-3CDD-4B8A-916F-CA7D87B547CE%40anarazel.de
-Fixes: 762faee5a267 ("virtio_net: set the default max ring size by find_vqs()")
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Tested-by: Andres Freund <andres@anarazel.de>
----
- drivers/net/virtio_net.c | 42 ++++------------------------------------
- 1 file changed, 4 insertions(+), 38 deletions(-)
+Regards,
+Christian.
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index d934774e9733..ece00b84e3a7 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -3432,29 +3432,6 @@ static unsigned int mergeable_min_buf_len(struct virtnet_info *vi, struct virtqu
- 		   (unsigned int)GOOD_PACKET_LEN);
- }
- 
--static void virtnet_config_sizes(struct virtnet_info *vi, u32 *sizes)
--{
--	u32 i, rx_size, tx_size;
--
--	if (vi->speed == SPEED_UNKNOWN || vi->speed < SPEED_10000) {
--		rx_size = 1024;
--		tx_size = 1024;
--
--	} else if (vi->speed < SPEED_40000) {
--		rx_size = 1024 * 4;
--		tx_size = 1024 * 4;
--
--	} else {
--		rx_size = 1024 * 8;
--		tx_size = 1024 * 8;
--	}
--
--	for (i = 0; i < vi->max_queue_pairs; i++) {
--		sizes[rxq2vq(i)] = rx_size;
--		sizes[txq2vq(i)] = tx_size;
--	}
--}
--
- static int virtnet_find_vqs(struct virtnet_info *vi)
- {
- 	vq_callback_t **callbacks;
-@@ -3462,7 +3439,6 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
- 	int ret = -ENOMEM;
- 	int i, total_vqs;
- 	const char **names;
--	u32 *sizes;
- 	bool *ctx;
- 
- 	/* We expect 1 RX virtqueue followed by 1 TX virtqueue, followed by
-@@ -3490,15 +3466,10 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
- 		ctx = NULL;
- 	}
- 
--	sizes = kmalloc_array(total_vqs, sizeof(*sizes), GFP_KERNEL);
--	if (!sizes)
--		goto err_sizes;
--
- 	/* Parameters for control virtqueue, if any */
- 	if (vi->has_cvq) {
- 		callbacks[total_vqs - 1] = NULL;
- 		names[total_vqs - 1] = "control";
--		sizes[total_vqs - 1] = 64;
- 	}
- 
- 	/* Allocate/initialize parameters for send/receive virtqueues */
-@@ -3513,10 +3484,8 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
- 			ctx[rxq2vq(i)] = true;
- 	}
- 
--	virtnet_config_sizes(vi, sizes);
--
--	ret = virtio_find_vqs_ctx_size(vi->vdev, total_vqs, vqs, callbacks,
--				       names, sizes, ctx, NULL);
-+	ret = virtio_find_vqs_ctx(vi->vdev, total_vqs, vqs, callbacks,
-+				  names, ctx, NULL);
- 	if (ret)
- 		goto err_find;
- 
-@@ -3536,8 +3505,6 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
- 
- 
- err_find:
--	kfree(sizes);
--err_sizes:
- 	kfree(ctx);
- err_ctx:
- 	kfree(names);
-@@ -3897,9 +3864,6 @@ static int virtnet_probe(struct virtio_device *vdev)
- 		vi->curr_queue_pairs = num_online_cpus();
- 	vi->max_queue_pairs = max_queue_pairs;
- 
--	virtnet_init_settings(dev);
--	virtnet_update_settings(vi);
--
- 	/* Allocate/initialize the rx/tx queues, and invoke find_vqs */
- 	err = init_vqs(vi);
- 	if (err)
-@@ -3912,6 +3876,8 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	netif_set_real_num_tx_queues(dev, vi->curr_queue_pairs);
- 	netif_set_real_num_rx_queues(dev, vi->curr_queue_pairs);
- 
-+	virtnet_init_settings(dev);
-+
- 	if (virtio_has_feature(vdev, VIRTIO_NET_F_STANDBY)) {
- 		vi->failover = net_failover_create(vi->dev);
- 		if (IS_ERR(vi->failover)) {
--- 
-MST
+>
+> Cc: stable@vger.kernel.org
+> Cc: Trigger Huang <Trigger.Huang@gmail.com>
+> Link: https://www.collabora.com/news-and-blog/blog/2021/11/26/venus-on-qemu-enabling-new-virtual-vulkan-driver/#qcom1343
+> Tested-by: Dmitry Osipenko <dmitry.osipenko@collabora.com> # AMDGPU (Qemu and crosvm)
+> Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+> ---
+>   drivers/gpu/drm/ttm/ttm_pool.c | 25 ++++++++++++++++++++++++-
+>   1 file changed, 24 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/gpu/drm/ttm/ttm_pool.c b/drivers/gpu/drm/ttm/ttm_pool.c
+> index 21b61631f73a..11e92bb149c9 100644
+> --- a/drivers/gpu/drm/ttm/ttm_pool.c
+> +++ b/drivers/gpu/drm/ttm/ttm_pool.c
+> @@ -81,6 +81,7 @@ static struct page *ttm_pool_alloc_page(struct ttm_pool *pool, gfp_t gfp_flags,
+>   	unsigned long attr = DMA_ATTR_FORCE_CONTIGUOUS;
+>   	struct ttm_pool_dma *dma;
+>   	struct page *p;
+> +	unsigned int i;
+>   	void *vaddr;
+>   
+>   	/* Don't set the __GFP_COMP flag for higher order allocations.
+> @@ -93,8 +94,10 @@ static struct page *ttm_pool_alloc_page(struct ttm_pool *pool, gfp_t gfp_flags,
+>   
+>   	if (!pool->use_dma_alloc) {
+>   		p = alloc_pages(gfp_flags, order);
+> -		if (p)
+> +		if (p) {
+>   			p->private = order;
+> +			goto ref_tail_pages;
+> +		}
+>   		return p;
+>   	}
+>   
+> @@ -120,6 +123,23 @@ static struct page *ttm_pool_alloc_page(struct ttm_pool *pool, gfp_t gfp_flags,
+>   
+>   	dma->vaddr = (unsigned long)vaddr | order;
+>   	p->private = (unsigned long)dma;
+> +
+> +ref_tail_pages:
+> +	/*
+> +	 * KVM requires mapped tail pages to be refcounted because put_page()
+> +	 * is invoked on them in the end of the page fault handling, and thus,
+> +	 * tail pages need to be protected from the premature releasing.
+> +	 * In fact, KVM page fault handler refuses to map tail pages to guest
+> +	 * if they aren't refcounted because hva_to_pfn_remapped() checks the
+> +	 * refcount specifically for this case.
+> +	 *
+> +	 * In particular, unreferenced tail pages result in a KVM "Bad address"
+> +	 * failure for VMMs that use VirtIO-GPU when guest's Mesa VirGL driver
+> +	 * accesses mapped host TTM buffer that contains tail pages.
+> +	 */
+> +	for (i = 1; i < 1 << order; i++)
+> +		page_ref_inc(p + i);
+> +
+>   	return p;
+>   
+>   error_free:
+> @@ -133,6 +153,7 @@ static void ttm_pool_free_page(struct ttm_pool *pool, enum ttm_caching caching,
+>   {
+>   	unsigned long attr = DMA_ATTR_FORCE_CONTIGUOUS;
+>   	struct ttm_pool_dma *dma;
+> +	unsigned int i;
+>   	void *vaddr;
+>   
+>   #ifdef CONFIG_X86
+> @@ -142,6 +163,8 @@ static void ttm_pool_free_page(struct ttm_pool *pool, enum ttm_caching caching,
+>   	if (caching != ttm_cached && !PageHighMem(p))
+>   		set_pages_wb(p, 1 << order);
+>   #endif
+> +	for (i = 1; i < 1 << order; i++)
+> +		page_ref_dec(p + i);
+>   
+>   	if (!pool || !pool->use_dma_alloc) {
+>   		__free_pages(p, order);
 
 _______________________________________________
 Virtualization mailing list
