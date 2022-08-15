@@ -1,100 +1,165 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3F126C00140
-	for <virtualization@archiver.kernel.org>; Mon, 15 Aug 2022 11:24:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 58D72C00140
+	for <virtualization@archiver.kernel.org>; Mon, 15 Aug 2022 11:28:27 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id A00CA4163E;
-	Mon, 15 Aug 2022 11:24:23 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A00CA4163E
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=daynix-com.20210112.gappssmtp.com header.i=@daynix-com.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=rUAYoxNn
+	by smtp1.osuosl.org (Postfix) with ESMTP id CAE288289B;
+	Mon, 15 Aug 2022 11:28:26 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CAE288289B
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=lDgfQ/gK
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id RhTgG8BZPZzP; Mon, 15 Aug 2022 11:24:22 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id SpgFPb3aN9dS; Mon, 15 Aug 2022 11:28:26 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id E15194088B;
-	Mon, 15 Aug 2022 11:24:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E15194088B
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 544D181D24;
+	Mon, 15 Aug 2022 11:28:25 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 544D181D24
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id AD594C0033;
-	Mon, 15 Aug 2022 11:24:21 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3D948C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 140E6C0033;
+	Mon, 15 Aug 2022 11:28:25 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 385DDC002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Aug 2022 11:24:20 +0000 (UTC)
+ Mon, 15 Aug 2022 11:28:23 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 0BC89408DF
+ by smtp3.osuosl.org (Postfix) with ESMTP id 1592A60DC2
  for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Aug 2022 11:24:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0BC89408DF
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (2048-bit key) header.d=daynix-com.20210112.gappssmtp.com
- header.i=@daynix-com.20210112.gappssmtp.com header.a=rsa-sha256
- header.s=20210112 header.b=rUAYoxNn
+ Mon, 15 Aug 2022 11:28:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1592A60DC2
+Authentication-Results: smtp3.osuosl.org; dkim=pass (1024-bit key,
+ unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256
+ header.s=selector1 header.b=lDgfQ/gK
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id xlxMaHKlCkhD
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id u4UO0xkg4sHY
  for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Aug 2022 11:24:18 +0000 (UTC)
+ Mon, 15 Aug 2022 11:28:20 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org AAC87400CB
-Received: from mail-oa1-x2a.google.com (mail-oa1-x2a.google.com
- [IPv6:2001:4860:4864:20::2a])
- by smtp2.osuosl.org (Postfix) with ESMTPS id AAC87400CB
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6F68F60C0D
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com
+ (mail-dm6nam11on2051.outbound.protection.outlook.com [40.107.223.51])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 6F68F60C0D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Aug 2022 11:24:18 +0000 (UTC)
-Received: by mail-oa1-x2a.google.com with SMTP id
- 586e51a60fabf-116c7286aaaso7819627fac.11
- for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Aug 2022 04:24:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=daynix-com.20210112.gappssmtp.com; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:from:to:cc;
- bh=nZKRK6PqpP9DzZexrnN2X0Qb/e767BxaO5vGQnjget0=;
- b=rUAYoxNnI93ew8bxi9wgUMPjWeUoUDnG6Nj9o52dVkR2NlEGfl91GFzFSx79b35ysF
- B1/f8iqHvCTg/tXiPf3LIWX/oklVsJ7tVX70T4va49yXdi08istOw26actUfiqZb+vah
- 9z6C3LLtxGrzUnJY1PszhLsgm1YkVdIstQG++4/Ynocf2OedbOgtDwb/H+MXDXGzanRY
- DadyoocQgJopr1HKQyZimw656KC+mmSB0JBGK5gr6LIB9Z4jLG6lkpq4sqoDS9+HUFy8
- +AYFuSacPLChDp5qNt8NFyWGvjbuq7p1FuZeUMvW9PJ4rgDl/6Qbna78pReiWl05XsvO
- dwvQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:x-gm-message-state:from:to:cc;
- bh=nZKRK6PqpP9DzZexrnN2X0Qb/e767BxaO5vGQnjget0=;
- b=1aZgebeqSm04nhEauSINaYScUqRiIinJ5iwntFZlgx6uVM6F+DVtERlhihpCiY6iFl
- RmmkucsO594Vn0EGF4W9cShOsHtGu+yvYa7El2dMJnTm79huAek/RLRLx2vbx6JGBAkU
- h6GuiTxakvcbhTVZqHBnRFMOD8AX0m55spYLstBklOEEsVOmZRy6OhqxH3hgdz//vBi7
- QVPHrLtat8y86ztfxCcH+tCRF4kRVdhNFP4M3YK6LP8LtDpcCgQhW0p1f8XeKtMBkLND
- UlGjr4Ph9l+t/tmtVItFh7m4qsDslx95ko3RYcJv+s+HHqbyhmbfj7vnqYM3Q5zAd3JG
- QgbA==
-X-Gm-Message-State: ACgBeo1WJns+FL+2JyI29Mu8QZ4PAyyCB3zQ/F6p6VqsP87UGyweNGOl
- z3JJEh/UtcsN4vFOt21Y+E/nBBJ2fcAoZzaznwSk6Q==
-X-Google-Smtp-Source: AA6agR6wiP+vKr9ua4UscIVhTqUu7BG3rnpd+PJHlpopLMa7eQFclmDrowFtZDXtA0ZVOeaXnXx/ZkvJL/VIvqyLTbg=
-X-Received: by 2002:a05:6870:b28a:b0:10f:72f:6c with SMTP id
- c10-20020a056870b28a00b0010f072f006cmr6274489oao.148.1660562657764; Mon, 15
- Aug 2022 04:24:17 -0700 (PDT)
+ Mon, 15 Aug 2022 11:28:20 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=NKMSEzqMOK0B9DXTFIQr2yqpcdWBA7UB/Pw2QQpcuPDD2Q2X2uLLaSUNWTMZp4KQmE9a9PsMH41+vHlZVtU8gFNWZRIVobWDVW8WmkGU35FC01LhZOb+PhUE14mDwja1EwF8tXZycR2kaWNGW6tXJavWESZx1izSHpqAVIvttdoJsBQMSiCdlsm5cIkz2GFBCSxD2uO6ZjC/2rlN0lJJG1qlYobW3NLTkjOaOXCJtIXCXFVyPRk9Tmy7NvZCVWX//QZifHZlOtN5XmF010FhPvFW2hj81rPTv8/StpzvK/l/bBN1/ahQGwbhRLVOQez0tpLZRobFDA7hwcsy8YJZ0w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=oM6YTzPvEFv72OGkdeMo9uDD9nhyICWlOUixTGt4yKc=;
+ b=HHRvt3QaTjV+zCAvnmIPYgxVI4DLACqdVQaRoIuvCNGyPyva/ZaI1yAM/36Rjd++Khf79gY57qJ6ArFJ9q4vBpcsSxZf/9aDMaTYf5np5K2pxd/3YCYJxq6uRwVgWRVedFNSb9/foR4y63vBAnIDmI2/asOFJ1UieNHunuVZq2Ecuyy3JActkvH/KL2U1D5qA1WQfsl/H3ydyu92UMjc9nxx0ys0R3nlLgNAzTNdu1XRllzwhRVpst2RHeDYVwdvGjWcnw+g1fHyPAk9+stIl0YwGz94LOo9Acew1Ut+nQMhUUcTACpmqn1OLdU/IHhwNupHPrpbOcLfNfgiM0iDWA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1; 
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=oM6YTzPvEFv72OGkdeMo9uDD9nhyICWlOUixTGt4yKc=;
+ b=lDgfQ/gKgDuGqG+1xtkTzKjAhfhzP6nwaJ2Jwsm/i0riEB21d/2ZZb8NwR+cRvz6GqoMLhfYDb1FJE6H1THTMXlh41gw0JB3L0zhaY0vTsTnyxqV9oGPY7yAKCrCIqmkdInCh1rxWwHZ5KXwMj/RXOZBqm7S7YeyWzIaIsEjL78=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+Received: from BN8PR12MB3587.namprd12.prod.outlook.com (2603:10b6:408:43::13)
+ by BL0PR12MB2403.namprd12.prod.outlook.com (2603:10b6:207:40::12)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5504.16; Mon, 15 Aug
+ 2022 11:28:17 +0000
+Received: from BN8PR12MB3587.namprd12.prod.outlook.com
+ ([fe80::905:1701:3b51:7e39]) by BN8PR12MB3587.namprd12.prod.outlook.com
+ ([fe80::905:1701:3b51:7e39%2]) with mapi id 15.20.5504.020; Mon, 15 Aug 2022
+ 11:28:17 +0000
+Message-ID: <8f749cd0-9a04-7c72-6a4f-a42d501e1489@amd.com>
+Date: Mon, 15 Aug 2022 13:28:11 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [PATCH v1] drm/ttm: Refcount allocated tail pages
+Content-Language: en-US
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ David Airlie <airlied@linux.ie>, Huang Rui <ray.huang@amd.com>,
+ Daniel Vetter <daniel@ffwll.ch>, Trigger Huang <Trigger.Huang@gmail.com>,
+ Gert Wollny <gert.wollny@collabora.com>,
+ Antonio Caggiano <antonio.caggiano@collabora.com>
+References: <20220815095423.11131-1-dmitry.osipenko@collabora.com>
+ <8230a356-be38-f228-4a8e-95124e8e8db6@amd.com>
+ <134bce02-58d6-8553-bb73-42dfda18a595@collabora.com>
+ <8caf3008-dcf3-985a-631e-e019b277c6f0@amd.com>
+ <4fcc4739-2da9-1b89-209c-876129604d7d@amd.com>
+ <14be3b22-1d60-732b-c695-ddacc6b21055@collabora.com>
+ <2df57a30-2afb-23dc-c7f5-f61c113dd5b4@collabora.com>
+ <57562db8-bacf-e82d-8417-ab6343c1d2fa@amd.com>
+ <86a87de8-24a9-3c53-3ac7-612ca97e41df@collabora.com>
+In-Reply-To: <86a87de8-24a9-3c53-3ac7-612ca97e41df@collabora.com>
+X-ClientProxiedBy: FR0P281CA0098.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:a9::8) To BN8PR12MB3587.namprd12.prod.outlook.com
+ (2603:10b6:408:43::13)
 MIME-Version: 1.0
-References: <20220811125156.293825-1-mst@redhat.com>
- <166030021657.10916.8438944707929097441.git-patchwork-notify@kernel.org>
-In-Reply-To: <166030021657.10916.8438944707929097441.git-patchwork-notify@kernel.org>
-From: Andrew Melnichenko <andrew@daynix.com>
-Date: Mon, 15 Aug 2022 14:12:16 +0300
-Message-ID: <CABcq3pGwc0MnkBfUfryOEcJfh96Ar3p_ZZw7U0SHvtnxjt+4pQ@mail.gmail.com>
-Subject: Re: [PATCH] virtio_net: fix endian-ness for RSS
-To: patchwork-bot+netdevbpf@kernel.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- Yuri Benditovich <yuri.benditovich@daynix.com>, edumazet@google.com,
- Yan Vugenfirer <yan@daynix.com>, kuba@kernel.org, pabeni@redhat.com,
- davem@davemloft.net
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 31cac634-54d0-4eac-f907-08da7eb13fa1
+X-MS-TrafficTypeDiagnostic: BL0PR12MB2403:EE_
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: UV8J8YvXgwgJn8Wd9cyNjJwNtemsQ05Q0C/YSHdDqwqvQhWMzBcNgtYXH/tW5LLFJ9pNMZgq5irjQr/YYc29HKyfa2Y5lLdmONvYKLIAN41u+4Jdpe1JJvFOKZvtrBqZXEsftwI5jnXDG6gmttazXXpyIcXfcTiHbUIPW1VbKYMbLlsYV/g1NY5Od31tv2SEK4CbcLffrRDymrr45QkllxjY+XCU9oNTxPsbPcnbAZx19ZRm3RCU4FIQ1xvrXeDIZaHMh32XWkr+oNj2lYCiTFDU7GeyQj+OKkYHbqmUIOGBoMtu7wPHs/UaFfZGwqCr9Pf1WvgKajyAykPFt4a0RtEAymtP5jHJG85JFnGs8SICwBroEbgcdPpkTh6YThHNerybj/CnpHxvBzXqWzA3W7AJ/OUyoKQ5ZIRbvxKwsKKJhDW6qwyYnhslORi7XHNMTMvJ0+0MNXagtnN87SKu07jZtwipLihVLAseWfNR2z/eHINV3Sx/dkJLTfTSlughYX5lPvrJBeMrZ0KICYLx0AQvtxYjzXuygoJYy1zufP5smYcZZF+PQlbW1zdA63Nsz/URubbYMZcvb5kwXFHth9bUe8NbJLJzBfwIf1uASe5erLZucNf2iqaemNnGS2XqCipDWslEV+LngDU8DuFlst+FOa9FzWIRN5t6C9Xz4g5CDfAnYUjx2VWDfhkZB3uMu8t6AX6er8OcSpSIg73izU6bywz4oBZxYpgo+rdusB0Ua6LtV2E/TVK69aCcS0EfWJ4pfpK660SxAA52E22nG/NPDYxzpAPXk6bspSQq8deGOAm7YLgKXLp55dut2cFGTbnlegGRMU1hK9B2QRo0Gw==
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:BN8PR12MB3587.namprd12.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230016)(4636009)(136003)(376002)(39860400002)(366004)(396003)(346002)(38100700002)(5660300002)(66556008)(66946007)(8676002)(66476007)(186003)(478600001)(2616005)(41300700001)(6506007)(6512007)(6666004)(316002)(6486002)(83380400001)(4326008)(110136005)(31686004)(36756003)(7416002)(8936002)(31696002)(86362001)(2906002)(43740500002)(45980500001);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?TDlqV2c5MGM2bTcwOXY0MXU5ZkRObzhoUDZxNWNMZklyMmdNMnA3TGNuaXdU?=
+ =?utf-8?B?bnhXQXFlc2ZJYnk0SGVrY3BWdTZlbDZDWnR0TmZNU0hFSk84SlhtYS9BTTV0?=
+ =?utf-8?B?cjdCTmN6K2d0UU1hYXB2MWluOHFUNTR4aTV3SVIzVS92aU02dHVoRjQwNXVJ?=
+ =?utf-8?B?YkRiamtMNzZqYUNGMWtxZkJMdUp5TFFXSEFTRDFyV3kzSGUxakM0Y3BPNnJX?=
+ =?utf-8?B?Q2d6b0d5NTB0d2VqZmV6bDFieDhnNzBsQ2VJbDR0N0xrZmxBTm5VLzZXQ1JL?=
+ =?utf-8?B?Tm4zY0VjM1F3MElUSG1kWGsxNklhSFhGVTJUbjVmbkU2c0R0cmpQV1FTRW9x?=
+ =?utf-8?B?d2pqQVV5UWEzZmpNcW9CMFhuZThuYmR2am51ZjI0bXIrZFlsQnRLclNnTTdu?=
+ =?utf-8?B?OG1FSm1IN0hxd2pZM3E1dmxlV0YrLzBJQVpOSHErQjJlUmM3K0xYdkprYkh1?=
+ =?utf-8?B?VmZCeE9YcTNUcWpoOGh2M0dDNWVpYkc5Ym9nYjFXdktGS0VVenV1ZGYxRExM?=
+ =?utf-8?B?c2ZSTjcrUWVINWVDd2F5OUhjNDVIcVV5SUhqT1pqSzIrT0k5SkZaY2JBUGJ0?=
+ =?utf-8?B?ZjRBclZRdWNqY2t6MURrOVJYaFNzY21COXNSdjljdVVqTWJCNWJFTkhLbjU5?=
+ =?utf-8?B?TTdyMFFEQko4dE95SWJMdjNia2VzcTVkeTk1NEFUTmpjZ2dSR0Y5dWROV1pV?=
+ =?utf-8?B?bm5UZEhISElaT2hpUHZIN1Z2SUx5Y20wNy8zTzUwSFBsYzVDcjhQVlRLYld2?=
+ =?utf-8?B?VDhvV2FISjZlQ0RaSHdtd01mcTBuSndOL1NGNFJMcU1qZThRZ3lmOHJOY1Zt?=
+ =?utf-8?B?NmdIUGVTRG5IWkNaTU11UUErY0JySzQzKy9vUnlUK2ZnTnNSNDNkd1FRei9n?=
+ =?utf-8?B?YzVJN2k5Ly8xTk5SR3FBYzV3dExYcm5aWFZ2bTZRc01lbEd5T3pPTjJYM1pz?=
+ =?utf-8?B?VHh1SDRXOXdGVkx3OFNhZTVPU2I3WjZWYk5MNWpZTkpUMlBYNGh5bUVwYlNy?=
+ =?utf-8?B?eGlrMmoxT2diWGJzckNsc2N2VlduSXRpREdSOGlSNFUybVRmTEZwNDhQMWJn?=
+ =?utf-8?B?dDBoVWJ0L1lWTFJNclhHODQvenZWVG50ajNBWGNQVDlZaE9ZdXgyODBhK1Za?=
+ =?utf-8?B?WDRsbHRXd1Y3MjFjeEJCcVQ2czZIRlZ4b2dHZE9zUDFNck5kMTVqVFdMSTdk?=
+ =?utf-8?B?SFQzVHg1WHdHQ1V3czlFVFJPVTlLWDNOZUg2dXQxRjZoMXUzSUdCZmo3WUNH?=
+ =?utf-8?B?SFdNM0xVNEM2ZmwrcEliV3dBTnBNU1pHbzNvcjNBQWFhNnNtVW5iY2p4OUQy?=
+ =?utf-8?B?WlNqbGQrQmRNekJWNldZWkJWSkt0NGdnendEWHlPMFJtZjZsa1JZdEFNSUVs?=
+ =?utf-8?B?TXA2ZC9oY2xlVGV6Sjk1d2g3bitjMk5LNzAwMGc0azQxM3NlaUovd2NMVGJF?=
+ =?utf-8?B?SUJQNis1SkFjcVZYUnlpTUJiQzQzN1pvQW9nT01BakpkUXZpUGpha3hzcFVP?=
+ =?utf-8?B?WFBnK1F2Ri9Ka0s5cktTa1NyQk11L2hjMlBDa09XeFdTK05HUGxVRjBvNnRV?=
+ =?utf-8?B?SUkzb3pXNEdKZVBHZS9WWEwyT1dlUDYvS1ZwcHVTWVNQTXQ2VDlmWk45clpM?=
+ =?utf-8?B?SnhxZWFTTVF2UnVaWUlSL2pRSUlodVd6VmlNdEVCUmJ1dFFUNDNORk81Rkkx?=
+ =?utf-8?B?ZTBpNzhHcGY5bEdPZ2F3dTFHc21rWnlZZnNXREROSmpXbUM5bmF4MkN0eUo4?=
+ =?utf-8?B?ZG1YaWMydE9EaFhlZWh0ckdqaWltVjdCbjRUcGhMajIzVnpiWXZvTlY0RlF6?=
+ =?utf-8?B?SGVHeTM5YWpDWHQ5emsxZEdPR2N4RllaWEE1WmFGM1puV0JaM3NTcTdwL2hX?=
+ =?utf-8?B?M3JqRndnQnpWNEJoMVUvRUN1dkhBRzlIV2QxQ3pUMjZJZ0JoWmtWSmJEbCtU?=
+ =?utf-8?B?ZHl6aGhmdUtlSm80NzRzSUxqOXc0WHFRc1d2bzd5ZzhCNVJ4ZUlZUG5HOTJO?=
+ =?utf-8?B?SEk4SkZMN3hQbTEyeEZ6blcxSUtqSm9WRmYyYVJXS0w0NXdGMUF6dEEyQ0Fp?=
+ =?utf-8?B?Si95K0ExUXlGZGhIR3VwdVpteWlSNm56aXZKdmtQT3hEUVIxMnhweGtVUDdI?=
+ =?utf-8?B?THVWUGNnK203ZW91N0svYnU5VlUxNEMyQm5nTGZqK3E3b3FMWk9RdDU1VkJv?=
+ =?utf-8?Q?/WbXiRbpN5u9OblBOWfpJa9WveEVoLpxgGImj0cVQl+N?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 31cac634-54d0-4eac-f907-08da7eb13fa1
+X-MS-Exchange-CrossTenant-AuthSource: BN8PR12MB3587.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Aug 2022 11:28:17.1205 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: t5w3v60m2R264dzCYE5uiqiYEjXnVjXsOPQzB4rBWF4M4G/cHpK0zrFnoi5Bv0tb
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL0PR12MB2403
+Cc: kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+ dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
+ Dmitry Osipenko <digetx@gmail.com>, kernel@collabora.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -106,40 +171,52 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
+From: =?UTF-8?Q?Christian_K=c3=b6nig?= via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Reviewed-by: Andrew Melnychenko andrew@daynix.com
+Am 15.08.22 um 13:19 schrieb Dmitry Osipenko:
+> [SNIP]
+>>>> I'll try to dig out the older discussions, thank you for the quick
+>>>> reply!
+>>> Are you sure it was really discussed in public previously? All I can
+>>> find is yours two answers to a similar patches where you're saying that
+>>> this it's a wrong solution without in-depth explanation and further
+>>> discussions.
+>> Yeah, that's my problem as well I can't find that of hand.
+>>
+>> But yes it certainly was discussed in public.
+> If it was only CC'd to dri-devel, then could be that emails didn't pass
+> the spam moderation :/
 
-On Fri, Aug 12, 2022 at 1:30 PM <patchwork-bot+netdevbpf@kernel.org> wrote:
->
-> Hello:
->
-> This patch was applied to netdev/net.git (master)
-> by David S. Miller <davem@davemloft.net>:
->
-> On Thu, 11 Aug 2022 08:51:58 -0400 you wrote:
-> > Using native endian-ness for device supplied fields is wrong
-> > on BE platforms. Sparse warns about this.
-> >
-> > Fixes: 91f41f01d219 ("drivers/net/virtio_net: Added RSS hash report.")
-> > Cc: "Andrew Melnychenko" <andrew@daynix.com>
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> >
-> > [...]
->
-> Here is the summary with links:
->   - virtio_net: fix endian-ness for RSS
->     https://git.kernel.org/netdev/net/c/95bb633048fa
->
-> You are awesome, thank you!
-> --
-> Deet-doot-dot, I am a bot.
-> https://korg.docs.kernel.org/patchwork/pwbot.html
->
->
+That might be possible.
+
+>>> Maybe it was discussed privately? In this case I will be happy to get
+>>> more info from you about the root of the problem so I could start to
+>>> look at how to fix it properly. It's not apparent where the problem is
+>>> to a TTM newbie like me.
+>>>
+>> Well this is completely unfixable. See the whole purpose of TTM is to
+>> allow tracing where what is mapped of a buffer object.
+>>
+>> If you circumvent that and increase the page reference yourself than
+>> that whole functionality can't work correctly any more.
+> Are you suggesting that the problem is that TTM doesn't see the KVM page
+> faults/mappings?
+
+Yes, and no. It's one of the issues, but there is more behind that (e.g. 
+what happens when TTM switches from pages to local memory for backing a BO).
+
+Another question is why is KVM accessing the page structure in the first 
+place? The VMA is mapped with VM_PFNMAP and VM_IO, KVM should never ever 
+touch any of those pages.
+
+Regards,
+Christian.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
