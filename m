@@ -4,103 +4,97 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 648ACC00140
-	for <virtualization@archiver.kernel.org>; Mon, 15 Aug 2022 20:45:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9B9F2C00140
+	for <virtualization@archiver.kernel.org>; Mon, 15 Aug 2022 20:51:03 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id E6BC68176B;
-	Mon, 15 Aug 2022 20:45:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E6BC68176B
+	by smtp1.osuosl.org (Postfix) with ESMTP id 38CB68177A;
+	Mon, 15 Aug 2022 20:51:03 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 38CB68177A
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=POQ4Lda3
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=QQ7hvQ+u
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id tBBwKfo-exVG; Mon, 15 Aug 2022 20:45:08 +0000 (UTC)
+	with ESMTP id 1fYjOBjIDQf3; Mon, 15 Aug 2022 20:51:01 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 8A9DC81360;
-	Mon, 15 Aug 2022 20:45:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8A9DC81360
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 30F7181775;
+	Mon, 15 Aug 2022 20:51:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 30F7181775
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 52DBBC0032;
-	Mon, 15 Aug 2022 20:45:07 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 88F3EC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id EE014C0032;
+	Mon, 15 Aug 2022 20:51:00 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id DCE3BC002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Aug 2022 20:45:05 +0000 (UTC)
+ Mon, 15 Aug 2022 20:50:58 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 52A0A4089D
+ by smtp2.osuosl.org (Postfix) with ESMTP id A9755402BC
  for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Aug 2022 20:45:05 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 52A0A4089D
-Authentication-Results: smtp4.osuosl.org;
+ Mon, 15 Aug 2022 20:50:58 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A9755402BC
+Authentication-Results: smtp2.osuosl.org;
  dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com
- header.a=rsa-sha256 header.s=20210112 header.b=POQ4Lda3
+ header.a=rsa-sha256 header.s=20210112 header.b=QQ7hvQ+u
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id wQZwd5_jkUCk
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id CkgI-jNqpfhV
  for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Aug 2022 20:45:04 +0000 (UTC)
+ Mon, 15 Aug 2022 20:50:56 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 877EB402E0
-Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com
- [IPv6:2607:f8b0:4864:20::629])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 877EB402E0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 02ABF4028D
+Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com
+ [IPv6:2607:f8b0:4864:20::42d])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 02ABF4028D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Aug 2022 20:45:04 +0000 (UTC)
-Received: by mail-pl1-x629.google.com with SMTP id y1so7371869plb.2
+ Mon, 15 Aug 2022 20:50:55 +0000 (UTC)
+Received: by mail-pf1-x42d.google.com with SMTP id h28so7561226pfq.11
  for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Aug 2022 13:45:04 -0700 (PDT)
+ Mon, 15 Aug 2022 13:50:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:sender:from:to:cc;
- bh=XS5K4OzaHR63BIa1xws9D0ReOq3Svv2Wh4Lbm5YbAfM=;
- b=POQ4Lda376BXN0B9b1jtVn5dk06uCU+dpZ0TVOwcNXMKz4thbYFRfKcbTZRu413o8T
- joeFgGN35weFYtqnpQK0bxOorsyX2IoaQh8HFvWBT/pU8Rgg6U19N8K63aJ5xdrVPx1e
- SAUAQ3qOPpIMIzPMdtk3n3Dpv7rKWuDRvcnWMTOxAFeiGUd39rD3fkovoFIg4QpAbLSb
- xzyyCNrPDZsmdqII7ChdtrONVxQiXbqyAvjmUwRC/QwxbXSxSi93uZ690b4+QkfteDr/
- 1wBzjH901vu1iRNR39joY4Mg6o1vDcJR3SEKW37tqYsqJbiCLvc+UZpiEZpzbrhcLKaM
- L38g==
+ bh=glA+4AWskQ0XcBj8UcnWlDiqOn/xWKEln7bVu+o8za4=;
+ b=QQ7hvQ+ubp2iJzuj3UoaM8lWe4xQ/FUV+rXpyAd8B8F0q1DSanPwK8b8YKAu/ito2z
+ EEOcMyBXUxdpbxc0dNqHywfGBX/ICtK3jTaetbb5KdVBQw67gS0C/M+TgADZAbbeyH3q
+ aD0mXkAs0f4zzMC3gZJnm75uSpJnDu9MAVtISN9/J04MtSNTnO/X21jqiLLOyNMS1eji
+ 5cIkLVKER5CUqI1FGbTCFj0MYnXlI3gKBJ8S6kgnXvv+7mAdb2e48QKEWDZMAPWiseak
+ wO2PBJnL1K5XxrkEb143yZe0LCXyHiz55SYAafuEXRc9M3XoXqVMr/rxlnUbY+ESvShL
+ QacQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc;
- bh=XS5K4OzaHR63BIa1xws9D0ReOq3Svv2Wh4Lbm5YbAfM=;
- b=fUiNpviDrnqoK2vqZFKQ8eYRtyRJGZkGKrBFpl0XaAaOgEGKK4WrjAvXOX2LktrpVB
- dHTUVCY40/OvwIRIWrdIxOnmpqpadq+UPf3SwdeN/NX+Ud7XfvRWT78puftTy8DdOsr0
- 8KopzUFjrsPiN0PtMUfGmnBcT/9Yi+FQnfBdkq/yuMUqd5Bl/khqqiqFBsJs1g+iqMoc
- sjySaju9WA/8rlQtgm6eXF9E97NoihehYT5QprRSEj2+MuYlxb2eUzk+KH7v35LUvkKM
- f4aLtfLLPemQPNrZuz9axvEHidmvj+R/1QEmEpjJpCYbsAgMo776ZAlKGDuj8P1DyJfA
- /ZJw==
-X-Gm-Message-State: ACgBeo2ovOFoURRD80+S2WAzs4+IWgkLafE0+R3ioLI/VWIIKLxyA8A5
- SoXLkehyRRjRNCmlBqK93H0=
-X-Google-Smtp-Source: AA6agR5hpN5Jw5Lb8baKNCmKSASjXILStRaT2kte+VwGknYpI/t1N4jPKG7MFOa60MRd2+2GnQcNFg==
-X-Received: by 2002:a17:902:720b:b0:16d:2c4c:b52a with SMTP id
- ba11-20020a170902720b00b0016d2c4cb52amr18276430plb.155.1660596304001; 
- Mon, 15 Aug 2022 13:45:04 -0700 (PDT)
+ bh=glA+4AWskQ0XcBj8UcnWlDiqOn/xWKEln7bVu+o8za4=;
+ b=n4afm8K6VD6Xq7t1eCDRWsZVV7VoHjO87KW0ZnNypweCzf8hHPJY/cUNVjMPr5Xrb3
+ 1sGwGbI/fvAc976UXo4SxCAM2vKq6fUUyCAD/BoHrH7ay0DaFAMdwkIi1MyPwEOEwT3U
+ oCI1mXBNrqQvjTW0Nq2MqyCA8UrEzO3jVVyUtSiERfdz4rs48ADoKr+swgOhN9hk6IdJ
+ abfLv/xTBx6iV0Ww+NjBmBkIFAiqNw+ynAOpH6UE03EDtj8fw+G3ALeM9sDjbErvUnK1
+ D65uu/vicFinE63OC1nfbNrSvoPuWn/h75bobi49SGdNTGIpGIiLosXxXfqC6H9nHPTI
+ nKkA==
+X-Gm-Message-State: ACgBeo0Aufvs7ksBFsKxoOC08LgaZfYa5J5OtMUep5LQWnA5gPHX8YnV
+ 0+HRkwVIKiAKcT8WIrriLls=
+X-Google-Smtp-Source: AA6agR7sPBhzIixnkq0W8yjYSrUdkzbyY93STp5RF3u/3ixs6au3SDQM9HC93KIyhdO/SDet4xb6jw==
+X-Received: by 2002:a05:6a00:a04:b0:534:d8a6:40ce with SMTP id
+ p4-20020a056a000a0400b00534d8a640cemr7012939pfh.15.1660596655420; 
+ Mon, 15 Aug 2022 13:50:55 -0700 (PDT)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
  by smtp.gmail.com with ESMTPSA id
- y11-20020a17090322cb00b0016c40f8cb58sm7386806plg.81.2022.08.15.13.45.02
+ l8-20020a17090a4d4800b001f4dd3b7d7fsm4975272pjh.9.2022.08.15.13.50.54
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 15 Aug 2022 13:45:03 -0700 (PDT)
-Date: Mon, 15 Aug 2022 13:45:02 -0700
+ Mon, 15 Aug 2022 13:50:54 -0700 (PDT)
+Date: Mon, 15 Aug 2022 13:50:53 -0700
 From: Guenter Roeck <linux@roeck-us.net>
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: upstream kernel crashes
-Message-ID: <20220815204502.GC509309@roeck-us.net>
-References: <20220815013651.mrm7qgklk6sgpkbb@awork3.anarazel.de>
- <CAHk-=wikzU4402P-FpJRK_QwfVOS+t-3p1Wx5awGHTvr-s_0Ew@mail.gmail.com>
- <20220815071143.n2t5xsmifnigttq2@awork3.anarazel.de>
- <20220815034532-mutt-send-email-mst@kernel.org>
- <20220815081527.soikyi365azh5qpu@awork3.anarazel.de>
- <20220815042623-mutt-send-email-mst@kernel.org>
- <FCDC5DDE-3CDD-4B8A-916F-CA7D87B547CE@anarazel.de>
- <20220815113729-mutt-send-email-mst@kernel.org>
- <20220815164503.jsoezxcm6q4u2b6j@awork3.anarazel.de>
- <20220815124748-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH] virtio_net: Revert "virtio_net: set the default max ring
+ size by find_vqs()"
+Message-ID: <20220815205053.GD509309@roeck-us.net>
+References: <20220815090521.127607-1-mst@redhat.com>
+ <20220815203426.GA509309@roeck-us.net>
+ <20220815164013-mutt-send-email-mst@kernel.org>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20220815124748-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20220815164013-mutt-send-email-mst@kernel.org>
 Cc: Jens Axboe <axboe@kernel.dk>,
  "Martin K. Petersen" <martin.petersen@oracle.com>, netdev@vger.kernel.org,
  linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
@@ -126,22 +120,57 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Michael,
-
-On Mon, Aug 15, 2022 at 12:50:52PM -0400, Michael S. Tsirkin wrote:
-[ ...]
+On Mon, Aug 15, 2022 at 04:42:51PM -0400, Michael S. Tsirkin wrote:
+> On Mon, Aug 15, 2022 at 01:34:26PM -0700, Guenter Roeck wrote:
+> > On Mon, Aug 15, 2022 at 05:16:50AM -0400, Michael S. Tsirkin wrote:
+> > > This reverts commit 762faee5a2678559d3dc09d95f8f2c54cd0466a7.
+> > > 
+> > > This has been reported to trip up guests on GCP (Google Cloud).  Why is
+> > > not yet clear - to be debugged, but the patch itself has several other
+> > > issues:
+> > > 
+> > > - It treats unknown speed as < 10G
+> > > - It leaves userspace no way to find out the ring size set by hypervisor
+> > > - It tests speed when link is down
+> > > - It ignores the virtio spec advice:
+> > >         Both \field{speed} and \field{duplex} can change, thus the driver
+> > >         is expected to re-read these values after receiving a
+> > >         configuration change notification.
+> > > - It is not clear the performance impact has been tested properly
+> > > 
+> > > Revert the patch for now.
+> > > 
+> > > Link: https://lore.kernel.org/r/20220814212610.GA3690074%40roeck-us.net
+> > > Link: https://lore.kernel.org/r/20220815070203.plwjx7b3cyugpdt7%40awork3.anarazel.de
+> > > Link: https://lore.kernel.org/r/3df6bb82-1951-455d-a768-e9e1513eb667%40www.fastmail.com
+> > > Link: https://lore.kernel.org/r/FCDC5DDE-3CDD-4B8A-916F-CA7D87B547CE%40anarazel.de
+> > > Fixes: 762faee5a267 ("virtio_net: set the default max ring size by find_vqs()")
+> > > Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > Cc: Jason Wang <jasowang@redhat.com>
+> > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > > Tested-by: Andres Freund <andres@anarazel.de>
+> > 
+> > I ran this patch through a total of 14 syskaller tests, 2 test runs each on
+> > 7 different crashes reported by syzkaller (as reported to the linux-kernel
+> > mailing list). No problems were reported. I also ran a single cross-check
+> > with one of the syzkaller runs on top of v6.0-rc1, without this patch.
+> > That test run failed.
+> > 
+> > Overall, I think we can call this fixed.
+> > 
+> > Guenter
 > 
-> Okay! And just to be 100% sure, can you try the following on top of 5.19:
-> 
+> It's more of a work around though since we don't yet have the root
+> cause for this. I suspect a GCP hypervisor bug at the moment.
+> This is excercising a path we previously only took on GFP_KERNEL
+> allocation failures during probe, I don't think that happens a lot.
+>
 
-You should now be able to test any patches using the syzkaller
-infrastructure. Pick any (or all) of the now-published syzkaller
-reports from the linux-kernel mailing list, reply with:
+Even a hypervisor bug should not trigger crashes like this one,
+though, or at least I think so. Any idea what to look for on the
+hypervisor side, and/or what it might be doing wrong ?
 
-#syz test git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git v5.19
-
-and provide your patch as attachment.
-
+Thanks,
 Guenter
 _______________________________________________
 Virtualization mailing list
