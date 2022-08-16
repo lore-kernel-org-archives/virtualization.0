@@ -4,110 +4,107 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5BFAEC2BB41
-	for <virtualization@archiver.kernel.org>; Tue, 16 Aug 2022 08:41:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id DB175C2BB41
+	for <virtualization@archiver.kernel.org>; Tue, 16 Aug 2022 08:43:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 03B3560E61;
-	Tue, 16 Aug 2022 08:41:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 03B3560E61
+	by smtp3.osuosl.org (Postfix) with ESMTP id 8693B60B0E;
+	Tue, 16 Aug 2022 08:43:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8693B60B0E
 Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=dKi4lKyS
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gtMNqOWi
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 29WJYqsYRDEZ; Tue, 16 Aug 2022 08:41:14 +0000 (UTC)
+	with ESMTP id dw7fbFn0H_Bg; Tue, 16 Aug 2022 08:43:29 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 706EF60E39;
-	Tue, 16 Aug 2022 08:41:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 706EF60E39
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 13D0D605A3;
+	Tue, 16 Aug 2022 08:43:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 13D0D605A3
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4CB97C0033;
-	Tue, 16 Aug 2022 08:41:13 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4D7F6C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id BA10DC0033;
+	Tue, 16 Aug 2022 08:43:28 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7A4FCC002D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 Aug 2022 08:41:12 +0000 (UTC)
+ Tue, 16 Aug 2022 08:43:27 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 1A40560E61
+ by smtp2.osuosl.org (Postfix) with ESMTP id 360264064C
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 Aug 2022 08:41:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1A40560E61
+ Tue, 16 Aug 2022 08:43:27 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 360264064C
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=gtMNqOWi
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id hDS6sJSdW7Ga
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 5riBtCW9uFWH
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 Aug 2022 08:41:11 +0000 (UTC)
+ Tue, 16 Aug 2022 08:43:26 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3A10960E39
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 493BE4063E
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 3A10960E39
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 493BE4063E
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 Aug 2022 08:41:11 +0000 (UTC)
+ Tue, 16 Aug 2022 08:43:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1660639270;
+ s=mimecast20190719; t=1660639405;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=JhzHSnD8m6MoYMeJjcaDLkKFr2qic5jMfN3mxxe71ZQ=;
- b=dKi4lKyS8qHPbkbciKneaLOzlGK3p7vWL5yoqIFynrfG6m+cHufjMsCxLlspETuVAylQcY
- Iww7lHIPgLiGXxFS+HOBGwOuXkSRk1IjxAwQE0vG8jf+gQVp5niU5N1Jmn7oDMh+BAGC94
- e+FOlElis0Al60scov7ApRqpiONET/c=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=lQ8+OX5Xxy8OFHIKMeBXHvilaHMyPM9qIfwd9KvB9T8=;
+ b=gtMNqOWiEL6TkHDwAkt9qCMq6GAZmLsiV+ntWAf+B1f+XfrrTx9ma98+kOYHv7zBVUX2W8
+ czBvY7oTJGmQbC7Qk07g0uD22GGffqd1IturOD2ozgxMdG4XxhBmMbQUHCedz5lZK7ylHE
+ 68fSmFBDTe7aTW9hpX2UAFUVrXWsh1A=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-349-KYijqH8hMbSJm3dHMIYqjA-1; Tue, 16 Aug 2022 04:41:08 -0400
-X-MC-Unique: KYijqH8hMbSJm3dHMIYqjA-1
-Received: by mail-wr1-f72.google.com with SMTP id
- j7-20020adfa547000000b00224f7782df0so1288672wrb.1
+ us-mta-641-GmwM8DnLN_eN3RX2H3v0Aw-1; Tue, 16 Aug 2022 04:43:24 -0400
+X-MC-Unique: GmwM8DnLN_eN3RX2H3v0Aw-1
+Received: by mail-wm1-f71.google.com with SMTP id
+ y3-20020a1c4b03000000b003a537ef75c7so1790897wma.3
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 Aug 2022 01:41:08 -0700 (PDT)
+ Tue, 16 Aug 2022 01:43:24 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=in-reply-to:content-transfer-encoding:content-disposition
- :mime-version:references:message-id:subject:cc:to:from:date
- :x-gm-message-state:from:to:cc;
- bh=JhzHSnD8m6MoYMeJjcaDLkKFr2qic5jMfN3mxxe71ZQ=;
- b=4nYiu2fsMAvKyv06y03eBfwgxQbv4ZgE4FWJrqAAOTv6yLS3orLIOwd47NB7UDtRPH
- epQ3KP2A0HUfpLrLuhYs5U/6FnWUpUo1bnV3msGiQOr50hi7UNQ2hefYh3B3bYq6euw0
- bFjEPTUfXupje6wBI4EiqVPizPeBK3cec+2pmo8nBNDfGgP01KmLdqm4mq91Kt2//zda
- wdSOlG9CD6FK6ntCAcNcNFDnY/7P+hufq9GyrivyvWpZQwMJfz4LuANfUUjzMpxwJ4oE
- Nl72fgnVntfkpbp885p+2U1KAWeLackS0dc7s+GDKKH7dL68iHDYUFJquqJjT2D7qhGR
- QRMw==
-X-Gm-Message-State: ACgBeo1kQqCb6C94+nt6tQ9DyYH/IgnUWpbBKOt4cVBijniHWTcTTn5K
- ufMwO5sYGYm4R4ud16Td1Xf0bOYF+6aSk7mn0OY7j1EmUT72VsCnN8GufN4dsb+UpDqESbJ9G+E
- BR6DCfEWCHDEipflIzEw4zvPJJwePSnhV+LKQlxHBVA==
-X-Received: by 2002:a05:6000:1682:b0:221:599b:a41e with SMTP id
- y2-20020a056000168200b00221599ba41emr10782096wrd.522.1660639267035; 
- Tue, 16 Aug 2022 01:41:07 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR7hrdq7Ri8Q9AJDYs6MtPPkgKJ3b2KGzM97zG859G9nTVxxin8BZSl5mWCVhZdEFvHN2HuLFA==
-X-Received: by 2002:a05:6000:1682:b0:221:599b:a41e with SMTP id
- y2-20020a056000168200b00221599ba41emr10782082wrd.522.1660639266740; 
- Tue, 16 Aug 2022 01:41:06 -0700 (PDT)
-Received: from redhat.com ([2.55.4.37]) by smtp.gmail.com with ESMTPSA id
- p185-20020a1c29c2000000b003a4f1385f0asm12704773wmp.24.2022.08.16.01.41.03
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc;
+ bh=lQ8+OX5Xxy8OFHIKMeBXHvilaHMyPM9qIfwd9KvB9T8=;
+ b=gt46Dvhr+3SWFd7mp4H3j4OR/LgxeaO0k9DefY9ol6WHsDG7OW9JtTzRKh0BABTIcd
+ FfizPK/puXqGwDlnbz0yHJEiifWBs6JtRyXOsUEvUEo4DL3aUfIXhJLXz+4pL08JV2rf
+ Vyk3GwGdV3BBtxNRRi8gGt3BXMHCNjNsDueSGvSmOj0rkbFufT+h91Unlce0kcyzGoEu
+ GVSU7bJtMT5KK2MASm5E5vkJ3ImG9vaxAM2vhLpQMHbSTS4/1saJe43YeXcQ3xZcLYKx
+ 3SDescMzM4G3yFky83ILY0K+RFKp+255bvAkwFwcyWzpQpXrBMW1YKMQLopKbsXjftnv
+ 2/4Q==
+X-Gm-Message-State: ACgBeo3YcTW+KguzvV5OTeQaB3dYKJIPQWSMEKxBgpmmVKzmYPTeLctH
+ 7yxV46mgDK1q9ytL7k1sdmIPdEWW0NYXol5d5z95TijNil4iHnCKGLk9uB5bP5DmzTVrvNnKEP9
+ ZoAn2aZn5xyav1VnYcbOtg5l6arsZSY/OvOXKJBt0Ng==
+X-Received: by 2002:a05:6000:a1a:b0:21f:10a3:924 with SMTP id
+ co26-20020a0560000a1a00b0021f10a30924mr11187429wrb.650.1660639403152; 
+ Tue, 16 Aug 2022 01:43:23 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR6cDAFFABxm0UC6KHn6bIybMZn2ombgjhUlsi97ISnZjBMZOQIY2aI+6s7bBLYzIu9Hq0irDw==
+X-Received: by 2002:a05:6000:a1a:b0:21f:10a3:924 with SMTP id
+ co26-20020a0560000a1a00b0021f10a30924mr11187420wrb.650.1660639402874; 
+ Tue, 16 Aug 2022 01:43:22 -0700 (PDT)
+Received: from redhat.com ([2.55.43.215]) by smtp.gmail.com with ESMTPSA id
+ u8-20020a05600c19c800b003a5f3de6fddsm7193442wmq.25.2022.08.16.01.43.20
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 16 Aug 2022 01:41:06 -0700 (PDT)
-Date: Tue, 16 Aug 2022 04:41:01 -0400
+ Tue, 16 Aug 2022 01:43:22 -0700 (PDT)
+Date: Tue, 16 Aug 2022 04:43:18 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: "Zhu, Lingshan" <lingshan.zhu@intel.com>
-Subject: Re: [PATCH V5 4/6] vDPA: !FEATURES_OK should not block querying
- device config space
-Message-ID: <20220816044007-mutt-send-email-mst@kernel.org>
-References: <20220812104500.163625-1-lingshan.zhu@intel.com>
- <20220812104500.163625-5-lingshan.zhu@intel.com>
- <e99e6d81-d7d5-e1ff-08e0-c22581c1329a@oracle.com>
- <f2864c96-cddd-129e-7dd8-a3743fe7e0d0@intel.com>
+To: Lei He <helei.sig11@bytedance.com>
+Subject: Re: [PATCH] crypto-virtio: fix memory-leak
+Message-ID: <20220816044118-mutt-send-email-mst@kernel.org>
+References: <20220816075916.23651-1-helei.sig11@bytedance.com>
 MIME-Version: 1.0
-In-Reply-To: <f2864c96-cddd-129e-7dd8-a3743fe7e0d0@intel.com>
+In-Reply-To: <20220816075916.23651-1-helei.sig11@bytedance.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org,
- virtualization@lists.linux-foundation.org, xieyongji@bytedance.com,
- gautam.dawar@amd.com
+Cc: herbert@gondor.apana.org.au, linux-kernel@vger.kernel.org,
+ pizhenwei@bytedance.com, virtualization@lists.linux-foundation.org,
+ linux-crypto@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,208 +116,143 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Aug 16, 2022 at 04:29:04PM +0800, Zhu, Lingshan wrote:
-> =
+On Tue, Aug 16, 2022 at 03:59:16PM +0800, Lei He wrote:
+> From: lei he <helei.sig11@bytedance.com>
+> 
+> Fix memory-leak for virtio-crypto akcipher request, this problem is
+> introduced by 59ca6c93387d3(virtio-crypto: implement RSA algorithm).
+> The leak can be reproduced and tested with the following script
+> inside virtual machine:
+> 
+> #!/bin/bash
+> 
+> LOOP_TIMES=10000
+> 
+> # required module: pkcs8_key_parser, virtio_crypto
+> modprobe pkcs8_key_parser # if CONFIG_PKCS8_PRIVATE_KEY_PARSER=m
+> modprobe virtio_crypto # if CONFIG_CRYPTO_DEV_VIRTIO=m
+> rm -rf /tmp/data
+> dd if=/dev/random of=/tmp/data count=1 bs=230
+> 
+> # generate private key and self-signed cert
+> openssl req -nodes -x509 -newkey rsa:2048 -keyout key.pem \
+> 		-outform der -out cert.der  \
+> 		-subj "/C=CN/ST=GD/L=SZ/O=vihoo/OU=dev/CN=always.com/emailAddress=yy@always.com"
+> # convert private key from pem to der
+> openssl pkcs8 -in key.pem -topk8 -nocrypt -outform DER -out key.der
+> 
+> # add key
+> PRIV_KEY_ID=`cat key.der | keyctl padd asymmetric test_priv_key @s`
+> echo "priv key id = "$PRIV_KEY_ID
+> PUB_KEY_ID=`cat cert.der | keyctl padd asymmetric test_pub_key @s`
+> echo "pub key id = "$PUB_KEY_ID
+> 
+> # query key
+> keyctl pkey_query $PRIV_KEY_ID 0
+> keyctl pkey_query $PUB_KEY_ID 0
+> 
+> # here we only run pkey_encrypt becasuse it is the fastest interface
+> function bench_pub() {
+> 	keyctl pkey_encrypt $PUB_KEY_ID 0 /tmp/data enc=pkcs1 >/tmp/enc.pub
+> }
+> 
+> # do bench_pub in loop to obtain the memory leak
+> for (( i = 0; i < ${LOOP_TIMES}; ++i )); do
+> 	bench_pub
+> done
+> 
+> Signed-off-by: lei he <helei.sig11@bytedance.com>
 
-> =
-
-> On 8/16/2022 3:41 PM, Si-Wei Liu wrote:
-> =
-
->     Hi Michael,
-> =
-
->     I just noticed this patch got pulled to linux-next prematurely without
->     getting consensus on code review, am not sure why. Hope it was just an
->     oversight.
-> =
-
->     Unfortunately this introduced functionality regression to at least two
->     cases so far as I see:
-> =
-
->     1. (bogus) VDPA_ATTR_DEV_NEGOTIATED_FEATURES are inadvertently expose=
-d and
->     displayed in "vdpa dev config show" before feature negotiation is don=
-e.
->     Noted the corresponding features name shown in vdpa tool is called
->     "negotiated_features" rather than "driver_features". I see in no way =
-the
->     intended change of the patch should break this user level expectation
->     regardless of any spec requirement. Do you agree on this point?
-> =
-
-> I will post a patch for iptour2, doing:
-> 1) if iprout2 does not get driver_features from the kernel, then don't sh=
-ow
-> negotiated features in the command output
-> 2) process and decoding the device features.
-> =
-
-> =
-
->     2. There was also another implicit assumption that is broken by this =
-patch.
->     There could be a vdpa tool query of config via vdpa_dev_net_config_fi=
-ll()->
->     vdpa_get_config_unlocked() that races with the first vdpa_set_feature=
-s()
->     call from VMM e.g. QEMU. Since the S_FEATURES_OK blocking condition is
->     removed, if the vdpa tool query occurs earlier than the first
->     set_driver_features() call from VMM, the following code will treat the
->     guest as legacy and then trigger an erroneous vdpa_set_features_unloc=
-ked
->     (... , 0) call to the vdpa driver:
-> =
-
->     =A0374=A0=A0=A0=A0=A0=A0=A0=A0 /*
->     =A0375=A0=A0=A0=A0=A0=A0=A0=A0=A0 * Config accesses aren't supposed t=
-o trigger before features
->     are set.
->     =A0376=A0=A0=A0=A0=A0=A0=A0=A0=A0 * If it does happen we assume a leg=
-acy guest.
->     =A0377=A0=A0=A0=A0=A0=A0=A0=A0=A0 */
->     =A0378=A0=A0=A0=A0=A0=A0=A0=A0 if (!vdev->features_valid)
->     =A0379=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 vdpa_set_featu=
-res_unlocked(vdev, 0);
->     =A0380=A0=A0=A0=A0=A0=A0=A0=A0 ops->get_config(vdev, offset, buf, len=
-);
-> =
-
->     Depending on vendor driver's implementation, L380 may either return i=
-nvalid
->     config data (or invalid endianness if on BE) or only config fields th=
-at are
->     valid in legacy layout. What's more severe is that, vdpa tool query in
->     theory shouldn't affect feature negotiation at all by making confusing
->     calls to the device, but now it is possible with the patch. Fixing th=
-is
->     would require more delicate work on the other paths involving the cf_=
-lock
->     reader/write semaphore.
-> =
-
->     Not sure what you plan to do next, post the fixes for both issues and=
- get
->     the community review? Or simply revert the patch in question? Let us =
-know.
-> =
-
-> The spec says:
-> The device MUST allow reading of any device-specific configuration field =
-before
-> FEATURES_OK is set by
-> the driver. This includes fields which are conditional on feature bits, a=
-s long
-> as those feature bits are offered
-> by the device.
-> =
-
-> so whether FEATURES_OK should not block reading the device config space. =
-
-> vdpa_get_config_unlocked() will read the features, I don't know why it ha=
-s a
-> comment:
-> =A0=A0=A0=A0=A0=A0=A0 /*
-> =A0=A0=A0=A0=A0=A0=A0=A0 * Config accesses aren't supposed to trigger bef=
-ore features are set.
-> =A0=A0=A0=A0=A0=A0=A0=A0 * If it does happen we assume a legacy guest.
-> =A0=A0=A0=A0=A0=A0=A0=A0 */
-> =
-
-> This conflicts with the spec.
-
-Yea well. On the other hand the spec also calls for features to be
-used to detect legacy versus modern driver.
-This part of the spec needs work generally.
+trash below pls drop.
 
 
-> vdpa_get_config_unlocked() checks vdev->features_valid, if not valid, it =
-will
-> set the drivers_features 0, I think this intends to prevent reading random
-> driver_features. This function does not hold any locks, and didn't change
-> anything.
-> =
+> # Please enter the commit message for your changes. Lines starting
+> # with '#' will be kept; you may remove them yourself if you want to.
+> # An empty message aborts the commit.
+> #
+> # Date:      Tue Aug 16 11:53:30 2022 +0800
+> #
+> # On branch master
+> # Your branch is ahead of 'origin/master' by 1 commit.
+> #   (use "git push" to publish your local commits)
+> #
+> # Changes to be committed:
+> #	modified:   drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
+> #
+> # Untracked files:
+> #	cert.der
+> #	key.der
+> #	key.pem
+> #
+> 
+> # Please enter the commit message for your changes. Lines starting
+> # with '#' will be kept; you may remove them yourself if you want to.
+> # An empty message aborts the commit.
+> #
+> # Date:      Tue Aug 16 11:53:30 2022 +0800
+> #
+> # On branch master
+> # Your branch is ahead of 'origin/master' by 1 commit.
+> #   (use "git push" to publish your local commits)
+> #
+> # Changes to be committed:
+> #	modified:   drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
+> #
+> # Untracked files:
+> #	cert.der
+> #	key.der
+> #	key.pem
+> #
+> 
+> # Please enter the commit message for your changes. Lines starting
+> # with '#' will be kept; you may remove them yourself if you want to.
+> # An empty message aborts the commit.
+> #
+> # Date:      Tue Aug 16 11:53:30 2022 +0800
+> #
+> # On branch master
+> # Your branch is ahead of 'origin/master' by 1 commit.
+> #   (use "git push" to publish your local commits)
+> #
+> # Changes to be committed:
+> #	modified:   drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
+> #
+> # Untracked files:
+> #	cert.der
+> #	key.der
+> #	key.pem
+> #
+> ---
 
-> So what is the race?
-> =
+with commit log fixed:
 
-> Thanks
-> =
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
-> =
-
-> =
-
->     Thanks,
->     -Siwei
-> =
-
-> =
-
->     On 8/12/2022 3:44 AM, Zhu Lingshan wrote:
-> =
-
->         Users may want to query the config space of a vDPA device,
->         to choose a appropriate one for a certain guest. This means the
->         users need to read the config space before FEATURES_OK, and
->         the existence of config space contents does not depend on
->         FEATURES_OK.
-> =
-
->         The spec says:
->         The device MUST allow reading of any device-specific configuration
->         field before FEATURES_OK is set by the driver. This includes
->         fields which are conditional on feature bits, as long as those
->         feature bits are offered by the device.
-> =
-
->         Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
->         ---
->         =A0 drivers/vdpa/vdpa.c | 8 --------
->         =A0 1 file changed, 8 deletions(-)
-> =
-
->         diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
->         index 6eb3d972d802..bf312d9c59ab 100644
->         --- a/drivers/vdpa/vdpa.c
->         +++ b/drivers/vdpa/vdpa.c
->         @@ -855,17 +855,9 @@ vdpa_dev_config_fill(struct vdpa_device *vde=
-v,
->         struct sk_buff *msg, u32 portid,
->         =A0 {
->         =A0=A0=A0=A0=A0 u32 device_id;
->         =A0=A0=A0=A0=A0 void *hdr;
->         -=A0=A0=A0 u8 status;
->         =A0=A0=A0=A0=A0 int err;
->         =A0 =A0=A0=A0=A0=A0 down_read(&vdev->cf_lock);
->         -=A0=A0=A0 status =3D vdev->config->get_status(vdev);
->         -=A0=A0=A0 if (!(status & VIRTIO_CONFIG_S_FEATURES_OK)) {
->         -=A0=A0=A0=A0=A0=A0=A0 NL_SET_ERR_MSG_MOD(extack, "Features negot=
-iation not
->         completed");
->         -=A0=A0=A0=A0=A0=A0=A0 err =3D -EAGAIN;
->         -=A0=A0=A0=A0=A0=A0=A0 goto out;
->         -=A0=A0=A0 }
->         -
->         =A0=A0=A0=A0=A0 hdr =3D genlmsg_put(msg, portid, seq, &vdpa_nl_fa=
-mily, flags,
->         =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 VDPA_CMD_DEV_CONFIG=
-_GET);
->         =A0=A0=A0=A0=A0 if (!hdr) {
-> =
-
-> =
-
-> =
-
-> =
-
+>  drivers/crypto/virtio/virtio_crypto_akcipher_algs.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+> 
+> diff --git a/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c b/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
+> index 2a60d0525cde..168195672e2e 100644
+> --- a/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
+> +++ b/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
+> @@ -56,6 +56,10 @@ static void virtio_crypto_akcipher_finalize_req(
+>  	struct virtio_crypto_akcipher_request *vc_akcipher_req,
+>  	struct akcipher_request *req, int err)
+>  {
+> +	kfree(vc_akcipher_req->src_buf);
+> +	kfree(vc_akcipher_req->dst_buf);
+> +	vc_akcipher_req->src_buf = NULL;
+> +	vc_akcipher_req->dst_buf = NULL;
+>  	virtcrypto_clear_request(&vc_akcipher_req->base);
+>  
+>  	crypto_finalize_akcipher_request(vc_akcipher_req->base.dataq->engine, req, err);
+> -- 
+> 2.20.1
 
 _______________________________________________
 Virtualization mailing list
