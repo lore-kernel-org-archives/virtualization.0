@@ -1,82 +1,114 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 57426C00140
-	for <virtualization@archiver.kernel.org>; Tue, 16 Aug 2022 03:28:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5B0DBC19F2C
+	for <virtualization@archiver.kernel.org>; Tue, 16 Aug 2022 05:36:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id C7B30409BC;
-	Tue, 16 Aug 2022 03:28:52 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C7B30409BC
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=ZKe3+olz
+	by smtp1.osuosl.org (Postfix) with ESMTP id CAFF681A46;
+	Tue, 16 Aug 2022 05:36:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CAFF681A46
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=NCmAuI0a
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 1twhzxjnuh-0; Tue, 16 Aug 2022 03:28:50 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id IyiX98z2xYnD; Tue, 16 Aug 2022 05:36:32 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id DDFD7408C1;
-	Tue, 16 Aug 2022 03:28:49 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org DDFD7408C1
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 5A27F81A27;
+	Tue, 16 Aug 2022 05:36:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5A27F81A27
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id AC4FDC0033;
-	Tue, 16 Aug 2022 03:28:49 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 2D83EC0033;
+	Tue, 16 Aug 2022 05:36:31 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 90413C002D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 06161C002D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 Aug 2022 03:28:48 +0000 (UTC)
+ Tue, 16 Aug 2022 05:36:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 56ADA40951
+ by smtp4.osuosl.org (Postfix) with ESMTP id B74B7409E9
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 Aug 2022 03:28:48 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 56ADA40951
+ Tue, 16 Aug 2022 05:36:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B74B7409E9
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=NCmAuI0a
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id W8s0ZbrVwLwE
+ with ESMTP id 2rHQXLTVBNvc
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 Aug 2022 03:28:46 +0000 (UTC)
+ Tue, 16 Aug 2022 05:36:28 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8D7F7408C1
-Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 8D7F7408C1
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org ECAA5409B4
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id ECAA5409B4
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 Aug 2022 03:28:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
- d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1660620526; x=1692156526;
- h=date:from:to:cc:subject:message-id:mime-version;
- bh=G9FMxJUX6IlQCpmWkMAAX8sP79y8pf8oC3P46/tdATk=;
- b=ZKe3+olznIMrmFRuJ3c2L+k0G+uFrhhxOWbxMH4dWufXUoucAx3Af0YB
- 0ifkH9QvbNWMhHX2LhSIB4pZfi+Tx94gXG+fxF52Wji8erzexRRjMu7oq
- dZkl+DWCrdz4mNdFOOEZCOZcG1uBFL52Sim2KOdkrtUTRppTSzlPyKSNr
- 1M9YRT8tsIdqDiLeVoUZRIq/okzJ/CGon++tIBEbqXuu4dvk9juZZhBNu
- TO9dkLYMHNIZKMIOerqWn10u4ZVbwWPYWuieeusxyqDtSPD0aic+Z3JGP
- I11tDpSrlPwqKucMDHKPxMWXw0aecVDsyERbPPxEKSI8NkENd7+2gpqVw A==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10440"; a="353857711"
-X-IronPort-AV: E=Sophos;i="5.93,240,1654585200"; d="scan'208";a="353857711"
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
- by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 15 Aug 2022 20:28:45 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.93,240,1654585200"; d="scan'208";a="583132287"
-Received: from lkp-server02.sh.intel.com (HELO 3d2a4d02a2a9) ([10.239.97.151])
- by orsmga006.jf.intel.com with ESMTP; 15 Aug 2022 20:28:44 -0700
-Received: from kbuild by 3d2a4d02a2a9 with local (Exim 4.96)
- (envelope-from <lkp@intel.com>) id 1oNnFz-0001P2-1L;
- Tue, 16 Aug 2022 03:28:43 +0000
-Date: Tue, 16 Aug 2022 11:28:29 +0800
-From: kernel test robot <lkp@intel.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [mst-vhost:vhost 5/8] drivers/virtio/virtio_vdpa.c:291:61: error:
- 'sizes' undeclared
-Message-ID: <202208161151.sMYdFPvS-lkp@intel.com>
+ Tue, 16 Aug 2022 05:36:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1660628186;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+ bh=WjKAhjhunNiMNkU3Od6M/0vKjOdgqMSNXwPsu3GbYh8=;
+ b=NCmAuI0aPjSxucEYBU8yGeLRCd7GRTTzcKYkF9clHE2EdnFkg2mBy61WzUWhXosK614Qy6
+ S1dqvkA1kiEzxSqLvE6o18ZOM/Y3reNsvD0YsEseL8TriNJTnIdG6eExj+oPzAB33p+z7y
+ I/pYck+/PMumsu4I/c6K6g8QKdJ/sLM=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-369-dh-FM6XrNRSxlnW9dNrNyw-1; Tue, 16 Aug 2022 01:36:24 -0400
+X-MC-Unique: dh-FM6XrNRSxlnW9dNrNyw-1
+Received: by mail-wr1-f71.google.com with SMTP id
+ h13-20020adfaa8d000000b00225174e4965so63632wrc.10
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 15 Aug 2022 22:36:24 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+ :x-gm-message-state:from:to:cc;
+ bh=WjKAhjhunNiMNkU3Od6M/0vKjOdgqMSNXwPsu3GbYh8=;
+ b=jzeis+Tn/JXSX4wjOqXzY3ccBKyukP8/D1fkuk+20p2xqwSINr1tcJ847IDOydenR4
+ ACo+q45x0xHZC7kYXoWBIMIGfkAAF799vYi09i6AZFL7gSTukXe3IdoEPZa14R3QBeiY
+ j+O/XOera44pIaKid+k15xjbqL9icK2LQ30yQVv/DXhcrAES3rTeXI8DnFnvZUlLhBKG
+ DLUwfADOFXGNLjblJrpFlsVJkFekwsUNZvvWaqTsfFx+dKXPTBbgJ1zyVcODAL1oImnA
+ QYCPaNo/iLwt7jL8XFx2iBAsxecP6UbAX6hCEpJ8HeYvi1wCCuoeoCggKAyBLtLcxlhF
+ nxHA==
+X-Gm-Message-State: ACgBeo2NMsVitPcKps5SFYoHaLsZrgQVirpSDgaiagNAxgwm9Kj2qGL2
+ EIF84vdHXS/RTMUKvS6419RcMcwCCNAMJ9oIneMA7z9qTRwkBG3RgGAvV9K5uN7+YCpydYqXxJR
+ Q8/yBvWdZWB38gH7eVLG3s8uJnKCm4k5lacmYm5sKDw==
+X-Received: by 2002:a05:600c:5023:b0:3a6:3f9:a031 with SMTP id
+ n35-20020a05600c502300b003a603f9a031mr1681803wmr.131.1660628183682; 
+ Mon, 15 Aug 2022 22:36:23 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR7Ytdoo+ffEU/Wth88pKDtXl7fYx4Itdz9p5tt4Lf/IjatyzTa6AA/SXcS7E/UC3HmlhH/8rQ==
+X-Received: by 2002:a05:600c:5023:b0:3a6:3f9:a031 with SMTP id
+ n35-20020a05600c502300b003a603f9a031mr1681790wmr.131.1660628183420; 
+ Mon, 15 Aug 2022 22:36:23 -0700 (PDT)
+Received: from redhat.com ([2.55.4.37]) by smtp.gmail.com with ESMTPSA id
+ v17-20020a5d43d1000000b0021eed2414c9sm8763232wrr.40.2022.08.15.22.36.20
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 15 Aug 2022 22:36:22 -0700 (PDT)
+Date: Tue, 16 Aug 2022 01:36:18 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH v4 0/6] virtio: drop sizing vqs during init
+Message-ID: <20220816053602.173815-1-mst@redhat.com>
 MIME-Version: 1.0
+X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
+X-Mutt-Fcc: =sent
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: netdev@vger.kernel.org, kbuild-all@lists.01.org, kvm@vger.kernel.org,
- virtualization@lists.linux-foundation.org
+Cc: Jens Axboe <axboe@kernel.dk>,
+ "Martin K. Petersen" <martin.petersen@oracle.com>, netdev@vger.kernel.org,
+ virtualization@lists.linux-foundation.org,
+ James Bottomley <James.Bottomley@hansenpartnership.com>,
+ Eric Dumazet <edumazet@google.com>, Greg KH <gregkh@linuxfoundation.org>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Linus Torvalds <torvalds@linux-foundation.org>,
+ "David S. Miller" <davem@davemloft.net>, Guenter Roeck <linux@roeck-us.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -93,84 +125,71 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-tree:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost
-head:   43ab8a34f3f0c7301813343b9fed2da33c37754a
-commit: 71545b3c933acbf165e6596d5cfa4fd15e1ef543 [5/8] virtio: Revert "virtio: find_vqs() add arg sizes"
-config: i386-buildonly-randconfig-r004-20220815 (https://download.01.org/0day-ci/archive/20220816/202208161151.sMYdFPvS-lkp@intel.com/config)
-compiler: gcc-11 (Debian 11.3.0-5) 11.3.0
-reproduce (this is a W=1 build):
-        # https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git/commit/?id=71545b3c933acbf165e6596d5cfa4fd15e1ef543
-        git remote add mst-vhost https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git
-        git fetch --no-tags mst-vhost vhost
-        git checkout 71545b3c933acbf165e6596d5cfa4fd15e1ef543
-        # save the config file
-        mkdir build_dir && cp config build_dir/.config
-        make W=1 O=build_dir ARCH=i386 SHELL=/bin/bash drivers/virtio/
-
-If you fix the issue, kindly add following tag where applicable
-Reported-by: kernel test robot <lkp@intel.com>
-
-All errors (new ones prefixed by >>):
-
-   drivers/virtio/virtio_vdpa.c: In function 'virtio_vdpa_find_vqs':
->> drivers/virtio/virtio_vdpa.c:291:61: error: 'sizes' undeclared (first use in this function)
-     291 |                                                   names[i], sizes ? sizes[i] : 0,
-         |                                                             ^~~~~
-   drivers/virtio/virtio_vdpa.c:291:61: note: each undeclared identifier is reported only once for each function it appears in
 
 
-vim +/sizes +291 drivers/virtio/virtio_vdpa.c
+Supplying size during init does not work for all transports.
+In fact for legacy pci doing that causes a memory
+corruption which was reported on Google Cloud.
 
-c043b4a8cf3b16 Jason Wang  2020-03-26  270  
-3153234097f6a0 Solomon Tan 2022-04-18  271  static int virtio_vdpa_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
-c043b4a8cf3b16 Jason Wang  2020-03-26  272  				struct virtqueue *vqs[],
-c043b4a8cf3b16 Jason Wang  2020-03-26  273  				vq_callback_t *callbacks[],
-c043b4a8cf3b16 Jason Wang  2020-03-26  274  				const char * const names[],
-c043b4a8cf3b16 Jason Wang  2020-03-26  275  				const bool *ctx,
-c043b4a8cf3b16 Jason Wang  2020-03-26  276  				struct irq_affinity *desc)
-c043b4a8cf3b16 Jason Wang  2020-03-26  277  {
-c043b4a8cf3b16 Jason Wang  2020-03-26  278  	struct virtio_vdpa_device *vd_dev = to_virtio_vdpa_device(vdev);
-c043b4a8cf3b16 Jason Wang  2020-03-26  279  	struct vdpa_device *vdpa = vd_get_vdpa(vdev);
-c043b4a8cf3b16 Jason Wang  2020-03-26  280  	const struct vdpa_config_ops *ops = vdpa->config;
-c043b4a8cf3b16 Jason Wang  2020-03-26  281  	struct vdpa_callback cb;
-c043b4a8cf3b16 Jason Wang  2020-03-26  282  	int i, err, queue_idx = 0;
-c043b4a8cf3b16 Jason Wang  2020-03-26  283  
-c043b4a8cf3b16 Jason Wang  2020-03-26  284  	for (i = 0; i < nvqs; ++i) {
-c043b4a8cf3b16 Jason Wang  2020-03-26  285  		if (!names[i]) {
-c043b4a8cf3b16 Jason Wang  2020-03-26  286  			vqs[i] = NULL;
-c043b4a8cf3b16 Jason Wang  2020-03-26  287  			continue;
-c043b4a8cf3b16 Jason Wang  2020-03-26  288  		}
-c043b4a8cf3b16 Jason Wang  2020-03-26  289  
-99e8927d8a4da8 Bo Liu      2022-08-10  290  		vqs[i] = virtio_vdpa_setup_vq(vdev, queue_idx++, callbacks[i],
-99e8927d8a4da8 Bo Liu      2022-08-10 @291  						  names[i], sizes ? sizes[i] : 0,
-99e8927d8a4da8 Bo Liu      2022-08-10  292  						  ctx ? ctx[i] : false);
-c043b4a8cf3b16 Jason Wang  2020-03-26  293  		if (IS_ERR(vqs[i])) {
-c043b4a8cf3b16 Jason Wang  2020-03-26  294  			err = PTR_ERR(vqs[i]);
-c043b4a8cf3b16 Jason Wang  2020-03-26  295  			goto err_setup_vq;
-c043b4a8cf3b16 Jason Wang  2020-03-26  296  		}
-c043b4a8cf3b16 Jason Wang  2020-03-26  297  	}
-c043b4a8cf3b16 Jason Wang  2020-03-26  298  
-c043b4a8cf3b16 Jason Wang  2020-03-26  299  	cb.callback = virtio_vdpa_config_cb;
-c043b4a8cf3b16 Jason Wang  2020-03-26  300  	cb.private = vd_dev;
-c043b4a8cf3b16 Jason Wang  2020-03-26  301  	ops->set_config_cb(vdpa, &cb);
-c043b4a8cf3b16 Jason Wang  2020-03-26  302  
-c043b4a8cf3b16 Jason Wang  2020-03-26  303  	return 0;
-c043b4a8cf3b16 Jason Wang  2020-03-26  304  
-c043b4a8cf3b16 Jason Wang  2020-03-26  305  err_setup_vq:
-c043b4a8cf3b16 Jason Wang  2020-03-26  306  	virtio_vdpa_del_vqs(vdev);
-c043b4a8cf3b16 Jason Wang  2020-03-26  307  	return err;
-c043b4a8cf3b16 Jason Wang  2020-03-26  308  }
-c043b4a8cf3b16 Jason Wang  2020-03-26  309  
+We might get away with changing size to size_hint so it's
+safe to ignore and then fixing legacy to ignore the hint.
 
-:::::: The code at line 291 was first introduced by commit
-:::::: 99e8927d8a4da8eb8a8a5904dc13a3156be8e7c0 virtio_vdpa: support the arg sizes of find_vqs()
+But the benefit is unclear in any case, so let's revert for now.
+Any new version will have to come with
+- documentation of performance gains
+- performance testing showing existing workflows
+  are not harmed materially. especially ones with
+  bursty traffic
+- report of testing on legacy devices
 
-:::::: TO: Bo Liu <liubo03@inspur.com>
-:::::: CC: Michael S. Tsirkin <mst@redhat.com>
+
+Huge shout out to Andres Freund for the effort spent reproducing and
+debugging!  Thanks to Guenter Roeck for help with testing!
+
+
+changes from v3
+	added a vdpa revert
+changes from v2
+	drop unrelated patches
+changes from v1
+	revert the ring size api, it's unused now
+
+Michael S. Tsirkin (5):
+  virtio_net: Revert "virtio_net: set the default max ring size by
+    find_vqs()"
+
+
+Michael S. Tsirkin (6):
+  virtio_net: Revert "virtio_net: set the default max ring size by
+    find_vqs()"
+
+
+Michael S. Tsirkin (6):
+  virtio_net: Revert "virtio_net: set the default max ring size by
+    find_vqs()"
+  virtio: Revert "virtio: add helper virtio_find_vqs_ctx_size()"
+  virtio-mmio: Revert "virtio_mmio: support the arg sizes of find_vqs()"
+  virtio_pci: Revert "virtio_pci: support the arg sizes of find_vqs()"
+  virtio_vdpa: Revert "virtio_vdpa: support the arg sizes of find_vqs()"
+  virtio: Revert "virtio: find_vqs() add arg sizes"
+
+ arch/um/drivers/virtio_uml.c             |  2 +-
+ drivers/net/virtio_net.c                 | 42 +++---------------------
+ drivers/platform/mellanox/mlxbf-tmfifo.c |  1 -
+ drivers/remoteproc/remoteproc_virtio.c   |  1 -
+ drivers/s390/virtio/virtio_ccw.c         |  1 -
+ drivers/virtio/virtio_mmio.c             |  9 ++---
+ drivers/virtio/virtio_pci_common.c       | 20 +++++------
+ drivers/virtio/virtio_pci_common.h       |  3 +-
+ drivers/virtio/virtio_pci_legacy.c       |  6 +---
+ drivers/virtio/virtio_pci_modern.c       | 17 +++-------
+ drivers/virtio/virtio_vdpa.c             | 16 ++++-----
+ include/linux/virtio_config.h            | 26 +++------------
+ 12 files changed, 34 insertions(+), 110 deletions(-)
 
 -- 
-0-DAY CI Kernel Test Service
-https://01.org/lkp
+MST
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
