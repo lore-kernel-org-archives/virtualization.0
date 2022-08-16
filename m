@@ -4,99 +4,99 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B49D4C19F2C
-	for <virtualization@archiver.kernel.org>; Tue, 16 Aug 2022 05:36:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id CA994C19F2C
+	for <virtualization@archiver.kernel.org>; Tue, 16 Aug 2022 05:36:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 2EBD2402FE;
-	Tue, 16 Aug 2022 05:36:36 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2EBD2402FE
+	by smtp2.osuosl.org (Postfix) with ESMTP id 6D007405DB;
+	Tue, 16 Aug 2022 05:36:39 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6D007405DB
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=EMIGfMH3
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=UnFnQdMI
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 5psuT_n6e40Z; Tue, 16 Aug 2022 05:36:35 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 9864C404B7;
-	Tue, 16 Aug 2022 05:36:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9864C404B7
+	with ESMTP id 5XQNfNKi676P; Tue, 16 Aug 2022 05:36:38 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 00BDB404B7;
+	Tue, 16 Aug 2022 05:36:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 00BDB404B7
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 66FCAC0033;
-	Tue, 16 Aug 2022 05:36:34 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 81452C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id BFB84C0033;
+	Tue, 16 Aug 2022 05:36:37 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5E1F2C002D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 Aug 2022 05:36:33 +0000 (UTC)
+ Tue, 16 Aug 2022 05:36:36 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 4EE5560E64
+ by smtp4.osuosl.org (Postfix) with ESMTP id 3515C410C2
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 Aug 2022 05:36:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4EE5560E64
-Authentication-Results: smtp3.osuosl.org;
+ Tue, 16 Aug 2022 05:36:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3515C410C2
+Authentication-Results: smtp4.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=EMIGfMH3
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=UnFnQdMI
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id FBxXCXc-Zz9b
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id ZO9k0dGKUMwF
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 Aug 2022 05:36:32 +0000 (UTC)
+ Tue, 16 Aug 2022 05:36:35 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3C45460E62
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3F05241061
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 3C45460E62
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 3F05241061
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 Aug 2022 05:36:32 +0000 (UTC)
+ Tue, 16 Aug 2022 05:36:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1660628191;
+ s=mimecast20190719; t=1660628194;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=l2M+kfj/q6iM98hTn0aSRA5w9qc6MC0Xhy6BDVtYHqo=;
- b=EMIGfMH3wM4IdH3+cx7kvgyjXhesqjmRQNIpqeMsbKMTrwGuo39aeNe5U1swCT7ozwNohk
- +wAV0Wc8fGVdIn9gPgUYPzQct7FJPJ7fvGYFL5/f1KC/tRe3lZZ8D1Ks04AG5731VUFIyh
- gTo+ljYqcG3Hf7z7WBKNUokTQc5ubJA=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=bnInJhTNmcRkk5WIZQp/adh2w/55qWjBovtngHxo1PM=;
+ b=UnFnQdMICe1ph6hMhcpXCBN7MH3SirA2KSLaEpMhTQIRzV0XniY9JuNe1pxVDA37WECcKN
+ ZLqnHxKm6pTMOwW47nPXzSy59MmW8bp/xadJFiEAB7Rlhvc+xHKDsT6q6fqH/a2cfDaP8z
+ t0uPS+xh5Thpcz7gXpAYoNZIKfzpPXY=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-470-fias9Y5iMBCaPZQ-CmqI9Q-1; Tue, 16 Aug 2022 01:36:29 -0400
-X-MC-Unique: fias9Y5iMBCaPZQ-CmqI9Q-1
-Received: by mail-wm1-f70.google.com with SMTP id
- f21-20020a1cc915000000b003a3551598a1so1743573wmb.0
+ us-mta-553-1hHjo_lsNiyaYqDJns8W8g-1; Tue, 16 Aug 2022 01:36:33 -0400
+X-MC-Unique: 1hHjo_lsNiyaYqDJns8W8g-1
+Received: by mail-wr1-f71.google.com with SMTP id
+ d27-20020adfa41b000000b0021ee714785fso1556570wra.18
  for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Aug 2022 22:36:28 -0700 (PDT)
+ Mon, 15 Aug 2022 22:36:33 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc;
- bh=l2M+kfj/q6iM98hTn0aSRA5w9qc6MC0Xhy6BDVtYHqo=;
- b=BC6He51Hw7wpWF4xHT3ZQfCXIood+bBmiJNeSHxYP94YnSifQyxJwBbtDEyaVutH2Z
- IfWC0RXtSmzK2PTehFPH0RcTd29uAtlQq/3N3NSh82mWhNcGWAPbGSGbxxjXJWMsPp+y
- NPpkslzLo15NEOIg2wbBegFMJ4bs7ErqetaQGbDDo9c0/xWdw7vPoExJWGK2/ltvxzIj
- hSV4KukOmN/KpLetUeofhrGZ89EFNhhmQfmlmdLO9Bo3FGO9q82jeY3EpefmBlAxyH9X
- K8LrXGXRDz+bcBHmX26NngEsUrdD9OIoGS/s/1CeTHRPWFr7gwEGwKhVDPSKMAMTkPcM
- HYPA==
-X-Gm-Message-State: ACgBeo1Zh4L37uPYZmybF/xMhdjH4Pb10YmnERpHXwP+i8OEUgPK9Pmk
- CNDwNBsKZtv07sUMft3W52w0Mg3mMquGeor/b5LgT/YOgEoQ5vAY1FY/eBaedHbEXaAL7/5+ohK
- f03GJLdb/3LIWQtxxwjmAMjthX2QFVMwgI79iRxcJtg==
-X-Received: by 2002:a5d:590b:0:b0:21f:1510:c69c with SMTP id
- v11-20020a5d590b000000b0021f1510c69cmr10470282wrd.502.1660628188011; 
- Mon, 15 Aug 2022 22:36:28 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR62AUVV4mkf9GDo6FOGq4gcODaPuaJrI+5j4yEhgZoQfpTZq0lwFE8QtdGR18ppdgihkkL0kA==
-X-Received: by 2002:a5d:590b:0:b0:21f:1510:c69c with SMTP id
- v11-20020a5d590b000000b0021f1510c69cmr10470265wrd.502.1660628187790; 
- Mon, 15 Aug 2022 22:36:27 -0700 (PDT)
+ bh=bnInJhTNmcRkk5WIZQp/adh2w/55qWjBovtngHxo1PM=;
+ b=QbL6U7iMLbak9Yr51H2o+yOQ8vdPgH/t86NFhf/Irhm5rrYlUl/7tFC5TAKeIL9M7f
+ idFdr4twKYoYIX766D7AZukL+aQXnZBlmliTXxL5ONFg3g0PIQ+SnPpcMfwPpvjOpbQ3
+ suli1FNt6m/FE04Of4m5FKhJJwT+VVP5lWY0LM2c5jwWygAAebR7rKqVFTlP9m/g64Al
+ Pi5Hw3WfI2PlDuL5VnwC15JISoAgmNWXWqhBbYWeKIw8u4aLPsnsKZb8fKPtT3jtTYQT
+ BuiNFq8gz9odRwGxFS6y3lA7K4DJWnR7pI4b3P/WRPr0UL0MJwwzmrnT805XVYnrZArx
+ 8Qjg==
+X-Gm-Message-State: ACgBeo1/T6XzrhEp4FIQAO6vaoruTF6h5GlEswc60hymF4pEXxcQb6RM
+ fT3piJJlr3K+cOlJw9iDqT/I4zEoqN7OXlX1kVLYLYeLy0F5Kzy4Sd6KASTjgNPb1dp9EUNt8ei
+ 4VtFAdA/fWWMaPM1H1t6KWd4UPKDWoEAhSD++fm3gag==
+X-Received: by 2002:a05:6000:1188:b0:220:6c20:fbf6 with SMTP id
+ g8-20020a056000118800b002206c20fbf6mr10766508wrx.372.1660628192107; 
+ Mon, 15 Aug 2022 22:36:32 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR4EkqFgvn7hB2RJJpvVWV5jJVrRGEU1rfoAnhvs4XogqkEgf0eN7zdUfJbZFDbhzDt1P9Tkdg==
+X-Received: by 2002:a05:6000:1188:b0:220:6c20:fbf6 with SMTP id
+ g8-20020a056000118800b002206c20fbf6mr10766495wrx.372.1660628191855; 
+ Mon, 15 Aug 2022 22:36:31 -0700 (PDT)
 Received: from redhat.com ([2.55.4.37]) by smtp.gmail.com with ESMTPSA id
- j20-20020a05600c191400b003a5c1e916c8sm1709648wmq.1.2022.08.15.22.36.24
+ bg1-20020a05600c3c8100b003a317ee3036sm12197295wmb.2.2022.08.15.22.36.29
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 15 Aug 2022 22:36:27 -0700 (PDT)
-Date: Tue, 16 Aug 2022 01:36:23 -0400
+ Mon, 15 Aug 2022 22:36:31 -0700 (PDT)
+Date: Tue, 16 Aug 2022 01:36:27 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH v4 1/6] virtio_net: Revert "virtio_net: set the default max
- ring size by find_vqs()"
-Message-ID: <20220816053602.173815-2-mst@redhat.com>
+Subject: [PATCH v4 2/6] virtio: Revert "virtio: add helper
+ virtio_find_vqs_ctx_size()"
+Message-ID: <20220816053602.173815-3-mst@redhat.com>
 References: <20220816053602.173815-1-mst@redhat.com>
 MIME-Version: 1.0
 In-Reply-To: <20220816053602.173815-1-mst@redhat.com>
@@ -109,9 +109,8 @@ Cc: Jens Axboe <axboe@kernel.dk>,
  "Martin K. Petersen" <martin.petersen@oracle.com>, netdev@vger.kernel.org,
  virtualization@lists.linux-foundation.org,
  James Bottomley <James.Bottomley@hansenpartnership.com>,
- Eric Dumazet <edumazet@google.com>, Andres Freund <andres@anarazel.de>,
- Greg KH <gregkh@linuxfoundation.org>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
+ Eric Dumazet <edumazet@google.com>, Greg KH <gregkh@linuxfoundation.org>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
  Linus Torvalds <torvalds@linux-foundation.org>,
  "David S. Miller" <davem@davemloft.net>, Guenter Roeck <linux@roeck-us.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
@@ -130,138 +129,40 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This reverts commit 762faee5a2678559d3dc09d95f8f2c54cd0466a7.
+This reverts commit fe3dc04e31aa51f91dc7f741a5f76cc4817eb5b4: the
+API is now unused and in fact can't be implemented on top of a legacy
+device.
 
-This has been reported to trip up guests on GCP (Google Cloud).
-The reason is that virtio_find_vqs_ctx_size is broken on legacy
-devices. We can in theory fix virtio_find_vqs_ctx_size but
-in fact the patch itself has several other issues:
-
-- It treats unknown speed as < 10G
-- It leaves userspace no way to find out the ring size set by hypervisor
-- It tests speed when link is down
-- It ignores the virtio spec advice:
-        Both \field{speed} and \field{duplex} can change, thus the driver
-        is expected to re-read these values after receiving a
-        configuration change notification.
-- It is not clear the performance impact has been tested properly
-
-Revert the patch for now.
-
-Reported-by: Andres Freund <andres@anarazel.de>
-Link: https://lore.kernel.org/r/20220814212610.GA3690074%40roeck-us.net
-Link: https://lore.kernel.org/r/20220815070203.plwjx7b3cyugpdt7%40awork3.anarazel.de
-Link: https://lore.kernel.org/r/3df6bb82-1951-455d-a768-e9e1513eb667%40www.fastmail.com
-Link: https://lore.kernel.org/r/FCDC5DDE-3CDD-4B8A-916F-CA7D87B547CE%40anarazel.de
-Fixes: 762faee5a267 ("virtio_net: set the default max ring size by find_vqs()")
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: Jason Wang <jasowang@redhat.com>
+Fixes: fe3dc04e31aa ("virtio: add helper virtio_find_vqs_ctx_size()")
+Cc: "Xuan Zhuo" <xuanzhuo@linux.alibaba.com>
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Tested-by: Andres Freund <andres@anarazel.de>
-Tested-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/net/virtio_net.c | 42 ++++------------------------------------
- 1 file changed, 4 insertions(+), 38 deletions(-)
+ include/linux/virtio_config.h | 12 ------------
+ 1 file changed, 12 deletions(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index d934774e9733..ece00b84e3a7 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -3432,29 +3432,6 @@ static unsigned int mergeable_min_buf_len(struct virtnet_info *vi, struct virtqu
- 		   (unsigned int)GOOD_PACKET_LEN);
+diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+index 6adff09f7170..888f7e96f0c7 100644
+--- a/include/linux/virtio_config.h
++++ b/include/linux/virtio_config.h
+@@ -241,18 +241,6 @@ int virtio_find_vqs_ctx(struct virtio_device *vdev, unsigned nvqs,
+ 				      ctx, desc);
  }
  
--static void virtnet_config_sizes(struct virtnet_info *vi, u32 *sizes)
+-static inline
+-int virtio_find_vqs_ctx_size(struct virtio_device *vdev, u32 nvqs,
+-			     struct virtqueue *vqs[],
+-			     vq_callback_t *callbacks[],
+-			     const char * const names[],
+-			     u32 sizes[],
+-			     const bool *ctx, struct irq_affinity *desc)
 -{
--	u32 i, rx_size, tx_size;
--
--	if (vi->speed == SPEED_UNKNOWN || vi->speed < SPEED_10000) {
--		rx_size = 1024;
--		tx_size = 1024;
--
--	} else if (vi->speed < SPEED_40000) {
--		rx_size = 1024 * 4;
--		tx_size = 1024 * 4;
--
--	} else {
--		rx_size = 1024 * 8;
--		tx_size = 1024 * 8;
--	}
--
--	for (i = 0; i < vi->max_queue_pairs; i++) {
--		sizes[rxq2vq(i)] = rx_size;
--		sizes[txq2vq(i)] = tx_size;
--	}
+-	return vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names, sizes,
+-				      ctx, desc);
 -}
 -
- static int virtnet_find_vqs(struct virtnet_info *vi)
- {
- 	vq_callback_t **callbacks;
-@@ -3462,7 +3439,6 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
- 	int ret = -ENOMEM;
- 	int i, total_vqs;
- 	const char **names;
--	u32 *sizes;
- 	bool *ctx;
- 
- 	/* We expect 1 RX virtqueue followed by 1 TX virtqueue, followed by
-@@ -3490,15 +3466,10 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
- 		ctx = NULL;
- 	}
- 
--	sizes = kmalloc_array(total_vqs, sizeof(*sizes), GFP_KERNEL);
--	if (!sizes)
--		goto err_sizes;
--
- 	/* Parameters for control virtqueue, if any */
- 	if (vi->has_cvq) {
- 		callbacks[total_vqs - 1] = NULL;
- 		names[total_vqs - 1] = "control";
--		sizes[total_vqs - 1] = 64;
- 	}
- 
- 	/* Allocate/initialize parameters for send/receive virtqueues */
-@@ -3513,10 +3484,8 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
- 			ctx[rxq2vq(i)] = true;
- 	}
- 
--	virtnet_config_sizes(vi, sizes);
--
--	ret = virtio_find_vqs_ctx_size(vi->vdev, total_vqs, vqs, callbacks,
--				       names, sizes, ctx, NULL);
-+	ret = virtio_find_vqs_ctx(vi->vdev, total_vqs, vqs, callbacks,
-+				  names, ctx, NULL);
- 	if (ret)
- 		goto err_find;
- 
-@@ -3536,8 +3505,6 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
- 
- 
- err_find:
--	kfree(sizes);
--err_sizes:
- 	kfree(ctx);
- err_ctx:
- 	kfree(names);
-@@ -3897,9 +3864,6 @@ static int virtnet_probe(struct virtio_device *vdev)
- 		vi->curr_queue_pairs = num_online_cpus();
- 	vi->max_queue_pairs = max_queue_pairs;
- 
--	virtnet_init_settings(dev);
--	virtnet_update_settings(vi);
--
- 	/* Allocate/initialize the rx/tx queues, and invoke find_vqs */
- 	err = init_vqs(vi);
- 	if (err)
-@@ -3912,6 +3876,8 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	netif_set_real_num_tx_queues(dev, vi->curr_queue_pairs);
- 	netif_set_real_num_rx_queues(dev, vi->curr_queue_pairs);
- 
-+	virtnet_init_settings(dev);
-+
- 	if (virtio_has_feature(vdev, VIRTIO_NET_F_STANDBY)) {
- 		vi->failover = net_failover_create(vi->dev);
- 		if (IS_ERR(vi->failover)) {
+ /**
+  * virtio_synchronize_cbs - synchronize with virtqueue callbacks
+  * @vdev: the device
 -- 
 MST
 
