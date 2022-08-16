@@ -1,48 +1,51 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 844F8C19F2C
-	for <virtualization@archiver.kernel.org>; Tue, 16 Aug 2022 05:36:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7F932C25B0F
+	for <virtualization@archiver.kernel.org>; Tue, 16 Aug 2022 05:36:59 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 390E281B0A;
-	Tue, 16 Aug 2022 05:36:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 390E281B0A
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RzNbCe2P
+	by smtp3.osuosl.org (Postfix) with ESMTP id 21E3160E72;
+	Tue, 16 Aug 2022 05:36:59 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 21E3160E72
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RPmzOSGq
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id xbh5cqh6ylGn; Tue, 16 Aug 2022 05:36:57 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id C5C7081A9C;
-	Tue, 16 Aug 2022 05:36:56 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C5C7081A9C
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id gAvMzpFRzZuV; Tue, 16 Aug 2022 05:36:58 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id ADB5D60E64;
+	Tue, 16 Aug 2022 05:36:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org ADB5D60E64
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A3211C0033;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D61CCC007E;
 	Tue, 16 Aug 2022 05:36:56 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 73AA5C002D
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C936EC002D
  for <virtualization@lists.linux-foundation.org>;
  Tue, 16 Aug 2022 05:36:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 4E98581AAD
+ by smtp2.osuosl.org (Postfix) with ESMTP id 9D33F405D9
  for <virtualization@lists.linux-foundation.org>;
  Tue, 16 Aug 2022 05:36:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4E98581AAD
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9D33F405D9
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=RPmzOSGq
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id tFBpiDhat3ja
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id wsc1CcMp6eYs
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 Aug 2022 05:36:54 +0000 (UTC)
+ Tue, 16 Aug 2022 05:36:55 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7D87F81A9C
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D7ABD405D7
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 7D87F81A9C
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id D7ABD405D7
  for <virtualization@lists.linux-foundation.org>;
  Tue, 16 Aug 2022 05:36:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
@@ -51,49 +54,49 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
  bh=7gwPm9xDUr2cS5ofMDcan9qf7hv2F2NrtQxh7A5E41E=;
- b=RzNbCe2P5JyCsULdVvUvKo7xnwRw3oaoVCPwz5VYg8gPYrish+gZ4jzw2hJ8TiPoky69Qh
- 9MiPgtLiURbWjtyYMmg4Hns/zmKobRdbrJ2n55hZsI+cmaAr/OnKS8Vn5nDPML6quhg59V
- l2O2trDmUsK4s6a0k5T3dbMAIah93xE=
+ b=RPmzOSGqE+Nw83sWBNTmUzL5cRwXWU1DUOm7yBXQitNG0umFhjvsbgVK5PrJwAQs6U6djO
+ bq4YyoP5tA/vopGZ1jQVUK7e8L9Y+Ie9yWTD8oanNI/RtrXRqW4u7G9vljk1bxXkQqPlMD
+ Zseu+Qc1xebOTljZ7z6L99mQ2vejnDA=
 Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
  [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-518-qoVx-xBQPIOuuZN2l9-SeA-1; Tue, 16 Aug 2022 01:36:52 -0400
-X-MC-Unique: qoVx-xBQPIOuuZN2l9-SeA-1
+ us-mta-379-_6GeutLBNJ6SRPKAAKiHSQ-1; Tue, 16 Aug 2022 01:36:46 -0400
+X-MC-Unique: _6GeutLBNJ6SRPKAAKiHSQ-1
 Received: by mail-wm1-f70.google.com with SMTP id
- c17-20020a7bc011000000b003a2bfaf8d3dso4490771wmb.0
+ j22-20020a05600c485600b003a5e4420552so4305071wmo.8
  for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Aug 2022 22:36:52 -0700 (PDT)
+ Mon, 15 Aug 2022 22:36:45 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc;
  bh=7gwPm9xDUr2cS5ofMDcan9qf7hv2F2NrtQxh7A5E41E=;
- b=6UOiD9SbAbm+DAnEGTkiJ/UveXvWi/750RmMYaJKi1+WGiKtClRjHmMn/m5HInLI5/
- 7lAHSnbxEyB6FtPbwpVnZpDrAxNCQCxu4vTNf+AAqSiC/Ke9M4KtwmdY6iuwhvZrAHNt
- zPup5g6oiHaauRCQczesxkVQtD7PVbrGiIpaedtsXGN2d3DO2wHudsLWV2UjaEnY3moN
- 2xc4jQ81RF3OzSMGAnKL3FKUvylq5o202L39O+ZCttbNmaTdSIvrC26oFce0uRukhqhb
- /XAFnuZgt6zYx6h5HNiE0RScRSIgAx423lZdSiiLHJPb3yxQ7ReSreLsweVWm8Ful40v
- dp3Q==
-X-Gm-Message-State: ACgBeo0DG1+8PbBOUVchKd6TNXIr4yY4KiO6PYc3Qu+v7xIOgbF3OoI8
- bfmREguwS23CFKnSaHegkjoulG5wY6PbIkckSQjFxWfKlJ7vcbiUohn0uk2k4H4BySjclteLFDj
- +X9YyrToRSwDTgMm/6vPa2k4LTBE1+Iq/z4maA/Vo8w==
-X-Received: by 2002:a5d:6d42:0:b0:220:7ab1:9da9 with SMTP id
- k2-20020a5d6d42000000b002207ab19da9mr10493846wri.403.1660628211235; 
- Mon, 15 Aug 2022 22:36:51 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR7d8A8k6M8JI6hmCoeeaJbBUK4Uy4I2ToLn096BssqGpPc9DKZ9IxX+tavz6eIPk8MWq4XyUg==
-X-Received: by 2002:a5d:6d42:0:b0:220:7ab1:9da9 with SMTP id
- k2-20020a5d6d42000000b002207ab19da9mr10493798wri.403.1660628209524; 
- Mon, 15 Aug 2022 22:36:49 -0700 (PDT)
+ b=53R1c/GNA73HYqHt2WN0zgULMGlII8hq9fx4ADtUg86JPhzSid9WgtNL43q+gFczz8
+ Y6hHA8VkY255l+6uIgDloWAGQNsPMUEg+91cXXQfxPjoyvUQ07+ypN6wk7pX2Cv25tzT
+ pecURsRZuLWUMO9Xen3XksDHGjWkrllfpMDea15Q0sPWHTPiDkFuawsyJgfhg+y8eXNO
+ 2IQkYPtG4/ok7R5i9sToMOyc6xc+TaE2oUJNkE0M0RfgAeZTSE1/oDfT/gVxEF+7PvAH
+ iBCXDkdhVVYAIPPX4vBMJvQEmfHv5wo2ir+7cczHYhPs3yg07GVRzff48e+GuddexsDZ
+ NjEg==
+X-Gm-Message-State: ACgBeo3y84kqLnOMNaYIxNb+fmg5ijWkFEZwL1O6UsQo90l5VyX7sXjS
+ oaSMaVFHMg6Ps8quoOxd+5Qy7acBaNEuQ82ajpvACjAQ/OqBzka1RftZYYiwfDe5mZsPmPBCCr0
+ pxPpkX/EB4vfanAHP/TLOhkjGMtukFpX4IeV1BnOIQw==
+X-Received: by 2002:a05:600c:3492:b0:3a5:e1a0:24c9 with SMTP id
+ a18-20020a05600c349200b003a5e1a024c9mr7684220wmq.177.1660628205029; 
+ Mon, 15 Aug 2022 22:36:45 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR7cl47H6aW+psCSXTD8lf2D+3OkxsNSPvJV6zikekDWgdM77/QiAz5BzR9Prm3rV3l9dztplA==
+X-Received: by 2002:a05:600c:3492:b0:3a5:e1a0:24c9 with SMTP id
+ a18-20020a05600c349200b003a5e1a024c9mr7684208wmq.177.1660628204830; 
+ Mon, 15 Aug 2022 22:36:44 -0700 (PDT)
 Received: from redhat.com ([2.55.4.37]) by smtp.gmail.com with ESMTPSA id
- by6-20020a056000098600b0021e571a99d5sm9163254wrb.17.2022.08.15.22.36.46
+ q65-20020a1c4344000000b003a327b98c0asm11713634wma.22.2022.08.15.22.36.42
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 15 Aug 2022 22:36:49 -0700 (PDT)
-Date: Tue, 16 Aug 2022 01:36:45 -0400
+ Mon, 15 Aug 2022 22:36:44 -0700 (PDT)
+Date: Tue, 16 Aug 2022 01:36:41 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH v4 5/6] virtio_vdpa: Revert "virtio_vdpa: support the arg
- sizes of find_vqs()"
-Message-ID: <20220816053602.173815-7-mst@redhat.com>
+Subject: [PATCH v4 5/6] virtio: Revert "virtio_vdpa: support the arg sizes of
+ find_vqs()"
+Message-ID: <20220816053602.173815-6-mst@redhat.com>
 References: <20220816053602.173815-1-mst@redhat.com>
 MIME-Version: 1.0
 In-Reply-To: <20220816053602.173815-1-mst@redhat.com>
