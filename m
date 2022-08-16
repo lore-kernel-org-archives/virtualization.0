@@ -1,102 +1,98 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7F932C25B0F
-	for <virtualization@archiver.kernel.org>; Tue, 16 Aug 2022 05:36:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6132BC19F2C
+	for <virtualization@archiver.kernel.org>; Tue, 16 Aug 2022 05:37:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 21E3160E72;
-	Tue, 16 Aug 2022 05:36:59 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 21E3160E72
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RPmzOSGq
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id gAvMzpFRzZuV; Tue, 16 Aug 2022 05:36:58 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id ADB5D60E64;
-	Tue, 16 Aug 2022 05:36:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org ADB5D60E64
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D61CCC007E;
-	Tue, 16 Aug 2022 05:36:56 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C936EC002D
- for <virtualization@lists.linux-foundation.org>;
- Tue, 16 Aug 2022 05:36:55 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 9D33F405D9
- for <virtualization@lists.linux-foundation.org>;
- Tue, 16 Aug 2022 05:36:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9D33F405D9
+	by smtp2.osuosl.org (Postfix) with ESMTP id 1B0FD405D7;
+	Tue, 16 Aug 2022 05:37:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1B0FD405D7
 Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=RPmzOSGq
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=DomaXCDj
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Wpuw6yoVtLgA; Tue, 16 Aug 2022 05:37:09 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 6938E405D6;
+	Tue, 16 Aug 2022 05:37:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6938E405D6
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 42440C0033;
+	Tue, 16 Aug 2022 05:37:08 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 422D3C002D
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 16 Aug 2022 05:37:06 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 1C164405D9
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 16 Aug 2022 05:37:06 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1C164405D9
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id wsc1CcMp6eYs
+ with ESMTP id iH_TdQTKWTgk
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 Aug 2022 05:36:55 +0000 (UTC)
+ Tue, 16 Aug 2022 05:37:05 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D7ABD405D7
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0D217405D7
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id D7ABD405D7
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 0D217405D7
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 Aug 2022 05:36:54 +0000 (UTC)
+ Tue, 16 Aug 2022 05:37:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1660628213;
+ s=mimecast20190719; t=1660628224;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=7gwPm9xDUr2cS5ofMDcan9qf7hv2F2NrtQxh7A5E41E=;
- b=RPmzOSGqE+Nw83sWBNTmUzL5cRwXWU1DUOm7yBXQitNG0umFhjvsbgVK5PrJwAQs6U6djO
- bq4YyoP5tA/vopGZ1jQVUK7e8L9Y+Ie9yWTD8oanNI/RtrXRqW4u7G9vljk1bxXkQqPlMD
- Zseu+Qc1xebOTljZ7z6L99mQ2vejnDA=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=Cpgv5FAeV4Xgxidc6icz1XaUm6ZCyxEOOOfQnaAl0aE=;
+ b=DomaXCDjYbqgffqH0X7x1qWybgOpwdD0brymW+Oone3LuxtDgcMkFs21djX0cTQsBwRZvR
+ DH3ZoRlAKt/H5uImPPweDSZbNHH8Ur7/4ZAkdqglPyXTL0cZP/l0tucj9m/fERy9NJXNHr
+ kEc29tiAEFtn0grjFH82QBXzeGQEDqQ=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-379-_6GeutLBNJ6SRPKAAKiHSQ-1; Tue, 16 Aug 2022 01:36:46 -0400
-X-MC-Unique: _6GeutLBNJ6SRPKAAKiHSQ-1
-Received: by mail-wm1-f70.google.com with SMTP id
- j22-20020a05600c485600b003a5e4420552so4305071wmo.8
+ us-mta-638-A11WUhk3MDOUUjojSx3-ug-1; Tue, 16 Aug 2022 01:36:59 -0400
+X-MC-Unique: A11WUhk3MDOUUjojSx3-ug-1
+Received: by mail-wm1-f72.google.com with SMTP id
+ 203-20020a1c02d4000000b003a5f5bce876so1165186wmc.2
  for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Aug 2022 22:36:45 -0700 (PDT)
+ Mon, 15 Aug 2022 22:36:59 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc;
- bh=7gwPm9xDUr2cS5ofMDcan9qf7hv2F2NrtQxh7A5E41E=;
- b=53R1c/GNA73HYqHt2WN0zgULMGlII8hq9fx4ADtUg86JPhzSid9WgtNL43q+gFczz8
- Y6hHA8VkY255l+6uIgDloWAGQNsPMUEg+91cXXQfxPjoyvUQ07+ypN6wk7pX2Cv25tzT
- pecURsRZuLWUMO9Xen3XksDHGjWkrllfpMDea15Q0sPWHTPiDkFuawsyJgfhg+y8eXNO
- 2IQkYPtG4/ok7R5i9sToMOyc6xc+TaE2oUJNkE0M0RfgAeZTSE1/oDfT/gVxEF+7PvAH
- iBCXDkdhVVYAIPPX4vBMJvQEmfHv5wo2ir+7cczHYhPs3yg07GVRzff48e+GuddexsDZ
- NjEg==
-X-Gm-Message-State: ACgBeo3y84kqLnOMNaYIxNb+fmg5ijWkFEZwL1O6UsQo90l5VyX7sXjS
- oaSMaVFHMg6Ps8quoOxd+5Qy7acBaNEuQ82ajpvACjAQ/OqBzka1RftZYYiwfDe5mZsPmPBCCr0
- pxPpkX/EB4vfanAHP/TLOhkjGMtukFpX4IeV1BnOIQw==
-X-Received: by 2002:a05:600c:3492:b0:3a5:e1a0:24c9 with SMTP id
- a18-20020a05600c349200b003a5e1a024c9mr7684220wmq.177.1660628205029; 
- Mon, 15 Aug 2022 22:36:45 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR7cl47H6aW+psCSXTD8lf2D+3OkxsNSPvJV6zikekDWgdM77/QiAz5BzR9Prm3rV3l9dztplA==
-X-Received: by 2002:a05:600c:3492:b0:3a5:e1a0:24c9 with SMTP id
- a18-20020a05600c349200b003a5e1a024c9mr7684208wmq.177.1660628204830; 
- Mon, 15 Aug 2022 22:36:44 -0700 (PDT)
+ bh=Cpgv5FAeV4Xgxidc6icz1XaUm6ZCyxEOOOfQnaAl0aE=;
+ b=ID6Xt2vV1NSnKmCc+mGl65UZYgE5mmwX9ustxNVEPOsnstR7brn5M3azbWbFubvLS4
+ ZcSDcZdV//ZlGaXXQNqFQ/vXkULvWuV5vp6u12EddB7yg+apRujniXVJdc28dtrjkP0T
+ CePGUDdAHHhumPOfoQpFW3UTBWN/2fvno/6JjgeUa39r+x8h1NDdPxMr5zauLvOx8la5
+ OMcoOER+r/gNl8vhASGrArphtHgB3dgrX1yyEosjm9ZBtict2DtO9ZCKG9nybMwEk0Vj
+ MPimxICF2u6RDOd3lXR7R3Y1Xbi6oaqyyGtDmF1IzL3Z8kh9e/sSMrqry72KASpo4iNP
+ TBTg==
+X-Gm-Message-State: ACgBeo0sw2KexeEICk9KXvD2rYBrk9XfgQlv9VOf+kEBwGpAu0M5LvrF
+ jr+p//djvn3jPhdstDZk9YrO7Mqp7W2DDmw2YPRiYFvMi2rtDTc4Zx5DnoH+jC3LMJ2xrIhK+SC
+ z/f/WrzCR7uRx+CLudywFcbDgwCg2yG8LOW0QFEOZfQ==
+X-Received: by 2002:adf:f5cc:0:b0:221:7e3f:41eb with SMTP id
+ k12-20020adff5cc000000b002217e3f41ebmr10278827wrp.551.1660628218609; 
+ Mon, 15 Aug 2022 22:36:58 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR5WDnzBpzupB051dVdRKYw1crDTF90RoLhqKzZL00iu8qEeaHBRmDf/lNXmgrH/YzznHXnhuA==
+X-Received: by 2002:adf:f5cc:0:b0:221:7e3f:41eb with SMTP id
+ k12-20020adff5cc000000b002217e3f41ebmr10278814wrp.551.1660628218337; 
+ Mon, 15 Aug 2022 22:36:58 -0700 (PDT)
 Received: from redhat.com ([2.55.4.37]) by smtp.gmail.com with ESMTPSA id
- q65-20020a1c4344000000b003a327b98c0asm11713634wma.22.2022.08.15.22.36.42
+ f16-20020adfb610000000b002237fd66585sm8918606wre.92.2022.08.15.22.36.52
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 15 Aug 2022 22:36:44 -0700 (PDT)
-Date: Tue, 16 Aug 2022 01:36:41 -0400
+ Mon, 15 Aug 2022 22:36:57 -0700 (PDT)
+Date: Tue, 16 Aug 2022 01:36:51 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH v4 5/6] virtio: Revert "virtio_vdpa: support the arg sizes of
- find_vqs()"
-Message-ID: <20220816053602.173815-6-mst@redhat.com>
+Subject: [PATCH v4 6/6] virtio: Revert "virtio: find_vqs() add arg sizes"
+Message-ID: <20220816053602.173815-8-mst@redhat.com>
 References: <20220816053602.173815-1-mst@redhat.com>
 MIME-Version: 1.0
 In-Reply-To: <20220816053602.173815-1-mst@redhat.com>
@@ -105,15 +101,26 @@ X-Mutt-Fcc: =sent
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Jens Axboe <axboe@kernel.dk>,
- "Martin K. Petersen" <martin.petersen@oracle.com>, netdev@vger.kernel.org,
+Cc: Vadim Pasternak <vadimp@nvidia.com>, linux-remoteproc@vger.kernel.org,
  virtualization@lists.linux-foundation.org,
  James Bottomley <James.Bottomley@hansenpartnership.com>,
- Eric Dumazet <edumazet@google.com>, Bo Liu <liubo03@inspur.com>,
- Greg KH <gregkh@linuxfoundation.org>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
+ Eric Dumazet <edumazet@google.com>, Alexander Gordeev <agordeev@linux.ibm.com>,
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>, kvm@vger.kernel.org,
+ Richard Weinberger <richard@nod.at>, Halil Pasic <pasic@linux.ibm.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Guenter Roeck <linux@roeck-us.net>, platform-driver-x86@vger.kernel.org,
+ Eric Farman <farman@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+ linux-um@lists.infradead.org, Mark Gross <markgross@kernel.org>,
+ Hans de Goede <hdegoede@redhat.com>,
+ Bjorn Andersson <bjorn.andersson@linaro.org>, Jens Axboe <axboe@kernel.dk>,
+ Mathieu Poirier <mathieu.poirier@linaro.org>,
+ "Martin K. Petersen" <martin.petersen@oracle.com>, netdev@vger.kernel.org,
+ Cornelia Huck <cohuck@redhat.com>, Sven Schnelle <svens@linux.ibm.com>,
+ Greg KH <gregkh@linuxfoundation.org>,
+ Johannes Berg <johannes@sipsolutions.net>,
  Linus Torvalds <torvalds@linux-foundation.org>,
- "David S. Miller" <davem@davemloft.net>, Guenter Roeck <linux@roeck-us.net>
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -130,67 +137,206 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This reverts commit 99e8927d8a4da8eb8a8a5904dc13a3156be8e7c0:
+This reverts commit a10fba0377145fccefea4dc4dd5915b7ed87e546: the
 proposed API isn't supported on all transports but no
 effort was made to address this.
 
-It might not be hard to fix if we want to: maybe just rename size to
-size_hint and make sure legacy transports ignore the hint.
+It might not be hard to fix if we want to: maybe just
+rename size to size_hint and make sure legacy
+transports ignore the hint.
 
-But it's not sure what the benefit is in any case, so let's drop it.
+But it's not sure what the benefit is in any case, so
+let's drop it.
 
-Fixes: 99e8927d8a4d ("virtio_vdpa: support the arg sizes of find_vqs()")
+Fixes: a10fba037714 ("virtio: find_vqs() add arg sizes")
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/virtio/virtio_vdpa.c | 15 ++++++---------
- 1 file changed, 6 insertions(+), 9 deletions(-)
+ arch/um/drivers/virtio_uml.c             |  2 +-
+ drivers/platform/mellanox/mlxbf-tmfifo.c |  1 -
+ drivers/remoteproc/remoteproc_virtio.c   |  1 -
+ drivers/s390/virtio/virtio_ccw.c         |  1 -
+ drivers/virtio/virtio_mmio.c             |  1 -
+ drivers/virtio/virtio_pci_common.c       |  2 +-
+ drivers/virtio/virtio_pci_common.h       |  2 +-
+ drivers/virtio/virtio_pci_modern.c       |  7 ++-----
+ drivers/virtio/virtio_vdpa.c             |  1 -
+ include/linux/virtio_config.h            | 14 +++++---------
+ 10 files changed, 10 insertions(+), 22 deletions(-)
 
+diff --git a/arch/um/drivers/virtio_uml.c b/arch/um/drivers/virtio_uml.c
+index 79e38afd4b91..e719af8bdf56 100644
+--- a/arch/um/drivers/virtio_uml.c
++++ b/arch/um/drivers/virtio_uml.c
+@@ -1011,7 +1011,7 @@ static struct virtqueue *vu_setup_vq(struct virtio_device *vdev,
+ 
+ static int vu_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+ 		       struct virtqueue *vqs[], vq_callback_t *callbacks[],
+-		       const char * const names[], u32 sizes[], const bool *ctx,
++		       const char * const names[], const bool *ctx,
+ 		       struct irq_affinity *desc)
+ {
+ 	struct virtio_uml_device *vu_dev = to_virtio_uml_device(vdev);
+diff --git a/drivers/platform/mellanox/mlxbf-tmfifo.c b/drivers/platform/mellanox/mlxbf-tmfifo.c
+index 8be13d416f48..1ae3c56b66b0 100644
+--- a/drivers/platform/mellanox/mlxbf-tmfifo.c
++++ b/drivers/platform/mellanox/mlxbf-tmfifo.c
+@@ -928,7 +928,6 @@ static int mlxbf_tmfifo_virtio_find_vqs(struct virtio_device *vdev,
+ 					struct virtqueue *vqs[],
+ 					vq_callback_t *callbacks[],
+ 					const char * const names[],
+-					u32 sizes[],
+ 					const bool *ctx,
+ 					struct irq_affinity *desc)
+ {
+diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
+index 81c4f5776109..0f7706e23eb9 100644
+--- a/drivers/remoteproc/remoteproc_virtio.c
++++ b/drivers/remoteproc/remoteproc_virtio.c
+@@ -158,7 +158,6 @@ static int rproc_virtio_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
+ 				 struct virtqueue *vqs[],
+ 				 vq_callback_t *callbacks[],
+ 				 const char * const names[],
+-				 u32 sizes[],
+ 				 const bool * ctx,
+ 				 struct irq_affinity *desc)
+ {
+diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+index 896896e32664..a10dbe632ef9 100644
+--- a/drivers/s390/virtio/virtio_ccw.c
++++ b/drivers/s390/virtio/virtio_ccw.c
+@@ -637,7 +637,6 @@ static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+ 			       struct virtqueue *vqs[],
+ 			       vq_callback_t *callbacks[],
+ 			       const char * const names[],
+-			       u32 sizes[],
+ 			       const bool *ctx,
+ 			       struct irq_affinity *desc)
+ {
+diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+index dfcecfd7aba1..3ff746e3f24a 100644
+--- a/drivers/virtio/virtio_mmio.c
++++ b/drivers/virtio/virtio_mmio.c
+@@ -474,7 +474,6 @@ static int vm_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
+ 		       struct virtqueue *vqs[],
+ 		       vq_callback_t *callbacks[],
+ 		       const char * const names[],
+-		       u32 sizes[],
+ 		       const bool *ctx,
+ 		       struct irq_affinity *desc)
+ {
+diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+index 7ad734584823..ad258a9d3b9f 100644
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -396,7 +396,7 @@ static int vp_find_vqs_intx(struct virtio_device *vdev, unsigned int nvqs,
+ /* the config->find_vqs() implementation */
+ int vp_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
+ 		struct virtqueue *vqs[], vq_callback_t *callbacks[],
+-		const char * const names[], u32 sizes[], const bool *ctx,
++		const char * const names[], const bool *ctx,
+ 		struct irq_affinity *desc)
+ {
+ 	int err;
+diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
+index a5ff838b85a5..23112d84218f 100644
+--- a/drivers/virtio/virtio_pci_common.h
++++ b/drivers/virtio/virtio_pci_common.h
+@@ -110,7 +110,7 @@ void vp_del_vqs(struct virtio_device *vdev);
+ /* the config->find_vqs() implementation */
+ int vp_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
+ 		struct virtqueue *vqs[], vq_callback_t *callbacks[],
+-		const char * const names[], u32 sizes[], const bool *ctx,
++		const char * const names[], const bool *ctx,
+ 		struct irq_affinity *desc);
+ const char *vp_bus_name(struct virtio_device *vdev);
+ 
+diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
+index be51ec849252..c3b9f2761849 100644
+--- a/drivers/virtio/virtio_pci_modern.c
++++ b/drivers/virtio/virtio_pci_modern.c
+@@ -347,15 +347,12 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
+ static int vp_modern_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
+ 			      struct virtqueue *vqs[],
+ 			      vq_callback_t *callbacks[],
+-			      const char * const names[],
+-			      u32 sizes[],
+-			      const bool *ctx,
++			      const char * const names[], const bool *ctx,
+ 			      struct irq_affinity *desc)
+ {
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+ 	struct virtqueue *vq;
+-	int rc = vp_find_vqs(vdev, nvqs, vqs, callbacks, names, sizes, ctx,
+-			     desc);
++	int rc = vp_find_vqs(vdev, nvqs, vqs, callbacks, names, ctx, desc);
+ 
+ 	if (rc)
+ 		return rc;
 diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
-index 9bc4d110b800..832d2c5b1b19 100644
+index 832d2c5b1b19..9670cc79371d 100644
 --- a/drivers/virtio/virtio_vdpa.c
 +++ b/drivers/virtio/virtio_vdpa.c
-@@ -131,7 +131,7 @@ static irqreturn_t virtio_vdpa_virtqueue_cb(void *private)
- static struct virtqueue *
- virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
- 		     void (*callback)(struct virtqueue *vq),
--		     const char *name, u32 size, bool ctx)
-+		     const char *name, bool ctx)
+@@ -269,7 +269,6 @@ static int virtio_vdpa_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
+ 				struct virtqueue *vqs[],
+ 				vq_callback_t *callbacks[],
+ 				const char * const names[],
+-				u32 sizes[],
+ 				const bool *ctx,
+ 				struct irq_affinity *desc)
  {
- 	struct virtio_vdpa_device *vd_dev = to_virtio_vdpa_device(vdev);
- 	struct vdpa_device *vdpa = vd_get_vdpa(vdev);
-@@ -168,17 +168,14 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
- 		goto error_new_virtqueue;
- 	}
+diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+index 888f7e96f0c7..36ec7be1f480 100644
+--- a/include/linux/virtio_config.h
++++ b/include/linux/virtio_config.h
+@@ -55,7 +55,6 @@ struct virtio_shm_region {
+  *		include a NULL entry for vqs that do not need a callback
+  *	names: array of virtqueue names (mainly for debugging)
+  *		include a NULL entry for vqs unused by driver
+- *	sizes: array of virtqueue sizes
+  *	Returns 0 on success or error status
+  * @del_vqs: free virtqueues found by find_vqs().
+  * @synchronize_cbs: synchronize with the virtqueue callbacks (optional)
+@@ -104,9 +103,7 @@ struct virtio_config_ops {
+ 	void (*reset)(struct virtio_device *vdev);
+ 	int (*find_vqs)(struct virtio_device *, unsigned nvqs,
+ 			struct virtqueue *vqs[], vq_callback_t *callbacks[],
+-			const char * const names[],
+-			u32 sizes[],
+-			const bool *ctx,
++			const char * const names[], const bool *ctx,
+ 			struct irq_affinity *desc);
+ 	void (*del_vqs)(struct virtio_device *);
+ 	void (*synchronize_cbs)(struct virtio_device *);
+@@ -215,7 +212,7 @@ struct virtqueue *virtio_find_single_vq(struct virtio_device *vdev,
+ 	const char *names[] = { n };
+ 	struct virtqueue *vq;
+ 	int err = vdev->config->find_vqs(vdev, 1, &vq, callbacks, names, NULL,
+-					 NULL, NULL);
++					 NULL);
+ 	if (err < 0)
+ 		return ERR_PTR(err);
+ 	return vq;
+@@ -227,8 +224,7 @@ int virtio_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+ 			const char * const names[],
+ 			struct irq_affinity *desc)
+ {
+-	return vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names, NULL,
+-				      NULL, desc);
++	return vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names, NULL, desc);
+ }
  
--	if (!size || size > max_num)
--		size = max_num;
--
- 	if (ops->get_vq_num_min)
- 		min_num = ops->get_vq_num_min(vdpa);
+ static inline
+@@ -237,8 +233,8 @@ int virtio_find_vqs_ctx(struct virtio_device *vdev, unsigned nvqs,
+ 			const char * const names[], const bool *ctx,
+ 			struct irq_affinity *desc)
+ {
+-	return vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names, NULL,
+-				      ctx, desc);
++	return vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names, ctx,
++				      desc);
+ }
  
--	may_reduce_num = (size == min_num) ? false : true;
-+	may_reduce_num = (max_num == min_num) ? false : true;
- 
- 	/* Create the vring */
- 	align = ops->get_vq_align(vdpa);
--	vq = vring_create_virtqueue(index, size, align, vdev,
-+	vq = vring_create_virtqueue(index, max_num, align, vdev,
- 				    true, may_reduce_num, ctx,
- 				    virtio_vdpa_notify, callback, name);
- 	if (!vq) {
-@@ -288,9 +285,9 @@ static int virtio_vdpa_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
- 			continue;
- 		}
- 
--		vqs[i] = virtio_vdpa_setup_vq(vdev, queue_idx++, callbacks[i],
--						  names[i], sizes ? sizes[i] : 0,
--						  ctx ? ctx[i] : false);
-+		vqs[i] = virtio_vdpa_setup_vq(vdev, queue_idx++,
-+					      callbacks[i], names[i], ctx ?
-+					      ctx[i] : false);
- 		if (IS_ERR(vqs[i])) {
- 			err = PTR_ERR(vqs[i]);
- 			goto err_setup_vq;
+ /**
 -- 
 MST
 
