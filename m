@@ -1,120 +1,112 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5B73EC25B08
-	for <virtualization@archiver.kernel.org>; Wed, 17 Aug 2022 17:03:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1FDAEC25B08
+	for <virtualization@archiver.kernel.org>; Wed, 17 Aug 2022 17:06:02 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id B9E7883E2A;
-	Wed, 17 Aug 2022 17:03:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B9E7883E2A
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Z0qRAqDJ
+	by smtp3.osuosl.org (Postfix) with ESMTP id 81912610F7;
+	Wed, 17 Aug 2022 17:06:02 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 81912610F7
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Qk6gFmwc
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id V8tSaPkSVzqx; Wed, 17 Aug 2022 17:03:12 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id IyAjk8Gapa4T; Wed, 17 Aug 2022 17:06:01 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 4A95283E9A;
-	Wed, 17 Aug 2022 17:03:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4A95283E9A
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 16BF6605AF;
+	Wed, 17 Aug 2022 17:06:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 16BF6605AF
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DF6AEC0032;
-	Wed, 17 Aug 2022 17:03:10 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1D884C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CE9ACC0032;
+	Wed, 17 Aug 2022 17:06:00 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id F3668C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 17 Aug 2022 17:03:10 +0000 (UTC)
+ Wed, 17 Aug 2022 17:05:59 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id E74C0402FB
+ by smtp3.osuosl.org (Postfix) with ESMTP id C059F60AFD
  for <virtualization@lists.linux-foundation.org>;
- Wed, 17 Aug 2022 17:03:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E74C0402FB
-Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=Z0qRAqDJ
+ Wed, 17 Aug 2022 17:05:59 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C059F60AFD
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id qszLomBagBSt
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 9YjyG0xGgAjC
  for <virtualization@lists.linux-foundation.org>;
- Wed, 17 Aug 2022 17:03:08 +0000 (UTC)
+ Wed, 17 Aug 2022 17:05:59 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8A9B7402EC
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D44A6605AF
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 8A9B7402EC
+ by smtp3.osuosl.org (Postfix) with ESMTPS id D44A6605AF
  for <virtualization@lists.linux-foundation.org>;
- Wed, 17 Aug 2022 17:03:08 +0000 (UTC)
+ Wed, 17 Aug 2022 17:05:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1660755786;
+ s=mimecast20190719; t=1660755957;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=iKDI4wZP72dFon1h0J2l9ajfalLVCP4U7tsE8KQrHV8=;
- b=Z0qRAqDJUk71ih7SpS7ZSVcBLNBQWNXhr88yd+/xovyQjT1XBgZzikVHntbD+6tohJijlk
- Yq57ggwMYp7CrGvcflDSApmHnMupFsQ32IewP1FmpP7iXTW/zljgtw8vaDhYEJ8vARkzUu
- vpbw/33KgZo5ln2qiuLbValZlrVoi0g=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=GM7xEfwIL/rtVq+hrRvQ1hKtp4szoR86mfFhzUxnc2Q=;
+ b=Qk6gFmwcztZi/pyhapHCDwe17a5LB9wwX3MeiW66I9bpAvv47mdA7aw8+RDHLZQS5BDhia
+ A0UOWBJyKbAEYL1/yYv2KHyTzrs3IBEslSLNMGGIb+gEUfQWeuTW+PQjZnn84MXKF/DknD
+ tFqzPnv4PtNaDFn97PRQMsSXELBkKI8=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-536-zP9U29AyMRejJYQ7Lq02ow-1; Wed, 17 Aug 2022 13:03:00 -0400
-X-MC-Unique: zP9U29AyMRejJYQ7Lq02ow-1
-Received: by mail-wm1-f70.google.com with SMTP id
- c17-20020a7bc011000000b003a2bfaf8d3dso6550698wmb.0
+ us-mta-458-DHE0H_LUOtyfs3P4Gvso0w-1; Wed, 17 Aug 2022 13:05:56 -0400
+X-MC-Unique: DHE0H_LUOtyfs3P4Gvso0w-1
+Received: by mail-wm1-f71.google.com with SMTP id
+ c66-20020a1c3545000000b003a5f6dd6a25so1338662wma.1
  for <virtualization@lists.linux-foundation.org>;
- Wed, 17 Aug 2022 10:03:00 -0700 (PDT)
+ Wed, 17 Aug 2022 10:05:56 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc;
- bh=iKDI4wZP72dFon1h0J2l9ajfalLVCP4U7tsE8KQrHV8=;
- b=CQI1LIHEZgJoBDg/6rizEdOCk07N4L8pId74PKMoG3dV6LipSKlNm3GMCuPvtOKBqD
- qO6yQ+D2A/+jhuEbJ08nilauGJ2jPu9nVA8BThg2yWbkczbAYF2hkxQ2a7a6YGWXeB8X
- kcty+KkCHOR/Pf4CZWuexh7C8uCcArXqqE7De+UlpsCYWR7HHKtsemZl6nWZ5stQIQGw
- GSFlXyKP8hCbRKF5x2PzlVFRy2RIbKXYkEvXEcITQhJw4rorStOtG8JtC9HrzmyuEUbK
- eokQi2kpizdcfce86mlTEvhINC0D/kyvmcxJqhvvAmFVNFbkf+SI4J2yzd7+Zv/b/MZK
- nq9A==
-X-Gm-Message-State: ACgBeo0bc4EuqyzrT2DkZUnJMldbGSM5WuR4iJ8FDXUIeqHM6+Tpe4Pr
- NiSZD4wWLsWC0eQO1Yw81UEFfqIuRm1ooGy91SBzo+aXFDn2kwETQEUbg2vlTxlKajmrOPyxkIW
- mJPy6o15Pi1A1Hbwx+QpnocSeezLxTIS6t+EIcUPmOA==
-X-Received: by 2002:a5d:440b:0:b0:225:2106:2f30 with SMTP id
- z11-20020a5d440b000000b0022521062f30mr3175258wrq.533.1660755779410; 
- Wed, 17 Aug 2022 10:02:59 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR5AuDbo8GcZEnqQiqOeyM94DlUbLxyqrhdFN62DfedDuMFRt+WAj8nSt4Xs7jQmlw2zs7JUow==
-X-Received: by 2002:a5d:440b:0:b0:225:2106:2f30 with SMTP id
- z11-20020a5d440b000000b0022521062f30mr3175243wrq.533.1660755779078; 
- Wed, 17 Aug 2022 10:02:59 -0700 (PDT)
+ bh=GM7xEfwIL/rtVq+hrRvQ1hKtp4szoR86mfFhzUxnc2Q=;
+ b=sHuMASGvyrHDWFlhQjD6z2iL1eCBF3Nr+D/SG6Mxb7O4dxYOcS98ZLsDJlUOeo7wFx
+ H+O1/0xNGyejJ1Io0U+zG+jC6xIfsRqJEVuEt0YqJQvVSzI/qU3xBrkZMm9HzvDXdPiW
+ UiCkQby2Ns2aJziNra1Z5tTe91aUzigxXJj1egMu2n54T6aG0W5knWlCf4OJHFc6MB4E
+ vGqZrk7Zn/L/oRyB6wfW4PQr0VL8nhpWRK41PsMSV1ZjSMqn9eZQsmOc4RpHKdBqF3Nk
+ UctvaU8KvR5+4dRgVElO2sQVeuoOQ/eFShv0rYuAwXaa7el6zsg7NrFGQZxOu/JSZvZE
+ XoPA==
+X-Gm-Message-State: ACgBeo3BEnr/tM9+OeBFEth/mfsBC4//hUa4OHGHNIIeRoMjwEpPFtu8
+ LraXo2HwywdBlOlwnn0f05p/1eFS7IlUh4FRVb7BFgL7SuNf9JFLtzLrlNE11LD9QeU8k6TNyAG
+ H6IxDy1wvZBQtVC1ig/AyLOSyUCFSNf+GpyzcppeJrA==
+X-Received: by 2002:a05:600c:4f4f:b0:3a5:a530:4fd7 with SMTP id
+ m15-20020a05600c4f4f00b003a5a5304fd7mr2807115wmq.36.1660755955452; 
+ Wed, 17 Aug 2022 10:05:55 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR7W0d2By6SxNehemYA/+2Tlkpn9sxMVpxE7j6tOqnVgLuFdYAz5FyA4g0pMz5pYYDOiSN6AMw==
+X-Received: by 2002:a05:600c:4f4f:b0:3a5:a530:4fd7 with SMTP id
+ m15-20020a05600c4f4f00b003a5a5304fd7mr2807106wmq.36.1660755955238; 
+ Wed, 17 Aug 2022 10:05:55 -0700 (PDT)
 Received: from redhat.com ([2.55.43.215]) by smtp.gmail.com with ESMTPSA id
- h82-20020a1c2155000000b003a319bd3278sm2825504wmh.40.2022.08.17.10.02.54
+ m9-20020a7bce09000000b003a3442f1229sm2645479wmc.29.2022.08.17.10.05.51
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 17 Aug 2022 10:02:58 -0700 (PDT)
-Date: Wed, 17 Aug 2022 13:02:52 -0400
+ Wed, 17 Aug 2022 10:05:54 -0700 (PDT)
+Date: Wed, 17 Aug 2022 13:05:49 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Bobby Eshleman <bobbyeshleman@gmail.com>
-Subject: Re: [PATCH 0/6] virtio/vsock: introduce dgrams, sk_buff, and qdisc
-Message-ID: <20220817130044-mutt-send-email-mst@kernel.org>
-References: <cover.1660362668.git.bobby.eshleman@bytedance.com>
- <20220817025250-mutt-send-email-mst@kernel.org>
- <YvtmYpMieMFb80qR@bullseye>
+To: Will Deacon <will@kernel.org>
+Subject: Re: IOTLB support for vhost/vsock breaks crosvm on Android
+Message-ID: <20220817130510-mutt-send-email-mst@kernel.org>
+References: <20220805181105.GA29848@willie-the-truck>
+ <20220807042408-mutt-send-email-mst@kernel.org>
+ <20220808101850.GA31984@willie-the-truck>
+ <20220808083958-mutt-send-email-mst@kernel.org>
+ <20220817134821.GA12615@willie-the-truck>
 MIME-Version: 1.0
-In-Reply-To: <YvtmYpMieMFb80qR@bullseye>
+In-Reply-To: <20220817134821.GA12615@willie-the-truck>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Wei Liu <wei.liu@kernel.org>, Cong Wang <cong.wang@bytedance.com>,
- Stephen Hemminger <sthemmin@microsoft.com>,
- Bobby Eshleman <bobby.eshleman@bytedance.com>,
- Jiang Wang <jiang.wang@bytedance.com>, Dexuan Cui <decui@microsoft.com>,
- Bobby Eshleman <bobby.eshleman@gmail.com>, linux-kernel@vger.kernel.org,
- Haiyang Zhang <haiyangz@microsoft.com>,
- virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>,
- netdev@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>,
- kvm@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, linux-hyperv@vger.kernel.org,
- "David S. Miller" <davem@davemloft.net>
+Cc: jiyong@google.com, kvm@vger.kernel.org, kernel-team@android.com,
+ maz@kernel.org, keirf@google.com, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, ascull@google.com,
+ stefanha@redhat.com, crosvm-dev@chromium.org, torvalds@linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -131,20 +123,30 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Aug 16, 2022 at 09:42:51AM +0000, Bobby Eshleman wrote:
-> > The basic question to answer then is this: with a net device qdisc
-> > etc in the picture, how is this different from virtio net then?
-> > Why do you still want to use vsock?
-> > 
+On Wed, Aug 17, 2022 at 02:48:22PM +0100, Will Deacon wrote:
+> On Mon, Aug 08, 2022 at 08:45:48AM -0400, Michael S. Tsirkin wrote:
+> > > > Also yes, I think it's a good idea to change crosvm anyway.  While the
+> > > > work around I describe might make sense upstream I don't think it's a
+> > > > reasonable thing to do in stable kernels.
+> > > > I think I'll prepare a patch documenting the legal vhost features
+> > > > as a 1st step even though crosvm is rust so it's not importing
+> > > > the header directly, right?
+> > > 
+> > > Documentation is a good idea regardless, so thanks for that. Even though
+> > > crosvm has its own bindings for the vhost ioctl()s, the documentation
+> > > can be reference or duplicated once it's available in the kernel headers.
+> > > 
+> > So for crosvm change, I will post the documentation change and
+> > you guys can discuss?
 > 
-> When using virtio-net, users looking for inter-VM communication are
-> required to setup bridges, TAPs, allocate IP addresses or setup DNS,
-> etc... and then finally when you have a network, you can open a socket
-> on an IP address and port. This is the configuration that vsock avoids.
-> For vsock, we just need a CID and a port, but no network configuration.
+> FYI, the crosvm patch is merged here:
+> 
+> https://github.com/google/crosvm/commit/4e7d00be2e135b0a2d964320ea4276e5d896f426
+> 
+> Will
 
-Surely when you mention DNS you are going overboard? vsock doesn't
-remove the need for DNS as much as it does not support it.
+Great thanks a lot!
+I'm on vacation next week but will work on it afterwards.
 
 -- 
 MST
