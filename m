@@ -1,96 +1,104 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6BA6FC25B0E
-	for <virtualization@archiver.kernel.org>; Fri, 19 Aug 2022 06:07:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 09F1AC25B0E
+	for <virtualization@archiver.kernel.org>; Fri, 19 Aug 2022 06:30:31 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id BFD6260AFA;
-	Fri, 19 Aug 2022 06:07:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org BFD6260AFA
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=gmx.net header.i=@gmx.net header.a=rsa-sha256 header.s=badeba3b8450 header.b=NLOr77bT
+	by smtp2.osuosl.org (Postfix) with ESMTP id 8F2D040484;
+	Fri, 19 Aug 2022 06:30:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8F2D040484
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=NHrLS6Nn
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id KF3VfdJyZJZh; Fri, 19 Aug 2022 06:07:15 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id FjNfg-TGLDYC; Fri, 19 Aug 2022 06:30:30 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id A5AF660AE1;
-	Fri, 19 Aug 2022 06:07:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A5AF660AE1
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 1A750400CE;
+	Fri, 19 Aug 2022 06:30:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1A750400CE
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6CBE3C0032;
-	Fri, 19 Aug 2022 06:07:14 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E3921C0032;
+	Fri, 19 Aug 2022 06:30:29 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7A5D1C002D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C953DC002D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 19 Aug 2022 06:07:13 +0000 (UTC)
+ Fri, 19 Aug 2022 06:30:28 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 4BD3460AFA
+ by smtp3.osuosl.org (Postfix) with ESMTP id 9E7DF60E68
  for <virtualization@lists.linux-foundation.org>;
- Fri, 19 Aug 2022 06:07:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4BD3460AFA
+ Fri, 19 Aug 2022 06:30:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9E7DF60E68
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=NHrLS6Nn
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ucxNbcxNjTUJ
+ with ESMTP id XVveZm-bevxI
  for <virtualization@lists.linux-foundation.org>;
- Fri, 19 Aug 2022 06:07:12 +0000 (UTC)
-X-Greylist: delayed 00:05:12 by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7F77560AE1
-Received: from mout.gmx.net (mout.gmx.net [212.227.15.15])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 7F77560AE1
+ Fri, 19 Aug 2022 06:30:28 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C6287607F0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id C6287607F0
  for <virtualization@lists.linux-foundation.org>;
- Fri, 19 Aug 2022 06:07:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
- s=badeba3b8450; t=1660889227;
- bh=MOCsnQKUtAhXlHqssFSM8e9zPQnE4nRVmCO+9ySWwD8=;
- h=X-UI-Sender-Class:Subject:From:To:Cc:Date:In-Reply-To:References;
- b=NLOr77bT7Q8lcW6IJGoxOjH8SdP/LaywGmiLVAcscSpR4Oo/Pxp3cQ6hsmlC27DYm
- v+Ckft4tH8KrhUcXgcYd/eKnknhTpYjspH+LfkoDJuCgOS1nOJOfz2cmcHRqxUBveG
- mDIDLvUy+MCNUYN0tKVfYdqEQ6nHkNIjk0Q1XW6Q=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from homer.fritz.box ([185.221.149.72]) by mail.gmx.net (mrgmx005
- [212.227.17.190]) with ESMTPSA (Nemesis) id 1M2wL0-1oLckm1T2a-003Jn6; Fri, 19
- Aug 2022 08:01:44 +0200
-Message-ID: <f75cb32b7c262fe852c53544034f5b6047d29b65.camel@gmx.de>
-Subject: Re: [PATCH v5 3/5] vduse: Support using userspace pages as bounce
- buffer
-From: Mike Galbraith <efault@gmx.de>
-To: Xie Yongji <xieyongji@bytedance.com>, jasowang@redhat.com,
- mst@redhat.com,  xiaodong.liu@intel.com, maxime.coquelin@redhat.com,
- stefanha@redhat.com
-Date: Fri, 19 Aug 2022 08:01:42 +0200
-In-Reply-To: <20220803045523.23851-4-xieyongji@bytedance.com>
-References: <20220803045523.23851-1-xieyongji@bytedance.com>
- <20220803045523.23851-4-xieyongji@bytedance.com>
-User-Agent: Evolution 3.42.4 
+ Fri, 19 Aug 2022 06:30:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1660890626;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=+STKAMW3/WbwF0Tt2g3VL2URFydCHd++2Kywb8yKSF4=;
+ b=NHrLS6Nn+MH4/ndcQwePQA81grRHSlQf4Y713TPYqLLXwa6urLI67FBb41ZpthhiT6GBkd
+ KSWJxUg5DKkWS5UTjwcAjhjIy3QV8We95dslUgnoOdDvAtlIbJPn5mjSVtHFRF89mHRrHU
+ UlyvqQjbfb4WxkF/avelcoMpwkjpZPA=
+Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com
+ [209.85.208.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-58-6a94908ZNcyAO9viiRPNhw-1; Fri, 19 Aug 2022 02:30:25 -0400
+X-MC-Unique: 6a94908ZNcyAO9viiRPNhw-1
+Received: by mail-lj1-f198.google.com with SMTP id
+ l6-20020a2ea306000000b0025ff55d64afso772818lje.0
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 18 Aug 2022 23:30:24 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:x-gm-message-state:from:to:cc;
+ bh=+STKAMW3/WbwF0Tt2g3VL2URFydCHd++2Kywb8yKSF4=;
+ b=Xn9pTxJP+cVjLe19hm/myEDA0eZdXQMmlD11FJ9rJbldtwE99+YR4C5GKEvnzhcP7a
+ GaEBe0b54oN3GlvMiOkAhh07Fgue3vrw1uhhd9XyVZpXYYhc0lwrqM4UAbmGvNhYdmkX
+ ketC+21MNSm0foS0lKEjgMTHfdu57yJpCD7+ZmgiDcCH78brcEtpYnAGPBXH+qUytaHr
+ 6k/E06QTTmq0TYp8h4iQ2eTHnn9B23Q8d40TZv79sok+3bxIML7jr8m/H6akjGLchAIM
+ Hyo9Wxc4nPzj3r88BtWaohCN3b9imau7ptY5knu5SqnRzXJzjdpPU1RP7rMWXXPvH5tY
+ qpuA==
+X-Gm-Message-State: ACgBeo3lCq5BTJrmPzrzJAMjcMOedSJNBoitoV4YnkMIPx0gatcsYF2M
+ Ls2stCVWYzTzUJLDePbyN6RpbuG0iFHZRaeg9mtTziNLQ0n9KVAAYdqh9KXMxLpkr+fnt0X22dZ
+ oDzEbgNfpVsV7HrE80ROYiJWk9xUWEiNZzidwOT22WoI8MvQACgu23fHNeA==
+X-Received: by 2002:a2e:a983:0:b0:25f:f273:548e with SMTP id
+ x3-20020a2ea983000000b0025ff273548emr1648859ljq.141.1660890623789; 
+ Thu, 18 Aug 2022 23:30:23 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR6MLby3Xdd24ymmMjmVShJty7uFiB8RdFBLg1mr1gsAbSkF+k1zZcFZLUTomkcvmEeC1Vt7QAF8K47YYb/Hyd4=
+X-Received: by 2002:a2e:a983:0:b0:25f:f273:548e with SMTP id
+ x3-20020a2ea983000000b0025ff273548emr1648847ljq.141.1660890623580; Thu, 18
+ Aug 2022 23:30:23 -0700 (PDT)
 MIME-Version: 1.0
-X-Provags-ID: V03:K1:ID0sMTVYy3r3ajuvly3x/Qa+Opaue78Rbt3wTx4fEj5BT/3Hz53
- bdOlV+5UEOdhuXKQ2XhIpddyk9+zTTCmRJZrzHlOMhWcy8B5p/nyXLr/YYl/587a/uTlj4v
- 7KWCHZ3Osyv4A79qGad8cDxLWuGo+y31xxYn3/D+Er4BLuJiAjtw2P4RANpdlqW9v8lncUG
- 4/fndY1uK0k6eyLV8p/3Q==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:xWqMvYXvK2g=:lE53Onaqs/5dERELl12Jji
- pMU6QpWTnNY6sKIEE2V9nqP0VmRS5bJptRJTr9B3vfcKGz8XN+a54ZgxD6leYDW6vWh1F3ew2
- uU9Rn2zJZgWtOViGGFjpvwUOPRSbLt/Gz8I8QOmyOuljMLuZmXrngOLcQNUpaO0G8L1NIM8Il
- 5iZlQJ+V4NGa/t/JhoMqIoOAvmrXSKqr2ycp/IUE8hRQGgR9cBlc1af+fS8dSa3Yw5C3i4EPl
- 9tF4DbwdH2K37hVzI1kQHF9Zo1kKFIDWTuUMSflLxATJwvmxOEPqY09Y1VtYjWcchfWA2I6y7
- 9NAMViXh89cnOyojnA3M5q+ubuowAxq56IcJ5MwLFbGz0o3ZJUMVYDN5QUmXsB41Nzz0a+9v7
- FIKAh1xtmGmv2t/eLyVTaBx5EGdDEflbwRssW2PvN4sgbOFqme8iOFK1JySuqObNCylSSGdMk
- 9mCmjW5JpN/mfGqHPC/dBQuPosKuzaYgHAftQ7KBl0/RpGIHdfTodtklg5pVSjBf/qYIsxldC
- Af8rDASwF36M1kVQEhzwsIDjAytKziWmrree0uaXgOlBwD+OC+kx03fugbe0tdDQoW965tN/S
- qrSzuD+Gboubs90UDeSn8NjjLF/POhOxR0zlHtIvibiKAjxQjxwkxen6nDmp3ru4lseis+bTz
- bvmjoj6uPa58uLggW3WfezmVrlFFgai0TP30lYgN1i33AIxkspiaG6BsvYlt2CV++V7m5g6V2
- SUNBV37gctkNL0a8EM/IzwBuY8bVPQRSDgaZ5L7kncDOXBWwdFTVIgmc+mJwoe3IWnkGWsPmo
- 01piL/OMBKJnAua5f4Txc/60pmCczFhceDHrYbrcViXAGVCUotHYMMSQwL+sj0vBhvb8HoNIw
- jZl4XfabNnhvnrEW45N3oFh0lH8KuGwm84BBQPzvNhoVYrCGXePx9b5pElmmoSNYvmZhwMYNk
- AR3lqmUdXVsayGAJxaT1wZTjEFO2o0xCtSInbaSvsS3uXP1jRpNfwmrWGYuibb1v5iwn2Nji4
- XYTtNiVb58VZW4bo2MPWVPRwTAaIGiylETIoFXJlXvJRSUZ0z6D+HG402Z4mlhz9tdScASwCv
- +G/U+6gNJKSzWADDq8PTfQJNKNkoOGDT0fpUbmjaHpZD5gNIwOnV+UuKQ==
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
- songmuchun@bytedance.com
+References: <20220816030559.111057-1-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20220816030559.111057-1-xuanzhuo@linux.alibaba.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Fri, 19 Aug 2022 14:30:12 +0800
+Message-ID: <CACGkMEsZrbbi6uWBWumrrfYzD+UySsK4ZTtoOZ0wOMZDAgfnmw@mail.gmail.com>
+Subject: Re: [PATCH] virtio_pci: use container_of replace type conversion
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+ virtualization <virtualization@lists.linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -102,24 +110,77 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-R3JlZXRpbmdzLAoKT24gV2VkLCAyMDIyLTA4LTAzIGF0IDEyOjU1ICswODAwLCBYaWUgWW9uZ2pp
-IHdyb3RlOgo+Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmRwYS92ZHBhX3VzZXIvaW92YV9kb21h
-aW4uaCBiL2RyaXZlcnMvdmRwYS92ZHBhX3VzZXIvaW92YV9kb21haW4uaAo+IGluZGV4IDI3MjJk
-OWI4ZTIxYS4uNGUwZTUwZTdhYzE1IDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvdmRwYS92ZHBhX3Vz
-ZXIvaW92YV9kb21haW4uaAo+ICsrKyBiL2RyaXZlcnMvdmRwYS92ZHBhX3VzZXIvaW92YV9kb21h
-aW4uaAo+IEBAIC0xNCw2ICsxNCw3IEBACj4gwqAjaW5jbHVkZSA8bGludXgvaW92YS5oPgo+IMKg
-I2luY2x1ZGUgPGxpbnV4L2RtYS1tYXBwaW5nLmg+Cj4gwqAjaW5jbHVkZSA8bGludXgvdmhvc3Rf
-aW90bGIuaD4KPiArI2luY2x1ZGUgPGxpbnV4L3J3bG9jay5oPgogICAgICAgICAgICAgICAgICAg
-Xl5eXl5eXl4KCkVybSwgdGhhdCBzaG91bGQgYmUgc3BpbmxvY2suaC4KCiNpZm5kZWYgX19MSU5V
-WF9SV0xPQ0tfSAojZGVmaW5lIF9fTElOVVhfUldMT0NLX0gKCiNpZm5kZWYgX19MSU5VWF9TUElO
-TE9DS19ICiMgZXJyb3IgInBsZWFzZSBkb24ndCBpbmNsdWRlIHRoaXMgZmlsZSBkaXJlY3RseSIK
-I2VuZGlmCgpUaGlzIGJlbGF0ZWQgY29tbWVudCBpbnNwaXJlZCBieSBQUkVFTVBUX1JUIGJ1aWxk
-IG1lZXRpbmcgdGhlIGFib3ZlIDopCgoJLU1pa2UKX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxp
-emF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3Vu
-ZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Tue, Aug 16, 2022 at 11:06 AM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
+>
+> Replace type conversion with container_of() in
+> vp_modern_set_queue_reset()/vp_modern_get_queue_reset() .
+> Also combine declarations and assignments.
+>
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+
+Acked-by: Jason Wang <jasowang@redhat.com>
+
+> ---
+>  drivers/virtio/virtio_pci_modern_dev.c | 24 ++++++++++++------------
+>  1 file changed, 12 insertions(+), 12 deletions(-)
+>
+> diff --git a/drivers/virtio/virtio_pci_modern_dev.c b/drivers/virtio/virtio_pci_modern_dev.c
+> index 869cb46bef96..530c954439de 100644
+> --- a/drivers/virtio/virtio_pci_modern_dev.c
+> +++ b/drivers/virtio/virtio_pci_modern_dev.c
+> @@ -482,12 +482,12 @@ EXPORT_SYMBOL_GPL(vp_modern_set_status);
+>   */
+>  int vp_modern_get_queue_reset(struct virtio_pci_modern_device *mdev, u16 index)
+>  {
+> -       struct virtio_pci_modern_common_cfg __iomem *cfg;
+> -
+> -       cfg = (struct virtio_pci_modern_common_cfg __iomem *)mdev->common;
+> +       struct virtio_pci_common_cfg __iomem *cfg = mdev->common;
+> +       struct virtio_pci_modern_common_cfg __iomem *mcfg =
+> +               container_of(cfg, struct virtio_pci_modern_common_cfg, cfg);
+>
+> -       vp_iowrite16(index, &cfg->cfg.queue_select);
+> -       return vp_ioread16(&cfg->queue_reset);
+> +       vp_iowrite16(index, &cfg->queue_select);
+> +       return vp_ioread16(&mcfg->queue_reset);
+>  }
+>  EXPORT_SYMBOL_GPL(vp_modern_get_queue_reset);
+>
+> @@ -498,17 +498,17 @@ EXPORT_SYMBOL_GPL(vp_modern_get_queue_reset);
+>   */
+>  void vp_modern_set_queue_reset(struct virtio_pci_modern_device *mdev, u16 index)
+>  {
+> -       struct virtio_pci_modern_common_cfg __iomem *cfg;
+> -
+> -       cfg = (struct virtio_pci_modern_common_cfg __iomem *)mdev->common;
+> +       struct virtio_pci_common_cfg __iomem *cfg = mdev->common;
+> +       struct virtio_pci_modern_common_cfg __iomem *mcfg =
+> +               container_of(cfg, struct virtio_pci_modern_common_cfg, cfg);
+>
+> -       vp_iowrite16(index, &cfg->cfg.queue_select);
+> -       vp_iowrite16(1, &cfg->queue_reset);
+> +       vp_iowrite16(index, &cfg->queue_select);
+> +       vp_iowrite16(1, &mcfg->queue_reset);
+>
+> -       while (vp_ioread16(&cfg->queue_reset))
+> +       while (vp_ioread16(&mcfg->queue_reset))
+>                 msleep(1);
+>
+> -       while (vp_ioread16(&cfg->cfg.queue_enable))
+> +       while (vp_ioread16(&cfg->queue_enable))
+>                 msleep(1);
+>  }
+>  EXPORT_SYMBOL_GPL(vp_modern_set_queue_reset);
+> --
+> 2.31.0
+>
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
