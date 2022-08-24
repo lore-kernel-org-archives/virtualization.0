@@ -1,84 +1,97 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4EBC6C00140
-	for <virtualization@archiver.kernel.org>; Wed, 24 Aug 2022 15:14:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 544FDC00140
+	for <virtualization@archiver.kernel.org>; Wed, 24 Aug 2022 15:25:01 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id A396040B9A;
-	Wed, 24 Aug 2022 15:14:30 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A396040B9A
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=Vvgg9Zcz
+	by smtp1.osuosl.org (Postfix) with ESMTP id E1CE7828AF;
+	Wed, 24 Aug 2022 15:25:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E1CE7828AF
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=STBN0JJg
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id pdl4KR2_bhfm; Wed, 24 Aug 2022 15:14:29 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 0715140B99;
-	Wed, 24 Aug 2022 15:14:28 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0715140B99
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id N--qWIu_Dm-p; Wed, 24 Aug 2022 15:24:59 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id ECBF98276B;
+	Wed, 24 Aug 2022 15:24:58 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org ECBF98276B
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 7EB89C0032;
-	Wed, 24 Aug 2022 15:14:28 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 869B2C0032;
+	Wed, 24 Aug 2022 15:24:58 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id BDFD7C002D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 55E6EC002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Aug 2022 15:14:26 +0000 (UTC)
+ Wed, 24 Aug 2022 15:24:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 236FB60FA1
+ by smtp3.osuosl.org (Postfix) with ESMTP id 2183060F95
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Aug 2022 15:14:26 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 236FB60FA1
-Authentication-Results: smtp3.osuosl.org; dkim=pass (1024-bit key,
- unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256
- header.s=selector1 header.b=Vvgg9Zcz
+ Wed, 24 Aug 2022 15:24:56 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2183060F95
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com
+ header.a=rsa-sha256 header.s=20210112 header.b=STBN0JJg
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id mckcnFmsNvec
+ with ESMTP id oKB8DyKBkNeX
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Aug 2022 15:14:25 +0000 (UTC)
+ Wed, 24 Aug 2022 15:24:54 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8408260F84
-Received: from NAM11-BN8-obe.outbound.protection.outlook.com
- (mail-bn8nam11on2041.outbound.protection.outlook.com [40.107.236.41])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 8408260F84
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 667DD60BFA
+Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com
+ [IPv6:2a00:1450:4864:20::632])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 667DD60BFA
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Aug 2022 15:14:24 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=H0+UXBSn5GmZNTTk2zxY71PiGgQ9yZosLbctGVou41h/c/M0WJb5ZHeIsgi2MXft2xW9lCMWsAj5AUzA+m3EFTOjuFo6jtqqpqJj05yGI+tJV2nruvJ172b4bMwYD/gzOo/OnSYBSiabpS/pO/1X0x8tecj8BkTg9vj7C1G8piQEeYRN+RjHPzaC7c1MN+ujICVr+e2ltHAGP/FXdnPDAVEYkaVMo1S3r9VPdHvsHQnq/h7uie0XwNBc1MYwsA4DLM4Ht/EI0YoWTXE8JLUwQX2lu43PZps4oVeUZXRosFHB+LhR7+rx5EMc382bk6UIY29FIJbBW6N0BS9DNrYmDw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=h5SY9ujaA7usTkk7gToKXOqDilPtvt3VKfLudeAnnG8=;
- b=lXYwQcuYTYIMyfN+1GQX059tqv8hDQaH7BgNgINDHugU9Rkd0U/PkWX5iiV3YVMPBXcxdfz+VLCKDw0ZM6qLI1dRNx2/XO34bQ5KuB5e4AtR9nNPFfL1WSwzLJZNnZkfWyhKnoGD5hnoFK/jI0CHfpC9Iolj4E/ULQTj7i54HrVkC7Xd2JhDBgTW3Xmd/d9qx75g3jUD5czHjvHmDMNEXREp/EhOPaCLRO90aNl5zumX0Jc1Qct+M954DBE21+yj1g5HCGiC9F6JWB2CctGE2x68fQXO6Ho687EKuN5fVnmBailNk2I10HMna5UDrQfAAz7J7V/z0sfp+6lh8efhQw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1; 
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=h5SY9ujaA7usTkk7gToKXOqDilPtvt3VKfLudeAnnG8=;
- b=Vvgg9ZczJlIn53Vz66AKTxxuklOiFzTdv88D3sNP6QfM0HpQ8YjcbytxHfEJK+iGhiJLIykNFm6dk6DZzMksYdQwyoYN7+rkp+Lr9BxOBXEveDrKHj1wpwS5VhuNC5hz/iii/6uCeDNMLQzvllBBdPFKlbdrm4XGcFbtmCzDP0g=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from BN8PR12MB3587.namprd12.prod.outlook.com (2603:10b6:408:43::13)
- by BL3PR12MB6522.namprd12.prod.outlook.com (2603:10b6:208:3be::21)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5546.21; Wed, 24 Aug
- 2022 15:14:19 +0000
-Received: from BN8PR12MB3587.namprd12.prod.outlook.com
- ([fe80::905:1701:3b51:7e39]) by BN8PR12MB3587.namprd12.prod.outlook.com
- ([fe80::905:1701:3b51:7e39%2]) with mapi id 15.20.5546.024; Wed, 24 Aug 2022
- 15:14:19 +0000
-Message-ID: <b24017e9-e8e7-148e-951b-0f2a1dffdca7@amd.com>
-Date: Wed, 24 Aug 2022 17:14:08 +0200
+ Wed, 24 Aug 2022 15:24:54 +0000 (UTC)
+Received: by mail-ej1-x632.google.com with SMTP id n7so16033814ejh.2
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 24 Aug 2022 08:24:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=content-transfer-encoding:in-reply-to:from:references:cc:to
+ :content-language:subject:user-agent:mime-version:date:message-id
+ :from:to:cc; bh=9U4CYfoKFbj/AbZbuQemN6t37DkLSjqF7Rv/8Cv5uYU=;
+ b=STBN0JJgkuT3Ub+zYNS6zXzJzUof3fSvR5hRMgMDAP9LbKzaTA+MK+TD1Iu+aZIyF+
+ dPLXPApvrqDjAwDRySZ2fJKiO9PGndETwtfPLVzBT5LerqrNC/Be6i+lMALU0K108vbd
+ VMJmSTgAFNY/28eY9lJfUXAaUTenkpB1N206PZf+6DmSTDGPlaoOf4b0iz9mIoQfeZQh
+ GYv2v+ZA5XTaibilAf2aJJKPDFaNmL+I5g6VwE005y++27gyMKOa36tO264DTvYaPjQ4
+ /8S4W7w+D1jYkRNzi+JbYmqm5H7HHOBLVJ5oz4nyJsRPIaXxO+rsnrd4YpgVCqZX3bUO
+ Hfbg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=content-transfer-encoding:in-reply-to:from:references:cc:to
+ :content-language:subject:user-agent:mime-version:date:message-id
+ :x-gm-message-state:from:to:cc;
+ bh=9U4CYfoKFbj/AbZbuQemN6t37DkLSjqF7Rv/8Cv5uYU=;
+ b=AechLSRTn2S8Jv13RgBfrBHAYRhTzPEk3d4A+2r1FYAxAcbjWsKmP+k2JW+a/9qQcP
+ 9o9BXIUgjbCeE/Gyqobca+w3cVkPdpcIPD6NE/M1PWgDyxwgjL83gjvmVpikFGu35BDK
+ Az9zQwUlyY3jcMaiYELIx3eAwdBkfslfZSs/OKtxExg+/6SRKmV9ByXj8Na1ev09XItc
+ PBhNQn1T8ilCUu60aaRT13lmwvnwIaQqHjbWSzirK7ZPj1VCgtFtYQeKji7+oq2AaFR2
+ rG502xTwowotSexkJOW+IiN3CkqmhfXBylOPCI0M9smlat9wHe+O8cQGPr/9PFtlxaAp
+ fI7w==
+X-Gm-Message-State: ACgBeo1twJBLu+DvzXoHAj26MiuPtjypvA/ljkLygdOMCuQJ3AdfgNW4
+ fzVr0IbybBfF7EhBvgoP/QA=
+X-Google-Smtp-Source: AA6agR6JZHUpcJdflHSbU0zmzoCMtOWs6CQCJkWREoFWqr/qdr1+zI9s3gboxNWeA+opNqBc+NbqAA==
+X-Received: by 2002:a17:907:2816:b0:73d:7884:a399 with SMTP id
+ eb22-20020a170907281600b0073d7884a399mr3187172ejc.125.1661354692356; 
+ Wed, 24 Aug 2022 08:24:52 -0700 (PDT)
+Received: from ?IPV6:2a02:908:1256:79a0:53f0:102e:8337:712f?
+ ([2a02:908:1256:79a0:53f0:102e:8337:712f])
+ by smtp.gmail.com with ESMTPSA id
+ c8-20020a170906924800b0073d05a03347sm1272698ejx.89.2022.08.24.08.24.50
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Wed, 24 Aug 2022 08:24:51 -0700 (PDT)
+Message-ID: <055c3c05-ac4c-430e-f2b9-08f000acf435@gmail.com>
+Date: Wed, 24 Aug 2022 17:24:48 +0200
+MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.11.0
-Subject: Re: [PATCH v3 6/9] dma-buf: Move dma-buf attachment to dynamic
- locking specification
+Subject: Re: [Linaro-mm-sig] [PATCH v3 6/9] dma-buf: Move dma-buf attachment
+ to dynamic locking specification
 Content-Language: en-US
 To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
  David Airlie <airlied@linux.ie>, Gerd Hoffmann <kraxel@redhat.com>,
@@ -92,6 +105,7 @@ To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
  Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
  Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
  Rob Clark <robdclark@gmail.com>, Sumit Semwal <sumit.semwal@linaro.org>,
+ =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>,
  "Pan, Xinhui" <Xinhui.Pan@amd.com>, Thierry Reding
  <thierry.reding@gmail.com>, Tomasz Figa <tfiga@chromium.org>,
  Marek Szyprowski <m.szyprowski@samsung.com>,
@@ -105,72 +119,8 @@ To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
  Qiang Yu <yuq825@gmail.com>
 References: <20220824102248.91964-1-dmitry.osipenko@collabora.com>
  <20220824102248.91964-7-dmitry.osipenko@collabora.com>
- <17181951-1b40-cd39-48df-58b43cad117d@amd.com>
- <4af793fd-eccc-ad70-65c3-de78dced71f0@collabora.com>
-In-Reply-To: <4af793fd-eccc-ad70-65c3-de78dced71f0@collabora.com>
-X-ClientProxiedBy: AS9PR06CA0779.eurprd06.prod.outlook.com
- (2603:10a6:20b:484::34) To BN8PR12MB3587.namprd12.prod.outlook.com
- (2603:10b6:408:43::13)
-MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 0c93b672-f75f-441d-4ef5-08da85e35134
-X-MS-TrafficTypeDiagnostic: BL3PR12MB6522:EE_
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: S5952XXswQsal3yy/8+uNHa8DqdXW4QJaU/70c9mke1Oc+UC4xPgEFrPtZpV3oRLq4y0fDz48SL6PBB/VwM28/nzPEneLnC7Hih0x6crC4Qmzo0iHh7W4XgoKeN3zTNfrSygn3ch0n7EOAqhJWx+aO7zqIyoSyG/02mklL2PztN+bF+6wv1BB7bkTEH9a2xUJhyQa2kNQ9XlgVYSuX8TcMzgHYY89kFk7nGBArsHRZw+M/PTbHGLlk9xl7s5MF7VOLQVFLbTf5c+kuLyIl4SqGjBuLMr55SyZ9NaujBEo6pmMKWiAEUUdXGenX7p92CVMd0s1GTCl3GU705p+yyBxKAgknrda6cXTPdsEIqN7Wc7d1vnOW5fI2NoCjBVQyh1j4Jo6vBMgXVIv4fRWKtRxs98u0VDT3la0/RaK1jR6ZeBgY+tUNzpJElvtxDGfBnUDF1vDSOvjj/G5OWI36gatkn0MWcXJ8+QzxID6A4217RdBXqNMY3lfLVqLVrWmVHeK1askVKsHCEMGyVcj2VS8+VXfuD/LLiwgCVTEGQ20u7Qb7yI0JlE0GimSMH9bHUWZIBAOzUaRU0xEyYgurBzW0B6XStjKdbeuVWjqefoihye2vcIetYSteLXEOlWcaIALlRTRo2AO7RoEdNs6ixzGp0e87wpyxZVF4e3e+TWr5U/kMX0VwqSFlRxyCobgBa+3YDLrl1NMsqrSriwLcTM1ghyptlsPUzpeV6xRkQf1XVqhuDzTtelXqc8DnRp/SWHr98VDb0mGuivb/RZ5dFu+BbJXhYJMfqkk6aHdmuM5lP3gyT/C07rllnqVSifzMI5v+ok7EWI0/Br+Fe1n5VP++IcsK6JSvsjVGRUzKhT21g=
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:BN8PR12MB3587.namprd12.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230016)(4636009)(396003)(136003)(376002)(366004)(346002)(39860400002)(53546011)(478600001)(31686004)(966005)(6486002)(6666004)(6512007)(38100700002)(186003)(2616005)(7416002)(8936002)(5660300002)(4326008)(7406005)(921005)(36756003)(66556008)(66476007)(2906002)(66574015)(6506007)(86362001)(31696002)(66946007)(45080400002)(110136005)(8676002)(83380400001)(316002)(41300700001)(43740500002)(45980500001);
- DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?UjBhZkdJWStxSmFhaXhUUG9nakdhbnVZS05RcTI3aE1uNVFoK2g4amcvelNK?=
- =?utf-8?B?dHJxQjBqYk9PcWdGYkVScy9hc3hmeTdMdW9wS3p5aEZIdnBaU0dPUURIZTFh?=
- =?utf-8?B?KzdWbE1mWmxLaHMxT1llYlJiTzBUZDBLdDhEWXRvaGNiSzJQM1VkcWx1ZEh2?=
- =?utf-8?B?aGVVeVJZSFF0eno1VlJ4cVo4ZG1Dem9CNkl1Rm95clprQnhJaEFVM3EzSFlS?=
- =?utf-8?B?OHh6SkNCUmRjK2w4MlRVbm45ZkdZdG01czF0R3g2aTgrNHdzV2RCTGlEdUs2?=
- =?utf-8?B?RDVvbTNQZ2R1RW5iUWhOUzk0dXBPM1NUM0JuZWp2TnFObVV1SVFUWTBMTy9C?=
- =?utf-8?B?MWxFaGdCYzZmZVlTdlY2TUs3Z1BxT3psRUpOK1o4UUxwZ0ZIQTNISWJYK3JY?=
- =?utf-8?B?NDVnMFhkRVNGZjdPWkR0OVovWURScVpjOEg2cHpiZUM3YnVyMktrdkhYOWVY?=
- =?utf-8?B?MlJEbjRvU0ZuV0h6UXRnZTRDRDZrQTROWjlJOFJ4Ty8zOW9iK05xcHJ6Z2Nv?=
- =?utf-8?B?YnFOS05HVWNwODlaby9jZ25rZit2Vjhqc1JZVzRBRFdRUWhFbXV2TWRMMjZx?=
- =?utf-8?B?bTB0NVNVWHJ5blpBcVZ1S3REY2ZkM29ObGZHdTQ4Ym1TODAzSWIvM0dzYXVV?=
- =?utf-8?B?L3ZTMXJjc3JBczhuckRCRWlkbk95bXltR3hpaVpGZXpIK21vSWZMQzJDZWNE?=
- =?utf-8?B?Y3Z3K1BhWGszanRmZ0ZmdDZWbEVrSlNnK0FiTnFmcXoxNFZOQlBMeDN6WnZu?=
- =?utf-8?B?MnNwSnBwSHZoc2ZXNHAyMUpuR1VDczFxc1kvRXBqeStCc2R3ay9WRlU3c1Yz?=
- =?utf-8?B?bS95L3RsU054WEFUYkg4ZFJEbFhka1YxZXdOcG9ySWR1eE1SZXZJWVBlVnlo?=
- =?utf-8?B?dWZaMTZUamNNaVdvcUVUUUlMd0ZIVGZTTUd5QjJvdDlSVU9qKzNuUUtQM3ZU?=
- =?utf-8?B?QXdGVTFsTFBOWXAzeTA1Ri85dm5TNVBYVFZRZSsrdW1iSEhiVFoxaWowMU9l?=
- =?utf-8?B?c3YvekRFVjhSYmFhdkZjYnJwOGZ2aXUvV1pFS2pmU2FvaUNndDJOeFJhT0Iv?=
- =?utf-8?B?Nk5kaXdnVmlsRFJaV3phWE0xNGV2Y2RXYWZzT0IydjBsb202NEpLL0RITVdv?=
- =?utf-8?B?cmZMaWFUbUFjUlBkRnNwVEdHUkN4Um9YRC9PTElycTlYdUp3OWRzWURKMXRZ?=
- =?utf-8?B?bXpxb2lDcmViSmMwV05DRjg3cVRJcHVpOWU0Z0s0dGRxeUtjQUc2L0pMU3A2?=
- =?utf-8?B?MkZTVUQ1Zmt5Q3Z5QklWME03cWI3TnlxM0ZxamtndmJUUGZNUENxOVFmaE5z?=
- =?utf-8?B?MitTOU9BODR4UC9Ya3RsUS9CaitUQUJncEZBRTR4SWl2NGZyTVNTRk5POHJh?=
- =?utf-8?B?VHdHNHN2alhIaDJUV1l6MTViTU9zT0lGdWQzcUlWcmEzNCtEa1RwY24rQWNz?=
- =?utf-8?B?OXB6U2ljWm8rMHJXeXdBbTZsVzZkTG5uNUp1NTlwQ0x5c0FTaDNYM28veGNp?=
- =?utf-8?B?Si81NCs2MGlxSGlaOHFnOGx6dVR4U0ZGOUFFRmJUNDdxRWpvVmFvSU1VME1X?=
- =?utf-8?B?cUN3T2JPT1pNd2FZVWhWSkFkNGVMRGNXT2VNSmdsUEJRTEV6aytRZnhqRDkz?=
- =?utf-8?B?ZHlPWXFFZkVuOGlCcEFzVEFSb3VEcUcvNEpkT09mSFFMeHRrRmQ3WVJCWkpL?=
- =?utf-8?B?bzg5RjlHUG4xbjZYYzBIME9ROXBKUm54TUFOak56em9LYTQ1cDM3Q05RdktF?=
- =?utf-8?B?ZEZKK3FIamdkQmFsWFRoUGxxN0RUSGNpaWt0eGVJQVhUTkoxN1FwbTVHbEVF?=
- =?utf-8?B?ZXlnSlVUWmhOb2JSUktxQUdLZFdhRzYzczZ0RDlKNjV5RFhWOEpHNjhmcGdT?=
- =?utf-8?B?NjNqVDEraEF5NW5SODVDa3grbS8yUnRXQ2Q5d1lXSUJxMTNsa1RKd093bGxq?=
- =?utf-8?B?amFIRFFZMWs2NUgva0ZKd0lOWFZENEdpR1VOdjI3dWlqcG5tQUMrLzRpNjZR?=
- =?utf-8?B?RGs2RTBhYmRCS0tzVHJUb2pLaVphVmduRjJyMkFaM0VaUEI0R1IrSkNoYkFz?=
- =?utf-8?B?MG1hMFFvelBDeXhXMzE4a0lOcXFXV21ac254aHNlaEUvclNVc2lhd3ZJQ3U5?=
- =?utf-8?B?eGJwN0xvZVVLa1VvSE9uVVM4R3pWdUt5eFhDeExhUmFUTTZ3aFpZUnNxdlZK?=
- =?utf-8?Q?vIA6hCC7e4rr87rt/6IMrv2fDizU2Enk4ZL90Kyj3HtY?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 0c93b672-f75f-441d-4ef5-08da85e35134
-X-MS-Exchange-CrossTenant-AuthSource: BN8PR12MB3587.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 24 Aug 2022 15:14:19.4986 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: rELvdTfsR8Nagcz1LvQsbfvq3akTKCvOC/9qmV8ayW/5Q9ebkATkm+Hbkf75G6zh
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL3PR12MB6522
+From: =?UTF-8?Q?Christian_K=c3=b6nig?= <ckoenig.leichtzumerken@gmail.com>
+In-Reply-To: <20220824102248.91964-7-dmitry.osipenko@collabora.com>
 Cc: lima@lists.freedesktop.org, linux-rdma@vger.kernel.org,
  linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org,
  linux-kernel@vger.kernel.org, amd-gfx@lists.freedesktop.org,
@@ -188,46 +138,428 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: =?UTF-8?Q?Christian_K=c3=b6nig?= via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-QW0gMjQuMDguMjIgdW0gMTc6MDMgc2NocmllYiBEbWl0cnkgT3NpcGVua286Cj4gT24gOC8yNC8y
-MiAxNzowOCwgQ2hyaXN0aWFuIEvDtm5pZyB3cm90ZToKPj4gQW0gMjQuMDguMjIgdW0gMTI6MjIg
-c2NocmllYiBEbWl0cnkgT3NpcGVua286Cj4+PiBNb3ZlIGRtYS1idWYgYXR0YWNobWVudCBBUEkg
-ZnVuY3Rpb25zIHRvIHRoZSBkeW5hbWljIGxvY2tpbmcKPj4+IHNwZWNpZmljYXRpb24uCj4+PiBU
-aGUgc3RyaWN0IGxvY2tpbmcgY29udmVudGlvbiBwcmV2ZW50cyBkZWFkbG9jayBzaXR1YXRpb25z
-IGZvciBkbWEtYnVmCj4+PiBpbXBvcnRlcnMgYW5kIGV4cG9ydGVycy4KPj4+Cj4+PiBQcmV2aW91
-c2x5LCB0aGUgInVubG9ja2VkIiB2ZXJzaW9ucyBvZiB0aGUgYXR0YWNobWVudCBBUEkgZnVuY3Rp
-b25zCj4+PiB3ZXJlbid0IHRha2luZyB0aGUgcmVzZXJ2YXRpb24gbG9jayBhbmQgdGhpcyBwYXRj
-aCBtYWtlcyB0aGVtIHRvIHRha2UKPj4+IHRoZSBsb2NrLgo+PiBEaWRuJ3Qgd2UgY29uY2x1ZGVk
-IHRoYXQgd2UgbmVlZCB0byBrZWVwIHRoZSBhdHRhY2ggYW5kIGRldGFjaCBjYWxsYmFja3MKPj4g
-d2l0aG91dCB0aGUgbG9jayBhbmQgb25seSBtb3ZlIHRoZSBtYXAvdW5tYXAgY2FsbGJhY2tzIG92
-ZXI/Cj4+Cj4+IE90aGVyd2lzZSBpdCB3b24ndCBiZSBwb3NzaWJsZSBmb3IgZHJpdmVycyB0byBs
-b2NrIG11bHRpcGxlIGJ1ZmZlcnMgaWYKPj4gdGhleSBoYXZlIHRvIHNodWZmbGUgdGhpbmdzIGFy
-b3VuZCBmb3IgYSBzcGVjaWZpYyBhdHRhY2htZW50Lgo+IFdlIGRpZCBjb25jbHVkZSB0aGF0LiBU
-aGUgYXR0YWNoL2RldGFjaCBkbWEtYnVmIG9wcyBhcmUgdW5sb2NrZWQsIGJ1dAo+IHRoZSBtYXBf
-ZG1hX2J1Zi91bm1hcF9kbWFfYnVmIG11c3QgYmUgaW52b2tlZCB1bmRlciBsb2NrIGFuZAo+IGRt
-YV9idWZfZHluYW1pY19hdHRhY2hfdW5sb2NrZWQoKSBtYXBzIGRtYS1idWYgaWYgZWl0aGVyIGlt
-cG9ydGVyIG9yCj4gZXhwb3J0ZXIgY2FuJ3QgaGFuZGxlIHRoZSBkeW5hbWljIG1hcHBpbmcgWzFd
-LgoKQWghIFlvdSBhcmUgY29uZnVzaW5nIG1lIG92ZXIgYW5kIG92ZXIgYWdhaW4gd2l0aCB0aGF0
-IDopCgpPayBpbiB0aGlzIGNhc2UgdGhhdCBoZXJlIGlzIGZpbmUsIEkganVzdCBuZWVkIHRvIHJl
-LXJlYWQgdGhlIHBhdGNoLgoKVGhhbmtzLApDaHJpc3RpYW4uCgo+Cj4gWzFdCj4gaHR0cHM6Ly9u
-YW0xMS5zYWZlbGlua3MucHJvdGVjdGlvbi5vdXRsb29rLmNvbS8/dXJsPWh0dHBzJTNBJTJGJTJG
-ZWxpeGlyLmJvb3RsaW4uY29tJTJGbGludXglMkZ2Ni4wLXJjMiUyRnNvdXJjZSUyRmRyaXZlcnMl
-MkZkbWEtYnVmJTJGZG1hLWJ1Zi5jJTIzTDg2OSZhbXA7ZGF0YT0wNSU3QzAxJTdDY2hyaXN0aWFu
-LmtvZW5pZyU0MGFtZC5jb20lN0NkZjIzZDg5ZGI4Yjg0YmY2ZDRjMDA4ZGE4NWUxZGM2YyU3QzNk
-ZDg5NjFmZTQ4ODRlNjA4ZTExYTgyZDk5NGUxODNkJTdDMCU3QzAlN0M2Mzc5Njk1MDI0NDEwMjY5
-OTElN0NVbmtub3duJTdDVFdGcGJHWnNiM2Q4ZXlKV0lqb2lNQzR3TGpBd01EQWlMQ0pRSWpvaVYy
-bHVNeklpTENKQlRpSTZJazFoYVd3aUxDSlhWQ0k2TW4wJTNEJTdDMzAwMCU3QyU3QyU3QyZhbXA7
-c2RhdGE9ZDhrV0tqRENGbiUyQjNLbUsxMzVHY3Y2JTJGTUxmZkVZY2lwb3VxV3hmYyUyQktYTSUz
-RCZhbXA7cmVzZXJ2ZWQ9MAo+Cj4gSGVuY2UgSSByZS1hcnJhbmdlZCB0aGUgZG1hX3Jlc3ZfbG9j
-aygpIGluCj4gZG1hX2J1Zl9keW5hbWljX2F0dGFjaF91bmxvY2tlZCgpIHRvIG1vdmUgYm90aCBw
-aW5uaW5nIGFuZCBtYXBwaW5nIHVuZGVyCj4gdGhlIGhlbGQgbG9jay4KPgoKX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGlu
-ZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8v
-bGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+Am 24.08.22 um 12:22 schrieb Dmitry Osipenko:
+> Move dma-buf attachment API functions to the dynamic locking specification.
+> The strict locking convention prevents deadlock situations for dma-buf
+> importers and exporters.
+>
+> Previously, the "unlocked" versions of the attachment API functions
+> weren't taking the reservation lock and this patch makes them to take
+> the lock.
+>
+> Intel and AMD GPU drivers already were mapping the attached dma-bufs under
+> the held lock during attachment, hence these drivers are updated to use
+> the locked functions.
+>
+> Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+> ---
+>   drivers/dma-buf/dma-buf.c                  | 115 ++++++++++++++-------
+>   drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c    |   4 +-
+>   drivers/gpu/drm/i915/gem/i915_gem_dmabuf.c |   8 +-
+>   drivers/gpu/drm/i915/gem/i915_gem_object.c |  12 +++
+>   include/linux/dma-buf.h                    |  20 ++--
+>   5 files changed, 110 insertions(+), 49 deletions(-)
+>
+> diff --git a/drivers/dma-buf/dma-buf.c b/drivers/dma-buf/dma-buf.c
+> index 4556a12bd741..f2a5a122da4a 100644
+> --- a/drivers/dma-buf/dma-buf.c
+> +++ b/drivers/dma-buf/dma-buf.c
+> @@ -559,7 +559,7 @@ static struct file *dma_buf_getfile(struct dma_buf *dmabuf, int flags)
+>    * 2. Userspace passes this file-descriptors to all drivers it wants this buffer
+>    *    to share with: First the file descriptor is converted to a &dma_buf using
+>    *    dma_buf_get(). Then the buffer is attached to the device using
+> - *    dma_buf_attach().
+> + *    dma_buf_attach_unlocked().
+
+Now I get why this is confusing me so much.
+
+The _unlocked postfix implies that there is another function which 
+should be called with the locks already held, but this is not the case 
+for attach/detach (because they always need to grab the lock themselves).
+
+So I suggest to drop the _unlocked postfix for the attach/detach 
+functions. Another step would then be to unify attach/detach with 
+dynamic_attach/dynamic_detach when both have the same locking convention 
+anyway.
+
+Sorry that this is going so much back and forth, it's really complicated 
+to keep all the stuff in my head at the moment :)
+
+Thanks a lot for looking into this,
+Christian.
+
+>    *
+>    *    Up to this stage the exporter is still free to migrate or reallocate the
+>    *    backing storage.
+> @@ -569,8 +569,8 @@ static struct file *dma_buf_getfile(struct dma_buf *dmabuf, int flags)
+>    *    dma_buf_map_attachment() and dma_buf_unmap_attachment().
+>    *
+>    * 4. Once a driver is done with a shared buffer it needs to call
+> - *    dma_buf_detach() (after cleaning up any mappings) and then release the
+> - *    reference acquired with dma_buf_get() by calling dma_buf_put().
+> + *    dma_buf_detach_unlocked() (after cleaning up any mappings) and then
+> + *    release the reference acquired with dma_buf_get() by calling dma_buf_put().
+>    *
+>    * For the detailed semantics exporters are expected to implement see
+>    * &dma_buf_ops.
+> @@ -802,7 +802,7 @@ static struct sg_table * __map_dma_buf(struct dma_buf_attachment *attach,
+>    * @importer_priv:	[in]	importer private pointer for the attachment
+>    *
+>    * Returns struct dma_buf_attachment pointer for this attachment. Attachments
+> - * must be cleaned up by calling dma_buf_detach().
+> + * must be cleaned up by calling dma_buf_detach_unlocked().
+>    *
+>    * Optionally this calls &dma_buf_ops.attach to allow device-specific attach
+>    * functionality.
+> @@ -858,8 +858,8 @@ dma_buf_dynamic_attach_unlocked(struct dma_buf *dmabuf, struct device *dev,
+>   	    dma_buf_is_dynamic(dmabuf)) {
+>   		struct sg_table *sgt;
+>   
+> +		dma_resv_lock(attach->dmabuf->resv, NULL);
+>   		if (dma_buf_is_dynamic(attach->dmabuf)) {
+> -			dma_resv_lock(attach->dmabuf->resv, NULL);
+>   			ret = dmabuf->ops->pin(attach);
+>   			if (ret)
+>   				goto err_unlock;
+> @@ -872,8 +872,7 @@ dma_buf_dynamic_attach_unlocked(struct dma_buf *dmabuf, struct device *dev,
+>   			ret = PTR_ERR(sgt);
+>   			goto err_unpin;
+>   		}
+> -		if (dma_buf_is_dynamic(attach->dmabuf))
+> -			dma_resv_unlock(attach->dmabuf->resv);
+> +		dma_resv_unlock(attach->dmabuf->resv);
+>   		attach->sgt = sgt;
+>   		attach->dir = DMA_BIDIRECTIONAL;
+>   	}
+> @@ -889,8 +888,7 @@ dma_buf_dynamic_attach_unlocked(struct dma_buf *dmabuf, struct device *dev,
+>   		dmabuf->ops->unpin(attach);
+>   
+>   err_unlock:
+> -	if (dma_buf_is_dynamic(attach->dmabuf))
+> -		dma_resv_unlock(attach->dmabuf->resv);
+> +	dma_resv_unlock(attach->dmabuf->resv);
+>   
+>   	dma_buf_detach_unlocked(dmabuf, attach);
+>   	return ERR_PTR(ret);
+> @@ -927,7 +925,7 @@ static void __unmap_dma_buf(struct dma_buf_attachment *attach,
+>    * @dmabuf:	[in]	buffer to detach from.
+>    * @attach:	[in]	attachment to be detached; is free'd after this call.
+>    *
+> - * Clean up a device attachment obtained by calling dma_buf_attach().
+> + * Clean up a device attachment obtained by calling dma_buf_attach_unlocked().
+>    *
+>    * Optionally this calls &dma_buf_ops.detach for device-specific detach.
+>    */
+> @@ -937,21 +935,19 @@ void dma_buf_detach_unlocked(struct dma_buf *dmabuf,
+>   	if (WARN_ON(!dmabuf || !attach))
+>   		return;
+>   
+> +	dma_resv_lock(attach->dmabuf->resv, NULL);
+> +
+>   	if (attach->sgt) {
+> -		if (dma_buf_is_dynamic(attach->dmabuf))
+> -			dma_resv_lock(attach->dmabuf->resv, NULL);
+>   
+>   		__unmap_dma_buf(attach, attach->sgt, attach->dir);
+>   
+> -		if (dma_buf_is_dynamic(attach->dmabuf)) {
+> +		if (dma_buf_is_dynamic(attach->dmabuf))
+>   			dmabuf->ops->unpin(attach);
+> -			dma_resv_unlock(attach->dmabuf->resv);
+> -		}
+>   	}
+> -
+> -	dma_resv_lock(dmabuf->resv, NULL);
+>   	list_del(&attach->node);
+> +
+>   	dma_resv_unlock(dmabuf->resv);
+> +
+>   	if (dmabuf->ops->detach)
+>   		dmabuf->ops->detach(dmabuf, attach);
+>   
+> @@ -1011,7 +1007,7 @@ void dma_buf_unpin(struct dma_buf_attachment *attach)
+>   EXPORT_SYMBOL_NS_GPL(dma_buf_unpin, DMA_BUF);
+>   
+>   /**
+> - * dma_buf_map_attachment_unlocked - Returns the scatterlist table of the attachment;
+> + * dma_buf_map_attachment - Returns the scatterlist table of the attachment;
+>    * mapped into _device_ address space. Is a wrapper for map_dma_buf() of the
+>    * dma_buf_ops.
+>    * @attach:	[in]	attachment whose scatterlist is to be returned
+> @@ -1030,10 +1026,11 @@ EXPORT_SYMBOL_NS_GPL(dma_buf_unpin, DMA_BUF);
+>    *
+>    * Important: Dynamic importers must wait for the exclusive fence of the struct
+>    * dma_resv attached to the DMA-BUF first.
+> + *
+> + * Importer is responsible for holding dmabuf's reservation lock.
+>    */
+> -struct sg_table *
+> -dma_buf_map_attachment_unlocked(struct dma_buf_attachment *attach,
+> -				enum dma_data_direction direction)
+> +struct sg_table *dma_buf_map_attachment(struct dma_buf_attachment *attach,
+> +					enum dma_data_direction direction)
+>   {
+>   	struct sg_table *sg_table;
+>   	int r;
+> @@ -1043,8 +1040,7 @@ dma_buf_map_attachment_unlocked(struct dma_buf_attachment *attach,
+>   	if (WARN_ON(!attach || !attach->dmabuf))
+>   		return ERR_PTR(-EINVAL);
+>   
+> -	if (dma_buf_attachment_is_dynamic(attach))
+> -		dma_resv_assert_held(attach->dmabuf->resv);
+> +	dma_resv_assert_held(attach->dmabuf->resv);
+>   
+>   	if (attach->sgt) {
+>   		/*
+> @@ -1059,7 +1055,6 @@ dma_buf_map_attachment_unlocked(struct dma_buf_attachment *attach,
+>   	}
+>   
+>   	if (dma_buf_is_dynamic(attach->dmabuf)) {
+> -		dma_resv_assert_held(attach->dmabuf->resv);
+>   		if (!IS_ENABLED(CONFIG_DMABUF_MOVE_NOTIFY)) {
+>   			r = attach->dmabuf->ops->pin(attach);
+>   			if (r)
+> @@ -1099,10 +1094,38 @@ dma_buf_map_attachment_unlocked(struct dma_buf_attachment *attach,
+>   #endif /* CONFIG_DMA_API_DEBUG */
+>   	return sg_table;
+>   }
+> +EXPORT_SYMBOL_NS_GPL(dma_buf_map_attachment, DMA_BUF);
+> +
+> +/**
+> + * dma_buf_map_attachment_unlocked - Returns the scatterlist table of the attachment;
+> + * mapped into _device_ address space. Is a wrapper for map_dma_buf() of the
+> + * dma_buf_ops.
+> + * @attach:	[in]	attachment whose scatterlist is to be returned
+> + * @direction:	[in]	direction of DMA transfer
+> + *
+> + * Unlocked variant of dma_buf_map_attachment().
+> + */
+> +struct sg_table *
+> +dma_buf_map_attachment_unlocked(struct dma_buf_attachment *attach,
+> +				enum dma_data_direction direction)
+> +{
+> +	struct sg_table *sg_table;
+> +
+> +	might_sleep();
+> +
+> +	if (WARN_ON(!attach || !attach->dmabuf))
+> +		return ERR_PTR(-EINVAL);
+> +
+> +	dma_resv_lock(attach->dmabuf->resv, NULL);
+> +	sg_table = dma_buf_map_attachment(attach, direction);
+> +	dma_resv_unlock(attach->dmabuf->resv);
+> +
+> +	return sg_table;
+> +}
+>   EXPORT_SYMBOL_NS_GPL(dma_buf_map_attachment_unlocked, DMA_BUF);
+>   
+>   /**
+> - * dma_buf_unmap_attachment_unlocked - unmaps and decreases usecount of the buffer;might
+> + * dma_buf_unmap_attachment - unmaps and decreases usecount of the buffer;might
+>    * deallocate the scatterlist associated. Is a wrapper for unmap_dma_buf() of
+>    * dma_buf_ops.
+>    * @attach:	[in]	attachment to unmap buffer from
+> @@ -1110,31 +1133,51 @@ EXPORT_SYMBOL_NS_GPL(dma_buf_map_attachment_unlocked, DMA_BUF);
+>    * @direction:  [in]    direction of DMA transfer
+>    *
+>    * This unmaps a DMA mapping for @attached obtained by dma_buf_map_attachment().
+> + *
+> + * Importer is responsible for holding dmabuf's reservation lock.
+>    */
+> -void dma_buf_unmap_attachment_unlocked(struct dma_buf_attachment *attach,
+> -				       struct sg_table *sg_table,
+> -				       enum dma_data_direction direction)
+> +void dma_buf_unmap_attachment(struct dma_buf_attachment *attach,
+> +			      struct sg_table *sg_table,
+> +			      enum dma_data_direction direction)
+>   {
+>   	might_sleep();
+>   
+> -	if (WARN_ON(!attach || !attach->dmabuf || !sg_table))
+> -		return;
+> -
+> -	if (dma_buf_attachment_is_dynamic(attach))
+> -		dma_resv_assert_held(attach->dmabuf->resv);
+> +	dma_resv_assert_held(attach->dmabuf->resv);
+>   
+>   	if (attach->sgt == sg_table)
+>   		return;
+>   
+> -	if (dma_buf_is_dynamic(attach->dmabuf))
+> -		dma_resv_assert_held(attach->dmabuf->resv);
+> -
+>   	__unmap_dma_buf(attach, sg_table, direction);
+>   
+>   	if (dma_buf_is_dynamic(attach->dmabuf) &&
+>   	    !IS_ENABLED(CONFIG_DMABUF_MOVE_NOTIFY))
+>   		dma_buf_unpin(attach);
+>   }
+> +EXPORT_SYMBOL_NS_GPL(dma_buf_unmap_attachment, DMA_BUF);
+> +
+> +/**
+> + * dma_buf_unmap_attachment_unlocked - unmaps and decreases usecount of the buffer;might
+> + * deallocate the scatterlist associated. Is a wrapper for unmap_dma_buf() of
+> + * dma_buf_ops.
+> + * @attach:	[in]	attachment to unmap buffer from
+> + * @sg_table:	[in]	scatterlist info of the buffer to unmap
+> + * @direction:	[in]	direction of DMA transfer
+> + *
+> + * Unlocked variant of dma_buf_unmap_attachment().
+> + */
+> +void dma_buf_unmap_attachment_unlocked(struct dma_buf_attachment *attach,
+> +				       struct sg_table *sg_table,
+> +				       enum dma_data_direction direction)
+> +{
+> +	might_sleep();
+> +
+> +	if (WARN_ON(!attach || !attach->dmabuf || !sg_table))
+> +		return;
+> +
+> +	dma_resv_lock(attach->dmabuf->resv, NULL);
+> +	dma_buf_unmap_attachment(attach, sg_table, direction);
+> +	dma_resv_unlock(attach->dmabuf->resv);
+> +}
+>   EXPORT_SYMBOL_NS_GPL(dma_buf_unmap_attachment_unlocked, DMA_BUF);
+>   
+>   /**
+> diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
+> index ac1e2911b727..b1c455329023 100644
+> --- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
+> +++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
+> @@ -885,7 +885,7 @@ static int amdgpu_ttm_backend_bind(struct ttm_device *bdev,
+>   			struct sg_table *sgt;
+>   
+>   			attach = gtt->gobj->import_attach;
+> -			sgt = dma_buf_map_attachment_unlocked(attach, DMA_BIDIRECTIONAL);
+> +			sgt = dma_buf_map_attachment(attach, DMA_BIDIRECTIONAL);
+>   			if (IS_ERR(sgt))
+>   				return PTR_ERR(sgt);
+>   
+> @@ -1010,7 +1010,7 @@ static void amdgpu_ttm_backend_unbind(struct ttm_device *bdev,
+>   		struct dma_buf_attachment *attach;
+>   
+>   		attach = gtt->gobj->import_attach;
+> -		dma_buf_unmap_attachment_unlocked(attach, ttm->sg, DMA_BIDIRECTIONAL);
+> +		dma_buf_unmap_attachment(attach, ttm->sg, DMA_BIDIRECTIONAL);
+>   		ttm->sg = NULL;
+>   	}
+>   
+> diff --git a/drivers/gpu/drm/i915/gem/i915_gem_dmabuf.c b/drivers/gpu/drm/i915/gem/i915_gem_dmabuf.c
+> index cc54a5b1d6ae..276a74bc7fd1 100644
+> --- a/drivers/gpu/drm/i915/gem/i915_gem_dmabuf.c
+> +++ b/drivers/gpu/drm/i915/gem/i915_gem_dmabuf.c
+> @@ -241,8 +241,8 @@ static int i915_gem_object_get_pages_dmabuf(struct drm_i915_gem_object *obj)
+>   
+>   	assert_object_held(obj);
+>   
+> -	pages = dma_buf_map_attachment_unlocked(obj->base.import_attach,
+> -						DMA_BIDIRECTIONAL);
+> +	pages = dma_buf_map_attachment(obj->base.import_attach,
+> +				       DMA_BIDIRECTIONAL);
+>   	if (IS_ERR(pages))
+>   		return PTR_ERR(pages);
+>   
+> @@ -270,8 +270,8 @@ static int i915_gem_object_get_pages_dmabuf(struct drm_i915_gem_object *obj)
+>   static void i915_gem_object_put_pages_dmabuf(struct drm_i915_gem_object *obj,
+>   					     struct sg_table *pages)
+>   {
+> -	dma_buf_unmap_attachment_unlocked(obj->base.import_attach, pages,
+> -					  DMA_BIDIRECTIONAL);
+> +	dma_buf_unmap_attachment(obj->base.import_attach, pages,
+> +				 DMA_BIDIRECTIONAL);
+>   }
+>   
+>   static const struct drm_i915_gem_object_ops i915_gem_object_dmabuf_ops = {
+> diff --git a/drivers/gpu/drm/i915/gem/i915_gem_object.c b/drivers/gpu/drm/i915/gem/i915_gem_object.c
+> index 389e9f157ca5..9fbef3aea7b1 100644
+> --- a/drivers/gpu/drm/i915/gem/i915_gem_object.c
+> +++ b/drivers/gpu/drm/i915/gem/i915_gem_object.c
+> @@ -331,7 +331,19 @@ static void __i915_gem_free_objects(struct drm_i915_private *i915,
+>   			continue;
+>   		}
+>   
+> +		/*
+> +		 * dma_buf_unmap_attachment() requires reservation to be
+> +		 * locked. The imported GEM should share reservation lock,
+> +		 * so it's safe to take the lock.
+> +		 */
+> +		if (obj->base.import_attach)
+> +			i915_gem_object_lock(obj, NULL);
+> +
+>   		__i915_gem_object_pages_fini(obj);
+> +
+> +		if (obj->base.import_attach)
+> +			i915_gem_object_unlock(obj);
+> +
+>   		__i915_gem_free_object(obj);
+>   
+>   		/* But keep the pointer alive for RCU-protected lookups */
+> diff --git a/include/linux/dma-buf.h b/include/linux/dma-buf.h
+> index da2057569101..d48d534dc55c 100644
+> --- a/include/linux/dma-buf.h
+> +++ b/include/linux/dma-buf.h
+> @@ -46,7 +46,7 @@ struct dma_buf_ops {
+>   	/**
+>   	 * @attach:
+>   	 *
+> -	 * This is called from dma_buf_attach() to make sure that a given
+> +	 * This is called from dma_buf_attach_unlocked() to make sure that a given
+>   	 * &dma_buf_attachment.dev can access the provided &dma_buf. Exporters
+>   	 * which support buffer objects in special locations like VRAM or
+>   	 * device-specific carveout areas should check whether the buffer could
+> @@ -74,7 +74,7 @@ struct dma_buf_ops {
+>   	/**
+>   	 * @detach:
+>   	 *
+> -	 * This is called by dma_buf_detach() to release a &dma_buf_attachment.
+> +	 * This is called by dma_buf_detach_unlocked() to release a &dma_buf_attachment.
+>   	 * Provided so that exporters can clean up any housekeeping for an
+>   	 * &dma_buf_attachment.
+>   	 *
+> @@ -94,7 +94,7 @@ struct dma_buf_ops {
+>   	 * exclusive with @cache_sgt_mapping.
+>   	 *
+>   	 * This is called automatically for non-dynamic importers from
+> -	 * dma_buf_attach().
+> +	 * dma_buf_attach_unlocked().
+>   	 *
+>   	 * Note that similar to non-dynamic exporters in their @map_dma_buf
+>   	 * callback the driver must guarantee that the memory is available for
+> @@ -509,10 +509,10 @@ struct dma_buf_attach_ops {
+>    * and its user device(s). The list contains one attachment struct per device
+>    * attached to the buffer.
+>    *
+> - * An attachment is created by calling dma_buf_attach(), and released again by
+> - * calling dma_buf_detach(). The DMA mapping itself needed to initiate a
+> - * transfer is created by dma_buf_map_attachment() and freed again by calling
+> - * dma_buf_unmap_attachment().
+> + * An attachment is created by calling dma_buf_attach_unlocked(), and released
+> + * again by calling dma_buf_detach_unlocked(). The DMA mapping itself needed to
+> + * initiate a transfer is created by dma_buf_map_attachment() and freed
+> + * again by calling dma_buf_unmap_attachment().
+>    */
+>   struct dma_buf_attachment {
+>   	struct dma_buf *dmabuf;
+> @@ -626,6 +626,12 @@ void dma_buf_unmap_attachment_unlocked(struct dma_buf_attachment *,
+>   				       struct sg_table *,
+>   				       enum dma_data_direction);
+>   
+> +struct sg_table *dma_buf_map_attachment(struct dma_buf_attachment *,
+> +					enum dma_data_direction);
+> +void dma_buf_unmap_attachment(struct dma_buf_attachment *attach,
+> +			      struct sg_table *sg_table,
+> +			      enum dma_data_direction direction);
+> +
+>   void dma_buf_move_notify(struct dma_buf *dma_buf);
+>   int dma_buf_begin_cpu_access(struct dma_buf *dma_buf,
+>   			     enum dma_data_direction dir);
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
