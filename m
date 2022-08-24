@@ -4,86 +4,92 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8196EC32796
-	for <virtualization@archiver.kernel.org>; Wed, 24 Aug 2022 09:43:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A743EC00140
+	for <virtualization@archiver.kernel.org>; Wed, 24 Aug 2022 09:49:05 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 09EE780F16;
-	Wed, 24 Aug 2022 09:43:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 09EE780F16
+	by smtp1.osuosl.org (Postfix) with ESMTP id 4723F81395;
+	Wed, 24 Aug 2022 09:49:05 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4723F81395
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=solid-run-com.20210112.gappssmtp.com header.i=@solid-run-com.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=dMe2Wb8z
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=solid-run-com.20210112.gappssmtp.com header.i=@solid-run-com.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=31w6WANT
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id FXz_YepqfsYK; Wed, 24 Aug 2022 09:43:32 +0000 (UTC)
+	with ESMTP id 1rNEKWHSpg35; Wed, 24 Aug 2022 09:49:04 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 8A72A8139B;
-	Wed, 24 Aug 2022 09:43:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8A72A8139B
+	by smtp1.osuosl.org (Postfix) with ESMTPS id E117281394;
+	Wed, 24 Aug 2022 09:49:03 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E117281394
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4F319C0032;
-	Wed, 24 Aug 2022 09:43:31 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 30093C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B6EBEC0032;
+	Wed, 24 Aug 2022 09:49:03 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4D928C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Aug 2022 09:43:30 +0000 (UTC)
+ Wed, 24 Aug 2022 09:49:02 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id F2C0E8139B
+ by smtp4.osuosl.org (Postfix) with ESMTP id 34657408ED
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Aug 2022 09:43:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org F2C0E8139B
+ Wed, 24 Aug 2022 09:49:02 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 34657408ED
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (2048-bit key) header.d=solid-run-com.20210112.gappssmtp.com
+ header.i=@solid-run-com.20210112.gappssmtp.com header.a=rsa-sha256
+ header.s=20210112 header.b=31w6WANT
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id JQP3eJU7Cll6
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id WDp5Kx2cNlcZ
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Aug 2022 09:43:28 +0000 (UTC)
+ Wed, 24 Aug 2022 09:49:01 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BD1EC81397
-Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com
- [IPv6:2607:f8b0:4864:20::534])
- by smtp1.osuosl.org (Postfix) with ESMTPS id BD1EC81397
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6214D408BC
+Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com
+ [IPv6:2607:f8b0:4864:20::102e])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 6214D408BC
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Aug 2022 09:43:28 +0000 (UTC)
-Received: by mail-pg1-x534.google.com with SMTP id q63so311419pga.9
+ Wed, 24 Aug 2022 09:49:01 +0000 (UTC)
+Received: by mail-pj1-x102e.google.com with SMTP id
+ x63-20020a17090a6c4500b001fabbf8debfso962337pjj.4
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Aug 2022 02:43:28 -0700 (PDT)
+ Wed, 24 Aug 2022 02:49:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=solid-run-com.20210112.gappssmtp.com; s=20210112;
  h=cc:to:subject:message-id:date:from:in-reply-to:references
  :mime-version:from:to:cc;
- bh=XWeclXyitpRwhvwK4pjPy6mQN7N6nAEKqi+NnMqcPrg=;
- b=dMe2Wb8z4CxtBWJ/5vvEnv2watWjknN3QIo5LYDWlYQYMn3QJbOD7LbPe6yYbcEK2z
- 1gRuGDaJaOgd4Ga1nnGpihxAJl3ig4fEfD/VjDlPAd/l7KZDanQRH4OllgnVd/1ffPOg
- ND7I/qmzy+n7hevHMaUd/sTkgZq/nezKDkVprCDSGmqIww/vtEiQPTXaipzAmPjiiFR1
- uw7IqGO9OwvI3ZSHa/Qgal/Y3EEmZTVqYUYVBQKjzSXmyng3yOiFkMDpeBncb0+iLasw
- 7PpAYeTvnR1pzKxCGh56Ec8aGMgAvoXut9+wY5id1JcURDAwLVDy38PdgnRODr2ZFjci
- 5ozw==
+ bh=Jvrubn18J8eklgHdQHhQd3gyNTiHNSTFv8jwxExN4J8=;
+ b=31w6WANToCNULKSXTU9h2RVabvBvXJoJRsd6RXj8W5he+kpfxOdEb/EfDI9bd+j3pR
+ 2nGMQPaZniuCyOJZI1R9jvkdWn/Rc85CYUc987IEwY686vEjGlKzSvnxEeEYEwKJ5D2a
+ zN5HKUElhusizMmJqMtgNoy7g2O0WI85DnbKY5J3RZZZ6re3OySZ0kf2YSqyqd+8wImv
+ Ng2Acf5BtjV43k1opU7toDg4++bJiGhgablmj0CSVZA6B6teXWAAUVDFiC8xm0zPj4qe
+ gry029J70X5fjuequnt9OlpM+L2xG5fr7XUJrxLALxvJ3uGt3GaMCWRMff0/WE2KnfhY
+ IC8g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=cc:to:subject:message-id:date:from:in-reply-to:references
  :mime-version:x-gm-message-state:from:to:cc;
- bh=XWeclXyitpRwhvwK4pjPy6mQN7N6nAEKqi+NnMqcPrg=;
- b=fP48HQgAgeOwqxyBhLxZOhYymTr80XklZakbnUyy4oZ3TzNK/MQ+aLFC6glOG0MX0T
- 09RWoYAvDBnBgFuytSLHyPN3/55pvTV2npk53VxW3iakJXF/s8r5IM6WDgz5k8Z0dh1y
- T94CBBDnVb2qLMa8jovXVSAn7QBb/T5jSLt6K4pCl+slNRT9veYfErhQN5ws8rn00Qc+
- eSf6KgCIbJL/piFZoijTHi2Vjdn4IRc3YoG4YK4KSwJhoeLhnzgaR5HXo01F+IeoqNwR
- /q9GR099pKOWTuNcELCL2ykN5mf0yJCChX25VeoBHyKNH44kaA8IzgmlVHRFavLkpW83
- +Lxw==
-X-Gm-Message-State: ACgBeo3xk70ceLHUWKXgk5uufTPngccPPXwUy/Q8QdNu3VILCATg2ra/
- GXY+2jmeMibH0Ld/+TLOHlQg8Utv1HdDykQqPPhJkA==
-X-Google-Smtp-Source: AA6agR4bEnrQMis06dgNydG28g7G7UYGlg1MWcW+7Y18aeEK5tgOzvE1xmHD5ycbY98e7Nry4ocYNTlBs8OaqNSsYok=
-X-Received: by 2002:a63:6804:0:b0:422:1689:ed05 with SMTP id
- d4-20020a636804000000b004221689ed05mr23148290pgc.289.1661334208119; Wed, 24
- Aug 2022 02:43:28 -0700 (PDT)
+ bh=Jvrubn18J8eklgHdQHhQd3gyNTiHNSTFv8jwxExN4J8=;
+ b=5i/BDQcj3QR/uMNkjLCXX+NHmILJwc/HqWRpYYPoY4U+trODRV3n53nla/QQXVWikO
+ cGaJYqXtP1nYOeF8xU/oU76CokEX8W1I7k4nJNG+6fJex2bHa78eaCPbzN0/CeUBNcYg
+ GG6/3rFgvKEsOBmjt57nreFBRl2JEQ/yGSmhRtfGQL+FG7w4tr/hxISRCKxh2ynNiSDC
+ SPmlfyb12GLtExBRGFX7A6XpukrJ1qI5ar14+73VQpGiWZtcHrMQnQLfh6aIL+hWxXUG
+ Y7J8MMUMYyICghFnP530td1IQrYBr31kl/KU88G9K2XcGTtQQdTSC0kAVJGMFE6IlAZc
+ zLjA==
+X-Gm-Message-State: ACgBeo3Vfike2QfMPTpO5SA71rk3Eqij62mhEEUVmljBsC7DAUSXCHXs
+ iq/5EktjcuJQMJxDBqrnTQKHvehZTbe6Da3TXaDt3A==
+X-Google-Smtp-Source: AA6agR4aEnInt+vSrAp2U9v0QsHLFNF9sfG4nHzvJMFmhDtPHYin40m+OfN5jDy7mPaVEjmMjE72VntbuAqzHCzIask=
+X-Received: by 2002:a17:90b:17c2:b0:1fb:7a6f:7977 with SMTP id
+ me2-20020a17090b17c200b001fb7a6f7977mr3669227pjb.53.1661334540765; Wed, 24
+ Aug 2022 02:49:00 -0700 (PDT)
 MIME-Version: 1.0
 References: <CAJs=3_DJ8x5h98WBbXhzxVx+D6pqpBkCrBHXa_7ApqYO4vGDpQ@mail.gmail.com>
  <CACGkMEuQBLpaW6-tD3oqR90ya5=js6DJ=pHiOJmG2SOt-6ycpA@mail.gmail.com>
- <2ff3d36b-f044-71cc-8001-d7f4073282c1@suse.de>
-In-Reply-To: <2ff3d36b-f044-71cc-8001-d7f4073282c1@suse.de>
+ <CAJs=3_Cnf29Om2yB=JkdASuu=YBPRmZ4i7ncFfTzrftTkYZVmQ@mail.gmail.com>
+ <bedae890-80e6-9777-caff-98749d46ba3b@suse.de>
+In-Reply-To: <bedae890-80e6-9777-caff-98749d46ba3b@suse.de>
 From: Alvaro Karsz <alvaro.karsz@solid-run.com>
-Date: Wed, 24 Aug 2022 12:42:52 +0300
-Message-ID: <CAJs=3_AUiaDtyRTMcDd_DGuiKZVKuMUSZRUosQa7wU=5UZwtqw@mail.gmail.com>
+Date: Wed, 24 Aug 2022 12:48:25 +0300
+Message-ID: <CAJs=3_AW1-SVOOg8MT65KxtrZs7ikJ6DZ3xXSQZX07jA8VBr1g@mail.gmail.com>
 Subject: Re: Virtio-net - add timeouts to control commands
 To: Hannes Reinecke <hare@suse.de>
 Cc: virtualization <virtualization@lists.linux-foundation.org>,
@@ -104,46 +110,20 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Hannes,
-
-> a) let the device do the timeout: pass in a timeout value with the
-> command, and allow the device to return an ETIMEDOUT error when the
-> timeout expires. Then it's up to the device to do the necessary timeout
-> handling; the server won't be involved at all (except for handling an
-> ETIMEDOUT error)
-
-
-This won't work if the device crashes.
-
+> Quite the contrary.
+> There is no guarantee that a completion for a given command will be
+> signaled at all; if the completion is never posted to the virtio queue
+> the VM will spin forever.
 >
-> b) implement an 'abort' command. With that the server controls the
-> timeout, and is allowed to send an 'abort' command when the timeout
-> expires. That requires the device to be able to abort commands (which
-> not all devices are able to), but avoids having to implement a timeout
-> handling in the device.
+> This is a simplistic approach. _Any_ command sent via virtio will have
+> to have some sort of handling in the host, so an immediate response is
+> not guaranteed.
+> Especially virtio-block command will _not_ be handled immediately.
 
 
-I actually thought about this idea.
-This may work, but you'll still have a few moments when the server
-assumes that the command failed, and the network device assumes that
-it succeeded.
-So the server may still receive packets in an unexpected queue.
-
-
->
-> I am very much in favour of having timeouts for virtio commands; we've
-> had several massive customer escalations which could have been solved if
-> we were able to set the command timeout in the VM.
-> As this was for virtio-scsi/virtio-block I would advocate to have a
-> generic virtio command timeout, not a protocol-specific one.
-
-This may be difficult to implement.
-Especially when multiple commands may be queued at the same time, and
-the device can handle the commands in any order.
-We'll need to add identifiers for every command.
-
-I'm actually referring here to the Linux kernel implementation of
-virtnet control commands, in which the server spins for a response.
+I'm referring to virtnet control commands.
+virtnet_send_command is a blocking function, and returns once a
+response is received for the sent control command.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
