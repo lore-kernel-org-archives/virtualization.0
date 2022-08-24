@@ -4,58 +4,180 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C8D11C00140
-	for <virtualization@archiver.kernel.org>; Wed, 24 Aug 2022 17:38:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 303D3C00140
+	for <virtualization@archiver.kernel.org>; Wed, 24 Aug 2022 17:45:32 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 2B30F82B08;
-	Wed, 24 Aug 2022 17:38:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2B30F82B08
+	by smtp1.osuosl.org (Postfix) with ESMTP id B9C9282848;
+	Wed, 24 Aug 2022 17:45:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B9C9282848
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=YerBgSf/
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 9uqhI5BSnsLI; Wed, 24 Aug 2022 17:38:13 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 320DF82B1A;
-	Wed, 24 Aug 2022 17:38:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 320DF82B1A
+	with ESMTP id chxN1OKV8jKJ; Wed, 24 Aug 2022 17:45:30 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 237518294A;
+	Wed, 24 Aug 2022 17:45:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 237518294A
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id F103BC0032;
-	Wed, 24 Aug 2022 17:38:12 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 877C6C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D580AC0032;
+	Wed, 24 Aug 2022 17:45:29 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 322B8C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Aug 2022 17:38:11 +0000 (UTC)
+ Wed, 24 Aug 2022 17:45:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 54F6660FDE
+ by smtp2.osuosl.org (Postfix) with ESMTP id B9AC1404EB
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Aug 2022 17:38:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 54F6660FDE
+ Wed, 24 Aug 2022 17:45:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B9AC1404EB
+Authentication-Results: smtp2.osuosl.org; dkim=pass (1024-bit key,
+ unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256
+ header.s=selector1 header.b=YerBgSf/
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id V2mcV368o9LY
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id orSYj74N91au
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Aug 2022 17:38:09 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3FBD960C26
-Received: from s052d7dde.fastvps-server.com (s052d7dde.fastvps-server.com
- [IPv6:2a03:f480:1:14::7d])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 3FBD960C26
+ Wed, 24 Aug 2022 17:45:27 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DD4CD400EC
+Received: from NAM02-SN1-obe.outbound.protection.outlook.com
+ (mail-sn1anam02on2065.outbound.protection.outlook.com [40.107.96.65])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id DD4CD400EC
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Aug 2022 17:38:09 +0000 (UTC)
-Received: from 157.81.37.188.rev.vodafone.pt ([188.37.81.157]
- helo=LAPTOP-EPOV2LRR)
- by s052d7dde.fastvps-server.com with esmtpa (Exim 4.89)
- (envelope-from <marle@saisti.eu>) id 1oQtVx-00048L-Ul
- for virtualization@lists.linux-foundation.org; Wed, 24 Aug 2022 19:46:02 +0300
-From: "ICITS-2023" <marialemos72@gmail.com>
-Subject: Call for papers - ICITS'2023 | Cusco, Peru | Deadline: September 11
-To: virtualization@lists.linux-foundation.org
+ Wed, 24 Aug 2022 17:45:26 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Sk0FeJXZspU2IsynjBlAMVcZmEFlX6N5cGB3Ir7YVTKUB6/TsHHqrNDxo5ZYT2FDhtGCLqJm2+TjswPytN9DXbA0UPPQ8TqZxZrtGd5df0SiI4QBk9QbL7fGiNbqQMbnM2lFwh2KUwnUoBPYHbk7ZBZSdO3+MDc2j4YTybvQRcxq8DDap9FP+2reouTjMrwhTb6sMv34t9Sy+p51qjFz7jUubY0W/Exu1mXmewfWsTEe/JY1HYSkLaWS+X2Rn/cW88JP+fHp/qO/SZ1TyBBcVAJFit0EldxSDkJce7wSdLzC5ObtMK/DawRx4Zc/ppTNJSpvr8Aqx9yyh+I0CMdHoQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=8GEB4Gmf8gYzYzw0SauFbEYt7He09/ibyOEjSkXO9CY=;
+ b=DDt3k5QJvEbQ7XmTsFzzTJIV4feVrOlVExqDFZ8CahUfZouK4EpTh6K8IH2br4tQf+lhLW/jD6cx+suhj0AuGIPQIO7JhWsHodpd2DXuEb9eDcdLBdqJNZApWQidCWDHefGcWzDxaF5BDU9Tay2rKVCf4NZz3d87T7HqYHd7HtY5M9rFt97FMwy9tDcnFuaGaGdCDByZi/YKYUlsKOI/GB9Q25Ht8QIDhtt3hqmzfEggWVu/rjvO2daC3+C9nOcXYarQdwxgEFnWNvUgOi6pxfF2SDhQ7qpa7oTN2fZ+cPAc7k73PTcdDpSCPhj5J2BMHaogrDNUX0SZFmu5So8ltg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1; 
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=8GEB4Gmf8gYzYzw0SauFbEYt7He09/ibyOEjSkXO9CY=;
+ b=YerBgSf/XFpE4iZnDoi4PdcU89++Ab5YebBHtep9vpBfkO9NM95ZkO1zvEUZJww/ZyfP8KYERR9PlBKxYEYes3oej/siq7tlxUslb8sSAOM8c9d7sUTm9n9ug90Hur0jH+cvmne2MSfenSiPCyESZmlr5K6BftLWA8CRo3gqGM8=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+Received: from BN8PR12MB3587.namprd12.prod.outlook.com (2603:10b6:408:43::13)
+ by BN8PR12MB3426.namprd12.prod.outlook.com (2603:10b6:408:4a::14)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5546.18; Wed, 24 Aug
+ 2022 17:45:19 +0000
+Received: from BN8PR12MB3587.namprd12.prod.outlook.com
+ ([fe80::905:1701:3b51:7e39]) by BN8PR12MB3587.namprd12.prod.outlook.com
+ ([fe80::905:1701:3b51:7e39%2]) with mapi id 15.20.5546.024; Wed, 24 Aug 2022
+ 17:45:19 +0000
+Message-ID: <e7576ab7-ff1e-e6da-b0fd-0315f1b37ed1@amd.com>
+Date: Wed, 24 Aug 2022 19:45:07 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [Linaro-mm-sig] [PATCH v3 6/9] dma-buf: Move dma-buf attachment
+ to dynamic locking specification
+Content-Language: en-US
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ =?UTF-8?Q?Christian_K=c3=b6nig?= <ckoenig.leichtzumerken@gmail.com>,
+ David Airlie <airlied@linux.ie>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
+ Daniel Almeida <daniel.almeida@collabora.com>,
+ Gert Wollny <gert.wollny@collabora.com>,
+ Gustavo Padovan <gustavo.padovan@collabora.com>,
+ Daniel Stone <daniel@fooishbar.org>,
+ Tomeu Vizoso <tomeu.vizoso@collabora.com>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Rob Clark <robdclark@gmail.com>, Sumit Semwal <sumit.semwal@linaro.org>,
+ "Pan, Xinhui" <Xinhui.Pan@amd.com>, Thierry Reding
+ <thierry.reding@gmail.com>, Tomasz Figa <tfiga@chromium.org>,
+ Marek Szyprowski <m.szyprowski@samsung.com>,
+ Mauro Carvalho Chehab <mchehab@kernel.org>,
+ Alex Deucher <alexander.deucher@amd.com>,
+ Jani Nikula <jani.nikula@linux.intel.com>,
+ Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+ Rodrigo Vivi <rodrigo.vivi@intel.com>,
+ Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+ =?UTF-8?Q?Thomas_Hellstr=c3=b6m?= <thomas_os@shipmail.org>,
+ Qiang Yu <yuq825@gmail.com>
+References: <20220824102248.91964-1-dmitry.osipenko@collabora.com>
+ <20220824102248.91964-7-dmitry.osipenko@collabora.com>
+ <055c3c05-ac4c-430e-f2b9-08f000acf435@gmail.com>
+ <25d6b7e7-bbcc-7613-42d1-13c2b9ab2937@collabora.com>
+In-Reply-To: <25d6b7e7-bbcc-7613-42d1-13c2b9ab2937@collabora.com>
+X-ClientProxiedBy: FR0P281CA0050.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:48::13) To BN8PR12MB3587.namprd12.prod.outlook.com
+ (2603:10b6:408:43::13)
 MIME-Version: 1.0
-Date: Wed, 24 Aug 2022 17:46:01 +0100
-Message-ID: <22728454486640@gmail-com>
-X-Antivirus: AVG (VPS 220824-0, 24/8/2022), Outbound message
-X-Antivirus-Status: Clean
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 2f7c82e3-68ba-4b44-e526-08da85f86966
+X-MS-TrafficTypeDiagnostic: BN8PR12MB3426:EE_
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: QkEyVwKuUGqaWjF1MugYM3eqay2SkldryTEYCa8fcn8T+/ffBrdLrmie2jlarrGb3vL3WTSkS80Slp//Lk6V243xs1mHY6JS/zL2HG4LIwbxU22EXbp8NPRkXQW8qysi/1rmwapGb8BjDbsIFxSPc0h1HwTXaTMQWSRj0zAXHqp1wQXuquisDWUTp1WMN4ahcZBfsD1HSOzmVUjOfSjPKXqMOkscLRODHntcSmvsgYiKZJAI37cnKT1KuiJMzVaCSFn0VUtKNbZKeD5Zi7x4Hei6LcDUDRoYnPv4Kzhm6eExFFwds3MApBRXe4MYUaE3/OgBygkQ4xXaysIfyg/9umsRz79tbWhoInrPG3O5M91HdUbHHeBvV8h8uEXrci9x+3COgA8ZAgxDi3hH3rzfXRBaQFNSKTRP3QZVHXCUJG+r0ceHhsmw6EP+fIrdjzn3gmkwh8VuQj9WVFUQoILkq7Jt1ei24BxcIJYyuAFXpto2tM8kyGl/Hz0tvLgO9dNUZoTuBb0JVq9mZ13cXmG5j5nHSqppmUqY1ENIjKIyrMR6sKyEMTJtLIC4ztLjQosmUUTI1Z0T64AaV+EOh+GuXwmWcDvb/lPbAjczo2Vs6nhfNgC4h2d7V18ZEmSPouJ5g2ejXDZBcf4I12GbE8Ej44ga0Kb+NmGJhttT4qYvHV9lgDFHtZDOnZcfX41e/R1NlIE02aNFBjc7reqg3EyJsg3hq6vYx3ySE9LAKALdeXOiMx1nI23q7Si2pSynsdup+A+Lv5DyAAY048pYM1TTEZxp1ZsXn2JeH/Lo/fXQEJpaGZZFzz9QiLF9gtUG6JLh
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:BN8PR12MB3587.namprd12.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230016)(4636009)(39860400002)(376002)(346002)(366004)(396003)(136003)(66556008)(66476007)(8676002)(110136005)(66946007)(316002)(7406005)(5660300002)(7416002)(4326008)(2906002)(38100700002)(8936002)(6666004)(31696002)(86362001)(921005)(478600001)(36756003)(6506007)(53546011)(6486002)(41300700001)(186003)(66574015)(2616005)(6512007)(31686004)(83380400001)(43740500002)(45980500001);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?QitJVWFodnhyVEVnVHM5VUErc3UvdnpzRWpWbTFOQmNBZE1zU0c4VytTRXhY?=
+ =?utf-8?B?cXdaeXVaRWZZNklnNkdjdjJSUjRsQlYyM0xDTjNFNHB0Y2hnSE5xU2docGtJ?=
+ =?utf-8?B?S0d3ZTh2UG54Znk2S1RJQW9DMXpsWDZRcytwN3JMZzdXdHpQOFVFNkhKRlVX?=
+ =?utf-8?B?anNMelBVQ1RtZGVuUmxyMHRKWnVnYlJrbHNuMUhFamhBelhJRkJxaDN6Nk4r?=
+ =?utf-8?B?OGp3QU0wVlIxWlZyL1o5UFQxNDdVNEpBK1NPQkplOEZ4RFFldVRkejJWOTFn?=
+ =?utf-8?B?UURLMVdzK3JJTGlQZzZiaHFVaHpsOXdrNE56MktTakxlUG5maDFEQ3FKZzR0?=
+ =?utf-8?B?TVZ2NHprdXZYV3IweExFZzR0dDZuckJtVllIcWFhM3B0QWwxWU10S0lzR0pB?=
+ =?utf-8?B?UStTYUFMdENrYzN5b0Y2anNDOTBmbXZFanNLbnM3dXFna1dIbHNoQWZaeGJu?=
+ =?utf-8?B?Njg2UnFIZHdpNWZsY21jQmVpSDV6ZG5iRU1jMjFkMlZxRGRJQld0RDY0dzBO?=
+ =?utf-8?B?YlpaZ3UxbGVNa29rdVJMbDJVYUxYZWZpSUEzaEp6bzd3VSt1azVnT2JTb3Ux?=
+ =?utf-8?B?VXNuMHN0L1BvS1FuUjdHS1lMeVNUM3FscFlYNXZjN09XbmsrdzN2OWtBT0hu?=
+ =?utf-8?B?TGN2Tkt6MnRCemMzSU90T3krYytyQzJDbVpDc2FuQmhyZ2VlVFJRQjBQcXBo?=
+ =?utf-8?B?d1dTc3FKWWVPMFpxK0JzVUpJQk00T2FxOTNyWHkwYUdOajBPZDFjeFlZejRr?=
+ =?utf-8?B?MWQ5ZzNSdktOMkNONGVuR01sRUIzc1JNUFFOKzEvVWl6QmFZSlpYNXJqU3k2?=
+ =?utf-8?B?b2hPRHpsTEhPTjhXbUpZajc2M3FPMUNpbk5Kd3cxQndsRmhCeEY3QkNaL0xm?=
+ =?utf-8?B?U1JNRzhIYkR4SWZIbUZUb01NTWtMY2JyZEsrNlM1SnlXb2dZYk9SRGVnZitZ?=
+ =?utf-8?B?TnczWDJrSDNUK3I2Q3FSUXIwN0dweHJ4dTA1aStVOWNiWDV2NWdIUGtzTWFV?=
+ =?utf-8?B?UnJGMDB1S2NrNWxYRW1SZ1hNbXhFTVY3UkVoQU1xM0Y2RGlRYnlnRE9GbXFq?=
+ =?utf-8?B?c2NhcW1lVm41eXFBVXlRT25Jc2krenA0Qi9TVkhDOXJadUJGRVlPZmIrbkVJ?=
+ =?utf-8?B?c3pXaXFyc3QranE4TUZDcElEdS9abHZZQW43U0tmcnlJd1R6Z2twUDB3NStR?=
+ =?utf-8?B?NEJaNDU5cTJ1bU5MYmVKS20yTGVYaklNZC9GRnBUd1hQcm9XdkJRR3o1MGFk?=
+ =?utf-8?B?Z21zdzg2L2NOY3JYQ0ZVcXg0NS9mMTNWWmJ4YTVzVE1SVnY3ZjM5QndYRERu?=
+ =?utf-8?B?bE9lSkMrV2FIQnd4NEdRNEN3TGVLdU15aVAxQVRwekJ6M25oZmpNY2VVQlBV?=
+ =?utf-8?B?ZUtZQ3B1NDdGazRIVFI3eEZnZW0yNFRMTHhyb2d5TTZGQlNXbllzZlJ0bmFx?=
+ =?utf-8?B?bERkaDNGRldTWWkxUXY4Zi9ScktsZE1NY1RwdGptRU9zNDRRalRYY2RWSVdW?=
+ =?utf-8?B?TjB2cmczZnB3WVpzWlRpcktVTVBKYWZYdDB1eDZiTEhtcnJNOW1BNWcrVzBu?=
+ =?utf-8?B?azkzdnVUcExOd0EzemJaRjZwUzgxVkVnUzZwcnpoSVUvNWpPenJ4K3E1OWd3?=
+ =?utf-8?B?TWtMNGsyN1VCRGQ4dUZ2cXhrenh4Qk1yQjdEZFp3U0N0clJaNk11U1RscitW?=
+ =?utf-8?B?MFc3N3B1a0FXMXJzdnI3L280UU1NREE3Sk5GeUkwOXFUYWl1TURPOStlQmZu?=
+ =?utf-8?B?SDhDR3c3N0FzTWtSdkhYSUxyVmo1Uk1vUXRwR1VMZEp2cE1iMUxSRUNzN1dG?=
+ =?utf-8?B?M2lJMS9odjUwbUliMnBpUnMzaDFSRzd4RXNhd01hdVhhTFRKVzFqZzNxLzVR?=
+ =?utf-8?B?MjZzbjJTcmhES1p1dWV6ek8zYm5TOVlaTGlRdSs5U0xMQlQybWNKYTl0dlcz?=
+ =?utf-8?B?bG0rdXlnamM3UEFBS25LbGJyM2d6cG5EaXZMdW5kWVFaN3FoczAyY2d0dG1p?=
+ =?utf-8?B?S2Mzb21hREdWTXZOV0tKUkIvd1JlZG0vQlNxUHpkMFVDQlZmTGw2cEtpa1Rk?=
+ =?utf-8?B?cDR3RE1LV1Fjc1hDdHZPZTVaWnE3Y1FqOGJPSFpHMHdLa0tNY2dtTlJRTHps?=
+ =?utf-8?B?Q2ViSWtjcXRlRFJUSlpIeTZjRXR4cFlvcVV6WWZ3S3kyNVNia0VkeFh1QjQx?=
+ =?utf-8?Q?+q0X1NCwY9F7xJQvnm9ob74uSjJfdZphK3Sy/3p4i8L7?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 2f7c82e3-68ba-4b44-e526-08da85f86966
+X-MS-Exchange-CrossTenant-AuthSource: BN8PR12MB3587.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 24 Aug 2022 17:45:19.5580 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: zPrGMwPHue4l/e7DGFyu0HCfpuG9Q1fJZsvvjg1IoIJ2DIdvG62xn+wC2RVbMS9P
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN8PR12MB3426
+Cc: lima@lists.freedesktop.org, linux-rdma@vger.kernel.org,
+ linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org,
+ linux-kernel@vger.kernel.org, amd-gfx@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org, linaro-mm-sig@lists.linaro.org,
+ dri-devel@lists.freedesktop.org, Dmitry Osipenko <digetx@gmail.com>,
+ kernel@collabora.com, linux-media@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -67,441 +189,76 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Reply-To: intercits@gmail.com
-Content-Type: multipart/mixed; boundary="===============5992422987029611878=="
+From: =?UTF-8?Q?Christian_K=c3=b6nig?= via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is a multi-part message in MIME format
-
---===============5992422987029611878==
-Content-Type: multipart/alternative; charset=utf-8; boundary="ZOw9I1p0vjWenkMe37XcE7fStqAvqM=_2i"
-
-This is a multi-part message in MIME format
-
---ZOw9I1p0vjWenkMe37XcE7fStqAvqM=_2i
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-* Indexed in Scopus, WoS, DBLP, etc.
- 
-* Google Scholar H5-Index =3D 15
- 
- 
----------------------------------------------------------------------------=
------------------------------------------
-ICITS'23 - The 6th International Conference on Information Technology & Sys=
-tems
-Cusco, Peru, 8 - 10 February 2023
-http://icits.me <http://icits.me/>
----------------------------------------------------------------------------=
------------------------------------------
- 
- 
-Scope
-
-ICITS'23 - The 6th International Conference on Information Technology & Sys=
-tems, to be held at Universidad Nacional de San Antonio Abad del Cusco, in =
-Cusco, Peru, between the 8th and the 10th of February 2023, is an internati=
-onal forum for researchers and practitioners to present and discuss the mos=
-t recent innovations, trends, results, experiences and concerns in the seve=
-ral perspectives of Information Technology & Systems.
-
-We are pleased to invite you to submit your papers to ICITS'23. They can be=
- written in English, Spanish or Portuguese. All submissions will be reviewe=
-d on the basis of relevance, originality, importance and clarity.
-
- 
-
-Topics
-
-Submitted papers should be related with one or more of the main themes prop=
-osed for the Conference:
-
-A) Information and Knowledge Management (IKM);
-
-B) Organizational Models and Information Systems (OMIS);
-
-C) Software and Systems Modeling (SSM);
-
-D) Software Systems, Architectures, Applications and Tools (SSAAT);
-
-E) Multimedia Systems and Applications (MSA);
-
-F) Computer Networks, Mobility and Pervasive Systems (CNMPS);
-
-G) Intelligent and Decision Support Systems (IDSS);
-
-H) Big Data Analytics and Applications (BDAA);
-
-I) Human-Computer Interaction (HCI);
-
-J) Ethics, Computers and Security (ECS)
-
-K) Health Informatics (HIS);
-
-L) Information Technologies in Education (ITE);
-
-M) Media, Applied Technology and Communication (MATC).
-
- 
-
-Submission and Decision
-
-Submitted papers written in English (until 10-page limit) must comply with =
-the format of the Lecture Notes in Networks and Systems series (see Instruc=
-tions for Authors at Springer Website <https://www.springer.com/us/authors-=
-editors/conference-proceedings/conference-proceedings-guidelines>), must no=
-t have been published before, not be under review for any other conference =
-or publication and not include any information leading to the authors=E2=80=
-=99 identification. Therefore, the authors=E2=80=99 names and affiliations =
-should not be included in the version for evaluation by the Scientific Comm=
-ittee. This information should only be included in the camera-ready version=
-, saved in Word or Latex format and also in PDF format. These files must be=
- accompanied by the Consent to Publish form <http://www.icits.me/copyright.=
-docx> filled out, in a ZIP file, and uploaded at the conference management =
-system.
-
-Submitted papers written in Spanish or Portuguese (until 15-page limit) mus=
-t comply with the format of RISTI <http://www.risti.xyz/> - Revista Ib=C3=
-=A9rica de Sistemas e Tecnologias de Informa=C3=A7=C3=A3o (download instruc=
-tions/template for authors in Spanish <http://www.risti.xyz/formato-es.doc>=
- or Portuguese <http://www.risti.xyz/formato-pt.doc>), must not have been p=
-ublished before, not be under review for any other conference or publicatio=
-n and not include any information leading to the authors=E2=80=99 identific=
-ation. Therefore, the authors=E2=80=99 names and affiliations should not be=
- included in the version for evaluation by the Scientific Committee. This i=
-nformation should only be included in the camera-ready version, saved in Wo=
-rd. These files must be uploaded at the conference management system in a Z=
-IP file.
-
-All papers will be subjected to a =E2=80=9Cdouble-blind review=E2=80=9D by =
-at least two members of the Scientific Committee.
-
-Based on Scientific Committee evaluation, a paper can be rejected or accept=
-ed by the Conference Chairs. In the later case, it can be accepted as paper=
- or poster.
-
-The authors of papers accepted as posters must build and print a poster to =
-be exhibited during the Conference. This poster must follow an A1 or A2 ver=
-tical format. The Conference can include Work Sessions where these posters =
-are presented and orally discussed, with a 7 minute limit per poster.
-
-The authors of accepted papers will have 15 minutes to present their work i=
-n a Conference Work Session; approximately 5 minutes of discussion will fol=
-low each presentation.
-
- 
-
-Publication and Indexing
-
-Papers accepted as posters are not published; they are only exhibited, pres=
-ented and discussed during the conference.
-
-To ensure that a paper accepted as paper is published, at least one of the =
-authors must be fully registered by the 4th of November 2022, and the paper=
- must comply with the suggested layout and page-limit. Additionally, all re=
-commended changes must be addressed by the authors before they submit the c=
-amera-ready version.
-
-No more than one paper per registration will be published. An extra fee mus=
-t be paid for publication of additional papers, with a maximum of one addit=
-ional paper per registration. One registration permits only the participati=
-on of one author in the conference.
-
-Papers written in English and accepted and registered will be published in =
-Proceedings by Springer, in a book of the Lecture Notes in Networks and Sys=
-tems series, will  be submitted for indexation by Scopus, WoS, DBLP, Google=
- Scholar, among others, and will be available in the SpringerLink Digital L=
-ibrary <http://link.springer.com/>.
-
-Papers written in Spanish or Portuguese and accepted and registered will be=
- published in a Special Issue of RISTI <http://www.risti.xyz/> and will be =
-submitted for indexation by Scopus, among others.
-
- 
-
-Important Dates
-
-Paper Submission: September 11, 2022
-
-Notification of Acceptance: October 16, 2022
-
-Payment of Registration, to ensure the inclusion of an accepted paper in th=
-e conference proceedings: November 4, 2022.
-
-Camera-ready Submission: November 4, 2022
-
-
- 
-Website of ICITS'23: http://icits.me <http://icits.me/>
- 
- 
-ICITS'23 Team
-http://icits.me <http://icits.me/>
-
-
--- 
-This email has been checked for viruses by AVG antivirus software.
-ww=
-w.avg.com
---ZOw9I1p0vjWenkMe37XcE7fStqAvqM=_2i
-Content-Type: text/html; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-<html>
-  <head>
-    <title></title>
-    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content-Type=
-" />
-  </head>
-  <body>
-    <div class=3D"adn ads" data-message-id=3D"#msg-a:r-1499474762405574081"=
- data-legacy-message-id=3D"17a812a84db16fcf">
-      <div class=3D"gs">
-        <div>
-          <div id=3D":19a" class=3D"ii gt"><span style=3D"font-family: verd=
-ana, geneva, sans-serif">
-              <div class=3D"a3s aiL " align=3D"left"><font face=3D"Times Ne=
-w Roman">* Indexed in Scopus, WoS, DBLP, etc.</font></div>
-              <div class=3D"a3s aiL " align=3D"left"><font face=3D"Times Ne=
-w Roman">&nbsp;</font></div>
-              <div class=3D"a3s aiL " align=3D"left">
-                <div class=3D"a3s aiL " align=3D"left"><font face=3D"Times =
-New Roman">* Google Scholar H5-Index =3D 15</font></div>
-              </div>
-              <div class=3D"a3s aiL " align=3D"left"><font face=3D"Times Ne=
-w Roman">&nbsp;</font></div></span>
-            <div class=3D"a3s aiL " align=3D"center">&nbsp;</div>
-            <div class=3D"a3s aiL " align=3D"left">------------------------=
----------------------------------------------------------------------------=
------------------</div>
-            <div class=3D"a3s aiL " align=3D"left"><strong>ICITS'23 - The&n=
-bsp;6th International Conference on Information Technology &amp; Systems</s=
-trong></div>
-            <div class=3D"a3s aiL " align=3D"left"><strong>Cusco, Peru,&nbs=
-p;8 - 10 February 2023</strong></div>
-            <div class=3D"a3s aiL " align=3D"left"><a href=3D"http://icits.=
-me/"><strong>http://icits.me</strong></a><br />----------------------------=
----------------------------------------------------------------------------=
--------------<br />&nbsp;</div>
-            <div class=3D"a3s aiL " align=3D"left">&nbsp;</div>
-            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
-va, sans-serif"><font face=3D"Times New Roman"><strong>Scope</strong></font=
-></span></p>
-            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
-va, sans-serif"><font face=3D"Times New Roman">ICITS'23 - The 6th Internati=
-onal Conference on Information Technology &amp; Systems, to be held at Univ=
-ersidad Nacional de San Antonio Abad del Cusco, in Cusco, Peru, between the=
- 8th and the 10th of February 2023, is an international forum for researche=
-rs and practitioners to present and discuss the most recent innovations, tr=
-ends, results, experiences and concerns in the several perspectives of Info=
-rmation Technology &amp; Systems.</font></span></p>
-            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
-va, sans-serif"><font face=3D"Times New Roman">We are pleased to invite you=
- to submit your papers to ICITS'23. They can be written in English, Spanish=
- or Portuguese. All submissions will be reviewed on the basis of relevance,=
- originality, importance and clarity.</font></span></p>
-            <p class=3D"a3s aiL ">&nbsp;</p>
-            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
-va, sans-serif"><strong><font face=3D"Times New Roman">Topics</font></stron=
-g></span></p>
-            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
-va, sans-serif"><font face=3D"Times New Roman">Submitted papers should be r=
-elated with one or more of the main themes proposed for the Conference:</fo=
-nt></span></p>
-            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
-va, sans-serif"><font face=3D"Times New Roman">A) Information and Knowledge=
- Management (IKM);</font></span></p>
-            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
-va, sans-serif"><font face=3D"Times New Roman">B) Organizational Models and=
- Information Systems (OMIS);</font></span></p>
-            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
-va, sans-serif"><font face=3D"Times New Roman">C) Software and Systems Mode=
-ling (SSM);</font></span></p>
-            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
-va, sans-serif"><font face=3D"Times New Roman">D) Software Systems, Archite=
-ctures, Applications and Tools (SSAAT);</font></span></p>
-            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
-va, sans-serif"><font face=3D"Times New Roman">E) Multimedia Systems and Ap=
-plications (MSA);</font></span></p>
-            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
-va, sans-serif"><font face=3D"Times New Roman">F) Computer Networks, Mobili=
-ty and Pervasive Systems (CNMPS);</font></span></p>
-            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
-va, sans-serif"><font face=3D"Times New Roman">G) Intelligent and Decision =
-Support Systems (IDSS);</font></span></p>
-            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
-va, sans-serif"><font face=3D"Times New Roman">H) Big Data Analytics and Ap=
-plications (BDAA);</font></span></p>
-            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
-va, sans-serif"><font face=3D"Times New Roman">I) Human-Computer Interactio=
-n (HCI);</font></span></p>
-            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
-va, sans-serif"><font face=3D"Times New Roman">J) Ethics, Computers and Sec=
-urity (ECS)</font></span></p>
-            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
-va, sans-serif"><font face=3D"Times New Roman">K) Health Informatics (HIS);=
-</font></span></p>
-            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
-va, sans-serif"><font face=3D"Times New Roman">L) Information Technologies =
-in Education (ITE);</font></span></p>
-            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
-va, sans-serif"><font face=3D"Times New Roman">M) Media, Applied Technology=
- and Communication (MATC).</font></span></p>
-            <p class=3D"a3s aiL ">&nbsp;</p>
-            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
-va, sans-serif"><strong><font face=3D"Times New Roman">Submission and Decis=
-ion</font></strong></span></p>
-            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
-va, sans-serif"><font face=3D"Times New Roman">Submitted papers written in =
-English (until 10-page limit) must comply with the format of the Lecture No=
-tes in Networks and Systems series (see&nbsp;</font><a href=3D"https://www.=
-springer.com/us/authors-editors/conference-proceedings/conference-proceedin=
-gs-guidelines" rel=3D"noopener" target=3D"_blank"><font face=3D"Times New R=
-oman">Instructions for Authors at Springer Website</font></a><font face=3D"=
-Times New Roman">), must not have been published before, not be under revie=
-w for any other conference or publication and not include any information l=
-eading to the authors&rsquo; identification. Therefore, the authors&rsquo; =
-names and affiliations should not be included in the version for evaluation=
- by the Scientific Committee. This information should only be included in t=
-he camera-ready version, saved in Word or Latex format and also in PDF form=
-at.&nbsp;<span lang=3D"en" id=3D"result_box">These files&nbsp;must&nbsp;be =
-accompanied by the&nbsp;<a href=3D"http://www.icits.me/copyright.docx" rel=
-=3D"noopener" target=3D"_blank">Consent to Publish form</a>&nbsp;filled out=
-,&nbsp;</span><span lang=3D"en" id=3D"result_box">in a ZIP file, and upload=
-ed at the conference management system.</span></font></span></p>
-            <p class=3D"a3s aiL "><span lang=3D"en" style=3D"font-family: v=
-erdana, geneva, sans-serif"><font face=3D"Times New Roman">Submitted papers=
- written in Spanish or Portuguese (until 15-page limit) must comply with th=
-e format of&nbsp;</font><a href=3D"http://www.risti.xyz/" rel=3D"noopener" =
-target=3D"_blank"><font face=3D"Times New Roman">RISTI</font></a><font face=
-=3D"Times New Roman">&nbsp;- Revista Ib&eacute;rica de Sistemas e Tecnologi=
-as de Informa&ccedil;&atilde;o (download instructions/template for authors =
-in&nbsp;</font><a href=3D"http://www.risti.xyz/formato-es.doc" rel=3D"noope=
-ner" target=3D"_blank"><font face=3D"Times New Roman">Spanish</font></a><fo=
-nt face=3D"Times New Roman">&nbsp;or&nbsp;</font><a href=3D"http://www.rist=
-i.xyz/formato-pt.doc" rel=3D"noopener" target=3D"_blank"><font face=3D"Time=
-s New Roman">Portuguese</font></a><font face=3D"Times New Roman">), must no=
-t have been published before, not be under review for any other conference =
-or publication and not include any information leading to the authors&rsquo=
-; identification. Therefore, the authors&rsquo; names and affiliations shou=
-ld not be included in the version for evaluation by the Scientific Committe=
-e. This information should only be included in the camera-ready version, sa=
-ved in Word.&nbsp;<span lang=3D"en" id=3D"result_box">These files must&nbsp=
-;be&nbsp;</span><span lang=3D"en" id=3D"result_box">uploaded at the confere=
-nce management system in a ZIP file.</span></font></span></p>
-            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
-va, sans-serif"><font face=3D"Times New Roman">All papers will be subjected=
- to a &ldquo;double-blind review&rdquo; by at least two members of the Scie=
-ntific Committee.</font></span></p>
-            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
-va, sans-serif"><font face=3D"Times New Roman">Based on Scientific Committe=
-e evaluation, a paper can be rejected or accepted by the Conference Chairs.=
- In the later case, it can be accepted as paper or poster.</font></span></p=
->
-            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
-va, sans-serif"><font face=3D"Times New Roman">The authors of papers accept=
-ed as posters must build and print a poster to be exhibited during the Conf=
-erence. This poster must follow an A1 or A2 vertical format. The Conference=
- can include Work Sessions where these posters are presented and orally dis=
-cussed, with a 7 minute limit per poster.</font></span></p>
-            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
-va, sans-serif"><font face=3D"Times New Roman">The authors of accepted pape=
-rs will have 15 minutes to present their work in a Conference Work Session;=
- approximately 5 minutes of discussion will follow each presentation.</font=
-></span></p>
-            <p class=3D"a3s aiL ">&nbsp;</p>
-            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
-va, sans-serif"><strong><font face=3D"Times New Roman">Publication and Inde=
-xing</font></strong></span></p>
-            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
-va, sans-serif"><font face=3D"Times New Roman">Papers accepted as posters a=
-re not published; they are only exhibited, presented and discussed during t=
-he conference.</font></span></p>
-            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
-va, sans-serif"><font face=3D"Times New Roman">To ensure that a paper accep=
-ted as paper is published, at least one of the authors must be fully regist=
-ered by the 4th of November 2022, and the paper must comply with the sugges=
-ted layout and page-limit. Additionally, all recommended changes must be ad=
-dressed by the authors before they submit the camera-ready version.</font><=
-/span></p>
-            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
-va, sans-serif"><font face=3D"Times New Roman">No more than one paper per r=
-egistration will be published. An extra fee must be paid for publication of=
- additional papers, with a maximum of one additional paper per registration=
-=2E One registration permits only the participation of one author in the co=
-nference.</font></span></p>
-            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
-va, sans-serif"><font face=3D"Times New Roman">Papers written in English an=
-d accepted and registered will be published in Proceedings by Springer, in =
-a book of the Lecture Notes in Networks and Systems series, will&nbsp; be s=
-ubmitted for indexation by Scopus, WoS, DBLP, Google Scholar, among others,=
- and will be available in the </font><a href=3D"http://link.springer.com/" =
-rel=3D"noopener" target=3D"_blank"><font face=3D"Times New Roman">SpringerL=
-ink Digital Library</font></a><font face=3D"Times New Roman">.</font></span=
-></p>
-            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
-va, sans-serif"><font face=3D"Times New Roman">Papers written in Spanish or=
- Portuguese and accepted and registered will be published in a Special Issu=
-e of&nbsp;</font><a href=3D"http://www.risti.xyz/" rel=3D"noopener" target=
-=3D"_blank"><font face=3D"Times New Roman">RISTI</font></a><font face=3D"Ti=
-mes New Roman"> and will be submitted for indexation by Scopus, among other=
-s.</font></span></p>
-            <p class=3D"a3s aiL ">&nbsp;</p>
-            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
-va, sans-serif"><strong><font face=3D"Times New Roman">Important Dates</fon=
-t></strong></span></p>
-            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
-va, sans-serif"><font face=3D"Times New Roman">Paper Submission: September =
-11, 2022</font></span></p>
-            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
-va, sans-serif"><font face=3D"Times New Roman">Notification of Acceptance: =
-October 16, 2022</font></span></p>
-            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
-va, sans-serif"><font face=3D"Times New Roman">Payment of Registration, to =
-ensure the inclusion of an accepted paper in the conference proceedings: No=
-vember 4, 2022.</font></span></p>
-            <p class=3D"a3s aiL "><span style=3D"font-family: verdana, gene=
-va, sans-serif"><font face=3D"Times New Roman">Camera-ready Submission: Nov=
-ember 4, 2022</font></span></p>
-            <div class=3D"a3s aiL "><br />&nbsp;<br /><strong>Website of IC=
-ITS'23</strong>: <a href=3D"http://icits.me/">http://icits.me</a><br />&nbs=
-p;<br />&nbsp;<br />ICITS'23 Team<br /><a href=3D"http://icits.me/">http://=
-icits.me</a></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  <div id=3D"DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2"><br /><table style=3D"bo=
-rder-top: 1px solid #D3D4DE;"><tr><td style=3D"width: 55px; padding-top: 13=
-px;"><a href=3D"http://www.avg.com/email-signature?utm_medium=3Demail&utm_s=
-ource=3Dlink&utm_campaign=3Dsig-email&utm_content=3Demailclient" target=3D"=
-_blank"><img src=3D"https://s-install.avcdn.net/ipm/preview/icons/icon-enve=
-lope-tick-green-avg-v1.png" alt=3D" width=3D"46" height=3D"29" style=3D"wid=
-th: 46px; height: 29px;"/></a></td><td style=3D"width: 470px; padding-top: =
-12px; color: #41424e; font-size: 13px; font-family: Arial, Helvetica, sans-=
-serif; line-height: 18px;">Virus-free.<a href=3D"http://www.avg.com/email-s=
-ignature?utm_medium=3Demail&utm_source=3Dlink&utm_campaign=3Dsig-email&utm_=
-content=3Demailclient" target=3D"_blank" style=3D"color: #4453ea;">www.avg.=
-com</a></td></tr></table><a href=3D"#DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2" =
-width=3D"1" height=3D"1"> </a></div></body>
-</html>
-
---ZOw9I1p0vjWenkMe37XcE7fStqAvqM=_2i--
-
-
---===============5992422987029611878==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============5992422987029611878==--
-
+QW0gMjQuMDguMjIgdW0gMTc6NDkgc2NocmllYiBEbWl0cnkgT3NpcGVua286Cj4gT24gOC8yNC8y
+MiAxODoyNCwgQ2hyaXN0aWFuIEvDtm5pZyB3cm90ZToKPj4gQW0gMjQuMDguMjIgdW0gMTI6MjIg
+c2NocmllYiBEbWl0cnkgT3NpcGVua286Cj4+PiBNb3ZlIGRtYS1idWYgYXR0YWNobWVudCBBUEkg
+ZnVuY3Rpb25zIHRvIHRoZSBkeW5hbWljIGxvY2tpbmcKPj4+IHNwZWNpZmljYXRpb24uCj4+PiBU
+aGUgc3RyaWN0IGxvY2tpbmcgY29udmVudGlvbiBwcmV2ZW50cyBkZWFkbG9jayBzaXR1YXRpb25z
+IGZvciBkbWEtYnVmCj4+PiBpbXBvcnRlcnMgYW5kIGV4cG9ydGVycy4KPj4+Cj4+PiBQcmV2aW91
+c2x5LCB0aGUgInVubG9ja2VkIiB2ZXJzaW9ucyBvZiB0aGUgYXR0YWNobWVudCBBUEkgZnVuY3Rp
+b25zCj4+PiB3ZXJlbid0IHRha2luZyB0aGUgcmVzZXJ2YXRpb24gbG9jayBhbmQgdGhpcyBwYXRj
+aCBtYWtlcyB0aGVtIHRvIHRha2UKPj4+IHRoZSBsb2NrLgo+Pj4KPj4+IEludGVsIGFuZCBBTUQg
+R1BVIGRyaXZlcnMgYWxyZWFkeSB3ZXJlIG1hcHBpbmcgdGhlIGF0dGFjaGVkIGRtYS1idWZzCj4+
+PiB1bmRlcgo+Pj4gdGhlIGhlbGQgbG9jayBkdXJpbmcgYXR0YWNobWVudCwgaGVuY2UgdGhlc2Ug
+ZHJpdmVycyBhcmUgdXBkYXRlZCB0byB1c2UKPj4+IHRoZSBsb2NrZWQgZnVuY3Rpb25zLgo+Pj4K
+Pj4+IFNpZ25lZC1vZmYtYnk6IERtaXRyeSBPc2lwZW5rbyA8ZG1pdHJ5Lm9zaXBlbmtvQGNvbGxh
+Ym9yYS5jb20+Cj4+PiAtLS0KPj4+ICDCoCBkcml2ZXJzL2RtYS1idWYvZG1hLWJ1Zi5jwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8IDExNSArKysrKysrKysrKysrKy0tLS0tLS0K
+Pj4+ICDCoCBkcml2ZXJzL2dwdS9kcm0vYW1kL2FtZGdwdS9hbWRncHVfdHRtLmPCoMKgwqAgfMKg
+wqAgNCArLQo+Pj4gIMKgIGRyaXZlcnMvZ3B1L2RybS9pOTE1L2dlbS9pOTE1X2dlbV9kbWFidWYu
+YyB8wqDCoCA4ICstCj4+PiAgwqAgZHJpdmVycy9ncHUvZHJtL2k5MTUvZ2VtL2k5MTVfZ2VtX29i
+amVjdC5jIHzCoCAxMiArKysKPj4+ICDCoCBpbmNsdWRlL2xpbnV4L2RtYS1idWYuaMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoCAyMCArKy0tCj4+PiAgwqAgNSBmaWxl
+cyBjaGFuZ2VkLCAxMTAgaW5zZXJ0aW9ucygrKSwgNDkgZGVsZXRpb25zKC0pCj4+Pgo+Pj4gZGlm
+ZiAtLWdpdCBhL2RyaXZlcnMvZG1hLWJ1Zi9kbWEtYnVmLmMgYi9kcml2ZXJzL2RtYS1idWYvZG1h
+LWJ1Zi5jCj4+PiBpbmRleCA0NTU2YTEyYmQ3NDEuLmYyYTVhMTIyZGE0YSAxMDA2NDQKPj4+IC0t
+LSBhL2RyaXZlcnMvZG1hLWJ1Zi9kbWEtYnVmLmMKPj4+ICsrKyBiL2RyaXZlcnMvZG1hLWJ1Zi9k
+bWEtYnVmLmMKPj4+IEBAIC01NTksNyArNTU5LDcgQEAgc3RhdGljIHN0cnVjdCBmaWxlICpkbWFf
+YnVmX2dldGZpbGUoc3RydWN0IGRtYV9idWYKPj4+ICpkbWFidWYsIGludCBmbGFncykKPj4+ICDC
+oMKgICogMi4gVXNlcnNwYWNlIHBhc3NlcyB0aGlzIGZpbGUtZGVzY3JpcHRvcnMgdG8gYWxsIGRy
+aXZlcnMgaXQgd2FudHMKPj4+IHRoaXMgYnVmZmVyCj4+PiAgwqDCoCAqwqDCoMKgIHRvIHNoYXJl
+IHdpdGg6IEZpcnN0IHRoZSBmaWxlIGRlc2NyaXB0b3IgaXMgY29udmVydGVkIHRvIGEKPj4+ICZk
+bWFfYnVmIHVzaW5nCj4+PiAgwqDCoCAqwqDCoMKgIGRtYV9idWZfZ2V0KCkuIFRoZW4gdGhlIGJ1
+ZmZlciBpcyBhdHRhY2hlZCB0byB0aGUgZGV2aWNlIHVzaW5nCj4+PiAtICrCoMKgwqAgZG1hX2J1
+Zl9hdHRhY2goKS4KPj4+ICsgKsKgwqDCoCBkbWFfYnVmX2F0dGFjaF91bmxvY2tlZCgpLgo+PiBO
+b3cgSSBnZXQgd2h5IHRoaXMgaXMgY29uZnVzaW5nIG1lIHNvIG11Y2guCj4+Cj4+IFRoZSBfdW5s
+b2NrZWQgcG9zdGZpeCBpbXBsaWVzIHRoYXQgdGhlcmUgaXMgYW5vdGhlciBmdW5jdGlvbiB3aGlj
+aAo+PiBzaG91bGQgYmUgY2FsbGVkIHdpdGggdGhlIGxvY2tzIGFscmVhZHkgaGVsZCwgYnV0IHRo
+aXMgaXMgbm90IHRoZSBjYXNlCj4+IGZvciBhdHRhY2gvZGV0YWNoIChiZWNhdXNlIHRoZXkgYWx3
+YXlzIG5lZWQgdG8gZ3JhYiB0aGUgbG9jayB0aGVtc2VsdmVzKS4KPiBUaGF0J3MgY29ycmVjdC4g
+VGhlIGF0dGFjaC9kZXRhY2ggb3BzIG9mIGV4cG9ydGVyIGNhbiB0YWtlIHRoZSBsb2NrCj4gKGxp
+a2UgaTkxNSBleHBvcnRlciBkb2VzIGl0KSwgaGVuY2UgaW1wb3J0ZXIgbXVzdCBub3QgZ3JhYiB0
+aGUgbG9jawo+IGFyb3VuZCBkbWFfYnVmX2F0dGFjaCgpIGludm9jYXRpb24uCj4KPj4gU28gSSBz
+dWdnZXN0IHRvIGRyb3AgdGhlIF91bmxvY2tlZCBwb3N0Zml4IGZvciB0aGUgYXR0YWNoL2RldGFj
+aAo+PiBmdW5jdGlvbnMuIEFub3RoZXIgc3RlcCB3b3VsZCB0aGVuIGJlIHRvIHVuaWZ5IGF0dGFj
+aC9kZXRhY2ggd2l0aAo+PiBkeW5hbWljX2F0dGFjaC9keW5hbWljX2RldGFjaCB3aGVuIGJvdGgg
+aGF2ZSB0aGUgc2FtZSBsb2NraW5nIGNvbnZlbnRpb24KPj4gYW55d2F5Lgo+IEl0J3Mgbm90IGEg
+cHJvYmxlbSB0byBjaGFuZ2UgdGhlIG5hbWUsIGJ1dCBpdCdzIHVuY2xlYXIgdG8gbWUgd2h5IHdl
+Cj4gc2hvdWxkIGRvIGl0LiBUaGUgX3VubG9ja2VkIHBvc3RmaXggdGVsbHMgaW1wb3J0ZXIgdGhh
+dCByZXNlcnZhdGlvbiBtdXN0Cj4gYmUgdW5sb2NrZWQgYW5kIGl0IG11c3QgYmUgdW5sb2NrZWQg
+aW4gY2FzZSBvZiBkbWFfYnVmX2F0dGFjaCgpLgo+Cj4gRHJvcHBpbmcgdGhlIHBvc3RmaXggd2ls
+bCBtYWtlIGRtYV9idWZfYXR0YWNoKCkgaW5jb25zaXN0ZW50IHdpdGggdGhlCj4gcmVzdCBvZiB0
+aGUgX3VubG9ja2VkIGZ1bmN0aW9ucyg/KS4gQXJlIHlvdSBzdXJlIHdlIG5lZWQgdG8gcmVuYW1l
+IGl0PwoKVGhlIGlkZWEgb2YgdGhlIHBvc3RmaXggd2FzIHRvIGRpc3Rpbmd1aXNoIGJldHdlZW4g
+dHdvIGRpZmZlcmVudCAKdmVyc2lvbnMgb2YgdGhlIHNhbWUgZnVuY3Rpb24sIGUuZy4gZG1hX2J1
+Zl92bWFwX3VubG9ja2VkKCkgdnMgbm9ybWFsIApkbWFfYnVmX3ZtYXAoKS4KCldoZW4gd2UgZG9u
+J3QgaGF2ZSB0aG9zZSB0d28gdHlwZXMgb2YgdGhlIHNhbWUgZnVuY3Rpb24gSSBkb24ndCB0aGlu
+ayBpdCAKbWFrZXMgdG8gbXVjaCBzZW5zZSB0byBrZWVwIHRoYXQuIFdlIHNob3VsZCBqdXN0IHBy
+b3Blcmx5IGRvY3VtZW50IHdoaWNoIApmdW5jdGlvbnMgZXhwZWN0IHdoYXQgYW5kIHRoYXQncyB3
+aGF0IHlvdXIgZG9jdW1lbnRhdGlvbiBwYXRjaCBkb2VzLgoKUmVnYXJkcywKQ2hyaXN0aWFuLgoK
+Pgo+PiBTb3JyeSB0aGF0IHRoaXMgaXMgZ29pbmcgc28gbXVjaCBiYWNrIGFuZCBmb3J0aCwgaXQn
+cyByZWFsbHkgY29tcGxpY2F0ZWQKPj4gdG8ga2VlcCBhbGwgdGhlIHN0dWZmIGluIG15IGhlYWQg
+YXQgdGhlIG1vbWVudCA6KQo+IE5vdCBhIHByb2JsZW0gYXQgYWxsLCBJIGV4cGVjdGVkIHRoYXQg
+aXQgd2lsbCB0YWtlIHNvbWUgdGltZSBmb3IgdGhpcwo+IHBhdGNoc2V0IHRvIHNldHRsZSBkb3du
+Lgo+CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0
+dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRh
+dGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGlu
+Zm8vdmlydHVhbGl6YXRpb24=
