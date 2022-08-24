@@ -1,100 +1,91 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1AC70C32796
-	for <virtualization@archiver.kernel.org>; Wed, 24 Aug 2022 09:28:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8196EC32796
+	for <virtualization@archiver.kernel.org>; Wed, 24 Aug 2022 09:43:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 9D7E260E40;
-	Wed, 24 Aug 2022 09:28:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9D7E260E40
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=VJEVo3/R;
-	dkim=fail reason="signature verification failed" header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=DyMnybPk
+	by smtp1.osuosl.org (Postfix) with ESMTP id 09EE780F16;
+	Wed, 24 Aug 2022 09:43:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 09EE780F16
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=solid-run-com.20210112.gappssmtp.com header.i=@solid-run-com.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=dMe2Wb8z
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id CiFZRWdeaFA0; Wed, 24 Aug 2022 09:28:11 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 0760D60E4F;
-	Wed, 24 Aug 2022 09:28:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0760D60E4F
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id FXz_YepqfsYK; Wed, 24 Aug 2022 09:43:32 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 8A72A8139B;
+	Wed, 24 Aug 2022 09:43:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8A72A8139B
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D3EABC0032;
-	Wed, 24 Aug 2022 09:28:10 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 27528C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4F319C0032;
+	Wed, 24 Aug 2022 09:43:31 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 30093C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Aug 2022 09:28:10 +0000 (UTC)
+ Wed, 24 Aug 2022 09:43:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 0BD6840B24
+ by smtp1.osuosl.org (Postfix) with ESMTP id F2C0E8139B
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Aug 2022 09:28:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0BD6840B24
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de
- header.a=rsa-sha256 header.s=susede2_rsa header.b=VJEVo3/R; 
- dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256
- header.s=susede2_ed25519 header.b=DyMnybPk
+ Wed, 24 Aug 2022 09:43:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org F2C0E8139B
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id DdusuvUbCLQv
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id JQP3eJU7Cll6
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Aug 2022 09:28:09 +0000 (UTC)
-X-Greylist: delayed 00:06:18 by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 55D2540B66
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 55D2540B66
+ Wed, 24 Aug 2022 09:43:28 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BD1EC81397
+Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com
+ [IPv6:2607:f8b0:4864:20::534])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id BD1EC81397
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Aug 2022 09:28:08 +0000 (UTC)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by smtp-out1.suse.de (Postfix) with ESMTPS id 888C133F59;
- Wed, 24 Aug 2022 09:21:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
- t=1661332907; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=Uqn5PolJzqk2m09wCP/1yzHIZM168OJrXMXgNbyyr4s=;
- b=VJEVo3/REdBcYurI865omlR6bcjdN9hzj90HDZMPB3hfaGJ2nzRoG1Qd2CKuzz2Cqh4wDw
- RdIFBf1FthEFhpyrfBqr1hDQVFix5fwYGor1opN78ZXmv/ipzREa6bhS7ahnGy/Um/Bxvj
- 5j7Cmm8aS0YLBAI10zAeYPHLaLWV8G8=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
- s=susede2_ed25519; t=1661332907;
- h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=Uqn5PolJzqk2m09wCP/1yzHIZM168OJrXMXgNbyyr4s=;
- b=DyMnybPk/hOR//Vdwa0UkxBxgSMpoXE9Jvyhww54C6gNvMq+WQedDYyFbXsC2ZLMXHIwPX
- Hgaw/P/ElNC7zrDg==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 6CA2A13780;
- Wed, 24 Aug 2022 09:21:47 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
- by imap2.suse-dmz.suse.de with ESMTPSA id qyPNGavtBWPofQAAMHmgww
- (envelope-from <hare@suse.de>); Wed, 24 Aug 2022 09:21:47 +0000
-Message-ID: <2ff3d36b-f044-71cc-8001-d7f4073282c1@suse.de>
-Date: Wed, 24 Aug 2022 11:21:47 +0200
+ Wed, 24 Aug 2022 09:43:28 +0000 (UTC)
+Received: by mail-pg1-x534.google.com with SMTP id q63so311419pga.9
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 24 Aug 2022 02:43:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=solid-run-com.20210112.gappssmtp.com; s=20210112;
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:from:to:cc;
+ bh=XWeclXyitpRwhvwK4pjPy6mQN7N6nAEKqi+NnMqcPrg=;
+ b=dMe2Wb8z4CxtBWJ/5vvEnv2watWjknN3QIo5LYDWlYQYMn3QJbOD7LbPe6yYbcEK2z
+ 1gRuGDaJaOgd4Ga1nnGpihxAJl3ig4fEfD/VjDlPAd/l7KZDanQRH4OllgnVd/1ffPOg
+ ND7I/qmzy+n7hevHMaUd/sTkgZq/nezKDkVprCDSGmqIww/vtEiQPTXaipzAmPjiiFR1
+ uw7IqGO9OwvI3ZSHa/Qgal/Y3EEmZTVqYUYVBQKjzSXmyng3yOiFkMDpeBncb0+iLasw
+ 7PpAYeTvnR1pzKxCGh56Ec8aGMgAvoXut9+wY5id1JcURDAwLVDy38PdgnRODr2ZFjci
+ 5ozw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:x-gm-message-state:from:to:cc;
+ bh=XWeclXyitpRwhvwK4pjPy6mQN7N6nAEKqi+NnMqcPrg=;
+ b=fP48HQgAgeOwqxyBhLxZOhYymTr80XklZakbnUyy4oZ3TzNK/MQ+aLFC6glOG0MX0T
+ 09RWoYAvDBnBgFuytSLHyPN3/55pvTV2npk53VxW3iakJXF/s8r5IM6WDgz5k8Z0dh1y
+ T94CBBDnVb2qLMa8jovXVSAn7QBb/T5jSLt6K4pCl+slNRT9veYfErhQN5ws8rn00Qc+
+ eSf6KgCIbJL/piFZoijTHi2Vjdn4IRc3YoG4YK4KSwJhoeLhnzgaR5HXo01F+IeoqNwR
+ /q9GR099pKOWTuNcELCL2ykN5mf0yJCChX25VeoBHyKNH44kaA8IzgmlVHRFavLkpW83
+ +Lxw==
+X-Gm-Message-State: ACgBeo3xk70ceLHUWKXgk5uufTPngccPPXwUy/Q8QdNu3VILCATg2ra/
+ GXY+2jmeMibH0Ld/+TLOHlQg8Utv1HdDykQqPPhJkA==
+X-Google-Smtp-Source: AA6agR4bEnrQMis06dgNydG28g7G7UYGlg1MWcW+7Y18aeEK5tgOzvE1xmHD5ycbY98e7Nry4ocYNTlBs8OaqNSsYok=
+X-Received: by 2002:a63:6804:0:b0:422:1689:ed05 with SMTP id
+ d4-20020a636804000000b004221689ed05mr23148290pgc.289.1661334208119; Wed, 24
+ Aug 2022 02:43:28 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.12.0
-Content-Language: en-US
-To: Jason Wang <jasowang@redhat.com>, Alvaro Karsz <alvaro.karsz@solid-run.com>
 References: <CAJs=3_DJ8x5h98WBbXhzxVx+D6pqpBkCrBHXa_7ApqYO4vGDpQ@mail.gmail.com>
  <CACGkMEuQBLpaW6-tD3oqR90ya5=js6DJ=pHiOJmG2SOt-6ycpA@mail.gmail.com>
-From: Hannes Reinecke <hare@suse.de>
+ <2ff3d36b-f044-71cc-8001-d7f4073282c1@suse.de>
+In-Reply-To: <2ff3d36b-f044-71cc-8001-d7f4073282c1@suse.de>
+From: Alvaro Karsz <alvaro.karsz@solid-run.com>
+Date: Wed, 24 Aug 2022 12:42:52 +0300
+Message-ID: <CAJs=3_AUiaDtyRTMcDd_DGuiKZVKuMUSZRUosQa7wU=5UZwtqw@mail.gmail.com>
 Subject: Re: Virtio-net - add timeouts to control commands
-In-Reply-To: <CACGkMEuQBLpaW6-tD3oqR90ya5=js6DJ=pHiOJmG2SOt-6ycpA@mail.gmail.com>
+To: Hannes Reinecke <hare@suse.de>
 Cc: virtualization <virtualization@lists.linux-foundation.org>,
  "Michael S. Tsirkin" <mst@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
@@ -108,66 +99,52 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gOC8yNC8yMiAxMTowNiwgSmFzb24gV2FuZyB3cm90ZToKPiBPbiBXZWQsIEF1ZyAyNCwgMjAy
-MiBhdCAzOjUyIFBNIEFsdmFybyBLYXJzeiA8YWx2YXJvLmthcnN6QHNvbGlkLXJ1bi5jb20+IHdy
-b3RlOgo+Pgo+PiBJIHRoaW5rIHRoYXQgd2Ugc2hvdWxkIGFkZCBhIHRpbWVvdXQgdG8gdGhlIGNv
-bnRyb2wgdmlydHF1ZXVlIGNvbW1hbmRzLgo+PiBJZiB0aGUgaHlwZXJ2aXNvciBjcmFzaGVzIHdo
-aWxlIGhhbmRsaW5nIGEgY29udHJvbCBjb21tYW5kLCB0aGUgZ3Vlc3QKPj4gd2lsbCBzcGluIGZv
-cmV2ZXIuCj4+IFRoaXMgbWF5IG5vdCBiZSBuZWNlc3NhcnkgZm9yIGEgdmlydHVhbCBlbnZpcm9u
-bWVudCwgd2hlbiBib3RoIHRoZQo+PiBoeXBlcnZpc29yIGFuZCB0aGUgZ3Vlc3QgT1MgcnVuIGlu
-IHRoZSBzYW1lIGJhcmUgbWV0YWwsIGJ1dCB0aGlzCj4+IGlzIG5lZWRlZCBmb3IgYSBwaHlzaWNh
-bCBuZXR3b3JrIGRldmljZSBjb21wYXRpYmxlIHdpdGggVmlydElPLgo+Pgo+PiAoSW4gdGhlc2Ug
-Y2FzZXMsIHRoZSBuZXR3b3JrIGRldmljZSBhY3RzIGFzIHRoZSBoeXBlcnZpc29yLCBhbmQgdGhl
-Cj4+IHNlcnZlciBhY3RzIGFzCj4+IHRoZSBndWVzdCBPUykuCj4+Cj4+IFRoZSBuZXR3b3JrIGRl
-dmljZSBtYXkgZmFpbCB0byBhbnN3ZXIgYSBjb250cm9sIGNvbW1hbmQsIG9yIG1heSBjcmFzaCwg
-bGVhZGluZwo+PiB0byBhIHN0YWxsIGluIHRoZSBzZXJ2ZXIuCj4+Cj4+IE15IGlkZWEgaXMgdG8g
-YWRkIGEgYmlnIGVub3VnaCB0aW1lb3V0LCB0byBhbGxvdyB0aGUgc2xvdyBkZXZpY2VzIHRvCj4+
-IGNvbXBsZXRlIHRoZSBjb21tYW5kLgo+Pgo+PiBJIHdyb3RlIGEgc2ltcGxlIHBhdGNoIHRoYXQg
-cmV0dXJucyBmYWxzZSBmcm9tIHZpcnRuZXRfc2VuZF9jb21tYW5kIGluCj4+IGNhc2Ugb2YgdGlt
-ZW91dHMuCj4+Cj4+IFRoZSB0aW1lb3V0IGFwcHJvYWNoIGludHJvZHVjZXMgc29tZSBzZXJpb3Vz
-IHByb2JsZW1zIGluIGNhc2VzIHdoZW4KPj4gdGhlIG5ldHdvcmsgZGV2aWNlIGRvZXMgYW5zd2Vy
-IHRoZSBjb250cm9sIGNvbW1hbmQsIGJ1dCBhZnRlciB0aGUKPj4gdGltZW91dC4KPj4KPj4gKiBU
-aGUgZGV2aWNlIHdpbGwgdGhpbmsgdGhhdCB0aGUgY29tbWFuZCBzdWNjZWVkZWQsIHdoaWxlIHRo
-ZSBzZXJ2ZXIgd29uJ3QuCj4+ICAgICBUaGlzIG1heSBiZSBzZXJpb3VzIHdpdGggdGhlIFZJUlRJ
-T19ORVRfQ1RSTF9NUV9WUV9QQUlSU19TRVQgY29tbWFuZC4KPj4gICAgIFRoZSBzZXJ2ZXIgbWF5
-IHJlY2VpdmUgcGFja2V0cyBpbiBhbiB1bmV4cGVjdGVkIHF1ZXVlLgo+Pgo+PiAqIHZpcnRxdWV1
-ZV9nZXRfYnVmIHdpbGwgcmV0dXJuIHRoZSBwcmV2aW91cyByZXNwb25zZSBmb3IgdGhlIG5leHQK
-Pj4gY29udHJvbCBjb21tYW5kLgo+Pgo+PiBBZGRyZXNzaW5nIHRoaXMgY2FzZSBieSBhZGRpbmcg
-YSB0aW1lb3V0ICB0byB0aGUgc3BlYyB3b24ndCBiZSBlYXN5LAo+PiBzaW5jZSB0aGUgbmV0d29y
-ayBkZXZpY2UgYW5kIHRoZSBzZXJ2ZXIgaGF2ZSBkaWZmZXJlbnQgY2xvY2tzLCBhbmQgdGhlCj4+
-IHNlcnZlciB3b24ndCBrbm93IHdoZW4gZXhhY3RseSB0aGUgbmV0d29yayBkZXZpY2Ugbm90aWNl
-ZCB0aGUga2ljay4KPj4KPj4gU28gbWF5YmUgd2Ugc2hvdWxkIGNhbGwgdmlydG5ldF9yZW1vdmUg
-aWYgd2UgcmVhY2ggYSB0aW1lb3V0Lgo+IAo+IE9yIHJlc2V0IGJ1dCBjYW4gd2Ugc2ltcGx5IHVz
-ZSBpbnRlcnJ1cHQgaW5zdGVhZCBvZiB0aGUgYnVzeSB3YWl0aW5nPwo+IAoKVGhlcmUgYXJlIHR3
-byBwb3NzaWJsZSB3YXlzIG9mIGhhbmRsaW5nIHRoaXM6CmEpIGxldCB0aGUgZGV2aWNlIGRvIHRo
-ZSB0aW1lb3V0OiBwYXNzIGluIGEgdGltZW91dCB2YWx1ZSB3aXRoIHRoZSAKY29tbWFuZCwgYW5k
-IGFsbG93IHRoZSBkZXZpY2UgdG8gcmV0dXJuIGFuIEVUSU1FRE9VVCBlcnJvciB3aGVuIHRoZSAK
-dGltZW91dCBleHBpcmVzLiBUaGVuIGl0J3MgdXAgdG8gdGhlIGRldmljZSB0byBkbyB0aGUgbmVj
-ZXNzYXJ5IHRpbWVvdXQgCmhhbmRsaW5nOyB0aGUgc2VydmVyIHdvbid0IGJlIGludm9sdmVkIGF0
-IGFsbCAoZXhjZXB0IGZvciBoYW5kbGluZyBhbiAKRVRJTUVET1VUIGVycm9yKQpiKSBpbXBsZW1l
-bnQgYW4gJ2Fib3J0JyBjb21tYW5kLiBXaXRoIHRoYXQgdGhlIHNlcnZlciBjb250cm9scyB0aGUg
-CnRpbWVvdXQsIGFuZCBpcyBhbGxvd2VkIHRvIHNlbmQgYW4gJ2Fib3J0JyBjb21tYW5kIHdoZW4g
-dGhlIHRpbWVvdXQgCmV4cGlyZXMuIFRoYXQgcmVxdWlyZXMgdGhlIGRldmljZSB0byBiZSBhYmxl
-IHRvIGFib3J0IGNvbW1hbmRzICh3aGljaCAKbm90IGFsbCBkZXZpY2VzIGFyZSBhYmxlIHRvKSwg
-YnV0IGF2b2lkcyBoYXZpbmcgdG8gaW1wbGVtZW50IGEgdGltZW91dCAKaGFuZGxpbmcgaW4gdGhl
-IGRldmljZS4KCldlIGNhbiBhY3R1YWxseSBzcGVjaWZ5IGJvdGggbWV0aG9kcywgYW5kIGhhdmUg
-Y29uZmlndXJhdGlvbiBiaXRzIAppbmRpY2F0aW5nIHdoaWNoIG1ldGhvZCBpcyBzdXBwb3J0ZWQg
-YnkgdGhlIGRldmljZS4KCkkgYW0gdmVyeSBtdWNoIGluIGZhdm91ciBvZiBoYXZpbmcgdGltZW91
-dHMgZm9yIHZpcnRpbyBjb21tYW5kczsgd2UndmUgCmhhZCBzZXZlcmFsIG1hc3NpdmUgY3VzdG9t
-ZXIgZXNjYWxhdGlvbnMgd2hpY2ggY291bGQgaGF2ZSBiZWVuIHNvbHZlZCBpZiAKd2Ugd2VyZSBh
-YmxlIHRvIHNldCB0aGUgY29tbWFuZCB0aW1lb3V0IGluIHRoZSBWTS4KQXMgdGhpcyB3YXMgZm9y
-IHZpcnRpby1zY3NpL3ZpcnRpby1ibG9jayBJIHdvdWxkIGFkdm9jYXRlIHRvIGhhdmUgYSAKZ2Vu
-ZXJpYyB2aXJ0aW8gY29tbWFuZCB0aW1lb3V0LCBub3QgYSBwcm90b2NvbC1zcGVjaWZpYyBvbmUu
-CgpDaGVlcnMsCgpIYW5uZXMKLS0gCkRyLiBIYW5uZXMgUmVpbmVja2UJCSAgICAgICAgICAgS2Vy
-bmVsIFN0b3JhZ2UgQXJjaGl0ZWN0CmhhcmVAc3VzZS5kZQkJCSAgICAgICAgICAgICAgICAgICs0
-OSA5MTEgNzQwNTMgNjg4ClNVU0UgU29mdHdhcmUgU29sdXRpb25zIEdlcm1hbnkgR21iSCwgTWF4
-ZmVsZHN0ci4gNSwgOTA0MDkgTsO8cm5iZXJnCkhSQiAzNjgwOSAoQUcgTsO8cm5iZXJnKSwgR0Y6
-IEZlbGl4IEltZW5kw7ZyZmZlcgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlz
-dHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3Jn
-L21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+Hi Hannes,
+
+> a) let the device do the timeout: pass in a timeout value with the
+> command, and allow the device to return an ETIMEDOUT error when the
+> timeout expires. Then it's up to the device to do the necessary timeout
+> handling; the server won't be involved at all (except for handling an
+> ETIMEDOUT error)
+
+
+This won't work if the device crashes.
+
+>
+> b) implement an 'abort' command. With that the server controls the
+> timeout, and is allowed to send an 'abort' command when the timeout
+> expires. That requires the device to be able to abort commands (which
+> not all devices are able to), but avoids having to implement a timeout
+> handling in the device.
+
+
+I actually thought about this idea.
+This may work, but you'll still have a few moments when the server
+assumes that the command failed, and the network device assumes that
+it succeeded.
+So the server may still receive packets in an unexpected queue.
+
+
+>
+> I am very much in favour of having timeouts for virtio commands; we've
+> had several massive customer escalations which could have been solved if
+> we were able to set the command timeout in the VM.
+> As this was for virtio-scsi/virtio-block I would advocate to have a
+> generic virtio command timeout, not a protocol-specific one.
+
+This may be difficult to implement.
+Especially when multiple commands may be queued at the same time, and
+the device can handle the commands in any order.
+We'll need to add identifiers for every command.
+
+I'm actually referring here to the Linux kernel implementation of
+virtnet control commands, in which the server spins for a response.
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
