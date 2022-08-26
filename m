@@ -1,203 +1,167 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id F2370ECAAA6
-	for <virtualization@archiver.kernel.org>; Fri, 26 Aug 2022 18:05:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C9C68ECAAD7
+	for <virtualization@archiver.kernel.org>; Fri, 26 Aug 2022 18:33:14 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 74E5D83F73;
-	Fri, 26 Aug 2022 18:05:56 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 74E5D83F73
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=rPlH6hJW;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=duJdP3CF
+	by smtp3.osuosl.org (Postfix) with ESMTP id 41907607A4;
+	Fri, 26 Aug 2022 18:33:14 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 41907607A4
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=kYVxw7W/
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id T-YD2D23GZ2N; Fri, 26 Aug 2022 18:05:55 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id ECECB83F74;
-	Fri, 26 Aug 2022 18:05:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org ECECB83F74
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Xxo5Hr4e3M2j; Fri, 26 Aug 2022 18:33:13 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 8286460670;
+	Fri, 26 Aug 2022 18:33:12 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8286460670
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C6107C0032;
-	Fri, 26 Aug 2022 18:05:54 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3B235C0033;
+	Fri, 26 Aug 2022 18:33:12 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8317BC002D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6D4EAC0033
  for <virtualization@lists.linux-foundation.org>;
- Fri, 26 Aug 2022 18:05:53 +0000 (UTC)
+ Fri, 26 Aug 2022 18:33:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 63DAA83F74
+ by smtp1.osuosl.org (Postfix) with ESMTP id 1D2B0824E3
  for <virtualization@lists.linux-foundation.org>;
- Fri, 26 Aug 2022 18:05:53 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 63DAA83F74
+ Fri, 26 Aug 2022 18:33:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1D2B0824E3
+Authentication-Results: smtp1.osuosl.org; dkim=pass (2048-bit key,
+ unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256
+ header.s=selector2 header.b=kYVxw7W/
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id P8Cw4z3yoCNF
+ with ESMTP id ytlljz45GisQ
  for <virtualization@lists.linux-foundation.org>;
- Fri, 26 Aug 2022 18:05:51 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DA7CD83F73
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com
- [205.220.177.32])
- by smtp1.osuosl.org (Postfix) with ESMTPS id DA7CD83F73
+ Fri, 26 Aug 2022 18:33:08 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 05DD9823AB
+Received: from NAM04-BN8-obe.outbound.protection.outlook.com
+ (mail-bn8nam04on2049.outbound.protection.outlook.com [40.107.100.49])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 05DD9823AB
  for <virtualization@lists.linux-foundation.org>;
- Fri, 26 Aug 2022 18:05:50 +0000 (UTC)
-Received: from pps.filterd (m0246630.ppops.net [127.0.0.1])
- by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27QHi9sh017711;
- Fri, 26 Aug 2022 18:05:15 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
- h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=corp-2022-7-12;
- bh=2UUqyUigeee2KBeL/X63KbVIl/bLPNL8w4SLWes7g8g=;
- b=rPlH6hJWsFZlyUMlgbCfFPo6mUQ8I1+1iLOlyoNA3Mxe0YvZWJ5seEFUPuXH2TEmojCR
- ZzDiEOn1k3CeVBK5d9bviq8hJXH8nBpH5+fm3kLPBw/0aFYhCnUmgsKZAzbsCY6OrP66
- /qnRn7BXrGSxt6ipX0hI3E7U+P3v/jqBAaJ5GCgZ0mdBkxK3lCNa8SH85glTT83pQ0b7
- K1Ae1hvSB8KElQAyP+Om0QVqm28FgK00afuECUdESrEhUZnWKj1z1mgum19oVmP1WYrE
- Q1zKJwx4KOoiGdZoTJLCKhWdLDaIRoJl6mJqEd+dXljrE9XOC1YEYHLx7H3+zwURtDFy 0A== 
-Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com
- (iadpaimrmta01.appoci.oracle.com [130.35.100.223])
- by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3j5aww7qt6-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Fri, 26 Aug 2022 18:05:15 +0000
-Received: from pps.filterd
- (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
- by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.5/8.17.1.5)
- with ESMTP id 27QGiX38036192; Fri, 26 Aug 2022 18:05:14 GMT
-Received: from nam12-mw2-obe.outbound.protection.outlook.com
- (mail-mw2nam12lp2047.outbound.protection.outlook.com [104.47.66.47])
- by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id
- 3j5n6ppngt-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Fri, 26 Aug 2022 18:05:14 +0000
+ Fri, 26 Aug 2022 18:33:07 +0000 (UTC)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=kZqv0TgI9VtzJlhj6TTQ5q/Q/px53Yh+gQl4ywu1VJNN0dyLnKKkqaHjJmBn5COTgpNrpRBsu8nQcDtMNk8GgV1Ey8b4LalVYeNntT6J+cFGrlwSZGfOMIZ348HRGkZYtTbESy39vNtgJqW1efuvU54EIflpqyw3Z7TMsjcITytyUJ08SEVWfuGP4X1+TbayOK0s7Esi6V1q5KTVe2ahEi0XHVMixLEsOGQHA+45TTGIcShaom4ducko8jXo1yCtSy764igh6syKA+HZw3TyX2uxVulIYHaBu7I4yAFBdgl0GqBdJ5hgzFsDGh91xX1RBeKfYYjjijRpCTe2biNQCg==
+ b=buU4V1tKVXy/aI8SMg8ArI0BnF5myarCH6ryz56+98g02PbfPZlL0u/UHCYViAA9iprWvUKWieRBiCmbSMc6yEBVHQ7F45e9xwqbw8ILfXTCGArRmui7GWf8v0TBtZUM5kR8Eh7kt4IqwQSpIqZl/bw6/16NjnQtctKk+Ouy7RlI71fNflKqq93LYWZCSbOo00Bvghls+PHtVVxkueFhE31bWebOffESPrtMIYFAb4QNxHRYeG68+m3wrNNt7akVDXvrdhx4elDeMf/Mu+tv/Ixi3o7n7uNhl4Gp8N/Lma+mLIxheOLKEhH7ZeK0P8SgF6tl01qEy1QtrJkCHjxaOA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=2UUqyUigeee2KBeL/X63KbVIl/bLPNL8w4SLWes7g8g=;
- b=k/nZjYFMbO58gBfdtAL6yJrX/hTl9y7vAXanyHzEAr81MR09DF/Wg97d7FJyVgxyyNK85CVagCj/MqCHtK0R0Al69+1j+VHQZdtv8X4NnCTl3Qr3nrnSQJZqNfAo6sXT8o3v1SSsQa0ffpg9em/HaB4fNYx1sLQ33jQeypItvLrQMvmpC/7C4tZZ6LS5niMFsv1JjqymDJbDKntdFcNW8H6qzjvl3j6s96jj7Ra1+604NXoyzChPINjltu+OI9LZ8o4BVe1VwOLHM7d2J7uTrVeUAo11my25TeVJ+R9i+szYii6RZWd/JYA56WoG+wUC417bT8iEy6zqeSLPWLeKXQ==
+ bh=4qsyzI9LRjLGgI+0Tw11B19ZLh/Eu03wz2p7oj+R+G0=;
+ b=f5j84NUXCL01t2Fi8e1iVjKlXXD6qnWdZS75zKUWfZEmVyt2Su0xScC2pOvBl904JU8d3PjTzIe3UPlAyqY08nQe2Vd4+HOrz6QQbiHOmeBPnx+xotsCMPQvbbwYD2CzKcL8Q+W+mDmqrcRTc0nB2F7ju4/mncUdv8ekJqxeAGHtUhX7CQ4C7KBF7zzsgZq3LXqNuC8Xm6OIUFGzdhhyjdsnQ8cmV7uLE2TUOj+nQXRxhR8+CR4iWBuUEg1M/6gBOoE2bsNcGWw+3BA8jpbi9Q9kPO634uLUYqcOgZFlalzp7eLFLgnqbfcWkvOUVb79OnlhdqqBWcLjxTeJXZoVOA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=2UUqyUigeee2KBeL/X63KbVIl/bLPNL8w4SLWes7g8g=;
- b=duJdP3CFxRplzk/SV2tFgJbCLcEpK2PUqeKuHk8ls3EO4Y3SLI3Dk4FFAdniAW1tLjRiKvPqAgKD0kLBiEBZidnxnpFes8U4SY8J1982D4BqXegRbMt84vEFvhj61tyhXjTGnV7zDMh47Pr7obCiWZ8picUXq+c57acLnQOi6ss=
-Received: from BYAPR10MB3287.namprd10.prod.outlook.com (2603:10b6:a03:15c::11)
- by MWHPR10MB1503.namprd10.prod.outlook.com (2603:10b6:300:22::12)
+ bh=4qsyzI9LRjLGgI+0Tw11B19ZLh/Eu03wz2p7oj+R+G0=;
+ b=kYVxw7W/5Jor9iuty95HEtZuQ/MyaK5azgerQIijBALJqUePJH/hMl/44BrDm/KXh0v+YwpOy8FsEMKPIgUE5LBawrqmDDMsoxnzDLqsJuq72ORiWiPgkoFZhi3IcxSThlZCdc0JC5GtOtjOJlS6qcUrWUDJk4BXJyVVNeMBw3kQpTFg+RM0d5IhCUkS30WVR+bVYNQvq+2RqctkerUSJx+mG/MK3mdPbmwo7CBJy04K654yf7v41BQp72iV60N5J0LxDt+mGfBBxhnXF2a4f8mk7nrVMZbK1dFecrGjt3h2oQLu/pgE8Hg55yfEtpAKr1gXNBCypXvswKNNEKsWRw==
+Received: from PH0PR12MB5481.namprd12.prod.outlook.com (2603:10b6:510:d4::15)
+ by PH7PR12MB6417.namprd12.prod.outlook.com (2603:10b6:510:1ff::14)
  with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5566.15; Fri, 26 Aug
- 2022 18:05:11 +0000
-Received: from BYAPR10MB3287.namprd10.prod.outlook.com
- ([fe80::dcf7:95c3:9991:e649]) by BYAPR10MB3287.namprd10.prod.outlook.com
- ([fe80::dcf7:95c3:9991:e649%7]) with mapi id 15.20.5566.015; Fri, 26 Aug 2022
- 18:05:11 +0000
-Message-ID: <784140bb-53d1-e00b-f79a-7b95b0c1052f@oracle.com>
-Date: Fri, 26 Aug 2022 11:05:09 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.12.0
-Subject: Re: [virtio-dev] [PATCH RESEND v2 2/2] virtio-net: use mtu size as
- buffer length for big packets
-Content-Language: en-US
-To: Parav Pandit <parav@nvidia.com>, Gavin Li <gavinl@nvidia.com>,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5525.11; Fri, 26 Aug
+ 2022 18:33:04 +0000
+Received: from PH0PR12MB5481.namprd12.prod.outlook.com
+ ([fe80::1429:e3e9:dc54:ba98]) by PH0PR12MB5481.namprd12.prod.outlook.com
+ ([fe80::1429:e3e9:dc54:ba98%7]) with mapi id 15.20.5566.016; Fri, 26 Aug 2022
+ 18:33:04 +0000
+To: Si-Wei Liu <si-wei.liu@oracle.com>, Gavin Li <gavinl@nvidia.com>,
  "stephen@networkplumber.org" <stephen@networkplumber.org>,
- "davem@davemloft.net" <davem@davemloft.net>,
- "jesse.brandeburg@intel.com" <jesse.brandeburg@intel.com>,
- "alexander.h.duyck@intel.com" <alexander.h.duyck@intel.com>,
- "kuba@kernel.org" <kuba@kernel.org>,
+ "davem@davemloft.net" <davem@davemloft.net>, "jesse.brandeburg@intel.com"
+ <jesse.brandeburg@intel.com>, "alexander.h.duyck@intel.com"
+ <alexander.h.duyck@intel.com>, "kuba@kernel.org" <kuba@kernel.org>,
  "sridhar.samudrala@intel.com" <sridhar.samudrala@intel.com>,
- "jasowang@redhat.com" <jasowang@redhat.com>,
- "loseweigh@gmail.com" <loseweigh@gmail.com>,
- "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+ "jasowang@redhat.com" <jasowang@redhat.com>, "loseweigh@gmail.com"
+ <loseweigh@gmail.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
  "virtualization@lists.linux-foundation.org"
  <virtualization@lists.linux-foundation.org>,
  "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>,
  "mst@redhat.com" <mst@redhat.com>
+Subject: RE: [virtio-dev] [PATCH RESEND v2 2/2] virtio-net: use mtu size as
+ buffer length for big packets
+Thread-Topic: [virtio-dev] [PATCH RESEND v2 2/2] virtio-net: use mtu size as
+ buffer length for big packets
+Thread-Index: AQHYuH+wBUa5TQ3am0iRtxWTyhCUA63A4UyAgACAwLCAABm2gIAABtGw
+Date: Fri, 26 Aug 2022 18:33:04 +0000
+Message-ID: <PH0PR12MB54817615D702376C33188518DC759@PH0PR12MB5481.namprd12.prod.outlook.com>
 References: <20220825123840.20239-1-gavinl@nvidia.com>
  <20220825123840.20239-3-gavinl@nvidia.com>
  <27204c1c-1767-c968-0481-c052370875d8@oracle.com>
  <PH0PR12MB5481BB5F85A7115A07FBC315DC759@PH0PR12MB5481.namprd12.prod.outlook.com>
-From: Si-Wei Liu <si-wei.liu@oracle.com>
-Organization: Oracle Corporation
-In-Reply-To: <PH0PR12MB5481BB5F85A7115A07FBC315DC759@PH0PR12MB5481.namprd12.prod.outlook.com>
-X-ClientProxiedBy: BYAPR06CA0052.namprd06.prod.outlook.com
- (2603:10b6:a03:14b::29) To BYAPR10MB3287.namprd10.prod.outlook.com
- (2603:10b6:a03:15c::11)
-MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 34206391-ed85-4cd2-5722-08da878d84e5
-X-MS-TrafficTypeDiagnostic: MWHPR10MB1503:EE_
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: apgsFH+V1Ypx5G0qtxmY7M3brgJDxqQzvenelmFGc+EyOsXNkE6/8j9jIyjq2OkO1e7BmxAStqKRQ+hqCKy1RD/ICQeKfY/L7uUE6Y9fU6RdQBpveLCi1SXsA60e6Bc+JmeO7Sh0R4aRmrEKXmf/s4vbyTrKMOJDrnKrP3eDH+BRcDHdcFOvTj7QhEmHbbWlg/Z3oqR9bCFhGMztOYuVJXVidS71q6HtifJmo2iwTtQfmaOqpitrL8xIWo7IYZmDSU7r9djspQogk1hgJmwbgvZeQZOnL47A6KLV/N/8GsFE+G6llSgR817muQ/apsAxNz3kYtYNpMm/9Pu4jh/XjWOgbpy3E+G1tpVVYOX0VFZp38V1rM2Ctk08xKkahSKf+T2wdYmPJo8nzQkuYv7pwDltHm+kjsrDs2iVKprhW+DId6Rh7b0paqe99IQDTC+d5w59PLBf3w/72LD2dWoFLdssfZxEsMJQHy+R/9mPrYkAZjKX5Ds6cuIJyvQQr79S3Cza6Yvex5aygkZHFs9SW91jhrCSJmExK7EqxzCWmmAne/ENKes/dKr4zAxqmEa8iDtkw2jpQVz28SV/6Siu+4ZSS68GersdPtBJZePohe7JcVuX6I6qTjs9e0hxrttWBjwJ5t85iK1Jj5j8oX+wbcOozbZxeYCX66tn4pJp4faTC2//lTQcLLE18iEy3O0lTpttQQUJRPjFO9VHPnsy5YSkb5SCQilMgVbIoiczdGUHZAuqpn8UZWy+feQqIExAse7PAvdZ9QdnOAAtfPyfMUYmf2tas1h8uGgS1d3WIzJLl9ovsOwxOiN/zLeyOWOY
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:BYAPR10MB3287.namprd10.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230016)(346002)(376002)(136003)(366004)(396003)(39860400002)(66476007)(83380400001)(38100700002)(316002)(8676002)(66556008)(110136005)(5660300002)(8936002)(4326008)(2906002)(66946007)(7416002)(6506007)(53546011)(86362001)(36756003)(41300700001)(6512007)(26005)(36916002)(921005)(31696002)(478600001)(6486002)(31686004)(186003)(2616005)(43740500002)(45980500001);
+ <784140bb-53d1-e00b-f79a-7b95b0c1052f@oracle.com>
+In-Reply-To: <784140bb-53d1-e00b-f79a-7b95b0c1052f@oracle.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 7ce21730-5f1a-46c3-3bb5-08da87916a31
+x-ms-traffictypediagnostic: PH7PR12MB6417:EE_
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: RjWZgvpenEJ8uDBxr7YrGOpMUjOGCcqb/YNTX23DaVwMfVa/k+uk1f0ejVfTxWGkA2z01S5dEkrEqPLB1Vl+Y9HArlSjx8O3SykyTxY26+kFxALvcQJbxfZ+ZFagFtFh/bnc1AiCVzkDZegrL5Whugr6HujZUuYl6Qm0eFqh5Ej3gzfgjTjLoPFyE6DunHUlXXwoBq34cFvUrKPCz8aQuCFgH2vNKPooLVuJUfMS2WGf8WJMrLMOUF+Vy9lZ2F4WJOs/RdCxapP8ddAMzrkOf45bCGa5XeMGLuVeV6SlcMnB9f25w0Mh+lbNPL5p3ClFClbJ2VYFVwBokuQQdRu8WpqRt7t1rPckiOAGuJEftaE/TAJpWUKMHsLe2AGr1VUuV+TDnMQmBvolwYmC8qwz/PpKeusOhUk8GpcUSpc8+ypoKKCzIf/wBmtxmwklDtrsy34L5Ct+12gTSZd/bT/8ghtCTwr+yeOngy2k16bg5VdpwiugsTjIdmaU8YPJNa51HZTQ8p4AsFHVZac+stvHCtJ7geRcXzwnS7af1blZDALStjr2IV2TtBNwz19H+1Sgf0OsCQNDpBG4rcP6vLW0Hk1PlWnBtBsOd+7lCO5ooDd/km4a5++czNUVqFvVOdm4B8DXNh0CXhT/ylHf+n6zWDcuDVcoohpiGEqH3zYSvLKsBAPq2NmtCeeCJJxWSDByN3+d2AnjXdsiCVNQhG5D69KjbGk8GWuZbpRWIPHRBIJxGBO4CJqb8KKE09LdRfu9rmGrh293XDuhk91ewRPViNEs9RuzfOSlIdw3lhPzmm8=
+x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:PH0PR12MB5481.namprd12.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230016)(4636009)(346002)(39860400002)(396003)(366004)(136003)(376002)(38070700005)(9686003)(66476007)(122000001)(110136005)(66556008)(4326008)(66446008)(8676002)(5660300002)(76116006)(64756008)(66946007)(921005)(38100700002)(26005)(7416002)(41300700001)(7696005)(6506007)(478600001)(71200400001)(33656002)(86362001)(316002)(2906002)(107886003)(186003)(8936002)(55016003)(52536014);
  DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?R0NiMGZMUVlqUkxTZFJhbHA2WGtqVE1BSXpuY0ZjOW9iTE0rdWErbHNFd1B0?=
- =?utf-8?B?WGF1WmZIbzMvMktUL0lvc2pGREVZT0U5R0poWGxqNXFDRmE5UkZBbVZDRUhR?=
- =?utf-8?B?RmZ5c1lTS29ZYzBnMFdRdFJHQU4xNS9MenJ2dHo4eG50dVN3eTNBV3hoT1l2?=
- =?utf-8?B?OVJ0MS9jdlM0ZUk5ZUJTTmdLUTEyYkh2YVcrVTl4SUQyd2NSbHZiUlZEaWpn?=
- =?utf-8?B?elUvOS9pMEdVZHJCTWowSmR2TExqZExtSy9kLytRNDNkRzFCSEFnU0ZRUEZH?=
- =?utf-8?B?cVNiZTVRWUxWOGR2Yk1xbFgzdmt1SXNvcXIvK2lON0NTd3Z1bThVdjRXN2F2?=
- =?utf-8?B?anlLaDBLdHFQYzNlWUI2aHcvc3phVFgwSzhNN1FrVnlDeXpNbzVDaHpTL2RX?=
- =?utf-8?B?amt0VCtuV0dtRGFZTVhpTExGdlFNcHg2Sk82RVNXNURnUHBPd0NnS2pZUC8w?=
- =?utf-8?B?TDFNLzRmUU9uOGFPMEVPQnRLMTBaV21kUDhIMmdOOUlMK2NyVGNLcXFVQzRC?=
- =?utf-8?B?MzQvNGgxdGdZUWQ4TEVpNU1YTTczaThROGZ3OExJNGVveXdEdTlNN0hSOUto?=
- =?utf-8?B?NzdlQWlMNmwxdjE0ZDh0Rk1kbndqUFV5czIzdm85MjBXdThjbG04V1Y4RGdD?=
- =?utf-8?B?RUNaUW9ETTh2d211cGY2SXkwZmJqdjVtdzFubVBKSjcvNWhjTURtY3ppaHdH?=
- =?utf-8?B?dnhSMzk1VjBPSmE3WGU1QzhhWnNVNXlxYm42RE5nUDl1bElOM1BGK1ZKOHVm?=
- =?utf-8?B?ZERMRGMzdm8rWUx2U3M3cDIzODRZR0dTR0poYXhZM0Ewb2JRRW8xeWZCVVBs?=
- =?utf-8?B?UEpkU0lyOHJVdC9TZEVxeExiZ0dhaFh0TlFrZk8zU0hIQllYT2VHS2RNaDE1?=
- =?utf-8?B?N280QzhERzNaSHBGYlpXZGFHYUZETnJ1VGQ4WjgrWVplT0pqdnlsN1IycHF3?=
- =?utf-8?B?Z0VDOC96VHBtb1JTQ1RWY3ZwQ1dTYjZSTmFGVWZRcy9WOEgrdXYvMStaYlVo?=
- =?utf-8?B?di92dTVrejIydi9WME4wbzgrc05RU3oxd2pxSGszMEoybWxXZ1pucERNeDBr?=
- =?utf-8?B?RnpCekp0MmFIYjFXKzd6UmZmZnFSRVdqKzl5ZGFGbVl6QUpvM0MvY3NUMjdu?=
- =?utf-8?B?NFhaSDhzcFoybGFKZlFZNEJBelZNNEVEOFBrR1R5amVvcm92bFdlMGlMeUF6?=
- =?utf-8?B?OHVuM1BPOHpJNVRwUDVha3NuTjcwMm5KRzlNZDRFTmMwbHlQMkEvS3phZmNZ?=
- =?utf-8?B?QW9nSVZmTGZUVGNoaGlsa3diVkJTRm1TUjl4bmxQd1pwVmM4VDRHMjJsT3FD?=
- =?utf-8?B?TjUxWnh0WlVkck1ycDhxQUpoalB0cHhpSFRMZHk3RFo2bUlZUCt2blhDc3Bo?=
- =?utf-8?B?dXpmZzgwbC9ENlFuNWc2YllZVW92cXBOQlF0OFF5NVkwWGZBb01OUDBQZ2tL?=
- =?utf-8?B?Y1B5YUszSXhsa0FvYS9kcXUyMWhzVjdUQ0FUUW9qay95R0N2VG0zeW1EejM2?=
- =?utf-8?B?Y29IQ2xUUWpHUVFOS3M3OUZ0a2dFaEljSUdib3ZXSU1UU1YwcUhZSlFmSTZT?=
- =?utf-8?B?ZS92V3YwQytsbGV1L0d2QVNtN3FITzVlNzJKU0dCeEs3WStCbmVyeUFNcVhx?=
- =?utf-8?B?UEVLWCtPUzRYSm02QktDYmJrb1hWWUxzZFRJR25PUVNkSmUrM3Q3ejJ1T1hw?=
- =?utf-8?B?dnV4M0lXQlRNTmpLVnJqME1Ndk1ESnFQREJmcHNOeXYyWDY2TVkwRmV5bGhw?=
- =?utf-8?B?TXIyYXg5OW9kbjZseTdzSVVodENQaHloNFJFZmlzdEUyT2g3QzZlTTExenFn?=
- =?utf-8?B?dkYvdVpIREJJU1hGUWlONHJ5WGtWTXNJQUZxS21TTlF5K3BMTHl3Nnk5eWVI?=
- =?utf-8?B?WEgrRVNXMElNT0ZkYXR0dmM4clRLd0JSS295RmlCVFhXNmZoWDBhaFF6YkdD?=
- =?utf-8?B?QUd5aytPVGE4M0RteUhCUnVzakNDdy9vdjltWEkxcUlmdW9EUG40cFExWlpi?=
- =?utf-8?B?YXRqWVNiS3BVVVhUWjE2RnpBSnFXcW5hQjJqa1RkVmtsR3d4ZU5FdVNEUlVR?=
- =?utf-8?B?M0labkFjTTJnb3lSdFF3RUcrYWNSR3M4S21HR0xzR2ZNZHVzRlhmcXhNcm1Y?=
- =?utf-8?Q?19jxgOGiPw0DWwfh0h3vSHedp?=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 34206391-ed85-4cd2-5722-08da878d84e5
-X-MS-Exchange-CrossTenant-AuthSource: BYAPR10MB3287.namprd10.prod.outlook.com
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?utf-8?B?TDF6RVJyS25VWHZRdzZwc3lNeWt0OHZJdUN1YUZGZlZGWlRWU3Fwa0ZtdHdP?=
+ =?utf-8?B?cjBXRUF1bk1ibk5XbUJ3NkZhNEhxT29hbHN2bUlWMjFXc3VHMTl3a1NSeTJm?=
+ =?utf-8?B?OHpETW1ubUxseVhaaGhWTVZ6UG5ZaVVCVVhDZjVEa1hldDY3ZG9QWVRjOXU4?=
+ =?utf-8?B?OGo1S3ZjQWRnUzRkSU1pYnFoVFJOVnFKd3dramEydEFwOFBqeXR5MTBrYnBP?=
+ =?utf-8?B?cWxKWnh5SHNwN25VNVYrRy91azcwVGpDVHZhN2dPU3RBWllvS1hDeUVSamh2?=
+ =?utf-8?B?VHJ6WG1PSCt0a3R5OGNoeGRBeDRJWEJDSCtIa3Z2TDVyZmxscFVhQXQvYlpl?=
+ =?utf-8?B?ZzRmNGRUQTNRNGxVcTFxWVJ4VGNMc1E1NGEzTGpCTE5vU1d3YmZPdVpxOHY3?=
+ =?utf-8?B?U2pxb1p0ZUN0M1N4Z0hIdVNneDRZckx0aWJ3MndHRno2czM0STF2U2VxNFgy?=
+ =?utf-8?B?WEtxQTZNZWdVSU1ablNGTklzQ3V1UUYxYmRDVk5Bc0dNZnk1OGZiRUI3bGJt?=
+ =?utf-8?B?SVF0VFJzVzRNbUVHSXhINlZuekRxRjJ6dXFROHRPRWsrbDRjV09NR0VXZTk5?=
+ =?utf-8?B?R2tqYXFaYUpkZk4rd1hYWUdSRGZMaE0rdS9MeXJIblgvMFhla21uS1FXazBq?=
+ =?utf-8?B?N3BTcmthY2xqR3ZGa0xNZUs2bEwrYnRVMWF4SnNrUzd3Y3RlRFUrZlJBSGtX?=
+ =?utf-8?B?SVFCYVpHM0RIaHRqUnF4N3pidy9hdnk3amZQT0pMQjlKeUU4R1lOVVVWSWo2?=
+ =?utf-8?B?bnhOKzB3cGZEaE54akNIcHVhTlN2d01MMVFYaHFLMEhVVnZsbHB3T3FYdHVM?=
+ =?utf-8?B?QjN2cFFRMzF2U3lXdEQxV0lmYllrSVB4YW9lS2xKQ0RWTStoc2pIRUVkUExy?=
+ =?utf-8?B?MFFoWlVLOVMrM0grKzFMeVEwRXVlSSs4TkdNenZYYVZFOGdmN0UydmlxZDdu?=
+ =?utf-8?B?aWFJVUd0QmJTdnVYSWZlTlRuN1NaazMyVGhEYzY4YlVOVzErSXZ0RkM5VHJU?=
+ =?utf-8?B?UjRkMURJRW8vU2xxRzVlT0RNS3RTSTBwblZOdUcwbUhCVEEzY2w1eGswQmRK?=
+ =?utf-8?B?Q1NIUlYvcithNEhPZUlsNmVoNEhiSHdUY09SVVQyRzk0dXI5ZDN2Z3RIUEoy?=
+ =?utf-8?B?ckVUdUFhTE16SFpRK0FrVEJ5TFE1ZWJEanF3WUhZejQyTmc2RThTY2RSL3R2?=
+ =?utf-8?B?YkY2YlUyWmJJZ0dndTZnUlpqZ2lUMjlFVEdoZjBDeXR6ZHRWRWhvRkJ1OVhQ?=
+ =?utf-8?B?czRJalB2RUtQS1loYnV0WE1BQ2dGSnplaHhoR3ZkUVYwZ2tDYWxTWW54VUI4?=
+ =?utf-8?B?TGdBUlZGbkt0aWlJbmZkRHFnRis5c2t5OHFma1BpUXU2dE9pSG5oQUdvZ3ht?=
+ =?utf-8?B?bm82bTJ5V2FEejRqa2pBTnlMOWZKZWlOVHpKVE5uOE5pNTI1eGFvcXhxYi95?=
+ =?utf-8?B?YXRRUlVnQTVrNTJOSkdYdEdFQUE1dWtRR2FWeDZubW1SOWtpTGZYdktGOEJD?=
+ =?utf-8?B?Z2tpSGlwamJBdENtcjBNNkh6UXlEVVB1MzhmUHRBNkUxUWp5eVZ5a1QwZnhH?=
+ =?utf-8?B?S0MxRUF4UXUzOHB6K0ErVzVMK003RVROQlZvbTZoU0haaE9MNXJHaHl3eC9G?=
+ =?utf-8?B?K2JmczROTGs5V2t4S0FEaGFOcHg2dXFWQU1sWklmQ3JGdXkxblozUUVmdytL?=
+ =?utf-8?B?dGJ1djNGcVUyM0xDS2VrRUg5YWkzMk9uWCtPd0pza1h6OWNGb3N1cTNzeDN6?=
+ =?utf-8?B?NHljWjIxN2ZPUHdXdXA3Z0p3QVJWc3AyL0lrNU5pQVFsenVSMTQzY2txcU9J?=
+ =?utf-8?B?MXlVUGk3amxXQ0FubmFjQ2cyd29nV2NXTjdiUUs5T3oweURoZ0VMTnJQSm5F?=
+ =?utf-8?B?aUFkQXFSd2hkcVZVTjN3bGJMMXcvWnUzNDRPVVRPQVI0NGYxMGtUVTBERito?=
+ =?utf-8?B?UGd1YnNRelhKQXgySUc0WEdOWU1aYmRUY3BESS9UWlhxUTNtNm92c21XWDlq?=
+ =?utf-8?B?cWh2TUxtbG9yaTZoYzV5QzlFcm1PMTQ3OGxRSlUzMXZkYUVOajFmVE9GYlZ6?=
+ =?utf-8?B?aXpKZEYzd0pqcGpiYlhBcVdDWlR5WVEyTUJqR2dZYXFCenl2VHdKVDFGNWhi?=
+ =?utf-8?Q?RwBk=3D?=
+MIME-Version: 1.0
+X-OriginatorOrg: Nvidia.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Aug 2022 18:05:11.7201 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 9VOiBQ9KUNXe2wnuW0Rl3R5E9lFKg4JZG4jIxTHHGY9gXL3TGfbenClBlK0F4nVLEpPT3CxTMlPCALAf1d1evQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR10MB1503
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-08-26_10,2022-08-25_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0
- suspectscore=0
- mlxlogscore=999 mlxscore=0 spamscore=0 adultscore=0 phishscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2207270000 definitions=main-2208260072
-X-Proofpoint-GUID: gp1UP8ZxRtOOx5dP4BQtZfowJmPBcQbk
-X-Proofpoint-ORIG-GUID: gp1UP8ZxRtOOx5dP4BQtZfowJmPBcQbk
+X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB5481.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 7ce21730-5f1a-46c3-3bb5-08da87916a31
+X-MS-Exchange-CrossTenant-originalarrivaltime: 26 Aug 2022 18:33:04.7653 (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: bABFbrg9keqMSZvEWAY2ZkEIdYtq6IuRhVZLo6RU3RQkU4yX8ruHGDjcaF8cdnXQRFfN/wQGf9I9GBB2J0y0Lg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB6417
 Cc: Gavi Teitz <gavi@nvidia.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
@@ -210,54 +174,67 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+From: Parav Pandit via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Parav Pandit <parav@nvidia.com>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 
 
-On 8/26/2022 9:41 AM, Parav Pandit wrote:
-> 	
-> 
 > From: Si-Wei Liu <si-wei.liu@oracle.com>
-> Sent: Friday, August 26, 2022 4:52 AM
+> Sent: Friday, August 26, 2022 2:05 PM
 > 
->> Sorry for the delay. Didn't notice as this thread was not addressed to my work email. Please copy to my work email if it needs my immediate attention.
-> 
-> Can you please setup your mail client to post plain text mail as required by mailing list.
-> Conversation without it is close to impossible to track.
 
-Fixed.
-
-> +	/* If we can receive ANY GSO packets, we must allocate large ones. */
-> +	if (mtu > ETH_DATA_LEN || guest_gso) {
-> +		vi->big_packets = true;
-> +		/* if the guest offload is offered by the device, user can modify
-> +		 * offload capability. In such posted buffers may short fall of size.
-> +		 * Hence allocate for max size.
-> +		 */
-> +		if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS))
-> +			vi->big_packets_sg_num = MAX_SKB_FRAGS;
->> MAX_SKB_FRAGS is needed when any of the guest_gso capability is offered. This is per spec regardless if VIRTIO_NET_F_CTRL_GUEST_OFFLOADS is negotiated or not. Quoting spec:
+> > +	/* If we can receive ANY GSO packets, we must allocate large ones.
+> */
+> > +	if (mtu > ETH_DATA_LEN || guest_gso) {
+> > +		vi->big_packets = true;
+> > +		/* if the guest offload is offered by the device, user can
+> modify
+> > +		 * offload capability. In such posted buffers may short fall of
+> size.
+> > +		 * Hence allocate for max size.
+> > +		 */
+> > +		if (virtio_has_feature(vi->vdev,
+> VIRTIO_NET_F_CTRL_GUEST_OFFLOADS))
+> > +			vi->big_packets_sg_num = MAX_SKB_FRAGS;
+> >> MAX_SKB_FRAGS is needed when any of the guest_gso capability is
+> offered. This is per spec regardless if
+> VIRTIO_NET_F_CTRL_GUEST_OFFLOADS is negotiated or not. Quoting spec:
+> >
+> >
+> >> If VIRTIO_NET_F_MRG_RXBUF is not negotiated:
+> >> If VIRTIO_NET_F_GUEST_TSO4, VIRTIO_NET_F_GUEST_TSO6 or
+> VIRTIO_NET_F_GUEST_UFO are negotiated, the driver SHOULD populate the
+> receive queue(s) with buffers of at least 65562 bytes.
+> >
+> > Spec recommendation is good here, but Linux driver knows that such
+> offload settings cannot change if the above feature is not offered.
+> > So I think we should add the comment and reference to the code to have
+> this optimization.
 > 
+> I don't get what you mean by optimization here. Say if
+> VIRTIO_NET_F_GUEST_TSO4 is negotiated while
+> VIRTIO_NET_F_CTRL_GUEST_OFFLOADS is not offered, why you consider it
+> an optimization to post only MTU sized (with roundup to page) buffers?
+> Wouldn't it be an issue if the device is passing up aggregated GSO packets of
+> up to 64KB? Noted, GUEST_GSO is implied on when the corresponding
+> feature bit is negotiated, regardless the presence of
+> VIRTIO_NET_F_CTRL_GUEST_OFFLOADS bit.
 > 
->> If VIRTIO_NET_F_MRG_RXBUF is not negotiated:
->> If VIRTIO_NET_F_GUEST_TSO4, VIRTIO_NET_F_GUEST_TSO6 or VIRTIO_NET_F_GUEST_UFO are negotiated, the driver SHOULD populate the receive queue(s) with buffers of at least 65562 bytes.
-> 
-> Spec recommendation is good here, but Linux driver knows that such offload settings cannot change if the above feature is not offered.
-> So I think we should add the comment and reference to the code to have this optimization.
+You are right.
+NETIF_F_GRO_HW setting of the netdev is already guarded by VIRTIO_NET_F_CTRL_GUEST_OFFLOADS bit check.
+So, its fine. I missed that code previously.
 
-I don't get what you mean by optimization here. Say if 
-VIRTIO_NET_F_GUEST_TSO4 is negotiated while 
-VIRTIO_NET_F_CTRL_GUEST_OFFLOADS is not offered, why you consider it an 
-optimization to post only MTU sized (with roundup to page) buffers? 
-Wouldn't it be an issue if the device is passing up aggregated GSO 
-packets of up to 64KB? Noted, GUEST_GSO is implied on when the 
-corresponding feature bit is negotiated, regardless the presence of 
-VIRTIO_NET_F_CTRL_GUEST_OFFLOADS bit.
+I agree the condition check should be simpler like below.
 
--Siwei
+if (guest_gso || mtu > ETH_DATA_LEN) {
+	vi->big_packets = true;
+	vi->big_packets_sg_num = guest_gso ? MAX_SKB_FRAGS : DIV_ROUND_UP(mtu, PAGE_SIZE);
+}
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
