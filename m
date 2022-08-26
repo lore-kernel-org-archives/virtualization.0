@@ -1,212 +1,194 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A6419ECAAD7
-	for <virtualization@archiver.kernel.org>; Fri, 26 Aug 2022 06:24:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5197FECAAD2
+	for <virtualization@archiver.kernel.org>; Fri, 26 Aug 2022 08:53:04 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 9EE6740CE6;
-	Fri, 26 Aug 2022 06:24:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9EE6740CE6
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=ZQMV87hS;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=PQybziWd
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id MEC2ZkKA7gHY; Fri, 26 Aug 2022 06:24:10 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id CFAE740012;
-	Fri, 26 Aug 2022 06:24:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org CFAE740012
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 9961CC0032;
-	Fri, 26 Aug 2022 06:24:09 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D25DBC002D
- for <virtualization@lists.linux-foundation.org>;
- Fri, 26 Aug 2022 06:24:07 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 990BD82A72
- for <virtualization@lists.linux-foundation.org>;
- Fri, 26 Aug 2022 06:24:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 990BD82A72
+	by smtp1.osuosl.org (Postfix) with ESMTP id C506F83ED1;
+	Fri, 26 Aug 2022 08:53:03 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C506F83ED1
 Authentication-Results: smtp1.osuosl.org;
- dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com
- header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=ZQMV87hS; 
- dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
- header.i=@oracle.onmicrosoft.com header.a=rsa-sha256
- header.s=selector2-oracle-onmicrosoft-com header.b=PQybziWd
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=Z2JV/qOp;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=GE1whpCC
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id R-LjF73OgNUA; Fri, 26 Aug 2022 08:53:02 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id A79F583E96;
+	Fri, 26 Aug 2022 08:53:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A79F583E96
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 71F06C0033;
+	Fri, 26 Aug 2022 08:53:01 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 713C8C002D
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 26 Aug 2022 08:53:00 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 4307483E9F
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 26 Aug 2022 08:53:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4307483E9F
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id SstTpCSqFSAk
+ with ESMTP id Y01Vm5J2BrdT
  for <virtualization@lists.linux-foundation.org>;
- Fri, 26 Aug 2022 06:24:03 +0000 (UTC)
+ Fri, 26 Aug 2022 08:52:58 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8CE69826E5
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 167F683E96
 Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com
  [205.220.177.32])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 8CE69826E5
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 167F683E96
  for <virtualization@lists.linux-foundation.org>;
- Fri, 26 Aug 2022 06:24:03 +0000 (UTC)
-Received: from pps.filterd (m0246630.ppops.net [127.0.0.1])
- by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27Q4HOVt015653;
- Fri, 26 Aug 2022 06:23:59 GMT
+ Fri, 26 Aug 2022 08:52:57 +0000 (UTC)
+Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
+ by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27Q7XmVO030483;
+ Fri, 26 Aug 2022 08:52:31 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
- h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=corp-2022-7-12;
- bh=g4DEi8XlUamT8yKB5yz9LlGDMbZTRITS+XgvZ7phnps=;
- b=ZQMV87hSBD7wjWPTf+1B5KevA3kKQzqe7tDA/P2QNm2ylOX8PZbkrlRXQJ7YqZmp8iID
- oRZBmzCPKDNvQYXVBdZP2KVWN3D3qDeVQ6FU7CtUcnpvcw/Jn0dYYfsaW4QaHekfScb0
- wcWzvv4nZimy0M78ryrATHGH3jJjypyEcTqeHDzfRoJ1OIsyX3peZ+6wHOPQlTG+8wqT
- Ov+/VESdFCbEzZPQxGp4GynjOU+mNpUAtAikwSdtHtE6CAbrdvznB2wlMMSkxGWERDm4
- EEhqjz6+DRllXbQBFGj45ngSKeHd6G0ZXYM2DKht2TjOMrGeAMKjSuK0Cwr88yP6Dk4t kw== 
-Received: from phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com
- (phxpaimrmta02.appoci.oracle.com [147.154.114.232])
- by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3j5aww65jm-1
+ h=content-type :
+ message-id : date : subject : to : cc : references : from : in-reply-to :
+ mime-version; s=corp-2022-7-12;
+ bh=nyZciptjDnmw3WqNAtxhqOGWt7IFZrE2u/sJznferfA=;
+ b=Z2JV/qOpmaHKy9sIbswjheQIxETmMv2HEI8vs6F+yKKgpMW6w8y63b0DN7jE2Qgu9xgU
+ D27/XbAABhvyr8SXzEEhE+XLZYtOXWj/FZ/G0ByHrr1QYundPyXJdiWXMGi4bsx2Ozt3
+ oMae/ILmNGHfHmMvI3v9wEOIhd2TybZCLaNtgvqUhHKGLgV5iLn5uRt/OPzzSw5rnMlY
+ D/pApw51CSOexPmYFNG8qm7o/uMBYiSyeM7lPniAWseYbDukpFMoeWmO0ePsOjFh8pf9
+ U3QNDfyVD7aJ1z+yVP3MrfJw4CoVp/nQzTNOFTYQHf0sEVU7093t7T+kii3HEYJbVOSH jQ== 
+Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com
+ (iadpaimrmta01.appoci.oracle.com [130.35.100.223])
+ by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3j4w25rvk1-1
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Fri, 26 Aug 2022 06:23:59 +0000
+ Fri, 26 Aug 2022 08:52:31 +0000
 Received: from pps.filterd
- (phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
- by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.5/8.17.1.5)
- with ESMTP id 27Q2Lx4N016739; Fri, 26 Aug 2022 06:23:58 GMT
-Received: from nam11-co1-obe.outbound.protection.outlook.com
- (mail-co1nam11lp2171.outbound.protection.outlook.com [104.47.56.171])
- by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id
- 3j5n58kxty-1
+ (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+ by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.5/8.17.1.5)
+ with ESMTP id 27Q8OoUD016228; Fri, 26 Aug 2022 08:52:30 GMT
+Received: from nam10-mw2-obe.outbound.protection.outlook.com
+ (mail-mw2nam10lp2105.outbound.protection.outlook.com [104.47.55.105])
+ by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id
+ 3j5n6p0ksk-1
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Fri, 26 Aug 2022 06:23:58 +0000
+ Fri, 26 Aug 2022 08:52:30 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=UNE67e4xg0mwwrzwdf/zsVJYZXMPkTxqaIksefisDucLDTiAMoy56Pr7RN5iJXt2KzYkzk1XnFeSJOh+J661E89I1rEFdUkUk3MxpM+rNGTvvE+o8c6rfssUjuvttoWznk8QwRXlQutqd/MmkNpFZiz9tr6KFwD2oPCsu2PJCn+ytaqYbtUVSaF9a8CHdwag7SxZ2i4qTsg2BxbXSDZkpHHUUWbT5Kp+gaWjOm42Uu/XiLqyYekXVvahDrs+trF75fDZ13ZmlCJvrEW/jjsJHHChCIjC9/2Big8I3qMwMJEbbbPRwCAcdjwvnFl38IYs6KJuxUgvKVJ2CjagIcuLww==
+ b=UmbLiTkRzob5YxLZy+6k45o6kDlG/A9pM5fSyeAyHvkS99Tfk4HFH1P7fJOvqvhEBCgYaQYKDYlMFZAhEwBRWMoQIQIK1e9vkE7dtN0gdCKG6mxfFcMxUqkXU/VHC0zhNHqtDBPiUjQifRXQ6Un1CSaFH4JqhPkigrfZXurWDfSGywO+j9cvPeVqLg5UmIuNDi7bpKsG/no2KdP2hPBsQ9UbkodWOutGDV9pAMgvZFQFvX85d3zqLfj1S+xU6pQ54v65L9dvxZhgVy87CBrrG/VJzRr3yLt/pVADYTuGas2h+7GiYIkDUv33xtea7WNOFgorxWaixw92kzq6g4LWKQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=g4DEi8XlUamT8yKB5yz9LlGDMbZTRITS+XgvZ7phnps=;
- b=bGQdmTojpynxMmGqKkxDgRPNKXfz3WnoCj357jQeFzF7MTSirfyxcHmHJkRbdaNh2Fdk6EWZb3W29l/rS7vCsO14JH/o/W8cYRXg3A1XUeSlp3/9nEFKbP2TezPy5PKWIKwPUP7syfoSLDtrUa4ns0uvBDX5KVSI8HexbmHzcGQrfQe7/FUS418yOmJ9+9Opo6OAKVgwObI1cPQETtmbJhrwsA6qmJ1Fde1eIyYxrpdQBP9r1KS+jy3a81JJv3/FNbh/lH3rnR0XxLGIgUporHNSx8YXa9C7Yns+M7lYxIXgBDbugbmy9N/RNOzUI7ZhJSQsEh3AWnOnMhBiqoUY/Q==
+ bh=nyZciptjDnmw3WqNAtxhqOGWt7IFZrE2u/sJznferfA=;
+ b=amo2swJRd1+FpblF4GwAVNiBdF34Fc7j5HMNvSrdrkPWjT0wFbS0G4nh3Lr5Hdy23BbT+cYoaHIjJfWzwT44VrX/fH7YmSGR5/sBIlBah/ty52p2nT3JqyOHVR7u34sJCU6U2LKDXu/GBcmj+feZITWsGcMJnaoAVBCieztIMwQFiSlPCl+gVHDNrLoW4GT1do+qt64wksA9Bc7rJ9FV2qjJPigARI0p7SrrJbttc/zd4ebvSFxnX+1B0jRLA1dBebObrz8/Jeo1wSVLddgWnsQnY+D8lYY8pzcch3JQg3i2Yc/V/FsnwROB9YJI+mh8wCtHFPv/rnyfaWtfM7VkAw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
  dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=g4DEi8XlUamT8yKB5yz9LlGDMbZTRITS+XgvZ7phnps=;
- b=PQybziWdzD0NgHEGQ4RcwXv/Zh8qhIfAPvbOiQr0g9ij+xPdAKwDU3/6x2P1TAzza4+xH/eLo63540/1Zn1DIHlTKThY/ijJQuIHyw1RuB7NNCOdwPAvUAyfhGLSRfoAVDfXqpA7Z43Gr9paVDePZUJkLuwh8nCBKya4AfSPSCQ=
+ bh=nyZciptjDnmw3WqNAtxhqOGWt7IFZrE2u/sJznferfA=;
+ b=GE1whpCC4zRX94HnP5ea0p1w/Mw+deQOZwJLvK3uhn5toxSvzZigEDEBtOs6uelIqbnGQbV+JXUx6f1cr/dvu301HjmgLMftxDS4Nv1KGveiMYkP2M+8fwp/B0CllbrNRARVkcaUdD801E79Y+lE4q8KTe5uqrSSGbQQpcWE6ss=
 Received: from BYAPR10MB3287.namprd10.prod.outlook.com (2603:10b6:a03:15c::11)
- by CO1PR10MB4515.namprd10.prod.outlook.com (2603:10b6:303:9b::23)
+ by MN2PR10MB3936.namprd10.prod.outlook.com (2603:10b6:208:1bd::21)
  with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5566.15; Fri, 26 Aug
- 2022 06:23:55 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5546.21; Fri, 26 Aug
+ 2022 08:52:27 +0000
 Received: from BYAPR10MB3287.namprd10.prod.outlook.com
  ([fe80::dcf7:95c3:9991:e649]) by BYAPR10MB3287.namprd10.prod.outlook.com
  ([fe80::dcf7:95c3:9991:e649%7]) with mapi id 15.20.5566.015; Fri, 26 Aug 2022
- 06:23:49 +0000
-Message-ID: <a6ac322c-636f-1826-5c65-b51cc5464999@oracle.com>
-Date: Thu, 25 Aug 2022 23:23:44 -0700
+ 08:52:26 +0000
+Message-ID: <27204c1c-1767-c968-0481-c052370875d8@oracle.com>
+Date: Fri, 26 Aug 2022 01:52:19 -0700
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
  Thunderbird/91.12.0
-Subject: Re: [PATCH 2/2] vDPA: conditionally read fields in virtio-net dev
+Subject: Re: [virtio-dev] [PATCH RESEND v2 2/2] virtio-net: use mtu size as
+ buffer length for big packets
 Content-Language: en-US
-To: Jason Wang <jasowang@redhat.com>, "Zhu, Lingshan" <lingshan.zhu@intel.com>
-References: <c5075d3d-9d2c-2716-1cbf-cede49e2d66f@oracle.com>
- <20e92551-a639-ec13-3d9c-13bb215422e1@intel.com>
- <9b6292f3-9bd5-ecd8-5e42-cd5d12f036e7@oracle.com>
- <22e0236f-b556-c6a8-0043-b39b02928fd6@intel.com>
- <892b39d6-85f8-bff5-030d-e21288975572@oracle.com>
- <52a47bc7-bf26-b8f9-257f-7dc5cea66d23@intel.com>
- <20220817045406-mutt-send-email-mst@kernel.org>
- <a91fa479-d1cc-a2d6-0821-93386069a2c1@intel.com>
- <20220817053821-mutt-send-email-mst@kernel.org>
- <449c2fb2-3920-7bf9-8c5c-a68456dfea76@intel.com>
- <20220817063450-mutt-send-email-mst@kernel.org>
- <54aa5a5c-69e2-d372-3e0c-b87f595d213c@redhat.com>
- <f0b6ea5c-1783-96d2-2d9f-e5cf726b0fc0@oracle.com>
- <CACGkMEumKfktMUJOTUYL_JYkFbw8qH331gGARPB2bTH=7wKWPg@mail.gmail.com>
- <4678fc51-a402-d3ea-e875-6eba175933ba@oracle.com>
- <e06d1f6d-3199-1b75-d369-2e5d69040271@intel.com>
- <CACGkMEv24Rn9+bJ5mma1ciJNwa7wvRCwJ6jF+CBMbz6DtV8MvA@mail.gmail.com>
+To: Gavin Li <gavinl@nvidia.com>, stephen@networkplumber.org,
+ davem@davemloft.net, jesse.brandeburg@intel.com,
+ alexander.h.duyck@intel.com, kuba@kernel.org,
+ sridhar.samudrala@intel.com, jasowang@redhat.com, loseweigh@gmail.com,
+ netdev@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ virtio-dev@lists.oasis-open.org, mst@redhat.com
+References: <20220825123840.20239-1-gavinl@nvidia.com>
+ <20220825123840.20239-3-gavinl@nvidia.com>
 From: Si-Wei Liu <si-wei.liu@oracle.com>
 Organization: Oracle Corporation
-In-Reply-To: <CACGkMEv24Rn9+bJ5mma1ciJNwa7wvRCwJ6jF+CBMbz6DtV8MvA@mail.gmail.com>
-X-ClientProxiedBy: SA0PR11CA0181.namprd11.prod.outlook.com
- (2603:10b6:806:1bc::6) To BYAPR10MB3287.namprd10.prod.outlook.com
+In-Reply-To: <20220825123840.20239-3-gavinl@nvidia.com>
+X-ClientProxiedBy: MN2PR04CA0034.namprd04.prod.outlook.com
+ (2603:10b6:208:d4::47) To BYAPR10MB3287.namprd10.prod.outlook.com
  (2603:10b6:a03:15c::11)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 94b979e2-f649-4607-6bc4-08da872b8991
-X-MS-TrafficTypeDiagnostic: CO1PR10MB4515:EE_
+X-MS-Office365-Filtering-Correlation-Id: 2db2f96d-c89d-43fd-6bd4-08da87404d0c
+X-MS-TrafficTypeDiagnostic: MN2PR10MB3936:EE_
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: XTx6MmKVNTl9HyPvq7vKk6qnD2qb90BjQ2qAfq2tIyODur0dg2IHxyDwuyxBmSSy4Cj5c5Jt6YXiemF36dQbgd2KXAZ0qNCP5a312hB9WNiCoCn8OkOFP1frvMwQCcNzMquldttL9akcZ0rY6A5RKgSdVGprmitW2zsXZZ9vJwSqA042IizYYBjB/dI7nu2JdQms/LVmB5UHhVkOtBW8/CZGSMklzlrg6vNgbj3ADQYEzBkg+peVJd+cbhS6W7qodwr6GcPVxt4uQ55Dz1a3rLYh84ucU0u/L8pNGSpBy3itKJ9VtnXfu99Hb8oEAUYG9OIDyPW1QfZ5Ja+VCDGtarw3yJRI20+4Er0LoHm5JeBYDEDJyCzGHodCO97SBPPSZBtUqZlwQ4cBofIgmI0gGxke6aeQMJZFkAKf7397pdylwmyUbyrYDsxOLjk+YOtxq2EUdajrmMGgHdCinF+tQsMzTRpSO23IcSdFOCQn1e9OJ1Rc8ph1SrN2AUKZy/kpPOkxt48ft/v7R7s9x8Ka9j+7ufEI6dR6XVYDcaTnR6c/bXUZnlGLTpCNPf5GTm08RjJESqySlNnC7K3XphTlYSKJiAcrOdBIlif9ONudpfhn9G1lk6PN6KhsB/cxjwRohut8iVD8m6NEto/vlTCHg4behTv5VQzp77aM1Ods3tTcVEjXCFY9iAR9GBPKjHKErpnSIpaHUSMPHRIVQwPxpPYjAnoxaOcLxMnyFOx4h4lZAvJHzzpYamqKQ5DSYcZ0POIsyN0WoOb/kt0q5zzLTe+BX8r6VrwOUaY7B7DIRJyLRKqZwyZS+ankuZiZrOu7TDifhnnFcmb/l0YSjMkYQw==
+X-Microsoft-Antispam-Message-Info: N6Og2LrxOFqF8gQT7j6kChtL4LRNIwyOrl6/1bnYgDBbHgneG6m1s2zCle+QLbjUYqvj4YXyZLx1IoZRSFTZk3+6Ubwf9Y4dQsplyTvR4ZHJRQEP+IFGO2z2WNGpxhavKHQye12uAMps2lfc+orKRkxsglJWi+y9mU2f7sQm4uwHQexf71Ph6KbQUFYFMshOKa+hwUZ+rtWFjna28XSL+6WFubYwGP28D4DPWjtwnAFE0578arBGU8vlQcJ7f41y+V1PrZJ0TNWHOkrkX3Eb63IEBI4xadSvflELO8eM/1J5DUwZr/+xHv1K79goCKE2l4zI1YUO9SEwrC254eyuLwv2R5Otr7Q2gIDt9iC1Ezi/ApcOCgfxiq0rNOhbx5IZVOKwCS8Z0SKHCC57FxJLwj9AH73J+bD+G5u149aBxv2EN0t5beCSjZ0bkD8v+lflB+fwo9t/q97dfBhcRVVLNbVG/ODla63rH1ZM41RndGNsr2vPmwOpNH8As1zhO0CDUAE2k5hK57SIaXeRuchC+Nm+7SZJIBfb/IVDp8+2KnXQ3Cs3PSZJ71q+hT5TnNydMuCG/GRHoBHehpIWaRsc2UH5/kMJyvD8AIloIMsDav5h/6r6w/Vmd2ztRlnCn28ZH82Mni+hAf2Uq3yZGU2MsyxXC7kDbc8lGJgGW5YtrVzfAY6zlsQ1fziDU6w5CWahhHH5/V9SWB+Xc5MCjeXOXHVSD0sx7X0wP+PIAK8Na6YuCUiXtH9LcxDEHIjke7Be+cxqtozn/8zLlKXQOW2UzFpd36BAjJe6uRpfKDxtmG1vKBkkh4bA2DJi0Bm9cg4d
 X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
  IPV:NLI; SFV:NSPM; H:BYAPR10MB3287.namprd10.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230016)(396003)(346002)(136003)(39860400002)(376002)(366004)(4326008)(66946007)(66556008)(8676002)(36756003)(38100700002)(66476007)(86362001)(110136005)(31696002)(31686004)(2616005)(186003)(53546011)(6512007)(478600001)(26005)(6506007)(6666004)(966005)(36916002)(6486002)(8936002)(5660300002)(316002)(54906003)(41300700001)(83380400001)(2906002)(30864003)(21314003)(43740500002)(45980500001);
+ SFS:(13230016)(366004)(346002)(396003)(376002)(39860400002)(136003)(31696002)(921005)(86362001)(38100700002)(31686004)(316002)(2906002)(4326008)(66946007)(53546011)(7416002)(30864003)(8676002)(8936002)(66556008)(66476007)(6486002)(186003)(41300700001)(6506007)(36916002)(33964004)(83380400001)(6512007)(36756003)(26005)(107886003)(6666004)(478600001)(5660300002)(2616005)(43740500002)(45980500001);
  DIR:OUT; SFP:1101; 
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?MFArK2FFSnU4cEVidHVabTA2Qm0vUGF6WTR0ZkF6US9Mc0dFK3UwVTMwRVAx?=
- =?utf-8?B?QkVZN1JjRVRxM0NlK2ZrQmp5UVdmVEtZN3RJMExwNHkwZ2xERkVvTlF5QVJ0?=
- =?utf-8?B?d0p5VjM2WWFaTHIrei9Zc002bWdvVnJ5QXN6Z3B1SWVoTnpoRVMzdEFOWXNP?=
- =?utf-8?B?bkFEbXZSb3Y1cEdrQ2RUNVhLdFg1WFdEcTNFUG5aMWJkNWczYTd3QUV2MXp5?=
- =?utf-8?B?Q3VkZzVKcWdTc0E3UjdYZnZkMHo3ZUxFVkovWU0zYVFybDc4dmlWU0lIVDJP?=
- =?utf-8?B?OUhlVHNTRkpGSEZIbXdXcXlISlVJQi9OVEwvS3VNcmkxRUd5eDNSSmVDcVA0?=
- =?utf-8?B?ak5GNGFTTlNWU0RwMmZ0clkzbEY5K1d6ZUY2ZjV5V2ZRcjdET1liTkNTSWFS?=
- =?utf-8?B?bDRZQzJSc0o2QVdkWnpjakJubjVHbjRSN2RoTmZzQVByN1htVG82cmtoYytw?=
- =?utf-8?B?VjJUVlE5ZU9qNkFoL3R6YlFaUEpzK0ZrU0J3SVcrUk80RXRIMksxRGpaY1hG?=
- =?utf-8?B?elByVGVCb3Bwa1NtY0pzNlMyY2ZrTVBHOUFqVVhuZDV3c0F1clArNFo0Z1hR?=
- =?utf-8?B?RVJzbkNQc1l1d1lCM3JEQkp2Tit3WFlNL3F0WGpJT3EwMWhCZ3BKZFA5WmFw?=
- =?utf-8?B?MXNPMVNvNWZLa2ZwUk9VMU9vdDErREcvTC9lZjRPKzQ5S25TWU9NOWJvVnVU?=
- =?utf-8?B?WTJjV0grd2MrdTRaV1dHMDZLNWNpMUM5Mkh3blNPeXJ0NnVmZ1g5eXJBaldz?=
- =?utf-8?B?Vmc4UW1XRFRGeVhTSFVxQ1ljQ2pIR2t2cmVtejU5VG1zNkRWVUdoMmlid3h4?=
- =?utf-8?B?TDFGWkd0dDZBcGdYaFp1Wnd6NnluclhHbkN2b0RwOG9tMzB2V0F2WnJKdWlM?=
- =?utf-8?B?Vks4Uk5Eb2hHRFFBOEJKZ01qOEorcGFaUW4rNjRKN1FINmdqVnYxOWpPdnh1?=
- =?utf-8?B?Mngvbnc4QS9KVDVPU0VIOUhabDN0SFoxb0FydU4xcng1cnF2RHNGOU96MVdL?=
- =?utf-8?B?TmtKV2RLcEI5NHdTVENzZmJaeVAwNGJGM0ZBTU85ZmZHRnF3cmdZaTBqVnpz?=
- =?utf-8?B?VUFPUWdJTlE2eTZINDJDbG9Jcjd3T2pEZklXTEdqOWkvOWtGYXFqK2xMOWZy?=
- =?utf-8?B?c25hMFNEVWErRS9pbVN6RFFPK1BFcTFxRW8xcVZQTjhHeXhObjh2UHQwNm1G?=
- =?utf-8?B?aWp3WmNrQk4xV1hSU2xZb1pwTTJjWk9JOFcrQkxBdzhqbU9PUS9iSDAzd0s2?=
- =?utf-8?B?dnpxUUpFRnMzOTZKUm5MS2hBNEp6bzVKTlJ3bDlGakU2TUdTendOWW9DemEz?=
- =?utf-8?B?OVAzWE1ZTHl0aXNLbGpqdlBlRDFMb1ZseEFBSXZJTTlJOUo1THcwMFFjOEsv?=
- =?utf-8?B?UVo4TXhIVWhiYk55Y1o0NGlvS0h1bUJlVW5qdDlCd0pVa0JkVU1ORWNVd1Bl?=
- =?utf-8?B?SnV1WGJHSnhFZDdrVTJKT3JBb1dEa2pPdWZ0MEQ5bXdiZ2g4UjN5OFMwSzZh?=
- =?utf-8?B?UHVMRFBqalJLTWRhVUhucTZzRUxScVJXQ1NkZ1Y0a3lBN3RSS0dlUzhkVCtZ?=
- =?utf-8?B?QnF2V0JBQUtJNUtFZnkrSGkxMDkybmorUUF5UGpIV2NEOUx2Zk9BV1hiWW5B?=
- =?utf-8?B?eGlDY2tPcEZ0ZVVCbTdCWnBWSnY0dzBLNUN1dkVpdHFGRXJlZ0FhYXp5WFNt?=
- =?utf-8?B?b05MOWRsU3BJUFl5SWFtZWErVEdvZitkZklIMkRIUmVPSXZId0RhWE82c1g3?=
- =?utf-8?B?dE93MmNlYjZEUXVROTVwSXFDanNlbXc1RWFNQkVYejdiclp0ekJKVUtJaFZ2?=
- =?utf-8?B?eUprKzNrWWxhaXRXbWNjYkt6NUJKS3hSQ3FOUUpDb1dOSWpxa1FtaWtSRUlY?=
- =?utf-8?B?NHZma3hpTjFVS3Z2SmQwamFGTXR0VHJ0SkJWaWM1alFKV2dkckVwWjd6OTVp?=
- =?utf-8?B?MVk4MUJ4VHBtVjBjbFZ4aGo0NWNqSzloUXVnLzNqeFFNemZ5VG4wN25YVmdl?=
- =?utf-8?B?cWZaN2Z5enNONnRRQTJONkxDb0piMUJMRDlGc3dqK0ZaZi96UWI3T0FFckxU?=
- =?utf-8?B?UlFhSEI4SEI2R3dYeU1DbTdXMlpxdmtabmg1Y3MycnlSOWZqYTJrTjJoNXlR?=
- =?utf-8?Q?DXE+Y4nAB6n1hAPYcq8zkve3e?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?MHhrMWlZRThhbk5BWUhqQVZwd2hBUW1BdERCRmc5c2RCWjVBZm9hQ25KZDND?=
+ =?utf-8?B?ZmFVM1doM0VZTFFmVG1kVm1LcjFVUC9hZFdpeDNrc2hEYnV3NWQrNUthUW5N?=
+ =?utf-8?B?c2pkM3dkWGdOYWFFSUh4WFZHbHBiUHFxN1pwWW16UlRjRXNBQ2pxdHEzckY5?=
+ =?utf-8?B?SmFzTXpEYlJpNDBRckJURlRZR0p1cW4ycHllQmRpeHUrOXZ2OVJJYXBqVi9t?=
+ =?utf-8?B?TDZzbnBhK2NVVmR3OFhHTjFjRHVXdTJPVURlRU0veEJwKzh1blk2Z3JlUFhR?=
+ =?utf-8?B?MHFMQ21tV2J3cFhWdjNyQ1lwWktVL1Y1dWVteWNhblJLNkVQNTRVa1NHbXl0?=
+ =?utf-8?B?dFE1ai9mbHphcjhWZnp1OFA5SVVjc2xzRDc2cGZPbi9FcFlLT05aUkZMZmor?=
+ =?utf-8?B?MlZsUkdQTzdBNys3OTBkeWMyR3J6am5Na3J5SlU0ZVdXazcwOVZpUi9uTm10?=
+ =?utf-8?B?enZ3akI5VW5oT1E2ZWsxb21QWjE0bTJQbmZTYUkxTys4VjdLOHIrRU1ZT0VT?=
+ =?utf-8?B?T3VLek15VjRqZW1SOHdKY3VsMTI4L0VrMXJaZHRrQ2lYenJQSEd5U2E0aGdZ?=
+ =?utf-8?B?RXRXd1BhT3hVR213L3BUQVJwcGdIc0l6UTVWdG1aaGY4V2U1WWNIMjQrMjkv?=
+ =?utf-8?B?SmU5KzRYaUNHaWRYbkRSUGNhUmdnclhXcHNQUlJnM2J4N0l1VkJ6SWNFdlpM?=
+ =?utf-8?B?NWNMN2pWRjJ0TG93YVBhNElmUWlwNFpoT25JT2pTbWU1cnJ4bG9WcW5xQVUw?=
+ =?utf-8?B?UkhXSFN4VHRXQTdwNzlNaFNRN1V4WXdTeHJhcndGdFJlS3hadVgrQ2VwTUFD?=
+ =?utf-8?B?SUw2azBsR3pDRCtGQU0vd2JTMlBDWnZjZVJXdER4Umo5NVJaK0pEckxTV0Zv?=
+ =?utf-8?B?WUZSYVIydmwxY0RUY3VRTnNQVkZCZHJSK0NJb3pENTdab1JFeTZXNDcweEJD?=
+ =?utf-8?B?WUx5SVlRWmdDSUpuTW01UnhtVkVSeVp2Tm1sUmNzeVc2UlY5M2QzcnBzZy9K?=
+ =?utf-8?B?UHg4UkN2MUkvQU0ydG1Kc01SSVRFUlV2NXlvZ0tEYXROWnhYTkFaNHlVellH?=
+ =?utf-8?B?UjhpUkdDWTl2djYzN1Rrd2ppb2VBTnhLdkFaL1R0NW05L3dFYkdyMGQzcWVB?=
+ =?utf-8?B?U2hZUlFERFg4RCsxdENIUlpENnh0S1VsZXh5NjFvejE2SXJUZ1h0M1k0aG9t?=
+ =?utf-8?B?UTExT1hlRTZQa2o0aFdWTXRDTjh4akhLdElVZFJjeCtFaDdDWDJYcXAwVzEr?=
+ =?utf-8?B?S3BSOWNWa2JyWFRPS3JBNW55ckZXbysvdkJUNE9LWGpuTXc0QXpLZm5LbTRC?=
+ =?utf-8?B?MFFNb3pGZHVjRjVjSEdINHVocW9BdVpQVTlBMDBYcHgxalA2RjI5ZW5oOStS?=
+ =?utf-8?B?TWx3T2xYcXVCQk9Hd3kwcGJxS2pvWkJEcmsvR3NwVXBreDZGM0pYZTU4dFRZ?=
+ =?utf-8?B?Z2lhdDh0L2paOFBST3F2Qi9YRk4rcnZ0bXNWclo0S0cvL3V0VjU0Vk1WYk5E?=
+ =?utf-8?B?U3BuRzZoeE1RZ2VKbWt0TnYyYmh0Y3hyOVBJMmRid1RBeUNQOElSRHhYbW43?=
+ =?utf-8?B?KzRsS2F2T2VpK2ZhR0UwWTkvd0RHMEpMUFc5N2M1Z1hhSitPc2cvMTNZQ3k2?=
+ =?utf-8?B?eTlSL3d5WHFJNHFWbzBFWTg5MG9JcEFnNnNzb3dNYTJ5dlF4MmVNMHRFZExB?=
+ =?utf-8?B?NzFMOHN3RWFib3BEZEtJaGlUc3ZxN29Qak9aeStVZG1rY0g2WDdUUUlQcjZ3?=
+ =?utf-8?B?VEtPUDJYV3JybFVaN2dXVFBjd2tzTko0N2w0aktCeFRablF5R284eXNOZFBi?=
+ =?utf-8?B?MDZybm02bkRoeVJFRlIyUmxoRUx5NWZJVGh6UGF6L1E4dE5XaXdJRmxpQlUy?=
+ =?utf-8?B?R2JhbmZWcHpmOGh3NzZNb01mbUN2RDArQlpWbFN3SGdVNHF0QzA5ZkE0bXJI?=
+ =?utf-8?B?b0VGVlpiYlZRZWZwOUZ3UWxVakhEVTc1RHpWU0VZTDlRQURReis4U0dUMDNM?=
+ =?utf-8?B?cmdZakJSckRKWWovek04RVB4Q28wT3BEM2w4enEzelB1MjU3blU1TXlUQ2N4?=
+ =?utf-8?B?NzlCaDVTRmlHU1VKZXhmbjZWNmhyVThYcy81L1A2bllwb3MzTEdJNTZkUXBP?=
+ =?utf-8?Q?gGMGJerG67oOcFr9/idFS3cYP?=
 X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 94b979e2-f649-4607-6bc4-08da872b8991
+X-MS-Exchange-CrossTenant-Network-Message-Id: 2db2f96d-c89d-43fd-6bd4-08da87404d0c
 X-MS-Exchange-CrossTenant-AuthSource: BYAPR10MB3287.namprd10.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Aug 2022 06:23:48.9261 (UTC)
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Aug 2022 08:52:26.8694 (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 4Wjp+utOnQJWQv0M2KkYoOc56Wo9lZ9FC38FURo34GwxS2FrkrK2RcTTQsW4UqdK7q0fSGg85mnDXcQVKG8Awg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CO1PR10MB4515
+X-MS-Exchange-CrossTenant-UserPrincipalName: RxhqDpNdNiavg+M9bgmkGeLdBATg/XeRKiFTroVEk4UcutwtmFkvQli5fHFqvbZKu6tzBj0fuCpTRK1dCrt5xw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR10MB3936
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-08-26_02,2022-08-25_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999
- mlxscore=0 spamscore=0
- adultscore=0 phishscore=0 bulkscore=0 malwarescore=0 suspectscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2207270000
- definitions=main-2208260022
-X-Proofpoint-GUID: nWGfBjsu1rP_ePvWfYrlCuTSuydbjAMF
-X-Proofpoint-ORIG-GUID: nWGfBjsu1rP_ePvWfYrlCuTSuydbjAMF
-Cc: kvm <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>,
- netdev <netdev@vger.kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>,
- Yongji Xie <xieyongji@bytedance.com>, "Dawar, Gautam" <gautam.dawar@amd.com>
+ definitions=2022-08-26_04,2022-08-25_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0
+ suspectscore=0
+ mlxlogscore=999 mlxscore=0 spamscore=0 adultscore=0 phishscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2207270000 definitions=main-2208260034
+X-Proofpoint-ORIG-GUID: 3ngDlU0UnK2nagxDMf5mMNTf-SkCkdLo
+X-Proofpoint-GUID: 3ngDlU0UnK2nagxDMf5mMNTf-SkCkdLo
+Cc: gavi@nvidia.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -218,252 +200,423 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: multipart/mixed; boundary="===============2884339845796556620=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-CgpPbiA4LzIyLzIwMjIgODoyNiBQTSwgSmFzb24gV2FuZyB3cm90ZToKPiBPbiBNb24sIEF1ZyAy
-MiwgMjAyMiBhdCAxOjA4IFBNIFpodSwgTGluZ3NoYW4gPGxpbmdzaGFuLnpodUBpbnRlbC5jb20+
-IHdyb3RlOgo+Pgo+Pgo+PiBPbiA4LzIwLzIwMjIgNDo1NSBQTSwgU2ktV2VpIExpdSB3cm90ZToK
-Pj4+Cj4+PiBPbiA4LzE4LzIwMjIgNTo0MiBQTSwgSmFzb24gV2FuZyB3cm90ZToKPj4+PiBPbiBG
-cmksIEF1ZyAxOSwgMjAyMiBhdCA3OjIwIEFNIFNpLVdlaSBMaXUgPHNpLXdlaS5saXVAb3JhY2xl
-LmNvbT4KPj4+PiB3cm90ZToKPj4+Pj4KPj4+Pj4gT24gOC8xNy8yMDIyIDk6MTUgUE0sIEphc29u
-IFdhbmcgd3JvdGU6Cj4+Pj4+PiDlnKggMjAyMi84LzE3IDE4OjM3LCBNaWNoYWVsIFMuIFRzaXJr
-aW4g5YaZ6YGTOgo+Pj4+Pj4+IE9uIFdlZCwgQXVnIDE3LCAyMDIyIGF0IDA1OjQzOjIyUE0gKzA4
-MDAsIFpodSwgTGluZ3NoYW4gd3JvdGU6Cj4+Pj4+Pj4+IE9uIDgvMTcvMjAyMiA1OjM5IFBNLCBN
-aWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4+Pj4+Pj4+PiBPbiBXZWQsIEF1ZyAxNywgMjAyMiBh
-dCAwNToxMzo1OVBNICswODAwLCBaaHUsIExpbmdzaGFuIHdyb3RlOgo+Pj4+Pj4+Pj4+IE9uIDgv
-MTcvMjAyMiA0OjU1IFBNLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4+Pj4+Pj4+Pj4+IE9u
-IFdlZCwgQXVnIDE3LCAyMDIyIGF0IDEwOjE0OjI2QU0gKzA4MDAsIFpodSwgTGluZ3NoYW4gd3Jv
-dGU6Cj4+Pj4+Pj4+Pj4+PiBZZXMgaXQgaXMgYSBsaXR0bGUgbWVzc3ksIGFuZCB3ZSBjYW4gbm90
-IGNoZWNrIF9GX1ZFUlNJT05fMQo+Pj4+Pj4+Pj4+Pj4gYmVjYXVzZSBvZgo+Pj4+Pj4+Pj4+Pj4g
-dHJhbnNpdGlvbmFsIGRldmljZXMsIHNvIG1heWJlIHRoaXMgaXMgdGhlIGJlc3Qgd2UgY2FuIGRv
-IGZvcgo+Pj4+Pj4+Pj4+Pj4gbm93Cj4+Pj4+Pj4+Pj4+IEkgdGhpbmsgdmhvc3QgZ2VuZXJhbGx5
-IG5lZWRzIGFuIEFQSSB0byBkZWNsYXJlIGNvbmZpZyBzcGFjZQo+Pj4+Pj4+Pj4+PiBlbmRpYW4t
-bmVzcwo+Pj4+Pj4+Pj4+PiB0byBrZXJuZWwuIHZkcGEgY2FuIHJldXNlIHRoYXQgdG9vIHRoZW4u
-Cj4+Pj4+Pj4+Pj4gWWVzLCBJIHJlbWVtYmVyIHlvdSBoYXZlIG1lbnRpb25lZCBzb21lIElPQ1RM
-IHRvIHNldCB0aGUKPj4+Pj4+Pj4+PiBlbmRpYW4tbmVzcywKPj4+Pj4+Pj4+PiBmb3IgdkRQQSwg
-SSB0aGluayBvbmx5IHRoZSB2ZW5kb3IgZHJpdmVyIGtub3dzIHRoZSBlbmRpYW4sCj4+Pj4+Pj4+
-Pj4gc28gd2UgbWF5IG5lZWQgYSBuZXcgZnVuY3Rpb24gdmRwYV9vcHMtPmdldF9lbmRpYW4oKS4K
-Pj4+Pj4+Pj4+PiBJbiB0aGUgbGFzdCB0aHJlYWQsIHdlIHNheSBtYXliZSBpdCdzIGJldHRlciB0
-byBhZGQgYSBjb21tZW50IGZvcgo+Pj4+Pj4+Pj4+IG5vdy4KPj4+Pj4+Pj4+PiBCdXQgaWYgeW91
-IHRoaW5rIHdlIHNob3VsZCBhZGQgYSB2ZHBhX29wcy0+Z2V0X2VuZGlhbigpLCBJIGNhbgo+Pj4+
-Pj4+Pj4+IHdvcmsKPj4+Pj4+Pj4+PiBvbiBpdCBmb3Igc3VyZSEKPj4+Pj4+Pj4+Pgo+Pj4+Pj4+
-Pj4+IFRoYW5rcwo+Pj4+Pj4+Pj4+IFpodSBMaW5nc2hhbgo+Pj4+Pj4+Pj4gSSB0aGluayBRRU1V
-IGhhcyB0byBzZXQgZW5kaWFuLW5lc3MuIE5vIG9uZSBlbHNlIGtub3dzLgo+Pj4+Pj4+PiBZZXMs
-IGZvciBTVyBiYXNlZCB2aG9zdCBpdCBpcyB0cnVlLiBCdXQgZm9yIEhXIHZEUEEsIG9ubHkKPj4+
-Pj4+Pj4gdGhlIGRldmljZSAmIGRyaXZlciBrbm93cyB0aGUgZW5kaWFuLCBJIHRoaW5rIHdlIGNh
-biBub3QKPj4+Pj4+Pj4gInNldCIgYSBoYXJkd2FyZSdzIGVuZGlhbi4KPj4+Pj4+PiBRRU1VIGtu
-b3dzIHRoZSBndWVzdCBlbmRpYW4tbmVzcyBhbmQgaXQga25vd3MgdGhhdAo+Pj4+Pj4+IGRldmlj
-ZSBpcyBhY2Nlc3NlZCB0aHJvdWdoIHRoZSBsZWdhY3kgaW50ZXJmYWNlLgo+Pj4+Pj4+IEl0IGNh
-biBhY2NvcmRpbmdseSBzZW5kIGVuZGlhbi1uZXNzIHRvIHRoZSBrZXJuZWwgYW5kCj4+Pj4+Pj4g
-a2VybmVsIGNhbiBwcm9wYWdhdGUgaXQgdG8gdGhlIGRyaXZlci4KPj4+Pj4+IEkgd29uZGVyIGlm
-IHdlIGNhbiBzaW1wbHkgZm9yY2UgTEUgYW5kIHRoZW4gUWVtdSBjYW4gZG8gdGhlIGVuZGlhbgo+
-Pj4+Pj4gY29udmVyc2lvbj8KPj4+Pj4gY29udmVydCBmcm9tIExFIGZvciBjb25maWcgc3BhY2Ug
-ZmllbGRzIG9ubHksIG9yIFFFTVUgaGFzIHRvIGZvcmNlZnVsbHkKPj4+Pj4gbWVkaWF0ZSBhbmQg
-Y292ZXJ0IGVuZGlhbm5lc3MgZm9yIGFsbCBkZXZpY2UgbWVtb3J5IGFjY2VzcyBpbmNsdWRpbmcK
-Pj4+Pj4gZXZlbiB0aGUgZGF0YXBhdGggKGZpZWxkcyBpbiBkZXNjcmlwdG9yIGFuZCBhdmFpbC91
-c2VkIHJpbmdzKT8KPj4+PiBGb3JtZXIuIEFjdHVhbGx5LCBJIHdhbnQgdG8gZm9yY2UgbW9kZXJu
-IGRldmljZXMgZm9yIHZEUEEgd2hlbgo+Pj4+IGRldmVsb3BpbmcgdGhlIHZEUEEgZnJhbWV3b3Jr
-LiBCdXQgdGhlbiB3ZSBzZWUgcmVxdWlyZW1lbnRzIGZvcgo+Pj4+IHRyYW5zaXRpb25hbCBvciBl
-dmVuIGxlZ2FjeSAoZS5nIHRoZSBBbGkgRU5JIHBhcmVudCkuIFNvIGl0Cj4+Pj4gY29tcGxpY2F0
-ZXMgdGhpbmdzIGEgbG90Lgo+Pj4+Cj4+Pj4gSSB0aGluayBzZXZlcmFsIGlkZWFzIGhhcyBiZWVu
-IHByb3Bvc2VkOgo+Pj4+Cj4+Pj4gMSkgWW91ciBwcm9wb3NhbCBvZiBoYXZpbmcgYSB2RFBBIHNw
-ZWNpZmljIHdheSBmb3IKPj4+PiBtb2Rlcm4vdHJhbnNpdGlvbmFsL2xlZ2FjeSBhd2FyZW5lc3Mu
-IFRoaXMgc2VlbXMgdmVyeSBjbGVhbiBzaW5jZSBlYWNoCj4+Pj4gdHJhbnNwb3J0IHNob3VsZCBo
-YXZlIHRoZSBhYmlsaXR5IHRvIGRvIHRoYXQgYnV0IGl0IHN0aWxsIHJlcXVpcmVzCj4+Pj4gc29t
-ZSBraW5kIG9mIG1lZGlhdGlvbiBmb3IgdGhlIGNhc2UgZS5nIHJ1bm5pbmcgQkUgbGVnYWN5IGd1
-ZXN0IG9uIExFCj4+Pj4gaG9zdC4KPj4+IEluIHRoZW9yeSBpdCBzZWVtcyBsaWtlIHNvLCB0aG91
-Z2ggcHJhY3RpY2FsbHkgSSB3b25kZXIgaWYgd2UgY2FuIGp1c3QKPj4+IGZvcmJpZCBCRSBsZWdh
-Y3kgZHJpdmVyIGZyb20gcnVubmluZyBvbiBtb2Rlcm4gTEUgaG9zdC4gRm9yIHRob3NlIHdobwo+
-Pj4gY2FyZSBhYm91dCBsZWdhY3kgQkUgZ3Vlc3QsIHRoZXkgbW9zdGx5IGxpa2UgY291bGQgYW5k
-IHNob3VsZCB0YWxrIHRvCj4+PiB2ZW5kb3IgdG8gZ2V0IG5hdGl2ZSBCRSBzdXBwb3J0IHRvIGFj
-aGlldmUgaGFyZHdhcmUgYWNjZWxlcmF0aW9uLAo+IFRoZSBwcm9ibGVtIGlzIHRoZSBoYXJkd2Fy
-ZSBzdGlsbCBuZWVkcyBhIHdheSB0byBrbm93IHRoZSBlbmRpYW4gb2YgdGhlIGd1ZXN0PwpIYXJk
-d2FyZSBkb2Vzbid0IG5lZWQgdG8ga25vdy4gVk1NIHNob3VsZCBrbm93IGJ5IGp1ZGdpbmcgZnJv
-bSBWRVJTSU9OXzEgCmZlYXR1cmUgYml0IG5lZ290aWF0aW9uIGFuZCBsZWdhY3kgaW50ZXJmYWNl
-IGFjY2VzcyAod2l0aCBuZXcgY29kZSksIGFuZCAKdGhlIHRhcmdldCBhcmNoaXRlY3R1cmUgZW5k
-aWFubmVzcyAodGhlIGxhdHRlciBpcyBleGlzdGluZyBRRU1VIGNvZGUpLgo+Cj4+PiBmZXcKPj4+
-IG9mIHRoZW0gd291bGQgY291bnQgb24gUUVNVSBpbiBtZWRpYXRpbmcgb3IgZW11bGF0aW5nIHRo
-ZSBkYXRhcGF0aAo+Pj4gKG90aGVyd2lzZSBJIGRvbid0IHNlZSB0aGUgYmVuZWZpdCBvZiBhZG9w
-dGluZyB2RFBBPykuIEkgc3RpbGwgZmVlbAo+Pj4gdGhhdCBub3QgZXZlcnkgaGFyZHdhcmUgdmVu
-ZG9yIGhhcyB0byBvZmZlciBiYWNrd2FyZCBjb21wYXRpYmlsaXR5Cj4+PiAodHJhbnNpdGlvbmFs
-IGRldmljZSkgd2l0aCBsZWdhY3kgaW50ZXJmYWNlL2JlaGF2aW9yIChCRSBiZWluZyBqdXN0Cj4+
-PiBvbmUpLAo+IFByb2JhYmx5LCBJIGFncmVlIGl0IGlzIGEgY29ybmVyIGNhc2UsIGFuZCBkZWFs
-aW5nIHdpdGggdHJhbnNpdGlvbmFsCj4gZGV2aWNlIGZvciB0aGUgZm9sbG93aW5nIHNldHVwcyBp
-cyB2ZXJ5IGNoYWxsZW5nZSBmb3IgaGFyZHdhcmU6Cj4KPiAtIGRyaXZlciB3aXRob3V0IElPTU1V
-X1BMQVRGT1JNIHN1cHBvcnQsIChyZXF1aXJpbmcgZGV2aWNlIHRvIHNlbmQKPiB0cmFuc2xhdGVk
-IHJlcXVlc3Qgd2hpY2ggaGF2ZSBzZWN1cml0eSBpbXBsaWNhdGlvbnMpCkRvbid0IGdldCBiZXR0
-ZXIgc3VnZ2VzdGlvbiBmb3IgdGhpcyBvbmUsIGJ1dCBJIHByZXN1bWUgdGhpcyBpcyAKc29tZXRo
-aW5nIGxlZ2FjeSBndWVzdCB1c2VycyBzaG91bGQgYmUgYXdhcmUgb2YgYWhlYWQgaW4gdGVybSBv
-ZiAKc2VjdXJpdHkgaW1wbGljYXRpb25zLgoKPiAtIEJFIGxlZ2FjeSBndWVzdCBvbiBMRSBob3N0
-LCAocmVxdWlyaW5nIGRldmljZSB0byBoYXZlIGEgd2F5IHRvIGtub3cKPiB0aGUgZW5kaWFuKQpZ
-ZXMuIGRldmljZSBjYW4gdGVsbCBhcGFydCB3aXRoIHRoZSBoZWxwIGZyb20gVk1NIChqdWRnaW5n
-IGJ5IFZFUlNJT05fMSAKYWNrbm93bGVkZ2VtZW50IGFuZCBpZiBsZWdhY3kgaW50ZXJmYWNlIGlz
-IHVzZWQgZHVyaW5nIG5lZ290aWF0aW9uKS4KCj4gLSBkZXZpY2Ugc3BlY2lmaWMgcmVxdWlyZW1l
-bnQgKGUuZyBtb2Rlcm4gdmlydGlvLW5ldCBtYW5kYXRlIG1pbmltYWwKPiBoZWFkZXIgbGVuZ3Ro
-IHRvIGNvbnRhaW4gbXJnX3J4YnVmIGV2ZW4gaWYgdGhlIGRldmljZSBkb2Vzbid0IG9mZmVyCj4g
-aXQpClRoaXMgb25lIHNlZW1zIHRvIGJlIHNwZWMgbWFuZGF0ZWQgdHJhbnNpdGlvbmFsIGludGVy
-ZmFjZSByZXF1aXJlbWVudD8gCldoaWNoIHZEUEEgaGFyZHdhcmUgdmVuZG9yIHNob3VsZCB0YWtl
-IGNhcmUgb2YgcmF0aGVyIChpZiB0aGV5IGRvIG9mZmVyIAphIHRyYW5zaXRpb25hbCBkZXZpY2Up
-Pwo+Cj4gSXQgaXMgbm90IG9idmlvdXMgZm9yIHRoZSBoYXJkd2FyZSB2ZW5kb3IsIHNvIHdlIG1h
-eSBlbmQgdXAgZGVmZWN0aW5nCj4gaW4gdGhlIGltcGxlbWVudGF0aW9uLiBEZWFsaW5nIHdpdGgg
-Y29tcGF0aWJpbGl0eSBmb3IgdGhlIHRyYW5zaXRpb25hbAo+IGRldmljZXMgaXMga2luZCBvZiBh
-IG5pZ2h0bWFyZSB3aGljaCB0aGVyZSdzIG5vIHdheSBmb3IgdGhlIHNwZWMgdG8KPiBydWxlIHRo
-ZSBiZWhhdmlvciBvZiBsZWdhY3kgZGV2aWNlcy4KVGhlIGNvbXBhdGliaWxpdHkgZGV0ZWN0aW9u
-IHBhcnQgaXMgdGVkaW91cyBJIGFncmVlLiBUaGF0J3Mgd2h5IEkgCnN1Z2dlc3RlZCBzdGFydGlu
-ZyBmcm9tIHRoZSB2ZXJ5IG1pbmltYWwgYW5kIHByYWN0aWNhbGx5IGZlYXNpYmxlIChmb3IgCmUu
-Zy4gb24geDg2KSwgYnV0IGp1c3QgZG9uJ3QgcHJvaGliaXQgdGhlIHBvc3NpYmlsaXR5IHRvIGV4
-dGVuZCB0byBiaWcgCmVuZGlhbiBvciBjb21lIHVwIHdpdGggcXVpcmsgZml4ZXMgZm9yIHZhcmlv
-dXMgY2FzZXMgaW4gUUVNVS4KCj4KPj4+ICAgdGhpcyBpcyB1bmxpa2UgdGhlIHNpdHVhdGlvbiBv
-biBzb2Z0d2FyZSB2aXJ0aW8gZGV2aWNlLCB3aGljaAo+Pj4gaGFzIGxlZ2FjeSBzdXBwb3J0IHNp
-bmNlIGRheSBvbmUuIEkgdGhpbmsgd2UgZXZlciBkaXNjdXNzZWQgaXQgYmVmb3JlOgo+Pj4gZm9y
-IHRob3NlIHZEUEEgdmVuZG9ycyB3aG8gZG9uJ3Qgb2ZmZXIgbGVnYWN5IGd1ZXN0IHN1cHBvcnQs
-IG1heWJlIHdlCj4+PiBzaG91bGQgbWFuZGF0ZSBzb21lIGZlYXR1cmUgZm9yIGUuZy4gVkVSU0lP
-Tl8xLCBhcyB0aGVzZSBkZXZpY2VzCj4+PiByZWFsbHkgZG9uJ3Qgb2ZmZXIgZnVuY3Rpb25hbGl0
-eSBvZiB0aGUgb3Bwb3NpdGUgc2lkZSAoIVZFUlNJT05fMSkKPj4+IGR1cmluZyBuZWdvdGlhdGlv
-bi4KPiBJJ3ZlIHRyaWVkIHNvbWV0aGluZyBzaW1pbGFyIGhlcmUgKGEgZ2xvYmFsIG1hbmRhdG9y
-eSBpbnN0ZWFkIG9mIHBlciBkZXZpY2UpLgo+Cj4gaHR0cHM6Ly91cmxkZWZlbnNlLmNvbS92My9f
-X2h0dHBzOi8vbGttbC5vcmcvbGttbC8yMDIxLzYvNC8yNl9fOyEhQUNXVjVOOU0yUlY5OWhRIU5S
-UVBmajVvOW8zTUtFMTJ6ZTF6ZlhNQy05U3F3T1dxRjI2ZzhSckl5VURiVW13REl3bDVXUUNhTmlE
-ZTZhWjJ5Ujgzai1ORXFSWFFOWGNOeU9vJAo+Cj4gQnV0IGZvciBzb21lIHJlYXNvbiwgaXQgaXMg
-bm90IGFwcGxpZWQgYnkgTWljaGFlbC4gSXQgd291bGQgYmUgYSBncmVhdAo+IHJlbGllZiBpZiB3
-ZSBzdXBwb3J0IG1vZGVybiBkZXZpY2VzIG9ubHkuIE1heWJlIGl0J3MgdGltZSB0byByZXZpc2l0
-Cj4gdGhpcyBpZGVhIHRoZW4gd2UgY2FuIGludHJvZHVjZSBuZXcgYmFja2VuZCBmZWF0dXJlcyBh
-bmQgdGhlbiB3ZSBjYW4KPiBtYW5kYXRlIFZFUlNJT05fMQpQcm9iYWJseSwgbWFuZGF0aW5nIHBl
-ci1kZXZpY2Ugc2hvdWxkIGJlIGZpbmUgSSBndWVzcy4KCj4KPj4+IEhhdmluZyBpdCBzYWlkLCBw
-ZXJoYXBzIHdlIHNob3VsZCBhbHNvIGFsbG93IHZlbmRvciBkZXZpY2UgdG8KPj4+IGltcGxlbWVu
-dCBvbmx5IHBhcnRpYWwgc3VwcG9ydCBmb3IgbGVnYWN5LiBXZSBjYW4gZGVmaW5lICJyZXZlcnNl
-ZCIKPj4+IGJhY2tlbmQgZmVhdHVyZSB0byBkZW5vdGUgc29tZSBwYXJ0IG9mIHRoZSBsZWdhY3kK
-Pj4+IGludGVyZmFjZS9mdW5jdGlvbmFsaXR5IG5vdCBnZXR0aW5nIGltcGxlbWVudGVkIGJ5IGRl
-dmljZS4gRm9yCj4+PiBpbnN0YW5jZSwgVkhPU1RfQkFDS0VORF9GX05PX0JFX1ZSSU5HLCBWSE9T
-VF9CQUNLRU5EX0ZfTk9fQkVfQ09ORklHLAo+Pj4gVkhPU1RfQkFDS0VORF9GX05PX0FMSUdORURf
-VlJJTkcsCj4+PiBWSE9TVF9CQUNLRU5EX05FVF9GX05PX1dSSVRFQUJMRV9NQUMsIGFuZCBldCBh
-bC4gTm90IGFsbCBvZiB0aGVzZQo+Pj4gbWlzc2luZyBmZWF0dXJlcyBmb3IgbGVnYWN5IHdvdWxk
-IGJlIGVhc3kgZm9yIFFFTVUgdG8gbWFrZSB1cCBmb3IsIHNvCj4+PiBRRU1VIGNhbiBzZWxlY3Rp
-dmVseSBlbXVsYXRlIHRob3NlIGF0IGl0cyBiZXN0IHdoZW4gbmVjZXNzYXJ5IGFuZAo+Pj4gYXBw
-bGljYWJsZS4gSW4gb3RoZXIgd29yZCwgdGhpcyBkZXNpZ24gc2hvdWxkbid0IHByZXZlbnQgUUVN
-VSBmcm9tCj4+PiBtYWtpbmcgdXAgZm9yIHZlbmRvciBkZXZpY2UncyBwYXJ0aWFsIGxlZ2FjeSBz
-dXBwb3J0Lgo+IFRoaXMgbG9va3MgdG9vIGhlYXZ5d2VpZ2h0IHNpbmNlIGl0IHRyaWVzIHRvIHBy
-b3ZpZGUgY29tcGF0aWJpbGl0eSBmb3IKPiBsZWdhY3kgZHJpdmVycy4KVGhhdCdzIGp1c3QgZm9y
-IHRoZSBzYWtlIG9mIGV4dHJlbWUgYmFja3dhcmQgY29tcGF0aWJpbGl0eSwgYnV0IHlvdSBjYW4g
-CnNheSB0aGF0J3Mgbm90IGV2ZW4gbmVlZGVkIGlmIHdlIG1hbmRhdGUgdHJhbnNpdGlvbmFsIGRl
-dmljZSB0byBvZmZlciAKYWxsIHJlcXVpcmVkIGludGVyZmFjZXMgZm9yIGJvdGggbGVnYWN5IGFu
-ZCBtb2Rlcm4gZ3Vlc3QuCgo+ICAgQ29uc2lkZXJpbmcgd2UndmUgaW50cm9kdWNlZCBtb2Rlcm4g
-ZGV2aWNlcyBmb3IgNSsKPiB5ZWFycywgSSdkIHJhdGhlcjoKPgo+IC0gUWVtdSB0byBtZWRpYXRl
-IHRoZSBjb25maWcgc3BhY2Ugc3R1ZmZzCj4gLSBTaGFkb3cgdmlydHF1ZXVlIHRvIG1lZGlhdGUg
-dGhlIGRhdGFwYXRoIChBRl9YRFAgdG9sZCB1cyBzaGFkb3cgcmluZwo+IGNhbiBwZXJmb3JtIHZl
-cnkgd2VsbCBpZiB3ZSBkbyB6ZXJvLWNvcHkpLgpUaGlzIGlzIG9uZSB3YXkgdG8gYWNoaWV2ZSwg
-dGhvdWdoIG5vdCBzdXJlIHdlIHNob3VsZCBzdGljayB0aGUgb25seSAKaG9wZSB0byB6ZXJvLWNv
-cHksIHdoaWNoIElNSE8gbWF5IHRha2UgYSBsb25nIHdheSB0byByZWFsaXplIGFuZCAKb3B0aW1p
-emUgdG8gd2hlcmUgYSBzaW1wbGUgZGF0YXBhdGggcGFzc3Rocm91Z2ggY2FuIGVhc2lseSBnZXQg
-dG8gKHdpdGggCmhhcmR3YXJlIGFjY2VsZXJhdGlvbiBvZiBjb3opLgoKPgo+Pj4+IDIpIE1pY2hh
-ZWwgc3VnZ2VzdHMgdXNpbmcgVkhPU1RfU0VUX1ZSSU5HX0VORElBTiB3aGVyZSBpdCBtZWFucyB3
-ZQo+Pj4+IG5lZWQgYSBuZXcgY29uZmlnIG9wcyBmb3IgdkRQQSBidXMsIGJ1dCBpdCBkb2Vzbid0
-IHNvbHZlIHRoZSBpc3N1ZSBmb3IKPj4+PiBjb25maWcgc3BhY2UgKGF0IGxlYXN0IGZyb20gaXRz
-IG5hbWUpLiBXZSBwcm9iYWJseSBuZWVkIGEgbmV3IGlvY3RsCj4+Pj4gZm9yIGJvdGggdnJpbmcg
-YW5kIGNvbmZpZyBzcGFjZS4KPj4+IFllcCBhZGRpbmcgYSBuZXcgaW9jdGwgbWFrZXMgdGhpbmdz
-IGJldHRlciwgYnV0IEkgdGhpbmsgdGhlIGtleSBpcyBub3QKPj4+IHRoZSBuZXcgaW9jdGwuIEl0
-J3Mgd2hldGhlciBvciBub3Qgd2Ugc2hvdWxkIGVuZm9yY2UgZXZlcnkgdkRQQSB2ZW5kb3IKPj4+
-IGRyaXZlciB0byBpbXBsZW1lbnQgYWxsIHRyYW5zaXRpb25hbCBpbnRlcmZhY2VzIHRvIGJlIHNw
-ZWMgY29tcGxpYW50Lgo+IEkgdGhpbmsgdGhlIGFuc3dlciBpcyBubyBzaW5jZSB0aGUgc3BlYyBh
-bGxvd3MgdHJhbnNpdGlvbmFsIGRldmljZS4KPiBBbmQgd2Uga25vdyB0aGluZ3Mgd2lsbCBiZSBn
-cmVhdGx5IHNpbXBsaWZpZWQgaWYgdkRQQSBzdXBwb3J0IG5vbgo+IHRyYW5zaXRpb25hbCBkZXZp
-Y2Ugb25seS4KPgo+IFNvIHdlIGNhbiBjaGFuZ2UgdGhlIHF1ZXN0aW9uIHRvOgo+Cj4gMSkgZG8g
-d2UgbmVlZCAob3IgaXMgaXQgdG9vIGxhdGUpIHRvIGVuZm9yY2Ugbm9uIHRyYW5zaXRpb25hbCBk
-ZXZpY2U/CldlIGFscmVhZHkgaGF2ZSBBbGliYWJhIEVOSSB3aGljaCBpcyBzb3J0IG9mIGEgcXVh
-c2ktdHJhbnNpdGlvbmFsIApkZXZpY2UsIHJpZ2h0PyBJbiB0aGUgc2Vuc2UgaXQgZG9lc24ndCBh
-ZHZlcnRpc2UgVkVSU0lPTl8xLiBJIGtub3cgdGhlIApvdGhlciBwYXJ0cyBtaWdodCBub3QgcXVh
-bGlmeSBpdCB0byBiZSBmdWxseSB0cmFuc2l0aW9uYWwsIGJ1dCBjb2RlIG5vdyAKZG9lc24ndCBw
-cm9oaWJpdCBpdCBmcm9tIHN1cHBvcnRpbmcgVkVSU0lPTl8xIG1vZGVybiBpbnRlcmZhY2UgZGVw
-ZW5kaW5nIApvbiB3aGF0ZXZlciBmdXR1cmUgbmVlZC4KPiAyKSBpZiB5ZXMsIGNhbiB0cmFuc2l0
-aW9uYWwgZGV2aWNlIGJlIG1lZGlhdGUgaW4gYW4gZWZmaWNpZW50IHdheT8KPgo+IEZvciAxKSwg
-aXQncyBwcm9iYWJseSB0b28gbGF0ZSBidXQgd2UgY2FuIGludmVudCBuZXcgdkRQQSBmZWF0dXJl
-cyBhcwo+IHlvdSBzdWdnZXN0IHRvIGJlIG5vbiB0cmFuc2l0aW9uYWwuIFRoZW4gd2UgY2FuOgo+
-Cj4gMS4xKSBleHRlbmQgdGhlIG5ldGxpbmsgQVBJIHRvIHByb3Zpc2lvbiBub24tdHJhbnNpdG9u
-YWwgZGV2aWNlCkRlZmluZSBub24tdHJhbnNpdGlvbmFsOiBkZXZpY2UgY291bGQgYmUgZWl0aGVy
-IG1vZGVybi1vbmx5IG9yIGxlZ2FjeS1vbmx5Pwo+IDEuMikgd29yayBvbiB0aGUgbm9uLXRyYW5z
-dGlvbmFsIGRldmljZSBpbiB0aGUgZnV0dXJlCj4gMS4zKSBwcmVzZW50aW5nIHRyYW5zaXRpb25h
-bCBkZXZpY2UgdmlhIG1lZGlhdGlvbgpwcmVzZW50aW5nIHRyYW5zaXRpb25hbCBvbiB0b3Agb2Yg
-YSBtb2Rlcm4gZGV2aWNlIHdpdGggVkVSU0lPTl8xLCByaWdodD8gCldoYXQgaWYgdGhlIGhhcmR3
-YXJlIGRldmljZSBjYW4gc3VwcG9ydCBsZWdhY3ktY29tcGF0aWJsZSBkYXRhcGF0aCAKbmF0aXZl
-bHkgdGhhdCBkb2Vzbid0IG5lZWQgbWVkaWF0aW9uPyBDYW4gaXQgYmUgZG9uZSB3aXRoIGRpcmVj
-dCAKZGF0YXBhdGggcGFzc3Rocm91Z2ggd2l0aG91dCBzdnEgaW52b2x2ZW1lbnQ/Cgo+Cj4gVGhl
-IHByZXZpb3VzIHRyYW5zaXRpb25hbCB2RFBBIHdvcmsgYXMgaXMsIGl0J3MgcHJvYmFibHkgdG9v
-IGxhdGUgdG8KPiBmaXggYWxsIHRoZSBpc3N1ZSB3ZSBzdWZmZXIuCldoYXQgZG8geW91IG1lYW4g
-d29yayBhcy1pcywgd2hhdCdzIHRoZSBub21lbmNsYXR1cmUgZm9yIHRoYXQsIApxdWFzaS10cmFu
-c2l0aW9uYWwgb3IgYnJva2VuLXRyYW5zaXRpb25hbD8gYW5kIHdoYXQgYXJlIHRoZSBvdXRzdGFu
-ZGluZyAKaXNzdWVzIHlvdSBhbnRpY2lwYXRlIHJlbWFpbmluZz8gSWYgaXQgaXMgZGV2aWNlIHNw
-ZWNpZmljIG9yIHZlbmRvciAKZHJpdmVyIHNwZWNpZmljLCBsZXQgaXQgYmUuIEJ1dCBJIHdvbmRl
-ciBpZiB0aGVyZSdzIGFueSBnZW5lcmljIG9uZSB0aGF0IApoYXMgdG8gYmUgZml4ZWQgaW4gdmRw
-YSBjb3JlIHRvIHN1cHBvcnQgYSB0cnVseSB0cmFuc2l0aW9uYWwgbW9kZWwuCj4KPiBGb3IgMiks
-IHRoZSBrZXkgcGFydCBpcyB0aGUgZGF0YXBhdGggbWVkaWF0aW9uLCB3ZSBjYW4gdXNlIHNoYWRv
-dyB2aXJ0cXVldWUuClN1cmUuIEZvciBvdXIgdXNlIGNhc2UsIHdlJ2QgY2FyZSBtb3JlIGluIHBy
-b3ZpZGluZyB0cmFuc2l0aW9uYWwgcmF0aGVyIAp0aGFuIGJlaW5nIG5vbi10cmFuc2l0aW9uYWwu
-IFNvLCBvbmUgZGV2aWNlIGZpdHMgYWxsLgoKVGhhbmtzIGZvciBhbGwgdGhlIGlkZWFzLiBUaGlz
-IGRpc2N1c3Npb24gaXMgcmVhbGx5IHVzZWZ1bC4KCkJlc3QsCi1TaXdlaQo+Cj4+PiBJZiB3ZSBh
-bGxvdyB0aGVtIHRvIHJlamVjdCB0aGUgVkhPU1RfU0VUX1ZSSU5HX0VORElBTiAgb3IKPj4+IFZI
-T1NUX1NFVF9DT05GSUdfRU5ESUFOIGNhbGwsIHdoYXQgY291bGQgd2UgZG8/IFdlIHdvdWxkIHN0
-aWxsIGVuZCB1cAo+Pj4gd2l0aCBzYW1lIHNpdHVhdGlvbiBvZiBlaXRoZXIgZmFpbCB0aGUgZ3Vl
-c3QsIG9yIHRyeWluZyB0bwo+Pj4gbWVkaWF0ZS9lbXVsYXRlLCByaWdodD8KPj4+Cj4+PiBOb3Qg
-dG8gbWVudGlvbiBWSE9TVF9TRVRfVlJJTkdfRU5ESUFOIGlzIHJhcmVseSBzdXBwb3J0ZWQgYnkg
-dmhvc3QKPj4+IHRvZGF5IC0gZmV3IGRpc3RybyBrZXJuZWwgaGFzIENPTkZJR19WSE9TVF9DUk9T
-U19FTkRJQU5fTEVHQUNZIGVuYWJsZWQKPj4+IGFuZCBRRU1VIGp1c3QgaWdub3JlcyB0aGUgcmVz
-dWx0LiB2aG9zdCBkb2Vzbid0IG5lY2Vzc2FyaWx5IGRlcGVuZCBvbgo+Pj4gaXQgdG8gZGV0ZXJt
-aW5lIGVuZGlhbm5lc3MgaXQgbG9va3MuCj4+IEkgd291bGQgbGlrZSB0byBzdWdnZXN0IHRvIGFk
-ZCB0d28gbmV3IGNvbmZpZyBvcHMgZ2V0L3NldF92cV9lbmRpYW4oKQo+PiBhbmQgZ2V0L3NldF9j
-b25maWdfZW5kaWFuKCkgZm9yIHZEUEEuIFRoaXMgaXMgdXNlZCB0bzoKPj4gYSkgc3VwcG9ydCBW
-SE9TVF9HRVQvU0VUX1ZSSU5HX0VORElBTiBhcyBNU1Qgc3VnZ2VzdGVkLCBhbmQgYWRkCj4+IFZI
-T1NUX1NFVC9HRVRfQ09ORklHX0VORElBTiBmb3Igdmhvc3RfdmRwYS4KPj4gSWYgdGhlIGRldmlj
-ZSBoYXMgbm90IGltcGxlbWVudGVkIGludGVyZmFjZSB0byBzZXQgaXRzIGVuZGlhbmVzcywgdGhl
-bgo+PiBubyBtYXR0ZXIgc3VjY2VzcyBvciBmYWlsdXJlIG9mIFNFVF9FTkRJQU4sIFFFTVUga25v
-d3MgdGhlIGVuZGlhbi1uZXNzCj4+IGFueXdheS4KPiBIb3cgY2FuIFFlbXUga25vdyB0aGUgZW5k
-aWFuIGluIHRoaXMgd2F5PyBBbmQgaWYgaXQgY2FuLCB0aGVyZSdzIG5vCj4gbmVlZCBmb3IgdGhl
-IG5ldyBBUEk/Cj4KPj4gSW4gdGhpcyBjYXNlLCBpZiB0aGUgZGV2aWNlIGVuZGlhbmVzcyBkb2Vz
-IG5vdCBtYXRjaCB0aGUgZ3Vlc3QsCj4+IHRoZXJlIG5lZWRzIGEgbWVkaWF0aW9uIGxheWVyIG9y
-IGZhaWwuCj4+IGIpIG9wcy0+Z2V0X2NvbmZpZ19lbmRpYW4oKSBjYW4gYWx3YXlzIHRlbGwgdGhl
-IGVuZGlhbi1uZXNzIG9mIHRoZQo+PiBkZXZpY2UgY29uZmlnIHNwYWNlIGFmdGVyIHRoZSB2ZW5k
-b3IgZHJpdmVyIHByb2JpbmcgdGhlIGRldmljZS4gU28gd2UKPj4gY2FuIHVzZSB0aGlzIG9wcy0+
-Z2V0X2NvbmZpZ19lbmRpYW4oKSBmb3IKPj4gTVRVLCBNQUMgYW5kIG90aGVyIGZpZWxkcyBoYW5k
-bGluZyBpbiB2ZHBhX2Rldl9uZXRfY29uZmlnX2ZpbGwoKSBhbmQgd2UKPj4gZG9uJ3QgbmVlZCB0
-byBzZXRfZmVhdHVyZXMgaW4gdmRwYV9nZXRfY29uZmlnX3VubG9ja2VkKCksIHNvIG5vIHJhY2UK
-Pj4gY29uZGl0aW9ucy4KPj4gRXZlcnkgdGltZSBvcHMtPmdldF9jb25maWcoKSByZXR1cm5lZCwg
-d2UgY2FuIHRlbGwgdGhlIGVuZGlhbiBieQo+PiBvcHMtY29uZmlnXz5nZXRfZW5kaWFuKCksIHdl
-IGRvbid0IG5lZWQgc2V0X2ZlYXR1cmVzKHh4eCwgMCkgaWYgZmVhdHVyZXMKPj4gbmVnb3RpYXRp
-b24gbm90IGRvbmUuCj4+Cj4+IFRoZSBxdWVzdGlvbiBpczogRG8gd2UgbmVlZCB0d28gcGFpcnMg
-b2YgaW9jdGxzIGZvciBib3RoIHZxIGFuZCBjb25maWcKPj4gc3BhY2U/IENhbiBjb25maWcgc3Bh
-Y2UgZW5kaWFuLW5lc3MgZGlmZmVyIGZyb20gdGhlIHZxcz8KPj4gYykgZG8gd2UgbmVlZCBhIG5l
-dyBuZXRsaW5rIGF0dHIgdGVsbGluZyB0aGUgZW5kaWFuLW5lc3MgdG8gdXNlciBzcGFjZT8KPiBH
-ZW5lcmFsbHksIEknbSBub3Qgc3VyZSB0aGlzIGlzIGEgZ29vZCBkZXNpZ24gY29uc2lkZXIgaXQg
-cHJvdmlkZXMgbmVpdGhlcjoKPgo+IENvbXBhdGliaWxpdHkgd2l0aCB0aGUgdmlydGlvIHNwZWMK
-Pgo+IG5vcgo+Cj4gQ29tcGF0aWJpbGl0eSB3aXRoIHRoZSBleGlzdGluZyB2aG9zdCBBUEkgKFZI
-T1NUX1NFVF9WUklOR19FTkRJQU4pCj4KPiBUaGFua3MKPgo+PiBUaGFua3MsCj4+IFpodSBMaW5n
-c2hhbgo+Pj4+IG9yCj4+Pj4KPj4+PiAzKSByZXZpc2l0IHRoZSBpZGVhIG9mIGZvcmNpbmcgbW9k
-ZXJuIG9ubHkgZGV2aWNlIHdoaWNoIG1heSBzaW1wbGlmeQo+Pj4+IHRoaW5ncyBhIGxvdAo+Pj4g
-SSBhbSBub3QgYWN0dWFsbHkgYWdhaW5zdCBmb3JjaW5nIG1vZGVybiBvbmx5IGNvbmZpZyBzcGFj
-ZSwgZ2l2ZW4gdGhhdAo+Pj4gaXQncyBub3QgaGFyZCBmb3IgZWl0aGVyIFFFTVUgb3IgaW5kaXZp
-ZHVhbCBkcml2ZXIgdG8gbWVkaWF0ZSBvcgo+Pj4gZW11bGF0ZSwgYW5kIGZvciB0aGUgbW9zdCBw
-YXJ0IGl0J3Mgbm90IGNvbmZsaWN0IHdpdGggdGhlIGdvYWwgb2YKPj4+IG9mZmxvYWQgb3IgYWNj
-ZWxlcmF0aW9uIHdpdGggdkRQQS4gQnV0IGZvcmNpbmcgTEUgcmluZyBsYXlvdXQgSU1PCj4+PiB3
-b3VsZCBqdXN0IGtpbGwgb2ZmIHRoZSBwb3RlbnRpYWwgb2YgYSB2ZXJ5IGdvb2QgdXNlIGNhc2Uu
-IEN1cnJlbnRseQo+Pj4gZm9yIG91ciB1c2UgY2FzZSB0aGUgcHJpb3JpdHkgZm9yIHN1cHBvcnRp
-bmcgMC45LjUgZ3Vlc3Qgd2l0aCB2RFBBIGlzCj4+PiBzbGlnaHRseSBsb3dlciBjb21wYXJlZCB0
-byBsaXZlIG1pZ3JhdGlvbiwgYnV0IGl0IGlzIHN0aWxsIGluIG91ciBUT0RPCj4+PiBsaXN0Lgo+
-Pj4KPj4+IFRoYW5rcywKPj4+IC1TaXdlaQo+Pj4KPj4+PiB3aGljaCB3YXkgc2hvdWxkIHdlIGdv
-Pwo+Pj4+Cj4+Pj4+IEkgaG9wZQo+Pj4+PiBpdCdzIG5vdCB0aGUgbGF0dGVyLCBvdGhlcndpc2Ug
-aXQgbG9zZXMgdGhlIHBvaW50IHRvIHVzZSB2RFBBIGZvcgo+Pj4+PiBkYXRhcGF0aCBhY2NlbGVy
-YXRpb24uCj4+Pj4+Cj4+Pj4+IEV2ZW4gaWYgaXRzIHRoZSBmb3JtZXIsIGl0J3MgYSBsaXR0bGUg
-d2VpcmQgZm9yIHZlbmRvciBkZXZpY2UgdG8KPj4+Pj4gaW1wbGVtZW50IGEgTEUgY29uZmlnIHNw
-YWNlIHdpdGggQkUgcmluZyBsYXlvdXQsIGFsdGhvdWdoIHN0aWxsCj4+Pj4+IHBvc3NpYmxlLi4u
-Cj4+Pj4gUmlnaHQuCj4+Pj4KPj4+PiBUaGFua3MKPj4+Pgo+Pj4+PiAtU2l3ZWkKPj4+Pj4+IFRo
-YW5rcwo+Pj4+Pj4KPj4+Pj4+Cj4+Pj4+Pj4+IFNvIGlmIHlvdSB0aGluayB3ZSBzaG91bGQgYWRk
-IGEgdmRwYV9vcHMtPmdldF9lbmRpYW4oKSwKPj4+Pj4+Pj4gSSB3aWxsIGRyb3AgdGhlc2UgY29t
-bWVudHMgaW4gdGhlIG5leHQgdmVyc2lvbiBvZgo+Pj4+Pj4+PiBzZXJpZXMsIGFuZCB3b3JrIG9u
-IGEgbmV3IHBhdGNoIGZvciBnZXRfZW5kaWFuKCkuCj4+Pj4+Pj4+Cj4+Pj4+Pj4+IFRoYW5rcywK
-Pj4+Pj4+Pj4gWmh1IExpbmdzaGFuCj4+Pj4+Pj4gR3Vlc3RzIGRvbid0IGdldCBlbmRpYW4tbmVz
-cyBmcm9tIGRldmljZXMgc28gdGhpcyBzZWVtcyBwb2ludGxlc3MuCj4+Pj4+Pj4KCl9fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1h
-aWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRw
-czovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXph
-dGlvbg==
+--===============2884339845796556620==
+Content-Type: multipart/alternative;
+ boundary="------------D0WHH0JdGtzNmlRYGuycaOhH"
+Content-Language: en-US
+
+--------------D0WHH0JdGtzNmlRYGuycaOhH
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Sorry for the delay. Didn't notice as this thread was not addressed to 
+my work email. Please copy to my work email if it needs my immediate 
+attention.
+
+On 8/25/2022 5:38 AM, Gavin Li wrote:
+> Currently add_recvbuf_big() allocates MAX_SKB_FRAGS segments for big
+> packets even when GUEST_* offloads are not present on the device.
+> However, if guest GSO is not supported, it would be sufficient to
+> allocate segments to cover just up the MTU size and no further.
+> Allocating the maximum amount of segments results in a large waste of
+> buffer space in the queue, which limits the number of packets that can
+> be buffered and can result in reduced performance.
+>
+> Therefore, if guest GSO is not supported, use the MTU to calculate the
+> optimal amount of segments required.
+>
+> When guest offload is enabled at runtime, RQ already has packets of bytes
+> less than 64K. So when packet of 64KB arrives, all the packets of such
+> size will be dropped. and RQ is now not usable.
+>
+> So this means that during set_guest_offloads() phase, RQs have to be
+> destroyed and recreated, which requires almost driver reload.
+Yes, this needs VIRTIO_F_RING_RESET and disable_vq_and_reset() to be 
+done on RQ and refill it with appropriate size of buffer. Not for this 
+patch anyway.
+>
+> If VIRTIO_NET_F_CTRL_GUEST_OFFLOADS has been negotiated, then it should
+> always treat them as GSO enabled.
+>
+> Below is the iperf TCP test results over a Mellanox NIC, using vDPA for
+> 1 VQ, queue size 1024, before and after the change, with the iperf
+> server running over the virtio-net interface.
+>
+> MTU(Bytes)/Bandwidth (Gbit/s)
+>               Before   After
+>    1500        22.5     22.4
+>    9000        12.8     25.9
+>
+> Signed-off-by: Gavin Li<gavinl@nvidia.com>
+> Reviewed-by: Gavi Teitz<gavi@nvidia.com>
+> Reviewed-by: Parav Pandit<parav@nvidia.com>
+> ---
+> changelog:
+> v1->v2
+> - Addressed comments from Jason, Michael, Si-Wei.
+> - Remove the flag of guest GSO support, set sg_num for big packets and
+>    use it directly
+> - Recalculate sg_num for big packets in virtnet_set_guest_offloads
+> - Replace the round up algorithm with DIV_ROUND_UP
+> ---
+>   drivers/net/virtio_net.c | 41 +++++++++++++++++++++++++++-------------
+>   1 file changed, 28 insertions(+), 13 deletions(-)
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index e1904877d461..ec8c135a26d6 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -225,6 +225,9 @@ struct virtnet_info {
+>   	/* I like... big packets and I cannot lie! */
+>   	bool big_packets;
+>   
+> +	/* number of sg entries allocated for big packets */
+> +	unsigned int big_packets_sg_num;
+> +
+>   	/* Host will merge rx buffers for big packets (shake it! shake it!) */
+>   	bool mergeable_rx_bufs;
+>   
+> @@ -1331,10 +1334,10 @@ static int add_recvbuf_big(struct virtnet_info *vi, struct receive_queue *rq,
+>   	char *p;
+>   	int i, err, offset;
+>   
+> -	sg_init_table(rq->sg, MAX_SKB_FRAGS + 2);
+> +	sg_init_table(rq->sg, vi->big_packets_sg_num + 2);
+>   
+> -	/* page in rq->sg[MAX_SKB_FRAGS + 1] is list tail */
+> -	for (i = MAX_SKB_FRAGS + 1; i > 1; --i) {
+> +	/* page in rq->sg[vi->big_packets_sg_num + 1] is list tail */
+> +	for (i = vi->big_packets_sg_num + 1; i > 1; --i) {
+>   		first = get_a_page(rq, gfp);
+>   		if (!first) {
+>   			if (list)
+> @@ -1365,7 +1368,7 @@ static int add_recvbuf_big(struct virtnet_info *vi, struct receive_queue *rq,
+>   
+>   	/* chain first in list head */
+>   	first->private = (unsigned long)list;
+> -	err = virtqueue_add_inbuf(rq->vq, rq->sg, MAX_SKB_FRAGS + 2,
+> +	err = virtqueue_add_inbuf(rq->vq, rq->sg, vi->big_packets_sg_num + 2,
+>   				  first, gfp);
+>   	if (err < 0)
+>   		give_pages(rq, first);
+> @@ -3690,13 +3693,31 @@ static bool virtnet_check_guest_gso(const struct virtnet_info *vi)
+>   		virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_UFO));
+>   }
+>   
+> +static void virtnet_set_big_packets_fields(struct virtnet_info *vi, const int mtu)
+> +{
+> +	bool guest_gso = virtnet_check_guest_gso(vi);
+> +
+> +	/* If we can receive ANY GSO packets, we must allocate large ones. */
+> +	if (mtu > ETH_DATA_LEN || guest_gso) {
+> +		vi->big_packets = true;
+> +		/* if the guest offload is offered by the device, user can modify
+> +		 * offload capability. In such posted buffers may short fall of size.
+> +		 * Hence allocate for max size.
+> +		 */
+> +		if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS))
+> +			vi->big_packets_sg_num = MAX_SKB_FRAGS;
+MAX_SKB_FRAGS is needed when any of the guest_gso capability is offered. 
+This is per spec regardless if VIRTIO_NET_F_CTRL_GUEST_OFFLOADS is 
+negotiated or not. Quoting spec:
+
+> If VIRTIO_NET_F_MRG_RXBUF is not negotiated:
+>
+>   * If VIRTIO_NET_F_GUEST_TSO4, VIRTIO_NET_F_GUEST_TSO6 or
+>     VIRTIO_NET_F_GUEST_UFO are negotiated, the driver SHOULD populate
+>     the receive queue(s) with buffers of at least 65562 bytes.
+>
+
+I would just simply put:
+
+vi->big_packets_sg_num = guest_gso ? MAX_SKB_FRAGS : DIV_ROUND_UP(mtu, PAGE_SIZE);
+
+There needs to be another patch to address the 
+virtnet_set_guest_offloads() case. For now just leave with a TODO 
+comment and keep it as-is (don't start with full MAX_SKB_FRAGS segments).
+> +		else
+> +			vi->big_packets_sg_num = DIV_ROUND_UP(mtu, PAGE_SIZE);
+> +	}
+> +}
+> +
+>   static int virtnet_probe(struct virtio_device *vdev)
+>   {
+>   	int i, err = -ENOMEM;
+>   	struct net_device *dev;
+>   	struct virtnet_info *vi;
+>   	u16 max_queue_pairs;
+> -	int mtu;
+> +	int mtu = 0;
+>   
+>   	/* Find if host supports multiqueue/rss virtio_net device */
+>   	max_queue_pairs = 1;
+> @@ -3784,10 +3805,6 @@ static int virtnet_probe(struct virtio_device *vdev)
+>   	INIT_WORK(&vi->config_work, virtnet_config_changed_work);
+>   	spin_lock_init(&vi->refill_lock);
+>   
+> -	/* If we can receive ANY GSO packets, we must allocate large ones. */
+> -	if (virtnet_check_guest_gso(vi))
+> -		vi->big_packets = true;
+> -
+>   	if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF))
+>   		vi->mergeable_rx_bufs = true;
+>   
+> @@ -3853,12 +3870,10 @@ static int virtnet_probe(struct virtio_device *vdev)
+>   
+>   		dev->mtu = mtu;
+>   		dev->max_mtu = mtu;
+> -
+> -		/* TODO: size buffers correctly in this case. */
+> -		if (dev->mtu > ETH_DATA_LEN)
+> -			vi->big_packets = true;
+>   	}
+>   
+Can we add a comment here to note that this essentially has to be 
+dev->max_mtu when F_MTU is negotiated. The implicit assumption of mtu 
+being 0 when F_MTU is not negotiated is not so obvious to readers.
+
+Thanks,
+-Siwei
+> +	virtnet_set_big_packets_fields(vi, mtu);
+> +
+>   	if (vi->any_header_sg)
+>   		dev->needed_headroom = vi->hdr_len;
+>   
+
+--------------D0WHH0JdGtzNmlRYGuycaOhH
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  </head>
+  <body>
+    Sorry for the delay. Didn't notice as this thread was not addressed
+    to my work email. Please copy to my work email if it needs my
+    immediate attention.<br>
+    <br>
+    <div class="moz-cite-prefix">On 8/25/2022 5:38 AM, Gavin Li wrote:<br>
+    </div>
+    <blockquote type="cite" cite="mid:20220825123840.20239-3-gavinl@nvidia.com">
+      <pre class="moz-quote-pre" wrap="">Currently add_recvbuf_big() allocates MAX_SKB_FRAGS segments for big
+packets even when GUEST_* offloads are not present on the device.
+However, if guest GSO is not supported, it would be sufficient to
+allocate segments to cover just up the MTU size and no further.
+Allocating the maximum amount of segments results in a large waste of
+buffer space in the queue, which limits the number of packets that can
+be buffered and can result in reduced performance.
+
+Therefore, if guest GSO is not supported, use the MTU to calculate the
+optimal amount of segments required.
+
+When guest offload is enabled at runtime, RQ already has packets of bytes
+less than 64K. So when packet of 64KB arrives, all the packets of such
+size will be dropped. and RQ is now not usable.
+
+So this means that during set_guest_offloads() phase, RQs have to be
+destroyed and recreated, which requires almost driver reload.</pre>
+    </blockquote>
+    Yes, this needs VIRTIO_F_RING_RESET and disable_vq_and_reset() to be
+    done on RQ and refill it with appropriate size of buffer. Not for
+    this patch anyway.<br>
+    <blockquote type="cite" cite="mid:20220825123840.20239-3-gavinl@nvidia.com">
+      <pre class="moz-quote-pre" wrap="">
+
+If VIRTIO_NET_F_CTRL_GUEST_OFFLOADS has been negotiated, then it should
+always treat them as GSO enabled.
+
+Below is the iperf TCP test results over a Mellanox NIC, using vDPA for
+1 VQ, queue size 1024, before and after the change, with the iperf
+server running over the virtio-net interface.
+
+MTU(Bytes)/Bandwidth (Gbit/s)
+             Before   After
+  1500        22.5     22.4
+  9000        12.8     25.9
+
+Signed-off-by: Gavin Li <a class="moz-txt-link-rfc2396E" href="mailto:gavinl@nvidia.com">&lt;gavinl@nvidia.com&gt;</a>
+Reviewed-by: Gavi Teitz <a class="moz-txt-link-rfc2396E" href="mailto:gavi@nvidia.com">&lt;gavi@nvidia.com&gt;</a>
+Reviewed-by: Parav Pandit <a class="moz-txt-link-rfc2396E" href="mailto:parav@nvidia.com">&lt;parav@nvidia.com&gt;</a>
+---
+changelog:
+v1-&gt;v2
+- Addressed comments from Jason, Michael, Si-Wei.
+- Remove the flag of guest GSO support, set sg_num for big packets and
+  use it directly
+- Recalculate sg_num for big packets in virtnet_set_guest_offloads
+- Replace the round up algorithm with DIV_ROUND_UP
+---
+ drivers/net/virtio_net.c | 41 +++++++++++++++++++++++++++-------------
+ 1 file changed, 28 insertions(+), 13 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index e1904877d461..ec8c135a26d6 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -225,6 +225,9 @@ struct virtnet_info {
+ 	/* I like... big packets and I cannot lie! */
+ 	bool big_packets;
+ 
++	/* number of sg entries allocated for big packets */
++	unsigned int big_packets_sg_num;
++
+ 	/* Host will merge rx buffers for big packets (shake it! shake it!) */
+ 	bool mergeable_rx_bufs;
+ 
+@@ -1331,10 +1334,10 @@ static int add_recvbuf_big(struct virtnet_info *vi, struct receive_queue *rq,
+ 	char *p;
+ 	int i, err, offset;
+ 
+-	sg_init_table(rq-&gt;sg, MAX_SKB_FRAGS + 2);
++	sg_init_table(rq-&gt;sg, vi-&gt;big_packets_sg_num + 2);
+ 
+-	/* page in rq-&gt;sg[MAX_SKB_FRAGS + 1] is list tail */
+-	for (i = MAX_SKB_FRAGS + 1; i &gt; 1; --i) {
++	/* page in rq-&gt;sg[vi-&gt;big_packets_sg_num + 1] is list tail */
++	for (i = vi-&gt;big_packets_sg_num + 1; i &gt; 1; --i) {
+ 		first = get_a_page(rq, gfp);
+ 		if (!first) {
+ 			if (list)
+@@ -1365,7 +1368,7 @@ static int add_recvbuf_big(struct virtnet_info *vi, struct receive_queue *rq,
+ 
+ 	/* chain first in list head */
+ 	first-&gt;private = (unsigned long)list;
+-	err = virtqueue_add_inbuf(rq-&gt;vq, rq-&gt;sg, MAX_SKB_FRAGS + 2,
++	err = virtqueue_add_inbuf(rq-&gt;vq, rq-&gt;sg, vi-&gt;big_packets_sg_num + 2,
+ 				  first, gfp);
+ 	if (err &lt; 0)
+ 		give_pages(rq, first);
+@@ -3690,13 +3693,31 @@ static bool virtnet_check_guest_gso(const struct virtnet_info *vi)
+ 		virtio_has_feature(vi-&gt;vdev, VIRTIO_NET_F_GUEST_UFO));
+ }
+ 
++static void virtnet_set_big_packets_fields(struct virtnet_info *vi, const int mtu)
++{
++	bool guest_gso = virtnet_check_guest_gso(vi);
++
++	/* If we can receive ANY GSO packets, we must allocate large ones. */
++	if (mtu &gt; ETH_DATA_LEN || guest_gso) {
++		vi-&gt;big_packets = true;
++		/* if the guest offload is offered by the device, user can modify
++		 * offload capability. In such posted buffers may short fall of size.
++		 * Hence allocate for max size.
++		 */
++		if (virtio_has_feature(vi-&gt;vdev, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS))
++			vi-&gt;big_packets_sg_num = MAX_SKB_FRAGS;</pre>
+    </blockquote>
+    MAX_SKB_FRAGS is needed when any of the guest_gso capability is
+    offered. This is per spec regardless if
+    VIRTIO_NET_F_CTRL_GUEST_OFFLOADS is negotiated or not. Quoting spec:<br>
+    <br>
+    <blockquote type="cite"><span style="color: rgb(0, 0, 0);
+        font-family: Arial, Helvetica, sans-serif; font-size: 13.3333px;
+        font-style: normal; font-variant-ligatures: normal;
+        font-variant-caps: normal; font-weight: 400; letter-spacing:
+        normal; orphans: 2; text-align: left; text-indent: 0px;
+        text-transform: none; white-space: normal; widows: 2;
+        word-spacing: 0px; -webkit-text-stroke-width: 0px;
+        text-decoration-thickness: initial; text-decoration-style:
+        initial; text-decoration-color: initial; display: inline
+        !important; float: none;">If VIRTIO_NET_F_MRG_RXBUF is not
+        negotiated:</span>
+      <ul class="itemize2" style="color: rgb(0, 0, 0); font-family:
+        Arial, Helvetica, sans-serif; font-size: 13.3333px; font-style:
+        normal; font-variant-ligatures: normal; font-variant-caps:
+        normal; font-weight: 400; letter-spacing: normal; orphans: 2;
+        text-align: left; text-indent: 0px; text-transform: none;
+        white-space: normal; widows: 2; word-spacing: 0px;
+        -webkit-text-stroke-width: 0px; text-decoration-thickness:
+        initial; text-decoration-style: initial; text-decoration-color:
+        initial;">
+        <li class="itemize">If VIRTIO_NET_F_GUEST_TSO4,
+          VIRTIO_NET_F_GUEST_TSO6 or VIRTIO_NET_F_GUEST_UFO are
+          negotiated, the driver SHOULD populate the receive queue(s)
+          with buffers of at least 65562 bytes.</li>
+      </ul>
+    </blockquote>
+    <br>
+    I would just simply put:<br>
+    <pre class="moz-quote-pre" wrap="">vi-&gt;big_packets_sg_num = guest_gso ? MAX_SKB_FRAGS : DIV_ROUND_UP(mtu, PAGE_SIZE);
+
+</pre>
+    There needs to be another patch to address the
+    virtnet_set_guest_offloads() case.
+    For now just leave with a TODO comment and keep it as-is (don't
+    start with full MAX_SKB_FRAGS segments). <br>
+    <blockquote type="cite" cite="mid:20220825123840.20239-3-gavinl@nvidia.com">
+      <pre class="moz-quote-pre" wrap="">
++		else
++			vi-&gt;big_packets_sg_num = DIV_ROUND_UP(mtu, PAGE_SIZE);
++	}
++}
++
+ static int virtnet_probe(struct virtio_device *vdev)
+ {
+ 	int i, err = -ENOMEM;
+ 	struct net_device *dev;
+ 	struct virtnet_info *vi;
+ 	u16 max_queue_pairs;
+-	int mtu;
++	int mtu = 0;
+ 
+ 	/* Find if host supports multiqueue/rss virtio_net device */
+ 	max_queue_pairs = 1;
+@@ -3784,10 +3805,6 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 	INIT_WORK(&amp;vi-&gt;config_work, virtnet_config_changed_work);
+ 	spin_lock_init(&amp;vi-&gt;refill_lock);
+ 
+-	/* If we can receive ANY GSO packets, we must allocate large ones. */
+-	if (virtnet_check_guest_gso(vi))
+-		vi-&gt;big_packets = true;
+-
+ 	if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF))
+ 		vi-&gt;mergeable_rx_bufs = true;
+ 
+@@ -3853,12 +3870,10 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 
+ 		dev-&gt;mtu = mtu;
+ 		dev-&gt;max_mtu = mtu;
+-
+-		/* TODO: size buffers correctly in this case. */
+-		if (dev-&gt;mtu &gt; ETH_DATA_LEN)
+-			vi-&gt;big_packets = true;
+ 	}
+ </pre>
+    </blockquote>
+    Can we add a comment here to note that this essentially has to be
+    dev-&gt;max_mtu when F_MTU is negotiated. The implicit assumption of
+    mtu being 0 when F_MTU is not negotiated is not so obvious to
+    readers.<br>
+    <br>
+    Thanks,<br>
+    -Siwei<br>
+    <blockquote type="cite" cite="mid:20220825123840.20239-3-gavinl@nvidia.com">
+      <pre class="moz-quote-pre" wrap="">
++	virtnet_set_big_packets_fields(vi, mtu);
++
+ 	if (vi-&gt;any_header_sg)
+ 		dev-&gt;needed_headroom = vi-&gt;hdr_len;
+ 
+</pre>
+    </blockquote>
+    <br>
+  </body>
+</html>
+
+--------------D0WHH0JdGtzNmlRYGuycaOhH--
+
+--===============2884339845796556620==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============2884339845796556620==--
