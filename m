@@ -4,162 +4,200 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id ED659ECAAA6
-	for <virtualization@archiver.kernel.org>; Fri, 26 Aug 2022 16:41:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id F2370ECAAA6
+	for <virtualization@archiver.kernel.org>; Fri, 26 Aug 2022 18:05:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 787D783F8A;
-	Fri, 26 Aug 2022 16:41:23 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 787D783F8A
+	by smtp1.osuosl.org (Postfix) with ESMTP id 74E5D83F73;
+	Fri, 26 Aug 2022 18:05:56 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 74E5D83F73
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=XiMuY5MC
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=rPlH6hJW;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=duJdP3CF
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id m7ujxEmyBmJP; Fri, 26 Aug 2022 16:41:22 +0000 (UTC)
+	with ESMTP id T-YD2D23GZ2N; Fri, 26 Aug 2022 18:05:55 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 10DC583F86;
-	Fri, 26 Aug 2022 16:41:22 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 10DC583F86
+	by smtp1.osuosl.org (Postfix) with ESMTPS id ECECB83F74;
+	Fri, 26 Aug 2022 18:05:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org ECECB83F74
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DB3BEC0033;
-	Fri, 26 Aug 2022 16:41:21 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1EA4AC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C6107C0032;
+	Fri, 26 Aug 2022 18:05:54 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8317BC002D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 26 Aug 2022 16:41:21 +0000 (UTC)
+ Fri, 26 Aug 2022 18:05:53 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id BA9ED403F9
+ by smtp1.osuosl.org (Postfix) with ESMTP id 63DAA83F74
  for <virtualization@lists.linux-foundation.org>;
- Fri, 26 Aug 2022 16:41:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BA9ED403F9
-Authentication-Results: smtp2.osuosl.org; dkim=pass (2048-bit key,
- unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256
- header.s=selector2 header.b=XiMuY5MC
+ Fri, 26 Aug 2022 18:05:53 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 63DAA83F74
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id WfysUEikyufP
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id P8Cw4z3yoCNF
  for <virtualization@lists.linux-foundation.org>;
- Fri, 26 Aug 2022 16:41:19 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 65FD0400BB
-Received: from NAM02-BN1-obe.outbound.protection.outlook.com
- (mail-bn1nam07on2068.outbound.protection.outlook.com [40.107.212.68])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 65FD0400BB
+ Fri, 26 Aug 2022 18:05:51 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DA7CD83F73
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com
+ [205.220.177.32])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id DA7CD83F73
  for <virtualization@lists.linux-foundation.org>;
- Fri, 26 Aug 2022 16:41:19 +0000 (UTC)
+ Fri, 26 Aug 2022 18:05:50 +0000 (UTC)
+Received: from pps.filterd (m0246630.ppops.net [127.0.0.1])
+ by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27QHi9sh017711;
+ Fri, 26 Aug 2022 18:05:15 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+ h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=corp-2022-7-12;
+ bh=2UUqyUigeee2KBeL/X63KbVIl/bLPNL8w4SLWes7g8g=;
+ b=rPlH6hJWsFZlyUMlgbCfFPo6mUQ8I1+1iLOlyoNA3Mxe0YvZWJ5seEFUPuXH2TEmojCR
+ ZzDiEOn1k3CeVBK5d9bviq8hJXH8nBpH5+fm3kLPBw/0aFYhCnUmgsKZAzbsCY6OrP66
+ /qnRn7BXrGSxt6ipX0hI3E7U+P3v/jqBAaJ5GCgZ0mdBkxK3lCNa8SH85glTT83pQ0b7
+ K1Ae1hvSB8KElQAyP+Om0QVqm28FgK00afuECUdESrEhUZnWKj1z1mgum19oVmP1WYrE
+ Q1zKJwx4KOoiGdZoTJLCKhWdLDaIRoJl6mJqEd+dXljrE9XOC1YEYHLx7H3+zwURtDFy 0A== 
+Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com
+ (iadpaimrmta01.appoci.oracle.com [130.35.100.223])
+ by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3j5aww7qt6-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Fri, 26 Aug 2022 18:05:15 +0000
+Received: from pps.filterd
+ (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+ by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.5/8.17.1.5)
+ with ESMTP id 27QGiX38036192; Fri, 26 Aug 2022 18:05:14 GMT
+Received: from nam12-mw2-obe.outbound.protection.outlook.com
+ (mail-mw2nam12lp2047.outbound.protection.outlook.com [104.47.66.47])
+ by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id
+ 3j5n6ppngt-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Fri, 26 Aug 2022 18:05:14 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=nnO1a6poO3MLT+7dFGxmGCfx9CmhAbHGIfI26YoTg646l+OfMWEYzTqQwaiFQaN1ldDLiSTWwCEcp+fd2FKA8P7eeDRYenPbX2kWXsQjqPLtErjvd17btROMDeJrlEQlsrtisCnUgwP4g5irYitCjDIIaTNW4TcorK9mAhmRUrnRKmcGhxQ5ZX6LMbCIn7I05V1/1UVNfoD6PjUzgFtoJuoAzr7gAuEGPAUb04KWn8WZ1kV7FRJFaPzMyUkQGRAVh6gU5zoy+G7iaPkdtWoT8ZOiKgLX9AY5Z1gXMRQexDrD4qzmPpULs2prvvkyqUnWq2c8/HX3JHPPSDAa+z9h5g==
+ b=kZqv0TgI9VtzJlhj6TTQ5q/Q/px53Yh+gQl4ywu1VJNN0dyLnKKkqaHjJmBn5COTgpNrpRBsu8nQcDtMNk8GgV1Ey8b4LalVYeNntT6J+cFGrlwSZGfOMIZ348HRGkZYtTbESy39vNtgJqW1efuvU54EIflpqyw3Z7TMsjcITytyUJ08SEVWfuGP4X1+TbayOK0s7Esi6V1q5KTVe2ahEi0XHVMixLEsOGQHA+45TTGIcShaom4ducko8jXo1yCtSy764igh6syKA+HZw3TyX2uxVulIYHaBu7I4yAFBdgl0GqBdJ5hgzFsDGh91xX1RBeKfYYjjijRpCTe2biNQCg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=OaE9PF8KLY/xsf0RS0KH8IxAh+6mV5nq7it517NM44Y=;
- b=gOhvShg1xe6GMalfQuW0Kw9mHTC62K3IyHfETkbLbR9WXiAf34QUt4/x1RRk/d7JmaD1i9ML5hKvqq0gvypqkpnv0n9mVHNbP3r/ZvIEVdGMLUJSVw1UuVZrqPdGeSTKaZeHHq1pggRqOHKqMd/2KiLNgTK0ilcoqzslo85vjrUICs+KTMlESAQN2SGxMCj19SHHIwG8WzVwQUZ6gb+QP64DobSkvfRgWkKa0AYn8+JHZd7Q/MtUVcHxZ/46xy8TNuAJfTUHCmZvrysKq2L3UR3ebE2GN00u8XX/I4a3L6EFHjGkXvYV4zUqwFIqRSu7sbNnmHmRgs0hQqYlzLoShw==
+ bh=2UUqyUigeee2KBeL/X63KbVIl/bLPNL8w4SLWes7g8g=;
+ b=k/nZjYFMbO58gBfdtAL6yJrX/hTl9y7vAXanyHzEAr81MR09DF/Wg97d7FJyVgxyyNK85CVagCj/MqCHtK0R0Al69+1j+VHQZdtv8X4NnCTl3Qr3nrnSQJZqNfAo6sXT8o3v1SSsQa0ffpg9em/HaB4fNYx1sLQ33jQeypItvLrQMvmpC/7C4tZZ6LS5niMFsv1JjqymDJbDKntdFcNW8H6qzjvl3j6s96jj7Ra1+604NXoyzChPINjltu+OI9LZ8o4BVe1VwOLHM7d2J7uTrVeUAo11my25TeVJ+R9i+szYii6RZWd/JYA56WoG+wUC417bT8iEy6zqeSLPWLeKXQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=OaE9PF8KLY/xsf0RS0KH8IxAh+6mV5nq7it517NM44Y=;
- b=XiMuY5MCEOgrot53SoWHqvhaNejFOMFlZNgS+2cQuXIuIpf7+naNOFI/RBDwAE84AGrtHhsGzVSWqHnkPgPdkXtqEnvKsUZvC4K6+gcoEdHJSa1pIal6cl6aJqKN4IDoni2HGajsY6hFmcXd2ZamzE4l/C/WvIVm3RDCWeqc3/krWmDfRhirtsm5Q7BsHBUCuk01phSpvJMfDs90Gpc8ZtMXc3aT2ISl0RzrMYRAOnCdmCqi2/sZk0bJY/WNq7QuvY99C/BVhSX/EoLnACx6pHxDD3KLv0A2sV112bFnen05ItMUdC9ibVSWOXSuH06Vt5e0yugiMAlNuu7dCX1eEg==
-Received: from PH0PR12MB5481.namprd12.prod.outlook.com (2603:10b6:510:d4::15)
- by IA1PR12MB6137.namprd12.prod.outlook.com (2603:10b6:208:3eb::20)
+ bh=2UUqyUigeee2KBeL/X63KbVIl/bLPNL8w4SLWes7g8g=;
+ b=duJdP3CFxRplzk/SV2tFgJbCLcEpK2PUqeKuHk8ls3EO4Y3SLI3Dk4FFAdniAW1tLjRiKvPqAgKD0kLBiEBZidnxnpFes8U4SY8J1982D4BqXegRbMt84vEFvhj61tyhXjTGnV7zDMh47Pr7obCiWZ8picUXq+c57acLnQOi6ss=
+Received: from BYAPR10MB3287.namprd10.prod.outlook.com (2603:10b6:a03:15c::11)
+ by MWHPR10MB1503.namprd10.prod.outlook.com (2603:10b6:300:22::12)
  with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5566.15; Fri, 26 Aug
- 2022 16:41:16 +0000
-Received: from PH0PR12MB5481.namprd12.prod.outlook.com
- ([fe80::1429:e3e9:dc54:ba98]) by PH0PR12MB5481.namprd12.prod.outlook.com
- ([fe80::1429:e3e9:dc54:ba98%7]) with mapi id 15.20.5566.016; Fri, 26 Aug 2022
- 16:41:16 +0000
-To: Si-Wei Liu <si-wei.liu@oracle.com>, Gavin Li <gavinl@nvidia.com>,
+ 2022 18:05:11 +0000
+Received: from BYAPR10MB3287.namprd10.prod.outlook.com
+ ([fe80::dcf7:95c3:9991:e649]) by BYAPR10MB3287.namprd10.prod.outlook.com
+ ([fe80::dcf7:95c3:9991:e649%7]) with mapi id 15.20.5566.015; Fri, 26 Aug 2022
+ 18:05:11 +0000
+Message-ID: <784140bb-53d1-e00b-f79a-7b95b0c1052f@oracle.com>
+Date: Fri, 26 Aug 2022 11:05:09 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.12.0
+Subject: Re: [virtio-dev] [PATCH RESEND v2 2/2] virtio-net: use mtu size as
+ buffer length for big packets
+Content-Language: en-US
+To: Parav Pandit <parav@nvidia.com>, Gavin Li <gavinl@nvidia.com>,
  "stephen@networkplumber.org" <stephen@networkplumber.org>,
- "davem@davemloft.net" <davem@davemloft.net>, "jesse.brandeburg@intel.com"
- <jesse.brandeburg@intel.com>, "alexander.h.duyck@intel.com"
- <alexander.h.duyck@intel.com>, "kuba@kernel.org" <kuba@kernel.org>,
+ "davem@davemloft.net" <davem@davemloft.net>,
+ "jesse.brandeburg@intel.com" <jesse.brandeburg@intel.com>,
+ "alexander.h.duyck@intel.com" <alexander.h.duyck@intel.com>,
+ "kuba@kernel.org" <kuba@kernel.org>,
  "sridhar.samudrala@intel.com" <sridhar.samudrala@intel.com>,
- "jasowang@redhat.com" <jasowang@redhat.com>, "loseweigh@gmail.com"
- <loseweigh@gmail.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+ "jasowang@redhat.com" <jasowang@redhat.com>,
+ "loseweigh@gmail.com" <loseweigh@gmail.com>,
+ "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
  "virtualization@lists.linux-foundation.org"
  <virtualization@lists.linux-foundation.org>,
  "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>,
  "mst@redhat.com" <mst@redhat.com>
-Subject: RE: [virtio-dev] [PATCH RESEND v2 2/2] virtio-net: use mtu size as
- buffer length for big packets
-Thread-Topic: [virtio-dev] [PATCH RESEND v2 2/2] virtio-net: use mtu size as
- buffer length for big packets
-Thread-Index: AQHYuH+wBUa5TQ3am0iRtxWTyhCUA63A4UyAgACAwLA=
-Date: Fri, 26 Aug 2022 16:41:16 +0000
-Message-ID: <PH0PR12MB5481BB5F85A7115A07FBC315DC759@PH0PR12MB5481.namprd12.prod.outlook.com>
 References: <20220825123840.20239-1-gavinl@nvidia.com>
  <20220825123840.20239-3-gavinl@nvidia.com>
  <27204c1c-1767-c968-0481-c052370875d8@oracle.com>
-In-Reply-To: <27204c1c-1767-c968-0481-c052370875d8@oracle.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 669fd72e-f896-46f2-599c-08da8781cba1
-x-ms-traffictypediagnostic: IA1PR12MB6137:EE_
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: yxAox5ul7t12rnh0rrFu3ihxj9RFq+FBfn6Mtvfus/TauvWCtLbUhdjb/A9Dd0Q4lnL0S2o1gjsokJczqg/ZOCg3zcS9MbcJ5d29YcVPLinXrppc8lIelohy2+UsERbe9XzKZifcP+P+LZrGELdsJ5cQFhKBCB6Ly14pq570JvIm71b4lF4gZgHGSlKr6zoBv41aL49Dnm/iJNhlyxFiI04+6GcjyG44/y15UOqBSnjnsOPXnEfKsY0yBB/Tt8/CEbyJQBLwMzyZS5x8boIHfTa8x1dfZ2SIDvdajQqB4pK0vePUBfPqiSAPns/FukAKM+r0deVGS3T9BWxitUU9Hy6w4P4V4eNFzwmlB1gxujGWjN7ZJkaviXx4c/05AHLPlWz7bpX1Aqnq7UWmn0Zu/Mi6GUx1h929aUJVnPA2ex/9aKwzPgO/4pW13Cg/kZqiaiLNpjqGXkWtf2YaqaUc3LUXEIuZKIvRSRi++BxdyRWPatSnlkAApyCvE9clffDLBwaGr/EnaTeQuvuYoYo5DU4tU5LynVvyReN6qA7kuYpIKlRVwEr/JTnULwOMN2bxK/qVSMfjHUMfn/3j21FpR2JcWaOKL3vQIewiZvZWOnsvBCgimMKZiLU2MEAzWoEyCf8yJE1zIR/GuG9E4oT0t1AFnbAMEjCIu+xygSVaapz+zvS+JNcB6g7r7ow60gI98GjbJELvn0yreOS2fISwhsBL+sezpqmjfemosDVKHIhqRLoVt6oX2XeDyYuvp2iyLv2SrGqGSRtxH6CWCi8+CvO7U5SY+LdcoM0IWU9scJc=
-x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:PH0PR12MB5481.namprd12.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230016)(4636009)(346002)(376002)(396003)(39860400002)(136003)(366004)(4326008)(52536014)(316002)(8676002)(66946007)(64756008)(122000001)(110136005)(8936002)(66446008)(66556008)(55016003)(38100700002)(41300700001)(76116006)(71200400001)(5660300002)(478600001)(7416002)(66476007)(107886003)(26005)(7696005)(2906002)(186003)(6506007)(33656002)(83380400001)(86362001)(921005)(38070700005)(9686003);
- DIR:OUT; SFP:1101; 
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?utf-8?B?TERzVm10OGtxa2FVMW1oRnJYS3g2WkM5MkIyY0E4cVJ4ZXk2V3NaZ1RWU2oy?=
- =?utf-8?B?OFR1bXNub3dTeTRKV3FRMGQrbGRURFV4YWh2VHVCb3RRMFh3T1dUelZkeWJN?=
- =?utf-8?B?UjJya0RhdEt2MTB4S0krSVY4WiszZkRjaEtGRUVnbjVCWmFIemszQkNlUzVZ?=
- =?utf-8?B?YUMrYzV2NXc3dDZ6RzhpUmVsSlZRcTZiZFZqUjEvcUFMd29JSUZSd1BNQUdp?=
- =?utf-8?B?M210TGZsNElSdVhydzYrQmlOUUtwdzNUZ201bHoyMXRQRnFJZlEyRm1BYk9R?=
- =?utf-8?B?VS9wZmN1NzUyd2lvVHZhRUZBOG9kNlRqT0czckNQVk0xQmNNYjR0aEVxVEZ1?=
- =?utf-8?B?ZmlMc04xSWlMWHowc3IvaHM1cjdYVkZnRkVZeWJSYkhiZVp4WDdzYnI5MnVP?=
- =?utf-8?B?djdheHRuYzNJNXZNY2E1b3ZsbGRwaEg5VjN6N3NvT1E3bFczZ3pqejFoWUty?=
- =?utf-8?B?cXkrQzV0cFlPc3dmN2tZRjhXbVpRWCtadVJveTJuOUQzN0tuVUcrUnl6TDNv?=
- =?utf-8?B?cmtkOVNwZjJReElKaE5SMjdyc2pQUWhxeWJHKzRmWklXYXVXa2w5cDNCZnkw?=
- =?utf-8?B?SWNJWmJPaGU5R2JmeEw2cGg5TTJTYmh2S2JuNXV5N2kybFB3bHpZQlF2WkZj?=
- =?utf-8?B?TDBNaEYyamtsaWsvcWRQQTRXSmgxSTRVNUpEYjM1NTljY1BtMU80OWl0L0lp?=
- =?utf-8?B?VjFFR0VJR3hTSnNwUG01OXZaWVRJVGtSMnBFN3BJREl5YVVZUDJEdEtGWDR3?=
- =?utf-8?B?QlJaVkNRMDVvNUJndCtrb1JJK25jeXBoOU9Bd0J1WGZpZElZMzNXM1RsNHcv?=
- =?utf-8?B?VSt6SnpwUGpTUWtYRHlaME1pam9ER0MvQkp1OWJ1WG10NUVTMVkrTEpqQTN5?=
- =?utf-8?B?a09TcDVXd1BIVk45WmtHa3FIOVFLWk5mcUd5anN6eFR3aGxZRkNQay8xY0xq?=
- =?utf-8?B?SGd3ZG56SHpFVkRaS1JLelFtUTFwSll5ZWtFZkhTOTh4WVluS2ZwNllQNURr?=
- =?utf-8?B?R3J6RjdRcFJqMmF0NFRzNGUveUNJL1ZWVGZtQ2dnYi9MV2ZYbWlIcVg5T3lv?=
- =?utf-8?B?dGl3c0dwZFNpQS9QOUpkNkFtSFlYR3QrMldiNS9GTkZsY3F0bXBuN0RhUDY3?=
- =?utf-8?B?cUhCNS9rN0dVNEhKYWE2RXNaWGZuYkNRc3BFV3M5K2tBaTZwUlJvRUZiSlJP?=
- =?utf-8?B?ZkQxbzlPR040a3JoUFAyYWNzaE5wUVdHdWRJR2hmSmRlOXdqS0xVei91RkhN?=
- =?utf-8?B?WmVGdzdWb0h4aFl0TW5EWFFSWGVBemVSZXRIUGFIRkcyRW9XUlJqdTRpcjl1?=
- =?utf-8?B?ejBRZXNMTGZVd2h6dUI0dG9peVpod3Z3ZldpZi9ZZTNGT3RPNk9NdU9tVGt3?=
- =?utf-8?B?Z011emhUT2Mzem1XdkcvUGtZeFgvaEhCb2UxWG9LRDc1eXk0cnpqSE9CZzZU?=
- =?utf-8?B?RnhkTVlHaXdET3JIM1Vna0o2bHVGWXpsMkZtUlVTRG1OV3Nad3UvZVBOd2Q2?=
- =?utf-8?B?MGs5M29wVGtWZ3ZxZXZicnpzNXMyRWN0M2NHVi9Ld3J5U282M2xNVkdMS3py?=
- =?utf-8?B?ZFJGQnpvVzl6TXB1UWg2c1RuTUh5Wm8zdlNlVnlqMXh6MlR1SlZzQjlrL0dE?=
- =?utf-8?B?ang0NmRJQ2ltS2R3aEdPM3hJb2hsQVlPTHhldU1xMngxR1NLV0FQU3NDWkoz?=
- =?utf-8?B?MThqR2pBYmJ6RjdSeFVLc1UrOXdQYXRIOWg4N0dLcWVCNmo5Y2ZlcVlVd0FR?=
- =?utf-8?B?YlJTZnJqUGN2ZGx1RyttWWVnWG15UVVVWFBlL2dMWUpkdUpYa1E4VUZjSThR?=
- =?utf-8?B?SnZEc21Wb1pxamx0YXcyVktrMTZIclhqRmJ4N0dqeGl4RWh1MXBCYVEydnhr?=
- =?utf-8?B?cnQvb3YzU2dVZW1LVjhHeEdOU1lVQTdBanE4cjkwWmMyVEpxWk4yUHlYRDc4?=
- =?utf-8?B?TlVMYnpRUExKOEtWZmpmYi9WL2pJVTlybWNJKzdsT2VNYTkzNGxER09lWDV2?=
- =?utf-8?B?V29XVzRTY0V1S2I1cjRnVURkRnhCVGwySkVNVVpreTkwZEF5N3hpTkpzQjU3?=
- =?utf-8?B?RDRZZW9Ma2RJOHg4UU81enlZOFFzZmRHM2JmRlZsTTZES2pSUlFhVFRFT2xC?=
- =?utf-8?Q?6QYI=3D?=
+ <PH0PR12MB5481BB5F85A7115A07FBC315DC759@PH0PR12MB5481.namprd12.prod.outlook.com>
+From: Si-Wei Liu <si-wei.liu@oracle.com>
+Organization: Oracle Corporation
+In-Reply-To: <PH0PR12MB5481BB5F85A7115A07FBC315DC759@PH0PR12MB5481.namprd12.prod.outlook.com>
+X-ClientProxiedBy: BYAPR06CA0052.namprd06.prod.outlook.com
+ (2603:10b6:a03:14b::29) To BYAPR10MB3287.namprd10.prod.outlook.com
+ (2603:10b6:a03:15c::11)
 MIME-Version: 1.0
-X-OriginatorOrg: Nvidia.com
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 34206391-ed85-4cd2-5722-08da878d84e5
+X-MS-TrafficTypeDiagnostic: MWHPR10MB1503:EE_
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: apgsFH+V1Ypx5G0qtxmY7M3brgJDxqQzvenelmFGc+EyOsXNkE6/8j9jIyjq2OkO1e7BmxAStqKRQ+hqCKy1RD/ICQeKfY/L7uUE6Y9fU6RdQBpveLCi1SXsA60e6Bc+JmeO7Sh0R4aRmrEKXmf/s4vbyTrKMOJDrnKrP3eDH+BRcDHdcFOvTj7QhEmHbbWlg/Z3oqR9bCFhGMztOYuVJXVidS71q6HtifJmo2iwTtQfmaOqpitrL8xIWo7IYZmDSU7r9djspQogk1hgJmwbgvZeQZOnL47A6KLV/N/8GsFE+G6llSgR817muQ/apsAxNz3kYtYNpMm/9Pu4jh/XjWOgbpy3E+G1tpVVYOX0VFZp38V1rM2Ctk08xKkahSKf+T2wdYmPJo8nzQkuYv7pwDltHm+kjsrDs2iVKprhW+DId6Rh7b0paqe99IQDTC+d5w59PLBf3w/72LD2dWoFLdssfZxEsMJQHy+R/9mPrYkAZjKX5Ds6cuIJyvQQr79S3Cza6Yvex5aygkZHFs9SW91jhrCSJmExK7EqxzCWmmAne/ENKes/dKr4zAxqmEa8iDtkw2jpQVz28SV/6Siu+4ZSS68GersdPtBJZePohe7JcVuX6I6qTjs9e0hxrttWBjwJ5t85iK1Jj5j8oX+wbcOozbZxeYCX66tn4pJp4faTC2//lTQcLLE18iEy3O0lTpttQQUJRPjFO9VHPnsy5YSkb5SCQilMgVbIoiczdGUHZAuqpn8UZWy+feQqIExAse7PAvdZ9QdnOAAtfPyfMUYmf2tas1h8uGgS1d3WIzJLl9ovsOwxOiN/zLeyOWOY
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:BYAPR10MB3287.namprd10.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230016)(346002)(376002)(136003)(366004)(396003)(39860400002)(66476007)(83380400001)(38100700002)(316002)(8676002)(66556008)(110136005)(5660300002)(8936002)(4326008)(2906002)(66946007)(7416002)(6506007)(53546011)(86362001)(36756003)(41300700001)(6512007)(26005)(36916002)(921005)(31696002)(478600001)(6486002)(31686004)(186003)(2616005)(43740500002)(45980500001);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?R0NiMGZMUVlqUkxTZFJhbHA2WGtqVE1BSXpuY0ZjOW9iTE0rdWErbHNFd1B0?=
+ =?utf-8?B?WGF1WmZIbzMvMktUL0lvc2pGREVZT0U5R0poWGxqNXFDRmE5UkZBbVZDRUhR?=
+ =?utf-8?B?RmZ5c1lTS29ZYzBnMFdRdFJHQU4xNS9MenJ2dHo4eG50dVN3eTNBV3hoT1l2?=
+ =?utf-8?B?OVJ0MS9jdlM0ZUk5ZUJTTmdLUTEyYkh2YVcrVTl4SUQyd2NSbHZiUlZEaWpn?=
+ =?utf-8?B?elUvOS9pMEdVZHJCTWowSmR2TExqZExtSy9kLytRNDNkRzFCSEFnU0ZRUEZH?=
+ =?utf-8?B?cVNiZTVRWUxWOGR2Yk1xbFgzdmt1SXNvcXIvK2lON0NTd3Z1bThVdjRXN2F2?=
+ =?utf-8?B?anlLaDBLdHFQYzNlWUI2aHcvc3phVFgwSzhNN1FrVnlDeXpNbzVDaHpTL2RX?=
+ =?utf-8?B?amt0VCtuV0dtRGFZTVhpTExGdlFNcHg2Sk82RVNXNURnUHBPd0NnS2pZUC8w?=
+ =?utf-8?B?TDFNLzRmUU9uOGFPMEVPQnRLMTBaV21kUDhIMmdOOUlMK2NyVGNLcXFVQzRC?=
+ =?utf-8?B?MzQvNGgxdGdZUWQ4TEVpNU1YTTczaThROGZ3OExJNGVveXdEdTlNN0hSOUto?=
+ =?utf-8?B?NzdlQWlMNmwxdjE0ZDh0Rk1kbndqUFV5czIzdm85MjBXdThjbG04V1Y4RGdD?=
+ =?utf-8?B?RUNaUW9ETTh2d211cGY2SXkwZmJqdjVtdzFubVBKSjcvNWhjTURtY3ppaHdH?=
+ =?utf-8?B?dnhSMzk1VjBPSmE3WGU1QzhhWnNVNXlxYm42RE5nUDl1bElOM1BGK1ZKOHVm?=
+ =?utf-8?B?ZERMRGMzdm8rWUx2U3M3cDIzODRZR0dTR0poYXhZM0Ewb2JRRW8xeWZCVVBs?=
+ =?utf-8?B?UEpkU0lyOHJVdC9TZEVxeExiZ0dhaFh0TlFrZk8zU0hIQllYT2VHS2RNaDE1?=
+ =?utf-8?B?N280QzhERzNaSHBGYlpXZGFHYUZETnJ1VGQ4WjgrWVplT0pqdnlsN1IycHF3?=
+ =?utf-8?B?Z0VDOC96VHBtb1JTQ1RWY3ZwQ1dTYjZSTmFGVWZRcy9WOEgrdXYvMStaYlVo?=
+ =?utf-8?B?di92dTVrejIydi9WME4wbzgrc05RU3oxd2pxSGszMEoybWxXZ1pucERNeDBr?=
+ =?utf-8?B?RnpCekp0MmFIYjFXKzd6UmZmZnFSRVdqKzl5ZGFGbVl6QUpvM0MvY3NUMjdu?=
+ =?utf-8?B?NFhaSDhzcFoybGFKZlFZNEJBelZNNEVEOFBrR1R5amVvcm92bFdlMGlMeUF6?=
+ =?utf-8?B?OHVuM1BPOHpJNVRwUDVha3NuTjcwMm5KRzlNZDRFTmMwbHlQMkEvS3phZmNZ?=
+ =?utf-8?B?QW9nSVZmTGZUVGNoaGlsa3diVkJTRm1TUjl4bmxQd1pwVmM4VDRHMjJsT3FD?=
+ =?utf-8?B?TjUxWnh0WlVkck1ycDhxQUpoalB0cHhpSFRMZHk3RFo2bUlZUCt2blhDc3Bo?=
+ =?utf-8?B?dXpmZzgwbC9ENlFuNWc2YllZVW92cXBOQlF0OFF5NVkwWGZBb01OUDBQZ2tL?=
+ =?utf-8?B?Y1B5YUszSXhsa0FvYS9kcXUyMWhzVjdUQ0FUUW9qay95R0N2VG0zeW1EejM2?=
+ =?utf-8?B?Y29IQ2xUUWpHUVFOS3M3OUZ0a2dFaEljSUdib3ZXSU1UU1YwcUhZSlFmSTZT?=
+ =?utf-8?B?ZS92V3YwQytsbGV1L0d2QVNtN3FITzVlNzJKU0dCeEs3WStCbmVyeUFNcVhx?=
+ =?utf-8?B?UEVLWCtPUzRYSm02QktDYmJrb1hWWUxzZFRJR25PUVNkSmUrM3Q3ejJ1T1hw?=
+ =?utf-8?B?dnV4M0lXQlRNTmpLVnJqME1Ndk1ESnFQREJmcHNOeXYyWDY2TVkwRmV5bGhw?=
+ =?utf-8?B?TXIyYXg5OW9kbjZseTdzSVVodENQaHloNFJFZmlzdEUyT2g3QzZlTTExenFn?=
+ =?utf-8?B?dkYvdVpIREJJU1hGUWlONHJ5WGtWTXNJQUZxS21TTlF5K3BMTHl3Nnk5eWVI?=
+ =?utf-8?B?WEgrRVNXMElNT0ZkYXR0dmM4clRLd0JSS295RmlCVFhXNmZoWDBhaFF6YkdD?=
+ =?utf-8?B?QUd5aytPVGE4M0RteUhCUnVzakNDdy9vdjltWEkxcUlmdW9EUG40cFExWlpi?=
+ =?utf-8?B?YXRqWVNiS3BVVVhUWjE2RnpBSnFXcW5hQjJqa1RkVmtsR3d4ZU5FdVNEUlVR?=
+ =?utf-8?B?M0labkFjTTJnb3lSdFF3RUcrYWNSR3M4S21HR0xzR2ZNZHVzRlhmcXhNcm1Y?=
+ =?utf-8?Q?19jxgOGiPw0DWwfh0h3vSHedp?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 34206391-ed85-4cd2-5722-08da878d84e5
+X-MS-Exchange-CrossTenant-AuthSource: BYAPR10MB3287.namprd10.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB5481.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 669fd72e-f896-46f2-599c-08da8781cba1
-X-MS-Exchange-CrossTenant-originalarrivaltime: 26 Aug 2022 16:41:16.2914 (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: X/HdEY2aoZmO/MvUzwCBlSh49uI5agauP18IpdZ40GLVez5u9q6jklNrbkby4kvN3ApKHgnFtPo2MSZsBIO/7Q==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR12MB6137
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Aug 2022 18:05:11.7201 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 9VOiBQ9KUNXe2wnuW0Rl3R5E9lFKg4JZG4jIxTHHGY9gXL3TGfbenClBlK0F4nVLEpPT3CxTMlPCALAf1d1evQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR10MB1503
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-08-26_10,2022-08-25_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0
+ suspectscore=0
+ mlxlogscore=999 mlxscore=0 spamscore=0 adultscore=0 phishscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2207270000 definitions=main-2208260072
+X-Proofpoint-GUID: gp1UP8ZxRtOOx5dP4BQtZfowJmPBcQbk
+X-Proofpoint-ORIG-GUID: gp1UP8ZxRtOOx5dP4BQtZfowJmPBcQbk
 Cc: Gavi Teitz <gavi@nvidia.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
@@ -172,40 +210,54 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Parav Pandit via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Parav Pandit <parav@nvidia.com>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-	
-
-From: Si-Wei Liu <si-wei.liu@oracle.com> 
-Sent: Friday, August 26, 2022 4:52 AM
-
-> Sorry for the delay. Didn't notice as this thread was not addressed to my work email. Please copy to my work email if it needs my immediate attention.
-
-Can you please setup your mail client to post plain text mail as required by mailing list.
-Conversation without it is close to impossible to track.
-+	/* If we can receive ANY GSO packets, we must allocate large ones. */
-+	if (mtu > ETH_DATA_LEN || guest_gso) {
-+		vi->big_packets = true;
-+		/* if the guest offload is offered by the device, user can modify
-+		 * offload capability. In such posted buffers may short fall of size.
-+		 * Hence allocate for max size.
-+		 */
-+		if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS))
-+			vi->big_packets_sg_num = MAX_SKB_FRAGS;
-> MAX_SKB_FRAGS is needed when any of the guest_gso capability is offered. This is per spec regardless if VIRTIO_NET_F_CTRL_GUEST_OFFLOADS is negotiated or not. Quoting spec:
 
 
-> If VIRTIO_NET_F_MRG_RXBUF is not negotiated: 
-> If VIRTIO_NET_F_GUEST_TSO4, VIRTIO_NET_F_GUEST_TSO6 or VIRTIO_NET_F_GUEST_UFO are negotiated, the driver SHOULD populate the receive queue(s) with buffers of at least 65562 bytes.
+On 8/26/2022 9:41 AM, Parav Pandit wrote:
+> 	
+> 
+> From: Si-Wei Liu <si-wei.liu@oracle.com>
+> Sent: Friday, August 26, 2022 4:52 AM
+> 
+>> Sorry for the delay. Didn't notice as this thread was not addressed to my work email. Please copy to my work email if it needs my immediate attention.
+> 
+> Can you please setup your mail client to post plain text mail as required by mailing list.
+> Conversation without it is close to impossible to track.
 
-Spec recommendation is good here, but Linux driver knows that such offload settings cannot change if the above feature is not offered.
-So I think we should add the comment and reference to the code to have this optimization.
+Fixed.
+
+> +	/* If we can receive ANY GSO packets, we must allocate large ones. */
+> +	if (mtu > ETH_DATA_LEN || guest_gso) {
+> +		vi->big_packets = true;
+> +		/* if the guest offload is offered by the device, user can modify
+> +		 * offload capability. In such posted buffers may short fall of size.
+> +		 * Hence allocate for max size.
+> +		 */
+> +		if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS))
+> +			vi->big_packets_sg_num = MAX_SKB_FRAGS;
+>> MAX_SKB_FRAGS is needed when any of the guest_gso capability is offered. This is per spec regardless if VIRTIO_NET_F_CTRL_GUEST_OFFLOADS is negotiated or not. Quoting spec:
+> 
+> 
+>> If VIRTIO_NET_F_MRG_RXBUF is not negotiated:
+>> If VIRTIO_NET_F_GUEST_TSO4, VIRTIO_NET_F_GUEST_TSO6 or VIRTIO_NET_F_GUEST_UFO are negotiated, the driver SHOULD populate the receive queue(s) with buffers of at least 65562 bytes.
+> 
+> Spec recommendation is good here, but Linux driver knows that such offload settings cannot change if the above feature is not offered.
+> So I think we should add the comment and reference to the code to have this optimization.
+
+I don't get what you mean by optimization here. Say if 
+VIRTIO_NET_F_GUEST_TSO4 is negotiated while 
+VIRTIO_NET_F_CTRL_GUEST_OFFLOADS is not offered, why you consider it an 
+optimization to post only MTU sized (with roundup to page) buffers? 
+Wouldn't it be an issue if the device is passing up aggregated GSO 
+packets of up to 64KB? Noted, GUEST_GSO is implied on when the 
+corresponding feature bit is negotiated, regardless the presence of 
+VIRTIO_NET_F_CTRL_GUEST_OFFLOADS bit.
+
+-Siwei
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
