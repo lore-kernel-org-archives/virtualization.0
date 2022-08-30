@@ -4,109 +4,82 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id BA543ECAAD5
-	for <virtualization@archiver.kernel.org>; Tue, 30 Aug 2022 19:58:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7846DECAAD5
+	for <virtualization@archiver.kernel.org>; Tue, 30 Aug 2022 20:02:14 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 42FC760FBB;
-	Tue, 30 Aug 2022 19:58:40 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 42FC760FBB
+	by smtp3.osuosl.org (Postfix) with ESMTP id 1534F6100E;
+	Tue, 30 Aug 2022 20:02:14 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1534F6100E
 Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=WdEq7E/F
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=DVqGHQEB
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id inomJM1YBCjU; Tue, 30 Aug 2022 19:58:39 +0000 (UTC)
+	with ESMTP id YV3u-mrFcwbI; Tue, 30 Aug 2022 20:02:13 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id AF11A60FE1;
-	Tue, 30 Aug 2022 19:58:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org AF11A60FE1
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 5065761004;
+	Tue, 30 Aug 2022 20:02:12 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5065761004
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 83C21C0032;
-	Tue, 30 Aug 2022 19:58:38 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6A6ABC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 29125C0032;
+	Tue, 30 Aug 2022 20:02:12 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 54BF4C002D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 30 Aug 2022 19:58:37 +0000 (UTC)
+ Tue, 30 Aug 2022 20:02:11 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 3E3F682572
+ by smtp3.osuosl.org (Postfix) with ESMTP id 1E1EA61007
  for <virtualization@lists.linux-foundation.org>;
- Tue, 30 Aug 2022 19:58:37 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3E3F682572
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=WdEq7E/F
+ Tue, 30 Aug 2022 20:02:11 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1E1EA61007
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id DbTdeKhWB_sO
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id NuTjCgW_wAnv
  for <virtualization@lists.linux-foundation.org>;
- Tue, 30 Aug 2022 19:58:36 +0000 (UTC)
+ Tue, 30 Aug 2022 20:02:10 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 82909813B3
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 192006100F
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 82909813B3
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 192006100F
  for <virtualization@lists.linux-foundation.org>;
- Tue, 30 Aug 2022 19:58:36 +0000 (UTC)
+ Tue, 30 Aug 2022 20:02:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1661889515;
+ s=mimecast20190719; t=1661889728;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=Xu77oEXBsciH9e9dITWGZ13GF1vtWYJSoCK7U0+U5Hk=;
- b=WdEq7E/FugdrWTU9rK6Ym3Y7J8iUb3EvOTfLyqt1OmvHuE0+BWhK6iQhlI0huvd3ivvwH1
- 9CWxxj2biUSQiJ9X5GgZP/CcJMuZZel5bsUj9hvcYJcYQX63vdG8teaUWiEuPMzd8NfTWu
- a2+mROUlVVP1H+JChdpPXo2FJ+T9UVE=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-97-DQl_F1AePxyOLN3Rb39qcw-1; Tue, 30 Aug 2022 15:58:34 -0400
-X-MC-Unique: DQl_F1AePxyOLN3Rb39qcw-1
-Received: by mail-wm1-f69.google.com with SMTP id
- v3-20020a1cac03000000b003a7012c430dso7826290wme.3
- for <virtualization@lists.linux-foundation.org>;
- Tue, 30 Aug 2022 12:58:33 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=in-reply-to:content-transfer-encoding:content-disposition
- :mime-version:references:message-id:subject:cc:to:from:date
- :x-gm-message-state:from:to:cc:subject:date;
- bh=Xu77oEXBsciH9e9dITWGZ13GF1vtWYJSoCK7U0+U5Hk=;
- b=5qfIc3eMRuvPk46L5bP5y0BpeOpF4Ft05qoFlzbN8EfG9Qlr5uFZqUJOJawLFvFvAF
- qHuOc/RDxCahnsym6xw2M6rsXo1XipHaKiaKD425k9vl3Qfbp3CrS9alaZirRw1P/+1I
- HfSWgZi/3oMg+zjfXa74o2zowCVQ/LmAUPSarNXzmOvuH+VpnjLKFFuPVXmBOnhtbj5U
- l8rSMs7To3awGk30eN0y6LkaWL83CtOGoCNigD5zVwBhSPsKcWVyqeTBibWfXxnIkMFD
- AlC87pE0R1mHdaz0YB+CYG9LALZnnLND62g0ovW8UBAD5jSfIwSoNpIJrz4/Tf+tQvBQ
- wRYg==
-X-Gm-Message-State: ACgBeo2PiAJdfcg4gYIJHT2RPdebKpzhA40Fehl4VbZogP01KGlbxVsJ
- X9dgA2ZV10Ek/BirLQxMTVSF5GPBGcQw5LUjNeh7CI3AbFCOf4ulaD8SCxke7lIpR9nB7OvsNZC
- f/Ymx+M7bRxa5m3dUGcvOOrr90o1tNfDaBL5yVqWXeg==
-X-Received: by 2002:a05:600c:4f09:b0:3a8:3d5f:371f with SMTP id
- l9-20020a05600c4f0900b003a83d5f371fmr9549001wmq.94.1661889512923; 
- Tue, 30 Aug 2022 12:58:32 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR6N9FmoBAPBUaKXto4fd8pyYrD2XQfmGj32921fA48xxP913RVBmTjDUy4QlAT00fTRuvPycQ==
-X-Received: by 2002:a05:600c:4f09:b0:3a8:3d5f:371f with SMTP id
- l9-20020a05600c4f0900b003a83d5f371fmr9548992wmq.94.1661889512699; 
- Tue, 30 Aug 2022 12:58:32 -0700 (PDT)
-Received: from redhat.com ([2.55.191.225]) by smtp.gmail.com with ESMTPSA id
- bg20-20020a05600c3c9400b003a60edc3a44sm14437115wmb.5.2022.08.30.12.58.31
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 30 Aug 2022 12:58:32 -0700 (PDT)
-Date: Tue, 30 Aug 2022 15:58:28 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Eli Cohen <elic@nvidia.com>
-Subject: Re: RFC: control virtqueue size by the vdpa tool
-Message-ID: <20220830154938-mutt-send-email-mst@kernel.org>
-References: <DM8PR12MB5400FEB0322A9FD6B3271D45AB799@DM8PR12MB5400.namprd12.prod.outlook.com>
+ bh=cW58ouZi5bApb29zm+DkyKyBdHjuVGS0ZeiR6baf+Ic=;
+ b=DVqGHQEBP9CCeF/Lj+m9xp+NQU8sRDEuMuGH1x2u2qAioAMwp/k3Ey2/WR5HpP9p5hBLSG
+ zfh0PkCONAbFCsQEmpX1CXmDOqDmZXa63Q7Ik4GHHhwal7oYZcTQChZtwTAiSWBPZ0Vmv1
+ TEEiTyAa184Xn5wQomm8EQnrKu842/c=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-91-NVjpObPfOwWOMI5ORS92Kg-1; Tue, 30 Aug 2022 16:02:05 -0400
+X-MC-Unique: NVjpObPfOwWOMI5ORS92Kg-1
+Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.10])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 6FC4E3C01DE6;
+ Tue, 30 Aug 2022 20:02:04 +0000 (UTC)
+Received: from localhost (unknown [10.39.193.81])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id DE8EE492C3B;
+ Tue, 30 Aug 2022 20:02:03 +0000 (UTC)
+Date: Tue, 30 Aug 2022 16:02:02 -0400
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Suwan Kim <suwan.kim027@gmail.com>
+Subject: Re: [PATCH v2] virtio-blk: Fix WARN_ON_ONCE in virtio_queue_rq()
+Message-ID: <Yw5suoV+pYAJ26VV@fedora>
+References: <20220830150153.12627-1-suwan.kim027@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <DM8PR12MB5400FEB0322A9FD6B3271D45AB799@DM8PR12MB5400.namprd12.prod.outlook.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: "eperezma@redhat.com" <eperezma@redhat.com>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>
+In-Reply-To: <20220830150153.12627-1-suwan.kim027@gmail.com>
+X-Scanned-By: MIMEDefang 2.85 on 10.11.54.10
+Cc: linux-block@vger.kernel.org, acourbot@chromium.org, mst@redhat.com,
+ virtualization@lists.linux-foundation.org, hch@infradead.org,
+ pbonzini@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -118,35 +91,161 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============1239178392498847482=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gVHVlLCBBdWcgMzAsIDIwMjIgYXQgMDY6MjI6MzFBTSArMDAwMCwgRWxpIENvaGVuIHdyb3Rl
-Ogo+ICAKPiAKPiBIaSwKPiAKPiAgCj4gCj4gSSBoYXZlIGJlZW4gZXhwZXJpbWVudGluZyB3aXRo
-IGRpZmZlcmVudCBxdWV1ZSBzaXplcyB3aXRoIG1seDVfdmRwYSBhbmQgbm90aWNlZAo+IHRoYXQg
-cXVldWUgc2l6ZSBjYW4gYWZmZWN0IHBlcmZvcm1hbmNlLgo+IAo+IEkgd291bGQgbGlrZSB0byBw
-cm9wb3NlIGFuIGV4dGVuc2lvbiB0byB2ZHBhIHRvb2wgdG8gYWxsb3cgdG8gc3BlY2lmeSB0aGUg
-cXVldWUKPiBzaXplLiBWYWxpZCB2YWx1ZXMgd2lsbCBjb25mb3JtIHRvIHRoZSBtYXggb2YgMzI3
-Njggc3BlY2lmaWVkIGJ5IHRoZSBzcGVjLgo+IAo+ICAKPiAKPiDigJx2ZHBhIG1nbXRkZXYgc2hv
-d+KAnSB3aWxsIGhhdmUgYW5vdGhlciBsaW5lIHNwZWNpZnlpbmcgdGhlIHZhbGlkIHJhbmdlIGZv
-ciBhCj4gbWFuYWdlbWVudCBkZXZpY2Ugd2hpY2ggY291bGQgYmUgbmFycm93ZXIgdGhhbiB0aGUg
-c3BlYyBhbGxvd3MuIFRoaXMgcmFuZ2Ugd2lsbAo+IGJlIHZhbGlkIGZvciBkYXRhIHF1ZXVlcyBv
-bmx5IChub3QgZm9yIGNvbnRyb2wgVlEpLgo+IAo+IEFub3RoZXIgbGluZSB3aWxsIGRpc3BsYXkg
-dGhlIGRlZmF1bHQgcXVldWUgc2l6ZQo+IAo+ICAKPiAKPiBFeGFtcGxlOgo+IAo+ICQgdmRwYSBt
-Z210ZGV2IHNob3cKPiAKPiBhdXhpbGlhcnkvbWx4NV9jb3JlLnNmLjY6Cj4gCj4gICBzdXBwb3J0
-ZWRfY2xhc3NlcyBuZXQKPiAKPiAgIG1heF9zdXBwb3J0ZWRfdnFzIDY1Cj4gCj4gICBkZXZfZmVh
-dHVyZXMgQ1NVTSBHVUVTVF9DU1VNIE1UVSBIT1NUX1RTTzQgSE9TVF9UU082IFNUQVRVUyBDVFJM
-X1ZRIENUUkxfVkxBTgo+IE1RIENUUkxfTUFDX0FERFIgVkVSU0lPTl8xIEFDQ0VTU19QTEFURk9S
-TQo+IAo+ICAgZGF0YSBxdWV1ZSByYW5nZSAyNTYtNDA5Ngo+IAo+ICAgZGVmYXVsdCBxdWV1ZSBz
-aXplIDI1Ngo+IAo+ICAKPiAKPiBXaGVuIHlvdSBjcmVhdGUgdGhlIHZkcGEgZGV2aWNlIHlvdSBj
-YW4gc3BlY2lmeSB0aGUgcmVxdWVzdGVkIHZhbHVlOgo+IAo+ICQgdmRwYSBkZXYgYWRkIG5hbWUg
-dmRwYS1hIG1nbXRkZXYgYXV4aWxpYXJ5L21seDVfY29yZS5zZi42IG1heF92cXAgMSBtdHUgOTAw
-MAo+IHF1ZXVlX3NpemUgMTAyNAo+IAo+ICAKCgpBIGZvbGxvdyB1cCBxdWVzdGlvbjogaXNuJ3Qg
-aXQgZW5vdWdoIHRvIGNvbnRyb2wgdGhlIHNpemUKZnJvbSBxZW11PyBkbyB3ZSBuZWVkIGFiaWxp
-dHkgdG8gY29udHJvbCBpdCBhdCB0aGUga2VybmVsIGxldmVsPwoKLS0gCk1TVAoKX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFp
-bGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBz
-Oi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0
-aW9u
+
+--===============1239178392498847482==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="ZK6dBVToNTN+i8uE"
+Content-Disposition: inline
+
+
+--ZK6dBVToNTN+i8uE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, Aug 31, 2022 at 12:01:53AM +0900, Suwan Kim wrote:
+> If a request fails at virtio_queue_rqs(), it is inserted to requeue_list
+> and passed to virtio_queue_rq(). Then blk_mq_start_request() can be called
+> again at virtio_queue_rq() and trigger WARN_ON_ONCE like below trace beca=
+use
+> request state was already set to MQ_RQ_IN_FLIGHT in virtio_queue_rqs()
+> despite the failure.
+>=20
+> [    1.890468] ------------[ cut here ]------------
+> [    1.890776] WARNING: CPU: 2 PID: 122 at block/blk-mq.c:1143
+> blk_mq_start_request+0x8a/0xe0
+> [    1.891045] Modules linked in:
+> [    1.891250] CPU: 2 PID: 122 Comm: journal-offline Not tainted 5.19.0+ =
+#44
+> [    1.891504] Hardware name: ChromiumOS crosvm, BIOS 0
+> [    1.891739] RIP: 0010:blk_mq_start_request+0x8a/0xe0
+> [    1.891961] Code: 12 80 74 22 48 8b 4b 10 8b 89 64 01 00 00 8b 53
+> 20 83 fa ff 75 08 ba 00 00 00 80 0b 53 24 c1 e1 10 09 d1 89 48 34 5b
+> 41 5e c3 <0f> 0b eb b8 65 8b 05 2b 39 b6 7e 89 c0 48 0f a3 05 39 77 5b
+> 01 0f
+> [    1.892443] RSP: 0018:ffffc900002777b0 EFLAGS: 00010202
+> [    1.892673] RAX: 0000000000000000 RBX: ffff888004bc0000 RCX: 000000000=
+0000000
+> [    1.892952] RDX: 0000000000000000 RSI: ffff888003d7c200 RDI: ffff88800=
+4bc0000
+> [    1.893228] RBP: 0000000000000000 R08: 0000000000000001 R09: ffff88800=
+4bc0100
+> [    1.893506] R10: ffffffffffffffff R11: ffffffff8185ca10 R12: ffff88800=
+4bc0000
+> [    1.893797] R13: ffffc90000277900 R14: ffff888004ab2340 R15: ffff88800=
+3d86e00
+> [    1.894060] FS:  00007ffa143a4640(0000) GS:ffff88807dd00000(0000)
+> knlGS:0000000000000000
+> [    1.894412] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> [    1.894682] CR2: 00005648577d9088 CR3: 00000000053da004 CR4: 000000000=
+0170ee0
+> [    1.894953] Call Trace:
+> [    1.895139]  <TASK>
+> [    1.895303]  virtblk_prep_rq+0x1e5/0x280
+> [    1.895509]  virtio_queue_rq+0x5c/0x310
+> [    1.895710]  ? virtqueue_add_sgs+0x95/0xb0
+> [    1.895905]  ? _raw_spin_unlock_irqrestore+0x16/0x30
+> [    1.896133]  ? virtio_queue_rqs+0x340/0x390
+> [    1.896453]  ? sbitmap_get+0xfa/0x220
+> [    1.896678]  __blk_mq_issue_directly+0x41/0x180
+> [    1.896906]  blk_mq_plug_issue_direct+0xd8/0x2c0
+> [    1.897115]  blk_mq_flush_plug_list+0x115/0x180
+> [    1.897342]  blk_add_rq_to_plug+0x51/0x130
+> [    1.897543]  blk_mq_submit_bio+0x3a1/0x570
+> [    1.897750]  submit_bio_noacct_nocheck+0x418/0x520
+> [    1.897985]  ? submit_bio_noacct+0x1e/0x260
+> [    1.897989]  ext4_bio_write_page+0x222/0x420
+> [    1.898000]  mpage_process_page_bufs+0x178/0x1c0
+> [    1.899451]  mpage_prepare_extent_to_map+0x2d2/0x440
+> [    1.899603]  ext4_writepages+0x495/0x1020
+> [    1.899733]  do_writepages+0xcb/0x220
+> [    1.899871]  ? __seccomp_filter+0x171/0x7e0
+> [    1.900006]  file_write_and_wait_range+0xcd/0xf0
+> [    1.900167]  ext4_sync_file+0x72/0x320
+> [    1.900308]  __x64_sys_fsync+0x66/0xa0
+> [    1.900449]  do_syscall_64+0x31/0x50
+> [    1.900595]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+> [    1.900747] RIP: 0033:0x7ffa16ec96ea
+> [    1.900883] Code: b8 4a 00 00 00 0f 05 48 3d 00 f0 ff ff 77 41 c3
+> 48 83 ec 18 89 7c 24 0c e8 e3 02 f8 ff 8b 7c 24 0c 89 c2 b8 4a 00 00
+> 00 0f 05 <48> 3d 00 f0 ff ff 77 36 89 d7 89 44 24 0c e8 43 03 f8 ff 8b
+> 44 24
+> [    1.901302] RSP: 002b:00007ffa143a3ac0 EFLAGS: 00000293 ORIG_RAX:
+> 000000000000004a
+> [    1.901499] RAX: ffffffffffffffda RBX: 0000560277ec6fe0 RCX: 00007ffa1=
+6ec96ea
+> [    1.901696] RDX: 0000000000000000 RSI: 0000000000000000 RDI: 000000000=
+0000016
+> [    1.901884] RBP: 0000560277ec5910 R08: 0000000000000000 R09: 00007ffa1=
+43a4640
+> [    1.902082] R10: 00007ffa16e4d39e R11: 0000000000000293 R12: 000056027=
+73f59e0
+> [    1.902459] R13: 0000000000000000 R14: 00007fffbfc007ff R15: 00007ffa1=
+3ba4000
+> [    1.902763]  </TASK>
+> [    1.902877] ---[ end trace 0000000000000000 ]---
+>=20
+> To avoid calling blk_mq_start_request() twice, This patch moves the
+> execution of blk_mq_start_request() to the end of virtblk_prep_rq().
+> And instead of requeuing failed request to plug list in the error path of
+> virtblk_add_req_batch(), it uses blk_mq_requeue_request() to change failed
+> request state to MQ_RQ_IDLE. Then virtblk can safely handle the request
+> on the next trial.
+>=20
+> Fixes: 0e9911fa768f ("virtio-blk: support mq_ops->queue_rqs()")
+> Reported-by: Alexandre Courbot <acourbot@chromium.org>
+> Tested-by: Alexandre Courbot <acourbot@chromium.org>
+> Signed-off-by: Suwan Kim <suwan.kim027@gmail.com>
+> ---
+> v1 -> v2
+>  - Call blk_mq_start_request() after virtblk_add_req() can break the time=
+stamp.
+>    So move virtblk_add_req() before blk_mq_start_request().
+>  - Use blk_mq_requeue_request() instead of requeuing failed request to pl=
+ug list
+>    if virtblk_add_req() fails within virtblk_add_req_batch().=20
+>=20
+>=20
+>  drivers/block/virtio_blk.c | 11 +++++------
+>  1 file changed, 5 insertions(+), 6 deletions(-)
+
+Thanks for solving the timestamp issue. I'm not familiar enough which
+blk_mq_requeue_request() to confirm this version is correct, but from
+the virtio_blk perspective:
+
+Acked-by: Stefan Hajnoczi <stefanha@redhat.com>
+
+--ZK6dBVToNTN+i8uE
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmMObLkACgkQnKSrs4Gr
+c8g1uAgAlDNL1Yig+q7heahlaW2ccDoI9dZJl6M88hP41Ca5gwd65HTZ4nweFfhd
+yvckcUdxf2V8X9IvbR6ia3EufRFpn64aEZ3a3ar2IGrPHYKp9ZL4pDitzoP6zif+
+UMW8GJJ3kUPVN4IwsTzaw0UffMwQ1Nt1rYkPUrh/drGp8O0UJ/CbX3PmbDnvDnpR
+EyYyUyhOahuXOfwiHLG++bGC+SKB4pnw2s8TCj65uzhp4qqZa01pnn7hKWL3SN/d
+vqbAW42SaFKsLbRxuA0ETW725HGpoXTVi+LUPpF2aUwlsAiTqAFvILsi9j5rypsE
+iu7bFOJ0NQqaKZyfX6jMY2mnWi/BKg==
+=cnOA
+-----END PGP SIGNATURE-----
+
+--ZK6dBVToNTN+i8uE--
+
+
+--===============1239178392498847482==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============1239178392498847482==--
+
