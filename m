@@ -1,88 +1,100 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3922FECAAD4
-	for <virtualization@archiver.kernel.org>; Wed, 31 Aug 2022 15:49:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 76677ECAAD1
+	for <virtualization@archiver.kernel.org>; Wed, 31 Aug 2022 19:06:13 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id C86D783139;
-	Wed, 31 Aug 2022 15:49:45 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C86D783139
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ZZOC43E1
+	by smtp4.osuosl.org (Postfix) with ESMTP id D454841934;
+	Wed, 31 Aug 2022 19:06:12 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D454841934
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=lRzt2fZi
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id BExwh6mO9V_k; Wed, 31 Aug 2022 15:49:45 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 5EB1882CC7;
-	Wed, 31 Aug 2022 15:49:44 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5EB1882CC7
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id JPr2mvc5Qu_3; Wed, 31 Aug 2022 19:06:11 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 0995F41931;
+	Wed, 31 Aug 2022 19:06:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0995F41931
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 33555C0033;
-	Wed, 31 Aug 2022 15:49:44 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B4A8DC0033;
+	Wed, 31 Aug 2022 19:06:10 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id BE904C002D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C00DEC002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 31 Aug 2022 15:49:42 +0000 (UTC)
+ Wed, 31 Aug 2022 19:06:08 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 8C6EE40C88
+ by smtp2.osuosl.org (Postfix) with ESMTP id 86A214012D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 31 Aug 2022 15:49:42 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8C6EE40C88
+ Wed, 31 Aug 2022 19:06:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 86A214012D
 Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=ZZOC43E1
+ dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com
+ header.a=rsa-sha256 header.s=20210112 header.b=lRzt2fZi
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 0fHZ4QkBi9p2
+ with ESMTP id zuTbve98z9hm
  for <virtualization@lists.linux-foundation.org>;
- Wed, 31 Aug 2022 15:49:42 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8DF8140545
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 8DF8140545
+ Wed, 31 Aug 2022 19:06:08 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C9350400FB
+Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com
+ [IPv6:2607:f8b0:4864:20::1031])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id C9350400FB
  for <virtualization@lists.linux-foundation.org>;
- Wed, 31 Aug 2022 15:49:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1661960980;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:
- content-transfer-encoding:content-transfer-encoding;
- bh=q9qyQHrk2nVMvzPYEUreuyJ0t4W+wThvROhfwSArm9k=;
- b=ZZOC43E1oeHWy3lEKZAL9xX4gTfY9CRj2lFPvJWOnQw9N9/c8cLOmt60hOfWYC5YLl+xBU
- RiXSq6qv87kr1Rjav/SVxDEJ1RAu/Oa2ZfY3I+Ak7+FnG9JvRRRXAdAsR+07sJg4xw4wxe
- h3bIuCcs7f34nX68TqghnAqxl+u6n00=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-596-k-QuRm5yOhqepR0DrqmzXg-1; Wed, 31 Aug 2022 11:49:36 -0400
-X-MC-Unique: k-QuRm5yOhqepR0DrqmzXg-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com
- [10.11.54.4])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id DFC20185A7A4;
- Wed, 31 Aug 2022 15:49:35 +0000 (UTC)
-Received: from max-t490s.redhat.com (unknown [10.39.208.41])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 670822026D4C;
- Wed, 31 Aug 2022 15:49:33 +0000 (UTC)
-From: Maxime Coquelin <maxime.coquelin@redhat.com>
-To: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- elic@nvidia.com, guanjun@linux.alibaba.com, parav@nvidia.com,
- gautam.dawar@xilinx.com, dan.carpenter@oracle.com, xieyongji@bytedance.com,
- jasowang@redhat.com, mst@redhat.com
-Subject: [PATCH v3] vduse: prevent uninitialized memory accesses
-Date: Wed, 31 Aug 2022 17:49:23 +0200
-Message-Id: <20220831154923.97809-1-maxime.coquelin@redhat.com>
+ Wed, 31 Aug 2022 19:06:07 +0000 (UTC)
+Received: by mail-pj1-x1031.google.com with SMTP id
+ z3-20020a17090abd8300b001fd803e34f1so203970pjr.1
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 31 Aug 2022 12:06:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+ :to:from:from:to:cc:subject:date;
+ bh=t9nkfZEyPsyobY4BF8QWflVAKFbRwcQ/dQ/3Tr/GPQ8=;
+ b=lRzt2fZiaWLow8SiLm73H9pv8b9cRl7u+7+nwnwQ7Z0mkMQUznYorlPpHABLrcglg8
+ InNdPtGVF2+ot1FxG9spMw/8yObsLBUJlA44b20855x8lH1rbSwew57f0eNpUArBZZHB
+ QidKd8JfB1Ja0Ap3k9mWLvWGuITfFk27s2LlcH0SarQSxJHxSKheMH1NO0kUnQjmgafP
+ eQ2qBkMqx8WOp22UYghY3Hl1pVzcBX4Ebz/IBYURByc3V23Nyz+hUjDv79lsjxunQR5I
+ zk0REw/ud1Bu8kR5ZarYEExAhzJcMHuNFxNn7O/ZCe6DhmIPbEYNTZNDuQHzEv77wlY5
+ /7jQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+ :to:from:x-gm-message-state:from:to:cc:subject:date;
+ bh=t9nkfZEyPsyobY4BF8QWflVAKFbRwcQ/dQ/3Tr/GPQ8=;
+ b=4cpgzJBHpoRp0YCh12g+FrkkOBUpFQqpdHLIZqbBgL7r3S/lj8Jugivb2Wg5TK4UnU
+ exCPPOMwChynK1OYwf5jxQuY+FaztALLOf16V+VjH0JWWXjtiwjbVwUzantf212TkjpQ
+ DULKRF1vsBuyHkwDbyyD7/laVa1/OX3olecq4OOIrVaYKbxe89JJrRXm7qb0yuUvigJn
+ 0OFy4Sh15NU13DdusuJTlP2hMFSViVRueDhZuu8r6M7U971HXrQAVZyDP9dJpPYTK6Nv
+ 4yx6sW8m0oYyKJVudN4Xl6vqqYQq+Dwey4PqO/SG4V9OdLRREGxfzqBAp4lSMwBuNpSq
+ vCzw==
+X-Gm-Message-State: ACgBeo0GTeZHxxueF4G9IK7NoN2xMZSTpeHFnUDJrskGt5zWV1oThNgG
+ hZWMkm4KBiSiDOf0ECMf+M0=
+X-Google-Smtp-Source: AA6agR7SDIMoAlSBJxWQT/X2ybX2wf4K1lJyY9hJUb5G5fk7kiBfspMw3I9UZZXBecrP7I+oYEAnQA==
+X-Received: by 2002:a17:90b:1812:b0:1fd:d509:93e5 with SMTP id
+ lw18-20020a17090b181200b001fdd50993e5mr4717865pjb.25.1661972767123; 
+ Wed, 31 Aug 2022 12:06:07 -0700 (PDT)
+Received: from olv-glaptop.corp.google.com
+ ([2620:0:1000:2514:7dac:af8e:fd67:5cf7])
+ by smtp.gmail.com with ESMTPSA id
+ h187-20020a62dec4000000b0053639773ad8sm11686053pfg.119.2022.08.31.12.06.05
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 31 Aug 2022 12:06:06 -0700 (PDT)
+From: Chia-I Wu <olvaffe@gmail.com>
+To: dri-devel@lists.freedesktop.org
+Subject: [PATCH] drm/virtio: set fb_modifiers_not_supported
+Date: Wed, 31 Aug 2022 12:06:01 -0700
+Message-Id: <20220831190601.1295129-1-olvaffe@gmail.com>
+X-Mailer: git-send-email 2.37.2.672.g94769d06f0-goog
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.78 on 10.11.54.4
-Cc: gregkh@linuxfoundation.org, Maxime Coquelin <maxime.coquelin@redhat.com>,
- stable@vger.kernel.org
+Cc: Shao-Chuan Lee <shaochuan@chromium.org>, David Airlie <airlied@linux.ie>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Daniel Vetter <daniel@ffwll.ch>,
+ virtualization@lists.linux-foundation.org, Tomohito Esaki <etom@igel.co.jp>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -99,48 +111,34 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-If the VDUSE application provides a smaller config space
-than the driver expects, the driver may use uninitialized
-memory from the stack.
+Without this, the drm core advertises LINEAR modifier which is
+incorrect.
 
-This patch prevents it by initializing the buffer passed by
-the driver to store the config value.
+Also userspace virgl does not support modifiers.  For example, it causes
+chrome on ozone/drm to fail with "Failed to create scanout buffer".
 
-This fix addresses CVE-2022-2308.
-
-Cc: stable@vger.kernel.org # v5.15+
-Fixes: c8a6153b6c59 ("vduse: Introduce VDUSE - vDPA Device in Userspace")
-Reviewed-by: Xie Yongji <xieyongji@bytedance.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Maxime Coquelin <maxime.coquelin@redhat.com>
+Fixes: 2af104290da5 ("drm: introduce fb_modifiers_not_supported flag in mode_config")
+Suggested-by: Shao-Chuan Lee <shaochuan@chromium.org>
+Signed-off-by: Chia-I Wu <olvaffe@gmail.com>
 ---
- drivers/vdpa/vdpa_user/vduse_dev.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_display.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-index 41c0b29739f1..35dceee3ed56 100644
---- a/drivers/vdpa/vdpa_user/vduse_dev.c
-+++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-@@ -673,10 +673,15 @@ static void vduse_vdpa_get_config(struct vdpa_device *vdpa, unsigned int offset,
- {
- 	struct vduse_dev *dev = vdpa_to_vduse(vdpa);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
+index 5c7f198c0712..9ea7611a9e0f 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_display.c
++++ b/drivers/gpu/drm/virtio/virtgpu_display.c
+@@ -349,6 +349,8 @@ int virtio_gpu_modeset_init(struct virtio_gpu_device *vgdev)
+ 	vgdev->ddev->mode_config.max_width = XRES_MAX;
+ 	vgdev->ddev->mode_config.max_height = YRES_MAX;
  
--	if (offset > dev->config_size ||
--	    len > dev->config_size - offset)
-+	/* Initialize the buffer in case of partial copy. */
-+	memset(buf, 0, len);
++	vgdev->ddev->mode_config.fb_modifiers_not_supported = true;
 +
-+	if (offset > dev->config_size)
- 		return;
- 
-+	if (len > dev->config_size - offset)
-+		len = dev->config_size - offset;
-+
- 	memcpy(buf, dev->config + offset, len);
- }
+ 	for (i = 0 ; i < vgdev->num_scanouts; ++i)
+ 		vgdev_output_init(vgdev, i);
  
 -- 
-2.37.2
+2.37.2.789.g6183377224-goog
 
 _______________________________________________
 Virtualization mailing list
