@@ -1,105 +1,200 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9B074ECAAD3
-	for <virtualization@archiver.kernel.org>; Wed, 31 Aug 2022 07:03:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 30BE3ECAAD1
+	for <virtualization@archiver.kernel.org>; Wed, 31 Aug 2022 08:33:19 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 15BF7403A4;
-	Wed, 31 Aug 2022 07:03:28 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 15BF7403A4
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=LvDRdt3D
+	by smtp1.osuosl.org (Postfix) with ESMTP id 93B7181AF5;
+	Wed, 31 Aug 2022 08:33:18 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 93B7181AF5
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=IYpuvRHa;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=hQ+IZ2GC
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id JQmfA5TfAS2A; Wed, 31 Aug 2022 07:03:27 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 0xMrIpsy7rj9; Wed, 31 Aug 2022 08:33:17 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 5BC55400AF;
-	Wed, 31 Aug 2022 07:03:26 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5BC55400AF
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 110AC81AEF;
+	Wed, 31 Aug 2022 08:33:17 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 110AC81AEF
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 111B3C0033;
-	Wed, 31 Aug 2022 07:03:26 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 77D8FC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id BDC8FC0033;
+	Wed, 31 Aug 2022 08:33:16 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B17B6C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 31 Aug 2022 07:03:25 +0000 (UTC)
+ Wed, 31 Aug 2022 08:33:15 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 5965340354
+ by smtp4.osuosl.org (Postfix) with ESMTP id 73FF94180C
  for <virtualization@lists.linux-foundation.org>;
- Wed, 31 Aug 2022 07:03:25 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5965340354
+ Wed, 31 Aug 2022 08:33:15 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 73FF94180C
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com
+ header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=IYpuvRHa; 
+ dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
+ header.i=@oracle.onmicrosoft.com header.a=rsa-sha256
+ header.s=selector2-oracle-onmicrosoft-com header.b=hQ+IZ2GC
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id J0YT1odeqOuA
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id NVTfsxem9Aip
  for <virtualization@lists.linux-foundation.org>;
- Wed, 31 Aug 2022 07:03:24 +0000 (UTC)
+ Wed, 31 Aug 2022 08:33:12 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2B932400AF
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 2B932400AF
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3DFD0417BF
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com
+ [205.220.165.32])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 3DFD0417BF
  for <virtualization@lists.linux-foundation.org>;
- Wed, 31 Aug 2022 07:03:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1661929403;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=ycHVJomc+adSIDwiGKF9BYvAAlFomFD/xT89B+Pt//Y=;
- b=LvDRdt3DYOR9AP4cvnNRB2xjCLdwpJtKlkSt15NC/vAybe6AWRhv3vHgS/jf1IjT7kSzv8
- LRrq7v/YEYT1otlFbXC1DeoN3+z8g8rqL+6PUi6WmyPrsYWku5ZEzWEQWfejjchhsasS2h
- 14BkAU3Vof3yWmgWpFAFtPUZW70JaW8=
-Received: from mail-lj1-f197.google.com (mail-lj1-f197.google.com
- [209.85.208.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-428-a4iUPafWMl-ar805oAJQzw-1; Wed, 31 Aug 2022 03:03:21 -0400
-X-MC-Unique: a4iUPafWMl-ar805oAJQzw-1
-Received: by mail-lj1-f197.google.com with SMTP id
- y15-20020a2e7d0f000000b0025ec5be5c22so3697737ljc.16
- for <virtualization@lists.linux-foundation.org>;
- Wed, 31 Aug 2022 00:03:21 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:x-gm-message-state:from:to:cc;
- bh=ycHVJomc+adSIDwiGKF9BYvAAlFomFD/xT89B+Pt//Y=;
- b=QRFybha8bYQrimPbJSklOt+dJRXNAzqJE4b/P/vq1e4ziEIz4FzwM1xDtfqOQo7HW3
- GIw0lIdRwnBNNGYhIKQNC27JJb5oCoK1l1MDbmzJ6N0K6IlWt7IMYxw65aDgYAQ8GJBG
- EnnaMFXj98HbNL7J7pr1kWzQO8vARzWYz8RO++xIlmJTND756BodpwOUvRQhCUZPrjDN
- 10CO+A6D6einE2QXQssLqKxXSHedXEqg083QFavKTULr/nIsjsymY2BmUpMzcOJTotBR
- Cg/K1mSbzWJCEhTRWFoQ2A7r5MqasFNjFXeIMiOSxEd1vcmIlMjv2+snMwPxTrndeI0l
- BUyQ==
-X-Gm-Message-State: ACgBeo1zhWJqAO5kfgnhciXy48T2mG3b7Wk3BMSQl5Ybt0D9AQP8Sud3
- ZRbKZedOQYFMra+ZurzIE+Y0v8xSUBmwCMhhxo2TEzAuFfMI59WIzJsVJv1Bo0Ao69JALTzdKul
- Rjw+Aw2JYAb8qB0IJhFDd+IjbRZJhSGrxED93XNd4fjWnFwG2TuyioFiwrA==
-X-Received: by 2002:a2e:a812:0:b0:261:8f2d:9530 with SMTP id
- l18-20020a2ea812000000b002618f2d9530mr7388596ljq.251.1661929399881; 
- Wed, 31 Aug 2022 00:03:19 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR5G+cornjW5W2zD8V/g95sScqKJ6f2fjvUijctmgl0BG2NfvUSN9RQcsKSjN6Tpl3XYvDRbH/XuC6FBtEZ9SBo=
-X-Received: by 2002:a2e:a812:0:b0:261:8f2d:9530 with SMTP id
- l18-20020a2ea812000000b002618f2d9530mr7388585ljq.251.1661929399663; Wed, 31
- Aug 2022 00:03:19 -0700 (PDT)
+ Wed, 31 Aug 2022 08:33:11 +0000 (UTC)
+Received: from pps.filterd (m0246629.ppops.net [127.0.0.1])
+ by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27V57nXZ017317;
+ Wed, 31 Aug 2022 08:32:55 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+ h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=corp-2022-7-12;
+ bh=TjsxUJqFD4x8Ok5Y5ObCXryyftqySUNrYMAMtkKvw6s=;
+ b=IYpuvRHav5kwfjcd3rwTIRu3zK9Y/gLzNXw5PAf4aLiqQ6nKlYMsyBR5/VmpOP+Jkm8M
+ PzkhoIRMmOlD74p8Pw/+3jQB7SETZlAIq/GlySjHXmZTx+/9p+NJ+vxfSEW0Zoa4OWch
+ zq7cpcqR3pB9NzPHwtpnHtKd0jkmyrvIO5O6R5RskuFLMTPctfc6KISZAqw2zxTvVijH
+ jzhHbSAMAp8fMPxQFb5ueEF2b4NOW1OsfJ91ZEYqwJCvTTb7UobS8vAj8LQcrdf7L414
+ b0MBNIMYPA85wZznkslQcVy/YLSnPIddfQ64MWKZeIn6H/WdOZuJn+pqlbhLU78pSjKX Fw== 
+Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com
+ (iadpaimrmta03.appoci.oracle.com [130.35.103.27])
+ by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3j7b5a0f5e-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Wed, 31 Aug 2022 08:32:55 +0000
+Received: from pps.filterd
+ (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+ by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.5/8.17.1.5)
+ with ESMTP id 27V6i6sO033489; Wed, 31 Aug 2022 08:32:54 GMT
+Received: from nam04-mw2-obe.outbound.protection.outlook.com
+ (mail-mw2nam04lp2170.outbound.protection.outlook.com [104.47.73.170])
+ by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id
+ 3j79q54ytf-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Wed, 31 Aug 2022 08:32:54 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=AAi0n0gRKKJerWRWTahKP2pu5ZuLbUzYc7jqy3XEKMOqp0jFCwoQ737ZwnFvXXK25ZuRP+imupho3KgGISb1r2KdmcbLgxAu0ba1rt/0rDFZ+CmoDjf5P0IBwYI8J9n/1ifjHaZUPB1n1xE10kJGWnAs7REk6XIQGRY0qKc6g3+s35grv5BfPmk2MnvlNhN8IQAlugjyrUbem/9Xl3tIhHwct0CdgBsZmHF7SEOsEtLs5sOUOTSq4J2pOIx3nG8YVyD2bia0sj2mkwtttgD7L1RXYjNbihvx9oqrMfCO5TGVTMoFYOoviwBZ436md+SiZ5szRqeZfvyvRC+szLps+Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=TjsxUJqFD4x8Ok5Y5ObCXryyftqySUNrYMAMtkKvw6s=;
+ b=jpwMcMmcGHrq+B2fX6/avMbR4ND80of336BKG0UNzs49uwTFEPvs6Q2gLQcHFjLnN7C/JQ6g3EvdeEisobHMbakyDWAF6GO1OgyFx9wmF/sue9Xm6XiyTd5vem8oCXkitPrhL8n4VclnxEALUOYfdPK6KZCdVrrFgpvVbcihGxziymLqT9K57c3Dfe36ZRqCRKDWfegvAErE67lrreviLYECnrYDn1i3xN7IPs2Z0oKHWnQ57QrTIauKuAUL5kiVhtbFBzuw5G8zqUn+V/mBZ9q1XQyr/+/lsN7TxORTEU5eWOqjxbGUU5rZFgxw+BFtbHDNMPTSdRK+JdnNYSvOpA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=TjsxUJqFD4x8Ok5Y5ObCXryyftqySUNrYMAMtkKvw6s=;
+ b=hQ+IZ2GCM/O2KedML7xcFajD1w4vQos3Zj+5qBirpUZxXPp3t1qF/tW3F/oVt+abKEA1MhYrUlHOkoyUvV3odlwoepT9c/gYSelVJd3xtvkKqTAvAuOk1xaUZjcf/YhD7lj/PqJyCVgLjsP/jaCn2eQVA6iOC2aPkTyXn+75wbo=
+Received: from BYAPR10MB3287.namprd10.prod.outlook.com (2603:10b6:a03:15c::11)
+ by CO6PR10MB5571.namprd10.prod.outlook.com (2603:10b6:303:146::19)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5588.10; Wed, 31 Aug
+ 2022 08:32:51 +0000
+Received: from BYAPR10MB3287.namprd10.prod.outlook.com
+ ([fe80::dcf7:95c3:9991:e649]) by BYAPR10MB3287.namprd10.prod.outlook.com
+ ([fe80::dcf7:95c3:9991:e649%7]) with mapi id 15.20.5566.021; Wed, 31 Aug 2022
+ 08:32:51 +0000
+Message-ID: <8407acde-ebe9-b3de-aac3-4aac74c03bff@oracle.com>
+Date: Wed, 31 Aug 2022 01:32:47 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.12.0
+Subject: Re: [virtio-dev] [PATCH v3 1/2] virtio-net: introduce and use helper
+ function for guest gso support checks
+Content-Language: en-US
+To: Gavin Li <gavinl@nvidia.com>, stephen@networkplumber.org,
+ davem@davemloft.net, jesse.brandeburg@intel.com,
+ alexander.h.duyck@intel.com, kuba@kernel.org,
+ sridhar.samudrala@intel.com, jasowang@redhat.com, loseweigh@gmail.com,
+ netdev@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ virtio-dev@lists.oasis-open.org, mst@redhat.com
+References: <20220830022634.69686-1-gavinl@nvidia.com>
+ <20220830022634.69686-2-gavinl@nvidia.com>
+From: Si-Wei Liu <si-wei.liu@oracle.com>
+Organization: Oracle Corporation
+In-Reply-To: <20220830022634.69686-2-gavinl@nvidia.com>
+X-ClientProxiedBy: SA0PR11CA0030.namprd11.prod.outlook.com
+ (2603:10b6:806:d3::35) To BYAPR10MB3287.namprd10.prod.outlook.com
+ (2603:10b6:a03:15c::11)
 MIME-Version: 1.0
-References: <20220828154820.458007-1-elic@nvidia.com>
- <20220828160106-mutt-send-email-mst@kernel.org>
- <CACGkMEtubshhZaX4CAjpyiDVSdofW=Mha4HM56FjtK57f1W+Zw@mail.gmail.com>
- <DM8PR12MB54001542CF00A017738C6BC3AB769@DM8PR12MB5400.namprd12.prod.outlook.com>
-In-Reply-To: <DM8PR12MB54001542CF00A017738C6BC3AB769@DM8PR12MB5400.namprd12.prod.outlook.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 31 Aug 2022 15:03:08 +0800
-Message-ID: <CACGkMEt9RVL=hSjYMk=iQ7ZvhWvt4Mh8KaKAp0rOhbPXjY=0QQ@mail.gmail.com>
-Subject: Re: [PATCH] virtio_net: Abort driver initialization if device fails
-To: Eli Cohen <elic@nvidia.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: eperezma <eperezma@redhat.com>,
- virtualization <virtualization@lists.linux-foundation.org>,
- "Michael S. Tsirkin" <mst@redhat.com>
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 2216a052-6c31-4b1a-872e-08da8b2b64a6
+X-MS-TrafficTypeDiagnostic: CO6PR10MB5571:EE_
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: hIVuDDV4uqyPDyXlOD54MJapdOCFgOJpXOxu9pyo30KTxstav1+qLt23a0bxBr6y6aX/iH4S+3JTxTJN1ZqbYzF0ud8m5v+mO8QvnQOu2tmOBnfjYOSnmmsx7xybo/QH229qdOFVB6IVWAP2gg6VbWij8/skxvOs+SjOPNtOY/MrtbWB2vLZuFpKezpy9ZyEwkBQCGb6ux6dIX1A5nH8XO9gKUEsGGWJ8VS6EaCpYYHswOsWK6Otxe06dfiaRcfd3euxkkG7xRPSvb6nmagzUcszLMf/EhPbvAzf/mXRRDLd70c0zKTq5XLkhmcZgg9tG383+BvlI15gWHHZdmdCArBy8hP2Ff/sdjjftWK7TGLGE6K7NrB+ZMlvwHJwlmQ6BdqN6l1CK4WBxKbVrLTX8bcmLolJvpOOMNdNq1rPK0zW7vTCTzK4Hv6pNhJgEFj5CxVmVhTvgYvTNyMMnYpWwE+/5JYG7PbxSauoVM+IaqBAe+fvDvgE1vJW3NBkklOEWFDFfKY1NtrL4LQXuoxEnsvjdSV9dHRgfhDHpexiFWIeHt2Sylog/obNbKcYg6zexIRQafoiFUX9sCKkfuDZgYf/8QQEBoNloJ4yDFfXDi2jq1J/Y71yr7gZ/5fLRNP6TiwFPMTNr6w92zQGGNQAKGJj+lRfJq2rrqU0sYaW+7U57CYArbPdgUTky9p9i5Kc7GdbeIcERSX9eqOvzqkgRf5Kiubwcx6+WxPwWnrEmsQyuWgl/eW6nXgfZMERubdAnR0dI5vCcikY+9Nm1bIHUBiXOAmndHpuH2H7PqOrHLrVkzn3tdIMhECBRXW8zOuj
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:BYAPR10MB3287.namprd10.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230016)(346002)(376002)(366004)(396003)(39860400002)(136003)(8676002)(66476007)(66556008)(4326008)(66946007)(316002)(36756003)(2906002)(31696002)(6486002)(5660300002)(86362001)(7416002)(8936002)(38100700002)(31686004)(921005)(186003)(2616005)(41300700001)(478600001)(26005)(6506007)(6512007)(6666004)(36916002)(53546011)(83380400001)(45980500001)(43740500002);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?eWVsanNqT1pRcTZQSmdlUjhMS08yeUFUSmp0dlIxckNJbHpXUklGWG9LQ3cr?=
+ =?utf-8?B?Qm82UUtUbWpvUUpzQnhnd0t4NGdOWitqSXFuaXdFYVFxY2FhMXdYWDc2MkQw?=
+ =?utf-8?B?QW85c3ZtOHhUVlErMlhSNTltR3ZmckM3S0UxM2t4aTY2eUpUd1YzSXYrOUc5?=
+ =?utf-8?B?Y0xnNnNkbkFTM2hIeFhoZS8zUVY5YzhHekNQSUdMaVVzM1ZzUlgyYng4djBJ?=
+ =?utf-8?B?QkpFSjdhMXNUR0xiSXJVWkU2eW1KWkpPdGN1QVY2UHlIUWF0OUhUdERxOXVE?=
+ =?utf-8?B?WGF5RnVBeThCZ0JTaHBYQkp5cGJVM3FGbEpTN3ZTRWl4T05DQzljd2ptaStw?=
+ =?utf-8?B?WC9pcEg4Z29xZFRob01XMmVWYjNUODZRb2k4NjNTQ0k2SWRXWHA1cCtBMDRJ?=
+ =?utf-8?B?RldlS2ZmM1pnMmdBS21vNEMrRXF1VUg3bUk5TDA3MzFFanJ2MHk1bHVJSWVL?=
+ =?utf-8?B?Qjh5L1NkcHdVbEROc2pTcGhtTVhFTldhNUtUNmRiNlhyRXhkTWhXT2dFQWh6?=
+ =?utf-8?B?SHhsclplcExqRGZDeElUWm5FUjd4bVp2YUMzTGN0VDJZbEFtWmFQaXEwSmNj?=
+ =?utf-8?B?SHNRUHZ2a1AvUUlxaTdDTlI2TU96RUdPYnNaK2RSVUVZU0tJWEhWWGpTQUIy?=
+ =?utf-8?B?ei9RVnFTT2VHd010NG5kYVRiUkRDMXpGSXZrcUt6bzl3dGZpbzBiOVZaZWpt?=
+ =?utf-8?B?K3l1ZmhCRUMyV1JUTlk1S3VMNEl1TEl3TVdjY0VRL1d3SEJqUVhpd0lNNUxN?=
+ =?utf-8?B?WHpJajlOQ3hiWHErUDV2RTJVRUwrdmJ4MUJ1THdnZmdheXVuRXJicERMUWNM?=
+ =?utf-8?B?bUdSa21OZzJIMnduSnIvb29jUHRZcUlpTzVSK2lBS2JZR2R1Umg4M0ZyMFhx?=
+ =?utf-8?B?VXJnTHdMdGRTUGFKeC92dEhJQkRVU2toUjFXR1JoOFo2VTVML1dGdmpPRXhE?=
+ =?utf-8?B?bVRrWjZWaDVqc2JpV1o3RElnUFAzd3pLbkhFMFlGalE3YzNNcEFjNTlzcUdq?=
+ =?utf-8?B?YjYrb09CWEhSOXBNRUVrVG00OHJoMGVsQ0VhSHAwWEtrcVhjOXA2OGZTQ1Q4?=
+ =?utf-8?B?KzJ0TWZ6a3I3aFN0eGhpaTVqNklrZnZoNVJvaE44LzI3bUF2OVhPTzBRYVMw?=
+ =?utf-8?B?TzYxTjlhZE1IZS96cXplK3ZSMnE0MVYwOFRjR3E0VXlRQmNZTEdvOEdqSDlC?=
+ =?utf-8?B?Z2lNc28wMWtlUEdXajcvNG9wNzlKL2VRanBqdmZFSEhBc1V6ZkNWaTRVU0gr?=
+ =?utf-8?B?TFlrVExNM0c1Y0xZWHdxTzlTWXV5S2xCR2hkYnVmUjRYMGs1bXc3Z3VpdE95?=
+ =?utf-8?B?ZDRoR213MmJadmVINURpTHVLOGFsWS94WWVKbEc0MVQ1SlBEWjdSWGdPYTBn?=
+ =?utf-8?B?VDQrSEJIQzBRRGhhYng0QkJOeHRoTHRLY3pCLzd3d1BRdkhHcldYdUZETjho?=
+ =?utf-8?B?YTdDMDRoUm05RlZQRld1VWNTNTdKQVBiL2E3VE1ZeEZFRHgrVGxCdkdjaUZX?=
+ =?utf-8?B?U3lJQVdJalhMK2lVNkpwWXo5UVUyMGt2QnowTHdNY2UxVFJja21DSC9iUWNQ?=
+ =?utf-8?B?cVErWDMrTUNEcXJtZ09pbnQ2Q3lXTHJpVmhsU00ydUFad0tzQi9EaitibHdY?=
+ =?utf-8?B?ZmVXRWE3L0U5a2JPT3B2NHllTitqQW95bENCVEFGNnZlTFVwL3FIV1ZIc2NY?=
+ =?utf-8?B?UUFlWWNtQ0k4NkNacVFOZSs5cVhENGVab05QN2FIcEg4RmIwQmw4dUVmL0dZ?=
+ =?utf-8?B?cEw2YXpRVkJFY05Jb05ReHlpOVJkUlRvTDV5Q3JuMzdWaWhYTkRWeDZNN1BY?=
+ =?utf-8?B?UjhWNjF1bGtuVjBlWnViR0JlQUhKcXVjcmc2QTlIMFRXMnZ5WVo5bWJqQ1lD?=
+ =?utf-8?B?bDRuZE9Xb3hHcDhVSUd4U3dtSVcyclFocHhRUGdhcW1QencySitsWHNTR1FZ?=
+ =?utf-8?B?Ync2MlNUZ25oSEZ2RWozRVl2bnloZEp3RTdJYUltZkw3QWk2Y0o1T3hCQklI?=
+ =?utf-8?B?NEJMK2o2NDUzOU9tMnBTZVpBZjBnMm5nMTJZam9yTUU4N0Z2VEhQZnd1VUE0?=
+ =?utf-8?B?VkNBQ3lTNW9RZWN0N3RpbGlnZlBXS2sxTVJBK3ZLTXhpeTl4aE1LQWZObXdw?=
+ =?utf-8?Q?5HAFPTY8oYvIcbqJFwnrBPyGC?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 2216a052-6c31-4b1a-872e-08da8b2b64a6
+X-MS-Exchange-CrossTenant-AuthSource: BYAPR10MB3287.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 31 Aug 2022 08:32:51.7023 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: aivTNZRJifGrrnXOIjxhyZ1t7f1/o5a4Pz7CI6HP8XRCJNfIIIoVtH1SqUJyKYkrHZeiaWGeDTGoN9bQeV4UtA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CO6PR10MB5571
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-08-31_05,2022-08-31_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0
+ mlxlogscore=999
+ suspectscore=0 adultscore=0 bulkscore=0 mlxscore=0 spamscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2207270000 definitions=main-2208310042
+X-Proofpoint-ORIG-GUID: K5vCEs6HrLzMRlBuhJ3qLFa7u88Dxty7
+X-Proofpoint-GUID: K5vCEs6HrLzMRlBuhJ3qLFa7u88Dxty7
+Cc: gavi@nvidia.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -111,192 +206,60 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Aug 29, 2022 at 12:52 PM Eli Cohen <elic@nvidia.com> wrote:
->
->
->
-> > -----Original Message-----
-> > From: Jason Wang <jasowang@redhat.com>
-> > Sent: Monday, August 29, 2022 3:33 AM
-> > To: Michael S. Tsirkin <mst@redhat.com>
-> > Cc: Eli Cohen <elic@nvidia.com>; eperezma <eperezma@redhat.com>; Si-
-> > Wei Liu <si-wei.liu@oracle.com>; virtualization <virtualization@lists.linux-
-> > foundation.org>
-> > Subject: Re: [PATCH] virtio_net: Abort driver initialization if device fails
-> >
-> > On Mon, Aug 29, 2022 at 4:07 AM Michael S. Tsirkin <mst@redhat.com>
-> > wrote:
-> > >
-> > > On Sun, Aug 28, 2022 at 06:48:20PM +0300, Eli Cohen wrote:
-> > > > Read the status bit after virtio_device_ready() to check if device
-> > > > initialization was successful. If it was not, abort driver
-> > > > initialization to avoid further attempts to access device resources.
-> > > >
-> > > > Abort is required per virtio spec v1.1
-> > > >
-> > > > 3.1.1
-> > > > ...
-> > > > If any of these steps go irrecoverably wrong, the driver SHOULD set the
-> > > > FAILED status bit to indicate that it has given up on the device (it can
-> > > > reset the device later to restart if desired). The driver MUST NOT
-> > > > continue initialization in that case.
-> > >
-> > > I don't see a requirement to read the status bit though
-> > > which is what the patch does.
-> > >
-> > > > This fixes an issue that was discovered when mlx5_vdpa initialization
-> > > > failed due to firmware error
-> > >
-> > > A bit more detail would be nice. which function failed exactly?
-> > >
-> > > > and subsequent attempts to send control VQ
-> > > > commands failed with a call trace:
-> > > >
-> > > >  watchdog: BUG: soft lockup - CPU#62 stuck for 26s! [systemd-
-> > udevd:2610]
-> > > >  Modules linked in: virtio_net(+) net_failover failover virtio_vdpa
-> > mlx5_vdpa vringh vhost_iotlb vdpa mlx5_ib ib_uverbs ib_core mlx5_core
-> > mlxfw psample tls pci>
-> > > >   drm ghash_clmulni_intel serio_raw usb_storage scsi_transport_sas
-> > hpwdt wmi target_core_mod [last unloaded: ib_core]
-> > > >  CPU: 62 PID: 2610 Comm: systemd-udevd Tainted: G I        6.0.0-rc2+ #7
-> > > >  Hardware name: HPE ProLiant DL380 Gen10/ProLiant DL380 Gen10, BIOS
-> > U30 04/08/2020
-> > > >  RIP: 0010:virtnet_send_command+0xfa/0x140 [virtio_net]
-> > > >  Code: ec f0 80 e0 85 c0 0f 88 0c 68 00 00 48 8b 7b 08 e8 9b d6 80 e0 84 c0
-> > 75 11 eb 43 48 8b 7b 08 e8 7c c3 80 e0 84 c0 75 15 f3 90 <48> 8b 7b 08 48 8d
-> > 74 24 >
-> > > >  RSP: 0018:ffffb6fba2037b78 EFLAGS: 00000246
-> > > >  RAX: 0000000000000000 RBX: ffff99c6043a99c0 RCX: 0000000000000000
-> > > >  RDX: 0000000000000000 RSI: ffffb6fba2037b7c RDI: ffff99c6042c6500
-> > > >  RBP: ffffb6fba2037bc0 R08: 0000000000000001 R09: 0000000000000000
-> > > >  R10: 0000000000000003 R11: 0000000000000002 R12:
-> > 0000000000000002
-> > > >  R13: 0000000000000004 R14: 0000000000000000 R15: ffff99f634258400
-> > > >  FS:  00007f5894eefb40(0000) GS:ffff99dd9fb80000(0000)
-> > knlGS:0000000000000000
-> > > >  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> > > >  CR2: 000055acd4a80000 CR3: 00000018605a4002 CR4:
-> > 00000000007706e0
-> > > >  DR0: 0000000000000000 DR1: 0000000000000000 DR2:
-> > 0000000000000000
-> > > >  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-> > > >  PKRU: 55555554
-> > > >  Call Trace:
-> > > >   <TASK>
-> > > >   _virtnet_set_queues+0x7f/0xc0 [virtio_net]
-> >
-> > Btw the calltrace seems like the driver is waiting for the completion
-> > of mq setting command.
-> >
->
-> Yes, and driver resources may no be available due to the failure.
->
-> > There's some recent discussion of using timeout or interrupt for ctrl
-> > command which may help to solve this issue.
-> >
->
-> That could work but why wait for a timeout if you can detect the failure immediately?
 
-If I understand the calltrace, it is just waiting for the response, so
-it doesn't know whether it succeeds or not?
 
-        /* Spin for a response, the kick causes an ioport write, trapping
-         * into the hypervisor, so the request should be handled immediately.
-         */
-        while (!virtqueue_get_buf(vi->cvq, &tmp) &&
-               !virtqueue_is_broken(vi->cvq))
-                cpu_relax();
-
-Thanks
-
-> After initializing seems a good point in time to check if things went right or wrong.
+On 8/29/2022 7:26 PM, Gavin Li wrote:
+> Probe routine is already several hundred lines.
+> Use helper function for guest gso support check.
 >
-> > Thanks
-> >
-> > > >   virtnet_probe+0x989/0xae0 [virtio_net]
-> > > >   virtio_dev_probe+0x1ab/0x260
-> > > >   really_probe+0xde/0x390
-> > > >   ? pm_runtime_barrier+0x50/0x90
-> > > >   __driver_probe_device+0x78/0x180
-> > > >   driver_probe_device+0x1e/0x90
-> > > >   __driver_attach+0xc4/0x1e0
-> > > >   ? __device_attach_driver+0xe0/0xe0
-> > > >   ? __device_attach_driver+0xe0/0xe0
-> > > >   bus_for_each_dev+0x61/0x90
-> > > >   bus_add_driver+0x1a9/0x200
-> > > >   driver_register+0x8f/0xf0
-> > > >   ? 0xffffffffc0fdb000
-> > > >   virtio_net_driver_init+0x70/0x1000 [virtio_net]
-> > > >   do_one_initcall+0x41/0x210
-> > > >   ? kmem_cache_alloc_trace+0x16d/0x2c0
-> > > >   do_init_module+0x4c/0x1f0
-> > > >   __do_sys_finit_module+0x9f/0x100
-> > > >   do_syscall_64+0x38/0x90
-> > > >   entry_SYSCALL_64_after_hwframe+0x63/0xcd
-> > > >  RIP: 0033:0x7f589510aecd
-> > > >  Code: 5b 41 5c c3 66 0f 1f 84 00 00 00 00 00 f3 0f 1e fa 48 89 f8 48 89 f7 48
-> > 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01
-> > >
-> > > >  RSP: 002b:00007ffde61fb398 EFLAGS: 00000246 ORIG_RAX:
-> > 0000000000000139
-> > > >  RAX: ffffffffffffffda RBX: 000055acd48ac950 RCX: 00007f589510aecd
-> > > >  RDX: 0000000000000000 RSI: 00007f589584332c RDI:
-> > 0000000000000012
-> > > >  RBP: 0000000000020000 R08: 0000000000000000 R09:
-> > 0000000000000002
-> > > >  R10: 0000000000000012 R11: 0000000000000246 R12:
-> > 00007f589584332c
-> > > >  R13: 000055acd4867c70 R14: 0000000000000007 R15:
-> > 000055acd48980a0
-> > > >   </TASK>
-> > > >
-> > > > Fixes: commit 4baf1e33d084 ("virtio_net: enable VQs early")
-> > > > Signed-off-by: Eli Cohen <elic@nvidia.com>
-> > > > ---
-> > > >  drivers/net/virtio_net.c | 7 ++++++-
-> > > >  1 file changed, 6 insertions(+), 1 deletion(-)
-> > > >
-> > > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > > > index 9cce7dec7366..4698d9a28a6f 100644
-> > > > --- a/drivers/net/virtio_net.c
-> > > > +++ b/drivers/net/virtio_net.c
-> > > > @@ -3900,6 +3900,11 @@ static int virtnet_probe(struct virtio_device
-> > *vdev)
-> > > >       }
-> > > >
-> > > >       virtio_device_ready(vdev);
-> > > > +     if (vdev->config->get_status(vdev) & VIRTIO_CONFIG_S_FAILED) {
-> > > > +             err = -EINVAL;
-> > > > +             rtnl_unlock();
-> > > > +             goto unregister_ndev;
-> > > > +     }
-> > > >
-> > > >       rtnl_unlock();
-> > > >
-> > >
-> > > I don't get it. What set the failed status?
-> > >
-> > >
-> > > > @@ -3934,7 +3939,7 @@ static int virtnet_probe(struct virtio_device
-> > *vdev)
-> > > >
-> > > >  free_unregister_netdev:
-> > > >       virtio_reset_device(vdev);
-> > > > -
-> > > > +unregister_ndev:
-> > > >       unregister_netdev(dev);
-> > > >  free_failover:
-> > > >       net_failover_destroy(vi->failover);
-> > > > --
-> > > > 2.35.1
-> > >
+> Signed-off-by: Gavin Li <gavinl@nvidia.com>
+> Reviewed-by: Gavi Teitz <gavi@nvidia.com>
+> Reviewed-by: Parav Pandit <parav@nvidia.com>
+Reviewed-by: Si-Wei Liu <si-wei.liu@oracle.com>
+> ---
+> changelog:
+> v1->v2
+> - Add new patch
+> ---
+>   drivers/net/virtio_net.c | 13 +++++++++----
+>   1 file changed, 9 insertions(+), 4 deletions(-)
 >
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 9cce7dec7366..e1904877d461 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -3682,6 +3682,14 @@ static int virtnet_validate(struct virtio_device *vdev)
+>   	return 0;
+>   }
+>   
+> +static bool virtnet_check_guest_gso(const struct virtnet_info *vi)
+> +{
+> +	return (virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_TSO4) ||
+> +		virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_TSO6) ||
+> +		virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_ECN) ||
+> +		virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_UFO));
+> +}
+> +
+>   static int virtnet_probe(struct virtio_device *vdev)
+>   {
+>   	int i, err = -ENOMEM;
+> @@ -3777,10 +3785,7 @@ static int virtnet_probe(struct virtio_device *vdev)
+>   	spin_lock_init(&vi->refill_lock);
+>   
+>   	/* If we can receive ANY GSO packets, we must allocate large ones. */
+> -	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO4) ||
+> -	    virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO6) ||
+> -	    virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_ECN) ||
+> -	    virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_UFO))
+> +	if (virtnet_check_guest_gso(vi))
+>   		vi->big_packets = true;
+>   
+>   	if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF))
 
 _______________________________________________
 Virtualization mailing list
