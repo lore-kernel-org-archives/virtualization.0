@@ -1,110 +1,93 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5BEACC6FA86
-	for <virtualization@archiver.kernel.org>; Mon,  5 Sep 2022 07:49:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9D8C7ECAAA1
+	for <virtualization@archiver.kernel.org>; Mon,  5 Sep 2022 08:10:04 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id D59BF81388;
-	Mon,  5 Sep 2022 07:49:53 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D59BF81388
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=aMbzmB5r
+	by smtp2.osuosl.org (Postfix) with ESMTP id 20844401A4;
+	Mon,  5 Sep 2022 08:10:04 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 20844401A4
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=susede1 header.b=Clf8v2x2
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id llKR3yPeMbFt; Mon,  5 Sep 2022 07:49:53 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 1hiXJlvW3cwe; Mon,  5 Sep 2022 08:10:03 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 781BA8135C;
-	Mon,  5 Sep 2022 07:49:52 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 781BA8135C
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 94D0F40146;
+	Mon,  5 Sep 2022 08:10:02 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 94D0F40146
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5896FC0032;
-	Mon,  5 Sep 2022 07:49:52 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4B6F8C0032;
+	Mon,  5 Sep 2022 08:10:02 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4FD71C002D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id CCB3FC002D
  for <virtualization@lists.linux-foundation.org>;
- Mon,  5 Sep 2022 07:49:50 +0000 (UTC)
+ Mon,  5 Sep 2022 08:10:00 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 15D3860B9A
+ by smtp3.osuosl.org (Postfix) with ESMTP id 9440C60E78
  for <virtualization@lists.linux-foundation.org>;
- Mon,  5 Sep 2022 07:49:50 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 15D3860B9A
+ Mon,  5 Sep 2022 08:10:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9440C60E78
 Authentication-Results: smtp3.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=aMbzmB5r
+ dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com
+ header.a=rsa-sha256 header.s=susede1 header.b=Clf8v2x2
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id bwYZK_OlYyan
+ with ESMTP id 4cYi_zurULRV
  for <virtualization@lists.linux-foundation.org>;
- Mon,  5 Sep 2022 07:49:49 +0000 (UTC)
+ Mon,  5 Sep 2022 08:10:00 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4EF5F600C4
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 4EF5F600C4
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B8B0360B9A
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id B8B0360B9A
  for <virtualization@lists.linux-foundation.org>;
- Mon,  5 Sep 2022 07:49:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1662364187;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ Mon,  5 Sep 2022 08:09:59 +0000 (UTC)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by smtp-out2.suse.de (Postfix) with ESMTPS id A46325FC08;
+ Mon,  5 Sep 2022 08:09:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+ t=1662365396; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=SMj8mXrJ0Q/Mmrlyt4DK6FLz8HLyNr19Sl/fz3gGSnk=;
- b=aMbzmB5r778G6ejio2iLhMXGiAFDEX6GRtKtXzvvVlzf+hphKQSRfIQuhVhDs/E99dbZ2+
- y+dVpJLre4/eS8mkGVbGkSZprG8m9dfj/3iO2xjI2QtxV1Og89KJahxMXXa6BhrSuwRbWZ
- k61XrL7/uZd1Z+7zvdVrdJ3+BiRCz1M=
-Received: from mail-ua1-f71.google.com (mail-ua1-f71.google.com
- [209.85.222.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-261-geToMK-rN9qZsmJmL0GRdA-1; Mon, 05 Sep 2022 03:49:44 -0400
-X-MC-Unique: geToMK-rN9qZsmJmL0GRdA-1
-Received: by mail-ua1-f71.google.com with SMTP id
- k48-20020ab01633000000b003af70af1b2aso15834uae.18
- for <virtualization@lists.linux-foundation.org>;
- Mon, 05 Sep 2022 00:49:44 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:x-gm-message-state:from:to:cc:subject:date;
- bh=SMj8mXrJ0Q/Mmrlyt4DK6FLz8HLyNr19Sl/fz3gGSnk=;
- b=eVtLKAo10zFDMnND8FeIkUel5oqCgm1+4IB2kJlu0pwozABK9yTAyr8u/r7674iC+/
- gOHtTaZ12557ij7UW5gEphM9MH++iqlq1OXR0g8UzVlwvGw8bXFe15bjMkCD1qfpZjWU
- 6LCU1d5sTE1djnjfqylQeG1xdYmz8bMLUwjJ6bw94LTcC/VAR6DBQlFKow4alYI1KQfQ
- uCAima+fTiejQzfh+APTfMwt9tClIsVwBzhWl2EIFSnkvFUGvYEsfy8gQyIuoDZKAUi/
- 5E3zanRe99gV2ZuFPAaZ0x78fiDPNG3+bdluFG5reMFXlu+sYkPPS2JbtV+cn9POf93A
- CGSg==
-X-Gm-Message-State: ACgBeo39gWDRTTSzInQ8BvPwZde0SWVitEiM/L4+61AKvltAm3i/0x7e
- cs2OpGiUfHXvBSmxSzePOaOuCa2bG8AIpE2NCUrPqp+zeWKmdCIzoExZwsjLljcW4Qd3E/ZqLY3
- GNfyy0WIOCZuxHUALr2V7pcxmfL+8lnmFr9V56p8BUzTblxKCroQlZqovhQ==
-X-Received: by 2002:ab0:1473:0:b0:396:d89d:3a87 with SMTP id
- c48-20020ab01473000000b00396d89d3a87mr14112636uae.73.1662364183860; 
- Mon, 05 Sep 2022 00:49:43 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR7Ri0CX6EFp7VbOu8dXi4Lj61EowOLZEkc0m0LHhlVZdChmPQxGb8nAeVrQg+nUqe/tT1QyJocHziPlwgCF6Xg=
-X-Received: by 2002:ab0:1473:0:b0:396:d89d:3a87 with SMTP id
- c48-20020ab01473000000b00396d89d3a87mr14112626uae.73.1662364183662; Mon, 05
- Sep 2022 00:49:43 -0700 (PDT)
+ bh=OHm22wnscSeSLam9oTNKfPWE3cR9ClcG+vTIYFYQYNg=;
+ b=Clf8v2x2EIxxiOces8FJ+7tgJEbgJXlWJlcBiaA0gxiKUOz7A6mH6LiLhyRiQEnTU/xljc
+ tbpCfb8FIpQrs86wwdAaOETDd2DffL+bPNOJNjF6IbbU6iQHoIBInQNOrphhkNO9zkFk7U
+ 2WmCmOq7qV/NuyF/zc3b24aWjfUfSyA=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id B88BE13A66;
+ Mon,  5 Sep 2022 08:09:55 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+ by imap2.suse-dmz.suse.de with ESMTPSA id Af9FJ9OuFWNRAwAAMHmgww
+ (envelope-from <jgross@suse.com>); Mon, 05 Sep 2022 08:09:55 +0000
+Message-ID: <1cf62567-3af5-a76a-cfbc-b7de1de8cb8a@suse.com>
+Date: Mon, 5 Sep 2022 10:09:55 +0200
 MIME-Version: 1.0
-References: <20220905045341.66191-1-jasowang@redhat.com>
- <20220905031405-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20220905031405-mutt-send-email-mst@kernel.org>
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 5 Sep 2022 15:49:32 +0800
-Message-ID: <CACGkMEtjQ0Jfok-gcRW+kuinsua2X0TscyTNfBJoXHny0Yob+g@mail.gmail.com>
-Subject: Re: [PATCH net] virtio-net: add cond_resched() to the command waiting
- loop
-To: "Michael S. Tsirkin" <mst@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: netdev <netdev@vger.kernel.org>,
- linux-kernel <linux-kernel@vger.kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- Gautam Dawar <gautam.dawar@xilinx.com>, Paolo Abeni <pabeni@redhat.com>,
- davem <davem@davemloft.net>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.12.0
+Subject: Re: [PATCH] x86/paravirt: Remove clobber bitmask from
+ .parainstructions
+Content-Language: en-US
+To: Kees Cook <keescook@chromium.org>
+References: <20220903073706.3193746-1-keescook@chromium.org>
+In-Reply-To: <20220903073706.3193746-1-keescook@chromium.org>
+Cc: x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+ VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Bill Wendling <morbo@google.com>,
+ Alexey Makhalov <amakhalov@vmware.com>, Thomas Gleixner <tglx@linutronix.de>,
+ linux-hardening@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -116,62 +99,153 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+From: Juergen Gross via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Juergen Gross <jgross@suse.com>
+Content-Type: multipart/mixed; boundary="===============8504064961434259912=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Sep 5, 2022 at 3:15 PM Michael S. Tsirkin <mst@redhat.com> wrote:
->
-> On Mon, Sep 05, 2022 at 12:53:41PM +0800, Jason Wang wrote:
-> > Adding cond_resched() to the command waiting loop for a better
-> > co-operation with the scheduler. This allows to give CPU a breath to
-> > run other task(workqueue) instead of busy looping when preemption is
-> > not allowed.
-> >
-> > What's more important. This is a must for some vDPA parent to work
-> > since control virtqueue is emulated via a workqueue for those parents.
-> >
-> > Fixes: bda324fd037a ("vdpasim: control virtqueue support")
->
-> That's a weird commit to fix. so it fixes the simulator?
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--===============8504064961434259912==
+Content-Language: en-US
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------qYy4CPEzyVEhFLU0f08weABw"
 
-Yes, since the simulator is using a workqueue to handle control virtueue.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------qYy4CPEzyVEhFLU0f08weABw
+Content-Type: multipart/mixed; boundary="------------z0isp1U00RPiyrhaQ6saS2Lw";
+ protected-headers="v1"
+From: Juergen Gross <jgross@suse.com>
+To: Kees Cook <keescook@chromium.org>
+Cc: "Srivatsa S. Bhat (VMware)" <srivatsa@csail.mit.edu>,
+ Alexey Makhalov <amakhalov@vmware.com>,
+ VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
+ Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+ Bill Wendling <morbo@google.com>, virtualization@lists.linux-foundation.org,
+ linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org
+Message-ID: <1cf62567-3af5-a76a-cfbc-b7de1de8cb8a@suse.com>
+Subject: Re: [PATCH] x86/paravirt: Remove clobber bitmask from
+ .parainstructions
+References: <20220903073706.3193746-1-keescook@chromium.org>
+In-Reply-To: <20220903073706.3193746-1-keescook@chromium.org>
 
->
-> > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > ---
-> >  drivers/net/virtio_net.c | 4 +++-
-> >  1 file changed, 3 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index ece00b84e3a7..169368365d6a 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -2000,8 +2000,10 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
-> >        * into the hypervisor, so the request should be handled immediately.
-> >        */
-> >       while (!virtqueue_get_buf(vi->cvq, &tmp) &&
-> > -            !virtqueue_is_broken(vi->cvq))
-> > +            !virtqueue_is_broken(vi->cvq)) {
-> > +             cond_resched();
-> >               cpu_relax();
-> > +     }
->
-> with cond_resched do we still need cpu_relax?
+--------------z0isp1U00RPiyrhaQ6saS2Lw
+Content-Type: multipart/mixed; boundary="------------tJl5n20pvStM0PbURFVzKsvv"
 
-I think so, it's possible that cond_sched() just doesn't trigger scheduling.
+--------------tJl5n20pvStM0PbURFVzKsvv
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
-Thanks
+T24gMDMuMDkuMjIgMDk6MzcsIEtlZXMgQ29vayB3cm90ZToNCj4gVGhlIHUxNiAiY2xvYmJl
+ciIgdmFsdWUgaXMgbm90IHVzZWQgaW4gLnBhcmFpbnN0cnVjdGlvbnMgc2luY2UgY29tbWl0
+DQo+IDI3ODc2ZjM4ODJmZCAoIng4Ni9wYXJhdmlydDogUmVtb3ZlIGNsb2JiZXJzIGZyb20g
+c3RydWN0IHBhcmF2aXJ0X3BhdGNoX3NpdGUiKQ0KPiANCj4gUmVtb3ZlIHRoZSB1MTYgZnJv
+bSB0aGUgc2VjdGlvbiBtYWNybywgdGhlIGFyZ3VtZW50IGZyb20gYWxsIG1hY3JvcywgYW5k
+DQo+IGFsbCBub3ctdW51c2VkIENMQlJfKiBtYWNyb3MuDQo+IA0KPiBDYzogSnVlcmdlbiBH
+cm9zcyA8amdyb3NzQHN1c2UuY29tPg0KPiBDYzogIlNyaXZhdHNhIFMuIEJoYXQgKFZNd2Fy
+ZSkiIDxzcml2YXRzYUBjc2FpbC5taXQuZWR1Pg0KPiBDYzogQWxleGV5IE1ha2hhbG92IDxh
+bWFraGFsb3ZAdm13YXJlLmNvbT4NCj4gQ2M6IFZNd2FyZSBQVi1Ecml2ZXJzIFJldmlld2Vy
+cyA8cHYtZHJpdmVyc0B2bXdhcmUuY29tPg0KPiBDYzogVGhvbWFzIEdsZWl4bmVyIDx0Z2x4
+QGxpbnV0cm9uaXguZGU+DQo+IENjOiBJbmdvIE1vbG5hciA8bWluZ29AcmVkaGF0LmNvbT4N
+Cj4gQ2M6IEJvcmlzbGF2IFBldGtvdiA8YnBAYWxpZW44LmRlPg0KPiBDYzogRGF2ZSBIYW5z
+ZW4gPGRhdmUuaGFuc2VuQGxpbnV4LmludGVsLmNvbT4NCj4gQ2M6IHg4NkBrZXJuZWwub3Jn
+DQo+IENjOiAiSC4gUGV0ZXIgQW52aW4iIDxocGFAenl0b3IuY29tPg0KPiBDYzogQmlsbCBX
+ZW5kbGluZyA8bW9yYm9AZ29vZ2xlLmNvbT4NCj4gQ2M6IHZpcnR1YWxpemF0aW9uQGxpc3Rz
+LmxpbnV4LWZvdW5kYXRpb24ub3JnDQo+IFNpZ25lZC1vZmYtYnk6IEtlZXMgQ29vayA8a2Vl
+c2Nvb2tAY2hyb21pdW0ub3JnPg0KDQpSZXZpZXdlZC1ieTogSnVlcmdlbiBHcm9zcyA8amdy
+b3NzQHN1c2UuY29tPg0KDQoNCkp1ZXJnZW4NCg==
+--------------tJl5n20pvStM0PbURFVzKsvv
+Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Description: OpenPGP public key
+Content-Transfer-Encoding: quoted-printable
 
->
-> >       return vi->ctrl->status == VIRTIO_NET_OK;
-> >  }
-> > --
-> > 2.25.1
->
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjri
+oyspZKOBycWxw3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2
+kaV2KL9650I1SJvedYm8Of8Zd621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i
+1TXkH09XSSI8mEQ/ouNcMvIJNwQpd369y9bfIhWUiVXEK7MlRgUG6MvIj6Y3Am/B
+BLUVbDa4+gmzDC9ezlZkTZG2t14zWPvxXP3FAp2pkW0xqG7/377qptDmrk42GlSK
+N4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEBAAHNHEp1ZXJnZW4gR3Jvc3Mg
+PGpnQHBmdXBmLm5ldD7CwHkEEwECACMFAlOMcBYCGwMHCwkIBwMCAQYVCAIJCgsE
+FgIDAQIeAQIXgAAKCRCw3p3WKL8TL0KdB/93FcIZ3GCNwFU0u3EjNbNjmXBKDY4F
+UGNQH2lvWAUy+dnyThpwdtF/jQ6j9RwE8VP0+NXcYpGJDWlNb9/JmYqLiX2Q3Tye
+vpB0CA3dbBQp0OW0fgCetToGIQrg0MbD1C/sEOv8Mr4NAfbauXjZlvTj30H2jO0u
++6WGM6nHwbh2l5O8ZiHkH32iaSTfN7Eu5RnNVUJbvoPHZ8SlM4KWm8rG+lIkGurq
+qu5gu8q8ZMKdsdGC4bBxdQKDKHEFExLJK/nRPFmAuGlId1E3fe10v5QL+qHI3EIP
+tyfE7i9Hz6rVwi7lWKgh7pe0ZvatAudZ+JNIlBKptb64FaiIOAWDCx1SzR9KdWVy
+Z2VuIEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+wsB5BBMBAgAjBQJTjHCvAhsDBwsJ
+CAcDAgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey/HmQf/RtI7kv5A2PS4
+RF7HoZhPVPogNVbC4YA6lW7DrWf0teC0RR3MzXfy6pJ+7KLgkqMlrAbN/8Dvjoz7
+8X+5vhH/rDLa9BuZQlhFmvcGtCF8eR0T1v0nC/nuAFVGy+67q2DH8As3KPu0344T
+BDpAvr2uYM4tSqxK4DURx5INz4ZZ0WNFHcqsfvlGJALDeE0LhITTd9jLzdDad1pQ
+SToCnLl6SBJZjDOX9QQcyUigZFtCXFst4dlsvddrxyqT1f17+2cFSdu7+ynLmXBK
+7abQ3rwJY8SbRO2iRulogc5vr/RLMMlscDAiDkaFQWLoqHHOdfO9rURssHNN8WkM
+nQfvUewRz80hSnVlcmdlbiBHcm9zcyA8amdyb3NzQG5vdmVsbC5jb20+wsB5BBMB
+AgAjBQJTjHDXAhsDBwsJCAcDAgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/
+Ey8PUQf/ehmgCI9jB9hlgexLvgOtf7PJnFOXgMLdBQgBlVPO3/D9R8LtF9DBAFPN
+hlrsfIG/SqICoRCqUcJ96Pn3P7UUinFG/I0ECGF4EvTE1jnDkfJZr6jrbjgyoZHi
+w/4BNwSTL9rWASyLgqlA8u1mf+c2yUwcGhgkRAd1gOwungxcwzwqgljf0N51N5Jf
+VRHRtyfwq/ge+YEkDGcTU6Y0sPOuj4Dyfm8fJzdfHNQsWq3PnczLVELStJNdapwP
+OoE+lotufe3AM2vAEYJ9rTz3Cki4JFUsgLkHFqGZarrPGi1eyQcXeluldO3m91NK
+/1xMI3/+8jbO0tsn1tqSEUGIJi7ox80eSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1
+c2UuZGU+wsB5BBMBAgAjBQJTjHDrAhsDBwsJCAcDAgEGFQgCCQoLBBYCAwECHgEC
+F4AACgkQsN6d1ii/Ey+LhQf9GL45eU5vOowA2u5N3g3OZUEBmDHVVbqMtzwlmNC4
+k9Kx39r5s2vcFl4tXqW7g9/ViXYuiDXb0RfUpZiIUW89siKrkzmQ5dM7wRqzgJpJ
+wK8Bn2MIxAKArekWpiCKvBOB/Cc+3EXE78XdlxLyOi/NrmSGRIov0karw2RzMNOu
+5D+jLRZQd1Sv27AR+IP3I8U4aqnhLpwhK7MEy9oCILlgZ1QZe49kpcumcZKORmzB
+TNh30FVKK1EvmV2xAKDoaEOgQB4iFQLhJCdP1I5aSgM5IVFdn7v5YgEYuJYx37Io
+N1EblHI//x/e2AaIHpzK5h88NEawQsaNRpNSrcfbFmAg987ATQRTjHAWAQgAyzH6
+AOODMBjgfWE9VeCgsrwH3exNAU32gLq2xvjpWnHIs98ndPUDpnoxWQugJ6MpMncr
+0xSwFmHEgnSEjK/PAjppgmyc57BwKII3sV4on+gDVFJR6Y8ZRwgnBC5mVM6JjQ5x
+Dk8WRXljExRfUX9pNhdE5eBOZJrDRoLUmmjDtKzWaDhIg/+1Hzz93X4fCQkNVbVF
+LELU9bMaLPBG/x5q4iYZ2k2ex6d47YE1ZFdMm6YBYMOljGkZKwYde5ldM9mo45mm
+we0icXKLkpEdIXKTZeKDO+Hdv1aqFuAcccTg9RXDQjmwhC3yEmrmcfl0+rPghO0I
+v3OOImwTEe4co3c1mwARAQABwsBfBBgBAgAJBQJTjHAWAhsMAAoJELDendYovxMv
+Q/gH/1ha96vm4P/L+bQpJwrZ/dneZcmEwTbe8YFsw2V/Buv6Z4Mysln3nQK5ZadD
+534CF7TDVft7fC4tU4PONxF5D+/tvgkPfDAfF77zy2AH1vJzQ1fOU8lYFpZXTXIH
+b+559UqvIB8AdgR3SAJGHHt4RKA0F7f5ipYBBrC6cyXJyyoprT10EMvU8VGiwXvT
+yJz3fjoYsdFzpWPlJEBRMedCot60g5dmbdrZ5DWClAr0yau47zpWj3enf1tLWaqc
+suylWsviuGjKGw7KHQd3bxALOknAp4dN3QwBYCKuZ7AddY9yjynVaD5X7nF9nO5B
+jR/i1DG86lem3iBDXzXsZDn8R38=3D
+=3D2wuH
+-----END PGP PUBLIC KEY BLOCK-----
+
+--------------tJl5n20pvStM0PbURFVzKsvv--
+
+--------------z0isp1U00RPiyrhaQ6saS2Lw--
+
+--------------qYy4CPEzyVEhFLU0f08weABw
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmMVrtMFAwAAAAAACgkQsN6d1ii/Ey99
+pgf/U7sZwyD/ZGgFNwhAzp/LJQkm5CqSEBtYgFpQYMyX36O3jYw5Ms5/KwLBmiikwVLiEvQbFV0a
+WdxbTqghNNqSplAelf2QI9CsUIynVXxPYwFuVJCXedEaQoecTx+KOwWFYZwTzv0od4zf1UNlu4Kl
+9ayxpIs4Mmc1EbErxOek4ZwZEyA3DeaMHo41ByQR2QnWKsGbrvXHXfo61H00ezELkwxQZCv3FYUI
+LfYK/CKA4Cz/XFRUW8FvmBDQWKpNx362vt2PpwrTlqbRAnJFXe0TrnV8xisiNPPlAri2TZV1hsfR
+do/Wk5ZJYGSHsZq0RX49dOs+2bJs5Yw3or14nUSF2w==
+=sYNm
+-----END PGP SIGNATURE-----
+
+--------------qYy4CPEzyVEhFLU0f08weABw--
+
+--===============8504064961434259912==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============8504064961434259912==--
