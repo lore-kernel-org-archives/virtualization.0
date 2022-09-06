@@ -1,90 +1,118 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6B223C38145
-	for <virtualization@archiver.kernel.org>; Tue,  6 Sep 2022 10:11:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C42DDECAAA1
+	for <virtualization@archiver.kernel.org>; Tue,  6 Sep 2022 10:56:04 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id D7DEB61086;
-	Tue,  6 Sep 2022 10:11:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D7DEB61086
+	by smtp2.osuosl.org (Postfix) with ESMTP id 47AD6404B5;
+	Tue,  6 Sep 2022 10:56:04 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 47AD6404B5
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=QVZ8h51N
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id J91P175GiPuU; Tue,  6 Sep 2022 10:56:03 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 9D99B4049B;
+	Tue,  6 Sep 2022 10:56:02 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9D99B4049B
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 62485C0032;
+	Tue,  6 Sep 2022 10:56:02 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9A545C002D
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  6 Sep 2022 10:56:01 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 6184660A7B
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  6 Sep 2022 10:56:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6184660A7B
 Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=LCJEJ2pC
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=QVZ8h51N
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id CTbzDMO5raFB; Tue,  6 Sep 2022 10:11:32 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 1ED4360ACC;
-	Tue,  6 Sep 2022 10:11:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1ED4360ACC
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E6DEBC0032;
-	Tue,  6 Sep 2022 10:11:31 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 2FECEC002D
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id vCvANo-LK9O3
  for <virtualization@lists.linux-foundation.org>;
- Tue,  6 Sep 2022 10:11:30 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 10D088186B
- for <virtualization@lists.linux-foundation.org>;
- Tue,  6 Sep 2022 10:11:30 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 10D088186B
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com
- header.a=rsa-sha256 header.s=Intel header.b=LCJEJ2pC
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id XVDopXV26uxL
- for <virtualization@lists.linux-foundation.org>;
- Tue,  6 Sep 2022 10:11:29 +0000 (UTC)
+ Tue,  6 Sep 2022 10:56:00 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C902481865
-Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
- by smtp1.osuosl.org (Postfix) with ESMTPS id C902481865
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6704060A6A
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 6704060A6A
  for <virtualization@lists.linux-foundation.org>;
- Tue,  6 Sep 2022 10:11:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
- d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1662459088; x=1693995088;
- h=date:from:to:cc:subject:message-id:references:
- mime-version:in-reply-to;
- bh=oB1TtPVVHc8wxkEfbkl6xSPnmmpiaRnJ3fakqY2gLXM=;
- b=LCJEJ2pCKAVSop9tO/yqXBxIAmZUVqoR86fTewmJ/Dyznf7McwA+v/xE
- wWvtTiNFGLEV50tVK1KhIhQ7JzBOfQkxfoUZkfNHami83dqOtQmEi7NpA
- 33sx3dsdJepEp82DHdxSxi5dPpmoUgwrUfudLMddNnN+/UlN2VWHNTkt3
- Rl92cj417lbFGQOXWdeqB77pcPM6D71C/4EW0Kl0j4yaY9kcem5StCsuh
- 26WPxA3tzJ2no5Vw5EuqRmyBqqHUsedY/B9YEk9dDO/J4hpoBXeZA+Kng
- XQ8hyEvpDPI8FsNGXicS2TKyJ3+3xDwZGBNUWbzl4FPObI365tS8SpwNv A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10461"; a="283550682"
-X-IronPort-AV: E=Sophos;i="5.93,293,1654585200"; d="scan'208";a="283550682"
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
- by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 06 Sep 2022 03:11:19 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.93,293,1654585200"; d="scan'208";a="565041316"
-Received: from lkp-server02.sh.intel.com (HELO 95dfd251caa2) ([10.239.97.151])
- by orsmga003.jf.intel.com with ESMTP; 06 Sep 2022 03:11:17 -0700
-Received: from kbuild by 95dfd251caa2 with local (Exim 4.96)
- (envelope-from <lkp@intel.com>) id 1oVVY4-0004zl-2N;
- Tue, 06 Sep 2022 10:11:16 +0000
-Date: Tue, 6 Sep 2022 18:10:54 +0800
-From: kernel test robot <lkp@intel.com>
-To: Deming Wang <wangdeming@inspur.com>, vgoyal@redhat.com,
- stefanha@redhat.com, miklos@szeredi.hu
-Subject: Re: [PATCH] virtiofs: Drop unnecessary initialization in
- send_forget_request and virtio_fs_get_tree
-Message-ID: <202209061738.Epufa2eF-lkp@intel.com>
-References: <20220906053848.2503-1-wangdeming@inspur.com>
+ Tue,  6 Sep 2022 10:56:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1662461758;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=TWFTmiu/F1naD+YA2QN797Qhc0+oXAueZY77zxu/bOc=;
+ b=QVZ8h51NbyTAvjP+pcO9unP7jHRZbmRO64CIAwq+ZW3DNlMYvPhgotf/q8xyXdnuZi2sMw
+ tc+0NLEi08mFhbJSVCuldqY1734qSgg//XnuHzXYdgmeOuPR/vRsr1d0mDG/yFQr8J51En
+ oBTr3fkfN1Xdf2zx6Lklat9jnx+OLzc=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-294-oMAvFQcmOTa8cQOMbcFhvg-1; Tue, 06 Sep 2022 06:55:57 -0400
+X-MC-Unique: oMAvFQcmOTa8cQOMbcFhvg-1
+Received: by mail-wm1-f69.google.com with SMTP id
+ r83-20020a1c4456000000b003a7b679981cso8620423wma.6
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 06 Sep 2022 03:55:57 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=content-transfer-encoding:mime-version:user-agent:references
+ :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
+ :from:to:cc:subject:date;
+ bh=TWFTmiu/F1naD+YA2QN797Qhc0+oXAueZY77zxu/bOc=;
+ b=oDMJG4FMUe5S8JqcgGfrxC1E6vFT1+2pWO0oDFlRKon7olMrmXVmtubdFIHK3rTTMj
+ HIxZ2D+WKqI30Zw13+oXHOzfSPJU0jkFBy6ecRmT3ywMoOdTi03MZssZUBSbDbpn4p7w
+ o6Q60ec1n9cg534yebMEm51Ic7f2YJcGo+i5LTRIoQ4DODl07+5sLil0aMBirm/G01HY
+ 9ItvgYtbt44FH7BHYrrvZjMa3B4hDmaOTOBfwGPMxIl35oPvEFUNiRMvDfB1r9cG3BLT
+ Uic4ocYqXdjAhIg6ufpMxeGj98/ZWZqZdQ5rnBu4an8UjHQKPtyRJgQpOR9sjOkQJkA0
+ UbZA==
+X-Gm-Message-State: ACgBeo13NoyjiOMWCn8U/hrvSNZ7S4EkshPNAUyPYixVTlgD+ep0vK/f
+ H9eCx90Rl5eo6xBI2WlRqNOIIUtEl/RvEXMBCb91ABO6VLI9e0b2ldbQDf084YzbY4pL1Qs9vP7
+ CdrdUbKTOmCP4zTArd60Q2Ecg87W0350kzCzPtTj5TA==
+X-Received: by 2002:a05:600c:3541:b0:3a6:28e4:c458 with SMTP id
+ i1-20020a05600c354100b003a628e4c458mr13486807wmq.188.1662461756597; 
+ Tue, 06 Sep 2022 03:55:56 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR4TTTKsUXeNjIwHC9u3J8/4vqYFGhNuEr/0Tvd/A8eYqEBmE6zDfGSyJavnhzHHsWabol3izA==
+X-Received: by 2002:a05:600c:3541:b0:3a6:28e4:c458 with SMTP id
+ i1-20020a05600c354100b003a628e4c458mr13486792wmq.188.1662461756355; 
+ Tue, 06 Sep 2022 03:55:56 -0700 (PDT)
+Received: from gerbillo.redhat.com (146-241-112-72.dyn.eolo.it.
+ [146.241.112.72]) by smtp.gmail.com with ESMTPSA id
+ e5-20020adfe7c5000000b0022862e037e3sm8611142wrn.38.2022.09.06.03.55.55
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 06 Sep 2022 03:55:55 -0700 (PDT)
+Message-ID: <056ba905a2579903a372258383afdf6579767ad0.camel@redhat.com>
+Subject: Re: [PATCH net] virtio-net: add cond_resched() to the command
+ waiting loop
+From: Paolo Abeni <pabeni@redhat.com>
+To: Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Date: Tue, 06 Sep 2022 12:55:54 +0200
+In-Reply-To: <CACGkMEtjQ0Jfok-gcRW+kuinsua2X0TscyTNfBJoXHny0Yob+g@mail.gmail.com>
+References: <20220905045341.66191-1-jasowang@redhat.com>
+ <20220905031405-mutt-send-email-mst@kernel.org>
+ <CACGkMEtjQ0Jfok-gcRW+kuinsua2X0TscyTNfBJoXHny0Yob+g@mail.gmail.com>
+User-Agent: Evolution 3.42.4 (3.42.4-2.fc35)
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20220906053848.2503-1-wangdeming@inspur.com>
-Cc: kbuild-all@lists.01.org, llvm@lists.linux.dev,
- Deming Wang <wangdeming@inspur.com>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, linux-fsdevel@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: netdev <netdev@vger.kernel.org>,
+ linux-kernel <linux-kernel@vger.kernel.org>,
+ virtualization <virtualization@lists.linux-foundation.org>,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Gautam Dawar <gautam.dawar@xilinx.com>, davem <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -101,151 +129,38 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Deming,
+On Mon, 2022-09-05 at 15:49 +0800, Jason Wang wrote:
+> On Mon, Sep 5, 2022 at 3:15 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > 
+> > On Mon, Sep 05, 2022 at 12:53:41PM +0800, Jason Wang wrote:
+> > > Adding cond_resched() to the command waiting loop for a better
+> > > co-operation with the scheduler. This allows to give CPU a breath to
+> > > run other task(workqueue) instead of busy looping when preemption is
+> > > not allowed.
+> > > 
+> > > What's more important. This is a must for some vDPA parent to work
+> > > since control virtqueue is emulated via a workqueue for those parents.
+> > > 
+> > > Fixes: bda324fd037a ("vdpasim: control virtqueue support")
+> > 
+> > That's a weird commit to fix. so it fixes the simulator?
+> 
+> Yes, since the simulator is using a workqueue to handle control virtueue.
 
-Thank you for the patch! Perhaps something to improve:
+Uhmm... touching a driver for a simulator's sake looks a little weird. 
 
-[auto build test WARNING on v6.0-rc4]
-[also build test WARNING on linus/master next-20220901]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+Additionally, if the bug is vdpasim, I think it's better to try to
+solve it there, if possible.
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Deming-Wang/virtiofs-Drop-unnecessary-initialization-in-send_forget_request-and-virtio_fs_get_tree/20220906-135058
-base:    7e18e42e4b280c85b76967a9106a13ca61c16179
-config: hexagon-randconfig-r035-20220906 (https://download.01.org/0day-ci/archive/20220906/202209061738.Epufa2eF-lkp@intel.com/config)
-compiler: clang version 16.0.0 (https://github.com/llvm/llvm-project c55b41d5199d2394dd6cdb8f52180d8b81d809d4)
-reproduce (this is a W=1 build):
-        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        # https://github.com/intel-lab-lkp/linux/commit/a61f879fdb56490afddb6ddea4a9d57226f339f3
-        git remote add linux-review https://github.com/intel-lab-lkp/linux
-        git fetch --no-tags linux-review Deming-Wang/virtiofs-Drop-unnecessary-initialization-in-send_forget_request-and-virtio_fs_get_tree/20220906-135058
-        git checkout a61f879fdb56490afddb6ddea4a9d57226f339f3
-        # save the config file
-        mkdir build_dir && cp config build_dir/.config
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross W=1 O=build_dir ARCH=hexagon SHELL=/bin/bash fs/fuse/
+Looking at vdpasim_net_work() and vdpasim_blk_work() it looks like
+neither needs a process context, so perhaps you could rework it to run
+the work_fn() directly from vdpasim_kick_vq(), at least for the control
+virtqueue?
 
-If you fix the issue, kindly add following tag where applicable
-Reported-by: kernel test robot <lkp@intel.com>
+Thanks!
 
-All warnings (new ones prefixed by >>):
+Paolo
 
->> fs/fuse/virtio_fs.c:422:2: warning: variable 'ret' is used uninitialized whenever 'if' condition is true [-Wsometimes-uninitialized]
-           if (!fsvq->connected) {
-           ^~~~~~~~~~~~~~~~~~~~~
-   include/linux/compiler.h:56:28: note: expanded from macro 'if'
-   #define if(cond, ...) if ( __trace_if_var( !!(cond , ## __VA_ARGS__) ) )
-                              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/compiler.h:58:30: note: expanded from macro '__trace_if_var'
-   #define __trace_if_var(cond) (__builtin_constant_p(cond) ? (cond) : __trace_if_value(cond))
-                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   fs/fuse/virtio_fs.c:465:9: note: uninitialized use occurs here
-           return ret;
-                  ^~~
-   fs/fuse/virtio_fs.c:422:2: note: remove the 'if' if its condition is always false
-           if (!fsvq->connected) {
-           ^~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/compiler.h:56:23: note: expanded from macro 'if'
-   #define if(cond, ...) if ( __trace_if_var( !!(cond , ## __VA_ARGS__) ) )
-                         ^
-   fs/fuse/virtio_fs.c:417:9: note: initialize the variable 'ret' to silence this warning
-           int ret;
-                  ^
-                   = 0
->> fs/fuse/virtio_fs.c:1433:2: warning: variable 'err' is used uninitialized whenever 'if' condition is true [-Wsometimes-uninitialized]
-           if (WARN_ON(virtqueue_size <= FUSE_HEADER_OVERHEAD))
-           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/compiler.h:56:28: note: expanded from macro 'if'
-   #define if(cond, ...) if ( __trace_if_var( !!(cond , ## __VA_ARGS__) ) )
-                              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/compiler.h:58:30: note: expanded from macro '__trace_if_var'
-   #define __trace_if_var(cond) (__builtin_constant_p(cond) ? (cond) : __trace_if_value(cond))
-                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   fs/fuse/virtio_fs.c:1481:9: note: uninitialized use occurs here
-           return err;
-                  ^~~
-   fs/fuse/virtio_fs.c:1433:2: note: remove the 'if' if its condition is always false
-           if (WARN_ON(virtqueue_size <= FUSE_HEADER_OVERHEAD))
-           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/compiler.h:56:23: note: expanded from macro 'if'
-   #define if(cond, ...) if ( __trace_if_var( !!(cond , ## __VA_ARGS__) ) )
-                         ^
-   fs/fuse/virtio_fs.c:1420:9: note: initialize the variable 'err' to silence this warning
-           int err;
-                  ^
-                   = 0
-   2 warnings generated.
-
-
-vim +422 fs/fuse/virtio_fs.c
-
-a62a8ef9d97da2 Stefan Hajnoczi 2018-06-12  406  
-58ada94f95f71d Vivek Goyal     2019-10-30  407  /*
-58ada94f95f71d Vivek Goyal     2019-10-30  408   * Returns 1 if queue is full and sender should wait a bit before sending
-58ada94f95f71d Vivek Goyal     2019-10-30  409   * next request, 0 otherwise.
-58ada94f95f71d Vivek Goyal     2019-10-30  410   */
-58ada94f95f71d Vivek Goyal     2019-10-30  411  static int send_forget_request(struct virtio_fs_vq *fsvq,
-58ada94f95f71d Vivek Goyal     2019-10-30  412  			       struct virtio_fs_forget *forget,
-58ada94f95f71d Vivek Goyal     2019-10-30  413  			       bool in_flight)
-a62a8ef9d97da2 Stefan Hajnoczi 2018-06-12  414  {
-a62a8ef9d97da2 Stefan Hajnoczi 2018-06-12  415  	struct scatterlist sg;
-58ada94f95f71d Vivek Goyal     2019-10-30  416  	struct virtqueue *vq;
-a61f879fdb5649 Deming Wang     2022-09-06  417  	int ret;
-a62a8ef9d97da2 Stefan Hajnoczi 2018-06-12  418  	bool notify;
-1efcf39eb62757 Vivek Goyal     2019-10-30  419  	struct virtio_fs_forget_req *req = &forget->req;
-a62a8ef9d97da2 Stefan Hajnoczi 2018-06-12  420  
-a62a8ef9d97da2 Stefan Hajnoczi 2018-06-12  421  	spin_lock(&fsvq->lock);
-a62a8ef9d97da2 Stefan Hajnoczi 2018-06-12 @422  	if (!fsvq->connected) {
-58ada94f95f71d Vivek Goyal     2019-10-30  423  		if (in_flight)
-c17ea009610366 Vivek Goyal     2019-10-15  424  			dec_in_flight_req(fsvq);
-a62a8ef9d97da2 Stefan Hajnoczi 2018-06-12  425  		kfree(forget);
-58ada94f95f71d Vivek Goyal     2019-10-30  426  		goto out;
-a62a8ef9d97da2 Stefan Hajnoczi 2018-06-12  427  	}
-a62a8ef9d97da2 Stefan Hajnoczi 2018-06-12  428  
-1efcf39eb62757 Vivek Goyal     2019-10-30  429  	sg_init_one(&sg, req, sizeof(*req));
-58ada94f95f71d Vivek Goyal     2019-10-30  430  	vq = fsvq->vq;
-a62a8ef9d97da2 Stefan Hajnoczi 2018-06-12  431  	dev_dbg(&vq->vdev->dev, "%s\n", __func__);
-58ada94f95f71d Vivek Goyal     2019-10-30  432  
-58ada94f95f71d Vivek Goyal     2019-10-30  433  	ret = virtqueue_add_outbuf(vq, &sg, 1, forget, GFP_ATOMIC);
-a62a8ef9d97da2 Stefan Hajnoczi 2018-06-12  434  	if (ret < 0) {
-a62a8ef9d97da2 Stefan Hajnoczi 2018-06-12  435  		if (ret == -ENOMEM || ret == -ENOSPC) {
-a62a8ef9d97da2 Stefan Hajnoczi 2018-06-12  436  			pr_debug("virtio-fs: Could not queue FORGET: err=%d. Will try later\n",
-a62a8ef9d97da2 Stefan Hajnoczi 2018-06-12  437  				 ret);
-58ada94f95f71d Vivek Goyal     2019-10-30  438  			list_add_tail(&forget->list, &fsvq->queued_reqs);
-a62a8ef9d97da2 Stefan Hajnoczi 2018-06-12  439  			schedule_delayed_work(&fsvq->dispatch_work,
-a62a8ef9d97da2 Stefan Hajnoczi 2018-06-12  440  					      msecs_to_jiffies(1));
-58ada94f95f71d Vivek Goyal     2019-10-30  441  			if (!in_flight)
-58ada94f95f71d Vivek Goyal     2019-10-30  442  				inc_in_flight_req(fsvq);
-58ada94f95f71d Vivek Goyal     2019-10-30  443  			/* Queue is full */
-58ada94f95f71d Vivek Goyal     2019-10-30  444  			ret = 1;
-a62a8ef9d97da2 Stefan Hajnoczi 2018-06-12  445  		} else {
-a62a8ef9d97da2 Stefan Hajnoczi 2018-06-12  446  			pr_debug("virtio-fs: Could not queue FORGET: err=%d. Dropping it.\n",
-a62a8ef9d97da2 Stefan Hajnoczi 2018-06-12  447  				 ret);
-a62a8ef9d97da2 Stefan Hajnoczi 2018-06-12  448  			kfree(forget);
-58ada94f95f71d Vivek Goyal     2019-10-30  449  			if (in_flight)
-58ada94f95f71d Vivek Goyal     2019-10-30  450  				dec_in_flight_req(fsvq);
-a62a8ef9d97da2 Stefan Hajnoczi 2018-06-12  451  		}
-58ada94f95f71d Vivek Goyal     2019-10-30  452  		goto out;
-a62a8ef9d97da2 Stefan Hajnoczi 2018-06-12  453  	}
-a62a8ef9d97da2 Stefan Hajnoczi 2018-06-12  454  
-58ada94f95f71d Vivek Goyal     2019-10-30  455  	if (!in_flight)
-58ada94f95f71d Vivek Goyal     2019-10-30  456  		inc_in_flight_req(fsvq);
-a62a8ef9d97da2 Stefan Hajnoczi 2018-06-12  457  	notify = virtqueue_kick_prepare(vq);
-a62a8ef9d97da2 Stefan Hajnoczi 2018-06-12  458  	spin_unlock(&fsvq->lock);
-a62a8ef9d97da2 Stefan Hajnoczi 2018-06-12  459  
-a62a8ef9d97da2 Stefan Hajnoczi 2018-06-12  460  	if (notify)
-a62a8ef9d97da2 Stefan Hajnoczi 2018-06-12  461  		virtqueue_notify(vq);
-58ada94f95f71d Vivek Goyal     2019-10-30  462  	return ret;
-58ada94f95f71d Vivek Goyal     2019-10-30  463  out:
-58ada94f95f71d Vivek Goyal     2019-10-30  464  	spin_unlock(&fsvq->lock);
-58ada94f95f71d Vivek Goyal     2019-10-30  465  	return ret;
-58ada94f95f71d Vivek Goyal     2019-10-30  466  }
-58ada94f95f71d Vivek Goyal     2019-10-30  467  
-
--- 
-0-DAY CI Kernel Test Service
-https://01.org/lkp
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
