@@ -1,151 +1,117 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6C0C1ECAAD5
-	for <virtualization@archiver.kernel.org>; Tue,  6 Sep 2022 17:37:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E1C6BC54EE9
+	for <virtualization@archiver.kernel.org>; Tue,  6 Sep 2022 20:01:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id F1FF140C1D;
-	Tue,  6 Sep 2022 17:37:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org F1FF140C1D
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key, unprotected) header.d=vmware.com header.i=@vmware.com header.a=rsa-sha256 header.s=selector2 header.b=GtHAekKZ
+	by smtp4.osuosl.org (Postfix) with ESMTP id 5576A41634;
+	Tue,  6 Sep 2022 20:01:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5576A41634
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=ffwll.ch header.i=@ffwll.ch header.a=rsa-sha256 header.s=google header.b=OJjVDKh3
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id J5hlUFW5xu-R; Tue,  6 Sep 2022 17:37:55 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id QnyrV6dmDZPl; Tue,  6 Sep 2022 20:01:56 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 6E61440180;
-	Tue,  6 Sep 2022 17:37:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6E61440180
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 6A325416BE;
+	Tue,  6 Sep 2022 20:01:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6A325416BE
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1DF1BC0033;
-	Tue,  6 Sep 2022 17:37:54 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 19163C0033;
+	Tue,  6 Sep 2022 20:01:55 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id DC3A4C002D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7D606C002D
  for <virtualization@lists.linux-foundation.org>;
- Tue,  6 Sep 2022 17:37:51 +0000 (UTC)
+ Tue,  6 Sep 2022 20:01:53 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 9E1A281288
+ by smtp1.osuosl.org (Postfix) with ESMTP id 50B99817E4
  for <virtualization@lists.linux-foundation.org>;
- Tue,  6 Sep 2022 17:37:51 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9E1A281288
-Authentication-Results: smtp1.osuosl.org; dkim=pass (1024-bit key,
- unprotected) header.d=vmware.com header.i=@vmware.com header.a=rsa-sha256
- header.s=selector2 header.b=GtHAekKZ
+ Tue,  6 Sep 2022 20:01:53 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 50B99817E4
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (1024-bit key) header.d=ffwll.ch header.i=@ffwll.ch
+ header.a=rsa-sha256 header.s=google header.b=OJjVDKh3
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 2CIPiP9gPFwe
+ with ESMTP id D1z9bA2vV110
  for <virtualization@lists.linux-foundation.org>;
- Tue,  6 Sep 2022 17:37:50 +0000 (UTC)
+ Tue,  6 Sep 2022 20:01:52 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8F37181257
-Received: from na01-obe.outbound.protection.outlook.com
- (mail-centralusazlp170130009.outbound.protection.outlook.com
- [IPv6:2a01:111:f403:c111::9])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 8F37181257
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0901E817AC
+Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com
+ [IPv6:2a00:1450:4864:20::332])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 0901E817AC
  for <virtualization@lists.linux-foundation.org>;
- Tue,  6 Sep 2022 17:37:50 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=aoJDmoiIBtrN2tvGO0lJZNPxE5oOzL4bK3B30ljZWwXbsVyIuFym5B7gdS1o2vWuInd8Bp21+tR7jRGz0a1sblHfKk1muw1XHB1Fznri66bgCUA3kQFVfIBXPnAunwp96Wgd2TsIwF8QeXYbr6yxcwbdPeBrOaw97k+q7PToFPy3AVxC4oBOqPyAp6PFtlao+EwK5tFI36L3QcresUaZoGC5AOOvkSgakP0T0JL5dlblMetfK7EpTeoYtIjKvHLB8K1SnQsRJynMjvxHampAqdoQ0Xq5/OzEiOwdOj2z5mCoPHsA1EESJtvY3+6W2wVXgUdbzLajr0Ji6xMBMwe9xA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=rLYGAP5T7jZsDTmSdZNplX/2RRsSlrdQmwBf7rPj3g8=;
- b=CCDR12SdWM2sPs4zCQ3EtXQ1pikX0jdb5bPxbU4qrJIlGiLEYAhhGPFrH7QHCVRWsUOnytrb4CK3Dg3WAnkT4ERzx9ExduuuPBsxnF0GDYYjwJSbS19CvM5G3T0Tpah96UocC0LH7VmJVGtr+RRb1g86athXRfm3TmypU271bAmA1Utp7PeY+7nFFfYUYl9vUygRQ4ibFiOEL7awHJw5m/p4/r4pnh6sVGY3QCQXye+JilyMD9g6MBK5H5I2YPi3nTaUcKpfKZ95Gf3QDl1GlzvSo8xA0rf5vAoeGh1/GvpAz622iYNnXFtMClQCO9sEF9ZJ1kXX/8CGhPMllTd1mw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=vmware.com; dmarc=pass action=none header.from=vmware.com;
- dkim=pass header.d=vmware.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vmware.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=rLYGAP5T7jZsDTmSdZNplX/2RRsSlrdQmwBf7rPj3g8=;
- b=GtHAekKZFjSgX69cuvQgc5G5keZH1hmSh1GSRJxvyyLDvX3T1p8QIkebfk8DYoQ7SniMBe6xH/yHXe3j3jmu/sw8UItnIxT4g7em0t2FbdPocSSCqc0UlwuAe5Ad1+byAjlKrfNOLI/aZCUcGWCCP1uW9IbDfqWyORVsenSXvYU=
-Received: from BY3PR05MB8531.namprd05.prod.outlook.com (2603:10b6:a03:3ce::6)
- by BL0PR05MB4739.namprd05.prod.outlook.com (2603:10b6:208:29::14)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5612.9; Tue, 6 Sep
- 2022 17:37:44 +0000
-Received: from BY3PR05MB8531.namprd05.prod.outlook.com
- ([fe80::e46:a7cf:acd:c835]) by BY3PR05MB8531.namprd05.prod.outlook.com
- ([fe80::e46:a7cf:acd:c835%2]) with mapi id 15.20.5612.012; Tue, 6 Sep 2022
- 17:37:43 +0000
-To: Vishnu Dasa <vdasa@vmware.com>
-Subject: Re: [PATCH 2/3] MAINTAINERS: Change status of some VMware drivers
-Thread-Topic: [PATCH 2/3] MAINTAINERS: Change status of some VMware drivers
-Thread-Index: AQHYwhYZd5LRJliYYkuk8GCfNhJZQa3Sqo8A
-Date: Tue, 6 Sep 2022 17:37:43 +0000
-Message-ID: <4269C33A-AC6E-4247-8471-5AC0A7D3DB1C@vmware.com>
-References: <20220906172722.19862-1-vdasa@vmware.com>
- <20220906172722.19862-3-vdasa@vmware.com>
-In-Reply-To: <20220906172722.19862-3-vdasa@vmware.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-mailer: Apple Mail (2.3696.120.41.1.1)
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=vmware.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: BY3PR05MB8531:EE_|BL0PR05MB4739:EE_
-x-ms-office365-filtering-correlation-id: 0f7de458-1c6e-473f-dbdb-08da902e811e
-x-ld-processed: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0,ExtAddr
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: xST/KcV54v6zjbQK8ejLFQe2/2tPGKfXQVAjiHWqilw/2RO6ha/OwInIKpIHz/RhcDTpxZVYUZugpgV3sPdqt/7KdSduBWZ2h0hWJIiJYeFgY1wBfwoG32guunfZJZjU8l2pBjjX/F1g76LthcWh6lQMNyjYvmxW1GKu6A2YcwsHy3PkXPySon+R5RcewXKmzn3BeavR41uP2hWh1eydimywCseYYXWPo16dhvEyhjW4wx4cymJWCCtt7S7o1Ka2m9dgvvYpKYl1zcVWxiUggaBgHb2Y+ViGHSOWB/3cQQ4ETLFUKc50pBkDcIWPJtvgTa1Gii1BE6jtq0B+UcfEOWJPseOXzIFy1Pavxbadhwf+F3kcVW87sDRtuyH+2HpvV2AgYUR1VTYrB/hyj0KF7sSck546vbreVMnoS8x8tiad4GXUDCZ/x3hi6RavpMIwO7lKFt9PBee6GDL5SGb+T2mYPC43LlJOfqeVYABju7a5ka7mCM5hVmOZbytVjLQ1zf6GNeYrMXEhkkyXc+jwVbv0yg0Q/ZHeJvK1K8dG7RlHuEdK/+/DsRmN15B1vExbTUKVTIl/W+MRSW6UhGI85rqOyaydWqsPSSiAzymxxZ1ZvhZdLyyV0Xyom8mMkq4WTswMVaUnXVlFHUg24zh0SQfyz1LCQi3iIs9qP+sS/7ukMgnmU/G4DQWwYQdtvXvJxST6TwQrLhRqhOCj2CAE9al45FfyjuiRzkJttGlQ9KPFY7DK3eqgksJ1Fye2tuStuShROO1M2TAvfulMGfgOvU7lRrpG3aoii4yk/y8v41drpwNB8uWQd1Z/Pkd+DfVcx1g9mq+EKd6hz6zC1B4pIeYnxxW/ML0H84+pmZiX5IpOI7zKT9IfLCYGaW5fOXuhV2/SbMc0gjj3wbH6227+jRVEAvaKZlduJwXfhzmBoTcyoQlzRIsXS/4w7kpCU1Qf
-x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:BY3PR05MB8531.namprd05.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230016)(4636009)(136003)(396003)(346002)(39860400002)(366004)(376002)(66556008)(8676002)(4326008)(66946007)(7416002)(2906002)(4744005)(76116006)(8936002)(6862004)(5660300002)(38070700005)(64756008)(66476007)(122000001)(38100700002)(53546011)(6506007)(66446008)(41300700001)(6512007)(26005)(478600001)(36756003)(71200400001)(966005)(6486002)(316002)(54906003)(2616005)(186003)(83380400001)(86362001)(37006003)(33656002)(6636002)(45980500001);
- DIR:OUT; SFP:1101; 
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?Ffowl9du0aBsi20dxDrApkzw5edNv2yYrjy7F0CuHV+rQv4n+pKxR3Ijax/1?=
- =?us-ascii?Q?iGy2WVnGkd86Tm17+2+HELt4LbIdgcV1KwYeSCa6D2GCLJSIZK/iGVr9uVAa?=
- =?us-ascii?Q?Tf8aP9ocvTRNR4TvrukTYcFBF03qyQ6sh8SjwMmokJ7hZCf7lnwNXB77tcrB?=
- =?us-ascii?Q?lJpNMMTOA4R8n6nuo9HxmCtLNbZrI6n+FAWzkChVxxPTnXEf3QISUsx7uiJD?=
- =?us-ascii?Q?pt2fM/suPHiv3oFsmdQxY8r0Orv6LMCdz6eQARnD6wD8K+7iDkfd+slge0K0?=
- =?us-ascii?Q?D3MyZrQDvgIDGwIM3hGenPJYI5lzuSex2G/9azPl34SJkconRxhxo5NVB7Gs?=
- =?us-ascii?Q?HlZIQwpJEGnRgDxqJr0J74b5HBXhK5JLUDbRKURlCV8g/L1DvcYovEH0jt3n?=
- =?us-ascii?Q?/dMGFFGA4aWZUUFIkpXq8M6tNoCKlbKnnXC1oLnDnyDMUshq85Y/FwgznjWN?=
- =?us-ascii?Q?6OQsdLZ6mR87ebF7kNd2G/DNH3QN6I0n3XChnUl+0r3mCS0CzBA38wgcQD63?=
- =?us-ascii?Q?QDXYeJHMyrMukGnd/6XtTQB3F/hLlFNXzcThVEmeXa9wAYH8D7tY3cGaBIAj?=
- =?us-ascii?Q?xF9yj/dbDCPvNsGdZmCAxQxYYWLn8b37BsJSiUo3XJL0xYDQB1z1CZt8H39B?=
- =?us-ascii?Q?sw2CDajxwXj9yDVGvL49ap7Hv4NeHu0KcpG1GjfQQKYRpiyOHmFbZ/XtaoaX?=
- =?us-ascii?Q?9gerc0ydQlIvZ/xlhr+dUDzbVNKIQbZ2jQ9hOYHfhSPxyh/GHv0sEbEgbnn/?=
- =?us-ascii?Q?5hiVgKRaQyB1Y289vHvZt4cIP+VZzIsWOHar001oq6NI+7+soSdQbvoMSv3h?=
- =?us-ascii?Q?I2Ce70/GdQbE3vkhjR8mLQgb+e9n8o7iQ2dNEWQotK9Yl3bXP58dsBNKlUmG?=
- =?us-ascii?Q?heCa1ijSzOc9NpYZFzw3VTWvqEk044GeBuSeVdIsslgBf/NJfCLgFmxczlST?=
- =?us-ascii?Q?ihaEvYaPISdcYJgv2/fl7V1b9QbfU9t9VI4ceSKu0QHgq1UqrnNzvu48WQHn?=
- =?us-ascii?Q?rxJjCyf66JArDm3uPTauvObpxKeuRFrOsuUGCeGmdYuf/YTUd8Tl5Bd7nLBp?=
- =?us-ascii?Q?ZVNckC7fiLT9wbX0QdDT4Wej1U8lCLETyA+K4YurmvL0v59ICMJSLE7H9kKS?=
- =?us-ascii?Q?n1Q/yyMJzzfPKicToFq8Km04O1c/hwXuZQ3L8f+GeCm7oTCOsICTE9yuyTkU?=
- =?us-ascii?Q?9YufdSQ/vo0Q5JjNOWryN9p8Tevx1hGyxn6YqdRC8lwnKPCWfqlc4BxN9Pwf?=
- =?us-ascii?Q?DpQjv0XVl14pLzwRoufDO4Uj/HobIQoAUNhSQq8TIttTOFUzH7KbbXB2TTyr?=
- =?us-ascii?Q?XiTnRrkAkuSTaCTRx3YSttRYTBvJLN6+LG4RASUwz12N47Ha5jTBmxWpht8h?=
- =?us-ascii?Q?OoNarSvSgbpFUDcLthQXeU8/cG5MRDA/coZnxBuDwTj6b0bY3KONAsVKbpns?=
- =?us-ascii?Q?GPE9az0uo7r+K6XFbTKDlY/D8/fXGCjmbcSPIYrjGijHvd6K0tf4myeVZK64?=
- =?us-ascii?Q?r3MvUykl2lmpTB8vNPPKIAeyw/5LVm5uoO0s2ltlC2V1Tmjz/yvnjRIvDZZO?=
- =?us-ascii?Q?G+pWQ9uCBh/0AghWXnU2mfyMyJL0ywxIaIqv5JPz?=
-Content-ID: <1781454FFC6038499E8F43715531848E@namprd05.prod.outlook.com>
+ Tue,  6 Sep 2022 20:01:51 +0000 (UTC)
+Received: by mail-wm1-x332.google.com with SMTP id
+ i188-20020a1c3bc5000000b003a7b6ae4eb2so10282358wma.4
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 06 Sep 2022 13:01:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ffwll.ch; s=google;
+ h=in-reply-to:content-transfer-encoding:content-disposition
+ :mime-version:references:mail-followup-to:message-id:subject:cc:to
+ :from:date:from:to:cc:subject:date;
+ bh=O5EcAc3lvXGI4JQrr9YrLyEGo4R9/Yu+CBbQ8ensU3s=;
+ b=OJjVDKh3fcI/VQtO8L3fMXmkefvnaZ2TPXs4g3bDwXhiEMKG2tIGFa9WR1Rh+3uUBR
+ zdGGM9Rmc74vfA+iORlSEN0n6yp66wZtNXZv0fPfYCTohNw3OZcMD+6dfcpdnPYyiwnh
+ QoNnAEdgtugwvr2kaVFYcJT6RkBCn/qtM199k=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=in-reply-to:content-transfer-encoding:content-disposition
+ :mime-version:references:mail-followup-to:message-id:subject:cc:to
+ :from:date:x-gm-message-state:from:to:cc:subject:date;
+ bh=O5EcAc3lvXGI4JQrr9YrLyEGo4R9/Yu+CBbQ8ensU3s=;
+ b=mMU0cHcXXAwFDp2exq0sWMIlaPRiDP4Ba1C5cAl0wW0MuC3D8vfipWLc6sixgzkHb0
+ /XxeHMSKyX1OzaQN2TCwkVbjvpzJYZMk/IILUuzbiH3Cm0gpAscxwvVkRzo7WY1Zgs4V
+ ENvgF8uaoi8I1CWFFm8M+XEwFbZ4/pEF62kVfEIi0/opg+vxWOjsOjIlb/iA6w0nMcBR
+ KE/nuh40H7viqJ00LjBFAok28/QqoLGJ8KT/WzJ/Gj3MUUsIIPmgWnnEmkXrQcH3IC7A
+ zJ4uWzKn36g4cP+oesqt2xB3tjckcbc+RwixlGsz3ARBxSH/PYiWBWPcpT3AevbwmL1O
+ QrAQ==
+X-Gm-Message-State: ACgBeo0KTlkvKRdN1L5ftqMh6IUBkmDODxQvB1TDCjZhHi8a0/MCm7+E
+ nJgyPdfWBalODcwHS0fGRLYJBQ==
+X-Google-Smtp-Source: AA6agR65s22H1tafLgmg1vAilgOCZbkdlz33Ij5qA3Rkmxo9dxUOa6iRjfhaDOHPYMF30Bz5WXKt1A==
+X-Received: by 2002:a05:600c:34d2:b0:3a5:afe5:3eb5 with SMTP id
+ d18-20020a05600c34d200b003a5afe53eb5mr14724108wmq.122.1662494510204; 
+ Tue, 06 Sep 2022 13:01:50 -0700 (PDT)
+Received: from phenom.ffwll.local (212-51-149-33.fiber7.init7.net.
+ [212.51.149.33]) by smtp.gmail.com with ESMTPSA id
+ y2-20020adfd082000000b0021d6924b777sm13896061wrh.115.2022.09.06.13.01.49
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 06 Sep 2022 13:01:49 -0700 (PDT)
+Date: Tue, 6 Sep 2022 22:01:47 +0200
+From: Daniel Vetter <daniel@ffwll.ch>
+To: Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
+Subject: Re: [PATCH v1] drm/ttm: Refcount allocated tail pages
+Message-ID: <YxenK8xZHC6Q4Eu4@phenom.ffwll.local>
+Mail-Followup-To: Christian =?iso-8859-1?Q?K=F6nig?=
+ <christian.koenig@amd.com>, 
+ Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ David Airlie <airlied@linux.ie>, Huang Rui <ray.huang@amd.com>,
+ Trigger Huang <Trigger.Huang@gmail.com>,
+ Gert Wollny <gert.wollny@collabora.com>,
+ Antonio Caggiano <antonio.caggiano@collabora.com>,
+ dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
+ Dmitry Osipenko <digetx@gmail.com>, kvm@vger.kernel.org,
+ kernel@collabora.com, virtualization@lists.linux-foundation.org
+References: <20220815095423.11131-1-dmitry.osipenko@collabora.com>
+ <8230a356-be38-f228-4a8e-95124e8e8db6@amd.com>
 MIME-Version: 1.0
-X-OriginatorOrg: vmware.com
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL0PR05MB4739
-Cc: Pv-drivers <Pv-drivers@vmware.com>, Ronak Doshi <doshir@vmware.com>,
- "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>,
- Vishal Bhakta <vbhakta@vmware.com>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>, Bryan Tan <bryantan@vmware.com>,
- Linux-graphics-maintainer <Linux-graphics-maintainer@vmware.com>,
- "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
- Joe Perches <joe@perches.com>,
- "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
- "davem@davemloft.net" <davem@davemloft.net>, Zack Rusin <zackr@vmware.com>
+Content-Disposition: inline
+In-Reply-To: <8230a356-be38-f228-4a8e-95124e8e8db6@amd.com>
+X-Operating-System: Linux phenom 5.18.0-4-amd64 
+Cc: Dmitry Osipenko <dmitry.osipenko@collabora.com>, kvm@vger.kernel.org,
+ David Airlie <airlied@linux.ie>,
+ Antonio Caggiano <antonio.caggiano@collabora.com>,
+ dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
+ Gert Wollny <gert.wollny@collabora.com>, Huang Rui <ray.huang@amd.com>,
+ Daniel Vetter <daniel@ffwll.ch>, Dmitry Osipenko <digetx@gmail.com>,
+ kernel@collabora.com, virtualization@lists.linux-foundation.org,
+ Trigger Huang <Trigger.Huang@gmail.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -157,46 +123,147 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Nadav Amit via Virtualization <virtualization@lists.linux-foundation.org>
-Reply-To: Nadav Amit <namit@vmware.com>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sep 6, 2022, at 10:27 AM, Vishnu Dasa <vdasa@vmware.com> wrote:
+On Mon, Aug 15, 2022 at 12:05:19PM +0200, Christian K=F6nig wrote:
+> Am 15.08.22 um 11:54 schrieb Dmitry Osipenko:
+> > Higher order pages allocated using alloc_pages() aren't refcounted and =
+they
+> > need to be refcounted, otherwise it's impossible to map them by KVM. Th=
+is
+> > patch sets the refcount of the tail pages and fixes the KVM memory mapp=
+ing
+> > faults.
+> > =
 
-> From: Vishnu Dasa <vdasa@vmware.com>
-> 
-> Change the status from 'Maintained' to 'Supported' for VMWARE
-> BALLOON DRIVER, VMWARE PVRDMA DRIVER, VMWARE PVSCSI driver,
-> VMWARE VMCI DRIVER, VMWARE VMMOUSE SUBDRIVER and VMWARE VMXNET3
-> ETHERNET DRIVER.
-> 
-> This needs to be done to conform to the guidelines in [1].
-> Maintainers for these drivers are VMware employees.
-> 
-> [1] https://docs.kernel.org/process/maintainers.html
-> 
-> Signed-off-by: Vishnu Dasa <vdasa@vmware.com>
-> ---
-> MAINTAINERS | 12 ++++++------
-> 1 file changed, 6 insertions(+), 6 deletions(-)
-> 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index b75eb23a099b..5a634b5d6f6c 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -21812,7 +21812,7 @@ VMWARE BALLOON DRIVER
-> M:	Nadav Amit <namit@vmware.com>
-> R:	VMware PV-Drivers Reviewers <pv-drivers@vmware.com>
-> L:	linux-kernel@vger.kernel.org
-> -S:	Maintained
-> +S:	Supported
-> F:	drivers/misc/vmw_balloon.c
+> > Without this change guest virgl driver can't map host buffers into guest
+> > and can't provide OpenGL 4.5 profile support to the guest. The host
+> > mappings are also needed for enabling the Venus driver using host GPU
+> > drivers that are utilizing TTM.
+> > =
 
-Acked-by: Nadav Amit <namit@vmware.com>
+> > Based on a patch proposed by Trigger Huang.
+> =
 
+> Well I can't count how often I have repeated this: This is an absolutely
+> clear NAK!
+> =
+
+> TTM pages are not reference counted in the first place and because of this
+> giving them to virgl is illegal.
+> =
+
+> Please immediately stop this completely broken approach. We have discussed
+> this multiple times now.
+
+Yeah we need to get this stuff closed for real by tagging them all with
+VM_IO or VM_PFNMAP asap.
+
+It seems ot be a recurring amount of fun that people try to mmap dma-buf
+and then call get_user_pages on them.
+
+Which just doesn't work. I guess this is also why Rob Clark send out that
+dma-buf patch to expos mapping information (i.e. wc vs wb vs uncached).
+
+There seems to be some serious bonghits going on :-/
+-Daniel
+
+> =
+
+> Regards,
+> Christian.
+> =
+
+> > =
+
+> > Cc: stable@vger.kernel.org
+> > Cc: Trigger Huang <Trigger.Huang@gmail.com>
+> > Link: https://www.collabora.com/news-and-blog/blog/2021/11/26/venus-on-=
+qemu-enabling-new-virtual-vulkan-driver/#qcom1343
+> > Tested-by: Dmitry Osipenko <dmitry.osipenko@collabora.com> # AMDGPU (Qe=
+mu and crosvm)
+> > Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+> > ---
+> >   drivers/gpu/drm/ttm/ttm_pool.c | 25 ++++++++++++++++++++++++-
+> >   1 file changed, 24 insertions(+), 1 deletion(-)
+> > =
+
+> > diff --git a/drivers/gpu/drm/ttm/ttm_pool.c b/drivers/gpu/drm/ttm/ttm_p=
+ool.c
+> > index 21b61631f73a..11e92bb149c9 100644
+> > --- a/drivers/gpu/drm/ttm/ttm_pool.c
+> > +++ b/drivers/gpu/drm/ttm/ttm_pool.c
+> > @@ -81,6 +81,7 @@ static struct page *ttm_pool_alloc_page(struct ttm_po=
+ol *pool, gfp_t gfp_flags,
+> >   	unsigned long attr =3D DMA_ATTR_FORCE_CONTIGUOUS;
+> >   	struct ttm_pool_dma *dma;
+> >   	struct page *p;
+> > +	unsigned int i;
+> >   	void *vaddr;
+> >   	/* Don't set the __GFP_COMP flag for higher order allocations.
+> > @@ -93,8 +94,10 @@ static struct page *ttm_pool_alloc_page(struct ttm_p=
+ool *pool, gfp_t gfp_flags,
+> >   	if (!pool->use_dma_alloc) {
+> >   		p =3D alloc_pages(gfp_flags, order);
+> > -		if (p)
+> > +		if (p) {
+> >   			p->private =3D order;
+> > +			goto ref_tail_pages;
+> > +		}
+> >   		return p;
+> >   	}
+> > @@ -120,6 +123,23 @@ static struct page *ttm_pool_alloc_page(struct ttm=
+_pool *pool, gfp_t gfp_flags,
+> >   	dma->vaddr =3D (unsigned long)vaddr | order;
+> >   	p->private =3D (unsigned long)dma;
+> > +
+> > +ref_tail_pages:
+> > +	/*
+> > +	 * KVM requires mapped tail pages to be refcounted because put_page()
+> > +	 * is invoked on them in the end of the page fault handling, and thus,
+> > +	 * tail pages need to be protected from the premature releasing.
+> > +	 * In fact, KVM page fault handler refuses to map tail pages to guest
+> > +	 * if they aren't refcounted because hva_to_pfn_remapped() checks the
+> > +	 * refcount specifically for this case.
+> > +	 *
+> > +	 * In particular, unreferenced tail pages result in a KVM "Bad addres=
+s"
+> > +	 * failure for VMMs that use VirtIO-GPU when guest's Mesa VirGL driver
+> > +	 * accesses mapped host TTM buffer that contains tail pages.
+> > +	 */
+> > +	for (i =3D 1; i < 1 << order; i++)
+> > +		page_ref_inc(p + i);
+> > +
+> >   	return p;
+> >   error_free:
+> > @@ -133,6 +153,7 @@ static void ttm_pool_free_page(struct ttm_pool *poo=
+l, enum ttm_caching caching,
+> >   {
+> >   	unsigned long attr =3D DMA_ATTR_FORCE_CONTIGUOUS;
+> >   	struct ttm_pool_dma *dma;
+> > +	unsigned int i;
+> >   	void *vaddr;
+> >   #ifdef CONFIG_X86
+> > @@ -142,6 +163,8 @@ static void ttm_pool_free_page(struct ttm_pool *poo=
+l, enum ttm_caching caching,
+> >   	if (caching !=3D ttm_cached && !PageHighMem(p))
+> >   		set_pages_wb(p, 1 << order);
+> >   #endif
+> > +	for (i =3D 1; i < 1 << order; i++)
+> > +		page_ref_dec(p + i);
+> >   	if (!pool || !pool->use_dma_alloc) {
+> >   		__free_pages(p, order);
+> =
+
+
+-- =
+
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
