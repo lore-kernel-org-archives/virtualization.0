@@ -1,103 +1,85 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B904BC38145
-	for <virtualization@archiver.kernel.org>; Wed,  7 Sep 2022 06:00:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8CC79ECAAD3
+	for <virtualization@archiver.kernel.org>; Wed,  7 Sep 2022 06:01:31 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 26F83402DD;
-	Wed,  7 Sep 2022 06:00:26 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 26F83402DD
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20210112 header.b=N5bYCEfk
+	by smtp2.osuosl.org (Postfix) with ESMTP id 24AE640275;
+	Wed,  7 Sep 2022 06:01:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 24AE640275
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=VA+4qBfz
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id v17Gdgd_aPQW; Wed,  7 Sep 2022 06:00:25 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id hYhe3C2k5gao; Wed,  7 Sep 2022 06:01:30 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 639C2402BE;
-	Wed,  7 Sep 2022 06:00:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 639C2402BE
+	by smtp2.osuosl.org (Postfix) with ESMTPS id B105B40239;
+	Wed,  7 Sep 2022 06:01:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B105B40239
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0862FC0033;
-	Wed,  7 Sep 2022 06:00:24 +0000 (UTC)
-Received: from smtp4.osuosl.org (unknown
- [IPv6:2605:bc80:3010:0:a800:ff:fe79:d16b])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8707DC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8B4CFC0033;
+	Wed,  7 Sep 2022 06:01:29 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 59C85C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  7 Sep 2022 06:00:22 +0000 (UTC)
+ Wed,  7 Sep 2022 06:01:28 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 65E4B402DD
+ by smtp1.osuosl.org (Postfix) with ESMTP id 34E1A818A1
  for <virtualization@lists.linux-foundation.org>;
- Wed,  7 Sep 2022 06:00:22 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 65E4B402DD
+ Wed,  7 Sep 2022 06:01:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 34E1A818A1
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=VA+4qBfz
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Zm11MQ0UqRiz
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id ttM0n5CDHCao
  for <virtualization@lists.linux-foundation.org>;
- Wed,  7 Sep 2022 06:00:21 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 46F5E402BE
-Received: from mail-wm1-x336.google.com (mail-wm1-x336.google.com
- [IPv6:2a00:1450:4864:20::336])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 46F5E402BE
+ Wed,  7 Sep 2022 06:01:27 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6F7498188B
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 6F7498188B
  for <virtualization@lists.linux-foundation.org>;
- Wed,  7 Sep 2022 06:00:21 +0000 (UTC)
-Received: by mail-wm1-x336.google.com with SMTP id
- n23-20020a7bc5d7000000b003a62f19b453so11097292wmk.3
- for <virtualization@lists.linux-foundation.org>;
- Tue, 06 Sep 2022 23:00:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:from:to:cc:subject:date;
- bh=EVRMZUvSq6xdhiNGVwAMQ7WuOP9ljPbQMnIekWicfSw=;
- b=N5bYCEfkkrWyuEJPBnbTK/P4VF0qrJCydMxRgw41WsKreSUINlmQeNsJ/YPB5bBIFK
- SsQpepIKHI/EMjLdctJZb50mtWece3w2MYGIzGroJVKn/KYLRj2sZa7XEFWeOxkWj1bj
- 7Xs/uYI8e4ObXhXJCLOc+IJG14T1N5SQM51tpw6CPYpEmTkd61bi5O06qN49dj0eC1bT
- IOr8MYSainsRvm7SpOLbsjDYPGs+bIDh4CwMiO9btuTPQzdr+1M6f2h0/BgtlBGwljRL
- es56etYDfYgVvxz4cr0R370WFJYutF+T50asjfOODsInyZBTG/LasVBGYcqd5mr29Wck
- eicg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:x-gm-message-state:from:to:cc:subject:date;
- bh=EVRMZUvSq6xdhiNGVwAMQ7WuOP9ljPbQMnIekWicfSw=;
- b=NOLssHw9davQ3MYLmKHveNj1PhRFZBy1UwZoRNVCtZeHrC6TBY1JPT+AsfQXDwcVRT
- JoQov91HHUD9b4GEHUONLblsadWVeN62mkTaksNpI5HWPmODpOFm7BdPtgnXs8CF0sTQ
- oJlfkf6CE6i/b4YIjmJoFvSwjTHSqKkmsljO98fVQ7oHX2M3OF30VLw+uvc5YBA5mAnx
- Sd7gehPp0CH0WNiaPa5ELr4VXf/3M6DaEC1z4d4kGfm2ZTrYmGgTCdQhSkmJfAa9tU/k
- ASjRZsPgdvzmI7W4pLLLDh3+MwHVxY5xm55FgK4QcANUKUgVGWgyU/gbXx/bCSHWB4Hy
- y25w==
-X-Gm-Message-State: ACgBeo2F38L3Vfj/O1dYReEjrroF7DpHnsKiMHYTaWa9pAktwvPoMAou
- 6r9Tnu81py3jywFhULNXU6DO9gOmRswbvlyqtoCyvw==
-X-Google-Smtp-Source: AA6agR6B3gQeycz+50jNE1EjqvKOK6DVZ6AZkhyR7V48tJgKgBWRV2R4ljnfmvXEtAbxKaCEOo921MMA+cgAFlUvbqE=
-X-Received: by 2002:a05:600c:4ca3:b0:3a6:1616:e591 with SMTP id
- g35-20020a05600c4ca300b003a61616e591mr862526wmp.99.1662530419174; Tue, 06 Sep
- 2022 23:00:19 -0700 (PDT)
+ Wed,  7 Sep 2022 06:01:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1662530486;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding;
+ bh=ovHoM9YpW21oT3aBioqYivK4mMYTlNS9bEeTyk27HO8=;
+ b=VA+4qBfzbqSAw5gfWQXUN3AFNoKBPZFE8iHTL1260JjV9kSJL8iVZFITfufwK4jMpih3fC
+ 1nk7nEbxvGXEs4r5+tS+BihSGmq7tcCoALSzQj0OGLDhRzJtyXQ00ovcEPcdowdCzsva24
+ CZSrZ6IHDhbcqkxaz8RAAzTDwBLqBng=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-512-sMpKTXSHNsGUx8QJsaujwA-1; Wed, 07 Sep 2022 02:01:15 -0400
+X-MC-Unique: sMpKTXSHNsGUx8QJsaujwA-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.2])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 351ED804191;
+ Wed,  7 Sep 2022 06:01:15 +0000 (UTC)
+Received: from localhost.localdomain (ovpn-13-171.pek2.redhat.com
+ [10.72.13.171])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id D441E4010FA1;
+ Wed,  7 Sep 2022 06:01:12 +0000 (UTC)
+From: Jason Wang <jasowang@redhat.com>
+To: mst@redhat.com, jasowang@redhat.com, elic@nvidia.com,
+ virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] vdpa: conditionally fill max max queue pair for stats
+Date: Wed,  7 Sep 2022 14:01:10 +0800
+Message-Id: <20220907060110.4511-1-jasowang@redhat.com>
 MIME-Version: 1.0
-References: <20220902213750.1124421-1-morbo@google.com>
- <20220902213750.1124421-3-morbo@google.com>
- <202209022251.B14BD50B29@keescook>
- <CAGG=3QXpK+bFOSYZkdNNFGzNfgJSSADGTRWYRv6z0vfBAgQvWQ@mail.gmail.com>
-In-Reply-To: <CAGG=3QXpK+bFOSYZkdNNFGzNfgJSSADGTRWYRv6z0vfBAgQvWQ@mail.gmail.com>
-Date: Tue, 6 Sep 2022 23:00:07 -0700
-Message-ID: <CAKwvOdm+kVTrqMrSPHwTa0NrG9qwTcFkGnikjYjk0ctFGBfeRA@mail.gmail.com>
-Subject: Re: [PATCH 2/2] x86/paravirt: add extra clobbers with
- ZERO_CALL_USED_REGS enabled
-To: Bill Wendling <morbo@google.com>
-Cc: Juergen Gross <jgross@suse.com>,
- "maintainer:X86 ARCHITECTURE \(32-BIT AND 64-BIT\)" <x86@kernel.org>,
- "H. Peter Anvin" <hpa@zytor.com>, Kees Cook <keescook@chromium.org>,
- VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
- Dave Hansen <dave.hansen@linux.intel.com>,
- clang-built-linux <llvm@lists.linux.dev>, LKML <linux-kernel@vger.kernel.org>,
- virtualization@lists.linux-foundation.org,
- Nathan Chancellor <nathan@kernel.org>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, linux-hardening@vger.kernel.org,
- Alexey Makhalov <amakhalov@vmware.com>, Thomas Gleixner <tglx@linutronix.de>
+X-Scanned-By: MIMEDefang 2.84 on 10.11.54.2
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -109,66 +91,61 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Nick Desaulniers via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Nick Desaulniers <ndesaulniers@google.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sun, Sep 4, 2022 at 11:02 PM Bill Wendling <morbo@google.com> wrote:
->
-> On Sat, Sep 3, 2022 at 12:18 AM Kees Cook <keescook@chromium.org> wrote:
-> >
-> > On Fri, Sep 02, 2022 at 09:37:50PM +0000, Bill Wendling wrote:
-> > > [...]
-> > >         callq   *pv_ops+536(%rip)
-> >
-> > Do you know which pv_ops function is this? I can't figure out where
-> > pte_offset_kernel() gets converted into a pv_ops call....
-> >
-> This one is _paravirt_ident_64, I believe. I think that the original
-> issue Nathan was seeing was with another seemingly innocuous function.
+For the device without multiqueue feature, we will read 0 as
+max_virtqueue_pairs from the config. So if we fill
+VDPA_ATTR_DEV_NET_CFG_MAX_VQP with the value we read from the config
+we will confuse the user.
 
-_paravirt_ident_64 is marked noinstr, which makes me suspect that it
-really needs to not be touched at all by the compiler for
-these...special features.
+Fixing this by only filling the value when multiqueue is offered by
+the device so userspace can assume 1 when the attr is not provided.
 
-Maybe the definition of noinstr in include/linux/compiler_types.h
-should be adding __attribute__((zero_call_used_regs(skip)))?
+Fixes: 13b00b135665c("vdpa: Add support for querying vendor statistics")
+Cc: Eli Cohen <elic@nvidia.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/vdpa/vdpa.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-Untested:
-
-```
-diff --git a/include/linux/compiler_types.h b/include/linux/compiler_types.h
-index 4f2a819fd60a..a51ab77e2da8 100644
---- a/include/linux/compiler_types.h
-+++ b/include/linux/compiler_types.h
-@@ -226,10 +226,17 @@ struct ftrace_likely_data {
- #define __no_sanitize_or_inline __always_inline
- #endif
-
-+#ifdef CONFIG_ZERO_CALL_USED_REGS
-+#define __no_zero_call_used_regs __attribute__((__zero_call_used_reg__(skip)))
-+#else
-+#define __no_zero_call_used_regs
-+#endif
+diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
+index c06c02704461..bc328197263f 100644
+--- a/drivers/vdpa/vdpa.c
++++ b/drivers/vdpa/vdpa.c
+@@ -894,7 +894,6 @@ static int vdpa_fill_stats_rec(struct vdpa_device *vdev, struct sk_buff *msg,
+ {
+ 	struct virtio_net_config config = {};
+ 	u64 features;
+-	u16 max_vqp;
+ 	u8 status;
+ 	int err;
+ 
+@@ -905,15 +904,15 @@ static int vdpa_fill_stats_rec(struct vdpa_device *vdev, struct sk_buff *msg,
+ 	}
+ 	vdpa_get_config_unlocked(vdev, 0, &config, sizeof(config));
+ 
+-	max_vqp = __virtio16_to_cpu(true, config.max_virtqueue_pairs);
+-	if (nla_put_u16(msg, VDPA_ATTR_DEV_NET_CFG_MAX_VQP, max_vqp))
+-		return -EMSGSIZE;
+-
+ 	features = vdev->config->get_driver_features(vdev);
+ 	if (nla_put_u64_64bit(msg, VDPA_ATTR_DEV_NEGOTIATED_FEATURES,
+ 			      features, VDPA_ATTR_PAD))
+ 		return -EMSGSIZE;
+ 
++	err = vdpa_dev_net_mq_config_fill(vdev, msg, features, &config);
++	if (err)
++		return err;
 +
- /* Section for code which can't be instrumented at all */
- #define noinstr
-         \
-        noinline notrace __attribute((__section__(".noinstr.text")))    \
--       __no_kcsan __no_sanitize_address __no_profile __no_sanitize_coverage
-+       __no_kcsan __no_sanitize_address __no_profile                   \
-+       __no_sanitize_coverage __no_zero_call_used_regs
-
- #endif /* __KERNEL__ */
-```
-Or use __has_attribute in include/linux/compiler_attributes.h.
+ 	if (nla_put_u32(msg, VDPA_ATTR_DEV_QUEUE_INDEX, index))
+ 		return -EMSGSIZE;
+ 
 -- 
-Thanks,
-~Nick Desaulniers
+2.25.1
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
