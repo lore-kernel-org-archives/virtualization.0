@@ -4,113 +4,112 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 701C8ECAAD3
-	for <virtualization@archiver.kernel.org>; Wed,  7 Sep 2022 07:46:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 90D2CECAAD3
+	for <virtualization@archiver.kernel.org>; Wed,  7 Sep 2022 07:47:11 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 002194039D;
-	Wed,  7 Sep 2022 07:46:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 002194039D
+	by smtp2.osuosl.org (Postfix) with ESMTP id 2428C40475;
+	Wed,  7 Sep 2022 07:47:11 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2428C40475
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=FH8JJ1jX
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=OaqBFTGE
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id PK-_7HNlOFvn; Wed,  7 Sep 2022 07:46:16 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 74844402E5;
-	Wed,  7 Sep 2022 07:46:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 74844402E5
+	with ESMTP id C8kmeZCr2bve; Wed,  7 Sep 2022 07:47:10 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 3A0D44048F;
+	Wed,  7 Sep 2022 07:47:09 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3A0D44048F
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3C60FC0032;
-	Wed,  7 Sep 2022 07:46:15 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 234B9C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E38ABC0032;
+	Wed,  7 Sep 2022 07:47:08 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8554BC002D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  7 Sep 2022 07:46:13 +0000 (UTC)
+ Wed,  7 Sep 2022 07:47:07 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id EA8EB4030D
+ by smtp2.osuosl.org (Postfix) with ESMTP id 5DE7140533
  for <virtualization@lists.linux-foundation.org>;
- Wed,  7 Sep 2022 07:46:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org EA8EB4030D
-Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=FH8JJ1jX
+ Wed,  7 Sep 2022 07:47:07 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5DE7140533
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ebpbkePlbh_m
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id ecv_0SzWlqUq
  for <virtualization@lists.linux-foundation.org>;
- Wed,  7 Sep 2022 07:46:12 +0000 (UTC)
+ Wed,  7 Sep 2022 07:47:06 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1F75540305
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 457CD4048F
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 1F75540305
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 457CD4048F
  for <virtualization@lists.linux-foundation.org>;
- Wed,  7 Sep 2022 07:46:11 +0000 (UTC)
+ Wed,  7 Sep 2022 07:47:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1662536771;
+ s=mimecast20190719; t=1662536824;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=q3eQegbyNUNUZfQN4Vuu2Y+4sgIIke5mBIO94daHPAk=;
- b=FH8JJ1jXsEyZ935BfXuOghYkFtoF/0Hm1Cn/TAae13pLxR4tRvEk9k+SIAkZTQf6wHPw33
- mSDWZdIoRkaxbwCbSLC4NqxBVlBoMdtgGfRNdj6qggeMfN9XJuCe5VQhZM6EBsl7RKXKQy
- vDy99W7oqeKE5g0rdntK8MDXyMBt5HY=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=nsmvzDdU873IEoh1AjpLdUk0IkH22pk9o0ERO+Ke0Qs=;
+ b=OaqBFTGE871PslXddGnEnYnLUuK0/M8zyYgmuSQRInea1FdXWYYiifSHNgt4Mls9KRMAvx
+ qUmvt9z3FFheh39EH+S2O3+GImjGOkEosa9tAg8Us8/Q0s49mLW+ZqFDrXSv0J8bn5xUOV
+ zgHMicCuZcD/rsMKaD61M3XIh8ztdRU=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-281-QPzbPm21N-OIy0Y3TF_csQ-1; Wed, 07 Sep 2022 03:46:10 -0400
-X-MC-Unique: QPzbPm21N-OIy0Y3TF_csQ-1
-Received: by mail-wm1-f69.google.com with SMTP id
- p3-20020a7bcc83000000b003b2973dab4bso73036wma.1
+ us-mta-312-AxP98VuHPLOKKruM_Mk7DA-1; Wed, 07 Sep 2022 03:47:01 -0400
+X-MC-Unique: AxP98VuHPLOKKruM_Mk7DA-1
+Received: by mail-ed1-f70.google.com with SMTP id
+ q18-20020a056402519200b0043dd2ff50feso9084172edd.9
  for <virtualization@lists.linux-foundation.org>;
- Wed, 07 Sep 2022 00:46:10 -0700 (PDT)
+ Wed, 07 Sep 2022 00:47:00 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
- bh=q3eQegbyNUNUZfQN4Vuu2Y+4sgIIke5mBIO94daHPAk=;
- b=u0LAHFvYkADP+LrgiX1VQYxUjFFOuy//V9kfgtfSNnnqwUSgoMoqY1aGwdn6Djyoow
- XMWZPCKtCJjHcaqQUbfsayG4SwmnBxznMkM2fdjCADBI15pKRBm/sT5ZofJJYZ29n2aa
- Qz3V0/prgTqWwOovXNGx8xchOjegjTDAS9TyC6i56VHOVCSgIHuqT9ZnlsPR+YQJDsqY
- JZFCRKTVL6ZRI4IEO+AbvVHZP0LiVMsj+iMQf1J9aRZZiWZREoq/DMUq3iyQkMLNH+j+
- 0txtD3t1CZWDNcErgeXkKIfj2zq01/XFaVoYKf3fg+4LEd08OBDiqOO19cTPMmo9Jgnz
- UNOg==
-X-Gm-Message-State: ACgBeo2FZZ71YIm7gHh3pXSg+bOEhdFj+dEMtlUqU+wFlDYWSQf6o//3
- UnN4u9xMLP39zHXGV+M4zBAc3aIEqok67HcTdZqWcLvu3AWPah95CluZD29QJpG/w+rWGoxh4Bo
- 7ssvspFNhvkqB1uxQsjeDzD9Bel6N6zn8kqEMpF5/TQ==
-X-Received: by 2002:adf:ed81:0:b0:226:a509:14b6 with SMTP id
- c1-20020adfed81000000b00226a50914b6mr1211076wro.150.1662536769193; 
- Wed, 07 Sep 2022 00:46:09 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR44JqlJBu3NM8POTUmZPOMnuC7An3N2YQMeTdJEE/AQ3Rtm8kSGa0vZZHfwxjXMROy9TOM4iQ==
-X-Received: by 2002:adf:ed81:0:b0:226:a509:14b6 with SMTP id
- c1-20020adfed81000000b00226a50914b6mr1211058wro.150.1662536768934; 
- Wed, 07 Sep 2022 00:46:08 -0700 (PDT)
-Received: from sgarzare-redhat (host-87-11-6-69.retail.telecomitalia.it.
- [87.11.6.69]) by smtp.gmail.com with ESMTPSA id
- e3-20020a5d5303000000b0022584e771adsm16009397wrv.113.2022.09.07.00.46.07
+ bh=nsmvzDdU873IEoh1AjpLdUk0IkH22pk9o0ERO+Ke0Qs=;
+ b=tZwtXIfQ7TMWQyfCUxp99f5h4I8W6c6pgLbMPk9f8wueacyUfVUO9bp67/VD2E6c3H
+ jahgnYlKgUxuIDrivbiWFceX3Fq+VNN18VrHGf9J4VrFypVyMNfDsB/c1zqP1Cazm6I+
+ U1dQCcMe5V/zTDNoRVECyn+FHasqtlAivjeYEF+6H+4eh/pwwBRT9PZldJ5xMVR864Ou
+ nVESMq1IpRFKayw6PyvQgPAFZ/qhQSLJDgzJkQFQwhk5JwvkiCTHDm+/cVfdaO33dsAs
+ Yf1NuEtTspQ3wuW4GMGfJL0aj67DXiAuMkXwEMGLIlQkQhiSju47zUBL4JTYvZkBs6V3
+ sGAQ==
+X-Gm-Message-State: ACgBeo3lnPWhdlF46h9SZgyHFhR6pqf1Tne+GTK6FS7oe9H8s2LishpJ
+ 1x+BXLuTKzdEft9z1Xj/7OLUMOYb1Qe0mSDFz00hhkpqAL5YZNMhaFnyXVtxutfSRMqKgqVgu6Q
+ OxEE+8NUM2VqN24ggWaSuaWV6m6KFUgJzKCWMZ81dqA==
+X-Received: by 2002:a17:907:75ea:b0:73d:daa0:3cbe with SMTP id
+ jz10-20020a17090775ea00b0073ddaa03cbemr1456174ejc.662.1662536820005; 
+ Wed, 07 Sep 2022 00:47:00 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR53nL8cnG0zY4L4+T4oecAyIfM8opFTzrBVui+uiS85jZRfT6dg9G8YzC/sl54kdM02S1/TMA==
+X-Received: by 2002:a17:907:75ea:b0:73d:daa0:3cbe with SMTP id
+ jz10-20020a17090775ea00b0073ddaa03cbemr1456158ejc.662.1662536819797; 
+ Wed, 07 Sep 2022 00:46:59 -0700 (PDT)
+Received: from redhat.com ([2.52.135.118]) by smtp.gmail.com with ESMTPSA id
+ b9-20020a1709063ca900b0073c82539183sm8022689ejh.91.2022.09.07.00.46.57
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 07 Sep 2022 00:46:08 -0700 (PDT)
-Date: Wed, 7 Sep 2022 09:45:58 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: vdasa@vmware.com
-Subject: Re: [PATCH 3/3] MAINTAINERS: Add a new entry for VMWARE VSOCK VMCI
- TRANSPORT DRIVER
-Message-ID: <20220907074558.75v3ucll6eo66zky@sgarzare-redhat>
-References: <20220906172722.19862-1-vdasa@vmware.com>
- <20220906172722.19862-4-vdasa@vmware.com>
+ Wed, 07 Sep 2022 00:46:59 -0700 (PDT)
+Date: Wed, 7 Sep 2022 03:46:55 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Paolo Abeni <pabeni@redhat.com>
+Subject: Re: [PATCH net] virtio-net: add cond_resched() to the command
+ waiting loop
+Message-ID: <20220907034407-mutt-send-email-mst@kernel.org>
+References: <20220905045341.66191-1-jasowang@redhat.com>
+ <20220905031405-mutt-send-email-mst@kernel.org>
+ <CACGkMEtjQ0Jfok-gcRW+kuinsua2X0TscyTNfBJoXHny0Yob+g@mail.gmail.com>
+ <056ba905a2579903a372258383afdf6579767ad0.camel@redhat.com>
+ <CACGkMEuiDqqOEKUWRN9LvQKv8Jz4mi3aSZMwbhUsJkZp=C-0RQ@mail.gmail.com>
+ <c9180ac41b00543e3531a343afae8f5bdca64d8d.camel@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20220906172722.19862-4-vdasa@vmware.com>
+In-Reply-To: <c9180ac41b00543e3531a343afae8f5bdca64d8d.camel@redhat.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: pv-drivers@vmware.com, doshir@vmware.com, linux-scsi@vger.kernel.org,
- vbhakta@vmware.com, gregkh@linuxfoundation.org, linux-input@vger.kernel.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- bryantan@vmware.com, linux-graphics-maintainer@vmware.com,
- netdev@vger.kernel.org, joe@perches.com, namit@vmware.com, davem@davemloft.net,
- zackr@vmware.com, linux-rdma@vger.kernel.org
+Cc: netdev <netdev@vger.kernel.org>,
+ linux-kernel <linux-kernel@vger.kernel.org>,
+ virtualization <virtualization@lists.linux-foundation.org>,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Gautam Dawar <gautam.dawar@xilinx.com>, davem <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -122,26 +121,82 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Sep 06, 2022 at 10:27:22AM -0700, vdasa@vmware.com wrote:
->From: Vishnu Dasa <vdasa@vmware.com>
->
->Add a new entry for VMWARE VSOCK VMCI TRANSPORT DRIVER in the
->MAINTAINERS file.
->
->Signed-off-by: Vishnu Dasa <vdasa@vmware.com>
->---
-> MAINTAINERS | 8 ++++++++
-> 1 file changed, 8 insertions(+)
+On Wed, Sep 07, 2022 at 09:07:20AM +0200, Paolo Abeni wrote:
+> On Wed, 2022-09-07 at 10:09 +0800, Jason Wang wrote:
+> > On Tue, Sep 6, 2022 at 6:56 PM Paolo Abeni <pabeni@redhat.com> wrote:
+> > > 
+> > > On Mon, 2022-09-05 at 15:49 +0800, Jason Wang wrote:
+> > > > On Mon, Sep 5, 2022 at 3:15 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > > > 
+> > > > > On Mon, Sep 05, 2022 at 12:53:41PM +0800, Jason Wang wrote:
+> > > > > > Adding cond_resched() to the command waiting loop for a better
+> > > > > > co-operation with the scheduler. This allows to give CPU a breath to
+> > > > > > run other task(workqueue) instead of busy looping when preemption is
+> > > > > > not allowed.
+> > > > > > 
+> > > > > > What's more important. This is a must for some vDPA parent to work
+> > > > > > since control virtqueue is emulated via a workqueue for those parents.
+> > > > > > 
+> > > > > > Fixes: bda324fd037a ("vdpasim: control virtqueue support")
+> > > > > 
+> > > > > That's a weird commit to fix. so it fixes the simulator?
+> > > > 
+> > > > Yes, since the simulator is using a workqueue to handle control virtueue.
+> > > 
+> > > Uhmm... touching a driver for a simulator's sake looks a little weird.
+> > 
+> > Simulator is not the only one that is using a workqueue (but should be
+> > the first).
+> > 
+> > I can see  that the mlx5 vDPA driver is using a workqueue as well (see
+> > mlx5_vdpa_kick_vq()).
+> > 
+> > And in the case of VDUSE, it needs to wait for the response from the
+> > userspace, this means cond_resched() is probably a must for the case
+> > like UP.
+> > 
+> > > 
+> > > Additionally, if the bug is vdpasim, I think it's better to try to
+> > > solve it there, if possible.
+> > > 
+> > > Looking at vdpasim_net_work() and vdpasim_blk_work() it looks like
+> > > neither needs a process context, so perhaps you could rework it to run
+> > > the work_fn() directly from vdpasim_kick_vq(), at least for the control
+> > > virtqueue?
+> > 
+> > It's possible (but require some rework on the simulator core). But
+> > considering we have other similar use cases, it looks better to solve
+> > it in the virtio-net driver.
+> 
+> I see.
+> 
+> > Additionally, this may have better behaviour when using for the buggy
+> > hardware (e.g the control virtqueue takes too long to respond). We may
+> > consider switching to use interrupt/sleep in the future (but not
+> > suitable for -net).
+> 
+> Agreed. Possibly a timeout could be useful, too.
+> 
+> Cheers,
+> 
+> Paolo
 
-Thanks for adding this entry!
-Will be very useful to review vsock patches for vmci transport.
 
-Acked-by: Stefano Garzarella <sgarzare@redhat.com>
+Hmm timeouts are kind of arbitrary.
+regular drivers basically derive them from hardware
+behaviour but with a generic driver like virtio it's harder.
+I guess we could add timeout as a config field, have
+device make a promise to the driver.
+
+Making the wait interruptible seems more reasonable.
+
+-- 
+MST
 
 _______________________________________________
 Virtualization mailing list
