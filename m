@@ -4,79 +4,123 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9061AC54EE9
-	for <virtualization@archiver.kernel.org>; Wed,  7 Sep 2022 14:23:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 33312C38145
+	for <virtualization@archiver.kernel.org>; Wed,  7 Sep 2022 14:30:06 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 16BB3401DA;
-	Wed,  7 Sep 2022 14:23:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 16BB3401DA
+	by smtp4.osuosl.org (Postfix) with ESMTP id 770334150E;
+	Wed,  7 Sep 2022 14:30:05 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 770334150E
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=L/nDLghI
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id EgaKoaoEAuEL; Wed,  7 Sep 2022 14:23:33 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 624C9401F4;
-	Wed,  7 Sep 2022 14:23:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 624C9401F4
+	with ESMTP id czduUYT8ixG8; Wed,  7 Sep 2022 14:30:03 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 6614E408DD;
+	Wed,  7 Sep 2022 14:30:02 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6614E408DD
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 36771C0033;
-	Wed,  7 Sep 2022 14:23:32 +0000 (UTC)
-Received: from smtp4.osuosl.org (unknown
- [IPv6:2605:bc80:3010:0:a800:ff:fe79:d16b])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7326DC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 25471C0033;
+	Wed,  7 Sep 2022 14:30:02 +0000 (UTC)
+Received: from smtp3.osuosl.org (unknown
+ [IPv6:2605:bc80:3010:0:a800:ff:fe58:3b77])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2F098C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  7 Sep 2022 14:23:31 +0000 (UTC)
+ Wed,  7 Sep 2022 14:30:01 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 4CCDC401F4
+ by smtp3.osuosl.org (Postfix) with ESMTP id 094C760D52
  for <virtualization@lists.linux-foundation.org>;
- Wed,  7 Sep 2022 14:23:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4CCDC401F4
+ Wed,  7 Sep 2022 14:30:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 094C760D52
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=L/nDLghI
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id akVyhXTvA19D
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id xZb2IwUHC3iT
  for <virtualization@lists.linux-foundation.org>;
- Wed,  7 Sep 2022 14:23:27 +0000 (UTC)
+ Wed,  7 Sep 2022 14:30:00 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A5CC6401DA
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
- by smtp4.osuosl.org (Postfix) with ESMTP id A5CC6401DA
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0B23660D50
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 0B23660D50
  for <virtualization@lists.linux-foundation.org>;
- Wed,  7 Sep 2022 14:23:27 +0000 (UTC)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
- by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id CCDD91042;
- Wed,  7 Sep 2022 07:23:32 -0700 (PDT)
-Received: from [10.57.15.197] (unknown [10.57.15.197])
- by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 3B9E63F71A;
- Wed,  7 Sep 2022 07:23:15 -0700 (PDT)
-Message-ID: <9f91f187-2767-13f9-68a2-a5458b888f00@arm.com>
-Date: Wed, 7 Sep 2022 15:23:09 +0100
+ Wed,  7 Sep 2022 14:29:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1662560998;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=MoUHys1NJY1cE4G48Sz0iIP7SXECYYGzs4Ze1KZp2/s=;
+ b=L/nDLghIMXIqfogiwsLRJFXQhr1VrUl7EkVh5SbbMyIhQz3oo2eeSaMwDY/dnu1xeJh6GQ
+ FtTBPFYNO7SwoYuSVZr3SofFH7NAbrXsNIN1Yf7Y29FAQlQ7bIu0Pyzw1En8Xbnb4Gctww
+ rZFnfw/9XppSZ1hOOuOS8HgP9X0+4Y4=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-553-kQY_S4LnNPGGoYxpHn-FUg-1; Wed, 07 Sep 2022 10:29:57 -0400
+X-MC-Unique: kQY_S4LnNPGGoYxpHn-FUg-1
+Received: by mail-wr1-f69.google.com with SMTP id
+ e15-20020adf9bcf000000b002285faa9bd4so3132028wrc.8
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 07 Sep 2022 07:29:57 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=in-reply-to:content-transfer-encoding:content-disposition
+ :mime-version:references:message-id:subject:cc:to:from:date
+ :x-gm-message-state:from:to:cc:subject:date;
+ bh=MoUHys1NJY1cE4G48Sz0iIP7SXECYYGzs4Ze1KZp2/s=;
+ b=0jQBXHLWd7QLZyARD9SY2+IEkPCQIho1hBrKVRSuA1qhZawoNTEhavUFGDXPu99mbA
+ NBBWiqHP2MNfNngT61enzl6wHNZ35fQAo9JX7uTEAbyxWdDmrVC5p6UIlp2V+nz8bM/T
+ GGctu3nyEJjLBV04s4inOZPV0tHjPecEPuD0d8pBcmtsXASmObbZ2ZCHTNCpz8daE3YU
+ gpFA9pKuXaDPnVh+9+ODhfL620Gbbgm5h7rNVedZuJzRnP9x5nDLPaBQ/Cy4AgQo8JIT
+ +F/iX7vnNJEhdQCUjr3fO/ysEka47rOYVxRIbkHk/8ZJDuGIz0JezJPDnSLTcWxooF3f
+ m4ew==
+X-Gm-Message-State: ACgBeo0Aem+5GV8+kuecxf2RSY80yU+cuCNBTTBspNnRZNFdOhcDNRNG
+ b9DOyP5pJ9D17KWpK08vX6wkOyX7wn18wApMFBJl4ET+I1Y3fc4rALChQnbGb5b4paa3GhLzyQy
+ 6HOgU7xy7pLK+QC/LO3laxJUdLXcaI6KhDmM1F1aRGw==
+X-Received: by 2002:a05:6000:1245:b0:228:6aa7:dbb2 with SMTP id
+ j5-20020a056000124500b002286aa7dbb2mr2429216wrx.77.1662560996460; 
+ Wed, 07 Sep 2022 07:29:56 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR6uBFNaKZ8WzHJqqF93TRlwkGSRikP4atFIcAqZemkXVub+w1K7DukaThEBIPlHPmnmzeKp+g==
+X-Received: by 2002:a05:6000:1245:b0:228:6aa7:dbb2 with SMTP id
+ j5-20020a056000124500b002286aa7dbb2mr2429195wrx.77.1662560996203; 
+ Wed, 07 Sep 2022 07:29:56 -0700 (PDT)
+Received: from redhat.com ([2.52.135.118]) by smtp.gmail.com with ESMTPSA id
+ bt24-20020a056000081800b0022377df817fsm18034503wrb.58.2022.09.07.07.29.52
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 07 Sep 2022 07:29:55 -0700 (PDT)
+Date: Wed, 7 Sep 2022 10:29:50 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Parav Pandit <parav@nvidia.com>
+Subject: Re: [PATCH v5 2/2] virtio-net: use mtu size as buffer length for big
+ packets
+Message-ID: <20220907101335-mutt-send-email-mst@kernel.org>
+References: <20220901021038.84751-1-gavinl@nvidia.com>
+ <20220901021038.84751-3-gavinl@nvidia.com>
+ <20220907012608-mutt-send-email-mst@kernel.org>
+ <0355d1e4-a3cf-5b16-8c7f-b39b1ec14ade@nvidia.com>
+ <20220907052317-mutt-send-email-mst@kernel.org>
+ <PH0PR12MB54812EC7F4711C1EA4CAA119DC419@PH0PR12MB5481.namprd12.prod.outlook.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101
- Thunderbird/102.2.1
-Subject: Re: [PATCH v6 1/5] iommu: Return -EMEDIUMTYPE for incompatible domain
- and device/group
-Content-Language: en-GB
-To: Jason Gunthorpe <jgg@nvidia.com>, Joerg Roedel <joro@8bytes.org>
-References: <20220815181437.28127-1-nicolinc@nvidia.com>
- <20220815181437.28127-2-nicolinc@nvidia.com> <YxiRkm7qgQ4k+PIG@8bytes.org>
- <Yxig+zfA2Pr4vk6K@nvidia.com>
-From: Robin Murphy <robin.murphy@arm.com>
-In-Reply-To: <Yxig+zfA2Pr4vk6K@nvidia.com>
-Cc: marcan@marcan.st, mjrosato@linux.ibm.com, linux-kernel@vger.kernel.org,
- thierry.reding@gmail.com, will@kernel.org, alyssa@rosenzweig.io,
- jean-philippe@linaro.org, kvm@vger.kernel.org, zhang.lyra@gmail.com,
- jon@solid-run.com, jonathanh@nvidia.com, iommu@lists.linux.dev,
- Nicolin Chen <nicolinc@nvidia.com>, yangyingliang@huawei.com,
- orsonzhai@gmail.com, gerald.schaefer@linux.ibm.com, sven@svenpeter.dev,
- linux-arm-msm@vger.kernel.org, vdumpa@nvidia.com,
- christophe.jaillet@wanadoo.fr, baolin.wang@linux.alibaba.com,
- thunder.leizhen@huawei.com, linux-tegra@vger.kernel.org, tglx@linutronix.de,
- virtualization@lists.linux-foundation.org,
- linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org,
- cohuck@redhat.com, shameerali.kolothum.thodi@huawei.com, robdclark@gmail.com,
- asahi@lists.linux.dev, suravee.suthikulpanit@amd.com, dwmw2@infradead.org,
- baolu.lu@linux.intel.com
+In-Reply-To: <PH0PR12MB54812EC7F4711C1EA4CAA119DC419@PH0PR12MB5481.namprd12.prod.outlook.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>,
+ "sridhar.samudrala@intel.com" <sridhar.samudrala@intel.com>,
+ "jesse.brandeburg@intel.com" <jesse.brandeburg@intel.com>,
+ Gavi Teitz <gavi@nvidia.com>, "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ "stephen@networkplumber.org" <stephen@networkplumber.org>,
+ "loseweigh@gmail.com" <loseweigh@gmail.com>,
+ "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+ "kuba@kernel.org" <kuba@kernel.org>,
+ "davem@davemloft.net" <davem@davemloft.net>, Gavin Li <gavinl@nvidia.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -88,48 +132,150 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: quoted-printable
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 2022-09-07 14:47, Jason Gunthorpe wrote:
-> On Wed, Sep 07, 2022 at 02:41:54PM +0200, Joerg Roedel wrote:
->> On Mon, Aug 15, 2022 at 11:14:33AM -0700, Nicolin Chen wrote:
->>> Provide a dedicated errno from the IOMMU driver during attach that the
->>> reason attached failed is because of domain incompatability. EMEDIUMTYPE
->>> is chosen because it is never used within the iommu subsystem today and
->>> evokes a sense that the 'medium' aka the domain is incompatible.
->>
->> I am not a fan of re-using EMEDIUMTYPE or any other special value. What
->> is needed here in EINVAL, but with a way to tell the caller which of the
->> function parameters is actually invalid.
-> 
-> Using errnos to indicate the nature of failure is a well established
-> unix practice, it is why we have hundreds of error codes and don't
-> just return -EINVAL for everything.
-> 
-> What don't you like about it?
-> 
-> Would you be happier if we wrote it like
-> 
->   #define IOMMU_EINCOMPATIBLE_DEVICE xx
-> 
-> Which tells "which of the function parameters is actually invalid" ?
+On Wed, Sep 07, 2022 at 02:08:18PM +0000, Parav Pandit wrote:
+> =
 
-FWIW, we're now very close to being able to validate dev->iommu against 
-where the domain came from in core code, and so short-circuit 
-->attach_dev entirely if they don't match. At that point -EINVAL at the 
-driver callback level could be assumed to refer to the domain argument, 
-while anything else could be taken as something going unexpectedly wrong 
-when the attach may otherwise have worked. I've forgotten if we actually 
-had a valid case anywhere for "this is my device but even if you retry 
-with a different domain it's still never going to work", but I think we 
-wouldn't actually need that anyway - it should be clear enough to a 
-caller that if attaching to an existing domain fails, then allocating a 
-fresh domain and attaching also fails, that's the point to give up.
+> > From: Michael S. Tsirkin <mst@redhat.com>
+> > Sent: Wednesday, September 7, 2022 5:27 AM
+> > =
 
-Robin.
+> > On Wed, Sep 07, 2022 at 04:08:54PM +0800, Gavin Li wrote:
+> > >
+> > > On 9/7/2022 1:31 PM, Michael S. Tsirkin wrote:
+> > > > External email: Use caution opening links or attachments
+> > > >
+> > > >
+> > > > On Thu, Sep 01, 2022 at 05:10:38AM +0300, Gavin Li wrote:
+> > > > > Currently add_recvbuf_big() allocates MAX_SKB_FRAGS segments for
+> > > > > big packets even when GUEST_* offloads are not present on the
+> > device.
+> > > > > However, if guest GSO is not supported, it would be sufficient to
+> > > > > allocate segments to cover just up the MTU size and no further.
+> > > > > Allocating the maximum amount of segments results in a large waste
+> > > > > of buffer space in the queue, which limits the number of packets
+> > > > > that can be buffered and can result in reduced performance.
+> > =
+
+> > actually how does this waste space? Is this because your device does not
+> > have INDIRECT?
+> VQ is 256 entries deep.
+> Driver posted total of 256 descriptors.
+> Each descriptor points to a page of 4K.
+> These descriptors are chained as 4K * 16.
+
+So without indirect then? with indirect each descriptor can
+point to 16 entries.
+
+> So total packets that can be serviced are 256/16 =3D 16.
+> So effective queue depth =3D 16.
+> =
+
+> So, when GSO is off, for 9K mtu, packet buffer needed =3D 3 pages. (12k).
+> So, 13 descriptors (=3D 13 x 4K =3D52K) per packet buffer is wasted.
+> =
+
+> After this improvement, these 13 descriptors are available, increasing th=
+e effective queue depth =3D 256/3 =3D 85.
+> =
+
+> [..]
+> > > > >
+> > > > > MTU(Bytes)/Bandwidth (Gbit/s)
+> > > > >               Before   After
+> > > > >    1500        22.5     22.4
+> > > > >    9000        12.8     25.9
+> > =
+
+> > =
+
+> > is this buffer space?
+> Above performance numbers are showing improvement in bandwidth. In Gbps/s=
+ec.
+> =
+
+> > just the overhead of allocating/freeing the buffers?
+> > of using INDIRECT?
+> The effective queue depth is so small, device cannot receive all the pack=
+ets at given bw-delay product.
+> =
+
+> > > >
+> > > > Which configurations were tested?
+> > > I tested it with DPDK vDPA + qemu vhost. Do you mean the feature set
+> > > of the VM?
+> > =
+
+> The configuration of interest is mtu, not the backend.
+> Which is different mtu as shown in above perf numbers.
+> =
+
+> > > > Did you test devices without VIRTIO_NET_F_MTU ?
+> > > No.=A0 It will need code changes.
+> No. It doesn't need any code changes. This is misleading/vague.
+> =
+
+> This patch doesn't have any relation to a device which doesn't offer VIRT=
+IO_NET_F_MTU.
+> Just the code restructuring is touching this area, that may require some =
+existing tests.
+> I assume virtio tree will have some automation tests for such a device?
+
+I have some automated tests but I also expect developer to do testing.
+
+> > > > >
+> > > > > @@ -3853,12 +3866,10 @@ static int virtnet_probe(struct
+> > > > > virtio_device *vdev)
+> > > > >
+> > > > >                dev->mtu =3D mtu;
+> > > > >                dev->max_mtu =3D mtu;
+> > > > > -
+> > > > > -             /* TODO: size buffers correctly in this case. */
+> > > > > -             if (dev->mtu > ETH_DATA_LEN)
+> > > > > -                     vi->big_packets =3D true;
+> > > > >        }
+> > > > >
+> > > > > +     virtnet_set_big_packets_fields(vi, mtu);
+> > > > > +
+> > > > If VIRTIO_NET_F_MTU is off, then mtu is uninitialized.
+> > > > You should move it to within if () above to fix.
+> > > mtu was initialized to 0 at the beginning of probe if VIRTIO_NET_F_MTU
+> > > is off.
+> > >
+> > > In this case,=A0 big_packets_num_skbfrags will be set according to gu=
+est gso.
+> > >
+> > > If guest gso is supported, it will be set to MAX_SKB_FRAGS else
+> > > zero---- do you
+> > >
+> > > think this is a bug to be fixed?
+> > =
+
+> > =
+
+> > yes I think with no mtu this should behave as it did historically.
+> > =
+
+> Michael is right.
+> It should behave as today. There is no new bug introduced by this patch.
+> dev->mtu and dev->max_mtu is set only when VIRTIO_NET_F_MTU is offered wi=
+th/without this patch.
+> =
+
+> Please have mtu related fix/change in different patch.
+> =
+
+> > > >
+> > > > >        if (vi->any_header_sg)
+> > > > >                dev->needed_headroom =3D vi->hdr_len;
+> > > > >
+> > > > > --
+> > > > > 2.31.1
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
