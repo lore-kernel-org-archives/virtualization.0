@@ -1,126 +1,82 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D83ABC54EE9
-	for <virtualization@archiver.kernel.org>; Wed,  7 Sep 2022 14:40:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 46731C6FA86
+	for <virtualization@archiver.kernel.org>; Wed,  7 Sep 2022 15:12:02 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 630034156A;
-	Wed,  7 Sep 2022 14:40:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 630034156A
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gutEx6zY
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id qB4ryK_06gzi; Wed,  7 Sep 2022 14:40:32 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id A39B1410E0;
-	Wed,  7 Sep 2022 14:40:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A39B1410E0
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6EA7DC0033;
-	Wed,  7 Sep 2022 14:40:31 +0000 (UTC)
-Received: from smtp1.osuosl.org (unknown
- [IPv6:2605:bc80:3010:0:a800:ff:fe97:d076])
- by lists.linuxfoundation.org (Postfix) with ESMTP id CBF49C002D
- for <virtualization@lists.linux-foundation.org>;
- Wed,  7 Sep 2022 14:40:29 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id A55FC81415
- for <virtualization@lists.linux-foundation.org>;
- Wed,  7 Sep 2022 14:40:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A55FC81415
+	by smtp1.osuosl.org (Postfix) with ESMTP id 7F37C827A1;
+	Wed,  7 Sep 2022 15:12:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7F37C827A1
 Authentication-Results: smtp1.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=gutEx6zY
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=8bytes.org header.i=@8bytes.org header.a=rsa-sha256 header.s=default header.b=tSBsAA5F
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id RwHzuadWDbS2
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Cz9yiMH41Wkg; Wed,  7 Sep 2022 15:12:00 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id C2429827A5;
+	Wed,  7 Sep 2022 15:11:59 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C2429827A5
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 93AECC0033;
+	Wed,  7 Sep 2022 15:11:59 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B89E7C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  7 Sep 2022 14:40:27 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 78EBD81414
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 78EBD81414
+ Wed,  7 Sep 2022 15:11:58 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 8F442400E4
  for <virtualization@lists.linux-foundation.org>;
- Wed,  7 Sep 2022 14:40:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1662561626;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=1I+mmxEc4W8pgNyOHb25c63UJY3eA7dquqzLpsq3wXo=;
- b=gutEx6zYs12HFQfLAO/MViO1GakbJwHoovOnK71WttsPKPMy2TgnjJYkdgQk/sD9HJw76p
- gXhdm32z0DssdaZTvygTgZ+YRXT5iCvQRPw/3ZTcY7r/TV5f6NehvwEsG8Cu0I1RbJY/+2
- fJWEb1Lwz9pfrxiePn+U/8UU5xz1H+g=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-314-5-az-9fBPKKWmgZynldqbg-1; Wed, 07 Sep 2022 10:40:20 -0400
-X-MC-Unique: 5-az-9fBPKKWmgZynldqbg-1
-Received: by mail-wr1-f70.google.com with SMTP id
- j12-20020adfff8c000000b002265dcdfad7so3635213wrr.2
+ Wed,  7 Sep 2022 15:11:58 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8F442400E4
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (2048-bit key) header.d=8bytes.org header.i=@8bytes.org
+ header.a=rsa-sha256 header.s=default header.b=tSBsAA5F
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 5Cx452FJa26q
  for <virtualization@lists.linux-foundation.org>;
- Wed, 07 Sep 2022 07:40:20 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
- bh=1I+mmxEc4W8pgNyOHb25c63UJY3eA7dquqzLpsq3wXo=;
- b=JKKJb0I7YCgowfUV2PMP+vYvKXd4I3XQZQw9nJ9wTUGVlvEGYWUG3YTLZt+FBVVZlH
- n3M7f+WlaBuntZSgjLtzeiI+YQW8cXCZruqopFlokSbHzYQxmnkIlg9+Zqvg26GTVqhe
- NQJzY/Gl55w6f4gAg6F9JTxVGU22JkgDw7sidPtNPjQO39l7pIO6vQP9GvbQ+34GUBfg
- 8eMcnUqThl1BJR9wLcBZI9gRkDp9oWjLK5sFnzEYxilzedBeppZ6IE956fqV0XCOvLTj
- wrkVmL3/8bAOMenqRcAJlG0/udMW96jEVqlg5MSQWZMVc+XRyHPWVDL6J/VgEudH4Ndh
- CxUA==
-X-Gm-Message-State: ACgBeo0ISouR6ZNREKRf29vFNz8dvTb9KZaLGctN1CRBEFzjIQ8OL6Jn
- Ed4DL7KIH4jWlxAcs09nP6a+jfXbsTaxe9vIJ+7oMo8DhRY4OKydA0ekTPx0ym0tZAxdvWQPqxz
- ag6RGsu1s4Qq9h4vJcBdg9avAWatnS2XduDWYMtO4Ig==
-X-Received: by 2002:a5d:47aa:0:b0:226:dbf6:680c with SMTP id
- 10-20020a5d47aa000000b00226dbf6680cmr2325761wrb.581.1662561618396; 
- Wed, 07 Sep 2022 07:40:18 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR7Ar7DT/A/B1M/OnVG85xAlKMimAFPyKe5R4Ua4FXozjUSRQVqhm4XYKvyRiC8+NGb64xiXtQ==
-X-Received: by 2002:a5d:47aa:0:b0:226:dbf6:680c with SMTP id
- 10-20020a5d47aa000000b00226dbf6680cmr2325743wrb.581.1662561618193; 
- Wed, 07 Sep 2022 07:40:18 -0700 (PDT)
-Received: from redhat.com ([2.52.135.118]) by smtp.gmail.com with ESMTPSA id
- i4-20020a05600c354400b003a2f6367049sm21410320wmq.48.2022.09.07.07.40.15
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 07 Sep 2022 07:40:17 -0700 (PDT)
-Date: Wed, 7 Sep 2022 10:40:13 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Parav Pandit <parav@nvidia.com>
-Subject: Re: [PATCH v5 2/2] virtio-net: use mtu size as buffer length for big
- packets
-Message-ID: <20220907103420-mutt-send-email-mst@kernel.org>
-References: <20220901021038.84751-1-gavinl@nvidia.com>
- <20220901021038.84751-3-gavinl@nvidia.com>
- <20220907012608-mutt-send-email-mst@kernel.org>
- <0355d1e4-a3cf-5b16-8c7f-b39b1ec14ade@nvidia.com>
- <20220907052317-mutt-send-email-mst@kernel.org>
- <PH0PR12MB54812EC7F4711C1EA4CAA119DC419@PH0PR12MB5481.namprd12.prod.outlook.com>
- <20220907101335-mutt-send-email-mst@kernel.org>
- <PH0PR12MB5481D19E1E5DA11B2BD067CFDC419@PH0PR12MB5481.namprd12.prod.outlook.com>
+ Wed,  7 Sep 2022 15:11:57 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8132F40587
+Received: from mail.8bytes.org (mail.8bytes.org
+ [IPv6:2a01:238:42d9:3f00:e505:6202:4f0c:f051])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 8132F40587
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  7 Sep 2022 15:11:57 +0000 (UTC)
+Received: from lemmy.home.8bytes.org (p4ff2bb62.dip0.t-ipconnect.de
+ [79.242.187.98])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+ (No client certificate requested)
+ by mail.8bytes.org (Postfix) with ESMTPSA id 8C935240A3E;
+ Wed,  7 Sep 2022 17:11:55 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=8bytes.org;
+ s=default; t=1662563515;
+ bh=KmpFpEz/lyHaEET/ThZz16jqJhRrdPrH8I/CQGSh0EE=;
+ h=From:To:Cc:Subject:Date:From;
+ b=tSBsAA5F/euIUSUVa3hW4mgnDwG/+G9aXFKoTqf1dBUwtIs661DrL6++eaMjQNMkY
+ z1K4YABe5aQDz/W4H6ig14SVS+b8dK3JaieCO+WCx3/Jw9Q30GyOdroe1skonkJSqh
+ w6Qi9vAdbQmMoTyxNBKDhu4ydZYitsJajoSX/ljQ3FkXR+vdyYDvCqC1c/iEP3uMbe
+ b5iBKOFA+Eezm0z6Kcn49MKBCT8SuUx6kjhfEqXb223k1q7oGsIBacGIIwhIPwD7hT
+ GFquWshAK15inEjOsUHUncIw7LiIT/pw1ythPAVGsEkd7IKBhT7bzDViCWSMJ5A4Q3
+ w5TIWNwYAr8Xw==
+From: Joerg Roedel <joro@8bytes.org>
+To: Joerg Roedel <joro@8bytes.org>,
+	iommu@lists.linux.dev
+Subject: [PATCH] iommu/virtio: Fix compile error with viommu_capable()
+Date: Wed,  7 Sep 2022 17:11:54 +0200
+Message-Id: <20220907151154.21911-1-joro@8bytes.org>
+X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
-In-Reply-To: <PH0PR12MB5481D19E1E5DA11B2BD067CFDC419@PH0PR12MB5481.namprd12.prod.outlook.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>,
- "sridhar.samudrala@intel.com" <sridhar.samudrala@intel.com>,
- "jesse.brandeburg@intel.com" <jesse.brandeburg@intel.com>,
- Gavi Teitz <gavi@nvidia.com>, "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- "stephen@networkplumber.org" <stephen@networkplumber.org>,
- "loseweigh@gmail.com" <loseweigh@gmail.com>,
- "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
- "kuba@kernel.org" <kuba@kernel.org>,
- "davem@davemloft.net" <davem@davemloft.net>, Gavin Li <gavinl@nvidia.com>
+Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>,
+ Joerg Roedel <jroedel@suse.de>, Robin Murphy <robin.murphy@arm.com>,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ Will Deacon <will@kernel.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -137,44 +93,38 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Sep 07, 2022 at 02:33:02PM +0000, Parav Pandit wrote:
-> 
-> > From: Michael S. Tsirkin <mst@redhat.com>
-> > Sent: Wednesday, September 7, 2022 10:30 AM
-> 
-> [..]
-> > > > actually how does this waste space? Is this because your device does
-> > > > not have INDIRECT?
-> > > VQ is 256 entries deep.
-> > > Driver posted total of 256 descriptors.
-> > > Each descriptor points to a page of 4K.
-> > > These descriptors are chained as 4K * 16.
-> > 
-> > So without indirect then? with indirect each descriptor can point to 16
-> > entries.
-> > 
-> With indirect, can it post 256 * 16 size buffers even though vq depth is 256 entries?
-> I recall that total number of descriptors with direct/indirect descriptors is limited to vq depth.
+From: Joerg Roedel <jroedel@suse.de>
 
+A recent fix introduced viommu_capable() but other changes
+from Robin change the function signature of the call-back it
+is used for.
 
-> Was there some recent clarification occurred in the spec to clarify this?
+When both changes are merged a compile error will happen
+because the function pointer types mismatch. Fix that by
+updating the viommu_capable() signature after the merge.
 
+Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: Robin Murphy <robin.murphy@arm.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+---
+ drivers/iommu/virtio-iommu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-This would make INDIRECT completely pointless.  So I don't think we ever
-had such a limitation.
-The only thing that comes to mind is this:
-
-	A driver MUST NOT create a descriptor chain longer than the Queue Size of
-	the device.
-
-but this limits individual chain length not the total length
-of all chains.
-
-We have an open bug that we forgot to include this requirement
-in the packed ring documentation.
-
+diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
+index da463db9f12a..1b12825e2df1 100644
+--- a/drivers/iommu/virtio-iommu.c
++++ b/drivers/iommu/virtio-iommu.c
+@@ -1005,7 +1005,7 @@ static int viommu_of_xlate(struct device *dev, struct of_phandle_args *args)
+ 	return iommu_fwspec_add_ids(dev, args->args, 1);
+ }
+ 
+-static bool viommu_capable(enum iommu_cap cap)
++static bool viommu_capable(struct device *dev, enum iommu_cap cap)
+ {
+ 	switch (cap) {
+ 	case IOMMU_CAP_CACHE_COHERENCY:
 -- 
-MST
+2.36.1
 
 _______________________________________________
 Virtualization mailing list
