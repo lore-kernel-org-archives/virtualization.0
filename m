@@ -4,85 +4,100 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A2581C54EE9
-	for <virtualization@archiver.kernel.org>; Wed,  7 Sep 2022 19:27:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 15B5EC6FA82
+	for <virtualization@archiver.kernel.org>; Wed,  7 Sep 2022 19:36:23 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 380D783E13;
-	Wed,  7 Sep 2022 19:27:23 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 380D783E13
+	by smtp1.osuosl.org (Postfix) with ESMTP id 8DE7383E57;
+	Wed,  7 Sep 2022 19:36:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8DE7383E57
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=kwaVLCGO
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=dq9f1/By
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id poVwzI03CtUL; Wed,  7 Sep 2022 19:27:22 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 9A23583E0B;
-	Wed,  7 Sep 2022 19:27:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9A23583E0B
+	with ESMTP id P0X4tqDLwpb2; Wed,  7 Sep 2022 19:36:22 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 1039483E56;
+	Wed,  7 Sep 2022 19:36:22 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1039483E56
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5E3ECC0032;
-	Wed,  7 Sep 2022 19:27:21 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 41E04C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C5FEDC0032;
+	Wed,  7 Sep 2022 19:36:21 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C1976C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  7 Sep 2022 19:27:20 +0000 (UTC)
+ Wed,  7 Sep 2022 19:36:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 12C00417AD
+ by smtp4.osuosl.org (Postfix) with ESMTP id 861504163E
  for <virtualization@lists.linux-foundation.org>;
- Wed,  7 Sep 2022 19:27:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 12C00417AD
-Authentication-Results: smtp4.osuosl.org; dkim=pass (2048-bit key,
- unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256
- header.s=selector2 header.b=kwaVLCGO
+ Wed,  7 Sep 2022 19:36:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 861504163E
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=dq9f1/By
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id mdICK0NGkcPH
+ with ESMTP id odBh9EWSNgsE
  for <virtualization@lists.linux-foundation.org>;
- Wed,  7 Sep 2022 19:27:19 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E5396417A8
-Received: from NAM11-CO1-obe.outbound.protection.outlook.com
- (mail-co1nam11on2080.outbound.protection.outlook.com [40.107.220.80])
- by smtp4.osuosl.org (Postfix) with ESMTPS id E5396417A8
+ Wed,  7 Sep 2022 19:36:19 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4B5564161D
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 4B5564161D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  7 Sep 2022 19:27:18 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=VIbuCxye0A5k+i/IHPhRgW/tbbSKfvuIFktwNAUu7Vc9L4AI1IICG1vfyiRti5CRTMC8GOEUZ/9U1fI0ndMgKMHULIyc1j5uNInKcbk2i4T95aLOvIc9ZBekRJElY6wu++u9UEQvFYb+imq6HRi33OxOomndAmeW/MaWjWXTyssWqR8bchzh55QUpCZhEUei3GRcEWnY2xW6ThB7kmu5QvRvC26E08FNpeLfCgN8ncWm0EAldnpSyVtMYuzZnze9qBjFLHvAGVa/YDu61AtaGLAotrNol/tV+EuscfLfZlD6SSpK/lj2aUnRCGgUIMOeW1g5fYM8j91GMy7UtHxVWA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=E10qcP/udBNtN50M10Mpd9PSrAN81BxrUFRTIN7c09o=;
- b=cs2nU6ofdQeStvD/pLtyCPNTWH/EHEgmogKAxWH+ybb+69RWpdzSqzl5CFdiR/u6U5nCflQe09qGPsVHXorFzPg8QyzyXBCQAJi9w3sb2tUynvi+tdcXmoOuUKZMQHDVMdeRI4zuFahfW8x2DYHizdVUI12yGLJX/XnvLnYYcJvburJunNNASNQfabG3mBuOZ41mG2RA0O1ab5sB9QQt50+qdKAzaQ0LhAIqsxhiZBDDgsipRUHax9l7lLuQkcMCk5gUgQEEtfVi5U3xPXLgQTj6E+AzkSm5ysfCVOKWeENPInxp4/RW2iHZFn85p2DdMiI19l9sGmBmVj0SZOugBQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=E10qcP/udBNtN50M10Mpd9PSrAN81BxrUFRTIN7c09o=;
- b=kwaVLCGOe2gKe6HG7U1sASWPHSiH44P40rCD6JZC2mpWddXtWg9gdYfLj8iceY6KLWCTnmLtV9H9whamwrg2pT2VD6Ueu9Qxh/dRkDKGCo003UdbG9RUTNPnXhevaRav9+K3X5CSFMRCNPJC5fIpccSNwVdYCWwB+P82KyFbOf+j+pCfqcjE3Srq9pCZB/YbC5HQCCIKNXI+W6DDwu+7nm2oeVPuQEN2Q9OhAxzddPq7i8FQ2i+4WlSTnIz63Jzk/l3sCcWwr9Q3i9ScOKGrXcdttLH1qkncSaBA6GXfazM+az73ElP1yVLALa1TAeuWRnyByqbxjrpwoAKdzTwGaQ==
-Received: from PH0PR12MB5481.namprd12.prod.outlook.com (2603:10b6:510:d4::15)
- by DM6PR12MB4861.namprd12.prod.outlook.com (2603:10b6:5:1bd::12) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5588.10; Wed, 7 Sep
- 2022 19:27:16 +0000
-Received: from PH0PR12MB5481.namprd12.prod.outlook.com
- ([fe80::1429:e3e9:dc54:ba98]) by PH0PR12MB5481.namprd12.prod.outlook.com
- ([fe80::1429:e3e9:dc54:ba98%9]) with mapi id 15.20.5612.014; Wed, 7 Sep 2022
- 19:27:16 +0000
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: RE: [PATCH v5 2/2] virtio-net: use mtu size as buffer length for big
+ Wed,  7 Sep 2022 19:36:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1662579378;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=SRUzgyu3ke1r6hM2I/CiksoK/WuG/G+5SB3dVoLb2kg=;
+ b=dq9f1/ByM2airxGAXNiLJMB19FXL7OUBJATbyH6+KZA6PY8SeMm1+ptNQXU4oGQAmcHEsG
+ C/fJJ4ADqH7Sp7MgvLTGMgrmtsAr99nwaEouzL/Uwqny44Q2iTKxjR1uVuiF8pW762BqeJ
+ xGXuRpQaU8c2GHGuI6bDM4er6QrqTo0=
+Received: from mail-qt1-f198.google.com (mail-qt1-f198.google.com
+ [209.85.160.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-575-9zkIPcg7OwmlPtbo2GXhhA-1; Wed, 07 Sep 2022 15:36:16 -0400
+X-MC-Unique: 9zkIPcg7OwmlPtbo2GXhhA-1
+Received: by mail-qt1-f198.google.com with SMTP id
+ bz20-20020a05622a1e9400b003436a76c6e6so12531017qtb.1
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 07 Sep 2022 12:36:16 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
+ bh=SRUzgyu3ke1r6hM2I/CiksoK/WuG/G+5SB3dVoLb2kg=;
+ b=cOmf08evQ4anWgoH/pv1K7IrLEfvXk8NQSIWDmy3UMRhznlABLMbIKSITX2g+tAL6m
+ TQ1/lN6iXK0C55pOSvG8/PYJ0deexiLXLq5iLs8fdIfu9tqGJz0QExhQXRt2v5Qkxgdg
+ J1Crvemn1tFU6OJYbOaxkzavr2nvrJEmF7ffG190zsC1Cab5vjbAZR2LWUcBEhc3W+dL
+ 4apDa4DBZrgtnSHkGIsjAWgfVJth6gQ+I1CYbtZjNR6X+qCYHSKUU5AonOC3ZAJHceYj
+ 9JIMIIYTaONvZgQnvdNdEtpqwL38OZYapxpL4VC+nb8CDoqIo6+ZCihgheN43NWd+x+7
+ eEgw==
+X-Gm-Message-State: ACgBeo388fc5/jqTRh4hHUrFkzdvJ98yqpgGxZJs14EcdCJdVcpKfC+u
+ rA75D7aDtJYWYEdYV87hX6+1G6IJv9MSt1tFeGCKjKzKpc1pGgrFJMrcRb78bA6eJSkSPEldTED
+ w4xCDh5tIy6fTBrLPY1ODAwsSPM4uHyArxliTG1XtLQ==
+X-Received: by 2002:a05:622a:134f:b0:344:df2b:9afe with SMTP id
+ w15-20020a05622a134f00b00344df2b9afemr4952680qtk.279.1662579376519; 
+ Wed, 07 Sep 2022 12:36:16 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR6nukJaa/Xp+rVNNei888VY7Jy1p9nTUTUXc0lDaKJKAHlJSyYYknx7ao2/KUNUwmeztil1Lw==
+X-Received: by 2002:a05:622a:134f:b0:344:df2b:9afe with SMTP id
+ w15-20020a05622a134f00b00344df2b9afemr4952660qtk.279.1662579376283; 
+ Wed, 07 Sep 2022 12:36:16 -0700 (PDT)
+Received: from redhat.com ([45.144.113.241]) by smtp.gmail.com with ESMTPSA id
+ a5-20020ae9e805000000b006b93ef659c3sm14104168qkg.39.2022.09.07.12.36.11
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 07 Sep 2022 12:36:15 -0700 (PDT)
+Date: Wed, 7 Sep 2022 15:36:08 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Parav Pandit <parav@nvidia.com>
+Subject: Re: [PATCH v5 2/2] virtio-net: use mtu size as buffer length for big
  packets
-Thread-Topic: [PATCH v5 2/2] virtio-net: use mtu size as buffer length for big
- packets
-Thread-Index: AQHYwpEbqLdY6RByfkyoSMo8wpA6EK3TsrMAgABG8oCAAA3LAIAAADnAgAACroCAABYGQIAAJjCAgAALaACAAAQwAIAAAFDQgAADKICAAACIkA==
-Date: Wed, 7 Sep 2022 19:27:16 +0000
-Message-ID: <PH0PR12MB5481291080EBEC54C82A5641DC419@PH0PR12MB5481.namprd12.prod.outlook.com>
-References: <20220907052317-mutt-send-email-mst@kernel.org>
- <PH0PR12MB54812EC7F4711C1EA4CAA119DC419@PH0PR12MB5481.namprd12.prod.outlook.com>
- <20220907101335-mutt-send-email-mst@kernel.org>
+Message-ID: <20220907153425-mutt-send-email-mst@kernel.org>
+References: <20220907101335-mutt-send-email-mst@kernel.org>
  <PH0PR12MB5481D19E1E5DA11B2BD067CFDC419@PH0PR12MB5481.namprd12.prod.outlook.com>
  <20220907103420-mutt-send-email-mst@kernel.org>
  <PH0PR12MB5481066A18907753997A6F0CDC419@PH0PR12MB5481.namprd12.prod.outlook.com>
@@ -91,63 +106,12 @@ References: <20220907052317-mutt-send-email-mst@kernel.org>
  <20220907151026-mutt-send-email-mst@kernel.org>
  <PH0PR12MB54811F1234CB7822F47DD1B9DC419@PH0PR12MB5481.namprd12.prod.outlook.com>
  <20220907152156-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20220907152156-mutt-send-email-mst@kernel.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: PH0PR12MB5481:EE_|DM6PR12MB4861:EE_
-x-ms-office365-filtering-correlation-id: ea5c91e7-4cdf-4b48-e149-08da9106f927
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: IkAJEMV1+qxsdRoc+iXc9A4Bemu755TBSrepZWjI5I3UDXfxNnd93dbE9zatSYOONdXz+i+FY/IyHMCHu6iFc07eRduIqnsKpynGpV0ClVY1TtfvswdpFKFxLVlufqmoqoYM7heyotDopQjhyqCPEDW0JvRb5N/lBTrFrb8/yZ0ioGPZjKm7XxSOl7sLjhf1/8kzRDvq9awlsffr7LpifQbtAt4Ptmtw66ImUrGFN3paMSL22YioEIy7El91g8vzlC4T3mNlO0jZE2QswmOHcs8Vj81w+Msy4GkUzRBmLMbbGPRClsnp4uPh/V1PZCOHcihxaVsNUxzAquCNYJlJaxhrAyhed0W3oQ8KCZw/YUBvuejYU1U83A603Ye4K5dcp/RCyZcVWD2Ie0XICfrUjLkRgSGPP+dJiW7wrxHXMOYhGberlPQp/SrMOny5L0SvO4CbTvee67d1mNAi9MYn0e3lAl+CvJW7N/93InGkbewzC7SYd4+Tr8NQMLSKPJAcaOmdCO5erfwJkCiU5anjlNQWee+w+gTl9m0EvRy92ptIjdTU1b1D5k0IjzXX4BoAsyqKGMQWuv6LVqAkNpo9/AlmzZfimqNVEtiqh8u2S82OwxjR+xc0B0aLvOqkBSoMME6CdnijEMOblJukY1ZCL9/RcG0MyKjDpY3trZvA8+M8x0WA3mI/D2NRIcYK38dLxHmayYH/OCs5eFtVDBi8Cv7+3VK1bTW00TC3THoalT5+Z+vrk06mGk8educ+nJieSbn8TAvAdCOmHCi2zn4QFFutMXauZIyHK5HFbXpMJ5s9BacX0sVhp0I7J0Tzsn9OzBWTrWdNFCmMxkngb3mO6CBsXWmgPAlFh15f+8Lgz5g=
-x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:PH0PR12MB5481.namprd12.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230016)(4636009)(366004)(376002)(136003)(346002)(396003)(39860400002)(38100700002)(45080400002)(71200400001)(54906003)(6916009)(186003)(122000001)(316002)(7696005)(66446008)(66946007)(966005)(52536014)(6506007)(478600001)(55016003)(64756008)(66476007)(4326008)(66556008)(76116006)(38070700005)(5660300002)(86362001)(8936002)(33656002)(4744005)(26005)(7416002)(83380400001)(8676002)(9686003)(2906002)(41300700001);
- DIR:OUT; SFP:1101; 
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?FJ0BHRM5TAOhDIl7oAIA/bvQ+1uEtdKhk+e3OOZQrP9sxrFPqw1awKN9a6RS?=
- =?us-ascii?Q?LxiNJSsqn4C1h/73bVMs8H6dLwz66fuvp5IKfuuVBmFQuutfryhzQNmjVXN0?=
- =?us-ascii?Q?UCE5d4ocTP0PcvFLbqIRSagucZvlTajALnvdCH/bM/hGTVorTBIov1iR0EL+?=
- =?us-ascii?Q?EC3mE543EbnTf6Hd0mz5Gvi8/0+g+yKgbXscC1xyWtCIc2C5ysnToIqtDUny?=
- =?us-ascii?Q?VFjYrmZfwAS1SDNhZK4jTgEvfVcbURSJj8YTWnmeJAKjxZvclJJGE69Oz9Jn?=
- =?us-ascii?Q?kKMziLFy86BXMHvA8aFjncDsXiSDjaNJKvo89EiV9fPO+tohnFyl6NftrREf?=
- =?us-ascii?Q?Tujw2XY5JOViIwaM9+9JwBS25XLRsPThQmmYy5uE3c+/+oVLgjRkTtbJQ0hW?=
- =?us-ascii?Q?+gtQowxiYOsg72eHXTs+1dFP1867LgHFvtVim16A9vrFcyDragT+giTQHaQz?=
- =?us-ascii?Q?qrQjJrgyiRRtm6SIqcKM6xrspqNuBqF+e/aaJsIbMkl23PQ4LJcDyYiUMKOH?=
- =?us-ascii?Q?D8QhwxCsJpDFO7hQxtQkYy6zm7pZ48UtOhv7pw47ocQMdsxwLL7YX1SXXvDb?=
- =?us-ascii?Q?E+qPFccMrFNFXlWmKWZILduoVhb+WHWrTzi3YPGa4YcK+kXlhbd40tB550rL?=
- =?us-ascii?Q?G0Clmunx+p7sCpSuWvfsRs52BGSqplwsFWdLRzqAdhBUzysN1q649NJqzZxY?=
- =?us-ascii?Q?cNoA4bFi/Ih2LVduO2Y8eeBIYMG2zbQWkp/Na+UkzleX2CM7Vteb5XzUFpds?=
- =?us-ascii?Q?uySU7+UKx+uGYC59Es6N3Olf/PVVm62UZjHyYRdFAYmOIpM21DZ8fvIEfJAM?=
- =?us-ascii?Q?E1gR9uW1Uqc64tYuvcCTKueiB3po+1Z2XALpsMtlyvL+zszEgezdDSJtSlCC?=
- =?us-ascii?Q?3cF5327bxArPAj7ikA2Ik/9lSxOHD/8jeOSEJLmOit2xjDAogHT91FxgUkdO?=
- =?us-ascii?Q?Qds/63fsCZZH1akIbYJSGNg/ppVwyT45kejj7/q7PBXMWFkJ6ewQE7k4QiHC?=
- =?us-ascii?Q?VWnqF0a98xmJDmllEAUS4L9JrIabO35dQdncbMOYjVlOsiPTl2B8oWQWp1+F?=
- =?us-ascii?Q?WMixJcJhew3jk9e3PuhEB0BgzrdL3llQg3ovcCb/jpNDBqD4mzWysbo6zQHW?=
- =?us-ascii?Q?x572/T3YEThLt9priHKKMPjatOLN5ZZReHuAqaYRDjlKftOCUSCzFsBBtepR?=
- =?us-ascii?Q?7MJtDfgcvq0ECrkiLItn7ZcwlwtTGYJ9XlKo0miTDhwgIGcOunXuVqmOwC8b?=
- =?us-ascii?Q?D+v+ahQmNt287P/vgz4v/HuqgLiKsIBUqlJnTr1gjjlR8pFH9qi2eTdclqyf?=
- =?us-ascii?Q?HXmaPvo6GZoMTHwc7XH2BE4CUkQFtVye/U7xy4zkMEkLQSzp8H5V1XjZZhZC?=
- =?us-ascii?Q?HLvEde5VffoyZtjO+gyvSiQtq/YWTePjSWxF6Q7Tud5psGMPEcJ7/5ZCbsgV?=
- =?us-ascii?Q?DUiKB3BiUtHnCGUxGVs91+YR7mHqlZ3SEck6+bCnLd7wzkKmkudC2/ZDwGtd?=
- =?us-ascii?Q?0CP7kBCW/KybesL3aIQz5BgD9L2qaExsDGo0xSj0IYfFMPOSL/7soXX466n3?=
- =?us-ascii?Q?gvMgv9RGpz2Kd9UpPlQ=3D?=
+ <PH0PR12MB5481291080EBEC54C82A5641DC419@PH0PR12MB5481.namprd12.prod.outlook.com>
 MIME-Version: 1.0
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB5481.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: ea5c91e7-4cdf-4b48-e149-08da9106f927
-X-MS-Exchange-CrossTenant-originalarrivaltime: 07 Sep 2022 19:27:16.2161 (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: kFgIr58pXD/OPE6xh13jm6mXBMuGdH+4rDtQVSNN1TOi2Vhqplt7I9VcajhwaDICOZtNXT90DN69AedASxVU5Q==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB4861
+In-Reply-To: <PH0PR12MB5481291080EBEC54C82A5641DC419@PH0PR12MB5481.namprd12.prod.outlook.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
 Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>,
  "sridhar.samudrala@intel.com" <sridhar.samudrala@intel.com>,
  "jesse.brandeburg@intel.com" <jesse.brandeburg@intel.com>,
@@ -169,43 +133,54 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Parav Pandit via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Parav Pandit <parav@nvidia.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-
-> From: Michael S. Tsirkin <mst@redhat.com>
-> Sent: Wednesday, September 7, 2022 3:24 PM
+On Wed, Sep 07, 2022 at 07:27:16PM +0000, Parav Pandit wrote:
 > 
-> On Wed, Sep 07, 2022 at 07:18:06PM +0000, Parav Pandit wrote:
-> >
-> > > From: Michael S. Tsirkin <mst@redhat.com>
-> > > Sent: Wednesday, September 7, 2022 3:12 PM
-> >
-> > > > Because of shallow queue of 16 entries deep.
+> > From: Michael S. Tsirkin <mst@redhat.com>
+> > Sent: Wednesday, September 7, 2022 3:24 PM
+> > 
+> > On Wed, Sep 07, 2022 at 07:18:06PM +0000, Parav Pandit wrote:
 > > >
-> > > but why is the queue just 16 entries?
-> > I explained the calculation in [1] about 16 entries.
-> >
-> > [1]
-> >
-> https://lore.kernel.org/netdev/PH0PR12MB54812EC7F4711C1EA4CAA119DC
-> 419@
-> > PH0PR12MB5481.namprd12.prod.outlook.com/
-> >
-> > > does the device not support indirect?
+> > > > From: Michael S. Tsirkin <mst@redhat.com>
+> > > > Sent: Wednesday, September 7, 2022 3:12 PM
 > > >
-> > Yes, indirect feature bit is disabled on the device.
+> > > > > Because of shallow queue of 16 entries deep.
+> > > >
+> > > > but why is the queue just 16 entries?
+> > > I explained the calculation in [1] about 16 entries.
+> > >
+> > > [1]
+> > >
+> > https://lore.kernel.org/netdev/PH0PR12MB54812EC7F4711C1EA4CAA119DC
+> > 419@
+> > > PH0PR12MB5481.namprd12.prod.outlook.com/
+> > >
+> > > > does the device not support indirect?
+> > > >
+> > > Yes, indirect feature bit is disabled on the device.
+> > 
+> > OK that explains it.
 > 
-> OK that explains it.
+> So can we proceed with v6 to contain 
+> (a) updated commit message and
+> (b) function name change you suggested to drop _fields suffix?
 
-So can we proceed with v6 to contain 
-(a) updated commit message and
-(b) function name change you suggested to drop _fields suffix?
+(c) replace mtu = 0 with sensibly not calling the function
+when mtu is unknown.
+
+
+And I'd like commit log to include results of perf testing
+- with indirect feature on
+- with mtu feature off
+just to make sure nothing breaks.
+
+-- 
+MST
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
