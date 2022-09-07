@@ -1,116 +1,115 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A219EC38145
-	for <virtualization@archiver.kernel.org>; Wed,  7 Sep 2022 04:28:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 520FBECAAD3
+	for <virtualization@archiver.kernel.org>; Wed,  7 Sep 2022 05:31:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 2F8E940278;
-	Wed,  7 Sep 2022 04:28:02 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2F8E940278
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=V+KAm/as
+	by smtp4.osuosl.org (Postfix) with ESMTP id CD6B34071B;
+	Wed,  7 Sep 2022 05:31:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org CD6B34071B
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=YkWQQlwi
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id qWXnyGXQJn5x; Wed,  7 Sep 2022 04:28:01 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 95834400CC;
-	Wed,  7 Sep 2022 04:28:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 95834400CC
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id M8RAeqeN-tGS; Wed,  7 Sep 2022 05:31:33 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 9000940492;
+	Wed,  7 Sep 2022 05:31:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9000940492
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 694C1C0032;
-	Wed,  7 Sep 2022 04:28:00 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6E1F7C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5232CC0033;
+	Wed,  7 Sep 2022 05:31:32 +0000 (UTC)
+Received: from smtp3.osuosl.org (unknown
+ [IPv6:2605:bc80:3010:0:a800:ff:fe58:3b77])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 17B1BC002D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  7 Sep 2022 04:27:59 +0000 (UTC)
+ Wed,  7 Sep 2022 05:31:31 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 3182081489
+ by smtp3.osuosl.org (Postfix) with ESMTP id DB10060A8B
  for <virtualization@lists.linux-foundation.org>;
- Wed,  7 Sep 2022 04:27:59 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3182081489
-Authentication-Results: smtp1.osuosl.org;
+ Wed,  7 Sep 2022 05:31:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DB10060A8B
+Authentication-Results: smtp3.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=V+KAm/as
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=YkWQQlwi
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 3Y9BCDRaQAv6
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Nh06scrE_4O6
  for <virtualization@lists.linux-foundation.org>;
- Wed,  7 Sep 2022 04:27:58 +0000 (UTC)
+ Wed,  7 Sep 2022 05:31:29 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E607C81441
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A0C4A600C6
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id E607C81441
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id A0C4A600C6
  for <virtualization@lists.linux-foundation.org>;
- Wed,  7 Sep 2022 04:27:57 +0000 (UTC)
+ Wed,  7 Sep 2022 05:31:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1662524876;
+ s=mimecast20190719; t=1662528688;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=4j6Q+BCgruPfdfNoIE3/wZJYX17HQyjtjOota9ARPcM=;
- b=V+KAm/asuIDImGIgApI9YQgU4hIKkKJV98/wMi18UBxbIDtIt7vdjJKOPExAQRmzk0hSO/
- W83sxJ//sjymxv+V25jnA+sEBG9uf9cU5Ig0V4BnNe0Tpd772avFHM5ufvCNGMLeurI6q9
- WWicbQrQNla8dV2jZC7B/tvNbfMRirk=
-Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com
- [209.85.214.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=2jDJSttoTgV98RrwYHN1Ewo3ntfp1FcfL4Vv2n16c+A=;
+ b=YkWQQlwiQZNchTQ8T8uuPBDQCzRH68KQUKuigeaGV3MtLrGepHTQMSFArDvbvr5vfV8tLZ
+ otL2dlkqbX/HvF/7twUwfeAq/jmh0wLOgO5EorRI0gWHNdMlQhow+k4CB/obCvJgZtp+2W
+ iT89+9k0hck+OlqhV4tvzT8LZ3oq/1o=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-315-8uUJ4W2yO9SCfi2spC4Ulw-1; Wed, 07 Sep 2022 00:27:55 -0400
-X-MC-Unique: 8uUJ4W2yO9SCfi2spC4Ulw-1
-Received: by mail-pl1-f200.google.com with SMTP id
- p18-20020a170902a41200b00172b0dc71e0so9075172plq.0
+ us-mta-22-2oojpC5oPM-md7YCLEjGig-1; Wed, 07 Sep 2022 01:31:27 -0400
+X-MC-Unique: 2oojpC5oPM-md7YCLEjGig-1
+Received: by mail-ed1-f70.google.com with SMTP id
+ f14-20020a0564021e8e00b00448da245f25so8890990edf.18
  for <virtualization@lists.linux-foundation.org>;
- Tue, 06 Sep 2022 21:27:55 -0700 (PDT)
+ Tue, 06 Sep 2022 22:31:27 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=content-transfer-encoding:in-reply-to:from:references:cc:to
- :content-language:subject:user-agent:mime-version:date:message-id
- :x-gm-message-state:from:to:cc:subject:date;
- bh=4j6Q+BCgruPfdfNoIE3/wZJYX17HQyjtjOota9ARPcM=;
- b=ZsTrEuWlFxcZXpPrfexYJPzGhf54nJwe4pahj6wL7s/al5XZ1mdawvHEWjBd/q3ixg
- qVOx5x/f9UZpbgDaFZNF3asKmJ3USEAhZ+quOLelrJm9Zb63gn+GX+4K9vVoXoc7OC6g
- GA4CA/T8Uouyl4NOsGc9w0uOQ2vMQ0HueqtVinwWwq5/udcdOaWs7f8OFBcKg/AVQe7E
- Tm+SjC3WL9/u1mGRauRaceiOgRtLcZke1ofsNd4kaAmSAZfFydOl73/A1ReCCAqLnTxf
- 98jL6zyKT+h/f0qprPsp9w00D0iBwy6eCjn4yfPIAUZtsHEEUEqGF1cjSDBOIy4qkPrH
- l9ug==
-X-Gm-Message-State: ACgBeo1+S0ofwoJ5xJQF+tqC2Vp6TRaAaIpU5WpsDFS4Kv65rOoh9PPy
- J1aBiva1si7a3BHRbbrmjEjRzYfrV0loYsc6KsgNNl2maP+uK85/qd1YVIGPbgoCSBV2hF0StnH
- ubP3GlcWpN9ra09yNqZXxslP0o6kyHpMllpezonCXvQ==
-X-Received: by 2002:a05:6a00:ad1:b0:530:2cb7:84de with SMTP id
- c17-20020a056a000ad100b005302cb784demr1905277pfl.3.1662524874247; 
- Tue, 06 Sep 2022 21:27:54 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR7P5ZyRAOSvxlEfTBlfyhp+ATcHkzoRBcyq3eWnpZwM/6/JJA/8FKFnJZ8VB0LxM3ySljdcsQ==
-X-Received: by 2002:a05:6a00:ad1:b0:530:2cb7:84de with SMTP id
- c17-20020a056a000ad100b005302cb784demr1905253pfl.3.1662524873918; 
- Tue, 06 Sep 2022 21:27:53 -0700 (PDT)
-Received: from [10.72.13.171] ([209.132.188.80])
- by smtp.gmail.com with ESMTPSA id
- u1-20020a632341000000b0042a6dde1d66sm7922152pgm.43.2022.09.06.21.27.46
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Tue, 06 Sep 2022 21:27:53 -0700 (PDT)
-Message-ID: <ff96c12e-95cb-be57-9b5b-2da08b0630c6@redhat.com>
-Date: Wed, 7 Sep 2022 12:27:40 +0800
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
+ bh=2jDJSttoTgV98RrwYHN1Ewo3ntfp1FcfL4Vv2n16c+A=;
+ b=SyaqbJqDfzNilSCJ7lFnKFBLfgGXu58DcCWeFQNkTEGprqqPoN+tauRZhR5nX1Gd/l
+ LzRheLZ0L4h17LuOKf6uXpiAbIOiJqdQDRcA5VCyU32627xO3/vhTsUxPHAdm3IocC1s
+ Ig0+/fFt5OxzUdJMLhhSyTKzVVZYMQWLd6pkC+MOg2si0xeFQ7+83VuMuDCy3Ys/7mNc
+ WQPKhqE1bPKp+fStfDBQB7q58Bf4rCHYc9b33ureYSg/ZTNrhs/SmDQXx8+C1wnWkh2y
+ yiEVdjdRX5OqKcGk9es+vsncssEVqQFS57mxhhIxAHJ342uc0j7/wBi/chqw0NjCVr+o
+ l93Q==
+X-Gm-Message-State: ACgBeo3GuDAzu+KU2jMJ7u2gTE780u7g5DhX4NP8ZBrSCGrb9A8Qt+9P
+ vejlLWLViH76ZIBClzPOCIB7r9w9y0BzB1Ww+IunWTh/u7bqpyM14j4I3J52+0GYihauUYzkL1F
+ qqMKnBwySDDc1XUgCoPTaIWBySx6F6bvEGVnez9wtfw==
+X-Received: by 2002:a17:906:dc8c:b0:74f:25e3:5f81 with SMTP id
+ cs12-20020a170906dc8c00b0074f25e35f81mr1131625ejc.564.1662528686550; 
+ Tue, 06 Sep 2022 22:31:26 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR5mwPT+giY1xPqMcbCkf+FTB23LV8UeeR+PxCXRU6oA3YykMuWSR1N3u92H6yJIrJilbDHW4w==
+X-Received: by 2002:a17:906:dc8c:b0:74f:25e3:5f81 with SMTP id
+ cs12-20020a170906dc8c00b0074f25e35f81mr1131610ejc.564.1662528686283; 
+ Tue, 06 Sep 2022 22:31:26 -0700 (PDT)
+Received: from redhat.com ([2.52.135.118]) by smtp.gmail.com with ESMTPSA id
+ ay2-20020a056402202200b0044841a78c70sm9799903edb.93.2022.09.06.22.31.23
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 06 Sep 2022 22:31:25 -0700 (PDT)
+Date: Wed, 7 Sep 2022 01:31:21 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Gavin Li <gavinl@nvidia.com>
+Subject: Re: [PATCH v5 2/2] virtio-net: use mtu size as buffer length for big
+ packets
+Message-ID: <20220907012608-mutt-send-email-mst@kernel.org>
+References: <20220901021038.84751-1-gavinl@nvidia.com>
+ <20220901021038.84751-3-gavinl@nvidia.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.13.0
-Subject: Re: [RFC v3 3/7] vsock: batch buffers in tx
-To: Guo Zhi <qtxuning1999@sjtu.edu.cn>, eperezma@redhat.com,
- sgarzare@redhat.com, mst@redhat.com
-References: <20220901055434.824-1-qtxuning1999@sjtu.edu.cn>
- <20220901055434.824-4-qtxuning1999@sjtu.edu.cn>
-From: Jason Wang <jasowang@redhat.com>
-In-Reply-To: <20220901055434.824-4-qtxuning1999@sjtu.edu.cn>
+In-Reply-To: <20220901021038.84751-3-gavinl@nvidia.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
- virtualization@lists.linux-foundation.org
+Content-Disposition: inline
+Cc: alexander.h.duyck@intel.com, virtio-dev@lists.oasis-open.org,
+ sridhar.samudrala@intel.com, jesse.brandeburg@intel.com, gavi@nvidia.com,
+ virtualization@lists.linux-foundation.org, stephen@networkplumber.org,
+ loseweigh@gmail.com, netdev@vger.kernel.org, kuba@kernel.org,
+ davem@davemloft.net
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -122,47 +121,183 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-CuWcqCAyMDIyLzkvMSAxMzo1NCwgR3VvIFpoaSDlhpnpgZM6Cj4gVnNvY2sgdXNlcyBidWZmZXJz
-IGluIG9yZGVyLCBhbmQgZm9yIHR4IGRyaXZlciBkb2Vzbid0IGhhdmUgdG8KPiBrbm93IHRoZSBs
-ZW5ndGggb2YgdGhlIGJ1ZmZlci4gU28gd2UgY2FuIGRvIGEgYmF0Y2ggZm9yIHZzb2NrIGlmCj4g
-aW4gb3JkZXIgbmVnb3RpYXRlZCwgb25seSB3cml0ZSBvbmUgdXNlZCByaW5nIGZvciBhIGJhdGNo
-IG9mIGJ1ZmZlcnMKPgo+IFNpZ25lZC1vZmYtYnk6IEd1byBaaGkgPHF0eHVuaW5nMTk5OUBzanR1
-LmVkdS5jbj4KPiAtLS0KPiAgIGRyaXZlcnMvdmhvc3QvdnNvY2suYyB8IDEyICsrKysrKysrKyst
-LQo+ICAgMSBmaWxlIGNoYW5nZWQsIDEwIGluc2VydGlvbnMoKyksIDIgZGVsZXRpb25zKC0pCj4K
-PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aG9zdC92c29jay5jIGIvZHJpdmVycy92aG9zdC92c29j
-ay5jCj4gaW5kZXggMzY4MzMwNDE3YmRlLi5lMDhmYmJiNTQzOWUgMTAwNjQ0Cj4gLS0tIGEvZHJp
-dmVycy92aG9zdC92c29jay5jCj4gKysrIGIvZHJpdmVycy92aG9zdC92c29jay5jCj4gQEAgLTQ5
-Nyw3ICs0OTcsNyBAQCBzdGF0aWMgdm9pZCB2aG9zdF92c29ja19oYW5kbGVfdHhfa2ljayhzdHJ1
-Y3Qgdmhvc3Rfd29yayAqd29yaykKPiAgIAlzdHJ1Y3Qgdmhvc3RfdnNvY2sgKnZzb2NrID0gY29u
-dGFpbmVyX29mKHZxLT5kZXYsIHN0cnVjdCB2aG9zdF92c29jaywKPiAgIAkJCQkJCSBkZXYpOwo+
-ICAgCXN0cnVjdCB2aXJ0aW9fdnNvY2tfcGt0ICpwa3Q7Cj4gLQlpbnQgaGVhZCwgcGt0cyA9IDAs
-IHRvdGFsX2xlbiA9IDA7Cj4gKwlpbnQgaGVhZCwgcGt0cyA9IDAsIHRvdGFsX2xlbiA9IDAsIGFk
-ZCA9IDA7Cj4gICAJdW5zaWduZWQgaW50IG91dCwgaW47Cj4gICAJYm9vbCBhZGRlZCA9IGZhbHNl
-Owo+ICAgCj4gQEAgLTU1MSwxMCArNTUxLDE4IEBAIHN0YXRpYyB2b2lkIHZob3N0X3Zzb2NrX2hh
-bmRsZV90eF9raWNrKHN0cnVjdCB2aG9zdF93b3JrICp3b3JrKQo+ICAgCQllbHNlCj4gICAJCQl2
-aXJ0aW9fdHJhbnNwb3J0X2ZyZWVfcGt0KHBrdCk7Cj4gICAKPiAtCQl2aG9zdF9hZGRfdXNlZCh2
-cSwgaGVhZCwgMCk7Cj4gKwkJaWYgKCF2aG9zdF9oYXNfZmVhdHVyZSh2cSwgVklSVElPX0ZfSU5f
-T1JERVIpKSB7Cj4gKwkJCXZob3N0X2FkZF91c2VkKHZxLCBoZWFkLCAwKTsKCgpJJ2QgZG8gdGhp
-cyBzdGVwIGJ5IHN0ZXAuCgoxKSBzd2l0Y2ggdG8gdXNlIHZob3N0X2FkZF91c2VkX24oKSBmb3Ig
-dnNvY2ssIGxlc3MgY29weV90b191c2VyKCkgCmJldHRlciBwZXJmb3JtYW5jZQoyKSBkbyBpbi1v
-cmRlciBvbiB0b3AKCgo+ICsJCX0gZWxzZSB7Cj4gKwkJCXZxLT5oZWFkc1thZGRdLmlkID0gaGVh
-ZDsKPiArCQkJdnEtPmhlYWRzW2FkZCsrXS5sZW4gPSAwOwoKCkhvdyBjYW4gd2UgZ3VhcmFudGVl
-IHRoYXQgd2UgYXJlIGluIHRoZSBib3VuZGFyeSBvZiB0aGUgaGVhZHMgYXJyYXk/CgpCdHcgaW4g
-dGhlIGNhc2Ugb2YgaW4tb3JkZXIgd2UgZG9uJ3QgbmVlZCB0byByZWNvcmQgdGhlIGhlYWRzLCBp
-bnN0ZWFkIAp3ZSBqdXN0IG5lZWQgdG8ga25vdyB0aGUgaGVhZCBvZiB0aGUgbGFzdCBidWZmZXIs
-IGl0IHJlZHVjZXMgdGhlIHN0cmVzcyAKb24gdGhlIGNhY2hlLgoKVGhhbmtzCgoKPiArCQl9Cj4g
-ICAJCWFkZGVkID0gdHJ1ZTsKPiAgIAl9IHdoaWxlKGxpa2VseSghdmhvc3RfZXhjZWVkc193ZWln
-aHQodnEsICsrcGt0cywgdG90YWxfbGVuKSkpOwo+ICAgCj4gKwkvKiBJZiBpbiBvcmRlciBmZWF0
-dXJlIG5lZ290aWFnZWQsIHdlIGNhbiBkbyBhIGJhdGNoIHRvIGluY3JlYXNlIHBlcmZvcm1hbmNl
-ICovCj4gKwlpZiAodmhvc3RfaGFzX2ZlYXR1cmUodnEsIFZJUlRJT19GX0lOX09SREVSKSAmJiBh
-ZGRlZCkKPiArCQl2aG9zdF9hZGRfdXNlZF9uKHZxLCB2cS0+aGVhZHMsIGFkZCk7Cj4gICBub19t
-b3JlX3JlcGxpZXM6Cj4gICAJaWYgKGFkZGVkKQo+ICAgCQl2aG9zdF9zaWduYWwoJnZzb2NrLT5k
-ZXYsIHZxKTsKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-ClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1m
-b3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9s
-aXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Thu, Sep 01, 2022 at 05:10:38AM +0300, Gavin Li wrote:
+> Currently add_recvbuf_big() allocates MAX_SKB_FRAGS segments for big
+> packets even when GUEST_* offloads are not present on the device.
+> However, if guest GSO is not supported, it would be sufficient to
+> allocate segments to cover just up the MTU size and no further.
+> Allocating the maximum amount of segments results in a large waste of
+> buffer space in the queue, which limits the number of packets that can
+> be buffered and can result in reduced performance.
+> 
+> Therefore, if guest GSO is not supported, use the MTU to calculate the
+> optimal amount of segments required.
+> 
+> When guest offload is enabled at runtime, RQ already has packets of bytes
+> less than 64K. So when packet of 64KB arrives, all the packets of such
+> size will be dropped. and RQ is now not usable.
+> 
+> So this means that during set_guest_offloads() phase, RQs have to be
+> destroyed and recreated, which requires almost driver reload.
+> 
+> If VIRTIO_NET_F_CTRL_GUEST_OFFLOADS has been negotiated, then it should
+> always treat them as GSO enabled.
+> 
+> Accordingly, for now the assumption is that if guest GSO has been
+> negotiated then it has been enabled, even if it's actually been disabled
+> at runtime through VIRTIO_NET_F_CTRL_GUEST_OFFLOADS.
+> 
+> Below is the iperf TCP test results over a Mellanox NIC, using vDPA for
+> 1 VQ, queue size 1024, before and after the change, with the iperf
+> server running over the virtio-net interface.
+> 
+> MTU(Bytes)/Bandwidth (Gbit/s)
+>              Before   After
+>   1500        22.5     22.4
+>   9000        12.8     25.9
+> 
+> Signed-off-by: Gavin Li <gavinl@nvidia.com>
+> Reviewed-by: Gavi Teitz <gavi@nvidia.com>
+> Reviewed-by: Parav Pandit <parav@nvidia.com>
+> Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> Reviewed-by: Si-Wei Liu <si-wei.liu@oracle.com>
+
+
+Which configurations were tested?
+Did you test devices without VIRTIO_NET_F_MTU ?
+
+> ---
+> changelog:
+> v4->v5
+> - Addressed comments from Michael S. Tsirkin
+> - Improve commit message
+> v3->v4
+> - Addressed comments from Si-Wei
+> - Rename big_packets_sg_num with big_packets_num_skbfrags
+> v2->v3
+> - Addressed comments from Si-Wei
+> - Simplify the condition check to enable the optimization
+> v1->v2
+> - Addressed comments from Jason, Michael, Si-Wei.
+> - Remove the flag of guest GSO support, set sg_num for big packets and
+>   use it directly
+> - Recalculate sg_num for big packets in virtnet_set_guest_offloads
+> - Replace the round up algorithm with DIV_ROUND_UP
+> ---
+>  drivers/net/virtio_net.c | 37 ++++++++++++++++++++++++-------------
+>  1 file changed, 24 insertions(+), 13 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index f831a0290998..dbffd5f56fb8 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -225,6 +225,9 @@ struct virtnet_info {
+>  	/* I like... big packets and I cannot lie! */
+>  	bool big_packets;
+>  
+> +	/* number of sg entries allocated for big packets */
+> +	unsigned int big_packets_num_skbfrags;
+> +
+>  	/* Host will merge rx buffers for big packets (shake it! shake it!) */
+>  	bool mergeable_rx_bufs;
+>  
+> @@ -1331,10 +1334,10 @@ static int add_recvbuf_big(struct virtnet_info *vi, struct receive_queue *rq,
+>  	char *p;
+>  	int i, err, offset;
+>  
+> -	sg_init_table(rq->sg, MAX_SKB_FRAGS + 2);
+> +	sg_init_table(rq->sg, vi->big_packets_num_skbfrags + 2);
+>  
+> -	/* page in rq->sg[MAX_SKB_FRAGS + 1] is list tail */
+> -	for (i = MAX_SKB_FRAGS + 1; i > 1; --i) {
+> +	/* page in rq->sg[vi->big_packets_num_skbfrags + 1] is list tail */
+> +	for (i = vi->big_packets_num_skbfrags + 1; i > 1; --i) {
+>  		first = get_a_page(rq, gfp);
+>  		if (!first) {
+>  			if (list)
+> @@ -1365,7 +1368,7 @@ static int add_recvbuf_big(struct virtnet_info *vi, struct receive_queue *rq,
+>  
+>  	/* chain first in list head */
+>  	first->private = (unsigned long)list;
+> -	err = virtqueue_add_inbuf(rq->vq, rq->sg, MAX_SKB_FRAGS + 2,
+> +	err = virtqueue_add_inbuf(rq->vq, rq->sg, vi->big_packets_num_skbfrags + 2,
+>  				  first, gfp);
+>  	if (err < 0)
+>  		give_pages(rq, first);
+> @@ -3690,13 +3693,27 @@ static bool virtnet_check_guest_gso(const struct virtnet_info *vi)
+>  		virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_UFO);
+>  }
+>  
+> +static void virtnet_set_big_packets_fields(struct virtnet_info *vi, const int mtu)
+
+
+I'd rename this to just virtnet_set_big_packets.
+
+
+> +{
+> +	bool guest_gso = virtnet_check_guest_gso(vi);
+> +
+> +	/* If device can receive ANY guest GSO packets, regardless of mtu,
+> +	 * allocate packets of maximum size, otherwise limit it to only
+> +	 * mtu size worth only.
+> +	 */
+> +	if (mtu > ETH_DATA_LEN || guest_gso) {
+> +		vi->big_packets = true;
+> +		vi->big_packets_num_skbfrags = guest_gso ? MAX_SKB_FRAGS : DIV_ROUND_UP(mtu, PAGE_SIZE);
+> +	}
+> +}
+> +
+>  static int virtnet_probe(struct virtio_device *vdev)
+>  {
+>  	int i, err = -ENOMEM;
+>  	struct net_device *dev;
+>  	struct virtnet_info *vi;
+>  	u16 max_queue_pairs;
+> -	int mtu;
+> +	int mtu = 0;
+>  
+>  	/* Find if host supports multiqueue/rss virtio_net device */
+>  	max_queue_pairs = 1;
+> @@ -3784,10 +3801,6 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  	INIT_WORK(&vi->config_work, virtnet_config_changed_work);
+>  	spin_lock_init(&vi->refill_lock);
+>  
+> -	/* If we can receive ANY GSO packets, we must allocate large ones. */
+> -	if (virtnet_check_guest_gso(vi))
+> -		vi->big_packets = true;
+> -
+>  	if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF))
+>  		vi->mergeable_rx_bufs = true;
+>  
+> @@ -3853,12 +3866,10 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  
+>  		dev->mtu = mtu;
+>  		dev->max_mtu = mtu;
+> -
+> -		/* TODO: size buffers correctly in this case. */
+> -		if (dev->mtu > ETH_DATA_LEN)
+> -			vi->big_packets = true;
+>  	}
+>  
+> +	virtnet_set_big_packets_fields(vi, mtu);
+> +
+
+If VIRTIO_NET_F_MTU is off, then mtu is uninitialized.
+You should move it to within if () above to fix.
+
+
+>  	if (vi->any_header_sg)
+>  		dev->needed_headroom = vi->hdr_len;
+>  
+> -- 
+> 2.31.1
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
