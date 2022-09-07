@@ -1,102 +1,94 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0E04BECAAD3
-	for <virtualization@archiver.kernel.org>; Wed,  7 Sep 2022 10:03:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2EB7EC6FA83
+	for <virtualization@archiver.kernel.org>; Wed,  7 Sep 2022 10:16:24 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 71F8C402E5;
-	Wed,  7 Sep 2022 10:03:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 71F8C402E5
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=desiato.20200630 header.b=RkCkoGes
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 5igoesSPl8s9; Wed,  7 Sep 2022 10:03:28 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 56E7140137;
-	Wed,  7 Sep 2022 10:03:27 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 56E7140137
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3B645C0032;
-	Wed,  7 Sep 2022 10:03:27 +0000 (UTC)
-Received: from smtp1.osuosl.org (unknown
- [IPv6:2605:bc80:3010:0:a800:ff:fe97:d076])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 66FD1C002D
- for <virtualization@lists.linux-foundation.org>;
- Wed,  7 Sep 2022 10:03:26 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 301C781364
- for <virtualization@lists.linux-foundation.org>;
- Wed,  7 Sep 2022 10:03:26 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 301C781364
+	by smtp1.osuosl.org (Postfix) with ESMTP id 8CAEC813B5;
+	Wed,  7 Sep 2022 10:16:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8CAEC813B5
 Authentication-Results: smtp1.osuosl.org;
- dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org
- header.a=rsa-sha256 header.s=desiato.20200630 header.b=RkCkoGes
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=G7oqIi9v
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id jjhEqEUCq8wk
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 0k11GEaymUU6; Wed,  7 Sep 2022 10:16:22 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 26DC981364;
+	Wed,  7 Sep 2022 10:16:22 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 26DC981364
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id F1CD2C0033;
+	Wed,  7 Sep 2022 10:16:21 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8B1F6C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  7 Sep 2022 10:03:23 +0000 (UTC)
-X-Greylist: delayed 01:12:43 by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0A00B8125B
-Received: from desiato.infradead.org (desiato.infradead.org
- [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 0A00B8125B
+ Wed,  7 Sep 2022 10:16:20 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 5E911607E3
  for <virtualization@lists.linux-foundation.org>;
- Wed,  7 Sep 2022 10:03:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
- References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
- Content-Transfer-Encoding:Content-ID:Content-Description;
- bh=M9ffSCcPAJFL/NG3iecTA6XnLuNGeYKgtteM2yRjbw8=; b=RkCkoGesMVEcRNleJvacW27ZN9
- eY6mqXlLytLmnVTUKkvVx8upYmP36N0nVMK6OGviCGk0MrGxxqvCKFQ2sVRWckFQAB5ga87K5lECr
- 7m0wErxJQXSkUWe0P3Qq31N3F9tBcfUN2tNLtWayNUzwxQGjlG35NgtA8f1SDxw4a6Bx/48ySEszA
- KPjszB/XFsGfcyya0D92vkgmt8MBtS9AeDfzrSfDWIxuZ8jnpXh+c9RTwBZWtiuuZHUMtPsReO5PX
- Cud2D6l2SHerN+rFL9hFmy6zneagpc7A2yy9HT/ovVqtGCSOiWRuqX7kFvwVUvfahUbviFXUq9k90
- gaDEFQVA==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84]
- helo=noisy.programming.kicks-ass.net)
- by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1oVql3-00APB3-3s; Wed, 07 Sep 2022 08:50:05 +0000
-Received: from hirez.programming.kicks-ass.net
- (hirez.programming.kicks-ass.net [192.168.1.225])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
- (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id C72E130013F;
- Wed,  7 Sep 2022 10:50:03 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
- id 9DD9B20134FB3; Wed,  7 Sep 2022 10:50:03 +0200 (CEST)
-Date: Wed, 7 Sep 2022 10:50:03 +0200
-From: Peter Zijlstra <peterz@infradead.org>
-To: Nick Desaulniers <ndesaulniers@google.com>
-Subject: Re: [PATCH 2/2] x86/paravirt: add extra clobbers with
- ZERO_CALL_USED_REGS enabled
-Message-ID: <YxhbO1YZPMHutw48@hirez.programming.kicks-ass.net>
-References: <20220902213750.1124421-1-morbo@google.com>
- <20220902213750.1124421-3-morbo@google.com>
- <202209022251.B14BD50B29@keescook>
- <CAGG=3QXpK+bFOSYZkdNNFGzNfgJSSADGTRWYRv6z0vfBAgQvWQ@mail.gmail.com>
- <CAKwvOdm+kVTrqMrSPHwTa0NrG9qwTcFkGnikjYjk0ctFGBfeRA@mail.gmail.com>
+ Wed,  7 Sep 2022 10:16:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5E911607E3
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=G7oqIi9v
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id aTAqKxg5_1DI
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  7 Sep 2022 10:16:19 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org AA58D60783
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id AA58D60783
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  7 Sep 2022 10:16:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1662545778;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=SLJpV2WoX8SK2vuj4fI8Y4TMwvJeZNVPNe+ZDugqX0U=;
+ b=G7oqIi9vXVXaEIwuiHhMylKdP8wYuThbnJPORvEu5wlTF8KvaCHSFliQE3lTtl5NSNfN+M
+ xvWBKYqsVPCWhvHTC2jlbFEaH1hvxv6a6FXIseSfZDGd8/LQGOz8vpL6qhrb83Q5fXeNrT
+ OLJB8jNDaaqDt1HJ/1tgfTqYH9yB2Vg=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-124-9rAV9vdMN_uMEAynE-c_zg-1; Wed, 07 Sep 2022 06:16:15 -0400
+X-MC-Unique: 9rAV9vdMN_uMEAynE-c_zg-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.6])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id E2238185A794;
+ Wed,  7 Sep 2022 10:16:14 +0000 (UTC)
+Received: from sirius.home.kraxel.org (unknown [10.39.195.70])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id ABE692166B26;
+ Wed,  7 Sep 2022 10:16:13 +0000 (UTC)
+Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
+ id 6EAF5180039B; Wed,  7 Sep 2022 12:16:12 +0200 (CEST)
+Date: Wed, 7 Sep 2022 12:16:12 +0200
+From: Gerd Hoffmann <kraxel@redhat.com>
+To: Chia-I Wu <olvaffe@gmail.com>
+Subject: Re: [PATCH] drm/virtio: set fb_modifiers_not_supported
+Message-ID: <20220907101612.wn5toutzsvi4l5tb@sirius.home.kraxel.org>
+References: <20220831190601.1295129-1-olvaffe@gmail.com>
 MIME-Version: 1.0
+In-Reply-To: <20220831190601.1295129-1-olvaffe@gmail.com>
+X-Scanned-By: MIMEDefang 2.78 on 10.11.54.6
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-In-Reply-To: <CAKwvOdm+kVTrqMrSPHwTa0NrG9qwTcFkGnikjYjk0ctFGBfeRA@mail.gmail.com>
-Cc: Juergen Gross <jgross@suse.com>,
- "maintainer:X86 ARCHITECTURE \(32-BIT AND 64-BIT\)" <x86@kernel.org>,
- "H. Peter Anvin" <hpa@zytor.com>, Kees Cook <keescook@chromium.org>,
- VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
- Dave Hansen <dave.hansen@linux.intel.com>,
- clang-built-linux <llvm@lists.linux.dev>, LKML <linux-kernel@vger.kernel.org>,
- virtualization@lists.linux-foundation.org,
- Nathan Chancellor <nathan@kernel.org>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Bill Wendling <morbo@google.com>,
- Alexey Makhalov <amakhalov@vmware.com>, Thomas Gleixner <tglx@linutronix.de>,
- linux-hardening@vger.kernel.org
+Cc: Shao-Chuan Lee <shaochuan@chromium.org>, David Airlie <airlied@linux.ie>,
+ dri-devel@lists.freedesktop.org, Gurchetan Singh <gurchetansingh@chromium.org>,
+ Daniel Vetter <daniel@ffwll.ch>, virtualization@lists.linux-foundation.org,
+ Tomohito Esaki <etom@igel.co.jp>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -113,64 +105,22 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Sep 06, 2022 at 11:00:07PM -0700, Nick Desaulniers wrote:
-> On Sun, Sep 4, 2022 at 11:02 PM Bill Wendling <morbo@google.com> wrote:
-> >
-> > On Sat, Sep 3, 2022 at 12:18 AM Kees Cook <keescook@chromium.org> wrote:
-> > >
-> > > On Fri, Sep 02, 2022 at 09:37:50PM +0000, Bill Wendling wrote:
-> > > > [...]
-> > > >         callq   *pv_ops+536(%rip)
-> > >
-> > > Do you know which pv_ops function is this? I can't figure out where
-> > > pte_offset_kernel() gets converted into a pv_ops call....
-> > >
-> > This one is _paravirt_ident_64, I believe. I think that the original
-> > issue Nathan was seeing was with another seemingly innocuous function.
+On Wed, Aug 31, 2022 at 12:06:01PM -0700, Chia-I Wu wrote:
+> Without this, the drm core advertises LINEAR modifier which is
+> incorrect.
 > 
-> _paravirt_ident_64 is marked noinstr, which makes me suspect that it
-> really needs to not be touched at all by the compiler for
-> these...special features.
+> Also userspace virgl does not support modifiers.  For example, it causes
+> chrome on ozone/drm to fail with "Failed to create scanout buffer".
+> 
+> Fixes: 2af104290da5 ("drm: introduce fb_modifiers_not_supported flag in mode_config")
+> Suggested-by: Shao-Chuan Lee <shaochuan@chromium.org>
+> Signed-off-by: Chia-I Wu <olvaffe@gmail.com>
 
-My source tree sayeth:
+Pushed to drm-misc-next.
 
-  u64 notrace _paravirt_ident_64(u64 x)
+thanks,
+  Gerd
 
-And that function is only ever called at boot, after alternatives runs
-it's patched with:
-
-  mov %_ASM_ARG1, %_ASM_AX
-
-Anyway, if you want to take it away from the compiler, something like
-so should do.
-
-
-diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-index 7ca2d46c08cc..8922e2887779 100644
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -80,11 +80,16 @@ static unsigned paravirt_patch_call(void *insn_buff, const void *target,
- }
- 
- #ifdef CONFIG_PARAVIRT_XXL
--/* identity function, which can be inlined */
--u64 notrace _paravirt_ident_64(u64 x)
--{
--	return x;
--}
-+extern u64 _paravirt_ident_64(u64 x);
-+asm (".pushsection .entry.text, \"ax\"\n"
-+     ".global _paravirt_ident_64\n"
-+     "_paravirt_ident_64:\n\t"
-+     ASM_ENDBR
-+     "mov %" _ASM_ARG1 ", %" _ASM_AX "\n\t"
-+     ASM_RET
-+     ".size _paravirt_ident_64, . - _paravirt_ident_64\n\t"
-+     ".type _paravirt_ident_64, @function\n\t"
-+     ".popsection");
- #endif
- 
- DEFINE_STATIC_KEY_TRUE(virt_spin_lock_key);
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
