@@ -1,123 +1,120 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5B9DBECAAD5
-	for <virtualization@archiver.kernel.org>; Thu,  8 Sep 2022 05:19:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id CC4B4ECAAD5
+	for <virtualization@archiver.kernel.org>; Thu,  8 Sep 2022 08:30:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 99280409ED;
-	Thu,  8 Sep 2022 05:19:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 99280409ED
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=fDnsrOHQ
+	by smtp4.osuosl.org (Postfix) with ESMTP id 1B3AB41A55;
+	Thu,  8 Sep 2022 08:30:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1B3AB41A55
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=GBOOVvfB
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id sDBpHLQBClHP; Thu,  8 Sep 2022 05:19:33 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 1A28D400E2;
-	Thu,  8 Sep 2022 05:19:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1A28D400E2
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id TFLw5tQzcHDj; Thu,  8 Sep 2022 08:30:18 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 3A6E64192C;
+	Thu,  8 Sep 2022 08:30:18 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3A6E64192C
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E0306C0032;
-	Thu,  8 Sep 2022 05:19:32 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B64D5C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id DF168C0032;
+	Thu,  8 Sep 2022 08:30:17 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id AE74AC002D
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Sep 2022 05:19:31 +0000 (UTC)
+ Thu,  8 Sep 2022 08:30:16 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 7EDAE83F6E
+ by smtp1.osuosl.org (Postfix) with ESMTP id 8F2A683F06
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Sep 2022 05:19:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7EDAE83F6E
+ Thu,  8 Sep 2022 08:30:16 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8F2A683F06
 Authentication-Results: smtp1.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=fDnsrOHQ
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=GBOOVvfB
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id TBee9baY7vl2
+ with ESMTP id HKrWA1FUcXca
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Sep 2022 05:19:30 +0000 (UTC)
+ Thu,  8 Sep 2022 08:30:15 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E778483F6C
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6001E83E2E
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id E778483F6C
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 6001E83E2E
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Sep 2022 05:19:29 +0000 (UTC)
+ Thu,  8 Sep 2022 08:30:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1662614368;
+ s=mimecast20190719; t=1662625814;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=B1eDsyH0NCED46aCkehmhrnDxVmlGdOirQ4ogyDejUk=;
- b=fDnsrOHQxdFuZMm90vLxW+L2256a2SGdsONildFxUkvS8r/5SXatzGAT2rw0iZeUbGlb2M
- JV3Jx7GGw8/Nn0VOG4/63qYCZWakCO3h4rHxS0sQ6qCta5YjzA5JXlmpYjGOIYIa5ICBjx
- rOODsMgED2uLqzhGcqKBc4cv+aqdQHk=
-Received: from mail-qt1-f198.google.com (mail-qt1-f198.google.com
- [209.85.160.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=opHRLepQrfUm0+zOxWDE1IyemjcpUteMhEnVxI/dcAo=;
+ b=GBOOVvfB7N910BwqnZyjc6ssrS+1olqzqN0DYqvtgWPsfKcGfZWR2lKo8Zuy+eJaeHRExR
+ dh5mMFYinuRLVu+x5+E9TPTFe2jHImIkc+6wunX71lTOBFPkfuV3vd77Z7x9u2GEz332bf
+ fO8xtxtrI/VW670uhKBfZafrJIKJDZs=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-164-mSvLNFqxPo-yAerm9Ty3kA-1; Thu, 08 Sep 2022 01:19:27 -0400
-X-MC-Unique: mSvLNFqxPo-yAerm9Ty3kA-1
-Received: by mail-qt1-f198.google.com with SMTP id
- v5-20020ac873c5000000b003434ef0a8c7so13769093qtp.21
+ us-mta-628-AWWjrWNnOGyR1YKl51tqiA-1; Thu, 08 Sep 2022 04:30:13 -0400
+X-MC-Unique: AWWjrWNnOGyR1YKl51tqiA-1
+Received: by mail-wm1-f71.google.com with SMTP id
+ ay21-20020a05600c1e1500b003a6271a9718so8228385wmb.0
  for <virtualization@lists.linux-foundation.org>;
- Wed, 07 Sep 2022 22:19:27 -0700 (PDT)
+ Thu, 08 Sep 2022 01:30:12 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=in-reply-to:content-transfer-encoding:content-disposition
- :mime-version:references:message-id:subject:cc:to:from:date
- :x-gm-message-state:from:to:cc:subject:date;
- bh=B1eDsyH0NCED46aCkehmhrnDxVmlGdOirQ4ogyDejUk=;
- b=RqF2ekhVDbZ1bn8tvnWAATX7db/ZHMrhB65RXnixU7DWgnR2BHD+PLQUHmzTRUOHWu
- +a83UTIoPgg0oQcoNnXHeuXjzxAUqDap07prHkCG7sUSVITrJeRq7icIQYH/kaVmB/aI
- FUo5+ocuV+ycOtYiABmMV6oqxUKI4Fsa8ryVFvAsB9ZVVrRIbTg+v2PukJBt/1cE+MCH
- 5RmsX1Xa7h3LaVk6kKuYzGM17fsztBwV4/FTlViGELvfnGLSFg5/Q902Izv/zOQZ/5f+
- bCW/OyftVbbizLg0oGvuB+8sQX+lw3IHEe8NAnmvxR+2AVUI+S+RWHL8VBYBT+5OHoiV
- wfYg==
-X-Gm-Message-State: ACgBeo1EtMi7lrZcts/ak5phsHcRo0NXzzOKdFu9sQuCYdGa1JX87GCY
- qMlSwUbYwxaglP9z5tG48x4gKYsL7IV7jQATkZ37k79m++ihS9gWObg1e5Hakk7WZqjphiVDMtI
- JQ7V29Y3tM0i8bGKI/+8u7lfH6bem9RYyPlTVuXcgUw==
-X-Received: by 2002:ad4:5aad:0:b0:4aa:a266:d1a7 with SMTP id
- u13-20020ad45aad000000b004aaa266d1a7mr6185320qvg.70.1662614366711; 
- Wed, 07 Sep 2022 22:19:26 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR4r1VbJFq8CGl7/bxp5VatqXI2qjsFPHqpStma1EuagWySTzIlSshzGyNA5TkIFgOJkVROScA==
-X-Received: by 2002:ad4:5aad:0:b0:4aa:a266:d1a7 with SMTP id
- u13-20020ad45aad000000b004aaa266d1a7mr6185310qvg.70.1662614366505; 
- Wed, 07 Sep 2022 22:19:26 -0700 (PDT)
-Received: from redhat.com ([45.144.113.243]) by smtp.gmail.com with ESMTPSA id
- a9-20020ac844a9000000b0034305a91aaesm13189404qto.83.2022.09.07.22.19.23
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
+ bh=opHRLepQrfUm0+zOxWDE1IyemjcpUteMhEnVxI/dcAo=;
+ b=x5nJzt6YyaYTEObh8CqYgqcDVLg5eTNLwLxCng7BJITi2qXJIX4iqo71MhS5vWt+os
+ Ny/iXk+qUmyisB1fAhQldP+DLr+zs0ct02bh/5/dVOjgs/HTtuRNgVxLp8rXFnJ7yST2
+ Jw7ptJ0fZKXQVHxWMw3UEszux03FLAHV563SAw/eGYXLc69KmS4O0Jk/DbwO2Z4Ko0Ck
+ DWWT5aKbkLwFU/cIJlhi/6S7d9lZFjVhB6gFn6ZtEPaNByPeTej8w5E3Vq1AhZgn1Jys
+ TuV7zKARFEOwAOLrjKbJ5kIUa/03b7GStXBOiygbMT+KigOgzcxHcSDwcz8SmtMeDj4R
+ Ee9A==
+X-Gm-Message-State: ACgBeo3J8PQlhUBh0hbfXQOyZyosfQ5GXfsQPgHL0U3TigEhhXUTiqGl
+ 31i+FEteaYzR1zayTraOk6c7mHVbZpYZJbJBzEwnNEtlxH636pIPF5zqZ8PEpbLYZ7DNinGtzYV
+ UqaBig2gEvVGY76BJdE1mm0MWrhEHz7UWQTyjQWqqCw==
+X-Received: by 2002:a7b:cb88:0:b0:3a5:ea1c:c541 with SMTP id
+ m8-20020a7bcb88000000b003a5ea1cc541mr1496487wmi.114.1662625812029; 
+ Thu, 08 Sep 2022 01:30:12 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR6SwMIElGNbgYD/YsZ20ljCMhRe+R4cc7VaydN9lljIdfCNE3iz4v1UCtSVpJzo90tDWyI+9g==
+X-Received: by 2002:a7b:cb88:0:b0:3a5:ea1c:c541 with SMTP id
+ m8-20020a7bcb88000000b003a5ea1cc541mr1496455wmi.114.1662625811803; 
+ Thu, 08 Sep 2022 01:30:11 -0700 (PDT)
+Received: from sgarzare-redhat (host-87-11-6-69.retail.telecomitalia.it.
+ [87.11.6.69]) by smtp.gmail.com with ESMTPSA id
+ a22-20020a05600c2d5600b003a541d893desm1731720wmg.38.2022.09.08.01.30.09
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 07 Sep 2022 22:19:25 -0700 (PDT)
-Date: Thu, 8 Sep 2022 01:19:20 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net] virtio-net: add cond_resched() to the command
- waiting loop
-Message-ID: <20220908011858-mutt-send-email-mst@kernel.org>
-References: <20220905045341.66191-1-jasowang@redhat.com>
- <20220905031405-mutt-send-email-mst@kernel.org>
- <CACGkMEtjQ0Jfok-gcRW+kuinsua2X0TscyTNfBJoXHny0Yob+g@mail.gmail.com>
- <056ba905a2579903a372258383afdf6579767ad0.camel@redhat.com>
- <CACGkMEuiDqqOEKUWRN9LvQKv8Jz4mi3aSZMwbhUsJkZp=C-0RQ@mail.gmail.com>
- <c9180ac41b00543e3531a343afae8f5bdca64d8d.camel@redhat.com>
- <20220907034407-mutt-send-email-mst@kernel.org>
- <d32101bb-783f-dbd1-545a-be291c27cb63@redhat.com>
+ Thu, 08 Sep 2022 01:30:11 -0700 (PDT)
+Date: Thu, 8 Sep 2022 10:30:03 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Bobby Eshleman <bobbyeshleman@gmail.com>
+Subject: Re: [PATCH 0/6] virtio/vsock: introduce dgrams, sk_buff, and qdisc
+Message-ID: <20220908083003.qsivb5j2f6pn4f2d@sgarzare-redhat>
+References: <cover.1660362668.git.bobby.eshleman@bytedance.com>
+ <YxdKiUzlfpHs3h3q@fedora> <Yv5PFz1YrSk8jxzY@bullseye>
 MIME-Version: 1.0
-In-Reply-To: <d32101bb-783f-dbd1-545a-be291c27cb63@redhat.com>
+In-Reply-To: <Yv5PFz1YrSk8jxzY@bullseye>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: netdev <netdev@vger.kernel.org>,
- linux-kernel <linux-kernel@vger.kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- Gautam Dawar <gautam.dawar@xilinx.com>, Paolo Abeni <pabeni@redhat.com>,
- davem <davem@davemloft.net>
+Cc: Wei Liu <wei.liu@kernel.org>, Cong Wang <cong.wang@bytedance.com>,
+ Stephen Hemminger <sthemmin@microsoft.com>,
+ Bobby Eshleman <bobby.eshleman@bytedance.com>,
+ Jiang Wang <jiang.wang@bytedance.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Dexuan Cui <decui@microsoft.com>, Bobby Eshleman <bobby.eshleman@gmail.com>,
+ linux-kernel@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>,
+ virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>,
+ netdev@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>,
+ kvm@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, linux-hyperv@vger.kernel.org,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -129,67 +126,55 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gVGh1LCBTZXAgMDgsIDIwMjIgYXQgMTA6MjE6NDVBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiDlnKggMjAyMi85LzcgMTU6NDYsIE1pY2hhZWwgUy4gVHNpcmtpbiDlhpnpgZM6Cj4g
-PiBPbiBXZWQsIFNlcCAwNywgMjAyMiBhdCAwOTowNzoyMEFNICswMjAwLCBQYW9sbyBBYmVuaSB3
-cm90ZToKPiA+ID4gT24gV2VkLCAyMDIyLTA5LTA3IGF0IDEwOjA5ICswODAwLCBKYXNvbiBXYW5n
-IHdyb3RlOgo+ID4gPiA+IE9uIFR1ZSwgU2VwIDYsIDIwMjIgYXQgNjo1NiBQTSBQYW9sbyBBYmVu
-aSA8cGFiZW5pQHJlZGhhdC5jb20+IHdyb3RlOgo+ID4gPiA+ID4gT24gTW9uLCAyMDIyLTA5LTA1
-IGF0IDE1OjQ5ICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+ID4gPiA+ID4gPiBPbiBNb24sIFNl
-cCA1LCAyMDIyIGF0IDM6MTUgUE0gTWljaGFlbCBTLiBUc2lya2luIDxtc3RAcmVkaGF0LmNvbT4g
-d3JvdGU6Cj4gPiA+ID4gPiA+ID4gT24gTW9uLCBTZXAgMDUsIDIwMjIgYXQgMTI6NTM6NDFQTSAr
-MDgwMCwgSmFzb24gV2FuZyB3cm90ZToKPiA+ID4gPiA+ID4gPiA+IEFkZGluZyBjb25kX3Jlc2No
-ZWQoKSB0byB0aGUgY29tbWFuZCB3YWl0aW5nIGxvb3AgZm9yIGEgYmV0dGVyCj4gPiA+ID4gPiA+
-ID4gPiBjby1vcGVyYXRpb24gd2l0aCB0aGUgc2NoZWR1bGVyLiBUaGlzIGFsbG93cyB0byBnaXZl
-IENQVSBhIGJyZWF0aCB0bwo+ID4gPiA+ID4gPiA+ID4gcnVuIG90aGVyIHRhc2sod29ya3F1ZXVl
-KSBpbnN0ZWFkIG9mIGJ1c3kgbG9vcGluZyB3aGVuIHByZWVtcHRpb24gaXMKPiA+ID4gPiA+ID4g
-PiA+IG5vdCBhbGxvd2VkLgo+ID4gPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+ID4gPiBXaGF0J3Mg
-bW9yZSBpbXBvcnRhbnQuIFRoaXMgaXMgYSBtdXN0IGZvciBzb21lIHZEUEEgcGFyZW50IHRvIHdv
-cmsKPiA+ID4gPiA+ID4gPiA+IHNpbmNlIGNvbnRyb2wgdmlydHF1ZXVlIGlzIGVtdWxhdGVkIHZp
-YSBhIHdvcmtxdWV1ZSBmb3IgdGhvc2UgcGFyZW50cy4KPiA+ID4gPiA+ID4gPiA+IAo+ID4gPiA+
-ID4gPiA+ID4gRml4ZXM6IGJkYTMyNGZkMDM3YSAoInZkcGFzaW06IGNvbnRyb2wgdmlydHF1ZXVl
-IHN1cHBvcnQiKQo+ID4gPiA+ID4gPiA+IFRoYXQncyBhIHdlaXJkIGNvbW1pdCB0byBmaXguIHNv
-IGl0IGZpeGVzIHRoZSBzaW11bGF0b3I/Cj4gPiA+ID4gPiA+IFllcywgc2luY2UgdGhlIHNpbXVs
-YXRvciBpcyB1c2luZyBhIHdvcmtxdWV1ZSB0byBoYW5kbGUgY29udHJvbCB2aXJ0dWV1ZS4KPiA+
-ID4gPiA+IFVobW0uLi4gdG91Y2hpbmcgYSBkcml2ZXIgZm9yIGEgc2ltdWxhdG9yJ3Mgc2FrZSBs
-b29rcyBhIGxpdHRsZSB3ZWlyZC4KPiA+ID4gPiBTaW11bGF0b3IgaXMgbm90IHRoZSBvbmx5IG9u
-ZSB0aGF0IGlzIHVzaW5nIGEgd29ya3F1ZXVlIChidXQgc2hvdWxkIGJlCj4gPiA+ID4gdGhlIGZp
-cnN0KS4KPiA+ID4gPiAKPiA+ID4gPiBJIGNhbiBzZWUgIHRoYXQgdGhlIG1seDUgdkRQQSBkcml2
-ZXIgaXMgdXNpbmcgYSB3b3JrcXVldWUgYXMgd2VsbCAoc2VlCj4gPiA+ID4gbWx4NV92ZHBhX2tp
-Y2tfdnEoKSkuCj4gPiA+ID4gCj4gPiA+ID4gQW5kIGluIHRoZSBjYXNlIG9mIFZEVVNFLCBpdCBu
-ZWVkcyB0byB3YWl0IGZvciB0aGUgcmVzcG9uc2UgZnJvbSB0aGUKPiA+ID4gPiB1c2Vyc3BhY2Us
-IHRoaXMgbWVhbnMgY29uZF9yZXNjaGVkKCkgaXMgcHJvYmFibHkgYSBtdXN0IGZvciB0aGUgY2Fz
-ZQo+ID4gPiA+IGxpa2UgVVAuCj4gPiA+ID4gCj4gPiA+ID4gPiBBZGRpdGlvbmFsbHksIGlmIHRo
-ZSBidWcgaXMgdmRwYXNpbSwgSSB0aGluayBpdCdzIGJldHRlciB0byB0cnkgdG8KPiA+ID4gPiA+
-IHNvbHZlIGl0IHRoZXJlLCBpZiBwb3NzaWJsZS4KPiA+ID4gPiA+IAo+ID4gPiA+ID4gTG9va2lu
-ZyBhdCB2ZHBhc2ltX25ldF93b3JrKCkgYW5kIHZkcGFzaW1fYmxrX3dvcmsoKSBpdCBsb29rcyBs
-aWtlCj4gPiA+ID4gPiBuZWl0aGVyIG5lZWRzIGEgcHJvY2VzcyBjb250ZXh0LCBzbyBwZXJoYXBz
-IHlvdSBjb3VsZCByZXdvcmsgaXQgdG8gcnVuCj4gPiA+ID4gPiB0aGUgd29ya19mbigpIGRpcmVj
-dGx5IGZyb20gdmRwYXNpbV9raWNrX3ZxKCksIGF0IGxlYXN0IGZvciB0aGUgY29udHJvbAo+ID4g
-PiA+ID4gdmlydHF1ZXVlPwo+ID4gPiA+IEl0J3MgcG9zc2libGUgKGJ1dCByZXF1aXJlIHNvbWUg
-cmV3b3JrIG9uIHRoZSBzaW11bGF0b3IgY29yZSkuIEJ1dAo+ID4gPiA+IGNvbnNpZGVyaW5nIHdl
-IGhhdmUgb3RoZXIgc2ltaWxhciB1c2UgY2FzZXMsIGl0IGxvb2tzIGJldHRlciB0byBzb2x2ZQo+
-ID4gPiA+IGl0IGluIHRoZSB2aXJ0aW8tbmV0IGRyaXZlci4KPiA+ID4gSSBzZWUuCj4gPiA+IAo+
-ID4gPiA+IEFkZGl0aW9uYWxseSwgdGhpcyBtYXkgaGF2ZSBiZXR0ZXIgYmVoYXZpb3VyIHdoZW4g
-dXNpbmcgZm9yIHRoZSBidWdneQo+ID4gPiA+IGhhcmR3YXJlIChlLmcgdGhlIGNvbnRyb2wgdmly
-dHF1ZXVlIHRha2VzIHRvbyBsb25nIHRvIHJlc3BvbmQpLiBXZSBtYXkKPiA+ID4gPiBjb25zaWRl
-ciBzd2l0Y2hpbmcgdG8gdXNlIGludGVycnVwdC9zbGVlcCBpbiB0aGUgZnV0dXJlIChidXQgbm90
-Cj4gPiA+ID4gc3VpdGFibGUgZm9yIC1uZXQpLgo+ID4gPiBBZ3JlZWQuIFBvc3NpYmx5IGEgdGlt
-ZW91dCBjb3VsZCBiZSB1c2VmdWwsIHRvby4KPiA+ID4gCj4gPiA+IENoZWVycywKPiA+ID4gCj4g
-PiA+IFBhb2xvCj4gPiAKPiA+IEhtbSB0aW1lb3V0cyBhcmUga2luZCBvZiBhcmJpdHJhcnkuCj4g
-PiByZWd1bGFyIGRyaXZlcnMgYmFzaWNhbGx5IGRlcml2ZSB0aGVtIGZyb20gaGFyZHdhcmUKPiA+
-IGJlaGF2aW91ciBidXQgd2l0aCBhIGdlbmVyaWMgZHJpdmVyIGxpa2UgdmlydGlvIGl0J3MgaGFy
-ZGVyLgo+ID4gSSBndWVzcyB3ZSBjb3VsZCBhZGQgdGltZW91dCBhcyBhIGNvbmZpZyBmaWVsZCwg
-aGF2ZQo+ID4gZGV2aWNlIG1ha2UgYSBwcm9taXNlIHRvIHRoZSBkcml2ZXIuCj4gPiAKPiA+IE1h
-a2luZyB0aGUgd2FpdCBpbnRlcnJ1cHRpYmxlIHNlZW1zIG1vcmUgcmVhc29uYWJsZS4KPiAKPiAK
-PiBZZXMsIGJ1dCBJIHRoaW5rIHdlIHN0aWxsIG5lZWQgdGhpcyBwYXRjaCBmb3IgLW5ldCBhbmQg
-LXN0YWJsZS4KPiAKPiBUaGFua3MKCkkgd2FzIHJlZmVycmluZyB0byBQYW9sbydzIGlkZWEgb2Yg
-aGF2aW5nIGEgdGltZW91dC4KCi0tIApNU1QKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXph
-dGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRh
-dGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Thu, Aug 18, 2022 at 02:39:32PM +0000, Bobby Eshleman wrote:
+>On Tue, Sep 06, 2022 at 09:26:33AM -0400, Stefan Hajnoczi wrote:
+>> Hi Bobby,
+>> If you are attending Linux Foundation conferences in Dublin, Ireland
+>> next week (Linux Plumbers Conference, Open Source Summit Europe, KVM
+>> Forum, ContainerCon Europe, CloudOpen Europe, etc) then you could meet
+>> Stefano Garzarella and others to discuss this patch series.
+>>
+>> Using netdev and sk_buff is a big change to vsock. Discussing your
+>> requirements and the future direction of vsock in person could help.
+>>
+>> If you won't be in Dublin, don't worry. You can schedule a video call if
+>> you feel it would be helpful to discuss these topics.
+>>
+>> Stefan
+>
+>Hey Stefan,
+>
+>That sounds like a great idea!
+
+Yep, I agree!
+
+>I was unable to make the Dublin trip work
+>so I think a video call would be best, of course if okay with everyone.
+
+It will work for me, but I'll be a bit busy in the next 2 weeks:
+
+ From Sep 12 to Sep 14 I'll be at KVM Forum, so it may be difficult to 
+arrange, but we can try.
+
+Sep 15 I'm not available.
+Sep 16 I'm traveling, but early in my morning, so I should be available.
+
+Form Sep 10 to Sep 23 I'll be mostly off, but I can try to find some 
+slots if needed.
+
+ From Sep 26 I'm back and fully available.
+
+Let's see if others are available and try to find a slot :-)
+
+Thanks,
+Stefano
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
