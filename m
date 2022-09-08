@@ -1,124 +1,118 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 106F2C38145
-	for <virtualization@archiver.kernel.org>; Thu,  8 Sep 2022 14:37:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AE69BC54EE9
+	for <virtualization@archiver.kernel.org>; Thu,  8 Sep 2022 16:40:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 7E81441600;
-	Thu,  8 Sep 2022 14:37:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7E81441600
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=QbIlCjgN
+	by smtp1.osuosl.org (Postfix) with ESMTP id EF78684182;
+	Thu,  8 Sep 2022 16:40:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org EF78684182
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=X+c0i3pU
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id TW7FuBSzvYdG; Thu,  8 Sep 2022 14:37:07 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id KjFU2JSJUMpq; Thu,  8 Sep 2022 16:40:55 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id A663941603;
-	Thu,  8 Sep 2022 14:37:06 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A663941603
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 73F7284188;
+	Thu,  8 Sep 2022 16:40:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 73F7284188
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5A84BC0032;
-	Thu,  8 Sep 2022 14:37:06 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4C93BC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 50B9EC0032;
+	Thu,  8 Sep 2022 16:40:54 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9D767C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Sep 2022 14:37:04 +0000 (UTC)
+ Thu,  8 Sep 2022 16:40:52 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 188526F931
+ by smtp3.osuosl.org (Postfix) with ESMTP id 640496F8F5
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Sep 2022 14:37:04 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 188526F931
+ Thu,  8 Sep 2022 16:40:52 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 640496F8F5
 Authentication-Results: smtp3.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=QbIlCjgN
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=X+c0i3pU
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id sff_-LF_EI_O
+ with ESMTP id GsYlhFbcm9Nt
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Sep 2022 14:37:02 +0000 (UTC)
+ Thu,  8 Sep 2022 16:40:50 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E4C1B60B09
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 942BC61201
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id E4C1B60B09
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 942BC61201
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Sep 2022 14:37:01 +0000 (UTC)
+ Thu,  8 Sep 2022 16:40:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1662647820;
+ s=mimecast20190719; t=1662655249;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=wFcDqpqfo5+BlCFcCMK6T6o/K8WN6HmeBg3zPocSOsQ=;
- b=QbIlCjgNx9J2Q77eday2QeT5PwYMI8cKX9Nz+5HimDyXUB5wSYzPcGkleNfZajy1d1AMu+
- AheUGYsTGT0MX79CtWPpaqiLqf4AfKHYTWbXXp/ddUOGTxAKRFcqumPHdAp8mbgjO/8IIi
- nWCTn6RBpob3WAxByef3KwceFSs7Fi0=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=pkfsc+Qd/gwYAug2VWPkSKKYrJX5Z5R+zOqDD2izm4g=;
+ b=X+c0i3pUUEaTcNgdz0UA/nW4yyQhQ/3Q1PsdzXbCbzaxd2qC6D++QFYxqV/gY3P6mkDSX2
+ gP2OkcH5J2Z2GAdr+R7efVplkYlfIJKqPD0ct5+38AqjJ/ymWegxL0uXaZFk29/UePirpv
+ KpqueaRu7SBk/7lkIsS/cc5+P1ySr9Y=
+Received: from mail-qt1-f200.google.com (mail-qt1-f200.google.com
+ [209.85.160.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-364-WxKrbA_aNeKCb_qEVIPibg-1; Thu, 08 Sep 2022 10:36:59 -0400
-X-MC-Unique: WxKrbA_aNeKCb_qEVIPibg-1
-Received: by mail-wm1-f69.google.com with SMTP id
- c128-20020a1c3586000000b003b324bb08c5so970388wma.9
+ us-mta-625-rnet4zcFNmi8nws--hOyvg-1; Thu, 08 Sep 2022 12:40:46 -0400
+X-MC-Unique: rnet4zcFNmi8nws--hOyvg-1
+Received: by mail-qt1-f200.google.com with SMTP id
+ fv24-20020a05622a4a1800b003445e593889so14799241qtb.2
  for <virtualization@lists.linux-foundation.org>;
- Thu, 08 Sep 2022 07:36:59 -0700 (PDT)
+ Thu, 08 Sep 2022 09:40:46 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
- bh=wFcDqpqfo5+BlCFcCMK6T6o/K8WN6HmeBg3zPocSOsQ=;
- b=Yr2cgczxfII/DZW2PDBDK28aR/U/P9dUa6+ZQCmBPnT1YatamMSei7zx/XTm5r9ayL
- 7UcXiQC6zoqo7Bbmhz1OEcCAXLqjO1Z+HUk8uxqEbGcwQPpOr07tPRv1xidDWaI3DAId
- lTt4h1BRLbFDlmC1NPa8bj/4CBNxkNvfIzLY2kyZYkn2iXZRBW2HT0LJFlxbZrEPRggg
- jfGpvTtxVxf3CVy/QVxNUL55RsVMHJbjbx5XEGrG3kOANmrxFeE/h8fpcCq4H3Al8crC
- sGJcd96PvZ8KGdOwiJRMqz2xYAy8XoyQStCdf3kfrAYC182TDVEQWY7gckoLyxm1Krf6
- tiYQ==
-X-Gm-Message-State: ACgBeo1MHqST11J7wOUY4Jy6pxWWpUzWQM+//J/X/Wr44rExxN90Jmv3
- UfIHGcDneS0JACxTy0L4XacXNFy9/n/sN85RFQJo8kYiHwzTbRY4ph4grta9joiGcb3ANjTYiuL
- HhucG1RMMDNIV7va8tnVswdbP3IL335/VwPT4CE5DwQ==
-X-Received: by 2002:a5d:6da2:0:b0:228:64ca:3978 with SMTP id
- u2-20020a5d6da2000000b0022864ca3978mr5285533wrs.542.1662647818276; 
- Thu, 08 Sep 2022 07:36:58 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR6BEGVkHcFX/ZuPLpySO7WMaIWzsWXcmGzFBbS0MxMsqv14mvHPWdYH6rv4OjZ1+HxLnAXdhw==
-X-Received: by 2002:a5d:6da2:0:b0:228:64ca:3978 with SMTP id
- u2-20020a5d6da2000000b0022864ca3978mr5285510wrs.542.1662647818042; 
- Thu, 08 Sep 2022 07:36:58 -0700 (PDT)
-Received: from sgarzare-redhat (host-87-11-6-69.retail.telecomitalia.it.
- [87.11.6.69]) by smtp.gmail.com with ESMTPSA id
- v11-20020a05600c444b00b003a3442f1229sm3131212wmn.29.2022.09.08.07.36.55
+ bh=pkfsc+Qd/gwYAug2VWPkSKKYrJX5Z5R+zOqDD2izm4g=;
+ b=NQrzwxvxT3EDv/X3F+oFbzoVimIPPzPakEvov3U16pj6zl8EVnoQSZhTBKVl5rxRus
+ VCav8w0FcI5i+eVfUlnYT02A3YjTwWAiwkTfNLatmj6qMXHjmiHDS108RQ7V4YTdf/8a
+ aURXrXoHjnd2zhsv3QKz9CMoOvw3hkQAqC/cJES/XpdKX+ZGgD4WLtzpgAqSCsslWHc7
+ +AXTr3vj77Za4/WQ0C89UERHnM4d+yFBFNCWmKQ7s6JY5vLkOeRN5i1zVZWPvgA/+SwP
+ 5GgX3aYl8MzQCSSOLmOW5qCDBje3Zvx8jZJSKfBcu680BjGL7MGnCmjslUtcicpL+bSC
+ NVxg==
+X-Gm-Message-State: ACgBeo0MfZHawfMrKiIGWmCNF6iasOGCyYx2BAXXVGxnFW9nyMZIzWuv
+ 9IWJyTuldCRGgRgyQ8Q+3iqBWp8YIJ3nututV21p8x1mQq+yH903AWWJhtcFxgD6iWTyn6UBR7r
+ G/5FlYgHsgHqN2EYlrCtw5h3jO0qEH0uocIZEzyqC1A==
+X-Received: by 2002:a05:620a:14aa:b0:6cb:e3a2:311b with SMTP id
+ x10-20020a05620a14aa00b006cbe3a2311bmr904219qkj.266.1662655245503; 
+ Thu, 08 Sep 2022 09:40:45 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR53cNBgQZY4hEhzYVT/VkqEs1YXNR9ifPFn0pnI+C10iK7Hb4Aw/802twYiNtloEdpZjdtoJg==
+X-Received: by 2002:a05:620a:14aa:b0:6cb:e3a2:311b with SMTP id
+ x10-20020a05620a14aa00b006cbe3a2311bmr904197qkj.266.1662655245128; 
+ Thu, 08 Sep 2022 09:40:45 -0700 (PDT)
+Received: from redhat.com ([45.144.113.243]) by smtp.gmail.com with ESMTPSA id
+ v38-20020a05622a18a600b0035a7070e909sm701989qtc.38.2022.09.08.09.40.38
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 08 Sep 2022 07:36:56 -0700 (PDT)
-Date: Thu, 8 Sep 2022 16:36:52 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Bobby Eshleman <bobbyeshleman@gmail.com>,
- Dexuan Cui <decui@microsoft.com>, Bryan Tan <bryantan@vmware.com>,
- Vishnu Dasa <vdasa@vmware.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowang@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Call to discuss vsock netdev/sk_buff [was Re: [PATCH 0/6]
- virtio/vsock: introduce dgrams, sk_buff, and qdisc]
-Message-ID: <20220908143652.tfyjjx2z6in6v66c@sgarzare-redhat>
-References: <cover.1660362668.git.bobby.eshleman@bytedance.com>
- <YxdKiUzlfpHs3h3q@fedora> <Yv5PFz1YrSk8jxzY@bullseye>
+ Thu, 08 Sep 2022 09:40:44 -0700 (PDT)
+Date: Thu, 8 Sep 2022 12:40:35 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Luiz Augusto von Dentz <luiz.dentz@gmail.com>
+Subject: Re: [PATCH] virtio_bt: Fix alignment in configuration struct
+Message-ID: <20220908123911-mutt-send-email-mst@kernel.org>
+References: <20220807221152.38948-1-Igor.Skalkin@opensynergy.com>
+ <20220807185846-mutt-send-email-mst@kernel.org>
+ <02222fcb-eaba-617a-c51c-f939678e3d74@opensynergy.com>
+ <20220808081054-mutt-send-email-mst@kernel.org>
+ <20220811035817-mutt-send-email-mst@kernel.org>
+ <CABBYNZKZGxbt=jdpBL77x1mCeTPdDE-p-Pt8JjZN+KoRgR3Ohw@mail.gmail.com>
+ <20220830094441-mutt-send-email-mst@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <Yv5PFz1YrSk8jxzY@bullseye>
+In-Reply-To: <20220830094441-mutt-send-email-mst@kernel.org>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Wei Liu <wei.liu@kernel.org>, Cong Wang <cong.wang@bytedance.com>,
- Stephen Hemminger <sthemmin@microsoft.com>,
- Bobby Eshleman <bobby.eshleman@bytedance.com>,
- Jiang Wang <jiang.wang@bytedance.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- Dexuan Cui <decui@microsoft.com>, Bobby Eshleman <bobby.eshleman@gmail.com>,
- linux-kernel@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>,
- virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>,
- netdev@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>,
- kvm@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, linux-hyperv@vger.kernel.org,
- "David S. Miller" <davem@davemloft.net>
+Cc: Johan Hedberg <johan.hedberg@gmail.com>,
+ Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+ virtualization@lists.linux-foundation.org,
+ "linux-bluetooth@vger.kernel.org" <linux-bluetooth@vger.kernel.org>,
+ mgo@opensynergy.com, Marcel Holtmann <marcel@holtmann.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -130,47 +124,76 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Aug 18, 2022 at 02:39:32PM +0000, Bobby Eshleman wrote:
->On Tue, Sep 06, 2022 at 09:26:33AM -0400, Stefan Hajnoczi wrote:
->> Hi Bobby,
->> If you are attending Linux Foundation conferences in Dublin, Ireland
->> next week (Linux Plumbers Conference, Open Source Summit Europe, KVM
->> Forum, ContainerCon Europe, CloudOpen Europe, etc) then you could meet
->> Stefano Garzarella and others to discuss this patch series.
->>
->> Using netdev and sk_buff is a big change to vsock. Discussing your
->> requirements and the future direction of vsock in person could help.
->>
->> If you won't be in Dublin, don't worry. You can schedule a video call if
->> you feel it would be helpful to discuss these topics.
->>
->> Stefan
->
->Hey Stefan,
->
->That sounds like a great idea! I was unable to make the Dublin trip work
->so I think a video call would be best, of course if okay with everyone.
+On Tue, Aug 30, 2022 at 09:45:02AM -0400, Michael S. Tsirkin wrote:
+> On Thu, Aug 11, 2022 at 10:02:31AM -0700, Luiz Augusto von Dentz wrote:
+> > Hi Michael,
+> > 
+> > On Thu, Aug 11, 2022 at 1:00 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > >
+> > > On Mon, Aug 08, 2022 at 08:16:11AM -0400, Michael S. Tsirkin wrote:
+> > > > On Mon, Aug 08, 2022 at 02:04:43PM +0200, Igor Skalkin wrote:
+> > > > > On 8/8/22 01:00, Michael S. Tsirkin wrote:
+> > > > >
+> > > > >     On Mon, Aug 08, 2022 at 12:11:52AM +0200, Igor Skalkin wrote:
+> > > > >
+> > > > >         According to specification [1], "For the device-specific configuration
+> > > > >         space, the driver MUST use 8 bit wide accesses for 8 bit wide fields,
+> > > > >         16 bit wide and aligned accesses for 16 bit wide fields and 32 bit wide
+> > > > >         and aligned accesses for 32 and 64 bit wide fields.".
+> > > > >
+> > > > >         Current version of the configuration structure:
+> > > > >
+> > > > >             struct virtio_bt_config {
+> > > > >                 __u8  type;
+> > > > >                 __u16 vendor;
+> > > > >                 __u16 msft_opcode;
+> > > > >             } __attribute__((packed));
+> > > > >
+> > > > >         has both 16bit fields non-aligned.
+> > > > >
+> > > > >         This commit fixes it.
+> > > > >
+> > > > >         [1] https://ddec1-0-en-ctp.trendmicro.com:443/wis/clicktime/v1/query?url=https%3a%2f%2fdocs.oasis%2dopen.org%2fvirtio%2fvirtio%2fv1.1%2fvirtio%2dv1.1.pdf&umid=d1786ace-e8ea-40e8-9665-96c0949174e5&auth=53c7c7de28b92dfd96e93d9dd61a23e634d2fbec-39b15885ceebe9fda9357320aec1ccbac416a470
+> > > > >
+> > > > >         Signed-off-by: Igor Skalkin <Igor.Skalkin@opensynergy.com>
+> > > > >
+> > > > >     This is all true enough, but the problem is
+> > > > >     1. changing uapi like this can't be done, will break userspace
+> > > > >     2. the driver has more issues and no one seems to want to
+> > > > >        maintain it.
+> > > > >     I posted a patch "Bluetooth: virtio_bt: mark broken" and intend
+> > > > >     to merge it for this release.
+> > > > >
+> > > > > This is very sad. We already use this driver in our projects.
+> > > >
+> > > > Really?  Can you step up to maintain it? Then we can fix the issues
+> > > > and it won't be broken.
+> > >
+> > > Just a reminder that I'm waiting for a response on that.
+> > > I just don't know enough about bluetooth.
+> > 
+> > Just a heads up that Marcel is on vacation, he did mention that he had
+> > done some work to update virtio_bt thus why I didn't apply any of the
+> > changes yet.
+> 
+> Any update? when does Marcel return?
 
-Looking better at the KVM forum sched, I found 1h slot for Sep 15 at 
-16:30 UTC.
 
-Could this work for you?
+Annnnnnd ... this is falling between the chairs again?
+Guys if anyone wants to use this driver it needs a maintainer.
 
-It would be nice to also have HyperV and VMCI people in the call and 
-anyone else who is interested of course.
-
-@Dexuan @Bryan @Vishnu can you attend?
-
-@MST @Jason @Stefan if you can be there that would be great, we could 
-connect together from Dublin.
-
-Thanks,
-Stefano
+> > > --
+> > > MST
+> > >
+> > 
+> > 
+> > -- 
+> > Luiz Augusto von Dentz
 
 _______________________________________________
 Virtualization mailing list
