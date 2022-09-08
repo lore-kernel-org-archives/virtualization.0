@@ -1,96 +1,124 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id BB16FC38145
-	for <virtualization@archiver.kernel.org>; Thu,  8 Sep 2022 13:28:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 106F2C38145
+	for <virtualization@archiver.kernel.org>; Thu,  8 Sep 2022 14:37:08 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 2D0B483372;
-	Thu,  8 Sep 2022 13:28:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2D0B483372
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=8bytes.org header.i=@8bytes.org header.a=rsa-sha256 header.s=default header.b=Nbzo8AaK
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id gT6Ugj3YMNjQ; Thu,  8 Sep 2022 13:28:31 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id BB110832B0;
-	Thu,  8 Sep 2022 13:28:30 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BB110832B0
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8D90FC0033;
-	Thu,  8 Sep 2022 13:28:30 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 826E1C002D
- for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Sep 2022 13:28:29 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 649E4415EF
- for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Sep 2022 13:28:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 649E4415EF
+	by smtp2.osuosl.org (Postfix) with ESMTP id 7E81441600;
+	Thu,  8 Sep 2022 14:37:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7E81441600
 Authentication-Results: smtp2.osuosl.org;
- dkim=pass (2048-bit key) header.d=8bytes.org header.i=@8bytes.org
- header.a=rsa-sha256 header.s=default header.b=Nbzo8AaK
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=QbIlCjgN
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 4kSLm0NSfcdo
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id TW7FuBSzvYdG; Thu,  8 Sep 2022 14:37:07 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id A663941603;
+	Thu,  8 Sep 2022 14:37:06 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A663941603
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5A84BC0032;
+	Thu,  8 Sep 2022 14:37:06 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4C93BC002D
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Sep 2022 13:28:28 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 15B2B415EE
-Received: from mail.8bytes.org (mail.8bytes.org
- [IPv6:2a01:238:42d9:3f00:e505:6202:4f0c:f051])
- by smtp2.osuosl.org (Postfix) with ESMTP id 15B2B415EE
+ Thu,  8 Sep 2022 14:37:04 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 188526F931
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Sep 2022 13:28:27 +0000 (UTC)
-Received: from 8bytes.org (p4ff2bb62.dip0.t-ipconnect.de [79.242.187.98])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest
- SHA256) (No client certificate requested)
- by mail.8bytes.org (Postfix) with ESMTPSA id 6ACB624069C;
- Thu,  8 Sep 2022 15:28:23 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=8bytes.org;
- s=default; t=1662643704;
- bh=tDuhKm9wQfdx7sUd4hZrnBHJRGruWciJVuKdXgXOhg8=;
- h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=Nbzo8AaKCmLcJF6ywBTO/rjFGCww8jqPWoQ6WcBpBVILlVrrzm/ywTVSN6gtAJpvI
- A4WA5AxpHDg5Sd62NU3n5V/Vi1+huBSshzEAQAZS7xn++DhH0oznzPGAGwNcfBbTfq
- Twt1k1zJR6eHTY8BdmbO1Ww2bxQuZSP3YVyPip5R53rnIHglAbsB0bCYX0JzWlq5Om
- M3nAYqpIKCggsduzZcJAnKN/jYWRx4aw2vg7FWSxO/QqqKt7N7pAfFXxtOG8goJGLV
- xuiUyCTz0ghn5xX8vuVnC49wxhLLFEBrREVNPwdgKbdzr/ZwBoayTRYmgPniXvM4Pl
- wZdcX65MXNFqw==
-Date: Thu, 8 Sep 2022 15:28:22 +0200
-From: Joerg Roedel <joro@8bytes.org>
-To: Jason Gunthorpe <jgg@nvidia.com>
-Subject: Re: [PATCH v6 1/5] iommu: Return -EMEDIUMTYPE for incompatible
- domain and device/group
-Message-ID: <Yxnt9uQTmbqul5lf@8bytes.org>
-References: <20220815181437.28127-1-nicolinc@nvidia.com>
- <20220815181437.28127-2-nicolinc@nvidia.com>
- <YxiRkm7qgQ4k+PIG@8bytes.org> <Yxig+zfA2Pr4vk6K@nvidia.com>
- <YxilZbRL0WBR97oi@8bytes.org> <YxjQiVnpU0dr7SHC@nvidia.com>
+ Thu,  8 Sep 2022 14:37:04 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 188526F931
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=QbIlCjgN
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id sff_-LF_EI_O
+ for <virtualization@lists.linux-foundation.org>;
+ Thu,  8 Sep 2022 14:37:02 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E4C1B60B09
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id E4C1B60B09
+ for <virtualization@lists.linux-foundation.org>;
+ Thu,  8 Sep 2022 14:37:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1662647820;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=wFcDqpqfo5+BlCFcCMK6T6o/K8WN6HmeBg3zPocSOsQ=;
+ b=QbIlCjgNx9J2Q77eday2QeT5PwYMI8cKX9Nz+5HimDyXUB5wSYzPcGkleNfZajy1d1AMu+
+ AheUGYsTGT0MX79CtWPpaqiLqf4AfKHYTWbXXp/ddUOGTxAKRFcqumPHdAp8mbgjO/8IIi
+ nWCTn6RBpob3WAxByef3KwceFSs7Fi0=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-364-WxKrbA_aNeKCb_qEVIPibg-1; Thu, 08 Sep 2022 10:36:59 -0400
+X-MC-Unique: WxKrbA_aNeKCb_qEVIPibg-1
+Received: by mail-wm1-f69.google.com with SMTP id
+ c128-20020a1c3586000000b003b324bb08c5so970388wma.9
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 08 Sep 2022 07:36:59 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
+ bh=wFcDqpqfo5+BlCFcCMK6T6o/K8WN6HmeBg3zPocSOsQ=;
+ b=Yr2cgczxfII/DZW2PDBDK28aR/U/P9dUa6+ZQCmBPnT1YatamMSei7zx/XTm5r9ayL
+ 7UcXiQC6zoqo7Bbmhz1OEcCAXLqjO1Z+HUk8uxqEbGcwQPpOr07tPRv1xidDWaI3DAId
+ lTt4h1BRLbFDlmC1NPa8bj/4CBNxkNvfIzLY2kyZYkn2iXZRBW2HT0LJFlxbZrEPRggg
+ jfGpvTtxVxf3CVy/QVxNUL55RsVMHJbjbx5XEGrG3kOANmrxFeE/h8fpcCq4H3Al8crC
+ sGJcd96PvZ8KGdOwiJRMqz2xYAy8XoyQStCdf3kfrAYC182TDVEQWY7gckoLyxm1Krf6
+ tiYQ==
+X-Gm-Message-State: ACgBeo1MHqST11J7wOUY4Jy6pxWWpUzWQM+//J/X/Wr44rExxN90Jmv3
+ UfIHGcDneS0JACxTy0L4XacXNFy9/n/sN85RFQJo8kYiHwzTbRY4ph4grta9joiGcb3ANjTYiuL
+ HhucG1RMMDNIV7va8tnVswdbP3IL335/VwPT4CE5DwQ==
+X-Received: by 2002:a5d:6da2:0:b0:228:64ca:3978 with SMTP id
+ u2-20020a5d6da2000000b0022864ca3978mr5285533wrs.542.1662647818276; 
+ Thu, 08 Sep 2022 07:36:58 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR6BEGVkHcFX/ZuPLpySO7WMaIWzsWXcmGzFBbS0MxMsqv14mvHPWdYH6rv4OjZ1+HxLnAXdhw==
+X-Received: by 2002:a5d:6da2:0:b0:228:64ca:3978 with SMTP id
+ u2-20020a5d6da2000000b0022864ca3978mr5285510wrs.542.1662647818042; 
+ Thu, 08 Sep 2022 07:36:58 -0700 (PDT)
+Received: from sgarzare-redhat (host-87-11-6-69.retail.telecomitalia.it.
+ [87.11.6.69]) by smtp.gmail.com with ESMTPSA id
+ v11-20020a05600c444b00b003a3442f1229sm3131212wmn.29.2022.09.08.07.36.55
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 08 Sep 2022 07:36:56 -0700 (PDT)
+Date: Thu, 8 Sep 2022 16:36:52 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Bobby Eshleman <bobbyeshleman@gmail.com>,
+ Dexuan Cui <decui@microsoft.com>, Bryan Tan <bryantan@vmware.com>,
+ Vishnu Dasa <vdasa@vmware.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>
+Subject: Call to discuss vsock netdev/sk_buff [was Re: [PATCH 0/6]
+ virtio/vsock: introduce dgrams, sk_buff, and qdisc]
+Message-ID: <20220908143652.tfyjjx2z6in6v66c@sgarzare-redhat>
+References: <cover.1660362668.git.bobby.eshleman@bytedance.com>
+ <YxdKiUzlfpHs3h3q@fedora> <Yv5PFz1YrSk8jxzY@bullseye>
 MIME-Version: 1.0
+In-Reply-To: <Yv5PFz1YrSk8jxzY@bullseye>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-In-Reply-To: <YxjQiVnpU0dr7SHC@nvidia.com>
-Cc: linux-s390@vger.kernel.org, marcan@marcan.st, mjrosato@linux.ibm.com,
- linux-kernel@vger.kernel.org, thierry.reding@gmail.com, will@kernel.org,
- alyssa@rosenzweig.io, jean-philippe@linaro.org, kvm@vger.kernel.org,
- zhang.lyra@gmail.com, jon@solid-run.com, jonathanh@nvidia.com,
- iommu@lists.linux.dev, Nicolin Chen <nicolinc@nvidia.com>,
- yangyingliang@huawei.com, orsonzhai@gmail.com, gerald.schaefer@linux.ibm.com,
- sven@svenpeter.dev, linux-arm-msm@vger.kernel.org, vdumpa@nvidia.com,
- christophe.jaillet@wanadoo.fr, baolin.wang@linux.alibaba.com,
- thunder.leizhen@huawei.com, linux-tegra@vger.kernel.org, tglx@linutronix.de,
- virtualization@lists.linux-foundation.org,
- linux-arm-kernel@lists.infradead.org, dwmw2@infradead.org, cohuck@redhat.com,
- shameerali.kolothum.thodi@huawei.com, robdclark@gmail.com,
- asahi@lists.linux.dev, suravee.suthikulpanit@amd.com, robin.murphy@arm.com,
- baolu.lu@linux.intel.com
+Cc: Wei Liu <wei.liu@kernel.org>, Cong Wang <cong.wang@bytedance.com>,
+ Stephen Hemminger <sthemmin@microsoft.com>,
+ Bobby Eshleman <bobby.eshleman@bytedance.com>,
+ Jiang Wang <jiang.wang@bytedance.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Dexuan Cui <decui@microsoft.com>, Bobby Eshleman <bobby.eshleman@gmail.com>,
+ linux-kernel@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>,
+ virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>,
+ netdev@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>,
+ kvm@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, linux-hyperv@vger.kernel.org,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -102,53 +130,48 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Sep 07, 2022 at 02:10:33PM -0300, Jason Gunthorpe wrote:
-> Sure, rust has all sorts of nice things. But the kernel doesn't follow
-> rust idioms, and I don't think this is a great place to start
-> experimenting with them.
+On Thu, Aug 18, 2022 at 02:39:32PM +0000, Bobby Eshleman wrote:
+>On Tue, Sep 06, 2022 at 09:26:33AM -0400, Stefan Hajnoczi wrote:
+>> Hi Bobby,
+>> If you are attending Linux Foundation conferences in Dublin, Ireland
+>> next week (Linux Plumbers Conference, Open Source Summit Europe, KVM
+>> Forum, ContainerCon Europe, CloudOpen Europe, etc) then you could meet
+>> Stefano Garzarella and others to discuss this patch series.
+>>
+>> Using netdev and sk_buff is a big change to vsock. Discussing your
+>> requirements and the future direction of vsock in person could help.
+>>
+>> If you won't be in Dublin, don't worry. You can schedule a video call if
+>> you feel it would be helpful to discuss these topics.
+>>
+>> Stefan
+>
+>Hey Stefan,
+>
+>That sounds like a great idea! I was unable to make the Dublin trip work
+>so I think a video call would be best, of course if okay with everyone.
 
-It is actually a great place to start experimenting. The IOMMU
-interfaces are rather domain specific and if we get something wrong the
-damage is limited to a few callers. There are APIs much more exposed in
-the kernel which would be worse for that.
+Looking better at the KVM forum sched, I found 1h slot for Sep 15 at 
+16:30 UTC.
 
-But anyway, I am not insisting on it.
+Could this work for you?
 
-> It has been 3 months since EMEDIUMTYPE was first proposed and 6
-> iterations of the series, don't you think it is a bit late in the game
-> to try to experiment with rust error handling idioms?
+It would be nice to also have HyperV and VMCI people in the call and 
+anyone else who is interested of course.
 
-If I am not mistaken, I am the person who gets blamed when crappy IOMMU
-code is sent upstream. So it is also up to me to decide in which state
-and how close to merging a given patch series is an whether it is
-already 'late in the game'.
+@Dexuan @Bryan @Vishnu can you attend?
 
-> So, again, would you be happy with a simple 
-> 
->  #define IOMMU_EINCOMPATIBLE_DEVICE xx
-> 
-> to make it less "re-using random error codes"?
+@MST @Jason @Stefan if you can be there that would be great, we could 
+connect together from Dublin.
 
-I am wondering if this can be solved by better defining what the return
-codes mean and adjust the call-back functions to match the definition.
-Something like:
+Thanks,
+Stefano
 
-	-ENODEV : Device not mapped my an IOMMU
-	-EBUSY  : Device attached and domain can not be changed
-	-EINVAL : Device and domain are incompatible
-	...
-
-That would be much more intuitive than using something obscure like
-EMEDIUMTYPE.
-
-Regards,
-
-	Joerg
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
