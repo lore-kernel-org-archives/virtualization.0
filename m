@@ -1,94 +1,96 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 193A7C54EE9
-	for <virtualization@archiver.kernel.org>; Thu,  8 Sep 2022 20:22:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 126E1C54EE9
+	for <virtualization@archiver.kernel.org>; Thu,  8 Sep 2022 20:23:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 5A3904015F;
-	Thu,  8 Sep 2022 20:22:48 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5A3904015F
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=daynix-com.20210112.gappssmtp.com header.i=@daynix-com.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=BOSQ+7TV
+	by smtp1.osuosl.org (Postfix) with ESMTP id 9618581CD0;
+	Thu,  8 Sep 2022 20:23:39 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9618581CD0
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=daynix-com.20210112.gappssmtp.com header.i=@daynix-com.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=jKhP/Ykf
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id DBD_ojtwxLZl; Thu,  8 Sep 2022 20:22:47 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id C3E08400B9;
-	Thu,  8 Sep 2022 20:22:46 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C3E08400B9
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id q5qMKsr5EGLi; Thu,  8 Sep 2022 20:23:38 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 2E6CC81B01;
+	Thu,  8 Sep 2022 20:23:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2E6CC81B01
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 93C2DC0032;
-	Thu,  8 Sep 2022 20:22:46 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 824EAC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 06E75C0032;
+	Thu,  8 Sep 2022 20:23:38 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 55FBFC002D
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Sep 2022 20:22:45 +0000 (UTC)
+ Thu,  8 Sep 2022 20:23:36 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 4484D410B4
+ by smtp4.osuosl.org (Postfix) with ESMTP id 2F4C7410C2
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Sep 2022 20:22:45 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4484D410B4
+ Thu,  8 Sep 2022 20:23:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2F4C7410C2
 Authentication-Results: smtp4.osuosl.org;
  dkim=pass (2048-bit key) header.d=daynix-com.20210112.gappssmtp.com
  header.i=@daynix-com.20210112.gappssmtp.com header.a=rsa-sha256
- header.s=20210112 header.b=BOSQ+7TV
+ header.s=20210112 header.b=jKhP/Ykf
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id W9vpDUDBkLbs
+ with ESMTP id XC3OBqrv1jwO
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Sep 2022 20:22:43 +0000 (UTC)
+ Thu,  8 Sep 2022 20:23:35 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 618E9410B7
-Received: from mail-oa1-x32.google.com (mail-oa1-x32.google.com
- [IPv6:2001:4860:4864:20::32])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 618E9410B7
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B6480410C1
+Received: from mail-oo1-xc29.google.com (mail-oo1-xc29.google.com
+ [IPv6:2607:f8b0:4864:20::c29])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id B6480410C1
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Sep 2022 20:22:43 +0000 (UTC)
-Received: by mail-oa1-x32.google.com with SMTP id
- 586e51a60fabf-1225219ee46so47549395fac.2
+ Thu,  8 Sep 2022 20:23:34 +0000 (UTC)
+Received: by mail-oo1-xc29.google.com with SMTP id
+ x10-20020a4a410a000000b004456a27110fso3132804ooa.7
  for <virtualization@lists.linux-foundation.org>;
- Thu, 08 Sep 2022 13:22:43 -0700 (PDT)
+ Thu, 08 Sep 2022 13:23:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=daynix-com.20210112.gappssmtp.com; s=20210112;
  h=cc:to:subject:message-id:date:from:in-reply-to:references
  :mime-version:from:to:cc:subject:date;
- bh=RX8VIBrkIrN+uaJDyGYK1oayYALRo341SLY9FJGeLKg=;
- b=BOSQ+7TVFALXbxC/myMu5Chncu9V3l4sSSxY4m0Bx02D2bgLEFpAbb5BltskTSr+5F
- F70VCqtvBpr3Q4AFCBsDmpLukbkEYUhpmykaTpNj12w37og7JsupiMmJKnsVhnBNAbdJ
- hAhMAUzA1kQlQmqsKZ/GOKRml0/zJTsu2tPGYflD2YKqBQuBWqCz2Ipf8dbhnqCxz/Z3
- rCsguQKWgB3xbFyTgY/FoqIJ69KBVkn0ktWbgK+gfzDaVhmOc84RzmawuiGIbSZPF06g
- /Qb0TXYcSI7c8gutf7cwJsaoPMP5cQ3oy2G3bklXfmkKos4jtJhiBNaRVkg+RACOz7Bz
- tM1w==
+ bh=ejDQxdZ4Qg5U+Lwtd5v3XArCobKY1X4cdGX+F5+IEYg=;
+ b=jKhP/Ykfjcogl0cntL3IZHZafWe4kkcaNAAoHe0fvpVmVx5N9BTq5VDUXackqIxa9X
+ jKQ5MZ7rXs/IDfIGIIj9hdY9SXXRjMk9avJupj888NQKwtDEoApnjbGpJhSzwvk9kuIC
+ OR4L5D/e51/aj/ul5ZYCcxQSf1NJurMt6JnnBq5kGSiwsJ0TeahAJtUq9oktlA0vK2Rc
+ 9ac1VrTBcsDD4RYA2M5GslqPiekWgf37oJx34paM7sjXGuNKTHQqyCgkrlsuia+5AbcQ
+ LUCYj+cgFOhLM6w8iuXvYXQ6rFi6+2QtjfdYEs+zSaXbj9ASjc0bURVUJsdXhbbnjXdd
+ 0ixA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=cc:to:subject:message-id:date:from:in-reply-to:references
  :mime-version:x-gm-message-state:from:to:cc:subject:date;
- bh=RX8VIBrkIrN+uaJDyGYK1oayYALRo341SLY9FJGeLKg=;
- b=jJoiwi/UnmLUms+2/S4pvLg1K/5QqyY8rzJZysOIhcNJjUQpoClcA6SH8oCG/4/OFX
- ealy0pE1I3pgVT+4V6WV3VzrbH8ikVw+BC+myDnulJA/dap//o0bRBRR/Cu0WaLyINEV
- /+KCOnP10aPBQjQp+p7WZSfPO+pKq6o+Sy6SHFPfrO+coAKCOJno8slUR/RWLy3DGtAU
- y+LYdnLe73FcvgNNOURCetz3MY8DZ6RJltNK/8d+i1xfPOpuDvg9+b/yysquLIhiF1zR
- NdeQYTJS6bpdVKkDqSomvrgOnx/qZFgAtu4Tk7wRgTWorYWxwvRTaupiJXPOUQlanr92
- Z6mQ==
-X-Gm-Message-State: ACgBeo1fK/UQ0JSs8yutuUAN8TpKaB1kcWtYSn95J4rWmXEKYIgls/0e
- SNvWYUC0YJy3wQdIb9GSyqUtVfVjESfvPT9GkW/E5w==
-X-Google-Smtp-Source: AA6agR49XRbIMolMgRxwv8qrnpTs2QgNkLEpVvZTqKvSQ7ilNqc92R6DLRt+yLI0hlnLZ5GHBBBhLlWXrjDL36m0UZg=
-X-Received: by 2002:a05:6808:2382:b0:344:90f9:b79 with SMTP id
- bp2-20020a056808238200b0034490f90b79mr2264444oib.137.1662668561813; Thu, 08
- Sep 2022 13:22:41 -0700 (PDT)
+ bh=ejDQxdZ4Qg5U+Lwtd5v3XArCobKY1X4cdGX+F5+IEYg=;
+ b=gzjXYVlR4ImjDuoGAgEPCSmw4fMXmzIAmf16txW9VyYksBuMS9x0nsgREo6mf1RvoK
+ tcyUiLuKs2bAbpAE4i0+ML+TfK7Z0Q58Lc1JIYPguleTptV3iGWplADzRhwaoAyKuP4Y
+ FQz9keNX0tqveY8PGIFwDNXRQjiCiMB9t0W6K3jjK8kS6552aJX8r432LmD9F/gGYnYz
+ XZHCCno5UzHBz+4i/6Xx/Pfx7BoQwjY3F6JOrEP6tW1ErLaKSsH/HmgTz7yA8kJFf3fQ
+ uxETpTqsb/xorMXAlj3BTQr1fWUxXCeG8Uq27tqYvuiFkuvvMfYzwdLnpAWyNvyyVSkc
+ ukpg==
+X-Gm-Message-State: ACgBeo1PquQfgd+727eAFCswTQIOSXRPa2dYSNGw4BAGhsopxXqRL1bS
+ /kagRH5y48mnbZ/b4GIh03XxO04TItAgAVVG6GAvtA==
+X-Google-Smtp-Source: AA6agR5IagjO74tDyXGwM67VEwLddpkc8dPouPyHGcwzWBoYBX5/0Nn4OrrCdKdqm1H9X247p/t1NLtV1atfoLbgCQE=
+X-Received: by 2002:a4a:e1ad:0:b0:448:b28c:5fe3 with SMTP id
+ 13-20020a4ae1ad000000b00448b28c5fe3mr3639821ooy.21.1662668610979; Thu, 08 Sep
+ 2022 13:23:30 -0700 (PDT)
 MIME-Version: 1.0
 References: <20220907125048.396126-1-andrew@daynix.com>
- <e1e6519f-2e77-05c1-697c-56b174addc6e@kernel.org>
-In-Reply-To: <e1e6519f-2e77-05c1-697c-56b174addc6e@kernel.org>
+ <20220907125048.396126-2-andrew@daynix.com>
+ <f59a8400-54ba-62eb-2e9b-b8a6b7533f90@kernel.org>
+In-Reply-To: <f59a8400-54ba-62eb-2e9b-b8a6b7533f90@kernel.org>
 From: Andrew Melnichenko <andrew@daynix.com>
-Date: Thu, 8 Sep 2022 23:09:24 +0300
-Message-ID: <CABcq3pFbKB26x2yCAxMFTU02uAkQrRCRvY1YNYRcx6zHbG54Kg@mail.gmail.com>
-Subject: Re: [PATCH v3 0/6] TUN/VirtioNet USO features support.
+Date: Thu, 8 Sep 2022 23:10:14 +0300
+Message-ID: <CABcq3pGKN5ovHC77HZJOK6sjpzsOKStmy4sTmaMq2EMkc0CoQg@mail.gmail.com>
+Subject: Re: [PATCH v3 1/6] udp: allow header check for dodgy GSO_UDP_L4
+ packets.
 To: David Ahern <dsahern@kernel.org>
 Cc: mst@redhat.com, yoshfuji@linux-ipv6.org, netdev@vger.kernel.org,
  linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
@@ -112,69 +114,28 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 Hi all,
 
-On Thu, Sep 8, 2022 at 3:44 AM David Ahern <dsahern@kernel.org> wrote:
+On Thu, Sep 8, 2022 at 3:40 AM David Ahern <dsahern@kernel.org> wrote:
 >
 > On 9/7/22 6:50 AM, Andrew Melnychenko wrote:
-> > Added new offloads for TUN devices TUN_F_USO4 and TUN_F_USO6.
-> > Technically they enable NETIF_F_GSO_UDP_L4
-> > (and only if USO4 & USO6 are set simultaneously).
-> > It allows the transmission of large UDP packets.
->
-> Please spell out USO at least once in the cover letter to make sure the
-> acronym is clear.
-
-USO - UDP Segmentation Offload. Ability to split UDP packets into
-several segments.
-Allows sending/receiving big UDP packets. At some point, it looks like
-UFO(fragmentation),
-but each segment contains a UDP header.
-
->
+> > diff --git a/net/ipv4/udp_offload.c b/net/ipv4/udp_offload.c
+> > index 6d1a4bec2614..8e002419b4d5 100644
+> > --- a/net/ipv4/udp_offload.c
+> > +++ b/net/ipv4/udp_offload.c
+> > @@ -387,7 +387,7 @@ static struct sk_buff *udp4_ufo_fragment(struct sk_buff *skb,
+> >       if (!pskb_may_pull(skb, sizeof(struct udphdr)))
+> >               goto out;
 > >
-> > Different features USO4 and USO6 are required for qemu where Windows guests can
-> > enable disable USO receives for IPv4 and IPv6 separately.
-> > On the other side, Linux can't really differentiate USO4 and USO6, for now.
+> > -     if (skb_shinfo(skb)->gso_type & SKB_GSO_UDP_L4)
+> > +     if (skb_shinfo(skb)->gso_type & SKB_GSO_UDP_L4 && !skb_gso_ok(skb, features | NETIF_F_GSO_ROBUST))
 >
-> Why is that and what is needed for Linux to differentiate between the 2
-> protocols?
+> that line needs to be wrapped.
 
-Well, this feature requires for Windows VM guest interaction. Windows may have
-a separate configuration for USO4/USO6. Currently, we support Windows guests
-with enabled USO4 and USO6 simultaneously.
-To implement this on Linux host, will require at least one additional
-netdev feature
-and changes in Linux network stack. Discussion about that will be in
-the future after
-some research.
+Ok, I'll wrap it.
 
 >
-> > For now, to enable USO for TUN it requires enabling USO4 and USO6 together.
-> > In the future, there would be a mechanism to control UDP_L4 GSO separately.
+> >               return __udp_gso_segment(skb, features, false);
 > >
-> > New types for virtio-net already in virtio-net specification:
-> > https://github.com/oasis-tcs/virtio-spec/issues/120
-> >
-> > Test it WIP Qemu https://github.com/daynix/qemu/tree/USOv3
-> >
-> > Andrew (5):
-> >   uapi/linux/if_tun.h: Added new offload types for USO4/6.
-> >   driver/net/tun: Added features for USO.
-> >   uapi/linux/virtio_net.h: Added USO types.
-> >   linux/virtio_net.h: Support USO offload in vnet header.
-> >   drivers/net/virtio_net.c: Added USO support.
-> >
-> > Andrew Melnychenko (1):
-> >   udp: allow header check for dodgy GSO_UDP_L4 packets.
-> >
-> >  drivers/net/tap.c               | 10 ++++++++--
-> >  drivers/net/tun.c               |  8 +++++++-
-> >  drivers/net/virtio_net.c        | 19 +++++++++++++++----
-> >  include/linux/virtio_net.h      |  9 +++++++++
-> >  include/uapi/linux/if_tun.h     |  2 ++
-> >  include/uapi/linux/virtio_net.h |  5 +++++
-> >  net/ipv4/udp_offload.c          |  2 +-
-> >  7 files changed, 47 insertions(+), 8 deletions(-)
-> >
+> >       mss = skb_shinfo(skb)->gso_size;
 >
 _______________________________________________
 Virtualization mailing list
