@@ -1,216 +1,113 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4DDB5C6FA86
-	for <virtualization@archiver.kernel.org>; Tue, 13 Sep 2022 02:24:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1FF0CC6FA82
+	for <virtualization@archiver.kernel.org>; Tue, 13 Sep 2022 12:27:22 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id E8619409C3;
-	Tue, 13 Sep 2022 02:24:36 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E8619409C3
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=Z7S3BMcv
+	by smtp2.osuosl.org (Postfix) with ESMTP id 9D9FC4047C;
+	Tue, 13 Sep 2022 12:27:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9D9FC4047C
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=miJorPWG
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id l-yuoZxiaDSz; Tue, 13 Sep 2022 02:24:35 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id E1C9F409A2;
-	Tue, 13 Sep 2022 02:24:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E1C9F409A2
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id DbEYuCX9ZiHU; Tue, 13 Sep 2022 12:27:19 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id E7EC4400F2;
+	Tue, 13 Sep 2022 12:27:18 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E7EC4400F2
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A589EC0032;
-	Tue, 13 Sep 2022 02:24:34 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id BC81CC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A89D4C0033;
+	Tue, 13 Sep 2022 12:27:18 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8F122C002D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 13 Sep 2022 02:24:33 +0000 (UTC)
+ Tue, 13 Sep 2022 12:27:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 80473828B3
+ by smtp3.osuosl.org (Postfix) with ESMTP id 56E0F60AEC
  for <virtualization@lists.linux-foundation.org>;
- Tue, 13 Sep 2022 02:24:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 80473828B3
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com
- header.a=rsa-sha256 header.s=Intel header.b=Z7S3BMcv
+ Tue, 13 Sep 2022 12:27:17 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 56E0F60AEC
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org
+ header.a=rsa-sha256 header.s=google header.b=miJorPWG
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id fri4KkWNz-23
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id r_WQHMUVSKcB
  for <virtualization@lists.linux-foundation.org>;
- Tue, 13 Sep 2022 02:24:32 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9F91A8174D
-Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 9F91A8174D
+ Tue, 13 Sep 2022 12:27:15 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5272860BE7
+Received: from mail-wm1-x330.google.com (mail-wm1-x330.google.com
+ [IPv6:2a00:1450:4864:20::330])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 5272860BE7
  for <virtualization@lists.linux-foundation.org>;
- Tue, 13 Sep 2022 02:24:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
- d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1663035872; x=1694571872;
- h=from:to:cc:subject:date:message-id:references:
- in-reply-to:content-transfer-encoding:mime-version;
- bh=E/AR4shRJL0fTNPLZVw/S5zyCz0pjRtQvNMPFY3BhwE=;
- b=Z7S3BMcvMwSsWzgGplgcXVsxN7EbDRV3SQTiguf1yHNlbTJfopY/W36p
- hlXcU3x1tUrmVDw4vN8NBJzgcdHs3vGIyc7KK9lD4lspCFXcOk7cu/e3w
- K7mceNWlGpwb3Op15u09J5NzpyFZah1NMv5aEo+t5EApteqW50xV3pGiK
- lmrjODEyTClZdz3JIlWC3S3acG5uS0RkZ0gwDtyXmSy1ZEytQSM6hmWq9
- rW6dRkwBOCKQaVCX4w0I+GaJaBF/iQVnJSoEEz+2LBSYpwOdfz13HJzbD
- 7NEuZNkZXpaUYKZxrLCwvQn+DJsOxa1pPi8R9gMmAcWN+0pjQL652kmn3 A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10468"; a="281036304"
-X-IronPort-AV: E=Sophos;i="5.93,311,1654585200"; d="scan'208";a="281036304"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
- by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 12 Sep 2022 19:24:31 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.93,311,1654585200"; d="scan'208";a="758616087"
-Received: from orsmsx603.amr.corp.intel.com ([10.22.229.16])
- by fmsmga001.fm.intel.com with ESMTP; 12 Sep 2022 19:24:29 -0700
-Received: from orsmsx609.amr.corp.intel.com (10.22.229.22) by
- ORSMSX603.amr.corp.intel.com (10.22.229.16) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Mon, 12 Sep 2022 19:24:29 -0700
-Received: from orsmsx611.amr.corp.intel.com (10.22.229.24) by
- ORSMSX609.amr.corp.intel.com (10.22.229.22) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Mon, 12 Sep 2022 19:24:28 -0700
-Received: from ORSEDG601.ED.cps.intel.com (10.7.248.6) by
- orsmsx611.amr.corp.intel.com (10.22.229.24) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31 via Frontend Transport; Mon, 12 Sep 2022 19:24:28 -0700
-Received: from NAM10-MW2-obe.outbound.protection.outlook.com (104.47.55.109)
- by edgegateway.intel.com (134.134.137.102) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2375.31; Mon, 12 Sep 2022 19:24:28 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=XD0pmxWQ4oSRjzzcQNYWOFbtJIyAicTfljkBBudEIuRIKl79bB1A+tnjBmtrWugt3vOLLWV5ZXG2Fd9UQKqCyDgsS2/3q+edShViZpGa2FUzXc5q9KlA0VcsJTsuzcDfZFSmafriKYc5y4JmouLSSzQaMLhyi21x2I9IgS+ARKVLnVOlSdFhrqeA0a+/DGInbS0tKf7c07LK85UsLOAjE5DhtLRcHyobsxYehbAfJhzT5wvW9v3UCy6MZvn+3hOs7uIuQpwCf0g2hwKBBVHojyOwxRy48bUEiMtJT5nv6OA7F+SZM720+fRuODybJuAlJFra38qhlM1RPnChwf//ZA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=gmr1q4NzilLKb48dz4woCiahxcvqAowjUGdAHN8yQwY=;
- b=Vz+2jJlGEdVaiN+9Lj9yYFNA4GlXqQt6wbqPQLcfxuXNoc3QM2Owc6Oi3Nor9ca17W0ogVjmxTFTdDyn2Tb4O/t3Pf2UzVZKSl7jy/INjxXADw473ZRPROWhNEui18XrQN4uCEEIKz4Ugsil0lsi+lPiKIXeVg9QQNsKBb6ir2R2Cu1ec6zFPbWs4j44Thl5lT99bB2bYOO3CZ0Y7GBDDyE4Wg/BoNEE6jofFC2d3Ny5E0KXjIEYQ4iUGywxABycniZR8gGNlgShsk0KU35aK7wo3jwVTfIIp5Ft2hfVGd715+zmbn39l8jvtFhuhzRJ72Tx0QhbiSizhJW3AEVL0Q==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com (2603:10b6:408:135::18)
- by DM4PR11MB6287.namprd11.prod.outlook.com (2603:10b6:8:a6::17) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5612.20; Tue, 13 Sep
- 2022 02:24:27 +0000
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::a435:3eff:aa83:73d7]) by BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::a435:3eff:aa83:73d7%5]) with mapi id 15.20.5612.022; Tue, 13 Sep 2022
- 02:24:27 +0000
-From: "Tian, Kevin" <kevin.tian@intel.com>
-To: Nicolin Chen <nicolinc@nvidia.com>, Robin Murphy <robin.murphy@arm.com>,
- Joerg Roedel <joro@8bytes.org>, Jason Gunthorpe <jgg@nvidia.com>
-Subject: RE: [PATCH v6 1/5] iommu: Return -EMEDIUMTYPE for incompatible domain
- and device/group
-Thread-Topic: [PATCH v6 1/5] iommu: Return -EMEDIUMTYPE for incompatible
- domain and device/group
-Thread-Index: AQHYsNLwCXoHuSRk00qOEfaHbTrxlq3UDMUAgAASXoCAAAnsgIAALAkAgAAs1YCAAFRzgIAAh2pAgAA4BACAA+SoAIADUzEw
-Date: Tue, 13 Sep 2022 02:24:27 +0000
-Message-ID: <BN9PR11MB52761E126D797ED865DC3E8B8C479@BN9PR11MB5276.namprd11.prod.outlook.com>
-References: <20220815181437.28127-1-nicolinc@nvidia.com>
- <20220815181437.28127-2-nicolinc@nvidia.com> <YxiRkm7qgQ4k+PIG@8bytes.org>
- <Yxig+zfA2Pr4vk6K@nvidia.com> <9f91f187-2767-13f9-68a2-a5458b888f00@arm.com>
- <YxjOPo5FFqu2vE/g@nvidia.com> <0b466705-3a17-1bbc-7ef2-5adadc22d1ae@arm.com>
- <Yxk6sR4JiAAn3Jf5@nvidia.com>
- <BN9PR11MB52763FAD3E7545CC26C0DE908C409@BN9PR11MB5276.namprd11.prod.outlook.com>
- <YxnbRq5vaP/OL0ra@nvidia.com> <Yx0fVJpaojM5RNR4@Asurada-Nvidia>
-In-Reply-To: <Yx0fVJpaojM5RNR4@Asurada-Nvidia>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: BN9PR11MB5276:EE_|DM4PR11MB6287:EE_
-x-ms-office365-filtering-correlation-id: cb2e912e-9559-41c5-eb06-08da952f14d0
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: Z3CEX4hFUG2Nqb29WpSkXIAXdgK1JEaLh5Qs2MxC492r17qEsu5LySfls3pKhUSdUhynMbF/TM1x7naCcwlpTr8k/buDNnQYTa/1XTtFNBW11YpA4PE4qznnjuYSbpOQH7XSVDgYqNB1zYS4mrjSgTyUwBzfqrJEPntA7C3JX9GGIVqreGvSuFztPJDmb4ZqQfyua6bpOHVnRBQCJ5giM5Ol9kFdym4OuqveLPC1asDqduACfFz0uZIG/fq5T5bTwBir/UlS1z82/vwwwCDl4qbA1UokFNiyEALL7m9fLI1Gi+25POd3aS4clthhGfFcUlPJskdOjmj0VO01j8CZAyAd9xCh+GDkxIggw+7ySLZv+Fx4rvudAYbJn0X3UqU9y4WyyVemkLhh3T0IoGix8VH4V+gzY5tiyhX1J8paDajMHQlvZuaA36zUpC62wu9F8EFr2u9N776P9rz33+KFWF773xQXRnMJJdWG9E1+w11ka55KzaPeB2mPamP+uiIPTutLANAXR8+IMU75zWjLjXIbNQbmgRg0dHHNzzQejHEPpsgsNg9xj7kPexGl0b1AwHfNXKeJrNuQn1l0H8YbBl2CRAZKKxCEnLzLFZX2uuiDMGEfLS9aTWycYOCoIxjDA/hql50PbqqPGz0ERhsL/10wZu7cxIHpLnbNWxB9jhokB9KVSDEWd8uCxoHBqz0DEfpoxBfbGkG/AtQzEvYQaJHHzZeXmi6IrzLImW1CQRW8empi78CaaMjh7A4TJOWg
-x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:BN9PR11MB5276.namprd11.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230022)(376002)(346002)(366004)(136003)(396003)(39860400002)(451199015)(33656002)(38100700002)(54906003)(26005)(122000001)(8936002)(4326008)(41300700001)(55016003)(83380400001)(66446008)(66946007)(8676002)(86362001)(186003)(66476007)(9686003)(110136005)(71200400001)(82960400001)(7696005)(76116006)(38070700005)(66556008)(64756008)(7416002)(6506007)(2906002)(52536014)(7406005)(316002)(5660300002)(478600001);
- DIR:OUT; SFP:1102; 
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?nK/dGxhdI4yhOc7aSCKjRuviVayMj9qdSq71WcRXwCfRaxC3JnDRwcyjk7Gx?=
- =?us-ascii?Q?OjF8YKgxGlka3RbZvXWGOeM38xmCWUrOT8jFQ7CTRCrS9iwrZ+8MwBpzv/zM?=
- =?us-ascii?Q?4XtUg9Nkra9KHXc+pemCqJPoZlkFVhDsWZRlCvs2hU2p6trAukPDJeu1SPPt?=
- =?us-ascii?Q?GL+tnLimF/E0g1hP6N1l+LrsTYdkncbH8wsXtaebiYJNCf3k7TueD2I94AB4?=
- =?us-ascii?Q?X4K4mai0n097D5mmj649Z0LUaSuwGJsk6MqidPei2Ma5OvSSlrrmGcovvEM+?=
- =?us-ascii?Q?IJU7Y9ZED6SDgn6fSLinRcs7Fc+dSdyA9pd8UDqc9kCxQMh7F791CN3Kis3Y?=
- =?us-ascii?Q?ZhNv1u/VBRVqhfKbn435ux9sryzy7XY6AsCcILYrOMlzaLHRJiLoV+K60Bn/?=
- =?us-ascii?Q?LKE98gQfKbbu9LTRx/4B0NlYFrik8WQo+w/UMq694/0RuObze5VvQdBuA5eh?=
- =?us-ascii?Q?Ug8DcyZ4O3AoYmiWLtlmTt3Qce9N3lb56ieyJ1dAGfAKY5WJ0ZlEqi/y0e+k?=
- =?us-ascii?Q?lRLURER/W0LOCjo+uYZmtUo0GL5XTy3i2HAff1RS91DOXw+d/Dxksqw55dg9?=
- =?us-ascii?Q?JHXd9TxwqAP0WMc4yNiPbH1I1aQNWBpHo5R9bamhBtT1UZUEQeQzcmUBQlkc?=
- =?us-ascii?Q?3bDlO8mavAa1pqlAMtu6ofM6Hdw7/NCrdo7VHkMr6E8ZpYTVeBVDf4QVr9bw?=
- =?us-ascii?Q?qzFIlNH6KI8520C13lEpP7RttwLfPmlceZZ4KmUs708qKwetz0AdpZF8aVs4?=
- =?us-ascii?Q?IP0pKeu/PiDkn9qW95Rf4UF5reTTt1ty3jDS2dmdV+Va55fvYK9cIZcMQGgo?=
- =?us-ascii?Q?dudmuG2QnGkVPceSJ0ata+oBBR95mQIzV8I4DI9WYa7fnZxeNXDsOcxFrhjI?=
- =?us-ascii?Q?lLFei560UPLXDwdRcViG80PYIUjCHlP80mq6rcN+cDhQYPt1vp8lSs+LwoLE?=
- =?us-ascii?Q?HREl11Ie4s8ZArVKeHAEr4Tz/pAWU4f1GxCbfco4U3ZEccz9oxLY7/4v9Jpr?=
- =?us-ascii?Q?VfRLkYTHmN9CpzR1B7cFQ88/ncfYT02DImykEt7ESZDR54Do2YcxNZbn5xiE?=
- =?us-ascii?Q?Px9Cv6X2heuwYkHeT0KiiaLD3G+eoZ7j9HsIcV5zCyibZ8cjoJ1iQaDlZ+0Z?=
- =?us-ascii?Q?lV029DHYEynRAG2bBzioAh+mFXONjnM1cIvkyrRewSSp4hTlAsNx9QP6yLBt?=
- =?us-ascii?Q?1Btjs0h/3kcJrRBNGUvkLAk4gsb6xpsCR5YVG62ivjih9kegIDEebYBYyv56?=
- =?us-ascii?Q?dBEh5QBDHaAAM6YLcMtiEec89r77jSCThCZMqK6ziF+BxpEgLvCuDHnLsCr+?=
- =?us-ascii?Q?XakpO56TFRoWLV+D60z5GtlonlCbcsweLEvIvh49mv1rIqeb4VThxLS4k4nK?=
- =?us-ascii?Q?WcDW405eM0y6C+wHU6Bzdz7W3CZ/XxG7vdMm7tOEcctOYXadEOCD1atrZNXB?=
- =?us-ascii?Q?YjwSTnllq7zvcXhlnIWt+lxNXkKrE1SISHZQuSN/RTIjulG9iuXJA2ix/SCV?=
- =?us-ascii?Q?VtakZnlI+GuNZImgks8m5DwyI/97zqXrQDHN/cvHDFgjC3Dj9Hl7sWq5rSuD?=
- =?us-ascii?Q?2zJBMgEUzPv5TlvQzvOnOEETy5QaRI2EmZwsWWeX?=
+ Tue, 13 Sep 2022 12:27:14 +0000 (UTC)
+Received: by mail-wm1-x330.google.com with SMTP id n8so1807186wmr.5
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 13 Sep 2022 05:27:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:from:to:cc:subject:date;
+ bh=VTC8+roq761rPO1lbs0pNCCJS3R+FuNtWSS5Z+GCYq0=;
+ b=miJorPWGXKjdCvQfUrlK5b1TBnftK3ihkKzT7xqaUavMG7CeLtoJKGsTDgIrHxw1I3
+ 2o8xQkGSzosqM7uGO5cLcDrsoGHQ8twTWgHZ2vDCp7Moq8rQyncPJPf9AH7M4U8xaxAM
+ YggevJiZ/hK+JQccvTf9e0cZGg7o7aOJH35ps/x9/3ARbo/2W107ZSA8CUuSjnPY3N3y
+ soct36MtuIzorK4dk2RWaf9fYqjmfgyJjBzvbG5Q6v2vAtcjNhQLt/2tXAKSrGGFkQfM
+ wrSlwNuWKXmVGgcul7JnWyX4aFqYYq/VYsG9T/I1xdpyUdb4FKPcIL7ldqP87qC+7eEg
+ /5OA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
+ bh=VTC8+roq761rPO1lbs0pNCCJS3R+FuNtWSS5Z+GCYq0=;
+ b=bIyd9WwntP/53S/z7xbu3ooEm9NKuhiTrKyvK1N7a41nzCdgo6ZS3A3Bbz6cDpEb17
+ S21hAe6Vt558vqYDOQ+8FXDI39upxsI/KQ9eNDsfDjLC6ynd+tZdIQ8zIYM89ODOnLJO
+ Bmq18+xfs+EPxSS4iL3ZxI2P3mLn7AYOTlY+gU+M4SWxSQRUTREE9DN3CCSY7ZpCu0Ij
+ WNrUtDt3giOMlJpRtL5h2ZsV07u5AHxjiZyAnoRYmhOaGpe9u+1jJ0N365Io98Kn1rO3
+ iwgPWdRG+ARfuQuDZJpjr3EBpxxucFNGSIybemKZqUEW1HzaFNY5haq+EsD95uUQ/Wdr
+ xfKg==
+X-Gm-Message-State: ACgBeo06sp65tnS7xsBUQFRSh1Djota4g+5wSdYHZl4KTlrG7HpKFR5D
+ sSRo6TeXP3U1vy29In8zgOG4/A==
+X-Google-Smtp-Source: AA6agR6T+QLT8jB5Xi/vSWb9EBDtxlHd1ocjnlnMMf5JCbG+ys2vKBcb/2DyNzFGWO0wDCo6sPf6Iw==
+X-Received: by 2002:a05:600c:6026:b0:3b4:94ff:c019 with SMTP id
+ az38-20020a05600c602600b003b494ffc019mr2218246wmb.101.1663072028280; 
+ Tue, 13 Sep 2022 05:27:08 -0700 (PDT)
+Received: from myrica (cpc92880-cmbg19-2-0-cust679.5-4.cable.virginm.net.
+ [82.27.106.168]) by smtp.gmail.com with ESMTPSA id
+ p5-20020a05600c358500b003b47b913901sm2496769wmq.1.2022.09.13.05.27.06
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 13 Sep 2022 05:27:07 -0700 (PDT)
+Date: Tue, 13 Sep 2022 13:27:03 +0100
+From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+To: Nicolin Chen <nicolinc@nvidia.com>
+Subject: Re: [PATCH 4/5] iommu: Regulate errno in ->attach_dev callback
+ functions
+Message-ID: <YyB3F/o3RfymqiFW@myrica>
+References: <20220913082448.31120-1-nicolinc@nvidia.com>
+ <20220913082448.31120-5-nicolinc@nvidia.com>
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BN9PR11MB5276.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: cb2e912e-9559-41c5-eb06-08da952f14d0
-X-MS-Exchange-CrossTenant-originalarrivaltime: 13 Sep 2022 02:24:27.1116 (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: jWpH54w/Q/t+YH9UwOm4sCykuiP0zukl3n/7cxxat0i/oP7V2Dm0hUjtjzUg4wY7qukqx6VqE6fbJfDkgVUqtA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR11MB6287
-X-OriginatorOrg: intel.com
-Cc: "marcan@marcan.st" <marcan@marcan.st>,
- "mjrosato@linux.ibm.com" <mjrosato@linux.ibm.com>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "thierry.reding@gmail.com" <thierry.reding@gmail.com>,
- "will@kernel.org" <will@kernel.org>,
- "alyssa@rosenzweig.io" <alyssa@rosenzweig.io>,
- "jean-philippe@linaro.org" <jean-philippe@linaro.org>,
- "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
- "zhang.lyra@gmail.com" <zhang.lyra@gmail.com>,
- "jon@solid-run.com" <jon@solid-run.com>,
- "jonathanh@nvidia.com" <jonathanh@nvidia.com>,
- "iommu@lists.linux.dev" <iommu@lists.linux.dev>,
- "yangyingliang@huawei.com" <yangyingliang@huawei.com>,
- "orsonzhai@gmail.com" <orsonzhai@gmail.com>,
- "gerald.schaefer@linux.ibm.com" <gerald.schaefer@linux.ibm.com>,
- "sven@svenpeter.dev" <sven@svenpeter.dev>,
- "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>,
- "christophe.jaillet@wanadoo.fr" <christophe.jaillet@wanadoo.fr>,
- "baolin.wang@linux.alibaba.com" <baolin.wang@linux.alibaba.com>,
- "thunder.leizhen@huawei.com" <thunder.leizhen@huawei.com>,
- "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
- "tglx@linutronix.de" <tglx@linutronix.de>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
- "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
- "cohuck@redhat.com" <cohuck@redhat.com>,
- "vdumpa@nvidia.com" <vdumpa@nvidia.com>,
- "shameerali.kolothum.thodi@huawei.com" <shameerali.kolothum.thodi@huawei.com>,
- "robdclark@gmail.com" <robdclark@gmail.com>,
- "asahi@lists.linux.dev" <asahi@lists.linux.dev>,
- "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
- "dwmw2@infradead.org" <dwmw2@infradead.org>,
- "baolu.lu@linux.intel.com" <baolu.lu@linux.intel.com>
+Content-Disposition: inline
+In-Reply-To: <20220913082448.31120-5-nicolinc@nvidia.com>
+Cc: heiko@sntech.de, konrad.dybcio@somainline.org, bjorn.andersson@linaro.org,
+ linux-tegra@vger.kernel.org, thierry.reding@gmail.com, will@kernel.org,
+ zhang.lyra@gmail.com, joro@8bytes.org, jon@solid-run.com, jonathanh@nvidia.com,
+ linux-rockchip@lists.infradead.org, iommu@lists.linux.dev, agross@kernel.org,
+ linux-arm-kernel@lists.infradead.org, jgg@nvidia.com, yangyingliang@huawei.com,
+ orsonzhai@gmail.com, linux-arm-msm@vger.kernel.org, robin.murphy@arm.com,
+ vdumpa@nvidia.com, christophe.jaillet@wanadoo.fr,
+ baolin.wang@linux.alibaba.com, thunder.leizhen@huawei.com,
+ matthias.bgg@gmail.com, tglx@linutronix.de,
+ virtualization@lists.linux-foundation.org, yong.wu@mediatek.com,
+ dwmw2@infradead.org, linux-kernel@vger.kernel.org,
+ shameerali.kolothum.thodi@huawei.com, robdclark@gmail.com,
+ suravee.suthikulpanit@amd.com, linux-mediatek@lists.infradead.org,
+ sricharan@codeaurora.org, baolu.lu@linux.intel.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -227,36 +124,118 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-> From: Nicolin Chen <nicolinc@nvidia.com>
-> Sent: Sunday, September 11, 2022 7:36 AM
-> 
-> On Thu, Sep 08, 2022 at 09:08:38AM -0300, Jason Gunthorpe wrote:
-> > On Thu, Sep 08, 2022 at 09:30:57AM +0000, Tian, Kevin wrote:
-> 
-> > > There are also cases where common kAPIs are called in the attach
-> > > path which may return -EINVAL and random errno, e.g.:
-> > >
-> > > omap_iommu_attach_dev()
-> > >   omap_iommu_attach()
-> > >     iommu_enable()
-> > >       pm_runtime_get_sync()
-> > >         __pm_runtime_resume()
-> > >           rpm_resume()
-> > > 	if (dev->power.runtime_error) {
-> > > 		retval = -EINVAL;
-> 
-> > Yes, this is was also on my mind with choosing an unpopular return
-> > code, it has a higher chance of not coming out of some other kernel
-> > API
-> 
-> I wonder if it would be safe to just treat a pm_runtime_get_sync()
-> failure as -ENODEV, since a PM resume() mostly occurs to the IOMMU
-> that an IOMMU client/master device is behind, while an iommu_domain
-> rarely intervenes.
+Hi Nicolin,
 
-Yes, this is a condition preventing the device from being attached by
-a domain hence converting -EINVAL to -ENODEV probably makes sense.
-But as replied in another we might want to keep other errno's as is.
+On Tue, Sep 13, 2022 at 01:24:47AM -0700, Nicolin Chen wrote:
+> Following the new rules in include/linux/iommu.h kdocs, update all drivers
+> ->attach_dev callback functions to return ENODEV error code for all device
+> specific errors. It particularly excludes EINVAL from being used for such
+> error cases. For the same purpose, also replace one EINVAL with ENOMEM in
+> mtk_iommu driver.
+> 
+> Note that the virtio-iommu does a viommu_domain_map_identity() call, which
+> returns either 0 or ENOMEM at this moment. Change to "return ret" directly
+> to allow it to pass an EINVAL in the future.
+[...]
+> diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
+> index 80151176ba12..874c01634d2b 100644
+> --- a/drivers/iommu/virtio-iommu.c
+> +++ b/drivers/iommu/virtio-iommu.c
+> @@ -696,7 +696,7 @@ static int viommu_domain_finalise(struct viommu_endpoint *vdev,
+>  		if (ret) {
+>  			ida_free(&viommu->domain_ids, vdomain->id);
+>  			vdomain->viommu = NULL;
+> -			return -EOPNOTSUPP;
+> +			return ret;
+
+I think in the future it will be too easy to forget about the constrained
+return value of attach() while modifying some other part of the driver,
+and let an external helper return EINVAL. So I'd rather not propagate ret
+from outside of viommu_domain_attach() and finalise().
+
+For the same reason I do prefer this solution over EMEDIUMTYPE, because
+it's too tempting to use exotic errno when they seem appropriate instead
+of boring ENODEV and EINVAL. The alternative would be adding a special
+purpose code to linux/errno.h, similarly to EPROBE_DEFER, but that might
+be excessive.
+
+Since we can't guarantee that APIs like virtio or ida won't ever return
+EINVAL, we should set all return values:
+
+--- 8< ---
+From 7b16796cb78d11971236f98fd2d3cd73ca769827 Mon Sep 17 00:00:00 2001
+From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Date: Tue, 13 Sep 2022 12:53:02 +0100
+Subject: [PATCH] iommu/virtio: Constrain return value of viommu_attach_dev()
+
+Ensure viommu_attach_dev() only return errno values expected from the
+attach_dev() op. In particular, only return EINVAL when we're sure that
+the device is incompatible with the domain.
+
+Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
+---
+ drivers/iommu/virtio-iommu.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
+index 08eeafc9529f..582ff5a33b52 100644
+--- a/drivers/iommu/virtio-iommu.c
++++ b/drivers/iommu/virtio-iommu.c
+@@ -669,13 +669,13 @@ static int viommu_domain_finalise(struct viommu_endpoint *vdev,
+ 		dev_err(vdev->dev,
+ 			"granule 0x%lx larger than system page size 0x%lx\n",
+ 			viommu_page_size, PAGE_SIZE);
+-		return -EINVAL;
++		return -ENODEV;
+ 	}
+ 
+ 	ret = ida_alloc_range(&viommu->domain_ids, viommu->first_domain,
+ 			      viommu->last_domain, GFP_KERNEL);
+ 	if (ret < 0)
+-		return ret;
++		return -ENOMEM;
+ 
+ 	vdomain->id		= (unsigned int)ret;
+ 
+@@ -696,7 +696,7 @@ static int viommu_domain_finalise(struct viommu_endpoint *vdev,
+ 		if (ret) {
+ 			ida_free(&viommu->domain_ids, vdomain->id);
+ 			vdomain->viommu = NULL;
+-			return -EOPNOTSUPP;
++			return -ENODEV;
+ 		}
+ 	}
+ 
+@@ -734,7 +734,7 @@ static int viommu_attach_dev(struct iommu_domain *domain, struct device *dev)
+ 		ret = viommu_domain_finalise(vdev, domain);
+ 	} else if (vdomain->viommu != vdev->viommu) {
+ 		dev_err(dev, "cannot attach to foreign vIOMMU\n");
+-		ret = -EXDEV;
++		ret = -EINVAL;
+ 	}
+ 	mutex_unlock(&vdomain->mutex);
+ 
+@@ -769,7 +769,7 @@ static int viommu_attach_dev(struct iommu_domain *domain, struct device *dev)
+ 
+ 		ret = viommu_send_req_sync(vdomain->viommu, &req, sizeof(req));
+ 		if (ret)
+-			return ret;
++			return -ENODEV;
+ 	}
+ 
+ 	if (!vdomain->nr_endpoints) {
+@@ -779,7 +779,7 @@ static int viommu_attach_dev(struct iommu_domain *domain, struct device *dev)
+ 		 */
+ 		ret = viommu_replay_mappings(vdomain);
+ 		if (ret)
+-			return ret;
++			return -ENODEV;
+ 	}
+ 
+ 	vdomain->nr_endpoints++;
+-- 
+2.37.3
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
