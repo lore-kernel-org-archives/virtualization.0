@@ -4,94 +4,84 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1ED03ECAAA1
-	for <virtualization@archiver.kernel.org>; Thu, 15 Sep 2022 06:59:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A3748C6FA86
+	for <virtualization@archiver.kernel.org>; Thu, 15 Sep 2022 07:09:59 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 8F63060FF5;
-	Thu, 15 Sep 2022 06:59:53 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8F63060FF5
+	by smtp3.osuosl.org (Postfix) with ESMTP id 34B7F60FF5;
+	Thu, 15 Sep 2022 07:09:59 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 34B7F60FF5
 Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key, unprotected) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=susede1 header.b=iij8+nSq
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=susede1 header.b=T3TpN2yn
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id YitF4TH7dbDO; Thu, 15 Sep 2022 06:59:52 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 096D160FF3;
-	Thu, 15 Sep 2022 06:59:51 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 096D160FF3
+	with ESMTP id EB9MdOoSNhLt; Thu, 15 Sep 2022 07:09:58 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id A7B1160FE9;
+	Thu, 15 Sep 2022 07:09:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A7B1160FE9
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id BA556C0033;
-	Thu, 15 Sep 2022 06:59:51 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id CD23FC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 687EAC0032;
+	Thu, 15 Sep 2022 07:09:57 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BA1DEC002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 15 Sep 2022 06:59:49 +0000 (UTC)
+ Thu, 15 Sep 2022 07:09:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 7F49E83131
+ by smtp4.osuosl.org (Postfix) with ESMTP id 8FA39402AA
  for <virtualization@lists.linux-foundation.org>;
- Thu, 15 Sep 2022 06:59:49 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7F49E83131
-Authentication-Results: smtp1.osuosl.org;
+ Thu, 15 Sep 2022 07:09:56 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8FA39402AA
+Authentication-Results: smtp4.osuosl.org;
  dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com
- header.a=rsa-sha256 header.s=susede1 header.b=iij8+nSq
+ header.a=rsa-sha256 header.s=susede1 header.b=T3TpN2yn
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id nIrHVRjSmN9e
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id n8kaPxKnAHw1
  for <virtualization@lists.linux-foundation.org>;
- Thu, 15 Sep 2022 06:59:48 +0000 (UTC)
+ Thu, 15 Sep 2022 07:09:55 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 681A583104
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 681A583104
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 902BB40292
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 902BB40292
  for <virtualization@lists.linux-foundation.org>;
- Thu, 15 Sep 2022 06:59:48 +0000 (UTC)
+ Thu, 15 Sep 2022 07:09:55 +0000 (UTC)
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
  (No client certificate requested)
- by smtp-out1.suse.de (Postfix) with ESMTPS id 2FE6834408;
- Thu, 15 Sep 2022 06:59:44 +0000 (UTC)
+ by smtp-out2.suse.de (Postfix) with ESMTPS id EBD305CE85;
+ Thu, 15 Sep 2022 07:00:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
- t=1663225184; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ t=1663225246; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
  mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=kdnXllucHTBxA/9FI9xK/SZO/LJMpNDoSBwXpB+lP/U=;
- b=iij8+nSqwufZdvdJ2t334oHkzyxe58whIyBuaEg0+Bsh+w9NBTymS7lTSjW35nSwVIkcYN
- jW7kBeB1HQmshMtjLZuMFzf1TvvTBcHe0HVncT3ZvjlYH1htoPbfVSElrmDjwvyc1nWFTp
- LeyZlh5G4xs1eL+OuFdwF+ON3WYeA1I=
+ bh=gqYZfpXCDDWtu0WPGaxdwGaaC36L58fDD9Iif3t5K+k=;
+ b=T3TpN2ynBK3lY5avO5Dr/GK46rO1rRv1ngZjvE5hQH3KrFd/lyToIKYhADJQ8pqBc/9bsW
+ RUJL5tOS767n5wdD8lRFiUFFDdrsCu0qFtp7dwIyIC9AMoWQeQaBjFDVYf5SnpT2coJvXV
+ HImIK37yNB+W4GV+9CeU/asVbpOInUc=
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
  (No client certificate requested)
- by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id DF2F2139C8;
- Thu, 15 Sep 2022 06:59:43 +0000 (UTC)
+ by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id B9DA1139C8;
+ Thu, 15 Sep 2022 07:00:46 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([192.168.254.65])
- by imap2.suse-dmz.suse.de with ESMTPSA id 4k04NF/NImN8VQAAMHmgww
- (envelope-from <jgross@suse.com>); Thu, 15 Sep 2022 06:59:43 +0000
-Message-ID: <fa6df43b-8a1a-8ad1-0236-94d2a0b588fa@suse.com>
-Date: Thu, 15 Sep 2022 08:59:43 +0200
+ by imap2.suse-dmz.suse.de with ESMTPSA id p1b8K57NImMLVgAAMHmgww
+ (envelope-from <jgross@suse.com>); Thu, 15 Sep 2022 07:00:46 +0000
+Message-ID: <93de33ab-4cbc-2511-08a9-d5c3eb1fd349@suse.com>
+Date: Thu, 15 Sep 2022 09:00:46 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.12.0
-Subject: Re: [PATCH v2 1/1] x86/paravirt: write paravirt ident function in
- assembly
+Subject: Re: [PATCH] jailhouse: Hold reference returned from of_find_xxx API
 Content-Language: en-US
-To: Bill Wendling <morbo@google.com>, linux-hardening@vger.kernel.org
-References: <20220902213750.1124421-1-morbo@google.com>
- <20220914162149.71271-1-morbo@google.com>
-In-Reply-To: <20220914162149.71271-1-morbo@google.com>
-Cc: x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
- Kees Cook <keescook@chromium.org>,
- VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
- Dave Hansen <dave.hansen@linux.intel.com>,
- Nick Desaulniers <ndesaulniers@google.com>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org,
- Nathan Chancellor <nathan@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
- llvm@lists.linux.dev, Alexey Makhalov <amakhalov@vmware.com>,
- Thomas Gleixner <tglx@linutronix.de>
+To: Liang He <windhl@126.com>, srivatsa@csail.mit.edu,
+ virtualization@lists.linux-foundation.org
+References: <20220915022343.4001331-1-windhl@126.com>
+In-Reply-To: <20220915022343.4001331-1-windhl@126.com>
+Cc: wangkelin2023@163.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -106,102 +96,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 From: Juergen Gross via Virtualization
  <virtualization@lists.linux-foundation.org>
 Reply-To: Juergen Gross <jgross@suse.com>
-Content-Type: multipart/mixed; boundary="===============1303301145175020647=="
+Content-Type: multipart/mixed; boundary="===============4595931244617825311=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============1303301145175020647==
+--===============4595931244617825311==
 Content-Language: en-US
 Content-Type: multipart/signed; micalg=pgp-sha256;
  protocol="application/pgp-signature";
- boundary="------------0vgYhJCAdT99yLwH4iU1YHhU"
+ boundary="------------J8068Xb2eCwUNzTLyPBs5mRq"
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------0vgYhJCAdT99yLwH4iU1YHhU
-Content-Type: multipart/mixed; boundary="------------xYaDk5VXNS0yYjga337i39Ay";
+--------------J8068Xb2eCwUNzTLyPBs5mRq
+Content-Type: multipart/mixed; boundary="------------gF6teLODOe0Gclz0lbadzV89";
  protected-headers="v1"
 From: Juergen Gross <jgross@suse.com>
-To: Bill Wendling <morbo@google.com>, linux-hardening@vger.kernel.org
-Cc: Kees Cook <keescook@chromium.org>,
- Nick Desaulniers <ndesaulniers@google.com>,
- "Srivatsa S. Bhat (VMware)" <srivatsa@csail.mit.edu>,
- Alexey Makhalov <amakhalov@vmware.com>, Thomas Gleixner
- <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- "H. Peter Anvin" <hpa@zytor.com>,
- VMware PV-Drivers Reviewers <pv-drivers@vmware.com>, x86@kernel.org,
- virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
- llvm@lists.linux.dev, Peter Zijlstra <peterz@infradead.org>,
- Nathan Chancellor <nathan@kernel.org>
-Message-ID: <fa6df43b-8a1a-8ad1-0236-94d2a0b588fa@suse.com>
-Subject: Re: [PATCH v2 1/1] x86/paravirt: write paravirt ident function in
- assembly
-References: <20220902213750.1124421-1-morbo@google.com>
- <20220914162149.71271-1-morbo@google.com>
-In-Reply-To: <20220914162149.71271-1-morbo@google.com>
+To: Liang He <windhl@126.com>, srivatsa@csail.mit.edu,
+ virtualization@lists.linux-foundation.org
+Cc: wangkelin2023@163.com
+Message-ID: <93de33ab-4cbc-2511-08a9-d5c3eb1fd349@suse.com>
+Subject: Re: [PATCH] jailhouse: Hold reference returned from of_find_xxx API
+References: <20220915022343.4001331-1-windhl@126.com>
+In-Reply-To: <20220915022343.4001331-1-windhl@126.com>
 
---------------xYaDk5VXNS0yYjga337i39Ay
-Content-Type: multipart/mixed; boundary="------------auY0lbM04uuXeWa1GPAl40xG"
+--------------gF6teLODOe0Gclz0lbadzV89
+Content-Type: multipart/mixed; boundary="------------FBI8EygSgQdANFvetfgZwIky"
 
---------------auY0lbM04uuXeWa1GPAl40xG
+--------------FBI8EygSgQdANFvetfgZwIky
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: base64
 
-T24gMTQuMDkuMjIgMTg6MjEsIEJpbGwgV2VuZGxpbmcgd3JvdGU6DQo+IFRoZSBaRVJPX0NB
-TExfVVNFRF9SRUdTIGZlYXR1cmUgbWF5IHplcm8gb3V0IGNhbGxlci1zYXZlZCByZWdpc3Rl
-cnMNCj4gYmVmb3JlIHJldHVybmluZy4gSG93ZXZlciwgYWx0ZXJuYXRlIGNvZGUgbWF5IGNh
-bGwgdGhpcyBmdW5jdGlvbiB3aXRob3V0DQo+IGZpcnN0IHNhdmluZyAlW3JlXWRpLCBiZWNh
-dXNlIHRoZSBwcm9wZXIgY2xvYmJlcnMgYXJlbid0IHRha2VuIGludG8NCj4gYWNjb3VudC4N
-Cj4gDQo+IFRoaXMgc2hvd3MgdXAgaW4gc3B1cmlvdXNfa2VybmVsX2ZhdWx0KCkgd2hlcmUg
-dGhlICJwdGVfb2Zmc2V0X2tlcm5lbCgpIg0KPiBjYWxsIHJlc3VsdHMgaW4gdGhpcyBhc3Nl
-bWJseSBjb2RlOg0KPiANCj4gLkx0bXAxNTE6DQo+ICAgICAgICAgICNBUFANCj4gICAgICAg
-ICAgIyBBTFQ6IG9sZG5zdHINCj4gLkx0bXAxNTI6DQo+IC5MdG1wMTUzOg0KPiAuTHRtcDE1
-NDoNCj4gICAgICAgICAgLnNlY3Rpb24gICAgICAgIC5kaXNjYXJkLnJldHBvbGluZV9zYWZl
-LCIiLEBwcm9nYml0cw0KPiAgICAgICAgICAucXVhZCAgIC5MdG1wMTU0DQo+ICAgICAgICAg
-IC50ZXh0DQo+IA0KPiAgICAgICAgICBjYWxscSAgICpwdl9vcHMrNTM2KCVyaXApDQo+IA0K
-PiAuTHRtcDE1NToNCj4gICAgICAgICAgLnNlY3Rpb24gICAgICAgIC5wYXJhaW5zdHJ1Y3Rp
-b25zLCJhIixAcHJvZ2JpdHMNCj4gICAgICAgICAgLnAyYWxpZ24gICAgICAgIDMsIDB4MA0K
-PiAgICAgICAgICAucXVhZCAgIC5MdG1wMTUzDQo+ICAgICAgICAgIC5ieXRlICAgNjcNCj4g
-ICAgICAgICAgLmJ5dGUgICAuTHRtcDE1NS0uTHRtcDE1Mw0KPiAgICAgICAgICAuc2hvcnQg
-IDENCj4gICAgICAgICAgLnRleHQNCj4gLkx0bXAxNTY6DQo+ICAgICAgICAgICMgQUxUOiBw
-YWRkaW5nDQo+ICAgICAgICAgIC56ZXJvICAgKC0oKCguTHRtcDE1Ny0uTHRtcDE1OCktKC5M
-dG1wMTU2LS5MdG1wMTUyKSk+MCkpKigoLkx0bXAxNTctLkx0bXAxNTgpLSguTHRtcDE1Ni0u
-THRtcDE1MikpLDE0NA0KPiAuTHRtcDE1OToNCj4gICAgICAgICAgLnNlY3Rpb24gICAgICAg
-IC5hbHRpbnN0cnVjdGlvbnMsImEiLEBwcm9nYml0cw0KPiAuTHRtcDE2MDoNCj4gICAgICAg
-ICAgLmxvbmcgICAuTHRtcDE1Mi0uTHRtcDE2MA0KPiAuTHRtcDE2MToNCj4gICAgICAgICAg
-LmxvbmcgICAuTHRtcDE1OC0uTHRtcDE2MQ0KPiAgICAgICAgICAuc2hvcnQgIDMzMDQwDQo+
-ICAgICAgICAgIC5ieXRlICAgLkx0bXAxNTktLkx0bXAxNTINCj4gICAgICAgICAgLmJ5dGUg
-ICAuTHRtcDE1Ny0uTHRtcDE1OA0KPiAgICAgICAgICAudGV4dA0KPiANCj4gICAgICAgICAg
-LnNlY3Rpb24gICAgICAgIC5hbHRpbnN0cl9yZXBsYWNlbWVudCwiYXgiLEBwcm9nYml0cw0K
-PiAgICAgICAgICAjIEFMVDogcmVwbGFjZW1lbnQgMQ0KPiAuTHRtcDE1ODoNCj4gICAgICAg
-ICAgbW92cSAgICAlcmRpLCAlcmF4DQo+IC5MdG1wMTU3Og0KPiAgICAgICAgICAudGV4dA0K
-PiAgICAgICAgICAjTk9fQVBQDQo+IC5MdG1wMTYyOg0KPiAgICAgICAgICB0ZXN0YiAgICQt
-MTI4LCAlZGlsDQo+IA0KPiBUaGUgJWRpbCByZWdpc3RlciB3YXMgemVyb2VkIG91dCBieSB0
-aGUgY2FsbCB0byAiKnB2X29wcys1MzYoJXJpcCkiLg0KPiANCj4gSW4gZ2VuZXJhbCwgdGhl
-IF9wYXJhdmlydF9pZGVudF82NCgpIGZ1bmN0aW9uIGFwcGVhcnMgbGlrZSBpdCBzaG91bGRu
-J3QNCj4gaGF2ZSBhbnkgaW5zdHJ1bWVudGF0aW9uIG9yIG90aGVyIG1vZGlmaWNhdGlvbnMg
-YXBwbGllZCB0byBpdC4gVGh1cyBqdXN0DQo+IHdyaXRlIGl0IGluIGFzc2VtYmx5IHRvIGF2
-b2lkIGhhdmluZyB0byBjb250aW51YWxseSBtb2RpZnkgaXQgd2hlbmV2ZXIgYQ0KPiBuZXcg
-ZmVhdHVyZSBjb21lcyBhbG9uZy4NCj4gDQo+IExpbms6IGh0dHBzOi8vZ2l0aHViLmNvbS9L
-U1BQL2xpbnV4L2lzc3Vlcy8xOTINCj4gQ2M6IEtlZXMgQ29vayA8a2Vlc2Nvb2tAY2hyb21p
-dW0ub3JnPg0KPiBDYzogTmljayBEZXNhdWxuaWVycyA8bmRlc2F1bG5pZXJzQGdvb2dsZS5j
-b20+DQo+IENjOiBKdWVyZ2VuIEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+DQo+IENjOiAiU3Jp
-dmF0c2EgUy4gQmhhdCAoVk13YXJlKSIgPHNyaXZhdHNhQGNzYWlsLm1pdC5lZHU+DQo+IENj
-OiBBbGV4ZXkgTWFraGFsb3YgPGFtYWtoYWxvdkB2bXdhcmUuY29tPg0KPiBDYzogVGhvbWFz
-IEdsZWl4bmVyIDx0Z2x4QGxpbnV0cm9uaXguZGU+DQo+IENjOiBJbmdvIE1vbG5hciA8bWlu
-Z29AcmVkaGF0LmNvbT4NCj4gQ2M6IEJvcmlzbGF2IFBldGtvdiA8YnBAYWxpZW44LmRlPg0K
-PiBDYzogRGF2ZSBIYW5zZW4gPGRhdmUuaGFuc2VuQGxpbnV4LmludGVsLmNvbT4NCj4gQ2M6
-ICJILiBQZXRlciBBbnZpbiIgPGhwYUB6eXRvci5jb20+DQo+IENjOiBWTXdhcmUgUFYtRHJp
-dmVycyBSZXZpZXdlcnMgPHB2LWRyaXZlcnNAdm13YXJlLmNvbT4NCj4gQ2M6IHg4NkBrZXJu
-ZWwub3JnDQo+IENjOiB2aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9y
-Zw0KPiBDYzogbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZw0KPiBDYzogbGx2bUBsaXN0
-cy5saW51eC5kZXYNCj4gU2lnbmVkLW9mZi1ieTogQmlsbCBXZW5kbGluZyA8bW9yYm9AZ29v
-Z2xlLmNvbT4NCj4gU3VnZ2VzdGVkLWJ5OiBQZXRlciBaaWpsc3RyYSA8cGV0ZXJ6QGluZnJh
-ZGVhZC5vcmc+DQo+IFJlcG9ydGVkLWFuZC10ZXN0ZWQtYnk6IE5hdGhhbiBDaGFuY2VsbG9y
-IDxuYXRoYW5Aa2VybmVsLm9yZz4NCg0KUmV2aWV3ZWQtYnk6IEp1ZXJnZW4gR3Jvc3MgPGpn
-cm9zc0BzdXNlLmNvbT4NCg0KDQpKdWVyZ2VuDQo=
---------------auY0lbM04uuXeWa1GPAl40xG
+T24gMTUuMDkuMjIgMDQ6MjMsIExpYW5nIEhlIHdyb3RlOg0KPiBJbiBqYWlsaG91c2VfcGFy
+YXZpcnQoKSwgd2Ugc2hvdWxkIGhvbGQgdGhlIHJlZmVyZW5jZSByZXR1cm5lZCBmcm9tDQo+
+IG9mX2ZpbmRfY29tcGF0aWJsZV9ub2RlKCkgd2hpY2ggaGFzIGluY3JlYXNlZCB0aGUgcmVm
+Y291bnQgYW5kIHRoZW4NCj4gY2FsbCBvZl9ub2RlX3B1dCgpIHdpdGggaXQgd2hlbiBkb25l
+Lg0KPiANCj4gRml4ZXM6IDYzMzM4YTM4ZGI5NSAoImphaWxob3VzZTogUHJvdmlkZSBkZXRl
+Y3Rpb24gZm9yIG5vbi14ODYgc3lzdGVtcyIpDQo+IFNpZ25lZC1vZmYtYnk6IExpYW5nIEhl
+IDx3aW5kaGxAMTI2LmNvbT4NCj4gU2lnbmVkLW9mZi1ieTogS2VsaW4gV2FuZyA8d2FuZ2tl
+bGluMjAyM0AxNjMuY29tPg0KDQpSZXZpZXdlZC1ieTogSnVlcmdlbiBHcm9zcyA8amdyb3Nz
+QHN1c2UuY29tPg0KDQoNCkp1ZXJnZW4NCg==
+--------------FBI8EygSgQdANFvetfgZwIky
 Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
 Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
 Content-Description: OpenPGP public key
@@ -259,29 +194,29 @@ jR/i1DG86lem3iBDXzXsZDn8R38=3D
 =3D2wuH
 -----END PGP PUBLIC KEY BLOCK-----
 
---------------auY0lbM04uuXeWa1GPAl40xG--
+--------------FBI8EygSgQdANFvetfgZwIky--
 
---------------xYaDk5VXNS0yYjga337i39Ay--
+--------------gF6teLODOe0Gclz0lbadzV89--
 
---------------0vgYhJCAdT99yLwH4iU1YHhU
+--------------J8068Xb2eCwUNzTLyPBs5mRq
 Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="OpenPGP_signature"
 
 -----BEGIN PGP SIGNATURE-----
 
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmMizV8FAwAAAAAACgkQsN6d1ii/Ey+S
-ngf6AiUmo44nTAiwuyj5V7vut20xvukrRy36fFE4rN0XcEe+T7S2FyXNgKHuFyg8yhBDQYJRPk1k
-vh399GNEFTCZv2N+OoNydC9GbUnjoI1bc7u1ePak3ECVuJhsuqN7S+8DjSBaIBMY6zevMo/lj0fc
-h6SakTejcSXZHV59n8cNvSqXdRPL4OlhN8uu2SlF2kJh3fadPlixGLFJ7x5HtV4fAe0JQoEDPjGa
-1YJyLUoT1p1qxb1kpSRy4z0ivyGug02xUILR2NLB2AjdXYz5fHEDrt+cfW83Mlbex+ldx9016e8J
-EXjNCdMhgQ3G7MUobi7lmvDZRY+oR6EXJ7Itd5zSpw==
-=MqkD
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmMizZ4FAwAAAAAACgkQsN6d1ii/Ey+6
+GwgAiQbaWRN1IGkQpOZvBDYcwmqeoDxONpWFFGUAhQTGZ29W0FiTcVwgwA7l/D1mH2s9FR0AXXNG
+Ai1mEciapKg2Hjm44yRXEU0LefbEKDyMcOcVsa8KnnRlM2tcR0upFYA6BePFKuKi0cp6xh2534yn
+MhZm7g+VJWbxwJ+MD8TKkeVJ1q3M4rZvwD3XNcz2kq2fifdjPBjfkWcKL3AcXVdHHO7Vl6zN366I
+vDsAGOLHzYQ9ixjijW4U1gfM3uqo1wmS3UjZ2blJAUzjJcn8HRnV/RjhUkvTKkfFPQKiZy0sv/rO
+BHqT3JX2uOSgOkYSvZIvS/t4tLYa1WmaTmVQqEIFvA==
+=QvfK
 -----END PGP SIGNATURE-----
 
---------------0vgYhJCAdT99yLwH4iU1YHhU--
+--------------J8068Xb2eCwUNzTLyPBs5mRq--
 
---===============1303301145175020647==
+--===============4595931244617825311==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -291,4 +226,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============1303301145175020647==--
+--===============4595931244617825311==--
