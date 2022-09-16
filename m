@@ -1,96 +1,91 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 183FDC54EE9
-	for <virtualization@archiver.kernel.org>; Fri, 16 Sep 2022 05:39:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 79CBEC54EE9
+	for <virtualization@archiver.kernel.org>; Fri, 16 Sep 2022 05:48:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 94EF983EC3;
-	Fri, 16 Sep 2022 05:39:19 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 94EF983EC3
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=C/8AA994
+	by smtp3.osuosl.org (Postfix) with ESMTP id 06F47611DA;
+	Fri, 16 Sep 2022 05:48:17 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 06F47611DA
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=B6sDzHCT
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id gTHvCLbafOOg; Fri, 16 Sep 2022 05:39:18 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ZcIp89aTWMEE; Fri, 16 Sep 2022 05:48:16 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 397FF83E10;
-	Fri, 16 Sep 2022 05:39:18 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 397FF83E10
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 72642611B4;
+	Fri, 16 Sep 2022 05:48:15 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 72642611B4
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0CB17C0032;
-	Fri, 16 Sep 2022 05:39:18 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B8AFCC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 49D12C0032;
+	Fri, 16 Sep 2022 05:48:15 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E05D1C002D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Sep 2022 05:39:17 +0000 (UTC)
+ Fri, 16 Sep 2022 05:48:13 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 8067183E79
+ by smtp3.osuosl.org (Postfix) with ESMTP id AEF58611D9
  for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Sep 2022 05:39:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8067183E79
+ Fri, 16 Sep 2022 05:48:13 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org AEF58611D9
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id MWZB2mQfEK9d
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 4QRXoNgzuZwG
  for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Sep 2022 05:39:16 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CA3EC83E10
-Received: from mail-qk1-x730.google.com (mail-qk1-x730.google.com
- [IPv6:2607:f8b0:4864:20::730])
- by smtp1.osuosl.org (Postfix) with ESMTPS id CA3EC83E10
+ Fri, 16 Sep 2022 05:48:12 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 995BE611B4
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 995BE611B4
  for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Sep 2022 05:39:16 +0000 (UTC)
-Received: by mail-qk1-x730.google.com with SMTP id h28so15004479qka.0
- for <virtualization@lists.linux-foundation.org>;
- Thu, 15 Sep 2022 22:39:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:from:to:cc:subject:date;
- bh=bGui9tpfbXaXph8yxfFfUUcX4Z55523adcOMpqhHVIA=;
- b=C/8AA994O/cZ8hxBpVbmkDWFQfLeN6vQtNqHpX0NNuUGzSxZxIHZzLci5+nTSoRXpR
- 0PNc6NT531M56yKg2ezoxMYWIl/G0ZlG+uKkkZUyibSwjts034ATPq+1z04kYvc9DWR/
- YzZORv9pie2TCV56Ni9+JL28+DZbu+kBQpgXtCifI7omPtjgazEWLetEzGKEVoWIzsTc
- wILX9HC95d82SGDP8z+kDfMXpIXvwFIse+9dRbQJbLl8FouPb5lVBO1zr9MJ7BwFRYzZ
- lpP6ghO61dHv4FkMcCcGrxoUo1s2KELgYEBUgMPoDijeo4RUmuD/AR/OJDJpar6hlhwG
- hNNQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:x-gm-message-state:from:to:cc:subject:date;
- bh=bGui9tpfbXaXph8yxfFfUUcX4Z55523adcOMpqhHVIA=;
- b=ZuF6tCGTMM5835Ov3kqfgHRL/K94Sw6gvdIMJBEHqV9i9IvEBfD/9FlvTDFHN1sdu1
- /a+p+Wn7F64AvHSNpFKklgt4VGOrgh6joaN1p2sb4z6wLzZbzev9/SkOIuTM0cqpAu2A
- 0zRl+OuOq4c30HKw8n1Xzbxo4ZMGe7zvSU5P2iPSDtG9Jo4KeVzrcZxB94l/tjbHQ1sX
- Z7tM206ZO0OTjqegjs9DV8elJp0d1WM0jHs8j+r+Isor7rDctJZwVKIrgg9sVXgIdSjU
- Rv991QFXWSfluv/0n+u49gzKZkdZtZnwEZB0Jw3qWZznje155wx66WCtkaxlqeUHtGsu
- jtGA==
-X-Gm-Message-State: ACrzQf1k7A9NRlxWa1RhDCz8KrexKxPD6UtoPam86r888ar1l2m+QJAM
- v6W7H3oHXOgxG3h5d41l/pUjb6S3L6FkWkGUqw8=
-X-Google-Smtp-Source: AMsMyM44vljsR7IclcEs7VK9H0/h5xHSaFlh8ZSSxTaRFWhLWFsZx7TrUpGOdPjr32yxI7b0FYCkJK8CYLul6GgbXLU=
-X-Received: by 2002:a05:620a:2552:b0:6ca:bf8f:4d27 with SMTP id
- s18-20020a05620a255200b006cabf8f4d27mr2746831qko.383.1663306755654; Thu, 15
- Sep 2022 22:39:15 -0700 (PDT)
+ Fri, 16 Sep 2022 05:48:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1663307291;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=Dp2JKtQVEofdHF26h3kvOuW3Y1aGTMJaeJlmu8zOc8w=;
+ b=B6sDzHCTM7QEYFPHr4RGHAVL3yHSOpNU5IMGcLyNQMBKn1z1hpDKDnljNsZsumjaMjZcdt
+ 3J+1OTHy+l6ADVmU++6ET8tFEUXtDCb/90Cc0j3WVe1vWD+ns0qsTp+3OTfluRD1bLr226
+ L1JHtBV9GaGsQFqtNXzCjYidbQcV7oc=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-515-RIjpoBLVMJyIY7KDULPO8g-1; Fri, 16 Sep 2022 01:48:08 -0400
+X-MC-Unique: RIjpoBLVMJyIY7KDULPO8g-1
+Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.9])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 748218027EA;
+ Fri, 16 Sep 2022 05:48:07 +0000 (UTC)
+Received: from localhost (unknown [10.39.192.86])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id A3A32492CA4;
+ Fri, 16 Sep 2022 05:48:06 +0000 (UTC)
+Date: Fri, 16 Sep 2022 06:48:05 +0100
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Sarthak Kukreti <sarthakkukreti@chromium.org>
+Subject: Re: [PATCH RFC 3/8] virtio_blk: Add support for provision requests
+Message-ID: <YyQOFTI4CWn041UM@fedora>
+References: <20220915164826.1396245-1-sarthakkukreti@google.com>
+ <20220915164826.1396245-4-sarthakkukreti@google.com>
 MIME-Version: 1.0
-References: <20220915022343.4001331-1-windhl@126.com>
- <f7316f94-433f-d191-0379-423c22bec129@csail.mit.edu>
- <89a1b1f.165e.18344069cab.Coremail.windhl@126.com>
-In-Reply-To: <89a1b1f.165e.18344069cab.Coremail.windhl@126.com>
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Date: Fri, 16 Sep 2022 08:38:39 +0300
-Message-ID: <CAHp75Vd-ZdHJfjdgob7=e3X_=NQR_chWZzTiSVU64S9eTiAY0g@mail.gmail.com>
-Subject: Re: Re: [PATCH] jailhouse: Hold reference returned from of_find_xxx
- API
-To: Liang He <windhl@126.com>
-Cc: jgross@suse.com, jailhouse-dev@googlegroups.com, jan.kiszka@siemens.com,
- mark.rutland@arm.com, virtualization@lists.linux-foundation.org,
- robh+dt@kernel.org, wangkelin2023@163.com,
- "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
- Bjorn Helgaas <bhelgaas@google.com>, Thomas Gleixner <tglx@linutronix.de>
+In-Reply-To: <20220915164826.1396245-4-sarthakkukreti@google.com>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.9
+Cc: Jens Axboe <axboe@kernel.dk>, Gwendal Grignou <gwendal@google.com>,
+ Theodore Ts'o <tytso@mit.edu>, "Michael S . Tsirkin" <mst@redhat.com>,
+ Bart Van Assche <bvanassche@google.com>, Mike Snitzer <snitzer@kernel.org>,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ linux-block@vger.kernel.org, dm-devel@redhat.com,
+ Andreas Dilger <adilger.kernel@dilger.ca>, Daniil Lunev <dlunev@google.com>,
+ Paolo Bonzini <pbonzini@redhat.com>, linux-ext4@vger.kernel.org,
+ Evan Green <evgreen@google.com>, Alasdair Kergon <agk@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -102,52 +97,198 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============6602408800186052272=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Sep 16, 2022 at 5:02 AM Liang He <windhl@126.com> wrote:
-> At 2022-09-16 07:29:06, "Srivatsa S. Bhat" <srivatsa@csail.mit.edu> wrote:
-> >On 9/14/22 7:23 PM, Liang He wrote:
 
-..
+--===============6602408800186052272==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="WxlpI8UNA4dyQSlO"
+Content-Disposition: inline
 
-> >>  static inline bool jailhouse_paravirt(void)
-> >>  {
-> >> -    return of_find_compatible_node(NULL, NULL, "jailhouse,cell");
-> >> +    struct device_node *np = of_find_compatible_node(NULL, NULL, "jailhouse,cell");
-> >> +
-> >> +    of_node_put(np);
-> >> +
-> >> +    return np;
-> >>  }
-> >
-> >Thank you for the fix, but returning a pointer from a function with a
-> >bool return type looks odd. Can we also fix that up please?
-> >
->
-> Thanks for your review, how about following patch:
->
-> -       return of_find_compatible_node(NULL, NULL, "jailhouse,cell");
-> +       struct device_node *np = of_find_compatible_node(NULL, NULL, "jailhouse,cell");
+
+--WxlpI8UNA4dyQSlO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, Sep 15, 2022 at 09:48:21AM -0700, Sarthak Kukreti wrote:
+> From: Sarthak Kukreti <sarthakkukreti@chromium.org>
+>=20
+> Adds support for provision requests. Provision requests act like
+> the inverse of discards.
+>=20
+> Signed-off-by: Sarthak Kukreti <sarthakkukreti@chromium.org>
+> ---
+>  drivers/block/virtio_blk.c      | 48 +++++++++++++++++++++++++++++++++
+>  include/uapi/linux/virtio_blk.h |  9 +++++++
+>  2 files changed, 57 insertions(+)
+
+Please send a VIRTIO spec patch too:
+https://github.com/oasis-tcs/virtio-spec#providing-feedback
+
+Stefan
+
+>=20
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index 30255fcaf181..eacc2bffe1d1 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -178,6 +178,39 @@ static int virtblk_setup_discard_write_zeroes(struct=
+ request *req, bool unmap)
+>  	return 0;
+>  }
+> =20
+> +static int virtblk_setup_provision(struct request *req)
+> +{
+> +	unsigned short segments =3D blk_rq_nr_discard_segments(req);
+> +	unsigned short n =3D 0;
 > +
-> +       of_node_put(np);
+> +	struct virtio_blk_discard_write_zeroes *range;
+> +	struct bio *bio;
+> +	u32 flags =3D 0;
 > +
-> +       return (np==NULL);
+> +	range =3D kmalloc_array(segments, sizeof(*range), GFP_ATOMIC);
+> +	if (!range)
+> +		return -ENOMEM;
+> +
+> +	__rq_for_each_bio(bio, req) {
+> +		u64 sector =3D bio->bi_iter.bi_sector;
+> +		u32 num_sectors =3D bio->bi_iter.bi_size >> SECTOR_SHIFT;
+> +
+> +		range[n].flags =3D cpu_to_le32(flags);
+> +		range[n].num_sectors =3D cpu_to_le32(num_sectors);
+> +		range[n].sector =3D cpu_to_le64(sector);
+> +		n++;
+> +	}
+> +
+> +	WARN_ON_ONCE(n !=3D segments);
+> +
+> +	req->special_vec.bv_page =3D virt_to_page(range);
+> +	req->special_vec.bv_offset =3D offset_in_page(range);
+> +	req->special_vec.bv_len =3D sizeof(*range) * segments;
+> +	req->rq_flags |=3D RQF_SPECIAL_PAYLOAD;
+> +
+> +	return 0;
+> +}
+> +
+>  static void virtblk_unmap_data(struct request *req, struct virtblk_req *=
+vbr)
+>  {
+>  	if (blk_rq_nr_phys_segments(req))
+> @@ -243,6 +276,9 @@ static blk_status_t virtblk_setup_cmd(struct virtio_d=
+evice *vdev,
+>  	case REQ_OP_DRV_IN:
+>  		type =3D VIRTIO_BLK_T_GET_ID;
+>  		break;
+> +	case REQ_OP_PROVISION:
+> +		type =3D VIRTIO_BLK_T_PROVISION;
+> +		break;
+>  	default:
+>  		WARN_ON_ONCE(1);
+>  		return BLK_STS_IOERR;
+> @@ -256,6 +292,11 @@ static blk_status_t virtblk_setup_cmd(struct virtio_=
+device *vdev,
+>  			return BLK_STS_RESOURCE;
+>  	}
+> =20
+> +	if (type =3D=3D VIRTIO_BLK_T_PROVISION) {
+> +		if (virtblk_setup_provision(req))
+> +			return BLK_STS_RESOURCE;
+> +	}
+> +
+>  	return 0;
+>  }
+> =20
+> @@ -1075,6 +1116,12 @@ static int virtblk_probe(struct virtio_device *vde=
+v)
+>  		blk_queue_max_write_zeroes_sectors(q, v ? v : UINT_MAX);
+>  	}
+> =20
+> +	if (virtio_has_feature(vdev, VIRTIO_BLK_F_PROVISION)) {
+> +		virtio_cread(vdev, struct virtio_blk_config,
+> +			     max_provision_sectors, &v);
+> +		q->limits.max_provision_sectors =3D v ? v : UINT_MAX;
+> +	}
+> +
+>  	virtblk_update_capacity(vblk, false);
+>  	virtio_device_ready(vdev);
+> =20
+> @@ -1177,6 +1224,7 @@ static unsigned int features[] =3D {
+>  	VIRTIO_BLK_F_RO, VIRTIO_BLK_F_BLK_SIZE,
+>  	VIRTIO_BLK_F_FLUSH, VIRTIO_BLK_F_TOPOLOGY, VIRTIO_BLK_F_CONFIG_WCE,
+>  	VIRTIO_BLK_F_MQ, VIRTIO_BLK_F_DISCARD, VIRTIO_BLK_F_WRITE_ZEROES,
+> +	VIRTIO_BLK_F_PROVISION,
+>  };
+> =20
+>  static struct virtio_driver virtio_blk =3D {
+> diff --git a/include/uapi/linux/virtio_blk.h b/include/uapi/linux/virtio_=
+blk.h
+> index d888f013d9ff..184f8cf6d185 100644
+> --- a/include/uapi/linux/virtio_blk.h
+> +++ b/include/uapi/linux/virtio_blk.h
+> @@ -40,6 +40,7 @@
+>  #define VIRTIO_BLK_F_MQ		12	/* support more than one vq */
+>  #define VIRTIO_BLK_F_DISCARD	13	/* DISCARD is supported */
+>  #define VIRTIO_BLK_F_WRITE_ZEROES	14	/* WRITE ZEROES is supported */
+> +#define VIRTIO_BLK_F_PROVISION	15	/* provision is supported */
+> =20
+>  /* Legacy feature bits */
+>  #ifndef VIRTIO_BLK_NO_LEGACY
+> @@ -120,6 +121,11 @@ struct virtio_blk_config {
+>  	 */
+>  	__u8 write_zeroes_may_unmap;
+> =20
+> +	/*
+> +	 * The maximum number of sectors in a provision request.
+> +	 */
+> +	__virtio32 max_provision_sectors;
+> +
+>  	__u8 unused1[3];
+>  } __attribute__((packed));
+> =20
+> @@ -155,6 +161,9 @@ struct virtio_blk_config {
+>  /* Write zeroes command */
+>  #define VIRTIO_BLK_T_WRITE_ZEROES	13
+> =20
+> +/* Provision command */
+> +#define VIRTIO_BLK_T_PROVISION	14
+> +
+>  #ifndef VIRTIO_BLK_NO_LEGACY
+>  /* Barrier before this op. */
+>  #define VIRTIO_BLK_T_BARRIER	0x80000000
+> --=20
+> 2.31.0
+>=20
 
-This will be opposite to the above. Perhaps you wanted
+--WxlpI8UNA4dyQSlO
+Content-Type: application/pgp-signature; name="signature.asc"
 
-  return  !!np;
+-----BEGIN PGP SIGNATURE-----
 
-Also possible (but why?)
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmMkDhUACgkQnKSrs4Gr
+c8gBhQgAj+eIGn+EzZHnyfSo8pzDA7drzmOv94LW83kiyVOI6JYdh+aEYYM6sHMf
+gTVFR82rkR3Jpj8bMomZZJIkz09CWWsK9XZkdcWQmzpxhYzm84OeHzXPsntLROaV
+8G0rf2XUIw/g4LfPPklrIu0MVRVv5vQLEM5u081LPctLvVBcyfB4t71eAuHU8+Ie
+sIK/jDO6DNq2mTF9WGQGI8woLPJfAYEdX+la5V0rbYnVlhgGOqDcYItfU4O7anIf
+vLoxcSpIcERwLOpTkgI4OWFHUx1GAVNLKHSqlOQ2DA9E3nt6+N0GSdl8qkduMTbz
+CuMD4dvXFaIBzJR3jQvZbvWblmORmg==
+=oVLJ
+-----END PGP SIGNATURE-----
 
-  return np ? true : false;
+--WxlpI8UNA4dyQSlO--
 
--- 
-With Best Regards,
-Andy Shevchenko
+
+--===============6602408800186052272==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============6602408800186052272==--
+
