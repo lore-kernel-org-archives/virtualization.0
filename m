@@ -4,98 +4,81 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E1534C6FA8B
-	for <virtualization@archiver.kernel.org>; Fri, 16 Sep 2022 08:47:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id EDC62C54EE9
+	for <virtualization@archiver.kernel.org>; Fri, 16 Sep 2022 10:36:25 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 47C0C41BE3;
-	Fri, 16 Sep 2022 08:47:18 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 47C0C41BE3
+	by smtp4.osuosl.org (Postfix) with ESMTP id 53C65418DF;
+	Fri, 16 Sep 2022 10:36:25 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 53C65418DF
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=FJi75foO
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=susede1 header.b=JZQAJKBz
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id MKIGP4Hyw8kA; Fri, 16 Sep 2022 08:47:17 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 7179E41BC0;
-	Fri, 16 Sep 2022 08:47:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7179E41BC0
+	with ESMTP id qIKruFR7TCWk; Fri, 16 Sep 2022 10:36:24 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 879E8418BB;
+	Fri, 16 Sep 2022 10:36:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 879E8418BB
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3D004C0032;
-	Fri, 16 Sep 2022 08:47:16 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id CFBC4C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 698DFC0032;
+	Fri, 16 Sep 2022 10:36:23 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 64B18C002D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Sep 2022 08:47:14 +0000 (UTC)
+ Fri, 16 Sep 2022 10:36:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id B29C28426B
+ by smtp4.osuosl.org (Postfix) with ESMTP id 3690C418BF
  for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Sep 2022 08:47:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B29C28426B
-Authentication-Results: smtp1.osuosl.org; dkim=pass (2048-bit key,
- unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256
- header.s=20210112 header.b=FJi75foO
+ Fri, 16 Sep 2022 10:36:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3690C418BF
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id mUQaqNtx6x5T
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id iL2DdwOOafEg
  for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Sep 2022 08:47:14 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E862B8425D
-Received: from mail-qt1-x831.google.com (mail-qt1-x831.google.com
- [IPv6:2607:f8b0:4864:20::831])
- by smtp1.osuosl.org (Postfix) with ESMTPS id E862B8425D
+ Fri, 16 Sep 2022 10:36:19 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org CCE1A418BB
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id CCE1A418BB
  for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Sep 2022 08:47:13 +0000 (UTC)
-Received: by mail-qt1-x831.google.com with SMTP id cj27so3278463qtb.7
- for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Sep 2022 01:47:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:from:to:cc:subject:date;
- bh=YNQhhnLP2IaYIDCSrmAb0DLC6VTKZOy/Bj93eUvHKMk=;
- b=FJi75foOExmtuxypz3Xi9WUQC6nNaftvRns2MPo2G93f2eM2BYttloXJJqWQtguebl
- Gvnmgf1F5phEYtkc5x6Uk7yekktil/7IwfL3tD8Ae3j3i+ry7UOOtMaQZjwO5fnf3Nnn
- /N09gMYBqX/F2c2VADdz+mdpqtdzqNXsywGoQZwueqQOi4cJSnyXV422IDrLjtHTlYiD
- spIODoF9e4Uvg2fnzN/EyZzCRdIpwXH4eYsOOUeZODUyYqSRO4iAFC0zE0LGwKaClPyk
- XedLOaCqIoFK0WMd0N+eDRwTK3H2zDC2DwSCqRZlIyzEaDp0Pd7LpaTNv49lZG2bOb1y
- 3gKQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:x-gm-message-state:from:to:cc:subject:date;
- bh=YNQhhnLP2IaYIDCSrmAb0DLC6VTKZOy/Bj93eUvHKMk=;
- b=wfnaZLAj31VTLEOr9avGau93cHetIE7/ze0SayU/vogF8pG4oX8iNCQq8d60VcAomQ
- DccFJzbuxKlxKJ0oAa0qpF8cKISSdNe/gRXQBTBm68xo7BLMIaBpLm18Y65cEtQTEtsA
- sA5eLQaX3QDmqGVdofLGbAhfF0oQRsUSUx9edL2pIDYNkGStuWP2v6gnbvHuoUpZAJF3
- wGi9R4Enys7S8t3b+VTlelZJJLdPLMt3T8em7d/PVkgsQAlgD5qY7RUbXfTKWhwGHALi
- jvCi/BZT8D2U+JbIkf3L3RU/4hWa898Veb6kQq4mknH2DZ/XyHqcXBWdKDqDggAAvmbW
- 9K0Q==
-X-Gm-Message-State: ACrzQf2/J1lkHK/ID226vvUD9fuplk3WwqoFr2QAOzajGnEocT/EPJO8
- FBBiYL3sE+X8x11Fg3CqMPR3ZUHf/C3s+nV8xqc=
-X-Google-Smtp-Source: AMsMyM4LfpNcDiSq3jKoQg4wR435CJgg/DKANzpsa2x3JtAo53BMy2C7x+xfuHj5zvAa7iOtFUx3GkcLs16oKGmKBnc=
-X-Received: by 2002:ac8:7f92:0:b0:344:8cd8:59a1 with SMTP id
- z18-20020ac87f92000000b003448cd859a1mr3479496qtj.384.1663318032278; Fri, 16
- Sep 2022 01:47:12 -0700 (PDT)
+ Fri, 16 Sep 2022 10:36:18 +0000 (UTC)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by smtp-out2.suse.de (Postfix) with ESMTPS id 531EF20111;
+ Fri, 16 Sep 2022 10:36:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+ t=1663324576; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=3Mr5B09ql4rgVwGgZnPJUijCE7uNJbt2AIvanYr8VAc=;
+ b=JZQAJKBz9DRrIV8dGS4XRv9sMkc0XQKCaeqV1TknVjsst4u7/crLp1UKbNVuivTlOoerRe
+ UjSulnaNFq6GKBctAYNAL9rAgnKCAnhlskgtGTTnljRCqhJWyItvbEtnuVu1t3hjLf7v8z
+ jUwwxwakUTAeAX9cotciFzdhgFtk67k=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 2E97F1346B;
+ Fri, 16 Sep 2022 10:36:16 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+ by imap2.suse-dmz.suse.de with ESMTPSA id rKkhCqBRJGPVdQAAMHmgww
+ (envelope-from <jgross@suse.com>); Fri, 16 Sep 2022 10:36:16 +0000
+Message-ID: <a7044036-1dd7-0a3c-6b60-392cb5f774dc@suse.com>
+Date: Fri, 16 Sep 2022 12:36:15 +0200
 MIME-Version: 1.0
-References: <20220915022343.4001331-1-windhl@126.com>
- <f7316f94-433f-d191-0379-423c22bec129@csail.mit.edu>
- <89a1b1f.165e.18344069cab.Coremail.windhl@126.com>
- <CAHp75Vd-ZdHJfjdgob7=e3X_=NQR_chWZzTiSVU64S9eTiAY0g@mail.gmail.com>
- <7f9efc57.4645.183451f5b84.Coremail.windhl@126.com>
-In-Reply-To: <7f9efc57.4645.183451f5b84.Coremail.windhl@126.com>
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Date: Fri, 16 Sep 2022 11:46:36 +0300
-Message-ID: <CAHp75VfQHnt2YxuxbFo96tfDrHEZpEqSFKFV_D7ERe6uXEnvEQ@mail.gmail.com>
-Subject: Re: Re: Re: [PATCH] jailhouse: Hold reference returned from
- of_find_xxx API
-To: Liang He <windhl@126.com>
-Cc: jgross@suse.com, jailhouse-dev@googlegroups.com, jan.kiszka@siemens.com,
- mark.rutland@arm.com, virtualization@lists.linux-foundation.org,
- robh+dt@kernel.org, wangkelin2023@163.com,
- "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
- Bjorn Helgaas <bhelgaas@google.com>, Thomas Gleixner <tglx@linutronix.de>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.12.0
+Subject: Re: [PATCH v2] jailhouse: Hold reference returned from of_find_xxx API
+Content-Language: en-US
+To: Liang He <windhl@126.com>, srivatsa@csail.mit.edu,
+ virtualization@lists.linux-foundation.org
+References: <20220916090051.4096328-1-windhl@126.com>
+In-Reply-To: <20220916090051.4096328-1-windhl@126.com>
+Cc: wangkelin2023@163.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -107,59 +90,139 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+From: Juergen Gross via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Juergen Gross <jgross@suse.com>
+Content-Type: multipart/mixed; boundary="===============2761781261571837215=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Sep 16, 2022 at 10:09 AM Liang He <windhl@126.com> wrote:
-> At 2022-09-16 13:38:39, "Andy Shevchenko" <andy.shevchenko@gmail.com> wrote:
-> >On Fri, Sep 16, 2022 at 5:02 AM Liang He <windhl@126.com> wrote:
-> >> At 2022-09-16 07:29:06, "Srivatsa S. Bhat" <srivatsa@csail.mit.edu> wrote:
-> >> >On 9/14/22 7:23 PM, Liang He wrote:
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--===============2761781261571837215==
+Content-Language: en-US
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------SHbyhcizx7HaLr6M7RDOiSj0"
 
-...
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------SHbyhcizx7HaLr6M7RDOiSj0
+Content-Type: multipart/mixed; boundary="------------H6n7TWS4S3Qph0H1vDolAmwo";
+ protected-headers="v1"
+From: Juergen Gross <jgross@suse.com>
+To: Liang He <windhl@126.com>, srivatsa@csail.mit.edu,
+ virtualization@lists.linux-foundation.org
+Cc: wangkelin2023@163.com
+Message-ID: <a7044036-1dd7-0a3c-6b60-392cb5f774dc@suse.com>
+Subject: Re: [PATCH v2] jailhouse: Hold reference returned from of_find_xxx
+ API
+References: <20220916090051.4096328-1-windhl@126.com>
+In-Reply-To: <20220916090051.4096328-1-windhl@126.com>
 
-> >> >>  static inline bool jailhouse_paravirt(void)
-> >> >>  {
-> >> >> -    return of_find_compatible_node(NULL, NULL, "jailhouse,cell");
-> >> >> +    struct device_node *np = of_find_compatible_node(NULL, NULL, "jailhouse,cell");
-> >> >> +
-> >> >> +    of_node_put(np);
-> >> >> +
-> >> >> +    return np;
-> >> >>  }
-> >> >
-> >> >Thank you for the fix, but returning a pointer from a function with a
-> >> >bool return type looks odd. Can we also fix that up please?
-> >>
-> >> Thanks for your review, how about following patch:
-> >>
-> >> -       return of_find_compatible_node(NULL, NULL, "jailhouse,cell");
-> >> +       struct device_node *np = of_find_compatible_node(NULL, NULL, "jailhouse,cell");
-> >> +
-> >> +       of_node_put(np);
-> >> +
-> >> +       return (np==NULL);
->
-> >This will be opposite to the above. Perhaps you wanted
->
-> Sorry, I wanted to use 'np!=NULL'
->
-> >  return  !!np;
-> >
-> >Also possible (but why?)
-> >
-> >  return np ? true : false;
->
-> So, can I chose 'return np?true: false;' as the final patch?
+--------------H6n7TWS4S3Qph0H1vDolAmwo
+Content-Type: multipart/mixed; boundary="------------2TQ0X72MKOJj06wV5VoyOrkY"
 
-Of course you can, it's up to the maintainer(s) what to accept.
+--------------2TQ0X72MKOJj06wV5VoyOrkY
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
--- 
-With Best Regards,
-Andy Shevchenko
+T24gMTYuMDkuMjIgMTE6MDAsIExpYW5nIEhlIHdyb3RlOg0KPiBJbiBqYWlsaG91c2VfcGFy
+YXZpcnQoKSwgd2Ugc2hvdWxkIGhvbGQgdGhlIHJlZmVyZW5jZSByZXR1cm5lZCBmcm9tDQo+
+IG9mX2ZpbmRfY29tcGF0aWJsZV9ub2RlKCkgd2hpY2ggaGFzIGluY3JlYXNlZCB0aGUgcmVm
+Y291bnQgYW5kIHRoZW4NCj4gY2FsbCBvZl9ub2RlX3B1dCgpIHdpdGggaXQgd2hlbiBkb25l
+Lg0KPiANCj4gRml4ZXM6IDYzMzM4YTM4ZGI5NSAoImphaWxob3VzZTogUHJvdmlkZSBkZXRl
+Y3Rpb24gZm9yIG5vbi14ODYgc3lzdGVtcyIpDQo+IFNpZ25lZC1vZmYtYnk6IExpYW5nIEhl
+IDx3aW5kaGxAMTI2LmNvbT4NCj4gQ28tZGV2ZWxvcGVkLWJ5OiBLZWxpbiBXYW5nIDx3YW5n
+a2VsaW4yMDIzQDE2My5jb20+DQo+IFNpZ25lZC1vZmYtYnk6IEtlbGluIFdhbmcgPHdhbmdr
+ZWxpbjIwMjNAMTYzLmNvbT4NCg0KUmV2aWV3ZWQtYnk6IEp1ZXJnZW4gR3Jvc3MgPGpncm9z
+c0BzdXNlLmNvbT4NCg0KDQpKdWVyZ2VuDQo=
+--------------2TQ0X72MKOJj06wV5VoyOrkY
+Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Description: OpenPGP public key
+Content-Transfer-Encoding: quoted-printable
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+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
+jR/i1DG86lem3iBDXzXsZDn8R38=3D
+=3D2wuH
+-----END PGP PUBLIC KEY BLOCK-----
+
+--------------2TQ0X72MKOJj06wV5VoyOrkY--
+
+--------------H6n7TWS4S3Qph0H1vDolAmwo--
+
+--------------SHbyhcizx7HaLr6M7RDOiSj0
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmMkUZ8FAwAAAAAACgkQsN6d1ii/Ey9e
+/Af+NOU81SWyb/FpYxjQDH5NJYPx6rCCnHChqdv/iDDsvc9bhroVV6vjOAxu8AeSkrM0fGYd9KRA
+h3wqUT4LvYe862eXXLz1EC9Dp8tr/N+I5KXjhq1/9a2MLkm4YqbqaIKv/F+FeMHS37Dhae12FHS7
+YfAOwkolbQk62holM9Iw4SL6RMJ/vIY9fcLrQXPRrKGqHuGEF9tyYgnGfzJblDjd0tAzFvrRqX0k
+SaqeEGTs2mzxIiH/+T+rnp+Yn5EnvkterR7o1wIt5tSvJrtS75fZJf8NcIey4PRibPYfjqDSjD1T
+BOQcO1boiTxm2UZyY9+pHkok/6DAkrSRXkrJzyf1SQ==
+=gIJp
+-----END PGP SIGNATURE-----
+
+--------------SHbyhcizx7HaLr6M7RDOiSj0--
+
+--===============2761781261571837215==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============2761781261571837215==--
