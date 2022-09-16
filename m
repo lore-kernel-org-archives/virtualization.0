@@ -4,117 +4,182 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 13CD4C54EE9
-	for <virtualization@archiver.kernel.org>; Fri, 16 Sep 2022 03:51:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6AC6AC6FA82
+	for <virtualization@archiver.kernel.org>; Fri, 16 Sep 2022 05:25:23 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 7B28A611C9;
-	Fri, 16 Sep 2022 03:51:41 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7B28A611C9
+	by smtp3.osuosl.org (Postfix) with ESMTP id D0FBE611D9;
+	Fri, 16 Sep 2022 05:25:22 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D0FBE611D9
 Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Y37N6X7X
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=whJfR7Js;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=SFOxnLYm
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id d5_grWBgzAd4; Fri, 16 Sep 2022 03:51:40 +0000 (UTC)
+	with ESMTP id IwpoprrblrUn; Fri, 16 Sep 2022 05:25:22 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 035DF611C7;
-	Fri, 16 Sep 2022 03:51:39 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 035DF611C7
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 4AB15611DA;
+	Fri, 16 Sep 2022 05:25:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4AB15611DA
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D7CD8C0032;
-	Fri, 16 Sep 2022 03:51:39 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 9EECEC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1F855C0032;
+	Fri, 16 Sep 2022 05:25:21 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 64761C002D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Sep 2022 03:51:38 +0000 (UTC)
+ Fri, 16 Sep 2022 05:25:19 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 6570584000
+ by smtp4.osuosl.org (Postfix) with ESMTP id 267C241B37
  for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Sep 2022 03:51:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6570584000
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=Y37N6X7X
+ Fri, 16 Sep 2022 05:25:19 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 267C241B37
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com
+ header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=whJfR7Js; 
+ dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
+ header.i=@oracle.onmicrosoft.com header.a=rsa-sha256
+ header.s=selector2-oracle-onmicrosoft-com header.b=SFOxnLYm
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id rBh5NLe5AUNS
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id gBFzvkVtWvaS
  for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Sep 2022 03:51:37 +0000 (UTC)
+ Fri, 16 Sep 2022 05:25:16 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5F77D83FFE
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 5F77D83FFE
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 684AC419B0
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com
+ [205.220.177.32])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 684AC419B0
  for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Sep 2022 03:51:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1663300296;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=C/CNirb5aNM2+/jDbEf4rfvjRpTSCtEdOZAcwKqI7yU=;
- b=Y37N6X7Xh/f5l99QkEjFJkwk9T1hLSiaUkciHhuVdV44Bc4ZSN/vbfO90NdRpZIOtBQVrj
- AQHCIzB6EjSXfgX0zIH/o/z3wag/BYhJ3SfcxdUpa+WvpPMx4kgWab3NC5/mSpHCFlfRKu
- 7KHyQygC9fgNjznG7VOS1Rkb+Bjhf7M=
-Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
- [209.85.167.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-325-0nxfRhGXMVC_U-YfzLVVAA-1; Thu, 15 Sep 2022 23:51:34 -0400
-X-MC-Unique: 0nxfRhGXMVC_U-YfzLVVAA-1
-Received: by mail-lf1-f72.google.com with SMTP id
- y17-20020a056512045100b0049e83e1053fso1532433lfk.9
- for <virtualization@lists.linux-foundation.org>;
- Thu, 15 Sep 2022 20:51:34 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:x-gm-message-state:from:to:cc:subject:date;
- bh=C/CNirb5aNM2+/jDbEf4rfvjRpTSCtEdOZAcwKqI7yU=;
- b=Xyc6p/j2js8NtrxzZP4YHvNofyY2EKoixifh9zEHmvhLK9pLPSSgpmgtO8ydMlK2UQ
- QVN/TjejqroEjjSm60sKylpLqa4s0V+IWF+4h/KOH2VwOgRSaWZZ7Ys5X1MlYkZWecAA
- WjKvjwBX57CF/z3PJnegLC6k9SiW2FPCYHLsZ3XfsbfYudcGbzSgGBnhp0qVC3XG7poU
- 1qz/4Ns0yq63Ar2cNI/2fUjMDmQY2jDo1lZVyrNV8TfnLZ7ZllBum1vYaF1OoUjSnAG5
- kuDORsk8pX7Mfc6zKmhEbwoYerXY4Jr4r4/avLEuFrEcli7u2SNz6X4rakuI7LS38Q2A
- LFbA==
-X-Gm-Message-State: ACrzQf0fajk08Ey1EPGB9+hw9YwGowjRdbD1OqhspqEu8c+D3DUir/Rq
- xDhZRDzdjM62t+jaL96sxrsfQPeBZz0yzY3jNcy7pUXZqlnT+p/QELGV6Wef4h8w8nwv+hN75xT
- levPuNYJdJ6Rk5ZHkpo5JAnplgZeO0oSkk51qg/5Mpe+d8ckAwyIKbmaTnw==
-X-Received: by 2002:a05:6512:3d17:b0:497:9e34:94f2 with SMTP id
- d23-20020a0565123d1700b004979e3494f2mr941129lfv.285.1663300293447; 
- Thu, 15 Sep 2022 20:51:33 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM4KIjQQOQEAz2rfnCXfJXK795QetoyHr8NUQ0oWj6eNCqrdNbxhUg53OGOwyxCvA4D1rGGNQcSqWMcwTJW2PsE=
-X-Received: by 2002:a05:6512:3d17:b0:497:9e34:94f2 with SMTP id
- d23-20020a0565123d1700b004979e3494f2mr941108lfv.285.1663300293246; Thu, 15
- Sep 2022 20:51:33 -0700 (PDT)
+ Fri, 16 Sep 2022 05:25:16 +0000 (UTC)
+Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
+ by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28G1ww7V018465;
+ Fri, 16 Sep 2022 05:25:12 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+ h=date : from : to : cc
+ : subject : message-id : references : content-type : in-reply-to :
+ mime-version; s=corp-2022-7-12;
+ bh=tMMKslU0XgOuVHI0vqLvDtV6KVmyWl6ymVlgjq9+HL0=;
+ b=whJfR7Js5CLhSyBpTAd+DQZY8+olqc9wq/YE+DPq2y5WvGgJ0SucOfSKeVwWmZuqieE1
+ f/xT1M3eyP4mZvsrp6a0PUuC5qcbJVyvfGm7HYitYD2hIofK4RSsJnYxCyb4bHhi3C+D
+ CgukivDGoD13gdxKHC13lqrnxccr6LJJecEOCiVGI9c05N1sMrfyOZUTrUbyVOEd1tni
+ qyTReo9om06BESlA7mJuypP3Mmw3cDbQSkks+2BvQjcMtYhY58rlRXMtCPcf/ZgHGvSe
+ fjRPmL/roFdtEVxU/ElA7+xArD2cVtwWr5L5el/iN91gd1Vmh4nYlzYG+byRwyoMI/SE Kw== 
+Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com
+ (iadpaimrmta02.appoci.oracle.com [147.154.18.20])
+ by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3jm8x89df6-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Fri, 16 Sep 2022 05:25:12 +0000
+Received: from pps.filterd
+ (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+ by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.5/8.17.1.5)
+ with ESMTP id 28G3mmPs025139; Fri, 16 Sep 2022 05:25:11 GMT
+Received: from nam12-mw2-obe.outbound.protection.outlook.com
+ (mail-mw2nam12lp2044.outbound.protection.outlook.com [104.47.66.44])
+ by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id
+ 3jm8xdsk98-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Fri, 16 Sep 2022 05:25:11 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=IP4cut6bztOeixQbHpIAgk19yq6IPdn7aiqZ8rLxNbRiigquiaziOSumMi0fgv/Dkjk6wJzZuhPmBgHhQIReq5RVW6aHGBYJJkST4RKQUyfURyJNlRGPr6xlkkGzm3TURMdOAoVdKh2hUj4oRx/vmn9lXvPBbHVIS2v6AkkciOBFTmOWoSJcTO13T9T4TjLO/XdKXPfG/1qXrjvG1wPLqUc5VlRwuZWSq5mac3yYwh1KmQo93lZ+L3Oh+xCzH0I/Tkq2dmZqICZuhNka0jCN9JAGaO7udFV4WD8zEA8b+AIoFYUWHZcXNs/by+yxxD0EpJbkyoYhrBwlb3IDi1yS0A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=tMMKslU0XgOuVHI0vqLvDtV6KVmyWl6ymVlgjq9+HL0=;
+ b=VsuHvniI6XQlfLFrYcHsCehkkLsTqd/9s45jwAh9E4jl0CnZ3iykg1re6aCLrF9TuOdTtMX1bxmWXNTKBwN4TkAZWVHJCdWKl9mFDV6sR+vIcumjw8Emk/ziBsle6KcGCybHPBiRssO1Ccuz8yJ0BX37LgvQjDB01joLtmCEw4gyZdsP1jiEMvumQeTDFoAjDIKqL8uZ1xcpRn+5/ANJWL84GWZVtM8Har6PwBUaY0/9no9mnNtfCVlJegB/eD0SjwQs18ddPtAm4V6HZAY0YTgoZx/tydPIKa6nob1bh+Wv9/VM6n2s/tatw03ChYuI+3k5FEINZkdfmk1lZDdgDw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=tMMKslU0XgOuVHI0vqLvDtV6KVmyWl6ymVlgjq9+HL0=;
+ b=SFOxnLYmWx5ypN2mOGCWxD5y8/oJC7Rq4drrlRklrwRE8gVq1w7m15Xk4xRuo32JRFZxQScY9sMi+UMbX+UMOnt8lBDymAsGWffCnQ9zPItt1QWAX9AUSXEvRKJYwMvF75Xa6tloRJ+ErkBxeHnC1fH8fdjIyhR/ukA4WcvYSJs=
+Received: from MWHPR1001MB2365.namprd10.prod.outlook.com
+ (2603:10b6:301:2d::28) by CO6PR10MB5791.namprd10.prod.outlook.com
+ (2603:10b6:303:14c::22) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5632.15; Fri, 16 Sep
+ 2022 05:25:09 +0000
+Received: from MWHPR1001MB2365.namprd10.prod.outlook.com
+ ([fe80::a493:38d9:86ee:73d6]) by MWHPR1001MB2365.namprd10.prod.outlook.com
+ ([fe80::a493:38d9:86ee:73d6%6]) with mapi id 15.20.5632.015; Fri, 16 Sep 2022
+ 05:25:09 +0000
+Date: Fri, 16 Sep 2022 08:24:47 +0300
+From: Dan Carpenter <dan.carpenter@oracle.com>
+To: Chia-I Wu <olvaffe@gmail.com>
+Subject: Re: [PATCH] virtio-gpu: fix shift wrapping bug in
+ virtio_gpu_fence_event_create()
+Message-ID: <YyQIn7vQDMuKObRB@kadam>
+References: <YyMJBkId0c1lvrrO@kili>
+ <CAPaKu7SCZuX_agp3WUWkra63w6=+ZMyLSSqk9tZyB+B75sVo7w@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <CAPaKu7SCZuX_agp3WUWkra63w6=+ZMyLSSqk9tZyB+B75sVo7w@mail.gmail.com>
+X-ClientProxiedBy: JNAP275CA0006.ZAFP275.PROD.OUTLOOK.COM (2603:1086:0:4c::11)
+ To MWHPR1001MB2365.namprd10.prod.outlook.com
+ (2603:10b6:301:2d::28)
 MIME-Version: 1.0
-References: <cover.1660362668.git.bobby.eshleman@bytedance.com>
- <YxdKiUzlfpHs3h3q@fedora> <Yv5PFz1YrSk8jxzY@bullseye>
- <20220908143652.tfyjjx2z6in6v66c@sgarzare-redhat>
- <YxuCVfFcRdWHeeh8@bullseye>
- <CAGxU2F5HG_UouKzJNuvfeCASJ4j84qPY9-7-yFUpEtAJQSoxJg@mail.gmail.com>
- <YxvNNd4dNTIUu6Rb@bullseye>
-In-Reply-To: <YxvNNd4dNTIUu6Rb@bullseye>
-From: Stefano Garzarella <sgarzare@redhat.com>
-Date: Fri, 16 Sep 2022 05:51:22 +0200
-Message-ID: <CAGxU2F5+M2SYKwr56NJ9s2yO5h40MWQFO82t_RkSvx10VRfbVQ@mail.gmail.com>
-Subject: Re: Call to discuss vsock netdev/sk_buff [was Re: [PATCH 0/6]
- virtio/vsock: introduce dgrams, sk_buff, and qdisc]
-To: Bobby Eshleman <bobbyeshleman@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: linux-hyperv@vger.kernel.org, Cong Wang <cong.wang@bytedance.com>,
- Bobby Eshleman <bobby.eshleman@bytedance.com>, kvm@vger.kernel.org,
- "Michael S. Tsirkin" <mst@redhat.com>,
- Bobby Eshleman <bobby.eshleman@gmail.com>,
- virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>,
- Wei Liu <wei.liu@kernel.org>, Stephen Hemminger <sthemmin@microsoft.com>,
- Dexuan Cui <decui@microsoft.com>, Bryan Tan <bryantan@vmware.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Haiyang Zhang <haiyangz@microsoft.com>, Stefan Hajnoczi <stefanha@redhat.com>,
- Vishnu Dasa <vdasa@vmware.com>, Jiang Wang <jiang.wang@bytedance.com>,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- "David S. Miller" <davem@davemloft.net>
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: MWHPR1001MB2365:EE_|CO6PR10MB5791:EE_
+X-MS-Office365-Filtering-Correlation-Id: ea03b815-619f-44e6-bb62-08da97a3d264
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: An/Kca6IhXrqRijR5J3wQvvAet/+LCDHWVt6gvei9j8SaVWXA1w/Q2Z8FYa+qqUVgBO6Pu5SmwpGrmeO0M4V13bkryo8Xr8E4mgrvE2GBeiKgPUHx6uN8vRqTJiyjux06B7OoRd2olJhDlMwcF1yS5TpVYKyRvZupRMiiV/Lrc2fV19SauP2E4U0Z13bwHnIy3TwHLbtubRMvJUWqC9SrQsqWrNmHfkemHOHm1WnuMh8iLgPUq1WRJLrPDFRB/C6UD+5GaB46E4f3BJGrEkOcwdH7Kt90sQ4V3i7eRs/WePLNqJVLJf8Zf0qHaT+LQ3o5E6wAaLTa3l61sGQy7XpK3npw75JjyX4rsIU2hH31EqtkvZCmE+3Xm6qSkxA2LiReTo3GigBuTIW4sangEfr/2Cr93ShaAmxfc0SQS6AYcBgpvqkCyhX2INlYwl+qRc/3Ny/1OtzDHCsBPK0xn3AA6RQ44ZT3IX161pa2D6k3ukGWkRHj/N4r9TK6nD4AVQsk8pjyYcOkQSWmD869/aSXmq/J4rL7Ji4rBkd4hJyFTfH69a3DZS+K2u1yv2+b0YC5/rXGDuVhnVsKbdXtXOrBHIDuHTYxZXYaKaHuXfcP8F9NvEsU4rXRux5DHvlswNZH1XoPm6HoC4+pRFTm4TEZtOCmyKq+wrpMTaDa3+Lbc8jGI6UPH555f49pkN5EhQw
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:MWHPR1001MB2365.namprd10.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230022)(7916004)(136003)(39860400002)(366004)(396003)(346002)(376002)(451199015)(478600001)(38100700002)(86362001)(44832011)(6486002)(4326008)(5660300002)(2906002)(8676002)(54906003)(316002)(66556008)(6916009)(66476007)(8936002)(66946007)(83380400001)(6666004)(33716001)(186003)(41300700001)(26005)(6512007)(53546011)(6506007)(9686003);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?0XpjL382qAKKf6rwnnW1DV3FxeFKjQ2PkDbJke9aWTRqJc6YUy3Oami2Wvh8?=
+ =?us-ascii?Q?TdxZ1ljj76AGC8cxcUFwche9J1QduzUkuBBDVdnPmrepX390lQrrJf99IxV6?=
+ =?us-ascii?Q?uFWLnSWKQPqqHbFk7C/SqSYp7NBNmQ0Sst2w7xRue8qH5vixgL9z5HD/Tw7c?=
+ =?us-ascii?Q?24vJ1qTqUldazm6HMjyf19PKUr4gu+hg6qhn8AtNQQxJCS8Hv8SYeJvVOAqY?=
+ =?us-ascii?Q?qMf7Pow3iWTAC0YA9YxzBd25Y9OgxZZfNvIB0ETxuAxq32C33q6gGpmDtLeP?=
+ =?us-ascii?Q?7rcWWJpztkDNgRl/O8adtfDoaCwssLapTsw/XHxIlQwO0kpqFHKXt4ycCPRz?=
+ =?us-ascii?Q?ayjC1Oxpa3nh6dAqxF2bET0CREtZQOWw3lMDL1pct1AV5pevTDUk/OZcj2EC?=
+ =?us-ascii?Q?aDHZ/Xm8CmD6Um2VAcDI1yXaelnolz2SwzsF2Cqx6jPRCEmez8bH0i9yOZYZ?=
+ =?us-ascii?Q?SgA28mYbBUBgX82f95iGPSsOhSUCtrVvlbZNBsyAw2/icg/PTjV8By5vMPKc?=
+ =?us-ascii?Q?Oa1sgYeyXnk7105cBgr3snFUScXQrwTf2dgLoU6/kQamPxpgnXf2Qz9QPut2?=
+ =?us-ascii?Q?MYnG5WE7PZiYf8mDvfFQmPbjOx8nYuTM33f3dv9+rrYbpZ5xW0ReGjZfLq9L?=
+ =?us-ascii?Q?Ui8rYgerTZ+B6fwAsibG4iDSt9nvPdgH7QM0kCtbcMPeQ5UD4JmlRwRVhpjw?=
+ =?us-ascii?Q?0qeQq1JEBwYLLMlgvbrVTjcR0zYfPE8rSQS+uTqvpuajxTDvxJf66djC5lCi?=
+ =?us-ascii?Q?ziuFaF+xgPctgDLEw80GXHCNUCZoj/OTN6UjeCbLraa+qZ1UySxZRUxB28RQ?=
+ =?us-ascii?Q?TvNv8liarYAJNs4X6LhxPldfrKRamu6XVHvUur8NQxhx0UTs6NbvwbITe1Km?=
+ =?us-ascii?Q?n1moZDXaNdNP9BqR5W07+HGL4NMNyAu5F7uKgCtLe3Ay2WvGw24HEygMrxOJ?=
+ =?us-ascii?Q?Tu3OCsCF6Hzscsd0u7wWqREOg9oTxax8zFeqdM4wuXQBW/BgW4Byeq3wY0aj?=
+ =?us-ascii?Q?opbH8HDIrB8BTb6q6wjVX9rqOIEq7INXzXBm3by2GQdnwj86pBiyPPh1VXGb?=
+ =?us-ascii?Q?HPtIXVPJXpTjqn8eGzbPYBXY+ZzvERDTgHkZP7AlB3mOuvXIH33rXgukfIhP?=
+ =?us-ascii?Q?wmY9pk+xz3lKn9XiYScbsbO9BH2PSS2qMpElHeRpSONrtk07BpP44QfJTzAC?=
+ =?us-ascii?Q?wQwWcZt63HuQHsxzPqeOO19hiIdmwY2BX6lS2WaLdwGhzIXDOjTCa2AelqOJ?=
+ =?us-ascii?Q?X5ipM8oIua9OfwTy2xOg16EWEBINNEaiLAI+iq6AU7zlfSVdhCPxECxOnctN?=
+ =?us-ascii?Q?hx9KG6mEaOWgYjwb2EjYeJsTxrhLD/PoAyKfuFQ5QWPUTe+FxjlLfe7K5k2U?=
+ =?us-ascii?Q?LRyUgS96+o0a0De7O1HPvTBZ6ywugS++TaM9s+0Cio+AmBx7G6kJ+ZrmJCVZ?=
+ =?us-ascii?Q?HEE2MKdEc71oXaldyX79mhUZZ1G+3hjMIyF2I3ncd90T+b7Ut2QvMoqA8j/1?=
+ =?us-ascii?Q?cy8OMzIc1yzA/BQrZfjjs0iDiRc8TNFIdegdeV/3T3LkYd7NIhgXOafX+GZy?=
+ =?us-ascii?Q?nXjC5SYpV6cdqHfATOzwXLQqCdBOnEgqgi0ncGZ1?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: ea03b815-619f-44e6-bb62-08da97a3d264
+X-MS-Exchange-CrossTenant-AuthSource: MWHPR1001MB2365.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Sep 2022 05:25:09.7095 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: vyOyvmCEK7MVUQdjhzBmVpdBZBHUFDJKP3a4thWZ7hzu1mKYXA7VUbvWiVkRoZp1oXGHdL4/qRkGiIv2OcnplcSLxYKomJLyBWd4iVL+4d4=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CO6PR10MB5791
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
+ definitions=2022-09-16_02,2022-09-14_04,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0
+ mlxlogscore=999
+ suspectscore=0 bulkscore=0 mlxscore=0 malwarescore=0 phishscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2209130000 definitions=main-2209160040
+X-Proofpoint-GUID: _-IXHRpJFOrU9Pgx5SeT-Z2oZAioxeOg
+X-Proofpoint-ORIG-GUID: _-IXHRpJFOrU9Pgx5SeT-Z2oZAioxeOg
+Cc: David Airlie <airlied@linux.ie>, kernel-janitors@vger.kernel.org,
+ dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
+ Daniel Vetter <daniel@ffwll.ch>, Gurchetan Singh <gurchetansingh@chromium.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -131,41 +196,38 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Sep 12, 2022 at 8:28 PM Bobby Eshleman <bobbyeshleman@gmail.com> wrote:
->
-> On Mon, Sep 12, 2022 at 08:12:58PM +0200, Stefano Garzarella wrote:
-> > On Fri, Sep 9, 2022 at 8:13 PM Bobby Eshleman <bobbyeshleman@gmail.com> wrote:
-> > >
-> > > Hey Stefano, thanks for sending this out.
-> > >
-> > > On Thu, Sep 08, 2022 at 04:36:52PM +0200, Stefano Garzarella wrote:
-> > > >
-> > > > Looking better at the KVM forum sched, I found 1h slot for Sep 15 at 16:30
-> > > > UTC.
-> > > >
-> > > > Could this work for you?
-> > >
-> > > Unfortunately, I can't make this time slot.
+On Thu, Sep 15, 2022 at 05:45:46PM -0700, Chia-I Wu wrote:
+> On Thu, Sep 15, 2022 at 4:14 AM Dan Carpenter <dan.carpenter@oracle.com> wrote:
 > >
-> > No problem at all!
+> > The ->ring_idx_mask variable is a u64 so static checkers, Smatch in
+> > this case, complain if the BIT() is not also a u64.
 > >
-> > >
-> > > My schedule also opens up a lot the week of the 26th, especially between
-> > > 16:00 and 19:00 UTC, as well as after 22:00 UTC.
+> > drivers/gpu/drm/virtio/virtgpu_ioctl.c:50 virtio_gpu_fence_event_create()
+> > warn: should '(1 << ring_idx)' be a 64 bit type?
 > >
-> > Great, that week works for me too.
-> > What about Sep 27 @ 16:00 UTC?
+> > Fixes: cd7f5ca33585 ("drm/virtio: implement context init: add virtio_gpu_fence_event")
+> > Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+> > ---
+> >  drivers/gpu/drm/virtio/virtgpu_ioctl.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
 > >
->
-> That time works for me!
+> > diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+> > index 3b1701607aae..14eedb75f8a8 100644
+> > --- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+> > +++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+> > @@ -47,7 +47,7 @@ static int virtio_gpu_fence_event_create(struct drm_device *dev,
+> >         struct virtio_gpu_fence_event *e = NULL;
+> >         int ret;
+> >
+> > -       if (!(vfpriv->ring_idx_mask & (1 << ring_idx)))
+> > +       if (!(vfpriv->ring_idx_mask & (1ULL << ring_idx)))
+> BIT_ULL(ring_indx)?
+> 
 
-Great! I sent you an invitation.
+Sure.  I can resend.
 
-For others that want to join the discussion, we will meet Sep 27 @
-16:00 UTC at this room: https://meet.google.com/fxi-vuzr-jjb
-
-Thanks,
-Stefano
+regards,
+dan carpenter
 
 _______________________________________________
 Virtualization mailing list
