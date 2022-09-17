@@ -4,95 +4,68 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 51E5EECAAD8
-	for <virtualization@archiver.kernel.org>; Fri, 16 Sep 2022 20:01:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 12A34C6FA82
+	for <virtualization@archiver.kernel.org>; Sat, 17 Sep 2022 05:25:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id D94D940195;
-	Fri, 16 Sep 2022 20:01:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D94D940195
+	by smtp2.osuosl.org (Postfix) with ESMTP id 85F304018D;
+	Sat, 17 Sep 2022 05:25:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 85F304018D
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id bvUT834pmYAq; Fri, 16 Sep 2022 20:01:16 +0000 (UTC)
+	with ESMTP id woxBPqgh5Smq; Sat, 17 Sep 2022 05:25:56 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 904EE40BCB;
-	Fri, 16 Sep 2022 20:01:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 904EE40BCB
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 135B6400C8;
+	Sat, 17 Sep 2022 05:25:56 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 135B6400C8
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5A4A1C0032;
-	Fri, 16 Sep 2022 20:01:15 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0B198C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E076AC0032;
+	Sat, 17 Sep 2022 05:25:55 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0879AC002D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Sep 2022 20:01:14 +0000 (UTC)
+ Sat, 17 Sep 2022 05:25:54 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id D36D9843B1
+ by smtp3.osuosl.org (Postfix) with ESMTP id D756361044
  for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Sep 2022 20:01:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D36D9843B1
+ Sat, 17 Sep 2022 05:25:53 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D756361044
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 0iZdXEuZBAGv
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id lFvhiQ2oYAgT
  for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Sep 2022 20:01:13 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 42C88843B0
-Received: from mail-pg1-f181.google.com (mail-pg1-f181.google.com
- [209.85.215.181])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 42C88843B0
+ Sat, 17 Sep 2022 05:25:53 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0F30960D4E
+Received: from outgoing2021.csail.mit.edu (outgoing2021.csail.mit.edu
+ [128.30.2.78])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 0F30960D4E
  for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Sep 2022 20:01:13 +0000 (UTC)
-Received: by mail-pg1-f181.google.com with SMTP id c24so21289226pgg.11
- for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Sep 2022 13:01:13 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=content-transfer-encoding:in-reply-to:from:references:cc:to
- :content-language:subject:user-agent:mime-version:date:message-id
- :x-gm-message-state:from:to:cc:subject:date;
- bh=aI55elBM47AbpRIfEoRwcS12RWAxkruf3PuVmLaNsIw=;
- b=514koLH0R9AdzeW6uqEwaIJyO0t93nbpQEBoM55ny76RNrQj881LnFh8MYHYU2jJu4
- uXtvKwB5+EsC0KoLhPdjUwOVrqF9TE4Pum09L9caQtTSYUg/TRBdKz92NuvyYjiyPpua
- hkwpjP30/DC9MfatXbvzGtWncqcXDw5E7tzyEGb6qiHIHesIc/I393Chsq/P7RmZJGXD
- R3jdQfGT1D81gSYPPCWMvl6OwaLUrz5skTGdq71RdBfE7OzvEOPD75irWt5SwVDmpqTX
- 5egop/WMCTvfff/3UNBZPyphxdqkoWF+Qu+ShxY+GV+Qc2rs8UggvBFwnV+3R921ie+j
- hEkQ==
-X-Gm-Message-State: ACrzQf253L/xyrdDYVzo7NpMGIX8ITqssq2VZ94S+HmaPj1bKW4mTp5y
- hKy8ej2n+t+1ONn6y1bn06E=
-X-Google-Smtp-Source: AMsMyM7BtRpoBGm+25ZIcjQ1eDg7usENuczHgm9wgE8Sus1sUlVcptKPjg/7yVuSQ/Mc/WEtnHJpcQ==
-X-Received: by 2002:a63:e452:0:b0:42c:60ce:8b78 with SMTP id
- i18-20020a63e452000000b0042c60ce8b78mr5917990pgk.453.1663358472565; 
- Fri, 16 Sep 2022 13:01:12 -0700 (PDT)
-Received: from ?IPV6:2620:15c:211:201:e470:c0f8:8896:5368?
- ([2620:15c:211:201:e470:c0f8:8896:5368])
- by smtp.gmail.com with ESMTPSA id
- n10-20020a170902d2ca00b00174c235e1fdsm15550309plc.199.2022.09.16.13.01.09
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Fri, 16 Sep 2022 13:01:11 -0700 (PDT)
-Message-ID: <0be0e378-1601-678c-247a-ba24d111b934@acm.org>
-Date: Fri, 16 Sep 2022 13:01:08 -0700
+ Sat, 17 Sep 2022 05:25:52 +0000 (UTC)
+Received: from c-24-17-218-140.hsd1.wa.comcast.net ([24.17.218.140]
+ helo=srivatsab-a02.vmware.com)
+ by outgoing2021.csail.mit.edu with esmtpsa (TLS1.3) tls
+ TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 (Exim 4.95)
+ (envelope-from <srivatsa@csail.mit.edu>) id 1oZQKc-001ohd-JP;
+ Sat, 17 Sep 2022 01:25:34 -0400
+Subject: Re: [PATCH v2] jailhouse: Hold reference returned from of_find_xxx API
+To: Liang He <windhl@126.com>, jgross@suse.com,
+ virtualization@lists.linux-foundation.org
+References: <20220916090051.4096328-1-windhl@126.com>
+From: "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>
+Message-ID: <0069849b-e6c7-5c9b-4b52-5aa6e4a328e4@csail.mit.edu>
+Date: Fri, 16 Sep 2022 22:25:31 -0700
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.12.0
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.12.0
-Subject: Re: [PATCH RFC 0/8] Introduce provisioning primitives for thinly
- provisioned storage
+In-Reply-To: <20220916090051.4096328-1-windhl@126.com>
 Content-Language: en-US
-To: Sarthak Kukreti <sarthakkukreti@chromium.org>,
- Stefan Hajnoczi <stefanha@redhat.com>
-References: <20220915164826.1396245-1-sarthakkukreti@google.com>
- <YyQTM5PRT2o/GDwy@fedora>
- <CAG9=OMPHZqdDhX=M+ovdg5fa3x4-Q_1r5SWPa8pMTQw0mr5fPg@mail.gmail.com>
-From: Bart Van Assche <bvanassche@acm.org>
-In-Reply-To: <CAG9=OMPHZqdDhX=M+ovdg5fa3x4-Q_1r5SWPa8pMTQw0mr5fPg@mail.gmail.com>
-Cc: Jens Axboe <axboe@kernel.dk>, Gwendal Grignou <gwendal@google.com>,
- Theodore Ts'o <tytso@mit.edu>, "Michael S . Tsirkin" <mst@redhat.com>,
- Bart Van Assche <bvanassche@google.com>, Mike Snitzer <snitzer@kernel.org>,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- linux-block@vger.kernel.org, dm-devel@redhat.com,
- Andreas Dilger <adilger.kernel@dilger.ca>, Daniil Lunev <dlunev@google.com>,
- Paolo Bonzini <pbonzini@redhat.com>, linux-ext4@vger.kernel.org,
- Evan Green <evgreen@google.com>, Alasdair Kergon <agk@redhat.com>
+Cc: jailhouse-dev@googlegroups.com, mark.rutland@arm.com,
+ jan.kiszka@siemens.com, andy.shevchenko@gmail.com, robh+dt@kernel.org,
+ wangkelin2023@163.com, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
+ "bhelgaas@google.com" <bhelgaas@google.com>,
+ Thomas Gleixner <tglx@linutronix.de>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -104,33 +77,54 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 9/16/22 11:48, Sarthak Kukreti wrote:
-> Yes. On ChromiumOS, we regularly deal with storage devices that don't
-> support WRITE_ZEROES or that need to have it disabled, via a quirk,
-> due to a bug in the vendor's implementation. Using WRITE_ZEROES for
-> allocation makes the allocation path quite slow for such devices (not
-> to mention the effect on storage lifetime), so having a separate
-> provisioning construct is very appealing. Even for devices that do
-> support an efficient WRITE_ZEROES implementation but don't support
-> logical provisioning per-se, I suppose that the allocation path might
-> be a bit faster (the device driver's request queue would report
-> 'max_provision_sectors'=0 and the request would be short circuited
-> there) although I haven't benchmarked the difference.
+[ Adding author and reviewers of commit 63338a38db95 again ]
 
-Some background information about why ChromiumOS uses thin provisioning 
-instead of a single filesystem across the entire storage device would be 
-welcome. Although UFS devices support thin provisioning I am not aware 
-of any use cases in Android that would benefit from UFS thin 
-provisioning support.
+On 9/16/22 2:00 AM, Liang He wrote:
+> In jailhouse_paravirt(), we should hold the reference returned from
+> of_find_compatible_node() which has increased the refcount and then
+> call of_node_put() with it when done.
+> 
+> Fixes: 63338a38db95 ("jailhouse: Provide detection for non-x86 systems")
+> Signed-off-by: Liang He <windhl@126.com>
+> Co-developed-by: Kelin Wang <wangkelin2023@163.com>
+> Signed-off-by: Kelin Wang <wangkelin2023@163.com>
 
-Thanks,
+Reviewed-by: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
 
-Bart.
+> ---
+> 
+>  v2: use proper return type not the 'np' pointer
+> 
+>  include/linux/hypervisor.h | 6 +++++-
+>  1 file changed, 5 insertions(+), 1 deletion(-)
+> 
+> diff --git a/include/linux/hypervisor.h b/include/linux/hypervisor.h
+> index 9efbc54e35e5..f11eec57ea63 100644
+> --- a/include/linux/hypervisor.h
+> +++ b/include/linux/hypervisor.h
+> @@ -27,7 +27,11 @@ static inline void hypervisor_pin_vcpu(int cpu)
+>  
+>  static inline bool jailhouse_paravirt(void)
+>  {
+> -	return of_find_compatible_node(NULL, NULL, "jailhouse,cell");
+> +	struct device_node *np = of_find_compatible_node(NULL, NULL, "jailhouse,cell");
+> +
+> +	of_node_put(np);
+> +
+> +	return np ? true : false;
+>  }
+>  
+>  #endif /* !CONFIG_X86 */
+>
+
+Regards,
+Srivatsa
+VMware Photon OS
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
