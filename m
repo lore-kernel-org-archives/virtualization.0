@@ -1,115 +1,109 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C2492C32771
-	for <virtualization@archiver.kernel.org>; Sun, 18 Sep 2022 12:17:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8194FC32771
+	for <virtualization@archiver.kernel.org>; Sun, 18 Sep 2022 13:30:25 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 3BD0383F6B;
-	Sun, 18 Sep 2022 12:17:49 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3BD0383F6B
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=YERIaMD3
+	by smtp4.osuosl.org (Postfix) with ESMTP id 00B7A419A9;
+	Sun, 18 Sep 2022 13:30:25 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 00B7A419A9
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=VOukQPt0
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id wdp7uNTMSmxF; Sun, 18 Sep 2022 12:17:48 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id C36EC83F56;
-	Sun, 18 Sep 2022 12:17:47 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C36EC83F56
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id tkvKeDXLO87W; Sun, 18 Sep 2022 13:30:23 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 860564198D;
+	Sun, 18 Sep 2022 13:30:22 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 860564198D
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8841AC0033;
-	Sun, 18 Sep 2022 12:17:47 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id CABD2C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 572A8C0032;
+	Sun, 18 Sep 2022 13:30:22 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 49395C002D
  for <virtualization@lists.linux-foundation.org>;
- Sun, 18 Sep 2022 12:17:46 +0000 (UTC)
+ Sun, 18 Sep 2022 13:30:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 9149A83F61
+ by smtp1.osuosl.org (Postfix) with ESMTP id 2440183F63
  for <virtualization@lists.linux-foundation.org>;
- Sun, 18 Sep 2022 12:17:46 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9149A83F61
+ Sun, 18 Sep 2022 13:30:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2440183F63
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=VOukQPt0
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id VL5GjnKLDNb3
+ with ESMTP id SP5EYrZU-kSU
  for <virtualization@lists.linux-foundation.org>;
- Sun, 18 Sep 2022 12:17:45 +0000 (UTC)
+ Sun, 18 Sep 2022 13:30:20 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B61B683F56
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0B60883F3C
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id B61B683F56
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 0B60883F3C
  for <virtualization@lists.linux-foundation.org>;
- Sun, 18 Sep 2022 12:17:45 +0000 (UTC)
+ Sun, 18 Sep 2022 13:30:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1663503464;
+ s=mimecast20190719; t=1663507818;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=YIbilycgQyjenY282EZwIsPOR3PFZL895xpYAyq5afo=;
- b=YERIaMD3wuYcnSSHE5rUpWiQjkG8gGRR1lrtqwN26ySuPA3SXyOQXrtzXfk6ZlP/qdL2zq
- Wi8TSV4I/i5XFho/xPp5yJ51WtA/+yetS5HTmPeOqMVq2AQh4d2sAzk1UrI/UTaUTIJmFJ
- UAemRQH+Sj8Bz5IoUntKUlqtiwZCbBI=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=UmJYT09QVw3D5zyOGPAB0JIlDIzikbUkUdo1Kw9f52E=;
+ b=VOukQPt0mpHwH86aYOQgrkFThgkHUtHFMtMDSJ3YHX16pqzksUv8OrBtC/FEH6Cysad7xV
+ yWw1fPl6Mo2MREomObqN5szjYNkE2oKAZz9RbEKVPHvaT6cA10SmVrxzo0WdHns9UgJ1H1
+ Av9f1uromMnADPTEBreVTAy2YbKdWk4=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-453-CfbDero3PLySStNSBBxkrg-1; Sun, 18 Sep 2022 08:17:42 -0400
-X-MC-Unique: CfbDero3PLySStNSBBxkrg-1
-Received: by mail-wm1-f71.google.com with SMTP id
- f25-20020a7bc8d9000000b003b4768dcd9cso1901902wml.9
+ us-mta-403-KlfEjYi-P-eOpSg1Fi5iFg-1; Sun, 18 Sep 2022 09:30:16 -0400
+X-MC-Unique: KlfEjYi-P-eOpSg1Fi5iFg-1
+Received: by mail-wm1-f70.google.com with SMTP id
+ g8-20020a05600c4ec800b003b4bcbdb63cso3696010wmq.7
  for <virtualization@lists.linux-foundation.org>;
- Sun, 18 Sep 2022 05:17:42 -0700 (PDT)
+ Sun, 18 Sep 2022 06:30:16 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=in-reply-to:content-transfer-encoding:content-disposition
- :mime-version:references:message-id:subject:cc:to:from:date
- :x-gm-message-state:from:to:cc:subject:date;
- bh=YIbilycgQyjenY282EZwIsPOR3PFZL895xpYAyq5afo=;
- b=kHrebKGU/y6zCmUXkq7MTQeqlQ5jBSQsgmzb5tKrZ/3ebq6ruFBKTFTZdcQrgOSzqF
- bf0tI+RnJO1up77kOAaujGjYRp4aNbxvKZbVsIU6AUVZWHPZo+vvn3MhjrO8U2CoN9ah
- w8Fncz1oWvvj3Wjj2Nrs93BfpZHD3d6j1dlnDVwIy8yEYfLjwbYVaNzwjzoFk8Lk2fxy
- Egh9kBMjdusv0iF/7pgsvt4WVKZkWiagE2uZ7B76KidUI150xfQcrSgvhuiiVSvJoQxF
- BQcqZUi5TRS2Qi0iNFFih+D9T3EIEsXmZEl9aK95zeT3HtELwtzUADfDDOF5yo4zrvkr
- e8Aw==
-X-Gm-Message-State: ACrzQf2zNUzQF6MWrDE/ah4s04xsLtNPxOxX6l/t1Hhwql42s5oHp3F/
- IaaEYrKS3rtQ4fMGFRjY0d8fbyKsP/Hs1122nTiu8bXpPnWEEf2Vb8CO5ZSzkNy6nxyuyp5BOiw
- mRGHV+VUmd+yNppMCsvnNJKPCXDcC4X8evn0G2+yMqg==
-X-Received: by 2002:a5d:4742:0:b0:22a:3a88:d9e6 with SMTP id
- o2-20020a5d4742000000b0022a3a88d9e6mr8183471wrs.438.1663503461619; 
- Sun, 18 Sep 2022 05:17:41 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM6OgKAiHsRIMsNcvcQlSELq9pAaD49wvj8xve/5Xz8Q2YgoqvtA0Jk9oZfbBvYoMf3nUdnFOQ==
-X-Received: by 2002:a5d:4742:0:b0:22a:3a88:d9e6 with SMTP id
- o2-20020a5d4742000000b0022a3a88d9e6mr8183456wrs.438.1663503461375; 
- Sun, 18 Sep 2022 05:17:41 -0700 (PDT)
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
+ bh=UmJYT09QVw3D5zyOGPAB0JIlDIzikbUkUdo1Kw9f52E=;
+ b=3IwuKNyhLWenjPoMrA4lTKW1adnWUaBf6dLE9KskwuW4yHJ437bSKPBOvD0DnMrLeF
+ ljbkdUwyABWk3XMbnMl4rL5VhnzNXntVWf7RWdalkYcUrOE0zBKL+UzyauwRAzVyXxHN
+ W+iypvrPsGQYGirBusFDhaNup48ziCJKRGDA2O+9aSSoSF5RbmEeSCdY86EtYnJ6cHIg
+ TkFbNs+e0Y829u1ccZXob12IVnFsD7b1gWb0ahjLCnQZl08zNkfONTd7V70KpAoJZR+r
+ KFos6goK+S7kT13NL3knTQL4sjSXKNMa/T187PEySGSHUD3DicGiSUOEK+ZRpDuwMwwO
+ 4W2w==
+X-Gm-Message-State: ACrzQf24YeOCWt8vfq8EIqlvtxSBWIQ/H3osMQFLlCggNEy2Zzr1Ztz+
+ XnNn9VymbytWNHRLUR+MGbz2BvxxJIVRnNmx4TnGj0fnuSfo6AQQ2xG/6o7ELWPjqtG0YyyO2Xr
+ 2XFoGQAKVhjFDIYOfr7Ip/ENv6tV0qlfm7g0PzEXihA==
+X-Received: by 2002:a05:600c:21c3:b0:3b4:7e47:e3a with SMTP id
+ x3-20020a05600c21c300b003b47e470e3amr9091261wmj.167.1663507815586; 
+ Sun, 18 Sep 2022 06:30:15 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM6rnC1JyqcMWAlR/kAN3CgtZIJyawC5E+7BVjGbyGnGMQJLmMPhb12xHFNBS5VL9N8OYXZiTg==
+X-Received: by 2002:a05:600c:21c3:b0:3b4:7e47:e3a with SMTP id
+ x3-20020a05600c21c300b003b47e470e3amr9091252wmj.167.1663507815323; 
+ Sun, 18 Sep 2022 06:30:15 -0700 (PDT)
 Received: from redhat.com ([2.52.4.6]) by smtp.gmail.com with ESMTPSA id
- i7-20020a05600c354700b003b4cba4ef71sm4421682wmq.41.2022.09.18.05.17.38
+ x1-20020adfdd81000000b002205cbc1c74sm6481615wrl.101.2022.09.18.06.30.12
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sun, 18 Sep 2022 05:17:40 -0700 (PDT)
-Date: Sun, 18 Sep 2022 08:17:36 -0400
+ Sun, 18 Sep 2022 06:30:14 -0700 (PDT)
+Date: Sun, 18 Sep 2022 09:30:10 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Junbo <junbo4242@gmail.com>
-Subject: Re: [PATCH] Do not name control queue for virtio-net
-Message-ID: <20220918081713-mutt-send-email-mst@kernel.org>
-References: <20220917092857.3752357-1-junbo4242@gmail.com>
- <20220918025033-mutt-send-email-mst@kernel.org>
- <CACvn-oGUj0mDxBO2yV1mwvz4PzhN3rDnVpUh12NA5jLKTqRT3A@mail.gmail.com>
+To: Alvaro Karsz <alvaro.karsz@solid-run.com>
+Subject: Re: [PATCH v2] virtio_blk: add SECURE ERASE command support
+Message-ID: <20220918091848-mutt-send-email-mst@kernel.org>
+References: <20220829082313.419220-1-alvaro.karsz@solid-run.com>
 MIME-Version: 1.0
-In-Reply-To: <CACvn-oGUj0mDxBO2yV1mwvz4PzhN3rDnVpUh12NA5jLKTqRT3A@mail.gmail.com>
+In-Reply-To: <20220829082313.419220-1-alvaro.karsz@solid-run.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Jesper Dangaard Brouer <hawk@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org,
- John Fastabend <john.fastabend@gmail.com>, Alexei Starovoitov <ast@kernel.org>,
- virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, bpf@vger.kernel.org,
- Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>,
- linux-kernel@vger.kernel.org
+Cc: Jens Axboe <axboe@kernel.dk>, Paolo Bonzini <pbonzini@redhat.com>,
+ stefanha@redhat.com, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -121,60 +115,259 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gU3VuLCBTZXAgMTgsIDIwMjIgYXQgMDU6MDA6MjBQTSArMDgwMCwgSnVuYm8gd3JvdGU6Cj4g
-aGnCoE1pY2hhZWwKPiAKPiBpbiB2aXJ0aW8tbmV0LmMKPiDCoCDCoCAvKiBQYXJhbWV0ZXJzIGZv
-ciBjb250cm9sIHZpcnRxdWV1ZSwgaWYgYW55ICovCj4gwqAgwqAgaWYgKHZpLT5oYXNfY3ZxKSB7
-Cj4gwqAgwqAgwqAgwqAgY2FsbGJhY2tzW3RvdGFsX3ZxcyAtIDFdID0gTlVMTDsKPiDCoCDCoCDC
-oCDCoCBuYW1lc1t0b3RhbF92cXMgLSAxXSA9ICJjb250cm9sIjsKPiDCoCDCoCB9Cj4gCj4gSSB0
-aGluayB0aGUgQXV0aG9yIHdobyB3cml0ZSB0aGUgY29kZQoKd2FpdCwgdGhhdCB3YXMgbm90IHlv
-dT8KCj4gbWF5YmUgd2FudCB0byBuYW1lIHRoZSBjb250cm9sIHF1ZXVlIHRvCj4gJ3ZpcnRpb1gt
-Y29udHJvbCcsIGJ1dCBpdCBuZXZlciB3b3JrZWQsIHdlIGNhbiBzZWUgdGhlIG5hbWUgc3RpbGwg
-YmUKPiAndmlydGlvWC1jb25maWcnIGluIC9wcm9jL2ludGVycnVwdHMsIGZvciBleGFtcGxlwqAK
-PiDCoDQzOiDCoCDCoCDCoCDCoCDCoDAgwqAgwqAgwqAgwqAgwqAwIMKgIMKgIMKgIMKgIMKgMCDC
-oCDCoCDCoCDCoCDCoDAgwqAgwqAgwqAgwqAgwqAwIMKgIMKgIMKgIMKgIMKgMCDCoCDCoCDCoCDC
-oAo+IMKgMCDCoCDCoCDCoCDCoCDCoDAgwqAgUENJLU1TSS1lZGdlIMKgIMKgIMKgdmlydGlvMC1j
-b25maWcKPiDCoDQ0OiDCoCDCoCDCoCDCoCA2NCDCoCDCoCDCoCDCoCDCoDAgwqAgwqAgwqAgwqAg
-wqAwIMKgIMKgIMKgIMKgIMKgMCDCoCDCoCDCoCDCoCDCoDAgwqAgwqAgwqAgwqAgwqAwIMKgIMKg
-IMKgCj4gMTg0NSDCoCDCoCDCoCDCoCDCoDAgwqAgUENJLU1TSS1lZGdlIMKgIMKgIMKgdmlydGlv
-MC1pbnB1dC4wCj4gwqA0NTogwqAgwqAgwqAgwqAgwqAxIMKgIMKgIMKgIMKgIMKgMCDCoCDCoCDC
-oCDCoCDCoDAgwqAgwqAgwqAgwqAgwqAwIMKgIMKgIMKgIMKgIMKgMCDCoCDCoCDCoCDCoCDCoDAg
-wqAgwqAgwqAgwqAKPiDCoDAgwqAgwqAgwqAgwqAgwqAwIMKgIFBDSS1NU0ktZWRnZSDCoCDCoCDC
-oHZpcnRpbzAtb3V0cHV0LjAKPiAKPiBCZWNhdXNlIGluIGZ1bmN0aW9uwqB2cF9yZXF1ZXN0X21z
-aXhfdmVjdG9ycywgaXQganVzdCBhbGxvY2F0ZSAneHh4eC1jb25maWcnIHRvCj4gZXZlcnkgdmly
-dGlvIGRldmljZXMsIGV2ZW4gdGhlIHZpcnRpbyBkZXZpY2UgZG8gbm90IG5lZWQgaXQuIGluIC9w
-cm9jLwo+IGludGVycnVwdHMsIHdlIGNhbiBzZWUgdGhhdCBlYWNoIHZpcnRpbyBkZXZpY2UncyBm
-aXJzdCBpbnRlcnJ1cHQgYWx3YXlzIG5hbWVkCj4gJ3ZpcnRpb1gtY29uZmlnJy4KPiAKPiBTbyBJ
-IHRoaW5rIGl0J3MgYmV0dGVyIHRvIG5vdCBleHBsaWNpdGx5IGdpdmUgdGhlICJjb250cm9sIiBo
-ZXJlLCBpdCdzCj4gdXNlbGVzcy4uLsKgwqAKPiAKPiAKPiBNaWNoYWVsIFMuIFRzaXJraW4gPG1z
-dEByZWRoYXQuY29tPiDkuo4yMDIy5bm0OeaciDE45pel5ZGo5pelIDE0OjU25YaZ6YGT77yaCj4g
-Cj4gICAgIE9uIFNhdCwgU2VwIDE3LCAyMDIyIGF0IDA5OjI4OjU3QU0gKzAwMDAsIGp1bmJvNDI0
-MkBnbWFpbC5jb20gd3JvdGU6Cj4gICAgID4gRnJvbTogSnVuYm8gPGp1bmJvNDI0MkBnbWFpbC5j
-b20+Cj4gICAgID4KPiAgICAgPiBJbiB2aXJ0aW8gZHJpdmVycywgdGhlIGNvbnRyb2wgcXVldWUg
-YWx3YXlzIG5hbWVkIDx2aXJ0aW9YPi1jb25maWcuCj4gICAgID4KPiAgICAgPiBTaWduZWQtb2Zm
-LWJ5OiBKdW5ibyA8anVuYm80MjQyQGdtYWlsLmNvbT4KPiAKPiAgICAgSSBkb24ndCB0aGluayB0
-aGF0J3MgcmlnaHQuIGNvbmZpZyBpcyB0aGUgY29uZmlnIGludGVycnVwdC4KPiAKPiAKPiAKPiAg
-ICAgPiAtLS0KPiAgICAgPsKgIGRyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyB8IDMgKystCj4gICAg
-ID7CoCAxIGZpbGUgY2hhbmdlZCwgMiBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0pCj4gICAg
-ID4KPiAgICAgPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jIGIvZHJpdmVy
-cy9uZXQvdmlydGlvX25ldC5jCj4gICAgID4gaW5kZXggOWNjZTdkZWM3MzY2Li4wYjNlNzRjZmUy
-MDEgMTAwNjQ0Cj4gICAgID4gLS0tIGEvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4gICAgID4g
-KysrIGIvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4gICAgID4gQEAgLTM0NjksNyArMzQ2OSw4
-IEBAIHN0YXRpYyBpbnQgdmlydG5ldF9maW5kX3ZxcyhzdHJ1Y3QgdmlydG5ldF9pbmZvCj4gICAg
-ICp2aSkKPiAgICAgPsKgIMKgIMKgIMKgLyogUGFyYW1ldGVycyBmb3IgY29udHJvbCB2aXJ0cXVl
-dWUsIGlmIGFueSAqLwo+ICAgICA+wqAgwqAgwqAgwqBpZiAodmktPmhhc19jdnEpIHsKPiAgICAg
-PsKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgY2FsbGJhY2tzW3RvdGFsX3ZxcyAtIDFdID0gTlVMTDsK
-PiAgICAgPiAtwqAgwqAgwqAgwqAgwqAgwqAgwqBuYW1lc1t0b3RhbF92cXMgLSAxXSA9ICJjb250
-cm9sIjsKPiAgICAgPiArwqAgwqAgwqAgwqAgwqAgwqAgwqAvKiBjb250cm9sIHZpcnRxdWV1ZSBh
-bHdheXMgbmFtZWQgPHZpcnRpb1g+LWNvbmZpZyAqLwo+ICAgICA+ICvCoCDCoCDCoCDCoCDCoCDC
-oCDCoG5hbWVzW3RvdGFsX3ZxcyAtIDFdID0gIiI7Cj4gICAgID7CoCDCoCDCoCDCoH0KPiAgICAg
-PsKgCj4gICAgID7CoCDCoCDCoCDCoC8qIEFsbG9jYXRlL2luaXRpYWxpemUgcGFyYW1ldGVycyBm
-b3Igc2VuZC9yZWNlaXZlIHZpcnRxdWV1ZXMgKi8KPiAgICAgPiAtLQo+ICAgICA+IDIuMzEuMQo+
-IAo+IAoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmly
-dHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5k
-YXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3Rp
-bmZvL3ZpcnR1YWxpemF0aW9u
+On Mon, Aug 29, 2022 at 11:23:13AM +0300, Alvaro Karsz wrote:
+> Support for the VIRTIO_BLK_F_SECURE_ERASE VirtIO feature.
+> 
+> A device that offers this feature can receive VIRTIO_BLK_T_SECURE_ERASE
+> commands.
+> 
+> A device which supports this feature has the following fields in the
+> virtio config:
+> 
+> - max_secure_erase_sectors
+> - max_secure_erase_seg
+> - secure_erase_sector_alignment
+> 
+> max_secure_erase_sectors and secure_erase_sector_alignment are expressed
+> in 512-byte units.
+> 
+> Every secure erase command has the following fields:
+> 
+> - sectors: The starting offset in 512-byte units.
+> - num_sectors: The number of sectors.
+> 
+> Signed-off-by: Alvaro Karsz <alvaro.karsz@solid-run.com>
+
+Review from storage maintainers before I queue this?
+
+Thanks!
+
+> ---
+> v2:
+> 	- Set queue max discard segments as the minimum between
+> 	  max_secure_erase_seg and max_discard_seg.
+> 	- Set queue discard granularity as the minimum between
+> 	  secure_erase_sector_alignment and discard_sector_alignment.
+> ---
+>  drivers/block/virtio_blk.c      | 82 +++++++++++++++++++++++++--------
+>  include/uapi/linux/virtio_blk.h | 19 ++++++++
+>  2 files changed, 83 insertions(+), 18 deletions(-)
+> 
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index 30255fcaf18..8a2f00cdf52 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -130,7 +130,7 @@ static int virtblk_add_req(struct virtqueue *vq, struct virtblk_req *vbr)
+>  	return virtqueue_add_sgs(vq, sgs, num_out, num_in, vbr, GFP_ATOMIC);
+>  }
+>  
+> -static int virtblk_setup_discard_write_zeroes(struct request *req, bool unmap)
+> +static int virtblk_setup_discard_write_zeroes_erase(struct request *req, bool unmap)
+>  {
+>  	unsigned short segments = blk_rq_nr_discard_segments(req);
+>  	unsigned short n = 0;
+> @@ -240,6 +240,9 @@ static blk_status_t virtblk_setup_cmd(struct virtio_device *vdev,
+>  		type = VIRTIO_BLK_T_WRITE_ZEROES;
+>  		unmap = !(req->cmd_flags & REQ_NOUNMAP);
+>  		break;
+> +	case REQ_OP_SECURE_ERASE:
+> +		type = VIRTIO_BLK_T_SECURE_ERASE;
+> +		break;
+>  	case REQ_OP_DRV_IN:
+>  		type = VIRTIO_BLK_T_GET_ID;
+>  		break;
+> @@ -251,8 +254,9 @@ static blk_status_t virtblk_setup_cmd(struct virtio_device *vdev,
+>  	vbr->out_hdr.type = cpu_to_virtio32(vdev, type);
+>  	vbr->out_hdr.ioprio = cpu_to_virtio32(vdev, req_get_ioprio(req));
+>  
+> -	if (type == VIRTIO_BLK_T_DISCARD || type == VIRTIO_BLK_T_WRITE_ZEROES) {
+> -		if (virtblk_setup_discard_write_zeroes(req, unmap))
+> +	if (type == VIRTIO_BLK_T_DISCARD || type == VIRTIO_BLK_T_WRITE_ZEROES ||
+> +	    type == VIRTIO_BLK_T_SECURE_ERASE) {
+> +		if (virtblk_setup_discard_write_zeroes_erase(req, unmap))
+>  			return BLK_STS_RESOURCE;
+>  	}
+>  
+> @@ -889,6 +893,8 @@ static int virtblk_probe(struct virtio_device *vdev)
+>  	int err, index;
+>  
+>  	u32 v, blk_size, max_size, sg_elems, opt_io_size;
+> +	u32 max_discard_segs = 0;
+> +	u32 discard_granularity = 0;
+>  	u16 min_io_size;
+>  	u8 physical_block_exp, alignment_offset;
+>  	unsigned int queue_depth;
+> @@ -1046,27 +1052,14 @@ static int virtblk_probe(struct virtio_device *vdev)
+>  
+>  	if (virtio_has_feature(vdev, VIRTIO_BLK_F_DISCARD)) {
+>  		virtio_cread(vdev, struct virtio_blk_config,
+> -			     discard_sector_alignment, &v);
+> -		if (v)
+> -			q->limits.discard_granularity = v << SECTOR_SHIFT;
+> -		else
+> -			q->limits.discard_granularity = blk_size;
+> +			     discard_sector_alignment, &discard_granularity);
+>  
+>  		virtio_cread(vdev, struct virtio_blk_config,
+>  			     max_discard_sectors, &v);
+>  		blk_queue_max_discard_sectors(q, v ? v : UINT_MAX);
+>  
+>  		virtio_cread(vdev, struct virtio_blk_config, max_discard_seg,
+> -			     &v);
+> -
+> -		/*
+> -		 * max_discard_seg == 0 is out of spec but we always
+> -		 * handled it.
+> -		 */
+> -		if (!v)
+> -			v = sg_elems;
+> -		blk_queue_max_discard_segments(q,
+> -					       min(v, MAX_DISCARD_SEGMENTS));
+> +			     &max_discard_segs);
+>  	}
+>  
+>  	if (virtio_has_feature(vdev, VIRTIO_BLK_F_WRITE_ZEROES)) {
+> @@ -1075,6 +1068,57 @@ static int virtblk_probe(struct virtio_device *vdev)
+>  		blk_queue_max_write_zeroes_sectors(q, v ? v : UINT_MAX);
+>  	}
+>  
+> +	if (virtio_has_feature(vdev, VIRTIO_BLK_F_SECURE_ERASE)) {
+> +		/* The discard alignment value should be the minimum between
+> +		 * secure_erase_sector_alignment and discard_sector_alignment
+> +		 * (if VIRTIO_BLK_F_DISCARD is negotiated).
+
+why minimum?
+
+> +		 */
+> +		virtio_cread(vdev, struct virtio_blk_config,
+> +			     secure_erase_sector_alignment, &v);
+> +		if (v) {
+> +			if (discard_granularity)
+> +				discard_granularity = min(discard_granularity, v);
+> +			else
+> +				discard_granularity = v;
+> +		}
+> +
+> +		virtio_cread(vdev, struct virtio_blk_config,
+> +			     max_secure_erase_sectors, &v);
+> +		blk_queue_max_secure_erase_sectors(q, v ? v : UINT_MAX);
+> +
+> +		/* The max discard segments value should be the minimum between
+> +		 * max_secure_erase_seg and max_discard_seg (if VIRTIO_BLK_F_DISCARD
+> +		 * is negotiated).
+
+why is that?
+
+> +		 */
+> +		virtio_cread(vdev, struct virtio_blk_config,
+> +			     max_secure_erase_seg, &v);
+> +		if (v) {
+> +			if (max_discard_segs)
+> +				max_discard_segs = min(max_discard_segs, v);
+> +			else
+> +				max_discard_segs = v;
+
+is this logic repeating code from below?
+
+> +		}
+> +	}
+> +
+> +	if (virtio_has_feature(vdev, VIRTIO_BLK_F_DISCARD) ||
+> +	    virtio_has_feature(vdev, VIRTIO_BLK_F_SECURE_ERASE)) {
+> +
+> +		/* max_discard_seg == 0 or max_secure_erase_seg == 0
+> +		 * are out of spec but we always handled it.
+
+Always? What's going on here?
+which versions handled max_secure_erase_seg == 0?
+
+
+> +		 */
+> +		if (!max_discard_segs)
+> +			max_discard_segs = sg_elems;
+> +
+> +		blk_queue_max_discard_segments(q,
+> +					       min(max_discard_segs, MAX_DISCARD_SEGMENTS));
+> +
+> +		/* If alignemnt is 0, use block size alignment */
+> +		if (discard_granularity)
+> +			q->limits.discard_granularity = discard_granularity << SECTOR_SHIFT;
+> +		else
+> +			q->limits.discard_granularity = blk_size;
+> +	}
+> +
+>  	virtblk_update_capacity(vblk, false);
+>  	virtio_device_ready(vdev);
+>  
+> @@ -1170,6 +1214,7 @@ static unsigned int features_legacy[] = {
+>  	VIRTIO_BLK_F_RO, VIRTIO_BLK_F_BLK_SIZE,
+>  	VIRTIO_BLK_F_FLUSH, VIRTIO_BLK_F_TOPOLOGY, VIRTIO_BLK_F_CONFIG_WCE,
+>  	VIRTIO_BLK_F_MQ, VIRTIO_BLK_F_DISCARD, VIRTIO_BLK_F_WRITE_ZEROES,
+> +	VIRTIO_BLK_F_SECURE_ERASE,
+>  }
+>  ;
+>  static unsigned int features[] = {
+> @@ -1177,6 +1222,7 @@ static unsigned int features[] = {
+>  	VIRTIO_BLK_F_RO, VIRTIO_BLK_F_BLK_SIZE,
+>  	VIRTIO_BLK_F_FLUSH, VIRTIO_BLK_F_TOPOLOGY, VIRTIO_BLK_F_CONFIG_WCE,
+>  	VIRTIO_BLK_F_MQ, VIRTIO_BLK_F_DISCARD, VIRTIO_BLK_F_WRITE_ZEROES,
+> +	VIRTIO_BLK_F_SECURE_ERASE,
+>  };
+>  
+>  static struct virtio_driver virtio_blk = {
+> diff --git a/include/uapi/linux/virtio_blk.h b/include/uapi/linux/virtio_blk.h
+> index d888f013d9f..58e70b24b50 100644
+> --- a/include/uapi/linux/virtio_blk.h
+> +++ b/include/uapi/linux/virtio_blk.h
+> @@ -40,6 +40,7 @@
+>  #define VIRTIO_BLK_F_MQ		12	/* support more than one vq */
+>  #define VIRTIO_BLK_F_DISCARD	13	/* DISCARD is supported */
+>  #define VIRTIO_BLK_F_WRITE_ZEROES	14	/* WRITE ZEROES is supported */
+> +#define VIRTIO_BLK_F_SECURE_ERASE	16 /* Secure Erase is supported */
+>  
+>  /* Legacy feature bits */
+>  #ifndef VIRTIO_BLK_NO_LEGACY
+> @@ -121,6 +122,21 @@ struct virtio_blk_config {
+>  	__u8 write_zeroes_may_unmap;
+>  
+>  	__u8 unused1[3];
+> +
+> +	/* the next 3 entries are guarded by VIRTIO_BLK_F_SECURE_ERASE */
+> +	/*
+> +	 * The maximum secure erase sectors (in 512-byte sectors) for
+> +	 * one segment.
+> +	 */
+> +	__virtio32 max_secure_erase_sectors;
+> +	/*
+> +	 * The maximum number of secure erase segments in a
+> +	 * secure erase command.
+> +	 */
+> +	__virtio32 max_secure_erase_seg;
+> +	/* Secure erase commands must be aligned to this number of sectors. */
+> +	__virtio32 secure_erase_sector_alignment;
+> +
+>  } __attribute__((packed));
+>  
+>  /*
+> @@ -155,6 +171,9 @@ struct virtio_blk_config {
+>  /* Write zeroes command */
+>  #define VIRTIO_BLK_T_WRITE_ZEROES	13
+>  
+> +/* Secure erase command */
+> +#define VIRTIO_BLK_T_SECURE_ERASE	14
+> +
+>  #ifndef VIRTIO_BLK_NO_LEGACY
+>  /* Barrier before this op. */
+>  #define VIRTIO_BLK_T_BARRIER	0x80000000
+> -- 
+> 2.32.0
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
