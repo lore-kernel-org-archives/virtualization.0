@@ -1,82 +1,82 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9B86AECAAD3
-	for <virtualization@archiver.kernel.org>; Mon, 19 Sep 2022 10:17:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6CF61C6FA91
+	for <virtualization@archiver.kernel.org>; Mon, 19 Sep 2022 10:17:44 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 1116C60C0E;
-	Mon, 19 Sep 2022 10:17:22 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1116C60C0E
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=kHVZnfdi
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 8h2JOzbooDoI; Mon, 19 Sep 2022 10:17:19 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 213E360BC3;
-	Mon, 19 Sep 2022 10:17:19 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 213E360BC3
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 451CFC008C;
-	Mon, 19 Sep 2022 10:17:17 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7061BC002D
- for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Sep 2022 10:17:15 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 3C32D4155F
- for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Sep 2022 10:17:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3C32D4155F
+	by smtp4.osuosl.org (Postfix) with ESMTP id 0FEC0416ED;
+	Mon, 19 Sep 2022 10:17:44 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0FEC0416ED
 Authentication-Results: smtp4.osuosl.org;
- dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org
- header.a=rsa-sha256 header.s=casper.20170209 header.b=kHVZnfdi
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=gujJ230t
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id j8Ucw5z7UPa4
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id OSMI3Cr5a1oR; Mon, 19 Sep 2022 10:17:43 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 361E84170E;
+	Mon, 19 Sep 2022 10:17:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 361E84170E
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7BA64C007E;
+	Mon, 19 Sep 2022 10:17:41 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0BAE5C002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Sep 2022 10:17:12 +0000 (UTC)
+ Mon, 19 Sep 2022 10:17:40 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id E88DF40B54
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 19 Sep 2022 10:17:39 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E88DF40B54
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org
+ header.a=rsa-sha256 header.s=casper.20170209 header.b=gujJ230t
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id nc8iNTLKxyax
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 19 Sep 2022 10:17:39 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 07EF941568
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 13A5540B66
 Received: from casper.infradead.org (casper.infradead.org
  [IPv6:2001:8b0:10b:1236::1])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 07EF941568
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 13A5540B66
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Sep 2022 10:17:11 +0000 (UTC)
+ Mon, 19 Sep 2022 10:17:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
  Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
  Content-ID:Content-Description:In-Reply-To;
- bh=0408VWH2WFH9JXFcPPgwTxDvr1YxbJ2d7rq21E3aJ8U=; b=kHVZnfdiABvtjPyXMTuvXb/Qm9
- 09AKDvXlLmYco5rg5+lKhXzEfXaXLMAXiaXS6AjhRnHqScyUaTO2iINZvbgs8N78kwSfXMIpTU5WQ
- YbJDFfF895gdEVMmc6BsVajHcmDOKTDGJ8T+HnVoRXF2kkgnjxdOPEU4hgBjokhzRU8d5p+B5crjC
- /yiyfR6F5TpqK5jk8cvfleteP3e/jL/baMBCBbPynD9WUAl/ZQlsUs9qYKHEeSSf4RkeeRCfDBrOU
- SconuiF3R/DV9ndlHterUE8RIAQz9f77EQkpfOFe7OEu5IK5h7kvKhzF9SsjBWsyb2Q1kTUxmhYjA
- Jijh1grA==;
+ bh=/I1E7kMyDvpkyM4o9FUteLnfSJJBslYUHIxNSMQuhnw=; b=gujJ230tU9CLtH0B9MYtj6NuYS
+ Xzk4KbitxXbowNKoBV5sqsPHGC6klQGeC0vfrq72vjzXizu2+jdZyL6htRNtNZx9+IGuppQZzhe11
+ Ti8DZU/TTVPMCvZBPtXq7K87NylGUQ9DGns8+lKty/KA9gDfLz4qlNcNtBPC3GSXdtRffz09zzfDV
+ peHq1itRMOzwelNcnfC8kzoqshMBt8q7rKMpyFgJo6O4oc/X9CIExVjdDDD6ejw008ZHy1dGqz5wv
+ NCFBlUNFgfDKlVUUUPt9jYD1uAZkGepVsQO+eF1NDX3CbpB4KLsK0KWCEqlH2nUkO1JYNjFtcY5Vr
+ 5HzIDA+A==;
 Received: from j130084.upc-j.chello.nl ([24.132.130.84]
  helo=noisy.programming.kicks-ass.net)
  by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1oaDpG-004aiB-Uy; Mon, 19 Sep 2022 10:16:31 +0000
+ id 1oaDq5-004b83-Vs; Mon, 19 Sep 2022 10:17:22 +0000
 Received: from hirez.programming.kicks-ass.net
  (hirez.programming.kicks-ass.net [192.168.1.225])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (4096 bits))
  (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id CB314302E76;
- Mon, 19 Sep 2022 12:16:24 +0200 (CEST)
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 1D2F9302F12;
+ Mon, 19 Sep 2022 12:16:25 +0200 (CEST)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
- id EBD782BA4903E; Mon, 19 Sep 2022 12:16:21 +0200 (CEST)
-Message-ID: <20220919101520.936337959@infradead.org>
+ id 3E8432BABB0C8; Mon, 19 Sep 2022 12:16:22 +0200 (CEST)
+Message-ID: <20220919101521.813876881@infradead.org>
 User-Agent: quilt/0.66
-Date: Mon, 19 Sep 2022 11:59:48 +0200
+Date: Mon, 19 Sep 2022 12:00:01 +0200
 From: Peter Zijlstra <peterz@infradead.org>
 To: peterz@infradead.org
-Subject: [PATCH v2 09/44] cpuidle,omap3: Push RCU-idle into driver
+Subject: [PATCH v2 22/44] x86/tdx: Remove TDX_HCALL_ISSUE_STI
 References: <20220919095939.761690562@infradead.org>
 MIME-Version: 1.0
 Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com,
@@ -144,140 +144,109 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Doing RCU-idle outside the driver, only to then teporarily enable it
-again before going idle is daft.
+Now that arch_cpu_idle() is expected to return with IRQs disabled,
+avoid the useless STI/CLI dance.
+
+Per the specs this is supposed to work, but nobody has yet relied up
+this behaviour so broken implementations are possible.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Tony Lindgren <tony@atomide.com>
-Tested-by: Tony Lindgren <tony@atomide.com>
 ---
- arch/arm/mach-omap2/cpuidle34xx.c |   16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ arch/x86/coco/tdx/tdcall.S        |   13 -------------
+ arch/x86/coco/tdx/tdx.c           |   23 ++++-------------------
+ arch/x86/include/asm/shared/tdx.h |    1 -
+ 3 files changed, 4 insertions(+), 33 deletions(-)
 
---- a/arch/arm/mach-omap2/cpuidle34xx.c
-+++ b/arch/arm/mach-omap2/cpuidle34xx.c
-@@ -133,7 +133,9 @@ static int omap3_enter_idle(struct cpuid
- 	}
+--- a/arch/x86/coco/tdx/tdcall.S
++++ b/arch/x86/coco/tdx/tdcall.S
+@@ -139,19 +139,6 @@ SYM_FUNC_START(__tdx_hypercall)
  
- 	/* Execute ARM wfi */
-+	ct_idle_enter();
- 	omap_sram_idle();
-+	ct_idle_exit();
+ 	movl $TDVMCALL_EXPOSE_REGS_MASK, %ecx
+ 
+-	/*
+-	 * For the idle loop STI needs to be called directly before the TDCALL
+-	 * that enters idle (EXIT_REASON_HLT case). STI instruction enables
+-	 * interrupts only one instruction later. If there is a window between
+-	 * STI and the instruction that emulates the HALT state, there is a
+-	 * chance for interrupts to happen in this window, which can delay the
+-	 * HLT operation indefinitely. Since this is the not the desired
+-	 * result, conditionally call STI before TDCALL.
+-	 */
+-	testq $TDX_HCALL_ISSUE_STI, %rsi
+-	jz .Lskip_sti
+-	sti
+-.Lskip_sti:
+ 	tdcall
  
  	/*
- 	 * Call idle CPU PM enter notifier chain to restore
-@@ -265,6 +267,7 @@ static struct cpuidle_driver omap3_idle_
- 	.owner            = THIS_MODULE,
- 	.states = {
- 		{
-+			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
- 			.enter		  = omap3_enter_idle_bm,
- 			.exit_latency	  = 2 + 2,
- 			.target_residency = 5,
-@@ -272,6 +275,7 @@ static struct cpuidle_driver omap3_idle_
- 			.desc		  = "MPU ON + CORE ON",
- 		},
- 		{
-+			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
- 			.enter		  = omap3_enter_idle_bm,
- 			.exit_latency	  = 10 + 10,
- 			.target_residency = 30,
-@@ -279,6 +283,7 @@ static struct cpuidle_driver omap3_idle_
- 			.desc		  = "MPU ON + CORE ON",
- 		},
- 		{
-+			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
- 			.enter		  = omap3_enter_idle_bm,
- 			.exit_latency	  = 50 + 50,
- 			.target_residency = 300,
-@@ -286,6 +291,7 @@ static struct cpuidle_driver omap3_idle_
- 			.desc		  = "MPU RET + CORE ON",
- 		},
- 		{
-+			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
- 			.enter		  = omap3_enter_idle_bm,
- 			.exit_latency	  = 1500 + 1800,
- 			.target_residency = 4000,
-@@ -293,6 +299,7 @@ static struct cpuidle_driver omap3_idle_
- 			.desc		  = "MPU OFF + CORE ON",
- 		},
- 		{
-+			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
- 			.enter		  = omap3_enter_idle_bm,
- 			.exit_latency	  = 2500 + 7500,
- 			.target_residency = 12000,
-@@ -300,6 +307,7 @@ static struct cpuidle_driver omap3_idle_
- 			.desc		  = "MPU RET + CORE RET",
- 		},
- 		{
-+			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
- 			.enter		  = omap3_enter_idle_bm,
- 			.exit_latency	  = 3000 + 8500,
- 			.target_residency = 15000,
-@@ -307,6 +315,7 @@ static struct cpuidle_driver omap3_idle_
- 			.desc		  = "MPU OFF + CORE RET",
- 		},
- 		{
-+			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
- 			.enter		  = omap3_enter_idle_bm,
- 			.exit_latency	  = 10000 + 30000,
- 			.target_residency = 30000,
-@@ -328,6 +337,7 @@ static struct cpuidle_driver omap3430_id
- 	.owner            = THIS_MODULE,
- 	.states = {
- 		{
-+			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
- 			.enter		  = omap3_enter_idle_bm,
- 			.exit_latency	  = 110 + 162,
- 			.target_residency = 5,
-@@ -335,6 +345,7 @@ static struct cpuidle_driver omap3430_id
- 			.desc		  = "MPU ON + CORE ON",
- 		},
- 		{
-+			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
- 			.enter		  = omap3_enter_idle_bm,
- 			.exit_latency	  = 106 + 180,
- 			.target_residency = 309,
-@@ -342,6 +353,7 @@ static struct cpuidle_driver omap3430_id
- 			.desc		  = "MPU ON + CORE ON",
- 		},
- 		{
-+			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
- 			.enter		  = omap3_enter_idle_bm,
- 			.exit_latency	  = 107 + 410,
- 			.target_residency = 46057,
-@@ -349,6 +361,7 @@ static struct cpuidle_driver omap3430_id
- 			.desc		  = "MPU RET + CORE ON",
- 		},
- 		{
-+			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
- 			.enter		  = omap3_enter_idle_bm,
- 			.exit_latency	  = 121 + 3374,
- 			.target_residency = 46057,
-@@ -356,6 +369,7 @@ static struct cpuidle_driver omap3430_id
- 			.desc		  = "MPU OFF + CORE ON",
- 		},
- 		{
-+			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
- 			.enter		  = omap3_enter_idle_bm,
- 			.exit_latency	  = 855 + 1146,
- 			.target_residency = 46057,
-@@ -363,6 +377,7 @@ static struct cpuidle_driver omap3430_id
- 			.desc		  = "MPU RET + CORE RET",
- 		},
- 		{
-+			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
- 			.enter		  = omap3_enter_idle_bm,
- 			.exit_latency	  = 7580 + 4134,
- 			.target_residency = 484329,
-@@ -370,6 +385,7 @@ static struct cpuidle_driver omap3430_id
- 			.desc		  = "MPU OFF + CORE RET",
- 		},
- 		{
-+			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
- 			.enter		  = omap3_enter_idle_bm,
- 			.exit_latency	  = 7505 + 15274,
- 			.target_residency = 484329,
+--- a/arch/x86/coco/tdx/tdx.c
++++ b/arch/x86/coco/tdx/tdx.c
+@@ -169,7 +169,7 @@ static int ve_instr_len(struct ve_info *
+ 	}
+ }
+ 
+-static u64 __cpuidle __halt(const bool irq_disabled, const bool do_sti)
++static u64 __cpuidle __halt(const bool irq_disabled)
+ {
+ 	struct tdx_hypercall_args args = {
+ 		.r10 = TDX_HYPERCALL_STANDARD,
+@@ -189,20 +189,14 @@ static u64 __cpuidle __halt(const bool i
+ 	 * can keep the vCPU in virtual HLT, even if an IRQ is
+ 	 * pending, without hanging/breaking the guest.
+ 	 */
+-	return __tdx_hypercall(&args, do_sti ? TDX_HCALL_ISSUE_STI : 0);
++	return __tdx_hypercall(&args, 0);
+ }
+ 
+ static int handle_halt(struct ve_info *ve)
+ {
+-	/*
+-	 * Since non safe halt is mainly used in CPU offlining
+-	 * and the guest will always stay in the halt state, don't
+-	 * call the STI instruction (set do_sti as false).
+-	 */
+ 	const bool irq_disabled = irqs_disabled();
+-	const bool do_sti = false;
+ 
+-	if (__halt(irq_disabled, do_sti))
++	if (__halt(irq_disabled))
+ 		return -EIO;
+ 
+ 	return ve_instr_len(ve);
+@@ -210,22 +204,13 @@ static int handle_halt(struct ve_info *v
+ 
+ void __cpuidle tdx_safe_halt(void)
+ {
+-	 /*
+-	  * For do_sti=true case, __tdx_hypercall() function enables
+-	  * interrupts using the STI instruction before the TDCALL. So
+-	  * set irq_disabled as false.
+-	  */
+ 	const bool irq_disabled = false;
+-	const bool do_sti = true;
+ 
+ 	/*
+ 	 * Use WARN_ONCE() to report the failure.
+ 	 */
+-	if (__halt(irq_disabled, do_sti))
++	if (__halt(irq_disabled))
+ 		WARN_ONCE(1, "HLT instruction emulation failed\n");
+-
+-	/* XXX I can't make sense of what @do_sti actually does */
+-	raw_local_irq_disable();
+ }
+ 
+ static int read_msr(struct pt_regs *regs, struct ve_info *ve)
+--- a/arch/x86/include/asm/shared/tdx.h
++++ b/arch/x86/include/asm/shared/tdx.h
+@@ -8,7 +8,6 @@
+ #define TDX_HYPERCALL_STANDARD  0
+ 
+ #define TDX_HCALL_HAS_OUTPUT	BIT(0)
+-#define TDX_HCALL_ISSUE_STI	BIT(1)
+ 
+ #define TDX_CPUID_LEAF_ID	0x21
+ #define TDX_IDENT		"IntelTDX    "
 
 
 _______________________________________________
