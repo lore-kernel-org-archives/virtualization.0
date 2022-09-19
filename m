@@ -1,95 +1,184 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id F224DC32771
-	for <virtualization@archiver.kernel.org>; Sun, 18 Sep 2022 16:08:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4DBABC6FA86
+	for <virtualization@archiver.kernel.org>; Mon, 19 Sep 2022 06:36:52 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 8DB0860B08;
-	Sun, 18 Sep 2022 16:08:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8DB0860B08
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=solid-run-com.20210112.gappssmtp.com header.i=@solid-run-com.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=lpYB/TsE
+	by smtp4.osuosl.org (Postfix) with ESMTP id A91894033D;
+	Mon, 19 Sep 2022 06:36:51 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A91894033D
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=wGFC0EtJ;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=W00Mb6CI
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Q8HvbyB8soi4; Sun, 18 Sep 2022 16:08:15 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 31F1360B57;
-	Sun, 18 Sep 2022 16:08:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 31F1360B57
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id kcGnrqNH9OHT; Mon, 19 Sep 2022 06:36:50 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 942C4400C7;
+	Mon, 19 Sep 2022 06:36:49 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 942C4400C7
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 13843C0032;
-	Sun, 18 Sep 2022 16:08:15 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 65B32C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5DA3EC0033;
+	Mon, 19 Sep 2022 06:36:49 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id CB43EC002D
  for <virtualization@lists.linux-foundation.org>;
- Sun, 18 Sep 2022 16:08:13 +0000 (UTC)
+ Mon, 19 Sep 2022 06:36:47 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 367FA60BF8
+ by smtp1.osuosl.org (Postfix) with ESMTP id A08E783E48
  for <virtualization@lists.linux-foundation.org>;
- Sun, 18 Sep 2022 16:08:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 367FA60BF8
+ Mon, 19 Sep 2022 06:36:47 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A08E783E48
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com
+ header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=wGFC0EtJ; 
+ dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
+ header.i=@oracle.onmicrosoft.com header.a=rsa-sha256
+ header.s=selector2-oracle-onmicrosoft-com header.b=W00Mb6CI
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 4y9PRGAkKI91
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id fIMRXfenpmvv
  for <virtualization@lists.linux-foundation.org>;
- Sun, 18 Sep 2022 16:08:12 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7B612607B0
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com
- [IPv6:2607:f8b0:4864:20::102f])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 7B612607B0
+ Mon, 19 Sep 2022 06:36:45 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 47F1C83E47
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com
+ [205.220.177.32])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 47F1C83E47
  for <virtualization@lists.linux-foundation.org>;
- Sun, 18 Sep 2022 16:08:12 +0000 (UTC)
-Received: by mail-pj1-x102f.google.com with SMTP id
- o70-20020a17090a0a4c00b00202f898fa86so3950171pjo.2
- for <virtualization@lists.linux-foundation.org>;
- Sun, 18 Sep 2022 09:08:12 -0700 (PDT)
+ Mon, 19 Sep 2022 06:36:45 +0000 (UTC)
+Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
+ by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28J0x4pN006295;
+ Mon, 19 Sep 2022 06:36:41 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+ h=date : from : to : cc
+ : subject : message-id : content-type : mime-version; s=corp-2022-7-12;
+ bh=wXl0KyVbiovoN1gjKR5y40VDRWlH23efGCQUT3/KFVo=;
+ b=wGFC0EtJPWkxtV6/GSyYwu0+H8Y/ZYbT3Fry35YT4J3v8QvOXEfVv44gNFjPfa8wmVLo
+ h+eiFtmxUSbi/YsNoZG9YiB/Bdf6pSHa/ekbdiTiZmORBVVOjM7zVdchHbk3jrjcQ6zu
+ IeYkitYKOy0YhGHp4eoXeq9R9L/p6HSkeruyaxEZpeqneQTf93xvZyNB0BxgpSEtbNl7
+ oI+jmU+Tm2Y6vaP/WJ0q2iWCCqSw3UWET1A+uDyyS9HY5Yxgp8+N8dW+Y/avuN+D3Cyp
+ 8+gNPiH0tYsZTHHW/oM9i3KZbyqspbIKSobhXt46+m5Sr4abWammtgwagh3jQpAR4Jqa 7g== 
+Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com
+ (iadpaimrmta03.appoci.oracle.com [130.35.103.27])
+ by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3jn69kjtmj-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Mon, 19 Sep 2022 06:36:41 +0000
+Received: from pps.filterd
+ (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+ by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.5/8.17.1.5)
+ with ESMTP id 28J4YRGI019019; Mon, 19 Sep 2022 06:36:40 GMT
+Received: from nam02-sn1-obe.outbound.protection.outlook.com
+ (mail-sn1anam02lp2049.outbound.protection.outlook.com [104.47.57.49])
+ by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id
+ 3jp3d0f6pd-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Mon, 19 Sep 2022 06:36:40 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=khAalU2L9VLGsuuUulD9qsgrzM4bKjM4KDskhRvXKexYw8XlUm1iGkVpOfYuq5+5pWN75HbTPgBx1fU+j8xRojUYJNGUogUjKYUygOUwNwFf+g6z7erdFtw2MKphjggO54Dm7vU5pBMkUcNQFMtDgTOK06YmQfx0BCJ8BUnzQlRTBOrhjq/zY78koiHHSJtEBebKlrcnG7ZXku9XWRnEi5He3GNIDBHK+88yeatpCiKzzV34Jh3DRAdHtZNkuvADiDHvxhYmPqaIz+z5FLChp0QsjKiAaSJWzgVlGqLrJJpLC4T+Zq5NzXl1y6yqX4SFyH9BJQ388Hgz8PqvUQixlA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=wXl0KyVbiovoN1gjKR5y40VDRWlH23efGCQUT3/KFVo=;
+ b=gP1x5muwGHhfDG2WuunnagFs7UrQdRYSXnKtZafMG7E3TqZEawI0iapaetT0pVaRj39DjJztFOGuE3jCtH8/vQOlUe00IoNJ99kEZO9925YMjBty9Yzl0NFCi9qQtaC34gIFsw9AB+sJnWxA8UzUjcOSH3K9ntubu12nPGV4KOhmChieIeMn6x4/3SAWBNq5z19syepGgPizItT2wRmNbqjrX/uEL00MaNV1Yky9lyPmcdczaYIEq40f+27exFkuaugPIb0VoBNAM2d38gbM5ePVAGYg9zVGpfOSggX9WM1i3ry0q5ne1m/1O+9slXHEw+diH7aphNVnAt1i1J8idQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=solid-run-com.20210112.gappssmtp.com; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:from:to:cc:subject:date;
- bh=SQeIEeTKzz2tge7ucOzZuMOMyPFYP+yglUJ/2B+K+z4=;
- b=lpYB/TsEbGNl8LtsT4Wx3Pjp5E/hR295wLjM4slCKBpcwzKNTGcNlR2xEcCsjHqhGw
- mpymbHP6ykvuiuqo+AQq32db7sqay5QUeWTyTMf/H65Ug/vKSfK3btKMbADoZGuXPkha
- GTvCj78XI6RPtYXwbpnygD6vg/5tHxeF+AXtlONwKRr1GpliYTOyZcenehuiaz8KUdUa
- A1CDyRYD8tdd1CvpAau54T8pBnUh7F00nFGkHUk7Is3FlSBCssjCQanH7tX5oAp5X+aJ
- ifyl1KK6TiR+o3PPhi45kBtByUIhydMqvuZOK4ifHQwKmXIF/gvTHJAuqmKCcdZWrOUe
- SrsQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:x-gm-message-state:from:to:cc:subject:date;
- bh=SQeIEeTKzz2tge7ucOzZuMOMyPFYP+yglUJ/2B+K+z4=;
- b=sZRcCV8zUCCIWqPTI+UObwH370YpiAhpnNVrlNbZbZwmS56YXt3rq8pP57IrJsPKlL
- XPeUsLnlGb+5lQRpXbvSQJj/Gu0M7S6zDDs6gDWwfRljkkjV6DDQBQZ/o9gPhoYto9tv
- 1FFcQD24ZP1pWpB08Tm0ettCuo6BM6N5+0e1v3guSKaKB2DQGOdIp36bDE+LeifXtoSA
- CY7Z/PGi6ZX3t/xGPKBcT0sNQLLnPwlUpckDM3YGpvXx8pGDneAGkp60NWsd0+WZm/Nm
- fLIEItQ8t1znfP1p/EvUanVZqJBo9iQ+UF9jc7EZsO0YM9WED1k8G02XWxHh7CUA6bIV
- h7sQ==
-X-Gm-Message-State: ACgBeo0b4g+nxs6S1dr6tF1z1rIkuv1TAYOhuZiMBA5u3ug41dm1z4yM
- MGgoEU4b4IUq7IL/SjeHqcSQ9heBE3x5RuOWMiiqTA==
-X-Google-Smtp-Source: AMsMyM4cGjqrHEgYSVxRRyEyeNLBA+1SBShRDGstzVYHntvQWs6WFG8qLgUYFUEFO0prsiLv7ae087hHJruZsI7ZWCg=
-X-Received: by 2002:a17:90a:ba01:b0:200:8769:1c34 with SMTP id
- s1-20020a17090aba0100b0020087691c34mr26381060pjr.0.1663517291794; Sun, 18 Sep
- 2022 09:08:11 -0700 (PDT)
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=wXl0KyVbiovoN1gjKR5y40VDRWlH23efGCQUT3/KFVo=;
+ b=W00Mb6CICnnq/zIlheIUQtbRd/YKj09yRCOUgROBia6HKw9IcDuWmMqaL6ogVn1wcw7PdHGEmoGv8e5FunSk2HaLDE/cA3mla2rd3WnFyK28UoIwgdgUqqaedUEwo+hzB5SxYF0vQi10JKtQmq5ZWxeTB+8cO3imrN3oYRYsL8Q=
+Received: from MWHPR1001MB2365.namprd10.prod.outlook.com
+ (2603:10b6:301:2d::28) by BN0PR10MB4935.namprd10.prod.outlook.com
+ (2603:10b6:408:128::21) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5632.21; Mon, 19 Sep
+ 2022 06:36:38 +0000
+Received: from MWHPR1001MB2365.namprd10.prod.outlook.com
+ ([fe80::a493:38d9:86ee:73d6]) by MWHPR1001MB2365.namprd10.prod.outlook.com
+ ([fe80::a493:38d9:86ee:73d6%6]) with mapi id 15.20.5632.016; Mon, 19 Sep 2022
+ 06:36:38 +0000
+Date: Mon, 19 Sep 2022 09:36:30 +0300
+From: Dan Carpenter <dan.carpenter@oracle.com>
+To: David Airlie <airlied@linux.ie>
+Subject: [PATCH v2] virtio-gpu: fix shift wrapping bug in
+ virtio_gpu_fence_event_create()
+Message-ID: <YygN7jY0GdUSQSy0@kili>
+Content-Disposition: inline
+X-Mailer: git-send-email haha only kidding
+X-ClientProxiedBy: ZR0P278CA0176.CHEP278.PROD.OUTLOOK.COM
+ (2603:10a6:910:45::21) To MWHPR1001MB2365.namprd10.prod.outlook.com
+ (2603:10b6:301:2d::28)
 MIME-Version: 1.0
-References: <20220829082313.419220-1-alvaro.karsz@solid-run.com>
- <20220918091848-mutt-send-email-mst@kernel.org>
- <CAJs=3_B4sTo-X9ZkqAZjzLi0EGRNW_jwUtgUBj17p907qVkNoQ@mail.gmail.com>
- <20220918110951-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20220918110951-mutt-send-email-mst@kernel.org>
-From: Alvaro Karsz <alvaro.karsz@solid-run.com>
-Date: Sun, 18 Sep 2022 19:07:34 +0300
-Message-ID: <CAJs=3_AdHBZZKXypXh=wZDB58jADyoec6RnH42b_-UphPqFGSA@mail.gmail.com>
-Subject: Re: [PATCH v2] virtio_blk: add SECURE ERASE command support
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jens Axboe <axboe@kernel.dk>, Paolo Bonzini <pbonzini@redhat.com>,
- stefanha@redhat.com, virtualization@lists.linux-foundation.org
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: MWHPR1001MB2365:EE_|BN0PR10MB4935:EE_
+X-MS-Office365-Filtering-Correlation-Id: 92b280a7-b2fb-494b-adf8-08da9a094e44
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: mMHjGAcrgjfcbkPk7pM8zGFIhhSVmkNlRVNU3yOYdYGAwGV5shLy38gPPzdBGBQ/bONa0fSayVF3L94OJe3m0pDJEsqMc5TAT7iR2AJlBVRO+e4Rb0JLg6Y5nOATeLxZfBpqias5mNosydj48PkzBt3hRredUHLd5HEFq0f5ymbSsnclf2C6djttYpupw9BS56s/Yjuw5rOiPWYaW0Q11LYGRiaPYMVa7WqGB/v0Be1pzYDCoplrLc46EtqTbY0ZdTvo3I+y9db19SzS4KCkHGqJb4RTVQmiHyuPhjJtBOe3yGC9AleAnwffR1xvucHvdZhd14TcK5RQE9/pRaCgcB6scV8UA9myML1yU2+/8Rvc+IfWZ+WErBFt/1+jj0hFPcgfkOJII1Uqdovsl5J39b5FtMZN41O25TmOvLeoxes/E4eCjfmDohTfB5I6u0SBj5ZEyzlJFgkuq/neS2+XyXg+o2VLa8cQrYqvRpW7lIWRtWtIagPhQe9nu+VdeNc9L6F59lsDgCWChdrYcFRHstpZWHnIuVJqsbMvfxH+4EaUOmS+JB7MqqQIUEpQhU6B/l7Jma02eECzSNocHvV7LCCpM+0WBdWOBEaHrwJwmYFThahFSAdAMQnY4dmsvywW5KXIQUyoQvMCCZ+JxbusppyY1gbumLu7Sn9hZXKvlHviaj7zGIriK7joXlPfrO5CKZuyYoLHc6gybT+PQtfHtQ==
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:MWHPR1001MB2365.namprd10.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230022)(7916004)(136003)(396003)(39860400002)(346002)(366004)(376002)(451199015)(66946007)(5660300002)(8676002)(4326008)(66556008)(66476007)(8936002)(54906003)(6916009)(86362001)(316002)(38100700002)(83380400001)(6666004)(41300700001)(6486002)(6506007)(478600001)(186003)(9686003)(6512007)(26005)(33716001)(2906002)(44832011);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?RKdI37ffd22EM8Zzm+dckaoQpr9R06bAYvJm5M3JrxNatlsH+mt+E0i/p9AX?=
+ =?us-ascii?Q?L8PSiu7tGAe51UixGgtRFHVHICEfEpv+CaCd7nX24DToIhDmWhjs+xElb6vS?=
+ =?us-ascii?Q?q0f0ycOa9AsX/L3QMigNfO6GUhtmu3RcVWY4jUyn5aCMaLmuFIG1J1PYW3MM?=
+ =?us-ascii?Q?EHWVNDXkFRJ+zQjESxuGI7LAd2mByyXWeZV8AjOLdfe8qHqZiWjJh1DMQT0L?=
+ =?us-ascii?Q?tSuwI4bOcqv+0FzWCEOVPe3M7lNZhW5Lj5jPjCwvd0ZqLQ3KJhzXygATYwBI?=
+ =?us-ascii?Q?F9D7toxawCSUWI/qgnZUVlM5N4zktrXmlMGdKVdYdEII++EV+MmCD0KQ+ji2?=
+ =?us-ascii?Q?X43UU1UtiT3Eds/P2ScCx4506uksytQTmgDaVaiN8e3rhDyl1FzrbRlAP3z4?=
+ =?us-ascii?Q?lqNLxie6ry+uvw/ItC+CnMAD6ll49+yzhD43oSBGRRynHLBcr5TWtAdd4f6c?=
+ =?us-ascii?Q?aShLHZLwLS+IJmc0RvIP5Ij+qIX32zrHGez29dAunRLoJqsN5zRyekXxjRRV?=
+ =?us-ascii?Q?lg0WZjVpwwlNKzaAHJlXFBOCFg5Y4RQNZBuZH9GngBzNQ63eocgzXTmO2FsB?=
+ =?us-ascii?Q?DylqXrNOpT8bV75PiC13uv0cQjis2rgsDFowK5b+0g/t5SWw0kX8ucvDpHA7?=
+ =?us-ascii?Q?jdgkJEisNCWhxaPpwy/VKVP3GyWBXgkEX6bAID0bMgUHk4S1eCz68vYRfjkv?=
+ =?us-ascii?Q?i8QT9oQ1EuTtLUqH7Daymp5AcW3ocFe1US8o1FuBDszJi0KUtzFYzebmNjKN?=
+ =?us-ascii?Q?vfu9ObOMfzyTLPtiF6XuV3fw2f0aI5q7BhWHjLwfki1fA/zqSmq1HZY+hvHj?=
+ =?us-ascii?Q?OxgNCSg+7uSvn/d9Qpx0Jsxq9v5hBCMasHWj1FkTDwYmodN7vPH5f9VQSIBb?=
+ =?us-ascii?Q?xG4qjMTX97nBu9rneDpOU3YvwlaJhDZ8i8i2YJ6pwb3Dkub+ohVGn0vkKs81?=
+ =?us-ascii?Q?rv/kF/2uf8un64giAivkeEB8mXAnDjxKL7FyV1E5Et56T06dyxYI/2UXN2w/?=
+ =?us-ascii?Q?I1UCoG0FUpvbBdSNK3JYAzZNL3V5yQTXja3Mst4DxNqO9yJgmiYT9IGRQBi5?=
+ =?us-ascii?Q?TQUPd72H8tzUn/8Matv++wIeKU/nd3IZkGMKm9wOUqd8T841JnyNGyrD4Yfx?=
+ =?us-ascii?Q?ZB2wFX0CdvVM7OAhfokB9EztXt728wPV1s/I4KMps9erlFOitlXPRS8ocD8B?=
+ =?us-ascii?Q?U0b682md7tX3N6aKYcXneA7v6TODan3aIjL/pS00G8zkC4JmHEH7uTPI5FZK?=
+ =?us-ascii?Q?hCwl4jeRd8Xo/cSK8X/R47H2UEjTfAyNP2Zxc20PGW9cBEle5tOCFnZ2FNip?=
+ =?us-ascii?Q?BzyM/1UWvdBpCQ1m7f7sBWdrDTZ7Do8TJ6Feacxoz3WYWTeAdwUKOnzqqPYF?=
+ =?us-ascii?Q?wAr0eJMbZN2zsiQ5phyvgyKHsWUpLwkMbOrpw8JKzHMUTj/l9GLLjzZx8xsc?=
+ =?us-ascii?Q?qSIOiygYMbG4FE0IWczmKygkTSMy64VWcvH80Vg7PRjjOqeweMImS5zzF6XM?=
+ =?us-ascii?Q?UlXo7LQ2BscLZWGtOE4klAWZ3dCOijOyGEKZ+8IFu1zmjaeAFiimgURakGfb?=
+ =?us-ascii?Q?ldVQJ6t4UwPDBYHmbiSkN4S057CVYSSQobCYG6Pq3z/IY3D6R9Gpk7CzEDsF?=
+ =?us-ascii?Q?4Q=3D=3D?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 92b280a7-b2fb-494b-adf8-08da9a094e44
+X-MS-Exchange-CrossTenant-AuthSource: MWHPR1001MB2365.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 Sep 2022 06:36:38.7509 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 2FLe79H/1fT5yEZKBDb8XPUmLX2I7BEL29I1ebTU1pYuMKuBSoP4/IOsovLf5XvWAAFZnL1EzhmRx+BsrvOq9MPEOX9wMr8oKI7mSEqswe8=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN0PR10MB4935
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
+ definitions=2022-09-19_03,2022-09-16_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0
+ spamscore=0 malwarescore=0
+ bulkscore=0 adultscore=0 suspectscore=0 mlxlogscore=999 mlxscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2209130000
+ definitions=main-2209190043
+X-Proofpoint-ORIG-GUID: zoor33SmyTxLSNvlrP2_hii94-ZwXNj-
+X-Proofpoint-GUID: zoor33SmyTxLSNvlrP2_hii94-ZwXNj-
+Cc: kernel-janitors@vger.kernel.org, Nicholas Verne <nverne@chromium.org>,
+ dri-devel@lists.freedesktop.org, Gurchetan Singh <gurchetansingh@chromium.org>,
+ Daniel Vetter <daniel@ffwll.ch>, virtualization@lists.linux-foundation.org,
+ Chia-I Wu <olvaffe@gmail.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -106,54 +195,36 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-> sounds good. Add a code comment?
+The ->ring_idx_mask variable is a u64 so static checkers, Smatch in
+this case, complain if the BIT() is not also a u64.
 
-I will.
+drivers/gpu/drm/virtio/virtgpu_ioctl.c:50 virtio_gpu_fence_event_create()
+warn: should '(1 << ring_idx)' be a 64 bit type?
 
->  yes but I now see two places that seem to include this logic.
+Fixes: cd7f5ca33585 ("drm/virtio: implement context init: add virtio_gpu_fence_event")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+---
+v2: Style change.  Use BIT_ULL().
 
+ drivers/gpu/drm/virtio/virtgpu_ioctl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Yes, this is because the same logic is applied on 2 different pairs.
+diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+index 3b1701607aae..5d05093014ac 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
++++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+@@ -47,7 +47,7 @@ static int virtio_gpu_fence_event_create(struct drm_device *dev,
+ 	struct virtio_gpu_fence_event *e = NULL;
+ 	int ret;
+ 
+-	if (!(vfpriv->ring_idx_mask & (1 << ring_idx)))
++	if (!(vfpriv->ring_idx_mask & BIT_ULL(ring_idx)))
+ 		return 0;
+ 
+ 	e = kzalloc(sizeof(*e), GFP_KERNEL);
+-- 
+2.35.1
 
-* secure_erase_sector_alignment and discard_sector_alignment are used
-to calculate  q->limits.discard_granularity.
-* max_discard_seg and max_secure_erase_seg are used to calculate
-max_discard_segments.
-
-> I am not 100% sure. Two options:
-> 1- Add a validate callback and clear VIRTIO_BLK_F_SECURE_ERASE.
-> 2- Alternatively, fail probe.
-
-
-Good ideas.
-2- Do you think that something like that should be mentioned in the
-spec? or should be implementation specific?
-
-How about setting the value to 1? (which is the minimum usable value)
-
-> which is preferable depends on how bad is it if host sets
-> VIRTIO_BLK_F_SECURE_ERASE but guest does not use it.
-
-
-I'm not sure if it is that bad.
-If the value is 0, sg_elems is used.
-sg_elems is either 1 (if VIRTIO_BLK_F_SEG_MAX is not negotiated), or
-seg_max (virtio config).
-
-"""
-err = virtio_cread_feature(vdev, VIRTIO_BLK_F_SEG_MAX,
-                                          struct virtio_blk_config, seg_max,
-                                          &sg_elems);
-/* We need at least one SG element, whatever they say. */
-if (err || !sg_elems)
-         sg_elems = 1;
-"""
-
-So the only "danger" that I can think of is if a device negotiates
-VIRTIO_BLK_F_SEG_MAX and  VIRTIO_BLK_F_SECURE_ERASE, sets
-max_secure_erase_seg to 0 (I'm not sure what is the purpose, since
-this is meaningless), and can't handle secure erase commands with
-seg_max segments.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
