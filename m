@@ -1,82 +1,82 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B4F94C6FA91
-	for <virtualization@archiver.kernel.org>; Mon, 19 Sep 2022 10:18:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E5B84C6FD1A
+	for <virtualization@archiver.kernel.org>; Mon, 19 Sep 2022 10:18:04 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 3B3EF41700;
-	Mon, 19 Sep 2022 10:18:06 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3B3EF41700
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=desiato.20200630 header.b=AlyUL2n2
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id nhlr7IDD8t5M; Mon, 19 Sep 2022 10:18:05 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 839E14170B;
+	by smtp3.osuosl.org (Postfix) with ESMTP id 7E52A6FB9C;
 	Mon, 19 Sep 2022 10:18:04 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 839E14170B
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id F415BC0085;
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7E52A6FB9C
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=desiato.20200630 header.b=gTZLKFFU
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id sWTqWr0XgqMT; Mon, 19 Sep 2022 10:18:03 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 23D346FB8E;
 	Mon, 19 Sep 2022 10:18:03 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B7B58C007C
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 23D346FB8E
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 08C79C007C;
+	Mon, 19 Sep 2022 10:18:03 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2C8CEC0077
  for <virtualization@lists.linux-foundation.org>;
  Mon, 19 Sep 2022 10:18:01 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 7FD68425CE
+ by smtp1.osuosl.org (Postfix) with ESMTP id DE64783E57
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Sep 2022 10:18:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7FD68425CE
-Authentication-Results: smtp4.osuosl.org;
+ Mon, 19 Sep 2022 10:18:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DE64783E57
+Authentication-Results: smtp1.osuosl.org;
  dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org
- header.a=rsa-sha256 header.s=desiato.20200630 header.b=AlyUL2n2
+ header.a=rsa-sha256 header.s=desiato.20200630 header.b=gTZLKFFU
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id g4v6HIeIE_ND
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id ofq4Ax56uV_b
  for <virtualization@lists.linux-foundation.org>;
  Mon, 19 Sep 2022 10:18:00 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5B6F9425D3
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0D2A384079
 Received: from desiato.infradead.org (desiato.infradead.org
  [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 5B6F9425D3
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 0D2A384079
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Sep 2022 10:18:00 +0000 (UTC)
+ Mon, 19 Sep 2022 10:17:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=desiato.20200630; h=Content-Type:MIME-Version:References:
  Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
  Content-ID:Content-Description:In-Reply-To;
- bh=YOWU43M4IjsvcmJXQwOIFJh+WuCbnSytdcIdnv65DkY=; b=AlyUL2n21Ay/eo4jzhxLVHbjtT
- UQyURrUAFbSeZXMu+qSEhGh5tsE0SavJsEpBS1K1IB5BR2w0cqpFKFUfHSoscIwaG1ohk66JX0VfJ
- mLJwvAXSiH7Gt28S3XByOnqo3uEOTiM0P9sWLADHW7udnoML9bRxDpBpb3wcuoeOVqMcXphlfL21A
- my5k9xukM3nRKLIX0+tEddJpYBIiN6NUySN7jnWjWc6oY49Xk2EEzfYF2TBITi40qvcU6x6hpac+t
- 3G1ys0gAkcnegE95WH6F0JTlIbD+ZqauWXPqFE9mdWImdtoBd2u5kmXCBlZVlWagaRZnaojLqXDwM
- xgmg5ltg==;
+ bh=Vr6T2clVTCKzoOuqPun2LzaBPyz9xLY6Bd2T3LwNb5Y=; b=gTZLKFFU3PbNHuvpqf0alW/moq
+ WOJRsM9nfFYtxQhk8/r9783KstgkIz0J20zUv+apeasAoT/KNpZOts0MEPuEXsKAe63jIxl+gnu4R
+ vdgOuoAadYbF2F2SnwryK/X0i1QUOT4m0mvB4vcooIDyFsKwvCzVBm8KFtDDsip/DD3lmlIFf3qdA
+ kL5bMozrRw6qeDh120irB034YQuLmYNU3ADFfzdC7TNMaFTr491d09ceDRkWsZyuzRynwQ0Wp0CTE
+ GRzN4zPve/iD+BmNJ4sy0CEgduJOwYp162kynxT1aWCbKNKZ/RB4bCDVP6NkUodDbM4SZ0sG4PwqK
+ rXFgvylw==;
 Received: from j130084.upc-j.chello.nl ([24.132.130.84]
  helo=noisy.programming.kicks-ass.net)
  by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1oaDpA-00E28l-Ry; Mon, 19 Sep 2022 10:17:17 +0000
+ id 1oaDq3-00E2Aw-UN; Mon, 19 Sep 2022 10:17:21 +0000
 Received: from hirez.programming.kicks-ass.net
  (hirez.programming.kicks-ass.net [192.168.1.225])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (4096 bits))
  (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id ED9F430067B;
- Mon, 19 Sep 2022 12:16:21 +0200 (CEST)
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 28186302F1E;
+ Mon, 19 Sep 2022 12:16:25 +0200 (CEST)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
- id C4C3D2BA49036; Mon, 19 Sep 2022 12:16:21 +0200 (CEST)
-Message-ID: <20220919101520.399971897@infradead.org>
+ id 4AD7D2BA9210F; Mon, 19 Sep 2022 12:16:22 +0200 (CEST)
+Message-ID: <20220919101521.953707131@infradead.org>
 User-Agent: quilt/0.66
-Date: Mon, 19 Sep 2022 11:59:40 +0200
+Date: Mon, 19 Sep 2022 12:00:03 +0200
 From: Peter Zijlstra <peterz@infradead.org>
 To: peterz@infradead.org
-Subject: [PATCH v2 01/44] x86/perf/amd: Remove tracing from perf_lopwr_cb()
+Subject: [PATCH v2 24/44] arm64,smp: Remove trace_.*_rcuidle() usage
 References: <20220919095939.761690562@infradead.org>
 MIME-Version: 1.0
 Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com,
@@ -119,15 +119,15 @@ Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com,
  glider@google.com, hpa@zytor.com, sparclinux@vger.kernel.org,
  linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org,
  vincenzo.frascino@arm.com, anton.ivanov@cambridgegreys.com, jonas@southpole.se,
- yury.norov@gmail.com, richard@nod.at, x86@kernel.org, linux@armlinux.org.uk,
- mingo@redhat.com, aou@eecs.berkeley.edu, hca@linux.ibm.com,
- richard.henderson@linaro.org, stefan.kristiansson@saunalahti.fi,
- openrisc@lists.librecores.org, acme@kernel.org, paul.walmsley@sifive.com,
- linux-tegra@vger.kernel.org, namhyung@kernel.org,
- andriy.shevchenko@linux.intel.com, jpoimboe@kernel.org, dvyukov@google.com,
- jgross@suse.com, monstr@monstr.eu, linux-mips@vger.kernel.org,
- palmer@dabbelt.com, anup@brainfault.org, bp@alien8.de,
- johannes@sipsolutions.net, linuxppc-dev@lists.ozlabs.org
+ Marc Zyngier <maz@kernel.org>, yury.norov@gmail.com, richard@nod.at,
+ x86@kernel.org, linux@armlinux.org.uk, mingo@redhat.com, aou@eecs.berkeley.edu,
+ hca@linux.ibm.com, richard.henderson@linaro.org,
+ stefan.kristiansson@saunalahti.fi, openrisc@lists.librecores.org,
+ acme@kernel.org, paul.walmsley@sifive.com, linux-tegra@vger.kernel.org,
+ namhyung@kernel.org, andriy.shevchenko@linux.intel.com, jpoimboe@kernel.org,
+ dvyukov@google.com, jgross@suse.com, monstr@monstr.eu,
+ linux-mips@vger.kernel.org, palmer@dabbelt.com, anup@brainfault.org,
+ bp@alien8.de, johannes@sipsolutions.net, linuxppc-dev@lists.ozlabs.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -144,60 +144,36 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-The perf_lopwr_cb() is called from the idle routines; there is no RCU
-there, we must not enter tracing.
+Ever since commit d3afc7f12987 ("arm64: Allow IPIs to be handled as
+normal interrupts") this function is called in regular IRQ context.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Acked-by: Marc Zyngier <maz@kernel.org>
 ---
- arch/x86/events/amd/brs.c         |   13 +++++--------
- arch/x86/include/asm/perf_event.h |    2 +-
- 2 files changed, 6 insertions(+), 9 deletions(-)
+ arch/arm64/kernel/smp.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/events/amd/brs.c
-+++ b/arch/x86/events/amd/brs.c
-@@ -41,18 +41,15 @@ static inline unsigned int brs_to(int id
- 	return MSR_AMD_SAMP_BR_FROM + 2 * idx + 1;
+--- a/arch/arm64/kernel/smp.c
++++ b/arch/arm64/kernel/smp.c
+@@ -865,7 +865,7 @@ static void do_handle_IPI(int ipinr)
+ 	unsigned int cpu = smp_processor_id();
+ 
+ 	if ((unsigned)ipinr < NR_IPI)
+-		trace_ipi_entry_rcuidle(ipi_types[ipinr]);
++		trace_ipi_entry(ipi_types[ipinr]);
+ 
+ 	switch (ipinr) {
+ 	case IPI_RESCHEDULE:
+@@ -914,7 +914,7 @@ static void do_handle_IPI(int ipinr)
+ 	}
+ 
+ 	if ((unsigned)ipinr < NR_IPI)
+-		trace_ipi_exit_rcuidle(ipi_types[ipinr]);
++		trace_ipi_exit(ipi_types[ipinr]);
  }
  
--static inline void set_debug_extn_cfg(u64 val)
-+static __always_inline void set_debug_extn_cfg(u64 val)
- {
- 	/* bits[4:3] must always be set to 11b */
--	wrmsrl(MSR_AMD_DBG_EXTN_CFG, val | 3ULL << 3);
-+	__wrmsr(MSR_AMD_DBG_EXTN_CFG, val | 3ULL << 3, val >> 32);
- }
- 
--static inline u64 get_debug_extn_cfg(void)
-+static __always_inline u64 get_debug_extn_cfg(void)
- {
--	u64 val;
--
--	rdmsrl(MSR_AMD_DBG_EXTN_CFG, val);
--	return val;
-+	return __rdmsr(MSR_AMD_DBG_EXTN_CFG);
- }
- 
- static bool __init amd_brs_detect(void)
-@@ -338,7 +335,7 @@ void amd_pmu_brs_sched_task(struct perf_
-  * called from ACPI processor_idle.c or acpi_pad.c
-  * with interrupts disabled
-  */
--void perf_amd_brs_lopwr_cb(bool lopwr_in)
-+void noinstr perf_amd_brs_lopwr_cb(bool lopwr_in)
- {
- 	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
- 	union amd_debug_extn_cfg cfg;
---- a/arch/x86/include/asm/perf_event.h
-+++ b/arch/x86/include/asm/perf_event.h
-@@ -554,7 +554,7 @@ extern void perf_amd_brs_lopwr_cb(bool l
- 
- DECLARE_STATIC_CALL(perf_lopwr_cb, perf_amd_brs_lopwr_cb);
- 
--static inline void perf_lopwr_cb(bool lopwr_in)
-+static __always_inline void perf_lopwr_cb(bool lopwr_in)
- {
- 	static_call_mod(perf_lopwr_cb)(lopwr_in);
- }
+ static irqreturn_t ipi_handler(int irq, void *data)
 
 
 _______________________________________________
