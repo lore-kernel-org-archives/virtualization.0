@@ -1,81 +1,81 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 49F8BECAAD3
-	for <virtualization@archiver.kernel.org>; Mon, 19 Sep 2022 15:01:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 23598C6FA86
+	for <virtualization@archiver.kernel.org>; Mon, 19 Sep 2022 15:03:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id D3DF240BAE;
-	Mon, 19 Sep 2022 15:01:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D3DF240BAE
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=desiato.20200630 header.b=g/io43Ri
+	by smtp4.osuosl.org (Postfix) with ESMTP id 981BE41743;
+	Mon, 19 Sep 2022 15:03:46 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 981BE41743
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=TgoDTVhW
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id dO7XmwSkbJ3u; Mon, 19 Sep 2022 15:01:28 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 363BA40BA8;
-	Mon, 19 Sep 2022 15:01:28 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 363BA40BA8
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id SHOpsQcPHLHj; Mon, 19 Sep 2022 15:03:45 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id C9AF84173C;
+	Mon, 19 Sep 2022 15:03:44 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C9AF84173C
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0C3C8C0032;
-	Mon, 19 Sep 2022 15:01:28 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8D8B2C0033;
+	Mon, 19 Sep 2022 15:03:44 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C46FCC002D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 57EFDC002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Sep 2022 15:01:26 +0000 (UTC)
+ Mon, 19 Sep 2022 15:03:43 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 90F916076C
+ by smtp3.osuosl.org (Postfix) with ESMTP id 32C0A60A98
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Sep 2022 15:01:26 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 90F916076C
+ Mon, 19 Sep 2022 15:03:43 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 32C0A60A98
 Authentication-Results: smtp3.osuosl.org;
  dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org
- header.a=rsa-sha256 header.s=desiato.20200630 header.b=g/io43Ri
+ header.a=rsa-sha256 header.s=casper.20170209 header.b=TgoDTVhW
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id zVafeldMuYu5
+ with ESMTP id X6Q9gOjYkGH8
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Sep 2022 15:01:25 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3DB9B60757
-Received: from desiato.infradead.org (desiato.infradead.org
- [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 3DB9B60757
+ Mon, 19 Sep 2022 15:03:42 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 33BC26076C
+Received: from casper.infradead.org (casper.infradead.org
+ [IPv6:2001:8b0:10b:1236::1])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 33BC26076C
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Sep 2022 15:01:25 +0000 (UTC)
+ Mon, 19 Sep 2022 15:03:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+ d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
  References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
  Content-Transfer-Encoding:Content-ID:Content-Description;
- bh=GQT9ZKmQZViLafATQeaZBpdND2gP4uRG0ahM2YMYtd8=; b=g/io43RigyyT41y2dFYusHC91i
- FN11xGh8i9tSF+EoWlo1zpG/7kAtBGSI2HmZByL4Oe8pG3bEgJ+0ROI7nYO0NOnc1TY5oprLEKNsP
- 0s07QhQQGBqOQpI9GMDgINY/2CjS57svuapajwEVoK2R5yc4GAMJp+DMGuZKJlfslCqnDHrafRUiw
- jORg8zwhWlWojJALVxpQjQFiL2JzpT9CaEaqFUVxHoyqBPjNzU9yff7QlldALoQgVvDBY1b6Bykv7
- bVtAcUpYMDOJ65BerD+Uz9pEW8t4LuzSWPRPEzSY89wpLArsaujZiDHsp5Um+PEFfzZR6oEfgqVwd
- v4kzfEww==;
+ bh=8W4ANpZZg81bkZotlJvZ4fg4qiAvSnY5PZyc1BTsWP4=; b=TgoDTVhWtKioMAysMtRZaz+Ed4
+ 3iL0je6K5Ai9n6tiQwv/cwXv6NOP0BwrMkHno/osPxg/RShHq5xAhp+fMX5Yy1LaTFzQyD2PKiDDa
+ IDcRLh7Ei/snb4+/2+Rx+mnplXAYQmJsQxndGbb/87NfjvASOxocT/vko3Dsiv0YDdWBWm40GCYOU
+ BqfYSOsgVZdJmPddNOZCBOqDrZGRZ7l78tr1pd1q85g8jMuq2dLOS9jwOybdzQXTlcFirzTSFh1Mf
+ CwHwwRhI7n9Qk6BduqR2uRJ2T8bbcCN4Pdh8GIPZSoE0DqIl0HQ8n6rVimdaBjWyxLbUZ/OLSG7Cy
+ vJU3fjyg==;
 Received: from j130084.upc-j.chello.nl ([24.132.130.84]
  helo=noisy.programming.kicks-ass.net)
- by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1oaIGj-00E6aZ-6M; Mon, 19 Sep 2022 15:01:09 +0000
+ by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+ id 1oaIId-004nY8-EL; Mon, 19 Sep 2022 15:03:07 +0000
 Received: from hirez.programming.kicks-ass.net
  (hirez.programming.kicks-ass.net [192.168.1.225])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (4096 bits))
  (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id C25EF30035F;
- Mon, 19 Sep 2022 17:01:08 +0200 (CEST)
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 86D5B30035F;
+ Mon, 19 Sep 2022 17:03:04 +0200 (CEST)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
- id A79C82BA49026; Mon, 19 Sep 2022 17:01:08 +0200 (CEST)
-Date: Mon, 19 Sep 2022 17:01:08 +0200
+ id 5DBEE2BAC7A31; Mon, 19 Sep 2022 17:03:04 +0200 (CEST)
+Date: Mon, 19 Sep 2022 17:03:04 +0200
 From: Peter Zijlstra <peterz@infradead.org>
 To: Frederic Weisbecker <frederic@kernel.org>
 Subject: Re: [PATCH v2 08/44] cpuidle,imx6: Push RCU-idle into driver
-Message-ID: <YyiENIiiw0lx4z3l@hirez.programming.kicks-ass.net>
+Message-ID: <YyiEqDSJVOZrQYg8@hirez.programming.kicks-ass.net>
 References: <20220919095939.761690562@infradead.org>
  <20220919101520.869531945@infradead.org>
  <20220919144941.GA62211@lothringen>
@@ -180,7 +180,8 @@ On Mon, Sep 19, 2022 at 04:49:41PM +0200, Frederic Weisbecker wrote:
 > 
 > There is a second one below that also uses imx6sx_enter_wait.
 
-Duh, thanks!
+Oh, above you mean; but only @index==2 gets us into the whole PM crud.
+@index==1 is fine afaict.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
