@@ -4,79 +4,79 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id BA3A5C54EE9
-	for <virtualization@archiver.kernel.org>; Mon, 19 Sep 2022 10:17:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5F168C6FA9B
+	for <virtualization@archiver.kernel.org>; Mon, 19 Sep 2022 10:17:48 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 6330C40B66;
-	Mon, 19 Sep 2022 10:17:46 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6330C40B66
+	by smtp2.osuosl.org (Postfix) with ESMTP id 0A25D40B92;
+	Mon, 19 Sep 2022 10:17:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0A25D40B92
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=RlUJ2AwC
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=u5RmcPfF
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 0dBvF4KP6Rcr; Mon, 19 Sep 2022 10:17:43 +0000 (UTC)
+	with ESMTP id EG8Z-fCF_IkE; Mon, 19 Sep 2022 10:17:47 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 01F0540B92;
-	Mon, 19 Sep 2022 10:17:43 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 01F0540B92
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 7EF2B41633;
+	Mon, 19 Sep 2022 10:17:46 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7EF2B41633
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C47DEC0081;
-	Mon, 19 Sep 2022 10:17:42 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 9FEEFC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 49872C0032;
+	Mon, 19 Sep 2022 10:17:46 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 92519C0032
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Sep 2022 10:17:40 +0000 (UTC)
+ Mon, 19 Sep 2022 10:17:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 7A78583365
+ by smtp3.osuosl.org (Postfix) with ESMTP id 6125B60BCD
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Sep 2022 10:17:40 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7A78583365
-Authentication-Results: smtp1.osuosl.org;
+ Mon, 19 Sep 2022 10:17:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6125B60BCD
+Authentication-Results: smtp3.osuosl.org;
  dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org
- header.a=rsa-sha256 header.s=casper.20170209 header.b=RlUJ2AwC
+ header.a=rsa-sha256 header.s=casper.20170209 header.b=u5RmcPfF
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id qkhvgbY5MF3d
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id pXzfpMsFgIJO
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Sep 2022 10:17:39 +0000 (UTC)
+ Mon, 19 Sep 2022 10:17:41 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A6EB083145
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8A95260BB3
 Received: from casper.infradead.org (casper.infradead.org
  [IPv6:2001:8b0:10b:1236::1])
- by smtp1.osuosl.org (Postfix) with ESMTPS id A6EB083145
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 8A95260BB3
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Sep 2022 10:17:39 +0000 (UTC)
+ Mon, 19 Sep 2022 10:17:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
  Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
  Content-ID:Content-Description:In-Reply-To;
- bh=2qey3zLroBQku0zom/Uqdc2w/ejv7qE6fMvFqUVfz0c=; b=RlUJ2AwCdpPblbfQP0YMvc7OXS
- vypLks6wgtcgloMSsvVlfS4RXNb3cZ0pXhJNi4ixKXVkWOTr0JWkhccmDyvtgo89daT6S3vWq6fz5
- VJzntwGG+I/tKhwN1gXnU10VZf6Y2oBh+TZtCcBfNHoWSvo7CdW+wkU/J6FYAtOuMh9cU+iZfzo32
- ueJIGOFL/qwA0/Lhvytsoucamxio8Km/dW5jH6jiWy13xWNatkE4MBjgvPPYAw+ddArxtKXq3YvaG
- gF3XSzXuFVmf4E8UBdDETDVhHmKRxQcPulKjX3yVJj2EwPrVOE6EJWXDWrwQYGJN3PgMWDcDgEXt3
- DLPFGGag==;
+ bh=rYkYazBjkfDgerhAXoQmSQo0bqbhUZdR/pxZJBUI/ng=; b=u5RmcPfFp43KgNjFh5LvZ7loBh
+ v9b9hsOd68Ng4UfKpMP38vHKgN0Yl7GxNRxqa5l4vGgLDHzZDrR8h82RlDrruuO/1whp8KmKpaJTY
+ nhM4SlU3MzO93PH/qTQreLsPgN/xZArTZVA+LfHoxxkWSqAlFPxdAZ5eitQIoWh5xl8TE6NyOiE3l
+ sUpm0yEhN3Hm23MgDGmnyZ7FsVbsZcy8ZvZpsuvEQAAd0lSbVCnwICl9h0XwVrAxZ7Y5xA82uD05y
+ c7BtSjqJmgAPbi5QV+C0AwU2kvzVInd/T089hW80XGHo0dKA/3y5/4XZjDmvj9YXM2H7G0rG9aIqc
+ 5/hO5I1g==;
 Received: from j130084.upc-j.chello.nl ([24.132.130.84]
  helo=noisy.programming.kicks-ass.net)
  by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1oaDq5-004b7X-5b; Mon, 19 Sep 2022 10:17:21 +0000
+ id 1oaDq8-004bA8-E8; Mon, 19 Sep 2022 10:17:24 +0000
 Received: from hirez.programming.kicks-ass.net
  (hirez.programming.kicks-ass.net [192.168.1.225])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (4096 bits))
  (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id E7DDC302ED9;
- Mon, 19 Sep 2022 12:16:24 +0200 (CEST)
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 50483302F4C;
+ Mon, 19 Sep 2022 12:16:25 +0200 (CEST)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
- id 144C32BA49048; Mon, 19 Sep 2022 12:16:22 +0200 (CEST)
-Message-ID: <20220919101521.340781451@infradead.org>
+ id 6E0182BAC75AC; Mon, 19 Sep 2022 12:16:22 +0200 (CEST)
+Message-ID: <20220919101522.426692140@infradead.org>
 User-Agent: quilt/0.66
-Date: Mon, 19 Sep 2022 11:59:54 +0200
+Date: Mon, 19 Sep 2022 12:00:10 +0200
 From: Peter Zijlstra <peterz@infradead.org>
 To: peterz@infradead.org
-Subject: [PATCH v2 15/44] acpi_idle: Remove tracing
+Subject: [PATCH v2 31/44] cpuidle,nospec: Make noinstr clean
 References: <20220919095939.761690562@infradead.org>
 MIME-Version: 1.0
 Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com,
@@ -144,76 +144,28 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-All the idle routines are called with RCU disabled, as such there must
-not be any tracing inside.
-
-While there; clean-up the io-port idle thing.
+vmlinux.o: warning: objtool: mwait_idle+0x47: call to mds_idle_clear_cpu_buffers() leaves .noinstr.text section
+vmlinux.o: warning: objtool: acpi_processor_ffh_cstate_enter+0xa2: call to mds_idle_clear_cpu_buffers() leaves .noinstr.text section
+vmlinux.o: warning: objtool: intel_idle+0x91: call to mds_idle_clear_cpu_buffers() leaves .noinstr.text section
+vmlinux.o: warning: objtool: intel_idle_s2idle+0x8c: call to mds_idle_clear_cpu_buffers() leaves .noinstr.text section
+vmlinux.o: warning: objtool: intel_idle_irq+0xaa: call to mds_idle_clear_cpu_buffers() leaves .noinstr.text section
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 ---
- drivers/acpi/processor_idle.c |   24 +++++++++++++-----------
- 1 file changed, 13 insertions(+), 11 deletions(-)
+ arch/x86/include/asm/nospec-branch.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/acpi/processor_idle.c
-+++ b/drivers/acpi/processor_idle.c
-@@ -108,8 +108,8 @@ static const struct dmi_system_id proces
- static void __cpuidle acpi_safe_halt(void)
+--- a/arch/x86/include/asm/nospec-branch.h
++++ b/arch/x86/include/asm/nospec-branch.h
+@@ -310,7 +310,7 @@ static __always_inline void mds_user_cle
+  *
+  * Clear CPU buffers if the corresponding static key is enabled
+  */
+-static inline void mds_idle_clear_cpu_buffers(void)
++static __always_inline void mds_idle_clear_cpu_buffers(void)
  {
- 	if (!tif_need_resched()) {
--		safe_halt();
--		local_irq_disable();
-+		raw_safe_halt();
-+		raw_local_irq_disable();
- 	}
- }
- 
-@@ -524,16 +524,21 @@ static int acpi_idle_bm_check(void)
- 	return bm_status;
- }
- 
--static void wait_for_freeze(void)
-+static __cpuidle void io_idle(unsigned long addr)
- {
-+	/* IO port based C-state */
-+	inb(addr);
-+
- #ifdef	CONFIG_X86
- 	/* No delay is needed if we are in guest */
- 	if (boot_cpu_has(X86_FEATURE_HYPERVISOR))
- 		return;
- #endif
--	/* Dummy wait op - must do something useless after P_LVL2 read
--	   because chipsets cannot guarantee that STPCLK# signal
--	   gets asserted in time to freeze execution properly. */
-+	/*
-+	 * Dummy wait op - must do something useless after P_LVL2 read
-+	 * because chipsets cannot guarantee that STPCLK# signal
-+	 * gets asserted in time to freeze execution properly.
-+	 */
- 	inl(acpi_gbl_FADT.xpm_timer_block.address);
- }
- 
-@@ -553,9 +558,7 @@ static void __cpuidle acpi_idle_do_entry
- 	} else if (cx->entry_method == ACPI_CSTATE_HALT) {
- 		acpi_safe_halt();
- 	} else {
--		/* IO port based C-state */
--		inb(cx->address);
--		wait_for_freeze();
-+		io_idle(cx->address);
- 	}
- 
- 	perf_lopwr_cb(false);
-@@ -577,8 +580,7 @@ static int acpi_idle_play_dead(struct cp
- 		if (cx->entry_method == ACPI_CSTATE_HALT)
- 			safe_halt();
- 		else if (cx->entry_method == ACPI_CSTATE_SYSTEMIO) {
--			inb(cx->address);
--			wait_for_freeze();
-+			io_idle(cx->address);
- 		} else
- 			return -ENODEV;
- 
+ 	if (static_branch_likely(&mds_idle_clear))
+ 		mds_clear_cpu_buffers();
 
 
 _______________________________________________
