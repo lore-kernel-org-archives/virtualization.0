@@ -1,82 +1,82 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id ACD29C6FA92
-	for <virtualization@archiver.kernel.org>; Mon, 19 Sep 2022 10:17:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id BA3A5C54EE9
+	for <virtualization@archiver.kernel.org>; Mon, 19 Sep 2022 10:17:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 5699683365;
-	Mon, 19 Sep 2022 10:17:45 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5699683365
+	by smtp2.osuosl.org (Postfix) with ESMTP id 6330C40B66;
+	Mon, 19 Sep 2022 10:17:46 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6330C40B66
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=RlUJ2AwC
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 0dBvF4KP6Rcr; Mon, 19 Sep 2022 10:17:43 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 01F0540B92;
+	Mon, 19 Sep 2022 10:17:43 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 01F0540B92
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C47DEC0081;
+	Mon, 19 Sep 2022 10:17:42 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9FEEFC002D
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 19 Sep 2022 10:17:40 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 7A78583365
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 19 Sep 2022 10:17:40 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7A78583365
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=Ca5aS96c
+ dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org
+ header.a=rsa-sha256 header.s=casper.20170209 header.b=RlUJ2AwC
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id CBNuwI7tk_Q1; Mon, 19 Sep 2022 10:17:44 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 64E9783DFD;
-	Mon, 19 Sep 2022 10:17:43 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 64E9783DFD
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 07386C007E;
-	Mon, 19 Sep 2022 10:17:43 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A9C03C0081
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id qkhvgbY5MF3d
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Sep 2022 10:17:41 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 82154416ED
- for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Sep 2022 10:17:41 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 82154416ED
-Authentication-Results: smtp4.osuosl.org;
- dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org
- header.a=rsa-sha256 header.s=casper.20170209 header.b=Ca5aS96c
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id nCWSjYxMxW-i
- for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Sep 2022 10:17:40 +0000 (UTC)
+ Mon, 19 Sep 2022 10:17:39 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 86ABA41568
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A6EB083145
 Received: from casper.infradead.org (casper.infradead.org
  [IPv6:2001:8b0:10b:1236::1])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 86ABA41568
+ by smtp1.osuosl.org (Postfix) with ESMTPS id A6EB083145
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Sep 2022 10:17:40 +0000 (UTC)
+ Mon, 19 Sep 2022 10:17:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
  Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
  Content-ID:Content-Description:In-Reply-To;
- bh=VPG6Pv8mWlQqWm+kW/xAIKtiRyMjOEN9R6RnNMCwxdw=; b=Ca5aS96cYfllCWW4NedYRctlyO
- gIiKYs+tVjR65pA5uFipueivu4K8pqduCvewON4kFVB2LMS+i5eIb/U6nldhQIDn+r9QASPUyZC4c
- GF32lSiMSA+Mhiewzh5F0g4wZwjk2l8xxnNGJnBVrz2MY26bzXbcmRBe2lb1RihVg4t8zc71zZR1Z
- 2IfJ3S+ZOlX+uF+fmc+aV4GTYcoglXITJVkDuZAYu2b+tj6JJHtARlfxly/vNboY4Vlaph4FJyVQS
- Es6vtcgbyiH1mH5tISei+3HknX1+gpXNt7RYeujjLEjPx5O3nVTnio6SmEtDdkPxQ6iL6qwNlbTuN
- 0w/UxONg==;
+ bh=2qey3zLroBQku0zom/Uqdc2w/ejv7qE6fMvFqUVfz0c=; b=RlUJ2AwCdpPblbfQP0YMvc7OXS
+ vypLks6wgtcgloMSsvVlfS4RXNb3cZ0pXhJNi4ixKXVkWOTr0JWkhccmDyvtgo89daT6S3vWq6fz5
+ VJzntwGG+I/tKhwN1gXnU10VZf6Y2oBh+TZtCcBfNHoWSvo7CdW+wkU/J6FYAtOuMh9cU+iZfzo32
+ ueJIGOFL/qwA0/Lhvytsoucamxio8Km/dW5jH6jiWy13xWNatkE4MBjgvPPYAw+ddArxtKXq3YvaG
+ gF3XSzXuFVmf4E8UBdDETDVhHmKRxQcPulKjX3yVJj2EwPrVOE6EJWXDWrwQYGJN3PgMWDcDgEXt3
+ DLPFGGag==;
 Received: from j130084.upc-j.chello.nl ([24.132.130.84]
  helo=noisy.programming.kicks-ass.net)
  by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1oaDq6-004b8S-I6; Mon, 19 Sep 2022 10:17:22 +0000
+ id 1oaDq5-004b7X-5b; Mon, 19 Sep 2022 10:17:21 +0000
 Received: from hirez.programming.kicks-ass.net
  (hirez.programming.kicks-ass.net [192.168.1.225])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (4096 bits))
  (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 32DFE302F27;
- Mon, 19 Sep 2022 12:16:25 +0200 (CEST)
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id E7DDC302ED9;
+ Mon, 19 Sep 2022 12:16:24 +0200 (CEST)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
- id 4F9B32BABC0C9; Mon, 19 Sep 2022 12:16:22 +0200 (CEST)
-Message-ID: <20220919101522.021681292@infradead.org>
+ id 144C32BA49048; Mon, 19 Sep 2022 12:16:22 +0200 (CEST)
+Message-ID: <20220919101521.340781451@infradead.org>
 User-Agent: quilt/0.66
-Date: Mon, 19 Sep 2022 12:00:04 +0200
+Date: Mon, 19 Sep 2022 11:59:54 +0200
 From: Peter Zijlstra <peterz@infradead.org>
 To: peterz@infradead.org
-Subject: [PATCH v2 25/44] printk: Remove trace_.*_rcuidle() usage
+Subject: [PATCH v2 15/44] acpi_idle: Remove tracing
 References: <20220919095939.761690562@infradead.org>
 MIME-Version: 1.0
 Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com,
@@ -144,30 +144,76 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-The problem, per commit fc98c3c8c9dc ("printk: use rcuidle console
-tracepoint"), was printk usage from the cpuidle path where RCU was
-already disabled.
+All the idle routines are called with RCU disabled, as such there must
+not be any tracing inside.
 
-Per the patches earlier in this series, this is no longer the case.
+While there; clean-up the io-port idle thing.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Sergey Senozhatsky <senozhatsky@chromium.org>
-Acked-by: Petr Mladek <pmladek@suse.com>
 ---
- kernel/printk/printk.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/acpi/processor_idle.c |   24 +++++++++++++-----------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
 
---- a/kernel/printk/printk.c
-+++ b/kernel/printk/printk.c
-@@ -2238,7 +2238,7 @@ static u16 printk_sprint(char *text, u16
- 		}
+--- a/drivers/acpi/processor_idle.c
++++ b/drivers/acpi/processor_idle.c
+@@ -108,8 +108,8 @@ static const struct dmi_system_id proces
+ static void __cpuidle acpi_safe_halt(void)
+ {
+ 	if (!tif_need_resched()) {
+-		safe_halt();
+-		local_irq_disable();
++		raw_safe_halt();
++		raw_local_irq_disable();
+ 	}
+ }
+ 
+@@ -524,16 +524,21 @@ static int acpi_idle_bm_check(void)
+ 	return bm_status;
+ }
+ 
+-static void wait_for_freeze(void)
++static __cpuidle void io_idle(unsigned long addr)
+ {
++	/* IO port based C-state */
++	inb(addr);
++
+ #ifdef	CONFIG_X86
+ 	/* No delay is needed if we are in guest */
+ 	if (boot_cpu_has(X86_FEATURE_HYPERVISOR))
+ 		return;
+ #endif
+-	/* Dummy wait op - must do something useless after P_LVL2 read
+-	   because chipsets cannot guarantee that STPCLK# signal
+-	   gets asserted in time to freeze execution properly. */
++	/*
++	 * Dummy wait op - must do something useless after P_LVL2 read
++	 * because chipsets cannot guarantee that STPCLK# signal
++	 * gets asserted in time to freeze execution properly.
++	 */
+ 	inl(acpi_gbl_FADT.xpm_timer_block.address);
+ }
+ 
+@@ -553,9 +558,7 @@ static void __cpuidle acpi_idle_do_entry
+ 	} else if (cx->entry_method == ACPI_CSTATE_HALT) {
+ 		acpi_safe_halt();
+ 	} else {
+-		/* IO port based C-state */
+-		inb(cx->address);
+-		wait_for_freeze();
++		io_idle(cx->address);
  	}
  
--	trace_console_rcuidle(text, text_len);
-+	trace_console(text, text_len);
+ 	perf_lopwr_cb(false);
+@@ -577,8 +580,7 @@ static int acpi_idle_play_dead(struct cp
+ 		if (cx->entry_method == ACPI_CSTATE_HALT)
+ 			safe_halt();
+ 		else if (cx->entry_method == ACPI_CSTATE_SYSTEMIO) {
+-			inb(cx->address);
+-			wait_for_freeze();
++			io_idle(cx->address);
+ 		} else
+ 			return -ENODEV;
  
- 	return text_len;
- }
 
 
 _______________________________________________
