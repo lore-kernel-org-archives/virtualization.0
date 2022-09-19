@@ -4,84 +4,84 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 118BAC54EE9
-	for <virtualization@archiver.kernel.org>; Mon, 19 Sep 2022 15:01:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 49F8BECAAD3
+	for <virtualization@archiver.kernel.org>; Mon, 19 Sep 2022 15:01:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 767C540BB9;
-	Mon, 19 Sep 2022 15:01:27 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 767C540BB9
+	by smtp2.osuosl.org (Postfix) with ESMTP id D3DF240BAE;
+	Mon, 19 Sep 2022 15:01:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D3DF240BAE
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=desiato.20200630 header.b=Z7/2OIWT
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=desiato.20200630 header.b=g/io43Ri
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id qlx_LOB30CUU; Mon, 19 Sep 2022 15:01:26 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id EE86B408E8;
-	Mon, 19 Sep 2022 15:01:25 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org EE86B408E8
+	with ESMTP id dO7XmwSkbJ3u; Mon, 19 Sep 2022 15:01:28 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 363BA40BA8;
+	Mon, 19 Sep 2022 15:01:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 363BA40BA8
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C2022C0032;
-	Mon, 19 Sep 2022 15:01:25 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 52548C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0C3C8C0032;
+	Mon, 19 Sep 2022 15:01:28 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C46FCC002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Sep 2022 15:01:24 +0000 (UTC)
+ Mon, 19 Sep 2022 15:01:26 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 295D982C7C
+ by smtp3.osuosl.org (Postfix) with ESMTP id 90F916076C
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Sep 2022 15:01:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 295D982C7C
-Authentication-Results: smtp1.osuosl.org;
+ Mon, 19 Sep 2022 15:01:26 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 90F916076C
+Authentication-Results: smtp3.osuosl.org;
  dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org
- header.a=rsa-sha256 header.s=desiato.20200630 header.b=Z7/2OIWT
+ header.a=rsa-sha256 header.s=desiato.20200630 header.b=g/io43Ri
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id xyweFvuttJie
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id zVafeldMuYu5
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Sep 2022 15:01:23 +0000 (UTC)
+ Mon, 19 Sep 2022 15:01:25 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D11BC82C61
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3DB9B60757
 Received: from desiato.infradead.org (desiato.infradead.org
  [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
- by smtp1.osuosl.org (Postfix) with ESMTPS id D11BC82C61
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 3DB9B60757
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Sep 2022 15:01:22 +0000 (UTC)
+ Mon, 19 Sep 2022 15:01:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
  References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
  Content-Transfer-Encoding:Content-ID:Content-Description;
- bh=DH0Mbf0oZaE0931sFQPw1e06bFjL/ZiWgntyEnYtHbE=; b=Z7/2OIWTtGRG+EiJo2AD3B8G8e
- 7uPG4PjU1ya5bfhFJXAHwWaGx5yw3XDL0GYXbmibp9Xx25sduHU5oh8lscXaAHt5fN64/FqKymFHF
- amCjnRPyabcoX1W91yzz2iUJnazyvM6NvWfbu3sbMKkxpf4LYy7yP3/VRTVXmqTNA4AeFl2jL0Vy2
- w/TT6h3dAJgEAR/z8406ANXq2n7gYlBBWtij15zV52/laBjXxQzqTW9Chik+j9dPi1B8sPtUb8+Hh
- QuI3JQlo7zhojBg+6Huof0ss/YYYdPJCFlTmj18gUC6XE0WhO6Gna1XmcuRMnNxKLNJLIqXqZUrqv
- wdzSDrfA==;
+ bh=GQT9ZKmQZViLafATQeaZBpdND2gP4uRG0ahM2YMYtd8=; b=g/io43RigyyT41y2dFYusHC91i
+ FN11xGh8i9tSF+EoWlo1zpG/7kAtBGSI2HmZByL4Oe8pG3bEgJ+0ROI7nYO0NOnc1TY5oprLEKNsP
+ 0s07QhQQGBqOQpI9GMDgINY/2CjS57svuapajwEVoK2R5yc4GAMJp+DMGuZKJlfslCqnDHrafRUiw
+ jORg8zwhWlWojJALVxpQjQFiL2JzpT9CaEaqFUVxHoyqBPjNzU9yff7QlldALoQgVvDBY1b6Bykv7
+ bVtAcUpYMDOJ65BerD+Uz9pEW8t4LuzSWPRPEzSY89wpLArsaujZiDHsp5Um+PEFfzZR6oEfgqVwd
+ v4kzfEww==;
 Received: from j130084.upc-j.chello.nl ([24.132.130.84]
  helo=noisy.programming.kicks-ass.net)
  by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1oaIGV-00E6Zu-5w; Mon, 19 Sep 2022 15:00:55 +0000
+ id 1oaIGj-00E6aZ-6M; Mon, 19 Sep 2022 15:01:09 +0000
 Received: from hirez.programming.kicks-ass.net
  (hirez.programming.kicks-ass.net [192.168.1.225])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (4096 bits))
  (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id E7E2030035F;
- Mon, 19 Sep 2022 17:00:52 +0200 (CEST)
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id C25EF30035F;
+ Mon, 19 Sep 2022 17:01:08 +0200 (CEST)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
- id C27C020139CA8; Mon, 19 Sep 2022 17:00:52 +0200 (CEST)
-Date: Mon, 19 Sep 2022 17:00:52 +0200
+ id A79C82BA49026; Mon, 19 Sep 2022 17:01:08 +0200 (CEST)
+Date: Mon, 19 Sep 2022 17:01:08 +0200
 From: Peter Zijlstra <peterz@infradead.org>
 To: Frederic Weisbecker <frederic@kernel.org>
 Subject: Re: [PATCH v2 08/44] cpuidle,imx6: Push RCU-idle into driver
-Message-ID: <YyiEJOJL5/Bq+9hK@hirez.programming.kicks-ass.net>
+Message-ID: <YyiENIiiw0lx4z3l@hirez.programming.kicks-ass.net>
 References: <20220919095939.761690562@infradead.org>
  <20220919101520.869531945@infradead.org>
- <20220919142123.GE58444@lothringen>
+ <20220919144941.GA62211@lothringen>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20220919142123.GE58444@lothringen>
+In-Reply-To: <20220919144941.GA62211@lothringen>
 Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com,
  linus.walleij@linaro.org, bsegall@google.com, guoren@kernel.org, pavel@ucw.cz,
  agordeev@linux.ibm.com, linux-arch@vger.kernel.org, vincent.guittot@linaro.org,
@@ -147,17 +147,40 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Sep 19, 2022 at 04:21:23PM +0200, Frederic Weisbecker wrote:
+On Mon, Sep 19, 2022 at 04:49:41PM +0200, Frederic Weisbecker wrote:
 > On Mon, Sep 19, 2022 at 11:59:47AM +0200, Peter Zijlstra wrote:
 > > Doing RCU-idle outside the driver, only to then temporarily enable it
 > > again, at least twice, before going idle is daft.
+> > 
+> > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> > ---
+> >  arch/arm/mach-imx/cpuidle-imx6sx.c |    5 ++++-
+> >  1 file changed, 4 insertions(+), 1 deletion(-)
+> > 
+> > --- a/arch/arm/mach-imx/cpuidle-imx6sx.c
+> > +++ b/arch/arm/mach-imx/cpuidle-imx6sx.c
+> > @@ -47,7 +47,9 @@ static int imx6sx_enter_wait(struct cpui
+> >  		cpu_pm_enter();
+> >  		cpu_cluster_pm_enter();
+> >  
+> > +		ct_idle_enter();
+> >  		cpu_suspend(0, imx6sx_idle_finish);
+> > +		ct_idle_exit();
+> >  
+> >  		cpu_cluster_pm_exit();
+> >  		cpu_pm_exit();
+> > @@ -87,7 +89,8 @@ static struct cpuidle_driver imx6sx_cpui
+> >  			 */
+> >  			.exit_latency = 300,
+> >  			.target_residency = 500,
+> > -			.flags = CPUIDLE_FLAG_TIMER_STOP,
+> > +			.flags = CPUIDLE_FLAG_TIMER_STOP |
+> > +				 CPUIDLE_FLAG_RCU_IDLE,
+> >  			.enter = imx6sx_enter_wait,
 > 
-> Hmm, what ends up calling RCU_IDLE() here? Also what about
-> cpu_do_idle()?
+> There is a second one below that also uses imx6sx_enter_wait.
 
-Both cpu_pm_enter() and cpu_cluster_pm_enter() use ct_irq_enter_irqson()
-which is another way to spell RCU_NONIDLE().
-
+Duh, thanks!
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
