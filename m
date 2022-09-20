@@ -1,101 +1,101 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4B32DC54EE9
-	for <virtualization@archiver.kernel.org>; Tue, 20 Sep 2022 02:03:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 74594C6FA91
+	for <virtualization@archiver.kernel.org>; Tue, 20 Sep 2022 02:17:02 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id BFA1C8242D;
-	Tue, 20 Sep 2022 02:03:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BFA1C8242D
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=dAFUvV2R
+	by smtp4.osuosl.org (Postfix) with ESMTP id ED23F4177A;
+	Tue, 20 Sep 2022 02:17:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org ED23F4177A
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Gx2uTR2B
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id kuLZhTM0snI4; Tue, 20 Sep 2022 02:02:59 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 96F3B82422;
-	Tue, 20 Sep 2022 02:02:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 96F3B82422
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id gwXskDPoB8IC; Tue, 20 Sep 2022 02:17:00 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 184054175D;
+	Tue, 20 Sep 2022 02:17:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 184054175D
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 69713C0033;
-	Tue, 20 Sep 2022 02:02:58 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B5336C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id EB4F6C0032;
+	Tue, 20 Sep 2022 02:16:59 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A65AAC002D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Sep 2022 02:02:56 +0000 (UTC)
+ Tue, 20 Sep 2022 02:16:59 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 7BAD040438
+ by smtp2.osuosl.org (Postfix) with ESMTP id 6E5A640469
  for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Sep 2022 02:02:56 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7BAD040438
+ Tue, 20 Sep 2022 02:16:59 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6E5A640469
 Authentication-Results: smtp2.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=dAFUvV2R
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=Gx2uTR2B
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id KchPJOZsp64v
+ with ESMTP id xQKTHic7p4tf
  for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Sep 2022 02:02:52 +0000 (UTC)
+ Tue, 20 Sep 2022 02:16:57 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B77BD4041C
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 675E94041C
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id B77BD4041C
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 675E94041C
  for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Sep 2022 02:02:52 +0000 (UTC)
+ Tue, 20 Sep 2022 02:16:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1663639371;
+ s=mimecast20190719; t=1663640212;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=faCU162X+wI3VyF2nQiop7OG+mfYJ3C8OshE48krBU4=;
- b=dAFUvV2RlyKOopgHtCjvRaAbzSM+QQA7JfwxIPO3S1Uu8ux3VCY5pO4lyon/EELLnQrTIP
- l9Lmz9TSwclU+BtBD7S9QDRfnWZwTQb9QKUC5E1AKrvTtkM+p2q1CDwy9KWmhlKUjvjzo6
- VPDxdsh8gR3t1nNIhNw8n2hdk5XrXr0=
-Received: from mail-vs1-f70.google.com (mail-vs1-f70.google.com
- [209.85.217.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=Zo86NMsPHctYgO0mGry59i4eN15QEnWKnYhNdcDx8JY=;
+ b=Gx2uTR2BT0OnH9Fq1xJfQ3ESaDaCCG9trn8mTUmHnMcdjVggV+4YTqnVVI4vrii0Je9EkQ
+ lCXn67DOnlUhYJMfLMewA1XlIQBM7rW4f76PvzZvrgqhTJQ7f0p2OKDM2nnm3voTxwo0+0
+ 0g8ijastVtz3Ipu7/1k74z4x76h1yPw=
+Received: from mail-vk1-f199.google.com (mail-vk1-f199.google.com
+ [209.85.221.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-113-_0-LQLLqMjushE7FpnRlYg-1; Mon, 19 Sep 2022 22:02:50 -0400
-X-MC-Unique: _0-LQLLqMjushE7FpnRlYg-1
-Received: by mail-vs1-f70.google.com with SMTP id
- m186-20020a6726c3000000b0039b2e2e040dso96017vsm.9
+ us-mta-474-aLarGN_EP_6SbO6NWNtgjQ-1; Mon, 19 Sep 2022 22:16:47 -0400
+X-MC-Unique: aLarGN_EP_6SbO6NWNtgjQ-1
+Received: by mail-vk1-f199.google.com with SMTP id
+ t132-20020a1faa8a000000b003a23bef3680so341109vke.9
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Sep 2022 19:02:49 -0700 (PDT)
+ Mon, 19 Sep 2022 19:16:47 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=cc:to:subject:message-id:date:from:in-reply-to:references
  :mime-version:x-gm-message-state:from:to:cc:subject:date;
- bh=faCU162X+wI3VyF2nQiop7OG+mfYJ3C8OshE48krBU4=;
- b=yKC8i+CW7LAwjmSE0MsnvDEh9t2MJV5E192W852sjA5TqARthXfo9eXqZfJ8piinRJ
- /uUO4sSTePojo89ne1LDlwT8jyWUyzCWj0joGauExyxA7EM2/67WHl9AeTRvKmiGJcNY
- Y7+ZYhPRyFKyDTFrKBX2gaNckTCW2NglSNVoWVZKb+o7JEDYZevO9mwbKnpm2uenWx52
- hqfaNbMCJrRCMHz5LD0aGn+rIbn8aCThaL9OO1IHELGtsilTyJf0/dty6qnjAZoSocVF
- Dmdc7Es27lSH8GwXAoP99q7g5sNSqjJsEcwoPmZ104EA5psgKfifEedVIleVaMYfZdti
- x7IQ==
-X-Gm-Message-State: ACrzQf1FTu+I65E218dwDRwWKsMpiuDyrO6YCLvPvIVhkut/zSYeg8uC
- zi8cRC1PtLNs0Mdv0LblZe7IUSvajo1DbHEElYBVMeDrDDY+PdIAuhctkmgaG/RrQaISzW0nqLR
- 9zGj4LkTLkQRpcj5EY7Mh45nG3UF7DSnDWKwlp+PqYe6cqraSWYnk8bhamQ==
-X-Received: by 2002:a05:6102:1341:b0:398:889e:7f28 with SMTP id
- j1-20020a056102134100b00398889e7f28mr7912781vsl.21.1663639369324; 
- Mon, 19 Sep 2022 19:02:49 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM7hWThMWApXIHlTE15FM2qB/Cbva+CwsqGmij2/DXcHfy6l4xVdBSPLV7e1pSscJ8wm1BTYnWg+1OnoMnHQnnc=
-X-Received: by 2002:a05:6102:1341:b0:398:889e:7f28 with SMTP id
- j1-20020a056102134100b00398889e7f28mr7912778vsl.21.1663639369049; Mon, 19 Sep
- 2022 19:02:49 -0700 (PDT)
+ bh=Zo86NMsPHctYgO0mGry59i4eN15QEnWKnYhNdcDx8JY=;
+ b=zK1yFa+Dd+aY56sw3HXyjhyYEhQloMlDNKflus6976VFaKlsBmy0GPf/KVB8O8u6kO
+ oUjw8CoOkV+XSjxSe34vmsvXdUp94IbrvUdpdAj2UvbralcdRdYF9NmZllQRm9nJRyjb
+ p0O27AXnStEcQE1VmctU6UPP85ohKXgw2fX9uhNQg05eBnLzGapoqeBR0YLqaoDVAQtM
+ 7itQkjHRBs9unSExOAs1tXAos98oxRUg4rVRrp2zIh9bBznsM3PIkq4nn+rf4/QzdHpn
+ 9egtswwbbvCSpOJtLxXb5IkQEWmATpuALbZ67dcNi75VDWLNovc7ss/NOpv+RI6KPLgX
+ 278g==
+X-Gm-Message-State: ACrzQf0Qucme5NfqnVmL57O8OOSgZrYFAjeS+FjOrOoPgOQ78fa7x+8U
+ 5TeQBp7HkN0HJvfGmy80r21vxljqT35o782Ze0mr3E4WedHaiAqr8nYsm3ToTARwAEiCQB2VLYO
+ kVq4aHvLBGN70R+M2K6fjEVFlNVRoIgTLDT3Cg19bx8WzG8gqkAPbR4IzbQ==
+X-Received: by 2002:a67:e218:0:b0:398:4d8c:8037 with SMTP id
+ g24-20020a67e218000000b003984d8c8037mr7419390vsa.4.1663640205513; 
+ Mon, 19 Sep 2022 19:16:45 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM7FViMHfT3HYQIWmkPbYd8yvNIQikjkhJmN/lsyJbFbvnrbHHcisI8cT5S05cjpkvJJbjMWFTxmicgwYqVdCPA=
+X-Received: by 2002:a67:e218:0:b0:398:4d8c:8037 with SMTP id
+ g24-20020a67e218000000b003984d8c8037mr7419382vsa.4.1663640205244; Mon, 19 Sep
+ 2022 19:16:45 -0700 (PDT)
 MIME-Version: 1.0
 References: <20220909085712.46006-1-lingshan.zhu@intel.com>
- <20220909085712.46006-2-lingshan.zhu@intel.com>
-In-Reply-To: <20220909085712.46006-2-lingshan.zhu@intel.com>
+ <20220909085712.46006-3-lingshan.zhu@intel.com>
+In-Reply-To: <20220909085712.46006-3-lingshan.zhu@intel.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 20 Sep 2022 10:02:37 +0800
-Message-ID: <CACGkMEsq+weeO7i8KtNNAPhXGwN=cTwWt3RWfTtML-Xwj3K5Qg@mail.gmail.com>
-Subject: Re: [PATCH 1/4] vDPA: allow userspace to query features of a vDPA
- device
+Date: Tue, 20 Sep 2022 10:16:33 +0800
+Message-ID: <CACGkMEsYARr3toEBTxVcwFi86JxK0D-w4OpNtvVdhCEbAnc8ZA@mail.gmail.com>
+Subject: Re: [PATCH 2/4] vDPA: only report driver features if FEATURES_OK is
+ set
 To: Zhu Lingshan <lingshan.zhu@intel.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
@@ -120,101 +120,50 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 On Fri, Sep 9, 2022 at 5:05 PM Zhu Lingshan <lingshan.zhu@intel.com> wrote:
 >
-> This commit adds a new vDPA netlink attribution
-> VDPA_ATTR_VDPA_DEV_SUPPORTED_FEATURES. Userspace can query
-> features of vDPA devices through this new attr.
->
-> This commit invokes vdpa_config_ops.get_config() than
-> vdpa_get_config_unlocked() to read the device config
-> spcae, so no raeces in vdpa_set_features_unlocked()
+> vdpa_dev_net_config_fill() should only report driver features
+> to userspace after features negotiation is done.
 >
 > Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
-
-It's better to share the userspace code as well.
-
 > ---
->  drivers/vdpa/vdpa.c       | 19 ++++++++++++++-----
->  include/uapi/linux/vdpa.h |  4 ++++
->  2 files changed, 18 insertions(+), 5 deletions(-)
+>  drivers/vdpa/vdpa.c | 13 +++++++++----
+>  1 file changed, 9 insertions(+), 4 deletions(-)
 >
 > diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
-> index c06c02704461..798a02c7aa94 100644
+> index 798a02c7aa94..29d7e8858e6f 100644
 > --- a/drivers/vdpa/vdpa.c
 > +++ b/drivers/vdpa/vdpa.c
-> @@ -491,6 +491,8 @@ static int vdpa_mgmtdev_fill(const struct vdpa_mgmt_dev *mdev, struct sk_buff *m
->                 err = -EMSGSIZE;
->                 goto msg_err;
->         }
-> +
-> +       /* report features of a vDPA management device through VDPA_ATTR_DEV_SUPPORTED_FEATURES */
-
-The code explains itself, there's no need for the comment.
-
->         if (nla_put_u64_64bit(msg, VDPA_ATTR_DEV_SUPPORTED_FEATURES,
->                               mdev->supported_features, VDPA_ATTR_PAD)) {
->                 err = -EMSGSIZE;
-> @@ -815,10 +817,10 @@ static int vdpa_dev_net_mq_config_fill(struct vdpa_device *vdev,
->  static int vdpa_dev_net_config_fill(struct vdpa_device *vdev, struct sk_buff *msg)
->  {
+> @@ -819,6 +819,7 @@ static int vdpa_dev_net_config_fill(struct vdpa_device *vdev, struct sk_buff *ms
 >         struct virtio_net_config config = {};
-> -       u64 features;
-> +       u64 features_device, features_driver;
+>         u64 features_device, features_driver;
 >         u16 val_u16;
+> +       u8 status;
 >
-> -       vdpa_get_config_unlocked(vdev, 0, &config, sizeof(config));
-> +       vdev->config->get_config(vdev, 0, &config, sizeof(config));
+>         vdev->config->get_config(vdev, 0, &config, sizeof(config));
 >
->         if (nla_put(msg, VDPA_ATTR_DEV_NET_CFG_MACADDR, sizeof(config.mac),
->                     config.mac))
-> @@ -832,12 +834,19 @@ static int vdpa_dev_net_config_fill(struct vdpa_device *vdev, struct sk_buff *ms
+> @@ -834,10 +835,14 @@ static int vdpa_dev_net_config_fill(struct vdpa_device *vdev, struct sk_buff *ms
 >         if (nla_put_u16(msg, VDPA_ATTR_DEV_NET_CFG_MTU, val_u16))
 >                 return -EMSGSIZE;
 >
-> -       features = vdev->config->get_driver_features(vdev);
-> -       if (nla_put_u64_64bit(msg, VDPA_ATTR_DEV_NEGOTIATED_FEATURES, features,
-> +       features_driver = vdev->config->get_driver_features(vdev);
-> +       if (nla_put_u64_64bit(msg, VDPA_ATTR_DEV_NEGOTIATED_FEATURES, features_driver,
-> +                             VDPA_ATTR_PAD))
-> +               return -EMSGSIZE;
-> +
-> +       features_device = vdev->config->get_device_features(vdev);
-> +
-> +       /* report features of a vDPA device through VDPA_ATTR_VDPA_DEV_SUPPORTED_FEATURES */
-> +       if (nla_put_u64_64bit(msg, VDPA_ATTR_VDPA_DEV_SUPPORTED_FEATURES, features_device,
->                               VDPA_ATTR_PAD))
->                 return -EMSGSIZE;
->
-> -       return vdpa_dev_net_mq_config_fill(vdev, msg, features, &config);
-> +       return vdpa_dev_net_mq_config_fill(vdev, msg, features_driver, &config);
->  }
->
->  static int
-> diff --git a/include/uapi/linux/vdpa.h b/include/uapi/linux/vdpa.h
-> index 25c55cab3d7c..97531b52dcbe 100644
-> --- a/include/uapi/linux/vdpa.h
-> +++ b/include/uapi/linux/vdpa.h
-> @@ -46,12 +46,16 @@ enum vdpa_attr {
->
->         VDPA_ATTR_DEV_NEGOTIATED_FEATURES,      /* u64 */
->         VDPA_ATTR_DEV_MGMTDEV_MAX_VQS,          /* u32 */
-> +       /* features of a vDPA management device */
->         VDPA_ATTR_DEV_SUPPORTED_FEATURES,       /* u64 */
->
->         VDPA_ATTR_DEV_QUEUE_INDEX,              /* u32 */
->         VDPA_ATTR_DEV_VENDOR_ATTR_NAME,         /* string */
->         VDPA_ATTR_DEV_VENDOR_ATTR_VALUE,        /* u64 */
->
-> +       /* features of a vDPA device, e.g., /dev/vhost-vdpa0 */
-> +       VDPA_ATTR_VDPA_DEV_SUPPORTED_FEATURES,  /* u64 */
+> -       features_driver = vdev->config->get_driver_features(vdev);
+> -       if (nla_put_u64_64bit(msg, VDPA_ATTR_DEV_NEGOTIATED_FEATURES, features_driver,
+> -                             VDPA_ATTR_PAD))
+> -               return -EMSGSIZE;
+> +       /* only read driver features after the feature negotiation is done */
+> +       status = vdev->config->get_status(vdev);
+> +       if (status & VIRTIO_CONFIG_S_FEATURES_OK) {
 
-What's the difference between this and VDPA_ATTR_DEV_SUPPORTED_FEATURES?
+Any reason this is not checked in its caller as what it used to do before?
 
 Thanks
 
-> +
->         /* new attributes must be added above here */
->         VDPA_ATTR_MAX,
->  };
+> +               features_driver = vdev->config->get_driver_features(vdev);
+> +               if (nla_put_u64_64bit(msg, VDPA_ATTR_DEV_NEGOTIATED_FEATURES, features_driver,
+> +                                     VDPA_ATTR_PAD))
+> +                       return -EMSGSIZE;
+> +       }
+>
+>         features_device = vdev->config->get_device_features(vdev);
+>
 > --
 > 2.31.1
 >
