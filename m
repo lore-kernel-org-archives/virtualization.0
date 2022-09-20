@@ -1,113 +1,107 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 296FCC6FA8B
-	for <virtualization@archiver.kernel.org>; Tue, 20 Sep 2022 01:46:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4B32DC54EE9
+	for <virtualization@archiver.kernel.org>; Tue, 20 Sep 2022 02:03:01 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 90D1940445;
-	Tue, 20 Sep 2022 01:46:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 90D1940445
+	by smtp1.osuosl.org (Postfix) with ESMTP id BFA1C8242D;
+	Tue, 20 Sep 2022 02:03:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BFA1C8242D
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=dAFUvV2R
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id kuLZhTM0snI4; Tue, 20 Sep 2022 02:02:59 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 96F3B82422;
+	Tue, 20 Sep 2022 02:02:58 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 96F3B82422
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 69713C0033;
+	Tue, 20 Sep 2022 02:02:58 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B5336C002D
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 20 Sep 2022 02:02:56 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 7BAD040438
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 20 Sep 2022 02:02:56 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7BAD040438
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RveDw4PI
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=dAFUvV2R
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Phnh1YpJM4Ih; Tue, 20 Sep 2022 01:46:31 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id E2CC44041C;
-	Tue, 20 Sep 2022 01:46:30 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E2CC44041C
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id BEB6DC0033;
-	Tue, 20 Sep 2022 01:46:30 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4C36EC002D
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id KchPJOZsp64v
  for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Sep 2022 01:46:30 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 1E9EF60B5A
- for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Sep 2022 01:46:30 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1E9EF60B5A
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=RveDw4PI
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ZYvcWKwBRgJ3
- for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Sep 2022 01:46:29 +0000 (UTC)
+ Tue, 20 Sep 2022 02:02:52 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2F934606FF
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B77BD4041C
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 2F934606FF
+ by smtp2.osuosl.org (Postfix) with ESMTPS id B77BD4041C
  for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Sep 2022 01:46:29 +0000 (UTC)
+ Tue, 20 Sep 2022 02:02:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1663638387;
+ s=mimecast20190719; t=1663639371;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=dNim4t6D3u1EwkeGcilMNCdWN9K4ooOqRZJUBMK5sfw=;
- b=RveDw4PIRhnva9D8LikD5aF6F14+U9KzYZGxgxTjzLbmPBxCLD+on+y8A6l4Lxz2VAJ52m
- c2dRsUcgQtlp7qfQepkjoKhq7EiM3D2RnyorvseHhDcpj0RdMHoCPRC4RGhlZ1u3bmNMkg
- dZx7bQi6f0TzhbhukX91DR29B1TfPYI=
-Received: from mail-vk1-f200.google.com (mail-vk1-f200.google.com
- [209.85.221.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=faCU162X+wI3VyF2nQiop7OG+mfYJ3C8OshE48krBU4=;
+ b=dAFUvV2RlyKOopgHtCjvRaAbzSM+QQA7JfwxIPO3S1Uu8ux3VCY5pO4lyon/EELLnQrTIP
+ l9Lmz9TSwclU+BtBD7S9QDRfnWZwTQb9QKUC5E1AKrvTtkM+p2q1CDwy9KWmhlKUjvjzo6
+ VPDxdsh8gR3t1nNIhNw8n2hdk5XrXr0=
+Received: from mail-vs1-f70.google.com (mail-vs1-f70.google.com
+ [209.85.217.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-519-RLV_L3AINDC2fgVZln2Xig-1; Mon, 19 Sep 2022 21:46:21 -0400
-X-MC-Unique: RLV_L3AINDC2fgVZln2Xig-1
-Received: by mail-vk1-f200.google.com with SMTP id
- e17-20020a056122023100b003a1e6de5bf9so310583vko.17
+ us-mta-113-_0-LQLLqMjushE7FpnRlYg-1; Mon, 19 Sep 2022 22:02:50 -0400
+X-MC-Unique: _0-LQLLqMjushE7FpnRlYg-1
+Received: by mail-vs1-f70.google.com with SMTP id
+ m186-20020a6726c3000000b0039b2e2e040dso96017vsm.9
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Sep 2022 18:46:21 -0700 (PDT)
+ Mon, 19 Sep 2022 19:02:49 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=cc:to:subject:message-id:date:from:in-reply-to:references
  :mime-version:x-gm-message-state:from:to:cc:subject:date;
- bh=dNim4t6D3u1EwkeGcilMNCdWN9K4ooOqRZJUBMK5sfw=;
- b=665RUewjcNEP5pC4XITJJT2lnhx/900OQxSbzE9+sr0ctbOBut7fry8R7aLKfk8IyH
- 5OcMaDcsbBhHcXau3gkDeWbHKCFLp5lORbA+umPe2WziYRBIPQeEGuv3bzZCZIZc7WdL
- fpcsYjKMs8j1FjdumAsAxKJCwbh0NGHuauMEXz9AB9V1UeXU3bD4cpl8GTwla1oYl5c/
- TyMLwEEffxPGSMxTqWPxAUXWCNZA1XFU/wnWJw1f784QoaexoL+ShJUBmg1DP/Zk1xem
- XfCvieq83KlzgffzhdB4EsTHePy1gJvBTRgrwHgcLEyenIIk2Yxsg38LASTKtlrMacyU
- pnEw==
-X-Gm-Message-State: ACrzQf2qSBbgIHjgkzEbwFRJL1Qa5VfEuDs81Ug/IxZE93EnO/dWIoM2
- FhoSq3UM2rG9L5n+esdUAua9NubOHrb2DpXtkoDVZtzSZzdFaW35VmSN3srxbT2Etrrsxoq3nE/
- QpFH4HkWkrxw8yQULcY2SoSBKJtMmiGfisJNkVIaIYPczCIcUh9D97UeIhw==
+ bh=faCU162X+wI3VyF2nQiop7OG+mfYJ3C8OshE48krBU4=;
+ b=yKC8i+CW7LAwjmSE0MsnvDEh9t2MJV5E192W852sjA5TqARthXfo9eXqZfJ8piinRJ
+ /uUO4sSTePojo89ne1LDlwT8jyWUyzCWj0joGauExyxA7EM2/67WHl9AeTRvKmiGJcNY
+ Y7+ZYhPRyFKyDTFrKBX2gaNckTCW2NglSNVoWVZKb+o7JEDYZevO9mwbKnpm2uenWx52
+ hqfaNbMCJrRCMHz5LD0aGn+rIbn8aCThaL9OO1IHELGtsilTyJf0/dty6qnjAZoSocVF
+ Dmdc7Es27lSH8GwXAoP99q7g5sNSqjJsEcwoPmZ104EA5psgKfifEedVIleVaMYfZdti
+ x7IQ==
+X-Gm-Message-State: ACrzQf1FTu+I65E218dwDRwWKsMpiuDyrO6YCLvPvIVhkut/zSYeg8uC
+ zi8cRC1PtLNs0Mdv0LblZe7IUSvajo1DbHEElYBVMeDrDDY+PdIAuhctkmgaG/RrQaISzW0nqLR
+ 9zGj4LkTLkQRpcj5EY7Mh45nG3UF7DSnDWKwlp+PqYe6cqraSWYnk8bhamQ==
 X-Received: by 2002:a05:6102:1341:b0:398:889e:7f28 with SMTP id
- j1-20020a056102134100b00398889e7f28mr7895725vsl.21.1663638378562; 
- Mon, 19 Sep 2022 18:46:18 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM7JBb7Mo2xytvr3fAEMap8eoE5rMUKQpFtpDBJku09gWoXRFMGIOXN7RsLeq1N74DEtjIIGtJP0zYUmbEs6kzI=
+ j1-20020a056102134100b00398889e7f28mr7912781vsl.21.1663639369324; 
+ Mon, 19 Sep 2022 19:02:49 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM7hWThMWApXIHlTE15FM2qB/Cbva+CwsqGmij2/DXcHfy6l4xVdBSPLV7e1pSscJ8wm1BTYnWg+1OnoMnHQnnc=
 X-Received: by 2002:a05:6102:1341:b0:398:889e:7f28 with SMTP id
- j1-20020a056102134100b00398889e7f28mr7895714vsl.21.1663638378361; Mon, 19 Sep
- 2022 18:46:18 -0700 (PDT)
+ j1-20020a056102134100b00398889e7f28mr7912778vsl.21.1663639369049; Mon, 19 Sep
+ 2022 19:02:49 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220915085048.12840-1-jasowang@redhat.com>
- <20220915085048.12840-4-jasowang@redhat.com>
- <DM8PR12MB54006A97A99515542260B5D6AB4D9@DM8PR12MB5400.namprd12.prod.outlook.com>
-In-Reply-To: <DM8PR12MB54006A97A99515542260B5D6AB4D9@DM8PR12MB5400.namprd12.prod.outlook.com>
+References: <20220909085712.46006-1-lingshan.zhu@intel.com>
+ <20220909085712.46006-2-lingshan.zhu@intel.com>
+In-Reply-To: <20220909085712.46006-2-lingshan.zhu@intel.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 20 Sep 2022 09:46:07 +0800
-Message-ID: <CACGkMEtfLGjHgFV7bgWrjWoFZyiTQMf9oDBGi5L=diQ5mtNRnA@mail.gmail.com>
-Subject: Re: [PATCH 3/3] vp_vdpa: support feature provisioning
-To: Eli Cohen <elic@nvidia.com>
+Date: Tue, 20 Sep 2022 10:02:37 +0800
+Message-ID: <CACGkMEsq+weeO7i8KtNNAPhXGwN=cTwWt3RWfTtML-Xwj3K5Qg@mail.gmail.com>
+Subject: Re: [PATCH 1/4] vDPA: allow userspace to query features of a vDPA
+ device
+To: Zhu Lingshan <lingshan.zhu@intel.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: "lulu@redhat.com" <lulu@redhat.com>, "mst@redhat.com" <mst@redhat.com>,
- "xieyongji@bytedance.com" <xieyongji@bytedance.com>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "gdawar@xilinx.com" <gdawar@xilinx.com>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- "eperezma@redhat.com" <eperezma@redhat.com>,
- "wuzongyong@linux.alibaba.com" <wuzongyong@linux.alibaba.com>,
- "lingshan.zhu@intel.com" <lingshan.zhu@intel.com>
+Cc: netdev <netdev@vger.kernel.org>,
+ virtualization <virtualization@lists.linux-foundation.org>,
+ kvm <kvm@vger.kernel.org>, mst <mst@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -124,120 +118,105 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Sep 19, 2022 at 3:05 PM Eli Cohen <elic@nvidia.com> wrote:
+On Fri, Sep 9, 2022 at 5:05 PM Zhu Lingshan <lingshan.zhu@intel.com> wrote:
 >
-> > From: Jason Wang <jasowang@redhat.com>
-> > Sent: Thursday, 15 September 2022 11:51
-> > To: mst@redhat.com; jasowang@redhat.com
-> > Cc: Eli Cohen <elic@nvidia.com>; si-wei.liu@oracle.com; Parav Pandit
-> > <parav@nvidia.com>; wuzongyong@linux.alibaba.com;
-> > virtualization@lists.linux-foundation.org; linux-kernel@vger.kernel.org;
-> > eperezma@redhat.com; lingshan.zhu@intel.com; gdawar@xilinx.com;
-> > lulu@redhat.com; xieyongji@bytedance.com
-> > Subject: [PATCH 3/3] vp_vdpa: support feature provisioning
-> >
-> > This patch allows the device features to be provisioned via
-> > netlink. This is done by:
-> >
-> > 1) validating the provisioned features to be a subset of the parent
-> >    features.
-> > 2) clearing the features that is not wanted by the userspace
-> >
-> > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > ---
-> >  drivers/vdpa/virtio_pci/vp_vdpa.c | 16 ++++++++++++++--
-> >  1 file changed, 14 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/drivers/vdpa/virtio_pci/vp_vdpa.c
-> > b/drivers/vdpa/virtio_pci/vp_vdpa.c
-> > index 04522077735b..4b28e0c95ba2 100644
-> > --- a/drivers/vdpa/virtio_pci/vp_vdpa.c
-> > +++ b/drivers/vdpa/virtio_pci/vp_vdpa.c
-> > @@ -17,6 +17,7 @@
-> >  #include <linux/virtio_ring.h>
-> >  #include <linux/virtio_pci.h>
-> >  #include <linux/virtio_pci_modern.h>
-> > +#include <uapi/linux/vdpa.h>
-> >
-> >  #define VP_VDPA_QUEUE_MAX 256
-> >  #define VP_VDPA_DRIVER_NAME "vp_vdpa"
-> > @@ -35,6 +36,7 @@ struct vp_vdpa {
-> >       struct virtio_pci_modern_device *mdev;
-> >       struct vp_vring *vring;
-> >       struct vdpa_callback config_cb;
-> > +     u64 device_features;
-> >       char msix_name[VP_VDPA_NAME_SIZE];
-> >       int config_irq;
-> >       int queues;
-> > @@ -66,9 +68,9 @@ static struct virtio_pci_modern_device
-> > *vp_vdpa_to_mdev(struct vp_vdpa *vp_vdpa)
-> >
-> >  static u64 vp_vdpa_get_device_features(struct vdpa_device *vdpa)
-> >  {
-> > -     struct virtio_pci_modern_device *mdev = vdpa_to_mdev(vdpa);
-> > +     struct vp_vdpa *vp_vdpa = vdpa_to_vp(vdpa);
-> >
-> > -     return vp_modern_get_features(mdev);
-> > +     return vp_vdpa->device_features;
-> >  }
+> This commit adds a new vDPA netlink attribution
+> VDPA_ATTR_VDPA_DEV_SUPPORTED_FEATURES. Userspace can query
+> features of vDPA devices through this new attr.
 >
-> Unrelated to this patch. Maybe put in another patch?
+> This commit invokes vdpa_config_ops.get_config() than
+> vdpa_get_config_unlocked() to read the device config
+> spcae, so no raeces in vdpa_set_features_unlocked()
+>
+> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
 
-Actually not, since we don't want to report the features that are
-supported by the device, but the features that are provisioned via
-netlink:
+It's better to share the userspace code as well.
 
-> > +     if (add_config->mask & BIT_ULL(VDPA_ATTR_DEV_FEATURES)) {
-> > +             if (add_config->device_features & ~device_features)
-> > +                     return -EINVAL;
-> > +             device_features &= add_config->device_features;
-> > +     }
-> > +     vp_vdpa->device_features = device_features;
+> ---
+>  drivers/vdpa/vdpa.c       | 19 ++++++++++++++-----
+>  include/uapi/linux/vdpa.h |  4 ++++
+>  2 files changed, 18 insertions(+), 5 deletions(-)
+>
+> diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
+> index c06c02704461..798a02c7aa94 100644
+> --- a/drivers/vdpa/vdpa.c
+> +++ b/drivers/vdpa/vdpa.c
+> @@ -491,6 +491,8 @@ static int vdpa_mgmtdev_fill(const struct vdpa_mgmt_dev *mdev, struct sk_buff *m
+>                 err = -EMSGSIZE;
+>                 goto msg_err;
+>         }
+> +
+> +       /* report features of a vDPA management device through VDPA_ATTR_DEV_SUPPORTED_FEATURES */
+
+The code explains itself, there's no need for the comment.
+
+>         if (nla_put_u64_64bit(msg, VDPA_ATTR_DEV_SUPPORTED_FEATURES,
+>                               mdev->supported_features, VDPA_ATTR_PAD)) {
+>                 err = -EMSGSIZE;
+> @@ -815,10 +817,10 @@ static int vdpa_dev_net_mq_config_fill(struct vdpa_device *vdev,
+>  static int vdpa_dev_net_config_fill(struct vdpa_device *vdev, struct sk_buff *msg)
+>  {
+>         struct virtio_net_config config = {};
+> -       u64 features;
+> +       u64 features_device, features_driver;
+>         u16 val_u16;
+>
+> -       vdpa_get_config_unlocked(vdev, 0, &config, sizeof(config));
+> +       vdev->config->get_config(vdev, 0, &config, sizeof(config));
+>
+>         if (nla_put(msg, VDPA_ATTR_DEV_NET_CFG_MACADDR, sizeof(config.mac),
+>                     config.mac))
+> @@ -832,12 +834,19 @@ static int vdpa_dev_net_config_fill(struct vdpa_device *vdev, struct sk_buff *ms
+>         if (nla_put_u16(msg, VDPA_ATTR_DEV_NET_CFG_MTU, val_u16))
+>                 return -EMSGSIZE;
+>
+> -       features = vdev->config->get_driver_features(vdev);
+> -       if (nla_put_u64_64bit(msg, VDPA_ATTR_DEV_NEGOTIATED_FEATURES, features,
+> +       features_driver = vdev->config->get_driver_features(vdev);
+> +       if (nla_put_u64_64bit(msg, VDPA_ATTR_DEV_NEGOTIATED_FEATURES, features_driver,
+> +                             VDPA_ATTR_PAD))
+> +               return -EMSGSIZE;
+> +
+> +       features_device = vdev->config->get_device_features(vdev);
+> +
+> +       /* report features of a vDPA device through VDPA_ATTR_VDPA_DEV_SUPPORTED_FEATURES */
+> +       if (nla_put_u64_64bit(msg, VDPA_ATTR_VDPA_DEV_SUPPORTED_FEATURES, features_device,
+>                               VDPA_ATTR_PAD))
+>                 return -EMSGSIZE;
+>
+> -       return vdpa_dev_net_mq_config_fill(vdev, msg, features, &config);
+> +       return vdpa_dev_net_mq_config_fill(vdev, msg, features_driver, &config);
+>  }
+>
+>  static int
+> diff --git a/include/uapi/linux/vdpa.h b/include/uapi/linux/vdpa.h
+> index 25c55cab3d7c..97531b52dcbe 100644
+> --- a/include/uapi/linux/vdpa.h
+> +++ b/include/uapi/linux/vdpa.h
+> @@ -46,12 +46,16 @@ enum vdpa_attr {
+>
+>         VDPA_ATTR_DEV_NEGOTIATED_FEATURES,      /* u64 */
+>         VDPA_ATTR_DEV_MGMTDEV_MAX_VQS,          /* u32 */
+> +       /* features of a vDPA management device */
+>         VDPA_ATTR_DEV_SUPPORTED_FEATURES,       /* u64 */
+>
+>         VDPA_ATTR_DEV_QUEUE_INDEX,              /* u32 */
+>         VDPA_ATTR_DEV_VENDOR_ATTR_NAME,         /* string */
+>         VDPA_ATTR_DEV_VENDOR_ATTR_VALUE,        /* u64 */
+>
+> +       /* features of a vDPA device, e.g., /dev/vhost-vdpa0 */
+> +       VDPA_ATTR_VDPA_DEV_SUPPORTED_FEATURES,  /* u64 */
+
+What's the difference between this and VDPA_ATTR_DEV_SUPPORTED_FEATURES?
 
 Thanks
 
->
-> >
-> >  static int vp_vdpa_set_driver_features(struct vdpa_device *vdpa, u64
-> > features)
-> > @@ -475,6 +477,7 @@ static int vp_vdpa_dev_add(struct vdpa_mgmt_dev
-> > *v_mdev, const char *name,
-> >       struct pci_dev *pdev = mdev->pci_dev;
-> >       struct device *dev = &pdev->dev;
-> >       struct vp_vdpa *vp_vdpa = NULL;
-> > +     u64 device_features;
-> >       int ret, i;
-> >
-> >       vp_vdpa = vdpa_alloc_device(struct vp_vdpa, vdpa,
-> > @@ -491,6 +494,14 @@ static int vp_vdpa_dev_add(struct vdpa_mgmt_dev
-> > *v_mdev, const char *name,
-> >       vp_vdpa->queues = vp_modern_get_num_queues(mdev);
-> >       vp_vdpa->mdev = mdev;
-> >
-> > +     device_features = vp_modern_get_features(mdev);
-> > +     if (add_config->mask & BIT_ULL(VDPA_ATTR_DEV_FEATURES)) {
-> > +             if (add_config->device_features & ~device_features)
-> > +                     return -EINVAL;
-> > +             device_features &= add_config->device_features;
-> > +     }
-> > +     vp_vdpa->device_features = device_features;
-> > +
-> >       ret = devm_add_action_or_reset(dev, vp_vdpa_free_irq_vectors,
-> > pdev);
-> >       if (ret) {
-> >               dev_err(&pdev->dev,
-> > @@ -599,6 +610,7 @@ static int vp_vdpa_probe(struct pci_dev *pdev, const
-> > struct pci_device_id *id)
-> >       mgtdev->id_table = mdev_id;
-> >       mgtdev->max_supported_vqs =
-> > vp_modern_get_num_queues(mdev);
-> >       mgtdev->supported_features = vp_modern_get_features(mdev);
-> > +     mgtdev->config_attr_mask = (1 << VDPA_ATTR_DEV_FEATURES);
-> >       pci_set_master(pdev);
-> >       pci_set_drvdata(pdev, vp_vdpa_mgtdev);
-> >
-> > --
-> > 2.25.1
+> +
+>         /* new attributes must be added above here */
+>         VDPA_ATTR_MAX,
+>  };
+> --
+> 2.31.1
 >
 
 _______________________________________________
