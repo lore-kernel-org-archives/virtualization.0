@@ -1,113 +1,133 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 35658ECAAD8
-	for <virtualization@archiver.kernel.org>; Tue, 20 Sep 2022 08:18:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7E571C6FA92
+	for <virtualization@archiver.kernel.org>; Tue, 20 Sep 2022 08:57:41 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id C283160E09;
-	Tue, 20 Sep 2022 08:18:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C283160E09
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=UYQL6cEZ
+	by smtp2.osuosl.org (Postfix) with ESMTP id 08EF540BE5;
+	Tue, 20 Sep 2022 08:57:41 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 08EF540BE5
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=desiato.20200630 header.b=dwq7k7OL
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 1srnOPtHoCe8; Tue, 20 Sep 2022 08:18:38 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id S0pdTeOVp2Wh; Tue, 20 Sep 2022 08:57:40 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 42FF7605B7;
-	Tue, 20 Sep 2022 08:18:37 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 42FF7605B7
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 4B10C40104;
+	Tue, 20 Sep 2022 08:57:39 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4B10C40104
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2C3A2C0033;
-	Tue, 20 Sep 2022 08:18:37 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1261AC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 23C99C0033;
+	Tue, 20 Sep 2022 08:57:39 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6E581C002D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Sep 2022 08:18:35 +0000 (UTC)
+ Tue, 20 Sep 2022 08:57:37 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id D5112605BA
+ by smtp2.osuosl.org (Postfix) with ESMTP id 4FFC440BE3
  for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Sep 2022 08:18:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D5112605BA
+ Tue, 20 Sep 2022 08:57:37 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4FFC440BE3
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 6Bbiy6TnT7Cf
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 5BO__SesEwT3
  for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Sep 2022 08:18:34 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D4187605B7
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id D4187605B7
+ Tue, 20 Sep 2022 08:57:35 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 919A940104
+Received: from desiato.infradead.org (desiato.infradead.org
+ [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 919A940104
  for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Sep 2022 08:18:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1663661912;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=nYBXnM221OKkMmYnX56agU4HA29O1+0qE07dmbgFr1Y=;
- b=UYQL6cEZya3EUjGuAX728tyovitTPhL9jkC0WN7/7QCtsPIrwcJ+AxME126OXPejI6Jpo0
- OR4D/2h/lpa8hU9NR/KxM7EYRApNN4J2C204Zt5ulVc5l7W8qmtPlfWQpjFjQXVjYD7FR1
- X/o3F4atgzIWhZLcyjuwVDMW4/R8vC4=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-49-H8-LnqzcPwybFVb2q7baYA-1; Tue, 20 Sep 2022 04:18:31 -0400
-X-MC-Unique: H8-LnqzcPwybFVb2q7baYA-1
-Received: by mail-wm1-f70.google.com with SMTP id
- g8-20020a05600c4ec800b003b4bcbdb63cso807793wmq.7
- for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Sep 2022 01:18:31 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
- bh=nYBXnM221OKkMmYnX56agU4HA29O1+0qE07dmbgFr1Y=;
- b=P0O+ogaSA/M/WxfdjIHNl5/1J8RxHrzuXZ8IFEfPI6vkUR7d6mSsEMv2zksTDnFgSj
- pt1eIaLtIjk4kDR/PoHAFVKqnoCANH9B+nBjQttXNkscFGJh63XMqSJV5vLkXaRMWny9
- fEmp8Flr48ZPwK0ETN2uhzmyZeBRuFz7qpeWsW0f+uhGlOOWe6/NDpKPXu2WSnuOkksh
- F84F/9CijZYyYdhOXoefOlRXvLVRWKt3tECZkDOOuXTeL4eVk0s5cPtIvpVi3qDHEWDZ
- NfXwIyMw3FzIBOoxyeNXqSEKjwjrHS6hqlaLH6/fNRLHVuqlsqNYliSGu1mlBgspcwel
- KhJQ==
-X-Gm-Message-State: ACrzQf2OwNYgpwJkuKPO3tzFXWxt7DbiIWac3aj4gkSB3+JQg8YfbZUz
- zXfqxAQmiUPU6+39Zcnwk9hmm/cDAQDs1dp90fsNk6jkCLFf73q0eNYdCzt/hJKhLdXpdOlxynw
- batKkwqzcoqu59BN+ULfwn7MkINlFoguXf85M4mb+Xw==
-X-Received: by 2002:a5d:4ec5:0:b0:228:6707:8472 with SMTP id
- s5-20020a5d4ec5000000b0022867078472mr13700970wrv.12.1663661910616; 
- Tue, 20 Sep 2022 01:18:30 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM5Gc746EtqOMp12PC/ZhI3qlffavJ9O8HKgnaDgO6702xNdn3VPX99CEZYZBDDZBLY3QzW+vw==
-X-Received: by 2002:a5d:4ec5:0:b0:228:6707:8472 with SMTP id
- s5-20020a5d4ec5000000b0022867078472mr13700953wrv.12.1663661910369; 
- Tue, 20 Sep 2022 01:18:30 -0700 (PDT)
-Received: from sgarzare-redhat (host-87-11-6-69.retail.telecomitalia.it.
- [87.11.6.69]) by smtp.gmail.com with ESMTPSA id
- z22-20020a05600c0a1600b003b4868eb6bbsm1749112wmp.23.2022.09.20.01.18.28
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 20 Sep 2022 01:18:29 -0700 (PDT)
-Date: Tue, 20 Sep 2022 10:18:24 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Jakub Kicinski <kuba@kernel.org>
-Subject: Re: [PATCH 0/3] MAINTAINERS: Update entries for some VMware drivers
-Message-ID: <20220920081824.vshwiv3lt5crlxdj@sgarzare-redhat>
-References: <20220906172722.19862-1-vdasa@vmware.com>
- <20220919104147.1373eac1@kernel.org>
+ Tue, 20 Sep 2022 08:57:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+ References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+ Content-Transfer-Encoding:Content-ID:Content-Description;
+ bh=/nDDP1N0D4CAKFG1jjZ0nUCcb4Cwi+2XeLNzAB5a/3A=; b=dwq7k7OLBAweuvxZAbsIyybjmJ
+ LWKFQLhJfLLYjlWcLF1VzOmm/u3DYXUkxiGZB432qxzVGoPDa+HDV664vlFYQOwNVOgwYKQh00P/y
+ 2Moq5lHOrC15n7bUB20DWWFsx8XV1J1DNLnxbuCGUFWdx8geNgMfV6XhqReLWifLY+YeFodx27IXq
+ /IrJ0mO09Di3qhEI4cp6g7HRbgntsbzEH8ickJuRs6Usu7AqtrURdlQsKWIMoNKkSXupoPQSsqje7
+ UezmEjo7U4Z1A3DxPyeQLWaZEGErf50B+83wnXPcrPsl85uPvrl+T4DjBM0ejacsZ7Zz8oufPZrwY
+ XBBt0mUA==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84]
+ helo=noisy.programming.kicks-ass.net)
+ by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+ id 1oaZ3v-00EIvK-QL; Tue, 20 Sep 2022 08:57:04 +0000
+Received: from hirez.programming.kicks-ass.net
+ (hirez.programming.kicks-ass.net [192.168.1.225])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+ (Client did not present a certificate)
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id BEC303006B9;
+ Tue, 20 Sep 2022 10:57:00 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+ id 892F82BAC7A92; Tue, 20 Sep 2022 10:57:00 +0200 (CEST)
+Date: Tue, 20 Sep 2022 10:57:00 +0200
+From: Peter Zijlstra <peterz@infradead.org>
+To: Frederic Weisbecker <frederic@kernel.org>
+Subject: Re: [PATCH v2 03/44] cpuidle/poll: Ensure IRQ state is invariant
+Message-ID: <YymAXPkZkyFIEjXM@hirez.programming.kicks-ass.net>
+References: <20220919095939.761690562@infradead.org>
+ <20220919101520.534233547@infradead.org>
+ <20220919131927.GA58444@lothringen>
 MIME-Version: 1.0
-In-Reply-To: <20220919104147.1373eac1@kernel.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: vdasa@vmware.com, pv-drivers@vmware.com, doshir@vmware.com,
- linux-scsi@vger.kernel.org, vbhakta@vmware.com, gregkh@linuxfoundation.org,
- linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, bryantan@vmware.com,
- linux-graphics-maintainer@vmware.com, netdev@vger.kernel.org, joe@perches.com,
- namit@vmware.com, davem@davemloft.net, zackr@vmware.com,
- linux-rdma@vger.kernel.org
+In-Reply-To: <20220919131927.GA58444@lothringen>
+Cc: juri.lelli@redhat.com, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+ rafael@kernel.org, catalin.marinas@arm.com, linus.walleij@linaro.org,
+ bsegall@google.com, guoren@kernel.org, pavel@ucw.cz, agordeev@linux.ibm.com,
+ linux-arch@vger.kernel.org, vincent.guittot@linaro.org, mpe@ellerman.id.au,
+ chenhuacai@kernel.org, christophe.leroy@csgroup.eu, linux-acpi@vger.kernel.org,
+ agross@kernel.org, geert@linux-m68k.org, linux-imx@nxp.com, vgupta@kernel.org,
+ mattst88@gmail.com, mturquette@baylibre.com, sammy@sammy.net, pmladek@suse.com,
+ linux-pm@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
+ linux-um@lists.infradead.org, npiggin@gmail.com, tglx@linutronix.de,
+ linux-omap@vger.kernel.org, dietmar.eggemann@arm.com, andreyknvl@gmail.com,
+ gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org,
+ linux-perf-users@vger.kernel.org, senozhatsky@chromium.org,
+ svens@linux.ibm.com, jolsa@kernel.org, tj@kernel.org,
+ Andrew Morton <akpm@linux-foundation.org>, mark.rutland@arm.com,
+ linux-ia64@vger.kernel.org, dave.hansen@linux.intel.com,
+ virtualization@lists.linux-foundation.org,
+ James.Bottomley@hansenpartnership.com, jcmvbkbc@gmail.com,
+ thierry.reding@gmail.com, kernel@xen0n.name, cl@linux.com,
+ linux-s390@vger.kernel.org, vschneid@redhat.com, john.ogness@linutronix.de,
+ ysato@users.sourceforge.jp, linux-sh@vger.kernel.org, festevam@gmail.com,
+ deller@gmx.de, daniel.lezcano@linaro.org, jonathanh@nvidia.com,
+ dennis@kernel.org, lenb@kernel.org, linux-xtensa@linux-xtensa.org,
+ kernel@pengutronix.de, gor@linux.ibm.com, linux-arm-msm@vger.kernel.org,
+ linux-alpha@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+ loongarch@lists.linux.dev, shorne@gmail.com, chris@zankel.net,
+ sboyd@kernel.org, dinguyen@kernel.org, bristot@redhat.com,
+ alexander.shishkin@linux.intel.com, fweisbec@gmail.com, lpieralisi@kernel.org,
+ atishp@atishpatra.org, linux@rasmusvillemoes.dk, kasan-dev@googlegroups.com,
+ will@kernel.org, boris.ostrovsky@oracle.com, khilman@kernel.org,
+ linux-csky@vger.kernel.org, pv-drivers@vmware.com,
+ linux-snps-arc@lists.infradead.org, mgorman@suse.de,
+ jacob.jun.pan@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
+ ulli.kroll@googlemail.com, linux-clk@vger.kernel.org, rostedt@goodmis.org,
+ ink@jurassic.park.msu.ru, bcain@quicinc.com, tsbogend@alpha.franken.de,
+ linux-parisc@vger.kernel.org, ryabinin.a.a@gmail.com, sudeep.holla@arm.com,
+ shawnguo@kernel.org, davem@davemloft.net, dalias@libc.org, tony@atomide.com,
+ amakhalov@vmware.com, konrad.dybcio@somainline.org, bjorn.andersson@linaro.org,
+ glider@google.com, hpa@zytor.com, sparclinux@vger.kernel.org,
+ linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org,
+ vincenzo.frascino@arm.com, anton.ivanov@cambridgegreys.com, jonas@southpole.se,
+ yury.norov@gmail.com, richard@nod.at, x86@kernel.org, linux@armlinux.org.uk,
+ mingo@redhat.com, aou@eecs.berkeley.edu, hca@linux.ibm.com,
+ richard.henderson@linaro.org, stefan.kristiansson@saunalahti.fi,
+ openrisc@lists.librecores.org, acme@kernel.org, paul.walmsley@sifive.com,
+ linux-tegra@vger.kernel.org, namhyung@kernel.org,
+ andriy.shevchenko@linux.intel.com, jpoimboe@kernel.org, dvyukov@google.com,
+ jgross@suse.com, monstr@monstr.eu, linux-mips@vger.kernel.org,
+ palmer@dabbelt.com, anup@brainfault.org, bp@alien8.de,
+ johannes@sipsolutions.net, linuxppc-dev@lists.ozlabs.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,28 +139,35 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Sep 19, 2022 at 10:41:47AM -0700, Jakub Kicinski wrote:
->On Tue,  6 Sep 2022 10:27:19 -0700 vdasa@vmware.com wrote:
->> From: Vishnu Dasa <vdasa@vmware.com>
->>
->> This series updates a few existing maintainer entries for VMware
->> supported drivers and adds a new entry for vsock vmci transport
->> driver.
->
->Just to be sure - who are you expecting to take these in?
->
+On Mon, Sep 19, 2022 at 03:19:27PM +0200, Frederic Weisbecker wrote:
+> On Mon, Sep 19, 2022 at 11:59:42AM +0200, Peter Zijlstra wrote:
+> > cpuidle_state::enter() methods should be IRQ invariant
+> 
+> Got a bit confused with the invariant thing since the first chunck I
+> see in this patch is a conversion to an non-traceable local_irq_enable().
+> 
+> Maybe just add a short mention about that and why?
 
-FYI Greg already queued this series in his char-misc-next branch:
-https://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git/log/?h=char-misc-next
+Changelog now reads:
 
-Thanks,
-Stefano
+---
+Subject: cpuidle/poll: Ensure IRQ state is invariant
+From: Peter Zijlstra <peterz@infradead.org>
+Date: Tue May 31 15:43:32 CEST 2022
 
+cpuidle_state::enter() methods should be IRQ invariant.
+
+Additionally make sure to use raw_local_irq_*() methods since this
+cpuidle callback will be called with RCU already disabled.
+
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+---
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
