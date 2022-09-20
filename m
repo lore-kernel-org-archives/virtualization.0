@@ -4,98 +4,98 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 74594C6FA91
-	for <virtualization@archiver.kernel.org>; Tue, 20 Sep 2022 02:17:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A3B87C6FA82
+	for <virtualization@archiver.kernel.org>; Tue, 20 Sep 2022 02:17:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id ED23F4177A;
-	Tue, 20 Sep 2022 02:17:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org ED23F4177A
+	by smtp4.osuosl.org (Postfix) with ESMTP id 2ED8C4177F;
+	Tue, 20 Sep 2022 02:17:35 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2ED8C4177F
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Gx2uTR2B
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=IBQchELG
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id gwXskDPoB8IC; Tue, 20 Sep 2022 02:17:00 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 184054175D;
-	Tue, 20 Sep 2022 02:17:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 184054175D
+	with ESMTP id UZ1LehvWITCe; Tue, 20 Sep 2022 02:17:34 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 4D1894175D;
+	Tue, 20 Sep 2022 02:17:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4D1894175D
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id EB4F6C0032;
-	Tue, 20 Sep 2022 02:16:59 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A65AAC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 31947C0032;
+	Tue, 20 Sep 2022 02:17:33 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D39BCC002D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Sep 2022 02:16:59 +0000 (UTC)
+ Tue, 20 Sep 2022 02:17:31 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 6E5A640469
+ by smtp1.osuosl.org (Postfix) with ESMTP id ADBB282438
  for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Sep 2022 02:16:59 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6E5A640469
-Authentication-Results: smtp2.osuosl.org;
+ Tue, 20 Sep 2022 02:17:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org ADBB282438
+Authentication-Results: smtp1.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=Gx2uTR2B
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=IBQchELG
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id xQKTHic7p4tf
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 6ZIE9ySRkB2i
  for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Sep 2022 02:16:57 +0000 (UTC)
+ Tue, 20 Sep 2022 02:17:30 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 675E94041C
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 781EB82437
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 675E94041C
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 781EB82437
  for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Sep 2022 02:16:57 +0000 (UTC)
+ Tue, 20 Sep 2022 02:17:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1663640212;
+ s=mimecast20190719; t=1663640249;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=Zo86NMsPHctYgO0mGry59i4eN15QEnWKnYhNdcDx8JY=;
- b=Gx2uTR2BT0OnH9Fq1xJfQ3ESaDaCCG9trn8mTUmHnMcdjVggV+4YTqnVVI4vrii0Je9EkQ
- lCXn67DOnlUhYJMfLMewA1XlIQBM7rW4f76PvzZvrgqhTJQ7f0p2OKDM2nnm3voTxwo0+0
- 0g8ijastVtz3Ipu7/1k74z4x76h1yPw=
-Received: from mail-vk1-f199.google.com (mail-vk1-f199.google.com
- [209.85.221.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=tVCH3EQNWqSiJDgyHq2+Ujl+8EWbJfikiqyIrXZgBBQ=;
+ b=IBQchELGUSzwQV+2PYDmwcs4/L5MVmh4Azy9T0yQJA9WVPoMqbVGe1AbF8QTCC5OAfCrcB
+ v8uh7hRu0Ydh9iN9EOsIgdUGmQ3j1zI1S+TpzT2+5sLXZ48luUo0L7ZagAX019vbPt1v37
+ nGdjXEckDUGcepCYgUz5PrA7YVI9hdU=
+Received: from mail-vs1-f72.google.com (mail-vs1-f72.google.com
+ [209.85.217.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-474-aLarGN_EP_6SbO6NWNtgjQ-1; Mon, 19 Sep 2022 22:16:47 -0400
-X-MC-Unique: aLarGN_EP_6SbO6NWNtgjQ-1
-Received: by mail-vk1-f199.google.com with SMTP id
- t132-20020a1faa8a000000b003a23bef3680so341109vke.9
+ us-mta-7-idEBWLv8PV2kGuVuQjdncQ-1; Mon, 19 Sep 2022 22:17:28 -0400
+X-MC-Unique: idEBWLv8PV2kGuVuQjdncQ-1
+Received: by mail-vs1-f72.google.com with SMTP id
+ k12-20020a67ef4c000000b00398774a1c52so318032vsr.18
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Sep 2022 19:16:47 -0700 (PDT)
+ Mon, 19 Sep 2022 19:17:28 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=cc:to:subject:message-id:date:from:in-reply-to:references
  :mime-version:x-gm-message-state:from:to:cc:subject:date;
- bh=Zo86NMsPHctYgO0mGry59i4eN15QEnWKnYhNdcDx8JY=;
- b=zK1yFa+Dd+aY56sw3HXyjhyYEhQloMlDNKflus6976VFaKlsBmy0GPf/KVB8O8u6kO
- oUjw8CoOkV+XSjxSe34vmsvXdUp94IbrvUdpdAj2UvbralcdRdYF9NmZllQRm9nJRyjb
- p0O27AXnStEcQE1VmctU6UPP85ohKXgw2fX9uhNQg05eBnLzGapoqeBR0YLqaoDVAQtM
- 7itQkjHRBs9unSExOAs1tXAos98oxRUg4rVRrp2zIh9bBznsM3PIkq4nn+rf4/QzdHpn
- 9egtswwbbvCSpOJtLxXb5IkQEWmATpuALbZ67dcNi75VDWLNovc7ss/NOpv+RI6KPLgX
- 278g==
-X-Gm-Message-State: ACrzQf0Qucme5NfqnVmL57O8OOSgZrYFAjeS+FjOrOoPgOQ78fa7x+8U
- 5TeQBp7HkN0HJvfGmy80r21vxljqT35o782Ze0mr3E4WedHaiAqr8nYsm3ToTARwAEiCQB2VLYO
- kVq4aHvLBGN70R+M2K6fjEVFlNVRoIgTLDT3Cg19bx8WzG8gqkAPbR4IzbQ==
-X-Received: by 2002:a67:e218:0:b0:398:4d8c:8037 with SMTP id
- g24-20020a67e218000000b003984d8c8037mr7419390vsa.4.1663640205513; 
- Mon, 19 Sep 2022 19:16:45 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM7FViMHfT3HYQIWmkPbYd8yvNIQikjkhJmN/lsyJbFbvnrbHHcisI8cT5S05cjpkvJJbjMWFTxmicgwYqVdCPA=
-X-Received: by 2002:a67:e218:0:b0:398:4d8c:8037 with SMTP id
- g24-20020a67e218000000b003984d8c8037mr7419382vsa.4.1663640205244; Mon, 19 Sep
- 2022 19:16:45 -0700 (PDT)
+ bh=tVCH3EQNWqSiJDgyHq2+Ujl+8EWbJfikiqyIrXZgBBQ=;
+ b=nEuDXf4qOFeyB+9SiflTJsxb6MOuTDqlxrnkPlLYxvTFJca5xRGBMrJjNWLkR1gFva
+ QmhIinFXJZdApeM6EVHJm70G7/h5Bc9lh11XhXk9NEZ/B4+Xcq4V3V09J9PLg8sDiScT
+ mkFfMXyw05k0whssWurq4hUhGoolXGOrg8hacId9icy6XoW9I4X/qyWFuRozNscRd9Gx
+ UIE1OvFDl9wNC0rMq0Xx2WVnxbhJvPYayUPPwPAyCmlipv7ae1wbykltN4I9cTbrnShx
+ KOFoA+tbPpBKr2/8XwJp6KPbbPLUVOKUhZJN4cETs9DV9Jwxu5bnorV1ETRRd/mCBWRM
+ SsHA==
+X-Gm-Message-State: ACrzQf3X30u8v4MhFiwIndHTXQ+tovpu1rfxrgXsj6I6IPCcE3OKrIeB
+ ZSRzgoF2pB1rbUf7XQN2gNac32TGtADwPvmwI3tNgcdb9458Bqyet4T17qkUFNLdGh7qvwmlPRh
+ AOB77CMrxM4E7+67PVVXx+VBCCDDp76DXvVj3DaExhpM8jYhDupqEaLssdQ==
+X-Received: by 2002:a1f:9cc5:0:b0:3a2:bd20:8fc6 with SMTP id
+ f188-20020a1f9cc5000000b003a2bd208fc6mr7123772vke.22.1663640247366; 
+ Mon, 19 Sep 2022 19:17:27 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM4mWq5eT7AaXAQ7qFJ/OxyfUSXqtfTWp3+HqW/hPsRN4Q3Epwcu7sGV69XwzMKFpw5UU8UDgsDN14/VW5xjOcQ=
+X-Received: by 2002:a1f:9cc5:0:b0:3a2:bd20:8fc6 with SMTP id
+ f188-20020a1f9cc5000000b003a2bd208fc6mr7123766vke.22.1663640247184; Mon, 19
+ Sep 2022 19:17:27 -0700 (PDT)
 MIME-Version: 1.0
 References: <20220909085712.46006-1-lingshan.zhu@intel.com>
- <20220909085712.46006-3-lingshan.zhu@intel.com>
-In-Reply-To: <20220909085712.46006-3-lingshan.zhu@intel.com>
+ <20220909085712.46006-4-lingshan.zhu@intel.com>
+In-Reply-To: <20220909085712.46006-4-lingshan.zhu@intel.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 20 Sep 2022 10:16:33 +0800
-Message-ID: <CACGkMEsYARr3toEBTxVcwFi86JxK0D-w4OpNtvVdhCEbAnc8ZA@mail.gmail.com>
-Subject: Re: [PATCH 2/4] vDPA: only report driver features if FEATURES_OK is
- set
+Date: Tue, 20 Sep 2022 10:17:16 +0800
+Message-ID: <CACGkMEsjMotoSqukdzcCrQu-P8H1MxnVrC8LGCXiRQegLT7gJg@mail.gmail.com>
+Subject: Re: [PATCH 3/4] vDPA: check VIRTIO_NET_F_RSS for max_virtqueue_paris's
+ presence
 To: Zhu Lingshan <lingshan.zhu@intel.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
@@ -120,50 +120,65 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 On Fri, Sep 9, 2022 at 5:05 PM Zhu Lingshan <lingshan.zhu@intel.com> wrote:
 >
-> vdpa_dev_net_config_fill() should only report driver features
-> to userspace after features negotiation is done.
+> virtio 1.2 spec says:
+> max_virtqueue_pairs only exists if VIRTIO_NET_F_MQ or
+> VIRTIO_NET_F_RSS is set.
 >
-> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
-> ---
->  drivers/vdpa/vdpa.c | 13 +++++++++----
->  1 file changed, 9 insertions(+), 4 deletions(-)
+> So when reporint MQ to userspace, it should check both
+> VIRTIO_NET_F_MQ and VIRTIO_NET_F_RSS.
 >
-> diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
-> index 798a02c7aa94..29d7e8858e6f 100644
-> --- a/drivers/vdpa/vdpa.c
-> +++ b/drivers/vdpa/vdpa.c
-> @@ -819,6 +819,7 @@ static int vdpa_dev_net_config_fill(struct vdpa_device *vdev, struct sk_buff *ms
->         struct virtio_net_config config = {};
->         u64 features_device, features_driver;
->         u16 val_u16;
-> +       u8 status;
->
->         vdev->config->get_config(vdev, 0, &config, sizeof(config));
->
-> @@ -834,10 +835,14 @@ static int vdpa_dev_net_config_fill(struct vdpa_device *vdev, struct sk_buff *ms
->         if (nla_put_u16(msg, VDPA_ATTR_DEV_NET_CFG_MTU, val_u16))
->                 return -EMSGSIZE;
->
-> -       features_driver = vdev->config->get_driver_features(vdev);
-> -       if (nla_put_u64_64bit(msg, VDPA_ATTR_DEV_NEGOTIATED_FEATURES, features_driver,
-> -                             VDPA_ATTR_PAD))
-> -               return -EMSGSIZE;
-> +       /* only read driver features after the feature negotiation is done */
-> +       status = vdev->config->get_status(vdev);
-> +       if (status & VIRTIO_CONFIG_S_FEATURES_OK) {
+> This commit also fixes:
+> 1) a spase warning by replacing le16_to_cpu with __virtio16_to_cpu.
+> 2) vdpa_dev_net_mq_config_fill() should checks device features
+> for MQ than driver features.
+> 3) struct vdpa_device *vdev is not needed for
+> vdpa_dev_net_mq_config_fill(), unused.
 
-Any reason this is not checked in its caller as what it used to do before?
+Let's do those in separate patches please.
 
 Thanks
 
-> +               features_driver = vdev->config->get_driver_features(vdev);
-> +               if (nla_put_u64_64bit(msg, VDPA_ATTR_DEV_NEGOTIATED_FEATURES, features_driver,
-> +                                     VDPA_ATTR_PAD))
-> +                       return -EMSGSIZE;
-> +       }
 >
->         features_device = vdev->config->get_device_features(vdev);
+> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
+> ---
+>  drivers/vdpa/vdpa.c | 11 ++++++-----
+>  1 file changed, 6 insertions(+), 5 deletions(-)
 >
+> diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
+> index 29d7e8858e6f..f8ff61232421 100644
+> --- a/drivers/vdpa/vdpa.c
+> +++ b/drivers/vdpa/vdpa.c
+> @@ -801,16 +801,17 @@ static int vdpa_nl_cmd_dev_get_dumpit(struct sk_buff *msg, struct netlink_callba
+>         return msg->len;
+>  }
+>
+> -static int vdpa_dev_net_mq_config_fill(struct vdpa_device *vdev,
+> -                                      struct sk_buff *msg, u64 features,
+> +static int vdpa_dev_net_mq_config_fill(struct sk_buff *msg, u64 features,
+>                                        const struct virtio_net_config *config)
+>  {
+>         u16 val_u16;
+>
+> -       if ((features & BIT_ULL(VIRTIO_NET_F_MQ)) == 0)
+> +       if ((features & BIT_ULL(VIRTIO_NET_F_MQ)) == 0 &&
+> +           (features & BIT_ULL(VIRTIO_NET_F_RSS)) == 0)
+>                 return 0;
+>
+> -       val_u16 = le16_to_cpu(config->max_virtqueue_pairs);
+> +       val_u16 = __virtio16_to_cpu(true, config->max_virtqueue_pairs);
+> +
+>         return nla_put_u16(msg, VDPA_ATTR_DEV_NET_CFG_MAX_VQP, val_u16);
+>  }
+>
+> @@ -851,7 +852,7 @@ static int vdpa_dev_net_config_fill(struct vdpa_device *vdev, struct sk_buff *ms
+>                               VDPA_ATTR_PAD))
+>                 return -EMSGSIZE;
+>
+> -       return vdpa_dev_net_mq_config_fill(vdev, msg, features_driver, &config);
+> +       return vdpa_dev_net_mq_config_fill(msg, features_device, &config);
+>  }
+>
+>  static int
 > --
 > 2.31.1
 >
