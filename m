@@ -1,150 +1,106 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0CB7EC6FA82
-	for <virtualization@archiver.kernel.org>; Tue, 20 Sep 2022 19:17:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 34A0EC6FA82
+	for <virtualization@archiver.kernel.org>; Wed, 21 Sep 2022 02:15:02 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 95ACC40895;
-	Tue, 20 Sep 2022 19:17:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 95ACC40895
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=LSp7Oxkf
+	by smtp3.osuosl.org (Postfix) with ESMTP id 9282960F47;
+	Wed, 21 Sep 2022 02:15:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9282960F47
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=JRpvlJVe
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 7gMQW74KPzRp; Tue, 20 Sep 2022 19:17:30 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id G8-I5x37Y15V; Wed, 21 Sep 2022 02:15:00 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id E2D8E400D1;
-	Tue, 20 Sep 2022 19:17:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E2D8E400D1
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 0E78060BF3;
+	Wed, 21 Sep 2022 02:15:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0E78060BF3
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B8590C0032;
-	Tue, 20 Sep 2022 19:17:29 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 340FFC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D6EF4C0033;
+	Wed, 21 Sep 2022 02:14:59 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id CE3CDC002D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Sep 2022 19:17:29 +0000 (UTC)
+ Wed, 21 Sep 2022 02:14:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 02F23826A4
+ by smtp3.osuosl.org (Postfix) with ESMTP id 9510860D56
  for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Sep 2022 19:17:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 02F23826A4
-Authentication-Results: smtp1.osuosl.org; dkim=pass (2048-bit key,
- unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256
- header.s=selector2 header.b=LSp7Oxkf
+ Wed, 21 Sep 2022 02:14:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9510860D56
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 3FXR0fpA9VNJ
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id M22S3GZswnh9
  for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Sep 2022 19:17:27 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A498781CEF
-Received: from NAM11-DM6-obe.outbound.protection.outlook.com
- (mail-dm6nam11on2064.outbound.protection.outlook.com [40.107.223.64])
- by smtp1.osuosl.org (Postfix) with ESMTPS id A498781CEF
+ Wed, 21 Sep 2022 02:14:56 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 20B4560BF3
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 20B4560BF3
  for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Sep 2022 19:17:27 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Umuq7Rt4qfecwN9j9UPn8d5cXBA4n6Sw9VMS7MDYu0XxCqoOk0FgyV6l9vVB0nU26B83mvl+herMVe++2ken1eLvYtMFojOalJTxDuzH+GxIFkj2/3QzlvqywwX3iHDTpVyeEW5SRMWSBOV7IBMnhYdUBW7QhoDTBkIoW7GdaqvSZGqh1Gpfic2ooiWuLF3090bm4HCuSXYL4itVz4n0fLpmGVF/36xkXo0eZ6NaU9sxY3F7Njaau0JHS3tn4uzUa5+p5p7wX5CE1OUNqV5VXihmX3HPpnBBKqJ1pbr/0PR+cAvDvry2Dlwthakl8gI434Z5iV3b6+mtgRDJUs4OCg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Z1++ptXMXQQjXaSpqI/QhCLlnNMIK6DOJH6HIldjRyc=;
- b=SMXRbWs5ZnMEjWwRXtbLUDT9HmMVxyTx2+5RfArK5PqVeZSvf3dQZB7/fbt70wknNdkjLSJHXFMTfLztCqWMz7n7FPJ8RWyNRw8fMXeOZ6Rk51mrFkQ/vX47utOBEAn/rFdTmHxJk2T8y63xwuXxtBncKDw39h9dpvOQwhRpPSVtPOXELHfXc/55mSl6dErGGaYunK2jpMuYmnkr+bTjaG+NilY2DkGnzeLj8mVAHUEQHaCkCw1PoBqZJy0lH0YSAndqJb6W8YLAZ3ha7AKA13oD9gLHFCmoswEoKj2A06Vs/ywFIGnexkDo9SSxiH7ugu2uifbi35CdSfMeS3SKbQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Z1++ptXMXQQjXaSpqI/QhCLlnNMIK6DOJH6HIldjRyc=;
- b=LSp7Oxkf3q2nrb20BPb/fVdQMUmNOT0rbvfMnUhLj9novylIgBEzTm3YcCxpWCpCiZKt1B/CcUzfpM3Tksk9QNnoLmDFN5J52SIczC+AJtB2RT+CoTFPMac5FnpJDMuMtHXZ+XHwX/sYlGsFxi0I2St7HwSbq8mFl807d7xMoR0Z9uFGYl9SBBDJTxon9Yw3kazBTEXunbalBWttjDfWvBiCdnIiNmIgI8C2kLp+KGHYryUnayTRlb2YpS1yoCGIzc3x4xiy3J2N2944oF7hXOrQeUyuRn2vQFefsYLc2FBBydIVw1ZczsIKtrpBRnQccIX/93BXER123j9D6d3AWw==
-Received: from PH0PR12MB5481.namprd12.prod.outlook.com (2603:10b6:510:d4::15)
- by IA0PR12MB7649.namprd12.prod.outlook.com (2603:10b6:208:437::17)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5632.21; Tue, 20 Sep
- 2022 19:17:23 +0000
-Received: from PH0PR12MB5481.namprd12.prod.outlook.com
- ([fe80::1429:e3e9:dc54:ba98]) by PH0PR12MB5481.namprd12.prod.outlook.com
- ([fe80::1429:e3e9:dc54:ba98%8]) with mapi id 15.20.5632.021; Tue, 20 Sep 2022
- 19:17:23 +0000
-To: Jason Wang <jasowang@redhat.com>, "mst@redhat.com" <mst@redhat.com>
-Subject: RE: [PATCH 0/3] vdpa: device feature provisioning
-Thread-Topic: [PATCH 0/3] vdpa: device feature provisioning
-Thread-Index: AQHYyOBJr1VSNY1wu0yqqTgKlaS10a3ouSJg
-Date: Tue, 20 Sep 2022 19:17:22 +0000
-Message-ID: <PH0PR12MB548115F4597D409F94AB1E77DC4C9@PH0PR12MB5481.namprd12.prod.outlook.com>
-References: <20220915085048.12840-1-jasowang@redhat.com>
-In-Reply-To: <20220915085048.12840-1-jasowang@redhat.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: PH0PR12MB5481:EE_|IA0PR12MB7649:EE_
-x-ms-office365-filtering-correlation-id: 754ac0e8-673b-43e7-cd94-08da9b3cbefa
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: K5Kdd+4n9hNFkzwYRmCCOjJVTl3BzvU1aYRg3nFskFtyVMIUuZe3g6GQmj+Bo0DH5DAobMd6xvi9R8pHnqm1SgT/zoblNdI7BCqr4/pa9CXv1F8URkh0OnSVZ0KeM2boB1vzhz4q8KWSu9OPKDka/uph2qaXirS/adz22sxuD7t6fF4ElLp+8icc8zoTNcTnsfuE7jv0/kH5LBbodTaK03AkOSHjU1YG8dB+CzrPEaNIPHYCf3HVw2rg/J/V/Q2PQKjFaAUOWu9fi1qeCAJ9g2A70qbM0bBADw7Us3AEY9iRzYfxC6ctDDYaZAAnDm3TxWxzWOPZ+JuBQmL2CjgG7cb+OGfTjhnIh47hjrh4Y6AISxNr5AD15PT/dg7BsgRak0Oac/18q+VgeK/dACbsA4moXYOYXuQtZCqvFA+3nq1/WOy8cwuE3U7L2vKhgfQWSY5yPK3KoPe0MIP7FJ5f3gRCMJz1uSrfmNVsKELqCe3MEyhJe7ofFdJ7RJnx99yG5WVsb4eyFAh7dQLjm/r1+D0UBnV4Lr3j8ktm4fnnFbIBEdSAbiV0O41fb1lcfq1b8cKh6LlCGiWG74IuQZjs++TR71+9NZbTYMIVo7UXPrCYSZ6vVMZW0b6eqsHuPlZfqGMxWRZ1DgE9tcErCTZoSNLjGtR8L/7fBUaE/cZZQHjowgVD7NXVoIzWjdgGksQSLHMjp5UAd8fmosj+EgAwexpcaJjIl7VMio2ffxq0QHfRVqjC9IaCqMh1d+BqX1immInlxpoyRVfw0x2Kfxi/Wg==
-x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:PH0PR12MB5481.namprd12.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230022)(4636009)(136003)(376002)(346002)(396003)(366004)(39860400002)(451199015)(38100700002)(7416002)(122000001)(71200400001)(5660300002)(478600001)(55016003)(8936002)(41300700001)(86362001)(66476007)(66556008)(64756008)(66446008)(7696005)(53546011)(26005)(316002)(110136005)(52536014)(54906003)(186003)(38070700005)(76116006)(83380400001)(4326008)(66946007)(9686003)(6506007)(33656002)(2906002)(8676002);
- DIR:OUT; SFP:1101; 
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?pSYf5CWIZvE8+B/gHGBkCoNBPjPaCwXrt7SE+zDY23VN9INdrnf+vr5cINmx?=
- =?us-ascii?Q?3mxFoP8M/sN+47LYZ4R/gQnBB5REIG7Cm+h8bXqffYihdIjZehFn/+uQQMFg?=
- =?us-ascii?Q?Jq7D2XHWb981u1nw/0h2Q2yq0WMxkmSDVhZQpvSXxX3JNSqyekN2gRaHG/LX?=
- =?us-ascii?Q?15yQ6M/SAgrYkPTmL638He4NZxhFwe1qGQ+HN1cYzmrDSPrrK31vt/CY4nrk?=
- =?us-ascii?Q?CruQuzYjlfHlr8Y4HocW0LFeB5UpxueCbvOrsFxq0coZloemu2+rmhrQBotG?=
- =?us-ascii?Q?LL/Qz52L3SWJSujA69WiVx6h6McJ04BxDZqAlPO5U3EDSOb5mQIdw/fqwkYV?=
- =?us-ascii?Q?6LZvVpk2DPEXZZUILNtwtpwr7k9Jdfjrct4/oy8gRJ2tCK8Jtw92bGbIKXH0?=
- =?us-ascii?Q?1rcZXDhfZA8uZXAFRDiBf05lJtfcamBskS360FiIi/q7svvW8vkhXHDHX8Al?=
- =?us-ascii?Q?79n8fXsmjsA83tBq+LRaVEOw0of7mgOEjJnJFSCo8o97AjwxWiGpDB193A+g?=
- =?us-ascii?Q?4DWe/4U7lN2cmW85PHlOiTnC5sTGuCpZ+jaq2kif2lERppys+aAjHEAvdNt3?=
- =?us-ascii?Q?qRywH+UJsETvW0hTWdWafKE2LoUoO5OYkgaACfxd0EFghPxk3aJ5LG9UEwrT?=
- =?us-ascii?Q?jzQHg5EduUCPu5egT4Vgd6yTx+qZbQn+Xdy/Rf8PPBZIkLDGCLk6uGHnDEcm?=
- =?us-ascii?Q?5Rij0M6N7eePmrCWFueaX0idPm7WJS/9Gv9u6ZLYzLzwg0kZN0zadVwz+vcG?=
- =?us-ascii?Q?3V59SHg1peutq1O9K2iGQne4dOfs7BFrcgnI8SieTeq0OhddoSYWGOH7+wYs?=
- =?us-ascii?Q?gyEFcciOHpplFAIlUKcRTsOk2wvicqzCFKAfsTNgW5jQkC3Gsa5uNodJX/6i?=
- =?us-ascii?Q?WFkR9CUypzb05dx/un/7MHNg0TaWRKv7BEEgV75sMUSoXsLyz54xCveDgnlX?=
- =?us-ascii?Q?yWP3d9Sgpq7VEFaz3Tz8gCqBuLZSX7JbV0LGZWo4DAK4cSjvuRlDXPrFzX6d?=
- =?us-ascii?Q?86ytOV/tWFI7fvP89kWt4Gc1tWoZadoODkBL3PDlj8EW4GXRN/dFsA/5XpcQ?=
- =?us-ascii?Q?pv23glSN8VdHanW0WXeQc+9PgPk/UBTYnh3HxrfPUTlyEdz2YbFKV+qoBHSB?=
- =?us-ascii?Q?2xtks1WXAiJYP6zcLemW+WZ6gRI///DqaZekI+XBHHJjgRYA+qeFqtXZca8A?=
- =?us-ascii?Q?J/FztG+1Te6fdUuOwECkRkh6mCuKZ6Iln77X2w6thHUeuKW/QjJg9vJfDwUg?=
- =?us-ascii?Q?+SYiEIQPTBaOwHVK0SZhQBAfx0SULDOBFfQxxc8IChbqExS0LkrJAWE38ORr?=
- =?us-ascii?Q?GaOj+GGdLNZ7cmfEkGafFZS0o3XEVnJd7aU+/cveWrse/X2+D9cyh9hNLuvm?=
- =?us-ascii?Q?20QYpKT39JcGFDskZ/fZX9YJkkqHoXozKwD8UEVXsctsTYSXYoKVXDaHcnGd?=
- =?us-ascii?Q?iILYfw3+T8Azox4Mf67uJKn09eKw/EffYssqrNt+g+kwmpFv0BRIYr7EmbrQ?=
- =?us-ascii?Q?5DBKg1/KZoBDb34YrGNel0UEgOmlKPv4zIQLU4bDxou7EncR2bGBd/sxLyfm?=
- =?us-ascii?Q?UJVeceDl1R0v9X2QUqo=3D?=
+ Wed, 21 Sep 2022 02:14:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1663726494;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=j9P+rGLJHapFEFbIQqvk7PpMo3XqXvFcVFCgGvvB/1Q=;
+ b=JRpvlJVenw9Ip4zOduGgKU8ssEy5jPKiArDiOaiyzNsUiyGes7z4YBQNmTV8Bei2yLH3yD
+ +5s+6aYb97P1P+Vm/2bMmSK8K0OTnmZd/ebzjK0QM/YLNtyFgK6JJSEkAxjrXWRSjTTve8
+ O9HYVSlu6T/19RXQy05ZTDkvyBfeZ08=
+Received: from mail-ot1-f70.google.com (mail-ot1-f70.google.com
+ [209.85.210.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-212-6J--gYCQMUenk_RWNt0i2Q-1; Tue, 20 Sep 2022 22:14:53 -0400
+X-MC-Unique: 6J--gYCQMUenk_RWNt0i2Q-1
+Received: by mail-ot1-f70.google.com with SMTP id
+ bk9-20020a056830368900b006593c120badso2310701otb.13
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 20 Sep 2022 19:14:53 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:x-gm-message-state:from:to:cc:subject:date;
+ bh=j9P+rGLJHapFEFbIQqvk7PpMo3XqXvFcVFCgGvvB/1Q=;
+ b=uHDh609LvVrQieUwy4+ilZLljfLLyYI4LjyIbO6fwI/jUPwIS5QJaaT6Pk75xjTXTB
+ nP/FoWp3MyEKsaLbu8/TW0USUpgAHqg7h9vbeIo+DhZ8nwhWx9vxUFqQx39FAQ7BgEjW
+ 0O+D16ecZ6NBjQG3JINBBjHzcVBv8s2jyevRSV0MoYQ8cLxFudVZmOHNLykMayit0bOK
+ j6HCt4G1PiXAvoJjnyfeEKw6WEBeB/vHsuxMEvBAIc9LosiiQFHJdoJ2xf9vrCtUJzOz
+ mpgen+WhTttqXCcIajDT0PVAJi33Gawgf5sNG5vbBOdqeD7j9CQv9VJR3Q6YfgtA72q6
+ V7tg==
+X-Gm-Message-State: ACrzQf252pGelE2llq6gAAMa6b1ZFkF6vzCWXmeHYPWVKmSm+reYMgrs
+ 8bZD1L+4c0O3MxHYnuWI4IeXOHO5jApIk3/qLLIlR7jlPnOU/iTIMijUnmoWrQcXnJL99M2iNeR
+ MFPgiUVeRDdeGiiKr5194AI041aMmxYMQy2usRjeJwkBPvQvdPQdmA79mPA==
+X-Received: by 2002:a05:6808:1b22:b0:350:c0f6:70ff with SMTP id
+ bx34-20020a0568081b2200b00350c0f670ffmr2863381oib.35.1663726493136; 
+ Tue, 20 Sep 2022 19:14:53 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM4OeG5pl5c1sj5sNO3PI4GwxWvbIOCE9z6qMMFenIcaCHhKx9wT6EV+LsxBQsF9TM10MuzNear2uxgAJeKNqAA=
+X-Received: by 2002:a05:6808:1b22:b0:350:c0f6:70ff with SMTP id
+ bx34-20020a0568081b2200b00350c0f670ffmr2863373oib.35.1663726492903; Tue, 20
+ Sep 2022 19:14:52 -0700 (PDT)
 MIME-Version: 1.0
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB5481.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 754ac0e8-673b-43e7-cd94-08da9b3cbefa
-X-MS-Exchange-CrossTenant-originalarrivaltime: 20 Sep 2022 19:17:23.0172 (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: srYZwb/OUaYi+X49cmsYPeJxBlOIMmdEizgY65pvqCm2yjajQGXDRmwZ6G66bj3da7pNG/Tvlvxeeh3NKdyI2A==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA0PR12MB7649
-Cc: "lulu@redhat.com" <lulu@redhat.com>,
- "xieyongji@bytedance.com" <xieyongji@bytedance.com>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "gdawar@xilinx.com" <gdawar@xilinx.com>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- "eperezma@redhat.com" <eperezma@redhat.com>,
- "wuzongyong@linux.alibaba.com" <wuzongyong@linux.alibaba.com>,
- Eli Cohen <elic@nvidia.com>, "lingshan.zhu@intel.com" <lingshan.zhu@intel.com>
+References: <20220909085712.46006-1-lingshan.zhu@intel.com>
+ <20220909085712.46006-3-lingshan.zhu@intel.com>
+ <CACGkMEsYARr3toEBTxVcwFi86JxK0D-w4OpNtvVdhCEbAnc8ZA@mail.gmail.com>
+ <6fd1f8b3-23b1-84cc-2376-ee04f1fa8438@intel.com>
+In-Reply-To: <6fd1f8b3-23b1-84cc-2376-ee04f1fa8438@intel.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Wed, 21 Sep 2022 10:14:41 +0800
+Message-ID: <CACGkMEuusM3EMmWW6+q8V1fZscfjM2R9n7jGefUnSY59UnZDYQ@mail.gmail.com>
+Subject: Re: [PATCH 2/4] vDPA: only report driver features if FEATURES_OK is
+ set
+To: "Zhu, Lingshan" <lingshan.zhu@intel.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: netdev <netdev@vger.kernel.org>,
+ virtualization <virtualization@lists.linux-foundation.org>,
+ kvm <kvm@vger.kernel.org>, mst <mst@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -156,45 +112,76 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Parav Pandit via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Parav Pandit <parav@nvidia.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Jason,
+On Tue, Sep 20, 2022 at 1:46 PM Zhu, Lingshan <lingshan.zhu@intel.com> wrote:
+>
+>
+>
+> On 9/20/2022 10:16 AM, Jason Wang wrote:
+> > On Fri, Sep 9, 2022 at 5:05 PM Zhu Lingshan <lingshan.zhu@intel.com> wrote:
+> >> vdpa_dev_net_config_fill() should only report driver features
+> >> to userspace after features negotiation is done.
+> >>
+> >> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
+> >> ---
+> >>   drivers/vdpa/vdpa.c | 13 +++++++++----
+> >>   1 file changed, 9 insertions(+), 4 deletions(-)
+> >>
+> >> diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
+> >> index 798a02c7aa94..29d7e8858e6f 100644
+> >> --- a/drivers/vdpa/vdpa.c
+> >> +++ b/drivers/vdpa/vdpa.c
+> >> @@ -819,6 +819,7 @@ static int vdpa_dev_net_config_fill(struct vdpa_device *vdev, struct sk_buff *ms
+> >>          struct virtio_net_config config = {};
+> >>          u64 features_device, features_driver;
+> >>          u16 val_u16;
+> >> +       u8 status;
+> >>
+> >>          vdev->config->get_config(vdev, 0, &config, sizeof(config));
+> >>
+> >> @@ -834,10 +835,14 @@ static int vdpa_dev_net_config_fill(struct vdpa_device *vdev, struct sk_buff *ms
+> >>          if (nla_put_u16(msg, VDPA_ATTR_DEV_NET_CFG_MTU, val_u16))
+> >>                  return -EMSGSIZE;
+> >>
+> >> -       features_driver = vdev->config->get_driver_features(vdev);
+> >> -       if (nla_put_u64_64bit(msg, VDPA_ATTR_DEV_NEGOTIATED_FEATURES, features_driver,
+> >> -                             VDPA_ATTR_PAD))
+> >> -               return -EMSGSIZE;
+> >> +       /* only read driver features after the feature negotiation is done */
+> >> +       status = vdev->config->get_status(vdev);
+> >> +       if (status & VIRTIO_CONFIG_S_FEATURES_OK) {
+> > Any reason this is not checked in its caller as what it used to do before?
+> will check the existence of vdev->config->get_status before calling it in V2
 
-> From: Jason Wang <jasowang@redhat.com>
-> Sent: Thursday, September 15, 2022 4:51 AM
-> To: mst@redhat.com; jasowang@redhat.com
-> Cc: Eli Cohen <elic@nvidia.com>; si-wei.liu@oracle.com; Parav Pandit
-> <parav@nvidia.com>; wuzongyong@linux.alibaba.com;
-> virtualization@lists.linux-foundation.org; linux-kernel@vger.kernel.org;
-> eperezma@redhat.com; lingshan.zhu@intel.com; gdawar@xilinx.com;
-> lulu@redhat.com; xieyongji@bytedance.com
-> Subject: [PATCH 0/3] vdpa: device feature provisioning
-> 
-> Hi All:
-> 
-> Virtio features are neogiated between the device and the drivers. This allows
-> the mediation layer like vDPA to hide some features from the driver to
-> faciliate the cross vendor live migration:
-> 
-> vDPA on the source supports feature set X vDPA on the destination supports
-> feature set Y
-> 
-> Management can simply provision the vDPA instance with features X&Y on
-> both source and destination to let the vDPA can be migrate-able between
-> the two vDPA devies with different features support.
-> 
-> This series tries to allow the device features to be provisioned via netlink to
-> achieve this.
-Very useful series.
-Can you please add vdpa example command with and without -jp option in each of the commit logs?
+Just to clarify, I meant to check FEAUTRES_OK in the caller -
+vdpa_dev_config_fill() otherwise each type needs to repeat this in
+their specific codes.
 
-Thanks.
+Thanks
+
+>
+> Thanks,
+> Zhu Lingshan
+> >
+> > Thanks
+> >
+> >> +               features_driver = vdev->config->get_driver_features(vdev);
+> >> +               if (nla_put_u64_64bit(msg, VDPA_ATTR_DEV_NEGOTIATED_FEATURES, features_driver,
+> >> +                                     VDPA_ATTR_PAD))
+> >> +                       return -EMSGSIZE;
+> >> +       }
+> >>
+> >>          features_device = vdev->config->get_device_features(vdev);
+> >>
+> >> --
+> >> 2.31.1
+> >>
+>
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
