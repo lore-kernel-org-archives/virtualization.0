@@ -1,99 +1,102 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 409F5C6FA82
-	for <virtualization@archiver.kernel.org>; Thu, 22 Sep 2022 12:16:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 75339C6FA82
+	for <virtualization@archiver.kernel.org>; Thu, 22 Sep 2022 15:54:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id B54C3408A6;
-	Thu, 22 Sep 2022 12:16:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B54C3408A6
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=BuZ3ZD/P
+	by smtp3.osuosl.org (Postfix) with ESMTP id 0545861145;
+	Thu, 22 Sep 2022 15:54:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0545861145
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=U7d/4vDI
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id OqeTstC_8Cqr; Thu, 22 Sep 2022 12:16:12 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id OT1wLTwscRbM; Thu, 22 Sep 2022 15:54:18 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 06C0D40133;
-	Thu, 22 Sep 2022 12:16:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 06C0D40133
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 141FA61131;
+	Thu, 22 Sep 2022 15:54:18 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 141FA61131
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D936CC0033;
-	Thu, 22 Sep 2022 12:16:11 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B16F5C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D57AFC0033;
+	Thu, 22 Sep 2022 15:54:17 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6F1B5C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Sep 2022 12:16:10 +0000 (UTC)
+ Thu, 22 Sep 2022 15:54:16 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 85E7340133
+ by smtp1.osuosl.org (Postfix) with ESMTP id 56AB383E5D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Sep 2022 12:16:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 85E7340133
+ Thu, 22 Sep 2022 15:54:16 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 56AB383E5D
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org
+ header.a=rsa-sha256 header.s=google header.b=U7d/4vDI
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 4_jGqG3rNubP
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id aYxR6SZBOBS9
  for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Sep 2022 12:16:08 +0000 (UTC)
+ Thu, 22 Sep 2022 15:54:15 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 18ABC408A6
-Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com
- [IPv6:2a00:1450:4864:20::332])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 18ABC408A6
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5D5B983DF3
+Received: from mail-wm1-x32f.google.com (mail-wm1-x32f.google.com
+ [IPv6:2a00:1450:4864:20::32f])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 5D5B983DF3
  for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Sep 2022 12:16:08 +0000 (UTC)
-Received: by mail-wm1-x332.google.com with SMTP id
- z13-20020a7bc7cd000000b003b5054c6f9bso694403wmk.2
+ Thu, 22 Sep 2022 15:54:15 +0000 (UTC)
+Received: by mail-wm1-x32f.google.com with SMTP id
+ n40-20020a05600c3ba800b003b49aefc35fso1626532wms.5
  for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Sep 2022 05:16:07 -0700 (PDT)
+ Thu, 22 Sep 2022 08:54:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:from:to:cc:subject:date;
- bh=V3njlNS/W1cnzODZRFa5ldtODvq/kS+YBNJviRrwzEI=;
- b=BuZ3ZD/Pl73AQge/vPuBk3J+Tt1Nv1H08VGJyH7deEcYuTJPiaGn/ZxCvWVGrGYcdv
- SWUBCiv0qqCrbgDCP1lX8iHvAsg/H2rRgYeePweCaq3SkWmyouj8BsVrGzVWm4Y2Fr+6
- Aeyc1A9ujj5xqn6ZDFtgpcEMcwaNJ4Pig/TCm5BLeRBm1pld4noyiZRouoWVJobJNyLW
- AQDbbAnprazhZVIdaQJ5YSrhmj4+LnFRQpUUVYzUnzIj83n9eoH1v978B09j+6CQLUUN
- 3eCCC2cGv7lFse9cGUkE6ri7h9kUL1rV06u0LidrI4iPfr+S40VTl0tzQ06NzGxUalhf
- rEuQ==
+ bh=iYg1FzmqdVObBIGDrpXK8/12CqSCWXQixjeTyrRH2G0=;
+ b=U7d/4vDIwSQRsJWGFVcpBJeAOdN+sAQbKSb2o3nU1ltmtMKJJVczpUw7YYI8Rp74sL
+ JQcG/1ES6hfniQSgvRaC72caMaBHZL38ZnNycbQzppt7QHkRPD8wgJoQsxAdPpDlo+3T
+ zUwdSISD/mv3037nwO3v+J98i5U7ZLMI2lD3PgRYiZrYcLHaV9pj2NTnkMUHO5r0LSv+
+ 2rjoEs1vnqJzFjONPC18v2wuGjyGYDAd2G1QCgmgKFMKhCiIkVS9BXiYvky8OSOVqGgf
+ rlyIMYqPpaKgrPtzTRMOFX4ZaRhOU/sKH3nQrbmM/H/CfaA1iTI2Ob6iy9qn8VXs0DSS
+ /16A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
- bh=V3njlNS/W1cnzODZRFa5ldtODvq/kS+YBNJviRrwzEI=;
- b=dfhLkWzKNsyOGieyqV7pLN6BPhg/7ltQNHkKtCd20/NRbBPraUU0bfj+EY+pjYRUmO
- WfhBb1I38+tNo2C+4TEK5RimXhQjYcNeTrw4QkeeQwQb5gIQqTEeblP24AIzo9RXbSiF
- Le/AnwMglfDcU3C+n/LDlZaVRXJpxvSaJIi8J6XbUrtA5UggLZsxG+X3rCopyr5hTLpR
- FDr2vHIwdSydr44uQW0trepMvmv0RDgAZ3g14BHaVZhqdS28P+BgfZXGAWFq02p2uWJX
- jrVjK1rW8bhtU3OXRf9glN1F1JanqdtjZAGwT3M4qqcfFVDlWFjU83s5HY9Q/dWHyZMy
- fuCw==
-X-Gm-Message-State: ACrzQf3SI3vFbVOENJQSO1mNHx2eCRkawIJu2LewvaHELCJBdMpd+RSH
- Tpn19HXOx1efVAFEMTWCvK9gVYlypC4v5Q==
-X-Google-Smtp-Source: AMsMyM4Ieaj6+pGd/A3oHY98mVdCpFlR7m+NIRzSX98hYMb5FVmrgWjR/KL5FJU8llftI4/QDVougQ==
-X-Received: by 2002:a1c:2507:0:b0:3b3:3681:f774 with SMTP id
- l7-20020a1c2507000000b003b33681f774mr9393191wml.134.1663848966234; 
- Thu, 22 Sep 2022 05:16:06 -0700 (PDT)
+ bh=iYg1FzmqdVObBIGDrpXK8/12CqSCWXQixjeTyrRH2G0=;
+ b=1jzBtlKYABJ3Y2N00dK+BLK429hj7cNX/4ySu9lQ/hZhaylDgvEoEI/dj4peAsDI4A
+ HTleI/u6QlJcYbyQVYe9t9dBF2G4zFpTq5mAQOZR6B20li4Diml8tAg0q75Rj9h/4oBz
+ pYc3DKYNhjqoVB7vdwOuFqema8+7jJOcvz3X0YS4nrCWlSUpjoe9XV0RhGIlwwI0B5B7
+ xSSQfcuazMVTsEpeVJAgXATBoknBicm1vntkhQy/qV3ZUn0rTvmA0jyboIZIvHcAMZFH
+ FLhJBnJbV/oF+vmxQnFYLMTBJQejsNh6aCbQr4QOESzVx6TaBJxIIymMuiNLDsQnTlYa
+ yJJA==
+X-Gm-Message-State: ACrzQf3RfQP5YWEmSR1fxETkxDDZ5ymPhcTk6jCQpQz5E6AaO/YZ+NE9
+ Yb20f1LUfAvZ1lM1Rzkcu4VZ1A==
+X-Google-Smtp-Source: AMsMyM5Mx5ZdCtIHnwDfOXcEuZUtP46bEwkTkCYte68YDHl4EU5xMMSzyd1IY3MjD8FrepyHgbOsow==
+X-Received: by 2002:a05:600c:1da8:b0:3b4:8fd6:5132 with SMTP id
+ p40-20020a05600c1da800b003b48fd65132mr2877306wms.99.1663862053559; 
+ Thu, 22 Sep 2022 08:54:13 -0700 (PDT)
 Received: from myrica (cpc92880-cmbg19-2-0-cust679.5-4.cable.virginm.net.
  [82.27.106.168]) by smtp.gmail.com with ESMTPSA id
- m7-20020a05600c3b0700b003a2f2bb72d5sm7510389wms.45.2022.09.22.05.16.04
+ o2-20020a05600c510200b003a540fef440sm6961727wms.1.2022.09.22.08.54.12
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 22 Sep 2022 05:16:05 -0700 (PDT)
-Date: Thu, 22 Sep 2022 13:16:01 +0100
+ Thu, 22 Sep 2022 08:54:13 -0700 (PDT)
+Date: Thu, 22 Sep 2022 16:54:09 +0100
 From: Jean-Philippe Brucker <jean-philippe@linaro.org>
-To: Liu Song <liusong@linux.alibaba.com>
-Subject: Re: [RFC PATCH] iommu/virtio: __viommu_sync_req is no need to return
- a value
-Message-ID: <YyxSAX9UpAyoq01y@myrica>
-References: <1663845886-11341-1-git-send-email-liusong@linux.alibaba.com>
+To: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Subject: Re: [PATCH] dt-bindings: virtio: Convert virtio,pci-iommu to DT schema
+Message-ID: <YyyFISBBUgeAOocY@myrica>
+References: <20220916132229.1908841-1-jean-philippe@linaro.org>
+ <6f692ece-b3ac-4115-370a-3c5e255dd0f8@linaro.org>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <1663845886-11341-1-git-send-email-liusong@linux.alibaba.com>
-Cc: will@kernel.org, joro@8bytes.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, iommu@lists.linux.dev,
- robin.murphy@arm.com
+In-Reply-To: <6f692ece-b3ac-4115-370a-3c5e255dd0f8@linaro.org>
+Cc: devicetree@vger.kernel.org, robh+dt@kernel.org,
+ linux-kernel@vger.kernel.org, krzysztof.kozlowski+dt@linaro.org,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -110,95 +113,73 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Liu,
-
-On Thu, Sep 22, 2022 at 07:24:46PM +0800, Liu Song wrote:
-> From: Liu Song <liusong@linux.alibaba.com>
+On Sun, Sep 18, 2022 at 10:23:06AM +0100, Krzysztof Kozlowski wrote:
+> > +required:
 > 
-> In "__viommu_sync_req", 0 is always returned as the only return value, no
-> return value is needed for this case, and the processes and functions
-> involved are adjusted accordingly.
+> Also: compatible
 > 
-> Signed-off-by: Liu Song <liusong@linux.alibaba.com>
+> > +  - reg
+> > +  - '#iommu-cells'
+> > +
+> > +additionalProperties: false
+> > +
+> > +examples:
+> > +  - |
+> > +    pcie0 {
+> 
+> Node name: pcie
+> 
+> > +        #address-cells = <3>;
+> > +        #size-cells = <2>;
+> > +
+> 
+> device_type and then you will see a bunch of warnings.
 
-Thanks for the patch but I'd rather improve __viommu_sync_req() to handle
-more errors. At the moment, if the virtqueue breaks then it spins
-infinitely waiting for a host response. We should at least check the
-return value of virtqueue_kick(), and maybe add a timeout as well although
-I'm not sure which time base we can use reliably here.
+Right, I think I wanted to avoid pulling the whole PCIe baggage because it
+requires a lot of properties that aren't relevant to the example. But
+having tried it it's not too bad, and it ensures we validate the child
+node.
 
 Thanks,
 Jean
 
-> ---
->  drivers/iommu/virtio-iommu.c | 23 ++++++-----------------
->  1 file changed, 6 insertions(+), 17 deletions(-)
 > 
-> diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-> index b7c2280..fde5661 100644
-> --- a/drivers/iommu/virtio-iommu.c
-> +++ b/drivers/iommu/virtio-iommu.c
-> @@ -151,7 +151,7 @@ static off_t viommu_get_write_desc_offset(struct viommu_dev *viommu,
->   * Wait for all added requests to complete. When this function returns, all
->   * requests that were in-flight at the time of the call have completed.
->   */
-> -static int __viommu_sync_req(struct viommu_dev *viommu)
-> +static void __viommu_sync_req(struct viommu_dev *viommu)
->  {
->  	unsigned int len;
->  	size_t write_len;
-> @@ -180,22 +180,15 @@ static int __viommu_sync_req(struct viommu_dev *viommu)
->  		list_del(&req->list);
->  		kfree(req);
->  	}
-> -
-> -	return 0;
->  }
->  
-> -static int viommu_sync_req(struct viommu_dev *viommu)
-> +static void viommu_sync_req(struct viommu_dev *viommu)
->  {
-> -	int ret;
->  	unsigned long flags;
->  
->  	spin_lock_irqsave(&viommu->request_lock, flags);
-> -	ret = __viommu_sync_req(viommu);
-> -	if (ret)
-> -		dev_dbg(viommu->dev, "could not sync requests (%d)\n", ret);
-> +	__viommu_sync_req(viommu);
->  	spin_unlock_irqrestore(&viommu->request_lock, flags);
-> -
-> -	return ret;
->  }
->  
->  /*
-> @@ -247,8 +240,8 @@ static int __viommu_add_req(struct viommu_dev *viommu, void *buf, size_t len,
->  	ret = virtqueue_add_sgs(vq, sg, 1, 1, req, GFP_ATOMIC);
->  	if (ret == -ENOSPC) {
->  		/* If the queue is full, sync and retry */
-> -		if (!__viommu_sync_req(viommu))
-> -			ret = virtqueue_add_sgs(vq, sg, 1, 1, req, GFP_ATOMIC);
-> +		__viommu_sync_req(viommu);
-> +		ret = virtqueue_add_sgs(vq, sg, 1, 1, req, GFP_ATOMIC);
->  	}
->  	if (ret)
->  		goto err_free;
-> @@ -293,11 +286,7 @@ static int viommu_send_req_sync(struct viommu_dev *viommu, void *buf,
->  		goto out_unlock;
->  	}
->  
-> -	ret = __viommu_sync_req(viommu);
-> -	if (ret) {
-> -		dev_dbg(viommu->dev, "could not sync requests (%d)\n", ret);
-> -		/* Fall-through (get the actual request status) */
-> -	}
-> +	__viommu_sync_req(viommu);
->  
->  	ret = viommu_get_req_errno(buf, len);
->  out_unlock:
-> -- 
-> 1.8.3.1
+> > +        /*
+> > +         * The IOMMU manages all functions in this PCI domain except
+> > +         * itself. Omit BDF 00:01.0.
+> > +         */
+> > +        iommu-map = <0x0 &iommu0 0x0 0x8
+> > +                     0x9 &iommu0 0x9 0xfff7>;
+> > +
+> > +        /* The IOMMU programming interface uses slot 00:01.0 */
+> > +        iommu0: iommu@1,0 {
+> > +            compatible = "pci1af4,1057";
+> > +            reg = <0x800 0 0 0 0>;
+> > +            #iommu-cells = <1>;
+> > +        };
+> > +    };
+> > +
+> > +    pcie1 {
 > 
+> Node name: pcie (so probably you will need unit address and reg)
+> 
+> > +        /*
+> > +         * The IOMMU also manages all functions from this domain,
+> > +         * with endpoint IDs 0x10000 - 0x1ffff
+> > +         */
+> > +        iommu-map = <0x0 &iommu0 0x10000 0x10000>;
+> > +    };
+> > +
+> > +    ethernet {
+> > +        /* The IOMMU manages this platform device with endpoint ID 0x20000 */
+> > +        iommus = <&iommu0 0x20000>;
+> > +    };
+> > +
+> > +...
+> 
+> 
+> Best regards,
+> Krzysztof
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
