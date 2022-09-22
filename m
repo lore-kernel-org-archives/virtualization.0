@@ -1,122 +1,109 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 157C0C6FA8B
-	for <virtualization@archiver.kernel.org>; Thu, 22 Sep 2022 10:15:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 855B3C6FA86
+	for <virtualization@archiver.kernel.org>; Thu, 22 Sep 2022 10:17:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id A276E610CE;
-	Thu, 22 Sep 2022 10:15:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A276E610CE
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=MqqUnGas
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id j8WDyNw37o8q; Thu, 22 Sep 2022 10:15:12 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id EF4B260BCA;
-	Thu, 22 Sep 2022 10:15:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org EF4B260BCA
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B69B9C0033;
-	Thu, 22 Sep 2022 10:15:11 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7E2B4C002D
- for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Sep 2022 10:15:10 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 4B86183417
- for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Sep 2022 10:15:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4B86183417
+	by smtp1.osuosl.org (Postfix) with ESMTP id F0A0E83295;
+	Thu, 22 Sep 2022 10:17:50 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org F0A0E83295
 Authentication-Results: smtp1.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=MqqUnGas
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=SpcgeBXE
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id jK9dYVtjcHdW; Thu, 22 Sep 2022 10:17:50 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 79D63831E3;
+	Thu, 22 Sep 2022 10:17:49 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 79D63831E3
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5F482C0033;
+	Thu, 22 Sep 2022 10:17:49 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D4EFDC002D
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 22 Sep 2022 10:17:47 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id A28EB831E3
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 22 Sep 2022 10:17:47 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A28EB831E3
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ZpzXBJtviGjb
+ with ESMTP id TIKK2Fl2uOLg
  for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Sep 2022 10:15:09 +0000 (UTC)
+ Thu, 22 Sep 2022 10:17:45 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2E30A831E3
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 650B983295
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 2E30A831E3
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 650B983295
  for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Sep 2022 10:15:08 +0000 (UTC)
+ Thu, 22 Sep 2022 10:17:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1663841708;
+ s=mimecast20190719; t=1663841864;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=x8iPf8wB/87tS9tkRsCc4xtqoP66lVcLTCBHykEn53w=;
- b=MqqUnGasGe3i/ztoqV+LUjElymRhxRO1RpqHz6Jip81K4/HCSHxxr12MrJC6eerh6WIORc
- ju0svOUYUJD/L963QMSky/kXjO6ITL9kkiLBtAB3d4RzcPVNhbumjf4M+ZTQAPR9H2WMsJ
- l0cS+4FCn4VLirnN/x4flcMKPquDd3I=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=xYAWMYtKx14XpEbuo541IBKVUWrXtl8A3POq2pvQ/fo=;
+ b=SpcgeBXER1t5Ak+gHeHzPeseysOMunIGFxL3mu6hjY3K03FX7OX4QnWy68ppOmpr1U+oZf
+ iNw49zmPK067ngnTylZIZ20b897gORE1hvp0KgL+yJskrRSgxKku8CWf0LTp7Wbbr8Lxvt
+ SX3dSiEi0lB9CUNgav/eROVCE4eEkIU=
+Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
+ [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-115-i5biWDkJMBqxYqclptbCrg-1; Thu, 22 Sep 2022 06:15:07 -0400
-X-MC-Unique: i5biWDkJMBqxYqclptbCrg-1
-Received: by mail-ej1-f70.google.com with SMTP id
- xj11-20020a170906db0b00b0077b6ecb23fcso4214482ejb.5
+ us-mta-581-MZu-F2p2NFmxl9SLwnYrPQ-1; Thu, 22 Sep 2022 06:17:41 -0400
+X-MC-Unique: MZu-F2p2NFmxl9SLwnYrPQ-1
+Received: by mail-ed1-f71.google.com with SMTP id
+ z16-20020a05640235d000b0045485e4a5e0so5312578edc.1
  for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Sep 2022 03:15:06 -0700 (PDT)
+ Thu, 22 Sep 2022 03:17:41 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
- bh=x8iPf8wB/87tS9tkRsCc4xtqoP66lVcLTCBHykEn53w=;
- b=Aq+dvSAxSnsIiPqEtvtX5ssIepQW8mQ+QKA+TfCKxsj5T0WsEZC3uEJqgCS0VngtqW
- lcxIyQEeMQ2gXReUCjzvfXq4wUKUlMV6PzQa9UwrIvvfOoSojFPJUp9XZ0d3IAteGJnU
- n6uf1HLgn8onkyme+KdH/6b2EsNe9PF1UNhgqO84u5xFwlzCOZdCoNl8js7QhdAKmCgV
- +D6Th7fNYDZfZq1qBBNIHO6Xd/7W3vqNQOEvU4fPeCV7ILPP2OPUIel8fswFj04y3jyP
- DjIBMdvFdc+S7f0sZR2Uma/hot7vcBgrMzx0H+kWK91qy3MgZB5uN8YLTSLuYZw/vOEh
- /zqg==
-X-Gm-Message-State: ACrzQf1tWN+8h+y08+EAJlmx8JvfSYbvgkmOOGe3alAABItW9dqvTjx5
- 3gzezK0RH4wpaZgnfSs+MkU630b6sMsU9GBVgfRPqjQUOElUZroYHl0lL0JBcW0YMtzBS17mbyf
- qhriWVqsWuti8F15osplhDfYjzENydqHAipaSpYVNDg==
-X-Received: by 2002:aa7:c6c4:0:b0:44e:dfc0:224e with SMTP id
- b4-20020aa7c6c4000000b0044edfc0224emr2525683eds.115.1663841705912; 
- Thu, 22 Sep 2022 03:15:05 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM5MP6e8IfaEkizKUdwEwPhWoin1PxYJJHUJkHWD+HBkHyqr0tTKkvBdcvbdMEvB8tgteDy7dw==
-X-Received: by 2002:aa7:c6c4:0:b0:44e:dfc0:224e with SMTP id
- b4-20020aa7c6c4000000b0044edfc0224emr2525649eds.115.1663841705664; 
- Thu, 22 Sep 2022 03:15:05 -0700 (PDT)
+ bh=xYAWMYtKx14XpEbuo541IBKVUWrXtl8A3POq2pvQ/fo=;
+ b=0tUEPTXJxLurO6JDgzf/+Fi8G9+4m/wLAwcGitB2ISOIk7JE6sosVyIzDBNEzbrVcC
+ 3P1CUEPSa9CdTB/Jao2q3d6eUr/QccVZQWztIGmGx6kCx4tnHyfDe+yXhdDjj6Bd+91R
+ Cd8ZRgHPMxW2jEk7/5WEgQU2r4yxF3cgD/pJBQLHj0zUVk+vGv6m9djz4mYLzPnYr8Q6
+ aah7bv+Bf91U/sxoadweTAtqCEb+AgCPT1JMQgSayi9kAJtSs9ZQvIW+1Uqy2GJhiceP
+ 8dIxxhaz45SnUZGJibiGBg9CpuI/IfRmGz4nEFPK5bWOLNqZpNIxCrK7hIEQwaB36nTR
+ apsQ==
+X-Gm-Message-State: ACrzQf32KMWEugqTe9EqB1f6+CzcPOVbU6xbB7fvl2PUf1ZWwktNSLJD
+ oyLKebFKrYWLmi4tWxjacrEy9SCVWDTa7JbZqLWqI2ajC5VhSFtXWpngUtBHDZyUrmtbSfQWHCd
+ IlODieZ+3B4/jmnNyLTDVIs/+uO5rrHl1M+EuMzmkpQ==
+X-Received: by 2002:aa7:da4f:0:b0:44e:864b:7a3e with SMTP id
+ w15-20020aa7da4f000000b0044e864b7a3emr2536249eds.378.1663841860610; 
+ Thu, 22 Sep 2022 03:17:40 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM4IrF5jltUfakAQ+x2COJ0LsEwbx1jBLmLGhIJbY/qTe0ZLCp+tl1BIRRQ+zdkvBQttGPj7PA==
+X-Received: by 2002:aa7:da4f:0:b0:44e:864b:7a3e with SMTP id
+ w15-20020aa7da4f000000b0044e864b7a3emr2536238eds.378.1663841860421; 
+ Thu, 22 Sep 2022 03:17:40 -0700 (PDT)
 Received: from redhat.com ([2.55.16.18]) by smtp.gmail.com with ESMTPSA id
- d20-20020a1709067f1400b0073d7b876621sm2353763ejr.205.2022.09.22.03.15.02
+ f14-20020a17090631ce00b0074ae59d85a4sm2479994ejf.20.2022.09.22.03.17.39
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 22 Sep 2022 03:15:05 -0700 (PDT)
-Date: Thu, 22 Sep 2022 06:14:59 -0400
+ Thu, 22 Sep 2022 03:17:39 -0700 (PDT)
+Date: Thu, 22 Sep 2022 06:17:36 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Parav Pandit <parav@nvidia.com>
-Subject: Re: [PATCH v5 2/2] virtio-net: use mtu size as buffer length for big
- packets
-Message-ID: <20220922060753-mutt-send-email-mst@kernel.org>
-References: <20220901021038.84751-1-gavinl@nvidia.com>
- <20220901021038.84751-3-gavinl@nvidia.com>
- <20220922052734-mutt-send-email-mst@kernel.org>
- <PH0PR12MB5481374E6A14EFC39533F9A8DC4E9@PH0PR12MB5481.namprd12.prod.outlook.com>
+To: "Zhu, Lingshan" <lingshan.zhu@intel.com>
+Subject: Re: [PATCH] vDPA/ifcvf: fix the Calculation of queuepair
+Message-ID: <20220922061655-mutt-send-email-mst@kernel.org>
+References: <TY2PR06MB34246957523C124C501790CD854E9@TY2PR06MB3424.apcprd06.prod.outlook.com>
+ <20220922050156-mutt-send-email-mst@kernel.org>
+ <33788b06-6c12-a9e3-4ae3-c817c0842bd3@intel.com>
 MIME-Version: 1.0
-In-Reply-To: <PH0PR12MB5481374E6A14EFC39533F9A8DC4E9@PH0PR12MB5481.namprd12.prod.outlook.com>
+In-Reply-To: <33788b06-6c12-a9e3-4ae3-c817c0842bd3@intel.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: "alexander.h.duyck@intel.com" <alexander.h.duyck@intel.com>,
- "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>,
- "sridhar.samudrala@intel.com" <sridhar.samudrala@intel.com>,
- "jesse.brandeburg@intel.com" <jesse.brandeburg@intel.com>,
- Gavi Teitz <gavi@nvidia.com>, "virtualization@lists.linux-foundation.org"
+Cc: "virtualization@lists.linux-foundation.org"
  <virtualization@lists.linux-foundation.org>,
- "stephen@networkplumber.org" <stephen@networkplumber.org>,
- "loseweigh@gmail.com" <loseweigh@gmail.com>,
- "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
- "kuba@kernel.org" <kuba@kernel.org>,
- "davem@davemloft.net" <davem@davemloft.net>, Gavin Li <gavinl@nvidia.com>
+ Angus Chen <angus.chen@jaguarmicro.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -133,219 +120,101 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Sep 22, 2022 at 10:04:53AM +0000, Parav Pandit wrote:
+On Thu, Sep 22, 2022 at 06:07:58PM +0800, Zhu, Lingshan wrote:
 > 
-> > From: Michael S. Tsirkin <mst@redhat.com>
-> > Sent: Thursday, September 22, 2022 5:35 AM
+> 
+> On 9/22/2022 5:06 PM, Michael S. Tsirkin wrote:
+> > On Thu, Sep 22, 2022 at 08:55:26AM +0000, Angus Chen wrote:
+> > > >From 4f65eae86ab15d7abb8bd30401187cb195dfd27b Mon Sep 17 00:00:00 2001
+> > > From: "angus.chen" <angus.chen@jaguarmicro.com>
+> > > Date: Thu, 22 Sep 2022 14:47:28 +0800
+> > > Subject: [PATCH]     vDPA/ifcvf: fix the Calculation of queuepair
+> > > 
+> > >          The queuepair should be divided by 2
 > > 
-> > On Thu, Sep 01, 2022 at 05:10:38AM +0300, Gavin Li wrote:
-> > > Currently add_recvbuf_big() allocates MAX_SKB_FRAGS segments for big
-> > > packets even when GUEST_* offloads are not present on the device.
-> > > However, if guest GSO is not supported, it would be sufficient to
-> > > allocate segments to cover just up the MTU size and no further.
-> > > Allocating the maximum amount of segments results in a large waste of
-> > > buffer space in the queue, which limits the number of packets that can
-> > > be buffered and can result in reduced performance.
-> > >
-> > > Therefore, if guest GSO is not supported, use the MTU to calculate the
-> > > optimal amount of segments required.
-> > >
-> > > When guest offload is enabled at runtime, RQ already has packets of
-> > > bytes less than 64K. So when packet of 64KB arrives, all the packets
-> > > of such size will be dropped. and RQ is now not usable.
-> > >
-> > > So this means that during set_guest_offloads() phase, RQs have to be
-> > > destroyed and recreated, which requires almost driver reload.
-> > >
-> > > If VIRTIO_NET_F_CTRL_GUEST_OFFLOADS has been negotiated, then it
-> > > should always treat them as GSO enabled.
-> > >
-> > > Accordingly, for now the assumption is that if guest GSO has been
-> > > negotiated then it has been enabled, even if it's actually been
-> > > disabled at runtime through VIRTIO_NET_F_CTRL_GUEST_OFFLOADS.
-> > >
-> > > Below is the iperf TCP test results over a Mellanox NIC, using vDPA
-> > > for
-> > > 1 VQ, queue size 1024, before and after the change, with the iperf
-> > > server running over the virtio-net interface.
-> > >
-> > > MTU(Bytes)/Bandwidth (Gbit/s)
-> > >              Before   After
-> > >   1500        22.5     22.4
-> > >   9000        12.8     25.9
-> > >
-> > > Signed-off-by: Gavin Li <gavinl@nvidia.com>
-> > > Reviewed-by: Gavi Teitz <gavi@nvidia.com>
-> > > Reviewed-by: Parav Pandit <parav@nvidia.com>
-> > > Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > Reviewed-by: Si-Wei Liu <si-wei.liu@oracle.com>
+> > this is just repeating what the patch does.
+> > can you include more info pls?
 > > 
-> > OK I think the logic is correct, it's just a bit harder to read than necessary.
-> > Small improvement suggestions:
+> > Documentation/process/5.Posting.rst says among other things:
+> > 
+> > To that end, the summary line should describe the effects of and motivation
+> > for the change as well as possible given the one-line constraint.  The
+> > detailed description can then amplify on those topics and provide any
+> > needed additional information.  If the patch fixes a bug, cite the commit
+> > which introduced the bug if possible (and please provide both the commit ID
+> > and the title when citing commits).  If a problem is associated with
+> > specific log or compiler output, include that output to help others
+> > searching for a solution to the same problem.  If the change is meant to
+> > support other changes coming in later patch, say so.  If internal APIs are
+> > changed, detail those changes and how other developers should respond.  In
+> > general, the more you can put yourself into the shoes of everybody who will
+> > be reading your changelog, the better that changelog (and the kernel as a
+> > whole) will be.
+> > 
+> > 
+> > > Signed-off-by: angus.chen <angus.chen@jaguarmicro.com>
+> > Format should be
+> > 
+> > Angus Chen <angus.chen@jaguarmicro.com>
+> > 
+> > Also pls drop leading space.
 > > 
 > > 
 > > > ---
-> > > changelog:
-> > > v4->v5
-> > > - Addressed comments from Michael S. Tsirkin
-> > > - Improve commit message
-> > > v3->v4
-> > > - Addressed comments from Si-Wei
-> > > - Rename big_packets_sg_num with big_packets_num_skbfrags
-> > > v2->v3
-> > > - Addressed comments from Si-Wei
-> > > - Simplify the condition check to enable the optimization
-> > > v1->v2
-> > > - Addressed comments from Jason, Michael, Si-Wei.
-> > > - Remove the flag of guest GSO support, set sg_num for big packets and
-> > >   use it directly
-> > > - Recalculate sg_num for big packets in virtnet_set_guest_offloads
-> > > - Replace the round up algorithm with DIV_ROUND_UP
-> > > ---
-> > >  drivers/net/virtio_net.c | 37 ++++++++++++++++++++++++-------------
-> > >  1 file changed, 24 insertions(+), 13 deletions(-)
-> > >
-> > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c index
-> > > f831a0290998..dbffd5f56fb8 100644
-> > > --- a/drivers/net/virtio_net.c
-> > > +++ b/drivers/net/virtio_net.c
-> > > @@ -225,6 +225,9 @@ struct virtnet_info {
-> > >  	/* I like... big packets and I cannot lie! */
-> > >  	bool big_packets;
-> > >
-> > > +	/* number of sg entries allocated for big packets */
-> > > +	unsigned int big_packets_num_skbfrags;
-> > > +
-> > >  	/* Host will merge rx buffers for big packets (shake it! shake it!) */
-> > >  	bool mergeable_rx_bufs;
-> > >
+> > > drivers/vdpa/ifcvf/ifcvf_base.c | 4 ++--
+> > > 1 file changed, 2 insertions(+), 2 deletions(-)
+> > > 
+> > > diff --git a/drivers/vdpa/ifcvf/ifcvf_base.c b/drivers/vdpa/ifcvf/ifcvf_base.c
+> > > index 75a703b803a2..3e4486bfa0b7 100644
+> > > --- a/drivers/vdpa/ifcvf/ifcvf_base.c
+> > > +++ b/drivers/vdpa/ifcvf/ifcvf_base.c
+> > > @@ -323,7 +323,7 @@ u16 ifcvf_get_vq_state(struct ifcvf_hw *hw, u16 qid)
+> > >          u32 q_pair_id;
+> > > 
+> > >          ifcvf_lm = (struct ifcvf_lm_cfg __iomem *)hw->lm_cfg;
+> > > -       q_pair_id = qid / hw->nr_vring;
+> > > +       q_pair_id = qid / 2;
+> Yes, this should be 2 and actually this cap never work as expected, we are
+> re-designing this.
+
+Do you ack this patch then?
+
+> > >          avail_idx_addr = &ifcvf_lm->vring_lm_cfg[q_pair_id].idx_addr[qid % 2];
+> > >          last_avail_idx = vp_ioread16(avail_idx_addr);
+> > > 
+> > > @@ -337,7 +337,7 @@ int ifcvf_set_vq_state(struct ifcvf_hw *hw, u16 qid, u16 num)
+> > >          u32 q_pair_id;
+> > > 
+> > >          ifcvf_lm = (struct ifcvf_lm_cfg __iomem *)hw->lm_cfg;
+> > > -       q_pair_id = qid / hw->nr_vring;
+> > > +       q_pair_id = qid / 2;
+> > >          avail_idx_addr = &ifcvf_lm->vring_lm_cfg[q_pair_id].idx_addr[qid % 2];
+> > >          hw->vring[qid].last_avail_idx = num;
+> > >          vp_iowrite16(num, avail_idx_addr);
 > > 
-> > big_packets_num_skbfrags -> big_packet_num_skbfrags
+> > Pls CC more widely.
+> > $ ./scripts/get_maintainer.pl -f drivers/vdpa/ifcvf/ifcvf_base.c
+> > "Michael S. Tsirkin" <mst@redhat.com> (maintainer:VIRTIO CORE AND NET DRIVERS,commit_signer:6/6=100%)
+> > Jason Wang <jasowang@redhat.com> (maintainer:VIRTIO CORE AND NET DRIVERS,commit_signer:1/6=17%)
+> > Zhu Lingshan <lingshan.zhu@intel.com> (commit_signer:5/6=83%,authored:5/6=83%,added_lines:102/102=100%,removed_lines:108/109=99%)
+> > Stefano Garzarella <sgarzare@redhat.com> (commit_signer:1/6=17%)
+> > Tom Rix <trix@redhat.com> (commit_signer:1/6=17%)
+> > Colin Ian King <colin.king@intel.com> (authored:1/6=17%)
+> > virtualization@lists.linux-foundation.org (open list:VIRTIO CORE AND NET DRIVERS)
 > > 
-> > > @@ -1331,10 +1334,10 @@ static int add_recvbuf_big(struct virtnet_info
-> > *vi, struct receive_queue *rq,
-> > >  	char *p;
-> > >  	int i, err, offset;
-> > >
-> > > -	sg_init_table(rq->sg, MAX_SKB_FRAGS + 2);
-> > > +	sg_init_table(rq->sg, vi->big_packets_num_skbfrags + 2);
-> > >
-> > > -	/* page in rq->sg[MAX_SKB_FRAGS + 1] is list tail */
-> > > -	for (i = MAX_SKB_FRAGS + 1; i > 1; --i) {
-> > > +	/* page in rq->sg[vi->big_packets_num_skbfrags + 1] is list tail */
-> > > +	for (i = vi->big_packets_num_skbfrags + 1; i > 1; --i) {
-> > >  		first = get_a_page(rq, gfp);
-> > >  		if (!first) {
-> > >  			if (list)
-> > > @@ -1365,7 +1368,7 @@ static int add_recvbuf_big(struct virtnet_info
-> > > *vi, struct receive_queue *rq,
-> > >
-> > >  	/* chain first in list head */
-> > >  	first->private = (unsigned long)list;
-> > > -	err = virtqueue_add_inbuf(rq->vq, rq->sg, MAX_SKB_FRAGS + 2,
-> > > +	err = virtqueue_add_inbuf(rq->vq, rq->sg,
-> > > +vi->big_packets_num_skbfrags + 2,
-> > >  				  first, gfp);
-> > >  	if (err < 0)
-> > >  		give_pages(rq, first);
-> > > @@ -3690,13 +3693,27 @@ static bool virtnet_check_guest_gso(const
-> > struct virtnet_info *vi)
-> > >  		virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_UFO);  }
-> > >
-> > > +static void virtnet_set_big_packets_fields(struct virtnet_info *vi,
-> > > +const int mtu) {
-> > > +	bool guest_gso = virtnet_check_guest_gso(vi);
-> > > +
-> > > +	/* If device can receive ANY guest GSO packets, regardless of mtu,
-> > > +	 * allocate packets of maximum size, otherwise limit it to only
-> > > +	 * mtu size worth only.
-> > > +	 */
-> > > +	if (mtu > ETH_DATA_LEN || guest_gso) {
-> > > +		vi->big_packets = true;
-> > > +		vi->big_packets_num_skbfrags = guest_gso ?
-> > MAX_SKB_FRAGS : DIV_ROUND_UP(mtu, PAGE_SIZE);
-> > > +	}
-> > > +}
-> > > +
-> > >  static int virtnet_probe(struct virtio_device *vdev)  {
-> > >  	int i, err = -ENOMEM;
-> > >  	struct net_device *dev;
-> > >  	struct virtnet_info *vi;
-> > >  	u16 max_queue_pairs;
-> > > -	int mtu;
-> > > +	int mtu = 0;
-> > >
+> > Thanks!
 > > 
-> > I think it's better to drop this and instead just put the code
-> > where we already know the config. So:
-> > 
-> > >  	/* Find if host supports multiqueue/rss virtio_net device */
-> > >  	max_queue_pairs = 1;
-> > > @@ -3784,10 +3801,6 @@ static int virtnet_probe(struct virtio_device
-> > *vdev)
-> > >  	INIT_WORK(&vi->config_work, virtnet_config_changed_work);
-> > >  	spin_lock_init(&vi->refill_lock);
-> > >
-> > > -	/* If we can receive ANY GSO packets, we must allocate large ones.
-> > */
-> > > -	if (virtnet_check_guest_gso(vi))
-> > > -		vi->big_packets = true;
-> > > -
-> > >  	if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF))
-> > >  		vi->mergeable_rx_bufs = true;
-> > >
-> > > @@ -3853,12 +3866,10 @@ static int virtnet_probe(struct virtio_device
-> > *vdev)
-> > >
-> > >  		dev->mtu = mtu;
-> > >  		dev->max_mtu = mtu;
-> > > -
-> > > -		/* TODO: size buffers correctly in this case. */
-> > > -		if (dev->mtu > ETH_DATA_LEN)
-> > > -			vi->big_packets = true;
-> > 
-> >     /* Size buffers to fit mtu. */
-> >     if (mtu > ETH_DATA_LEN) {
-> >                     vi->big_packets = true;
-> >                     vi->big_packets_num_skbfrags = DIV_ROUND_UP(mtu,
-> > PAGE_SIZE);
-> >     }
-> > 
-> How doing things twice is better i.e. when mtu is > ETH_DATA_LEN and gso is offered?
-> It calculates big_packets variable twice.
+> > BTW, Zhu Lingshan, would you like to be listed a patch reviewer in
+> > MAINTAINERS so people rememeber to CC you? You are working a lot on this
+> > driver.
+> sure, please add me in the list.
 > 
-> It also easier to read the code at single place where big_packets decision is taken.
-
-I guess it depends on what you want to keep in one place.
-I just wanted to reduce the testing burden on the submitter.
-What I proposed makes the functional change minimal.
-
-It's nitpicking to be frank. v6 arrived while I was traveling
-and I didn't notice it.  I see Jason acked that so I guess I will
-just apply as is. Do you ack v6 too?
-
-
-> > >  	}
-> > >
-> > > +	virtnet_set_big_packets_fields(vi, mtu);
-> > > +
-> > 
-> > and here:
-> >         /* If device can receive guest GSO packets, allocate buffers for
-> >          * packets of maximum size, regardless of mtu.
-> > 	 */
-> > 
-> > 	if (virtnet_check_guest_gso(vi)) {
-> > 		vi->big_packets = true;
-> > 		vi->big_packets_num_skbfrags = MAX_SKB_FRAGS;
-> >         }
+> Thanks
+> Zhu Lingshan
 > > 
 > > 
-> > >  	if (vi->any_header_sg)
-> > >  		dev->needed_headroom = vi->hdr_len;
-> > >
+> > 
 > > > --
-> > > 2.31.1
 
 _______________________________________________
 Virtualization mailing list
