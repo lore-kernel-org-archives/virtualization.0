@@ -1,119 +1,110 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id EB138C6FA82
-	for <virtualization@archiver.kernel.org>; Thu, 22 Sep 2022 09:17:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 01F0DC6FA90
+	for <virtualization@archiver.kernel.org>; Thu, 22 Sep 2022 09:23:09 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 8ADED610C1;
-	Thu, 22 Sep 2022 09:17:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8ADED610C1
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=DKVjnzlZ
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Hygf5PI3xDa4; Thu, 22 Sep 2022 09:17:16 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 0CE5E61044;
-	Thu, 22 Sep 2022 09:17:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0CE5E61044
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id EB066C0033;
-	Thu, 22 Sep 2022 09:17:15 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C4607C002D
- for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Sep 2022 09:17:14 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 91FBD4018E
- for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Sep 2022 09:17:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 91FBD4018E
+	by smtp2.osuosl.org (Postfix) with ESMTP id 5B8434053C;
+	Thu, 22 Sep 2022 09:23:09 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5B8434053C
 Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=DKVjnzlZ
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=bnDEs5U+
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id u3f1gpfA_A8C; Thu, 22 Sep 2022 09:23:08 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id E59934017A;
+	Thu, 22 Sep 2022 09:23:07 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E59934017A
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id BC7DCC0033;
+	Thu, 22 Sep 2022 09:23:07 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 82F36C002D
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 22 Sep 2022 09:23:06 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 571D44051D
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 22 Sep 2022 09:23:06 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 571D44051D
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id SbaEi5vicMPs
+ with ESMTP id PRksMEGwy_Ot
  for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Sep 2022 09:17:14 +0000 (UTC)
+ Thu, 22 Sep 2022 09:23:05 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E56744017A
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6814140385
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id E56744017A
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 6814140385
  for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Sep 2022 09:17:13 +0000 (UTC)
+ Thu, 22 Sep 2022 09:23:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1663838232;
+ s=mimecast20190719; t=1663838584;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=kQfJsNBklEQnlLpVZNYjFz1njaLl7T8B+cRrquogK3o=;
- b=DKVjnzlZfOb81wGQocK21JQ62mnQ9O1s5wVy8SDc74LAsiCZnb7r1mo8+l/HZEoVIRCqcV
- PG23ce3qguBgY4EXNlgMIw2QaYve7taUd1+tE3XMu2oiYBvGXPjxWzj6nUZnJRqNILes0y
- Rrwcb+uiVxZOIDahBZTzz/F+x1B7eic=
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
- [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=SuTHYJVFAUSisqUYJ7aEiJ6bas6gBkFhem0cKwxhc6c=;
+ b=bnDEs5U+mxBmG1Mog+lnfwm/MB7hJ/mEKGaJrRkTSKtNfHiPG0yaDNRTl4eERBg3Wwjl6F
+ XhzyzcfEVtXCno/M/h3VC69Wr9yqP4JLzTrEqY8MZssbPxH2kS8tkIm4kN2gWoIdxLMTmt
+ AcE42SDcgqo8pTaTedfUeqKSqSINArE=
+Received: from mail-qk1-f197.google.com (mail-qk1-f197.google.com
+ [209.85.222.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-631-y5ksud7SOlCZO3yBS6t_JA-1; Thu, 22 Sep 2022 05:17:09 -0400
-X-MC-Unique: y5ksud7SOlCZO3yBS6t_JA-1
-Received: by mail-ed1-f71.google.com with SMTP id
- m3-20020a056402430300b004512f6268dbso6323816edc.23
+ us-mta-202-Vd1Vw7FbMWGJDnokBe2roA-1; Thu, 22 Sep 2022 05:23:00 -0400
+X-MC-Unique: Vd1Vw7FbMWGJDnokBe2roA-1
+Received: by mail-qk1-f197.google.com with SMTP id
+ bl17-20020a05620a1a9100b006cdf19243acso6161623qkb.4
  for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Sep 2022 02:17:09 -0700 (PDT)
+ Thu, 22 Sep 2022 02:23:00 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=in-reply-to:content-transfer-encoding:content-disposition
- :mime-version:references:message-id:subject:cc:to:from:date
- :x-gm-message-state:from:to:cc:subject:date;
- bh=kQfJsNBklEQnlLpVZNYjFz1njaLl7T8B+cRrquogK3o=;
- b=Q18VaXemKs5yF5WMYyZ7SCMtPYyAYtkXSkILQGbk5/k1PPVZnpQJU56eQIsP0NW959
- ffbY23u2K58EjwPUD7j1tPZ/MF6YW83VvPnTzTXDIGoRb1OiG1k3kF+NYV7lNJezOp8m
- W0ftiNrQjcL+UCDpJ+ri9WsUHeVPj/KqEQz7SYisia24Lw5AJPCzC/nCjBm2tz4/v70o
- DZlN+wxjkz4U8iF6PuSf+leCimufkr8YS94anf7VKg8JUi/KUetXW8clQU2SZOjzfaP3
- cyGdZwf+QOGagIO6+vUgjb8kq7aWolzYLBhJ1QhIJrxlY7inmShHtGXSDoxngN8JOTpe
- cWnA==
-X-Gm-Message-State: ACrzQf1gOs3/PS6P3UyNMyaBq3HofsNn6G+A20a6e77/X1b4iOEE9cNx
- vScERr7S8kddy6n/vE+2Q7XJT1wsLsfGns+a8jjuEJ9PHslQMDAAqpI/S1dkZOE1/GVNrHrlTeh
- +2TNeghS+DtAt9hllz/y4GQiO6ikX2TRYU6EvFTUsGw==
-X-Received: by 2002:a17:907:d07:b0:72e:ec79:ad0f with SMTP id
- gn7-20020a1709070d0700b0072eec79ad0fmr2019349ejc.296.1663838228507; 
- Thu, 22 Sep 2022 02:17:08 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM6aWYk2gLkly55RZes2gWKaV2mpYmlQSmVpIR2XSzCn6t3IkeaTpYNPXd0NwzuX13AYtWwYqg==
-X-Received: by 2002:a17:907:d07:b0:72e:ec79:ad0f with SMTP id
- gn7-20020a1709070d0700b0072eec79ad0fmr2019336ejc.296.1663838228336; 
- Thu, 22 Sep 2022 02:17:08 -0700 (PDT)
-Received: from redhat.com ([2.55.16.18]) by smtp.gmail.com with ESMTPSA id
- d14-20020a170906304e00b0073bf84be798sm2374187ejd.142.2022.09.22.02.17.05
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
+ bh=SuTHYJVFAUSisqUYJ7aEiJ6bas6gBkFhem0cKwxhc6c=;
+ b=tWXlZJXCAdUa4Xi4IqHGsypLDsW8zxZg3/ZxlNwzidRjc9GSROLxAQ7snXyCElRPc4
+ 6ptZdXHNITmdrrITUxomfXtfXkyMRz3k/aj+6YXrW58h8eHEGzn+nLFTZ3++JQJCbI+3
+ /iEL1BHOd5OgZRY78SFCs3B7kr6BMUI4qSL39stH1xDxEtIvaKDosCZ0q5+i9IYOBoOw
+ tQ1MJoAlEJN77eVHK9VHsMKXxqQzUGiXeVlhx9eAGVsgB9YYWBpWn6wpK3x1/1yIDyl3
+ A0SolXv2Q0DYh2t6STesC6kvqiimfSiXFu0i5+1+Q/Qz9xGbIBEh1yBaw0WB+j/o9Aa/
+ c1og==
+X-Gm-Message-State: ACrzQf2aOtI3hffSwWcFKi1W7xyYEgkA8Z+1ADpj8NHD8Ft7NNMputVV
+ au0A6kcOQY+IXlHPsbfMsgBcG/D5u92ibfOJebyhZujni6hK7uxr1XBdYwew79dE9p56wjToLmT
+ /6RKrnwyxXAkSJsVIiuNRygOaFNX+G3vcAYkHZnqtaA==
+X-Received: by 2002:ac8:5d89:0:b0:35b:b58a:2bcb with SMTP id
+ d9-20020ac85d89000000b0035bb58a2bcbmr1954234qtx.273.1663838580263; 
+ Thu, 22 Sep 2022 02:23:00 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM719h5lWWPYiNaxVsN/CPer8q5YrppAFE1Z2dDMsAoQmzX/B3T49d7wpsslOfN8ulseMZmieg==
+X-Received: by 2002:ac8:5d89:0:b0:35b:b58a:2bcb with SMTP id
+ d9-20020ac85d89000000b0035bb58a2bcbmr1954229qtx.273.1663838580053; 
+ Thu, 22 Sep 2022 02:23:00 -0700 (PDT)
+Received: from sgarzare-redhat (host-87-11-6-69.retail.telecomitalia.it.
+ [87.11.6.69]) by smtp.gmail.com with ESMTPSA id
+ q20-20020a05620a0d9400b006b919c6749esm3689379qkl.91.2022.09.22.02.22.57
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 22 Sep 2022 02:17:07 -0700 (PDT)
-Date: Thu, 22 Sep 2022 05:17:03 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Paolo Abeni <pabeni@redhat.com>
-Subject: Re: [PATCH] Do not name control queue for virtio-net
-Message-ID: <20220922051613-mutt-send-email-mst@kernel.org>
-References: <20220917092857.3752357-1-junbo4242@gmail.com>
- <20220918025033-mutt-send-email-mst@kernel.org>
- <CACvn-oGUj0mDxBO2yV1mwvz4PzhN3rDnVpUh12NA5jLKTqRT3A@mail.gmail.com>
- <20220918081713-mutt-send-email-mst@kernel.org>
- <f3ad0de40b424413ede30abd3517c8fad0c3caca.camel@redhat.com>
+ Thu, 22 Sep 2022 02:22:59 -0700 (PDT)
+Date: Thu, 22 Sep 2022 11:22:50 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH V2 2/3] vdpa_sim_net: support feature provisioning
+Message-ID: <20220922092250.pj26iutmywlemvbm@sgarzare-redhat>
+References: <20220922024305.1718-1-jasowang@redhat.com>
+ <20220922024305.1718-3-jasowang@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <f3ad0de40b424413ede30abd3517c8fad0c3caca.camel@redhat.com>
+In-Reply-To: <20220922024305.1718-3-jasowang@redhat.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: linux-kernel@vger.kernel.org, Jesper Dangaard Brouer <hawk@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org,
- John Fastabend <john.fastabend@gmail.com>, Alexei Starovoitov <ast@kernel.org>,
- virtualization@lists.linux-foundation.org, Junbo <junbo4242@gmail.com>,
- Jakub Kicinski <kuba@kernel.org>, bpf@vger.kernel.org,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>
+Cc: lulu@redhat.com, mst@redhat.com, linux-kernel@vger.kernel.org,
+ gdawar@xilinx.com, virtualization@lists.linux-foundation.org,
+ xieyongji@bytedance.com, wuzongyong@linux.alibaba.com, elic@nvidia.com,
+ eperezma@redhat.com, lingshan.zhu@intel.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -125,49 +116,92 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Sep 22, 2022 at 11:10:37AM +0200, Paolo Abeni wrote:
-> On Sun, 2022-09-18 at 08:17 -0400, Michael S. Tsirkin wrote:
-> > On Sun, Sep 18, 2022 at 05:00:20PM +0800, Junbo wrote:
-> > > hi=A0Michael
-> > > =
+On Thu, Sep 22, 2022 at 10:43:04AM +0800, Jason Wang wrote:
+>This patch implements features provisioning for vdpa_sim_net.
+>
+>1) validating the provisioned features to be a subset of the parent
+>   features.
+>2) clearing the features that is not wanted by the userspace
+>
+>For example:
+>
+># vdpa mgmtdev show
+>vdpasim_net:
+>  supported_classes net
+>  max_supported_vqs 3
+>  dev_features MTU MAC CTRL_VQ CTRL_MAC_ADDR ANY_LAYOUT VERSION_1 ACCESS_PLATFORM
+>
+>1) provision vDPA device with all features that are supported by the
+>   net simulator
+>
+># vdpa dev add name dev1 mgmtdev vdpasim_net
+># vdpa dev config show
+>dev1: mac 00:00:00:00:00:00 link up link_announce false mtu 1500
+>  negotiated_features MTU MAC CTRL_VQ CTRL_MAC_ADDR VERSION_1 ACCESS_PLATFORM
+>
+>2) provision vDPA device with a subset of the features
+>
+># vdpa dev add name dev1 mgmtdev vdpasim_net device_features 0x300020000
+># vdpa dev config show
+>dev1: mac 00:00:00:00:00:00 link up link_announce false mtu 1500
+>  negotiated_features CTRL_VQ VERSION_1 ACCESS_PLATFORM
+>
+>Reviewed-by: Eli Cohen <elic@nvidia.com>
+>Signed-off-by: Jason Wang <jasowang@redhat.com>
+>---
+> drivers/vdpa/vdpa_sim/vdpa_sim_net.c | 11 ++++++++++-
+> 1 file changed, 10 insertions(+), 1 deletion(-)
+>
+>diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim_net.c b/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
+>index 886449e88502..a9ba02be378b 100644
+>--- a/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
+>+++ b/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
+>@@ -254,6 +254,14 @@ static int vdpasim_net_dev_add(struct vdpa_mgmt_dev *mdev, const char *name,
+> 	dev_attr.work_fn = vdpasim_net_work;
+> 	dev_attr.buffer_size = PAGE_SIZE;
+>
+>+	if (config->mask & BIT_ULL(VDPA_ATTR_DEV_FEATURES)) {
+>+		if (config->device_features &
+>+		    ~dev_attr.supported_features)
+>+			return -EINVAL;
+>+		dev_attr.supported_features &=
+>+			 config->device_features;
+>+	}
+>+
 
-> > > in virtio-net.c
-> > > =A0 =A0 /* Parameters for control virtqueue, if any */
-> > > =A0 =A0 if (vi->has_cvq) {
-> > > =A0 =A0 =A0 =A0 callbacks[total_vqs - 1] =3D NULL;
-> > > =A0 =A0 =A0 =A0 names[total_vqs - 1] =3D "control";
-> > > =A0 =A0 }
-> > > =
+How about doing this inside vdpasim_create()?
 
-> > > I think the Author who write the code
-> > =
+That way we support this feature in all simulators.
 
-> > wait, that was not you?
-> =
+Thanks,
+Stefano
 
-> I believe 'the Author' refers to the author of the current code, not to
-> the author of the patch.
-
-Oh I see. Responded.
-
-> @Junbo: the control queue is created only if the VIRTIO_NET_F_CTRL_VQ
-> feature is set, please check that in your setup.
-> =
-
-> Thanks
-> =
-
-> Paolo
-
-
--- =
-
-MST
+> 	simdev = vdpasim_create(&dev_attr);
+> 	if (IS_ERR(simdev))
+> 		return PTR_ERR(simdev);
+>@@ -294,7 +302,8 @@ static struct vdpa_mgmt_dev mgmt_dev = {
+> 	.id_table = id_table,
+> 	.ops = &vdpasim_net_mgmtdev_ops,
+> 	.config_attr_mask = (1 << VDPA_ATTR_DEV_NET_CFG_MACADDR |
+>-			     1 << VDPA_ATTR_DEV_NET_CFG_MTU),
+>+			     1 << VDPA_ATTR_DEV_NET_CFG_MTU |
+>+		             1 << VDPA_ATTR_DEV_FEATURES),
+> 	.max_supported_vqs = VDPASIM_NET_VQ_NUM,
+> 	.supported_features = VDPASIM_NET_FEATURES,
+> };
+>-- 
+>2.25.1
+>
+>_______________________________________________
+>Virtualization mailing list
+>Virtualization@lists.linux-foundation.org
+>https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+>
 
 _______________________________________________
 Virtualization mailing list
