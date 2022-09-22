@@ -1,114 +1,113 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D7478C6FA82
-	for <virtualization@archiver.kernel.org>; Thu, 22 Sep 2022 17:00:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 239E9C54EE9
+	for <virtualization@archiver.kernel.org>; Thu, 22 Sep 2022 17:01:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 5991783F47;
-	Thu, 22 Sep 2022 17:00:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5991783F47
+	by smtp2.osuosl.org (Postfix) with ESMTP id 9E8674014A;
+	Thu, 22 Sep 2022 17:01:37 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9E8674014A
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=eCZi3g29
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id PFCJzf901aUt; Thu, 22 Sep 2022 17:01:36 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 3F79641029;
+	Thu, 22 Sep 2022 17:01:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3F79641029
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 16E81C0033;
+	Thu, 22 Sep 2022 17:01:36 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2C833C0032
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 22 Sep 2022 17:01:31 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id ED39C83F74
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 22 Sep 2022 17:01:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org ED39C83F74
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=L6wuZ5nb
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=eCZi3g29
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id DlupFPBUGuA8; Thu, 22 Sep 2022 17:00:30 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id E54C883EFA;
-	Thu, 22 Sep 2022 17:00:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E54C883EFA
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CB47FC0033;
-	Thu, 22 Sep 2022 17:00:29 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id F2428C0032
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id YKUipZmIAuCU
  for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Sep 2022 17:00:27 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id CC0CA61118
- for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Sep 2022 17:00:27 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CC0CA61118
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=L6wuZ5nb
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 706hfw3l-b1s
- for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Sep 2022 17:00:27 +0000 (UTC)
+ Thu, 22 Sep 2022 17:01:30 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 09F34610EA
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 394AA83F67
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 09F34610EA
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 394AA83F67
  for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Sep 2022 17:00:26 +0000 (UTC)
+ Thu, 22 Sep 2022 17:01:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1663866026;
+ s=mimecast20190719; t=1663866089;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=lpqtzBDyUF+YoNh/as65yVQC8Z6APw6kJNzNcMP1bJg=;
- b=L6wuZ5nbtO7M7vzkRO8lzg9ZtuV3b31XlSilfPTfMHysqcpn8jZSR/Re8mzt3HSEkgg6E6
- L6TS1EEDmBMYHv6XHSzfvyvI+VAgfi878MbXXScm2P/8ReGLqxm95zOJjw5gIs8em9RQMg
- M22d5bzLuPbhcU8+hzfLGDC8peiXH5M=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=U9Sr8YICdCu6GQF/2wHQLM2nRHwhuk3bcum4Id2WWLU=;
+ b=eCZi3g293ktiN31Enl/bmyzfVIybJXvZwp1cp8zYQ3XCA68xC5YberGLLoKqxT0F/3xyX5
+ y912w5BrJmvwIb0+rgLzZUlB3wtv7g9j3WaVyOWyZm48nrqS1+QyzXZu7kywtgbLxxBqoT
+ vh6ZzKirQTeKBY3aqk+luP8S2FTEmiA=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-373-D-fzWBviPPCANP0drGMx1A-1; Thu, 22 Sep 2022 13:00:24 -0400
-X-MC-Unique: D-fzWBviPPCANP0drGMx1A-1
-Received: by mail-wm1-f69.google.com with SMTP id
- 7-20020a05600c020700b003b4ce6e6b12so989652wmi.0
+ us-mta-126-jxQgouiuNruFhTmiiGZElQ-1; Thu, 22 Sep 2022 13:01:26 -0400
+X-MC-Unique: jxQgouiuNruFhTmiiGZElQ-1
+Received: by mail-wr1-f71.google.com with SMTP id
+ c21-20020adfa315000000b0022adc2a2edaso3417749wrb.0
  for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Sep 2022 10:00:24 -0700 (PDT)
+ Thu, 22 Sep 2022 10:01:26 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
- bh=lpqtzBDyUF+YoNh/as65yVQC8Z6APw6kJNzNcMP1bJg=;
- b=1fa23wXdcxyW5n5N4mtx2FEw1bVvst8ArGZ6wZU63Bt4kOraAVsHwrbpBWZhcTN4Xg
- Y6wdQVIZUEGa3bGZ8pd9P+Jg9/h2WUu3n7ag3dAIbH1ZNJPb+2899pwHaJ4WGG7fvVfQ
- iofmsx9JY0E36PzQGKB4uf3Zqp08981EDwinq3WJfvIM+LW7dR68DlKek3rE5XDEXla8
- phIK90HXTYS/X7It36O7Vxloc7YTt3iFOt9V1ivoVYteGZBhnYRXc1/F2ANuz46BS6ci
- CktUAiBqc6D/8dWQEE0NOENu7zg+vvnYe8yfPVUENBCZ7NwAPZdL1L5WvVJXJm3nltdm
- 58EA==
-X-Gm-Message-State: ACrzQf0syLHay2XCLFSRX1OpcwCLeNMEAqCGb8mOJciX+9uEJvi83yjI
- Qqq34NUz4znjAIraO9mncw5u05R7EIRJyWeB90sbs4ygQwPgGRvBUJj2xdWv2frkfRwxsRkRqtK
- PM6X/Q3oj7qtWj9AnNjnguiM6yOxtEdbBTfdZxYeb0Q==
-X-Received: by 2002:a05:600c:4352:b0:3b4:84c0:2006 with SMTP id
- r18-20020a05600c435200b003b484c02006mr3138038wme.205.1663866023559; 
- Thu, 22 Sep 2022 10:00:23 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM7TAL8Zf9tRSjFHYNy9qzrsmDdXGu0hYtvhYtefN+dR9vQzHAoHLyVH/HDZQw/WTeBuq3z/eQ==
-X-Received: by 2002:a05:600c:4352:b0:3b4:84c0:2006 with SMTP id
- r18-20020a05600c435200b003b484c02006mr3138026wme.205.1663866023327; 
- Thu, 22 Sep 2022 10:00:23 -0700 (PDT)
+ bh=U9Sr8YICdCu6GQF/2wHQLM2nRHwhuk3bcum4Id2WWLU=;
+ b=kippkS0DfTYl8fXydK1CxYbwxeF+Vi0ZOhFk22IBlQY+K+y3+hLNs46ocgDJKiw950
+ TpdLn4DW4t+OsAE+u7Ux8RggT3JZf4j7JbPBagmGJNdkHYyruuJMtqecSzBffQVvDVDH
+ z2tzB2EiUnjlEfy/9YYsAKwrwMHZTnIfaBckzxxyv23s+X5dfwxg+hpk+1gLKYCd5xIb
+ detTIRlgn60Ab6bsZS3lStpkj2k9LBZZWci3odWKoXp8cCuYfDXvdXuopXlLhb5oFeiP
+ WnryPDWSzB+2HRX9HITY/34Z6t6rpJkOLwoHx+VEzpuBtfF2499J9xYUZ/Sz9agMQiza
+ Dotw==
+X-Gm-Message-State: ACrzQf3euobNsPdeQZ0mOGf/OSXpKNTrprALB9XmkRuPWwaTU0eVPF+9
+ sUuf4mRmKgfH0tQq1vzv/yS51YpjokM770EcPFBSz0p+QteV5wWwmW8SDYmx9f90BDB1p56M6xW
+ JykaH0gmqzBoB4/VyEDwnvPXjw0jXyUyMdU/2/qz09A==
+X-Received: by 2002:a5d:6388:0:b0:228:c792:aabe with SMTP id
+ p8-20020a5d6388000000b00228c792aabemr2669934wru.689.1663866085184; 
+ Thu, 22 Sep 2022 10:01:25 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM4sIQov4Lsx8/ngj+iGn4/VThzrMM0tkQAqwA6Ev7a1KO6j4dy1ldlQi7uOpVH6LWOm6CaapA==
+X-Received: by 2002:a5d:6388:0:b0:228:c792:aabe with SMTP id
+ p8-20020a5d6388000000b00228c792aabemr2669912wru.689.1663866084887; 
+ Thu, 22 Sep 2022 10:01:24 -0700 (PDT)
 Received: from redhat.com ([2.55.16.18]) by smtp.gmail.com with ESMTPSA id
- r1-20020a05600c434100b003b3401f1e24sm31108wme.28.2022.09.22.10.00.21
+ l18-20020a05600c27d200b003b4868eb6bbsm53966wmb.23.2022.09.22.10.01.21
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 22 Sep 2022 10:00:22 -0700 (PDT)
-Date: Thu, 22 Sep 2022 13:00:19 -0400
+ Thu, 22 Sep 2022 10:01:24 -0700 (PDT)
+Date: Thu, 22 Sep 2022 13:01:19 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [PATCH v2] virtio_blk: add SECURE ERASE command support
-Message-ID: <20220922125911-mutt-send-email-mst@kernel.org>
-References: <20220829082313.419220-1-alvaro.karsz@solid-run.com>
- <20220918091848-mutt-send-email-mst@kernel.org>
- <CAJs=3_B4sTo-X9ZkqAZjzLi0EGRNW_jwUtgUBj17p907qVkNoQ@mail.gmail.com>
- <20220918110951-mutt-send-email-mst@kernel.org>
- <CAJs=3_AdHBZZKXypXh=wZDB58jADyoec6RnH42b_-UphPqFGSA@mail.gmail.com>
- <YyoCHV3s0kd0e3aG@fedora>
+To: Suwan Kim <suwan.kim027@gmail.com>
+Subject: Re: [PATCH v2] virtio-blk: Fix WARN_ON_ONCE in virtio_queue_rq()
+Message-ID: <20220922130102-mutt-send-email-mst@kernel.org>
+References: <20220830150153.12627-1-suwan.kim027@gmail.com>
+ <20220831124441.ai5xratdpemiqmyv@quentin>
+ <CAFNWusaxT38RyQBFZu6jN_kaL3p3hTQ0oXPQZkZdEJ3VjUMVWg@mail.gmail.com>
+ <20220922125632-mutt-send-email-mst@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <YyoCHV3s0kd0e3aG@fedora>
+In-Reply-To: <20220922125632-mutt-send-email-mst@kernel.org>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Paolo Bonzini <pbonzini@redhat.com>, Jens Axboe <axboe@kernel.dk>,
- virtualization@lists.linux-foundation.org
+Cc: linux-block@vger.kernel.org, Pankaj Raghav <pankydev8@gmail.com>,
+ acourbot@chromium.org, virtualization@lists.linux-foundation.org,
+ hch@infradead.org, stefanha@redhat.com, pbonzini@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -125,76 +124,48 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Sep 20, 2022 at 02:10:37PM -0400, Stefan Hajnoczi wrote:
-> On Sun, Sep 18, 2022 at 07:07:34PM +0300, Alvaro Karsz wrote:
-> > > sounds good. Add a code comment?
+On Thu, Sep 22, 2022 at 12:57:01PM -0400, Michael S. Tsirkin wrote:
+> On Thu, Sep 22, 2022 at 11:45:15PM +0900, Suwan Kim wrote:
+> > Hi Michael,
 > > 
-> > I will.
+> > Can this patch be merged to the next rc?
+> > We received two bug reports about this issue and need to fix it.
 > > 
-> > >  yes but I now see two places that seem to include this logic.
-> > 
-> > 
-> > Yes, this is because the same logic is applied on 2 different pairs.
-> > 
-> > * secure_erase_sector_alignment and discard_sector_alignment are used
-> > to calculate  q->limits.discard_granularity.
-> > * max_discard_seg and max_secure_erase_seg are used to calculate
-> > max_discard_segments.
-> > 
-> > > I am not 100% sure. Two options:
-> > > 1- Add a validate callback and clear VIRTIO_BLK_F_SECURE_ERASE.
-> > > 2- Alternatively, fail probe.
+> > Regards,
+> > Suwan Kim
 > > 
 > > 
-> > Good ideas.
-> > 2- Do you think that something like that should be mentioned in the
-> > spec? or should be implementation specific?
-> > 
-> > How about setting the value to 1? (which is the minimum usable value)
-> > 
-> > > which is preferable depends on how bad is it if host sets
-> > > VIRTIO_BLK_F_SECURE_ERASE but guest does not use it.
-> > 
-> > 
-> > I'm not sure if it is that bad.
-> > If the value is 0, sg_elems is used.
-> > sg_elems is either 1 (if VIRTIO_BLK_F_SEG_MAX is not negotiated), or
-> > seg_max (virtio config).
-> > 
-> > """
-> > err = virtio_cread_feature(vdev, VIRTIO_BLK_F_SEG_MAX,
-> >                                           struct virtio_blk_config, seg_max,
-> >                                           &sg_elems);
-> > /* We need at least one SG element, whatever they say. */
-> > if (err || !sg_elems)
-> >          sg_elems = 1;
-> > """
-> > 
-> > So the only "danger" that I can think of is if a device negotiates
-> > VIRTIO_BLK_F_SEG_MAX and  VIRTIO_BLK_F_SECURE_ERASE, sets
-> > max_secure_erase_seg to 0 (I'm not sure what is the purpose, since
-> > this is meaningless), and can't handle secure erase commands with
-> > seg_max segments.
+> > On Wed, Aug 31, 2022 at 9:44 PM Pankaj Raghav <pankydev8@gmail.com> wrote:
+> > >
+> > > On Wed, Aug 31, 2022 at 12:01:53AM +0900, Suwan Kim wrote:
+> > > > If a request fails at virtio_queue_rqs(), it is inserted to requeue_list
+> > > > and passed to virtio_queue_rq(). Then blk_mq_start_request() can be called
+> > > > again at virtio_queue_rq() and trigger WARN_ON_ONCE like below trace because
+> > > > request state was already set to MQ_RQ_IN_FLIGHT in virtio_queue_rqs()
+> > > > despite the failure.
+> > > >
+> > > > To avoid calling blk_mq_start_request() twice, This patch moves the
+> > > > execution of blk_mq_start_request() to the end of virtblk_prep_rq().
+> > > > And instead of requeuing failed request to plug list in the error path of
+> > > > virtblk_add_req_batch(), it uses blk_mq_requeue_request() to change failed
+> > > > request state to MQ_RQ_IDLE. Then virtblk can safely handle the request
+> > > > on the next trial.
+> > > >
+> > > > Fixes: 0e9911fa768f ("virtio-blk: support mq_ops->queue_rqs()")
+> > > > Reported-by: Alexandre Courbot <acourbot@chromium.org>
+> > > > Tested-by: Alexandre Courbot <acourbot@chromium.org>
+> > > > Signed-off-by: Suwan Kim <suwan.kim027@gmail.com>
+> > > > ---
+> > > Looks good.
+> > > Reviewed-by: Pankaj Raghav <p.raghav@samsung.com>
 > 
-> Given that SECURE ERASE is new and the VIRTIO spec does not define
-> special behavior for 0, I think the virtio_blk driver should be strict.
-> 
-> There's no need to work around existing broken devices. I would fail
-> probing the device. This will encourage device implementors to provide a
-> usable value instead of 0.
-> 
-> Stefan
+> Stefan, Paolo, any feedback here?
+
+Oh, Stefan acked. Sorry. Will queue now.
 
 
-
-What I worry about is that down the road we might want to add
-special meaning to currently unused values.
-If doing that just clears VIRTIO_BLK_F_SECURE_ERASE then
-we have forward compatibility. If it fails probe then we
-won't be able to do use these values.
-
--- 
-MST
+> -- 
+> MST
 
 _______________________________________________
 Virtualization mailing list
