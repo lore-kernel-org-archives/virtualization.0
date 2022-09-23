@@ -1,96 +1,126 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 41E09C6FA82
-	for <virtualization@archiver.kernel.org>; Fri, 23 Sep 2022 10:52:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 28C34C6FA82
+	for <virtualization@archiver.kernel.org>; Fri, 23 Sep 2022 14:08:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id C538760D89;
-	Fri, 23 Sep 2022 10:52:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C538760D89
+	by smtp4.osuosl.org (Postfix) with ESMTP id A7F06400A7;
+	Fri, 23 Sep 2022 14:08:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A7F06400A7
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=F7um3hZN
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Eggy__SZDqhA; Fri, 23 Sep 2022 14:08:19 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 9F46340070;
+	Fri, 23 Sep 2022 14:08:18 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9F46340070
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 68A82C0033;
+	Fri, 23 Sep 2022 14:08:18 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3E784C002D
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 23 Sep 2022 14:08:17 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 1074260FE4
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 23 Sep 2022 14:08:17 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1074260FE4
 Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=susede1 header.b=q+TIGlQU
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=F7um3hZN
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id DF_s-qfcQsJd; Fri, 23 Sep 2022 10:52:53 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 33306605A7;
-	Fri, 23 Sep 2022 10:52:53 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 33306605A7
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0095BC0033;
-	Fri, 23 Sep 2022 10:52:53 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id BCC20C002D
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Ds9zLMsYou4P
  for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Sep 2022 10:52:51 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 97091408FF
- for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Sep 2022 10:52:51 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 97091408FF
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com
- header.a=rsa-sha256 header.s=susede1 header.b=q+TIGlQU
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id STyK7t3k4DRM
- for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Sep 2022 10:52:50 +0000 (UTC)
+ Fri, 23 Sep 2022 14:08:16 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9F12C40620
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 9F12C40620
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1F76A60FBB
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 1F76A60FBB
  for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Sep 2022 10:52:50 +0000 (UTC)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by smtp-out2.suse.de (Postfix) with ESMTPS id 7404F1F947;
- Fri, 23 Sep 2022 10:52:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
- t=1663930368; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
+ Fri, 23 Sep 2022 14:08:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1663942094;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=q3QxM4MwjPaOt1y0DNX9VHt5Ewdo6VSxU3K1Z3A4bfE=;
- b=q+TIGlQUvN3ybSUMfcFqPNfxMxOpOGKdNMhmdMFMLA5U2m0fsd/S88PzbEsVXGwLa7Axj/
- 1q05KY41j18tX/x1yMlnMTX2TK0VQrY2rUY/HZspIqR9Uk0qcBFUdK/1gGL2dlj2FUwVjW
- q1i0wnmwiYzgygleMzL+w7NJCbCV90g=
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id D8A1813AA5;
- Fri, 23 Sep 2022 10:52:47 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
- by imap2.suse-dmz.suse.de with ESMTPSA id hmp6M/+PLWPfSQAAMHmgww
- (envelope-from <jgross@suse.com>); Fri, 23 Sep 2022 10:52:47 +0000
-Message-ID: <39a67e7d-e5a8-734a-bfd7-ef147504950c@suse.com>
-Date: Fri, 23 Sep 2022 12:52:47 +0200
+ bh=LBYIB5Hr/s79C5MbXbGY0mfsUxmhEdiC6zxTkuGSCwk=;
+ b=F7um3hZNu1Z/lZB5XM8C8kVxBB01ZDalTE6cB+kZIVc1d63TJyrrZjmaQJg+IUIQenkxv3
+ 7zqywYqFeZF6hTvGItB8+jweRDBrUgLXG2oUDAd65eEghbpLhzJLg4w39xcA9BtnLu0N3T
+ ZS+6x8ERGi21zT+visWGtJjWiCDSZ+Y=
+Received: from mail-qt1-f200.google.com (mail-qt1-f200.google.com
+ [209.85.160.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-216-eWW3oCDBPtK5RD-1DibcOw-1; Fri, 23 Sep 2022 10:08:13 -0400
+X-MC-Unique: eWW3oCDBPtK5RD-1DibcOw-1
+Received: by mail-qt1-f200.google.com with SMTP id
+ fv21-20020a05622a4a1500b0035cc9b4fc20so30883qtb.12
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 23 Sep 2022 07:08:13 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
+ bh=LBYIB5Hr/s79C5MbXbGY0mfsUxmhEdiC6zxTkuGSCwk=;
+ b=w4IrA/Afz/2sXdu0TLrP1YlVPqPQzxza5bYe8bvYT4BHY9BXGuuj/0BwMYdGhzsxow
+ AfGX8338CwRDa6Egfj1KpPofEH6QCN1LKhnbkuwIF+LZkRjPB6MR4PYDk2uD14DYf7/h
+ pOE+TNQkdtrxCyShxoxiCpPHpoCbYULhCpRIeKcj5UISpDzMIqprGFcyjiJBMR8geIif
+ /GsKX6H4hmg5+p7VQlEpB2h6cbdUGsly5YNDUQcSC8DE7ouITbyM0o0xpBQ4/q55X2p0
+ U+/D2DY3ThV+Y1uY3laqtkoSMUxgcGo6UrlFqvJhZAtDFCdXDXW/yIiISIzTcYfMa0Lv
+ kTqg==
+X-Gm-Message-State: ACrzQf3sYxv6R1gvoLxJ0mixJ5gPsf71+FKKixgQQ+5mgIDi9lKfRJdr
+ dYEVTGqfvHV2uV0sUy/E9huGackZrOdFKM6wTfLi4psBz/uvqnANV5NCa4G/Rw1lFS8yMEMW4ym
+ AdprcE2DmFXT7l6skdNhuAqYfzJx81FZdTZxyEZOx
+X-Received: by 2002:ac8:5dc9:0:b0:35c:dac8:a141 with SMTP id
+ e9-20020ac85dc9000000b0035cdac8a141mr7271317qtx.229.1663942093309; 
+ Fri, 23 Sep 2022 07:08:13 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM4hP35ZcbFzjjav7W2Ml66N3dqlsgPCpf9kKzESU216uoZsCAsOatn0mJ4gZX5U/fSihe9dkw==
+X-Received: by 2002:ac8:5dc9:0:b0:35c:dac8:a141 with SMTP id
+ e9-20020ac85dc9000000b0035cdac8a141mr7271263qtx.229.1663942092916; 
+ Fri, 23 Sep 2022 07:08:12 -0700 (PDT)
+Received: from localhost (pool-68-160-173-162.bstnma.fios.verizon.net.
+ [68.160.173.162]) by smtp.gmail.com with ESMTPSA id
+ cq3-20020a05622a424300b0035ced0a8382sm5566028qtb.54.2022.09.23.07.08.12
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Fri, 23 Sep 2022 07:08:12 -0700 (PDT)
+Date: Fri, 23 Sep 2022 10:08:11 -0400
+From: Mike Snitzer <snitzer@redhat.com>
+To: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH RFC 0/8] Introduce provisioning primitives for thinly
+ provisioned storage
+Message-ID: <Yy29y/jUvWM6GRZ5@redhat.com>
+References: <20220915164826.1396245-1-sarthakkukreti@google.com>
+ <YyQTM5PRT2o/GDwy@fedora>
+ <CAG9=OMPHZqdDhX=M+ovdg5fa3x4-Q_1r5SWPa8pMTQw0mr5fPg@mail.gmail.com>
+ <Yylvvm3zVgqpqDrm@infradead.org>
+ <CAAKderPF5Z5QLxyEb80Y+90+eR0sfRmL-WfgXLp=eL=HxWSZ9g@mail.gmail.com>
+ <YymkSDsFVVg1nbDP@infradead.org>
+ <CAAKderNcHpbBqWqqd5-WuKLRCQQUt7a_4D4ti4gy15+fKGK0vQ@mail.gmail.com>
+ <Yy1zkMH0f9ski4Sg@infradead.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.2.2
-Subject: Re: [PATCH] smp/hotplug, x86/vmware: Put offline vCPUs in halt
- instead of mwait
-Content-Language: en-US
-To: Peter Zijlstra <peterz@infradead.org>,
- "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>
-References: <165843627080.142207.12667479241667142176.stgit@csail.mit.edu>
- <Yy1attxrEMDmCFBa@hirez.programming.kicks-ass.net>
-In-Reply-To: <Yy1attxrEMDmCFBa@hirez.programming.kicks-ass.net>
-Cc: namit@vmware.com, x86@kernel.org, Alexey Makhalov <amakhalov@vmware.com>,
- VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
- Dave Hansen <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, keerthanak@vmware.com,
- ganb@vmware.com, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, ankitja@vmware.com,
- "H. Peter Anvin" <hpa@zytor.com>, bordoloih@vmware.com,
- Thomas Gleixner <tglx@linutronix.de>, sturlapati@vmware.com
+In-Reply-To: <Yy1zkMH0f9ski4Sg@infradead.org>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: Jens Axboe <axboe@kernel.dk>, Gwendal Grignou <gwendal@google.com>,
+ Theodore Ts'o <tytso@mit.edu>, Stefan Hajnoczi <stefanha@redhat.com>,
+ "Michael S . Tsirkin" <mst@redhat.com>,
+ Bart Van Assche <bvanassche@google.com>, Mike Snitzer <snitzer@kernel.org>,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ linux-block@vger.kernel.org, dm-devel@redhat.com,
+ Andreas Dilger <adilger.kernel@dilger.ca>, Daniil Lunev <dlunev@google.com>,
+ Sarthak Kukreti <sarthakkukreti@chromium.org>,
+ Paolo Bonzini <pbonzini@redhat.com>, linux-ext4@vger.kernel.org,
+ Evan Green <evgreen@google.com>, Alasdair Kergon <agk@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -102,197 +132,89 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Juergen Gross via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Juergen Gross <jgross@suse.com>
-Content-Type: multipart/mixed; boundary="===============0381103189516809518=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============0381103189516809518==
-Content-Language: en-US
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------apjrs2pWp1x5FG02xpH1YzjK"
+On Fri, Sep 23 2022 at  4:51P -0400,
+Christoph Hellwig <hch@infradead.org> wrote:
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------apjrs2pWp1x5FG02xpH1YzjK
-Content-Type: multipart/mixed; boundary="------------CSEFt4d4k0LvCePEzgCRHtoB";
- protected-headers="v1"
-From: Juergen Gross <jgross@suse.com>
-To: Peter Zijlstra <peterz@infradead.org>,
- "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- "H. Peter Anvin" <hpa@zytor.com>, Alexey Makhalov <amakhalov@vmware.com>,
- x86@kernel.org, VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
- ganb@vmware.com, sturlapati@vmware.com, bordoloih@vmware.com,
- ankitja@vmware.com, keerthanak@vmware.com, namit@vmware.com,
- srivatsab@vmware.com
-Message-ID: <39a67e7d-e5a8-734a-bfd7-ef147504950c@suse.com>
-Subject: Re: [PATCH] smp/hotplug, x86/vmware: Put offline vCPUs in halt
- instead of mwait
-References: <165843627080.142207.12667479241667142176.stgit@csail.mit.edu>
- <Yy1attxrEMDmCFBa@hirez.programming.kicks-ass.net>
-In-Reply-To: <Yy1attxrEMDmCFBa@hirez.programming.kicks-ass.net>
+> On Wed, Sep 21, 2022 at 07:48:50AM +1000, Daniil Lunev wrote:
+> > > There is no such thing as WRITE UNAVAILABLE in NVMe.
+> > Apologize, that is WRITE UNCORRECTABLE. Chapter 3.2.7 of
+> > NVM Express NVM Command Set Specification 1.0b
+> 
+> Write uncorrectable is a very different thing, and the equivalent of the
+> horribly misnamed SCSI WRITE LONG COMMAND.  It injects an unrecoverable
+> error, and does not provision anything.
+> 
+> > * Each application is potentially allowed to consume the entirety
+> >   of the disk space - there is no strict size limit for application
+> > * Applications need to pre-allocate space sometime, for which
+> >   they use fallocate. Once the operation succeeded, the application
+> >   assumed the space is guaranteed to be there for it.
+> > * Since filesystems on the volumes are independent, filesystem
+> >   level enforcement of size constraints is impossible and the only
+> >   common level is the thin pool, thus, each fallocate has to find its
+> >   representation in thin pool one way or another - otherwise you
+> >   may end up in the situation, where FS thinks it has allocated space
+> >   but when it tries to actually write it, the thin pool is already
+> >   exhausted.
+> > * Hole-Punching fallocate will not reach the thin pool, so the only
+> >   solution presently is zero-writing pre-allocate.
+> 
+> To me it sounds like you want a non-thin pool in dm-thin and/or
+> guaranted space reservations for it.
 
---------------CSEFt4d4k0LvCePEzgCRHtoB
-Content-Type: multipart/mixed; boundary="------------kMGgT77fs0wSYb2yVRQ8EQFy"
+What is implemented in this patchset: enablement for dm-thinp to
+actually provide guarantees which fallocate requires.
 
---------------kMGgT77fs0wSYb2yVRQ8EQFy
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+Seems you're getting hung up on the finishing details in HW (details
+which are _not_ the point of this patchset).
 
-T24gMjMuMDkuMjIgMDk6MDUsIFBldGVyIFppamxzdHJhIHdyb3RlOg0KPiBPbiBUaHUsIEp1
-bCAyMSwgMjAyMiBhdCAwMTo0NDozM1BNIC0wNzAwLCBTcml2YXRzYSBTLiBCaGF0IHdyb3Rl
-Og0KPj4gRnJvbTogU3JpdmF0c2EgUy4gQmhhdCAoVk13YXJlKSA8c3JpdmF0c2FAY3NhaWwu
-bWl0LmVkdT4NCj4+DQo+PiBWTXdhcmUgRVNYaSBhbGxvd3MgZW5hYmxpbmcgYSBwYXNzdGhy
-dSBtd2FpdCBDUFUtaWRsZSBzdGF0ZSBpbiB0aGUNCj4+IGd1ZXN0IHVzaW5nIHRoZSBmb2xs
-b3dpbmcgVk1YIG9wdGlvbjoNCj4+DQo+PiBtb25pdG9yX2NvbnRyb2wubXdhaXRfaW5fZ3Vl
-c3QgPSAiVFJVRSINCj4+DQo+PiBUaGlzIGxldHMgYSB2Q1BVIGluIG13YWl0IHRvIHJlbWFp
-biBpbiBndWVzdCBjb250ZXh0IChpbnN0ZWFkIG9mDQo+PiB5aWVsZGluZyB0byB0aGUgaHlw
-ZXJ2aXNvciB2aWEgYSBWTUVYSVQpLCB3aGljaCBoZWxwcyBzcGVlZCB1cA0KPj4gd2FrZXVw
-cyBmcm9tIGlkbGUuDQo+Pg0KPj4gSG93ZXZlciwgdGhpcyBydW5zIGludG8gcHJvYmxlbXMg
-d2l0aCBDUFUgaG90cGx1ZywgYmVjYXVzZSB0aGUgTGludXgNCj4+IENQVSBvZmZsaW5lIHBh
-dGggcHJlZmVycyB0byBwdXQgdGhlIHZDUFUtdG8tYmUtb2ZmbGluZWQgaW4gbXdhaXQNCj4+
-IHN0YXRlLCB3aGVuZXZlciBtd2FpdCBpcyBhdmFpbGFibGUuIEFzIGEgcmVzdWx0LCBzaW5j
-ZSBhIHZDUFUgaW4gbXdhaXQNCj4+IHJlbWFpbnMgaW4gZ3Vlc3QgY29udGV4dCBhbmQgZG9l
-cyBub3QgeWllbGQgdG8gdGhlIGh5cGVydmlzb3IsIGFuDQo+PiBvZmZsaW5lIHZDUFUgKmFw
-cGVhcnMqIHRvIGJlIDEwMCUgYnVzeSBhcyB2aWV3ZWQgZnJvbSBFU1hpLCB3aGljaA0KPj4g
-cHJldmVudHMgdGhlIGh5cGVydmlzb3IgZnJvbSBydW5uaW5nIG90aGVyIHZDUFVzIG9yIHdv
-cmtsb2FkcyBvbiB0aGUNCj4+IGNvcnJlc3BvbmRpbmcgcENQVSAocGFydGljdWxhcmx5IHdo
-ZW4gdkNQVSAtIHBDUFUgbWFwcGluZ3MgYXJlDQo+PiBzdGF0aWNhbGx5IGRlZmluZWQgYnkg
-dGhlIHVzZXIpLg0KPiANCj4gSSB3b3VsZCBob3BlIHZDUFUgcGlubmluZyBpcyBhIG1hbmRh
-dG9yeSB0aGluZyB3aGVuIE1XQUlUIHBhc3N0aHJvdWdoIGl0DQo+IHNldD8NCj4gDQo+PiBb
-IE5vdGUgdGhhdCBzdWNoIGEgdkNQVSBpcyBub3QNCj4+IGFjdHVhbGx5IGJ1c3kgc3Bpbm5p
-bmcgdGhvdWdoOyBpdCByZW1haW5zIGluIG13YWl0IGlkbGUgc3RhdGUgaW4gdGhlDQo+PiBn
-dWVzdCBdLg0KPj4NCj4+IEZpeCB0aGlzIGJ5IG92ZXJyaWRpbmcgdGhlIENQVSBvZmZsaW5l
-IHBsYXlfZGVhZCgpIGNhbGxiYWNrIGZvciBWTXdhcmUNCj4+IGh5cGVydmlzb3IsIGJ5IHB1
-dHRpbmcgdGhlIENQVSBpbiBoYWx0IHN0YXRlICh3aGljaCBhY3R1YWxseSB5aWVsZHMgdG8N
-Cj4+IHRoZSBoeXBlcnZpc29yKSwgZXZlbiBpZiBtd2FpdCBzdXBwb3J0IGlzIGF2YWlsYWJs
-ZS4NCj4+DQo+PiBTaWduZWQtb2ZmLWJ5OiBTcml2YXRzYSBTLiBCaGF0IChWTXdhcmUpIDxz
-cml2YXRzYUBjc2FpbC5taXQuZWR1Pg0KPj4gLS0tDQo+IA0KPj4gK3N0YXRpYyB2b2lkIHZt
-d2FyZV9wbGF5X2RlYWQodm9pZCkNCj4+ICt7DQo+PiArCXBsYXlfZGVhZF9jb21tb24oKTsN
-Cj4+ICsJdGJvb3Rfc2h1dGRvd24oVEJfU0hVVERPV05fV0ZTKTsNCj4+ICsNCj4+ICsJLyoN
-Cj4+ICsJICogUHV0IHRoZSB2Q1BVIGdvaW5nIG9mZmxpbmUgaW4gaGFsdCBpbnN0ZWFkIG9m
-IG13YWl0IChldmVuDQo+PiArCSAqIGlmIG13YWl0IHN1cHBvcnQgaXMgYXZhaWxhYmxlKSwg
-dG8gbWFrZSBzdXJlIHRoYXQgdGhlDQo+PiArCSAqIG9mZmxpbmUgdkNQVSB5aWVsZHMgdG8g
-dGhlIGh5cGVydmlzb3IgKHdoaWNoIG1heSBub3QgaGFwcGVuDQo+PiArCSAqIHdpdGggbXdh
-aXQsIGZvciBleGFtcGxlLCBpZiB0aGUgZ3Vlc3QncyBWTVggaXMgY29uZmlndXJlZA0KPj4g
-KwkgKiB0byByZXRhaW4gdGhlIHZDUFUgaW4gZ3Vlc3QgY29udGV4dCB1cG9uIG13YWl0KS4N
-Cj4+ICsJICovDQo+PiArCWhsdF9wbGF5X2RlYWQoKTsNCj4+ICt9DQo+PiAgICNlbmRpZg0K
-Pj4gICANCj4+ICAgc3RhdGljIF9faW5pdCBpbnQgYWN0aXZhdGVfanVtcF9sYWJlbHModm9p
-ZCkNCj4+IEBAIC0zNDksNiArMzY1LDcgQEAgc3RhdGljIHZvaWQgX19pbml0IHZtd2FyZV9w
-YXJhdmlydF9vcHNfc2V0dXAodm9pZCkNCj4+ICAgI2lmZGVmIENPTkZJR19TTVANCj4+ICAg
-CQlzbXBfb3BzLnNtcF9wcmVwYXJlX2Jvb3RfY3B1ID0NCj4+ICAgCQkJdm13YXJlX3NtcF9w
-cmVwYXJlX2Jvb3RfY3B1Ow0KPj4gKwkJc21wX29wcy5wbGF5X2RlYWQgPSB2bXdhcmVfcGxh
-eV9kZWFkOw0KPj4gICAJCWlmIChjcHVocF9zZXR1cF9zdGF0ZV9ub2NhbGxzKENQVUhQX0FQ
-X09OTElORV9EWU4sDQo+PiAgIAkJCQkJICAgICAgIng4Ni92bXdhcmU6b25saW5lIiwNCj4+
-ICAgCQkJCQkgICAgICB2bXdhcmVfY3B1X29ubGluZSwNCj4gDQo+IE5vIHJlYWwgb2JqZWN0
-aW9uIGhlcmU7IGJ1dCB3b3VsZCBub3Qgc29tZXRoaW5nIGxpa2UgdGhlIGJlbG93IGZpeCB0
-aGUNCj4gcHJvYmxlbSBtb3JlIGdlbmVyYWxseT8gSSdtIHRoaW5raW5nIE1XQUlUIHBhc3N0
-aHJvdWdoIGZvciAqYW55Kg0KPiBoeXBlcnZpc29yIGRvZXNuJ3Qgd2FudCBwbGF5X2RlYWQg
-dG8gdXNlIGl0Lg0KPiANCj4gZGlmZiAtLWdpdCBhL2FyY2gveDg2L2tlcm5lbC9zbXBib290
-LmMgYi9hcmNoL3g4Ni9rZXJuZWwvc21wYm9vdC5jDQo+IGluZGV4IGYyNDIyN2JjMzIyMC4u
-MTY2Y2IzYWFjYThhIDEwMDY0NA0KPiAtLS0gYS9hcmNoL3g4Ni9rZXJuZWwvc21wYm9vdC5j
-DQo+ICsrKyBiL2FyY2gveDg2L2tlcm5lbC9zbXBib290LmMNCj4gQEAgLTE3NTksNiArMTc1
-OSw4IEBAIHN0YXRpYyBpbmxpbmUgdm9pZCBtd2FpdF9wbGF5X2RlYWQodm9pZCkNCj4gICAJ
-CXJldHVybjsNCj4gICAJaWYgKCF0aGlzX2NwdV9oYXMoWDg2X0ZFQVRVUkVfQ0xGTFVTSCkp
-DQo+ICAgCQlyZXR1cm47DQo+ICsJaWYgKHRoaXNfY3B1X2hhcyhYODZfRkVBVFVSRV9IWVBF
-UlZJU09SKSkNCj4gKwkJcmV0dXJuOw0KPiAgIAlpZiAoX190aGlzX2NwdV9yZWFkKGNwdV9p
-bmZvLmNwdWlkX2xldmVsKSA8IENQVUlEX01XQUlUX0xFQUYpDQo+ICAgCQlyZXR1cm47DQo+
-ICAgDQoNCldpdGggbXkgWGVuIGhhdCBvbiBJIGFncmVlIHdpdGggdGhpcyBhcHByb2FjaC4N
-Cg0KDQpKdWVyZ2VuDQo=
---------------kMGgT77fs0wSYb2yVRQ8EQFy
-Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Description: OpenPGP public key
-Content-Transfer-Encoding: quoted-printable
+The proposed changes are in service to _Linux_ code. The patchset
+implements the primitive from top (ext4) to bottom (dm-thinp, loop).
+It stops short of implementing handling everywhere that'd need it
+(e.g. in XFS, etc). But those changes can come as follow-on work once
+the primitive is established top to bottom.
 
------BEGIN PGP PUBLIC KEY BLOCK-----
+But you know all this ;)
 
-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
-jR/i1DG86lem3iBDXzXsZDn8R38=3D
-=3D2wuH
------END PGP PUBLIC KEY BLOCK-----
+> > * Thus, a provisioning block operation allows an interface specific
+> >   operation that guarantees the presence of the block in the
+> >   mapped space. LVM Thin-pool itself is the primary target for our
+> >   use case but the argument is that this operation maps well to
+> >   other interfaces which allow thinly provisioned units.
+> 
+> I think where you are trying to go here is badly mistaken.  With flash
+> (or hard drive SMR) there is no such thing as provisioning LBAs.  Every
+> write is out of place, and a one time space allocation does not help
+> you at all.  So fundamentally what you try to here just goes against
+> the actual physics of modern storage media.  While there are some
+> layers that keep up a pretence, trying to that an an exposed API
+> level is a really bad idea.
 
---------------kMGgT77fs0wSYb2yVRQ8EQFy--
+This doesn't need to be so feudal.  Reserving an LBA in physical HW
+really isn't the point.
 
---------------CSEFt4d4k0LvCePEzgCRHtoB--
+Fact remains: an operation that ensures space is actually reserved via
+fallocate is long overdue (just because an FS did its job doesn't mean
+underlying layers reflect that). And certainly useful, even if "only"
+benefiting dm-thinp and the loop driver. Like other block primitives,
+REQ_OP_PROVISION is filtered out by block core if the device doesn't
+support it.
 
---------------apjrs2pWp1x5FG02xpH1YzjK
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
+That said, I agree with Brian Foster that we need really solid
+documentation and justification for why fallocate mode=0 cannot be
+used (but the case has been made in this thread).
 
------BEGIN PGP SIGNATURE-----
-
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmMtj/8FAwAAAAAACgkQsN6d1ii/Ey/A
-4gf/W9LLEwLuamBwj4nKU31pYfrWk9t+aVbGB4FVq0kmmvehmNCb8252yJckG2axSUE22SiXXIhA
-JTuuoT2tgj6U6A77wjMZ+sjl5IsJUFqSh+Qn9tMupVYYkp+5ZE82H1AsjKdetPk4OubyTLjREtCz
-q5NDnAqkfzt9qnstsIUWc92whaR+ZrijvgknFQuieNnfrSLAoFLA6sCgOGYU4VOuXxRy6flYlsjN
-K+6mi/2PNs+j5c9/ROUrDX0XTcEtn5zvsPdqiI6+hZysEoDdLUDLpLTn85CrkE1kk1zWZw9JEjB/
-rx7Acal5lABAt6IlSx/yLlV94vtgp7orj1y/TiztsA==
-=1pVE
------END PGP SIGNATURE-----
-
---------------apjrs2pWp1x5FG02xpH1YzjK--
-
---===============0381103189516809518==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Also, I do see an issue with the implementation (relative to stacked
+devices): dm_table_supports_provision() is too myopic about DM. It
+needs to go a step further and verify that some layer in the stack
+actually services REQ_OP_PROVISION. Will respond to DM patch too.
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0381103189516809518==--
