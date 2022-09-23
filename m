@@ -4,103 +4,103 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A0321C6FA82
-	for <virtualization@archiver.kernel.org>; Fri, 23 Sep 2022 14:23:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7B015C6FA82
+	for <virtualization@archiver.kernel.org>; Fri, 23 Sep 2022 15:15:15 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 28494813C0;
-	Fri, 23 Sep 2022 14:23:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 28494813C0
+	by smtp1.osuosl.org (Postfix) with ESMTP id F38C083E3E;
+	Fri, 23 Sep 2022 15:15:14 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org F38C083E3E
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=N2eQy8M9
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=bFBFyrGJ
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id IdkUeggrIOWl; Fri, 23 Sep 2022 14:23:33 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 684A6812DE;
-	Fri, 23 Sep 2022 14:23:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 684A6812DE
+	with ESMTP id M7jpJRsmBsrf; Fri, 23 Sep 2022 15:15:14 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 7B9C483443;
+	Fri, 23 Sep 2022 15:15:13 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7B9C483443
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4F439C0033;
-	Fri, 23 Sep 2022 14:23:32 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 22682C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4E710C0033;
+	Fri, 23 Sep 2022 15:15:13 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 55B53C0032
  for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Sep 2022 14:23:31 +0000 (UTC)
+ Fri, 23 Sep 2022 15:15:11 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id E24D040082
+ by smtp3.osuosl.org (Postfix) with ESMTP id 3000460FE2
  for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Sep 2022 14:23:30 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E24D040082
-Authentication-Results: smtp4.osuosl.org;
+ Fri, 23 Sep 2022 15:15:11 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3000460FE2
+Authentication-Results: smtp3.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=N2eQy8M9
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=bFBFyrGJ
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id WLtg-PFg9-0Q
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id JJkgVwPN-NVW
  for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Sep 2022 14:23:30 +0000 (UTC)
+ Fri, 23 Sep 2022 15:15:10 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C19D240114
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DE94961118
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id C19D240114
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id DE94961118
  for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Sep 2022 14:23:29 +0000 (UTC)
+ Fri, 23 Sep 2022 15:15:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1663943008;
+ s=mimecast20190719; t=1663946108;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=MtMta5sZ7F8zj2gNZ2FUjMLqWdc2TCa8gGZwFvL5igI=;
- b=N2eQy8M9WK0KndyPz7YJIe9AhbZ/9B0/GpeRNPAOzOxMnt1IjGo9vnui+5SSwRrJ+j8BHr
- A88SwCWyibMLYuAcY+GTh0iKSkdlG0zACcUeQHZVmmSo8xQOfFgnO724AcCR92ZhrKpDKp
- prnGSPEx/6D2XS8/fwvndYbR7Xw+3qk=
-Received: from mail-qv1-f69.google.com (mail-qv1-f69.google.com
- [209.85.219.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=i/7qErjHQwpjdxeuxG56UOY53/Pb3ceXUixswzrpqTk=;
+ b=bFBFyrGJUWMRmMxQa1IWFql0ZOi36fAqmXNFYBD2AqxN0IGNlLlB6ZsBVYjErT8abruYl4
+ hs8yrfeK/BXujeLGn3BX+RPGUGW5sx5lfESinS/GuarSlOoYTJ65+S6z6H3uk1OtnZCeWo
+ onUxdw3ygOUJUFcp0wQi3kjVr5agmE8=
+Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com
+ [209.85.222.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-482-q9TNeSgnOh60W__ISIDRng-1; Fri, 23 Sep 2022 10:23:27 -0400
-X-MC-Unique: q9TNeSgnOh60W__ISIDRng-1
-Received: by mail-qv1-f69.google.com with SMTP id
- q5-20020a056214194500b004a03466c568so8653943qvk.19
+ us-mta-185-rxk9ZzNSNzmIm7heG_pv9g-1; Fri, 23 Sep 2022 11:15:07 -0400
+X-MC-Unique: rxk9ZzNSNzmIm7heG_pv9g-1
+Received: by mail-qk1-f199.google.com with SMTP id
+ de16-20020a05620a371000b006ceb92bc740so219368qkb.15
  for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Sep 2022 07:23:27 -0700 (PDT)
+ Fri, 23 Sep 2022 08:15:07 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
- bh=MtMta5sZ7F8zj2gNZ2FUjMLqWdc2TCa8gGZwFvL5igI=;
- b=639IVw8wivsGrp5o/JcZwBAQOl3A2U9Jh5Gx4UgBLg3RNyqnlluefeu0UDrPzjCWKw
- dAOuA934oY1blF5h6q/vINsgFZjG9XUjyNo4qpLNS/DA5Ke2kZJ+MCVtRQ1mcGNYtHkb
- dXd9/9U8T9JewOT5363Om4HkmF+HTt+0wKywA2paBfaHpk2Vr4QnGk+w1sBtHuVxOvng
- I+HNhMrzSCfbWlTosIZMEpjMs1g9kmfbMKZuSaC9lHBVOtJOWU86cgIXDQzTZWK3yDMJ
- qu+Mzxs43UMY87ySzxQv9sZxq5yoLcgfKvc7J8fuf6psC2bl2FI8uPRwxP+RJDyeOL5o
- mLRw==
-X-Gm-Message-State: ACrzQf3ZiE8ZzU6uAOl9cy0LlbpvRA4nKez4M48tyFcbOKRYCxZADEij
- /g/BfddeTuXJCpTi0Ld6e8sG/RmTvjjbLX8YbojonJEoGtNC/auALyIvdWjrPiKKH9LNZ56uPFR
- WjpQdUfBszsDy1DvUBNAUoW5LDtwTHTiOC9UoEm4r
-X-Received: by 2002:a37:ef18:0:b0:6ce:175f:409a with SMTP id
- j24-20020a37ef18000000b006ce175f409amr5781663qkk.572.1663943006691; 
- Fri, 23 Sep 2022 07:23:26 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM7XaeBSmIgCS5xVoX7O37KV2Q4BatIbL+4W7934TQWhD9AMaj+EBoxQ49sZN/jgeEabR6YtNA==
-X-Received: by 2002:a37:ef18:0:b0:6ce:175f:409a with SMTP id
- j24-20020a37ef18000000b006ce175f409amr5781650qkk.572.1663943006470; 
- Fri, 23 Sep 2022 07:23:26 -0700 (PDT)
+ bh=i/7qErjHQwpjdxeuxG56UOY53/Pb3ceXUixswzrpqTk=;
+ b=0Ay2/mLLbxC3yjftpQFVgzAl2bkiR0UErN19LbGvrQ183eOPmR4tXA2KCkeJkui/xx
+ 5v+zxxF0xjEQOIp8ZHr7W7MFZMtpLFDZGAMPAfM2/r8OiX0fflY/HYIRKhxYL9ytBRQn
+ SmkLTCa+3diyE/fpaNaE1je49KMpvxwdVL8Ze2mMZ06SqCeTxd39hgtG5xqRirIqXbIl
+ 0LReYOJICJYdy7JQkAtftgaabzrTxmufx2tQ0qC2AAk0OG9RDwMWNT0ixDhgJA+s8Lpv
+ +OWpoVm6lHDTWLUMhS+NDjOu06OA/3jgV33lX1WCrTGkjb57PoQbfxfoIvqnDfD08/yo
+ pWEQ==
+X-Gm-Message-State: ACrzQf1c0ZLgbBkTMG7HRNpeDqp8H+YGhK/uk+ZDe5SMZ718TYmoRBuu
+ SdhPBLNKDcJFriBjzuW37SUOPGqutzANGgdUfyD5Nmc1BCq7FRMdpIFXI+DUbGpz/phwaosM2pN
+ dBLpRDj2MbR+Vh2SoQ6arWkNnXSRDPrw2tWECO7t5
+X-Received: by 2002:a05:6214:76b:b0:4ac:be62:d2e5 with SMTP id
+ f11-20020a056214076b00b004acbe62d2e5mr7176242qvz.91.1663946106773; 
+ Fri, 23 Sep 2022 08:15:06 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM5Jg5JqThdy0P5kS2uSLUoQ3+kfdp9Ppg4QGXjxFRDk5XYyybGVmtH43Lh/lTr6N1EDYoCkpg==
+X-Received: by 2002:a05:6214:76b:b0:4ac:be62:d2e5 with SMTP id
+ f11-20020a056214076b00b004acbe62d2e5mr7176213qvz.91.1663946106592; 
+ Fri, 23 Sep 2022 08:15:06 -0700 (PDT)
 Received: from localhost (pool-68-160-173-162.bstnma.fios.verizon.net.
  [68.160.173.162]) by smtp.gmail.com with ESMTPSA id
- y26-20020a37f61a000000b006ceb933a9fesm5847674qkj.81.2022.09.23.07.23.25
+ g12-20020ac8468c000000b0035cb9531851sm5432876qto.65.2022.09.23.08.15.06
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 23 Sep 2022 07:23:26 -0700 (PDT)
-Date: Fri, 23 Sep 2022 10:23:25 -0400
+ Fri, 23 Sep 2022 08:15:06 -0700 (PDT)
+Date: Fri, 23 Sep 2022 11:15:05 -0400
 From: Mike Snitzer <snitzer@redhat.com>
 To: Sarthak Kukreti <sarthakkukreti@chromium.org>
-Subject: Re: [PATCH RFC 2/8] dm: Add support for block provisioning
-Message-ID: <Yy3BXc9wf4PH6Rby@redhat.com>
+Subject: Re: [PATCH RFC 1/8] block: Introduce provisioning primitives
+Message-ID: <Yy3NeY02zEMLTdsa@redhat.com>
 References: <20220915164826.1396245-1-sarthakkukreti@google.com>
- <20220915164826.1396245-3-sarthakkukreti@google.com>
+ <20220915164826.1396245-2-sarthakkukreti@google.com>
 MIME-Version: 1.0
-In-Reply-To: <20220915164826.1396245-3-sarthakkukreti@google.com>
+In-Reply-To: <20220915164826.1396245-2-sarthakkukreti@google.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
@@ -134,93 +134,47 @@ Sarthak Kukreti <sarthakkukreti@chromium.org> wrote:
 
 > From: Sarthak Kukreti <sarthakkukreti@chromium.org>
 > 
-> Add support to dm devices for REQ_OP_PROVISION. The default mode
-> is to pass through the request and dm-thin will utilize it to provision
-> blocks.
+> Introduce block request REQ_OP_PROVISION. The intent of this request
+> is to request underlying storage to preallocate disk space for the given
+> block range. Block device that support this capability will export
+> a provision limit within their request queues.
 > 
 > Signed-off-by: Sarthak Kukreti <sarthakkukreti@chromium.org>
 > ---
->  drivers/md/dm-crypt.c         |  4 +-
->  drivers/md/dm-linear.c        |  1 +
->  drivers/md/dm-table.c         | 17 +++++++
->  drivers/md/dm-thin.c          | 86 +++++++++++++++++++++++++++++++++--
->  drivers/md/dm.c               |  4 ++
->  include/linux/device-mapper.h |  6 +++
->  6 files changed, 113 insertions(+), 5 deletions(-)
+>  block/blk-core.c          |  5 ++++
+>  block/blk-lib.c           | 55 +++++++++++++++++++++++++++++++++++++++
+>  block/blk-merge.c         | 17 ++++++++++++
+>  block/blk-settings.c      | 19 ++++++++++++++
+>  block/blk-sysfs.c         |  8 ++++++
+>  block/bounce.c            |  1 +
+>  include/linux/bio.h       |  6 +++--
+>  include/linux/blk_types.h |  5 +++-
+>  include/linux/blkdev.h    | 16 ++++++++++++
+>  9 files changed, 129 insertions(+), 3 deletions(-)
 > 
-> diff --git a/drivers/md/dm-crypt.c b/drivers/md/dm-crypt.c
-> index 159c6806c19b..357f0899cfb6 100644
-> --- a/drivers/md/dm-crypt.c
-> +++ b/drivers/md/dm-crypt.c
-> @@ -3081,6 +3081,8 @@ static int crypt_ctr_optional(struct dm_target *ti, unsigned int argc, char **ar
->  	if (ret)
->  		return ret;
->  
-> +	ti->num_provision_bios = 1;
-> +
->  	while (opt_params--) {
->  		opt_string = dm_shift_arg(&as);
->  		if (!opt_string) {
-> @@ -3384,7 +3386,7 @@ static int crypt_map(struct dm_target *ti, struct bio *bio)
->  	 * - for REQ_OP_DISCARD caller must use flush if IO ordering matters
->  	 */
->  	if (unlikely(bio->bi_opf & REQ_PREFLUSH ||
-> -	    bio_op(bio) == REQ_OP_DISCARD)) {
-> +	    bio_op(bio) == REQ_OP_DISCARD || bio_op(bio) == REQ_OP_PROVISION)) {
->  		bio_set_dev(bio, cc->dev->bdev);
->  		if (bio_sectors(bio))
->  			bio->bi_iter.bi_sector = cc->start +
-> diff --git a/drivers/md/dm-linear.c b/drivers/md/dm-linear.c
-> index 3212ef6aa81b..1aa782149428 100644
-> --- a/drivers/md/dm-linear.c
-> +++ b/drivers/md/dm-linear.c
-> @@ -61,6 +61,7 @@ static int linear_ctr(struct dm_target *ti, unsigned int argc, char **argv)
->  	ti->num_discard_bios = 1;
->  	ti->num_secure_erase_bios = 1;
->  	ti->num_write_zeroes_bios = 1;
-> +	ti->num_provision_bios = 1;
->  	ti->private = lc;
->  	return 0;
->  
-> diff --git a/drivers/md/dm-table.c b/drivers/md/dm-table.c
-> index 332f96b58252..b7f9cb66b7ba 100644
-> --- a/drivers/md/dm-table.c
-> +++ b/drivers/md/dm-table.c
-> @@ -1853,6 +1853,18 @@ static bool dm_table_supports_write_zeroes(struct dm_table *t)
->  	return true;
+> diff --git a/block/blk-settings.c b/block/blk-settings.c
+> index 8bb9eef5310e..be79ad68b330 100644
+> --- a/block/blk-settings.c
+> +++ b/block/blk-settings.c
+> @@ -57,6 +57,7 @@ void blk_set_default_limits(struct queue_limits *lim)
+>  	lim->misaligned = 0;
+>  	lim->zoned = BLK_ZONED_NONE;
+>  	lim->zone_write_granularity = 0;
+> +	lim->max_provision_sectors = 0;
 >  }
+>  EXPORT_SYMBOL(blk_set_default_limits);
 >  
-> +static bool dm_table_supports_provision(struct dm_table *t)
-> +{
-> +	for (unsigned int i = 0; i < t->num_targets; i++) {
-> +		struct dm_target *ti = dm_table_get_target(t, i);
-> +
-> +		if (ti->num_provision_bios)
-> +			return true;
-> +	}
-> +
-> +	return false;
-> +}
-> +
+> @@ -81,6 +82,7 @@ void blk_set_stacking_limits(struct queue_limits *lim)
+>  	lim->max_dev_sectors = UINT_MAX;
+>  	lim->max_write_zeroes_sectors = UINT_MAX;
+>  	lim->max_zone_append_sectors = UINT_MAX;
+> +	lim->max_provision_sectors = UINT_MAX;
+>  }
+>  EXPORT_SYMBOL(blk_set_stacking_limits);
+>  
 
-This needs to go a step further and verify a device in the stack
-actually services REQ_OP_PROVISION.
-
-Please see dm_table_supports_discards(): it iterates all devices in
-the table and checks that support is advertised.
-
-For discard, DM requires that _all_ devices in a table advertise
-support (that is pretty strict and likely could be relaxed to _any_).
-
-You'll need ti->provision_supported (like ->discards_supported) to
-advertise actual support is provided by dm-thinp (even if underlying
-devices don't support it).
-
-And yeah, dm-thinp passdown support for REQ_OP_PROVISION can follow
-later as needed (if there actual HW that would benefit from
-REQ_OP_PROVISION).
-
-Mike
+Please work through the blk_stack_limits() implementation too (simple
+min_not_zero?).
 
 _______________________________________________
 Virtualization mailing list
