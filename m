@@ -1,85 +1,95 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3817BC6FA82
-	for <virtualization@archiver.kernel.org>; Fri, 23 Sep 2022 10:45:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 41E09C6FA82
+	for <virtualization@archiver.kernel.org>; Fri, 23 Sep 2022 10:52:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id D0F41402F2;
-	Fri, 23 Sep 2022 10:45:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D0F41402F2
+	by smtp3.osuosl.org (Postfix) with ESMTP id C538760D89;
+	Fri, 23 Sep 2022 10:52:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C538760D89
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=susede1 header.b=q+TIGlQU
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id DF_s-qfcQsJd; Fri, 23 Sep 2022 10:52:53 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 33306605A7;
+	Fri, 23 Sep 2022 10:52:53 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 33306605A7
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0095BC0033;
+	Fri, 23 Sep 2022 10:52:53 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BCC20C002D
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 23 Sep 2022 10:52:51 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 97091408FF
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 23 Sep 2022 10:52:51 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 97091408FF
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=alien8.de header.i=@alien8.de header.a=rsa-sha256 header.s=dkim header.b=WkBB69se
+ dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com
+ header.a=rsa-sha256 header.s=susede1 header.b=q+TIGlQU
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id vkonGacsW_E3; Fri, 23 Sep 2022 10:45:38 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 4AD1A408F8;
-	Fri, 23 Sep 2022 10:45:37 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4AD1A408F8
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 212E3C0033;
-	Fri, 23 Sep 2022 10:45:37 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C3368C002D
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id STyK7t3k4DRM
  for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Sep 2022 10:45:33 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 9149582437
+ Fri, 23 Sep 2022 10:52:50 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9F12C40620
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 9F12C40620
  for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Sep 2022 10:45:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9149582437
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (1024-bit key) header.d=alien8.de header.i=@alien8.de
- header.a=rsa-sha256 header.s=dkim header.b=WkBB69se
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id LZr82VQweXUp
- for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Sep 2022 10:45:30 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 42FEF8145A
-Received: from mail.skyhub.de (mail.skyhub.de [IPv6:2a01:4f8:190:11c2::b:1457])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 42FEF8145A
- for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Sep 2022 10:45:29 +0000 (UTC)
-Received: from zn.tnic (p200300ea9733e795329c23fffea6a903.dip0.t-ipconnect.de
- [IPv6:2003:ea:9733:e795:329c:23ff:fea6:a903])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ Fri, 23 Sep 2022 10:52:50 +0000 (UTC)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
  (No client certificate requested)
- by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 173371EC0646;
- Fri, 23 Sep 2022 12:45:22 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
- t=1663929922;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
- bh=YC6QKuFEYpH0XpfhpwGB1CuLNINrgRzZ5ir3xkeSvuM=;
- b=WkBB69seK3LQAmoCcgMvxc4T8LOtOQF+r50Tp3fx9YEEYQAlSVbgszUBjeoYyEGhxR6pW7
- qzpRRDWwvAgaP5PoumZxgODb+d+pIUPwLzU0wxIxtraqbGFSTbX4itR9eh7OAOJlatWm9l
- SrPmUepo8bZacWgektuZAyCYiB1bZQw=
-Date: Fri, 23 Sep 2022 12:45:17 +0200
-From: Borislav Petkov <bp@alien8.de>
-To: Peter Zijlstra <peterz@infradead.org>
+ by smtp-out2.suse.de (Postfix) with ESMTPS id 7404F1F947;
+ Fri, 23 Sep 2022 10:52:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+ t=1663930368; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=q3QxM4MwjPaOt1y0DNX9VHt5Ewdo6VSxU3K1Z3A4bfE=;
+ b=q+TIGlQUvN3ybSUMfcFqPNfxMxOpOGKdNMhmdMFMLA5U2m0fsd/S88PzbEsVXGwLa7Axj/
+ 1q05KY41j18tX/x1yMlnMTX2TK0VQrY2rUY/HZspIqR9Uk0qcBFUdK/1gGL2dlj2FUwVjW
+ q1i0wnmwiYzgygleMzL+w7NJCbCV90g=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id D8A1813AA5;
+ Fri, 23 Sep 2022 10:52:47 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+ by imap2.suse-dmz.suse.de with ESMTPSA id hmp6M/+PLWPfSQAAMHmgww
+ (envelope-from <jgross@suse.com>); Fri, 23 Sep 2022 10:52:47 +0000
+Message-ID: <39a67e7d-e5a8-734a-bfd7-ef147504950c@suse.com>
+Date: Fri, 23 Sep 2022 12:52:47 +0200
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.2.2
 Subject: Re: [PATCH] smp/hotplug, x86/vmware: Put offline vCPUs in halt
  instead of mwait
-Message-ID: <Yy2OPR0b3pG2Ia+v@zn.tnic>
+Content-Language: en-US
+To: Peter Zijlstra <peterz@infradead.org>,
+ "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>
 References: <165843627080.142207.12667479241667142176.stgit@csail.mit.edu>
  <Yy1attxrEMDmCFBa@hirez.programming.kicks-ass.net>
-MIME-Version: 1.0
-Content-Disposition: inline
 In-Reply-To: <Yy1attxrEMDmCFBa@hirez.programming.kicks-ass.net>
-Cc: Juergen Gross <jgross@suse.com>, x86@kernel.org,
- Alexey Makhalov <amakhalov@vmware.com>, kvm ML <kvm@vger.kernel.org>,
+Cc: namit@vmware.com, x86@kernel.org, Alexey Makhalov <amakhalov@vmware.com>,
  VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
  Dave Hansen <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org,
  virtualization@lists.linux-foundation.org, keerthanak@vmware.com,
- ganb@vmware.com, Ingo Molnar <mingo@redhat.com>, namit@vmware.com,
- ankitja@vmware.com, "H. Peter Anvin" <hpa@zytor.com>, bordoloih@vmware.com,
+ ganb@vmware.com, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, ankitja@vmware.com,
+ "H. Peter Anvin" <hpa@zytor.com>, bordoloih@vmware.com,
  Thomas Gleixner <tglx@linutronix.de>, sturlapati@vmware.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
@@ -92,101 +102,197 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+From: Juergen Gross via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Juergen Gross <jgross@suse.com>
+Content-Type: multipart/mixed; boundary="===============0381103189516809518=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-+ kvm ML and leaving the whole mail quoted in for them.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--===============0381103189516809518==
+Content-Language: en-US
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------apjrs2pWp1x5FG02xpH1YzjK"
 
-On Fri, Sep 23, 2022 at 09:05:26AM +0200, Peter Zijlstra wrote:
-> On Thu, Jul 21, 2022 at 01:44:33PM -0700, Srivatsa S. Bhat wrote:
-> > From: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
-> > 
-> > VMware ESXi allows enabling a passthru mwait CPU-idle state in the
-> > guest using the following VMX option:
-> > 
-> > monitor_control.mwait_in_guest = "TRUE"
-> > 
-> > This lets a vCPU in mwait to remain in guest context (instead of
-> > yielding to the hypervisor via a VMEXIT), which helps speed up
-> > wakeups from idle.
-> > 
-> > However, this runs into problems with CPU hotplug, because the Linux
-> > CPU offline path prefers to put the vCPU-to-be-offlined in mwait
-> > state, whenever mwait is available. As a result, since a vCPU in mwait
-> > remains in guest context and does not yield to the hypervisor, an
-> > offline vCPU *appears* to be 100% busy as viewed from ESXi, which
-> > prevents the hypervisor from running other vCPUs or workloads on the
-> > corresponding pCPU (particularly when vCPU - pCPU mappings are
-> > statically defined by the user).
-> 
-> I would hope vCPU pinning is a mandatory thing when MWAIT passthrough it
-> set?
-> 
-> > [ Note that such a vCPU is not
-> > actually busy spinning though; it remains in mwait idle state in the
-> > guest ].
-> > 
-> > Fix this by overriding the CPU offline play_dead() callback for VMware
-> > hypervisor, by putting the CPU in halt state (which actually yields to
-> > the hypervisor), even if mwait support is available.
-> > 
-> > Signed-off-by: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
-> > ---
-> 
-> > +static void vmware_play_dead(void)
-> > +{
-> > +	play_dead_common();
-> > +	tboot_shutdown(TB_SHUTDOWN_WFS);
-> > +
-> > +	/*
-> > +	 * Put the vCPU going offline in halt instead of mwait (even
-> > +	 * if mwait support is available), to make sure that the
-> > +	 * offline vCPU yields to the hypervisor (which may not happen
-> > +	 * with mwait, for example, if the guest's VMX is configured
-> > +	 * to retain the vCPU in guest context upon mwait).
-> > +	 */
-> > +	hlt_play_dead();
-> > +}
-> >  #endif
-> >  
-> >  static __init int activate_jump_labels(void)
-> > @@ -349,6 +365,7 @@ static void __init vmware_paravirt_ops_setup(void)
-> >  #ifdef CONFIG_SMP
-> >  		smp_ops.smp_prepare_boot_cpu =
-> >  			vmware_smp_prepare_boot_cpu;
-> > +		smp_ops.play_dead = vmware_play_dead;
-> >  		if (cpuhp_setup_state_nocalls(CPUHP_AP_ONLINE_DYN,
-> >  					      "x86/vmware:online",
-> >  					      vmware_cpu_online,
-> 
-> No real objection here; but would not something like the below fix the
-> problem more generally? I'm thinking MWAIT passthrough for *any*
-> hypervisor doesn't want play_dead to use it.
-> 
-> diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
-> index f24227bc3220..166cb3aaca8a 100644
-> --- a/arch/x86/kernel/smpboot.c
-> +++ b/arch/x86/kernel/smpboot.c
-> @@ -1759,6 +1759,8 @@ static inline void mwait_play_dead(void)
->  		return;
->  	if (!this_cpu_has(X86_FEATURE_CLFLUSH))
->  		return;
-> +	if (this_cpu_has(X86_FEATURE_HYPERVISOR))
-> +		return;
->  	if (__this_cpu_read(cpu_info.cpuid_level) < CPUID_MWAIT_LEAF)
->  		return;
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------apjrs2pWp1x5FG02xpH1YzjK
+Content-Type: multipart/mixed; boundary="------------CSEFt4d4k0LvCePEzgCRHtoB";
+ protected-headers="v1"
+From: Juergen Gross <jgross@suse.com>
+To: Peter Zijlstra <peterz@infradead.org>,
+ "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ "H. Peter Anvin" <hpa@zytor.com>, Alexey Makhalov <amakhalov@vmware.com>,
+ x86@kernel.org, VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
+ ganb@vmware.com, sturlapati@vmware.com, bordoloih@vmware.com,
+ ankitja@vmware.com, keerthanak@vmware.com, namit@vmware.com,
+ srivatsab@vmware.com
+Message-ID: <39a67e7d-e5a8-734a-bfd7-ef147504950c@suse.com>
+Subject: Re: [PATCH] smp/hotplug, x86/vmware: Put offline vCPUs in halt
+ instead of mwait
+References: <165843627080.142207.12667479241667142176.stgit@csail.mit.edu>
+ <Yy1attxrEMDmCFBa@hirez.programming.kicks-ass.net>
+In-Reply-To: <Yy1attxrEMDmCFBa@hirez.programming.kicks-ass.net>
 
-Yeah, it would be nice if we could get a consensus here from all
-relevant HVs.
+--------------CSEFt4d4k0LvCePEzgCRHtoB
+Content-Type: multipart/mixed; boundary="------------kMGgT77fs0wSYb2yVRQ8EQFy"
 
--- 
-Regards/Gruss,
-    Boris.
+--------------kMGgT77fs0wSYb2yVRQ8EQFy
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
-https://people.kernel.org/tglx/notes-about-netiquette
+T24gMjMuMDkuMjIgMDk6MDUsIFBldGVyIFppamxzdHJhIHdyb3RlOg0KPiBPbiBUaHUsIEp1
+bCAyMSwgMjAyMiBhdCAwMTo0NDozM1BNIC0wNzAwLCBTcml2YXRzYSBTLiBCaGF0IHdyb3Rl
+Og0KPj4gRnJvbTogU3JpdmF0c2EgUy4gQmhhdCAoVk13YXJlKSA8c3JpdmF0c2FAY3NhaWwu
+bWl0LmVkdT4NCj4+DQo+PiBWTXdhcmUgRVNYaSBhbGxvd3MgZW5hYmxpbmcgYSBwYXNzdGhy
+dSBtd2FpdCBDUFUtaWRsZSBzdGF0ZSBpbiB0aGUNCj4+IGd1ZXN0IHVzaW5nIHRoZSBmb2xs
+b3dpbmcgVk1YIG9wdGlvbjoNCj4+DQo+PiBtb25pdG9yX2NvbnRyb2wubXdhaXRfaW5fZ3Vl
+c3QgPSAiVFJVRSINCj4+DQo+PiBUaGlzIGxldHMgYSB2Q1BVIGluIG13YWl0IHRvIHJlbWFp
+biBpbiBndWVzdCBjb250ZXh0IChpbnN0ZWFkIG9mDQo+PiB5aWVsZGluZyB0byB0aGUgaHlw
+ZXJ2aXNvciB2aWEgYSBWTUVYSVQpLCB3aGljaCBoZWxwcyBzcGVlZCB1cA0KPj4gd2FrZXVw
+cyBmcm9tIGlkbGUuDQo+Pg0KPj4gSG93ZXZlciwgdGhpcyBydW5zIGludG8gcHJvYmxlbXMg
+d2l0aCBDUFUgaG90cGx1ZywgYmVjYXVzZSB0aGUgTGludXgNCj4+IENQVSBvZmZsaW5lIHBh
+dGggcHJlZmVycyB0byBwdXQgdGhlIHZDUFUtdG8tYmUtb2ZmbGluZWQgaW4gbXdhaXQNCj4+
+IHN0YXRlLCB3aGVuZXZlciBtd2FpdCBpcyBhdmFpbGFibGUuIEFzIGEgcmVzdWx0LCBzaW5j
+ZSBhIHZDUFUgaW4gbXdhaXQNCj4+IHJlbWFpbnMgaW4gZ3Vlc3QgY29udGV4dCBhbmQgZG9l
+cyBub3QgeWllbGQgdG8gdGhlIGh5cGVydmlzb3IsIGFuDQo+PiBvZmZsaW5lIHZDUFUgKmFw
+cGVhcnMqIHRvIGJlIDEwMCUgYnVzeSBhcyB2aWV3ZWQgZnJvbSBFU1hpLCB3aGljaA0KPj4g
+cHJldmVudHMgdGhlIGh5cGVydmlzb3IgZnJvbSBydW5uaW5nIG90aGVyIHZDUFVzIG9yIHdv
+cmtsb2FkcyBvbiB0aGUNCj4+IGNvcnJlc3BvbmRpbmcgcENQVSAocGFydGljdWxhcmx5IHdo
+ZW4gdkNQVSAtIHBDUFUgbWFwcGluZ3MgYXJlDQo+PiBzdGF0aWNhbGx5IGRlZmluZWQgYnkg
+dGhlIHVzZXIpLg0KPiANCj4gSSB3b3VsZCBob3BlIHZDUFUgcGlubmluZyBpcyBhIG1hbmRh
+dG9yeSB0aGluZyB3aGVuIE1XQUlUIHBhc3N0aHJvdWdoIGl0DQo+IHNldD8NCj4gDQo+PiBb
+IE5vdGUgdGhhdCBzdWNoIGEgdkNQVSBpcyBub3QNCj4+IGFjdHVhbGx5IGJ1c3kgc3Bpbm5p
+bmcgdGhvdWdoOyBpdCByZW1haW5zIGluIG13YWl0IGlkbGUgc3RhdGUgaW4gdGhlDQo+PiBn
+dWVzdCBdLg0KPj4NCj4+IEZpeCB0aGlzIGJ5IG92ZXJyaWRpbmcgdGhlIENQVSBvZmZsaW5l
+IHBsYXlfZGVhZCgpIGNhbGxiYWNrIGZvciBWTXdhcmUNCj4+IGh5cGVydmlzb3IsIGJ5IHB1
+dHRpbmcgdGhlIENQVSBpbiBoYWx0IHN0YXRlICh3aGljaCBhY3R1YWxseSB5aWVsZHMgdG8N
+Cj4+IHRoZSBoeXBlcnZpc29yKSwgZXZlbiBpZiBtd2FpdCBzdXBwb3J0IGlzIGF2YWlsYWJs
+ZS4NCj4+DQo+PiBTaWduZWQtb2ZmLWJ5OiBTcml2YXRzYSBTLiBCaGF0IChWTXdhcmUpIDxz
+cml2YXRzYUBjc2FpbC5taXQuZWR1Pg0KPj4gLS0tDQo+IA0KPj4gK3N0YXRpYyB2b2lkIHZt
+d2FyZV9wbGF5X2RlYWQodm9pZCkNCj4+ICt7DQo+PiArCXBsYXlfZGVhZF9jb21tb24oKTsN
+Cj4+ICsJdGJvb3Rfc2h1dGRvd24oVEJfU0hVVERPV05fV0ZTKTsNCj4+ICsNCj4+ICsJLyoN
+Cj4+ICsJICogUHV0IHRoZSB2Q1BVIGdvaW5nIG9mZmxpbmUgaW4gaGFsdCBpbnN0ZWFkIG9m
+IG13YWl0IChldmVuDQo+PiArCSAqIGlmIG13YWl0IHN1cHBvcnQgaXMgYXZhaWxhYmxlKSwg
+dG8gbWFrZSBzdXJlIHRoYXQgdGhlDQo+PiArCSAqIG9mZmxpbmUgdkNQVSB5aWVsZHMgdG8g
+dGhlIGh5cGVydmlzb3IgKHdoaWNoIG1heSBub3QgaGFwcGVuDQo+PiArCSAqIHdpdGggbXdh
+aXQsIGZvciBleGFtcGxlLCBpZiB0aGUgZ3Vlc3QncyBWTVggaXMgY29uZmlndXJlZA0KPj4g
+KwkgKiB0byByZXRhaW4gdGhlIHZDUFUgaW4gZ3Vlc3QgY29udGV4dCB1cG9uIG13YWl0KS4N
+Cj4+ICsJICovDQo+PiArCWhsdF9wbGF5X2RlYWQoKTsNCj4+ICt9DQo+PiAgICNlbmRpZg0K
+Pj4gICANCj4+ICAgc3RhdGljIF9faW5pdCBpbnQgYWN0aXZhdGVfanVtcF9sYWJlbHModm9p
+ZCkNCj4+IEBAIC0zNDksNiArMzY1LDcgQEAgc3RhdGljIHZvaWQgX19pbml0IHZtd2FyZV9w
+YXJhdmlydF9vcHNfc2V0dXAodm9pZCkNCj4+ICAgI2lmZGVmIENPTkZJR19TTVANCj4+ICAg
+CQlzbXBfb3BzLnNtcF9wcmVwYXJlX2Jvb3RfY3B1ID0NCj4+ICAgCQkJdm13YXJlX3NtcF9w
+cmVwYXJlX2Jvb3RfY3B1Ow0KPj4gKwkJc21wX29wcy5wbGF5X2RlYWQgPSB2bXdhcmVfcGxh
+eV9kZWFkOw0KPj4gICAJCWlmIChjcHVocF9zZXR1cF9zdGF0ZV9ub2NhbGxzKENQVUhQX0FQ
+X09OTElORV9EWU4sDQo+PiAgIAkJCQkJICAgICAgIng4Ni92bXdhcmU6b25saW5lIiwNCj4+
+ICAgCQkJCQkgICAgICB2bXdhcmVfY3B1X29ubGluZSwNCj4gDQo+IE5vIHJlYWwgb2JqZWN0
+aW9uIGhlcmU7IGJ1dCB3b3VsZCBub3Qgc29tZXRoaW5nIGxpa2UgdGhlIGJlbG93IGZpeCB0
+aGUNCj4gcHJvYmxlbSBtb3JlIGdlbmVyYWxseT8gSSdtIHRoaW5raW5nIE1XQUlUIHBhc3N0
+aHJvdWdoIGZvciAqYW55Kg0KPiBoeXBlcnZpc29yIGRvZXNuJ3Qgd2FudCBwbGF5X2RlYWQg
+dG8gdXNlIGl0Lg0KPiANCj4gZGlmZiAtLWdpdCBhL2FyY2gveDg2L2tlcm5lbC9zbXBib290
+LmMgYi9hcmNoL3g4Ni9rZXJuZWwvc21wYm9vdC5jDQo+IGluZGV4IGYyNDIyN2JjMzIyMC4u
+MTY2Y2IzYWFjYThhIDEwMDY0NA0KPiAtLS0gYS9hcmNoL3g4Ni9rZXJuZWwvc21wYm9vdC5j
+DQo+ICsrKyBiL2FyY2gveDg2L2tlcm5lbC9zbXBib290LmMNCj4gQEAgLTE3NTksNiArMTc1
+OSw4IEBAIHN0YXRpYyBpbmxpbmUgdm9pZCBtd2FpdF9wbGF5X2RlYWQodm9pZCkNCj4gICAJ
+CXJldHVybjsNCj4gICAJaWYgKCF0aGlzX2NwdV9oYXMoWDg2X0ZFQVRVUkVfQ0xGTFVTSCkp
+DQo+ICAgCQlyZXR1cm47DQo+ICsJaWYgKHRoaXNfY3B1X2hhcyhYODZfRkVBVFVSRV9IWVBF
+UlZJU09SKSkNCj4gKwkJcmV0dXJuOw0KPiAgIAlpZiAoX190aGlzX2NwdV9yZWFkKGNwdV9p
+bmZvLmNwdWlkX2xldmVsKSA8IENQVUlEX01XQUlUX0xFQUYpDQo+ICAgCQlyZXR1cm47DQo+
+ICAgDQoNCldpdGggbXkgWGVuIGhhdCBvbiBJIGFncmVlIHdpdGggdGhpcyBhcHByb2FjaC4N
+Cg0KDQpKdWVyZ2VuDQo=
+--------------kMGgT77fs0wSYb2yVRQ8EQFy
+Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Description: OpenPGP public key
+Content-Transfer-Encoding: quoted-printable
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+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
+jR/i1DG86lem3iBDXzXsZDn8R38=3D
+=3D2wuH
+-----END PGP PUBLIC KEY BLOCK-----
+
+--------------kMGgT77fs0wSYb2yVRQ8EQFy--
+
+--------------CSEFt4d4k0LvCePEzgCRHtoB--
+
+--------------apjrs2pWp1x5FG02xpH1YzjK
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmMtj/8FAwAAAAAACgkQsN6d1ii/Ey/A
+4gf/W9LLEwLuamBwj4nKU31pYfrWk9t+aVbGB4FVq0kmmvehmNCb8252yJckG2axSUE22SiXXIhA
+JTuuoT2tgj6U6A77wjMZ+sjl5IsJUFqSh+Qn9tMupVYYkp+5ZE82H1AsjKdetPk4OubyTLjREtCz
+q5NDnAqkfzt9qnstsIUWc92whaR+ZrijvgknFQuieNnfrSLAoFLA6sCgOGYU4VOuXxRy6flYlsjN
+K+6mi/2PNs+j5c9/ROUrDX0XTcEtn5zvsPdqiI6+hZysEoDdLUDLpLTn85CrkE1kk1zWZw9JEjB/
+rx7Acal5lABAt6IlSx/yLlV94vtgp7orj1y/TiztsA==
+=1pVE
+-----END PGP SIGNATURE-----
+
+--------------apjrs2pWp1x5FG02xpH1YzjK--
+
+--===============0381103189516809518==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============0381103189516809518==--
