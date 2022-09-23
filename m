@@ -1,95 +1,100 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0390CC6FA82
-	for <virtualization@archiver.kernel.org>; Fri, 23 Sep 2022 07:05:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0669FECAAD8
+	for <virtualization@archiver.kernel.org>; Fri, 23 Sep 2022 07:52:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 7A399405A5;
-	Fri, 23 Sep 2022 07:05:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7A399405A5
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=desiato.20200630 header.b=X36Z/ZtD
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id phBsJC2sF7G1; Fri, 23 Sep 2022 07:05:54 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id CC7A4400FB;
-	Fri, 23 Sep 2022 07:05:53 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org CC7A4400FB
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 9B0F2C0033;
-	Fri, 23 Sep 2022 07:05:53 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E7325C0032
- for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Sep 2022 07:05:51 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id C1BAF83E1A
- for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Sep 2022 07:05:51 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C1BAF83E1A
+	by smtp1.osuosl.org (Postfix) with ESMTP id 71EBB83E52;
+	Fri, 23 Sep 2022 07:52:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 71EBB83E52
 Authentication-Results: smtp1.osuosl.org;
- dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org
- header.a=rsa-sha256 header.s=desiato.20200630 header.b=X36Z/ZtD
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=x1m7c9FB
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id hWi3VxHmI07a
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id zyVBq3ZJ3ukX; Fri, 23 Sep 2022 07:52:20 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 977E482AB6;
+	Fri, 23 Sep 2022 07:52:19 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 977E482AB6
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5BA0BC0033;
+	Fri, 23 Sep 2022 07:52:19 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8CB10C002D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Sep 2022 07:05:49 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B5C0E83224
-Received: from desiato.infradead.org (desiato.infradead.org
- [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
- by smtp1.osuosl.org (Postfix) with ESMTPS id B5C0E83224
+ Fri, 23 Sep 2022 07:52:18 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp4.osuosl.org (Postfix) with ESMTP id 52B354177E
  for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Sep 2022 07:05:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
- References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
- Content-Transfer-Encoding:Content-ID:Content-Description;
- bh=fQbe8Qt2OMSbhVmXxMJpTQEENy8N/rtwxDABlBmr4k8=; b=X36Z/ZtDiwDwkEjDB+qxcAOJoT
- eiHFgnPY3GMMUQCiNiVKslJaWjzlZic9Yhtq9vqdwi6zCnhta16P+1TRke+E85V6cMDwLB4WT8jge
- 0Np3N/gxq7eeLtzIQ3u6ylXccRBAwGYDJDxG7kkUB6QzpkCSYKhWN9d+YAbF/xf0Lois+QoJ/c919
- RVv5KLjPfvTvjuGyKr6Jg5Ny188keAKDhHkkUva1odzSIp1HxDpMpNOlmxGBReS2NiP97d4vCkpn6
- KiXqzp+dqFjB0NLyC7ZeLmwOJ41ktT699EzB6rORGycet+/Lmc6sdKcs2JBfcIEF95IYwN8koWc9A
- 5VMCUGcw==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84]
- helo=noisy.programming.kicks-ass.net)
- by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1obckY-00F9ug-VC; Fri, 23 Sep 2022 07:05:27 +0000
-Received: from hirez.programming.kicks-ass.net
- (hirez.programming.kicks-ass.net [192.168.1.225])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature RSA-PSS (4096 bits))
- (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 497B7300074;
- Fri, 23 Sep 2022 09:05:26 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
- id 2B8ED2BC39437; Fri, 23 Sep 2022 09:05:26 +0200 (CEST)
-Date: Fri, 23 Sep 2022 09:05:26 +0200
-From: Peter Zijlstra <peterz@infradead.org>
-To: "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>
-Subject: Re: [PATCH] smp/hotplug, x86/vmware: Put offline vCPUs in halt
- instead of mwait
-Message-ID: <Yy1attxrEMDmCFBa@hirez.programming.kicks-ass.net>
-References: <165843627080.142207.12667479241667142176.stgit@csail.mit.edu>
+ Fri, 23 Sep 2022 07:52:18 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 52B354177E
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org
+ header.a=rsa-sha256 header.s=google header.b=x1m7c9FB
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id sMTqRuM-Kf0S
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 23 Sep 2022 07:52:17 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A7B5E4156E
+Received: from mail-wr1-x433.google.com (mail-wr1-x433.google.com
+ [IPv6:2a00:1450:4864:20::433])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id A7B5E4156E
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 23 Sep 2022 07:52:16 +0000 (UTC)
+Received: by mail-wr1-x433.google.com with SMTP id cc5so19125894wrb.6
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 23 Sep 2022 00:52:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
+ h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+ :to:from:from:to:cc:subject:date;
+ bh=5OTJLPTHaCGUvxTLzQpX9KkfWgyXUXuxIB5BfRQ2its=;
+ b=x1m7c9FB2/aG357kotIOofarUV5AJycibbv0fUUoWZJeVTfnQH/MIzMT6EXnNi2ctJ
+ jUv3wFiTpjQ5VhjFEzPJTDC/FvoEDtjSMiMamcK6YYkyJnW8+EN9atDCEJqROh5/YX/N
+ WCLc3fI5mKElNSS/XwD2pYU9mcOZ4e9nU3HLHfOJSoKjfcwpV9e99NRTc8UjNxTZSQ1f
+ cnmNn0yPoZ25IW49lgPPjQAkkYbdr7f52IX2BMgXYX2ZS9v312aucw3Kiw4a+uyScsZ9
+ otiHlWNHW60WGy+9nCrv8kEQoVpEt+SexqvjZNIJnd6Wj7hZBD2wiIj5Igjd/ebYlC6T
+ OhEA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+ :to:from:x-gm-message-state:from:to:cc:subject:date;
+ bh=5OTJLPTHaCGUvxTLzQpX9KkfWgyXUXuxIB5BfRQ2its=;
+ b=vzr0dferlYsz0TWgipueSFaI/Xqp3g5psw0/e6RHeyUY76NUCT6Rxn8cg7ocWLcEeM
+ ERdBF5/qxV3ScZYEPE187IlhNlwKWECXobOte2qQ7VCZTZpWQPYSwESylROeyFSQyZLo
+ WqaWjZQNZ78B3tr2LbQE4rO0AUGSSsS/aKZTK2fq75kQfoCNleKELjge/GTgtHUjEEKU
+ paVOMnyUYftyujZzQ30gg9tK5X7PkEMQY2PrueXTp0ATChC6pwWiZ4wtfcQGcf1fHOcB
+ F+7PyGjWFTw7aiNEE36zEe4j9Y/sEzK2EECYAUTWOBlv0Vgo2oCwKT4rq0SnM3MWDX5k
+ JUqw==
+X-Gm-Message-State: ACrzQf3qdye1CcLrPHOUQErZTlRRqYy+xORlLZeeB3sMM7Nc3H0xNHLO
+ Jd8RKFX7C3Om/yroYNco23wZ1A==
+X-Google-Smtp-Source: AMsMyM5K0BL3MUCQCX1SoMJdGVMS00+U0AY6LIti26t6MQPtQ9C3GKO8ZB2URqjLBBsBFou6vC/jIw==
+X-Received: by 2002:a05:6000:80a:b0:229:4632:d1d1 with SMTP id
+ bt10-20020a056000080a00b002294632d1d1mr4510716wrb.73.1663919534600; 
+ Fri, 23 Sep 2022 00:52:14 -0700 (PDT)
+Received: from localhost.localdomain
+ (cpc92880-cmbg19-2-0-cust679.5-4.cable.virginm.net. [82.27.106.168])
+ by smtp.gmail.com with ESMTPSA id
+ u15-20020a05600c19cf00b003a2f2bb72d5sm2089319wmq.45.2022.09.23.00.52.13
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Fri, 23 Sep 2022 00:52:14 -0700 (PDT)
+From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+To: robh+dt@kernel.org,
+	krzysztof.kozlowski+dt@linaro.org
+Subject: [PATCH v3] dt-bindings: virtio: Convert virtio, pci-iommu to DT schema
+Date: Fri, 23 Sep 2022 08:44:38 +0100
+Message-Id: <20220923074435.420531-1-jean-philippe@linaro.org>
+X-Mailer: git-send-email 2.37.3
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <165843627080.142207.12667479241667142176.stgit@csail.mit.edu>
-Cc: Juergen Gross <jgross@suse.com>, namit@vmware.com, x86@kernel.org,
- Alexey Makhalov <amakhalov@vmware.com>,
- VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
- Dave Hansen <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, keerthanak@vmware.com,
- ganb@vmware.com, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, ankitja@vmware.com,
- "H. Peter Anvin" <hpa@zytor.com>, bordoloih@vmware.com,
- Thomas Gleixner <tglx@linutronix.de>, sturlapati@vmware.com
+Cc: devicetree@vger.kernel.org,
+ Jean-Philippe Brucker <jean-philippe@linaro.org>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -106,84 +111,204 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Jul 21, 2022 at 01:44:33PM -0700, Srivatsa S. Bhat wrote:
-> From: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
-> 
-> VMware ESXi allows enabling a passthru mwait CPU-idle state in the
-> guest using the following VMX option:
-> 
-> monitor_control.mwait_in_guest = "TRUE"
-> 
-> This lets a vCPU in mwait to remain in guest context (instead of
-> yielding to the hypervisor via a VMEXIT), which helps speed up
-> wakeups from idle.
-> 
-> However, this runs into problems with CPU hotplug, because the Linux
-> CPU offline path prefers to put the vCPU-to-be-offlined in mwait
-> state, whenever mwait is available. As a result, since a vCPU in mwait
-> remains in guest context and does not yield to the hypervisor, an
-> offline vCPU *appears* to be 100% busy as viewed from ESXi, which
-> prevents the hypervisor from running other vCPUs or workloads on the
-> corresponding pCPU (particularly when vCPU - pCPU mappings are
-> statically defined by the user).
+Convert the binding that describes the virtio-pci based IOMMU to DT
+schema. Change the compatible string to "pci<vendor>,<device>", which is
+defined by the PCI Bus Binding, but keep "virtio,pci-iommu" as an option
+for backward compatibility.
 
-I would hope vCPU pinning is a mandatory thing when MWAIT passthrough it
-set?
+Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
+---
+v3: Renamed file and type to pci-iommu
+v2: https://lore.kernel.org/linux-devicetree/20220922161644.372181-1-jean-philippe@linaro.org/
+---
+ .../devicetree/bindings/virtio/iommu.txt      |  66 ------------
+ .../devicetree/bindings/virtio/pci-iommu.yaml | 101 ++++++++++++++++++
+ 2 files changed, 101 insertions(+), 66 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/virtio/iommu.txt
+ create mode 100644 Documentation/devicetree/bindings/virtio/pci-iommu.yaml
 
-> [ Note that such a vCPU is not
-> actually busy spinning though; it remains in mwait idle state in the
-> guest ].
-> 
-> Fix this by overriding the CPU offline play_dead() callback for VMware
-> hypervisor, by putting the CPU in halt state (which actually yields to
-> the hypervisor), even if mwait support is available.
-> 
-> Signed-off-by: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
-> ---
+diff --git a/Documentation/devicetree/bindings/virtio/iommu.txt b/Documentation/devicetree/bindings/virtio/iommu.txt
+deleted file mode 100644
+index 2407fea0651c..000000000000
+--- a/Documentation/devicetree/bindings/virtio/iommu.txt
++++ /dev/null
+@@ -1,66 +0,0 @@
+-* virtio IOMMU PCI device
+-
+-When virtio-iommu uses the PCI transport, its programming interface is
+-discovered dynamically by the PCI probing infrastructure. However the
+-device tree statically describes the relation between IOMMU and DMA
+-masters. Therefore, the PCI root complex that hosts the virtio-iommu
+-contains a child node representing the IOMMU device explicitly.
+-
+-Required properties:
+-
+-- compatible:	Should be "virtio,pci-iommu"
+-- reg:		PCI address of the IOMMU. As defined in the PCI Bus
+-		Binding reference [1], the reg property is a five-cell
+-		address encoded as (phys.hi phys.mid phys.lo size.hi
+-		size.lo). phys.hi should contain the device's BDF as
+-		0b00000000 bbbbbbbb dddddfff 00000000. The other cells
+-		should be zero.
+-- #iommu-cells:	Each platform DMA master managed by the IOMMU is assigned
+-		an endpoint ID, described by the "iommus" property [2].
+-		For virtio-iommu, #iommu-cells must be 1.
+-
+-Notes:
+-
+-- DMA from the IOMMU device isn't managed by another IOMMU. Therefore the
+-  virtio-iommu node doesn't have an "iommus" property, and is omitted from
+-  the iommu-map property of the root complex.
+-
+-Example:
+-
+-pcie@10000000 {
+-	compatible = "pci-host-ecam-generic";
+-	...
+-
+-	/* The IOMMU programming interface uses slot 00:01.0 */
+-	iommu0: iommu@0008 {
+-		compatible = "virtio,pci-iommu";
+-		reg = <0x00000800 0 0 0 0>;
+-		#iommu-cells = <1>;
+-	};
+-
+-	/*
+-	 * The IOMMU manages all functions in this PCI domain except
+-	 * itself. Omit BDF 00:01.0.
+-	 */
+-	iommu-map = <0x0 &iommu0 0x0 0x8>
+-		    <0x9 &iommu0 0x9 0xfff7>;
+-};
+-
+-pcie@20000000 {
+-	compatible = "pci-host-ecam-generic";
+-	...
+-	/*
+-	 * The IOMMU also manages all functions from this domain,
+-	 * with endpoint IDs 0x10000 - 0x1ffff
+-	 */
+-	iommu-map = <0x0 &iommu0 0x10000 0x10000>;
+-};
+-
+-ethernet@fe001000 {
+-	...
+-	/* The IOMMU manages this platform device with endpoint ID 0x20000 */
+-	iommus = <&iommu0 0x20000>;
+-};
+-
+-[1] Documentation/devicetree/bindings/pci/pci.txt
+-[2] Documentation/devicetree/bindings/iommu/iommu.txt
+diff --git a/Documentation/devicetree/bindings/virtio/pci-iommu.yaml b/Documentation/devicetree/bindings/virtio/pci-iommu.yaml
+new file mode 100644
+index 000000000000..972a785a42de
+--- /dev/null
++++ b/Documentation/devicetree/bindings/virtio/pci-iommu.yaml
+@@ -0,0 +1,101 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/virtio/pci-iommu.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: virtio-iommu device using the virtio-pci transport
++
++maintainers:
++  - Jean-Philippe Brucker <jean-philippe@linaro.org>
++
++description: |
++  When virtio-iommu uses the PCI transport, its programming interface is
++  discovered dynamically by the PCI probing infrastructure. However the
++  device tree statically describes the relation between IOMMU and DMA
++  masters. Therefore, the PCI root complex that hosts the virtio-iommu
++  contains a child node representing the IOMMU device explicitly.
++
++  DMA from the IOMMU device isn't managed by another IOMMU. Therefore the
++  virtio-iommu node doesn't have an "iommus" property, and is omitted from
++  the iommu-map property of the root complex.
++
++properties:
++  # If compatible is present, it should contain the vendor and device ID
++  # according to the PCI Bus Binding specification. Since PCI provides
++  # built-in identification methods, compatible is not actually required.
++  compatible:
++    oneOf:
++      - items:
++          - const: virtio,pci-iommu
++          - const: pci1af4,1057
++      - items:
++          - const: pci1af4,1057
++
++  reg:
++    description: |
++      PCI address of the IOMMU. As defined in the PCI Bus Binding
++      reference, the reg property is a five-cell address encoded as (phys.hi
++      phys.mid phys.lo size.hi size.lo). phys.hi should contain the device's
++      BDF as 0b00000000 bbbbbbbb dddddfff 00000000. The other cells should be
++      zero. See Documentation/devicetree/bindings/pci/pci.txt
++
++  '#iommu-cells':
++    const: 1
++
++required:
++  - compatible
++  - reg
++  - '#iommu-cells'
++
++additionalProperties: false
++
++examples:
++  - |
++    bus {
++        #address-cells = <2>;
++        #size-cells = <2>;
++
++        pcie@40000000 {
++            device_type = "pci";
++            #address-cells = <3>;
++            #size-cells = <2>;
++            reg = <0x0 0x40000000  0x0 0x1000000>;
++            ranges = <0x02000000 0x0 0x41000000  0x0 0x41000000  0x0 0x0f000000>;
++
++            /*
++             * The IOMMU manages all functions in this PCI domain except
++             * itself. Omit BDF 00:01.0.
++             */
++            iommu-map = <0x0 &iommu0 0x0 0x8
++                         0x9 &iommu0 0x9 0xfff7>;
++
++            /* The IOMMU programming interface uses slot 00:01.0 */
++            iommu0: iommu@1,0 {
++                compatible = "pci1af4,1057";
++                reg = <0x800 0 0 0 0>;
++                #iommu-cells = <1>;
++            };
++        };
++
++        pcie@50000000 {
++            device_type = "pci";
++            #address-cells = <3>;
++            #size-cells = <2>;
++            reg = <0x0 0x50000000  0x0 0x1000000>;
++            ranges = <0x02000000 0x0 0x51000000  0x0 0x51000000  0x0 0x0f000000>;
++
++            /*
++             * The IOMMU also manages all functions from this domain,
++             * with endpoint IDs 0x10000 - 0x1ffff
++             */
++            iommu-map = <0x0 &iommu0 0x10000 0x10000>;
++        };
++
++        ethernet {
++            /* The IOMMU manages this platform device with endpoint ID 0x20000 */
++            iommus = <&iommu0 0x20000>;
++        };
++    };
++
++...
+-- 
+2.37.3
 
-> +static void vmware_play_dead(void)
-> +{
-> +	play_dead_common();
-> +	tboot_shutdown(TB_SHUTDOWN_WFS);
-> +
-> +	/*
-> +	 * Put the vCPU going offline in halt instead of mwait (even
-> +	 * if mwait support is available), to make sure that the
-> +	 * offline vCPU yields to the hypervisor (which may not happen
-> +	 * with mwait, for example, if the guest's VMX is configured
-> +	 * to retain the vCPU in guest context upon mwait).
-> +	 */
-> +	hlt_play_dead();
-> +}
->  #endif
->  
->  static __init int activate_jump_labels(void)
-> @@ -349,6 +365,7 @@ static void __init vmware_paravirt_ops_setup(void)
->  #ifdef CONFIG_SMP
->  		smp_ops.smp_prepare_boot_cpu =
->  			vmware_smp_prepare_boot_cpu;
-> +		smp_ops.play_dead = vmware_play_dead;
->  		if (cpuhp_setup_state_nocalls(CPUHP_AP_ONLINE_DYN,
->  					      "x86/vmware:online",
->  					      vmware_cpu_online,
-
-No real objection here; but would not something like the below fix the
-problem more generally? I'm thinking MWAIT passthrough for *any*
-hypervisor doesn't want play_dead to use it.
-
-diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
-index f24227bc3220..166cb3aaca8a 100644
---- a/arch/x86/kernel/smpboot.c
-+++ b/arch/x86/kernel/smpboot.c
-@@ -1759,6 +1759,8 @@ static inline void mwait_play_dead(void)
- 		return;
- 	if (!this_cpu_has(X86_FEATURE_CLFLUSH))
- 		return;
-+	if (this_cpu_has(X86_FEATURE_HYPERVISOR))
-+		return;
- 	if (__this_cpu_read(cpu_info.cpuid_level) < CPUID_MWAIT_LEAF)
- 		return;
- 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
