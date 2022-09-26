@@ -4,100 +4,100 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 43085C07E9D
-	for <virtualization@archiver.kernel.org>; Mon, 26 Sep 2022 13:54:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B6F18C32771
+	for <virtualization@archiver.kernel.org>; Mon, 26 Sep 2022 15:49:45 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id BF3B181C44;
-	Mon, 26 Sep 2022 13:54:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BF3B181C44
+	by smtp1.osuosl.org (Postfix) with ESMTP id 2E95982A72;
+	Mon, 26 Sep 2022 15:49:45 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2E95982A72
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=HO1gl2hg
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=k/yBCckO
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ZtyCedXMl8VX; Mon, 26 Sep 2022 13:54:35 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 55BB981C40;
-	Mon, 26 Sep 2022 13:54:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 55BB981C40
+	with ESMTP id P5tTGswQwCsR; Mon, 26 Sep 2022 15:49:44 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 84A3982CB7;
+	Mon, 26 Sep 2022 15:49:43 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 84A3982CB7
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 29097C0033;
-	Mon, 26 Sep 2022 13:54:34 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id EC672C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 57464C0033;
+	Mon, 26 Sep 2022 15:49:43 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8C616C0033
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Sep 2022 13:54:32 +0000 (UTC)
+ Mon, 26 Sep 2022 15:49:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id BAAF060F7E
+ by smtp4.osuosl.org (Postfix) with ESMTP id 7297B41710
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Sep 2022 13:54:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org BAAF060F7E
-Authentication-Results: smtp3.osuosl.org;
+ Mon, 26 Sep 2022 15:49:41 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7297B41710
+Authentication-Results: smtp4.osuosl.org;
  dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com
- header.a=rsa-sha256 header.s=pp1 header.b=HO1gl2hg
+ header.a=rsa-sha256 header.s=pp1 header.b=k/yBCckO
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id jKYUEeAO_0gH
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 8RO2b-oh9KCZ
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Sep 2022 13:54:32 +0000 (UTC)
+ Mon, 26 Sep 2022 15:49:40 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0B0AC605A5
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com
- [148.163.156.1])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 0B0AC605A5
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6F1E841797
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com
+ [148.163.158.5])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 6F1E841797
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Sep 2022 13:54:31 +0000 (UTC)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
- by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28QChuhh013126;
- Mon, 26 Sep 2022 13:54:18 GMT
+ Mon, 26 Sep 2022 15:49:40 +0000 (UTC)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+ by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28QEU2s4004827;
+ Mon, 26 Sep 2022 15:49:23 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com;
  h=message-id : date :
  mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=OCw7jzKs12GN3xRrrfrWHP/zG+JFJWyzzk3kZopw8ZU=;
- b=HO1gl2hgakzHeBnPzoApclnwZGbebtWy7coSKyp9MB+ZnUogLsmmPuTxDdcGmS8eJ2uc
- Q+mO80eAg7IjttyrFrCVqWr5tFRcHZaZ48xqJvbWfJowUeVe8Tz50p4bDetV53MjqQvR
- NYONikmsOV/OMWcg2abWquP1CQmnNIM67X0eC0gKMkwFsaZUicZI/fwrmHGvPtiYxvkc
- F/UFszezwvcEhOYK6owwU5l7TgOf9PuVgcKhkEi+AoWceMFJqXAtU1Ys2ntohzEypXyA
- XqdNibyAaTFrlwQCQZfs7k+d8MLPgKJfSnAxTokhxeAHhInea/n9P0l+to4MZ8kREQWe qA== 
+ bh=BAAkQPJUniW6I4A73h7YeiR4tAVwoqmwhjv/IGoOmHI=;
+ b=k/yBCckOBvx1iMXNsL71sJv9WNl9LC1BBxlU9w0v8VL+WVh68sPA+UkcDTGRhJP1srry
+ 3jNDpHNsYYjJbqZObEkfusJ8DY/evuTplAEpO2SIVeHfE4YMVAHb68Fj8Tw7Qgz1geos
+ XJcycuKWhhWmJga2Himc6/5vyjBp4oUlBxCQa1hADDHEaBRco7ScIPCBP5PlDqRzRSyu
+ HiwRgQ5EOsEcA8/TQqNKQVL/s3UgOvpw2JRYq6a9uZR+k2skQDxYwmFFQorDbhDn0luR
+ pT1x388j725TtHpnAR/r4u4y06ck1pvawMlBdayNgDJfz88okpAMpWMWd6PjqMyfCXRE Mw== 
 Received: from pps.reinject (localhost [127.0.0.1])
- by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jucbja7rv-1
+ by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jucjrdr4t-1
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Mon, 26 Sep 2022 13:54:17 +0000
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
- by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 28QCi29P013972;
- Mon, 26 Sep 2022 13:54:17 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com
- [169.51.49.102])
- by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jucbja7qw-1
+ Mon, 26 Sep 2022 15:49:23 +0000
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+ by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 28QDKJQY013322;
+ Mon, 26 Sep 2022 15:49:22 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com
+ [149.81.74.107])
+ by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jucjrdr45-1
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Mon, 26 Sep 2022 13:54:16 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
- by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28QDplN1008481;
- Mon, 26 Sep 2022 13:54:14 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com
- (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
- by ppma06ams.nl.ibm.com with ESMTP id 3jss5j2hax-1
+ Mon, 26 Sep 2022 15:49:22 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+ by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28QFbYVA032301;
+ Mon, 26 Sep 2022 15:49:20 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com
+ (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+ by ppma03fra.de.ibm.com with ESMTP id 3jssh91y62-1
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Mon, 26 Sep 2022 13:54:14 +0000
+ Mon, 26 Sep 2022 15:49:20 +0000
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com
  (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
- by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP
- id 28QDo0Kp30015872
+ by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id
+ 28QFnHNA3998348
  (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Mon, 26 Sep 2022 13:50:00 GMT
+ Mon, 26 Sep 2022 15:49:17 GMT
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
- by IMSVA (Postfix) with ESMTP id D81B8A405B;
- Mon, 26 Sep 2022 13:54:11 +0000 (GMT)
+ by IMSVA (Postfix) with ESMTP id BBC51A405B;
+ Mon, 26 Sep 2022 15:49:17 +0000 (GMT)
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
- by IMSVA (Postfix) with ESMTP id 25731A4054;
- Mon, 26 Sep 2022 13:54:11 +0000 (GMT)
+ by IMSVA (Postfix) with ESMTP id 1E9E7A4054;
+ Mon, 26 Sep 2022 15:49:17 +0000 (GMT)
 Received: from [9.171.20.172] (unknown [9.171.20.172])
  by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
- Mon, 26 Sep 2022 13:54:11 +0000 (GMT)
-Message-ID: <8b0e1945-d4ef-2aef-fb5d-1b6b8397b169@linux.ibm.com>
-Date: Mon, 26 Sep 2022 15:54:10 +0200
+ Mon, 26 Sep 2022 15:49:17 +0000 (GMT)
+Message-ID: <9ec643f3-b935-0119-d8bc-1fbe46c36356@linux.ibm.com>
+Date: Mon, 26 Sep 2022 17:49:16 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.13.0
@@ -116,17 +116,17 @@ References: <20220822114649.055452969@infradead.org>
 From: Christian Borntraeger <borntraeger@linux.ibm.com>
 In-Reply-To: <YzGrJSLXpocpGIha@hirez.programming.kicks-ass.net>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 1pJZGhh4CPicVW_aZfklCFcnxaDxcZgT
-X-Proofpoint-GUID: XtSpdpA3wcpKEGVzhcTkkfWfWQSghnSy
+X-Proofpoint-GUID: 5DtpxKxPO8IHNBcG607UyFF58T5jGATs
+X-Proofpoint-ORIG-GUID: Jvxbn7w7La4_KTQpSuYLex2PibWJ-dfA
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
  definitions=2022-09-26_08,2022-09-22_02,2022-06-22_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- mlxscore=0 priorityscore=1501
- mlxlogscore=999 bulkscore=0 clxscore=1015 lowpriorityscore=0 phishscore=0
- adultscore=0 suspectscore=0 spamscore=0 impostorscore=0 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2209130000
- definitions=main-2209260086
+ spamscore=0 bulkscore=0
+ suspectscore=0 lowpriorityscore=0 priorityscore=1501 mlxscore=0
+ phishscore=0 mlxlogscore=999 impostorscore=0 clxscore=1015 malwarescore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2209130000 definitions=main-2209260098
 Cc: vincent.guittot@linaro.org, linux-pm@vger.kernel.org, bigeasy@linutronix.de,
  Amit Shah <amit@kernel.org>, rjw@rjwysocki.net, linux-kernel@vger.kernel.org,
  rostedt@goodmis.org, mingo@kernel.org, Marc Hartmayer <mhartmay@linux.ibm.com>,
@@ -177,11 +177,13 @@ Am 26.09.22 um 15:37 schrieb Peter Zijlstra:
 > 
 > Moo -- quite the puzzle this :/ I'll go stare at it more then.
 
-In the end this is about the end of the sshd process (shutting it down).
-I can also trigger the problem by sending a SIGTERM so its not about
-the shutdown itself.
-Pofiling the guest I see scheduler functions like sched_clock, pick_next_entity,
-update_min_vruntime and so on with 100% system time.
+Hmm,
+
+#define ___wait_is_interruptible(state)                                         \
+         (!__builtin_constant_p(state) ||                                        \
+                 state == TASK_INTERRUPTIBLE || state == TASK_KILLABLE)          \
+
+That would not trigger when state is also TASK_FREEZABLE, no?
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
