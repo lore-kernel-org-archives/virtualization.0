@@ -1,102 +1,101 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 95EA3C32771
-	for <virtualization@archiver.kernel.org>; Mon, 26 Sep 2022 07:12:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 263CFC07E9D
+	for <virtualization@archiver.kernel.org>; Mon, 26 Sep 2022 07:14:25 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 2A88560B25;
-	Mon, 26 Sep 2022 07:12:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2A88560B25
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=QE5NtoG2
+	by smtp1.osuosl.org (Postfix) with ESMTP id AD98681A39;
+	Mon, 26 Sep 2022 07:14:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AD98681A39
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=LejZambm
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id hl21LvMQ2ijD; Mon, 26 Sep 2022 07:12:13 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id wTaN3SIOW1Dd; Mon, 26 Sep 2022 07:14:23 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id AA87C60E83;
-	Mon, 26 Sep 2022 07:12:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org AA87C60E83
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 26CFC81947;
+	Mon, 26 Sep 2022 07:14:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 26CFC81947
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 80C71C0033;
-	Mon, 26 Sep 2022 07:12:12 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 2EF10C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E968FC0033;
+	Mon, 26 Sep 2022 07:14:22 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 53D91C002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Sep 2022 07:12:11 +0000 (UTC)
+ Mon, 26 Sep 2022 07:14:22 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id F055A40359
+ by smtp4.osuosl.org (Postfix) with ESMTP id 260A2410A3
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Sep 2022 07:12:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org F055A40359
-Authentication-Results: smtp2.osuosl.org;
+ Mon, 26 Sep 2022 07:14:22 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 260A2410A3
+Authentication-Results: smtp4.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=QE5NtoG2
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=LejZambm
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id x2wTIv4eI51N
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id YQfZpLkuYV7U
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Sep 2022 07:12:10 +0000 (UTC)
+ Mon, 26 Sep 2022 07:14:21 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 18C99401C9
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D9A2340E46
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 18C99401C9
+ by smtp4.osuosl.org (Postfix) with ESMTPS id D9A2340E46
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Sep 2022 07:12:09 +0000 (UTC)
+ Mon, 26 Sep 2022 07:14:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1664176328;
+ s=mimecast20190719; t=1664176459;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=Kk40Cb91ob6P3jMCeHmGVy6FEdXDb0iktyx6LRhCi4M=;
- b=QE5NtoG2vqiepLSu+MMKjC5wpDo8cotlcwlLd78QP0XfFVUMXT7IGoJiE6fqb2Wil5t/8Z
- deGieYbgWLAnBFyblIosl8nrTRumSMkx2TfCir7csHjBir5t5AUbGgrlHfF5swdSBs7aAQ
- 7ID2FyMab6pKmD7xTseAVP//lHFdeLA=
-Received: from mail-oa1-f72.google.com (mail-oa1-f72.google.com
- [209.85.160.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=XXiARgUsG+PUWi1cWxOlhUBb4oeulSL8cu/tM+c0DoA=;
+ b=LejZambmcayVEdoNCfTLyJRQ1ucGe4y72w+/iHFBCHybTzUhTNZyF1m4wEpG3ruSrKagSB
+ DV2IiLlOHYbFHFJknla7L3Z2gG+IgWCMXGvdrJJkLE/8eKM6vudZF5Iw5dsg4+D0rvZq9I
+ GAisbp8qqAaGOGfPbSqwimC13zh+sPU=
+Received: from mail-oa1-f71.google.com (mail-oa1-f71.google.com
+ [209.85.160.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-661-58YOoHQwPXatW6dZVswKHQ-1; Mon, 26 Sep 2022 03:12:05 -0400
-X-MC-Unique: 58YOoHQwPXatW6dZVswKHQ-1
-Received: by mail-oa1-f72.google.com with SMTP id
- 586e51a60fabf-1278be3dc4cso2001088fac.15
+ us-mta-561-5j7AWaK2Mvm_JxmNB007Bw-1; Mon, 26 Sep 2022 03:14:17 -0400
+X-MC-Unique: 5j7AWaK2Mvm_JxmNB007Bw-1
+Received: by mail-oa1-f71.google.com with SMTP id
+ 586e51a60fabf-11eadf59e50so1986716fac.8
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Sep 2022 00:12:05 -0700 (PDT)
+ Mon, 26 Sep 2022 00:14:17 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=cc:to:subject:message-id:date:from:in-reply-to:references
  :mime-version:x-gm-message-state:from:to:cc:subject:date;
- bh=Kk40Cb91ob6P3jMCeHmGVy6FEdXDb0iktyx6LRhCi4M=;
- b=jBSFaPzy/wZEk3Qv+g6S/ycc5luGNbDPSWR4KW+h4e292GfSL41TdXHEzjpvoaLZlk
- 45UxTp48ijZkn3hsJX0gPc5PYdUcjORmrmk8KwQCGiNUZ0OCiaqRRwmLmzu198YoRIHo
- 8PEZtE8u2M1B33gB1/vB7kNiOXqPbGb90rpH5oEi/6xYRKekAnMwWLX94ZGTxbFj+RsF
- VRL+jTOwSuoBcLDCo9uNdMfGtMa3chFNAZ6ePtAM65VZRgvPQLMR8ISd/Wz0mSYpVx/N
- EZdq6QUr7EY5ujdAg5D1Zt+81joqiwaTtW9FkRm7C5LzXa8jqw+xIygVSGDkSbhFKoUV
- +9LQ==
-X-Gm-Message-State: ACrzQf2rVMqvpXP0QZpSV+4aMQ53TlVCf32n5c50HPC+htuCxqGyC/oY
- NtfAY+kpKpUnYyN3lfoW6YLIVtoRNqwWr13J+d0PzbhOysKhrFQXj/dgEFWHcBJwZhh5R4T+bOh
- MoyEgO1YiQD+2C67Cq7BOIwaNHvyhDSwL32b/IoD5poS8UcKMqxW/otQOHQ==
-X-Received: by 2002:a05:6870:e409:b0:127:d330:c941 with SMTP id
- n9-20020a056870e40900b00127d330c941mr11041285oag.280.1664176324270; 
- Mon, 26 Sep 2022 00:12:04 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM7Jh1aPfSlKDIhnP8B+svyyB4sY+Wby1jv2HNMTPvpWgii56PkLS0pySj74eksUz7kANrNmbNSqGoNQFSgvwUs=
-X-Received: by 2002:a05:6870:e409:b0:127:d330:c941 with SMTP id
- n9-20020a056870e40900b00127d330c941mr11041280oag.280.1664176324060; Mon, 26
- Sep 2022 00:12:04 -0700 (PDT)
+ bh=XXiARgUsG+PUWi1cWxOlhUBb4oeulSL8cu/tM+c0DoA=;
+ b=qDK61bpTpkV8C8GEmwAPePMarM24/mcP19F5FezkVaxnPbbu8GFF2QsWE/K7gfWcFu
+ e6+q9yFarnpt6XXVYGCL8IOhVM8RCR8B0M+nrGyv1iCSXkddCakxbCSjSI/4tynQhQaD
+ t2aKEwfw0bQF5lyYmYA91tjUCvyTLWYW8IJm20UhZecYSiuRj+fYBHfT97iEUaPjBxdV
+ xH0ce0LAFJqMncVwBhl+HH5C9NxbtFL5CnwiQVSwavVNNJ4g0XK0gOIWqwRmbABo83kE
+ n/38TmYCYEWyZFvJPfeljPCGqPZIWWwkC/Eu4eVQHHybKY1P6wbvQulEqN8YzfGKWwAf
+ PD8w==
+X-Gm-Message-State: ACrzQf0CoiYL+OgUuzwZEXcKZErU1QIehbh4mtXKvQUHESj+4t82Mkpm
+ GQVncRvmDe77kOjtIbkscfhT87N254aBoqx0OZLTsOpttCtsBPZniVkErqKQpqabH39VidX3a9+
+ SpYTSHsB4RG3Tjvbt+eA0h1a2OGzQWwruAid09agFdjLS8Rzb0MaCVRQNyw==
+X-Received: by 2002:a4a:1101:0:b0:476:7b37:e379 with SMTP id
+ 1-20020a4a1101000000b004767b37e379mr24031ooc.57.1664176456209; 
+ Mon, 26 Sep 2022 00:14:16 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM6TUJ30sHwYR/Es/rIpBdbt2i7FD4cKNj6nawhekXj4N+TplLFWJjSMoJbr8rSvo64GUcjqZEfHt/vc3cVbDKo=
+X-Received: by 2002:a4a:1101:0:b0:476:7b37:e379 with SMTP id
+ 1-20020a4a1101000000b004767b37e379mr24011ooc.57.1664176455971; Mon, 26 Sep
+ 2022 00:14:15 -0700 (PDT)
 MIME-Version: 1.0
 References: <20220922024305.1718-1-jasowang@redhat.com>
- <20220922024305.1718-3-jasowang@redhat.com>
- <a1e98754-114e-b401-e927-5f2b71c3c641@oracle.com>
- <CACGkMEu9JfBDP4VkK76jdAnH225yUfTF+xMnqmy7_yDW3P0rKA@mail.gmail.com>
-In-Reply-To: <CACGkMEu9JfBDP4VkK76jdAnH225yUfTF+xMnqmy7_yDW3P0rKA@mail.gmail.com>
+ <20220922024305.1718-4-jasowang@redhat.com>
+ <649cf77d-849b-1ed1-e804-3abab9e339d1@oracle.com>
+In-Reply-To: <649cf77d-849b-1ed1-e804-3abab9e339d1@oracle.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 26 Sep 2022 15:11:53 +0800
-Message-ID: <CACGkMEt22w2rK058Bm692sb1xXsNRULcjgeCpoc6Fimn7suheA@mail.gmail.com>
-Subject: Re: [PATCH V2 2/3] vdpa_sim_net: support feature provisioning
+Date: Mon, 26 Sep 2022 15:14:05 +0800
+Message-ID: <CACGkMEvHNdp1MCt4VLVGFnC-CEqgpur+uwXiRz1d6ke30L-iJg@mail.gmail.com>
+Subject: Re: [PATCH V2 3/3] vp_vdpa: support feature provisioning
 To: Si-Wei Liu <si-wei.liu@oracle.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
@@ -122,118 +121,128 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Sep 26, 2022 at 3:11 PM Jason Wang <jasowang@redhat.com> wrote:
+On Sat, Sep 24, 2022 at 4:11 AM Si-Wei Liu <si-wei.liu@oracle.com> wrote:
 >
-> On Sat, Sep 24, 2022 at 4:01 AM Si-Wei Liu <si-wei.liu@oracle.com> wrote:
+>
+>
+> On 9/21/2022 7:43 PM, Jason Wang wrote:
+> > This patch allows the device features to be provisioned via
+> > netlink. This is done by:
 > >
+> > 1) validating the provisioned features to be a subset of the parent
+> >     features.
+> > 2) clearing the features that is not wanted by the userspace
 > >
+> > For example:
 > >
-> > On 9/21/2022 7:43 PM, Jason Wang wrote:
-> > > This patch implements features provisioning for vdpa_sim_net.
-> > >
-> > > 1) validating the provisioned features to be a subset of the parent
-> > >     features.
-> > > 2) clearing the features that is not wanted by the userspace
-> > >
-> > > For example:
-> > >
-> > > # vdpa mgmtdev show
-> > > vdpasim_net:
-> > >    supported_classes net
-> > >    max_supported_vqs 3
-> > >    dev_features MTU MAC CTRL_VQ CTRL_MAC_ADDR ANY_LAYOUT VERSION_1 ACCESS_PLATFORM
-> > Sighs, not to blame any one and it's perhaps too late, but this
-> > "dev_features" attr in "mgmtdev show" command output should have been
-> > called "supported_features" in the first place.
->
-> Not sure I get this, but I guess this is the negotiated features actually.
->
-> I think Ling Shan is working on reporting both negotiated features
-> with the device features.
->
+> > # vdpa mgmtdev show
+> > pci/0000:02:00.0:
+> >    supported_classes net
+> >    max_supported_vqs 3
+> >    dev_features CSUM GUEST_CSUM CTRL_GUEST_OFFLOADS MAC GUEST_TSO4
+> >    GUEST_TSO6 GUEST_ECN GUEST_UFO HOST_TSO4 HOST_TSO6 HOST_ECN HOST_UFO
+> >    MRG_RXBUF STATUS CTRL_VQ CTRL_RX CTRL_VLAN CTRL_RX_EXTRA
+> >    GUEST_ANNOUNCE CTRL_MAC_ADDR RING_INDIRECT_DESC RING_EVENT_IDX
+> >    VERSION_1 ACCESS_PLATFORM
 > >
-> > >
-> > > 1) provision vDPA device with all features that are supported by the
-> > >     net simulator
-> > >
-> > > # vdpa dev add name dev1 mgmtdev vdpasim_net
-> > > # vdpa dev config show
-> > > dev1: mac 00:00:00:00:00:00 link up link_announce false mtu 1500
-> > >    negotiated_features MTU MAC CTRL_VQ CTRL_MAC_ADDR VERSION_1 ACCESS_PLATFORM
-> > Maybe not in this patch, but for completeness for the whole series,
-> > could we also add device_features to the output?
->
-> Lingshan, could you please share your thoughts or patch on this?
->
+> > 1) provision vDPA device with all features that are supported by the virtio-pci
 > >
-> > When simply look at the "vdpa dev config show" output, I cannot really
-> > tell the actual device_features that was used in vdpa creation. For e.g.
-> > there is a missing feature ANY_LAYOUT from negotiated_features compared
-> > with supported_features in mgmtdev, but the orchestration software
-> > couldn't tell if the vdpa device on destination host should be created
-> > with or without the ANY_LAYOUT feature.
+> > # vdpa dev add name dev1 mgmtdev pci/0000:02:00.0
+> > # vdpa dev config show
+> > dev1: mac 52:54:00:12:34:56 link up link_announce false mtu 65535
+> >    negotiated_features CSUM GUEST_CSUM CTRL_GUEST_OFFLOADS MAC
+> >    GUEST_TSO4 GUEST_TSO6 GUEST_ECN GUEST_UFO HOST_TSO4 HOST_TSO6
+> >    HOST_ECN HOST_UFO MRG_RXBUF STATUS CTRL_VQ CTRL_RX CTRL_VLAN
+> >    GUEST_ANNOUNCE CTRL_MAC_ADDR RING_INDIRECT_DESC RING_EVENT_IDX
+> >    VERSION_1 ACCESS_PLATFORM
+> >
+> > 2) provision vDPA device with a subset of the features
+> >
+> > # vdpa dev add name dev1 mgmtdev pci/0000:02:00.0 device_features 0x300020000
+> > # dev1: mac 52:54:00:12:34:56 link up link_announce false mtu 65535
+> >    negotiated_features CTRL_VQ VERSION_1 ACCESS_PLATFORM
+> >
+> > Reviewed-by: Eli Cohen <elic@nvidia.com>
+> > Signed-off-by: Jason Wang <jasowang@redhat.com>
+> > ---
+> >   drivers/vdpa/virtio_pci/vp_vdpa.c | 16 ++++++++++++++--
+> >   1 file changed, 14 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/drivers/vdpa/virtio_pci/vp_vdpa.c b/drivers/vdpa/virtio_pci/vp_vdpa.c
+> > index 04522077735b..4b28e0c95ba2 100644
+> > --- a/drivers/vdpa/virtio_pci/vp_vdpa.c
+> > +++ b/drivers/vdpa/virtio_pci/vp_vdpa.c
+> > @@ -17,6 +17,7 @@
+> >   #include <linux/virtio_ring.h>
+> >   #include <linux/virtio_pci.h>
+> >   #include <linux/virtio_pci_modern.h>
+> > +#include <uapi/linux/vdpa.h>
+> >
+> >   #define VP_VDPA_QUEUE_MAX 256
+> >   #define VP_VDPA_DRIVER_NAME "vp_vdpa"
+> > @@ -35,6 +36,7 @@ struct vp_vdpa {
+> >       struct virtio_pci_modern_device *mdev;
+> >       struct vp_vring *vring;
+> >       struct vdpa_callback config_cb;
+> > +     u64 device_features;
+> >       char msix_name[VP_VDPA_NAME_SIZE];
+> >       int config_irq;
+> >       int queues;
+> > @@ -66,9 +68,9 @@ static struct virtio_pci_modern_device *vp_vdpa_to_mdev(struct vp_vdpa *vp_vdpa)
+> >
+> >   static u64 vp_vdpa_get_device_features(struct vdpa_device *vdpa)
+> >   {
+> > -     struct virtio_pci_modern_device *mdev = vdpa_to_mdev(vdpa);
+> > +     struct vp_vdpa *vp_vdpa = vdpa_to_vp(vdpa);
+> >
+> > -     return vp_modern_get_features(mdev);
+> > +     return vp_vdpa->device_features;
+> >   }
+> >
+> >   static int vp_vdpa_set_driver_features(struct vdpa_device *vdpa, u64 features)
+> > @@ -475,6 +477,7 @@ static int vp_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name,
+> >       struct pci_dev *pdev = mdev->pci_dev;
+> >       struct device *dev = &pdev->dev;
+> >       struct vp_vdpa *vp_vdpa = NULL;
+> > +     u64 device_features;
+> >       int ret, i;
+> >
+> >       vp_vdpa = vdpa_alloc_device(struct vp_vdpa, vdpa,
+> > @@ -491,6 +494,14 @@ static int vp_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name,
+> >       vp_vdpa->queues = vp_modern_get_num_queues(mdev);
+> >       vp_vdpa->mdev = mdev;
+> >
+> > +     device_features = vp_modern_get_features(mdev);
+> > +     if (add_config->mask & BIT_ULL(VDPA_ATTR_DEV_FEATURES)) {
+> > +             if (add_config->device_features & ~device_features)
+> > +                     return -EINVAL;
+> Should use "goto err" rather than direct return. Also, would be the best
+> to tell user the reason why device creation is failing. In the other
+> places of the same function, dev_err() or dev_warn() is used.
 
-Btw, it might be helpful to show those features in hex as well.
+Right, let me fix this.
+
+Thanks
 
 >
-> I think VERSION_1 implies ANY_LAYOUT. But it should be sufficient to
-> use features_src & feature_dst in this case. Actually, it should work
-> similar as to the cpu flags, the management software should introduce
-> the concept of cluster which means the maximal set of common features
-> is calculated and provisioned during device creation to allow
-> migration among the nodes inside the cluster.
+> -Siwei
 >
-> Thanks
+> > +             device_features &= add_config->device_features;
+> > +     }
+> > +     vp_vdpa->device_features = device_features;
+> > +
+> >       ret = devm_add_action_or_reset(dev, vp_vdpa_free_irq_vectors, pdev);
+> >       if (ret) {
+> >               dev_err(&pdev->dev,
+> > @@ -599,6 +610,7 @@ static int vp_vdpa_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+> >       mgtdev->id_table = mdev_id;
+> >       mgtdev->max_supported_vqs = vp_modern_get_num_queues(mdev);
+> >       mgtdev->supported_features = vp_modern_get_features(mdev);
+> > +     mgtdev->config_attr_mask = (1 << VDPA_ATTR_DEV_FEATURES);
+> >       pci_set_master(pdev);
+> >       pci_set_drvdata(pdev, vp_vdpa_mgtdev);
+> >
 >
-> >
-> > Thanks,
-> > -Siwei
-> >
-> >
-> > >
-> > > 2) provision vDPA device with a subset of the features
-> > >
-> > > # vdpa dev add name dev1 mgmtdev vdpasim_net device_features 0x300020000
-> > > # vdpa dev config show
-> > > dev1: mac 00:00:00:00:00:00 link up link_announce false mtu 1500
-> > >    negotiated_features CTRL_VQ VERSION_1 ACCESS_PLATFORM
-> > >
-> > > Reviewed-by: Eli Cohen <elic@nvidia.com>
-> > > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > > ---
-> > >   drivers/vdpa/vdpa_sim/vdpa_sim_net.c | 11 ++++++++++-
-> > >   1 file changed, 10 insertions(+), 1 deletion(-)
-> > >
-> > > diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim_net.c b/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
-> > > index 886449e88502..a9ba02be378b 100644
-> > > --- a/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
-> > > +++ b/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
-> > > @@ -254,6 +254,14 @@ static int vdpasim_net_dev_add(struct vdpa_mgmt_dev *mdev, const char *name,
-> > >       dev_attr.work_fn = vdpasim_net_work;
-> > >       dev_attr.buffer_size = PAGE_SIZE;
-> > >
-> > > +     if (config->mask & BIT_ULL(VDPA_ATTR_DEV_FEATURES)) {
-> > > +             if (config->device_features &
-> > > +                 ~dev_attr.supported_features)
-> > > +                     return -EINVAL;
-> > > +             dev_attr.supported_features &=
-> > > +                      config->device_features;
-> > > +     }
-> > > +
-> > >       simdev = vdpasim_create(&dev_attr);
-> > >       if (IS_ERR(simdev))
-> > >               return PTR_ERR(simdev);
-> > > @@ -294,7 +302,8 @@ static struct vdpa_mgmt_dev mgmt_dev = {
-> > >       .id_table = id_table,
-> > >       .ops = &vdpasim_net_mgmtdev_ops,
-> > >       .config_attr_mask = (1 << VDPA_ATTR_DEV_NET_CFG_MACADDR |
-> > > -                          1 << VDPA_ATTR_DEV_NET_CFG_MTU),
-> > > +                          1 << VDPA_ATTR_DEV_NET_CFG_MTU |
-> > > +                          1 << VDPA_ATTR_DEV_FEATURES),
-> > >       .max_supported_vqs = VDPASIM_NET_VQ_NUM,
-> > >       .supported_features = VDPASIM_NET_FEATURES,
-> > >   };
-> >
 
 _______________________________________________
 Virtualization mailing list
