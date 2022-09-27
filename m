@@ -1,122 +1,108 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id BF451C54EE9
-	for <virtualization@archiver.kernel.org>; Tue, 27 Sep 2022 20:23:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B7481C54EE9
+	for <virtualization@archiver.kernel.org>; Tue, 27 Sep 2022 20:30:14 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 35589408AD;
-	Tue, 27 Sep 2022 20:23:48 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 35589408AD
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Q6qGLdMT
+	by smtp1.osuosl.org (Postfix) with ESMTP id 377A381464;
+	Tue, 27 Sep 2022 20:30:14 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 377A381464
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=AcVQ8iah
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 5q8w7MwFUJh6; Tue, 27 Sep 2022 20:23:46 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id PoK8twufH0dZ; Tue, 27 Sep 2022 20:30:13 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id D59A340291;
-	Tue, 27 Sep 2022 20:23:45 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D59A340291
+	by smtp1.osuosl.org (Postfix) with ESMTPS id AE7EA8135F;
+	Tue, 27 Sep 2022 20:30:12 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AE7EA8135F
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 978F4C0033;
-	Tue, 27 Sep 2022 20:23:45 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id ADF18C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 72439C0033;
+	Tue, 27 Sep 2022 20:30:12 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4A3A3C002D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Sep 2022 20:23:44 +0000 (UTC)
+ Tue, 27 Sep 2022 20:30:11 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 8F31760AA0
+ by smtp2.osuosl.org (Postfix) with ESMTP id 16D954013D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Sep 2022 20:23:44 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8F31760AA0
-Authentication-Results: smtp3.osuosl.org;
+ Tue, 27 Sep 2022 20:30:11 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 16D954013D
+Authentication-Results: smtp2.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=Q6qGLdMT
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=AcVQ8iah
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id JhcESSJnJv2b
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id NnJmRyxXn7iO
  for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Sep 2022 20:23:43 +0000 (UTC)
+ Tue, 27 Sep 2022 20:30:10 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6ACB060736
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 47914400DA
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 6ACB060736
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 47914400DA
  for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Sep 2022 20:23:43 +0000 (UTC)
+ Tue, 27 Sep 2022 20:30:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1664310222;
+ s=mimecast20190719; t=1664310609;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=bPS2hzRpnh4vS84t7HeCrT88khQ6cmZJEXbF5+gL9zE=;
- b=Q6qGLdMTSJaxvtk3NNBe0spd8TariT3x96oAEt8n6TxT5QEDUqw0HlSgg2TTpEM38lWnBm
- 6Zjgv0cX5v+mrtjKGVwv8mPmuPcujJQimoG/Aqq+/gNJuGcAAIX4hTWVjunMGasc6EVroP
- hc7BsGHlDSc0N6W7+lbbav/asLQk7gA=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=3ONZGrKrq1sS5sx+hAdgkduCJ7jSA1Bg21aVIwPpM/M=;
+ b=AcVQ8iahK/5Px59SjUeGIsveh/tEZTGni0prh3HTqIPW5P/EdIeGH1c9MullHunax5np6/
+ /jZtL1dlJ+W5y0q1LkWeWZBtL6dtSw/tFTuLZdPi9G8AK/3oWIX5YsAAL3O5WByVbUfHj4
+ K6QDyFDjCRLBFbidLRt+hCTmq9nqelo=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-53-9AAP5CVNNX6b3jHBjeB7fw-1; Tue, 27 Sep 2022 16:23:40 -0400
-X-MC-Unique: 9AAP5CVNNX6b3jHBjeB7fw-1
-Received: by mail-wm1-f70.google.com with SMTP id
- c3-20020a7bc843000000b003b486fc6a40so3143907wml.7
+ us-mta-260-pB1-ZCe7PFWpQTA_jUiAoQ-1; Tue, 27 Sep 2022 16:30:07 -0400
+X-MC-Unique: pB1-ZCe7PFWpQTA_jUiAoQ-1
+Received: by mail-wm1-f72.google.com with SMTP id
+ g8-20020a05600c4ec800b003b4bcbdb63cso6036789wmq.7
  for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Sep 2022 13:23:40 -0700 (PDT)
+ Tue, 27 Sep 2022 13:30:07 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=content-transfer-encoding:mime-version:user-agent:references
- :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
- :from:to:cc:subject:date;
- bh=bPS2hzRpnh4vS84t7HeCrT88khQ6cmZJEXbF5+gL9zE=;
- b=0Ov0R1ELf7bMZ0VZgHY1n35GYT6BQdEaSGcQYS7h9R0v+ty8N/pbIZAMddHvYvd4hg
- IQrCcodsDn9pVhg2l6bb+nNhgF4szdFbSHpE9Rf5LAuIUQwIo1AeHXkv8m4XgSnWlr80
- Gm38MZeB07MV6e2WqiifqhflNHkkTEZc7KVlDaf6oocJkGTRAuQJT78ZJSP9Hnm1Z+mz
- Gf7ASjEExb/WyNhAw+EzPC+lY/Wb1gMO9h1SdQ1lupvUeGxaB/WbZZheGeCYq2EyVplQ
- wSOf/dilCkG5KxBOdmOBlAjoY1o5BuzoI44jPgFx5BTtmxFVMHEY8fWAcHUstbLe7wKo
- EqjQ==
-X-Gm-Message-State: ACrzQf0RmXXNec2/+5uKprz+cOgDpOybYxBcG6k8i+nL6RO4LZR1JPmX
- E5R11PX+C5fx+GsHpmZaYhKTmazU86QeoWnSBK2Jzt8DgaAFVoqAWrpJk9B+JHK9hkYb455R95s
- pIy8SCsdWYUSZHtMAV9TpXHbbAOf12cDTCodh4aygvA==
-X-Received: by 2002:a05:6000:18ad:b0:22a:f7b5:16f8 with SMTP id
- b13-20020a05600018ad00b0022af7b516f8mr18132912wri.305.1664310219380; 
- Tue, 27 Sep 2022 13:23:39 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM6ci15yCp/mYBPh7Hxm1QkwLOuat3oDTUzqTHSVWObghnWMRosUrppkyN/V4CuayXBq254sVg==
-X-Received: by 2002:a05:6000:18ad:b0:22a:f7b5:16f8 with SMTP id
- b13-20020a05600018ad00b0022af7b516f8mr18132903wri.305.1664310219067; 
- Tue, 27 Sep 2022 13:23:39 -0700 (PDT)
-Received: from gerbillo.redhat.com (146-241-104-40.dyn.eolo.it.
- [146.241.104.40]) by smtp.gmail.com with ESMTPSA id
- m17-20020a05600c461100b003a5fa79007fsm2520605wmo.7.2022.09.27.13.23.38
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
+ bh=3ONZGrKrq1sS5sx+hAdgkduCJ7jSA1Bg21aVIwPpM/M=;
+ b=1b7rRtt7a/qkU/xLuFio3/9BAgm42VdK4IeTItG2gaGtymWsxLz9kSYYKAaQfUTNa3
+ dJk+bhz3GgdO+pA9alGCn6ZjakAPTpOBeOVshmLnB9c/fCGcdQyKRaf1Rdrq4N+spYWR
+ rrVO8Ffk0dvmpAgbHGzra41+1u0cTsVE33rRZxtse2Cprt8BSREuegFhNSi63utcYrNs
+ MVtF49inLu5JYdezddLRngJ2IW04f4WryyELL8ByVLBpMCTyFhWSlkNQk8Tpos954Z7a
+ Fw5YoDgKXP17sb2/9lo2HRJdcCDola652ehQJoF4nimEPJkCZZsTFwAaBQ7jQ1VaOhhY
+ XOZQ==
+X-Gm-Message-State: ACrzQf0xMWxZbgCQ4GcYtxPfsfcfbnENPTPGOUU8/l2j0uGQjr0AT7qk
+ HZqItBH3tlZ1ZBsODR0OOLYu1w6l4rFtePmA5i7JD8LNtEUp7wHS0MrTsd3NqDUTpmWAX6edzHn
+ dJB5zVnGnr7+fUkun3g9xlOS/e0Cdxh95WpHgm8yZBw==
+X-Received: by 2002:adf:f543:0:b0:228:c692:127a with SMTP id
+ j3-20020adff543000000b00228c692127amr18847103wrp.246.1664310606561; 
+ Tue, 27 Sep 2022 13:30:06 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM549zwnW5nDlpn3BeNyNzKinHd2eWShJ3HLCvV+21vbyOBZA6EZF6qJ/GBWosJuGDJpvq7SCQ==
+X-Received: by 2002:adf:f543:0:b0:228:c692:127a with SMTP id
+ j3-20020adff543000000b00228c692127amr18847092wrp.246.1664310606357; 
+ Tue, 27 Sep 2022 13:30:06 -0700 (PDT)
+Received: from redhat.com ([2.55.47.213]) by smtp.gmail.com with ESMTPSA id
+ iw5-20020a05600c54c500b003b5054c6f87sm2612262wmb.21.2022.09.27.13.30.04
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 27 Sep 2022 13:23:38 -0700 (PDT)
-Message-ID: <b06d81fe39710b948a74a365c173b316252ed1f8.camel@redhat.com>
-Subject: Re: [PATCH net-next 0/4] shrink struct ubuf_info
-From: Paolo Abeni <pabeni@redhat.com>
-To: Pavel Begunkov <asml.silence@gmail.com>, netdev@vger.kernel.org
-Date: Tue, 27 Sep 2022 22:23:37 +0200
-In-Reply-To: <eb543907-190f-c661-b5d6-b4d67b6184e6@gmail.com>
-References: <cover.1663892211.git.asml.silence@gmail.com>
- <7fef56880d40b9d83cc99317df9060c4e7cdf919.camel@redhat.com>
- <021d8ea4-891c-237d-686e-64cecc2cc842@gmail.com>
- <bbb212f6-0165-0747-d99d-b49acbb02a80@gmail.com>
- <85cccb780608e830024fc82a8e4f703031646f4e.camel@redhat.com>
- <c06897d4-4883-2756-87f9-9b10ab495c43@gmail.com>
- <6502e1a45526f97a1e6d7d27bbe07e3bb3623de3.camel@redhat.com>
- <eb543907-190f-c661-b5d6-b4d67b6184e6@gmail.com>
-User-Agent: Evolution 3.42.4 (3.42.4-2.fc35)
+ Tue, 27 Sep 2022 13:30:05 -0700 (PDT)
+Date: Tue, 27 Sep 2022 16:30:02 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Bo Liu <liubo03@inspur.com>
+Subject: Re: [PATCH] virtio_ring: remove unnecessary to_vvq() call
+Message-ID: <20220927162745-mutt-send-email-mst@kernel.org>
+References: <20220926091130.9244-1-liubo03@inspur.com>
 MIME-Version: 1.0
+In-Reply-To: <20220926091130.9244-1-liubo03@inspur.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: Wei Liu <wei.liu@kernel.org>, kvm@vger.kernel.org,
- Paul Durrant <paul@xen.org>, "Michael S . Tsirkin" <mst@redhat.com>,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- xen-devel@lists.xenproject.org, Jakub Kicinski <kuba@kernel.org>,
- "David S . Miller" <davem@davemloft.net>
+Content-Disposition: inline
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -133,171 +119,76 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, 2022-09-27 at 21:17 +0100, Pavel Begunkov wrote:
-> On 9/27/22 20:59, Paolo Abeni wrote:
-> > On Tue, 2022-09-27 at 19:48 +0100, Pavel Begunkov wrote:
-> > > On 9/27/22 18:56, Paolo Abeni wrote:
-> > > > On Tue, 2022-09-27 at 18:16 +0100, Pavel Begunkov wrote:
-> > > > > On 9/27/22 15:28, Pavel Begunkov wrote:
-> > > > > > Hello Paolo,
-> > > > > > 
-> > > > > > On 9/27/22 14:49, Paolo Abeni wrote:
-> > > > > > > Hello,
-> > > > > > > 
-> > > > > > > On Fri, 2022-09-23 at 17:39 +0100, Pavel Begunkov wrote:
-> > > > > > > > struct ubuf_info is large but not all fields are needed for all
-> > > > > > > > cases. We have limited space in io_uring for it and large ubuf_info
-> > > > > > > > prevents some struct embedding, even though we use only a subset
-> > > > > > > > of the fields. It's also not very clean trying to use this typeless
-> > > > > > > > extra space.
-> > > > > > > > 
-> > > > > > > > Shrink struct ubuf_info to only necessary fields used in generic paths,
-> > > > > > > > namely ->callback, ->refcnt and ->flags, which take only 16 bytes. And
-> > > > > > > > make MSG_ZEROCOPY and some other users to embed it into a larger struct
-> > > > > > > > ubuf_info_msgzc mimicking the former ubuf_info.
-> > > > > > > > 
-> > > > > > > > Note, xen/vhost may also have some cleaning on top by creating
-> > > > > > > > new structs containing ubuf_info but with proper types.
-> > > > > > > 
-> > > > > > > That sounds a bit scaring to me. If I read correctly, every uarg user
-> > > > > > > should check 'uarg->callback == msg_zerocopy_callback' before accessing
-> > > > > > > any 'extend' fields.
-> > > > > > 
-> > > > > > Providers of ubuf_info access those fields via callbacks and so already
-> > > > > > know the actual structure used. The net core, on the opposite, should
-> > > > > > keep it encapsulated and not touch them at all.
-> > > > > > 
-> > > > > > The series lists all places where we use extended fields just on the
-> > > > > > merit of stripping the structure of those fields and successfully
-> > > > > > building it. The only user in net/ipv{4,6}/* is MSG_ZEROCOPY, which
-> > > > > > again uses callbacks.
-> > > > > > 
-> > > > > > Sounds like the right direction for me. There is a couple of
-> > > > > > places where it might get type safer, i.e. adding types instead
-> > > > > > of void* in for struct tun_msg_ctl and getting rid of one macro
-> > > > > > hiding types in xen. But seems more like TODO for later.
-> > > > > > 
-> > > > > > > AFAICS the current code sometimes don't do the
-> > > > > > > explicit test because the condition is somewhat implied, which in turn
-> > > > > > > is quite hard to track.
-> > > > > > > 
-> > > > > > > clearing uarg->zerocopy for the 'wrong' uarg was armless and undetected
-> > > > > > > before this series, and after will trigger an oops..
-> > > > > > 
-> > > > > > And now we don't have this field at all to access, considering that
-> > > > > > nobody blindly casts it.
-> > > > > > 
-> > > > > > > There is some noise due to uarg -> uarg_zc renaming which make the
-> > > > > > > series harder to review. Have you considered instead keeping the old
-> > > > > > > name and introducing a smaller 'struct ubuf_info_common'? the overall
-> > > > > > > code should be mostly the same, but it will avoid the above mentioned
-> > > > > > > noise.
-> > > > > > 
-> > > > > > I don't think there will be less noise this way, but let me try
-> > > > > > and see if I can get rid of some churn.
-> > > > > 
-> > > > > It doesn't look any better for me
-> > > > > 
-> > > > > TL;DR; This series converts only 3 users: tap, xen and MSG_ZEROCOPY
-> > > > > and doesn't touch core code. If we do ubuf_info_common though I'd need
-> > > > > to convert lots of places in skbuff.c and multiple places across
-> > > > > tcp/udp, which is much worse.
-> > > > 
-> > > > Uhmm... I underlook the fact we must preserve the current accessors for
-> > > > the common fields.
-> > > > 
-> > > > I guess something like the following could do (completely untested,
-> > > > hopefully should illustrate the idea):
-> > > > 
-> > > > struct ubuf_info {
-> > > > 	struct_group_tagged(ubuf_info_common, common,
-> > > > 		void (*callback)(struct sk_buff *, struct ubuf_info *,
-> > > >                            bool zerocopy_success);
-> > > > 		refcount_t refcnt;
-> > > > 	        u8 flags;
-> > > > 	);
-> > > > 
-> > > > 	union {
-> > > >                   struct {
-> > > >                           unsigned long desc;
-> > > >                           void *ctx;
-> > > >                   };
-> > > >                   struct {
-> > > >                           u32 id;
-> > > >                           u16 len;
-> > > >                           u16 zerocopy:1;
-> > > >                           u32 bytelen;
-> > > >                   };
-> > > >           };
-> > > > 
-> > > >           struct mmpin {
-> > > >                   struct user_struct *user;
-> > > >                   unsigned int num_pg;
-> > > >           } mmp;
-> > > > };
-> > > > 
-> > > > Then you should be able to:
-> > > > - access ubuf_info->callback,
-> > > > - access the same field via ubuf_info->common.callback
-> > > > - declare variables as 'struct ubuf_info_commom' with appropriate
-> > > > contents.
-> > > > 
-> > > > WDYT?
-> > > 
-> > > Interesting, I didn't think about struct_group, this would
-> > > let to split patches better and would limit non-core changes.
-> > > But if the plan is to convert the core helpers to
-> > > ubuf_info_common, than I think it's still messier than changing
-> > > ubuf providers only.
-> > > 
-> > > I can do the exercise, but I don't really see what is the goal.
-> > > Let me ask this, if we forget for a second how diffs look,
-> > > do you care about which pair is going to be in the end?
-> > 
-> > Uhm... I proposed this initially with the goal of remove non fuctional
-> > changes from a patch that was hard to digest for me (4/4). So it's
-> > about diffstat to me ;)
+On Mon, Sep 26, 2022 at 05:11:30AM -0400, Bo Liu wrote:
+> It passes '_vq' to vring_free(), which still calls to_vvq()
+> to get 'vq', let's directly pass 'vq'. It can avoid
+> unnecessary call of to_vvq() in hot path.
 > 
-> Ah, got it
-> 
-> > On the flip side the change suggested would probably not be as
-> > straighforward as I would hope for.
-> > 
-> > > ubuf_info_common/ubuf_info vs ubuf_info/ubuf_info_msgzc?
-> > 
-> > The specific names used are not much relevant.
-> > 
-> > > Are there you concerned about naming or is there more to it?
-> > 
-> > I feel like this series is potentially dangerous, but I could not spot
-> > bugs into the code. I would have felt more relaxed eariler in the devel
-> > cycle.
-> 
-> union {
-> 	struct {
-> 		unsigned long desc;
-> 		void *ctx;
-> 	};
-> 	struct {
-> 		u32 id;
-> 		u16 len;
-> 		u16 zerocopy:1;
-> 		u32 bytelen;
-> 	};
-> };
-> 
-> 
-> btw, nobody would frivolously change ->zerocopy anyway as it's
-> in a union. Even without the series we're absolutely screwed
-> if someone does that. If anything it adds a way to get rid of it:
-> 
-> 1) Make vhost and xen use their own structures with right types.
-> 2) kill unused struct {ctx, desc} for MSG_ZEROCOPY
+> Signed-off-by: Bo Liu <liubo03@inspur.com>
 
-Ok, the above sounds reasonable. Additionally I've spent the last
-surviving neuron on my side to on this series, and it looks sane, so...
+What is the point of this change?
 
-Acked-by: Paolo Abeni <pabeni@redhat.com>
+__vring_new_virtqueue returns struct virtqueue *, so vring_free
+matches that. No?
+
+> ---
+>  drivers/virtio/virtio_ring.c | 12 +++++-------
+>  1 file changed, 5 insertions(+), 7 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index 8974c34b40fd..d6d77bf58802 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -221,7 +221,7 @@ static struct virtqueue *__vring_new_virtqueue(unsigned int index,
+>  					       void (*callback)(struct virtqueue *),
+>  					       const char *name);
+>  static struct vring_desc_extra *vring_alloc_desc_extra(unsigned int num);
+> -static void vring_free(struct virtqueue *_vq);
+> +static void vring_free(struct vring_virtqueue *vq);
+>  
+>  /*
+>   * Helpers.
+> @@ -1140,7 +1140,7 @@ static int virtqueue_resize_split(struct virtqueue *_vq, u32 num)
+>  	if (err)
+>  		goto err_state_extra;
+>  
+> -	vring_free(&vq->vq);
+> +	vring_free(vq);
+>  
+>  	virtqueue_vring_init_split(&vring_split, vq);
+>  
+> @@ -2059,7 +2059,7 @@ static int virtqueue_resize_packed(struct virtqueue *_vq, u32 num)
+>  	if (err)
+>  		goto err_state_extra;
+>  
+> -	vring_free(&vq->vq);
+> +	vring_free(vq);
+>  
+>  	virtqueue_vring_init_packed(&vring_packed, !!vq->vq.callback);
+>  
+> @@ -2649,10 +2649,8 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
+>  }
+>  EXPORT_SYMBOL_GPL(vring_new_virtqueue);
+>  
+> -static void vring_free(struct virtqueue *_vq)
+> +static void vring_free(struct vring_virtqueue *vq)
+>  {
+> -	struct vring_virtqueue *vq = to_vvq(_vq);
+> -
+>  	if (vq->we_own_ring) {
+>  		if (vq->packed_ring) {
+>  			vring_free_queue(vq->vq.vdev,
+> @@ -2693,7 +2691,7 @@ void vring_del_virtqueue(struct virtqueue *_vq)
+>  	list_del(&_vq->list);
+>  	spin_unlock(&vq->vq.vdev->vqs_list_lock);
+>  
+> -	vring_free(_vq);
+> +	vring_free(vq);
+>  
+>  	kfree(vq);
+>  }
+> -- 
+> 2.27.0
 
 _______________________________________________
 Virtualization mailing list
