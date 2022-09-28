@@ -1,109 +1,139 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2ED4CC04A95
-	for <virtualization@archiver.kernel.org>; Wed, 28 Sep 2022 04:04:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id F17E8C32771
+	for <virtualization@archiver.kernel.org>; Wed, 28 Sep 2022 05:45:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id B45AF60B57;
-	Wed, 28 Sep 2022 04:04:56 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B45AF60B57
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=fGx0uNKm
+	by smtp2.osuosl.org (Postfix) with ESMTP id 6E043404ED;
+	Wed, 28 Sep 2022 05:45:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6E043404ED
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=kkMKeB6g
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id HNMk0Gb8NDcv; Wed, 28 Sep 2022 04:04:55 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 2D709607F4;
-	Wed, 28 Sep 2022 04:04:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2D709607F4
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id JJGKHlXnDu5T; Wed, 28 Sep 2022 05:45:31 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id A9FAD402FE;
+	Wed, 28 Sep 2022 05:45:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A9FAD402FE
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 08F65C0032;
-	Wed, 28 Sep 2022 04:04:55 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B3DF7C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 81252C0032;
+	Wed, 28 Sep 2022 05:45:30 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 54232C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Sep 2022 04:04:53 +0000 (UTC)
+ Wed, 28 Sep 2022 05:45:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 8199860B48
+ by smtp2.osuosl.org (Postfix) with ESMTP id 1DA8B404E5
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Sep 2022 04:04:53 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8199860B48
+ Wed, 28 Sep 2022 05:45:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1DA8B404E5
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id xfn_JS11M4w2
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id U0dTSAgAv5Y3
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Sep 2022 04:04:52 +0000 (UTC)
+ Wed, 28 Sep 2022 05:45:27 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A2878607F4
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id A2878607F4
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 86CF0402FE
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com
+ [148.163.156.1])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 86CF0402FE
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Sep 2022 04:04:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1664337891;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=IZCmVV4/17mv21GMTdNuSAm0jpU/hXvj1/osgjLA5Mc=;
- b=fGx0uNKmcHCFsIhmZnEQDI/cwpsGfi0jwNhihXVIKLr+FFzT3Vz9pIJ2GQZsCJ3HAL+NTm
- pCWMRnMVbwSD6Rv+SIUP/8DiWA4A/PDF9bdiXquySvdLjIUcjns61BnA+HaxMh164atMRd
- r9Vy7EtzA5GJ/UlHg7mE+C08x7wmZZk=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-26-y8yMRiU2OT6mUIEIvEkYTQ-1; Wed, 28 Sep 2022 00:04:50 -0400
-X-MC-Unique: y8yMRiU2OT6mUIEIvEkYTQ-1
-Received: by mail-wm1-f69.google.com with SMTP id
- p24-20020a05600c1d9800b003b4b226903dso464015wms.4
- for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Sep 2022 21:04:49 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=in-reply-to:content-transfer-encoding:content-disposition
- :mime-version:references:message-id:subject:cc:to:from:date
- :x-gm-message-state:from:to:cc:subject:date;
- bh=IZCmVV4/17mv21GMTdNuSAm0jpU/hXvj1/osgjLA5Mc=;
- b=lH0JIcEZBUsjp5t0EUkuHrmghPlH777kBy/JPW/0JPMz3xTT935nYg7JjUPONxFHZo
- Ac8s1xKj7aObq3GcydXCTsRjBnalYOuUHG3a1qLJvfvi5FroOjH+nOsH//yde5zeCcWN
- yb/pr1HKOLZPyPZqoDV4x1V8IV+u3GUSRXI8Xt00Jnt7Pbtwc7ge2yEQgCbynKbu7/GF
- SdW16ITRKVfeuDAsH/4YO24r30Dh3PTq9aPxG4E7zqo/uIum300POEIyIra2NABtXyTg
- qNeKawBbMJDD++yA9kGfnqm3frvFImbDNH4+gGtQW41xlze9dIv5c+4+P84iTiPlpq35
- afyg==
-X-Gm-Message-State: ACrzQf2NvJwTgUU5sCJYMGpF3J2SazAt12s3bpzQMnO02ZBiaqUkwSek
- 7BuPdjeZrsntOuRD22E+hsRW1ioWJUdCv1RKINlZRUINKV6rJN7w4nbFE2wDs+d4bk7mYT1oS80
- D3QI8qe/QxUdeVmFz/dk3MnfzEpmkJZiFZOzztiRznQ==
-X-Received: by 2002:a05:6000:156b:b0:22a:a83a:d349 with SMTP id
- 11-20020a056000156b00b0022aa83ad349mr19384861wrz.277.1664337889047; 
- Tue, 27 Sep 2022 21:04:49 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM6j10sncy6xaso+VwGsPpFDZwxVXN5J/5wQwepc7moFHObh2SfrjMHSOsx5i3wneOkOpeVlkQ==
-X-Received: by 2002:a05:6000:156b:b0:22a:a83a:d349 with SMTP id
- 11-20020a056000156b00b0022aa83ad349mr19384849wrz.277.1664337888795; 
- Tue, 27 Sep 2022 21:04:48 -0700 (PDT)
-Received: from redhat.com ([2.55.47.213]) by smtp.gmail.com with ESMTPSA id
- k9-20020a5d6289000000b00226dfac0149sm3017721wru.114.2022.09.27.21.04.47
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 27 Sep 2022 21:04:48 -0700 (PDT)
-Date: Wed, 28 Sep 2022 00:04:45 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Bo Liu =?utf-8?B?KOWImOazoikt5rWq5r2u5L+h5oGv?= <liubo03@inspur.com>
-Subject: Re: [PATCH] virtio_ring: remove unnecessary to_vvq() call
-Message-ID: <20220928000342-mutt-send-email-mst@kernel.org>
-References: <4366e621c74e46bfa642d6802187ad44@inspur.com>
+ Wed, 28 Sep 2022 05:45:27 +0000 (UTC)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+ by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28S56DgB008399;
+ Wed, 28 Sep 2022 05:44:58 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com;
+ h=message-id : date :
+ mime-version : subject : from : to : cc : references : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=TRI7XAqpRChSCmHrdGbn7ZcUW1chuyOMvMEZsO5iOfM=;
+ b=kkMKeB6gM2XwbxUMQI6Dv4jFR10HYXMzO3uNZUjeFiLyIeggvPCbsdNO4Lwxw5Bu01AE
+ +EQVf4LVLLj1UANVQpC7TALUvhrNmdmAIx64zSLDzvc7gYnQn1jrOQ8I4DeqQeEQ85zR
+ 2VIuO06lwEosEi2uT1mCNZHXFyWDQ15yaarnwC6e2XAt7BO0odmij51xlFo9AQXpugwG
+ Pd9XPydgTIrBIoLRGkfvp1sD2aVQHR2RPxPhrgLYxViKOeOV9/e2ZDlk+mEeqj1XFlyI
+ OqcZN3XYr5S+NUr9Jk9WO1uF2m1Ez3HsASc7TnrZcf0HgSbewr2AkYl4qJGvNTOnc1vQ vQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+ by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jv8wpt8dv-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+ Wed, 28 Sep 2022 05:44:57 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+ by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 28S56IV0009087;
+ Wed, 28 Sep 2022 05:44:56 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com
+ [169.51.49.98])
+ by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jv8wpt8ct-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+ Wed, 28 Sep 2022 05:44:55 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+ by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28S5ZeV8005426;
+ Wed, 28 Sep 2022 05:44:53 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com
+ (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+ by ppma03ams.nl.ibm.com with ESMTP id 3jssh9cr0h-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+ Wed, 28 Sep 2022 05:44:53 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com
+ [9.149.105.58])
+ by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id
+ 28S5ipT02490880
+ (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Wed, 28 Sep 2022 05:44:51 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+ by IMSVA (Postfix) with ESMTP id F09514C040;
+ Wed, 28 Sep 2022 05:44:50 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+ by IMSVA (Postfix) with ESMTP id 31A494C044;
+ Wed, 28 Sep 2022 05:44:50 +0000 (GMT)
+Received: from [9.171.2.29] (unknown [9.171.2.29])
+ by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+ Wed, 28 Sep 2022 05:44:50 +0000 (GMT)
+Message-ID: <0e1259a7-a99d-ceb6-d73d-a3e3cf32d003@linux.ibm.com>
+Date: Wed, 28 Sep 2022 07:44:49 +0200
 MIME-Version: 1.0
-In-Reply-To: <4366e621c74e46bfa642d6802187ad44@inspur.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.13.0
+Subject: Re: [PATCH v3 6/6] freezer,sched: Rewrite core freezer logic
+Content-Language: en-US
+From: Christian Borntraeger <borntraeger@linux.ibm.com>
+To: Peter Zijlstra <peterz@infradead.org>
+References: <20220923072104.2013212-1-borntraeger@linux.ibm.com>
+ <56576c3c-fe9b-59cf-95b8-158734320f24@linux.ibm.com>
+ <b1d41989-7f4f-eb1d-db35-07a6f6b7a7f5@linux.ibm.com>
+ <436fa401-e113-0393-f47a-ed23890364d7@linux.ibm.com>
+ <39dfc425-deff-2469-7bcb-4a0e177b31d1@linux.ibm.com>
+ <YzGhUZJKV3pKJL3Z@hirez.programming.kicks-ass.net>
+ <66463973-923f-624d-3041-72ce76147b3e@linux.ibm.com>
+ <YzGrJSLXpocpGIha@hirez.programming.kicks-ass.net>
+ <9ec643f3-b935-0119-d8bc-1fbe46c36356@linux.ibm.com>
+ <YzHqNiRj2Q5vxdCV@hirez.programming.kicks-ass.net>
+ <YzHt2nG0Hb7xLlNj@hirez.programming.kicks-ass.net>
+ <985463a3-5e33-95d2-b2bb-824707a2f819@linux.ibm.com>
+In-Reply-To: <985463a3-5e33-95d2-b2bb-824707a2f819@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: C-iwwDbwObm8zSqeg3LDefvtdRzOtnJb
+X-Proofpoint-GUID: 0cHj6lZcSCFBnzr0oV2OOul8RCx0NzuU
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
+ definitions=2022-09-28_02,2022-09-27_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 malwarescore=0
+ clxscore=1015 mlxscore=0 lowpriorityscore=0 priorityscore=1501
+ phishscore=0 mlxlogscore=999 impostorscore=0 adultscore=0 bulkscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2209130000 definitions=main-2209280032
+Cc: vincent.guittot@linaro.org, linux-pm@vger.kernel.org, bigeasy@linutronix.de,
+ Amit Shah <amit@kernel.org>, rjw@rjwysocki.net, linux-kernel@vger.kernel.org,
+ rostedt@goodmis.org, mingo@kernel.org, Marc Hartmayer <mhartmay@linux.ibm.com>,
+ mgorman@suse.de, oleg@redhat.com, tj@kernel.org,
  "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>
+ <virtualization@lists.linux-foundation.org>, will@kernel.org,
+ dietmar.eggemann@arm.com, ebiederm@xmission.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -115,58 +145,29 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gV2VkLCBTZXAgMjgsIDIwMjIgYXQgMDI6MjY6MTZBTSArMDAwMCwgQm8gTGl1ICjliJjms6Ip
-Lea1qua9ruS/oeaBryB3cm90ZToKPiA+T24gTW9uLCBTZXAgMjYsIDIwMjIgYXQgMDU6MTE6MzBB
-TSAtMDQwMCwgQm8gTGl1IHdyb3RlOgo+ID4+IEl0IHBhc3NlcyAnX3ZxJyB0byB2cmluZ19mcmVl
-KCksIHdoaWNoIHN0aWxsIGNhbGxzIHRvX3Z2cSgpIHRvIGdldAo+ID4+ICd2cScsIGxldCdzIGRp
-cmVjdGx5IHBhc3MgJ3ZxJy4gSXQgY2FuIGF2b2lkIHVubmVjZXNzYXJ5IGNhbGwgb2YKPiA+PiB0
-b192dnEoKSBpbiBob3QgcGF0aC4KPiA+Pgo+ID4+IFNpZ25lZC1vZmYtYnk6IEJvIExpdSA8bGl1
-Ym8wM0BpbnNwdXIuY29tPgo+ID4KPiA+V2hhdCBpcyB0aGUgcG9pbnQgb2YgdGhpcyBjaGFuZ2U/
-Cj4gPgo+ID5fX3ZyaW5nX25ld192aXJ0cXVldWUgcmV0dXJucyBzdHJ1Y3QgdmlydHF1ZXVlICos
-IHNvIHZyaW5nX2ZyZWUgbWF0Y2hlcwo+IHRoYXQuCj4gPk5vPwo+ID4KPiAKPiBIaQo+IEluIGZ1
-bmN0aW9uIHZyaW5nX2ZyZWUoKSwgdG9fdnZxKCkganMgdW5uZWNlc3NhcnksIHdlIGNhbiBkaXJl
-Y3RseSBwYXNzCj4gc3RydWN0IHZyaW5nX3ZpcnRxdWV1ZSAqIHRvIGF2b2lkIHRoaXMgYW5kIHJl
-bW92ZSB0aGUgdW5uZWNlc3NhcnkgY29kZS4KCkFuZCBzbz8gSXMgdGhlIHJlc3VsdGluZyBiaW5h
-cnkgc21hbGxlcj8KCj4gPj4gLS0tCj4gPj4gIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMg
-fCAxMiArKysrKy0tLS0tLS0KPiA+PiAgMSBmaWxlIGNoYW5nZWQsIDUgaW5zZXJ0aW9ucygrKSwg
-NyBkZWxldGlvbnMoLSkKPiA+Pgo+ID4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZpcnRpby92aXJ0
-aW9fcmluZy5jCj4gPj4gYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jIGluZGV4IDg5NzRj
-MzRiNDBmZC4uZDZkNzdiZjU4ODAyIDEwMDY0NAo+ID4+IC0tLSBhL2RyaXZlcnMvdmlydGlvL3Zp
-cnRpb19yaW5nLmMKPiA+PiArKysgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jCj4gPj4g
-QEAgLTIyMSw3ICsyMjEsNyBAQCBzdGF0aWMgc3RydWN0IHZpcnRxdWV1ZQo+ID4qX192cmluZ19u
-ZXdfdmlydHF1ZXVlKHVuc2lnbmVkIGludCBpbmRleCwKPiA+PiAgCQkJCQkgICAgICAgdm9pZCAo
-KmNhbGxiYWNrKShzdHJ1Y3QKPiB2aXJ0cXVldWUgKiksCj4gPj4gIAkJCQkJICAgICAgIGNvbnN0
-IGNoYXIgKm5hbWUpOwo+ID4+ICBzdGF0aWMgc3RydWN0IHZyaW5nX2Rlc2NfZXh0cmEgKnZyaW5n
-X2FsbG9jX2Rlc2NfZXh0cmEodW5zaWduZWQgaW50Cj4gPj4gbnVtKTsgLXN0YXRpYyB2b2lkIHZy
-aW5nX2ZyZWUoc3RydWN0IHZpcnRxdWV1ZSAqX3ZxKTsKPiA+PiArc3RhdGljIHZvaWQgdnJpbmdf
-ZnJlZShzdHJ1Y3QgdnJpbmdfdmlydHF1ZXVlICp2cSk7Cj4gPj4KPiA+PiAgLyoKPiA+PiAgICog
-SGVscGVycy4KPiA+PiBAQCAtMTE0MCw3ICsxMTQwLDcgQEAgc3RhdGljIGludCB2aXJ0cXVldWVf
-cmVzaXplX3NwbGl0KHN0cnVjdCB2aXJ0cXVldWUKPiA+Kl92cSwgdTMyIG51bSkKPiA+PiAgCWlm
-IChlcnIpCj4gPj4gIAkJZ290byBlcnJfc3RhdGVfZXh0cmE7Cj4gPj4KPiA+PiAtCXZyaW5nX2Zy
-ZWUoJnZxLT52cSk7Cj4gPj4gKwl2cmluZ19mcmVlKHZxKTsKPiA+Pgo+ID4+ICAJdmlydHF1ZXVl
-X3ZyaW5nX2luaXRfc3BsaXQoJnZyaW5nX3NwbGl0LCB2cSk7Cj4gPj4KPiA+PiBAQCAtMjA1OSw3
-ICsyMDU5LDcgQEAgc3RhdGljIGludCB2aXJ0cXVldWVfcmVzaXplX3BhY2tlZChzdHJ1Y3Qgdmly
-dHF1ZXVlCj4gPipfdnEsIHUzMiBudW0pCj4gPj4gIAlpZiAoZXJyKQo+ID4+ICAJCWdvdG8gZXJy
-X3N0YXRlX2V4dHJhOwo+ID4+Cj4gPj4gLQl2cmluZ19mcmVlKCZ2cS0+dnEpOwo+ID4+ICsJdnJp
-bmdfZnJlZSh2cSk7Cj4gPj4KPiA+PiAgCXZpcnRxdWV1ZV92cmluZ19pbml0X3BhY2tlZCgmdnJp
-bmdfcGFja2VkLCAhIXZxLT52cS5jYWxsYmFjayk7Cj4gPj4KPiA+PiBAQCAtMjY0OSwxMCArMjY0
-OSw4IEBAIHN0cnVjdCB2aXJ0cXVldWUgKnZyaW5nX25ld192aXJ0cXVldWUodW5zaWduZWQKPiA+
-PiBpbnQgaW5kZXgsICB9ICBFWFBPUlRfU1lNQk9MX0dQTCh2cmluZ19uZXdfdmlydHF1ZXVlKTsK
-PiA+Pgo+ID4+IC1zdGF0aWMgdm9pZCB2cmluZ19mcmVlKHN0cnVjdCB2aXJ0cXVldWUgKl92cSkK
-PiA+PiArc3RhdGljIHZvaWQgdnJpbmdfZnJlZShzdHJ1Y3QgdnJpbmdfdmlydHF1ZXVlICp2cSkK
-PiA+PiAgewo+ID4+IC0Jc3RydWN0IHZyaW5nX3ZpcnRxdWV1ZSAqdnEgPSB0b192dnEoX3ZxKTsK
-PiA+PiAtCj4gPj4gIAlpZiAodnEtPndlX293bl9yaW5nKSB7Cj4gPj4gIAkJaWYgKHZxLT5wYWNr
-ZWRfcmluZykgewo+ID4+ICAJCQl2cmluZ19mcmVlX3F1ZXVlKHZxLT52cS52ZGV2LAo+ID4+IEBA
-IC0yNjkzLDcgKzI2OTEsNyBAQCB2b2lkIHZyaW5nX2RlbF92aXJ0cXVldWUoc3RydWN0IHZpcnRx
-dWV1ZSAqX3ZxKQo+ID4+ICAJbGlzdF9kZWwoJl92cS0+bGlzdCk7Cj4gPj4gIAlzcGluX3VubG9j
-aygmdnEtPnZxLnZkZXYtPnZxc19saXN0X2xvY2spOwo+ID4+Cj4gPj4gLQl2cmluZ19mcmVlKF92
-cSk7Cj4gPj4gKwl2cmluZ19mcmVlKHZxKTsKPiA+Pgo+ID4+ICAJa2ZyZWUodnEpOwo+ID4+ICB9
-Cj4gPj4gLS0KPiA+PiAyLjI3LjAKPiAKCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRp
-b25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRp
-b24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+
+
+Am 27.09.22 um 07:35 schrieb Christian Borntraeger:
+> 
+> 
+> Am 26.09.22 um 20:22 schrieb Peter Zijlstra:
+>> On Mon, Sep 26, 2022 at 08:06:46PM +0200, Peter Zijlstra wrote:
+>>
+>>> Let me go git-grep some to see if there's more similar fail.
+>>
+>> I've ended up with the below...
+> 
+> Tested-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> 
+> Kind of scary that nobody else has reported any regression. I guess the freezable variant is just not used widely.
+
+Will you queue this fix for next soon?
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
