@@ -1,108 +1,91 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6EA66C32771
-	for <virtualization@archiver.kernel.org>; Wed, 28 Sep 2022 05:59:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6F68CC04A95
+	for <virtualization@archiver.kernel.org>; Wed, 28 Sep 2022 06:17:31 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id E361360B91;
-	Wed, 28 Sep 2022 05:59:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E361360B91
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=aKF+8Hna
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id gmQeOq-kepaE; Wed, 28 Sep 2022 05:59:33 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 402BC60B5C;
-	Wed, 28 Sep 2022 05:59:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 402BC60B5C
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 08D2DC0032;
-	Wed, 28 Sep 2022 05:59:32 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 9577FC002D
- for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Sep 2022 05:59:31 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 63CEF404C4
- for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Sep 2022 05:59:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 63CEF404C4
-Authentication-Results: smtp2.osuosl.org; dkim=pass (1024-bit key,
- unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256
- header.s=mimecast20190719 header.b=aKF+8Hna
+	by smtp2.osuosl.org (Postfix) with ESMTP id 06866404ED;
+	Wed, 28 Sep 2022 06:17:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 06866404ED
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=SmwvDzgI
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id BpClZ7Pgm0gn
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id lvYSOBxZHpsM; Wed, 28 Sep 2022 06:17:29 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 2A0E7402FE;
+	Wed, 28 Sep 2022 06:17:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2A0E7402FE
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0057AC0033;
+	Wed, 28 Sep 2022 06:17:29 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id DE22CC002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Sep 2022 05:59:30 +0000 (UTC)
+ Wed, 28 Sep 2022 06:17:27 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id AF79F81C20
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 28 Sep 2022 06:17:27 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AF79F81C20
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=SmwvDzgI
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id S2jIlNNC8B-6
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 28 Sep 2022 06:17:26 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 474DD40515
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 86AD881C18
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 474DD40515
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 86AD881C18
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Sep 2022 05:59:30 +0000 (UTC)
+ Wed, 28 Sep 2022 06:17:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1664344769;
+ s=mimecast20190719; t=1664345845;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=Ux6ESxD86I07b6gSvTxqwQcjLCm9KKX7ZOKJu4UtAwY=;
- b=aKF+8HnamZvrfn2A05E3ZaB0EZYH9QOTwG+zpudK9fwzYQw6VjGE8QiF1DCCSj3mWjfMM3
- iSQ4nRTieLQpmkqAR9tHfhZi3a17SjcbwtrA7wPVheVDekeD8t6ymnTeVEM7TzjdMGWxQN
- VsI/Nqc6LILWMIV6oeyw+PHcCCWx0xg=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-496-bO7ca_BcNL-Twb99DyTxIw-1; Wed, 28 Sep 2022 01:59:25 -0400
-X-MC-Unique: bO7ca_BcNL-Twb99DyTxIw-1
-Received: by mail-wm1-f71.google.com with SMTP id
- l15-20020a05600c4f0f00b003b4bec80edbso6613996wmq.9
- for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Sep 2022 22:59:25 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
- bh=Ux6ESxD86I07b6gSvTxqwQcjLCm9KKX7ZOKJu4UtAwY=;
- b=yVK6mas7yXgG2NWEQNZqJ+B+fTwh6FLMpaIhfY1yVuZUJwR1yI9SZFPHJnDl/kQFDg
- 5EoQaC5Q4BDwt0VREOGt/uvPlZUGV4C3QKMOHQIbb0znSwMGRXul+4RPT01IIWfKmvYx
- WWeC8cFbngDJPQvHodnbL8EMfmznUY66Lyo6VZCQzAKx9pk85pkeG4WAU9R0qz5NEHbN
- JkK3sFjXfDdvU+piulwH48ReEc7kT0J+l3CjR1an9GcW/p28FPc7GguCoV9NcQGBH4lr
- v91LB3YdSg17arQOkYk3j27pFhvsJx/qiiAl9DZNns+VbzZTU8RaxyNGbJjdrhJfns1S
- LV/Q==
-X-Gm-Message-State: ACrzQf39b5LL+B9iVguFEcMNsdIabYbnwupKFm8asVjNOdUnrVlCZMi4
- zOsIRpbEN66PTW2slREGGR1YmjjXWhiLq7WH3FDjZTHFbAjvPFLDhBS2pHLGMxqSQSwPCKA29Sz
- HK43vsfmBlHuREWTDbpJ1FfKSR+D4RdJcVCl0rQc4wQ==
-X-Received: by 2002:a05:600c:34c2:b0:3b4:7a98:5f5a with SMTP id
- d2-20020a05600c34c200b003b47a985f5amr5328689wmq.156.1664344764366; 
- Tue, 27 Sep 2022 22:59:24 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM7UKR3w+gPq4gH2R4DtnLpTJZ0Es1FfUnbDXa88Vy1h6XPhRWaiY7aMP3aKzQ6yL81cmT8gzg==
-X-Received: by 2002:a05:600c:34c2:b0:3b4:7a98:5f5a with SMTP id
- d2-20020a05600c34c200b003b47a985f5amr5328644wmq.156.1664344763132; 
- Tue, 27 Sep 2022 22:59:23 -0700 (PDT)
-Received: from redhat.com ([2.55.17.78]) by smtp.gmail.com with ESMTPSA id
- k15-20020adfd22f000000b0021badf3cb26sm3017353wrh.63.2022.09.27.22.59.21
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 27 Sep 2022 22:59:22 -0700 (PDT)
-Date: Wed, 28 Sep 2022 01:59:19 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
+ bh=xmlSZkZxROIcPznagSrxrKVXTo8KbG8k1WiRu1ChMH8=;
+ b=SmwvDzgIbi4MR/Pq9SO64U7LEWywe/01j7tXhdqyjGQ92uass2jOxDu+5jlntCSddwMJQC
+ K5Wz+/42SXy7gINi8WA76LPMRM2ArSdPc/o+Qq0FnJ6aypq+gAwqAxnXvPRMqOBSAjQ4h6
+ NnX2wfMVh7P9pIijuI7+QTz2Vz67OWM=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-457-GvslDGmOOuO8jLmiubdULQ-1; Wed, 28 Sep 2022 02:17:20 -0400
+X-MC-Unique: GvslDGmOOuO8jLmiubdULQ-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.4])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id C87F03C01D9E;
+ Wed, 28 Sep 2022 06:17:19 +0000 (UTC)
+Received: from T590 (ovpn-8-16.pek2.redhat.com [10.72.8.16])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id 81DCD2027061;
+ Wed, 28 Sep 2022 06:17:11 +0000 (UTC)
+Date: Wed, 28 Sep 2022 14:17:06 +0800
+From: Ming Lei <ming.lei@redhat.com>
 To: Angus Chen <angus.chen@jaguarmicro.com>
-Subject: Re: [PATCH v2] virtio_pci: avoid to request intx irq if pin is zero
-Message-ID: <20220928015402-mutt-send-email-mst@kernel.org>
-References: <20220928053522.440-1-angus.chen@jaguarmicro.com>
+Subject: Re: [PATCH v1] virtio_blk: should not use IRQD_AFFINITY_MANAGED in
+ init_rq
+Message-ID: <YzPm4hCx4xBuR3o9@T590>
+References: <20220924034854.323-1-angus.chen@jaguarmicro.com>
 MIME-Version: 1.0
-In-Reply-To: <20220928053522.440-1-angus.chen@jaguarmicro.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+In-Reply-To: <20220924034854.323-1-angus.chen@jaguarmicro.com>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.4
+Cc: axboe@kernel.dk, mst@redhat.com, linux-kernel@vger.kernel.org,
+ Liming Wu <liming.wu@jaguarmicro.com>,
+ virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org,
+ pbonzini@redhat.com, Thomas Gleixner <tglx@linutronix.de>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,9 +102,7 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Thanks! More minor issues to address
-
-On Wed, Sep 28, 2022 at 01:35:22PM +0800, Angus Chen wrote:
+On Sat, Sep 24, 2022 at 11:48:54AM +0800, Angus Chen wrote:
 > The background is that we use dpu in cloud computing,the arch is x86,80
 > cores.We will have a lots of virtio devices,like 512 or more.
 > When we probe about 200 virtio_blk devices,it will fail and
@@ -161,91 +142,210 @@ On Wed, Sep 28, 2022 at 01:35:22PM +0800, Angus Chen wrote:
 > [25338.629731]  ret_from_fork+0x1f/0x40
 > [25338.633395] virtio_blk: probe of virtio418 failed with error -16
 > 
+> After I did some work of this stack,took stap and crash to get more
+> information,I found that the auto irq_affinity affect this.
+> When "vp_find_vqs" call "vp_find_vqs_msix" failed,it will be go back
+> to call vp_find_vqs_msix again with ctx be false, and when it failed again,
+> we will call vp_find_vqs_intx,if the vp_dev->pci_dev->irq is zero,
+> we will get a backtrace like above.
+> 
 > The log :
 > "genirq: Flags mismatch irq 0. 00000080 (virtio418) vs. 00015a00 (timer)"
 > was print because of the irq 0 is used by timer exclusive,and when
-> vp_find_vqs call vp_find_vqs_msix and return false twice for
-> whatever reason,then it will call vp_find_vqs_intx for the last try.
+> vp_find_vqs called vp_find_vqs_msix and return false twice,then it will
+> call vp_find_vqs_intx for the last try.
 > Because vp_dev->pci_dev->irq is zero,so it will be request irq 0 with
-> flag IRQF_SHARED,we will get a backtrace like above.
+> flag IRQF_SHARED.
 > 
-> according to PCI spec , Devices (or device functions)
-> that do not use an interrupt pin must put a 0 in this register.
+> without config CONFIG_GENERIC_IRQ_DEBUGFS,
+> I found that we called vp_find_vqs_msix failed twice because of
+> the irq resource was exhausted.
+> 
+> crash> irq_domain.name,parent 0xffff9bff87d4dec0
+>   name = 0xffff9bff87c1fd60 "INTEL-IR-MSI-1-2"
+>   parent = 0xffff9bff87400000
+> crash> irq_domain.name,parent 0xffff9bff87400000
+>   name = 0xffff9bff87c24300 "INTEL-IR-1"
+>   parent = 0xffff9bff87c6c900
+> crash> irq_domain.name,parent 0xffff9bff87c6c900
+>   name = 0xffff9bff87c3ecd0 "VECTOR"
+>   parent = 0x0----------------------the highest level
+> 
+> and stap irq_matrix_alloc_managed get return value -ENOSPC.
+> 
+> When no virtio_blk device probe,the vctor_matrix is:
+> crash>  p *vector_matrix
+> $1 = {
+>   matrix_bits = 256,
+>   alloc_start = 32,
+>   alloc_end = 236,
+>   alloc_size = 204,
+>   global_available = 15593,
+>   global_reserved = 149,
+>   systembits_inalloc = 3,
+>   total_allocated = 409,
+>   online_maps = 80,
+>   maps = 0x2ff20,
+>   scratch_map = {1161063342014463, 0, 1, 18446726481523507200,
+>  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+>  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+>   system_map = {1125904739729407, 0, 1, 18446726481523507200,
+>  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+>  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+> }
+> 
+> When the dump stack occur,the vector_matrix of system is exhausted.
+> crash> p *vector_matrix
+> $82 = {
+>   matrix_bits = 256,
+>   alloc_start = 32,
+>   alloc_end = 236,
+>   alloc_size = 204,
+>   global_available = 0,//caq:irq left
+>   global_reserved = 151,
+>   systembits_inalloc = 3,
+>   total_allocated = 1922,//caq:irq that allocated
+>   online_maps = 80,
+>   maps = 0x2ff20,
+>   scratch_map = {18446744069952503807, 18446744073709551615,
+>  18446744073709551615, 18446735277616529407, 0, 0, 0, 0, 0,
+>  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+>   system_map = {1125904739729407, 0, 1, 18446726481523507200,
+>  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+>  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+> }
+> 
+> And we tested the virtio_blk device which request irq success,
+> we found that in a system with 80 cores and two numa ,one
+> virtio_blk device with just two data queues consume 81 irqs capacity,
+> Although it just only three irqs in /proc/interrupt,80 irqs capacity 
+> is effected by function "irq_build_affinity_masks" with 2*40.
 
-Pls add quotes and add "Interrupt Pin:" to make it clear in which register.
+irq_build_affinity_masks() is just for spreading CPUs among the two
+vectors, nothing to do with your issue.
 
-> So if vp_dev->pci_dev->pin is zero, maybe we should not request legacy
-> interrupt.
+Your issue should be related with irq matrix code, which manages effective
+cpu allocation for irq vector, nothing to do with irq_build_affinity_masks().
 
-and drop "maybe" here pls. I guess it sounds impolite to you but
-as the patch author you get to make the tough decisions :)
+Cc Thomas.
 
 > 
+> before one virtio_blk device hotplug out:
+> crash> p *vector_matrix
+> $2 = {
+>   matrix_bits = 256,
+>   alloc_start = 32,
+>   alloc_end = 236,
+>   alloc_size = 204,
+>   global_available = 15215,
+>   global_reserved = 150,
+>   systembits_inalloc = 3,
+>   total_allocated = 553,
+>   online_maps = 80,
+>   maps = 0x2ff20,
+>   scratch_map = {1179746449752063, 0, 1, 18446726481523507200, 0, 0, 0,
+>  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+>  0, 0, 0, 0, 0},
+>   system_map = {1125904739729407, 0, 1, 18446726481523507200, 0, 0, 0,
+>  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+>  0, 0, 0, 0, 0}
+> }
+> 
+> after one virtio_blk device hotplug out:
+> crash> p *vector_matrix
+> $3 = {
+>   matrix_bits = 256,
+>   alloc_start = 32,
+>   alloc_end = 236,
+>   alloc_size = 204,
+>   global_available = 15296,---it increase 81,include 1 config irq.
+>   global_reserved = 150,
+>   systembits_inalloc = 3,
+>   total_allocated = 550,------it just decrease 3.
+>   online_maps = 80,
+>   maps = 0x2ff20,
+>   scratch_map = {481036337152, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+>  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+>  0, 0, 0, 0},
+>   system_map = {1125904739729407, 0, 1, 18446726481523507200, 0, 0, 0,
+>  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+>  0, 0, 0, 0, 0}
+> }
+> 
+> We test the new kernel also,it occur the same result.
+> [Fri Sep 23 04:51:42 2022] genirq: Flags mismatch irq 0. 00000080 (virtio608) vs. 00015a00 (timer)
+> [Fri Sep 23 04:51:42 2022] CPU: 0 PID: 5749 Comm: kworker/0:0 Kdump: loaded Tainted: G        W  OE      6.0.0-rc6+ #5
+> [Fri Sep 23 04:51:42 2022] Hardware name: Inspur NF5280M5/YZMB-00882-10E, BIOS 4.1.19 06/16/2021
+> [Fri Sep 23 04:51:42 2022] Workqueue: events work_for_cpu_fn
+> [Fri Sep 23 04:51:42 2022] Call Trace:
+> [Fri Sep 23 04:51:42 2022]  <TASK>
+> [Fri Sep 23 04:51:42 2022]  dump_stack_lvl+0x33/0x46
+> [Fri Sep 23 04:51:42 2022]  __setup_irq+0x705/0x770
+> [Fri Sep 23 04:51:42 2022]  request_threaded_irq+0x109/0x170
+> [Fri Sep 23 04:51:42 2022]  vp_find_vqs+0xc4/0x190
+> [Fri Sep 23 04:51:42 2022]  init_vqs+0x348/0x580 [virtio_net]
+> [Fri Sep 23 04:51:42 2022]  virtnet_probe+0x54d/0xa80 [virtio_net]
+> [Fri Sep 23 04:51:42 2022]  virtio_dev_probe+0x19c/0x240
+> [Fri Sep 23 04:51:42 2022]  really_probe+0x106/0x3e0
+> [Fri Sep 23 04:51:42 2022]  ? pm_runtime_barrier+0x4f/0xa0
+> [Fri Sep 23 04:51:42 2022]  __driver_probe_device+0x79/0x170
+> [Fri Sep 23 04:51:42 2022]  driver_probe_device+0x1f/0xa0
+> [Fri Sep 23 04:51:42 2022]  __device_attach_driver+0x85/0x110
+> [Fri Sep 23 04:51:42 2022]  ? driver_allows_async_probing+0x60/0x60
+> [Fri Sep 23 04:51:42 2022]  ? driver_allows_async_probing+0x60/0x60
+> [Fri Sep 23 04:51:42 2022]  bus_for_each_drv+0x67/0xb0
+> [Fri Sep 23 04:51:42 2022]  __device_attach+0xe9/0x1b0
+> [Fri Sep 23 04:51:42 2022]  bus_probe_device+0x87/0xa0
+> [Fri Sep 23 04:51:42 2022]  device_add+0x59f/0x950
+> [Fri Sep 23 04:51:42 2022]  ? dev_set_name+0x4e/0x70
+> [Fri Sep 23 04:51:42 2022]  register_virtio_device+0xac/0xf0
+> [Fri Sep 23 04:51:42 2022]  virtio_pci_probe+0x101/0x170
+> [Fri Sep 23 04:51:42 2022]  local_pci_probe+0x42/0xa0
+> [Fri Sep 23 04:51:42 2022]  work_for_cpu_fn+0x13/0x20
+> [Fri Sep 23 04:51:42 2022]  process_one_work+0x1c2/0x3d0
+> [Fri Sep 23 04:51:42 2022]  ? process_one_work+0x3d0/0x3d0
+> [Fri Sep 23 04:51:42 2022]  worker_thread+0x1b9/0x360
+> [Fri Sep 23 04:51:42 2022]  ? process_one_work+0x3d0/0x3d0
+> [Fri Sep 23 04:51:42 2022]  kthread+0xe6/0x110
+> [Fri Sep 23 04:51:42 2022]  ? kthread_complete_and_exit+0x20/0x20
+> [Fri Sep 23 04:51:42 2022]  ret_from_fork+0x1f/0x30
+> [Fri Sep 23 04:51:42 2022]  </TASK>
+> [Fri Sep 23 04:51:43 2022] virtio_net: probe of virtio608 failed with error -16
+> 
+> Fixes: ad71473d9c43 ("virtio_blk: use virtio IRQ affinity")
 > Signed-off-by: Angus Chen <angus.chen@jaguarmicro.com>
-> Suggested-by: Michael S. Tsirkin <mst@redhat.com>
+> Tested-by: Liming Wu <liming.wu@jaguarmicro.com>
 > ---
-> v2:
-> - Decide whether to request an intx interrupt by pin instead of irq
-> - suggested by mst
+>  drivers/block/virtio_blk.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
 > 
-> v1:https://lore.kernel.org/virtualization/20220928000228-mutt-send-email-mst@kernel.org/T/#u
-> 
->  drivers/virtio/virtio_pci_common.c | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-> index ad258a9d3b9f..81225e503e69 100644
-> --- a/drivers/virtio/virtio_pci_common.c
-> +++ b/drivers/virtio/virtio_pci_common.c
-> @@ -362,6 +362,9 @@ static int vp_find_vqs_intx(struct virtio_device *vdev, unsigned int nvqs,
->  	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
->  	int i, err, queue_idx = 0;
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index a8bcf3f664af..075de30a9bb4 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -513,7 +513,6 @@ static int init_vq(struct virtio_blk *vblk)
+>  	struct virtqueue **vqs;
+>  	unsigned short num_vqs;
+>  	struct virtio_device *vdev = vblk->vdev;
+> -	struct irq_affinity desc = { 0, };
 >  
-> +	if (vp_dev->pci_dev->pin == 0)
-> +		return -EINVAL;
-> +
+>  	err = virtio_cread_feature(vdev, VIRTIO_BLK_F_MQ,
+>  				   struct virtio_blk_config, num_queues,
+> @@ -548,7 +547,7 @@ static int init_vq(struct virtio_blk *vblk)
+>  	}
+>  
+>  	/* Discover virtqueues and write information to configuration.  */
+> -	err = virtio_find_vqs(vdev, num_vqs, vqs, callbacks, names, &desc);
+> +	err = virtio_find_vqs(vdev, num_vqs, vqs, callbacks, names, NULL);
+>  	if (err)
+>  		goto out;
 
-Pls use !pin for brevity.
-
->  	vp_dev->vqs = kcalloc(nvqs, sizeof(*vp_dev->vqs), GFP_KERNEL);
->  	if (!vp_dev->vqs)
->  		return -ENOMEM;
-
-
-So, this is mostly ok. The only issue is this:
-
-
-int vp_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
-                struct virtqueue *vqs[], vq_callback_t *callbacks[],
-                const char * const names[], const bool *ctx,
-                struct irq_affinity *desc)
-{
-        int err;
-
-        /* Try MSI-X with one vector per queue. */
-        err = vp_find_vqs_msix(vdev, nvqs, vqs, callbacks, names, true, ctx, desc);
-        if (!err)
-                return 0;
-        /* Fallback: MSI-X with one vector for config, one shared for queues. */
-        err = vp_find_vqs_msix(vdev, nvqs, vqs, callbacks, names, false, ctx, desc);
-        if (!err)
-                return 0;
-        /* Finally fall back to regular interrupts. */
-        return vp_find_vqs_intx(vdev, nvqs, vqs, callbacks, names, ctx);
-}
+This patch isn't good since blk-mq's queue mapping depends on managed
+irq affinity, and this way breaks queue mapping.
 
 
-So the real source of failure to use msix, will be overwritten in err by EINVAL.
-
-How about moving the "if" to vp_find_vqs?
-E.g.
-	/* Is there an interrupt pin? If not give up. */
-	if (!vdev->pci_dev->pin)
-		return err;
-
-
-> -- 
-> 2.17.1
+Thanks,
+Ming
 
 _______________________________________________
 Virtualization mailing list
