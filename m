@@ -1,139 +1,108 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id F17E8C32771
-	for <virtualization@archiver.kernel.org>; Wed, 28 Sep 2022 05:45:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6EA66C32771
+	for <virtualization@archiver.kernel.org>; Wed, 28 Sep 2022 05:59:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 6E043404ED;
-	Wed, 28 Sep 2022 05:45:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6E043404ED
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=kkMKeB6g
+	by smtp3.osuosl.org (Postfix) with ESMTP id E361360B91;
+	Wed, 28 Sep 2022 05:59:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E361360B91
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=aKF+8Hna
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id JJGKHlXnDu5T; Wed, 28 Sep 2022 05:45:31 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id A9FAD402FE;
-	Wed, 28 Sep 2022 05:45:30 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A9FAD402FE
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id gmQeOq-kepaE; Wed, 28 Sep 2022 05:59:33 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 402BC60B5C;
+	Wed, 28 Sep 2022 05:59:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 402BC60B5C
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 81252C0032;
-	Wed, 28 Sep 2022 05:45:30 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 08D2DC0032;
+	Wed, 28 Sep 2022 05:59:32 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 54232C002D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9577FC002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Sep 2022 05:45:29 +0000 (UTC)
+ Wed, 28 Sep 2022 05:59:31 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 1DA8B404E5
+ by smtp2.osuosl.org (Postfix) with ESMTP id 63CEF404C4
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Sep 2022 05:45:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1DA8B404E5
+ Wed, 28 Sep 2022 05:59:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 63CEF404C4
+Authentication-Results: smtp2.osuosl.org; dkim=pass (1024-bit key,
+ unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256
+ header.s=mimecast20190719 header.b=aKF+8Hna
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id U0dTSAgAv5Y3
+ with ESMTP id BpClZ7Pgm0gn
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Sep 2022 05:45:27 +0000 (UTC)
+ Wed, 28 Sep 2022 05:59:30 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 86CF0402FE
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com
- [148.163.156.1])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 86CF0402FE
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 474DD40515
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 474DD40515
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Sep 2022 05:45:27 +0000 (UTC)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
- by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 28S56DgB008399;
- Wed, 28 Sep 2022 05:44:58 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com;
- h=message-id : date :
- mime-version : subject : from : to : cc : references : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=TRI7XAqpRChSCmHrdGbn7ZcUW1chuyOMvMEZsO5iOfM=;
- b=kkMKeB6gM2XwbxUMQI6Dv4jFR10HYXMzO3uNZUjeFiLyIeggvPCbsdNO4Lwxw5Bu01AE
- +EQVf4LVLLj1UANVQpC7TALUvhrNmdmAIx64zSLDzvc7gYnQn1jrOQ8I4DeqQeEQ85zR
- 2VIuO06lwEosEi2uT1mCNZHXFyWDQ15yaarnwC6e2XAt7BO0odmij51xlFo9AQXpugwG
- Pd9XPydgTIrBIoLRGkfvp1sD2aVQHR2RPxPhrgLYxViKOeOV9/e2ZDlk+mEeqj1XFlyI
- OqcZN3XYr5S+NUr9Jk9WO1uF2m1Ez3HsASc7TnrZcf0HgSbewr2AkYl4qJGvNTOnc1vQ vQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
- by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jv8wpt8dv-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Wed, 28 Sep 2022 05:44:57 +0000
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
- by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 28S56IV0009087;
- Wed, 28 Sep 2022 05:44:56 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com
- [169.51.49.98])
- by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3jv8wpt8ct-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Wed, 28 Sep 2022 05:44:55 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
- by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 28S5ZeV8005426;
- Wed, 28 Sep 2022 05:44:53 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com
- (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
- by ppma03ams.nl.ibm.com with ESMTP id 3jssh9cr0h-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Wed, 28 Sep 2022 05:44:53 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com
- [9.149.105.58])
- by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id
- 28S5ipT02490880
- (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Wed, 28 Sep 2022 05:44:51 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
- by IMSVA (Postfix) with ESMTP id F09514C040;
- Wed, 28 Sep 2022 05:44:50 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
- by IMSVA (Postfix) with ESMTP id 31A494C044;
- Wed, 28 Sep 2022 05:44:50 +0000 (GMT)
-Received: from [9.171.2.29] (unknown [9.171.2.29])
- by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
- Wed, 28 Sep 2022 05:44:50 +0000 (GMT)
-Message-ID: <0e1259a7-a99d-ceb6-d73d-a3e3cf32d003@linux.ibm.com>
-Date: Wed, 28 Sep 2022 07:44:49 +0200
+ Wed, 28 Sep 2022 05:59:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1664344769;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=Ux6ESxD86I07b6gSvTxqwQcjLCm9KKX7ZOKJu4UtAwY=;
+ b=aKF+8HnamZvrfn2A05E3ZaB0EZYH9QOTwG+zpudK9fwzYQw6VjGE8QiF1DCCSj3mWjfMM3
+ iSQ4nRTieLQpmkqAR9tHfhZi3a17SjcbwtrA7wPVheVDekeD8t6ymnTeVEM7TzjdMGWxQN
+ VsI/Nqc6LILWMIV6oeyw+PHcCCWx0xg=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-496-bO7ca_BcNL-Twb99DyTxIw-1; Wed, 28 Sep 2022 01:59:25 -0400
+X-MC-Unique: bO7ca_BcNL-Twb99DyTxIw-1
+Received: by mail-wm1-f71.google.com with SMTP id
+ l15-20020a05600c4f0f00b003b4bec80edbso6613996wmq.9
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 27 Sep 2022 22:59:25 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
+ bh=Ux6ESxD86I07b6gSvTxqwQcjLCm9KKX7ZOKJu4UtAwY=;
+ b=yVK6mas7yXgG2NWEQNZqJ+B+fTwh6FLMpaIhfY1yVuZUJwR1yI9SZFPHJnDl/kQFDg
+ 5EoQaC5Q4BDwt0VREOGt/uvPlZUGV4C3QKMOHQIbb0znSwMGRXul+4RPT01IIWfKmvYx
+ WWeC8cFbngDJPQvHodnbL8EMfmznUY66Lyo6VZCQzAKx9pk85pkeG4WAU9R0qz5NEHbN
+ JkK3sFjXfDdvU+piulwH48ReEc7kT0J+l3CjR1an9GcW/p28FPc7GguCoV9NcQGBH4lr
+ v91LB3YdSg17arQOkYk3j27pFhvsJx/qiiAl9DZNns+VbzZTU8RaxyNGbJjdrhJfns1S
+ LV/Q==
+X-Gm-Message-State: ACrzQf39b5LL+B9iVguFEcMNsdIabYbnwupKFm8asVjNOdUnrVlCZMi4
+ zOsIRpbEN66PTW2slREGGR1YmjjXWhiLq7WH3FDjZTHFbAjvPFLDhBS2pHLGMxqSQSwPCKA29Sz
+ HK43vsfmBlHuREWTDbpJ1FfKSR+D4RdJcVCl0rQc4wQ==
+X-Received: by 2002:a05:600c:34c2:b0:3b4:7a98:5f5a with SMTP id
+ d2-20020a05600c34c200b003b47a985f5amr5328689wmq.156.1664344764366; 
+ Tue, 27 Sep 2022 22:59:24 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM7UKR3w+gPq4gH2R4DtnLpTJZ0Es1FfUnbDXa88Vy1h6XPhRWaiY7aMP3aKzQ6yL81cmT8gzg==
+X-Received: by 2002:a05:600c:34c2:b0:3b4:7a98:5f5a with SMTP id
+ d2-20020a05600c34c200b003b47a985f5amr5328644wmq.156.1664344763132; 
+ Tue, 27 Sep 2022 22:59:23 -0700 (PDT)
+Received: from redhat.com ([2.55.17.78]) by smtp.gmail.com with ESMTPSA id
+ k15-20020adfd22f000000b0021badf3cb26sm3017353wrh.63.2022.09.27.22.59.21
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 27 Sep 2022 22:59:22 -0700 (PDT)
+Date: Wed, 28 Sep 2022 01:59:19 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Angus Chen <angus.chen@jaguarmicro.com>
+Subject: Re: [PATCH v2] virtio_pci: avoid to request intx irq if pin is zero
+Message-ID: <20220928015402-mutt-send-email-mst@kernel.org>
+References: <20220928053522.440-1-angus.chen@jaguarmicro.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.13.0
-Subject: Re: [PATCH v3 6/6] freezer,sched: Rewrite core freezer logic
-Content-Language: en-US
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-To: Peter Zijlstra <peterz@infradead.org>
-References: <20220923072104.2013212-1-borntraeger@linux.ibm.com>
- <56576c3c-fe9b-59cf-95b8-158734320f24@linux.ibm.com>
- <b1d41989-7f4f-eb1d-db35-07a6f6b7a7f5@linux.ibm.com>
- <436fa401-e113-0393-f47a-ed23890364d7@linux.ibm.com>
- <39dfc425-deff-2469-7bcb-4a0e177b31d1@linux.ibm.com>
- <YzGhUZJKV3pKJL3Z@hirez.programming.kicks-ass.net>
- <66463973-923f-624d-3041-72ce76147b3e@linux.ibm.com>
- <YzGrJSLXpocpGIha@hirez.programming.kicks-ass.net>
- <9ec643f3-b935-0119-d8bc-1fbe46c36356@linux.ibm.com>
- <YzHqNiRj2Q5vxdCV@hirez.programming.kicks-ass.net>
- <YzHt2nG0Hb7xLlNj@hirez.programming.kicks-ass.net>
- <985463a3-5e33-95d2-b2bb-824707a2f819@linux.ibm.com>
-In-Reply-To: <985463a3-5e33-95d2-b2bb-824707a2f819@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: C-iwwDbwObm8zSqeg3LDefvtdRzOtnJb
-X-Proofpoint-GUID: 0cHj6lZcSCFBnzr0oV2OOul8RCx0NzuU
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.528,FMLib:17.11.122.1
- definitions=2022-09-28_02,2022-09-27_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 malwarescore=0
- clxscore=1015 mlxscore=0 lowpriorityscore=0 priorityscore=1501
- phishscore=0 mlxlogscore=999 impostorscore=0 adultscore=0 bulkscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2209130000 definitions=main-2209280032
-Cc: vincent.guittot@linaro.org, linux-pm@vger.kernel.org, bigeasy@linutronix.de,
- Amit Shah <amit@kernel.org>, rjw@rjwysocki.net, linux-kernel@vger.kernel.org,
- rostedt@goodmis.org, mingo@kernel.org, Marc Hartmayer <mhartmay@linux.ibm.com>,
- mgorman@suse.de, oleg@redhat.com, tj@kernel.org,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>, will@kernel.org,
- dietmar.eggemann@arm.com, ebiederm@xmission.com
+In-Reply-To: <20220928053522.440-1-angus.chen@jaguarmicro.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -145,28 +114,139 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+Thanks! More minor issues to address
+
+On Wed, Sep 28, 2022 at 01:35:22PM +0800, Angus Chen wrote:
+> The background is that we use dpu in cloud computing,the arch is x86,80
+> cores.We will have a lots of virtio devices,like 512 or more.
+> When we probe about 200 virtio_blk devices,it will fail and
+> the stack is print as follows:
+> 
+> [25338.485128] virtio-pci 0000:b3:00.0: virtio_pci: leaving for legacy driver
+> [25338.496174] genirq: Flags mismatch irq 0. 00000080 (virtio418) vs. 00015a00 (timer)
+> [25338.503822] CPU: 20 PID: 5431 Comm: kworker/20:0 Kdump: loaded Tainted: G           OE    --------- -  - 4.18.0-305.30.1.el8.x86_64
+> [25338.516403] Hardware name: Inspur NF5280M5/YZMB-00882-10E, BIOS 4.1.21 08/25/2021
+> [25338.523881] Workqueue: events work_for_cpu_fn
+> [25338.528235] Call Trace:
+> [25338.530687]  dump_stack+0x5c/0x80
+> [25338.534000]  __setup_irq.cold.53+0x7c/0xd3
+> [25338.538098]  request_threaded_irq+0xf5/0x160
+> [25338.542371]  vp_find_vqs+0xc7/0x190
+> [25338.545866]  init_vq+0x17c/0x2e0 [virtio_blk]
+> [25338.550223]  ? ncpus_cmp_func+0x10/0x10
+> [25338.554061]  virtblk_probe+0xe6/0x8a0 [virtio_blk]
+> [25338.558846]  virtio_dev_probe+0x158/0x1f0
+> [25338.562861]  really_probe+0x255/0x4a0
+> [25338.566524]  ? __driver_attach_async_helper+0x90/0x90
+> [25338.571567]  driver_probe_device+0x49/0xc0
+> [25338.575660]  bus_for_each_drv+0x79/0xc0
+> [25338.579499]  __device_attach+0xdc/0x160
+> [25338.583337]  bus_probe_device+0x9d/0xb0
+> [25338.587167]  device_add+0x418/0x780
+> [25338.590654]  register_virtio_device+0x9e/0xe0
+> [25338.595011]  virtio_pci_probe+0xb3/0x140
+> [25338.598941]  local_pci_probe+0x41/0x90
+> [25338.602689]  work_for_cpu_fn+0x16/0x20
+> [25338.606443]  process_one_work+0x1a7/0x360
+> [25338.610456]  ? create_worker+0x1a0/0x1a0
+> [25338.614381]  worker_thread+0x1cf/0x390
+> [25338.618132]  ? create_worker+0x1a0/0x1a0
+> [25338.622051]  kthread+0x116/0x130
+> [25338.625283]  ? kthread_flush_work_fn+0x10/0x10
+> [25338.629731]  ret_from_fork+0x1f/0x40
+> [25338.633395] virtio_blk: probe of virtio418 failed with error -16
+> 
+> The log :
+> "genirq: Flags mismatch irq 0. 00000080 (virtio418) vs. 00015a00 (timer)"
+> was print because of the irq 0 is used by timer exclusive,and when
+> vp_find_vqs call vp_find_vqs_msix and return false twice for
+> whatever reason,then it will call vp_find_vqs_intx for the last try.
+> Because vp_dev->pci_dev->irq is zero,so it will be request irq 0 with
+> flag IRQF_SHARED,we will get a backtrace like above.
+> 
+> according to PCI spec , Devices (or device functions)
+> that do not use an interrupt pin must put a 0 in this register.
+
+Pls add quotes and add "Interrupt Pin:" to make it clear in which register.
+
+> So if vp_dev->pci_dev->pin is zero, maybe we should not request legacy
+> interrupt.
+
+and drop "maybe" here pls. I guess it sounds impolite to you but
+as the patch author you get to make the tough decisions :)
+
+> 
+> Signed-off-by: Angus Chen <angus.chen@jaguarmicro.com>
+> Suggested-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+> v2:
+> - Decide whether to request an intx interrupt by pin instead of irq
+> - suggested by mst
+> 
+> v1:https://lore.kernel.org/virtualization/20220928000228-mutt-send-email-mst@kernel.org/T/#u
+> 
+>  drivers/virtio/virtio_pci_common.c | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+> index ad258a9d3b9f..81225e503e69 100644
+> --- a/drivers/virtio/virtio_pci_common.c
+> +++ b/drivers/virtio/virtio_pci_common.c
+> @@ -362,6 +362,9 @@ static int vp_find_vqs_intx(struct virtio_device *vdev, unsigned int nvqs,
+>  	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+>  	int i, err, queue_idx = 0;
+>  
+> +	if (vp_dev->pci_dev->pin == 0)
+> +		return -EINVAL;
+> +
+
+Pls use !pin for brevity.
+
+>  	vp_dev->vqs = kcalloc(nvqs, sizeof(*vp_dev->vqs), GFP_KERNEL);
+>  	if (!vp_dev->vqs)
+>  		return -ENOMEM;
 
 
-Am 27.09.22 um 07:35 schrieb Christian Borntraeger:
-> 
-> 
-> Am 26.09.22 um 20:22 schrieb Peter Zijlstra:
->> On Mon, Sep 26, 2022 at 08:06:46PM +0200, Peter Zijlstra wrote:
->>
->>> Let me go git-grep some to see if there's more similar fail.
->>
->> I've ended up with the below...
-> 
-> Tested-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> 
-> Kind of scary that nobody else has reported any regression. I guess the freezable variant is just not used widely.
+So, this is mostly ok. The only issue is this:
 
-Will you queue this fix for next soon?
+
+int vp_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
+                struct virtqueue *vqs[], vq_callback_t *callbacks[],
+                const char * const names[], const bool *ctx,
+                struct irq_affinity *desc)
+{
+        int err;
+
+        /* Try MSI-X with one vector per queue. */
+        err = vp_find_vqs_msix(vdev, nvqs, vqs, callbacks, names, true, ctx, desc);
+        if (!err)
+                return 0;
+        /* Fallback: MSI-X with one vector for config, one shared for queues. */
+        err = vp_find_vqs_msix(vdev, nvqs, vqs, callbacks, names, false, ctx, desc);
+        if (!err)
+                return 0;
+        /* Finally fall back to regular interrupts. */
+        return vp_find_vqs_intx(vdev, nvqs, vqs, callbacks, names, ctx);
+}
+
+
+So the real source of failure to use msix, will be overwritten in err by EINVAL.
+
+How about moving the "if" to vp_find_vqs?
+E.g.
+	/* Is there an interrupt pin? If not give up. */
+	if (!vdev->pci_dev->pin)
+		return err;
+
+
+> -- 
+> 2.17.1
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
