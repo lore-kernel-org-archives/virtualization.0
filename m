@@ -1,115 +1,93 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4DEA2C04A95
-	for <virtualization@archiver.kernel.org>; Wed, 28 Sep 2022 10:03:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 88E85C6FA90
+	for <virtualization@archiver.kernel.org>; Wed, 28 Sep 2022 10:49:25 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id DE95B4058D;
-	Wed, 28 Sep 2022 10:03:22 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DE95B4058D
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ZTKEVzp/
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id bRHJWtdcmrgO; Wed, 28 Sep 2022 10:03:22 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 6B188404B2;
-	Wed, 28 Sep 2022 10:03:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6B188404B2
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3AEADC0033;
-	Wed, 28 Sep 2022 10:03:21 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 60077C002D
- for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Sep 2022 10:03:17 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 2658482A2D
- for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Sep 2022 10:03:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2658482A2D
+	by smtp1.osuosl.org (Postfix) with ESMTP id 0DE8281495;
+	Wed, 28 Sep 2022 10:49:25 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0DE8281495
 Authentication-Results: smtp1.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=ZTKEVzp/
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=solid-run-com.20210112.gappssmtp.com header.i=@solid-run-com.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=1rmZdJ/k
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id QXaEco48DTCc; Wed, 28 Sep 2022 10:49:24 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id B10FC81435;
+	Wed, 28 Sep 2022 10:49:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B10FC81435
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 81BCAC0032;
+	Wed, 28 Sep 2022 10:49:23 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C3815C002D
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 28 Sep 2022 10:49:21 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 9DA6881495
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 28 Sep 2022 10:49:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9DA6881495
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id hnye-d68eGLf
+ with ESMTP id qenDjOIV6ggU
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Sep 2022 10:03:16 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6B0368175F
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 6B0368175F
+ Wed, 28 Sep 2022 10:49:20 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 487D181435
+Received: from mail-oa1-x2d.google.com (mail-oa1-x2d.google.com
+ [IPv6:2001:4860:4864:20::2d])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 487D181435
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Sep 2022 10:03:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1664359395;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=uGN/gn+YJZ4VIu5yaP7PXBIwmM0Ss1jImh/D5mV3zS0=;
- b=ZTKEVzp/8jt+gc7YokwfQkqJfgY3CUCb5I85vlViXoLUKueXNKO7YClZesZcHpGhNeH7E3
- /H1vO3dcos/dWokBOe1g30vB8tiILV7AIs+CNHk0ihm8JUYYvmj74J7EueGMUO0PuVucXc
- kEMIbqXgbWg1uGiFpKVNiYXyYX6uiu0=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-639-F2Eep0x7MrKPTGfTSjLleg-1; Wed, 28 Sep 2022 06:03:13 -0400
-X-MC-Unique: F2Eep0x7MrKPTGfTSjLleg-1
-Received: by mail-wm1-f71.google.com with SMTP id
- r128-20020a1c4486000000b003b3309435a9so189184wma.6
+ Wed, 28 Sep 2022 10:49:20 +0000 (UTC)
+Received: by mail-oa1-x2d.google.com with SMTP id
+ 586e51a60fabf-127dca21a7dso16711186fac.12
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Sep 2022 03:03:13 -0700 (PDT)
+ Wed, 28 Sep 2022 03:49:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=solid-run-com.20210112.gappssmtp.com; s=20210112;
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:from:to:cc:subject:date;
+ bh=K8J6h2C+8OvW8618gBgSinEb38C/HjqL0U9cL5CPULs=;
+ b=1rmZdJ/kUw5GsNBKd0/4G79wW74ExGAGV74ZxAlyrnIKpYZJ99lNFnmjS2JUrmGCiV
+ s9w5WkgRkdGO7lm5APnCHmZkfTIhUpuQgA8rEnn9mBAQyPGyueoP6sShFhN/Kr3MHqh9
+ QEL29dfZcdT7aXZeU93/7waItGq2fO9B5zD5VR38A2Y1qNY+Xdzzf92TfGcBUJV6iIC8
+ k0dWIRfCxSgggfrQufA46zvJ8zpWsN/J+3tacMwIaAWsDQ7a0SyHt0Lou8qiYNmchqmm
+ 57kTctxk0cL+6VKCvgRxpIP6htOV5zUdRpep4XmV5bSK88RHzTE1dIh4DGXT6UsiOlsw
+ nL1A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
- bh=uGN/gn+YJZ4VIu5yaP7PXBIwmM0Ss1jImh/D5mV3zS0=;
- b=ryEUCpIjjvbrIpZ1xWx2e+wccfmHFBhvs1LU1JBFd7nwfe255Q4ffVTJI+kQbi/Y6h
- lxTmwC1UkM6QkYyousMRBgiVPYzoA0dh3H2CBhX+KmiSE4c/5fkohK7Y5w+sM3O2cy6n
- mIhT7DVlt8b3F77XMXGpp25t4qIY4/ABMsuGYbPlYSu5KwRXAJepgIw7ooqDxPVosk/s
- aK8DakZqJkmPo1WwHBhDMFsFBAK9qU6ohIqAs+VKT3efpOvRwBta6tVKab0xZAJOYL0G
- 4EMRVme3/SYd9GU3v7FjfnrWkSzbI+kG+f29qK5g/WBfbUQgfHgTExT2jVjaN4KKmZai
- aK4Q==
-X-Gm-Message-State: ACrzQf39TDshqqDk3y7E0lSsyBix0EhgWtGmt8quIm5ZnqW3wpcqtar+
- r0KrCsFo0Js89TXXdV7Du5Iz190Mr+8/OMD8ysYGOIYbaJCUTv63IOoDjPDu7VgYp84QAQHGEfT
- LVPq4YNQdgc4cl0cvT4NvM3Bqwie6Ryn4Hlnfq+lcRQ==
-X-Received: by 2002:a05:6000:1845:b0:22a:4b7a:6f55 with SMTP id
- c5-20020a056000184500b0022a4b7a6f55mr19857122wri.288.1664359392581; 
- Wed, 28 Sep 2022 03:03:12 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM6DD+7gws/rgYCF8YbDNblzEgE00DKcFR13//n9kKka+r2jpPDo/QMjf3VuTYnwOCnvOIKbew==
-X-Received: by 2002:a05:6000:1845:b0:22a:4b7a:6f55 with SMTP id
- c5-20020a056000184500b0022a4b7a6f55mr19857103wri.288.1664359392370; 
- Wed, 28 Sep 2022 03:03:12 -0700 (PDT)
-Received: from redhat.com ([2.55.17.78]) by smtp.gmail.com with ESMTPSA id
- q16-20020adfcd90000000b0022cbf4cda62sm4051657wrj.27.2022.09.28.03.03.09
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 28 Sep 2022 03:03:11 -0700 (PDT)
-Date: Wed, 28 Sep 2022 06:03:07 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH v1] virtio_blk: should not use IRQD_AFFINITY_MANAGED in
- init_rq
-Message-ID: <20220928055718-mutt-send-email-mst@kernel.org>
-References: <20220924034854.323-1-angus.chen@jaguarmicro.com>
- <20220927163723-mutt-send-email-mst@kernel.org>
- <20220928094545.GA19646@lst.de>
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:x-gm-message-state:from:to:cc:subject:date;
+ bh=K8J6h2C+8OvW8618gBgSinEb38C/HjqL0U9cL5CPULs=;
+ b=69ymZV2VCbpUU3J6ZIpScoK/erQRSOSE8KRZ3yaMNPqgFgiSyhR0b7fHDa5fi70QBj
+ 7XLdl0n15crE5w3TERvslg9AWuJU2duu+Fg6Bggfhg3ja3MZ8YERlKfisDFvwqAnM3GT
+ DsPZ3axf9Ypq7fSi7ZFsqtogterONwQSe3FvAAZcJUPYyAFC8yGhJpVzq3lVppMAbiVz
+ xQp5zXQSzKKU5BSp1huhyP7C0WMC3uj4UStwA1R/2pbgfnaFq5ya1QUMy2+MIhCjpH67
+ w3UfCpkakNrENZOW4pt97Nftj589oKviVowO+2YzT56MPfi3prsQ6Hc3AiQ5+m0Bqe32
+ 6WUg==
+X-Gm-Message-State: ACrzQf03MCTM4/XLHfCrmrDXXQ7fxDO030tUatL1JUg3OzXsG3ZPBZr/
+ Kb1a3aW9LD4ymN3jyG2IYQP5XRrTBTlz1frhqNr9+Q==
+X-Google-Smtp-Source: AMsMyM5NAg5hiskifyx3oX9myOocnRo/RptfziCPRzBCaHJ6BahdNB/5KwDbF6tiUfXXHlXm7RbnShfjm0f7OdjDxFY=
+X-Received: by 2002:a05:6870:f110:b0:127:3735:8e19 with SMTP id
+ k16-20020a056870f11000b0012737358e19mr4956469oac.273.1664362159288; Wed, 28
+ Sep 2022 03:49:19 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20220928094545.GA19646@lst.de>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: axboe@kernel.dk, linux-kernel@vger.kernel.org,
- Liming Wu <liming.wu@jaguarmicro.com>,
- virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org,
- stefanha@redhat.com, Angus Chen <angus.chen@jaguarmicro.com>,
- pbonzini@redhat.com, tglx@linutronix.de
+References: <20220921082729.2516779-1-alvaro.karsz@solid-run.com>
+ <YyyfJQo7N/iMPLNP@fedora>
+In-Reply-To: <YyyfJQo7N/iMPLNP@fedora>
+From: Alvaro Karsz <alvaro.karsz@solid-run.com>
+Date: Wed, 28 Sep 2022 13:48:43 +0300
+Message-ID: <CAJs=3_BXGpu-kDq1_bJSanh-iY63uwpc2tZtH6jOYcqBUptsNA@mail.gmail.com>
+Subject: Re: [PATCH v3] virtio_blk: add SECURE ERASE command support
+To: mst@redhat.com, Stefan Hajnoczi <stefanha@redhat.com>
+Cc: Jens Axboe <axboe@kernel.dk>, Paolo Bonzini <pbonzini@redhat.com>,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -126,56 +104,16 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Sep 28, 2022 at 11:45:45AM +0200, Christoph Hellwig wrote:
-> On Tue, Sep 27, 2022 at 04:47:20PM -0400, Michael S. Tsirkin wrote:
-> > > The log :
-> > > "genirq: Flags mismatch irq 0. 00000080 (virtio418) vs. 00015a00 (timer)"
-> > > was print because of the irq 0 is used by timer exclusive,and when
-> > > vp_find_vqs called vp_find_vqs_msix and return false twice,then it will
-> > > call vp_find_vqs_intx for the last try.
-> > > Because vp_dev->pci_dev->irq is zero,so it will be request irq 0 with
-> > > flag IRQF_SHARED.
-> > 
-> > First this is a bug. We can fix that so it will fail more cleanly.
-> > 
-> > We should check pci_dev->pin and if 0 do not try to use INT#x
-> > at all.
-> > It will still fail, just with a nicer backtrace.
-> 
-> How do we end up with a pci_dev without a valid PIN?
+> What I worry about is that down the road we might want to add
+> special meaning to currently unused values.
+> If doing that just clears VIRTIO_BLK_F_SECURE_ERASE then
+> we have forward compatibility. If it fails probe then we
+> won't be able to do use these values.
 
-This patch is broken but there's no v3 which looks right,
-and includes an explanation.
 
->  Btw, that whole
-> vp_find_* code looks extremely fucked up to me.  The whole point of
-> pci_alloc_irq_vectors* API is that it keeps drivers from poling into
-> details of MSI-X v MSI vs INTX.
-
-Poking? I think that code predates that, a minimal change was
-made to support affinity... but again, it does not look like the
-main issue has anything to do with that. Or maybe I'm wrong ...
-
-> > - because of auto affinity, we try to reserve an interrupt on all CPUs
-> > - as there are 512 devices with a single vector per VQ we would
-> >   have no issue as they would be spread between CPUs,
-> >   but allocating on all CPUs fails.
-> > 
-> > 
-> > I don't think the issue should be fixed at blk level - it is not
-> > blk specifix - but yes this looks like a problem.
-> > Christoph, any idea?
-> 
-> I think this goes into the low-level interrupt vector allocator.  I think
-> Thomas is still the expert on it.
-
-syzbot is also telling us there's an issue in next (and not due to
-virtio changes - I intentionally removed most of them for a while
-and the issue was there) but I could not figure it out.
-
--- 
-MST
-
+They are not exactly unused, we are using them to calculate the
+"discard sector alignment" and the "max discard sectors" values.
+The values are even used directly if VIRTIO_BLK_F_DISCARD is not negotiated.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
