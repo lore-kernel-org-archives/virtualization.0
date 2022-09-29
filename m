@@ -1,112 +1,100 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id BBCFAC04A95
-	for <virtualization@archiver.kernel.org>; Thu, 29 Sep 2022 07:01:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B40A7C04A95
+	for <virtualization@archiver.kernel.org>; Thu, 29 Sep 2022 07:14:28 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 5674D61050;
-	Thu, 29 Sep 2022 07:01:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5674D61050
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=axPKG5JF
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 7wHUt2XcGadH; Thu, 29 Sep 2022 07:01:16 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id CD2DE60E63;
-	Thu, 29 Sep 2022 07:01:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CD2DE60E63
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A7C3DC0032;
-	Thu, 29 Sep 2022 07:01:15 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8A1CCC002D
- for <virtualization@lists.linux-foundation.org>;
- Thu, 29 Sep 2022 07:01:14 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 61CDB419D6
- for <virtualization@lists.linux-foundation.org>;
- Thu, 29 Sep 2022 07:01:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 61CDB419D6
+	by smtp4.osuosl.org (Postfix) with ESMTP id 464154170B;
+	Thu, 29 Sep 2022 07:14:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 464154170B
 Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=axPKG5JF
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=solid-run-com.20210112.gappssmtp.com header.i=@solid-run-com.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=Ohuk+THf
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id vEnA9A7OWPBA
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id UoCVJMcGSJH4; Thu, 29 Sep 2022 07:14:27 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 8495541707;
+	Thu, 29 Sep 2022 07:14:26 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8495541707
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 479E5C0033;
+	Thu, 29 Sep 2022 07:14:26 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0D7A2C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 29 Sep 2022 07:01:13 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5F69E419CD
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 5F69E419CD
+ Thu, 29 Sep 2022 07:14:25 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id DC4AB402B1
  for <virtualization@lists.linux-foundation.org>;
- Thu, 29 Sep 2022 07:01:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1664434872;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=AxK08tpN1f4WSm3Qo4h/uwm/D3uFgyKZ3mg/sBcp48w=;
- b=axPKG5JF/OHMaeU8ntK28fI65xj8AkTESeNqjc48Tsma5NqCvDxw/y+hUHsA5hY/Xi9Jpr
- vmQ/WeIVl/zqR2TMuwnUabz46tCDs43ypi4QicRZBIRLXjvofXvfY1+0FN6ONrIsbwNFlp
- rD/XVx+8uCqOuOiTVeKX49D+9TvEUUs=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-278-yK06dq2oM9SeMJUlAi_CVw-1; Thu, 29 Sep 2022 03:01:09 -0400
-X-MC-Unique: yK06dq2oM9SeMJUlAi_CVw-1
-Received: by mail-wm1-f70.google.com with SMTP id
- h187-20020a1c21c4000000b003b51369ff1bso2552202wmh.3
+ Thu, 29 Sep 2022 07:14:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DC4AB402B1
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (2048-bit key) header.d=solid-run-com.20210112.gappssmtp.com
+ header.i=@solid-run-com.20210112.gappssmtp.com header.a=rsa-sha256
+ header.s=20210112 header.b=Ohuk+THf
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id xv8RI2bzl9oU
  for <virtualization@lists.linux-foundation.org>;
- Thu, 29 Sep 2022 00:01:08 -0700 (PDT)
+ Thu, 29 Sep 2022 07:14:24 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0C28C400CE
+Received: from mail-ot1-x32f.google.com (mail-ot1-x32f.google.com
+ [IPv6:2607:f8b0:4864:20::32f])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 0C28C400CE
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 29 Sep 2022 07:14:23 +0000 (UTC)
+Received: by mail-ot1-x32f.google.com with SMTP id
+ x23-20020a056830409700b00655c6dace73so375105ott.11
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 29 Sep 2022 00:14:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=solid-run-com.20210112.gappssmtp.com; s=20210112;
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:from:to:cc:subject:date;
+ bh=6i/NrOpyshZGfjV4aGBliBwD3inMehnh5np2GN2DIYc=;
+ b=Ohuk+THfkw7cXyhEoFOn4qKNnzbA2AiiCrkNsP/ViNgVZTyrLqLDoFmiTSN9B3fbiO
+ Mzi+Bclh79yDNmZ7ce0azKW2x5tICDaKD6H90qHw4p5Ji9GhYG4Fe4x+r00pQeZyuaqV
+ OThJ8dIPN18nKW9ur10WKEXsAgAiNnrQJYXU706LwvD1nj6Y5emycgeUoqvaP/qGws82
+ 04T09ALibSFMbwXD4yO+z1TAmPX2qGh1Kt16BT7SMmJGaKs3xrl5DzG7Dm1X4LHKqgiq
+ izaIX1oHBlyVX0FPBuC2jxparO+AoYXOkoXfRNyjkGRxl6Hk+pquggSrbTJJlaQpp4RJ
+ IfTA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
- bh=AxK08tpN1f4WSm3Qo4h/uwm/D3uFgyKZ3mg/sBcp48w=;
- b=qdWyZGW5gqJlMAD8gV45xsHHoQ9hq1L6K5ST/f/w2hxFf/QcIfeZjk1vKh6LQV2LEA
- JfYZlMzZ37xHB/+XYazByEDNr2htLZVNudawvDOKYgs6YD6kBAE6eFqevYchfiqeroXI
- jryd6OVbInR7f/Fsii+7IwIGXADhY6zWgFZNFkFVlTEQfrtxyKAiCqtZcNeX6wZKnyLG
- 7kUSvejZjGT2zkoOxiHaaFuYNpOz6nkONHyv8ylsoNp0X1piF2/VdPEtdGLdZdaPPOGE
- bIzTc7Aa6dyWKNwnxwODrx7Nt1A1ZJKRjY/IWja3F8iPvUYfJNJ8DGOxh1qQ44cjgjvi
- fVTw==
-X-Gm-Message-State: ACrzQf1Vt78bbO2zCPcc2btToJ2AO/pTPldhi3zyUVcEx3lBkQT475AW
- Mg+M0mp72s+FDaw61ux7KQ4LEjKJ4+2q5ItbREMqoLv9uPzTKObKe0W4cJ9Su6m7cxmuWH5czqO
- P9oPpwGQ9cQ96Bcs5O2StM/kckAyU9FGluES58WAlSA==
-X-Received: by 2002:adf:e4ca:0:b0:228:d8b7:48a7 with SMTP id
- v10-20020adfe4ca000000b00228d8b748a7mr998855wrm.300.1664434867941; 
- Thu, 29 Sep 2022 00:01:07 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM6ZbRji7MbNVQKoWmesvvZxQ9b3Cpq1Lt79TWy3szetsqpegw4eZnLiCCE6V5WfZSRm2OWveg==
-X-Received: by 2002:adf:e4ca:0:b0:228:d8b7:48a7 with SMTP id
- v10-20020adfe4ca000000b00228d8b748a7mr998833wrm.300.1664434867646; 
- Thu, 29 Sep 2022 00:01:07 -0700 (PDT)
-Received: from redhat.com ([2.55.17.78]) by smtp.gmail.com with ESMTPSA id
- n2-20020a05600c4f8200b003b27f644488sm3861501wmq.29.2022.09.29.00.01.05
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 29 Sep 2022 00:01:07 -0700 (PDT)
-Date: Thu, 29 Sep 2022 03:01:03 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Gavin Li <gavinl@nvidia.com>
-Subject: Re: [virtio-dev] [PATCH v6 0/2] Improve virtio performance for 9k mtu
-Message-ID: <20220929030022-mutt-send-email-mst@kernel.org>
-References: <20220914144911.56422-1-gavinl@nvidia.com>
- <68934c1a-6c75-f410-2c29-1a7edc97aeb9@nvidia.com>
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:x-gm-message-state:from:to:cc:subject:date;
+ bh=6i/NrOpyshZGfjV4aGBliBwD3inMehnh5np2GN2DIYc=;
+ b=AsZGJuA0S5TXS3XSmlAmPcdezeYyK8lhNWf67QEWLbFDnXDi4Cp5nGPYz7FkVodw2b
+ KdtVST2IQWPQxqawOtI8VqhLse8duRMxt84uTST6xY/KChp11ggvFmwfe/FOOFB/N6zh
+ Xg1ugCx9Z8j0dxHdQdZ0+w5f6ci8UAGDm0qt4DGhSrIQrbh2/FokMUbiVThkZCQfgWCm
+ +M6Se2SksfGSFQ4J4k/me1C/zCyyP+uHf3Wirh5VcJgQJuAOkxX2RSUzvJZDHxO6PuZ2
+ B4dGsWWStGdzIgxzUkR44SBt/Q8Nh1+qQqYIlnYojOdX1rLg5yz0emD7JXhp6aPK+rgH
+ hd4Q==
+X-Gm-Message-State: ACrzQf20UQJ/mq4ujNaEo+o71DW66RE2rT0b/y+bGSQFlYuKrqeX4sGZ
+ hl0u0LpkQzz7+SZ+nVxyLicu+JDlP1axLGtqIM9YgQ==
+X-Google-Smtp-Source: AMsMyM6v7W/5/xlDc66+odkAj8veGmOQ6zduP4vQS1P4pA8mbT2FIQ5eJ5KohsdWEgyaGqiDFAZ8EFLaMcN61DwPNHI=
+X-Received: by 2002:a05:6830:31bb:b0:654:d29:32d5 with SMTP id
+ q27-20020a05683031bb00b006540d2932d5mr754605ots.130.1664435663046; Thu, 29
+ Sep 2022 00:14:23 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <68934c1a-6c75-f410-2c29-1a7edc97aeb9@nvidia.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: virtio-dev@lists.oasis-open.org, sridhar.samudrala@intel.com,
- jesse.brandeburg@intel.com, virtualization@lists.linux-foundation.org,
- stephen@networkplumber.org, loseweigh@gmail.com, netdev@vger.kernel.org,
- kuba@kernel.org, davem@davemloft.net
+References: <20220921082729.2516779-1-alvaro.karsz@solid-run.com>
+ <YyyfJQo7N/iMPLNP@fedora>
+ <CAJs=3_BXGpu-kDq1_bJSanh-iY63uwpc2tZtH6jOYcqBUptsNA@mail.gmail.com>
+ <20220928091512-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20220928091512-mutt-send-email-mst@kernel.org>
+From: Alvaro Karsz <alvaro.karsz@solid-run.com>
+Date: Thu, 29 Sep 2022 10:13:47 +0300
+Message-ID: <CAJs=3_CmKjhS=Y3JHujws9y5KmN-AbSRXTnt1aZOhDzMuK7g3Q@mail.gmail.com>
+Subject: Re: [PATCH v3] virtio_blk: add SECURE ERASE command support
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jens Axboe <axboe@kernel.dk>, Paolo Bonzini <pbonzini@redhat.com>,
+ Stefan Hajnoczi <stefanha@redhat.com>,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -123,67 +111,22 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Sep 29, 2022 at 02:50:00PM +0800, Gavin Li wrote:
-> 
-> On 9/14/2022 10:49 PM, Gavin Li wrote:
-> > External email: Use caution opening links or attachments
-> > 
-> > 
-> > This small series contains two patches that improves virtio netdevice
-> > performance for 9K mtu when GRO/ guest TSO is disabled.
-> > 
-> > Gavin Li (2):
-> >    virtio-net: introduce and use helper function for guest gso support
-> >      checks
-> > ---
-> > changelog:
-> > v4->v5
-> > - Addressed comments from Michael S. Tsirkin
-> > - Remove unnecessary () in return clause
-> > v1->v2
-> > - Add new patch
-> > ---
-> >    virtio-net: use mtu size as buffer length for big packets
-> > ---
-> > changelog:
-> > v5->v6
-> > - Addressed comments from Jason and Michael S. Tsirkin
-> > - Remove wrong commit log description
-> > - Rename virtnet_set_big_packets_fields with virtnet_set_big_packets
-> > - Add more test results for different feature combinations
-> > v4->v5
-> > - Addressed comments from Michael S. Tsirkin
-> > - Improve commit message
-> > v3->v4
-> > - Addressed comments from Si-Wei
-> > - Rename big_packets_sg_num with big_packets_num_skbfrags
-> > v2->v3
-> > - Addressed comments from Si-Wei
-> > - Simplify the condition check to enable the optimization
-> > v1->v2
-> > - Addressed comments from Jason, Michael, Si-Wei.
-> > - Remove the flag of guest GSO support, set sg_num for big packets and
-> >    use it directly
-> > - Recalculate sg_num for big packets in virtnet_set_guest_offloads
-> > - Replace the round up algorithm with DIV_ROUND_UP
-> > ---
-> > 
-> >   drivers/net/virtio_net.c | 48 ++++++++++++++++++++++++++--------------
-> >   1 file changed, 32 insertions(+), 16 deletions(-)
-> > 
-> > --
-> > 2.31.1
-> > 
-> > 
-> > ---------------------------------------------------------------------
-> > To unsubscribe, e-mail: virtio-dev-unsubscribe@lists.oasis-open.org
-> > For additional commands, e-mail: virtio-dev-help@lists.oasis-open.org
-> Did you get a chance to pull these short series?
+> Could you explain this last part? Why are they used without
+> VIRTIO_BLK_F_DISCARD?
 
-Not in net-next yet for some reason, I was hoping it
-will get some testing here. I'll put it in my tree
-for next for now so it gets tested. Thanks!
 
+Sure,
+
+If both  VIRTIO_BLK_F_DISCARD and VIRTIO_BLK_F_SECURE_ERASE are negotiated:
+q->limits.max_discard_segments =
+min(virtio_blk_config->max_discard_seg,
+virtio_blk_config->max_secure_erase_seg)
+
+If VIRTIO_BLK_F_DISCARD is negotiated and VIRTIO_BLK_F_SECURE_ERASE isn't
+q->limits.max_discard_segments = virtio_blk_config->max_discard_seg
+
+If VIRTIO_BLK_F_SECURE_ERASE is negotiated and VIRTIO_BLK_F_DISCARD isn't
+q->limits.max_discard_segments = virtio_blk_config->max_secure_erase_seg
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
