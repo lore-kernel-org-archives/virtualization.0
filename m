@@ -1,110 +1,118 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 11EC6C6FA86
-	for <virtualization@archiver.kernel.org>; Thu, 29 Sep 2022 07:38:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id DE9ABC07E9D
+	for <virtualization@archiver.kernel.org>; Thu, 29 Sep 2022 07:40:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 1CCAB80060;
-	Thu, 29 Sep 2022 07:38:27 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1CCAB80060
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=HH8sLW+K
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id YsZzKa07Mn2y; Thu, 29 Sep 2022 07:38:26 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 8E22C83ED3;
-	Thu, 29 Sep 2022 07:38:25 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8E22C83ED3
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 553ECC0033;
-	Thu, 29 Sep 2022 07:38:25 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7C5B9C002D
- for <virtualization@lists.linux-foundation.org>;
- Thu, 29 Sep 2022 07:38:24 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 43DC760687
- for <virtualization@lists.linux-foundation.org>;
- Thu, 29 Sep 2022 07:38:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 43DC760687
+	by smtp3.osuosl.org (Postfix) with ESMTP id 753516059C;
+	Thu, 29 Sep 2022 07:40:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 753516059C
 Authentication-Results: smtp3.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=HH8sLW+K
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=C2ehiRqR
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ItWzW-YK3VgE
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id CS4awAYkCFur; Thu, 29 Sep 2022 07:40:29 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id EFCC0607A3;
+	Thu, 29 Sep 2022 07:40:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org EFCC0607A3
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C3E9CC0033;
+	Thu, 29 Sep 2022 07:40:28 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 40E39C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 29 Sep 2022 07:38:23 +0000 (UTC)
+ Thu, 29 Sep 2022 07:40:27 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 05D4983ECE
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 29 Sep 2022 07:40:27 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 05D4983ECE
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=C2ehiRqR
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id KK8UXupUVYOF
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 29 Sep 2022 07:40:26 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 752A86059D
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4070483E69
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 752A86059D
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 4070483E69
  for <virtualization@lists.linux-foundation.org>;
- Thu, 29 Sep 2022 07:38:23 +0000 (UTC)
+ Thu, 29 Sep 2022 07:40:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1664437102;
+ s=mimecast20190719; t=1664437225;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=EtU8HP1rRMHMXLmU+RcQMq0RJUO/qXYiXZjHcG/czQU=;
- b=HH8sLW+Kz593XUMgW1MQpn4WrCXXiCgNkJTYYdaLuYRF2oUYqaHQlcc7AlbeP1DN+mFLgA
- sB3bGelNrPfbZmgtUNxGJOeqca2p1Enan4iRN45GWTY5gBJMDFCT3s1aladWIlEKkJfacX
- TAbY6YzhYS0si3mqu+0SA+QAkO5LHps=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=oaCFqrQ5GzdKP7AhOQ10Zj7koIi79amAnF/+mMQ81sg=;
+ b=C2ehiRqR18C32CsrbUOuXXBHx729r95iKMTcgINXXE2o9XPnq7Mh0KwjOWIakwx9a3NQ1v
+ 1rEwpElOnAOvLuRblzt9+UK8jlVi3Rk2RqSKaC2lgMFHb4x1YdhXO0/kJ3TCXVdlMO03vz
+ Qvowoke1FdeU1L/ym16PBIM7r8uUon4=
+Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com
+ [209.85.160.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-223-Q1TR_8mIPKKYxQ6LO3M3Sw-1; Thu, 29 Sep 2022 03:38:21 -0400
-X-MC-Unique: Q1TR_8mIPKKYxQ6LO3M3Sw-1
-Received: by mail-wm1-f71.google.com with SMTP id
- r128-20020a1c4486000000b003b3309435a9so1846507wma.6
+ us-mta-269-6jXOaNB1OoyCXrpcKbdNJA-1; Thu, 29 Sep 2022 03:40:21 -0400
+X-MC-Unique: 6jXOaNB1OoyCXrpcKbdNJA-1
+Received: by mail-qt1-f197.google.com with SMTP id
+ i12-20020ac871cc000000b0035ba1b1ba9cso373800qtp.22
  for <virtualization@lists.linux-foundation.org>;
- Thu, 29 Sep 2022 00:38:20 -0700 (PDT)
+ Thu, 29 Sep 2022 00:40:21 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
- bh=EtU8HP1rRMHMXLmU+RcQMq0RJUO/qXYiXZjHcG/czQU=;
- b=fnNjNurSSOpZ/l9/OMUoH6Gsax/2cWkra7FGZamrYxC9AjpBO8wOlXT0/lERJGibGx
- 4G1huPr6wfNXzoTIovLMH6CaUaenggtyfD+xzXywJ1QzEV6/RlLWQSukM67cSqMqLh0G
- zCl3wmebhvcjZFRfPxhnUbtEb1xraFlNVjnE+uo/R+GdBWUkCrc3rf1r2s6LEHVPBkGX
- Ftt14Ne/fCiHC6IYPToKcnbfP7Hms2IogLTxcLyb3k5LJ1dyxC2FQ8u24kCISUZikFxo
- LIMH+ntbeLi3sxH2MwSBrN/VKgxmjiqBIcswq8/Q8ultUrTb7pHXO0xDZgBj8KhVX8LE
- AbbA==
-X-Gm-Message-State: ACrzQf0LSILLg4v1GyM7iGBd3bcdJ0J24rPQKtMhpVAjmrKmhfWS0MFc
- QgrJlspcTc+uTvF/oCcjmQeT5ecDFrVLQtVsy72YFX4noZ4WC3rjNh3e/mh0FfPkogJWZvxtcPh
- U+i3P9cXkQIl/pZfR2V9QN6oEoRtlCoXs82rfPBnTxg==
-X-Received: by 2002:a05:600c:b47:b0:3b4:8604:410c with SMTP id
- k7-20020a05600c0b4700b003b48604410cmr1224704wmr.51.1664437099831; 
- Thu, 29 Sep 2022 00:38:19 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM5g6rBu5QPYx9aQ8mXAgqZl+RIeinGA8XoV5PQpBXrrGB5+Tr4uCc8Xa8taFU+6U5nEO1ZyHg==
-X-Received: by 2002:a05:600c:b47:b0:3b4:8604:410c with SMTP id
- k7-20020a05600c0b4700b003b48604410cmr1224688wmr.51.1664437099556; 
- Thu, 29 Sep 2022 00:38:19 -0700 (PDT)
-Received: from redhat.com ([2.55.47.213]) by smtp.gmail.com with ESMTPSA id
- z2-20020a05600c0a0200b003b48dac344esm3808228wmp.43.2022.09.29.00.38.18
+ bh=oaCFqrQ5GzdKP7AhOQ10Zj7koIi79amAnF/+mMQ81sg=;
+ b=7fto8aTI1HmfDQGMNGeEb4sijDsROiNq12Zd46+jFwKyKYKdK+YoM/AzYXL/dhCdXv
+ F8BzQNl6EHbiZi5jP8BL+34YFNJnGC+AoZuGxDqzg926Wkt6RjhfIDwHPuyxBOe5CWd3
+ hCHmQUELcGR2ikVJLEizh7XJ2ui95deLca8GFTA/xNnLw0Ah8X2dPsiHdNMft2yZJKVR
+ OHZa5QHB+Cws8BxqCu+6Y+MbGra78YlBWpBDDCG2I2nGn+RHOMwhclmqNFHzW7dYWsfd
+ Ac4NPDzYEQbUM52luHLZqhzXQ4cEUpFX+YPPI+7l9+2cGQA1Qf2Cgcz6sR6m/rFjfKFd
+ Tvzg==
+X-Gm-Message-State: ACrzQf1jien87lQrYP8JwpsscrjDv26wBiAQUtr7G633EM+kCNjmhcmc
+ VVd87CvGxMuncn8JJA+a//OSVTUYGosw0BVEt2TjFuwRpUwm2PRN0+rT+iDBAqKar6rLGvKOdAX
+ I3UaVqZ/iH91ZdsPNmoSlVJ2zAgQfjF/k2Kxx6b2wnQ==
+X-Received: by 2002:a05:620a:c15:b0:6ce:d1db:f7dc with SMTP id
+ l21-20020a05620a0c1500b006ced1dbf7dcmr1200825qki.259.1664437221183; 
+ Thu, 29 Sep 2022 00:40:21 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM7ojPjmY7apjIi1WK+7gxu/7NwTtehomIcT45iZfLQ6HJTQ6dVYty87P02i03q/EK/PFipsQA==
+X-Received: by 2002:a05:620a:c15:b0:6ce:d1db:f7dc with SMTP id
+ l21-20020a05620a0c1500b006ced1dbf7dcmr1200814qki.259.1664437220936; 
+ Thu, 29 Sep 2022 00:40:20 -0700 (PDT)
+Received: from sgarzare-redhat (host-79-46-200-222.retail.telecomitalia.it.
+ [79.46.200.222]) by smtp.gmail.com with ESMTPSA id
+ x11-20020a05620a258b00b006bac157ec19sm5392848qko.123.2022.09.29.00.40.17
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 29 Sep 2022 00:38:19 -0700 (PDT)
-Date: Thu, 29 Sep 2022 03:38:15 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: "Zhu, Lingshan" <lingshan.zhu@intel.com>
-Subject: Re: [PATCH V3 0/6] Conditionally read fields in dev cfg space
-Message-ID: <20220929033805-mutt-send-email-mst@kernel.org>
-References: <20220929014555.112323-1-lingshan.zhu@intel.com>
- <896fe0b9-5da2-2bc6-0e46-219aa4b9f44f@intel.com>
+ Thu, 29 Sep 2022 00:40:20 -0700 (PDT)
+Date: Thu, 29 Sep 2022 09:40:10 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] vhost/vsock: Use kvmalloc/kvfree for larger packets.
+Message-ID: <20220929074010.37mksjmwr3l4wlwt@sgarzare-redhat>
+References: <20220928064538.667678-1-uekawa@chromium.org>
+ <20220928082823.wyxplop5wtpuurwo@sgarzare-redhat>
+ <20220928052738-mutt-send-email-mst@kernel.org>
+ <20220928151135.pvrlsylg6j3hzh74@sgarzare-redhat>
+ <20220928160116-mutt-send-email-mst@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <896fe0b9-5da2-2bc6-0e46-219aa4b9f44f@intel.com>
+In-Reply-To: <20220928160116-mutt-send-email-mst@kernel.org>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: netdev@vger.kernel.org, kvm@vger.kernel.org,
- virtualization@lists.linux-foundation.org
+Cc: Junichi Uekawa <uekawa@chromium.org>, kvm@vger.kernel.org,
+ netdev@vger.kernel.org, Bobby Eshleman <bobby.eshleman@gmail.com>,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ Eric Dumazet <edumazet@google.com>, Stefan Hajnoczi <stefanha@redhat.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ davem@davemloft.net
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -116,64 +124,64 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Sep 29, 2022 at 03:23:46PM +0800, Zhu, Lingshan wrote:
-> Hi Michael,
-> 
-> Jason starts his vacation this afternoon, and next week is our national
-> holiday.
-> He has acked 3 ~ 6 of this series before, and I have made improvements based
-> on his comments.
-> Do you have any comments on patches 1 and 2?
+On Wed, Sep 28, 2022 at 04:02:12PM -0400, Michael S. Tsirkin wrote:
+>On Wed, Sep 28, 2022 at 05:11:35PM +0200, Stefano Garzarella wrote:
+>> On Wed, Sep 28, 2022 at 05:31:58AM -0400, Michael S. Tsirkin wrote:
+>> > On Wed, Sep 28, 2022 at 10:28:23AM +0200, Stefano Garzarella wrote:
+>> > > On Wed, Sep 28, 2022 at 03:45:38PM +0900, Junichi Uekawa wrote:
+>> > > > When copying a large file over sftp over vsock, data size is usually 32kB,
+>> > > > and kmalloc seems to fail to try to allocate 32 32kB regions.
+>> > > >
+>> > > > Call Trace:
+>> > > >  [<ffffffffb6a0df64>] dump_stack+0x97/0xdb
+>> > > >  [<ffffffffb68d6aed>] warn_alloc_failed+0x10f/0x138
+>> > > >  [<ffffffffb68d868a>] ? __alloc_pages_direct_compact+0x38/0xc8
+>> > > >  [<ffffffffb664619f>] __alloc_pages_nodemask+0x84c/0x90d
+>> > > >  [<ffffffffb6646e56>] alloc_kmem_pages+0x17/0x19
+>> > > >  [<ffffffffb6653a26>] kmalloc_order_trace+0x2b/0xdb
+>> > > >  [<ffffffffb66682f3>] __kmalloc+0x177/0x1f7
+>> > > >  [<ffffffffb66e0d94>] ? copy_from_iter+0x8d/0x31d
+>> > > >  [<ffffffffc0689ab7>] vhost_vsock_handle_tx_kick+0x1fa/0x301 [vhost_vsock]
+>> > > >  [<ffffffffc06828d9>] vhost_worker+0xf7/0x157 [vhost]
+>> > > >  [<ffffffffb683ddce>] kthread+0xfd/0x105
+>> > > >  [<ffffffffc06827e2>] ? vhost_dev_set_owner+0x22e/0x22e [vhost]
+>> > > >  [<ffffffffb683dcd1>] ? flush_kthread_worker+0xf3/0xf3
+>> > > >  [<ffffffffb6eb332e>] ret_from_fork+0x4e/0x80
+>> > > >  [<ffffffffb683dcd1>] ? flush_kthread_worker+0xf3/0xf3
+>> > > >
+>> > > > Work around by doing kvmalloc instead.
+>> > > >
+>> > > > Signed-off-by: Junichi Uekawa <uekawa@chromium.org>
+>> >
+>> > My worry here is that this in more of a work around.
+>> > It would be better to not allocate memory so aggressively:
+>> > if we are so short on memory we should probably process
+>> > packets one at a time. Is that very hard to implement?
+>>
+>> Currently the "virtio_vsock_pkt" is allocated in the "handle_kick" callback
+>> of TX virtqueue. Then the packet is multiplexed on the right socket queue,
+>> then the user space can de-queue it whenever they want.
+>>
+>> So maybe we can stop processing the virtqueue if we are short on memory, but
+>> when can we restart the TX virtqueue processing?
+>
+>Assuming you added at least one buffer, the time to restart would be
+>after that buffer has been used.
 
+Yes, but we still might not have as many continuous pages to allocate, 
+so I would use kvmalloc the same.
 
-No, I'll merge for next.
+I agree that we should do better, I hope that moving to sk_buff will 
+allow us to better manage allocation. Maybe after we merge that part we 
+should spend some time to solve these problems.
 
-> Thanks,
-> Zhu Lingshan
-> On 9/29/2022 9:45 AM, Zhu Lingshan wrote:
-> > This series intends to read the fields in virtio-net device
-> > configuration space conditionally on the feature bits,
-> > this means:
-> > 
-> > MTU exists if VIRTIO_NET_F_MTU is set
-> > MAC exists if VIRTIO_NET_F_NET is set
-> > MQ exists if VIRTIO_NET_F_MQ or VIRTIO_NET_F_RSS is set.
-> > 
-> > This series report device features to userspace and invokes
-> > vdpa_config_ops.get_config() rather than
-> > vdpa_get_config_unlocked() to read the device config spcae,
-> > so no races in vdpa_set_features_unlocked()
-> > 
-> > Thanks!
-> > 
-> > Changes form V2:
-> > remove unnacessary checking for vdev->config->get_status (Jason)
-> > 
-> > Changes from V1:
-> > 1)Better comments for VDPA_ATTR_VDPA_DEV_SUPPORTED_FEATURES,
-> > only in the header file(Jason)
-> > 2)Split original 3/4 into separate patches(Jason)
-> > 3)Check FEATURES_OK for reporting driver features
-> > in vdpa_dev_config_fill (Jason)
-> > 4) Add iproute2 example for reporting device features
-> > 
-> > Zhu Lingshan (6):
-> >    vDPA: allow userspace to query features of a vDPA device
-> >    vDPA: only report driver features if FEATURES_OK is set
-> >    vDPA: check VIRTIO_NET_F_RSS for max_virtqueue_paris's presence
-> >    vDPA: check virtio device features to detect MQ
-> >    vDPA: fix spars cast warning in vdpa_dev_net_mq_config_fill
-> >    vDPA: conditionally read MTU and MAC in dev cfg space
-> > 
-> >   drivers/vdpa/vdpa.c       | 68 ++++++++++++++++++++++++++++++---------
-> >   include/uapi/linux/vdpa.h |  4 +++
-> >   2 files changed, 56 insertions(+), 16 deletions(-)
-> > 
+Thanks,
+Stefano
 
 _______________________________________________
 Virtualization mailing list
