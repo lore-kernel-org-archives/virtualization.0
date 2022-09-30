@@ -1,121 +1,111 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A80E8C433F5
-	for <virtualization@archiver.kernel.org>; Thu, 29 Sep 2022 16:25:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 35809C433F5
+	for <virtualization@archiver.kernel.org>; Fri, 30 Sep 2022 15:59:44 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 25EB160BED;
-	Thu, 29 Sep 2022 16:25:27 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 25EB160BED
+	by smtp1.osuosl.org (Postfix) with ESMTP id BEB7E8430D;
+	Fri, 30 Sep 2022 15:59:43 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BEB7E8430D
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=aNA2Nw+o
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id A0EXCm8Vjzv4; Fri, 30 Sep 2022 15:59:43 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 416AB84301;
+	Fri, 30 Sep 2022 15:59:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 416AB84301
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1CA53C0032;
+	Fri, 30 Sep 2022 15:59:42 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 91118C002D
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 30 Sep 2022 15:59:41 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 5D6D5611B3
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 30 Sep 2022 15:59:41 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5D6D5611B3
 Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=dGjMVZFR
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=aNA2Nw+o
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id IYbDAaZs9Txd; Thu, 29 Sep 2022 16:25:26 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id B9EF560AFC;
-	Thu, 29 Sep 2022 16:25:25 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B9EF560AFC
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8E2EEC0033;
-	Thu, 29 Sep 2022 16:25:25 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id DDCD6C002D
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id F12vn-Fe4oAc
  for <virtualization@lists.linux-foundation.org>;
- Thu, 29 Sep 2022 16:25:23 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id A6A3E40117
- for <virtualization@lists.linux-foundation.org>;
- Thu, 29 Sep 2022 16:25:23 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A6A3E40117
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=dGjMVZFR
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id cJdpWd1Q1_CU
- for <virtualization@lists.linux-foundation.org>;
- Thu, 29 Sep 2022 16:25:23 +0000 (UTC)
+ Fri, 30 Sep 2022 15:59:40 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0B107400DB
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5ED78611AA
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 0B107400DB
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 5ED78611AA
  for <virtualization@lists.linux-foundation.org>;
- Thu, 29 Sep 2022 16:25:22 +0000 (UTC)
+ Fri, 30 Sep 2022 15:59:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1664468721;
+ s=mimecast20190719; t=1664553579;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=wP+ERui3HiyMQ5txVX6VKAqSsbRuHdNYsyw/tUJPBgg=;
- b=dGjMVZFRkZn/kNuLNaxiIwYSHOXZxB7+/k8CSYtSZmIcuPWLqizYcuT5tHRGcR16l04BQS
- +X9sqyVtRL7bI25mLV+tEarPE6qdro7XLQN5aJGyws1dhY2DigUVvqH6rnXau41vrmbcE+
- YA+Nh/iykrNF92NbHwaEM+yXxqCwuag=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+ bh=s0VdZiYvqssIOHfeT/CymYAuFjYTWH/3Mag29BcynOs=;
+ b=aNA2Nw+odSeMwJhvURHsMk2krnNf/xM6GzQfbhT0eNx41TeuYsSPl86SVs3dRv3PXgE4s8
+ Kr20FXW9ttv7+FNcJBpwwEgwRhmy2/i0Wnv1N2e80rdYhxu3QhYN36qEeWouvRGLG2+rXj
+ TRYP9BgGN+1bPXNMknvPGd0NF5LfzOA=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-3-vEnevMhWOdWz7umflGbCSQ-1; Thu, 29 Sep 2022 12:25:20 -0400
-X-MC-Unique: vEnevMhWOdWz7umflGbCSQ-1
-Received: by mail-wr1-f70.google.com with SMTP id
- i1-20020adfa501000000b0022cd1e1137bso724518wrb.0
+ us-mta-664-whGpv2dhNT-MiooIcMxZSw-1; Fri, 30 Sep 2022 11:59:38 -0400
+X-MC-Unique: whGpv2dhNT-MiooIcMxZSw-1
+Received: by mail-ed1-f72.google.com with SMTP id
+ e15-20020a056402190f00b0044f41e776a0so3871501edz.0
  for <virtualization@lists.linux-foundation.org>;
- Thu, 29 Sep 2022 09:25:20 -0700 (PDT)
+ Fri, 30 Sep 2022 08:59:37 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
- bh=wP+ERui3HiyMQ5txVX6VKAqSsbRuHdNYsyw/tUJPBgg=;
- b=xuDuoLJBXsHebFhl3FE8t8GuN+8fkUTLsFXkrpCwpchypeGwop3w/HXjN1BL9rO97u
- 6kbVKcNv9JzcW+c4LmT8jOR2mqzh43Sl7+aSWIXmJjPlKz4LYjHTIGDLfEe8hs6G/pRB
- HKpbUgibeztQ9NVHQdOaZ8lT+iofgteU9sGU1dJrNkJTjqSEddY6TogPdh35HOBRGdZj
- rogMVHP51pxYAmeGO7kMBJeaGousn0kv4nA03ET5wDIl+Knrw+Iji2EOa4qFNn5lmCDb
- eTtB4xLVT8JcXsltuArZrYzywA8aM+NbF7ti3kxe/izopl1vhgPlb8eWB/Flvx/lnO4q
- V5mg==
-X-Gm-Message-State: ACrzQf2bDsvYSy4p1Pzt2o0r95Cep/2zWFSjQtj0coAxicXhNnId9Trq
- cz5O8g6k8eyVwP3TagdNI6dqc6SxMxTZV8DOqMr0uKAHzLrPW5chvg8jMxNk86KrGr1GMQJn7En
- HQNse0T2BeoIqszVUXMl/O1c1aRo0/RuvrqhksjiaMQ==
-X-Received: by 2002:a05:600c:3205:b0:3b3:3813:ae3f with SMTP id
- r5-20020a05600c320500b003b33813ae3fmr3196828wmp.158.1664468719680; 
- Thu, 29 Sep 2022 09:25:19 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM7GXSxx1LBarzR7zq6U/e87GpBhC/rEY4V4sODPzyAV8maunzFx+24hSqCxT0BLh73br06cHw==
-X-Received: by 2002:a05:600c:3205:b0:3b3:3813:ae3f with SMTP id
- r5-20020a05600c320500b003b33813ae3fmr3196805wmp.158.1664468719486; 
- Thu, 29 Sep 2022 09:25:19 -0700 (PDT)
-Received: from redhat.com ([2.55.17.78]) by smtp.gmail.com with ESMTPSA id
- t18-20020adfe452000000b00228cd9f6349sm7243877wrm.106.2022.09.29.09.25.16
+ h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+ :x-gm-message-state:from:to:cc:subject:date;
+ bh=s0VdZiYvqssIOHfeT/CymYAuFjYTWH/3Mag29BcynOs=;
+ b=2plrxoIRNmVnU3JIi7/HPwRuoZ4PWAsPrHzJAIuZthDgc0xrH0Ga3JaGdiApU5t7BF
+ UQoPEebsJSkdp+Ath9srbRXO82jelD3134ot7Gqowku+POKRxZA5MOzmOCDKhfCDBOfH
+ teNAbVh4CzoAf9oYDLwLzMpGCa2gZij4tvmWPH3cPa5JzJgYfmWeAqhfJnYkbHkslSeX
+ s3sJwCi5quY+CPcs0A6bUqHaQUMlwqD9D53jjNh1EeE1O7pPUKIM702VbrCs5EYR7H19
+ qjRR4gD6JuGobszyBeXxaWh5GgAnuO4QZ4nceD9NcgN+yKl0KxG+mElOyDC+LWPwqnB7
+ G2Mw==
+X-Gm-Message-State: ACrzQf3GPoWYWnrj/hBHFXqiOFwHHqWR05ZoI5NCnhWz8ZvHuE9ZRTOS
+ e5R/QccHyusUTGbBlNNRmfvvpBKC7FzvaxonI8AMbTGVaM64rnw0QeAkBsSoGsb4viQh4aXnP5G
+ mrOoZ4U8vj9IPA6ME+yAPLg9Poh77ciDs9VA4/gkA8A==
+X-Received: by 2002:a17:907:9714:b0:783:954a:5056 with SMTP id
+ jg20-20020a170907971400b00783954a5056mr6907763ejc.318.1664553577054; 
+ Fri, 30 Sep 2022 08:59:37 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM7mz4/tv12OGuGnNdRMo9OH788yzGFfKJb5e2fxoM3bB4V0KuNZAwipaE4zg0MStjxYK9tRiA==
+X-Received: by 2002:a17:907:9714:b0:783:954a:5056 with SMTP id
+ jg20-20020a170907971400b00783954a5056mr6907749ejc.318.1664553576855; 
+ Fri, 30 Sep 2022 08:59:36 -0700 (PDT)
+Received: from redhat.com ([2a06:c701:742e:6800:d12a:e12c:77cf:7dd6])
+ by smtp.gmail.com with ESMTPSA id
+ 14-20020a170906328e00b00787a6adab7csm1369697ejw.147.2022.09.30.08.59.34
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 29 Sep 2022 09:25:18 -0700 (PDT)
-Date: Thu, 29 Sep 2022 12:25:14 -0400
+ Fri, 30 Sep 2022 08:59:36 -0700 (PDT)
+Date: Fri, 30 Sep 2022 11:59:33 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jakub Kicinski <kuba@kernel.org>
-Subject: Re: [PATCH] vhost/vsock: Use kvmalloc/kvfree for larger packets.
-Message-ID: <20220929122444-mutt-send-email-mst@kernel.org>
-References: <20220928064538.667678-1-uekawa@chromium.org>
- <20220928082823.wyxplop5wtpuurwo@sgarzare-redhat>
- <20220928052738-mutt-send-email-mst@kernel.org>
- <20220928151135.pvrlsylg6j3hzh74@sgarzare-redhat>
- <CADgJSGHxPWXJjbakEeWnqF42A03yK7Dpw6U1SKNLhk+B248Ymg@mail.gmail.com>
- <20220929031419-mutt-send-email-mst@kernel.org>
- <20220929074606.yqzihpcc7cl442c5@sgarzare-redhat>
- <20220929034807-mutt-send-email-mst@kernel.org>
- <20220929090731.27cda58c@kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [GIT PULL] virtio: fixes
+Message-ID: <20220930115933-mutt-send-email-mst@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <20220929090731.27cda58c@kernel.org>
+X-Mutt-Fcc: =sent
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Paolo Abeni <pabeni@redhat.com>, kvm@vger.kernel.org,
- netdev@vger.kernel.org, Bobby Eshleman <bobby.eshleman@gmail.com>,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- Eric Dumazet <edumazet@google.com>, Stefan Hajnoczi <stefanha@redhat.com>,
- davem@davemloft.net,
- Junichi Uekawa =?utf-8?B?KCDkuIrlt53ntJTkuIAp?= <uekawa@google.com>
+Cc: kvm@vger.kernel.org, acourbot@chromium.org, mst@redhat.com,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, maxime.coquelin@redhat.com,
+ stefanha@redhat.com, angus.chen@jaguarmicro.com, elic@nvidia.com,
+ suwan.kim027@gmail.com, lingshan.zhu@intel.com, helei.sig11@bytedance.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -132,13 +122,55 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Sep 29, 2022 at 09:07:31AM -0700, Jakub Kicinski wrote:
-> On Thu, 29 Sep 2022 03:49:18 -0400 Michael S. Tsirkin wrote:
-> > net tree would be preferable, my pull for this release is kind of ready ... kuba?
-> 
-> If we're talking about 6.1 - we can take it, no problem.
+The following changes since commit f76349cf41451c5c42a99f18a9163377e4b364ff:
 
-I think they want it in 6.0 as it fixes a crash.
+  Linux 6.0-rc7 (2022-09-25 14:01:02 -0700)
+
+are available in the Git repository at:
+
+  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+
+for you to fetch changes up to a43ae8057cc154fd26a3a23c0e8643bef104d995:
+
+  vdpa/mlx5: Fix MQ to support non power of two num queues (2022-09-27 18:32:45 -0400)
+
+----------------------------------------------------------------
+virtio: fixes
+
+Some last minute fixes. virtio-blk is the most important one
+since it was actually seen in the field, but the rest
+of them are small and clearly safe, everything here has
+been in next for a while.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Angus Chen (1):
+      vdpa/ifcvf: fix the calculation of queuepair
+
+Eli Cohen (1):
+      vdpa/mlx5: Fix MQ to support non power of two num queues
+
+Maxime Coquelin (1):
+      vduse: prevent uninitialized memory accesses
+
+Suwan Kim (1):
+      virtio-blk: Fix WARN_ON_ONCE in virtio_queue_rq()
+
+Xuan Zhuo (1):
+      virtio_test: fixup for vq reset
+
+lei he (1):
+      virtio-crypto: fix memory-leak
+
+ drivers/block/virtio_blk.c                          | 11 +++++------
+ drivers/crypto/virtio/virtio_crypto_akcipher_algs.c |  4 ++++
+ drivers/vdpa/ifcvf/ifcvf_base.c                     |  4 ++--
+ drivers/vdpa/mlx5/net/mlx5_vnet.c                   | 17 ++++++++++-------
+ drivers/vdpa/vdpa_user/vduse_dev.c                  |  9 +++++++--
+ tools/virtio/linux/virtio.h                         |  3 +++
+ tools/virtio/linux/virtio_config.h                  |  5 +++++
+ 7 files changed, 36 insertions(+), 17 deletions(-)
 
 _______________________________________________
 Virtualization mailing list
