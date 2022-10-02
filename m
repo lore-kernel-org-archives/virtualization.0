@@ -4,106 +4,56 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 464E4C433FE
-	for <virtualization@archiver.kernel.org>; Sun,  2 Oct 2022 15:51:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6FA72C433FE
+	for <virtualization@archiver.kernel.org>; Sun,  2 Oct 2022 16:19:24 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id C17A74042B;
-	Sun,  2 Oct 2022 15:51:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C17A74042B
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=i9jHqvap
+	by smtp2.osuosl.org (Postfix) with ESMTP id 0BA9C4042B;
+	Sun,  2 Oct 2022 16:19:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0BA9C4042B
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Cd_MdHN0aNIa; Sun,  2 Oct 2022 15:51:09 +0000 (UTC)
+	with ESMTP id 50vIT2ogz02L; Sun,  2 Oct 2022 16:19:22 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id EEF2940184;
-	Sun,  2 Oct 2022 15:51:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org EEF2940184
+	by smtp2.osuosl.org (Postfix) with ESMTPS id E865440184;
+	Sun,  2 Oct 2022 16:19:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E865440184
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id BE752C0032;
-	Sun,  2 Oct 2022 15:51:08 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E6346C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id BF865C0033;
+	Sun,  2 Oct 2022 16:19:21 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id CA5F5C002D
  for <virtualization@lists.linux-foundation.org>;
- Sun,  2 Oct 2022 15:51:07 +0000 (UTC)
+ Sun,  2 Oct 2022 16:19:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id C7E9140925
+ by smtp3.osuosl.org (Postfix) with ESMTP id A572E60692
  for <virtualization@lists.linux-foundation.org>;
- Sun,  2 Oct 2022 15:51:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C7E9140925
-Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=i9jHqvap
+ Sun,  2 Oct 2022 16:19:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A572E60692
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 01MSsQtAIJwa
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id qEAsVeHZGx8H
  for <virtualization@lists.linux-foundation.org>;
- Sun,  2 Oct 2022 15:51:03 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0998340913
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 0998340913
+ Sun,  2 Oct 2022 16:19:18 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1B8DC6068A
+Received: from s052d7dde.fastvps-server.com (s052d7dde.fastvps-server.com
+ [IPv6:2a03:f480:1:14::7d])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 1B8DC6068A
  for <virtualization@lists.linux-foundation.org>;
- Sun,  2 Oct 2022 15:51:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1664725861;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=Xc5wXjX6YMHDc48LC9ROPqe1Trpb5RnwdSq8IG2ryzA=;
- b=i9jHqvapLNdX5wqwDtmgMMlU0p2AvIFHTlta8E+PcM7Zg8gwA3RqzcC68OWU0N9IhpR3kY
- SpKkJLSFTKdISYUYP6cmGDJFQ6CqBtFwODvQ6fyebA3Vc7Sv2c4dUANcMGqPymok5mRvsV
- VJzrDoM2kOS5I1VXzY9g8gXCYhzP2EA=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-333-XxMSKXqJMWGL6GB6veWZzw-1; Sun, 02 Oct 2022 11:51:00 -0400
-X-MC-Unique: XxMSKXqJMWGL6GB6veWZzw-1
-Received: by mail-wm1-f69.google.com with SMTP id
- h133-20020a1c218b000000b003b3263d477eso5064409wmh.8
- for <virtualization@lists.linux-foundation.org>;
- Sun, 02 Oct 2022 08:51:00 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
- bh=Xc5wXjX6YMHDc48LC9ROPqe1Trpb5RnwdSq8IG2ryzA=;
- b=pbF17Qsm5VnOXkFYU/xZTzyp9UOBilEyEPaM+vvNKXmWfvzOeDjT9eNeJIlv9zVPGS
- tRkfxFf7RsGu1ngK0hY9YsjmDCyfvfoEPCyR6rOX8fegDf9C5/8A00O8lYH9ALhWJp5a
- z0zaDnZK/eYzxSMtPgy3rpYL+uOMjEuTaWCys/I7a8KlTt0wJhzXwPZuPk6xShMp4TZS
- P5gvrf10guqrXNSkVEbYhctvFiUDHJT5GVu9HlfWVP5YERhbrgSWePi+NZKGU9Fm/AAG
- hntFwiXmQYfMXhZnv9VuhhyfQlifCx8xRQ4cwcpJRl1epiDlObhtrS4k+sl06MsOI+Sf
- mg5A==
-X-Gm-Message-State: ACrzQf0OCeBLPgBTzRKILA03KK58z9SimrW7HaXtjbEdbLEikJdJlBBQ
- fhyYB4CtQX0GG2pv80SDNSeiRDQXTvgbYLI/f4vaRP6STeijkM7ZpQeylfJacnIUY4eZpMSAhut
- reuaJ2RqL2yhL4ZbhrjgTeEBE7NRLh6uA22qb7B9EnA==
-X-Received: by 2002:a05:600c:687:b0:3b4:7280:9b7 with SMTP id
- a7-20020a05600c068700b003b4728009b7mr4564505wmn.189.1664725859397; 
- Sun, 02 Oct 2022 08:50:59 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM5owdchnkA0uNmm8BwwM3bwcyoaJD5N/yRbSjAp9gh2lCqpGxctsSJvp4lYlpUzkCGRGJ7ebA==
-X-Received: by 2002:a05:600c:687:b0:3b4:7280:9b7 with SMTP id
- a7-20020a05600c068700b003b4728009b7mr4564494wmn.189.1664725859172; 
- Sun, 02 Oct 2022 08:50:59 -0700 (PDT)
-Received: from redhat.com ([2.55.17.78]) by smtp.gmail.com with ESMTPSA id
- e13-20020a5d530d000000b0022aeba020casm7588579wrv.83.2022.10.02.08.50.57
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sun, 02 Oct 2022 08:50:58 -0700 (PDT)
-Date: Sun, 2 Oct 2022 11:50:55 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Max Gurtovoy <mgurtovoy@nvidia.com>
-Subject: Re: [PATCH 1/1] virtio-blk: simplify probe function
-Message-ID: <20221002115024-mutt-send-email-mst@kernel.org>
-References: <20221002154417.34583-1-mgurtovoy@nvidia.com>
+ Sun,  2 Oct 2022 16:19:17 +0000 (UTC)
+Received: from [194.39.126.139] (helo=LAPTOP-EPOV2LRR)
+ by s052d7dde.fastvps-server.com with esmtpa (Exim 4.89)
+ (envelope-from <marle@saisti.eu>) id 1of10d-0004s5-C5
+ for virtualization@lists.linux-foundation.org; Sun, 02 Oct 2022 18:36:03 +0300
+From: "WorldCIST-2023" <marialemos72@gmail.com>
+Subject: World Conference on IST (WorldCIST'23) | Pisa, Italy | Deadline:
+ November 6
+To: virtualization@lists.linux-foundation.org
 MIME-Version: 1.0
-In-Reply-To: <20221002154417.34583-1-mgurtovoy@nvidia.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: linux-block@vger.kernel.org, Johannes.Thumshirn@wdc.com,
- stefanha@redhat.com, virtualization@lists.linux-foundation.org
+Date: Sun, 2 Oct 2022 16:36:03 +0100
+Message-ID: <89441373183671@gmail-com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -115,308 +65,452 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Reply-To: worldcist@gmail.com
+Content-Type: multipart/mixed; boundary="===============7688069458582478615=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sun, Oct 02, 2022 at 06:44:17PM +0300, Max Gurtovoy wrote:
-> Divide the extremely long probe function to small meaningful functions.
-> This makes the code more readably and easy to maintain.
-> 
-> Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+This is a multi-part message in MIME format
 
-This is subjective ... pls CC some reviewers. If Stefan or Paolo
-ack this I will merge.
+--===============7688069458582478615==
+Content-Type: multipart/alternative; charset=utf-8; boundary="rqzre=_jhi7LY7XXtOInx1vkBlJoBwSrB5"
 
-> ---
->  drivers/block/virtio_blk.c | 227 +++++++++++++++++++++----------------
->  1 file changed, 131 insertions(+), 96 deletions(-)
-> 
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index 30255fcaf181..bdd44069bf6f 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-> @@ -882,28 +882,13 @@ static const struct blk_mq_ops virtio_mq_ops = {
->  static unsigned int virtblk_queue_depth;
->  module_param_named(queue_depth, virtblk_queue_depth, uint, 0444);
->  
-> -static int virtblk_probe(struct virtio_device *vdev)
-> +static int virtblk_q_limits_set(struct virtio_device *vdev,
-> +		struct request_queue *q)
->  {
-> -	struct virtio_blk *vblk;
-> -	struct request_queue *q;
-> -	int err, index;
-> -
-> -	u32 v, blk_size, max_size, sg_elems, opt_io_size;
-> -	u16 min_io_size;
->  	u8 physical_block_exp, alignment_offset;
-> -	unsigned int queue_depth;
-> -
-> -	if (!vdev->config->get) {
-> -		dev_err(&vdev->dev, "%s failure: config access disabled\n",
-> -			__func__);
-> -		return -EINVAL;
-> -	}
-> -
-> -	err = ida_simple_get(&vd_index_ida, 0, minor_to_index(1 << MINORBITS),
-> -			     GFP_KERNEL);
-> -	if (err < 0)
-> -		goto out;
-> -	index = err;
-> +	u16 min_io_size;
-> +	u32 v, blk_size, max_size, sg_elems, opt_io_size;
-> +	int err;
->  
->  	/* We need to know how many segments before we allocate. */
->  	err = virtio_cread_feature(vdev, VIRTIO_BLK_F_SEG_MAX,
-> @@ -917,73 +902,6 @@ static int virtblk_probe(struct virtio_device *vdev)
->  	/* Prevent integer overflows and honor max vq size */
->  	sg_elems = min_t(u32, sg_elems, VIRTIO_BLK_MAX_SG_ELEMS - 2);
->  
-> -	vdev->priv = vblk = kmalloc(sizeof(*vblk), GFP_KERNEL);
-> -	if (!vblk) {
-> -		err = -ENOMEM;
-> -		goto out_free_index;
-> -	}
-> -
-> -	mutex_init(&vblk->vdev_mutex);
-> -
-> -	vblk->vdev = vdev;
-> -
-> -	INIT_WORK(&vblk->config_work, virtblk_config_changed_work);
-> -
-> -	err = init_vq(vblk);
-> -	if (err)
-> -		goto out_free_vblk;
-> -
-> -	/* Default queue sizing is to fill the ring. */
-> -	if (!virtblk_queue_depth) {
-> -		queue_depth = vblk->vqs[0].vq->num_free;
-> -		/* ... but without indirect descs, we use 2 descs per req */
-> -		if (!virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC))
-> -			queue_depth /= 2;
-> -	} else {
-> -		queue_depth = virtblk_queue_depth;
-> -	}
-> -
-> -	memset(&vblk->tag_set, 0, sizeof(vblk->tag_set));
-> -	vblk->tag_set.ops = &virtio_mq_ops;
-> -	vblk->tag_set.queue_depth = queue_depth;
-> -	vblk->tag_set.numa_node = NUMA_NO_NODE;
-> -	vblk->tag_set.flags = BLK_MQ_F_SHOULD_MERGE;
-> -	vblk->tag_set.cmd_size =
-> -		sizeof(struct virtblk_req) +
-> -		sizeof(struct scatterlist) * VIRTIO_BLK_INLINE_SG_CNT;
-> -	vblk->tag_set.driver_data = vblk;
-> -	vblk->tag_set.nr_hw_queues = vblk->num_vqs;
-> -	vblk->tag_set.nr_maps = 1;
-> -	if (vblk->io_queues[HCTX_TYPE_POLL])
-> -		vblk->tag_set.nr_maps = 3;
-> -
-> -	err = blk_mq_alloc_tag_set(&vblk->tag_set);
-> -	if (err)
-> -		goto out_free_vq;
-> -
-> -	vblk->disk = blk_mq_alloc_disk(&vblk->tag_set, vblk);
-> -	if (IS_ERR(vblk->disk)) {
-> -		err = PTR_ERR(vblk->disk);
-> -		goto out_free_tags;
-> -	}
-> -	q = vblk->disk->queue;
-> -
-> -	virtblk_name_format("vd", index, vblk->disk->disk_name, DISK_NAME_LEN);
-> -
-> -	vblk->disk->major = major;
-> -	vblk->disk->first_minor = index_to_minor(index);
-> -	vblk->disk->minors = 1 << PART_BITS;
-> -	vblk->disk->private_data = vblk;
-> -	vblk->disk->fops = &virtblk_fops;
-> -	vblk->index = index;
-> -
-> -	/* configure queue flush support */
-> -	virtblk_update_cache_mode(vdev);
-> -
-> -	/* If disk is read-only in the host, the guest should obey */
-> -	if (virtio_has_feature(vdev, VIRTIO_BLK_F_RO))
-> -		set_disk_ro(vblk->disk, 1);
-> -
->  	/* We can handle whatever the host told us to handle. */
->  	blk_queue_max_segments(q, sg_elems);
->  
-> @@ -1011,12 +929,13 @@ static int virtblk_probe(struct virtio_device *vdev)
->  			dev_err(&vdev->dev,
->  				"virtio_blk: invalid block size: 0x%x\n",
->  				blk_size);
-> -			goto out_cleanup_disk;
-> +			return err;
->  		}
->  
->  		blk_queue_logical_block_size(q, blk_size);
-> -	} else
-> +	} else {
->  		blk_size = queue_logical_block_size(q);
-> +	}
->  
->  	/* Use topology information if available */
->  	err = virtio_cread_feature(vdev, VIRTIO_BLK_F_TOPOLOGY,
-> @@ -1075,19 +994,136 @@ static int virtblk_probe(struct virtio_device *vdev)
->  		blk_queue_max_write_zeroes_sectors(q, v ? v : UINT_MAX);
->  	}
->  
-> +	return 0;
-> +}
-> +
-> +static void virtblk_tagset_put(struct virtio_blk *vblk)
-> +{
-> +	put_disk(vblk->disk);
-> +	blk_mq_free_tag_set(&vblk->tag_set);
-> +}
-> +
-> +static void virtblk_tagset_free(struct virtio_blk *vblk)
-> +{
-> +	del_gendisk(vblk->disk);
-> +	blk_mq_free_tag_set(&vblk->tag_set);
-> +}
-> +
-> +static int virtblk_tagset_alloc(struct virtio_blk *vblk,
-> +		unsigned int queue_depth)
-> +{
-> +	int err;
-> +
-> +	memset(&vblk->tag_set, 0, sizeof(vblk->tag_set));
-> +	vblk->tag_set.ops = &virtio_mq_ops;
-> +	vblk->tag_set.queue_depth = queue_depth;
-> +	vblk->tag_set.numa_node = NUMA_NO_NODE;
-> +	vblk->tag_set.flags = BLK_MQ_F_SHOULD_MERGE;
-> +	vblk->tag_set.cmd_size =
-> +		sizeof(struct virtblk_req) +
-> +		sizeof(struct scatterlist) * VIRTIO_BLK_INLINE_SG_CNT;
-> +	vblk->tag_set.driver_data = vblk;
-> +	vblk->tag_set.nr_hw_queues = vblk->num_vqs;
-> +	vblk->tag_set.nr_maps = 1;
-> +	if (vblk->io_queues[HCTX_TYPE_POLL])
-> +		vblk->tag_set.nr_maps = 3;
-> +
-> +	err = blk_mq_alloc_tag_set(&vblk->tag_set);
-> +	if (err)
-> +		return err;
-> +
-> +	vblk->disk = blk_mq_alloc_disk(&vblk->tag_set, vblk);
-> +	if (IS_ERR(vblk->disk)) {
-> +		err = PTR_ERR(vblk->disk);
-> +		goto out_free_tags;
-> +	}
-> +
-> +	return 0;
-> +
-> +out_free_tags:
-> +	blk_mq_free_tag_set(&vblk->tag_set);
-> +	return err;
-> +}
-> +
-> +static int virtblk_probe(struct virtio_device *vdev)
-> +{
-> +	struct virtio_blk *vblk;
-> +	int err, index;
-> +	unsigned int queue_depth;
-> +
-> +	if (!vdev->config->get) {
-> +		dev_err(&vdev->dev, "%s failure: config access disabled\n",
-> +			__func__);
-> +		return -EINVAL;
-> +	}
-> +
-> +	err = ida_simple_get(&vd_index_ida, 0, minor_to_index(1 << MINORBITS),
-> +			     GFP_KERNEL);
-> +	if (err < 0)
-> +		goto out;
-> +	index = err;
-> +
-> +	vdev->priv = vblk = kmalloc(sizeof(*vblk), GFP_KERNEL);
-> +	if (!vblk) {
-> +		err = -ENOMEM;
-> +		goto out_free_index;
-> +	}
-> +
-> +	mutex_init(&vblk->vdev_mutex);
-> +
-> +	vblk->vdev = vdev;
-> +
-> +	INIT_WORK(&vblk->config_work, virtblk_config_changed_work);
-> +
-> +	err = init_vq(vblk);
-> +	if (err)
-> +		goto out_free_vblk;
-> +
-> +	/* Default queue sizing is to fill the ring. */
-> +	if (!virtblk_queue_depth) {
-> +		queue_depth = vblk->vqs[0].vq->num_free;
-> +		/* ... but without indirect descs, we use 2 descs per req */
-> +		if (!virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC))
-> +			queue_depth /= 2;
-> +	} else {
-> +		queue_depth = virtblk_queue_depth;
-> +	}
-> +
-> +	err = virtblk_tagset_alloc(vblk, queue_depth);
-> +	if (err)
-> +		goto out_free_vq;
-> +
-> +	virtblk_name_format("vd", index, vblk->disk->disk_name, DISK_NAME_LEN);
-> +
-> +	vblk->disk->major = major;
-> +	vblk->disk->first_minor = index_to_minor(index);
-> +	vblk->disk->minors = 1 << PART_BITS;
-> +	vblk->disk->private_data = vblk;
-> +	vblk->disk->fops = &virtblk_fops;
-> +	vblk->index = index;
-> +
-> +	/* configure queue flush support */
-> +	virtblk_update_cache_mode(vdev);
-> +
-> +	/* If disk is read-only in the host, the guest should obey */
-> +	if (virtio_has_feature(vdev, VIRTIO_BLK_F_RO))
-> +		set_disk_ro(vblk->disk, 1);
-> +
-> +	err = virtblk_q_limits_set(vdev, vblk->disk->queue);
-> +	if (err)
-> +		goto out_tagset_put;
-> +
->  	virtblk_update_capacity(vblk, false);
->  	virtio_device_ready(vdev);
->  
->  	err = device_add_disk(&vdev->dev, vblk->disk, virtblk_attr_groups);
->  	if (err)
-> -		goto out_cleanup_disk;
-> +		goto out_tagset_put;
->  
->  	return 0;
->  
-> -out_cleanup_disk:
-> -	put_disk(vblk->disk);
-> -out_free_tags:
-> -	blk_mq_free_tag_set(&vblk->tag_set);
-> +out_tagset_put:
-> +	virtblk_tagset_put(vblk);
->  out_free_vq:
->  	vdev->config->del_vqs(vdev);
->  	kfree(vblk->vqs);
-> @@ -1106,8 +1142,7 @@ static void virtblk_remove(struct virtio_device *vdev)
->  	/* Make sure no work handler is accessing the device. */
->  	flush_work(&vblk->config_work);
->  
-> -	del_gendisk(vblk->disk);
-> -	blk_mq_free_tag_set(&vblk->tag_set);
-> +	virtblk_tagset_free(vblk);
->  
->  	mutex_lock(&vblk->vdev_mutex);
->  
-> -- 
-> 2.18.1
+This is a multi-part message in MIME format
+
+--rqzre=_jhi7LY7XXtOInx1vkBlJoBwSrB5
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+* Google Scholar H-Index =3D 25
+
+* Indexed in WoS, Scopus, DBLP, etc.
+
+
+
+
+------------------------------   ------------------------------   ----=
+--------------------------   -------------=20
+WorldCIST'23 - 11st World Conference on Information Systems and Techno=
+logies
+
+Pisa, Italy, 4 - 6 April 2023
+
+http://worldcist.org/ <https://mkt.saisti.eu/got/55a43fdae2OOTe1Nb>
+
+------------------------------   ------------------------------   ----=
+--------------------------   -------------=20
+Scope
+
+The WorldCist'23 - 11st World Conference on Information Systems and Te=
+chnologies, to be held in Pisa, Italy, 4 - 6 April 2023, is a global f=
+orum for researchers and practitioners to present and discuss the most=
+ recent innovations, trends, results, experiences and concerns in the =
+several perspectives of Information Systems and Technologies.
+
+We are pleased to invite you to submit your papers to WorldCist'23. Al=
+l submissions will be reviewed on the basis of relevance, originality,=
+ importance and clarity.
+
+=20
+
+Themes
+
+Submitted papers should be related with one or more of the main themes=
+ proposed for the Conference:
+
+A) Information and Knowledge Management (IKM);
+
+B) Organizational Models and Information Systems (OMIS);
+
+C) Software and Systems Modeling (SSM);
+
+D) Software Systems, Architectures, Applications and Tools (SSAAT);
+
+E) Multimedia Systems and Applications (MSA);
+
+F) Computer Networks, Mobility and Pervasive Systems (CNMPS);
+
+G) Intelligent and Decision Support Systems (IDSS);
+
+H) Big Data Analytics and Applications (BDAA);
+
+I) Human-Computer Interaction (HCI);
+
+J) Ethics, Computers and Security (ECS)
+
+K) Health Informatics (HIS);
+
+L) Information Technologies in Education (ITE);
+
+M) Technologies for Biomedical Applications (TBA)
+
+N) Information Technologies in Radiocommunications (ITR);
+
+=20
+
+Types of Submissions and Decisions
+
+Four types of papers can be submitted:
+
+Full paper: Finished or consolidated R&D works, to be included in one =
+of the Conference themes. These papers are assigned a 10-page limit.
+
+Short paper: Ongoing works with relevant preliminary results, open to =
+discussion. These papers are assigned a 7-page limit.
+
+Poster paper: Initial work with relevant ideas, open to discussion. Th=
+ese papers are assigned to a 4-page limit.
+
+Company paper: Companies' papers that show practical experience, R & D=
+, tools, etc., focused on some topics of the conference. These papers =
+are assigned to a 4-page limit.
+
+Submitted papers must comply with the format of Advances in Intelligen=
+t Systems and Computing Series (see Instructions for Authors at Spring=
+er Website) <https://mkt.saisti.eu/got/3227-71ce2OOTe5rX>, be written =
+in English, must not have been published before, not be under review f=
+or any other conference or publication and not include any information=
+ leading to the authors=E2=80=99 identification. Therefore, the author=
+s=E2=80=99 names, affiliations and bibliographic references should not=
+ be included in the version for evaluation by the Program Committee. T=
+his information should only be included in the camera-ready version, s=
+aved in Word or Latex format and also in PDF format. These files must =
+be accompanied by the Consent to Publish form filled out, in a ZIP fil=
+e, and uploaded at the conference management system.
+
+
+All papers will be subjected to a =E2=80=9Cdouble-blind review=E2=80=9D=
+ by at least two members of the Program Committee.
+
+Based on Program Committee evaluation, a paper can be rejected or acce=
+pted by the Conference Chairs. In the later case, it can be accepted a=
+s the type originally submitted or as another type. Thus, full papers =
+can be accepted as short papers or poster papers only. Similarly, shor=
+t papers can be accepted as poster papers only.
+
+Poster papers and Company papers are not published in the Conference P=
+roceedings, being only presented and discussed. The authors of accepte=
+d poster papers should build and print a poster to be exhibited during=
+ the Conference. This poster must follow an A1 or A2 vertical format. =
+The Conference includes Work Sessions where these posters are presente=
+d and orally discussed, with a 7 minute limit per poster.
+
+The authors of accepted Full papers will have 15 minutes to present th=
+eir work in a Conference Work Session; approximately 5 minutes of disc=
+ussion will follow each presentation. The authors of accepted Short pa=
+pers and Company papers will have 11 minutes to present their work in =
+a Conference Work Session; approximately 4 minutes of discussion will =
+follow each presentation.
+
+=20
+
+Publication and Indexing
+
+To ensure that a full paper or short paper is published and presented,=
+ poster paper or company paper is presented, at least one of the autho=
+rs must be fully registered by the 4th of January 2024, and the paper =
+must comply with the suggested layout and page-limit. Additionally, al=
+l recommended changes must be addressed by the authors before they sub=
+mit the camera-ready version.
+
+No more than one paper per registration will be published. An extra fe=
+e must be paid for publication of additional papers, with a maximum of=
+ one additional paper per registration. One registration permits only =
+the participation of one author in the conference.
+
+Full and Short papers will be published in Proceedings by Springer, in=
+ several books of of the Lecture Notes in Networks and Systems series.=
+ Poster and company papers will not be published, just presented in th=
+e conference.
+
+Published Full and Short papers will be submitted for indexation by Wo=
+S, SCOPUS, DBLP and Google Scholar, among others, and will be availabl=
+e in the SpringerLink Digital Library.
+
+The authors of the best selected papers will be invited to extend them=
+ for publication in international journals indexed by WoS/SCI, SCOPUS =
+and DBLP, among others, such as:
+
+International Journal of Neural Systems <https://mkt.saisti.eu/got/324=
+1046ae2OOTe5s5> (IF: 5.866 / Q1)
+
+Integrated Computer-Aided Engineering <https://mkt.saisti.eu/got/-2823=
+b3ce2OOTe5s7> (IF: 4.827 / Q1)
+
+Informatica <https://mkt.saisti.eu/got/6459f739e2OOTe5ts> (IF: 3.429 /=
+ Q1)
+
+Expert Systems <https://mkt.saisti.eu/got/a66650bae2OOTe5tt> (IF: 2.81=
+2 / Q2)
+
+Data Technologies and Applications <https://mkt.saisti.eu/got/c887ff8f=
+e2OOTe5tu> (IF: 1.667 / Q4)
+
+Computer Methods in Biomechanics and Biomedical Engineering - Imaging =
+& Visualization <https://mkt.saisti.eu/got/9cfa1999e2OOTe5sn> (ESCI & =
+SJR: 0.52 / Q2)
+
+=20
+
+Important Dates
+
+Paper Submission: November 6, 2022
+
+Notification of Acceptance: December 23, 2022
+
+Payment of Registration, to ensure the inclusion of an accepted paper =
+in the conference proceedings: January 4, 2023.
+
+Camera-ready Submission: January 4, 2023
+
+=20
+=20
+WorldCIST'23 Website: http://worldcist.org/ <http://worldcist.org/>
+=20
+=20
+=20
+
+--rqzre=_jhi7LY7XXtOInx1vkBlJoBwSrB5
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+<html>
+  <head>
+    <title></title>
+    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content=
+-Type" />
+  </head>
+  <body>
+    <p>* Google Scholar H-Index =3D 25</p>
+    <p>* Indexed in WoS, Scopus, DBLP, etc.</p>
+    <p><br /></p>
+    <p>------------------------------=20
+      <wbr>&nbsp;</wbr>&nbsp;------------------------------=20
+      <wbr>&nbsp;</wbr>&nbsp;------------------------------=20
+      <wbr>&nbsp;</wbr>&nbsp;-------------=20
+    </p>
+    <p><strong><span class=3D"il">WorldCIST</span>'23 - 11<sup id=3D"m=
+_-5437522604541456097isPasted">st</sup> <span class=3D"il">World</span=
+> Conference on Information Systems and Technologies</strong></p>
+    <p><strong>Pisa, Italy, 4 - 6 April 2023</strong></p>
+    <p><a id=3D"m_-5437522604541456097isPasted" href=3D"https://mkt.sa=
+isti.eu/got/55a43fdae2OOTe1Nb" target=3D"_blank" data-saferedirecturl=3D=
+"https://www.google.com/url?q=3Dhttps://mkt.saisti.eu/got/55a43fdae2OO=
+Te1Nb&source=3Dgmail&ust=3D1664116074203000&usg=3DAOvVaw29eURCh8_ymiAP=
+4YS7zF30">http://<span class=3D"il">worldcist</span>.org/</a></p>
+    <p>------------------------------=20
+      <wbr>&nbsp;</wbr>&nbsp;------------------------------=20
+      <wbr>&nbsp;</wbr>&nbsp;------------------------------=20
+      <wbr>&nbsp;</wbr>&nbsp;-------------=20
+    </p>
+    <div>
+      <p><strong>Scope</strong></p>
+      <p>The <span class=3D"il">WorldCist</span>'23 - 11<sup>st</sup> =
+<span class=3D"il">World</span> Conference on Information Systems and =
+Technologies, to be held in Pisa, Italy, 4 - 6 April 2023, is a global=
+ forum for researchers and practitioners to present and discuss the mo=
+st recent innovations, trends, results, experiences and concerns in th=
+e several perspectives of Information Systems and Technologies.</p>
+      <p style=3D"text-align: left">We are pleased to invite you to su=
+bmit your papers to <span class=3D"il">WorldCist</span>'23. All submis=
+sions will be reviewed on the basis of relevance, originality, importa=
+nce and clarity.</p>
+      <p style=3D"text-align: left">&nbsp;</p>
+      <p style=3D"text-align: left"><strong>Themes</strong></p>
+      <p>Submitted papers should be related with one or more of the ma=
+in themes proposed for the Conference:</p>
+      <p style=3D"text-align: left; padding-left: 30px">A) Information=
+ and Knowledge Management (IKM);</p>
+      <p style=3D"text-align: left; padding-left: 30px">B) Organizatio=
+nal Models and Information Systems (OMIS);</p>
+      <p style=3D"text-align: left; padding-left: 30px">C) Software an=
+d Systems Modeling (SSM);</p>
+      <p style=3D"text-align: left; padding-left: 30px">D) Software Sy=
+stems, Architectures, Applications and Tools (SSAAT);</p>
+      <p style=3D"text-align: left; padding-left: 30px">E) Multimedia =
+Systems and Applications (MSA);</p>
+      <p style=3D"text-align: left; padding-left: 30px">F) Computer Ne=
+tworks, Mobility and Pervasive Systems (CNMPS);</p>
+      <p style=3D"text-align: left; padding-left: 30px">G) Intelligent=
+ and Decision Support Systems (IDSS);</p>
+      <p style=3D"text-align: left; padding-left: 30px">H) Big Data An=
+alytics and Applications (BDAA);</p>
+      <p style=3D"text-align: left; padding-left: 30px">I) Human-Compu=
+ter Interaction (HCI);</p>
+      <p style=3D"text-align: left; padding-left: 30px">J) Ethics, Com=
+puters and Security (ECS)</p>
+      <p style=3D"text-align: left; padding-left: 30px">K) Health Info=
+rmatics (HIS);</p>
+      <p style=3D"text-align: left; padding-left: 30px">L) Information=
+ Technologies in Education (ITE);</p>
+      <p style=3D"text-align: left; padding-left: 30px">M) Technologie=
+s for Biomedical Applications (TBA)</p>
+      <p style=3D"text-align: left; padding-left: 30px">N) Information=
+ Technologies in Radiocommunications (ITR);</p>
+      <p style=3D"text-align: left; padding-left: 30px">&nbsp;</p>
+      <p style=3D"text-align: left"><strong>Types of Submissions and D=
+ecisions</strong></p>
+      <p style=3D"text-align: left">Four types of papers can be submit=
+ted:</p>
+      <p style=3D"text-align: left; padding-left: 30px"><strong><em>Fu=
+ll paper</em><em>:</em></strong> Finished or consolidated R&amp;D work=
+s, to be included in one of the Conference themes. These papers are as=
+signed a 10-page limit.</p>
+      <p style=3D"text-align: left; padding-left: 30px"><strong><em>Sh=
+ort paper:</em></strong> Ongoing works with relevant preliminary resul=
+ts, open to discussion. These papers are assigned a 7-page limit.</p>
+      <p style=3D"text-align: left; padding-left: 30px"><strong><em>Po=
+ster paper:</em></strong> Initial work with relevant ideas, open to di=
+scussion. These papers are assigned to a 4-page limit.</p>
+      <p style=3D"text-align: left; padding-left: 30px"><em><strong>Co=
+mpany paper:</strong></em> Companies' papers that show practical exper=
+ience, R &amp; D, tools, etc., focused on some topics of the conferenc=
+e. These papers are assigned to a 4-page limit.</p>
+      <p style=3D"text-align: left">Submitted papers must comply with =
+the format of Advances in Intelligent Systems and Computing Series (se=
+e <a href=3D"https://mkt.saisti.eu/got/3227-71ce2OOTe5rX" rel=3D"noope=
+ner" target=3D"_blank" data-saferedirecturl=3D"https://www.google.com/=
+url?q=3Dhttps://mkt.saisti.eu/got/3227-71ce2OOTe5rX&source=3Dgmail&ust=
+=3D1664116074203000&usg=3DAOvVaw1PZrWzdNOyLIxFK-dn_cLs">Instructions f=
+or Authors at Springer Website)</a>, be written in English, must not h=
+ave been published before, not be under review for any other conferenc=
+e or publication and not include any information leading to the author=
+s&rsquo; identification. Therefore, the authors&rsquo; names, affiliat=
+ions and bibliographic references should not be included in the versio=
+n for evaluation by the Program Committee. This information should onl=
+y be included in the camera-ready version, saved in Word or Latex form=
+at and also in PDF format. <span lang=3D"en" id=3D"m_-5437522604541456=
+097result_box"><span>These files</span> <span>must</span> <span>be acc=
+ompanied by the <a rel=3D"noopener">Consent to Publish form</a></span>=
+ <span>filled out,&nbsp;</span></span><span lang=3D"en" id=3D"m_-54375=
+22604541456097result_box"><span><span>in a ZIP file, and uploaded at t=
+he conference management system.</span><br /></span></span></p>
+      <p style=3D"text-align: left">All papers will be subjected to a =
+&ldquo;double-blind review&rdquo; by at least two members of the Progr=
+am Committee.</p>
+      <p style=3D"text-align: left">Based on Program Committee evaluat=
+ion, a paper can be rejected or accepted by the Conference Chairs. In =
+the later case, it can be accepted as the type originally submitted or=
+ as another type. Thus, full papers can be accepted as short papers or=
+ poster papers only. Similarly, short papers can be accepted as poster=
+ papers only.</p>
+      <p style=3D"text-align: left">Poster papers and Company papers a=
+re not published in the Conference Proceedings, being only presented a=
+nd discussed. The authors of accepted poster papers should build and p=
+rint a poster to be exhibited during the Conference. This poster must =
+follow an A1 or A2 vertical format. The Conference includes Work Sessi=
+ons where these posters are presented and orally discussed, with a 7 m=
+inute limit per poster.</p>
+      <p style=3D"text-align: left">The authors of accepted Full paper=
+s will have 15 minutes to present their work in a Conference Work Sess=
+ion; approximately 5 minutes of discussion will follow each presentati=
+on. The authors of accepted Short papers and Company papers will have =
+11 minutes to present their work in a Conference Work Session; approxi=
+mately 4 minutes of discussion will follow each presentation.</p>
+      <p style=3D"text-align: left">&nbsp;</p>
+      <p style=3D"text-align: left"><strong>Publication and Indexing</=
+strong></p>
+      <p style=3D"text-align: left">To ensure that a full paper or sho=
+rt paper is published and presented, poster paper or company paper is =
+presented, at least one of the authors must be fully registered by the=
+ 4<sup>th</sup> of January 2024, and the paper must comply with the su=
+ggested layout and page-limit. Additionally, all recommended changes m=
+ust be addressed by the authors before they submit the camera-ready ve=
+rsion.</p>
+      <p style=3D"text-align: left">No more than one paper per registr=
+ation will be published. An extra fee must be paid for publication of =
+additional papers, with a maximum of one additional paper per registra=
+tion. One registration permits only the participation of one author in=
+ the conference.</p>
+      <p style=3D"text-align: left">Full and Short papers will be publ=
+ished in Proceedings by Springer, in several books of <span style=3D"f=
+ont-family: verdana,geneva,sans-serif">of the Lecture Notes in Network=
+s and Systems series</span>. Poster and company papers will not be pub=
+lished, just presented in the conference.</p>
+      <p style=3D"text-align: left">Published Full and Short papers wi=
+ll be submitted for indexation by WoS, SCOPUS, DBLP and Google Scholar=
+, among others, and will be available in the SpringerLink Digital Libr=
+ary.</p>
+      <p style=3D"text-align: left">The authors of the best selected p=
+apers will be invited to extend them for publication in international =
+journals indexed by WoS/SCI, SCOPUS and DBLP, among others, such as:</=
+p>
+      <p style=3D"padding-left: 30px"><a href=3D"https://mkt.saisti.eu=
+/got/3241046ae2OOTe5s5" rel=3D"noopener" target=3D"_blank" data-safere=
+directurl=3D"https://www.google.com/url?q=3Dhttps://mkt.saisti.eu/got/=
+3241046ae2OOTe5s5&source=3Dgmail&ust=3D1664116074203000&usg=3DAOvVaw2X=
+7PkePaJ2BFpGMa2Vp7Wm">International Journal of Neural Systems</a> (IF:=
+ 5.866 / Q1)</p>
+      <p style=3D"padding-left: 30px"><a href=3D"https://mkt.saisti.eu=
+/got/-2823b3ce2OOTe5s7" rel=3D"noopener" target=3D"_blank" data-safere=
+directurl=3D"https://www.google.com/url?q=3Dhttps://mkt.saisti.eu/got/=
+-2823b3ce2OOTe5s7&source=3Dgmail&ust=3D1664116074203000&usg=3DAOvVaw06=
+X7OhzO1MGWjNll5YUfcz">Integrated Computer-Aided Engineering</a> (IF: 4=
+=2E827 / Q1)</p>
+      <p style=3D"padding-left: 30px"><a href=3D"https://mkt.saisti.eu=
+/got/6459f739e2OOTe5ts" rel=3D"noopener" target=3D"_blank" data-safere=
+directurl=3D"https://www.google.com/url?q=3Dhttps://mkt.saisti.eu/got/=
+6459f739e2OOTe5ts&source=3Dgmail&ust=3D1664116074203000&usg=3DAOvVaw2q=
+7o-LsmIaaJlElu_CutEO">Informatica</a> (IF: 3.429 / Q1)</p>
+      <p style=3D"padding-left: 30px"><a href=3D"https://mkt.saisti.eu=
+/got/a66650bae2OOTe5tt" rel=3D"noopener" target=3D"_blank" data-safere=
+directurl=3D"https://www.google.com/url?q=3Dhttps://mkt.saisti.eu/got/=
+a66650bae2OOTe5tt&source=3Dgmail&ust=3D1664116074203000&usg=3DAOvVaw1O=
+z2bZxMl5v1jWtSqEGfma">Expert Systems</a> (IF: 2.812 / Q2)</p>
+      <p style=3D"padding-left: 30px"><a href=3D"https://mkt.saisti.eu=
+/got/c887ff8fe2OOTe5tu" rel=3D"noopener" target=3D"_blank" data-safere=
+directurl=3D"https://www.google.com/url?q=3Dhttps://mkt.saisti.eu/got/=
+c887ff8fe2OOTe5tu&source=3Dgmail&ust=3D1664116074203000&usg=3DAOvVaw1g=
+yi8W5KgHN58dg9ZPS6BA">Data Technologies and Applications</a> (IF: 1.66=
+7 / Q4)</p>
+      <p style=3D"padding-left: 30px"><a href=3D"https://mkt.saisti.eu=
+/got/9cfa1999e2OOTe5sn" rel=3D"noopener" target=3D"_blank" data-safere=
+directurl=3D"https://www.google.com/url?q=3Dhttps://mkt.saisti.eu/got/=
+9cfa1999e2OOTe5sn&source=3Dgmail&ust=3D1664116074203000&usg=3DAOvVaw0u=
+X5b4_CbDC26Do0WTCZgC">Computer Methods in Biomechanics and Biomedical =
+Engineering - Imaging &amp; Visualization</a> (ESCI &amp; SJR: 0.52 / =
+Q2)</p>
+      <p>&nbsp;</p>
+      <p style=3D"text-align: left"><strong>Important Dates</strong></=
+p>
+      <p style=3D"text-align: left; padding-left: 30px">Paper Submissi=
+on: <em>November 6, 2022</em></p>
+      <p style=3D"text-align: left; padding-left: 30px">Notification o=
+f Acceptance: <em>December 23, 2022</em></p>
+      <p style=3D"text-align: left; padding-left: 30px">Payment of Reg=
+istration, <em>to ensure the inclusion of an accepted paper in the con=
+ference proceedings: January 4, 2023.</em></p>
+      <p style=3D"text-align: left; padding-left: 30px">Camera-ready S=
+ubmission: <em>January 4, 2023</em></p>
+      <div>&nbsp;</div>
+      <div><strong><span class=3D"il">&nbsp;</span></strong></div>
+      <div><strong><span class=3D"il">WorldCIST</span>'23 Website</str=
+ong>: <a href=3D"http://worldcist.org/" target=3D"_blank" data-safered=
+irecturl=3D"https://www.google.com/url?q=3Dhttps://mkt.saisti.eu/got/5=
+5a43fdae2OOTe1Nb&source=3Dgmail&ust=3D1664116074203000&usg=3DAOvVaw29e=
+URCh8_ymiAP4YS7zF30">http://<span class=3D"il">worldcist</span>.org/</=
+a></div>
+      <div>&nbsp;</div>
+      <div>&nbsp;</div>
+      <div>&nbsp;</div>
+    </div>
+  </body>
+</html>
+
+--rqzre=_jhi7LY7XXtOInx1vkBlJoBwSrB5--
+
+
+--===============7688069458582478615==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============7688069458582478615==--
+
