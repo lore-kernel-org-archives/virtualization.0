@@ -4,88 +4,89 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B43EAC433FE
-	for <virtualization@archiver.kernel.org>; Tue,  4 Oct 2022 11:13:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 52893C433FE
+	for <virtualization@archiver.kernel.org>; Tue,  4 Oct 2022 11:44:13 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 38D1840B83;
-	Tue,  4 Oct 2022 11:13:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 38D1840B83
+	by smtp2.osuosl.org (Postfix) with ESMTP id CE182400D8;
+	Tue,  4 Oct 2022 11:44:12 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org CE182400D8
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=DQ7AqshQ
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=Bo9x/OnI
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id KlM_xidiLxJO; Tue,  4 Oct 2022 11:13:23 +0000 (UTC)
+	with ESMTP id FkmMQWALAqVo; Tue,  4 Oct 2022 11:44:11 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 6A3FE408D0;
-	Tue,  4 Oct 2022 11:13:22 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6A3FE408D0
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 0FC4340222;
+	Tue,  4 Oct 2022 11:44:11 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0FC4340222
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3F0C3C0032;
-	Tue,  4 Oct 2022 11:13:22 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6492CC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D9659C0032;
+	Tue,  4 Oct 2022 11:44:10 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6B41FC002D
  for <virtualization@lists.linux-foundation.org>;
- Tue,  4 Oct 2022 11:13:21 +0000 (UTC)
+ Tue,  4 Oct 2022 11:44:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 2A3F160B46
+ by smtp3.osuosl.org (Postfix) with ESMTP id 3FBB560ABA
  for <virtualization@lists.linux-foundation.org>;
- Tue,  4 Oct 2022 11:13:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2A3F160B46
+ Tue,  4 Oct 2022 11:44:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3FBB560ABA
 Authentication-Results: smtp3.osuosl.org;
  dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org
- header.a=rsa-sha256 header.s=google header.b=DQ7AqshQ
+ header.a=rsa-sha256 header.s=google header.b=Bo9x/OnI
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id qcYdGbBIn-Ur
+ with ESMTP id s76kdQ-kvofq
  for <virtualization@lists.linux-foundation.org>;
- Tue,  4 Oct 2022 11:13:19 +0000 (UTC)
+ Tue,  4 Oct 2022 11:44:09 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D001F60B5C
-Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com
- [IPv6:2607:f8b0:4864:20::62e])
- by smtp3.osuosl.org (Postfix) with ESMTPS id D001F60B5C
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 36DD1605A2
+Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com
+ [IPv6:2607:f8b0:4864:20::52f])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 36DD1605A2
  for <virtualization@lists.linux-foundation.org>;
- Tue,  4 Oct 2022 11:13:19 +0000 (UTC)
-Received: by mail-pl1-x62e.google.com with SMTP id z20so5845983plb.10
+ Tue,  4 Oct 2022 11:44:09 +0000 (UTC)
+Received: by mail-pg1-x52f.google.com with SMTP id b5so12488860pgb.6
  for <virtualization@lists.linux-foundation.org>;
- Tue, 04 Oct 2022 04:13:19 -0700 (PDT)
+ Tue, 04 Oct 2022 04:44:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
  h=cc:to:subject:message-id:date:from:in-reply-to:references
  :mime-version:from:to:cc:subject:date;
- bh=UHE2x7YnT+avJBdJRK8fICu4tqbTB0zv1A8Jd5IOhrw=;
- b=DQ7AqshQw7pAlndMjmyEf3HDNlexUBF+jB73J+4SoV4OjFHAeL9d93Pkb0EJq27wmV
- fMsaB2Ugk2jANVVFsgCVCwsCPcqfEpNwL8Phil7GBZGqFbBPLY20X/vyyyMA3GQqxwqr
- 9GitSfUr/lUWnkoEFyKfW1UEPWDsM/lhvI/GgsbbZeTjM/BKXmE2CDDRkoVqqPha6oPu
- qT7JzbFbc8JYxA1Hnfg8ebCiWushyc4cczI9HWkbShP/pG31SGJukNeZLdU4X/4Dr/J1
- nBm7WS/ywrZAsUI2kefDBEEPXrA2HSCWcStoD/F24lMd+RQ2O+RyHYdGsKRKL5ywBm+U
- IhvQ==
+ bh=6ZpUfgQM8l58jAA1FLv6FNtqasscnAngw/MWtVrklhs=;
+ b=Bo9x/OnIeuD4yOxUQBcKmabUSqnMZ0tD37iq/OHVxEJh7l092LYUiEcByhyeKoPqQH
+ 6ccMpXG4qRKbkr941fgMrmTCvs7mBDKkmcyZ2TkZ97cu4Erpz6364n3eKpYtT/b1NuAZ
+ pi9UC5KrZS8fHRid7zPrK2EhUttI5OrNRFHSo8P3Mb2tkDzqPas8gU17A3WN+Bdf8SsZ
+ dU9egD++P5XQakRrLuSrsLxcUXmzHPNMQsJfA7zWkxd6pg+zQjqIPz81iRSpYAnZdaFW
+ 4XHAdmJUPlV/gsJ01s3Xsj5gKwh9HnkRQU0HSv1IiMZAjlCNlnOhbi1ezx8q34YNlXVA
+ xsfw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=cc:to:subject:message-id:date:from:in-reply-to:references
  :mime-version:x-gm-message-state:from:to:cc:subject:date;
- bh=UHE2x7YnT+avJBdJRK8fICu4tqbTB0zv1A8Jd5IOhrw=;
- b=G5qsgl3y/UPE3Lj+dvAFA+1qBjIwLNRhr3d9AiqELLeSeTyWoRbkbaxM07wPrJZ33y
- Y/oaSdrL+NInSeJpO+epj6kWsEDIGZLJT/UZ9WA5Uh0jRWpmAfNp4KuXEvDgV4yyV4IA
- 9DaIM+/waqkyX8jAk2w2v9GyFu6/ad25t16VpFsC73fJy/SosO8BHWcnc1LspzZhj60T
- B/o7TlURClfwGBCC5mwmI3NC7gWz6aIldGGnLrzweoqCpOoUcDlnRx0lKHdnN9YeQ9fZ
- pM8xIxnHFBRTIuwq8UKMSwjVNkbz4vREHKNyF0C33h/xDbetDvE8bL6IMbSv7cKYbQAu
- S3Mw==
-X-Gm-Message-State: ACrzQf3M08tkhGGRGTOeKEvV48zI4XWPi4hnHNSpIK4oWHK3SFCTI2AH
- XR6tLJrWWMzl4Jm2vEDuHwAOfBIndnxkMoMb992bRg==
-X-Google-Smtp-Source: AMsMyM7BhQDEzGuMq6uijGe+375QPbx+j/BjXkPK0/Xp2Q5WyeWrXvzrh6ljkVul43PLHCDTtENmDZivDluO/kqNLsY=
-X-Received: by 2002:a17:90b:4d07:b0:1ef:521c:f051 with SMTP id
- mw7-20020a17090b4d0700b001ef521cf051mr17237644pjb.164.1664881999182; Tue, 04
- Oct 2022 04:13:19 -0700 (PDT)
+ bh=6ZpUfgQM8l58jAA1FLv6FNtqasscnAngw/MWtVrklhs=;
+ b=q8WyJtbywQy2wyT/FaaixhiwA0G1Y5o09He+CbizMw2DYOi1oBIoCm5OGdXaBpuTs6
+ n6YHP3FM1XZ/f8wEgBhXfSwyJh/wu7L7tXMs8/azYj9+JVAtmO7JUVltIslzjRX3Du3m
+ h0LVgUJcDL2G1ynTdVggH11OE5Nd9V4LHr3TgsrVv4hRJ4nwS2r+mM0iKSyVzAQTXFA7
+ HJLehtAssRdsVQoow0h/pOvQlj5ch9lL79jZ/DywlYXVPq5ZrRE4wRYTFKDjvNoDeJLs
+ x31CjCE3kvu6JhnA1X4chKw6+bh2YEflgYwL5ujTY2qnOimEvXjIdkKXy+OOond2ODYx
+ cnZQ==
+X-Gm-Message-State: ACrzQf2eMdxoX1g8imQlXJ9rLpwAa9Gy0rjK/7dKIXS8JHgBphLHu9IY
+ 0d/U2yNJ/2Ti7kle22efLOPNp96pmth3zB9qDytlMQ==
+X-Google-Smtp-Source: AMsMyM5om3ildrb6FXKsDICcjLQng8HApyTNXbRFn0vHa6n1wlhKJZOEgXsol3CWajbZfhZ3j9+WO0SV0tqOewvj3U8=
+X-Received: by 2002:a63:464d:0:b0:441:5968:cd0e with SMTP id
+ v13-20020a63464d000000b004415968cd0emr19098981pgk.595.1664883848385; Tue, 04
+ Oct 2022 04:44:08 -0700 (PDT)
 MIME-Version: 1.0
 References: <20220919095939.761690562@infradead.org>
- <20220919101522.908560022@infradead.org>
-In-Reply-To: <20220919101522.908560022@infradead.org>
+ <20220919101521.139727471@infradead.org>
+ <CAPDyKFqTWd4W5Ofk76CtC4X43dxBTNHtmY9YzN355-vpviLsPw@mail.gmail.com>
+In-Reply-To: <CAPDyKFqTWd4W5Ofk76CtC4X43dxBTNHtmY9YzN355-vpviLsPw@mail.gmail.com>
 From: Ulf Hansson <ulf.hansson@linaro.org>
-Date: Tue, 4 Oct 2022 13:12:42 +0200
-Message-ID: <CAPDyKFqDiqXSi5Gn9eyvhHhqHxJAPAt-HzmEDwYWaGvso2yn=w@mail.gmail.com>
-Subject: Re: [PATCH v2 38/44] cpuidle,powerdomain: Remove trace_.*_rcuidle()
+Date: Tue, 4 Oct 2022 13:43:31 +0200
+Message-ID: <CAPDyKFqGSt2NFe8aY=6rkp4P-WH7DCO1fmWrcXk4_5XNEvv25w@mail.gmail.com>
+Subject: Re: [PATCH v2 12/44] cpuidle,dt: Push RCU-idle into driver
 To: Peter Zijlstra <peterz@infradead.org>
 Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com,
  linus.walleij@linaro.org, bsegall@google.com, guoren@kernel.org, pavel@ucw.cz,
@@ -151,168 +152,184 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, 19 Sept 2022 at 12:17, Peter Zijlstra <peterz@infradead.org> wrote:
+On Tue, 4 Oct 2022 at 13:03, Ulf Hansson <ulf.hansson@linaro.org> wrote:
 >
-> OMAP was the one and only user.
+> On Mon, 19 Sept 2022 at 12:18, Peter Zijlstra <peterz@infradead.org> wrote:
+> >
+> > Doing RCU-idle outside the driver, only to then temporarily enable it
+> > again before going idle is daft.
+> >
+> > Notably: this converts all dt_init_idle_driver() and
+> > __CPU_PM_CPU_IDLE_ENTER() users for they are inextrably intertwined.
+> >
+> > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 >
-> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
 
-There are changes to the runtime PM core as part of $subject patch.
-Perhaps move those parts into a separate patch? In any case, the code
-looks good to me.
-
-Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
+This was not (yet) my intention. Please have a look at the comments I
+provided below.
 
 Kind regards
 Uffe
 
-> ---
->  arch/arm/mach-omap2/powerdomain.c |   10 +++++-----
->  drivers/base/power/runtime.c      |   24 ++++++++++++------------
->  2 files changed, 17 insertions(+), 17 deletions(-)
 >
-> --- a/arch/arm/mach-omap2/powerdomain.c
-> +++ b/arch/arm/mach-omap2/powerdomain.c
-> @@ -187,9 +187,9 @@ static int _pwrdm_state_switch(struct po
->                         trace_state = (PWRDM_TRACE_STATES_FLAG |
->                                        ((next & OMAP_POWERSTATE_MASK) << 8) |
->                                        ((prev & OMAP_POWERSTATE_MASK) << 0));
-> -                       trace_power_domain_target_rcuidle(pwrdm->name,
-> -                                                         trace_state,
-> -                                                         raw_smp_processor_id());
-> +                       trace_power_domain_target(pwrdm->name,
-> +                                                 trace_state,
-> +                                                 raw_smp_processor_id());
->                 }
->                 break;
->         default:
-> @@ -541,8 +541,8 @@ int pwrdm_set_next_pwrst(struct powerdom
+> > ---
+> >  arch/arm/mach-omap2/cpuidle34xx.c    |    4 ++--
+> >  drivers/acpi/processor_idle.c        |    2 ++
+> >  drivers/cpuidle/cpuidle-arm.c        |    1 +
+> >  drivers/cpuidle/cpuidle-big_little.c |    8 ++++++--
+> >  drivers/cpuidle/cpuidle-psci.c       |    1 +
+> >  drivers/cpuidle/cpuidle-qcom-spm.c   |    1 +
+> >  drivers/cpuidle/cpuidle-riscv-sbi.c  |    1 +
+> >  drivers/cpuidle/dt_idle_states.c     |    2 +-
+> >  include/linux/cpuidle.h              |    4 ++++
+> >  9 files changed, 19 insertions(+), 5 deletions(-)
+> >
+> > --- a/drivers/acpi/processor_idle.c
+> > +++ b/drivers/acpi/processor_idle.c
+> > @@ -1200,6 +1200,8 @@ static int acpi_processor_setup_lpi_stat
+> >                 state->target_residency = lpi->min_residency;
+> >                 if (lpi->arch_flags)
+> >                         state->flags |= CPUIDLE_FLAG_TIMER_STOP;
+> > +               if (lpi->entry_method == ACPI_CSTATE_FFH)
+> > +                       state->flags |= CPUIDLE_FLAG_RCU_IDLE;
 >
->         if (arch_pwrdm && arch_pwrdm->pwrdm_set_next_pwrst) {
->                 /* Trace the pwrdm desired target state */
-> -               trace_power_domain_target_rcuidle(pwrdm->name, pwrst,
-> -                                                 raw_smp_processor_id());
-> +               trace_power_domain_target(pwrdm->name, pwrst,
-> +                                         raw_smp_processor_id());
->                 /* Program the pwrdm desired target state */
->                 ret = arch_pwrdm->pwrdm_set_next_pwrst(pwrdm, pwrst);
->         }
-> --- a/drivers/base/power/runtime.c
-> +++ b/drivers/base/power/runtime.c
-> @@ -442,7 +442,7 @@ static int rpm_idle(struct device *dev,
->         int (*callback)(struct device *);
->         int retval;
+> I assume the state index here will never be 0?
 >
-> -       trace_rpm_idle_rcuidle(dev, rpmflags);
-> +       trace_rpm_idle(dev, rpmflags);
->         retval = rpm_check_suspend_allowed(dev);
->         if (retval < 0)
->                 ;       /* Conditions are wrong. */
-> @@ -481,7 +481,7 @@ static int rpm_idle(struct device *dev,
->                         dev->power.request_pending = true;
->                         queue_work(pm_wq, &dev->power.work);
->                 }
-> -               trace_rpm_return_int_rcuidle(dev, _THIS_IP_, 0);
-> +               trace_rpm_return_int(dev, _THIS_IP_, 0);
->                 return 0;
->         }
+> If not, it may lead to that acpi_processor_ffh_lpi_enter() may trigger
+> CPU_PM_CPU_IDLE_ENTER_PARAM() to call ct_cpuidle_enter|exit() for an
+> idle-state that doesn't have the CPUIDLE_FLAG_RCU_IDLE bit set.
 >
-> @@ -493,7 +493,7 @@ static int rpm_idle(struct device *dev,
->         wake_up_all(&dev->power.wait_queue);
+> >                 state->enter = acpi_idle_lpi_enter;
+> >                 drv->safe_state_index = i;
+> >         }
+> > --- a/drivers/cpuidle/cpuidle-arm.c
+> > +++ b/drivers/cpuidle/cpuidle-arm.c
+> > @@ -53,6 +53,7 @@ static struct cpuidle_driver arm_idle_dr
+> >          * handler for idle state index 0.
+> >          */
+> >         .states[0] = {
+> > +               .flags                  = CPUIDLE_FLAG_RCU_IDLE,
 >
->   out:
-> -       trace_rpm_return_int_rcuidle(dev, _THIS_IP_, retval);
-> +       trace_rpm_return_int(dev, _THIS_IP_, retval);
->         return retval ? retval : rpm_suspend(dev, rpmflags | RPM_AUTO);
->  }
+> Comparing arm64 and arm32 idle-states/idle-drivers, the $subject
+> series ends up setting the CPUIDLE_FLAG_RCU_IDLE for the ARM WFI idle
+> state (state zero), but only for the arm64 and psci cases (mostly
+> arm64). For arm32 we would need to update the ARM_CPUIDLE_WFI_STATE
+> too, as that is what most arm32 idle-drivers are using. My point is,
+> the code becomes a bit inconsistent.
 >
-> @@ -557,7 +557,7 @@ static int rpm_suspend(struct device *de
->         struct device *parent = NULL;
->         int retval;
+> Perhaps it's easier to avoid setting the CPUIDLE_FLAG_RCU_IDLE bit for
+> all of the ARM WFI idle states, for both arm64 and arm32?
 >
-> -       trace_rpm_suspend_rcuidle(dev, rpmflags);
-> +       trace_rpm_suspend(dev, rpmflags);
+> >                 .enter                  = arm_enter_idle_state,
+> >                 .exit_latency           = 1,
+> >                 .target_residency       = 1,
+> > --- a/drivers/cpuidle/cpuidle-big_little.c
+> > +++ b/drivers/cpuidle/cpuidle-big_little.c
+> > @@ -64,7 +64,8 @@ static struct cpuidle_driver bl_idle_lit
+> >                 .enter                  = bl_enter_powerdown,
+> >                 .exit_latency           = 700,
+> >                 .target_residency       = 2500,
+> > -               .flags                  = CPUIDLE_FLAG_TIMER_STOP,
+> > +               .flags                  = CPUIDLE_FLAG_TIMER_STOP |
+> > +                                         CPUIDLE_FLAG_RCU_IDLE,
+> >                 .name                   = "C1",
+> >                 .desc                   = "ARM little-cluster power down",
+> >         },
+> > @@ -85,7 +86,8 @@ static struct cpuidle_driver bl_idle_big
+> >                 .enter                  = bl_enter_powerdown,
+> >                 .exit_latency           = 500,
+> >                 .target_residency       = 2000,
+> > -               .flags                  = CPUIDLE_FLAG_TIMER_STOP,
+> > +               .flags                  = CPUIDLE_FLAG_TIMER_STOP |
+> > +                                         CPUIDLE_FLAG_RCU_IDLE,
+> >                 .name                   = "C1",
+> >                 .desc                   = "ARM big-cluster power down",
+> >         },
+> > @@ -124,11 +126,13 @@ static int bl_enter_powerdown(struct cpu
+> >                                 struct cpuidle_driver *drv, int idx)
+> >  {
+> >         cpu_pm_enter();
+> > +       ct_idle_enter();
+> >
+> >         cpu_suspend(0, bl_powerdown_finisher);
+> >
+> >         /* signals the MCPM core that CPU is out of low power state */
+> >         mcpm_cpu_powered_up();
+> > +       ct_idle_exit();
+> >
+> >         cpu_pm_exit();
+> >
+> > --- a/drivers/cpuidle/cpuidle-psci.c
+> > +++ b/drivers/cpuidle/cpuidle-psci.c
+> > @@ -357,6 +357,7 @@ static int psci_idle_init_cpu(struct dev
+> >          * PSCI idle states relies on architectural WFI to be represented as
+> >          * state index 0.
+> >          */
+> > +       drv->states[0].flags = CPUIDLE_FLAG_RCU_IDLE;
+> >         drv->states[0].enter = psci_enter_idle_state;
+> >         drv->states[0].exit_latency = 1;
+> >         drv->states[0].target_residency = 1;
+> > --- a/drivers/cpuidle/cpuidle-qcom-spm.c
+> > +++ b/drivers/cpuidle/cpuidle-qcom-spm.c
+> > @@ -72,6 +72,7 @@ static struct cpuidle_driver qcom_spm_id
+> >         .owner = THIS_MODULE,
+> >         .states[0] = {
+> >                 .enter                  = spm_enter_idle_state,
+> > +               .flags                  = CPUIDLE_FLAG_RCU_IDLE,
+> >                 .exit_latency           = 1,
+> >                 .target_residency       = 1,
+> >                 .power_usage            = UINT_MAX,
+> > --- a/drivers/cpuidle/cpuidle-riscv-sbi.c
+> > +++ b/drivers/cpuidle/cpuidle-riscv-sbi.c
+> > @@ -332,6 +332,7 @@ static int sbi_cpuidle_init_cpu(struct d
+> >         drv->cpumask = (struct cpumask *)cpumask_of(cpu);
+> >
+> >         /* RISC-V architectural WFI to be represented as state index 0. */
+> > +       drv->states[0].flags = CPUIDLE_FLAG_RCU_IDLE;
+> >         drv->states[0].enter = sbi_cpuidle_enter_state;
+> >         drv->states[0].exit_latency = 1;
+> >         drv->states[0].target_residency = 1;
+> > --- a/drivers/cpuidle/dt_idle_states.c
+> > +++ b/drivers/cpuidle/dt_idle_states.c
+> > @@ -77,7 +77,7 @@ static int init_state_node(struct cpuidl
+> >         if (err)
+> >                 desc = state_node->name;
+> >
+> > -       idle_state->flags = 0;
+> > +       idle_state->flags = CPUIDLE_FLAG_RCU_IDLE;
+> >         if (of_property_read_bool(state_node, "local-timer-stop"))
+> >                 idle_state->flags |= CPUIDLE_FLAG_TIMER_STOP;
+> >         /*
+> > --- a/include/linux/cpuidle.h
+> > +++ b/include/linux/cpuidle.h
+> > @@ -282,14 +282,18 @@ extern s64 cpuidle_governor_latency_req(
+> >         int __ret = 0;                                                  \
+> >                                                                         \
+> >         if (!idx) {                                                     \
+> > +               ct_idle_enter();                                        \
 >
->   repeat:
->         retval = rpm_check_suspend_allowed(dev);
-> @@ -708,7 +708,7 @@ static int rpm_suspend(struct device *de
->         }
+> According to my comment above, we should then drop these calls to
+> ct_idle_enter and ct_idle_exit() here. Right?
 >
->   out:
-> -       trace_rpm_return_int_rcuidle(dev, _THIS_IP_, retval);
-> +       trace_rpm_return_int(dev, _THIS_IP_, retval);
+> >                 cpu_do_idle();                                          \
+> > +               ct_idle_exit();                                         \
+> >                 return idx;                                             \
+> >         }                                                               \
+> >                                                                         \
+> >         if (!is_retention)                                              \
+> >                 __ret =  cpu_pm_enter();                                \
+> >         if (!__ret) {                                                   \
+> > +               ct_idle_enter();                                        \
+> >                 __ret = low_level_idle_enter(state);                    \
+> > +               ct_idle_exit();                                         \
+> >                 if (!is_retention)                                      \
+> >                         cpu_pm_exit();                                  \
+> >         }                                                               \
+> >
 >
->         return retval;
->
-> @@ -760,7 +760,7 @@ static int rpm_resume(struct device *dev
->         struct device *parent = NULL;
->         int retval = 0;
->
-> -       trace_rpm_resume_rcuidle(dev, rpmflags);
-> +       trace_rpm_resume(dev, rpmflags);
->
->   repeat:
->         if (dev->power.runtime_error) {
-> @@ -925,7 +925,7 @@ static int rpm_resume(struct device *dev
->                 spin_lock_irq(&dev->power.lock);
->         }
->
-> -       trace_rpm_return_int_rcuidle(dev, _THIS_IP_, retval);
-> +       trace_rpm_return_int(dev, _THIS_IP_, retval);
->
->         return retval;
->  }
-> @@ -1081,7 +1081,7 @@ int __pm_runtime_idle(struct device *dev
->                 if (retval < 0) {
->                         return retval;
->                 } else if (retval > 0) {
-> -                       trace_rpm_usage_rcuidle(dev, rpmflags);
-> +                       trace_rpm_usage(dev, rpmflags);
->                         return 0;
->                 }
->         }
-> @@ -1119,7 +1119,7 @@ int __pm_runtime_suspend(struct device *
->                 if (retval < 0) {
->                         return retval;
->                 } else if (retval > 0) {
-> -                       trace_rpm_usage_rcuidle(dev, rpmflags);
-> +                       trace_rpm_usage(dev, rpmflags);
->                         return 0;
->                 }
->         }
-> @@ -1202,7 +1202,7 @@ int pm_runtime_get_if_active(struct devi
->         } else {
->                 retval = atomic_inc_not_zero(&dev->power.usage_count);
->         }
-> -       trace_rpm_usage_rcuidle(dev, 0);
-> +       trace_rpm_usage(dev, 0);
->         spin_unlock_irqrestore(&dev->power.lock, flags);
->
->         return retval;
-> @@ -1566,7 +1566,7 @@ void pm_runtime_allow(struct device *dev
->         if (ret == 0)
->                 rpm_idle(dev, RPM_AUTO | RPM_ASYNC);
->         else if (ret > 0)
-> -               trace_rpm_usage_rcuidle(dev, RPM_AUTO | RPM_ASYNC);
-> +               trace_rpm_usage(dev, RPM_AUTO | RPM_ASYNC);
->
->   out:
->         spin_unlock_irq(&dev->power.lock);
-> @@ -1635,7 +1635,7 @@ static void update_autosuspend(struct de
->                         atomic_inc(&dev->power.usage_count);
->                         rpm_resume(dev, 0);
->                 } else {
-> -                       trace_rpm_usage_rcuidle(dev, 0);
-> +                       trace_rpm_usage(dev, 0);
->                 }
->         }
->
->
->
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+> Kind regards
+> Uffe
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
