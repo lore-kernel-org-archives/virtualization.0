@@ -1,139 +1,141 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1B5F8C433F5
-	for <virtualization@archiver.kernel.org>; Tue,  4 Oct 2022 11:04:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8847EC433F5
+	for <virtualization@archiver.kernel.org>; Tue,  4 Oct 2022 11:05:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 7CF78408A1;
-	Tue,  4 Oct 2022 11:04:41 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7CF78408A1
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=J/vrmB9K
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 7-LHys-WmM2l; Tue,  4 Oct 2022 11:04:40 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 804E8408A5;
-	Tue,  4 Oct 2022 11:04:39 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 804E8408A5
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 58B1FC0033;
-	Tue,  4 Oct 2022 11:04:39 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C7C46C002D
- for <virtualization@lists.linux-foundation.org>;
- Tue,  4 Oct 2022 11:04:37 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 8CDAA400CE
- for <virtualization@lists.linux-foundation.org>;
- Tue,  4 Oct 2022 11:04:37 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8CDAA400CE
+	by smtp2.osuosl.org (Postfix) with ESMTP id 3D6594012F;
+	Tue,  4 Oct 2022 11:05:39 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3D6594012F
 Authentication-Results: smtp2.osuosl.org;
- dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org
- header.a=rsa-sha256 header.s=google header.b=J/vrmB9K
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=ALPYtY9N
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id shy1_TaBzru5
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id WrvSAOuSh3mL; Tue,  4 Oct 2022 11:05:38 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id CD1AE408CB;
+	Tue,  4 Oct 2022 11:05:37 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org CD1AE408CB
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A7489C0033;
+	Tue,  4 Oct 2022 11:05:37 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6C406C002D
  for <virtualization@lists.linux-foundation.org>;
- Tue,  4 Oct 2022 11:04:36 +0000 (UTC)
+ Tue,  4 Oct 2022 11:05:36 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 46FF160B5C
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  4 Oct 2022 11:05:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 46FF160B5C
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org
+ header.a=rsa-sha256 header.s=google header.b=ALPYtY9N
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 2BL5BvLfYhaI
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  4 Oct 2022 11:05:34 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 958EA408D0
-Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com
- [IPv6:2607:f8b0:4864:20::433])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 958EA408D0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C4B2560B46
+Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com
+ [IPv6:2607:f8b0:4864:20::102f])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id C4B2560B46
  for <virtualization@lists.linux-foundation.org>;
- Tue,  4 Oct 2022 11:04:36 +0000 (UTC)
-Received: by mail-pf1-x433.google.com with SMTP id w191so3398352pfc.5
+ Tue,  4 Oct 2022 11:05:34 +0000 (UTC)
+Received: by mail-pj1-x102f.google.com with SMTP id 70so12571455pjo.4
  for <virtualization@lists.linux-foundation.org>;
- Tue, 04 Oct 2022 04:04:36 -0700 (PDT)
+ Tue, 04 Oct 2022 04:05:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
  h=cc:to:subject:message-id:date:from:in-reply-to:references
  :mime-version:from:to:cc:subject:date;
- bh=+dGyZLAFgGMTjfv/XBtu0TYoOq7FF1Gy12H3Maj7VZQ=;
- b=J/vrmB9Kw/kUjuLA94+GiSaAb/ysKsHCJMt0q/b5C4hTvjWvpD/4gYcz8wiDYH+wDu
- VauelbAc6rvn6GfwX8AzvYum0016wmpfk7JfWsZRIuqW+7uz8x5trzhgQfsbK6Oez4C2
- oI3/xkCQmxaR27+SGOcFsxA52mzB06l623Nv5Xai/ZW6o0aFNiEoJd0NtydxpISZgCqY
- Huu19sneopcpPoTb7AatH5ql62Y6l79ODVmUp4xYd601QVsvCsOcL4Dye3nIrsebtAO/
- TFi2QIhE77HgLndavZo56yiYGlFlIpX3fKxDC/yQxRz8ukXbuLPZ751WaoRstUHwOqJr
- oOYQ==
+ bh=8dOAtcXqtbDTbOtGHdeMRx2lSxGZ/p81xoeulWg88O8=;
+ b=ALPYtY9NECpkdz09jpHMZbs0aH+hKiq7zCwXfK1hWKvM2elz9mNR/JJb0byGfir59h
+ CWc9izoQX0glvUd9bdjzB+GxZIKg7cZ1wWKnb5xSlDD9fDdUtUduD7qTiOAX8rgJzNMY
+ 16i4fnybYgh61uFsRfFa0jFHaMm217pAorBQUItONSq5D0pjQfmpgEbFEG0ovD83XmiY
+ JRBnUwctQs5MU4QsxdCrYJ2mV5ubOvxFCDZOs+xf+eBgsrQVN1CIV6SHGqFX6RFQbzq7
+ D2ARCpgG/orA8SpRSFPIMnoc2IRLOYljdFwc8QX3tXFa2vpA/P7Kkd/ZsaWnXMh+ArFb
+ 1Asw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=cc:to:subject:message-id:date:from:in-reply-to:references
  :mime-version:x-gm-message-state:from:to:cc:subject:date;
- bh=+dGyZLAFgGMTjfv/XBtu0TYoOq7FF1Gy12H3Maj7VZQ=;
- b=BlYzJD9OHH9aeNVeHs7pG/Lj4rf2QKYCSRv5NL6XQSgm6pvmm/UndwOpFYhnoWLzdY
- 4wRq3awveV3vOvkjJ5DpCYw9s7GgVH2XJCs+YRDrCV3ko4WQMxfEH3eZZCUjEwol67hH
- L1hVQKnC5cC/GtogtueL5ikwlxLsvDZk3t1GTjM6vz1VdVfaanwgMQ0SXHTxjMW6mB7b
- +n+N1UaBzyZLwsYQIEr6dV6wrUNOzBXuD9imK0Tt94HDLrImn19n2LTSNYYxgYi4Iavd
- p4Nlash4joCb/Q34L23b2z3ZX+1L9WamEbyT9UZzyBc3jdq1t+aobg/ySAssBvx3GIdX
- quUA==
-X-Gm-Message-State: ACrzQf3zRHJxyEOdDq4E6bFD90dVD1TBgflXb569HkhYhbBVIDiVqGch
- I33ObAhq7JTKRplaq1iOvgd45XVQWThU7HtCV/P5ag==
-X-Google-Smtp-Source: AMsMyM47WQGEEYS8ORE4jd8BkC5HxomBqw3qkNOIDDeZpMqnq0xrIZB9jUW0aBX+JhUuuIkJBe/Q8EmYOwJGbohmCJY=
-X-Received: by 2002:a63:90c1:0:b0:450:75b5:29fe with SMTP id
- a184-20020a6390c1000000b0045075b529femr6949580pge.541.1664881475536; Tue, 04
- Oct 2022 04:04:35 -0700 (PDT)
+ bh=8dOAtcXqtbDTbOtGHdeMRx2lSxGZ/p81xoeulWg88O8=;
+ b=E9PUIpAo5MtWv4jcp9grRN5mpBzXEdAbyfxyUpX9z82vVX7PS8/Hx1UODGq6b2MQdN
+ yFfUonVhGPCPyjU6Hkyn1mgJnjFMEW/oeQeersmecgGivgAk0TGEX26W228yHDw7izOQ
+ Hjz+J4Ss13mgmRWZ47yxRFEpMQ5XjQ8Yrleys2zivGRiCAga8++fK0UCya7heoXehVFi
+ WEoJ/2lDAFHHK96BIU97gbSvz4aYqC9qYp/c3UvHqtaZC5IFxBLxBkXeB6xzgywqPxZz
+ xT285n+zgyE6Q33h4ksyf49mSjeUGFwlrU9v0rH3ipGXD1fPtb2mnZH7S0cuxCAxqh5+
+ KBZA==
+X-Gm-Message-State: ACrzQf16dL3GW9xfIIjKBbNrdDId/HHGmUclrFOXyPfU9Ks/Ls1TJjDL
+ 6r2f+W/UQR1o95BHKpeiusWZuRn7TPLHQrgOmf4gtw==
+X-Google-Smtp-Source: AMsMyM4crcx6LouSmUkordoRMp2FZSPTtuc3An5Wuzy+BH6M/IICg47GwaPPyycgbJ/QSQxkTeG6xy+CkgFRgaEAD/g=
+X-Received: by 2002:a17:90b:4d07:b0:1ef:521c:f051 with SMTP id
+ mw7-20020a17090b4d0700b001ef521cf051mr17203785pjb.164.1664881533975; Tue, 04
+ Oct 2022 04:05:33 -0700 (PDT)
 MIME-Version: 1.0
 References: <20220919095939.761690562@infradead.org>
- <20220919101521.139727471@infradead.org>
-In-Reply-To: <20220919101521.139727471@infradead.org>
+ <20220919101521.274051658@infradead.org>
+In-Reply-To: <20220919101521.274051658@infradead.org>
 From: Ulf Hansson <ulf.hansson@linaro.org>
-Date: Tue, 4 Oct 2022 13:03:57 +0200
-Message-ID: <CAPDyKFqTWd4W5Ofk76CtC4X43dxBTNHtmY9YzN355-vpviLsPw@mail.gmail.com>
-Subject: Re: [PATCH v2 12/44] cpuidle,dt: Push RCU-idle into driver
+Date: Tue, 4 Oct 2022 13:04:57 +0200
+Message-ID: <CAPDyKFquBVkYmKsriPD+BfVrrz62ih7oCxb7HwOML+Zzs-5U_Q@mail.gmail.com>
+Subject: Re: [PATCH v2 14/44] cpuidle,
+ cpu_pm: Remove RCU fiddling from cpu_pm_{enter, exit}()
 To: Peter Zijlstra <peterz@infradead.org>
 Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com,
  linus.walleij@linaro.org, bsegall@google.com, guoren@kernel.org, pavel@ucw.cz,
- agordeev@linux.ibm.com, linux-clk@vger.kernel.org, linux-arch@vger.kernel.org,
- vincent.guittot@linaro.org, mpe@ellerman.id.au, linux-sh@vger.kernel.org,
- kasan-dev@googlegroups.com, linux-acpi@vger.kernel.org, mingo@redhat.com,
- geert@linux-m68k.org, linux-imx@nxp.com, vgupta@kernel.org, mattst88@gmail.com,
- lpieralisi@kernel.org, sammy@sammy.net, pmladek@suse.com,
+ agordeev@linux.ibm.com, linux-arch@vger.kernel.org, vincent.guittot@linaro.org,
+ mpe@ellerman.id.au, chenhuacai@kernel.org, christophe.leroy@csgroup.eu,
+ linux-acpi@vger.kernel.org, agross@kernel.org, geert@linux-m68k.org,
+ linux-imx@nxp.com, vgupta@kernel.org, mattst88@gmail.com,
+ mturquette@baylibre.com, sammy@sammy.net, pmladek@suse.com,
  linux-pm@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
  linux-um@lists.infradead.org, npiggin@gmail.com, tglx@linutronix.de,
  linux-omap@vger.kernel.org, dietmar.eggemann@arm.com, andreyknvl@gmail.com,
  gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org,
  linux-perf-users@vger.kernel.org, senozhatsky@chromium.org,
- svens@linux.ibm.com, kernel@pengutronix.de, tj@kernel.org,
+ svens@linux.ibm.com, jolsa@kernel.org, tj@kernel.org,
  Andrew Morton <akpm@linux-foundation.org>, mark.rutland@arm.com,
  linux-ia64@vger.kernel.org, dave.hansen@linux.intel.com,
  virtualization@lists.linux-foundation.org,
  James.Bottomley@hansenpartnership.com, jcmvbkbc@gmail.com,
  thierry.reding@gmail.com, kernel@xen0n.name, cl@linux.com,
  linux-s390@vger.kernel.org, vschneid@redhat.com, john.ogness@linutronix.de,
- ysato@users.sourceforge.jp, festevam@gmail.com, deller@gmx.de,
- daniel.lezcano@linaro.org, jonathanh@nvidia.com, dennis@kernel.org,
- lenb@kernel.org, linux-xtensa@linux-xtensa.org, jolsa@kernel.org,
- gor@linux.ibm.com, linux-arm-msm@vger.kernel.org, sudeep.holla@arm.com,
- linux-m68k@lists.linux-m68k.org, loongarch@lists.linux.dev, shorne@gmail.com,
- chris@zankel.net, sboyd@kernel.org, dinguyen@kernel.org, bristot@redhat.com,
- chenhuacai@kernel.org, alexander.shishkin@linux.intel.com, fweisbec@gmail.com,
- mturquette@baylibre.com, paul.walmsley@sifive.com, linux@rasmusvillemoes.dk,
- christophe.leroy@csgroup.eu, will@kernel.org, boris.ostrovsky@oracle.com,
- khilman@kernel.org, linux-csky@vger.kernel.org, tony@atomide.com,
+ ysato@users.sourceforge.jp, linux-sh@vger.kernel.org, festevam@gmail.com,
+ deller@gmx.de, daniel.lezcano@linaro.org, jonathanh@nvidia.com,
+ dennis@kernel.org, lenb@kernel.org, linux-xtensa@linux-xtensa.org,
+ kernel@pengutronix.de, gor@linux.ibm.com, linux-arm-msm@vger.kernel.org,
+ linux-alpha@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+ loongarch@lists.linux.dev, shorne@gmail.com, chris@zankel.net,
+ sboyd@kernel.org, dinguyen@kernel.org, bristot@redhat.com,
+ alexander.shishkin@linux.intel.com, fweisbec@gmail.com, lpieralisi@kernel.org,
+ atishp@atishpatra.org, linux@rasmusvillemoes.dk, kasan-dev@googlegroups.com,
+ will@kernel.org, boris.ostrovsky@oracle.com, khilman@kernel.org,
+ linux-csky@vger.kernel.org, pv-drivers@vmware.com,
  linux-snps-arc@lists.infradead.org, mgorman@suse.de,
  jacob.jun.pan@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
- ulli.kroll@googlemail.com, rostedt@goodmis.org, ink@jurassic.park.msu.ru,
- bcain@quicinc.com, tsbogend@alpha.franken.de, linux-parisc@vger.kernel.org,
- anup@brainfault.org, ryabinin.a.a@gmail.com, linux-alpha@vger.kernel.org,
- shawnguo@kernel.org, davem@davemloft.net, dalias@libc.org,
- pv-drivers@vmware.com, hpa@zytor.com, konrad.dybcio@somainline.org,
- bjorn.andersson@linaro.org, glider@google.com, amakhalov@vmware.com,
- sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org,
+ ulli.kroll@googlemail.com, linux-clk@vger.kernel.org, rostedt@goodmis.org,
+ ink@jurassic.park.msu.ru, bcain@quicinc.com, tsbogend@alpha.franken.de,
+ linux-parisc@vger.kernel.org, ryabinin.a.a@gmail.com, sudeep.holla@arm.com,
+ shawnguo@kernel.org, davem@davemloft.net, dalias@libc.org, tony@atomide.com,
+ amakhalov@vmware.com, konrad.dybcio@somainline.org, bjorn.andersson@linaro.org,
+ glider@google.com, hpa@zytor.com, sparclinux@vger.kernel.org,
+ linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org,
  vincenzo.frascino@arm.com, anton.ivanov@cambridgegreys.com, jonas@southpole.se,
  yury.norov@gmail.com, richard@nod.at, x86@kernel.org, linux@armlinux.org.uk,
- agross@kernel.org, aou@eecs.berkeley.edu, hca@linux.ibm.com,
+ mingo@redhat.com, aou@eecs.berkeley.edu, hca@linux.ibm.com,
  richard.henderson@linaro.org, stefan.kristiansson@saunalahti.fi,
- openrisc@lists.librecores.org, acme@kernel.org, atishp@atishpatra.org,
+ openrisc@lists.librecores.org, acme@kernel.org, paul.walmsley@sifive.com,
  linux-tegra@vger.kernel.org, namhyung@kernel.org,
  andriy.shevchenko@linux.intel.com, jpoimboe@kernel.org, dvyukov@google.com,
  jgross@suse.com, monstr@monstr.eu, linux-mips@vger.kernel.org,
- palmer@dabbelt.com, linux-hexagon@vger.kernel.org, bp@alien8.de,
+ palmer@dabbelt.com, anup@brainfault.org, bp@alien8.de,
  johannes@sipsolutions.net, linuxppc-dev@lists.ozlabs.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
@@ -151,15 +153,12 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, 19 Sept 2022 at 12:18, Peter Zijlstra <peterz@infradead.org> wrote:
+On Mon, 19 Sept 2022 at 12:17, Peter Zijlstra <peterz@infradead.org> wrote:
 >
-> Doing RCU-idle outside the driver, only to then temporarily enable it
-> again before going idle is daft.
->
-> Notably: this converts all dt_init_idle_driver() and
-> __CPU_PM_CPU_IDLE_ENTER() users for they are inextrably intertwined.
+> All callers should still have RCU enabled.
 >
 > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> Acked-by: Mark Rutland <mark.rutland@arm.com>
 
 Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
 
@@ -167,162 +166,42 @@ Kind regards
 Uffe
 
 > ---
->  arch/arm/mach-omap2/cpuidle34xx.c    |    4 ++--
->  drivers/acpi/processor_idle.c        |    2 ++
->  drivers/cpuidle/cpuidle-arm.c        |    1 +
->  drivers/cpuidle/cpuidle-big_little.c |    8 ++++++--
->  drivers/cpuidle/cpuidle-psci.c       |    1 +
->  drivers/cpuidle/cpuidle-qcom-spm.c   |    1 +
->  drivers/cpuidle/cpuidle-riscv-sbi.c  |    1 +
->  drivers/cpuidle/dt_idle_states.c     |    2 +-
->  include/linux/cpuidle.h              |    4 ++++
->  9 files changed, 19 insertions(+), 5 deletions(-)
+>  kernel/cpu_pm.c |    9 ---------
+>  1 file changed, 9 deletions(-)
 >
-> --- a/drivers/acpi/processor_idle.c
-> +++ b/drivers/acpi/processor_idle.c
-> @@ -1200,6 +1200,8 @@ static int acpi_processor_setup_lpi_stat
->                 state->target_residency = lpi->min_residency;
->                 if (lpi->arch_flags)
->                         state->flags |= CPUIDLE_FLAG_TIMER_STOP;
-> +               if (lpi->entry_method == ACPI_CSTATE_FFH)
-> +                       state->flags |= CPUIDLE_FLAG_RCU_IDLE;
-
-I assume the state index here will never be 0?
-
-If not, it may lead to that acpi_processor_ffh_lpi_enter() may trigger
-CPU_PM_CPU_IDLE_ENTER_PARAM() to call ct_cpuidle_enter|exit() for an
-idle-state that doesn't have the CPUIDLE_FLAG_RCU_IDLE bit set.
-
->                 state->enter = acpi_idle_lpi_enter;
->                 drv->safe_state_index = i;
->         }
-> --- a/drivers/cpuidle/cpuidle-arm.c
-> +++ b/drivers/cpuidle/cpuidle-arm.c
-> @@ -53,6 +53,7 @@ static struct cpuidle_driver arm_idle_dr
->          * handler for idle state index 0.
->          */
->         .states[0] = {
-> +               .flags                  = CPUIDLE_FLAG_RCU_IDLE,
-
-Comparing arm64 and arm32 idle-states/idle-drivers, the $subject
-series ends up setting the CPUIDLE_FLAG_RCU_IDLE for the ARM WFI idle
-state (state zero), but only for the arm64 and psci cases (mostly
-arm64). For arm32 we would need to update the ARM_CPUIDLE_WFI_STATE
-too, as that is what most arm32 idle-drivers are using. My point is,
-the code becomes a bit inconsistent.
-
-Perhaps it's easier to avoid setting the CPUIDLE_FLAG_RCU_IDLE bit for
-all of the ARM WFI idle states, for both arm64 and arm32?
-
->                 .enter                  = arm_enter_idle_state,
->                 .exit_latency           = 1,
->                 .target_residency       = 1,
-> --- a/drivers/cpuidle/cpuidle-big_little.c
-> +++ b/drivers/cpuidle/cpuidle-big_little.c
-> @@ -64,7 +64,8 @@ static struct cpuidle_driver bl_idle_lit
->                 .enter                  = bl_enter_powerdown,
->                 .exit_latency           = 700,
->                 .target_residency       = 2500,
-> -               .flags                  = CPUIDLE_FLAG_TIMER_STOP,
-> +               .flags                  = CPUIDLE_FLAG_TIMER_STOP |
-> +                                         CPUIDLE_FLAG_RCU_IDLE,
->                 .name                   = "C1",
->                 .desc                   = "ARM little-cluster power down",
->         },
-> @@ -85,7 +86,8 @@ static struct cpuidle_driver bl_idle_big
->                 .enter                  = bl_enter_powerdown,
->                 .exit_latency           = 500,
->                 .target_residency       = 2000,
-> -               .flags                  = CPUIDLE_FLAG_TIMER_STOP,
-> +               .flags                  = CPUIDLE_FLAG_TIMER_STOP |
-> +                                         CPUIDLE_FLAG_RCU_IDLE,
->                 .name                   = "C1",
->                 .desc                   = "ARM big-cluster power down",
->         },
-> @@ -124,11 +126,13 @@ static int bl_enter_powerdown(struct cpu
->                                 struct cpuidle_driver *drv, int idx)
+> --- a/kernel/cpu_pm.c
+> +++ b/kernel/cpu_pm.c
+> @@ -30,16 +30,9 @@ static int cpu_pm_notify(enum cpu_pm_eve
 >  {
->         cpu_pm_enter();
-> +       ct_idle_enter();
+>         int ret;
 >
->         cpu_suspend(0, bl_powerdown_finisher);
+> -       /*
+> -        * This introduces a RCU read critical section, which could be
+> -        * disfunctional in cpu idle. Copy RCU_NONIDLE code to let RCU know
+> -        * this.
+> -        */
+> -       ct_irq_enter_irqson();
+>         rcu_read_lock();
+>         ret = raw_notifier_call_chain(&cpu_pm_notifier.chain, event, NULL);
+>         rcu_read_unlock();
+> -       ct_irq_exit_irqson();
 >
->         /* signals the MCPM core that CPU is out of low power state */
->         mcpm_cpu_powered_up();
-> +       ct_idle_exit();
+>         return notifier_to_errno(ret);
+>  }
+> @@ -49,11 +42,9 @@ static int cpu_pm_notify_robust(enum cpu
+>         unsigned long flags;
+>         int ret;
 >
->         cpu_pm_exit();
+> -       ct_irq_enter_irqson();
+>         raw_spin_lock_irqsave(&cpu_pm_notifier.lock, flags);
+>         ret = raw_notifier_call_chain_robust(&cpu_pm_notifier.chain, event_up, event_down, NULL);
+>         raw_spin_unlock_irqrestore(&cpu_pm_notifier.lock, flags);
+> -       ct_irq_exit_irqson();
 >
-> --- a/drivers/cpuidle/cpuidle-psci.c
-> +++ b/drivers/cpuidle/cpuidle-psci.c
-> @@ -357,6 +357,7 @@ static int psci_idle_init_cpu(struct dev
->          * PSCI idle states relies on architectural WFI to be represented as
->          * state index 0.
->          */
-> +       drv->states[0].flags = CPUIDLE_FLAG_RCU_IDLE;
->         drv->states[0].enter = psci_enter_idle_state;
->         drv->states[0].exit_latency = 1;
->         drv->states[0].target_residency = 1;
-> --- a/drivers/cpuidle/cpuidle-qcom-spm.c
-> +++ b/drivers/cpuidle/cpuidle-qcom-spm.c
-> @@ -72,6 +72,7 @@ static struct cpuidle_driver qcom_spm_id
->         .owner = THIS_MODULE,
->         .states[0] = {
->                 .enter                  = spm_enter_idle_state,
-> +               .flags                  = CPUIDLE_FLAG_RCU_IDLE,
->                 .exit_latency           = 1,
->                 .target_residency       = 1,
->                 .power_usage            = UINT_MAX,
-> --- a/drivers/cpuidle/cpuidle-riscv-sbi.c
-> +++ b/drivers/cpuidle/cpuidle-riscv-sbi.c
-> @@ -332,6 +332,7 @@ static int sbi_cpuidle_init_cpu(struct d
->         drv->cpumask = (struct cpumask *)cpumask_of(cpu);
+>         return notifier_to_errno(ret);
+>  }
 >
->         /* RISC-V architectural WFI to be represented as state index 0. */
-> +       drv->states[0].flags = CPUIDLE_FLAG_RCU_IDLE;
->         drv->states[0].enter = sbi_cpuidle_enter_state;
->         drv->states[0].exit_latency = 1;
->         drv->states[0].target_residency = 1;
-> --- a/drivers/cpuidle/dt_idle_states.c
-> +++ b/drivers/cpuidle/dt_idle_states.c
-> @@ -77,7 +77,7 @@ static int init_state_node(struct cpuidl
->         if (err)
->                 desc = state_node->name;
 >
-> -       idle_state->flags = 0;
-> +       idle_state->flags = CPUIDLE_FLAG_RCU_IDLE;
->         if (of_property_read_bool(state_node, "local-timer-stop"))
->                 idle_state->flags |= CPUIDLE_FLAG_TIMER_STOP;
->         /*
-> --- a/include/linux/cpuidle.h
-> +++ b/include/linux/cpuidle.h
-> @@ -282,14 +282,18 @@ extern s64 cpuidle_governor_latency_req(
->         int __ret = 0;                                                  \
->                                                                         \
->         if (!idx) {                                                     \
-> +               ct_idle_enter();                                        \
-
-According to my comment above, we should then drop these calls to
-ct_idle_enter and ct_idle_exit() here. Right?
-
->                 cpu_do_idle();                                          \
-> +               ct_idle_exit();                                         \
->                 return idx;                                             \
->         }                                                               \
->                                                                         \
->         if (!is_retention)                                              \
->                 __ret =  cpu_pm_enter();                                \
->         if (!__ret) {                                                   \
-> +               ct_idle_enter();                                        \
->                 __ret = low_level_idle_enter(state);                    \
-> +               ct_idle_exit();                                         \
->                 if (!is_retention)                                      \
->                         cpu_pm_exit();                                  \
->         }                                                               \
->
-
-Kind regards
-Uffe
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
