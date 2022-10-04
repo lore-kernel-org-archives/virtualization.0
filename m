@@ -1,59 +1,140 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6FA72C433FE
-	for <virtualization@archiver.kernel.org>; Sun,  2 Oct 2022 16:19:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1B5F8C433F5
+	for <virtualization@archiver.kernel.org>; Tue,  4 Oct 2022 11:04:41 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 0BA9C4042B;
-	Sun,  2 Oct 2022 16:19:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0BA9C4042B
+	by smtp4.osuosl.org (Postfix) with ESMTP id 7CF78408A1;
+	Tue,  4 Oct 2022 11:04:41 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7CF78408A1
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=J/vrmB9K
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 7-LHys-WmM2l; Tue,  4 Oct 2022 11:04:40 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 804E8408A5;
+	Tue,  4 Oct 2022 11:04:39 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 804E8408A5
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 58B1FC0033;
+	Tue,  4 Oct 2022 11:04:39 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C7C46C002D
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  4 Oct 2022 11:04:37 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 8CDAA400CE
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  4 Oct 2022 11:04:37 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8CDAA400CE
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org
+ header.a=rsa-sha256 header.s=google header.b=J/vrmB9K
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 50vIT2ogz02L; Sun,  2 Oct 2022 16:19:22 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id E865440184;
-	Sun,  2 Oct 2022 16:19:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E865440184
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id BF865C0033;
-	Sun,  2 Oct 2022 16:19:21 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id CA5F5C002D
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id shy1_TaBzru5
  for <virtualization@lists.linux-foundation.org>;
- Sun,  2 Oct 2022 16:19:20 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id A572E60692
+ Tue,  4 Oct 2022 11:04:36 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 958EA408D0
+Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com
+ [IPv6:2607:f8b0:4864:20::433])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 958EA408D0
  for <virtualization@lists.linux-foundation.org>;
- Sun,  2 Oct 2022 16:19:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A572E60692
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id qEAsVeHZGx8H
+ Tue,  4 Oct 2022 11:04:36 +0000 (UTC)
+Received: by mail-pf1-x433.google.com with SMTP id w191so3398352pfc.5
  for <virtualization@lists.linux-foundation.org>;
- Sun,  2 Oct 2022 16:19:18 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1B8DC6068A
-Received: from s052d7dde.fastvps-server.com (s052d7dde.fastvps-server.com
- [IPv6:2a03:f480:1:14::7d])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 1B8DC6068A
- for <virtualization@lists.linux-foundation.org>;
- Sun,  2 Oct 2022 16:19:17 +0000 (UTC)
-Received: from [194.39.126.139] (helo=LAPTOP-EPOV2LRR)
- by s052d7dde.fastvps-server.com with esmtpa (Exim 4.89)
- (envelope-from <marle@saisti.eu>) id 1of10d-0004s5-C5
- for virtualization@lists.linux-foundation.org; Sun, 02 Oct 2022 18:36:03 +0300
-From: "WorldCIST-2023" <marialemos72@gmail.com>
-Subject: World Conference on IST (WorldCIST'23) | Pisa, Italy | Deadline:
- November 6
-To: virtualization@lists.linux-foundation.org
+ Tue, 04 Oct 2022 04:04:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:from:to:cc:subject:date;
+ bh=+dGyZLAFgGMTjfv/XBtu0TYoOq7FF1Gy12H3Maj7VZQ=;
+ b=J/vrmB9Kw/kUjuLA94+GiSaAb/ysKsHCJMt0q/b5C4hTvjWvpD/4gYcz8wiDYH+wDu
+ VauelbAc6rvn6GfwX8AzvYum0016wmpfk7JfWsZRIuqW+7uz8x5trzhgQfsbK6Oez4C2
+ oI3/xkCQmxaR27+SGOcFsxA52mzB06l623Nv5Xai/ZW6o0aFNiEoJd0NtydxpISZgCqY
+ Huu19sneopcpPoTb7AatH5ql62Y6l79ODVmUp4xYd601QVsvCsOcL4Dye3nIrsebtAO/
+ TFi2QIhE77HgLndavZo56yiYGlFlIpX3fKxDC/yQxRz8ukXbuLPZ751WaoRstUHwOqJr
+ oOYQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:x-gm-message-state:from:to:cc:subject:date;
+ bh=+dGyZLAFgGMTjfv/XBtu0TYoOq7FF1Gy12H3Maj7VZQ=;
+ b=BlYzJD9OHH9aeNVeHs7pG/Lj4rf2QKYCSRv5NL6XQSgm6pvmm/UndwOpFYhnoWLzdY
+ 4wRq3awveV3vOvkjJ5DpCYw9s7GgVH2XJCs+YRDrCV3ko4WQMxfEH3eZZCUjEwol67hH
+ L1hVQKnC5cC/GtogtueL5ikwlxLsvDZk3t1GTjM6vz1VdVfaanwgMQ0SXHTxjMW6mB7b
+ +n+N1UaBzyZLwsYQIEr6dV6wrUNOzBXuD9imK0Tt94HDLrImn19n2LTSNYYxgYi4Iavd
+ p4Nlash4joCb/Q34L23b2z3ZX+1L9WamEbyT9UZzyBc3jdq1t+aobg/ySAssBvx3GIdX
+ quUA==
+X-Gm-Message-State: ACrzQf3zRHJxyEOdDq4E6bFD90dVD1TBgflXb569HkhYhbBVIDiVqGch
+ I33ObAhq7JTKRplaq1iOvgd45XVQWThU7HtCV/P5ag==
+X-Google-Smtp-Source: AMsMyM47WQGEEYS8ORE4jd8BkC5HxomBqw3qkNOIDDeZpMqnq0xrIZB9jUW0aBX+JhUuuIkJBe/Q8EmYOwJGbohmCJY=
+X-Received: by 2002:a63:90c1:0:b0:450:75b5:29fe with SMTP id
+ a184-20020a6390c1000000b0045075b529femr6949580pge.541.1664881475536; Tue, 04
+ Oct 2022 04:04:35 -0700 (PDT)
 MIME-Version: 1.0
-Date: Sun, 2 Oct 2022 16:36:03 +0100
-Message-ID: <89441373183671@gmail-com>
+References: <20220919095939.761690562@infradead.org>
+ <20220919101521.139727471@infradead.org>
+In-Reply-To: <20220919101521.139727471@infradead.org>
+From: Ulf Hansson <ulf.hansson@linaro.org>
+Date: Tue, 4 Oct 2022 13:03:57 +0200
+Message-ID: <CAPDyKFqTWd4W5Ofk76CtC4X43dxBTNHtmY9YzN355-vpviLsPw@mail.gmail.com>
+Subject: Re: [PATCH v2 12/44] cpuidle,dt: Push RCU-idle into driver
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com,
+ linus.walleij@linaro.org, bsegall@google.com, guoren@kernel.org, pavel@ucw.cz,
+ agordeev@linux.ibm.com, linux-clk@vger.kernel.org, linux-arch@vger.kernel.org,
+ vincent.guittot@linaro.org, mpe@ellerman.id.au, linux-sh@vger.kernel.org,
+ kasan-dev@googlegroups.com, linux-acpi@vger.kernel.org, mingo@redhat.com,
+ geert@linux-m68k.org, linux-imx@nxp.com, vgupta@kernel.org, mattst88@gmail.com,
+ lpieralisi@kernel.org, sammy@sammy.net, pmladek@suse.com,
+ linux-pm@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
+ linux-um@lists.infradead.org, npiggin@gmail.com, tglx@linutronix.de,
+ linux-omap@vger.kernel.org, dietmar.eggemann@arm.com, andreyknvl@gmail.com,
+ gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org,
+ linux-perf-users@vger.kernel.org, senozhatsky@chromium.org,
+ svens@linux.ibm.com, kernel@pengutronix.de, tj@kernel.org,
+ Andrew Morton <akpm@linux-foundation.org>, mark.rutland@arm.com,
+ linux-ia64@vger.kernel.org, dave.hansen@linux.intel.com,
+ virtualization@lists.linux-foundation.org,
+ James.Bottomley@hansenpartnership.com, jcmvbkbc@gmail.com,
+ thierry.reding@gmail.com, kernel@xen0n.name, cl@linux.com,
+ linux-s390@vger.kernel.org, vschneid@redhat.com, john.ogness@linutronix.de,
+ ysato@users.sourceforge.jp, festevam@gmail.com, deller@gmx.de,
+ daniel.lezcano@linaro.org, jonathanh@nvidia.com, dennis@kernel.org,
+ lenb@kernel.org, linux-xtensa@linux-xtensa.org, jolsa@kernel.org,
+ gor@linux.ibm.com, linux-arm-msm@vger.kernel.org, sudeep.holla@arm.com,
+ linux-m68k@lists.linux-m68k.org, loongarch@lists.linux.dev, shorne@gmail.com,
+ chris@zankel.net, sboyd@kernel.org, dinguyen@kernel.org, bristot@redhat.com,
+ chenhuacai@kernel.org, alexander.shishkin@linux.intel.com, fweisbec@gmail.com,
+ mturquette@baylibre.com, paul.walmsley@sifive.com, linux@rasmusvillemoes.dk,
+ christophe.leroy@csgroup.eu, will@kernel.org, boris.ostrovsky@oracle.com,
+ khilman@kernel.org, linux-csky@vger.kernel.org, tony@atomide.com,
+ linux-snps-arc@lists.infradead.org, mgorman@suse.de,
+ jacob.jun.pan@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
+ ulli.kroll@googlemail.com, rostedt@goodmis.org, ink@jurassic.park.msu.ru,
+ bcain@quicinc.com, tsbogend@alpha.franken.de, linux-parisc@vger.kernel.org,
+ anup@brainfault.org, ryabinin.a.a@gmail.com, linux-alpha@vger.kernel.org,
+ shawnguo@kernel.org, davem@davemloft.net, dalias@libc.org,
+ pv-drivers@vmware.com, hpa@zytor.com, konrad.dybcio@somainline.org,
+ bjorn.andersson@linaro.org, glider@google.com, amakhalov@vmware.com,
+ sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org,
+ vincenzo.frascino@arm.com, anton.ivanov@cambridgegreys.com, jonas@southpole.se,
+ yury.norov@gmail.com, richard@nod.at, x86@kernel.org, linux@armlinux.org.uk,
+ agross@kernel.org, aou@eecs.berkeley.edu, hca@linux.ibm.com,
+ richard.henderson@linaro.org, stefan.kristiansson@saunalahti.fi,
+ openrisc@lists.librecores.org, acme@kernel.org, atishp@atishpatra.org,
+ linux-tegra@vger.kernel.org, namhyung@kernel.org,
+ andriy.shevchenko@linux.intel.com, jpoimboe@kernel.org, dvyukov@google.com,
+ jgross@suse.com, monstr@monstr.eu, linux-mips@vger.kernel.org,
+ palmer@dabbelt.com, linux-hexagon@vger.kernel.org, bp@alien8.de,
+ johannes@sipsolutions.net, linuxppc-dev@lists.ozlabs.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -65,452 +146,184 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Reply-To: worldcist@gmail.com
-Content-Type: multipart/mixed; boundary="===============7688069458582478615=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is a multi-part message in MIME format
-
---===============7688069458582478615==
-Content-Type: multipart/alternative; charset=utf-8; boundary="rqzre=_jhi7LY7XXtOInx1vkBlJoBwSrB5"
-
-This is a multi-part message in MIME format
-
---rqzre=_jhi7LY7XXtOInx1vkBlJoBwSrB5
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-* Google Scholar H-Index =3D 25
-
-* Indexed in WoS, Scopus, DBLP, etc.
-
-
-
-
-------------------------------   ------------------------------   ----=
---------------------------   -------------=20
-WorldCIST'23 - 11st World Conference on Information Systems and Techno=
-logies
-
-Pisa, Italy, 4 - 6 April 2023
-
-http://worldcist.org/ <https://mkt.saisti.eu/got/55a43fdae2OOTe1Nb>
-
-------------------------------   ------------------------------   ----=
---------------------------   -------------=20
-Scope
-
-The WorldCist'23 - 11st World Conference on Information Systems and Te=
-chnologies, to be held in Pisa, Italy, 4 - 6 April 2023, is a global f=
-orum for researchers and practitioners to present and discuss the most=
- recent innovations, trends, results, experiences and concerns in the =
-several perspectives of Information Systems and Technologies.
-
-We are pleased to invite you to submit your papers to WorldCist'23. Al=
-l submissions will be reviewed on the basis of relevance, originality,=
- importance and clarity.
-
-=20
-
-Themes
-
-Submitted papers should be related with one or more of the main themes=
- proposed for the Conference:
-
-A) Information and Knowledge Management (IKM);
-
-B) Organizational Models and Information Systems (OMIS);
-
-C) Software and Systems Modeling (SSM);
-
-D) Software Systems, Architectures, Applications and Tools (SSAAT);
-
-E) Multimedia Systems and Applications (MSA);
-
-F) Computer Networks, Mobility and Pervasive Systems (CNMPS);
-
-G) Intelligent and Decision Support Systems (IDSS);
-
-H) Big Data Analytics and Applications (BDAA);
-
-I) Human-Computer Interaction (HCI);
-
-J) Ethics, Computers and Security (ECS)
-
-K) Health Informatics (HIS);
-
-L) Information Technologies in Education (ITE);
-
-M) Technologies for Biomedical Applications (TBA)
-
-N) Information Technologies in Radiocommunications (ITR);
-
-=20
-
-Types of Submissions and Decisions
-
-Four types of papers can be submitted:
-
-Full paper: Finished or consolidated R&D works, to be included in one =
-of the Conference themes. These papers are assigned a 10-page limit.
-
-Short paper: Ongoing works with relevant preliminary results, open to =
-discussion. These papers are assigned a 7-page limit.
-
-Poster paper: Initial work with relevant ideas, open to discussion. Th=
-ese papers are assigned to a 4-page limit.
-
-Company paper: Companies' papers that show practical experience, R & D=
-, tools, etc., focused on some topics of the conference. These papers =
-are assigned to a 4-page limit.
-
-Submitted papers must comply with the format of Advances in Intelligen=
-t Systems and Computing Series (see Instructions for Authors at Spring=
-er Website) <https://mkt.saisti.eu/got/3227-71ce2OOTe5rX>, be written =
-in English, must not have been published before, not be under review f=
-or any other conference or publication and not include any information=
- leading to the authors=E2=80=99 identification. Therefore, the author=
-s=E2=80=99 names, affiliations and bibliographic references should not=
- be included in the version for evaluation by the Program Committee. T=
-his information should only be included in the camera-ready version, s=
-aved in Word or Latex format and also in PDF format. These files must =
-be accompanied by the Consent to Publish form filled out, in a ZIP fil=
-e, and uploaded at the conference management system.
-
-
-All papers will be subjected to a =E2=80=9Cdouble-blind review=E2=80=9D=
- by at least two members of the Program Committee.
-
-Based on Program Committee evaluation, a paper can be rejected or acce=
-pted by the Conference Chairs. In the later case, it can be accepted a=
-s the type originally submitted or as another type. Thus, full papers =
-can be accepted as short papers or poster papers only. Similarly, shor=
-t papers can be accepted as poster papers only.
-
-Poster papers and Company papers are not published in the Conference P=
-roceedings, being only presented and discussed. The authors of accepte=
-d poster papers should build and print a poster to be exhibited during=
- the Conference. This poster must follow an A1 or A2 vertical format. =
-The Conference includes Work Sessions where these posters are presente=
-d and orally discussed, with a 7 minute limit per poster.
-
-The authors of accepted Full papers will have 15 minutes to present th=
-eir work in a Conference Work Session; approximately 5 minutes of disc=
-ussion will follow each presentation. The authors of accepted Short pa=
-pers and Company papers will have 11 minutes to present their work in =
-a Conference Work Session; approximately 4 minutes of discussion will =
-follow each presentation.
-
-=20
-
-Publication and Indexing
-
-To ensure that a full paper or short paper is published and presented,=
- poster paper or company paper is presented, at least one of the autho=
-rs must be fully registered by the 4th of January 2024, and the paper =
-must comply with the suggested layout and page-limit. Additionally, al=
-l recommended changes must be addressed by the authors before they sub=
-mit the camera-ready version.
-
-No more than one paper per registration will be published. An extra fe=
-e must be paid for publication of additional papers, with a maximum of=
- one additional paper per registration. One registration permits only =
-the participation of one author in the conference.
-
-Full and Short papers will be published in Proceedings by Springer, in=
- several books of of the Lecture Notes in Networks and Systems series.=
- Poster and company papers will not be published, just presented in th=
-e conference.
-
-Published Full and Short papers will be submitted for indexation by Wo=
-S, SCOPUS, DBLP and Google Scholar, among others, and will be availabl=
-e in the SpringerLink Digital Library.
-
-The authors of the best selected papers will be invited to extend them=
- for publication in international journals indexed by WoS/SCI, SCOPUS =
-and DBLP, among others, such as:
-
-International Journal of Neural Systems <https://mkt.saisti.eu/got/324=
-1046ae2OOTe5s5> (IF: 5.866 / Q1)
-
-Integrated Computer-Aided Engineering <https://mkt.saisti.eu/got/-2823=
-b3ce2OOTe5s7> (IF: 4.827 / Q1)
-
-Informatica <https://mkt.saisti.eu/got/6459f739e2OOTe5ts> (IF: 3.429 /=
- Q1)
-
-Expert Systems <https://mkt.saisti.eu/got/a66650bae2OOTe5tt> (IF: 2.81=
-2 / Q2)
-
-Data Technologies and Applications <https://mkt.saisti.eu/got/c887ff8f=
-e2OOTe5tu> (IF: 1.667 / Q4)
-
-Computer Methods in Biomechanics and Biomedical Engineering - Imaging =
-& Visualization <https://mkt.saisti.eu/got/9cfa1999e2OOTe5sn> (ESCI & =
-SJR: 0.52 / Q2)
-
-=20
-
-Important Dates
-
-Paper Submission: November 6, 2022
-
-Notification of Acceptance: December 23, 2022
-
-Payment of Registration, to ensure the inclusion of an accepted paper =
-in the conference proceedings: January 4, 2023.
-
-Camera-ready Submission: January 4, 2023
-
-=20
-=20
-WorldCIST'23 Website: http://worldcist.org/ <http://worldcist.org/>
-=20
-=20
-=20
-
---rqzre=_jhi7LY7XXtOInx1vkBlJoBwSrB5
-Content-Type: text/html; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-<html>
-  <head>
-    <title></title>
-    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content=
--Type" />
-  </head>
-  <body>
-    <p>* Google Scholar H-Index =3D 25</p>
-    <p>* Indexed in WoS, Scopus, DBLP, etc.</p>
-    <p><br /></p>
-    <p>------------------------------=20
-      <wbr>&nbsp;</wbr>&nbsp;------------------------------=20
-      <wbr>&nbsp;</wbr>&nbsp;------------------------------=20
-      <wbr>&nbsp;</wbr>&nbsp;-------------=20
-    </p>
-    <p><strong><span class=3D"il">WorldCIST</span>'23 - 11<sup id=3D"m=
-_-5437522604541456097isPasted">st</sup> <span class=3D"il">World</span=
-> Conference on Information Systems and Technologies</strong></p>
-    <p><strong>Pisa, Italy, 4 - 6 April 2023</strong></p>
-    <p><a id=3D"m_-5437522604541456097isPasted" href=3D"https://mkt.sa=
-isti.eu/got/55a43fdae2OOTe1Nb" target=3D"_blank" data-saferedirecturl=3D=
-"https://www.google.com/url?q=3Dhttps://mkt.saisti.eu/got/55a43fdae2OO=
-Te1Nb&source=3Dgmail&ust=3D1664116074203000&usg=3DAOvVaw29eURCh8_ymiAP=
-4YS7zF30">http://<span class=3D"il">worldcist</span>.org/</a></p>
-    <p>------------------------------=20
-      <wbr>&nbsp;</wbr>&nbsp;------------------------------=20
-      <wbr>&nbsp;</wbr>&nbsp;------------------------------=20
-      <wbr>&nbsp;</wbr>&nbsp;-------------=20
-    </p>
-    <div>
-      <p><strong>Scope</strong></p>
-      <p>The <span class=3D"il">WorldCist</span>'23 - 11<sup>st</sup> =
-<span class=3D"il">World</span> Conference on Information Systems and =
-Technologies, to be held in Pisa, Italy, 4 - 6 April 2023, is a global=
- forum for researchers and practitioners to present and discuss the mo=
-st recent innovations, trends, results, experiences and concerns in th=
-e several perspectives of Information Systems and Technologies.</p>
-      <p style=3D"text-align: left">We are pleased to invite you to su=
-bmit your papers to <span class=3D"il">WorldCist</span>'23. All submis=
-sions will be reviewed on the basis of relevance, originality, importa=
-nce and clarity.</p>
-      <p style=3D"text-align: left">&nbsp;</p>
-      <p style=3D"text-align: left"><strong>Themes</strong></p>
-      <p>Submitted papers should be related with one or more of the ma=
-in themes proposed for the Conference:</p>
-      <p style=3D"text-align: left; padding-left: 30px">A) Information=
- and Knowledge Management (IKM);</p>
-      <p style=3D"text-align: left; padding-left: 30px">B) Organizatio=
-nal Models and Information Systems (OMIS);</p>
-      <p style=3D"text-align: left; padding-left: 30px">C) Software an=
-d Systems Modeling (SSM);</p>
-      <p style=3D"text-align: left; padding-left: 30px">D) Software Sy=
-stems, Architectures, Applications and Tools (SSAAT);</p>
-      <p style=3D"text-align: left; padding-left: 30px">E) Multimedia =
-Systems and Applications (MSA);</p>
-      <p style=3D"text-align: left; padding-left: 30px">F) Computer Ne=
-tworks, Mobility and Pervasive Systems (CNMPS);</p>
-      <p style=3D"text-align: left; padding-left: 30px">G) Intelligent=
- and Decision Support Systems (IDSS);</p>
-      <p style=3D"text-align: left; padding-left: 30px">H) Big Data An=
-alytics and Applications (BDAA);</p>
-      <p style=3D"text-align: left; padding-left: 30px">I) Human-Compu=
-ter Interaction (HCI);</p>
-      <p style=3D"text-align: left; padding-left: 30px">J) Ethics, Com=
-puters and Security (ECS)</p>
-      <p style=3D"text-align: left; padding-left: 30px">K) Health Info=
-rmatics (HIS);</p>
-      <p style=3D"text-align: left; padding-left: 30px">L) Information=
- Technologies in Education (ITE);</p>
-      <p style=3D"text-align: left; padding-left: 30px">M) Technologie=
-s for Biomedical Applications (TBA)</p>
-      <p style=3D"text-align: left; padding-left: 30px">N) Information=
- Technologies in Radiocommunications (ITR);</p>
-      <p style=3D"text-align: left; padding-left: 30px">&nbsp;</p>
-      <p style=3D"text-align: left"><strong>Types of Submissions and D=
-ecisions</strong></p>
-      <p style=3D"text-align: left">Four types of papers can be submit=
-ted:</p>
-      <p style=3D"text-align: left; padding-left: 30px"><strong><em>Fu=
-ll paper</em><em>:</em></strong> Finished or consolidated R&amp;D work=
-s, to be included in one of the Conference themes. These papers are as=
-signed a 10-page limit.</p>
-      <p style=3D"text-align: left; padding-left: 30px"><strong><em>Sh=
-ort paper:</em></strong> Ongoing works with relevant preliminary resul=
-ts, open to discussion. These papers are assigned a 7-page limit.</p>
-      <p style=3D"text-align: left; padding-left: 30px"><strong><em>Po=
-ster paper:</em></strong> Initial work with relevant ideas, open to di=
-scussion. These papers are assigned to a 4-page limit.</p>
-      <p style=3D"text-align: left; padding-left: 30px"><em><strong>Co=
-mpany paper:</strong></em> Companies' papers that show practical exper=
-ience, R &amp; D, tools, etc., focused on some topics of the conferenc=
-e. These papers are assigned to a 4-page limit.</p>
-      <p style=3D"text-align: left">Submitted papers must comply with =
-the format of Advances in Intelligent Systems and Computing Series (se=
-e <a href=3D"https://mkt.saisti.eu/got/3227-71ce2OOTe5rX" rel=3D"noope=
-ner" target=3D"_blank" data-saferedirecturl=3D"https://www.google.com/=
-url?q=3Dhttps://mkt.saisti.eu/got/3227-71ce2OOTe5rX&source=3Dgmail&ust=
-=3D1664116074203000&usg=3DAOvVaw1PZrWzdNOyLIxFK-dn_cLs">Instructions f=
-or Authors at Springer Website)</a>, be written in English, must not h=
-ave been published before, not be under review for any other conferenc=
-e or publication and not include any information leading to the author=
-s&rsquo; identification. Therefore, the authors&rsquo; names, affiliat=
-ions and bibliographic references should not be included in the versio=
-n for evaluation by the Program Committee. This information should onl=
-y be included in the camera-ready version, saved in Word or Latex form=
-at and also in PDF format. <span lang=3D"en" id=3D"m_-5437522604541456=
-097result_box"><span>These files</span> <span>must</span> <span>be acc=
-ompanied by the <a rel=3D"noopener">Consent to Publish form</a></span>=
- <span>filled out,&nbsp;</span></span><span lang=3D"en" id=3D"m_-54375=
-22604541456097result_box"><span><span>in a ZIP file, and uploaded at t=
-he conference management system.</span><br /></span></span></p>
-      <p style=3D"text-align: left">All papers will be subjected to a =
-&ldquo;double-blind review&rdquo; by at least two members of the Progr=
-am Committee.</p>
-      <p style=3D"text-align: left">Based on Program Committee evaluat=
-ion, a paper can be rejected or accepted by the Conference Chairs. In =
-the later case, it can be accepted as the type originally submitted or=
- as another type. Thus, full papers can be accepted as short papers or=
- poster papers only. Similarly, short papers can be accepted as poster=
- papers only.</p>
-      <p style=3D"text-align: left">Poster papers and Company papers a=
-re not published in the Conference Proceedings, being only presented a=
-nd discussed. The authors of accepted poster papers should build and p=
-rint a poster to be exhibited during the Conference. This poster must =
-follow an A1 or A2 vertical format. The Conference includes Work Sessi=
-ons where these posters are presented and orally discussed, with a 7 m=
-inute limit per poster.</p>
-      <p style=3D"text-align: left">The authors of accepted Full paper=
-s will have 15 minutes to present their work in a Conference Work Sess=
-ion; approximately 5 minutes of discussion will follow each presentati=
-on. The authors of accepted Short papers and Company papers will have =
-11 minutes to present their work in a Conference Work Session; approxi=
-mately 4 minutes of discussion will follow each presentation.</p>
-      <p style=3D"text-align: left">&nbsp;</p>
-      <p style=3D"text-align: left"><strong>Publication and Indexing</=
-strong></p>
-      <p style=3D"text-align: left">To ensure that a full paper or sho=
-rt paper is published and presented, poster paper or company paper is =
-presented, at least one of the authors must be fully registered by the=
- 4<sup>th</sup> of January 2024, and the paper must comply with the su=
-ggested layout and page-limit. Additionally, all recommended changes m=
-ust be addressed by the authors before they submit the camera-ready ve=
-rsion.</p>
-      <p style=3D"text-align: left">No more than one paper per registr=
-ation will be published. An extra fee must be paid for publication of =
-additional papers, with a maximum of one additional paper per registra=
-tion. One registration permits only the participation of one author in=
- the conference.</p>
-      <p style=3D"text-align: left">Full and Short papers will be publ=
-ished in Proceedings by Springer, in several books of <span style=3D"f=
-ont-family: verdana,geneva,sans-serif">of the Lecture Notes in Network=
-s and Systems series</span>. Poster and company papers will not be pub=
-lished, just presented in the conference.</p>
-      <p style=3D"text-align: left">Published Full and Short papers wi=
-ll be submitted for indexation by WoS, SCOPUS, DBLP and Google Scholar=
-, among others, and will be available in the SpringerLink Digital Libr=
-ary.</p>
-      <p style=3D"text-align: left">The authors of the best selected p=
-apers will be invited to extend them for publication in international =
-journals indexed by WoS/SCI, SCOPUS and DBLP, among others, such as:</=
-p>
-      <p style=3D"padding-left: 30px"><a href=3D"https://mkt.saisti.eu=
-/got/3241046ae2OOTe5s5" rel=3D"noopener" target=3D"_blank" data-safere=
-directurl=3D"https://www.google.com/url?q=3Dhttps://mkt.saisti.eu/got/=
-3241046ae2OOTe5s5&source=3Dgmail&ust=3D1664116074203000&usg=3DAOvVaw2X=
-7PkePaJ2BFpGMa2Vp7Wm">International Journal of Neural Systems</a> (IF:=
- 5.866 / Q1)</p>
-      <p style=3D"padding-left: 30px"><a href=3D"https://mkt.saisti.eu=
-/got/-2823b3ce2OOTe5s7" rel=3D"noopener" target=3D"_blank" data-safere=
-directurl=3D"https://www.google.com/url?q=3Dhttps://mkt.saisti.eu/got/=
--2823b3ce2OOTe5s7&source=3Dgmail&ust=3D1664116074203000&usg=3DAOvVaw06=
-X7OhzO1MGWjNll5YUfcz">Integrated Computer-Aided Engineering</a> (IF: 4=
-=2E827 / Q1)</p>
-      <p style=3D"padding-left: 30px"><a href=3D"https://mkt.saisti.eu=
-/got/6459f739e2OOTe5ts" rel=3D"noopener" target=3D"_blank" data-safere=
-directurl=3D"https://www.google.com/url?q=3Dhttps://mkt.saisti.eu/got/=
-6459f739e2OOTe5ts&source=3Dgmail&ust=3D1664116074203000&usg=3DAOvVaw2q=
-7o-LsmIaaJlElu_CutEO">Informatica</a> (IF: 3.429 / Q1)</p>
-      <p style=3D"padding-left: 30px"><a href=3D"https://mkt.saisti.eu=
-/got/a66650bae2OOTe5tt" rel=3D"noopener" target=3D"_blank" data-safere=
-directurl=3D"https://www.google.com/url?q=3Dhttps://mkt.saisti.eu/got/=
-a66650bae2OOTe5tt&source=3Dgmail&ust=3D1664116074203000&usg=3DAOvVaw1O=
-z2bZxMl5v1jWtSqEGfma">Expert Systems</a> (IF: 2.812 / Q2)</p>
-      <p style=3D"padding-left: 30px"><a href=3D"https://mkt.saisti.eu=
-/got/c887ff8fe2OOTe5tu" rel=3D"noopener" target=3D"_blank" data-safere=
-directurl=3D"https://www.google.com/url?q=3Dhttps://mkt.saisti.eu/got/=
-c887ff8fe2OOTe5tu&source=3Dgmail&ust=3D1664116074203000&usg=3DAOvVaw1g=
-yi8W5KgHN58dg9ZPS6BA">Data Technologies and Applications</a> (IF: 1.66=
-7 / Q4)</p>
-      <p style=3D"padding-left: 30px"><a href=3D"https://mkt.saisti.eu=
-/got/9cfa1999e2OOTe5sn" rel=3D"noopener" target=3D"_blank" data-safere=
-directurl=3D"https://www.google.com/url?q=3Dhttps://mkt.saisti.eu/got/=
-9cfa1999e2OOTe5sn&source=3Dgmail&ust=3D1664116074203000&usg=3DAOvVaw0u=
-X5b4_CbDC26Do0WTCZgC">Computer Methods in Biomechanics and Biomedical =
-Engineering - Imaging &amp; Visualization</a> (ESCI &amp; SJR: 0.52 / =
-Q2)</p>
-      <p>&nbsp;</p>
-      <p style=3D"text-align: left"><strong>Important Dates</strong></=
-p>
-      <p style=3D"text-align: left; padding-left: 30px">Paper Submissi=
-on: <em>November 6, 2022</em></p>
-      <p style=3D"text-align: left; padding-left: 30px">Notification o=
-f Acceptance: <em>December 23, 2022</em></p>
-      <p style=3D"text-align: left; padding-left: 30px">Payment of Reg=
-istration, <em>to ensure the inclusion of an accepted paper in the con=
-ference proceedings: January 4, 2023.</em></p>
-      <p style=3D"text-align: left; padding-left: 30px">Camera-ready S=
-ubmission: <em>January 4, 2023</em></p>
-      <div>&nbsp;</div>
-      <div><strong><span class=3D"il">&nbsp;</span></strong></div>
-      <div><strong><span class=3D"il">WorldCIST</span>'23 Website</str=
-ong>: <a href=3D"http://worldcist.org/" target=3D"_blank" data-safered=
-irecturl=3D"https://www.google.com/url?q=3Dhttps://mkt.saisti.eu/got/5=
-5a43fdae2OOTe1Nb&source=3Dgmail&ust=3D1664116074203000&usg=3DAOvVaw29e=
-URCh8_ymiAP4YS7zF30">http://<span class=3D"il">worldcist</span>.org/</=
-a></div>
-      <div>&nbsp;</div>
-      <div>&nbsp;</div>
-      <div>&nbsp;</div>
-    </div>
-  </body>
-</html>
-
---rqzre=_jhi7LY7XXtOInx1vkBlJoBwSrB5--
-
-
---===============7688069458582478615==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
+On Mon, 19 Sept 2022 at 12:18, Peter Zijlstra <peterz@infradead.org> wrote:
+>
+> Doing RCU-idle outside the driver, only to then temporarily enable it
+> again before going idle is daft.
+>
+> Notably: this converts all dt_init_idle_driver() and
+> __CPU_PM_CPU_IDLE_ENTER() users for they are inextrably intertwined.
+>
+> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+
+Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
+
+Kind regards
+Uffe
+
+> ---
+>  arch/arm/mach-omap2/cpuidle34xx.c    |    4 ++--
+>  drivers/acpi/processor_idle.c        |    2 ++
+>  drivers/cpuidle/cpuidle-arm.c        |    1 +
+>  drivers/cpuidle/cpuidle-big_little.c |    8 ++++++--
+>  drivers/cpuidle/cpuidle-psci.c       |    1 +
+>  drivers/cpuidle/cpuidle-qcom-spm.c   |    1 +
+>  drivers/cpuidle/cpuidle-riscv-sbi.c  |    1 +
+>  drivers/cpuidle/dt_idle_states.c     |    2 +-
+>  include/linux/cpuidle.h              |    4 ++++
+>  9 files changed, 19 insertions(+), 5 deletions(-)
+>
+> --- a/drivers/acpi/processor_idle.c
+> +++ b/drivers/acpi/processor_idle.c
+> @@ -1200,6 +1200,8 @@ static int acpi_processor_setup_lpi_stat
+>                 state->target_residency = lpi->min_residency;
+>                 if (lpi->arch_flags)
+>                         state->flags |= CPUIDLE_FLAG_TIMER_STOP;
+> +               if (lpi->entry_method == ACPI_CSTATE_FFH)
+> +                       state->flags |= CPUIDLE_FLAG_RCU_IDLE;
+
+I assume the state index here will never be 0?
+
+If not, it may lead to that acpi_processor_ffh_lpi_enter() may trigger
+CPU_PM_CPU_IDLE_ENTER_PARAM() to call ct_cpuidle_enter|exit() for an
+idle-state that doesn't have the CPUIDLE_FLAG_RCU_IDLE bit set.
+
+>                 state->enter = acpi_idle_lpi_enter;
+>                 drv->safe_state_index = i;
+>         }
+> --- a/drivers/cpuidle/cpuidle-arm.c
+> +++ b/drivers/cpuidle/cpuidle-arm.c
+> @@ -53,6 +53,7 @@ static struct cpuidle_driver arm_idle_dr
+>          * handler for idle state index 0.
+>          */
+>         .states[0] = {
+> +               .flags                  = CPUIDLE_FLAG_RCU_IDLE,
+
+Comparing arm64 and arm32 idle-states/idle-drivers, the $subject
+series ends up setting the CPUIDLE_FLAG_RCU_IDLE for the ARM WFI idle
+state (state zero), but only for the arm64 and psci cases (mostly
+arm64). For arm32 we would need to update the ARM_CPUIDLE_WFI_STATE
+too, as that is what most arm32 idle-drivers are using. My point is,
+the code becomes a bit inconsistent.
+
+Perhaps it's easier to avoid setting the CPUIDLE_FLAG_RCU_IDLE bit for
+all of the ARM WFI idle states, for both arm64 and arm32?
+
+>                 .enter                  = arm_enter_idle_state,
+>                 .exit_latency           = 1,
+>                 .target_residency       = 1,
+> --- a/drivers/cpuidle/cpuidle-big_little.c
+> +++ b/drivers/cpuidle/cpuidle-big_little.c
+> @@ -64,7 +64,8 @@ static struct cpuidle_driver bl_idle_lit
+>                 .enter                  = bl_enter_powerdown,
+>                 .exit_latency           = 700,
+>                 .target_residency       = 2500,
+> -               .flags                  = CPUIDLE_FLAG_TIMER_STOP,
+> +               .flags                  = CPUIDLE_FLAG_TIMER_STOP |
+> +                                         CPUIDLE_FLAG_RCU_IDLE,
+>                 .name                   = "C1",
+>                 .desc                   = "ARM little-cluster power down",
+>         },
+> @@ -85,7 +86,8 @@ static struct cpuidle_driver bl_idle_big
+>                 .enter                  = bl_enter_powerdown,
+>                 .exit_latency           = 500,
+>                 .target_residency       = 2000,
+> -               .flags                  = CPUIDLE_FLAG_TIMER_STOP,
+> +               .flags                  = CPUIDLE_FLAG_TIMER_STOP |
+> +                                         CPUIDLE_FLAG_RCU_IDLE,
+>                 .name                   = "C1",
+>                 .desc                   = "ARM big-cluster power down",
+>         },
+> @@ -124,11 +126,13 @@ static int bl_enter_powerdown(struct cpu
+>                                 struct cpuidle_driver *drv, int idx)
+>  {
+>         cpu_pm_enter();
+> +       ct_idle_enter();
+>
+>         cpu_suspend(0, bl_powerdown_finisher);
+>
+>         /* signals the MCPM core that CPU is out of low power state */
+>         mcpm_cpu_powered_up();
+> +       ct_idle_exit();
+>
+>         cpu_pm_exit();
+>
+> --- a/drivers/cpuidle/cpuidle-psci.c
+> +++ b/drivers/cpuidle/cpuidle-psci.c
+> @@ -357,6 +357,7 @@ static int psci_idle_init_cpu(struct dev
+>          * PSCI idle states relies on architectural WFI to be represented as
+>          * state index 0.
+>          */
+> +       drv->states[0].flags = CPUIDLE_FLAG_RCU_IDLE;
+>         drv->states[0].enter = psci_enter_idle_state;
+>         drv->states[0].exit_latency = 1;
+>         drv->states[0].target_residency = 1;
+> --- a/drivers/cpuidle/cpuidle-qcom-spm.c
+> +++ b/drivers/cpuidle/cpuidle-qcom-spm.c
+> @@ -72,6 +72,7 @@ static struct cpuidle_driver qcom_spm_id
+>         .owner = THIS_MODULE,
+>         .states[0] = {
+>                 .enter                  = spm_enter_idle_state,
+> +               .flags                  = CPUIDLE_FLAG_RCU_IDLE,
+>                 .exit_latency           = 1,
+>                 .target_residency       = 1,
+>                 .power_usage            = UINT_MAX,
+> --- a/drivers/cpuidle/cpuidle-riscv-sbi.c
+> +++ b/drivers/cpuidle/cpuidle-riscv-sbi.c
+> @@ -332,6 +332,7 @@ static int sbi_cpuidle_init_cpu(struct d
+>         drv->cpumask = (struct cpumask *)cpumask_of(cpu);
+>
+>         /* RISC-V architectural WFI to be represented as state index 0. */
+> +       drv->states[0].flags = CPUIDLE_FLAG_RCU_IDLE;
+>         drv->states[0].enter = sbi_cpuidle_enter_state;
+>         drv->states[0].exit_latency = 1;
+>         drv->states[0].target_residency = 1;
+> --- a/drivers/cpuidle/dt_idle_states.c
+> +++ b/drivers/cpuidle/dt_idle_states.c
+> @@ -77,7 +77,7 @@ static int init_state_node(struct cpuidl
+>         if (err)
+>                 desc = state_node->name;
+>
+> -       idle_state->flags = 0;
+> +       idle_state->flags = CPUIDLE_FLAG_RCU_IDLE;
+>         if (of_property_read_bool(state_node, "local-timer-stop"))
+>                 idle_state->flags |= CPUIDLE_FLAG_TIMER_STOP;
+>         /*
+> --- a/include/linux/cpuidle.h
+> +++ b/include/linux/cpuidle.h
+> @@ -282,14 +282,18 @@ extern s64 cpuidle_governor_latency_req(
+>         int __ret = 0;                                                  \
+>                                                                         \
+>         if (!idx) {                                                     \
+> +               ct_idle_enter();                                        \
+
+According to my comment above, we should then drop these calls to
+ct_idle_enter and ct_idle_exit() here. Right?
+
+>                 cpu_do_idle();                                          \
+> +               ct_idle_exit();                                         \
+>                 return idx;                                             \
+>         }                                                               \
+>                                                                         \
+>         if (!is_retention)                                              \
+>                 __ret =  cpu_pm_enter();                                \
+>         if (!__ret) {                                                   \
+> +               ct_idle_enter();                                        \
+>                 __ret = low_level_idle_enter(state);                    \
+> +               ct_idle_exit();                                         \
+>                 if (!is_retention)                                      \
+>                         cpu_pm_exit();                                  \
+>         }                                                               \
+>
+
+Kind regards
+Uffe
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============7688069458582478615==--
-
