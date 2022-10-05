@@ -1,155 +1,111 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B2D7AC433FE
-	for <virtualization@archiver.kernel.org>; Wed,  5 Oct 2022 10:29:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9716BC433F5
+	for <virtualization@archiver.kernel.org>; Wed,  5 Oct 2022 16:54:24 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 3ABCB40B30;
-	Wed,  5 Oct 2022 10:29:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3ABCB40B30
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=KWzusdqp
+	by smtp1.osuosl.org (Postfix) with ESMTP id 173C181407;
+	Wed,  5 Oct 2022 16:54:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 173C181407
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id uEwH3xctkue5; Wed,  5 Oct 2022 10:29:19 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id WXnjHuWJBqnF; Wed,  5 Oct 2022 16:54:22 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 9784540AA2;
-	Wed,  5 Oct 2022 10:29:18 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9784540AA2
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 015CD8140B;
+	Wed,  5 Oct 2022 16:54:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 015CD8140B
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6A6BBC0033;
-	Wed,  5 Oct 2022 10:29:18 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 72E3DC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D2B2CC0033;
+	Wed,  5 Oct 2022 16:54:21 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id EBDDCC002D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  5 Oct 2022 10:29:16 +0000 (UTC)
+ Wed,  5 Oct 2022 16:54:19 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 0D48640B0E
+ by smtp1.osuosl.org (Postfix) with ESMTP id B8E858140B
  for <virtualization@lists.linux-foundation.org>;
- Wed,  5 Oct 2022 10:29:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0D48640B0E
+ Wed,  5 Oct 2022 16:54:19 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B8E858140B
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id YzO-hdAV1Iz0
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id G0iqiZ2fBcUG
  for <virtualization@lists.linux-foundation.org>;
- Wed,  5 Oct 2022 10:29:14 +0000 (UTC)
+ Wed,  5 Oct 2022 16:54:19 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 49F1740AA2
-Received: from NAM10-BN7-obe.outbound.protection.outlook.com
- (mail-bn7nam10on2079.outbound.protection.outlook.com [40.107.92.79])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 49F1740AA2
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2E08281407
+Received: from mail-pg1-f180.google.com (mail-pg1-f180.google.com
+ [209.85.215.180])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 2E08281407
  for <virtualization@lists.linux-foundation.org>;
- Wed,  5 Oct 2022 10:29:14 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=nwkATPtTNGu3PducEFMNkgbju6dvl2V5vy/ZcedYyhvLCUm/+EC9A0h0EsOVq42EB70jiPBuYlQx5Bve2wOHFRNQe8gLn+uueEV9JG4IXUV/y+qvMCxfiUtQfv6DNV0LLPG2ANuj5RONoXR/ZNoyp5+QmXXAJo423kV4htNrmdIA6itgwKrL2VT1uhFJitDuWmVxwVhzn01wOCz/DE5qGChoMt2y7MFVP9lCxM5MUIe9lJoA30n3+zblduiLWnz/yZ6sCSFeOOZ4lieBieVHuTHhMF5Q0cSgbn/cSo2vkOmbeyaF0NaX0q5aigeXUvhuVCTteUGjJEG05sSfGOCr4w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=VsHXqevA5s7mVLGqpfKfKECr8qBlQXee1hGcCAvao0M=;
- b=VLmktR3Loe5Qf3ZZGpgaEQQEqF6JkRCpUuXosOG7xd7BK2A3ashHV49hA30DOIW1VCK/yMbLcy7xxcnTzHxUlqwgZwvBeN17AYTgNi7ZolPBT9wOKikJZNZQXiGfU77C0EGFdInGUO4Rx6wKqhfqVLBcRm9EsKlryCk9nF3CMi0AdZc6oN1PzrA/088xhqy+xPcDLHfGrsJh61MhPvusOpU57nHD4INv+ZD+2FuU7qOxjCu18TYYLMEdSEo1GfyqDW/bhLyJbueyxBcPpT3wTbZA3zrlJkozbk3H7EIz8szroM3zCln2NglNLmkIETK3Nk7Rf3LU00P5d7M42bS+2A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=VsHXqevA5s7mVLGqpfKfKECr8qBlQXee1hGcCAvao0M=;
- b=KWzusdqp02EKqjCbXKGo+7k5a/53VBdSvbQgTl3nYgTsFoo2Lx/7orrkObpVVg/0LZrZGM9IyZsveAdWdaLmrD3lOj9Qbhhr1VJlmduJ5703nCM/FUMWy2+PiL6oKtUzYzPm7/478+W0BTcPJis5W6LJRBUBnnvhWin46QxysTMTGuqj7dgfiNhem1BBeBoYtZR4VzA3CAoe94WV8C8S8CR74rJs2/9qnKLGHHRMma1oWVgb1b6K/j9tO3f7YS5wYhB7XFp3kl2vkNkm1dyo4zSOZLrAce1SQc8xiFWB3N7R6ILajovefsrZt9NFw+Eg8UAI+iE/Zp18Wxs8hcDV+Q==
-Received: from PH0PR12MB5481.namprd12.prod.outlook.com (2603:10b6:510:d4::15)
- by BY5PR12MB5015.namprd12.prod.outlook.com (2603:10b6:a03:1db::20)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5676.24; Wed, 5 Oct
- 2022 10:29:11 +0000
-Received: from PH0PR12MB5481.namprd12.prod.outlook.com
- ([fe80::f166:64a7:faf9:659a]) by PH0PR12MB5481.namprd12.prod.outlook.com
- ([fe80::f166:64a7:faf9:659a%5]) with mapi id 15.20.5676.032; Wed, 5 Oct 2022
- 10:29:11 +0000
-To: Jakub Kicinski <kuba@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>
-Subject: RE: [PATCH v5 2/2] virtio-net: use mtu size as buffer length for big
- packets
-Thread-Topic: [PATCH v5 2/2] virtio-net: use mtu size as buffer length for big
- packets
-Thread-Index: AQHYvagejmrtcrshK0GYXpgvFbRGE63rUekAgAAHfNCAAAOhgIAAJx0AgBRKnTA=
-Date: Wed, 5 Oct 2022 10:29:10 +0000
-Message-ID: <PH0PR12MB54817CD89ECD1D0856103421DC5D9@PH0PR12MB5481.namprd12.prod.outlook.com>
-References: <20220901021038.84751-1-gavinl@nvidia.com>
- <20220901021038.84751-3-gavinl@nvidia.com>
- <20220922052734-mutt-send-email-mst@kernel.org>
- <PH0PR12MB5481374E6A14EFC39533F9A8DC4E9@PH0PR12MB5481.namprd12.prod.outlook.com>
- <20220922060753-mutt-send-email-mst@kernel.org>
- <20220922053458.66f31136@kernel.org>
-In-Reply-To: <20220922053458.66f31136@kernel.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: PH0PR12MB5481:EE_|BY5PR12MB5015:EE_
-x-ms-office365-filtering-correlation-id: 11b93476-caaf-4660-c2f1-08daa6bc714f
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: VGCT7McVY/RQZIxEQlrEyphm8yTutVq2ufNbRX9ewpNmAXEZC7sm1qDElN9Z0NVCZSUvnuMvF0IHOVxJhBlMxxHDDDZ9ciqfcffXcIKV9uxv409tgu2MthF/1xc3wdlspxr75bk21DhGoqVEwJW3s8TnIkSkT04/y7Bx4zJe8owmtR5alXCLRLJU+Cruo1GCTyfUJ01CsC2V1SXukzs534eLkbDgCxaC18thScIEFeIDJtGR0K/e/XoV0bi5JLxG/5cyLne0+zeTAjaV9RwctBiH7XJBlHo4hVm83pMqYaouuYkDAxkpFgFShvk33jO332JKKCEwYmLNc3em3J+hY2/+brJQbsy8PyLTJsm+FBQbmhNmCCwLuywI/q7whHSv0BTfGBdXeRlVHJM3pDP1MuneUyCKArIw6gRzGJLeFHYgPVzSL0aP2HToO7GvOpUcj5iwfgpg3y3sZ7/Gs1NCM/8Tj3TI51Q6YhkYllx6whk0DtsDqtknLxVK7kF03OuIbuELfj7JN+5QDVtAkqcn9xNuZ+IHnVD/7fxxRkDIYv1Bd9v472YmFpShGSOLGHgTy+vVLV9cnQgOS4MoxhDqM2yokSD8qsRXC8dxjGVsfK5Nq4sFdjE26GSX4Hoj0hdadOIWf54knnI6xbyV+VVlo35ZEXut2g4JC8uoB+V/i4C/yJETUTLff0S6SXWLZNdvbXQcYzVbXPs554bbze8PFjlqH1XLBHiKesZRqBEUoL8tgqWgxnhjhNpl2Z1lhWJ5XwnK8xG6iddEgP1d2tMbZTzDWOA3OoAz75x4CQdAG5fzKm0g+5+PcIT7ZT2QPn6T9R6yRZOCdIFth+EJ0Ox1M9NmnSijWuR4/bVaYnMk0VU=
-x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:PH0PR12MB5481.namprd12.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230022)(4636009)(376002)(136003)(396003)(346002)(39860400002)(366004)(451199015)(71200400001)(38070700005)(54906003)(110136005)(966005)(52536014)(86362001)(41300700001)(8936002)(4744005)(7416002)(66556008)(5660300002)(316002)(76116006)(66476007)(33656002)(66446008)(64756008)(8676002)(4326008)(66946007)(9686003)(55016003)(186003)(122000001)(26005)(478600001)(83380400001)(38100700002)(7696005)(6506007)(2906002);
- DIR:OUT; SFP:1101; 
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?sHi7kw61Sqo1aV1bHHP2Oz0k8JHPiulx8YL2y8uoIvaZVjFS9k4JPIuG8VQm?=
- =?us-ascii?Q?Lmf7IKFeYyFyf+bjepls8H8vcqGLoVC2w14a78VwXl7mvBRyoEM4r0Q1IyfO?=
- =?us-ascii?Q?vtizbf3eNaXd9+KzTU7c2n9KPRZ4hzjwW38cvI60EkOhhRPZnKOc98oiUf5X?=
- =?us-ascii?Q?IvUVNnoQoUh8z856wrneF1HrNILengZhBhoj9YR6+v2pVRYMvROO3GhDtE8q?=
- =?us-ascii?Q?FIcBUqMP+R7CqkX+Fpo/GcuwTFaLCncma34jhKNcOV8CrjkFPz3XDPGzE0cs?=
- =?us-ascii?Q?pDB9FT5ysFrEc20vsgrZo96yWGNm4BQWXKCMNR0ydOXCUkl4Vz09mgCmQBQp?=
- =?us-ascii?Q?JNVufYoeybUWchMPJq2xvMi4KHdmA+Ls7JfklyA4g+dmzfMD7YFdUWGnHKPK?=
- =?us-ascii?Q?uF7GBcFYG8cpa8trRVw86IVRNjZNQmrBcYotqIFUYKs/1LOtVtIXZVjOTs7r?=
- =?us-ascii?Q?UzTIUu9Re/5Okf9taX3ik54uFufqvoY+a32KTtMm1o90Hq+ZcHTnr3vP5edF?=
- =?us-ascii?Q?XrrhFJ7aANZvSiDFoQ27KfoAz9FMd8BtLjrW+o1u/ZJJ+Fr8x0MuQ+ri67dE?=
- =?us-ascii?Q?I2QH37Mj7te3xMO3CG91G5P8pYpJ4Op4nW4fWezt5qMXUG0TNZplyDrw8fHF?=
- =?us-ascii?Q?O49aC04wGBD3GfH5VQyAZuJJsy/8JJCQq1PKyYTPNByHYlk5VqPsL5BTFLkF?=
- =?us-ascii?Q?H8pVunXWkDFnNaG3EVDCINkIpc8PLb/JvdaH9ZC56HAgNUaL8trHB17cmmcB?=
- =?us-ascii?Q?3ecX5CVkogcE3soaWJCgVqn7klDs3uYK0ay4QVzzXgaVm5HZgpsNxYoSZR/+?=
- =?us-ascii?Q?Cu5zaHBO077x19NC0Zi4MmGkeJD14KBLgLxHDUSVpwwDp8wZMLG2kcFCE0/O?=
- =?us-ascii?Q?82j63bN87ZcF2ouGpExuWThHXS7z2o/juwN+ED0d2dRASCTEXxLUdnjI+BiN?=
- =?us-ascii?Q?I802D/X2l9qAUBGaKKCEJpZoUIQgDOpvS+7wJsC0kDuRl2noB8SAeAyA6MDM?=
- =?us-ascii?Q?oGHuYgLLZqzE+cx6vZ8QyoGOyxD685n2Fx/S3Cemva4WrprbOEyMX/8NsiLt?=
- =?us-ascii?Q?vmlaxLwO2SPuMQpRxKV/45gLegmtYCWgbR6drNaZxAWVDr8xOjAcp38XSvp6?=
- =?us-ascii?Q?I7DQupNz233S4ZLW13DqZotPqqke0PFXjbSF+5iYOivT0LD76i2s+l/SifJi?=
- =?us-ascii?Q?Dg2VrdMgQFfnZ4DINFNPCtDWl+dHq/VMqKg9jRBwqkPMc342LR3V62Aizif9?=
- =?us-ascii?Q?yCsyg6dZAqyRRqHSIxHqKEzz0HCx5fycRwSyeI1LDwEIjus/caWZelCOenm6?=
- =?us-ascii?Q?kAIxlkLq5XOCuJu/qzZaBNPO9Nn/QOUc8luyhx4E8zqucs86NKMXlkHzSKAA?=
- =?us-ascii?Q?drdBlMfyp9V0sfT242yUNXLk3e8ZxoszlN593oIQMr/PV9rxiUtC4oTSHQpC?=
- =?us-ascii?Q?n3+xjyij9b00euMDfhlnLrYFzXfb0d+LNt5Dw4duEKU1dmcYQg9nffeSyrgj?=
- =?us-ascii?Q?3n/02omUkHUPPzljdqf9Tqggq/XdMpabQgJUmh5aIuH62IQ0AAixOdAVxnuS?=
- =?us-ascii?Q?BaR0lxeZFFO5EUwaDxE=3D?=
+ Wed,  5 Oct 2022 16:54:19 +0000 (UTC)
+Received: by mail-pg1-f180.google.com with SMTP id f193so15760865pgc.0
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 05 Oct 2022 09:54:19 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=content-transfer-encoding:in-reply-to:from:references:cc:to
+ :content-language:subject:user-agent:mime-version:date:message-id
+ :x-gm-message-state:from:to:cc:subject:date;
+ bh=GFGmeXwzImdz1h+PmMN1s24FBEmejNYEC+q1xWfXEck=;
+ b=EyG6rsATbD7C887QZxyz9MgUhhEsQKIqdL5F4hwzYjNetmhCs9bVaVk9q73t6IB8g6
+ twbOpXuEJgxQzLF7K+408sbpmxYhGaDXOIyMNyebYX0UCJ+B6e8fy4h+09i0//toBEiT
+ Fvw/dYZjiqMfvYTOUG229pIOqYBk20Pi8cyk2kW5M2Td7WwgOuHcmrEjWHQFYBpyW0pa
+ vptqAFaxobi6nzp/+odzvD0MHjGJH1qAKLFMTj1/LPbOut4DNcwospGKB9AzduC5a3B9
+ djSBJiL88JEDNYGHxJQi+UJgjf6X91xjQWfzrtA3e9VkFIGC5KyicaSI2UzMBXoxyi5a
+ Umbg==
+X-Gm-Message-State: ACrzQf0C3gT1GhGLWUJ2VjyLDiTSCD6HS1JjrzkqpUDAZOuKNBY619ni
+ 0FCGQDWdK9hJGwOT5cYAoUM=
+X-Google-Smtp-Source: AMsMyM5oX6qSPQ4HG3bu8E8hjU3lPQSUd8WrMcNcjR4MljBf6naYCl5wsAAwQMON9m5RMKfn4/SRMQ==
+X-Received: by 2002:a62:2985:0:b0:544:77d4:f43b with SMTP id
+ p127-20020a622985000000b0054477d4f43bmr726456pfp.9.1664988858370; 
+ Wed, 05 Oct 2022 09:54:18 -0700 (PDT)
+Received: from [192.168.3.219] ([98.51.102.78])
+ by smtp.gmail.com with ESMTPSA id
+ j16-20020a170902da9000b00176c6738d13sm10795484plx.169.2022.10.05.09.54.12
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Wed, 05 Oct 2022 09:54:17 -0700 (PDT)
+Message-ID: <e0ea0b0a-5077-de37-046f-62902aca93b6@acm.org>
+Date: Wed, 5 Oct 2022 09:54:11 -0700
 MIME-Version: 1.0
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB5481.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 11b93476-caaf-4660-c2f1-08daa6bc714f
-X-MS-Exchange-CrossTenant-originalarrivaltime: 05 Oct 2022 10:29:11.1148 (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: p2nvX2sR36OgaWterJk8GcBEZ9eRJWoEmjTGIXoXts/hi+b3ADlVGkwGpUfuMV9w6OykuMc+WNcjoR50evPn9w==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR12MB5015
-Cc: "alexander.h.duyck@intel.com" <alexander.h.duyck@intel.com>,
- "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>,
- "sridhar.samudrala@intel.com" <sridhar.samudrala@intel.com>,
- "jesse.brandeburg@intel.com" <jesse.brandeburg@intel.com>,
- Gavi Teitz <gavi@nvidia.com>, "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- "stephen@networkplumber.org" <stephen@networkplumber.org>,
- "loseweigh@gmail.com" <loseweigh@gmail.com>,
- "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
- "davem@davemloft.net" <davem@davemloft.net>, Gavin Li <gavinl@nvidia.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.3.0
+Subject: Re: [RFC PATCH 01/21] block: add and use init tagset helper
+Content-Language: en-US
+To: Chaitanya Kulkarni <kch@nvidia.com>,
+ Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+ Ulf Hansson <ulf.hansson@linaro.org>
+References: <20221005032257.80681-1-kch@nvidia.com>
+ <20221005032257.80681-2-kch@nvidia.com>
+ <6fee2d7a-7fd1-73ee-2911-87a4ed3e8769@opensource.wdc.com>
+ <CAPDyKFpBpiydQn+=24CqtaH_qa3tQfN2gQSiUrHCjnLSuy4=Kg@mail.gmail.com>
+From: Bart Van Assche <bvanassche@acm.org>
+In-Reply-To: <CAPDyKFpBpiydQn+=24CqtaH_qa3tQfN2gQSiUrHCjnLSuy4=Kg@mail.gmail.com>
+Cc: vincent.fu@samsung.com, hoeppner@linux.ibm.com, vincent.whitchurch@axis.com,
+ baolin.wang@linux.alibaba.com, mst@redhat.com,
+ linux-remoteproc@vger.kernel.org, linux-nvme@lists.infradead.org,
+ virtualization@lists.linux-foundation.org, bhelgaas@google.com,
+ linux-mtd@lists.infradead.org, miquel.raynal@bootlin.com,
+ agordeev@linux.ibm.com, jinpu.wang@ionos.com, hch@lst.de, alyssa@rosenzweig.io,
+ vigneshr@ti.com, linux-s390@vger.kernel.org, sagi@grimberg.me,
+ linux-scsi@vger.kernel.org, richard@nod.at, vaibhavgupta40@gmail.com,
+ joel@jms.id.au, shinichiro.kawasaki@wdc.com, idryomov@gmail.com,
+ jejb@linux.ibm.com, asahi@lists.linux.dev, ohad@wizery.com,
+ haris.iqbal@ionos.com, gor@linux.ibm.com, sven@svenpeter.dev,
+ hca@linux.ibm.com, john.garry@huawei.com, josef@toxicpanda.com,
+ efremov@linux.com, ming.lei@redhat.com, linux-block@vger.kernel.org,
+ nbd@other.debian.org, christophe.jaillet@wanadoo.fr, sth@linux.ibm.com,
+ stefanha@redhat.com, kbusch@kernel.org, ceph-devel@vger.kernel.org,
+ linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ axboe@kernel.dk, martin.petersen@oracle.com, wsa+renesas@sang-engineering.com,
+ johannes.thumshirn@wdc.com, andersson@kernel.org, marcan@marcan.st,
+ linux-mmc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ dongsheng.yang@easystack.cn, christoph.boehmwalder@linbit.com,
+ mcgrof@kernel.org, svens@linux.ibm.com, pbonzini@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -161,30 +117,45 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Parav Pandit via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Parav Pandit <parav@nvidia.com>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-> From: Jakub Kicinski <kuba@kernel.org>
-> Sent: Thursday, September 22, 2022 6:05 PM
+On 10/5/22 02:47, Ulf Hansson wrote:
+> On Wed, 5 Oct 2022 at 07:11, Damien Le Moal <damien.lemoal@opensource.wdc.com> wrote:
+>> On 10/5/22 12:22, Chaitanya Kulkarni wrote:
+>>> +void blk_mq_init_tag_set(struct blk_mq_tag_set *set,
+>>> +             const struct blk_mq_ops *ops, unsigned int nr_hw_queues,
+>>> +             unsigned int queue_depth, unsigned int cmd_size, int numa_node,
+>>> +             unsigned int timeout, unsigned int flags, void *driver_data)
+>>
+>> That is an awful lot of arguments... I would be tempted to say pack all
+>> these into a struct but then that would kind of negate this patchset goal.
+>> Using a function with that many arguments will be error prone, and hard to
+>> review... Not a fan.
 > 
-> On Thu, 22 Sep 2022 06:14:59 -0400 Michael S. Tsirkin wrote:
-> > It's nitpicking to be frank. v6 arrived while I was traveling and I
-> > didn't notice it.  I see Jason acked that so I guess I will just apply
-> > as is.
+> I completely agree.
 > 
-> Oh, you wanna take it? The split on who takes virtio_net is a touch unclear
-> but if it makes more sense here to go via virtio feel free to slap my ack on the
-> v6.
+> But there is also another problem going down this route. If/when we
+> realize that there is another parameter needed in the blk_mq_tag_set.
+> Today that's quite easy to add (assuming the parameter can be
+> optional), without changing the blk_mq_init_tag_set() interface.
 
-Michael,
+Hi Chaitanya,
 
-Did you get a chance to take this?
-I don't see it at https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git/log/?h=linux-next
+Please consider to drop the entire patch series. In addition to the 
+disadvantages mentioned above I'd like to mention the following 
+disadvantages:
+* Replacing named member assignments with positional arguments in a
+   function call makes code harder to read and harder to verify.
+* This patch series makes tree-wide changes without improving the code
+   in a substantial way.
+
+Thanks,
+
+Bart.
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
