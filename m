@@ -1,111 +1,103 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9716BC433F5
-	for <virtualization@archiver.kernel.org>; Wed,  5 Oct 2022 16:54:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D8936C433FE
+	for <virtualization@archiver.kernel.org>; Wed,  5 Oct 2022 17:25:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 173C181407;
-	Wed,  5 Oct 2022 16:54:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 173C181407
+	by smtp2.osuosl.org (Postfix) with ESMTP id 5C19C401CA;
+	Wed,  5 Oct 2022 17:25:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5C19C401CA
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=gIFf01eS
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id WXnjHuWJBqnF; Wed,  5 Oct 2022 16:54:22 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Yc3wUG5NF17H; Wed,  5 Oct 2022 17:25:54 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 015CD8140B;
-	Wed,  5 Oct 2022 16:54:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 015CD8140B
+	by smtp2.osuosl.org (Postfix) with ESMTPS id BF646400FB;
+	Wed,  5 Oct 2022 17:25:53 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BF646400FB
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D2B2CC0033;
-	Wed,  5 Oct 2022 16:54:21 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id EBDDCC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 93966C0032;
+	Wed,  5 Oct 2022 17:25:53 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B7838C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  5 Oct 2022 16:54:19 +0000 (UTC)
+ Wed,  5 Oct 2022 17:25:52 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id B8E858140B
+ by smtp3.osuosl.org (Postfix) with ESMTP id 9F91560FB5
  for <virtualization@lists.linux-foundation.org>;
- Wed,  5 Oct 2022 16:54:19 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B8E858140B
+ Wed,  5 Oct 2022 17:25:52 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9F91560FB5
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com
+ header.a=rsa-sha256 header.s=20210112 header.b=gIFf01eS
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id G0iqiZ2fBcUG
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id BScitmKQpgWv
  for <virtualization@lists.linux-foundation.org>;
- Wed,  5 Oct 2022 16:54:19 +0000 (UTC)
+ Wed,  5 Oct 2022 17:25:52 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2E08281407
-Received: from mail-pg1-f180.google.com (mail-pg1-f180.google.com
- [209.85.215.180])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 2E08281407
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E9CD560FAC
+Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com
+ [IPv6:2607:f8b0:4864:20::52b])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id E9CD560FAC
  for <virtualization@lists.linux-foundation.org>;
- Wed,  5 Oct 2022 16:54:19 +0000 (UTC)
-Received: by mail-pg1-f180.google.com with SMTP id f193so15760865pgc.0
+ Wed,  5 Oct 2022 17:25:51 +0000 (UTC)
+Received: by mail-pg1-x52b.google.com with SMTP id e129so15784282pgc.9
  for <virtualization@lists.linux-foundation.org>;
- Wed, 05 Oct 2022 09:54:19 -0700 (PDT)
+ Wed, 05 Oct 2022 10:25:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=to:references:message-id:content-transfer-encoding:cc:date
+ :in-reply-to:from:subject:mime-version:from:to:cc:subject:date;
+ bh=hoatWM9ozoryzp81ugwuVdaw9vFYVzmYTBOT17b7aaI=;
+ b=gIFf01eSbK2nZVpULQQ42DWnKsnifrnfUC3C+n75VahsZLw6X4vzvAE2VCPE1j48X0
+ IaaNKd/qYL8krO6D3d/aoP9gMlWpx+y3lL7NClxUYU53fEDEEhbfVvZ7aE0aqvAmV4IK
+ 3y2vFjqYCsjN97+iPd/YqH2yMZej0l7hTXKxgH2VLxsIVo9OOIqo5v/PBf19pcnriVOx
+ t/1ieEGtExO1t8rBxYT+5frSnex7m46Hec+pQZzYr1Eu3vJbnWH5zukHNd0QoGHb6DNu
+ cBOPZ9XSaw1Li4xEvr8wnq6qlZhHieRk/DcIuLbLP5LbN2Sjnc8DBnkr7+yceNvIu8Nw
+ zaDw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=content-transfer-encoding:in-reply-to:from:references:cc:to
- :content-language:subject:user-agent:mime-version:date:message-id
- :x-gm-message-state:from:to:cc:subject:date;
- bh=GFGmeXwzImdz1h+PmMN1s24FBEmejNYEC+q1xWfXEck=;
- b=EyG6rsATbD7C887QZxyz9MgUhhEsQKIqdL5F4hwzYjNetmhCs9bVaVk9q73t6IB8g6
- twbOpXuEJgxQzLF7K+408sbpmxYhGaDXOIyMNyebYX0UCJ+B6e8fy4h+09i0//toBEiT
- Fvw/dYZjiqMfvYTOUG229pIOqYBk20Pi8cyk2kW5M2Td7WwgOuHcmrEjWHQFYBpyW0pa
- vptqAFaxobi6nzp/+odzvD0MHjGJH1qAKLFMTj1/LPbOut4DNcwospGKB9AzduC5a3B9
- djSBJiL88JEDNYGHxJQi+UJgjf6X91xjQWfzrtA3e9VkFIGC5KyicaSI2UzMBXoxyi5a
- Umbg==
-X-Gm-Message-State: ACrzQf0C3gT1GhGLWUJ2VjyLDiTSCD6HS1JjrzkqpUDAZOuKNBY619ni
- 0FCGQDWdK9hJGwOT5cYAoUM=
-X-Google-Smtp-Source: AMsMyM5oX6qSPQ4HG3bu8E8hjU3lPQSUd8WrMcNcjR4MljBf6naYCl5wsAAwQMON9m5RMKfn4/SRMQ==
-X-Received: by 2002:a62:2985:0:b0:544:77d4:f43b with SMTP id
- p127-20020a622985000000b0054477d4f43bmr726456pfp.9.1664988858370; 
- Wed, 05 Oct 2022 09:54:18 -0700 (PDT)
-Received: from [192.168.3.219] ([98.51.102.78])
- by smtp.gmail.com with ESMTPSA id
- j16-20020a170902da9000b00176c6738d13sm10795484plx.169.2022.10.05.09.54.12
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Wed, 05 Oct 2022 09:54:17 -0700 (PDT)
-Message-ID: <e0ea0b0a-5077-de37-046f-62902aca93b6@acm.org>
-Date: Wed, 5 Oct 2022 09:54:11 -0700
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.3.0
-Subject: Re: [RFC PATCH 01/21] block: add and use init tagset helper
-Content-Language: en-US
-To: Chaitanya Kulkarni <kch@nvidia.com>,
- Damien Le Moal <damien.lemoal@opensource.wdc.com>,
- Ulf Hansson <ulf.hansson@linaro.org>
-References: <20221005032257.80681-1-kch@nvidia.com>
- <20221005032257.80681-2-kch@nvidia.com>
- <6fee2d7a-7fd1-73ee-2911-87a4ed3e8769@opensource.wdc.com>
- <CAPDyKFpBpiydQn+=24CqtaH_qa3tQfN2gQSiUrHCjnLSuy4=Kg@mail.gmail.com>
-From: Bart Van Assche <bvanassche@acm.org>
-In-Reply-To: <CAPDyKFpBpiydQn+=24CqtaH_qa3tQfN2gQSiUrHCjnLSuy4=Kg@mail.gmail.com>
-Cc: vincent.fu@samsung.com, hoeppner@linux.ibm.com, vincent.whitchurch@axis.com,
- baolin.wang@linux.alibaba.com, mst@redhat.com,
- linux-remoteproc@vger.kernel.org, linux-nvme@lists.infradead.org,
- virtualization@lists.linux-foundation.org, bhelgaas@google.com,
- linux-mtd@lists.infradead.org, miquel.raynal@bootlin.com,
- agordeev@linux.ibm.com, jinpu.wang@ionos.com, hch@lst.de, alyssa@rosenzweig.io,
- vigneshr@ti.com, linux-s390@vger.kernel.org, sagi@grimberg.me,
- linux-scsi@vger.kernel.org, richard@nod.at, vaibhavgupta40@gmail.com,
- joel@jms.id.au, shinichiro.kawasaki@wdc.com, idryomov@gmail.com,
- jejb@linux.ibm.com, asahi@lists.linux.dev, ohad@wizery.com,
- haris.iqbal@ionos.com, gor@linux.ibm.com, sven@svenpeter.dev,
- hca@linux.ibm.com, john.garry@huawei.com, josef@toxicpanda.com,
- efremov@linux.com, ming.lei@redhat.com, linux-block@vger.kernel.org,
- nbd@other.debian.org, christophe.jaillet@wanadoo.fr, sth@linux.ibm.com,
- stefanha@redhat.com, kbusch@kernel.org, ceph-devel@vger.kernel.org,
- linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- axboe@kernel.dk, martin.petersen@oracle.com, wsa+renesas@sang-engineering.com,
- johannes.thumshirn@wdc.com, andersson@kernel.org, marcan@marcan.st,
- linux-mmc@vger.kernel.org, linux-kernel@vger.kernel.org,
- dongsheng.yang@easystack.cn, christoph.boehmwalder@linbit.com,
- mcgrof@kernel.org, svens@linux.ibm.com, pbonzini@redhat.com
+ h=to:references:message-id:content-transfer-encoding:cc:date
+ :in-reply-to:from:subject:mime-version:x-gm-message-state:from:to:cc
+ :subject:date;
+ bh=hoatWM9ozoryzp81ugwuVdaw9vFYVzmYTBOT17b7aaI=;
+ b=UojivyXXsBWXrSKdJ6hCKz4fLu1mfB/AbwaQRrozs8J39XRBbojDos9zzP98NZ+Vou
+ 3FRQLe00aqnYBJsDZjpHX4KI/obCjMuw5bVzUvlTHhEovb21LastyYQMiyA59lGwGTi4
+ y8whl1EfVEZK68yqHdYK+xjiOUGbCKVsSzwpDnQ56uzjwp+RqACbGZEBLLsU/LTlXi5r
+ Df1EROs9YRLAbexW7ds/XrYwdyTE7anKSmgHeK/4oRf6JyjysAGe/ij3A6KUn1NxwNrH
+ puAlDqIFcXw+JwmbkAQuk0mh+BENcHN/+tq1nL1VornfUOgSO+aaln6vFszN78X6xmjx
+ r8Mg==
+X-Gm-Message-State: ACrzQf00Bg4zM8mJj3oUYjxJikImEYwX+Bto0y1lfSJgsbGoA9v/Sn2r
+ KCudz6ty/JU04PlhIQ+ymPo=
+X-Google-Smtp-Source: AMsMyM4TyVkvtTWOPo0nT5OoEytcoTQ9Csm4KgzKugBBadka1vCy2hdL+79TtN4k8+wmclpr81Shfg==
+X-Received: by 2002:a05:6a02:186:b0:439:49a3:479b with SMTP id
+ bj6-20020a056a02018600b0043949a3479bmr733364pgb.171.1664990751147; 
+ Wed, 05 Oct 2022 10:25:51 -0700 (PDT)
+Received: from smtpclient.apple (c-24-6-216-183.hsd1.ca.comcast.net.
+ [24.6.216.183]) by smtp.gmail.com with ESMTPSA id
+ j7-20020a170902690700b00176b84eb29asm1777510plk.301.2022.10.05.10.25.49
+ (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+ Wed, 05 Oct 2022 10:25:50 -0700 (PDT)
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3696.120.41.1.1\))
+Subject: Re: [PATCH v4 2/7] Enable balloon drivers to report inflated memory
+From: Nadav Amit <nadav.amit@gmail.com>
+In-Reply-To: <20221005090158.2801592-3-alexander.atanasov@virtuozzo.com>
+Date: Wed, 5 Oct 2022 10:25:47 -0700
+Message-Id: <88EDC41D-408F-4ADF-A933-0A6F36E5F262@gmail.com>
+References: <20221005090158.2801592-1-alexander.atanasov@virtuozzo.com>
+ <20221005090158.2801592-3-alexander.atanasov@virtuozzo.com>
+To: Alexander Atanasov <alexander.atanasov@virtuozzo.com>
+X-Mailer: Apple Mail (2.3696.120.41.1.1)
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, LKML <linux-kernel@vger.kernel.org>,
+ Linux Virtualization <virtualization@lists.linux-foundation.org>,
+ linux-mm@kvack.org, kernel@openvz.org,
+ Andrew Morton <akpm@linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -117,46 +109,33 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 10/5/22 02:47, Ulf Hansson wrote:
-> On Wed, 5 Oct 2022 at 07:11, Damien Le Moal <damien.lemoal@opensource.wdc.com> wrote:
->> On 10/5/22 12:22, Chaitanya Kulkarni wrote:
->>> +void blk_mq_init_tag_set(struct blk_mq_tag_set *set,
->>> +             const struct blk_mq_ops *ops, unsigned int nr_hw_queues,
->>> +             unsigned int queue_depth, unsigned int cmd_size, int numa_node,
->>> +             unsigned int timeout, unsigned int flags, void *driver_data)
->>
->> That is an awful lot of arguments... I would be tempted to say pack all
->> these into a struct but then that would kind of negate this patchset goal.
->> Using a function with that many arguments will be error prone, and hard to
->> review... Not a fan.
-> 
-> I completely agree.
-> 
-> But there is also another problem going down this route. If/when we
-> realize that there is another parameter needed in the blk_mq_tag_set.
-> Today that's quite easy to add (assuming the parameter can be
-> optional), without changing the blk_mq_init_tag_set() interface.
-
-Hi Chaitanya,
-
-Please consider to drop the entire patch series. In addition to the 
-disadvantages mentioned above I'd like to mention the following 
-disadvantages:
-* Replacing named member assignments with positional arguments in a
-   function call makes code harder to read and harder to verify.
-* This patch series makes tree-wide changes without improving the code
-   in a substantial way.
-
-Thanks,
-
-Bart.
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gT2N0IDUsIDIwMjIsIGF0IDI6MDEgQU0sIEFsZXhhbmRlciBBdGFuYXNvdiA8YWxleGFuZGVy
+LmF0YW5hc292QHZpcnR1b3p6by5jb20+IHdyb3RlOgoKPiBBZGQgY291bnRlcnMgdG8gYmUgdXBk
+YXRlZCBieSB0aGUgYmFsbG9vbiBkcml2ZXJzLgo+IENyZWF0ZSBiYWxsb29uIG5vdGlmaWVyIHRv
+IHByb3BhZ2F0ZSBjaGFuZ2VzLgoKSSBtaXNzZWQgdGhlIG90aGVyIHBhdGNoZXMgYmVmb3JlIChp
+bmNsdWRpbmcgdGhpcyBvbmUpLiBTb3JyeSwgYnV0IG5leHQKdGltZSwgcGxlYXNlIGNjIG1lLgoK
+SSB3YXMgbG9va2luZyB0aHJvdWdoIHRoZSBzZXJpZXMgYW5kIEkgZGlkIG5vdCBzZWUgYWN0dWFs
+IHVzZXJzIG9mIHRoZQpub3RpZmllci4gVXN1YWxseSwgaXQgaXMgbm90IGdyZWF0IHRvIGJ1aWxk
+IGFuIEFQSSB3aXRob3V0IHVzZXJzLgoKW3NuaXBdIAoKPiArCj4gK3N0YXRpYyBpbnQgYmFsbG9v
+bl9ub3RpZnkodW5zaWduZWQgbG9uZyB2YWwpCj4gK3sKPiArCXJldHVybiBzcmN1X25vdGlmaWVy
+X2NhbGxfY2hhaW4oJmJhbGxvb25fY2hhaW4sIHZhbCwgTlVMTCk7CgpTaW5jZSB5b3Uga25vdyB0
+aGUgaW5mbGF0ZWRfa2IgdmFsdWUgaGVyZSwgd2h5IG5vdCB0byB1c2UgaXQgYXMgYW4gYXJndW1l
+bnQKdG8gdGhlIGNhbGxiYWNrPyBJIHRoaW5rIGNhc3RpbmcgdG8gKHZvaWQgKikgYW5kIGJhY2sg
+aXMgYmVzdC4gQnV0IHlvdSBjYW4KYWxzbyBwcm92aWRlIHBvaW50ZXIgdG8gdGhlIHZhbHVlLiBE
+b2VzbuKAmXQgaXQgc291bmQgYmV0dGVyIHRoYW4gaGF2aW5nCnBvdGVudGlhbGx5IGRpZmZlcmVu
+dCBub3RpZmllcnMgcmVhZGluZyBkaWZmZXJlbnQgdmFsdWVzPwoKQW55aG93LCB3aXRob3V0IHVz
+ZXJzIChhY3R1YWwgbm90aWZpZXJzKSBpdOKAmXMga2luZCBvZiBoYXJkIHRvIGtub3cgaG93CnJl
+YXNvbmFibGUgaXQgYWxsIGlzLiBGb3IgaW5zdGFuY2UsIGlzIGl0IGJhbGxvb25fbm90aWZ5KCkg
+c3VwcG9zZWQgdG8KcHJldmVudCBmdXJ0aGVyIGJhbGxvb24gaW5mbGF0aW5nL2RlZmxhdGluZyB1
+bnRpbCB0aGUgbm90aWZpZXIgY29tcGxldGVzPwpBY2NvcmRpbmdseSwgYXJlIGNhbGxlcnMgdG8g
+YmFsbG9vbl9ub3RpZnkoKSBleHBlY3RlZCB0byByZWxpbnF1aXNoIGxvY2tzCmJlZm9yZSBjYWxs
+aW5nIGJhbGxvb25fbm90aWZ5KCkgdG8gcHJldmVudCBkZWFkbG9ja3MgYW5kIGhpZ2ggbGF0ZW5j
+eT8KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1
+YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0
+aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5m
+by92aXJ0dWFsaXphdGlvbg==
