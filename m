@@ -1,116 +1,104 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 676FEC433F5
-	for <virtualization@archiver.kernel.org>; Wed,  5 Oct 2022 09:48:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 32606C433FE
+	for <virtualization@archiver.kernel.org>; Wed,  5 Oct 2022 10:18:40 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id E6CC582894;
-	Wed,  5 Oct 2022 09:48:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E6CC582894
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=dh/s9gbr
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id nrin6BWzS2xX; Wed,  5 Oct 2022 09:48:14 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 4C3338196A;
-	Wed,  5 Oct 2022 09:48:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4C3338196A
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 22C48C0032;
-	Wed,  5 Oct 2022 09:48:13 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8667AC002D
- for <virtualization@lists.linux-foundation.org>;
- Wed,  5 Oct 2022 09:48:12 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 5B91D40126
- for <virtualization@lists.linux-foundation.org>;
- Wed,  5 Oct 2022 09:48:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5B91D40126
+	by smtp2.osuosl.org (Postfix) with ESMTP id A8BA040AFA;
+	Wed,  5 Oct 2022 10:18:39 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A8BA040AFA
 Authentication-Results: smtp2.osuosl.org;
- dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org
- header.a=rsa-sha256 header.s=google header.b=dh/s9gbr
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=UVz7TmqB
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 9m--rWmI3d9n
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id kcX3IXpr8YO9; Wed,  5 Oct 2022 10:18:39 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 56A94402E5;
+	Wed,  5 Oct 2022 10:18:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 56A94402E5
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 2197DC0033;
+	Wed,  5 Oct 2022 10:18:38 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C0C1AC002D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  5 Oct 2022 09:48:11 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A4CA840A4B
-Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com
- [IPv6:2607:f8b0:4864:20::633])
- by smtp2.osuosl.org (Postfix) with ESMTPS id A4CA840A4B
+ Wed,  5 Oct 2022 10:18:37 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp4.osuosl.org (Postfix) with ESMTP id 8C0CE400BC
  for <virtualization@lists.linux-foundation.org>;
- Wed,  5 Oct 2022 09:48:11 +0000 (UTC)
-Received: by mail-pl1-x633.google.com with SMTP id h10so12235279plb.2
+ Wed,  5 Oct 2022 10:18:37 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8C0CE400BC
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=UVz7TmqB
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id jA4XKJu5cKzF
  for <virtualization@lists.linux-foundation.org>;
- Wed, 05 Oct 2022 02:48:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:from:to:cc:subject:date;
- bh=uAiOjs73GnPtRWDKlCBYpOmHeG3ElDSPTXYVbLmJn3Y=;
- b=dh/s9gbrJ1NP2il6j7m7392rb5m/0olUhLw6ywfYrwbm+b05mgthbXGVeHCne6faSe
- nEB8FWIww9/Mh3TPJYBTwQxHk9YQhBfOYEWSgISGS3x2V+1PSzpPW0fGwHCNvRUrDmsC
- V4LPjNBP1ZNWd2lWycmQ+cVlk2hOYpk0wbD3BQW90ktRdTfHVQoOGdzFfsVLA+UV8P0L
- yaYjHeb70WMgWdHpn0iX5L8LgNN78O1ThcYXr+GHqSaFRNBAWLFYqLr8IpSUK6wbVOaM
- BO7XUtm7Hdl6sqI52mxM7YweUuOKwjFV07IZc9k6gah2y9PsEzpdZlxqQ3TbFVT9xR+n
- gOow==
+ Wed,  5 Oct 2022 10:18:36 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9CFC7400AC
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 9CFC7400AC
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  5 Oct 2022 10:18:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1664965115;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=x41/5klT3HDcc3qHUO/xtt9h6BjGcktdGOkkPFwNbTk=;
+ b=UVz7TmqB1Bqzm2FxAaRlCb1bmlBtJp8cw5bpAbW8ajNR82GNRS3pikJJy7Bl6pWea+6dEJ
+ dX7xANfMGPsswXtl1uh+QIKz4G79d5YPPfFU3Ny1vXKrPH+TNuITDoP7Z7EMdRxqItaMhA
+ UCsl6jzoIZpIrRq2ZfhTh6DJqRfH1CE=
+Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
+ [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-97-xmB2BGn2Pe65g1LUyygU1w-1; Wed, 05 Oct 2022 06:18:34 -0400
+X-MC-Unique: xmB2BGn2Pe65g1LUyygU1w-1
+Received: by mail-ej1-f69.google.com with SMTP id
+ ga36-20020a1709070c2400b007837e12cd7bso6231479ejc.9
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 05 Oct 2022 03:18:33 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:x-gm-message-state:from:to:cc:subject:date;
- bh=uAiOjs73GnPtRWDKlCBYpOmHeG3ElDSPTXYVbLmJn3Y=;
- b=Th/tS4kZFRUE8L6Qq3RTzbiOI1km5NDUzaLWjGIJN6nbyQJstzZucoqvJufiRFfo4g
- 32ur1xSvGyZfvb/MmTYU4l/iW+W4mvFkzHoAWdoRtYpPOIIbTcaRe7jkQ8vR4veshNti
- r25EmJWW4ZSZbT40p75Ax3i+l6ct8vyY+IUGrXija1pDFZ8VsirEp+dNRBw/Rz6pG6Bn
- bngAAgkE7T4cswq4WjIlJc8Y/ZQEc8wQvWlEJRjEjubDbQnzN6A5ZQIHeurtppBFpw38
- BJohCHVXxaWUDTNBvDCJ/XwFbBJ591ba0CGDklnBV/a5Ur/ZGZWKjgqdj2bp8R4aKPL6
- KeWw==
-X-Gm-Message-State: ACrzQf05+jdZohrmkObWOIgE+03Y/Eph+osWaBDYAg6+BF55mODwXUVb
- iqE047ZJU4peCTyui/FsVf3t8G/nlu1u3yYTbv1I0g==
-X-Google-Smtp-Source: AMsMyM6eqXlNc1atZOkkKgiG1yV3Y78Coz+AbzCXphLyt0GPdUFcokJxxEDnXeFGnrVe0bHv3fHf9rWqZFSPgK8TTJI=
-X-Received: by 2002:a17:90b:4d07:b0:1ef:521c:f051 with SMTP id
- mw7-20020a17090b4d0700b001ef521cf051mr4350723pjb.164.1664963290949; Wed, 05
- Oct 2022 02:48:10 -0700 (PDT)
+ :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+ :reply-to;
+ bh=x41/5klT3HDcc3qHUO/xtt9h6BjGcktdGOkkPFwNbTk=;
+ b=0kZE9rBzfSu8kAHXG4HDtJU8c5093sv5aTiH11tPH8xUy7AU13EhMDOzaYCXXJ8BOW
+ wL326YB2SFM65RFSuT+8MCiefibsNIrID8LavVdV6lWEZC/x4O768hbRen5FBkUxyQIC
+ pw/aLES+B/9z3Cn4jS5/pUTVQwIsUrduTmFX4A5+Q5+mf0U3Wc1nhVapMF545Zq1fOrl
+ 5Q+5Le9kWnQjmkGuHaResLNSpgZW4iBzl5W3MwnaureisogNI/yNc0DCHFQTTgD160N5
+ FFmIdXzP44n4dcSP3xmF8uyLHxt3CTFXbPr1WIePTho0jHispbW3Sh4S295cfzB9UNXw
+ bKXA==
+X-Gm-Message-State: ACrzQf0JMcUrg90klmjEGb8kxVFPjKpdLvmMery0QK8pkv5HuBgfqAmr
+ I7dGzi8GUFYSz1pkl5wlhXHIVTEKC5FTBefPKSauVSTmwDMIQVUMGlvLVGNhEvPSKkje/HsLTwT
+ dkBjUlrX9gyFt3U1JZuveNSdlLW70hs+qvwzEz4goJkgEP1lUF2/nZxpUgQ==
+X-Received: by 2002:a05:6402:298d:b0:451:5fc5:d423 with SMTP id
+ eq13-20020a056402298d00b004515fc5d423mr27385188edb.102.1664965112464; 
+ Wed, 05 Oct 2022 03:18:32 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM6Q2Be0EZiS40BB/UlOpYk38i36HWcBT5ILV8Eb8kxwz4LCRB5s881Uem4lPfFPpVuDFdhhDY3/u/OObRmsBhM=
+X-Received: by 2002:a05:6402:298d:b0:451:5fc5:d423 with SMTP id
+ eq13-20020a056402298d00b004515fc5d423mr27385181edb.102.1664965112292; Wed, 05
+ Oct 2022 03:18:32 -0700 (PDT)
 MIME-Version: 1.0
-References: <20221005032257.80681-1-kch@nvidia.com>
- <20221005032257.80681-2-kch@nvidia.com>
- <6fee2d7a-7fd1-73ee-2911-87a4ed3e8769@opensource.wdc.com>
-In-Reply-To: <6fee2d7a-7fd1-73ee-2911-87a4ed3e8769@opensource.wdc.com>
-From: Ulf Hansson <ulf.hansson@linaro.org>
-Date: Wed, 5 Oct 2022 11:47:34 +0200
-Message-ID: <CAPDyKFpBpiydQn+=24CqtaH_qa3tQfN2gQSiUrHCjnLSuy4=Kg@mail.gmail.com>
-Subject: Re: [RFC PATCH 01/21] block: add and use init tagset helper
-To: Chaitanya Kulkarni <kch@nvidia.com>,
- Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Cc: vincent.fu@samsung.com, hoeppner@linux.ibm.com, vincent.whitchurch@axis.com,
- baolin.wang@linux.alibaba.com, mst@redhat.com,
- linux-remoteproc@vger.kernel.org, linux-nvme@lists.infradead.org,
- virtualization@lists.linux-foundation.org, bhelgaas@google.com,
- linux-mtd@lists.infradead.org, miquel.raynal@bootlin.com,
- agordeev@linux.ibm.com, jinpu.wang@ionos.com, hch@lst.de, alyssa@rosenzweig.io,
- vigneshr@ti.com, linux-s390@vger.kernel.org, sagi@grimberg.me,
- linux-scsi@vger.kernel.org, richard@nod.at, vaibhavgupta40@gmail.com,
- joel@jms.id.au, shinichiro.kawasaki@wdc.com, idryomov@gmail.com,
- jejb@linux.ibm.com, asahi@lists.linux.dev, ohad@wizery.com,
- haris.iqbal@ionos.com, gor@linux.ibm.com, sven@svenpeter.dev,
- hca@linux.ibm.com, john.garry@huawei.com, josef@toxicpanda.com,
- efremov@linux.com, ming.lei@redhat.com, linux-block@vger.kernel.org,
- nbd@other.debian.org, christophe.jaillet@wanadoo.fr, sth@linux.ibm.com,
- stefanha@redhat.com, kbusch@kernel.org, ceph-devel@vger.kernel.org,
- linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- bvanassche@acm.org, axboe@kernel.dk, martin.petersen@oracle.com,
- wsa+renesas@sang-engineering.com, johannes.thumshirn@wdc.com,
- andersson@kernel.org, marcan@marcan.st, linux-mmc@vger.kernel.org,
- linux-kernel@vger.kernel.org, dongsheng.yang@easystack.cn,
- christoph.boehmwalder@linbit.com, mcgrof@kernel.org, svens@linux.ibm.com,
- pbonzini@redhat.com
+References: <20220811084749.83809-1-sgarzare@redhat.com>
+In-Reply-To: <20220811084749.83809-1-sgarzare@redhat.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Date: Wed, 5 Oct 2022 12:18:20 +0200
+Message-ID: <CAGxU2F6hQLbi2inrA+Tjd9YrfRovppZR=sbDxDD42=94nYw4MA@mail.gmail.com>
+Subject: Re: [PATCH] vdpa: fix warning casts when building with C=2
+To: "Michael S. Tsirkin" <mst@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -127,74 +115,46 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, 5 Oct 2022 at 07:11, Damien Le Moal
-<damien.lemoal@opensource.wdc.com> wrote:
+On Thu, Aug 11, 2022 at 10:47 AM Stefano Garzarella <sgarzare@redhat.com> wrote:
 >
-> On 10/5/22 12:22, Chaitanya Kulkarni wrote:
-> > Add and use the helper to initialize the common fields of the tag_set
-> > such as blk_mq_ops, number of h/w queues, queue depth, command size,
-> > numa_node, timeout, BLK_MQ_F_XXX flags, driver data. This initialization
-> > is spread all over the block drivers. This avoids the code repetation of
-> > the inialization code of the tag set in current block drivers and any
+> Use __virtio16_to_cpu() to read `max_virtqueue_pairs` field in
+> virtio_net_config since its type is __virtio16.
 >
-> s/inialization/initialization
-> s/repetation/repetition
+> This silences the following warning when building with `make C=2`:
 >
-> > future ones.
-> >
-> > Signed-off-by: Chaitanya Kulkarni <kch@nvidia.com>
-> > ---
-> >  block/blk-mq.c                | 20 ++++++++++++++++++++
-> >  drivers/block/null_blk/main.c | 10 +++-------
-> >  include/linux/blk-mq.h        |  5 +++++
-> >  3 files changed, 28 insertions(+), 7 deletions(-)
-> >
-> > diff --git a/block/blk-mq.c b/block/blk-mq.c
-> > index 8070b6c10e8d..e3a8dd81bbe2 100644
-> > --- a/block/blk-mq.c
-> > +++ b/block/blk-mq.c
-> > @@ -4341,6 +4341,26 @@ static int blk_mq_alloc_tag_set_tags(struct blk_mq_tag_set *set,
-> >       return blk_mq_realloc_tag_set_tags(set, 0, new_nr_hw_queues);
-> >  }
-> >
-> > +void blk_mq_init_tag_set(struct blk_mq_tag_set *set,
-> > +             const struct blk_mq_ops *ops, unsigned int nr_hw_queues,
-> > +             unsigned int queue_depth, unsigned int cmd_size, int numa_node,
-> > +             unsigned int timeout, unsigned int flags, void *driver_data)
->
-> That is an awful lot of arguments... I would be tempted to say pack all
-> these into a struct but then that would kind of negate this patchset goal.
-> Using a function with that many arguments will be error prone, and hard to
-> review... Not a fan.
-
-I completely agree.
-
-But there is also another problem going down this route. If/when we
-realize that there is another parameter needed in the blk_mq_tag_set.
-Today that's quite easy to add (assuming the parameter can be
-optional), without changing the blk_mq_init_tag_set() interface.
-
->
-> > +{
-> > +     if (!set)
-> > +             return;
-> > +
-> > +     set->ops = ops;
-> > +     set->nr_hw_queues = nr_hw_queues;
-> > +     set->queue_depth = queue_depth;
-> > +     set->cmd_size = cmd_size;
-> > +     set->numa_node = numa_node;
-> > +     set->timeout = timeout;
-> > +     set->flags = flags;
-> > +     set->driver_data = driver_data;
-> > +}
-> > +
+>     ../drivers/vdpa/vdpa.c:811:19: warning: cast to restricted __le16
+>     ../drivers/vdpa/vdpa.c:811:19: warning: cast from restricted __virtio16
 >
 
-[...]
+I just noticed that we still have these warnings, maybe this patch has
+fallen through the cracks, so I just ping kindly to include it in this
+merge window :-)
 
-Kind regards
-Uffe
+Thanks,
+Stefano
+
+> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+> ---
+>  drivers/vdpa/vdpa.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
+> index c06c02704461..2466d5087478 100644
+> --- a/drivers/vdpa/vdpa.c
+> +++ b/drivers/vdpa/vdpa.c
+> @@ -808,7 +808,7 @@ static int vdpa_dev_net_mq_config_fill(struct vdpa_device *vdev,
+>         if ((features & BIT_ULL(VIRTIO_NET_F_MQ)) == 0)
+>                 return 0;
+>
+> -       val_u16 = le16_to_cpu(config->max_virtqueue_pairs);
+> +       val_u16 = __virtio16_to_cpu(true, config->max_virtqueue_pairs);
+>         return nla_put_u16(msg, VDPA_ATTR_DEV_NET_CFG_MAX_VQP, val_u16);
+>  }
+>
+> --
+> 2.37.1
+>
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
