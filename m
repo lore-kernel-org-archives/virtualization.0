@@ -1,152 +1,116 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 10313C4332F
-	for <virtualization@archiver.kernel.org>; Wed,  5 Oct 2022 03:28:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 676FEC433F5
+	for <virtualization@archiver.kernel.org>; Wed,  5 Oct 2022 09:48:15 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id B692B41727;
-	Wed,  5 Oct 2022 03:28:05 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B692B41727
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=S53n2lWG
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 7lnUkhW9Du4m; Wed,  5 Oct 2022 03:28:04 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id D88444172F;
-	Wed,  5 Oct 2022 03:28:03 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D88444172F
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A7B59C0033;
-	Wed,  5 Oct 2022 03:28:03 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 70020C007C
- for <virtualization@lists.linux-foundation.org>;
- Wed,  5 Oct 2022 03:28:02 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 48D9B81D73
- for <virtualization@lists.linux-foundation.org>;
- Wed,  5 Oct 2022 03:28:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 48D9B81D73
-Authentication-Results: smtp1.osuosl.org; dkim=pass (2048-bit key,
- unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256
- header.s=selector2 header.b=S53n2lWG
+	by smtp1.osuosl.org (Postfix) with ESMTP id E6CC582894;
+	Wed,  5 Oct 2022 09:48:14 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E6CC582894
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=dh/s9gbr
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ggNNcTGraSVW
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id nrin6BWzS2xX; Wed,  5 Oct 2022 09:48:14 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 4C3338196A;
+	Wed,  5 Oct 2022 09:48:13 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4C3338196A
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 22C48C0032;
+	Wed,  5 Oct 2022 09:48:13 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8667AC002D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  5 Oct 2022 03:28:00 +0000 (UTC)
+ Wed,  5 Oct 2022 09:48:12 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 5B91D40126
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  5 Oct 2022 09:48:12 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5B91D40126
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org
+ header.a=rsa-sha256 header.s=google header.b=dh/s9gbr
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 9m--rWmI3d9n
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  5 Oct 2022 09:48:11 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5CA5C8277E
-Received: from NAM04-MW2-obe.outbound.protection.outlook.com
- (mail-mw2nam04on2077.outbound.protection.outlook.com [40.107.101.77])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 5CA5C8277E
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A4CA840A4B
+Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com
+ [IPv6:2607:f8b0:4864:20::633])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id A4CA840A4B
  for <virtualization@lists.linux-foundation.org>;
- Wed,  5 Oct 2022 03:28:00 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=gNHHChjs/AkDBiJ1dF9js+2SW6vnlzAJEa1ORrQBLKLep8QG+itYNkdqC1kBxwRLWQDKqcK1glmSmb4bzS2OZkcAW7iQcBs9UMrmpiWHKz0IcDOgs0uVrkZpv6iSrwBruH8AS+oeM2owt2S2tiIvzQLsgpj+qWIAOiO5DArEu0I9r3NEOARYL47203M5Ahf6NwyILZewaAAVRVU6dq0umPTmxDhiEvpL32fKhoBoDfyfuj3nfeEM4ELObW5as9hSo1XEPncT0GVuGSl7xcStB0BcrJHdjFfc1my5yxVNBhmHvoLJDk660Qw+3JAM6543i9S/mfc25owaHCJGU7S7Uw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=oblMpQq619HIhyjlIt0b4jfS6oWBZErXTImX4wIgeCk=;
- b=mDs2nmiJWINiTpd88qIp0dD7r+xb731GnGvI8blCpFAzWHL2iCkSu5Ovrra2Tu7QuDllROQ/AuhNxFw3qpi8uGm0lshvhg8ha3izHOvtb6Quk1JiAdEQjDcnWa3m2Wv7FdUTDpVM0ta6dW7dXHw1G85e+LiVuMfpGkH3xgvKCgnsJ3LPClQC3lux5RHB1FjdhzwKCPUG0Nbfk+w9tQy83fKFwhmOrP4eNgKiWEeRa7k9lUisgLUlvmcgBmwwXtIvvLKrMnOpRpORk8Psz33cFhYDq7BstfC40HjEWYYGwUUvH0SgMO+a5mjEQznFg48vEEkVUmugpeiJpkPBQUMATw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.117.160) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=oblMpQq619HIhyjlIt0b4jfS6oWBZErXTImX4wIgeCk=;
- b=S53n2lWGiK17kAZi0DUcCxrsutrP42By8ibAHb8PotTtOOY6KKr2jvK1W3EbDoD+hnNkPg5rh2fNyHz+VC0rcjcYFZRuV/fEpmSdb2WWC4yHR3qgLfPrRAdfOYOIWR9Uw4nfkLFHZ+w//mdkFvz68dHSVlptzhloqFXxKHlNlZTsTRSRq04vzEaOtnMm++3OckPhRYDxcG+vJjF6DnQsQTvKR+0jSEbBUi+DK/gm/y8mHR8o8mgOuIrNGagoWHKJ85IBX5HKtMtSzAjyjfmcXRXbChAr42Ba8vaDkZD6pvO2NRWnlQ52Uo1qYWlCWhKtSewkksHhuc6B6rgjkS/1yQ==
-Received: from BN1PR10CA0022.namprd10.prod.outlook.com (2603:10b6:408:e0::27)
- by PH7PR12MB7140.namprd12.prod.outlook.com (2603:10b6:510:200::18)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5676.24; Wed, 5 Oct
- 2022 03:27:56 +0000
-Received: from BN8NAM11FT056.eop-nam11.prod.protection.outlook.com
- (2603:10b6:408:e0:cafe::c7) by BN1PR10CA0022.outlook.office365.com
- (2603:10b6:408:e0::27) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5676.26 via Frontend
- Transport; Wed, 5 Oct 2022 03:27:55 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
- smtp.mailfrom=nvidia.com;
- dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.117.160) by
- BN8NAM11FT056.mail.protection.outlook.com (10.13.177.26) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.5709.10 via Frontend Transport; Wed, 5 Oct 2022 03:27:55 +0000
-Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
- (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.26; Tue, 4 Oct 2022
- 20:27:41 -0700
-Received: from dev.nvidia.com (10.126.230.35) by rnnvmail201.nvidia.com
- (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.29; Tue, 4 Oct 2022
- 20:27:37 -0700
-To: <linux-block@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
- <linux-omap@vger.kernel.org>, <linux-remoteproc@vger.kernel.org>,
- <linux-mmc@vger.kernel.org>, <linux-mtd@lists.infradead.org>,
- <linux-arm-kernel@lists.infradead.org>, <linux-nvme@lists.infradead.org>,
- <linux-s390@vger.kernel.org>, <linux-scsi@vger.kernel.org>
-Subject: [RFC PATCH 20/21] nvme-apple: use lib tagset init helper
-Date: Tue, 4 Oct 2022 20:22:56 -0700
-Message-ID: <20221005032257.80681-21-kch@nvidia.com>
-X-Mailer: git-send-email 2.29.0
-In-Reply-To: <20221005032257.80681-1-kch@nvidia.com>
-References: <20221005032257.80681-1-kch@nvidia.com>
+ Wed,  5 Oct 2022 09:48:11 +0000 (UTC)
+Received: by mail-pl1-x633.google.com with SMTP id h10so12235279plb.2
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 05 Oct 2022 02:48:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:from:to:cc:subject:date;
+ bh=uAiOjs73GnPtRWDKlCBYpOmHeG3ElDSPTXYVbLmJn3Y=;
+ b=dh/s9gbrJ1NP2il6j7m7392rb5m/0olUhLw6ywfYrwbm+b05mgthbXGVeHCne6faSe
+ nEB8FWIww9/Mh3TPJYBTwQxHk9YQhBfOYEWSgISGS3x2V+1PSzpPW0fGwHCNvRUrDmsC
+ V4LPjNBP1ZNWd2lWycmQ+cVlk2hOYpk0wbD3BQW90ktRdTfHVQoOGdzFfsVLA+UV8P0L
+ yaYjHeb70WMgWdHpn0iX5L8LgNN78O1ThcYXr+GHqSaFRNBAWLFYqLr8IpSUK6wbVOaM
+ BO7XUtm7Hdl6sqI52mxM7YweUuOKwjFV07IZc9k6gah2y9PsEzpdZlxqQ3TbFVT9xR+n
+ gOow==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:x-gm-message-state:from:to:cc:subject:date;
+ bh=uAiOjs73GnPtRWDKlCBYpOmHeG3ElDSPTXYVbLmJn3Y=;
+ b=Th/tS4kZFRUE8L6Qq3RTzbiOI1km5NDUzaLWjGIJN6nbyQJstzZucoqvJufiRFfo4g
+ 32ur1xSvGyZfvb/MmTYU4l/iW+W4mvFkzHoAWdoRtYpPOIIbTcaRe7jkQ8vR4veshNti
+ r25EmJWW4ZSZbT40p75Ax3i+l6ct8vyY+IUGrXija1pDFZ8VsirEp+dNRBw/Rz6pG6Bn
+ bngAAgkE7T4cswq4WjIlJc8Y/ZQEc8wQvWlEJRjEjubDbQnzN6A5ZQIHeurtppBFpw38
+ BJohCHVXxaWUDTNBvDCJ/XwFbBJ591ba0CGDklnBV/a5Ur/ZGZWKjgqdj2bp8R4aKPL6
+ KeWw==
+X-Gm-Message-State: ACrzQf05+jdZohrmkObWOIgE+03Y/Eph+osWaBDYAg6+BF55mODwXUVb
+ iqE047ZJU4peCTyui/FsVf3t8G/nlu1u3yYTbv1I0g==
+X-Google-Smtp-Source: AMsMyM6eqXlNc1atZOkkKgiG1yV3Y78Coz+AbzCXphLyt0GPdUFcokJxxEDnXeFGnrVe0bHv3fHf9rWqZFSPgK8TTJI=
+X-Received: by 2002:a17:90b:4d07:b0:1ef:521c:f051 with SMTP id
+ mw7-20020a17090b4d0700b001ef521cf051mr4350723pjb.164.1664963290949; Wed, 05
+ Oct 2022 02:48:10 -0700 (PDT)
 MIME-Version: 1.0
-X-Originating-IP: [10.126.230.35]
-X-ClientProxiedBy: rnnvmail203.nvidia.com (10.129.68.9) To
- rnnvmail201.nvidia.com (10.129.68.8)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BN8NAM11FT056:EE_|PH7PR12MB7140:EE_
-X-MS-Office365-Filtering-Correlation-Id: 76a61f25-0d2a-4882-fcde-08daa6819814
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: FGIF5osfqfQkh1ec2COmx+HNMFVrUJjU721/aWw8p7s7v4nTGXCTW75jLuc/zjImrsQRlebD6B0bVHt1aDvmBiT/4kkRSDsyHXhezUZraeqzlYrAcin/WHLRAsWNJBCLU1JPlCewTHYuW5z0o8z2uWRJl86mMfbqv/kOdG9P0Qy1kujSUiIDpHMLd4blMRH1z4lgyffnx5EQq92a54NEcOdZIOmQJoipG4epPytnNL1kMqROL/QVp+h804v9D9Gpya66PvBs5fTopP1uYCiqXNv6rGjtp0Nz3w7TEPcFbnXzxRar3Lr8xxUMb7t0IdqIc3Uzlz/0U5QPuBG88RgBX5gVqzHnyUh1uASbHEAut3mwepYcZLW12+wb636nXB5K9x9ECN6rWl/+FnvtsxKbXyczioZ671+iGqZxIwq+DW7pfd5wusyn9fX/73zqjxb61F6BYBRKO07BwYJ1yzOFfw/PI88Mx76xJ0NH4fWqqZcke5reA97dRZdlk6UyzTYW2hsGzRs1laaQLDJlW5x1pwwcu9d2CLlzBuuQkVrQwcoQnq4pj9zfAtiDoJNB0XuyBrCV/6/lfMek0XCePDEawZt61IGFHdMjiAXmiEnQrm8ZctpCAq9CUEw7Ki783SJiGg0OKM3NSg1nrJK5T8ruf4XbLfmYusypV6HhFfzVrZR3C//cdabzwt93mIOQ32uhf+haFHlQRJFuiyaRZ4jYTWXpca+BPS/aSpxWavysGXJh4L7KWPBZ3qq3Ahhn2sfmmdXv/B9wmyyepSQK2AI7eX+1N4heSyXnY10XWXqLQj1O6568oRXKkGbq3CldJTkjfk1J6AFExH1eBqippUYats6PGOFeC0Yutahwt7SebY1NVZhcPazXF3XPdzce884v0jAv8O6Bym4tG4hF+80VvA==
-X-Forefront-Antispam-Report: CIP:216.228.117.160; CTRY:US; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:mail.nvidia.com; PTR:dc6edge1.nvidia.com; CAT:NONE;
- SFS:(13230022)(4636009)(39860400002)(346002)(136003)(396003)(376002)(47660400002)(451199015)(46966006)(40470700004)(36840700001)(316002)(921005)(26005)(5660300002)(4326008)(8676002)(2616005)(36756003)(8936002)(36860700001)(6666004)(2906002)(82740400003)(41300700001)(16526019)(7696005)(186003)(1076003)(70206006)(70586007)(82310400005)(356005)(40480700001)(426003)(7636003)(83380400001)(47076005)(7416002)(7366002)(110136005)(7406005)(54906003)(336012)(478600001)(40460700003)(46800400005)(21314003)(83996005)(2101003);
- DIR:OUT; SFP:1101; 
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Oct 2022 03:27:55.7288 (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 76a61f25-0d2a-4882-fcde-08daa6819814
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a; Ip=[216.228.117.160];
- Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT056.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB7140
-Cc: vincent.fu@samsung.com, vincent.whitchurch@axis.com, stefanha@redhat.com,
- mst@redhat.com, hoeppner@linux.ibm.com,
+References: <20221005032257.80681-1-kch@nvidia.com>
+ <20221005032257.80681-2-kch@nvidia.com>
+ <6fee2d7a-7fd1-73ee-2911-87a4ed3e8769@opensource.wdc.com>
+In-Reply-To: <6fee2d7a-7fd1-73ee-2911-87a4ed3e8769@opensource.wdc.com>
+From: Ulf Hansson <ulf.hansson@linaro.org>
+Date: Wed, 5 Oct 2022 11:47:34 +0200
+Message-ID: <CAPDyKFpBpiydQn+=24CqtaH_qa3tQfN2gQSiUrHCjnLSuy4=Kg@mail.gmail.com>
+Subject: Re: [RFC PATCH 01/21] block: add and use init tagset helper
+To: Chaitanya Kulkarni <kch@nvidia.com>,
+ Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Cc: vincent.fu@samsung.com, hoeppner@linux.ibm.com, vincent.whitchurch@axis.com,
+ baolin.wang@linux.alibaba.com, mst@redhat.com,
+ linux-remoteproc@vger.kernel.org, linux-nvme@lists.infradead.org,
  virtualization@lists.linux-foundation.org, bhelgaas@google.com,
- haris.iqbal@ionos.com, miquel.raynal@bootlin.com, agordeev@linux.ibm.com,
- jinpu.wang@ionos.com, hch@lst.de, alyssa@rosenzweig.io, vigneshr@ti.com,
- sagi@grimberg.me, richard@nod.at, damien.lemoal@opensource.wdc.com,
- vaibhavgupta40@gmail.com, joel@jms.id.au, shinichiro.kawasaki@wdc.com,
- idryomov@gmail.com, jejb@linux.ibm.com, asahi@lists.linux.dev, ohad@wizery.com,
- gor@linux.ibm.com, sven@svenpeter.dev, hca@linux.ibm.com,
- john.garry@huawei.com, josef@toxicpanda.com, efremov@linux.com,
- ming.lei@redhat.com, christophe.jaillet@wanadoo.fr, sth@linux.ibm.com,
- baolin.wang@linux.alibaba.com, kbusch@kernel.org, ceph-devel@vger.kernel.org,
- nbd@other.debian.org, bvanassche@acm.org, axboe@kernel.dk,
- martin.petersen@oracle.com, wsa+renesas@sang-engineering.com,
- johannes.thumshirn@wdc.com, andersson@kernel.org, marcan@marcan.st,
- dongsheng.yang@easystack.cn, christoph.boehmwalder@linbit.com,
- mcgrof@kernel.org, svens@linux.ibm.com, pbonzini@redhat.com
+ linux-mtd@lists.infradead.org, miquel.raynal@bootlin.com,
+ agordeev@linux.ibm.com, jinpu.wang@ionos.com, hch@lst.de, alyssa@rosenzweig.io,
+ vigneshr@ti.com, linux-s390@vger.kernel.org, sagi@grimberg.me,
+ linux-scsi@vger.kernel.org, richard@nod.at, vaibhavgupta40@gmail.com,
+ joel@jms.id.au, shinichiro.kawasaki@wdc.com, idryomov@gmail.com,
+ jejb@linux.ibm.com, asahi@lists.linux.dev, ohad@wizery.com,
+ haris.iqbal@ionos.com, gor@linux.ibm.com, sven@svenpeter.dev,
+ hca@linux.ibm.com, john.garry@huawei.com, josef@toxicpanda.com,
+ efremov@linux.com, ming.lei@redhat.com, linux-block@vger.kernel.org,
+ nbd@other.debian.org, christophe.jaillet@wanadoo.fr, sth@linux.ibm.com,
+ stefanha@redhat.com, kbusch@kernel.org, ceph-devel@vger.kernel.org,
+ linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ bvanassche@acm.org, axboe@kernel.dk, martin.petersen@oracle.com,
+ wsa+renesas@sang-engineering.com, johannes.thumshirn@wdc.com,
+ andersson@kernel.org, marcan@marcan.st, linux-mmc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, dongsheng.yang@easystack.cn,
+ christoph.boehmwalder@linbit.com, mcgrof@kernel.org, svens@linux.ibm.com,
+ pbonzini@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -158,80 +122,79 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Chaitanya Kulkarni via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Chaitanya Kulkarni <kch@nvidia.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Use the block layer helper to initialize the common fields of tag_set
-such as blk_mq_ops, number of h/w queues, queue depth, command size,
-numa_node, timeout, BLK_MQ_F_XXX flags, driver data. This initialization
-is spread all over the block drivers. This avoids the code repetation of
-the inialization code of the tag set in current block drivers and any
-future ones.
+On Wed, 5 Oct 2022 at 07:11, Damien Le Moal
+<damien.lemoal@opensource.wdc.com> wrote:
+>
+> On 10/5/22 12:22, Chaitanya Kulkarni wrote:
+> > Add and use the helper to initialize the common fields of the tag_set
+> > such as blk_mq_ops, number of h/w queues, queue depth, command size,
+> > numa_node, timeout, BLK_MQ_F_XXX flags, driver data. This initialization
+> > is spread all over the block drivers. This avoids the code repetation of
+> > the inialization code of the tag set in current block drivers and any
+>
+> s/inialization/initialization
+> s/repetation/repetition
+>
+> > future ones.
+> >
+> > Signed-off-by: Chaitanya Kulkarni <kch@nvidia.com>
+> > ---
+> >  block/blk-mq.c                | 20 ++++++++++++++++++++
+> >  drivers/block/null_blk/main.c | 10 +++-------
+> >  include/linux/blk-mq.h        |  5 +++++
+> >  3 files changed, 28 insertions(+), 7 deletions(-)
+> >
+> > diff --git a/block/blk-mq.c b/block/blk-mq.c
+> > index 8070b6c10e8d..e3a8dd81bbe2 100644
+> > --- a/block/blk-mq.c
+> > +++ b/block/blk-mq.c
+> > @@ -4341,6 +4341,26 @@ static int blk_mq_alloc_tag_set_tags(struct blk_mq_tag_set *set,
+> >       return blk_mq_realloc_tag_set_tags(set, 0, new_nr_hw_queues);
+> >  }
+> >
+> > +void blk_mq_init_tag_set(struct blk_mq_tag_set *set,
+> > +             const struct blk_mq_ops *ops, unsigned int nr_hw_queues,
+> > +             unsigned int queue_depth, unsigned int cmd_size, int numa_node,
+> > +             unsigned int timeout, unsigned int flags, void *driver_data)
+>
+> That is an awful lot of arguments... I would be tempted to say pack all
+> these into a struct but then that would kind of negate this patchset goal.
+> Using a function with that many arguments will be error prone, and hard to
+> review... Not a fan.
 
-Signed-off-by: Chaitanya Kulkarni <kch@nvidia.com>
----
- drivers/nvme/host/apple.c | 25 ++++++++-----------------
- 1 file changed, 8 insertions(+), 17 deletions(-)
+I completely agree.
 
-diff --git a/drivers/nvme/host/apple.c b/drivers/nvme/host/apple.c
-index 5fc5ea196b40..bc95c3d93c57 100644
---- a/drivers/nvme/host/apple.c
-+++ b/drivers/nvme/host/apple.c
-@@ -1228,15 +1228,10 @@ static int apple_nvme_alloc_tagsets(struct apple_nvme *anv)
- {
- 	int ret;
- 
--	anv->admin_tagset.ops = &apple_nvme_mq_admin_ops;
--	anv->admin_tagset.nr_hw_queues = 1;
--	anv->admin_tagset.queue_depth = APPLE_NVME_AQ_MQ_TAG_DEPTH;
--	anv->admin_tagset.timeout = NVME_ADMIN_TIMEOUT;
--	anv->admin_tagset.numa_node = NUMA_NO_NODE;
--	anv->admin_tagset.cmd_size = sizeof(struct apple_nvme_iod);
--	anv->admin_tagset.flags = BLK_MQ_F_NO_SCHED;
--	anv->admin_tagset.driver_data = &anv->adminq;
--
-+	blk_mq_init_tag_set(&anv->admin_tagset, &apple_nvme_mq_admin_ops, 1,
-+			APPLE_NVME_AQ_MQ_TAG_DEPTH, sizeof(struct apple_nvme_iod),
-+			NUMA_NO_NODE, NVME_ADMIN_TIMEOUT, BLK_MQ_F_NO_SCHED,
-+			&anv->adminq);
- 	ret = blk_mq_alloc_tag_set(&anv->admin_tagset);
- 	if (ret)
- 		return ret;
-@@ -1245,8 +1240,6 @@ static int apple_nvme_alloc_tagsets(struct apple_nvme *anv)
- 	if (ret)
- 		return ret;
- 
--	anv->tagset.ops = &apple_nvme_mq_ops;
--	anv->tagset.nr_hw_queues = 1;
- 	anv->tagset.nr_maps = 1;
- 	/*
- 	 * Tags are used as an index to the NVMMU and must be unique across
-@@ -1254,13 +1247,11 @@ static int apple_nvme_alloc_tagsets(struct apple_nvme *anv)
- 	 * must be marked as reserved in the IO queue.
- 	 */
- 	anv->tagset.reserved_tags = APPLE_NVME_AQ_DEPTH;
--	anv->tagset.queue_depth = APPLE_ANS_MAX_QUEUE_DEPTH - 1;
--	anv->tagset.timeout = NVME_IO_TIMEOUT;
--	anv->tagset.numa_node = NUMA_NO_NODE;
--	anv->tagset.cmd_size = sizeof(struct apple_nvme_iod);
--	anv->tagset.flags = BLK_MQ_F_SHOULD_MERGE;
--	anv->tagset.driver_data = &anv->ioq;
- 
-+	blk_mq_init_tag_set(&anv->admin_tagset, &apple_nvme_mq_admin_ops, 1,
-+			APPLE_ANS_MAX_QUEUE_DEPTH - 1, sizeof(struct apple_nvme_iod),
-+			NUMA_NO_NODE, NVME_IO_TIMEOUT, BLK_MQ_F_SHOULD_MERGE,
-+			&anv->ioq);
- 	ret = blk_mq_alloc_tag_set(&anv->tagset);
- 	if (ret)
- 		return ret;
--- 
-2.29.0
+But there is also another problem going down this route. If/when we
+realize that there is another parameter needed in the blk_mq_tag_set.
+Today that's quite easy to add (assuming the parameter can be
+optional), without changing the blk_mq_init_tag_set() interface.
 
+>
+> > +{
+> > +     if (!set)
+> > +             return;
+> > +
+> > +     set->ops = ops;
+> > +     set->nr_hw_queues = nr_hw_queues;
+> > +     set->queue_depth = queue_depth;
+> > +     set->cmd_size = cmd_size;
+> > +     set->numa_node = numa_node;
+> > +     set->timeout = timeout;
+> > +     set->flags = flags;
+> > +     set->driver_data = driver_data;
+> > +}
+> > +
+>
+
+[...]
+
+Kind regards
+Uffe
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
