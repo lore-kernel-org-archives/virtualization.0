@@ -4,172 +4,104 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7FF3EC43217
-	for <virtualization@archiver.kernel.org>; Tue, 11 Oct 2022 12:23:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 98B3FC4332F
+	for <virtualization@archiver.kernel.org>; Tue, 11 Oct 2022 21:01:44 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 11F0840B8B;
-	Tue, 11 Oct 2022 12:23:25 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 11F0840B8B
+	by smtp2.osuosl.org (Postfix) with ESMTP id 1AB5340C14;
+	Tue, 11 Oct 2022 21:01:44 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1AB5340C14
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=opensynergy.com header.i=@opensynergy.com header.a=rsa-sha256 header.s=TM-DKIM-20210503141657 header.b=zeV41sHS
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=eIiTrmNa
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id K6gebv9D0A3k; Tue, 11 Oct 2022 12:23:24 +0000 (UTC)
+	with ESMTP id Yxl_QtaV67Dh; Tue, 11 Oct 2022 21:01:41 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 5FE884055E;
-	Tue, 11 Oct 2022 12:23:23 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5FE884055E
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 3C0CF400B9;
+	Tue, 11 Oct 2022 21:01:41 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3C0CF400B9
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 247CBC0032;
-	Tue, 11 Oct 2022 12:23:23 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6014AC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 06CF7C0033;
+	Tue, 11 Oct 2022 21:01:41 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B7205C002D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 11 Oct 2022 12:23:22 +0000 (UTC)
+ Tue, 11 Oct 2022 21:01:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 2A6A340B8B
+ by smtp2.osuosl.org (Postfix) with ESMTP id 8B1D240C12
  for <virtualization@lists.linux-foundation.org>;
- Tue, 11 Oct 2022 12:23:22 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2A6A340B8B
+ Tue, 11 Oct 2022 21:01:39 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8B1D240C12
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id VQq2db_R6nA9
+ with ESMTP id ntOIzr7oX13g
  for <virtualization@lists.linux-foundation.org>;
- Tue, 11 Oct 2022 12:23:20 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9B64A4055E
-Received: from repost01.tmes.trendmicro.eu (repost01.tmes.trendmicro.eu
- [18.185.115.18])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 9B64A4055E
+ Tue, 11 Oct 2022 21:01:38 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A5A14400B9
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id A5A14400B9
  for <virtualization@lists.linux-foundation.org>;
- Tue, 11 Oct 2022 12:23:19 +0000 (UTC)
-Received: from 104.47.1.53_.trendmicro.com (unknown [172.21.205.29])
- by repost01.tmes.trendmicro.eu (Postfix) with SMTP id D70A410005109;
- Tue, 11 Oct 2022 12:23:16 +0000 (UTC)
-X-TM-MAIL-RECEIVED-TIME: 1665490996.283000
-X-TM-MAIL-UUID: b6dcbdac-1cec-4966-a1da-7934057672b0
-Received: from EUR01-VE1-obe.outbound.protection.outlook.com (unknown
- [104.47.1.53])
- by repre01.tmes.trendmicro.eu (Trend Micro Email Security) with ESMTPS id
- 455CE10000303; Tue, 11 Oct 2022 12:23:16 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=egzqnSmiuR8CqdGfek1UGd8BVRWqaSMIiSqjTn2lEF7PvlZQai6q/oyLButAMCg0ZbyxTtaVfxPciuZE+Z0gtrAtJ7OHYuqJrJqBtz9YwvgqhkxvJxvwxEsP/78ou8E+uulQeazCysxJA6dH1xlk/pDFi9a342PTtulih8vvu3N/ISwsdaGFXFf7SCho9XPweyOOrEkVOf6qY3Ars9ig5u4MzEQpRfEcq1Tbm9q/9mG+ivG/cuNuEacxmxBoFI0cXiF+d9xMqm2hMLzjUG1QStctpLmPp6rckKl7p6R6ni1RVoLrnyGd0vlQI2C8qw3qB5rup/V6ueg9B+sBznrvHw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=CmEkS5tWimUD0l99+Bkzt2GwkXIwNZZ4DdlveDTGutk=;
- b=hq5cRNK7yhGaar82//iV8em2ZQAB9JS81PVjxHaUOYLGIZKVQjvZ6jV0mSAESwFAoFCX5Tr2M4hbsN01kuUo+lsr9McA0a2OZd/MqESFeZEXDbIAZulYktDzbOaZMtHoYtv7G2SwlIXd9tZcdsAxkyE6qr34xwbxS2J+3eXf9bZNPtYDk5g9i8Wy3QKpKodfD52zBc9j3ftJc/8nvDgi1D8T31tFxKZEFUF6ViW8xhZ53CDA0DW5xKiaOtV7C7rQF/uLO9VPeRH0Qj5XGuTlq/C9ysHhHm7TGasEvogYFU4VgWQNlSaDL8sq4iZXsGF/Vv7REpMmxvNU6dtsbX3rlg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=opensynergy.com; dmarc=pass action=none
- header.from=opensynergy.com; dkim=pass header.d=opensynergy.com; arc=none
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=opensynergy.com;
-Message-ID: <d41ec1d3-e262-3be6-17f2-a9495c55b868@opensynergy.com>
-Date: Tue, 11 Oct 2022 14:23:13 +0200
-Subject: Re: [PATCH] virtio_bt: Fix alignment in configuration struct
-Content-Language: en-US
-To: Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
- "Michael S. Tsirkin" <mst@redhat.com>
-References: <20220807221152.38948-1-Igor.Skalkin@opensynergy.com>
- <20220807185846-mutt-send-email-mst@kernel.org>
- <02222fcb-eaba-617a-c51c-f939678e3d74@opensynergy.com>
- <20221007090223-mutt-send-email-mst@kernel.org>
- <CABBYNZKfLOxrTAVLRSH+hOwaB5RYkGdjbtfabufUcgR3oy897A@mail.gmail.com>
-From: Igor Skalkin <igor.skalkin@opensynergy.com>
-In-Reply-To: <CABBYNZKfLOxrTAVLRSH+hOwaB5RYkGdjbtfabufUcgR3oy897A@mail.gmail.com>
-X-ClientProxiedBy: AM4PR05CA0029.eurprd05.prod.outlook.com (2603:10a6:205::42)
- To AM0PR04MB6641.eurprd04.prod.outlook.com
- (2603:10a6:208:177::14)
+ Tue, 11 Oct 2022 21:01:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1665522097;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=+avVcnv70NWKcf9LkbwIbLGyy/FiaOAFyFBBxc5L0mg=;
+ b=eIiTrmNa5FoN90OfuzbFbv+964pMis6M0nXe9i1W2LfiY/wTn+S2v77rAY/EM7cZq8h4lf
+ gc9mSYykkbqQQHEbmlm6TBy0stJuH/pwzl5+S6tMdpQgY4T+0pLMlNIHKSm1fXQGrCvtRj
+ oM6QxiMPoB3IPzDNIdj3bhvvRjo63Hk=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-8-Hg17lL9kMQeuItOmXZhrXA-1; Tue, 11 Oct 2022 17:01:36 -0400
+X-MC-Unique: Hg17lL9kMQeuItOmXZhrXA-1
+Received: by mail-wr1-f70.google.com with SMTP id
+ s4-20020adfbc04000000b0022e03fc10a9so4263023wrg.15
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 11 Oct 2022 14:01:35 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=+avVcnv70NWKcf9LkbwIbLGyy/FiaOAFyFBBxc5L0mg=;
+ b=EuPc82bsxWTqe8mO1MHk7fEfyEaP2pZYqOiHo2yhTo6I+8BGS6PLmyV2sbYTaN6N2n
+ gIUKR8VZUWwFfOrW7kjimh/1qkoaImgWMZ6BiJXXlmZfz5Ies4vXU9w7HqnAYXBnCoOj
+ wyCIV7lvgUqtZaffkGjneJRpUUGAGzHYuMEkULOhgYNBqy1zb9LkqMdyutOL1nfXQEay
+ LTjSRO/Bwn2JVnj4YAn/Ha4L8/1C2KEnVanZCTlY8lQpIkg+HVAfWNkSoh91v2wGU6Fk
+ sajGWyBsT6Gti20KLeyYiz/5uDm/MmWJWUYwlPd9KOCQg9+UPu4bUcR/GAJQaFGLUXyN
+ C9LQ==
+X-Gm-Message-State: ACrzQf2Bb9uUDu4zv0lTStxDcR+lRiOyG931sfRf3uLgbVIBDyK6tqAE
+ yc4jMzqsZhByjGnSoypTh+K4HMrATnYTcAPKDY3U7FgPTh14sHTZSkKkjAGQIeFJpw+ci+qbRb3
+ 8FAw5JWzXd2hRYt+rqZp1PV8hw1IlflzQCrA/3sjUbQ==
+X-Received: by 2002:a5d:6da1:0:b0:231:c189:e077 with SMTP id
+ u1-20020a5d6da1000000b00231c189e077mr1759309wrs.114.1665522093726; 
+ Tue, 11 Oct 2022 14:01:33 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM4G5KpCt5HabCJPqECVt2VlLGntyZA6wlIwgpZa4/dWB/N71V/3QuGifG/JsGyxjQryAPV/Ow==
+X-Received: by 2002:a5d:6da1:0:b0:231:c189:e077 with SMTP id
+ u1-20020a5d6da1000000b00231c189e077mr1759294wrs.114.1665522093426; 
+ Tue, 11 Oct 2022 14:01:33 -0700 (PDT)
+Received: from redhat.com ([2.55.183.131]) by smtp.gmail.com with ESMTPSA id
+ r16-20020adff710000000b0022afbd02c69sm11871911wrp.56.2022.10.11.14.01.31
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 11 Oct 2022 14:01:32 -0700 (PDT)
+Date: Tue, 11 Oct 2022 17:01:29 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH RFC] pci: fix device presence detection for VFs
+Message-ID: <20221011170037-mutt-send-email-mst@kernel.org>
+References: <20221009191835.4036-1-mst@redhat.com>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: AM0PR04MB6641:EE_|DB9PR04MB8074:EE_
-X-MS-Office365-Filtering-Correlation-Id: c6ff86e8-91cb-472a-2396-08daab835ea4
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 6iHNn9F5PLDiss8Y7PZCgdgjTMK7muStZy39wayivyzDZfAfgnXUwyV3R/JNm1iMwpgoP0Qv8yiRhWQh613xDjlNcdHCD5L+ZGq4iMRaXtGZl/+YE0dEpIxg4eQMMZrnY0q0QMqfuzOvkmTUsKzI5apzsXCFAA69uCptXYjyMQ69+ZUv58l9n4xDgHrIAiZ7L2KlDLaYcURE5mY4NMdD9qZYNv69KxSyJsIDa0MKjRrVq/B4p2HWmn19jJ5BPQIRLbAtJBHyJnbkB31AbDb4cGrtSxymd8GBS6V1XC50IuC4zN4x4xgpIXyN48HrizZdAXHR67YxntdmG6lSERyolu7cO/QASu4Y1ZBlAxAAZeAwHA6Jx0enrZ3c0Jld5odn3bE0j/vT/QfG9IP9hy7bj2q6X3GJSELZsi5jGqZz0WsrndchQ8p7yfIk0U/Cn0TqT8OobUSO/viXSoWKc/nEzLOlkEuFZo8abESOK6oi/1LR6px+u4l/ZaxsIuo0QGlbyqvpNtJB63t8sI0rtowXcjjsuAEID5dJil0OObpKlwExbdMryraNuPTAhFB6ZDMC8K1UZErB4cfUJDXx9zvNO8svgkPDd4uXaYgHgaEgkemiPu7pgeXS60uyeJ/9qIH4ZBGkUxgWwG6L+GkMjaq9qfldYP17Cw5n5MyM2vyeW5Zav+RxM3covIIrTRe1uHBddVUYUrzftBR8HNQhlC9mJhV3WCXiOp0KIyMYouf9lF4=
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:AM0PR04MB6641.eurprd04.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230022)(376002)(136003)(39840400004)(396003)(366004)(346002)(451199015)(83380400001)(66899015)(186003)(31686004)(2616005)(26005)(66476007)(15974865002)(86362001)(31696002)(4326008)(5660300002)(2906002)(53546011)(66946007)(66556008)(107886003)(316002)(966005)(38100700002)(478600001)(8676002)(42186006)(44832011)(54906003)(110136005)(8936002)(36756003)(41300700001);
- DIR:OUT; SFP:1102; 
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?SU4zSVV0bVc1QlNYcVBrc3JoWFpuc1ZpOHAxY2VLdUhyajhkVDVZY3M0elU4?=
- =?utf-8?B?cWVIZDRhWnVKWG1sd25iSnJhQzVYMlBwMkRxQ0ZkWjhYazlkczhDRXNmRTRu?=
- =?utf-8?B?MXZXSTZ0bVpaZkxVOXQvMjl3ZGh1TlJzNmoxeXpmd3ZQYTdHY2RjbU03L0l0?=
- =?utf-8?B?dENLaHBIY2J3Y2xjWWZqTUVWMUZiN3Fndi9WOWdZb3N5ZmxZaitXMDcxSkJG?=
- =?utf-8?B?Uk10aVpJbHp3bkQ3bXFqL29CbkhGOGowZU9uTWpuNTZvOGdFbExJZVhOTFVF?=
- =?utf-8?B?N0lhSkczT3lsRmNqYjNpRGthKzQ5VjBxOGZhdTEwRTYrc1JnZmtBYnpTRE5L?=
- =?utf-8?B?UENJdHRtYThxQ0lOQWl2MWZ5V0hSaG1rWVVjNkRVUjhrMGlkSmRiVGhodFVa?=
- =?utf-8?B?b3AxbWowaHBEZEsxOWdPbFltM0F3YU1vNUxzN1RESXNaV3M5L2hvWG8zNjFl?=
- =?utf-8?B?WTAwbHJ4K2N1ZHhlNVVOMWpVbTFVbERTT2NWRWV5OXBuQUlNNWlob1BOeXFZ?=
- =?utf-8?B?cFNManBES0hJV2RxQzJabzlOTEkyS3hTV2l6aVN6YWp5cHhuamg3UjdEYWdY?=
- =?utf-8?B?N1N3V09uQmU3SlFRQ3FPaEhMY3VKa3A4dnFqV0lDeWgzWHZOWWZnMm53Q3Jp?=
- =?utf-8?B?akdDSVFpRUoydEtta1JrZzFsd25zQjhnUm1VSjUyTm9wSVJIS0VnejlycWNR?=
- =?utf-8?B?ZU9SMU9BRUxkYkJ4cGtnRVhhTFJ5TFZSdlRwQjVsbG13SHlqOEVoMXE1NlNK?=
- =?utf-8?B?eGlhazFwaU1Yazg1UkI2ZkE5UTloNUYwZDZ6ZVF2YWVuWDJUK3F6UTQ4MTZ0?=
- =?utf-8?B?bElocVB4ekVucWsrbW5yZzRQMVJ2Z3ducmdrY1N4UVBKMHorMGgrM1QrN2Yy?=
- =?utf-8?B?cUhrZG1tL2NmS1FVV2oxODY4N2pSUXp5cWpDWnlIL3RJS2JWblJrQXVoRTVz?=
- =?utf-8?B?Nk9CSDh0TDJoZzFyU2F2cHN1Y0hIdUk4TXBoRkZOZGhqWk14ZjhnbUVFR290?=
- =?utf-8?B?NnhZWDFlcjdFK1c5RHpYWSs5dmhGYkdsUGF5eGJmNzBkbVhhcDRtUUtPTGVO?=
- =?utf-8?B?WTd5aU54MUhVTlo4emhDZmpncGpIdGhMRklkN01mTTNKdEdmcERMWUZpT09z?=
- =?utf-8?B?YnROTVpVbWdIWG1uUWIwSm41b1hPcXBVWHJuMVpTQVljUncvelN0OTFWOXAv?=
- =?utf-8?B?UTAwMGUwUU5pSGFjQ24ySU9mbllMTkM2bmJzUzBGQXVHZkpkYlRESitQZ2NB?=
- =?utf-8?B?MVc5ZXpvTDQzY0VzZmxmVnNUaCtTc1JjNUZhaG5GK21YS0hoREdWMDI0eVdT?=
- =?utf-8?B?bUlqV244S3MweTc3L3VVU3pucCtUTmhHYnBvRXc2L2FaUTNDcGFTR255T1Ft?=
- =?utf-8?B?OEUzWmlRM2UrUDN2YXJNMGkxQ1cyZ1kxRFBBRjkzTzlSTlg4OVNXREZrWXVz?=
- =?utf-8?B?ZlZ1bEhxbGhkdkdrSGZOZEoza0dyTGkxcnpOcjlCcmFBaGVRNGJHNnRBR09X?=
- =?utf-8?B?QW9yaDBvU213cTVqOS9hOTBaQlR1OFg0aEhpZ3ZOazR5NzNqeUZrRHRWakNl?=
- =?utf-8?B?SU82UlV6T3pZRGl2K0o5RlphODhXSGVIbUpBVThYOUVWV2RBejNJcEVEOFdU?=
- =?utf-8?B?c1lHTWIrMkg1ZklRcjZrQ2JlR0EzZ0szSUVwdmhqS0NLTUdWWXlBKzRERVAx?=
- =?utf-8?B?RG1jYURvdFBmQjcxdVhJKzlxQSs1RzJVMjY1Y1F4RGVZKy9la1F2SUtLSlZT?=
- =?utf-8?B?Ry9jbWFKOVJUdm82QkxtQWpmdnFFNm5Odmk2U2xzbEo4RVFQVURWWGtmMitu?=
- =?utf-8?B?ZHlTZE5BNVpEK3V6TCttSUdwbDlkckg5RUJvdnBqTUE2akdVbUFXTWg2dUxJ?=
- =?utf-8?B?V0JWdDVWVmtBc2pqZFpVUVcyZVFZUldQVWZKNHdkTFN0SXd4blUvZDEvOVJ5?=
- =?utf-8?B?SWt6VDZhYzF3V25iMURBQzl4aVhQN2tENzUweVg1YVBOU1ZhNU9PR3BmeURl?=
- =?utf-8?B?V05vMHgrd3MwU3g2eG5LZWJWUnhDMFlRaG03ZzZnK3cvYnBoMWlNM00rM0F0?=
- =?utf-8?B?WHRiM1NxeEhaWDdsaWFRd1lyNzdEVzRnMUNDSHBjUFBkWHFFYmRUaHNHNHp1?=
- =?utf-8?Q?bMkPzIcfiAX4BmeBQFo2G6/YJ?=
-X-OriginatorOrg: opensynergy.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: c6ff86e8-91cb-472a-2396-08daab835ea4
-X-MS-Exchange-CrossTenant-AuthSource: AM0PR04MB6641.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 11 Oct 2022 12:23:14.5102 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 800fae25-9b1b-4edc-993d-c939c4e84a64
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: kA3HwlJLDANLq7+1QD6s+5OfcYod6wZnWa7xUFF8I2BxPH4hg1e7c7w1vCeYiAKZe9OyHWOLc+1FnuHLO+Z80g==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB9PR04MB8074
-X-TM-AS-ERS: 104.47.1.53-0.0.0.0
-X-TMASE-Version: StarCloud-1.3-9.0.1006-27194.007
-X-TMASE-Result: 10--28.559200-4.000000
-X-TMASE-MatchedRID: u6ojmU07PKx5iFRzqt4l+HzmmMD/HXF+1QQ6Jx/fflYRt1EvyOXA0QVF
- 2e+BOedtCvLWyGtWgLMcU+PyDJ+qWg7Qbfq/wswqCbJWswK4n1JMVCcj56k8hh0zI+Wuf+4madD
- T2vy0FY4CZ6bzAWtZ31WN0ScpnS9WXSJ4c3nT+QemSbHM5MJ8EEhMRy+qNwXguWX5cj4acazIFG
- fpXhVj7rZizyV9KTDSX8vdD0rtBSLTDG1YCSkAiRHJWwDGGGOshj6De48DqJ9QKAQSutQYXF3C4
- gO+usfrxpVEufocXAPWcSFj7AkGKlSaKReCNW2DAxFf86Rcir2HqfCKxjr5zd7p0Ru8jKvFtb2J
- h9lM5XAWm/gAtjCd7LTSJrCbxY6LU6K87V98CkR9SSAOK4bGfwmWvXEqQTm5xuXV3UE49jhfxNj
- hQhyghW8X2hD8HnjIwNbXoJHIkLCrofp7IohGw07nLUqYrlslFIuBIWrdOeM3ZbGC9oP/O865Qe
- rn2w9CCjtHjO8gdgkiAhHixcJfg1rfFqtYHPzbbFnnYKyTEP7YC1BTtzVr95yQ66GXvSlDMoX05
- tRqtEg6yASP47PB3oKz04ni00BOqJIiwhbq5S/dCok3ibXlQUVRResf5NVp6wF9rre124PRt5TL
- URRxyefOVcxjDhcwgaw1fl6D9o5GONWF/6P/CqWjE0K8Zqo9KrauXd3MZDXwMUUgHNDhDSLiYnj
- Vb876ftwZ3X11IV0=
-X-TMASE-XGENCLOUD: 5f1a4083-99f6-496f-b657-2821e3671b2f-0-0-200-0
-X-TM-Deliver-Signature: C6B6CCA9EBB7C42846A7520EDF945A48
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=opensynergy.com;
- s=TM-DKIM-20210503141657; t=1665490996;
- bh=LuEloUG5XJDbOcUQR+s3+a1KPD97nUMIyDDzvtNKY54=; l=4942;
- h=Date:To:From;
- b=zeV41sHSL7jfTl+cKdIOFfXvGXPPUQKBYy3dP5un61f/1tu5Rgse4G5E0PD2a6JKB
- 1B4ORo3GDbEJMuDbCAjpvDqXMEg+t5WTJsrN+R+155eG0nKI4aH63PUJ8xZuWzMwZb
- IjGsLtHLq8Ql3QESEHUZ1iWRrfcY0HgM5s6TwPonOJYhjUkTy15012glfy2h+MoenQ
- QkhUjE8xkJMzR3HlnjrT3Rc+uWw6U50djxZB/xZ0NZaMNHgiW3RITjrVAi7+bJwzyL
- 6rPM2KIh3AZcj7b1UrQ4G0w4oLFKNIzfjYexTZFOG9yuYh9kydr93IErEsA5d6NAME
- ypvBE3b8RFgXA==
-Cc: Johan Hedberg <johan.hedberg@gmail.com>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, linux-bluetooth@vger.kernel.org,
- mgo@opensynergy.com, Marcel Holtmann <marcel@holtmann.org>
+In-Reply-To: <20221009191835.4036-1-mst@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -181,128 +113,52 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Luiz,
+On Mon, Oct 10, 2022 at 01:12:20PM -0400, Michael S. Tsirkin wrote:
+> virtio uses the same driver for VFs and PFs.  Accordingly,
+> pci_device_is_present is used to detect device presence. This function
+> isn't currently working properly for VFs since it attempts reading
+> device and vendor ID. Result is device marked broken incorrectly.  As
+> VFs are present if and only if PF is present, just return the value for
+> that device.
+> 
+> Reported-by: gongwei <gongwei833x@gmail.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> 
+> ---
+> 
+> Warning - compile tested only. gongwei could you help test and report
+> please?
 
-Current version of this patch is wrong [q]changing uapi like this can't
-be done, will break userspace[/q], next version is in process, will be
-sent in few days.
-Best regards,
-Igor
-On 10/7/22 21:33, Luiz Augusto von Dentz wrote:
-> Hi Michael,
->
-> On Fri, Oct 7, 2022 at 6:03 AM Michael S. Tsirkin <mst@redhat.com> wrote:
->>
->> On Mon, Aug 08, 2022 at 02:04:43PM +0200, Igor Skalkin wrote:
->>> On 8/8/22 01:00, Michael S. Tsirkin wrote:
->>>
->>>      On Mon, Aug 08, 2022 at 12:11:52AM +0200, Igor Skalkin wrote:
->>>
->>>          According to specification [1], "For the device-specific configuration
->>>          space, the driver MUST use 8 bit wide accesses for 8 bit wide fields,
->>>          16 bit wide and aligned accesses for 16 bit wide fields and 32 bit wide
->>>          and aligned accesses for 32 and 64 bit wide fields.".
->>>
->>>          Current version of the configuration structure:
->>>
->>>              struct virtio_bt_config {
->>>                  __u8  type;
->>>                  __u16 vendor;
->>>                  __u16 msft_opcode;
->>>              } __attribute__((packed));
->>>
->>>          has both 16bit fields non-aligned.
->>>
->>>          This commit fixes it.
->>>
->>>          [1] https://ddec1-0-en-ctp.trendmicro.com:443/wis/clicktime/v1/query?url=https%3a%2f%2fdocs.oasis%2dopen.org%2fvirtio%2fvirtio%2fv1.1%2fvirtio%2dv1.1.pdf&umid=b1110db2-819d-4f27-b35e-18ac23ce0ab4&auth=53c7c7de28b92dfd96e93d9dd61a23e634d2fbec-2c53002097633a932e7d67b899e6bf6999cdc899
->>>
->>>          Signed-off-by: Igor Skalkin <Igor.Skalkin@opensynergy.com>
->>>
->>>      This is all true enough, but the problem is
->>>      1. changing uapi like this can't be done, will break userspace
->>>      2. the driver has more issues and no one seems to want to
->>>         maintain it.
->>>      I posted a patch "Bluetooth: virtio_bt: mark broken" and intend
->>>      to merge it for this release.
->>>
->>> This is very sad. We already use this driver in our projects.
->>
->> Ping. If we still have no maintainer I'm marking it broken, users
->> should at least be warned.
->
-> Please resend.
->
->>
->>> Our virtio bluetooth device has two backends - HCI_USER socket backend for one
->>> platform and uart backend for the other, and works well (after applying your
->>> "[PATCH] Bluetooth: virtio_bt: fix device remove") patch, so this "device
->>> removal" problem can probably be considered solved .
->>> We could help with the rest of the problems you listed that can be solved
->>> (specification, QEMU support).
->>> And the only problem that is difficult to solve (because of the need to change
->>> UAPI header files) is just this one with unaligned configuration fields.
->>> At the moment, it does not reproduce, because without VIRTIO_BT_F_VND_HCI
->>> (Indicates vendor command support) feature negotiated, the driver does not
->>> read the non-aligned configuration fields.
->>>
->>> So, what would you advise us to do? Continuing to use the "marked broken"
->>> driver, start writing a specification for a new from scratch, better one?
->>> Or is there any way to bring this one back to life?
->>>
->>>
->>>
->>>          ---
->>>           include/uapi/linux/virtio_bt.h | 2 +-
->>>           1 file changed, 1 insertion(+), 1 deletion(-)
->>>
->>>          diff --git a/include/uapi/linux/virtio_bt.h b/include/uapi/linux/virtio_bt.h
->>>          index a7bd48daa9a9..adc03709cc4f 100644
->>>          --- a/include/uapi/linux/virtio_bt.h
->>>          +++ b/include/uapi/linux/virtio_bt.h
->>>          @@ -23,9 +23,9 @@ enum virtio_bt_config_vendor {
->>>           };
->>>
->>>           struct virtio_bt_config {
->>>          -       __u8  type;
->>>                  __u16 vendor;
->>>                  __u16 msft_opcode;
->>>          +       __u8  type;
->>>           } __attribute__((packed));
->>>
->>>           #endif /* _UAPI_LINUX_VIRTIO_BT_H */
->>>          --
->>>          2.34.1
->>>
->>> --
->>>
->>> Best regards,
->>>
->>> Igor Skalkin
->>> Software Engineer
->>>
->>> OpenSynergy GmbH
->>> Rotherstr. 20, 10245 Berlin
->>>
->>> igor.skalkin@opensynergy.com
->>> www.opensynergy.com
->>>
->>> registered: Amtsgericht Charlottenburg, HRB 108616B
->>> General Management: Rolf Morich, Stefaan Sonck Thiebaut
->>>
->>>
->>> Please mind our privacy notice pursuant to Art. 13 GDPR. // Unsere Hinweise zum
->>> Datenschutz gem. Art. 13 DSGVO finden Sie hier.
->>
->
->
 
-Please mind our privacy notice<https://www.opensynergy.com/datenschutzerklaerung/privacy-notice-for-business-partners-pursuant-to-article-13-of-the-general-data-protection-regulation-gdpr/> pursuant to Art. 13 GDPR. // Unsere Hinweise zum Datenschutz gem. Art. 13 DSGVO finden Sie hier.<https://www.opensynergy.com/de/datenschutzerklaerung/datenschutzhinweise-fuer-geschaeftspartner-gem-art-13-dsgvo/>
+Just got a report in private email that it was tested and works well.
+Will repost as non-RFC now.
+
+
+>  drivers/pci/pci.c | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+> index 95bc329e74c0..ba29b8e2f3c1 100644
+> --- a/drivers/pci/pci.c
+> +++ b/drivers/pci/pci.c
+> @@ -6462,6 +6462,9 @@ bool pci_device_is_present(struct pci_dev *pdev)
+>  {
+>  	u32 v;
+>  
+> +	if (pdev->is_virtfn)
+> +		return pci_device_is_present(pdev->physfn);
+> +
+>  	if (pci_dev_is_disconnected(pdev))
+>  		return false;
+>  	return pci_bus_read_dev_vendor_id(pdev->bus, pdev->devfn, &v, 0);
+> -- 
+> MST
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
