@@ -1,82 +1,79 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7AB84C4332F
-	for <virtualization@archiver.kernel.org>; Wed, 12 Oct 2022 13:28:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0A7B8C4332F
+	for <virtualization@archiver.kernel.org>; Wed, 12 Oct 2022 13:29:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id E7E8E813D6;
-	Wed, 12 Oct 2022 13:28:45 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E7E8E813D6
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=ellerman.id.au header.i=@ellerman.id.au header.a=rsa-sha256 header.s=201909 header.b=RHHgYvEM
+	by smtp3.osuosl.org (Postfix) with ESMTP id 984546103D;
+	Wed, 12 Oct 2022 13:29:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 984546103D
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=ellerman.id.au header.i=@ellerman.id.au header.a=rsa-sha256 header.s=201909 header.b=px5TNFZI
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id dfdlnNvKvQ24; Wed, 12 Oct 2022 13:28:45 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 3998C81438;
-	Wed, 12 Oct 2022 13:28:44 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3998C81438
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id iOOgJp78tpn0; Wed, 12 Oct 2022 13:29:09 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 236B060D58;
+	Wed, 12 Oct 2022 13:29:09 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 236B060D58
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 94C58C0077;
-	Wed, 12 Oct 2022 13:28:42 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8C95AC0080
+	by lists.linuxfoundation.org (Postfix) with ESMTP id F1349C0077;
+	Wed, 12 Oct 2022 13:29:08 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8CD04C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 12 Oct 2022 13:28:41 +0000 (UTC)
+ Wed, 12 Oct 2022 13:29:07 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 5D6A48139E
+ by smtp1.osuosl.org (Postfix) with ESMTP id 59FE583372
  for <virtualization@lists.linux-foundation.org>;
- Wed, 12 Oct 2022 13:28:41 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5D6A48139E
+ Wed, 12 Oct 2022 13:29:07 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 59FE583372
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (2048-bit key) header.d=ellerman.id.au header.i=@ellerman.id.au
+ header.a=rsa-sha256 header.s=201909 header.b=px5TNFZI
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 9DKdTuFGtqbb
+ with ESMTP id QvZcXDTPHq4U
  for <virtualization@lists.linux-foundation.org>;
- Wed, 12 Oct 2022 13:28:40 +0000 (UTC)
+ Wed, 12 Oct 2022 13:29:06 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3E63981387
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 693698336D
 Received: from gandalf.ozlabs.org (mail.ozlabs.org
  [IPv6:2404:9400:2221:ea00::3])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 3E63981387
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 693698336D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 12 Oct 2022 13:28:39 +0000 (UTC)
+ Wed, 12 Oct 2022 13:29:06 +0000 (UTC)
 Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest
  SHA256) (No client certificate requested)
- by mail.ozlabs.org (Postfix) with ESMTPSA id 4MnYPq2t9xz4x1G;
- Thu, 13 Oct 2022 00:28:31 +1100 (AEDT)
+ by mail.ozlabs.org (Postfix) with ESMTPSA id 4MnYQS4HWKz4xGt;
+ Thu, 13 Oct 2022 00:29:04 +1100 (AEDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
- s=201909; t=1665581313;
- bh=9E6D8SfUt/XvbCtYk6H79eLF5Z0a8VLBf3dbm5xgnlU=;
+ s=201909; t=1665581344;
+ bh=PWX6k4sapyUbB0Ldwc1YFfAGSS69spKkUKEhbPr0Uu4=;
  h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
- b=RHHgYvEMnEbCBFnzD18P+zJmb66XY27lFmS0KJ8KUqFVam8bV7++FxLIykwgZpM/S
- FiBTpasGKgc4Upb01vtGUerSG6up/lXQMe090W03pZ1gmjOVpSYg2vuz0r9lwE9EaH
- nPqvbKpIktgReSHQQVIIsx9vuUd7T26IIBp7sx/Ug4gb5mLGMBkdlSvT2E6Zimumhr
- VWasrOgScYJaSBz9IGFstoG13WLv+UD/l0Kp0YJkmY1BMAl37gPZRm+rB1wtZyzYYe
- 21IqN5MPO+DWz2YaSMuMqRd9RzsPAA+tPSMk6qmHZOV7hS2uVpYymn6LQtqiBePpA4
- tf35f+0SCmUZg==
+ b=px5TNFZIthNvIxpiD5l6mE50E38LOu+L6ZD8Tu18htqxz4dPD1Pneda7aNIkUutXM
+ 6y2P0GtECJpuv+4mHpxkR4pZNaVi723kzwe0wqDVeAwEg/lZL1uc5O7LJ6U6aahdn7
+ ziEwEnhxkqyHWuBttGWL47E5RtpU3v64rK3IQUqBRiKHKA3WxsvKs0NBwFB/DRo2nP
+ XHkyQy9fiEQ+9rTDfvVw1ybqrTcubR+mU8G3KNHrXWakSgvGzrlIwLamL+nU9dDfap
+ 90h7DDOaThuio8+oSWexlqJ5LTLZnL9bZF4EV+AKujNH0AGQYBsmXBjYwA9X30KWwN
+ pkT2uxxaxsVGA==
 From: Michael Ellerman <mpe@ellerman.id.au>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [GIT PULL] virtio: fixes, features
-In-Reply-To: <20221012070532-mutt-send-email-mst@kernel.org>
-References: <20221010132030-mutt-send-email-mst@kernel.org>
- <87r0zdmujf.fsf@mpe.ellerman.id.au>
- <20221012070532-mutt-send-email-mst@kernel.org>
-Date: Thu, 13 Oct 2022 00:28:25 +1100
-Message-ID: <87mta1marq.fsf@mpe.ellerman.id.au>
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] virtio_pci: read interrupt pin directly
+In-Reply-To: <20221012110736.285161-1-mst@redhat.com>
+References: <20221012110736.285161-1-mst@redhat.com>
+Date: Thu, 13 Oct 2022 00:29:04 +1100
+Message-ID: <87leplmaqn.fsf@mpe.ellerman.id.au>
 MIME-Version: 1.0
-Cc: xiujianfeng@huawei.com, kvm@vger.kernel.org, netdev@vger.kernel.org,
- wangdeming@inspur.com, linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org,
- virtualization@lists.linux-foundation.org,
- Linus Torvalds <torvalds@linux-foundation.org>, angus.chen@jaguarmicro.com,
- Bjorn Helgaas <bhelgaas@google.com>, lingshan.zhu@intel.com,
- linuxppc-dev@lists.ozlabs.org, gavinl@nvidia.com
+Cc: virtualization@lists.linux-foundation.org,
+ Angus Chen <angus.chen@jaguarmicro.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -93,106 +90,83 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-[ Cc += Bjorn & linux-pci ]
-
 "Michael S. Tsirkin" <mst@redhat.com> writes:
-> On Wed, Oct 12, 2022 at 05:21:24PM +1100, Michael Ellerman wrote:
->> "Michael S. Tsirkin" <mst@redhat.com> writes:
-...
->> > ----------------------------------------------------------------
->> > virtio: fixes, features
->> >
->> > 9k mtu perf improvements
->> > vdpa feature provisioning
->> > virtio blk SECURE ERASE support
->> >
->> > Fixes, cleanups all over the place.
->> >
->> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
->> >
->> > ----------------------------------------------------------------
->> > Alvaro Karsz (1):
->> >       virtio_blk: add SECURE ERASE command support
->> >
->> > Angus Chen (1):
->> >       virtio_pci: don't try to use intxif pin is zero
->> 
->> This commit breaks virtio_pci for me on powerpc, when running as a qemu
->> guest.
->> 
->> vp_find_vqs() bails out because pci_dev->pin == 0.
->> 
->> But pci_dev->irq is populated correctly, so vp_find_vqs_intx() would
->> succeed if we called it - which is what the code used to do.
->> 
->> I think this happens because pci_dev->pin is not populated in
->> pci_assign_irq().
->> 
->> I would absolutely believe this is bug in our PCI code, but I think it
->> may also affect other platforms that use of_irq_parse_and_map_pci().
+> commit 71491c54eafa ("virtio_pci: don't try to use intxif pin is zero")
+> breaks virtio_pci on powerpc, when running as a qemu guest.
 >
-> How about fixing this in of_irq_parse_and_map_pci then?
-> Something like the below maybe?
-> 
-> diff --git a/drivers/pci/of.c b/drivers/pci/of.c
-> index 196834ed44fe..504c4d75c83f 100644
-> --- a/drivers/pci/of.c
-> +++ b/drivers/pci/of.c
-> @@ -446,6 +446,8 @@ static int of_irq_parse_pci(const struct pci_dev *pdev, struct of_phandle_args *
->  	if (pin == 0)
->  		return -ENODEV;
+> vp_find_vqs() bails out because pci_dev->pin == 0.
+>
+> But pci_dev->irq is populated correctly, so vp_find_vqs_intx() would
+> succeed if we called it - which is what the code used to do.
+>
+> This seems to happen because pci_dev->pin is not populated in
+> pci_assign_irq().
+>
+> Which is absolutely a bug in the relevant PCI code, but it
+> may also affect other platforms that use of_irq_parse_and_map_pci().
+>
+> Work around the issue in virtio for now, and let's try to fix
+> all affected pci systems and then we can revert this.
+>
+> Reported-by: Michael Ellerman <mpe@ellerman.id.au>
+> Fixes: 71491c54eafa ("virtio_pci: don't try to use intxif pin is zero")
+> Cc: "Angus Chen" <angus.chen@jaguarmicro.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>  drivers/virtio/virtio_pci_common.c | 10 ++++++++--
+>  1 file changed, 8 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+> index 4df77eeb4d16..6155ea4e7e4b 100644
+> --- a/drivers/virtio/virtio_pci_common.c
+> +++ b/drivers/virtio/virtio_pci_common.c
+> @@ -400,6 +400,7 @@ int vp_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
+>  		struct irq_affinity *desc)
+>  {
+>  	int err;
+> +	u8 pin = 0;
 >  
-> +	pdev->pin = pin;
-> +
->  	/* Local interrupt-map in the device node? Use it! */
->  	if (of_get_property(dn, "interrupt-map", NULL)) {
->  		pin = pci_swizzle_interrupt_pin(pdev, pin);
+>  	/* Try MSI-X with one vector per queue. */
+>  	err = vp_find_vqs_msix(vdev, nvqs, vqs, callbacks, names, true, ctx, desc);
+> @@ -409,8 +410,13 @@ int vp_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
+>  	err = vp_find_vqs_msix(vdev, nvqs, vqs, callbacks, names, false, ctx, desc);
+>  	if (!err)
+>  		return 0;
+> -	/* Is there an interrupt pin? If not give up. */
+> -	if (!(to_vp_device(vdev)->pci_dev->pin))
+> +	/*
+> +	 * Is there an interrupt pin? If not give up.
+> +	 * NB: It would seem to be better to use pci_dev->pin - unfortunately
+> +	 * not all platforms populate it.
+> +	 */
+> +	pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &pin);
+> +	if (!pin)
+>  		return err;
+>  	/* Finally fall back to regular interrupts. */
+>  	return vp_find_vqs_intx(vdev, nvqs, vqs, callbacks, names, ctx);
 
-That doesn't fix it in all cases, because there's an early return if
-there's a struct device_node associated with the pci_dev, before we even
-read the pin.
+Needs the delta below in order to compile.
 
-Also the pci_dev is const, and removing the const would propagate to a
-few other places.
+But with that it fixes the issue for me.
 
-The other obvious place to fix it would be in pci_assign_irq(), as
-below. That fixes this bug for me, but is otherwise very lightly tested.
+Tested-by: Michael Ellerman <mpe@ellerman.id.au>
 
 cheers
 
 
-diff --git a/drivers/pci/setup-irq.c b/drivers/pci/setup-irq.c
-index cc7d26b015f3..0135413b33af 100644
---- a/drivers/pci/setup-irq.c
-+++ b/drivers/pci/setup-irq.c
-@@ -22,6 +22,15 @@ void pci_assign_irq(struct pci_dev *dev)
- 	int irq = 0;
- 	struct pci_host_bridge *hbrg = pci_find_host_bridge(dev->bus);
- 
-+	/* Make sure dev->pin is populated */
-+	pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &pin);
-+
-+	/* Cope with illegal. */
-+	if (pin > 4)
-+		pin = 1;
-+
-+	dev->pin = pin;
-+
- 	if (!(hbrg->map_irq)) {
- 		pci_dbg(dev, "runtime IRQ mapping not provided by arch\n");
- 		return;
-@@ -34,11 +43,6 @@ void pci_assign_irq(struct pci_dev *dev)
- 	 * time the interrupt line passes through a PCI-PCI bridge we must
- 	 * apply the swizzle function.
+diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+index 6155ea4e7e4b..cae134e2573f 100644
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -415,7 +415,7 @@ int vp_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
+ 	 * NB: It would seem to be better to use pci_dev->pin - unfortunately
+ 	 * not all platforms populate it.
  	 */
 -	pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &pin);
--	/* Cope with illegal. */
--	if (pin > 4)
--		pin = 1;
--
- 	if (pin) {
- 		/* Follow the chain of bridges, swizzling as we go. */
- 		if (hbrg->swizzle_irq)
++	pci_read_config_byte(to_vp_device(vdev)->pci_dev, PCI_INTERRUPT_PIN, &pin);
+ 	if (!pin)
+ 		return err;
+ 	/* Finally fall back to regular interrupts. */
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
