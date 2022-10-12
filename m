@@ -1,105 +1,106 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D3E79C4332F
-	for <virtualization@archiver.kernel.org>; Wed, 12 Oct 2022 02:31:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3F950C4332F
+	for <virtualization@archiver.kernel.org>; Wed, 12 Oct 2022 03:08:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 1C09D403A9;
-	Wed, 12 Oct 2022 02:31:23 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1C09D403A9
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=MOAiBq/C
+	by smtp3.osuosl.org (Postfix) with ESMTP id B6A5B60AF4;
+	Wed, 12 Oct 2022 03:08:09 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B6A5B60AF4
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=iFzTfi/Q
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id l1tXZPkHCLp0; Wed, 12 Oct 2022 02:31:22 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 752E2400E5;
-	Wed, 12 Oct 2022 02:31:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 752E2400E5
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id dLZyWLQhaKJt; Wed, 12 Oct 2022 03:08:08 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 41058607F0;
+	Wed, 12 Oct 2022 03:08:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 41058607F0
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4879DC0033;
-	Wed, 12 Oct 2022 02:31:21 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A82C9C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1CF59C0032;
+	Wed, 12 Oct 2022 03:08:08 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id AF87BC002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 12 Oct 2022 02:31:19 +0000 (UTC)
+ Wed, 12 Oct 2022 03:08:06 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 7BBD182779
+ by smtp4.osuosl.org (Postfix) with ESMTP id 7A1B7416E5
  for <virtualization@lists.linux-foundation.org>;
- Wed, 12 Oct 2022 02:31:19 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7BBD182779
-Authentication-Results: smtp1.osuosl.org;
+ Wed, 12 Oct 2022 03:08:06 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7A1B7416E5
+Authentication-Results: smtp4.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=MOAiBq/C
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=iFzTfi/Q
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id sC3KpXuFJeJn
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id PXSCS31IOXHB
  for <virtualization@lists.linux-foundation.org>;
- Wed, 12 Oct 2022 02:31:18 +0000 (UTC)
+ Wed, 12 Oct 2022 03:08:05 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B97C98272C
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1269E414CD
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id B97C98272C
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 1269E414CD
  for <virtualization@lists.linux-foundation.org>;
- Wed, 12 Oct 2022 02:31:18 +0000 (UTC)
+ Wed, 12 Oct 2022 03:08:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1665541877;
+ s=mimecast20190719; t=1665544083;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=ZWHqsdrdeOUECP7iiSQMbg1019god1/+rH/feXS+ZMo=;
- b=MOAiBq/CCwLymuOctqyy/GMKH2QIiX2L4YS8TfjmR4SqYr3xSdh2QDROewvOUfiwLpYCbX
- z8RghguB0ETdxfieezsbi0ER+77cbBUU14jGb0FEAqSfOpvG4MjzDOyE+A3mJ62UrrwZ0K
- m1pt5O4d8zc/sepLWVFMy2hzaeyejrg=
-Received: from mail-oa1-f72.google.com (mail-oa1-f72.google.com
- [209.85.160.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=BgOum/UDHehE92DZqDcEw12xZnODZkBr1fs6UDB1a+M=;
+ b=iFzTfi/Q6PnvarJOpjOPiS3PHuZo47m7cruxjv7UcgelObH9auQ7LsjcHrDsmxok6RARyx
+ 0rafyBeoibwPnoXUAYQ2ohq9X0HdNsIZbXqghj8FcIGYO11XFVShVmDuBwBJl1fbE6+ffY
+ K4Moy5YrVI2WIfF+faVaLtdOHFFV4qY=
+Received: from mail-oi1-f200.google.com (mail-oi1-f200.google.com
+ [209.85.167.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-561-C086zsgPPre2ZZRoBtnJDA-1; Tue, 11 Oct 2022 22:31:16 -0400
-X-MC-Unique: C086zsgPPre2ZZRoBtnJDA-1
-Received: by mail-oa1-f72.google.com with SMTP id
- 586e51a60fabf-132693a4072so7719906fac.4
+ us-mta-167-0cq64qIUPG-YiIDm4vrjWQ-1; Tue, 11 Oct 2022 23:08:01 -0400
+X-MC-Unique: 0cq64qIUPG-YiIDm4vrjWQ-1
+Received: by mail-oi1-f200.google.com with SMTP id
+ j8-20020a056808118800b00354b7e75b46so2038704oil.16
  for <virtualization@lists.linux-foundation.org>;
- Tue, 11 Oct 2022 19:31:16 -0700 (PDT)
+ Tue, 11 Oct 2022 20:08:00 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=cc:to:subject:message-id:date:from:in-reply-to:references
  :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
  :reply-to;
- bh=ZWHqsdrdeOUECP7iiSQMbg1019god1/+rH/feXS+ZMo=;
- b=p0F6+1yiJ42xzBEQTPI4mnL7oR0E3KOus+/oK8tpfoh+Yon/jYpTiKF/L1mSCzqPsw
- OJLDzet9Og2xokFM14KUlJpD1EhDbn3/YSoWTM/ydl2NOTajBiq5IKRHivzkAoKJkaP+
- xZEwRll7ckuLXaNB5vJ9OV5XY/jSG48yTmg4dgzOUkGhX3VKWoP4QUCfyfbx86hHe5M7
- UrcEOnxHAYPAUjaIQXdwn6tP908XaJwZwaLXaDz9vFxb9VF7fuddVkJrk6sHNPOXHZUk
- MNHSLzr5F20lJZXlAyt7E8BrfVpOWfHRkoij1Kw5qNoh1JlhaD2FZyMsUNsouZxxoUWw
- VPpg==
-X-Gm-Message-State: ACrzQf121otaJcRAUsaa/Ru2JfCkj5IUHQty2zPvSp0fMEWyZwIYK0/0
- s+FtjWffbdTfY7zp2+TG3RYlHi8J9FBEgMTmJrVk7L6VJHrkmFy3Df5MsX6jQeieTxF5OY7r1bB
- mOEjucEs+0mg/ZTmn/kiESYOsjOdN4wUGT338MPkqpi4iqgRp6EF5LPOHbQ==
-X-Received: by 2002:a05:6830:4387:b0:661:8d25:2c95 with SMTP id
- s7-20020a056830438700b006618d252c95mr8786160otv.201.1665541875829; 
- Tue, 11 Oct 2022 19:31:15 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM64wOhjhRqsyVIZiDQrcHkTTgscLTPNc5Vz2BbwcUYAMAPP7wJwY8RgzN/KjKOtdYXPnk8GQUsp1qFYCd73vDM=
-X-Received: by 2002:a05:6830:4387:b0:661:8d25:2c95 with SMTP id
- s7-20020a056830438700b006618d252c95mr8786153otv.201.1665541875611; Tue, 11
- Oct 2022 19:31:15 -0700 (PDT)
+ bh=BgOum/UDHehE92DZqDcEw12xZnODZkBr1fs6UDB1a+M=;
+ b=Zsnfkd1R7NaB+EhauK2ReFsKgzwDAiBMBSEFojxT3soSWR5ByAchyRtZA7+mRVm7Gu
+ Bn1+DQWbuBwB8bccdtB99Pm7LCJlzLtOdk3fd2Tgu6OcVnowkI6BkyjgO93Xs+EfV3A0
+ asJ7BXvVwXzNmseh/BAuIqCIymEwOCL9umD3U+K4KZxEjZNDFF/kO2J6OPAGyXFXon28
+ Ditjxw39DdL2zhFIOr+UG1fh8+h1tAZwRWorT6P7Eml22+QNQxI92vB/XSSt7xmllxlU
+ fghZ8PjUf5UTRKqoe/JOWRX0h2vkiWX0aHDN3lfE8M0PMfpL76chXO9TfgxIrT4hdkPe
+ w4tA==
+X-Gm-Message-State: ACrzQf04TBmbOiYL4kCvKZ3P5LPmM/kER927AU9QGFwX8FOk6oVjAX6w
+ BX88/W5jaPFJir8E44GSI0I7jjY8w66OdZu+OPiAFUYR9rqF8w/rZHAasRD9h9tbCWK7OZc+tGO
+ uB2pYb7IFsNgP+RVJ/qYgkpqPandpxgx5qaMsZa3mFomQG/7SMWmnkydo4Q==
+X-Received: by 2002:a05:6870:eca8:b0:132:df46:5c66 with SMTP id
+ eo40-20020a056870eca800b00132df465c66mr1228134oab.280.1665544079554; 
+ Tue, 11 Oct 2022 20:07:59 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM5dq66SvAlxf7mu4Q2w0EN+PHpuAQh+ivBrOwjxijz5lSw6LuA0SVDb5dfCsMPUvQ3ntliZotjYUlqEkWxvsXY=
+X-Received: by 2002:a05:6870:eca8:b0:132:df46:5c66 with SMTP id
+ eo40-20020a056870eca800b00132df465c66mr1228128oab.280.1665544079369; Tue, 11
+ Oct 2022 20:07:59 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220928234008.30302-1-mgurtovoy@nvidia.com>
-In-Reply-To: <20220928234008.30302-1-mgurtovoy@nvidia.com>
+References: <1665422823-18364-1-git-send-email-si-wei.liu@oracle.com>
+In-Reply-To: <1665422823-18364-1-git-send-email-si-wei.liu@oracle.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 12 Oct 2022 10:31:04 +0800
-Message-ID: <CACGkMEvfivRAwZ1OT13ujChvrJ_=_d8tY6Fg83WP6+kdO4cOGg@mail.gmail.com>
-Subject: Re: [PATCH 1/1] virtio_pci: use common helper to configure SR-IOV
-To: Max Gurtovoy <mgurtovoy@nvidia.com>
+Date: Wed, 12 Oct 2022 11:07:48 +0800
+Message-ID: <CACGkMEvpApmF6TFVi8jD-YTYTcYN=zUyvrsxHL8Rts6vQC9EAQ@mail.gmail.com>
+Subject: Re: [PATCH] vdpa: merge functionally duplicated dev_features
+ attributes
+To: Si-Wei Liu <si-wei.liu@oracle.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: linux-block@vger.kernel.org, virtualization@lists.linux-foundation.org,
- stefanha@redhat.com, mst@redhat.com
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
+ mst@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -116,54 +117,57 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Sep 29, 2022 at 7:40 AM Max Gurtovoy <mgurtovoy@nvidia.com> wrote:
+On Tue, Oct 11, 2022 at 2:32 AM Si-Wei Liu <si-wei.liu@oracle.com> wrote:
 >
-> This is instead of re-writing the same logic in virtio driver.
+> We can merge VDPA_ATTR_VDPA_DEV_SUPPORTED_FEATURES with
+> VDPA_ATTR_DEV_FEATURES which is functionally equivalent.
+> While at it, tweak the comment in header file to make
+> user provioned device features distinguished from those
+> supported by the parent mgmtdev device: the former of
+> which can be inherited as a whole from the latter, or
+> can be a subset of the latter if explicitly specified.
 >
-> Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+> Signed-off-by: Si-Wei Liu <si-wei.liu@oracle.com>
 
-Acked-by: Jason Wang <Jasowang@redhat.com>
-
+Acked-by: Jason Wang <jasowang@redhat.com>
 
 > ---
->  drivers/virtio/virtio_pci_common.c | 15 +--------------
->  1 file changed, 1 insertion(+), 14 deletions(-)
+>  drivers/vdpa/vdpa.c       | 2 +-
+>  include/uapi/linux/vdpa.h | 4 +---
+>  2 files changed, 2 insertions(+), 4 deletions(-)
 >
-> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-> index ad258a9d3b9f..67d3970e57f2 100644
-> --- a/drivers/virtio/virtio_pci_common.c
-> +++ b/drivers/virtio/virtio_pci_common.c
-> @@ -607,7 +607,6 @@ static int virtio_pci_sriov_configure(struct pci_dev *pci_dev, int num_vfs)
->  {
->         struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
->         struct virtio_device *vdev = &vp_dev->vdev;
-> -       int ret;
+> diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
+> index febdc99..41ed563 100644
+> --- a/drivers/vdpa/vdpa.c
+> +++ b/drivers/vdpa/vdpa.c
+> @@ -855,7 +855,7 @@ static int vdpa_dev_net_config_fill(struct vdpa_device *vdev, struct sk_buff *ms
 >
->         if (!(vdev->config->get_status(vdev) & VIRTIO_CONFIG_S_DRIVER_OK))
->                 return -EBUSY;
-> @@ -615,19 +614,7 @@ static int virtio_pci_sriov_configure(struct pci_dev *pci_dev, int num_vfs)
->         if (!__virtio_test_bit(vdev, VIRTIO_F_SR_IOV))
->                 return -EINVAL;
+>         features_device = vdev->config->get_device_features(vdev);
 >
-> -       if (pci_vfs_assigned(pci_dev))
-> -               return -EPERM;
+> -       if (nla_put_u64_64bit(msg, VDPA_ATTR_VDPA_DEV_SUPPORTED_FEATURES, features_device,
+> +       if (nla_put_u64_64bit(msg, VDPA_ATTR_DEV_FEATURES, features_device,
+>                               VDPA_ATTR_PAD))
+>                 return -EMSGSIZE;
+>
+> diff --git a/include/uapi/linux/vdpa.h b/include/uapi/linux/vdpa.h
+> index 9bd7923..54b649a 100644
+> --- a/include/uapi/linux/vdpa.h
+> +++ b/include/uapi/linux/vdpa.h
+> @@ -53,11 +53,9 @@ enum vdpa_attr {
+>         VDPA_ATTR_DEV_VENDOR_ATTR_NAME,         /* string */
+>         VDPA_ATTR_DEV_VENDOR_ATTR_VALUE,        /* u64 */
+>
+> +       /* virtio features that are provisioned to the vDPA device */
+>         VDPA_ATTR_DEV_FEATURES,                 /* u64 */
+>
+> -       /* virtio features that are supported by the vDPA device */
+> -       VDPA_ATTR_VDPA_DEV_SUPPORTED_FEATURES,  /* u64 */
 > -
-> -       if (num_vfs == 0) {
-> -               pci_disable_sriov(pci_dev);
-> -               return 0;
-> -       }
-> -
-> -       ret = pci_enable_sriov(pci_dev, num_vfs);
-> -       if (ret < 0)
-> -               return ret;
-> -
-> -       return num_vfs;
-> +       return pci_sriov_configure_simple(pci_dev, num_vfs);
->  }
->
->  static struct pci_driver virtio_pci_driver = {
+>         /* new attributes must be added above here */
+>         VDPA_ATTR_MAX,
+>  };
 > --
-> 2.18.1
+> 1.8.3.1
 >
 
 _______________________________________________
