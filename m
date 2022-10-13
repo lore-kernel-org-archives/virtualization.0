@@ -1,105 +1,116 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id F0A49C4332F
-	for <virtualization@archiver.kernel.org>; Thu, 13 Oct 2022 13:40:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A15FFC43217
+	for <virtualization@archiver.kernel.org>; Thu, 13 Oct 2022 17:19:28 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 747644040D;
-	Thu, 13 Oct 2022 13:40:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 747644040D
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Yrq1roku
+	by smtp3.osuosl.org (Postfix) with ESMTP id 271B360AE0;
+	Thu, 13 Oct 2022 17:19:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 271B360AE0
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.a=rsa-sha256 header.s=google header.b=RwP93R0i
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id xMvypic3mwac; Thu, 13 Oct 2022 13:40:31 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id UlVV1EC8Zsq3; Thu, 13 Oct 2022 17:19:27 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 0AC834010E;
-	Thu, 13 Oct 2022 13:40:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0AC834010E
+	by smtp3.osuosl.org (Postfix) with ESMTPS id B8B1E60585;
+	Thu, 13 Oct 2022 17:19:26 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B8B1E60585
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D671BC0032;
-	Thu, 13 Oct 2022 13:40:30 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 200E7C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 9D9FBC0032;
+	Thu, 13 Oct 2022 17:19:26 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D57A3C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Oct 2022 13:40:30 +0000 (UTC)
+ Thu, 13 Oct 2022 17:19:24 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id E91E1402DC
+ by smtp3.osuosl.org (Postfix) with ESMTP id A37CA60AE0
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Oct 2022 13:40:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E91E1402DC
+ Thu, 13 Oct 2022 17:19:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A37CA60AE0
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id yk16YnjJDJnh
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id ucfzoqsBQnTC
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Oct 2022 13:40:29 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E6C2B4010E
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id E6C2B4010E
+ Thu, 13 Oct 2022 17:19:24 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org F18B560585
+Received: from mail-oa1-x2e.google.com (mail-oa1-x2e.google.com
+ [IPv6:2001:4860:4864:20::2e])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id F18B560585
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Oct 2022 13:40:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1665668427;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type;
- bh=DcJvD5vzFcxsS07jGH2XZzGBqICBqV6Tq7siAWkTRL0=;
- b=Yrq1roku9v79loMhfPvHHbjZ9B13SU8LaMh5/bg7ozYlhM8VXjWqiL1OOaYr4yKvfntF3Q
- NgOyQpp7ow8iEjViFbPfAiuzziynCeltJezgyWl6jKH93FfKfsjPpt4JV57KnWi6Fy/7+g
- 4KV0oW4OvB5N2N0+MQ8e73z84lQEpLk=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-609-hDGEp68GN6ylICkUlw2SiA-1; Thu, 13 Oct 2022 09:40:26 -0400
-X-MC-Unique: hDGEp68GN6ylICkUlw2SiA-1
-Received: by mail-wm1-f70.google.com with SMTP id
- c3-20020a7bc843000000b003b486fc6a40so844721wml.7
+ Thu, 13 Oct 2022 17:19:23 +0000 (UTC)
+Received: by mail-oa1-x2e.google.com with SMTP id
+ 586e51a60fabf-12c8312131fso3071544fac.4
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Oct 2022 06:40:26 -0700 (PDT)
+ Thu, 13 Oct 2022 10:19:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=linux-foundation.org; s=google;
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:from:to:cc:subject:date:message-id:reply-to;
+ bh=j1qTz+oYugF8Lf770mKCIrdepvqmBbCEzwy+EaukMrM=;
+ b=RwP93R0i/58OL7LRD+//xbsGSpXEvsNfrhi2GXL/rRnIR0fEBr1hhf0AxtH9ySaIuq
+ fxnBUs5tBFF0nv+sS5fXPWTFdyDQIQyfW3oaIHCHCny57nHo+jkN3VT1oW56ATf0pSAn
+ /cXKnAs4MWRb/mczWEGT2NYOdgosHqzbcK1Ec=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=content-disposition:mime-version:message-id:subject:cc:to:from:date
- :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
- bh=DcJvD5vzFcxsS07jGH2XZzGBqICBqV6Tq7siAWkTRL0=;
- b=XBs8pVJFPUUPG+HUZTdiV4Cmlc3wy+K4MLW7D3sr63oIsbS9btHiuVJqX1QKTAsiEd
- SSQmRFf0XmMf81Cahh6RraVR8Y5Wgmcgwf1ATpkh0tfKDyxEpC3qNtI701YOScI5Qykk
- DV/SL6lJvRqNAnktfVQeUOGS4p2UQzl/3BkK8GZ69J++6knKIHheMmUeKGCGV0PZ0gcc
- fV1eD55cyeXw9Jf5+sGgiabdBzXfaoNvVUPq8xZznKmAHxoN92PNqGCJ/mn8Q8cmgSV9
- L2WIToSnx+a+dEj8Kv7CBkPkaYckgW6d4K5yXIl097GZNiRB/h/K+WhnpDY8VyYJD4S5
- 4qEg==
-X-Gm-Message-State: ACrzQf2NAwrd8/0xhpJRu86yZNTBywpEl9bfiZv42FHzeCxEcJoUz2uI
- 70pduUzNFWJ9XwAiJU0E7IVFWXBymbzO6JVLXOsW3FQ1JjLHNqfQlFx97elEUx0kIirroEzsvli
- CwOLtF7xHopxGkH85E9pDKtII9TsIj0vrlwSkuavt/g==
-X-Received: by 2002:a05:600c:88a:b0:3c5:c9e3:15cc with SMTP id
- l10-20020a05600c088a00b003c5c9e315ccmr6622899wmp.67.1665668425603; 
- Thu, 13 Oct 2022 06:40:25 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM6TnPZr5gSOifctojxkDFUAx5X0RgYRQuKniGc+MNA0UHK/ABnoPNo2kwVXsSINExlzellCjg==
-X-Received: by 2002:a05:600c:88a:b0:3c5:c9e3:15cc with SMTP id
- l10-20020a05600c088a00b003c5c9e315ccmr6622877wmp.67.1665668425410; 
- Thu, 13 Oct 2022 06:40:25 -0700 (PDT)
-Received: from redhat.com ([2.54.162.123]) by smtp.gmail.com with ESMTPSA id
- bl13-20020adfe24d000000b00230b3a0f461sm2065542wrb.33.2022.10.13.06.40.23
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 13 Oct 2022 06:40:24 -0700 (PDT)
-Date: Thu, 13 Oct 2022 09:40:21 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [GIT PULL] virtio: bugfix, reviewer
-Message-ID: <20221013094021-mutt-send-email-mst@kernel.org>
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+ :reply-to;
+ bh=j1qTz+oYugF8Lf770mKCIrdepvqmBbCEzwy+EaukMrM=;
+ b=PHSOiFE+cgY/Rch79KkCiYh0USp/pcCa915yUNC/mTkZUm9y8N42Erba7IorvrV/kD
+ rti5TORLxNPZI77Dph+aTmpiIUzFzEbLBACmCQXdCQPYyiMCpcf3C4kMwfqUL1vEJ4xt
+ /kZYJRHqoENza1zUDDGtFqF+iZxoZkMyVE5o5ZMJl0X8KUoIPYEfH7lL1n5s+GIGR7jn
+ QDyFai6nLz+oXbKerlaEQXfPKWvPZdhY6IvcRKXyOC4bhbNpaJ4pfeErwtjyk7Tn82Lq
+ vzeWFEVYHKCkYrG6uEuXK+Knh4PO83bgenPEFXEPq0P1EuihHWWdvVCecE/AVATykTlO
+ 8RPw==
+X-Gm-Message-State: ACrzQf3f0vzFsq/fE6CmHjsI/VCFcki2VRcZumwPC2LBNaOysimGin1D
+ 8Hetckzfz5wom4sCnGV3Jo4u+iew8cDK3xL5
+X-Google-Smtp-Source: AMsMyM7h54uP+OvMN2EdlFrCBD4qJWYaHh/j65atqrPLtIa4KLBWGZN/oGnypXAT3qfh5qqc9NlhFw==
+X-Received: by 2002:a05:6870:a114:b0:132:8139:f640 with SMTP id
+ m20-20020a056870a11400b001328139f640mr6133370oae.198.1665681562383; 
+ Thu, 13 Oct 2022 10:19:22 -0700 (PDT)
+Received: from mail-ot1-f47.google.com (mail-ot1-f47.google.com.
+ [209.85.210.47]) by smtp.gmail.com with ESMTPSA id
+ n1-20020a4ae741000000b0044b47bb023fsm2323527oov.37.2022.10.13.10.19.19
+ for <virtualization@lists.linux-foundation.org>
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Thu, 13 Oct 2022 10:19:19 -0700 (PDT)
+Received: by mail-ot1-f47.google.com with SMTP id
+ r8-20020a056830120800b00661a0a236efso425447otp.4
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 13 Oct 2022 10:19:19 -0700 (PDT)
+X-Received: by 2002:a05:6830:4421:b0:661:8fdd:81e9 with SMTP id
+ q33-20020a056830442100b006618fdd81e9mr528782otv.69.1665681558964; Thu, 13 Oct
+ 2022 10:19:18 -0700 (PDT)
 MIME-Version: 1.0
-X-Mutt-Fcc: =sent
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- mpe@ellerman.id.au, angus.chen@jaguarmicro.com, lingshan.zhu@intel.com
+References: <20221010132030-mutt-send-email-mst@kernel.org>
+ <87r0zdmujf.fsf@mpe.ellerman.id.au>
+ <20221012070532-mutt-send-email-mst@kernel.org>
+ <87mta1marq.fsf@mpe.ellerman.id.au> <87edvdm7qg.fsf@mpe.ellerman.id.au>
+ <20221012115023-mutt-send-email-mst@kernel.org>
+ <CAHk-=wg2Pkb9kbfbstbB91AJA2SF6cySbsgHG-iQMq56j3VTcA@mail.gmail.com>
+ <38893b2e-c7a1-4ad2-b691-7fbcbbeb310f@app.fastmail.com>
+ <20221012180806-mutt-send-email-mst@kernel.org>
+ <a35fd31b-0658-4ac1-8340-99cdf4c75bb7@app.fastmail.com>
+In-Reply-To: <a35fd31b-0658-4ac1-8340-99cdf4c75bb7@app.fastmail.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Thu, 13 Oct 2022 10:19:02 -0700
+X-Gmail-Original-Message-ID: <CAHk-=whLv3MO0Tvc62zJ+=4yvSfKMK17C0wfpbXBwUJqSjKbYA@mail.gmail.com>
+Message-ID: <CAHk-=whLv3MO0Tvc62zJ+=4yvSfKMK17C0wfpbXBwUJqSjKbYA@mail.gmail.com>
+Subject: Re: [GIT PULL] virtio: fixes, features
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: xiujianfeng@huawei.com, kvm@vger.kernel.org,
+ "Michael S. Tsirkin" <mst@redhat.com>, linux-pci@vger.kernel.org,
+ wangdeming@inspur.com, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>,
+ angus.chen@jaguarmicro.com, Bjorn Helgaas <bhelgaas@google.com>,
+ lingshan.zhu@intel.com, linuxppc-dev@lists.ozlabs.org, gavinl@nvidia.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -116,35 +127,62 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-The following changes since commit 041bc24d867a2a577a06534d6d25e500b24a01ef:
+On Wed, Oct 12, 2022 at 11:29 PM Arnd Bergmann <arnd@arndb.de> wrote:
+>
+> On Thu, Oct 13, 2022, at 12:08 AM, Michael S. Tsirkin wrote:
+> >
+> > Do these two boxes even have pci?
+>
+> Footbridge/netwinder has PCI and PC-style ISA on-board devices
+> (floppy, ps2 mouse/keyboard, parport, soundblaster, ...), RiscPC
+> has neither.
 
-  Merge tag 'pci-v6.1-changes' of git://git.kernel.org/pub/scm/linux/kernel/git/helgaas/pci (2022-10-11 11:08:18 -0700)
+It's worth noting that changing a driver that does
 
-are available in the Git repository at:
+        if (dev->irq == NO_IRQ)
+                return -ENODEV;
 
-  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+to use
 
-for you to fetch changes up to be8ddea9e75e65b05837f6d51dc5774b866d0bcf:
+        if (!dev->irq)
+                return -ENODEV;
 
-  vdpa/ifcvf: add reviewer (2022-10-13 09:37:30 -0400)
+should be pretty much always fine.
 
-----------------------------------------------------------------
-virtio: bugfix, reviewer
+Even *if* that driver is then compiled and used on an architecture
+where NO_IRQ is one of the odd values, you end up having only two
+cases
 
-Fix a regression in virtio pci on power.
-Add a reviewer for ifcvf.
+ (a) irq 0 was actually a valid irq after all
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+ (b) you just get the error later when actually trying to use the odd
+NO_IRQ interrupt with request_irq() and friends
 
-----------------------------------------------------------------
-Michael S. Tsirkin (2):
-      virtio_pci: use irq to detect interrupt support
-      vdpa/ifcvf: add reviewer
+and here (a) basically never happens - certainly not for any PCI setup
+- and (b) is harmless unless the driver was already terminally broken
+anyway.
 
- MAINTAINERS                        | 4 ++++
- drivers/virtio/virtio_pci_common.c | 4 ++--
- 2 files changed, 6 insertions(+), 2 deletions(-)
+The one exception for (a) might be some platform irq code. On x86,
+that would be the legacy timer interrupt, of course.
 
+So if some odd platform actually has a "real" interrupt on irq0, that
+platform should either just fix the irq number mapping, or should
+consider that interrupt to be a platform-specific thing and handle it
+very very specially.
+
+On x86, for example, we do
+
+        if (request_irq(0, timer_interrupt, flags, "timer", NULL))
+
+early in boot, and that's basically what then makes sure that no
+driver can get that irq. It's done through the platform "timer_init"
+code at the "late_time_init()" call.
+
+(And that "late_time_init()" - despite the name - isn't very late at
+all. It's just later than the very early timekeeping init - after
+interrupts have been enabled at all.
+
+             Linus
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
