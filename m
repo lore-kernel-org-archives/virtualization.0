@@ -1,80 +1,64 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B1359C433FE
-	for <virtualization@archiver.kernel.org>; Thu, 13 Oct 2022 01:35:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E9D9FC433FE
+	for <virtualization@archiver.kernel.org>; Thu, 13 Oct 2022 01:52:14 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 24347610C5;
-	Thu, 13 Oct 2022 01:35:03 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 24347610C5
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=ellerman.id.au header.i=@ellerman.id.au header.a=rsa-sha256 header.s=201909 header.b=Z/pK7aMb
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id pAcNsYXWOUgu; Thu, 13 Oct 2022 01:35:02 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 7A226610BF;
-	Thu, 13 Oct 2022 01:35:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7A226610BF
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 521EFC0033;
-	Thu, 13 Oct 2022 01:35:01 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 2F8A6C002D
- for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Oct 2022 01:35:00 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 04913405AC
- for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Oct 2022 01:35:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 04913405AC
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (2048-bit key) header.d=ellerman.id.au header.i=@ellerman.id.au
- header.a=rsa-sha256 header.s=201909 header.b=Z/pK7aMb
+	by smtp2.osuosl.org (Postfix) with ESMTP id 5F1A540BA7;
+	Thu, 13 Oct 2022 01:52:14 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5F1A540BA7
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id A-qlRjuXeQDq
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 6Aj1Tz-iYwMl; Thu, 13 Oct 2022 01:52:13 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id F1A1A40B39;
+	Thu, 13 Oct 2022 01:52:12 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org F1A1A40B39
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C5538C0033;
+	Thu, 13 Oct 2022 01:52:12 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 66FF2C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Oct 2022 01:34:59 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8E62C40002
-Received: from gandalf.ozlabs.org (mail.ozlabs.org
- [IPv6:2404:9400:2221:ea00::3])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 8E62C40002
+ Thu, 13 Oct 2022 01:52:11 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 3435383E26
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Oct 2022 01:34:58 +0000 (UTC)
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest
- SHA256) (No client certificate requested)
- by mail.ozlabs.org (Postfix) with ESMTPSA id 4MnsWs0jPLz4x1G;
- Thu, 13 Oct 2022 12:34:48 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
- s=201909; t=1665624889;
- bh=gPvZV0BQTqsExtsBFxdu6MEGId7gZqkpuYWwZgOnkLI=;
- h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
- b=Z/pK7aMbtmhvewWXZLFngbCigBpfnFHxarsryaRvqZrDhRAU6Xsk7ghQAZT04h2TV
- Yen2hAUBHVNi7qQdPcGcEbPl2VQrv5qD14t36IbzM9c2IFUMoOB4tAW/TSm5cJCdrv
- E/sJk8jrbbGQD5HJ+kEHZyaWqzJW4bVF8dRmPy0Wx/ja68JAay8PGpFjoS/KHq9NB7
- AXsZVs7yDXGBTL5+lDZVeExy99WRm1TnN3pNHCRwdEMk+oJ0MGxbLazZpYjZ8fcZPj
- N+yD+YBeVfl9znpUIyLEQiLFCJJr7o1530ch0cw+xGgrGwFfSBPD1JO2RQ/rhKk9ku
- gzB+qM7iXgdow==
-From: Michael Ellerman <mpe@ellerman.id.au>
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] virtio_pci: use irq to detect interrupt support
-In-Reply-To: <20221012220312.308522-1-mst@redhat.com>
-References: <20221012220312.308522-1-mst@redhat.com>
-Date: Thu, 13 Oct 2022 12:34:45 +1100
-Message-ID: <877d14mrpm.fsf@mpe.ellerman.id.au>
-MIME-Version: 1.0
-Cc: virtualization@lists.linux-foundation.org,
- Linus Torvalds <torvalds@linux-foundation.org>,
- Angus Chen <angus.chen@jaguarmicro.com>
+ Thu, 13 Oct 2022 01:52:11 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3435383E26
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 5JnH4kz27jDt
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 13 Oct 2022 01:52:10 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 76A7D83E24
+Received: from out30-131.freemail.mail.aliyun.com
+ (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 76A7D83E24
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 13 Oct 2022 01:52:08 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R181e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046059;
+ MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=4; SR=0;
+ TI=SMTPD_---0VS1WvPH_1665625923; 
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
+ fp:SMTPD_---0VS1WvPH_1665625923) by smtp.aliyun-inc.com;
+ Thu, 13 Oct 2022 09:52:04 +0800
+Message-ID: <1665625913.619304-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH RESEND] tools/virtio: initialize spinlocks in vring_test.c
+Date: Thu, 13 Oct 2022 09:51:53 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: "Ricardo Cañuelo" <ricardo.canuelo@collabora.com>
+References: <20221012062949.1526176-1-ricardo.canuelo@collabora.com>
+In-Reply-To: <20221012062949.1526176-1-ricardo.canuelo@collabora.com>
+Cc: kernel@collabora.com, virtualization@lists.linux-foundation.org,
+ mst@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -86,65 +70,37 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-"Michael S. Tsirkin" <mst@redhat.com> writes:
-> commit 71491c54eafa ("virtio_pci: don't try to use intxif pin is zero")
-> breaks virtio_pci on powerpc, when running as a qemu guest.
->
-> vp_find_vqs() bails out because pci_dev->pin == 0.
->
-> But pci_dev->irq is populated correctly, so vp_find_vqs_intx() would
-> succeed if we called it - which is what the code used to do.
->
-> This seems to happen because pci_dev->pin is not populated in
-> pci_assign_irq().
->
-> Which is absolutely a bug in the relevant PCI code, but it
-> may also affect other platforms that use of_irq_parse_and_map_pci().
->
-> However Linus said:
-> 	The correct way to check for "no irq" doesn't use NO_IRQ at all, it just does
-> 		if (dev->irq) ...
-> so let's just check irq and be done with it.
->
-> Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-> Reported-by: Michael Ellerman <mpe@ellerman.id.au>
-> Fixes: 71491c54eafa ("virtio_pci: don't try to use intxif pin is zero")
-> Cc: "Angus Chen" <angus.chen@jaguarmicro.com>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->
-> Build tested only - very late here. Angus any chance you could
-> help test this? Thanks!
-
-This works for me on powerpc.
-
-Tested-by: Michael Ellerman <mpe@ellerman.id.au>
-
-cheers
-
-> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-> index 4df77eeb4d16..a6c86f916dbd 100644
-> --- a/drivers/virtio/virtio_pci_common.c
-> +++ b/drivers/virtio/virtio_pci_common.c
-> @@ -409,8 +409,8 @@ int vp_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
->  	err = vp_find_vqs_msix(vdev, nvqs, vqs, callbacks, names, false, ctx, desc);
->  	if (!err)
->  		return 0;
-> -	/* Is there an interrupt pin? If not give up. */
-> -	if (!(to_vp_device(vdev)->pci_dev->pin))
-> +	/* Is there an interrupt? If not give up. */
-> +	if (!(to_vp_device(vdev)->pci_dev->irq))
->  		return err;
->  	/* Finally fall back to regular interrupts. */
->  	return vp_find_vqs_intx(vdev, nvqs, vqs, callbacks, names, ctx);
-> -- 
-> MST
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gV2VkLCAxMiBPY3QgMjAyMiAwODoyOTo0OSArMDIwMCwgIlJpY2FyZG8gQ2HDsXVlbG8iIDxy
+aWNhcmRvLmNhbnVlbG9AY29sbGFib3JhLmNvbT4gd3JvdGU6Cj4gVGhlIHZpcnRpb19kZXZpY2Ug
+dnFzX2xpc3Qgc3BpbmxvY2tzIG11c3QgYmUgaW5pdGlhbGl6ZWQgYmVmb3JlIHVzZSB0bwo+IHBy
+ZXZlbnQgZnVuY3Rpb25zIHRoYXQgbWFuaXB1bGF0ZSB0aGUgZGV2aWNlIHZpcnR1YWxxdWV1ZXMs
+IHN1Y2ggYXMKPiB2cmluZ19uZXdfdmlydHF1ZXVlKCksIGZyb20gYmxvY2tpbmcgaW5kZWZpbml0
+ZWx5Lgo+Cj4gU2lnbmVkLW9mZi1ieTogUmljYXJkbyBDYcOxdWVsbyA8cmljYXJkby5jYW51ZWxv
+QGNvbGxhYm9yYS5jb20+CgpSZXZpZXdlZC1ieTogWHVhbiBaaHVvIDx4dWFuemh1b0BsaW51eC5h
+bGliYWJhLmNvbT4KCj4gLS0tCj4gIHRvb2xzL3ZpcnRpby92cmluZ2hfdGVzdC5jIHwgMiArKwo+
+ICAxIGZpbGUgY2hhbmdlZCwgMiBpbnNlcnRpb25zKCspCj4KPiBkaWZmIC0tZ2l0IGEvdG9vbHMv
+dmlydGlvL3ZyaW5naF90ZXN0LmMgYi90b29scy92aXJ0aW8vdnJpbmdoX3Rlc3QuYwo+IGluZGV4
+IGZhODdiNThiZDVmYS4uOThmZjgwOGQ2ZjBjIDEwMDY0NAo+IC0tLSBhL3Rvb2xzL3ZpcnRpby92
+cmluZ2hfdGVzdC5jCj4gKysrIGIvdG9vbHMvdmlydGlvL3ZyaW5naF90ZXN0LmMKPiBAQCAtMzA4
+LDYgKzMwOCw3IEBAIHN0YXRpYyBpbnQgcGFyYWxsZWxfdGVzdCh1NjQgZmVhdHVyZXMsCj4KPiAg
+CQlndmRldi52ZGV2LmZlYXR1cmVzID0gZmVhdHVyZXM7Cj4gIAkJSU5JVF9MSVNUX0hFQUQoJmd2
+ZGV2LnZkZXYudnFzKTsKPiArCQlzcGluX2xvY2tfaW5pdCgmZ3ZkZXYudmRldi52cXNfbGlzdF9s
+b2NrKTsKPiAgCQlndmRldi50b19ob3N0X2ZkID0gdG9faG9zdFsxXTsKPiAgCQlndmRldi5ub3Rp
+ZmllcyA9IDA7Cj4KPiBAQCAtNDU1LDYgKzQ1Niw3IEBAIGludCBtYWluKGludCBhcmdjLCBjaGFy
+ICphcmd2W10pCj4gIAlnZXRyYW5nZSA9IGdldHJhbmdlX2lvdjsKPiAgCXZkZXYuZmVhdHVyZXMg
+PSAwOwo+ICAJSU5JVF9MSVNUX0hFQUQoJnZkZXYudnFzKTsKPiArCXNwaW5fbG9ja19pbml0KCZ2
+ZGV2LnZxc19saXN0X2xvY2spOwo+Cj4gIAl3aGlsZSAoYXJndlsxXSkgewo+ICAJCWlmIChzdHJj
+bXAoYXJndlsxXSwgIi0taW5kaXJlY3QiKSA9PSAwKQo+IC0tCj4gMi4yNS4xCj4KPiBfX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwo+IFZpcnR1YWxpemF0aW9u
+IG1haWxpbmcgbGlzdAo+IFZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3Jn
+Cj4gaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmly
+dHVhbGl6YXRpb24KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4
+LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFu
+L2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
