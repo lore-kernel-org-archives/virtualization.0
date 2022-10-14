@@ -1,112 +1,106 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2F3DFC4332F
-	for <virtualization@archiver.kernel.org>; Fri, 14 Oct 2022 05:32:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 82D2BC4332F
+	for <virtualization@archiver.kernel.org>; Fri, 14 Oct 2022 05:59:00 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 7121142224;
-	Fri, 14 Oct 2022 05:32:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7121142224
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=hxWgxf3+
+	by smtp3.osuosl.org (Postfix) with ESMTP id 0E22761215;
+	Fri, 14 Oct 2022 05:59:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0E22761215
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Dc3YGMCL
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id FvtJPGV2rtYc; Fri, 14 Oct 2022 05:32:54 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 7C2AA42225;
-	Fri, 14 Oct 2022 05:32:53 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7C2AA42225
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id sFT3PMscGe4i; Fri, 14 Oct 2022 05:58:59 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 8EB4160C17;
+	Fri, 14 Oct 2022 05:58:58 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8EB4160C17
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2E942C0033;
-	Fri, 14 Oct 2022 05:32:53 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id ED818C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 618DFC0033;
+	Fri, 14 Oct 2022 05:58:58 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 38B18C002D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 14 Oct 2022 05:32:51 +0000 (UTC)
+ Fri, 14 Oct 2022 05:58:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id BAA6542225
+ by smtp1.osuosl.org (Postfix) with ESMTP id 0D00C813C6
  for <virtualization@lists.linux-foundation.org>;
- Fri, 14 Oct 2022 05:32:51 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org BAA6542225
+ Fri, 14 Oct 2022 05:58:56 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0D00C813C6
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=Dc3YGMCL
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id umCon7NHi1xP
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 3ClBgyieRVoh
  for <virtualization@lists.linux-foundation.org>;
- Fri, 14 Oct 2022 05:32:50 +0000 (UTC)
+ Fri, 14 Oct 2022 05:58:55 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org F0F6642224
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C57EE813C3
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id F0F6642224
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id C57EE813C3
  for <virtualization@lists.linux-foundation.org>;
- Fri, 14 Oct 2022 05:32:49 +0000 (UTC)
+ Fri, 14 Oct 2022 05:58:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1665725568;
+ s=mimecast20190719; t=1665727133;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=BWNFgRVlGjYNydd5Fi8o/nyAidzrHzoVF78WNHdTm7o=;
- b=hxWgxf3+mZAniUfoNH/fUYRtpT+eYdGbMt2wXESwppKF9H6fXpkONWNacbo8paDwnXqxkT
- rX1PR3TLmBTzUoqoX0GlMt/pFVogBN4IU5/mzXOiiS86C4T2rSnVpJGx+JhEB9g1kr4VM2
- RJ720gVS1uhn+jCMALmVnH7WcISYgQg=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=ylfU3tJ7g6lm2LcJK5dWt/8W0yJFSvk4zoMYdiaTJqo=;
+ b=Dc3YGMCLfNVUVjdeqN/SCqGf2QIwbTYv+oz5As0UpVYTzxyJ4C9m0raS0LVp7ubJTp72Q/
+ bALVEOho7AV7AM/XsmrarWYjaOCpSOu6t/OJ7ilTyWoWJJozgb08UboivwdDOmK0Nui96q
+ 2x1HJFQtyE3Igqpfl5OlDgIK664mS4c=
+Received: from mail-oi1-f199.google.com (mail-oi1-f199.google.com
+ [209.85.167.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-277-Wdr9x5_vO2qWjNvRif_MZQ-1; Fri, 14 Oct 2022 01:32:47 -0400
-X-MC-Unique: Wdr9x5_vO2qWjNvRif_MZQ-1
-Received: by mail-wm1-f72.google.com with SMTP id
- v23-20020a1cf717000000b003bff630f31aso1645241wmh.5
+ us-mta-16-1S1IIxLENRuqfpEeYsdJKg-1; Fri, 14 Oct 2022 01:58:50 -0400
+X-MC-Unique: 1S1IIxLENRuqfpEeYsdJKg-1
+Received: by mail-oi1-f199.google.com with SMTP id
+ f16-20020a05680814d000b003506268b99fso1725632oiw.2
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Oct 2022 22:32:47 -0700 (PDT)
+ Thu, 13 Oct 2022 22:58:49 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=in-reply-to:content-transfer-encoding:content-disposition
- :mime-version:references:message-id:subject:cc:to:from:date
- :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
- bh=BWNFgRVlGjYNydd5Fi8o/nyAidzrHzoVF78WNHdTm7o=;
- b=peHTI5FX4lJxY+mOGD6GjmpDqYGCbL59lG8iw9JrpJtJsYCCvURofJD8NXXzN5ywdZ
- XUJTcq+udoQzTuuKOcW5AvxEN3sOuCrKJfEuIHxNIDvbUyTDUNjdFST716XirNuN3SGg
- p7joZDDO5so5VtduE/157FIrCHzm0IxBynz37czE0ZI9ugYSZxxJ+Dw9i/1ZduPDwR/A
- pVhgHqI/1GteWy6uuIJXDsUmoOlb8DEydqSAY9jPyti27vWwVRn8K1t8svRueuf/YCVp
- rOqzyphP45wa/moaISdC2NJbelmyWO755N0BVX2rFd+k78ATNyawBRUT2/mDI+mgfrds
- 3oOQ==
-X-Gm-Message-State: ACrzQf1DcFHb4ArUr8v0mfYnGCM+M5gzv28PD2/EjnvW3l5tkXjdHUWU
- KW1iZti+xwkgtdREEyi1HCacLxNcUWqxdQ010+BFuNtT/QRaAi8hgBgh1yA6e80bS0CeBTmM1sq
- npaZnQXaEl+GbH9kRaqa3syQtO/+9XHWfxBacEwR35A==
-X-Received: by 2002:a05:600c:6885:b0:3c4:de24:638 with SMTP id
- fn5-20020a05600c688500b003c4de240638mr8799781wmb.183.1665725566136; 
- Thu, 13 Oct 2022 22:32:46 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM4R1CQSNUlZz9bqJOSmz/KQyXR4UqWpCPLl4Qqk64SVMiSobCwwLzb2VOcQZa8mbMypnWERfA==
-X-Received: by 2002:a05:600c:6885:b0:3c4:de24:638 with SMTP id
- fn5-20020a05600c688500b003c4de240638mr8799770wmb.183.1665725565818; 
- Thu, 13 Oct 2022 22:32:45 -0700 (PDT)
-Received: from redhat.com ([2.54.162.123]) by smtp.gmail.com with ESMTPSA id
- u7-20020a05600c19c700b003bf6da9d2cesm6022807wmq.28.2022.10.13.22.32.43
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 13 Oct 2022 22:32:45 -0700 (PDT)
-Date: Fri, 14 Oct 2022 01:32:42 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Angus Chen <angus.chen@jaguarmicro.com>
-Subject: Re: [PATCH] virtio_pci: use irq to detect interrupt support
-Message-ID: <20221014013156-mutt-send-email-mst@kernel.org>
-References: <20221012220312.308522-1-mst@redhat.com>
- <TY2PR06MB3424171328BEE476FCB9942785249@TY2PR06MB3424.apcprd06.prod.outlook.com>
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+ :reply-to;
+ bh=ylfU3tJ7g6lm2LcJK5dWt/8W0yJFSvk4zoMYdiaTJqo=;
+ b=CYmhHXAAFzGap3GR3v52xXQcsIXYO39j1etq1tUc1I0K7X/ATXt57bGFAaF6diI/i7
+ 2+YCIqEskUx9eQO8bGIVfhHoXQ+k8NaxOIfg/HifLF2LnfRoQqMryORZd+49O3i7xFoR
+ DXztaUgamIqo7Vq3hE2caLcRRLEKDEtZw+JMDf4poOHK+WzDEZK8nvFUrJgDq9PYAL0g
+ y75HcsjfKl7mz5XznmPrV+RF6ytaXaJAmksXUdZOHoMkNxJVDi/rn6lzvalnjyzOzyht
+ GnVuwRbNFgE+U6zBbyflIn6BxYlQHTc+wuYh0rKdABBNuB0H4APL4y+ouj7BWAekXh/n
+ 1HTw==
+X-Gm-Message-State: ACrzQf3DqmB1YFtDRLnruiQuWV4A4cjZ0zpH7WWB7vyX0A+8+a1A9g/m
+ DTjVTS7TUr5WlatA4Y4YYFLUcCEH0dd9gjYDBstPkNMegN8d4zJ6hh5BOID7f+ShVIu84XzQRsP
+ VJAl0+Lcww65NFgvOWaY9FN6vH8UKpZ7crS0FV6FVzGHY+aWCP8ljDwudJQ==
+X-Received: by 2002:a05:6870:c1d3:b0:136:c4f6:53af with SMTP id
+ i19-20020a056870c1d300b00136c4f653afmr7317038oad.35.1665727129318; 
+ Thu, 13 Oct 2022 22:58:49 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM6TkAhee2iH/lhhBwFpYMDyXWyeYY1SCFcdjMzExUw6GG6gc4ddyGU6b4vlo2oOGHJVvN9HeoQrU0v7biSS2rI=
+X-Received: by 2002:a05:6870:c1d3:b0:136:c4f6:53af with SMTP id
+ i19-20020a056870c1d300b00136c4f653afmr7317032oad.35.1665727129063; Thu, 13
+ Oct 2022 22:58:49 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <TY2PR06MB3424171328BEE476FCB9942785249@TY2PR06MB3424.apcprd06.prod.outlook.com>
+References: <cover.1665674878.git.sebastien.boeuf@intel.com>
+ <72bdc9ae91ca4ed8a2c9ea2aab53f8e04d4512f6.1665674878.git.sebastien.boeuf@intel.com>
+In-Reply-To: <72bdc9ae91ca4ed8a2c9ea2aab53f8e04d4512f6.1665674878.git.sebastien.boeuf@intel.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Fri, 14 Oct 2022 13:58:38 +0800
+Message-ID: <CACGkMEt7cEocQp70MgtwWjb0yNv_08qq-aKp8ZTbFbTkW6hxbw@mail.gmail.com>
+Subject: Re: [PATCH 2/4] vhost-vdpa: Introduce RESUME backend feature bit
+To: sebastien.boeuf@intel.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: Michael Ellerman <mpe@ellerman.id.au>,
- Linus Torvalds <torvalds@linux-foundation.org>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>
+Cc: eperezma@redhat.com, mst@redhat.com,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -118,67 +112,111 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gRnJpLCBPY3QgMTQsIDIwMjIgYXQgMTI6MDk6MjBBTSArMDAwMCwgQW5ndXMgQ2hlbiB3cm90
-ZToKPiBIaSBNc3QKPiAKPiA+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tCj4gPiBGcm9tOiBN
-aWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPgo+ID4gU2VudDogVGh1cnNkYXksIE9j
-dG9iZXIgMTMsIDIwMjIgNjowNCBBTQo+ID4gVG86IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5v
-cmcKPiA+IENjOiBMaW51cyBUb3J2YWxkcyA8dG9ydmFsZHNAbGludXgtZm91bmRhdGlvbi5vcmc+
-OyBNaWNoYWVsIEVsbGVybWFuCj4gPiA8bXBlQGVsbGVybWFuLmlkLmF1PjsgQW5ndXMgQ2hlbiA8
-YW5ndXMuY2hlbkBqYWd1YXJtaWNyby5jb20+OyBKYXNvbgo+ID4gV2FuZyA8amFzb3dhbmdAcmVk
-aGF0LmNvbT47IHZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCj4gPiBT
-dWJqZWN0OiBbUEFUQ0hdIHZpcnRpb19wY2k6IHVzZSBpcnEgdG8gZGV0ZWN0IGludGVycnVwdCBz
-dXBwb3J0Cj4gPiAKPiA+IGNvbW1pdCA3MTQ5MWM1NGVhZmEgKCJ2aXJ0aW9fcGNpOiBkb24ndCB0
-cnkgdG8gdXNlIGludHhpZiBwaW4gaXMgemVybyIpCj4gPiBicmVha3MgdmlydGlvX3BjaSBvbiBw
-b3dlcnBjLCB3aGVuIHJ1bm5pbmcgYXMgYSBxZW11IGd1ZXN0Lgo+ID4gCj4gPiB2cF9maW5kX3Zx
-cygpIGJhaWxzIG91dCBiZWNhdXNlIHBjaV9kZXYtPnBpbiA9PSAwLgo+ID4gCj4gPiBCdXQgcGNp
-X2Rldi0+aXJxIGlzIHBvcHVsYXRlZCBjb3JyZWN0bHksIHNvIHZwX2ZpbmRfdnFzX2ludHgoKSB3
-b3VsZAo+ID4gc3VjY2VlZCBpZiB3ZSBjYWxsZWQgaXQgLSB3aGljaCBpcyB3aGF0IHRoZSBjb2Rl
-IHVzZWQgdG8gZG8uCj4gPiAKPiA+IFRoaXMgc2VlbXMgdG8gaGFwcGVuIGJlY2F1c2UgcGNpX2Rl
-di0+cGluIGlzIG5vdCBwb3B1bGF0ZWQgaW4KPiA+IHBjaV9hc3NpZ25faXJxKCkuCj4gPiAKPiA+
-IFdoaWNoIGlzIGFic29sdXRlbHkgYSBidWcgaW4gdGhlIHJlbGV2YW50IFBDSSBjb2RlLCBidXQg
-aXQKPiA+IG1heSBhbHNvIGFmZmVjdCBvdGhlciBwbGF0Zm9ybXMgdGhhdCB1c2Ugb2ZfaXJxX3Bh
-cnNlX2FuZF9tYXBfcGNpKCkuCj4gPiAKPiA+IEhvd2V2ZXIgTGludXMgc2FpZDoKPiA+IAlUaGUg
-Y29ycmVjdCB3YXkgdG8gY2hlY2sgZm9yICJubyBpcnEiIGRvZXNuJ3QgdXNlIE5PX0lSUSBhdCBh
-bGwsIGl0IGp1c3QgZG9lcwo+ID4gCQlpZiAoZGV2LT5pcnEpIC4uLgo+ID4gc28gbGV0J3MganVz
-dCBjaGVjayBpcnEgYW5kIGJlIGRvbmUgd2l0aCBpdC4KPiA+IAo+ID4gU3VnZ2VzdGVkLWJ5OiBM
-aW51cyBUb3J2YWxkcyA8dG9ydmFsZHNAbGludXgtZm91bmRhdGlvbi5vcmc+Cj4gPiBSZXBvcnRl
-ZC1ieTogTWljaGFlbCBFbGxlcm1hbiA8bXBlQGVsbGVybWFuLmlkLmF1Pgo+ID4gRml4ZXM6IDcx
-NDkxYzU0ZWFmYSAoInZpcnRpb19wY2k6IGRvbid0IHRyeSB0byB1c2UgaW50eGlmIHBpbiBpcyB6
-ZXJvIikKPiA+IENjOiAiQW5ndXMgQ2hlbiIgPGFuZ3VzLmNoZW5AamFndWFybWljcm8uY29tPgo+
-ID4gU2lnbmVkLW9mZi1ieTogTWljaGFlbCBTLiBUc2lya2luIDxtc3RAcmVkaGF0LmNvbT4KPiA+
-IC0tLQo+ID4gCj4gPiBCdWlsZCB0ZXN0ZWQgb25seSAtIHZlcnkgbGF0ZSBoZXJlLiBBbmd1cyBh
-bnkgY2hhbmNlIHlvdSBjb3VsZAo+ID4gaGVscCB0ZXN0IHRoaXM/IFRoYW5rcyEKPiBJIHRlc3Rl
-ZCB0aGUgcGF0Y2gg77yMaXQgd29yayB3ZWxsIG9uIHg4NuOAgklubGN1ZGUgbGVnYWN5IGFuZCBt
-b2Rlcm4gZHJpdmVyLgo+IEFuZCBJIHRlc3RlZCBpdCBvbiBhcm0gc2VydmVyIGFsc2/vvIxhbmQg
-ZmluZCBzb21lIHByb2JsZW0gYmVjYXVzZSBvZiAwLjkuNSBsaW1pdGF0aW9uLgo+ICAicGxhdGZv
-cm0gYnVnOiBsZWdhY3kgdmlydGlvLXBjaSBtdXN0IG5vdCBiZSB1c2VkIHdpdGggUkFNIGFib3Zl
-IDB4JWxseEdCXG4iLAo+ICBCdXQgdGhlIGVycm9yIGlzIG5vdCBlZmZlY3RlZCBieSBvdXIgcGF0
-Y2gud2l0aCBvciB3aXRob3V0IG91ciBwYXRjaCAsaXQgcHJpbnQgdGhlIHNhbWUuCgpZZXMgdGhh
-dCdzIGEgbGltaXRhdGlvbiBvZiAwLjkuNSAtIGp1c3QgbWFrZSBhIHNtYWxsZXIgVk0gdG8gdGVz
-dApsZWdhY3kuCgo+IEFuZCBJIHRlc3QgbW9kZXJuIGRpcnZlcixpdCB3b3JrIHdlbGwgYWxzby4K
-PiBTb3JyeSBmb3IgdGhlIGxhdGUgcmVwbHkuCgoKR3JlYXQsIHRoYW5rcyBhIGxvdCEKCj4gPiAK
-PiA+ICBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNpX2NvbW1vbi5jIHwgNCArKy0tCj4gPiAgMSBm
-aWxlIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygrKSwgMiBkZWxldGlvbnMoLSkKPiA+IAo+ID4gZGlm
-ZiAtLWdpdCBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19wY2lfY29tbW9uLmMKPiA+IGIvZHJpdmVy
-cy92aXJ0aW8vdmlydGlvX3BjaV9jb21tb24uYwo+ID4gaW5kZXggNGRmNzdlZWI0ZDE2Li5hNmM4
-NmY5MTZkYmQgMTAwNjQ0Cj4gPiAtLS0gYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNpX2NvbW1v
-bi5jCj4gPiArKysgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNpX2NvbW1vbi5jCj4gPiBAQCAt
-NDA5LDggKzQwOSw4IEBAIGludCB2cF9maW5kX3ZxcyhzdHJ1Y3QgdmlydGlvX2RldmljZSAqdmRl
-diwgdW5zaWduZWQgaW50Cj4gPiBudnFzLAo+ID4gIAllcnIgPSB2cF9maW5kX3Zxc19tc2l4KHZk
-ZXYsIG52cXMsIHZxcywgY2FsbGJhY2tzLCBuYW1lcywgZmFsc2UsIGN0eCwgZGVzYyk7Cj4gPiAg
-CWlmICghZXJyKQo+ID4gIAkJcmV0dXJuIDA7Cj4gPiAtCS8qIElzIHRoZXJlIGFuIGludGVycnVw
-dCBwaW4/IElmIG5vdCBnaXZlIHVwLiAqLwo+ID4gLQlpZiAoISh0b192cF9kZXZpY2UodmRldikt
-PnBjaV9kZXYtPnBpbikpCj4gPiArCS8qIElzIHRoZXJlIGFuIGludGVycnVwdD8gSWYgbm90IGdp
-dmUgdXAuICovCj4gPiArCWlmICghKHRvX3ZwX2RldmljZSh2ZGV2KS0+cGNpX2Rldi0+aXJxKSkK
-PiA+ICAJCXJldHVybiBlcnI7Cj4gPiAgCS8qIEZpbmFsbHkgZmFsbCBiYWNrIHRvIHJlZ3VsYXIg
-aW50ZXJydXB0cy4gKi8KPiA+ICAJcmV0dXJuIHZwX2ZpbmRfdnFzX2ludHgodmRldiwgbnZxcywg
-dnFzLCBjYWxsYmFja3MsIG5hbWVzLCBjdHgpOwo+ID4gLS0KPiA+IE1TVAo+IAoKX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFp
-bGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBz
-Oi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0
-aW9u
+On Thu, Oct 13, 2022 at 11:35 PM <sebastien.boeuf@intel.com> wrote:
+>
+> From: Sebastien Boeuf <sebastien.boeuf@intel.com>
+>
+> Userspace knows if the device can be resumed or not by checking this
+> feature bit.
+>
+> It's only exposed if the vdpa driver backend implements the resume()
+> operation callback. Userspace trying to negotiate this feature when it
+> hasn't been exposed will result in an error.
+>
+> Signed-off-by: Sebastien Boeuf <sebastien.boeuf@intel.com>
+> ---
+>  drivers/vhost/vdpa.c             | 19 ++++++++++++++++++-
+>  include/uapi/linux/vhost_types.h |  2 ++
+>  2 files changed, 20 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+> index 166044642fd5..161727e1a9a5 100644
+> --- a/drivers/vhost/vdpa.c
+> +++ b/drivers/vhost/vdpa.c
+> @@ -355,6 +355,14 @@ static bool vhost_vdpa_can_suspend(const struct vhost_vdpa *v)
+>         return ops->suspend;
+>  }
+>
+> +static bool vhost_vdpa_can_resume(const struct vhost_vdpa *v)
+> +{
+> +       struct vdpa_device *vdpa = v->vdpa;
+> +       const struct vdpa_config_ops *ops = vdpa->config;
+> +
+> +       return ops->resume;
+> +}
+> +
+>  static long vhost_vdpa_get_features(struct vhost_vdpa *v, u64 __user *featurep)
+>  {
+>         struct vdpa_device *vdpa = v->vdpa;
+> @@ -602,11 +610,18 @@ static long vhost_vdpa_unlocked_ioctl(struct file *filep,
+>                 if (copy_from_user(&features, featurep, sizeof(features)))
+>                         return -EFAULT;
+>                 if (features & ~(VHOST_VDPA_BACKEND_FEATURES |
+> -                                BIT_ULL(VHOST_BACKEND_F_SUSPEND)))
+> +                                BIT_ULL(VHOST_BACKEND_F_SUSPEND) |
+> +                                BIT_ULL(VHOST_BACKEND_F_RESUME)))
+>                         return -EOPNOTSUPP;
+>                 if ((features & BIT_ULL(VHOST_BACKEND_F_SUSPEND)) &&
+>                      !vhost_vdpa_can_suspend(v))
+>                         return -EOPNOTSUPP;
+> +               if ((features & BIT_ULL(VHOST_BACKEND_F_RESUME)) &&
+> +                    !vhost_vdpa_can_resume(v))
+> +                       return -EOPNOTSUPP;
+> +               if (!(features & BIT_ULL(VHOST_BACKEND_F_SUSPEND)) &&
+> +                    (features & BIT_ULL(VHOST_BACKEND_F_RESUME)))
+> +                       return -EINVAL;
+
+Is it better to do the check during the probe? It should be a bug that
+we're having a parent that can only do resume but not suspend.
+
+Thanks
+
+>                 vhost_set_backend_features(&v->vdev, features);
+>                 return 0;
+>         }
+> @@ -658,6 +673,8 @@ static long vhost_vdpa_unlocked_ioctl(struct file *filep,
+>                 features = VHOST_VDPA_BACKEND_FEATURES;
+>                 if (vhost_vdpa_can_suspend(v))
+>                         features |= BIT_ULL(VHOST_BACKEND_F_SUSPEND);
+> +               if (vhost_vdpa_can_resume(v))
+> +                       features |= BIT_ULL(VHOST_BACKEND_F_RESUME);
+>                 if (copy_to_user(featurep, &features, sizeof(features)))
+>                         r = -EFAULT;
+>                 break;
+> diff --git a/include/uapi/linux/vhost_types.h b/include/uapi/linux/vhost_types.h
+> index 53601ce2c20a..c5690a8992d8 100644
+> --- a/include/uapi/linux/vhost_types.h
+> +++ b/include/uapi/linux/vhost_types.h
+> @@ -163,5 +163,7 @@ struct vhost_vdpa_iova_range {
+>  #define VHOST_BACKEND_F_IOTLB_ASID  0x3
+>  /* Device can be suspended */
+>  #define VHOST_BACKEND_F_SUSPEND  0x4
+> +/* Device can be resumed */
+> +#define VHOST_BACKEND_F_RESUME  0x5
+>
+>  #endif
+> --
+> 2.34.1
+>
+> ---------------------------------------------------------------------
+> Intel Corporation SAS (French simplified joint stock company)
+> Registered headquarters: "Les Montalets"- 2, rue de Paris,
+> 92196 Meudon Cedex, France
+> Registration Number:  302 456 199 R.C.S. NANTERRE
+> Capital: 5 208 026.16 Euros
+>
+> This e-mail and any attachments may contain confidential material for
+> the sole use of the intended recipient(s). Any review or distribution
+> by others is strictly prohibited. If you are not the intended
+> recipient, please contact the sender and delete all copies.
+>
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
