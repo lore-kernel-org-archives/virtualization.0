@@ -1,106 +1,113 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id AD977C4332F
-	for <virtualization@archiver.kernel.org>; Sat, 15 Oct 2022 19:50:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 20978C4332F
+	for <virtualization@archiver.kernel.org>; Sat, 15 Oct 2022 19:51:11 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 19B1060D75;
-	Sat, 15 Oct 2022 19:50:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 19B1060D75
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=IO8WJ3hL
+	by smtp1.osuosl.org (Postfix) with ESMTP id 8B0E881774;
+	Sat, 15 Oct 2022 19:51:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8B0E881774
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=hsk65+es
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id GEbq3mm4hkDN; Sat, 15 Oct 2022 19:50:07 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ehCEuT3ooWPK; Sat, 15 Oct 2022 19:51:09 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 633E960BAC;
-	Sat, 15 Oct 2022 19:50:06 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 633E960BAC
+	by smtp1.osuosl.org (Postfix) with ESMTPS id C516381776;
+	Sat, 15 Oct 2022 19:51:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C516381776
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 20DF5C0032;
-	Sat, 15 Oct 2022 19:50:06 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 84724C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 95460C0032;
+	Sat, 15 Oct 2022 19:51:08 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8617FC002D
  for <virtualization@lists.linux-foundation.org>;
- Sat, 15 Oct 2022 19:50:04 +0000 (UTC)
+ Sat, 15 Oct 2022 19:51:06 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 5087E60BAC
+ by smtp2.osuosl.org (Postfix) with ESMTP id 5F9A240647
  for <virtualization@lists.linux-foundation.org>;
- Sat, 15 Oct 2022 19:50:04 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5087E60BAC
+ Sat, 15 Oct 2022 19:51:06 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5F9A240647
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=hsk65+es
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id HqBmng08IiP9
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id ZIod4EZLjJNl
  for <virtualization@lists.linux-foundation.org>;
- Sat, 15 Oct 2022 19:50:03 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0922960B96
-Received: from mail-qk1-x736.google.com (mail-qk1-x736.google.com
- [IPv6:2607:f8b0:4864:20::736])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 0922960B96
+ Sat, 15 Oct 2022 19:51:01 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 80A5B405E8
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 80A5B405E8
  for <virtualization@lists.linux-foundation.org>;
- Sat, 15 Oct 2022 19:50:02 +0000 (UTC)
-Received: by mail-qk1-x736.google.com with SMTP id a18so4573042qko.0
+ Sat, 15 Oct 2022 19:51:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1665863460;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=3dmRoCAbvHyB4s1yUnRmBVS7aeUXJ2qzFIadydzCF9Q=;
+ b=hsk65+es2cF9qwbk8nIOfWbGcmPqIr7Blo7BEybT38iUfZ6llSPhIosoOk4/KSJt9lTII0
+ ryhGxr4n19XKqapuxnJ4tbWB5E78Nh5hGtN9qwpydo25GwHFxZqQKFyNufWy/WpnhLcxk3
+ R7SiHtaS9+VLi9fZtqdasFEF1iN9Ly4=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-342-bRF56sIpMwmJMCrtBfYGpQ-1; Sat, 15 Oct 2022 15:50:59 -0400
+X-MC-Unique: bRF56sIpMwmJMCrtBfYGpQ-1
+Received: by mail-ed1-f70.google.com with SMTP id
+ s8-20020a056402520800b0045cab560d5eso6496807edd.1
  for <virtualization@lists.linux-foundation.org>;
- Sat, 15 Oct 2022 12:50:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
- bh=6oLVdw0cZuqaOKT9ROptKn3b8uDN0aCnLROazMdgeqk=;
- b=IO8WJ3hL5rwlhfbeUVUH8LrBsTDdTLyDy0tbu+HxxYzzKbU6/o7MukfZBWR0sztSP2
- H8myo6VAwPy5/zjB89Oq4p3oFHZKf+k/Fre09M6Zbnr25hz7BTtM825B/OAZJISKyGqz
- OvrWFaHBZmy8r34Ctve6/4mm6EV+2+2f64TETcoujZ/EkbLGxYFlDzpQEgdn5bx89351
- w5p60sX/z9TtaKq1x/o3RvIBaZYl9GuiV0Tpgu6BfTbPxekuzW5Kn4AOGtf7/XQ0HVDb
- fds/gbOHOXqEMtApIUz8AAV/R7IwqijrBPBH3h+zK1WOMWz4cLOE80nxV3KZWDUZAGdb
- npzA==
+ Sat, 15 Oct 2022 12:50:59 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=6oLVdw0cZuqaOKT9ROptKn3b8uDN0aCnLROazMdgeqk=;
- b=YNgACkeCru2qHTnus7PLVxjh5gVl/7y/CISF7fdQNkF/uZvZSlzDLjT6+cWtI734ts
- 9MvUB1QsFMtNTaM7LwKLK23amNE5BFY+ryLDdzjbBYHf1VMH3fH0E7F394EIkdWOfmtM
- 8wjojnVkUtHJftsLAmEKEJPhEf9pAXmcwmiFHMadPFQcOGrJw58JjJMrxuFXba+8CEEQ
- ngcjWrWLE5ngMSvaKgOHE0mLVzVjeJA/4ldgxEXzei35V0ZAGAdLgxCOC0wOXfwKMMVA
- Jv9uE+/hRZwPa02eYw5sCKj8Wou8/j6sZp+onB5LXN5T4rDT9AsDtdXiyXGJjf3yIqPN
- Nd4Q==
-X-Gm-Message-State: ACrzQf3S39x12PV8sntq64kRu8BRfuMjD6rUkcVQGtJIGzf5MKZ6S85M
- 83WVAm454Qfp/NnXT+YHbwY=
-X-Google-Smtp-Source: AMsMyM4WwiQfxwMrAO85WbcfHaH/QaOsu71JLPtcGxIY6207P2zl2kaMFx3KXXR9kW58X0SS0BrtGw==
-X-Received: by 2002:a05:620a:1519:b0:6ee:af9e:9048 with SMTP id
- i25-20020a05620a151900b006eeaf9e9048mr2825542qkk.601.1665863401804; 
- Sat, 15 Oct 2022 12:50:01 -0700 (PDT)
-Received: from localhost ([2600:1700:65a0:ab60:b8b9:b1cd:e6fc:2d50])
- by smtp.gmail.com with ESMTPSA id
- a20-20020a05622a065400b0039853b7b771sm4707455qtb.80.2022.10.15.12.50.00
+ bh=3dmRoCAbvHyB4s1yUnRmBVS7aeUXJ2qzFIadydzCF9Q=;
+ b=FdR58E8pG/mwV52HbDfI1XLiVJq2oHEHLcQOhfo0KOSWmYYoWOPWOEOCafEI6g7Qju
+ 38zl8cIppjfvcF1VmJXxa0//gAqaSbYMhkvBL+Pisx/5eT4xAryHchvZZ1bh7f7LAsdU
+ V2iAp3aPI6zOgRJnKyt3GrqXXH3D0Jkx7JXj3KRovpy+wXyd5UT16koayXfnGLEre3Y3
+ GhfLqYiLHBeXDPlExbbY6G/zXeh1k16qqwMH0PBgVChDtMt1mmolAtwut4vAAUPoate/
+ UOX2D5CNjQ9XKSPHPwze7gZUArSHibT6pvUPSTpo2RRhO7IsksSVEZ5pYIk0+WkBjR4j
+ JTMw==
+X-Gm-Message-State: ACrzQf2Q6eCfOPNjZKNTV2Qiny7nChmPkgwe6qJgc2/992VVg7eEk02b
+ P/O82ksnz6Q4wzXS5C5MeqAfKTQ3l7wkWi6jOJhlEfrGQ7PIih64AW2TMxbZcJW2tftvYYvu1Gy
+ d/LOpA+JGuDG9dbLTMyuhBA+S9Z3pg1qGCjNxHD94OQ==
+X-Received: by 2002:a17:907:a073:b0:78d:51c4:5b8c with SMTP id
+ ia19-20020a170907a07300b0078d51c45b8cmr2977997ejc.355.1665863458234; 
+ Sat, 15 Oct 2022 12:50:58 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM4zlYvw9Wjs/reSHlqd3kKSBJ/ieaWY3Yf6XVCWg5t5vNB1U7SZKx76+1tHWkWJzFWg+DDkuQ==
+X-Received: by 2002:a17:907:a073:b0:78d:51c4:5b8c with SMTP id
+ ia19-20020a170907a07300b0078d51c45b8cmr2977972ejc.355.1665863457880; 
+ Sat, 15 Oct 2022 12:50:57 -0700 (PDT)
+Received: from redhat.com ([2.54.171.110]) by smtp.gmail.com with ESMTPSA id
+ m3-20020a17090679c300b0077909095acasm3564039ejo.143.2022.10.15.12.50.55
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sat, 15 Oct 2022 12:50:00 -0700 (PDT)
-Date: Sat, 15 Oct 2022 12:49:59 -0700
-From: Cong Wang <xiyou.wangcong@gmail.com>
-To: Bobby Eshleman <bobbyeshleman@gmail.com>
-Subject: Re: [PATCH v2] vsock: replace virtio_vsock_pkt with sk_buff
-Message-ID: <Y0sO5yNqQkFQucjb@pop-os.localdomain>
-References: <20221006011946.85130-1-bobby.eshleman@bytedance.com>
- <20221006025956-mutt-send-email-mst@kernel.org>
- <20221006073410.ahhqhlhah4lo47o7@sgarzare-redhat>
- <Yzoou4UwOv5lh0hE@bullseye>
+ Sat, 15 Oct 2022 12:50:57 -0700 (PDT)
+Date: Sat, 15 Oct 2022 15:50:53 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: syzbot <syzbot+4d0c5794bff07852726c@syzkaller.appspotmail.com>
+Subject: Re: [syzbot] net boot error: WARNING in cpumask_next_wrap
+Message-ID: <20221015154817-mutt-send-email-mst@kernel.org>
+References: <000000000000f4b06105eb17a6c8@google.com>
 MIME-Version: 1.0
+In-Reply-To: <000000000000f4b06105eb17a6c8@google.com>
+X-Mimecast-Spam-Score: 1
+X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-In-Reply-To: <Yzoou4UwOv5lh0hE@bullseye>
-Cc: Cong Wang <cong.wang@bytedance.com>,
- Bobby Eshleman <bobby.eshleman@bytedance.com>,
- Jiang Wang <jiang.wang@bytedance.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- netdev@vger.kernel.org, Bobby Eshleman <bobby.eshleman@gmail.com>,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- Eric Dumazet <edumazet@google.com>, Stefan Hajnoczi <stefanha@redhat.com>,
- kvm@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
+Cc: hawk@kernel.org, daniel@iogearbox.net, netdev@vger.kernel.org,
+ john.fastabend@gmail.com, ast@kernel.org, linux-kernel@vger.kernel.org,
+ syzkaller-bugs@googlegroups.com, edumazet@google.com, kuba@kernel.org,
+ bpf@vger.kernel.org, pabeni@redhat.com,
+ virtualization@lists.linux-foundation.org, davem@davemloft.net
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -117,73 +124,162 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Oct 03, 2022 at 12:11:39AM +0000, Bobby Eshleman wrote:
-> On Thu, Oct 06, 2022 at 09:34:10AM +0200, Stefano Garzarella wrote:
-> > On Thu, Oct 06, 2022 at 03:08:12AM -0400, Michael S. Tsirkin wrote:
-> > > On Wed, Oct 05, 2022 at 06:19:44PM -0700, Bobby Eshleman wrote:
-> > > > This patch replaces the struct virtio_vsock_pkt with struct sk_buff.
-> > > > 
-> > > > Using sk_buff in vsock benefits it by a) allowing vsock to be extended
-> > > > for socket-related features like sockmap, b) vsock may in the future
-> > > > use other sk_buff-dependent kernel capabilities, and c) vsock shares
-> > > > commonality with other socket types.
-> > > > 
-> > > > This patch is taken from the original series found here:
-> > > > https://lore.kernel.org/all/cover.1660362668.git.bobby.eshleman@bytedance.com/
-> > > > 
-> > > > Small-sized packet throughput improved by ~5% (from 18.53 Mb/s to 19.51
-> > > > Mb/s). Tested using uperf, 16B payloads, 64 threads, 100s, averaged from
-> > > > 10 test runs (n=10). This improvement is likely due to packet merging.
-> > > > 
-> > > > Large-sized packet throughput decreases ~9% (from 27.25 Gb/s to 25.04
-> > > > Gb/s). Tested using uperf, 64KB payloads, 64 threads, 100s, averaged
-> > > > from 10 test runs (n=10).
-> > > > 
-> > > > Medium-sized packet throughput decreases ~5% (from 4.0 Gb/s to 3.81
-> > > > Gb/s). Tested using uperf, 4k to 8k payload sizes picked randomly
-> > > > according to normal distribution, 64 threads, 100s, averaged from 10
-> > > > test runs (n=10).
-> > > 
-> > > It is surprizing to me that the original vsock code managed to outperform
-> > > the new one, given that to my knowledge we did not focus on optimizing it.
-> > 
-> > Yeah mee to.
-> > 
+On Sat, Oct 15, 2022 at 12:21:41PM -0700, syzbot wrote:
+> Hello,
 > 
-> Indeed.
+> syzbot found the following issue on:
 > 
-> > From this numbers maybe the allocation cost has been reduced as it performs
-> > better with small packets. But with medium to large packets we perform
-> > worse, perhaps because previously we were allocating a contiguous buffer up
-> > to 64k?
-> > Instead alloc_skb() could allocate non-contiguous pages ? (which would solve
-> > the problems we saw a few days ago)
-> > 
+> HEAD commit:    a1b6b102df03 Merge branch 'phylink_set_mac_pm'
+> git tree:       net
+> console output: https://syzkaller.appspot.com/x/log.txt?x=179af0c2880000
+> kernel config:  https://syzkaller.appspot.com/x/.config?x=85495c44a2c25446
+> dashboard link: https://syzkaller.appspot.com/bug?extid=4d0c5794bff07852726c
+> compiler:       gcc (Debian 10.2.1-6) 10.2.1 20210110, GNU ld (GNU Binutils for Debian) 2.35.2
 > 
-> I think this would be the case with alloc_skb_with_frags(), but
-> internally alloc_skb() uses kmalloc() for the payload and sk_buff_head
-> slab allocations for the sk_buff itself (all the more confusing to me,
-> as the prior allocator also uses two separate allocations per packet).
+> Downloadable assets:
+> disk image: https://storage.googleapis.com/syzbot-assets/d67c9cef7c77/disk-a1b6b102.raw.xz
+> vmlinux: https://storage.googleapis.com/syzbot-assets/708d1f638584/vmlinux-a1b6b102.xz
+> 
+> IMPORTANT: if you fix the issue, please add the following tag to the commit:
+> Reported-by: syzbot+4d0c5794bff07852726c@syzkaller.appspotmail.com
+> 
+> ACPI: button: Sleep Button [SLPF]
+> ACPI: \_SB_.LNKC: Enabled at IRQ 11
+> virtio-pci 0000:00:03.0: virtio_pci: leaving for legacy driver
+> ACPI: \_SB_.LNKD: Enabled at IRQ 10
+> virtio-pci 0000:00:04.0: virtio_pci: leaving for legacy driver
+> ACPI: \_SB_.LNKB: Enabled at IRQ 10
+> virtio-pci 0000:00:06.0: virtio_pci: leaving for legacy driver
+> virtio-pci 0000:00:07.0: virtio_pci: leaving for legacy driver
+> N_HDLC line discipline registered with maxframe=4096
+> Serial: 8250/16550 driver, 4 ports, IRQ sharing enabled
+> 00:03: ttyS0 at I/O 0x3f8 (irq = 4, base_baud = 115200) is a 16550A
+> 00:04: ttyS1 at I/O 0x2f8 (irq = 3, base_baud = 115200) is a 16550A
+> 00:05: ttyS2 at I/O 0x3e8 (irq = 6, base_baud = 115200) is a 16550A
+> 00:06: ttyS3 at I/O 0x2e8 (irq = 7, base_baud = 115200) is a 16550A
+> Non-volatile memory driver v1.3
+> Linux agpgart interface v0.103
+> ACPI: bus type drm_connector registered
+> [drm] Initialized vgem 1.0.0 20120112 for vgem on minor 0
+> [drm] Initialized vkms 1.0.0 20180514 for vkms on minor 1
+> Console: switching to colour frame buffer device 128x48
+> platform vkms: [drm] fb0: vkmsdrmfb frame buffer device
+> usbcore: registered new interface driver udl
+> brd: module loaded
+> loop: module loaded
+> zram: Added device: zram0
+> null_blk: disk nullb0 created
+> null_blk: module loaded
+> Guest personality initialized and is inactive
+> VMCI host device registered (name=vmci, major=10, minor=119)
+> Initialized host personality
+> usbcore: registered new interface driver rtsx_usb
+> usbcore: registered new interface driver viperboard
+> usbcore: registered new interface driver dln2
+> usbcore: registered new interface driver pn533_usb
+> nfcsim 0.2 initialized
+> usbcore: registered new interface driver port100
+> usbcore: registered new interface driver nfcmrvl
+> Loading iSCSI transport class v2.0-870.
+> scsi host0: Virtio SCSI HBA
+> st: Version 20160209, fixed bufsize 32768, s/g segs 256
+> Rounding down aligned max_sectors from 4294967295 to 4294967288
+> db_root: cannot open: /etc/target
+> slram: not enough parameters.
+> ftl_cs: FTL header not found.
+> wireguard: WireGuard 1.0.0 loaded. See www.wireguard.com for information.
+> wireguard: Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
+> eql: Equalizer2002: Simon Janes (simon@ncm.com) and David S. Miller (davem@redhat.com)
+> MACsec IEEE 802.1AE
+> tun: Universal TUN/TAP device driver, 1.6
+> ------------[ cut here ]------------
+> WARNING: CPU: 0 PID: 1 at include/linux/cpumask.h:110 cpu_max_bits_warn include/linux/cpumask.h:110 [inline]
+> WARNING: CPU: 0 PID: 1 at include/linux/cpumask.h:110 cpumask_check include/linux/cpumask.h:117 [inline]
+> WARNING: CPU: 0 PID: 1 at include/linux/cpumask.h:110 cpumask_next include/linux/cpumask.h:178 [inline]
+> WARNING: CPU: 0 PID: 1 at include/linux/cpumask.h:110 cpumask_next_wrap+0x139/0x1d0 lib/cpumask.c:27
+> Modules linked in:
+> CPU: 0 PID: 1 Comm: swapper/0 Not tainted 6.0.0-syzkaller-11847-ga1b6b102df03 #0
+> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 09/22/2022
+> RIP: 0010:cpu_max_bits_warn include/linux/cpumask.h:110 [inline]
+> RIP: 0010:cpumask_check include/linux/cpumask.h:117 [inline]
+> RIP: 0010:cpumask_next include/linux/cpumask.h:178 [inline]
+> RIP: 0010:cpumask_next_wrap+0x139/0x1d0 lib/cpumask.c:27
+> Code: df e8 8b 4a 3d f8 39 eb 77 64 e8 32 4e 3d f8 41 8d 6c 24 01 89 de 89 ef e8 74 4a 3d f8 39 dd 0f 82 54 ff ff ff e8 17 4e 3d f8 <0f> 0b e9 48 ff ff ff e8 0b 4e 3d f8 48 c7 c2 00 02 e2 8d 48 b8 00
+> RSP: 0000:ffffc90000067920 EFLAGS: 00010293
+> RAX: 0000000000000000 RBX: 0000000000000002 RCX: 0000000000000000
+> RDX: ffff88813fe50000 RSI: ffffffff893f1c59 RDI: 0000000000000004
+> RBP: 0000000000000002 R08: 0000000000000004 R09: 0000000000000002
+> R10: 0000000000000002 R11: 0000000000000000 R12: 0000000000000001
+> R13: 0000000000000000 R14: 0000000000000002 R15: ffffffff8de20010
+> FS:  0000000000000000(0000) GS:ffff8880b9a00000(0000) knlGS:0000000000000000
+> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> CR2: ffff88823ffff000 CR3: 000000000bc8e000 CR4: 00000000003506f0
+> DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+> DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+> Call Trace:
+>  <TASK>
+>  virtnet_set_affinity+0x35a/0x750 drivers/net/virtio_net.c:2303
+>  init_vqs drivers/net/virtio_net.c:3581 [inline]
+>  init_vqs drivers/net/virtio_net.c:3567 [inline]
+>  virtnet_probe+0x12ae/0x31e0 drivers/net/virtio_net.c:3884
+>  virtio_dev_probe+0x577/0x870 drivers/virtio/virtio.c:305
+>  call_driver_probe drivers/base/dd.c:560 [inline]
+>  really_probe+0x249/0xb90 drivers/base/dd.c:639
+>  __driver_probe_device+0x1df/0x4d0 drivers/base/dd.c:778
+>  driver_probe_device+0x4c/0x1a0 drivers/base/dd.c:808
+>  __driver_attach+0x1d0/0x550 drivers/base/dd.c:1190
+>  bus_for_each_dev+0x147/0x1d0 drivers/base/bus.c:301
+>  bus_add_driver+0x4c9/0x640 drivers/base/bus.c:618
+>  driver_register+0x220/0x3a0 drivers/base/driver.c:246
+>  virtio_net_driver_init+0x93/0xd2 drivers/net/virtio_net.c:4090
+>  do_one_initcall+0x13d/0x780 init/main.c:1303
+>  do_initcall_level init/main.c:1376 [inline]
+>  do_initcalls init/main.c:1392 [inline]
+>  do_basic_setup init/main.c:1411 [inline]
+>  kernel_init_freeable+0x6ff/0x788 init/main.c:1631
+>  kernel_init+0x1a/0x1d0 init/main.c:1519
+>  ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:306
+>  </TASK>
 
-I think it is related to your implementation of
-virtio_transport_add_to_queue(), where you introduced much more
-complicated logic than before:
 
--	spin_lock_bh(&vsock->send_pkt_list_lock);
--	list_add_tail(&pkt->list, &vsock->send_pkt_list);
--	spin_unlock_bh(&vsock->send_pkt_list_lock);
--
-+	virtio_transport_add_to_queue(&vsock->send_pkt_queue, skb);
+#syz test: git://git.kernel.org/pub/scm/linux/kernel/git/davem/net.git net
 
-A simple list_add_tail() is definitely faster than your
-virtio_transport_skbs_can_merge() check. So, why do you have to merge
-skb while we don't merge virtio_vsock_pkt?
 
-_If_ you are trying to mimic TCP, I think you are doing it wrong, it can
-be much more efficient if you could do the merge in sendmsg() before skb
-is even allocated, see tcp_sendmsg_locked().
+figure out why is syzbot triggering warnings
 
-Thanks.
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/net/virtio_net.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 7106932c6f88..3c1c16b43bbd 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -2295,13 +2295,20 @@ static void virtnet_set_affinity(struct virtnet_info *vi)
+ 			0;
+ 	cpu = cpumask_first(cpu_online_mask);
+ 
++	printk(KERN_ERR "%s +%d : %s cpu %d num %d stride %d stragglers %d\n",
++	       __FILE__, __LINE__, __func__, cpu, num_cpu, stride, stragglers);
++
+ 	for (i = 0; i < vi->curr_queue_pairs; i++) {
+ 		group_size = stride + (i < stragglers ? 1 : 0);
++		printk(KERN_ERR "%s +%d : %s vq %d group_size %d",
++		       __FILE__, __LINE__, __func__, i, group_size);
+ 
+ 		for (j = 0; j < group_size; j++) {
+ 			cpumask_set_cpu(cpu, mask);
+ 			cpu = cpumask_next_wrap(cpu, cpu_online_mask,
+ 						nr_cpu_ids, false);
++			printk(KERN_ERR "%s +%d : %s groupindex %d cpu %d",
++			       __FILE__, __LINE__, __func__, j, group_size);
+ 		}
+ 		virtqueue_set_affinity(vi->rq[i].vq, mask);
+ 		virtqueue_set_affinity(vi->sq[i].vq, mask);
+-- 
+MST
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
