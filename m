@@ -1,98 +1,98 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 20978C4332F
-	for <virtualization@archiver.kernel.org>; Sat, 15 Oct 2022 19:51:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 433DAC43219
+	for <virtualization@archiver.kernel.org>; Sun, 16 Oct 2022 07:36:27 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 8B0E881774;
-	Sat, 15 Oct 2022 19:51:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8B0E881774
+	by smtp3.osuosl.org (Postfix) with ESMTP id B5D6960E44;
+	Sun, 16 Oct 2022 07:36:26 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B5D6960E44
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=DvNhSHiw
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 3rK06ucd4X_w; Sun, 16 Oct 2022 07:36:25 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id EF1D260E5E;
+	Sun, 16 Oct 2022 07:36:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org EF1D260E5E
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B0F21C0032;
+	Sun, 16 Oct 2022 07:36:24 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id AD17EC002D
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 16 Oct 2022 07:36:23 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 845378140E
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 16 Oct 2022 07:36:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 845378140E
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=hsk65+es
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=DvNhSHiw
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ehCEuT3ooWPK; Sat, 15 Oct 2022 19:51:09 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id C516381776;
-	Sat, 15 Oct 2022 19:51:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C516381776
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 95460C0032;
-	Sat, 15 Oct 2022 19:51:08 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8617FC002D
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id zcHWfDbv6fa8
  for <virtualization@lists.linux-foundation.org>;
- Sat, 15 Oct 2022 19:51:06 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 5F9A240647
- for <virtualization@lists.linux-foundation.org>;
- Sat, 15 Oct 2022 19:51:06 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5F9A240647
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=hsk65+es
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ZIod4EZLjJNl
- for <virtualization@lists.linux-foundation.org>;
- Sat, 15 Oct 2022 19:51:01 +0000 (UTC)
+ Sun, 16 Oct 2022 07:36:21 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 80A5B405E8
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 65E9980C80
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 80A5B405E8
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 65E9980C80
  for <virtualization@lists.linux-foundation.org>;
- Sat, 15 Oct 2022 19:51:01 +0000 (UTC)
+ Sun, 16 Oct 2022 07:36:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1665863460;
+ s=mimecast20190719; t=1665905780;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=3dmRoCAbvHyB4s1yUnRmBVS7aeUXJ2qzFIadydzCF9Q=;
- b=hsk65+es2cF9qwbk8nIOfWbGcmPqIr7Blo7BEybT38iUfZ6llSPhIosoOk4/KSJt9lTII0
- ryhGxr4n19XKqapuxnJ4tbWB5E78Nh5hGtN9qwpydo25GwHFxZqQKFyNufWy/WpnhLcxk3
- R7SiHtaS9+VLi9fZtqdasFEF1iN9Ly4=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=mi6paNxUhZc8wCZTNMWuTKiyJWtsArsQ1TaS5bk0tCs=;
+ b=DvNhSHiwPdQJ02utuE/GLS6PQSNF/Rbkf/OT5VfX42CCQWHKWeXZwBfsP/qhzd28S/Wbro
+ 2FmHXKjKiHi/LprHtFrp5DhmrXlFkh1uwWycE3YvsRJXik+lMgU14rayBWKMz1KMlmiN2B
+ wNtKvGKcTMxKUdnwyoR8dYQMKYLnnfU=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-342-bRF56sIpMwmJMCrtBfYGpQ-1; Sat, 15 Oct 2022 15:50:59 -0400
-X-MC-Unique: bRF56sIpMwmJMCrtBfYGpQ-1
-Received: by mail-ed1-f70.google.com with SMTP id
- s8-20020a056402520800b0045cab560d5eso6496807edd.1
+ us-mta-638-p0wiyu8WOSSUkJo6nXZrUg-1; Sun, 16 Oct 2022 03:36:19 -0400
+X-MC-Unique: p0wiyu8WOSSUkJo6nXZrUg-1
+Received: by mail-wm1-f71.google.com with SMTP id
+ p42-20020a05600c1daa00b003c6ee394f0dso2403987wms.5
  for <virtualization@lists.linux-foundation.org>;
- Sat, 15 Oct 2022 12:50:59 -0700 (PDT)
+ Sun, 16 Oct 2022 00:36:18 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=3dmRoCAbvHyB4s1yUnRmBVS7aeUXJ2qzFIadydzCF9Q=;
- b=FdR58E8pG/mwV52HbDfI1XLiVJq2oHEHLcQOhfo0KOSWmYYoWOPWOEOCafEI6g7Qju
- 38zl8cIppjfvcF1VmJXxa0//gAqaSbYMhkvBL+Pisx/5eT4xAryHchvZZ1bh7f7LAsdU
- V2iAp3aPI6zOgRJnKyt3GrqXXH3D0Jkx7JXj3KRovpy+wXyd5UT16koayXfnGLEre3Y3
- GhfLqYiLHBeXDPlExbbY6G/zXeh1k16qqwMH0PBgVChDtMt1mmolAtwut4vAAUPoate/
- UOX2D5CNjQ9XKSPHPwze7gZUArSHibT6pvUPSTpo2RRhO7IsksSVEZ5pYIk0+WkBjR4j
- JTMw==
-X-Gm-Message-State: ACrzQf2Q6eCfOPNjZKNTV2Qiny7nChmPkgwe6qJgc2/992VVg7eEk02b
- P/O82ksnz6Q4wzXS5C5MeqAfKTQ3l7wkWi6jOJhlEfrGQ7PIih64AW2TMxbZcJW2tftvYYvu1Gy
- d/LOpA+JGuDG9dbLTMyuhBA+S9Z3pg1qGCjNxHD94OQ==
-X-Received: by 2002:a17:907:a073:b0:78d:51c4:5b8c with SMTP id
- ia19-20020a170907a07300b0078d51c45b8cmr2977997ejc.355.1665863458234; 
- Sat, 15 Oct 2022 12:50:58 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM4zlYvw9Wjs/reSHlqd3kKSBJ/ieaWY3Yf6XVCWg5t5vNB1U7SZKx76+1tHWkWJzFWg+DDkuQ==
-X-Received: by 2002:a17:907:a073:b0:78d:51c4:5b8c with SMTP id
- ia19-20020a170907a07300b0078d51c45b8cmr2977972ejc.355.1665863457880; 
- Sat, 15 Oct 2022 12:50:57 -0700 (PDT)
+ bh=mi6paNxUhZc8wCZTNMWuTKiyJWtsArsQ1TaS5bk0tCs=;
+ b=lxYxyiyg8kuFrh34tkzWYc8yYp93fI/yfGWZEEB5zOPVtpM2neGEyYsvdPX7QSb/+w
+ 8DY1QMg8aD7uNceXlBzBZHp17yH2OckgfB0qySQhU3y27/55qbAlIC22rMx208JU4SCA
+ BdCGfr35so04V5EsbCbFwYr983zqw7YcGJf5VOOwV7eC0hsPJEmhFF1ojcwcGdGtNe/p
+ Zohj0YXN6yLQaLTxdk3XzL8aqGppFP/tjNNIwqQ0qD2OU//PjSbHMi/Lg9T2bzroNFQu
+ oczCmKvU/EdhiGO5SIOVxgeugGdUhgiNQWCzi8sqouUbQbiJ7MSi3PUVzPXFTySZwcJI
+ ZSxQ==
+X-Gm-Message-State: ACrzQf36rnfxvQ7tHwrK/Tuq2DhQq72WnHz8fO9leZQCnv+FDDj5siO+
+ 8KD25M5wcB2qfI6S6IIaTYwAq78ucK2UHyb3BjJstaFq1qbvoYAML8tIXCW/T9SGHo+I+6/o533
+ sKrrD1C8Fx+GaIxCfBuwIUur8W7xehGF22qqEi4cnvg==
+X-Received: by 2002:a5d:5612:0:b0:22e:35b7:5654 with SMTP id
+ l18-20020a5d5612000000b0022e35b75654mr3177784wrv.651.1665905777918; 
+ Sun, 16 Oct 2022 00:36:17 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM6L2f7JWrMgCNZU5cQ24fKThZRGdI4bnqhsF6oFbB8HEU6GjHxbSLnDTcA1+Mi3n9Rna76SGQ==
+X-Received: by 2002:a5d:5612:0:b0:22e:35b7:5654 with SMTP id
+ l18-20020a5d5612000000b0022e35b75654mr3177764wrv.651.1665905777555; 
+ Sun, 16 Oct 2022 00:36:17 -0700 (PDT)
 Received: from redhat.com ([2.54.171.110]) by smtp.gmail.com with ESMTPSA id
- m3-20020a17090679c300b0077909095acasm3564039ejo.143.2022.10.15.12.50.55
+ n4-20020adf8b04000000b00231893bfdc7sm6017053wra.2.2022.10.16.00.36.14
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sat, 15 Oct 2022 12:50:57 -0700 (PDT)
-Date: Sat, 15 Oct 2022 15:50:53 -0400
+ Sun, 16 Oct 2022 00:36:16 -0700 (PDT)
+Date: Sun, 16 Oct 2022 03:36:12 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: syzbot <syzbot+4d0c5794bff07852726c@syzkaller.appspotmail.com>
 Subject: Re: [syzbot] net boot error: WARNING in cpumask_next_wrap
@@ -123,6 +123,7 @@ Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+Message-ID: <20221016073612.GNs-_HCzhKgvFxyyjQuTESafSXmV-VY66TK-5bstVrM@z>
 
 On Sat, Oct 15, 2022 at 12:21:41PM -0700, syzbot wrote:
 > Hello,
@@ -242,7 +243,7 @@ On Sat, Oct 15, 2022 at 12:21:41PM -0700, syzbot wrote:
 >  </TASK>
 
 
-#syz test: git://git.kernel.org/pub/scm/linux/kernel/git/davem/net.git net
+#syz test: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git master
 
 
 figure out why is syzbot triggering warnings
