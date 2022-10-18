@@ -4,76 +4,77 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D1E62C4332F
-	for <virtualization@archiver.kernel.org>; Tue, 18 Oct 2022 00:12:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 70E65C4332F
+	for <virtualization@archiver.kernel.org>; Tue, 18 Oct 2022 00:12:24 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 7D0A660FA3;
-	Tue, 18 Oct 2022 00:12:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7D0A660FA3
+	by smtp3.osuosl.org (Postfix) with ESMTP id 0F6D660FAD;
+	Tue, 18 Oct 2022 00:12:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0F6D660FAD
 Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=Fr7j04xR
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=kZIpBclc
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id eIwIHf3bCBkz; Tue, 18 Oct 2022 00:12:07 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 0625460F95;
-	Tue, 18 Oct 2022 00:12:06 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0625460F95
+	with ESMTP id eGbfQKgSn-TB; Tue, 18 Oct 2022 00:12:22 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 4700560AFF;
+	Tue, 18 Oct 2022 00:12:22 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4700560AFF
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CC8F4C0032;
-	Tue, 18 Oct 2022 00:12:06 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 210E4C0032;
+	Tue, 18 Oct 2022 00:12:22 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6630DC002D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id AC934C002D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Oct 2022 00:12:05 +0000 (UTC)
+ Tue, 18 Oct 2022 00:12:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 40CAD4059F
+ by smtp2.osuosl.org (Postfix) with ESMTP id 87FAA4059F
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Oct 2022 00:12:05 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 40CAD4059F
+ Tue, 18 Oct 2022 00:12:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 87FAA4059F
 Authentication-Results: smtp2.osuosl.org;
  dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org
- header.a=rsa-sha256 header.s=k20201202 header.b=Fr7j04xR
+ header.a=rsa-sha256 header.s=k20201202 header.b=kZIpBclc
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ky_71KJEJ9vN
+ with ESMTP id HgbFhiIQLOLw
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Oct 2022 00:12:04 +0000 (UTC)
+ Tue, 18 Oct 2022 00:12:19 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4033740576
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 4033740576
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8A8EA40576
+Received: from ams.source.kernel.org (ams.source.kernel.org
+ [IPv6:2604:1380:4601:e00::1])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 8A8EA40576
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Oct 2022 00:12:04 +0000 (UTC)
+ Tue, 18 Oct 2022 00:12:19 +0000 (UTC)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by ams.source.kernel.org (Postfix) with ESMTPS id 79A4AB81BE1;
- Tue, 18 Oct 2022 00:12:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 136A9C43145;
- Tue, 18 Oct 2022 00:12:00 +0000 (UTC)
+ by ams.source.kernel.org (Postfix) with ESMTPS id D401DB81C12;
+ Tue, 18 Oct 2022 00:12:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAC16C43470;
+ Tue, 18 Oct 2022 00:12:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1666051921;
- bh=4WiH9hmE57Uofm2X2goOrr7ClljV8IXJ19jH0V3IDb0=;
+ s=k20201202; t=1666051936;
+ bh=0xUGJJuJmiAL/3D77xDmH2PkyClNfjhl4jHnwYSQc38=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=Fr7j04xRXuJ6UOz0o1MnaNYykQ48upvgQTD+3czgcyXGXv2nbVC0gbWOsh14PUeQP
- jnq84CiSF8r8qgA4FvVp/+RflzQiDEpOlu7995EOpqUO1rfnoy25v9e2VV8NcNFcm3
- weMDBK2BiBVtq6vhtPtqg4mHVxij7qq0pXBImastw8zMgFmWuyT+mPuZp6Q88KDNpk
- pd/9ozByXy85jQhtb2x310iMn4VpORo3tg3cPqk8pbiy26aosP4M/gAZhuxoKSh0mS
- SulDmhSgr2/nIUY7pMZWg2piE8dRyk+YduO9JpJiD9vax10dlLORc0Fl/yyQ6rqB5u
- vcqxOLb2U4Y4Q==
+ b=kZIpBclc0gWAZc+B7diteAVv3+GTH0HJyw1eLfmYvki7psZufu2+eytXZjHwEBnKW
+ cMF/bGCE1XVNa1hwCmNXSO2/nJWJgDH57pp6XvVtJiIpHz5rOHhQoGoVZBo7xuAOIA
+ J9MP1/QBTNqiLvjNqwiu23fyG+rz8pTTJRa2d3NyZUuF0GNDVOq4iviGgLgPWj7UPQ
+ F6ezKqGyPVw+wlZuLCc6wcg/j551zptWxf5w95NAQwiLYQpTODLPMpnibTITM0CSMf
+ 7deGhPxiAdme0MU1TpiSq4cwGaPusjUFe+Tuydu4UiKz8heE9GpYy+coHWQhZna+kw
+ Mmn50zsJT+/rw==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 8/8] virtio_pci: don't try to use intxif pin is
+Subject: [PATCH AUTOSEL 4.9 8/8] virtio_pci: don't try to use intxif pin is
  zero
-Date: Mon, 17 Oct 2022 20:11:47 -0400
-Message-Id: <20221018001147.2732350-8-sashal@kernel.org>
+Date: Mon, 17 Oct 2022 20:12:02 -0400
+Message-Id: <20221018001202.2732458-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221018001147.2732350-1-sashal@kernel.org>
-References: <20221018001147.2732350-1-sashal@kernel.org>
+In-Reply-To: <20221018001202.2732458-1-sashal@kernel.org>
+References: <20221018001202.2732458-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -167,19 +168,19 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+)
 
 diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-index 924554b7010d..9f2f215a69b6 100644
+index 37e3ba5dadf6..d634eb926a2f 100644
 --- a/drivers/virtio/virtio_pci_common.c
 +++ b/drivers/virtio/virtio_pci_common.c
-@@ -405,6 +405,9 @@ int vp_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 	err = vp_find_vqs_msix(vdev, nvqs, vqs, callbacks, names, false, ctx, desc);
+@@ -389,6 +389,9 @@ int vp_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+ 				 true, false);
  	if (!err)
  		return 0;
 +	/* Is there an interrupt pin? If not give up. */
 +	if (!(to_vp_device(vdev)->pci_dev->pin))
 +		return err;
  	/* Finally fall back to regular interrupts. */
- 	return vp_find_vqs_intx(vdev, nvqs, vqs, callbacks, names, ctx);
- }
+ 	return vp_try_to_find_vqs(vdev, nvqs, vqs, callbacks, names,
+ 				  false, false);
 -- 
 2.35.1
 
