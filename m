@@ -1,109 +1,109 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 84879C433FE
-	for <virtualization@archiver.kernel.org>; Tue, 18 Oct 2022 06:15:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6B603C4332F
+	for <virtualization@archiver.kernel.org>; Tue, 18 Oct 2022 06:44:53 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 04F4A60FD7;
-	Tue, 18 Oct 2022 06:15:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 04F4A60FD7
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=OQsNf4PP
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id oX69gt2Z6spB; Tue, 18 Oct 2022 06:15:34 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 72A81605AE;
-	Tue, 18 Oct 2022 06:15:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 72A81605AE
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4442BC0033;
-	Tue, 18 Oct 2022 06:15:33 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3FD7FC002D
- for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Oct 2022 06:15:32 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 1A3A382F51
- for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Oct 2022 06:15:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1A3A382F51
+	by smtp1.osuosl.org (Postfix) with ESMTP id ECF148301D;
+	Tue, 18 Oct 2022 06:44:52 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org ECF148301D
 Authentication-Results: smtp1.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=OQsNf4PP
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=bM0beFAM
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id eKTNC5n7NKpG
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 23U4kgFUe-FD; Tue, 18 Oct 2022 06:44:51 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 4886082F20;
+	Tue, 18 Oct 2022 06:44:51 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4886082F20
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 19E06C0033;
+	Tue, 18 Oct 2022 06:44:51 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 14080C002D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Oct 2022 06:15:31 +0000 (UTC)
+ Tue, 18 Oct 2022 06:44:50 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp4.osuosl.org (Postfix) with ESMTP id D51924186B
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 18 Oct 2022 06:44:49 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D51924186B
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=bM0beFAM
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id CZSXzq9pb6tC
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 18 Oct 2022 06:44:48 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1CFC1829FE
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 767DB41817
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 1CFC1829FE
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 767DB41817
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Oct 2022 06:15:30 +0000 (UTC)
+ Tue, 18 Oct 2022 06:44:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1666073730;
+ s=mimecast20190719; t=1666075487;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=zpVfy6wCqfcz19Nf6miQhSXq6cJYbY42NLTDy57gurg=;
- b=OQsNf4PPHribh9hsh46UmOmxeANDztVG+lJALCU4RM9X7MMBhCKlIDu0w/6v6J9bJu4SY9
- eds5GT3HeOtXe++cXG6uHuR4OYV9WQdhSOSHvh6+jvpjbYgtvl7DT+mjCN+3vAaIrJwoMs
- KBuR7yMFvF6/AlVhW3FdeJGNUCxLOEg=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=I20aA+WWYWIOWbVmcckEV2OoluAADGlb7gDJdyOmGv4=;
+ b=bM0beFAMe6BPsYsSoenhNhYI2ppnjPGbpCXSqv3EPd3a5q8S7U9XRZyl7HlNLKyk21RM41
+ QxV3vwrLqa3ZgCvJnRLcOm5RgjFhog/ZBukZJ5RLQXbuCXORyLhpAeC+sLWPnGbsAcCUVY
+ e3MDNmxbgHd6gyj0zPfIR1R7AsQaH7s=
+Received: from mail-ot1-f69.google.com (mail-ot1-f69.google.com
+ [209.85.210.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-90-bzbfbFLSMj2c45SwJi0byw-1; Tue, 18 Oct 2022 02:15:28 -0400
-X-MC-Unique: bzbfbFLSMj2c45SwJi0byw-1
-Received: by mail-wm1-f69.google.com with SMTP id
- fc12-20020a05600c524c00b003b5054c70d3so8778909wmb.5
+ us-mta-483-Ft2_JPKKORSzzHSxrSwDxA-1; Tue, 18 Oct 2022 02:44:45 -0400
+X-MC-Unique: Ft2_JPKKORSzzHSxrSwDxA-1
+Received: by mail-ot1-f69.google.com with SMTP id
+ 3-20020a9d0b83000000b00660d7acf0dfso5937483oth.9
  for <virtualization@lists.linux-foundation.org>;
- Mon, 17 Oct 2022 23:15:28 -0700 (PDT)
+ Mon, 17 Oct 2022 23:44:45 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=zpVfy6wCqfcz19Nf6miQhSXq6cJYbY42NLTDy57gurg=;
- b=sQ1IG0OHCj/+3+2khRtcJ2synCygLf171YdrbqPOoo3R2y3B0HLbr9baK+TFko8M7N
- My7hPl8Ee2+c3eapWBS7ykhHvcBizz53W3QwIAb1KOjpZ7B2N5BjKlNOQebSrsGaxi8s
- 2riFHuKTzNUuWIwNzdv25ysuez/zqK917hCCrGHHlGMb83FDxANzfEcNl4GrN3rkZYLQ
- HC3SPiZj2ulybfyysdQnagghMponZeHQmBgifsk7fZbnTawk6UBPTCpOM2Jn3ngflm0B
- Hs+7o0PQH5b+0RacfSuojJYs0nblnFSwHCJTbhObBnd9tTAFpYKGtkUXlKUDlph0Oy7i
- ZJIw==
-X-Gm-Message-State: ACrzQf0fFkznFOMGYNrs+FvKfRhqVX1SxDiybmTLcRseejZoNetPVaoP
- 50Zrw66c3PYYUfFV9n+DoRY/mk5+xWxTuUtEnh95/2pBCKXDqVIdEJvKtiq/0xcxFyfWySXaU4+
- eIIvn9T2quKYqdMlTReIVQB8ti3LL2mi5P8FMJYjJeA==
-X-Received: by 2002:a05:600c:6028:b0:3c6:f0bb:316a with SMTP id
- az40-20020a05600c602800b003c6f0bb316amr9564310wmb.1.1666073727801; 
- Mon, 17 Oct 2022 23:15:27 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM4WNPgaS6HslEhBdXCqt7n+xVxIebjn0za52rwGUrmf6GTlgbv1cPYvvmczESDAI5t40p2Z7g==
-X-Received: by 2002:a05:600c:6028:b0:3c6:f0bb:316a with SMTP id
- az40-20020a05600c602800b003c6f0bb316amr9564297wmb.1.1666073727570; 
- Mon, 17 Oct 2022 23:15:27 -0700 (PDT)
-Received: from redhat.com ([2.54.172.104]) by smtp.gmail.com with ESMTPSA id
- iw6-20020a05600c54c600b003c6c3fb3cf6sm12447693wmb.18.2022.10.17.23.15.26
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 17 Oct 2022 23:15:26 -0700 (PDT)
-Date: Tue, 18 Oct 2022 02:15:24 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: sebastien.boeuf@intel.com
-Subject: Re: [PATCH v3 0/4] vdpa: Add resume operation
-Message-ID: <20221018021506-mutt-send-email-mst@kernel.org>
-References: <cover.1666008238.git.sebastien.boeuf@intel.com>
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+ :reply-to;
+ bh=I20aA+WWYWIOWbVmcckEV2OoluAADGlb7gDJdyOmGv4=;
+ b=HClw1egrUv/vjyDJ12vuIMZoEPFLb9tg4sU8p4znJNzW/h5AqDlLMEMJYBjbA8ifIz
+ SfjJFKRIUzoYgxvuEywYrMQ8N6qKZZpDZm2HPSVEZNkhKQ+A/GH1PxeMNVFkr+IJqScR
+ JAqFCPYY+m/hhv/IlYjw9i2HTBUva6aondaeaqZgHRtENeAlm4H+xtvL3o0QylMJVs4K
+ FZu5lKr3v/rjQciuwUhIWhdNlF7S8G4SqigfI6t4RMqXF/4yeOXkbBZD4Uediu7fn/wp
+ OLSw4vlxQhGXe9+kDcEV+vbZ7mvQj6P7RGx8N++M8rRRHBupg2GaRpldKXcDJe7uP1Pb
+ SVEA==
+X-Gm-Message-State: ACrzQf2KtwwMMmR4GNhu5Q3jFmc+7TYwGJxjq9NoaGmszJtpd4IStfbI
+ PHIBeV3mf4e+FBhWlIGkYJVoEpahtxz4UlHEqidV+N2fohN+ilbOFYy0r99wMAEJw+Q9ELM+023
+ gSmRs/4Uu/K5AKq3fX+/Ad/su5XoJbHAH57ndfNYaHbpHLFmkpON+5JLT1w==
+X-Received: by 2002:a05:6870:c1d3:b0:136:c4f6:53af with SMTP id
+ i19-20020a056870c1d300b00136c4f653afmr17065978oad.35.1666075485142; 
+ Mon, 17 Oct 2022 23:44:45 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM4Cddk2B14GoitomYNOIONW9L2vfvfkvMP3xytxXmrJjJ9vLK/u7E0HXBnkRfUKjbFx6dQdGWL0XHyM3dmll+Q=
+X-Received: by 2002:a05:6870:c1d3:b0:136:c4f6:53af with SMTP id
+ i19-20020a056870c1d300b00136c4f653afmr17065968oad.35.1666075484945; Mon, 17
+ Oct 2022 23:44:44 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <cover.1666008238.git.sebastien.boeuf@intel.com>
+References: <20221014094152.5570-1-lingshan.zhu@intel.com>
+ <CACGkMEu_pKJukgKuPbTksfemRrfFCb9qbu0iVDKx0O8HL-8q1w@mail.gmail.com>
+ <CACGkMEsCbpCBtABW4qhpZhQ4Dg=tt4ZTiL=_WpUXehcPT+e4qQ@mail.gmail.com>
+ <954aa373-11a9-5cad-0ed7-4b97688720ba@intel.com>
+In-Reply-To: <954aa373-11a9-5cad-0ed7-4b97688720ba@intel.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Tue, 18 Oct 2022 14:44:33 +0800
+Message-ID: <CACGkMEt=dOwSHB+gJ1wJjwR51wWZgVG561wcWWZqp-Upt5kYGA@mail.gmail.com>
+Subject: Re: [PATCH] iproute2/vdpa: Add support for reading device features
+To: "Zhu, Lingshan" <lingshan.zhu@intel.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: eperezma@redhat.com, virtualization@lists.linux-foundation.org
+Cc: mst@redhat.com, netdev@vger.kernel.org, dsahern@kernel.org,
+ virtualization@lists.linux-foundation.org, stephen@networkplumber.org,
+ hang.yuan@intel.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -120,66 +120,96 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Oct 17, 2022 at 02:06:19PM +0200, sebastien.boeuf@intel.com wrote:
-> From: Sebastien Boeuf <sebastien.boeuf@intel.com>
-> 
-> This series introduces a new operation for vdpa devices. It allows them
-> to be resumed after they have been suspended. A new feature bit is
-> introduced for devices to advertise their ability to be resumed after
-> they have been suspended. This feature bit is different from the one
-> advertising the ability to be suspended, meaning a device that can be
-> suspended might not have the ability to be resumed.
-> 
-> Even if it is already possible to restore a device that has been
-> suspended, which is very convenient for live migrating virtual machines,
-> there is a major drawback as the device must be fully reset. There is no
-> way to resume a device that has been suspended without having to
-> configure the device again and without having to recreate the IOMMU
-> mappings. This new operation aims at filling this gap by allowing the
-> device to resume processing the virtqueue descriptors without having to
-> reset it. This is particularly useful for performing virtual machine
-> offline migration, also called snapshot/restore, as it allows a virtual
-> machine to resume to a running state after it was paused and a snapshot
-> of the entire system was taken.
-> 
-> Sebastien Boeuf (4):
->   vdpa: Add resume operation
->   vhost-vdpa: Introduce RESUME backend feature bit
->   vhost-vdpa: uAPI to resume the device
->   vdpa_sim: Implement resume vdpa op
-> 
->  drivers/vdpa/vdpa_sim/vdpa_sim.c | 19 ++++++++++++++++++
->  drivers/vhost/vdpa.c             | 34 +++++++++++++++++++++++++++++++-
->  include/linux/vdpa.h             |  6 +++++-
->  include/uapi/linux/vhost.h       |  8 ++++++++
->  include/uapi/linux/vhost_types.h |  2 ++
->  5 files changed, 67 insertions(+), 2 deletions(-)
+On Tue, Oct 18, 2022 at 10:20 AM Zhu, Lingshan <lingshan.zhu@intel.com> wrote:
+>
+>
+>
+> On 10/17/2022 3:13 PM, Jason Wang wrote:
+> > On Mon, Oct 17, 2022 at 3:13 PM Jason Wang <jasowang@redhat.com> wrote:
+> >> On Fri, Oct 14, 2022 at 5:50 PM Zhu Lingshan <lingshan.zhu@intel.com> wrote:
+> >>> This commit implements support for reading vdpa device
+> >>> features in iproute2.
+> >>>
+> >>> Example:
+> >>> $ vdpa dev config show vdpa0
+> >>> vdpa0: mac 00:e8:ca:11:be:05 link up link_announce false max_vq_pairs 4 mtu 1500
+> >>>    negotiated_features MRG_RXBUF CTRL_VQ MQ VERSION_1 ACCESS_PLATFORM
+> >>>    dev_features MTU MAC MRG_RXBUF CTRL_VQ MQ ANY_LAYOUT VERSION_1 ACCESS_PLATFORM
+> >>>
+> >>> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
+> >> Note that Si Wei proposed to unify the two new attributes:
+> > https://patchew.org/linux/1665422823-18364-1-git-send-email-si-wei.liu@oracle.com/
+> I think we have discussed this before, there should be two netlink
+> attributes to report management device features and vDPA device features,
+> they are different type of devices, this unification introduces
+> unnecessary couplings
 
+I suggest going through the above patch, both attributes are for the
+vDPA device only.
 
-Not on list:
+Thanks
 
-$ b4 mbox cover.1666008238.git.sebastien.boeuf@intel.com
-Looking up https://lore.kernel.org/r/cover.1666008238.git.sebastien.boeuf%40intel.com
-That message-id is not known.
-$ 
-
-
-dropped for now.
-
-> -- 
-> 2.34.1
-> 
-> ---------------------------------------------------------------------
-> Intel Corporation SAS (French simplified joint stock company)
-> Registered headquarters: "Les Montalets"- 2, rue de Paris, 
-> 92196 Meudon Cedex, France
-> Registration Number:  302 456 199 R.C.S. NANTERRE
-> Capital: 5 208 026.16 Euros
-> 
-> This e-mail and any attachments may contain confidential material for
-> the sole use of the intended recipient(s). Any review or distribution
-> by others is strictly prohibited. If you are not the intended
-> recipient, please contact the sender and delete all copies.
+>
+> Thanks
+> >
+> > Thanks
+> >
+> >>
+> >>> ---
+> >>>   vdpa/vdpa.c | 15 +++++++++++++--
+> >>>   1 file changed, 13 insertions(+), 2 deletions(-)
+> >>>
+> >>> diff --git a/vdpa/vdpa.c b/vdpa/vdpa.c
+> >>> index b73e40b4..89844e92 100644
+> >>> --- a/vdpa/vdpa.c
+> >>> +++ b/vdpa/vdpa.c
+> >>> @@ -87,6 +87,8 @@ static const enum mnl_attr_data_type vdpa_policy[VDPA_ATTR_MAX + 1] = {
+> >>>          [VDPA_ATTR_DEV_NEGOTIATED_FEATURES] = MNL_TYPE_U64,
+> >>>          [VDPA_ATTR_DEV_MGMTDEV_MAX_VQS] = MNL_TYPE_U32,
+> >>>          [VDPA_ATTR_DEV_SUPPORTED_FEATURES] = MNL_TYPE_U64,
+> >>> +       [VDPA_ATTR_DEV_FEATURES] = MNL_TYPE_U64,
+> >>> +       [VDPA_ATTR_VDPA_DEV_SUPPORTED_FEATURES] = MNL_TYPE_U64,
+> >>>   };
+> >>>
+> >>>   static int attr_cb(const struct nlattr *attr, void *data)
+> >>> @@ -482,7 +484,7 @@ static const char * const *dev_to_feature_str[] = {
+> >>>
+> >>>   #define NUM_FEATURE_BITS 64
+> >>>
+> >>> -static void print_features(struct vdpa *vdpa, uint64_t features, bool mgmtdevf,
+> >>> +static void print_features(struct vdpa *vdpa, uint64_t features, bool devf,
+> >>>                             uint16_t dev_id)
+> >>>   {
+> >>>          const char * const *feature_strs = NULL;
+> >>> @@ -492,7 +494,7 @@ static void print_features(struct vdpa *vdpa, uint64_t features, bool mgmtdevf,
+> >>>          if (dev_id < ARRAY_SIZE(dev_to_feature_str))
+> >>>                  feature_strs = dev_to_feature_str[dev_id];
+> >>>
+> >>> -       if (mgmtdevf)
+> >>> +       if (devf)
+> >>>                  pr_out_array_start(vdpa, "dev_features");
+> >>>          else
+> >>>                  pr_out_array_start(vdpa, "negotiated_features");
+> >>> @@ -771,6 +773,15 @@ static void pr_out_dev_net_config(struct vdpa *vdpa, struct nlattr **tb)
+> >>>                  val_u64 = mnl_attr_get_u64(tb[VDPA_ATTR_DEV_NEGOTIATED_FEATURES]);
+> >>>                  print_features(vdpa, val_u64, false, dev_id);
+> >>>          }
+> >>> +       if (tb[VDPA_ATTR_VDPA_DEV_SUPPORTED_FEATURES]) {
+> >>> +               uint16_t dev_id = 0;
+> >>> +
+> >>> +               if (tb[VDPA_ATTR_DEV_ID])
+> >>> +                       dev_id = mnl_attr_get_u32(tb[VDPA_ATTR_DEV_ID]);
+> >>> +
+> >>> +               val_u64 = mnl_attr_get_u64(tb[VDPA_ATTR_VDPA_DEV_SUPPORTED_FEATURES]);
+> >>> +               print_features(vdpa, val_u64, true, dev_id);
+> >>> +       }
+> >>>   }
+> >>>
+> >>>   static void pr_out_dev_config(struct vdpa *vdpa, struct nlattr **tb)
+> >>> --
+> >>> 2.31.1
+> >>>
+>
 
 _______________________________________________
 Virtualization mailing list
