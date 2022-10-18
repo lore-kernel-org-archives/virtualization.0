@@ -1,183 +1,183 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 01985C41535
-	for <virtualization@archiver.kernel.org>; Tue, 18 Oct 2022 19:52:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 936A1C433FE
+	for <virtualization@archiver.kernel.org>; Tue, 18 Oct 2022 19:53:01 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 6722A40BF5;
-	Tue, 18 Oct 2022 19:52:44 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6722A40BF5
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=cgu8u1uv;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=v6sXQWv2
+	by smtp4.osuosl.org (Postfix) with ESMTP id 2825541B57;
+	Tue, 18 Oct 2022 19:53:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2825541B57
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=mSWdwuF/;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=Hq1xu5aO
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 6JH5vu4kCyTn; Tue, 18 Oct 2022 19:52:43 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id OJ_ORXgQ7c7V; Tue, 18 Oct 2022 19:52:58 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 9E55D40111;
-	Tue, 18 Oct 2022 19:52:42 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9E55D40111
+	by smtp4.osuosl.org (Postfix) with ESMTPS id E7CC341B58;
+	Tue, 18 Oct 2022 19:52:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E7CC341B58
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5FD17C0033;
-	Tue, 18 Oct 2022 19:52:42 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 87AEDC0033
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C1D7CC0033;
+	Tue, 18 Oct 2022 19:52:57 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D9F4CC002D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Oct 2022 19:52:40 +0000 (UTC)
+ Tue, 18 Oct 2022 19:52:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 6083D61117
+ by smtp1.osuosl.org (Postfix) with ESMTP id A603083F05
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Oct 2022 19:52:40 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6083D61117
-Authentication-Results: smtp3.osuosl.org;
+ Tue, 18 Oct 2022 19:52:56 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A603083F05
+Authentication-Results: smtp1.osuosl.org;
  dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com
- header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=cgu8u1uv; 
+ header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=mSWdwuF/; 
  dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
  header.i=@oracle.onmicrosoft.com header.a=rsa-sha256
- header.s=selector2-oracle-onmicrosoft-com header.b=v6sXQWv2
+ header.s=selector2-oracle-onmicrosoft-com header.b=Hq1xu5aO
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id pXYXc1GSfw0L
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id JlUVWQXdWxlD
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Oct 2022 19:52:39 +0000 (UTC)
+ Tue, 18 Oct 2022 19:52:55 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 54E7E6110F
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B086983EE0
 Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com
  [205.220.177.32])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 54E7E6110F
+ by smtp1.osuosl.org (Postfix) with ESMTPS id B086983EE0
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Oct 2022 19:52:38 +0000 (UTC)
-Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
- by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29IJSw8b029483;
- Tue, 18 Oct 2022 19:52:37 GMT
+ Tue, 18 Oct 2022 19:52:54 +0000 (UTC)
+Received: from pps.filterd (m0246630.ppops.net [127.0.0.1])
+ by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29IJTBVj017148;
+ Tue, 18 Oct 2022 19:52:53 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
- h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=corp-2022-7-12;
- bh=+dhMyrsmbdEqoLck7VSUZOY+8FLlSQMiPTEynf5AK0E=;
- b=cgu8u1uvsu50Tk8+ZSoAoiafvOQ9cVuv3Rxnjumd+j3wOzELVUqrx2aGr3EedHTuAFyE
- BtOOsQWYBVE9g3/VmTrP4C3JXWZIjOiiNxvtYVAlSugj2pP78XxeXJJBjtK0xzKvfbLf
- nkWruJUS9+DdV9qF1OFIGH7Gzfg5HLOiazJLGN/jd7mc+nZqTTD4m4zTP7xQTRY0qL38
- hw9rmpSaI+TVZq53HGOnGDwYySlF5Gc8GXITlh0Oq1kOW2x+PxkhaaEAlP9TFNyr/NF8
- gxQlKjec7ifrhnmEjPVzN1NEhsqo7FYLwqoBAz+GzKN+XgJ/vvwFl3ZQ0M4H0CXOaukr 0g== 
+ h=content-type :
+ message-id : date : subject : to : cc : references : from : in-reply-to :
+ mime-version; s=corp-2022-7-12;
+ bh=zsqen8yxYBcEcxZDn97ktLNbeAWKEi2Ysn7UfNTeGxM=;
+ b=mSWdwuF/Tkh9V3RO6WW2rVGc6PxRpG+50acVDtKFHBwJEEzpmxrugFzHw8mRoWFwrKRP
+ +jH8RRmE3VyVie3IyqaHcpc5VA3/YS9CJajPyAolAzELOcTPI4BonaJy+5KZZQXTwh2/
+ g0scYnRk6HpAm1eRfBKQEdUlE3bC3818scSFQ2uCpUFIXmcO3Tx7lyC0ky6+2buNK9nX
+ 29USQAsQ13HpfBSLniMrLLsum20pbOd5BwIa+rNbhmp+8fZEuPO1JtYrJ4pLt3S1/tHr
+ 6s8Sd1ciC5f477KahOUxPn/gUKoIEpC1hl9bkQXf1N0iKEIkR5psnoeXpEH5b+uSe5ko Bg== 
 Received: from phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com
  (phxpaimrmta03.appoci.oracle.com [138.1.37.129])
- by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3k7mw3ftbg-1
+ by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3k9b7skesb-1
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Tue, 18 Oct 2022 19:52:37 +0000
+ Tue, 18 Oct 2022 19:52:52 +0000
 Received: from pps.filterd
  (phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
  by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.5/8.17.1.5)
- with ESMTP id 29IJa8jq024348; Tue, 18 Oct 2022 19:52:36 GMT
+ with ESMTP id 29IHLT0a024303; Tue, 18 Oct 2022 19:52:52 GMT
 Received: from nam11-co1-obe.outbound.protection.outlook.com
- (mail-co1nam11lp2171.outbound.protection.outlook.com [104.47.56.171])
+ (mail-co1nam11lp2169.outbound.protection.outlook.com [104.47.56.169])
  by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id
- 3k8hu6r0b6-1
+ 3k8hu6r0uy-1
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Tue, 18 Oct 2022 19:52:36 +0000
+ Tue, 18 Oct 2022 19:52:51 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=d29VUQJI1MmLbPtGfT5Scw5JYGtqef9rpo8saA6ykkhN0awyNNmMHwhUO/QQuuu2xTVxt0IVplcK+xOs5DigQjUQUwKFS9YS3zRvVmkHXDkTZKCJJPD8JRMYwK0AralCi2bgG7zK7Huq9/mtKra539fVYrDQL4DmaiGItKC3OIPyvEGvcmGNYbT7nXI/rOZEb1pwELn51JR9X29evQSlIF868V7VlLXWG1HbD2HwfwWLIV2cvksSBsw3ZHb6T3LH9yuDWaqgBYjM2oFQVTZbUI11X7C4RQvhSc9IBVp6lQUPEnBX190C0f3/kiSJL2EXVeHRJBNZa6QgJ4hSmutjfQ==
+ b=YxZuzQFwLJGyKfauMl1TiOK2I2pXx6k8RU5IGf3ig+QsYIg7WFzIAsPZgQmSPsLviPJ9Thd7VQ1l/EcrYhxU2jtfjywySsLXdsREVDfcW26zcyjKG4jGMaWmegNKwxFBjZqKg34FoSpOQS+bzSpkLy2GdvNazYMyskssxQpyI+v1+G1F+kAqC5PYw+cArv2uzcbXzRo/1kDne1PFHF1b9h17e8NEF6qFptMCt2J17xBx8eR71MOnwFWG6aY6OicDiPAMiYYY4oE4QR9tO4ApleicC5f8aSNf8I42mPB3Fm35IeSyzBxjUAgn0ECyq2dYmq6UOL75O2tCP2+546c/OA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=+dhMyrsmbdEqoLck7VSUZOY+8FLlSQMiPTEynf5AK0E=;
- b=jp7Hi2tf954kUvlxkF7sdH/OirdNc/kt6ia9Lsq3gto46c+buCDMvbJ7K925UzX8hRKctP8FGhQfHJZIUOagrJ7PHFDFX3LoXA0j/K6kgwx1biVM9zXggk5pJszAxMcrrpZABtY319lentP46QHcIxQSK6FErYXkwjjUAR0G7aywEntuS+pEjNTBuAeCrpD0DpvpLBdVd0l/nQ/iseh19tg+dxhNmYm0D/0ImQTt0k7hkyqXhDSR5YUygV23OP7Xbxr8jdqYQQpTVSewB6sVuSpLM+4wem4hT2C7cdG8nKEiHfW3v9Rn7YT6R3bd1SjKLBentGuSFWSzF06iaCAUzg==
+ bh=zsqen8yxYBcEcxZDn97ktLNbeAWKEi2Ysn7UfNTeGxM=;
+ b=bXdej1XRjqLxdD1q6Wr7z0n4LUtzROeRLOt+Ol7GnblljPwmWwIeK1e5WbQ6kZUZMoGsGCO9F5eD1QXPLemXSlMie2OUFmEQ60vOIJgqBgjfgvSW8diOrgvHpOTpl9LDdhWmTNRTmHVkVRWBntYv8RTHHefRCYJrXplSOjOnpLzpcOHFc6IvljrRYezj6+R6mFZPxiR7hoIC0k7sdBhAVnXxhCdQX6p8baQaeY4WJ0F5tzHTYvsWTDFpAlcSKoqyvDCqL9cuWVYAfA4ZE+f/Dn4pkuQDOg9R27J5xyy6MWV5+/C7fk5jJzA8yjTdwUT+CWde+NDUjNq+tu2RXejxYw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
  dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=+dhMyrsmbdEqoLck7VSUZOY+8FLlSQMiPTEynf5AK0E=;
- b=v6sXQWv2Ova4gcnnF7jTJNzqXBWIBsn1d2Yy6Qw/kj5oZ0vaz1PkJSDBv+OZhjfVB2OvTwVid3nxkFHmBXhtEkjp9vvTtiCSLZlHjXkaa5kRq749WJupYeCYwCrAlcMYRD1QS7yJwYEpUZQHPFNQePabgqnaQY5sHIKFfvgGukc=
+ bh=zsqen8yxYBcEcxZDn97ktLNbeAWKEi2Ysn7UfNTeGxM=;
+ b=Hq1xu5aOeiZE+hCRwZWlaV7CIOZ91a2n3akPlRQ/SPCqGKF+pidMLGVEt8iPeTkQIbPhKSqRtaZWiDXxpLbIq70V0LDRD7+tHC48fxJKYrdj7ggucX6YboAGbvM6TV+3a7W+97blge4wO5pmHitABTor3pBSdP/zBlqhZsXKGc4=
 Received: from MW4PR10MB6535.namprd10.prod.outlook.com (2603:10b6:303:225::12)
  by MN2PR10MB4336.namprd10.prod.outlook.com (2603:10b6:208:15f::15)
  with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5723.34; Tue, 18 Oct
- 2022 19:52:33 +0000
+ 2022 19:52:49 +0000
 Received: from MW4PR10MB6535.namprd10.prod.outlook.com
  ([fe80::9830:ae4d:f10c:c30a]) by MW4PR10MB6535.namprd10.prod.outlook.com
  ([fe80::9830:ae4d:f10c:c30a%5]) with mapi id 15.20.5723.032; Tue, 18 Oct 2022
- 19:52:33 +0000
-Message-ID: <d6e8eb0a-1b45-0297-d84e-6629d8a9ea18@oracle.com>
-Date: Tue, 18 Oct 2022 12:52:29 -0700
+ 19:52:48 +0000
+Message-ID: <19c4c2bb-c94f-aef6-f7a6-1d4663fab1f7@oracle.com>
+Date: Tue, 18 Oct 2022 12:52:45 -0700
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
  Thunderbird/102.3.3
-Subject: Re: [PATCH 3/4] vdpa/mlx5: Add debugfs subtree
+Subject: Re: [PATCH 4/4] vdpa/mlx5: Add RX counters to debugfs
 Content-Language: en-US
 To: Eli Cohen <elic@nvidia.com>, mst@redhat.com, jasowang@redhat.com,
  linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 References: <20221018111232.4021-1-elic@nvidia.com>
- <20221018111232.4021-4-elic@nvidia.com>
+ <20221018111232.4021-5-elic@nvidia.com>
 From: Si-Wei Liu <si-wei.liu@oracle.com>
 Organization: Oracle Corporation
-In-Reply-To: <20221018111232.4021-4-elic@nvidia.com>
-X-ClientProxiedBy: SN1PR12CA0111.namprd12.prod.outlook.com
- (2603:10b6:802:21::46) To MW4PR10MB6535.namprd10.prod.outlook.com
+In-Reply-To: <20221018111232.4021-5-elic@nvidia.com>
+X-ClientProxiedBy: SN1PR12CA0113.namprd12.prod.outlook.com
+ (2603:10b6:802:21::48) To MW4PR10MB6535.namprd10.prod.outlook.com
  (2603:10b6:303:225::12)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
 X-MS-TrafficTypeDiagnostic: MW4PR10MB6535:EE_|MN2PR10MB4336:EE_
-X-MS-Office365-Filtering-Correlation-Id: b42dd405-1b2c-4e59-dc7d-08dab1424c1a
+X-MS-Office365-Filtering-Correlation-Id: 2744f2f6-0862-4fb2-0f4b-08dab1425565
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 03hrYlico2BWQW6oWN2s2xvC5FbdN2fKDHBdTurlF7/sY42SmehfDJLHhjkW0iFvZW4Ce3CPc9/SgbcPS4qVikelqxCBMnquXcvJgIV3PW4or6Tm12zmdyFZayReP0oZtqcMBIlsN1S3nwfiTR3EPegJKqvTTP6Dlz6oMxueuYYjVo84t4A0YqnoKLXPoGKTG0IMaiO4iClECghztwvhIlVX6E1W639RLyDn1yzLzwwvseontMgi6HnYblnRGE/fJndiBDDThopggqjy7HpoI4k56yAdiMsrZjgtMPE/uVZPPZrsEUuttrws+r/0s67ElgObdMDr1HRL1X1ctrX3Y/Uygtj5yBJ8MOuFEWC2wEdraz9/DODz67v/gotmIatoQ6EIQFrd4JjD+ehH5tJccfplDH/7peboenuhZeKEeGxwX3Rrlp4CYsLoRbduI5Utz6A1dYGEviraQrYTdSFXpi7ZvulyoZdbb/Ba6O/Imc4GsT/uJWaDJALvQ5x9+cwcZDoIMJMYf2sQsfwH3u/c4e31cAsmxg6Cgp2mPHgPhm+HZGvvi2FtMRup1WCRINaNsgjUKFl6JTXhmINSBNIYEMGgoJUU32Nl6rrZXUnl96Txqnb+cn8WXjANUoR21f7B+4Kj0UiLFVpfbN8BAGtNUlnw13A+22MUQ+/6qRDQj+eXrXmyMrODUbcCZtgcZp4xaeWS54G3WrItjus0fs5GgCSkH2ZxO8nagewf1dUSBCQpqxBbfly2FjTEAp7teFsHhEUd2QZRLfpHVR3kEk+6/4Jnc8cbH+CEVpHpmuFpARI=
+X-Microsoft-Antispam-Message-Info: t7i5PgJZUMDUrEIzEarML/QJ9SF+4DayI4djBsmannjSOKCpzDZxx4+4MFaTk1Af7bke3EtcRFZ8V213x2ID2w7XXpHSCNf1dpnZXyPkAZYsKhxzYjCWtXO2iiysL4rZBXd2/0R1It445fyDbimGpmHjrIt89lwfvosEa4Zgp5K7YPlpVJ9gqYnb5D1vuQHss8/nv+/RLsBzQSvnSgSP5PdEZSEiVRAXnpCxFbm9ttFtictShYV26ZRhNT/Bsqtz3mqk+ZlF7xZynqmOBiKvCpT48kDUrZMc02KAOij5p/einX5vNIrS6Bof9AFgheUyx5ubPcNqdBxcWC7HZMxD0N2DQYYVTGXxgMP7FutKMyQVE3C+tqOUZhIB7zOLvSCcnCYg+i0FFO0mgsUDQ/h7JEa5WlW7wceILdb0nqt3zH0Kyq7nKSGpjcABsHxHYltJLnDUp1MBa2SFE7s2q1veqZynAeuvw6MwDO/hBK5Eh/VL21ni8J0DI3axOmsSU0dkH/0tQY8EwlM2PkEQK7YoQgGZAGBXRvvttv6GqdFKcue/buQ/swir9qn7fx6i3MTDBwYhb4LwjYj+OHw6C1yVEnUNsaAa8kMfH67Df+35oUlf1lvqWDX9Xv+PcYA09omb0t9gh/JaXp/fnVmeM09NIMMLOZNbGpT9agD0BaLdavP+4D3LDl1BAsCQEgtWgr8DLq0uXUyyRpww0ZzShaCuIki8Lt6LLkvl+tBSqLUcbdYwVp5vMF0LD/cS5h0PxEGaXezW3Wl9Bl8IUTnPepmK0TvBN9iRkV1iNDNp6IJtxp2StawywX8scrQZmO3Mi76k
 X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
  IPV:NLI; SFV:NSPM; H:MW4PR10MB6535.namprd10.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230022)(39860400002)(376002)(366004)(396003)(346002)(136003)(451199015)(36756003)(31696002)(86362001)(31686004)(38100700002)(2906002)(83380400001)(5660300002)(36916002)(26005)(6666004)(53546011)(6506007)(2616005)(186003)(6512007)(6486002)(478600001)(316002)(4326008)(8676002)(66946007)(66556008)(66476007)(41300700001)(8936002)(45980500001)(43740500002);
+ SFS:(13230022)(39860400002)(376002)(366004)(396003)(346002)(136003)(451199015)(36756003)(31696002)(86362001)(31686004)(38100700002)(2906002)(83380400001)(5660300002)(30864003)(33964004)(36916002)(26005)(6666004)(53546011)(6506007)(2616005)(186003)(6512007)(6486002)(478600001)(316002)(4326008)(8676002)(66946007)(66556008)(66476007)(41300700001)(8936002)(290074003)(45980500001)(43740500002);
  DIR:OUT; SFP:1101; 
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?dHUzREVsVFF6bnA4SUNrVHBPY3Y0eDF5ZVRHV3NvSllRV293QVpJK2UxaHJV?=
- =?utf-8?B?dUJ4bHU2aGREaVRmNFVGaXNnelBHSWhIeGlSck82ekQvT0pDWkV2eUN3TzdY?=
- =?utf-8?B?blQvMWdFWi9zNG1wK2hZRzdhbSsvaGNDOFo0MU5HeHk3ZjhBTEpVQnNkdXBF?=
- =?utf-8?B?aDc0MzFlTVozNkZuSzVNUmo1TytVSjByZlord3FUanVORzBTdjJqT29FczRP?=
- =?utf-8?B?QlZvZkZNRDJSQzJUVUJ5RlJ1Q2ZQQ2xFbVVLRWUrOWpkQk5hZ01raVh3M1lS?=
- =?utf-8?B?SVg3Rm9yRVMyRGR1M2xWK2tjcjdMNUJ2N3BrQkVHY1FURHd5dU5HU2R1Q1Bm?=
- =?utf-8?B?Mk44b0xreVRTTEdjWU5wZW9GT3E4VzlZTERaL0Y1SU0rajl1dVVvWmUvMXh5?=
- =?utf-8?B?cXl3elhoWmtxc0lBNjRiMzVLcmpYdjJGNHJ4Y1YzYnc2cnN5SlZmM3Rxd29K?=
- =?utf-8?B?WlZSYVFXUWhmbFNRQlllT1NRV1JmcDhhckNwYlI0WCt0VmtrWFNYTDlBZHNv?=
- =?utf-8?B?TEtCR1ZIRUlCWlhUekRXbmJpSUswa0JOMHZDTWQyUXBkcEh5V01QVmljcmdi?=
- =?utf-8?B?dFpBMk5EbG9ibFRpck0yZWZkbHJ3c3prSW14RGJ1TExiQ1lKeUw5M3dsZkFY?=
- =?utf-8?B?bXRxUjZoSDhFUzNEcEhyam9zRWZheFNrQ2t0bUgwcGNsK2NrY2dIU3pUOFU1?=
- =?utf-8?B?OGI0aktYK3g0UUhMWCtxQVpBSTZTc2dTM09ZNlRsU2tXUTd3Tk41RkkzWVdS?=
- =?utf-8?B?OUx1SlYyMDRoV1Q0bGcwdkphNHR5Y05CUmFPUGtZUkpHVzdJRkdkY1B6RTFE?=
- =?utf-8?B?NmRxZEJaZHVwbU91UldtTzFDSkVPZURwQW9KbXJ0ZlRFWFRTT2dDd0hYc3o0?=
- =?utf-8?B?VUI0cGdwMmEvN0FoTG85cmkxWnkzZlIrcnk0THhERkpRcWhkcCsrVjF6dXYr?=
- =?utf-8?B?ZXFZZTg3eWllclUyYmh3V2R4ZFVQNC95c3V4WjI0azA0eVA1ZUZMdFZ6bzNR?=
- =?utf-8?B?V0ExL0dvM1BnelJxam94c1pGY3dQWDN3T1ZQd0dTYjNDVStkYWhXY3dmaWti?=
- =?utf-8?B?RFFEdEZsYVFYQys1VkZOQ1YyaWM4N2RWWk5HQytvWml1Q0g0OWZVMU85MzlC?=
- =?utf-8?B?c3JaVjhaNXRlbUVEM29HZHorMHZjYjR2MTBsUjNhZnRkbEVUUTFMdDFwQmVa?=
- =?utf-8?B?aG8zZWdYcUVLNGowcit3bjNySE1WeFNtdSttMmo2QUptY1ExekhiWHRmSng4?=
- =?utf-8?B?bStKdEk4SVpIM2ZmeTNMdVNpZ0dLQWpMbmg1NE5EeFJHQ3pJQWJoNStOeGcy?=
- =?utf-8?B?aHJrek9xaXB0azdrR3lSMjNtSWV6MTNoaGpsNlk4Qk1odXFzY2VXc2lRdy95?=
- =?utf-8?B?N3BBeVh4S1E2RmM0UlNkbXhIK0RIR3lMTkpIOWV6a1FIcUswR1d4b0h0Ry8v?=
- =?utf-8?B?OGdaZHVhZ3NVWnNSUHZ2YWMwNFU3d3p6R2c2eEVXb3JWUjNTbEtUa1NRazFj?=
- =?utf-8?B?eHNvczYyRXZsZXFya1JnSFVKZFhVM252VkRJMjBpcmZvL0VsN2d3dlI0Y1Av?=
- =?utf-8?B?SlRad1NPZUhVUzRFa1F6NzNla0lScmxFK2IxWTFsbHk1Vk90ZU1sdmwwbEdu?=
- =?utf-8?B?cVE2S2g4bkpGOE9FbWtsV2xqQ2g2QmNVQmViQnV2YW82VEFXSklkRzdIWndI?=
- =?utf-8?B?RjdMM0xCb0NadWVTa1FFa0U2R2ZJSTBjamFtRUliTmlYYzdLUVZqanQ4Q0ls?=
- =?utf-8?B?R0ZoYkxOZFNrKzhQK3RPd1ByRktia0Q5ZzlBajdmL2ZaQmxUc0RxejJIajBu?=
- =?utf-8?B?NW5NVzRob2tsekFBbFVpb1IwSkhaNHcxK2l1QUFtSmNhc05KR0FBbG5EMjZx?=
- =?utf-8?B?RzdlMXdyYk1DQWZOQ1JXOU53NEtmQTk2MC8wVEZmNUIwcElVYlQ5cWZRVmts?=
- =?utf-8?B?VEwzMElQRGlBOXllOVVoZDJzU0FhZitTZjJrbE4rMHpPUVJ3d3B0eDdHTjVm?=
- =?utf-8?B?NHRIM04rNndaYzVQemhDLytJa1VMdzFRakN5VEdsUEtjZGxOZ2hwYm41emNk?=
- =?utf-8?B?akRtWmRONGphNVZmTWtKbUpSNFJpelRyUGdVWW95cEwxN2kwMFRTek42M1pS?=
- =?utf-8?Q?HtqAqUMIKLBXl/qUYe4MBKchN?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?SlRYMDAzZ2JtbE9jNHF4RmNtTkpXajZ6OTdsSnFoUXo3SXRSTkU5OUNRV25Q?=
+ =?utf-8?B?TEd2ZjBsQ3RNUmhhZXg2bFNaZmlQOCs1eEZLcm5mbGp5M0RpbnJCU2twRkhL?=
+ =?utf-8?B?RDhzL2dKaVlPTk9QUHZvY0pvV1lhSFRxUmZ0WGNtbnVrZmk3U2hJMWRMSVgy?=
+ =?utf-8?B?ckNoQTBIM3hpWGYyMHZNZlR0MU5sd1FuQ3pLMW1lcVZ4WUNuTlVBZExGcmE2?=
+ =?utf-8?B?Ykd1NDV2Y2FMbGVRd1BEdG5ua29PSWUvZFhiNXJaVWZIbTlyajFGRHJmUWNk?=
+ =?utf-8?B?ZnJ1L0dRbTg3ZnFSMVlITWlvRGNXOTZiNkpBYlBnZkRwdkFrVktCT0RsaEww?=
+ =?utf-8?B?Qi9OR1piYnA1MXRaZVg2TmJ4aFJucFhoaDJ2bHJsVkQyV3hnWGZrWlhyamVt?=
+ =?utf-8?B?NldnV2RaazFtTmlDTXJqVGxzMmFkV0JsRldHUE5TVVR3cnhkY1JJTkQ0bGlr?=
+ =?utf-8?B?T3NxVGVHRzZzK3ZPeGQ1NkZSMko0Z2piWkpaVlNWdW5iQWNQVkNPeVBwcXNo?=
+ =?utf-8?B?THh5M005RjV3RmhTZHZXalVWTVg0QUFWOGVYSGxIdHRYMGFOTUtDdG5vZ1Rn?=
+ =?utf-8?B?WVpQK2V6SFZ6aE5wNGtldEgyb3VtcFEwbzFRcFh1SXNYV2NSaGVNdlp6THFZ?=
+ =?utf-8?B?SVF2WFFzZmhIOEFvVDhjem80WmZFc25aMUt2NVFJT0NncEJ0VlFTMjQ3MnRt?=
+ =?utf-8?B?VHBybFVHcy9RL0ZYTThYK0tYdWp2cUJubnNrcGFGUnhPSklEdHErVVV1TGpG?=
+ =?utf-8?B?T09QL1c1NGxRb0hkREN6bDFUOGZDRnpTU0F0U1JKQUJVSlRuWlltbUxUYk1W?=
+ =?utf-8?B?S0tiSE1LazMxN2JMYnp1dkl2dEVvVW9nZXdCZ2lyMVJvM2pmbENBNndCREFv?=
+ =?utf-8?B?K29qSkxTZkh1UUlaQWR6RnYrOVg5ZWU3MUtyZjlJZTNtRXRkZlYwYTNVcFAz?=
+ =?utf-8?B?T2lZajdVMFlWZUl6dHQyRnJCalFMbWlpQ1lGazRVbkpHK3lVOVU3T2pJMkU4?=
+ =?utf-8?B?dEJSV3ZJQ2dWbGpodTE1TlBybkNjNmVDUE1yMlQ1bDN3elgxRXY0V1krWktR?=
+ =?utf-8?B?eDlvOEZEeDNqTHVCZTBYMzQ0MGJoVFVEeEVqWDduUkFFbGJxMERLTjE5Rklz?=
+ =?utf-8?B?MXB2UmdqclREUkxiTWJRZDQybWxEcjUwOHVzMlRtamhLWjlPaG9adVdMcng2?=
+ =?utf-8?B?SU41bjZMOVlZaGUyYkFyb0Nrbmo3eGhpcml5SmlYbVVrWWVvRFRKL0NKL254?=
+ =?utf-8?B?TFRIZG5HcTBRQXc0S2ZqM3ZNSkZud2xYTVBNWFBlcmhTK2FpVGhMVmZ5c2pE?=
+ =?utf-8?B?K0UzZ0U5RFRYSm03UUtUUEcvaUpTaEhsSStoalcrNmdVZG9SaDY4Z29rYnZT?=
+ =?utf-8?B?T0RtV3RWakMyOU9TNFNOSUhBbEY1ZlBrWUM3MmlMTDhyZlFEdHMwMGlrTzBH?=
+ =?utf-8?B?M3l6WHRPMzZJUzFGR0hWWVF4dUdTWXhsT0xRSi9CM2xZUHJ4V1NHK0lOMmtk?=
+ =?utf-8?B?SmROOWNEL29uTTVmMGtob09Oa3NHNHM1bnFjY1pLWWwyREd1b2ZITVVTT2pW?=
+ =?utf-8?B?c25Lb1BOcU1yL1RNQkZnY3h2SW5hNS9uMjZYQTlDdkoxKys3U3p1c0Mwd2Nv?=
+ =?utf-8?B?K0pTd3hua2E0VE5FMW5PeWt2eWFuNzE0NHVjN0I2bTZUamJ2QjNrSHBWR1Bq?=
+ =?utf-8?B?NjFXNElVc0RIeXVZM3dlSHkxQmttUk1iSjB4Q29RNEV5VGZ6cDNWS2J0OWhK?=
+ =?utf-8?B?K0x3LzRYV0NTQ3AwSk9zSS9xekJQQU51WlBFV2dNc1hTOS84UGJhNU4vS1Fn?=
+ =?utf-8?B?UnpzZlRoeVF0OCtuMEdaYnVhSkJOOTNYLzBBQXVVZEtlRU1mdG9HRENhMFg4?=
+ =?utf-8?B?ZnhYVHR1NUVwNkl3RDdWc3U1aERnTUtZalNBbFJ4M1EvQnRxblgzZldKdFlj?=
+ =?utf-8?B?cXlKYWUrUXJQeEI3V2Z3ZEpmSVBzQmpFa1VRaUt0N3REbFo4dEZXSVJTRG95?=
+ =?utf-8?B?VTNtd2J1SmtrWGs5ejN3eEJlandUb3hvdVJjSnh2a25keE95dHRKT2UyVG5z?=
+ =?utf-8?B?L3dZNE5sTkVia0pnOTBEMC80SU5YblBYVUovWUZNN2lnM2UvZDM4TUlOQ2dU?=
+ =?utf-8?Q?fsqZkI3c2gWqU+TMNG7MnXWYi?=
 X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: b42dd405-1b2c-4e59-dc7d-08dab1424c1a
+X-MS-Exchange-CrossTenant-Network-Message-Id: 2744f2f6-0862-4fb2-0f4b-08dab1425565
 X-MS-Exchange-CrossTenant-AuthSource: MW4PR10MB6535.namprd10.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Oct 2022 19:52:33.1007 (UTC)
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Oct 2022 19:52:48.6865 (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: CYNWhR6cu7rwwVY8pr7/KkBdSQ4k1DFj0lSrTKf1q1ij+RGFOxwLrCzc5JX0/EbPXnNYpAnoHxxKeJiwWKGt4A==
+X-MS-Exchange-CrossTenant-UserPrincipalName: R05A5VIk7IWtwGuNCfyc0MhAF8vhmxQRasH0fvrS1Q7SInqZYUX24ccYx0DBRVHL8U0vtAeU6shTv2e6trPIyw==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR10MB4336
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
@@ -187,8 +187,8 @@ X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0
  malwarescore=0 spamscore=0 suspectscore=0 phishscore=0 adultscore=0
  mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2209130000 definitions=main-2210180112
-X-Proofpoint-ORIG-GUID: n5PxUbXZ7pEl-5pry0cQmWINZpLW-6mh
-X-Proofpoint-GUID: n5PxUbXZ7pEl-5pry0cQmWINZpLW-6mh
+X-Proofpoint-GUID: RlixERbY5gNTN9FTM1t95L_27F3SAucT
+X-Proofpoint-ORIG-GUID: RlixERbY5gNTN9FTM1t95L_27F3SAucT
 Cc: eperezma@redhat.com, lulu@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
@@ -201,212 +201,852 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: multipart/mixed; boundary="===============1899012867502148376=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+
+--===============1899012867502148376==
+Content-Type: multipart/alternative;
+ boundary="------------bjWbVqBqLUyTEAA71qJOM04u"
+Content-Language: en-US
+
+--------------bjWbVqBqLUyTEAA71qJOM04u
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
 
 
 On 10/18/2022 4:12 AM, Eli Cohen wrote:
-> Add debugfs subtree and expose flow table ID and TIR number. This
-> information can be used by external tools to do extended
-> troubleshooting.
+> For each interface, either VLAN tagged or untagged, add two hardware
+> counters: one for unicast and another for multicast. The counters count
+> RX packets and bytes and can be read through debugfs:
 >
-> The information can be retrieved like so:
-> $ cat /sys/kernel/debug/mlx5/mlx5_core.sf.1/vdpa-0/rx/table_id
-> $ cat /sys/kernel/debug/mlx5/mlx5_core.sf.1/vdpa-0/rx/tirn
+> $ cat /sys/kernel/debug/mlx5/mlx5_core.sf.1/vdpa-0/rx/untagged/mcast/packets
+> $ cat /sys/kernel/debug/mlx5/mlx5_core.sf.1/vdpa-0/rx/untagged/ucast/bytes
 >
-> Signed-off-by: Eli Cohen <elic@nvidia.com>
-LGTM
-
-Reviewed-by: Si-Wei Liu <si-wei.liu@oracle.com>
+> This feature is controlled via the config option
+> MLX5_VDPA_STEERING_DEBUG. It is off by default as it may have some
+> impact on performance.
+>
+> Signed-off-by: Eli Cohen<elic@nvidia.com>
 > ---
->   drivers/vdpa/mlx5/Makefile        |  2 +-
->   drivers/vdpa/mlx5/net/debug.c     | 66 +++++++++++++++++++++++++++++++
->   drivers/vdpa/mlx5/net/mlx5_vnet.c | 11 ++++++
->   drivers/vdpa/mlx5/net/mlx5_vnet.h |  9 +++++
->   4 files changed, 87 insertions(+), 1 deletion(-)
->   create mode 100644 drivers/vdpa/mlx5/net/debug.c
+>   drivers/vdpa/Kconfig              | 12 ++++
+>   drivers/vdpa/mlx5/net/debug.c     | 82 +++++++++++++++++++++++++++
+>   drivers/vdpa/mlx5/net/mlx5_vnet.c | 94 +++++++++++++++++++++++--------
+>   drivers/vdpa/mlx5/net/mlx5_vnet.h | 30 ++++++++++
+>   4 files changed, 195 insertions(+), 23 deletions(-)
 >
-> diff --git a/drivers/vdpa/mlx5/Makefile b/drivers/vdpa/mlx5/Makefile
-> index f717978c83bf..e791394c33e3 100644
-> --- a/drivers/vdpa/mlx5/Makefile
-> +++ b/drivers/vdpa/mlx5/Makefile
-> @@ -1,4 +1,4 @@
->   subdir-ccflags-y += -I$(srctree)/drivers/vdpa/mlx5/core
+> diff --git a/drivers/vdpa/Kconfig b/drivers/vdpa/Kconfig
+> index 50f45d037611..43b716ec2d18 100644
+> --- a/drivers/vdpa/Kconfig
+> +++ b/drivers/vdpa/Kconfig
+> @@ -71,6 +71,18 @@ config MLX5_VDPA_NET
+>   	  be executed by the hardware. It also supports a variety of stateless
+>   	  offloads depending on the actual device used and firmware version.
 >   
->   obj-$(CONFIG_MLX5_VDPA_NET) += mlx5_vdpa.o
-> -mlx5_vdpa-$(CONFIG_MLX5_VDPA_NET) += net/mlx5_vnet.o core/resources.o core/mr.o
-> +mlx5_vdpa-$(CONFIG_MLX5_VDPA_NET) += net/mlx5_vnet.o core/resources.o core/mr.o net/debug.o
+> +config MLX5_VDPA_STEERING_DEBUG
+> +	bool "expose steering counters on debugfs"
+> +	select MLX5_VDPA
+> +	help
+> +	  Expose RX steering counters in debugfs to aid in debugging. For each VLAN
+> +	  or non VLAN interface, two hardware counters are added to the RX flow
+> +	  table: one for unicast and one for multicast.
+> +	  The counters counts the number of packets and bytes and exposes them in
+> +	  debugfs. Once can read the counters using, e.g.:
+> +	  cat /sys/kernel/debug/mlx5/mlx5_core.sf.1/vdpa-0/rx/untagged/ucast/packets
+> +	  cat /sys/kernel/debug/mlx5/mlx5_core.sf.1/vdpa-0/rx/untagged/mcast/bytes
+> +
+>   config VP_VDPA
+>   	tristate "Virtio PCI bridge vDPA driver"
+>   	select VIRTIO_PCI_LIB
 > diff --git a/drivers/vdpa/mlx5/net/debug.c b/drivers/vdpa/mlx5/net/debug.c
-> new file mode 100644
-> index 000000000000..95e4801df211
-> --- /dev/null
+> index 95e4801df211..35137a36433a 100644
+> --- a/drivers/vdpa/mlx5/net/debug.c
 > +++ b/drivers/vdpa/mlx5/net/debug.c
-> @@ -0,0 +1,66 @@
-> +// SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB
-> +/* Copyright (c) 2022, NVIDIA CORPORATION & AFFILIATES. All rights reserved. */
-> +
-> +#include <linux/debugfs.h>
-> +#include <linux/mlx5/fs.h>
-> +#include "mlx5_vnet.h"
-> +
-> +static int tirn_show(struct seq_file *file, void *priv)
-> +{
-> +	struct mlx5_vdpa_net *ndev = file->private;
-> +
-> +	seq_printf(file, "0x%x\n", ndev->res.tirn);
-> +	return 0;
-> +}
-> +
-> +DEFINE_SHOW_ATTRIBUTE(tirn);
-> +
-> +void mlx5_vdpa_remove_tirn(struct mlx5_vdpa_net *ndev)
-> +{
-> +	if (ndev->debugfs)
-> +		debugfs_remove(ndev->res.tirn_dent);
-> +}
-> +
-> +void mlx5_vdpa_add_tirn(struct mlx5_vdpa_net *ndev)
-> +{
-> +	ndev->res.tirn_dent = debugfs_create_file("tirn", 0444, ndev->rx_dent,
-> +						  ndev, &tirn_fops);
-> +}
-> +
-> +static int rx_flow_table_show(struct seq_file *file, void *priv)
-> +{
-> +	struct mlx5_vdpa_net *ndev = file->private;
-> +
-> +	seq_printf(file, "0x%x\n", mlx5_flow_table_id(ndev->rxft));
-> +	return 0;
-> +}
-> +
-> +DEFINE_SHOW_ATTRIBUTE(rx_flow_table);
-> +
-> +void mlx5_vdpa_remove_rx_flow_table(struct mlx5_vdpa_net *ndev)
-> +{
-> +	if (ndev->debugfs)
-> +		debugfs_remove(ndev->rx_table_dent);
-> +}
-> +
-> +void mlx5_vdpa_add_rx_flow_table(struct mlx5_vdpa_net *ndev)
-> +{
-> +	ndev->rx_table_dent = debugfs_create_file("table_id", 0444, ndev->rx_dent,
-> +						  ndev, &rx_flow_table_fops);
-> +}
-> +
-> +void mlx5_vdpa_add_debugfs(struct mlx5_vdpa_net *ndev)
-> +{
-> +	struct mlx5_core_dev *mdev;
-> +
-> +	mdev = ndev->mvdev.mdev;
-> +	ndev->debugfs = debugfs_create_dir(dev_name(&ndev->mvdev.vdev.dev),
-> +					   mlx5_debugfs_get_dev_root(mdev));
-> +	if (!IS_ERR(ndev->debugfs))
-> +		ndev->rx_dent = debugfs_create_dir("rx", ndev->debugfs);
-> +}
-> +
-> +void mlx5_vdpa_remove_debugfs(struct dentry *dbg)
-> +{
-> +	debugfs_remove_recursive(dbg);
-> +}
-> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> index 64fdb940380f..ee50da33e25b 100644
-> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> @@ -1388,11 +1388,16 @@ static int create_tir(struct mlx5_vdpa_net *ndev)
+> @@ -49,6 +49,88 @@ void mlx5_vdpa_add_rx_flow_table(struct mlx5_vdpa_net *ndev)
+>   						  ndev, &rx_flow_table_fops);
+>   }
 >   
->   	err = mlx5_vdpa_create_tir(&ndev->mvdev, in, &ndev->res.tirn);
->   	kfree(in);
+> +#if defined(CONFIG_MLX5_VDPA_STEERING_DEBUG)
+> +static int packets_show(struct seq_file *file, void *priv)
+> +{
+> +	struct mlx5_vdpa_counter *counter = file->private;
+> +	u64 packets;
+> +	u64 bytes;
+> +	int err;
+> +
+> +	err = mlx5_fc_query(counter->mdev, counter->counter, &packets, &bytes);
 > +	if (err)
 > +		return err;
 > +
-> +	mlx5_vdpa_add_tirn(ndev);
->   	return err;
->   }
->   
->   static void destroy_tir(struct mlx5_vdpa_net *ndev)
+> +	seq_printf(file, "0x%llx\n", packets);
+> +	return 0;
+> +}
+> +
+> +static int bytes_show(struct seq_file *file, void *priv)
+> +{
+> +	struct mlx5_vdpa_counter *counter = file->private;
+> +	u64 packets;
+> +	u64 bytes;
+> +	int err;
+> +
+> +	err = mlx5_fc_query(counter->mdev, counter->counter, &packets, &bytes);
+> +	if (err)
+> +		return err;
+> +
+> +	seq_printf(file, "0x%llx\n", bytes);
+> +	return 0;
+> +}
+> +
+> +DEFINE_SHOW_ATTRIBUTE(packets);
+> +DEFINE_SHOW_ATTRIBUTE(bytes);
+> +
+> +static void add_counter_node(struct mlx5_vdpa_counter *counter,
+> +			     struct dentry *parent)
+> +{
+> +	debugfs_create_file("packets", 0444, parent, counter,
+> +			    &packets_fops);
+> +	debugfs_create_file("bytes", 0444, parent, counter,
+> +			    &bytes_fops);
+> +}
+> +
+> +void mlx5_vdpa_add_rx_counters(struct mlx5_vdpa_net *ndev,
+> +			       struct macvlan_node *node)
+> +{
+> +	static const char *ut = "untagged";
+> +	char vidstr[9];
+> +	u16 vid;
+> +
+> +	if (node->tagged) {
+> +		vid = key2vid(node->macvlan);
+> +		snprintf(vidstr, sizeof(vidstr), "0x%x", vid);
+> +	} else {
+> +		strcpy(vidstr, ut);
+> +	}
+> +
+> +	node->dent = debugfs_create_dir(vidstr, ndev->rx_dent);
+> +	if (IS_ERR(node->dent))
+> +		return;
+> +
+> +	node->ucast_counter.dent = debugfs_create_dir("ucast", node->dent);
+> +	if (IS_ERR(node->ucast_counter.dent))
+> +		return;
+> +
+> +	add_counter_node(&node->ucast_counter, node->ucast_counter.dent);
+> +
+> +	node->mcast_counter.dent = debugfs_create_dir("mcast", node->dent);
+> +	if (IS_ERR(node->mcast_counter.dent))
+> +		return;
+> +
+> +	add_counter_node(&node->mcast_counter, node->mcast_counter.dent);
+> +}
+> +
+> +void mlx5_vdpa_remove_rx_counters(struct mlx5_vdpa_net *ndev,
+> +				  struct macvlan_node *node)
+> +{
+> +	if (ndev->debugfs)
+> +		debugfs_remove_recursive(node->dent);
+> +}
+> +#endif
+> +
+>   void mlx5_vdpa_add_debugfs(struct mlx5_vdpa_net *ndev)
 >   {
-> +	mlx5_vdpa_remove_tirn(ndev);
->   	mlx5_vdpa_destroy_tir(&ndev->mvdev, ndev->res.tirn);
->   }
+>   	struct mlx5_core_dev *mdev;
+> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> index ee50da33e25b..1b850d0aee99 100644
+> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> @@ -1404,12 +1404,16 @@ static void destroy_tir(struct mlx5_vdpa_net *ndev)
+>   #define MAX_STEERING_ENT 0x8000
+>   #define MAX_STEERING_GROUPS 2
 >   
-> @@ -1576,6 +1581,7 @@ static int setup_steering(struct mlx5_vdpa_net *ndev)
->   		mlx5_vdpa_warn(&ndev->mvdev, "failed to create flow table\n");
->   		return PTR_ERR(ndev->rxft);
+> +#if defined(CONFIG_MLX5_VDPA_STEERING_DEBUG)
+> +       #define NUM_DESTS 2
+> +#else
+> +       #define NUM_DESTS 1
+> +#endif
+> +
+>   static int mlx5_vdpa_add_mac_vlan_rules(struct mlx5_vdpa_net *ndev, u8 *mac,
+> -					u16 vid, bool tagged,
+> -					struct mlx5_flow_handle **ucast,
+> -					struct mlx5_flow_handle **mcast)
+> +					struct macvlan_node *node)
+>   {
+> -	struct mlx5_flow_destination dest = {};
+> +	struct mlx5_flow_destination dests[NUM_DESTS] = {};
+>   	struct mlx5_flow_act flow_act = {};
+>   	struct mlx5_flow_handle *rule;
+>   	struct mlx5_flow_spec *spec;
+> @@ -1418,11 +1422,13 @@ static int mlx5_vdpa_add_mac_vlan_rules(struct mlx5_vdpa_net *ndev, u8 *mac,
+>   	u8 *dmac_c;
+>   	u8 *dmac_v;
+>   	int err;
+> +	u16 vid;
+>   
+>   	spec = kvzalloc(sizeof(*spec), GFP_KERNEL);
+>   	if (!spec)
+>   		return -ENOMEM;
+>   
+> +	vid = key2vid(node->macvlan);
+>   	spec->match_criteria_enable = MLX5_MATCH_OUTER_HEADERS;
+>   	headers_c = MLX5_ADDR_OF(fte_match_param, spec->match_criteria, outer_headers);
+>   	headers_v = MLX5_ADDR_OF(fte_match_param, spec->match_value, outer_headers);
+> @@ -1431,45 +1437,78 @@ static int mlx5_vdpa_add_mac_vlan_rules(struct mlx5_vdpa_net *ndev, u8 *mac,
+>   	eth_broadcast_addr(dmac_c);
+>   	ether_addr_copy(dmac_v, mac);
+>   	MLX5_SET(fte_match_set_lyr_2_4, headers_c, cvlan_tag, 1);
+> -	if (tagged) {
+> +	if (node->tagged) {
+>   		MLX5_SET(fte_match_set_lyr_2_4, headers_v, cvlan_tag, 1);
+>   		MLX5_SET_TO_ONES(fte_match_set_lyr_2_4, headers_c, first_vid);
+>   		MLX5_SET(fte_match_set_lyr_2_4, headers_v, first_vid, vid);
 >   	}
-> +	mlx5_vdpa_add_rx_flow_table(ndev);
+>   	flow_act.action = MLX5_FLOW_CONTEXT_ACTION_FWD_DEST;
+> -	dest.type = MLX5_FLOW_DESTINATION_TYPE_TIR;
+> -	dest.tir_num = ndev->res.tirn;
+> -	rule = mlx5_add_flow_rules(ndev->rxft, spec, &flow_act, &dest, 1);
+> +	dests[0].type = MLX5_FLOW_DESTINATION_TYPE_TIR;
+> +	dests[0].tir_num = ndev->res.tirn;
+> +#if defined(CONFIG_MLX5_VDPA_STEERING_DEBUG)
+> +	node->ucast_counter.counter = mlx5_fc_create(ndev->mvdev.mdev, false);
+> +	if (IS_ERR(node->ucast_counter.counter)) {
+> +		err = PTR_ERR(node->ucast_counter.counter);
+> +		goto err_ucast_counter;
+> +	}
+> +	node->mcast_counter.counter = mlx5_fc_create(ndev->mvdev.mdev, false);
+> +	if (IS_ERR(node->mcast_counter.counter)) {
+> +		err = PTR_ERR(node->mcast_counter.counter);
+> +		goto err_mcast_counter;
+> +	}
+> +
+> +	dests[1].type = MLX5_FLOW_DESTINATION_TYPE_COUNTER;
+> +	dests[1].counter_id = mlx5_fc_id(node->ucast_counter.counter);
+> +	flow_act.action |= MLX5_FLOW_CONTEXT_ACTION_COUNT;
+> +#endif
+> +	node->ucast_rule = mlx5_add_flow_rules(ndev->rxft, spec, &flow_act, dests, NUM_DESTS);
+>   	if (IS_ERR(rule))
+>   		return PTR_ERR(rule);
+There'll be leakage on counters and flow spec if using direct return.
+
 >   
->   	err = mac_vlan_add(ndev, ndev->config.mac, 0, false);
->   	if (err)
-> @@ -1584,6 +1590,7 @@ static int setup_steering(struct mlx5_vdpa_net *ndev)
+> -	*ucast = rule;
+> +#if defined(CONFIG_MLX5_VDPA_STEERING_DEBUG)
+> +	dests[1].counter_id = mlx5_fc_id(node->mcast_counter.counter);
+> +#endif
+>   
+>   	memset(dmac_c, 0, ETH_ALEN);
+>   	memset(dmac_v, 0, ETH_ALEN);
+>   	dmac_c[0] = 1;
+>   	dmac_v[0] = 1;
+> -	rule = mlx5_add_flow_rules(ndev->rxft, spec, &flow_act, &dest, 1);
+> +	node->mcast_rule = mlx5_add_flow_rules(ndev->rxft, spec, &flow_act, dests, NUM_DESTS);
+>   	kvfree(spec);
+Move kvfree a couple of lines under (after the IS_ERR check).
+>   	if (IS_ERR(rule)) {
+>   		err = PTR_ERR(rule);
+>   		goto err_mcast;
+>   	}
+>   
+> -	*mcast = rule;
+> +#if defined(CONFIG_MLX5_VDPA_STEERING_DEBUG)
+> +	node->ucast_counter.mdev = ndev->mvdev.mdev;
+> +	node->mcast_counter.mdev = ndev->mvdev.mdev;
+> +#endif
+> +	mlx5_vdpa_add_rx_counters(ndev, node);
+> +
 >   	return 0;
 >   
->   err_add:
-> +	mlx5_vdpa_remove_rx_flow_table(ndev);
->   	mlx5_destroy_flow_table(ndev->rxft);
+>   err_mcast:
+> -	mlx5_del_flow_rules(*ucast);
+> +	mlx5_del_flow_rules(node->ucast_rule);
+> +#if defined(CONFIG_MLX5_VDPA_STEERING_DEBUG)
+No corresponding mlx5_fc_destroy() for mcast_counter.
+> +err_mcast_counter:
+> +	mlx5_fc_destroy(ndev->mvdev.mdev, node->ucast_counter.counter);
+> +err_ucast_counter:
+> +	kfree(spec);
+kvfree?
+
+Regards,
+-Siwei
+> +#endif
 >   	return err;
 >   }
-> @@ -1591,6 +1598,7 @@ static int setup_steering(struct mlx5_vdpa_net *ndev)
->   static void teardown_steering(struct mlx5_vdpa_net *ndev)
+>   
+>   static void mlx5_vdpa_del_mac_vlan_rules(struct mlx5_vdpa_net *ndev,
+> -					 struct mlx5_flow_handle *ucast,
+> -					 struct mlx5_flow_handle *mcast)
+> +					 struct macvlan_node *node)
 >   {
->   	clear_mac_vlan_table(ndev);
-> +	mlx5_vdpa_remove_rx_flow_table(ndev);
->   	mlx5_destroy_flow_table(ndev->rxft);
+> -	mlx5_del_flow_rules(ucast);
+> -	mlx5_del_flow_rules(mcast);
+> +#if defined(CONFIG_MLX5_VDPA_STEERING_DEBUG)
+> +	if (node->dent && !IS_ERR(node->dent))
+> +		mlx5_vdpa_remove_rx_counters(ndev, node);
+> +#endif
+> +
+> +	mlx5_del_flow_rules(node->ucast_rule);
+> +	mlx5_del_flow_rules(node->mcast_rule);
 >   }
 >   
-> @@ -3167,6 +3175,7 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name,
+>   static u64 search_val(u8 *mac, u16 vlan, bool tagged)
+> @@ -1503,14 +1542,14 @@ static struct macvlan_node *mac_vlan_lookup(struct mlx5_vdpa_net *ndev, u64 valu
+>   	return NULL;
+>   }
+>   
+> -static int mac_vlan_add(struct mlx5_vdpa_net *ndev, u8 *mac, u16 vlan, bool tagged) // vlan -> vid
+> +static int mac_vlan_add(struct mlx5_vdpa_net *ndev, u8 *mac, u16 vid, bool tagged)
+>   {
+>   	struct macvlan_node *ptr;
+>   	u64 val;
+>   	u32 idx;
+>   	int err;
+>   
+> -	val = search_val(mac, vlan, tagged);
+> +	val = search_val(mac, vid, tagged);
+>   	if (mac_vlan_lookup(ndev, val))
+>   		return -EEXIST;
+>   
+> @@ -1518,12 +1557,13 @@ static int mac_vlan_add(struct mlx5_vdpa_net *ndev, u8 *mac, u16 vlan, bool tagg
+>   	if (!ptr)
+>   		return -ENOMEM;
+>   
+> -	err = mlx5_vdpa_add_mac_vlan_rules(ndev, ndev->config.mac, vlan, tagged,
+> -					   &ptr->ucast_rule, &ptr->mcast_rule);
+> +	ptr->tagged = tagged;
+> +	ptr->macvlan = val;
+> +	ptr->ndev = ndev;
+> +	err = mlx5_vdpa_add_mac_vlan_rules(ndev, ndev->config.mac, ptr);
 >   	if (err)
->   		goto err_reg;
+>   		goto err_add;
 >   
-> +	mlx5_vdpa_add_debugfs(ndev);
->   	mgtdev->ndev = ndev;
+> -	ptr->macvlan = val;
+>   	idx = hash_64(val, 8);
+>   	hlist_add_head(&ptr->hlist, &ndev->macvlan_hash[idx]);
 >   	return 0;
+> @@ -1542,7 +1582,11 @@ static void mac_vlan_del(struct mlx5_vdpa_net *ndev, u8 *mac, u16 vlan, bool tag
+>   		return;
 >   
-> @@ -3193,6 +3202,8 @@ static void mlx5_vdpa_dev_del(struct vdpa_mgmt_dev *v_mdev, struct vdpa_device *
->   	struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
->   	struct workqueue_struct *wq;
+>   	hlist_del(&ptr->hlist);
+> -	mlx5_vdpa_del_mac_vlan_rules(ndev, ptr->ucast_rule, ptr->mcast_rule);
+> +	mlx5_vdpa_del_mac_vlan_rules(ndev, ptr);
+> +#if defined(CONFIG_MLX5_VDPA_STEERING_DEBUG)
+> +			mlx5_fc_destroy(ndev->mvdev.mdev, ptr->mcast_counter.counter);
+> +			mlx5_fc_destroy(ndev->mvdev.mdev, ptr->ucast_counter.counter);
+> +#endif
+>   	kfree(ptr);
+>   }
 >   
-> +	mlx5_vdpa_remove_debugfs(ndev->debugfs);
-> +	ndev->debugfs = NULL;
->   	if (ndev->nb_registered) {
->   		mlx5_notifier_unregister(mvdev->mdev, &ndev->nb);
->   		ndev->nb_registered = false;
+> @@ -1555,7 +1599,11 @@ static void clear_mac_vlan_table(struct mlx5_vdpa_net *ndev)
+>   	for (i = 0; i < MLX5V_MACVLAN_SIZE; i++) {
+>   		hlist_for_each_entry_safe(pos, n, &ndev->macvlan_hash[i], hlist) {
+>   			hlist_del(&pos->hlist);
+> -			mlx5_vdpa_del_mac_vlan_rules(ndev, pos->ucast_rule, pos->mcast_rule);
+> +			mlx5_vdpa_del_mac_vlan_rules(ndev, pos);
+> +#if defined(CONFIG_MLX5_VDPA_STEERING_DEBUG)
+> +			mlx5_fc_destroy(ndev->mvdev.mdev, pos->mcast_counter.counter);
+> +			mlx5_fc_destroy(ndev->mvdev.mdev, pos->ucast_counter.counter);
+> +#endif
+>   			kfree(pos);
+>   		}
+>   	}
 > diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.h b/drivers/vdpa/mlx5/net/mlx5_vnet.h
-> index 6691c879a6ca..f2cef3925e5b 100644
+> index f2cef3925e5b..706c83016b71 100644
 > --- a/drivers/vdpa/mlx5/net/mlx5_vnet.h
 > +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.h
-> @@ -16,6 +16,7 @@ struct mlx5_vdpa_net_resources {
->   	u32 tirn;
->   	u32 rqtn;
->   	bool valid;
-> +	struct dentry *tirn_dent;
->   };
+> @@ -21,6 +21,11 @@ struct mlx5_vdpa_net_resources {
 >   
 >   #define MLX5V_MACVLAN_SIZE 256
-> @@ -43,6 +44,7 @@ struct mlx5_vdpa_net {
->   	struct vdpa_callback config_cb;
->   	struct mlx5_vdpa_wq_ent cvq_ent;
->   	struct hlist_head macvlan_hash[MLX5V_MACVLAN_SIZE];
-> +	struct dentry *debugfs;
->   };
 >   
->   struct macvlan_node {
-> @@ -52,4 +54,11 @@ struct macvlan_node {
->   	u64 macvlan;
->   };
->   
-> +void mlx5_vdpa_add_debugfs(struct mlx5_vdpa_net *ndev);
-> +void mlx5_vdpa_remove_debugfs(struct dentry *dbg);
-> +void mlx5_vdpa_add_rx_flow_table(struct mlx5_vdpa_net *ndev);
-> +void mlx5_vdpa_remove_rx_flow_table(struct mlx5_vdpa_net *ndev);
-> +void mlx5_vdpa_add_tirn(struct mlx5_vdpa_net *ndev);
-> +void mlx5_vdpa_remove_tirn(struct mlx5_vdpa_net *ndev);
+> +static inline u16 key2vid(u64 key)
+> +{
+> +	return (u16)(key >> 48);
+> +}
 > +
+>   struct mlx5_vdpa_net {
+>   	struct mlx5_vdpa_dev mvdev;
+>   	struct mlx5_vdpa_net_resources res;
+> @@ -47,11 +52,24 @@ struct mlx5_vdpa_net {
+>   	struct dentry *debugfs;
+>   };
+>   
+> +struct mlx5_vdpa_counter {
+> +	struct mlx5_fc *counter;
+> +	struct dentry *dent;
+> +	struct mlx5_core_dev *mdev;
+> +};
+> +
+>   struct macvlan_node {
+>   	struct hlist_node hlist;
+>   	struct mlx5_flow_handle *ucast_rule;
+>   	struct mlx5_flow_handle *mcast_rule;
+>   	u64 macvlan;
+> +	struct mlx5_vdpa_net *ndev;
+> +	bool tagged;
+> +#if defined(CONFIG_MLX5_VDPA_STEERING_DEBUG)
+> +	struct dentry *dent;
+> +	struct mlx5_vdpa_counter ucast_counter;
+> +	struct mlx5_vdpa_counter mcast_counter;
+> +#endif
+>   };
+>   
+>   void mlx5_vdpa_add_debugfs(struct mlx5_vdpa_net *ndev);
+> @@ -60,5 +78,17 @@ void mlx5_vdpa_add_rx_flow_table(struct mlx5_vdpa_net *ndev);
+>   void mlx5_vdpa_remove_rx_flow_table(struct mlx5_vdpa_net *ndev);
+>   void mlx5_vdpa_add_tirn(struct mlx5_vdpa_net *ndev);
+>   void mlx5_vdpa_remove_tirn(struct mlx5_vdpa_net *ndev);
+> +#if defined(CONFIG_MLX5_VDPA_STEERING_DEBUG)
+> +void mlx5_vdpa_add_rx_counters(struct mlx5_vdpa_net *ndev,
+> +			       struct macvlan_node *node);
+> +void mlx5_vdpa_remove_rx_counters(struct mlx5_vdpa_net *ndev,
+> +				  struct macvlan_node *node);
+> +#else
+> +static inline void mlx5_vdpa_add_rx_counters(struct mlx5_vdpa_net *ndev,
+> +					     struct macvlan_node *node) {}
+> +static inline void mlx5_vdpa_remove_rx_counters(struct mlx5_vdpa_net *ndev,
+> +						struct macvlan_node *node) {}
+> +#endif
+> +
+>   
 >   #endif /* __MLX5_VNET_H__ */
+
+--------------bjWbVqBqLUyTEAA71qJOM04u
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  </head>
+  <body>
+    <br>
+    <br>
+    <div class="moz-cite-prefix">On 10/18/2022 4:12 AM, Eli Cohen wrote:<br>
+    </div>
+    <blockquote type="cite" cite="mid:20221018111232.4021-5-elic@nvidia.com">
+      <pre class="moz-quote-pre" wrap="">For each interface, either VLAN tagged or untagged, add two hardware
+counters: one for unicast and another for multicast. The counters count
+RX packets and bytes and can be read through debugfs:
+
+$ cat /sys/kernel/debug/mlx5/mlx5_core.sf.1/vdpa-0/rx/untagged/mcast/packets
+$ cat /sys/kernel/debug/mlx5/mlx5_core.sf.1/vdpa-0/rx/untagged/ucast/bytes
+
+This feature is controlled via the config option
+MLX5_VDPA_STEERING_DEBUG. It is off by default as it may have some
+impact on performance.
+
+Signed-off-by: Eli Cohen <a class="moz-txt-link-rfc2396E" href="mailto:elic@nvidia.com">&lt;elic@nvidia.com&gt;</a>
+---
+ drivers/vdpa/Kconfig              | 12 ++++
+ drivers/vdpa/mlx5/net/debug.c     | 82 +++++++++++++++++++++++++++
+ drivers/vdpa/mlx5/net/mlx5_vnet.c | 94 +++++++++++++++++++++++--------
+ drivers/vdpa/mlx5/net/mlx5_vnet.h | 30 ++++++++++
+ 4 files changed, 195 insertions(+), 23 deletions(-)
+
+diff --git a/drivers/vdpa/Kconfig b/drivers/vdpa/Kconfig
+index 50f45d037611..43b716ec2d18 100644
+--- a/drivers/vdpa/Kconfig
++++ b/drivers/vdpa/Kconfig
+@@ -71,6 +71,18 @@ config MLX5_VDPA_NET
+ 	  be executed by the hardware. It also supports a variety of stateless
+ 	  offloads depending on the actual device used and firmware version.
+ 
++config MLX5_VDPA_STEERING_DEBUG
++	bool &quot;expose steering counters on debugfs&quot;
++	select MLX5_VDPA
++	help
++	  Expose RX steering counters in debugfs to aid in debugging. For each VLAN
++	  or non VLAN interface, two hardware counters are added to the RX flow
++	  table: one for unicast and one for multicast.
++	  The counters counts the number of packets and bytes and exposes them in
++	  debugfs. Once can read the counters using, e.g.:
++	  cat /sys/kernel/debug/mlx5/mlx5_core.sf.1/vdpa-0/rx/untagged/ucast/packets
++	  cat /sys/kernel/debug/mlx5/mlx5_core.sf.1/vdpa-0/rx/untagged/mcast/bytes
++
+ config VP_VDPA
+ 	tristate &quot;Virtio PCI bridge vDPA driver&quot;
+ 	select VIRTIO_PCI_LIB
+diff --git a/drivers/vdpa/mlx5/net/debug.c b/drivers/vdpa/mlx5/net/debug.c
+index 95e4801df211..35137a36433a 100644
+--- a/drivers/vdpa/mlx5/net/debug.c
++++ b/drivers/vdpa/mlx5/net/debug.c
+@@ -49,6 +49,88 @@ void mlx5_vdpa_add_rx_flow_table(struct mlx5_vdpa_net *ndev)
+ 						  ndev, &amp;rx_flow_table_fops);
+ }
+ 
++#if defined(CONFIG_MLX5_VDPA_STEERING_DEBUG)
++static int packets_show(struct seq_file *file, void *priv)
++{
++	struct mlx5_vdpa_counter *counter = file-&gt;private;
++	u64 packets;
++	u64 bytes;
++	int err;
++
++	err = mlx5_fc_query(counter-&gt;mdev, counter-&gt;counter, &amp;packets, &amp;bytes);
++	if (err)
++		return err;
++
++	seq_printf(file, &quot;0x%llx\n&quot;, packets);
++	return 0;
++}
++
++static int bytes_show(struct seq_file *file, void *priv)
++{
++	struct mlx5_vdpa_counter *counter = file-&gt;private;
++	u64 packets;
++	u64 bytes;
++	int err;
++
++	err = mlx5_fc_query(counter-&gt;mdev, counter-&gt;counter, &amp;packets, &amp;bytes);
++	if (err)
++		return err;
++
++	seq_printf(file, &quot;0x%llx\n&quot;, bytes);
++	return 0;
++}
++
++DEFINE_SHOW_ATTRIBUTE(packets);
++DEFINE_SHOW_ATTRIBUTE(bytes);
++
++static void add_counter_node(struct mlx5_vdpa_counter *counter,
++			     struct dentry *parent)
++{
++	debugfs_create_file(&quot;packets&quot;, 0444, parent, counter,
++			    &amp;packets_fops);
++	debugfs_create_file(&quot;bytes&quot;, 0444, parent, counter,
++			    &amp;bytes_fops);
++}
++
++void mlx5_vdpa_add_rx_counters(struct mlx5_vdpa_net *ndev,
++			       struct macvlan_node *node)
++{
++	static const char *ut = &quot;untagged&quot;;
++	char vidstr[9];
++	u16 vid;
++
++	if (node-&gt;tagged) {
++		vid = key2vid(node-&gt;macvlan);
++		snprintf(vidstr, sizeof(vidstr), &quot;0x%x&quot;, vid);
++	} else {
++		strcpy(vidstr, ut);
++	}
++
++	node-&gt;dent = debugfs_create_dir(vidstr, ndev-&gt;rx_dent);
++	if (IS_ERR(node-&gt;dent))
++		return;
++
++	node-&gt;ucast_counter.dent = debugfs_create_dir(&quot;ucast&quot;, node-&gt;dent);
++	if (IS_ERR(node-&gt;ucast_counter.dent))
++		return;
++
++	add_counter_node(&amp;node-&gt;ucast_counter, node-&gt;ucast_counter.dent);
++
++	node-&gt;mcast_counter.dent = debugfs_create_dir(&quot;mcast&quot;, node-&gt;dent);
++	if (IS_ERR(node-&gt;mcast_counter.dent))
++		return;
++
++	add_counter_node(&amp;node-&gt;mcast_counter, node-&gt;mcast_counter.dent);
++}
++
++void mlx5_vdpa_remove_rx_counters(struct mlx5_vdpa_net *ndev,
++				  struct macvlan_node *node)
++{
++	if (ndev-&gt;debugfs)
++		debugfs_remove_recursive(node-&gt;dent);
++}
++#endif
++
+ void mlx5_vdpa_add_debugfs(struct mlx5_vdpa_net *ndev)
+ {
+ 	struct mlx5_core_dev *mdev;
+diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+index ee50da33e25b..1b850d0aee99 100644
+--- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
++++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+@@ -1404,12 +1404,16 @@ static void destroy_tir(struct mlx5_vdpa_net *ndev)
+ #define MAX_STEERING_ENT 0x8000
+ #define MAX_STEERING_GROUPS 2
+ 
++#if defined(CONFIG_MLX5_VDPA_STEERING_DEBUG)
++       #define NUM_DESTS 2
++#else
++       #define NUM_DESTS 1
++#endif
++
+ static int mlx5_vdpa_add_mac_vlan_rules(struct mlx5_vdpa_net *ndev, u8 *mac,
+-					u16 vid, bool tagged,
+-					struct mlx5_flow_handle **ucast,
+-					struct mlx5_flow_handle **mcast)
++					struct macvlan_node *node)
+ {
+-	struct mlx5_flow_destination dest = {};
++	struct mlx5_flow_destination dests[NUM_DESTS] = {};
+ 	struct mlx5_flow_act flow_act = {};
+ 	struct mlx5_flow_handle *rule;
+ 	struct mlx5_flow_spec *spec;
+@@ -1418,11 +1422,13 @@ static int mlx5_vdpa_add_mac_vlan_rules(struct mlx5_vdpa_net *ndev, u8 *mac,
+ 	u8 *dmac_c;
+ 	u8 *dmac_v;
+ 	int err;
++	u16 vid;
+ 
+ 	spec = kvzalloc(sizeof(*spec), GFP_KERNEL);
+ 	if (!spec)
+ 		return -ENOMEM;
+ 
++	vid = key2vid(node-&gt;macvlan);
+ 	spec-&gt;match_criteria_enable = MLX5_MATCH_OUTER_HEADERS;
+ 	headers_c = MLX5_ADDR_OF(fte_match_param, spec-&gt;match_criteria, outer_headers);
+ 	headers_v = MLX5_ADDR_OF(fte_match_param, spec-&gt;match_value, outer_headers);
+@@ -1431,45 +1437,78 @@ static int mlx5_vdpa_add_mac_vlan_rules(struct mlx5_vdpa_net *ndev, u8 *mac,
+ 	eth_broadcast_addr(dmac_c);
+ 	ether_addr_copy(dmac_v, mac);
+ 	MLX5_SET(fte_match_set_lyr_2_4, headers_c, cvlan_tag, 1);
+-	if (tagged) {
++	if (node-&gt;tagged) {
+ 		MLX5_SET(fte_match_set_lyr_2_4, headers_v, cvlan_tag, 1);
+ 		MLX5_SET_TO_ONES(fte_match_set_lyr_2_4, headers_c, first_vid);
+ 		MLX5_SET(fte_match_set_lyr_2_4, headers_v, first_vid, vid);
+ 	}
+ 	flow_act.action = MLX5_FLOW_CONTEXT_ACTION_FWD_DEST;
+-	dest.type = MLX5_FLOW_DESTINATION_TYPE_TIR;
+-	dest.tir_num = ndev-&gt;res.tirn;
+-	rule = mlx5_add_flow_rules(ndev-&gt;rxft, spec, &amp;flow_act, &amp;dest, 1);
++	dests[0].type = MLX5_FLOW_DESTINATION_TYPE_TIR;
++	dests[0].tir_num = ndev-&gt;res.tirn;
++#if defined(CONFIG_MLX5_VDPA_STEERING_DEBUG)
++	node-&gt;ucast_counter.counter = mlx5_fc_create(ndev-&gt;mvdev.mdev, false);
++	if (IS_ERR(node-&gt;ucast_counter.counter)) {
++		err = PTR_ERR(node-&gt;ucast_counter.counter);
++		goto err_ucast_counter;
++	}
++	node-&gt;mcast_counter.counter = mlx5_fc_create(ndev-&gt;mvdev.mdev, false);
++	if (IS_ERR(node-&gt;mcast_counter.counter)) {
++		err = PTR_ERR(node-&gt;mcast_counter.counter);
++		goto err_mcast_counter;
++	}
++
++	dests[1].type = MLX5_FLOW_DESTINATION_TYPE_COUNTER;
++	dests[1].counter_id = mlx5_fc_id(node-&gt;ucast_counter.counter);
++	flow_act.action |= MLX5_FLOW_CONTEXT_ACTION_COUNT;
++#endif
++	node-&gt;ucast_rule = mlx5_add_flow_rules(ndev-&gt;rxft, spec, &amp;flow_act, dests, NUM_DESTS);
+ 	if (IS_ERR(rule))
+ 		return PTR_ERR(rule);</pre>
+    </blockquote>
+    There'll be leakage on counters and flow spec if using direct
+    return.<br>
+    <br>
+    <blockquote type="cite" cite="mid:20221018111232.4021-5-elic@nvidia.com">
+      <pre class="moz-quote-pre" wrap="">
+ 
+-	*ucast = rule;
++#if defined(CONFIG_MLX5_VDPA_STEERING_DEBUG)
++	dests[1].counter_id = mlx5_fc_id(node-&gt;mcast_counter.counter);
++#endif
+ 
+ 	memset(dmac_c, 0, ETH_ALEN);
+ 	memset(dmac_v, 0, ETH_ALEN);
+ 	dmac_c[0] = 1;
+ 	dmac_v[0] = 1;
+-	rule = mlx5_add_flow_rules(ndev-&gt;rxft, spec, &amp;flow_act, &amp;dest, 1);
++	node-&gt;mcast_rule = mlx5_add_flow_rules(ndev-&gt;rxft, spec, &amp;flow_act, dests, NUM_DESTS);
+ 	kvfree(spec);</pre>
+    </blockquote>
+    Move kvfree a couple of lines under (after the IS_ERR check).<br>
+    <blockquote type="cite" cite="mid:20221018111232.4021-5-elic@nvidia.com">
+      <pre class="moz-quote-pre" wrap="">
+ 	if (IS_ERR(rule)) {
+ 		err = PTR_ERR(rule);
+ 		goto err_mcast;
+ 	}
+ 
+-	*mcast = rule;
++#if defined(CONFIG_MLX5_VDPA_STEERING_DEBUG)
++	node-&gt;ucast_counter.mdev = ndev-&gt;mvdev.mdev;
++	node-&gt;mcast_counter.mdev = ndev-&gt;mvdev.mdev;
++#endif
++	mlx5_vdpa_add_rx_counters(ndev, node);
++
+ 	return 0;
+ 
+ err_mcast:
+-	mlx5_del_flow_rules(*ucast);
++	mlx5_del_flow_rules(node-&gt;ucast_rule);
++#if defined(CONFIG_MLX5_VDPA_STEERING_DEBUG)</pre>
+    </blockquote>
+    No corresponding mlx5_fc_destroy() for mcast_counter.<br>
+    <blockquote type="cite" cite="mid:20221018111232.4021-5-elic@nvidia.com">
+      <pre class="moz-quote-pre" wrap="">
++err_mcast_counter:
++	mlx5_fc_destroy(ndev-&gt;mvdev.mdev, node-&gt;ucast_counter.counter);
++err_ucast_counter:
++	kfree(spec);</pre>
+    </blockquote>
+    kvfree?<br>
+    <br>
+    Regards,<br>
+    -Siwei<br>
+    <blockquote type="cite" cite="mid:20221018111232.4021-5-elic@nvidia.com">
+      <pre class="moz-quote-pre" wrap="">
++#endif
+ 	return err;
+ }
+ 
+ static void mlx5_vdpa_del_mac_vlan_rules(struct mlx5_vdpa_net *ndev,
+-					 struct mlx5_flow_handle *ucast,
+-					 struct mlx5_flow_handle *mcast)
++					 struct macvlan_node *node)
+ {
+-	mlx5_del_flow_rules(ucast);
+-	mlx5_del_flow_rules(mcast);
++#if defined(CONFIG_MLX5_VDPA_STEERING_DEBUG)
++	if (node-&gt;dent &amp;&amp; !IS_ERR(node-&gt;dent))
++		mlx5_vdpa_remove_rx_counters(ndev, node);
++#endif
++
++	mlx5_del_flow_rules(node-&gt;ucast_rule);
++	mlx5_del_flow_rules(node-&gt;mcast_rule);
+ }
+ 
+ static u64 search_val(u8 *mac, u16 vlan, bool tagged)
+@@ -1503,14 +1542,14 @@ static struct macvlan_node *mac_vlan_lookup(struct mlx5_vdpa_net *ndev, u64 valu
+ 	return NULL;
+ }
+ 
+-static int mac_vlan_add(struct mlx5_vdpa_net *ndev, u8 *mac, u16 vlan, bool tagged) // vlan -&gt; vid
++static int mac_vlan_add(struct mlx5_vdpa_net *ndev, u8 *mac, u16 vid, bool tagged)
+ {
+ 	struct macvlan_node *ptr;
+ 	u64 val;
+ 	u32 idx;
+ 	int err;
+ 
+-	val = search_val(mac, vlan, tagged);
++	val = search_val(mac, vid, tagged);
+ 	if (mac_vlan_lookup(ndev, val))
+ 		return -EEXIST;
+ 
+@@ -1518,12 +1557,13 @@ static int mac_vlan_add(struct mlx5_vdpa_net *ndev, u8 *mac, u16 vlan, bool tagg
+ 	if (!ptr)
+ 		return -ENOMEM;
+ 
+-	err = mlx5_vdpa_add_mac_vlan_rules(ndev, ndev-&gt;config.mac, vlan, tagged,
+-					   &amp;ptr-&gt;ucast_rule, &amp;ptr-&gt;mcast_rule);
++	ptr-&gt;tagged = tagged;
++	ptr-&gt;macvlan = val;
++	ptr-&gt;ndev = ndev;
++	err = mlx5_vdpa_add_mac_vlan_rules(ndev, ndev-&gt;config.mac, ptr);
+ 	if (err)
+ 		goto err_add;
+ 
+-	ptr-&gt;macvlan = val;
+ 	idx = hash_64(val, 8);
+ 	hlist_add_head(&amp;ptr-&gt;hlist, &amp;ndev-&gt;macvlan_hash[idx]);
+ 	return 0;
+@@ -1542,7 +1582,11 @@ static void mac_vlan_del(struct mlx5_vdpa_net *ndev, u8 *mac, u16 vlan, bool tag
+ 		return;
+ 
+ 	hlist_del(&amp;ptr-&gt;hlist);
+-	mlx5_vdpa_del_mac_vlan_rules(ndev, ptr-&gt;ucast_rule, ptr-&gt;mcast_rule);
++	mlx5_vdpa_del_mac_vlan_rules(ndev, ptr);
++#if defined(CONFIG_MLX5_VDPA_STEERING_DEBUG)
++			mlx5_fc_destroy(ndev-&gt;mvdev.mdev, ptr-&gt;mcast_counter.counter);
++			mlx5_fc_destroy(ndev-&gt;mvdev.mdev, ptr-&gt;ucast_counter.counter);
++#endif
+ 	kfree(ptr);
+ }
+ 
+@@ -1555,7 +1599,11 @@ static void clear_mac_vlan_table(struct mlx5_vdpa_net *ndev)
+ 	for (i = 0; i &lt; MLX5V_MACVLAN_SIZE; i++) {
+ 		hlist_for_each_entry_safe(pos, n, &amp;ndev-&gt;macvlan_hash[i], hlist) {
+ 			hlist_del(&amp;pos-&gt;hlist);
+-			mlx5_vdpa_del_mac_vlan_rules(ndev, pos-&gt;ucast_rule, pos-&gt;mcast_rule);
++			mlx5_vdpa_del_mac_vlan_rules(ndev, pos);
++#if defined(CONFIG_MLX5_VDPA_STEERING_DEBUG)
++			mlx5_fc_destroy(ndev-&gt;mvdev.mdev, pos-&gt;mcast_counter.counter);
++			mlx5_fc_destroy(ndev-&gt;mvdev.mdev, pos-&gt;ucast_counter.counter);
++#endif
+ 			kfree(pos);
+ 		}
+ 	}
+diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.h b/drivers/vdpa/mlx5/net/mlx5_vnet.h
+index f2cef3925e5b..706c83016b71 100644
+--- a/drivers/vdpa/mlx5/net/mlx5_vnet.h
++++ b/drivers/vdpa/mlx5/net/mlx5_vnet.h
+@@ -21,6 +21,11 @@ struct mlx5_vdpa_net_resources {
+ 
+ #define MLX5V_MACVLAN_SIZE 256
+ 
++static inline u16 key2vid(u64 key)
++{
++	return (u16)(key &gt;&gt; 48);
++}
++
+ struct mlx5_vdpa_net {
+ 	struct mlx5_vdpa_dev mvdev;
+ 	struct mlx5_vdpa_net_resources res;
+@@ -47,11 +52,24 @@ struct mlx5_vdpa_net {
+ 	struct dentry *debugfs;
+ };
+ 
++struct mlx5_vdpa_counter {
++	struct mlx5_fc *counter;
++	struct dentry *dent;
++	struct mlx5_core_dev *mdev;
++};
++
+ struct macvlan_node {
+ 	struct hlist_node hlist;
+ 	struct mlx5_flow_handle *ucast_rule;
+ 	struct mlx5_flow_handle *mcast_rule;
+ 	u64 macvlan;
++	struct mlx5_vdpa_net *ndev;
++	bool tagged;
++#if defined(CONFIG_MLX5_VDPA_STEERING_DEBUG)
++	struct dentry *dent;
++	struct mlx5_vdpa_counter ucast_counter;
++	struct mlx5_vdpa_counter mcast_counter;
++#endif
+ };
+ 
+ void mlx5_vdpa_add_debugfs(struct mlx5_vdpa_net *ndev);
+@@ -60,5 +78,17 @@ void mlx5_vdpa_add_rx_flow_table(struct mlx5_vdpa_net *ndev);
+ void mlx5_vdpa_remove_rx_flow_table(struct mlx5_vdpa_net *ndev);
+ void mlx5_vdpa_add_tirn(struct mlx5_vdpa_net *ndev);
+ void mlx5_vdpa_remove_tirn(struct mlx5_vdpa_net *ndev);
++#if defined(CONFIG_MLX5_VDPA_STEERING_DEBUG)
++void mlx5_vdpa_add_rx_counters(struct mlx5_vdpa_net *ndev,
++			       struct macvlan_node *node);
++void mlx5_vdpa_remove_rx_counters(struct mlx5_vdpa_net *ndev,
++				  struct macvlan_node *node);
++#else
++static inline void mlx5_vdpa_add_rx_counters(struct mlx5_vdpa_net *ndev,
++					     struct macvlan_node *node) {}
++static inline void mlx5_vdpa_remove_rx_counters(struct mlx5_vdpa_net *ndev,
++						struct macvlan_node *node) {}
++#endif
++
+ 
+ #endif /* __MLX5_VNET_H__ */
+</pre>
+    </blockquote>
+    <br>
+  </body>
+</html>
+
+--------------bjWbVqBqLUyTEAA71qJOM04u--
+
+
+--===============1899012867502148376==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============1899012867502148376==--
+
+
