@@ -1,194 +1,194 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B3957C433FE
-	for <virtualization@archiver.kernel.org>; Tue, 18 Oct 2022 19:27:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 01985C41535
+	for <virtualization@archiver.kernel.org>; Tue, 18 Oct 2022 19:52:44 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 37F9D41B45;
-	Tue, 18 Oct 2022 19:27:27 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 37F9D41B45
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=kknmIXih;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=VuG56OpJ
+	by smtp2.osuosl.org (Postfix) with ESMTP id 6722A40BF5;
+	Tue, 18 Oct 2022 19:52:44 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6722A40BF5
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=cgu8u1uv;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=v6sXQWv2
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id vfNopvTxGYQr; Tue, 18 Oct 2022 19:27:25 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 6JH5vu4kCyTn; Tue, 18 Oct 2022 19:52:43 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id E872141B2E;
-	Tue, 18 Oct 2022 19:27:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E872141B2E
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 9E55D40111;
+	Tue, 18 Oct 2022 19:52:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9E55D40111
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 9B600C0033;
-	Tue, 18 Oct 2022 19:27:24 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C9FD0C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5FD17C0033;
+	Tue, 18 Oct 2022 19:52:42 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 87AEDC0033
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Oct 2022 19:27:23 +0000 (UTC)
+ Tue, 18 Oct 2022 19:52:40 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 85D9683F05
+ by smtp3.osuosl.org (Postfix) with ESMTP id 6083D61117
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Oct 2022 19:27:23 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 85D9683F05
-Authentication-Results: smtp1.osuosl.org;
+ Tue, 18 Oct 2022 19:52:40 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6083D61117
+Authentication-Results: smtp3.osuosl.org;
  dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com
- header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=kknmIXih; 
+ header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=cgu8u1uv; 
  dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
  header.i=@oracle.onmicrosoft.com header.a=rsa-sha256
- header.s=selector2-oracle-onmicrosoft-com header.b=VuG56OpJ
+ header.s=selector2-oracle-onmicrosoft-com header.b=v6sXQWv2
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 1ob4ug33UQcj
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id pXYXc1GSfw0L
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Oct 2022 19:27:22 +0000 (UTC)
+ Tue, 18 Oct 2022 19:52:39 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3867783F03
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 54E7E6110F
 Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com
  [205.220.177.32])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 3867783F03
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 54E7E6110F
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Oct 2022 19:27:21 +0000 (UTC)
-Received: from pps.filterd (m0246630.ppops.net [127.0.0.1])
- by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29IIDvNT000845;
- Tue, 18 Oct 2022 19:27:21 GMT
+ Tue, 18 Oct 2022 19:52:38 +0000 (UTC)
+Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
+ by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29IJSw8b029483;
+ Tue, 18 Oct 2022 19:52:37 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
- h=content-type :
- message-id : date : subject : to : cc : references : from : in-reply-to :
- mime-version; s=corp-2022-7-12;
- bh=TF7fOc3X4Fd5A0RjgDQG7kxniwM5BOv/76MaBL3+NcY=;
- b=kknmIXihqi8l5n+lExTxTn5wEwcnqexuXAkuPIqEu/0eH4kiC88GE4lbReXurPCsbRiB
- e4MsSIIhTU17lq54vBhsF3etwzfwpSRUpDX1VmPQUrOe8S4z9IYegF2hbDsVqLCNvn7G
- xgcKf6mtAazGlH1q6Pp7zGknx/VtAN4/YUzv5pcv5qUXtMD8d/k7axGb1GQpbs5SV4SX
- 8BWoN3iJLioBneTqDpse0cETk87opk/FYH+D9nWx177kNYTMlXOIlP7K9l2Ea86H5E5v
- T8I7F9zys87vvHStgnZg7HzStVWfoZd3O0gWMUtajbtrErcJZreqysqaVJvJXx2BtTPa 3A== 
-Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com
- (iadpaimrmta01.appoci.oracle.com [130.35.100.223])
- by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3k9b7skcq4-1
+ h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=corp-2022-7-12;
+ bh=+dhMyrsmbdEqoLck7VSUZOY+8FLlSQMiPTEynf5AK0E=;
+ b=cgu8u1uvsu50Tk8+ZSoAoiafvOQ9cVuv3Rxnjumd+j3wOzELVUqrx2aGr3EedHTuAFyE
+ BtOOsQWYBVE9g3/VmTrP4C3JXWZIjOiiNxvtYVAlSugj2pP78XxeXJJBjtK0xzKvfbLf
+ nkWruJUS9+DdV9qF1OFIGH7Gzfg5HLOiazJLGN/jd7mc+nZqTTD4m4zTP7xQTRY0qL38
+ hw9rmpSaI+TVZq53HGOnGDwYySlF5Gc8GXITlh0Oq1kOW2x+PxkhaaEAlP9TFNyr/NF8
+ gxQlKjec7ifrhnmEjPVzN1NEhsqo7FYLwqoBAz+GzKN+XgJ/vvwFl3ZQ0M4H0CXOaukr 0g== 
+Received: from phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com
+ (phxpaimrmta03.appoci.oracle.com [138.1.37.129])
+ by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3k7mw3ftbg-1
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Tue, 18 Oct 2022 19:27:20 +0000
+ Tue, 18 Oct 2022 19:52:37 +0000
 Received: from pps.filterd
- (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
- by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.5/8.17.1.5)
- with ESMTP id 29IHacgt035625; Tue, 18 Oct 2022 19:27:19 GMT
-Received: from nam12-dm6-obe.outbound.protection.outlook.com
- (mail-dm6nam12lp2169.outbound.protection.outlook.com [104.47.59.169])
- by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id
- 3k8hu7rb23-1
+ (phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+ by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.5/8.17.1.5)
+ with ESMTP id 29IJa8jq024348; Tue, 18 Oct 2022 19:52:36 GMT
+Received: from nam11-co1-obe.outbound.protection.outlook.com
+ (mail-co1nam11lp2171.outbound.protection.outlook.com [104.47.56.171])
+ by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id
+ 3k8hu6r0b6-1
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Tue, 18 Oct 2022 19:27:19 +0000
+ Tue, 18 Oct 2022 19:52:36 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=l/g8OjqmjvYx5mtA725jjof52LXBFRXLH7gSn0sV114Yi96jK+zdBKA7z/gMei7niVhBFarCJUclubxyBTULHUfo1+R55fdClHAFEkeCFfNqf5w5hTJ/q9xJhsMkG0Ne3vGb11xdsWybDMwPwoMzkT8Cxd2qVCeLlV+qIh5OBInNXezUYyCLE7wWZI+HetN73mRWYqT3plZEMuQg7h7I95lr5Rk+GUyfuZz/wVhtTtW1qXdGPIv800raUO+hosXB6R4cBjPeTbqWRTfrSmTy0LocftePQ7BaaA5tnovznjr4lvfYnSV2HlEOi6HinNp/ipWaCX70333Am2QpTXl97Q==
+ b=d29VUQJI1MmLbPtGfT5Scw5JYGtqef9rpo8saA6ykkhN0awyNNmMHwhUO/QQuuu2xTVxt0IVplcK+xOs5DigQjUQUwKFS9YS3zRvVmkHXDkTZKCJJPD8JRMYwK0AralCi2bgG7zK7Huq9/mtKra539fVYrDQL4DmaiGItKC3OIPyvEGvcmGNYbT7nXI/rOZEb1pwELn51JR9X29evQSlIF868V7VlLXWG1HbD2HwfwWLIV2cvksSBsw3ZHb6T3LH9yuDWaqgBYjM2oFQVTZbUI11X7C4RQvhSc9IBVp6lQUPEnBX190C0f3/kiSJL2EXVeHRJBNZa6QgJ4hSmutjfQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=TF7fOc3X4Fd5A0RjgDQG7kxniwM5BOv/76MaBL3+NcY=;
- b=a+9cX98uJpCCS7+l3UXhItyXRLCxsj3Sl9a/GBtCjT/XssM7HTqXvq8N1B5KFguKomz5cKmwcOGtjNbF78NQBHfhhJsge+DgxtlVsvoa96lSbyySflh6smnla5IJ/QusWQDUp/x0H5v1AzTtSSfrkM2Aj4UGS39MkP19tUHj8sdD7Jt1a+p8X0c5fMg+nW2/U2sS+sC2KQSwz5rbZ3Tj1t+4/9edH70uITDEup6VICmna1TT8ze/ALtbAN8aKCHtnbpafH9IUAdnHfNqPqQ9dyIKL2r3Z+UGV51KhAFbnlrdvLNq9WdHSlnDcLGxvcAF1kf4+G7731gHtYmvCtyQJw==
+ bh=+dhMyrsmbdEqoLck7VSUZOY+8FLlSQMiPTEynf5AK0E=;
+ b=jp7Hi2tf954kUvlxkF7sdH/OirdNc/kt6ia9Lsq3gto46c+buCDMvbJ7K925UzX8hRKctP8FGhQfHJZIUOagrJ7PHFDFX3LoXA0j/K6kgwx1biVM9zXggk5pJszAxMcrrpZABtY319lentP46QHcIxQSK6FErYXkwjjUAR0G7aywEntuS+pEjNTBuAeCrpD0DpvpLBdVd0l/nQ/iseh19tg+dxhNmYm0D/0ImQTt0k7hkyqXhDSR5YUygV23OP7Xbxr8jdqYQQpTVSewB6sVuSpLM+4wem4hT2C7cdG8nKEiHfW3v9Rn7YT6R3bd1SjKLBentGuSFWSzF06iaCAUzg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
  dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=TF7fOc3X4Fd5A0RjgDQG7kxniwM5BOv/76MaBL3+NcY=;
- b=VuG56OpJbFx53rS7l/2svkG2zNvNFkykU8CiaQcO6KjXpFQVTdfZPNQZrX5MFIFRd2USd6hF3EjmeFgJJclSTFHeugLoEXdvn9iGQBqjNJcv+6n6HP45S+jkWbcWZhYNmp8Gv9qLawJ8W2pzCpf4PSJDY9RtW4Li7+E1GKkWiTw=
+ bh=+dhMyrsmbdEqoLck7VSUZOY+8FLlSQMiPTEynf5AK0E=;
+ b=v6sXQWv2Ova4gcnnF7jTJNzqXBWIBsn1d2Yy6Qw/kj5oZ0vaz1PkJSDBv+OZhjfVB2OvTwVid3nxkFHmBXhtEkjp9vvTtiCSLZlHjXkaa5kRq749WJupYeCYwCrAlcMYRD1QS7yJwYEpUZQHPFNQePabgqnaQY5sHIKFfvgGukc=
 Received: from MW4PR10MB6535.namprd10.prod.outlook.com (2603:10b6:303:225::12)
- by CH2PR10MB4165.namprd10.prod.outlook.com (2603:10b6:610:a5::24)
+ by MN2PR10MB4336.namprd10.prod.outlook.com (2603:10b6:208:15f::15)
  with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5723.34; Tue, 18 Oct
- 2022 19:27:17 +0000
+ 2022 19:52:33 +0000
 Received: from MW4PR10MB6535.namprd10.prod.outlook.com
  ([fe80::9830:ae4d:f10c:c30a]) by MW4PR10MB6535.namprd10.prod.outlook.com
  ([fe80::9830:ae4d:f10c:c30a%5]) with mapi id 15.20.5723.032; Tue, 18 Oct 2022
- 19:27:17 +0000
-Message-ID: <5eca75d1-afdb-29f9-f728-6559379c06a3@oracle.com>
-Date: Tue, 18 Oct 2022 12:27:14 -0700
+ 19:52:33 +0000
+Message-ID: <d6e8eb0a-1b45-0297-d84e-6629d8a9ea18@oracle.com>
+Date: Tue, 18 Oct 2022 12:52:29 -0700
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
  Thunderbird/102.3.3
-Subject: Re: [PATCH 2/4] vdpa/mlx5: Move some definitions to a new header file
+Subject: Re: [PATCH 3/4] vdpa/mlx5: Add debugfs subtree
 Content-Language: en-US
 To: Eli Cohen <elic@nvidia.com>, mst@redhat.com, jasowang@redhat.com,
  linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 References: <20221018111232.4021-1-elic@nvidia.com>
- <20221018111232.4021-3-elic@nvidia.com>
+ <20221018111232.4021-4-elic@nvidia.com>
 From: Si-Wei Liu <si-wei.liu@oracle.com>
 Organization: Oracle Corporation
-In-Reply-To: <20221018111232.4021-3-elic@nvidia.com>
-X-ClientProxiedBy: SJ0PR03CA0219.namprd03.prod.outlook.com
- (2603:10b6:a03:39f::14) To MW4PR10MB6535.namprd10.prod.outlook.com
+In-Reply-To: <20221018111232.4021-4-elic@nvidia.com>
+X-ClientProxiedBy: SN1PR12CA0111.namprd12.prod.outlook.com
+ (2603:10b6:802:21::46) To MW4PR10MB6535.namprd10.prod.outlook.com
  (2603:10b6:303:225::12)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MW4PR10MB6535:EE_|CH2PR10MB4165:EE_
-X-MS-Office365-Filtering-Correlation-Id: 02ebedad-ad30-4905-ed8d-08dab13ec49b
+X-MS-TrafficTypeDiagnostic: MW4PR10MB6535:EE_|MN2PR10MB4336:EE_
+X-MS-Office365-Filtering-Correlation-Id: b42dd405-1b2c-4e59-dc7d-08dab1424c1a
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 3BCGUwNWNuA1s/oOQKvqppNue1Sdc+SuRmj2cS0mpmgo06FzlBbmWJFpOADKkIbymNPXiSlsKgVRfowtiV+mtedYHHZX4ft1op9AqmXTgqoBfVHY+Kz79OEq2dv1XNxPD0ujF50Al2j6nV7u2nL+Lq3PGQI5yMwNfLwuNvbnqORIJ6pzlg2gi4yS77K77qdONKX++CsDS0MJbXko2Fdsyvoozcp37isDUb8mIfCTpMhMp0wi6QKdDnGAHrt5tq16HloIKKxwMRcxUWxrlAjYpHGSXffRZgUt1NrREFmImZ1q8nZ2AnYJXxC1rtPVqKRjbbcnek4Dz5XhQlQPnLtKfT5E+4nSpuluS5tMlTTtQrE2Gq582YqRKeBn8gHyFcjSbHK2JWQuJzi02Rurm6/4KITyFN5E1lModHVwePQQBnPA1NcSKN00lDw5WhVrqOIm11V7cMo47HbePZ7Ur8e0CmYauK0Bu+KJ5NKCarNl86YU1QCE2IvJsouRJZAQRvK5wFlmhU10ONHnQNc04iIykSxfkdJU2OEUhg+F1LJoeHgMv2bHsUN26oz/muPqNaOuqPA8Ahm5kQiW81uZUERiXtf3QfRiZWOOg5Jl4Zsfdlp8Jp0/fiGjWPkG2nYv1cRqrS8p6+hdY+dN7LC+YA9Rck5vqctxiSDFCK4XQ1YQNKy28+gN4HuD4Xm3v8onwBAXraTPz4aFFlu2Mkr+cs0QvzXolmMSvRwxG4ThD6ZY9jXYKSZ3DmNnyxrjwc8kbdO9aV4pCfbtFnrd2dAMW/R1ql3/l5aRvsiPSyTE9RlCsEM=
+X-Microsoft-Antispam-Message-Info: 03hrYlico2BWQW6oWN2s2xvC5FbdN2fKDHBdTurlF7/sY42SmehfDJLHhjkW0iFvZW4Ce3CPc9/SgbcPS4qVikelqxCBMnquXcvJgIV3PW4or6Tm12zmdyFZayReP0oZtqcMBIlsN1S3nwfiTR3EPegJKqvTTP6Dlz6oMxueuYYjVo84t4A0YqnoKLXPoGKTG0IMaiO4iClECghztwvhIlVX6E1W639RLyDn1yzLzwwvseontMgi6HnYblnRGE/fJndiBDDThopggqjy7HpoI4k56yAdiMsrZjgtMPE/uVZPPZrsEUuttrws+r/0s67ElgObdMDr1HRL1X1ctrX3Y/Uygtj5yBJ8MOuFEWC2wEdraz9/DODz67v/gotmIatoQ6EIQFrd4JjD+ehH5tJccfplDH/7peboenuhZeKEeGxwX3Rrlp4CYsLoRbduI5Utz6A1dYGEviraQrYTdSFXpi7ZvulyoZdbb/Ba6O/Imc4GsT/uJWaDJALvQ5x9+cwcZDoIMJMYf2sQsfwH3u/c4e31cAsmxg6Cgp2mPHgPhm+HZGvvi2FtMRup1WCRINaNsgjUKFl6JTXhmINSBNIYEMGgoJUU32Nl6rrZXUnl96Txqnb+cn8WXjANUoR21f7B+4Kj0UiLFVpfbN8BAGtNUlnw13A+22MUQ+/6qRDQj+eXrXmyMrODUbcCZtgcZp4xaeWS54G3WrItjus0fs5GgCSkH2ZxO8nagewf1dUSBCQpqxBbfly2FjTEAp7teFsHhEUd2QZRLfpHVR3kEk+6/4Jnc8cbH+CEVpHpmuFpARI=
 X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
  IPV:NLI; SFV:NSPM; H:MW4PR10MB6535.namprd10.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230022)(376002)(366004)(136003)(396003)(39860400002)(346002)(451199015)(6506007)(6666004)(186003)(33964004)(6512007)(2616005)(36916002)(26005)(53546011)(83380400001)(2906002)(5660300002)(66946007)(316002)(6486002)(478600001)(41300700001)(8936002)(4326008)(8676002)(66476007)(66556008)(31696002)(36756003)(86362001)(38100700002)(31686004)(43740500002)(45980500001);
+ SFS:(13230022)(39860400002)(376002)(366004)(396003)(346002)(136003)(451199015)(36756003)(31696002)(86362001)(31686004)(38100700002)(2906002)(83380400001)(5660300002)(36916002)(26005)(6666004)(53546011)(6506007)(2616005)(186003)(6512007)(6486002)(478600001)(316002)(4326008)(8676002)(66946007)(66556008)(66476007)(41300700001)(8936002)(45980500001)(43740500002);
  DIR:OUT; SFP:1101; 
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?SEtLQUZEY0xIQTlTSWg3OE0rVjhzWWFVRzhUbHhYWXhOWVBPWUc2aDlJV1Ex?=
- =?utf-8?B?dXo0aWNLSm9BekV4RG1BQjFtN2RWc1o3aU5wZ2pJL1FoanpMMEt5Qk5nSlRE?=
- =?utf-8?B?TGNPZFQ1U1RJUFdlN0hFMDlnd1c1OVlZVDhGS3NkcEpqeXNUYkt1aU1uRjFZ?=
- =?utf-8?B?bUZqYUJRTUFLYzlIdUt0amovQ0xDWEVxbWVyRHZxa2p5bXlieGZseW1VUkZj?=
- =?utf-8?B?NzFXb1BQNUZtekJUY2QycE5OME1PRlZDbjJzYTFOME83Uk1KcGdFc0xUeFg1?=
- =?utf-8?B?akpIRmxtSDBrdkVCaGhzdVFVbmkwVWpzVFJDRVhPU2NQOUMrUWh5azRYOUNw?=
- =?utf-8?B?eU1LZHhtaVdPYXZITi84Ny9kVVQxejRPL2JzMGhSd3hXUFJLbHhaRnBXYm10?=
- =?utf-8?B?NURGQTNkbkc1R3RCSk5Hd0l2RFpNeHRnTko0VVdNMWo1NzlsTTBYZWEwQWxz?=
- =?utf-8?B?Ukp5UDNMalBzQXRUUnllenlYOFgyTU1JQkV1TktpVkdqRTdmMGdOM21INnMr?=
- =?utf-8?B?WHNYZVMxTGVrdDQ0UStZVDliUnpITmNCdktoaG02elptZEo0dFVRT3A1ZkYw?=
- =?utf-8?B?VENnZ1hMbm9NOTM3dlNTazViSzEwZmdMZFl1YnYvdGRPQlI2R0ZZMUZHWmhl?=
- =?utf-8?B?TUMvUWFpTjk3SnRENG5zMXIvOEpEaFBFaFBTNmtwaDFvODNRV3l3cVNaZDdU?=
- =?utf-8?B?cktTRll5QWFKV3ZEcE1HVC81WDlNaGJXR0Y2bTJUay9mUkt2UzlhdFJ6czZz?=
- =?utf-8?B?cmNLYzZVOUV1NEgxVGN2Tm5kOGN1c1pRQ0hmZ3V0dytXSm5ONTROQ1dubXVa?=
- =?utf-8?B?ZUZJS08vMzdFeGdwb3I2cGl3dUs1Z2V4WTVjMUx4Wkt6cldyanByb0pIT3F6?=
- =?utf-8?B?Z3M1Uzk3WGJZeVdnTktoSmpZS2cxalZlbXhqOGQ3QW8vYlE3ZDZuSEVRM2NM?=
- =?utf-8?B?K2IxSzZyb2tnOUhlVHM4S2tHQTdKYjN6VGxqUUhJRDhTemJSVk1lSE94dUxy?=
- =?utf-8?B?aVpJUVBHbzRic1EyS3NuemV3NzBkdWlIcDRsaDNnMHc1OGs5aDB1V0NDaTZW?=
- =?utf-8?B?SzUrdzNHL2V2dG80d0E1UHQ4MEkyZUMyZXpoWjBhOGU3UityNGozSTFkY3VH?=
- =?utf-8?B?eEUzbXppOGVtTG9uSnZTSzlqajFLb3p6YjhPdXcxNXNkc2twc3pHbkoxcWxL?=
- =?utf-8?B?WGdzK24zUGp6T1RnTVZIZkt2cWFZZyt2UW9mc0l5WUxxeU4yaTllSkZWeEVi?=
- =?utf-8?B?bkZkdGN0c3dzdzd2UTZrUWhaekk2WnZKb0VOQWpNcFYwbDRjZkQ2d2pJbHR2?=
- =?utf-8?B?eVNYZWxOczM3cUVleTM0Y1lWaTJGbFF0ODFlcjVvOGVLbHJPUUlESWRnaXhM?=
- =?utf-8?B?QkM3NklrNTUra2RmaTh1dXBjSE5mS0JEallyQndGdFhPaXQ3Q3ZDVVlQSEwz?=
- =?utf-8?B?TEdTNzIwdndXYUxuZFg2TDRPbzNwMzUvYzJvKy9UOERZYTBEWVdMTGhVQlFM?=
- =?utf-8?B?NjRLc1ZzNUtka3dsK0hHa05aYVVwNWZsb1NXanFIZ2FMWW9PZ3dHdVFOcDNo?=
- =?utf-8?B?ZC82MDBSZERjUElxV0wvUmppR0xpZjFxaXh0MGVaV01iV1A4L1ZYc3BnU3JE?=
- =?utf-8?B?TTdFdTFIQlpKOGNCVEdDTG1jUTdQWDhEbWZxRzFGTkw1aTJ1QVhrTmh3T2Ew?=
- =?utf-8?B?Y3lsVmZCa0tkVzgydjYrVEp2NnE1RVFLZVZ5SnUrUWRoZnB2RjVpNmVicDdS?=
- =?utf-8?B?ZUg1cnVQYzBsVnlEbElleHZPcmpPcU0rK3p2dUhmYWt3VWt1SGh0S1BMQkM5?=
- =?utf-8?B?R0QxbHkwL0FUVm1IRXpsZzE0d2twTWxmYjJUS3Y4Vzd2Sk9GUm1YVy9wSERs?=
- =?utf-8?B?aVNJVGhiSTZrT1hpZVc2ejRWbUtsT3FJbmVqRVBqL1Rwb3lWMDM0ME00TXZw?=
- =?utf-8?B?TUtDUGlWQlFCVURlRlZlLzg2UHVNYXFzRFFpQU9IcFdTSXh3N1FheFdnMVNJ?=
- =?utf-8?B?N21WSHQzd1ZuU2NxSUFGOUkrMVRtL2JwWWJVZDJ3SjFSeVUyT2VsZ0YyQktZ?=
- =?utf-8?B?ZmhWWkJWZDFRUWtLTUxYQi9nMnZpNGo0R0VpUG82cVdOajQ2OUtCeVV1Yklm?=
- =?utf-8?Q?ub+6l3nBDpvEgnYVfmpYVKY90?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?dHUzREVsVFF6bnA4SUNrVHBPY3Y0eDF5ZVRHV3NvSllRV293QVpJK2UxaHJV?=
+ =?utf-8?B?dUJ4bHU2aGREaVRmNFVGaXNnelBHSWhIeGlSck82ekQvT0pDWkV2eUN3TzdY?=
+ =?utf-8?B?blQvMWdFWi9zNG1wK2hZRzdhbSsvaGNDOFo0MU5HeHk3ZjhBTEpVQnNkdXBF?=
+ =?utf-8?B?aDc0MzFlTVozNkZuSzVNUmo1TytVSjByZlord3FUanVORzBTdjJqT29FczRP?=
+ =?utf-8?B?QlZvZkZNRDJSQzJUVUJ5RlJ1Q2ZQQ2xFbVVLRWUrOWpkQk5hZ01raVh3M1lS?=
+ =?utf-8?B?SVg3Rm9yRVMyRGR1M2xWK2tjcjdMNUJ2N3BrQkVHY1FURHd5dU5HU2R1Q1Bm?=
+ =?utf-8?B?Mk44b0xreVRTTEdjWU5wZW9GT3E4VzlZTERaL0Y1SU0rajl1dVVvWmUvMXh5?=
+ =?utf-8?B?cXl3elhoWmtxc0lBNjRiMzVLcmpYdjJGNHJ4Y1YzYnc2cnN5SlZmM3Rxd29K?=
+ =?utf-8?B?WlZSYVFXUWhmbFNRQlllT1NRV1JmcDhhckNwYlI0WCt0VmtrWFNYTDlBZHNv?=
+ =?utf-8?B?TEtCR1ZIRUlCWlhUekRXbmJpSUswa0JOMHZDTWQyUXBkcEh5V01QVmljcmdi?=
+ =?utf-8?B?dFpBMk5EbG9ibFRpck0yZWZkbHJ3c3prSW14RGJ1TExiQ1lKeUw5M3dsZkFY?=
+ =?utf-8?B?bXRxUjZoSDhFUzNEcEhyam9zRWZheFNrQ2t0bUgwcGNsK2NrY2dIU3pUOFU1?=
+ =?utf-8?B?OGI0aktYK3g0UUhMWCtxQVpBSTZTc2dTM09ZNlRsU2tXUTd3Tk41RkkzWVdS?=
+ =?utf-8?B?OUx1SlYyMDRoV1Q0bGcwdkphNHR5Y05CUmFPUGtZUkpHVzdJRkdkY1B6RTFE?=
+ =?utf-8?B?NmRxZEJaZHVwbU91UldtTzFDSkVPZURwQW9KbXJ0ZlRFWFRTT2dDd0hYc3o0?=
+ =?utf-8?B?VUI0cGdwMmEvN0FoTG85cmkxWnkzZlIrcnk0THhERkpRcWhkcCsrVjF6dXYr?=
+ =?utf-8?B?ZXFZZTg3eWllclUyYmh3V2R4ZFVQNC95c3V4WjI0azA0eVA1ZUZMdFZ6bzNR?=
+ =?utf-8?B?V0ExL0dvM1BnelJxam94c1pGY3dQWDN3T1ZQd0dTYjNDVStkYWhXY3dmaWti?=
+ =?utf-8?B?RFFEdEZsYVFYQys1VkZOQ1YyaWM4N2RWWk5HQytvWml1Q0g0OWZVMU85MzlC?=
+ =?utf-8?B?c3JaVjhaNXRlbUVEM29HZHorMHZjYjR2MTBsUjNhZnRkbEVUUTFMdDFwQmVa?=
+ =?utf-8?B?aG8zZWdYcUVLNGowcit3bjNySE1WeFNtdSttMmo2QUptY1ExekhiWHRmSng4?=
+ =?utf-8?B?bStKdEk4SVpIM2ZmeTNMdVNpZ0dLQWpMbmg1NE5EeFJHQ3pJQWJoNStOeGcy?=
+ =?utf-8?B?aHJrek9xaXB0azdrR3lSMjNtSWV6MTNoaGpsNlk4Qk1odXFzY2VXc2lRdy95?=
+ =?utf-8?B?N3BBeVh4S1E2RmM0UlNkbXhIK0RIR3lMTkpIOWV6a1FIcUswR1d4b0h0Ry8v?=
+ =?utf-8?B?OGdaZHVhZ3NVWnNSUHZ2YWMwNFU3d3p6R2c2eEVXb3JWUjNTbEtUa1NRazFj?=
+ =?utf-8?B?eHNvczYyRXZsZXFya1JnSFVKZFhVM252VkRJMjBpcmZvL0VsN2d3dlI0Y1Av?=
+ =?utf-8?B?SlRad1NPZUhVUzRFa1F6NzNla0lScmxFK2IxWTFsbHk1Vk90ZU1sdmwwbEdu?=
+ =?utf-8?B?cVE2S2g4bkpGOE9FbWtsV2xqQ2g2QmNVQmViQnV2YW82VEFXSklkRzdIWndI?=
+ =?utf-8?B?RjdMM0xCb0NadWVTa1FFa0U2R2ZJSTBjamFtRUliTmlYYzdLUVZqanQ4Q0ls?=
+ =?utf-8?B?R0ZoYkxOZFNrKzhQK3RPd1ByRktia0Q5ZzlBajdmL2ZaQmxUc0RxejJIajBu?=
+ =?utf-8?B?NW5NVzRob2tsekFBbFVpb1IwSkhaNHcxK2l1QUFtSmNhc05KR0FBbG5EMjZx?=
+ =?utf-8?B?RzdlMXdyYk1DQWZOQ1JXOU53NEtmQTk2MC8wVEZmNUIwcElVYlQ5cWZRVmts?=
+ =?utf-8?B?VEwzMElQRGlBOXllOVVoZDJzU0FhZitTZjJrbE4rMHpPUVJ3d3B0eDdHTjVm?=
+ =?utf-8?B?NHRIM04rNndaYzVQemhDLytJa1VMdzFRakN5VEdsUEtjZGxOZ2hwYm41emNk?=
+ =?utf-8?B?akRtWmRONGphNVZmTWtKbUpSNFJpelRyUGdVWW95cEwxN2kwMFRTek42M1pS?=
+ =?utf-8?Q?HtqAqUMIKLBXl/qUYe4MBKchN?=
 X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 02ebedad-ad30-4905-ed8d-08dab13ec49b
+X-MS-Exchange-CrossTenant-Network-Message-Id: b42dd405-1b2c-4e59-dc7d-08dab1424c1a
 X-MS-Exchange-CrossTenant-AuthSource: MW4PR10MB6535.namprd10.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Oct 2022 19:27:17.2863 (UTC)
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Oct 2022 19:52:33.1007 (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: qX8OdjE83Gs2zhvlkIAAO6BEpxlzLKS9IziwoG0bYnIPeCtXBGiwBIzLZ/zqgcRD///jf9B9tj8PFdiJazgH6w==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH2PR10MB4165
+X-MS-Exchange-CrossTenant-UserPrincipalName: CYNWhR6cu7rwwVY8pr7/KkBdSQ4k1DFj0lSrTKf1q1ij+RGFOxwLrCzc5JX0/EbPXnNYpAnoHxxKeJiwWKGt4A==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR10MB4336
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
  definitions=2022-10-18_07,2022-10-18_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0
- adultscore=0 mlxscore=0
- spamscore=0 bulkscore=0 malwarescore=0 mlxlogscore=999 suspectscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2209130000
- definitions=main-2210180109
-X-Proofpoint-GUID: cPImB0GO0wPKaOTFdDtJ75p8Wc2IR4C8
-X-Proofpoint-ORIG-GUID: cPImB0GO0wPKaOTFdDtJ75p8Wc2IR4C8
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0
+ mlxlogscore=999
+ malwarescore=0 spamscore=0 suspectscore=0 phishscore=0 adultscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2209130000 definitions=main-2210180112
+X-Proofpoint-ORIG-GUID: n5PxUbXZ7pEl-5pry0cQmWINZpLW-6mh
+X-Proofpoint-GUID: n5PxUbXZ7pEl-5pry0cQmWINZpLW-6mh
 Cc: eperezma@redhat.com, lulu@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
@@ -201,352 +201,212 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============1442082883980996414=="
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-
---===============1442082883980996414==
-Content-Type: multipart/alternative;
- boundary="------------q9dWo4iTMm9Oafix0Ix73r4h"
-Content-Language: en-US
-
---------------q9dWo4iTMm9Oafix0Ix73r4h
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
 
 
 
 On 10/18/2022 4:12 AM, Eli Cohen wrote:
-> Move some definitions from mlx5_vnet.c to newly added header file
-> mlx5_vnet.h. We need these definitions for the following patches that
-> add debugfs tree to expose information vital for debug.
+> Add debugfs subtree and expose flow table ID and TIR number. This
+> information can be used by external tools to do extended
+> troubleshooting.
 >
-> Signed-off-by: Eli Cohen<elic@nvidia.com>
+> The information can be retrieved like so:
+> $ cat /sys/kernel/debug/mlx5/mlx5_core.sf.1/vdpa-0/rx/table_id
+> $ cat /sys/kernel/debug/mlx5/mlx5_core.sf.1/vdpa-0/rx/tirn
+>
+> Signed-off-by: Eli Cohen <elic@nvidia.com>
+LGTM
+
 Reviewed-by: Si-Wei Liu <si-wei.liu@oracle.com>
 > ---
->   drivers/vdpa/mlx5/net/mlx5_vnet.c | 45 +------------------------
->   drivers/vdpa/mlx5/net/mlx5_vnet.h | 55 +++++++++++++++++++++++++++++++
->   2 files changed, 56 insertions(+), 44 deletions(-)
->   create mode 100644 drivers/vdpa/mlx5/net/mlx5_vnet.h
+>   drivers/vdpa/mlx5/Makefile        |  2 +-
+>   drivers/vdpa/mlx5/net/debug.c     | 66 +++++++++++++++++++++++++++++++
+>   drivers/vdpa/mlx5/net/mlx5_vnet.c | 11 ++++++
+>   drivers/vdpa/mlx5/net/mlx5_vnet.h |  9 +++++
+>   4 files changed, 87 insertions(+), 1 deletion(-)
+>   create mode 100644 drivers/vdpa/mlx5/net/debug.c
 >
-> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> index dd29fdfc24ed..64fdb940380f 100644
-> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> @@ -18,15 +18,12 @@
->   #include <linux/mlx5/mlx5_ifc_vdpa.h>
->   #include <linux/mlx5/mpfs.h>
->   #include "mlx5_vdpa.h"
-> +#include "mlx5_vnet.h"
+> diff --git a/drivers/vdpa/mlx5/Makefile b/drivers/vdpa/mlx5/Makefile
+> index f717978c83bf..e791394c33e3 100644
+> --- a/drivers/vdpa/mlx5/Makefile
+> +++ b/drivers/vdpa/mlx5/Makefile
+> @@ -1,4 +1,4 @@
+>   subdir-ccflags-y += -I$(srctree)/drivers/vdpa/mlx5/core
 >   
->   MODULE_AUTHOR("Eli Cohen<eli@mellanox.com>");
->   MODULE_DESCRIPTION("Mellanox VDPA driver");
->   MODULE_LICENSE("Dual BSD/GPL");
->   
-> -#define to_mlx5_vdpa_ndev(__mvdev)                                             \
-> -	container_of(__mvdev, struct mlx5_vdpa_net, mvdev)
-> -#define to_mvdev(__vdev) container_of((__vdev), struct mlx5_vdpa_dev, vdev)
-> -
->   #define VALID_FEATURES_MASK                                                                        \
->   	(BIT_ULL(VIRTIO_NET_F_CSUM) | BIT_ULL(VIRTIO_NET_F_GUEST_CSUM) |                                   \
->   	 BIT_ULL(VIRTIO_NET_F_CTRL_GUEST_OFFLOADS) | BIT_ULL(VIRTIO_NET_F_MTU) | BIT_ULL(VIRTIO_NET_F_MAC) |   \
-> @@ -50,14 +47,6 @@ MODULE_LICENSE("Dual BSD/GPL");
->   
->   #define MLX5V_UNTAGGED 0x1000
->   
-> -struct mlx5_vdpa_net_resources {
-> -	u32 tisn;
-> -	u32 tdn;
-> -	u32 tirn;
-> -	u32 rqtn;
-> -	bool valid;
-> -};
-> -
->   struct mlx5_vdpa_cq_buf {
->   	struct mlx5_frag_buf_ctrl fbc;
->   	struct mlx5_frag_buf frag_buf;
-> @@ -146,38 +135,6 @@ static bool is_index_valid(struct mlx5_vdpa_dev *mvdev, u16 idx)
->   	return idx <= mvdev->max_idx;
->   }
->   
-> -#define MLX5V_MACVLAN_SIZE 256
-> -
-> -struct mlx5_vdpa_net {
-> -	struct mlx5_vdpa_dev mvdev;
-> -	struct mlx5_vdpa_net_resources res;
-> -	struct virtio_net_config config;
-> -	struct mlx5_vdpa_virtqueue *vqs;
-> -	struct vdpa_callback *event_cbs;
-> -
-> -	/* Serialize vq resources creation and destruction. This is required
-> -	 * since memory map might change and we need to destroy and create
-> -	 * resources while driver in operational.
-> -	 */
-> -	struct rw_semaphore reslock;
-> -	struct mlx5_flow_table *rxft;
-> -	bool setup;
-> -	u32 cur_num_vqs;
-> -	u32 rqt_size;
-> -	bool nb_registered;
-> -	struct notifier_block nb;
-> -	struct vdpa_callback config_cb;
-> -	struct mlx5_vdpa_wq_ent cvq_ent;
-> -	struct hlist_head macvlan_hash[MLX5V_MACVLAN_SIZE];
-> -};
-> -
-> -struct macvlan_node {
-> -	struct hlist_node hlist;
-> -	struct mlx5_flow_handle *ucast_rule;
-> -	struct mlx5_flow_handle *mcast_rule;
-> -	u64 macvlan;
-> -};
-> -
->   static void free_resources(struct mlx5_vdpa_net *ndev);
->   static void init_mvqs(struct mlx5_vdpa_net *ndev);
->   static int setup_driver(struct mlx5_vdpa_dev *mvdev);
-> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.h b/drivers/vdpa/mlx5/net/mlx5_vnet.h
+>   obj-$(CONFIG_MLX5_VDPA_NET) += mlx5_vdpa.o
+> -mlx5_vdpa-$(CONFIG_MLX5_VDPA_NET) += net/mlx5_vnet.o core/resources.o core/mr.o
+> +mlx5_vdpa-$(CONFIG_MLX5_VDPA_NET) += net/mlx5_vnet.o core/resources.o core/mr.o net/debug.o
+> diff --git a/drivers/vdpa/mlx5/net/debug.c b/drivers/vdpa/mlx5/net/debug.c
 > new file mode 100644
-> index 000000000000..6691c879a6ca
+> index 000000000000..95e4801df211
 > --- /dev/null
-> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.h
-> @@ -0,0 +1,55 @@
-> +/* SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB */
+> +++ b/drivers/vdpa/mlx5/net/debug.c
+> @@ -0,0 +1,66 @@
+> +// SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB
 > +/* Copyright (c) 2022, NVIDIA CORPORATION & AFFILIATES. All rights reserved. */
 > +
-> +#ifndef __MLX5_VNET_H__
-> +#define __MLX5_VNET_H__
+> +#include <linux/debugfs.h>
+> +#include <linux/mlx5/fs.h>
+> +#include "mlx5_vnet.h"
 > +
-> +#include "mlx5_vdpa.h"
+> +static int tirn_show(struct seq_file *file, void *priv)
+> +{
+> +	struct mlx5_vdpa_net *ndev = file->private;
 > +
-> +#define to_mlx5_vdpa_ndev(__mvdev)                                             \
-> +	container_of(__mvdev, struct mlx5_vdpa_net, mvdev)
-> +#define to_mvdev(__vdev) container_of((__vdev), struct mlx5_vdpa_dev, vdev)
+> +	seq_printf(file, "0x%x\n", ndev->res.tirn);
+> +	return 0;
+> +}
 > +
-> +struct mlx5_vdpa_net_resources {
-> +	u32 tisn;
-> +	u32 tdn;
-> +	u32 tirn;
-> +	u32 rqtn;
-> +	bool valid;
-> +};
+> +DEFINE_SHOW_ATTRIBUTE(tirn);
 > +
-> +#define MLX5V_MACVLAN_SIZE 256
+> +void mlx5_vdpa_remove_tirn(struct mlx5_vdpa_net *ndev)
+> +{
+> +	if (ndev->debugfs)
+> +		debugfs_remove(ndev->res.tirn_dent);
+> +}
 > +
-> +struct mlx5_vdpa_net {
-> +	struct mlx5_vdpa_dev mvdev;
-> +	struct mlx5_vdpa_net_resources res;
-> +	struct virtio_net_config config;
-> +	struct mlx5_vdpa_virtqueue *vqs;
-> +	struct vdpa_callback *event_cbs;
+> +void mlx5_vdpa_add_tirn(struct mlx5_vdpa_net *ndev)
+> +{
+> +	ndev->res.tirn_dent = debugfs_create_file("tirn", 0444, ndev->rx_dent,
+> +						  ndev, &tirn_fops);
+> +}
 > +
-> +	/* Serialize vq resources creation and destruction. This is required
-> +	 * since memory map might change and we need to destroy and create
-> +	 * resources while driver in operational.
-> +	 */
-> +	struct rw_semaphore reslock;
-> +	struct mlx5_flow_table *rxft;
-> +	struct dentry *rx_dent;
-> +	struct dentry *rx_table_dent;
-> +	bool setup;
-> +	u32 cur_num_vqs;
-> +	u32 rqt_size;
-> +	bool nb_registered;
-> +	struct notifier_block nb;
-> +	struct vdpa_callback config_cb;
-> +	struct mlx5_vdpa_wq_ent cvq_ent;
-> +	struct hlist_head macvlan_hash[MLX5V_MACVLAN_SIZE];
-> +};
+> +static int rx_flow_table_show(struct seq_file *file, void *priv)
+> +{
+> +	struct mlx5_vdpa_net *ndev = file->private;
 > +
-> +struct macvlan_node {
-> +	struct hlist_node hlist;
-> +	struct mlx5_flow_handle *ucast_rule;
-> +	struct mlx5_flow_handle *mcast_rule;
-> +	u64 macvlan;
-> +};
+> +	seq_printf(file, "0x%x\n", mlx5_flow_table_id(ndev->rxft));
+> +	return 0;
+> +}
 > +
-> +#endif /* __MLX5_VNET_H__ */
-
---------------q9dWo4iTMm9Oafix0Ix73r4h
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-<html><head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  </head>
-  <body>
-    <br>
-    <br>
-    <div class="moz-cite-prefix">On 10/18/2022 4:12 AM, Eli Cohen wrote:<br>
-    </div>
-    <blockquote type="cite" cite="mid:20221018111232.4021-3-elic@nvidia.com">
-      <pre class="moz-quote-pre" wrap="">Move some definitions from mlx5_vnet.c to newly added header file
-mlx5_vnet.h. We need these definitions for the following patches that
-add debugfs tree to expose information vital for debug.
-
-Signed-off-by: Eli Cohen <a class="moz-txt-link-rfc2396E" href="mailto:elic@nvidia.com">&lt;elic@nvidia.com&gt;</a></pre>
-    </blockquote>
-    Reviewed-by: Si-Wei Liu <a class="moz-txt-link-rfc2396E" href="mailto:si-wei.liu@oracle.com">&lt;si-wei.liu@oracle.com&gt;</a>
-    <br>
-    <blockquote type="cite" cite="mid:20221018111232.4021-3-elic@nvidia.com">
-      <pre class="moz-quote-pre" wrap="">
----
- drivers/vdpa/mlx5/net/mlx5_vnet.c | 45 +------------------------
- drivers/vdpa/mlx5/net/mlx5_vnet.h | 55 +++++++++++++++++++++++++++++++
- 2 files changed, 56 insertions(+), 44 deletions(-)
- create mode 100644 drivers/vdpa/mlx5/net/mlx5_vnet.h
-
-diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-index dd29fdfc24ed..64fdb940380f 100644
---- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-+++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-@@ -18,15 +18,12 @@
- #include &lt;linux/mlx5/mlx5_ifc_vdpa.h&gt;
- #include &lt;linux/mlx5/mpfs.h&gt;
- #include &quot;mlx5_vdpa.h&quot;
-+#include &quot;mlx5_vnet.h&quot;
- 
- MODULE_AUTHOR(&quot;Eli Cohen <a class="moz-txt-link-rfc2396E" href="mailto:eli@mellanox.com">&lt;eli@mellanox.com&gt;</a>&quot;);
- MODULE_DESCRIPTION(&quot;Mellanox VDPA driver&quot;);
- MODULE_LICENSE(&quot;Dual BSD/GPL&quot;);
- 
--#define to_mlx5_vdpa_ndev(__mvdev)                                             \
--	container_of(__mvdev, struct mlx5_vdpa_net, mvdev)
--#define to_mvdev(__vdev) container_of((__vdev), struct mlx5_vdpa_dev, vdev)
--
- #define VALID_FEATURES_MASK                                                                        \
- 	(BIT_ULL(VIRTIO_NET_F_CSUM) | BIT_ULL(VIRTIO_NET_F_GUEST_CSUM) |                                   \
- 	 BIT_ULL(VIRTIO_NET_F_CTRL_GUEST_OFFLOADS) | BIT_ULL(VIRTIO_NET_F_MTU) | BIT_ULL(VIRTIO_NET_F_MAC) |   \
-@@ -50,14 +47,6 @@ MODULE_LICENSE(&quot;Dual BSD/GPL&quot;);
- 
- #define MLX5V_UNTAGGED 0x1000
- 
--struct mlx5_vdpa_net_resources {
--	u32 tisn;
--	u32 tdn;
--	u32 tirn;
--	u32 rqtn;
--	bool valid;
--};
--
- struct mlx5_vdpa_cq_buf {
- 	struct mlx5_frag_buf_ctrl fbc;
- 	struct mlx5_frag_buf frag_buf;
-@@ -146,38 +135,6 @@ static bool is_index_valid(struct mlx5_vdpa_dev *mvdev, u16 idx)
- 	return idx &lt;= mvdev-&gt;max_idx;
- }
- 
--#define MLX5V_MACVLAN_SIZE 256
--
--struct mlx5_vdpa_net {
--	struct mlx5_vdpa_dev mvdev;
--	struct mlx5_vdpa_net_resources res;
--	struct virtio_net_config config;
--	struct mlx5_vdpa_virtqueue *vqs;
--	struct vdpa_callback *event_cbs;
--
--	/* Serialize vq resources creation and destruction. This is required
--	 * since memory map might change and we need to destroy and create
--	 * resources while driver in operational.
--	 */
--	struct rw_semaphore reslock;
--	struct mlx5_flow_table *rxft;
--	bool setup;
--	u32 cur_num_vqs;
--	u32 rqt_size;
--	bool nb_registered;
--	struct notifier_block nb;
--	struct vdpa_callback config_cb;
--	struct mlx5_vdpa_wq_ent cvq_ent;
--	struct hlist_head macvlan_hash[MLX5V_MACVLAN_SIZE];
--};
--
--struct macvlan_node {
--	struct hlist_node hlist;
--	struct mlx5_flow_handle *ucast_rule;
--	struct mlx5_flow_handle *mcast_rule;
--	u64 macvlan;
--};
--
- static void free_resources(struct mlx5_vdpa_net *ndev);
- static void init_mvqs(struct mlx5_vdpa_net *ndev);
- static int setup_driver(struct mlx5_vdpa_dev *mvdev);
-diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.h b/drivers/vdpa/mlx5/net/mlx5_vnet.h
-new file mode 100644
-index 000000000000..6691c879a6ca
---- /dev/null
-+++ b/drivers/vdpa/mlx5/net/mlx5_vnet.h
-@@ -0,0 +1,55 @@
-+/* SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB */
-+/* Copyright (c) 2022, NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved. */
-+
-+#ifndef __MLX5_VNET_H__
-+#define __MLX5_VNET_H__
-+
-+#include &quot;mlx5_vdpa.h&quot;
-+
-+#define to_mlx5_vdpa_ndev(__mvdev)                                             \
-+	container_of(__mvdev, struct mlx5_vdpa_net, mvdev)
-+#define to_mvdev(__vdev) container_of((__vdev), struct mlx5_vdpa_dev, vdev)
-+
-+struct mlx5_vdpa_net_resources {
-+	u32 tisn;
-+	u32 tdn;
-+	u32 tirn;
-+	u32 rqtn;
-+	bool valid;
-+};
-+
-+#define MLX5V_MACVLAN_SIZE 256
-+
-+struct mlx5_vdpa_net {
-+	struct mlx5_vdpa_dev mvdev;
-+	struct mlx5_vdpa_net_resources res;
-+	struct virtio_net_config config;
-+	struct mlx5_vdpa_virtqueue *vqs;
-+	struct vdpa_callback *event_cbs;
-+
-+	/* Serialize vq resources creation and destruction. This is required
-+	 * since memory map might change and we need to destroy and create
-+	 * resources while driver in operational.
-+	 */
-+	struct rw_semaphore reslock;
-+	struct mlx5_flow_table *rxft;
-+	struct dentry *rx_dent;
-+	struct dentry *rx_table_dent;
-+	bool setup;
-+	u32 cur_num_vqs;
-+	u32 rqt_size;
-+	bool nb_registered;
-+	struct notifier_block nb;
-+	struct vdpa_callback config_cb;
-+	struct mlx5_vdpa_wq_ent cvq_ent;
-+	struct hlist_head macvlan_hash[MLX5V_MACVLAN_SIZE];
-+};
-+
-+struct macvlan_node {
-+	struct hlist_node hlist;
-+	struct mlx5_flow_handle *ucast_rule;
-+	struct mlx5_flow_handle *mcast_rule;
-+	u64 macvlan;
-+};
-+
-+#endif /* __MLX5_VNET_H__ */
-</pre>
-    </blockquote>
-    <br>
-  </body>
-</html>
-
---------------q9dWo4iTMm9Oafix0Ix73r4h--
-
---===============1442082883980996414==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+> +DEFINE_SHOW_ATTRIBUTE(rx_flow_table);
+> +
+> +void mlx5_vdpa_remove_rx_flow_table(struct mlx5_vdpa_net *ndev)
+> +{
+> +	if (ndev->debugfs)
+> +		debugfs_remove(ndev->rx_table_dent);
+> +}
+> +
+> +void mlx5_vdpa_add_rx_flow_table(struct mlx5_vdpa_net *ndev)
+> +{
+> +	ndev->rx_table_dent = debugfs_create_file("table_id", 0444, ndev->rx_dent,
+> +						  ndev, &rx_flow_table_fops);
+> +}
+> +
+> +void mlx5_vdpa_add_debugfs(struct mlx5_vdpa_net *ndev)
+> +{
+> +	struct mlx5_core_dev *mdev;
+> +
+> +	mdev = ndev->mvdev.mdev;
+> +	ndev->debugfs = debugfs_create_dir(dev_name(&ndev->mvdev.vdev.dev),
+> +					   mlx5_debugfs_get_dev_root(mdev));
+> +	if (!IS_ERR(ndev->debugfs))
+> +		ndev->rx_dent = debugfs_create_dir("rx", ndev->debugfs);
+> +}
+> +
+> +void mlx5_vdpa_remove_debugfs(struct dentry *dbg)
+> +{
+> +	debugfs_remove_recursive(dbg);
+> +}
+> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> index 64fdb940380f..ee50da33e25b 100644
+> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> @@ -1388,11 +1388,16 @@ static int create_tir(struct mlx5_vdpa_net *ndev)
+>   
+>   	err = mlx5_vdpa_create_tir(&ndev->mvdev, in, &ndev->res.tirn);
+>   	kfree(in);
+> +	if (err)
+> +		return err;
+> +
+> +	mlx5_vdpa_add_tirn(ndev);
+>   	return err;
+>   }
+>   
+>   static void destroy_tir(struct mlx5_vdpa_net *ndev)
+>   {
+> +	mlx5_vdpa_remove_tirn(ndev);
+>   	mlx5_vdpa_destroy_tir(&ndev->mvdev, ndev->res.tirn);
+>   }
+>   
+> @@ -1576,6 +1581,7 @@ static int setup_steering(struct mlx5_vdpa_net *ndev)
+>   		mlx5_vdpa_warn(&ndev->mvdev, "failed to create flow table\n");
+>   		return PTR_ERR(ndev->rxft);
+>   	}
+> +	mlx5_vdpa_add_rx_flow_table(ndev);
+>   
+>   	err = mac_vlan_add(ndev, ndev->config.mac, 0, false);
+>   	if (err)
+> @@ -1584,6 +1590,7 @@ static int setup_steering(struct mlx5_vdpa_net *ndev)
+>   	return 0;
+>   
+>   err_add:
+> +	mlx5_vdpa_remove_rx_flow_table(ndev);
+>   	mlx5_destroy_flow_table(ndev->rxft);
+>   	return err;
+>   }
+> @@ -1591,6 +1598,7 @@ static int setup_steering(struct mlx5_vdpa_net *ndev)
+>   static void teardown_steering(struct mlx5_vdpa_net *ndev)
+>   {
+>   	clear_mac_vlan_table(ndev);
+> +	mlx5_vdpa_remove_rx_flow_table(ndev);
+>   	mlx5_destroy_flow_table(ndev->rxft);
+>   }
+>   
+> @@ -3167,6 +3175,7 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name,
+>   	if (err)
+>   		goto err_reg;
+>   
+> +	mlx5_vdpa_add_debugfs(ndev);
+>   	mgtdev->ndev = ndev;
+>   	return 0;
+>   
+> @@ -3193,6 +3202,8 @@ static void mlx5_vdpa_dev_del(struct vdpa_mgmt_dev *v_mdev, struct vdpa_device *
+>   	struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
+>   	struct workqueue_struct *wq;
+>   
+> +	mlx5_vdpa_remove_debugfs(ndev->debugfs);
+> +	ndev->debugfs = NULL;
+>   	if (ndev->nb_registered) {
+>   		mlx5_notifier_unregister(mvdev->mdev, &ndev->nb);
+>   		ndev->nb_registered = false;
+> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.h b/drivers/vdpa/mlx5/net/mlx5_vnet.h
+> index 6691c879a6ca..f2cef3925e5b 100644
+> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.h
+> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.h
+> @@ -16,6 +16,7 @@ struct mlx5_vdpa_net_resources {
+>   	u32 tirn;
+>   	u32 rqtn;
+>   	bool valid;
+> +	struct dentry *tirn_dent;
+>   };
+>   
+>   #define MLX5V_MACVLAN_SIZE 256
+> @@ -43,6 +44,7 @@ struct mlx5_vdpa_net {
+>   	struct vdpa_callback config_cb;
+>   	struct mlx5_vdpa_wq_ent cvq_ent;
+>   	struct hlist_head macvlan_hash[MLX5V_MACVLAN_SIZE];
+> +	struct dentry *debugfs;
+>   };
+>   
+>   struct macvlan_node {
+> @@ -52,4 +54,11 @@ struct macvlan_node {
+>   	u64 macvlan;
+>   };
+>   
+> +void mlx5_vdpa_add_debugfs(struct mlx5_vdpa_net *ndev);
+> +void mlx5_vdpa_remove_debugfs(struct dentry *dbg);
+> +void mlx5_vdpa_add_rx_flow_table(struct mlx5_vdpa_net *ndev);
+> +void mlx5_vdpa_remove_rx_flow_table(struct mlx5_vdpa_net *ndev);
+> +void mlx5_vdpa_add_tirn(struct mlx5_vdpa_net *ndev);
+> +void mlx5_vdpa_remove_tirn(struct mlx5_vdpa_net *ndev);
+> +
+>   #endif /* __MLX5_VNET_H__ */
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============1442082883980996414==--
