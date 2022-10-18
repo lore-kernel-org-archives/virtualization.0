@@ -4,111 +4,131 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 85460C433FE
-	for <virtualization@archiver.kernel.org>; Tue, 18 Oct 2022 15:40:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8BC78C433FE
+	for <virtualization@archiver.kernel.org>; Tue, 18 Oct 2022 19:19:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 0307440467;
-	Tue, 18 Oct 2022 15:40:05 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0307440467
+	by smtp2.osuosl.org (Postfix) with ESMTP id 0A298402C3;
+	Tue, 18 Oct 2022 19:19:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0A298402C3
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=DrMrY0Wg
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=opensynergy.com header.i=@opensynergy.com header.a=rsa-sha256 header.s=TM-DKIM-20210503141657 header.b=vrCmfEO0
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id C3gUGMMgU7qv; Tue, 18 Oct 2022 15:40:04 +0000 (UTC)
+	with ESMTP id cYtILQiPeasz; Tue, 18 Oct 2022 19:19:33 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 695C7402DC;
-	Tue, 18 Oct 2022 15:40:03 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 695C7402DC
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 7EB3840111;
+	Tue, 18 Oct 2022 19:19:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7EB3840111
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2DF3FC0033;
-	Tue, 18 Oct 2022 15:40:03 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 547CDC0033;
+	Tue, 18 Oct 2022 19:19:32 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 79998C002D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E7941C002D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Oct 2022 15:40:01 +0000 (UTC)
+ Tue, 18 Oct 2022 19:19:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 549018330B
+ by smtp1.osuosl.org (Postfix) with ESMTP id B7AAC83365
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Oct 2022 15:40:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 549018330B
+ Tue, 18 Oct 2022 19:19:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B7AAC83365
 Authentication-Results: smtp1.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=DrMrY0Wg
+ dkim=pass (2048-bit key) header.d=opensynergy.com header.i=@opensynergy.com
+ header.a=rsa-sha256 header.s=TM-DKIM-20210503141657 header.b=vrCmfEO0
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 9Y-CSWxtZHFB
+ with ESMTP id podJeN0Yti4X
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Oct 2022 15:40:00 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6096F832E7
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 6096F832E7
+ Tue, 18 Oct 2022 19:19:28 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7446D83330
+Received: from repost01.tmes.trendmicro.eu (repost01.tmes.trendmicro.eu
+ [18.185.115.28])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 7446D83330
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Oct 2022 15:40:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1666107598;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=n1ntOmfZrs8dqZ6k2VCqVjRnTeyOx20Q25jn6A/FnCk=;
- b=DrMrY0Wg/sPGMRCzUJ0PjL05Y3pOkEf9V+JEwvTeDLTLYYU97XbKxcC0GRMi8DL9KXPURj
- I2OYqj0B4SvKtL0ht8Tc3HT/kL/q51Xs7O/E46CKhSnzV+Y+p5DwQDCt+g+LY2/X3TRklp
- oHs0EKyFAbQ1x49mVhcsdmI3wCGeB8k=
-Received: from mail-qv1-f71.google.com (mail-qv1-f71.google.com
- [209.85.219.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-131-dghq5QJ8PKW70EBPHWvQZg-1; Tue, 18 Oct 2022 11:39:57 -0400
-X-MC-Unique: dghq5QJ8PKW70EBPHWvQZg-1
-Received: by mail-qv1-f71.google.com with SMTP id
- lu3-20020a0562145a0300b004b1d6f4130eso8809562qvb.1
- for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Oct 2022 08:39:57 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=n1ntOmfZrs8dqZ6k2VCqVjRnTeyOx20Q25jn6A/FnCk=;
- b=CnPzLar0Wo0tYp0ikkQuPeBqZV76wabdlbubukH1/KGbl6rO++03Eq+ETWm1AoUbro
- NQcL3r8z3yPEsGN0TINVyukZhJLsV0dw4NNYMJ3uNjiskoxtikv3YYJuNG8zhTVH7L3P
- g1ik+2sD6BvLeCD2OdI0xnxABSB9dxD57MgdfJdTQOKKHvBHgOg26qZ/deGl2g0447QD
- jJv1TRhy96c7wys9qKzzNQXN/QV0Xp0G9AQpqAMBTyeBIMvM61GLJfttb7Xw61QVSg10
- mi1K8aMAt84NY4ZIUQtWmJ+vMm63+0YlJ9nimpvrkM+C/Q/ensJSjyuEEBjxJOdU0yD9
- 7AMw==
-X-Gm-Message-State: ACrzQf0mPRQxcconamW5iblFsxR2lqmClb+XdWRrQCTwwFreB9ZBZXtA
- jlc7KAlUvD1Bst+YXC1h/d9cgL8eiPmQbaSRf5256UV92NVqlgKH06x+RACXW8bwwqweHoQ1RIG
- AdX2ZijfDO1H5+dRnMIayDy1cx82nFyNX/1npQdJvEg==
-X-Received: by 2002:a05:622a:95:b0:39c:c9df:8db with SMTP id
- o21-20020a05622a009500b0039cc9df08dbmr2576328qtw.349.1666107597125; 
- Tue, 18 Oct 2022 08:39:57 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM7otvOjB+1WMOHwHy+ISe/cHO3iDr0yYS4pArNJuJCmujDYQmiQUjY8SAsUr16B5Qj+1fUiBQ==
-X-Received: by 2002:a05:622a:95:b0:39c:c9df:8db with SMTP id
- o21-20020a05622a009500b0039cc9df08dbmr2576312qtw.349.1666107596881; 
- Tue, 18 Oct 2022 08:39:56 -0700 (PDT)
-Received: from sgarzare-redhat ([5.179.166.161])
- by smtp.gmail.com with ESMTPSA id
- z15-20020a05622a124f00b0039a08c0a594sm2083410qtx.82.2022.10.18.08.39.52
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 18 Oct 2022 08:39:56 -0700 (PDT)
-Date: Tue, 18 Oct 2022 17:39:48 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Subject: Re: [RFC PATCH] virtio: document virtio hardening status and TODO
-Message-ID: <20221018153948.2ocwejx4ut3sf3br@sgarzare-redhat>
-References: <20221014042037.23639-1-jasowang@redhat.com>
+ Tue, 18 Oct 2022 19:19:28 +0000 (UTC)
+Received: from 104.47.17.113_.trendmicro.com (unknown [172.21.173.179])
+ by repost01.tmes.trendmicro.eu (Postfix) with SMTP id 17E02100004D4;
+ Tue, 18 Oct 2022 19:19:26 +0000 (UTC)
+X-TM-MAIL-RECEIVED-TIME: 1666120764.991000
+X-TM-MAIL-UUID: 94afbbdd-eb1e-4bcb-a1c8-ffb516cd9c41
+Received: from EUR05-DB8-obe.outbound.protection.outlook.com (unknown
+ [104.47.17.113])
+ by repre01.tmes.trendmicro.eu (Trend Micro Email Security) with ESMTPS id
+ F234B10005E39; Tue, 18 Oct 2022 19:19:24 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Mo/Ti0SUtyFOIRwx3V42F1aqvxs1AOF0/iX461Kg7m1rsBGO6BPpSR9KcTL3e3rwiKMnRE1TipSBTvpsYNpnB+wZeZpECy6IKNIm6JI07LVdduLsNnCU8qP31uDOS39nIfimxcaI1A38aNGw7I99TIt9M1bRYOBHa+XbS6+xWGP/xEv4BRfH7SK03KM8sQ7l8Yxm/sSd+oFvUyucS/jI6carP0/gjsN9MyAoEcvnZX02RFWiEb+7nlJqrqTS3lt8JTtrqPPqjMHWd2mDZN/QfenQoXQt7vDkzg7KqtY/+dfJpIjNZZQ0Lgnryb7GR7QCgBR0PEylRDW0icND0ueyhA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=j4oPFY3eWWsZZ2Q/nwqF6GKgLXGfQSUCU/hUWKVCcNw=;
+ b=R3usbIs9qbCip3528BeNz6tPM935nltg5SvH7xSKT8LW5+hIvoLk2E0HVaYtXdNH2lP2QS6G/xOMgcSPOBggArXHxu8BLY7sO/cX4Rj7RzVQxt4LpedJ9yKEj+09sI+7h1ZlIM9dCCMfalpOc/rgzX6O1uhvUVFHXKgqRUgO8s17z7Og7Me/tZp+iadSAXMB2aOO4CN1lZHgQdwu5ZO4VhTVVm0l3pC14qDbo3hg+Upb8t8MGE8J/IU22n3x4kRB9hfwWUnOiHs6pct/Bt5duYZQ/TpA+pfs+Fg0vdmBp/6V12LBWJICYhjAmgr+bvrSkvMSNqLr1gXjIH7QzxfjUQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 217.66.60.4) smtp.rcpttodomain=gmail.com smtp.mailfrom=opensynergy.com;
+ dmarc=pass (p=none sp=none pct=100) action=none header.from=opensynergy.com;
+ dkim=none (message not signed); arc=none
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 217.66.60.4)
+ smtp.mailfrom=opensynergy.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=opensynergy.com;
+Received-SPF: Pass (protection.outlook.com: domain of opensynergy.com
+ designates 217.66.60.4 as permitted sender) receiver=protection.outlook.com;
+ client-ip=217.66.60.4; helo=SR-MAIL-03.open-synergy.com; pr=C
+From: Igor Skalkin <Igor.Skalkin@opensynergy.com>
+To: virtualization@lists.linux-foundation.org, luiz.dentz@gmail.com,
+ mst@redhat.com
+Subject: [PATCH v3 0/1] virtio_bt: Fix alignment in configuration struct
+Date: Tue, 18 Oct 2022 21:19:10 +0200
+Message-Id: <20221018191911.589564-1-Igor.Skalkin@opensynergy.com>
+X-Mailer: git-send-email 2.37.2
 MIME-Version: 1.0
-In-Reply-To: <20221014042037.23639-1-jasowang@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: otubo@redhat.com, cohuck@redhat.com, liuwe@microsoft.com, corbet@lwn.net,
- linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
- mikelley@microsoft.com, mst@redhat.com, andavis@redhat.com,
- stefanha@redhat.com, kkashanjat@microsoft.com,
- virtualization@lists.linux-foundation.org
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: AM6EUR05FT008:EE_|AS8PR04MB8674:EE_
+X-MS-Office365-Filtering-Correlation-Id: bbb8b283-4a4d-4f3f-19df-08dab13da9c7
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: SH+p18+g7CwMHAYIygU8b/PJ9iW11Y2a9545vxi0+7jJOc3HXTZJFxH45FyZ8nc/6zyYShYwysdXL/0zDY3uygiFbinR4kOXakoEw6aWiSjrTJmi8bQ6Qd3lmYJARC2IFYd2S4oh9lRlyLS2Jv9yHDSjxYIsx8edlHjDK0fk0enRQMttL/MZodmykSlgXTGcawEAxIbg1RxLOmIZ2Wxf0AXvbW3lbJNbjnsHAb3cT+D8IoWex8i8mlbJkV6coaLHbc+1Zf5Cod3/on2yjUp/+0f2mNOkfDbrywrOfNqOsmVKuleWsGJ7weZMrOhaJvEIbniTe/oiqg/jHlX7no68WTihIHXJyNVObWhZ7fD2TRwrv8XFLZayv9as7nVwF1tSTgBkDMECNcpUqNKV4tORyLokdBZcZLZCKmqBGvp6WmPtRlAsnj3xejt3uOn9qrSwQuTlk7OoJiavzDiQ8bWSnvhWvAoWmTE5hqrpi3kbOPNdFOFo0u4TucnobSl9rsc2Mh3i3RqQa0h8nCzTqLILF2TLYk7qN0vYcEeJO5/KgaE+OuZSF3TxwmNnFILsjk/q/FjJR01YeMvpscm5r3GyRn0ZfgHKUzd20rx3wRMLe+CHBRQnn9Q1Hr3v7xQop43AxvsqKZWGA1Rn4xB/jq0mwYRMctAr3UXYx0jSehZpMMA6dBVyYI3HHS/6G8Hdk5KN8htO+bXt12i2yk3e6zxjv5IV841rC+gFY3WAbBEyA8a632+yXwM1ma2O8a+h5IIGNKovgbj4EE6j7GuKrvvMwvR/s8DoSM7Y7RnVylRhtPw=
+X-Forefront-Antispam-Report: CIP:217.66.60.4; CTRY:DE; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:SR-MAIL-03.open-synergy.com; PTR:InfoDomainNonexistent;
+ CAT:NONE;
+ SFS:(13230022)(39840400004)(396003)(376002)(136003)(346002)(451199015)(46966006)(36840700001)(66899015)(36860700001)(41300700001)(83380400001)(47076005)(5660300002)(26005)(40480700001)(8936002)(86362001)(336012)(8676002)(1076003)(70206006)(186003)(2616005)(36756003)(2906002)(4326008)(316002)(966005)(70586007)(81166007)(107886003)(42186006)(478600001)(82310400005)(36900700001);
+ DIR:OUT; SFP:1102; 
+X-OriginatorOrg: opensynergy.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Oct 2022 19:19:22.5396 (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: bbb8b283-4a4d-4f3f-19df-08dab13da9c7
+X-MS-Exchange-CrossTenant-Id: 800fae25-9b1b-4edc-993d-c939c4e84a64
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=800fae25-9b1b-4edc-993d-c939c4e84a64; Ip=[217.66.60.4];
+ Helo=[SR-MAIL-03.open-synergy.com]
+X-MS-Exchange-CrossTenant-AuthSource: AM6EUR05FT008.eop-eur05.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AS8PR04MB8674
+X-TM-AS-ERS: 104.47.17.113-0.0.0.0
+X-TMASE-Version: StarCloud-1.3-9.0.1006-27210.001
+X-TMASE-Result: 10--5.057500-4.000000
+X-TMASE-MatchedRID: XnUH3azbhjw4vjIDbvA3OMVUBXy8OM3/M9EkAUzyluGAI7Mvq/sL57ek
+ d2LX0DpINaAGdu5Ot0eXJbVmtnHrxnI0shGAc7FenVTWWiNp+v+wQ8dOma+kqnROxyHvZdJs4B9
+ I2K2gpO+UgFUWoYCf4+TIxytvTQKsbwiLg6tAv8VDcQUoQp00sE3yuY9BGW8r/NbvBEf2bLnMoA
+ Jfsjm0TnLH5w7bl52jQY7/FJpJ6BMvhYHDok+vI9FXCpDlsQuU/jYKd9VlUo6trUfO3IgJ1DFbv
+ WeUOC6J41g48FO1l6Yf1dtrKnxm3VTpG8BH9sIbfsrJIMK37At9LQinZ4QefBTJFL84IP3FlR1c
+ T9YafQWBkH6ve8DfyeloYgzjonrsOwBXM346/+z3s8ptkHRL2aRvrCUallhdavFqpZhYH0f2vYs
+ cjnYCg3fe3hSTBj7A
+X-TMASE-XGENCLOUD: 60c33c63-c177-472b-bc35-b6e3cfb400c8-0-0-200-0
+X-TM-Deliver-Signature: AE6164293408DDA9A0CAA97220D3D1D5
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=opensynergy.com;
+ s=TM-DKIM-20210503141657; t=1666120765;
+ bh=lHe78DgowJQfXmRl0AP4RxEtz8Fia+PnsrKyEwAWv1Q=; l=1685;
+ h=From:To:Date;
+ b=vrCmfEO0e/lbnzB3/Rx32iPerXBCcs1w4oJ2TQszbLnakOhTGSIzrJ7BJdEVYmVst
+ IuE6QGWEVWe0ggxxLqLO6WJV2VeSQk6/P7fmQ8rPz4PaE4vfYOgGb7sfZqX6+GzE/a
+ zuWSIc7PmaBN09fECuX9hJ6L9VNAUn/kK4V0AAWx/2o4GIj9o7SlgyOPqBNi6BEmSG
+ lXr7SRcT909abiwQxZMBfVJKfeHAeVzos1cxDkM+Y6ZH/xAMjCgticCWq7FUDddOhj
+ rNOAQOQv7E70ajidoXmZoC/Qvd8HZYMK9DoPKn7PqkFKi47NZ/H/gvFY6yusq6LR3F
+ 7fa5Bum93AHmQ==
+Cc: johan.hedberg@gmail.com, linux-kernel@vger.kernel.org,
+ linux-bluetooth@vger.kernel.org, marcel@holtmann.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -120,113 +140,46 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-I'm not a native speaker, so the following suggestions can be wrong :-)
+According to specification [1], "For the device-specific configuration
+space, the driver MUST use 8 bit wide accesses for 8 bit wide fields,
+16 bit wide and aligned accesses for 16 bit wide fields and 32 bit wide
+and aligned accesses for 32 and 64 bit wide fields.".
 
-On Fri, Oct 14, 2022 at 12:20:37PM +0800, Jason Wang wrote:
->This patch summarizes the status of hardening and TODO of hardening
->virtio core and drivers.
->
->Signed-off-by: Jason Wang <jasowang@redhat.com>
->---
-> Documentation/security/virtio/core.rst | 49 ++++++++++++++++++++++++++
-> MAINTAINERS                            |  1 +
-> 2 files changed, 50 insertions(+)
-> create mode 100644 Documentation/security/virtio/core.rst
->
->diff --git a/Documentation/security/virtio/core.rst b/Documentation/security/virtio/core.rst
->new file mode 100644
->index 000000000000..b8baa104d7c8
->--- /dev/null
->+++ b/Documentation/security/virtio/core.rst
->@@ -0,0 +1,49 @@
->+================
->+Virtio hardening
->+================
->+
->+The virtio core and drivers should not trust the devices. This means
->+all kinds of input from the device must be validated before being
->+used. This document summarizes the current status and TODO for this
->+validation/hardening efforts.
+Current version of the configuration structure has non-aligned 16bit
+fields.
 
-s/efforts/effort
+This patch adds a second, aligned  version of the configuration structure
+and a new feature bit indicating that this version is being used.
 
->+
->+
->+Status
->+======
->+
->+The virtio core and drivers has done some basic hardening:
->+
->+* Config callback hardening: The core makes sure the config interrupt
->+  callbacks are enabled after the driver is ready and disable before
->+  the driver is removed.
->+
->+* Descriptor ring hardening: The metadata of a descriptor were copied
->+  and stored in a driver private memory that can not be accessed by the
->+  device. The eliminates the device triggerable behaviours through the
+[1] https://docs.oasis-open.org/virtio/virtio/v1.1/virtio-v1.1.pdf
 
-s/The/This ? (not sure)
-)
->+  descriptor ring.
->+
->+* Device configuration space validation: Some of the virtio drivers
->+  validates the fields of device configuration space before try to use
+Changes in v3:
+  v2 had been sent from the wrong address, fixed.
+Changes in v2:
+  The first version of this patch just changed the configuration
+  structure in uapi/linux/virtio_bt.h
+  This can not be done, because it will break the userspace, so the
+  second version offers a less radical approach - it introduces a new
+  feature bit and a new configuration structure that both the device
+  and the driver will use if this bit is negotiated.
 
-s/validates/validate
+Igor Skalkin (1):
+  virtio_bt: Fix alignment in configuration struct
 
->+  them.
->+
->+
->+TODO
->+====
->+
->+* Input buffer length validation: The virtio core needs to validate
->+  the input buffer length validation before passing them to individual
+ drivers/bluetooth/virtio_bt.c  | 16 +++++++++++++---
+ include/uapi/linux/virtio_bt.h |  8 ++++++++
+ 2 files changed, 21 insertions(+), 3 deletions(-)
 
-Remove "validation"?
+--
+2.37.2
 
->+  virtio drivers.
->+
->+* Virtqueue callback hardening: The virtio core (or with the help of
->+  the drivers) should guarantee that the virtqueue callbacks should not
->+  be triggered before the driver is ready or after the driver is
->+  removed.
->+
->+* Transport specific data validation: The virtio transport driver should
->+  validate the virtio transport specific data provided by the device
->+  before trying to use them in the probing.
 
-s/in the probing/during the probe   ?
-
->+
->+* Device specific validation: Driver should validate the device specific
->+  metadata before being used by a specific subsystem.
->+
->+
->diff --git a/MAINTAINERS b/MAINTAINERS
->index 673b9f9b8d8a..b33cc5c751c1 100644
->--- a/MAINTAINERS
->+++ b/MAINTAINERS
->@@ -21516,6 +21516,7 @@ S:	Maintained
-> F:	Documentation/ABI/testing/sysfs-bus-vdpa
-> F:	Documentation/ABI/testing/sysfs-class-vduse
-> F:	Documentation/devicetree/bindings/virtio/
->+F:	Documentation/security/virtio/core.rst
-> F:	drivers/block/virtio_blk.c
-> F:	drivers/crypto/virtio/
-> F:	drivers/net/virtio_net.c
->-- 
->2.25.1
->
-
-Thanks,
-Stefano
-
+Please mind our privacy notice<https://www.opensynergy.com/datenschutzerklaerung/privacy-notice-for-business-partners-pursuant-to-article-13-of-the-general-data-protection-regulation-gdpr/> pursuant to Art. 13 GDPR. // Unsere Hinweise zum Datenschutz gem. Art. 13 DSGVO finden Sie hier.<https://www.opensynergy.com/de/datenschutzerklaerung/datenschutzhinweise-fuer-geschaeftspartner-gem-art-13-dsgvo/>
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
