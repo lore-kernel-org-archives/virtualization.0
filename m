@@ -4,124 +4,109 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3CBF2C433FE
-	for <virtualization@archiver.kernel.org>; Wed, 19 Oct 2022 11:12:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 78E1BC433FE
+	for <virtualization@archiver.kernel.org>; Wed, 19 Oct 2022 11:50:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id B3B7961193;
-	Wed, 19 Oct 2022 11:12:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B3B7961193
+	by smtp3.osuosl.org (Postfix) with ESMTP id 0389260B38;
+	Wed, 19 Oct 2022 11:50:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0389260B38
 Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=Etd0PRns
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=K5NFgm4A
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id j1Kpq89zze7t; Wed, 19 Oct 2022 11:12:34 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 3661E60B4D;
-	Wed, 19 Oct 2022 11:12:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3661E60B4D
+	with ESMTP id 8PpkE-CAuREQ; Wed, 19 Oct 2022 11:50:54 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 71CA560D55;
+	Wed, 19 Oct 2022 11:50:53 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 71CA560D55
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1A306C0032;
-	Wed, 19 Oct 2022 11:12:34 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3EEC3C0032;
+	Wed, 19 Oct 2022 11:50:53 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B0EBDC002D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3B82EC002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 19 Oct 2022 11:12:32 +0000 (UTC)
+ Wed, 19 Oct 2022 11:50:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 7631F405E7
+ by smtp2.osuosl.org (Postfix) with ESMTP id F009740C6D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 19 Oct 2022 11:12:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7631F405E7
+ Wed, 19 Oct 2022 11:50:50 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org F009740C6D
 Authentication-Results: smtp2.osuosl.org;
- dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com
- header.a=rsa-sha256 header.s=pp1 header.b=Etd0PRns
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=K5NFgm4A
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id sSMRZS2W2uM2
+ with ESMTP id eNCtueKCWQSI
  for <virtualization@lists.linux-foundation.org>;
- Wed, 19 Oct 2022 11:12:31 +0000 (UTC)
+ Wed, 19 Oct 2022 11:50:49 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A338240140
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com
- [148.163.158.5])
- by smtp2.osuosl.org (Postfix) with ESMTPS id A338240140
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B0B0E4000B
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id B0B0E4000B
  for <virtualization@lists.linux-foundation.org>;
- Wed, 19 Oct 2022 11:12:31 +0000 (UTC)
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
- by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29JB669q024615;
- Wed, 19 Oct 2022 11:12:30 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com;
- h=message-id : date :
- mime-version : subject : from : to : cc : references : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=891Vkcr39KSAZ+eG59ZnEj+zRqeyVvQ6OEBU8tTrCCM=;
- b=Etd0PRns/j0AgeFyMjnxINTVRc/3bOi3LX00LdeTeSvadbI3vm/qquSzspVL9YMmD1j9
- EGxUVBkxngYpkAAUBE3hrKH1LmN/mKxOa9RpXLkq96K8HQ9x+VgqVNoJRsCUTE2X3IBK
- y6cQHgnRqXPwobum6dNEcfkMgScT4kw6fI1rQZXRYn5grspxHTQ8As0siMV0x9rH2oxk
- KkbKdjg+9+oscsKWD23OEDoYPwUatKt+58SXyT5qRVbkF64kFgYN5ZX8oFJTjv/IER+/
- rTBgf2hPNjs7qUSVz7uCU9WsdgqshAa21PJiV2GYlvO0K4cb4Ib7XCJSnqPbyWz2H5jr +A== 
-Received: from pps.reinject (localhost [127.0.0.1])
- by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3kafucrwnu-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Wed, 19 Oct 2022 11:12:30 +0000
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
- by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 29JAp6nK026144;
- Wed, 19 Oct 2022 11:12:29 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com
- [169.51.49.99])
- by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3kafucrwme-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Wed, 19 Oct 2022 11:12:29 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
- by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 29JB5XYO019779;
- Wed, 19 Oct 2022 11:12:28 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com
- (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
- by ppma04ams.nl.ibm.com with ESMTP id 3k7mg96wx0-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Wed, 19 Oct 2022 11:12:27 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com
- [9.149.105.58])
- by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP
- id 29JB7PCS50004468
- (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Wed, 19 Oct 2022 11:07:25 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
- by IMSVA (Postfix) with ESMTP id 9B61E4C046;
- Wed, 19 Oct 2022 11:12:25 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
- by IMSVA (Postfix) with ESMTP id 574BF4C040;
- Wed, 19 Oct 2022 11:12:25 +0000 (GMT)
-Received: from [9.171.25.9] (unknown [9.171.25.9])
- by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
- Wed, 19 Oct 2022 11:12:25 +0000 (GMT)
-Message-ID: <7de4aa75-875e-2d65-4cc5-8ce58f87c758@linux.ibm.com>
-Date: Wed, 19 Oct 2022 13:12:25 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.3.0
+ Wed, 19 Oct 2022 11:50:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1666180248;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=U0Ito9oBTwecyhoOGkvM7eQkEImsAA6dypnkM5tOFSU=;
+ b=K5NFgm4Ai7lDgasI13MrWWqMMEFe3nyexCGdp7dPscz3q6CKFC8T2wUOIhl0NDalo2ww4l
+ G4HJLdTaPxOqIrBI7FkyPb288By8BAVXnDsQJRsFyI8SUi0N/XmiUOM9kfC2arQHV9B/rv
+ J5kcp5JeGejtW6Os9aF4TBtcy1quE/k=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-160-G88T-i4RO5-_mGJSPVCzPQ-1; Wed, 19 Oct 2022 07:50:47 -0400
+X-MC-Unique: G88T-i4RO5-_mGJSPVCzPQ-1
+Received: by mail-wm1-f71.google.com with SMTP id
+ c3-20020a7bc843000000b003b486fc6a40so7813727wml.7
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 19 Oct 2022 04:50:47 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=U0Ito9oBTwecyhoOGkvM7eQkEImsAA6dypnkM5tOFSU=;
+ b=0c0YhOjqrqOjl3KTSiL2uVjL8qnYlzZwJGipGkw3FhHKTLiTx07Lv5YI0eQ0hu7Mga
+ EPN1gkYr7m28vtBWwVdCupyEMZ9UnWFzUe7vXQjGc6qisFTq3pySrYAURaO6x9EHbqed
+ kAulx7bl/Gj7wg+9QcZxtIN+ZLxX9kN4B2kSlMiVDQUtmDM9VJ/BvZ5evWTRRpG+wr37
+ g9PmwlTpqCgZ+znSFCom7KWgs6uGy/eeRJD6FmNpSLTDe9df8HTMQhMT7noJpOxMv0Us
+ lZW8e4ZeKXVLHlsdjzKfqLgFbLQlxmBO68AIe+T4QLshr53IM7tAa2x8Ff11xnUjEXn0
+ TSSw==
+X-Gm-Message-State: ACrzQf25IXO20htJC901n7CdJKwnxWXg7HP2L0F1E6d8v8CcuHtqbi7G
+ nAyt3yor8elGw+vVKWlPLguUoM+9BkOLp8JEpZIaStexgcXZpBjSxkf7DGxmk3Iyr1ZUnvS6CmJ
+ uafLLcsMi0p1MZl3RvC6uWvaXgyLzXPIn40208BrZ2g==
+X-Received: by 2002:adf:f40e:0:b0:22e:2ce4:e6a2 with SMTP id
+ g14-20020adff40e000000b0022e2ce4e6a2mr5230957wro.30.1666180246162; 
+ Wed, 19 Oct 2022 04:50:46 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM46+3jUTqcGiLRotFZdSsYsXxrsUcvAJFYWAwhfGL5+lnqYoZHaA3KZlDHoCCIDDoqAzIcPIw==
+X-Received: by 2002:adf:f40e:0:b0:22e:2ce4:e6a2 with SMTP id
+ g14-20020adff40e000000b0022e2ce4e6a2mr5230933wro.30.1666180245888; 
+ Wed, 19 Oct 2022 04:50:45 -0700 (PDT)
+Received: from redhat.com ([2.54.191.184]) by smtp.gmail.com with ESMTPSA id
+ d20-20020a05600c34d400b003b4de550e34sm16769319wmq.40.2022.10.19.04.50.44
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 19 Oct 2022 04:50:45 -0700 (PDT)
+Date: Wed, 19 Oct 2022 07:50:42 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Christian Borntraeger <borntraeger@linux.ibm.com>
 Subject: Re: 6.1-rc1 regression: virtio-net cpumask and during reboot
-Content-Language: en-US
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-To: Michael S Tsirkin <mst@redhat.com>
+Message-ID: <20221019074308-mutt-send-email-mst@kernel.org>
 References: <ac72ff9d-4246-3631-6e31-8c3033a70bf0@linux.ibm.com>
+MIME-Version: 1.0
 In-Reply-To: <ac72ff9d-4246-3631-6e31-8c3033a70bf0@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 3orn2ZL5a3qQrJXGA1K-PGMcp5t1oBcZ
-X-Proofpoint-GUID: 2kzsy4X6yQLbkTVASh2PUl_8Ydl5gchE
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-10-19_06,2022-10-19_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015
- lowpriorityscore=0 malwarescore=0 spamscore=0 adultscore=0 suspectscore=0
- mlxscore=0 bulkscore=0 mlxlogscore=942 impostorscore=0 phishscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2209130000 definitions=main-2210190061
-Cc: linux-s390 <linux-s390@vger.kernel.org>,
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: linux-s390 <linux-s390@vger.kernel.org>, kvm list <kvm@vger.kernel.org>,
+ Yury Norov <yury.norov@gmail.com>, netdev@vger.kernel.org,
  "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- kvm list <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org"
+ "virtualization@lists.linux-foundation.org"
  <virtualization@lists.linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
@@ -134,89 +119,78 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-QW0gMTkuMTAuMjIgdW0gMTI6NTkgc2NocmllYiBDaHJpc3RpYW4gQm9ybnRyYWVnZXI6Cj4gTWlj
-aGFlbCwKPiAKPiBhcyBhIGhlYWRzLXVwLgo+IEkgaGF2ZSBub3QgbG9va2VkIGludG8gYW55IGRl
-dGFpbHMgeWV0IGJ1dCB3ZSBkbyBnZXQgdGhlIGZvbGxvd2luZyBkdXJpbmcgcmVib290IG9mIGEg
-c3lzdGVtIG9uIHMzOTAuCj4gSXQgc2VlbXMgdG8gYmUgbmV3IHdpdGggNi4xLXJjMSAob3ZlciA2
-LjApCgpJdHMgbm90IHRoZSByZWJvb3QsIGl0cyB0aGUgYm9vdCB3aXRoIGEga2VybmVsIHdpdGgg
-ZGVidWdnaW5nIGVuYWJsZWQuCgoKPiAKPiAgwqAgW8KgwqDCoCA4LjUzMjQ2MV0gLS0tLS0tLS0t
-LS0tWyBjdXQgaGVyZSBdLS0tLS0tLS0tLS0tCj4gIMKgIFvCoMKgwqAgOC41MzI0OTddIFdBUk5J
-Tkc6IENQVTogOCBQSUQ6IDM3NyBhdCBpbmNsdWRlL2xpbnV4L2NwdW1hc2suaDoxMTAgX19uZXRp
-Zl9zZXRfeHBzX3F1ZXVlKzB4M2Q4LzB4Y2E4Cj4gIMKgIFvCoMKgwqAgOC41MzI1MDddIE1vZHVs
-ZXMgbGlua2VkIGluOiBzaGExX3MzOTAoKykgc2hhX2NvbW1vbiB2aXJ0aW9fbmV0KCspIG5ldF9m
-YWlsb3ZlciBmYWlsb3ZlciBwa2V5IHpjcnlwdCBybmdfY29yZSBhdXRvZnM0Cj4gIMKgIFvCoMKg
-wqAgOC41MzI1MjhdIENQVTogOCBQSUQ6IDM3NyBDb21tOiBzeXN0ZW1kLXVkZXZkIE5vdCB0YWlu
-dGVkIDYuMS4wLTIwMjIxMDE4LnJjMS5naXQxNS4wZmQ1ZjI1NTc2MjUuMzAwLmZjMzYuczM5MHgr
-ZGVidWcgIzEKPiAgwqAgW8KgwqDCoCA4LjUzMjUzM10gSGFyZHdhcmUgbmFtZTogSUJNIDg1NjEg
-VDAxIDcwMSAoS1ZNL0xpbnV4KQo+ICDCoCBbwqDCoMKgIDguNTMyNTM3XSBLcm5sIFBTVyA6IDA3
-MDRlMDAxODAwMDAwMDAgMDAwMDAwMDBiMDVlYzMzYyAoX19uZXRpZl9zZXRfeHBzX3F1ZXVlKzB4
-M2RjLzB4Y2E4KQo+ICDCoCBbwqDCoMKgIDguNTMyNTQ2XcKgwqDCoMKgwqDCoMKgwqDCoMKgwqAg
-UjowIFQ6MSBJTzoxIEVYOjEgS2V5OjAgTToxIFc6MCBQOjAgQVM6MyBDQzoyIFBNOjAgUkk6MCBF
-QTozCj4gIMKgIFvCoMKgwqAgOC41MzI1NTJdIEtybmwgR1BSUzogMDAwMDAwMDBlN2ZiOGIzZiAw
-MDAwMDAwMDgwMDAwMDAxIDAwMDAwMDAwYjE4NzA3MDAgMDAwMDAwMDBiMGNhMWQzYwo+ICDCoCBb
-wqDCoMKgIDguNTMyNTU3XcKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgMDAwMDAwMDAwMDAwMDEwMCAw
-MDAwMDAwMDAwMDAwMzAwIDAwMDAwMDAwOGIzNjI1MDAgMDAwMDAwMDBiMTMzYmE0OAo+ICDCoCBb
-wqDCoMKgIDguNTMyNTYxXcKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgMDAwMDAwMDAwMDAwMDAwYyAw
-MDAwMDM4MDAwMDAwMTAwIDAwMDAwMDAwMDAwMDAwMGMgMDAwMDAwMDAwMDAwMDA3MAo+ICDCoCBb
-wqDCoMKgIDguNTMyNTY2XcKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgMDAwMDAwMDA4NGNkMzIwMCAw
-MDAwMDAwMDAwMDAwMDAwIDAwMDAwMDAwYjA1ZWMwYzIgMDAwMDAzODAwMTBiNzdjOAo+ICDCoCBb
-wqDCoMKgIDguNTMyNTc1XSBLcm5sIENvZGU6IDAwMDAwMDAwYjA1ZWMzMmU6IGMwZTUwMDE4NzMz
-McKgwqDCoMKgwqAgYnJhc2zCoMKgICVyMTQsMDAwMDAwMDBiMDhmYTk5MAo+ICDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgMDAwMDAwMDBiMDVl
-YzMzNDogYTdmNGZmMGPCoMKgwqDCoMKgwqDCoMKgwqAgYnJjwqDCoMKgwqAgMTUsMDAwMDAwMDBi
-MDVlYzE0Ywo+ICDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgICMwMDAwMDAwMGIwNWVjMzM4OiBhZjAwMDAwMMKgwqDCoMKgwqDCoMKgwqDCoCBtY8Kg
-wqDCoMKgwqAgMCwwCj4gIMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqAgPjAwMDAwMDAwYjA1ZWMzM2M6IGVjNzZmZWQ4MDA3Y8KgwqDCoMKgwqAgY2dp
-asKgwqDCoCAlcjcsMCw2LDAwMDAwMDAwYjA1ZWMwZWMKPiAgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIDAwMDAwMDAwYjA1ZWMzNDI6IGUzMTBm
-MGIwMDAwNMKgwqDCoMKgwqAgbGfCoMKgwqDCoMKgICVyMSwxNzYoJXIxNSkKPiAgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIDAwMDAwMDAwYjA1
-ZWMzNDg6IGVjMTZmZmFjMDA3Y8KgwqDCoMKgwqAgY2dpasKgwqDCoCAlcjEsMCw2LDAwMDAwMDAw
-YjA1ZWMyYTAKPiAgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgIDAwMDAwMDAwYjA1ZWMzNGU6IGVjNjgwMzg4MDA3Y8KgwqDCoMKgwqAgY2dpasKg
-wqDCoCAlcjYsMCw4LDAwMDAwMDAwYjA1ZWNhNWUKPiAgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIDAwMDAwMDAwYjA1ZWMzNTQ6IGUzMTBmMGI4
-MDAwNMKgwqDCoMKgwqAgbGfCoMKgwqDCoMKgICVyMSwxODQoJXIxNSkKPiAgwqAgW8KgwqDCoCA4
-LjUzMjYwMF0gQ2FsbCBUcmFjZToKPiAgwqAgW8KgwqDCoCA4LjUzMjYwNF3CoCBbPDAwMDAwMDAw
-YjA1ZWMzM2M+XSBfX25ldGlmX3NldF94cHNfcXVldWUrMHgzZGMvMHhjYTgKPiAgwqAgW8KgwqDC
-oCA4LjUzMjYwOV0gKFs8MDAwMDAwMDBiMDVlYzBjMj5dIF9fbmV0aWZfc2V0X3hwc19xdWV1ZSsw
-eDE2Mi8weGNhOCkKPiAgwqAgW8KgwqDCoCA4LjUzMjYxNF3CoCBbPDAwMDAwM2ZmN2ZiYjgxY2U+
-XSB2aXJ0bmV0X3NldF9hZmZpbml0eSsweDFkZS8weDJhMCBbdmlydGlvX25ldF0KPiAgwqAgW8Kg
-wqDCoCA4LjUzMjYyMl3CoCBbPDAwMDAwM2ZmN2ZiYmI2NzQ+XSB2aXJ0bmV0X3Byb2JlKzB4NGQ0
-LzB4YzA4IFt2aXJ0aW9fbmV0XQo+ICDCoCBbwqDCoMKgIDguNTMyNjMwXcKgIFs8MDAwMDAwMDBi
-MDRlYzRlOD5dIHZpcnRpb19kZXZfcHJvYmUrMHgxZTgvMHg0MTgKPiAgwqAgW8KgwqDCoCA4LjUz
-MjYzOF3CoCBbPDAwMDAwMDAwYjA1MzUwZWE+XSByZWFsbHlfcHJvYmUrMHhkMi8weDQ4MAo+ICDC
-oCBbwqDCoMKgIDguNTMyNjQ0XcKgIFs8MDAwMDAwMDBiMDUzNTY0OD5dIGRyaXZlcl9wcm9iZV9k
-ZXZpY2UrMHg0MC8weGYwCj4gIMKgIFvCoMKgwqAgOC41MzI2NDldwqAgWzwwMDAwMDAwMGIwNTM1
-ZmFjPl0gX19kcml2ZXJfYXR0YWNoKzB4MTBjLzB4MjA4Cj4gIMKgIFvCoMKgwqAgOC41MzI2NTVd
-wqAgWzwwMDAwMDAwMGIwNTMyNTQyPl0gYnVzX2Zvcl9lYWNoX2RldisweDgyLzB4YjgKPiAgwqAg
-W8KgwqDCoCA4LjUzMjY2Ml3CoCBbPDAwMDAwMDAwYjA1MzQyMmU+XSBidXNfYWRkX2RyaXZlcisw
-eDFkNi8weDI2MAo+ICDCoCBbwqDCoMKgIDguNTMyNjY3XcKgIFs8MDAwMDAwMDBiMDUzNmE3MD5d
-IGRyaXZlcl9yZWdpc3RlcisweGE4LzB4MTcwCj4gIMKgIFvCoMKgwqAgOC41MzI2NzJdwqAgWzww
-MDAwMDNmZjdmYmM4MDg4Pl0gdmlydGlvX25ldF9kcml2ZXJfaW5pdCsweDg4LzB4MTAwMCBbdmly
-dGlvX25ldF0KPiAgwqAgW8KgwqDCoCA4LjUzMjY4MF3CoCBbPDAwMDAwMDAwYWZiNTBhYjA+XSBk
-b19vbmVfaW5pdGNhbGwrMHg3OC8weDM4OAo+ICDCoCBbwqDCoMKgIDguNTMyNjg1XcKgIFs8MDAw
-MDAwMDBhZmM3YjViOD5dIGRvX2luaXRfbW9kdWxlKzB4NjAvMHgyNDgKPiAgwqAgW8KgwqDCoCA4
-LjUzMjY5Ml3CoCBbPDAwMDAwMDAwYWZjN2NlOTY+XSBfX2RvX3N5c19pbml0X21vZHVsZSsweGJl
-LzB4ZDgKPiAgwqAgW8KgwqDCoCA4LjUzMjY5OF3CoCBbPDAwMDAwMDAwYjA5MTIzYjI+XSBfX2Rv
-X3N5c2NhbGwrMHgxZGEvMHgyMDgKPiAgwqAgW8KgwqDCoCA4LjUzMjcwNF3CoCBbPDAwMDAwMDAw
-YjA5MjViMTI+XSBzeXN0ZW1fY2FsbCsweDgyLzB4YjAKPiAgwqAgW8KgwqDCoCA4LjUzMjcxMF0g
-MyBsb2NrcyBoZWxkIGJ5IHN5c3RlbWQtdWRldmQvMzc3Ogo+ICDCoCBbwqDCoMKgIDguNTMyNzE1
-XcKgICMwOiAwMDAwMDAwMDg5YWY1MTg4ICgmZGV2LT5tdXRleCl7Li4uLn0tezM6M30sIGF0OiBf
-X2RyaXZlcl9hdHRhY2grMHhmZS8weDIwOAo+ICDCoCBbwqDCoMKgIDguNTMyNzI4XcKgICMxOiAw
-MDAwMDAwMGIxNDY2OGYwIChjcHVfaG90cGx1Z19sb2NrKXsrKysrfS17MDowfSwgYXQ6IHZpcnRu
-ZXRfcHJvYmUrMHg0Y2EvMHhjMDggW3ZpcnRpb19uZXRdCj4gIMKgIFvCoMKgwqAgOC41MzI3NDRd
-wqAgIzI6IDAwMDAwMDAwYjE1MDlkNDAgKHhwc19tYXBfbXV0ZXgpeysuKy59LXszOjN9LCBhdDog
-X19uZXRpZl9zZXRfeHBzX3F1ZXVlKzB4ODgvMHhjYTgKPiAgwqAgW8KgwqDCoCA4LjUzMjc1N10g
-TGFzdCBCcmVha2luZy1FdmVudC1BZGRyZXNzOgo+ICDCoCBbwqDCoMKgIDguNTMyNzYwXcKgIFs8
-MDAwMDAwMDBiMDVlYzBlMD5dIF9fbmV0aWZfc2V0X3hwc19xdWV1ZSsweDE4MC8weGNhOApfX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlv
-biBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
-aHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVh
-bGl6YXRpb24=
+On Wed, Oct 19, 2022 at 12:59:58PM +0200, Christian Borntraeger wrote:
+> Michael,
+> 
+> as a heads-up.
+> I have not looked into any details yet but we do get the following during reboot of a system on s390.
+> It seems to be new with 6.1-rc1 (over 6.0)
+> 
+>   [    8.532461] ------------[ cut here ]------------
+>   [    8.532497] WARNING: CPU: 8 PID: 377 at include/linux/cpumask.h:110 __netif_set_xps_queue+0x3d8/0xca8
+>   [    8.532507] Modules linked in: sha1_s390(+) sha_common virtio_net(+) net_failover failover pkey zcrypt rng_core autofs4
+>   [    8.532528] CPU: 8 PID: 377 Comm: systemd-udevd Not tainted 6.1.0-20221018.rc1.git15.0fd5f2557625.300.fc36.s390x+debug #1
+>   [    8.532533] Hardware name: IBM 8561 T01 701 (KVM/Linux)
+>   [    8.532537] Krnl PSW : 0704e00180000000 00000000b05ec33c (__netif_set_xps_queue+0x3dc/0xca8)
+>   [    8.532546]            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:2 PM:0 RI:0 EA:3
+>   [    8.532552] Krnl GPRS: 00000000e7fb8b3f 0000000080000001 00000000b1870700 00000000b0ca1d3c
+>   [    8.532557]            0000000000000100 0000000000000300 000000008b362500 00000000b133ba48
+>   [    8.532561]            000000000000000c 0000038000000100 000000000000000c 0000000000000070
+>   [    8.532566]            0000000084cd3200 0000000000000000 00000000b05ec0c2 00000380010b77c8
+>   [    8.532575] Krnl Code: 00000000b05ec32e: c0e500187331      brasl   %r14,00000000b08fa990
+>                             00000000b05ec334: a7f4ff0c          brc     15,00000000b05ec14c
+>                            #00000000b05ec338: af000000          mc      0,0
+>                            >00000000b05ec33c: ec76fed8007c      cgij    %r7,0,6,00000000b05ec0ec
+>                             00000000b05ec342: e310f0b00004      lg      %r1,176(%r15)
+>                             00000000b05ec348: ec16ffac007c      cgij    %r1,0,6,00000000b05ec2a0
+>                             00000000b05ec34e: ec680388007c      cgij    %r6,0,8,00000000b05eca5e
+>                             00000000b05ec354: e310f0b80004      lg      %r1,184(%r15)
+>   [    8.532600] Call Trace:
+>   [    8.532604]  [<00000000b05ec33c>] __netif_set_xps_queue+0x3dc/0xca8
+>   [    8.532609] ([<00000000b05ec0c2>] __netif_set_xps_queue+0x162/0xca8)
+>   [    8.532614]  [<000003ff7fbb81ce>] virtnet_set_affinity+0x1de/0x2a0 [virtio_net]
+>   [    8.532622]  [<000003ff7fbbb674>] virtnet_probe+0x4d4/0xc08 [virtio_net]
+>   [    8.532630]  [<00000000b04ec4e8>] virtio_dev_probe+0x1e8/0x418
+>   [    8.532638]  [<00000000b05350ea>] really_probe+0xd2/0x480
+>   [    8.532644]  [<00000000b0535648>] driver_probe_device+0x40/0xf0
+>   [    8.532649]  [<00000000b0535fac>] __driver_attach+0x10c/0x208
+>   [    8.532655]  [<00000000b0532542>] bus_for_each_dev+0x82/0xb8
+>   [    8.532662]  [<00000000b053422e>] bus_add_driver+0x1d6/0x260
+>   [    8.532667]  [<00000000b0536a70>] driver_register+0xa8/0x170
+>   [    8.532672]  [<000003ff7fbc8088>] virtio_net_driver_init+0x88/0x1000 [virtio_net]
+>   [    8.532680]  [<00000000afb50ab0>] do_one_initcall+0x78/0x388
+>   [    8.532685]  [<00000000afc7b5b8>] do_init_module+0x60/0x248
+>   [    8.532692]  [<00000000afc7ce96>] __do_sys_init_module+0xbe/0xd8
+>   [    8.532698]  [<00000000b09123b2>] __do_syscall+0x1da/0x208
+>   [    8.532704]  [<00000000b0925b12>] system_call+0x82/0xb0
+>   [    8.532710] 3 locks held by systemd-udevd/377:
+>   [    8.532715]  #0: 0000000089af5188 (&dev->mutex){....}-{3:3}, at: __driver_attach+0xfe/0x208
+>   [    8.532728]  #1: 00000000b14668f0 (cpu_hotplug_lock){++++}-{0:0}, at: virtnet_probe+0x4ca/0xc08 [virtio_net]
+>   [    8.532744]  #2: 00000000b1509d40 (xps_map_mutex){+.+.}-{3:3}, at: __netif_set_xps_queue+0x88/0xca8
+>   [    8.532757] Last Breaking-Event-Address:
+>   [    8.532760]  [<00000000b05ec0e0>] __netif_set_xps_queue+0x180/0xca8
+
+
+Does this fix it for you?
+
+https://lore.kernel.org/r/20221017030947.1295426-1-yury.norov%40gmail.com
+
+
+
+
+
+
+
+
+-- 
+MST
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
