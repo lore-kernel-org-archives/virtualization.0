@@ -1,102 +1,102 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 18C3DC4332F
-	for <virtualization@archiver.kernel.org>; Thu, 20 Oct 2022 04:38:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id F25DFC4332F
+	for <virtualization@archiver.kernel.org>; Thu, 20 Oct 2022 05:21:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 9262182F20;
-	Thu, 20 Oct 2022 04:38:46 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9262182F20
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=fmZ3fJeK
+	by smtp3.osuosl.org (Postfix) with ESMTP id 5EC0C60C21;
+	Thu, 20 Oct 2022 05:21:17 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5EC0C60C21
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=c3egPLaV
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 3LnJdS4AB7Wn; Thu, 20 Oct 2022 04:38:45 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 18AD882CCA;
-	Thu, 20 Oct 2022 04:38:45 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 18AD882CCA
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id CA_hKzPMWXKy; Thu, 20 Oct 2022 05:21:16 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id C530B60C18;
+	Thu, 20 Oct 2022 05:21:15 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C530B60C18
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CDD54C0033;
-	Thu, 20 Oct 2022 04:38:44 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7CDF0C0032;
+	Thu, 20 Oct 2022 05:21:15 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id F0D33C002D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6ED74C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 20 Oct 2022 04:38:42 +0000 (UTC)
+ Thu, 20 Oct 2022 05:21:14 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id B14F6419D3
+ by smtp4.osuosl.org (Postfix) with ESMTP id 4020A419E4
  for <virtualization@lists.linux-foundation.org>;
- Thu, 20 Oct 2022 04:38:42 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B14F6419D3
+ Thu, 20 Oct 2022 05:21:14 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4020A419E4
 Authentication-Results: smtp4.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=fmZ3fJeK
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=c3egPLaV
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id L8oX0Soi4zeg
+ with ESMTP id FsLk-TIOI4IV
  for <virtualization@lists.linux-foundation.org>;
- Thu, 20 Oct 2022 04:38:41 +0000 (UTC)
+ Thu, 20 Oct 2022 05:21:12 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7720F419AF
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org EA18A41832
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 7720F419AF
+ by smtp4.osuosl.org (Postfix) with ESMTPS id EA18A41832
  for <virtualization@lists.linux-foundation.org>;
- Thu, 20 Oct 2022 04:38:41 +0000 (UTC)
+ Thu, 20 Oct 2022 05:21:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1666240720;
+ s=mimecast20190719; t=1666243270;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=Kyv8nGXj9Ah4DccAJThYdzgEzvLEuADjYtSpDgDrIrY=;
- b=fmZ3fJeKo3ThMuSto0IsnudeKub3IKa13EW3EbiZudh6zG8LKbOLgtl+wHhG5WmEKdbsv4
- vmpzNhY7XHA96ZRxywqrUVWK2nj/gJ18HkaN14pjDDknIpgzdNqLMlsEaOq7Oc9BJNAl4j
- Cc7zzzOn77cECkod4X08WQvCrx1h92w=
-Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
- [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=cMRnDVkkHrRATkyUUGvXO7i/mb4rsqNqRwJLsH3u3Y0=;
+ b=c3egPLaVslc5DnJF6jilsj6zz8fiXD3GDmtmKui6Ye6V/2UvPDCixprOC/kmqgxOEwKY+W
+ humGtel1ePdyDfdx8RedcR3HHPKJiDb8VZkjiERdEWCe0s4AL5T04mY0HSkyL6Pdnz7yhP
+ MgN5SjXOMi/GWm6ulAxGmxTTUD39NSQ=
+Received: from mail-oi1-f200.google.com (mail-oi1-f200.google.com
+ [209.85.167.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-581-a0ahRwt5NguOhGmpI_4aZQ-1; Thu, 20 Oct 2022 00:38:39 -0400
-X-MC-Unique: a0ahRwt5NguOhGmpI_4aZQ-1
-Received: by mail-ed1-f72.google.com with SMTP id
- m20-20020a056402511400b0045da52f2d3cso7785404edd.20
+ us-mta-583-rdHVnFKTNQCx0lxd8ciZNA-1; Thu, 20 Oct 2022 01:21:09 -0400
+X-MC-Unique: rdHVnFKTNQCx0lxd8ciZNA-1
+Received: by mail-oi1-f200.google.com with SMTP id
+ j8-20020a056808118800b00354b7e75b46so8394978oil.16
  for <virtualization@lists.linux-foundation.org>;
- Wed, 19 Oct 2022 21:38:38 -0700 (PDT)
+ Wed, 19 Oct 2022 22:21:09 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=cc:to:subject:message-id:date:from:in-reply-to:references
  :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
  :reply-to;
- bh=Kyv8nGXj9Ah4DccAJThYdzgEzvLEuADjYtSpDgDrIrY=;
- b=k1MITdVQ+VZ7B2m+qMqjz79xwuWtPYZWUQjpZDZLWsRxRnqFRcbg/0Iu1cf/8Ywjb/
- grGCKvDwNiCcIil8NAbntNVKYX53UUBL897EDVuHaXALN/w+pbtdKug7Tg59gKLbARVO
- VtzJR33aPP21hxJc+jkFFAnMTGCbr9zjhSheTuavINSI7HvKm/zQETM29ZbvroRm2wuB
- kRFaEASrHuFkR3aU2lwo7N2eUoQ0YFfKw06zGHP9zIP7ruG92lHP0zwVIWILolUaDcko
- Oj+WFsAjIfx7YBx9MgE59SKehVfjaEByNDbVrjlABvpgfGMII04N5pUDZRUIeZIWqeyZ
- cqzg==
-X-Gm-Message-State: ACrzQf3ser+aray00k7KcCdOayBjlN66jh9JMFza5K2XkPXMdHz3YYf6
- PzhJ+ukIDJGu+ihi9ucSNq9swUCG7EPBRsKjzRVZDNkPkxMO6rBoatfRnKH+cx8zJxydk2gmiEC
- E5/M1mA/dhF8JYdKyprKbJejp2cOHS4QJtoJ67dvjakj8iNY1gU2mwoz5rg==
-X-Received: by 2002:a17:906:8a62:b0:78d:a05c:c37f with SMTP id
- hy2-20020a1709068a6200b0078da05cc37fmr9268198ejc.159.1666240715759; 
- Wed, 19 Oct 2022 21:38:35 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM5ZwOFEZM8doQCzml9WL1ee9yuCrqJnl7mDRSvjurlf1Q90Jp73KqKd+JTzUxzcUph64t0ai8+bt62iwoatemI=
-X-Received: by 2002:a17:906:8a62:b0:78d:a05c:c37f with SMTP id
- hy2-20020a1709068a6200b0078da05cc37fmr9268186ejc.159.1666240715492; Wed, 19
- Oct 2022 21:38:35 -0700 (PDT)
+ bh=cMRnDVkkHrRATkyUUGvXO7i/mb4rsqNqRwJLsH3u3Y0=;
+ b=CGRWqxXoUasqaJksnSyxceVh8fk6FwoYd1QBMSHyYpDdeUcOBzUVXls+YMxNCfQ9l6
+ NKPDGT9gO5GFK1uZ0UbYdGnHgi1b1ZaaepwbP4qR6voA1kdsB2BhutpxeV9ubF9rfraS
+ ZiAWOzYM6nMNZLp6MgJS6HiQn/7P4txX933JiPx21lz8rEkWgnGOwWxf7iLvs1zOoTbx
+ LTSe98YsUjf+CNi0Y5qBAwVelMUAHyoTbzWMg2t7tMjoX0bP+p3tQ1U4fXhXN3R9ZPDY
+ FwtESGqq05AN/NBhw2HONx84QE+gf/moNZQFggQJ4DESzilWaS0mnzm3Vagrlmu8nJ2v
+ 3X8Q==
+X-Gm-Message-State: ACrzQf2gNx2XJGxkcf6rU5q62e+fdsUdl5u7ryh+ugLmWSmn6ETVvu7I
+ p2wA4NID5hnDMQu2b6W4udQcyCAFd3ACx5ggSX3mPcGebPgCVsPruhb/Pz//88U6oAcZPCm3W6Y
+ MECmUOSrnNg6EKohPZzmN5zMmplfGFXHyMZkGo7EX5FegIaFVGy2B6EW77w==
+X-Received: by 2002:a05:6870:c1d3:b0:136:c4f6:53af with SMTP id
+ i19-20020a056870c1d300b00136c4f653afmr23554989oad.35.1666243268867; 
+ Wed, 19 Oct 2022 22:21:08 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM5WFeAg8gtVjAHKHu2BXh++BG3P1CkS/fEqwi4vYMcKgIdXA3/UkcZKvM4yHhp0p0fkJYgaA9UvDjkLaRclsHA=
+X-Received: by 2002:a05:6870:c1d3:b0:136:c4f6:53af with SMTP id
+ i19-20020a056870c1d300b00136c4f653afmr23554975oad.35.1666243268627; Wed, 19
+ Oct 2022 22:21:08 -0700 (PDT)
 MIME-Version: 1.0
 References: <1666137032-28192-1-git-send-email-si-wei.liu@oracle.com>
- <1666137032-28192-2-git-send-email-si-wei.liu@oracle.com>
-In-Reply-To: <1666137032-28192-2-git-send-email-si-wei.liu@oracle.com>
+ <1666137032-28192-3-git-send-email-si-wei.liu@oracle.com>
+In-Reply-To: <1666137032-28192-3-git-send-email-si-wei.liu@oracle.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 20 Oct 2022 12:38:22 +0800
-Message-ID: <CACGkMEv_fKZa9qN+ytnViCdvcR4Cbr8KyT71UnWzWjrtsFMyBg@mail.gmail.com>
-Subject: Re: [PATCH v2 1/4] vdpa: save vdpa_dev_set_config in struct
- vdpa_device
+Date: Thu, 20 Oct 2022 13:20:57 +0800
+Message-ID: <CACGkMEuT7O1xLrB9=eYHAtuHYdwbNXxqtC+Mh4qkWSkLM+QTjg@mail.gmail.com>
+Subject: Re: [PATCH v2 2/4] vdpa: pass initial config to
+ _vdpa_register_device()
 To: Si-Wei Liu <si-wei.liu@oracle.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
@@ -120,90 +120,76 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 On Wed, Oct 19, 2022 at 8:56 AM Si-Wei Liu <si-wei.liu@oracle.com> wrote:
 >
-> In order to allow live migration orchestration software to export the
-> initial set of vdpa attributes with which the device was created, it
-> will be useful if the vdpa tool can report the config on demand with
-> simple query. This will ease the orchestration software implementation
-> so that it doesn't have to keep track of vdpa config change, or have
-> to persist vdpa attributes across failure and recovery, in fear of
-> being killed due to accidental software error.
->
-> This commit attempts to make struct vdpa_device contain the struct
-> vdpa_dev_set_config, where all config attributes upon vdpa creation
-> are carried over. Which will be used in subsequent commits.
+> Just as _vdpa_register_device taking @nvqs as the number of queues
+
+I wonder if it's better to embed nvqs in the config structure.
+
+> to feed userspace inquery via vdpa_dev_fill(), we can follow the
+> same to stash config attributes in struct vdpa_device at the time
+> of vdpa registration.
 >
 > Signed-off-by: Si-Wei Liu <si-wei.liu@oracle.com>
 > ---
->  include/linux/vdpa.h | 23 +++++++++++++----------
->  1 file changed, 13 insertions(+), 10 deletions(-)
+>  drivers/vdpa/ifcvf/ifcvf_main.c      |  2 +-
+>  drivers/vdpa/mlx5/net/mlx5_vnet.c    |  2 +-
+>  drivers/vdpa/vdpa.c                  | 15 +++++++++++----
+>  drivers/vdpa/vdpa_sim/vdpa_sim_blk.c |  2 +-
+>  drivers/vdpa/vdpa_sim/vdpa_sim_net.c |  2 +-
+>  drivers/vdpa/vdpa_user/vduse_dev.c   |  2 +-
+>  drivers/vdpa/virtio_pci/vp_vdpa.c    |  3 ++-
+>  include/linux/vdpa.h                 |  3 ++-
+>  8 files changed, 20 insertions(+), 11 deletions(-)
 >
-> diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
-> index 6d0f5e4..f1838f5 100644
-> --- a/include/linux/vdpa.h
-> +++ b/include/linux/vdpa.h
-> @@ -58,6 +58,16 @@ struct vdpa_vq_state {
->         };
->  };
+> diff --git a/drivers/vdpa/ifcvf/ifcvf_main.c b/drivers/vdpa/ifcvf/ifcvf_main.c
+> index f9c0044..c54ab2c 100644
+> --- a/drivers/vdpa/ifcvf/ifcvf_main.c
+> +++ b/drivers/vdpa/ifcvf/ifcvf_main.c
+> @@ -771,7 +771,7 @@ static int ifcvf_vdpa_dev_add(struct vdpa_mgmt_dev *mdev, const char *name,
+>         else
+>                 ret = dev_set_name(&vdpa_dev->dev, "vdpa%u", vdpa_dev->index);
 >
-> +struct vdpa_dev_set_config {
-> +       u64 device_features;
-> +       struct {
-> +               u8 mac[ETH_ALEN];
-> +               u16 mtu;
-> +               u16 max_vq_pairs;
-> +       } net;
-
-Not for this patch but I think there should be a union container for
-this structure to make it usable for other types of devices.
-
-> +       u64 mask;
-> +};
-> +
->  struct vdpa_mgmt_dev;
+> -       ret = _vdpa_register_device(&adapter->vdpa, vf->nr_vring);
+> +       ret = _vdpa_register_device(&adapter->vdpa, vf->nr_vring, config);
+>         if (ret) {
+>                 put_device(&adapter->vdpa.dev);
+>                 IFCVF_ERR(pdev, "Failed to register to vDPA bus");
+> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> index 9091336..376082e 100644
+> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> @@ -3206,7 +3206,7 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name,
+>         mlx5_notifier_register(mdev, &ndev->nb);
+>         ndev->nb_registered = true;
+>         mvdev->vdev.mdev = &mgtdev->mgtdev;
+> -       err = _vdpa_register_device(&mvdev->vdev, max_vqs + 1);
+> +       err = _vdpa_register_device(&mvdev->vdev, max_vqs + 1, add_config);
+>         if (err)
+>                 goto err_reg;
 >
->  /**
-> @@ -77,6 +87,8 @@ struct vdpa_vq_state {
->   * @nvqs: maximum number of supported virtqueues
->   * @mdev: management device pointer; caller must setup when registering device as part
->   *       of dev_add() mgmtdev ops callback before invoking _vdpa_register_device().
-> + * @vdev_cfg: initial device config on vdpa creation; useful when instantiate with
-> + *            the exact same config is needed.
+> diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
+> index febdc99..566c1c6 100644
+> --- a/drivers/vdpa/vdpa.c
+> +++ b/drivers/vdpa/vdpa.c
+> @@ -215,11 +215,16 @@ static int vdpa_name_match(struct device *dev, const void *data)
+>         return (strcmp(dev_name(&vdev->dev), data) == 0);
+>  }
+>
+> -static int __vdpa_register_device(struct vdpa_device *vdev, u32 nvqs)
+> +static int __vdpa_register_device(struct vdpa_device *vdev, u32 nvqs,
+> +                                 const struct vdpa_dev_set_config *cfg)
+>  {
+>         struct device *dev;
+>
+>         vdev->nvqs = nvqs;
+> +       if (cfg)
+> +               vdev->vdev_cfg = *cfg;
+> +       else
+> +               vdev->vdev_cfg.mask = 0ULL;
 
-Not a native speaker, but I guess it should be better named as "init_cfg"?
+I think it would be nice if we can convert eni to use netlink then we
+don't need any workaround like this.
 
 Thanks
-
->   */
->  struct vdpa_device {
->         struct device dev;
-> @@ -91,6 +103,7 @@ struct vdpa_device {
->         struct vdpa_mgmt_dev *mdev;
->         unsigned int ngroups;
->         unsigned int nas;
-> +       struct vdpa_dev_set_config vdev_cfg;
->  };
->
->  /**
-> @@ -103,16 +116,6 @@ struct vdpa_iova_range {
->         u64 last;
->  };
->
-> -struct vdpa_dev_set_config {
-> -       u64 device_features;
-> -       struct {
-> -               u8 mac[ETH_ALEN];
-> -               u16 mtu;
-> -               u16 max_vq_pairs;
-> -       } net;
-> -       u64 mask;
-> -};
-> -
->  /**
->   * Corresponding file area for device memory mapping
->   * @file: vma->vm_file for the mapping
-> --
-> 1.8.3.1
->
 
 _______________________________________________
 Virtualization mailing list
