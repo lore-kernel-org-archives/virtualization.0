@@ -4,99 +4,99 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 58B4AC4332F
-	for <virtualization@archiver.kernel.org>; Thu, 20 Oct 2022 05:26:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9BDD5C433FE
+	for <virtualization@archiver.kernel.org>; Thu, 20 Oct 2022 05:40:52 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id D172D41D27;
-	Thu, 20 Oct 2022 05:26:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D172D41D27
+	by smtp4.osuosl.org (Postfix) with ESMTP id 2173A4198A;
+	Thu, 20 Oct 2022 05:40:52 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2173A4198A
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=BtZ2uNxJ
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=NxYAwD5K
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 0kHRwVLQwV_b; Thu, 20 Oct 2022 05:26:14 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id E63F4419E4;
-	Thu, 20 Oct 2022 05:26:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E63F4419E4
+	with ESMTP id nqOGDl8RtcKh; Thu, 20 Oct 2022 05:40:51 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 49BC44197D;
+	Thu, 20 Oct 2022 05:40:50 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 49BC44197D
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C59DDC0032;
-	Thu, 20 Oct 2022 05:26:13 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 49554C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id F33E1C0032;
+	Thu, 20 Oct 2022 05:40:49 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C6D9CC002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 20 Oct 2022 05:26:12 +0000 (UTC)
+ Thu, 20 Oct 2022 05:40:48 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 167EB404F7
+ by smtp1.osuosl.org (Postfix) with ESMTP id 89B7B83E44
  for <virtualization@lists.linux-foundation.org>;
- Thu, 20 Oct 2022 05:26:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 167EB404F7
-Authentication-Results: smtp2.osuosl.org;
+ Thu, 20 Oct 2022 05:40:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 89B7B83E44
+Authentication-Results: smtp1.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=BtZ2uNxJ
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=NxYAwD5K
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id zHejnTKHXkhJ
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Bq4It6atLBYu
  for <virtualization@lists.linux-foundation.org>;
- Thu, 20 Oct 2022 05:26:10 +0000 (UTC)
+ Thu, 20 Oct 2022 05:40:47 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B9316404F4
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A667483E3E
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id B9316404F4
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id A667483E3E
  for <virtualization@lists.linux-foundation.org>;
- Thu, 20 Oct 2022 05:26:10 +0000 (UTC)
+ Thu, 20 Oct 2022 05:40:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1666243569;
+ s=mimecast20190719; t=1666244446;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=+RSA0RntEqf7QmuVbJ4H4/9krr36kS4aFkfU2E/RUmU=;
- b=BtZ2uNxJfEKvca2D4EMVLgjKphdpBPfAxLnMNHoLqaNSbK7gbLUc5eNlgoitf+mb8M280v
- LGpTQM3wh3ht7kdGYPOXhrSDKvOlk1gmbA3ytrV0bi6OqBOXwaf62NZEjuPi3Y8BFmVXOV
- I1+p28JS3/nEC9gvVfZtTC1MdvGHBpQ=
-Received: from mail-oa1-f69.google.com (mail-oa1-f69.google.com
- [209.85.160.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=3cLm9HnF52RPDChT7zvm6M4NNF+pwOpLfcF1b46hwk4=;
+ b=NxYAwD5K7VIgaTi3+C9zhvuIanJX0Hiz/hEmhbVWO9TFWdyLrqcMZ4DS63xi1g2U2vJKpN
+ wlOE0WO5J0HWSxpje6A6znZscfva/CdWsAwXPdCXWDtU3djQ/f4DFpB1+zZDcVd/bwQDjH
+ d4CiCwzYufa9akU+Pi8tDdQlOKeHvBw=
+Received: from mail-oi1-f197.google.com (mail-oi1-f197.google.com
+ [209.85.167.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-8-PKJD6WVIM2Cs9KzGFn9LMg-1; Thu, 20 Oct 2022 01:26:08 -0400
-X-MC-Unique: PKJD6WVIM2Cs9KzGFn9LMg-1
-Received: by mail-oa1-f69.google.com with SMTP id
- 586e51a60fabf-13234741239so9123969fac.7
+ us-mta-583-nHcHnH_BOiCUtdagsfd-Iw-1; Thu, 20 Oct 2022 01:40:45 -0400
+X-MC-Unique: nHcHnH_BOiCUtdagsfd-Iw-1
+Received: by mail-oi1-f197.google.com with SMTP id
+ w136-20020acaad8e000000b003552d4729d6so5600608oie.2
  for <virtualization@lists.linux-foundation.org>;
- Wed, 19 Oct 2022 22:26:08 -0700 (PDT)
+ Wed, 19 Oct 2022 22:40:45 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=cc:to:subject:message-id:date:from:in-reply-to:references
  :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
  :reply-to;
- bh=+RSA0RntEqf7QmuVbJ4H4/9krr36kS4aFkfU2E/RUmU=;
- b=xmXQgxTn5ZR+RN+Ew/K9f8YuCoERhUoA/Akr9MpzVFgqxPBba5wcKyy2M1Eu+iHety
- zVNBLMoZ08eeJuILsdQCjaqyOdgMoN7urRMH4SEoBWpzrixYjxTgzQwHqCByhyWc2CJ4
- JpI43ZyJs4xv6WkloLwwCXE1HE1Rr9G2JjOFPAq9kInn10MHbGszPEndFQcHvZcXUkoB
- 7zoWJkEELiYzRNq8o6cXKp9MTmqsQZf6ExkB9gvAsHFj2UUXsJe+0yvUBuDoo/D5dPQR
- /06BBBjPNzCKnHyPt3r/sGDoQnvpbHp9ffZ11v+KSfNZu5gBAnJXsSgHuClhpuHWWTVA
- C+mw==
-X-Gm-Message-State: ACrzQf3KZGKcdCCXj3sHmYTXMoHcsRTenQu6RxmPib5YVwHo+i01AE9v
- tTK09e7+w8Jghym3HxtWgTH74V/a91dtHlP9FIJDzTX4+HBdaV67dCL6N86AEUB2LkDWokUejwP
- t9sdf9bQ2DoMpy57ttA1FFCw10mAhcNKVbNk/0Rp6Oe6MRf0iFDs2spZgSQ==
-X-Received: by 2002:a9d:12a8:0:b0:661:a06f:33d7 with SMTP id
- g37-20020a9d12a8000000b00661a06f33d7mr6035173otg.237.1666243567543; 
- Wed, 19 Oct 2022 22:26:07 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM5nSvUC0HcWvAHFOesU6EeZfKDqnoOFz1h2xahVvfHticSDonuZxkzjvKKM0os702cuEIZFj9+ghX/ZL0FOJ/Y=
-X-Received: by 2002:a9d:12a8:0:b0:661:a06f:33d7 with SMTP id
- g37-20020a9d12a8000000b00661a06f33d7mr6035164otg.237.1666243567310; Wed, 19
- Oct 2022 22:26:07 -0700 (PDT)
+ bh=3cLm9HnF52RPDChT7zvm6M4NNF+pwOpLfcF1b46hwk4=;
+ b=q+Vl5PKoz8iLM0DZTYFbirqgPZ0SLgJUWTA0uw4jOzGM90xHrg/QUJDBrfrbB0H6FO
+ slag87hCJQ0R+/SDYt38ztjcdcyv+nHPRRPfNmt3TrsGSGyZFriniAQPEJq3UI51WBoH
+ md9XKduU1hR70ZHhH5qwOpo7UOCfJVyOIuhiMz10VWRPD8RYw6Nq/ojWGrg/AWCiv1J+
+ fXmztu877RFyhRHU663v3i/apppSv92oMy/gg1jeYdVXk8LxsujE54bV61Mb+iaC1nuJ
+ 0br9InsMZTWixqJwt0spajkbm6jynhtFS/BF2kSohXurRWHv9Qea+t24w4HhwYIDT1eL
+ yNMg==
+X-Gm-Message-State: ACrzQf1eBvnJSpvLep00IdjoiXt73WzySVrUTs1DGOKERl/YLyuF7DGA
+ ZIvkq/zolvwcJrp/Prp3Zvq1Wxv85hUga+KCQhNksOOVcfBCzIYTeS2nE+9iQSrKKMmVMeukzNi
+ 2N0iCB/R8uZQ/jFpNlUWCi+y7tK6ysbLf80pxaqlGz7iPiG4X2pC073RUfg==
+X-Received: by 2002:a9d:7dcf:0:b0:661:dc25:ba0 with SMTP id
+ k15-20020a9d7dcf000000b00661dc250ba0mr6006240otn.201.1666244444379; 
+ Wed, 19 Oct 2022 22:40:44 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM4KOnL5N1u6m6VXP6xpqvCTdnJWSdwlGbLkZlRfz6DwviF2O1N/QP25F1zjvuTZ8UH3pFNQC3QvWeykzR4PRL8=
+X-Received: by 2002:a9d:7dcf:0:b0:661:dc25:ba0 with SMTP id
+ k15-20020a9d7dcf000000b00661dc250ba0mr6006229otn.201.1666244444153; Wed, 19
+ Oct 2022 22:40:44 -0700 (PDT)
 MIME-Version: 1.0
 References: <1666137032-28192-1-git-send-email-si-wei.liu@oracle.com>
- <1666137032-28192-4-git-send-email-si-wei.liu@oracle.com>
-In-Reply-To: <1666137032-28192-4-git-send-email-si-wei.liu@oracle.com>
+ <1666137032-28192-5-git-send-email-si-wei.liu@oracle.com>
+In-Reply-To: <1666137032-28192-5-git-send-email-si-wei.liu@oracle.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 20 Oct 2022 13:25:55 +0800
-Message-ID: <CACGkMEuDn+Y8OEw6uK+FC0oOOd6+kj0EXS4Fm-+54GjrqY3_Gw@mail.gmail.com>
-Subject: Re: [PATCH v2 3/4] vdpa: show dev config as-is in "vdpa dev show"
- output
+Date: Thu, 20 Oct 2022 13:40:32 +0800
+Message-ID: <CACGkMEtV_amYoz7JqpJyyUMDnsZuPJYfXk8bP9Yb1oyJrhpY8w@mail.gmail.com>
+Subject: Re: [PATCH v2 4/4] vdpa: fix improper error message when adding vdpa
+ dev
 To: Si-Wei Liu <si-wei.liu@oracle.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
@@ -120,133 +120,64 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 On Wed, Oct 19, 2022 at 8:56 AM Si-Wei Liu <si-wei.liu@oracle.com> wrote:
 >
-> Live migration of vdpa would typically require re-instate vdpa
-> device with an idential set of configs on the destination node,
-> same way as how source node created the device in the first
-> place. In order to save orchestration software from memorizing
-> and keeping track of vdpa config, it will be helpful if the vdpa
-> tool provides the aids for exporting the initial configs from
-> which vdpa device was created as-is. The "vdpa dev show" command
-> seems to be the right vehicle for that. It is unlike the "vdpa dev
-> config show" command output that usually goes with the live value
-> in the device config space, which is not quite reliable subject to
-> the dynamics of feature negotiation and possible change in device
-> config space.
+> In below example, before the fix, mtu attribute is supported
+> by the parent mgmtdev, but the error message showing "All
+> provided are not supported" is just misleading.
 >
-> Examples:
+> $ vdpa mgmtdev show
+> vdpasim_net:
+>   supported_classes net
+>   max_supported_vqs 3
+>   dev_features MTU MAC CTRL_VQ CTRL_MAC_ADDR ANY_LAYOUT VERSION_1 ACCESS_PLATFORM
 >
-> 1) Create vDPA by default without any config attribute
+> $ vdpa dev add mgmtdev vdpasim_net name vdpasim0 mtu 5000 max_vqp 2
+> Error: vdpa: All provided attributes are not supported.
+> kernel answers: Operation not supported
 >
-> $ vdpa dev add mgmtdev pci/0000:41:04.2 name vdpa0
-> $ vdpa dev show vdpa0
-> vdpa0: type network mgmtdev pci/0000:41:04.2 vendor_id 5555 max_vqs 9 max_vq_size 256
-> $ vdpa dev -jp show vdpa0
-> {
->     "dev": {
->         "vdpa0": {
->             "type": "network",
->             "mgmtdev": "pci/0000:41:04.2",
->             "vendor_id": 5555,
->             "max_vqs": 9,
->             "max_vq_size": 256,
->         }
->     }
-> }
+> After fix, the relevant error message will be like:
 >
-> 2) Create vDPA with config attribute(s) specified
+> $ vdpa dev add mgmtdev vdpasim_net name vdpasim0 mtu 5000 max_vqp 2
+> Error: vdpa: Some provided attributes are not supported.
+> kernel answers: Operation not supported
 >
-> $ vdpa dev add mgmtdev pci/0000:41:04.2 name vdpa0 \
->     mac e4:11:c6:d3:45:f0 max_vq_pairs 4
-> $ vdpa dev show
-> vdpa0: type network mgmtdev pci/0000:41:04.2 vendor_id 5555 max_vqs 9 max_vq_size 256
->   virtio_config: mac e4:11:c6:d3:45:f0 max_vq_pairs 4
-> $ vdpa dev -jp show
-> {
->     "dev": {
->         "vdpa0": {
->             "type": "network",
->             "mgmtdev": "pci/0000:41:04.2",
->             "vendor_id": 5555,
->             "max_vqs": 9,
->             "max_vq_size": 256,
->             "virtio_config": {
->                 "mac": "e4:11:c6:d3:45:f0",
->                 "max_vq_pairs": 4
->             }
->         }
->     }
-> }
+> $ vdpa dev add mgmtdev vdpasim_net name vdpasim0 max_vqp 2
+> Error: vdpa: All provided attributes are not supported.
+> kernel answers: Operation not supported
 >
 > Signed-off-by: Si-Wei Liu <si-wei.liu@oracle.com>
+
+Acked-by: Jason Wang <jasowang@redhat.com>
+
 > ---
->  drivers/vdpa/vdpa.c | 39 +++++++++++++++++++++++++++++++++++++++
->  1 file changed, 39 insertions(+)
+>  drivers/vdpa/vdpa.c | 9 ++++++++-
+>  1 file changed, 8 insertions(+), 1 deletion(-)
 >
 > diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
-> index 566c1c6..91eca6d 100644
+> index 91eca6d..ff15e0a 100644
 > --- a/drivers/vdpa/vdpa.c
 > +++ b/drivers/vdpa/vdpa.c
-> @@ -677,6 +677,41 @@ static int vdpa_nl_cmd_dev_del_set_doit(struct sk_buff *skb, struct genl_info *i
->  }
+> @@ -629,13 +629,20 @@ static int vdpa_nl_cmd_dev_add_set_doit(struct sk_buff *skb, struct genl_info *i
+>                 err = PTR_ERR(mdev);
+>                 goto err;
+>         }
+> -       if ((config.mask & mdev->config_attr_mask) != config.mask) {
+> +       if (config.mask && (config.mask & mdev->config_attr_mask) == 0) {
+>                 NL_SET_ERR_MSG_MOD(info->extack,
+>                                    "All provided attributes are not supported");
+>                 err = -EOPNOTSUPP;
+>                 goto err;
+>         }
 >
->  static int
-> +vdpa_dev_cfgattrs_fill(struct vdpa_device *vdev, struct sk_buff *msg, u32 device_id)
-> +{
-> +       struct vdpa_dev_set_config *cfg = &vdev->vdev_cfg;
-> +       int err = -EMSGSIZE;
-> +
-> +       if (!cfg->mask)
-> +               return 0;
-> +
-> +       switch (device_id) {
-> +       case VIRTIO_ID_NET:
-> +               if ((cfg->mask & BIT_ULL(VDPA_ATTR_DEV_NET_CFG_MACADDR)) != 0 &&
-> +                   nla_put(msg, VDPA_ATTR_DEV_NET_CFG_MACADDR,
-> +                           sizeof(cfg->net.mac), cfg->net.mac))
-> +                       return err;
-> +               if ((cfg->mask & BIT_ULL(VDPA_ATTR_DEV_NET_CFG_MTU)) != 0 &&
-> +                   nla_put_u16(msg, VDPA_ATTR_DEV_NET_CFG_MTU, cfg->net.mtu))
-> +                       return err;
-> +               if ((cfg->mask & BIT_ULL(VDPA_ATTR_DEV_NET_CFG_MAX_VQP)) != 0 &&
-> +                   nla_put_u16(msg, VDPA_ATTR_DEV_NET_CFG_MAX_VQP,
-> +                               cfg->net.max_vq_pairs))
-> +                       return err;
-> +               break;
-
-This makes me think if we can reuse the virtio_net_config structure
-other than duplicate it slowly with a dedicated nested structure
-inside vdpa_dev_set_config then we can reuse the
-vdpa_dev_net_config_fill().
-
-Thanks
-
-> +       default:
-> +               break;
+> +       if ((config.mask & mdev->config_attr_mask) != config.mask) {
+> +               NL_SET_ERR_MSG_MOD(info->extack,
+> +                                  "Some provided attributes are not supported");
+> +               err = -EOPNOTSUPP;
+> +               goto err;
 > +       }
 > +
-> +       if ((cfg->mask & BIT_ULL(VDPA_ATTR_DEV_FEATURES)) != 0 &&
-> +           nla_put_u64_64bit(msg, VDPA_ATTR_DEV_FEATURES,
-> +                             cfg->device_features, VDPA_ATTR_PAD))
-> +               return err;
-> +
-> +       return 0;
-> +}
-> +
-> +static int
->  vdpa_dev_fill(struct vdpa_device *vdev, struct sk_buff *msg, u32 portid, u32 seq,
->               int flags, struct netlink_ext_ack *extack)
->  {
-> @@ -715,6 +750,10 @@ static int vdpa_nl_cmd_dev_del_set_doit(struct sk_buff *skb, struct genl_info *i
->         if (nla_put_u16(msg, VDPA_ATTR_DEV_MIN_VQ_SIZE, min_vq_size))
->                 goto msg_err;
->
-> +       err = vdpa_dev_cfgattrs_fill(vdev, msg, device_id);
-> +       if (err)
-> +               goto msg_err;
-> +
->         genlmsg_end(msg, hdr);
->         return 0;
->
+>         err = mdev->ops->dev_add(mdev, name, &config);
+>  err:
+>         up_write(&vdpa_dev_lock);
 > --
 > 1.8.3.1
 >
