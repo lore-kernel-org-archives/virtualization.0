@@ -1,94 +1,94 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C1D21FA3749
-	for <virtualization@archiver.kernel.org>; Mon, 24 Oct 2022 11:20:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id EEED5FC619A
+	for <virtualization@archiver.kernel.org>; Mon, 24 Oct 2022 11:20:24 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 5A1F3405AE;
-	Mon, 24 Oct 2022 11:20:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5A1F3405AE
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=J5V9t/9F;
-	dkim=fail reason="signature verification failed" header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=CNYWcX45
+	by smtp2.osuosl.org (Postfix) with ESMTP id 549DA40598;
+	Mon, 24 Oct 2022 11:20:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 549DA40598
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=yXNK7Wvq;
+	dkim=fail reason="signature verification failed" header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=5iYW05vz
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id iYM_6cLYhKwK; Mon, 24 Oct 2022 11:20:20 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 4634F4089C;
-	Mon, 24 Oct 2022 11:20:19 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4634F4089C
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ChFQLFvXmbXn; Mon, 24 Oct 2022 11:20:22 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id CDB48405B0;
+	Mon, 24 Oct 2022 11:20:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org CDB48405B0
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2AE90C0032;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CD62CC0082;
 	Mon, 24 Oct 2022 11:20:19 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6E847C0032
+ by lists.linuxfoundation.org (Postfix) with ESMTP id EFE27C002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Oct 2022 11:20:15 +0000 (UTC)
+ Mon, 24 Oct 2022 11:20:16 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 35E1760BF8
+ by smtp3.osuosl.org (Postfix) with ESMTP id D6E9560D58
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Oct 2022 11:20:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 35E1760BF8
+ Mon, 24 Oct 2022 11:20:16 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D6E9560D58
 Authentication-Results: smtp3.osuosl.org;
  dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de
- header.a=rsa-sha256 header.s=susede2_rsa header.b=J5V9t/9F; 
+ header.a=rsa-sha256 header.s=susede2_rsa header.b=yXNK7Wvq; 
  dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256
- header.s=susede2_ed25519 header.b=CNYWcX45
+ header.s=susede2_ed25519 header.b=5iYW05vz
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Q-SCGdi304hL
+ with ESMTP id SeWtJ-JWRZ54
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 24 Oct 2022 11:20:14 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0E00060BFB
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 0E00060BFB
  for <virtualization@lists.linux-foundation.org>;
  Mon, 24 Oct 2022 11:20:11 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C573F60E2D
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
- by smtp3.osuosl.org (Postfix) with ESMTPS id C573F60E2D
- for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Oct 2022 11:20:09 +0000 (UTC)
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
  (No client certificate requested)
- by smtp-out2.suse.de (Postfix) with ESMTPS id F1B821FD8F;
- Mon, 24 Oct 2022 11:20:07 +0000 (UTC)
+ by smtp-out1.suse.de (Postfix) with ESMTPS id 364C822169;
+ Mon, 24 Oct 2022 11:20:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
- t=1666610408; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ t=1666610410; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
  mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=mIcpJgbeqPNRftPv7Q4iDJZ6HW36+TLeNbJLj/Rhtmc=;
- b=J5V9t/9FM/VDgPyc0yq6tO0GmQq6Qv25guz1Q1fY5WqdBAinoQHFhztpNq5LcTRRfUvvcT
- /NuVcNEdfBJX7fusjs7hFRkyxgbHxcWN1kfohXIkpRJAi1ty3GFGrpl4rAh+odteORdTGx
- FKkgD3un0IG2lJnoPAZi1HhvrYE46Xs=
+ bh=s8EjyldAvzdOSExh8dLPvPye++M7XBzrxFcMIv6xfEg=;
+ b=yXNK7WvqcfSZ73bIs91Y5i7Bf+/SN3NxlKz05cX26OSlw7GDaRM0CnD5Q8pdke1oaKAT3a
+ 733QKiclqV7+xhnQy1p/B6dwHMQEKlOE67NXCdjUVPQa5CG4yRbA8jQ51vzzhzFm87CwpA
+ LRguV0fRfumlKaA25GcQYN5DK4EWF2k=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
- s=susede2_ed25519; t=1666610408;
+ s=susede2_ed25519; t=1666610410;
  h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
  mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=mIcpJgbeqPNRftPv7Q4iDJZ6HW36+TLeNbJLj/Rhtmc=;
- b=CNYWcX45+/WAYm9dPFnFWlK6swVE3qJRR6m+/F0MjgXTEr5bOtQ33tW8HoXd70hS0Hn34P
- VykmHgLg4gOIWDBg==
+ bh=s8EjyldAvzdOSExh8dLPvPye++M7XBzrxFcMIv6xfEg=;
+ b=5iYW05vzugOpwdblq+hoaUUilaS6r1R4P1+qqdHtxMEn9I74hlGTuChnD/rLbuMU0RpEgw
+ Smdzlcetm0TpzGCw==
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
  (No client certificate requested)
- by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 50C2013A98;
- Mon, 24 Oct 2022 11:20:07 +0000 (UTC)
+ by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 866DC13357;
+ Mon, 24 Oct 2022 11:20:09 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([192.168.254.65])
- by imap2.suse-dmz.suse.de with ESMTPSA id SNLmEud0VmOYMgAAMHmgww
- (envelope-from <tzimmermann@suse.de>); Mon, 24 Oct 2022 11:20:07 +0000
+ by imap2.suse-dmz.suse.de with ESMTPSA id kK6cH+l0VmOYMgAAMHmgww
+ (envelope-from <tzimmermann@suse.de>); Mon, 24 Oct 2022 11:20:09 +0000
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: daniel@ffwll.ch, airlied@gmail.com, sam@ravnborg.org, javierm@redhat.com,
  mripard@kernel.org, maarten.lankhorst@linux.intel.com
-Subject: [PATCH v2 18/21] drm/fb_helper: Minimize damage-helper overhead
-Date: Mon, 24 Oct 2022 13:19:50 +0200
-Message-Id: <20221024111953.24307-19-tzimmermann@suse.de>
+Subject: [PATCH v2 21/21] drm/fb-helper: Remove unnecessary include statements
+Date: Mon, 24 Oct 2022 13:19:53 +0200
+Message-Id: <20221024111953.24307-22-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221024111953.24307-1-tzimmermann@suse.de>
 References: <20221024111953.24307-1-tzimmermann@suse.de>
@@ -121,225 +121,362 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Pull the test for fb_dirty into the caller to avoid extra work
-if no callback has been set. In this case no damage handling is
-required and no damage area needs to be computed. Print a warning
-if the damage worker runs without getting an fb_dirty callback.
+Remove include statements for <drm/drm_fb_helper.h> where it is not
+required (i.e., most of them). In a few places include other header
+files that are required by the source code.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/gpu/drm/drm_fb_helper.c | 90 ++++++++++++++++++++++-----------
- 1 file changed, 60 insertions(+), 30 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c  | 1 -
+ drivers/gpu/drm/amd/amdgpu/amdgpu_display.c     | 1 -
+ drivers/gpu/drm/amd/amdgpu/amdgpu_mode.h        | 1 -
+ drivers/gpu/drm/arm/hdlcd_crtc.c                | 1 -
+ drivers/gpu/drm/ast/ast_drv.h                   | 1 -
+ drivers/gpu/drm/bridge/tc358762.c               | 2 +-
+ drivers/gpu/drm/drm_crtc_helper.c               | 1 -
+ drivers/gpu/drm/drm_gem_framebuffer_helper.c    | 1 -
+ drivers/gpu/drm/drm_probe_helper.c              | 1 -
+ drivers/gpu/drm/etnaviv/etnaviv_drv.h           | 3 ++-
+ drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.h | 1 -
+ drivers/gpu/drm/hyperv/hyperv_drm_modeset.c     | 1 -
+ drivers/gpu/drm/imx/imx-ldb.c                   | 2 +-
+ drivers/gpu/drm/imx/imx-tve.c                   | 1 -
+ drivers/gpu/drm/imx/parallel-display.c          | 2 +-
+ drivers/gpu/drm/kmb/kmb_plane.c                 | 1 -
+ drivers/gpu/drm/mgag200/mgag200_drv.h           | 1 -
+ drivers/gpu/drm/qxl/qxl_drv.h                   | 1 -
+ drivers/gpu/drm/rockchip/rockchip_drm_drv.h     | 2 +-
+ drivers/gpu/drm/tidss/tidss_kms.c               | 1 -
+ drivers/gpu/drm/v3d/v3d_drv.c                   | 1 -
+ drivers/gpu/drm/vboxvideo/vbox_main.c           | 1 -
+ drivers/gpu/drm/virtio/virtgpu_drv.h            | 1 -
+ drivers/gpu/drm/xen/xen_drm_front_gem.c         | 1 -
+ 24 files changed, 6 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_fb_helper.c b/drivers/gpu/drm/drm_fb_helper.c
-index 836523aef6a27..fbc5c5445fdb0 100644
---- a/drivers/gpu/drm/drm_fb_helper.c
-+++ b/drivers/gpu/drm/drm_fb_helper.c
-@@ -449,12 +449,13 @@ static int drm_fb_helper_damage_blit(struct drm_fb_helper *fb_helper,
- static void drm_fb_helper_damage_work(struct work_struct *work)
- {
- 	struct drm_fb_helper *helper = container_of(work, struct drm_fb_helper, damage_work);
-+	struct drm_device *dev = helper->dev;
- 	struct drm_clip_rect *clip = &helper->damage_clip;
- 	struct drm_clip_rect clip_copy;
- 	unsigned long flags;
- 	int ret;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
+index 491d4846fc02c..e1320edfc5274 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
+@@ -26,7 +26,6 @@
  
--	if (!helper->funcs->fb_dirty)
-+	if (drm_WARN_ON_ONCE(dev, !helper->funcs->fb_dirty))
- 		return;
+ #include <drm/display/drm_dp_helper.h>
+ #include <drm/drm_edid.h>
+-#include <drm/drm_fb_helper.h>
+ #include <drm/drm_probe_helper.h>
+ #include <drm/amdgpu_drm.h>
+ #include "amdgpu.h"
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
+index dd6f9ae6fbe9f..b32b387599b5c 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
+@@ -40,7 +40,6 @@
+ #include <drm/drm_crtc_helper.h>
+ #include <drm/drm_edid.h>
+ #include <drm/drm_gem_framebuffer_helper.h>
+-#include <drm/drm_fb_helper.h>
+ #include <drm/drm_fourcc.h>
+ #include <drm/drm_vblank.h>
  
- 	spin_lock_irqsave(&helper->damage_lock, flags);
-@@ -659,16 +660,12 @@ void drm_fb_helper_fini(struct drm_fb_helper *fb_helper)
- }
- EXPORT_SYMBOL(drm_fb_helper_fini);
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_mode.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_mode.h
+index 37322550d7508..8a39300b1a845 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_mode.h
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_mode.h
+@@ -36,7 +36,6 @@
+ #include <drm/drm_encoder.h>
+ #include <drm/drm_fixed.h>
+ #include <drm/drm_crtc_helper.h>
+-#include <drm/drm_fb_helper.h>
+ #include <drm/drm_framebuffer.h>
+ #include <drm/drm_probe_helper.h>
+ #include <linux/i2c.h>
+diff --git a/drivers/gpu/drm/arm/hdlcd_crtc.c b/drivers/gpu/drm/arm/hdlcd_crtc.c
+index 7030339fa2323..ddbe1dd2d44ef 100644
+--- a/drivers/gpu/drm/arm/hdlcd_crtc.c
++++ b/drivers/gpu/drm/arm/hdlcd_crtc.c
+@@ -19,7 +19,6 @@
+ #include <drm/drm_atomic_helper.h>
+ #include <drm/drm_crtc.h>
+ #include <drm/drm_fb_dma_helper.h>
+-#include <drm/drm_fb_helper.h>
+ #include <drm/drm_framebuffer.h>
+ #include <drm/drm_gem_dma_helper.h>
+ #include <drm/drm_of.h>
+diff --git a/drivers/gpu/drm/ast/ast_drv.h b/drivers/gpu/drm/ast/ast_drv.h
+index 74f41282444f6..d51b81fea9c80 100644
+--- a/drivers/gpu/drm/ast/ast_drv.h
++++ b/drivers/gpu/drm/ast/ast_drv.h
+@@ -38,7 +38,6 @@
+ #include <drm/drm_encoder.h>
+ #include <drm/drm_mode.h>
+ #include <drm/drm_framebuffer.h>
+-#include <drm/drm_fb_helper.h>
  
--static void drm_fb_helper_damage(struct fb_info *info, u32 x, u32 y,
-+static void drm_fb_helper_damage(struct drm_fb_helper *helper, u32 x, u32 y,
- 				 u32 width, u32 height)
- {
--	struct drm_fb_helper *helper = info->par;
- 	struct drm_clip_rect *clip = &helper->damage_clip;
- 	unsigned long flags;
+ #define DRIVER_AUTHOR		"Dave Airlie"
  
--	if (!helper->funcs->fb_dirty)
--		return;
--
- 	spin_lock_irqsave(&helper->damage_lock, flags);
- 	clip->x1 = min_t(u32, clip->x1, x);
- 	clip->y1 = min_t(u32, clip->y1, y);
-@@ -718,6 +715,7 @@ static void drm_fb_helper_memory_range_to_clip(struct fb_info *info, off_t off,
+diff --git a/drivers/gpu/drm/bridge/tc358762.c b/drivers/gpu/drm/bridge/tc358762.c
+index 7f4fce1aa9988..0b6a284368859 100644
+--- a/drivers/gpu/drm/bridge/tc358762.c
++++ b/drivers/gpu/drm/bridge/tc358762.c
+@@ -11,6 +11,7 @@
   */
- void drm_fb_helper_deferred_io(struct fb_info *info, struct list_head *pagereflist)
- {
-+	struct drm_fb_helper *helper = info->par;
- 	unsigned long start, end, min_off, max_off;
- 	struct fb_deferred_io_pageref *pageref;
- 	struct drm_rect damage_area;
-@@ -733,17 +731,19 @@ void drm_fb_helper_deferred_io(struct fb_info *info, struct list_head *pagerefli
- 	if (min_off >= max_off)
- 		return;
  
--	/*
--	 * As we can only track pages, we might reach beyond the end
--	 * of the screen and account for non-existing scanlines. Hence,
--	 * keep the covered memory area within the screen buffer.
--	 */
--	max_off = min(max_off, info->screen_size);
-+	if (helper->funcs->fb_dirty) {
-+		/*
-+		 * As we can only track pages, we might reach beyond the end
-+		 * of the screen and account for non-existing scanlines. Hence,
-+		 * keep the covered memory area within the screen buffer.
-+		 */
-+		max_off = min(max_off, info->screen_size);
+ #include <linux/delay.h>
++#include <linux/mod_devicetable.h>
+ #include <linux/module.h>
+ #include <linux/of_graph.h>
+ #include <linux/regulator/consumer.h>
+@@ -19,7 +20,6 @@
  
--	drm_fb_helper_memory_range_to_clip(info, min_off, max_off - min_off, &damage_area);
--	drm_fb_helper_damage(info, damage_area.x1, damage_area.y1,
--			     drm_rect_width(&damage_area),
--			     drm_rect_height(&damage_area));
-+		drm_fb_helper_memory_range_to_clip(info, min_off, max_off - min_off, &damage_area);
-+		drm_fb_helper_damage(helper, damage_area.x1, damage_area.y1,
-+				     drm_rect_width(&damage_area),
-+				     drm_rect_height(&damage_area));
-+	}
- }
- EXPORT_SYMBOL(drm_fb_helper_deferred_io);
+ #include <drm/drm_atomic_helper.h>
+ #include <drm/drm_crtc.h>
+-#include <drm/drm_fb_helper.h>
+ #include <drm/drm_mipi_dsi.h>
+ #include <drm/drm_of.h>
+ #include <drm/drm_panel.h>
+diff --git a/drivers/gpu/drm/drm_crtc_helper.c b/drivers/gpu/drm/drm_crtc_helper.c
+index f5fb22e0d0337..a209659a996c7 100644
+--- a/drivers/gpu/drm/drm_crtc_helper.c
++++ b/drivers/gpu/drm/drm_crtc_helper.c
+@@ -43,7 +43,6 @@
+ #include <drm/drm_drv.h>
+ #include <drm/drm_edid.h>
+ #include <drm/drm_encoder.h>
+-#include <drm/drm_fb_helper.h>
+ #include <drm/drm_fourcc.h>
+ #include <drm/drm_framebuffer.h>
+ #include <drm/drm_print.h>
+diff --git a/drivers/gpu/drm/drm_gem_framebuffer_helper.c b/drivers/gpu/drm/drm_gem_framebuffer_helper.c
+index e35e224e6303a..e93533b86037f 100644
+--- a/drivers/gpu/drm/drm_gem_framebuffer_helper.c
++++ b/drivers/gpu/drm/drm_gem_framebuffer_helper.c
+@@ -9,7 +9,6 @@
+ #include <linux/module.h>
  
-@@ -877,6 +877,7 @@ static ssize_t drm_fb_helper_write_screen_buffer(struct fb_info *info, const cha
- ssize_t drm_fb_helper_sys_write(struct fb_info *info, const char __user *buf,
- 				size_t count, loff_t *ppos)
- {
-+	struct drm_fb_helper *helper = info->par;
- 	loff_t pos = *ppos;
- 	ssize_t ret;
- 	struct drm_rect damage_area;
-@@ -885,10 +886,12 @@ ssize_t drm_fb_helper_sys_write(struct fb_info *info, const char __user *buf,
- 	if (ret <= 0)
- 		return ret;
+ #include <drm/drm_damage_helper.h>
+-#include <drm/drm_fb_helper.h>
+ #include <drm/drm_fourcc.h>
+ #include <drm/drm_framebuffer.h>
+ #include <drm/drm_gem.h>
+diff --git a/drivers/gpu/drm/drm_probe_helper.c b/drivers/gpu/drm/drm_probe_helper.c
+index 69b0b2b9cc1c5..ef2b41b2eb7b8 100644
+--- a/drivers/gpu/drm/drm_probe_helper.c
++++ b/drivers/gpu/drm/drm_probe_helper.c
+@@ -36,7 +36,6 @@
+ #include <drm/drm_client.h>
+ #include <drm/drm_crtc.h>
+ #include <drm/drm_edid.h>
+-#include <drm/drm_fb_helper.h>
+ #include <drm/drm_fourcc.h>
+ #include <drm/drm_modeset_helper_vtables.h>
+ #include <drm/drm_print.h>
+diff --git a/drivers/gpu/drm/etnaviv/etnaviv_drv.h b/drivers/gpu/drm/etnaviv/etnaviv_drv.h
+index f32f4771dada7..2bb4c25565dcb 100644
+--- a/drivers/gpu/drm/etnaviv/etnaviv_drv.h
++++ b/drivers/gpu/drm/etnaviv/etnaviv_drv.h
+@@ -6,13 +6,14 @@
+ #ifndef __ETNAVIV_DRV_H__
+ #define __ETNAVIV_DRV_H__
  
--	drm_fb_helper_memory_range_to_clip(info, pos, ret, &damage_area);
--	drm_fb_helper_damage(info, damage_area.x1, damage_area.y1,
--			     drm_rect_width(&damage_area),
--			     drm_rect_height(&damage_area));
-+	if (helper->funcs->fb_dirty) {
-+		drm_fb_helper_memory_range_to_clip(info, pos, ret, &damage_area);
-+		drm_fb_helper_damage(helper, damage_area.x1, damage_area.y1,
-+				     drm_rect_width(&damage_area),
-+				     drm_rect_height(&damage_area));
-+	}
++#include <linux/io.h>
+ #include <linux/list.h>
+ #include <linux/mm_types.h>
+ #include <linux/sizes.h>
+ #include <linux/time64.h>
+ #include <linux/types.h>
  
- 	return ret;
- }
-@@ -904,8 +907,12 @@ EXPORT_SYMBOL(drm_fb_helper_sys_write);
- void drm_fb_helper_sys_fillrect(struct fb_info *info,
- 				const struct fb_fillrect *rect)
- {
-+	struct drm_fb_helper *helper = info->par;
-+
- 	sys_fillrect(info, rect);
--	drm_fb_helper_damage(info, rect->dx, rect->dy, rect->width, rect->height);
-+
-+	if (helper->funcs->fb_dirty)
-+		drm_fb_helper_damage(helper, rect->dx, rect->dy, rect->width, rect->height);
- }
- EXPORT_SYMBOL(drm_fb_helper_sys_fillrect);
+-#include <drm/drm_fb_helper.h>
++#include <drm/drm_drv.h>
+ #include <drm/drm_gem.h>
+ #include <drm/etnaviv_drm.h>
+ #include <drm/gpu_scheduler.h>
+diff --git a/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.h b/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.h
+index 4a0cd22c10e21..f957552c6c507 100644
+--- a/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.h
++++ b/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.h
+@@ -19,7 +19,6 @@
+ #include <linux/i2c.h>
  
-@@ -919,8 +926,12 @@ EXPORT_SYMBOL(drm_fb_helper_sys_fillrect);
- void drm_fb_helper_sys_copyarea(struct fb_info *info,
- 				const struct fb_copyarea *area)
- {
-+	struct drm_fb_helper *helper = info->par;
-+
- 	sys_copyarea(info, area);
--	drm_fb_helper_damage(info, area->dx, area->dy, area->width, area->height);
-+
-+	if (helper->funcs->fb_dirty)
-+		drm_fb_helper_damage(helper, area->dx, area->dy, area->width, area->height);
- }
- EXPORT_SYMBOL(drm_fb_helper_sys_copyarea);
+ #include <drm/drm_edid.h>
+-#include <drm/drm_fb_helper.h>
+ #include <drm/drm_framebuffer.h>
  
-@@ -934,8 +945,12 @@ EXPORT_SYMBOL(drm_fb_helper_sys_copyarea);
- void drm_fb_helper_sys_imageblit(struct fb_info *info,
- 				 const struct fb_image *image)
- {
-+	struct drm_fb_helper *helper = info->par;
-+
- 	sys_imageblit(info, image);
--	drm_fb_helper_damage(info, image->dx, image->dy, image->width, image->height);
-+
-+	if (helper->funcs->fb_dirty)
-+		drm_fb_helper_damage(helper, image->dx, image->dy, image->width, image->height);
- }
- EXPORT_SYMBOL(drm_fb_helper_sys_imageblit);
+ struct hibmc_connector {
+diff --git a/drivers/gpu/drm/hyperv/hyperv_drm_modeset.c b/drivers/gpu/drm/hyperv/hyperv_drm_modeset.c
+index 28e732f94bf2f..6c6b572987973 100644
+--- a/drivers/gpu/drm/hyperv/hyperv_drm_modeset.c
++++ b/drivers/gpu/drm/hyperv/hyperv_drm_modeset.c
+@@ -8,7 +8,6 @@
+ #include <drm/drm_damage_helper.h>
+ #include <drm/drm_drv.h>
+ #include <drm/drm_edid.h>
+-#include <drm/drm_fb_helper.h>
+ #include <drm/drm_format_helper.h>
+ #include <drm/drm_fourcc.h>
+ #include <drm/drm_framebuffer.h>
+diff --git a/drivers/gpu/drm/imx/imx-ldb.c b/drivers/gpu/drm/imx/imx-ldb.c
+index 41799011f73b6..c45fc8f4744d0 100644
+--- a/drivers/gpu/drm/imx/imx-ldb.c
++++ b/drivers/gpu/drm/imx/imx-ldb.c
+@@ -7,6 +7,7 @@
  
-@@ -1035,6 +1050,7 @@ static ssize_t fb_write_screen_base(struct fb_info *info, const char __user *buf
- ssize_t drm_fb_helper_cfb_write(struct fb_info *info, const char __user *buf,
- 				size_t count, loff_t *ppos)
- {
-+	struct drm_fb_helper *helper = info->par;
- 	loff_t pos = *ppos;
- 	ssize_t ret;
- 	struct drm_rect damage_area;
-@@ -1043,10 +1059,12 @@ ssize_t drm_fb_helper_cfb_write(struct fb_info *info, const char __user *buf,
- 	if (ret <= 0)
- 		return ret;
+ #include <linux/clk.h>
+ #include <linux/component.h>
++#include <linux/i2c.h>
+ #include <linux/media-bus-format.h>
+ #include <linux/mfd/syscon.h>
+ #include <linux/mfd/syscon/imx6q-iomuxc-gpr.h>
+@@ -23,7 +24,6 @@
+ #include <drm/drm_atomic_helper.h>
+ #include <drm/drm_bridge.h>
+ #include <drm/drm_edid.h>
+-#include <drm/drm_fb_helper.h>
+ #include <drm/drm_managed.h>
+ #include <drm/drm_of.h>
+ #include <drm/drm_panel.h>
+diff --git a/drivers/gpu/drm/imx/imx-tve.c b/drivers/gpu/drm/imx/imx-tve.c
+index 6b34fac3f73a0..d64ebd2cf15e8 100644
+--- a/drivers/gpu/drm/imx/imx-tve.c
++++ b/drivers/gpu/drm/imx/imx-tve.c
+@@ -19,7 +19,6 @@
  
--	drm_fb_helper_memory_range_to_clip(info, pos, ret, &damage_area);
--	drm_fb_helper_damage(info, damage_area.x1, damage_area.y1,
--			     drm_rect_width(&damage_area),
--			     drm_rect_height(&damage_area));
-+	if (helper->funcs->fb_dirty) {
-+		drm_fb_helper_memory_range_to_clip(info, pos, ret, &damage_area);
-+		drm_fb_helper_damage(helper, damage_area.x1, damage_area.y1,
-+				     drm_rect_width(&damage_area),
-+				     drm_rect_height(&damage_area));
-+	}
+ #include <drm/drm_atomic_helper.h>
+ #include <drm/drm_edid.h>
+-#include <drm/drm_fb_helper.h>
+ #include <drm/drm_managed.h>
+ #include <drm/drm_probe_helper.h>
+ #include <drm/drm_simple_kms_helper.h>
+diff --git a/drivers/gpu/drm/imx/parallel-display.c b/drivers/gpu/drm/imx/parallel-display.c
+index 06723b2e9b847..0fa0b590830b6 100644
+--- a/drivers/gpu/drm/imx/parallel-display.c
++++ b/drivers/gpu/drm/imx/parallel-display.c
+@@ -8,6 +8,7 @@
+ #include <linux/component.h>
+ #include <linux/media-bus-format.h>
+ #include <linux/module.h>
++#include <linux/of.h>
+ #include <linux/platform_device.h>
+ #include <linux/videodev2.h>
  
- 	return ret;
- }
-@@ -1062,8 +1080,12 @@ EXPORT_SYMBOL(drm_fb_helper_cfb_write);
- void drm_fb_helper_cfb_fillrect(struct fb_info *info,
- 				const struct fb_fillrect *rect)
- {
-+	struct drm_fb_helper *helper = info->par;
-+
- 	cfb_fillrect(info, rect);
--	drm_fb_helper_damage(info, rect->dx, rect->dy, rect->width, rect->height);
-+
-+	if (helper->funcs->fb_dirty)
-+		drm_fb_helper_damage(helper, rect->dx, rect->dy, rect->width, rect->height);
- }
- EXPORT_SYMBOL(drm_fb_helper_cfb_fillrect);
+@@ -16,7 +17,6 @@
+ #include <drm/drm_atomic_helper.h>
+ #include <drm/drm_bridge.h>
+ #include <drm/drm_edid.h>
+-#include <drm/drm_fb_helper.h>
+ #include <drm/drm_managed.h>
+ #include <drm/drm_of.h>
+ #include <drm/drm_panel.h>
+diff --git a/drivers/gpu/drm/kmb/kmb_plane.c b/drivers/gpu/drm/kmb/kmb_plane.c
+index a42f63f6f9573..d172a302f9024 100644
+--- a/drivers/gpu/drm/kmb/kmb_plane.c
++++ b/drivers/gpu/drm/kmb/kmb_plane.c
+@@ -9,7 +9,6 @@
+ #include <drm/drm_crtc.h>
+ #include <drm/drm_crtc_helper.h>
+ #include <drm/drm_fb_dma_helper.h>
+-#include <drm/drm_fb_helper.h>
+ #include <drm/drm_fourcc.h>
+ #include <drm/drm_framebuffer.h>
+ #include <drm/drm_gem_dma_helper.h>
+diff --git a/drivers/gpu/drm/mgag200/mgag200_drv.h b/drivers/gpu/drm/mgag200/mgag200_drv.h
+index f0c2349404b46..9e604dbb8e448 100644
+--- a/drivers/gpu/drm/mgag200/mgag200_drv.h
++++ b/drivers/gpu/drm/mgag200/mgag200_drv.h
+@@ -18,7 +18,6 @@
+ #include <drm/drm_connector.h>
+ #include <drm/drm_crtc.h>
+ #include <drm/drm_encoder.h>
+-#include <drm/drm_fb_helper.h>
+ #include <drm/drm_gem.h>
+ #include <drm/drm_gem_shmem_helper.h>
+ #include <drm/drm_plane.h>
+diff --git a/drivers/gpu/drm/qxl/qxl_drv.h b/drivers/gpu/drm/qxl/qxl_drv.h
+index 432758ad39a35..76f060810f634 100644
+--- a/drivers/gpu/drm/qxl/qxl_drv.h
++++ b/drivers/gpu/drm/qxl/qxl_drv.h
+@@ -38,7 +38,6 @@
  
-@@ -1077,8 +1099,12 @@ EXPORT_SYMBOL(drm_fb_helper_cfb_fillrect);
- void drm_fb_helper_cfb_copyarea(struct fb_info *info,
- 				const struct fb_copyarea *area)
- {
-+	struct drm_fb_helper *helper = info->par;
-+
- 	cfb_copyarea(info, area);
--	drm_fb_helper_damage(info, area->dx, area->dy, area->width, area->height);
-+
-+	if (helper->funcs->fb_dirty)
-+		drm_fb_helper_damage(helper, area->dx, area->dy, area->width, area->height);
- }
- EXPORT_SYMBOL(drm_fb_helper_cfb_copyarea);
+ #include <drm/drm_crtc.h>
+ #include <drm/drm_encoder.h>
+-#include <drm/drm_fb_helper.h>
+ #include <drm/drm_gem_ttm_helper.h>
+ #include <drm/drm_ioctl.h>
+ #include <drm/drm_gem.h>
+diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_drv.h b/drivers/gpu/drm/rockchip/rockchip_drm_drv.h
+index 1641440837af5..aeb03a57240fd 100644
+--- a/drivers/gpu/drm/rockchip/rockchip_drm_drv.h
++++ b/drivers/gpu/drm/rockchip/rockchip_drm_drv.h
+@@ -9,10 +9,10 @@
+ #ifndef _ROCKCHIP_DRM_DRV_H
+ #define _ROCKCHIP_DRM_DRV_H
  
-@@ -1092,8 +1118,12 @@ EXPORT_SYMBOL(drm_fb_helper_cfb_copyarea);
- void drm_fb_helper_cfb_imageblit(struct fb_info *info,
- 				 const struct fb_image *image)
- {
-+	struct drm_fb_helper *helper = info->par;
-+
- 	cfb_imageblit(info, image);
--	drm_fb_helper_damage(info, image->dx, image->dy, image->width, image->height);
-+
-+	if (helper->funcs->fb_dirty)
-+		drm_fb_helper_damage(helper, image->dx, image->dy, image->width, image->height);
- }
- EXPORT_SYMBOL(drm_fb_helper_cfb_imageblit);
+-#include <drm/drm_fb_helper.h>
+ #include <drm/drm_atomic_helper.h>
+ #include <drm/drm_gem.h>
  
++#include <linux/i2c.h>
+ #include <linux/module.h>
+ #include <linux/component.h>
+ 
+diff --git a/drivers/gpu/drm/tidss/tidss_kms.c b/drivers/gpu/drm/tidss/tidss_kms.c
+index afb2879980c6c..345bcc3011e4f 100644
+--- a/drivers/gpu/drm/tidss/tidss_kms.c
++++ b/drivers/gpu/drm/tidss/tidss_kms.c
+@@ -10,7 +10,6 @@
+ #include <drm/drm_atomic_helper.h>
+ #include <drm/drm_bridge.h>
+ #include <drm/drm_crtc_helper.h>
+-#include <drm/drm_fb_helper.h>
+ #include <drm/drm_gem_framebuffer_helper.h>
+ #include <drm/drm_of.h>
+ #include <drm/drm_panel.h>
+diff --git a/drivers/gpu/drm/v3d/v3d_drv.c b/drivers/gpu/drm/v3d/v3d_drv.c
+index e8c975b815859..478f1f0f60dec 100644
+--- a/drivers/gpu/drm/v3d/v3d_drv.c
++++ b/drivers/gpu/drm/v3d/v3d_drv.c
+@@ -22,7 +22,6 @@
+ #include <linux/reset.h>
+ 
+ #include <drm/drm_drv.h>
+-#include <drm/drm_fb_helper.h>
+ #include <drm/drm_managed.h>
+ #include <uapi/drm/v3d_drm.h>
+ 
+diff --git a/drivers/gpu/drm/vboxvideo/vbox_main.c b/drivers/gpu/drm/vboxvideo/vbox_main.c
+index c9e8b3a63c621..3b83e550f4df5 100644
+--- a/drivers/gpu/drm/vboxvideo/vbox_main.c
++++ b/drivers/gpu/drm/vboxvideo/vbox_main.c
+@@ -11,7 +11,6 @@
+ #include <linux/pci.h>
+ #include <linux/vbox_err.h>
+ 
+-#include <drm/drm_fb_helper.h>
+ #include <drm/drm_crtc_helper.h>
+ #include <drm/drm_damage_helper.h>
+ 
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index 9b98470593b06..b7a64c7dcc2c9 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -35,7 +35,6 @@
+ #include <drm/drm_atomic.h>
+ #include <drm/drm_drv.h>
+ #include <drm/drm_encoder.h>
+-#include <drm/drm_fb_helper.h>
+ #include <drm/drm_fourcc.h>
+ #include <drm/drm_framebuffer.h>
+ #include <drm/drm_gem.h>
+diff --git a/drivers/gpu/drm/xen/xen_drm_front_gem.c b/drivers/gpu/drm/xen/xen_drm_front_gem.c
+index e31554d7139f1..4c95ebcdcc2d3 100644
+--- a/drivers/gpu/drm/xen/xen_drm_front_gem.c
++++ b/drivers/gpu/drm/xen/xen_drm_front_gem.c
+@@ -12,7 +12,6 @@
+ #include <linux/scatterlist.h>
+ #include <linux/shmem_fs.h>
+ 
+-#include <drm/drm_fb_helper.h>
+ #include <drm/drm_gem.h>
+ #include <drm/drm_prime.h>
+ #include <drm/drm_probe_helper.h>
 -- 
 2.38.0
 
