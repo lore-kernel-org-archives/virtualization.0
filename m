@@ -1,88 +1,105 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 642AEC38A2D
-	for <virtualization@archiver.kernel.org>; Wed, 26 Oct 2022 05:20:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9C5F8C433FE
+	for <virtualization@archiver.kernel.org>; Wed, 26 Oct 2022 09:12:31 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id E6A9140260;
-	Wed, 26 Oct 2022 05:20:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E6A9140260
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=VeUCJfAR
+	by smtp3.osuosl.org (Postfix) with ESMTP id 28261607F4;
+	Wed, 26 Oct 2022 09:12:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 28261607F4
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=asgaYrAU
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id hlbKkGuFlAKt; Wed, 26 Oct 2022 05:20:12 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 4386C4014A;
-	Wed, 26 Oct 2022 05:20:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4386C4014A
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id YhYEskEt2m7R; Wed, 26 Oct 2022 09:12:30 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 8D76960A4F;
+	Wed, 26 Oct 2022 09:12:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8D76960A4F
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 124D4C0032;
-	Wed, 26 Oct 2022 05:20:11 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id BCBA0C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 647D0C0032;
+	Wed, 26 Oct 2022 09:12:29 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5B446C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 26 Oct 2022 05:20:10 +0000 (UTC)
+ Wed, 26 Oct 2022 09:12:28 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 8072E402BC
+ by smtp3.osuosl.org (Postfix) with ESMTP id 366B460AFD
  for <virtualization@lists.linux-foundation.org>;
- Wed, 26 Oct 2022 05:20:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8072E402BC
-Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=VeUCJfAR
+ Wed, 26 Oct 2022 09:12:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 366B460AFD
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id BwamaJSzhtey
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 95PLB4IiSdAy
  for <virtualization@lists.linux-foundation.org>;
- Wed, 26 Oct 2022 05:20:09 +0000 (UTC)
+ Wed, 26 Oct 2022 09:12:27 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 45B1E40253
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2AC3960AD8
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 45B1E40253
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 2AC3960AD8
  for <virtualization@lists.linux-foundation.org>;
- Wed, 26 Oct 2022 05:20:09 +0000 (UTC)
+ Wed, 26 Oct 2022 09:12:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1666761608;
+ s=mimecast20190719; t=1666775545;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:
- content-transfer-encoding:content-transfer-encoding;
- bh=NFGOV1YNN5cmc80A489E1jBX/nESpD+hEaSk0z53Rys=;
- b=VeUCJfARwOdaC4/gf+cWrxBrk4tkIKygrG9gI7X5OGRvy8F/1Axf5SGpxhAgoQYyld9mza
- fH7TpzbLED/aaeJ2GjbOEJPd+4szovnPkT3tmkIErM76gZFdBG6kUstD5lYCixkqOkm4pA
- lA26WVDSeud8FRKlJPjK41ptT9tWnxU=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-669-Rkjt1dwdOpWor_RuBN63BQ-1; Wed, 26 Oct 2022 01:20:04 -0400
-X-MC-Unique: Rkjt1dwdOpWor_RuBN63BQ-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com
- [10.11.54.6])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id F11091818212;
- Wed, 26 Oct 2022 05:20:03 +0000 (UTC)
-Received: from localhost (ovpn-8-18.pek2.redhat.com [10.72.8.18])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 039982166B36;
- Wed, 26 Oct 2022 05:20:02 +0000 (UTC)
-From: Ming Lei <ming.lei@redhat.com>
-To: Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH V3 1/1] blk-mq: avoid double ->queue_rq() because of early
- timeout
-Date: Wed, 26 Oct 2022 13:19:57 +0800
-Message-Id: <20221026051957.358818-1-ming.lei@redhat.com>
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+ bh=5xNkruRiJnIiOSQrrYHGPH2e+vVoDqGR1JcaSONjqvk=;
+ b=asgaYrAUy+yyKB0TBOA8Jq0Njs50rNkhWBBroaicUGvDDoHW/ips3w8lzlkhHSYSSNamBm
+ HiN0oKXiYid/a/stpQ9I92qYEG37PmP2bM2IfiJklao3YIbfMfcnhWLRhQpsqiLsXq1JPU
+ XkAVVPkx/QbRixFs02KlTmN5IZ2AsNo=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-572-rPr_HxNkM9-O2XEiyQz-HA-1; Wed, 26 Oct 2022 05:12:19 -0400
+X-MC-Unique: rPr_HxNkM9-O2XEiyQz-HA-1
+Received: by mail-wr1-f71.google.com with SMTP id
+ w23-20020adf8bd7000000b002358f733307so5798634wra.17
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 26 Oct 2022 02:12:19 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+ :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+ bh=5xNkruRiJnIiOSQrrYHGPH2e+vVoDqGR1JcaSONjqvk=;
+ b=dU9vV/r0nEX09XFmUladX69fLQxHwXEW7+AXS0VcU25PPIKtmjpwaljUqDfUkynMnT
+ md1HMijr7Quu56tsaTxn0FrxHWLX9Q3Ibucl1WXKBmjeXcBAAf2UODkqAs1AfFwnAhGe
+ 4eq4pi58wUC8txioxehWP9sXA+bYlLxtbvr/YSYJ1Cf/BmH6kUtwdgO9TZqaelwCZ8nH
+ jKf78gPIg2FTWBawvnBxQ25JPM2edTilvZMFhs5M2RVGTD60ovEq490huBY/lvHX4byb
+ pHzsD6iwLJg4kSxr2vrN+Vz50DRqv8AJxZZOAyiHb9mElfPuPya90oOrrXGmR9vH1rD0
+ 9cmA==
+X-Gm-Message-State: ACrzQf3ezr64i/4gSKeKYCHuynRAskQuVY4KuvY8ve0Yb9LvcUYw9/O1
+ 0MAHaiMCDGq/S6T2nO+d/ZvQsrsXVGmNKuRb5CdfP2JidRP3R1Uh4kQvww/LvdFjRKYw7Lc//YY
+ zedyNgrrNqWQ2CGCXxSHzRraLFh6P1nR4ix4t4+vcMg==
+X-Received: by 2002:a05:600c:3147:b0:3c6:f871:1fec with SMTP id
+ h7-20020a05600c314700b003c6f8711fecmr1709601wmo.71.1666775538552; 
+ Wed, 26 Oct 2022 02:12:18 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM7idyMh4A58fzq3JEftOywVimGTAari7nGWN9abaxQpXAUmUwLzSihveVvwWD8Ab2kRm6uTLQ==
+X-Received: by 2002:a05:600c:3147:b0:3c6:f871:1fec with SMTP id
+ h7-20020a05600c314700b003c6f8711fecmr1709579wmo.71.1666775538308; 
+ Wed, 26 Oct 2022 02:12:18 -0700 (PDT)
+Received: from sgarzare-redhat (host-87-11-6-34.retail.telecomitalia.it.
+ [87.11.6.34]) by smtp.gmail.com with ESMTPSA id
+ m17-20020a056000009100b0022eafed36ebsm4798032wrx.73.2022.10.26.02.12.17
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 26 Oct 2022 02:12:17 -0700 (PDT)
+Date: Wed, 26 Oct 2022 11:12:15 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Xie Yongji <xieyongji@bytedance.com>
+Subject: Issue with VDUSE (QSD vduse-blk export) and vhost-vdpa
+Message-ID: <CAGxU2F4zRGASAv4YLoQpfRB-2cvaMij6YZo6t9E+69MZ+8Mong@mail.gmail.com>
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.6
-Cc: David Jeffery <djeffery@redhat.com>, Bart Van Assche <bvanassche@acm.org>,
- virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org,
- Stefan Hajnoczi <stefanha@redhat.com>, Keith Busch <kbusch@kernel.org>,
- Ming Lei <ming.lei@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: Michael Tsirkin <mst@redhat.com>, qemu devel list <qemu-devel@nongnu.org>,
+ Linux Virtualization <virtualization@lists.linux-foundation.org>,
+ Stefan Hajnoczi <stefanha@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -99,147 +116,86 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: David Jeffery <djeffery@redhat.com>
+Hi Xie,
+I was testing libblkio [1] with QSD vduse-blk export and had some 
+issues.
 
-David Jeffery found one double ->queue_rq() issue, so far it can
-be triggered in VM use case because of long vmexit latency or preempt
-latency of vCPU pthread or long page fault in vCPU pthread, then block
-IO req could be timed out before queuing the request to hardware but after
-calling blk_mq_start_request() during ->queue_rq(), then timeout handler
-may handle it by requeue, then double ->queue_rq() is caused, and kernel
-panic.
+In a nutshell, QSD prints me the following messages when using 
+vhost-vdpa to access the device:
 
-So far, it is driver's responsibility to cover the race between timeout
-and completion, so it seems supposed to be solved in driver in theory,
-given driver has enough knowledge.
+  Failed to get vq[0] iova mapping
+  Failed to update vring for vq[0]
 
-But it is really one common problem, lots of driver could have similar
-issue, and could be hard to fix all affected drivers, even it isn't easy
-for driver to handle the race. So David suggests this patch by draining
-in-progress ->queue_rq() for solving this issue.
+This happens only with vhost-vdpa, using virtio-vdpa instead the device 
+works fine.
+I'm using Linux v6.0 and QEMU master (commit 
+214a8da23651f2472b296b3293e619fd58d9e212).
 
-Cc: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: Keith Busch <kbusch@kernel.org>
-Cc: virtualization@lists.linux-foundation.org
-Cc: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: David Jeffery <djeffery@redhat.com>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
----
-V3:
-	- add callback for handle expired only, suggested by Keith Busch
-V2:
-	- follow Jens's suggestion to run sync rcu only if there is timeout
-	- rename 'now' as 'start_timeout'
- block/blk-mq.c | 56 +++++++++++++++++++++++++++++++++++++++-----------
- 1 file changed, 44 insertions(+), 12 deletions(-)
+I haven't had much time to investigate, I hope to do it next week, but 
+maybe it's much faster for you.
 
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index 33292c01875d..030bbb8deca6 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -1523,7 +1523,13 @@ static void blk_mq_rq_timed_out(struct request *req)
- 	blk_add_timer(req);
- }
- 
--static bool blk_mq_req_expired(struct request *rq, unsigned long *next)
-+struct blk_expired_data {
-+	bool has_timedout_rq;
-+	unsigned long next;
-+	unsigned long timeout_start;
-+};
-+
-+static bool blk_mq_req_expired(struct request *rq, struct blk_expired_data *expired)
- {
- 	unsigned long deadline;
- 
-@@ -1533,13 +1539,13 @@ static bool blk_mq_req_expired(struct request *rq, unsigned long *next)
- 		return false;
- 
- 	deadline = READ_ONCE(rq->deadline);
--	if (time_after_eq(jiffies, deadline))
-+	if (time_after_eq(expired->timeout_start, deadline))
- 		return true;
- 
--	if (*next == 0)
--		*next = deadline;
--	else if (time_after(*next, deadline))
--		*next = deadline;
-+	if (expired->next == 0)
-+		expired->next = deadline;
-+	else if (time_after(expired->next, deadline))
-+		expired->next = deadline;
- 	return false;
- }
- 
-@@ -1555,7 +1561,7 @@ void blk_mq_put_rq_ref(struct request *rq)
- 
- static bool blk_mq_check_expired(struct request *rq, void *priv)
- {
--	unsigned long *next = priv;
-+	struct blk_expired_data *expired = priv;
- 
- 	/*
- 	 * blk_mq_queue_tag_busy_iter() has locked the request, so it cannot
-@@ -1564,7 +1570,18 @@ static bool blk_mq_check_expired(struct request *rq, void *priv)
- 	 * it was completed and reallocated as a new request after returning
- 	 * from blk_mq_check_expired().
- 	 */
--	if (blk_mq_req_expired(rq, next))
-+	if (blk_mq_req_expired(rq, expired)) {
-+		expired->has_timedout_rq = true;
-+		return false;
-+	}
-+	return true;
-+}
-+
-+static bool blk_mq_handle_expired(struct request *rq, void *priv)
-+{
-+	struct blk_expired_data *expired = priv;
-+
-+	if (blk_mq_req_expired(rq, expired))
- 		blk_mq_rq_timed_out(rq);
- 	return true;
- }
-@@ -1573,7 +1590,9 @@ static void blk_mq_timeout_work(struct work_struct *work)
- {
- 	struct request_queue *q =
- 		container_of(work, struct request_queue, timeout_work);
--	unsigned long next = 0;
-+	struct blk_expired_data expired = {
-+		.timeout_start = jiffies,
-+	};
- 	struct blk_mq_hw_ctx *hctx;
- 	unsigned long i;
- 
-@@ -1593,10 +1612,23 @@ static void blk_mq_timeout_work(struct work_struct *work)
- 	if (!percpu_ref_tryget(&q->q_usage_counter))
- 		return;
- 
--	blk_mq_queue_tag_busy_iter(q, blk_mq_check_expired, &next);
-+	/* check if there is any timed-out request */
-+	blk_mq_queue_tag_busy_iter(q, blk_mq_check_expired, &expired);
-+	if (expired.has_timedout_rq) {
-+		/*
-+		 * Before walking tags, we must ensure any submit started
-+		 * before the current time has finished. Since the submit
-+		 * uses srcu or rcu, wait for a synchronization point to
-+		 * ensure all running submits have finished
-+		 */
-+		blk_mq_wait_quiesce_done(q);
-+
-+		expired.next = 0;
-+		blk_mq_queue_tag_busy_iter(q, blk_mq_handle_expired, &expired);
-+	}
- 
--	if (next != 0) {
--		mod_timer(&q->timeout, next);
-+	if (expired.next != 0) {
-+		mod_timer(&q->timeout, expired.next);
- 	} else {
- 		/*
- 		 * Request timeouts are handled as a forward rolling timer. If
--- 
-2.31.1
+I saw that ioctl(VDUSE_IOTLB_GET_FD) in libvduse.c returns -1 (EPERM), 
+so IIUC in the kernel vduse_dev_broken() was called, and the device is 
+in a broken state.
+
+
+We will use libblkio in QEMU [2] to access vDPA devices via vhost-vdpa.  
+But I'm doing these tests without QEMU for now, using an example inside 
+the libblkio repo:
+
+# Build libblkio and examples
+    # Fedora/CentOS/RHEL
+    dnf install -y git meson rust cargo python3-docutils rustfmt
+    # Debian/Ubuntu
+    apt-get install -y git meson rustc cargo python3-docutils
+
+    git clone https://gitlab.com/libblkio/libblkio.git
+
+    cd libblkio
+    git checkout v1.1.0
+
+    meson setup build
+    meson compile -C build
+
+
+# On terminal 1
+    modprobe vduse
+    modprobe vhost-vdpa
+
+    qemu-img create -f qcow2 -o preallocation=full /path/to/test.qcow2 1g
+
+    qemu-storage-daemon \
+      --blockdev file,filename=/path/to/test.qcow2,cache.direct=on,aio=native,node-name=file \
+      --blockdev qcow2,file=file,node-name=qcow2 \
+      --object iothread,id=iothread0 \
+      --export vduse-blk,id=vduse0,name=vduse0,num-queues=1,node-name=qcow2,writable=on,iothread=iothread0
+
+
+# On terminal 2
+    vdpa dev add name vduse0 mgmtdev vduse
+
+    cd libblkio/build
+
+    # blkio-bench executes
+    ./examples/blkio-bench virtio-blk-vhost-vdpa \
+      path=/dev/vhost-vdpa-0 --runtime=5 --readwrite=randread
+
+    # after this step, QSD (running on terminal 1) prints the following messages:
+      Failed to get vq[0] iova mapping
+      Failed to update vring for vq[0]
+
+I don't know if I'm doing something wrong or in libblkio we have some 
+issue, but using vdpa-sim-blk works correctly, so maybe there is 
+something in vduse that is missing.
+
+Any help or suggestion is welcome :-)
+
+Thanks,
+Stefano
+
+[1] https://libblkio.gitlab.io/libblkio/
+[2] 
+https://lore.kernel.org/qemu-devel/20221013185908.1297568-1-stefanha@redhat.com/
 
 _______________________________________________
 Virtualization mailing list
