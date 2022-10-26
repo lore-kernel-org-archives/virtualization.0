@@ -4,84 +4,101 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 68E5BC38A2D
-	for <virtualization@archiver.kernel.org>; Wed, 26 Oct 2022 00:21:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6008AC38A02
+	for <virtualization@archiver.kernel.org>; Wed, 26 Oct 2022 00:53:31 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id B637060B51;
-	Wed, 26 Oct 2022 00:21:47 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B637060B51
+	by smtp3.osuosl.org (Postfix) with ESMTP id D404060B94;
+	Wed, 26 Oct 2022 00:53:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D404060B94
 Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=hA3Q49Gv
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=kernel-dk.20210112.gappssmtp.com header.i=@kernel-dk.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=K/1DQamF
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id h7Qjn1T9XJlk; Wed, 26 Oct 2022 00:21:46 +0000 (UTC)
+	with ESMTP id KzJR7_teawTb; Wed, 26 Oct 2022 00:53:30 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 25A9F60AAA;
-	Wed, 26 Oct 2022 00:21:46 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 25A9F60AAA
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 5E8A960A9C;
+	Wed, 26 Oct 2022 00:53:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5E8A960A9C
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E47F4C0032;
-	Wed, 26 Oct 2022 00:21:45 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3363EC0032;
+	Wed, 26 Oct 2022 00:53:29 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C887FC002D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8FB21C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 26 Oct 2022 00:21:43 +0000 (UTC)
+ Wed, 26 Oct 2022 00:53:27 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 9B10540252
+ by smtp4.osuosl.org (Postfix) with ESMTP id 5C346400E1
  for <virtualization@lists.linux-foundation.org>;
- Wed, 26 Oct 2022 00:21:43 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9B10540252
+ Wed, 26 Oct 2022 00:53:27 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5C346400E1
 Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=hA3Q49Gv
+ dkim=pass (2048-bit key) header.d=kernel-dk.20210112.gappssmtp.com
+ header.i=@kernel-dk.20210112.gappssmtp.com header.a=rsa-sha256
+ header.s=20210112 header.b=K/1DQamF
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id wNip7_TZV-Fj
+ with ESMTP id LW4ImwkPAEWb
  for <virtualization@lists.linux-foundation.org>;
- Wed, 26 Oct 2022 00:21:42 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org ADC5840250
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id ADC5840250
+ Wed, 26 Oct 2022 00:53:26 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4CB5D400C9
+Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com
+ [IPv6:2607:f8b0:4864:20::42a])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 4CB5D400C9
  for <virtualization@lists.linux-foundation.org>;
- Wed, 26 Oct 2022 00:21:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1666743701;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=NJVTvBkVHMZ/lT8r9tRA2ACgcAQ2VeGXc5dkhOHZb+4=;
- b=hA3Q49Gv0o7FW2k08IUwIu8EYAZni9f95ItzkU1wW/BAPxCRbjmMX2Gb3R8Y61FiKhkfaR
- jvZiVMrWwZOde2oUm15eflmYWjoNmuw09ozDPJ4OhjQkBgT+Noyc2R9DvOpzE4QanY7/ZU
- xMxBsuP0cH2Jk2r2+6PIiArfMXSmmr0=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-377-MAUn63qdMM-rl5IPi0RQvw-1; Tue, 25 Oct 2022 20:21:35 -0400
-X-MC-Unique: MAUn63qdMM-rl5IPi0RQvw-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com
- [10.11.54.2])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 808CC3C10149;
- Wed, 26 Oct 2022 00:21:34 +0000 (UTC)
-Received: from T590 (ovpn-8-17.pek2.redhat.com [10.72.8.17])
- by smtp.corp.redhat.com (Postfix) with ESMTPS id 8F5E640C6EC6;
- Wed, 26 Oct 2022 00:21:27 +0000 (UTC)
-Date: Wed, 26 Oct 2022 08:21:18 +0800
-From: Ming Lei <ming.lei@redhat.com>
-To: Jens Axboe <axboe@kernel.dk>
-Subject: Re: [PATCH] blk-mq: avoid double ->queue_rq() because of early timeout
-Message-ID: <Y1h9fiY8TYD8HK5v@T590>
-References: <20221025005501.281460-1-ming.lei@redhat.com>
- <bf375891-667f-1bcc-bd63-b90e757f5322@kernel.dk>
+ Wed, 26 Oct 2022 00:53:26 +0000 (UTC)
+Received: by mail-pf1-x42a.google.com with SMTP id e4so9800253pfl.2
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 25 Oct 2022 17:53:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+ h=content-transfer-encoding:in-reply-to:from:content-language
+ :references:cc:to:subject:user-agent:mime-version:date:message-id
+ :from:to:cc:subject:date:message-id:reply-to;
+ bh=/BeIQrWdV7ri3khplWK2ZiFNyIA9PB6YDg0bsV9xNWQ=;
+ b=K/1DQamFZf1Pl5aT14H8LDRCBmSSq+yZAyfo3rhIrcJZD4yMeD92bLzbtl7sN4+2cI
+ mr+mwLfjO7w7RSF9MHv3AWRKbQZbdQVBMif3WS/jtYNRMaFuM1wL7IFVxIqLqA8VokMb
+ iVsG4OGo7JYK2Qlc2sNetp7M3ZgduBwQ20hLKI3C2uI60baFHHtYHEqOQ/gr0J8FypmW
+ Y9F9Xfol8f9+9Ja40Ymzi1jeg4PXdy/Ben53UConU4/qVlMzUV6IvqVJvB5D7dbxNHSJ
+ 3jGxvkLwdECK53WFEpN4bIR3eBUoweHtlaCYaof9PX11UQ1IoNTMhGVexfxHD3jJ8Q/T
+ xSrw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=content-transfer-encoding:in-reply-to:from:content-language
+ :references:cc:to:subject:user-agent:mime-version:date:message-id
+ :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+ bh=/BeIQrWdV7ri3khplWK2ZiFNyIA9PB6YDg0bsV9xNWQ=;
+ b=RrpzNTygN2K669ubgNpZAgCxqaDIpvg6ShU3o3LJcyl23PLESIQuzfG5L9j6kJTV5T
+ kWKqgveYJY9ZLjXjlntqU7XHqaTtVtIZ7qMZ2AHiUiS8FTCAqp/kDPsWH+okIcVzFhhk
+ yVDvuGNQdncfslqaGg3EXAufEAZdFZ4Kup8a5tc7XlEw82v9RvS8sK11luj2XQRnf7wE
+ wpqFZLyPQXRlluWaWtvD/zSaroOVZm41HjKBoCspVcJaTdPRFsAyHU3c4prWEQIPMbDj
+ rTGBYz/wZkuhDnxfNVBP/BaBZZHUOhSggWwydJLjZrj1hPEfuf+KkKoDdszKHXzKwBtM
+ nh0w==
+X-Gm-Message-State: ACrzQf1sfPLnjZGiel/qu/gxR2lHj2CyuAyCnbiDU8i20qlEepTtgfVR
+ /ZybvbzgBjys7IQeeVjeqN7wHA==
+X-Google-Smtp-Source: AMsMyM6lSF0wma+b6hQ9iTBOfapH6Y9ERDVrz686bQsT/qUuGRIWkfXEHJMO2x0vtYbCrHhkUAYwlw==
+X-Received: by 2002:a63:66c6:0:b0:46e:c05d:b8d6 with SMTP id
+ a189-20020a6366c6000000b0046ec05db8d6mr20927251pgc.474.1666745605460; 
+ Tue, 25 Oct 2022 17:53:25 -0700 (PDT)
+Received: from [192.168.1.136] ([198.8.77.157])
+ by smtp.gmail.com with ESMTPSA id
+ r26-20020aa79eda000000b0056b8b17f914sm1931421pfq.216.2022.10.25.17.53.24
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Tue, 25 Oct 2022 17:53:24 -0700 (PDT)
+Message-ID: <6af0ad92-8e31-d79f-9655-8819c12082a0@kernel.dk>
+Date: Tue, 25 Oct 2022 18:53:23 -0600
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <bf375891-667f-1bcc-bd63-b90e757f5322@kernel.dk>
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.2
+User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:102.0) Gecko/20100101
+ Thunderbird/102.3.3
+Subject: Re: [PATCH] blk-mq: avoid double ->queue_rq() because of early timeout
+To: Ming Lei <ming.lei@redhat.com>
+References: <20221025005501.281460-1-ming.lei@redhat.com>
+ <bf375891-667f-1bcc-bd63-b90e757f5322@kernel.dk> <Y1h9fiY8TYD8HK5v@T590>
+Content-Language: en-US
+From: Jens Axboe <axboe@kernel.dk>
+In-Reply-To: <Y1h9fiY8TYD8HK5v@T590>
 Cc: David Jeffery <djeffery@redhat.com>, Bart Van Assche <bvanassche@acm.org>,
  virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org,
  Stefan Hajnoczi <stefanha@redhat.com>, Keith Busch <kbusch@kernel.org>
@@ -101,36 +118,41 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Oct 25, 2022 at 12:11:39PM -0600, Jens Axboe wrote:
-> On 10/24/22 6:55 PM, Ming Lei wrote:
-> > @@ -1593,10 +1598,18 @@ static void blk_mq_timeout_work(struct work_struct *work)
-> >  	if (!percpu_ref_tryget(&q->q_usage_counter))
-> >  		return;
-> >  
-> > -	blk_mq_queue_tag_busy_iter(q, blk_mq_check_expired, &next);
-> > +	/*
-> > +	 * Before walking tags, we must ensure any submit started before
-> > +	 * the current time has finished. Since the submit uses srcu or rcu,
-> > +	 * wait for a synchronization point to ensure all running submits
-> > +	 * have finished
-> > +	 */
-> > +	blk_mq_wait_quiesce_done(q);
+On 10/25/22 6:21 PM, Ming Lei wrote:
+> On Tue, Oct 25, 2022 at 12:11:39PM -0600, Jens Axboe wrote:
+>> On 10/24/22 6:55 PM, Ming Lei wrote:
+>>> @@ -1593,10 +1598,18 @@ static void blk_mq_timeout_work(struct work_struct *work)
+>>>  	if (!percpu_ref_tryget(&q->q_usage_counter))
+>>>  		return;
+>>>  
+>>> -	blk_mq_queue_tag_busy_iter(q, blk_mq_check_expired, &next);
+>>> +	/*
+>>> +	 * Before walking tags, we must ensure any submit started before
+>>> +	 * the current time has finished. Since the submit uses srcu or rcu,
+>>> +	 * wait for a synchronization point to ensure all running submits
+>>> +	 * have finished
+>>> +	 */
+>>> +	blk_mq_wait_quiesce_done(q);
+>>
+>> I'm a little worried about this bit - so we'll basically do a sync RCU
+>> every time the timeout timer runs... Depending on machine load, that
+>> can take a long time.
 > 
-> I'm a little worried about this bit - so we'll basically do a sync RCU
-> every time the timeout timer runs... Depending on machine load, that
-> can take a long time.
+> Yeah, the per-queue timeout timer is never canceled after request is
+> completed, so most of times the timeout work does nothing.
 
-Yeah, the per-queue timeout timer is never canceled after request is
-completed, so most of times the timeout work does nothing.
+Yep, it just keeps going, that's the point of the rolling timeout timer.
 
-Can we run the sync RCU only if there is timed out request found? Then
-the wait is only needed in case that timeout handling is required. Also
-sync rcu is already done in some driver's ->timeout().
+> Can we run the sync RCU only if there is timed out request found? Then
+> the wait is only needed in case that timeout handling is required. Also
+> sync rcu is already done in some driver's ->timeout().
 
+That was going to be my suggestion, if it can get done only for when
+there's actually a potential timeout candidate, then that would be
+orders of magnitude better.
 
-Thanks,
-Ming
-
+-- 
+Jens Axboe
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
