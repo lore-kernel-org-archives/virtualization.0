@@ -4,105 +4,83 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2910BC4332F
-	for <virtualization@archiver.kernel.org>; Thu,  3 Nov 2022 10:38:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7B284C433FE
+	for <virtualization@archiver.kernel.org>; Thu,  3 Nov 2022 13:22:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id A8D6781ED2;
-	Thu,  3 Nov 2022 10:38:05 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A8D6781ED2
+	by smtp1.osuosl.org (Postfix) with ESMTP id DAF0781E32;
+	Thu,  3 Nov 2022 13:22:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DAF0781E32
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=b9Qp4qGT
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=susede1 header.b=elGhjAFW
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id OHVVXHy-eA7j; Thu,  3 Nov 2022 10:38:04 +0000 (UTC)
+	with ESMTP id M8XvGeQh1P-w; Thu,  3 Nov 2022 13:22:55 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 313D681E72;
-	Thu,  3 Nov 2022 10:38:04 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 313D681E72
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 7C5A881E35;
+	Thu,  3 Nov 2022 13:22:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7C5A881E35
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 07686C0032;
-	Thu,  3 Nov 2022 10:38:04 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4EBADC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 599BCC0033;
+	Thu,  3 Nov 2022 13:22:54 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A61DDC002D
  for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Nov 2022 10:38:03 +0000 (UTC)
+ Thu,  3 Nov 2022 13:22:52 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 156E060F8D
+ by smtp1.osuosl.org (Postfix) with ESMTP id 7AB9981ED2
  for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Nov 2022 10:38:03 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 156E060F8D
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=b9Qp4qGT
+ Thu,  3 Nov 2022 13:22:52 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7AB9981ED2
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Na3LtJNK-t2c
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id G60D1PMAcpcp
  for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Nov 2022 10:38:02 +0000 (UTC)
+ Thu,  3 Nov 2022 13:22:51 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D826760009
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id D826760009
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2CE5E81E32
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 2CE5E81E32
  for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Nov 2022 10:38:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1667471880;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ Thu,  3 Nov 2022 13:22:51 +0000 (UTC)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by smtp-out1.suse.de (Postfix) with ESMTPS id 024A421CC5;
+ Thu,  3 Nov 2022 13:22:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+ t=1667481765; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=SbDC2Mwl9eSSBsT2AW5/yGipvZuHluLgyKkgXCaE6v8=;
- b=b9Qp4qGTQ0E8UlyEwXsEaaX8a0IAjxqpu8gJY9rOo2WpEVIiHgdMmCeoNZCyy34Hd14BTL
- KIF/0ecC9SfhUFhWIKa0iGw8VLL1faW/9PS9XUXWuO8CloEymRPN3/NJfgOO782PvlmD1w
- vUC5SX3KytmvZfyZ8xL/nPg8gyyNjGY=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-642-PTb48WFkNfeZzIqsrBUgUg-1; Thu, 03 Nov 2022 06:37:59 -0400
-X-MC-Unique: PTb48WFkNfeZzIqsrBUgUg-1
-Received: by mail-ed1-f70.google.com with SMTP id
- x18-20020a05640226d200b00461e027f704so1074164edd.7
- for <virtualization@lists.linux-foundation.org>;
- Thu, 03 Nov 2022 03:37:59 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
- :reply-to;
- bh=SbDC2Mwl9eSSBsT2AW5/yGipvZuHluLgyKkgXCaE6v8=;
- b=ny5ZNTL0VF4sLTAh+8JQO3ENW8tyFiEz9XEVCclsSKD0aAM3HQ47c07S5J+rBh9o5h
- n0jgs/rliPhGS3UYFytSDM28WWVZizATSOyCWVGy6KejrCR7keHI/fbsiLVpcmEWEu6W
- jEuqbXTGnkL1wnlfkCv/u5qFxuifVgMxmw28+fcy8zswi6Yszw5sP8Z4sq+VllOyzPi2
- REhKzEGBoTH/HJH/lvxKfAlfIs3n4nWhZH7kfuhW6nd8jdaKLIefZcVqzf9k5dc9ptai
- OizizhZDsMQJgz+SqXBKHfgrryTtpSZuwMSwLyta7TOLbQAaDvH9lLLQY0IGTcPTCAM7
- +c4A==
-X-Gm-Message-State: ACrzQf1bL8NncPP+WvVKM3X1aY2Cq29tQLk+D76dPQUMxM3Gk2WIYQL5
- 2tdeK/i5FKvqLugeA+I4Cqo2BynjLG8Hld1Otoz/lGP5IuB/el/0fSmh2UvTV3y3ppoKZtR6/5p
- LqB/44IDXGg+Ouy254Lnuu+v/q0pF/M8AHWhVhjR4BrV9vydIqJZ3XP8qoQ==
-X-Received: by 2002:a05:6402:2706:b0:461:b93c:cbd8 with SMTP id
- y6-20020a056402270600b00461b93ccbd8mr29395152edd.254.1667471878504; 
- Thu, 03 Nov 2022 03:37:58 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM4o9yL+UzbJkKeWvVim3Pe3D08A7aJByKoGyKI16Zs6APXYV/pgxadWJ/3vZMntPofFWH1YOsLOGCwJl6JjD/k=
-X-Received: by 2002:a05:6402:2706:b0:461:b93c:cbd8 with SMTP id
- y6-20020a056402270600b00461b93ccbd8mr29395127edd.254.1667471878294; Thu, 03
- Nov 2022 03:37:58 -0700 (PDT)
+ bh=YtYsfzILl9NFjCGNIVUBOY8T67uNUFh0psRXTfGqcis=;
+ b=elGhjAFW5ss47byBOpk4ELod1blDLy/XCyHAgzAo7XZS4KMs6+hmUCJoWS/Zqs/luZptLr
+ OEI65F4mehkANJFi3AtUkK/k/V0fnpsXbkipu2GTLJvGpb+ER8VzeDKMEBHDX3JI1YWYth
+ YJcT7aeWygn4hYQNjRxSutasIJsypTE=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id A5B1713480;
+ Thu,  3 Nov 2022 13:22:44 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+ by imap2.suse-dmz.suse.de with ESMTPSA id tbkUJqTAY2OSWgAAMHmgww
+ (envelope-from <jgross@suse.com>); Thu, 03 Nov 2022 13:22:44 +0000
+Message-ID: <eb487a30-7491-1ef3-fb11-4dff342215bc@suse.com>
+Date: Thu, 3 Nov 2022 14:22:44 +0100
 MIME-Version: 1.0
-References: <CAGxU2F4zRGASAv4YLoQpfRB-2cvaMij6YZo6t9E+69MZ+8Mong@mail.gmail.com>
- <CACycT3vMVbm94OYtUgB9bS6_pU6FKh1Y6kWPyAxi4rvjUfQ3qg@mail.gmail.com>
- <20221026101716.zwl5rkwb7awq4mvw@sgarzare-redhat>
-In-Reply-To: <20221026101716.zwl5rkwb7awq4mvw@sgarzare-redhat>
-From: Stefano Garzarella <sgarzare@redhat.com>
-Date: Thu, 3 Nov 2022 11:37:46 +0100
-Message-ID: <CAGxU2F7Fyxw3UkZK=b2SwS5YrriThYaRGDiF9W4MCCC4MSA6xA@mail.gmail.com>
-Subject: Re: Issue with VDUSE (QSD vduse-blk export) and vhost-vdpa
-To: Yongji Xie <xieyongji@bytedance.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: Michael Tsirkin <mst@redhat.com>, qemu devel list <qemu-devel@nongnu.org>,
- Linux Virtualization <virtualization@lists.linux-foundation.org>,
- Stefan Hajnoczi <stefanha@redhat.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.0
+Subject: Re: [PATCH] locking/paravirt: Fix performance regression on core
+ bonded vCPU
+Content-Language: en-US
+To: johnnyaiai <arafatms@outlook.com>
+References: <MEYP282MB402614DB5A4625255B689F06C3389@MEYP282MB4026.AUSP282.PROD.OUTLOOK.COM>
+In-Reply-To: <MEYP282MB402614DB5A4625255B689F06C3389@MEYP282MB4026.AUSP282.PROD.OUTLOOK.COM>
+Cc: johnnyaiai <johnnyaiai@tencent.com>, dave.hansen@linux.intel.com,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ mingo@redhat.com, bp@alien8.de, hpa@zytor.com, tglx@linutronix.de
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -114,109 +92,141 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+From: Juergen Gross via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Juergen Gross <jgross@suse.com>
+Content-Type: multipart/mixed; boundary="===============8340330973107547628=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Oct 26, 2022 at 12:17 PM Stefano Garzarella <sgarzare@redhat.com> wrote:
->
-> On Wed, Oct 26, 2022 at 05:39:23PM +0800, Yongji Xie wrote:
-> >Hi Stefano,
-> >
-> >On Wed, Oct 26, 2022 at 5:12 PM Stefano Garzarella <sgarzare@redhat.com> wrote:
-> >>
-> >> Hi Xie,
-> >> I was testing libblkio [1] with QSD vduse-blk export and had some
-> >> issues.
-> >>
-> >> In a nutshell, QSD prints me the following messages when using
-> >> vhost-vdpa to access the device:
-> >>
-> >>   Failed to get vq[0] iova mapping
-> >>   Failed to update vring for vq[0]
-> >>
-> >> This happens only with vhost-vdpa, using virtio-vdpa instead the device
-> >> works fine.
-> >> I'm using Linux v6.0 and QEMU master (commit
-> >> 214a8da23651f2472b296b3293e619fd58d9e212).
-> >>
-> >> I haven't had much time to investigate, I hope to do it next week, but
-> >> maybe it's much faster for you.
-> >>
-> >> I saw that ioctl(VDUSE_IOTLB_GET_FD) in libvduse.c returns -1 (EPERM),
-> >> so IIUC in the kernel vduse_dev_broken() was called, and the device is
-> >> in a broken state.
-> >>
-> >>
-> >> We will use libblkio in QEMU [2] to access vDPA devices via vhost-vdpa.
-> >> But I'm doing these tests without QEMU for now, using an example inside
-> >> the libblkio repo:
-> >>
-> >> # Build libblkio and examples
-> >>     # Fedora/CentOS/RHEL
-> >>     dnf install -y git meson rust cargo python3-docutils rustfmt
-> >>     # Debian/Ubuntu
-> >>     apt-get install -y git meson rustc cargo python3-docutils
-> >>
-> >>     git clone https://gitlab.com/libblkio/libblkio.git
-> >>
-> >>     cd libblkio
-> >>     git checkout v1.1.0
-> >>
-> >>     meson setup build
-> >>     meson compile -C build
-> >>
-> >>
-> >> # On terminal 1
-> >>     modprobe vduse
-> >>     modprobe vhost-vdpa
-> >>
-> >>     qemu-img create -f qcow2 -o preallocation=full /path/to/test.qcow2 1g
-> >>
-> >>     qemu-storage-daemon \
-> >>       --blockdev file,filename=/path/to/test.qcow2,cache.direct=on,aio=native,node-name=file \
-> >>       --blockdev qcow2,file=file,node-name=qcow2 \
-> >>       --object iothread,id=iothread0 \
-> >>       --export vduse-blk,id=vduse0,name=vduse0,num-queues=1,node-name=qcow2,writable=on,iothread=iothread0
-> >>
-> >>
-> >> # On terminal 2
-> >>     vdpa dev add name vduse0 mgmtdev vduse
-> >>
-> >>     cd libblkio/build
-> >>
-> >>     # blkio-bench executes
-> >>     ./examples/blkio-bench virtio-blk-vhost-vdpa \
-> >>       path=/dev/vhost-vdpa-0 --runtime=5 --readwrite=randread
-> >>
-> >>     # after this step, QSD (running on terminal 1) prints the following messages:
-> >>       Failed to get vq[0] iova mapping
-> >>       Failed to update vring for vq[0]
-> >>
-> >> I don't know if I'm doing something wrong or in libblkio we have some
-> >> issue, but using vdpa-sim-blk works correctly, so maybe there is
-> >> something in vduse that is missing.
-> >>
-> >> Any help or suggestion is welcome :-)
-> >>
-> >
-> >I'd like to know whether bio-bench uses the shared memory
-> >(tmpfs/hugetlbfs) as the vdpa memory region. This is what VDUSE needs.
->
-> Okay, so IIUC every memory regions should have an associated fd.
->
-> The buffers in libblkio are already allocated in this way, but it is not
-> true for the virtqueue memory, I'll change it and test.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--===============8340330973107547628==
+Content-Language: en-US
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------btJwKHoQI5NXfyaxGDGNodDN"
 
-I just changed the virtqueue memory allocation as you suggested, and it worked!
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------btJwKHoQI5NXfyaxGDGNodDN
+Content-Type: multipart/mixed; boundary="------------NN7hXR4D40ZMGlq70IZotIEC";
+ protected-headers="v1"
+From: Juergen Gross <jgross@suse.com>
+To: johnnyaiai <arafatms@outlook.com>
+Cc: tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+ dave.hansen@linux.intel.com, hpa@zytor.com, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org,
+ johnnyaiai <johnnyaiai@tencent.com>
+Message-ID: <eb487a30-7491-1ef3-fb11-4dff342215bc@suse.com>
+Subject: Re: [PATCH] locking/paravirt: Fix performance regression on core
+ bonded vCPU
+References: <MEYP282MB402614DB5A4625255B689F06C3389@MEYP282MB4026.AUSP282.PROD.OUTLOOK.COM>
+In-Reply-To: <MEYP282MB402614DB5A4625255B689F06C3389@MEYP282MB4026.AUSP282.PROD.OUTLOOK.COM>
 
-MR here: https://gitlab.com/libblkio/libblkio/-/merge_requests/141
+--------------NN7hXR4D40ZMGlq70IZotIEC
+Content-Type: multipart/mixed; boundary="------------ziqOgnjwh30plMs8D7OtdS02"
 
-Thanks for the help,
-Stefano
+--------------ziqOgnjwh30plMs8D7OtdS02
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
+
+T24gMDMuMTEuMjIgMTM6MTMsIGpvaG5ueWFpYWkgd3JvdGU6DQo+IEZyb206IGpvaG5ueWFp
+YWkgPGpvaG5ueWFpYWlAdGVuY2VudC5jb20+DQo+IA0KPiB2aXJ0X3NwaW5fbG9jaygpIGlz
+IHByZWZlcnJlZCBvdmVyIG5hdGl2ZSBxc3BpbmxvY2sgd2hlbg0KPiB2Q1BVIGlzIHByZWVt
+cHRlZC4gQnV0IGJyaW5ncyBhIGxvdCBvZiByZWdyZXNzaW9uIHdoaWxlDQo+IHZDUFUgaXMg
+bm90IHByZWVtcHRlZC4gUHJvdmlkZSBhIGVhcmx5IHBhcmFtICdub3ZpcnRsb2NrJw0KPiB0
+byBjaG9vc2Ugd291bGQgYmUgYmV0dGVyLg0KPiANCj4gd2lsbC1pdC1zY2FsZS9sb2NrMl90
+aHJlYWRzIC1zIDEwIC10IDY0DQo+IGJhc2VsaW5lICAgIGFmdGVycGF0Y2gNCj4gNTU5OTM4
+ICAgICAgIDIxNjYxMzUNCj4gDQo+IFNpZ25lZC1vZmYtYnk6IGpvaG5ueWFpYWkgPGpvaG5u
+eWFpYWlAdGVuY2VudC5jb20+DQoNClRoYXQgaXMgZXhhY3RseSB0aGUgcHVycG9zZSBvZiB0
+aGUgZXhpc3Rpbmcgbm9wdnNwaW4gcGFyYW1ldGVyLg0KDQoNCkp1ZXJnZW4NCg==
+--------------ziqOgnjwh30plMs8D7OtdS02
+Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Description: OpenPGP public key
+Content-Transfer-Encoding: quoted-printable
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+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
+jR/i1DG86lem3iBDXzXsZDn8R38=3D
+=3D2wuH
+-----END PGP PUBLIC KEY BLOCK-----
+
+--------------ziqOgnjwh30plMs8D7OtdS02--
+
+--------------NN7hXR4D40ZMGlq70IZotIEC--
+
+--------------btJwKHoQI5NXfyaxGDGNodDN
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmNjwKQFAwAAAAAACgkQsN6d1ii/Ey9V
+fwf/VuX3gqrDOiYvH85Jr/a02gIdch7et+ZzpO1pJGaG0cLENWl4AEn/cVVSRhdK/9Fd9DB7DoNO
+bXT6PrUr4E7/wgu/W0GJsbGBOOrd6bbl7GhnPFzBWgkGYA3eLBIPHNhOQCHE9p/6RtsLNiDZq+7O
+ZtV36TUGIeA3ejd6ZCWP+qE2aRit6iiUiiB59esRPujhcusDqeQglkBBElWOmSwcvZATk3MoB0+J
+/Kh8bSYcRo03+BYLjR6Zj2Hw4ICpqIQuPu0RcjjgIODtkSUs3SoSrWT2iHHDRS1dhVMRF5u7/zdw
+VeKjUY/8I/rd3VS4Sa0ElenVOx+buodyyTLbH+BWKg==
+=bmVM
+-----END PGP SIGNATURE-----
+
+--------------btJwKHoQI5NXfyaxGDGNodDN--
+
+--===============8340330973107547628==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============8340330973107547628==--
