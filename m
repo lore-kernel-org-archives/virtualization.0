@@ -1,89 +1,95 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4EAAFC64EC9
-	for <virtualization@archiver.kernel.org>; Thu,  3 Nov 2022 15:15:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id EEF94C64EDD
+	for <virtualization@archiver.kernel.org>; Thu,  3 Nov 2022 15:15:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 0D7F481F7F;
-	Thu,  3 Nov 2022 15:15:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0D7F481F7F
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=lR4Tb56o;
-	dkim=fail reason="signature verification failed" header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=/u2ehk8w
+	by smtp2.osuosl.org (Postfix) with ESMTP id 8428640BD9;
+	Thu,  3 Nov 2022 15:15:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8428640BD9
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=JjKJvPB/;
+	dkim=fail reason="signature verification failed" header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=pk7M7BuD
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id bGjg64TuZuQ3; Thu,  3 Nov 2022 15:15:06 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id D8KPQpAjofxR; Thu,  3 Nov 2022 15:15:09 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 9323181F63;
-	Thu,  3 Nov 2022 15:15:05 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9323181F63
+	by smtp2.osuosl.org (Postfix) with ESMTPS id CD0DD40BCE;
+	Thu,  3 Nov 2022 15:15:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org CD0DD40BCE
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6B8B1C007F;
-	Thu,  3 Nov 2022 15:15:05 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0960DC0081
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A21ACC0033;
+	Thu,  3 Nov 2022 15:15:08 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 138AEC0080
  for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Nov 2022 15:15:04 +0000 (UTC)
+ Thu,  3 Nov 2022 15:15:05 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 1605B81769
+ by smtp3.osuosl.org (Postfix) with ESMTP id 548046077D
  for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Nov 2022 15:14:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1605B81769
+ Thu,  3 Nov 2022 15:15:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 548046077D
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de
+ header.a=rsa-sha256 header.s=susede2_rsa header.b=JjKJvPB/; 
+ dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256
+ header.s=susede2_ed25519 header.b=pk7M7BuD
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Nz8DycdP3mSj
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id mkqye8Zly8on
  for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Nov 2022 15:14:56 +0000 (UTC)
+ Thu,  3 Nov 2022 15:15:00 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 45D0F817AA
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 45D0F817AA
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5625C6100B
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 5625C6100B
  for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Nov 2022 15:14:56 +0000 (UTC)
+ Thu,  3 Nov 2022 15:15:00 +0000 (UTC)
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
  (No client certificate requested)
- by smtp-out1.suse.de (Postfix) with ESMTPS id 8E52421DEF;
- Thu,  3 Nov 2022 15:14:54 +0000 (UTC)
+ by smtp-out2.suse.de (Postfix) with ESMTPS id BAF951F8E3;
+ Thu,  3 Nov 2022 15:14:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
- t=1667488494; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ t=1667488496; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
  mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=EkoY2CiiAEHjZ/OYnuapD4MfGy2oyIAq4b5o8EaQT3s=;
- b=lR4Tb56okc+sFQIRKH0CzelfQbheRV7Qr0iaco7WcMuBYnmsh9gZSKNhKuDUtXJOo9XKcw
- b2B8BHsarB4u1uw4Xb4kGw+hdo7OMM/z3AhsxcsQPEkF2paFEOjMBEX/QgauRWn8PyUMsh
- R5pD0wtwcpSLiMHxZmfhQ1sni3ZMMFY=
+ bh=wHcFkkZx1qoGdGGw38npsZkDf9XLCcAsw1vgXHR4r9c=;
+ b=JjKJvPB/qRxKFqHw1U29m8E0cvnmPyoVHeFthkW29kVOhRff3GnqHoT9ZnKa3/sivEaGXh
+ VOQwtx0dSXP6U9JvE7ppy/DRynLmaN1iOy3pkD+FIkbYM4FO5N8QlDA3LoBVEbAX76UeTZ
+ vRY3ONng4s4TK13tL5edjEkAID1cq2Q=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
- s=susede2_ed25519; t=1667488494;
+ s=susede2_ed25519; t=1667488496;
  h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
  mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=EkoY2CiiAEHjZ/OYnuapD4MfGy2oyIAq4b5o8EaQT3s=;
- b=/u2ehk8wsr8fqjo0X1DYqzXBCnnMezfxNTs00QEevNrbWKXPRo3uIzQb8Ja7nosLrLjOfi
- F3NmzSzNp2xT9LAg==
+ bh=wHcFkkZx1qoGdGGw38npsZkDf9XLCcAsw1vgXHR4r9c=;
+ b=pk7M7BuDJ2aVjhDvwzYotWXbDwSdhZPVztKaVdlIARFwx0azBKAE2llyca8r3FB5fcJLPo
+ BNqw90S8fBCoZ9Cg==
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
  (No client certificate requested)
- by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 1C74013AAF;
- Thu,  3 Nov 2022 15:14:54 +0000 (UTC)
+ by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 2AA7D13AAF;
+ Thu,  3 Nov 2022 15:14:56 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([192.168.254.65])
- by imap2.suse-dmz.suse.de with ESMTPSA id cIscBu7aY2PBGgAAMHmgww
- (envelope-from <tzimmermann@suse.de>); Thu, 03 Nov 2022 15:14:54 +0000
+ by imap2.suse-dmz.suse.de with ESMTPSA id ODSeCfDaY2PBGgAAMHmgww
+ (envelope-from <tzimmermann@suse.de>); Thu, 03 Nov 2022 15:14:56 +0000
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: daniel@ffwll.ch, airlied@gmail.com, sam@ravnborg.org, javierm@redhat.com,
  mripard@kernel.org, maarten.lankhorst@linux.intel.com
-Subject: [PATCH v3 10/23] drm/tve200: Include <linux/of.h>
-Date: Thu,  3 Nov 2022 16:14:33 +0100
-Message-Id: <20221103151446.2638-11-tzimmermann@suse.de>
+Subject: [PATCH v3 14/23] drm/fb-helper: Rename drm_fb_helper_unregister_fbi()
+ to use _info postfix
+Date: Thu,  3 Nov 2022 16:14:37 +0100
+Message-Id: <20221103151446.2638-15-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221103151446.2638-1-tzimmermann@suse.de>
 References: <20221103151446.2638-1-tzimmermann@suse.de>
@@ -116,26 +122,201 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Include <linux/of.h> for of_match_ptr().
+Rename drm_fb_helper_unregister_fbi() to drm_fb_helper_unregister_info()
+as part of unifying the naming within fbdev helpers. Adapt drivers. No
+functional changes.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
 ---
- drivers/gpu/drm/tve200/tve200_drv.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/armada/armada_fbdev.c      | 2 +-
+ drivers/gpu/drm/drm_fb_helper.c            | 8 ++++----
+ drivers/gpu/drm/exynos/exynos_drm_fbdev.c  | 2 +-
+ drivers/gpu/drm/gma500/framebuffer.c       | 2 +-
+ drivers/gpu/drm/i915/display/intel_fbdev.c | 2 +-
+ drivers/gpu/drm/msm/msm_fbdev.c            | 2 +-
+ drivers/gpu/drm/nouveau/nouveau_fbcon.c    | 2 +-
+ drivers/gpu/drm/omapdrm/omap_fbdev.c       | 2 +-
+ drivers/gpu/drm/radeon/radeon_fb.c         | 2 +-
+ drivers/gpu/drm/tegra/fb.c                 | 2 +-
+ include/drm/drm_fb_helper.h                | 4 ++--
+ 11 files changed, 15 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/gpu/drm/tve200/tve200_drv.c b/drivers/gpu/drm/tve200/tve200_drv.c
-index 04db72e3fa9c2..611785e097576 100644
---- a/drivers/gpu/drm/tve200/tve200_drv.c
-+++ b/drivers/gpu/drm/tve200/tve200_drv.c
-@@ -32,6 +32,7 @@
- #include <linux/irq.h>
- #include <linux/io.h>
- #include <linux/module.h>
-+#include <linux/of.h>
- #include <linux/platform_device.h>
- #include <linux/shmem_fs.h>
- #include <linux/slab.h>
+diff --git a/drivers/gpu/drm/armada/armada_fbdev.c b/drivers/gpu/drm/armada/armada_fbdev.c
+index eaae98d9377ae..f02f6a5ba8320 100644
+--- a/drivers/gpu/drm/armada/armada_fbdev.c
++++ b/drivers/gpu/drm/armada/armada_fbdev.c
+@@ -155,7 +155,7 @@ void armada_fbdev_fini(struct drm_device *dev)
+ 	struct drm_fb_helper *fbh = priv->fbdev;
+ 
+ 	if (fbh) {
+-		drm_fb_helper_unregister_fbi(fbh);
++		drm_fb_helper_unregister_info(fbh);
+ 
+ 		drm_fb_helper_fini(fbh);
+ 
+diff --git a/drivers/gpu/drm/drm_fb_helper.c b/drivers/gpu/drm/drm_fb_helper.c
+index 881e6a04fa706..bfbb2af144060 100644
+--- a/drivers/gpu/drm/drm_fb_helper.c
++++ b/drivers/gpu/drm/drm_fb_helper.c
+@@ -612,19 +612,19 @@ struct fb_info *drm_fb_helper_alloc_info(struct drm_fb_helper *fb_helper)
+ EXPORT_SYMBOL(drm_fb_helper_alloc_info);
+ 
+ /**
+- * drm_fb_helper_unregister_fbi - unregister fb_info framebuffer device
++ * drm_fb_helper_unregister_info - unregister fb_info framebuffer device
+  * @fb_helper: driver-allocated fbdev helper, can be NULL
+  *
+  * A wrapper around unregister_framebuffer, to release the fb_info
+  * framebuffer device. This must be called before releasing all resources for
+  * @fb_helper by calling drm_fb_helper_fini().
+  */
+-void drm_fb_helper_unregister_fbi(struct drm_fb_helper *fb_helper)
++void drm_fb_helper_unregister_info(struct drm_fb_helper *fb_helper)
+ {
+ 	if (fb_helper && fb_helper->info)
+ 		unregister_framebuffer(fb_helper->info);
+ }
+-EXPORT_SYMBOL(drm_fb_helper_unregister_fbi);
++EXPORT_SYMBOL(drm_fb_helper_unregister_info);
+ 
+ /**
+  * drm_fb_helper_fini - finialize a &struct drm_fb_helper
+@@ -2497,7 +2497,7 @@ static void drm_fbdev_client_unregister(struct drm_client_dev *client)
+ 
+ 	if (fb_helper->info)
+ 		/* drm_fbdev_fb_destroy() takes care of cleanup */
+-		drm_fb_helper_unregister_fbi(fb_helper);
++		drm_fb_helper_unregister_info(fb_helper);
+ 	else
+ 		drm_fbdev_release(fb_helper);
+ }
+diff --git a/drivers/gpu/drm/exynos/exynos_drm_fbdev.c b/drivers/gpu/drm/exynos/exynos_drm_fbdev.c
+index 8741eb0b1b604..86c489d945849 100644
+--- a/drivers/gpu/drm/exynos/exynos_drm_fbdev.c
++++ b/drivers/gpu/drm/exynos/exynos_drm_fbdev.c
+@@ -201,7 +201,7 @@ static void exynos_drm_fbdev_destroy(struct drm_device *dev,
+ 			drm_framebuffer_remove(fb);
+ 	}
+ 
+-	drm_fb_helper_unregister_fbi(fb_helper);
++	drm_fb_helper_unregister_info(fb_helper);
+ 
+ 	drm_fb_helper_fini(fb_helper);
+ }
+diff --git a/drivers/gpu/drm/gma500/framebuffer.c b/drivers/gpu/drm/gma500/framebuffer.c
+index 6d0e3bf6435ee..6098d936e44b6 100644
+--- a/drivers/gpu/drm/gma500/framebuffer.c
++++ b/drivers/gpu/drm/gma500/framebuffer.c
+@@ -383,7 +383,7 @@ static int psb_fbdev_destroy(struct drm_device *dev,
+ {
+ 	struct drm_framebuffer *fb = fb_helper->fb;
+ 
+-	drm_fb_helper_unregister_fbi(fb_helper);
++	drm_fb_helper_unregister_info(fb_helper);
+ 
+ 	drm_fb_helper_fini(fb_helper);
+ 	drm_framebuffer_unregister_private(fb);
+diff --git a/drivers/gpu/drm/i915/display/intel_fbdev.c b/drivers/gpu/drm/i915/display/intel_fbdev.c
+index 05b841343ea3e..1b576c859837b 100644
+--- a/drivers/gpu/drm/i915/display/intel_fbdev.c
++++ b/drivers/gpu/drm/i915/display/intel_fbdev.c
+@@ -584,7 +584,7 @@ void intel_fbdev_unregister(struct drm_i915_private *dev_priv)
+ 	if (!current_is_async())
+ 		intel_fbdev_sync(ifbdev);
+ 
+-	drm_fb_helper_unregister_fbi(&ifbdev->helper);
++	drm_fb_helper_unregister_info(&ifbdev->helper);
+ }
+ 
+ void intel_fbdev_fini(struct drm_i915_private *dev_priv)
+diff --git a/drivers/gpu/drm/msm/msm_fbdev.c b/drivers/gpu/drm/msm/msm_fbdev.c
+index 4d9a0fcbf95b6..31e1e30cb52a2 100644
+--- a/drivers/gpu/drm/msm/msm_fbdev.c
++++ b/drivers/gpu/drm/msm/msm_fbdev.c
+@@ -182,7 +182,7 @@ void msm_fbdev_free(struct drm_device *dev)
+ 
+ 	DBG();
+ 
+-	drm_fb_helper_unregister_fbi(helper);
++	drm_fb_helper_unregister_info(helper);
+ 
+ 	drm_fb_helper_fini(helper);
+ 
+diff --git a/drivers/gpu/drm/nouveau/nouveau_fbcon.c b/drivers/gpu/drm/nouveau/nouveau_fbcon.c
+index fca40124fc17c..e87de7906f780 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_fbcon.c
++++ b/drivers/gpu/drm/nouveau/nouveau_fbcon.c
+@@ -419,7 +419,7 @@ nouveau_fbcon_destroy(struct drm_device *dev, struct nouveau_fbdev *fbcon)
+ 	struct drm_framebuffer *fb = fbcon->helper.fb;
+ 	struct nouveau_bo *nvbo;
+ 
+-	drm_fb_helper_unregister_fbi(&fbcon->helper);
++	drm_fb_helper_unregister_info(&fbcon->helper);
+ 	drm_fb_helper_fini(&fbcon->helper);
+ 
+ 	if (fb && fb->obj[0]) {
+diff --git a/drivers/gpu/drm/omapdrm/omap_fbdev.c b/drivers/gpu/drm/omapdrm/omap_fbdev.c
+index ab30c64e97043..98d8758048fc1 100644
+--- a/drivers/gpu/drm/omapdrm/omap_fbdev.c
++++ b/drivers/gpu/drm/omapdrm/omap_fbdev.c
+@@ -272,7 +272,7 @@ void omap_fbdev_fini(struct drm_device *dev)
+ 	if (!helper)
+ 		return;
+ 
+-	drm_fb_helper_unregister_fbi(helper);
++	drm_fb_helper_unregister_info(helper);
+ 
+ 	drm_fb_helper_fini(helper);
+ 
+diff --git a/drivers/gpu/drm/radeon/radeon_fb.c b/drivers/gpu/drm/radeon/radeon_fb.c
+index 0c6a227929db2..f06fed2030a89 100644
+--- a/drivers/gpu/drm/radeon/radeon_fb.c
++++ b/drivers/gpu/drm/radeon/radeon_fb.c
+@@ -309,7 +309,7 @@ static int radeon_fbdev_destroy(struct drm_device *dev, struct radeon_fbdev *rfb
+ {
+ 	struct drm_framebuffer *fb = &rfbdev->fb;
+ 
+-	drm_fb_helper_unregister_fbi(&rfbdev->helper);
++	drm_fb_helper_unregister_info(&rfbdev->helper);
+ 
+ 	if (fb->obj[0]) {
+ 		radeonfb_destroy_pinned_object(fb->obj[0]);
+diff --git a/drivers/gpu/drm/tegra/fb.c b/drivers/gpu/drm/tegra/fb.c
+index a09c071f35120..84b7f1dd9fb57 100644
+--- a/drivers/gpu/drm/tegra/fb.c
++++ b/drivers/gpu/drm/tegra/fb.c
+@@ -347,7 +347,7 @@ static int tegra_fbdev_init(struct tegra_fbdev *fbdev,
+ 
+ static void tegra_fbdev_exit(struct tegra_fbdev *fbdev)
+ {
+-	drm_fb_helper_unregister_fbi(&fbdev->base);
++	drm_fb_helper_unregister_info(&fbdev->base);
+ 
+ 	if (fbdev->fb) {
+ 		struct tegra_bo *bo = tegra_fb_get_plane(fbdev->fb, 0);
+diff --git a/include/drm/drm_fb_helper.h b/include/drm/drm_fb_helper.h
+index 5ec9d9c68d144..edc697a2fde24 100644
+--- a/include/drm/drm_fb_helper.h
++++ b/include/drm/drm_fb_helper.h
+@@ -223,7 +223,7 @@ int drm_fb_helper_check_var(struct fb_var_screeninfo *var,
+ int drm_fb_helper_restore_fbdev_mode_unlocked(struct drm_fb_helper *fb_helper);
+ 
+ struct fb_info *drm_fb_helper_alloc_info(struct drm_fb_helper *fb_helper);
+-void drm_fb_helper_unregister_fbi(struct drm_fb_helper *fb_helper);
++void drm_fb_helper_unregister_info(struct drm_fb_helper *fb_helper);
+ void drm_fb_helper_fill_info(struct fb_info *info,
+ 			     struct drm_fb_helper *fb_helper,
+ 			     struct drm_fb_helper_surface_size *sizes);
+@@ -325,7 +325,7 @@ drm_fb_helper_alloc_info(struct drm_fb_helper *fb_helper)
+ 	return NULL;
+ }
+ 
+-static inline void drm_fb_helper_unregister_fbi(struct drm_fb_helper *fb_helper)
++static inline void drm_fb_helper_unregister_info(struct drm_fb_helper *fb_helper)
+ {
+ }
+ 
 -- 
 2.38.0
 
