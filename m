@@ -4,92 +4,92 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2A8CAC65BA0
-	for <virtualization@archiver.kernel.org>; Thu,  3 Nov 2022 15:15:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B4C63C6370B
+	for <virtualization@archiver.kernel.org>; Thu,  3 Nov 2022 15:15:14 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id B290C41835;
-	Thu,  3 Nov 2022 15:15:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B290C41835
+	by smtp4.osuosl.org (Postfix) with ESMTP id 0928441837;
+	Thu,  3 Nov 2022 15:15:14 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0928441837
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=1fEWnQEj;
-	dkim=fail reason="signature verification failed" header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=ZokmNUdM
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=n3GB8msU;
+	dkim=fail reason="signature verification failed" header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=9KQk+v7A
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id vSm0Rp8Q1xBj; Thu,  3 Nov 2022 15:15:10 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id A76C44182D;
-	Thu,  3 Nov 2022 15:15:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A76C44182D
+	with ESMTP id 8nsncbYLg6Sn; Thu,  3 Nov 2022 15:15:12 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 78B844182A;
+	Thu,  3 Nov 2022 15:15:11 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 78B844182A
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DBFBEC007D;
-	Thu,  3 Nov 2022 15:15:08 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E1886C0080;
+	Thu,  3 Nov 2022 15:15:10 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 17EE1C0078
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1612CC0081
  for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Nov 2022 15:15:07 +0000 (UTC)
+ Thu,  3 Nov 2022 15:15:09 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 3DC8F817C0
+ by smtp1.osuosl.org (Postfix) with ESMTP id ECB2A81975
  for <virtualization@lists.linux-foundation.org>;
  Thu,  3 Nov 2022 15:15:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3DC8F817C0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org ECB2A81975
 Authentication-Results: smtp1.osuosl.org;
  dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de
- header.a=rsa-sha256 header.s=susede2_rsa header.b=1fEWnQEj; 
+ header.a=rsa-sha256 header.s=susede2_rsa header.b=n3GB8msU; 
  dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256
- header.s=susede2_ed25519 header.b=ZokmNUdM
+ header.s=susede2_ed25519 header.b=9KQk+v7A
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id sMOovQ2SoWr3
+ with ESMTP id EPPyGIekPEjb
  for <virtualization@lists.linux-foundation.org>;
  Thu,  3 Nov 2022 15:14:59 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3E2B38141F
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 623C381F55
 Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 3E2B38141F
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 623C381F55
  for <virtualization@lists.linux-foundation.org>;
  Thu,  3 Nov 2022 15:14:59 +0000 (UTC)
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
  (No client certificate requested)
- by smtp-out2.suse.de (Postfix) with ESMTPS id 6986D1F8E8;
- Thu,  3 Nov 2022 15:14:57 +0000 (UTC)
+ by smtp-out2.suse.de (Postfix) with ESMTPS id A69941F8DA;
+ Thu,  3 Nov 2022 15:14:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
- t=1667488497; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ t=1667488495; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
  mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=dABgwN8DHhdSFdmvQoS/APAuOZCTk1xcbptlf+la6g4=;
- b=1fEWnQEjouTz99410aQ2anAaiojfO8tPz++OQGD4WLXZ5gUEs5b4vO3deaLmKA46XXR21y
- avVCsHH1123TCT1exnwybLBw+OQiTgY5gGkb/lqMYcFAHHsfTGwI8isTWVnXcMxWET0zNW
- 1sq8yOCX9pqrrch+8QWsIixla0xuW8U=
+ bh=ioVpD1VnfAgE1jzOCU0p+/zqngOSQZqcoisp6xSpRNA=;
+ b=n3GB8msUesi+LtsosMhiI/Fk8UsyGEj3Ydrfavt+erXMqtxd7sFyE+2KDIxUhfsbPM0mqE
+ xM0wplooBBe0kSXLSVfkKMqZvxjoASdESYmEG41xbeGK9xgNC8CRHPoNiFAXThbmOpBdjq
+ Jr/OTMyL9UzoV7dsvRtkXd5iYO0T+YE=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
- s=susede2_ed25519; t=1667488497;
+ s=susede2_ed25519; t=1667488495;
  h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
  mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=dABgwN8DHhdSFdmvQoS/APAuOZCTk1xcbptlf+la6g4=;
- b=ZokmNUdMSJRJ9i5LRSqQeKRvJ0QKrtIGSwBrmgjoRLTeTl63HGF+ZvAODGfQ3gcCi9x9A6
- JkgPgPCVvycn0aDQ==
+ bh=ioVpD1VnfAgE1jzOCU0p+/zqngOSQZqcoisp6xSpRNA=;
+ b=9KQk+v7AjiJ9l6EwJpmMWbb+bJyE/Sm0WYtYPdvXei4JpSQnGB61Y4OXyMlQHX63XOgPIt
+ ecu1LJ6TUTjBB4CQ==
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
  (No client certificate requested)
- by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id C013E13ADB;
- Thu,  3 Nov 2022 15:14:56 +0000 (UTC)
+ by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 1EE2713AAF;
+ Thu,  3 Nov 2022 15:14:55 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([192.168.254.65])
- by imap2.suse-dmz.suse.de with ESMTPSA id 6Br3LfDaY2PBGgAAMHmgww
- (envelope-from <tzimmermann@suse.de>); Thu, 03 Nov 2022 15:14:56 +0000
+ by imap2.suse-dmz.suse.de with ESMTPSA id kBB8Bu/aY2PBGgAAMHmgww
+ (envelope-from <tzimmermann@suse.de>); Thu, 03 Nov 2022 15:14:55 +0000
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: daniel@ffwll.ch, airlied@gmail.com, sam@ravnborg.org, javierm@redhat.com,
  mripard@kernel.org, maarten.lankhorst@linux.intel.com
-Subject: [PATCH v3 15/23] drm/fb-helper: Disconnect damage worker from update
- logic
-Date: Thu,  3 Nov 2022 16:14:38 +0100
-Message-Id: <20221103151446.2638-16-tzimmermann@suse.de>
+Subject: [PATCH v3 12/23] drm/fb_helper: Rename field fbdev to info in struct
+ drm_fb_helper
+Date: Thu,  3 Nov 2022 16:14:35 +0100
+Message-Id: <20221103151446.2638-13-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.38.0
 In-Reply-To: <20221103151446.2638-1-tzimmermann@suse.de>
 References: <20221103151446.2638-1-tzimmermann@suse.de>
@@ -122,187 +122,317 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-The fbdev helpers implement a damage worker that forwards fbdev
-updates to the DRM driver. The worker's update logic depends on
-the generic fbdev emulation. Separate the two via function pointer.
-
-The generic fbdev emulation sets struct drm_fb_helper_funcs.fb_dirty,
-a new callback that hides the update logic from the damage worker.
-It's not possible to use the generic logic with other fbdev emulation,
-because it contains additional code for the shadow buffering that
-the generic emulation employs.
-
-DRM drivers with internal fbdev emulation can set fb_dirty to their
-own implementation if they require damage handling; although no such
-drivers currently exist.
+Rename struct drm_fb_helper.fbdev to info. The current name is
+misleading as it overlaps with generic fbdev naming conventions.
+Adapt to the usual naming in fbdev drivers by calling the field
+'info'. No functional changes.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
 ---
- drivers/gpu/drm/drm_fb_helper.c | 75 ++++++++++++++++++++-------------
- include/drm/drm_fb_helper.h     | 15 +++++++
- 2 files changed, 61 insertions(+), 29 deletions(-)
+ drivers/gpu/drm/drm_fb_helper.c            | 40 +++++++++++-----------
+ drivers/gpu/drm/i915/display/intel_fbdev.c |  2 +-
+ drivers/gpu/drm/nouveau/nouveau_fbcon.c    | 23 ++++++-------
+ drivers/gpu/drm/omapdrm/omap_fbdev.c       |  2 +-
+ drivers/gpu/drm/tegra/fb.c                 |  2 +-
+ include/drm/drm_fb_helper.h                |  4 +--
+ 6 files changed, 36 insertions(+), 37 deletions(-)
 
 diff --git a/drivers/gpu/drm/drm_fb_helper.c b/drivers/gpu/drm/drm_fb_helper.c
-index bfbb2af144060..f6d22cc4cd876 100644
+index 71edb80fe0fb9..480bf4f568b7b 100644
 --- a/drivers/gpu/drm/drm_fb_helper.c
 +++ b/drivers/gpu/drm/drm_fb_helper.c
-@@ -448,35 +448,24 @@ static int drm_fb_helper_damage_blit(struct drm_fb_helper *fb_helper,
+@@ -368,7 +368,7 @@ static void drm_fb_helper_resume_worker(struct work_struct *work)
+ 						    resume_work);
  
- static void drm_fb_helper_damage_work(struct work_struct *work)
- {
--	struct drm_fb_helper *helper = container_of(work, struct drm_fb_helper,
--						    damage_work);
--	struct drm_device *dev = helper->dev;
-+	struct drm_fb_helper *helper = container_of(work, struct drm_fb_helper, damage_work);
- 	struct drm_clip_rect *clip = &helper->damage_clip;
- 	struct drm_clip_rect clip_copy;
- 	unsigned long flags;
- 	int ret;
- 
-+	if (!helper->funcs->fb_dirty)
-+		return;
-+
- 	spin_lock_irqsave(&helper->damage_lock, flags);
- 	clip_copy = *clip;
- 	clip->x1 = clip->y1 = ~0;
- 	clip->x2 = clip->y2 = 0;
- 	spin_unlock_irqrestore(&helper->damage_lock, flags);
- 
--	/* Call damage handlers only if necessary */
--	if (!(clip_copy.x1 < clip_copy.x2 && clip_copy.y1 < clip_copy.y2))
--		return;
--
--	if (helper->buffer) {
--		ret = drm_fb_helper_damage_blit(helper, &clip_copy);
--		if (drm_WARN_ONCE(dev, ret, "Damage blitter failed: ret=%d\n", ret))
--			goto err;
--	}
--
--	if (helper->fb->funcs->dirty) {
--		ret = helper->fb->funcs->dirty(helper->fb, NULL, 0, 0, &clip_copy, 1);
--		if (drm_WARN_ONCE(dev, ret, "Dirty helper failed: ret=%d\n", ret))
--			goto err;
--	}
-+	ret = helper->funcs->fb_dirty(helper, &clip_copy);
-+	if (ret)
-+		goto err;
- 
- 	return;
- 
-@@ -670,16 +659,6 @@ void drm_fb_helper_fini(struct drm_fb_helper *fb_helper)
+ 	console_lock();
+-	fb_set_suspend(helper->fbdev, 0);
++	fb_set_suspend(helper->info, 0);
+ 	console_unlock();
  }
- EXPORT_SYMBOL(drm_fb_helper_fini);
  
--static bool drm_fbdev_use_shadow_fb(struct drm_fb_helper *fb_helper)
--{
--	struct drm_device *dev = fb_helper->dev;
--	struct drm_framebuffer *fb = fb_helper->fb;
--
--	return dev->mode_config.prefer_shadow_fbdev ||
--	       dev->mode_config.prefer_shadow ||
--	       fb->funcs->dirty;
--}
--
- static void drm_fb_helper_damage(struct fb_info *info, u32 x, u32 y,
- 				 u32 width, u32 height)
+@@ -401,7 +401,7 @@ static void drm_fb_helper_damage_blit_real(struct drm_fb_helper *fb_helper,
+ 		break;
+ 	}
+ 
+-	src = fb_helper->fbdev->screen_buffer + offset;
++	src = fb_helper->info->screen_buffer + offset;
+ 	iosys_map_incr(dst, offset); /* go to first pixel within clip rect */
+ 
+ 	for (y = clip->y1; y < clip->y2; y++) {
+@@ -598,7 +598,7 @@ struct fb_info *drm_fb_helper_alloc_fbi(struct drm_fb_helper *fb_helper)
+ 		goto err_free_cmap;
+ 	}
+ 
+-	fb_helper->fbdev = info;
++	fb_helper->info = info;
+ 	info->skip_vt_switch = true;
+ 
+ 	return info;
+@@ -621,8 +621,8 @@ EXPORT_SYMBOL(drm_fb_helper_alloc_fbi);
+  */
+ void drm_fb_helper_unregister_fbi(struct drm_fb_helper *fb_helper)
  {
-@@ -687,7 +666,7 @@ static void drm_fb_helper_damage(struct fb_info *info, u32 x, u32 y,
- 	struct drm_clip_rect *clip = &helper->damage_clip;
- 	unsigned long flags;
+-	if (fb_helper && fb_helper->fbdev)
+-		unregister_framebuffer(fb_helper->fbdev);
++	if (fb_helper && fb_helper->info)
++		unregister_framebuffer(fb_helper->info);
+ }
+ EXPORT_SYMBOL(drm_fb_helper_unregister_fbi);
  
--	if (!drm_fbdev_use_shadow_fb(helper))
-+	if (!helper->funcs->fb_dirty)
+@@ -647,13 +647,13 @@ void drm_fb_helper_fini(struct drm_fb_helper *fb_helper)
+ 	cancel_work_sync(&fb_helper->resume_work);
+ 	cancel_work_sync(&fb_helper->damage_work);
+ 
+-	info = fb_helper->fbdev;
++	info = fb_helper->info;
+ 	if (info) {
+ 		if (info->cmap.len)
+ 			fb_dealloc_cmap(&info->cmap);
+ 		framebuffer_release(info);
+ 	}
+-	fb_helper->fbdev = NULL;
++	fb_helper->info = NULL;
+ 
+ 	mutex_lock(&kernel_fb_helper_lock);
+ 	if (!list_empty(&fb_helper->kernel_fb_list)) {
+@@ -914,8 +914,8 @@ EXPORT_SYMBOL(drm_fb_helper_cfb_imageblit);
+  */
+ void drm_fb_helper_set_suspend(struct drm_fb_helper *fb_helper, bool suspend)
+ {
+-	if (fb_helper && fb_helper->fbdev)
+-		fb_set_suspend(fb_helper->fbdev, suspend);
++	if (fb_helper && fb_helper->info)
++		fb_set_suspend(fb_helper->info, suspend);
+ }
+ EXPORT_SYMBOL(drm_fb_helper_set_suspend);
+ 
+@@ -938,20 +938,20 @@ EXPORT_SYMBOL(drm_fb_helper_set_suspend);
+ void drm_fb_helper_set_suspend_unlocked(struct drm_fb_helper *fb_helper,
+ 					bool suspend)
+ {
+-	if (!fb_helper || !fb_helper->fbdev)
++	if (!fb_helper || !fb_helper->info)
  		return;
  
- 	spin_lock_irqsave(&helper->damage_lock, flags);
-@@ -2111,6 +2090,16 @@ void drm_fb_helper_output_poll_changed(struct drm_device *dev)
- }
- EXPORT_SYMBOL(drm_fb_helper_output_poll_changed);
+ 	/* make sure there's no pending/ongoing resume */
+ 	flush_work(&fb_helper->resume_work);
  
-+static bool drm_fbdev_use_shadow_fb(struct drm_fb_helper *fb_helper)
-+{
-+	struct drm_device *dev = fb_helper->dev;
-+	struct drm_framebuffer *fb = fb_helper->fb;
-+
-+	return dev->mode_config.prefer_shadow_fbdev ||
-+	       dev->mode_config.prefer_shadow ||
-+	       fb->funcs->dirty;
-+}
-+
- /* @user: 1=userspace, 0=fbcon */
- static int drm_fbdev_fb_open(struct fb_info *info, int user)
+ 	if (suspend) {
+-		if (fb_helper->fbdev->state != FBINFO_STATE_RUNNING)
++		if (fb_helper->info->state != FBINFO_STATE_RUNNING)
+ 			return;
+ 
+ 		console_lock();
+ 
+ 	} else {
+-		if (fb_helper->fbdev->state == FBINFO_STATE_RUNNING)
++		if (fb_helper->info->state == FBINFO_STATE_RUNNING)
+ 			return;
+ 
+ 		if (!console_trylock()) {
+@@ -960,7 +960,7 @@ void drm_fb_helper_set_suspend_unlocked(struct drm_fb_helper *fb_helper,
+ 		}
+ 	}
+ 
+-	fb_set_suspend(fb_helper->fbdev, suspend);
++	fb_set_suspend(fb_helper->info, suspend);
+ 	console_unlock();
+ }
+ EXPORT_SYMBOL(drm_fb_helper_set_suspend_unlocked);
+@@ -1850,7 +1850,7 @@ EXPORT_SYMBOL(drm_fb_helper_fill_info);
+ /*
+  * This is a continuation of drm_setup_crtcs() that sets up anything related
+  * to the framebuffer. During initialization, drm_setup_crtcs() is called before
+- * the framebuffer has been allocated (fb_helper->fb and fb_helper->fbdev).
++ * the framebuffer has been allocated (fb_helper->fb and fb_helper->info).
+  * So, any setup that touches those fields needs to be done here instead of in
+  * drm_setup_crtcs().
+  */
+@@ -1858,7 +1858,7 @@ static void drm_setup_crtcs_fb(struct drm_fb_helper *fb_helper)
  {
-@@ -2487,8 +2476,36 @@ static int drm_fb_helper_generic_probe(struct drm_fb_helper *fb_helper,
+ 	struct drm_client_dev *client = &fb_helper->client;
+ 	struct drm_connector_list_iter conn_iter;
+-	struct fb_info *info = fb_helper->fbdev;
++	struct fb_info *info = fb_helper->info;
+ 	unsigned int rotation, sw_rotations = 0;
+ 	struct drm_connector *connector;
+ 	struct drm_mode_set *modeset;
+@@ -1942,7 +1942,7 @@ __drm_fb_helper_initial_config_and_unlock(struct drm_fb_helper *fb_helper,
+ 
+ 	fb_helper->deferred_setup = false;
+ 
+-	info = fb_helper->fbdev;
++	info = fb_helper->info;
+ 	info->var.pixclock = 0;
+ 	/* Shamelessly allow physical address leaking to userspace */
+ #if IS_ENABLED(CONFIG_DRM_FBDEV_LEAK_PHYS_SMEM)
+@@ -2077,7 +2077,7 @@ int drm_fb_helper_hotplug_event(struct drm_fb_helper *fb_helper)
+ 	drm_setup_crtcs_fb(fb_helper);
+ 	mutex_unlock(&fb_helper->lock);
+ 
+-	drm_fb_helper_set_par(fb_helper->fbdev);
++	drm_fb_helper_set_par(fb_helper->info);
+ 
  	return 0;
  }
+@@ -2135,7 +2135,7 @@ static int drm_fbdev_fb_release(struct fb_info *info, int user)
  
-+static int drm_fbdev_fb_dirty(struct drm_fb_helper *helper, struct drm_clip_rect *clip)
-+{
-+	struct drm_device *dev = helper->dev;
-+	int ret;
-+
-+	if (!drm_fbdev_use_shadow_fb(helper))
-+		return 0;
-+
-+	/* Call damage handlers only if necessary */
-+	if (!(clip->x1 < clip->x2 && clip->y1 < clip->y2))
-+		return 0;
-+
-+	if (helper->buffer) {
-+		ret = drm_fb_helper_damage_blit(helper, clip);
-+		if (drm_WARN_ONCE(dev, ret, "Damage blitter failed: ret=%d\n", ret))
-+			return ret;
-+	}
-+
-+	if (helper->fb->funcs->dirty) {
-+		ret = helper->fb->funcs->dirty(helper->fb, NULL, 0, 0, clip, 1);
-+		if (drm_WARN_ONCE(dev, ret, "Dirty helper failed: ret=%d\n", ret))
-+			return ret;
-+	}
-+
-+	return 0;
-+}
-+
- static const struct drm_fb_helper_funcs drm_fb_helper_generic_funcs = {
- 	.fb_probe = drm_fb_helper_generic_probe,
-+	.fb_dirty = drm_fbdev_fb_dirty,
- };
+ static void drm_fbdev_cleanup(struct drm_fb_helper *fb_helper)
+ {
+-	struct fb_info *fbi = fb_helper->fbdev;
++	struct fb_info *fbi = fb_helper->info;
+ 	void *shadow = NULL;
  
- static void drm_fbdev_client_unregister(struct drm_client_dev *client)
+ 	if (!fb_helper->dev)
+@@ -2495,7 +2495,7 @@ static void drm_fbdev_client_unregister(struct drm_client_dev *client)
+ {
+ 	struct drm_fb_helper *fb_helper = drm_fb_helper_from_client(client);
+ 
+-	if (fb_helper->fbdev)
++	if (fb_helper->info)
+ 		/* drm_fbdev_fb_destroy() takes care of cleanup */
+ 		drm_fb_helper_unregister_fbi(fb_helper);
+ 	else
+@@ -2546,7 +2546,7 @@ static int drm_fbdev_client_hotplug(struct drm_client_dev *client)
+ 	drm_fbdev_cleanup(fb_helper);
+ err:
+ 	fb_helper->dev = NULL;
+-	fb_helper->fbdev = NULL;
++	fb_helper->info = NULL;
+ 
+ 	drm_err(dev, "fbdev: Failed to setup generic emulation (ret=%d)\n", ret);
+ 
+diff --git a/drivers/gpu/drm/i915/display/intel_fbdev.c b/drivers/gpu/drm/i915/display/intel_fbdev.c
+index ab385d18ddcc3..d533ecd451025 100644
+--- a/drivers/gpu/drm/i915/display/intel_fbdev.c
++++ b/drivers/gpu/drm/i915/display/intel_fbdev.c
+@@ -627,7 +627,7 @@ void intel_fbdev_set_suspend(struct drm_device *dev, int state, bool synchronous
+ 	if (!ifbdev || !ifbdev->vma)
+ 		goto set_suspend;
+ 
+-	info = ifbdev->helper.fbdev;
++	info = ifbdev->helper.info;
+ 
+ 	if (synchronous) {
+ 		/* Flush any pending work to turn the console on, and then
+diff --git a/drivers/gpu/drm/nouveau/nouveau_fbcon.c b/drivers/gpu/drm/nouveau/nouveau_fbcon.c
+index 3c7e0c9d6baf1..ac4bd529ae2e8 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_fbcon.c
++++ b/drivers/gpu/drm/nouveau/nouveau_fbcon.c
+@@ -231,9 +231,9 @@ void
+ nouveau_fbcon_accel_save_disable(struct drm_device *dev)
+ {
+ 	struct nouveau_drm *drm = nouveau_drm(dev);
+-	if (drm->fbcon && drm->fbcon->helper.fbdev) {
+-		drm->fbcon->saved_flags = drm->fbcon->helper.fbdev->flags;
+-		drm->fbcon->helper.fbdev->flags |= FBINFO_HWACCEL_DISABLED;
++	if (drm->fbcon && drm->fbcon->helper.info) {
++		drm->fbcon->saved_flags = drm->fbcon->helper.info->flags;
++		drm->fbcon->helper.info->flags |= FBINFO_HWACCEL_DISABLED;
+ 	}
+ }
+ 
+@@ -241,9 +241,8 @@ void
+ nouveau_fbcon_accel_restore(struct drm_device *dev)
+ {
+ 	struct nouveau_drm *drm = nouveau_drm(dev);
+-	if (drm->fbcon && drm->fbcon->helper.fbdev) {
+-		drm->fbcon->helper.fbdev->flags = drm->fbcon->saved_flags;
+-	}
++	if (drm->fbcon && drm->fbcon->helper.info)
++		drm->fbcon->helper.info->flags = drm->fbcon->saved_flags;
+ }
+ 
+ static void
+@@ -253,8 +252,8 @@ nouveau_fbcon_accel_fini(struct drm_device *dev)
+ 	struct nouveau_fbdev *fbcon = drm->fbcon;
+ 	if (fbcon && drm->channel) {
+ 		console_lock();
+-		if (fbcon->helper.fbdev)
+-			fbcon->helper.fbdev->flags |= FBINFO_HWACCEL_DISABLED;
++		if (fbcon->helper.info)
++			fbcon->helper.info->flags |= FBINFO_HWACCEL_DISABLED;
+ 		console_unlock();
+ 		nouveau_channel_idle(drm->channel);
+ 		nvif_object_dtor(&fbcon->twod);
+@@ -272,7 +271,7 @@ nouveau_fbcon_accel_init(struct drm_device *dev)
+ {
+ 	struct nouveau_drm *drm = nouveau_drm(dev);
+ 	struct nouveau_fbdev *fbcon = drm->fbcon;
+-	struct fb_info *info = fbcon->helper.fbdev;
++	struct fb_info *info = fbcon->helper.info;
+ 	int ret;
+ 
+ 	if (drm->client.device.info.family < NV_DEVICE_INFO_V0_TESLA)
+@@ -290,7 +289,7 @@ nouveau_fbcon_accel_init(struct drm_device *dev)
+ static void
+ nouveau_fbcon_zfill(struct drm_device *dev, struct nouveau_fbdev *fbcon)
+ {
+-	struct fb_info *info = fbcon->helper.fbdev;
++	struct fb_info *info = fbcon->helper.info;
+ 	struct fb_fillrect rect;
+ 
+ 	/* Clear the entire fbcon.  The drm will program every connector
+@@ -586,8 +585,8 @@ nouveau_fbcon_init(struct drm_device *dev)
+ 	if (ret)
+ 		goto fini;
+ 
+-	if (fbcon->helper.fbdev)
+-		fbcon->helper.fbdev->pixmap.buf_align = 4;
++	if (fbcon->helper.info)
++		fbcon->helper.info->pixmap.buf_align = 4;
+ 	return 0;
+ 
+ fini:
+diff --git a/drivers/gpu/drm/omapdrm/omap_fbdev.c b/drivers/gpu/drm/omapdrm/omap_fbdev.c
+index ed67dd25794c8..92d505be53e06 100644
+--- a/drivers/gpu/drm/omapdrm/omap_fbdev.c
++++ b/drivers/gpu/drm/omapdrm/omap_fbdev.c
+@@ -38,7 +38,7 @@ static struct drm_fb_helper *get_fb(struct fb_info *fbi);
+ static void pan_worker(struct work_struct *work)
+ {
+ 	struct omap_fbdev *fbdev = container_of(work, struct omap_fbdev, work);
+-	struct fb_info *fbi = fbdev->base.fbdev;
++	struct fb_info *fbi = fbdev->base.info;
+ 	int npages;
+ 
+ 	/* DMM roll shifts in 4K pages: */
+diff --git a/drivers/gpu/drm/tegra/fb.c b/drivers/gpu/drm/tegra/fb.c
+index bce71c0ccc9ef..6fe24535d0e43 100644
+--- a/drivers/gpu/drm/tegra/fb.c
++++ b/drivers/gpu/drm/tegra/fb.c
+@@ -261,7 +261,7 @@ static int tegra_fbdev_probe(struct drm_fb_helper *helper,
+ 
+ 	fb = fbdev->fb;
+ 	helper->fb = fb;
+-	helper->fbdev = info;
++	helper->info = info;
+ 
+ 	info->fbops = &tegra_fb_ops;
+ 
 diff --git a/include/drm/drm_fb_helper.h b/include/drm/drm_fb_helper.h
-index edc697a2fde24..3d7a3d68dab8a 100644
+index e923089522896..d83e2d8e92eb9 100644
 --- a/include/drm/drm_fb_helper.h
 +++ b/include/drm/drm_fb_helper.h
-@@ -30,6 +30,7 @@
- #ifndef DRM_FB_HELPER_H
- #define DRM_FB_HELPER_H
- 
-+struct drm_clip_rect;
- struct drm_fb_helper;
- 
- #include <linux/fb.h>
-@@ -89,6 +90,20 @@ struct drm_fb_helper_funcs {
- 	 */
- 	int (*fb_probe)(struct drm_fb_helper *helper,
- 			struct drm_fb_helper_surface_size *sizes);
-+
-+	/**
-+	 * @fb_dirty:
-+	 *
-+	 * Driver callback to update the framebuffer memory. If set, fbdev
-+	 * emulation will invoke this callback in regular intervals after
-+	 * the framebuffer has been written.
-+	 *
-+	 * This callback is optional.
-+	 *
-+	 * Returns:
-+	 * 0 on success, or an error code otherwise.
-+	 */
-+	int (*fb_dirty)(struct drm_fb_helper *helper, struct drm_clip_rect *clip);
- };
- 
- /**
+@@ -96,7 +96,7 @@ struct drm_fb_helper_funcs {
+  * @fb: Scanout framebuffer object
+  * @dev: DRM device
+  * @funcs: driver callbacks for fb helper
+- * @fbdev: emulated fbdev device info struct
++ * @info: emulated fbdev device info struct
+  * @pseudo_palette: fake palette of 16 colors
+  * @damage_clip: clip rectangle used with deferred_io to accumulate damage to
+  *                the screen buffer
+@@ -127,7 +127,7 @@ struct drm_fb_helper {
+ 	struct drm_framebuffer *fb;
+ 	struct drm_device *dev;
+ 	const struct drm_fb_helper_funcs *funcs;
+-	struct fb_info *fbdev;
++	struct fb_info *info;
+ 	u32 pseudo_palette[17];
+ 	struct drm_clip_rect damage_clip;
+ 	spinlock_t damage_lock;
 -- 
 2.38.0
 
