@@ -1,113 +1,61 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E2148C4332F
-	for <virtualization@archiver.kernel.org>; Tue,  8 Nov 2022 10:34:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A4548C4332F
+	for <virtualization@archiver.kernel.org>; Tue,  8 Nov 2022 12:31:58 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 7F66860D5E;
-	Tue,  8 Nov 2022 10:34:50 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7F66860D5E
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=CVy8Xvpd
+	by smtp4.osuosl.org (Postfix) with ESMTP id 22C68408C5;
+	Tue,  8 Nov 2022 12:31:58 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 22C68408C5
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id oOjDvftFDCWX; Tue,  8 Nov 2022 10:34:49 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 14CCA600B5;
-	Tue,  8 Nov 2022 10:34:49 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 14CCA600B5
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ldbSE5lS6Xiw; Tue,  8 Nov 2022 12:31:56 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id A434440425;
+	Tue,  8 Nov 2022 12:31:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A434440425
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E519EC0032;
-	Tue,  8 Nov 2022 10:34:48 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 052FBC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7D26BC0032;
+	Tue,  8 Nov 2022 12:31:55 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E5474C002D
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Nov 2022 10:34:47 +0000 (UTC)
+ Tue,  8 Nov 2022 12:31:53 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id C304440165
+ by smtp1.osuosl.org (Postfix) with ESMTP id C02A181414
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Nov 2022 10:34:46 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C304440165
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=CVy8Xvpd
+ Tue,  8 Nov 2022 12:31:53 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C02A181414
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id gHiYHU1JnXVf
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id KBcJe68JDTwj
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Nov 2022 10:34:46 +0000 (UTC)
+ Tue,  8 Nov 2022 12:31:52 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1C173402DC
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 1C173402DC
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E2A1B81420
+Received: from s052d7dde.fastvps-server.com (s052d7dde.fastvps-server.com
+ [IPv6:2a03:f480:1:14::7d])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id E2A1B81420
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Nov 2022 10:34:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1667903685;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=jnEQ/6uclYdSedN00zhcPF82VnGpN8n10b9g5MbTnn0=;
- b=CVy8Xvpd6yVBllRxXHMwaZkOzymHzFbHcH6mapNZQS5O62Ey4U0Mmo5Rj1gOsyGgXjB9k9
- cJNZl9WvQ2J8mp4tIEltPFPdga97qUKKxexRZPX9jlga75qDq7Zc+OCH1Yf6cRP3noy/fp
- GE6AF5u3m5RVsVfWbIwkz2wanUZR94s=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-642-fdLwhOLoOiaLnI6l7yMIkA-1; Tue, 08 Nov 2022 05:34:44 -0500
-X-MC-Unique: fdLwhOLoOiaLnI6l7yMIkA-1
-Received: by mail-wr1-f69.google.com with SMTP id
- l16-20020adfc790000000b00230c2505f96so3807738wrg.4
- for <virtualization@lists.linux-foundation.org>;
- Tue, 08 Nov 2022 02:34:43 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=content-transfer-encoding:mime-version:references:in-reply-to
- :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
- :subject:date:message-id:reply-to;
- bh=jnEQ/6uclYdSedN00zhcPF82VnGpN8n10b9g5MbTnn0=;
- b=XdWK9o/BKPryhMru6U8V06CnYHf6Cem4WWFWBh/LX8IXiAn7+O5vJEvTSU89YMvP7T
- b9hgNarKEitcHwAoGnyAEInbVXKG5TQumb8z1EMSJ2mxDMOPYnvm1NiN8My7mRH3jqYv
- JV5jsu7AYQHnvyDuLXqhassMt7eg1pVuWMWVvb+T5xzv12l0VM8cjjbAVv5K3WqlQ0fp
- xkQ6TkazPJsbbTknzaDTmtzK7OY5kybSvhNHS92od9eMvPJcG4wSFY7qEM6mUGzgeaXt
- 7vJNfD5mwiZy4QbU3QbIyhujIVCWBUL+4w/7jP/4i/TAjToNVhD9d7/9PkrYIYHtkRWu
- GjOw==
-X-Gm-Message-State: ACrzQf3XSdqy1GIX0zGWkofyvaNwjRuDMZ2alxShqh1B97NXlby+YDx6
- Yyk7j49ljTPXTcjgIfF3qluaaOOFAPvL8IccQggPnqo3dIvT4n5XX3ynD+EEaiWVr9/O7KWbM9B
- Gy1BfbxVOJC2Vuk/LnkaaL7jSlwWn2VaMGoW1cpuuiXK+yJsqmEeKFPld78ylV0YQ4AyncGHbZc
- Rmm1M0GP2O+hO6GhWClg==
-X-Received: by 2002:adf:f303:0:b0:236:d1c0:79dc with SMTP id
- i3-20020adff303000000b00236d1c079dcmr29615260wro.695.1667903682525; 
- Tue, 08 Nov 2022 02:34:42 -0800 (PST)
-X-Google-Smtp-Source: AMsMyM60F4oRwRyS4YKIr5SpakIIdGyqUKYKutX+9xZI1DBbeFzrSYNiUGX7Pq6GFACc6ESaUV3XiQ==
-X-Received: by 2002:adf:f303:0:b0:236:d1c0:79dc with SMTP id
- i3-20020adff303000000b00236d1c079dcmr29615240wro.695.1667903682285; 
- Tue, 08 Nov 2022 02:34:42 -0800 (PST)
-Received: from step1.redhat.com (host-82-53-134-234.retail.telecomitalia.it.
- [82.53.134.234]) by smtp.gmail.com with ESMTPSA id
- m11-20020a5d4a0b000000b0022ca921dc67sm9632802wrq.88.2022.11.08.02.34.40
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 08 Nov 2022 02:34:41 -0800 (PST)
-From: Stefano Garzarella <sgarzare@redhat.com>
+ Tue,  8 Nov 2022 12:31:51 +0000 (UTC)
+Received: from [193.136.145.233] (helo=LAPTOP-EPOV2LRR)
+ by s052d7dde.fastvps-server.com with esmtpsa
+ (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256) (Exim 4.89)
+ (envelope-from <cisti@saisti.eu>) id 1osNMD-0003LT-Pa
+ for virtualization@lists.linux-foundation.org; Tue, 08 Nov 2022 15:05:33 +0300
+From: "CISTI-2023" <marialemos72@gmail.com>
+Subject: CISTI'2023 - Call for Workshops Proposals | Aveiro, Portugal
 To: virtualization@lists.linux-foundation.org
-Subject: [PATCH 2/2] vhost: fix range used in translate_desc()
-Date: Tue,  8 Nov 2022 11:34:37 +0100
-Message-Id: <20221108103437.105327-3-sgarzare@redhat.com>
-X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108103437.105327-1-sgarzare@redhat.com>
-References: <20221108103437.105327-1-sgarzare@redhat.com>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Date: Tue, 8 Nov 2022 12:05:33 +0000
+Message-ID: <1715262403343@gmail-com>
+X-Antivirus: AVG (VPS 221107-8, 7/11/2022), Outbound message
+X-Antivirus-Status: Clean
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,63 +67,344 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Reply-To: cistiforever@gmail.com
+Content-Type: multipart/mixed; boundary="===============3389136954397782002=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-vhost_iotlb_itree_first() requires `start` and `last` parameters
-to search for a mapping that overlaps the range.
+This is a multi-part message in MIME format
 
-In translate_desc() we cyclically call vhost_iotlb_itree_first(),
-incrementing `addr` by the amount already translated, so rightly
-we move the `start` parameter passed to vhost_iotlb_itree_first(),
-but we should hold the `last` parameter constant.
+--===============3389136954397782002==
+Content-Type: multipart/alternative; charset=utf-8; boundary="EEt=_iTUQooRO6GGxsv9uzVLm8b6Z8YBIB"
 
-Let's fix it by saving the `last` parameter value before incrementing
-`addr` in the loop.
+This is a multi-part message in MIME format
 
-Fixes: 0bbe30668d89 ("vhost: factor out IOTLB")
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
----
+--EEt=_iTUQooRO6GGxsv9uzVLm8b6Z8YBIB
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-I'm not sure about the fixes tag. On the one I used this patch should
-apply cleanly, but looking at the latest stable (4.9), maybe we should
-use
+* Google Scholar H5-Index =3D 22
 
-Fixes: a9709d6874d5 ("vhost: convert pre sorted vhost memory array to interval tree")
+* Indexed in Scopus, WoS, Inspec, Google Scholar, etc.
 
-Suggestions?
----
- drivers/vhost/vhost.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 40097826cff0..3c2359570df9 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -2053,7 +2053,7 @@ static int translate_desc(struct vhost_virtqueue *vq, u64 addr, u32 len,
- 	struct vhost_dev *dev = vq->dev;
- 	struct vhost_iotlb *umem = dev->iotlb ? dev->iotlb : dev->umem;
- 	struct iovec *_iov;
--	u64 s = 0;
-+	u64 s = 0, last = addr + len - 1;
- 	int ret = 0;
+
+
+------------------------------ CALL for WORKSHOPS PROPOSALS ---------------=
+---------------   --------- 
+CISTI'2023 - 18th Iberian Conference on Information Systems and Technologie=
+s 
+
+20 - 23 June 2023, Aveiro Portugal
+
+http://www.cisti.eu/ <https://mkt.saisti.eu/go/b036bc6beb-5-02a81a5af91161f=
+81b8a97917c50ec7f8491211eje2OOTeUcske2ce5dz>
+
+------------------------------   ------------------------------   ---------=
+---------------------   ----------------------------- 
+
+
+
+Workshop Format
+
+The Information Systems and Technologies research and industrial community =
+is invited to submit proposals of Workshops for CISTI 2023 =E2=80=93 18th I=
+berian Conference on Information Systems and Technologies to be held in Ave=
+iro, Portugal, June 20=E2=80=9323, 2023. Two types of Workshops may be prop=
+osed: Regular Workshops and Project Workshops.
+
+Regular Workshops should focus on a specific scientific subject on the scop=
+e of CISTI 2023 but not directly included on the main conference areas. Eac=
+h regular workshop will be coordinated by an Organizing Committee composed =
+of, at least, two researchers in the field, preferably from different insti=
+tutions and different countries. The organizers should create an internatio=
+nal Program Committee for the Workshop, with recognized researchers within =
+the specific Workshop scientific area. Each workshop should have at least 1=
+0 submissions and 5 accepted papers in order to be conducted at CISTI.
+
+Project Workshops are intended to promote the dissemination and facilitate =
+the future exploitation of EU Latin-American and national project results s=
+uch as EU/FP7, EU/Horizon, CSIC, FCT, QREN, Portugal 2020, Fund. Gulbenkian=
+, CYTED, CAPES, CNPq, FINEP and other Projects/funding sources. The results=
+ to be disseminated may be preliminary project results (for unfinished proj=
+ects) or the project final results (for already finished projects). Each pr=
+oject workshop should be directly related to a Project funded in a competit=
+ive manner by a National/International Science Organization. The Workshop s=
+hould be coordinated by an Organizing Committee composed by at least two re=
+searchers including the Principal Investigator of the project. Each Worksho=
+p will have 1 article offered for 10 articles with paid registration, 2 art=
+icles offered for 20 articles with paid registration, and 3 articles offere=
+d for 40 articles with paid registration. The selection of Workshops will b=
+e performed by CISTI 2022 Conference Chairs. Workshops full papers will be =
+published in the conference main proceedings in specific Workshop chapters.=
+ Proceedings will be submitted for indexation by WoS, SCOPUS, EI-Conpendex,=
+ INSPEC and Google Scholar. Detailed and up-to-date information may be foun=
+d at CISTI 2023 website: http://www.cisti.eu/ <https://mkt.saisti.eu/go/b03=
+6bc6beb-5-02a81a5af91161f81b8a97917c50ec7f8491211eje2OOTeUcske2ce5tG>.
+
  
- 	while ((u64)len > s) {
-@@ -2063,7 +2063,7 @@ static int translate_desc(struct vhost_virtqueue *vq, u64 addr, u32 len,
- 			break;
- 		}
+
+Workshop Organization 
+
+The Organizing Committee of each Workshop will be responsible for:
+
+* Producing and distributing the Workshop Call for Papers (CFP); 
+* Coordinating the review and selection process for the papers submitted to=
+ the Workshop, as Workshop chairs (on the paper submission system installed=
+ for all the Workshops); 
+* Delivering the final versions of the papers accepted for the Workshop in =
+accordance with the guidelines and deadlines defined by CISTI 2023 organize=
+rs; 
+* Coordinating and chairing the Workshop sessions at the conference. 
+
+
+CISTI 2023 organizers reserve the right to cancel any Workshop if deadlines=
+ are missed or if the number of registered attendees is too low to support =
+the costs associated with the Workshop.
+
  
--		map = vhost_iotlb_itree_first(umem, addr, addr + len - 1);
-+		map = vhost_iotlb_itree_first(umem, addr, last);
- 		if (map == NULL || map->start > addr) {
- 			if (umem != dev->iotlb) {
- 				ret = -EFAULT;
+
+Proposal Contents
+
+Regular Workshop proposals should contain the following information:
+
+* Workshop title; 
+* Brief description of the specific scientific scope of the Workshop; 
+* List of topics of interest (max 15 topics); 
+* Reasons the Workshop should be held within CISTI=E2=80=992023; 
+* Name, postal address, phone and email of all the members of the Workshop =
+Organizing Committee; 
+* Proposal for the Workshop Program Committee (Names and affiliations). 
+
+
+Project Workshop proposals should contain the following information:
+
+* Workshop title; 
+* Project Title, Reference, Principal Investigator, Funding Organization, T=
+otal Funding, Consortium, Abstract and Objectives; 
+* Reasons the Workshop should be held within CISTI=E2=80=992023; 
+* Name, postal address, phone and email of all the members of the Workshop =
+Organizing Committee. 
+
+
+Proposals should be submitted electronically (in Word or compatible format)=
+ at https://easychair.org/   conferences/?conf=3D   cisti2023workshops, in =
+English, Portuguese and/or Spanish, by November 13, 2022. 
+ 
+
+Important Dates
+
+* Deadline for Workshop proposals: November 13, 2022 
+* Notification of Workshop acceptance: November 20, 2022 
+* Deadline for paper submission: February 26, 2023 
+* Notification of paper acceptance: March 26, 2023 
+* Deadline for final versions and conference registration: April 9, 2023 
+* Deadline for Workshop final papers delivery to CISTI organizers: April 9,=
+ 2023 
+* Conference dates: June 20-23, 2023 
+
+
+
+
+
+Website of CISTI'2023: http://cisti.eu/ <http://cisti.eu/>
+
+ 
+
+ 
+
+
 -- 
-2.38.1
+This email has been checked for viruses by AVG antivirus software.
+www.avg.com
+--EEt=_iTUQooRO6GGxsv9uzVLm8b6Z8YBIB
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+<html>
+  <head>
+    <title></title>
+    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content-Type=
+" />
+  </head>
+  <body>
+    <p>* Google Scholar H5-Index =3D 22</p>
+    <p>* Indexed in Scopus, WoS, Inspec, Google Scholar, etc.</p>
+    <p><br /></p>
+    <p>------------------------------ CALL for WORKSHOPS PROPOSALS --------=
+---------------------- 
+      <wbr>&nbsp;</wbr>&nbsp;--------- 
+    </p>
+    <p style=3D"text-align: justify"><strong><span class=3D"il">CISTI</span=
+>'2023 - 18th Iberian Conference on Information Systems and Technologies </=
+strong></p>
+    <p style=3D"text-align: justify"><strong>20 - 23 June 2023, Aveiro Port=
+ugal</strong></p>
+    <p style=3D"text-align: justify"><a href=3D"https://mkt.saisti.eu/go/b0=
+36bc6beb-5-02a81a5af91161f81b8a97917c50ec7f8491211eje2OOTeUcske2ce5dz" targ=
+et=3D"_blank" data-saferedirecturl=3D"https://www.google.com/url?q=3Dhttps:=
+//mkt.saisti.eu/go/b036bc6beb-5-02a81a5af91161f81b8a97917c50ec7f8491211eje2=
+OOTeUcske2ce5dz&source=3Dgmail&ust=3D1666544629243000&usg=3DAOvVaw1t9xXBX2F=
+w1TZ9qxmhc3lM"><strong>http://www.<span class=3D"il">cisti</span>.eu/</stro=
+ng></a></p>
+    <p>------------------------------ 
+      <wbr>&nbsp;</wbr>&nbsp;------------------------------ 
+      <wbr>&nbsp;</wbr>&nbsp;------------------------------ 
+      <wbr>&nbsp;</wbr>&nbsp;----------------------------- 
+    </p>
+    <p><br /></p>
+    <div id=3D"m_8809540778002605420isPasted">
+      <p><strong>Workshop Format</strong></p>
+      <p>The Information Systems and Technologies research and industrial c=
+ommunity is invited to submit proposals of Workshops for <span class=3D"il"=
+>CISTI</span> 2023 &ndash; 18th Iberian Conference on Information Systems a=
+nd Technologies to be held in Aveiro, Portugal, June 20&ndash;23, 2023. Two=
+ types of Workshops may be proposed: Regular Workshops and Project Workshop=
+s.</p>
+      <p>Regular Workshops should focus on a specific scientific subject on=
+ the scope of <span class=3D"il">CISTI</span> 2023 but not directly include=
+d on the main conference areas. Each regular workshop will be coordinated b=
+y an Organizing Committee composed of, at least, two researchers in the fie=
+ld, preferably from different institutions and different countries. The org=
+anizers should create an international Program Committee for the Workshop, =
+with recognized researchers within the specific Workshop scientific area. E=
+ach workshop should have at least 10 submissions and 5 accepted papers in o=
+rder to be conducted at <span class=3D"il">CISTI</span>.</p>
+      <p>Project Workshops are intended to promote the dissemination and fa=
+cilitate the future exploitation of EU Latin-American and national project =
+results such as EU/FP7, EU/Horizon, CSIC, FCT, QREN, Portugal 2020, Fund. G=
+ulbenkian, CYTED, CAPES, CNPq, FINEP and other Projects/funding sources. Th=
+e results to be disseminated may be preliminary project results (for unfini=
+shed projects) or the project final results (for already finished projects)=
+=2E Each project workshop should be directly related to a Project funded in=
+ a competitive manner by a National/International Science Organization. The=
+ Workshop should be coordinated by an Organizing Committee composed by at l=
+east two researchers including the Principal Investigator of the project. E=
+ach Workshop will have 1 article offered for 10 articles with paid registra=
+tion, 2 articles offered for 20 articles with paid registration, and 3 arti=
+cles offered for 40 articles with paid registration. The selection of Works=
+hops will be performed by <span class=3D"il">CISTI</span> 2022 Conference C=
+hairs. Workshops full papers will be published in the conference main proce=
+edings in specific Workshop chapters. Proceedings will be submitted for ind=
+exation by WoS, SCOPUS, EI-Conpendex, INSPEC and Google Scholar. Detailed a=
+nd up-to-date information may be found at <span class=3D"il">CISTI</span> 2=
+023 website: <a href=3D"https://mkt.saisti.eu/go/b036bc6beb-5-02a81a5af9116=
+1f81b8a97917c50ec7f8491211eje2OOTeUcske2ce5tG" target=3D"_blank" data-safer=
+edirecturl=3D"https://www.google.com/url?q=3Dhttps://mkt.saisti.eu/go/b036b=
+c6beb-5-02a81a5af91161f81b8a97917c50ec7f8491211eje2OOTeUcske2ce5tG&source=
+=3Dgmail&ust=3D1666544629243000&usg=3DAOvVaw0Ni2aMuAVg2B9PPYno9uDB">http://=
+www.<span class=3D"il">cisti</span>.eu/</a>.</p>
+      <p>&nbsp;</p>
+      <p><strong>Workshop Organization&nbsp;</strong></p>
+      <p>The Organizing Committee of each Workshop will be responsible for:=
+</p>
+      <ul>
+        <li>Producing and distributing the Workshop Call for Papers (CFP); =
+</li>
+        <li>Coordinating the review and selection process for the papers su=
+bmitted to the Workshop, as Workshop chairs (on the paper submission system=
+ installed for all the Workshops); </li>
+        <li>Delivering the final versions of the papers accepted for the Wo=
+rkshop in accordance with the guidelines and deadlines defined by <span cla=
+ss=3D"il">CISTI</span> 2023 organizers; </li>
+        <li>Coordinating and chairing the Workshop sessions at the conferen=
+ce. </li>
+      </ul>
+      <p><span class=3D"il">CISTI</span> 2023 organizers reserve the right =
+to cancel any Workshop if deadlines are missed or if the number of register=
+ed attendees is too low to support the costs associated with the Workshop.<=
+/p>
+      <p>&nbsp;</p>
+      <p><strong>Proposal Contents</strong></p>
+      <p>Regular Workshop proposals should contain the following informatio=
+n:</p>
+      <ul>
+        <li>Workshop title; </li>
+        <li>Brief description of the specific scientific scope of the Works=
+hop; </li>
+        <li>List of topics of interest (max 15 topics); </li>
+        <li>Reasons the Workshop should be held within <span class=3D"il">C=
+ISTI</span>&rsquo;2023; </li>
+        <li>Name, postal address, phone and email of all the members of the=
+ Workshop Organizing Committee; </li>
+        <li>Proposal for the Workshop Program Committee (Names and affiliat=
+ions). </li>
+      </ul>
+      <p>Project Workshop proposals should contain the following informatio=
+n:</p>
+      <ul>
+        <li>Workshop title; </li>
+        <li>Project Title, Reference, Principal Investigator, Funding Organ=
+ization, Total Funding, Consortium, Abstract and Objectives; </li>
+        <li>Reasons the Workshop should be held within <span class=3D"il">C=
+ISTI</span>&rsquo;2023; </li>
+        <li>Name, postal address, phone and email of all the members of the=
+ Workshop Organizing Committee. </li>
+      </ul>
+      <p>Proposals should be submitted electronically (in Word or compatibl=
+e format) at <a href=3D"https://mkt.saisti.eu/go/b036bc6beb-5-02a81a5af9116=
+1f81b8a97917c50ec7f8491211eje2OOTeUcske2ce5tH" rel=3D"noopener noreferrer" =
+target=3D"_blank" data-saferedirecturl=3D"https://www.google.com/url?q=3Dht=
+tps://mkt.saisti.eu/go/b036bc6beb-5-02a81a5af91161f81b8a97917c50ec7f8491211=
+eje2OOTeUcske2ce5tH&source=3Dgmail&ust=3D1666544629243000&usg=3DAOvVaw1rU1O=
+xi1aPOxRjIe46t_Mk">https://easychair.org/ 
+          <wbr>&nbsp;</wbr>&nbsp;conferences/?conf=3D 
+          <wbr>&nbsp;</wbr>&nbsp;cisti2023workshops</a>, in English, Portug=
+uese and/or Spanish, by November 13, 2022. 
+      </p>
+      <p>&nbsp;</p>
+      <p><strong>Important Dates</strong></p>
+      <ul>
+        <li>Deadline for Workshop proposals: November 13, 2022 </li>
+        <li>Notification of Workshop acceptance: November 20, 2022 </li>
+        <li>Deadline for paper submission: February 26, 2023 </li>
+        <li>Notification of paper acceptance: March 26, 2023 </li>
+        <li>Deadline for final versions and conference registration: April =
+9, 2023 </li>
+        <li>Deadline for Workshop final papers delivery to <span class=3D"i=
+l">CISTI</span> organizers: April 9, 2023 </li>
+        <li>Conference dates: June 20-23, 2023 </li>
+      </ul>
+      <p><br /></p>
+      <p><strong>Website of <span class=3D"il">CISTI</span>'2023: </strong>=
+<a id=3D"m_8809540778002605420isPasted" href=3D"http://cisti.eu/" target=3D=
+"_blank" data-saferedirecturl=3D"https://www.google.com/url?q=3Dhttps://mkt=
+=2Esaisti.eu/go/b036bc6beb-5-02a81a5af91161f81b8a97917c50ec7f8491211eje2OOT=
+eUcske2ce5sK&source=3Dgmail&ust=3D1666544629243000&usg=3DAOvVaw1UV1sA6HROkv=
+GACZFf9i6J"><strong>http://<span class=3D"il">cisti</span>.eu/</strong></a>=
+</p>
+      <p>&nbsp;</p>
+      <p>&nbsp;</p>
+    </div>
+  <div id=3D"DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2"><br /><table style=3D"bo=
+rder-top: 1px solid #D3D4DE;"><tr><td style=3D"width: 55px; padding-top: 13=
+px;"><a href=3D"http://www.avg.com/email-signature?utm_medium=3Demail&utm_s=
+ource=3Dlink&utm_campaign=3Dsig-email&utm_content=3Demailclient" target=3D"=
+_blank"><img src=3D"https://s-install.avcdn.net/ipm/preview/icons/icon-enve=
+lope-tick-green-avg-v1.png" alt=3D"" width=3D"46" height=3D"29" style=3D"wi=
+dth: 46px; height: 29px;"/></a></td><td style=3D"width: 470px; padding-top:=
+ 12px; color: #41424e; font-size: 13px; font-family: Arial, Helvetica, sans=
+-serif; line-height: 18px;">Virus-free.<a href=3D"http://www.avg.com/email-=
+signature?utm_medium=3Demail&utm_source=3Dlink&utm_campaign=3Dsig-email&utm=
+_content=3Demailclient" target=3D"_blank" style=3D"color: #4453ea;">www.avg=
+=2Ecom</a></td></tr></table><a href=3D"#DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF=
+2" width=3D"1" height=3D"1"> </a></div></body>
+</html>
+
+--EEt=_iTUQooRO6GGxsv9uzVLm8b6Z8YBIB--
+
+
+--===============3389136954397782002==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============3389136954397782002==--
+
