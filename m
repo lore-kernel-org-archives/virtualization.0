@@ -1,61 +1,101 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A4548C4332F
-	for <virtualization@archiver.kernel.org>; Tue,  8 Nov 2022 12:31:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8758EC4332F
+	for <virtualization@archiver.kernel.org>; Tue,  8 Nov 2022 12:54:05 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 22C68408C5;
-	Tue,  8 Nov 2022 12:31:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 22C68408C5
+	by smtp2.osuosl.org (Postfix) with ESMTP id E5881408C4;
+	Tue,  8 Nov 2022 12:54:04 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E5881408C4
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=solid-run-com.20210112.gappssmtp.com header.i=@solid-run-com.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=GZ5YqgbZ
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ldbSE5lS6Xiw; Tue,  8 Nov 2022 12:31:56 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id A434440425;
-	Tue,  8 Nov 2022 12:31:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A434440425
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id C-tIPCvunVYU; Tue,  8 Nov 2022 12:54:03 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 22274401A0;
+	Tue,  8 Nov 2022 12:54:03 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 22274401A0
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 7D26BC0032;
-	Tue,  8 Nov 2022 12:31:55 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id ED494C0032;
+	Tue,  8 Nov 2022 12:54:02 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E5474C002D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 51F69C002D
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Nov 2022 12:31:53 +0000 (UTC)
+ Tue,  8 Nov 2022 12:54:01 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id C02A181414
+ by smtp1.osuosl.org (Postfix) with ESMTP id 19D018144D
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Nov 2022 12:31:53 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C02A181414
+ Tue,  8 Nov 2022 12:54:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 19D018144D
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (2048-bit key) header.d=solid-run-com.20210112.gappssmtp.com
+ header.i=@solid-run-com.20210112.gappssmtp.com header.a=rsa-sha256
+ header.s=20210112 header.b=GZ5YqgbZ
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id KBcJe68JDTwj
+ with ESMTP id FOujjRMPjQ_7
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Nov 2022 12:31:52 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E2A1B81420
-Received: from s052d7dde.fastvps-server.com (s052d7dde.fastvps-server.com
- [IPv6:2a03:f480:1:14::7d])
- by smtp1.osuosl.org (Postfix) with ESMTPS id E2A1B81420
+ Tue,  8 Nov 2022 12:54:00 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D257C81446
+Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com
+ [IPv6:2a00:1450:4864:20::42e])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id D257C81446
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Nov 2022 12:31:51 +0000 (UTC)
-Received: from [193.136.145.233] (helo=LAPTOP-EPOV2LRR)
- by s052d7dde.fastvps-server.com with esmtpsa
- (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256) (Exim 4.89)
- (envelope-from <cisti@saisti.eu>) id 1osNMD-0003LT-Pa
- for virtualization@lists.linux-foundation.org; Tue, 08 Nov 2022 15:05:33 +0300
-From: "CISTI-2023" <marialemos72@gmail.com>
-Subject: CISTI'2023 - Call for Workshops Proposals | Aveiro, Portugal
+ Tue,  8 Nov 2022 12:53:59 +0000 (UTC)
+Received: by mail-wr1-x42e.google.com with SMTP id y16so20779000wrt.12
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 08 Nov 2022 04:53:59 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=solid-run-com.20210112.gappssmtp.com; s=20210112;
+ h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+ :to:from:from:to:cc:subject:date:message-id:reply-to;
+ bh=eee7MT2jIHMznqm8t3UOQsGz/HPqU0t1B/ZFn9oHnd4=;
+ b=GZ5YqgbZNKn+fSu1sT/0D+4VbhmAkcPnGGz2lAP64kMxrxnUw2F9bHuFfAN+cyIbGR
+ Mvk3WbjGSXqlsqCL4T8PYpAXUSes5IhGqlN/UEPjs1C+mId/4QQchC2QEhvFO3c27TB7
+ secLoNQabp2LNLKQhqRyUoUQHfAjzBDgy39aVtWFOfhhofh/d3FNx9u8PZNJz0g8NOlt
+ 2gFmhACwAXfZYEBVoyDdB2/zBdZQv8ym9cVaxA3CI2l7gxyxkt73yCwFoq87HkXEFWR9
+ 0ghrUBt9op0HCHMGNxpuTPnRKhOKVLaV2bUHEIyD7WC304NP1iOt84Z2Sf0joHDpVdxg
+ H2oQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+ :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+ :reply-to;
+ bh=eee7MT2jIHMznqm8t3UOQsGz/HPqU0t1B/ZFn9oHnd4=;
+ b=mj4lTf8jXL4q/Y+qH3iqY/4zkDwIoXz00TI56NSS3kjBn/hSl+cyVq0cLBzT0zbTtT
+ fHeLpKUUhatq+XkY9ZxR2HnwUBLS5i6BQzMrdHqca095j1zzmCVCVKkIFzjT/JcpjgeQ
+ wbF+Mr/91RIGUg/D2Uyo2INc8uO3qUoOXpymxM7qbOqrY2kjeYVq78S+qo5y6suF2XOD
+ 2bVx6yjpyiabrcl3yl+QT2Y4C4Bn593YdlpGC+edhbE+3SLqAZFfaXb+Ua+cyGsAT7up
+ xqx88LkT7D8o2ejE0/pgcJtMzRhJlgjSHCJg9liAl2i13p6Xr/dqH4Y5mzYkJP0T2MsH
+ qwWg==
+X-Gm-Message-State: ACrzQf01lQ3qx8BtsbunkOVnppeVM+W7uZIFQsMA/fNEaY+R9mbkFTbe
+ TPvZzYX2hWuxDZ786yvOF9PtAL10FrajVH04
+X-Google-Smtp-Source: AMsMyM5FTgssj45lsfaaPsa7XFV14t4KTNeAfNxSXeQBc/A83F/OKWultiA/5+6Mr2kW5+rUfAIhNA==
+X-Received: by 2002:a05:6000:118c:b0:236:bc26:7e0d with SMTP id
+ g12-20020a056000118c00b00236bc267e0dmr32802724wrx.662.1667912037692; 
+ Tue, 08 Nov 2022 04:53:57 -0800 (PST)
+Received: from localhost.localdomain
+ (bzq-84-110-153-254.static-ip.bezeqint.net. [84.110.153.254])
+ by smtp.gmail.com with ESMTPSA id
+ m1-20020a7bca41000000b003c6c3fb3cf6sm11138786wml.18.2022.11.08.04.53.56
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 08 Nov 2022 04:53:57 -0800 (PST)
+From: Alvaro Karsz <alvaro.karsz@solid-run.com>
 To: virtualization@lists.linux-foundation.org
+Subject: [PATCH] virtio_blk: add VIRTIO_BLK_F_LIFETIME feature support
+Date: Tue,  8 Nov 2022 14:53:53 +0200
+Message-Id: <20221108125354.898722-1-alvaro.karsz@solid-run.com>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-Date: Tue, 8 Nov 2022 12:05:33 +0000
-Message-ID: <1715262403343@gmail-com>
-X-Antivirus: AVG (VPS 221107-8, 7/11/2022), Outbound message
-X-Antivirus-Status: Clean
+Cc: Jens Axboe <axboe@kernel.dk>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -67,344 +107,267 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Reply-To: cistiforever@gmail.com
-Content-Type: multipart/mixed; boundary="===============3389136954397782002=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is a multi-part message in MIME format
+Implement the VIRTIO_BLK_F_LIFETIME feature for VirtIO block devices.
 
---===============3389136954397782002==
-Content-Type: multipart/alternative; charset=utf-8; boundary="EEt=_iTUQooRO6GGxsv9uzVLm8b6Z8YBIB"
+This commit introduces a new ioctl command, VBLK_LIFETIME.
 
-This is a multi-part message in MIME format
+VBLK_LIFETIME ioctl asks for the block device to provide lifetime
+information by sending a VIRTIO_BLK_T_GET_LIFETIME command to the device.
 
---EEt=_iTUQooRO6GGxsv9uzVLm8b6Z8YBIB
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+lifetime information fields:
 
-* Google Scholar H5-Index =3D 22
+- pre_eol_info: specifies the percentage of reserved blocks that are
+		consumed.
+		optional values following virtio spec:
+		*) 0 - undefined.
+		*) 1 - normal, < 80% of reserved blocks are consumed.
+		*) 2 - warning, 80% of reserved blocks are consumed.
+		*) 3 - urgent, 90% of reserved blocks are consumed.
 
-* Indexed in Scopus, WoS, Inspec, Google Scholar, etc.
+- device_lifetime_est_typ_a: this field refers to wear of SLC cells and
+			     is provided in increments of 10used, and so
+			     on, thru to 11 meaning estimated lifetime
+			     exceeded. All values above 11 are reserved.
 
+- device_lifetime_est_typ_b: this field refers to wear of MLC cells and is
+			     provided with the same semantics as
+			     device_lifetime_est_typ_a.
 
+The data received from the device will be sent as is to the user.
+No data check/decode is done by virtblk.
 
+Signed-off-by: Alvaro Karsz <alvaro.karsz@solid-run.com>
+---
+ drivers/block/virtio_blk.c      | 99 +++++++++++++++++++++++++++++++--
+ include/uapi/linux/virtio_blk.h | 29 ++++++++++
+ 2 files changed, 124 insertions(+), 4 deletions(-)
 
------------------------------- CALL for WORKSHOPS PROPOSALS ---------------=
----------------   --------- 
-CISTI'2023 - 18th Iberian Conference on Information Systems and Technologie=
-s 
-
-20 - 23 June 2023, Aveiro Portugal
-
-http://www.cisti.eu/ <https://mkt.saisti.eu/go/b036bc6beb-5-02a81a5af91161f=
-81b8a97917c50ec7f8491211eje2OOTeUcske2ce5dz>
-
-------------------------------   ------------------------------   ---------=
----------------------   ----------------------------- 
-
-
-
-Workshop Format
-
-The Information Systems and Technologies research and industrial community =
-is invited to submit proposals of Workshops for CISTI 2023 =E2=80=93 18th I=
-berian Conference on Information Systems and Technologies to be held in Ave=
-iro, Portugal, June 20=E2=80=9323, 2023. Two types of Workshops may be prop=
-osed: Regular Workshops and Project Workshops.
-
-Regular Workshops should focus on a specific scientific subject on the scop=
-e of CISTI 2023 but not directly included on the main conference areas. Eac=
-h regular workshop will be coordinated by an Organizing Committee composed =
-of, at least, two researchers in the field, preferably from different insti=
-tutions and different countries. The organizers should create an internatio=
-nal Program Committee for the Workshop, with recognized researchers within =
-the specific Workshop scientific area. Each workshop should have at least 1=
-0 submissions and 5 accepted papers in order to be conducted at CISTI.
-
-Project Workshops are intended to promote the dissemination and facilitate =
-the future exploitation of EU Latin-American and national project results s=
-uch as EU/FP7, EU/Horizon, CSIC, FCT, QREN, Portugal 2020, Fund. Gulbenkian=
-, CYTED, CAPES, CNPq, FINEP and other Projects/funding sources. The results=
- to be disseminated may be preliminary project results (for unfinished proj=
-ects) or the project final results (for already finished projects). Each pr=
-oject workshop should be directly related to a Project funded in a competit=
-ive manner by a National/International Science Organization. The Workshop s=
-hould be coordinated by an Organizing Committee composed by at least two re=
-searchers including the Principal Investigator of the project. Each Worksho=
-p will have 1 article offered for 10 articles with paid registration, 2 art=
-icles offered for 20 articles with paid registration, and 3 articles offere=
-d for 40 articles with paid registration. The selection of Workshops will b=
-e performed by CISTI 2022 Conference Chairs. Workshops full papers will be =
-published in the conference main proceedings in specific Workshop chapters.=
- Proceedings will be submitted for indexation by WoS, SCOPUS, EI-Conpendex,=
- INSPEC and Google Scholar. Detailed and up-to-date information may be foun=
-d at CISTI 2023 website: http://www.cisti.eu/ <https://mkt.saisti.eu/go/b03=
-6bc6beb-5-02a81a5af91161f81b8a97917c50ec7f8491211eje2OOTeUcske2ce5tG>.
-
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 19da5defd73..fbe437c5159 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -101,6 +101,18 @@ static inline blk_status_t virtblk_result(struct virtblk_req *vbr)
+ 	}
+ }
  
-
-Workshop Organization 
-
-The Organizing Committee of each Workshop will be responsible for:
-
-* Producing and distributing the Workshop Call for Papers (CFP); 
-* Coordinating the review and selection process for the papers submitted to=
- the Workshop, as Workshop chairs (on the paper submission system installed=
- for all the Workshops); 
-* Delivering the final versions of the papers accepted for the Workshop in =
-accordance with the guidelines and deadlines defined by CISTI 2023 organize=
-rs; 
-* Coordinating and chairing the Workshop sessions at the conference. 
-
-
-CISTI 2023 organizers reserve the right to cancel any Workshop if deadlines=
- are missed or if the number of registered attendees is too low to support =
-the costs associated with the Workshop.
-
++static inline int virtblk_ioctl_result(struct virtblk_req *vbr)
++{
++	switch (vbr->status) {
++	case VIRTIO_BLK_S_OK:
++		return 0;
++	case VIRTIO_BLK_S_UNSUPP:
++		return -ENOTTY;
++	default:
++		return -EIO;
++	}
++}
++
+ static inline struct virtio_blk_vq *get_virtio_blk_vq(struct blk_mq_hw_ctx *hctx)
+ {
+ 	struct virtio_blk *vblk = hctx->queue->queuedata;
+@@ -244,8 +256,8 @@ static blk_status_t virtblk_setup_cmd(struct virtio_device *vdev,
+ 		type = VIRTIO_BLK_T_SECURE_ERASE;
+ 		break;
+ 	case REQ_OP_DRV_IN:
+-		type = VIRTIO_BLK_T_GET_ID;
+-		break;
++		/* REQ_OP_DRV_IN operation out header already set */
++		return 0;
+ 	default:
+ 		WARN_ON_ONCE(1);
+ 		return BLK_STS_IOERR;
+@@ -459,12 +471,16 @@ static int virtblk_get_id(struct gendisk *disk, char *id_str)
+ 	struct virtio_blk *vblk = disk->private_data;
+ 	struct request_queue *q = vblk->disk->queue;
+ 	struct request *req;
++	struct virtblk_req *vbr;
+ 	int err;
  
-
-Proposal Contents
-
-Regular Workshop proposals should contain the following information:
-
-* Workshop title; 
-* Brief description of the specific scientific scope of the Workshop; 
-* List of topics of interest (max 15 topics); 
-* Reasons the Workshop should be held within CISTI=E2=80=992023; 
-* Name, postal address, phone and email of all the members of the Workshop =
-Organizing Committee; 
-* Proposal for the Workshop Program Committee (Names and affiliations). 
-
-
-Project Workshop proposals should contain the following information:
-
-* Workshop title; 
-* Project Title, Reference, Principal Investigator, Funding Organization, T=
-otal Funding, Consortium, Abstract and Objectives; 
-* Reasons the Workshop should be held within CISTI=E2=80=992023; 
-* Name, postal address, phone and email of all the members of the Workshop =
-Organizing Committee. 
-
-
-Proposals should be submitted electronically (in Word or compatible format)=
- at https://easychair.org/   conferences/?conf=3D   cisti2023workshops, in =
-English, Portuguese and/or Spanish, by November 13, 2022. 
+ 	req = blk_mq_alloc_request(q, REQ_OP_DRV_IN, 0);
+ 	if (IS_ERR(req))
+ 		return PTR_ERR(req);
  
-
-Important Dates
-
-* Deadline for Workshop proposals: November 13, 2022 
-* Notification of Workshop acceptance: November 20, 2022 
-* Deadline for paper submission: February 26, 2023 
-* Notification of paper acceptance: March 26, 2023 
-* Deadline for final versions and conference registration: April 9, 2023 
-* Deadline for Workshop final papers delivery to CISTI organizers: April 9,=
- 2023 
-* Conference dates: June 20-23, 2023 
-
-
-
-
-
-Website of CISTI'2023: http://cisti.eu/ <http://cisti.eu/>
-
++	vbr = blk_mq_rq_to_pdu(req);
++	vbr->out_hdr.type = cpu_to_virtio32(vblk->vdev, VIRTIO_BLK_T_GET_ID);
++
+ 	err = blk_rq_map_kern(q, req, id_str, VIRTIO_BLK_ID_BYTES, GFP_KERNEL);
+ 	if (err)
+ 		goto out;
+@@ -508,6 +524,80 @@ static int virtblk_getgeo(struct block_device *bd, struct hd_geometry *geo)
+ 	return ret;
+ }
  
-
++/* Get lifetime information from device */
++static int virtblk_ioctl_lifetime(struct virtio_blk *vblk, unsigned long arg)
++{
++	struct request_queue *q = vblk->disk->queue;
++	struct request *req = NULL;
++	struct virtblk_req *vbr;
++	struct virtio_blk_lifetime lifetime;
++	int ret;
++
++	/* The virtio_blk_lifetime struct fields follow virtio spec.
++	 * There is no check/decode on values received from the device.
++	 * The data is sent as is to the user.
++	 */
++
++	/* This ioctl is allowed only if VIRTIO_BLK_F_LIFETIME
++	 * feature is negotiated.
++	 */
++	if (!virtio_has_feature(vblk->vdev, VIRTIO_BLK_F_LIFETIME))
++		return -ENOTTY;
++
++	memset((void *)&lifetime, 0, sizeof(lifetime));
++
++	req = blk_mq_alloc_request(q, REQ_OP_DRV_IN, 0);
++	if (IS_ERR(req))
++		return PTR_ERR(req);
++
++	/* Write the correct type */
++	vbr = blk_mq_rq_to_pdu(req);
++	vbr->out_hdr.type = cpu_to_virtio32(vblk->vdev, VIRTIO_BLK_T_GET_LIFETIME);
++
++	ret = blk_rq_map_kern(q, req, (void *)&lifetime, sizeof(lifetime), GFP_KERNEL);
++	if (ret)
++		goto out;
++
++	blk_execute_rq(req, false);
++
++	ret = virtblk_ioctl_result(blk_mq_rq_to_pdu(req));
++	if (ret)
++		goto out;
++
++	/* Pass the data to the user */
++	if (copy_to_user((void __user *)arg, (void *)&lifetime,
++			 sizeof(lifetime))) {
++		ret = -EFAULT;
++		goto out;
++	}
++
++out:
++	blk_mq_free_request(req);
++	return ret;
++}
++
++static int virtblk_ioctl(struct block_device *bd, fmode_t mode,
++			     unsigned int cmd, unsigned long arg)
++{
++	struct virtio_blk *vblk = bd->bd_disk->private_data;
++	int ret;
++
++	mutex_lock(&vblk->vdev_mutex);
++
++	switch (cmd) {
++	case VBLK_LIFETIME:
++		ret = virtblk_ioctl_lifetime(vblk, arg);
++		break;
++	default:
++		ret = -ENOTTY;
++		break;
++	}
++
++	mutex_unlock(&vblk->vdev_mutex);
++
++	return ret;
++}
++
+ static void virtblk_free_disk(struct gendisk *disk)
+ {
+ 	struct virtio_blk *vblk = disk->private_data;
+@@ -520,6 +610,7 @@ static void virtblk_free_disk(struct gendisk *disk)
+ static const struct block_device_operations virtblk_fops = {
+ 	.owner  	= THIS_MODULE,
+ 	.getgeo		= virtblk_getgeo,
++	.ioctl		= virtblk_ioctl,
+ 	.free_disk	= virtblk_free_disk,
+ };
  
-
-
+@@ -1239,7 +1330,7 @@ static unsigned int features_legacy[] = {
+ 	VIRTIO_BLK_F_RO, VIRTIO_BLK_F_BLK_SIZE,
+ 	VIRTIO_BLK_F_FLUSH, VIRTIO_BLK_F_TOPOLOGY, VIRTIO_BLK_F_CONFIG_WCE,
+ 	VIRTIO_BLK_F_MQ, VIRTIO_BLK_F_DISCARD, VIRTIO_BLK_F_WRITE_ZEROES,
+-	VIRTIO_BLK_F_SECURE_ERASE,
++	VIRTIO_BLK_F_SECURE_ERASE, VIRTIO_BLK_F_LIFETIME,
+ }
+ ;
+ static unsigned int features[] = {
+@@ -1247,7 +1338,7 @@ static unsigned int features[] = {
+ 	VIRTIO_BLK_F_RO, VIRTIO_BLK_F_BLK_SIZE,
+ 	VIRTIO_BLK_F_FLUSH, VIRTIO_BLK_F_TOPOLOGY, VIRTIO_BLK_F_CONFIG_WCE,
+ 	VIRTIO_BLK_F_MQ, VIRTIO_BLK_F_DISCARD, VIRTIO_BLK_F_WRITE_ZEROES,
+-	VIRTIO_BLK_F_SECURE_ERASE,
++	VIRTIO_BLK_F_SECURE_ERASE, VIRTIO_BLK_F_LIFETIME,
+ };
+ 
+ static struct virtio_driver virtio_blk = {
+diff --git a/include/uapi/linux/virtio_blk.h b/include/uapi/linux/virtio_blk.h
+index 58e70b24b50..1190904d39c 100644
+--- a/include/uapi/linux/virtio_blk.h
++++ b/include/uapi/linux/virtio_blk.h
+@@ -40,6 +40,7 @@
+ #define VIRTIO_BLK_F_MQ		12	/* support more than one vq */
+ #define VIRTIO_BLK_F_DISCARD	13	/* DISCARD is supported */
+ #define VIRTIO_BLK_F_WRITE_ZEROES	14	/* WRITE ZEROES is supported */
++#define VIRTIO_BLK_F_LIFETIME	15 /* Storage lifetime information is supported */
+ #define VIRTIO_BLK_F_SECURE_ERASE	16 /* Secure Erase is supported */
+ 
+ /* Legacy feature bits */
+@@ -165,6 +166,9 @@ struct virtio_blk_config {
+ /* Get device ID command */
+ #define VIRTIO_BLK_T_GET_ID    8
+ 
++/* Get lifetime information command */
++#define VIRTIO_BLK_T_GET_LIFETIME 10
++
+ /* Discard command */
+ #define VIRTIO_BLK_T_DISCARD	11
+ 
+@@ -206,6 +210,27 @@ struct virtio_blk_discard_write_zeroes {
+ 	__le32 flags;
+ };
+ 
++/* Get lifetime information struct for each request */
++struct virtio_blk_lifetime {
++	/* specifies the percentage of reserved blocks that are consumed.
++	 * optional values following virtio spec:
++	 * 0 - undefined
++	 * 1 - normal, < 80% of reserved blocks are consumed
++	 * 2 - warning, 80% of reserved blocks are consumed
++	 * 3 - urgent, 90% of reserved blocks are consumed
++	 */
++	__le16 pre_eol_info;
++	/* this field refers to wear of SLC cells and is provided in increments of 10used,
++	 * and so on, thru to 11 meaning estimated lifetime exceeded. All values above 11
++	 * are reserved
++	 */
++	__le16 device_lifetime_est_typ_a;
++	/* this field refers to wear of MLC cells and is provided with the same semantics as
++	 * device_lifetime_est_typ_a
++	 */
++	__le16 device_lifetime_est_typ_b;
++};
++
+ #ifndef VIRTIO_BLK_NO_LEGACY
+ struct virtio_scsi_inhdr {
+ 	__virtio32 errors;
+@@ -219,4 +244,8 @@ struct virtio_scsi_inhdr {
+ #define VIRTIO_BLK_S_OK		0
+ #define VIRTIO_BLK_S_IOERR	1
+ #define VIRTIO_BLK_S_UNSUPP	2
++
++/* Virtblk ioctl commands */
++#define VBLK_LIFETIME	_IOR('r', 0, struct virtio_blk_lifetime)
++
+ #endif /* _LINUX_VIRTIO_BLK_H */
 -- 
-This email has been checked for viruses by AVG antivirus software.
-www.avg.com
---EEt=_iTUQooRO6GGxsv9uzVLm8b6Z8YBIB
-Content-Type: text/html; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-<html>
-  <head>
-    <title></title>
-    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content-Type=
-" />
-  </head>
-  <body>
-    <p>* Google Scholar H5-Index =3D 22</p>
-    <p>* Indexed in Scopus, WoS, Inspec, Google Scholar, etc.</p>
-    <p><br /></p>
-    <p>------------------------------ CALL for WORKSHOPS PROPOSALS --------=
----------------------- 
-      <wbr>&nbsp;</wbr>&nbsp;--------- 
-    </p>
-    <p style=3D"text-align: justify"><strong><span class=3D"il">CISTI</span=
->'2023 - 18th Iberian Conference on Information Systems and Technologies </=
-strong></p>
-    <p style=3D"text-align: justify"><strong>20 - 23 June 2023, Aveiro Port=
-ugal</strong></p>
-    <p style=3D"text-align: justify"><a href=3D"https://mkt.saisti.eu/go/b0=
-36bc6beb-5-02a81a5af91161f81b8a97917c50ec7f8491211eje2OOTeUcske2ce5dz" targ=
-et=3D"_blank" data-saferedirecturl=3D"https://www.google.com/url?q=3Dhttps:=
-//mkt.saisti.eu/go/b036bc6beb-5-02a81a5af91161f81b8a97917c50ec7f8491211eje2=
-OOTeUcske2ce5dz&source=3Dgmail&ust=3D1666544629243000&usg=3DAOvVaw1t9xXBX2F=
-w1TZ9qxmhc3lM"><strong>http://www.<span class=3D"il">cisti</span>.eu/</stro=
-ng></a></p>
-    <p>------------------------------ 
-      <wbr>&nbsp;</wbr>&nbsp;------------------------------ 
-      <wbr>&nbsp;</wbr>&nbsp;------------------------------ 
-      <wbr>&nbsp;</wbr>&nbsp;----------------------------- 
-    </p>
-    <p><br /></p>
-    <div id=3D"m_8809540778002605420isPasted">
-      <p><strong>Workshop Format</strong></p>
-      <p>The Information Systems and Technologies research and industrial c=
-ommunity is invited to submit proposals of Workshops for <span class=3D"il"=
->CISTI</span> 2023 &ndash; 18th Iberian Conference on Information Systems a=
-nd Technologies to be held in Aveiro, Portugal, June 20&ndash;23, 2023. Two=
- types of Workshops may be proposed: Regular Workshops and Project Workshop=
-s.</p>
-      <p>Regular Workshops should focus on a specific scientific subject on=
- the scope of <span class=3D"il">CISTI</span> 2023 but not directly include=
-d on the main conference areas. Each regular workshop will be coordinated b=
-y an Organizing Committee composed of, at least, two researchers in the fie=
-ld, preferably from different institutions and different countries. The org=
-anizers should create an international Program Committee for the Workshop, =
-with recognized researchers within the specific Workshop scientific area. E=
-ach workshop should have at least 10 submissions and 5 accepted papers in o=
-rder to be conducted at <span class=3D"il">CISTI</span>.</p>
-      <p>Project Workshops are intended to promote the dissemination and fa=
-cilitate the future exploitation of EU Latin-American and national project =
-results such as EU/FP7, EU/Horizon, CSIC, FCT, QREN, Portugal 2020, Fund. G=
-ulbenkian, CYTED, CAPES, CNPq, FINEP and other Projects/funding sources. Th=
-e results to be disseminated may be preliminary project results (for unfini=
-shed projects) or the project final results (for already finished projects)=
-=2E Each project workshop should be directly related to a Project funded in=
- a competitive manner by a National/International Science Organization. The=
- Workshop should be coordinated by an Organizing Committee composed by at l=
-east two researchers including the Principal Investigator of the project. E=
-ach Workshop will have 1 article offered for 10 articles with paid registra=
-tion, 2 articles offered for 20 articles with paid registration, and 3 arti=
-cles offered for 40 articles with paid registration. The selection of Works=
-hops will be performed by <span class=3D"il">CISTI</span> 2022 Conference C=
-hairs. Workshops full papers will be published in the conference main proce=
-edings in specific Workshop chapters. Proceedings will be submitted for ind=
-exation by WoS, SCOPUS, EI-Conpendex, INSPEC and Google Scholar. Detailed a=
-nd up-to-date information may be found at <span class=3D"il">CISTI</span> 2=
-023 website: <a href=3D"https://mkt.saisti.eu/go/b036bc6beb-5-02a81a5af9116=
-1f81b8a97917c50ec7f8491211eje2OOTeUcske2ce5tG" target=3D"_blank" data-safer=
-edirecturl=3D"https://www.google.com/url?q=3Dhttps://mkt.saisti.eu/go/b036b=
-c6beb-5-02a81a5af91161f81b8a97917c50ec7f8491211eje2OOTeUcske2ce5tG&source=
-=3Dgmail&ust=3D1666544629243000&usg=3DAOvVaw0Ni2aMuAVg2B9PPYno9uDB">http://=
-www.<span class=3D"il">cisti</span>.eu/</a>.</p>
-      <p>&nbsp;</p>
-      <p><strong>Workshop Organization&nbsp;</strong></p>
-      <p>The Organizing Committee of each Workshop will be responsible for:=
-</p>
-      <ul>
-        <li>Producing and distributing the Workshop Call for Papers (CFP); =
-</li>
-        <li>Coordinating the review and selection process for the papers su=
-bmitted to the Workshop, as Workshop chairs (on the paper submission system=
- installed for all the Workshops); </li>
-        <li>Delivering the final versions of the papers accepted for the Wo=
-rkshop in accordance with the guidelines and deadlines defined by <span cla=
-ss=3D"il">CISTI</span> 2023 organizers; </li>
-        <li>Coordinating and chairing the Workshop sessions at the conferen=
-ce. </li>
-      </ul>
-      <p><span class=3D"il">CISTI</span> 2023 organizers reserve the right =
-to cancel any Workshop if deadlines are missed or if the number of register=
-ed attendees is too low to support the costs associated with the Workshop.<=
-/p>
-      <p>&nbsp;</p>
-      <p><strong>Proposal Contents</strong></p>
-      <p>Regular Workshop proposals should contain the following informatio=
-n:</p>
-      <ul>
-        <li>Workshop title; </li>
-        <li>Brief description of the specific scientific scope of the Works=
-hop; </li>
-        <li>List of topics of interest (max 15 topics); </li>
-        <li>Reasons the Workshop should be held within <span class=3D"il">C=
-ISTI</span>&rsquo;2023; </li>
-        <li>Name, postal address, phone and email of all the members of the=
- Workshop Organizing Committee; </li>
-        <li>Proposal for the Workshop Program Committee (Names and affiliat=
-ions). </li>
-      </ul>
-      <p>Project Workshop proposals should contain the following informatio=
-n:</p>
-      <ul>
-        <li>Workshop title; </li>
-        <li>Project Title, Reference, Principal Investigator, Funding Organ=
-ization, Total Funding, Consortium, Abstract and Objectives; </li>
-        <li>Reasons the Workshop should be held within <span class=3D"il">C=
-ISTI</span>&rsquo;2023; </li>
-        <li>Name, postal address, phone and email of all the members of the=
- Workshop Organizing Committee. </li>
-      </ul>
-      <p>Proposals should be submitted electronically (in Word or compatibl=
-e format) at <a href=3D"https://mkt.saisti.eu/go/b036bc6beb-5-02a81a5af9116=
-1f81b8a97917c50ec7f8491211eje2OOTeUcske2ce5tH" rel=3D"noopener noreferrer" =
-target=3D"_blank" data-saferedirecturl=3D"https://www.google.com/url?q=3Dht=
-tps://mkt.saisti.eu/go/b036bc6beb-5-02a81a5af91161f81b8a97917c50ec7f8491211=
-eje2OOTeUcske2ce5tH&source=3Dgmail&ust=3D1666544629243000&usg=3DAOvVaw1rU1O=
-xi1aPOxRjIe46t_Mk">https://easychair.org/ 
-          <wbr>&nbsp;</wbr>&nbsp;conferences/?conf=3D 
-          <wbr>&nbsp;</wbr>&nbsp;cisti2023workshops</a>, in English, Portug=
-uese and/or Spanish, by November 13, 2022. 
-      </p>
-      <p>&nbsp;</p>
-      <p><strong>Important Dates</strong></p>
-      <ul>
-        <li>Deadline for Workshop proposals: November 13, 2022 </li>
-        <li>Notification of Workshop acceptance: November 20, 2022 </li>
-        <li>Deadline for paper submission: February 26, 2023 </li>
-        <li>Notification of paper acceptance: March 26, 2023 </li>
-        <li>Deadline for final versions and conference registration: April =
-9, 2023 </li>
-        <li>Deadline for Workshop final papers delivery to <span class=3D"i=
-l">CISTI</span> organizers: April 9, 2023 </li>
-        <li>Conference dates: June 20-23, 2023 </li>
-      </ul>
-      <p><br /></p>
-      <p><strong>Website of <span class=3D"il">CISTI</span>'2023: </strong>=
-<a id=3D"m_8809540778002605420isPasted" href=3D"http://cisti.eu/" target=3D=
-"_blank" data-saferedirecturl=3D"https://www.google.com/url?q=3Dhttps://mkt=
-=2Esaisti.eu/go/b036bc6beb-5-02a81a5af91161f81b8a97917c50ec7f8491211eje2OOT=
-eUcske2ce5sK&source=3Dgmail&ust=3D1666544629243000&usg=3DAOvVaw1UV1sA6HROkv=
-GACZFf9i6J"><strong>http://<span class=3D"il">cisti</span>.eu/</strong></a>=
-</p>
-      <p>&nbsp;</p>
-      <p>&nbsp;</p>
-    </div>
-  <div id=3D"DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2"><br /><table style=3D"bo=
-rder-top: 1px solid #D3D4DE;"><tr><td style=3D"width: 55px; padding-top: 13=
-px;"><a href=3D"http://www.avg.com/email-signature?utm_medium=3Demail&utm_s=
-ource=3Dlink&utm_campaign=3Dsig-email&utm_content=3Demailclient" target=3D"=
-_blank"><img src=3D"https://s-install.avcdn.net/ipm/preview/icons/icon-enve=
-lope-tick-green-avg-v1.png" alt=3D"" width=3D"46" height=3D"29" style=3D"wi=
-dth: 46px; height: 29px;"/></a></td><td style=3D"width: 470px; padding-top:=
- 12px; color: #41424e; font-size: 13px; font-family: Arial, Helvetica, sans=
--serif; line-height: 18px;">Virus-free.<a href=3D"http://www.avg.com/email-=
-signature?utm_medium=3Demail&utm_source=3Dlink&utm_campaign=3Dsig-email&utm=
-_content=3Demailclient" target=3D"_blank" style=3D"color: #4453ea;">www.avg=
-=2Ecom</a></td></tr></table><a href=3D"#DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF=
-2" width=3D"1" height=3D"1"> </a></div></body>
-</html>
-
---EEt=_iTUQooRO6GGxsv9uzVLm8b6Z8YBIB--
-
-
---===============3389136954397782002==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+2.32.0
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============3389136954397782002==--
-
