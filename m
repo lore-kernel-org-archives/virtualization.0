@@ -4,88 +4,94 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 40ADDC4332F
-	for <virtualization@archiver.kernel.org>; Wed,  9 Nov 2022 09:06:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id DA846C4332F
+	for <virtualization@archiver.kernel.org>; Wed,  9 Nov 2022 09:44:50 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id B640560E82;
-	Wed,  9 Nov 2022 09:06:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B640560E82
+	by smtp3.osuosl.org (Postfix) with ESMTP id 59DD1606E6;
+	Wed,  9 Nov 2022 09:44:50 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 59DD1606E6
 Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=J8r4IY4I
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=solid-run-com.20210112.gappssmtp.com header.i=@solid-run-com.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=hymZ8ZM3
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id AkEn89ITAz5c; Wed,  9 Nov 2022 09:06:14 +0000 (UTC)
+	with ESMTP id 0Vro6MY9e7ID; Wed,  9 Nov 2022 09:44:49 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 5498D60E91;
-	Wed,  9 Nov 2022 09:06:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5498D60E91
+	by smtp3.osuosl.org (Postfix) with ESMTPS id BF786605EA;
+	Wed,  9 Nov 2022 09:44:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org BF786605EA
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 29187C0032;
-	Wed,  9 Nov 2022 09:06:13 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D4DA8C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 9410EC0032;
+	Wed,  9 Nov 2022 09:44:48 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E61BDC002D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Nov 2022 09:06:11 +0000 (UTC)
+ Wed,  9 Nov 2022 09:44:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id A1B81401FC
+ by smtp2.osuosl.org (Postfix) with ESMTP id CF4A240B05
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Nov 2022 09:06:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A1B81401FC
-Authentication-Results: smtp4.osuosl.org;
- dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com
- header.a=rsa-sha256 header.s=Intel header.b=J8r4IY4I
+ Wed,  9 Nov 2022 09:44:46 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org CF4A240B05
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (2048-bit key) header.d=solid-run-com.20210112.gappssmtp.com
+ header.i=@solid-run-com.20210112.gappssmtp.com header.a=rsa-sha256
+ header.s=20210112 header.b=hymZ8ZM3
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id M5EVtnoyPqe6
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id wtmY8m8u3mKN
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Nov 2022 09:06:10 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org AD4E041773
-Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
- by smtp4.osuosl.org (Postfix) with ESMTPS id AD4E041773
+ Wed,  9 Nov 2022 09:44:46 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BFF354019D
+Received: from mail-oi1-x22f.google.com (mail-oi1-x22f.google.com
+ [IPv6:2607:f8b0:4864:20::22f])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id BFF354019D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Nov 2022 09:06:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
- d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1667984770; x=1699520770;
- h=message-id:date:mime-version:subject:to:cc:references:
- from:in-reply-to:content-transfer-encoding;
- bh=+JNLCXbPm/UrqSsWNqXLmoAAPfj8mhI4bJ9CrK93e6o=;
- b=J8r4IY4IEMqGmo4Toh5xXyuOWPcQgHEj1sc4hNkPdezrfol1ReT0jH/m
- UfLvCoOIipCx4raFHj0kxhCp/B9lBAvQ95LIEP831HbC6Yr6QLkP8qnFn
- g4ya7o7OmWf2CARuMouS0HOM9vEY2SJlow0S9q3Img9NdwUor7r/FNxL8
- dMBUUwYncSLxynLxPcgOdvkxNRpyRAEJjfxJHhnWFxIrhK2tmsVrtiaQC
- VNShlBNUnAzUnNkNk+E5Xs3Xr+J5BxZDBZkk6+vDMJFCAtXMJzyGMxRTP
- AXhjWadINaQ3i3bJJ6MA8jBkwaeU9sa2cZxrjExgq46Nig0hNI+R1HDvM Q==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10525"; a="312090451"
-X-IronPort-AV: E=Sophos;i="5.96,150,1665471600"; d="scan'208";a="312090451"
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
- by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 09 Nov 2022 01:06:05 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10525"; a="811564536"
-X-IronPort-AV: E=Sophos;i="5.96,150,1665471600"; d="scan'208";a="811564536"
-Received: from lingshan-mobl.ccr.corp.intel.com (HELO [10.255.29.36])
- ([10.255.29.36])
- by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 09 Nov 2022 01:06:03 -0800
-Message-ID: <80cdd80a-16fa-ac75-0a89-5729b846efed@intel.com>
-Date: Wed, 9 Nov 2022 17:06:01 +0800
+ Wed,  9 Nov 2022 09:44:45 +0000 (UTC)
+Received: by mail-oi1-x22f.google.com with SMTP id l127so18223269oia.8
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 09 Nov 2022 01:44:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=solid-run-com.20210112.gappssmtp.com; s=20210112;
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:from:to:cc:subject:date:message-id:reply-to;
+ bh=yd7m0UKXqi53ClJL65yU8qjDOwcft3F2iuOqP1KsINc=;
+ b=hymZ8ZM3A8U1kgf39F85p1YVXuAglTXNsj/KUSoy7TW7bmc9iEz3e0mPdQjsQ2QOcx
+ kCBMwRLJjh0PPIoo8a7zeBMs0UmJxuOEuW4L8QAq4H8t7PibzuBM4MOvCwM/DY2OOKd0
+ KGM/+t/O+UvTtdrmH2Iq633uVVv+Wm/3TZHD2DpycDqRmU7jrxnzMXly3CdPjJDzRLPF
+ JXdTNhqryqUSeLSWaaXEWTlT0598Bq8UpEZMDRwdVsobYxKXO5P8hfu0iMxM4VpiKIhV
+ apRV4ieWPCXtoP/CQKCGxu3GCDywUaNJ970sOn6M875CmAQJT8iMKOEUgFx50XTa4HSC
+ 4fQw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+ :reply-to;
+ bh=yd7m0UKXqi53ClJL65yU8qjDOwcft3F2iuOqP1KsINc=;
+ b=I35zeN6GrF5Ukiz2OxRgqsBt/inc9nz0knuKN/JPoES/EqYNMpOnq5gxqfFI7bz7IW
+ 7bX3L6ltTG7V+s5vc25W2jqEj8BsrR80/Qb6uBS22nkeFdQ2CiZX7vRCoLTnQGFNzpea
+ rjVVAqra3GE73tMO68Bfaiu0oZqJRq2ylwmPv1QA26f9sG6+Om4ZgzjQ4eDcsw+xC+Bz
+ 34ugO0G/xL2y2hSaWSSWjGb+MOyLzzOtq9U5l9fPqxoS9m27It1BDYHZTIwenKOEtIhE
+ vtIAsFYE8ONnOAThS4o0qfqaGaZmUvkNu2/h0Ggot+mr1NYxNgQa/ueqZH7GjTjJSto6
+ Zk+A==
+X-Gm-Message-State: ACrzQf067oN7LQJgr84kJTV8yctR9j/RjibBs7unREfBgHe5QlKBvIs0
+ MNshRv1l7dx6WakGRfNI72ThUPRztWApGVK7P+Lxow==
+X-Google-Smtp-Source: AMsMyM4wZF5+sgmn9/18LUpSBDu6adEoWpRpXlvjP9yVpy9vQ4Bie62xiFY4NvYUJ21vmybMqmqf/D+dw0MUpN06B7M=
+X-Received: by 2002:a05:6808:1391:b0:35a:6109:c91b with SMTP id
+ c17-20020a056808139100b0035a6109c91bmr14553044oiw.273.1667987084672; Wed, 09
+ Nov 2022 01:44:44 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Firefox/102.0 Thunderbird/102.4.1
-Subject: Re: [PATCH 0/4] ifcvf/vDPA implement features provisioning
-Content-Language: en-US
+References: <20221108100925.823841-1-alvaro.karsz@solid-run.com>
+ <318f4b6e-bcd5-a269-b385-f0e521c2ee9a@redhat.com>
+In-Reply-To: <318f4b6e-bcd5-a269-b385-f0e521c2ee9a@redhat.com>
+From: Alvaro Karsz <alvaro.karsz@solid-run.com>
+Date: Wed, 9 Nov 2022 11:44:09 +0200
+Message-ID: <CAJs=3_BTL3Rdrnbykgzy5arA5xOoUGz6Y_g6yUNpZg7hfouVSw@mail.gmail.com>
+Subject: Re: [PATCH] virtio: vdpa: new SolidNET DPU driver.
 To: Jason Wang <jasowang@redhat.com>
-References: <20221107093345.121648-1-lingshan.zhu@intel.com>
- <CACGkMEs9af1E1pLd2t8E71YBPF=rHkhfN8qO9_3=x6HVaCMAxg@mail.gmail.com>
- <0b15591f-9e49-6383-65eb-6673423f81ec@intel.com>
- <CACGkMEujqOFHv7QATWgYo=SdAKef5jQXi2-YksjgT-hxEgKNDQ@mail.gmail.com>
-From: "Zhu, Lingshan" <lingshan.zhu@intel.com>
-In-Reply-To: <CACGkMEujqOFHv7QATWgYo=SdAKef5jQXi2-YksjgT-hxEgKNDQ@mail.gmail.com>
-Cc: piotr.uminski@intel.com, hang.yuan@intel.com,
- virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, mst@redhat.com
+Cc: Jean Delvare <jdelvare@suse.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Guenter Roeck <linux@roeck-us.net>, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -97,80 +103,221 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+Hi Jason,
+
+> If I was not wrong, this value seems doesn't change. If yes, I wonder we
+> can move the kick_offset logic to snet_alloc_dev()?
 
 
-On 11/9/2022 4:59 PM, Jason Wang wrote:
-> On Wed, Nov 9, 2022 at 4:14 PM Zhu, Lingshan <lingshan.zhu@intel.com> wrote:
->>
->>
->> On 11/9/2022 2:51 PM, Jason Wang wrote:
->>> On Mon, Nov 7, 2022 at 5:42 PM Zhu Lingshan <lingshan.zhu@intel.com> wrote:
->>>> This series implements features provisioning for ifcvf.
->>>> By applying this series, we allow userspace to create
->>>> a vDPA device with selected (management device supported)
->>>> feature bits and mask out others.
->>> I don't see a direct relationship between the first 3 and the last.
->>> Maybe you can state the reason why the restructure is a must for the
->>> feature provisioning. Otherwise, we'd better split the series.
->> When introducing features provisioning ability to ifcvf, there is a need
->> to re-create vDPA devices
->> on a VF with different feature bits.
-> This seems a requirement even without feature provisioning? Device
-> could be deleted from the management device anyhow.
-Yes, we need this to delete and re-create a vDPA device.
+There is not a real reason to have this logic in snet_set_vq_address,
+so it could be moved to snet_build_vqs (which is called within
+snet_alloc_dev).
 
-We create vDPA device from a VF, so without features provisioning 
-requirements,
-we don't need to re-create the vDPA device. But with features provisioning,
-it is a must now.
+> -EOPNOTSUPP?
 
-Thanks
 
+Returning an error from the set_vq_state callback leads to probe failure.
+This code is taken from drivers/virtio/virtio_vdpa.c,
+virtio_vdpa_setup_vq function:
+
+>  struct vdpa_vq_state state = {0};
+>
+> ......
+>
+> err = ops->set_vq_state(vdpa, index, &state);
+> if (err)
+>         goto err_vq;
+
+
+I could check struct vdpa_vq_state, and return 0 if struct
+vdpa_vq_state value is 0, -EOPNOTSUPP otherwise.
+What do you think?
+
+> I fail to understand how can this work. E.g after reset there should be
+> no interaction from the device like DMA, otherwise there could have
+> security implications.
+
+
+You're right, I'll add a proper reset callback.
+
+> Since read is ordered with write, a more easy way is to perform a ioread
+> here.
+> Interesting, which barrier is this paired?
+
+
+Usually reads are slow, but we don't care about speed when sending
+messages (since we only send a "destroy" message so far, meaning that
+the pci remove callback was called), so the memory barrier can be
+replaced with a read operation.
 
 >
-> Thakns
->
->> When remove a vDPA device, the container of struct vdpa_device (here is
->> ifcvf_adapter) is free-ed in
->> dev_del() interface, so we need to allocate ifcvf_adapter in dev_add()
->> than in probe(). That's
->> why I have re-factored the adapter/mgmt_dev code.
->>
->> For re-factoring the irq related code and ifcvf_base, let them work on
->> struct ifcvf_hw, the
->> reason is that the adapter is allocated in dev_add(), if we want theses
->> functions to work
->> before dev_add(), like in probe, we need them work on ifcvf_hw than the
->> adapter.
->>
->> Thanks
->> Zhu Lingshan
->>> Thanks
->>>
->>>> Please help review
->>>>
->>>> Thanks
->>>>
->>>> Zhu Lingshan (4):
->>>>     vDPA/ifcvf: ifcvf base layer interfaces work on struct ifcvf_hw
->>>>     vDPA/ifcvf: IRQ interfaces work on ifcvf_hw
->>>>     vDPA/ifcvf: allocate ifcvf_adapter in dev_add()
->>>>     vDPA/ifcvf: implement features provisioning
->>>>
->>>>    drivers/vdpa/ifcvf/ifcvf_base.c |  32 ++-----
->>>>    drivers/vdpa/ifcvf/ifcvf_base.h |  10 +-
->>>>    drivers/vdpa/ifcvf/ifcvf_main.c | 156 +++++++++++++++-----------------
->>>>    3 files changed, 89 insertions(+), 109 deletions(-)
->>>>
->>>> --
->>>> 2.31.1
->>>>
+> Do we need to do endian conversion here (cpu_to_le64())?
 
+
+Yes, I'll add it.
+
+>
+> Need to take endianess into account.
+
+
+I'm not sure about that.
+The endianness appears to be handled by the caller.
+Function from include/linux/virtio_config.h
+
+> static inline void virtio_cwrite16(struct virtio_device *vdev,
+>   unsigned int offset, u16 val)
+> {
+>     __virtio16 v;
+>
+>
+>     might_sleep();
+>     v = cpu_to_virtio16(vdev, val);
+>     vdev->config->set(vdev, offset, &v, sizeof(v));
+> }
+
+
+> static inline void virtio_cwrite32(struct virtio_device *vdev,
+>   unsigned int offset, u32 val)
+> {
+>     __virtio32 v;
+>
+>
+>     might_sleep();
+>     v = cpu_to_virtio32(vdev, val);
+>     vdev->config->set(vdev, offset, &v, sizeof(v));
+> }
+>
+
+
+> static inline void virtio_cwrite64(struct virtio_device *vdev,
+>   unsigned int offset, u64 val)
+> {
+>     __virtio64 v;
+>
+>
+>     might_sleep();
+>     v = cpu_to_virtio64(vdev, val);
+>     vdev->config->set(vdev, offset, &v, sizeof(v));
+> }
+
+
+I'm not sure how the endianness can be handled by the vDPA driver.
+This function may be called for a 8bit, 16bit, 32bit or 64bit variables.
+It theoretically may be called to change multiple variables at once.
+It may be called to change part of a variable.
+
+
+>  If I was not wrong, the device depends on the platform IOMMU to work. So
+> unless device have a more strict iova range than what platform IOMMU can
+> provide, we can simply not advertise this and use the one that is
+> provided by the IOMMU:
+>
+>
+> static void vhost_vdpa_set_iova_range(struct vhost_vdpa *v)
+> {
+>          struct vdpa_iova_range *range = &v->range;
+>          struct vdpa_device *vdpa = v->vdpa;
+>          const struct vdpa_config_ops *ops = vdpa->config;
+>
+>
+>          if (ops->get_iova_range) {
+>                  *range = ops->get_iova_range(vdpa);
+>          } else if (v->domain && v->domain->geometry.force_aperture) {
+>                  range->first = v->domain->geometry.aperture_start;
+>                  range->last = v->domain->geometry.aperture_end;
+>          } else {
+>                  range->first = 0;
+>                  range->last = ULLONG_MAX;
+>          }
+> }
+
+
+I'll delete the snet_get_iova_range function.
+
+> Any chance to use device managed region helper here? It seems to
+> simplify the codes (e.g the cleanup stuffs).
+
+
+Ok, I'll do it.
+
+> Is this better to say "config is not ready"? Btw, I wonder if it makes
+> more sense to wait until the confg is ready with a timeout?
+
+
+Good idea, I'll implement the wait & timeout.
+
+> I wonder if it's worth to bother consider we're using devres to manage irqs.
+
+
+You're right, this isn't required, I'll remove it.
+
+>
+> It looks to me all the devices created here use the same dma_dev (the
+> PCI device), I wonder how the DMA is isolated among the vDPA devices
+> created here.
+
+
+All vDPA devices indeed use the same DMA device, there is no isolation
+between the devices.
+I'm not sure why there should be isolation in this case.
+
+> Btw, the vDPA has been switched to use vDPA tool to create devices, it
+> is suggested to implement the mgmt devices as what other parents did.
+> Then the snet_alloc_dev() could be used for dev_add().
+
+
+We want to leave control to the DPU at the moment, the number/type of
+devices is determined by the DPU's config, and can't be controlled
+from userspace.
+
+> There looks like a race, the vDPA device could be registered to the bus
+> and used by userspace by bus master/drvdata is set.
+
+
+You're right, the vdpa registration should be done after the
+master/drvdata is set.
+
+> I think devres should take care of this since we're using
+> pcim_enable_device()?
+
+
+You're right, this isn't required, I'll remove it.
+
+> According to the code, this seems to be the driver features and
+
+
+These are the negotiated features
+We're not keeping record of the driver features, when
+set_driver_features is called, we just logic AND the driver features
+with the supported features received from the DPU.
+I'll rename it to be 'negotiated_features", this seems more accurate.
+
+> static int snet_set_drv_features(struct vdpa_device *vdev, u64 features)
+> {
+>     struct snet *snet = vdpa_to_snet(vdev);
+>
+>
+>     snet->used_features = snet->cfg->features & features;
+>     return 0;
+> }
+
+
+
+> This seems to be unused.
+
+
+You're right, I'll remove it.
+
+
+Thank you for your comments.
+I'll send a new version once I finish working on the comments.
+
+Alvaro
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
