@@ -1,104 +1,106 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D2E2AC4332F
-	for <virtualization@archiver.kernel.org>; Wed,  9 Nov 2022 03:29:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2C60EC433FE
+	for <virtualization@archiver.kernel.org>; Wed,  9 Nov 2022 03:33:05 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 4E05781EA4;
-	Wed,  9 Nov 2022 03:29:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4E05781EA4
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=V3juxFVu
+	by smtp2.osuosl.org (Postfix) with ESMTP id AE9AD403FB;
+	Wed,  9 Nov 2022 03:33:04 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org AE9AD403FB
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=OJt+9Oy/
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id SkVyKXg4w8C1; Wed,  9 Nov 2022 03:28:59 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id rjTSWgkGl97T; Wed,  9 Nov 2022 03:33:04 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id D8CE381EA7;
-	Wed,  9 Nov 2022 03:28:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D8CE381EA7
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 55ACD402D4;
+	Wed,  9 Nov 2022 03:33:03 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 55ACD402D4
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 96A28C0033;
-	Wed,  9 Nov 2022 03:28:58 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id ED2F2C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 2D466C0033;
+	Wed,  9 Nov 2022 03:33:03 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 936A3C0033
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Nov 2022 03:28:56 +0000 (UTC)
+ Wed,  9 Nov 2022 03:33:01 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id C7BB981EA7
+ by smtp3.osuosl.org (Postfix) with ESMTP id 6A9F960E6B
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Nov 2022 03:28:56 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C7BB981EA7
+ Wed,  9 Nov 2022 03:33:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6A9F960E6B
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=OJt+9Oy/
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 4u4U_KqO4O94
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 0vRBIwL6H2SP
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Nov 2022 03:28:56 +0000 (UTC)
+ Wed,  9 Nov 2022 03:33:00 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0A95381EA4
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A575D60E67
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 0A95381EA4
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id A575D60E67
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Nov 2022 03:28:55 +0000 (UTC)
+ Wed,  9 Nov 2022 03:33:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1667964535;
+ s=mimecast20190719; t=1667964779;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=vD224Hogxka5wNQa91Zymh6Ygmv+WpD4Z+GDd/Nec64=;
- b=V3juxFVuGEJHf/bS3/DHOMDIyh1qnJYhQ28drjtFqQKq07137+nMovEBFR79A9OvKyGZTg
- F6pOxv5sJnesbPpOQ8OnK7cMzEvHsUCaw9M1SRQ6QCmOPOlmO+X7lI7p/NXsQxSUNsOt4J
- S9BBKpoJSUFKKGsLTDJsSIgn35fVNjk=
-Received: from mail-ot1-f70.google.com (mail-ot1-f70.google.com
- [209.85.210.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=ivtonRD5aoz1CKIuTlgMyAr3i3s0X8AlSd+W+AfcZ24=;
+ b=OJt+9Oy/j/wxzYrHEndw2bk46xNKKgaANj6mDdM2u1oN3PFssfu1Cvrv+K9BXZHWr2GLMB
+ v02ePlnRPzqNZV39kZswizeQBT1yD6bQDtIgzmyJ+MD9L7yWKzQz9WZTLhgfICor3Cu56r
+ CoL3WWGGic6Y9jNfi+AMRo0YaFx9tkU=
+Received: from mail-oo1-f70.google.com (mail-oo1-f70.google.com
+ [209.85.161.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-433-a8IBpNF9PSCmH94W70PvkQ-1; Tue, 08 Nov 2022 22:28:54 -0500
-X-MC-Unique: a8IBpNF9PSCmH94W70PvkQ-1
-Received: by mail-ot1-f70.google.com with SMTP id
- s5-20020a9d7585000000b0066c7a3ddf59so7788227otk.13
+ us-mta-470-ycsXmrbYPCOxg3G9mxpfLg-1; Tue, 08 Nov 2022 22:32:58 -0500
+X-MC-Unique: ycsXmrbYPCOxg3G9mxpfLg-1
+Received: by mail-oo1-f70.google.com with SMTP id
+ q6-20020a4a3006000000b0049eab9167aeso3615011oof.1
  for <virtualization@lists.linux-foundation.org>;
- Tue, 08 Nov 2022 19:28:53 -0800 (PST)
+ Tue, 08 Nov 2022 19:32:58 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=cc:to:subject:message-id:date:from:in-reply-to:references
  :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
  :reply-to;
- bh=vD224Hogxka5wNQa91Zymh6Ygmv+WpD4Z+GDd/Nec64=;
- b=ckWrWACTtPbtQgf3ts6IMInijfddb59uMwr1Jyy/UcJ0AeqLCqEAjBdesG69TO3UFH
- 7FvFqcjMDAP4/sVJ17DWlUMgc0E6VA56FJ800U9rnjJSXDQKC4Agy2ZeJvmg/gJn66cf
- ZsRv3tMvxAR54DAHRr5WrtGFmtqBfxtuoWF0EAODumr2h4abTOckA4qvVmnOLisgHw/I
- 5d0qu2mx6GgVVDFRguykf/kftEWuLqrXgqJqsev2bN/4x97Yf/tT3pZqaZjGry3MLmD8
- oyXpYg2xfQ4vEkYTn9XDkkzAYay3ipwPzoKoGK3ppD5N/Zz0FlXMi7ParduwSs7JZUhX
- S53A==
-X-Gm-Message-State: ACrzQf0KWUMz+dx6BptSMV2RhTLGlxMibKvuL+M6H+IIbxzBEJwFKhWT
- dbCqAl/9+CQIGdwZlYO59FXKi7LoKjmvUU7gys2iVAa+Xz2tL+Y3hqTewEi6qNRXQmr3TMtWFAw
- 9ZDpyvanvlF/0UCzRuw62IhjznHRwZAnVHUVe5Os4yFl5iLdsjrGtyCFf2A==
-X-Received: by 2002:a4a:2ccf:0:b0:49e:b502:3a2b with SMTP id
- o198-20020a4a2ccf000000b0049eb5023a2bmr9793075ooo.57.1667964533310; 
- Tue, 08 Nov 2022 19:28:53 -0800 (PST)
-X-Google-Smtp-Source: AMsMyM7F+ESUW02GevhFXeHeZiWN+C8qmGvnQrxAgchRgTHWuxrTWr/5I2RPYR7pW6CVQHNQHYEXuWSbcbl1kJXQxyk=
-X-Received: by 2002:a4a:2ccf:0:b0:49e:b502:3a2b with SMTP id
- o198-20020a4a2ccf000000b0049eb5023a2bmr9793067ooo.57.1667964533083; Tue, 08
- Nov 2022 19:28:53 -0800 (PST)
+ bh=ivtonRD5aoz1CKIuTlgMyAr3i3s0X8AlSd+W+AfcZ24=;
+ b=0ZKqEgQAWd89WIC1/uyzAFOxTipT7Mu2UtElAAWwH19UFfHbVxVMTl2dx8km2wOs6a
+ wRh3q/ZKpIEpwZ1fv6/7ZuWGp3qaDX24zYn06keBlRXKM09PoIA0mpUFy8sd2m0aUxk7
+ CgDcKOfFHAp0UIJzyFSBRdjOABLHQG5XeNfxmApfy6QwG7bhp1TcCabHLu/zm5Yk8ca7
+ iN5Dnm9h8cFOUKPczUWaSYbCOrzGuUpgt5niVSECks0jlswHJ4oLG9CFReL9JYtXdYQy
+ FfIwjxBFkyDxjpTtBHKIUHwGSSjPYhitxqJp0x+6ivDEuMdvluQdlXMZwV4MCfkJwE8w
+ inEg==
+X-Gm-Message-State: ACrzQf1sU9+etwdgjaq0GTbUFSPs5tDpnxHY0oYWwgjlZgGbzXFDtkcm
+ F5vTC6MmtsfNmyu0dTCEY7LOKuRDPWBSqF8LEfAQe9mkibM1JgPdL0goy3PF3Ya9dXK/fsibGFl
+ WvWFNIH/Z4ngM0h2e/DLTBGVUW1Io4oO5+bOxDok8M6N/8Z4Bklrb5Im35w==
+X-Received: by 2002:a05:6870:9595:b0:132:7b3:29ac with SMTP id
+ k21-20020a056870959500b0013207b329acmr761470oao.35.1667964777581; 
+ Tue, 08 Nov 2022 19:32:57 -0800 (PST)
+X-Google-Smtp-Source: AMsMyM5M8878AGpCqTVOaVFaPL3HZWvPRD0v5I0xFnMjQ8KJ1iwAp/N5riXwSLa+mgg2JddtpNM0glIl1LS7stO0moc=
+X-Received: by 2002:a05:6870:9595:b0:132:7b3:29ac with SMTP id
+ k21-20020a056870959500b0013207b329acmr761468oao.35.1667964777388; Tue, 08 Nov
+ 2022 19:32:57 -0800 (PST)
 MIME-Version: 1.0
-References: <20221108103437.105327-1-sgarzare@redhat.com>
- <20221108103437.105327-3-sgarzare@redhat.com>
-In-Reply-To: <20221108103437.105327-3-sgarzare@redhat.com>
+References: <20221108101705.45981-1-yuancan@huawei.com>
+In-Reply-To: <20221108101705.45981-1-yuancan@huawei.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 9 Nov 2022 11:28:41 +0800
-Message-ID: <CACGkMEuRnqxESo=V2COnfUjP5jGLTXzNRt3=Tp2x-9jsS-RNGQ@mail.gmail.com>
-Subject: Re: [PATCH 2/2] vhost: fix range used in translate_desc()
-To: Stefano Garzarella <sgarzare@redhat.com>
+Date: Wed, 9 Nov 2022 11:32:45 +0800
+Message-ID: <CACGkMEsce-TUjC+2H-jaky8=8A+r0sgF2Ti27Hr2YDmKeDpUHw@mail.gmail.com>
+Subject: Re: [PATCH v2] vhost/vsock: Fix error handling in vhost_vsock_init()
+To: Yuan Can <yuancan@huawei.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
- linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
- virtualization@lists.linux-foundation.org
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, stefanha@redhat.com,
+ davem@davemloft.net
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -115,67 +117,63 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Nov 8, 2022 at 6:34 PM Stefano Garzarella <sgarzare@redhat.com> wrote:
+On Tue, Nov 8, 2022 at 6:19 PM Yuan Can <yuancan@huawei.com> wrote:
 >
-> vhost_iotlb_itree_first() requires `start` and `last` parameters
-> to search for a mapping that overlaps the range.
+> A problem about modprobe vhost_vsock failed is triggered with the
+> following log given:
 >
-> In translate_desc() we cyclically call vhost_iotlb_itree_first(),
-> incrementing `addr` by the amount already translated, so rightly
-> we move the `start` parameter passed to vhost_iotlb_itree_first(),
-> but we should hold the `last` parameter constant.
+> modprobe: ERROR: could not insert 'vhost_vsock': Device or resource busy
 >
-> Let's fix it by saving the `last` parameter value before incrementing
-> `addr` in the loop.
+> The reason is that vhost_vsock_init() returns misc_register() directly
+> without checking its return value, if misc_register() failed, it returns
+> without calling vsock_core_unregister() on vhost_transport, resulting the
+> vhost_vsock can never be installed later.
+> A simple call graph is shown as below:
 >
-> Fixes: 0bbe30668d89 ("vhost: factor out IOTLB")
-> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-> ---
+>  vhost_vsock_init()
+>    vsock_core_register() # register vhost_transport
+>    misc_register()
+>      device_create_with_groups()
+>        device_create_groups_vargs()
+>          dev = kzalloc(...) # OOM happened
+>    # return without unregister vhost_transport
 >
-> I'm not sure about the fixes tag. On the one I used this patch should
-> apply cleanly, but looking at the latest stable (4.9), maybe we should
-> use
+> Fix by calling vsock_core_unregister() when misc_register() returns error.
 >
-> Fixes: a9709d6874d5 ("vhost: convert pre sorted vhost memory array to interval tree")
-
-I think this should be the right commit to fix.
-
-Other than this
+> Fixes: 433fc58e6bf2 ("VSOCK: Introduce vhost_vsock.ko")
+> Signed-off-by: Yuan Can <yuancan@huawei.com>
 
 Acked-by: Jason Wang <jasowang@redhat.com>
 
-Thanks
-
->
-> Suggestions?
 > ---
->  drivers/vhost/vhost.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+> Changes in v2:
+> - change to the correct Fixes: tag
 >
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index 40097826cff0..3c2359570df9 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -2053,7 +2053,7 @@ static int translate_desc(struct vhost_virtqueue *vq, u64 addr, u32 len,
->         struct vhost_dev *dev = vq->dev;
->         struct vhost_iotlb *umem = dev->iotlb ? dev->iotlb : dev->umem;
->         struct iovec *_iov;
-> -       u64 s = 0;
-> +       u64 s = 0, last = addr + len - 1;
->         int ret = 0;
+>  drivers/vhost/vsock.c | 9 ++++++++-
+>  1 file changed, 8 insertions(+), 1 deletion(-)
 >
->         while ((u64)len > s) {
-> @@ -2063,7 +2063,7 @@ static int translate_desc(struct vhost_virtqueue *vq, u64 addr, u32 len,
->                         break;
->                 }
+> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+> index 5703775af129..10a7d23731fe 100644
+> --- a/drivers/vhost/vsock.c
+> +++ b/drivers/vhost/vsock.c
+> @@ -959,7 +959,14 @@ static int __init vhost_vsock_init(void)
+>                                   VSOCK_TRANSPORT_F_H2G);
+>         if (ret < 0)
+>                 return ret;
+> -       return misc_register(&vhost_vsock_misc);
+> +
+> +       ret = misc_register(&vhost_vsock_misc);
+> +       if (ret) {
+> +               vsock_core_unregister(&vhost_transport.transport);
+> +               return ret;
+> +       }
+> +
+> +       return 0;
+>  };
 >
-> -               map = vhost_iotlb_itree_first(umem, addr, addr + len - 1);
-> +               map = vhost_iotlb_itree_first(umem, addr, last);
->                 if (map == NULL || map->start > addr) {
->                         if (umem != dev->iotlb) {
->                                 ret = -EFAULT;
+>  static void __exit vhost_vsock_exit(void)
 > --
-> 2.38.1
+> 2.17.1
 >
 
 _______________________________________________
