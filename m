@@ -1,89 +1,111 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B001AC433FE
-	for <virtualization@archiver.kernel.org>; Wed,  9 Nov 2022 08:13:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 01F88C4332F
+	for <virtualization@archiver.kernel.org>; Wed,  9 Nov 2022 08:18:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 320CC4155B;
-	Wed,  9 Nov 2022 08:13:46 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 320CC4155B
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=WWsWgwLC
+	by smtp2.osuosl.org (Postfix) with ESMTP id 8E3624019D;
+	Wed,  9 Nov 2022 08:18:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8E3624019D
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=FKZJX8GA
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id TnjIM5Hu2jm6; Wed,  9 Nov 2022 08:13:45 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Mn-nuhRSNFVK; Wed,  9 Nov 2022 08:18:37 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 7541440983;
-	Wed,  9 Nov 2022 08:13:44 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7541440983
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 3191340AE2;
+	Wed,  9 Nov 2022 08:18:37 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3191340AE2
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3328BC0033;
-	Wed,  9 Nov 2022 08:13:44 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 80A82C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 05B89C0033;
+	Wed,  9 Nov 2022 08:18:37 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BBC0AC002D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Nov 2022 08:13:42 +0000 (UTC)
+ Wed,  9 Nov 2022 08:18:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 46B5260E82
+ by smtp2.osuosl.org (Postfix) with ESMTP id 8E16E40AE2
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Nov 2022 08:13:42 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 46B5260E82
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com
- header.a=rsa-sha256 header.s=Intel header.b=WWsWgwLC
+ Wed,  9 Nov 2022 08:18:35 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8E16E40AE2
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id xdrxc1lc9NA6
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id m-RwcexKGTY1
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Nov 2022 08:13:40 +0000 (UTC)
+ Wed,  9 Nov 2022 08:18:35 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org ACA2360E7E
-Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
- by smtp3.osuosl.org (Postfix) with ESMTPS id ACA2360E7E
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org CD8F44019D
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id CD8F44019D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Nov 2022 08:13:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
- d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1667981620; x=1699517620;
- h=message-id:date:mime-version:subject:to:cc:references:
- from:in-reply-to:content-transfer-encoding;
- bh=rO0lFimzE+rdPnzcrw/9tC8/4jSbtyBLobgHG7zqolQ=;
- b=WWsWgwLCW1lDe+2E6lDZHnjO+cVOxggoxgRIng/9bDzm1jwa+sKXLwYM
- hlmcbdHM3taZZnXllp/b2EglrT5/Qs/c3IlxcHdLJxMv68nPQ9rQxevU3
- k2TPciqTh10vouq4LfyC7umpnnv/iA8CzRHQ3K2kFz+J52UTXo6ypFJY9
- DsV9xYG/IEXD2mRiN5AI9EhDLM7rLVT/VyyFPWAc2aaikY3YPzfmCv6BT
- jUywm0MAprEl1wXPW5mZq9XZZNPu/Ivug+dmUUGuX50xXg6Q5wpMVi/cu
- NrczkU/+QU1UyZxZgM9BRGm6cBi/MdeESG3hkw6ctkqJfZKScZu+ir72D w==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10525"; a="312717478"
-X-IronPort-AV: E=Sophos;i="5.96,149,1665471600"; d="scan'208";a="312717478"
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
- by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 09 Nov 2022 00:13:37 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10525"; a="705623117"
-X-IronPort-AV: E=Sophos;i="5.96,149,1665471600"; d="scan'208";a="705623117"
-Received: from lingshan-mobl.ccr.corp.intel.com (HELO [10.255.29.36])
- ([10.255.29.36])
- by fmsmga004-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 09 Nov 2022 00:13:34 -0800
-Message-ID: <0b15591f-9e49-6383-65eb-6673423f81ec@intel.com>
-Date: Wed, 9 Nov 2022 16:13:32 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Firefox/102.0 Thunderbird/102.4.1
-Subject: Re: [PATCH 0/4] ifcvf/vDPA implement features provisioning
-Content-Language: en-US
+ Wed,  9 Nov 2022 08:18:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1667981913;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=dgGprYoeTN22cTQDR5YOz3sASLNpnLaaRp5I0puxy0k=;
+ b=FKZJX8GAVQJ44/fOSi3H55Yn3h+lCPyDSoXKYbeBvu4AQY2BBTpgZQDwFWzy8B9HdXYgUA
+ r8m66AZscOZBp4DfKAb3rb9U7XGDWQyC54vz6vMXKDQeYxKgOLvnFL6rlfP8sYuO+P3n6q
+ 039JsLBu5lccY1Zxb2+cVT4og5cXhEk=
+Received: from mail-qv1-f69.google.com (mail-qv1-f69.google.com
+ [209.85.219.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-564-lMetNaTFPcW6ck49x51l_w-1; Wed, 09 Nov 2022 03:18:32 -0500
+X-MC-Unique: lMetNaTFPcW6ck49x51l_w-1
+Received: by mail-qv1-f69.google.com with SMTP id
+ c6-20020ad44306000000b004bb8352cb4cso11336864qvs.14
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 09 Nov 2022 00:18:32 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=dgGprYoeTN22cTQDR5YOz3sASLNpnLaaRp5I0puxy0k=;
+ b=ZId8XS7dd8Xi82BBYInZ0LcqIjT2eIzYDItd5arhe1IYEP5m1f2QsFtT7Kynv++tjN
+ igO7GxX5UCSBopZs+YGnT1s0p/PLdbXENJicryLGmsFPgwAh805llK+4IqSdi9Ce+uAH
+ oGb84w8bf/8PQIQzPcUnGP5XToJ2Tv+NLnnVx1hFg3IaH1GDs0prG/ccyWlAewob/XQS
+ ZcFb6Ytd1gtt1p7YjXB2KkAC5nao1fMDDt/TRsb4O1HEOzwYXfN66qbbZYH39ZrnADhf
+ ah/z36G/mfpR7vJNnGfn917niS+KXAXkis297r7z2SIcW47u7kYEFv5GBA8kP8VoCXVb
+ KSLQ==
+X-Gm-Message-State: ACrzQf3TpPYUN6zJrjO+RTvWnkOcUXaCGZuMcPQJmHwPYXKq9yDVo23B
+ qCyP+eNWwmC2qX4afKrUcz5Ddg5LCgv42DIPFab1yGFOGFBERd/pNra1ZE7CSvb6+6XPWbmKiTy
+ Q9uOMyxt7Jq5Imkr28N6tjzeN4LFIEAC2JtFDE7VBAw==
+X-Received: by 2002:a0c:de07:0:b0:4bc:187a:7085 with SMTP id
+ t7-20020a0cde07000000b004bc187a7085mr38386057qvk.13.1667981912273; 
+ Wed, 09 Nov 2022 00:18:32 -0800 (PST)
+X-Google-Smtp-Source: AMsMyM5nr5OeV6fr2CjoyWBfrNdvGZsceXntb36rsvEakUXbxiiIfozncmPJPob44jTHHjm5hBECkg==
+X-Received: by 2002:a0c:de07:0:b0:4bc:187a:7085 with SMTP id
+ t7-20020a0cde07000000b004bc187a7085mr38386045qvk.13.1667981912018; 
+ Wed, 09 Nov 2022 00:18:32 -0800 (PST)
+Received: from sgarzare-redhat (host-82-53-134-234.retail.telecomitalia.it.
+ [82.53.134.234]) by smtp.gmail.com with ESMTPSA id
+ bi14-20020a05620a318e00b006b929a56a2bsm10711570qkb.3.2022.11.09.00.18.30
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 09 Nov 2022 00:18:31 -0800 (PST)
+Date: Wed, 9 Nov 2022 09:18:23 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
 To: Jason Wang <jasowang@redhat.com>
-References: <20221107093345.121648-1-lingshan.zhu@intel.com>
- <CACGkMEs9af1E1pLd2t8E71YBPF=rHkhfN8qO9_3=x6HVaCMAxg@mail.gmail.com>
-From: "Zhu, Lingshan" <lingshan.zhu@intel.com>
-In-Reply-To: <CACGkMEs9af1E1pLd2t8E71YBPF=rHkhfN8qO9_3=x6HVaCMAxg@mail.gmail.com>
-Cc: piotr.uminski@intel.com, hang.yuan@intel.com,
- virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, mst@redhat.com
+Subject: Re: [PATCH 2/2] vhost: fix range used in translate_desc()
+Message-ID: <20221109081823.tg5roitl26opqe6k@sgarzare-redhat>
+References: <20221108103437.105327-1-sgarzare@redhat.com>
+ <20221108103437.105327-3-sgarzare@redhat.com>
+ <CACGkMEuRnqxESo=V2COnfUjP5jGLTXzNRt3=Tp2x-9jsS-RNGQ@mail.gmail.com>
+MIME-Version: 1.0
+In-Reply-To: <CACGkMEuRnqxESo=V2COnfUjP5jGLTXzNRt3=Tp2x-9jsS-RNGQ@mail.gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
+ linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -100,57 +122,42 @@ Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-
-
-On 11/9/2022 2:51 PM, Jason Wang wrote:
-> On Mon, Nov 7, 2022 at 5:42 PM Zhu Lingshan <lingshan.zhu@intel.com> wrote:
->> This series implements features provisioning for ifcvf.
->> By applying this series, we allow userspace to create
->> a vDPA device with selected (management device supported)
->> feature bits and mask out others.
-> I don't see a direct relationship between the first 3 and the last.
-> Maybe you can state the reason why the restructure is a must for the
-> feature provisioning. Otherwise, we'd better split the series.
-When introducing features provisioning ability to ifcvf, there is a need 
-to re-create vDPA devices
-on a VF with different feature bits.
-
-When remove a vDPA device, the container of struct vdpa_device (here is 
-ifcvf_adapter) is free-ed in
-dev_del() interface, so we need to allocate ifcvf_adapter in dev_add() 
-than in probe(). That's
-why I have re-factored the adapter/mgmt_dev code.
-
-For re-factoring the irq related code and ifcvf_base, let them work on 
-struct ifcvf_hw, the
-reason is that the adapter is allocated in dev_add(), if we want theses 
-functions to work
-before dev_add(), like in probe, we need them work on ifcvf_hw than the 
-adapter.
-
-Thanks
-Zhu Lingshan
+On Wed, Nov 09, 2022 at 11:28:41AM +0800, Jason Wang wrote:
+>On Tue, Nov 8, 2022 at 6:34 PM Stefano Garzarella <sgarzare@redhat.com> wrote:
+>>
+>> vhost_iotlb_itree_first() requires `start` and `last` parameters
+>> to search for a mapping that overlaps the range.
+>>
+>> In translate_desc() we cyclically call vhost_iotlb_itree_first(),
+>> incrementing `addr` by the amount already translated, so rightly
+>> we move the `start` parameter passed to vhost_iotlb_itree_first(),
+>> but we should hold the `last` parameter constant.
+>>
+>> Let's fix it by saving the `last` parameter value before incrementing
+>> `addr` in the loop.
+>>
+>> Fixes: 0bbe30668d89 ("vhost: factor out IOTLB")
+>> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+>> ---
+>>
+>> I'm not sure about the fixes tag. On the one I used this patch should
+>> apply cleanly, but looking at the latest stable (4.9), maybe we should
+>> use
+>>
+>> Fixes: a9709d6874d5 ("vhost: convert pre sorted vhost memory array to interval tree")
 >
-> Thanks
+>I think this should be the right commit to fix.
+
+Yeah, @Michael should I send a v2 with that tag?
+
 >
->> Please help review
->>
->> Thanks
->>
->> Zhu Lingshan (4):
->>    vDPA/ifcvf: ifcvf base layer interfaces work on struct ifcvf_hw
->>    vDPA/ifcvf: IRQ interfaces work on ifcvf_hw
->>    vDPA/ifcvf: allocate ifcvf_adapter in dev_add()
->>    vDPA/ifcvf: implement features provisioning
->>
->>   drivers/vdpa/ifcvf/ifcvf_base.c |  32 ++-----
->>   drivers/vdpa/ifcvf/ifcvf_base.h |  10 +-
->>   drivers/vdpa/ifcvf/ifcvf_main.c | 156 +++++++++++++++-----------------
->>   3 files changed, 89 insertions(+), 109 deletions(-)
->>
->> --
->> 2.31.1
->>
+>Other than this
+>
+>Acked-by: Jason Wang <jasowang@redhat.com>
+>
+
+Thanks for the review,
+Stefano
 
 _______________________________________________
 Virtualization mailing list
