@@ -4,107 +4,82 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6E492C4332F
-	for <virtualization@archiver.kernel.org>; Thu, 10 Nov 2022 14:13:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 47C8EC4332F
+	for <virtualization@archiver.kernel.org>; Thu, 10 Nov 2022 20:19:04 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 041AC401C2;
-	Thu, 10 Nov 2022 14:13:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 041AC401C2
+	by smtp2.osuosl.org (Postfix) with ESMTP id A979640111;
+	Thu, 10 Nov 2022 20:19:03 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A979640111
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=WW/yugTI
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=MBXaTgB1
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id uvIKXECfGcYg; Thu, 10 Nov 2022 14:13:57 +0000 (UTC)
+	with ESMTP id YxWigZkFp4al; Thu, 10 Nov 2022 20:19:03 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 87CE74026A;
-	Thu, 10 Nov 2022 14:13:56 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 87CE74026A
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 400EF40164;
+	Thu, 10 Nov 2022 20:19:02 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 400EF40164
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 31DC3C0032;
-	Thu, 10 Nov 2022 14:13:56 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A48D6C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0C260C0033;
+	Thu, 10 Nov 2022 20:19:02 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BF13CC002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Nov 2022 14:13:54 +0000 (UTC)
+ Thu, 10 Nov 2022 20:19:00 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 6B9C281ADE
+ by smtp2.osuosl.org (Postfix) with ESMTP id 85AD740164
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Nov 2022 14:13:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6B9C281ADE
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=WW/yugTI
+ Thu, 10 Nov 2022 20:19:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 85AD740164
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id OBcyJsHKuTIy
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id vjuyIk-gsrlF
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Nov 2022 14:13:53 +0000 (UTC)
+ Thu, 10 Nov 2022 20:19:00 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 85FA981A92
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D0EF540111
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 85FA981A92
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id D0EF540111
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Nov 2022 14:13:53 +0000 (UTC)
+ Thu, 10 Nov 2022 20:18:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1668089632;
+ s=mimecast20190719; t=1668111538;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding;
- bh=EGdeBqZHdvW6TGtz0bzuryVKHsywKrh20LlxuiZOelI=;
- b=WW/yugTIwELAe9ZiAPoRU/MeGz0f4zD+NrEt59rNO7tpTAoU56ecpE7asIBVr8XeRbM7Ou
- 5y+Zsjl/dKZuYWJopH8OM81Lk6Bj+sKBV5gayxtgkWOBaq70MgHeETcfNx2nAO+Xnz1MKH
- dFKfQzglmI/NQo1DEaKp1NBghM2M1vU=
-Received: from mail-pg1-f200.google.com (mail-pg1-f200.google.com
- [209.85.215.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-664-tqQgJWNkNcm0IMyzxpKwSQ-1; Thu, 10 Nov 2022 09:13:50 -0500
-X-MC-Unique: tqQgJWNkNcm0IMyzxpKwSQ-1
-Received: by mail-pg1-f200.google.com with SMTP id
- u63-20020a638542000000b004701a0aa835so1064755pgd.15
- for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Nov 2022 06:13:50 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=content-transfer-encoding:mime-version:message-id:date:subject:cc
- :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
- :reply-to;
- bh=EGdeBqZHdvW6TGtz0bzuryVKHsywKrh20LlxuiZOelI=;
- b=FLa7dvDPpKnQRiNEBiXl7MA12Tm1+rr2mo/AWL3l0nJDH215uDdplk5R//sEqeOa6M
- +rfOXbfh/aIrmOnwuyI/V9oMEweD/wk9fr5uCaZ6n6YxoT7dK7pnVwzYitWl/8N6+3Wc
- Piq+DGeMlDVTob7AnK0UAjbkzqDvcaBVejEHjn9dgAzXMk+8YCNBsZCyW22VDFsqMN8J
- 38jzHYhaHXEyK3xxQSatdPGAv1wZcPxcRlQDc+TuD+B2ZOCVXTBF5gAoRhUymP/zV6xY
- aPAhGXI+kfUoNbyNak58F7Xl2qoYlbnBLJhs2w3jUo8r574VoV0fnARKYUfpotsmwZp6
- d3zg==
-X-Gm-Message-State: ACrzQf0/8EDflfSTVcouF6XJoeE+BgwBk9XlEmorhuo1EK0oQxeSfmNT
- 9L+xI8c1rd1j9dLNqkkq1u7Royt6gCKLushPoSMe0cjiA5oGEZu9LPUjCwB2ILJvH1kr49yvcV/
- FTnc0KF9J0rd8XYL93+LxHYpdiXQFw4jv8aW2rWNuHsvglsyDWi9YMLVPmNhEDZT0V3XxYJMgyF
- e5br1Riztk8nsG6LldEQ==
-X-Received: by 2002:a17:902:ccc2:b0:178:29f9:5c5e with SMTP id
- z2-20020a170902ccc200b0017829f95c5emr62089275ple.21.1668089628925; 
- Thu, 10 Nov 2022 06:13:48 -0800 (PST)
-X-Google-Smtp-Source: AMsMyM4pTVwwwoLGWtQena1F0pLzfeP30NWs5AAYEwbAd4Bo+neGArXMZ1NL4blW72ZgkwHqxgCYsw==
-X-Received: by 2002:a17:902:ccc2:b0:178:29f9:5c5e with SMTP id
- z2-20020a170902ccc200b0017829f95c5emr62089242ple.21.1668089628429; 
- Thu, 10 Nov 2022 06:13:48 -0800 (PST)
-Received: from step1.redhat.com (host-82-53-134-234.retail.telecomitalia.it.
- [82.53.134.234]) by smtp.gmail.com with ESMTPSA id
- o24-20020aa79798000000b0056a7486da77sm10503973pfp.13.2022.11.10.06.13.42
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 10 Nov 2022 06:13:47 -0800 (PST)
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: virtualization@lists.linux-foundation.org
-Subject: [PATCH] vdpa_sim: fix vringh initialization in vdpasim_queue_ready()
-Date: Thu, 10 Nov 2022 15:13:35 +0100
-Message-Id: <20221110141335.62171-1-sgarzare@redhat.com>
-X-Mailer: git-send-email 2.38.1
+ in-reply-to:in-reply-to:references:references;
+ bh=RgL5/7r9Wym/g+B0pjsz3dgQTgEurnPH1LtAMA+rvcc=;
+ b=MBXaTgB14CUWLrsbKpweD/Q5IOd5C3FapkESpmDr8I6BNujP8EZrXMdBm5xPzRQf0vaqYi
+ 00rfQusXVEZlQFcAPov4KvoGB7AEoJgF+IW4oge3Mg7CYZOcm/MQyGflcwd+qBqI8BlCP3
+ EMyka305+O+mBypDGPpV6svg/JlxgWY=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-29-x0G0q06wN6qNKRWnBYHEWQ-1; Thu, 10 Nov 2022 15:18:41 -0500
+X-MC-Unique: x0G0q06wN6qNKRWnBYHEWQ-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.3])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 013238582B9;
+ Thu, 10 Nov 2022 20:18:41 +0000 (UTC)
+Received: from localhost (unknown [10.39.192.6])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 768171121330;
+ Thu, 10 Nov 2022 20:18:39 +0000 (UTC)
+Date: Thu, 10 Nov 2022 15:18:38 -0500
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Angus Chen <angus.chen@jaguarmicro.com>
+Subject: Re: [PATCH] virtio_blk: use UINT_MAX instead of -1U
+Message-ID: <Y21cnhr1q6e6oNhp@fedora>
+References: <20221110030124.1986-1-angus.chen@jaguarmicro.com>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: Eugenio Perez Martin <eperezma@redhat.com>, linux-kernel@vger.kernel.org,
- "Michael S. Tsirkin" <mst@redhat.com>
+In-Reply-To: <20221110030124.1986-1-angus.chen@jaguarmicro.com>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.3
+Cc: axboe@kernel.dk, mst@redhat.com, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org,
+ pbonzini@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -116,47 +91,62 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============1447628809522835005=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-When we initialize vringh, we should pass the features and the
-number of elements in the virtqueue negotiated with the driver,
-otherwise operations with vringh may fail.
 
-This was discovered in a case where the driver sets a number of
-elements in the virtqueue different from the value returned by
-.get_vq_num_max().
+--===============1447628809522835005==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="EAV7xN6Mtl16GRtO"
+Content-Disposition: inline
 
-In vdpasim_vq_reset() is safe to initialize the vringh with
-default values, since the virtqueue will not be used until
-vdpasim_queue_ready() is called again.
 
-Fixes: 2c53d0f64c06 ("vdpasim: vDPA device simulator")
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
----
- drivers/vdpa/vdpa_sim/vdpa_sim.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+--EAV7xN6Mtl16GRtO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-index b071f0d842fb..b20689f8fe89 100644
---- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
-+++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-@@ -67,8 +67,7 @@ static void vdpasim_queue_ready(struct vdpasim *vdpasim, unsigned int idx)
- {
- 	struct vdpasim_virtqueue *vq = &vdpasim->vqs[idx];
- 
--	vringh_init_iotlb(&vq->vring, vdpasim->dev_attr.supported_features,
--			  VDPASIM_QUEUE_MAX, false,
-+	vringh_init_iotlb(&vq->vring, vdpasim->features, vq->num, false,
- 			  (struct vring_desc *)(uintptr_t)vq->desc_addr,
- 			  (struct vring_avail *)
- 			  (uintptr_t)vq->driver_addr,
--- 
-2.38.1
+On Thu, Nov 10, 2022 at 11:01:23AM +0800, Angus Chen wrote:
+> We use UINT_MAX to limit max_discard_sectors in virtblk_probe,
+> we can use UINT_MAX to limit max_hw_sectors for consistencies.
+>=20
+> No functional change intended.
+>=20
+> Signed-off-by: Angus Chen <angus.chen@jaguarmicro.com>
+> ---
+>  drivers/block/virtio_blk.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+
+--EAV7xN6Mtl16GRtO
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmNtXJ4ACgkQnKSrs4Gr
+c8hFTgf/VUUpU5e4Be8XmTk5FyYOu+JeRz6prpVZEnfw7rKvvZc4O2NVtavIYV/7
+LbYA3WCbconInnqACqX1fCZ300zS0cWIYx9qFWTCcekj5eTJx2iM//3PWz605Lld
+kA/B4A8Y9uJphud/8BLpVb58J8QGHPbLL5iSY9Ql/8jivezW8hniEQZVYoGjqECJ
+84BZ1KIZ7ZdTGucZq7a3f1qLrafA5f5uTRQ9qk9dEwPJlBSSZauu+k1ehQQYdNv4
+thqgGOkGl7Kygq2sGDAGP0DOTQ9f6jIACqZlaYPEPBLvXy4r4440QQt1e8gib3EN
+qUqPkkgeCxv108rW7NWZKdwYsvYtsQ==
+=L5h/
+-----END PGP SIGNATURE-----
+
+--EAV7xN6Mtl16GRtO--
+
+
+--===============1447628809522835005==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============1447628809522835005==--
+
