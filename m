@@ -1,113 +1,113 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 401BAC4332F
-	for <virtualization@archiver.kernel.org>; Thu, 10 Nov 2022 08:02:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7F5C9C43217
+	for <virtualization@archiver.kernel.org>; Thu, 10 Nov 2022 08:55:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id C185D818E8;
-	Thu, 10 Nov 2022 08:02:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C185D818E8
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=SD2S+KXz
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 28dMAsLJL-lh; Thu, 10 Nov 2022 08:02:13 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 4F06181854;
-	Thu, 10 Nov 2022 08:02:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4F06181854
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 30D6BC0032;
-	Thu, 10 Nov 2022 08:02:12 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D40ACC002D
- for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Nov 2022 08:02:10 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id A01214014A
- for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Nov 2022 08:02:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A01214014A
+	by smtp2.osuosl.org (Postfix) with ESMTP id EB064402E4;
+	Thu, 10 Nov 2022 08:55:41 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org EB064402E4
 Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=SD2S+KXz
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=gqwBsmCI;
+	dkim=fail reason="signature verification failed" header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=Tkwl05EE
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 6ELanzfXRApt; Thu, 10 Nov 2022 08:55:40 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 4EB67400FD;
+	Thu, 10 Nov 2022 08:55:40 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4EB67400FD
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 2978FC0033;
+	Thu, 10 Nov 2022 08:55:40 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5C4A4C002D
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 10 Nov 2022 08:55:39 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 2A454400FD
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 10 Nov 2022 08:55:39 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2A454400FD
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id n9RW3-IDgJkl
+ with ESMTP id DKTKs72_c74c
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Nov 2022 08:02:09 +0000 (UTC)
+ Thu, 10 Nov 2022 08:55:38 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org AC933400AF
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id AC933400AF
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3D9CB400AF
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 3D9CB400AF
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Nov 2022 08:02:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1668067328;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ Thu, 10 Nov 2022 08:55:38 +0000 (UTC)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by smtp-out2.suse.de (Postfix) with ESMTPS id 53C282015D;
+ Thu, 10 Nov 2022 08:55:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+ t=1668070535; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=+9i8OhydFba5DJ5WEoqEn0GpBo7XQiRyZXUoAQZSKXw=;
- b=SD2S+KXzKTPqcp7UWuS9T8PESR3rLMhNLFkNvD2gyB5Oz6DLS0BK8p2z3mTqfOz11ikTMS
- Uz2GVzf0h1JKa0XhiA/sVjmEIMCEyU0s2MJQHMK43g6xUQz3mCp/ud9InKYTU7XMbBNh9G
- 77oomUAALvp1XMMloPBDwetLUvB/4x8=
-Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com
- [209.85.214.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-150-lhg_SU1zOqC3kU2CDsmCFA-1; Thu, 10 Nov 2022 03:02:07 -0500
-X-MC-Unique: lhg_SU1zOqC3kU2CDsmCFA-1
-Received: by mail-pl1-f198.google.com with SMTP id
- q10-20020a170902f34a00b00186c5448b01so910685ple.4
- for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Nov 2022 00:02:07 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=+9i8OhydFba5DJ5WEoqEn0GpBo7XQiRyZXUoAQZSKXw=;
- b=VU8l/tR3fQadgYU0AavltnsJZEB9C91lOcG31xZmfxM4XZ8eOnoX6iyxO2SC8ancq3
- fwSi3bGH+qqK04LWzIGt3JCBX3FlXCKt6UfVQ/5RzH+IGRAXGE5NiqRSCLYL+jY31xSJ
- vGgApkRmyem5r2TyCRIPYrHELH9Iugdtz5SIhM/ek8sRT+af84e2f6Ve2x0fhlAf+hM2
- jrAgARyoWxzIg4dOYtF0QNYkTkyAd4oTJJP9oDEFAjF6smoBAkpd7xViJ2rMC1QYwziY
- h1QZ+Uz+X1hGc13aWY9aVM3CsQ2ngDk/RWKpeF71MXuzRTi9/uJAns9QeOB4hjAfQgUB
- Ny7A==
-X-Gm-Message-State: ACrzQf0wm/PZjCyNQM1yfRXZBWBe06ol0cagVL3zCnVet4UGG3BvBBc7
- noV99xFH8pOzCdNHgm4xejyWdcISeLJd68naBdwYYIcGHbwUzomybX01BFNeZW8SLKJyQyNEuE4
- QfaY7PRYRS2BeMNWPiHb0Ouq2L1dbJdhyOrbrxtq90w==
-X-Received: by 2002:a05:6a00:16c1:b0:563:177f:99ee with SMTP id
- l1-20020a056a0016c100b00563177f99eemr64280774pfc.7.1668067325729; 
- Thu, 10 Nov 2022 00:02:05 -0800 (PST)
-X-Google-Smtp-Source: AMsMyM5yslBGXty4dTanvbKMrVsTvIZV2WFd1TRSIO+dOGiek5G+4D1x1sy9QxNs7SJbmVNIyKMaXA==
-X-Received: by 2002:a05:6a00:16c1:b0:563:177f:99ee with SMTP id
- l1-20020a056a0016c100b00563177f99eemr64280762pfc.7.1668067325347; 
- Thu, 10 Nov 2022 00:02:05 -0800 (PST)
-Received: from sgarzare-redhat (host-82-53-134-234.retail.telecomitalia.it.
- [82.53.134.234]) by smtp.gmail.com with ESMTPSA id
- j12-20020a170902da8c00b0017eb2d62bbesm10572248plx.99.2022.11.10.00.01.55
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 10 Nov 2022 00:02:04 -0800 (PST)
-Date: Thu, 10 Nov 2022 09:01:47 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: ruanjinjie <ruanjinjie@huawei.com>
-Subject: Re: [PATCH v2] vdpa_sim: fix possible memory leak in
- vdpasim_net_init() and vdpasim_blk_init()
-Message-ID: <20221110080147.bpfumiab2yt7nehf@sgarzare-redhat>
-References: <20221110050446.3932031-1-ruanjinjie@huawei.com>
+ bh=UrYORbb/2EGM8TKY6i8vkgmqI8qlKIOPW4j/QJZtm/c=;
+ b=gqwBsmCIZdDSjdReT8YRaS9pesOZFg/26yhH5tzthQyv++GeCkLR64K+3wFjVDvyF/19TM
+ t7VK4pec9wGumkwjhSxaBvRBI42VjssgnzDKGVsT8KW21Y005qQiq4Ku1MBLIt/f3Xew2q
+ J4vshkwUWYMtMt2bnUsf+jPcF4gEVSI=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+ s=susede2_ed25519; t=1668070535;
+ h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=UrYORbb/2EGM8TKY6i8vkgmqI8qlKIOPW4j/QJZtm/c=;
+ b=Tkwl05EEIDknsMTrFPAw/Each/jJOrjVzFXkrNCbswBLSQP5i/jmUj4dHp+gU8Rx8Vb6lF
+ 9e0ntPrMxLX4vqAw==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id C25FB1346E;
+ Thu, 10 Nov 2022 08:55:34 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+ by imap2.suse-dmz.suse.de with ESMTPSA id xSQdLoa8bGNOUQAAMHmgww
+ (envelope-from <tzimmermann@suse.de>); Thu, 10 Nov 2022 08:55:34 +0000
+Message-ID: <93359ffb-4f88-408f-054b-879b88e09326@suse.de>
+Date: Thu, 10 Nov 2022 09:55:33 +0100
 MIME-Version: 1.0
-In-Reply-To: <20221110050446.3932031-1-ruanjinjie@huawei.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: mst@redhat.com, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, eperezma@redhat.com,
- elic@nvidia.com, gautam.dawar@xilinx.com
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.1
+Subject: Re: [PATCH v8 2/7] drm/shmem-helper: Don't use vmap_use_count for
+ dma-bufs
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ David Airlie <airlied@linux.ie>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
+ Daniel Almeida <daniel.almeida@collabora.com>,
+ Gustavo Padovan <gustavo.padovan@collabora.com>,
+ Daniel Stone <daniel@fooishbar.org>,
+ Tomeu Vizoso <tomeu.vizoso@collabora.com>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Rob Clark <robdclark@gmail.com>,
+ Sumit Semwal <sumit.semwal@linaro.org>,
+ =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>,
+ Qiang Yu <yuq825@gmail.com>, Steven Price <steven.price@arm.com>,
+ Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
+ Rob Herring <robh@kernel.org>, Sean Paul <sean@poorly.run>,
+ Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+ Abhinav Kumar <quic_abhinavk@quicinc.com>
+References: <20221105232719.302619-1-dmitry.osipenko@collabora.com>
+ <20221105232719.302619-3-dmitry.osipenko@collabora.com>
+Content-Language: en-US
+From: Thomas Zimmermann <tzimmermann@suse.de>
+In-Reply-To: <20221105232719.302619-3-dmitry.osipenko@collabora.com>
+Cc: Dmitry Osipenko <digetx@gmail.com>, kernel@collabora.com,
+ linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,91 +119,163 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: multipart/mixed; boundary="===============4833457206183964595=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi,
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--===============4833457206183964595==
+Content-Language: en-US
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------INGHqK60cD0J6bcyRsgC8CTQ"
 
-On Thu, Nov 10, 2022 at 01:04:46PM +0800, ruanjinjie wrote:
->Inject fault while probing module, if device_register() fails in
->vdpasim_net_init() or vdpasim_blk_init(), but the refcount of kobject is
->not decreased to 0, the name allocated in dev_set_name() is leaked.
->Fix this by calling put_device(), so that name can be freed in
->callback function kobject_cleanup().
->
->(vdpa_sim_net)
->unreferenced object 0xffff88807eebc370 (size 16):
->  comm "modprobe", pid 3848, jiffies 4362982860 (age 18.153s)
->  hex dump (first 16 bytes):
->    76 64 70 61 73 69 6d 5f 6e 65 74 00 6b 6b 6b a5  vdpasim_net.kkk.
->  backtrace:
->    [<ffffffff8174f19e>] __kmalloc_node_track_caller+0x4e/0x150
->    [<ffffffff81731d53>] kstrdup+0x33/0x60
->    [<ffffffff83a5d421>] kobject_set_name_vargs+0x41/0x110
->    [<ffffffff82d87aab>] dev_set_name+0xab/0xe0
->    [<ffffffff82d91a23>] device_add+0xe3/0x1a80
->    [<ffffffffa0270013>] 0xffffffffa0270013
->    [<ffffffff81001c27>] do_one_initcall+0x87/0x2e0
->    [<ffffffff813739cb>] do_init_module+0x1ab/0x640
->    [<ffffffff81379d20>] load_module+0x5d00/0x77f0
->    [<ffffffff8137bc40>] __do_sys_finit_module+0x110/0x1b0
->    [<ffffffff83c4d505>] do_syscall_64+0x35/0x80
->    [<ffffffff83e0006a>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
->
->(vdpa_sim_blk)
->unreferenced object 0xffff8881070c1250 (size 16):
->  comm "modprobe", pid 6844, jiffies 4364069319 (age 17.572s)
->  hex dump (first 16 bytes):
->    76 64 70 61 73 69 6d 5f 62 6c 6b 00 6b 6b 6b a5  vdpasim_blk.kkk.
->  backtrace:
->    [<ffffffff8174f19e>] __kmalloc_node_track_caller+0x4e/0x150
->    [<ffffffff81731d53>] kstrdup+0x33/0x60
->    [<ffffffff83a5d421>] kobject_set_name_vargs+0x41/0x110
->    [<ffffffff82d87aab>] dev_set_name+0xab/0xe0
->    [<ffffffff82d91a23>] device_add+0xe3/0x1a80
->    [<ffffffffa0220013>] 0xffffffffa0220013
->    [<ffffffff81001c27>] do_one_initcall+0x87/0x2e0
->    [<ffffffff813739cb>] do_init_module+0x1ab/0x640
->    [<ffffffff81379d20>] load_module+0x5d00/0x77f0
->    [<ffffffff8137bc40>] __do_sys_finit_module+0x110/0x1b0
->    [<ffffffff83c4d505>] do_syscall_64+0x35/0x80
->    [<ffffffff83e0006a>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
->
->Signed-off-by: ruanjinjie <ruanjinjie@huawei.com>
->---
->v2:
->- add fault inject message
->---
-> drivers/vdpa/vdpa_sim/vdpa_sim_blk.c | 4 +++-
-> drivers/vdpa/vdpa_sim/vdpa_sim_net.c | 4 +++-
-> 2 files changed, 6 insertions(+), 2 deletions(-)
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------INGHqK60cD0J6bcyRsgC8CTQ
+Content-Type: multipart/mixed; boundary="------------i0b0biUqckSAOl60Afi3uhi9";
+ protected-headers="v1"
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ David Airlie <airlied@linux.ie>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
+ Daniel Almeida <daniel.almeida@collabora.com>,
+ Gustavo Padovan <gustavo.padovan@collabora.com>,
+ Daniel Stone <daniel@fooishbar.org>,
+ Tomeu Vizoso <tomeu.vizoso@collabora.com>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Rob Clark <robdclark@gmail.com>,
+ Sumit Semwal <sumit.semwal@linaro.org>,
+ =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>,
+ Qiang Yu <yuq825@gmail.com>, Steven Price <steven.price@arm.com>,
+ Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
+ Rob Herring <robh@kernel.org>, Sean Paul <sean@poorly.run>,
+ Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+ Abhinav Kumar <quic_abhinavk@quicinc.com>
+Cc: dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
+ Dmitry Osipenko <digetx@gmail.com>, kernel@collabora.com,
+ virtualization@lists.linux-foundation.org
+Message-ID: <93359ffb-4f88-408f-054b-879b88e09326@suse.de>
+Subject: Re: [PATCH v8 2/7] drm/shmem-helper: Don't use vmap_use_count for
+ dma-bufs
+References: <20221105232719.302619-1-dmitry.osipenko@collabora.com>
+ <20221105232719.302619-3-dmitry.osipenko@collabora.com>
+In-Reply-To: <20221105232719.302619-3-dmitry.osipenko@collabora.com>
 
-Thanks for the v2 of this patch!
-It LGTM, just a couple of comments about the submit process.
+--------------i0b0biUqckSAOl60Afi3uhi9
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
-Usually when you get A-b R-b's and the patch doesn't change, it's better 
-to bring them in later versions.
+SGksDQoNCkkgaGF2ZSBhIGZldyBjb21tZW50cyB0aGF0IGFyZSBub3QgcmVhbGx5IHNvbWV0
+aGluZyBmb3IgdGhpcyBwYXRjaC4gSSdsbCANCmNvbW1lbnQgaXQgaGVyZSBhbnl3YXkgdG8g
+aGF2ZSB0aGVtIHBvc3RlZC4NCg0KQW0gMDYuMTEuMjIgdW0gMDA6Mjcgc2NocmllYiBEbWl0
+cnkgT3NpcGVua286DQo+IERNQS1idWYgY29yZSBoYXMgaXRzIG93biByZWZjb3VudGluZyBv
+ZiB2bWFwcywgdXNlIGl0IGluc3RlYWQgb2YgZHJtLXNobWVtDQo+IGNvdW50aW5nLiBUaGlz
+IGNoYW5nZSBwcmVwYXJlcyBkcm0tc2htZW0gZm9yIGFkZGl0aW9uIG9mIG1lbW9yeSBzaHJp
+bmtlcg0KPiBzdXBwb3J0IHdoZXJlIGRybS1zaG1lbSB3aWxsIHVzZSBhIHNpbmdsZSBkbWEt
+YnVmIHJlc2VydmF0aW9uIGxvY2sgZm9yDQo+IGFsbCBvcGVyYXRpb25zIHBlcmZvcm1lZCBv
+dmVyIGRtYS1idWZzLg0KPiANCj4gU2lnbmVkLW9mZi1ieTogRG1pdHJ5IE9zaXBlbmtvIDxk
+bWl0cnkub3NpcGVua29AY29sbGFib3JhLmNvbT4NCj4gLS0tDQo+ICAgZHJpdmVycy9ncHUv
+ZHJtL2RybV9nZW1fc2htZW1faGVscGVyLmMgfCAzNSArKysrKysrKysrKysrKystLS0tLS0t
+LS0tLQ0KPiAgIDEgZmlsZSBjaGFuZ2VkLCAyMCBpbnNlcnRpb25zKCspLCAxNSBkZWxldGlv
+bnMoLSkNCj4gDQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0vZHJtX2dlbV9zaG1l
+bV9oZWxwZXIuYyBiL2RyaXZlcnMvZ3B1L2RybS9kcm1fZ2VtX3NobWVtX2hlbHBlci5jDQo+
+IGluZGV4IDM1MTM4ZjhhMzc1Yy4uODAxMDMzYjQ4ODkzIDEwMDY0NA0KPiAtLS0gYS9kcml2
+ZXJzL2dwdS9kcm0vZHJtX2dlbV9zaG1lbV9oZWxwZXIuYw0KPiArKysgYi9kcml2ZXJzL2dw
+dS9kcm0vZHJtX2dlbV9zaG1lbV9oZWxwZXIuYw0KPiBAQCAtMjkzLDI0ICsyOTMsMjIgQEAg
+c3RhdGljIGludCBkcm1fZ2VtX3NobWVtX3ZtYXBfbG9ja2VkKHN0cnVjdCBkcm1fZ2VtX3No
+bWVtX29iamVjdCAqc2htZW0sDQo+ICAgCXN0cnVjdCBkcm1fZ2VtX29iamVjdCAqb2JqID0g
+JnNobWVtLT5iYXNlOw0KPiAgIAlpbnQgcmV0ID0gMDsNCj4gICANCj4gLQlpZiAoc2htZW0t
+PnZtYXBfdXNlX2NvdW50KysgPiAwKSB7DQo+IC0JCWlvc3lzX21hcF9zZXRfdmFkZHIobWFw
+LCBzaG1lbS0+dmFkZHIpOw0KPiAtCQlyZXR1cm4gMDsNCj4gLQl9DQo+IC0NCj4gICAJaWYg
+KG9iai0+aW1wb3J0X2F0dGFjaCkgew0KDQpXZSBoYXZlIGEgbnVtYmVyIG9mIHN1Y2ggYnJh
+bmNoZXMgaW4gdmFyaW91cyBtZW1vcnkgbWFuYWdlcnMuIEF0IHNvbWUgDQpwb2ludCB3ZSBz
+aG91bGQgdGhpbmsgYWJvdXQgc29tZXRoaW5nIGxpa2UgYSBHRU0gRE1BLUJVRiBvYmplY3Qg
+KG9yIGF0IA0KbGVhc3Qgc29tZSBoZWxwZXJzKSB0aGF0IHJlcHJlc2VudHMgYW4gaW1wb3J0
+ZWQgYnVmZmVyLiBTdWNoIGEgdGluZyANCm1pZ2h0IGJlIHVzZWZ1bCB0byBhdm9pZCB0aGUg
+ZHVwbGljYXRpb24gYW5kIGJyYW5jaGluZyB0aGF0J3MgZ29pbmcgb24gDQpoZXJlIGFuZCBp
+biBvdGhlciBmdW5jdGlvbnMuDQoNCj4gICAJCXJldCA9IGRtYV9idWZfdm1hcChvYmotPmlt
+cG9ydF9hdHRhY2gtPmRtYWJ1ZiwgbWFwKTsNCj4gICAJCWlmICghcmV0KSB7DQo+ICAgCQkJ
+aWYgKFdBUk5fT04obWFwLT5pc19pb21lbSkpIHsNCg0KSSB0aGluayBpdCdzIE9LIHRvIGRy
+b3AgdGhpcyB0ZXN0IGZvciBpc19pb21lbS4gIEl0IHdhcyB1c2VmdWwgd2hlbiB3ZSANCmRp
+ZCBub3QgZGlzdGluZ3Vpc2ggYmV0d2VlbiBJL08gYW5kIHN5c3RlbSBtZW1vcnkgaW4gbW9z
+dCBvZiBvdXIgDQpoZWxwZXJzLiBCdXQgdGhhdCBzaG91bGQgaGF2ZSBiZWVuIHJlc29sdmVk
+IGJ5IG5vdyBhbmQgd2hhdGV2ZXIgY29kZSANCnN0aWxsIGRlcGVuZHMgb24gaXQgc2hvdWxk
+IGJlIHVwZGF0ZWQgYWNjb3JkaW5nbHkuIEFsbCBoZWxwZXJzIHVzZSANCmlvc3lzX21hcCBm
+dW5jdGlvbmFsaXR5IHRvIGFjY2VzcyB0aGUgbWVtb3J5Lg0KDQoNCj4gICAJCQkJZG1hX2J1
+Zl92dW5tYXAob2JqLT5pbXBvcnRfYXR0YWNoLT5kbWFidWYsIG1hcCk7DQo+IC0JCQkJcmV0
+ID0gLUVJTzsNCj4gLQkJCQlnb3RvIGVycl9wdXRfcGFnZXM7DQo+ICsJCQkJcmV0dXJuIC1F
+SU87DQo+ICAgCQkJfQ0KPiAtCQkJc2htZW0tPnZhZGRyID0gbWFwLT52YWRkcjsNCg0KVG8g
+cmVzb2x2ZSB0aGUgaXNfaW9tYXAgaXNzdWUsIHdlJ2QgaGF2ZSB0byBzdG9yZSB2YWRkciBh
+cyBzdHJ1Y3QgDQppb3N5c21fbWFwIHZhbHVlLg0KDQo+ICAgCQl9DQo+ICAgCX0gZWxzZSB7
+DQo+ICAgCQlwZ3Byb3RfdCBwcm90ID0gUEFHRV9LRVJORUw7DQo+ICAgDQo+ICsJCWlmIChz
+aG1lbS0+dm1hcF91c2VfY291bnQrKyA+IDApIHsNCj4gKwkJCWlvc3lzX21hcF9zZXRfdmFk
+ZHIobWFwLCBzaG1lbS0+dmFkZHIpOw0KPiArCQkJcmV0dXJuIDA7DQo+ICsJCX0NCj4gKw0K
+PiAgIAkJcmV0ID0gZHJtX2dlbV9zaG1lbV9nZXRfcGFnZXMoc2htZW0pOw0KPiAgIAkJaWYg
+KHJldCkNCj4gICAJCQlnb3RvIGVycl96ZXJvX3VzZTsNCj4gQEAgLTM3NiwxNSArMzc0LDE1
+IEBAIHN0YXRpYyB2b2lkIGRybV9nZW1fc2htZW1fdnVubWFwX2xvY2tlZChzdHJ1Y3QgZHJt
+X2dlbV9zaG1lbV9vYmplY3QgKnNobWVtLA0KPiAgIHsNCj4gICAJc3RydWN0IGRybV9nZW1f
+b2JqZWN0ICpvYmogPSAmc2htZW0tPmJhc2U7DQo+ICAgDQo+IC0JaWYgKFdBUk5fT05fT05D
+RSghc2htZW0tPnZtYXBfdXNlX2NvdW50KSkNCj4gLQkJcmV0dXJuOw0KPiAtDQo+IC0JaWYg
+KC0tc2htZW0tPnZtYXBfdXNlX2NvdW50ID4gMCkNCj4gLQkJcmV0dXJuOw0KPiAtDQo+ICAg
+CWlmIChvYmotPmltcG9ydF9hdHRhY2gpIHsNCj4gICAJCWRtYV9idWZfdnVubWFwKG9iai0+
+aW1wb3J0X2F0dGFjaC0+ZG1hYnVmLCBtYXApOw0KPiAgIAl9IGVsc2Ugew0KPiArCQlpZiAo
+V0FSTl9PTl9PTkNFKCFzaG1lbS0+dm1hcF91c2VfY291bnQpKQ0KPiArCQkJcmV0dXJuOw0K
+PiArDQo+ICsJCWlmICgtLXNobWVtLT52bWFwX3VzZV9jb3VudCA+IDApDQo+ICsJCQlyZXR1
+cm47DQo+ICsNCj4gICAJCXZ1bm1hcChzaG1lbS0+dmFkZHIpOw0KPiAgIAkJZHJtX2dlbV9z
+aG1lbV9wdXRfcGFnZXMoc2htZW0pOw0KPiAgIAl9DQo+IEBAIC02NDYsNyArNjQ0LDE0IEBA
+IHZvaWQgZHJtX2dlbV9zaG1lbV9wcmludF9pbmZvKGNvbnN0IHN0cnVjdCBkcm1fZ2VtX3No
+bWVtX29iamVjdCAqc2htZW0sDQo+ICAgCQkJICAgICAgc3RydWN0IGRybV9wcmludGVyICpw
+LCB1bnNpZ25lZCBpbnQgaW5kZW50KQ0KPiAgIHsNCj4gICAJZHJtX3ByaW50Zl9pbmRlbnQo
+cCwgaW5kZW50LCAicGFnZXNfdXNlX2NvdW50PSV1XG4iLCBzaG1lbS0+cGFnZXNfdXNlX2Nv
+dW50KTsNCj4gLQlkcm1fcHJpbnRmX2luZGVudChwLCBpbmRlbnQsICJ2bWFwX3VzZV9jb3Vu
+dD0ldVxuIiwgc2htZW0tPnZtYXBfdXNlX2NvdW50KTsNCj4gKw0KPiArCWlmIChzaG1lbS0+
+YmFzZS5pbXBvcnRfYXR0YWNoKQ0KPiArCQlkcm1fcHJpbnRmX2luZGVudChwLCBpbmRlbnQs
+ICJ2bWFwX3VzZV9jb3VudD0ldVxuIiwNCj4gKwkJCQkgIHNobWVtLT5iYXNlLmRtYV9idWYt
+PnZtYXBwaW5nX2NvdW50ZXIpOw0KPiArCWVsc2UNCj4gKwkJZHJtX3ByaW50Zl9pbmRlbnQo
+cCwgaW5kZW50LCAidm1hcF91c2VfY291bnQ9JXVcbiIsDQo+ICsJCQkJICBzaG1lbS0+dm1h
+cF91c2VfY291bnQpOw0KPiArDQoNCkhlcmUncyBhbm90aGVyIGNhc2Ugd2hlcmUgYSBHRU0g
+RE1BLUJVRiBvYmplY3QgbWlnaHQgYmVjb21lIGhlbHBmdWwuDQoNCkJlc3QgcmVnYXJkcw0K
+VGhvbWFzDQoNCj4gICAJZHJtX3ByaW50Zl9pbmRlbnQocCwgaW5kZW50LCAidmFkZHI9JXBc
+biIsIHNobWVtLT52YWRkcik7DQo+ICAgfQ0KPiAgIEVYUE9SVF9TWU1CT0woZHJtX2dlbV9z
+aG1lbV9wcmludF9pbmZvKTsNCg0KLS0gDQpUaG9tYXMgWmltbWVybWFubg0KR3JhcGhpY3Mg
+RHJpdmVyIERldmVsb3Blcg0KU1VTRSBTb2Z0d2FyZSBTb2x1dGlvbnMgR2VybWFueSBHbWJI
+DQpNYXhmZWxkc3RyLiA1LCA5MDQwOSBOw7xybmJlcmcsIEdlcm1hbnkNCihIUkIgMzY4MDks
+IEFHIE7DvHJuYmVyZykNCkdlc2Now6RmdHNmw7xocmVyOiBJdm8gVG90ZXYNCg==
 
-Also, we had suggested reporting the Fixes tag, because usually when we 
-fix a bug it's good to identify which patch introduced the problem, so 
-it's easier to backport this fix into stable versions of the kernel.
-https://www.kernel.org/doc/html/v4.17/process/submitting-patches.html#describe-your-changes
+--------------i0b0biUqckSAOl60Afi3uhi9--
 
-In this case we should use the following tags:
+--------------INGHqK60cD0J6bcyRsgC8CTQ
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
 
-Fixes: 899c4d187f6a ("vdpa_sim_blk: add support for vdpa management tool")
-Fixes: a3c06ae158dd ("vdpa_sim_net: Add support for user supported devices")
+-----BEGIN PGP SIGNATURE-----
 
-With them:
+wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmNsvIYFAwAAAAAACgkQlh/E3EQov+A/
+Tw//ZYrBzsRm/a9RnhIlqV27LiVx6btfHf+SNMWYv58P7yaZ6+h2OCa9h0pGWH5GiP9CI3P7TDRf
+8ztp1VjJE9z/d4xlFV2eVm+q+T7z/kLVyt50MnNKNM6yUhFFMxx923pBxGrLkTFUqIwIf3kwca+W
+kpOp3UQpZGDl6c6dt0SvIC/ek3dtGAMXZD4L6hMA537hsX3w8UEnYWy4UWCk3PH6Ic8y9ywistat
+/5dq6ils5evm+j5uInSpTQPexJA6kKi6to5D1fUgrGH+MdX+bsY7+nmB5F6YsJq7IfFGLrH7c7jP
+YmwnHvufRFw4ru+AhAJRg6djlxpSno6C4M3XFmcfVMuCpgOJsvJEWXUT/c8qNRGbpNH2xFPrAi9G
+rC+8hZ0DFPV0RsYrokewNwan2is3JNXng3hf2Opvu0JaYFBwKrYCs/XO7oQRdgvvycjbGsTGME1J
+gd0y/+aHYqcZTO5s8BvbGdcmdBOQnr52ioNmk8rL3VQ4PZlipQIwL0gfVdwhelIPbwBx5+yGmH59
+aU/yf7uX2/Rvs9SSZ05EiZU4fntYjo5VHViVRcH82BK3hRII1mbt6I7zYviOM2IYhuUN/yewcD69
+ZSBeJJg6v+iGyKiFb0Ym1yrlLok9sJuBiOUUY7uVqZtRKh5xd54Uv2lfhx4DHirfPeoDitrBAU+B
+uQ0=
+=QSh8
+-----END PGP SIGNATURE-----
 
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+--------------INGHqK60cD0J6bcyRsgC8CTQ--
 
-Thanks,
-Stefano
+--===============4833457206183964595==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============4833457206183964595==--
