@@ -1,106 +1,109 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B60F2C4332F
-	for <virtualization@archiver.kernel.org>; Thu, 10 Nov 2022 03:47:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 12342C4332F
+	for <virtualization@archiver.kernel.org>; Thu, 10 Nov 2022 03:50:06 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 36054405A6;
-	Thu, 10 Nov 2022 03:47:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 36054405A6
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Tgb6Bmr8
+	by smtp1.osuosl.org (Postfix) with ESMTP id 886CB81076;
+	Thu, 10 Nov 2022 03:50:06 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 886CB81076
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=DyigSyuQ
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id rBMKR1xkt16B; Thu, 10 Nov 2022 03:47:56 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id FpsdDft9Yfdv; Thu, 10 Nov 2022 03:50:05 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 81F7F4042F;
-	Thu, 10 Nov 2022 03:47:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 81F7F4042F
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 0B4E180C3C;
+	Thu, 10 Nov 2022 03:50:05 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0B4E180C3C
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5EF13C0033;
-	Thu, 10 Nov 2022 03:47:55 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4922BC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C255CC0033;
+	Thu, 10 Nov 2022 03:50:04 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6DA05C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Nov 2022 03:47:53 +0000 (UTC)
+ Thu, 10 Nov 2022 03:50:04 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 144FF4049A
+ by smtp4.osuosl.org (Postfix) with ESMTP id 439B74012C
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Nov 2022 03:47:53 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 144FF4049A
+ Thu, 10 Nov 2022 03:50:04 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 439B74012C
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=DyigSyuQ
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id zVbvFxyerOY7
+ with ESMTP id PTdfs2aLyVnx
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Nov 2022 03:47:51 +0000 (UTC)
+ Thu, 10 Nov 2022 03:50:02 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B2E004042F
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2876940111
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id B2E004042F
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 2876940111
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Nov 2022 03:47:51 +0000 (UTC)
+ Thu, 10 Nov 2022 03:50:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1668052070;
+ s=mimecast20190719; t=1668052201;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=5wnyLGqWnXrVwpHf/LqVqqWLtFDmz9WDDkL1ZC0aJ6U=;
- b=Tgb6Bmr8+9MYgOsDJgJO4fe5U95EF7qdqYWf6XLpir5T2oprodCGYZx8c49ibcmP0Dl0xS
- Yv0ODDeqeOwnq5OTG4zoLUpmdaN+rVWHKcjaaMI3mMb72UMAHt1Iov3JZrokz71DBi4CeM
- wXfGTu8zRxXW8jj7nhakG5nFhKYV6v4=
-Received: from mail-oa1-f69.google.com (mail-oa1-f69.google.com
- [209.85.160.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=60TErWgB0U0U1ocEUPR6YUn8kraoamkgfQY4MoeZxSA=;
+ b=DyigSyuQrIFip8vN+KyTs/6qRA0y6E2P26kGKohol+gFlRtt88KjkGR0Y0jezfXWqZ1Tuw
+ 1cRB86XMCZGy9H4WnwvJto4cCVwtTd0M6zY6t08b3YW3a+aHoTI0UMuQZm6OcvsLUrAC9f
+ rDJdZJyRRpikvOWjH9YISdIn0BMbdmQ=
+Received: from mail-oa1-f71.google.com (mail-oa1-f71.google.com
+ [209.85.160.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-349-fcQm4HcNM1ia6AfHNlUE0w-1; Wed, 09 Nov 2022 22:47:45 -0500
-X-MC-Unique: fcQm4HcNM1ia6AfHNlUE0w-1
-Received: by mail-oa1-f69.google.com with SMTP id
- 586e51a60fabf-13b9bcc6b4cso475957fac.13
+ us-mta-648-GTt0kJ35OLWawp2o7qWjYw-1; Wed, 09 Nov 2022 22:50:00 -0500
+X-MC-Unique: GTt0kJ35OLWawp2o7qWjYw-1
+Received: by mail-oa1-f71.google.com with SMTP id
+ 586e51a60fabf-13b6f7d8bf4so487679fac.7
  for <virtualization@lists.linux-foundation.org>;
- Wed, 09 Nov 2022 19:47:45 -0800 (PST)
+ Wed, 09 Nov 2022 19:49:59 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=cc:to:subject:message-id:date:from:in-reply-to:references
  :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
  :reply-to;
- bh=5wnyLGqWnXrVwpHf/LqVqqWLtFDmz9WDDkL1ZC0aJ6U=;
- b=CixlyxBLuD6Wr+TQJPdWW5Ufa+au5zXKTyjeg9X/N1l/QmM6T/oW8nDsien/5KjaM7
- AwDQ7xGnw/S8Jd+xvddd01au1zog+bXNl8C5tAuzRrdpyS5U4K2ynAGDx7VcIojWdTw+
- h27WWgEWIJBbGVQnoSZEmMOi3f7nTS46VULpoVeXE7MRbDny7hUW4cXQV9jlJY3UOKvm
- bcwdyv9fwO59MKObPUp4W6v22l1xlMN/+71lOYhKlcgTukEj0sfRlGWt6TG+irK6WbKX
- 0lR1mT4bi+DfCvwoGlUfe9Yara0wuhHzmIehzvfeoe4/jfylrZcPs1kMkUor95ySV4q7
- Esiw==
-X-Gm-Message-State: ACrzQf1BXI+xijqPJEQUX/WBYS5fvmgHNBNqyHpI5KLdsjYKsyxLwvn5
- hQzRLkG/faiFuohfK/a5uvJd3SH8e7J6BnUcB8Gcr3DcSAO3GFmxwDDMlEQ4I7aicE3YSrmTcgO
- VIbY6XXRasxVvaH+/qFvSkQbkGxXlwud9AH77aa1BGi9UiANMxV7Iv+eB+w==
+ bh=60TErWgB0U0U1ocEUPR6YUn8kraoamkgfQY4MoeZxSA=;
+ b=REW0ku56pajTmrEDiokyOcQcFOGoKCjcmgaUrhXioi3sBq9EW1Iun+EzIT9PNd8Loe
+ xTnAufOiKJIx6pp20wu1ai6TPs1E6k2pxTshTcTtJs47Oq7V5ZB0UCSmFYl3dxHHVHzp
+ o0qRTuKx2JVFs06xfoIuvlEL5tR/Ahb6CHJuKdhOJSIo9oP7NCnbk0m/dImpL1ukf+dD
+ GW2qYu8z1WhptPQBlHS7VL6nf1vfribdQQN/MaP6BTMclW+Y0N6oF6CCPe99APJFy+al
+ B2s8y/YDyUVJhHyLI1NnG0S36LDR3jQpTXncqWa+dJaT8JvUwi8Dv03IxWaC05Uc0W80
+ ZiUw==
+X-Gm-Message-State: ACrzQf3BrY/+6ERdgSKOU5tAd8hEq3ai+n2HF4TUFRIOXeRbamEYROXQ
+ hjaZa8pzJkQkIG8O6ko7pv9b1fe2XiPfm1ScKvmNP6WrdwqGPLXQjBlLUqTyonP4JhMVDVmy/57
+ ZORYnImhUXwh6bbFH5q3a32THgMv/k+xBngvpyBWqj3aRvY/Sv9h5R9UB5g==
 X-Received: by 2002:a05:6871:54e:b0:13b:29b7:e2e8 with SMTP id
- t14-20020a056871054e00b0013b29b7e2e8mr45757630oal.35.1668052065152; 
- Wed, 09 Nov 2022 19:47:45 -0800 (PST)
-X-Google-Smtp-Source: AMsMyM4OG8TXscyRn+mvNZ5Q9caypOByTT7AsfeH9vDE9c7xEhzAoS8lLQpAWuyuFSiUnVRVjbupPFvOzyuw4NNzA0Q=
+ t14-20020a056871054e00b0013b29b7e2e8mr45759490oal.35.1668052199261; 
+ Wed, 09 Nov 2022 19:49:59 -0800 (PST)
+X-Google-Smtp-Source: AMsMyM6Yn+hSnYW2dtP/B4LNuU0FW2fGT1rkHGvoIuVlS3fet4Oamq0Y/5dGPg9Iq0HjoNmQTXjGOGpClzetCS9bnaE=
 X-Received: by 2002:a05:6871:54e:b0:13b:29b7:e2e8 with SMTP id
- t14-20020a056871054e00b0013b29b7e2e8mr45757624oal.35.1668052064920; Wed, 09
- Nov 2022 19:47:44 -0800 (PST)
+ t14-20020a056871054e00b0013b29b7e2e8mr45759486oal.35.1668052199063; Wed, 09
+ Nov 2022 19:49:59 -0800 (PST)
 MIME-Version: 1.0
-References: <20221101111655.1947-1-angus.chen@jaguarmicro.com>
- <CACGkMEs6ZTrf0NMXGuM=VYZC+zAujigiTG2CgE8gAdvxHc2Q7A@mail.gmail.com>
- <TY2PR06MB342458CA2B7B5B8FDCD3366185019@TY2PR06MB3424.apcprd06.prod.outlook.com>
-In-Reply-To: <TY2PR06MB342458CA2B7B5B8FDCD3366185019@TY2PR06MB3424.apcprd06.prod.outlook.com>
+References: <20221107093345.121648-1-lingshan.zhu@intel.com>
+ <CACGkMEs9af1E1pLd2t8E71YBPF=rHkhfN8qO9_3=x6HVaCMAxg@mail.gmail.com>
+ <0b15591f-9e49-6383-65eb-6673423f81ec@intel.com>
+ <CACGkMEujqOFHv7QATWgYo=SdAKef5jQXi2-YksjgT-hxEgKNDQ@mail.gmail.com>
+ <80cdd80a-16fa-ac75-0a89-5729b846efed@intel.com>
+In-Reply-To: <80cdd80a-16fa-ac75-0a89-5729b846efed@intel.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 10 Nov 2022 11:47:33 +0800
-Message-ID: <CACGkMEuQTob8DYwYAa20-3SdHWoZJ+EnxJCKm+xR4_gUHRcd8g@mail.gmail.com>
-Subject: Re: [PATCH] virtio_pci: modify ENOENT to EINVAL
-To: Angus Chen <angus.chen@jaguarmicro.com>
+Date: Thu, 10 Nov 2022 11:49:47 +0800
+Message-ID: <CACGkMEu-5TbA3Ky2qgn-ivfhgfJ2b12mDJgq8iNgHce8qu3ApA@mail.gmail.com>
+Subject: Re: [PATCH 0/4] ifcvf/vDPA implement features provisioning
+To: "Zhu, Lingshan" <lingshan.zhu@intel.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "mst@redhat.com" <mst@redhat.com>
+Cc: piotr.uminski@intel.com, hang.yuan@intel.com,
+ virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, mst@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -117,77 +120,84 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Nov 10, 2022 at 11:31 AM Angus Chen <angus.chen@jaguarmicro.com> wrote:
+On Wed, Nov 9, 2022 at 5:06 PM Zhu, Lingshan <lingshan.zhu@intel.com> wrote:
 >
-> Hi Jason.
 >
-> > -----Original Message-----
-> > From: Jason Wang <jasowang@redhat.com>
-> > Sent: Wednesday, November 2, 2022 1:34 PM
-> > To: Angus Chen <angus.chen@jaguarmicro.com>
-> > Cc: mst@redhat.com; virtualization@lists.linux-foundation.org;
-> > linux-kernel@vger.kernel.org; lingshan.zhu@intel.com
-> > Subject: Re: [PATCH] virtio_pci: modify ENOENT to EINVAL
-> >
-> > On Tue, Nov 1, 2022 at 7:17 PM Angus Chen <angus.chen@jaguarmicro.com>
-> > wrote:
-> > >
-> > > Virtio_crypto use max_data_queues+1 to setup vqs,
-> > > we use vp_modern_get_num_queues to protect the vq range in setup_vq.
-> > > We could enter index >= vp_modern_get_num_queues(mdev) in setup_vq
-> > > if common->num_queues is not set well,and it return -ENOENT.
-> > > It is better to use -EINVAL instead.
-> >
-> > I'm not sure I get this. It would be better to describe:
-> >
-> > 1) what kind of issues can we see if we return -ENOENT
-> > 2) why -EINVAL can help in this case
-> >
-> > Thanks
-> Thank you for your reply.
-> We use a robot to test our dpu to get the return value of probe.
->  We often get ENOENT form ' setup_vq ' function because of device error.
-> Most of time, my device can't handle queue_enable well.
-> This time,we get 'ENOENT' because the device set max_data_queues bigger than num_queues.
-
-Ok, I see, ENOENT is not very popular on linux but I'm not sure it's
-worth bothering.
-
 >
-> I think EINVAL is used when the value of some parameter is wrong.
-> Btw,it not a big deal,I can modify the robot to workaround.
+> On 11/9/2022 4:59 PM, Jason Wang wrote:
+> > On Wed, Nov 9, 2022 at 4:14 PM Zhu, Lingshan <lingshan.zhu@intel.com> wrote:
+> >>
+> >>
+> >> On 11/9/2022 2:51 PM, Jason Wang wrote:
+> >>> On Mon, Nov 7, 2022 at 5:42 PM Zhu Lingshan <lingshan.zhu@intel.com> wrote:
+> >>>> This series implements features provisioning for ifcvf.
+> >>>> By applying this series, we allow userspace to create
+> >>>> a vDPA device with selected (management device supported)
+> >>>> feature bits and mask out others.
+> >>> I don't see a direct relationship between the first 3 and the last.
+> >>> Maybe you can state the reason why the restructure is a must for the
+> >>> feature provisioning. Otherwise, we'd better split the series.
+> >> When introducing features provisioning ability to ifcvf, there is a need
+> >> to re-create vDPA devices
+> >> on a VF with different feature bits.
+> > This seems a requirement even without feature provisioning? Device
+> > could be deleted from the management device anyhow.
+> Yes, we need this to delete and re-create a vDPA device.
 
-Btw, the error code is not a part of the ABI, so depending on that is
-kind of fragile.
+I wonder if we need something that works for -stable.
+
+AFAIK, we can move the vdpa_alloc_device() from probe() to dev_add()
+and it seems to work?
 
 Thanks
 
 >
+> We create vDPA device from a VF, so without features provisioning
+> requirements,
+> we don't need to re-create the vDPA device. But with features provisioning,
+> it is a must now.
+>
+> Thanks
+>
+>
 > >
-> > >
-> > > Signed-off-by: Angus Chen <angus.chen@jaguarmicro.com>
-> > > ---
-> > >  drivers/virtio/virtio_pci_modern.c | 2 +-
-> > >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > >
-> > > diff --git a/drivers/virtio/virtio_pci_modern.c
-> > b/drivers/virtio/virtio_pci_modern.c
-> > > index c3b9f2761849..edf2e18014cd 100644
-> > > --- a/drivers/virtio/virtio_pci_modern.c
-> > > +++ b/drivers/virtio/virtio_pci_modern.c
-> > > @@ -303,7 +303,7 @@ static struct virtqueue *setup_vq(struct
-> > virtio_pci_device *vp_dev,
-> > >         int err;
-> > >
-> > >         if (index >= vp_modern_get_num_queues(mdev))
-> > > -               return ERR_PTR(-ENOENT);
-> > > +               return ERR_PTR(-EINVAL);
-> > >
-> > >         /* Check if queue is either not available or already active. */
-> > >         num = vp_modern_get_queue_size(mdev, index);
-> > > --
-> > > 2.25.1
-> > >
+> > Thakns
+> >
+> >> When remove a vDPA device, the container of struct vdpa_device (here is
+> >> ifcvf_adapter) is free-ed in
+> >> dev_del() interface, so we need to allocate ifcvf_adapter in dev_add()
+> >> than in probe(). That's
+> >> why I have re-factored the adapter/mgmt_dev code.
+> >>
+> >> For re-factoring the irq related code and ifcvf_base, let them work on
+> >> struct ifcvf_hw, the
+> >> reason is that the adapter is allocated in dev_add(), if we want theses
+> >> functions to work
+> >> before dev_add(), like in probe, we need them work on ifcvf_hw than the
+> >> adapter.
+> >>
+> >> Thanks
+> >> Zhu Lingshan
+> >>> Thanks
+> >>>
+> >>>> Please help review
+> >>>>
+> >>>> Thanks
+> >>>>
+> >>>> Zhu Lingshan (4):
+> >>>>     vDPA/ifcvf: ifcvf base layer interfaces work on struct ifcvf_hw
+> >>>>     vDPA/ifcvf: IRQ interfaces work on ifcvf_hw
+> >>>>     vDPA/ifcvf: allocate ifcvf_adapter in dev_add()
+> >>>>     vDPA/ifcvf: implement features provisioning
+> >>>>
+> >>>>    drivers/vdpa/ifcvf/ifcvf_base.c |  32 ++-----
+> >>>>    drivers/vdpa/ifcvf/ifcvf_base.h |  10 +-
+> >>>>    drivers/vdpa/ifcvf/ifcvf_main.c | 156 +++++++++++++++-----------------
+> >>>>    3 files changed, 89 insertions(+), 109 deletions(-)
+> >>>>
+> >>>> --
+> >>>> 2.31.1
+> >>>>
 >
 
 _______________________________________________
