@@ -1,107 +1,115 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 70B62C43217
-	for <virtualization@archiver.kernel.org>; Mon, 14 Nov 2022 13:06:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D12C9C4332F
+	for <virtualization@archiver.kernel.org>; Mon, 14 Nov 2022 15:11:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id F21DC40A42;
-	Mon, 14 Nov 2022 13:06:46 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org F21DC40A42
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=WlcZ/fUI
+	by smtp4.osuosl.org (Postfix) with ESMTP id 4BAAC4035B;
+	Mon, 14 Nov 2022 15:11:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4BAAC4035B
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=DYpnePp4
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 9gL9xcCkttb7; Mon, 14 Nov 2022 13:06:46 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id S6lwBucwzN6p; Mon, 14 Nov 2022 15:11:32 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 882D04019D;
-	Mon, 14 Nov 2022 13:06:45 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 882D04019D
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 3E94B4030A;
+	Mon, 14 Nov 2022 15:11:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3E94B4030A
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6EA47C0032;
-	Mon, 14 Nov 2022 13:06:45 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7DB11C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 171A9C0032;
+	Mon, 14 Nov 2022 15:11:31 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E39D8C002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Nov 2022 13:06:44 +0000 (UTC)
+ Mon, 14 Nov 2022 15:11:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 4AC1B40412
+ by smtp1.osuosl.org (Postfix) with ESMTP id B1EDA812D0
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Nov 2022 13:06:44 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4AC1B40412
+ Mon, 14 Nov 2022 15:11:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B1EDA812D0
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=DYpnePp4
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id NTdaa7NUYkDu
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id OpJwguE4HMJT
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Nov 2022 13:06:43 +0000 (UTC)
+ Mon, 14 Nov 2022 15:11:28 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org AAED54019D
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A7824812AF
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id AAED54019D
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id A7824812AF
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Nov 2022 13:06:43 +0000 (UTC)
+ Mon, 14 Nov 2022 15:11:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1668431202;
+ s=mimecast20190719; t=1668438687;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=EEm7C/vnsowGS3lJGInXxy/xe3gXl1h34wCMVqBZRfo=;
- b=WlcZ/fUIC4Yhq4TW6y2WFUtq3xR15LoyLukbc9E+yoLWVagnzfzq+1DOwukQoVCVSVEsL9
- IzCLSR2N3XJMMBAPiN9mgowquFPhF42lvPe0oNPMigdUbmV5rQE399Gyvb6/R9na2VIYWJ
- hmQYz3QNLWVK/NJ+zhBmJqxry6U9vTo=
-Received: from mail-qt1-f200.google.com (mail-qt1-f200.google.com
- [209.85.160.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=d+pdot0+mJYBeC5ZDxgJijt7mCtgiiV6z+4YR5gwxYg=;
+ b=DYpnePp4tiLknTIiKFyiY/vv6XRS3J68Ed68qMdAY9y2quyHCmYLeeAD1bfH+gA59XP/Da
+ HX5o8gU+vPVrHOwcVI67bE+46MpkS+v/nIJWzHs8Bs8AfXHrBDwauqn/j/2kZn6zGQYbvv
+ mr4fg+dtbBUeFB6+IiW0ibrzf+PbLMY=
+Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com
+ [209.85.222.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-284-cSWyOE_kPGeuDwCFz74IAg-1; Mon, 14 Nov 2022 08:06:41 -0500
-X-MC-Unique: cSWyOE_kPGeuDwCFz74IAg-1
-Received: by mail-qt1-f200.google.com with SMTP id
- s14-20020a05622a1a8e00b00397eacd9c1aso8052066qtc.21
+ us-mta-389-cyCPQsa_OZmkN2d3Rsxgpg-1; Mon, 14 Nov 2022 10:11:25 -0500
+X-MC-Unique: cyCPQsa_OZmkN2d3Rsxgpg-1
+Received: by mail-qk1-f200.google.com with SMTP id
+ bp10-20020a05620a458a00b006fa29f253dcso11256260qkb.11
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Nov 2022 05:06:41 -0800 (PST)
+ Mon, 14 Nov 2022 07:11:25 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=EEm7C/vnsowGS3lJGInXxy/xe3gXl1h34wCMVqBZRfo=;
- b=Q/7kO//LEqdwfJ9s3goeJyb1yY36h7XrxzVmvzHpmQIVuta1hQpu4BV/yS5KfWEOIC
- XH/QpTKInbJn97VwvyJLH38z5ZgTh4hRfjCNcGTmIpl9Qtc2zAOmoTVkvPLEoSfXs3VG
- x68IYWDtN0pvc4arlWbmQn6Oo9TJrada2L3zdHzJOIuBdXhBggITjRuwPCibIC1mjVb7
- 7bQ4pqcWRbm+AB//83JTFXdJaj7Vrp67JJNcnNFpJDdpEC0Rj5AorhNAIEh7DO5Hqwi8
- WZyYohxNdgfrKBlwyOv98/7iFa+vvdkJaVmu+BlX5Yy+xMAUj1mAyBknwNX7YFXgSUZ6
- NlSA==
-X-Gm-Message-State: ANoB5pk57u2MV8x2W1uVZijxgQdwFeAWS8iJS6BW8zeRUTAeZOBkIR+0
- OOAxIzlSueUuvBnMBvhbJIEkwPgIULrmDLCe1INVcwnV5AyBV9zUIS+xfXl/Hbfa9BMdQFhGNm+
- GRfb3tde17U5lvjLaMfj1YqKWFeOyYomXKuesPZP4nw==
-X-Received: by 2002:a0c:e84b:0:b0:4b4:4f9:1776 with SMTP id
- l11-20020a0ce84b000000b004b404f91776mr12171769qvo.116.1668431200994; 
- Mon, 14 Nov 2022 05:06:40 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf44L6DL5kmVI/2Dg11DzAR1WZ8kxVc6IKac2m2UGyVOx32ouQKnt+DwNyafJMFlhwuvkKVCAQ==
-X-Received: by 2002:a0c:e84b:0:b0:4b4:4f9:1776 with SMTP id
- l11-20020a0ce84b000000b004b404f91776mr12171752qvo.116.1668431200784; 
- Mon, 14 Nov 2022 05:06:40 -0800 (PST)
-Received: from redhat.com ([37.19.196.93]) by smtp.gmail.com with ESMTPSA id
- q184-20020a378ec1000000b006ecb9dfdd15sm6378984qkd.92.2022.11.14.05.06.38
+ bh=d+pdot0+mJYBeC5ZDxgJijt7mCtgiiV6z+4YR5gwxYg=;
+ b=VTJE4we1/0KVMqDD6yQFXO5mjRZZPuVDZJk77cI1CoqVuav/suNhDyQHQyOo40MlC6
+ Up+VQq+deoQd3JoFtstawEWuT/gBjSOCkMxzEJVUtPd9eKN9iJuX4yizXDQCRRCH64Yh
+ q4ZfJQ14K4KvftAmGy+A828HE5cC5qUFeLfTMSFAVXJ2qBovQlmEHTjUNeS0+19x2Zlu
+ gB/aI3w/gxiW2U3XBrp7vEJpMXjwpkQBeKae+YvyGJYn3VbAH/UfB1Kxzj9kVUwt8lHe
+ eWglngdIzytLhbJSBpuA6tBlFw4NwqXQObiPV5hu1Tk4FrKTP82z55hNf6xzVsBptsi/
+ PwoA==
+X-Gm-Message-State: ANoB5plMMO6ssl6CjlGCWYOoHrAirosvxFDIMIeZVi6cekQ8XDb7VkpS
+ WhADhd2SkjR+Odn/XMAHB5DS5zp9h4hC6Rgut5dRBUrlMvZdoHC/6PmnI40p8Vb7JUn62GfgJTM
+ 4L8pAEQUcjVzLrvcFaXcCBygSApiBpr3/QpGwdNxDRg==
+X-Received: by 2002:a05:6214:5bc9:b0:49f:8cd3:eaee with SMTP id
+ lr9-20020a0562145bc900b0049f8cd3eaeemr12840842qvb.56.1668438685316; 
+ Mon, 14 Nov 2022 07:11:25 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf7no97ZrLRX04h0RS4jVHzW30d1xawZi1Yv4WoqReZkcMrTy6YSIC876bMhqPMVK58DZtNi6A==
+X-Received: by 2002:a05:6214:5bc9:b0:49f:8cd3:eaee with SMTP id
+ lr9-20020a0562145bc900b0049f8cd3eaeemr12840825qvb.56.1668438685082; 
+ Mon, 14 Nov 2022 07:11:25 -0800 (PST)
+Received: from sgarzare-redhat (host-82-53-134-234.retail.telecomitalia.it.
+ [82.53.134.234]) by smtp.gmail.com with ESMTPSA id
+ s1-20020a05620a0bc100b006faaf6dc55asm6695115qki.22.2022.11.14.07.11.22
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 14 Nov 2022 05:06:40 -0800 (PST)
-Date: Mon, 14 Nov 2022 08:06:36 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Dmitry Vyukov <dvyukov@google.com>
-Subject: Re: [PATCH/RFC] virtio_test: A module for testing virtio via userspace
-Message-ID: <20221114080345-mutt-send-email-mst@kernel.org>
-References: <200906190927.34831.borntraeger@de.ibm.com>
- <20221112161942.3197544-1-dvyukov@google.com>
+ Mon, 14 Nov 2022 07:11:24 -0800 (PST)
+Date: Mon, 14 Nov 2022 16:11:11 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Eugenio Perez Martin <eperezma@redhat.com>
+Subject: Re: [PATCH] vdpa_sim: fix vringh initialization in
+ vdpasim_queue_ready()
+Message-ID: <20221114151111.6ay3ra4shzj3k2lg@sgarzare-redhat>
+References: <20221110141335.62171-1-sgarzare@redhat.com>
+ <CAJaqyWdvdy2QxuuyPRtfBKtuObrMg_kX_R9hdui+Oh72XtJ7Qw@mail.gmail.com>
+ <20221111163007.35kvkodvk6zpimmu@sgarzare-redhat>
+ <CAJaqyWfYx+63-hOp0K8fznkyjkScKu6-r8CUPd3eD96oKCHu9A@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20221112161942.3197544-1-dvyukov@google.com>
+In-Reply-To: <CAJaqyWfYx+63-hOp0K8fznkyjkScKu6-r8CUPd3eD96oKCHu9A@mail.gmail.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: borntraeger@de.ibm.com, virtualization@lists.linux-foundation.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -113,25 +121,117 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sat, Nov 12, 2022 at 05:19:42PM +0100, Dmitry Vyukov wrote:
-> I am looking for a test module that allows
-> to create a transient virtio device that can be used to activate a virtio
-> driver are communicate with it as if from the host.
-> Does such thing exist already?
-> Or how are virtio transports/drivers tested/fuzzed nowadays?
-> 
-> Thanks
+On Mon, Nov 14, 2022 at 10:13:51AM +0100, Eugenio Perez Martin wrote:
+>On Fri, Nov 11, 2022 at 5:30 PM Stefano Garzarella <sgarzare@redhat.com> wrote:
+>>
+>> On Fri, Nov 11, 2022 at 04:40:33PM +0100, Eugenio Perez Martin wrote:
+>> >On Thu, Nov 10, 2022 at 3:13 PM Stefano Garzarella <sgarzare@redhat.com> wrote:
+>> >>
+>> >> When we initialize vringh, we should pass the features and the
+>> >> number of elements in the virtqueue negotiated with the driver,
+>> >> otherwise operations with vringh may fail.
+>> >>
+>> >> This was discovered in a case where the driver sets a number of
+>> >> elements in the virtqueue different from the value returned by
+>> >> .get_vq_num_max().
+>> >>
+>> >> In vdpasim_vq_reset() is safe to initialize the vringh with
+>> >> default values, since the virtqueue will not be used until
+>> >> vdpasim_queue_ready() is called again.
+>> >>
+>> >> Fixes: 2c53d0f64c06 ("vdpasim: vDPA device simulator")
+>> >> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+>> >> ---
+>> >>  drivers/vdpa/vdpa_sim/vdpa_sim.c | 3 +--
+>> >>  1 file changed, 1 insertion(+), 2 deletions(-)
+>> >>
+>> >> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+>> >> index b071f0d842fb..b20689f8fe89 100644
+>> >> --- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
+>> >> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+>> >> @@ -67,8 +67,7 @@ static void vdpasim_queue_ready(struct vdpasim *vdpasim, unsigned int idx)
+>> >>  {
+>> >>         struct vdpasim_virtqueue *vq = &vdpasim->vqs[idx];
+>> >>
+>> >> -       vringh_init_iotlb(&vq->vring, vdpasim->dev_attr.supported_features,
+>> >> -                         VDPASIM_QUEUE_MAX, false,
+>> >> +       vringh_init_iotlb(&vq->vring, vdpasim->features, vq->num, false,
+>> >>                           (struct vring_desc *)(uintptr_t)vq->desc_addr,
+>> >>                           (struct vring_avail *)
+>> >>                           (uintptr_t)vq->driver_addr,
+>> >> --
+>> >> 2.38.1
+>> >>
+>> >
+>> >I think this is definitely an improvement, but I'd say we should go a
+>> >step further and rename VDPASIM_QUEUE_MAX to VDPASIM_QUEUE_DEFAULT. As
+>> >you point out in the patch message it is not a max anymore.
+>>
+>> I'm not sure about renaming since it is the value returned by
+>> vdpasim_get_vq_num_max, so IMHO the _MAX suffix is fine.
+>
+>Oh that's a very good point. But then I guess a conformant driver
+>should never set more descriptors than that.
 
-Just coding it up in qemu is probably easiest.  This is how we test
-most things.
+Yep, right!
 
--- 
-MST
+>
+>Would it be convenient to make the default queue size of 32768 and let
+
+Yep, I think it makes sense.
+
+>the guest specify less descriptors than that? Default configuration
+>will consume more memory then.
+
+Do you mean for the driver point of view?
+
+Because IIUC in vringh we don't allocate anything related to the queue 
+size.
+
+>
+>> But I admit that initially I didn't understand whether it's the maximum
+>> number of queues or elements, so maybe VDPASIM_VQ_NUM_MAX is better.
+>>
+>> >
+>> >Another thing to note is that we don't have a way to report that
+>> >userspace indicated a bad value for queue length. With the current
+>> >code vringh will not initialize at all if I'm not wrong, so we should
+>> >prevent userspace to put a bad num.
+>>
+>> Right!
+>>
+>> >
+>> >Ideally, we should repeat the tests of vring_init_kern at
+>> >vdpasim_set_vq_num. We could either call it with NULL vring addresses
+>> >to check for -EINVAL, or simply repeat the conditional (!num || num >
+>> >0xffff || (num & (num - 1))). I'd say the first one is better to not
+>> >go out of sync.
+>>
+>> Or we could do the check in vdpasim_set_vq_ready() and set it not ready
+>> if the vq_num is wrong.
+>>
+>
+>Maybe it is the right place to do it, but the device is initiated at
+>that point so the driver needs to perform a full reset.
+>
+
+Yes, but the driver is misbehaving, so it might be okay to request a 
+full reset.
+
+>As a reference, qemu will retain the last valid size set to a vq, or
+>the default. This is because it ignores the bad values systematically.
+>Not sure what is more conformant actually :).
+>
+
+Me too :-)
+
+Thanks,
+Stefano
 
 _______________________________________________
 Virtualization mailing list
