@@ -1,101 +1,101 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D7498C4332F
-	for <virtualization@archiver.kernel.org>; Mon, 14 Nov 2022 04:41:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id DB722C4332F
+	for <virtualization@archiver.kernel.org>; Mon, 14 Nov 2022 04:42:27 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 6211040888;
-	Mon, 14 Nov 2022 04:41:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6211040888
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=EaGMNGM1
+	by smtp2.osuosl.org (Postfix) with ESMTP id 60DA84017E;
+	Mon, 14 Nov 2022 04:42:27 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 60DA84017E
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=BcmIr1S7
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id sO4ZgmI9cXCv; Mon, 14 Nov 2022 04:41:33 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 6D82A40868;
-	Mon, 14 Nov 2022 04:41:30 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6D82A40868
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id H4l0XFTvpsPE; Mon, 14 Nov 2022 04:42:26 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id B0012400F6;
+	Mon, 14 Nov 2022 04:42:25 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B0012400F6
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 46B92C0032;
-	Mon, 14 Nov 2022 04:41:30 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E4A3EC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8C018C0032;
+	Mon, 14 Nov 2022 04:42:25 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E3130C002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Nov 2022 04:41:28 +0000 (UTC)
+ Mon, 14 Nov 2022 04:42:24 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id B164481469
+ by smtp3.osuosl.org (Postfix) with ESMTP id BD78A60C29
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Nov 2022 04:41:28 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B164481469
-Authentication-Results: smtp1.osuosl.org;
+ Mon, 14 Nov 2022 04:42:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org BD78A60C29
+Authentication-Results: smtp3.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=EaGMNGM1
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=BcmIr1S7
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id W6Kvf9pIaSgZ
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id MD4w7YLgGNj7
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Nov 2022 04:41:28 +0000 (UTC)
+ Mon, 14 Nov 2022 04:42:24 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DCB9C81468
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D161E60C24
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id DCB9C81468
+ by smtp3.osuosl.org (Postfix) with ESMTPS id D161E60C24
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Nov 2022 04:41:27 +0000 (UTC)
+ Mon, 14 Nov 2022 04:42:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1668400886;
+ s=mimecast20190719; t=1668400942;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=MKjDmIAt0prUKa9dsHOjZqBINBMFFGgMprh04cvIpSE=;
- b=EaGMNGM1/T8PpWYrQ93w2VPEKlUOY9N1jWVB1P3dfq5sa67IKQNP26ZqMkCrUbbQxxqOn5
- fXG7nh608dFcu1RVnIoz0fzjbHApIcm7ubt3qfwRZxyqSJNG2jH6zPCyECm1HLwAKWQrbJ
- HV3I9jqt5aRGqVSi5A0yBzKsFRyDw5g=
-Received: from mail-oo1-f72.google.com (mail-oo1-f72.google.com
- [209.85.161.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=Z5uwOVwFgI5IfGkeQ8z5UfE4vHlHFDxyEJXxCbesoTE=;
+ b=BcmIr1S7BBNS3b4/UcVAbwifrn+S8auFl9UieQmLvT/KmwDsb67KHbM53+DD2r2yMMgD+r
+ VYguy1jfRAdrU4t1tJGH4tNrE4jqqxRMmDIDHYpsu//LZu8whziqEQfTTnpYpDGiJQBJg1
+ 41kiGriTBkbY+Q8NMthrHCWyiIiCmbQ=
+Received: from mail-ot1-f72.google.com (mail-ot1-f72.google.com
+ [209.85.210.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-477-Jf3FCucdPZGAb-oeo6oRVg-1; Sun, 13 Nov 2022 23:41:22 -0500
-X-MC-Unique: Jf3FCucdPZGAb-oeo6oRVg-1
-Received: by mail-oo1-f72.google.com with SMTP id
- w18-20020a4a6d52000000b0049f209d84bbso3340991oof.7
+ us-mta-339-nTOSgCOtP7aXjBHnxVCBdA-1; Sun, 13 Nov 2022 23:42:21 -0500
+X-MC-Unique: nTOSgCOtP7aXjBHnxVCBdA-1
+Received: by mail-ot1-f72.google.com with SMTP id
+ p19-20020a056830319300b0066c34a214f2so5651824ots.9
  for <virtualization@lists.linux-foundation.org>;
- Sun, 13 Nov 2022 20:41:22 -0800 (PST)
+ Sun, 13 Nov 2022 20:42:21 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=cc:to:subject:message-id:date:from:in-reply-to:references
  :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
  :reply-to;
- bh=MKjDmIAt0prUKa9dsHOjZqBINBMFFGgMprh04cvIpSE=;
- b=MgRwN4kGRkGkXUWW4nLBg5b/uJva7V5NHO1dOTocC/AGWyeY3JzjHa8GGgPESG3gDk
- ijRhBdYK35TfpufM9BjWfV6lWxMGCgZ9FtPk3XiMwUBrAg00P6CsWTOWqgDaP+ab9+e5
- ukI9tQprCxJQtoKFpvdA7Vf55vNk1aDF0NdHSOZQSnqpsUf4fwzo2EEv+lrVO3VIlrD9
- 9feIpgHMvNBfPSPBrq4QlO7WSmycIJNijxro0W6dExNCKQH7w3ZgF6KSOeXLmgKdS3Wq
- I4NwmekNEeodPiosmxJjNtgDHzEdKtGgZZXYlFtKQfCMoEcSwlNfzp59YQNz1LClToX6
- kk1w==
-X-Gm-Message-State: ANoB5pn5+0fgAg5vhsjA50dBELpCOi7Z88QDv6ZYxxjK9c0HOAdIE1JD
- cqTF2VRPxvmeJ1JmxFk77OG3W9gSP7hve6e6i/1S/p/Njerp3Fx23AQX42PjbLAcpS6sLDwrOi4
- otScQYhFW+IzYsJjLRq2bjCwyl9UR57uXu578jotv3vRDawMoUOVlCi1iTA==
-X-Received: by 2002:a4a:5704:0:b0:49f:449a:5f6c with SMTP id
- u4-20020a4a5704000000b0049f449a5f6cmr4541460ooa.93.1668400881569; 
- Sun, 13 Nov 2022 20:41:21 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf4157B6oXCXw3RByikzI77lJ0hjf54Is1etpUu0/uYC5dlkUqPYlH8kcl1nJLGCLNnaGKUBBQSU5CZcdPgp04k=
-X-Received: by 2002:a4a:5704:0:b0:49f:449a:5f6c with SMTP id
- u4-20020a4a5704000000b0049f449a5f6cmr4541452ooa.93.1668400881317; Sun, 13 Nov
- 2022 20:41:21 -0800 (PST)
+ bh=Z5uwOVwFgI5IfGkeQ8z5UfE4vHlHFDxyEJXxCbesoTE=;
+ b=RI9EYlYMSkR9apaYO4OkD2wDRzZ1aKQAPv2dDuaTz7OcjZKr8piFEna5yICyrY68rK
+ 96RYJT/HAyJuz6Le+PP4R/0CMmqOFNgOyB2tat3esqTlBIAcqUGbh6aSeob4fx1JgUSR
+ e0hbQ32UxknBXCp/heIz0YButCyRQyGbag77msJVfTxXI9KsUcydp6lgE6nLKtkAXyhL
+ HP1MO3OLU6GPCYjaLypE1DDTFE8w5+nTp2TkWzc7o247lylLqKafN4VyZ1VwdncNViSY
+ iVfrUs6O4MsUIooMt8La4DcBkqdHGxQoBuGaH+0T/9+m5KvqClBEhd/lEU3+HAmHqttL
+ 8ekQ==
+X-Gm-Message-State: ANoB5pkAL9o3Buyw0BDfruRYRfJ81Ub2hlJ/DzE/smbHdo7UR0L842gW
+ QkmwQyO/Vsmc9ZeW4yhIsr32r7czNQKBCLPhl9lhDpgeRFMk1zqU84tQvz38xN4InPZwPDhOP6+
+ y/hU9GN1Rhok+gPVdYiYsXK+IneVDzSirvaiZKgBHDDACVi7zR2zmyt1ubg==
+X-Received: by 2002:a05:6830:124d:b0:66c:64d6:1bb4 with SMTP id
+ s13-20020a056830124d00b0066c64d61bb4mr5719962otp.201.1668400940796; 
+ Sun, 13 Nov 2022 20:42:20 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf6JtpSaHDpx92dpZPqyGUu0IEsp01m8fgC0wohlG48WvH6rUideVtK9G8V7RxyU6XXbp0f0HNIRD6AefHyMPgo=
+X-Received: by 2002:a05:6830:124d:b0:66c:64d6:1bb4 with SMTP id
+ s13-20020a056830124d00b0066c64d61bb4mr5719953otp.201.1668400940555; Sun, 13
+ Nov 2022 20:42:20 -0800 (PST)
 MIME-Version: 1.0
 References: <20221113134442.152695-1-elic@nvidia.com>
- <20221113134442.152695-4-elic@nvidia.com>
-In-Reply-To: <20221113134442.152695-4-elic@nvidia.com>
+ <20221113134442.152695-5-elic@nvidia.com>
+In-Reply-To: <20221113134442.152695-5-elic@nvidia.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 14 Nov 2022 12:41:10 +0800
-Message-ID: <CACGkMEupWx6YZToNqxyJ9sD5v41ouOeKe2=0_ASbWPFt8s1uGA@mail.gmail.com>
-Subject: Re: [PATCH 3/7] vdpa/mlx5: Move some definitions to a new header file
+Date: Mon, 14 Nov 2022 12:42:09 +0800
+Message-ID: <CACGkMEvV9FOHU6R8hjqeOH2wEaVBSbvojmRa77jbKfEkH+rKaw@mail.gmail.com>
+Subject: Re: [PATCH 4/7] vdpa/mlx5: Add debugfs subtree
 To: Eli Cohen <elic@nvidia.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
@@ -119,159 +119,203 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 On Sun, Nov 13, 2022 at 9:45 PM Eli Cohen <elic@nvidia.com> wrote:
 >
-> Move some definitions from mlx5_vnet.c to newly added header file
-> mlx5_vnet.h. We need these definitions for the following patches that
-> add debugfs tree to expose information vital for debug.
+> Add debugfs subtree and expose flow table ID and TIR number. This
+> information can be used by external tools to do extended
+> troubleshooting.
+>
+> The information can be retrieved like so:
+> $ cat /sys/kernel/debug/mlx5/mlx5_core.sf.1/vdpa-0/rx/table_id
+> $ cat /sys/kernel/debug/mlx5/mlx5_core.sf.1/vdpa-0/rx/tirn
 >
 > Reviewed-by: Si-Wei Liu <si-wei.liu@oracle.com>
 > Signed-off-by: Eli Cohen <elic@nvidia.com>
 
 Acked-by: Jason Wang <jasowang@redhat.com>
 
-Thanks
-
 > ---
->  drivers/vdpa/mlx5/net/mlx5_vnet.c | 45 +------------------------
->  drivers/vdpa/mlx5/net/mlx5_vnet.h | 55 +++++++++++++++++++++++++++++++
->  2 files changed, 56 insertions(+), 44 deletions(-)
->  create mode 100644 drivers/vdpa/mlx5/net/mlx5_vnet.h
+>  drivers/vdpa/mlx5/Makefile        |  2 +-
+>  drivers/vdpa/mlx5/net/debug.c     | 66 +++++++++++++++++++++++++++++++
+>  drivers/vdpa/mlx5/net/mlx5_vnet.c | 11 ++++++
+>  drivers/vdpa/mlx5/net/mlx5_vnet.h |  9 +++++
+>  4 files changed, 87 insertions(+), 1 deletion(-)
+>  create mode 100644 drivers/vdpa/mlx5/net/debug.c
 >
-> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> index c54d5088ed4f..e45b83527b41 100644
-> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> @@ -18,15 +18,12 @@
->  #include <linux/mlx5/mlx5_ifc_vdpa.h>
->  #include <linux/mlx5/mpfs.h>
->  #include "mlx5_vdpa.h"
-> +#include "mlx5_vnet.h"
+> diff --git a/drivers/vdpa/mlx5/Makefile b/drivers/vdpa/mlx5/Makefile
+> index f717978c83bf..e791394c33e3 100644
+> --- a/drivers/vdpa/mlx5/Makefile
+> +++ b/drivers/vdpa/mlx5/Makefile
+> @@ -1,4 +1,4 @@
+>  subdir-ccflags-y += -I$(srctree)/drivers/vdpa/mlx5/core
 >
->  MODULE_AUTHOR("Eli Cohen <eli@mellanox.com>");
->  MODULE_DESCRIPTION("Mellanox VDPA driver");
->  MODULE_LICENSE("Dual BSD/GPL");
->
-> -#define to_mlx5_vdpa_ndev(__mvdev)                                             \
-> -       container_of(__mvdev, struct mlx5_vdpa_net, mvdev)
-> -#define to_mvdev(__vdev) container_of((__vdev), struct mlx5_vdpa_dev, vdev)
-> -
->  #define VALID_FEATURES_MASK                                                                        \
->         (BIT_ULL(VIRTIO_NET_F_CSUM) | BIT_ULL(VIRTIO_NET_F_GUEST_CSUM) |                                   \
->          BIT_ULL(VIRTIO_NET_F_CTRL_GUEST_OFFLOADS) | BIT_ULL(VIRTIO_NET_F_MTU) | BIT_ULL(VIRTIO_NET_F_MAC) |   \
-> @@ -50,14 +47,6 @@ MODULE_LICENSE("Dual BSD/GPL");
->
->  #define MLX5V_UNTAGGED 0x1000
->
-> -struct mlx5_vdpa_net_resources {
-> -       u32 tisn;
-> -       u32 tdn;
-> -       u32 tirn;
-> -       u32 rqtn;
-> -       bool valid;
-> -};
-> -
->  struct mlx5_vdpa_cq_buf {
->         struct mlx5_frag_buf_ctrl fbc;
->         struct mlx5_frag_buf frag_buf;
-> @@ -146,38 +135,6 @@ static bool is_index_valid(struct mlx5_vdpa_dev *mvdev, u16 idx)
->         return idx <= mvdev->max_idx;
->  }
->
-> -#define MLX5V_MACVLAN_SIZE 256
-> -
-> -struct mlx5_vdpa_net {
-> -       struct mlx5_vdpa_dev mvdev;
-> -       struct mlx5_vdpa_net_resources res;
-> -       struct virtio_net_config config;
-> -       struct mlx5_vdpa_virtqueue *vqs;
-> -       struct vdpa_callback *event_cbs;
-> -
-> -       /* Serialize vq resources creation and destruction. This is required
-> -        * since memory map might change and we need to destroy and create
-> -        * resources while driver in operational.
-> -        */
-> -       struct rw_semaphore reslock;
-> -       struct mlx5_flow_table *rxft;
-> -       bool setup;
-> -       u32 cur_num_vqs;
-> -       u32 rqt_size;
-> -       bool nb_registered;
-> -       struct notifier_block nb;
-> -       struct vdpa_callback config_cb;
-> -       struct mlx5_vdpa_wq_ent cvq_ent;
-> -       struct hlist_head macvlan_hash[MLX5V_MACVLAN_SIZE];
-> -};
-> -
-> -struct macvlan_node {
-> -       struct hlist_node hlist;
-> -       struct mlx5_flow_handle *ucast_rule;
-> -       struct mlx5_flow_handle *mcast_rule;
-> -       u64 macvlan;
-> -};
-> -
->  static void free_resources(struct mlx5_vdpa_net *ndev);
->  static void init_mvqs(struct mlx5_vdpa_net *ndev);
->  static int setup_driver(struct mlx5_vdpa_dev *mvdev);
-> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.h b/drivers/vdpa/mlx5/net/mlx5_vnet.h
+>  obj-$(CONFIG_MLX5_VDPA_NET) += mlx5_vdpa.o
+> -mlx5_vdpa-$(CONFIG_MLX5_VDPA_NET) += net/mlx5_vnet.o core/resources.o core/mr.o
+> +mlx5_vdpa-$(CONFIG_MLX5_VDPA_NET) += net/mlx5_vnet.o core/resources.o core/mr.o net/debug.o
+> diff --git a/drivers/vdpa/mlx5/net/debug.c b/drivers/vdpa/mlx5/net/debug.c
 > new file mode 100644
-> index 000000000000..6691c879a6ca
+> index 000000000000..95e4801df211
 > --- /dev/null
-> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.h
-> @@ -0,0 +1,55 @@
-> +/* SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB */
+> +++ b/drivers/vdpa/mlx5/net/debug.c
+> @@ -0,0 +1,66 @@
+> +// SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB
 > +/* Copyright (c) 2022, NVIDIA CORPORATION & AFFILIATES. All rights reserved. */
 > +
-> +#ifndef __MLX5_VNET_H__
-> +#define __MLX5_VNET_H__
+> +#include <linux/debugfs.h>
+> +#include <linux/mlx5/fs.h>
+> +#include "mlx5_vnet.h"
 > +
-> +#include "mlx5_vdpa.h"
+> +static int tirn_show(struct seq_file *file, void *priv)
+> +{
+> +       struct mlx5_vdpa_net *ndev = file->private;
 > +
-> +#define to_mlx5_vdpa_ndev(__mvdev)                                             \
-> +       container_of(__mvdev, struct mlx5_vdpa_net, mvdev)
-> +#define to_mvdev(__vdev) container_of((__vdev), struct mlx5_vdpa_dev, vdev)
+> +       seq_printf(file, "0x%x\n", ndev->res.tirn);
+> +       return 0;
+> +}
 > +
-> +struct mlx5_vdpa_net_resources {
-> +       u32 tisn;
-> +       u32 tdn;
-> +       u32 tirn;
-> +       u32 rqtn;
-> +       bool valid;
-> +};
+> +DEFINE_SHOW_ATTRIBUTE(tirn);
 > +
-> +#define MLX5V_MACVLAN_SIZE 256
+> +void mlx5_vdpa_remove_tirn(struct mlx5_vdpa_net *ndev)
+> +{
+> +       if (ndev->debugfs)
+> +               debugfs_remove(ndev->res.tirn_dent);
+> +}
 > +
-> +struct mlx5_vdpa_net {
-> +       struct mlx5_vdpa_dev mvdev;
-> +       struct mlx5_vdpa_net_resources res;
-> +       struct virtio_net_config config;
-> +       struct mlx5_vdpa_virtqueue *vqs;
-> +       struct vdpa_callback *event_cbs;
+> +void mlx5_vdpa_add_tirn(struct mlx5_vdpa_net *ndev)
+> +{
+> +       ndev->res.tirn_dent = debugfs_create_file("tirn", 0444, ndev->rx_dent,
+> +                                                 ndev, &tirn_fops);
+> +}
 > +
-> +       /* Serialize vq resources creation and destruction. This is required
-> +        * since memory map might change and we need to destroy and create
-> +        * resources while driver in operational.
-> +        */
-> +       struct rw_semaphore reslock;
-> +       struct mlx5_flow_table *rxft;
-> +       struct dentry *rx_dent;
-> +       struct dentry *rx_table_dent;
-> +       bool setup;
-> +       u32 cur_num_vqs;
-> +       u32 rqt_size;
-> +       bool nb_registered;
-> +       struct notifier_block nb;
-> +       struct vdpa_callback config_cb;
-> +       struct mlx5_vdpa_wq_ent cvq_ent;
-> +       struct hlist_head macvlan_hash[MLX5V_MACVLAN_SIZE];
-> +};
+> +static int rx_flow_table_show(struct seq_file *file, void *priv)
+> +{
+> +       struct mlx5_vdpa_net *ndev = file->private;
 > +
-> +struct macvlan_node {
-> +       struct hlist_node hlist;
-> +       struct mlx5_flow_handle *ucast_rule;
-> +       struct mlx5_flow_handle *mcast_rule;
-> +       u64 macvlan;
-> +};
+> +       seq_printf(file, "0x%x\n", mlx5_flow_table_id(ndev->rxft));
+> +       return 0;
+> +}
 > +
-> +#endif /* __MLX5_VNET_H__ */
+> +DEFINE_SHOW_ATTRIBUTE(rx_flow_table);
+> +
+> +void mlx5_vdpa_remove_rx_flow_table(struct mlx5_vdpa_net *ndev)
+> +{
+> +       if (ndev->debugfs)
+> +               debugfs_remove(ndev->rx_table_dent);
+> +}
+> +
+> +void mlx5_vdpa_add_rx_flow_table(struct mlx5_vdpa_net *ndev)
+> +{
+> +       ndev->rx_table_dent = debugfs_create_file("table_id", 0444, ndev->rx_dent,
+> +                                                 ndev, &rx_flow_table_fops);
+> +}
+> +
+> +void mlx5_vdpa_add_debugfs(struct mlx5_vdpa_net *ndev)
+> +{
+> +       struct mlx5_core_dev *mdev;
+> +
+> +       mdev = ndev->mvdev.mdev;
+> +       ndev->debugfs = debugfs_create_dir(dev_name(&ndev->mvdev.vdev.dev),
+> +                                          mlx5_debugfs_get_dev_root(mdev));
+> +       if (!IS_ERR(ndev->debugfs))
+> +               ndev->rx_dent = debugfs_create_dir("rx", ndev->debugfs);
+> +}
+> +
+> +void mlx5_vdpa_remove_debugfs(struct dentry *dbg)
+> +{
+> +       debugfs_remove_recursive(dbg);
+> +}
+> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> index e45b83527b41..ce2f478a93f5 100644
+> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> @@ -1388,11 +1388,16 @@ static int create_tir(struct mlx5_vdpa_net *ndev)
+>
+>         err = mlx5_vdpa_create_tir(&ndev->mvdev, in, &ndev->res.tirn);
+>         kfree(in);
+> +       if (err)
+> +               return err;
+> +
+> +       mlx5_vdpa_add_tirn(ndev);
+>         return err;
+>  }
+>
+>  static void destroy_tir(struct mlx5_vdpa_net *ndev)
+>  {
+> +       mlx5_vdpa_remove_tirn(ndev);
+>         mlx5_vdpa_destroy_tir(&ndev->mvdev, ndev->res.tirn);
+>  }
+>
+> @@ -1578,6 +1583,7 @@ static int setup_steering(struct mlx5_vdpa_net *ndev)
+>                 mlx5_vdpa_warn(&ndev->mvdev, "failed to create flow table\n");
+>                 return PTR_ERR(ndev->rxft);
+>         }
+> +       mlx5_vdpa_add_rx_flow_table(ndev);
+>
+>         err = mac_vlan_add(ndev, ndev->config.mac, 0, false);
+>         if (err)
+> @@ -1586,6 +1592,7 @@ static int setup_steering(struct mlx5_vdpa_net *ndev)
+>         return 0;
+>
+>  err_add:
+> +       mlx5_vdpa_remove_rx_flow_table(ndev);
+>         mlx5_destroy_flow_table(ndev->rxft);
+>         return err;
+>  }
+> @@ -1593,6 +1600,7 @@ static int setup_steering(struct mlx5_vdpa_net *ndev)
+>  static void teardown_steering(struct mlx5_vdpa_net *ndev)
+>  {
+>         clear_mac_vlan_table(ndev);
+> +       mlx5_vdpa_remove_rx_flow_table(ndev);
+>         mlx5_destroy_flow_table(ndev->rxft);
+>  }
+>
+> @@ -3172,6 +3180,7 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name,
+>         if (err)
+>                 goto err_reg;
+>
+> +       mlx5_vdpa_add_debugfs(ndev);
+>         mgtdev->ndev = ndev;
+>         return 0;
+>
+> @@ -3198,6 +3207,8 @@ static void mlx5_vdpa_dev_del(struct vdpa_mgmt_dev *v_mdev, struct vdpa_device *
+>         struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
+>         struct workqueue_struct *wq;
+>
+> +       mlx5_vdpa_remove_debugfs(ndev->debugfs);
+> +       ndev->debugfs = NULL;
+>         if (ndev->nb_registered) {
+>                 mlx5_notifier_unregister(mvdev->mdev, &ndev->nb);
+>                 ndev->nb_registered = false;
+> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.h b/drivers/vdpa/mlx5/net/mlx5_vnet.h
+> index 6691c879a6ca..f2cef3925e5b 100644
+> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.h
+> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.h
+> @@ -16,6 +16,7 @@ struct mlx5_vdpa_net_resources {
+>         u32 tirn;
+>         u32 rqtn;
+>         bool valid;
+> +       struct dentry *tirn_dent;
+>  };
+>
+>  #define MLX5V_MACVLAN_SIZE 256
+> @@ -43,6 +44,7 @@ struct mlx5_vdpa_net {
+>         struct vdpa_callback config_cb;
+>         struct mlx5_vdpa_wq_ent cvq_ent;
+>         struct hlist_head macvlan_hash[MLX5V_MACVLAN_SIZE];
+> +       struct dentry *debugfs;
+>  };
+>
+>  struct macvlan_node {
+> @@ -52,4 +54,11 @@ struct macvlan_node {
+>         u64 macvlan;
+>  };
+>
+> +void mlx5_vdpa_add_debugfs(struct mlx5_vdpa_net *ndev);
+> +void mlx5_vdpa_remove_debugfs(struct dentry *dbg);
+> +void mlx5_vdpa_add_rx_flow_table(struct mlx5_vdpa_net *ndev);
+> +void mlx5_vdpa_remove_rx_flow_table(struct mlx5_vdpa_net *ndev);
+> +void mlx5_vdpa_add_tirn(struct mlx5_vdpa_net *ndev);
+> +void mlx5_vdpa_remove_tirn(struct mlx5_vdpa_net *ndev);
+> +
+>  #endif /* __MLX5_VNET_H__ */
 > --
 > 2.38.1
 >
