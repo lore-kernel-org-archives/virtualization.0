@@ -1,106 +1,120 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9F863C433FE
-	for <virtualization@archiver.kernel.org>; Mon, 14 Nov 2022 04:03:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 337EEC4332F
+	for <virtualization@archiver.kernel.org>; Mon, 14 Nov 2022 04:21:49 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 13737813F3;
-	Mon, 14 Nov 2022 04:03:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 13737813F3
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RZAKVqds
+	by smtp3.osuosl.org (Postfix) with ESMTP id A9B7E60C27;
+	Mon, 14 Nov 2022 04:21:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A9B7E60C27
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=B6avhRT8
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id sY8encAP6hu1; Mon, 14 Nov 2022 04:03:15 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id KAk_YKl3hm3n; Mon, 14 Nov 2022 04:21:47 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 3E6C88136A;
-	Mon, 14 Nov 2022 04:03:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3E6C88136A
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 1802C60C21;
+	Mon, 14 Nov 2022 04:21:47 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1802C60C21
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 06E95C0033;
-	Mon, 14 Nov 2022 04:03:14 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 70674C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E7B64C0032;
+	Mon, 14 Nov 2022 04:21:46 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5503EC002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Nov 2022 04:03:13 +0000 (UTC)
+ Mon, 14 Nov 2022 04:21:45 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 47870401B7
+ by smtp2.osuosl.org (Postfix) with ESMTP id 1A6A6400F6
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Nov 2022 04:03:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 47870401B7
-Authentication-Results: smtp4.osuosl.org;
+ Mon, 14 Nov 2022 04:21:45 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1A6A6400F6
+Authentication-Results: smtp2.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=RZAKVqds
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=B6avhRT8
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id y3cGVdC6Jgbf
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id x6gfs3E5UGWI
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Nov 2022 04:03:12 +0000 (UTC)
+ Mon, 14 Nov 2022 04:21:44 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D288F4001F
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3A4FB400DA
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id D288F4001F
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 3A4FB400DA
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Nov 2022 04:03:11 +0000 (UTC)
+ Mon, 14 Nov 2022 04:21:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1668398589;
+ s=mimecast20190719; t=1668399703;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=Oq5eZXf0XhukK2gu36VDoVydSFlALZ6mBLTD6YCisaQ=;
- b=RZAKVqdsgvkMM8b0tsL/FSXkChJdr41Cs2npckleteiu4mRVclPCh4ItfLeZRqaqXYhruM
- O15ZZ3X58dFBZVhaqJf4+8H0fFpZ1lW84pDLguJpPm7cJgTrCgQXizVCPk1YJLFatv9aSt
- SA9ImT7nIzRMbpSMGLhBA4WQXjENS6Q=
-Received: from mail-oa1-f70.google.com (mail-oa1-f70.google.com
- [209.85.160.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=/PxqSB+ZWaAy0kr4u8QvCLujCShnQRTc22NQiRK9IMQ=;
+ b=B6avhRT8qoBLMeMDfNXHVUNmROMCvOmU3tq877bM5yzpf+mJ6YhXZQwXpKpgO3U/8k9MP3
+ lk+t+wEEZwBFHRm7VT9NpA1Svgrhry38X/7TtYvLXerfqgOZ1AroXqwnVD+ibl196j/qXc
+ n+sm0c7ZySMPjPHp2u9V218VKSpB/dI=
+Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com
+ [209.85.214.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-274-N-0L3uyKN--Bc-eYD5s-4A-1; Sun, 13 Nov 2022 23:02:59 -0500
-X-MC-Unique: N-0L3uyKN--Bc-eYD5s-4A-1
-Received: by mail-oa1-f70.google.com with SMTP id
- 586e51a60fabf-13c6efaa955so4938186fac.11
+ us-mta-267-Y9zu_UcjPquEyGNUGHacVA-1; Sun, 13 Nov 2022 23:21:41 -0500
+X-MC-Unique: Y9zu_UcjPquEyGNUGHacVA-1
+Received: by mail-pl1-f199.google.com with SMTP id
+ o7-20020a170902d4c700b001868cdac9adso8130550plg.13
  for <virtualization@lists.linux-foundation.org>;
- Sun, 13 Nov 2022 20:02:59 -0800 (PST)
+ Sun, 13 Nov 2022 20:21:41 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
- :reply-to;
- bh=Oq5eZXf0XhukK2gu36VDoVydSFlALZ6mBLTD6YCisaQ=;
- b=XRrr3QcLZQxHJotIGPy31iNh9ckPQndknsqJ4g5oO2qw58dYv/1U6SeAG9L/79D/Fk
- s7El1DpuA8x2cEt6use6xzepmexLZnQXccleUD9Gx/e/Mb9uhGJDjvxH08S2288HaxWG
- jYwemmZlJTP2hXhwr4IrSZatei1EdLkz6TTP2Jz6IYdjtNxjLylA7p7MgViw6hV2C+6n
- Y9s4OOQ8C10eXEN+g2Y7qIUwPNQAX5gfJYXCYixAk0oB/EeQRkO4X6pu76/ovQeew6ci
- 5U+c9uUu3c6d+H8xULYVxVJzfOdVXyiJ/UMU4BqbC9WsWslqCCJ4bkNNZMgMPJFQJqvS
- wm0A==
-X-Gm-Message-State: ANoB5pmG/D9+u2aMXRdhOSclLFrzcPSTjqhm9de/E8SEhfuOxShXgsCq
- TeNUgsMgXQ7U3qFXZFMEMPWy9P9O7kDNppF7sfyVFBadoF293ffZn3feOjk6Zoua/SSpptafip+
- 5J4wNYXEnEUop4zh7WaXR3mkM2y1OrLEMowDOzjKGClIoxCxqnwSKl3wCvA==
-X-Received: by 2002:a05:6870:4693:b0:132:7b3:29ac with SMTP id
- a19-20020a056870469300b0013207b329acmr5866561oap.35.1668398578353; 
- Sun, 13 Nov 2022 20:02:58 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf4xjudomhrvG+/XAwTBGmLMookiQ0Mk6p2vSEBVqpGEMBIhFS9oqAY4w4rOGA3n360voc4bxmeg1XO2H4Y++h0=
-X-Received: by 2002:a05:6870:4693:b0:132:7b3:29ac with SMTP id
- a19-20020a056870469300b0013207b329acmr5866535oap.35.1668398577988; Sun, 13
- Nov 2022 20:02:57 -0800 (PST)
+ h=content-transfer-encoding:in-reply-to:from:content-language
+ :references:cc:to:subject:user-agent:mime-version:date:message-id
+ :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+ bh=/PxqSB+ZWaAy0kr4u8QvCLujCShnQRTc22NQiRK9IMQ=;
+ b=QB5HYWXbmxVB1IMEBIFohHu6+u00kNvK0ACM5UR3Is0oclj3Dji1bHQ2BFCCRigT1F
+ 2tDdJqG+AsDd/ngFFefiBjMm7uWYnkp7otdR3XmlK9F71UZ5OFriXr8lwq214pUH8Rdg
+ o8vrkMNH2a+p6gsrBIvkRGEEbNngeUSoXMDMaJw6Bm1tfnuKfQQwLqSwjQvUlGmI/iWO
+ HlC9hKefUmW8Bn3FqcIG1rkPddg20ogGpdQyyFRgJnRnDT4ruvAhPKxqYaujEaaRDVC0
+ Bzbfk91CX/+rNRciDn43jW+7dBDzQMO1GsvHyiaKx3EHap039DRTZNm0C883ksbMzOQG
+ INRQ==
+X-Gm-Message-State: ANoB5pmwWll1abQnLG9JJk4XaDhw9xnrdy4KBy5AKkbAOWFQtuWYQUAY
+ eCJfUmhg4oWTN2YJy7uBmvbxSnTJEmr7y/46HOLTDgW5ZCq3UGSWmqLsQHW4kRRj/k3QuOVfkxt
+ q3RZyMyIG2JGirSk/+HySzyqD69AaOptHFXdNZhSD/Q==
+X-Received: by 2002:a63:d642:0:b0:46f:d2d4:bac4 with SMTP id
+ d2-20020a63d642000000b0046fd2d4bac4mr10220117pgj.178.1668399700797; 
+ Sun, 13 Nov 2022 20:21:40 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf7ZM3CWWgOmrZsKXz+1lD6ieOkbU4UzqcrePVHDGP1OMS0RtsVteexvjrcHSmdn+J+iulaunA==
+X-Received: by 2002:a63:d642:0:b0:46f:d2d4:bac4 with SMTP id
+ d2-20020a63d642000000b0046fd2d4bac4mr10220096pgj.178.1668399700432; 
+ Sun, 13 Nov 2022 20:21:40 -0800 (PST)
+Received: from [10.72.13.180] ([43.228.180.230])
+ by smtp.gmail.com with ESMTPSA id
+ jj3-20020a170903048300b001714c36a6e7sm6005269plb.284.2022.11.13.20.21.36
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Sun, 13 Nov 2022 20:21:39 -0800 (PST)
+Message-ID: <11062911-270a-6018-34a4-8edd50674999@redhat.com>
+Date: Mon, 14 Nov 2022 12:21:28 +0800
 MIME-Version: 1.0
-References: <20221111153555.1295-1-longpeng2@huawei.com>
-In-Reply-To: <20221111153555.1295-1-longpeng2@huawei.com>
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.4.2
+Subject: Re: [PATCH] vp_vdpa: harden the logic of set status
+To: "Longpeng (Mike, Cloud Infrastructure Service Product Dept.)"
+ <longpeng2@huawei.com>, Stefano Garzarella <sgarzare@redhat.com>
+References: <20221111145505.1232-1-longpeng2@huawei.com>
+ <20221111151459.dyz42jclq26ai26q@sgarzare-redhat>
+ <0f25506f-b9ca-1578-f944-cfb3936ced50@huawei.com>
+ <20221111163548.x6yy2w74gk6biykw@sgarzare-redhat>
+ <f8650844-1b28-92f0-5330-c164c95ee7ec@huawei.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 14 Nov 2022 12:02:47 +0800
-Message-ID: <CACGkMEuZp4GskMjAvGcNNRTmrmgzg1e4ufzJDekBBQ5BE9Nk=Q@mail.gmail.com>
-Subject: Re: [RFC] vdpa: clear the device when opening/releasing it
-To: "Longpeng(Mike)" <longpeng2@huawei.com>
+In-Reply-To: <f8650844-1b28-92f0-5330-c164c95ee7ec@huawei.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: xiehong@huawei.com, lulu@redhat.com, kvm@vger.kernel.org, mst@redhat.com,
- linux-kernel@vger.kernel.org, yechuan@huawei.com, huangzhichao@huawei.com,
- stefanha@redhat.com, virtualization@lists.linux-foundation.org
+Content-Language: en-US
+Cc: xiehong@huawei.com, mst@redhat.com, linux-kernel@vger.kernel.org,
+ yechuan@huawei.com, huangzhichao@huawei.com, stefanha@redhat.com,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -112,193 +126,74 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Nov 11, 2022 at 11:36 PM Longpeng(Mike) <longpeng2@huawei.com> wrote:
->
-> From: Longpeng <longpeng2@huawei.com>
->
-> We should do some deeply cleanup when opening or releasing the device,
-> e.g trigger FLR if it is PCIe device.
-
-Why is this needed? We're resetting at the virtio level instead of the
-transport level.
-
-Thanks
-
->
-> Signed-off-by: Longpeng <longpeng2@huawei.com>
-> ---
->  drivers/vdpa/alibaba/eni_vdpa.c    | 2 +-
->  drivers/vdpa/ifcvf/ifcvf_main.c    | 2 +-
->  drivers/vdpa/mlx5/net/mlx5_vnet.c  | 2 +-
->  drivers/vdpa/vdpa_sim/vdpa_sim.c   | 2 +-
->  drivers/vdpa/vdpa_user/vduse_dev.c | 2 +-
->  drivers/vdpa/virtio_pci/vp_vdpa.c  | 2 +-
->  drivers/vhost/vdpa.c               | 4 ++--
->  drivers/virtio/virtio_vdpa.c       | 2 +-
->  include/linux/vdpa.h               | 7 ++++---
->  9 files changed, 13 insertions(+), 12 deletions(-)
->
-> diff --git a/drivers/vdpa/alibaba/eni_vdpa.c b/drivers/vdpa/alibaba/eni_vdpa.c
-> index 5a09a09cca70..07215b174dd6 100644
-> --- a/drivers/vdpa/alibaba/eni_vdpa.c
-> +++ b/drivers/vdpa/alibaba/eni_vdpa.c
-> @@ -226,7 +226,7 @@ static void eni_vdpa_set_status(struct vdpa_device *vdpa, u8 status)
->                 eni_vdpa_free_irq(eni_vdpa);
->  }
->
-> -static int eni_vdpa_reset(struct vdpa_device *vdpa)
-> +static int eni_vdpa_reset(struct vdpa_device *vdpa, bool clear)
->  {
->         struct eni_vdpa *eni_vdpa = vdpa_to_eni(vdpa);
->         struct virtio_pci_legacy_device *ldev = &eni_vdpa->ldev;
-> diff --git a/drivers/vdpa/ifcvf/ifcvf_main.c b/drivers/vdpa/ifcvf/ifcvf_main.c
-> index f9c0044c6442..b9a6ac18f358 100644
-> --- a/drivers/vdpa/ifcvf/ifcvf_main.c
-> +++ b/drivers/vdpa/ifcvf/ifcvf_main.c
-> @@ -496,7 +496,7 @@ static void ifcvf_vdpa_set_status(struct vdpa_device *vdpa_dev, u8 status)
->         ifcvf_set_status(vf, status);
->  }
->
-> -static int ifcvf_vdpa_reset(struct vdpa_device *vdpa_dev)
-> +static int ifcvf_vdpa_reset(struct vdpa_device *vdpa_dev, bool clear)
->  {
->         struct ifcvf_adapter *adapter;
->         struct ifcvf_hw *vf;
-> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> index 90913365def4..6f06f9c464a3 100644
-> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> @@ -2560,7 +2560,7 @@ static void init_group_to_asid_map(struct mlx5_vdpa_dev *mvdev)
->                 mvdev->group2asid[i] = 0;
->  }
->
-> -static int mlx5_vdpa_reset(struct vdpa_device *vdev)
-> +static int mlx5_vdpa_reset(struct vdpa_device *vdev, bool clear)
->  {
->         struct mlx5_vdpa_dev *mvdev = to_mvdev(vdev);
->         struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
-> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-> index b071f0d842fb..7438a89ce939 100644
-> --- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
-> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-> @@ -504,7 +504,7 @@ static void vdpasim_set_status(struct vdpa_device *vdpa, u8 status)
->         spin_unlock(&vdpasim->lock);
->  }
->
-> -static int vdpasim_reset(struct vdpa_device *vdpa)
-> +static int vdpasim_reset(struct vdpa_device *vdpa, bool clear)
->  {
->         struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
->
-> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-> index 35dceee3ed56..e5fee28233c0 100644
-> --- a/drivers/vdpa/vdpa_user/vduse_dev.c
-> +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> @@ -691,7 +691,7 @@ static void vduse_vdpa_set_config(struct vdpa_device *vdpa, unsigned int offset,
->         /* Now we only support read-only configuration space */
->  }
->
-> -static int vduse_vdpa_reset(struct vdpa_device *vdpa)
-> +static int vduse_vdpa_reset(struct vdpa_device *vdpa, bool clear)
->  {
->         struct vduse_dev *dev = vdpa_to_vduse(vdpa);
->         int ret = vduse_dev_set_status(dev, 0);
-> diff --git a/drivers/vdpa/virtio_pci/vp_vdpa.c b/drivers/vdpa/virtio_pci/vp_vdpa.c
-> index d35fac5cde11..3db25b622a57 100644
-> --- a/drivers/vdpa/virtio_pci/vp_vdpa.c
-> +++ b/drivers/vdpa/virtio_pci/vp_vdpa.c
-> @@ -226,7 +226,7 @@ static void vp_vdpa_set_status(struct vdpa_device *vdpa, u8 status)
->         vp_modern_set_status(mdev, status);
->  }
->
-> -static int vp_vdpa_reset(struct vdpa_device *vdpa)
-> +static int vp_vdpa_reset(struct vdpa_device *vdpa, bool clear)
->  {
->         struct vp_vdpa *vp_vdpa = vdpa_to_vp(vdpa);
->         struct virtio_pci_modern_device *mdev = vp_vdpa_to_mdev(vp_vdpa);
-> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-> index 166044642fd5..fdda08cd7e7a 100644
-> --- a/drivers/vhost/vdpa.c
-> +++ b/drivers/vhost/vdpa.c
-> @@ -212,7 +212,7 @@ static int vhost_vdpa_reset(struct vhost_vdpa *v)
->
->         v->in_batch = 0;
->
-> -       return vdpa_reset(vdpa);
-> +       return vdpa_reset(vdpa, true);
->  }
->
->  static long vhost_vdpa_get_device_id(struct vhost_vdpa *v, u8 __user *argp)
-> @@ -269,7 +269,7 @@ static long vhost_vdpa_set_status(struct vhost_vdpa *v, u8 __user *statusp)
->                         vhost_vdpa_unsetup_vq_irq(v, i);
->
->         if (status == 0) {
-> -               ret = vdpa_reset(vdpa);
-> +               ret = vdpa_reset(vdpa, false);
->                 if (ret)
->                         return ret;
->         } else
-> diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
-> index 9670cc79371d..8f6ae689547e 100644
-> --- a/drivers/virtio/virtio_vdpa.c
-> +++ b/drivers/virtio/virtio_vdpa.c
-> @@ -99,7 +99,7 @@ static void virtio_vdpa_reset(struct virtio_device *vdev)
->  {
->         struct vdpa_device *vdpa = vd_get_vdpa(vdev);
->
-> -       vdpa_reset(vdpa);
-> +       vdpa_reset(vdpa, false);
->  }
->
->  static bool virtio_vdpa_notify(struct virtqueue *vq)
-> diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
-> index 6d0f5e4e82c2..a0b917743b66 100644
-> --- a/include/linux/vdpa.h
-> +++ b/include/linux/vdpa.h
-> @@ -218,6 +218,7 @@ struct vdpa_map_file {
->   *                             @status: virtio device status
->   * @reset:                     Reset device
->   *                             @vdev: vdpa device
-> + *                             @clear: need device/function level clear or not, e.g pcie_flr.
->   *                             Returns integer: success (0) or error (< 0)
->   * @suspend:                   Suspend or resume the device (optional)
->   *                             @vdev: vdpa device
-> @@ -322,7 +323,7 @@ struct vdpa_config_ops {
->         u32 (*get_vendor_id)(struct vdpa_device *vdev);
->         u8 (*get_status)(struct vdpa_device *vdev);
->         void (*set_status)(struct vdpa_device *vdev, u8 status);
-> -       int (*reset)(struct vdpa_device *vdev);
-> +       int (*reset)(struct vdpa_device *vdev, bool clear);
->         int (*suspend)(struct vdpa_device *vdev);
->         size_t (*get_config_size)(struct vdpa_device *vdev);
->         void (*get_config)(struct vdpa_device *vdev, unsigned int offset,
-> @@ -427,14 +428,14 @@ static inline struct device *vdpa_get_dma_dev(struct vdpa_device *vdev)
->         return vdev->dma_dev;
->  }
->
-> -static inline int vdpa_reset(struct vdpa_device *vdev)
-> +static inline int vdpa_reset(struct vdpa_device *vdev, bool clear)
->  {
->         const struct vdpa_config_ops *ops = vdev->config;
->         int ret;
->
->         down_write(&vdev->cf_lock);
->         vdev->features_valid = false;
-> -       ret = ops->reset(vdev);
-> +       ret = ops->reset(vdev, clear);
->         up_write(&vdev->cf_lock);
->         return ret;
->  }
-> --
-> 2.23.0
->
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+CuWcqCAyMDIyLzExLzEyIDE1OjMzLCBMb25ncGVuZyAoTWlrZSwgQ2xvdWQgSW5mcmFzdHJ1Y3R1
+cmUgU2VydmljZSBQcm9kdWN0IApEZXB0Likg5YaZ6YGTOgo+Cj4KPiDlnKggMjAyMi8xMS8xMiAw
+OjM1LCBTdGVmYW5vIEdhcnphcmVsbGEg5YaZ6YGTOgo+PiBPbiBGcmksIE5vdiAxMSwgMjAyMiBh
+dCAxMTo0OToxMFBNICswODAwLCBMb25ncGVuZyAoTWlrZSwgQ2xvdWQgCj4+IEluZnJhc3RydWN0
+dXJlIFNlcnZpY2UgUHJvZHVjdCBEZXB0Likgd3JvdGU6Cj4+Pgo+Pj4KPj4+IOWcqCAyMDIyLzEx
+LzExIDIzOjE0LCBTdGVmYW5vIEdhcnphcmVsbGEg5YaZ6YGTOgo+Pj4+IE9uIEZyaSwgTm92IDEx
+LCAyMDIyIGF0IDEwOjU1OjA1UE0gKzA4MDAsIExvbmdwZW5nKE1pa2UpIHdyb3RlOgo+Pj4+PiBG
+cm9tOiBMb25ncGVuZyA8bG9uZ3BlbmcyQGh1YXdlaS5jb20+Cj4+Pj4+Cj4+Pj4+IDEuIFdlIHNo
+b3VsZCBub3Qgc2V0IHN0YXR1cyB0byAwIHdoZW4gaW52b2tpbmcgdnBfdmRwYV9zZXRfc3RhdHVz
+KCkuCj4+Pj4+Cj4+Pj4+IDIuIFRoZSBkcml2ZXIgTVVTVCB3YWl0IGZvciBhIHJlYWQgb2YgZGV2
+aWNlX3N0YXR1cyB0byByZXR1cm4gMCAKPj4+Pj4gYmVmb3JlCj4+Pj4+IMKgIHJlaW5pdGlhbGl6
+aW5nIHRoZSBkZXZpY2UuCj4+Pj4+Cj4+Pj4+IFNpZ25lZC1vZmYtYnk6IExvbmdwZW5nIDxsb25n
+cGVuZzJAaHVhd2VpLmNvbT4KPj4+Pj4gLS0tCj4+Pj4+IGRyaXZlcnMvdmRwYS92aXJ0aW9fcGNp
+L3ZwX3ZkcGEuYyB8IDExICsrKysrKysrKystCj4+Pj4+IDEgZmlsZSBjaGFuZ2VkLCAxMCBpbnNl
+cnRpb25zKCspLCAxIGRlbGV0aW9uKC0pCj4+Pj4+Cj4+Pj4+IGRpZmYgLS1naXQgYS9kcml2ZXJz
+L3ZkcGEvdmlydGlvX3BjaS92cF92ZHBhLmMgCj4+Pj4+IGIvZHJpdmVycy92ZHBhL3ZpcnRpb19w
+Y2kvdnBfdmRwYS5jCj4+Pj4+IGluZGV4IGQ0NDhkYjBjNGRlMy4uZDM1ZmFjNWNkZTExIDEwMDY0
+NAo+Pj4+PiAtLS0gYS9kcml2ZXJzL3ZkcGEvdmlydGlvX3BjaS92cF92ZHBhLmMKPj4+Pj4gKysr
+IGIvZHJpdmVycy92ZHBhL3ZpcnRpb19wY2kvdnBfdmRwYS5jCj4+Pj4+IEBAIC0yMTIsOCArMjEy
+LDEyIEBAIHN0YXRpYyB2b2lkIHZwX3ZkcGFfc2V0X3N0YXR1cyhzdHJ1Y3QgCj4+Pj4+IHZkcGFf
+ZGV2aWNlICp2ZHBhLCB1OCBzdGF0dXMpCj4+Pj4+IHsKPj4+Pj4gwqDCoMKgwqBzdHJ1Y3QgdnBf
+dmRwYSAqdnBfdmRwYSA9IHZkcGFfdG9fdnAodmRwYSk7Cj4+Pj4+IMKgwqDCoMKgc3RydWN0IHZp
+cnRpb19wY2lfbW9kZXJuX2RldmljZSAqbWRldiA9IHZwX3ZkcGFfdG9fbWRldih2cF92ZHBhKTsK
+Pj4+Pj4gLcKgwqDCoCB1OCBzID0gdnBfdmRwYV9nZXRfc3RhdHVzKHZkcGEpOwo+Pj4+Cj4+Pj4g
+SXMgdGhpcyBjaGFuZ2UgcmVhbGx5IG5lZWRlZD8KPj4+Pgo+Pj4gTm8gbmVlZCB0byBnZXQgdGhl
+IHN0YXR1cyBpZiB3ZSB0cnkgdG8gc2V0IHN0YXR1cyB0byAwICh0cmlnZ2VyIEJVRykuCj4+Pgo+
+Pgo+PiBPa2F5LCBidXQgdGhhdCdzIHRoZSBjYXNlIHRoYXQgc2hvdWxkIG5ldmVyIGhhcHBlbiwg
+c28gSU1ITyB3ZSBjYW4gCj4+IGxlYXZlIGl0IGFzIGl0IGlzLgo+Pgo+IE9LLgo+Cj4+Pj4+ICvC
+oMKgwqAgdTggczsKPj4+Pj4gKwo+Pj4+PiArwqDCoMKgIC8qIFdlIHNob3VsZCBuZXZlciBiZSBz
+ZXR0aW5nIHN0YXR1cyB0byAwLiAqLwo+Pj4+PiArwqDCoMKgIEJVR19PTihzdGF0dXMgPT0gMCk7
+Cj4+Pj4KPj4+PiBJTUhPIHBhbmlja2luZyB0aGUga2VybmVsIHNlZW1zIGV4Y2Vzc2l2ZSBpbiB0
+aGlzIGNhc2UsIHBsZWFzZSB1c2UgCj4+Pj4gV0FSTl9PTiBhbmQgbWF5YmUgcmV0dXJuIGVhcmxp
+ZXIuCj4+Pj4KPj4+IFVtLi4uSSByZWZlcmVuY2VkIHRoZSB2cF9yZXNldC92cF9zZXRfc3RhdHVz
+LAo+Pgo+PiBBaCBJIHNlZSwgbWF5YmUgaXQncyBhbiBvbGQgY29kZSwgYmVjYXVzZSByZWNlbnRs
+eSB3ZSBhbHdheXMgdHJ5IHRvIAo+PiBhdm9pZCBCVUdfT04oKS4KPj4KPiBPSy4gVGhlIGNoZWNr
+cGF0Y2gucGwgc2NyaXB0IGFsc28gdHJpZ2dlcmVkIGEgd2FyaW5nIGFib3V0IGl0Lgo+IEknbGwg
+dXNlIFdBUk5fT04gaW4gbmV4dCB2ZXJzaW9uLgo+Cj4+Pgo+Pj4+Pgo+Pj4+PiArwqDCoMKgIHMg
+PSB2cF92ZHBhX2dldF9zdGF0dXModmRwYSk7Cj4+Pj4+IMKgwqDCoMKgaWYgKHN0YXR1cyAmIFZJ
+UlRJT19DT05GSUdfU19EUklWRVJfT0sgJiYKPj4+Pj4gwqDCoMKgwqDCoMKgwqAgIShzICYgVklS
+VElPX0NPTkZJR19TX0RSSVZFUl9PSykpIHsKPj4+Pj4gwqDCoMKgwqDCoMKgwqAgdnBfdmRwYV9y
+ZXF1ZXN0X2lycSh2cF92ZHBhKTsKPj4+Pj4gQEAgLTIyOSw2ICsyMzMsMTEgQEAgc3RhdGljIGlu
+dCB2cF92ZHBhX3Jlc2V0KHN0cnVjdCB2ZHBhX2RldmljZSAKPj4+Pj4gKnZkcGEpCj4+Pj4+IMKg
+wqDCoMKgdTggcyA9IHZwX3ZkcGFfZ2V0X3N0YXR1cyh2ZHBhKTsKPj4+Pj4KPj4+Pj4gwqDCoMKg
+wqB2cF9tb2Rlcm5fc2V0X3N0YXR1cyhtZGV2LCAwKTsKPj4+Pj4gK8KgwqDCoCAvKiBBZnRlciB3
+cml0aW5nIDAgdG8gZGV2aWNlX3N0YXR1cywgdGhlIGRyaXZlciBNVVNUIHdhaXQgZm9yIAo+Pj4+
+PiBhIHJlYWQgb2YKPj4+Pj4gK8KgwqDCoMKgICogZGV2aWNlX3N0YXR1cyB0byByZXR1cm4gMCBi
+ZWZvcmUgcmVpbml0aWFsaXppbmcgdGhlIGRldmljZS4KPj4+Pj4gK8KgwqDCoMKgICovCj4+Pj4+
+ICvCoMKgwqAgd2hpbGUgKHZwX21vZGVybl9nZXRfc3RhdHVzKG1kZXYpKQo+Pj4+PiArwqDCoMKg
+wqDCoMKgwqAgbXNsZWVwKDEpOwo+Pj4+Cj4+Pj4gU2hvdWxkIHdlIHNldCBhIGxpbWl0IGFmdGVy
+IHdoaWNoIHdlIGdpdmUgdXA/IEEgbWFsZnVuY3Rpb25pbmcgCj4+Pj4gZGV2aWNlIGNvdWxkIGtl
+ZXAgdXMgaGVyZSBmb3JldmVyLgo+Pj4+Cj4+PiBZZXMsIGJ1dCB0aGUgbWFsZnVuY3Rpb25pbmcg
+ZGV2aWNlIG1heWJlIGNhbiBub3Qgd29yayBhbnltb3JlLCBob3cgCj4+PiB0byBoYW5kbGUgaXQ/
+Cj4+Cj4+IE1heWJlIHdlIHNob3VsZCBzZXQgdGhlIHN0YXR1cyB0byBicm9rZW4sIGJ1dCBpbiB0
+aGlzIGNhc2Ugd2UgY291bGQgCj4+IGp1c3QgcmV0dXJuIGFuIGVycm9yIGlmIHdlIGNvdWxkbid0
+IHJlc2V0IGl0LCBob3cgYWJvdXQgdGhhdD8KPj4KPiBJdCBjYW4gd29yaywgYnV0IGl0IHNlZW1z
+IHRvIHZpb2xhdGUgdGhlIHNwZWNpZmljYXRpb24uIE1heWJlIHdlIGNhbiAKPiBhbHNvIHdhaXQg
+Zm9yIG90aGVyIGd1eXMnIHN1Z2dlc3Rpb25zIGFuZCB0aGVuIGRlY2lkZSBob3cgdG8gaGFuZGxl
+IAo+IHRoZSBleGNlcHRpb24uCgoKTmVlZCBtb3JlIHRob3VnaHQgYnV0IGl0J3Mgbm90IGFuIGlz
+c3VlIHRoYXQgaXMgaW50cm9kdWNlZCBpbiB0aGlzIApwYXRjaCwgd2UgY2FuIGRvIG9wdGltaXph
+dGlvbiBvbiB0b3AuCgpQcm9iYWJseSBhIHdhcm5pbmcgcGx1cyBGQUlMRUQuIFRoZW4gYXQgbGVh
+c3QgdGhlIGRldmljZSBjYW4gRE9TIHRoZSAKZHJpdmVyIHdoaWNoIGlzIGdvb2QgZm9yIGhhcmRl
+bmluZyBhcyB3ZWxsLgoKVGhhbmtzCgoKPgo+PiBUaGFua3MsCj4+IFN0ZWZhbm8KPj4KPj4gLgo+
+CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFs
+aXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlv
+bi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8v
+dmlydHVhbGl6YXRpb24=
