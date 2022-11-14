@@ -1,106 +1,105 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E3EA1C43217
-	for <virtualization@archiver.kernel.org>; Mon, 14 Nov 2022 07:53:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7CBBEC433FE
+	for <virtualization@archiver.kernel.org>; Mon, 14 Nov 2022 07:58:44 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 536614028C;
-	Mon, 14 Nov 2022 07:53:28 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 536614028C
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=bw6rpNFr
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 8C-kgZrUm_1a; Mon, 14 Nov 2022 07:53:27 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 9F3E54023F;
-	Mon, 14 Nov 2022 07:53:26 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9F3E54023F
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 624C7C0032;
-	Mon, 14 Nov 2022 07:53:26 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id EBB80C002D
- for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Nov 2022 07:53:24 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id B30C4409E1
- for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Nov 2022 07:53:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B30C4409E1
+	by smtp2.osuosl.org (Postfix) with ESMTP id 14AF2409E9;
+	Mon, 14 Nov 2022 07:58:44 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 14AF2409E9
 Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=bw6rpNFr
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=SgHnv/Xa
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id lrr5z2qrsDT7
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 9pTK8IQeTs8g; Mon, 14 Nov 2022 07:58:43 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 86E22409D3;
+	Mon, 14 Nov 2022 07:58:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 86E22409D3
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 46DABC0032;
+	Mon, 14 Nov 2022 07:58:42 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0FBF7C002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Nov 2022 07:53:24 +0000 (UTC)
+ Mon, 14 Nov 2022 07:58:41 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id D1B5980E4F
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 14 Nov 2022 07:58:40 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D1B5980E4F
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=SgHnv/Xa
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id grbDt3UfTsfB
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 14 Nov 2022 07:58:39 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0B086409D3
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8E13B80D20
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 0B086409D3
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 8E13B80D20
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Nov 2022 07:53:23 +0000 (UTC)
+ Mon, 14 Nov 2022 07:58:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1668412402;
+ s=mimecast20190719; t=1668412718;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=i2TV4qSy21VU+sk5sjRM64dTZU7pZku1ImCIDTVwlIA=;
- b=bw6rpNFr4cyEbpsMFZ5f/ZQ21pWFMgv1DGZgJVH8cgalnhtiyVmfQZKcjGa4y90etc2BiL
- aZi4gonRM13hXGKrt+nPRlIpUdlgFSYjoxR8qtxyp0oRfrRFjHD+ehY31d693ie8ryAtjQ
- 7U+DiymnkMUfxmqFSM4FUVLe+97VYQo=
-Received: from mail-oo1-f69.google.com (mail-oo1-f69.google.com
- [209.85.161.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=u9Vri5YF5wLHPwCb7qBcbtV4UMW1YjBA+Dbl2x/KC1Y=;
+ b=SgHnv/XaxcyXdP80i1oyPSP9Jo6nzF+ESaN0YTfdd9unfB7j15+mXzKd/smi7HqrtWd7R5
+ 3V7OS2Zw0oLeFIEa9oyu5YWQCnpP15IjxaxJbfsqwYDk1okH2L6wBjqPVNnY+19sx0vDC+
+ xj9R76d14lCT1RKkKgphM0qRDrmaZYk=
+Received: from mail-oi1-f199.google.com (mail-oi1-f199.google.com
+ [209.85.167.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-659-xBayNM2tNVebN7BKKnm0qw-1; Mon, 14 Nov 2022 02:53:21 -0500
-X-MC-Unique: xBayNM2tNVebN7BKKnm0qw-1
-Received: by mail-oo1-f69.google.com with SMTP id
- w21-20020a4a3555000000b0049eeb6b145eso3474177oog.2
+ us-mta-472-QeCZ2GouPZSp295Uu8DxTQ-1; Mon, 14 Nov 2022 02:58:37 -0500
+X-MC-Unique: QeCZ2GouPZSp295Uu8DxTQ-1
+Received: by mail-oi1-f199.google.com with SMTP id
+ x203-20020acae0d4000000b0035a623fce1aso2952267oig.10
  for <virtualization@lists.linux-foundation.org>;
- Sun, 13 Nov 2022 23:53:21 -0800 (PST)
+ Sun, 13 Nov 2022 23:58:37 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=cc:to:subject:message-id:date:from:in-reply-to:references
  :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
  :reply-to;
- bh=i2TV4qSy21VU+sk5sjRM64dTZU7pZku1ImCIDTVwlIA=;
- b=XmFCaWK3e7I21JFV3PXlyx7/wBNyzLB0BrliGKpvMOH0IuSurQIrWQL53lZrPvWSjO
- n6I8LQ8XLOttP3Mb08HMRTx6/2o8IfhOnHAHN9jCtgVM+Fol7vCQg+ArgVIVoUwonYk5
- vt+QSz1Q9IOZmhXwnPgMYxS3iybgp+3GLzjzLNyTWaKyvQngAr+xtAIq+1SsHYI3+G6R
- EDXXkN+wBWkFQ6p8wAjDlVI/AX/dzX3BL6dNFDXBgooW+uxqPbn2IGDPxNDh8pN/IOan
- 21R1fNpjubN/lV311VwdJ9X4oIdXmiDHFpHCxCKB1XQeI93cH81xbhgW1KfdHjyCdyuZ
- 7CZQ==
-X-Gm-Message-State: ANoB5pkWhYBrW0Gv1Ip2FSy04HE1Iha1LyrtjNkDumnI9cpdU0has8Tj
- 1OeQr2pnWiwqC91+bEAuLup9N63iLbvv2MgCdRWXkBYkao3G/lUjLcypyRfXMUVgS7c0RBQrzNQ
- bnbN27EQWK9SpNSXOYzenbgvNycYb99PTK8YZEjLx1XX9jCcupJFIvIUjtQ==
-X-Received: by 2002:a54:4605:0:b0:354:68aa:9c59 with SMTP id
- p5-20020a544605000000b0035468aa9c59mr5210569oip.35.1668412400638; 
- Sun, 13 Nov 2022 23:53:20 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf6Vkq31SLnZPS7YCw3N8XrceMuGkoMwan8QFQOt1NWvPgsD49puCtuMISsrbN/ojMoIW2ZKe4qVQNuSMrgJB2E=
-X-Received: by 2002:a54:4605:0:b0:354:68aa:9c59 with SMTP id
- p5-20020a544605000000b0035468aa9c59mr5210557oip.35.1668412400397; Sun, 13 Nov
- 2022 23:53:20 -0800 (PST)
+ bh=u9Vri5YF5wLHPwCb7qBcbtV4UMW1YjBA+Dbl2x/KC1Y=;
+ b=hFhU+rmcwiPnkvHJR17uK/CKYMZiD4DCCDWCdo0ol4KLSRodZyqKWC6k+HemJ4UcU9
+ fpQSGacsyOyHjEP2dW1PPxwtT3UDjIGXI60XpU++4YqOrZsMeWXIIQ4MVRdTV7BLtK5v
+ YKltBECKZEdp8yTGr7D+Y4zI6GBg6+pyquurfjPITjxAfNrLjo5vlMgrG7Px/WmpFccV
+ xH6jN7TlXHpCz6kMmQWWv0HEj2guhDH3x4yJjuEH9JSweKGCHWW2IarKLAswf6/20NCt
+ T0wlvXLG5+HmXb/fjrpVyec8sE5TLQuKMCIPyhBNmTJaz75zHXpwiu6VlAvt0r8+ErFp
+ mG6Q==
+X-Gm-Message-State: ANoB5pkz3IReoBCber7dOGghLBVFvN/ZY38LGRzM2rr+ntJgax4hui/w
+ 7KZt91NzK6cd3csY0XJXv2Z5AKvakZPEGK8Sy1WLkO+HzNdt7XdJkUGOQL4LmHfxulcTi4McPO/
+ iaZCS/5DkopR/ZusI1p5lDSzm3PtyeOukYJwN/ZBE7N7KydSJK077btqdAA==
+X-Received: by 2002:a05:6808:22a1:b0:359:f5eb:82ec with SMTP id
+ bo33-20020a05680822a100b00359f5eb82ecmr5096002oib.280.1668412716589; 
+ Sun, 13 Nov 2022 23:58:36 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf58nG4usnDPs5fqaEsioczJcO6qu7BmHpVEbAsV/sQXO0qGZP2+Zv4Znqtin27Fc7G5id+6Zv3e97H9pv88hZg=
+X-Received: by 2002:a05:6808:22a1:b0:359:f5eb:82ec with SMTP id
+ bo33-20020a05680822a100b00359f5eb82ecmr5095994oib.280.1668412716368; Sun, 13
+ Nov 2022 23:58:36 -0800 (PST)
 MIME-Version: 1.0
-References: <20221113134442.152695-1-elic@nvidia.com>
- <20221113134442.152695-7-elic@nvidia.com>
-In-Reply-To: <20221113134442.152695-7-elic@nvidia.com>
+References: <20221114070233.248-1-xieyongji@bytedance.com>
+ <20221114070233.248-4-xieyongji@bytedance.com>
+In-Reply-To: <20221114070233.248-4-xieyongji@bytedance.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 14 Nov 2022 15:53:09 +0800
-Message-ID: <CACGkMEt+7kKD8_q_OFKURbFR1W=YbJpcuwZq5bf5jC4qzE8PEA@mail.gmail.com>
-Subject: Re: [PATCH 6/7] vdpa/mlx5: Avoid using reslock in event_handler
-To: Eli Cohen <elic@nvidia.com>
+Date: Mon, 14 Nov 2022 15:58:25 +0800
+Message-ID: <CACGkMEsbScqRtZeJ51ySiYdR_DrHwVAEGg_n0TR2mA2nK9e7sQ@mail.gmail.com>
+Subject: Re: [PATCH 3/6] vduse: Add sysfs interface for irq affinity setup
+To: Xie Yongji <xieyongji@bytedance.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: lulu@redhat.com, mst@redhat.com, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, eperezma@redhat.com
+Cc: virtualization@lists.linux-foundation.org, mst@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -117,72 +116,213 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sun, Nov 13, 2022 at 9:45 PM Eli Cohen <elic@nvidia.com> wrote:
+On Mon, Nov 14, 2022 at 3:16 PM Xie Yongji <xieyongji@bytedance.com> wrote:
 >
-> event_handler runs under atomic context and may not acquire reslock. We
-> can still guarantee that the handler won't be called after suspend by
-> clearing nb_registered, unregistering the handler and flushing the
-> workqueue.
->
-> Signed-off-by: Eli Cohen <elic@nvidia.com>
-> ---
->  drivers/vdpa/mlx5/net/mlx5_vnet.c | 14 +++-----------
->  1 file changed, 3 insertions(+), 11 deletions(-)
->
-> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> index 6e6490c85be2..bebfba530247 100644
-> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> @@ -2872,8 +2872,8 @@ static int mlx5_vdpa_suspend(struct vdpa_device *vdev)
->         int i;
->
->         down_write(&ndev->reslock);
-> -       mlx5_notifier_unregister(mvdev->mdev, &ndev->nb);
->         ndev->nb_registered = false;
-> +       mlx5_notifier_unregister(mvdev->mdev, &ndev->nb);
+> Add sysfs interface for each vduse virtqueue to setup
+> irq affinity. This would be useful for performance
+> tuning, e.g., mitigate the virtqueue lock contention
+> in virtio block driver.
 
-I wonder why this can help anything. And if it does, we have simliar
-logic in mlx5_vdpa_dev_del() do we need to fix that as well?
+Do we have any perforamnce numbers for this?
+
+Btw, I wonder if irq is the best for the name since we actually don't
+use IRQ at all. I guess using "callback" might be better?
 
 Thanks
 
->         flush_workqueue(ndev->mvdev.wq);
->         for (i = 0; i < ndev->cur_num_vqs; i++) {
->                 mvq = &ndev->vqs[i];
-> @@ -3051,7 +3051,7 @@ static void update_carrier(struct work_struct *work)
->         else
->                 ndev->config.status &= cpu_to_mlx5vdpa16(mvdev, ~VIRTIO_NET_S_LINK_UP);
 >
-> -       if (ndev->config_cb.callback)
-> +       if (ndev->nb_registered && ndev->config_cb.callback)
->                 ndev->config_cb.callback(ndev->config_cb.private);
+> Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
+> ---
+>  drivers/vdpa/vdpa_user/vduse_dev.c | 113 ++++++++++++++++++++++++++---
+>  1 file changed, 102 insertions(+), 11 deletions(-)
 >
->         kfree(wqent);
-> @@ -3068,21 +3068,13 @@ static int event_handler(struct notifier_block *nb, unsigned long event, void *p
->                 switch (eqe->sub_type) {
->                 case MLX5_PORT_CHANGE_SUBTYPE_DOWN:
->                 case MLX5_PORT_CHANGE_SUBTYPE_ACTIVE:
-> -                       down_read(&ndev->reslock);
-> -                       if (!ndev->nb_registered) {
-> -                               up_read(&ndev->reslock);
-> -                               return NOTIFY_DONE;
-> -                       }
->                         wqent = kzalloc(sizeof(*wqent), GFP_ATOMIC);
-> -                       if (!wqent) {
-> -                               up_read(&ndev->reslock);
-> +                       if (!wqent)
->                                 return NOTIFY_DONE;
-> -                       }
+> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
+> index 9303942c2e64..3a0922fa7eb2 100644
+> --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> @@ -57,6 +57,7 @@ struct vduse_virtqueue {
+>         struct vdpa_callback cb;
+>         struct work_struct inject;
+>         struct work_struct kick;
+> +       struct kobject kobj;
+>         int irq_affinity;
+>  };
 >
->                         wqent->mvdev = &ndev->mvdev;
->                         INIT_WORK(&wqent->work, update_carrier);
->                         queue_work(ndev->mvdev.wq, &wqent->work);
-> -                       up_read(&ndev->reslock);
->                         ret = NOTIFY_OK;
->                         break;
->                 default:
+> @@ -1347,6 +1348,88 @@ static const struct file_operations vduse_dev_fops = {
+>         .llseek         = noop_llseek,
+>  };
+>
+> +static ssize_t irq_affinity_show(struct vduse_virtqueue *vq, char *buf)
+> +{
+> +       return sprintf(buf, "%d\n", vq->irq_affinity);
+> +}
+> +
+> +static ssize_t irq_affinity_store(struct vduse_virtqueue *vq,
+> +                                    const char *buf, size_t count)
+> +{
+> +       int val;
+> +
+> +       if (kstrtoint(buf, 0, &val) < 0)
+> +               return -EINVAL;
+> +
+> +       if (!(val == -1 || (val <= nr_cpu_ids && val >= 0 && cpu_online(val))))
+> +               return -EINVAL;
+> +
+> +       vq->irq_affinity = val;
+> +
+> +       return count;
+> +}
+> +
+> +struct vq_sysfs_entry {
+> +       struct attribute attr;
+> +       ssize_t (*show)(struct vduse_virtqueue *vq, char *buf);
+> +       ssize_t (*store)(struct vduse_virtqueue *vq, const char *buf,
+> +                        size_t count);
+> +};
+> +
+> +static struct vq_sysfs_entry irq_affinity_attr = __ATTR_RW(irq_affinity);
+> +
+> +static struct attribute *vq_attrs[] = {
+> +       &irq_affinity_attr.attr,
+> +       NULL,
+> +};
+> +ATTRIBUTE_GROUPS(vq);
+> +
+> +static ssize_t vq_attr_show(struct kobject *kobj, struct attribute *attr,
+> +                           char *buf)
+> +{
+> +       struct vduse_virtqueue *vq = container_of(kobj,
+> +                                       struct vduse_virtqueue, kobj);
+> +       struct vq_sysfs_entry *entry = container_of(attr,
+> +                                       struct vq_sysfs_entry, attr);
+> +
+> +       if (!entry->show)
+> +               return -EIO;
+> +
+> +       return entry->show(vq, buf);
+> +}
+> +
+> +static ssize_t vq_attr_store(struct kobject *kobj, struct attribute *attr,
+> +                            const char *buf, size_t count)
+> +{
+> +       struct vduse_virtqueue *vq = container_of(kobj,
+> +                                       struct vduse_virtqueue, kobj);
+> +       struct vq_sysfs_entry *entry = container_of(attr,
+> +                                       struct vq_sysfs_entry, attr);
+> +
+> +       if (!entry->store)
+> +               return -EIO;
+> +
+> +       return entry->store(vq, buf, count);
+> +}
+> +
+> +static const struct sysfs_ops vq_sysfs_ops = {
+> +       .show = vq_attr_show,
+> +       .store = vq_attr_store,
+> +};
+> +
+> +static void vq_release(struct kobject *kobj)
+> +{
+> +       struct vduse_virtqueue *vq = container_of(kobj,
+> +                                       struct vduse_virtqueue, kobj);
+> +       kfree(vq);
+> +}
+> +
+> +static struct kobj_type vq_type = {
+> +       .release        = vq_release,
+> +       .sysfs_ops      = &vq_sysfs_ops,
+> +       .default_groups = vq_groups,
+> +};
+> +
+>  static void vduse_dev_deinit_vqs(struct vduse_dev *dev)
+>  {
+>         int i;
+> @@ -1355,13 +1438,13 @@ static void vduse_dev_deinit_vqs(struct vduse_dev *dev)
+>                 return;
+>
+>         for (i = 0; i < dev->vq_num; i++)
+> -               kfree(dev->vqs[i]);
+> +               kobject_put(&dev->vqs[i]->kobj);
+>         kfree(dev->vqs);
+>  }
+>
+>  static int vduse_dev_init_vqs(struct vduse_dev *dev, u32 vq_align, u32 vq_num)
+>  {
+> -       int i;
+> +       int ret, i;
+>
+>         dev->vq_align = vq_align;
+>         dev->vq_num = vq_num;
+> @@ -1371,8 +1454,10 @@ static int vduse_dev_init_vqs(struct vduse_dev *dev, u32 vq_align, u32 vq_num)
+>
+>         for (i = 0; i < vq_num; i++) {
+>                 dev->vqs[i] = kzalloc(sizeof(*dev->vqs[i]), GFP_KERNEL);
+> -               if (!dev->vqs[i])
+> +               if (!dev->vqs[i]) {
+> +                       ret = -ENOMEM;
+>                         goto err;
+> +               }
+>
+>                 dev->vqs[i]->index = i;
+>                 dev->vqs[i]->irq_affinity = -1;
+> @@ -1380,15 +1465,20 @@ static int vduse_dev_init_vqs(struct vduse_dev *dev, u32 vq_align, u32 vq_num)
+>                 INIT_WORK(&dev->vqs[i]->kick, vduse_vq_kick_work);
+>                 spin_lock_init(&dev->vqs[i]->kick_lock);
+>                 spin_lock_init(&dev->vqs[i]->irq_lock);
+> +               kobject_init(&dev->vqs[i]->kobj, &vq_type);
+> +               ret = kobject_add(&dev->vqs[i]->kobj,
+> +                                 &dev->dev->kobj, "vq%d", i);
+> +               if (ret)
+> +                       goto err;
+>         }
+>
+>         return 0;
+>  err:
+>         while (i--)
+> -               kfree(dev->vqs[i]);
+> +               kobject_put(&dev->vqs[i]->kobj);
+>         kfree(dev->vqs);
+>         dev->vqs = NULL;
+> -       return -ENOMEM;
+> +       return ret;
+>  }
+>
+>  static struct vduse_dev *vduse_dev_create(void)
+> @@ -1563,10 +1653,6 @@ static int vduse_create_dev(struct vduse_dev_config *config,
+>         dev->config = config_buf;
+>         dev->config_size = config->config_size;
+>
+> -       ret = vduse_dev_init_vqs(dev, config->vq_align, config->vq_num);
+> -       if (ret)
+> -               goto err_vqs;
+> -
+>         ret = idr_alloc(&vduse_idr, dev, 1, VDUSE_DEV_MAX, GFP_KERNEL);
+>         if (ret < 0)
+>                 goto err_idr;
+> @@ -1580,14 +1666,19 @@ static int vduse_create_dev(struct vduse_dev_config *config,
+>                 ret = PTR_ERR(dev->dev);
+>                 goto err_dev;
+>         }
+> +
+> +       ret = vduse_dev_init_vqs(dev, config->vq_align, config->vq_num);
+> +       if (ret)
+> +               goto err_vqs;
+> +
+>         __module_get(THIS_MODULE);
+>
+>         return 0;
+> +err_vqs:
+> +       device_destroy(vduse_class, MKDEV(MAJOR(vduse_major), dev->minor));
+>  err_dev:
+>         idr_remove(&vduse_idr, dev->minor);
+>  err_idr:
+> -       vduse_dev_deinit_vqs(dev);
+> -err_vqs:
+>         vduse_domain_destroy(dev->domain);
+>  err_domain:
+>         kfree(dev->name);
 > --
-> 2.38.1
+> 2.20.1
 >
 
 _______________________________________________
