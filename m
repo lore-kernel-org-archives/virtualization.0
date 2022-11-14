@@ -4,74 +4,75 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5EC3AC43217
-	for <virtualization@archiver.kernel.org>; Mon, 14 Nov 2022 16:18:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 39156C4332F
+	for <virtualization@archiver.kernel.org>; Mon, 14 Nov 2022 18:28:18 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 0198360AA5;
-	Mon, 14 Nov 2022 16:18:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0198360AA5
+	by smtp3.osuosl.org (Postfix) with ESMTP id ACCF660BCC;
+	Mon, 14 Nov 2022 18:28:17 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org ACCF660BCC
 Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=yfcJXHl/
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=desiato.20200630 header.b=Ur1pdSXL
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 5N_qj3ilrl6t; Mon, 14 Nov 2022 16:18:33 +0000 (UTC)
+	with ESMTP id O5AFH-ScB-SX; Mon, 14 Nov 2022 18:28:17 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 7B729605F6;
-	Mon, 14 Nov 2022 16:18:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7B729605F6
+	by smtp3.osuosl.org (Postfix) with ESMTPS id BC4C5605DB;
+	Mon, 14 Nov 2022 18:28:15 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org BC4C5605DB
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3DA22C0033;
-	Mon, 14 Nov 2022 16:18:32 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 73DEBC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4A36FC0033;
+	Mon, 14 Nov 2022 18:28:15 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 99615C002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Nov 2022 16:18:31 +0000 (UTC)
+ Mon, 14 Nov 2022 18:28:12 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 40DEA60776
+ by smtp4.osuosl.org (Postfix) with ESMTP id 6D0EC4008D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Nov 2022 16:18:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 40DEA60776
+ Mon, 14 Nov 2022 18:28:12 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6D0EC4008D
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org
+ header.a=rsa-sha256 header.s=desiato.20200630 header.b=Ur1pdSXL
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 9Sh1a5J5ywLV
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Oo2g0XJIeL3E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Nov 2022 16:18:30 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 403B5605F6
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 403B5605F6
+ Mon, 14 Nov 2022 18:28:11 +0000 (UTC)
+X-Greylist: delayed 00:44:14 by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6B6F640291
+Received: from desiato.infradead.org (desiato.infradead.org
+ [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 6B6F640291
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Nov 2022 16:18:30 +0000 (UTC)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by ams.source.kernel.org (Postfix) with ESMTPS id 654CCB81076;
- Mon, 14 Nov 2022 16:18:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2C8FC433D7;
- Mon, 14 Nov 2022 16:18:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
- s=korg; t=1668442706;
- bh=AqtzYtgXN3z9nM+kNUs9g6opjfSPy/5KmOAnNI1Je7U=;
- h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=yfcJXHl/qAG6UhIPzAWlKql8R2YTxkgePNZkoB8I8NWZmiEKmqYfi1uhCPxoI3NYl
- OGfPj1Tt77iI7zUf1D+TyWRFtZTxZgCJ5j7bVUv5VTN4r1ohjSqJNhTOUPdo/T0Jnw
- jZyOiBNTNPUxkdpLI0LWXbaswhvoUyMnH6i4XFnU=
-Date: Mon, 14 Nov 2022 17:18:22 +0100
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: =?iso-8859-1?Q?C=E9dric?= Le Goater <clg@kaod.org>
-Subject: Re: [PATCH] virtio_console: Use an atomic to allocate virtual
- console numbers
-Message-ID: <Y3JqThFr67DJnGJL@kroah.com>
-References: <20221114080752.1900699-1-clg@kaod.org>
- <Y3IC3miVoiMROwaE@kroah.com>
- <b0503354-2d1e-a93d-a6a5-6f6a1f55f0e2@kaod.org>
+ Mon, 14 Nov 2022 18:28:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=desiato.20200630; h=Content-Transfer-Encoding:MIME-Version
+ :Content-Type:References:In-Reply-To:Date:Cc:To:From:Subject:Message-ID:
+ Sender:Reply-To:Content-ID:Content-Description;
+ bh=mzPCCQJtYzDTTMafDwLKyznTDOv16t2FgFyWI0Y9X+w=; b=Ur1pdSXLoFKZ7NR2dqC2IYlf0G
+ 6WYvoxcbi1Vo1gvCQT3zcdML/CG7zpwc7N1j9P+HwbIx+hWjZ2RAEFSfxZRNEb0+lpP/FnuDxsYJZ
+ fdAEjuBYEkRt5AoSb0NH88ryVPff3+GYUQc0qvX3beTwT1SNcBGDzYKUIdIsgH6t+sE1uDs5RntSl
+ f+nvwxeiYduUph5HRdfq+tyXnrEYghA+SzYyx+/GS/J3OTkGGbR0L/Zs4w6CrxvT8xEBJjBOUQrIl
+ eQJuR6SeOjqL/bPsHS9TtplYxTOVWzUtoVxiwi1fVeehQyaN7a1OeIzlx5387hc7dh+tp289WxyOt
+ TVJmEf/Q==;
+Received: from 54-240-196-186.amazon.com ([54.240.196.186]
+ helo=uf7e2438656a15b.ant.amazon.com)
+ by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+ id 1oudUs-000qTF-LG; Mon, 14 Nov 2022 17:43:51 +0000
+Message-ID: <f638782743aa6d848af36cba36e9e039e2087d2b.camel@infradead.org>
+Subject: Re: [PATCH] virtio: console: remove check for cpkt value when
+ nominating console port
+From: Amit Shah <amit@infradead.org>
+To: Andy Bui <andy.bui2001@gmail.com>, amit@kernel.org
+Date: Mon, 14 Nov 2022 09:43:48 -0800
+In-Reply-To: <20221112124522.3981-1-andy.bui2001@gmail.com>
+References: <20221112124522.3981-1-andy.bui2001@gmail.com>
+User-Agent: Evolution 3.36.5-0ubuntu1 
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <b0503354-2d1e-a93d-a6a5-6f6a1f55f0e2@kaod.org>
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
- Arnd Bergmann <arnd@arndb.de>, Amit Shah <amit@kernel.org>
+Cc: virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -83,110 +84,31 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Nov 14, 2022 at 05:03:40PM +0100, C=E9dric Le Goater wrote:
-> On 11/14/22 09:57, Greg Kroah-Hartman wrote:
-> > On Mon, Nov 14, 2022 at 09:07:52AM +0100, C=E9dric Le Goater wrote:
-> > > When a virtio console port is initialized, it is registered as an hvc
-> > > console using a virtual console number. If a KVM guest is started with
-> > > multiple virtio console devices, the same vtermno (or virtual console
-> > > number) can be used to allocate different hvc consoles, which leads to
-> > > various communication problems later on.
-> > > =
 
-> > > This is also reported in debugfs :
-> > > =
+On Sat, 2022-11-12 at 23:45 +1100, Andy Bui wrote:
+> The virtIO spec does not specify a need for a value when nominating a
+> port as a console port, yet the virtio_console driver requires the value
+> to be 1.
+> 
+> Besides being a check that's not specified by the virtIO spec, I don't
+> see anywhere else in the kernel the value is used when the corresponding
+> event is VIRTIO_CONSOLE_CONSOLE_PORT. As an example QEMU also currently
+> only passes in value=1 when nominating a console port.
 
-> > >    # grep vtermno /sys/kernel/debug/virtio-ports/*
-> > >    /sys/kernel/debug/virtio-ports/vport1p1:console_vtermno: 1
-> > >    /sys/kernel/debug/virtio-ports/vport2p1:console_vtermno: 1
-> > >    /sys/kernel/debug/virtio-ports/vport3p1:console_vtermno: 2
-> > >    /sys/kernel/debug/virtio-ports/vport4p1:console_vtermno: 3
-> > > =
+The original virtio-console driver just had the one port, and it was,
+as the name suggests, was a console port.  When we converted this
+console driver to a generic serial driver, the first port was kept as
+the console port to not break old drivers or hypervisors.  I'm afraid
+we'll have to keep this bit of backward compatibility forever.
 
-> > > Fix the issue with an atomic variable and start the first console
-> > > number at 1 as it is today.
-> > > =
 
-> > > Signed-off-by: C=E9dric Le Goater <clg@kaod.org>
-> > > ---
-> > >   drivers/char/virtio_console.c | 8 ++++----
-> > >   1 file changed, 4 insertions(+), 4 deletions(-)
-> > > =
+		Amit
 
-> > > diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_cons=
-ole.c
-> > > index 9fa3c76a267f..253574f41e57 100644
-> > > --- a/drivers/char/virtio_console.c
-> > > +++ b/drivers/char/virtio_console.c
-> > > @@ -58,12 +58,13 @@ struct ports_driver_data {
-> > >   	 * We also just assume the first console being initialised was
-> > >   	 * the first one that got used as the initial console.
-> > >   	 */
-> > > -	unsigned int next_vtermno;
-> > > +	atomic_t next_vtermno;
-> > >   	/* All the console devices handled by this driver */
-> > >   	struct list_head consoles;
-> > >   };
-> > > -static struct ports_driver_data pdrvdata =3D { .next_vtermno =3D 1};
-> > > +
-> > > +static struct ports_driver_data pdrvdata =3D { .next_vtermno =3D ATO=
-MIC_INIT(0) };
-> > >   static DEFINE_SPINLOCK(pdrvdata_lock);
-> > >   static DECLARE_COMPLETION(early_console_added);
-> > > @@ -1244,7 +1245,7 @@ static int init_port_console(struct port *port)
-> > >   	 * pointers.  The final argument is the output buffer size: we
-> > >   	 * can do any size, so we put PAGE_SIZE here.
-> > >   	 */
-> > > -	port->cons.vtermno =3D pdrvdata.next_vtermno;
-> > > +	port->cons.vtermno =3D atomic_inc_return(&pdrvdata.next_vtermno);
-> > =
-
-> > Why not use a normal ida/idr structure here?
-> =
-
-> yes that works.
-> =
-
-> > And why is this never decremented?
-> =
-
-> The driver would then need to track the id allocation ...
-
-That's what an ida/idr does.
-
-> > and finally, why not use the value that created the "vportN" number
-> > instead?
-> =
-
-> yes. we could also encode the tuple (vdev->index, port) using a bitmask,
-
-No need for that, you already have a unique number in the name above,
-why not use that?
-
-> possibly using 'max_nr_ports' to reduce the port width.
-
-Why is that an issue?  Maybe I am confused as to what this magic
-"vtermno" is here.  Who uses it and why is the vportN number not
-sufficient?
-
-> VIRTCONS_MAX_PORTS
-> seems a bit big for this device and QEMU sets the #ports to 31.
-> =
-
-> An ida might be simpler. One drawback is that an id can be reused for a
-> different device/port tuple in case of an (unlikely) unplug/plug sequence.
-
-What's wrong with that?  We do not have persistent device names from
-within the kernel.
-
-thanks,
-
-greg k-h
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
