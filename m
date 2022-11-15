@@ -4,99 +4,98 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3976CC433FE
-	for <virtualization@archiver.kernel.org>; Tue, 15 Nov 2022 03:33:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 993C0C433FE
+	for <virtualization@archiver.kernel.org>; Tue, 15 Nov 2022 03:33:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 9BAE3813A7;
-	Tue, 15 Nov 2022 03:33:28 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9BAE3813A7
+	by smtp1.osuosl.org (Postfix) with ESMTP id 39495812B2;
+	Tue, 15 Nov 2022 03:33:51 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 39495812B2
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=VpFp3i1A
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=URuJlBBG
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 5CdQDV8AJjsz; Tue, 15 Nov 2022 03:33:27 +0000 (UTC)
+	with ESMTP id 01Jt5rB1kmWs; Tue, 15 Nov 2022 03:33:49 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id B7B088132C;
-	Tue, 15 Nov 2022 03:33:26 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B7B088132C
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 1117F80E55;
+	Tue, 15 Nov 2022 03:33:49 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1117F80E55
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 843DCC0032;
-	Tue, 15 Nov 2022 03:33:26 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 707B4C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D120EC0032;
+	Tue, 15 Nov 2022 03:33:48 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8F117C002D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Nov 2022 03:33:25 +0000 (UTC)
+ Tue, 15 Nov 2022 03:33:47 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 4BAB560750
+ by smtp4.osuosl.org (Postfix) with ESMTP id 5BDBE40324
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Nov 2022 03:33:25 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4BAB560750
-Authentication-Results: smtp3.osuosl.org;
+ Tue, 15 Nov 2022 03:33:47 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5BDBE40324
+Authentication-Results: smtp4.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=VpFp3i1A
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=URuJlBBG
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id LURQQhVK-_9V
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Hl5kQJ_ktDfa
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Nov 2022 03:33:24 +0000 (UTC)
+ Tue, 15 Nov 2022 03:33:45 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org BC5F7600B9
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A0F1740363
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id BC5F7600B9
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id A0F1740363
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Nov 2022 03:33:23 +0000 (UTC)
+ Tue, 15 Nov 2022 03:33:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1668483202;
+ s=mimecast20190719; t=1668483224;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=mNAjDW+LqmP3hkU3UqpIHjrBEPvXtdlshMYrXjWc3V4=;
- b=VpFp3i1AH3dOO0HD1vfAaPVAEGtJiuaJ9tb0kWuz9ViEZkAxDh/8kTwscwNHWh5ly+8Oim
- w2XtF+tcS3i9ZSovBSbUnpfwBQeq4lI1CnOXLFHP0bMoRW8aaHAoFu3779yPC6FR0yC9Ls
- uFsf8wC/SX0qB/sybqNLU9OpQJnXJFQ=
-Received: from mail-oi1-f200.google.com (mail-oi1-f200.google.com
- [209.85.167.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=U7m6ao4IK6/aZ743Uu/e3L1NAClXd0BGmK8TQZZjy5A=;
+ b=URuJlBBG5Ku7tnzFd+xWVMOCArFnAd8GxOB9qcIa2nFA72Xx2jW7/kRMQ/DG5mKYi0shvm
+ wtsKa/AYqz/XDXS4M8giKZl6qK+/GmPBgLebi5opRGg4tpJXZmF7nO07rDV6od15fFA0v8
+ LK73cQN1i3ncp3RA0hieLWz6pbVuAX8=
+Received: from mail-oa1-f72.google.com (mail-oa1-f72.google.com
+ [209.85.160.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-554-Tjpz6OTPOtmVMGmVwsKzxg-1; Mon, 14 Nov 2022 22:33:21 -0500
-X-MC-Unique: Tjpz6OTPOtmVMGmVwsKzxg-1
-Received: by mail-oi1-f200.google.com with SMTP id
- r65-20020acaf344000000b0035a1d791805so4291280oih.19
+ us-mta-115-8FOzHHrdPKmFSfl0Ml84kg-1; Mon, 14 Nov 2022 22:33:42 -0500
+X-MC-Unique: 8FOzHHrdPKmFSfl0Ml84kg-1
+Received: by mail-oa1-f72.google.com with SMTP id
+ 586e51a60fabf-13cbfc38be2so6262867fac.0
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Nov 2022 19:33:21 -0800 (PST)
+ Mon, 14 Nov 2022 19:33:42 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=content-transfer-encoding:cc:to:subject:message-id:date:from
- :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
- :subject:date:message-id:reply-to;
- bh=mNAjDW+LqmP3hkU3UqpIHjrBEPvXtdlshMYrXjWc3V4=;
- b=MPleM2YUhVs+1nYIyEbbwZ2TAEcHHWX2ea5sysLx4dzH7QmCt6CO8NdrH+6+2KWtZ7
- X2C8xsUorEj9SbWFq7ADorP3Z6dGm/zeQHBjS6wOR5XKItSlNze0MV/HQ9SPqqRlR86C
- m8Z2Ee2gcoB9rwkDJbotoia615nv5F7FIsxnNAhQ3BW8LmO0scqcMF2pr5aMTDt24s7s
- B10dt8F9grt2UBt0DFBmsJZwOrHaG5tTaTqFBYXtpN4pICnzTrjV403pXC5Ii6jCTA1k
- qmMnZ6/s77uv3KueDeQRPJA1bi2buP4Q030X/tN7ZjhgUxD0kDca9+xli+u9aZS3qkiz
- Fl0g==
-X-Gm-Message-State: ANoB5plP1OuxSI0Fa5D/Bbq5Vwr/tmcSZM5l/9+cBhmNAvcDlrLXqQLa
- 62RlEkG0Hd4lWMhg2MhWjZ6eV/g0pX+8vu6LVFElyHS/D/lfK6r+6Vnfv2ZyZCQuJBvCmOFJaR0
- GPC8Rklgznni82rPPqVrjmQfNmgU878sp0mZ8GcUQPKHRKprEqimf+U+hdw==
-X-Received: by 2002:a05:6808:b03:b0:354:68aa:9c59 with SMTP id
- s3-20020a0568080b0300b0035468aa9c59mr7749oij.35.1668483200442; 
- Mon, 14 Nov 2022 19:33:20 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf7riKn3EpEXz5oT1vSYx083Kmp/Q8XqO449ZlrBFf3Dk6NecTd0HHn6qnUm2yRb84prNFTRyc0PbB8T+HpbG6g=
-X-Received: by 2002:a05:6808:b03:b0:354:68aa:9c59 with SMTP id
- s3-20020a0568080b0300b0035468aa9c59mr7740oij.35.1668483200138; Mon, 14 Nov
- 2022 19:33:20 -0800 (PST)
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+ :reply-to;
+ bh=U7m6ao4IK6/aZ743Uu/e3L1NAClXd0BGmK8TQZZjy5A=;
+ b=PFzT7RAUifUh2UvwW5+PdBf8/jnB8QY5pN3igEuyYCqeeiU7xlQo+yIdMnoEzhDFHR
+ +W/7BZ/rlW9isLfpqXpevCOy9i7GxnSXoqyXvXAfgGBCFeGyiTVSWQKe9DaTyB53v0a7
+ JZyM9AoZCcQSchWIVTufT4yFempQjooi0m5vwiUhLaVvif0EkHi+dAV5n7hOVLZmE2Tz
+ aNTt/CTv3PDyOBoakH1+pFNlKDyXj8dDFSHhoEx/dMpE6yC6bl7dsnuDCvOeQDt8Cm+j
+ YGPA5QihPS1BG00RmDofN34UJbJ3ColLu7Ew/Qa3rLipoqIxTQ1A+/39rhC7oXivWdKN
+ SE/A==
+X-Gm-Message-State: ANoB5pmQc9L7mpBgv+NlBUfuuSv2Or0FMA3ymvcw5igR/lTewEljBKYo
+ IHctUev7RshpZ2elNjlY4Lo9vz/xZOJoJU2fcDgIST8yWEdEjrrODEHYJYv9XmYnNYRxxDb6/OG
+ u4Bc4IudfYO9qq0/uc6ohuywdmd+RB5oVemHW7SW6yezPxUqID3EFCYbTZQ==
+X-Received: by 2002:a05:6870:638b:b0:132:7b3:29ac with SMTP id
+ t11-20020a056870638b00b0013207b329acmr102854oap.35.1668483221827; 
+ Mon, 14 Nov 2022 19:33:41 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf5r7QzYsTy5/acwIsDQm+bUQzdhSXFtHnPYtqFtvuSwLauIORNv8s4arrMyuMKjiPeGZ9un+n4fqU/na3lvlK0=
+X-Received: by 2002:a05:6870:638b:b0:132:7b3:29ac with SMTP id
+ t11-20020a056870638b00b0013207b329acmr102844oap.35.1668483221475; Mon, 14 Nov
+ 2022 19:33:41 -0800 (PST)
 MIME-Version: 1.0
 References: <20221114131759.57883-1-elic@nvidia.com>
- <20221114131759.57883-6-elic@nvidia.com>
-In-Reply-To: <20221114131759.57883-6-elic@nvidia.com>
+ <20221114131759.57883-9-elic@nvidia.com>
+In-Reply-To: <20221114131759.57883-9-elic@nvidia.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 15 Nov 2022 11:33:09 +0800
-Message-ID: <CACGkMEuTXO+PB+z6PpOqvov-yRhkZfXSLvs6N-_9ikixsrr-kA@mail.gmail.com>
-Subject: Re: [PATH v2 5/8] vdpa/mlx5: Avoid overwriting CVQ iotlb
+Date: Tue, 15 Nov 2022 11:33:30 +0800
+Message-ID: <CACGkMEvedzOtzUX0q_XPb_9cURRzStBjWZGscJ6=rKu--QSrww@mail.gmail.com>
+Subject: Re: [PATH v2 8/8] vdpa/mlx5: Add RX counters to debugfs
 To: Eli Cohen <elic@nvidia.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
@@ -113,170 +112,428 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gTW9uLCBOb3YgMTQsIDIwMjIgYXQgOToxOCBQTSBFbGkgQ29oZW4gPGVsaWNAbnZpZGlhLmNv
-bT4gd3JvdGU6Cj4KPiBXaGVuIHFlbXUgdXNlcyBkaWZmZXJlbnQgYWRkcmVzcyBzcGFjZXMgZm9y
-IGRhdGEgYW5kIGNvbnRyb2wgdmlydHF1ZXVlcywKPiB0aGUgY3VycmVudCBjb2RlIHdvdWxkIG92
-ZXJ3cml0ZSB0aGUgY29udHJvbCB2aXJ0cXVldWUgaW90bGIgdGhyb3VnaCB0aGUKPiBkdXBfaW90
-bGIgY2FsbC4gRml4IHRoaXMgYnkgcmVmZXJyaW5nIHRvIHRoZSBhZGRyZXNzIHNwYWNlIGlkZW50
-aWZpZXIKPiBhbmQgdGhlIGdyb3VwIHRvIGFzaWQgbWFwcGluZyB0byBkZXRlcm1pbmUgd2hpY2gg
-bWFwcGluZyBuZWVkcyB0byBiZQo+IHVwZGF0ZWQuIFdlIGFsc28gbW92ZSB0aGUgYWRkcmVzcyBz
-cGFjZSBsb2dpYyBmcm9tIG1seDUgbmV0IHRvIGNvcmUKPiBkaXJlY3RvcnkuCj4KPiBSZXBvcnRl
-ZC1ieTogRXVnZW5pbyBQw6lyZXogPGVwZXJlem1hQHJlZGhhdC5jb20+Cj4gU2lnbmVkLW9mZi1i
-eTogRWxpIENvaGVuIDxlbGljQG52aWRpYS5jb20+CgpBY2tlZC1ieTogSmFzb24gV2FuZyA8amFz
-b3dhbmdAcmVkaGF0LmNvbT4KClRoYW5rcwoKPiAtLS0KPiAgZHJpdmVycy92ZHBhL21seDUvY29y
-ZS9tbHg1X3ZkcGEuaCB8ICA1ICstLQo+ICBkcml2ZXJzL3ZkcGEvbWx4NS9jb3JlL21yLmMgICAg
-ICAgIHwgNDQgKysrKysrKysrKysrKysrKy0tLS0tLS0tLS0tCj4gIGRyaXZlcnMvdmRwYS9tbHg1
-L25ldC9tbHg1X3ZuZXQuYyAgfCA0OSArKysrKystLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KPiAg
-MyBmaWxlcyBjaGFuZ2VkLCAzOSBpbnNlcnRpb25zKCspLCA1OSBkZWxldGlvbnMoLSkKPgo+IGRp
-ZmYgLS1naXQgYS9kcml2ZXJzL3ZkcGEvbWx4NS9jb3JlL21seDVfdmRwYS5oIGIvZHJpdmVycy92
-ZHBhL21seDUvY29yZS9tbHg1X3ZkcGEuaAo+IGluZGV4IDZhZjlmZGJiODZiNy4uMDU4ZmJlMjgx
-MDdlIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvdmRwYS9tbHg1L2NvcmUvbWx4NV92ZHBhLmgKPiAr
-KysgYi9kcml2ZXJzL3ZkcGEvbWx4NS9jb3JlL21seDVfdmRwYS5oCj4gQEAgLTExNiw4ICsxMTYs
-OSBAQCBpbnQgbWx4NV92ZHBhX2NyZWF0ZV9ta2V5KHN0cnVjdCBtbHg1X3ZkcGFfZGV2ICptdmRl
-diwgdTMyICpta2V5LCB1MzIgKmluLAo+ICAgICAgICAgICAgICAgICAgICAgICAgICAgaW50IGlu
-bGVuKTsKPiAgaW50IG1seDVfdmRwYV9kZXN0cm95X21rZXkoc3RydWN0IG1seDVfdmRwYV9kZXYg
-Km12ZGV2LCB1MzIgbWtleSk7Cj4gIGludCBtbHg1X3ZkcGFfaGFuZGxlX3NldF9tYXAoc3RydWN0
-IG1seDVfdmRwYV9kZXYgKm12ZGV2LCBzdHJ1Y3Qgdmhvc3RfaW90bGIgKmlvdGxiLAo+IC0gICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgYm9vbCAqY2hhbmdlX21hcCk7Cj4gLWludCBtbHg1X3Zk
-cGFfY3JlYXRlX21yKHN0cnVjdCBtbHg1X3ZkcGFfZGV2ICptdmRldiwgc3RydWN0IHZob3N0X2lv
-dGxiICppb3RsYik7Cj4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICBib29sICpjaGFuZ2Vf
-bWFwLCB1bnNpZ25lZCBpbnQgYXNpZCk7Cj4gK2ludCBtbHg1X3ZkcGFfY3JlYXRlX21yKHN0cnVj
-dCBtbHg1X3ZkcGFfZGV2ICptdmRldiwgc3RydWN0IHZob3N0X2lvdGxiICppb3RsYiwKPiArICAg
-ICAgICAgICAgICAgICAgICAgICB1bnNpZ25lZCBpbnQgYXNpZCk7Cj4gIHZvaWQgbWx4NV92ZHBh
-X2Rlc3Ryb3lfbXIoc3RydWN0IG1seDVfdmRwYV9kZXYgKm12ZGV2KTsKPgo+ICAjZGVmaW5lIG1s
-eDVfdmRwYV93YXJuKF9fZGV2LCBmb3JtYXQsIC4uLikgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMv
-dmRwYS9tbHg1L2NvcmUvbXIuYyBiL2RyaXZlcnMvdmRwYS9tbHg1L2NvcmUvbXIuYwo+IGluZGV4
-IGE2MzliOTIwOGQ0MS4uYTRkN2VlMjMzOWZhIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvdmRwYS9t
-bHg1L2NvcmUvbXIuYwo+ICsrKyBiL2RyaXZlcnMvdmRwYS9tbHg1L2NvcmUvbXIuYwo+IEBAIC01
-MTEsNyArNTExLDggQEAgdm9pZCBtbHg1X3ZkcGFfZGVzdHJveV9tcihzdHJ1Y3QgbWx4NV92ZHBh
-X2RldiAqbXZkZXYpCj4gICAgICAgICBtdXRleF91bmxvY2soJm1yLT5ta2V5X210eCk7Cj4gIH0K
-Pgo+IC1zdGF0aWMgaW50IF9tbHg1X3ZkcGFfY3JlYXRlX21yKHN0cnVjdCBtbHg1X3ZkcGFfZGV2
-ICptdmRldiwgc3RydWN0IHZob3N0X2lvdGxiICppb3RsYikKPiArc3RhdGljIGludCBfbWx4NV92
-ZHBhX2NyZWF0ZV9tcihzdHJ1Y3QgbWx4NV92ZHBhX2RldiAqbXZkZXYsCj4gKyAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICBzdHJ1Y3Qgdmhvc3RfaW90bGIgKmlvdGxiLCB1bnNpZ25lZCBp
-bnQgYXNpZCkKPiAgewo+ICAgICAgICAgc3RydWN0IG1seDVfdmRwYV9tciAqbXIgPSAmbXZkZXYt
-Pm1yOwo+ICAgICAgICAgaW50IGVycjsKPiBAQCAtNTE5LDQyICs1MjAsNDkgQEAgc3RhdGljIGlu
-dCBfbWx4NV92ZHBhX2NyZWF0ZV9tcihzdHJ1Y3QgbWx4NV92ZHBhX2RldiAqbXZkZXYsIHN0cnVj
-dCB2aG9zdF9pb3RsYgo+ICAgICAgICAgaWYgKG1yLT5pbml0aWFsaXplZCkKPiAgICAgICAgICAg
-ICAgICAgcmV0dXJuIDA7Cj4KPiAtICAgICAgIGlmIChpb3RsYikKPiAtICAgICAgICAgICAgICAg
-ZXJyID0gY3JlYXRlX3VzZXJfbXIobXZkZXYsIGlvdGxiKTsKPiAtICAgICAgIGVsc2UKPiAtICAg
-ICAgICAgICAgICAgZXJyID0gY3JlYXRlX2RtYV9tcihtdmRldiwgbXIpOwo+ICsgICAgICAgaWYg
-KG12ZGV2LT5ncm91cDJhc2lkW01MWDVfVkRQQV9EQVRBVlFfR1JPVVBdID09IGFzaWQpIHsKPiAr
-ICAgICAgICAgICAgICAgaWYgKGlvdGxiKQo+ICsgICAgICAgICAgICAgICAgICAgICAgIGVyciA9
-IGNyZWF0ZV91c2VyX21yKG12ZGV2LCBpb3RsYik7Cj4gKyAgICAgICAgICAgICAgIGVsc2UKPiAr
-ICAgICAgICAgICAgICAgICAgICAgICBlcnIgPSBjcmVhdGVfZG1hX21yKG12ZGV2LCBtcik7Cj4K
-PiAtICAgICAgIGlmIChlcnIpCj4gLSAgICAgICAgICAgICAgIHJldHVybiBlcnI7Cj4gKyAgICAg
-ICAgICAgICAgIGlmIChlcnIpCj4gKyAgICAgICAgICAgICAgICAgICAgICAgcmV0dXJuIGVycjsK
-PiArICAgICAgIH0KPgo+IC0gICAgICAgZXJyID0gZHVwX2lvdGxiKG12ZGV2LCBpb3RsYik7Cj4g
-LSAgICAgICBpZiAoZXJyKQo+IC0gICAgICAgICAgICAgICBnb3RvIG91dF9lcnI7Cj4gKyAgICAg
-ICBpZiAobXZkZXYtPmdyb3VwMmFzaWRbTUxYNV9WRFBBX0NWUV9HUk9VUF0gPT0gYXNpZCkgewo+
-ICsgICAgICAgICAgICAgICBlcnIgPSBkdXBfaW90bGIobXZkZXYsIGlvdGxiKTsKPiArICAgICAg
-ICAgICAgICAgaWYgKGVycikKPiArICAgICAgICAgICAgICAgICAgICAgICBnb3RvIG91dF9lcnI7
-Cj4gKyAgICAgICB9Cj4KPiAgICAgICAgIG1yLT5pbml0aWFsaXplZCA9IHRydWU7Cj4gICAgICAg
-ICByZXR1cm4gMDsKPgo+ICBvdXRfZXJyOgo+IC0gICAgICAgaWYgKGlvdGxiKQo+IC0gICAgICAg
-ICAgICAgICBkZXN0cm95X3VzZXJfbXIobXZkZXYsIG1yKTsKPiAtICAgICAgIGVsc2UKPiAtICAg
-ICAgICAgICAgICAgZGVzdHJveV9kbWFfbXIobXZkZXYsIG1yKTsKPiArICAgICAgIGlmIChtdmRl
-di0+Z3JvdXAyYXNpZFtNTFg1X1ZEUEFfREFUQVZRX0dST1VQXSA9PSBhc2lkKSB7Cj4gKyAgICAg
-ICAgICAgICAgIGlmIChpb3RsYikKPiArICAgICAgICAgICAgICAgICAgICAgICBkZXN0cm95X3Vz
-ZXJfbXIobXZkZXYsIG1yKTsKPiArICAgICAgICAgICAgICAgZWxzZQo+ICsgICAgICAgICAgICAg
-ICAgICAgICAgIGRlc3Ryb3lfZG1hX21yKG12ZGV2LCBtcik7Cj4gKyAgICAgICB9Cj4KPiAgICAg
-ICAgIHJldHVybiBlcnI7Cj4gIH0KPgo+IC1pbnQgbWx4NV92ZHBhX2NyZWF0ZV9tcihzdHJ1Y3Qg
-bWx4NV92ZHBhX2RldiAqbXZkZXYsIHN0cnVjdCB2aG9zdF9pb3RsYiAqaW90bGIpCj4gK2ludCBt
-bHg1X3ZkcGFfY3JlYXRlX21yKHN0cnVjdCBtbHg1X3ZkcGFfZGV2ICptdmRldiwgc3RydWN0IHZo
-b3N0X2lvdGxiICppb3RsYiwKPiArICAgICAgICAgICAgICAgICAgICAgICB1bnNpZ25lZCBpbnQg
-YXNpZCkKPiAgewo+ICAgICAgICAgaW50IGVycjsKPgo+ICAgICAgICAgbXV0ZXhfbG9jaygmbXZk
-ZXYtPm1yLm1rZXlfbXR4KTsKPiAtICAgICAgIGVyciA9IF9tbHg1X3ZkcGFfY3JlYXRlX21yKG12
-ZGV2LCBpb3RsYik7Cj4gKyAgICAgICBlcnIgPSBfbWx4NV92ZHBhX2NyZWF0ZV9tcihtdmRldiwg
-aW90bGIsIGFzaWQpOwo+ICAgICAgICAgbXV0ZXhfdW5sb2NrKCZtdmRldi0+bXIubWtleV9tdHgp
-Owo+ICAgICAgICAgcmV0dXJuIGVycjsKPiAgfQo+Cj4gIGludCBtbHg1X3ZkcGFfaGFuZGxlX3Nl
-dF9tYXAoc3RydWN0IG1seDVfdmRwYV9kZXYgKm12ZGV2LCBzdHJ1Y3Qgdmhvc3RfaW90bGIgKmlv
-dGxiLAo+IC0gICAgICAgICAgICAgICAgICAgICAgICAgICAgYm9vbCAqY2hhbmdlX21hcCkKPiAr
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgIGJvb2wgKmNoYW5nZV9tYXAsIHVuc2lnbmVkIGlu
-dCBhc2lkKQo+ICB7Cj4gICAgICAgICBzdHJ1Y3QgbWx4NV92ZHBhX21yICptciA9ICZtdmRldi0+
-bXI7Cj4gICAgICAgICBpbnQgZXJyID0gMDsKPiBAQCAtNTY2LDcgKzU3NCw3IEBAIGludCBtbHg1
-X3ZkcGFfaGFuZGxlX3NldF9tYXAoc3RydWN0IG1seDVfdmRwYV9kZXYgKm12ZGV2LCBzdHJ1Y3Qg
-dmhvc3RfaW90bGIgKmlvCj4gICAgICAgICAgICAgICAgICpjaGFuZ2VfbWFwID0gdHJ1ZTsKPiAg
-ICAgICAgIH0KPiAgICAgICAgIGlmICghKmNoYW5nZV9tYXApCj4gLSAgICAgICAgICAgICAgIGVy
-ciA9IF9tbHg1X3ZkcGFfY3JlYXRlX21yKG12ZGV2LCBpb3RsYik7Cj4gKyAgICAgICAgICAgICAg
-IGVyciA9IF9tbHg1X3ZkcGFfY3JlYXRlX21yKG12ZGV2LCBpb3RsYiwgYXNpZCk7Cj4gICAgICAg
-ICBtdXRleF91bmxvY2soJm1yLT5ta2V5X210eCk7Cj4KPiAgICAgICAgIHJldHVybiBlcnI7Cj4g
-ZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmRwYS9tbHg1L25ldC9tbHg1X3ZuZXQuYyBiL2RyaXZlcnMv
-dmRwYS9tbHg1L25ldC9tbHg1X3ZuZXQuYwo+IGluZGV4IDk4ZGQ4Y2U4YWYyNi4uM2E2ZGJiYzY0
-NDBkIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvdmRwYS9tbHg1L25ldC9tbHg1X3ZuZXQuYwo+ICsr
-KyBiL2RyaXZlcnMvdmRwYS9tbHg1L25ldC9tbHg1X3ZuZXQuYwo+IEBAIC0yMzk0LDcgKzIzOTQs
-OCBAQCBzdGF0aWMgdm9pZCByZXN0b3JlX2NoYW5uZWxzX2luZm8oc3RydWN0IG1seDVfdmRwYV9u
-ZXQgKm5kZXYpCj4gICAgICAgICB9Cj4gIH0KPgo+IC1zdGF0aWMgaW50IG1seDVfdmRwYV9jaGFu
-Z2VfbWFwKHN0cnVjdCBtbHg1X3ZkcGFfZGV2ICptdmRldiwgc3RydWN0IHZob3N0X2lvdGxiICpp
-b3RsYikKPiArc3RhdGljIGludCBtbHg1X3ZkcGFfY2hhbmdlX21hcChzdHJ1Y3QgbWx4NV92ZHBh
-X2RldiAqbXZkZXYsCj4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBzdHJ1Y3Qgdmhv
-c3RfaW90bGIgKmlvdGxiLCB1bnNpZ25lZCBpbnQgYXNpZCkKPiAgewo+ICAgICAgICAgc3RydWN0
-IG1seDVfdmRwYV9uZXQgKm5kZXYgPSB0b19tbHg1X3ZkcGFfbmRldihtdmRldik7Cj4gICAgICAg
-ICBpbnQgZXJyOwo+IEBAIC0yNDA2LDcgKzI0MDcsNyBAQCBzdGF0aWMgaW50IG1seDVfdmRwYV9j
-aGFuZ2VfbWFwKHN0cnVjdCBtbHg1X3ZkcGFfZGV2ICptdmRldiwgc3RydWN0IHZob3N0X2lvdGxi
-Cj4KPiAgICAgICAgIHRlYXJkb3duX2RyaXZlcihuZGV2KTsKPiAgICAgICAgIG1seDVfdmRwYV9k
-ZXN0cm95X21yKG12ZGV2KTsKPiAtICAgICAgIGVyciA9IG1seDVfdmRwYV9jcmVhdGVfbXIobXZk
-ZXYsIGlvdGxiKTsKPiArICAgICAgIGVyciA9IG1seDVfdmRwYV9jcmVhdGVfbXIobXZkZXYsIGlv
-dGxiLCBhc2lkKTsKPiAgICAgICAgIGlmIChlcnIpCj4gICAgICAgICAgICAgICAgIGdvdG8gZXJy
-X21yOwo+Cj4gQEAgLTI1ODcsNyArMjU4OCw3IEBAIHN0YXRpYyBpbnQgbWx4NV92ZHBhX3Jlc2V0
-KHN0cnVjdCB2ZHBhX2RldmljZSAqdmRldikKPiAgICAgICAgICsrbXZkZXYtPmdlbmVyYXRpb247
-Cj4KPiAgICAgICAgIGlmIChNTFg1X0NBUF9HRU4obXZkZXYtPm1kZXYsIHVtZW1fdWlkXzApKSB7
-Cj4gLSAgICAgICAgICAgICAgIGlmIChtbHg1X3ZkcGFfY3JlYXRlX21yKG12ZGV2LCBOVUxMKSkK
-PiArICAgICAgICAgICAgICAgaWYgKG1seDVfdmRwYV9jcmVhdGVfbXIobXZkZXYsIE5VTEwsIDAp
-KQo+ICAgICAgICAgICAgICAgICAgICAgICAgIG1seDVfdmRwYV93YXJuKG12ZGV2LCAiY3JlYXRl
-IE1SIGZhaWxlZFxuIik7Cj4gICAgICAgICB9Cj4gICAgICAgICB1cF93cml0ZSgmbmRldi0+cmVz
-bG9jayk7Cj4gQEAgLTI2MjMsNDEgKzI2MjQsMjAgQEAgc3RhdGljIHUzMiBtbHg1X3ZkcGFfZ2V0
-X2dlbmVyYXRpb24oc3RydWN0IHZkcGFfZGV2aWNlICp2ZGV2KQo+ICAgICAgICAgcmV0dXJuIG12
-ZGV2LT5nZW5lcmF0aW9uOwo+ICB9Cj4KPiAtc3RhdGljIGludCBzZXRfbWFwX2NvbnRyb2woc3Ry
-dWN0IG1seDVfdmRwYV9kZXYgKm12ZGV2LCBzdHJ1Y3Qgdmhvc3RfaW90bGIgKmlvdGxiKQo+IC17
-Cj4gLSAgICAgICB1NjQgc3RhcnQgPSAwVUxMLCBsYXN0ID0gMFVMTCAtIDE7Cj4gLSAgICAgICBz
-dHJ1Y3Qgdmhvc3RfaW90bGJfbWFwICptYXA7Cj4gLSAgICAgICBpbnQgZXJyID0gMDsKPiAtCj4g
-LSAgICAgICBzcGluX2xvY2soJm12ZGV2LT5jdnEuaW9tbXVfbG9jayk7Cj4gLSAgICAgICB2aG9z
-dF9pb3RsYl9yZXNldChtdmRldi0+Y3ZxLmlvdGxiKTsKPiAtCj4gLSAgICAgICBmb3IgKG1hcCA9
-IHZob3N0X2lvdGxiX2l0cmVlX2ZpcnN0KGlvdGxiLCBzdGFydCwgbGFzdCk7IG1hcDsKPiAtICAg
-ICAgICAgICAgbWFwID0gdmhvc3RfaW90bGJfaXRyZWVfbmV4dChtYXAsIHN0YXJ0LCBsYXN0KSkg
-ewo+IC0gICAgICAgICAgICAgICBlcnIgPSB2aG9zdF9pb3RsYl9hZGRfcmFuZ2UobXZkZXYtPmN2
-cS5pb3RsYiwgbWFwLT5zdGFydCwKPiAtICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgIG1hcC0+bGFzdCwgbWFwLT5hZGRyLCBtYXAtPnBlcm0pOwo+IC0gICAgICAgICAg
-ICAgICBpZiAoZXJyKQo+IC0gICAgICAgICAgICAgICAgICAgICAgIGdvdG8gb3V0Owo+IC0gICAg
-ICAgfQo+IC0KPiAtb3V0Ogo+IC0gICAgICAgc3Bpbl91bmxvY2soJm12ZGV2LT5jdnEuaW9tbXVf
-bG9jayk7Cj4gLSAgICAgICByZXR1cm4gZXJyOwo+IC19Cj4gLQo+IC1zdGF0aWMgaW50IHNldF9t
-YXBfZGF0YShzdHJ1Y3QgbWx4NV92ZHBhX2RldiAqbXZkZXYsIHN0cnVjdCB2aG9zdF9pb3RsYiAq
-aW90bGIpCj4gK3N0YXRpYyBpbnQgc2V0X21hcF9kYXRhKHN0cnVjdCBtbHg1X3ZkcGFfZGV2ICpt
-dmRldiwgc3RydWN0IHZob3N0X2lvdGxiICppb3RsYiwKPiArICAgICAgICAgICAgICAgICAgICAg
-ICB1bnNpZ25lZCBpbnQgYXNpZCkKPiAgewo+ICAgICAgICAgYm9vbCBjaGFuZ2VfbWFwOwo+ICAg
-ICAgICAgaW50IGVycjsKPgo+IC0gICAgICAgZXJyID0gbWx4NV92ZHBhX2hhbmRsZV9zZXRfbWFw
-KG12ZGV2LCBpb3RsYiwgJmNoYW5nZV9tYXApOwo+ICsgICAgICAgZXJyID0gbWx4NV92ZHBhX2hh
-bmRsZV9zZXRfbWFwKG12ZGV2LCBpb3RsYiwgJmNoYW5nZV9tYXAsIGFzaWQpOwo+ICAgICAgICAg
-aWYgKGVycikgewo+ICAgICAgICAgICAgICAgICBtbHg1X3ZkcGFfd2FybihtdmRldiwgInNldCBt
-YXAgZmFpbGVkKCVkKVxuIiwgZXJyKTsKPiAgICAgICAgICAgICAgICAgcmV0dXJuIGVycjsKPiAg
-ICAgICAgIH0KPgo+ICAgICAgICAgaWYgKGNoYW5nZV9tYXApCj4gLSAgICAgICAgICAgICAgIGVy
-ciA9IG1seDVfdmRwYV9jaGFuZ2VfbWFwKG12ZGV2LCBpb3RsYik7Cj4gKyAgICAgICAgICAgICAg
-IGVyciA9IG1seDVfdmRwYV9jaGFuZ2VfbWFwKG12ZGV2LCBpb3RsYiwgYXNpZCk7Cj4KPiAgICAg
-ICAgIHJldHVybiBlcnI7Cj4gIH0KPiBAQCAtMjY3MCwxNiArMjY1MCw3IEBAIHN0YXRpYyBpbnQg
-bWx4NV92ZHBhX3NldF9tYXAoc3RydWN0IHZkcGFfZGV2aWNlICp2ZGV2LCB1bnNpZ25lZCBpbnQg
-YXNpZCwKPiAgICAgICAgIGludCBlcnIgPSAtRUlOVkFMOwo+Cj4gICAgICAgICBkb3duX3dyaXRl
-KCZuZGV2LT5yZXNsb2NrKTsKPiAtICAgICAgIGlmIChtdmRldi0+Z3JvdXAyYXNpZFtNTFg1X1ZE
-UEFfREFUQVZRX0dST1VQXSA9PSBhc2lkKSB7Cj4gLSAgICAgICAgICAgICAgIGVyciA9IHNldF9t
-YXBfZGF0YShtdmRldiwgaW90bGIpOwo+IC0gICAgICAgICAgICAgICBpZiAoZXJyKQo+IC0gICAg
-ICAgICAgICAgICAgICAgICAgIGdvdG8gb3V0Owo+IC0gICAgICAgfQo+IC0KPiAtICAgICAgIGlm
-IChtdmRldi0+Z3JvdXAyYXNpZFtNTFg1X1ZEUEFfQ1ZRX0dST1VQXSA9PSBhc2lkKQo+IC0gICAg
-ICAgICAgICAgICBlcnIgPSBzZXRfbWFwX2NvbnRyb2wobXZkZXYsIGlvdGxiKTsKPiAtCj4gLW91
-dDoKPiArICAgICAgIGVyciA9IHNldF9tYXBfZGF0YShtdmRldiwgaW90bGIsIGFzaWQpOwo+ICAg
-ICAgICAgdXBfd3JpdGUoJm5kZXYtPnJlc2xvY2spOwo+ICAgICAgICAgcmV0dXJuIGVycjsKPiAg
-fQo+IEBAIC0zMTgyLDcgKzMxNTMsNyBAQCBzdGF0aWMgaW50IG1seDVfdmRwYV9kZXZfYWRkKHN0
-cnVjdCB2ZHBhX21nbXRfZGV2ICp2X21kZXYsIGNvbnN0IGNoYXIgKm5hbWUsCj4gICAgICAgICAg
-ICAgICAgIGdvdG8gZXJyX21wZnM7Cj4KPiAgICAgICAgIGlmIChNTFg1X0NBUF9HRU4obXZkZXYt
-Pm1kZXYsIHVtZW1fdWlkXzApKSB7Cj4gLSAgICAgICAgICAgICAgIGVyciA9IG1seDVfdmRwYV9j
-cmVhdGVfbXIobXZkZXYsIE5VTEwpOwo+ICsgICAgICAgICAgICAgICBlcnIgPSBtbHg1X3ZkcGFf
-Y3JlYXRlX21yKG12ZGV2LCBOVUxMLCAwKTsKPiAgICAgICAgICAgICAgICAgaWYgKGVycikKPiAg
-ICAgICAgICAgICAgICAgICAgICAgICBnb3RvIGVycl9yZXM7Cj4gICAgICAgICB9Cj4gLS0KPiAy
-LjM4LjEKPgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
-VmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZv
-dW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xp
-c3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Mon, Nov 14, 2022 at 9:18 PM Eli Cohen <elic@nvidia.com> wrote:
+>
+> For each interface, either VLAN tagged or untagged, add two hardware
+> counters: one for unicast and another for multicast. The counters count
+> RX packets and bytes and can be read through debugfs:
+>
+> $ cat /sys/kernel/debug/mlx5/mlx5_core.sf.1/vdpa-0/rx/untagged/mcast/packets
+> $ cat /sys/kernel/debug/mlx5/mlx5_core.sf.1/vdpa-0/rx/untagged/ucast/bytes
+>
+> This feature is controlled via the config option
+> MLX5_VDPA_STEERING_DEBUG. It is off by default as it may have some
+> impact on performance.
+>
+> Signed-off-by: Eli Cohen <elic@nvidia.com>
+
+Acked-by: Jason Wang <jasowang@redhat.com>
+
+Thanks
+
+> ---
+>  drivers/vdpa/Kconfig              |  12 ++++
+>  drivers/vdpa/mlx5/net/debug.c     |  86 ++++++++++++++++++++++
+>  drivers/vdpa/mlx5/net/mlx5_vnet.c | 116 +++++++++++++++++++++++-------
+>  drivers/vdpa/mlx5/net/mlx5_vnet.h |  30 ++++++++
+>  4 files changed, 217 insertions(+), 27 deletions(-)
+>
+> diff --git a/drivers/vdpa/Kconfig b/drivers/vdpa/Kconfig
+> index 50f45d037611..43b716ec2d18 100644
+> --- a/drivers/vdpa/Kconfig
+> +++ b/drivers/vdpa/Kconfig
+> @@ -71,6 +71,18 @@ config MLX5_VDPA_NET
+>           be executed by the hardware. It also supports a variety of stateless
+>           offloads depending on the actual device used and firmware version.
+>
+> +config MLX5_VDPA_STEERING_DEBUG
+> +       bool "expose steering counters on debugfs"
+> +       select MLX5_VDPA
+> +       help
+> +         Expose RX steering counters in debugfs to aid in debugging. For each VLAN
+> +         or non VLAN interface, two hardware counters are added to the RX flow
+> +         table: one for unicast and one for multicast.
+> +         The counters counts the number of packets and bytes and exposes them in
+> +         debugfs. Once can read the counters using, e.g.:
+> +         cat /sys/kernel/debug/mlx5/mlx5_core.sf.1/vdpa-0/rx/untagged/ucast/packets
+> +         cat /sys/kernel/debug/mlx5/mlx5_core.sf.1/vdpa-0/rx/untagged/mcast/bytes
+> +
+>  config VP_VDPA
+>         tristate "Virtio PCI bridge vDPA driver"
+>         select VIRTIO_PCI_LIB
+> diff --git a/drivers/vdpa/mlx5/net/debug.c b/drivers/vdpa/mlx5/net/debug.c
+> index 95e4801df211..60d6ac68cdc4 100644
+> --- a/drivers/vdpa/mlx5/net/debug.c
+> +++ b/drivers/vdpa/mlx5/net/debug.c
+> @@ -49,6 +49,92 @@ void mlx5_vdpa_add_rx_flow_table(struct mlx5_vdpa_net *ndev)
+>                                                   ndev, &rx_flow_table_fops);
+>  }
+>
+> +#if defined(CONFIG_MLX5_VDPA_STEERING_DEBUG)
+> +static int packets_show(struct seq_file *file, void *priv)
+> +{
+> +       struct mlx5_vdpa_counter *counter = file->private;
+> +       u64 packets;
+> +       u64 bytes;
+> +       int err;
+> +
+> +       err = mlx5_fc_query(counter->mdev, counter->counter, &packets, &bytes);
+> +       if (err)
+> +               return err;
+> +
+> +       seq_printf(file, "0x%llx\n", packets);
+> +       return 0;
+> +}
+> +
+> +static int bytes_show(struct seq_file *file, void *priv)
+> +{
+> +       struct mlx5_vdpa_counter *counter = file->private;
+> +       u64 packets;
+> +       u64 bytes;
+> +       int err;
+> +
+> +       err = mlx5_fc_query(counter->mdev, counter->counter, &packets, &bytes);
+> +       if (err)
+> +               return err;
+> +
+> +       seq_printf(file, "0x%llx\n", bytes);
+> +       return 0;
+> +}
+> +
+> +DEFINE_SHOW_ATTRIBUTE(packets);
+> +DEFINE_SHOW_ATTRIBUTE(bytes);
+> +
+> +static void add_counter_node(struct mlx5_vdpa_counter *counter,
+> +                            struct dentry *parent)
+> +{
+> +       debugfs_create_file("packets", 0444, parent, counter,
+> +                           &packets_fops);
+> +       debugfs_create_file("bytes", 0444, parent, counter,
+> +                           &bytes_fops);
+> +}
+> +
+> +void mlx5_vdpa_add_rx_counters(struct mlx5_vdpa_net *ndev,
+> +                              struct macvlan_node *node)
+> +{
+> +       static const char *ut = "untagged";
+> +       char vidstr[9];
+> +       u16 vid;
+> +
+> +       node->ucast_counter.mdev = ndev->mvdev.mdev;
+> +       node->mcast_counter.mdev = ndev->mvdev.mdev;
+> +       if (node->tagged) {
+> +               vid = key2vid(node->macvlan);
+> +               snprintf(vidstr, sizeof(vidstr), "0x%x", vid);
+> +       } else {
+> +               strcpy(vidstr, ut);
+> +       }
+> +
+> +       node->dent = debugfs_create_dir(vidstr, ndev->rx_dent);
+> +       if (IS_ERR(node->dent)) {
+> +               node->dent = NULL;
+> +               return;
+> +       }
+> +
+> +       node->ucast_counter.dent = debugfs_create_dir("ucast", node->dent);
+> +       if (IS_ERR(node->ucast_counter.dent))
+> +               return;
+> +
+> +       add_counter_node(&node->ucast_counter, node->ucast_counter.dent);
+> +
+> +       node->mcast_counter.dent = debugfs_create_dir("mcast", node->dent);
+> +       if (IS_ERR(node->mcast_counter.dent))
+> +               return;
+> +
+> +       add_counter_node(&node->mcast_counter, node->mcast_counter.dent);
+> +}
+> +
+> +void mlx5_vdpa_remove_rx_counters(struct mlx5_vdpa_net *ndev,
+> +                                 struct macvlan_node *node)
+> +{
+> +       if (node->dent && ndev->debugfs)
+> +               debugfs_remove_recursive(node->dent);
+> +}
+> +#endif
+> +
+>  void mlx5_vdpa_add_debugfs(struct mlx5_vdpa_net *ndev)
+>  {
+>         struct mlx5_core_dev *mdev;
+> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> index 4b097e6ddba0..6632651b1e54 100644
+> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> @@ -1404,12 +1404,55 @@ static void destroy_tir(struct mlx5_vdpa_net *ndev)
+>  #define MAX_STEERING_ENT 0x8000
+>  #define MAX_STEERING_GROUPS 2
+>
+> +#if defined(CONFIG_MLX5_VDPA_STEERING_DEBUG)
+> +       #define NUM_DESTS 2
+> +#else
+> +       #define NUM_DESTS 1
+> +#endif
+> +
+> +static int add_steering_counters(struct mlx5_vdpa_net *ndev,
+> +                                struct macvlan_node *node,
+> +                                struct mlx5_flow_act *flow_act,
+> +                                struct mlx5_flow_destination *dests)
+> +{
+> +#if defined(CONFIG_MLX5_VDPA_STEERING_DEBUG)
+> +       int err;
+> +
+> +       node->ucast_counter.counter = mlx5_fc_create(ndev->mvdev.mdev, false);
+> +       if (IS_ERR(node->ucast_counter.counter))
+> +               return PTR_ERR(node->ucast_counter.counter);
+> +
+> +       node->mcast_counter.counter = mlx5_fc_create(ndev->mvdev.mdev, false);
+> +       if (IS_ERR(node->mcast_counter.counter)) {
+> +               err = PTR_ERR(node->mcast_counter.counter);
+> +               goto err_mcast_counter;
+> +       }
+> +
+> +       dests[1].type = MLX5_FLOW_DESTINATION_TYPE_COUNTER;
+> +       flow_act->action |= MLX5_FLOW_CONTEXT_ACTION_COUNT;
+> +       return 0;
+> +
+> +err_mcast_counter:
+> +       mlx5_fc_destroy(ndev->mvdev.mdev, node->ucast_counter.counter);
+> +       return err;
+> +#else
+> +       return 0;
+> +#endif
+> +}
+> +
+> +static void remove_steering_counters(struct mlx5_vdpa_net *ndev,
+> +                                    struct macvlan_node *node)
+> +{
+> +#if defined(CONFIG_MLX5_VDPA_STEERING_DEBUG)
+> +       mlx5_fc_destroy(ndev->mvdev.mdev, node->mcast_counter.counter);
+> +       mlx5_fc_destroy(ndev->mvdev.mdev, node->ucast_counter.counter);
+> +#endif
+> +}
+> +
+>  static int mlx5_vdpa_add_mac_vlan_rules(struct mlx5_vdpa_net *ndev, u8 *mac,
+> -                                       u16 vid, bool tagged,
+> -                                       struct mlx5_flow_handle **ucast,
+> -                                       struct mlx5_flow_handle **mcast)
+> +                                       struct macvlan_node *node)
+>  {
+> -       struct mlx5_flow_destination dest = {};
+> +       struct mlx5_flow_destination dests[NUM_DESTS] = {};
+>         struct mlx5_flow_act flow_act = {};
+>         struct mlx5_flow_handle *rule;
+>         struct mlx5_flow_spec *spec;
+> @@ -1418,11 +1461,13 @@ static int mlx5_vdpa_add_mac_vlan_rules(struct mlx5_vdpa_net *ndev, u8 *mac,
+>         u8 *dmac_c;
+>         u8 *dmac_v;
+>         int err;
+> +       u16 vid;
+>
+>         spec = kvzalloc(sizeof(*spec), GFP_KERNEL);
+>         if (!spec)
+>                 return -ENOMEM;
+>
+> +       vid = key2vid(node->macvlan);
+>         spec->match_criteria_enable = MLX5_MATCH_OUTER_HEADERS;
+>         headers_c = MLX5_ADDR_OF(fte_match_param, spec->match_criteria, outer_headers);
+>         headers_v = MLX5_ADDR_OF(fte_match_param, spec->match_value, outer_headers);
+> @@ -1434,44 +1479,58 @@ static int mlx5_vdpa_add_mac_vlan_rules(struct mlx5_vdpa_net *ndev, u8 *mac,
+>                 MLX5_SET(fte_match_set_lyr_2_4, headers_c, cvlan_tag, 1);
+>                 MLX5_SET_TO_ONES(fte_match_set_lyr_2_4, headers_c, first_vid);
+>         }
+> -       if (tagged) {
+> +       if (node->tagged) {
+>                 MLX5_SET(fte_match_set_lyr_2_4, headers_v, cvlan_tag, 1);
+>                 MLX5_SET(fte_match_set_lyr_2_4, headers_v, first_vid, vid);
+>         }
+>         flow_act.action = MLX5_FLOW_CONTEXT_ACTION_FWD_DEST;
+> -       dest.type = MLX5_FLOW_DESTINATION_TYPE_TIR;
+> -       dest.tir_num = ndev->res.tirn;
+> -       rule = mlx5_add_flow_rules(ndev->rxft, spec, &flow_act, &dest, 1);
+> -       if (IS_ERR(rule))
+> -               return PTR_ERR(rule);
+> +       dests[0].type = MLX5_FLOW_DESTINATION_TYPE_TIR;
+> +       dests[0].tir_num = ndev->res.tirn;
+> +       err = add_steering_counters(ndev, node, &flow_act, dests);
+> +       if (err)
+> +               goto out_free;
+> +
+> +#if defined(CONFIG_MLX5_VDPA_STEERING_DEBUG)
+> +       dests[1].counter_id = mlx5_fc_id(node->ucast_counter.counter);
+> +#endif
+> +       node->ucast_rule = mlx5_add_flow_rules(ndev->rxft, spec, &flow_act, dests, NUM_DESTS);
+> +       if (IS_ERR(rule)) {
+> +               err = PTR_ERR(rule);
+> +               goto err_ucast;
+> +       }
+>
+> -       *ucast = rule;
+> +#if defined(CONFIG_MLX5_VDPA_STEERING_DEBUG)
+> +       dests[1].counter_id = mlx5_fc_id(node->mcast_counter.counter);
+> +#endif
+>
+>         memset(dmac_c, 0, ETH_ALEN);
+>         memset(dmac_v, 0, ETH_ALEN);
+>         dmac_c[0] = 1;
+>         dmac_v[0] = 1;
+> -       rule = mlx5_add_flow_rules(ndev->rxft, spec, &flow_act, &dest, 1);
+> -       kvfree(spec);
+> +       node->mcast_rule = mlx5_add_flow_rules(ndev->rxft, spec, &flow_act, dests, NUM_DESTS);
+>         if (IS_ERR(rule)) {
+>                 err = PTR_ERR(rule);
+>                 goto err_mcast;
+>         }
+> -
+> -       *mcast = rule;
+> +       kvfree(spec);
+> +       mlx5_vdpa_add_rx_counters(ndev, node);
+>         return 0;
+>
+>  err_mcast:
+> -       mlx5_del_flow_rules(*ucast);
+> +       mlx5_del_flow_rules(node->ucast_rule);
+> +err_ucast:
+> +       remove_steering_counters(ndev, node);
+> +out_free:
+> +       kvfree(spec);
+>         return err;
+>  }
+>
+>  static void mlx5_vdpa_del_mac_vlan_rules(struct mlx5_vdpa_net *ndev,
+> -                                        struct mlx5_flow_handle *ucast,
+> -                                        struct mlx5_flow_handle *mcast)
+> +                                        struct macvlan_node *node)
+>  {
+> -       mlx5_del_flow_rules(ucast);
+> -       mlx5_del_flow_rules(mcast);
+> +       mlx5_vdpa_remove_rx_counters(ndev, node);
+> +       mlx5_del_flow_rules(node->ucast_rule);
+> +       mlx5_del_flow_rules(node->mcast_rule);
+>  }
+>
+>  static u64 search_val(u8 *mac, u16 vlan, bool tagged)
+> @@ -1505,14 +1564,14 @@ static struct macvlan_node *mac_vlan_lookup(struct mlx5_vdpa_net *ndev, u64 valu
+>         return NULL;
+>  }
+>
+> -static int mac_vlan_add(struct mlx5_vdpa_net *ndev, u8 *mac, u16 vlan, bool tagged) // vlan -> vid
+> +static int mac_vlan_add(struct mlx5_vdpa_net *ndev, u8 *mac, u16 vid, bool tagged)
+>  {
+>         struct macvlan_node *ptr;
+>         u64 val;
+>         u32 idx;
+>         int err;
+>
+> -       val = search_val(mac, vlan, tagged);
+> +       val = search_val(mac, vid, tagged);
+>         if (mac_vlan_lookup(ndev, val))
+>                 return -EEXIST;
+>
+> @@ -1520,12 +1579,13 @@ static int mac_vlan_add(struct mlx5_vdpa_net *ndev, u8 *mac, u16 vlan, bool tagg
+>         if (!ptr)
+>                 return -ENOMEM;
+>
+> -       err = mlx5_vdpa_add_mac_vlan_rules(ndev, ndev->config.mac, vlan, tagged,
+> -                                          &ptr->ucast_rule, &ptr->mcast_rule);
+> +       ptr->tagged = tagged;
+> +       ptr->macvlan = val;
+> +       ptr->ndev = ndev;
+> +       err = mlx5_vdpa_add_mac_vlan_rules(ndev, ndev->config.mac, ptr);
+>         if (err)
+>                 goto err_add;
+>
+> -       ptr->macvlan = val;
+>         idx = hash_64(val, 8);
+>         hlist_add_head(&ptr->hlist, &ndev->macvlan_hash[idx]);
+>         return 0;
+> @@ -1544,7 +1604,8 @@ static void mac_vlan_del(struct mlx5_vdpa_net *ndev, u8 *mac, u16 vlan, bool tag
+>                 return;
+>
+>         hlist_del(&ptr->hlist);
+> -       mlx5_vdpa_del_mac_vlan_rules(ndev, ptr->ucast_rule, ptr->mcast_rule);
+> +       mlx5_vdpa_del_mac_vlan_rules(ndev, ptr);
+> +       remove_steering_counters(ndev, ptr);
+>         kfree(ptr);
+>  }
+>
+> @@ -1557,7 +1618,8 @@ static void clear_mac_vlan_table(struct mlx5_vdpa_net *ndev)
+>         for (i = 0; i < MLX5V_MACVLAN_SIZE; i++) {
+>                 hlist_for_each_entry_safe(pos, n, &ndev->macvlan_hash[i], hlist) {
+>                         hlist_del(&pos->hlist);
+> -                       mlx5_vdpa_del_mac_vlan_rules(ndev, pos->ucast_rule, pos->mcast_rule);
+> +                       mlx5_vdpa_del_mac_vlan_rules(ndev, pos);
+> +                       remove_steering_counters(ndev, pos);
+>                         kfree(pos);
+>                 }
+>         }
+> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.h b/drivers/vdpa/mlx5/net/mlx5_vnet.h
+> index f2cef3925e5b..c90a89e1de4d 100644
+> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.h
+> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.h
+> @@ -21,6 +21,11 @@ struct mlx5_vdpa_net_resources {
+>
+>  #define MLX5V_MACVLAN_SIZE 256
+>
+> +static inline u16 key2vid(u64 key)
+> +{
+> +       return (u16)(key >> 48) & 0xfff;
+> +}
+> +
+>  struct mlx5_vdpa_net {
+>         struct mlx5_vdpa_dev mvdev;
+>         struct mlx5_vdpa_net_resources res;
+> @@ -47,11 +52,24 @@ struct mlx5_vdpa_net {
+>         struct dentry *debugfs;
+>  };
+>
+> +struct mlx5_vdpa_counter {
+> +       struct mlx5_fc *counter;
+> +       struct dentry *dent;
+> +       struct mlx5_core_dev *mdev;
+> +};
+> +
+>  struct macvlan_node {
+>         struct hlist_node hlist;
+>         struct mlx5_flow_handle *ucast_rule;
+>         struct mlx5_flow_handle *mcast_rule;
+>         u64 macvlan;
+> +       struct mlx5_vdpa_net *ndev;
+> +       bool tagged;
+> +#if defined(CONFIG_MLX5_VDPA_STEERING_DEBUG)
+> +       struct dentry *dent;
+> +       struct mlx5_vdpa_counter ucast_counter;
+> +       struct mlx5_vdpa_counter mcast_counter;
+> +#endif
+>  };
+>
+>  void mlx5_vdpa_add_debugfs(struct mlx5_vdpa_net *ndev);
+> @@ -60,5 +78,17 @@ void mlx5_vdpa_add_rx_flow_table(struct mlx5_vdpa_net *ndev);
+>  void mlx5_vdpa_remove_rx_flow_table(struct mlx5_vdpa_net *ndev);
+>  void mlx5_vdpa_add_tirn(struct mlx5_vdpa_net *ndev);
+>  void mlx5_vdpa_remove_tirn(struct mlx5_vdpa_net *ndev);
+> +#if defined(CONFIG_MLX5_VDPA_STEERING_DEBUG)
+> +void mlx5_vdpa_add_rx_counters(struct mlx5_vdpa_net *ndev,
+> +                              struct macvlan_node *node);
+> +void mlx5_vdpa_remove_rx_counters(struct mlx5_vdpa_net *ndev,
+> +                                 struct macvlan_node *node);
+> +#else
+> +static inline void mlx5_vdpa_add_rx_counters(struct mlx5_vdpa_net *ndev,
+> +                                            struct macvlan_node *node) {}
+> +static inline void mlx5_vdpa_remove_rx_counters(struct mlx5_vdpa_net *ndev,
+> +                                               struct macvlan_node *node) {}
+> +#endif
+> +
+>
+>  #endif /* __MLX5_VNET_H__ */
+> --
+> 2.38.1
+>
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
