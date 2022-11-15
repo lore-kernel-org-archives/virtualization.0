@@ -1,96 +1,68 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 695B0C4332F
-	for <virtualization@archiver.kernel.org>; Tue, 15 Nov 2022 10:25:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9F55AC4332F
+	for <virtualization@archiver.kernel.org>; Tue, 15 Nov 2022 11:20:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id E3FF1605A4;
-	Tue, 15 Nov 2022 10:25:51 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E3FF1605A4
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20210112 header.b=CEem9Gsy
+	by smtp4.osuosl.org (Postfix) with ESMTP id 1C24740951;
+	Tue, 15 Nov 2022 11:20:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1C24740951
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 6MTFgMqw5mPI; Tue, 15 Nov 2022 10:25:51 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id NM3Ev33Wkv50; Tue, 15 Nov 2022 11:20:32 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 61A6A60B0F;
-	Tue, 15 Nov 2022 10:25:50 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 61A6A60B0F
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 556E640947;
+	Tue, 15 Nov 2022 11:20:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 556E640947
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2F958C0032;
-	Tue, 15 Nov 2022 10:25:50 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 2E096C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 35391C0033;
+	Tue, 15 Nov 2022 11:20:31 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B59CAC002D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Nov 2022 10:25:48 +0000 (UTC)
+ Tue, 15 Nov 2022 11:20:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id E85E2402BC
+ by smtp4.osuosl.org (Postfix) with ESMTP id 7A6574094B
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Nov 2022 10:25:47 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E85E2402BC
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (2048-bit key) header.d=google.com header.i=@google.com
- header.a=rsa-sha256 header.s=20210112 header.b=CEem9Gsy
+ Tue, 15 Nov 2022 11:20:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7A6574094B
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id gVuApGgK49wk
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id hGstIiYXWfOx
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Nov 2022 10:25:47 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 402B640117
-Received: from mail-ot1-x333.google.com (mail-ot1-x333.google.com
- [IPv6:2607:f8b0:4864:20::333])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 402B640117
+ Tue, 15 Nov 2022 11:20:28 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 35D9940947
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+ by smtp4.osuosl.org (Postfix) with ESMTP id 35D9940947
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Nov 2022 10:25:47 +0000 (UTC)
-Received: by mail-ot1-x333.google.com with SMTP id
- m7-20020a9d6447000000b0066da0504b5eso1925556otl.13
- for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Nov 2022 02:25:47 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:from:to:cc:subject:date:message-id:reply-to;
- bh=2t/5Fwa+kcrVYytVyoGhwhA0LJjVEpVh4ghi2At6TpQ=;
- b=CEem9Gsy++2rAsQ/k1o5liFOA2uPpAASYqhA6AnuHXBHfXB4od6axyNPZtCv6GEK53
- 5ykhhjViwhhCa62lVWXsEvwATbyPa/8qHDk7ndWMqu/hopblMmBOBNK94HetZnzbdqR2
- vuDFPvgX4MSsDRkycRv/VfG+ZJFx8q6ppWO/TYWasr3cFfxjWEgiVIzipQ7EaTg2lSru
- X0P5dR5HnaBMEV+K3U9/shsubjx3F28hkyHoSOgDZ1ogfigVwM4VIANbkdOxbIiwRMG0
- 5IB0isoBbrvsZZsT4ToVtecXCu5+TSmm6j/5iVMQwQaamAcAKLa6sBSzeZZOq0Y/NxQy
- tRaQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
- :reply-to;
- bh=2t/5Fwa+kcrVYytVyoGhwhA0LJjVEpVh4ghi2At6TpQ=;
- b=j60/JvAaiWFk7znQOSvGUIqrkpA+8+Mx74OzNSBH4CDqVkJLOJ1tMtDJa95GSfkmRK
- qatlVKNPPjY+PRRnqD1KvukmgywHx8imTGC6gTN/I90kr/eYOyM7/hoN6Z9BqhqTWHxq
- cKZpQX7bxkq+TLvQqem+WXITMYAF90y8zDg5SjEWwmuHm2uxXKtJei7aEQTEJgZlA3f6
- 7rThzCleE+YDYtaV/Je51TIj0AxWgd/hAJ/Dlo+1uzR/Smc4xzPCNSwWRhNxRaHxZewa
- Y6bHQ5H70pjD0cyg/kzSM2MT5NxC1H8EUHjU7OnNLyAa9ZB5XWxlq/qaA1d4CW720kHq
- dY9g==
-X-Gm-Message-State: ANoB5pkVmVya2qgFAc6B4VNWiobX6oYDbkSY7/1l1p06llHuPtyjbBzF
- UK4ypuLRJvBkztOYPwT7TuWZfPxEegqW63fDgvD4yg==
-X-Google-Smtp-Source: AA0mqf5VuYJHPM+V6ecnOYF/+hnmZj0D7vizVbqN/Zav7eTQIgtl+v3njMF45IQfXgvQoS+y1N/AHOPDG2c8OcZCMKk=
-X-Received: by 2002:a9d:32f:0:b0:66c:7982:2d45 with SMTP id
- 44-20020a9d032f000000b0066c79822d45mr8358758otv.123.1668507946033; Tue, 15
- Nov 2022 02:25:46 -0800 (PST)
+ Tue, 15 Nov 2022 11:20:28 +0000 (UTC)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+ by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 9CB7A13D5;
+ Tue, 15 Nov 2022 03:20:33 -0800 (PST)
+Received: from [10.57.70.90] (unknown [10.57.70.90])
+ by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 8016E3F73B;
+ Tue, 15 Nov 2022 03:20:26 -0800 (PST)
+Message-ID: <9031b28f-0431-22eb-5dd3-01ae0589b940@arm.com>
+Date: Tue, 15 Nov 2022 11:20:22 +0000
 MIME-Version: 1.0
-References: <200906190927.34831.borntraeger@de.ibm.com>
- <20221112161942.3197544-1-dvyukov@google.com>
- <20221114080345-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20221114080345-mutt-send-email-mst@kernel.org>
-Date: Tue, 15 Nov 2022 11:25:35 +0100
-Message-ID: <CACT4Y+bsjzCvYvVWoHM2GNC1CuR4xDoqjD5WSPkv=oWq+WAt4A@mail.gmail.com>
-Subject: Re: [PATCH/RFC] virtio_test: A module for testing virtio via userspace
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: borntraeger@de.ibm.com, syzkaller <syzkaller@googlegroups.com>,
- KVM list <kvm@vger.kernel.org>, virtualization@lists.linux-foundation.org
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.1
+Subject: Re: The arm smmu driver for Linux does not support debugfs
+Content-Language: en-GB
+To: "leo-hou@hotmail.com" <leo-hou@hotmail.com>, iommu <iommu@lists.linux.dev>,
+ linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+ virtualization <virtualization@lists.linux-foundation.org>
+References: <202211141141302410923@hotmail.com>
+ <MA0PR01MB5784354703A7B446A6D85CADF6049@MA0PR01MB5784.INDPRD01.PROD.OUTLOOK.COM>
+From: Robin Murphy <robin.murphy@arm.com>
+In-Reply-To: <MA0PR01MB5784354703A7B446A6D85CADF6049@MA0PR01MB5784.INDPRD01.PROD.OUTLOOK.COM>
+Cc: will <will@kernel.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -102,58 +74,40 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Dmitry Vyukov via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Dmitry Vyukov <dvyukov@google.com>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, 14 Nov 2022 at 14:06, Michael S. Tsirkin <mst@redhat.com> wrote:
->
-> On Sat, Nov 12, 2022 at 05:19:42PM +0100, Dmitry Vyukov wrote:
-> > I am looking for a test module that allows
-> > to create a transient virtio device that can be used to activate a virtio
-> > driver are communicate with it as if from the host.
-> > Does such thing exist already?
-> > Or how are virtio transports/drivers tested/fuzzed nowadays?
-> >
-> > Thanks
->
-> Just coding it up in qemu is probably easiest.  This is how we test
-> most things.
-
-This works for some testing scenarios, but has important downsides:
- - fixed number of global virtio devices, so tests are not
-hermetic/parallel and proper fuzzing is impossible
- - tests running inside of the kernel can't control the device
-behavior, so lots of scenarios are untestable/unfuzzable
- - not suitable for most CI/fuzzing systems that run in clouds (nested
-virt is very slow)
- - require special setup per test suite (not scalable for CI/fuzzing
-systems that test all of kernel)
-
-A better and flexible approach to stub devices is to implement them
-inside of the kernel and allow creation of new transient instances
-(e.g. /dev/net/tun). Such stubs allow proper fuzzing, allow
-self-contained tests, allow the test to control stub behavior and are
-compatible with all machines (cloud, physical hw).
-
-Is my understanding of how such in-kernel stub device can be
-implemented correct?
-A stub driver could create struct virtio_device and call
-register_virtio_device() directly skipping all of the bus/probing
-code.
-The virtio_device implementation will be parallel to virtio_mmio/pci
-and implement its own virtio_config_ops and notify/kick callback.
-This will allow us to test all of the virtio device drivers (console,
-balloon, virtio sound/gpu, etc), but not the virtio_mmio/pci nor the
-real probing code.
-
-Is there a reasonable way to also test virtio_mmio/pci/probing from
-within the kernel?
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gMjAyMi0xMS0xNSAwMjoyOCwgbGVvLWhvdUBob3RtYWlsLmNvbSB3cm90ZToKPiAKPiAKPiBI
+aSwKPiAKPiAgwqDCoMKgwqAgV2h5IGRvZXNuJ3QgdGhlIGFybSBzbW11IGRyaXZlciBmb3IgTGlu
+dXggc3VwcG9ydCBkZWJ1Z2ZzID8KCkJlY2F1c2Ugbm9ib2R5J3MgZXZlciB3cml0dGVuIGFueSBk
+ZWJ1Z2ZzIGNvZGUgZm9yIGl0LgoKPiBBcmUgdGhlcmUgYW55IGhpc3RvcmljYWwgcmVhc29ucz8K
+Ck9ubHkgdGhhdCBzbyBmYXIgbm9ib2R5J3MgbmVlZGVkIHRvLgoKVEJILCBhcm0tc21tdSBpcyBh
+Y3R1YWxseSBxdWl0ZSBzdHJhaWdodGZvcndhcmQsIGFuZCBub25lIG9mIHRoZSAKaW50ZXJuYWwg
+ZHJpdmVyIHN0YXRlIGlzIHJlYWxseSBhbGwgdGhhdCBpbnRlcmVzdGluZyAob3RoZXIgdGhhbiB0
+aGUgCnNwZWNpYWwgcHJpdmF0ZSBBZHJlbm8gc3R1ZmYsIGJ1dCB3ZSBsZWF2ZSBpdCB1cCB0byBS
+b2IgdG8gaW1wbGVtZW50IAp3aGF0ZXZlciBoZSBuZWVkcyB0aGVyZSkuIEdpdmVuIHRoZSBrZXJu
+ZWwgY29uZmlnLCBtb2R1bGUgcGFyYW1ldGVycywgCmFuZCB0aGUgZmVhdHVyZXMgbG9nZ2VkIGF0
+IHByb2JlLCB5b3UgY2FuIGFscmVhZHkgaW5mZXIgaG93IGl0IHdpbGwgc2V0IAp1cCBjb250ZXh0
+IGJhbmtzIGV0Yy4gZm9yIHJlZ3VsYXIgSU9NTVUgQVBJIHdvcms7IHRoZXJlIHdvbid0IGJlIGFu
+eSAKc3VycHJpc2VzLiBBdCB0aGlzIHBvaW50IHRoZXJlIHNob3VsZG4ndCBiZSBhbnkgbmVlZCB0
+byBkZWJ1ZyB0aGUgZHJpdmVyIAppdHNlbGYsIGl0J3MgbWF0dXJlIGFuZCBzdGFibGUuIEZvciBk
+ZWJ1Z2dpbmcgKnVzZXJzKiBvZiB0aGUgZHJpdmVyLCAKSSd2ZSBvbmx5IGRlYWx0IHdpdGggdGhl
+IERNQSBsYXllciwgd2hlcmUgYSBjb21iaW5hdGlvbiBvZiB0aGUgSU9NTVUgQVBJIAp0cmFjZXBv
+aW50cywgQ09ORklHX0RNQV9BUElfREVCVUcsIGFuZCBteSBvd24gaGFja3MgdG8gaW9tbXUtZG1h
+IGhhdmUgCmFsd2F5cyBwcm92ZWQgc3VmZmljaWVudCB0byBnZXQgZW5vdWdoIGluc2lnaHQgaW50
+byB3aGF0J3MgYmVpbmcgbWFwcGVkIAp3aGVyZS4KCkkgdGhpbmsgYSBjb3VwbGUgb2YgcGVvcGxl
+IGhhdmUgcHJldmlvdXNseSByYWlzZWQgdGhlIGlkZWEgb2YgCmltcGxlbWVudGluZyBzb21lIGtp
+bmQgb2YgZGVidWdmcyBkdW1waW5nIGZvciBpby1wZ3RhYmxlLCBidXQgbm90aGluZydzIApldmVy
+IGNvbWUgb2YgaXQuIEFzIGFib3ZlLCBpdCBvZnRlbiB0dXJucyBvdXQgdGhhdCB5b3UgY2FuIGZp
+bmQgdGhlIAppbmZvcm1hdGlvbiB5b3UgbmVlZCBmcm9tIG90aGVyIGV4aXN0aW5nIHNvdXJjZXMs
+IHRodXMgdGhlIGVmZm9ydCBvZiAKaW1wbGVtZW50aW5nIGFuZCBtYWludGFpbmluZyBhIGxvYWQg
+b2Ygc3BlY2lhbC1wdXJwb3NlIGRlYnVnIGNvZGUgY2FuIGJlIApzYXZlZC4gSW4gcGFydGljdWxh
+ciBpdCB3b3VsZCBub3QgYmUgd29ydGggaGF2aW5nIGRyaXZlci1zcGVjaWZpYyBjb2RlIAp0aGF0
+IG9ubHkgaGVscHMgZGVidWcgZ2VuZXJpYyBJT01NVSBBUEkgdXNhZ2UgLSB0aGF0IHdvdWxkIGJl
+IG11Y2ggCmJldHRlciBpbXBsZW1lbnRlZCBhdCB0aGUgZ2VuZXJpYyBJT01NVSBBUEkgbGV2ZWwu
+CgpUaGFua3MsClJvYmluLgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMu
+bGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21h
+aWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
