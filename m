@@ -1,91 +1,132 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 249C6C4332F
-	for <virtualization@archiver.kernel.org>; Wed, 16 Nov 2022 11:07:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4B7F9C43217
+	for <virtualization@archiver.kernel.org>; Wed, 16 Nov 2022 15:29:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id A8EA041832;
-	Wed, 16 Nov 2022 11:07:03 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A8EA041832
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=susede1 header.b=B4y9oC5N
+	by smtp3.osuosl.org (Postfix) with ESMTP id DB37A60FA5;
+	Wed, 16 Nov 2022 15:29:50 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DB37A60FA5
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=desiato.20200630 header.b=ojmz8ZQZ
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id NzTzbPu8b5_2; Wed, 16 Nov 2022 11:07:02 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id EF9BA4185F;
-	Wed, 16 Nov 2022 11:07:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org EF9BA4185F
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id v8K-ppQ1dmoG; Wed, 16 Nov 2022 15:29:49 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 20F1960FA1;
+	Wed, 16 Nov 2022 15:29:49 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 20F1960FA1
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C7309C0033;
-	Wed, 16 Nov 2022 11:07:01 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 83345C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D626EC0033;
+	Wed, 16 Nov 2022 15:29:48 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 577A6C0032
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Nov 2022 11:07:00 +0000 (UTC)
+ Wed, 16 Nov 2022 15:29:47 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 4E85841832
+ by smtp3.osuosl.org (Postfix) with ESMTP id 2BF5A60FA2
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Nov 2022 11:07:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4E85841832
+ Wed, 16 Nov 2022 15:29:47 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2BF5A60FA2
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id C8DVjYwA5X3O
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id iRKFVgf7E0d2
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Nov 2022 11:06:59 +0000 (UTC)
+ Wed, 16 Nov 2022 15:29:45 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 219EE4185F
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 219EE4185F
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DF14260FA1
+Received: from desiato.infradead.org (desiato.infradead.org
+ [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id DF14260FA1
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Nov 2022 11:06:58 +0000 (UTC)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ Wed, 16 Nov 2022 15:29:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+ References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+ Content-Transfer-Encoding:Content-ID:Content-Description;
+ bh=4XDB6ZbR3Awa7mOslon9xFqMWj0psrdiARhozQeRyJA=; b=ojmz8ZQZRjWLwoZ+ZS6FE8f3wJ
+ CK/Bfmqct5VYOUjRLjwRUWfkj35XZefJ6rca1+nPPtygcRUJXw3oJxKETAjWhIaiftafRsk0CMEh/
+ J5wMjH2Yp5CEFUqc/1mDEFzmv3Mdc0yTnj+SwdQ0sRpQuWbK4I02ssc+mSnaitRZ9Z5Pb/uIPVtsU
+ st8GbHUXc6nOUdEUbfkWcYSrzPEq8tBNp8Q5TCrMo7R2Ryh6BF7TlrqxiIkBjw+Pw8cZuNB/6D6gn
+ mTk80fyh/EA5plmymKut6SRYIZtv3PlZQv81WS10aMHXoX+xNjxLwlZaIoKttXuf1J3/ppa8RmuTu
+ XBGgqr+w==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84]
+ helo=noisy.programming.kicks-ass.net)
+ by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+ id 1ovKLd-001NF8-IY; Wed, 16 Nov 2022 15:29:09 +0000
+Received: from hirez.programming.kicks-ass.net
+ (hirez.programming.kicks-ass.net [192.168.1.225])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by smtp-out1.suse.de (Postfix) with ESMTPS id 39C91336F2;
- Wed, 16 Nov 2022 11:06:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
- t=1668596815; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=8H5MpNyWys5XrM9KkN1YR1fgG+Yt1/uk71T19AKqQZE=;
- b=B4y9oC5N+jpQY2vxfZCaQSz1PJWNlUfTGrUlm3WaVGiAjj50rLHx9+fqwaWVcKrz1DZyD7
- SOcy/DVhVQBUrL0gRXVDmFbWnn1G5jNhygwA9ND5f5kiKQbCTDWLiaPsX4CwpFhVlOcSwo
- F7I9Z1vvAKBbhkPDgkRJWXI5bVYcwbE=
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id B0A7D13AC7;
- Wed, 16 Nov 2022 11:06:54 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
- by imap2.suse-dmz.suse.de with ESMTPSA id Ge5EKU7EdGMeZAAAMHmgww
- (envelope-from <jgross@suse.com>); Wed, 16 Nov 2022 11:06:54 +0000
-Message-ID: <b3535159-b2af-635a-f9b9-4991fed990e4@suse.com>
-Date: Wed, 16 Nov 2022 12:06:54 +0100
+ key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+ (Client did not present a certificate)
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id CE5513006A4;
+ Wed, 16 Nov 2022 16:29:05 +0100 (CET)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+ id A500120832696; Wed, 16 Nov 2022 16:29:05 +0100 (CET)
+Date: Wed, 16 Nov 2022 16:29:05 +0100
+From: Peter Zijlstra <peterz@infradead.org>
+To: Ulf Hansson <ulf.hansson@linaro.org>
+Subject: Re: [PATCH v2 12/44] cpuidle,dt: Push RCU-idle into driver
+Message-ID: <Y3UBwYNY15ETUKy9@hirez.programming.kicks-ass.net>
+References: <20220919095939.761690562@infradead.org>
+ <20220919101521.139727471@infradead.org>
+ <CAPDyKFqTWd4W5Ofk76CtC4X43dxBTNHtmY9YzN355-vpviLsPw@mail.gmail.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.0
-Subject: Re: [PATCH v2] x86/paravirt: use common macro for creating simple asm
- paravirt functions
-Content-Language: en-US
-To: Peter Zijlstra <peterz@infradead.org>
-References: <20221109134418.6516-1-jgross@suse.com>
- <Y3TD1R9BOb4avCWp@hirez.programming.kicks-ass.net>
-In-Reply-To: <Y3TD1R9BOb4avCWp@hirez.programming.kicks-ass.net>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>,
- kvm@vger.kernel.org, VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
- x86@kernel.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, Wanpeng Li <wanpengli@tencent.com>,
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
- Alexey Makhalov <amakhalov@vmware.com>, Paolo Bonzini <pbonzini@redhat.com>,
- Thomas Gleixner <tglx@linutronix.de>
+Content-Disposition: inline
+In-Reply-To: <CAPDyKFqTWd4W5Ofk76CtC4X43dxBTNHtmY9YzN355-vpviLsPw@mail.gmail.com>
+Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com,
+ linus.walleij@linaro.org, bsegall@google.com, guoren@kernel.org, pavel@ucw.cz,
+ agordeev@linux.ibm.com, linux-clk@vger.kernel.org, linux-arch@vger.kernel.org,
+ vincent.guittot@linaro.org, mpe@ellerman.id.au, linux-sh@vger.kernel.org,
+ kasan-dev@googlegroups.com, linux-acpi@vger.kernel.org, mingo@redhat.com,
+ geert@linux-m68k.org, linux-imx@nxp.com, vgupta@kernel.org, mattst88@gmail.com,
+ lpieralisi@kernel.org, sammy@sammy.net, pmladek@suse.com,
+ linux-pm@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
+ linux-um@lists.infradead.org, npiggin@gmail.com, tglx@linutronix.de,
+ linux-omap@vger.kernel.org, dietmar.eggemann@arm.com, andreyknvl@gmail.com,
+ gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org,
+ linux-perf-users@vger.kernel.org, senozhatsky@chromium.org,
+ svens@linux.ibm.com, kernel@pengutronix.de, tj@kernel.org,
+ Andrew Morton <akpm@linux-foundation.org>, mark.rutland@arm.com,
+ linux-ia64@vger.kernel.org, dave.hansen@linux.intel.com,
+ virtualization@lists.linux-foundation.org,
+ James.Bottomley@hansenpartnership.com, jcmvbkbc@gmail.com,
+ thierry.reding@gmail.com, kernel@xen0n.name, cl@linux.com,
+ linux-s390@vger.kernel.org, vschneid@redhat.com, john.ogness@linutronix.de,
+ ysato@users.sourceforge.jp, festevam@gmail.com, deller@gmx.de,
+ daniel.lezcano@linaro.org, jonathanh@nvidia.com, dennis@kernel.org,
+ lenb@kernel.org, linux-xtensa@linux-xtensa.org, jolsa@kernel.org,
+ gor@linux.ibm.com, linux-arm-msm@vger.kernel.org, sudeep.holla@arm.com,
+ linux-m68k@lists.linux-m68k.org, loongarch@lists.linux.dev, shorne@gmail.com,
+ chris@zankel.net, sboyd@kernel.org, dinguyen@kernel.org, bristot@redhat.com,
+ chenhuacai@kernel.org, alexander.shishkin@linux.intel.com, fweisbec@gmail.com,
+ mturquette@baylibre.com, paul.walmsley@sifive.com, linux@rasmusvillemoes.dk,
+ christophe.leroy@csgroup.eu, will@kernel.org, boris.ostrovsky@oracle.com,
+ khilman@kernel.org, linux-csky@vger.kernel.org, tony@atomide.com,
+ linux-snps-arc@lists.infradead.org, mgorman@suse.de,
+ jacob.jun.pan@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
+ ulli.kroll@googlemail.com, rostedt@goodmis.org, ink@jurassic.park.msu.ru,
+ bcain@quicinc.com, tsbogend@alpha.franken.de, linux-parisc@vger.kernel.org,
+ anup@brainfault.org, ryabinin.a.a@gmail.com, linux-alpha@vger.kernel.org,
+ shawnguo@kernel.org, davem@davemloft.net, dalias@libc.org,
+ pv-drivers@vmware.com, hpa@zytor.com, konrad.dybcio@somainline.org,
+ bjorn.andersson@linaro.org, glider@google.com, amakhalov@vmware.com,
+ sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org,
+ vincenzo.frascino@arm.com, anton.ivanov@cambridgegreys.com, jonas@southpole.se,
+ yury.norov@gmail.com, richard@nod.at, x86@kernel.org, linux@armlinux.org.uk,
+ agross@kernel.org, aou@eecs.berkeley.edu, hca@linux.ibm.com,
+ richard.henderson@linaro.org, stefan.kristiansson@saunalahti.fi,
+ openrisc@lists.librecores.org, acme@kernel.org, atishp@atishpatra.org,
+ linux-tegra@vger.kernel.org, namhyung@kernel.org,
+ andriy.shevchenko@linux.intel.com, jpoimboe@kernel.org, dvyukov@google.com,
+ jgross@suse.com, monstr@monstr.eu, linux-mips@vger.kernel.org,
+ palmer@dabbelt.com, linux-hexagon@vger.kernel.org, bp@alien8.de,
+ johannes@sipsolutions.net, linuxppc-dev@lists.ozlabs.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -97,189 +138,179 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Juergen Gross via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Juergen Gross <jgross@suse.com>
-Content-Type: multipart/mixed; boundary="===============7068218440989976581=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============7068218440989976581==
-Content-Language: en-US
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------eAX8XKA6qoU5dfFXA1z1PPZk"
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------eAX8XKA6qoU5dfFXA1z1PPZk
-Content-Type: multipart/mixed; boundary="------------oAJveYCI8kqJJSBvUaPX0lyi";
- protected-headers="v1"
-From: Juergen Gross <jgross@suse.com>
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: linux-kernel@vger.kernel.org, x86@kernel.org,
- virtualization@lists.linux-foundation.org, kvm@vger.kernel.org,
- "Srivatsa S. Bhat (VMware)" <srivatsa@csail.mit.edu>,
- Alexey Makhalov <amakhalov@vmware.com>,
- VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
- Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- "H. Peter Anvin" <hpa@zytor.com>, Paolo Bonzini <pbonzini@redhat.com>,
- Wanpeng Li <wanpengli@tencent.com>, Vitaly Kuznetsov <vkuznets@redhat.com>
-Message-ID: <b3535159-b2af-635a-f9b9-4991fed990e4@suse.com>
-Subject: Re: [PATCH v2] x86/paravirt: use common macro for creating simple asm
- paravirt functions
-References: <20221109134418.6516-1-jgross@suse.com>
- <Y3TD1R9BOb4avCWp@hirez.programming.kicks-ass.net>
-In-Reply-To: <Y3TD1R9BOb4avCWp@hirez.programming.kicks-ass.net>
+Sorry; things keep getting in the way of finishing this :/
 
---------------oAJveYCI8kqJJSBvUaPX0lyi
-Content-Type: multipart/mixed; boundary="------------BWlwZfguY4ype2ObzOzWkzNT"
+As such, I need a bit of time to get on-track again..
 
---------------BWlwZfguY4ype2ObzOzWkzNT
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+On Tue, Oct 04, 2022 at 01:03:57PM +0200, Ulf Hansson wrote:
 
-T24gMTYuMTEuMjIgMTI6MDQsIFBldGVyIFppamxzdHJhIHdyb3RlOg0KPiBPbiBXZWQsIE5v
-diAwOSwgMjAyMiBhdCAwMjo0NDoxOFBNICswMTAwLCBKdWVyZ2VuIEdyb3NzIHdyb3RlOg0K
-Pj4gVGhlcmUgYXJlIHNvbWUgcGFyYXZpcnQgYXNzZW1ibGVyIGZ1bmN0aW9ucyB3aGljaCBh
-cmUgc2hhcmluZyBhIGNvbW1vbg0KPj4gcGF0dGVybi4gSW50cm9kdWNlIGEgbWFjcm8gREVG
-SU5FX1BBUkFWSVJUX0FTTSgpIGZvciBjcmVhdGluZyB0aGVtLg0KPj4NCj4+IE5vdGUgdGhh
-dCB0aGlzIG1hY3JvIGlzIGluY2x1ZGluZyBleHBsaWNpdCBhbGlnbm1lbnQgb2YgdGhlIGdl
-bmVyYXRlZA0KPj4gZnVuY3Rpb25zLCBsZWFkaW5nIHRvIF9fcmF3X2NhbGxlZV9zYXZlX19f
-a3ZtX3ZjcHVfaXNfcHJlZW1wdGVkKCksDQo+PiBfcGFyYXZpcnRfbm9wKCkgYW5kIHBhcmF2
-aXJ0X3JldDAoKSB0byBiZSBhbGlnbmVkIGF0IDQgYnl0ZSBib3VuZGFyaWVzDQo+PiBub3cu
-DQo+Pg0KPj4gVGhlIGV4cGxpY2l0IF9wYXJhdmlydF9ub3AoKSBwcm90b3R5cGUgaW4gcGFy
-YXZpcnQuYyBpc24ndCBuZWVkZWQsIGFzDQo+PiBpdCBpcyBpbmNsdWRlZCBpbiBwYXJhdmly
-dF90eXBlcy5oIGFscmVhZHkuDQo+Pg0KPj4gU2lnbmVkLW9mZi1ieTogSnVlcmdlbiBHcm9z
-cyA8amdyb3NzQHN1c2UuY29tPg0KPj4gUmV2aWV3ZWQtYnk6IFNyaXZhdHNhIFMuIEJoYXQg
-KFZNd2FyZSkgPHNyaXZhdHNhQGNzYWlsLm1pdC5lZHU+DQo+PiAtLS0NCj4gDQo+IFNlZW1z
-IG5pY2U7IEkndmUgbWFkZSB0aGUgYmVsb3cgbGl0dGxlIGVkaXRzLCBidXQgdGhpcyBpcyBj
-ZXJ0YWlubHkgYQ0KPiBiaXQgbGFyZ2UgZm9yIC91cmdlbnQgYXQgdGhpcyBwb2ludCBpbiB0
-aW1lLiBTbyBob3cgYWJvdXQgSSBtZXJnZQ0KPiBsb2NraW5nL3VyZ2VudCBpbnRvIHg4Ni9w
-YXJhdmlydCBhbmQgbXVuZ2UgdGhpcyBvbiB0b3A/DQoNCkZpbmUgd2l0aCBtZS4NCg0KVGhh
-bmtzIGZvciBsb29raW5nIGF0IHRoZSBwYXRjaCwNCg0KDQpKdWVyZ2VuDQoNCj4gDQo+IC0t
-LQ0KPiAtLS0gYS9hcmNoL3g4Ni9pbmNsdWRlL2FzbS9wYXJhdmlydC5oDQo+ICsrKyBiL2Fy
-Y2gveDg2L2luY2x1ZGUvYXNtL3BhcmF2aXJ0LmgNCj4gQEAgLTczNyw3ICs3MzcsNyBAQCBz
-dGF0aWMgX19hbHdheXNfaW5saW5lIHVuc2lnbmVkIGxvbmcgYXJjDQo+ICAgCSAgICAgX19B
-TElHTl9TVFIgIlxuIgkJCQlcDQo+ICAgCSAgICAgI2Z1bmMgIjpcblx0IgkJCQlcDQo+ICAg
-CSAgICAgQVNNX0VOREJSCQkJCQlcDQo+IC0JICAgICBpbnN0cgkJCQkJXA0KPiArCSAgICAg
-aW5zdHIgIlxuXHQiCQkJCVwNCj4gICAJICAgICBBU01fUkVUCQkJCQlcDQo+ICAgCSAgICAg
-Ii5zaXplICIgI2Z1bmMgIiwgLiAtICIgI2Z1bmMgIlxuXHQiCVwNCj4gICAJICAgICAiLnBv
-cHNlY3Rpb24iKQ0KPiAtLS0gYS9hcmNoL3g4Ni9pbmNsdWRlL2FzbS9xc3BpbmxvY2tfcGFy
-YXZpcnQuaA0KPiArKysgYi9hcmNoL3g4Ni9pbmNsdWRlL2FzbS9xc3BpbmxvY2tfcGFyYXZp
-cnQuaA0KPiBAQCAtNTQsOCArNTQsOCBAQCBfX1BWX0NBTExFRV9TQVZFX1JFR1NfVEhVTkso
-X19wdl9xdWV1ZWRfDQo+ICAgCSJwb3AgICAgJXJkeFxuXHQiCQkJCQkJXA0KPiAgIAlGUkFN
-RV9FTkQNCj4gICANCj4gLURFRklORV9QQVJBVklSVF9BU00oX19yYXdfY2FsbGVlX3NhdmVf
-X19wdl9xdWV1ZWRfc3Bpbl91bmxvY2ssIFBWX1VOTE9DS19BU00sDQo+IC0JCSAgICAuc3Bp
-bmxvY2sudGV4dCk7DQo+ICtERUZJTkVfUEFSQVZJUlRfQVNNKF9fcmF3X2NhbGxlZV9zYXZl
-X19fcHZfcXVldWVkX3NwaW5fdW5sb2NrLA0KPiArCQkgICAgUFZfVU5MT0NLX0FTTSwgLnNw
-aW5sb2NrLnRleHQpOw0KPiAgIA0KPiAgICNlbHNlIC8qIENPTkZJR182NEJJVCAqLw0KPiAg
-IA0KPiAtLS0gYS9hcmNoL3g4Ni9rZXJuZWwva3ZtLmMNCj4gKysrIGIvYXJjaC94ODYva2Vy
-bmVsL2t2bS5jDQo+IEBAIC04MDIsNiArODAyLDcgQEAgZXh0ZXJuIGJvb2wgX19yYXdfY2Fs
-bGVlX3NhdmVfX19rdm1fdmNwdQ0KPiAgICAibW92cSAgIF9fcGVyX2NwdV9vZmZzZXQoLCVy
-ZGksOCksICVyYXhcblx0IgkJCQkgICAgIFwNCj4gICAgImNtcGIgICAkMCwgIiBfX3N0cmlu
-Z2lmeShLVk1fU1RFQUxfVElNRV9wcmVlbXB0ZWQpICIrc3RlYWxfdGltZSglcmF4KVxuXHQi
-IFwNCj4gICAgInNldG5lICAlYWxcblx0Ig0KPiArDQo+ICAgREVGSU5FX1BBUkFWSVJUX0FT
-TShfX3Jhd19jYWxsZWVfc2F2ZV9fX2t2bV92Y3B1X2lzX3ByZWVtcHRlZCwNCj4gICAJCSAg
-ICBQVl9WQ1BVX1BSRUVNUFRFRF9BU00sIC50ZXh0KTsNCj4gICAjZW5kaWYNCj4gLS0tIGEv
-YXJjaC94ODYva2VybmVsL3BhcmF2aXJ0LmMNCj4gKysrIGIvYXJjaC94ODYva2VybmVsL3Bh
-cmF2aXJ0LmMNCj4gQEAgLTQwLDggKzQwLDcgQEANCj4gICBERUZJTkVfUEFSQVZJUlRfQVNN
-KF9wYXJhdmlydF9ub3AsICIiLCAuZW50cnkudGV4dCk7DQo+ICAgDQo+ICAgLyogc3R1YiBh
-bHdheXMgcmV0dXJuaW5nIDAuICovDQo+IC0jZGVmaW5lIFBWX1JFVDBfQVNNCSJ4b3IgJSIg
-X0FTTV9BWCAiLCAlIiBfQVNNX0FYICJcblx0Ig0KPiAtREVGSU5FX1BBUkFWSVJUX0FTTShw
-YXJhdmlydF9yZXQwLCBQVl9SRVQwX0FTTSwgLmVudHJ5LnRleHQpOw0KPiArREVGSU5FX1BB
-UkFWSVJUX0FTTShwYXJhdmlydF9yZXQwLCAieG9yICVlYXgsJWVheCIsIC5lbnRyeS50ZXh0
-KTsNCj4gICANCj4gICB2b2lkIF9faW5pdCBkZWZhdWx0X2Jhbm5lcih2b2lkKQ0KPiAgIHsN
-Cg0K
---------------BWlwZfguY4ype2ObzOzWkzNT
-Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Description: OpenPGP public key
-Content-Transfer-Encoding: quoted-printable
+> > --- a/drivers/acpi/processor_idle.c
+> > +++ b/drivers/acpi/processor_idle.c
+> > @@ -1200,6 +1200,8 @@ static int acpi_processor_setup_lpi_stat
+> >                 state->target_residency = lpi->min_residency;
+> >                 if (lpi->arch_flags)
+> >                         state->flags |= CPUIDLE_FLAG_TIMER_STOP;
+> > +               if (lpi->entry_method == ACPI_CSTATE_FFH)
+> > +                       state->flags |= CPUIDLE_FLAG_RCU_IDLE;
+> 
+> I assume the state index here will never be 0?
+> 
+> If not, it may lead to that acpi_processor_ffh_lpi_enter() may trigger
+> CPU_PM_CPU_IDLE_ENTER_PARAM() to call ct_cpuidle_enter|exit() for an
+> idle-state that doesn't have the CPUIDLE_FLAG_RCU_IDLE bit set.
 
------BEGIN PGP PUBLIC KEY BLOCK-----
+I'm not quite sure I see how. AFAICT this condition above implies
+acpi_processor_ffh_lpi_enter() gets called, no?
 
-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
-jR/i1DG86lem3iBDXzXsZDn8R38=3D
-=3D2wuH
------END PGP PUBLIC KEY BLOCK-----
+Which in turn is an unconditional __CPU_PM_CPU_IDLE_ENTER() user, so
+even if idx==0, it ends up in ct_idle_{enter,exit}().
 
---------------BWlwZfguY4ype2ObzOzWkzNT--
+> 
+> >                 state->enter = acpi_idle_lpi_enter;
+> >                 drv->safe_state_index = i;
+> >         }
+> > --- a/drivers/cpuidle/cpuidle-arm.c
+> > +++ b/drivers/cpuidle/cpuidle-arm.c
+> > @@ -53,6 +53,7 @@ static struct cpuidle_driver arm_idle_dr
+> >          * handler for idle state index 0.
+> >          */
+> >         .states[0] = {
+> > +               .flags                  = CPUIDLE_FLAG_RCU_IDLE,
+> 
+> Comparing arm64 and arm32 idle-states/idle-drivers, the $subject
+> series ends up setting the CPUIDLE_FLAG_RCU_IDLE for the ARM WFI idle
+> state (state zero), but only for the arm64 and psci cases (mostly
+> arm64). For arm32 we would need to update the ARM_CPUIDLE_WFI_STATE
+> too, as that is what most arm32 idle-drivers are using. My point is,
+> the code becomes a bit inconsistent.
 
---------------oAJveYCI8kqJJSBvUaPX0lyi--
+True.
 
---------------eAX8XKA6qoU5dfFXA1z1PPZk
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
+> Perhaps it's easier to avoid setting the CPUIDLE_FLAG_RCU_IDLE bit for
+> all of the ARM WFI idle states, for both arm64 and arm32?
 
------BEGIN PGP SIGNATURE-----
+As per the below?
 
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmN0xE4FAwAAAAAACgkQsN6d1ii/Ey9P
-pAf+Ie1yhUMSS//kc3SNLu+XcPBW2v8rc2wF7mklvYqiLXai3JcWu41/IkaCw+he+4aNdoZyK+AC
-V5gP+EK2Iq2RXYSVdmDXfRK9kFXHT79zbJuLnROezTnM14skQ/PQQgOJxJbunwBto2lsTihU4Slp
-1uts5ZGNQLhUTn8IRaafn9ZZtcAeYlPnh9b57sXIWjSh9KK8ZYLUAq1VRqF2qGF6BPHAXUZWykWN
-nqIFFErPixpuCHKQ86SiWDbXwQA6qcHaFtnRRwXnFXLsv1ggPNMVCf+TewJfVsAPhriRJFFJUn8N
-T7PAMuGxY/WiuZkIp5dK1A1XLCKWQsKgAIZp0AnU5w==
-=fnL5
------END PGP SIGNATURE-----
+> 
+> >                 .enter                  = arm_enter_idle_state,
+> >                 .exit_latency           = 1,
+> >                 .target_residency       = 1,
 
---------------eAX8XKA6qoU5dfFXA1z1PPZk--
+> > --- a/include/linux/cpuidle.h
+> > +++ b/include/linux/cpuidle.h
+> > @@ -282,14 +282,18 @@ extern s64 cpuidle_governor_latency_req(
+> >         int __ret = 0;                                                  \
+> >                                                                         \
+> >         if (!idx) {                                                     \
+> > +               ct_idle_enter();                                        \
+> 
+> According to my comment above, we should then drop these calls to
+> ct_idle_enter and ct_idle_exit() here. Right?
 
---===============7068218440989976581==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Yes, if we ensure idx==0 never has RCU_IDLE set then these must be
+removed.
 
+> >                 cpu_do_idle();                                          \
+> > +               ct_idle_exit();                                         \
+> >                 return idx;                                             \
+> >         }                                                               \
+> >                                                                         \
+> >         if (!is_retention)                                              \
+> >                 __ret =  cpu_pm_enter();                                \
+> >         if (!__ret) {                                                   \
+> > +               ct_idle_enter();                                        \
+> >                 __ret = low_level_idle_enter(state);                    \
+> > +               ct_idle_exit();                                         \
+> >                 if (!is_retention)                                      \
+> >                         cpu_pm_exit();                                  \
+> >         }                                                               \
+> >
+
+So the basic premise is that everything that needs RCU inside the idle
+callback must set CPUIDLE_FLAG_RCU_IDLE and by doing that promise to
+call ct_idle_{enter,exit}() themselves.
+
+Setting RCU_IDLE is required when there is RCU usage, however even if
+there is no RCU usage, setting RCU_IDLE is fine, as long as
+ct_idle_{enter,exit}() then get called.
+
+
+So does the below (delta) look better to you?
+
+--- a/drivers/acpi/processor_idle.c
++++ b/drivers/acpi/processor_idle.c
+@@ -1218,7 +1218,7 @@ static int acpi_processor_setup_lpi_stat
+ 		state->target_residency = lpi->min_residency;
+ 		if (lpi->arch_flags)
+ 			state->flags |= CPUIDLE_FLAG_TIMER_STOP;
+-		if (lpi->entry_method == ACPI_CSTATE_FFH)
++		if (i != 0 && lpi->entry_method == ACPI_CSTATE_FFH)
+ 			state->flags |= CPUIDLE_FLAG_RCU_IDLE;
+ 		state->enter = acpi_idle_lpi_enter;
+ 		drv->safe_state_index = i;
+--- a/drivers/cpuidle/cpuidle-arm.c
++++ b/drivers/cpuidle/cpuidle-arm.c
+@@ -53,7 +53,7 @@ static struct cpuidle_driver arm_idle_dr
+ 	 * handler for idle state index 0.
+ 	 */
+ 	.states[0] = {
+-		.flags			= CPUIDLE_FLAG_RCU_IDLE,
++		.flags			= 0,
+ 		.enter                  = arm_enter_idle_state,
+ 		.exit_latency           = 1,
+ 		.target_residency       = 1,
+--- a/drivers/cpuidle/cpuidle-psci.c
++++ b/drivers/cpuidle/cpuidle-psci.c
+@@ -357,7 +357,7 @@ static int psci_idle_init_cpu(struct dev
+ 	 * PSCI idle states relies on architectural WFI to be represented as
+ 	 * state index 0.
+ 	 */
+-	drv->states[0].flags = CPUIDLE_FLAG_RCU_IDLE;
++	drv->states[0].flags = 0;
+ 	drv->states[0].enter = psci_enter_idle_state;
+ 	drv->states[0].exit_latency = 1;
+ 	drv->states[0].target_residency = 1;
+--- a/drivers/cpuidle/cpuidle-qcom-spm.c
++++ b/drivers/cpuidle/cpuidle-qcom-spm.c
+@@ -72,7 +72,7 @@ static struct cpuidle_driver qcom_spm_id
+ 	.owner = THIS_MODULE,
+ 	.states[0] = {
+ 		.enter			= spm_enter_idle_state,
+-		.flags			= CPUIDLE_FLAG_RCU_IDLE,
++		.flags			= 0,
+ 		.exit_latency		= 1,
+ 		.target_residency	= 1,
+ 		.power_usage		= UINT_MAX,
+--- a/drivers/cpuidle/cpuidle-riscv-sbi.c
++++ b/drivers/cpuidle/cpuidle-riscv-sbi.c
+@@ -337,7 +337,7 @@ static int sbi_cpuidle_init_cpu(struct d
+ 	drv->cpumask = (struct cpumask *)cpumask_of(cpu);
+ 
+ 	/* RISC-V architectural WFI to be represented as state index 0. */
+-	drv->states[0].flags = CPUIDLE_FLAG_RCU_IDLE;
++	drv->states[0].flags = 0;
+ 	drv->states[0].enter = sbi_cpuidle_enter_state;
+ 	drv->states[0].exit_latency = 1;
+ 	drv->states[0].target_residency = 1;
+--- a/include/linux/cpuidle.h
++++ b/include/linux/cpuidle.h
+@@ -282,9 +282,7 @@ extern s64 cpuidle_governor_latency_req(
+ 	int __ret = 0;							\
+ 									\
+ 	if (!idx) {							\
+-		ct_idle_enter();					\
+ 		cpu_do_idle();						\
+-		ct_idle_exit();						\
+ 		return idx;						\
+ 	}								\
+ 									\
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============7068218440989976581==--
