@@ -1,110 +1,93 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id ECE8CC4332F
-	for <virtualization@archiver.kernel.org>; Wed, 16 Nov 2022 07:11:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A6BDBC4332F
+	for <virtualization@archiver.kernel.org>; Wed, 16 Nov 2022 11:05:45 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 6CCBA81E5D;
-	Wed, 16 Nov 2022 07:11:50 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6CCBA81E5D
+	by smtp2.osuosl.org (Postfix) with ESMTP id 18D1A40BA3;
+	Wed, 16 Nov 2022 11:05:45 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 18D1A40BA3
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=K6uhjY9g
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id idmF-WzcFT5C; Wed, 16 Nov 2022 11:05:44 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 8A7BD40BB7;
+	Wed, 16 Nov 2022 11:05:43 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8A7BD40BB7
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 6CA20C0033;
+	Wed, 16 Nov 2022 11:05:43 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id EF923C002D
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 16 Nov 2022 11:05:41 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id C86F081FC9
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 16 Nov 2022 11:05:41 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C86F081FC9
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Axqcl7/s
+ dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org
+ header.a=rsa-sha256 header.s=casper.20170209 header.b=K6uhjY9g
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id IjQHjQW0o4un; Wed, 16 Nov 2022 07:11:49 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id CDE9981E58;
-	Wed, 16 Nov 2022 07:11:48 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CDE9981E58
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8BE31C0033;
-	Wed, 16 Nov 2022 07:11:48 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E2D46C002D
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id gpIh5L8tvgIX
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Nov 2022 07:11:46 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id B4EF2400CA
- for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Nov 2022 07:11:46 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B4EF2400CA
-Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=Axqcl7/s
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id S6OCT_r8rRZV
- for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Nov 2022 07:11:45 +0000 (UTC)
+ Wed, 16 Nov 2022 11:05:40 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6694140091
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 6694140091
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9013E81FC5
+Received: from casper.infradead.org (casper.infradead.org
+ [IPv6:2001:8b0:10b:1236::1])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 9013E81FC5
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Nov 2022 07:11:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1668582704;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=YeR1HH8eLiqndTkVdEHxtOh0ZX+ybGtO62/lbQhsynA=;
- b=Axqcl7/s9iRwLLdi0lD0CJNo3hmy46+pmbdtRcBzt/OzBfuZN7eJyxZNV0BJVD+R67FZM8
- 414BTnSLq+NRufb5+Caw/HppsQmUzP799FbitroSiaep/gxqd9+TXUQVvjHg3S/pVzeUoD
- PrNsefYvlKxnSNZxYM1cHuQNPJ5d+mU=
-Received: from mail-oi1-f198.google.com (mail-oi1-f198.google.com
- [209.85.167.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-611-a7cTiKL1PJaaKgW-5gYxLw-1; Wed, 16 Nov 2022 02:11:42 -0500
-X-MC-Unique: a7cTiKL1PJaaKgW-5gYxLw-1
-Received: by mail-oi1-f198.google.com with SMTP id
- r65-20020acaf344000000b0035a1d791805so5731243oih.19
- for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Nov 2022 23:11:42 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
- :reply-to;
- bh=YeR1HH8eLiqndTkVdEHxtOh0ZX+ybGtO62/lbQhsynA=;
- b=5Zb3CGuYqoSad4u1mMpxhXx3BDA62acgdu2V+aoptwuPkjmrFxaM8eXye5zXE1niGU
- IMewZL2f4yow3G2oskUVyBqAkYTC7zD14eXxKTlVHjo+9yWxG9PSTYt2r+NkWfXbgHcC
- 5sUVJRjkU4Xy0086p1SRNex3NezusbCR9tfusGkVqGP7CVOAbaNgW5Pa7K/gHN47VHBz
- lA+5ACWz6xpWb5xUEmoZYS2SyAjpv1Vu/HmqzZpBEndhvIOTHvcbtDjCCZ3zQT66FuJD
- A0e4KZJ0lRPJtQLOOFhU0vpwtB/8dJPhwFQzQmzFdcU8G3kxevLLgw5MZl9zzbCtjOQP
- 9xGg==
-X-Gm-Message-State: ANoB5pnLRdfSpwgBnDjgEQ2uMv+mtIfXo8sFxOzZOwscEMocudps0yi5
- q/lH0HV/cI9GQXVMlNak9Xaruk2uU1SMFwFKz1VoXL9/Sw0pTreex9bVyh4bd9QLi2lIM+TxB9/
- FffCFNtpHELmJSqYJtDeT5vh5SqmSfpG9fhN7ZYVknbV1DpthCkAm3tTqIA==
-X-Received: by 2002:a05:6870:7d05:b0:13b:ef13:b650 with SMTP id
- os5-20020a0568707d0500b0013bef13b650mr961704oab.280.1668582702123; 
- Tue, 15 Nov 2022 23:11:42 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf4ECNLnwAetBRUMj97LLJ+MHt0sBOcFozMRqsxYzrPPOFRst9PUDF4iwco2keeBsu7Udqxb66mY0eGpPa0A7mQ=
-X-Received: by 2002:a05:6870:7d05:b0:13b:ef13:b650 with SMTP id
- os5-20020a0568707d0500b0013bef13b650mr961698oab.280.1668582701893; Tue, 15
- Nov 2022 23:11:41 -0800 (PST)
+ Wed, 16 Nov 2022 11:05:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+ References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+ Content-Transfer-Encoding:Content-ID:Content-Description;
+ bh=QyKiutDikhqtS5evWJD5nb7g0g7xU4H4zTVUxJYpfM8=; b=K6uhjY9gwFNHqXVdDbhpIEUdLR
+ jZRDd+XKhIeALbMBKjreKK/oKfKOULj7trqauk/XtRdJ86A+Loh6GwSb3iwJ9IDCAvchKzSwK16J9
+ PcZg0m+r2fApfkx9TKxQHwexAK/Y4m72EMRlgf3RJ6lJ03PMk/kjDe2juQ9aK9AxLutmEPKXO0qoA
+ PSp7SoIteknW9c6ZY8hPceu0P9/m4Ike4w7AbOlIqVNm9hkoezH4+42F6NSSt8ZrgGIksHWicgCzL
+ b+y7yA+SGJM5wfdVQFspnWK8GrJyAECimgvts4fKBDM1g1HVDmuBf/ORW4cxKhLSXXkXGnFy9LEkg
+ Dlk40q8g==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84]
+ helo=noisy.programming.kicks-ass.net)
+ by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+ id 1ovGE1-00HJpL-Dn; Wed, 16 Nov 2022 11:05:01 +0000
+Received: from hirez.programming.kicks-ass.net
+ (hirez.programming.kicks-ass.net [192.168.1.225])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+ (Client did not present a certificate)
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 5203530002E;
+ Wed, 16 Nov 2022 12:04:53 +0100 (CET)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+ id 3B052201079F4; Wed, 16 Nov 2022 12:04:53 +0100 (CET)
+Date: Wed, 16 Nov 2022 12:04:53 +0100
+From: Peter Zijlstra <peterz@infradead.org>
+To: Juergen Gross <jgross@suse.com>
+Subject: Re: [PATCH v2] x86/paravirt: use common macro for creating simple
+ asm paravirt functions
+Message-ID: <Y3TD1R9BOb4avCWp@hirez.programming.kicks-ass.net>
+References: <20221109134418.6516-1-jgross@suse.com>
 MIME-Version: 1.0
-References: <20221114070233.248-1-xieyongji@bytedance.com>
- <20221114070233.248-4-xieyongji@bytedance.com>
- <CACGkMEsbScqRtZeJ51ySiYdR_DrHwVAEGg_n0TR2mA2nK9e7sQ@mail.gmail.com>
- <CACycT3s8CbO1YD3AAzN-iXEkf6MKM7ihK+=NFik+33HDjanBJQ@mail.gmail.com>
- <CACGkMEvOYqBrFz5Fp2fL=QBU0fLBAZXLtXtX2OhMg+DuJPSUmQ@mail.gmail.com>
- <CACycT3uwqNb=+9P=Ta7pw5qUCRfJXveMUX==CYPrtE=+OQBCrg@mail.gmail.com>
-In-Reply-To: <CACycT3uwqNb=+9P=Ta7pw5qUCRfJXveMUX==CYPrtE=+OQBCrg@mail.gmail.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 16 Nov 2022 15:11:30 +0800
-Message-ID: <CACGkMEstonrKHHkr2Bi3Yd=driTMu_qBC5D9Xvxz4pWqs23e-w@mail.gmail.com>
-Subject: Re: [PATCH 3/6] vduse: Add sysfs interface for irq affinity setup
-To: Yongji Xie <xieyongji@bytedance.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: virtualization <virtualization@lists.linux-foundation.org>,
- "Michael S. Tsirkin" <mst@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20221109134418.6516-1-jgross@suse.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>,
+ kvm@vger.kernel.org, VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
+ x86@kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, Wanpeng Li <wanpengli@tencent.com>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+ Alexey Makhalov <amakhalov@vmware.com>, Paolo Bonzini <pbonzini@redhat.com>,
+ Thomas Gleixner <tglx@linutronix.de>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -121,48 +104,73 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Nov 15, 2022 at 10:49 AM Yongji Xie <xieyongji@bytedance.com> wrote:
->
-> On Mon, Nov 14, 2022 at 4:55 PM Jason Wang <jasowang@redhat.com> wrote:
-> >
-> > On Mon, Nov 14, 2022 at 4:20 PM Yongji Xie <xieyongji@bytedance.com> wrote:
-> > >
-> > > On Mon, Nov 14, 2022 at 3:58 PM Jason Wang <jasowang@redhat.com> wrote:
-> > > >
-> > > > On Mon, Nov 14, 2022 at 3:16 PM Xie Yongji <xieyongji@bytedance.com> wrote:
-> > > > >
-> > > > > Add sysfs interface for each vduse virtqueue to setup
-> > > > > irq affinity. This would be useful for performance
-> > > > > tuning, e.g., mitigate the virtqueue lock contention
-> > > > > in virtio block driver.
-> > > >
-> > > > Do we have any perforamnce numbers for this?
-> > > >
-> > >
-> > > Almost 50% improvement (600k iops -> 900k iops) in the high iops
-> > > workloads. I have mentioned it in the cover-letter.
-> >
-> > For some reason, I miss that.
-> >
-> > I also wonder if we can do this automatically, then there's no need to
-> > play with sysfs which is kind of a burden for the management layer.
-> >
->
-> This is hard to do since vduse doesn't know which cpu should be bound
-> for a certain virtqueue.
+On Wed, Nov 09, 2022 at 02:44:18PM +0100, Juergen Gross wrote:
+> There are some paravirt assembler functions which are sharing a common
+> pattern. Introduce a macro DEFINE_PARAVIRT_ASM() for creating them.
+> 
+> Note that this macro is including explicit alignment of the generated
+> functions, leading to __raw_callee_save___kvm_vcpu_is_preempted(),
+> _paravirt_nop() and paravirt_ret0() to be aligned at 4 byte boundaries
+> now.
+> 
+> The explicit _paravirt_nop() prototype in paravirt.c isn't needed, as
+> it is included in paravirt_types.h already.
+> 
+> Signed-off-by: Juergen Gross <jgross@suse.com>
+> Reviewed-by: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
+> ---
 
-Probably via the kick_vq()? It probably won't work when notification
-is disabled. But we need to think a little bit more about this.
-Requiring management software to do ad-hoc running just for VDUSE
-seems not easy.
+Seems nice; I've made the below little edits, but this is certainly a
+bit large for /urgent at this point in time. So how about I merge
+locking/urgent into x86/paravirt and munge this on top?
 
-Thanks
-
->
-> Thanks,
-> Yongji
->
-
+---
+--- a/arch/x86/include/asm/paravirt.h
++++ b/arch/x86/include/asm/paravirt.h
+@@ -737,7 +737,7 @@ static __always_inline unsigned long arc
+ 	     __ALIGN_STR "\n"				\
+ 	     #func ":\n\t"				\
+ 	     ASM_ENDBR					\
+-	     instr					\
++	     instr "\n\t"				\
+ 	     ASM_RET					\
+ 	     ".size " #func ", . - " #func "\n\t"	\
+ 	     ".popsection")
+--- a/arch/x86/include/asm/qspinlock_paravirt.h
++++ b/arch/x86/include/asm/qspinlock_paravirt.h
+@@ -54,8 +54,8 @@ __PV_CALLEE_SAVE_REGS_THUNK(__pv_queued_
+ 	"pop    %rdx\n\t"						\
+ 	FRAME_END
+ 
+-DEFINE_PARAVIRT_ASM(__raw_callee_save___pv_queued_spin_unlock, PV_UNLOCK_ASM,
+-		    .spinlock.text);
++DEFINE_PARAVIRT_ASM(__raw_callee_save___pv_queued_spin_unlock,
++		    PV_UNLOCK_ASM, .spinlock.text);
+ 
+ #else /* CONFIG_64BIT */
+ 
+--- a/arch/x86/kernel/kvm.c
++++ b/arch/x86/kernel/kvm.c
+@@ -802,6 +802,7 @@ extern bool __raw_callee_save___kvm_vcpu
+  "movq   __per_cpu_offset(,%rdi,8), %rax\n\t"				     \
+  "cmpb   $0, " __stringify(KVM_STEAL_TIME_preempted) "+steal_time(%rax)\n\t" \
+  "setne  %al\n\t"
++
+ DEFINE_PARAVIRT_ASM(__raw_callee_save___kvm_vcpu_is_preempted,
+ 		    PV_VCPU_PREEMPTED_ASM, .text);
+ #endif
+--- a/arch/x86/kernel/paravirt.c
++++ b/arch/x86/kernel/paravirt.c
+@@ -40,8 +40,7 @@
+ DEFINE_PARAVIRT_ASM(_paravirt_nop, "", .entry.text);
+ 
+ /* stub always returning 0. */
+-#define PV_RET0_ASM	"xor %" _ASM_AX ", %" _ASM_AX "\n\t"
+-DEFINE_PARAVIRT_ASM(paravirt_ret0, PV_RET0_ASM, .entry.text);
++DEFINE_PARAVIRT_ASM(paravirt_ret0, "xor %eax,%eax", .entry.text);
+ 
+ void __init default_banner(void)
+ {
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
