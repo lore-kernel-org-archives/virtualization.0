@@ -1,105 +1,113 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2BAF1C4332F
-	for <virtualization@archiver.kernel.org>; Thu, 17 Nov 2022 05:26:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A18F2C4332F
+	for <virtualization@archiver.kernel.org>; Thu, 17 Nov 2022 05:41:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 9954B418D9;
-	Thu, 17 Nov 2022 05:26:49 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9954B418D9
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=iUOpAJFN
+	by smtp2.osuosl.org (Postfix) with ESMTP id 28FBD402E8;
+	Thu, 17 Nov 2022 05:41:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 28FBD402E8
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=abtXIiS1
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id pG70kqv5Z7Xs; Thu, 17 Nov 2022 05:26:48 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Htbt7vUEGmZR; Thu, 17 Nov 2022 05:41:33 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id E76C74189E;
-	Thu, 17 Nov 2022 05:26:47 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E76C74189E
+	by smtp2.osuosl.org (Postfix) with ESMTPS id BA4AE40141;
+	Thu, 17 Nov 2022 05:41:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BA4AE40141
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id BA819C0033;
-	Thu, 17 Nov 2022 05:26:47 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 61030C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 873D4C0033;
+	Thu, 17 Nov 2022 05:41:32 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id AB873C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Nov 2022 05:26:46 +0000 (UTC)
+ Thu, 17 Nov 2022 05:41:31 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 3565A8203C
+ by smtp3.osuosl.org (Postfix) with ESMTP id 729CB60FEE
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Nov 2022 05:26:46 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3565A8203C
-Authentication-Results: smtp1.osuosl.org;
+ Thu, 17 Nov 2022 05:41:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 729CB60FEE
+Authentication-Results: smtp3.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=iUOpAJFN
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=abtXIiS1
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id bhiQGIjoYNUE
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id uVhmdCfqKE-5
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Nov 2022 05:26:45 +0000 (UTC)
+ Thu, 17 Nov 2022 05:41:30 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 803E68203A
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2E87360FDF
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 803E68203A
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 2E87360FDF
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Nov 2022 05:26:45 +0000 (UTC)
+ Thu, 17 Nov 2022 05:41:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1668662804;
+ s=mimecast20190719; t=1668663688;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=2aEsMuwb7hoVqQiyeKpbbKR7yeg504eUz03mBSa84AQ=;
- b=iUOpAJFN2wLSExUuqPRLKU476BtqKZ18ih8cXwB9QH0l0ZcLiHaX4GCNGKvEgaww8w3+mK
- KvDWoyFcL6AUuv491xcLdTz+7qklWhNXBFPmp0/VQn8RKWy+J5WFwFubSV6VsqpDKlmpnb
- mWaURdDAcezXHBofSMuvGnQQlIGSA8g=
-Received: from mail-oa1-f70.google.com (mail-oa1-f70.google.com
- [209.85.160.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=9i5bBHXarWBNpwYg9IlDvcz3U/Nel/XFZb0RmyQNDsk=;
+ b=abtXIiS1CRjXB6PPyptTnfiNZz2e+Cw6A/IjDOEIwR3K5ZmSqM0JpjhQJGgAsACQKOA7/V
+ i4gP/gD2iGY9muutcplOrYcFFBjVLX2UKnaRZyu28kpDW9xUnaZZ98BCIbmTWuvaKLEu3S
+ HMu2FSgAOuQHWsdcBydT2LtUWpXKvfM=
+Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com
+ [209.85.214.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-248-TJtoSvVzP2G23kEKF6DFFg-1; Thu, 17 Nov 2022 00:26:42 -0500
-X-MC-Unique: TJtoSvVzP2G23kEKF6DFFg-1
-Received: by mail-oa1-f70.google.com with SMTP id
- 586e51a60fabf-13b88262940so359507fac.15
+ us-mta-623-NhlgVFoxPQC2X3o5qHmGxA-1; Thu, 17 Nov 2022 00:41:27 -0500
+X-MC-Unique: NhlgVFoxPQC2X3o5qHmGxA-1
+Received: by mail-pl1-f200.google.com with SMTP id
+ b18-20020a170903229200b00186e357f3b9so641303plh.6
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Nov 2022 21:26:42 -0800 (PST)
+ Wed, 16 Nov 2022 21:41:27 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
- :reply-to;
- bh=2aEsMuwb7hoVqQiyeKpbbKR7yeg504eUz03mBSa84AQ=;
- b=Gx3KgrHFdJQg5LJcMLWJDNEffiIjKzSC79FqJhozdfLLJABuBsa0B0FKNrKTOZ28xC
- NWBb+BrH1ufPLXW8jUZY57BzcjHCoAsk0/wPO12kgYDsKmQ91ymzNDaXa1zbJvWBCEUc
- S8JCWpyMXCDH9ILw6Vi4ziZPlVoLk5P6/X6OCC+7nVHI+eQGsHrGbEwXC6nnfigdX9Na
- utIBTdNqMIGl7x7Txgrk7eI1K0qEgXXkz4ZFyvKs3/fjntGOJxY/nXvaIj0373C0ILQW
- kYHVItim9tOgvm7QBU3IRUxlb4EbBrQd2U8Ab3C2uBUzyoQWa+2scsanbO0sltwVZ+HG
- 2G5A==
-X-Gm-Message-State: ANoB5pkmqLmA1ie05wqiPOG0Hq7kevygA4TPyisHmaHXUuEy3KvYI1tV
- dALwwTz+8ZREVJ4IENqGwyZpS5xhhA653T9h3fpr1DnCKI5E9XXIuFm3GYoS4je0hYv0vTMSRGA
- 9PPX/qNw5VTj0Ql/3zbowANkUwQmQV8Se5SVhSP17tf6Q/mSJSX80gfUgKg==
-X-Received: by 2002:a05:6808:220b:b0:359:f5eb:82ec with SMTP id
- bd11-20020a056808220b00b00359f5eb82ecmr399480oib.280.1668662802082; 
- Wed, 16 Nov 2022 21:26:42 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf68e54VJ3O3P29AE2aqbo4f5fPMtnTZxdf0tZdJLRfrLfooHH0vDobITaXd8RIEmGxxZog6Utjvq5yWtZyKrpk=
-X-Received: by 2002:a05:6808:220b:b0:359:f5eb:82ec with SMTP id
- bd11-20020a056808220b00b00359f5eb82ecmr399476oib.280.1668662801872; Wed, 16
- Nov 2022 21:26:41 -0800 (PST)
+ h=content-transfer-encoding:in-reply-to:from:references:cc:to
+ :content-language:subject:user-agent:mime-version:date:message-id
+ :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+ bh=9i5bBHXarWBNpwYg9IlDvcz3U/Nel/XFZb0RmyQNDsk=;
+ b=wdi/vP1tAU1Vc2tPwIyBSDu7RTJC7MiP/IQ1Zh+EKQ6ZPfr/ObNnRUUNCHZlWC1vR0
+ yHFZGvNMHHZgADIHKfFqhj9Agru/9po7iGP4c0vPl3j18iRShxdnRZR4qGTdaRLMSUvr
+ qst+T4XZoEtbwXfusonrMII6j8uNZNWF3kl6ykCQh5o6o/bDDszqDLb8WjLdoafu/WSb
+ WzKBfGMeySWOwzXCmBpIwvuR9ZXdqgH6zgi6xdK9hReFwuoUZG5vLY9ua6PzBEt3Z6YM
+ bmhAoHFsFnZSvnzg3NvLrz3fZdMDycFosJWJNXFk8JXFyHe0G7BuMErduI7ozVZo75sF
+ 88WA==
+X-Gm-Message-State: ANoB5pnbD/wy8jh48qZIrgSfbwKnzR++sjwb0w0CQ8FFketisNVxIdnw
+ vYBznE4IUeQ6AzGBPcQivozHw9hGD+tgZ3hRVdrx8wBrUXEypaKFlcg9mvOzWlQqAMaAzJToglW
+ QAtgw3xtJ4iicBtNNk4K4Z9Hambe/7EWE6ZrXrZnpvQ==
+X-Received: by 2002:a63:fc0a:0:b0:434:7885:6ade with SMTP id
+ j10-20020a63fc0a000000b0043478856ademr702140pgi.243.1668663686246; 
+ Wed, 16 Nov 2022 21:41:26 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf6fNU4nHL/6+Ar9MdJvKzV6qm1HYnDkSUOg39Ow7s1Dnaj9BHRG29AiXTUXFSINqGtDJ42+ig==
+X-Received: by 2002:a63:fc0a:0:b0:434:7885:6ade with SMTP id
+ j10-20020a63fc0a000000b0043478856ademr702125pgi.243.1668663685946; 
+ Wed, 16 Nov 2022 21:41:25 -0800 (PST)
+Received: from [10.72.13.24] ([43.228.180.230])
+ by smtp.gmail.com with ESMTPSA id
+ r21-20020a6560d5000000b0046ec7beb53esm166470pgv.8.2022.11.16.21.41.23
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Wed, 16 Nov 2022 21:41:25 -0800 (PST)
+Message-ID: <b7dc0077-aa27-7802-c30e-ec87e172ecbb@redhat.com>
+Date: Thu, 17 Nov 2022 13:41:21 +0800
 MIME-Version: 1.0
-References: <20221114070233.248-1-xieyongji@bytedance.com>
- <20221114070233.248-7-xieyongji@bytedance.com>
-In-Reply-To: <20221114070233.248-7-xieyongji@bytedance.com>
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.4.2
+Subject: Re: [PATCH] tools/virtio: fix vrinth_test hang
+To: Liming Wu <liming.wu@jaguarmicro.com>, mst@redhat.com
+References: <20221115111746.858-1-liming.wu@jaguarmicro.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 17 Nov 2022 13:26:30 +0800
-Message-ID: <CACGkMEu2t1Y=z4tw439tT7SYBdgcyTP7CRKdZGLASHTc-4gHiw@mail.gmail.com>
-Subject: Re: [PATCH 6/6] vduse: Support specifying bounce buffer size via sysfs
-To: Xie Yongji <xieyongji@bytedance.com>
+In-Reply-To: <20221115111746.858-1-liming.wu@jaguarmicro.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: virtualization@lists.linux-foundation.org, mst@redhat.com
+Content-Language: en-US
+Cc: virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -111,98 +119,31 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Nov 14, 2022 at 3:16 PM Xie Yongji <xieyongji@bytedance.com> wrote:
->
-> Add sysfs interface to support specifying bounce
-> buffer size in virtio-vdpa case. This is a performance
-> tuning parameter for high throughput workloads.
-
-I wonder what's the reason for not having this in VDUSE_CREATE_DEV?
-
-Thanks
-
->
-> Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-> ---
->  drivers/vdpa/vdpa_user/vduse_dev.c | 45 +++++++++++++++++++++++++++++-
->  1 file changed, 44 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-> index 428615093c28..3f97e2d7f7d7 100644
-> --- a/drivers/vdpa/vdpa_user/vduse_dev.c
-> +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> @@ -37,8 +37,11 @@
->  #define DRV_LICENSE  "GPL v2"
->
->  #define VDUSE_DEV_MAX (1U << MINORBITS)
-> +#define VDUSE_MAX_BOUNCE_SIZE (1024 * 1024 * 1024)
-> +#define VDUSE_MIN_BOUNCE_SIZE (1024 * 1024)
->  #define VDUSE_BOUNCE_SIZE (64 * 1024 * 1024)
-> -#define VDUSE_IOVA_SIZE (128 * 1024 * 1024)
-> +/* 128 MB reserved for virtqueue creation */
-> +#define VDUSE_IOVA_SIZE (VDUSE_MAX_BOUNCE_SIZE + 128 * 1024 * 1024)
->  #define VDUSE_MSG_DEFAULT_TIMEOUT 30
->
->  struct vduse_virtqueue {
-> @@ -1687,8 +1690,48 @@ static ssize_t msg_timeout_store(struct device *device,
->
->  static DEVICE_ATTR_RW(msg_timeout);
->
-> +static ssize_t bounce_size_show(struct device *device,
-> +                               struct device_attribute *attr, char *buf)
-> +{
-> +       struct vduse_dev *dev = dev_get_drvdata(device);
-> +
-> +       return sysfs_emit(buf, "%u\n", dev->bounce_size);
-> +}
-> +
-> +static ssize_t bounce_size_store(struct device *device,
-> +                                struct device_attribute *attr,
-> +                                const char *buf, size_t count)
-> +{
-> +       struct vduse_dev *dev = dev_get_drvdata(device);
-> +       unsigned int bounce_size;
-> +       int ret;
-> +
-> +       ret = -EPERM;
-> +       mutex_lock(&dev->domain_lock);
-> +       if (dev->domain)
-> +               goto unlock;
-> +
-> +       ret = kstrtouint(buf, 10, &bounce_size);
-> +       if (ret < 0)
-> +               goto unlock;
-> +
-> +       ret = -EINVAL;
-> +       if (bounce_size > VDUSE_MAX_BOUNCE_SIZE ||
-> +           bounce_size < VDUSE_MIN_BOUNCE_SIZE)
-> +               goto unlock;
-> +
-> +       dev->bounce_size = bounce_size;
-> +       ret = count;
-> +unlock:
-> +       mutex_unlock(&dev->domain_lock);
-> +       return ret;
-> +}
-> +
-> +static DEVICE_ATTR_RW(bounce_size);
-> +
->  static struct attribute *vduse_dev_attrs[] = {
->         &dev_attr_msg_timeout.attr,
-> +       &dev_attr_bounce_size.attr,
->         NULL
->  };
->
-> --
-> 2.20.1
->
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+CuWcqCAyMDIyLzExLzE1IDE5OjE3LCBMaW1pbmcgV3Ug5YaZ6YGTOgo+IHZyaW5naF90ZXN0IGhh
+bmdzIG9uIF9fdnJpbmdfbmV3X3ZpcnRxdWV1ZSgpIGJlY2F1c2UgYHZxc19saXN0X2xvY2tgCj4g
+aXMgbm90IGluaXRpYWxpemVkLgo+Cj4gTGV0J3MgaW5pdGlhbGl6ZSBpdCAgYmVmb3JlIGNhbGwg
+X192cmluZ19uZXdfdmlydHF1ZXVlKCkKPgo+IFNpZ25lZC1vZmYtYnk6IExpbWluZyBXdSA8bGlt
+aW5nLnd1QGphZ3Vhcm1pY3JvLmNvbT4KCgpBY2tlZC1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdA
+cmVkaGF0LmNvbT4KClRoYW5rcwoKCj4gLS0tCj4gICB0b29scy92aXJ0aW8vdnJpbmdoX3Rlc3Qu
+YyB8IDIgKysKPiAgIDEgZmlsZSBjaGFuZ2VkLCAyIGluc2VydGlvbnMoKykKPgo+IGRpZmYgLS1n
+aXQgYS90b29scy92aXJ0aW8vdnJpbmdoX3Rlc3QuYyBiL3Rvb2xzL3ZpcnRpby92cmluZ2hfdGVz
+dC5jCj4gaW5kZXggZmE4N2I1OGJkNWZhLi45OGZmODA4ZDZmMGMgMTAwNjQ0Cj4gLS0tIGEvdG9v
+bHMvdmlydGlvL3ZyaW5naF90ZXN0LmMKPiArKysgYi90b29scy92aXJ0aW8vdnJpbmdoX3Rlc3Qu
+Ywo+IEBAIC0zMDgsNiArMzA4LDcgQEAgc3RhdGljIGludCBwYXJhbGxlbF90ZXN0KHU2NCBmZWF0
+dXJlcywKPiAgIAo+ICAgCQlndmRldi52ZGV2LmZlYXR1cmVzID0gZmVhdHVyZXM7Cj4gICAJCUlO
+SVRfTElTVF9IRUFEKCZndmRldi52ZGV2LnZxcyk7Cj4gKwkJc3Bpbl9sb2NrX2luaXQoJmd2ZGV2
+LnZkZXYudnFzX2xpc3RfbG9jayk7Cj4gICAJCWd2ZGV2LnRvX2hvc3RfZmQgPSB0b19ob3N0WzFd
+Owo+ICAgCQlndmRldi5ub3RpZmllcyA9IDA7Cj4gICAKPiBAQCAtNDU1LDYgKzQ1Niw3IEBAIGlu
+dCBtYWluKGludCBhcmdjLCBjaGFyICphcmd2W10pCj4gICAJZ2V0cmFuZ2UgPSBnZXRyYW5nZV9p
+b3Y7Cj4gICAJdmRldi5mZWF0dXJlcyA9IDA7Cj4gICAJSU5JVF9MSVNUX0hFQUQoJnZkZXYudnFz
+KTsKPiArCXNwaW5fbG9ja19pbml0KCZ2ZGV2LnZxc19saXN0X2xvY2spOwo+ICAgCj4gICAJd2hp
+bGUgKGFyZ3ZbMV0pIHsKPiAgIAkJaWYgKHN0cmNtcChhcmd2WzFdLCAiLS1pbmRpcmVjdCIpID09
+IDApCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0
+dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRh
+dGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGlu
+Zm8vdmlydHVhbGl6YXRpb24=
