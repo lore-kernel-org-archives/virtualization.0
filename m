@@ -4,110 +4,104 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A18F2C4332F
-	for <virtualization@archiver.kernel.org>; Thu, 17 Nov 2022 05:41:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id ADC8BC433FE
+	for <virtualization@archiver.kernel.org>; Thu, 17 Nov 2022 06:07:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 28FBD402E8;
-	Thu, 17 Nov 2022 05:41:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 28FBD402E8
+	by smtp2.osuosl.org (Postfix) with ESMTP id 4AA0B402E8;
+	Thu, 17 Nov 2022 06:07:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4AA0B402E8
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=abtXIiS1
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=NwkgXqwb
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Htbt7vUEGmZR; Thu, 17 Nov 2022 05:41:33 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id BA4AE40141;
-	Thu, 17 Nov 2022 05:41:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BA4AE40141
+	with ESMTP id zvz-mIQNKkYK; Thu, 17 Nov 2022 06:07:54 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 8413D400D2;
+	Thu, 17 Nov 2022 06:07:53 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8413D400D2
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 873D4C0033;
-	Thu, 17 Nov 2022 05:41:32 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id AB873C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 456DCC0033;
+	Thu, 17 Nov 2022 06:07:53 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E465DC002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Nov 2022 05:41:31 +0000 (UTC)
+ Thu, 17 Nov 2022 06:07:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 729CB60FEE
+ by smtp4.osuosl.org (Postfix) with ESMTP id A0BC841882
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Nov 2022 05:41:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 729CB60FEE
-Authentication-Results: smtp3.osuosl.org;
+ Thu, 17 Nov 2022 06:07:51 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A0BC841882
+Authentication-Results: smtp4.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=abtXIiS1
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=NwkgXqwb
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id uVhmdCfqKE-5
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 5GQh5X4-F0tJ
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Nov 2022 05:41:30 +0000 (UTC)
+ Thu, 17 Nov 2022 06:07:50 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2E87360FDF
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7757941875
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 2E87360FDF
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 7757941875
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Nov 2022 05:41:29 +0000 (UTC)
+ Thu, 17 Nov 2022 06:07:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1668663688;
+ s=mimecast20190719; t=1668665269;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=9i5bBHXarWBNpwYg9IlDvcz3U/Nel/XFZb0RmyQNDsk=;
- b=abtXIiS1CRjXB6PPyptTnfiNZz2e+Cw6A/IjDOEIwR3K5ZmSqM0JpjhQJGgAsACQKOA7/V
- i4gP/gD2iGY9muutcplOrYcFFBjVLX2UKnaRZyu28kpDW9xUnaZZ98BCIbmTWuvaKLEu3S
- HMu2FSgAOuQHWsdcBydT2LtUWpXKvfM=
-Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com
- [209.85.214.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=/Uiwxy2Bg5D/PJhtpuo6mm85OKB9Y0TNbeDy36T2jm4=;
+ b=NwkgXqwb3S+Nj5hTuKy5nph5hGIH8tymcvB1KCA/HwfD6CyaFvaV5kuwEHIA9mYdCXPVKD
+ nv+yOHp9+xs6CrCXw3I8jsQAYnYhG92TbPGtEvbx7AbbF4H8uqfenGWjxUTMaKnxF1OH4f
+ UomMEwEzQ+eZbDglzlRYf9DXkZFi4XY=
+Received: from mail-ot1-f70.google.com (mail-ot1-f70.google.com
+ [209.85.210.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-623-NhlgVFoxPQC2X3o5qHmGxA-1; Thu, 17 Nov 2022 00:41:27 -0500
-X-MC-Unique: NhlgVFoxPQC2X3o5qHmGxA-1
-Received: by mail-pl1-f200.google.com with SMTP id
- b18-20020a170903229200b00186e357f3b9so641303plh.6
+ us-mta-537-zg1AtuK6Ma-5maN48bcb6g-1; Thu, 17 Nov 2022 01:07:47 -0500
+X-MC-Unique: zg1AtuK6Ma-5maN48bcb6g-1
+Received: by mail-ot1-f70.google.com with SMTP id
+ l12-20020a9d6a8c000000b0066c33f1649cso379378otq.2
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Nov 2022 21:41:27 -0800 (PST)
+ Wed, 16 Nov 2022 22:07:47 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=content-transfer-encoding:in-reply-to:from:references:cc:to
- :content-language:subject:user-agent:mime-version:date:message-id
- :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
- bh=9i5bBHXarWBNpwYg9IlDvcz3U/Nel/XFZb0RmyQNDsk=;
- b=wdi/vP1tAU1Vc2tPwIyBSDu7RTJC7MiP/IQ1Zh+EKQ6ZPfr/ObNnRUUNCHZlWC1vR0
- yHFZGvNMHHZgADIHKfFqhj9Agru/9po7iGP4c0vPl3j18iRShxdnRZR4qGTdaRLMSUvr
- qst+T4XZoEtbwXfusonrMII6j8uNZNWF3kl6ykCQh5o6o/bDDszqDLb8WjLdoafu/WSb
- WzKBfGMeySWOwzXCmBpIwvuR9ZXdqgH6zgi6xdK9hReFwuoUZG5vLY9ua6PzBEt3Z6YM
- bmhAoHFsFnZSvnzg3NvLrz3fZdMDycFosJWJNXFk8JXFyHe0G7BuMErduI7ozVZo75sF
- 88WA==
-X-Gm-Message-State: ANoB5pnbD/wy8jh48qZIrgSfbwKnzR++sjwb0w0CQ8FFketisNVxIdnw
- vYBznE4IUeQ6AzGBPcQivozHw9hGD+tgZ3hRVdrx8wBrUXEypaKFlcg9mvOzWlQqAMaAzJToglW
- QAtgw3xtJ4iicBtNNk4K4Z9Hambe/7EWE6ZrXrZnpvQ==
-X-Received: by 2002:a63:fc0a:0:b0:434:7885:6ade with SMTP id
- j10-20020a63fc0a000000b0043478856ademr702140pgi.243.1668663686246; 
- Wed, 16 Nov 2022 21:41:26 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf6fNU4nHL/6+Ar9MdJvKzV6qm1HYnDkSUOg39Ow7s1Dnaj9BHRG29AiXTUXFSINqGtDJ42+ig==
-X-Received: by 2002:a63:fc0a:0:b0:434:7885:6ade with SMTP id
- j10-20020a63fc0a000000b0043478856ademr702125pgi.243.1668663685946; 
- Wed, 16 Nov 2022 21:41:25 -0800 (PST)
-Received: from [10.72.13.24] ([43.228.180.230])
- by smtp.gmail.com with ESMTPSA id
- r21-20020a6560d5000000b0046ec7beb53esm166470pgv.8.2022.11.16.21.41.23
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Wed, 16 Nov 2022 21:41:25 -0800 (PST)
-Message-ID: <b7dc0077-aa27-7802-c30e-ec87e172ecbb@redhat.com>
-Date: Thu, 17 Nov 2022 13:41:21 +0800
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+ :reply-to;
+ bh=/Uiwxy2Bg5D/PJhtpuo6mm85OKB9Y0TNbeDy36T2jm4=;
+ b=HjMujYbsNB61QVHqETrMqC+vcQZ5ogWPO9neJymQIjiImIQOkIwVityRH4zBm6oZwz
+ AsiKaGayuF6JZ3PIrUo2LwqEdMSuGscCy0EbxfuWaNUHaRbPTz3egmrw+pVl8YPOLv7G
+ 0SpJ5fgO2FjaHlV6bcinRoyrWAv6SFmJb/T6uOHCgBCepCzGkghMk5QKyeW3Fv4xJgiI
+ B/QOUSsF0oEh1OGcqjPgy6prSr0TKKW3uLgyqFrHcqMckdMgQ2JbNJK+n3lHYapJVKnD
+ Hg5Y5G3NqkuQEg8NUhpk3+DhgJ7zVCxN+SUHrNDNC6KonJpKQDQbMH72fnXs5DtyvUaA
+ 9SOQ==
+X-Gm-Message-State: ANoB5pmm8hwjXYdy5bZh9IY3exXQktPCM8MDerW//ccSfyO8Fxm4Det5
+ jzQOXKs1GFeIFcP3jjCp27eqyt2y888ZCFNmZcbTwasuCHsl6FOYHaI78aX60Yh3kAsiUMdkFgG
+ VUXVmGmWK5HmCuPTw5EWwy6Cno9ko+toyEgbNPe7uqLpb5qjsyxV1ZFOVSA==
+X-Received: by 2002:a05:6870:1e83:b0:132:7b3:29ac with SMTP id
+ pb3-20020a0568701e8300b0013207b329acmr3492076oab.35.1668665266886; 
+ Wed, 16 Nov 2022 22:07:46 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf7OutnfWV0eqHmwODjhhKjAhzqcJKuddppkVnYzbMUx/Dnz5yB0AunsxIWw6qRwHiUBRn8U5jW7EiH0O6O3e2U=
+X-Received: by 2002:a05:6870:1e83:b0:132:7b3:29ac with SMTP id
+ pb3-20020a0568701e8300b0013207b329acmr3492072oab.35.1668665266630; Wed, 16
+ Nov 2022 22:07:46 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.4.2
-Subject: Re: [PATCH] tools/virtio: fix vrinth_test hang
-To: Liming Wu <liming.wu@jaguarmicro.com>, mst@redhat.com
-References: <20221115111746.858-1-liming.wu@jaguarmicro.com>
+References: <CACycT3siOCZv+u+-Xcto9BEdY1c8t_ivw-DF73bmuLqBRxF7=A@mail.gmail.com>
+ <CACGkMEswaS_-pP2RpJGyVA2wmvVm3x4LD-MPrbvxQhAFgQYgAA@mail.gmail.com>
+ <CACycT3vPyEuQcJEEPJE2Dv-49f=w8xLoOXsoLb5Fjtx9uqQoyQ@mail.gmail.com>
+In-Reply-To: <CACycT3vPyEuQcJEEPJE2Dv-49f=w8xLoOXsoLb5Fjtx9uqQoyQ@mail.gmail.com>
 From: Jason Wang <jasowang@redhat.com>
-In-Reply-To: <20221115111746.858-1-liming.wu@jaguarmicro.com>
+Date: Thu, 17 Nov 2022 14:07:35 +0800
+Message-ID: <CACGkMEtML=-HA2uUdRVw0Pim3Dj2P5m=3K+s-Q9rUf-Xw24-wQ@mail.gmail.com>
+Subject: Re: [PATCH 3/6] vduse: Add sysfs interface for irq affinity setup
+To: Yongji Xie <xieyongji@bytedance.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Cc: virtualization@lists.linux-foundation.org
+Cc: virtualization <virtualization@lists.linux-foundation.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,31 +113,105 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-CuWcqCAyMDIyLzExLzE1IDE5OjE3LCBMaW1pbmcgV3Ug5YaZ6YGTOgo+IHZyaW5naF90ZXN0IGhh
-bmdzIG9uIF9fdnJpbmdfbmV3X3ZpcnRxdWV1ZSgpIGJlY2F1c2UgYHZxc19saXN0X2xvY2tgCj4g
-aXMgbm90IGluaXRpYWxpemVkLgo+Cj4gTGV0J3MgaW5pdGlhbGl6ZSBpdCAgYmVmb3JlIGNhbGwg
-X192cmluZ19uZXdfdmlydHF1ZXVlKCkKPgo+IFNpZ25lZC1vZmYtYnk6IExpbWluZyBXdSA8bGlt
-aW5nLnd1QGphZ3Vhcm1pY3JvLmNvbT4KCgpBY2tlZC1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdA
-cmVkaGF0LmNvbT4KClRoYW5rcwoKCj4gLS0tCj4gICB0b29scy92aXJ0aW8vdnJpbmdoX3Rlc3Qu
-YyB8IDIgKysKPiAgIDEgZmlsZSBjaGFuZ2VkLCAyIGluc2VydGlvbnMoKykKPgo+IGRpZmYgLS1n
-aXQgYS90b29scy92aXJ0aW8vdnJpbmdoX3Rlc3QuYyBiL3Rvb2xzL3ZpcnRpby92cmluZ2hfdGVz
-dC5jCj4gaW5kZXggZmE4N2I1OGJkNWZhLi45OGZmODA4ZDZmMGMgMTAwNjQ0Cj4gLS0tIGEvdG9v
-bHMvdmlydGlvL3ZyaW5naF90ZXN0LmMKPiArKysgYi90b29scy92aXJ0aW8vdnJpbmdoX3Rlc3Qu
-Ywo+IEBAIC0zMDgsNiArMzA4LDcgQEAgc3RhdGljIGludCBwYXJhbGxlbF90ZXN0KHU2NCBmZWF0
-dXJlcywKPiAgIAo+ICAgCQlndmRldi52ZGV2LmZlYXR1cmVzID0gZmVhdHVyZXM7Cj4gICAJCUlO
-SVRfTElTVF9IRUFEKCZndmRldi52ZGV2LnZxcyk7Cj4gKwkJc3Bpbl9sb2NrX2luaXQoJmd2ZGV2
-LnZkZXYudnFzX2xpc3RfbG9jayk7Cj4gICAJCWd2ZGV2LnRvX2hvc3RfZmQgPSB0b19ob3N0WzFd
-Owo+ICAgCQlndmRldi5ub3RpZmllcyA9IDA7Cj4gICAKPiBAQCAtNDU1LDYgKzQ1Niw3IEBAIGlu
-dCBtYWluKGludCBhcmdjLCBjaGFyICphcmd2W10pCj4gICAJZ2V0cmFuZ2UgPSBnZXRyYW5nZV9p
-b3Y7Cj4gICAJdmRldi5mZWF0dXJlcyA9IDA7Cj4gICAJSU5JVF9MSVNUX0hFQUQoJnZkZXYudnFz
-KTsKPiArCXNwaW5fbG9ja19pbml0KCZ2ZGV2LnZxc19saXN0X2xvY2spOwo+ICAgCj4gICAJd2hp
-bGUgKGFyZ3ZbMV0pIHsKPiAgIAkJaWYgKHN0cmNtcChhcmd2WzFdLCAiLS1pbmRpcmVjdCIpID09
-IDApCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0
-dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRh
-dGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGlu
-Zm8vdmlydHVhbGl6YXRpb24=
+On Thu, Nov 17, 2022 at 1:48 PM Yongji Xie <xieyongji@bytedance.com> wrote:
+>
+> On Thu, Nov 17, 2022 at 11:37 AM Jason Wang <jasowang@redhat.com> wrote:
+> >
+> > On Wed, Nov 16, 2022 at 3:46 PM Yongji Xie <xieyongji@bytedance.com> wrote:
+> > >
+> > > On Wed, Nov 16, 2022 at 3:11 PM Jason Wang <jasowang@redhat.com> wrote:
+> > > >
+> > > > On Tue, Nov 15, 2022 at 10:49 AM Yongji Xie <xieyongji@bytedance.com> wrote:
+> > > > >
+> > > > > On Mon, Nov 14, 2022 at 4:55 PM Jason Wang <jasowang@redhat.com> wrote:
+> > > > > >
+> > > > > > On Mon, Nov 14, 2022 at 4:20 PM Yongji Xie <xieyongji@bytedance.com> wrote:
+> > > > > > >
+> > > > > > > On Mon, Nov 14, 2022 at 3:58 PM Jason Wang <jasowang@redhat.com> wrote:
+> > > > > > > >
+> > > > > > > > On Mon, Nov 14, 2022 at 3:16 PM Xie Yongji <xieyongji@bytedance.com> wrote:
+> > > > > > > > >
+> > > > > > > > > Add sysfs interface for each vduse virtqueue to setup
+> > > > > > > > > irq affinity. This would be useful for performance
+> > > > > > > > > tuning, e.g., mitigate the virtqueue lock contention
+> > > > > > > > > in virtio block driver.
+> > > > > > > >
+> > > > > > > > Do we have any perforamnce numbers for this?
+> > > > > > > >
+> > > > > > >
+> > > > > > > Almost 50% improvement (600k iops -> 900k iops) in the high iops
+> > > > > > > workloads. I have mentioned it in the cover-letter.
+> > > > > >
+> > > > > > For some reason, I miss that.
+> > > > > >
+> > > > > > I also wonder if we can do this automatically, then there's no need to
+> > > > > > play with sysfs which is kind of a burden for the management layer.
+> > > > > >
+> > > > >
+> > > > > This is hard to do since vduse doesn't know which cpu should be bound
+> > > > > for a certain virtqueue.
+> > > >
+> > > > Probably via the kick_vq()? It probably won't work when notification
+> > > > is disabled. But we need to think a little bit more about this.
+> > >
+> > > Yes, another problem is that this way can only work when the cpu and
+> > > virtqueue are 1:1 mapping. It's still hard to decide which cpu to bind
+> > > in the N:1 mapping case.
+> >
+> > This is the same situation as what you propose here. I think it would
+> > be better to use cpumask instead of cpu id here.
+> >
+>
+> If so, we need to know which cpu to bind for one virtqueue. Do you
+> mean using the cpu who kicks the virtqueue?
+
+I meant you're using:
+
+         int irq_affinity;
+
+This seems to assume that the callback can only be delivered to a
+specific cpu. It would make more sense to use cpumask_t. This may have
+broader use cases.
+
+>
+> > >
+> > > So I think it could be an optimization, but the sysfs interface is still needed.
+> > >
+> > > > Requiring management software to do ad-hoc running just for VDUSE
+> > > > seems not easy.
+> > > >
+> > >
+> > > I'm not sure. In the kubernetes environment, something like a CSI/CNI
+> > > plugin can do it.
+> >
+> > Only works when the process is bound to a specific cpu. If a process
+> > is migrated to another CPU, it would be hard to track.
+> >
+>
+> OK, I see. Seems like there's no good way to handle this case.
+
+Yes, using cpumask_t might improve things a little bit.
+
+> Maybe
+> it's better to leave it as it is.
+
+It would be better to think of an automatic method to do this as
+affinity managed irq used by virtio-pci (not sure how hard it is
+though).
+
+Thanks
+
+>
+> Thanks,
+> Yongji
+>
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
