@@ -4,100 +4,106 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id EA238C4332F
-	for <virtualization@archiver.kernel.org>; Thu, 17 Nov 2022 17:19:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 14DC4C4332F
+	for <virtualization@archiver.kernel.org>; Fri, 18 Nov 2022 07:23:18 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 6572B40C63;
-	Thu, 17 Nov 2022 17:19:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6572B40C63
+	by smtp2.osuosl.org (Postfix) with ESMTP id 79E244037C;
+	Fri, 18 Nov 2022 07:23:18 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 79E244037C
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=HgoyqJD9
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id R3BLQosY2Nf8; Thu, 17 Nov 2022 17:19:20 +0000 (UTC)
+	with ESMTP id CvsQRvpTADP3; Fri, 18 Nov 2022 07:23:17 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 5734A401F8;
-	Thu, 17 Nov 2022 17:19:19 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5734A401F8
+	by smtp2.osuosl.org (Postfix) with ESMTPS id E45A2404DF;
+	Fri, 18 Nov 2022 07:23:16 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E45A2404DF
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 319DBC0033;
-	Thu, 17 Nov 2022 17:19:19 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 61131C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id BBFCEC0033;
+	Fri, 18 Nov 2022 07:23:16 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2A883C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Nov 2022 17:19:18 +0000 (UTC)
+ Fri, 18 Nov 2022 07:23:16 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 0A6CD40948
+ by smtp1.osuosl.org (Postfix) with ESMTP id 0ACEC81ECA
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Nov 2022 17:19:18 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0A6CD40948
+ Fri, 18 Nov 2022 07:23:16 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0ACEC81ECA
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=HgoyqJD9
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Tv0iyrTsoA6a
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 7unryF_s67pc
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Nov 2022 17:19:16 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 426CD40940
-Received: from mail-oa1-f52.google.com (mail-oa1-f52.google.com
- [209.85.160.52])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 426CD40940
+ Fri, 18 Nov 2022 07:23:15 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3DF8F81E3A
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 3DF8F81E3A
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Nov 2022 17:19:16 +0000 (UTC)
-Received: by mail-oa1-f52.google.com with SMTP id
- 586e51a60fabf-142306beb9aso2875213fac.11
+ Fri, 18 Nov 2022 07:23:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1668756194;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=0fY/EGE7z+UU3b51GGsNE3F0C8UKBqrMFySncCd5+nI=;
+ b=HgoyqJD9pQ5VABJy5OORvOXAgb9liVnIRNVrt62vlc+ZVtV+0QfpK1fDwVKVi8i1ogu41+
+ ANMtLsD940JMawp57WD2l4YHXYYeDuya3V6oT401057vlvwYJJZXuz0ECiJC0B77d7hzrw
+ KfHtuyI6NYfBrqCdZOa13iPK9ol2OTk=
+Received: from mail-oa1-f72.google.com (mail-oa1-f72.google.com
+ [209.85.160.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-297-MhHfd03WORel04YetHBdEw-1; Fri, 18 Nov 2022 02:23:12 -0500
+X-MC-Unique: MhHfd03WORel04YetHBdEw-1
+Received: by mail-oa1-f72.google.com with SMTP id
+ 586e51a60fabf-14261bd9123so1796312fac.21
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Nov 2022 09:19:16 -0800 (PST)
+ Thu, 17 Nov 2022 23:23:12 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=Ger9SGrgkV6b0BuoQgNoj57O/fFgpDxNQNvEFGM4s8I=;
- b=Pjhb4nu6G4l/JQ5dJypB0qH97YrIET7Nws2cyFNVbOfeCAmf7XvTST6WqkVzXrm5Wl
- d3TPKI8sS7XDxELd1wRd52lp/x8QNN9vUI/IUxIo8ESsPAxwZtNrr/mq+nloi6q9gE0V
- tkgrj8mRX9L0wtfa9swY464j4eNdX2HsMbjW7DYIglX+tUWKQhZAhg0ulRD2OURr6scj
- Lp8h5pvDQ69zPCzXPIhfeiSjdnvvoFAGidpDN+um+c82rd0Ah57TKUX9lZq89TvsTJKx
- 1uIlopkGDkghjjTc9ysOPp0X8N6kRL5s0GA6RRW9PYIa3Xd0cuLc1kGfOomy+01SLfQN
- Hn9Q==
-X-Gm-Message-State: ANoB5pm5XMS3yz5VjzW6f13dGw0eDqhiePn3pWvJVCxP00YAMIIArksS
- OFPaUzVWkA81zWuYwLCGlA==
-X-Google-Smtp-Source: AA0mqf5o4jhybeWewZl1XsiHOYq27Zp40VjC+VJXS9jK8YZdF+6zxmV04y0HajzNF6q5aF4D8E/GCg==
-X-Received: by 2002:a05:6870:4625:b0:13c:c80:6b46 with SMTP id
- z37-20020a056870462500b0013c0c806b46mr1850617oao.194.1668705555052; 
- Thu, 17 Nov 2022 09:19:15 -0800 (PST)
-Received: from robh_at_kernel.org (66-90-144-107.dyn.grandenetworks.net.
- [66.90.144.107]) by smtp.gmail.com with ESMTPSA id
- q22-20020a9d6556000000b0066b9a6bf3bcsm558133otl.12.2022.11.17.09.19.13
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 17 Nov 2022 09:19:14 -0800 (PST)
-Received: (nullmailer pid 3122049 invoked by uid 1000);
- Thu, 17 Nov 2022 17:19:16 -0000
-Date: Thu, 17 Nov 2022 11:19:16 -0600
-From: Rob Herring <robh@kernel.org>
-To: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Subject: Re: [RFC PATCH 1/9] dt-bindings: drop redundant part of title of
- shared bindings
-Message-ID: <20221117171916.GA3116476-robh@kernel.org>
-References: <20221117123850.368213-1-krzysztof.kozlowski@linaro.org>
- <20221117123850.368213-2-krzysztof.kozlowski@linaro.org>
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+ :reply-to;
+ bh=0fY/EGE7z+UU3b51GGsNE3F0C8UKBqrMFySncCd5+nI=;
+ b=VXDxunX2XjwG9PR4PMdQdxRfGCzaine6qpIenS5msb8DljMOCFOjTQzvK+zpDC81bN
+ 4Gswul7dK6z1GOfZmuL7hpsCpkqFAgVctOYZR+JdS7RUPTIUQJSBnGHqlP6/Tyb/WdiV
+ n6pg+k+qDLL1KEvQuvttT5jYJpjhi6Vk+tpg/Yb//kVCiAcWL81ugviD0GFDydJr1c2d
+ ssl64zE2DB47yIBLAMg+i35Swl7Q0r2pwyJKzUe/NMvWjpIIH0nka/bK2CYonP7NwxOg
+ nL3peRAR0GsrLw0TTjCxvwjnnAyn6Nug/PH3PnvizvzKYpe4uVntV9JmVN4C4hZpUpqH
+ JIxQ==
+X-Gm-Message-State: ANoB5pl1p22Cg6yebVDaF8c7JRT38s0i9nxhlo9paAmmv6n987XG+PDX
+ 0xHgAncQR5wBNrkN6QNbBIN9uFJzLPBtnIxoLeFCd/yeIVKWyR4HG8fyFoPwRTct50joORUNWH2
+ YHVmo7IYM+HF2vslmDyW7BdpWq+F5Uh6U47U7ccCYHaRWTRzmjc2NPhbm0Q==
+X-Received: by 2002:a05:6871:4410:b0:13b:ef13:b650 with SMTP id
+ nd16-20020a056871441000b0013bef13b650mr3198002oab.280.1668756191759; 
+ Thu, 17 Nov 2022 23:23:11 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf7dyI5ilNzYUklCsivy+yicvdzxUWM9YxH4hJpK2YHgWIC0h/Bgb9C6p3irM3uTHGEk1r+hjs9D1RRx7rnF65s=
+X-Received: by 2002:a05:6871:4410:b0:13b:ef13:b650 with SMTP id
+ nd16-20020a056871441000b0013bef13b650mr3197994oab.280.1668756191543; Thu, 17
+ Nov 2022 23:23:11 -0800 (PST)
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20221117123850.368213-2-krzysztof.kozlowski@linaro.org>
-Cc: Andrew Lunn <andrew@lunn.ch>, alsa-devel@alsa-project.org,
- linux-pwm@vger.kernel.org, linux-iio@vger.kernel.org,
- linux-pci@vger.kernel.org, linux-mips@vger.kernel.org,
- linux-mtd@lists.infradead.org,
- Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
- linux-riscv@lists.infradead.org, linux-clk@vger.kernel.org,
- linux-leds@vger.kernel.org, linux-rtc@vger.kernel.org,
- linux-serial@vger.kernel.org, linux-input@vger.kernel.org,
- linux-media@vger.kernel.org, devicetree@vger.kernel.org,
- linux-watchdog@vger.kernel.org, linux-pm@vger.kernel.org,
- linux-arm-msm@vger.kernel.org, linux-can@vger.kernel.org,
- linux-gpio@vger.kernel.org, virtualization@lists.linux-foundation.org,
- linux-arm-kernel@lists.infradead.org, netdev@vger.kernel.org,
- linux-usb@vger.kernel.org, linux-mmc@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-spi@vger.kernel.org
+References: <CACycT3siOCZv+u+-Xcto9BEdY1c8t_ivw-DF73bmuLqBRxF7=A@mail.gmail.com>
+ <CACGkMEswaS_-pP2RpJGyVA2wmvVm3x4LD-MPrbvxQhAFgQYgAA@mail.gmail.com>
+ <CACycT3vPyEuQcJEEPJE2Dv-49f=w8xLoOXsoLb5Fjtx9uqQoyQ@mail.gmail.com>
+ <CACGkMEtML=-HA2uUdRVw0Pim3Dj2P5m=3K+s-Q9rUf-Xw24-wQ@mail.gmail.com>
+ <CACycT3uH-OPZ9BUR1OnXmY8Lx0vhYTq=Gb3S9i6thGApa5GHFQ@mail.gmail.com>
+In-Reply-To: <CACycT3uH-OPZ9BUR1OnXmY8Lx0vhYTq=Gb3S9i6thGApa5GHFQ@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Fri, 18 Nov 2022 15:23:00 +0800
+Message-ID: <CACGkMEu24GpYq2-2=vkRF-4Bd2zEy2L_1a=ZzU72tGS3KsqAng@mail.gmail.com>
+Subject: Re: [PATCH 3/6] vduse: Add sysfs interface for irq affinity setup
+To: Yongji Xie <xieyongji@bytedance.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: virtualization <virtualization@lists.linux-foundation.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -114,330 +120,117 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Nov 17, 2022 at 01:38:42PM +0100, Krzysztof Kozlowski wrote:
-> The Devicetree bindings document does not have to say in the title that
-> it is a "binding", but instead just describe the hardware.  For shared
-> (re-usable) schemas, name them all as "common properties".
+On Thu, Nov 17, 2022 at 4:54 PM Yongji Xie <xieyongji@bytedance.com> wrote:
+>
+> On Thu, Nov 17, 2022 at 2:07 PM Jason Wang <jasowang@redhat.com> wrote:
+> >
+> > On Thu, Nov 17, 2022 at 1:48 PM Yongji Xie <xieyongji@bytedance.com> wrote:
+> > >
+> > > On Thu, Nov 17, 2022 at 11:37 AM Jason Wang <jasowang@redhat.com> wrote:
+> > > >
+> > > > On Wed, Nov 16, 2022 at 3:46 PM Yongji Xie <xieyongji@bytedance.com> wrote:
+> > > > >
+> > > > > On Wed, Nov 16, 2022 at 3:11 PM Jason Wang <jasowang@redhat.com> wrote:
+> > > > > >
+> > > > > > On Tue, Nov 15, 2022 at 10:49 AM Yongji Xie <xieyongji@bytedance.com> wrote:
+> > > > > > >
+> > > > > > > On Mon, Nov 14, 2022 at 4:55 PM Jason Wang <jasowang@redhat.com> wrote:
+> > > > > > > >
+> > > > > > > > On Mon, Nov 14, 2022 at 4:20 PM Yongji Xie <xieyongji@bytedance.com> wrote:
+> > > > > > > > >
+> > > > > > > > > On Mon, Nov 14, 2022 at 3:58 PM Jason Wang <jasowang@redhat.com> wrote:
+> > > > > > > > > >
+> > > > > > > > > > On Mon, Nov 14, 2022 at 3:16 PM Xie Yongji <xieyongji@bytedance.com> wrote:
+> > > > > > > > > > >
+> > > > > > > > > > > Add sysfs interface for each vduse virtqueue to setup
+> > > > > > > > > > > irq affinity. This would be useful for performance
+> > > > > > > > > > > tuning, e.g., mitigate the virtqueue lock contention
+> > > > > > > > > > > in virtio block driver.
+> > > > > > > > > >
+> > > > > > > > > > Do we have any perforamnce numbers for this?
+> > > > > > > > > >
+> > > > > > > > >
+> > > > > > > > > Almost 50% improvement (600k iops -> 900k iops) in the high iops
+> > > > > > > > > workloads. I have mentioned it in the cover-letter.
+> > > > > > > >
+> > > > > > > > For some reason, I miss that.
+> > > > > > > >
+> > > > > > > > I also wonder if we can do this automatically, then there's no need to
+> > > > > > > > play with sysfs which is kind of a burden for the management layer.
+> > > > > > > >
+> > > > > > >
+> > > > > > > This is hard to do since vduse doesn't know which cpu should be bound
+> > > > > > > for a certain virtqueue.
+> > > > > >
+> > > > > > Probably via the kick_vq()? It probably won't work when notification
+> > > > > > is disabled. But we need to think a little bit more about this.
+> > > > >
+> > > > > Yes, another problem is that this way can only work when the cpu and
+> > > > > virtqueue are 1:1 mapping. It's still hard to decide which cpu to bind
+> > > > > in the N:1 mapping case.
+> > > >
+> > > > This is the same situation as what you propose here. I think it would
+> > > > be better to use cpumask instead of cpu id here.
+> > > >
+> > >
+> > > If so, we need to know which cpu to bind for one virtqueue. Do you
+> > > mean using the cpu who kicks the virtqueue?
+> >
+> > I meant you're using:
+> >
+> >          int irq_affinity;
+> >
+> > This seems to assume that the callback can only be delivered to a
+> > specific cpu. It would make more sense to use cpumask_t. This may have
+> > broader use cases.
+> >
+>
+> Yes, I see. I meant we need to know how to choose the cpu to run the
+> irq callback if we use cpumask_t, e.g., round-robin or choosing the
+> cpu who kicked the virtqueue before.
+>
+> > >
+> > > > >
+> > > > > So I think it could be an optimization, but the sysfs interface is still needed.
+> > > > >
+> > > > > > Requiring management software to do ad-hoc running just for VDUSE
+> > > > > > seems not easy.
+> > > > > >
+> > > > >
+> > > > > I'm not sure. In the kubernetes environment, something like a CSI/CNI
+> > > > > plugin can do it.
+> > > >
+> > > > Only works when the process is bound to a specific cpu. If a process
+> > > > is migrated to another CPU, it would be hard to track.
+> > > >
+> > >
+> > > OK, I see. Seems like there's no good way to handle this case.
+> >
+> > Yes, using cpumask_t might improve things a little bit.
+> >
+> > > Maybe
+> > > it's better to leave it as it is.
+> >
+> > It would be better to think of an automatic method to do this as
+> > affinity managed irq used by virtio-pci (not sure how hard it is
+> > though).
+> >
+>
+> Do you mean making use of .set_vq_affinity and .get_vq_affinity callbacks?
 
-It's titles, so capitalize 'Common Properties'. Someday we may generate 
-a document from all the schemas.
+This works for net but not block.
 
-> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-> ---
->  Documentation/devicetree/bindings/clock/qcom,gcc.yaml         | 2 +-
->  Documentation/devicetree/bindings/dma/dma-common.yaml         | 2 +-
->  Documentation/devicetree/bindings/dma/dma-controller.yaml     | 4 ++--
->  Documentation/devicetree/bindings/dma/dma-router.yaml         | 4 ++--
->  Documentation/devicetree/bindings/iio/adc/adc.yaml            | 2 +-
->  .../devicetree/bindings/media/video-interface-devices.yaml    | 2 +-
->  Documentation/devicetree/bindings/media/video-interfaces.yaml | 2 +-
->  Documentation/devicetree/bindings/mmc/mmc-controller.yaml     | 2 +-
->  Documentation/devicetree/bindings/mtd/nand-chip.yaml          | 2 +-
->  Documentation/devicetree/bindings/mtd/nand-controller.yaml    | 2 +-
->  .../bindings/net/bluetooth/bluetooth-controller.yaml          | 2 +-
->  Documentation/devicetree/bindings/net/can/can-controller.yaml | 2 +-
->  .../devicetree/bindings/net/ethernet-controller.yaml          | 2 +-
->  Documentation/devicetree/bindings/net/ethernet-phy.yaml       | 2 +-
->  Documentation/devicetree/bindings/net/mdio.yaml               | 2 +-
->  Documentation/devicetree/bindings/opp/opp-v2-base.yaml        | 2 +-
->  .../devicetree/bindings/power/reset/restart-handler.yaml      | 2 +-
->  Documentation/devicetree/bindings/rtc/rtc.yaml                | 2 +-
->  .../devicetree/bindings/soundwire/soundwire-controller.yaml   | 2 +-
->  Documentation/devicetree/bindings/spi/spi-controller.yaml     | 2 +-
->  Documentation/devicetree/bindings/watchdog/watchdog.yaml      | 2 +-
->  21 files changed, 23 insertions(+), 23 deletions(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/clock/qcom,gcc.yaml b/Documentation/devicetree/bindings/clock/qcom,gcc.yaml
-> index 1ab416c83c8d..d2de3d128b73 100644
-> --- a/Documentation/devicetree/bindings/clock/qcom,gcc.yaml
-> +++ b/Documentation/devicetree/bindings/clock/qcom,gcc.yaml
-> @@ -4,7 +4,7 @@
->  $id: http://devicetree.org/schemas/clock/qcom,gcc.yaml#
->  $schema: http://devicetree.org/meta-schemas/core.yaml#
->  
-> -title: Qualcomm Global Clock & Reset Controller Common Bindings
-> +title: Qualcomm Global Clock & Reset Controller common parts
->  
->  maintainers:
->    - Stephen Boyd <sboyd@kernel.org>
-> diff --git a/Documentation/devicetree/bindings/dma/dma-common.yaml b/Documentation/devicetree/bindings/dma/dma-common.yaml
-> index ad06d36af208..9b7b94fdbb0b 100644
-> --- a/Documentation/devicetree/bindings/dma/dma-common.yaml
-> +++ b/Documentation/devicetree/bindings/dma/dma-common.yaml
-> @@ -4,7 +4,7 @@
->  $id: http://devicetree.org/schemas/dma/dma-common.yaml#
->  $schema: http://devicetree.org/meta-schemas/core.yaml#
->  
-> -title: DMA Engine Generic Binding
-> +title: DMA Engine common properties
->  
->  maintainers:
->    - Vinod Koul <vkoul@kernel.org>
-> diff --git a/Documentation/devicetree/bindings/dma/dma-controller.yaml b/Documentation/devicetree/bindings/dma/dma-controller.yaml
-> index 6d3727267fa8..225a141c7b5c 100644
-> --- a/Documentation/devicetree/bindings/dma/dma-controller.yaml
-> +++ b/Documentation/devicetree/bindings/dma/dma-controller.yaml
-> @@ -4,13 +4,13 @@
->  $id: http://devicetree.org/schemas/dma/dma-controller.yaml#
->  $schema: http://devicetree.org/meta-schemas/core.yaml#
->  
-> -title: DMA Controller Generic Binding
-> +title: DMA Controller common properties
->  
->  maintainers:
->    - Vinod Koul <vkoul@kernel.org>
->  
->  allOf:
-> -  - $ref: "dma-common.yaml#"
-> +  - $ref: dma-common.yaml#
->  
->  # Everything else is described in the common file
->  properties:
-> diff --git a/Documentation/devicetree/bindings/dma/dma-router.yaml b/Documentation/devicetree/bindings/dma/dma-router.yaml
-> index 4b817f5dc30e..0ebd7bc6232b 100644
-> --- a/Documentation/devicetree/bindings/dma/dma-router.yaml
-> +++ b/Documentation/devicetree/bindings/dma/dma-router.yaml
-> @@ -4,13 +4,13 @@
->  $id: http://devicetree.org/schemas/dma/dma-router.yaml#
->  $schema: http://devicetree.org/meta-schemas/core.yaml#
->  
-> -title: DMA Router Generic Binding
-> +title: DMA Router common properties
->  
->  maintainers:
->    - Vinod Koul <vkoul@kernel.org>
->  
->  allOf:
-> -  - $ref: "dma-common.yaml#"
-> +  - $ref: dma-common.yaml#
->  
->  description:
->    DMA routers are transparent IP blocks used to route DMA request
-> diff --git a/Documentation/devicetree/bindings/iio/adc/adc.yaml b/Documentation/devicetree/bindings/iio/adc/adc.yaml
-> index db348fcbb52c..bd0f5fae256e 100644
-> --- a/Documentation/devicetree/bindings/iio/adc/adc.yaml
-> +++ b/Documentation/devicetree/bindings/iio/adc/adc.yaml
-> @@ -4,7 +4,7 @@
->  $id: http://devicetree.org/schemas/iio/adc/adc.yaml#
->  $schema: http://devicetree.org/meta-schemas/core.yaml#
->  
-> -title: Generic IIO bindings for ADC channels
-> +title: IIO common properties for ADC channels
->  
->  maintainers:
->    - Jonathan Cameron <jic23@kernel.org>
-> diff --git a/Documentation/devicetree/bindings/media/video-interface-devices.yaml b/Documentation/devicetree/bindings/media/video-interface-devices.yaml
-> index 4527f56a5a6e..bd719cb1813e 100644
-> --- a/Documentation/devicetree/bindings/media/video-interface-devices.yaml
-> +++ b/Documentation/devicetree/bindings/media/video-interface-devices.yaml
-> @@ -4,7 +4,7 @@
->  $id: http://devicetree.org/schemas/media/video-interface-devices.yaml#
->  $schema: http://devicetree.org/meta-schemas/core.yaml#
->  
-> -title: Common bindings for video receiver and transmitter devices
-> +title: Common properties for video receiver and transmitter devices
->  
->  maintainers:
->    - Jacopo Mondi <jacopo@jmondi.org>
-> diff --git a/Documentation/devicetree/bindings/media/video-interfaces.yaml b/Documentation/devicetree/bindings/media/video-interfaces.yaml
-> index 68c3b9871cf3..e8cf73794772 100644
-> --- a/Documentation/devicetree/bindings/media/video-interfaces.yaml
-> +++ b/Documentation/devicetree/bindings/media/video-interfaces.yaml
-> @@ -4,7 +4,7 @@
->  $id: http://devicetree.org/schemas/media/video-interfaces.yaml#
->  $schema: http://devicetree.org/meta-schemas/core.yaml#
->  
-> -title: Common bindings for video receiver and transmitter interface endpoints
-> +title: Common properties for video receiver and transmitter interface endpoints
->  
->  maintainers:
->    - Sakari Ailus <sakari.ailus@linux.intel.com>
-> diff --git a/Documentation/devicetree/bindings/mmc/mmc-controller.yaml b/Documentation/devicetree/bindings/mmc/mmc-controller.yaml
-> index 802e3ca8be4d..a17f49738abd 100644
-> --- a/Documentation/devicetree/bindings/mmc/mmc-controller.yaml
-> +++ b/Documentation/devicetree/bindings/mmc/mmc-controller.yaml
-> @@ -4,7 +4,7 @@
->  $id: http://devicetree.org/schemas/mmc/mmc-controller.yaml#
->  $schema: http://devicetree.org/meta-schemas/core.yaml#
->  
-> -title: MMC Controller Generic Binding
-> +title: MMC Controller common properties
->  
->  maintainers:
->    - Ulf Hansson <ulf.hansson@linaro.org>
-> diff --git a/Documentation/devicetree/bindings/mtd/nand-chip.yaml b/Documentation/devicetree/bindings/mtd/nand-chip.yaml
-> index 97ac3a3fbb52..20b195ef9b70 100644
-> --- a/Documentation/devicetree/bindings/mtd/nand-chip.yaml
-> +++ b/Documentation/devicetree/bindings/mtd/nand-chip.yaml
-> @@ -4,7 +4,7 @@
->  $id: http://devicetree.org/schemas/mtd/nand-chip.yaml#
->  $schema: http://devicetree.org/meta-schemas/core.yaml#
->  
-> -title: NAND Chip and NAND Controller Generic Binding
-> +title: NAND Chip and NAND Controller common properties
->  
->  maintainers:
->    - Miquel Raynal <miquel.raynal@bootlin.com>
-> diff --git a/Documentation/devicetree/bindings/mtd/nand-controller.yaml b/Documentation/devicetree/bindings/mtd/nand-controller.yaml
-> index 359a015d4e5a..a004efc42842 100644
-> --- a/Documentation/devicetree/bindings/mtd/nand-controller.yaml
-> +++ b/Documentation/devicetree/bindings/mtd/nand-controller.yaml
-> @@ -4,7 +4,7 @@
->  $id: http://devicetree.org/schemas/mtd/nand-controller.yaml#
->  $schema: http://devicetree.org/meta-schemas/core.yaml#
->  
-> -title: NAND Chip and NAND Controller Generic Binding
-> +title: NAND Chip and NAND Controller common properties
->  
->  maintainers:
->    - Miquel Raynal <miquel.raynal@bootlin.com>
-> diff --git a/Documentation/devicetree/bindings/net/bluetooth/bluetooth-controller.yaml b/Documentation/devicetree/bindings/net/bluetooth/bluetooth-controller.yaml
-> index 9309dc40f54f..8715adff5eaf 100644
-> --- a/Documentation/devicetree/bindings/net/bluetooth/bluetooth-controller.yaml
-> +++ b/Documentation/devicetree/bindings/net/bluetooth/bluetooth-controller.yaml
-> @@ -4,7 +4,7 @@
->  $id: http://devicetree.org/schemas/net/bluetooth/bluetooth-controller.yaml#
->  $schema: http://devicetree.org/meta-schemas/core.yaml#
->  
-> -title: Bluetooth Controller Generic Binding
-> +title: Bluetooth Controller common properties
->  
->  maintainers:
->    - Marcel Holtmann <marcel@holtmann.org>
-> diff --git a/Documentation/devicetree/bindings/net/can/can-controller.yaml b/Documentation/devicetree/bindings/net/can/can-controller.yaml
-> index 1f0e98051074..3747b46cf9b6 100644
-> --- a/Documentation/devicetree/bindings/net/can/can-controller.yaml
-> +++ b/Documentation/devicetree/bindings/net/can/can-controller.yaml
-> @@ -4,7 +4,7 @@
->  $id: http://devicetree.org/schemas/net/can/can-controller.yaml#
->  $schema: http://devicetree.org/meta-schemas/core.yaml#
->  
-> -title: CAN Controller Generic Binding
-> +title: CAN Controller common properties
->  
->  maintainers:
->    - Marc Kleine-Budde <mkl@pengutronix.de>
-> diff --git a/Documentation/devicetree/bindings/net/ethernet-controller.yaml b/Documentation/devicetree/bindings/net/ethernet-controller.yaml
-> index 3aef506fa158..26502c0f2aff 100644
-> --- a/Documentation/devicetree/bindings/net/ethernet-controller.yaml
-> +++ b/Documentation/devicetree/bindings/net/ethernet-controller.yaml
-> @@ -4,7 +4,7 @@
->  $id: http://devicetree.org/schemas/net/ethernet-controller.yaml#
->  $schema: http://devicetree.org/meta-schemas/core.yaml#
->  
-> -title: Ethernet Controller Generic Binding
-> +title: Ethernet Controller common properties
->  
->  maintainers:
->    - David S. Miller <davem@davemloft.net>
-> diff --git a/Documentation/devicetree/bindings/net/ethernet-phy.yaml b/Documentation/devicetree/bindings/net/ethernet-phy.yaml
-> index ad808e9ce5b9..0aa1b60e78cc 100644
-> --- a/Documentation/devicetree/bindings/net/ethernet-phy.yaml
-> +++ b/Documentation/devicetree/bindings/net/ethernet-phy.yaml
-> @@ -4,7 +4,7 @@
->  $id: http://devicetree.org/schemas/net/ethernet-phy.yaml#
->  $schema: http://devicetree.org/meta-schemas/core.yaml#
->  
-> -title: Ethernet PHY Generic Binding
-> +title: Ethernet PHY common properties
->  
->  maintainers:
->    - Andrew Lunn <andrew@lunn.ch>
-> diff --git a/Documentation/devicetree/bindings/net/mdio.yaml b/Documentation/devicetree/bindings/net/mdio.yaml
-> index b5706d4e7e38..b184689dd6b2 100644
-> --- a/Documentation/devicetree/bindings/net/mdio.yaml
-> +++ b/Documentation/devicetree/bindings/net/mdio.yaml
-> @@ -4,7 +4,7 @@
->  $id: http://devicetree.org/schemas/net/mdio.yaml#
->  $schema: http://devicetree.org/meta-schemas/core.yaml#
->  
-> -title: MDIO Bus Generic Binding
-> +title: MDIO Bus common properties
->  
->  maintainers:
->    - Andrew Lunn <andrew@lunn.ch>
-> diff --git a/Documentation/devicetree/bindings/opp/opp-v2-base.yaml b/Documentation/devicetree/bindings/opp/opp-v2-base.yaml
-> index cf9c2f7bddc2..20ac432dc683 100644
-> --- a/Documentation/devicetree/bindings/opp/opp-v2-base.yaml
-> +++ b/Documentation/devicetree/bindings/opp/opp-v2-base.yaml
-> @@ -4,7 +4,7 @@
->  $id: http://devicetree.org/schemas/opp/opp-v2-base.yaml#
->  $schema: http://devicetree.org/meta-schemas/core.yaml#
->  
-> -title: Generic OPP (Operating Performance Points) Common Binding
-> +title: Generic OPP (Operating Performance Points) common parts
->  
->  maintainers:
->    - Viresh Kumar <viresh.kumar@linaro.org>
-> diff --git a/Documentation/devicetree/bindings/power/reset/restart-handler.yaml b/Documentation/devicetree/bindings/power/reset/restart-handler.yaml
-> index 1f9a2aac53c0..8b52fd156d4c 100644
-> --- a/Documentation/devicetree/bindings/power/reset/restart-handler.yaml
-> +++ b/Documentation/devicetree/bindings/power/reset/restart-handler.yaml
-> @@ -4,7 +4,7 @@
->  $id: http://devicetree.org/schemas/power/reset/restart-handler.yaml#
->  $schema: http://devicetree.org/meta-schemas/core.yaml#
->  
-> -title: Restart and shutdown handler generic binding
-> +title: Restart and shutdown handler common properties
->  
->  maintainers:
->    - Sebastian Reichel <sre@kernel.org>
-> diff --git a/Documentation/devicetree/bindings/rtc/rtc.yaml b/Documentation/devicetree/bindings/rtc/rtc.yaml
-> index 0ec3551f12dd..00848a5a409e 100644
-> --- a/Documentation/devicetree/bindings/rtc/rtc.yaml
-> +++ b/Documentation/devicetree/bindings/rtc/rtc.yaml
-> @@ -4,7 +4,7 @@
->  $id: http://devicetree.org/schemas/rtc/rtc.yaml#
->  $schema: http://devicetree.org/meta-schemas/core.yaml#
->  
-> -title: RTC Generic Binding
-> +title: Real Time Clock common properties
->  
->  maintainers:
->    - Alexandre Belloni <alexandre.belloni@bootlin.com>
-> diff --git a/Documentation/devicetree/bindings/soundwire/soundwire-controller.yaml b/Documentation/devicetree/bindings/soundwire/soundwire-controller.yaml
-> index 4aad121eff3f..2176033850dc 100644
-> --- a/Documentation/devicetree/bindings/soundwire/soundwire-controller.yaml
-> +++ b/Documentation/devicetree/bindings/soundwire/soundwire-controller.yaml
-> @@ -4,7 +4,7 @@
->  $id: http://devicetree.org/schemas/soundwire/soundwire-controller.yaml#
->  $schema: http://devicetree.org/meta-schemas/core.yaml#
->  
-> -title: SoundWire Controller Generic Binding
-> +title: SoundWire Controller common properties
->  
->  maintainers:
->    - Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-> diff --git a/Documentation/devicetree/bindings/spi/spi-controller.yaml b/Documentation/devicetree/bindings/spi/spi-controller.yaml
-> index 01042a7f382e..6bbe073f894b 100644
-> --- a/Documentation/devicetree/bindings/spi/spi-controller.yaml
-> +++ b/Documentation/devicetree/bindings/spi/spi-controller.yaml
-> @@ -4,7 +4,7 @@
->  $id: http://devicetree.org/schemas/spi/spi-controller.yaml#
->  $schema: http://devicetree.org/meta-schemas/core.yaml#
->  
-> -title: SPI Controller Generic Binding
-> +title: SPI Controller common properties
->  
->  maintainers:
->    - Mark Brown <broonie@kernel.org>
-> diff --git a/Documentation/devicetree/bindings/watchdog/watchdog.yaml b/Documentation/devicetree/bindings/watchdog/watchdog.yaml
-> index e3dfb02f0ca5..6875cf1c3159 100644
-> --- a/Documentation/devicetree/bindings/watchdog/watchdog.yaml
-> +++ b/Documentation/devicetree/bindings/watchdog/watchdog.yaml
-> @@ -4,7 +4,7 @@
->  $id: http://devicetree.org/schemas/watchdog/watchdog.yaml#
->  $schema: http://devicetree.org/meta-schemas/core.yaml#
->  
-> -title: Watchdog Generic Bindings
-> +title: Watchdog common properties
->  
->  maintainers:
->    - Guenter Roeck <linux@roeck-us.net>
-> -- 
-> 2.34.1
-> 
-> 
+I know little about block but looks like block is using affinity
+descriptor to allow blk mq to do proper irq steering. Maybe we can do
+something the same.
+
+Thanks
+
+>
+> Thanks,
+> Yongji
+>
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
