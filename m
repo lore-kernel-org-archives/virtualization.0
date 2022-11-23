@@ -1,107 +1,108 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 93326C4332F
-	for <virtualization@archiver.kernel.org>; Wed, 23 Nov 2022 03:35:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id ECB7AC4332F
+	for <virtualization@archiver.kernel.org>; Wed, 23 Nov 2022 04:01:02 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 15ECB820D4;
-	Wed, 23 Nov 2022 03:35:36 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 15ECB820D4
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=OJwmuLnT
+	by smtp2.osuosl.org (Postfix) with ESMTP id 842D2400EA;
+	Wed, 23 Nov 2022 04:01:02 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 842D2400EA
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Zr2oBVpG
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id sGrEI5GMamnc; Wed, 23 Nov 2022 03:35:35 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 6353A82038;
-	Wed, 23 Nov 2022 03:35:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6353A82038
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 0gMrxaoyvE5g; Wed, 23 Nov 2022 04:01:01 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 0AD8540158;
+	Wed, 23 Nov 2022 04:01:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0AD8540158
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3E30BC0033;
-	Wed, 23 Nov 2022 03:35:34 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 64046C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D1FB4C0033;
+	Wed, 23 Nov 2022 04:01:00 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8D2BFC002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Nov 2022 03:35:32 +0000 (UTC)
+ Wed, 23 Nov 2022 04:00:59 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 31DB960ACA
+ by smtp2.osuosl.org (Postfix) with ESMTP id 6217640158
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Nov 2022 03:35:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 31DB960ACA
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=OJwmuLnT
+ Wed, 23 Nov 2022 04:00:59 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6217640158
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id TBhi4CXMcpU7
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id bKVnEKopgTnV
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Nov 2022 03:35:28 +0000 (UTC)
+ Wed, 23 Nov 2022 04:00:58 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7796260AB7
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 992DC400EA
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 7796260AB7
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 992DC400EA
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Nov 2022 03:35:28 +0000 (UTC)
+ Wed, 23 Nov 2022 04:00:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1669174527;
+ s=mimecast20190719; t=1669176057;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=7cHjQsdE8aSnVqbsiao1ZG5uoGuMImMKpW9iuQFfIzk=;
- b=OJwmuLnT9lI81Li6QAHyRGkXYunLuj2/kEy9cawhT2cMd39y7d7k4aWS78FQPQjn7owF1v
- p0streab2U04mtXpIsUE4J43Dw4PnZ3DoMrNT1vWe86xXedTGfzXMACx1EagHyC/3+vDbM
- slPhwuOBLMVRpr9VBbTwIxh9LebeDGM=
-Received: from mail-oo1-f72.google.com (mail-oo1-f72.google.com
- [209.85.161.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=uXOKfRkpUg9wQy6d1ZJLStbRoAr5ZPbv5XDNywZlwGg=;
+ b=Zr2oBVpGwKxitdIO8wbKUcp7t45iOwhHHcbJSYfyW0SS2ZtwAUTocDSMN4fWFvnxhPZ0cT
+ GAw10To/jFKrzOxW4cKTBLrOnCprTn3ALF2GMC2a68u8vWKTCQphp38opHeKHTxX89bhq+
+ TFbNAd/O8dnRE9d/1CtgeWzFxBjnfxk=
+Received: from mail-oo1-f69.google.com (mail-oo1-f69.google.com
+ [209.85.161.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-613-VLM9F6z0OtCehGq-2yWPig-1; Tue, 22 Nov 2022 22:35:25 -0500
-X-MC-Unique: VLM9F6z0OtCehGq-2yWPig-1
-Received: by mail-oo1-f72.google.com with SMTP id
- v15-20020a4a244f000000b0049f177710abso7203467oov.16
+ us-mta-653-JB6xSCyWPYiiadDmZuLxHw-1; Tue, 22 Nov 2022 23:00:53 -0500
+X-MC-Unique: JB6xSCyWPYiiadDmZuLxHw-1
+Received: by mail-oo1-f69.google.com with SMTP id
+ j2-20020a4a7502000000b0049bdd099de9so7241292ooc.0
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Nov 2022 19:35:25 -0800 (PST)
+ Tue, 22 Nov 2022 20:00:53 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=cc:to:subject:message-id:date:from:in-reply-to:references
  :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
  :reply-to;
- bh=7cHjQsdE8aSnVqbsiao1ZG5uoGuMImMKpW9iuQFfIzk=;
- b=kHW6yjdQ+oQN9TBEYuSwhI0ONo8j8kFS0wUoedJUEeRL3BEktHpgdSQ2bTLDXft3yY
- EqXuWOQMC6LBsLF8ZYA7YW4ppod561/1hpGV2zz+vP6d98CvF3nzoaL85LaYOBwGtmko
- QztKCGyRK6dzEIhL3zCCcsxwcim2XZNUmKsN0dac/jgQ6Zj7S1WV00W1VWdtXd+pJ28+
- ib8uX+CrbW1TV1aZxuKh17H3urPmy1B7n38kHFoYSrnacbgBiDZJ9e7eTM7sLLgRs59S
- Ny91xdJuaB147YsRd4ceIun/Km8cVTYqoSXsQ35I3h/M363R/JzQwg346GZQYoTaQmOP
- BrrA==
-X-Gm-Message-State: ANoB5pn70FfC1+Dz+9PSAagtbLsCZ4lH19vxK1om38GtZWnNSgVluIFQ
- ijlKD9aHukOxXNYL8kItvbQvP33eeJXrzwm2/CRDm16ttE1RUPPagijDZsSCTzdKKmu3YqCMYOe
- WeMXv9nX+Lw+hUpl+qXnA3Y7SUATejttTvdYsfRP80lc5qA6oIyFRNT0Vmg==
-X-Received: by 2002:a05:6870:1e83:b0:132:7b3:29ac with SMTP id
- pb3-20020a0568701e8300b0013207b329acmr4896877oab.35.1669174525018; 
- Tue, 22 Nov 2022 19:35:25 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf5BF59668XsgotVKSLGTSBJqlyXOsTZrMKRKPhmrrL3zuH98okkVaX3mm5eNN5Vp8oFgnUIo61H5DRaNknVU/k=
-X-Received: by 2002:a05:6870:1e83:b0:132:7b3:29ac with SMTP id
- pb3-20020a0568701e8300b0013207b329acmr4896867oab.35.1669174524760; Tue, 22
- Nov 2022 19:35:24 -0800 (PST)
+ bh=uXOKfRkpUg9wQy6d1ZJLStbRoAr5ZPbv5XDNywZlwGg=;
+ b=O2Ilfm1Mct61w8hKFuZ8WAZJVn7caIXYkbvxel69hmDTOyzrZ1LF/Dye43AB/vDN8y
+ 6y7Xrp9Bpveq7YP4M0biF8dYANRTZPgRUJRdLCDHjAbGQ/ao2Cl3mTikPX0F5WZiZQdC
+ NRL5r6AbuZ/gnNRydyLC9jyBLAkDqvPgxmQcYmcsFFdGBHoBKcc28af1+AtBdL+THkBF
+ UtmdX7Y1H+aoeRVpcSLqQjw/KDmZc3cQCV5oTYSv1zCK2re9xRaM47975VEwAUC8zAFe
+ 7zwX+DYmULJtZGqRz7J75EHBU7jtDvRsGytZ+AE3kiFehhdGZkn54Lhtb/ffifypvsU3
+ QN7g==
+X-Gm-Message-State: ANoB5pl/BrRCg7KcjPuQPfRxKStZHBSEgM0UW2xExbVzpFJGPGHTHejz
+ IwUpJzFe8t7TWLEf3aBh6wfvP1WnusArVHpDVBrWn1rZEkiDSMEE691aRIuZyxH7XAfjsnj7UUF
+ Qzafn1860snDq4uyQLfg0joHrMlgg6L51S/181jd9RPe3ZQ2UD/NBBqJaAg==
+X-Received: by 2002:a05:6808:220b:b0:359:f5eb:82ec with SMTP id
+ bd11-20020a056808220b00b00359f5eb82ecmr3167000oib.280.1669176053306; 
+ Tue, 22 Nov 2022 20:00:53 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf7eJuUQ/K76xaujepZp28qM7Mu71/h/M1uaahfTypXG5ZBtyDoZHYYpgC4AjliCNmigSkjPNTz6fBYpDHh9RHY=
+X-Received: by 2002:a05:6808:220b:b0:359:f5eb:82ec with SMTP id
+ bd11-20020a056808220b00b00359f5eb82ecmr3166993oib.280.1669176053107; Tue, 22
+ Nov 2022 20:00:53 -0800 (PST)
 MIME-Version: 1.0
-References: <20221117033303.16870-1-jasowang@redhat.com>
- <84298552-08ec-fe2d-d996-d89918c7fddf@oracle.com>
-In-Reply-To: <84298552-08ec-fe2d-d996-d89918c7fddf@oracle.com>
+References: <20221113134442.152695-1-elic@nvidia.com>
+ <20221113134442.152695-7-elic@nvidia.com>
+ <CACGkMEt+7kKD8_q_OFKURbFR1W=YbJpcuwZq5bf5jC4qzE8PEA@mail.gmail.com>
+ <DM8PR12MB54008F8D33409AFCA5878AAAAB059@DM8PR12MB5400.namprd12.prod.outlook.com>
+In-Reply-To: <DM8PR12MB54008F8D33409AFCA5878AAAAB059@DM8PR12MB5400.namprd12.prod.outlook.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 23 Nov 2022 11:35:13 +0800
-Message-ID: <CACGkMEtLFTrqdb=MXKovP8gZzTXzFczQSmK0PgzXQTr0Dbr5jA@mail.gmail.com>
-Subject: Re: [PATCH V2] vdpa: allow provisioning device features
-To: Si-Wei Liu <si-wei.liu@oracle.com>
+Date: Wed, 23 Nov 2022 12:00:42 +0800
+Message-ID: <CACGkMEuoMx2WbUh7KHQXLHuDxQHqhp5xEL8aW3s2wOmBZdv5cA@mail.gmail.com>
+Subject: Re: [PATCH 6/7] vdpa/mlx5: Avoid using reslock in event_handler
+To: Eli Cohen <elic@nvidia.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: mst@redhat.com, netdev@vger.kernel.org, dsahern@kernel.org,
- virtualization@lists.linux-foundation.org, eperezma@redhat.com,
- elic@nvidia.com
+Cc: "lulu@redhat.com" <lulu@redhat.com>, "mst@redhat.com" <mst@redhat.com>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ "eperezma@redhat.com" <eperezma@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -118,203 +119,101 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Nov 23, 2022 at 6:29 AM Si-Wei Liu <si-wei.liu@oracle.com> wrote:
+On Mon, Nov 14, 2022 at 4:58 PM Eli Cohen <elic@nvidia.com> wrote:
 >
+> > From: Jason Wang <jasowang@redhat.com>
+> > Sent: Monday, 14 November 2022 9:53
+> > To: Eli Cohen <elic@nvidia.com>
+> > Cc: mst@redhat.com; linux-kernel@vger.kernel.org; virtualization@lists.linux-
+> > foundation.org; si-wei.liu@oracle.com; eperezma@redhat.com;
+> > lulu@redhat.com
+> > Subject: Re: [PATCH 6/7] vdpa/mlx5: Avoid using reslock in event_handler
+> >
+> > On Sun, Nov 13, 2022 at 9:45 PM Eli Cohen <elic@nvidia.com> wrote:
+> > >
+> > > event_handler runs under atomic context and may not acquire reslock. We
+> > > can still guarantee that the handler won't be called after suspend by
+> > > clearing nb_registered, unregistering the handler and flushing the
+> > > workqueue.
+> > >
+> > > Signed-off-by: Eli Cohen <elic@nvidia.com>
+> > > ---
+> > >  drivers/vdpa/mlx5/net/mlx5_vnet.c | 14 +++-----------
+> > >  1 file changed, 3 insertions(+), 11 deletions(-)
+> > >
+> > > diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> > b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> > > index 6e6490c85be2..bebfba530247 100644
+> > > --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> > > +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> > > @@ -2872,8 +2872,8 @@ static int mlx5_vdpa_suspend(struct vdpa_device
+> > *vdev)
+> > >         int i;
+> > >
+> > >         down_write(&ndev->reslock);
+> > > -       mlx5_notifier_unregister(mvdev->mdev, &ndev->nb);
+> > >         ndev->nb_registered = false;
+> > > +       mlx5_notifier_unregister(mvdev->mdev, &ndev->nb);
+> >
+> > I wonder why this can help anything.
+> I think you were concerned that async events will come when the device was suspended. Since we can't take reslock, I think this guarantees that we won't get any events after suspension.
 >
->
-> On 11/16/2022 7:33 PM, Jason Wang wrote:
-> > This patch allows device features to be provisioned via vdpa. This
-> > will be useful for preserving migration compatibility between source
-> > and destination:
+
+Ok, I see.
+
+> > And if it does, we have simliar
+> > logic in mlx5_vdpa_dev_del() do we need to fix that as well?
 > >
-> > # vdpa dev add name dev1 mgmtdev pci/0000:02:00.0 device_features 0x300020000
-> Miss the actual "vdpa dev config show" command below
+> We have the same construct there only that I set nb_registered = false after unregistering the notifier. So I probably need to move it before mlx5_notifier_unregister().
 
-Right, let me fix that.
-
-> > # dev1: mac 52:54:00:12:34:56 link up link_announce false mtu 65535
-> >        negotiated_features CTRL_VQ VERSION_1 ACCESS_PLATFORM
-> >
-> > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > ---
-> > Changes since v1:
-> > - Use uint64_t instead of __u64 for device_features
-> > - Fix typos and tweak the manpage
-> > - Add device_features to the help text
-> > ---
-> >   man/man8/vdpa-dev.8            | 15 +++++++++++++++
-> >   vdpa/include/uapi/linux/vdpa.h |  1 +
-> >   vdpa/vdpa.c                    | 32 +++++++++++++++++++++++++++++---
-> >   3 files changed, 45 insertions(+), 3 deletions(-)
-> >
-> > diff --git a/man/man8/vdpa-dev.8 b/man/man8/vdpa-dev.8
-> > index 9faf3838..43e5bf48 100644
-> > --- a/man/man8/vdpa-dev.8
-> > +++ b/man/man8/vdpa-dev.8
-> > @@ -31,6 +31,7 @@ vdpa-dev \- vdpa device configuration
-> >   .I NAME
-> >   .B mgmtdev
-> >   .I MGMTDEV
-> > +.RI "[ device_features " DEVICE_FEATURES " ]"
-> >   .RI "[ mac " MACADDR " ]"
-> >   .RI "[ mtu " MTU " ]"
-> >   .RI "[ max_vqp " MAX_VQ_PAIRS " ]"
-> > @@ -74,6 +75,15 @@ Name of the new vdpa device to add.
-> >   Name of the management device to use for device addition.
-> >
-> >   .PP
-> > +.BI device_features " DEVICE_FEATURES"
-> > +Specifies the virtio device features bit-mask that is provisioned for the new vdpa device.
-> > +
-> > +The bits can be found under include/uapi/linux/virtio*h.
-> > +
-> > +see macros such as VIRTIO_F_ and VIRTIO_XXX(e.g NET)_F_ for specific bit values.
-> > +
-> > +This is optional.
-> Document the behavior when this attribute is missing? For e.g. inherit
-> device features from parent device.
-
-This is the current behaviour but unless we've found a way to mandate
-it, I'd like to not mention it. Maybe add a description to say the
-user needs to check the features after the add if features are not
-specified.
-
->
-> And what is the expected behavior when feature bit mask is off but the
-> corresponding config attr (for e.g. mac, mtu, and max_vqp) is set?
-
-It depends totally on the parent. And this "issue" is not introduced
-by this feature. Parents can decide to provision MQ by itself even if
-max_vqp is not specified.
-
-> I
-> think the previous behavior without device_features is that any config
-> attr implies the presence of the specific corresponding feature (_F_MAC,
-> _F_MTU, and _F_MQ). Should device_features override the other config
-> attribute, or such combination is considered invalid thus should fail?
-
-It follows the current policy, e.g if the parent doesn't support
-_F_MQ, we can neither provision _F_MQ nor max_vqp.
+Right.
 
 Thanks
 
 >
-> Thanks,
-> -Siwei
->
-> > +
-> >   .BI mac " MACADDR"
-> >   - specifies the mac address for the new vdpa device.
-> >   This is applicable only for the network type of vdpa device. This is optional.
-> > @@ -127,6 +137,11 @@ vdpa dev add name foo mgmtdev vdpa_sim_net
-> >   Add the vdpa device named foo on the management device vdpa_sim_net.
-> >   .RE
-> >   .PP
-> > +vdpa dev add name foo mgmtdev vdpa_sim_net device_features 0x300020000
-> > +.RS 4
-> > +Add the vdpa device named foo on the management device vdpa_sim_net with device_features of 0x300020000
-> > +.RE
-> > +.PP
-> >   vdpa dev add name foo mgmtdev vdpa_sim_net mac 00:11:22:33:44:55
-> >   .RS 4
-> >   Add the vdpa device named foo on the management device vdpa_sim_net with mac address of 00:11:22:33:44:55.
-> > diff --git a/vdpa/include/uapi/linux/vdpa.h b/vdpa/include/uapi/linux/vdpa.h
-> > index 94e4dad1..7c961991 100644
-> > --- a/vdpa/include/uapi/linux/vdpa.h
-> > +++ b/vdpa/include/uapi/linux/vdpa.h
-> > @@ -51,6 +51,7 @@ enum vdpa_attr {
-> >       VDPA_ATTR_DEV_QUEUE_INDEX,              /* u32 */
-> >       VDPA_ATTR_DEV_VENDOR_ATTR_NAME,         /* string */
-> >       VDPA_ATTR_DEV_VENDOR_ATTR_VALUE,        /* u64 */
-> > +     VDPA_ATTR_DEV_FEATURES,                 /* u64 */
+> > Thanks
 > >
-> >       /* new attributes must be added above here */
-> >       VDPA_ATTR_MAX,
-> > diff --git a/vdpa/vdpa.c b/vdpa/vdpa.c
-> > index b73e40b4..d0ce5e22 100644
-> > --- a/vdpa/vdpa.c
-> > +++ b/vdpa/vdpa.c
-> > @@ -27,6 +27,7 @@
-> >   #define VDPA_OPT_VDEV_MTU           BIT(5)
-> >   #define VDPA_OPT_MAX_VQP            BIT(6)
-> >   #define VDPA_OPT_QUEUE_INDEX                BIT(7)
-> > +#define VDPA_OPT_VDEV_FEATURES               BIT(8)
-> >
-> >   struct vdpa_opts {
-> >       uint64_t present; /* flags of present items */
-> > @@ -38,6 +39,7 @@ struct vdpa_opts {
-> >       uint16_t mtu;
-> >       uint16_t max_vqp;
-> >       uint32_t queue_idx;
-> > +     uint64_t device_features;
-> >   };
-> >
-> >   struct vdpa {
-> > @@ -187,6 +189,17 @@ static int vdpa_argv_u32(struct vdpa *vdpa, int argc, char **argv,
-> >       return get_u32(result, *argv, 10);
-> >   }
-> >
-> > +static int vdpa_argv_u64_hex(struct vdpa *vdpa, int argc, char **argv,
-> > +                          uint64_t *result)
-> > +{
-> > +     if (argc <= 0 || !*argv) {
-> > +             fprintf(stderr, "number expected\n");
-> > +             return -EINVAL;
-> > +     }
-> > +
-> > +     return get_u64(result, *argv, 16);
-> > +}
-> > +
-> >   struct vdpa_args_metadata {
-> >       uint64_t o_flag;
-> >       const char *err_msg;
-> > @@ -244,6 +257,10 @@ static void vdpa_opts_put(struct nlmsghdr *nlh, struct vdpa *vdpa)
-> >               mnl_attr_put_u16(nlh, VDPA_ATTR_DEV_NET_CFG_MAX_VQP, opts->max_vqp);
-> >       if (opts->present & VDPA_OPT_QUEUE_INDEX)
-> >               mnl_attr_put_u32(nlh, VDPA_ATTR_DEV_QUEUE_INDEX, opts->queue_idx);
-> > +     if (opts->present & VDPA_OPT_VDEV_FEATURES) {
-> > +             mnl_attr_put_u64(nlh, VDPA_ATTR_DEV_FEATURES,
-> > +                             opts->device_features);
-> > +     }
-> >   }
-> >
-> >   static int vdpa_argv_parse(struct vdpa *vdpa, int argc, char **argv,
-> > @@ -329,6 +346,14 @@ static int vdpa_argv_parse(struct vdpa *vdpa, int argc, char **argv,
-> >
-> >                       NEXT_ARG_FWD();
-> >                       o_found |= VDPA_OPT_QUEUE_INDEX;
-> > +             } else if (!strcmp(*argv, "device_features") &&
-> > +                        (o_optional & VDPA_OPT_VDEV_FEATURES)) {
-> > +                     NEXT_ARG_FWD();
-> > +                     err = vdpa_argv_u64_hex(vdpa, argc, argv,
-> > +                                             &opts->device_features);
-> > +                     if (err)
-> > +                             return err;
-> > +                     o_found |= VDPA_OPT_VDEV_FEATURES;
-> >               } else {
-> >                       fprintf(stderr, "Unknown option \"%s\"\n", *argv);
-> >                       return -EINVAL;
-> > @@ -615,8 +640,9 @@ static int cmd_mgmtdev(struct vdpa *vdpa, int argc, char **argv)
-> >   static void cmd_dev_help(void)
-> >   {
-> >       fprintf(stderr, "Usage: vdpa dev show [ DEV ]\n");
-> > -     fprintf(stderr, "       vdpa dev add name NAME mgmtdev MANAGEMENTDEV [ mac MACADDR ] [ mtu MTU ]\n");
-> > -     fprintf(stderr, "                                                    [ max_vqp MAX_VQ_PAIRS ]\n");
-> > +     fprintf(stderr, "       vdpa dev add name NAME mgmtdevMANAGEMENTDEV [ device_features DEVICE_FEATURES]\n");
-> > +     fprintf(stderr, "                                                   [ mac MACADDR ] [ mtu MTU ]\n");
-> > +     fprintf(stderr, "                                                   [ max_vqp MAX_VQ_PAIRS ]\n");
-> >       fprintf(stderr, "       vdpa dev del DEV\n");
-> >       fprintf(stderr, "Usage: vdpa dev config COMMAND [ OPTIONS ]\n");
-> >       fprintf(stderr, "Usage: vdpa dev vstats COMMAND\n");
-> > @@ -708,7 +734,7 @@ static int cmd_dev_add(struct vdpa *vdpa, int argc, char **argv)
-> >       err = vdpa_argv_parse_put(nlh, vdpa, argc, argv,
-> >                                 VDPA_OPT_VDEV_MGMTDEV_HANDLE | VDPA_OPT_VDEV_NAME,
-> >                                 VDPA_OPT_VDEV_MAC | VDPA_OPT_VDEV_MTU |
-> > -                               VDPA_OPT_MAX_VQP);
-> > +                               VDPA_OPT_MAX_VQP | VDPA_OPT_VDEV_FEATURES);
-> >       if (err)
-> >               return err;
-> >
+> > >         flush_workqueue(ndev->mvdev.wq);
+> > >         for (i = 0; i < ndev->cur_num_vqs; i++) {
+> > >                 mvq = &ndev->vqs[i];
+> > > @@ -3051,7 +3051,7 @@ static void update_carrier(struct work_struct
+> > *work)
+> > >         else
+> > >                 ndev->config.status &= cpu_to_mlx5vdpa16(mvdev,
+> > ~VIRTIO_NET_S_LINK_UP);
+> > >
+> > > -       if (ndev->config_cb.callback)
+> > > +       if (ndev->nb_registered && ndev->config_cb.callback)
+> > >                 ndev->config_cb.callback(ndev->config_cb.private);
+> > >
+> > >         kfree(wqent);
+> > > @@ -3068,21 +3068,13 @@ static int event_handler(struct notifier_block
+> > *nb, unsigned long event, void *p
+> > >                 switch (eqe->sub_type) {
+> > >                 case MLX5_PORT_CHANGE_SUBTYPE_DOWN:
+> > >                 case MLX5_PORT_CHANGE_SUBTYPE_ACTIVE:
+> > > -                       down_read(&ndev->reslock);
+> > > -                       if (!ndev->nb_registered) {
+> > > -                               up_read(&ndev->reslock);
+> > > -                               return NOTIFY_DONE;
+> > > -                       }
+> > >                         wqent = kzalloc(sizeof(*wqent), GFP_ATOMIC);
+> > > -                       if (!wqent) {
+> > > -                               up_read(&ndev->reslock);
+> > > +                       if (!wqent)
+> > >                                 return NOTIFY_DONE;
+> > > -                       }
+> > >
+> > >                         wqent->mvdev = &ndev->mvdev;
+> > >                         INIT_WORK(&wqent->work, update_carrier);
+> > >                         queue_work(ndev->mvdev.wq, &wqent->work);
+> > > -                       up_read(&ndev->reslock);
+> > >                         ret = NOTIFY_OK;
+> > >                         break;
+> > >                 default:
+> > > --
+> > > 2.38.1
+> > >
 >
 
 _______________________________________________
