@@ -1,112 +1,105 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D7C33C4332F
-	for <virtualization@archiver.kernel.org>; Thu, 24 Nov 2022 04:05:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6D86AC4332F
+	for <virtualization@archiver.kernel.org>; Thu, 24 Nov 2022 06:34:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 451A441710;
-	Thu, 24 Nov 2022 04:05:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 451A441710
+	by smtp3.osuosl.org (Postfix) with ESMTP id EC369610B7;
+	Thu, 24 Nov 2022 06:34:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org EC369610B7
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Yz0K96x1
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id k8g9RO1kn3fi; Thu, 24 Nov 2022 06:34:38 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 5BAB760AB2;
+	Thu, 24 Nov 2022 06:34:37 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5BAB760AB2
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 2C8D9C0032;
+	Thu, 24 Nov 2022 06:34:37 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5A7C9C002D
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 24 Nov 2022 06:34:36 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp4.osuosl.org (Postfix) with ESMTP id 40DA5419CE
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 24 Nov 2022 06:34:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 40DA5419CE
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=NEAKD9JN
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=Yz0K96x1
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id TqnjErj4WqHP; Thu, 24 Nov 2022 04:05:11 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 6441B416E9;
-	Thu, 24 Nov 2022 04:05:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6441B416E9
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3B3BFC0032;
-	Thu, 24 Nov 2022 04:05:10 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 63421C002D
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id wGRD6HNk7dyr
  for <virtualization@lists.linux-foundation.org>;
- Thu, 24 Nov 2022 04:05:09 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 46F6D405E3
- for <virtualization@lists.linux-foundation.org>;
- Thu, 24 Nov 2022 04:05:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 46F6D405E3
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=NEAKD9JN
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id cppDXVOFBE6Z
- for <virtualization@lists.linux-foundation.org>;
- Thu, 24 Nov 2022 04:05:07 +0000 (UTC)
+ Thu, 24 Nov 2022 06:34:35 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org AD1DE403B7
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 11B77419CB
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id AD1DE403B7
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 11B77419CB
  for <virtualization@lists.linux-foundation.org>;
- Thu, 24 Nov 2022 04:05:07 +0000 (UTC)
+ Thu, 24 Nov 2022 06:34:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1669262705;
+ s=mimecast20190719; t=1669271673;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=JbHIrOAEJY2VHotkKviSX7yoTGs0jlKcUqZ6ox6ZroQ=;
- b=NEAKD9JNOPWjnKkWNtAeZE58UegL12/n/uY+O5UWH+sxg9lW90U8SWHGnCMQLdbxUEbFCk
- JdKYj32AARY4WG4Sm/Ad6TaZvzRZwuYso/ZLcFbCOjnEAdlKvEokC8L/IoCALGCZ555WKP
- zsKrpW5wAO5+/eYy9fOYTXYWDKGfc7Q=
-Received: from mail-oa1-f70.google.com (mail-oa1-f70.google.com
- [209.85.160.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=XW4QocPZ/IX7iF7xzjKQbsxjhbLSPlgpn0gsT7pmGR8=;
+ b=Yz0K96x1qoZd7MjSpqJDp01XhG/A/c2EEuL5pIFjpGFVmRjoRdJcK6OBTtmWdh7HtH+irQ
+ jgeyL52usV7CmX8YYWHC5H+3AxoJZAs4tQHkFvSpaW9Yn4TKAuvGDtlph6Oc8RXwNif+U5
+ wiBbhKKWIdrEdl06FutPEqEyYzXOLXo=
+Received: from mail-oa1-f69.google.com (mail-oa1-f69.google.com
+ [209.85.160.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-463-Ihe_50fDPTG3r7YmUTaHdA-1; Wed, 23 Nov 2022 23:05:04 -0500
-X-MC-Unique: Ihe_50fDPTG3r7YmUTaHdA-1
-Received: by mail-oa1-f70.google.com with SMTP id
- 586e51a60fabf-13cce313cd3so311159fac.20
+ us-mta-82-7YgYTMUMNfqyf36AO4AolQ-1; Thu, 24 Nov 2022 01:34:30 -0500
+X-MC-Unique: 7YgYTMUMNfqyf36AO4AolQ-1
+Received: by mail-oa1-f69.google.com with SMTP id
+ 586e51a60fabf-14355480b19so328543fac.12
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Nov 2022 20:05:04 -0800 (PST)
+ Wed, 23 Nov 2022 22:34:30 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=cc:to:subject:message-id:date:from:in-reply-to:references
  :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
  :reply-to;
- bh=JbHIrOAEJY2VHotkKviSX7yoTGs0jlKcUqZ6ox6ZroQ=;
- b=VKYEGA9KXfPUPG4dXMUTHrp7he7JoZ+FWRlzxdi0QpMZMcjwZP/W5Ofh+3X715zy0q
- Uo1TzlTktpslFNaFp6T/POxgIMnR/fFLMAtb/ZmUjdKWrL6fNrSEcifhEb4ndlCA1gM2
- cTverKC6NqIT82eOoA9kc8cidJ+wQC3HeBv5fztKE2HUsSK0VfqFZsNwEv7njvuJwmjc
- P/Pni3d6V2Dka5QOlXSd41bRkm50hguyu7XUY1UAyoDJ0E9DEhM5cJ2ZQj7sQeeV4gUJ
- uiaB70EX9m0ahHyriAxfYB8kB2eY9v/4cGQOOupeTdbLAalomidhl0PiMangy8OB/6+L
- wyng==
-X-Gm-Message-State: ANoB5pnFz/sS+yBtrOHPJR2CbP64mbBXk4C1hsGSiy0wxz66g4GjnhSG
- dUWJAkO2DwvGq7Gjy5EHe+wD1WxTP0eMscx1uh+LF+7IVyzh+hzFYfgsFTZbmtnDW54ww0wREdK
- 8dTJrsc822jv2+ijN8hpemZEr4PC5VXYu2NsfktZJW/U23dY5MePNIbmGrQ==
-X-Received: by 2002:a05:6830:6505:b0:66c:fb5b:4904 with SMTP id
- cm5-20020a056830650500b0066cfb5b4904mr15941034otb.237.1669262703983; 
- Wed, 23 Nov 2022 20:05:03 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf5sw+67nFb3qeCA+MdVXBVeUpPzXpCINULU+SJbaMSeLUQ671wqHEOfp3AX5XyxRAQKpk1UIFH17sHj9fcEP5U=
-X-Received: by 2002:a05:6830:6505:b0:66c:fb5b:4904 with SMTP id
- cm5-20020a056830650500b0066cfb5b4904mr15941025otb.237.1669262703739; Wed, 23
- Nov 2022 20:05:03 -0800 (PST)
+ bh=XW4QocPZ/IX7iF7xzjKQbsxjhbLSPlgpn0gsT7pmGR8=;
+ b=SbnFGpSLSQpxYSnoflXdglXSWLyzk8SP8VFQ3lHQjxN0X/YF3PZA30EcqoxQiedcvi
+ tWklmccwaq4G+Dqm5LPHq4ir5lfOddHpB5ObJZRjlR+2ltMJ+OBhRKEK9kpFhQQtot9S
+ 4fwSCFnpjE23nKOtRqRbb4hJQm9UX2SXyeF1pi+JOLtw6UahhU9jhf+qwRtiUhQvWt6h
+ Eidu0SROpMhlThJzBgftNQmIlQTZSdcsg8b3JUJJxe5qF8bkInHG+XQCYIQapQLL2xg0
+ mWqtAk2qdeq1nCAXHbrJCH/eYbY3vVz45sjIMx+nLei4CAIUF4Wh03jmV/O1cHuzrPPu
+ h0+w==
+X-Gm-Message-State: ANoB5pnqMZEs+NWK99tIL509n/WdKNFYTuxtY9t2pXeGqNHH4d+0QO4f
+ zJzx4jC6iII/ZDCE2xul+ZV2mkKpn3vMstSaZGFR8oLloPb9t94nzzGzCabQ+e7bMPW/dLfwHGx
+ wSpVGz8XQpoSFeiWtCFOqS/wAgMmCwiyqFJcz7IKQyoms2OnDhYa2eYhE9A==
+X-Received: by 2002:a4a:b145:0:b0:49f:449a:5f6c with SMTP id
+ e5-20020a4ab145000000b0049f449a5f6cmr5553711ooo.93.1669271669792; 
+ Wed, 23 Nov 2022 22:34:29 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf7IyosG5Zgp1L1z/dEd/7W1lJHYNVRxsPXQn0yG8lUKOd7B4LRcDGirgFhy/2cx3irMqDkKK2cq6cTryykNnxQ=
+X-Received: by 2002:a4a:b145:0:b0:49f:449a:5f6c with SMTP id
+ e5-20020a4ab145000000b0049f449a5f6cmr5553705ooo.93.1669271669534; Wed, 23 Nov
+ 2022 22:34:29 -0800 (PST)
 MIME-Version: 1.0
-References: <20221113134442.152695-1-elic@nvidia.com>
- <20221113134442.152695-7-elic@nvidia.com>
- <CACGkMEt+7kKD8_q_OFKURbFR1W=YbJpcuwZq5bf5jC4qzE8PEA@mail.gmail.com>
- <DM8PR12MB54008F8D33409AFCA5878AAAAB059@DM8PR12MB5400.namprd12.prod.outlook.com>
- <CACGkMEuoMx2WbUh7KHQXLHuDxQHqhp5xEL8aW3s2wOmBZdv5cA@mail.gmail.com>
-In-Reply-To: <CACGkMEuoMx2WbUh7KHQXLHuDxQHqhp5xEL8aW3s2wOmBZdv5cA@mail.gmail.com>
+References: <20221124062309.2081720-1-lulu@redhat.com>
+In-Reply-To: <20221124062309.2081720-1-lulu@redhat.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 24 Nov 2022 12:04:52 +0800
-Message-ID: <CACGkMEsoWP2z=5sLeqXTB0RLxPW=S-UJNLKFpuPEQVDjX-Hatw@mail.gmail.com>
-Subject: Re: [PATCH 6/7] vdpa/mlx5: Avoid using reslock in event_handler
-To: Eli Cohen <elic@nvidia.com>
+Date: Thu, 24 Nov 2022 14:34:18 +0800
+Message-ID: <CACGkMEupFLwNFvGkU_vgDmhzY9K=b0KFC4BkWGVfO3s+GEWaKQ@mail.gmail.com>
+Subject: Re: [PATCH] vhost_vdpa: fix the crash in unmap a large memory
+To: Cindy Lu <lulu@redhat.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: "lulu@redhat.com" <lulu@redhat.com>, "mst@redhat.com" <mst@redhat.com>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- "eperezma@redhat.com" <eperezma@redhat.com>
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
+ mst@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -123,111 +116,81 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Nov 23, 2022 at 12:00 PM Jason Wang <jasowang@redhat.com> wrote:
+On Thu, Nov 24, 2022 at 2:23 PM Cindy Lu <lulu@redhat.com> wrote:
 >
-> On Mon, Nov 14, 2022 at 4:58 PM Eli Cohen <elic@nvidia.com> wrote:
-> >
-> > > From: Jason Wang <jasowang@redhat.com>
-> > > Sent: Monday, 14 November 2022 9:53
-> > > To: Eli Cohen <elic@nvidia.com>
-> > > Cc: mst@redhat.com; linux-kernel@vger.kernel.org; virtualization@lists.linux-
-> > > foundation.org; si-wei.liu@oracle.com; eperezma@redhat.com;
-> > > lulu@redhat.com
-> > > Subject: Re: [PATCH 6/7] vdpa/mlx5: Avoid using reslock in event_handler
-> > >
-> > > On Sun, Nov 13, 2022 at 9:45 PM Eli Cohen <elic@nvidia.com> wrote:
-> > > >
-> > > > event_handler runs under atomic context and may not acquire reslock. We
-> > > > can still guarantee that the handler won't be called after suspend by
-> > > > clearing nb_registered, unregistering the handler and flushing the
-> > > > workqueue.
-> > > >
-> > > > Signed-off-by: Eli Cohen <elic@nvidia.com>
-> > > > ---
-> > > >  drivers/vdpa/mlx5/net/mlx5_vnet.c | 14 +++-----------
-> > > >  1 file changed, 3 insertions(+), 11 deletions(-)
-> > > >
-> > > > diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> > > b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> > > > index 6e6490c85be2..bebfba530247 100644
-> > > > --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> > > > +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> > > > @@ -2872,8 +2872,8 @@ static int mlx5_vdpa_suspend(struct vdpa_device
-> > > *vdev)
-> > > >         int i;
-> > > >
-> > > >         down_write(&ndev->reslock);
-> > > > -       mlx5_notifier_unregister(mvdev->mdev, &ndev->nb);
-> > > >         ndev->nb_registered = false;
-> > > > +       mlx5_notifier_unregister(mvdev->mdev, &ndev->nb);
-> > >
-> > > I wonder why this can help anything.
-> > I think you were concerned that async events will come when the device was suspended. Since we can't take reslock, I think this guarantees that we won't get any events after suspension.
-> >
->
-> Ok, I see.
->
-> > > And if it does, we have simliar
-> > > logic in mlx5_vdpa_dev_del() do we need to fix that as well?
-> > >
-> > We have the same construct there only that I set nb_registered = false after unregistering the notifier. So I probably need to move it before mlx5_notifier_unregister().
->
-> Right.
->
-> Thanks
+> While testing in vIOMMU, sometimes guest will unmap very large memory,
+> which will cause the crash.
 
-So I'm fine with this patch.
+Would you mind to post the calltrace?
 
-Acked-by: Jason Wang <jasowang@redhat.com>
+> To fix this,Move the iommu_unmap to
+> vhost_vdpa_pa_unmap/vhost_vdpa_va_unmap and only unmap the memory
+> that saved in iotlb.
+>
+> Signed-off-by: Cindy Lu <lulu@redhat.com>
+
+Let's add a fixes tag which I believe should be the first commit that
+introduces vhost-vDPA. And let's cc stable as well.
+
+> ---
+>  drivers/vhost/vdpa.c | 10 ++++++++--
+>  1 file changed, 8 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+> index 166044642fd5..c392979702cf 100644
+> --- a/drivers/vhost/vdpa.c
+> +++ b/drivers/vhost/vdpa.c
+> @@ -692,6 +692,8 @@ static void vhost_vdpa_pa_unmap(struct vhost_vdpa *v,
+>         struct vhost_iotlb_map *map;
+>         struct page *page;
+>         unsigned long pfn, pinned;
+> +       struct vdpa_device *vdpa = v->vdpa;
+> +       const struct vdpa_config_ops *ops = vdpa->config;
+>
+>         while ((map = vhost_iotlb_itree_first(iotlb, start, last)) != NULL) {
+>                 pinned = PFN_DOWN(map->size);
+> @@ -703,6 +705,8 @@ static void vhost_vdpa_pa_unmap(struct vhost_vdpa *v,
+>                         unpin_user_page(page);
+>                 }
+>                 atomic64_sub(PFN_DOWN(map->size), &dev->mm->pinned_vm);
+> +               if ((ops->dma_map == NULL) && (ops->set_map == NULL))
+> +                       iommu_unmap(v->domain, map->start, map->size);
+>                 vhost_iotlb_map_free(iotlb, map);
+>         }
+>  }
+> @@ -713,11 +717,15 @@ static void vhost_vdpa_va_unmap(struct vhost_vdpa *v,
+>  {
+>         struct vhost_iotlb_map *map;
+>         struct vdpa_map_file *map_file;
+> +       struct vdpa_device *vdpa = v->vdpa;
+> +       const struct vdpa_config_ops *ops = vdpa->config;
+>
+>         while ((map = vhost_iotlb_itree_first(iotlb, start, last)) != NULL) {
+>                 map_file = (struct vdpa_map_file *)map->opaque;
+>                 fput(map_file->file);
+>                 kfree(map_file);
+> +               if ((ops->dma_map == NULL) && (ops->set_map == NULL))
+> +                       iommu_unmap(v->domain, map->start, map->size);
+
+I wonder if it's better to move at least dma_map() here.
 
 Thanks
 
+>                 vhost_iotlb_map_free(iotlb, map);
+>         }
+>  }
+> @@ -805,8 +813,6 @@ static void vhost_vdpa_unmap(struct vhost_vdpa *v,
+>         } else if (ops->set_map) {
+>                 if (!v->in_batch)
+>                         ops->set_map(vdpa, asid, iotlb);
+> -       } else {
+> -               iommu_unmap(v->domain, iova, size);
+>         }
 >
-> >
-> > > Thanks
-> > >
-> > > >         flush_workqueue(ndev->mvdev.wq);
-> > > >         for (i = 0; i < ndev->cur_num_vqs; i++) {
-> > > >                 mvq = &ndev->vqs[i];
-> > > > @@ -3051,7 +3051,7 @@ static void update_carrier(struct work_struct
-> > > *work)
-> > > >         else
-> > > >                 ndev->config.status &= cpu_to_mlx5vdpa16(mvdev,
-> > > ~VIRTIO_NET_S_LINK_UP);
-> > > >
-> > > > -       if (ndev->config_cb.callback)
-> > > > +       if (ndev->nb_registered && ndev->config_cb.callback)
-> > > >                 ndev->config_cb.callback(ndev->config_cb.private);
-> > > >
-> > > >         kfree(wqent);
-> > > > @@ -3068,21 +3068,13 @@ static int event_handler(struct notifier_block
-> > > *nb, unsigned long event, void *p
-> > > >                 switch (eqe->sub_type) {
-> > > >                 case MLX5_PORT_CHANGE_SUBTYPE_DOWN:
-> > > >                 case MLX5_PORT_CHANGE_SUBTYPE_ACTIVE:
-> > > > -                       down_read(&ndev->reslock);
-> > > > -                       if (!ndev->nb_registered) {
-> > > > -                               up_read(&ndev->reslock);
-> > > > -                               return NOTIFY_DONE;
-> > > > -                       }
-> > > >                         wqent = kzalloc(sizeof(*wqent), GFP_ATOMIC);
-> > > > -                       if (!wqent) {
-> > > > -                               up_read(&ndev->reslock);
-> > > > +                       if (!wqent)
-> > > >                                 return NOTIFY_DONE;
-> > > > -                       }
-> > > >
-> > > >                         wqent->mvdev = &ndev->mvdev;
-> > > >                         INIT_WORK(&wqent->work, update_carrier);
-> > > >                         queue_work(ndev->mvdev.wq, &wqent->work);
-> > > > -                       up_read(&ndev->reslock);
-> > > >                         ret = NOTIFY_OK;
-> > > >                         break;
-> > > >                 default:
-> > > > --
-> > > > 2.38.1
-> > > >
-> >
+>         /* If we are in the middle of batch processing, delay the free
+> --
+> 2.34.3
+>
 
 _______________________________________________
 Virtualization mailing list
