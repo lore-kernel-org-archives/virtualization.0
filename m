@@ -1,116 +1,83 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A6C84C43217
-	for <virtualization@archiver.kernel.org>; Sun, 27 Nov 2022 16:34:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5F3C9C43217
+	for <virtualization@archiver.kernel.org>; Sun, 27 Nov 2022 17:58:50 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 302A481392;
-	Sun, 27 Nov 2022 16:34:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 302A481392
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=eKBdDDTw
+	by smtp4.osuosl.org (Postfix) with ESMTP id DC3CB4089A;
+	Sun, 27 Nov 2022 17:58:49 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org DC3CB4089A
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=zytor.com header.i=@zytor.com header.a=rsa-sha256 header.s=2022110601 header.b=NHYCvpXs
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id rzqFTauecafe; Sun, 27 Nov 2022 16:34:53 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Fr7FIM-oRQur; Sun, 27 Nov 2022 17:58:48 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id A045181385;
-	Sun, 27 Nov 2022 16:34:52 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A045181385
+	by smtp4.osuosl.org (Postfix) with ESMTPS id C0063403C5;
+	Sun, 27 Nov 2022 17:58:47 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C0063403C5
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3B1B7C0032;
-	Sun, 27 Nov 2022 16:34:52 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 5B947C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 942BBC0033;
+	Sun, 27 Nov 2022 17:58:47 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6FF34C002D
  for <virtualization@lists.linux-foundation.org>;
- Sun, 27 Nov 2022 16:34:50 +0000 (UTC)
+ Sun, 27 Nov 2022 17:58:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 3D42360B2E
+ by smtp4.osuosl.org (Postfix) with ESMTP id 4A00640761
  for <virtualization@lists.linux-foundation.org>;
- Sun, 27 Nov 2022 16:34:50 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3D42360B2E
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=eKBdDDTw
+ Sun, 27 Nov 2022 17:58:46 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4A00640761
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id soKp8zir7Sz6
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id FwwL3xV_LCVY
  for <virtualization@lists.linux-foundation.org>;
- Sun, 27 Nov 2022 16:34:49 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 22C7E60B24
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 22C7E60B24
+ Sun, 27 Nov 2022 17:58:45 +0000 (UTC)
+X-Greylist: delayed 00:33:14 by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1263F403C5
+Received: from mail.zytor.com (unknown [IPv6:2607:7c80:54:3::138])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 1263F403C5
  for <virtualization@lists.linux-foundation.org>;
- Sun, 27 Nov 2022 16:34:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1669566887;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=Tv0i6Mb3/67wUHBrHUEJrFYjSPaDixK1VWQy8tVPRpc=;
- b=eKBdDDTwifn2TNWsCEZgGmnL5PwBrYhaYK6T/2fAurn9uEsR685KFyXT+bmFSNw7nu3Rd+
- uLS9FMAcRQfoTg8N4irTdw/iQMT5Vz+BffbVj2hUYmPPZ9M7svfZTtiUsKijtgo43pp7ak
- FbgSa/ENBcXHka6InfJBtdd0xFT3n58=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-628-ggwf2ukLNEiNYx2W5v7_ig-1; Sun, 27 Nov 2022 11:34:46 -0500
-X-MC-Unique: ggwf2ukLNEiNYx2W5v7_ig-1
-Received: by mail-wm1-f70.google.com with SMTP id
- c187-20020a1c35c4000000b003cfee3c91cdso5152889wma.6
- for <virtualization@lists.linux-foundation.org>;
- Sun, 27 Nov 2022 08:34:46 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=Tv0i6Mb3/67wUHBrHUEJrFYjSPaDixK1VWQy8tVPRpc=;
- b=ElkCv5pvICg8T4GnMeoPY5ddw6bgwRSng21ygiFyy+LgcnbBnkOvH5BulgSXncO6I0
- KqBj+s26nIHhtZ4nQc/8W8pTywcUxqlvXy5GWO+qDT+x8HKQ7bhZnyamvNmSbs6/2W15
- nzBBiZYmgFAlFQMVufOZGpSKAS34O9lUwcnE+2g9lGBAD3PNRBf+CYWQdcKgGFO8z6mJ
- fqLqv5KUZh966DG4yBFqSrq7Me0dgbm2GDqKGcnQm7LOCAlkvNijZnQkQbWk6UVC2KtJ
- AxMECMa+yoaoYjtdnHWanxh8S9v5itL4jiKOdQWFKrN4AT2xMfd4MALo2rW0ywnAh+zs
- 6lTQ==
-X-Gm-Message-State: ANoB5pl1t0r8YF7UAQlycI/qDw+t/v8/x+K7KDsxinwvsHj879+EWtbh
- EbPsqLoRIeoat7Gy7gucY47W8zoIJ/sqgvuUoSPMvC341shvccs2wKyZgI4tN5suV7ZMvS0CYZb
- r/PjyWpKkRQvqJOYojnFwwVwXsNHNzWfvCmI2EZsO1w==
-X-Received: by 2002:a05:600c:4e06:b0:3cf:703e:1d88 with SMTP id
- b6-20020a05600c4e0600b003cf703e1d88mr23369403wmq.155.1669566885116; 
- Sun, 27 Nov 2022 08:34:45 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf5cUmg5EoGEynuuBBNzwkfATchN/A2m3eltFERYL+l0sxG3i2BIa2OQpQfV/VG64yqxo0qrUQ==
-X-Received: by 2002:a05:600c:4e06:b0:3cf:703e:1d88 with SMTP id
- b6-20020a05600c4e0600b003cf703e1d88mr23369394wmq.155.1669566884863; 
- Sun, 27 Nov 2022 08:34:44 -0800 (PST)
-Received: from redhat.com ([2.52.135.58]) by smtp.gmail.com with ESMTPSA id
- b10-20020adfde0a000000b0022e57e66824sm9966230wrm.99.2022.11.27.08.34.42
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sun, 27 Nov 2022 08:34:44 -0800 (PST)
-Date: Sun, 27 Nov 2022 11:34:40 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Subject: Re: [PATCH] vduse: Fix a possible warning in vduse_create_dev()
-Message-ID: <20221127113416-mutt-send-email-mst@kernel.org>
-References: <20221126040000.775914-1-harshit.m.mogalapalli@oracle.com>
- <20221126181822-mutt-send-email-mst@kernel.org>
- <8253ab3f-b4f2-ff60-7e87-6455c9c10dc8@oracle.com>
+ Sun, 27 Nov 2022 17:58:43 +0000 (UTC)
+Received: from [IPv6:::1] ([172.58.89.136]) (authenticated bits=0)
+ by mail.zytor.com (8.17.1/8.17.1) with ESMTPSA id 2ARHOi1Z2093772
+ (version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
+ Sun, 27 Nov 2022 09:24:45 -0800
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 2ARHOi1Z2093772
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
+ s=2022110601; t=1669569889;
+ bh=onPExFmU8kkDJicwNe4UEJNsfvddfveagmwBV0peyQU=;
+ h=Date:From:To:CC:Subject:In-Reply-To:References:From;
+ b=NHYCvpXsp/ej6cChBHv4IZey+MpDNtOP153kT6q+1lkUcddgqbCQctt7ZJavPuKow
+ wM+C8IDe4rN/2IwkfmDL4Ooqh2xRUhJyyaspcqB3B8x7sxdBeKYE4jJUQHBhEorK/d
+ J45x8wLVIgjVz/f47R7056grkkrSONeUo/b/trUNNbW4xF1bDQwk/U0J30lmSCwpIH
+ afmtjY/2TE4KkC7XQfF1PbyTl3IfecaW8QY4tow83uxl9rvU4HlwaKDZUjhlJErD8W
+ jEhZbaX9w+h1rOijCQxgKpzpF0S+ymspT0uqQKrhFCzNJg04H2ToHX7VofGVIiL531
+ tyHdqpzK4XK7w==
+Date: Sun, 27 Nov 2022 09:24:34 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+To: Hou Wenlong <houwenlong.hwl@antgroup.com>, linux-kernel@vger.kernel.org
+Subject: =?US-ASCII?Q?Re=3A_=5BPATCH_v2=5D_x86/paravirt=3A_Use_relat?=
+ =?US-ASCII?Q?ive_reference_for_original_instruction?=
+User-Agent: K-9 Mail for Android
+In-Reply-To: <73c9ffac157087da78af9fca59cf7d8db7f17226.1669290510.git.houwenlong.hwl@antgroup.com>
+References: <73c9ffac157087da78af9fca59cf7d8db7f17226.1669290510.git.houwenlong.hwl@antgroup.com>
+Message-ID: <DD7871BE-B969-4E2E-BDF0-C5D730F0B0AE@zytor.com>
 MIME-Version: 1.0
-In-Reply-To: <8253ab3f-b4f2-ff60-7e87-6455c9c10dc8@oracle.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: Guanjun <guanjun@linux.alibaba.com>, error27@gmail.com,
- harshit.m.mogalapalli@gmail.com, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org,
- Xie Yongji <xieyongji@bytedance.com>,
- Maxime Coquelin <maxime.coquelin@redhat.com>,
- Gautam Dawar <gautam.dawar@xilinx.com>, Eli Cohen <elic@nvidia.com>
+Cc: Juergen Gross <jgross@suse.com>, x86@kernel.org,
+ Kees Cook <keescook@chromium.org>, Song Liu <song@kernel.org>,
+ VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>,
+ Josh Poimboeuf <jpoimboe@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+ Alexey Makhalov <amakhalov@vmware.com>, Nadav Amit <namit@vmware.com>,
+ Thomas Gleixner <tglx@linutronix.de>,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -127,99 +94,114 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sun, Nov 27, 2022 at 08:16:24AM +0530, Harshit Mogalapalli wrote:
-> Hi Micheal,
+On November 24, 2022 3:51:53 AM PST, Hou Wenlong <houwenlong.hwl@antgroup.com> wrote:
+>Similar to the alternative patching, use relative reference for original
+>instruction rather than absolute one, which saves 8 bytes for one entry
+>on x86_64.  And it could generate R_X86_64_PC32 relocation instead of
+>R_X86_64_64 relocation, which also reduces relocation metadata on
+>relocatable builds. And the alignment could be hard coded to be 4 now.
+>
+>Signed-off-by: Hou Wenlong <houwenlong.hwl@antgroup.com>
+>---
+> arch/x86/include/asm/paravirt.h       | 10 +++++-----
+> arch/x86/include/asm/paravirt_types.h |  8 ++++----
+> arch/x86/kernel/alternative.c         |  8 +++++---
+> 3 files changed, 14 insertions(+), 12 deletions(-)
+>
+>diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
+>index 2851bc2339d5..e56065ea73f2 100644
+>--- a/arch/x86/include/asm/paravirt.h
+>+++ b/arch/x86/include/asm/paravirt.h
+>@@ -735,16 +735,16 @@ extern void default_banner(void);
 > 
-> On 27/11/22 4:52 am, Michael S. Tsirkin wrote:
-> > On Fri, Nov 25, 2022 at 07:59:58PM -0800, Harshit Mogalapalli wrote:
-> > > As 'dev->vq_num' is user-controlled data, if user tries to allocate
-> > > memory larger than(>=) MAX_ORDER, then kcalloc() will fail, it
-> > > creates a stack trace and messes up dmesg with a warning.
-> > > 
-> > > Call trace:
-> > > -> vduse_ioctl
-> > > --> vduse_create_dev
-> > > 'config->vq_num' is user data as it comes from ioctl, which is
-> > > assigned to 'dev->vq_num'.
-> > > 
-> > > Add __GFP_NOWARN in order to avoid too large allocation warning.
-> > > This is detected by static analysis using smatch.
-> > > 
-> > > Fixes: c8a6153b6c59 ("vduse: Introduce VDUSE - vDPA Device in Userspace")
-> > > Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-> > > ---
-> > >   drivers/vdpa/vdpa_user/vduse_dev.c | 3 ++-
-> > >   1 file changed, 2 insertions(+), 1 deletion(-)
-> > > 
-> > > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > index 35dceee3ed56..5e9546b16165 100644
-> > > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > @@ -1512,7 +1512,8 @@ static int vduse_create_dev(struct vduse_dev_config *config,
-> > >   	dev->config_size = config->config_size;
-> > >   	dev->vq_align = config->vq_align;
-> > >   	dev->vq_num = config->vq_num;
-> > > -	dev->vqs = kcalloc(dev->vq_num, sizeof(*dev->vqs), GFP_KERNEL);
-> > > +	dev->vqs = kcalloc(dev->vq_num, sizeof(*dev->vqs),
-> > > +			   GFP_KERNEL | __GFP_NOWARN);
-> > >   	if (!dev->vqs)
-> > >   		goto err_vqs;
-> > 
+> #else  /* __ASSEMBLY__ */
 > 
-> Thanks for checking the patch.
+>-#define _PVSITE(ptype, ops, word, algn)		\
+>+#define _PVSITE(ptype, ops)			\
+> 771:;						\
+> 	ops;					\
+> 772:;						\
+> 	.pushsection .parainstructions,"a";	\
+>-	 .align	algn;				\
+>-	 word 771b;				\
+>+	 .align	4;				\
+>+	 .long 771b-.;				\
+> 	 .byte ptype;				\
+> 	 .byte 772b-771b;			\
+>-	 _ASM_ALIGN;				\
+>+	 .align 4;				\
+> 	.popsection
 > 
-> > This is insufficient - the real source of the problem is that
-> > vq_num is not validated.
-> > The thing to do is to validate config and limit vq_num to 0xffff;
-> > 
 > 
-> 1557 static long vduse_ioctl(struct file *file, unsigned int cmd,
-> 1558                         unsigned long arg)
-> 1559 {
-> 1560         int ret;
-> 1561         void __user *argp = (void __user *)arg;
-> 1564         mutex_lock(&vduse_lock);
-> 1565         switch (cmd) {
->              ....
-> 1584         case VDUSE_CREATE_DEV: {
-> 1585                 struct vduse_dev_config config;
-> 1587                 void *buf;
-> 1588
-> 1589                 ret = -EFAULT;
-> 1590                 if (copy_from_user(&config, argp, size))
-> 1591                         break;
-> 1592
-> 1593                 ret = -EINVAL;
-> 1594                 if (vduse_validate_config(&config) == false)
-> 1595                         break;
-> 1596
-> 1597                 buf = vmemdup_user(argp + size, config.config_size);
-> 1598                 if (IS_ERR(buf)) {
-> 1599                         ret = PTR_ERR(buf);
-> 1600                         break;
-> 1601                 }
-> 1602                 config.name[VDUSE_NAME_MAX - 1] = '\0';
-> 1603                 ret = vduse_create_dev(&config, buf,
-> control->api_version);
-> 1604                 if (ret)
-> 1605                         kvfree(buf);
-> 1606                 break;
-> 1607         }
+>@@ -752,7 +752,7 @@ extern void default_banner(void);
+> #ifdef CONFIG_PARAVIRT_XXL
 > 
-> we have vduse_validate_config() being called in vduse_ioctl() which is the
-> caller of vduse_create_dev(), so validate_config() is not necessary in
-> vduse_create_dev() ?
+> #define PARA_PATCH(off)		((off) / 8)
+>-#define PARA_SITE(ptype, ops)	_PVSITE(ptype, ops, .quad, 8)
+>+#define PARA_SITE(ptype, ops)	_PVSITE(ptype, ops)
+> #define PARA_INDIRECT(addr)	*addr(%rip)
 > 
-> Thanks,
-> Harshit
+> #ifdef CONFIG_DEBUG_ENTRY
+>diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
+>index 8c1da419260f..68952ae07a3f 100644
+>--- a/arch/x86/include/asm/paravirt_types.h
+>+++ b/arch/x86/include/asm/paravirt_types.h
+>@@ -5,7 +5,7 @@
+> #ifndef __ASSEMBLY__
+> /* These all sit in the .parainstructions section to tell us what to patch. */
+> struct paravirt_patch_site {
+>-	u8 *instr;		/* original instructions */
+>+	s32 instr_offset;	/* original instructions */
+> 	u8 type;		/* type of this instruction */
+> 	u8 len;			/* length of original instruction */
+> };
+>@@ -273,11 +273,11 @@ extern struct paravirt_patch_template pv_ops;
+> #define _paravirt_alt(insn_string, type)		\
+> 	"771:\n\t" insn_string "\n" "772:\n"		\
+> 	".pushsection .parainstructions,\"a\"\n"	\
+>-	_ASM_ALIGN "\n"					\
+>-	_ASM_PTR " 771b\n"				\
+>+	"  .align 4\n"					\
+>+	"  .long 771b-.\n"				\
+> 	"  .byte " type "\n"				\
+> 	"  .byte 772b-771b\n"				\
+>-	_ASM_ALIGN "\n"					\
+>+	"  .align 4\n"					\
+> 	".popsection\n"
+> 
+> /* Generate patchable code, with the default asm parameters. */
+>diff --git a/arch/x86/kernel/alternative.c b/arch/x86/kernel/alternative.c
+>index 111b809f0ac2..6eea563a098d 100644
+>--- a/arch/x86/kernel/alternative.c
+>+++ b/arch/x86/kernel/alternative.c
+>@@ -1232,20 +1232,22 @@ void __init_or_module apply_paravirt(struct paravirt_patch_site *start,
+> {
+> 	struct paravirt_patch_site *p;
+> 	char insn_buff[MAX_PATCH_LEN];
+>+	u8 *instr;
+> 
+> 	for (p = start; p < end; p++) {
+> 		unsigned int used;
+> 
+>+		instr = (u8 *)&p->instr_offset + p->instr_offset;
+> 		BUG_ON(p->len > MAX_PATCH_LEN);
+> 		/* prep the buffer with the original instructions */
+>-		memcpy(insn_buff, p->instr, p->len);
+>-		used = paravirt_patch(p->type, insn_buff, (unsigned long)p->instr, p->len);
+>+		memcpy(insn_buff, instr, p->len);
+>+		used = paravirt_patch(p->type, insn_buff, (unsigned long)instr, p->len);
+> 
+> 		BUG_ON(used > p->len);
+> 
+> 		/* Pad the rest with nops */
+> 		add_nops(insn_buff + used, p->len - used);
+>-		text_poke_early(p->instr, insn_buff, p->len);
+>+		text_poke_early(instr, insn_buff, p->len);
+> 	}
+> }
+> extern struct paravirt_patch_site __start_parainstructions[],
 
-OK but I don't see vduse_validate_config checking vq_num.
-
-> > 
-> > > -- 
-> > > 2.38.1
-> > 
-
+Any reason that you couldn't use the same patching code?
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
