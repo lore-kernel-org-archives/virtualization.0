@@ -1,73 +1,78 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 37135C4321E
-	for <virtualization@archiver.kernel.org>; Mon, 28 Nov 2022 22:57:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 570D3C4321E
+	for <virtualization@archiver.kernel.org>; Mon, 28 Nov 2022 23:30:28 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id A4548401A2;
-	Mon, 28 Nov 2022 22:57:50 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A4548401A2
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.a=rsa-sha256 header.s=20171124 header.b=IW/JGQG9
+	by smtp3.osuosl.org (Postfix) with ESMTP id B754160E2E;
+	Mon, 28 Nov 2022 23:30:27 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B754160E2E
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.a=rsa-sha256 header.s=20171124 header.b=mld/RygI
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 4t-_ZoC_xEY2; Mon, 28 Nov 2022 22:57:49 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 4119940A81;
-	Mon, 28 Nov 2022 22:57:49 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4119940A81
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id kxor8sctzfnm; Mon, 28 Nov 2022 23:30:27 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 625FE60D56;
+	Mon, 28 Nov 2022 23:30:26 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 625FE60D56
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 12DCAC0033;
-	Mon, 28 Nov 2022 22:57:49 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3EEF5C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 35EBCC0032;
+	Mon, 28 Nov 2022 23:30:26 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 073B7C002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 28 Nov 2022 22:57:48 +0000 (UTC)
+ Mon, 28 Nov 2022 23:30:24 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 2623B40A81
+ by smtp1.osuosl.org (Postfix) with ESMTP id D05908140C
  for <virtualization@lists.linux-foundation.org>;
- Mon, 28 Nov 2022 22:57:48 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2623B40A81
+ Mon, 28 Nov 2022 23:30:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D05908140C
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch
+ header.a=rsa-sha256 header.s=20171124 header.b=mld/RygI
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id g3ghjvWyoz8u
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id d86egT5Ae5IP
  for <virtualization@lists.linux-foundation.org>;
- Mon, 28 Nov 2022 22:57:47 +0000 (UTC)
+ Mon, 28 Nov 2022 23:30:23 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A8CBF401A2
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 35E108139F
 Received: from vps0.lunn.ch (vps0.lunn.ch [156.67.10.101])
- by smtp2.osuosl.org (Postfix) with ESMTPS id A8CBF401A2
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 35E108139F
  for <virtualization@lists.linux-foundation.org>;
- Mon, 28 Nov 2022 22:57:46 +0000 (UTC)
+ Mon, 28 Nov 2022 23:30:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
  s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
  References:Message-ID:Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:
  Date:Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
  Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
- bh=riUMz2JoO3Wk5wQE270/fOYDEjUtIRo/vnvujhBOz1A=; b=IW/JGQG9TWjEh4h85XQK6sqvet
- C8Cyl1CMwC6Zb+xo7yCyifc9IbjN0ulHo6seUOMudzknPkkuqwpW7RGebpRrIM7w8huFjsdqRNCvc
- towmL7awEKHOtLUEPR5UixURX4L2huiA+wXklEQUdB3gyThFcIjV0ks2Cjsv1vm2aEBc=;
+ bh=kC6pnBWOGreiyjfkHaB8DmewKznLzGQDHHEYlft9qEY=; b=mld/RygIdFIktFYpfgzY/sxnJZ
+ K97NzztHKPhQWjRhfCcChYNyIpGeQmLob2BtDfGyRJppvznwX4jw2u5pAqL7GdmUnXGwPQrI0LQy/
+ 4KQkJM3ZpUbQp/3h0m+xef309/UEva1PefEdym7N+PG4K/C9VvRkGnzMgJP81LCJRC2s=;
 Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
  (envelope-from <andrew@lunn.ch>)
- id 1ozn3g-003nmw-Em; Mon, 28 Nov 2022 23:57:04 +0100
-Date: Mon, 28 Nov 2022 23:57:04 +0100
+ id 1oznZG-003o3J-Bs; Tue, 29 Nov 2022 00:29:42 +0100
+Date: Tue, 29 Nov 2022 00:29:42 +0100
 From: Andrew Lunn <andrew@lunn.ch>
 To: Shannon Nelson <shnelson@amd.com>
 Subject: Re: [RFC PATCH net-next 10/19] pds_core: devlink params for enabling
  VIF support
-Message-ID: <Y4U8wIXSM2kESQIr@lunn.ch>
+Message-ID: <Y4VEZj7KQG+zSjlh@lunn.ch>
 References: <20221118225656.48309-1-snelson@pensando.io>
  <20221118225656.48309-11-snelson@pensando.io>
  <20221128102953.2a61e246@kernel.org>
  <f7457718-cff6-e5e1-242e-89b0e118ec3f@amd.com>
+ <Y4U8wIXSM2kESQIr@lunn.ch>
+ <43eebffe-7ac1-6311-6973-c7a53935e42d@amd.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <f7457718-cff6-e5e1-242e-89b0e118ec3f@amd.com>
+In-Reply-To: <43eebffe-7ac1-6311-6973-c7a53935e42d@amd.com>
 Cc: mst@redhat.com, netdev@vger.kernel.org,
  virtualization@lists.linux-foundation.org, Jakub Kicinski <kuba@kernel.org>,
  drivers@pensando.io, Shannon Nelson <snelson@pensando.io>, davem@davemloft.net
@@ -87,30 +92,26 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Nov 28, 2022 at 02:26:26PM -0800, Shannon Nelson wrote:
-> On 11/28/22 10:29 AM, Jakub Kicinski wrote:
-> > On Fri, 18 Nov 2022 14:56:47 -0800 Shannon Nelson wrote:
-> > > +     DEVLINK_PARAM_DRIVER(PDSC_DEVLINK_PARAM_ID_LM,
-> > > +                          "enable_lm",
-> > > +                          DEVLINK_PARAM_TYPE_BOOL,
-> > > +                          BIT(DEVLINK_PARAM_CMODE_RUNTIME),
-> > > +                          pdsc_dl_enable_get,
-> > > +                          pdsc_dl_enable_set,
-> > > +                          pdsc_dl_enable_validate),
+> > I know we are running short of short acronyms and we have to recycle
+> > them, rfc5513 and all, so could you actually use
+> > DEVLINK_PARAM_GENERIC_ID_ENABLE_LIST_MANAGER making it clear your
+> > Smart NIC is running majordomo and will soon replace vger.
 > > 
-> > Terrible name, not vendor specific.
+> >        Andrew
 > 
-> ... but useful for starting a conversation.
-> 
-> How about we add
-> 	DEVLINK_PARAM_GENERIC_ID_ENABLE_LM,
+> Oh, hush, someone might hear you speak of our plan to take over the email
+> world!
 
-I know we are running short of short acronyms and we have to recycle
-them, rfc5513 and all, so could you actually use
-DEVLINK_PARAM_GENERIC_ID_ENABLE_LIST_MANAGER making it clear your
-Smart NIC is running majordomo and will soon replace vger.
+It seems like something a Smart NIC would be ideal to do. Here is an
+email body and 10,000 email addresses i recently acquired, go send
+spam to them at line rate.
 
-      Andrew
+> How about:
+> 	DEVLINK_PARAM_GENERIC_ID_ENABLE_LIVE_MIGRATION
+
+Much better.
+
+     Andrew
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
