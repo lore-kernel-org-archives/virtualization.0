@@ -1,88 +1,106 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 19CFDC4321E
-	for <virtualization@archiver.kernel.org>; Mon, 28 Nov 2022 03:35:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 66830C433FE
+	for <virtualization@archiver.kernel.org>; Mon, 28 Nov 2022 04:05:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 89DDA408BC;
-	Mon, 28 Nov 2022 03:35:22 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 89DDA408BC
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=zytor.com header.i=@zytor.com header.a=rsa-sha256 header.s=2022110601 header.b=cU7V1Hgw
+	by smtp3.osuosl.org (Postfix) with ESMTP id DF58E60AB7;
+	Mon, 28 Nov 2022 04:05:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DF58E60AB7
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gfDhrjMt
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id QNHL3xmvAje3; Mon, 28 Nov 2022 03:35:21 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ks08qYlhPx22; Mon, 28 Nov 2022 04:05:54 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id BADA6408B0;
-	Mon, 28 Nov 2022 03:35:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BADA6408B0
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 2D2E360AE6;
+	Mon, 28 Nov 2022 04:05:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2D2E360AE6
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8321EC0033;
-	Mon, 28 Nov 2022 03:35:20 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 53C3DC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id F210EC0033;
+	Mon, 28 Nov 2022 04:05:53 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5ECE0C002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 28 Nov 2022 03:35:19 +0000 (UTC)
+ Mon, 28 Nov 2022 04:05:53 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 1A12741503
+ by smtp1.osuosl.org (Postfix) with ESMTP id 3885581A29
  for <virtualization@lists.linux-foundation.org>;
- Mon, 28 Nov 2022 03:35:19 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1A12741503
-Authentication-Results: smtp4.osuosl.org;
- dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com
- header.a=rsa-sha256 header.s=2022110601 header.b=cU7V1Hgw
+ Mon, 28 Nov 2022 04:05:53 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3885581A29
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=gfDhrjMt
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id hRKnjNVy4RSe
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id TmHsGwaIjaO5
  for <virtualization@lists.linux-foundation.org>;
- Mon, 28 Nov 2022 03:35:18 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 15346414C0
-Received: from mail.zytor.com (unknown [IPv6:2607:7c80:54:3::138])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 15346414C0
+ Mon, 28 Nov 2022 04:05:52 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 067F781A24
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 067F781A24
  for <virtualization@lists.linux-foundation.org>;
- Mon, 28 Nov 2022 03:35:17 +0000 (UTC)
-Received: from [127.0.0.1] ([73.223.250.219]) (authenticated bits=0)
- by mail.zytor.com (8.17.1/8.17.1) with ESMTPSA id 2AS3YgFa2228734
- (version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
- Sun, 27 Nov 2022 19:34:43 -0800
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 2AS3YgFa2228734
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
- s=2022110601; t=1669606485;
- bh=pyo7Px7PpQM2HufyWL1vMcwAPfvOwNDGVJHyx4pR0Eo=;
- h=Date:From:To:CC:Subject:In-Reply-To:References:From;
- b=cU7V1Hgw40yLX8VxRwQFYAeaAkAtFA9OKt0fQ+q5LZ3VAitRxt5Rqk+OK1Zo0YUYN
- sIW/WfDBgyRt/GCwJAozxfDXpHEYtLxHvq65lJMLHPyTd+6/GgsKP8Sjo7zBtXvfhj
- 0cs8ZGKS8WIpZsbQUr6nS5c4x1tXQbE27ZyBLpcMq43aO7jmrBAwJMH0mQjEDyP7T9
- kyp+u70AKyLhCztSMIeH4BL3AmDdy/a463T4vIpIZlJ5cQ4V6W3s+a+w1AhilTzusn
- 1pDRgvNbmDKHyzpS6xS8rD8535TyXZhizQDweXYaZ3Sl9OmAHVS9FjXkrP3DUx3+PV
- trhAjHytoqEqw==
-Date: Sun, 27 Nov 2022 19:34:39 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-To: Hou Wenlong <houwenlong.hwl@antgroup.com>
-Subject: =?US-ASCII?Q?Re=3A_=5BPATCH_v2=5D_x86/paravirt=3A_Use_relat?=
- =?US-ASCII?Q?ive_reference_for_original_instruction?=
-User-Agent: K-9 Mail for Android
-In-Reply-To: <20221128030320.GA101008@k08j02272.eu95sqa>
-References: <73c9ffac157087da78af9fca59cf7d8db7f17226.1669290510.git.houwenlong.hwl@antgroup.com>
- <DD7871BE-B969-4E2E-BDF0-C5D730F0B0AE@zytor.com>
- <20221128030320.GA101008@k08j02272.eu95sqa>
-Message-ID: <169A82BE-E5A9-4DB6-9CBE-055699F00213@zytor.com>
+ Mon, 28 Nov 2022 04:05:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1669608350;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=TW6u920HelKnlzU3FsbOm4kntLB0GHqwnJLuYrrI+/8=;
+ b=gfDhrjMt2/bnnUXEIoT26zKEV+64wYcCxq74zdN/4jyDqXo+jM7A1nhAg4SpwS8kFva5wk
+ 9aC78SEGlsM44vOWS/0JiyEJ34CiO/OYsLMMBWevsoMr+WR6rNGFcxIpiM5rnKOZgGPX0X
+ qo1gGnC+p44+vY4GD0gsrRcXDNZ4w6E=
+Received: from mail-ot1-f71.google.com (mail-ot1-f71.google.com
+ [209.85.210.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-354-n3tMV58rOguwc9ZjZeAkbA-1; Sun, 27 Nov 2022 23:05:49 -0500
+X-MC-Unique: n3tMV58rOguwc9ZjZeAkbA-1
+Received: by mail-ot1-f71.google.com with SMTP id
+ l12-20020a9d6a8c000000b0066c33f1649cso3764060otq.2
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 27 Nov 2022 20:05:49 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+ :reply-to;
+ bh=TW6u920HelKnlzU3FsbOm4kntLB0GHqwnJLuYrrI+/8=;
+ b=3rsfsMLg09DiJ6biOx8anaLCsciOQ+9lugqkvfR6SYGwfNYzAVGzINNwGyz3wGsEDm
+ TAZtLWYuR07Pe0bk2avjV1mj4tbH2fmqR8JEHIeGRBk50Q7lMNp5sCOhdV0EbXKjrlMn
+ ncwnSC868klSFdrP4DcZv2F71BNnweWV0ND/iXjjfXeTMe2cB+Xedo5lQGTfvi0FdOSX
+ dv+IZVHTgQhx3OeYm3J6BmvRUCPGlAdezCqzZNks+0dBrq1Te7mlEWzWNkWmWeTviF/5
+ 24K6fnTFTAcCRrGOGtNc95pePJoBElYCSM17yrKmUcGpHy+pAxh2VVx+LTzzakP0ZNcL
+ ol0g==
+X-Gm-Message-State: ANoB5pkUTYaSgu+wKLOooNNuKRHvyX1gMTGM+PZz1jpSf+TLFgMjtFZ+
+ GqmFaR8k25/hM1ErYXWbqxwzp9CJ4YVxv1UIAS0XqUfTpMqztpbNFUQffMJjpRucO8TF7haBHcI
+ jdqW0w4o7dqsRpXtB8YsaDeYRet0UZ+a7czkCvA+PnIP0xn0xhakk0uERaA==
+X-Received: by 2002:aca:2103:0:b0:35b:9abf:5031 with SMTP id
+ 3-20020aca2103000000b0035b9abf5031mr5383214oiz.280.1669608348383; 
+ Sun, 27 Nov 2022 20:05:48 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf5Amwfa3Ywi+8tdyygBOHJh0o3crwFoe1AjAwj76fJiS1Xng1WCeFaC6wSpfTtoNi3+YoYQtw8R+Hh21TuSFhI=
+X-Received: by 2002:aca:2103:0:b0:35b:9abf:5031 with SMTP id
+ 3-20020aca2103000000b0035b9abf5031mr5383209oiz.280.1669608348105; Sun, 27 Nov
+ 2022 20:05:48 -0800 (PST)
 MIME-Version: 1.0
-Cc: Juergen Gross <jgross@suse.com>, x86@kernel.org,
- Kees Cook <keescook@chromium.org>, Song Liu <song@kernel.org>,
- VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
- Dave Hansen <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org,
- Josh Poimboeuf <jpoimboe@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
- Alexey Makhalov <amakhalov@vmware.com>, Nadav Amit <namit@vmware.com>,
- Thomas Gleixner <tglx@linutronix.de>,
- virtualization@lists.linux-foundation.org
+References: <20221128025558.2152-1-longpeng2@huawei.com>
+In-Reply-To: <20221128025558.2152-1-longpeng2@huawei.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 28 Nov 2022 12:05:37 +0800
+Message-ID: <CACGkMEsWoM1LKkPWPgDALssjkk4UXxfhYm3_aCFktNnpXtWVjQ@mail.gmail.com>
+Subject: Re: [PATCH] vdpasim: support doorbell mapping
+To: "Longpeng(Mike)" <longpeng2@huawei.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: mst@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org,
+ yechuan@huawei.com, eperezma@redhat.com, huangzhichao@huawei.com,
+ stefanha@redhat.com, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -99,122 +117,291 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On November 27, 2022 7:03:20 PM PST, Hou Wenlong <houwenlong.hwl@antgroup.com> wrote:
->On Sun, Nov 27, 2022 at 09:24:34AM -0800, H. Peter Anvin wrote:
->> On November 24, 2022 3:51:53 AM PST, Hou Wenlong <houwenlong.hwl@antgroup.com> wrote:
->> >Similar to the alternative patching, use relative reference for original
->> >instruction rather than absolute one, which saves 8 bytes for one entry
->> >on x86_64.  And it could generate R_X86_64_PC32 relocation instead of
->> >R_X86_64_64 relocation, which also reduces relocation metadata on
->> >relocatable builds. And the alignment could be hard coded to be 4 now.
->> >
->> >Signed-off-by: Hou Wenlong <houwenlong.hwl@antgroup.com>
->> >---
->> > arch/x86/include/asm/paravirt.h       | 10 +++++-----
->> > arch/x86/include/asm/paravirt_types.h |  8 ++++----
->> > arch/x86/kernel/alternative.c         |  8 +++++---
->> > 3 files changed, 14 insertions(+), 12 deletions(-)
->> >
->> >diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
->> >index 2851bc2339d5..e56065ea73f2 100644
->> >--- a/arch/x86/include/asm/paravirt.h
->> >+++ b/arch/x86/include/asm/paravirt.h
->> >@@ -735,16 +735,16 @@ extern void default_banner(void);
->> > 
->> > #else  /* __ASSEMBLY__ */
->> > 
->> >-#define _PVSITE(ptype, ops, word, algn)		\
->> >+#define _PVSITE(ptype, ops)			\
->> > 771:;						\
->> > 	ops;					\
->> > 772:;						\
->> > 	.pushsection .parainstructions,"a";	\
->> >-	 .align	algn;				\
->> >-	 word 771b;				\
->> >+	 .align	4;				\
->> >+	 .long 771b-.;				\
->> > 	 .byte ptype;				\
->> > 	 .byte 772b-771b;			\
->> >-	 _ASM_ALIGN;				\
->> >+	 .align 4;				\
->> > 	.popsection
->> > 
->> > 
->> >@@ -752,7 +752,7 @@ extern void default_banner(void);
->> > #ifdef CONFIG_PARAVIRT_XXL
->> > 
->> > #define PARA_PATCH(off)		((off) / 8)
->> >-#define PARA_SITE(ptype, ops)	_PVSITE(ptype, ops, .quad, 8)
->> >+#define PARA_SITE(ptype, ops)	_PVSITE(ptype, ops)
->> > #define PARA_INDIRECT(addr)	*addr(%rip)
->> > 
->> > #ifdef CONFIG_DEBUG_ENTRY
->> >diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
->> >index 8c1da419260f..68952ae07a3f 100644
->> >--- a/arch/x86/include/asm/paravirt_types.h
->> >+++ b/arch/x86/include/asm/paravirt_types.h
->> >@@ -5,7 +5,7 @@
->> > #ifndef __ASSEMBLY__
->> > /* These all sit in the .parainstructions section to tell us what to patch. */
->> > struct paravirt_patch_site {
->> >-	u8 *instr;		/* original instructions */
->> >+	s32 instr_offset;	/* original instructions */
->> > 	u8 type;		/* type of this instruction */
->> > 	u8 len;			/* length of original instruction */
->> > };
->> >@@ -273,11 +273,11 @@ extern struct paravirt_patch_template pv_ops;
->> > #define _paravirt_alt(insn_string, type)		\
->> > 	"771:\n\t" insn_string "\n" "772:\n"		\
->> > 	".pushsection .parainstructions,\"a\"\n"	\
->> >-	_ASM_ALIGN "\n"					\
->> >-	_ASM_PTR " 771b\n"				\
->> >+	"  .align 4\n"					\
->> >+	"  .long 771b-.\n"				\
->> > 	"  .byte " type "\n"				\
->> > 	"  .byte 772b-771b\n"				\
->> >-	_ASM_ALIGN "\n"					\
->> >+	"  .align 4\n"					\
->> > 	".popsection\n"
->> > 
->> > /* Generate patchable code, with the default asm parameters. */
->> >diff --git a/arch/x86/kernel/alternative.c b/arch/x86/kernel/alternative.c
->> >index 111b809f0ac2..6eea563a098d 100644
->> >--- a/arch/x86/kernel/alternative.c
->> >+++ b/arch/x86/kernel/alternative.c
->> >@@ -1232,20 +1232,22 @@ void __init_or_module apply_paravirt(struct paravirt_patch_site *start,
->> > {
->> > 	struct paravirt_patch_site *p;
->> > 	char insn_buff[MAX_PATCH_LEN];
->> >+	u8 *instr;
->> > 
->> > 	for (p = start; p < end; p++) {
->> > 		unsigned int used;
->> > 
->> >+		instr = (u8 *)&p->instr_offset + p->instr_offset;
->> > 		BUG_ON(p->len > MAX_PATCH_LEN);
->> > 		/* prep the buffer with the original instructions */
->> >-		memcpy(insn_buff, p->instr, p->len);
->> >-		used = paravirt_patch(p->type, insn_buff, (unsigned long)p->instr, p->len);
->> >+		memcpy(insn_buff, instr, p->len);
->> >+		used = paravirt_patch(p->type, insn_buff, (unsigned long)instr, p->len);
->> > 
->> > 		BUG_ON(used > p->len);
->> > 
->> > 		/* Pad the rest with nops */
->> > 		add_nops(insn_buff + used, p->len - used);
->> >-		text_poke_early(p->instr, insn_buff, p->len);
->> >+		text_poke_early(instr, insn_buff, p->len);
->> > 	}
->> > }
->> > extern struct paravirt_patch_site __start_parainstructions[],
->> 
->> Any reason that you couldn't use the same patching code?
+On Mon, Nov 28, 2022 at 10:56 AM Longpeng(Mike) <longpeng2@huawei.com> wrote:
 >
->Sorry, what do you mean using the same patching code? Do you
->mean that share some code between apply_alternatives() and
->apply_paravirt()?
+> From: Longpeng <longpeng2@huawei.com>
+>
+> Support doorbell mapping for vdpasim devices, then we can test the notify
+> passthrough feature even if there's no real hardware on hand.
 
-Yes. Abstract the facility rather than duplicate.
+You can use vp_vdpa in L1 plus page_ver_vq in L0 to test it in L2.
+That is how I test it.
+
+>
+> Allocates a dummy page which used to emulate the notify page of the device.
+> All values written to this page would be ignored,  a periodic work will
+> check whether there're requests that need to process.
+
+This seems tricky, it means the device is working even if there's no
+kick. If we really want to do, we should try to use page fault handler
+(probably by extending the config ops), but I'm not sure it's worth to
+bother (or if we can find a use case for no simulator devices).
+
+>
+> This cap is disabled as default, users can enable it as follow:
+>   modprobe vdpa_sim notify_passthrough=true
+>
+> Signed-off-by: Longpeng <longpeng2@huawei.com>
+> ---
+>  drivers/vdpa/vdpa_sim/vdpa_sim.c     | 71 ++++++++++++++++++++++++++--
+>  drivers/vdpa/vdpa_sim/vdpa_sim.h     |  5 +-
+>  drivers/vdpa/vdpa_sim/vdpa_sim_blk.c |  5 +-
+>  drivers/vdpa/vdpa_sim/vdpa_sim_net.c |  4 +-
+>  4 files changed, 76 insertions(+), 9 deletions(-)
+>
+> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+> index 7438a89ce939..5c215b56b78b 100644
+> --- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
+> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+> @@ -14,6 +14,7 @@
+>  #include <linux/slab.h>
+>  #include <linux/sched.h>
+>  #include <linux/dma-map-ops.h>
+> +#include <asm/set_memory.h>
+>  #include <linux/vringh.h>
+>  #include <linux/vdpa.h>
+>  #include <linux/vhost_iotlb.h>
+> @@ -36,9 +37,15 @@ module_param(max_iotlb_entries, int, 0444);
+>  MODULE_PARM_DESC(max_iotlb_entries,
+>                  "Maximum number of iotlb entries for each address space. 0 means unlimited. (default: 2048)");
+>
+> +static bool notify_passthrough;
+> +module_param(notify_passthrough, bool, 0444);
+> +MODULE_PARM_DESC(notify_passthrough,
+> +                "Enable vq notify(doorbell) area mapping. (default: false)");
+> +
+>  #define VDPASIM_QUEUE_ALIGN PAGE_SIZE
+>  #define VDPASIM_QUEUE_MAX 256
+>  #define VDPASIM_VENDOR_ID 0
+> +#define VDPASIM_VRING_POLL_PERIOD 100 /* ms */
+>
+>  static struct vdpasim *vdpa_to_sim(struct vdpa_device *vdpa)
+>  {
+> @@ -276,7 +283,7 @@ struct vdpasim *vdpasim_create(struct vdpasim_dev_attr *dev_attr,
+>         }
+>
+>         vdpasim->dev_attr = *dev_attr;
+> -       INIT_WORK(&vdpasim->work, dev_attr->work_fn);
+> +       INIT_DELAYED_WORK(&vdpasim->vring_work, dev_attr->work_fn);
+>         spin_lock_init(&vdpasim->lock);
+>         spin_lock_init(&vdpasim->iommu_lock);
+>
+> @@ -287,6 +294,15 @@ struct vdpasim *vdpasim_create(struct vdpasim_dev_attr *dev_attr,
+>         set_dma_ops(dev, &vdpasim_dma_ops);
+>         vdpasim->vdpa.mdev = dev_attr->mgmt_dev;
+>
+> +       if (notify_passthrough) {
+> +               vdpasim->notify = __get_free_page(GFP_KERNEL | __GFP_ZERO);
+> +               if (!vdpasim->notify)
+> +                       goto err_iommu;
+> +#ifdef CONFIG_X86
+> +               set_memory_uc(vdpasim->notify, 1);
+> +#endif
+
+What's the reason for using uc memory?
+
+> +       }
+> +
+>         vdpasim->config = kzalloc(dev_attr->config_size, GFP_KERNEL);
+>         if (!vdpasim->config)
+>                 goto err_iommu;
+> @@ -357,8 +373,11 @@ static void vdpasim_kick_vq(struct vdpa_device *vdpa, u16 idx)
+>         struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
+>         struct vdpasim_virtqueue *vq = &vdpasim->vqs[idx];
+>
+> +       if (notify_passthrough)
+> +               return;
+
+So we should keep the two paths to be used at the same time. Userspace
+can choose to not map doorbells?
+
+Thanks
+
+> +
+>         if (vq->ready)
+> -               schedule_work(&vdpasim->work);
+> +               schedule_work(&vdpasim->vring_work.work);
+>  }
+>
+>  static void vdpasim_set_vq_cb(struct vdpa_device *vdpa, u16 idx,
+> @@ -495,6 +514,18 @@ static u8 vdpasim_get_status(struct vdpa_device *vdpa)
+>         return status;
+>  }
+>
+> +static void vdpasim_set_vring_work(struct vdpasim *vdpasim, bool start)
+> +{
+> +       if (!notify_passthrough)
+> +               return;
+> +
+> +       if (start)
+> +               schedule_delayed_work(&vdpasim->vring_work,
+> +                               msecs_to_jiffies(VDPASIM_VRING_POLL_PERIOD));
+> +       else
+> +               cancel_delayed_work_sync(&vdpasim->vring_work);
+> +}
+> +
+>  static void vdpasim_set_status(struct vdpa_device *vdpa, u8 status)
+>  {
+>         struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
+> @@ -502,12 +533,16 @@ static void vdpasim_set_status(struct vdpa_device *vdpa, u8 status)
+>         spin_lock(&vdpasim->lock);
+>         vdpasim->status = status;
+>         spin_unlock(&vdpasim->lock);
+> +
+> +       vdpasim_set_vring_work(vdpasim, status & VIRTIO_CONFIG_S_DRIVER_OK);
+>  }
+>
+>  static int vdpasim_reset(struct vdpa_device *vdpa, bool clear)
+>  {
+>         struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
+>
+> +       vdpasim_set_vring_work(vdpasim, false);
+> +
+>         spin_lock(&vdpasim->lock);
+>         vdpasim->status = 0;
+>         vdpasim_do_reset(vdpasim);
+> @@ -672,12 +707,24 @@ static int vdpasim_dma_unmap(struct vdpa_device *vdpa, unsigned int asid,
+>         return 0;
+>  }
+>
+> +static struct vdpa_notification_area
+> +vdpasim_get_vq_notification(struct vdpa_device *vdpa, u16 qid)
+> +{
+> +       struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
+> +       struct vdpa_notification_area notify;
+> +
+> +       notify.addr = virt_to_phys((void *)vdpasim->notify);
+> +       notify.size = PAGE_SIZE;
+> +
+> +       return notify;
+> +}
+> +
+>  static void vdpasim_free(struct vdpa_device *vdpa)
+>  {
+>         struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
+>         int i;
+>
+> -       cancel_work_sync(&vdpasim->work);
+> +       cancel_delayed_work_sync(&vdpasim->vring_work);
+>
+>         for (i = 0; i < vdpasim->dev_attr.nvqs; i++) {
+>                 vringh_kiov_cleanup(&vdpasim->vqs[i].out_iov);
+> @@ -693,7 +740,23 @@ static void vdpasim_free(struct vdpa_device *vdpa)
+>         vhost_iotlb_free(vdpasim->iommu);
+>         kfree(vdpasim->vqs);
+>         kfree(vdpasim->config);
+> +       if (vdpasim->notify) {
+> +#ifdef CONFIG_X86
+> +               set_memory_wb(vdpasim->notify, 1);
+> +#endif
+> +               free_page(vdpasim->notify);
+> +       }
+> +}
+> +
+> +void vdpasim_schedule_work(struct vdpasim *vdpasim, bool sched_now)
+> +{
+> +       if (sched_now)
+> +               schedule_work(&vdpasim->vring_work.work);
+> +       else if (notify_passthrough)
+> +               schedule_delayed_work(&vdpasim->vring_work,
+> +                                     msecs_to_jiffies(VDPASIM_VRING_POLL_PERIOD));
+>  }
+> +EXPORT_SYMBOL_GPL(vdpasim_schedule_work);
+>
+>  static const struct vdpa_config_ops vdpasim_config_ops = {
+>         .set_vq_address         = vdpasim_set_vq_address,
+> @@ -704,6 +767,7 @@ static const struct vdpa_config_ops vdpasim_config_ops = {
+>         .get_vq_ready           = vdpasim_get_vq_ready,
+>         .set_vq_state           = vdpasim_set_vq_state,
+>         .get_vq_state           = vdpasim_get_vq_state,
+> +       .get_vq_notification    = vdpasim_get_vq_notification,
+>         .get_vq_align           = vdpasim_get_vq_align,
+>         .get_vq_group           = vdpasim_get_vq_group,
+>         .get_device_features    = vdpasim_get_device_features,
+> @@ -737,6 +801,7 @@ static const struct vdpa_config_ops vdpasim_batch_config_ops = {
+>         .get_vq_ready           = vdpasim_get_vq_ready,
+>         .set_vq_state           = vdpasim_set_vq_state,
+>         .get_vq_state           = vdpasim_get_vq_state,
+> +       .get_vq_notification    = vdpasim_get_vq_notification,
+>         .get_vq_align           = vdpasim_get_vq_align,
+>         .get_vq_group           = vdpasim_get_vq_group,
+>         .get_device_features    = vdpasim_get_device_features,
+> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.h b/drivers/vdpa/vdpa_sim/vdpa_sim.h
+> index 0e78737dcc16..da0866834918 100644
+> --- a/drivers/vdpa/vdpa_sim/vdpa_sim.h
+> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim.h
+> @@ -53,7 +53,7 @@ struct vdpasim_dev_attr {
+>  struct vdpasim {
+>         struct vdpa_device vdpa;
+>         struct vdpasim_virtqueue *vqs;
+> -       struct work_struct work;
+> +       struct delayed_work vring_work;
+>         struct vdpasim_dev_attr dev_attr;
+>         /* spinlock to synchronize virtqueue state */
+>         spinlock_t lock;
+> @@ -69,10 +69,13 @@ struct vdpasim {
+>         bool running;
+>         /* spinlock to synchronize iommu table */
+>         spinlock_t iommu_lock;
+> +       /* dummy notify page */
+> +       unsigned long notify;
+>  };
+>
+>  struct vdpasim *vdpasim_create(struct vdpasim_dev_attr *attr,
+>                                const struct vdpa_dev_set_config *config);
+> +void vdpasim_schedule_work(struct vdpasim *vdpasim, bool sched_now);
+>
+>  /* TODO: cross-endian support */
+>  static inline bool vdpasim_is_little_endian(struct vdpasim *vdpasim)
+> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c b/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
+> index c6db1a1baf76..8a640ea82284 100644
+> --- a/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
+> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
+> @@ -288,7 +288,7 @@ static bool vdpasim_blk_handle_req(struct vdpasim *vdpasim,
+>
+>  static void vdpasim_blk_work(struct work_struct *work)
+>  {
+> -       struct vdpasim *vdpasim = container_of(work, struct vdpasim, work);
+> +       struct vdpasim *vdpasim = container_of(work, struct vdpasim, vring_work.work);
+>         bool reschedule = false;
+>         int i;
+>
+> @@ -325,8 +325,7 @@ static void vdpasim_blk_work(struct work_struct *work)
+>  out:
+>         spin_unlock(&vdpasim->lock);
+>
+> -       if (reschedule)
+> -               schedule_work(&vdpasim->work);
+> +       vdpasim_schedule_work(vdpasim, reschedule);
+>  }
+>
+>  static void vdpasim_blk_get_config(struct vdpasim *vdpasim, void *config)
+> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim_net.c b/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
+> index c3cb225ea469..8b998952384b 100644
+> --- a/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
+> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
+> @@ -145,7 +145,7 @@ static void vdpasim_handle_cvq(struct vdpasim *vdpasim)
+>
+>  static void vdpasim_net_work(struct work_struct *work)
+>  {
+> -       struct vdpasim *vdpasim = container_of(work, struct vdpasim, work);
+> +       struct vdpasim *vdpasim = container_of(work, struct vdpasim, vring_work.work);
+>         struct vdpasim_virtqueue *txq = &vdpasim->vqs[1];
+>         struct vdpasim_virtqueue *rxq = &vdpasim->vqs[0];
+>         ssize_t read, write;
+> @@ -196,7 +196,7 @@ static void vdpasim_net_work(struct work_struct *work)
+>                 vdpasim_net_complete(rxq, write);
+>
+>                 if (++pkts > 4) {
+> -                       schedule_work(&vdpasim->work);
+> +                       vdpasim_schedule_work(vdpasim, true);
+>                         goto out;
+>                 }
+>         }
+> --
+> 2.23.0
+>
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
