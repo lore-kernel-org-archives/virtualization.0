@@ -4,107 +4,84 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D644EC4332F
-	for <virtualization@archiver.kernel.org>; Tue, 29 Nov 2022 03:37:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 01859C4167B
+	for <virtualization@archiver.kernel.org>; Tue, 29 Nov 2022 04:28:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 44EE881DF1;
-	Tue, 29 Nov 2022 03:37:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 44EE881DF1
+	by smtp1.osuosl.org (Postfix) with ESMTP id 6B58981097;
+	Tue, 29 Nov 2022 04:28:35 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6B58981097
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gfa7O35W
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=BjjW5b+Q
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 8IXXSj8G7XtA; Tue, 29 Nov 2022 03:37:28 +0000 (UTC)
+	with ESMTP id LIZ01Nm03I8D; Tue, 29 Nov 2022 04:28:34 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id BC23A81DCB;
-	Tue, 29 Nov 2022 03:37:27 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BC23A81DCB
+	by smtp1.osuosl.org (Postfix) with ESMTPS id B008B80DAD;
+	Tue, 29 Nov 2022 04:28:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B008B80DAD
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 82B83C0032;
-	Tue, 29 Nov 2022 03:37:27 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D305CC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 870F3C0033;
+	Tue, 29 Nov 2022 04:28:33 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 48847C002D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Nov 2022 03:37:25 +0000 (UTC)
+ Tue, 29 Nov 2022 04:28:32 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 9A7F9404DD
+ by smtp3.osuosl.org (Postfix) with ESMTP id 15E7760087
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Nov 2022 03:37:25 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9A7F9404DD
-Authentication-Results: smtp2.osuosl.org;
+ Tue, 29 Nov 2022 04:28:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 15E7760087
+Authentication-Results: smtp3.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=gfa7O35W
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=BjjW5b+Q
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id C6d_zOpeWfnm
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 7_Fvx7pcZPGh
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Nov 2022 03:37:24 +0000 (UTC)
+ Tue, 29 Nov 2022 04:28:31 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 60EA540116
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2319560071
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 60EA540116
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 2319560071
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Nov 2022 03:37:23 +0000 (UTC)
+ Tue, 29 Nov 2022 04:28:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1669693042;
+ s=mimecast20190719; t=1669696109;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=DjWTah+2EKxcXo7oWQgA5SpjVxywoPSBhBg+WInwWOQ=;
- b=gfa7O35WEZiNpPLNiD4W1HnSy6Ac64D4P4fMl/Zml/QvKCZHx3T30QQtfufXzIu/ho3wAe
- q6jyY2C2uqvfAzqFcl5RbguTZjKnPvk8lRhT82blzDNjRkUqrZ0CG5b8Kg/mNh76i0yuVX
- dkg4xJokGvxULV4qVbchNxdLn92bj3U=
-Received: from mail-oa1-f70.google.com (mail-oa1-f70.google.com
- [209.85.160.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-387-RzYIpCeHNGmbt7f2mwSsGg-1; Mon, 28 Nov 2022 22:37:21 -0500
-X-MC-Unique: RzYIpCeHNGmbt7f2mwSsGg-1
-Received: by mail-oa1-f70.google.com with SMTP id
- 586e51a60fabf-143248a54e5so7453564fac.3
- for <virtualization@lists.linux-foundation.org>;
- Mon, 28 Nov 2022 19:37:21 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
- :reply-to;
- bh=DjWTah+2EKxcXo7oWQgA5SpjVxywoPSBhBg+WInwWOQ=;
- b=tyl/UE8tIcdcYhgK1fOp7UGNqLPqducW3ymG5+4oJTr33+Q7am4r3wloClZFjuigVY
- goYo/ID5fCYRONchg8HeGrOOj+zzmxGsyaNy5A213QcTGzbZXpYJ7Xk4UmfncDr87Xc2
- Iea4pU3sm3NGK2WC8e3aBJdCwhSEq+EsUEajWinrk7bUnlv99ohnFudISS0VRVzgua3E
- qlFNFLWBnWIv8zEpuwQxIznXrfQMZJYBUp77TYG4KJ+tq8DDAjPmq7gY7b2feu6+yB4N
- cAR8WPUHSQYeutrEFDfeXTUTXuIypvUicM3PjXGomg5fHtA8/DxOjq9P35mxbXkByGEK
- 7OjQ==
-X-Gm-Message-State: ANoB5pmozAiiCmCjtWM15doKVVRCKr9DllkSypDR7StJPYi5qCJW8W7i
- NXwWO7kOANbHrFlrSGu1ic7DN3BlmWCvhSaQnylAHpsu1i/G84qlfVqsAzArJAs9wDFrh6pXMg3
- Oufo+cPl8Z8XF4Fj/uMB7fYcGpdAmPVXaVfwoSCW/MLKPsCdrzj7i0gw9cA==
-X-Received: by 2002:a9d:4f07:0:b0:66c:64d6:1bb4 with SMTP id
- d7-20020a9d4f07000000b0066c64d61bb4mr27085071otl.201.1669693040567; 
- Mon, 28 Nov 2022 19:37:20 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf6EmIDabO2AHcWjiaME3fUs69AGG9zkVypks4R3pv1UesNWwbFvYcjoNz9Z4Pyc98HwSff6j5CYa7YoG0PBT3E=
-X-Received: by 2002:a9d:4f07:0:b0:66c:64d6:1bb4 with SMTP id
- d7-20020a9d4f07000000b0066c64d61bb4mr27085052otl.201.1669693040323; Mon, 28
- Nov 2022 19:37:20 -0800 (PST)
-MIME-Version: 1.0
-References: <20221128021005.232105-1-lizetao1@huawei.com>
- <20221128042945-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20221128042945-mutt-send-email-mst@kernel.org>
+ content-transfer-encoding:content-transfer-encoding;
+ bh=z7p6XfrdDCH4aOTwVl/emdldBB1uAxKI9vGCNrFnsCc=;
+ b=BjjW5b+Q5x6FVJOVp7Z7aAW1R/d6iX8MO+Wd7EwzGhxmG2mH7SUfuRZiMsvSh7RRU11F3c
+ CeNr30wcMovgREPIHjDLjmR38eTBOwSp8C56TvOTa41UGBTwMXtU+BX2RFzfdzmw/FJ0ia
+ 3lJyIztKfIVybPLFYcF1LHnojP9QWRU=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-86-xZNroWIFNiq4PLPq28ZcnA-1; Mon, 28 Nov 2022 23:28:24 -0500
+X-MC-Unique: xZNroWIFNiq4PLPq28ZcnA-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.7])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id F1FB3101A52A;
+ Tue, 29 Nov 2022 04:28:23 +0000 (UTC)
+Received: from localhost.localdomain (ovpn-12-207.pek2.redhat.com
+ [10.72.12.207])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 2854F1415100;
+ Tue, 29 Nov 2022 04:28:18 +0000 (UTC)
 From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 29 Nov 2022 11:37:09 +0800
-Message-ID: <CACGkMEtuOk+wyCsvY0uayGAvy926G381PC-csoXVAwCfiKCZQw@mail.gmail.com>
-Subject: Re: [PATCH 0/4] Fix probe failed when modprobe modules
-To: "Michael S. Tsirkin" <mst@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: axboe@kernel.dk, rusty@rustcorp.com.au, ericvh@gmail.com,
- netdev@vger.kernel.org, linux_oss@crudebyte.com,
- Li Zetao <lizetao1@huawei.com>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org,
- v9fs-developer@lists.sourceforge.net, edumazet@google.com, stefanha@redhat.com,
- kuba@kernel.org, pbonzini@redhat.com, pabeni@redhat.com, davem@davemloft.net
+To: dsahern@kernel.org
+Subject: [PATCH V3] vdpa: allow provisioning device features
+Date: Tue, 29 Nov 2022 12:28:16 +0800
+Message-Id: <20221129042816.10346-1-jasowang@redhat.com>
+MIME-Version: 1.0
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.7
+Cc: mst@redhat.com, netdev@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, eperezma@redhat.com,
+ elic@nvidia.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -121,94 +98,154 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Nov 28, 2022 at 6:14 PM Michael S. Tsirkin <mst@redhat.com> wrote:
->
-> On Mon, Nov 28, 2022 at 10:10:01AM +0800, Li Zetao wrote:
-> > This patchset fixes similar issue, the root cause of the
-> > problem is that the virtqueues are not stopped on error
-> > handling path.
->
-> I've been thinking about this.
-> Almost all drivers are affected.
->
-> The reason really is that it used to be the right thing to do:
-> On legacy pci del_vqs writes 0
-> into vq index
+This patch allows device features to be provisioned via vdpa. This
+will be useful for preserving migration compatibility between source
+and destination:
 
-into vq address actually?
+# vdpa dev add name dev1 mgmtdev pci/0000:02:00.0 device_features 0x300020000
+# vdpa dev config show dev1
+# dev1: mac 52:54:00:12:34:56 link up link_announce false mtu 65535
+      negotiated_features CTRL_VQ VERSION_1 ACCESS_PLATFORM
 
-> and this resets the device as a side effect
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+Changes since v2:
+- rebase to master
+- tweak the help text
+Changes since v1:
+- Use uint64_t instead of __u64 for device_features
+- Fix typos and tweak the manpage
+- Add device_features to the help text
+---
+ man/man8/vdpa-dev.8 | 15 +++++++++++++++
+ vdpa/vdpa.c         | 30 ++++++++++++++++++++++++++++--
+ 2 files changed, 43 insertions(+), 2 deletions(-)
 
-I think there's no guarantee for a device to do this.
-
-> (we actually do this multiple times, what e.g. writes of MSI vector
->  after the 1st reset do I have no idea).
->
-> mmio ccw and modern pci don't.
->
-> Given this has been with us for a while I am inlined to look for
-> a global solution rather than tweaking each driver.
-
-But do we still need patches for -stable at least?
-
->
-> Given many drivers are supposed to work on legacy too, we know del_vqs
-> includes a reset for many of them. So I think I see a better way to do
-> this:
->
-> Add virtio_reset_device_and_del_vqs()
-
-What's the difference with the current del_vqs method? Is this something like:
-
-virtio_reset_device();
-config->del_vqs();
-
->
-> and convert all drivers to that.
->
-> When doing this, we also need to/can fix a related problem (and related
-> to the hardening that Jason Wang was looking into):
-> virtio_reset_device is inherently racy: vq interrupts could
-> be in flight when we do reset. We need to prevent handlers from firing in
-> the window between reset and freeing the irq, so we should first
-> free irqs and only then start changing the state by e.g.
-> device reset.
-
-Yes.
-
->
->
-> Quite a lot of core work here. Jason are you still looking into
-> hardening?
-
-Yes, last time we've discussed a solution that depends on the first
-kick to enable the interrupt handler. But after some thought, it seems
-risky since there's no guarantee that the device work in this way.
-
-One example is the current vhost_net, it doesn't wait for the kick to
-process the rx packets. Any more thought on this?
-
-Thanks
-
-
->
->
->
-> > Li Zetao (4):
-> >   9p: Fix probe failed when modprobe 9pnet_virtio
-> >   virtio-mem: Fix probe failed when modprobe virtio_mem
-> >   virtio-input: Fix probe failed when modprobe virtio_input
-> >   virtio-blk: Fix probe failed when modprobe virtio_blk
-> >
-> >  drivers/block/virtio_blk.c    | 1 +
-> >  drivers/virtio/virtio_input.c | 1 +
-> >  drivers/virtio/virtio_mem.c   | 1 +
-> >  net/9p/trans_virtio.c         | 1 +
-> >  4 files changed, 4 insertions(+)
-> >
-> > --
-> > 2.25.1
->
+diff --git a/man/man8/vdpa-dev.8 b/man/man8/vdpa-dev.8
+index 9faf3838..43e5bf48 100644
+--- a/man/man8/vdpa-dev.8
++++ b/man/man8/vdpa-dev.8
+@@ -31,6 +31,7 @@ vdpa-dev \- vdpa device configuration
+ .I NAME
+ .B mgmtdev
+ .I MGMTDEV
++.RI "[ device_features " DEVICE_FEATURES " ]"
+ .RI "[ mac " MACADDR " ]"
+ .RI "[ mtu " MTU " ]"
+ .RI "[ max_vqp " MAX_VQ_PAIRS " ]"
+@@ -74,6 +75,15 @@ Name of the new vdpa device to add.
+ Name of the management device to use for device addition.
+ 
+ .PP
++.BI device_features " DEVICE_FEATURES"
++Specifies the virtio device features bit-mask that is provisioned for the new vdpa device.
++
++The bits can be found under include/uapi/linux/virtio*h.
++
++see macros such as VIRTIO_F_ and VIRTIO_XXX(e.g NET)_F_ for specific bit values.
++
++This is optional.
++
+ .BI mac " MACADDR"
+ - specifies the mac address for the new vdpa device.
+ This is applicable only for the network type of vdpa device. This is optional.
+@@ -127,6 +137,11 @@ vdpa dev add name foo mgmtdev vdpa_sim_net
+ Add the vdpa device named foo on the management device vdpa_sim_net.
+ .RE
+ .PP
++vdpa dev add name foo mgmtdev vdpa_sim_net device_features 0x300020000
++.RS 4
++Add the vdpa device named foo on the management device vdpa_sim_net with device_features of 0x300020000
++.RE
++.PP
+ vdpa dev add name foo mgmtdev vdpa_sim_net mac 00:11:22:33:44:55
+ .RS 4
+ Add the vdpa device named foo on the management device vdpa_sim_net with mac address of 00:11:22:33:44:55.
+diff --git a/vdpa/vdpa.c b/vdpa/vdpa.c
+index b73e40b4..27647d73 100644
+--- a/vdpa/vdpa.c
++++ b/vdpa/vdpa.c
+@@ -27,6 +27,7 @@
+ #define VDPA_OPT_VDEV_MTU		BIT(5)
+ #define VDPA_OPT_MAX_VQP		BIT(6)
+ #define VDPA_OPT_QUEUE_INDEX		BIT(7)
++#define VDPA_OPT_VDEV_FEATURES		BIT(8)
+ 
+ struct vdpa_opts {
+ 	uint64_t present; /* flags of present items */
+@@ -38,6 +39,7 @@ struct vdpa_opts {
+ 	uint16_t mtu;
+ 	uint16_t max_vqp;
+ 	uint32_t queue_idx;
++	uint64_t device_features;
+ };
+ 
+ struct vdpa {
+@@ -187,6 +189,17 @@ static int vdpa_argv_u32(struct vdpa *vdpa, int argc, char **argv,
+ 	return get_u32(result, *argv, 10);
+ }
+ 
++static int vdpa_argv_u64_hex(struct vdpa *vdpa, int argc, char **argv,
++			     uint64_t *result)
++{
++	if (argc <= 0 || !*argv) {
++		fprintf(stderr, "number expected\n");
++		return -EINVAL;
++	}
++
++	return get_u64((__u64 *)result, *argv, 16);
++}
++
+ struct vdpa_args_metadata {
+ 	uint64_t o_flag;
+ 	const char *err_msg;
+@@ -244,6 +257,10 @@ static void vdpa_opts_put(struct nlmsghdr *nlh, struct vdpa *vdpa)
+ 		mnl_attr_put_u16(nlh, VDPA_ATTR_DEV_NET_CFG_MAX_VQP, opts->max_vqp);
+ 	if (opts->present & VDPA_OPT_QUEUE_INDEX)
+ 		mnl_attr_put_u32(nlh, VDPA_ATTR_DEV_QUEUE_INDEX, opts->queue_idx);
++	if (opts->present & VDPA_OPT_VDEV_FEATURES) {
++		mnl_attr_put_u64(nlh, VDPA_ATTR_DEV_FEATURES,
++				opts->device_features);
++	}
+ }
+ 
+ static int vdpa_argv_parse(struct vdpa *vdpa, int argc, char **argv,
+@@ -329,6 +346,14 @@ static int vdpa_argv_parse(struct vdpa *vdpa, int argc, char **argv,
+ 
+ 			NEXT_ARG_FWD();
+ 			o_found |= VDPA_OPT_QUEUE_INDEX;
++		} else if (!strcmp(*argv, "device_features") &&
++			   (o_optional & VDPA_OPT_VDEV_FEATURES)) {
++			NEXT_ARG_FWD();
++			err = vdpa_argv_u64_hex(vdpa, argc, argv,
++						&opts->device_features);
++			if (err)
++				return err;
++			o_found |= VDPA_OPT_VDEV_FEATURES;
+ 		} else {
+ 			fprintf(stderr, "Unknown option \"%s\"\n", *argv);
+ 			return -EINVAL;
+@@ -615,7 +640,8 @@ static int cmd_mgmtdev(struct vdpa *vdpa, int argc, char **argv)
+ static void cmd_dev_help(void)
+ {
+ 	fprintf(stderr, "Usage: vdpa dev show [ DEV ]\n");
+-	fprintf(stderr, "       vdpa dev add name NAME mgmtdev MANAGEMENTDEV [ mac MACADDR ] [ mtu MTU ]\n");
++	fprintf(stderr, "       vdpa dev add name NAME mgmtdev MANAGEMENTDEV [ device_features DEVICE_FEATURES]\n");
++	fprintf(stderr, "                                                    [ mac MACADDR ] [ mtu MTU ]\n");
+ 	fprintf(stderr, "                                                    [ max_vqp MAX_VQ_PAIRS ]\n");
+ 	fprintf(stderr, "       vdpa dev del DEV\n");
+ 	fprintf(stderr, "Usage: vdpa dev config COMMAND [ OPTIONS ]\n");
+@@ -708,7 +734,7 @@ static int cmd_dev_add(struct vdpa *vdpa, int argc, char **argv)
+ 	err = vdpa_argv_parse_put(nlh, vdpa, argc, argv,
+ 				  VDPA_OPT_VDEV_MGMTDEV_HANDLE | VDPA_OPT_VDEV_NAME,
+ 				  VDPA_OPT_VDEV_MAC | VDPA_OPT_VDEV_MTU |
+-				  VDPA_OPT_MAX_VQP);
++				  VDPA_OPT_MAX_VQP | VDPA_OPT_VDEV_FEATURES);
+ 	if (err)
+ 		return err;
+ 
+-- 
+2.25.1
 
 _______________________________________________
 Virtualization mailing list
