@@ -1,109 +1,103 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id DFD02C4332F
-	for <virtualization@archiver.kernel.org>; Tue, 29 Nov 2022 17:08:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 616CBC4332F
+	for <virtualization@archiver.kernel.org>; Tue, 29 Nov 2022 17:43:45 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 660BE8109C;
-	Tue, 29 Nov 2022 17:08:43 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 660BE8109C
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=kernel-dk.20210112.gappssmtp.com header.i=@kernel-dk.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=aB+ZuGMO
+	by smtp2.osuosl.org (Postfix) with ESMTP id D9A8E4015E;
+	Tue, 29 Nov 2022 17:43:44 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D9A8E4015E
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=ZjD8MZVq
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id d6mM4Y8dOUcM; Tue, 29 Nov 2022 17:08:42 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 0E5F080CCE;
-	Tue, 29 Nov 2022 17:08:41 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0E5F080CCE
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id F37JWHGIJTfW; Tue, 29 Nov 2022 17:43:44 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 55B49400F6;
+	Tue, 29 Nov 2022 17:43:43 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 55B49400F6
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E45B0C0032;
-	Tue, 29 Nov 2022 17:08:41 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 28F92C0033;
+	Tue, 29 Nov 2022 17:43:43 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 468A0C002D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 54207C002D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Nov 2022 17:08:40 +0000 (UTC)
+ Tue, 29 Nov 2022 17:43:41 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 0D1E980CCE
+ by smtp1.osuosl.org (Postfix) with ESMTP id 21F1F80BE1
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Nov 2022 17:08:40 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0D1E980CCE
+ Tue, 29 Nov 2022 17:43:41 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 21F1F80BE1
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com
+ header.a=rsa-sha256 header.s=20210112 header.b=ZjD8MZVq
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id f3zyLzIRimPE
+ with ESMTP id 2jAnHLM1ZPdX
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Nov 2022 17:08:34 +0000 (UTC)
+ Tue, 29 Nov 2022 17:43:40 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5302F80BFD
-Received: from mail-pf1-x42c.google.com (mail-pf1-x42c.google.com
- [IPv6:2607:f8b0:4864:20::42c])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 5302F80BFD
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4A04580B7E
+Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com
+ [IPv6:2607:f8b0:4864:20::636])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 4A04580B7E
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Nov 2022 17:08:33 +0000 (UTC)
-Received: by mail-pf1-x42c.google.com with SMTP id z17so9486861pff.1
+ Tue, 29 Nov 2022 17:43:39 +0000 (UTC)
+Received: by mail-pl1-x636.google.com with SMTP id d3so9156844plr.10
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Nov 2022 09:08:33 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=kernel-dk.20210112.gappssmtp.com; s=20210112;
- h=content-transfer-encoding:in-reply-to:from:references:cc:to
- :content-language:subject:user-agent:mime-version:date:message-id
- :from:to:cc:subject:date:message-id:reply-to;
- bh=cfz3Mcgxkqb1OqUShW9AvM1bJWJ5IVPUimuhgnHTUfM=;
- b=aB+ZuGMOzbK18zkd0jlC4zEUTSM38tp9K/bCtuVmGeRWETnLRpEwg6Cfsis6G/o8YB
- 2HqB7jorwoOw6h/LjLMxu5ed5EZE92927W/9yhpp/QruynXSUNxJp0OMoVkixJnRoaDz
- PSuOZAOkF9I4gSS32lclTss+2DBuTn/ncV2ntYH8YMzg9PF3tm8qf0hVKILYBg2UDCmD
- wbUFp/1Fi7NjOLDWJsNeD/wtnDvCVPYo4knWim39AeNTc1EFLvMkEGW6VYwyktGtW5Qx
- +UBWGG0y4yJft2CYMgbAUi9qHrNg41pvQg2NXxZ0NdMCIm2c1JLzlQ89YLhdvsbn7Bys
- PI7g==
+ Tue, 29 Nov 2022 09:43:39 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+ :to:from:from:to:cc:subject:date:message-id:reply-to;
+ bh=iXCWILef2PDcL9sLeguo1E8rwfZJ6oNabKhO5H8Gxiw=;
+ b=ZjD8MZVqQwGAMlT9t2izaMXVJU8jMqvIKuBePdb/fltwaex9aK3k0K8d5CtmYAz0oZ
+ Gd4jdz46JxqNygZsNz6S4b+QNLWJye/YbdS0LdoNT8mqHc1Nfrum+jrRPAx5EIqux9IG
+ Pc0zyGudAO5hqgWlNNl9liAX3ezO7n3sVyZn8OubwAHBVY/zjwi7+d+l9akgFsHSKrxl
+ TKW7OZ1VTC05I96JDWw5aNhktRLGiDUci7iS/qPAwwJqoI8odrJQxdry9ItLS98eUfI5
+ AmORBuSvMHZGSR6s67R/CqdEg+nXn2EJPRgmCMWl6tjFhqN6Bxg7Doz/yJAVbVcoSnMT
+ d8pA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=content-transfer-encoding:in-reply-to:from:references:cc:to
- :content-language:subject:user-agent:mime-version:date:message-id
- :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
- bh=cfz3Mcgxkqb1OqUShW9AvM1bJWJ5IVPUimuhgnHTUfM=;
- b=yWEDFNSnsH4WjNVx8b6ZdOCCHNJE7i2sC5NjQ+ctA7Us1wacFpTTFNzRzWUFrI6qt+
- 77JGY7V6uEkvWRy872NQGBlvqWDgpZ+Gay9qe9a/SUL6TT/73CDeePgfP1r7HB6ANiCK
- mZLasWTwaqOVDM1KVbpo6pW23GoMj/I5+6DN8yBoTh/eJC9EtgDxjQMFLgGMb12P7LbH
- 78uOoQxmmm713ZCNkYJ0VOAt/6/QPF0R6GYA9rEXYB0QyupVGz5nJqQjU8tuTS66gdZQ
- HVTMODNKqCSRK4GUL79HdcKH3mp6XPVvm8Q2/Ah9px3m1Yo/uFI/OiNsJZlCs/3ULOSs
- mnuw==
-X-Gm-Message-State: ANoB5plNydPpqZlfqcpul3CBwBvQ24r8CO39sK3LZtS7Zq9c1CLCHs80
- uho+j6DeYUnY0eq+Y6u2faoIWA==
-X-Google-Smtp-Source: AA0mqf5swFLksPgiEDo6TRTvtGl0tdoW1L9fhbh0pRyA3vgdzDg/DHK7jSPhCQbx1VNNnHFBlq3wIw==
-X-Received: by 2002:a63:ce58:0:b0:473:e2bb:7fc0 with SMTP id
- r24-20020a63ce58000000b00473e2bb7fc0mr33307253pgi.604.1669741713274; 
- Tue, 29 Nov 2022 09:08:33 -0800 (PST)
-Received: from [192.168.1.136] ([198.8.77.157])
+ h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+ :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+ :reply-to;
+ bh=iXCWILef2PDcL9sLeguo1E8rwfZJ6oNabKhO5H8Gxiw=;
+ b=4a7SFHqDSwiIhc2fmTTpurkjEbH+lNeuRbupqmakAV/e8RNfI97IiM1jJsRlr12EOR
+ ctxQuHubvfAGDA1iwPvmxYpuYCGcVexZQAbg/edq2X2J3b8QNpqgMKvi5VLPyavxQ52I
+ 3l0tvu/Jlsm8U+oQPYTLRZNlLHpczAd3Oll3ZTVu+0ajLrcEti1UgId6V0w7Ihk3QNFf
+ ThENvE6N+Jv8NwLa91IYfSBWQWpRDsX9E1BqghIhMgfG+/jMZQ6lZbqo5RSGKOl+zTae
+ JkSjRl8unSwOBe+XFPsKbfJLUOmqLWv21arrvr5sOIKW/gtxCNs3dcE751/5DZtMYUye
+ eYyA==
+X-Gm-Message-State: ANoB5plmA5RspCjsPWwi3W7NBpcwgSSJa9XlSWbi4oFwERUWORiyx8ur
+ bWvoiEWM63B+DXZqSNl5u/A=
+X-Google-Smtp-Source: AA0mqf7+2AEstG2zQZWqQIE3UtBcDlP+tNxEcHG7VqwJTz3I0h+3H54yM8gaQDgA2qDzQbmuZ1wi+g==
+X-Received: by 2002:a17:90b:2690:b0:213:f2c9:ce71 with SMTP id
+ pl16-20020a17090b269000b00213f2c9ce71mr60558650pjb.62.1669743819324; 
+ Tue, 29 Nov 2022 09:43:39 -0800 (PST)
+Received: from localhost ([2a00:79e1:abd:4a00:2703:3c72:eb1a:cffd])
  by smtp.gmail.com with ESMTPSA id
- h23-20020a63e157000000b00434272fe870sm8633883pgk.88.2022.11.29.09.08.30
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Tue, 29 Nov 2022 09:08:32 -0800 (PST)
-Message-ID: <9044e2b7-193f-ade4-b4a3-69e40b12088a@kernel.dk>
-Date: Tue, 29 Nov 2022 10:08:30 -0700
+ x29-20020aa78f1d000000b00575a578a717sm1522947pfr.206.2022.11.29.09.43.38
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 29 Nov 2022 09:43:38 -0800 (PST)
+From: Rob Clark <robdclark@gmail.com>
+To: dri-devel@lists.freedesktop.org
+Subject: [PATCH] drm/virtio: Spiff out cmd queue/response traces
+Date: Tue, 29 Nov 2022 09:43:30 -0800
+Message-Id: <20221129174330.262751-1-robdclark@gmail.com>
+X-Mailer: git-send-email 2.38.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:102.0) Gecko/20100101
- Thunderbird/102.5.0
-Subject: Re: [PATCH v2 0/5] Fix probe failed when modprobe modules
-Content-Language: en-US
-To: Li Zetao <lizetao1@huawei.com>
-References: <20221128021005.232105-1-lizetao1@huawei.com>
- <20221129160615.3343036-1-lizetao1@huawei.com>
-From: Jens Axboe <axboe@kernel.dk>
-In-Reply-To: <20221129160615.3343036-1-lizetao1@huawei.com>
-Cc: linux_oss@crudebyte.com, pmorel@linux.vnet.ibm.com,
- dri-devel@lists.freedesktop.org, gurchetansingh@chromium.org,
- edumazet@google.com, airlied@gmail.com, kuba@kernel.org, pabeni@redhat.com,
- olvaffe@gmail.com, st@redhat.com, ericvh@gmail.com, rusty@rustcorp.com.au,
- linux-block@vger.kernel.org, v9fs-developer@lists.sourceforge.net,
- stefanha@redhat.com, airlied@redhat.com, cornelia.huck@de.ibm.com,
- virtualization@lists.linux-foundation.org, pankaj.gupta.linux@gmail.com,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org, daniel@ffwll.ch,
- pbonzini@redhat.com, davem@davemloft.net
+Cc: Rob Clark <robdclark@chromium.org>, Daniel Vetter <daniel@ffwll.ch>,
+ open list <linux-kernel@vger.kernel.org>,
+ Gurchetan Singh <gurchetansingh@chromium.org>,
+ Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ David Airlie <airlied@redhat.com>,
+ "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>,
+ Chia-I Wu <olvaffe@gmail.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -115,24 +109,148 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gMTEvMjkvMjIgOTowNuKAr0FNLCBMaSBaZXRhbyB3cm90ZToKPiBUaGlzIHBhdGNoc2V0IGZp
-eGVzIHNpbWlsYXIgaXNzdWUsIHRoZSByb290IGNhdXNlIG9mIHRoZQo+IHByb2JsZW0gaXMgdGhh
-dCB0aGUgdmlydHF1ZXVlcyBhcmUgbm90IHN0b3BwZWQgb24gZXJyb3IKPiBoYW5kbGluZyBwYXRo
-LgoKTm90IHJlbGF0ZWQgdG8ganVzdCB0aGlzIHBhdGNoc2V0LCBidXQgZ3V5cywgSHVhd2VpIHJl
-YWxseSAqUkVBTExZKiBuZWVkCnRvIGdldCB0aGUgZW1haWwgc2l0dWF0aW9uIHNvcnRlZC4gSSdt
-IGRpZ2dpbmcgd2hvbGUvaGFsZiBwYXRjaHNldHMgb3V0Cm9mIHNwYW0gZXZlcnkgbW9ybmluZy4K
-ClRoaXMgaGFzIGJlZW4gYnJvdWdodCB1cCBpbiB0aGUgcGFzdC4gQW5kIG5vLCB0aGUgY2xvdWQg
-dmFyaWFudCBvZgp0aGUgZW1haWwgYWxzbyBkb2Vzbid0IHdvcmsgcHJvcGVybHkuCgpUYWxrIHRv
-IHlvdXIgSVQgZGVwYXJ0bWVudCwgZ2V0IHRoaXMgc29ydGVkIG9uY2UgYW5kIGZvciBhbGwuIFlv
-dSByaXNrCnlvdXIgcGF0Y2hlcyBiZWluZyBkdW1wZWQgb24gdGhlIGZsb29yIGJlY2F1c2UgcGVv
-cGxlIGRvbid0IHNlZSB0aGVtLApvciBvbmx5IHNlZSBzbWFsbCBwYXJ0cyBvZiBhIHBhdGNoc2V0
-LiBBbmQgaXQncyByZWFsbHkgYW5ub3lpbmcgdG8gaGF2ZQp0byBkZWFsIHdpdGggYXMgYSByZWNp
-cGllbnQuCgotLSAKSmVucyBBeGJvZQoKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlv
-bkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlv
-bi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+From: Rob Clark <robdclark@chromium.org>
+
+Add a sequence # for more easily matching up cmd/resp, and the # of free
+slots in the virtqueue to more easily see starvation issues.
+
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+---
+ drivers/gpu/drm/virtio/virtgpu_drv.h   |  3 +++
+ drivers/gpu/drm/virtio/virtgpu_trace.h | 20 ++++++++++++--------
+ drivers/gpu/drm/virtio/virtgpu_vq.c    | 13 ++++++++++---
+ 3 files changed, 25 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index 9b98470593b0..cdc208d9238c 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -166,6 +166,8 @@ struct virtio_gpu_vbuffer {
+ 
+ 	struct virtio_gpu_object_array *objs;
+ 	struct list_head list;
++
++	uint32_t seqno;
+ };
+ 
+ struct virtio_gpu_output {
+@@ -195,6 +197,7 @@ struct virtio_gpu_queue {
+ 	spinlock_t qlock;
+ 	wait_queue_head_t ack_queue;
+ 	struct work_struct dequeue_work;
++	uint32_t seqno;
+ };
+ 
+ struct virtio_gpu_drv_capset {
+diff --git a/drivers/gpu/drm/virtio/virtgpu_trace.h b/drivers/gpu/drm/virtio/virtgpu_trace.h
+index 711ecc2bd241..087e860a66f7 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_trace.h
++++ b/drivers/gpu/drm/virtio/virtgpu_trace.h
+@@ -9,8 +9,8 @@
+ #define TRACE_INCLUDE_FILE virtgpu_trace
+ 
+ DECLARE_EVENT_CLASS(virtio_gpu_cmd,
+-	TP_PROTO(struct virtqueue *vq, struct virtio_gpu_ctrl_hdr *hdr),
+-	TP_ARGS(vq, hdr),
++	TP_PROTO(struct virtqueue *vq, struct virtio_gpu_ctrl_hdr *hdr, u32 seqno),
++	TP_ARGS(vq, hdr, seqno),
+ 	TP_STRUCT__entry(
+ 			 __field(int, dev)
+ 			 __field(unsigned int, vq)
+@@ -19,6 +19,8 @@ DECLARE_EVENT_CLASS(virtio_gpu_cmd,
+ 			 __field(u32, flags)
+ 			 __field(u64, fence_id)
+ 			 __field(u32, ctx_id)
++			 __field(u32, num_free)
++			 __field(u32, seqno)
+ 			 ),
+ 	TP_fast_assign(
+ 		       __entry->dev = vq->vdev->index;
+@@ -28,21 +30,23 @@ DECLARE_EVENT_CLASS(virtio_gpu_cmd,
+ 		       __entry->flags = le32_to_cpu(hdr->flags);
+ 		       __entry->fence_id = le64_to_cpu(hdr->fence_id);
+ 		       __entry->ctx_id = le32_to_cpu(hdr->ctx_id);
++		       __entry->num_free = vq->num_free;
++		       __entry->seqno = seqno;
+ 		       ),
+-	TP_printk("vdev=%d vq=%u name=%s type=0x%x flags=0x%x fence_id=%llu ctx_id=%u",
++	TP_printk("vdev=%d vq=%u name=%s type=0x%x flags=0x%x fence_id=%llu ctx_id=%u num_free=%u seqno=%u",
+ 		  __entry->dev, __entry->vq, __entry->name,
+ 		  __entry->type, __entry->flags, __entry->fence_id,
+-		  __entry->ctx_id)
++		  __entry->ctx_id, __entry->num_free, __entry->seqno)
+ );
+ 
+ DEFINE_EVENT(virtio_gpu_cmd, virtio_gpu_cmd_queue,
+-	TP_PROTO(struct virtqueue *vq, struct virtio_gpu_ctrl_hdr *hdr),
+-	TP_ARGS(vq, hdr)
++	TP_PROTO(struct virtqueue *vq, struct virtio_gpu_ctrl_hdr *hdr, u32 seqno),
++	TP_ARGS(vq, hdr, seqno)
+ );
+ 
+ DEFINE_EVENT(virtio_gpu_cmd, virtio_gpu_cmd_response,
+-	TP_PROTO(struct virtqueue *vq, struct virtio_gpu_ctrl_hdr *hdr),
+-	TP_ARGS(vq, hdr)
++	TP_PROTO(struct virtqueue *vq, struct virtio_gpu_ctrl_hdr *hdr, u32 seqno),
++	TP_ARGS(vq, hdr, seqno)
+ );
+ 
+ #endif
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index 9ff8660b50ad..a04a9b20896d 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -215,7 +215,7 @@ void virtio_gpu_dequeue_ctrl_func(struct work_struct *work)
+ 	list_for_each_entry(entry, &reclaim_list, list) {
+ 		resp = (struct virtio_gpu_ctrl_hdr *)entry->resp_buf;
+ 
+-		trace_virtio_gpu_cmd_response(vgdev->ctrlq.vq, resp);
++		trace_virtio_gpu_cmd_response(vgdev->ctrlq.vq, resp, entry->seqno);
+ 
+ 		if (resp->type != cpu_to_le32(VIRTIO_GPU_RESP_OK_NODATA)) {
+ 			if (le32_to_cpu(resp->type) >= VIRTIO_GPU_RESP_ERR_UNSPEC) {
+@@ -261,6 +261,10 @@ void virtio_gpu_dequeue_cursor_func(struct work_struct *work)
+ 	spin_unlock(&vgdev->cursorq.qlock);
+ 
+ 	list_for_each_entry_safe(entry, tmp, &reclaim_list, list) {
++		struct virtio_gpu_ctrl_hdr *resp =
++			(struct virtio_gpu_ctrl_hdr *)entry->resp_buf;
++
++		trace_virtio_gpu_cmd_response(vgdev->cursorq.vq, resp, entry->seqno);
+ 		list_del(&entry->list);
+ 		free_vbuf(vgdev, entry);
+ 	}
+@@ -353,7 +357,8 @@ static int virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
+ 	ret = virtqueue_add_sgs(vq, sgs, outcnt, incnt, vbuf, GFP_ATOMIC);
+ 	WARN_ON(ret);
+ 
+-	trace_virtio_gpu_cmd_queue(vq, virtio_gpu_vbuf_ctrl_hdr(vbuf));
++	vbuf->seqno = ++vgdev->ctrlq.seqno;
++	trace_virtio_gpu_cmd_queue(vq, virtio_gpu_vbuf_ctrl_hdr(vbuf), vbuf->seqno);
+ 
+ 	atomic_inc(&vgdev->pending_commands);
+ 
+@@ -465,8 +470,10 @@ static void virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
+ 		spin_lock(&vgdev->cursorq.qlock);
+ 		goto retry;
+ 	} else {
++		vbuf->seqno = ++vgdev->cursorq.seqno;
+ 		trace_virtio_gpu_cmd_queue(vq,
+-			virtio_gpu_vbuf_ctrl_hdr(vbuf));
++			virtio_gpu_vbuf_ctrl_hdr(vbuf),
++			vbuf->seqno);
+ 
+ 		notify = virtqueue_kick_prepare(vq);
+ 	}
+-- 
+2.38.1
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
