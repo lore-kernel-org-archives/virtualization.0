@@ -1,101 +1,110 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 05214C4321E
-	for <virtualization@archiver.kernel.org>; Tue, 29 Nov 2022 14:33:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D1387C46467
+	for <virtualization@archiver.kernel.org>; Tue, 29 Nov 2022 16:40:48 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 6CB7F81293;
-	Tue, 29 Nov 2022 14:33:50 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6CB7F81293
+	by smtp4.osuosl.org (Postfix) with ESMTP id 63B95408A8;
+	Tue, 29 Nov 2022 16:40:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 63B95408A8
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=nSB5KCiZ
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id yaqkK5uVVwFs; Tue, 29 Nov 2022 16:40:47 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 5A8C9404E7;
+	Tue, 29 Nov 2022 16:40:46 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5A8C9404E7
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 16434C0032;
+	Tue, 29 Nov 2022 16:40:46 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9D280C002D
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 29 Nov 2022 16:40:44 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 77C1E81E8A
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 29 Nov 2022 16:40:44 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 77C1E81E8A
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=solid-run-com.20210112.gappssmtp.com header.i=@solid-run-com.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=iAox9Gck
+ dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com
+ header.a=rsa-sha256 header.s=20210112 header.b=nSB5KCiZ
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id tbA_8HmFbbcK; Tue, 29 Nov 2022 14:33:47 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 1BEAA80C2A;
-	Tue, 29 Nov 2022 14:33:47 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1BEAA80C2A
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id F3C60C0032;
-	Tue, 29 Nov 2022 14:33:46 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8327EC002D
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id TRQehKftl6zR
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Nov 2022 14:33:45 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 4F7FE40A20
- for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Nov 2022 14:33:45 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4F7FE40A20
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (2048-bit key) header.d=solid-run-com.20210112.gappssmtp.com
- header.i=@solid-run-com.20210112.gappssmtp.com header.a=rsa-sha256
- header.s=20210112 header.b=iAox9Gck
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ZYy8FY1mI05U
- for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Nov 2022 14:33:43 +0000 (UTC)
+ Tue, 29 Nov 2022 16:40:43 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7880640A04
-Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com
- [IPv6:2a00:1450:4864:20::431])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 7880640A04
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A586981E89
+Received: from mail-ot1-x335.google.com (mail-ot1-x335.google.com
+ [IPv6:2607:f8b0:4864:20::335])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id A586981E89
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Nov 2022 14:33:42 +0000 (UTC)
-Received: by mail-wr1-x431.google.com with SMTP id bs21so22393411wrb.4
+ Tue, 29 Nov 2022 16:40:43 +0000 (UTC)
+Received: by mail-ot1-x335.google.com with SMTP id
+ p8-20020a056830130800b0066bb73cf3bcso9459941otq.11
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Nov 2022 06:33:42 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=solid-run-com.20210112.gappssmtp.com; s=20210112;
- h=content-transfer-encoding:mime-version:message-id:date:subject:cc
- :to:from:from:to:cc:subject:date:message-id:reply-to;
- bh=Evd+41qAauvguYRmSPRYuYpXXl/a10IJOr6qHeEnqQE=;
- b=iAox9GckPeZsF7FytrpKI/yxTD01D/U718YI3i3Xs6yrx7zqrWMJzi0PP7h+pR6aEx
- YZZycRymUkrBUrDywIjusGiAp3hl0g8Lf9It5xwLOQJwBH7XshE1JifmqRx51iQU3igi
- XgjKe5BeeFveas3nt6NlsBG6AGVYa3DZCndUn9PpZHGMOgjhOuzSosOLc8496v8Sv6cb
- m3Kl2K8frvXYE5N4LiOofEoPi6tBVT0pjmguIAYXsCMCV8xvGsiYBf3s8aCHOqkPJxoH
- lKvLcgxmad/M5kjAzVMe28gmMOpWP3eJ2iiPOH5SUUIEepM8/hAzu5yJeYmRQ+i+4iXb
- KH/A==
+ Tue, 29 Nov 2022 08:40:43 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:from:to:cc:subject:date:message-id:reply-to;
+ bh=K78waBDJGkif7za6gqKCFTtsu32p8+QANMOHhvDlwsw=;
+ b=nSB5KCiZI7DAGDSJaDYZqmduGMY2KQVyAFKkhuk3fFegPUfW1cDr+c1iUFeyyJz/of
+ gIWXnGnR80+eiA1FXqAvuTvQFwSGl32+QZIarxtgRB1b06ZV8BJSTW3MakSo1H1ldSmX
+ vzIooVJwV5nLyqyf/vSwBCdafTX4Ltdwjdf1ZrjQy7SXEFleHcvIuE/MwVSk+lV2k63+
+ ibOed6JWKqfobTPF/hiIb5IY5u6nMCD5qA5qLJDwlPdNUaRyoGrvROGiYm1aS64qJoG9
+ chgwMiLL4DBl11hNz6JjP1H75mAeEECPuwTwuzX5Kcx0nZAiIcxP6iQpuvq4LuPme1lC
+ likA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=content-transfer-encoding:mime-version:message-id:date:subject:cc
- :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
  :reply-to;
- bh=Evd+41qAauvguYRmSPRYuYpXXl/a10IJOr6qHeEnqQE=;
- b=tox3V1c109Q8+HYmpalVU6pmdE5PgImlHaxsTTM8Y4DAldkuykfykrLbtC0gPxJAcM
- x+Cz1Of0623OBJvPj7anjQOgLA1HlhMiWBMTwdgco6rTosllrTjHZIbcE9gdzlC3Uzu5
- Z8y0hd6kCQJ5zISN1nwpSDYcoQsW8a8XDKud90ymYoFlohEbyT6roNsmtsR+I+9Lwijw
- ElkjmQsEylnDSvKhmgolFRmx0jZ7JxEOnw9evwiqEjIs1ASA7LglBdtjE4utvkeSsnqH
- ppV6wrFK6CvANvXJWpmTVIySxpOD5aLizbK3MfeZBAIe0kvezoszAfhxJUxidOd9aGAs
- J1mA==
-X-Gm-Message-State: ANoB5pk0cUAPgKq1xLnJHZtCMR9rTXIMUZBfhl6FarWQEVemvOadqs5d
- 21rrZ6Z3rRNVA7F7KtiK+eKvvSYBa95UMA==
-X-Google-Smtp-Source: AA0mqf7HxQiN9Qos4mPopHwSPRjyBrg0vQq+FbuJJ9sZWEMGnik0JK0GWRHiiay9/CJtFMZST6P9NA==
-X-Received: by 2002:adf:fc4a:0:b0:242:e35:9a2d with SMTP id
- e10-20020adffc4a000000b002420e359a2dmr10160646wrs.379.1669732419678; 
- Tue, 29 Nov 2022 06:33:39 -0800 (PST)
-Received: from localhost.localdomain
- (bzq-84-110-153-254.static-ip.bezeqint.net. [84.110.153.254])
- by smtp.gmail.com with ESMTPSA id
- j40-20020a05600c48a800b003cf75f56105sm2390395wmp.41.2022.11.29.06.33.38
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 29 Nov 2022 06:33:39 -0800 (PST)
-From: Alvaro Karsz <alvaro.karsz@solid-run.com>
-To: virtualization@lists.linux-foundation.org
-Subject: [PATCH v2] virtio: vdpa: new SolidNET DPU driver.
-Date: Tue, 29 Nov 2022 16:33:25 +0200
-Message-Id: <20221129143335.1902170-1-alvaro.karsz@solid-run.com>
-X-Mailer: git-send-email 2.32.0
+ bh=K78waBDJGkif7za6gqKCFTtsu32p8+QANMOHhvDlwsw=;
+ b=U63pe4JVEXJ7GAtcpZFpXgd2PokBAIJe+4lI5xi0SOpNXbVdJ2T9rvRy7dWhJhSMJR
+ XJvK+Fjj2SKg0fiXxZyilDLllHC4EGaFJ+ClxNfQTLBzX6Xh+bEayIzPN4cX9ftrdchK
+ dXP5LXJDVPpwtAZySXd4dAu3Euxb9Ea97aD827aHNDhGIMRfUF1hZWL8gqMMOKAdxord
+ t4pddk+RDzb/B7BtGRGk7JFBVufL/6viQq6p8TPDL2pU0F2Dxxt1NqpkmDkT/0R0UIV+
+ +n0UwvCMJzCnrUNUFnZDsNltuZ4krF5IEVrOKLO8HMR2Jq1vgl+nw/7omkK/XQRXsVuC
+ ND5A==
+X-Gm-Message-State: ANoB5plazI+VZp1+wHhDRIDb9qdAd2ajpBYX3ROLxNBYtFt0WAy6hRGA
+ JLe3wRP2etICVjEOQ9jsfCyKO/QjJXwC/oKsUPM=
+X-Google-Smtp-Source: AA0mqf6QNn+q3W6OtufOMJC0QkPzO9jSHQOngL9Jsl3MZqmgQD8IOdpUGysoS6cLjUDNBXcPEr/LpqoksrOxBBV2mwI=
+X-Received: by 2002:a9d:75d5:0:b0:667:7361:7db5 with SMTP id
+ c21-20020a9d75d5000000b0066773617db5mr21623192otl.22.1669740042594; Tue, 29
+ Nov 2022 08:40:42 -0800 (PST)
 MIME-Version: 1.0
-Cc: Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>,
- "Michael S. Tsirkin" <mst@redhat.com>
+References: <20221123025723.695075-1-dmitry.osipenko@collabora.com>
+ <20221123025723.695075-2-dmitry.osipenko@collabora.com>
+In-Reply-To: <20221123025723.695075-2-dmitry.osipenko@collabora.com>
+From: Rob Clark <robdclark@gmail.com>
+Date: Tue, 29 Nov 2022 08:40:33 -0800
+Message-ID: <CAF6AEGv832O8m-7pP8qaDChA3=Y6TmBZrwf-NYwvHkvH6sVMkw@mail.gmail.com>
+Subject: Re: [PATCH v9 01/11] drm/msm/gem: Prevent blocking within shrinker
+ loop
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Cc: dri-devel@lists.freedesktop.org,
+ Gurchetan Singh <gurchetansingh@chromium.org>, kernel@collabora.com,
+ David Airlie <airlied@gmail.com>, Sumit Semwal <sumit.semwal@linaro.org>,
+ Rob Herring <robh@kernel.org>, Daniel Stone <daniel@fooishbar.org>,
+ Steven Price <steven.price@arm.com>,
+ Gustavo Padovan <gustavo.padovan@collabora.com>,
+ Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
+ Chia-I Wu <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Abhinav Kumar <quic_abhinavk@quicinc.com>, Maxime Ripard <mripard@kernel.org>,
+ virtualization@lists.linux-foundation.org, Sean Paul <sean@poorly.run>,
+ Tomeu Vizoso <tomeu.vizoso@collabora.com>, linux-kernel@vger.kernel.org,
+ Qiang Yu <yuq825@gmail.com>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+ =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -112,1588 +121,133 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This commit includes:
- 1) The driver to manage the controlplane over vDPA bus.
- 2) A HW monitor device to read health values from the DPU.
+On Tue, Nov 22, 2022 at 7:00 PM Dmitry Osipenko
+<dmitry.osipenko@collabora.com> wrote:
+>
+> Consider this scenario:
+>
+> 1. APP1 continuously creates lots of small GEMs
+> 2. APP2 triggers `drop_caches`
+> 3. Shrinker starts to evict APP1 GEMs, while APP1 produces new purgeable
+>    GEMs
+> 4. msm_gem_shrinker_scan() returns non-zero number of freed pages
+>    and causes shrinker to try shrink more
+> 5. msm_gem_shrinker_scan() returns non-zero number of freed pages again,
+>    goto 4
+> 6. The APP2 is blocked in `drop_caches` until APP1 stops producing
+>    purgeable GEMs
+>
+> To prevent this blocking scenario, check number of remaining pages
+> that GPU shrinker couldn't release due to a GEM locking contention
+> or shrinking rejection. If there are no remaining pages left to shrink,
+> then there is no need to free up more pages and shrinker may break out
+> from the loop.
+>
+> This problem was found during shrinker/madvise IOCTL testing of
+> virtio-gpu driver. The MSM driver is affected in the same way.
+>
+> Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
 
-Signed-off-by: Alvaro Karsz <alvaro.karsz@solid-run.com>
---
-v2:
-	- Auto detect the BAR used for communication.
-	- When reading the DPU config, wait for 5secs before giving up
-	  on the device.
-	- Return EOPNOTSUPP error code in vDPA set_vq_state callback if
-	  the vq state is not the same as the initial one.
-	- Implement a vDPA reset callback.
-	- Wait for an ACK when sending a message to the DPU.
-	- Add endianness comments on 64bit read/write functions.
-	- Remove the get_iova_range and free vDPA callbacks.
-	- Usage of managed device functions to ioremap a region.
-	- Call pci_set_drvdata and pci_set_master before
-	  vdpa_register_device.
-	- Create DMA isolation between the vDPA devices by using the
-	  chip SR-IOV feature.
-	  Every vDPA device gets a PCIe VF with its own DMA device.
----
- MAINTAINERS                        |    4 +
- drivers/vdpa/Kconfig               |   11 +
- drivers/vdpa/Makefile              |    1 +
- drivers/vdpa/solidrun/Makefile     |    3 +
- drivers/vdpa/solidrun/snet_hwmon.c |  191 +++++
- drivers/vdpa/solidrun/snet_main.c  | 1086 ++++++++++++++++++++++++++++
- drivers/vdpa/solidrun/snet_vdpa.h  |  192 +++++
- 7 files changed, 1488 insertions(+)
- create mode 100644 drivers/vdpa/solidrun/Makefile
- create mode 100644 drivers/vdpa/solidrun/snet_hwmon.c
- create mode 100644 drivers/vdpa/solidrun/snet_main.c
- create mode 100644 drivers/vdpa/solidrun/snet_vdpa.h
+Reviewed-by: Rob Clark <robdclark@gmail.com>
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 046ff06ff97..ae425b3bed4 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -21725,6 +21725,10 @@ IFCVF VIRTIO DATA PATH ACCELERATOR
- R:	Zhu Lingshan <lingshan.zhu@intel.com>
- F:	drivers/vdpa/ifcvf/
- 
-+SNET DPU VIRTIO DATA PATH ACCELERATOR
-+R:	Alvaro Karsz <alvaro.karsz@solid-run.com>
-+F:	drivers/vdpa/solidrun/
-+
- VIRTIO BALLOON
- M:	"Michael S. Tsirkin" <mst@redhat.com>
- M:	David Hildenbrand <david@redhat.com>
-diff --git a/drivers/vdpa/Kconfig b/drivers/vdpa/Kconfig
-index 50f45d03761..cb1ff0f9e27 100644
---- a/drivers/vdpa/Kconfig
-+++ b/drivers/vdpa/Kconfig
-@@ -86,4 +86,15 @@ config ALIBABA_ENI_VDPA
- 	  VDPA driver for Alibaba ENI (Elastic Network Interface) which is built upon
- 	  virtio 0.9.5 specification.
- 
-+ config SNET_VDPA
-+	tristate "SolidRun's vDPA driver for SolidNET"
-+	select HWMON
-+	depends on PCI_MSI && PCI_IOV
-+	help
-+	  vDPA driver for SolidNET DPU.
-+	  With this driver, the VirtIO dataplane can be
-+	  offloaded to a SolidNET DPU.
-+	  This driver includes a HW monitor device that
-+	  reads health values from the DPU.
-+
- endif # VDPA
-diff --git a/drivers/vdpa/Makefile b/drivers/vdpa/Makefile
-index 15665563a7f..59396ff2a31 100644
---- a/drivers/vdpa/Makefile
-+++ b/drivers/vdpa/Makefile
-@@ -6,3 +6,4 @@ obj-$(CONFIG_IFCVF)    += ifcvf/
- obj-$(CONFIG_MLX5_VDPA) += mlx5/
- obj-$(CONFIG_VP_VDPA)    += virtio_pci/
- obj-$(CONFIG_ALIBABA_ENI_VDPA) += alibaba/
-+obj-$(CONFIG_SNET_VDPA) += solidrun/
-diff --git a/drivers/vdpa/solidrun/Makefile b/drivers/vdpa/solidrun/Makefile
-new file mode 100644
-index 00000000000..0acabd040fd
---- /dev/null
-+++ b/drivers/vdpa/solidrun/Makefile
-@@ -0,0 +1,3 @@
-+# SPDX-License-Identifier: GPL-2.0
-+obj-$(CONFIG_SNET_VDPA) += snet_vdpa.o
-+snet_vdpa-$(CONFIG_SNET_VDPA) += snet_main.o snet_hwmon.o
-diff --git a/drivers/vdpa/solidrun/snet_hwmon.c b/drivers/vdpa/solidrun/snet_hwmon.c
-new file mode 100644
-index 00000000000..ec6d09f09c7
---- /dev/null
-+++ b/drivers/vdpa/solidrun/snet_hwmon.c
-@@ -0,0 +1,191 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * SolidRun DPU driver for control plane
-+ *
-+ * Copyright (C) 2022 SolidRun
-+ *
-+ * Author: Alvaro Karsz <alvaro.karsz@solid-run.com>
-+ *
-+ */
-+
-+#include <linux/hwmon.h>
-+#include <linux/hwmon-sysfs.h>
-+
-+#include "snet_vdpa.h"
-+
-+/* Monitor offsets */
-+#define SNET_MON_TMP0_IN_OFF      0x00
-+#define SNET_MON_TMP0_MAX_OFF     0x08
-+#define SNET_MON_TMP0_CRIT_OFF    0x10
-+#define SNET_MON_TMP1_IN_OFF      0x18
-+#define SNET_MON_TMP1_CRIT_OFF    0x20
-+#define SNET_MON_CURR_IN_OFF      0x28
-+#define SNET_MON_CURR_MAX_OFF     0x30
-+#define SNET_MON_CURR_CRIT_OFF    0x38
-+#define SNET_MON_PWR_IN_OFF       0x40
-+#define SNET_MON_VOLT_IN_OFF      0x48
-+#define SNET_MON_VOLT_CRIT_OFF    0x50
-+#define SNET_MON_VOLT_LCRIT_OFF   0x58
-+
-+static void snet_hwmon_read_reg(struct psnet *psnet, u32 reg, long *out)
-+{
-+	*out = (long)psnet_read64(psnet, psnet->cfg.hwmon_off + reg);
-+}
-+
-+static umode_t snet_howmon_is_visible(const void *data,
-+				      enum hwmon_sensor_types type,
-+				      u32 attr, int channel)
-+{
-+	/* Files are read only */
-+	return 0444;
-+}
-+
-+static int snet_howmon_read(struct device *dev, enum hwmon_sensor_types type,
-+			    u32 attr, int channel, long *val)
-+{
-+	struct psnet *psnet = dev_get_drvdata(dev);
-+	int ret = 0;
-+
-+	switch (type) {
-+	case hwmon_in:
-+		switch (attr) {
-+		case hwmon_in_lcrit:
-+			snet_hwmon_read_reg(psnet, SNET_MON_VOLT_LCRIT_OFF, val);
-+			break;
-+		case hwmon_in_crit:
-+			snet_hwmon_read_reg(psnet, SNET_MON_VOLT_CRIT_OFF, val);
-+			break;
-+		case hwmon_in_input:
-+			snet_hwmon_read_reg(psnet, SNET_MON_VOLT_IN_OFF, val);
-+			break;
-+		default:
-+			ret = -EOPNOTSUPP;
-+			break;
-+		}
-+		break;
-+
-+	case hwmon_power:
-+		switch (attr) {
-+		case hwmon_power_input:
-+			snet_hwmon_read_reg(psnet, SNET_MON_PWR_IN_OFF, val);
-+			break;
-+
-+		default:
-+			ret = -EOPNOTSUPP;
-+			break;
-+		}
-+		break;
-+
-+	case hwmon_curr:
-+		switch (attr) {
-+		case hwmon_curr_input:
-+			snet_hwmon_read_reg(psnet, SNET_MON_CURR_IN_OFF, val);
-+			break;
-+		case hwmon_curr_max:
-+			snet_hwmon_read_reg(psnet, SNET_MON_CURR_MAX_OFF, val);
-+			break;
-+		case hwmon_curr_crit:
-+			snet_hwmon_read_reg(psnet, SNET_MON_CURR_CRIT_OFF, val);
-+			break;
-+		default:
-+			ret = -EOPNOTSUPP;
-+			break;
-+		}
-+		break;
-+
-+	case hwmon_temp:
-+		switch (attr) {
-+		case hwmon_temp_input:
-+			if (channel == 0)
-+				snet_hwmon_read_reg(psnet, SNET_MON_TMP0_IN_OFF, val);
-+			else
-+				snet_hwmon_read_reg(psnet, SNET_MON_TMP1_IN_OFF, val);
-+			break;
-+		case hwmon_temp_max:
-+			if (channel == 0)
-+				snet_hwmon_read_reg(psnet, SNET_MON_TMP0_MAX_OFF, val);
-+			else
-+				ret = -EOPNOTSUPP;
-+			break;
-+		case hwmon_temp_crit:
-+			if (channel == 0)
-+				snet_hwmon_read_reg(psnet, SNET_MON_TMP0_CRIT_OFF, val);
-+			else
-+				snet_hwmon_read_reg(psnet, SNET_MON_TMP1_CRIT_OFF, val);
-+			break;
-+
-+		default:
-+			ret = -EOPNOTSUPP;
-+			break;
-+		}
-+		break;
-+
-+	default:
-+		ret = -EOPNOTSUPP;
-+		break;
-+	}
-+	return ret;
-+}
-+
-+static int snet_hwmon_read_string(struct device *dev,
-+				  enum hwmon_sensor_types type, u32 attr,
-+				  int channel, const char **str)
-+{
-+	int ret = 0;
-+
-+	switch (type) {
-+	case hwmon_in:
-+		*str = "main_vin";
-+		break;
-+	case hwmon_power:
-+		*str = "soc_pin";
-+		break;
-+	case hwmon_curr:
-+		*str = "soc_iin";
-+		break;
-+	case hwmon_temp:
-+		if (channel == 0)
-+			*str = "power_stage_temp";
-+		else
-+			*str = "ic_junction_temp";
-+		break;
-+	default:
-+		ret = -EOPNOTSUPP;
-+		break;
-+	}
-+	return ret;
-+}
-+
-+static const struct hwmon_ops snet_hwmon_ops = {
-+	.is_visible = snet_howmon_is_visible,
-+	.read = snet_howmon_read,
-+	.read_string = snet_hwmon_read_string
-+};
-+
-+static const struct hwmon_channel_info *snet_hwmon_info[] = {
-+	HWMON_CHANNEL_INFO(temp, HWMON_T_INPUT | HWMON_T_MAX | HWMON_T_CRIT | HWMON_T_LABEL,
-+			   HWMON_T_INPUT | HWMON_T_CRIT | HWMON_T_LABEL),
-+	HWMON_CHANNEL_INFO(power, HWMON_P_INPUT | HWMON_P_LABEL),
-+	HWMON_CHANNEL_INFO(curr, HWMON_C_INPUT | HWMON_C_MAX | HWMON_C_CRIT | HWMON_C_LABEL),
-+	HWMON_CHANNEL_INFO(in, HWMON_I_INPUT | HWMON_I_CRIT | HWMON_I_LCRIT | HWMON_I_LABEL),
-+			   NULL
-+};
-+
-+static const struct hwmon_chip_info snet_hwmono_info = {
-+	.ops = &snet_hwmon_ops,
-+	.info = snet_hwmon_info,
-+};
-+
-+/* Create an HW monitor device */
-+void psnet_create_hwmon(struct pci_dev *pdev)
-+{
-+	struct device *hwmon;
-+	struct psnet *psnet = pci_get_drvdata(pdev);
-+
-+	snprintf(psnet->hwmon_name, SNET_NAME_SIZE, "snet[%s]_hwmon", pci_name(pdev));
-+	hwmon = devm_hwmon_device_register_with_info(&pdev->dev, psnet->hwmon_name, psnet,
-+						     &snet_hwmono_info, NULL);
-+	/* The monitor is not mandatory, Just alert user in case of an error */
-+	if (!hwmon)
-+		SNET_WARN(pdev, "Failed to create SNET hwmon\n");
-+}
-diff --git a/drivers/vdpa/solidrun/snet_main.c b/drivers/vdpa/solidrun/snet_main.c
-new file mode 100644
-index 00000000000..69e37e72e1a
---- /dev/null
-+++ b/drivers/vdpa/solidrun/snet_main.c
-@@ -0,0 +1,1086 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * SolidRun DPU driver for control plane
-+ *
-+ * Copyright (C) 2022 SolidRun
-+ *
-+ * Author: Alvaro Karsz <alvaro.karsz@solid-run.com>
-+ *
-+ */
-+#include <linux/iopoll.h>
-+
-+#include "snet_vdpa.h"
-+
-+/* SolidRun's PCI vendor ID */
-+#define SOLIDRUN_PCI_VENDOR_ID  0xD063
-+#define SNET_DEVICE_ID          0x1000
-+/* SNET signature */
-+#define SNET_SIGNATURE          0xD0D06363
-+/* Max. config version that we can work with */
-+#define SNET_CFG_VERSION        0x1
-+/* Queue align */
-+#define SNET_QUEUE_ALIGNMENT    PAGE_SIZE
-+/* Kick value to notify that new data is available */
-+#define SNET_KICK_VAL           0x1
-+#define SNET_CONFIG_OFF         0x0
-+/* ACK timeout for a message */
-+#define SNET_ACK_TIMEOUT	2000000
-+/* How long we are willing to wait for a SNET device */
-+#define SNET_DETECT_TIMEOUT	5000000
-+/* How long should we wait for the DPU to read our config */
-+#define SNET_READ_CFG_TIMEOUT	3000000
-+
-+enum snet_msg {
-+	SNET_MSG_DESTROY = 1,
-+};
-+
-+
-+static struct snet *vdpa_to_snet(struct vdpa_device *vdpa)
-+{
-+	return container_of(vdpa, struct snet, vdpa);
-+}
-+
-+static int snet_wait_for_msg_ack(struct snet *snet)
-+{
-+	struct pci_dev *pdev = snet->pdev;
-+	int ret;
-+	u32 val;
-+
-+	/* The DPU will clear the messages offset once messages
-+	 * are processed.
-+	 */
-+	ret = readx_poll_timeout(ioread32, snet->bar + snet->psnet->cfg.msg_off,
-+				 val, !val, 10, SNET_ACK_TIMEOUT);
-+	if (ret)
-+		SNET_WARN(pdev, "Timeout waiting for message ACK\n");
-+
-+	return ret;
-+}
-+
-+/* Sends a message to the DPU.
-+ * If blocking is set, the function will return once the
-+ * message was processed by the DPU (or timeout).
-+ */
-+static int snet_send_msg(struct snet *snet, u32 msg, bool blocking)
-+{
-+	int ret = 0;
-+
-+	/* Make sure the DPU acked last message before issuing a new one */
-+	ret = snet_wait_for_msg_ack(snet);
-+	if (ret)
-+		return ret;
-+
-+	/* Write the message */
-+	snet_write32(snet, snet->psnet->cfg.msg_off, msg);
-+
-+	if (blocking)
-+		ret = snet_wait_for_msg_ack(snet);
-+	else /* If non-blocking, flush the write by issuing a read */
-+		snet_read32(snet, snet->psnet->cfg.msg_off);
-+
-+	return ret;
-+}
-+
-+static irqreturn_t snet_cfg_irq_hndlr(int irq, void *data)
-+{
-+	struct snet *snet = data;
-+	/* Call callback if any */
-+	if (snet->cb.callback)
-+		return snet->cb.callback(snet->cb.private);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static irqreturn_t snet_vq_irq_hndlr(int irq, void *data)
-+{
-+	struct snet_vq *vq = data;
-+	/* Call callback if any */
-+	if (vq->cb.callback)
-+		return vq->cb.callback(vq->cb.private);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int psnet_get_next_irq_num(struct psnet *psnet)
-+{
-+	int irq;
-+
-+	spin_lock(&psnet->lock);
-+	irq = psnet->next_irq++;
-+	spin_unlock(&psnet->lock);
-+
-+	return irq;
-+}
-+
-+static int snet_request_irqs(struct pci_dev *pdev, struct snet *snet)
-+{
-+	struct psnet *psnet = snet->psnet;
-+	int ret, i, irq;
-+
-+	/* Request one IRQ for every VQ, and one for config changes */
-+	snet->cfg_irq_idx = psnet_get_next_irq_num(psnet);
-+	snprintf(snet->cfg_irq_name, SNET_NAME_SIZE, "snet[%s]-cfg[%d]",
-+		 pci_name(pdev), snet->cfg_irq_idx);
-+
-+	/* Request config IRQ */
-+	irq = pci_irq_vector(pdev, snet->cfg_irq_idx);
-+	ret = devm_request_irq(&pdev->dev, irq, snet_cfg_irq_hndlr, 0,
-+			       snet->cfg_irq_name, snet);
-+	if (ret) {
-+		SNET_ERR(pdev, "Failed to request IRQ\n");
-+		return ret;
-+	}
-+	snet->cfg_irq = irq;
-+
-+	/* Request IRQ for every VQ */
-+	for (i = 0; i < snet->cfg->vq_num; i++) {
-+		/* Get next free IRQ ID */
-+		snet->vqs[i]->irq_idx = psnet_get_next_irq_num(psnet);
-+		/* Write IRQ name */
-+		snprintf(snet->vqs[i]->irq_name, SNET_NAME_SIZE, "snet[%s]-vq[%d]",
-+			 pci_name(pdev), snet->vqs[i]->irq_idx);
-+		/* Request IRQ */
-+		irq = pci_irq_vector(pdev, snet->vqs[i]->irq_idx);
-+		ret = devm_request_irq(&pdev->dev, irq, snet_vq_irq_hndlr, 0,
-+				       snet->vqs[i]->irq_name, snet->vqs[i]);
-+		if (ret) {
-+			SNET_ERR(pdev, "Failed to request IRQ\n");
-+			return ret;
-+		}
-+		snet->vqs[i]->irq = irq;
-+	}
-+	return 0;
-+}
-+
-+static void snet_free_irqs(struct snet *snet)
-+{
-+	struct psnet *psnet = snet->psnet;
-+	struct pci_dev *pdev;
-+	u32 i;
-+
-+	/* Which Device allcoated the IRQs? */
-+	if (PSNET_FLAG_ON(psnet, SNET_CFG_FLAG_IRQ_PF))
-+		pdev = snet->pdev->physfn;
-+	else
-+		pdev = snet->pdev;
-+
-+	/* Free config's IRQ */
-+	if (snet->cfg_irq != -1) {
-+		devm_free_irq(&pdev->dev, snet->cfg_irq, snet);
-+		snet->cfg_irq = -1;
-+	}
-+	/* Free VQ IRQs */
-+	for (i = 0; i < snet->cfg->vq_num; i++) {
-+		if (snet->vqs[i] && snet->vqs[i]->irq != -1) {
-+			devm_free_irq(&pdev->dev, snet->vqs[i]->irq, snet->vqs[i]);
-+			snet->vqs[i]->irq = -1;
-+		}
-+	}
-+
-+	/* IRQ vectors are freed when the pci remove callback is called */
-+}
-+
-+static int snet_set_vq_address(struct vdpa_device *vdev, u16 idx, u64 desc_area,
-+			       u64 driver_area, u64 device_area)
-+{
-+	struct snet *snet = vdpa_to_snet(vdev);
-+	/* save received parameters in vqueue sturct */
-+	snet->vqs[idx]->desc_area = desc_area;
-+	snet->vqs[idx]->driver_area = driver_area;
-+	snet->vqs[idx]->device_area = device_area;
-+
-+	return 0;
-+}
-+
-+static void snet_set_vq_num(struct vdpa_device *vdev, u16 idx, u32 num)
-+{
-+	struct snet *snet = vdpa_to_snet(vdev);
-+	/* save num in vqueue */
-+	snet->vqs[idx]->num = num;
-+}
-+
-+static void snet_kick_vq(struct vdpa_device *vdev, u16 idx)
-+{
-+	struct snet *snet = vdpa_to_snet(vdev);
-+	/* not ready - ignore */
-+	if (!snet->vqs[idx]->ready)
-+		return;
-+
-+	iowrite32(SNET_KICK_VAL, snet->vqs[idx]->kick_ptr);
-+}
-+
-+static void snet_set_vq_cb(struct vdpa_device *vdev, u16 idx, struct vdpa_callback *cb)
-+{
-+	struct snet *snet = vdpa_to_snet(vdev);
-+
-+	snet->vqs[idx]->cb.callback = cb->callback;
-+	snet->vqs[idx]->cb.private = cb->private;
-+}
-+
-+static void snet_set_vq_ready(struct vdpa_device *vdev, u16 idx, bool ready)
-+{
-+	struct snet *snet = vdpa_to_snet(vdev);
-+
-+	snet->vqs[idx]->ready = ready;
-+}
-+
-+static bool snet_get_vq_ready(struct vdpa_device *vdev, u16 idx)
-+{
-+	struct snet *snet = vdpa_to_snet(vdev);
-+
-+	return snet->vqs[idx]->ready;
-+}
-+
-+static int snet_set_vq_state(struct vdpa_device *vdev, u16 idx, const struct vdpa_vq_state *state)
-+{
-+	struct snet *snet = vdpa_to_snet(vdev);
-+	/* Setting the VQ state is not supported.
-+	 * If the asked state is the same as the initial one
-+	 * we can ignore it.
-+	 */
-+	if (SNET_HAS_FEATURE(snet, VIRTIO_F_RING_PACKED)) {
-+		const struct vdpa_vq_state_packed *p = &state->packed;
-+
-+		if (p->last_avail_counter == 1 && p->last_used_counter == 1 &&
-+		    p->last_avail_idx == 0 && p->last_used_idx == 0)
-+			return 0;
-+	} else {
-+		const struct vdpa_vq_state_split *s = &state->split;
-+
-+		if (s->avail_index == 0)
-+			return 0;
-+	}
-+
-+	return -EOPNOTSUPP;
-+}
-+
-+static int snet_get_vq_state(struct vdpa_device *vdev, u16 idx, struct vdpa_vq_state *state)
-+{
-+	/* Not supported */
-+	return -EOPNOTSUPP;
-+}
-+
-+static int snet_get_vq_irq(struct vdpa_device *vdev, u16 idx)
-+{
-+	struct snet *snet = vdpa_to_snet(vdev);
-+
-+	return snet->vqs[idx]->irq;
-+}
-+
-+static u32 snet_get_vq_align(struct vdpa_device *vdev)
-+{
-+	return (u32)SNET_QUEUE_ALIGNMENT;
-+}
-+
-+static int snet_reset_dev(struct snet *snet)
-+{
-+	struct pci_dev *pdev = snet->pdev;
-+	int ret = 0;
-+	u32 i;
-+
-+	/* If status is 0, nothing to do */
-+	if (!snet->status)
-+		return 0;
-+
-+	/* If DPU started, send a destroy message */
-+	if (snet->status & VIRTIO_CONFIG_S_DRIVER_OK)
-+		ret = snet_send_msg(snet, SNET_MSG_DESTROY, true);
-+
-+	/* Clear VQs */
-+	for (i = 0; i < snet->cfg->vq_num; i++) {
-+		if (!snet->vqs[i])
-+			continue;
-+		snet->vqs[i]->cb.callback = NULL;
-+		snet->vqs[i]->cb.private = NULL;
-+		snet->vqs[i]->desc_area = 0;
-+		snet->vqs[i]->device_area = 0;
-+		snet->vqs[i]->driver_area = 0;
-+		snet->vqs[i]->ready = false;
-+	}
-+
-+	/* Clear config callback */
-+	snet->cb.callback = NULL;
-+	snet->cb.private = NULL;
-+	/* Free IRQs */
-+	snet_free_irqs(snet);
-+	/* Reset status */
-+	snet->status = 0;
-+
-+	if (ret)
-+		SNET_WARN(pdev, "Incomplete reset to SNET[%u] device\n", snet->sid);
-+	else
-+		SNET_DBG(pdev, "Reset SNET[%u] device\n", snet->sid);
-+
-+	return 0;
-+}
-+
-+static int snet_reset(struct vdpa_device *vdev)
-+{
-+	struct snet *snet = vdpa_to_snet(vdev);
-+
-+	return snet_reset_dev(snet);
-+}
-+
-+static size_t snet_get_config_size(struct vdpa_device *vdev)
-+{
-+	struct snet *snet = vdpa_to_snet(vdev);
-+
-+	return (size_t)snet->cfg->cfg_size;
-+}
-+
-+static u64 snet_get_features(struct vdpa_device *vdev)
-+{
-+	struct snet *snet = vdpa_to_snet(vdev);
-+
-+	return snet->cfg->features;
-+}
-+
-+static int snet_set_drv_features(struct vdpa_device *vdev, u64 features)
-+{
-+	struct snet *snet = vdpa_to_snet(vdev);
-+
-+	snet->negotiated_features = snet->cfg->features & features;
-+	return 0;
-+}
-+
-+static u64 snet_get_drv_features(struct vdpa_device *vdev)
-+{
-+	struct snet *snet = vdpa_to_snet(vdev);
-+
-+	return snet->negotiated_features;
-+}
-+
-+static u16 snet_get_vq_num_max(struct vdpa_device *vdev)
-+{
-+	struct snet *snet = vdpa_to_snet(vdev);
-+
-+	return (u16)snet->cfg->vq_size;
-+}
-+
-+static void snet_set_config_cb(struct vdpa_device *vdev, struct vdpa_callback *cb)
-+{
-+	struct snet *snet = vdpa_to_snet(vdev);
-+
-+	snet->cb.callback = cb->callback;
-+	snet->cb.private = cb->private;
-+}
-+
-+static u32 snet_get_device_id(struct vdpa_device *vdev)
-+{
-+	struct snet *snet = vdpa_to_snet(vdev);
-+
-+	return snet->cfg->virtio_id;
-+}
-+
-+static u32 snet_get_vendor_id(struct vdpa_device *vdev)
-+{
-+	return (u32)SOLIDRUN_PCI_VENDOR_ID;
-+}
-+
-+static u8 snet_get_status(struct vdpa_device *vdev)
-+{
-+	struct snet *snet = vdpa_to_snet(vdev);
-+
-+	return snet->status;
-+}
-+
-+static int snet_write_conf(struct snet *snet)
-+{
-+	u32 off, i, tmp;
-+	int ret;
-+
-+	/* No need to write the config twice */
-+	if (snet->dpu_ready)
-+		return true;
-+
-+	/* Snet data :
-+	 *
-+	 *  0             0x4       0x8        0xC               0x10      0x14        0x1C     0x24
-+	 *  | MAGIC NUMBER | CFG VER | SNET SID | NUMBER OF QUEUES | IRQ IDX | FEATURES |  RSVD  |
-+	 *
-+	 * For every VQ:
-+	 * 0                          0x4        0x8
-+	 * |  VQ SID  AND  QUEUE SIZE | IRQ Index |
-+	 * |             DESC AREA                |
-+	 * |            DEVICE AREA               |
-+	 * |            DRIVER AREA               |
-+	 * |             RESERVED                 |
-+	 *
-+	 * Magic number should be written last, this is the DPU indication that the data is ready
-+	 */
-+
-+	/* Is the config too big? */
-+	if (36 + 40 * snet->cfg->vq_num > snet->psnet->cfg.max_size_host_cfg) {
-+		SNET_ERR(snet->pdev, "Failed to create a SNET device, the config is too big..\n");
-+		return false;
-+	}
-+
-+	/* Init offset */
-+	off = snet->psnet->cfg.host_cfg_off;
-+
-+	/* Ignore magic number for now */
-+	off += 4;
-+	snet_write32(snet, off, snet->psnet->negotiated_cfg_ver);
-+	off += 4;
-+	snet_write32(snet, off, snet->sid);
-+	off += 4;
-+	snet_write32(snet, off, snet->cfg->vq_num);
-+	off += 4;
-+	snet_write32(snet, off, snet->cfg_irq_idx);
-+	off += 4;
-+	snet_write64(snet, off, snet->negotiated_features);
-+	off += 8;
-+	/* Ignore reserved */
-+	off += 8;
-+	/* Write VQs */
-+	for (i = 0 ; i < snet->cfg->vq_num ; i++) {
-+		tmp = (i << 16) | (snet->vqs[i]->num & 0xFFFF);
-+		snet_write32(snet, off, tmp);
-+		off += 4;
-+		snet_write32(snet, off, snet->vqs[i]->irq_idx);
-+		off += 4;
-+		snet_write64(snet, off, snet->vqs[i]->desc_area);
-+		off += 8;
-+		snet_write64(snet, off, snet->vqs[i]->device_area);
-+		off += 8;
-+		snet_write64(snet, off, snet->vqs[i]->driver_area);
-+		off += 8;
-+		/* Ignore reserved */
-+		off += 8;
-+	}
-+
-+	/* Clear snet messages address for this device */
-+	snet_write32(snet, snet->psnet->cfg.msg_off, 0);
-+	/* Write magic number - data is ready */
-+	snet_write32(snet, snet->psnet->cfg.host_cfg_off, SNET_SIGNATURE);
-+
-+	/* The DPU will ACK the config by clearing the signature */
-+	ret = readx_poll_timeout(ioread32, snet->bar + snet->psnet->cfg.host_cfg_off,
-+				 tmp, !tmp, 10, SNET_READ_CFG_TIMEOUT);
-+	if (ret) {
-+		SNET_ERR(snet->pdev, "Timeout waiting for the DPU to read the config\n");
-+		return false;
-+	}
-+
-+	/* set DPU flag */
-+	snet->dpu_ready = true;
-+
-+	return true;
-+}
-+
-+static void snet_set_status(struct vdpa_device *vdev, u8 status)
-+{
-+	struct snet *snet = vdpa_to_snet(vdev);
-+	struct pci_dev *pdev = snet->pdev;
-+	bool ret = true;
-+
-+	/* If device is ready - write device configuration to the DPU */
-+	if (status & VIRTIO_CONFIG_S_DRIVER_OK) {
-+		if (snet_write_conf(snet))
-+			SNET_INFO(pdev, "Create SNET[%u] device\n", snet->sid);
-+		else
-+			ret = false;
-+	}
-+
-+	/* Save the new status */
-+	if (ret)
-+		snet->status = status;
-+}
-+
-+static void snet_get_config(struct vdpa_device *vdev, unsigned int offset,
-+			    void *buf, unsigned int len)
-+{
-+	struct snet *snet = vdpa_to_snet(vdev);
-+	void __iomem *cfg_ptr = snet->cfg->virtio_cfg + offset;
-+	u8 *buf_ptr = buf;
-+	u32 i;
-+
-+	/* check for offset error */
-+	if (offset + len > snet->cfg->cfg_size)
-+		return;
-+
-+	/* Write into buffer */
-+	for (i = 0; i < len; i++)
-+		*buf_ptr++ = ioread8(cfg_ptr + i);
-+}
-+
-+static void snet_set_config(struct vdpa_device *vdev, unsigned int offset,
-+			    const void *buf, unsigned int len)
-+{
-+	struct snet *snet = vdpa_to_snet(vdev);
-+	void __iomem *cfg_ptr = snet->cfg->virtio_cfg + offset;
-+	const u8 *buf_ptr = buf;
-+	u32 i;
-+
-+	/* check for offset error */
-+	if (offset + len > snet->cfg->cfg_size)
-+		return;
-+
-+	/* Write into PCI BAR */
-+	for (i = 0; i < len; i++)
-+		iowrite8(*buf_ptr++, cfg_ptr + i);
-+}
-+
-+static const struct vdpa_config_ops snet_config_ops = {
-+	.set_vq_address         = snet_set_vq_address,
-+	.set_vq_num             = snet_set_vq_num,
-+	.kick_vq                = snet_kick_vq,
-+	.set_vq_cb              = snet_set_vq_cb,
-+	.set_vq_ready           = snet_set_vq_ready,
-+	.get_vq_ready           = snet_get_vq_ready,
-+	.set_vq_state           = snet_set_vq_state,
-+	.get_vq_state           = snet_get_vq_state,
-+	.get_vq_irq		= snet_get_vq_irq,
-+	.get_vq_align           = snet_get_vq_align,
-+	.reset                  = snet_reset,
-+	.get_config_size        = snet_get_config_size,
-+	.get_device_features    = snet_get_features,
-+	.set_driver_features    = snet_set_drv_features,
-+	.get_driver_features    = snet_get_drv_features,
-+	.get_vq_num_min         = snet_get_vq_num_max,
-+	.get_vq_num_max         = snet_get_vq_num_max,
-+	.set_config_cb          = snet_set_config_cb,
-+	.get_device_id          = snet_get_device_id,
-+	.get_vendor_id          = snet_get_vendor_id,
-+	.get_status             = snet_get_status,
-+	.set_status             = snet_set_status,
-+	.get_config             = snet_get_config,
-+	.set_config             = snet_set_config,
-+};
-+
-+static int psnet_open_pf_bar(struct pci_dev *pdev, struct psnet *psnet)
-+{
-+	char name[25];
-+	int ret, i, mask = 0;
-+	/* We don't know which BAR will be used to communicate..
-+	 * We will map every bar with len > 0.
-+	 *
-+	 * Later, we will discover the BAR and unmap all other BARs.
-+	 */
-+	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
-+		if (pci_resource_len(pdev, i))
-+			mask |= (1 << i);
-+	}
-+
-+	/* No BAR can be used.. */
-+	if (!mask) {
-+		SNET_ERR(pdev, "Failed to find a PCI BAR\n");
-+		return -ENODEV;
-+	}
-+
-+	snprintf(name, SNET_NAME_SIZE, "psnet[%s]-bars", pci_name(pdev));
-+	ret = pcim_iomap_regions(pdev, mask, name);
-+	if (ret) {
-+		SNET_ERR(pdev, "Failed to request and map PCI BARs\n");
-+		return ret;
-+	}
-+
-+	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
-+		if (mask & (1 << i))
-+			psnet->bars[i] = pcim_iomap_table(pdev)[i];
-+	}
-+
-+	return 0;
-+}
-+
-+static int snet_open_vf_bar(struct pci_dev *pdev, struct snet *snet)
-+{
-+	char name[20];
-+	int ret;
-+
-+	snprintf(name, SNET_NAME_SIZE, "snet[%s]-bar", pci_name(pdev));
-+	/* Request and map BAR */
-+	ret = pcim_iomap_regions(pdev, BIT(snet->psnet->cfg.vf_bar), name);
-+	if (ret) {
-+		SNET_ERR(pdev, "Failed to request and map PCI BAR for a VF\n");
-+		return ret;
-+	}
-+
-+	snet->bar = pcim_iomap_table(pdev)[snet->psnet->cfg.vf_bar];
-+
-+	return 0;
-+}
-+
-+static void snet_free_cfg(struct snet_cfg *cfg)
-+{
-+	u32 i;
-+
-+	if (!cfg->devs)
-+		return;
-+
-+	/* Free devices */
-+	for (i = 0; i < cfg->devices_num; i++) {
-+		if (!cfg->devs[i])
-+			break;
-+
-+		kfree(cfg->devs[i]);
-+	}
-+	/* Free pointers to devices */
-+	kfree(cfg->devs);
-+}
-+
-+/* Detect which BAR is used for communication with the device. */
-+static int psnet_detect_bar(struct psnet *psnet, u32 off)
-+{
-+	unsigned long exit_time;
-+	int i;
-+
-+	exit_time = jiffies + usecs_to_jiffies(SNET_DETECT_TIMEOUT);
-+
-+	/* SNET DPU will write SNET's signature when the config is ready. */
-+	while (time_before(jiffies, exit_time)) {
-+		for (i = 0; i < PCI_STD_NUM_BARS; i++) {
-+			/* Is this BAR mapped? */
-+			if (!psnet->bars[i])
-+				continue;
-+
-+			if (ioread32(psnet->bars[i] + off) == SNET_SIGNATURE)
-+				return i;
-+		}
-+		schedule();
-+	}
-+
-+	return -ENODEV;
-+}
-+
-+static void psnet_unmap_unused_bars(struct pci_dev *pdev, struct psnet *psnet)
-+{
-+	int i, mask = 0;
-+
-+	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
-+		if (psnet->bars[i] && (i != psnet->barno))
-+			mask |= (1 << i);
-+	}
-+
-+	if (mask)
-+		pcim_iounmap_regions(pdev, mask);
-+}
-+
-+/* Read SNET config from PCI BAR */
-+static int psnet_read_cfg(struct pci_dev *pdev, struct psnet *psnet)
-+{
-+	struct snet_cfg *cfg = &psnet->cfg;
-+	u32 i, off;
-+	int barno;
-+
-+	/* Move to where the config starts */
-+	off = SNET_CONFIG_OFF;
-+
-+	/* Find BAR used for communication */
-+	barno = psnet_detect_bar(psnet, off);
-+	if (barno < 0) {
-+		SNET_ERR(pdev, "SNET config is not ready.\n");
-+		return barno;
-+	}
-+
-+	/* Save used BAR number and unmap all other BARs */
-+	psnet->barno = barno;
-+	SNET_DBG(pdev, "Using BAR number %d\n", barno);
-+
-+	psnet_unmap_unused_bars(pdev, psnet);
-+
-+	/* load config from BAR */
-+	cfg->key = psnet_read32(psnet, off);
-+	off += 4;
-+	cfg->cfg_size = psnet_read32(psnet, off);
-+	off += 4;
-+	cfg->cfg_ver = psnet_read32(psnet, off);
-+	off += 4;
-+	/* The negotiated config version is the lower one between this driver's config
-+	 * and the DPU's.
-+	 */
-+	psnet->negotiated_cfg_ver = min_t(u32, cfg->cfg_ver, SNET_CFG_VERSION);
-+	SNET_DBG(pdev, "SNET config version %u\n", psnet->negotiated_cfg_ver);
-+
-+	cfg->vf_num = psnet_read32(psnet, off);
-+	off += 4;
-+	cfg->vf_bar = psnet_read32(psnet, off);
-+	off += 4;
-+	cfg->host_cfg_off = psnet_read32(psnet, off);
-+	off += 4;
-+	cfg->max_size_host_cfg = psnet_read32(psnet, off);
-+	off += 4;
-+	cfg->virtio_cfg_off = psnet_read32(psnet, off);
-+	off += 4;
-+	cfg->kick_off = psnet_read32(psnet, off);
-+	off += 4;
-+	cfg->hwmon_off = psnet_read32(psnet, off);
-+	off += 4;
-+	cfg->msg_off = psnet_read32(psnet, off);
-+	off += 4;
-+	cfg->flags = psnet_read32(psnet, off);
-+	off += 4;
-+	/* Ignore Reserved */
-+	off += sizeof(cfg->rsvd);
-+
-+	cfg->devices_num = psnet_read32(psnet, off);
-+	off += 4;
-+	/* Allocate memory to hold pointer to the devices */
-+	cfg->devs = kcalloc(cfg->devices_num, sizeof(void *), GFP_KERNEL);
-+	if (!cfg->devs) {
-+		SNET_ERR(pdev, "Failed to allocate memory for SNET config\n");
-+		return -ENOMEM;
-+	}
-+
-+	/* Load device configuration from BAR */
-+	for (i = 0; i < cfg->devices_num; i++) {
-+		cfg->devs[i] = kzalloc(sizeof(struct snet_dev_cfg), GFP_KERNEL);
-+		if (!cfg->devs[i]) {
-+			SNET_ERR(pdev, "Failed to allocate memory for SNET config\n");
-+			snet_free_cfg(cfg);
-+			return -ENOMEM;
-+		}
-+		/* Read device config */
-+		cfg->devs[i]->virtio_id = psnet_read32(psnet, off);
-+		off += 4;
-+		cfg->devs[i]->vq_num = psnet_read32(psnet, off);
-+		off += 4;
-+		cfg->devs[i]->vq_size = psnet_read32(psnet, off);
-+		off += 4;
-+		cfg->devs[i]->vfid = psnet_read32(psnet, off);
-+		off += 4;
-+		cfg->devs[i]->features = psnet_read64(psnet, off);
-+		off += 8;
-+		/* Ignore Reserved */
-+		off += sizeof(cfg->devs[i]->rsvd);
-+
-+		cfg->devs[i]->cfg_size = psnet_read32(psnet, off);
-+		off += 4;
-+	}
-+	return 0;
-+}
-+
-+static int psnet_alloc_irq_vector(struct pci_dev *pdev, struct psnet *psnet)
-+{
-+	int ret = 0;
-+	u32 i, irq_num = 0;
-+
-+	/* Let's count how many IRQs we need, 1 for every VQ + 1 for config change */
-+	for (i = 0; i < psnet->cfg.devices_num; i++)
-+		irq_num += psnet->cfg.devs[i]->vq_num + 1;
-+
-+	ret = pci_alloc_irq_vectors(pdev, irq_num, irq_num, PCI_IRQ_MSIX);
-+	if (ret != irq_num) {
-+		SNET_ERR(pdev, "Failed to allocate IRQ vectors\n");
-+		return ret;
-+	}
-+	SNET_DBG(pdev, "Allocated %u IRQ vectors from physical function\n", irq_num);
-+
-+	return 0;
-+}
-+
-+static int snet_alloc_irq_vector(struct pci_dev *pdev, struct snet_dev_cfg *snet_cfg)
-+{
-+	int ret = 0;
-+	u32 irq_num;
-+
-+	/* We want 1 IRQ for every VQ + 1 for config change events */
-+	irq_num = snet_cfg->vq_num + 1;
-+
-+	ret = pci_alloc_irq_vectors(pdev, irq_num, irq_num, PCI_IRQ_MSIX);
-+	if (ret <= 0) {
-+		SNET_ERR(pdev, "Failed to allocate IRQ vectors\n");
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+static void snet_free_vqs(struct snet *snet)
-+{
-+	u32 i;
-+
-+	if (!snet->vqs)
-+		return;
-+
-+	for (i = 0 ; i < snet->cfg->vq_num ; i++) {
-+		if (!snet->vqs[i])
-+			break;
-+
-+		kfree(snet->vqs[i]);
-+	}
-+	kfree(snet->vqs);
-+}
-+
-+static int snet_build_vqs(struct pci_dev *pdev, struct snet *snet)
-+{
-+	u32 i;
-+	/* Allocate the VQ pointers array */
-+	snet->vqs = kcalloc(snet->cfg->vq_num, sizeof(void *), GFP_KERNEL);
-+	if (!snet->vqs) {
-+		SNET_ERR(pdev, "Failed to allocate memory for SNET VQs\n");
-+		return -ENOMEM;
-+	}
-+
-+	/* Allocate the VQs */
-+	for (i = 0; i < snet->cfg->vq_num; i++) {
-+		snet->vqs[i] = kzalloc(sizeof(struct snet_vq), GFP_KERNEL);
-+		if (!snet->vqs[i]) {
-+			SNET_ERR(pdev, "Failed to allocate memory for a SNET VQ\n");
-+			snet_free_vqs(snet);
-+			return -ENOMEM;
-+		}
-+		/* Reset IRQ num */
-+		snet->vqs[i]->irq = -1;
-+		/* VQ serial ID */
-+		snet->vqs[i]->sid = i;
-+		/* Kick address - every VQ gets 4B */
-+		snet->vqs[i]->kick_ptr = snet->bar + snet->psnet->cfg.kick_off +
-+					 snet->vqs[i]->sid * 4;
-+		/* Clear kick address for this VQ */
-+		iowrite32(0, snet->vqs[i]->kick_ptr);
-+	}
-+	return 0;
-+}
-+
-+/* Find a device config based on virtual function id */
-+static struct snet_dev_cfg *snet_find_dev_cfg(struct snet_cfg *cfg, u32 vfid)
-+{
-+	u32 i;
-+
-+	for (i = 0; i < cfg->devices_num; i++) {
-+		if (cfg->devs[i]->vfid == vfid)
-+			return cfg->devs[i];
-+	}
-+	/* Oppss.. no config found.. */
-+	return NULL;
-+}
-+
-+/* Probe function for a physical PCI function */
-+static int snet_vdpa_probe_pf(struct pci_dev *pdev)
-+{
-+	struct psnet *psnet;
-+	int ret = 0;
-+	bool pf_irqs = false;
-+
-+	ret = pcim_enable_device(pdev);
-+	if (ret) {
-+		SNET_ERR(pdev, "Failed to enable PCI device\n");
-+		return ret;
-+	}
-+
-+	/* Allocate a PCI physical function device */
-+	psnet = kzalloc(sizeof(struct psnet), GFP_KERNEL);
-+	if (!psnet) {
-+		SNET_ERR(pdev, "Failed to allocate memory for PSNET device\n");
-+		return -ENOMEM;
-+	}
-+	/* Init PSNET spinlock */
-+	spin_lock_init(&psnet->lock);
-+
-+	pci_set_master(pdev);
-+	pci_set_drvdata(pdev, psnet);
-+
-+	/* Open SNET MAIN BAR */
-+	ret = psnet_open_pf_bar(pdev, psnet);
-+	if (ret)
-+		goto free_psnet;
-+
-+	/* Try to read SNET's config from PCI BAR */
-+	ret = psnet_read_cfg(pdev, psnet);
-+	if (ret)
-+		goto free_psnet;
-+
-+	/* If SNET_CFG_FLAG_IRQ_PF flag is set, we should use
-+	 * PF MSI-X vectors
-+	 */
-+	pf_irqs = PSNET_FLAG_ON(psnet, SNET_CFG_FLAG_IRQ_PF);
-+
-+	if (pf_irqs) {
-+		ret = psnet_alloc_irq_vector(pdev, psnet);
-+		if (ret)
-+			goto free_cfg;
-+	}
-+
-+	SNET_DBG(pdev, "Enable %u virtual functions\n", psnet->cfg.vf_num);
-+	ret = pci_enable_sriov(pdev, psnet->cfg.vf_num);
-+	if (ret) {
-+		SNET_ERR(pdev, "Failed to enable SR-IOV\n");
-+		goto free_irq;
-+	}
-+
-+	/* Create HW monitor device */
-+	if (PSNET_FLAG_ON(psnet, SNET_CFG_FLAG_HWMON))
-+		psnet_create_hwmon(pdev);
-+
-+	return 0;
-+
-+free_irq:
-+	if (pf_irqs)
-+		pci_free_irq_vectors(pdev);
-+free_cfg:
-+	snet_free_cfg(&psnet->cfg);
-+free_psnet:
-+	kfree(psnet);
-+	return ret;
-+}
-+
-+/* Probe function for a virtual PCI function */
-+static int snet_vdpa_probe_vf(struct pci_dev *pdev)
-+{
-+	struct pci_dev *pdev_pf = pdev->physfn;
-+	struct psnet *psnet = pci_get_drvdata(pdev_pf);
-+	struct snet_dev_cfg *dev_cfg;
-+	struct snet *snet;
-+	u32 vfid;
-+	int ret;
-+	bool pf_irqs = false;
-+
-+	/* Get virtual function id.
-+	 * (the DPU counts the VFs from 1)
-+	 */
-+	ret = pci_iov_vf_id(pdev);
-+	if (ret < 0) {
-+		SNET_ERR(pdev, "Failed to find a VF id\n");
-+		return ret;
-+	}
-+	vfid = ret + 1;
-+
-+	/* Find the snet_dev_cfg based on vfid */
-+	dev_cfg = snet_find_dev_cfg(&psnet->cfg, vfid);
-+	if (!dev_cfg) {
-+		SNET_WARN(pdev, "Failed to find a VF config..\n");
-+		return -ENODEV;
-+	}
-+
-+	/* Which PCI device should allocate the IRQs?
-+	 * If the SNET_CFG_FLAG_IRQ_PF flag set, the PF device allocates the IRQs
-+	 */
-+	pf_irqs = PSNET_FLAG_ON(psnet, SNET_CFG_FLAG_IRQ_PF);
-+
-+	ret = pcim_enable_device(pdev);
-+	if (ret) {
-+		SNET_ERR(pdev, "Failed to enable PCI VF device\n");
-+		return ret;
-+	}
-+
-+	/* Request for MSI-X IRQs */
-+	if (!pf_irqs) {
-+		ret = snet_alloc_irq_vector(pdev, dev_cfg);
-+		if (ret)
-+			return ret;
-+	}
-+
-+	/* Allocate vdpa device */
-+	snet = vdpa_alloc_device(struct snet, vdpa, &pdev->dev, &snet_config_ops, 1, 1, NULL,
-+				 false);
-+	if (!snet) {
-+		SNET_ERR(pdev, "Failed to allocate a vdpa device\n");
-+		ret = -ENOMEM;
-+		goto free_irqs;
-+	}
-+
-+	/* Save pci device pointer */
-+	snet->pdev = pdev;
-+	snet->psnet = psnet;
-+	snet->cfg = dev_cfg;
-+	snet->dpu_ready = false;
-+	snet->sid = vfid;
-+	/* Reset IRQ value */
-+	snet->cfg_irq = -1;
-+
-+	ret = snet_open_vf_bar(pdev, snet);
-+	if (ret)
-+		goto put_device;
-+
-+	/* Create a VirtIO config pointer */
-+	snet->cfg->virtio_cfg = snet->bar + snet->psnet->cfg.virtio_cfg_off;
-+
-+	pci_set_master(pdev);
-+	pci_set_drvdata(pdev, snet);
-+
-+	ret = snet_build_vqs(pdev, snet);
-+	if (ret)
-+		goto put_device;
-+
-+	/* Request IRQs */
-+	ret = snet_request_irqs(pf_irqs ? pdev_pf : pdev, snet);
-+	if (ret)
-+		goto free_vqs;
-+
-+	/*set DMA device*/
-+	snet->vdpa.dma_dev = &pdev->dev;
-+
-+	/* Register VDPA device */
-+	ret = vdpa_register_device(&snet->vdpa, snet->cfg->vq_num);
-+	if (ret) {
-+		SNET_ERR(pdev, "Failed to register vdpa device\n");
-+		goto free_vqs;
-+	}
-+
-+	return 0;
-+
-+free_vqs:
-+	snet_free_vqs(snet);
-+put_device:
-+	put_device(&snet->vdpa.dev);
-+free_irqs:
-+	if (!pf_irqs)
-+		pci_free_irq_vectors(pdev);
-+	return ret;
-+}
-+
-+static int snet_vdpa_probe(struct pci_dev *pdev, const struct pci_device_id *id)
-+{
-+	if (pdev->is_virtfn)
-+		return snet_vdpa_probe_vf(pdev);
-+	else
-+		return snet_vdpa_probe_pf(pdev);
-+}
-+
-+static void snet_vdpa_remove_pf(struct pci_dev *pdev)
-+{
-+	struct psnet *psnet = pci_get_drvdata(pdev);
-+
-+	pci_disable_sriov(pdev);
-+	/* If IRQs are allocated from the PF, we should free the IRQs */
-+	if (PSNET_FLAG_ON(psnet, SNET_CFG_FLAG_IRQ_PF))
-+		pci_free_irq_vectors(pdev);
-+
-+	snet_free_cfg(&psnet->cfg);
-+	kfree(psnet);
-+}
-+
-+static void snet_vdpa_remove_vf(struct pci_dev *pdev)
-+{
-+	struct snet *snet = pci_get_drvdata(pdev);
-+	struct psnet *psnet = snet->psnet;
-+
-+	snet_reset_dev(snet);
-+
-+	/* If IRQs are allocated from the VF, we should free the IRQs */
-+	if (!PSNET_FLAG_ON(psnet, SNET_CFG_FLAG_IRQ_PF))
-+		pci_free_irq_vectors(pdev);
-+
-+	vdpa_unregister_device(&snet->vdpa);
-+	snet_free_vqs(snet);
-+}
-+
-+static void snet_vdpa_remove(struct pci_dev *pdev)
-+{
-+	if (pdev->is_virtfn)
-+		snet_vdpa_remove_vf(pdev);
-+	else
-+		snet_vdpa_remove_pf(pdev);
-+}
-+
-+static struct pci_device_id snet_driver_pci_ids[] = {
-+	{ PCI_DEVICE_SUB(SOLIDRUN_PCI_VENDOR_ID, SNET_DEVICE_ID,
-+			 SOLIDRUN_PCI_VENDOR_ID, SNET_DEVICE_ID) },
-+	{ 0 },
-+};
-+
-+MODULE_DEVICE_TABLE(pci, snet_driver_pci_ids);
-+
-+static struct pci_driver snet_vdpa_driver = {
-+	.name		= "snet-vdpa-driver",
-+	.id_table	= snet_driver_pci_ids,
-+	.probe		= snet_vdpa_probe,
-+	.remove		= snet_vdpa_remove,
-+};
-+
-+module_pci_driver(snet_vdpa_driver);
-+
-+MODULE_AUTHOR("Alvaro Karsz <alvaro.karsz@solid-run.com>");
-+MODULE_DESCRIPTION("SolidRun vDPA driver");
-+MODULE_LICENSE("GPL v2");
-diff --git a/drivers/vdpa/solidrun/snet_vdpa.h b/drivers/vdpa/solidrun/snet_vdpa.h
-new file mode 100644
-index 00000000000..8ac15acf1ae
---- /dev/null
-+++ b/drivers/vdpa/solidrun/snet_vdpa.h
-@@ -0,0 +1,192 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * SolidRun DPU driver for control plane
-+ *
-+ * Copyright (C) 2022 SolidRun
-+ *
-+ * Author: Alvaro Karsz <alvaro.karsz@solid-run.com>
-+ *
-+ */
-+#ifndef _SNET_VDPA_H_
-+#define _SNET_VDPA_H_
-+
-+#include <linux/vdpa.h>
-+#include <linux/pci.h>
-+
-+#define SNET_NAME_SIZE 256
-+
-+#define SNET_ERR(pdev, fmt, ...) dev_err(&pdev->dev, "%s"fmt, "snet_vdpa: ", ##__VA_ARGS__)
-+#define SNET_WARN(pdev, fmt, ...) dev_warn(&pdev->dev, "%s"fmt, "snet_vdpa: ", ##__VA_ARGS__)
-+#define SNET_INFO(pdev, fmt, ...) dev_info(&pdev->dev, "%s"fmt, "snet_vdpa: ", ##__VA_ARGS__)
-+#define SNET_DBG(pdev, fmt, ...) dev_dbg(&pdev->dev, "%s"fmt, "snet_vdpa: ", ##__VA_ARGS__)
-+#define SNET_HAS_FEATURE(s, f) ((s)->negotiated_features & BIT_ULL(f))
-+/* VQ struct */
-+struct snet_vq {
-+	/* VQ callback */
-+	struct vdpa_callback cb;
-+	/* desc base address */
-+	u64 desc_area;
-+	/* device base address */
-+	u64 device_area;
-+	/* driver base address */
-+	u64 driver_area;
-+	/* Queue size */
-+	u32 num;
-+	/* Serial ID for VQ */
-+	u32 sid;
-+	/* is ready flag */
-+	bool ready;
-+	/* IRQ number */
-+	u32 irq;
-+	/* IRQ index, DPU uses this to parse data from MSI-X table */
-+	u32 irq_idx;
-+	/* IRQ name */
-+	char irq_name[SNET_NAME_SIZE];
-+	/* pointer to mapped PCI BAR register used by this VQ to kick */
-+	void __iomem *kick_ptr;
-+};
-+
-+struct snet {
-+	/* vdpa device */
-+	struct vdpa_device vdpa;
-+	/* Config callback */
-+	struct vdpa_callback cb;
-+	/* array of virqueues */
-+	struct snet_vq **vqs;
-+	/* Used features */
-+	u64 negotiated_features;
-+	/* Device serial ID */
-+	u32 sid;
-+	/* device status */
-+	u8 status;
-+	/* boolean indicating if snet config was passed to the device */
-+	bool dpu_ready;
-+	/* IRQ number */
-+	u32 cfg_irq;
-+	/* IRQ index, DPU uses this to parse data from MSI-X table */
-+	u32 cfg_irq_idx;
-+	/* IRQ name */
-+	char cfg_irq_name[SNET_NAME_SIZE];
-+	/* BAR to access the VF */
-+	void __iomem *bar;
-+	/* PCI device */
-+	struct pci_dev *pdev;
-+	/* Pointer to snet pdev parent device */
-+	struct psnet *psnet;
-+	/* Pointer to snet config device */
-+	struct snet_dev_cfg *cfg;
-+};
-+
-+struct snet_dev_cfg {
-+	/* Device ID following VirtIO spec. */
-+	u32 virtio_id;
-+	/* Number of VQs for this device */
-+	u32 vq_num;
-+	/* Size of every VQ */
-+	u32 vq_size;
-+	/* Virtual Function id */
-+	u32 vfid;
-+	/* Device features, following VirtIO spec */
-+	u64 features;
-+	/* Reserved for future usage */
-+	u32 rsvd[6];
-+	/* VirtIO device specific config size */
-+	u32 cfg_size;
-+	/* VirtIO device specific config address */
-+	void __iomem *virtio_cfg;
-+} __packed;
-+
-+struct snet_cfg {
-+	/* Magic key */
-+	u32 key;
-+	/* Size of total config in bytes */
-+	u32 cfg_size;
-+	/* Config version */
-+	u32 cfg_ver;
-+	/* Number of Virtual Functions to create */
-+	u32 vf_num;
-+	/* BAR to use for the VFs */
-+	u32 vf_bar;
-+	/* Where should we write the SNET's config */
-+	u32 host_cfg_off;
-+	/* Max. allowed size for a SNET's config */
-+	u32 max_size_host_cfg;
-+	/* VirtIO config offset in BAR */
-+	u32 virtio_cfg_off;
-+	/* Offset in PCI BAR for VQ kicks */
-+	u32 kick_off;
-+	/* Offset in PCI BAR for HW monitoring */
-+	u32 hwmon_off;
-+	/* Offset in PCI BAR for SNET messages */
-+	u32 msg_off;
-+	/* Config general flags - enum snet_cfg_flags */
-+	u32 flags;
-+	/* Reserved for future usage */
-+	u32 rsvd[6];
-+	/* Number of snet devices */
-+	u32 devices_num;
-+	/* The actual devices */
-+	struct snet_dev_cfg **devs;
-+} __packed;
-+
-+/* SolidNET PCIe device, one device per PCIe physical function */
-+struct psnet {
-+	/* PCI BARs */
-+	void __iomem *bars[PCI_STD_NUM_BARS];
-+	/* Negotiated config version */
-+	u32 negotiated_cfg_ver;
-+	/* Next IRQ index to use in case when the IRQs are allocated from this device */
-+	u32 next_irq;
-+	/* BAR number used to communicate with the device */
-+	u8 barno;
-+	/* spinlock to protect data that can be changed by SNET devices */
-+	spinlock_t lock;
-+	/* Pointer to the device's config read from BAR */
-+	struct snet_cfg cfg;
-+	/* Name of monitor device */
-+	char hwmon_name[SNET_NAME_SIZE];
-+};
-+
-+enum snet_cfg_flags {
-+	/* Create a HWMON device */
-+	SNET_CFG_FLAG_HWMON = BIT(0),
-+	/* USE IRQs from the physical function */
-+	SNET_CFG_FLAG_IRQ_PF = BIT(1),
-+};
-+
-+#define PSNET_FLAG_ON(p, f)	((p)->cfg.flags & (f))
-+
-+static inline u32 psnet_read32(struct psnet *psnet, u32 off)
-+{
-+	return ioread32(psnet->bars[psnet->barno] + off);
-+}
-+
-+static inline u32 snet_read32(struct snet *snet, u32 off)
-+{
-+	return ioread32(snet->bar + off);
-+}
-+
-+static inline void snet_write32(struct snet *snet, u32 off, u32 val)
-+{
-+	iowrite32(val, snet->bar + off);
-+}
-+
-+static inline u64 psnet_read64(struct psnet *psnet, u32 off)
-+{
-+	u64 val;
-+	/* 64bits are written in 2 halves, low part first */
-+	val = (u64)psnet_read32(psnet, off);
-+	val |= ((u64)psnet_read32(psnet, off + 4) << 32);
-+	return val;
-+}
-+
-+static inline void snet_write64(struct snet *snet, u32 off, u64 val)
-+{
-+	/* The DPU expects a 64bit integer in 2 halves, the low part first */
-+	snet_write32(snet, off, (u32)val);
-+	snet_write32(snet, off + 4, (u32)(val >> 32));
-+}
-+
-+void psnet_create_hwmon(struct pci_dev *pdev);
-+
-+#endif //_SNET_VDPA_H_
--- 
-2.32.0
-
-
+> ---
+>  drivers/gpu/drm/drm_gem.c              | 9 +++++++--
+>  drivers/gpu/drm/msm/msm_gem_shrinker.c | 8 ++++++--
+>  include/drm/drm_gem.h                  | 4 +++-
+>  3 files changed, 16 insertions(+), 5 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/drm_gem.c b/drivers/gpu/drm/drm_gem.c
+> index b8db675e7fb5..299bca1390aa 100644
+> --- a/drivers/gpu/drm/drm_gem.c
+> +++ b/drivers/gpu/drm/drm_gem.c
+> @@ -1375,10 +1375,13 @@ EXPORT_SYMBOL(drm_gem_lru_move_tail);
+>   *
+>   * @lru: The LRU to scan
+>   * @nr_to_scan: The number of pages to try to reclaim
+> + * @remaining: The number of pages left to reclaim
+>   * @shrink: Callback to try to shrink/reclaim the object.
+>   */
+>  unsigned long
+> -drm_gem_lru_scan(struct drm_gem_lru *lru, unsigned nr_to_scan,
+> +drm_gem_lru_scan(struct drm_gem_lru *lru,
+> +                unsigned int nr_to_scan,
+> +                unsigned long *remaining,
+>                  bool (*shrink)(struct drm_gem_object *obj))
+>  {
+>         struct drm_gem_lru still_in_lru;
+> @@ -1417,8 +1420,10 @@ drm_gem_lru_scan(struct drm_gem_lru *lru, unsigned nr_to_scan,
+>                  * hit shrinker in response to trying to get backing pages
+>                  * for this obj (ie. while it's lock is already held)
+>                  */
+> -               if (!dma_resv_trylock(obj->resv))
+> +               if (!dma_resv_trylock(obj->resv)) {
+> +                       *remaining += obj->size >> PAGE_SHIFT;
+>                         goto tail;
+> +               }
+>
+>                 if (shrink(obj)) {
+>                         freed += obj->size >> PAGE_SHIFT;
+> diff --git a/drivers/gpu/drm/msm/msm_gem_shrinker.c b/drivers/gpu/drm/msm/msm_gem_shrinker.c
+> index 1de14e67f96b..4c8b0ab61ce4 100644
+> --- a/drivers/gpu/drm/msm/msm_gem_shrinker.c
+> +++ b/drivers/gpu/drm/msm/msm_gem_shrinker.c
+> @@ -116,12 +116,14 @@ msm_gem_shrinker_scan(struct shrinker *shrinker, struct shrink_control *sc)
+>         };
+>         long nr = sc->nr_to_scan;
+>         unsigned long freed = 0;
+> +       unsigned long remaining = 0;
+>
+>         for (unsigned i = 0; (nr > 0) && (i < ARRAY_SIZE(stages)); i++) {
+>                 if (!stages[i].cond)
+>                         continue;
+>                 stages[i].freed =
+> -                       drm_gem_lru_scan(stages[i].lru, nr, stages[i].shrink);
+> +                       drm_gem_lru_scan(stages[i].lru, nr, &remaining,
+> +                                        stages[i].shrink);
+>                 nr -= stages[i].freed;
+>                 freed += stages[i].freed;
+>         }
+> @@ -132,7 +134,7 @@ msm_gem_shrinker_scan(struct shrinker *shrinker, struct shrink_control *sc)
+>                                      stages[3].freed);
+>         }
+>
+> -       return (freed > 0) ? freed : SHRINK_STOP;
+> +       return (freed > 0 && remaining > 0) ? freed : SHRINK_STOP;
+>  }
+>
+>  #ifdef CONFIG_DEBUG_FS
+> @@ -182,10 +184,12 @@ msm_gem_shrinker_vmap(struct notifier_block *nb, unsigned long event, void *ptr)
+>                 NULL,
+>         };
+>         unsigned idx, unmapped = 0;
+> +       unsigned long remaining = 0;
+>
+>         for (idx = 0; lrus[idx] && unmapped < vmap_shrink_limit; idx++) {
+>                 unmapped += drm_gem_lru_scan(lrus[idx],
+>                                              vmap_shrink_limit - unmapped,
+> +                                            &remaining,
+>                                              vmap_shrink);
+>         }
+>
+> diff --git a/include/drm/drm_gem.h b/include/drm/drm_gem.h
+> index a17c2f903f81..b46ade812443 100644
+> --- a/include/drm/drm_gem.h
+> +++ b/include/drm/drm_gem.h
+> @@ -475,7 +475,9 @@ int drm_gem_dumb_map_offset(struct drm_file *file, struct drm_device *dev,
+>  void drm_gem_lru_init(struct drm_gem_lru *lru, struct mutex *lock);
+>  void drm_gem_lru_remove(struct drm_gem_object *obj);
+>  void drm_gem_lru_move_tail(struct drm_gem_lru *lru, struct drm_gem_object *obj);
+> -unsigned long drm_gem_lru_scan(struct drm_gem_lru *lru, unsigned nr_to_scan,
+> +unsigned long drm_gem_lru_scan(struct drm_gem_lru *lru,
+> +                              unsigned int nr_to_scan,
+> +                              unsigned long *remaining,
+>                                bool (*shrink)(struct drm_gem_object *obj));
+>
+>  #endif /* __DRM_GEM_H__ */
+> --
+> 2.38.1
+>
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
-
