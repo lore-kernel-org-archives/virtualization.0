@@ -4,91 +4,88 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 616CBC4332F
-	for <virtualization@archiver.kernel.org>; Tue, 29 Nov 2022 17:43:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D1591C433FE
+	for <virtualization@archiver.kernel.org>; Wed, 30 Nov 2022 00:08:48 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id D9A8E4015E;
-	Tue, 29 Nov 2022 17:43:44 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D9A8E4015E
+	by smtp2.osuosl.org (Postfix) with ESMTP id 3E0A54013A;
+	Wed, 30 Nov 2022 00:08:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3E0A54013A
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=ZjD8MZVq
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=e/AzuKds
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id F37JWHGIJTfW; Tue, 29 Nov 2022 17:43:44 +0000 (UTC)
+	with ESMTP id I8EIDwGyOx7f; Wed, 30 Nov 2022 00:08:47 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 55B49400F6;
-	Tue, 29 Nov 2022 17:43:43 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 55B49400F6
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 9AD71400C0;
+	Wed, 30 Nov 2022 00:08:46 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9AD71400C0
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 28F92C0033;
-	Tue, 29 Nov 2022 17:43:43 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 54207C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7E11DC0032;
+	Wed, 30 Nov 2022 00:08:46 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 62D99C002D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Nov 2022 17:43:41 +0000 (UTC)
+ Wed, 30 Nov 2022 00:08:45 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 21F1F80BE1
+ by smtp2.osuosl.org (Postfix) with ESMTP id 378FA4010D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Nov 2022 17:43:41 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 21F1F80BE1
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com
- header.a=rsa-sha256 header.s=20210112 header.b=ZjD8MZVq
+ Wed, 30 Nov 2022 00:08:45 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 378FA4010D
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 2jAnHLM1ZPdX
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id RmkS-wQgu0oC
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Nov 2022 17:43:40 +0000 (UTC)
+ Wed, 30 Nov 2022 00:08:44 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4A04580B7E
-Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com
- [IPv6:2607:f8b0:4864:20::636])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 4A04580B7E
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 553B4400C0
+Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com
+ [IPv6:2607:f8b0:4864:20::431])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 553B4400C0
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Nov 2022 17:43:39 +0000 (UTC)
-Received: by mail-pl1-x636.google.com with SMTP id d3so9156844plr.10
+ Wed, 30 Nov 2022 00:08:44 +0000 (UTC)
+Received: by mail-pf1-x431.google.com with SMTP id 21so2148245pfw.4
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Nov 2022 09:43:39 -0800 (PST)
+ Tue, 29 Nov 2022 16:08:44 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
  h=content-transfer-encoding:mime-version:message-id:date:subject:cc
  :to:from:from:to:cc:subject:date:message-id:reply-to;
- bh=iXCWILef2PDcL9sLeguo1E8rwfZJ6oNabKhO5H8Gxiw=;
- b=ZjD8MZVqQwGAMlT9t2izaMXVJU8jMqvIKuBePdb/fltwaex9aK3k0K8d5CtmYAz0oZ
- Gd4jdz46JxqNygZsNz6S4b+QNLWJye/YbdS0LdoNT8mqHc1Nfrum+jrRPAx5EIqux9IG
- Pc0zyGudAO5hqgWlNNl9liAX3ezO7n3sVyZn8OubwAHBVY/zjwi7+d+l9akgFsHSKrxl
- TKW7OZ1VTC05I96JDWw5aNhktRLGiDUci7iS/qPAwwJqoI8odrJQxdry9ItLS98eUfI5
- AmORBuSvMHZGSR6s67R/CqdEg+nXn2EJPRgmCMWl6tjFhqN6Bxg7Doz/yJAVbVcoSnMT
- d8pA==
+ bh=1uNcYpPMrI5BUKS+4cI51gDVBMIA/yEg/AUAY95wTKw=;
+ b=e/AzuKdsYAHWb3FkvHU4t2hkVxTQgkWyNmOJcccAWQKcQNHjzJPNvB3Cnkq5ORn7v1
+ OsHP3UW2UdgIK3u6lfFonG9+MPSdES8+DKsxsJPDdmjmHwN6YlezNNl7FvGJAi8fMrZn
+ 4fJdUwmF2yZArXNGkx+dWVyyK3xIOBDOzhL5Ew3IMw4uEHbVj2zk7Z13XXR3bEfkorbp
+ qQDO9pjAjjvgEVIuu8rcP3lfePEHPerKjqj81D3U8onXLsYHRz83qDSCS14MLk2AKWOW
+ bviWwz9juRxi2LQopPz3D3oAFbJnPjsNq0Ulu+AwV5JXmvYfPF8FtdDda6iSN+vZYyH3
+ NR/w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=content-transfer-encoding:mime-version:message-id:date:subject:cc
  :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
  :reply-to;
- bh=iXCWILef2PDcL9sLeguo1E8rwfZJ6oNabKhO5H8Gxiw=;
- b=4a7SFHqDSwiIhc2fmTTpurkjEbH+lNeuRbupqmakAV/e8RNfI97IiM1jJsRlr12EOR
- ctxQuHubvfAGDA1iwPvmxYpuYCGcVexZQAbg/edq2X2J3b8QNpqgMKvi5VLPyavxQ52I
- 3l0tvu/Jlsm8U+oQPYTLRZNlLHpczAd3Oll3ZTVu+0ajLrcEti1UgId6V0w7Ihk3QNFf
- ThENvE6N+Jv8NwLa91IYfSBWQWpRDsX9E1BqghIhMgfG+/jMZQ6lZbqo5RSGKOl+zTae
- JkSjRl8unSwOBe+XFPsKbfJLUOmqLWv21arrvr5sOIKW/gtxCNs3dcE751/5DZtMYUye
- eYyA==
-X-Gm-Message-State: ANoB5plmA5RspCjsPWwi3W7NBpcwgSSJa9XlSWbi4oFwERUWORiyx8ur
- bWvoiEWM63B+DXZqSNl5u/A=
-X-Google-Smtp-Source: AA0mqf7+2AEstG2zQZWqQIE3UtBcDlP+tNxEcHG7VqwJTz3I0h+3H54yM8gaQDgA2qDzQbmuZ1wi+g==
-X-Received: by 2002:a17:90b:2690:b0:213:f2c9:ce71 with SMTP id
- pl16-20020a17090b269000b00213f2c9ce71mr60558650pjb.62.1669743819324; 
- Tue, 29 Nov 2022 09:43:39 -0800 (PST)
+ bh=1uNcYpPMrI5BUKS+4cI51gDVBMIA/yEg/AUAY95wTKw=;
+ b=DBBnmv+JCKALjcs5KrdX1g+FQTJDmyCyX33dt7PUsZmUymKPP3NxcbWyDhp3H+OJ96
+ kzM6z0qYIpVhht9MmKL08l2tO3luX1ljmbY6ezG+ywqpssmO8ohcjslEwwtoD0PrRJEC
+ AZ6ujibUS0L1N/+cCmSnGYpvMeXtkg4vqIZUlbpi2+uuH9UrYKhuDmmPnzEdCEzyyW7d
+ N+JbYbd1dqGVQvWpBHSzW4b9HKUVoGDZq6UI5QQ3DjUhD9CpaPUBGgkVqQ6StMIFArJD
+ z8BhOqu3Z3opCc24JfkSgj2wJoabbPmpSA7ZmHmFKs0YeaUUsanFOuclsNALK7eXZmdk
+ /5Zw==
+X-Gm-Message-State: ANoB5pnfdtWW0G12IRoXyrctdJf/9F8yxQoauBou5atzQp46/lAFaSyJ
+ wgfK3e/anNmFytp8z8Q3lXs=
+X-Google-Smtp-Source: AA0mqf6wrXy3pUVubbhsCKYanMOJSCDsa/HXBw7jsyjID2CJl9LuFqBBXRKBhg86aaf6OtYN8bcpSA==
+X-Received: by 2002:a05:6a00:1812:b0:575:19b6:dfe9 with SMTP id
+ y18-20020a056a00181200b0057519b6dfe9mr14574544pfa.16.1669766923741; 
+ Tue, 29 Nov 2022 16:08:43 -0800 (PST)
 Received: from localhost ([2a00:79e1:abd:4a00:2703:3c72:eb1a:cffd])
  by smtp.gmail.com with ESMTPSA id
- x29-20020aa78f1d000000b00575a578a717sm1522947pfr.206.2022.11.29.09.43.38
+ x8-20020aa78f08000000b005745eb7ecc3sm38261pfr.209.2022.11.29.16.08.43
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 29 Nov 2022 09:43:38 -0800 (PST)
+ Tue, 29 Nov 2022 16:08:43 -0800 (PST)
 From: Rob Clark <robdclark@gmail.com>
 To: dri-devel@lists.freedesktop.org
-Subject: [PATCH] drm/virtio: Spiff out cmd queue/response traces
-Date: Tue, 29 Nov 2022 09:43:30 -0800
-Message-Id: <20221129174330.262751-1-robdclark@gmail.com>
+Subject: [PATCH v2] drm/virtio: Spiff out cmd queue/response traces
+Date: Tue, 29 Nov 2022 16:08:41 -0800
+Message-Id: <20221130000841.318037-1-robdclark@gmail.com>
 X-Mailer: git-send-email 2.38.1
 MIME-Version: 1.0
 Cc: Rob Clark <robdclark@chromium.org>, Daniel Vetter <daniel@ffwll.ch>,
@@ -119,12 +116,15 @@ From: Rob Clark <robdclark@chromium.org>
 Add a sequence # for more easily matching up cmd/resp, and the # of free
 slots in the virtqueue to more easily see starvation issues.
 
+v2: Fix handling of string fields as well
+
 Signed-off-by: Rob Clark <robdclark@chromium.org>
+Reviewed-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
 ---
  drivers/gpu/drm/virtio/virtgpu_drv.h   |  3 +++
- drivers/gpu/drm/virtio/virtgpu_trace.h | 20 ++++++++++++--------
+ drivers/gpu/drm/virtio/virtgpu_trace.h | 26 +++++++++++++++-----------
  drivers/gpu/drm/virtio/virtgpu_vq.c    | 13 ++++++++++---
- 3 files changed, 25 insertions(+), 11 deletions(-)
+ 3 files changed, 28 insertions(+), 14 deletions(-)
 
 diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
 index 9b98470593b0..cdc208d9238c 100644
@@ -148,10 +148,10 @@ index 9b98470593b0..cdc208d9238c 100644
  
  struct virtio_gpu_drv_capset {
 diff --git a/drivers/gpu/drm/virtio/virtgpu_trace.h b/drivers/gpu/drm/virtio/virtgpu_trace.h
-index 711ecc2bd241..087e860a66f7 100644
+index 711ecc2bd241..031bc77689d5 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_trace.h
 +++ b/drivers/gpu/drm/virtio/virtgpu_trace.h
-@@ -9,8 +9,8 @@
+@@ -9,40 +9,44 @@
  #define TRACE_INCLUDE_FILE virtgpu_trace
  
  DECLARE_EVENT_CLASS(virtio_gpu_cmd,
@@ -162,7 +162,9 @@ index 711ecc2bd241..087e860a66f7 100644
  	TP_STRUCT__entry(
  			 __field(int, dev)
  			 __field(unsigned int, vq)
-@@ -19,6 +19,8 @@ DECLARE_EVENT_CLASS(virtio_gpu_cmd,
+-			 __field(const char *, name)
++			 __string(name, vq->name)
+ 			 __field(u32, type)
  			 __field(u32, flags)
  			 __field(u64, fence_id)
  			 __field(u32, ctx_id)
@@ -171,7 +173,10 @@ index 711ecc2bd241..087e860a66f7 100644
  			 ),
  	TP_fast_assign(
  		       __entry->dev = vq->vdev->index;
-@@ -28,21 +30,23 @@ DECLARE_EVENT_CLASS(virtio_gpu_cmd,
+ 		       __entry->vq = vq->index;
+-		       __entry->name = vq->name;
++		       __assign_str(name, vq->name);
+ 		       __entry->type = le32_to_cpu(hdr->type);
  		       __entry->flags = le32_to_cpu(hdr->flags);
  		       __entry->fence_id = le64_to_cpu(hdr->fence_id);
  		       __entry->ctx_id = le32_to_cpu(hdr->ctx_id);
@@ -179,8 +184,9 @@ index 711ecc2bd241..087e860a66f7 100644
 +		       __entry->seqno = seqno;
  		       ),
 -	TP_printk("vdev=%d vq=%u name=%s type=0x%x flags=0x%x fence_id=%llu ctx_id=%u",
+-		  __entry->dev, __entry->vq, __entry->name,
 +	TP_printk("vdev=%d vq=%u name=%s type=0x%x flags=0x%x fence_id=%llu ctx_id=%u num_free=%u seqno=%u",
- 		  __entry->dev, __entry->vq, __entry->name,
++		  __entry->dev, __entry->vq, __get_str(name),
  		  __entry->type, __entry->flags, __entry->fence_id,
 -		  __entry->ctx_id)
 +		  __entry->ctx_id, __entry->num_free, __entry->seqno)
