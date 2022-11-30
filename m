@@ -4,142 +4,87 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9B553C4321E
-	for <virtualization@archiver.kernel.org>; Wed, 30 Nov 2022 07:06:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 10965C4321E
+	for <virtualization@archiver.kernel.org>; Wed, 30 Nov 2022 20:51:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 21DB060AE3;
-	Wed, 30 Nov 2022 07:06:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 21DB060AE3
+	by smtp3.osuosl.org (Postfix) with ESMTP id 8EB7860F64;
+	Wed, 30 Nov 2022 20:51:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8EB7860F64
 Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key, unprotected) header.d=vmware.com header.i=@vmware.com header.a=rsa-sha256 header.s=selector2 header.b=JkTCQIjY
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=NiNSDBRl
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id jeF1rQ7rF5LW; Wed, 30 Nov 2022 07:06:33 +0000 (UTC)
+	with ESMTP id RsQc6npVTvIb; Wed, 30 Nov 2022 20:51:37 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 7324E60B13;
-	Wed, 30 Nov 2022 07:06:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7324E60B13
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 1D73060AF2;
+	Wed, 30 Nov 2022 20:51:37 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1D73060AF2
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 44945C0032;
-	Wed, 30 Nov 2022 07:06:32 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6B165C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D795FC0032;
+	Wed, 30 Nov 2022 20:51:36 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D0919C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 30 Nov 2022 07:06:31 +0000 (UTC)
+ Wed, 30 Nov 2022 20:51:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 3579B416BC
+ by smtp4.osuosl.org (Postfix) with ESMTP id A953C417BD
  for <virtualization@lists.linux-foundation.org>;
- Wed, 30 Nov 2022 07:06:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3579B416BC
-Authentication-Results: smtp4.osuosl.org; dkim=pass (1024-bit key,
- unprotected) header.d=vmware.com header.i=@vmware.com header.a=rsa-sha256
- header.s=selector2 header.b=JkTCQIjY
+ Wed, 30 Nov 2022 20:51:35 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A953C417BD
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=NiNSDBRl
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Lv_qxUYsGZ2i
+ with ESMTP id XSlWeLyMkcDU
  for <virtualization@lists.linux-foundation.org>;
- Wed, 30 Nov 2022 07:06:29 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5BD39403A8
-Received: from na01-obe.outbound.protection.outlook.com
- (mail-westus2azlp170110001.outbound.protection.outlook.com
- [IPv6:2a01:111:f403:c007::1])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 5BD39403A8
+ Wed, 30 Nov 2022 20:51:34 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5FC86417C6
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 5FC86417C6
  for <virtualization@lists.linux-foundation.org>;
- Wed, 30 Nov 2022 07:06:29 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=avLq9j0Ie7lX8ZJUsUGl9GPMG6msSNvgJmtKjp6FrpXcEpp6Gmfm9ZZkzWs8mR5u3/i0DqgNobFi/Q6NoTdpHHn0QFC8srKTLBil6J2j+RV1XFihjSF752rkbgbTt//YR3QnOfpEnQWzYtwO+vr3ut0KAv1qcyiOVRsA82449Fd3hFkeQidU8XVLtRt5HrlMv/sHeymwwDoc5FL2+xy4dKiYuCnnSSUds39E6nDlh8YK9uoRcAywiuIgnsyOLy+p59a4bvKgifROEw141Y2yk1xury5DT8a7yWR8bb7ICUM6GOaAys2LcJXYCwY2toHSvh+c1efc7BiHfgLmeujl0A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=xdqMmzsn9mjW4qHIuOcoq1kP4jyTU1hxlaF3HLlDSew=;
- b=ZoJbVQE2e2AFzCvOsu/fNPiyh+Q65kF3r4jCzT2Cku//ipdaGt8oNNhs1ynPag3CqrRzTtHANgrZuxe+nfKGZ4I7GSvRmYMYH4ROU7h7NCJnWYAqXiK274owNDBUbBn9/5a0hQAPt2ohw4ekzMt6hkVeHJVuKP50NxMLnnPO6yS3btm14PZHNbfvPyXWDBuJW+GvnRRM0awBjGQ6K6xFetW5xqqm4TjwCofsUvNQ/rKJ6xyKGisR+RVA8T7eS/PAAhmZO+nWHXCJwBMzcU+OxQWmC9dw1nAUJTdlh4gMpTTZm59iH0KZxO0ledtWIE0JURcOaJ8kNQIhdh+yhphwZQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=vmware.com; dmarc=pass action=none header.from=vmware.com;
- dkim=pass header.d=vmware.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vmware.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=xdqMmzsn9mjW4qHIuOcoq1kP4jyTU1hxlaF3HLlDSew=;
- b=JkTCQIjYttyX+lakU/MWxyeZmXqNTvPlP/dZ13FOgD3fsMK/D7h2qUetBsgqHhuHTG5oo0jigyHHigm36cuv7xiughgmplizIlZd38O3uZ6WUIqOlIpa5xRyRM2jAyqP6a8EmagAAP0/twpTNCMtO9QjXNuQR9ZaRc9bfD9tDyk=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=vmware.com;
-Received: from BYAPR05MB3960.namprd05.prod.outlook.com (2603:10b6:a02:88::12)
- by BN6PR05MB3009.namprd05.prod.outlook.com (2603:10b6:404:29::13)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5857.20; Wed, 30 Nov
- 2022 07:06:25 +0000
-Received: from BYAPR05MB3960.namprd05.prod.outlook.com
- ([fe80::6764:941b:e0cc:c4e1]) by BYAPR05MB3960.namprd05.prod.outlook.com
- ([fe80::6764:941b:e0cc:c4e1%7]) with mapi id 15.20.5857.022; Wed, 30 Nov 2022
- 07:06:25 +0000
-To: linux-kernel@vger.kernel.org,
-	virtualization@lists.linux-foundation.org
-Subject: [PATCH] VMCI: Use threaded irqs instead of tasklets
-Date: Tue, 29 Nov 2022 23:05:11 -0800
-Message-Id: <20221130070511.46558-1-vdasa@vmware.com>
-X-Mailer: git-send-email 2.35.1
-X-ClientProxiedBy: BYAPR07CA0057.namprd07.prod.outlook.com
- (2603:10b6:a03:60::34) To BYAPR05MB3960.namprd05.prod.outlook.com
- (2603:10b6:a02:88::12)
+ Wed, 30 Nov 2022 20:51:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1669841493;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=CQgAOvEZVM6ximlp/shF5gDfXHjOpS9Wecui6IHnldg=;
+ b=NiNSDBRlE1vBA/LIICE6Rq0BDTb0dJtg/Hon1K4llViz1678Ev1HLOYvu9Xu2HRaNCT5mV
+ fh859JpEtDU/iVJNlFcW1ygUeiqXJ5dPXCgdcGBWougiLzqMovFQLHosUA/PQV5fUZBgiW
+ JGppnl0SA4IjycKOEGysm5jYGkUNE9o=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-193-DB69oWysORGQKIlKbJtf0A-1; Wed, 30 Nov 2022 15:51:29 -0500
+X-MC-Unique: DB69oWysORGQKIlKbJtf0A-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.8])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 983D485A5B6;
+ Wed, 30 Nov 2022 20:51:28 +0000 (UTC)
+Received: from localhost (unknown [10.39.192.71])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id F03BFC15BB4;
+ Wed, 30 Nov 2022 20:51:27 +0000 (UTC)
+Date: Wed, 30 Nov 2022 15:51:23 -0500
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Pankaj Raghav <p.raghav@samsung.com>
+Subject: Re: [PATCH] virtio-blk: replace ida_simple[get|remove] with
+ ida_[alloc_range|free]
+Message-ID: <Y4fCS2d2r1YvSExI@fedora>
+References: <CGME20221130123126eucas1p2cd3287ee4e5c03642f1847c50af0e4f2@eucas1p2.samsung.com>
+ <20221130123001.25473-1-p.raghav@samsung.com>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BYAPR05MB3960:EE_|BN6PR05MB3009:EE_
-X-MS-Office365-Filtering-Correlation-Id: 5fda90b2-c707-4f48-c7a9-08dad2a16491
-X-LD-Processed: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0,ExtAddr
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 9xMNJzprILTciMLWFH9GVkC9bniPDerz/4D7xaNUxkhiYinb2n51DO+VUMBoozhtZdgSyvja/Wd7LAOZpH92myElAc3Tx99sHGHXpqdmt/u0sVoTgVB3x3iElucf6xHd4b/o0wq1Qvm2ltn1jYFJTLhxdhGW3gknEknnTc1lKNEdwOzcf1O3g8v9D8EGjFNH+6cIaGrlH/DiufLeaJO+mT7OnGZokRFHnYWzR+FmTbILp3cjdj3U9zT/CLzZtkvJil59KTwICX9iKeG/Papq4F8yFU7g/OUNnyxgvSynvs0CwViVvvp9CbbwsKHZEzLFwAczi5B1sAocYFb4EEXaQka26wbm8oyxUpc54lBWrev2FhLHOCimGgw1X/hWWDO/y+ATArlG28RnnhRT2CUe3jZy70Xdm2iK+sxX9TtCx1vIO48sakOZjMDbPt2Npa2ggHWtJ6mhCS4gp2OXi3sS2B8SOP53Oyvv3QY87hl0gjKYyUryTskLHkmVP3K85FP+GmB/fJo+ztD66U2/PREOZQKnZh53kw4xnxFwYWtz439uFUvB7itDGXWUaaer7uXRx96iFE/8+HdJ7NBNmeghGfBoZSkMz6BiuloafUV4K3kQr+JfVL2mik6euKGEO+uiGGY1thV3abOPWt4QxdPug1Civi3Be6DSG6Fen6FAj3vXqQZRB3XD2ZVvjZc3Zd1PL5CREV/EBA1lNihHJHpfispWMAaK4pY4LkuaFzpTM3cqRP3n3vBcmk7mztfUIMpc
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:BYAPR05MB3960.namprd05.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230022)(4636009)(39860400002)(396003)(366004)(346002)(136003)(376002)(451199015)(2616005)(2906002)(83380400001)(107886003)(26005)(38100700002)(38350700002)(41300700001)(8676002)(66476007)(9686003)(66946007)(66556008)(6512007)(52116002)(6666004)(6506007)(478600001)(6486002)(36756003)(186003)(1076003)(8936002)(5660300002)(4326008)(86362001)(316002)(54906003);
- DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?1650S0hjBphMXbGbHtOdFQ3hcSOk1j8dNuQXkw1EgbpYpEG8EUy4KNV15cCQ?=
- =?us-ascii?Q?HWNAwFPuqo5nEJ1NMuigNqipwaVwhvM4JWVGmzHs1yuphwZxhzMB1qCkXcaJ?=
- =?us-ascii?Q?fNCrRbeb0+5KYucp929NutWqJpoQxrwHX3quY91PFLPxZu0/FExC20tT62eb?=
- =?us-ascii?Q?XRE9tMl6SL6QCmKjSIijl15BQIgldwJBdZ/9uyfvDhJz/HidUy4YJ1L1Vr+/?=
- =?us-ascii?Q?sC0Y49tiem9qj4eG//eS3Kbr1ftjPpZsaCxPV7+aMqzHyQdMfOnDgMAqKcag?=
- =?us-ascii?Q?oDk6rtS6Xu+3WkxsbAyw8V72WkXoeUFhVcU9LI5UFAJoXPIFjm1+Y46da8qB?=
- =?us-ascii?Q?PQr2U5U7okZlvhz+nZzrM3ps9+HUqAlOJCioZ6/3FpJc1SOhO7mG1s4ZI4RG?=
- =?us-ascii?Q?LzARo/lojxHwYCvZht968wrB04WAhACvkxX2JClkWtCI4JLnhUgotsmlst21?=
- =?us-ascii?Q?GN5uhFJTI7NGtOmpAsVFQwcXD1A9n5/LzVsu6lHNuI4TUvKXwdgcLpNEO5AL?=
- =?us-ascii?Q?WicHu6nxZrmFFxSek5hUPNPPoJ6ktjtvrp0z+14djcXuKH17wGFCcaqBBy7B?=
- =?us-ascii?Q?Wn8mcLRgaFhodUt4WbPgHTG7thSSi/jcKKUVUBmHphY6qKDZOzM5ryTpvUUt?=
- =?us-ascii?Q?gp3ys+SHZS6sZAowCm1CN3jbAgIWsf+tTaHvmLaWBN8cbQWyIm1tRmWcexnM?=
- =?us-ascii?Q?IfjsMf5FRCv7D/l515DtGRDmwQCwVn5pLaErarq7oZ5E4DdFt+JRK31IFiW8?=
- =?us-ascii?Q?I5WZRxif8PHDjXs0dfbWA2ZoWU0mYAHKQf8kVbLSdbB66H+ShWmg29O0vjCe?=
- =?us-ascii?Q?MCBnaA7t+olwAc05vdnVvn3lSulLyIZQ4aoNkqZCfx3ucElEl4Z+PCIRyiT/?=
- =?us-ascii?Q?/PckE+IcdHcm9a7eJ8Rqh9RxBmXTHSnmiFAM3QGYjIj5zynlJVJz6Wbm7mPU?=
- =?us-ascii?Q?84rb0k6Q+93uh4BBPnzdy2MUhKgBHv/yDluNLcPL3f/JmYzR3E/H1xAM40/X?=
- =?us-ascii?Q?OhpG0xE3DXKwE8fQl0pPoDM/VPu1nKR54s4moIwEtAHblP0kfD5EeFPB3VPc?=
- =?us-ascii?Q?V4eClWLuViFGGXv2CsiE2YCnh2tf3aVrUqZT5ZZKt16DtWBHKE7Y3fXHx1NZ?=
- =?us-ascii?Q?S+kqDdY5e06AI8Og9+8j6+yP5wNQxpnKa4O888N2+zRZddN830dMPxGlsW8Z?=
- =?us-ascii?Q?4aL8a7FU5xZbQghD8UNcvqroaDt6/qpvMYG3Ym8S33IHNJikC3UjvqBUSMho?=
- =?us-ascii?Q?vjB9h4N1zEt20Ae/2epcjp7u3d1n8ZMjY0/Z7oXxfynC4q5HaLfpzmDOKBmj?=
- =?us-ascii?Q?CXqqwjAeuSfMGOjI9550anQUNnw3TXtJwEEDeFYOFN2cSg7coQAqHVEo5BqA?=
- =?us-ascii?Q?dPKDpLvqYGdNhtplyUDrAE4UTI82tbH1axkBhYhQZEiq65nqHNuedBa/8VBN?=
- =?us-ascii?Q?CS80IIq5OOzMsuvG9BeTAOdKJQsn4lKNtkLREMqqd81mFHQYor3BUq7Kr/Ub?=
- =?us-ascii?Q?pwGg1zIjOvOFkFD/WuRXCMyFMD1+Tg3JY6w8vZoKd2C1dP4T4SiUr4m/4nWy?=
- =?us-ascii?Q?Y7KFaITT9capNEpmcqk=3D?=
-X-OriginatorOrg: vmware.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5fda90b2-c707-4f48-c7a9-08dad2a16491
-X-MS-Exchange-CrossTenant-AuthSource: BYAPR05MB3960.namprd05.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 Nov 2022 07:06:25.0970 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 4VRnpcRWJ8a0scGtsHxicx0ZBr3mNGsT7NA9mgKuEjjujGgtwkfmwl79lv4kBjlHLL1FSJ/dosDNCsfubdddcA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN6PR05MB3009
-Cc: Vishnu Dasa <vdasa@vmware.com>,
- VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org,
- Nathan Chancellor <nathan@kernel.org>, Bryan Tan <bryantan@vmware.com>,
- Nadav Amit <namit@vmware.com>, Zack Rusin <zackr@vmware.com>
+In-Reply-To: <20221130123001.25473-1-p.raghav@samsung.com>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.8
+Cc: axboe@kernel.dk, Pankaj Raghav <pankydev8@gmail.com>, mst@redhat.com,
+ gost.dev@samsung.com, virtualization@lists.linux-foundation.org,
+ linux-block@vger.kernel.org, pbonzini@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -151,232 +96,68 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: vdasa--- via Virtualization <virtualization@lists.linux-foundation.org>
-Reply-To: vdasa@vmware.com
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============8576825145995899737=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Vishnu Dasa <vdasa@vmware.com>
 
-The vmci_dispatch_dgs() tasklet function calls vmci_read_data()
-which uses wait_event() resulting in invalid sleep in an atomic
-context (and therefore potentially in a deadlock).
+--===============8576825145995899737==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="nHTxRgQR67n6DBCs"
+Content-Disposition: inline
 
-Use threaded irqs to fix this issue and completely remove usage
-of tasklets.
 
-[   20.264639] BUG: sleeping function called from invalid context at drivers/misc/vmw_vmci/vmci_guest.c:145
-[   20.264643] in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 762, name: vmtoolsd
-[   20.264645] preempt_count: 101, expected: 0
-[   20.264646] RCU nest depth: 0, expected: 0
-[   20.264647] 1 lock held by vmtoolsd/762:
-[   20.264648]  #0: ffff0000874ae440 (sk_lock-AF_VSOCK){+.+.}-{0:0}, at: vsock_connect+0x60/0x330 [vsock]
-[   20.264658] Preemption disabled at:
-[   20.264659] [<ffff80000151d7d8>] vmci_send_datagram+0x44/0xa0 [vmw_vmci]
-[   20.264665] CPU: 0 PID: 762 Comm: vmtoolsd Not tainted 5.19.0-0.rc8.20220727git39c3c396f813.60.fc37.aarch64 #1
-[   20.264667] Hardware name: VMware, Inc. VBSA/VBSA, BIOS VEFI 12/31/2020
-[   20.264668] Call trace:
-[   20.264669]  dump_backtrace+0xc4/0x130
-[   20.264672]  show_stack+0x24/0x80
-[   20.264673]  dump_stack_lvl+0x88/0xb4
-[   20.264676]  dump_stack+0x18/0x34
-[   20.264677]  __might_resched+0x1a0/0x280
-[   20.264679]  __might_sleep+0x58/0x90
-[   20.264681]  vmci_read_data+0x74/0x120 [vmw_vmci]
-[   20.264683]  vmci_dispatch_dgs+0x64/0x204 [vmw_vmci]
-[   20.264686]  tasklet_action_common.constprop.0+0x13c/0x150
-[   20.264688]  tasklet_action+0x40/0x50
-[   20.264689]  __do_softirq+0x23c/0x6b4
-[   20.264690]  __irq_exit_rcu+0x104/0x214
-[   20.264691]  irq_exit_rcu+0x1c/0x50
-[   20.264693]  el1_interrupt+0x38/0x6c
-[   20.264695]  el1h_64_irq_handler+0x18/0x24
-[   20.264696]  el1h_64_irq+0x68/0x6c
-[   20.264697]  preempt_count_sub+0xa4/0xe0
-[   20.264698]  _raw_spin_unlock_irqrestore+0x64/0xb0
-[   20.264701]  vmci_send_datagram+0x7c/0xa0 [vmw_vmci]
-[   20.264703]  vmci_datagram_dispatch+0x84/0x100 [vmw_vmci]
-[   20.264706]  vmci_datagram_send+0x2c/0x40 [vmw_vmci]
-[   20.264709]  vmci_transport_send_control_pkt+0xb8/0x120 [vmw_vsock_vmci_transport]
-[   20.264711]  vmci_transport_connect+0x40/0x7c [vmw_vsock_vmci_transport]
-[   20.264713]  vsock_connect+0x278/0x330 [vsock]
-[   20.264715]  __sys_connect_file+0x8c/0xc0
-[   20.264718]  __sys_connect+0x84/0xb4
-[   20.264720]  __arm64_sys_connect+0x2c/0x3c
-[   20.264721]  invoke_syscall+0x78/0x100
-[   20.264723]  el0_svc_common.constprop.0+0x68/0x124
-[   20.264724]  do_el0_svc+0x38/0x4c
-[   20.264725]  el0_svc+0x60/0x180
-[   20.264726]  el0t_64_sync_handler+0x11c/0x150
-[   20.264728]  el0t_64_sync+0x190/0x194
+--nHTxRgQR67n6DBCs
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Vishnu Dasa <vdasa@vmware.com>
-Suggested-by: Zack Rusin <zackr@vmware.com>
-Reported-by: Nadav Amit <namit@vmware.com>
-Reported-by: Nathan Chancellor <nathan@kernel.org>
-Tested-by: Nathan Chancellor <nathan@kernel.org>
-Fixes: 463713eb6164 ("VMCI: dma dg: add support for DMA datagrams receive")
-Cc: <stable@vger.kernel.org> # v5.18+
-Cc: VMware PV-Drivers Reviewers <pv-drivers@vmware.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Bryan Tan <bryantan@vmware.com>
----
- drivers/misc/vmw_vmci/vmci_guest.c | 49 ++++++++++++------------------
- 1 file changed, 19 insertions(+), 30 deletions(-)
+On Wed, Nov 30, 2022 at 01:30:03PM +0100, Pankaj Raghav wrote:
+> ida_simple[get|remove] are deprecated, and are just wrappers to
+> ida_[alloc_range|free]. Replace ida_simple[get|remove] with their
+> corresponding counterparts.
+>=20
+> No functional changes.
+>=20
+> Signed-off-by: Pankaj Raghav <p.raghav@samsung.com>
+> ---
+>  drivers/block/virtio_blk.c | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/misc/vmw_vmci/vmci_guest.c b/drivers/misc/vmw_vmci/vmci_guest.c
-index aa7b05de97dd..6ab717b4a5db 100644
---- a/drivers/misc/vmw_vmci/vmci_guest.c
-+++ b/drivers/misc/vmw_vmci/vmci_guest.c
-@@ -56,8 +56,6 @@ struct vmci_guest_device {
- 
- 	bool exclusive_vectors;
- 
--	struct tasklet_struct datagram_tasklet;
--	struct tasklet_struct bm_tasklet;
- 	struct wait_queue_head inout_wq;
- 
- 	void *data_buffer;
-@@ -304,9 +302,8 @@ static int vmci_check_host_caps(struct pci_dev *pdev)
-  * This function assumes that it has exclusive access to the data
-  * in register(s) for the duration of the call.
-  */
--static void vmci_dispatch_dgs(unsigned long data)
-+static void vmci_dispatch_dgs(struct vmci_guest_device *vmci_dev)
- {
--	struct vmci_guest_device *vmci_dev = (struct vmci_guest_device *)data;
- 	u8 *dg_in_buffer = vmci_dev->data_buffer;
- 	struct vmci_datagram *dg;
- 	size_t dg_in_buffer_size = VMCI_MAX_DG_SIZE;
-@@ -465,10 +462,8 @@ static void vmci_dispatch_dgs(unsigned long data)
-  * Scans the notification bitmap for raised flags, clears them
-  * and handles the notifications.
-  */
--static void vmci_process_bitmap(unsigned long data)
-+static void vmci_process_bitmap(struct vmci_guest_device *dev)
- {
--	struct vmci_guest_device *dev = (struct vmci_guest_device *)data;
--
- 	if (!dev->notification_bitmap) {
- 		dev_dbg(dev->dev, "No bitmap present in %s\n", __func__);
- 		return;
-@@ -486,13 +481,13 @@ static irqreturn_t vmci_interrupt(int irq, void *_dev)
- 	struct vmci_guest_device *dev = _dev;
- 
- 	/*
--	 * If we are using MSI-X with exclusive vectors then we simply schedule
--	 * the datagram tasklet, since we know the interrupt was meant for us.
-+	 * If we are using MSI-X with exclusive vectors then we simply call
-+	 * vmci_dispatch_dgs(), since we know the interrupt was meant for us.
- 	 * Otherwise we must read the ICR to determine what to do.
- 	 */
- 
- 	if (dev->exclusive_vectors) {
--		tasklet_schedule(&dev->datagram_tasklet);
-+		vmci_dispatch_dgs(dev);
- 	} else {
- 		unsigned int icr;
- 
-@@ -502,12 +497,12 @@ static irqreturn_t vmci_interrupt(int irq, void *_dev)
- 			return IRQ_NONE;
- 
- 		if (icr & VMCI_ICR_DATAGRAM) {
--			tasklet_schedule(&dev->datagram_tasklet);
-+			vmci_dispatch_dgs(dev);
- 			icr &= ~VMCI_ICR_DATAGRAM;
- 		}
- 
- 		if (icr & VMCI_ICR_NOTIFICATION) {
--			tasklet_schedule(&dev->bm_tasklet);
-+			vmci_process_bitmap(dev);
- 			icr &= ~VMCI_ICR_NOTIFICATION;
- 		}
- 
-@@ -536,7 +531,7 @@ static irqreturn_t vmci_interrupt_bm(int irq, void *_dev)
- 	struct vmci_guest_device *dev = _dev;
- 
- 	/* For MSI-X we can just assume it was meant for us. */
--	tasklet_schedule(&dev->bm_tasklet);
-+	vmci_process_bitmap(dev);
- 
- 	return IRQ_HANDLED;
- }
-@@ -638,10 +633,6 @@ static int vmci_guest_probe_device(struct pci_dev *pdev,
- 	vmci_dev->iobase = iobase;
- 	vmci_dev->mmio_base = mmio_base;
- 
--	tasklet_init(&vmci_dev->datagram_tasklet,
--		     vmci_dispatch_dgs, (unsigned long)vmci_dev);
--	tasklet_init(&vmci_dev->bm_tasklet,
--		     vmci_process_bitmap, (unsigned long)vmci_dev);
- 	init_waitqueue_head(&vmci_dev->inout_wq);
- 
- 	if (mmio_base != NULL) {
-@@ -808,8 +799,9 @@ static int vmci_guest_probe_device(struct pci_dev *pdev,
- 	 * Request IRQ for legacy or MSI interrupts, or for first
- 	 * MSI-X vector.
- 	 */
--	error = request_irq(pci_irq_vector(pdev, 0), vmci_interrupt,
--			    IRQF_SHARED, KBUILD_MODNAME, vmci_dev);
-+	error = request_threaded_irq(pci_irq_vector(pdev, 0), NULL,
-+				     vmci_interrupt, IRQF_SHARED,
-+				     KBUILD_MODNAME, vmci_dev);
- 	if (error) {
- 		dev_err(&pdev->dev, "Irq %u in use: %d\n",
- 			pci_irq_vector(pdev, 0), error);
-@@ -823,9 +815,9 @@ static int vmci_guest_probe_device(struct pci_dev *pdev,
- 	 * between the vectors.
- 	 */
- 	if (vmci_dev->exclusive_vectors) {
--		error = request_irq(pci_irq_vector(pdev, 1),
--				    vmci_interrupt_bm, 0, KBUILD_MODNAME,
--				    vmci_dev);
-+		error = request_threaded_irq(pci_irq_vector(pdev, 1), NULL,
-+					     vmci_interrupt_bm, 0,
-+					     KBUILD_MODNAME, vmci_dev);
- 		if (error) {
- 			dev_err(&pdev->dev,
- 				"Failed to allocate irq %u: %d\n",
-@@ -833,9 +825,11 @@ static int vmci_guest_probe_device(struct pci_dev *pdev,
- 			goto err_free_irq;
- 		}
- 		if (caps_in_use & VMCI_CAPS_DMA_DATAGRAM) {
--			error = request_irq(pci_irq_vector(pdev, 2),
--					    vmci_interrupt_dma_datagram,
--					    0, KBUILD_MODNAME, vmci_dev);
-+			error = request_threaded_irq(pci_irq_vector(pdev, 2),
-+						     NULL,
-+						    vmci_interrupt_dma_datagram,
-+						     0, KBUILD_MODNAME,
-+						     vmci_dev);
- 			if (error) {
- 				dev_err(&pdev->dev,
- 					"Failed to allocate irq %u: %d\n",
-@@ -871,8 +865,6 @@ static int vmci_guest_probe_device(struct pci_dev *pdev,
- 
- err_free_irq:
- 	free_irq(pci_irq_vector(pdev, 0), vmci_dev);
--	tasklet_kill(&vmci_dev->datagram_tasklet);
--	tasklet_kill(&vmci_dev->bm_tasklet);
- 
- err_disable_msi:
- 	pci_free_irq_vectors(pdev);
-@@ -943,9 +935,6 @@ static void vmci_guest_remove_device(struct pci_dev *pdev)
- 	free_irq(pci_irq_vector(pdev, 0), vmci_dev);
- 	pci_free_irq_vectors(pdev);
- 
--	tasklet_kill(&vmci_dev->datagram_tasklet);
--	tasklet_kill(&vmci_dev->bm_tasklet);
--
- 	if (vmci_dev->notification_bitmap) {
- 		/*
- 		 * The device reset above cleared the bitmap state of the
--- 
-2.34.1
+Chaitanya proposed a similar patch in the past:
+https://lore.kernel.org/all/20220420041053.7927-5-kch@nvidia.com/
+
+Your patch calculates the max argument correctly. Looks good.
+
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+
+--nHTxRgQR67n6DBCs
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmOHwksACgkQnKSrs4Gr
+c8gQuAf9H2mnAIrELNShopJ32U5cjYPwqU2Bu2qZ5RfQxU83eCwJp7kyw922O4ng
+AOEQx/BV8cXytlv54kXWF2h4AKOAB/vGiIu1yZgF/Bfos9z8mKc9zjgV9G4vdKwf
+NTKrINoBHl1NnSiTDKrA/i1s4rgHU8asU7GcfO0UpX+QBKhM5gG3QYBw6zU4eD2x
+9lQ6S8DIvY16upOMwynUSiZ8ltUVAyBuRq6REZ5H0JtBz6nwvgLR+o344iVDxF6M
+Cl7oWdVVBslv2R+ExTo9zQW8naerHkFGIqrsTKcTcgIPEaVexyL95FcTB7g49wOV
+cfqQpZ04GJz3eDUDd59UWXlcDmcc3w==
+=SjCs
+-----END PGP SIGNATURE-----
+
+--nHTxRgQR67n6DBCs--
+
+
+--===============8576825145995899737==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============8576825145995899737==--
+
