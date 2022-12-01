@@ -1,112 +1,148 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8BFF3C43217
-	for <virtualization@archiver.kernel.org>; Thu,  1 Dec 2022 10:22:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 940DFC43217
+	for <virtualization@archiver.kernel.org>; Thu,  1 Dec 2022 15:14:27 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id F028F81FD5;
-	Thu,  1 Dec 2022 10:22:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org F028F81FD5
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=WxXzAaa2
+	by smtp2.osuosl.org (Postfix) with ESMTP id 0BF8840C80;
+	Thu,  1 Dec 2022 15:14:27 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0BF8840C80
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key, unprotected) header.d=vmware.com header.i=@vmware.com header.a=rsa-sha256 header.s=selector2 header.b=eRsSTXlc
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id j6lQXwVXpT8p; Thu,  1 Dec 2022 10:22:10 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 085F981F56;
-	Thu,  1 Dec 2022 10:22:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 085F981F56
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id kh7OKkOwpcgu; Thu,  1 Dec 2022 15:14:26 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 68E89401C9;
+	Thu,  1 Dec 2022 15:14:25 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 68E89401C9
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DC9C5C0033;
-	Thu,  1 Dec 2022 10:22:09 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 78E53C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3FA7AC0032;
+	Thu,  1 Dec 2022 15:14:25 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6664FC002D
  for <virtualization@lists.linux-foundation.org>;
- Thu,  1 Dec 2022 10:22:09 +0000 (UTC)
+ Thu,  1 Dec 2022 15:14:24 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 44C02418A5
+ by smtp2.osuosl.org (Postfix) with ESMTP id 33628404EC
  for <virtualization@lists.linux-foundation.org>;
- Thu,  1 Dec 2022 10:22:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 44C02418A5
-Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=WxXzAaa2
+ Thu,  1 Dec 2022 15:14:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 33628404EC
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id iGj1j6vYV7hE
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id aMBay4ha0mJ1
  for <virtualization@lists.linux-foundation.org>;
- Thu,  1 Dec 2022 10:22:07 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org ACD8741839
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id ACD8741839
+ Thu,  1 Dec 2022 15:14:23 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3AE07401C9
+Received: from CY4PR02CU007-vft-obe.outbound.protection.outlook.com
+ (mail-westcentralusazlp170110002.outbound.protection.outlook.com
+ [IPv6:2a01:111:f403:c112::2])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 3AE07401C9
  for <virtualization@lists.linux-foundation.org>;
- Thu,  1 Dec 2022 10:22:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1669890126;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=xoPax3jULmyNPRBQAOAyG4eZNgpJaR2/NZ388qv7Cls=;
- b=WxXzAaa24w+lyvtHyTx6nH6B77Cgq+UHaps9iJqPchfHOiBzRaXwlqbeTwG0Kl25i/IsL9
- bbbBMLpb7oFiFbX87bhpHwRLV2oNTGmtEqX0IregZiVMIrefNAuMLv8DXUAJGY51xlTY1W
- bf8Vch456kTAlG8yGF0FzyDM4ovv5R8=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-508-4nKvzmkDPdOI6LzJgxBpRg-1; Thu, 01 Dec 2022 05:22:05 -0500
-X-MC-Unique: 4nKvzmkDPdOI6LzJgxBpRg-1
-Received: by mail-wm1-f71.google.com with SMTP id
- z18-20020a05600c221200b003cf7fcc286aso516727wml.1
- for <virtualization@lists.linux-foundation.org>;
- Thu, 01 Dec 2022 02:22:05 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=xoPax3jULmyNPRBQAOAyG4eZNgpJaR2/NZ388qv7Cls=;
- b=KIyduEMZAQwlMF2TJVmt3WO5XHhlW41AziaMoFyCISVabF6VbOmsPsyUIgg6IBB0w+
- l9y+Q4IrYmRm9VsYAbOcOMcgtqYmo1l3tcDnJiz4EehmprAUjrgGg6lAe0lmyFVmPuru
- bHLCXAs+BIQSZOpP8Y+9wb5vFDyuDjI79QvyMVLuqIACot8eiG9zZ6Ba1Qad4KerCwLv
- FwEDyyYWfkc+3MKwGHGbY7HZib5CsH8u+eoPaq3EM4bHRVdW1+nfKXjsRMmampsJc1BG
- CZJkgQyGDzlU5e/ASM9FW3EGiuZ02zbREjUbDMV1Zqu045rcS7bPDrVo6vkYll713KLC
- n2kQ==
-X-Gm-Message-State: ANoB5pkKQjPS+zhkno8kXmnHmaDz0Grf61l1/Z4R6lCBnPnWBcfPwyOc
- hx3o2QOZh2P1GArQNjuCtE4eZLNdzQBvEqvhal4OLiWZtjpIpbu7wqPpKWdSauHFhJVXZQAthVP
- 8z8cnGp4zs4xmFCN3N8JqYTy/3XsJVgo7sgiAFLFyvw==
-X-Received: by 2002:a05:6000:1e0f:b0:238:3d2a:cd12 with SMTP id
- bj15-20020a0560001e0f00b002383d2acd12mr40496810wrb.172.1669890124103; 
- Thu, 01 Dec 2022 02:22:04 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf7/6SPLV7WLGix8AFoMaorddK5kjKey9+TIwMrbhpSJanYvm2KPLO+aCIKGzA9h0jZku9ccUw==
-X-Received: by 2002:a05:6000:1e0f:b0:238:3d2a:cd12 with SMTP id
- bj15-20020a0560001e0f00b002383d2acd12mr40496782wrb.172.1669890123810; 
- Thu, 01 Dec 2022 02:22:03 -0800 (PST)
-Received: from sgarzare-redhat (host-82-53-134-234.retail.telecomitalia.it.
- [82.53.134.234]) by smtp.gmail.com with ESMTPSA id
- d10-20020adffbca000000b002366f9bd717sm4862207wrs.45.2022.12.01.02.22.01
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 01 Dec 2022 02:22:03 -0800 (PST)
-Date: Thu, 1 Dec 2022 11:21:53 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
-Subject: Re: [RFC PATCH v2 6/6] test/vsock: vsock_perf utility
-Message-ID: <20221201102153.nhi3xw7gkabdckfc@sgarzare-redhat>
+ Thu,  1 Dec 2022 15:14:23 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=gMTWEA+sPe01oHJMZOgGsOw70C7xCQ+JXiR+LTXbuMUbDnwPEx03q44OVlJNZa+vT68Y2SRg7cawBsiFp12e9VfdWnp0W9AmeZXBeE26jm5zhlKuW2BNgXMRe1QtM2PPk5ykECqalNwNwHvAutQ+7Te+MtaFQQrSWPbOj7qpUjG2YGb2kXk2ZmOWpF1FghHQLpV4vzV56mFA6Gam2kETMZt+dzbaz6ujR6rZ5YBXbIZIBEQO2QzY3UdZ5tENMaLdvDvM1/0ah/Mqu7L3MlzzQH05xzir5Ni40hNgBqs/jkOR9B4LPgWopwXAt1Zu0NsQZKM5E7pECcQ0LTAAs3OeUg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=RDAdiY9IbgCSnH534XIbk5oSkMgpZq0W1pEerzWGMxk=;
+ b=gbPwil54ceFaYz49H0Pt1fv9zrMcUO33cJy/w5p0rzdsSKYksKDZV8u3vw5CPMvb5qsYN1eoJR2tCNOjAvBdC22xIQDxt7ImamIqG56N5Vb1Odu1QkV3SThuSLIWIaMFjE+oPdWo15gTjgzHC5xCws9b7FjPH+7CaOam9Nz3UQVwr54paMTMR1FsKzbXRCintcEIgt23+oav9ns/Kgb0xtwDySd6YE3sFaMNMe9LbgafDoYKQ74VdTiZxCrlV5o6J+5EuhcWuElVKXZeZxLz7WqRDOGDbiSPK0GhmpEdpM7uKT5KTGKMi3olcjQfWDB2wYHLH3HAZc6DEqwnN2BKMg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=vmware.com; dmarc=pass action=none header.from=vmware.com;
+ dkim=pass header.d=vmware.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vmware.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=RDAdiY9IbgCSnH534XIbk5oSkMgpZq0W1pEerzWGMxk=;
+ b=eRsSTXlchJSpGZtfUwn+lsojQUKWaCCSwMMsaLOD9WNCXxbD1SQ2A1WXOXXLHTVKWON8FxfT5t/levhxYDPSPmKa0ZRjG9F11SHXt0ICzYXYCeMTgwvwpuDtEhnzm7g9zErTQRkIIgQYYikkTTc7VVxN+UYeMmwaSXmf9FM2ShQ=
+Received: from BYAPR05MB3960.namprd05.prod.outlook.com (2603:10b6:a02:88::12)
+ by CY1PR05MB2473.namprd05.prod.outlook.com (2a01:111:e400:c618::23)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5857.21; Thu, 1 Dec
+ 2022 15:14:20 +0000
+Received: from BYAPR05MB3960.namprd05.prod.outlook.com
+ ([fe80::6764:941b:e0cc:c4e1]) by BYAPR05MB3960.namprd05.prod.outlook.com
+ ([fe80::6764:941b:e0cc:c4e1%7]) with mapi id 15.20.5857.022; Thu, 1 Dec 2022
+ 15:14:20 +0000
+To: Stefano Garzarella <sgarzare@redhat.com>, Arseniy Krasnov
+ <AVKrasnov@sberdevices.ru>
+Subject: Re: [RFC PATCH v2 3/6] vsock/vmci: always return ENOMEM in case of
+ error
+Thread-Topic: [RFC PATCH v2 3/6] vsock/vmci: always return ENOMEM in case of
+ error
+Thread-Index: AQHZAPCA3ICEgU4zakSbW2G8CFeTF65YzU8AgABf+oA=
+Date: Thu, 1 Dec 2022 15:14:20 +0000
+Message-ID: <D7DE3103-994D-478E-B7F6-42CE8B6469FE@vmware.com>
 References: <9d96f6c6-1d4f-8197-b3bc-8957124c8933@sberdevices.ru>
- <93a19249-e3f3-c1f8-c58a-0f549b94f1b5@sberdevices.ru>
+ <675b1f93-dc07-0a70-0622-c3fc6236c8bb@sberdevices.ru>
+ <20221201093048.q2pradrgn5limcfb@sgarzare-redhat>
+In-Reply-To: <20221201093048.q2pradrgn5limcfb@sgarzare-redhat>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=vmware.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: BYAPR05MB3960:EE_|CY1PR05MB2473:EE_
+x-ms-office365-filtering-correlation-id: 5cbd9221-e625-4f23-8e0f-08dad3aeb8b1
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: GEae2zzhC0AnFy/emT9pgJIcmqvzirIyMfndBGadOQNgJupz2eFViT88ZXHTwPLR67R107SYte7h09AvXE1LVHV/PEL2PnCmAa7QEgVNbA4NRlgMX0R5pSNLc5l8wTe4UTBj2ZGczlcXQz/8J6jY7l89g/kHa0m97KuT+7K5Y0ThGHeux9OGqjzg4qSRsx99BdLCIIF7M672k56jKlkUEO5PEPirRA5pfkpjt7KEiqT6q1Cw8pvnqWvDRQvbusUoKiUmK1q0mBAfZpYW6HrK6rZ9LgO7XCRLUp+t/pHy80vruHFlW6EqStadgsUsNxCgrFDftLLLLj9TOgfz4pz1+ZSRw7aFOMvyP6zqFiMcg2bmyCgQeGgDWAxtngOA50rcEAQJpABjJClrt0YYYcjwdVG29BVvt+Ka/iMDUYJGPkTuPPLuYbdbjyYYb10QQ7jZgarF6SL2MWT46WWv3qGaqn4Rm0c1kSoXwhfGLLZtoqR/98qynPfyDQ7KIHaFrNoaNWsCbZBnF9drE0QilNfk8/ZgcA46UYyIgwwnf7J3rBIXd1yS4JiYLGCW8MpXxe9fcNQfnJSBNeJP8178c1jWwhPKcbSYzgmlfghcPHKbeovria8ZZpHs7rL1HfY4lvHsTFQyYr6zraZM6sNuTp8mdCB1Y6fjBM6jo4kvdN1faeJH4BytsW19L3r9ve12nJlQQD2KaRUwfzx69YvL2p8kDceWYELqXeu7D1aa4dlR9K3j01gtnJHHpxK2rocGq4FWNBBSad9b/FSDn7woTfkwuw==
+x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:BYAPR05MB3960.namprd05.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230022)(4636009)(376002)(39860400002)(396003)(366004)(136003)(346002)(451199015)(36756003)(2906002)(38070700005)(41300700001)(6512007)(83380400001)(86362001)(2616005)(5660300002)(64756008)(4326008)(33656002)(76116006)(66946007)(66476007)(186003)(71200400001)(8676002)(66446008)(53546011)(7416002)(6506007)(66556008)(8936002)(38100700002)(110136005)(6486002)(122000001)(478600001)(54906003)(316002)(45980500001);
+ DIR:OUT; SFP:1101; 
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?kmzg7aH3v+uXxmxm1snhpNnQ9NvvAPbIt92gy1rml+NCryzpJURV4tTYqb0J?=
+ =?us-ascii?Q?Lb9hKpNRD2NDnNGxbDPXPQExBym4eGietJ7vcbTkMeH7V7IhdOBKYSoIZku4?=
+ =?us-ascii?Q?Pz5r44cIO3OmfOrFNI2pflarEMoo2tDQQKzw7tC6DhJA/mjPKR6QY4YEzE0b?=
+ =?us-ascii?Q?W18RfFvyemNGrtLohouO3LiftkvZPNGr7ywrbUpYR36jRLfRUQRSjWk+A20u?=
+ =?us-ascii?Q?wRIHvryLsf8Rs8pAaCRoGg8Kc6H6lATjWmZ5S8D1UY1FZGzPgkJyj5AAu0nX?=
+ =?us-ascii?Q?elUueal153dh0gRW4WL3/uUKpvdTwX6nt9ozjLX2RV4Db0RNDK1s0kCMUyvs?=
+ =?us-ascii?Q?ydVreZcBsrkEBxmVORd51sThr1Ka+2ofRjEScOP1lk/8MDb9PY9XzPYzDD18?=
+ =?us-ascii?Q?gjBwVNAzOMANFWhZXV4FWvP6f4cqcD+8kJBhi5ahV1fTnXhTC4/SN7noLQ+i?=
+ =?us-ascii?Q?nyZfHIBlMvnCDdDpYP5Mpd1kKbJzblK2xXsVJRPRrss+2bFHb9o1edfCJW4e?=
+ =?us-ascii?Q?RA2kAgE5T5WklK36IMSdltmQP7e/Ef3byTIQxQctzHc3yDXk++BSvS8giZTX?=
+ =?us-ascii?Q?uONXrhKt1g3mfZOMSVLUnSVzMQq4KGDk5vi0hlulJzUmd613ltzFcHFqNi5e?=
+ =?us-ascii?Q?An4YdfIP4/V4yWsQiwAFS2f8kM57XHAgW3QkImKbXuoZ1ndC2vR2z5J8icRm?=
+ =?us-ascii?Q?CdgA0fpoTIoWT7J4qWnXvCZmcocCqjIvrX+QMw2eWRf9nPYQSK/4QjVwhvx1?=
+ =?us-ascii?Q?gv0jgMxehQIwYEjvqElCs9XmguEpCvKFWE7NeiagVCEXoaxZVnF/MFaOVMIO?=
+ =?us-ascii?Q?9l1fM498ApmsnmXvpeqLMdowt9SYwF9YHmqsirq+ySghNShbX1UVmMms14Gj?=
+ =?us-ascii?Q?vaMMj4TlsoPDqNzzJQmZ7bEEdzxy/delv85MYuBnp2dP3e9/K6Cb+EA+Qxa6?=
+ =?us-ascii?Q?4DTfiR1XwdSfe+9Ybxz6AE7WD+BELfPxwKlgLptBkskFSGnYCVmcKQje5N4V?=
+ =?us-ascii?Q?D66QBg3g8cwhYb9PWM+Oa0M81hP1heud0FhS5LRJcTNGXl4QOf19smoY2h6R?=
+ =?us-ascii?Q?jPX6zyAhc5xIJd8cMajZH3dYLwkH/DItWLFWS2w2ZyoeB88iDg8zvbm6GUbD?=
+ =?us-ascii?Q?E5PTEAHS9hil81ux9Zr8ESzdio5DhiVS7di1c5L93kfm43T1o/V3hIJA76Hd?=
+ =?us-ascii?Q?3odfn7fWNAZKoAwqUziOhp3nTcQWrVEVd/LG6Pjo32c52rMU0GTW18Omirpw?=
+ =?us-ascii?Q?xaF6Db1MyRvTG9VyAtX2aueqd0iyIJl9QzFNwIeP4LrSg1l+XKTIDUMiUgpo?=
+ =?us-ascii?Q?06RpwY+rKgKt7m28I58Yh/NC2+XLqJ7oAGt+2rwD6FOMCvFytGEPbjljgLHq?=
+ =?us-ascii?Q?0b6aHoh4dYwUAiwerUgFTCwHtfCLZeNgfaQRAmWSSO4Z8OK00UEcX+NQlzeS?=
+ =?us-ascii?Q?C6IEmg7w+QP9MAdiez5oz4idlCONdQYhMzJiK+pektbbLN+fxuh93rPEQckA?=
+ =?us-ascii?Q?bVi0bUA1aVxq7UbbNEEmK/qibBMBWreD6PQgjBuXvjGQ4n3WfIfPwYrc1bMK?=
+ =?us-ascii?Q?Mmj+cJN3G/lBlkeVAGCcaPhpCF4iYngl6jSMK9zBbCCu++Y5DijZKLeT0gcQ?=
+ =?us-ascii?Q?tqKyirTJSYQiQBczsC3LTwZHxoTJKirfee3uipTc90QO?=
+Content-ID: <A0D536CE63F6D9428AFA7750B19E3B41@namprd05.prod.outlook.com>
 MIME-Version: 1.0
-In-Reply-To: <93a19249-e3f3-c1f8-c58a-0f549b94f1b5@sberdevices.ru>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: Vishnu Dasa <vdasa@vmware.com>, "wei.liu@kernel.org" <wei.liu@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Bobby Eshleman <bobby.eshleman@bytedance.com>,
+X-OriginatorOrg: vmware.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BYAPR05MB3960.namprd05.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 5cbd9221-e625-4f23-8e0f-08dad3aeb8b1
+X-MS-Exchange-CrossTenant-originalarrivaltime: 01 Dec 2022 15:14:20.2448 (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: NgmDZiIZgcJyPgSlM4g6aCDdJIBVxKN3SM5VTgBCWZwtQIr4f6lgt76g51H71BhWYR5kRJQ535boMBzJWKcjGQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY1PR05MB2473
+Cc: "wei.liu@kernel.org" <wei.liu@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Bobby Eshleman <bobby.eshleman@bytedance.com>,
  "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
  Bobby Eshleman <bobby.eshleman@gmail.com>,
  "haiyangz@microsoft.com" <haiyangz@microsoft.com>,
@@ -130,513 +166,82 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+From: Vishnu Dasa via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Vishnu Dasa <vdasa@vmware.com>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Nov 25, 2022 at 05:15:08PM +0000, Arseniy Krasnov wrote:
->This adds utility to check vsock rx/tx performance.
->
->Usage as sender:
->./vsock_perf -p <port> -m <bytes to send)
->Usage as receiver:
->./vsock_perf -c <cid> -p <port> -r <SO_RCVLOWAT>
->
->Signed-off-by: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
->---
-> tools/testing/vsock/Makefile     |   1 +
-> tools/testing/vsock/README       |  34 +++
-> tools/testing/vsock/vsock_perf.c | 400 +++++++++++++++++++++++++++++++
-> 3 files changed, 435 insertions(+)
-> create mode 100644 tools/testing/vsock/vsock_perf.c
->
->diff --git a/tools/testing/vsock/Makefile b/tools/testing/vsock/Makefile
->index f8293c6910c9..d36fdd59fe2e 100644
->--- a/tools/testing/vsock/Makefile
->+++ b/tools/testing/vsock/Makefile
->@@ -3,6 +3,7 @@ all: test
-> test: vsock_test vsock_diag_test
-> vsock_test: vsock_test.o timeout.o control.o util.o
-> vsock_diag_test: vsock_diag_test.o timeout.o control.o util.o
->+vsock_perf: vsock_perf.o
->
-> CFLAGS += -g -O2 -Werror -Wall -I. -I../../include -I../../../usr/include -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE -D_GNU_SOURCE
-> .PHONY: all test clean
->diff --git a/tools/testing/vsock/README b/tools/testing/vsock/README
->index 4d5045e7d2c3..dbeba1d62016 100644
->--- a/tools/testing/vsock/README
->+++ b/tools/testing/vsock/README
->@@ -35,3 +35,37 @@ Invoke test binaries in both directions as follows:
->                        --control-port=$GUEST_IP \
->                        --control-port=1234 \
->                        --peer-cid=3
 
-I'm not a native speaker, so the suggestions below may be wrong.
 
->+
->+vsock_perf utility
->+-------------------
->+'vsock_perf' is simple tool to measure vsock performance. It works in
+> On Dec 1, 2022, at 1:30 AM, Stefano Garzarella <sgarzare@redhat.com> wrote:
+> 
+> !! External Email
+> 
+> On Fri, Nov 25, 2022 at 05:08:06PM +0000, Arseniy Krasnov wrote:
+>> From: Bobby Eshleman <bobby.eshleman@bytedance.com>
+>> 
+>> This saves original behaviour from af_vsock.c - switch any error
+>> code returned from transport layer to ENOMEM.
+>> 
+>> Signed-off-by: Bobby Eshleman <bobby.eshleman@bytedance.com>
+>> Signed-off-by: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
+>> ---
+>> net/vmw_vsock/vmci_transport.c | 9 ++++++++-
+>> 1 file changed, 8 insertions(+), 1 deletion(-)
+> 
+> @Bryan @Vishnu what do you think about this patch?
+> 
+> A bit of context:
+> 
+> Before this series, the af_vsock core always returned ENOMEM to the user
+> if the transport failed to queue the packet.
+> 
+> Now we are changing it by returning the transport error. So I think here
+> we want to preserve the previous behavior for vmci, but I don't know if
+> that's the right thing.
+> 
 
-is a simple tool
+Agree with Stefano.  I don't think we need to preserve the previous
+behavior for vmci.
 
->+sender/receiver modes: sender waits for connection at specified port,
->+and after accept, starts data transmission to receiver. After data
-   ^
-and after accepting it
-                                              ^
-                                              to the receiver
-
->+processing is done, it prints several metrics(see below).
->+
->+Usage:
->+# run as sender
->+# listen port 1234, tx buffer size is 1MB, send of data 1G
->+./vsock_perf -s -p 1234 -b 1MB -m 1G
-
-Like for vsock_test and vsock_diag_test I would use only the long form 
-for the parameters (e.g. --sender, --port, etc.)
-
->+
->+Output:
->+tx performance: A Gb/s
->+
->+Output explanation:
->+A is calculated as "number of bytes to send" / "time in tx loop"
->+
->+# run as receiver
->+# connect to CID 2, port 1234, rx buffer size is 1MB, peer buf is 1G, SO_RCVLOWAT is 65536
->+./vsock_perf -c 2 -p 1234 -b 1MB -v 1G -r 65536
->+
->+Output:
->+rx performance: A Gb/s
->+total in 'read()': B sec
->+POLLIN wakeups: C
->+average in 'read()': D ns
->+
->+Output explanation:
->+A is calculated as "number of received bytes" / "time in rx loop".
->+B is time, spent in 'read()' system call(excluding 'poll()')
->+C is number of 'poll()' wake ups with POLLIN bit set.
->+D is B / C, e.g. average amount of time, spent in single 'read()'.
->diff --git a/tools/testing/vsock/vsock_perf.c b/tools/testing/vsock/vsock_perf.c
->new file mode 100644
->index 000000000000..bca2027de52d
->--- /dev/null
->+++ b/tools/testing/vsock/vsock_perf.c
->@@ -0,0 +1,400 @@
->+// SPDX-License-Identifier: GPL-2.0-only
->+/*
->+ * vsock_perf - benchmark utility for vsock.
->+ *
->+ * Copyright (C) 2022 SberDevices.
->+ *
->+ * Author: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
->+ */
->+#include <getopt.h>
->+#include <stdio.h>
->+#include <stdlib.h>
->+#include <stdbool.h>
->+#include <string.h>
->+#include <errno.h>
->+#include <unistd.h>
->+#include <time.h>
->+#include <sys/mman.h>
->+#include <stdint.h>
->+#include <poll.h>
->+#include <sys/socket.h>
->+#include <linux/vm_sockets.h>
->+
->+#define DEFAULT_BUF_SIZE_BYTES	(128 * 1024)
->+#define DEFAULT_TO_SEND_BYTES	(64 * 1024)
->+#define DEFAULT_VSOCK_BUF_BYTES (256 * 1024)
->+#define DEFAULT_RCVLOWAT_BYTES	1
->+#define DEFAULT_PORT		1234
->+#define DEFAULT_CID		2
->+
->+#define BYTES_PER_GB		(1024 * 1024 * 1024ULL)
->+#define NSEC_PER_SEC		(1000000000ULL)
->+
->+static unsigned int port = DEFAULT_PORT;
->+static unsigned long buf_size_bytes = DEFAULT_BUF_SIZE_BYTES;
->+static unsigned long vsock_buf_bytes = DEFAULT_VSOCK_BUF_BYTES;
->+
->+static inline time_t current_nsec(void)
->+{
->+	struct timespec ts;
->+
->+	if (clock_gettime(CLOCK_REALTIME, &ts)) {
->+		perror("clock_gettime");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	return (ts.tv_sec * NSEC_PER_SEC) + ts.tv_nsec;
->+}
->+
->+/* From lib/cmdline.c. */
->+static unsigned long memparse(const char *ptr)
->+{
->+	char *endptr;
->+
->+	unsigned long long ret = strtoull(ptr, &endptr, 0);
->+
->+	switch (*endptr) {
->+	case 'E':
->+	case 'e':
->+		ret <<= 10;
->+	case 'P':
->+	case 'p':
->+		ret <<= 10;
->+	case 'T':
->+	case 't':
->+		ret <<= 10;
->+	case 'G':
->+	case 'g':
->+		ret <<= 10;
->+	case 'M':
->+	case 'm':
->+		ret <<= 10;
->+	case 'K':
->+	case 'k':
->+		ret <<= 10;
->+		endptr++;
->+	default:
->+		break;
->+	}
->+
->+	return ret;
->+}
->+
->+static void vsock_increase_buf_size(int fd)
->+{
->+	if (setsockopt(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_MAX_SIZE,
->+		       &vsock_buf_bytes, sizeof(vsock_buf_bytes))) {
->+		perror("setsockopt");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	if (setsockopt(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_SIZE,
->+		       &vsock_buf_bytes, sizeof(vsock_buf_bytes))) {
->+		perror("setsockopt");
->+		exit(EXIT_FAILURE);
->+	}
->+}
->+
->+static int vsock_connect(unsigned int cid, unsigned int port)
->+{
->+	union {
->+		struct sockaddr sa;
->+		struct sockaddr_vm svm;
->+	} addr = {
->+		.svm = {
->+			.svm_family = AF_VSOCK,
->+			.svm_port = port,
->+			.svm_cid = cid,
->+		},
->+	};
->+	int fd;
->+
->+	fd = socket(AF_VSOCK, SOCK_STREAM, 0);
->+
->+	if (fd < 0)
->+		return -1;
->+
->+	vsock_increase_buf_size(fd);
->+
->+	if (connect(fd, &addr.sa, sizeof(addr.svm)) < 0) {
->+		close(fd);
->+		return -1;
->+	}
->+
->+	return fd;
->+}
->+
->+static float get_gbps(unsigned long bytes, time_t ns_delta)
->+{
->+	return ((float)bytes / BYTES_PER_GB) /
->+	       ((float)ns_delta / NSEC_PER_SEC);
->+}
->+
->+static void run_sender(unsigned long to_send_bytes)
->+{
->+	time_t tx_begin_ns;
->+	size_t total_send;
->+	int client_fd;
->+	char *data;
->+	int fd;
->+	union {
->+		struct sockaddr sa;
->+		struct sockaddr_vm svm;
->+	} addr = {
->+		.svm = {
->+			.svm_family = AF_VSOCK,
->+			.svm_port = port,
->+			.svm_cid = VMADDR_CID_ANY,
->+		},
->+	};
->+	union {
->+		struct sockaddr sa;
->+		struct sockaddr_vm svm;
->+	} clientaddr;
->+
->+	socklen_t clientaddr_len = sizeof(clientaddr.svm);
->+
->+	printf("Run as sender\n");
->+	printf("Listen port %u\n", port);
->+	printf("Send %lu bytes\n", to_send_bytes);
->+	printf("TX buffer %lu bytes\n", buf_size_bytes);
->+	printf("Peer buffer %lu bytes\n", vsock_buf_bytes);
->+
->+	fd = socket(AF_VSOCK, SOCK_STREAM, 0);
->+
->+	if (fd < 0) {
->+		perror("socket");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	if (bind(fd, &addr.sa, sizeof(addr.svm)) < 0) {
->+		perror("bind");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	if (listen(fd, 1) < 0) {
->+		perror("listen");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	client_fd = accept(fd, &clientaddr.sa, &clientaddr_len);
->+
->+	if (client_fd < 0) {
->+		perror("accept");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	vsock_increase_buf_size(client_fd);
->+
->+	data = malloc(buf_size_bytes);
->+
->+	if (!data) {
->+		printf("malloc failed\n");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	memset(data, 0, buf_size_bytes);
->+	total_send = 0;
->+	tx_begin_ns = current_nsec();
->+
->+	while (total_send < to_send_bytes) {
->+		ssize_t sent;
->+
->+		sent = write(client_fd, data, buf_size_bytes);
->+
->+		if (sent <= 0) {
->+			perror("write");
->+			exit(EXIT_FAILURE);
->+		}
->+
->+		total_send += sent;
->+	}
->+
->+	printf("tx performance: %f Gb/s\n",
->+	       get_gbps(total_send, current_nsec() - tx_begin_ns));
->+
->+	close(client_fd);
->+	close(fd);
->+
->+	free(data);
->+}
->+
->+static void run_receiver(int peer_cid, unsigned long rcvlowat_bytes)
->+{
->+	unsigned int read_cnt;
->+	time_t rx_begin_ns;
->+	time_t in_read_ns;
->+	size_t total_recv;
->+	void *data;
->+	int fd;
->+
->+	printf("Run as receiver\n");
->+	printf("Connect to %i:%u\n", peer_cid, port);
->+	printf("RX buffer %lu bytes\n", buf_size_bytes);
->+	printf("Peer buffer %lu bytes\n", vsock_buf_bytes);
->+	printf("SO_RCVLOWAT %lu bytes\n", rcvlowat_bytes);
->+
->+	fd = vsock_connect(peer_cid, port);
->+
->+	if (fd < 0) {
->+		perror("socket");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	if (setsockopt(fd, SOL_SOCKET, SO_RCVLOWAT,
->+		       &rcvlowat_bytes,
->+		       sizeof(rcvlowat_bytes))) {
->+		perror("setsockopt");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	data = mmap(NULL, buf_size_bytes, PROT_READ | PROT_WRITE,
->+		    MAP_ANONYMOUS | MAP_PRIVATE | MAP_POPULATE, -1, 0);
->+
->+	if (data == MAP_FAILED) {
->+		perror("mmap");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	read_cnt = 0;
->+	in_read_ns = 0;
->+	total_recv = 0;
->+	rx_begin_ns = current_nsec();
->+
->+	while (1) {
->+		struct pollfd fds = { 0 };
->+
->+		fds.fd = fd;
->+		fds.events = POLLIN | POLLERR | POLLHUP |
->+			     POLLRDHUP | POLLNVAL;
->+
->+		if (poll(&fds, 1, -1) < 0) {
->+			perror("poll");
->+			exit(EXIT_FAILURE);
->+		}
->+
->+		if (fds.revents & POLLERR) {
->+			printf("'poll()' error\n");
->+			exit(EXIT_FAILURE);
->+		}
->+
->+		if (fds.revents & POLLIN) {
->+			ssize_t bytes_read;
->+			time_t t;
->+
->+			t = current_nsec();
->+			bytes_read = read(fd, data, buf_size_bytes);
->+			in_read_ns += (current_nsec() - t);
->+			read_cnt++;
->+
->+			if (!bytes_read)
->+				break;
->+
->+			if (bytes_read < 0) {
->+				perror("recv");
->+				exit(EXIT_FAILURE);
->+			}
->+
->+			total_recv += bytes_read;
->+		}
->+
->+		if (fds.revents & (POLLHUP | POLLRDHUP))
->+			break;
->+	}
->+
->+	printf("rx performance: %f Gb/s\n",
->+	       get_gbps(total_recv, current_nsec() - rx_begin_ns));
->+	printf("total in 'read()': %f sec\n", (float)in_read_ns / NSEC_PER_SEC);
-
-Maybe better "total time in ..."
-
->+	printf("POLLIN wakeups: %i\n", read_cnt);
->+	printf("average in 'read()': %f ns\n", (float)in_read_ns / read_cnt);
-
-Ditto.
-
->+
->+	munmap(data, buf_size_bytes);
->+	close(fd);
->+}
->+
->+static void usage(void)
->+{
->+	printf("Help:\n"
->+	       "\n"
->+	       "This is benchmarking utility, to test vsock performance.\n"
->+	       "It runs in two modes: sender or receiver. In sender mode, it waits\n"
->+	       "connection from receiver, and when established, sender starts data\n"
->+	       "transmission.\n"
->+	       "\n"
->+	       "Options:\n"
->+	       "  -h				This help message\n"
->+	       "  -s				Sender mode(receiver default)\n"
->+	       "  -p <port>			Port (%d)\n"
->+	       "  -c <cid>			CID of the peer (%d)\n"
->+	       "  -m <bytes to send>		Bytes to send (%d)\n"
->+	       "  -b <buffer size>		Rx/Tx buffer size (%d). In sender mode\n"
->+	       "                                it is size of buffer passed to 'write()'.\n"
->+	       "                                In receiver mode it is size of buffer passed\n"
->+	       "                                to 'read()'.\n"
->+	       "  -v <peer buffer size>		Peer buffer size (%d)\n"
-
-Instead of "peer buffer", what about "socket buffer"?
-
->+	       "  -r <SO_RCVLOWAT>		SO_RCVLOWAT (%d)\n"
->+	       "\n", DEFAULT_PORT, DEFAULT_CID, DEFAULT_TO_SEND_BYTES,
->+	       DEFAULT_BUF_SIZE_BYTES, DEFAULT_VSOCK_BUF_BYTES,
->+	       DEFAULT_RCVLOWAT_BYTES);
->+	exit(EXIT_FAILURE);
->+}
->+
->+static long strtolx(const char *arg)
->+{
->+	long value;
->+	char *end;
->+
->+	value = strtol(arg, &end, 10);
->+
->+	if (end != arg + strlen(arg))
->+		usage();
->+
->+	return value;
->+}
->+
->+int main(int argc, char **argv)
->+{
->+	unsigned long to_send_bytes = DEFAULT_TO_SEND_BYTES;
->+	unsigned long rcvlowat_bytes = DEFAULT_RCVLOWAT_BYTES;
->+	bool receiver_mode = true;
->+	int peer_cid = DEFAULT_CID;
->+	int c;
->+
->+	while ((c = getopt(argc, argv, "v:r:c:p:m:b:sh")) != -1) {
->+		switch (c) {
->+		case 'v': /* Peer buffer size. */
->+			vsock_buf_bytes = memparse(optarg);
->+			break;
->+		case 'r': /* SO_RCVLOWAT value. */
->+			rcvlowat_bytes = memparse(optarg);
->+			break;
->+		case 'c': /* CID to connect to. */
->+			peer_cid = strtolx(optarg);
->+			break;
->+		case 'p': /* Port to connect to. */
->+			port = strtolx(optarg);
->+			break;
->+		case 'm': /* Bytes to send. */
->+			to_send_bytes = memparse(optarg);
->+			break;
->+		case 'b': /* Size of rx/tx buffer. */
->+			buf_size_bytes = memparse(optarg);
->+			break;
->+		case 's': /* Sender mode. */
->+			receiver_mode = false;
->+			break;
->+		case 'h': /* Help. */
->+			usage();
->+			break;
->+		default:
->+			usage();
->+		}
->+	}
->+
->+	if (receiver_mode)
->+		run_receiver(peer_cid, rcvlowat_bytes);
->+	else
->+		run_sender(to_send_bytes);
->+
->+	return 0;
->+}
->-- 
->2.25.1
+> 
+> @Arseniy please in the next versions describe better in the commit
+> messages the reasons for these changes, so it is easier review for
+> others and also in the future by reading the commit message we can
+> understand the reason for the change.
+> 
+> Thanks,
+> Stefano
+> 
+>> 
+>> diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
+>> index 842c94286d31..289a36a203a2 100644
+>> --- a/net/vmw_vsock/vmci_transport.c
+>> +++ b/net/vmw_vsock/vmci_transport.c
+>> @@ -1838,7 +1838,14 @@ static ssize_t vmci_transport_stream_enqueue(
+>>      struct msghdr *msg,
+>>      size_t len)
+>> {
+>> -      return vmci_qpair_enquev(vmci_trans(vsk)->qpair, msg, len, 0);
+>> +      int err;
+>> +
+>> +      err = vmci_qpair_enquev(vmci_trans(vsk)->qpair, msg, len, 0);
+>> +
+>> +      if (err < 0)
+>> +              err = -ENOMEM;
+>> +
+>> +      return err;
+>> }
+>> 
+>> static s64 vmci_transport_stream_has_data(struct vsock_sock *vsk)
+>> --
+>> 2.25.1
+> 
+> 
+> !! External Email: This email originated from outside of the organization. Do not click links or open attachments unless you recognize the sender.
 
 _______________________________________________
 Virtualization mailing list
