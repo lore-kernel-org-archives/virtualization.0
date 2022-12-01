@@ -4,157 +4,99 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 940DFC43217
-	for <virtualization@archiver.kernel.org>; Thu,  1 Dec 2022 15:14:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AB3BCC4332F
+	for <virtualization@archiver.kernel.org>; Thu,  1 Dec 2022 22:12:14 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 0BF8840C80;
-	Thu,  1 Dec 2022 15:14:27 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0BF8840C80
+	by smtp2.osuosl.org (Postfix) with ESMTP id 3C66C41066;
+	Thu,  1 Dec 2022 22:12:14 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3C66C41066
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key, unprotected) header.d=vmware.com header.i=@vmware.com header.a=rsa-sha256 header.s=selector2 header.b=eRsSTXlc
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=daynix-com.20210112.gappssmtp.com header.i=@daynix-com.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=4j5NUQ9Q
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id kh7OKkOwpcgu; Thu,  1 Dec 2022 15:14:26 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 68E89401C9;
-	Thu,  1 Dec 2022 15:14:25 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 68E89401C9
+	with ESMTP id EABhlIDM9mD9; Thu,  1 Dec 2022 22:12:13 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id C2ABB40112;
+	Thu,  1 Dec 2022 22:12:12 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C2ABB40112
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3FA7AC0032;
-	Thu,  1 Dec 2022 15:14:25 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6664FC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 91EFAC0032;
+	Thu,  1 Dec 2022 22:12:12 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D1032C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu,  1 Dec 2022 15:14:24 +0000 (UTC)
+ Thu,  1 Dec 2022 22:12:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 33628404EC
+ by smtp1.osuosl.org (Postfix) with ESMTP id 9E4A682127
  for <virtualization@lists.linux-foundation.org>;
- Thu,  1 Dec 2022 15:14:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 33628404EC
+ Thu,  1 Dec 2022 22:12:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9E4A682127
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (2048-bit key) header.d=daynix-com.20210112.gappssmtp.com
+ header.i=@daynix-com.20210112.gappssmtp.com header.a=rsa-sha256
+ header.s=20210112 header.b=4j5NUQ9Q
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id aMBay4ha0mJ1
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id omOEy3BEXOPR
  for <virtualization@lists.linux-foundation.org>;
- Thu,  1 Dec 2022 15:14:23 +0000 (UTC)
+ Thu,  1 Dec 2022 22:12:07 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3AE07401C9
-Received: from CY4PR02CU007-vft-obe.outbound.protection.outlook.com
- (mail-westcentralusazlp170110002.outbound.protection.outlook.com
- [IPv6:2a01:111:f403:c112::2])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 3AE07401C9
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 64F9B82125
+Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com
+ [IPv6:2a00:1450:4864:20::634])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 64F9B82125
  for <virtualization@lists.linux-foundation.org>;
- Thu,  1 Dec 2022 15:14:23 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=gMTWEA+sPe01oHJMZOgGsOw70C7xCQ+JXiR+LTXbuMUbDnwPEx03q44OVlJNZa+vT68Y2SRg7cawBsiFp12e9VfdWnp0W9AmeZXBeE26jm5zhlKuW2BNgXMRe1QtM2PPk5ykECqalNwNwHvAutQ+7Te+MtaFQQrSWPbOj7qpUjG2YGb2kXk2ZmOWpF1FghHQLpV4vzV56mFA6Gam2kETMZt+dzbaz6ujR6rZ5YBXbIZIBEQO2QzY3UdZ5tENMaLdvDvM1/0ah/Mqu7L3MlzzQH05xzir5Ni40hNgBqs/jkOR9B4LPgWopwXAt1Zu0NsQZKM5E7pECcQ0LTAAs3OeUg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=RDAdiY9IbgCSnH534XIbk5oSkMgpZq0W1pEerzWGMxk=;
- b=gbPwil54ceFaYz49H0Pt1fv9zrMcUO33cJy/w5p0rzdsSKYksKDZV8u3vw5CPMvb5qsYN1eoJR2tCNOjAvBdC22xIQDxt7ImamIqG56N5Vb1Odu1QkV3SThuSLIWIaMFjE+oPdWo15gTjgzHC5xCws9b7FjPH+7CaOam9Nz3UQVwr54paMTMR1FsKzbXRCintcEIgt23+oav9ns/Kgb0xtwDySd6YE3sFaMNMe9LbgafDoYKQ74VdTiZxCrlV5o6J+5EuhcWuElVKXZeZxLz7WqRDOGDbiSPK0GhmpEdpM7uKT5KTGKMi3olcjQfWDB2wYHLH3HAZc6DEqwnN2BKMg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=vmware.com; dmarc=pass action=none header.from=vmware.com;
- dkim=pass header.d=vmware.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vmware.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=RDAdiY9IbgCSnH534XIbk5oSkMgpZq0W1pEerzWGMxk=;
- b=eRsSTXlchJSpGZtfUwn+lsojQUKWaCCSwMMsaLOD9WNCXxbD1SQ2A1WXOXXLHTVKWON8FxfT5t/levhxYDPSPmKa0ZRjG9F11SHXt0ICzYXYCeMTgwvwpuDtEhnzm7g9zErTQRkIIgQYYikkTTc7VVxN+UYeMmwaSXmf9FM2ShQ=
-Received: from BYAPR05MB3960.namprd05.prod.outlook.com (2603:10b6:a02:88::12)
- by CY1PR05MB2473.namprd05.prod.outlook.com (2a01:111:e400:c618::23)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5857.21; Thu, 1 Dec
- 2022 15:14:20 +0000
-Received: from BYAPR05MB3960.namprd05.prod.outlook.com
- ([fe80::6764:941b:e0cc:c4e1]) by BYAPR05MB3960.namprd05.prod.outlook.com
- ([fe80::6764:941b:e0cc:c4e1%7]) with mapi id 15.20.5857.022; Thu, 1 Dec 2022
- 15:14:20 +0000
-To: Stefano Garzarella <sgarzare@redhat.com>, Arseniy Krasnov
- <AVKrasnov@sberdevices.ru>
-Subject: Re: [RFC PATCH v2 3/6] vsock/vmci: always return ENOMEM in case of
- error
-Thread-Topic: [RFC PATCH v2 3/6] vsock/vmci: always return ENOMEM in case of
- error
-Thread-Index: AQHZAPCA3ICEgU4zakSbW2G8CFeTF65YzU8AgABf+oA=
-Date: Thu, 1 Dec 2022 15:14:20 +0000
-Message-ID: <D7DE3103-994D-478E-B7F6-42CE8B6469FE@vmware.com>
-References: <9d96f6c6-1d4f-8197-b3bc-8957124c8933@sberdevices.ru>
- <675b1f93-dc07-0a70-0622-c3fc6236c8bb@sberdevices.ru>
- <20221201093048.q2pradrgn5limcfb@sgarzare-redhat>
-In-Reply-To: <20221201093048.q2pradrgn5limcfb@sgarzare-redhat>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=vmware.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: BYAPR05MB3960:EE_|CY1PR05MB2473:EE_
-x-ms-office365-filtering-correlation-id: 5cbd9221-e625-4f23-8e0f-08dad3aeb8b1
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: GEae2zzhC0AnFy/emT9pgJIcmqvzirIyMfndBGadOQNgJupz2eFViT88ZXHTwPLR67R107SYte7h09AvXE1LVHV/PEL2PnCmAa7QEgVNbA4NRlgMX0R5pSNLc5l8wTe4UTBj2ZGczlcXQz/8J6jY7l89g/kHa0m97KuT+7K5Y0ThGHeux9OGqjzg4qSRsx99BdLCIIF7M672k56jKlkUEO5PEPirRA5pfkpjt7KEiqT6q1Cw8pvnqWvDRQvbusUoKiUmK1q0mBAfZpYW6HrK6rZ9LgO7XCRLUp+t/pHy80vruHFlW6EqStadgsUsNxCgrFDftLLLLj9TOgfz4pz1+ZSRw7aFOMvyP6zqFiMcg2bmyCgQeGgDWAxtngOA50rcEAQJpABjJClrt0YYYcjwdVG29BVvt+Ka/iMDUYJGPkTuPPLuYbdbjyYYb10QQ7jZgarF6SL2MWT46WWv3qGaqn4Rm0c1kSoXwhfGLLZtoqR/98qynPfyDQ7KIHaFrNoaNWsCbZBnF9drE0QilNfk8/ZgcA46UYyIgwwnf7J3rBIXd1yS4JiYLGCW8MpXxe9fcNQfnJSBNeJP8178c1jWwhPKcbSYzgmlfghcPHKbeovria8ZZpHs7rL1HfY4lvHsTFQyYr6zraZM6sNuTp8mdCB1Y6fjBM6jo4kvdN1faeJH4BytsW19L3r9ve12nJlQQD2KaRUwfzx69YvL2p8kDceWYELqXeu7D1aa4dlR9K3j01gtnJHHpxK2rocGq4FWNBBSad9b/FSDn7woTfkwuw==
-x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:BYAPR05MB3960.namprd05.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230022)(4636009)(376002)(39860400002)(396003)(366004)(136003)(346002)(451199015)(36756003)(2906002)(38070700005)(41300700001)(6512007)(83380400001)(86362001)(2616005)(5660300002)(64756008)(4326008)(33656002)(76116006)(66946007)(66476007)(186003)(71200400001)(8676002)(66446008)(53546011)(7416002)(6506007)(66556008)(8936002)(38100700002)(110136005)(6486002)(122000001)(478600001)(54906003)(316002)(45980500001);
- DIR:OUT; SFP:1101; 
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?kmzg7aH3v+uXxmxm1snhpNnQ9NvvAPbIt92gy1rml+NCryzpJURV4tTYqb0J?=
- =?us-ascii?Q?Lb9hKpNRD2NDnNGxbDPXPQExBym4eGietJ7vcbTkMeH7V7IhdOBKYSoIZku4?=
- =?us-ascii?Q?Pz5r44cIO3OmfOrFNI2pflarEMoo2tDQQKzw7tC6DhJA/mjPKR6QY4YEzE0b?=
- =?us-ascii?Q?W18RfFvyemNGrtLohouO3LiftkvZPNGr7ywrbUpYR36jRLfRUQRSjWk+A20u?=
- =?us-ascii?Q?wRIHvryLsf8Rs8pAaCRoGg8Kc6H6lATjWmZ5S8D1UY1FZGzPgkJyj5AAu0nX?=
- =?us-ascii?Q?elUueal153dh0gRW4WL3/uUKpvdTwX6nt9ozjLX2RV4Db0RNDK1s0kCMUyvs?=
- =?us-ascii?Q?ydVreZcBsrkEBxmVORd51sThr1Ka+2ofRjEScOP1lk/8MDb9PY9XzPYzDD18?=
- =?us-ascii?Q?gjBwVNAzOMANFWhZXV4FWvP6f4cqcD+8kJBhi5ahV1fTnXhTC4/SN7noLQ+i?=
- =?us-ascii?Q?nyZfHIBlMvnCDdDpYP5Mpd1kKbJzblK2xXsVJRPRrss+2bFHb9o1edfCJW4e?=
- =?us-ascii?Q?RA2kAgE5T5WklK36IMSdltmQP7e/Ef3byTIQxQctzHc3yDXk++BSvS8giZTX?=
- =?us-ascii?Q?uONXrhKt1g3mfZOMSVLUnSVzMQq4KGDk5vi0hlulJzUmd613ltzFcHFqNi5e?=
- =?us-ascii?Q?An4YdfIP4/V4yWsQiwAFS2f8kM57XHAgW3QkImKbXuoZ1ndC2vR2z5J8icRm?=
- =?us-ascii?Q?CdgA0fpoTIoWT7J4qWnXvCZmcocCqjIvrX+QMw2eWRf9nPYQSK/4QjVwhvx1?=
- =?us-ascii?Q?gv0jgMxehQIwYEjvqElCs9XmguEpCvKFWE7NeiagVCEXoaxZVnF/MFaOVMIO?=
- =?us-ascii?Q?9l1fM498ApmsnmXvpeqLMdowt9SYwF9YHmqsirq+ySghNShbX1UVmMms14Gj?=
- =?us-ascii?Q?vaMMj4TlsoPDqNzzJQmZ7bEEdzxy/delv85MYuBnp2dP3e9/K6Cb+EA+Qxa6?=
- =?us-ascii?Q?4DTfiR1XwdSfe+9Ybxz6AE7WD+BELfPxwKlgLptBkskFSGnYCVmcKQje5N4V?=
- =?us-ascii?Q?D66QBg3g8cwhYb9PWM+Oa0M81hP1heud0FhS5LRJcTNGXl4QOf19smoY2h6R?=
- =?us-ascii?Q?jPX6zyAhc5xIJd8cMajZH3dYLwkH/DItWLFWS2w2ZyoeB88iDg8zvbm6GUbD?=
- =?us-ascii?Q?E5PTEAHS9hil81ux9Zr8ESzdio5DhiVS7di1c5L93kfm43T1o/V3hIJA76Hd?=
- =?us-ascii?Q?3odfn7fWNAZKoAwqUziOhp3nTcQWrVEVd/LG6Pjo32c52rMU0GTW18Omirpw?=
- =?us-ascii?Q?xaF6Db1MyRvTG9VyAtX2aueqd0iyIJl9QzFNwIeP4LrSg1l+XKTIDUMiUgpo?=
- =?us-ascii?Q?06RpwY+rKgKt7m28I58Yh/NC2+XLqJ7oAGt+2rwD6FOMCvFytGEPbjljgLHq?=
- =?us-ascii?Q?0b6aHoh4dYwUAiwerUgFTCwHtfCLZeNgfaQRAmWSSO4Z8OK00UEcX+NQlzeS?=
- =?us-ascii?Q?C6IEmg7w+QP9MAdiez5oz4idlCONdQYhMzJiK+pektbbLN+fxuh93rPEQckA?=
- =?us-ascii?Q?bVi0bUA1aVxq7UbbNEEmK/qibBMBWreD6PQgjBuXvjGQ4n3WfIfPwYrc1bMK?=
- =?us-ascii?Q?Mmj+cJN3G/lBlkeVAGCcaPhpCF4iYngl6jSMK9zBbCCu++Y5DijZKLeT0gcQ?=
- =?us-ascii?Q?tqKyirTJSYQiQBczsC3LTwZHxoTJKirfee3uipTc90QO?=
-Content-ID: <A0D536CE63F6D9428AFA7750B19E3B41@namprd05.prod.outlook.com>
+ Thu,  1 Dec 2022 22:12:07 +0000 (UTC)
+Received: by mail-ej1-x634.google.com with SMTP id fy37so7491526ejc.11
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 01 Dec 2022 14:12:07 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=daynix-com.20210112.gappssmtp.com; s=20210112;
+ h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+ :to:from:from:to:cc:subject:date:message-id:reply-to;
+ bh=xS2P4l3h67FXA/VaxZNf4GYyU7HMjaYo9LN5Y0vNp+c=;
+ b=4j5NUQ9QdJc57qk824L+vXNEARliSp3Y2YM09ia9uXfX+4XV1Y3dOzHw+peBOIsPfw
+ oqFKaK35oDA1QKOIS8ON/8sZHuQNyec1tsHa8sjWvizzo7OOA83WPtK8WX3lRt3sU+mv
+ 4ELV0XJuB3DVbDsmeQAJRkxQKOO5yIUxYThPpQH+kGvkf7wB0MEMrwHthDE1FC38VE14
+ pF/cc7T2DxJ34QccGCvIaaJxm4pqWdQTCEguW5j86I1nuF/7AubfyTV0Pa3wMYAkb78+
+ adEXWqVpLrlGYlK8fSqehtZLAYHhrrN0LDwzyLZJmgQ3xWT43Jb4/dO0SroCLGoFCtnk
+ wLFA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+ :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+ :reply-to;
+ bh=xS2P4l3h67FXA/VaxZNf4GYyU7HMjaYo9LN5Y0vNp+c=;
+ b=b1WrLID9c2FTiqDbts7s+rHqZ6gxtlfR/N6xIOrAKpmBvIcpxVNicic4VNX/oZ5w64
+ 6q+UE4PT6s3KGG9CBDAki2jCNvLsOsw3xtpbWKiKDa50zox7cbotzi9TSBKYzJexUqpB
+ vp1i6Pbjj3hYK6g7udNWfA6rizY+Z/dc/eIpZ1+Ue5TKQ6fA0A5G6QulYKM5VYa+X2Gk
+ yvRqYurbZ+z8q0Ht/g4qPNfYKefrazmyOXHZUbr7rYNurSgAQkIUpv1fPqhU6qWREskW
+ iwU93DwFToMKqpYFtjSc39iaj8uQoqDfqeT8El2Bnb/wX3YHogkNrYcf5TIz9ARm8R7N
+ PE4w==
+X-Gm-Message-State: ANoB5pnOOafCwnlI0rlRTrg3GDbKmGWveVkQS/eEmkI3cXJGCQy/IR7r
+ nZlSeil9LHrV6G8CnQPHoS+5jQ==
+X-Google-Smtp-Source: AA0mqf6UzOvVeGPxnQxjxwIH4JOjFC003wnQEu5aMFSrUpWtBcU4R6aGxTPaBPL2zLpN5i1c9/Hk2g==
+X-Received: by 2002:a17:906:ce4d:b0:7be:1b8b:21fc with SMTP id
+ se13-20020a170906ce4d00b007be1b8b21fcmr23250111ejb.666.1669932725308; 
+ Thu, 01 Dec 2022 14:12:05 -0800 (PST)
+Received: from localhost.localdomain (46-133-148-166.mobile.vf-ua.net.
+ [46.133.148.166]) by smtp.gmail.com with ESMTPSA id
+ gf16-20020a170906e21000b007815ca7ae57sm2230726ejb.212.2022.12.01.14.12.03
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 01 Dec 2022 14:12:04 -0800 (PST)
+From: Andrew Melnychenko <andrew@daynix.com>
+To: davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+ pabeni@redhat.com, mst@redhat.com, jasowang@redhat.com,
+ yoshfuji@linux-ipv6.org, dsahern@kernel.org, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Subject: [PATCH v4 0/6] TUN/VirtioNet USO features support.
+Date: Thu,  1 Dec 2022 23:56:38 +0200
+Message-Id: <20221201215644.246571-1-andrew@daynix.com>
+X-Mailer: git-send-email 2.38.1
 MIME-Version: 1.0
-X-OriginatorOrg: vmware.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BYAPR05MB3960.namprd05.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5cbd9221-e625-4f23-8e0f-08dad3aeb8b1
-X-MS-Exchange-CrossTenant-originalarrivaltime: 01 Dec 2022 15:14:20.2448 (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: NgmDZiIZgcJyPgSlM4g6aCDdJIBVxKN3SM5VTgBCWZwtQIr4f6lgt76g51H71BhWYR5kRJQ535boMBzJWKcjGQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY1PR05MB2473
-Cc: "wei.liu@kernel.org" <wei.liu@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Bobby Eshleman <bobby.eshleman@bytedance.com>,
- "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
- Bobby Eshleman <bobby.eshleman@gmail.com>,
- "haiyangz@microsoft.com" <haiyangz@microsoft.com>,
- Dexuan Cui <decui@microsoft.com>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>, Bryan Tan <bryantan@vmware.com>,
- "edumazet@google.com" <edumazet@google.com>,
- Krasnov Arseniy <oxffffaa@gmail.com>,
- "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
- kernel <kernel@sberdevices.ru>, Jakub Kicinski <kuba@kernel.org>,
- "David S. Miller" <davem@davemloft.net>
+Cc: devel@daynix.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -166,82 +108,57 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Vishnu Dasa via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Vishnu Dasa <vdasa@vmware.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+Added new offloads for TUN devices TUN_F_USO4 and TUN_F_USO6.
+Technically they enable NETIF_F_GSO_UDP_L4
+(and only if USO4 & USO6 are set simultaneously).
+It allows the transmission of large UDP packets.
 
+UDP Segmentation Offload (USO/GSO_UDP_L4) - ability to split UDP packets
+into several segments. It's similar to UFO, except it doesn't use IP
+fragmentation. The drivers may push big packets and the NIC will split
+them(or assemble them in case of receive), but in the case of VirtioNet
+we just pass big UDP to the host. So we are freeing the driver from doing
+the unnecessary job of splitting. The same thing for several guests
+on one host, we can pass big packets between guests.
 
-> On Dec 1, 2022, at 1:30 AM, Stefano Garzarella <sgarzare@redhat.com> wrote:
-> 
-> !! External Email
-> 
-> On Fri, Nov 25, 2022 at 05:08:06PM +0000, Arseniy Krasnov wrote:
->> From: Bobby Eshleman <bobby.eshleman@bytedance.com>
->> 
->> This saves original behaviour from af_vsock.c - switch any error
->> code returned from transport layer to ENOMEM.
->> 
->> Signed-off-by: Bobby Eshleman <bobby.eshleman@bytedance.com>
->> Signed-off-by: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
->> ---
->> net/vmw_vsock/vmci_transport.c | 9 ++++++++-
->> 1 file changed, 8 insertions(+), 1 deletion(-)
-> 
-> @Bryan @Vishnu what do you think about this patch?
-> 
-> A bit of context:
-> 
-> Before this series, the af_vsock core always returned ENOMEM to the user
-> if the transport failed to queue the packet.
-> 
-> Now we are changing it by returning the transport error. So I think here
-> we want to preserve the previous behavior for vmci, but I don't know if
-> that's the right thing.
-> 
+Different features USO4 and USO6 are required for qemu where Windows
+guests can enable disable USO receives for IPv4 and IPv6 separately.
+On the other side, Linux can't really differentiate USO4 and USO6, for now.
+For now, to enable USO for TUN it requires enabling USO4 and USO6 together.
+In the future, there would be a mechanism to control UDP_L4 GSO separately.
 
-Agree with Stefano.  I don't think we need to preserve the previous
-behavior for vmci.
+New types for virtio-net already in virtio-net specification:
+https://github.com/oasis-tcs/virtio-spec/issues/120
 
-> 
-> @Arseniy please in the next versions describe better in the commit
-> messages the reasons for these changes, so it is easier review for
-> others and also in the future by reading the commit message we can
-> understand the reason for the change.
-> 
-> Thanks,
-> Stefano
-> 
->> 
->> diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
->> index 842c94286d31..289a36a203a2 100644
->> --- a/net/vmw_vsock/vmci_transport.c
->> +++ b/net/vmw_vsock/vmci_transport.c
->> @@ -1838,7 +1838,14 @@ static ssize_t vmci_transport_stream_enqueue(
->>      struct msghdr *msg,
->>      size_t len)
->> {
->> -      return vmci_qpair_enquev(vmci_trans(vsk)->qpair, msg, len, 0);
->> +      int err;
->> +
->> +      err = vmci_qpair_enquev(vmci_trans(vsk)->qpair, msg, len, 0);
->> +
->> +      if (err < 0)
->> +              err = -ENOMEM;
->> +
->> +      return err;
->> }
->> 
->> static s64 vmci_transport_stream_has_data(struct vsock_sock *vsk)
->> --
->> 2.25.1
-> 
-> 
-> !! External Email: This email originated from outside of the organization. Do not click links or open attachments unless you recognize the sender.
+Test it WIP Qemu https://github.com/daynix/qemu/tree/USOv3
+
+Andrew (5):
+  uapi/linux/if_tun.h: Added new offload types for USO4/6.
+  driver/net/tun: Added features for USO.
+  uapi/linux/virtio_net.h: Added USO types.
+  linux/virtio_net.h: Support USO offload in vnet header.
+  drivers/net/virtio_net.c: Added USO support.
+
+Andrew Melnychenko (1):
+  udp: allow header check for dodgy GSO_UDP_L4 packets.
+
+ drivers/net/tap.c               | 10 ++++++++--
+ drivers/net/tun.c               |  8 +++++++-
+ drivers/net/virtio_net.c        | 24 +++++++++++++++++++++---
+ include/linux/virtio_net.h      |  9 +++++++++
+ include/uapi/linux/if_tun.h     |  2 ++
+ include/uapi/linux/virtio_net.h |  5 +++++
+ net/ipv4/udp_offload.c          |  3 ++-
+ net/ipv6/udp_offload.c          |  3 ++-
+ 8 files changed, 56 insertions(+), 8 deletions(-)
+
+-- 
+2.38.1
 
 _______________________________________________
 Virtualization mailing list
