@@ -4,120 +4,123 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9ECE7C43217
-	for <virtualization@archiver.kernel.org>; Thu,  1 Dec 2022 09:24:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id BA894C43217
+	for <virtualization@archiver.kernel.org>; Thu,  1 Dec 2022 09:31:14 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 184B34081F;
-	Thu,  1 Dec 2022 09:24:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 184B34081F
+	by smtp4.osuosl.org (Postfix) with ESMTP id 2B2A5418AC;
+	Thu,  1 Dec 2022 09:31:14 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2B2A5418AC
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=i79MeBNv
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=D4KxFRky
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id gCmEEtpY7x-C; Thu,  1 Dec 2022 09:24:15 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 5454A40342;
-	Thu,  1 Dec 2022 09:24:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5454A40342
+	with ESMTP id NbHPXbh82evJ; Thu,  1 Dec 2022 09:31:13 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 5B5F94093D;
+	Thu,  1 Dec 2022 09:31:12 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5B5F94093D
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 27CC6C0032;
-	Thu,  1 Dec 2022 09:24:14 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 9B1D6C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3BE83C0032;
+	Thu,  1 Dec 2022 09:31:12 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9867FC002D
  for <virtualization@lists.linux-foundation.org>;
- Thu,  1 Dec 2022 09:24:12 +0000 (UTC)
+ Thu,  1 Dec 2022 09:31:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 6ED4360E1A
+ by smtp1.osuosl.org (Postfix) with ESMTP id 64BEF82009
  for <virtualization@lists.linux-foundation.org>;
- Thu,  1 Dec 2022 09:24:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6ED4360E1A
-Authentication-Results: smtp3.osuosl.org;
+ Thu,  1 Dec 2022 09:31:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 64BEF82009
+Authentication-Results: smtp1.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=i79MeBNv
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=D4KxFRky
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id kPwG7TR5CaAN
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 2pPVaDKagYEE
  for <virtualization@lists.linux-foundation.org>;
- Thu,  1 Dec 2022 09:24:10 +0000 (UTC)
+ Thu,  1 Dec 2022 09:31:09 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 328A460E02
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9A87382007
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 328A460E02
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 9A87382007
  for <virtualization@lists.linux-foundation.org>;
- Thu,  1 Dec 2022 09:24:10 +0000 (UTC)
+ Thu,  1 Dec 2022 09:31:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1669886649;
+ s=mimecast20190719; t=1669887068;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=UgJ+HDh8KhhTBQLgmfONT+YSYAYl+JCf9dmOxyoPJKY=;
- b=i79MeBNvI/JFdzPcfkO6kYw6msDYcUnbWbam7zlQt47fhSazMpKx40RrUmPO+uIhLZVcB8
- 13yaFibwBLjNlTSYn/Pr3T1LQ5hSLYxMWg6K4KiWmFjBTlrES01fjmQGGF/CS2cdx2G0/7
- Njz4Gv2yI2o/gOlR2wKWGqBqXhZ28M0=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=t6GQr0UM9rGj3V8rz/OXkK1eGrs2rQLTQ7/eb6SPTLc=;
+ b=D4KxFRkycl6u4m6EmzVjgcQSP8+VXfreh6XuRA7+TmtcXrDqpbI7wqNourHpxlYUr1Ur2v
+ wco5MWuZfddxZHTOaVBXlpbUXJyUWqNq2ye3xpD9Kjz5WGS0l5Q3FW39+6vXsCnVzDR9wG
+ qaIz9uZbmBGVEepljZBmVOT7LFAutAM=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-526-9xa3DJAiMC2d4M8kBfBfmA-1; Thu, 01 Dec 2022 04:24:06 -0500
-X-MC-Unique: 9xa3DJAiMC2d4M8kBfBfmA-1
-Received: by mail-wm1-f71.google.com with SMTP id
- bg25-20020a05600c3c9900b003cf3ed7e27bso594398wmb.4
+ us-mta-644-Ne-5ZPqqP-i6AZntgfwT7g-1; Thu, 01 Dec 2022 04:31:07 -0500
+X-MC-Unique: Ne-5ZPqqP-i6AZntgfwT7g-1
+Received: by mail-wr1-f72.google.com with SMTP id
+ k1-20020adfb341000000b0024215e0f486so226858wrd.21
  for <virtualization@lists.linux-foundation.org>;
- Thu, 01 Dec 2022 01:24:05 -0800 (PST)
+ Thu, 01 Dec 2022 01:31:07 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=UgJ+HDh8KhhTBQLgmfONT+YSYAYl+JCf9dmOxyoPJKY=;
- b=QwDcplszT90gGDoF8GIsAYHTy+pJRfDHbBks1MPTwUGCuUk39YUDl2cc1jyhUTh/58
- zUYsRqCkgpmlD3RuBqtoTnUYTks0csO4gB+C+MYAcDml68PMiGLHEPYJRns58LG4SWwr
- c9/mwp+iSBvSpA65G3HwAueKdn56zRACyl/lQekGHstEBBVdmyfcM+CaQhHkUMgXc7qQ
- /sCiJpv/QhjXqrJSNv6ltuXrcy0Ac7lJSmzbxSrJ2f2L52sqSUw8v+MomUGQgesM17oe
- wfeHZ+JZUc3VcMm8vxyLmBcMxgBefAimndZ53+17fZU6lZmw5mCJ4lE+/FdFw7s35tDD
- I/XQ==
-X-Gm-Message-State: ANoB5plIYX6o0EOa44dYJOtpDOPm2WykLtqBHAwyAWbr0kmMR/FTVwV9
- o0faODGOGMario4G98+BSbGo6phUPLmi6aXE/R/cARDcXp44tsMJ6zqCrRlUZmEecE7Gnuau1Wv
- mvwaTUqkkRW0xe9pdVNwCal3kgumAUfH98RDfIh6Y6g==
-X-Received: by 2002:a5d:4ccb:0:b0:236:d611:4fcf with SMTP id
- c11-20020a5d4ccb000000b00236d6114fcfmr29574592wrt.192.1669886645079; 
- Thu, 01 Dec 2022 01:24:05 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf51AfiJW8ivh3gMCG70OBpMd9MsL8P1xJEHEG5W9Kg8EmdeOizi/C3u9PaCATJ6V1Bz8hc4Hw==
-X-Received: by 2002:a5d:4ccb:0:b0:236:d611:4fcf with SMTP id
- c11-20020a5d4ccb000000b00236d6114fcfmr29574568wrt.192.1669886644807; 
- Thu, 01 Dec 2022 01:24:04 -0800 (PST)
+ bh=t6GQr0UM9rGj3V8rz/OXkK1eGrs2rQLTQ7/eb6SPTLc=;
+ b=dnMKeFhxloUDA2paq6mFYalWaw3f/dtoS1ho9QsjIqa+YJj3Ee+rr8KBT5IExCzsus
+ VUZ3UXb5Y1PM7M9TVRMc/PN79IzriC0pEjBhpLJ0/dGHwJBi6shNn0pxk8v+TbheISHn
+ 7TVnAP6RWq2yP1lMg7TyADRzXy2ustzwIU6Ii7ejTIZ409LVxI/sNFUUiYaFcz7D8g4n
+ EG4k4h1T/KlzsCsiSNiCVFBCL/GHCOw37R8bNS0g6Dy0S4P1u5zQa3IxrDzLyKUhTEJu
+ s6ZWpqi37SOpY4/NN7f40VsS5Q3l46aMtBV7ZqQyOf37NYdJNMjsOdgltj0Ok9tMd7Yu
+ E1ZA==
+X-Gm-Message-State: ANoB5plZY7QqZwPrfQWTx6NYr8QFo2mvYQP1Ey65gYaqYwAyqrjSMg3u
+ Xi1oeEhGaJt1Mu0EL9p+0K41DaOfbLpWhoNYOuHY0BE5UNRuXc/GnY+yuGm9f+GI2FnQfHmXFvV
+ eEqAYDtdiohrHYX1UySU7JSAHKtNBm/+rDT39p9XHRw==
+X-Received: by 2002:adf:f74f:0:b0:236:71fe:c9b9 with SMTP id
+ z15-20020adff74f000000b0023671fec9b9mr39003157wrp.663.1669887066195; 
+ Thu, 01 Dec 2022 01:31:06 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf7OwVhMzKkMp2PXxHvQ8kcJNcpLNqHzaKFW2CmbRvflPB4XQg0+N7ynITOD6o9BgughqgPaHA==
+X-Received: by 2002:adf:f74f:0:b0:236:71fe:c9b9 with SMTP id
+ z15-20020adff74f000000b0023671fec9b9mr39003129wrp.663.1669887065950; 
+ Thu, 01 Dec 2022 01:31:05 -0800 (PST)
 Received: from sgarzare-redhat (host-82-53-134-234.retail.telecomitalia.it.
  [82.53.134.234]) by smtp.gmail.com with ESMTPSA id
- l5-20020a5d5605000000b002367ad808a9sm3868673wrv.30.2022.12.01.01.24.03
+ q128-20020a1c4386000000b003c71358a42dsm11534117wma.18.2022.12.01.01.31.04
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 01 Dec 2022 01:24:04 -0800 (PST)
-Date: Thu, 1 Dec 2022 10:23:30 +0100
+ Thu, 01 Dec 2022 01:31:05 -0800 (PST)
+Date: Thu, 1 Dec 2022 10:30:48 +0100
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Arseniy Krasnov <AVKrasnov@sberdevices.ru>,
- Dexuan Cui <decui@microsoft.com>
-Subject: Re: [RFC PATCH v2 2/6] hv_sock: always return ENOMEM in case of error
-Message-ID: <20221201092330.ia5addl4sgw7fhk2@sgarzare-redhat>
+ Bryan Tan <bryantan@vmware.com>, Vishnu Dasa <vdasa@vmware.com>
+Subject: Re: [RFC PATCH v2 3/6] vsock/vmci: always return ENOMEM in case of
+ error
+Message-ID: <20221201093048.q2pradrgn5limcfb@sgarzare-redhat>
 References: <9d96f6c6-1d4f-8197-b3bc-8957124c8933@sberdevices.ru>
- <a10ffbed-848d-df8c-ec4e-ba25c4c8e3e8@sberdevices.ru>
+ <675b1f93-dc07-0a70-0622-c3fc6236c8bb@sberdevices.ru>
 MIME-Version: 1.0
-In-Reply-To: <a10ffbed-848d-df8c-ec4e-ba25c4c8e3e8@sberdevices.ru>
+In-Reply-To: <675b1f93-dc07-0a70-0622-c3fc6236c8bb@sberdevices.ru>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Vishnu Dasa <vdasa@vmware.com>, "wei.liu@kernel.org" <wei.liu@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Bobby Eshleman <bobby.eshleman@bytedance.com>,
+Cc: "wei.liu@kernel.org" <wei.liu@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Bobby Eshleman <bobby.eshleman@bytedance.com>,
  "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
- "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
- "haiyangz@microsoft.com" <haiyangz@microsoft.com>,
  Bobby Eshleman <bobby.eshleman@gmail.com>,
+ "haiyangz@microsoft.com" <haiyangz@microsoft.com>,
+ Dexuan Cui <decui@microsoft.com>,
  "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
  "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>, Bryan Tan <bryantan@vmware.com>,
+ <virtualization@lists.linux-foundation.org>,
  "edumazet@google.com" <edumazet@google.com>,
- Krasnov Arseniy <oxffffaa@gmail.com>, kernel <kernel@sberdevices.ru>,
- Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
+ Krasnov Arseniy <oxffffaa@gmail.com>,
+ "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+ kernel <kernel@sberdevices.ru>, Jakub Kicinski <kuba@kernel.org>,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -134,7 +137,7 @@ Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Nov 25, 2022 at 05:05:53PM +0000, Arseniy Krasnov wrote:
+On Fri, Nov 25, 2022 at 05:08:06PM +0000, Arseniy Krasnov wrote:
 >From: Bobby Eshleman <bobby.eshleman@bytedance.com>
 >
 >This saves original behaviour from af_vsock.c - switch any error
@@ -143,27 +146,53 @@ On Fri, Nov 25, 2022 at 05:05:53PM +0000, Arseniy Krasnov wrote:
 >Signed-off-by: Bobby Eshleman <bobby.eshleman@bytedance.com>
 >Signed-off-by: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
 >---
-> net/vmw_vsock/hyperv_transport.c | 2 +-
-> 1 file changed, 1 insertion(+), 1 deletion(-)
->
->diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
->index 59c3e2697069..fbbe55133da2 100644
->--- a/net/vmw_vsock/hyperv_transport.c
->+++ b/net/vmw_vsock/hyperv_transport.c
->@@ -687,7 +687,7 @@ static ssize_t hvs_stream_enqueue(struct vsock_sock *vsk, struct msghdr *msg,
-> 	if (bytes_written)
-> 		ret = bytes_written;
-> 	kfree(send_buf);
->-	return ret;
->+	return ret < 0 ? -ENOMEM : ret;
+> net/vmw_vsock/vmci_transport.c | 9 ++++++++-
+> 1 file changed, 8 insertions(+), 1 deletion(-)
 
-I'm not sure for hyperv we want to preserve -ENOMEM. This transport was 
-added after virtio-vsock, so I think we can return the error directly.
+@Bryan @Vishnu what do you think about this patch?
 
-@Dexuan what do you think?
+A bit of context:
+
+Before this series, the af_vsock core always returned ENOMEM to the user 
+if the transport failed to queue the packet.
+
+Now we are changing it by returning the transport error. So I think here 
+we want to preserve the previous behavior for vmci, but I don't know if 
+that's the right thing.
+
+
+
+@Arseniy please in the next versions describe better in the commit 
+messages the reasons for these changes, so it is easier review for 
+others and also in the future by reading the commit message we can 
+understand the reason for the change.
 
 Thanks,
 Stefano
+
+>
+>diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
+>index 842c94286d31..289a36a203a2 100644
+>--- a/net/vmw_vsock/vmci_transport.c
+>+++ b/net/vmw_vsock/vmci_transport.c
+>@@ -1838,7 +1838,14 @@ static ssize_t vmci_transport_stream_enqueue(
+> 	struct msghdr *msg,
+> 	size_t len)
+> {
+>-	return vmci_qpair_enquev(vmci_trans(vsk)->qpair, msg, len, 0);
+>+	int err;
+>+
+>+	err = vmci_qpair_enquev(vmci_trans(vsk)->qpair, msg, len, 0);
+>+
+>+	if (err < 0)
+>+		err = -ENOMEM;
+>+
+>+	return err;
+> }
+>
+> static s64 vmci_transport_stream_has_data(struct vsock_sock *vsk)
+>-- 
+>2.25.1
 
 _______________________________________________
 Virtualization mailing list
