@@ -1,95 +1,106 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 59E2FC4332F
-	for <virtualization@archiver.kernel.org>; Thu,  1 Dec 2022 22:50:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 010ADC4332F
+	for <virtualization@archiver.kernel.org>; Fri,  2 Dec 2022 10:03:37 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id D3895419AA;
-	Thu,  1 Dec 2022 22:50:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D3895419AA
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=daynix-com.20210112.gappssmtp.com header.i=@daynix-com.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=iC4iteAP
+	by smtp3.osuosl.org (Postfix) with ESMTP id 75B6560BC4;
+	Fri,  2 Dec 2022 10:03:37 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 75B6560BC4
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=h0u4/AbG
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id lHjakUe0cFXu; Thu,  1 Dec 2022 22:50:31 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 8u867BbyXzKw; Fri,  2 Dec 2022 10:03:36 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 5A5514193B;
-	Thu,  1 Dec 2022 22:50:30 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5A5514193B
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 819BB60B83;
+	Fri,  2 Dec 2022 10:03:35 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 819BB60B83
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 31B61C0033;
-	Thu,  1 Dec 2022 22:50:30 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 5F7BDC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 564A0C0033;
+	Fri,  2 Dec 2022 10:03:35 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B1FB3C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu,  1 Dec 2022 22:50:28 +0000 (UTC)
+ Fri,  2 Dec 2022 10:03:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 2432041066
+ by smtp3.osuosl.org (Postfix) with ESMTP id 4D0DC60BC4
  for <virtualization@lists.linux-foundation.org>;
- Thu,  1 Dec 2022 22:50:28 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2432041066
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (2048-bit key) header.d=daynix-com.20210112.gappssmtp.com
- header.i=@daynix-com.20210112.gappssmtp.com header.a=rsa-sha256
- header.s=20210112 header.b=iC4iteAP
+ Fri,  2 Dec 2022 10:03:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4D0DC60BC4
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id yBjlOzyHTEff
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id e7RduCiWIzyv
  for <virtualization@lists.linux-foundation.org>;
- Thu,  1 Dec 2022 22:50:26 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 981BB40112
-Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com
- [IPv6:2607:f8b0:4864:20::633])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 981BB40112
+ Fri,  2 Dec 2022 10:03:32 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E556A60B83
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id E556A60B83
  for <virtualization@lists.linux-foundation.org>;
- Thu,  1 Dec 2022 22:50:26 +0000 (UTC)
-Received: by mail-pl1-x633.google.com with SMTP id d18so3050638pls.4
+ Fri,  2 Dec 2022 10:03:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1669975410;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=n9awmabG6XvbNEKd1oVF0XKSctjBCIkEyRVzKA78FSM=;
+ b=h0u4/AbGsy0qmFLyEFn4dbqh1xwayqg2OuVW0x5KZ3aN63kGCHxjy+oQGpm8jka5xJiX0D
+ xaPGS+CASFjSmtEB09mKF3AWwO2pxxwCtOrUB2JHqZYcBzG7Lq5vSmongcZ1goxz8mmE0m
+ g0xGseYTQDvKHuapAdVahNvN0ywpmV0=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-650-rEs6BL0WOBqsLmhbeAV2qA-1; Fri, 02 Dec 2022 05:03:29 -0500
+X-MC-Unique: rEs6BL0WOBqsLmhbeAV2qA-1
+Received: by mail-wr1-f71.google.com with SMTP id
+ y5-20020adfc7c5000000b002423fada7deso663339wrg.7
  for <virtualization@lists.linux-foundation.org>;
- Thu, 01 Dec 2022 14:50:26 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=daynix-com.20210112.gappssmtp.com; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:from:to:cc:subject:date:message-id:reply-to;
- bh=fC7GRsfU9487zvkZ00n0yK00IS3v6qRRBNuKWVaoA3U=;
- b=iC4iteAPISIUjyDOTh+rS65EwB8rDVM5P7hVLZJUwBiBvPYWFrTdUF/YBavMs7FzKF
- R1IcF7xQ1IpJd8oxQR5X1mb5XepEeaFSlUblesgIkIEAPaE1M9Uql+rGeXV4WVAh5YWt
- NUeH6C8aFRELdXhHy1SkPo+whmdFSdQswqD49MYv7bgwUiDT9OoLroVS31tkT0PzlIYF
- 54Aaz0sE9GeUjW4wYZP3xWrJBlHEobLpgd/f05uUIj6lgtK6XA6XKrXAbDV5qeJ6HpiG
- tlP32sN+zwdZNo7VZR4nU7uj4slju1xyOZObCOzjobdQoLrU65N88SVPZ7ZA/V3Ov7lR
- aVKw==
+ Fri, 02 Dec 2022 02:03:29 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
- :reply-to;
- bh=fC7GRsfU9487zvkZ00n0yK00IS3v6qRRBNuKWVaoA3U=;
- b=mYp+7+5P5HyDod858opbaCC/FXY0Y8nOtta0pLofL/TgpYeSJ0qcUSQPYIEB2jlM16
- QJjFnBLAiwRXDo2FlgwdJcU16q60boBCP7e+C1LfWxC6SyBZQ2khqkf3c7eDA/QWJ6SE
- BgNFaCHJdsAsLWywgBaLS+xqFm2aSWYrG7gIlCTnkZFuXL1D+dTggRbhT/XN3FdmbElk
- mpqJmv7aC+XqB9TwXMAsIN7cTOQlZdSvTWMCnEPdyHH4T02HhY4y+96/hf3JE1DlqQyy
- EgXrlQGlB+vFVAA9IoBx/+qTnpVvWFwfa1y/P5pNjIOWWY/gMR4wu0R7WEOcedUkJ7j0
- luaw==
-X-Gm-Message-State: ANoB5pkackWiBd9WWjMZsIr6tWKzFmKLslRptdD68DgB9BnKpNb4MQJ0
- u94TY+SGRKLIPvmhKkphXM26+IUjAYcIQWzc7fB55g==
-X-Google-Smtp-Source: AA0mqf6FWoZVhGaziJ0DWoZLVEWjJu8bXNVWon7OsLKFnQGym/jUIE4LmI1FgqCsX+3UEAK+0KsWrwIVbi2mqTsFnKk=
-X-Received: by 2002:a17:903:50c:b0:189:6de9:deb9 with SMTP id
- jn12-20020a170903050c00b001896de9deb9mr30943805plb.153.1669935025832; Thu, 01
- Dec 2022 14:50:25 -0800 (PST)
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=n9awmabG6XvbNEKd1oVF0XKSctjBCIkEyRVzKA78FSM=;
+ b=krp3rwBU9bBmLVVBiEURi94k0HxoHHSRMV+aSqCxWGdxhlyB7m0VOz3iObCAILn4I5
+ VVu6iq3BpTFr2Rq/v00GIlK3iKPNYOof8VwkNQ+LMLc9CUAXRg69gAyyh6Eo1r8c8oG+
+ VHOG0PcWJhSUdx66lcA0+0aUjkxOpm7lr/Tnccp6W/alCqxe9E/oBkBJTylQlFiQxt0g
+ pz30pg8dbhNkXIyAH5EIc0x3q3aBHZa0t/5LYy/3rj2LcaeLmqI1kOxKVuOk1Q0PqpH3
+ 2oqB7M/xhduO+KL8Dj5keZNYKMgda/4sn2JvreBFrqyzfrWmBc/qsS86r76ZpL3G+6Nr
+ DK7w==
+X-Gm-Message-State: ANoB5pk22MVZ1yPqaEXxD7BB0uFur+U3yqgmIwNr0hMowduah6tmtWST
+ 292R2byM8O6qhksyHLivC9JXnJdDYGGWjNpRdoBeC+aMP5SN95KxEV6QNyMwzEcHgMg7CDjWIsr
+ i6Ge5bpKODzjRE3CNK2WbzAqcwJcU7y2Al2GyzQ7Xfw==
+X-Received: by 2002:adf:dbcd:0:b0:242:1294:5174 with SMTP id
+ e13-20020adfdbcd000000b0024212945174mr16694584wrj.249.1669975408254; 
+ Fri, 02 Dec 2022 02:03:28 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf6QQzz2WQf7FwPPGbf38zlKpQ+ep18wbfi3hGdiVjM24Y7h+bdOIA1f/rLK+OFoxrrZJquhlw==
+X-Received: by 2002:adf:dbcd:0:b0:242:1294:5174 with SMTP id
+ e13-20020adfdbcd000000b0024212945174mr16694570wrj.249.1669975408027; 
+ Fri, 02 Dec 2022 02:03:28 -0800 (PST)
+Received: from redhat.com ([2.52.16.138]) by smtp.gmail.com with ESMTPSA id
+ w6-20020adfec46000000b0022efc4322a9sm6895537wrn.10.2022.12.02.02.03.25
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Fri, 02 Dec 2022 02:03:27 -0800 (PST)
+Date: Fri, 2 Dec 2022 05:03:23 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Andrew Melnychenko <andrew@daynix.com>
+Subject: Re: [PATCH v4 4/6] uapi/linux/virtio_net.h: Added USO types.
+Message-ID: <20221202050230-mutt-send-email-mst@kernel.org>
+References: <20221201223332.249441-1-andrew@daynix.com>
+ <20221201223332.249441-4-andrew@daynix.com>
 MIME-Version: 1.0
-References: <20221201215644.246571-1-andrew@daynix.com>
- <20221201173252-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20221201173252-mutt-send-email-mst@kernel.org>
-From: Andrew Melnichenko <andrew@daynix.com>
-Date: Fri, 2 Dec 2022 00:35:03 +0200
-Message-ID: <CABcq3pGaf1-XchxYAhX=3k9dEAPLR4p-VR9QUxNa1dNKzwWHXw@mail.gmail.com>
-Subject: Re: [PATCH v4 0/6] TUN/VirtioNet USO features support.
-To: "Michael S. Tsirkin" <mst@redhat.com>
+In-Reply-To: <20221201223332.249441-4-andrew@daynix.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
 Cc: yoshfuji@linux-ipv6.org, netdev@vger.kernel.org,
  linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
  dsahern@kernel.org, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
@@ -110,66 +121,49 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Sorry, got issues with the internet during sending it. Now, all should be done.
+On Fri, Dec 02, 2022 at 12:33:30AM +0200, Andrew Melnychenko wrote:
+> Added new GSO type for USO: VIRTIO_NET_HDR_GSO_UDP_L4.
+> Feature VIRTIO_NET_F_HOST_USO allows to enable NETIF_F_GSO_UDP_L4.
+> Separated VIRTIO_NET_F_GUEST_USO4 & VIRTIO_NET_F_GUEST_USO6 features
+> required for Windows guests.
+> 
+> Signed-off-by: Andrew Melnychenko <andrew@daynix.com>
 
-On Fri, Dec 2, 2022 at 12:33 AM Michael S. Tsirkin <mst@redhat.com> wrote:
->
-> On Thu, Dec 01, 2022 at 11:56:38PM +0200, Andrew Melnychenko wrote:
-> > Added new offloads for TUN devices TUN_F_USO4 and TUN_F_USO6.
-> > Technically they enable NETIF_F_GSO_UDP_L4
-> > (and only if USO4 & USO6 are set simultaneously).
-> > It allows the transmission of large UDP packets.
-> >
-> > UDP Segmentation Offload (USO/GSO_UDP_L4) - ability to split UDP packets
-> > into several segments. It's similar to UFO, except it doesn't use IP
-> > fragmentation. The drivers may push big packets and the NIC will split
-> > them(or assemble them in case of receive), but in the case of VirtioNet
-> > we just pass big UDP to the host. So we are freeing the driver from doing
-> > the unnecessary job of splitting. The same thing for several guests
-> > on one host, we can pass big packets between guests.
-> >
-> > Different features USO4 and USO6 are required for qemu where Windows
-> > guests can enable disable USO receives for IPv4 and IPv6 separately.
-> > On the other side, Linux can't really differentiate USO4 and USO6, for now.
-> > For now, to enable USO for TUN it requires enabling USO4 and USO6 together.
-> > In the future, there would be a mechanism to control UDP_L4 GSO separately.
-> >
-> > New types for virtio-net already in virtio-net specification:
-> > https://github.com/oasis-tcs/virtio-spec/issues/120
-> >
-> > Test it WIP Qemu https://github.com/daynix/qemu/tree/USOv3
-> >
-> > Andrew (5):
-> >   uapi/linux/if_tun.h: Added new offload types for USO4/6.
-> >   driver/net/tun: Added features for USO.
-> >   uapi/linux/virtio_net.h: Added USO types.
-> >   linux/virtio_net.h: Support USO offload in vnet header.
-> >   drivers/net/virtio_net.c: Added USO support.
-> >
-> > Andrew Melnychenko (1):
-> >   udp: allow header check for dodgy GSO_UDP_L4 packets.
->
-> I don't see patches except 0 on list.
->
-> >  drivers/net/tap.c               | 10 ++++++++--
-> >  drivers/net/tun.c               |  8 +++++++-
-> >  drivers/net/virtio_net.c        | 24 +++++++++++++++++++++---
-> >  include/linux/virtio_net.h      |  9 +++++++++
-> >  include/uapi/linux/if_tun.h     |  2 ++
-> >  include/uapi/linux/virtio_net.h |  5 +++++
-> >  net/ipv4/udp_offload.c          |  3 ++-
-> >  net/ipv6/udp_offload.c          |  3 ++-
-> >  8 files changed, 56 insertions(+), 8 deletions(-)
-> >
-> > --
-> > 2.38.1
-> >
-> > _______________________________________________
-> > Virtualization mailing list
-> > Virtualization@lists.linux-foundation.org
-> > https://lists.linuxfoundation.org/mailman/listinfo/virtualization
-> >
->
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
+> ---
+>  include/uapi/linux/virtio_net.h | 5 +++++
+>  1 file changed, 5 insertions(+)
+> 
+> diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
+> index 6cb842ea8979..cbc631247489 100644
+> --- a/include/uapi/linux/virtio_net.h
+> +++ b/include/uapi/linux/virtio_net.h
+> @@ -57,6 +57,10 @@
+>  					 * Steering */
+>  #define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
+>  #define VIRTIO_NET_F_NOTF_COAL	53	/* Device supports notifications coalescing */
+> +#define VIRTIO_NET_F_GUEST_USO4	54	/* Guest can handle USOv4 in. */
+> +#define VIRTIO_NET_F_GUEST_USO6	55	/* Guest can handle USOv6 in. */
+> +#define VIRTIO_NET_F_HOST_USO	56	/* Host can handle USO in. */
+> +
+
+for consistency pls don't add an empty line here.
+
+>  #define VIRTIO_NET_F_HASH_REPORT  57	/* Supports hash report */
+>  #define VIRTIO_NET_F_RSS	  60	/* Supports RSS RX steering */
+>  #define VIRTIO_NET_F_RSC_EXT	  61	/* extended coalescing info */
+> @@ -130,6 +134,7 @@ struct virtio_net_hdr_v1 {
+>  #define VIRTIO_NET_HDR_GSO_TCPV4	1	/* GSO frame, IPv4 TCP (TSO) */
+>  #define VIRTIO_NET_HDR_GSO_UDP		3	/* GSO frame, IPv4 UDP (UFO) */
+>  #define VIRTIO_NET_HDR_GSO_TCPV6	4	/* GSO frame, IPv6 TCP */
+> +#define VIRTIO_NET_HDR_GSO_UDP_L4	5	/* GSO frame, IPv4& IPv6 UDP (USO) */
+>  #define VIRTIO_NET_HDR_GSO_ECN		0x80	/* TCP has ECN set */
+>  	__u8 gso_type;
+>  	__virtio16 hdr_len;	/* Ethernet + IP + tcp/udp hdrs */
+> -- 
+> 2.38.1
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
