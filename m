@@ -4,107 +4,149 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 010ADC4332F
-	for <virtualization@archiver.kernel.org>; Fri,  2 Dec 2022 10:03:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 43053C47089
+	for <virtualization@archiver.kernel.org>; Sat,  3 Dec 2022 01:17:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 75B6560BC4;
-	Fri,  2 Dec 2022 10:03:37 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 75B6560BC4
+	by smtp3.osuosl.org (Postfix) with ESMTP id 8D73860AF1;
+	Sat,  3 Dec 2022 01:17:41 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8D73860AF1
 Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=h0u4/AbG
+	dkim=fail reason="signature verification failed" (1024-bit key, unprotected) header.d=vmware.com header.i=@vmware.com header.a=rsa-sha256 header.s=selector2 header.b=vyXXbwro
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 8u867BbyXzKw; Fri,  2 Dec 2022 10:03:36 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 819BB60B83;
-	Fri,  2 Dec 2022 10:03:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 819BB60B83
+	with ESMTP id Rp1UVVswWjno; Sat,  3 Dec 2022 01:17:40 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 1B00560B27;
+	Sat,  3 Dec 2022 01:17:40 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1B00560B27
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 564A0C0033;
-	Fri,  2 Dec 2022 10:03:35 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B1FB3C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E6E0CC0033;
+	Sat,  3 Dec 2022 01:17:39 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B1550C002D
  for <virtualization@lists.linux-foundation.org>;
- Fri,  2 Dec 2022 10:03:33 +0000 (UTC)
+ Sat,  3 Dec 2022 01:17:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 4D0DC60BC4
+ by smtp2.osuosl.org (Postfix) with ESMTP id 6BA844167D
  for <virtualization@lists.linux-foundation.org>;
- Fri,  2 Dec 2022 10:03:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4D0DC60BC4
+ Sat,  3 Dec 2022 01:17:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6BA844167D
+Authentication-Results: smtp2.osuosl.org; dkim=pass (1024-bit key,
+ unprotected) header.d=vmware.com header.i=@vmware.com header.a=rsa-sha256
+ header.s=selector2 header.b=vyXXbwro
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id e7RduCiWIzyv
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id vYxjnEEJ4gxh
  for <virtualization@lists.linux-foundation.org>;
- Fri,  2 Dec 2022 10:03:32 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E556A60B83
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id E556A60B83
+ Sat,  3 Dec 2022 01:17:37 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2BE57405E5
+Received: from CO1PR02CU001-vft-obe.outbound.protection.outlook.com
+ (mail-westus2azlp170110001.outbound.protection.outlook.com
+ [IPv6:2a01:111:f403:c007::1])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 2BE57405E5
  for <virtualization@lists.linux-foundation.org>;
- Fri,  2 Dec 2022 10:03:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1669975410;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=n9awmabG6XvbNEKd1oVF0XKSctjBCIkEyRVzKA78FSM=;
- b=h0u4/AbGsy0qmFLyEFn4dbqh1xwayqg2OuVW0x5KZ3aN63kGCHxjy+oQGpm8jka5xJiX0D
- xaPGS+CASFjSmtEB09mKF3AWwO2pxxwCtOrUB2JHqZYcBzG7Lq5vSmongcZ1goxz8mmE0m
- g0xGseYTQDvKHuapAdVahNvN0ywpmV0=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-650-rEs6BL0WOBqsLmhbeAV2qA-1; Fri, 02 Dec 2022 05:03:29 -0500
-X-MC-Unique: rEs6BL0WOBqsLmhbeAV2qA-1
-Received: by mail-wr1-f71.google.com with SMTP id
- y5-20020adfc7c5000000b002423fada7deso663339wrg.7
- for <virtualization@lists.linux-foundation.org>;
- Fri, 02 Dec 2022 02:03:29 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=n9awmabG6XvbNEKd1oVF0XKSctjBCIkEyRVzKA78FSM=;
- b=krp3rwBU9bBmLVVBiEURi94k0HxoHHSRMV+aSqCxWGdxhlyB7m0VOz3iObCAILn4I5
- VVu6iq3BpTFr2Rq/v00GIlK3iKPNYOof8VwkNQ+LMLc9CUAXRg69gAyyh6Eo1r8c8oG+
- VHOG0PcWJhSUdx66lcA0+0aUjkxOpm7lr/Tnccp6W/alCqxe9E/oBkBJTylQlFiQxt0g
- pz30pg8dbhNkXIyAH5EIc0x3q3aBHZa0t/5LYy/3rj2LcaeLmqI1kOxKVuOk1Q0PqpH3
- 2oqB7M/xhduO+KL8Dj5keZNYKMgda/4sn2JvreBFrqyzfrWmBc/qsS86r76ZpL3G+6Nr
- DK7w==
-X-Gm-Message-State: ANoB5pk22MVZ1yPqaEXxD7BB0uFur+U3yqgmIwNr0hMowduah6tmtWST
- 292R2byM8O6qhksyHLivC9JXnJdDYGGWjNpRdoBeC+aMP5SN95KxEV6QNyMwzEcHgMg7CDjWIsr
- i6Ge5bpKODzjRE3CNK2WbzAqcwJcU7y2Al2GyzQ7Xfw==
-X-Received: by 2002:adf:dbcd:0:b0:242:1294:5174 with SMTP id
- e13-20020adfdbcd000000b0024212945174mr16694584wrj.249.1669975408254; 
- Fri, 02 Dec 2022 02:03:28 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf6QQzz2WQf7FwPPGbf38zlKpQ+ep18wbfi3hGdiVjM24Y7h+bdOIA1f/rLK+OFoxrrZJquhlw==
-X-Received: by 2002:adf:dbcd:0:b0:242:1294:5174 with SMTP id
- e13-20020adfdbcd000000b0024212945174mr16694570wrj.249.1669975408027; 
- Fri, 02 Dec 2022 02:03:28 -0800 (PST)
-Received: from redhat.com ([2.52.16.138]) by smtp.gmail.com with ESMTPSA id
- w6-20020adfec46000000b0022efc4322a9sm6895537wrn.10.2022.12.02.02.03.25
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 02 Dec 2022 02:03:27 -0800 (PST)
-Date: Fri, 2 Dec 2022 05:03:23 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Andrew Melnychenko <andrew@daynix.com>
-Subject: Re: [PATCH v4 4/6] uapi/linux/virtio_net.h: Added USO types.
-Message-ID: <20221202050230-mutt-send-email-mst@kernel.org>
-References: <20221201223332.249441-1-andrew@daynix.com>
- <20221201223332.249441-4-andrew@daynix.com>
+ Sat,  3 Dec 2022 01:17:37 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=bEi9Gshg5FfCH/jOBE7QN8agz6xQ5nffMOOrJQ/KhQ915IjGAkIaAHZSFkU/aQctHr+02YTx7XUqxUP7GtfejIKouN3yoxqMh3+23RKdJ+H5n0KHg3a+HIMlV8tjVfc3w7SOwZMo0qngFVUf4Ernfp8OrbbH/OZ1ZEf8OjlF4zlZKGEZ40Mv/fcLYpHfh98BgbVFD8GPzQt+1LQTOuY1RWCwe6KM0PONQkrSe6ELVm0qI2Y+9G6kxZre3FE5QMSKgqdHmYBZlbbMb1lkwbrwRHh+RkBlVbDh7wsp6obP7eUThLJggPaqQCUGMyMCgZWUMnhShdEjZ0qHHTx2T1UjhA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=ytiPKTrE1y98gilt7tBCXZ1+lYVmXcyVfrhjLTZSTSc=;
+ b=NkbZOj95GHbVFHFUO9LaLS3DY2mYDi6cEYMydmoZ4ClDEPBeLko1bgohPLFpbRbA+kkBzlZgP+bk4ENCKAb32NPLOvUtz4wEaoEU5ONHieEVEgYMvm1nSZE7aZcQqjt3hC6dj9zaxSnVQVZfXYztXj5S06riKufRcn2RxTQEBFvcgaNJoXuCTseR5jy9zhmjSykz+NcuHSRjQr/ts49t/CL9msnVSBrU9rapDwCte43psxszqSjOUtuPmjpD5fmKOaJa51vP33XoqyYwKdPByNEC8twrR/wyFC4nygcazIf/uAO9DS8dfLiIbvW7+L1TLMDvHMCT9EgDnf771WhC+Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=vmware.com; dmarc=pass action=none header.from=vmware.com;
+ dkim=pass header.d=vmware.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vmware.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ytiPKTrE1y98gilt7tBCXZ1+lYVmXcyVfrhjLTZSTSc=;
+ b=vyXXbwrod+S+avS+MYFv1WYquZR/Dcf34s1w8jS4QG/SVdn+IZ3smbCNEXhz/O+avv3ozMPFbZ2piFH61ERZXH4Lxo8WpgQMGQ2VSiJ7v20StC/o6ybn0tjZNGl+5HNW7bMuPnbamPzbdanbY55KNsosg60MWT0aQjcNletzATY=
+Received: from BYAPR05MB3960.namprd05.prod.outlook.com (2603:10b6:a02:88::12)
+ by PH0PR05MB8511.namprd05.prod.outlook.com (2603:10b6:510:ac::10)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5880.8; Sat, 3 Dec
+ 2022 01:17:33 +0000
+Received: from BYAPR05MB3960.namprd05.prod.outlook.com
+ ([fe80::6764:941b:e0cc:c4e1]) by BYAPR05MB3960.namprd05.prod.outlook.com
+ ([fe80::6764:941b:e0cc:c4e1%7]) with mapi id 15.20.5857.022; Sat, 3 Dec 2022
+ 01:17:33 +0000
+To: Artem Chernyshev <artem.chernyshev@red-soft.ru>
+Subject: Re: [PATCH] net: vmw_vsock: vmci: Check memcpy_from_msg()
+Thread-Topic: [PATCH] net: vmw_vsock: vmci: Check memcpy_from_msg()
+Thread-Index: AQHZBqGb35ZyQ9z5mEiW229BBPzKAq5bXMUA
+Date: Sat, 3 Dec 2022 01:17:33 +0000
+Message-ID: <702BBCBE-6E80-4B12-A996-4A2CB7C66D70@vmware.com>
+References: <20221202225818.3934909-1-artem.chernyshev@red-soft.ru>
+In-Reply-To: <20221202225818.3934909-1-artem.chernyshev@red-soft.ru>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=vmware.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: BYAPR05MB3960:EE_|PH0PR05MB8511:EE_
+x-ms-office365-filtering-correlation-id: 9bfc709e-1439-4fa8-418d-08dad4cc27bb
+x-ld-processed: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0,ExtAddr
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: 95EFquQyGVEEzp4n+vtz43UWVkRMmNbIBJ/+r09+JtD5kbx/IiRMzI6Lfris426zC6EwXoETothPJsLi7bMcajj0BZjPvlnI+dqf1f336WA2ED+31qxVMHJT7VP5rp6KRkKFnFUTbMRc0qFczzRTpv7iNjOzlEDaneBo1CahM0xnicstWFoyhYBwQT5CFYqB38pyoC+mqn/Eh8qj8Oa//bEFST+wT6fN3yRYbHeRF9YBvkeA2dvAmcor1FFQ8YdPPxqXFZ2SxQGixn5sOpPpnD6//pJ+umn8BPbyH6kGLOY4OwQ17ZNH7EmMU3IjeKZdFDi2Wv2MD1Pb58LwFjT9L87WI1MBZ2cZXhHm5rd8x1fvQSNDvEvRSKyWVl3126KU7r3oLugZFmhC8iIWchPQAmtVVtT5Rqjuoj/ZADMK1ujWKcwpEZV/493/GGg2U1Jz+cfGeu3YA7q7eqV2nna/oNJmeYQXtb/MH2GgWHhCyvpOoSc3sDXwwhVAiGA6SjDBb6428JNQQbnPKvoJ3H87rDNkAG7IbfBNcRY29ktyNqcFfaIO2O0RcS8AMFrzC9jimRCaoV7DfbQrRYEb4fUHP4yq1b4NcKao8TxMTA9I3Wrlx8pFCdTDW8nntyiQ4GogEGyNpkdctWFdYAvtr/BgSnoa0yZmp8Hn1aAopABAm2NYU4X17BzrVpICcu9ZZGfU+bsKC86WsgUbnxSDfeWSVg3UZNp+Oh8IhBNN9TFJkGs=
+x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:BYAPR05MB3960.namprd05.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230022)(4636009)(136003)(39860400002)(396003)(366004)(376002)(346002)(451199015)(5660300002)(41300700001)(8936002)(2906002)(38070700005)(8676002)(36756003)(66946007)(66556008)(66476007)(64756008)(76116006)(4326008)(66446008)(316002)(38100700002)(6916009)(33656002)(122000001)(71200400001)(54906003)(6486002)(6506007)(53546011)(2616005)(86362001)(186003)(478600001)(6512007)(83380400001)(45980500001);
+ DIR:OUT; SFP:1101; 
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?asvQdz43TSpYl+krkht9L4ZOOYOuXOhgsxzyIaJMPh22bgXTEfKDMWJtRwBs?=
+ =?us-ascii?Q?CibJiCT7fHCPCGE5zpo88lgDlITPFysvbWKbaQN/SnxEIkjCoFtTvLYrDJAU?=
+ =?us-ascii?Q?rBp+7pyvxwEdafC2h0ns32ksICDPpddYRi4GW7lczfR91ZxwLi5QOd2lPfLg?=
+ =?us-ascii?Q?BpKM4r7Ea8lX6ZZ/CYWMyPcu7D8o8st8pYMDbekQIg8uBT1LjzwYZs0DrRwy?=
+ =?us-ascii?Q?Sb/Y7v5Evdy7zl1Chrrfh2OeN/5oEzCicIgyTku4wny8c7LAVH0V/bK9fZ+P?=
+ =?us-ascii?Q?dU8RGCa8DjilSdaUEQjyQ3ooDwx1S5f4xmjCge6dCgPvc6aZpMkE3IuDFXJN?=
+ =?us-ascii?Q?MC5BQk0j4l6oMDv4wpQPmdHCOtubPjOj4On/XXXwO2snAcwdmJNdor138jgt?=
+ =?us-ascii?Q?/Oh4lOpnmX8UrjllJn5urSg9qjL4KVXe/aCK/L4kulUQk3Bg6iPJBfk2SVn7?=
+ =?us-ascii?Q?qAO1e5BvzqSXAg2Sm1Wt3//2Ebf3bt+3OwJLdUCDgBDn0LEN811zcvn25rf4?=
+ =?us-ascii?Q?Bmb5qW6t9bSelnEEls+PmWQBCeVMRnn8OIfRS8tBv9OcUrkHuSRePGf9QVy6?=
+ =?us-ascii?Q?xfMd8pAcuLyaU1BqjShMYGgf8aJxRsSOJLSCgO7Qlsidfm/3mjWIpzRQahfu?=
+ =?us-ascii?Q?2n+ZbG/xlNPGS153Q4mqVl0MVMsemKl3+botZGrlxIYnazR5GB8l4hMKr9ed?=
+ =?us-ascii?Q?nau6kZqGUh6rFxNqA4IynvRcFMLG4EMQ2yFvgg50LYqURkIPGuV80FDHhYVp?=
+ =?us-ascii?Q?WePVEx3t/NytSyO5iHsV0+/SKrmbVHHQGpIoJ9CeQHkz8GIO/M753yIbCrm6?=
+ =?us-ascii?Q?o8iNpdd+Qo/lTWgBL8Y/1yx714S2yYQ20rXqKQvE1koYIe4Qnq4OfLPbWguj?=
+ =?us-ascii?Q?jw7drmEHEOvR+adV1tbg5F3yIT22OWwa9Hv0TKJbD4DiHGvqvGNHYkBJZoKe?=
+ =?us-ascii?Q?MSOFRX3GJyQhbt9cDq+9J8kE8BMqhBBG/ObcuyWOUq9ZF1PMpn1ZG7r8XmhD?=
+ =?us-ascii?Q?5vt/2UobVORlQbTg650er6ehNcUG7foef/TWfhfu4Rt2rpOxMq8hRTWhWyZO?=
+ =?us-ascii?Q?Ze4jq4R6VVI++hbhH0aFbL5gdKtIfWP3PaKXfgAJve3ayFNrlZVHvAwMqjD1?=
+ =?us-ascii?Q?1lr2oehYVwLXZBrshtUKwWxFxQb4N5bbIkdNwtkmddC7J3n4ZvEK/8ljjBsI?=
+ =?us-ascii?Q?cS1SyDozBJreNE9QOa9kr2h2fSP4IixDnke2I1OCuGZ/rtXnRoSGzWoJ5Ecv?=
+ =?us-ascii?Q?1GbivFNVB2z64D2s2KCxySTnKZzO+V5l2AQJTs2IX/T9rCPyaGBliJ3lXlaC?=
+ =?us-ascii?Q?eYloG7CkXPn7/CfDupZrfwxJkuMjf/zi0iyVhz+WRms57XrPjxTeoBTIYzmL?=
+ =?us-ascii?Q?kTWix0yV0DYqKmUUSfiC1e6ySC3z2S4WqZz7Ryz/tJaB+KPlqufp6dY0Kwt4?=
+ =?us-ascii?Q?/7po99+1zl/5nzEWryA/myH+Lv6Pj550w6haTYRyy1FjtbQ+/0X4XvCxlHkh?=
+ =?us-ascii?Q?i+TpRn/j5eaHOYSvcO8a/Kh0nj2ffdAnVmNceVHbuOdIQ3p40e7wh76ZQA1Y?=
+ =?us-ascii?Q?VKdd7AjMtdgc7O9igc+CYvRcvwgKJKyZgqF97eQ2gvLThB61U5VMmKMGfWTX?=
+ =?us-ascii?Q?2RKiRf+Fw0uN9/rWzVK158vqS/TTsZgM7XrXghmpiZWe?=
+Content-ID: <7E63B8CF4B48EA4690AA573E066E001D@namprd05.prod.outlook.com>
 MIME-Version: 1.0
-In-Reply-To: <20221201223332.249441-4-andrew@daynix.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: yoshfuji@linux-ipv6.org, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- dsahern@kernel.org, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
- devel@daynix.com, davem@davemloft.net
+X-OriginatorOrg: vmware.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BYAPR05MB3960.namprd05.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 9bfc709e-1439-4fa8-418d-08dad4cc27bb
+X-MS-Exchange-CrossTenant-originalarrivaltime: 03 Dec 2022 01:17:33.0721 (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: z1/2v5aQEc1f1j9Wx34IIc6w1y5ZZF2vmFfKi1qPaP81zkGUUu7kMWlw6+cxvwYQek3vKEP44kwXVx7rnwyx1A==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR05MB8511
+Cc: "lvc-project@linuxtesting.org" <lvc-project@linuxtesting.org>,
+ Pv-drivers <Pv-drivers@vmware.com>,
+ "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ Linux Virtualization <virtualization@lists.linux-foundation.org>,
+ Bryan Tan <bryantan@vmware.com>, Jakub Kicinski <kuba@kernel.org>, "David S.
+ Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -116,53 +158,56 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+From: Vishnu Dasa via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Vishnu Dasa <vdasa@vmware.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Dec 02, 2022 at 12:33:30AM +0200, Andrew Melnychenko wrote:
-> Added new GSO type for USO: VIRTIO_NET_HDR_GSO_UDP_L4.
-> Feature VIRTIO_NET_F_HOST_USO allows to enable NETIF_F_GSO_UDP_L4.
-> Separated VIRTIO_NET_F_GUEST_USO4 & VIRTIO_NET_F_GUEST_USO6 features
-> required for Windows guests.
+
+
+> On Dec 2, 2022, at 2:58 PM, Artem Chernyshev <artem.chernyshev@red-soft.ru> wrote:
 > 
-> Signed-off-by: Andrew Melnychenko <andrew@daynix.com>
+> We returns from vmci_transport_dgram_enqueue() with error
+> if memcpy goes wrong
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Thanks for the patch.
 
+Nit: could you please update the description?  Maybe something like -
+vmci_transport_dgram_enqueue() does not check the return value
+of memcpy_from_msg(). Return with an error if the memcpy fails.
+
+> 
+> Found by Linux Verification Center (linuxtesting.org) with SVACE.
+> 
+> Fixes: 0f7db23a07af ("vmci_transport: switch ->enqeue_dgram, ->enqueue_stream and ->dequeue_stream to msghdr")
+> Signed-off-by: Artem Chernyshev <artem.chernyshev@red-soft.ru>
 > ---
->  include/uapi/linux/virtio_net.h | 5 +++++
->  1 file changed, 5 insertions(+)
+> net/vmw_vsock/vmci_transport.c | 3 ++-
+> 1 file changed, 2 insertions(+), 1 deletion(-)
 > 
-> diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
-> index 6cb842ea8979..cbc631247489 100644
-> --- a/include/uapi/linux/virtio_net.h
-> +++ b/include/uapi/linux/virtio_net.h
-> @@ -57,6 +57,10 @@
->  					 * Steering */
->  #define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
->  #define VIRTIO_NET_F_NOTF_COAL	53	/* Device supports notifications coalescing */
-> +#define VIRTIO_NET_F_GUEST_USO4	54	/* Guest can handle USOv4 in. */
-> +#define VIRTIO_NET_F_GUEST_USO6	55	/* Guest can handle USOv6 in. */
-> +#define VIRTIO_NET_F_HOST_USO	56	/* Host can handle USO in. */
-> +
+> diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
+> index 842c94286d31..7994090e0314 100644
+> --- a/net/vmw_vsock/vmci_transport.c
+> +++ b/net/vmw_vsock/vmci_transport.c
+> @@ -1711,7 +1711,8 @@ static int vmci_transport_dgram_enqueue(
+> 	if (!dg)
+> 		return -ENOMEM;
+> 
+> -	memcpy_from_msg(VMCI_DG_PAYLOAD(dg), msg, len);
+> +	if (memcpy_from_msg(VMCI_DG_PAYLOAD(dg), msg, len))
 
-for consistency pls don't add an empty line here.
+Need to free dg using kfree() before returning.
 
->  #define VIRTIO_NET_F_HASH_REPORT  57	/* Supports hash report */
->  #define VIRTIO_NET_F_RSS	  60	/* Supports RSS RX steering */
->  #define VIRTIO_NET_F_RSC_EXT	  61	/* extended coalescing info */
-> @@ -130,6 +134,7 @@ struct virtio_net_hdr_v1 {
->  #define VIRTIO_NET_HDR_GSO_TCPV4	1	/* GSO frame, IPv4 TCP (TSO) */
->  #define VIRTIO_NET_HDR_GSO_UDP		3	/* GSO frame, IPv4 UDP (UFO) */
->  #define VIRTIO_NET_HDR_GSO_TCPV6	4	/* GSO frame, IPv6 TCP */
-> +#define VIRTIO_NET_HDR_GSO_UDP_L4	5	/* GSO frame, IPv4& IPv6 UDP (USO) */
->  #define VIRTIO_NET_HDR_GSO_ECN		0x80	/* TCP has ECN set */
->  	__u8 gso_type;
->  	__virtio16 hdr_len;	/* Ethernet + IP + tcp/udp hdrs */
+> +		return -EFAULT;
+> 
+> 	dg->dst = vmci_make_handle(remote_addr->svm_cid,
+> 				   remote_addr->svm_port);
 > -- 
-> 2.38.1
+> 2.30.3
+> 
 
 _______________________________________________
 Virtualization mailing list
