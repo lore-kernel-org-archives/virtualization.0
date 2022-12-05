@@ -1,116 +1,99 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D6602C4321E
-	for <virtualization@archiver.kernel.org>; Mon,  5 Dec 2022 14:00:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B0333C4321E
+	for <virtualization@archiver.kernel.org>; Mon,  5 Dec 2022 16:20:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 576DB81A2B;
-	Mon,  5 Dec 2022 14:00:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 576DB81A2B
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ECBxrFKM
+	by smtp3.osuosl.org (Postfix) with ESMTP id 2957F60DFF;
+	Mon,  5 Dec 2022 16:20:46 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2957F60DFF
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=solid-run-com.20210112.gappssmtp.com header.i=@solid-run-com.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=L6XDMvs5
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id k7C5yf9EGyik; Mon,  5 Dec 2022 14:00:23 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id RGQTNsKCvYyd; Mon,  5 Dec 2022 16:20:45 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 6838C81B48;
-	Mon,  5 Dec 2022 14:00:22 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6838C81B48
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 8BA1760706;
+	Mon,  5 Dec 2022 16:20:44 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8BA1760706
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 39141C0033;
-	Mon,  5 Dec 2022 14:00:22 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8226DC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 44976C0033;
+	Mon,  5 Dec 2022 16:20:44 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 83D5FC0032
  for <virtualization@lists.linux-foundation.org>;
- Mon,  5 Dec 2022 14:00:20 +0000 (UTC)
+ Mon,  5 Dec 2022 16:20:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 69D2081C2F
+ by smtp3.osuosl.org (Postfix) with ESMTP id 5D7AA60A80
  for <virtualization@lists.linux-foundation.org>;
- Mon,  5 Dec 2022 14:00:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 69D2081C2F
+ Mon,  5 Dec 2022 16:20:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5D7AA60A80
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id BjznkF0kML0V
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Tzw9wkDECxiK
  for <virtualization@lists.linux-foundation.org>;
- Mon,  5 Dec 2022 14:00:19 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DB33B81A2B
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id DB33B81A2B
+ Mon,  5 Dec 2022 16:20:41 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0623D60706
+Received: from mail-wr1-x432.google.com (mail-wr1-x432.google.com
+ [IPv6:2a00:1450:4864:20::432])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 0623D60706
  for <virtualization@lists.linux-foundation.org>;
- Mon,  5 Dec 2022 14:00:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1670248817;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=8OCKUcvVUiiQ7IfzEODOSINfUx7armQoVZuIx3qsy5I=;
- b=ECBxrFKMZvdkf+FF6h7wXaAhPO8ChPa6PCQnS9MnACoSvxRYB/UrgDw1+THUhVGjg6oY+W
- OOPQzx9Bvtdk9XCW04cctoIM7iVw2y/PCBo1rp4jmG0shGxDneM9SMCc7PWivqBubyj4NM
- /qeBlBIVeIyDyIipbwrMh23I7jHPm9M=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-452-03sdq10WPAmKZCea2gxPpA-1; Mon, 05 Dec 2022 09:00:16 -0500
-X-MC-Unique: 03sdq10WPAmKZCea2gxPpA-1
-Received: by mail-wm1-f71.google.com with SMTP id
- j2-20020a05600c1c0200b003cf7397fc9bso6911669wms.5
+ Mon,  5 Dec 2022 16:20:40 +0000 (UTC)
+Received: by mail-wr1-x432.google.com with SMTP id f18so19387897wrj.5
  for <virtualization@lists.linux-foundation.org>;
- Mon, 05 Dec 2022 06:00:16 -0800 (PST)
+ Mon, 05 Dec 2022 08:20:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=solid-run-com.20210112.gappssmtp.com; s=20210112;
+ h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+ :to:from:from:to:cc:subject:date:message-id:reply-to;
+ bh=ficp9YnxtYUVosXmAWDNlYqnWO69Vk0MG7GW8V0nNo4=;
+ b=L6XDMvs5y72VwZ+hJbbJCeY6uEkjV7yGvT3o2KU3CngYCoXS/tsUIZTc7piZ9W2Xug
+ Hoh8eu7wOVlALCSnDq/1cJeTvPsAetfHT4Y0XI+qM+3OFCgHavmUvrOZR4SZ/q00Omps
+ ataPrsuv0Lp1GGafViym93soHyHipmEEF4I6n9joXP1HGuGMf42ybu3zVXq+p+e2b83n
+ BuiC659II3YNws0++EK3BafQ6y1KAQY7gz3nWHDSyw6gHXYcC4VxHVTOAVY9cOP0n58Q
+ Yh0TjikQ7mcNn5KbuDv5R2a+1bRkdN3iR7EDdLvvTd7T1PW1wbG3zvX9e/2tQbLgiL9A
+ cjHQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=8OCKUcvVUiiQ7IfzEODOSINfUx7armQoVZuIx3qsy5I=;
- b=TXJwSHoFHMf3YQSZX4f9WzeFGhn8xHsbxB7aUIXqWJQjG+MStEcYmNoVQGeGxIE34d
- +gDHUOB9y0DpwfV5ePIHmmgEASwr1rH/FgU9DLzvUR9fmcEd6EyXPdnjczGpDsXYwa56
- cbU/8CpkSStjcLTRKf6s1J6lM8IzFVhkSzsDh87PSKqQ9PbTLUvph0Ukfc2a+Y0oJCuF
- 8pg0XraBClnPTGEI9CJ5wPEdp7XWs4APnCTFTKyiNIgj3tVZw5N4zkGjKtxOGrCzNORR
- TWrU4I3jR9EYKxiB/1sptuoMg5IrDFMC0lEzTYNM12YbMRrL3NjNv4MwxhDNT7H+sBZu
- fdDA==
-X-Gm-Message-State: ANoB5pmda1VDxGju16SoAGABtljeASISQuWzGQGCdPNrPujPYuWaGwAu
- KMOppPu4Ojb872yQEhB3qdhO7Q1ed8wjXljKXvYylAxEg/nMYs0n1xcNxNzh4UDTBSHPMnsVYCE
- rZB+TCXJQvcpObUdDLKbtAsy7ogXKdz1zPpZ6Lzl2Nw==
-X-Received: by 2002:a5d:48c3:0:b0:241:784b:1b7f with SMTP id
- p3-20020a5d48c3000000b00241784b1b7fmr52016015wrs.38.1670248814959; 
- Mon, 05 Dec 2022 06:00:14 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf4PptkJ602kvEF0ImAHsmpZ3A+evn3kXI2mb1oedVpx07OIOZE15VzNBFrSlPJxLpHVvVjmHQ==
-X-Received: by 2002:a5d:48c3:0:b0:241:784b:1b7f with SMTP id
- p3-20020a5d48c3000000b00241784b1b7fmr52015991wrs.38.1670248814636; 
- Mon, 05 Dec 2022 06:00:14 -0800 (PST)
-Received: from sgarzare-redhat (host-87-11-6-51.retail.telecomitalia.it.
- [87.11.6.51]) by smtp.gmail.com with ESMTPSA id
- y15-20020a5d4acf000000b00241e5b917d0sm17246682wrs.36.2022.12.05.06.00.13
+ h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+ :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+ :reply-to;
+ bh=ficp9YnxtYUVosXmAWDNlYqnWO69Vk0MG7GW8V0nNo4=;
+ b=vEEAWAZ5u8hQM44QfSzPpPWnKXuNZYwHKvdXvYOv3uNGxOd091u1NyHy9gy1kFCR4X
+ X+38zPG+8BlxHO6v997NzKl0h8XnPTF2GQrOYIoyN/nY088SztctrbYOiTnSW56J+2em
+ wE4VL74acPDV+3oyjlUJGYSd6CumfCEqgo5dDefCFPgCxDxXlQbyqweGk24ebIGjN8OB
+ WU1Pml5gqAvCVIw6YIYStf5vX51k6noGX2tnXCAr2ILHb77DZqPKULN18oHaNYcc17h1
+ D026ECbEwmX/cmwAGGmL1jtQsKLm5f+1WuuU2OJqFSWkmrllA1KQge/vi0GJfxRQ0zNY
+ aruQ==
+X-Gm-Message-State: ANoB5pk/x32e3DC9yyznZ9tEqm+7DQo87fAumCQJIFLCPomCo/oBjhib
+ hEIOOzb/YtRRzYb/4RF5Bp5zqlB7kxIaP0orQ98=
+X-Google-Smtp-Source: AA0mqf49u7SktyNNs0t8+g6HVZk+8T/Ivq5svMIZrXvPl798MUnRShoJMB1JcN8K1mqX6Fote2xpBQ==
+X-Received: by 2002:a5d:5957:0:b0:22e:3e9:ba15 with SMTP id
+ e23-20020a5d5957000000b0022e03e9ba15mr48747236wri.180.1670257238839; 
+ Mon, 05 Dec 2022 08:20:38 -0800 (PST)
+Received: from localhost.localdomain
+ (bzq-84-110-153-254.static-ip.bezeqint.net. [84.110.153.254])
+ by smtp.gmail.com with ESMTPSA id
+ bg9-20020a05600c3c8900b003cf483ee8e0sm23775783wmb.24.2022.12.05.08.20.37
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 05 Dec 2022 06:00:14 -0800 (PST)
-Date: Mon, 5 Dec 2022 15:00:03 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
-Subject: Re: [RFC PATCH v3 4/4] test/vsock: vsock_perf utility
-Message-ID: <20221205140003.lhtnwoozwaudjfd6@sgarzare-redhat>
-References: <6bd77692-8388-8693-f15f-833df1fa6afd@sberdevices.ru>
- <9cc7610f-bcf5-6f77-96fe-4239efb67ca7@sberdevices.ru>
+ Mon, 05 Dec 2022 08:20:38 -0800 (PST)
+From: Alvaro Karsz <alvaro.karsz@solid-run.com>
+To: virtualization@lists.linux-foundation.org
+Subject: [PATCH v3] virtio_blk: add VIRTIO_BLK_F_LIFETIME feature support
+Date: Mon,  5 Dec 2022 18:20:34 +0200
+Message-Id: <20221205162035.2261037-1-alvaro.karsz@solid-run.com>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-In-Reply-To: <9cc7610f-bcf5-6f77-96fe-4239efb67ca7@sberdevices.ru>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: Bobby Eshleman <bobby.eshleman@bytedance.com>,
- "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- "edumazet@google.com" <edumazet@google.com>,
- Krasnov Arseniy <oxffffaa@gmail.com>, kernel <kernel@sberdevices.ru>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- "David S. Miller" <davem@davemloft.net>
+Cc: Jens Axboe <axboe@kernel.dk>, linux-scsi@vger.kernel.org,
+ "Michael S. Tsirkin" <mst@redhat.com>, linux-nvme@lists.infradead.org,
+ linux-block@vger.kernel.org, dm-devel@redhat.com,
+ Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -122,592 +105,302 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sun, Dec 04, 2022 at 07:24:33PM +0000, Arseniy Krasnov wrote:
->This adds utility to check vsock rx/tx performance.
->
->Usage as sender:
->./vsock_perf --port <port> --mb <bytes to send)
->Usage as receiver:
->./vsock_perf --cid <cid> --port <port> --so_rcvlowat <SO_RCVLOWAT>
->
->Signed-off-by: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
->---
-> tools/testing/vsock/Makefile     |   1 +
-> tools/testing/vsock/README       |  34 +++
-> tools/testing/vsock/vsock_perf.c | 449 +++++++++++++++++++++++++++++++
-> 3 files changed, 484 insertions(+)
-> create mode 100644 tools/testing/vsock/vsock_perf.c
->
->diff --git a/tools/testing/vsock/Makefile b/tools/testing/vsock/Makefile
->index f8293c6910c9..d36fdd59fe2e 100644
->--- a/tools/testing/vsock/Makefile
->+++ b/tools/testing/vsock/Makefile
->@@ -3,6 +3,7 @@ all: test
-> test: vsock_test vsock_diag_test
-> vsock_test: vsock_test.o timeout.o control.o util.o
-> vsock_diag_test: vsock_diag_test.o timeout.o control.o util.o
->+vsock_perf: vsock_perf.o
+Implement the VIRTIO_BLK_F_LIFETIME feature for VirtIO block devices.
 
-I think we can add "vsock_perf" to "all" target.
+This commit introduces a new ioctl command, VBLK_LIFETIME.
 
->
-> CFLAGS += -g -O2 -Werror -Wall -I. -I../../include -I../../../usr/include -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE -D_GNU_SOURCE
-> .PHONY: all test clean
->diff --git a/tools/testing/vsock/README b/tools/testing/vsock/README
->index 4d5045e7d2c3..64c5757b7ecc 100644
->--- a/tools/testing/vsock/README
->+++ b/tools/testing/vsock/README
->@@ -35,3 +35,37 @@ Invoke test binaries in both directions as follows:
->                        --control-port=$GUEST_IP \
->                        --control-port=1234 \
->                        --peer-cid=3
->+
->+vsock_perf utility
->+-------------------
->+'vsock_perf' is a simple tool to measure vsock performance. It works in
->+sender/receiver modes: sender waits for connection at specified port,
->+and after accepting it, starts data transmission to the receiver. After data
->+processing is done, it prints several metrics(see below).
->+
->+Usage:
->+# run as sender
->+# listen port 1234, tx buffer size is 1MB, send of 1G data
->+./vsock_perf --sender --port 1234 --buf-size 1MB --mb 1G
->+
->+Output:
->+tx performance: A Gb/s
->+
->+Output explanation:
->+A is calculated as "number of bytes to send" / "time in tx loop"
->+
->+# run as receiver
->+# connect to CID 2, port 1234, rx buffer size is 1MB, peer buf is 1G, SO_RCVLOWAT is 65536
->+./vsock_perf --cid 2 --port 1234 --buf-size 1MB --vsk-size 1G -so_rcvlowat 65536
->+
->+Output:
->+rx performance: A Gb/s
->+total in 'read()': B sec
->+POLLIN wakeups: C
->+average in 'read()': D ns
->+
->+Output explanation:
->+A is calculated as "number of received bytes" / "time in rx loop".
->+B is time, spent in 'read()' system call(excluding 'poll()')
->+C is number of 'poll()' wake ups with POLLIN bit set.
->+D is B / C, e.g. average amount of time, spent in single 'read()'.
->diff --git a/tools/testing/vsock/vsock_perf.c b/tools/testing/vsock/vsock_perf.c
->new file mode 100644
->index 000000000000..69e3b24868d7
->--- /dev/null
->+++ b/tools/testing/vsock/vsock_perf.c
->@@ -0,0 +1,449 @@
->+// SPDX-License-Identifier: GPL-2.0-only
->+/*
->+ * vsock_perf - benchmark utility for vsock.
->+ *
->+ * Copyright (C) 2022 SberDevices.
->+ *
->+ * Author: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
->+ */
->+#include <getopt.h>
->+#include <stdio.h>
->+#include <stdlib.h>
->+#include <stdbool.h>
->+#include <string.h>
->+#include <errno.h>
->+#include <unistd.h>
->+#include <time.h>
->+#include <sys/mman.h>
->+#include <stdint.h>
->+#include <poll.h>
->+#include <sys/socket.h>
->+#include <linux/vm_sockets.h>
->+
->+#define DEFAULT_BUF_SIZE_BYTES	(128 * 1024)
->+#define DEFAULT_TO_SEND_BYTES	(64 * 1024)
->+#define DEFAULT_VSOCK_BUF_BYTES (256 * 1024)
->+#define DEFAULT_RCVLOWAT_BYTES	1
->+#define DEFAULT_PORT		1234
->+#define DEFAULT_CID		2
->+
->+#define BYTES_PER_GB		(1024 * 1024 * 1024ULL)
->+#define NSEC_PER_SEC		(1000000000ULL)
->+
->+static unsigned int port = DEFAULT_PORT;
->+static unsigned long buf_size_bytes = DEFAULT_BUF_SIZE_BYTES;
->+static unsigned long vsock_buf_bytes = DEFAULT_VSOCK_BUF_BYTES;
->+
->+static inline time_t current_nsec(void)
->+{
->+	struct timespec ts;
->+
->+	if (clock_gettime(CLOCK_REALTIME, &ts)) {
->+		perror("clock_gettime");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	return (ts.tv_sec * NSEC_PER_SEC) + ts.tv_nsec;
->+}
->+
->+/* From lib/cmdline.c. */
->+static unsigned long memparse(const char *ptr)
->+{
->+	char *endptr;
->+
->+	unsigned long long ret = strtoull(ptr, &endptr, 0);
->+
->+	switch (*endptr) {
->+	case 'E':
->+	case 'e':
->+		ret <<= 10;
->+	case 'P':
->+	case 'p':
->+		ret <<= 10;
->+	case 'T':
->+	case 't':
->+		ret <<= 10;
->+	case 'G':
->+	case 'g':
->+		ret <<= 10;
->+	case 'M':
->+	case 'm':
->+		ret <<= 10;
->+	case 'K':
->+	case 'k':
->+		ret <<= 10;
->+		endptr++;
->+	default:
->+		break;
->+	}
->+
->+	return ret;
->+}
->+
->+static void vsock_increase_buf_size(int fd)
->+{
->+	if (setsockopt(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_MAX_SIZE,
->+		       &vsock_buf_bytes, sizeof(vsock_buf_bytes))) {
->+		perror("setsockopt");
+VBLK_LIFETIME ioctl asks for the block device to provide lifetime
+information by sending a VIRTIO_BLK_T_GET_LIFETIME command to the device.
 
-As for the previous patch, I would add the opt that is failing to make 
-it easier to analyze in case of failure.
+lifetime information fields:
 
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	if (setsockopt(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_SIZE,
->+		       &vsock_buf_bytes, sizeof(vsock_buf_bytes))) {
->+		perror("setsockopt");
+- pre_eol_info: specifies the percentage of reserved blocks that are
+		consumed.
+		optional values following virtio spec:
+		*) 0 - undefined.
+		*) 1 - normal, < 80% of reserved blocks are consumed.
+		*) 2 - warning, 80% of reserved blocks are consumed.
+		*) 3 - urgent, 90% of reserved blocks are consumed.
 
-Ditto.
+- device_lifetime_est_typ_a: this field refers to wear of SLC cells and
+			     is provided in increments of 10used, and so
+			     on, thru to 11 meaning estimated lifetime
+			     exceeded. All values above 11 are reserved.
 
->+		exit(EXIT_FAILURE);
->+	}
->+}
->+
->+static int vsock_connect(unsigned int cid, unsigned int port)
->+{
->+	union {
->+		struct sockaddr sa;
->+		struct sockaddr_vm svm;
->+	} addr = {
->+		.svm = {
->+			.svm_family = AF_VSOCK,
->+			.svm_port = port,
->+			.svm_cid = cid,
->+		},
->+	};
->+	int fd;
->+
->+	fd = socket(AF_VSOCK, SOCK_STREAM, 0);
->+
->+	if (fd < 0)
->+		return -1;
->+
->+	vsock_increase_buf_size(fd);
->+
->+	if (connect(fd, &addr.sa, sizeof(addr.svm)) < 0) {
->+		close(fd);
->+		return -1;
->+	}
->+
->+	return fd;
->+}
->+
->+static float get_gbps(unsigned long bytes, time_t ns_delta)
->+{
->+	return ((float)bytes / BYTES_PER_GB) /
->+	       ((float)ns_delta / NSEC_PER_SEC);
->+}
->+
->+static void run_sender(unsigned long to_send_bytes)
->+{
->+	time_t tx_begin_ns;
->+	size_t total_send;
->+	int client_fd;
->+	char *data;
->+	int fd;
->+	union {
->+		struct sockaddr sa;
->+		struct sockaddr_vm svm;
->+	} addr = {
->+		.svm = {
->+			.svm_family = AF_VSOCK,
->+			.svm_port = port,
->+			.svm_cid = VMADDR_CID_ANY,
->+		},
->+	};
->+	union {
->+		struct sockaddr sa;
->+		struct sockaddr_vm svm;
->+	} clientaddr;
->+
->+	socklen_t clientaddr_len = sizeof(clientaddr.svm);
->+
->+	printf("Run as sender\n");
->+	printf("Listen port %u\n", port);
->+	printf("Send %lu bytes\n", to_send_bytes);
->+	printf("TX buffer %lu bytes\n", buf_size_bytes);
->+	printf("Peer buffer %lu bytes\n", vsock_buf_bytes);
->+
->+	fd = socket(AF_VSOCK, SOCK_STREAM, 0);
->+
->+	if (fd < 0) {
->+		perror("socket");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	if (bind(fd, &addr.sa, sizeof(addr.svm)) < 0) {
->+		perror("bind");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	if (listen(fd, 1) < 0) {
->+		perror("listen");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	client_fd = accept(fd, &clientaddr.sa, &clientaddr_len);
->+
->+	if (client_fd < 0) {
->+		perror("accept");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	vsock_increase_buf_size(client_fd);
->+
->+	data = malloc(buf_size_bytes);
->+
->+	if (!data) {
->+		printf("malloc failed\n");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	memset(data, 0, buf_size_bytes);
->+	total_send = 0;
->+	tx_begin_ns = current_nsec();
->+
->+	while (total_send < to_send_bytes) {
->+		ssize_t sent;
->+
->+		sent = write(client_fd, data, buf_size_bytes);
->+
->+		if (sent <= 0) {
->+			perror("write");
->+			exit(EXIT_FAILURE);
->+		}
->+
->+		total_send += sent;
->+	}
->+
->+	printf("tx performance: %f Gb/s\n",
->+	       get_gbps(total_send, current_nsec() - tx_begin_ns));
->+
->+	close(client_fd);
->+	close(fd);
->+
->+	free(data);
->+}
->+
->+static void run_receiver(int peer_cid, unsigned long rcvlowat_bytes)
->+{
->+	unsigned int read_cnt;
->+	time_t rx_begin_ns;
->+	time_t in_read_ns;
->+	size_t total_recv;
->+	void *data;
->+	int fd;
->+
->+	printf("Run as receiver\n");
->+	printf("Connect to %i:%u\n", peer_cid, port);
->+	printf("RX buffer %lu bytes\n", buf_size_bytes);
->+	printf("Peer buffer %lu bytes\n", vsock_buf_bytes);
->+	printf("SO_RCVLOWAT %lu bytes\n", rcvlowat_bytes);
->+
->+	fd = vsock_connect(peer_cid, port);
->+
->+	if (fd < 0) {
->+		perror("socket");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	if (setsockopt(fd, SOL_SOCKET, SO_RCVLOWAT,
->+		       &rcvlowat_bytes,
->+		       sizeof(rcvlowat_bytes))) {
->+		perror("setsockopt");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	data = mmap(NULL, buf_size_bytes, PROT_READ | PROT_WRITE,
->+		    MAP_ANONYMOUS | MAP_PRIVATE | MAP_POPULATE, -1, 0);
->+
->+	if (data == MAP_FAILED) {
->+		perror("mmap");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	read_cnt = 0;
->+	in_read_ns = 0;
->+	total_recv = 0;
->+	rx_begin_ns = current_nsec();
->+
->+	while (1) {
->+		struct pollfd fds = { 0 };
->+
->+		fds.fd = fd;
->+		fds.events = POLLIN | POLLERR | POLLHUP |
->+			     POLLRDHUP | POLLNVAL;
->+
->+		if (poll(&fds, 1, -1) < 0) {
->+			perror("poll");
->+			exit(EXIT_FAILURE);
->+		}
->+
->+		if (fds.revents & POLLERR) {
->+			printf("'poll()' error\n");
->+			exit(EXIT_FAILURE);
->+		}
->+
->+		if (fds.revents & POLLIN) {
->+			ssize_t bytes_read;
->+			time_t t;
->+
->+			t = current_nsec();
->+			bytes_read = read(fd, data, buf_size_bytes);
->+			in_read_ns += (current_nsec() - t);
->+			read_cnt++;
->+
->+			if (!bytes_read)
->+				break;
->+
->+			if (bytes_read < 0) {
->+				perror("recv");
->+				exit(EXIT_FAILURE);
->+			}
->+
->+			total_recv += bytes_read;
->+		}
->+
->+		if (fds.revents & (POLLHUP | POLLRDHUP))
->+			break;
->+	}
->+
->+	printf("rx performance: %f Gb/s\n",
->+	       get_gbps(total_recv, current_nsec() - rx_begin_ns));
->+	printf("total time in 'read()': %f sec\n", (float)in_read_ns / NSEC_PER_SEC);
->+	printf("POLLIN wakeups: %i\n", read_cnt);
->+	printf("average time in 'read()': %f ns\n", (float)in_read_ns / read_cnt);
->+
->+	munmap(data, buf_size_bytes);
->+	close(fd);
->+}
->+
->+static const char optstring[] = "";
->+static const struct option longopts[] = {
->+	{
->+		.name = "help",
->+		.has_arg = no_argument,
->+		.val = 'H',
->+	},
->+	{
->+		.name = "sender",
->+		.has_arg = no_argument,
->+		.val = 'S',
->+	},
->+	{
->+		.name = "port",
->+		.has_arg = required_argument,
->+		.val = 'P',
->+	},
->+	{
->+		.name = "cid",
->+		.has_arg = required_argument,
->+		.val = 'C',
->+	},
->+	{
->+		.name = "mb",
->+		.has_arg = required_argument,
->+		.val = 'M',
->+	},
->+	{
->+		.name = "buf-size",
->+		.has_arg = required_argument,
->+		.val = 'B',
->+	},
->+	{
->+		.name = "vsk-size",
->+		.has_arg = required_argument,
->+		.val = 'V',
->+	},
->+	{
->+		.name = "so_rcvlowat",
->+		.has_arg = required_argument,
->+		.val = 'R',
->+	},
->+	{},
->+};
->+
->+static void usage(void)
->+{
->+	printf("Help:\n"
+- device_lifetime_est_typ_b: this field refers to wear of MLC cells and is
+			     provided with the same semantics as
+			     device_lifetime_est_typ_a.
 
-Instead of "Help:" I would start with:
-"Usage: vsock_perf [--help] [options]"
+The data received from the device will be sent as is to the user.
+No data check/decode is done by virtblk.
 
+Signed-off-by: Alvaro Karsz <alvaro.karsz@solid-run.com>
+--
+v2:
+	- Remove (void *) casting.
+	- Fix comments format in virtio_blk.h.
+	- Set ioprio value for legacy devices for REQ_OP_DRV_IN
+	  operations.
 
->+	       "\n"
->+	       "This is benchmarking utility, to test vsock performance.\n"
->+	       "It runs in two modes: sender or receiver. In sender mode, it waits\n"
->+	       "connection from receiver, and when established, sender starts data\n"
->+	       "transmission.\n"
->+	       "\n"
->+	       "Options:\n"
->+	       "  --help			This help message\n"
->+	       "  --sender			Sender mode(receiver default)\n"
-                                                            ^ space here 
->+	       "  --port <port>			Port (%d)\n"
->+	       "  --cid <cid>			CID of the peer (%d)\n"
+v3:
+	- Initialize struct virtio_blk_lifetime to 0 instead of memset.
+	- Rename ioctl from VBLK_LIFETIME to VBLK_GET_LIFETIME.
+	- Return EOPNOTSUPP insted of ENOTTY if ioctl is not supported.
+	- Check if process is CAP_SYS_ADMIN capable in lifetime ioctl.
+	- Check if vdev is not NULL before accessing it in lifetime ioctl.
+--
+---
+ drivers/block/virtio_blk.c      | 106 ++++++++++++++++++++++++++++++--
+ include/uapi/linux/virtio_blk.h |  32 ++++++++++
+ 2 files changed, 133 insertions(+), 5 deletions(-)
 
-IIUC --cid can be used only by the receiver, so maybe better to use
-"CID of the sender to connect to"
-
-What about make the sender initiate the connection, while the receiver
-listens?
-So we could remove "--cid" and use only --sender:
-
-         --sender <cid>       Sender mode (receiver default).
-                              <cid> of the receiver to connect to.
-
-And of course updating the description above.
-
-
->+	       "  --mb <bytes to send>		Bytes to send (%d)\n"
-
-I would use --bytes and also add KMG as suffix (in all places where
-supported).
-
-E.g.              --bytes <bytes to send>KMG    Bytes to send ...
-
->+	       "  --buf-size <buffer size>	Rx/Tx buffer size (%d). In sender mode\n"
->+	       "                                it is size of buffer passed to 'write()'.\n"
-
-"it is the buffer size"
-
->+	       "                                In receiver mode it is size of buffer passed\n"
-
-Ditto.
-
->+	       "                                to 'read()'.\n"
->+	       "  --vsk-size <peer buffer size>	Socket buffer size (%d)\n"
->+	       "  --so_rcvlowat <SO_RCVLOWAT>	SO_RCVLOWAT (%d)\n"
-
-"--rcvlowat <SO_RCVLOWAT>    SO_RCVLOWAT value in bytes"
-
->+	       "\n", DEFAULT_PORT, DEFAULT_CID, DEFAULT_TO_SEND_BYTES,
->+	       DEFAULT_BUF_SIZE_BYTES, DEFAULT_VSOCK_BUF_BYTES,
->+	       DEFAULT_RCVLOWAT_BYTES);
-
-For the defaults values I would use (default: %d), otherwise is not
-clear what that values are.
-
-The rest LGTM!
-
-Thanks,
-Stefano
-
->+	exit(EXIT_FAILURE);
->+}
->+
->+static long strtolx(const char *arg)
->+{
->+	long value;
->+	char *end;
->+
->+	value = strtol(arg, &end, 10);
->+
->+	if (end != arg + strlen(arg))
->+		usage();
->+
->+	return value;
->+}
->+
->+int main(int argc, char **argv)
->+{
->+	unsigned long to_send_bytes = DEFAULT_TO_SEND_BYTES;
->+	unsigned long rcvlowat_bytes = DEFAULT_RCVLOWAT_BYTES;
->+	bool receiver_mode = true;
->+	int peer_cid = DEFAULT_CID;
->+
->+	while (1) {
->+		int opt = getopt_long(argc, argv, optstring, longopts, NULL);
->+
->+		if (opt == -1)
->+			break;
->+
->+		switch (opt) {
->+		case 'V': /* Peer buffer size. */
->+			vsock_buf_bytes = memparse(optarg);
->+			break;
->+		case 'R': /* SO_RCVLOWAT value. */
->+			rcvlowat_bytes = memparse(optarg);
->+			break;
->+		case 'C': /* CID to connect to. */
->+			peer_cid = strtolx(optarg);
->+			break;
->+		case 'P': /* Port to connect to. */
->+			port = strtolx(optarg);
->+			break;
->+		case 'M': /* Bytes to send. */
->+			to_send_bytes = memparse(optarg);
->+			break;
->+		case 'B': /* Size of rx/tx buffer. */
->+			buf_size_bytes = memparse(optarg);
->+			break;
->+		case 'S': /* Sender mode. */
->+			receiver_mode = false;
->+			break;
->+		case 'H': /* Help. */
->+			usage();
->+			break;
->+		default:
->+			usage();
->+		}
->+	}
->+
->+	if (receiver_mode)
->+		run_receiver(peer_cid, rcvlowat_bytes);
->+	else
->+		run_sender(to_send_bytes);
->+
->+	return 0;
->+}
->-- 
->2.25.1
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 19da5defd73..392d57fd6b7 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -101,6 +101,18 @@ static inline blk_status_t virtblk_result(struct virtblk_req *vbr)
+ 	}
+ }
+ 
++static inline int virtblk_ioctl_result(struct virtblk_req *vbr)
++{
++	switch (vbr->status) {
++	case VIRTIO_BLK_S_OK:
++		return 0;
++	case VIRTIO_BLK_S_UNSUPP:
++		return -EOPNOTSUPP;
++	default:
++		return -EIO;
++	}
++}
++
+ static inline struct virtio_blk_vq *get_virtio_blk_vq(struct blk_mq_hw_ctx *hctx)
+ {
+ 	struct virtio_blk *vblk = hctx->queue->queuedata;
+@@ -218,6 +230,7 @@ static blk_status_t virtblk_setup_cmd(struct virtio_device *vdev,
+ 	u32 type;
+ 
+ 	vbr->out_hdr.sector = 0;
++	vbr->out_hdr.ioprio = cpu_to_virtio32(vdev, req_get_ioprio(req));
+ 
+ 	switch (req_op(req)) {
+ 	case REQ_OP_READ:
+@@ -244,15 +257,14 @@ static blk_status_t virtblk_setup_cmd(struct virtio_device *vdev,
+ 		type = VIRTIO_BLK_T_SECURE_ERASE;
+ 		break;
+ 	case REQ_OP_DRV_IN:
+-		type = VIRTIO_BLK_T_GET_ID;
+-		break;
++		/* type is set in virtblk_get_id/virtblk_ioctl_lifetime */
++		return 0;
+ 	default:
+ 		WARN_ON_ONCE(1);
+ 		return BLK_STS_IOERR;
+ 	}
+ 
+ 	vbr->out_hdr.type = cpu_to_virtio32(vdev, type);
+-	vbr->out_hdr.ioprio = cpu_to_virtio32(vdev, req_get_ioprio(req));
+ 
+ 	if (type == VIRTIO_BLK_T_DISCARD || type == VIRTIO_BLK_T_WRITE_ZEROES ||
+ 	    type == VIRTIO_BLK_T_SECURE_ERASE) {
+@@ -459,12 +471,16 @@ static int virtblk_get_id(struct gendisk *disk, char *id_str)
+ 	struct virtio_blk *vblk = disk->private_data;
+ 	struct request_queue *q = vblk->disk->queue;
+ 	struct request *req;
++	struct virtblk_req *vbr;
+ 	int err;
+ 
+ 	req = blk_mq_alloc_request(q, REQ_OP_DRV_IN, 0);
+ 	if (IS_ERR(req))
+ 		return PTR_ERR(req);
+ 
++	vbr = blk_mq_rq_to_pdu(req);
++	vbr->out_hdr.type = cpu_to_virtio32(vblk->vdev, VIRTIO_BLK_T_GET_ID);
++
+ 	err = blk_rq_map_kern(q, req, id_str, VIRTIO_BLK_ID_BYTES, GFP_KERNEL);
+ 	if (err)
+ 		goto out;
+@@ -508,6 +524,85 @@ static int virtblk_getgeo(struct block_device *bd, struct hd_geometry *geo)
+ 	return ret;
+ }
+ 
++/* Get lifetime information from device */
++static int virtblk_ioctl_lifetime(struct virtio_blk *vblk, unsigned long arg)
++{
++	struct request_queue *q = vblk->disk->queue;
++	struct request *req = NULL;
++	struct virtblk_req *vbr;
++	struct virtio_blk_lifetime lifetime = {};
++	int ret;
++
++	if (!capable(CAP_SYS_ADMIN))
++		return -EPERM;
++
++	/* The virtio_blk_lifetime struct fields follow virtio spec.
++	 * There is no check/decode on values received from the device.
++	 * The data is sent as is to the user.
++	 */
++
++	/* This ioctl is allowed only if VIRTIO_BLK_F_LIFETIME
++	 * feature is negotiated.
++	 */
++	if (!virtio_has_feature(vblk->vdev, VIRTIO_BLK_F_LIFETIME))
++		return -EOPNOTSUPP;
++
++	req = blk_mq_alloc_request(q, REQ_OP_DRV_IN, 0);
++	if (IS_ERR(req))
++		return PTR_ERR(req);
++
++	/* Write the correct type */
++	vbr = blk_mq_rq_to_pdu(req);
++	vbr->out_hdr.type = cpu_to_virtio32(vblk->vdev, VIRTIO_BLK_T_GET_LIFETIME);
++
++	ret = blk_rq_map_kern(q, req, &lifetime, sizeof(lifetime), GFP_KERNEL);
++	if (ret)
++		goto out;
++
++	blk_execute_rq(req, false);
++
++	ret = virtblk_ioctl_result(blk_mq_rq_to_pdu(req));
++	if (ret)
++		goto out;
++
++	/* Pass the data to the user */
++	if (copy_to_user((void __user *)arg, &lifetime, sizeof(lifetime))) {
++		ret = -EFAULT;
++		goto out;
++	}
++
++out:
++	blk_mq_free_request(req);
++	return ret;
++}
++
++static int virtblk_ioctl(struct block_device *bd, fmode_t mode,
++			 unsigned int cmd, unsigned long arg)
++{
++	struct virtio_blk *vblk = bd->bd_disk->private_data;
++	int ret;
++
++	mutex_lock(&vblk->vdev_mutex);
++
++	if (!vblk->vdev) {
++		ret = -ENXIO;
++		goto exit;
++	}
++
++	switch (cmd) {
++	case VBLK_GET_LIFETIME:
++		ret = virtblk_ioctl_lifetime(vblk, arg);
++		break;
++	default:
++		ret = -EOPNOTSUPP;
++		break;
++	}
++
++exit:
++	mutex_unlock(&vblk->vdev_mutex);
++	return ret;
++}
++
+ static void virtblk_free_disk(struct gendisk *disk)
+ {
+ 	struct virtio_blk *vblk = disk->private_data;
+@@ -520,6 +615,7 @@ static void virtblk_free_disk(struct gendisk *disk)
+ static const struct block_device_operations virtblk_fops = {
+ 	.owner  	= THIS_MODULE,
+ 	.getgeo		= virtblk_getgeo,
++	.ioctl		= virtblk_ioctl,
+ 	.free_disk	= virtblk_free_disk,
+ };
+ 
+@@ -1239,7 +1335,7 @@ static unsigned int features_legacy[] = {
+ 	VIRTIO_BLK_F_RO, VIRTIO_BLK_F_BLK_SIZE,
+ 	VIRTIO_BLK_F_FLUSH, VIRTIO_BLK_F_TOPOLOGY, VIRTIO_BLK_F_CONFIG_WCE,
+ 	VIRTIO_BLK_F_MQ, VIRTIO_BLK_F_DISCARD, VIRTIO_BLK_F_WRITE_ZEROES,
+-	VIRTIO_BLK_F_SECURE_ERASE,
++	VIRTIO_BLK_F_SECURE_ERASE, VIRTIO_BLK_F_LIFETIME,
+ }
+ ;
+ static unsigned int features[] = {
+@@ -1247,7 +1343,7 @@ static unsigned int features[] = {
+ 	VIRTIO_BLK_F_RO, VIRTIO_BLK_F_BLK_SIZE,
+ 	VIRTIO_BLK_F_FLUSH, VIRTIO_BLK_F_TOPOLOGY, VIRTIO_BLK_F_CONFIG_WCE,
+ 	VIRTIO_BLK_F_MQ, VIRTIO_BLK_F_DISCARD, VIRTIO_BLK_F_WRITE_ZEROES,
+-	VIRTIO_BLK_F_SECURE_ERASE,
++	VIRTIO_BLK_F_SECURE_ERASE, VIRTIO_BLK_F_LIFETIME,
+ };
+ 
+ static struct virtio_driver virtio_blk = {
+diff --git a/include/uapi/linux/virtio_blk.h b/include/uapi/linux/virtio_blk.h
+index 58e70b24b50..e755d62d2ea 100644
+--- a/include/uapi/linux/virtio_blk.h
++++ b/include/uapi/linux/virtio_blk.h
+@@ -40,6 +40,7 @@
+ #define VIRTIO_BLK_F_MQ		12	/* support more than one vq */
+ #define VIRTIO_BLK_F_DISCARD	13	/* DISCARD is supported */
+ #define VIRTIO_BLK_F_WRITE_ZEROES	14	/* WRITE ZEROES is supported */
++#define VIRTIO_BLK_F_LIFETIME	15 /* Storage lifetime information is supported */
+ #define VIRTIO_BLK_F_SECURE_ERASE	16 /* Secure Erase is supported */
+ 
+ /* Legacy feature bits */
+@@ -165,6 +166,9 @@ struct virtio_blk_config {
+ /* Get device ID command */
+ #define VIRTIO_BLK_T_GET_ID    8
+ 
++/* Get lifetime information command */
++#define VIRTIO_BLK_T_GET_LIFETIME 10
++
+ /* Discard command */
+ #define VIRTIO_BLK_T_DISCARD	11
+ 
+@@ -206,6 +210,30 @@ struct virtio_blk_discard_write_zeroes {
+ 	__le32 flags;
+ };
+ 
++/* Get lifetime information struct for each request */
++struct virtio_blk_lifetime {
++	/*
++	 * specifies the percentage of reserved blocks that are consumed.
++	 * optional values following virtio spec:
++	 * 0 - undefined
++	 * 1 - normal, < 80% of reserved blocks are consumed
++	 * 2 - warning, 80% of reserved blocks are consumed
++	 * 3 - urgent, 90% of reserved blocks are consumed
++	 */
++	__le16 pre_eol_info;
++	/*
++	 * this field refers to wear of SLC cells and is provided in increments of 10used,
++	 * and so on, thru to 11 meaning estimated lifetime exceeded. All values above 11
++	 * are reserved
++	 */
++	__le16 device_lifetime_est_typ_a;
++	/*
++	 * this field refers to wear of MLC cells and is provided with the same semantics as
++	 * device_lifetime_est_typ_a
++	 */
++	__le16 device_lifetime_est_typ_b;
++};
++
+ #ifndef VIRTIO_BLK_NO_LEGACY
+ struct virtio_scsi_inhdr {
+ 	__virtio32 errors;
+@@ -219,4 +247,8 @@ struct virtio_scsi_inhdr {
+ #define VIRTIO_BLK_S_OK		0
+ #define VIRTIO_BLK_S_IOERR	1
+ #define VIRTIO_BLK_S_UNSUPP	2
++
++/* Virtblk ioctl commands */
++#define VBLK_GET_LIFETIME	_IOR('r', 0, struct virtio_blk_lifetime)
++
+ #endif /* _LINUX_VIRTIO_BLK_H */
+-- 
+2.32.0
 
 _______________________________________________
 Virtualization mailing list
