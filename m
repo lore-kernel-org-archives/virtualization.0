@@ -4,111 +4,109 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 73590C352A1
-	for <virtualization@archiver.kernel.org>; Tue,  6 Dec 2022 10:20:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B1422C352A1
+	for <virtualization@archiver.kernel.org>; Tue,  6 Dec 2022 11:01:00 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id D9F2C81E12;
-	Tue,  6 Dec 2022 10:20:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D9F2C81E12
+	by smtp1.osuosl.org (Postfix) with ESMTP id 4351081E64;
+	Tue,  6 Dec 2022 11:01:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4351081E64
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=KJwp2tS7
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=OuN0bGKR
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id cvVgf8SlhhbP; Tue,  6 Dec 2022 10:20:34 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 64C3981443;
-	Tue,  6 Dec 2022 10:20:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 64C3981443
+	with ESMTP id mlhQdrHx1_0y; Tue,  6 Dec 2022 11:00:59 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id BC548813FA;
+	Tue,  6 Dec 2022 11:00:58 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BC548813FA
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3CB13C0033;
-	Tue,  6 Dec 2022 10:20:33 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7CB24C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 96768C0033;
+	Tue,  6 Dec 2022 11:00:58 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B964CC002D
  for <virtualization@lists.linux-foundation.org>;
- Tue,  6 Dec 2022 10:20:31 +0000 (UTC)
+ Tue,  6 Dec 2022 11:00:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 47BC981E0F
+ by smtp4.osuosl.org (Postfix) with ESMTP id 853AE41725
  for <virtualization@lists.linux-foundation.org>;
- Tue,  6 Dec 2022 10:20:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 47BC981E0F
+ Tue,  6 Dec 2022 11:00:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 853AE41725
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=OuN0bGKR
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id RlIpnwqQcWp2
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id CDP_ynl9bVYA
  for <virtualization@lists.linux-foundation.org>;
- Tue,  6 Dec 2022 10:20:30 +0000 (UTC)
+ Tue,  6 Dec 2022 11:00:56 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D425E81443
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5437941720
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id D425E81443
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 5437941720
  for <virtualization@lists.linux-foundation.org>;
- Tue,  6 Dec 2022 10:20:29 +0000 (UTC)
+ Tue,  6 Dec 2022 11:00:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1670322028;
+ s=mimecast20190719; t=1670324455;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=jHrzc7nXr4YvCNaFmiJ1lG1BHgrUaPmAIMwaF5/OBO4=;
- b=KJwp2tS7QXn015PwBDP7+jXgN8Z2Zjce2Wq7Ij5FNUd2v87d8otQbYEZeuBN2uLDSI/syD
- O9E4pYdkLeTUcwDZ84yxsRZaTj6oCCtU8IsafDzMBcD58Y++kHoDG0E1INl1N3uFFMy64H
- J04JXsxp+xBL4KsWlFhmU9gjmT9YWus=
-Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com
- [209.85.222.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=nnhqMeUW5gkAJH3i2M2e0zkZdF9yQL6BjlLwXPeq/ho=;
+ b=OuN0bGKRm/+ut9t5sF7TS1aN7ZZRkWWzV35MtWnZgDHT3ZjeCf/85u8P79nlJH12OEuakE
+ 1la6Nz/8gs6T92XCgKdRNeJQ+0I1tcX+81QTCieuDzbckvqBrKj50J6GrBc1RXX4W++sYy
+ nMdT1b7dx7s7Jw8idNkbGqUI6a+58wQ=
+Received: from mail-qk1-f197.google.com (mail-qk1-f197.google.com
+ [209.85.222.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-471-dJSLoBerPCaoViEgsMqqIw-1; Tue, 06 Dec 2022 05:20:27 -0500
-X-MC-Unique: dJSLoBerPCaoViEgsMqqIw-1
-Received: by mail-qk1-f198.google.com with SMTP id
- x2-20020a05620a448200b006fa7dad5c1cso20322908qkp.10
+ us-mta-362-i2n_PAKQObSQyuWtr0G_lQ-1; Tue, 06 Dec 2022 06:00:54 -0500
+X-MC-Unique: i2n_PAKQObSQyuWtr0G_lQ-1
+Received: by mail-qk1-f197.google.com with SMTP id
+ j13-20020a05620a410d00b006e08208eb31so20442548qko.3
  for <virtualization@lists.linux-foundation.org>;
- Tue, 06 Dec 2022 02:20:27 -0800 (PST)
+ Tue, 06 Dec 2022 03:00:53 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=content-transfer-encoding:mime-version:user-agent:references
- :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
- :from:to:cc:subject:date:message-id:reply-to;
- bh=jHrzc7nXr4YvCNaFmiJ1lG1BHgrUaPmAIMwaF5/OBO4=;
- b=gjvxnkq72Ly6svmSdiI7vU74K4pHvO3p4RHvvDGaSQNsx/mXeMvBDkbM30vzXCHMHK
- 4xBf9SRXSAVnEF4K2fqBKJZw5NUsn+gpBiZRrIcvZnf+QsQ12F5C0pnVrOilWdT6lkpS
- HvXZlPl5TbxxVmj4uwfN/kkl/L/AbBBXuMsDRqmEHQR3UcDSU2bdAsO/6RDaAXVl6F7P
- oJmUuAXe6ZnyfKFhViVPB/crJ/+glq9RLxhp7P9kxwubwOeLQKK9vwBTvH5H3hfhYm3/
- 85yip8OY+uiFr6a4XoBBZBLJHeAkLUn6mmVLD/6mu4j4b7R5yH6gkiylsk0IECliI4xO
- okIg==
-X-Gm-Message-State: ANoB5pm4ZluizP2UdQsvKtoU8lUXdln9jqrv77CRhzqafztkKoUvbv2J
- zLS3ki1xGzCashE9g4/SDYokOyAY+7orEQ85zucCCqJY0+mx9TDUpoYhqimXNVE26WuDnWmY/wS
- YLto/jXFjv2mKcZEdJtqzvL4euKPxAmZozz+/kGuQ6w==
-X-Received: by 2002:a05:622a:4017:b0:3a5:4f7e:bab2 with SMTP id
- cf23-20020a05622a401700b003a54f7ebab2mr64363595qtb.527.1670322026694; 
- Tue, 06 Dec 2022 02:20:26 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf5qvnmSSJhD7XhInjAoVoAZX/6OMJ6iTD3rm9lH6Om7UxRSOVZ1bSbEKEISqvQ5FcAl/6HHWQ==
-X-Received: by 2002:a05:622a:4017:b0:3a5:4f7e:bab2 with SMTP id
- cf23-20020a05622a401700b003a54f7ebab2mr64363575qtb.527.1670322026401; 
- Tue, 06 Dec 2022 02:20:26 -0800 (PST)
-Received: from gerbillo.redhat.com (146-241-106-100.dyn.eolo.it.
- [146.241.106.100]) by smtp.gmail.com with ESMTPSA id
- bi6-20020a05620a318600b006fa16fe93bbsm14341627qkb.15.2022.12.06.02.20.23
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=nnhqMeUW5gkAJH3i2M2e0zkZdF9yQL6BjlLwXPeq/ho=;
+ b=rAXYJHMwYkBLy3t9+kReBVy5U99HWunO21buhvagYfy7IBUzczm7CpEoKWzyoju1n6
+ cfJ4nZyRkVfUybNXHtJvVvXhafsyv6+OCFvg/DWz5DeGFeo7YlrtFlxqxLDVysfsGBdm
+ VCnW2ejASHxc+rB/PVSK+CKnlF/VWQVv3St28KmrLJ9nbILB1eIgc7dV97hlYtpXdqdb
+ EcGN2a3emZODqTX8h6JUW2r0gGDn8Pw7jG9WIaQARgl6kKpOBGkkJmqotI00eMIIQA6B
+ 1NHOjemeReF9ff3zxSJjca8bn1i/o4aaQya8rLNYtRwgmaym2dphWsBzzNbgNjDo/eMi
+ unFg==
+X-Gm-Message-State: ANoB5pl0q76qJ9rjeMGbZZTYghFruUqu5q6oRikdaqeGlMkAaZYBf2et
+ BJ+5OO8IXFa6X3V0VifHxuyxcbmIT1VLuQCzAvG6nrjPlRg/N6+dsqEexNsa1mFlNUxue0H7UcX
+ nXmhXuLPCP00RlRPlgOFiLaPR1EXqu8ukVEx23aSA5w==
+X-Received: by 2002:a05:6214:170d:b0:4c7:4add:6123 with SMTP id
+ db13-20020a056214170d00b004c74add6123mr14971768qvb.100.1670324453406; 
+ Tue, 06 Dec 2022 03:00:53 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf6O4cvnwiNG/1UoAXIkBQIklV5lMHMzKytVq4RHoVXR9XHDwZ6NxwUPqwnijsvhRUZGuVdF0g==
+X-Received: by 2002:a05:6214:170d:b0:4c7:4add:6123 with SMTP id
+ db13-20020a056214170d00b004c74add6123mr14971755qvb.100.1670324453175; 
+ Tue, 06 Dec 2022 03:00:53 -0800 (PST)
+Received: from sgarzare-redhat (host-87-11-6-51.retail.telecomitalia.it.
+ [87.11.6.51]) by smtp.gmail.com with ESMTPSA id
+ dm12-20020a05620a1d4c00b006fb11eee465sm14082021qkb.64.2022.12.06.03.00.50
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 06 Dec 2022 02:20:26 -0800 (PST)
-Message-ID: <863a58452b4a4c0d63a41b0f78b59d32919067fa.camel@redhat.com>
-Subject: Re: [PATCH v5] virtio/vsock: replace virtio_vsock_pkt with sk_buff
-From: Paolo Abeni <pabeni@redhat.com>
-To: Bobby Eshleman <bobby.eshleman@bytedance.com>
-Date: Tue, 06 Dec 2022 11:20:21 +0100
-In-Reply-To: <20221202173520.10428-1-bobby.eshleman@bytedance.com>
-References: <20221202173520.10428-1-bobby.eshleman@bytedance.com>
-User-Agent: Evolution 3.42.4 (3.42.4-2.fc35)
+ Tue, 06 Dec 2022 03:00:52 -0800 (PST)
+Date: Tue, 6 Dec 2022 12:00:40 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: "Longpeng(Mike)" <longpeng2@huawei.com>
+Subject: Re: [PATCH v2] vp_vdpa: harden the logic of set status
+Message-ID: <20221206110040.q5i2k7ypojuira2e@sgarzare-redhat>
+References: <20221206021321.2400-1-longpeng2@huawei.com>
 MIME-Version: 1.0
+In-Reply-To: <20221206021321.2400-1-longpeng2@huawei.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: Bobby Eshleman <bobbyeshleman@gmail.com>,
- Cong Wang <cong.wang@bytedance.com>, Krasnov Arseniy <oxffffaa@gmail.com>,
- Jiang Wang <jiang.wang@bytedance.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>,
- Stefan Hajnoczi <stefanha@redhat.com>, kvm@vger.kernel.org,
- Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
+Content-Disposition: inline
+Cc: mst@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org,
+ yechuan@huawei.com, eperezma@redhat.com, huangzhichao@huawei.com,
+ stefanha@redhat.com, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -120,103 +118,97 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hello,
+On Tue, Dec 06, 2022 at 10:13:21AM +0800, Longpeng(Mike) wrote:
+>From: Longpeng <longpeng2@huawei.com>
+>
+>1. We should not set status to 0 when invoking vp_vdpa_set_status(),
+>   trigger a warning in that case.
+>
+>2. The driver MUST wait for a read of device_status to return 0 before
+>   reinitializing the device. But we also don't want to keep us in an
+>   infinite loop forever, so wait for 5s if we try to reset the device.
+>
+>Signed-off-by: Longpeng <longpeng2@huawei.com>
+>---
+>Changes v1->v2:
+>  - use WARN_ON instead of BUG_ON. [Stefano]
+>  - use "warning + failed" instead of "infinite loop". [Jason, Stefano]
+>  - use usleep_range instead of msleep (checkpatch). [Longpeng]
+>
+>---
+> drivers/vdpa/virtio_pci/vp_vdpa.c | 22 ++++++++++++++++++++++
+> 1 file changed, 22 insertions(+)
+>
+>diff --git a/drivers/vdpa/virtio_pci/vp_vdpa.c b/drivers/vdpa/virtio_pci/vp_vdpa.c
+>index 13701c2a1963..a2d3b13ac646 100644
+>--- a/drivers/vdpa/virtio_pci/vp_vdpa.c
+>+++ b/drivers/vdpa/virtio_pci/vp_vdpa.c
+>@@ -214,6 +214,9 @@ static void vp_vdpa_set_status(struct vdpa_device *vdpa, u8 status)
+> 	struct virtio_pci_modern_device *mdev = vp_vdpa_to_mdev(vp_vdpa);
+> 	u8 s = vp_vdpa_get_status(vdpa);
+>
+>+	/* We should never be setting status to 0. */
+>+	WARN_ON(status == 0);
+>+
+> 	if (status & VIRTIO_CONFIG_S_DRIVER_OK &&
+> 	    !(s & VIRTIO_CONFIG_S_DRIVER_OK)) {
+> 		vp_vdpa_request_irq(vp_vdpa);
+>@@ -222,14 +225,33 @@ static void vp_vdpa_set_status(struct vdpa_device *vdpa, u8 status)
+> 	vp_modern_set_status(mdev, status);
+> }
+>
+>+#define VP_VDPA_RESET_TMOUT_MS 5000 /* 5s */
 
-On Fri, 2022-12-02 at 09:35 -0800, Bobby Eshleman wrote:
-[...]
-> diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
-> index 35d7eedb5e8e..6c0b2d4da3fe 100644
-> --- a/include/linux/virtio_vsock.h
-> +++ b/include/linux/virtio_vsock.h
-> @@ -3,10 +3,129 @@
->  #define _LINUX_VIRTIO_VSOCK_H
->  
->  #include <uapi/linux/virtio_vsock.h>
-> +#include <linux/bits.h>
->  #include <linux/socket.h>
->  #include <net/sock.h>
->  #include <net/af_vsock.h>
->  
-> +#define VIRTIO_VSOCK_SKB_HEADROOM (sizeof(struct virtio_vsock_hdr))
-> +
-> +enum virtio_vsock_skb_flags {
-> +	VIRTIO_VSOCK_SKB_FLAGS_REPLY		= BIT(0),
-> +	VIRTIO_VSOCK_SKB_FLAGS_TAP_DELIVERED	= BIT(1),
-> +};
-> +
-> +static inline struct virtio_vsock_hdr *virtio_vsock_hdr(struct sk_buff *skb)
-> +{
-> +	return (struct virtio_vsock_hdr *)skb->head;
-> +}
-> +
-> +static inline bool virtio_vsock_skb_reply(struct sk_buff *skb)
-> +{
-> +	return skb->_skb_refdst & VIRTIO_VSOCK_SKB_FLAGS_REPLY;
-> +}
+What about moving this define on top of this file?
+Near the other macro.
 
-I'm sorry for the late feedback. The above is extremelly risky: if the
-skb will land later into the networking stack, we could experience the
-most difficult to track bugs.
+And I would use TIMEOUT entirely.
 
-You should use the skb control buffer instead (skb->cb), with the
-additional benefit you could use e.g. bool - the compiler could emit
-better code to manipulate such fields - and you will not need to clear
-the field before release nor enqueue.
+>+
+> static int vp_vdpa_reset(struct vdpa_device *vdpa, bool clear)
+> {
+> 	struct vp_vdpa *vp_vdpa = vdpa_to_vp(vdpa);
+> 	struct virtio_pci_modern_device *mdev = vp_vdpa_to_mdev(vp_vdpa);
+> 	u8 s = vp_vdpa_get_status(vdpa);
+>+	unsigned long timeout;
+>
+> 	vp_modern_set_status(mdev, 0);
+>
+>+	/*
+>+	 * As the virtio v1.1 spec (4.1.4.3.2) says: After writing 0 to
 
-[...]
+I think we can refer to the lates v1.2 (the section should be the same).
 
-> @@ -352,37 +360,38 @@ virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
->  				   size_t len)
->  {
->  	struct virtio_vsock_sock *vvs = vsk->trans;
-> -	struct virtio_vsock_pkt *pkt;
->  	size_t bytes, total = 0;
-> -	u32 free_space;
-> +	struct sk_buff *skb;
->  	int err = -EFAULT;
-> +	u32 free_space;
->  
->  	spin_lock_bh(&vvs->rx_lock);
-> -	while (total < len && !list_empty(&vvs->rx_queue)) {
-> -		pkt = list_first_entry(&vvs->rx_queue,
-> -				       struct virtio_vsock_pkt, list);
-> +	while (total < len && !skb_queue_empty_lockless(&vvs->rx_queue)) {
-> +		skb = __skb_dequeue(&vvs->rx_queue);
+>+	 * device_status, the driver MUST wait for a read of device_status
+>+	 * to return 0 before reinitializing the device.
+>+	 * To avoid keep us here forever, we only wait for 5 seconds.
+>+	 */
+>+	timeout = jiffies + msecs_to_jiffies(VP_VDPA_RESET_TMOUT_MS);
+>+	while (vp_modern_get_status(mdev)) {
+>+		usleep_range(1000, 1500);
+>+		if (time_after(jiffies, timeout)) {
+>+			dev_err(&mdev->pci_dev->dev,
+>+				"vp_vdpa: fail to reset device\n");
+>+			return -ETIMEDOUT;
+>+		}
+>+	}
+>+
+> 	if (s & VIRTIO_CONFIG_S_DRIVER_OK)
+> 		vp_vdpa_free_irq(vp_vdpa);
+>
+>-- 
+>2.23.0
+>
 
-Here the locking schema is confusing. It looks like vvs->rx_queue is
-under vvs->rx_lock protection, so the above should be skb_queue_empty()
-instead of the lockless variant.
+The rest LGTM!
 
-[...]
-
-> @@ -858,16 +873,11 @@ static int virtio_transport_reset_no_sock(const struct virtio_transport *t,
->  static void virtio_transport_remove_sock(struct vsock_sock *vsk)
->  {
->  	struct virtio_vsock_sock *vvs = vsk->trans;
-> -	struct virtio_vsock_pkt *pkt, *tmp;
->  
->  	/* We don't need to take rx_lock, as the socket is closing and we are
->  	 * removing it.
->  	 */
-> -	list_for_each_entry_safe(pkt, tmp, &vvs->rx_queue, list) {
-> -		list_del(&pkt->list);
-> -		virtio_transport_free_pkt(pkt);
-> -	}
-> -
-> +	virtio_vsock_skb_queue_purge(&vvs->rx_queue);
-
-Still assuming rx_queue is under the rx_lock, given you don't need the
-locking here as per the above comment, you should use the lockless
-purge variant.
-
-Thanks!
-
-Paolo
+Thanks,
+Stefano
 
 _______________________________________________
 Virtualization mailing list
