@@ -4,86 +4,87 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id EAD66C3A5A7
-	for <virtualization@archiver.kernel.org>; Thu,  8 Dec 2022 14:42:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 30ACBC4332F
+	for <virtualization@archiver.kernel.org>; Thu,  8 Dec 2022 14:42:47 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 6F73A8207A;
-	Thu,  8 Dec 2022 14:42:43 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6F73A8207A
+	by smtp1.osuosl.org (Postfix) with ESMTP id C2A2A82084;
+	Thu,  8 Dec 2022 14:42:46 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C2A2A82084
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Q+qI4RDK
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=GXh/FfEe
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id QbBffMw7QTo1; Thu,  8 Dec 2022 14:42:42 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id C9D038207C;
-	Thu,  8 Dec 2022 14:42:41 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C9D038207C
+	with ESMTP id XCIE2wF3gbcl; Thu,  8 Dec 2022 14:42:46 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 5024D82085;
+	Thu,  8 Dec 2022 14:42:45 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5024D82085
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 7F3BCC0033;
-	Thu,  8 Dec 2022 14:42:41 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 27586C0033;
+	Thu,  8 Dec 2022 14:42:45 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id CEE57C002D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 04700C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Dec 2022 14:42:39 +0000 (UTC)
+ Thu,  8 Dec 2022 14:42:44 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 902E541916
+ by smtp4.osuosl.org (Postfix) with ESMTP id BF02A4191C
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Dec 2022 14:42:39 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 902E541916
+ Thu,  8 Dec 2022 14:42:43 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org BF02A4191C
 Authentication-Results: smtp4.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=Q+qI4RDK
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=GXh/FfEe
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id g4pNKrEuSaeH
+ with ESMTP id 1JRXK9jYDVXl
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Dec 2022 14:42:38 +0000 (UTC)
+ Thu,  8 Dec 2022 14:42:43 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org AFFFA41914
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C710641916
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id AFFFA41914
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id C710641916
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Dec 2022 14:42:38 +0000 (UTC)
+ Thu,  8 Dec 2022 14:42:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1670510557;
+ s=mimecast20190719; t=1670510561;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=su2lUkDQHUFhv4VEOGFPuQBsnBPEcF90Y1ekpqoV0HM=;
- b=Q+qI4RDKxmalTL2JTLjZewurOlQGW15N+mFq1fM5pI/rTlXUn2mgmACYPmF0mQyIxcNmbN
- oEwvtMvdjLJuou35BkHcvBfxaoJDqXhczCWkATT8Q7BU0FE5FJyab62/wag1XDSNrMfQi1
- 2gdvZfidfXEx77lEQTJDbJCvRQcwjYg=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=dC06rHD9795Mcwyf2BZrlXOuy21bGOSa5sAkC9Cuad8=;
+ b=GXh/FfEebQ/4PMlY8H/Mj5atDhNeo5xX7meyrRVGkyxSrtHWLSNNlaJA66PPs0jbuM9P64
+ qR83vcRBhZ7Uw7D/mgHtA5k8iBPEqA/KCYtmbbDL3iTQJUMveXw+1Lu9CESfFLBXyzbStx
+ hsicA1sWo67mqNTsy1v9iXWdHZi7baM=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-66-wesRoOmrMEuqHAmp1RPsVw-1; Thu, 08 Dec 2022 09:42:33 -0500
-X-MC-Unique: wesRoOmrMEuqHAmp1RPsVw-1
-Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com
- [10.11.54.10])
+ us-mta-299-fUuTU7TkNaqp4ocsryWSkQ-1; Thu, 08 Dec 2022 09:42:38 -0500
+X-MC-Unique: fUuTU7TkNaqp4ocsryWSkQ-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.6])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 3B1388039AC;
- Thu,  8 Dec 2022 14:42:33 +0000 (UTC)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id D132D3832781;
+ Thu,  8 Dec 2022 14:42:37 +0000 (UTC)
 Received: from localhost (unknown [10.39.194.17])
- by smtp.corp.redhat.com (Postfix) with ESMTP id D76B2492B05;
- Thu,  8 Dec 2022 14:42:31 +0000 (UTC)
-Date: Wed, 7 Dec 2022 16:47:39 -0500
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 504842166B26;
+ Thu,  8 Dec 2022 14:42:37 +0000 (UTC)
+Date: Wed, 7 Dec 2022 17:05:06 -0500
 From: Stefan Hajnoczi <stefanha@redhat.com>
-To: axboe@kernel.dk
-Subject: Re: [PATCH 1/2] virtio-blk: set req->state to MQ_RQ_COMPLETE after
- polling I/O is finished
-Message-ID: <Y5EJ+6qtsy8Twe/q@fedora>
+To: Suwan Kim <suwan.kim027@gmail.com>
+Subject: Re: [PATCH 2/2] virtio-blk: support completion batching for the IRQ
+ path
+Message-ID: <Y5EOEh2HYHqo+Sbh@fedora>
 References: <20221206141125.93055-1-suwan.kim027@gmail.com>
+ <20221206141125.93055-2-suwan.kim027@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20221206141125.93055-1-suwan.kim027@gmail.com>
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.10
-Cc: linux-block@vger.kernel.org, mst@redhat.com,
+In-Reply-To: <20221206141125.93055-2-suwan.kim027@gmail.com>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.6
+Cc: axboe@kernel.dk, linux-block@vger.kernel.org, mst@redhat.com,
  virtualization@lists.linux-foundation.org, hch@infradead.org,
- pbonzini@redhat.com, Suwan Kim <suwan.kim027@gmail.com>
+ pbonzini@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -95,86 +96,134 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============3564401268835443095=="
+Content-Type: multipart/mixed; boundary="===============1194875337830774931=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 
---===============3564401268835443095==
+--===============1194875337830774931==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="TLPWbvavsl8s4xu9"
+	protocol="application/pgp-signature"; boundary="hn7qBZnoP/ukmpt3"
 Content-Disposition: inline
 
 
---TLPWbvavsl8s4xu9
+--hn7qBZnoP/ukmpt3
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Dec 06, 2022 at 11:11:24PM +0900, Suwan Kim wrote:
-> Driver should set req->state to MQ_RQ_COMPLETE after it finishes to proce=
-ss
-> req. But virtio-blk doesn't set MQ_RQ_COMPLETE after virtblk_poll() handl=
-es
-> req and req->state still remains MQ_RQ_IN_FLIGHT. Fortunately so far there
-> is no issue about it because blk_mq_end_request_batch() sets req->state to
-> MQ_RQ_IDLE. This patch properly sets req->state after polling I/O is fini=
-shed.
+On Tue, Dec 06, 2022 at 11:11:25PM +0900, Suwan Kim wrote:
+> This patch adds completion batching to the IRQ path. It reuses batch
+> completion code of virtblk_poll(). It collects requests to io_comp_batch
+> and processes them all at once. It can boost up the performance by 2%.
 >=20
-> Fixes: 4e0400525691 ("virtio-blk: support polling I/O")
+> To validate the performance improvement and stabilty, I did fio test with
+> 4 vCPU VM and 12 vCPU VM respectively. Both VMs have 8GB ram and the same
+> number of HW queues as vCPU.
+> The fio cammad is as follows and I ran the fio 5 times and got IOPS avera=
+ge.
+> (io_uring, randread, direct=3D1, bs=3D512, iodepth=3D64 numjobs=3D2,4)
+>=20
+> Test result shows about 2% improvement.
+>=20
+>            4 vcpu VM       |   numjobs=3D2   |   numjobs=3D4
+>       -----------------------------------------------------------
+>         fio without patch  |  367.2K IOPS  |   397.6K IOPS
+>       -----------------------------------------------------------
+>         fio with patch     |  372.8K IOPS  |   407.7K IOPS
+>=20
+>            12 vcpu VM      |   numjobs=3D2   |   numjobs=3D4
+>       -----------------------------------------------------------
+>         fio without patch  |  363.6K IOPS  |   374.8K IOPS
+>       -----------------------------------------------------------
+>         fio with patch     |  373.8K IOPS  |   385.3K IOPS
+>=20
 > Signed-off-by: Suwan Kim <suwan.kim027@gmail.com>
 > ---
->  drivers/block/virtio_blk.c | 1 +
->  1 file changed, 1 insertion(+)
->=20
+>  drivers/block/virtio_blk.c | 38 +++++++++++++++++++++++---------------
+>  1 file changed, 23 insertions(+), 15 deletions(-)
+
+Cool, thanks for doing this!
+
 > diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index 19da5defd734..cf64d256787e 100644
+> index cf64d256787e..48fcf745f007 100644
 > --- a/drivers/block/virtio_blk.c
 > +++ b/drivers/block/virtio_blk.c
-> @@ -839,6 +839,7 @@ static void virtblk_complete_batch(struct io_comp_bat=
-ch *iob)
->  	rq_list_for_each(&iob->req_list, req) {
->  		virtblk_unmap_data(req, blk_mq_rq_to_pdu(req));
->  		virtblk_cleanup_cmd(req);
-> +		blk_mq_set_request_complete(req);
->  	}
->  	blk_mq_end_request_batch(iob);
+> @@ -272,6 +272,18 @@ static inline void virtblk_request_done(struct reque=
+st *req)
+>  	blk_mq_end_request(req, virtblk_result(vbr));
 >  }
+> =20
+> +static void virtblk_complete_batch(struct io_comp_batch *iob)
+> +{
+> +	struct request *req;
+> +
+> +	rq_list_for_each(&iob->req_list, req) {
+> +		virtblk_unmap_data(req, blk_mq_rq_to_pdu(req));
+> +		virtblk_cleanup_cmd(req);
+> +		blk_mq_set_request_complete(req);
+> +	}
+> +	blk_mq_end_request_batch(iob);
+> +}
+> +
+>  static void virtblk_done(struct virtqueue *vq)
+>  {
+>  	struct virtio_blk *vblk =3D vq->vdev->priv;
+> @@ -280,6 +292,7 @@ static void virtblk_done(struct virtqueue *vq)
+>  	struct virtblk_req *vbr;
+>  	unsigned long flags;
+>  	unsigned int len;
+> +	DEFINE_IO_COMP_BATCH(iob);
+> =20
+>  	spin_lock_irqsave(&vblk->vqs[qid].lock, flags);
+>  	do {
+> @@ -287,7 +300,9 @@ static void virtblk_done(struct virtqueue *vq)
+>  		while ((vbr =3D virtqueue_get_buf(vblk->vqs[qid].vq, &len)) !=3D NULL)=
+ {
+>  			struct request *req =3D blk_mq_rq_from_pdu(vbr);
+> =20
+> -			if (likely(!blk_should_fake_timeout(req->q)))
+> +			if (likely(!blk_should_fake_timeout(req->q)) &&
+> +				!blk_mq_add_to_batch(req, &iob, vbr->status,
+> +							virtblk_complete_batch))
+>  				blk_mq_complete_request(req);
+>  			req_done =3D true;
+>  		}
+> @@ -295,9 +310,14 @@ static void virtblk_done(struct virtqueue *vq)
+>  			break;
+>  	} while (!virtqueue_enable_cb(vq));
+> =20
+> -	/* In case queue is stopped waiting for more buffers. */
+> -	if (req_done)
+> +	if (req_done) {
+> +		if (!rq_list_empty(iob.req_list))
+> +			virtblk_complete_batch(&iob);
 
-The doc comment for blk_mq_set_request_complete() mentions this being
-used in ->queue_rq(), but that's not the case here. Does the doc comment
-need to be updated if we're using the function in a different way?
+A little optimization to avoid the indirect call: iob.complete(&iob) :).
+Not sure if it's good style to do that but it works in this case because
+we know it can only be virtblk_complete_batch().
 
-I'm not familiar enough with the Linux block APIs, but this feels weird
-to me. Shouldn't blk_mq_end_request_batch(iob) take care of this for us?
-Why does it set the state to IDLE instead of COMPLETE?
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 
-I think Jens can confirm whether we really want all drivers that use
-polling and io_comp_batch to manually call
-blk_mq_set_request_complete().
-
-Thanks,
-Stefan
-
---TLPWbvavsl8s4xu9
+--hn7qBZnoP/ukmpt3
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmORCfsACgkQnKSrs4Gr
-c8jzcwgAkqjCxjdTMpgQ9FJr1zb/9w4oIKfPrLRFiS8+aZrjF4PSgH6iISADo6LN
-y5jC+JbJI9HImldIbxcJ3VBzA4Vbp6gJZv/NolxztP0Vnc/1EPCQDy1j8hoJzm7u
-G7jLL2iIkQEyr4IChxEtJMrLRmNz9Lqj2dcKdLTPNGInlgUspVDKjbdjN+rfHOHg
-bGG0GDreFzM+8ZuGghcJMeeUb+fUjbJd4oLyxwROhZlBD+LU8nG0KRZ1L/phGIN3
-sPihNVo5okhFsDBqCqIPgGiouSpN/fsfQJV+spkFPbm2kbuURlFVQZZJSV1wZ1rn
-19xu2Y5NAnew/RxTYo7OflRvnC0ISQ==
-=U0Ee
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmORDhIACgkQnKSrs4Gr
+c8iy+ggAhIXNBcnfGowRN+/CxGfb7+omNJp6krM78eBlHR0VuOX++5xjK5gKV+Mn
+p64DisOw1+U2GXz0YZee34jkFg6TH53Rj7cDvrDnbX92+DbrsSAmShmJLYr5vjNV
+MDL0UyQjRq88MHA+zy5os5UJwWbuLR9roKNYgGHan5IdQ95mJQe5Uzp3899JtfKW
+U7ZutEPl5sQFZCTE6XsfFOunqrsJ5Tq0RzRxU9rQCAjkqeDe409pwThYtyfkzCzy
+C9BEMaFrnqYLlem4+e1qfpnHNmajy7PT3jAPZispvTcWUxm4fwGDrOl6Cbi31Wwh
+kxtfd2gvYMcD+sbl/whExj2nSrb7qA==
+=8GGk
 -----END PGP SIGNATURE-----
 
---TLPWbvavsl8s4xu9--
+--hn7qBZnoP/ukmpt3--
 
 
---===============3564401268835443095==
+--===============1194875337830774931==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -184,5 +233,5 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============3564401268835443095==--
+--===============1194875337830774931==--
 
