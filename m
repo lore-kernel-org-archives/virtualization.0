@@ -1,110 +1,112 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9FF41C4332F
-	for <virtualization@archiver.kernel.org>; Thu,  8 Dec 2022 07:37:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id EBA90C3A5A7
+	for <virtualization@archiver.kernel.org>; Thu,  8 Dec 2022 08:03:15 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 2508A81E25;
-	Thu,  8 Dec 2022 07:37:48 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2508A81E25
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=TpsV3k+w
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id oyuB1a9c6s75; Thu,  8 Dec 2022 07:37:47 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 5627C81EC2;
-	Thu,  8 Dec 2022 07:37:46 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5627C81EC2
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id EB148C0032;
-	Thu,  8 Dec 2022 07:37:45 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 74740C002D
- for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Dec 2022 07:37:44 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 22CDD60ACC
- for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Dec 2022 07:37:44 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 22CDD60ACC
+	by smtp3.osuosl.org (Postfix) with ESMTP id 3D699610E5;
+	Thu,  8 Dec 2022 08:03:15 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3D699610E5
 Authentication-Results: smtp3.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=TpsV3k+w
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=iBTdUpSt
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id NFu1UKHRoN3b; Thu,  8 Dec 2022 08:03:13 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 90E19610C7;
+	Thu,  8 Dec 2022 08:03:12 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 90E19610C7
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 550E5C0032;
+	Thu,  8 Dec 2022 08:03:12 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8B8CCC002D
+ for <virtualization@lists.linux-foundation.org>;
+ Thu,  8 Dec 2022 08:03:10 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 649CE610DC
+ for <virtualization@lists.linux-foundation.org>;
+ Thu,  8 Dec 2022 08:03:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 649CE610DC
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id sFxE9l9i9vGG
+ with ESMTP id Huy1O31e_b0O
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Dec 2022 07:37:43 +0000 (UTC)
+ Thu,  8 Dec 2022 08:03:08 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1898660AA5
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 778CD610C7
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 1898660AA5
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 778CD610C7
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Dec 2022 07:37:42 +0000 (UTC)
+ Thu,  8 Dec 2022 08:03:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1670485062;
+ s=mimecast20190719; t=1670486587;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=AcQaihjTtHjKhxy3rA4eNBH/3KwcFz/jAnAYEINHp9Q=;
- b=TpsV3k+wnREttPxv33dk+hNeKDugMlHEyAzwfnp31u6yYZeK658YqxV3KS5CHEa2FV0/WS
- 7DquhdNjfyi8pLd2kEYjA3IZDCIvyQMC2fERPulv7POzsLHfFNVgAnRv3hAjsHp+0JKfQI
- KXEBtlNEaPvncEbqK3nssQaqIjIc0R4=
-Received: from mail-oo1-f69.google.com (mail-oo1-f69.google.com
- [209.85.161.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=xqXvRbmi7slfDWuHmbRNJXxA21s4PitXI2aBM8lCjLw=;
+ b=iBTdUpStzDUwqTec0Rsc6225rWGp5s3SEGHLu1t0o/EMfS4WdGDiKXtzwIGMbwJ/DLZUeg
+ K7bepkGJ4dy+ExraY1ubxY6unqkcT0/rdOQcw2FMvdDA8CvJUy5/wGemm003x5TR9WRqBg
+ EVMGlPFAhs9k4UHNumbI8kdUqdQcM+o=
+Received: from mail-ot1-f69.google.com (mail-ot1-f69.google.com
+ [209.85.210.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-376-XzgupwJoNg2ISgu2a6i87Q-1; Thu, 08 Dec 2022 02:37:38 -0500
-X-MC-Unique: XzgupwJoNg2ISgu2a6i87Q-1
-Received: by mail-oo1-f69.google.com with SMTP id
- c8-20020a4a87c8000000b0049f149a83fdso173807ooi.19
+ us-mta-554-iuTdgxbCMNO1nwCZLZGKNg-1; Thu, 08 Dec 2022 03:03:06 -0500
+X-MC-Unique: iuTdgxbCMNO1nwCZLZGKNg-1
+Received: by mail-ot1-f69.google.com with SMTP id
+ cg13-20020a056830630d00b00670556db34fso471848otb.3
  for <virtualization@lists.linux-foundation.org>;
- Wed, 07 Dec 2022 23:37:38 -0800 (PST)
+ Thu, 08 Dec 2022 00:03:06 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=content-transfer-encoding:cc:to:subject:message-id:date:from
- :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
- :subject:date:message-id:reply-to;
- bh=AcQaihjTtHjKhxy3rA4eNBH/3KwcFz/jAnAYEINHp9Q=;
- b=NEs5TDEbgkZhxRrM+EZwuwJu7RqkZg2BMFn0j4DT7nez+fw9EyjmNFm523Q9RsBjOI
- 8f7v6iFFchwCKMIFwZPle+XWZfYpRzWFbDbN3l98HwhGxse2CifxtPGHJOqRHPPB5Lbh
- 5HNPuurFbAX8LWaog+C++HOGLlx2f4AC3MIhC+hkDB7HkCbmLUgz4xDcREtRPXb4uWyY
- EcC2triJhztP2rVH208R5nj7z7aRjVz9nX5HtYsi3+VvlMO2kO72udC7YqKinLVinH97
- OCztQb3hRKpf8X2x8Q0CSYSXEWfNDrOu1f0+Vd0hB+Zx794hqawQ/c6h8kZN8mEIOcox
- U5KA==
-X-Gm-Message-State: ANoB5plF98PoeF64Ma67TTKdxynKzLAemjW9L7yo5VfzKmwK6XDPlKMV
- 6v8CZjJbVt78Qzr+/qAQWS3LJ8OK81YzGOlw3tC8FzOOF40nzdZKsCZXdoftboi361Rh/Lt6Ip9
- b4MsP5juK9s6ewTMaK19+6UI0JkZhTHjYu3uggkkqV8mG4YdRcbf21N3VqQ==
-X-Received: by 2002:a05:6808:2093:b0:35b:ded0:4164 with SMTP id
- s19-20020a056808209300b0035bded04164mr15030490oiw.280.1670485057899; 
- Wed, 07 Dec 2022 23:37:37 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf7E8Ygru50YymxsXVuLBkWCvxAChzLAq48Ziiccu5gFbod5qrrKzDziQzmKpWGITgYsZnThDHkWnkBMkAtwNv4=
-X-Received: by 2002:a05:6808:2093:b0:35b:ded0:4164 with SMTP id
- s19-20020a056808209300b0035bded04164mr15030485oiw.280.1670485057617; Wed, 07
- Dec 2022 23:37:37 -0800 (PST)
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+ :reply-to;
+ bh=xqXvRbmi7slfDWuHmbRNJXxA21s4PitXI2aBM8lCjLw=;
+ b=nm8TCH217kkqzrVh+rgQrQ5krKBsRN7MY7f6fxyOLqnoCDfUiXCE1mAebCj7/7arPp
+ w/BmnDu4JxsMDw3m17hntSbxr4G2i9wdV9TQKnh+IWiT+SXsargVxT7fsIKW2jwx1WQc
+ v2vWMSDaoVZ9w5l2Y5UiZIDb+87/wJ5T06U39pncpiU43cZ0nyj1Q7SagXcTBGgQOQT0
+ 75ZQYwGncm27ixDuOP34Aa2j+l63fqUrEyo/0S73qT4Mr/oX5CbRnUynlgSHmx2wPd1r
+ Etv/QReNILK/IIJW9n2cARWXszPNd3UbYLd47UP+GrrFACu9U8qMpVDk1Jp4rLVwpNbR
+ oOow==
+X-Gm-Message-State: ANoB5plSw0bGS4fymfuXc01o9sCpXG51ikeL9two2cGecY3+fJR/NAnE
+ xxgUCY+oG8ee4Itqu1BPGgK2enneQBStYU5JGzNel4Bs/LiW5/ryBMtnk7Ckos12RSnixjRcpUn
+ e0vb7HiZwh5bMHzD1itm+d71EwdQACNa+TG++Us7BKPjUedF9u0ENxYneww==
+X-Received: by 2002:aca:1a12:0:b0:35c:303d:fe37 with SMTP id
+ a18-20020aca1a12000000b0035c303dfe37mr7965184oia.35.1670486585212; 
+ Thu, 08 Dec 2022 00:03:05 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf5EjahEeNqTSRcBzyMDtuVr7a0sgCMzWXiKGae/i+ovV0SPdlpHWaXZdZVonFNKwgwsnaAGBbq/kTvCuaPo/R0=
+X-Received: by 2002:aca:1a12:0:b0:35c:303d:fe37 with SMTP id
+ a18-20020aca1a12000000b0035c303dfe37mr7965176oia.35.1670486584707; Thu, 08
+ Dec 2022 00:03:04 -0800 (PST)
 MIME-Version: 1.0
-References: <20221205135130.2336-1-longpeng2@huawei.com>
- <CACGkMEtdT5fG=ffbpQadkGmzHf6Ax-+L50LsriYqJaW++natMg@mail.gmail.com>
- <fb3a6ad0-dc79-9b58-3a32-06e3145a4dad@huawei.com>
-In-Reply-To: <fb3a6ad0-dc79-9b58-3a32-06e3145a4dad@huawei.com>
+References: <20221117033303.16870-1-jasowang@redhat.com>
+ <84298552-08ec-fe2d-d996-d89918c7fddf@oracle.com>
+ <CACGkMEtLFTrqdb=MXKovP8gZzTXzFczQSmK0PgzXQTr0Dbr5jA@mail.gmail.com>
+ <74909b12-80d5-653e-cd1c-3ea6bc5dbbde@oracle.com>
+ <CACGkMEs7EGUsJ8wtZsj7GEMD9vD6vJNVRUu1fcwUWVYpLUQeZA@mail.gmail.com>
+ <d4a85c3b-ab0b-a900-06a9-25abdf264e97@oracle.com>
+ <CACGkMEsN7H4=DqyNWrwLhd+zdfhiYohyB7GmUi8iUH73Z9KxYA@mail.gmail.com>
+ <153061e3-4623-38f5-c1b6-3177fc01fcec@oracle.com>
+ <CACGkMEsdC8hfRoCM9bbNRtAbgEPF5FdzfGSoP-OpQ4sckkOMTw@mail.gmail.com>
+ <716ae134-f7d9-95d5-5dd4-25434aa01b40@oracle.com>
+In-Reply-To: <716ae134-f7d9-95d5-5dd4-25434aa01b40@oracle.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 8 Dec 2022 15:37:26 +0800
-Message-ID: <CACGkMEtgOArE-g8Frp0CkOZRa8F9YbHm5vSoN31X3-BxgT8YNA@mail.gmail.com>
-Subject: Re: [PATCH v2] vdpasim: support doorbell mapping
-To: "Longpeng (Mike,
- Cloud Infrastructure Service Product Dept.)" <longpeng2@huawei.com>
+Date: Thu, 8 Dec 2022 16:02:52 +0800
+Message-ID: <CACGkMEsewtht=OfATktidV4eWWpSdndbs0fGjzfSOeHAZuhb-Q@mail.gmail.com>
+Subject: Re: [PATCH V2] vdpa: allow provisioning device features
+To: Si-Wei Liu <si-wei.liu@oracle.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: mst@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org,
- yechuan@huawei.com, eperezma@redhat.com, huangzhichao@huawei.com,
- stefanha@redhat.com, virtualization@lists.linux-foundation.org
+Cc: mst@redhat.com, netdev@vger.kernel.org, dsahern@kernel.org,
+ virtualization@lists.linux-foundation.org, eperezma@redhat.com,
+ elic@nvidia.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -116,191 +118,460 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gVHVlLCBEZWMgNiwgMjAyMiBhdCA0OjQ2IFBNIExvbmdwZW5nIChNaWtlLCBDbG91ZCBJbmZy
-YXN0cnVjdHVyZQpTZXJ2aWNlIFByb2R1Y3QgRGVwdC4pIDxsb25ncGVuZzJAaHVhd2VpLmNvbT4g
-d3JvdGU6Cj4KPgo+Cj4g5ZyoIDIwMjIvMTIvNiAxNDo1OSwgSmFzb24gV2FuZyDlhpnpgZM6Cj4g
-PiBPbiBNb24sIERlYyA1LCAyMDIyIGF0IDk6NTIgUE0gTG9uZ3BlbmcoTWlrZSkgPGxvbmdwZW5n
-MkBodWF3ZWkuY29tPiB3cm90ZToKPiA+Pgo+ID4+IEZyb206IExvbmdwZW5nIDxsb25ncGVuZzJA
-aHVhd2VpLmNvbT4KPiA+Pgo+ID4+IFN1cHBvcnQgZG9vcmJlbGwgbWFwcGluZyBmb3IgdmRwYXNp
-bSBkZXZpY2VzLCB0aGVuIHdlIGNhbiB0ZXN0IHRoZSBub3RpZnkKPiA+PiBwYXNzdGhyb3VnaCBm
-ZWF0dXJlIGV2ZW4gaWYgdGhlcmUncyBubyByZWFsIGhhcmR3YXJlIG9uIGhhbmQuCj4gPj4KPiA+
-PiBBbGxvY2F0ZXMgYSBkdW1teSBwYWdlIHdoaWNoIGlzIHVzZWQgdG8gZW11bGF0ZSB0aGUgbm90
-aWZ5IHBhZ2Ugb2YgdGhlIGRldmljZSwKPiA+PiBhbGwgVlFzIHNoYXJlIHRoZSBzYW1lIG5vdGlm
-eSByZWdpc3RlciAgdGhhdCBpbml0aWF0ZWQgdG8gMHhmZmZmLiBBICBwZXJpb2RpYwo+ID4+IHdv
-cmsgd2lsbCBjaGVjayB3aGV0aGVyIHRoZXJlJ3JlIHJlcXVlc3RzIG5lZWQgdG8gcHJvY2VzcyAo
-IHRoZSB2YWx1ZSBvZiB0aGUKPiA+PiBub3RpZnkgcmVnaXN0ZXIgaXMgMHhmZmZmIG9yIG5vdCAp
-Lgo+ID4+Cj4gPj4gVGhpcyBjYXAgaXMgZGlzYWJsZWQgYXMgZGVmYXVsdCwgdXNlcnMgY2FuIGVu
-YWJsZSBpdCBhcyBmb2xsb3c6Cj4gPj4gICAgbW9kcHJvYmUgdmRwYV9zaW0gbm90aWZ5X3Bhc3N0
-aHJvdWdoPXRydWUKPiA+Pgo+ID4+IFNpZ25lZC1vZmYtYnk6IExvbmdwZW5nIDxsb25ncGVuZzJA
-aHVhd2VpLmNvbT4KPiA+PiAtLS0KPiA+PiBDaGFuZ2VzIHYxLT52MjoKPiA+PiAgICAtIHN1cHBv
-cnQgYm90aCBraWNrIG1vZGUgYW5kIHBhc3N0aHJvdWdoIG1vZGUuIFtKYXNvbl0KPiA+PiAgICAt
-IHBvbGwgdGhlIG5vdGlmeSByZWdpc3RlciBmaXJzdC4gW0phc29uLCBNaWNoYWVsXQo+ID4+IC0t
-LQo+ID4+ICAgZHJpdmVycy92ZHBhL3ZkcGFfc2ltL3ZkcGFfc2ltLmMgfCA3NyArKysrKysrKysr
-KysrKysrKysrKysrKysrKysrKysrKwo+ID4+ICAgZHJpdmVycy92ZHBhL3ZkcGFfc2ltL3ZkcGFf
-c2ltLmggfCAgMyArKwo+ID4+ICAgMiBmaWxlcyBjaGFuZ2VkLCA4MCBpbnNlcnRpb25zKCspCj4g
-Pj4KPiA+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92ZHBhL3ZkcGFfc2ltL3ZkcGFfc2ltLmMgYi9k
-cml2ZXJzL3ZkcGEvdmRwYV9zaW0vdmRwYV9zaW0uYwo+ID4+IGluZGV4IDc0MzhhODljZTkzOS4u
-MDcwOTZhMDRkYWJiIDEwMDY0NAo+ID4+IC0tLSBhL2RyaXZlcnMvdmRwYS92ZHBhX3NpbS92ZHBh
-X3NpbS5jCj4gPj4gKysrIGIvZHJpdmVycy92ZHBhL3ZkcGFfc2ltL3ZkcGFfc2ltLmMKPiA+PiBA
-QCAtMTQsNiArMTQsNyBAQAo+ID4+ICAgI2luY2x1ZGUgPGxpbnV4L3NsYWIuaD4KPiA+PiAgICNp
-bmNsdWRlIDxsaW51eC9zY2hlZC5oPgo+ID4+ICAgI2luY2x1ZGUgPGxpbnV4L2RtYS1tYXAtb3Bz
-Lmg+Cj4gPj4gKyNpbmNsdWRlIDxhc20vc2V0X21lbW9yeS5oPgo+ID4+ICAgI2luY2x1ZGUgPGxp
-bnV4L3ZyaW5naC5oPgo+ID4+ICAgI2luY2x1ZGUgPGxpbnV4L3ZkcGEuaD4KPiA+PiAgICNpbmNs
-dWRlIDxsaW51eC92aG9zdF9pb3RsYi5oPgo+ID4+IEBAIC0zNiw5ICszNywxNiBAQCBtb2R1bGVf
-cGFyYW0obWF4X2lvdGxiX2VudHJpZXMsIGludCwgMDQ0NCk7Cj4gPj4gICBNT0RVTEVfUEFSTV9E
-RVNDKG1heF9pb3RsYl9lbnRyaWVzLAo+ID4+ICAgICAgICAgICAgICAgICAgICJNYXhpbXVtIG51
-bWJlciBvZiBpb3RsYiBlbnRyaWVzIGZvciBlYWNoIGFkZHJlc3Mgc3BhY2UuIDAgbWVhbnMgdW5s
-aW1pdGVkLiAoZGVmYXVsdDogMjA0OCkiKTsKPiA+Pgo+ID4+ICtzdGF0aWMgYm9vbCBub3RpZnlf
-cGFzc3Rocm91Z2g7Cj4gPj4gK21vZHVsZV9wYXJhbShub3RpZnlfcGFzc3Rocm91Z2gsIGJvb2ws
-IDA0NDQpOwo+ID4+ICtNT0RVTEVfUEFSTV9ERVNDKG5vdGlmeV9wYXNzdGhyb3VnaCwKPiA+PiAr
-ICAgICAgICAgICAgICAgICJFbmFibGUgdnEgbm90aWZ5KGRvb3JiZWxsKSBhcmVhIG1hcHBpbmcu
-IChkZWZhdWx0OiBmYWxzZSkiKTsKPiA+Cj4gPiBJJ20gbm90IHN1cmUgaWYgaXQncyB3b3J0aCBk
-b2luZyB0aGlzLCBJIHRoaW5rIHdlIGNhbiBhZmZvcmQgdGhlIGNvc3QKPiA+IG9mIHBlcmlvZGlj
-IHdvcmsgKGVzcGVjaWFsbHkgY29uc2lkZXJpbmcgaXQncyBhIHNpbXVsYXRvcikuCj4gPgo+IFdl
-IGNhbiBzdXBwb3J0IGtpY2sgbW9kZSBhbmQgcGFzc3RoZ291cmggbW9kZSBzaW11bHRhbmVvdXNs
-eSBub3csIGl0IGlzCj4gYSBsaXR0bGUgdW5uZWNlc3NhcnkuIEkgd291bGQgcmVtb3ZlIGl0IGlu
-IG5leHQgdmVyc2lvbi4KPgo+ID4+ICsKPiA+PiAgICNkZWZpbmUgVkRQQVNJTV9RVUVVRV9BTElH
-TiBQQUdFX1NJWkUKPiA+PiAgICNkZWZpbmUgVkRQQVNJTV9RVUVVRV9NQVggMjU2Cj4gPj4gICAj
-ZGVmaW5lIFZEUEFTSU1fVkVORE9SX0lEIDAKPiA+PiArI2RlZmluZSBWRFBBU0lNX1ZSSU5HX1BP
-TExfUEVSSU9EIDEwMCAvKiBtcyAqLwo+ID4+ICsjZGVmaW5lIFZEUEFTSU1fTk9USUZZX0RFRlZB
-TCAweGZmZmYKPiA+Pgo+ID4+ICAgc3RhdGljIHN0cnVjdCB2ZHBhc2ltICp2ZHBhX3RvX3NpbShz
-dHJ1Y3QgdmRwYV9kZXZpY2UgKnZkcGEpCj4gPj4gICB7Cj4gPj4gQEAgLTI0Niw2ICsyNTQsMjgg
-QEAgc3RhdGljIGNvbnN0IHN0cnVjdCBkbWFfbWFwX29wcyB2ZHBhc2ltX2RtYV9vcHMgPSB7Cj4g
-Pj4gICBzdGF0aWMgY29uc3Qgc3RydWN0IHZkcGFfY29uZmlnX29wcyB2ZHBhc2ltX2NvbmZpZ19v
-cHM7Cj4gPj4gICBzdGF0aWMgY29uc3Qgc3RydWN0IHZkcGFfY29uZmlnX29wcyB2ZHBhc2ltX2Jh
-dGNoX2NvbmZpZ19vcHM7Cj4gPj4KPiA+PiArc3RhdGljIHZvaWQgdmRwYXNpbV9ub3RpZnlfd29y
-ayhzdHJ1Y3Qgd29ya19zdHJ1Y3QgKndvcmspCj4gPj4gK3sKPiA+PiArICAgICAgIHN0cnVjdCB2
-ZHBhc2ltICp2ZHBhc2ltOwo+ID4+ICsgICAgICAgdTE2ICp2YWw7Cj4gPj4gKwo+ID4+ICsgICAg
-ICAgdmRwYXNpbSA9IGNvbnRhaW5lcl9vZih3b3JrLCBzdHJ1Y3QgdmRwYXNpbSwgbm90aWZ5X3dv
-cmsud29yayk7Cj4gPj4gKwo+ID4+ICsgICAgICAgaWYgKCEodmRwYXNpbS0+c3RhdHVzICYgVklS
-VElPX0NPTkZJR19TX0RSSVZFUl9PSykpCj4gPj4gKyAgICAgICAgICAgICAgIGdvdG8gb3V0Owo+
-ID4+ICsKPiA+PiArICAgICAgIGlmICghdmRwYXNpbS0+cnVubmluZykKPiA+PiArICAgICAgICAg
-ICAgICAgZ290byBvdXQ7Cj4gPj4gKwo+ID4+ICsgICAgICAgdmFsID0gKHUxNiAqKXZkcGFzaW0t
-Pm5vdGlmeTsKPiA+PiArICAgICAgIGlmICh4Y2hnKHZhbCwgVkRQQVNJTV9OT1RJRllfREVGVkFM
-KSAhPSBWRFBBU0lNX05PVElGWV9ERUZWQUwpCj4gPj4gKyAgICAgICAgICAgICAgIHNjaGVkdWxl
-X3dvcmsoJnZkcGFzaW0tPndvcmspOwo+ID4+ICsKPiA+PiArb3V0Ogo+ID4+ICsgICAgICAgc2No
-ZWR1bGVfZGVsYXllZF93b3JrKCZ2ZHBhc2ltLT5ub3RpZnlfd29yaywKPiA+PiArICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICBtc2Vjc190b19qaWZmaWVzKFZEUEFTSU1fVlJJTkdfUE9MTF9Q
-RVJJT0QpKTsKPiA+PiArfQo+ID4+ICsKPiA+PiAgIHN0cnVjdCB2ZHBhc2ltICp2ZHBhc2ltX2Ny
-ZWF0ZShzdHJ1Y3QgdmRwYXNpbV9kZXZfYXR0ciAqZGV2X2F0dHIsCj4gPj4gICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICBjb25zdCBzdHJ1Y3QgdmRwYV9kZXZfc2V0X2NvbmZpZyAqY29u
-ZmlnKQo+ID4+ICAgewo+ID4+IEBAIC0yODcsNiArMzE3LDE4IEBAIHN0cnVjdCB2ZHBhc2ltICp2
-ZHBhc2ltX2NyZWF0ZShzdHJ1Y3QgdmRwYXNpbV9kZXZfYXR0ciAqZGV2X2F0dHIsCj4gPj4gICAg
-ICAgICAgc2V0X2RtYV9vcHMoZGV2LCAmdmRwYXNpbV9kbWFfb3BzKTsKPiA+PiAgICAgICAgICB2
-ZHBhc2ltLT52ZHBhLm1kZXYgPSBkZXZfYXR0ci0+bWdtdF9kZXY7Cj4gPj4KPiA+PiArICAgICAg
-IGlmIChub3RpZnlfcGFzc3Rocm91Z2gpIHsKPiA+PiArICAgICAgICAgICAgICAgSU5JVF9ERUxB
-WUVEX1dPUksoJnZkcGFzaW0tPm5vdGlmeV93b3JrLCB2ZHBhc2ltX25vdGlmeV93b3JrKTsKPiA+
-PiArCj4gPj4gKyAgICAgICAgICAgICAgIHZkcGFzaW0tPm5vdGlmeSA9IF9fZ2V0X2ZyZWVfcGFn
-ZShHRlBfS0VSTkVMIHwgX19HRlBfWkVSTyk7Cj4gPj4gKyAgICAgICAgICAgICAgIGlmICghdmRw
-YXNpbS0+bm90aWZ5KQo+ID4+ICsgICAgICAgICAgICAgICAgICAgICAgIGdvdG8gZXJyX2lvbW11
-Owo+ID4+ICsjaWZkZWYgQ09ORklHX1g4Ngo+ID4+ICsgICAgICAgICAgICAgICBzZXRfbWVtb3J5
-X3VjKHZkcGFzaW0tPm5vdGlmeSwgMSk7Cj4gPj4gKyNlbmRpZgo+ID4KPiA+IEkgaGFkIHRoZSBz
-YW1lIHF1ZXN0aW9uIHdpdGggdmVyc2lvbiAxLCBhbnkgcmVhc29uIGZvciBoYXZpbmcgdGhpcwo+
-ID4gcGFydCB1bmNhY2hlYWJsZT8gSXQncyBhIGhpbnQgdGhhdCB3ZSBoYXZlIGJ1Z3Mgc29tZXdo
-ZXJlLiBBcmUgd2UKPiA+IG1pc3NpbmcgQUNDRVNTL09SREVSX1BMQVRGT1JNIG9yIG90aGVyIGZl
-YXR1cmVzPwo+ID4KPiBPaCwgSSBoYWQgcmVwbGllZCB5b3UgaW4gdGhhdCB0aHJlYWQuCj4KPiBU
-aGUgdm1fcGFnZV9wcm90IG9mIG5vdGlmeSBtYXBwaW5nIFZNQSBpcyBwZ3Byb3Rfbm9uY2FjaGVk
-IChzZWUKPiB2aG9zdF92ZHBhX2ZhdWx0KSBidXQgdGhlIHZkcGFzaW0tPm5vdGlmeSBpcyBXQiwg
-c28gd2Ugc2hvdWxkIHNldCBpdHMKPiBtZW10eXBlIHRvIFVDIGhlcmUgYW5kIHNldCBpdCBiYWNr
-IHRvIFdCIHdoZW4gcmVsZWFzaW5nIHRoZSBkZXZpY2UuCgpPaywgYnV0IGFueSByZWFzb24gdG8g
-aGF2ZSBhIFg4NiBndWFyZCBmb3IgdGhpcz8gVGhpcyBiYXNpY2FsbHkgbWFrZXMKaXQgd29uJ3Qg
-d29yayBmb3Igbm9uLXg4NiBhcmNocz8KCkkgdGhpbmsgdGhlIGNvcnJlY3Qgd2F5IGlzIHRvIGlu
-dHJvZHVjZSBhIG5ldyBjb25maWdfb3BzIHRvIGZldGNoIHRoZQpjb3JyZWN0IHBncHJvdC4gVGhl
-biB3ZSBhcmUgZmluZS4KClRoYW5rcwoKPgo+IE90aGVyd2lzZSwgdGhlIHdhcm5pbmcgaW4gdHJh
-Y2VfcGZuX3JlbWFwKCkgd291bGQgYmUgdHJpZ2dlcmVkLgo+IEZvciBleGFtcGxlOgo+IHg4Ni9Q
-QVQ6IENQVSAxNi9LVk06MTc4MTkgbWFwIHBmbiBSQU0gcmFuZ2UgcmVxIHVuY2FjaGVkLW1pbnVz
-IGZvciBbbWVtCj4gMHg1MTUxZjMwMDAtMHg1MTUxZjNmZmZdLCBnb3Qgd3JpdGUtYmFjawo+Cj4g
-Pj4gKyAgICAgICAgICAgICAgICoodTE2ICopdmRwYXNpbS0+bm90aWZ5ID0gVkRQQVNJTV9OT1RJ
-RllfREVGVkFMOwo+ID4KPiA+IFdSSVRFX09OQ0UoKT8KPiA+Cj4gT2theS4KPgo+ID4+ICsgICAg
-ICAgfQo+ID4+ICsKPiA+PiAgICAgICAgICB2ZHBhc2ltLT5jb25maWcgPSBremFsbG9jKGRldl9h
-dHRyLT5jb25maWdfc2l6ZSwgR0ZQX0tFUk5FTCk7Cj4gPj4gICAgICAgICAgaWYgKCF2ZHBhc2lt
-LT5jb25maWcpCj4gPj4gICAgICAgICAgICAgICAgICBnb3RvIGVycl9pb21tdTsKPiA+PiBAQCAt
-NDk1LDYgKzUzNywxOCBAQCBzdGF0aWMgdTggdmRwYXNpbV9nZXRfc3RhdHVzKHN0cnVjdCB2ZHBh
-X2RldmljZSAqdmRwYSkKPiA+PiAgICAgICAgICByZXR1cm4gc3RhdHVzOwo+ID4+ICAgfQo+ID4+
-Cj4gPj4gK3N0YXRpYyB2b2lkIHZkcGFzaW1fc2V0X25vdGlmeV93b3JrKHN0cnVjdCB2ZHBhc2lt
-ICp2ZHBhc2ltLCBib29sIHN0YXJ0KQo+ID4+ICt7Cj4gPj4gKyAgICAgICBpZiAoIW5vdGlmeV9w
-YXNzdGhyb3VnaCkKPiA+PiArICAgICAgICAgICAgICAgcmV0dXJuOwo+ID4KPiA+IE9ubHkgdHdv
-IGNhbGxlcnMgZm9yIHRoaXMgZnVuY3Rpb246IG9uZSBpcyBzdGFydCBhbm90aGVyIGlzIHN0b3Au
-IElmCj4gPiB3ZSBkZWNpZGUgdG8gZ2V0IHJpZCBvZiBub3RpZnlfcGFzc3Rocm91Z2gsIEknZCBy
-YXRoZXIgb3BlbmNvZGUgdGhlCj4gPiBzY2hlZHVsZS9jYW5jZWxfZGVsYXllZCgpLgo+ID4KPiBP
-a2F5LCB0aGFua3MuCj4KPiA+IFRoYW5rcwo+ID4KPiA+PiArCj4gPj4gKyAgICAgICBpZiAoc3Rh
-cnQpCj4gPj4gKyAgICAgICAgICAgICAgIHNjaGVkdWxlX2RlbGF5ZWRfd29yaygmdmRwYXNpbS0+
-bm90aWZ5X3dvcmssCj4gPj4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBt
-c2Vjc190b19qaWZmaWVzKFZEUEFTSU1fVlJJTkdfUE9MTF9QRVJJT0QpKTsKPiA+PiArICAgICAg
-IGVsc2UKPiA+PiArICAgICAgICAgICAgICAgY2FuY2VsX2RlbGF5ZWRfd29ya19zeW5jKCZ2ZHBh
-c2ltLT5ub3RpZnlfd29yayk7Cj4gPj4gK30KPiA+PiArCj4gPj4gICBzdGF0aWMgdm9pZCB2ZHBh
-c2ltX3NldF9zdGF0dXMoc3RydWN0IHZkcGFfZGV2aWNlICp2ZHBhLCB1OCBzdGF0dXMpCj4gPj4g
-ICB7Cj4gPj4gICAgICAgICAgc3RydWN0IHZkcGFzaW0gKnZkcGFzaW0gPSB2ZHBhX3RvX3NpbSh2
-ZHBhKTsKPiA+PiBAQCAtNTAyLDEyICs1NTYsMTQgQEAgc3RhdGljIHZvaWQgdmRwYXNpbV9zZXRf
-c3RhdHVzKHN0cnVjdCB2ZHBhX2RldmljZSAqdmRwYSwgdTggc3RhdHVzKQo+ID4+ICAgICAgICAg
-IHNwaW5fbG9jaygmdmRwYXNpbS0+bG9jayk7Cj4gPj4gICAgICAgICAgdmRwYXNpbS0+c3RhdHVz
-ID0gc3RhdHVzOwo+ID4+ICAgICAgICAgIHNwaW5fdW5sb2NrKCZ2ZHBhc2ltLT5sb2NrKTsKPiA+
-PiArICAgICAgIHZkcGFzaW1fc2V0X25vdGlmeV93b3JrKHZkcGFzaW0sIHN0YXR1cyAmIFZJUlRJ
-T19DT05GSUdfU19EUklWRVJfT0spOwo+ID4+ICAgfQo+ID4+Cj4gPj4gICBzdGF0aWMgaW50IHZk
-cGFzaW1fcmVzZXQoc3RydWN0IHZkcGFfZGV2aWNlICp2ZHBhLCBib29sIGNsZWFyKQo+ID4+ICAg
-ewo+ID4+ICAgICAgICAgIHN0cnVjdCB2ZHBhc2ltICp2ZHBhc2ltID0gdmRwYV90b19zaW0odmRw
-YSk7Cj4gPj4KPiA+PiArICAgICAgIHZkcGFzaW1fc2V0X25vdGlmeV93b3JrKHZkcGFzaW0sIGZh
-bHNlKTsKPiA+PiAgICAgICAgICBzcGluX2xvY2soJnZkcGFzaW0tPmxvY2spOwo+ID4+ICAgICAg
-ICAgIHZkcGFzaW0tPnN0YXR1cyA9IDA7Cj4gPj4gICAgICAgICAgdmRwYXNpbV9kb19yZXNldCh2
-ZHBhc2ltKTsKPiA+PiBAQCAtNjcyLDExICs3MjgsMjQgQEAgc3RhdGljIGludCB2ZHBhc2ltX2Rt
-YV91bm1hcChzdHJ1Y3QgdmRwYV9kZXZpY2UgKnZkcGEsIHVuc2lnbmVkIGludCBhc2lkLAo+ID4+
-ICAgICAgICAgIHJldHVybiAwOwo+ID4+ICAgfQo+ID4+Cj4gPj4gK3N0YXRpYyBzdHJ1Y3QgdmRw
-YV9ub3RpZmljYXRpb25fYXJlYQo+ID4+ICt2ZHBhc2ltX2dldF92cV9ub3RpZmljYXRpb24oc3Ry
-dWN0IHZkcGFfZGV2aWNlICp2ZHBhLCB1MTYgcWlkKQo+ID4+ICt7Cj4gPj4gKyAgICAgICBzdHJ1
-Y3QgdmRwYXNpbSAqdmRwYXNpbSA9IHZkcGFfdG9fc2ltKHZkcGEpOwo+ID4+ICsgICAgICAgc3Ry
-dWN0IHZkcGFfbm90aWZpY2F0aW9uX2FyZWEgbm90aWZ5Owo+ID4+ICsKPiA+PiArICAgICAgIG5v
-dGlmeS5hZGRyID0gdmlydF90b19waHlzKCh2b2lkICopdmRwYXNpbS0+bm90aWZ5KTsKPiA+PiAr
-ICAgICAgIG5vdGlmeS5zaXplID0gUEFHRV9TSVpFOwo+ID4+ICsKPiA+PiArICAgICAgIHJldHVy
-biBub3RpZnk7Cj4gPj4gK30KPiA+PiArCj4gPj4gICBzdGF0aWMgdm9pZCB2ZHBhc2ltX2ZyZWUo
-c3RydWN0IHZkcGFfZGV2aWNlICp2ZHBhKQo+ID4+ICAgewo+ID4+ICAgICAgICAgIHN0cnVjdCB2
-ZHBhc2ltICp2ZHBhc2ltID0gdmRwYV90b19zaW0odmRwYSk7Cj4gPj4gICAgICAgICAgaW50IGk7
-Cj4gPj4KPiA+PiArICAgICAgIHZkcGFzaW1fc2V0X25vdGlmeV93b3JrKHZkcGFzaW0sIGZhbHNl
-KTsKPiA+PiAgICAgICAgICBjYW5jZWxfd29ya19zeW5jKCZ2ZHBhc2ltLT53b3JrKTsKPiA+Pgo+
-ID4+ICAgICAgICAgIGZvciAoaSA9IDA7IGkgPCB2ZHBhc2ltLT5kZXZfYXR0ci5udnFzOyBpKysp
-IHsKPiA+PiBAQCAtNjkzLDYgKzc2MiwxMiBAQCBzdGF0aWMgdm9pZCB2ZHBhc2ltX2ZyZWUoc3Ry
-dWN0IHZkcGFfZGV2aWNlICp2ZHBhKQo+ID4+ICAgICAgICAgIHZob3N0X2lvdGxiX2ZyZWUodmRw
-YXNpbS0+aW9tbXUpOwo+ID4+ICAgICAgICAgIGtmcmVlKHZkcGFzaW0tPnZxcyk7Cj4gPj4gICAg
-ICAgICAga2ZyZWUodmRwYXNpbS0+Y29uZmlnKTsKPiA+PiArICAgICAgIGlmICh2ZHBhc2ltLT5u
-b3RpZnkpIHsKPiA+PiArI2lmZGVmIENPTkZJR19YODYKPiA+PiArICAgICAgICAgICAgICAgc2V0
-X21lbW9yeV93Yih2ZHBhc2ltLT5ub3RpZnksIDEpOwo+ID4+ICsjZW5kaWYKPiA+PiArICAgICAg
-ICAgICAgICAgZnJlZV9wYWdlKHZkcGFzaW0tPm5vdGlmeSk7Cj4gPj4gKyAgICAgICB9Cj4gPj4g
-ICB9Cj4gPj4KPiA+PiAgIHN0YXRpYyBjb25zdCBzdHJ1Y3QgdmRwYV9jb25maWdfb3BzIHZkcGFz
-aW1fY29uZmlnX29wcyA9IHsKPiA+PiBAQCAtNzA0LDYgKzc3OSw3IEBAIHN0YXRpYyBjb25zdCBz
-dHJ1Y3QgdmRwYV9jb25maWdfb3BzIHZkcGFzaW1fY29uZmlnX29wcyA9IHsKPiA+PiAgICAgICAg
-ICAuZ2V0X3ZxX3JlYWR5ICAgICAgICAgICA9IHZkcGFzaW1fZ2V0X3ZxX3JlYWR5LAo+ID4+ICAg
-ICAgICAgIC5zZXRfdnFfc3RhdGUgICAgICAgICAgID0gdmRwYXNpbV9zZXRfdnFfc3RhdGUsCj4g
-Pj4gICAgICAgICAgLmdldF92cV9zdGF0ZSAgICAgICAgICAgPSB2ZHBhc2ltX2dldF92cV9zdGF0
-ZSwKPiA+PiArICAgICAgIC5nZXRfdnFfbm90aWZpY2F0aW9uICAgID0gdmRwYXNpbV9nZXRfdnFf
-bm90aWZpY2F0aW9uLAo+ID4+ICAgICAgICAgIC5nZXRfdnFfYWxpZ24gICAgICAgICAgID0gdmRw
-YXNpbV9nZXRfdnFfYWxpZ24sCj4gPj4gICAgICAgICAgLmdldF92cV9ncm91cCAgICAgICAgICAg
-PSB2ZHBhc2ltX2dldF92cV9ncm91cCwKPiA+PiAgICAgICAgICAuZ2V0X2RldmljZV9mZWF0dXJl
-cyAgICA9IHZkcGFzaW1fZ2V0X2RldmljZV9mZWF0dXJlcywKPiA+PiBAQCAtNzM3LDYgKzgxMyw3
-IEBAIHN0YXRpYyBjb25zdCBzdHJ1Y3QgdmRwYV9jb25maWdfb3BzIHZkcGFzaW1fYmF0Y2hfY29u
-ZmlnX29wcyA9IHsKPiA+PiAgICAgICAgICAuZ2V0X3ZxX3JlYWR5ICAgICAgICAgICA9IHZkcGFz
-aW1fZ2V0X3ZxX3JlYWR5LAo+ID4+ICAgICAgICAgIC5zZXRfdnFfc3RhdGUgICAgICAgICAgID0g
-dmRwYXNpbV9zZXRfdnFfc3RhdGUsCj4gPj4gICAgICAgICAgLmdldF92cV9zdGF0ZSAgICAgICAg
-ICAgPSB2ZHBhc2ltX2dldF92cV9zdGF0ZSwKPiA+PiArICAgICAgIC5nZXRfdnFfbm90aWZpY2F0
-aW9uICAgID0gdmRwYXNpbV9nZXRfdnFfbm90aWZpY2F0aW9uLAo+ID4+ICAgICAgICAgIC5nZXRf
-dnFfYWxpZ24gICAgICAgICAgID0gdmRwYXNpbV9nZXRfdnFfYWxpZ24sCj4gPj4gICAgICAgICAg
-LmdldF92cV9ncm91cCAgICAgICAgICAgPSB2ZHBhc2ltX2dldF92cV9ncm91cCwKPiA+PiAgICAg
-ICAgICAuZ2V0X2RldmljZV9mZWF0dXJlcyAgICA9IHZkcGFzaW1fZ2V0X2RldmljZV9mZWF0dXJl
-cywKPiA+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92ZHBhL3ZkcGFfc2ltL3ZkcGFfc2ltLmggYi9k
-cml2ZXJzL3ZkcGEvdmRwYV9zaW0vdmRwYV9zaW0uaAo+ID4+IGluZGV4IDBlNzg3MzdkY2MxNi4u
-MDc2OWNjYmQzOTExIDEwMDY0NAo+ID4+IC0tLSBhL2RyaXZlcnMvdmRwYS92ZHBhX3NpbS92ZHBh
-X3NpbS5oCj4gPj4gKysrIGIvZHJpdmVycy92ZHBhL3ZkcGFfc2ltL3ZkcGFfc2ltLmgKPiA+PiBA
-QCAtNjksNiArNjksOSBAQCBzdHJ1Y3QgdmRwYXNpbSB7Cj4gPj4gICAgICAgICAgYm9vbCBydW5u
-aW5nOwo+ID4+ICAgICAgICAgIC8qIHNwaW5sb2NrIHRvIHN5bmNocm9uaXplIGlvbW11IHRhYmxl
-ICovCj4gPj4gICAgICAgICAgc3BpbmxvY2tfdCBpb21tdV9sb2NrOwo+ID4+ICsgICAgICAgLyog
-ZHVtbXkgbm90aWZ5IHBhZ2UgKi8KPiA+PiArICAgICAgIHVuc2lnbmVkIGxvbmcgbm90aWZ5Owo+
-ID4+ICsgICAgICAgc3RydWN0IGRlbGF5ZWRfd29yayBub3RpZnlfd29yazsKPiA+PiAgIH07Cj4g
-Pj4KPiA+PiAgIHN0cnVjdCB2ZHBhc2ltICp2ZHBhc2ltX2NyZWF0ZShzdHJ1Y3QgdmRwYXNpbV9k
-ZXZfYXR0ciAqYXR0ciwKPiA+PiAtLQo+ID4+IDIuMjMuMAo+ID4+Cj4gPgo+ID4gLgo+CgpfX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlv
-biBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
-aHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVh
-bGl6YXRpb24=
+On Wed, Dec 7, 2022 at 1:12 PM Si-Wei Liu <si-wei.liu@oracle.com> wrote:
+>
+>
+>
+> On 12/5/2022 7:14 PM, Jason Wang wrote:
+> > On Tue, Dec 6, 2022 at 9:43 AM Si-Wei Liu <si-wei.liu@oracle.com> wrote:
+> >>
+> >>
+> >> On 12/4/2022 10:46 PM, Jason Wang wrote:
+> >>> On Thu, Dec 1, 2022 at 8:53 AM Si-Wei Liu <si-wei.liu@oracle.com> wrote:
+> >>>> Sorry for getting back late due to the snag of the holidays.
+> >>> No worries :)
+> >>>
+> >>>> On 11/23/2022 11:13 PM, Jason Wang wrote:
+> >>>>> On Thu, Nov 24, 2022 at 6:53 AM Si-Wei Liu <si-wei.liu@oracle.com> wrote:
+> >>>>>> On 11/22/2022 7:35 PM, Jason Wang wrote:
+> >>>>>>> On Wed, Nov 23, 2022 at 6:29 AM Si-Wei Liu <si-wei.liu@oracle.com> wrote:
+> >>>>>>>> On 11/16/2022 7:33 PM, Jason Wang wrote:
+> >>>>>>>>> This patch allows device features to be provisioned via vdpa. This
+> >>>>>>>>> will be useful for preserving migration compatibility between source
+> >>>>>>>>> and destination:
+> >>>>>>>>>
+> >>>>>>>>> # vdpa dev add name dev1 mgmtdev pci/0000:02:00.0 device_features 0x300020000
+> >>>>>>>> Miss the actual "vdpa dev config show" command below
+> >>>>>>> Right, let me fix that.
+> >>>>>>>
+> >>>>>>>>> # dev1: mac 52:54:00:12:34:56 link up link_announce false mtu 65535
+> >>>>>>>>>            negotiated_features CTRL_VQ VERSION_1 ACCESS_PLATFORM
+> >>>>>>>>>
+> >>>>>>>>> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> >>>>>>>>> ---
+> >>>>>>>>> Changes since v1:
+> >>>>>>>>> - Use uint64_t instead of __u64 for device_features
+> >>>>>>>>> - Fix typos and tweak the manpage
+> >>>>>>>>> - Add device_features to the help text
+> >>>>>>>>> ---
+> >>>>>>>>>       man/man8/vdpa-dev.8            | 15 +++++++++++++++
+> >>>>>>>>>       vdpa/include/uapi/linux/vdpa.h |  1 +
+> >>>>>>>>>       vdpa/vdpa.c                    | 32 +++++++++++++++++++++++++++++---
+> >>>>>>>>>       3 files changed, 45 insertions(+), 3 deletions(-)
+> >>>>>>>>>
+> >>>>>>>>> diff --git a/man/man8/vdpa-dev.8 b/man/man8/vdpa-dev.8
+> >>>>>>>>> index 9faf3838..43e5bf48 100644
+> >>>>>>>>> --- a/man/man8/vdpa-dev.8
+> >>>>>>>>> +++ b/man/man8/vdpa-dev.8
+> >>>>>>>>> @@ -31,6 +31,7 @@ vdpa-dev \- vdpa device configuration
+> >>>>>>>>>       .I NAME
+> >>>>>>>>>       .B mgmtdev
+> >>>>>>>>>       .I MGMTDEV
+> >>>>>>>>> +.RI "[ device_features " DEVICE_FEATURES " ]"
+> >>>>>>>>>       .RI "[ mac " MACADDR " ]"
+> >>>>>>>>>       .RI "[ mtu " MTU " ]"
+> >>>>>>>>>       .RI "[ max_vqp " MAX_VQ_PAIRS " ]"
+> >>>>>>>>> @@ -74,6 +75,15 @@ Name of the new vdpa device to add.
+> >>>>>>>>>       Name of the management device to use for device addition.
+> >>>>>>>>>
+> >>>>>>>>>       .PP
+> >>>>>>>>> +.BI device_features " DEVICE_FEATURES"
+> >>>>>>>>> +Specifies the virtio device features bit-mask that is provisioned for the new vdpa device.
+> >>>>>>>>> +
+> >>>>>>>>> +The bits can be found under include/uapi/linux/virtio*h.
+> >>>>>>>>> +
+> >>>>>>>>> +see macros such as VIRTIO_F_ and VIRTIO_XXX(e.g NET)_F_ for specific bit values.
+> >>>>>>>>> +
+> >>>>>>>>> +This is optional.
+> >>>>>>>> Document the behavior when this attribute is missing? For e.g. inherit
+> >>>>>>>> device features from parent device.
+> >>>>>>> This is the current behaviour but unless we've found a way to mandate
+> >>>>>>> it, I'd like to not mention it. Maybe add a description to say the
+> >>>>>>> user needs to check the features after the add if features are not
+> >>>>>>> specified.
+> >>>>>> Well, I think at least for live migration the mgmt software should get
+> >>>>>> to some consistent result between all vdpa parent drivers regarding
+> >>>>>> feature inheritance.
+> >>>>> It would be hard. Especially for the device:
+> >>>>>
+> >>>>> 1) ask device_features from the device, in this case, new features
+> >>>>> could be advertised after e.g a firmware update
+> >>>> The consistency I meant is to always inherit all device features from
+> >>>> the parent device for whatever it is capable of,
+> >>> This looks fragile. How about the features that are mutually
+> >>> exclusive? E.g FEATURE_X and FEATURE_Y that are both supported by the
+> >>> mgmt?
+> >> Hmmm, in theory, yes, it's a bit cumbersome. Is this for future proof,
+> >> since so far as I see the virtio spec doesn't seem to define features
+> >> that are mutually exclusive, and the way how driver should respond to
+> >> mutually exclusive features in feature negotiation is completely undefined?
+> > My understanding is that if a driver accepts two mutually exclusive
+> > features it should be a bug.
+> It depends on the nature of the specific feature I guess. For e.g. there
+> could be two versions of implementation for some device feature, which
+> are mutually exclusive. The driver can well selectively ack one of the
+> version it supports if seeing both present.
+>
+> >
+> > But anyhow it's an example that it is not easy to have forward
+> > compatibility if we mandating to inherit all features from the
+> > management device.
+>
+> Yep, that I agree.
+> >
+> >>>> since that was the only
+> >>>> reasonable behavior pre-dated the device_features attribute, even though
+> >>>> there's no mandatory check by the vdpa core. This way it's
+> >>>> self-descriptive and consistent for the mgmt software to infer, as users
+> >>>> can check into dev_features at the parent mgmtdev level to know what
+> >>>> features will be ended up with after 'vdpa dev add'. I thought even
+> >>>> though inheritance is not mandated as part of uAPI, it should at least
+> >>>> be mentioned as a recommended guide line (for drivers in particular),
+> >>>> especially this is the only reasonable behavior with nowhere to check
+> >>>> what features are ended up after add (i.e. for now we can only set but
+> >>>> not possible to read the exact device_features at vdpa dev level, as yet).
+> >>> I fully agree, but what I want to say is. Consider:
+> >>>
+> >>> 1) We've already had feature provisioning
+> >>> 2) It would be hard or even impossible to mandate the semantic
+> >>> (consistency) of the features inheritance.
+> >>>
+> >>> I'm fine with the doc, but the mgmt layer should not depend on this
+> >>> and they should use feature provisioning instead.
+> >> OK, if it's for future proof to not mandate feature inheritance I think
+> >> I see the point.
+> >>
+> >>>>> 2) or have hierarchy architecture where several layers were placed
+> >>>>> between vDPA and the real hardware
+> >>>> Not sure what it means but I don't get why extra layers are needed. Do
+> >>>> you mean extra layer to validate resulting features during add? Why vdpa
+> >>>> core is not the right place to do that?
+> >>> Just want to go wild because we can't expect how many layers are below vDPA.
+> >>>
+> >>> vDPA core is the right place but the validating should be done during
+> >>> feature provisioning since it's much more easier than trying to
+> >>> mandating code defined behaviour like inheritance.
+> >> OK, thanks for the clarifications.
+> >>
+> >>>>>> This inheritance predates the exposure of device
+> >>>>>> features, until which user can check into specific features after
+> >>>>>> creation. Imagine the case mgmt software of live migration needs to work
+> >>>>>> with older vdpa tool stack with no device_features exposure, how does it
+> >>>>>> know what device features are provisioned - it can only tell it from
+> >>>>>> dev_features shown at the parent mgmtdev level.
+> >>>>> The behavior is totally defined by the code, it would be not safe for
+> >>>>> the mgmt layer to depend on. Instead, the mgmt layer should use a
+> >>>>> recent vdpa tool with feature provisioning interface to guarantee the
+> >>>>> device_features if it wants since it has a clear semantic instead of
+> >>>>> an implicit kernel behaviour which doesn't belong to an uAPI.
+> >>>> That is going to be a slightly harsh requirement. If there's an existing
+> >>>> vDPA setup already provisioned before the device_features work, there is
+> >>>> no way for it to live migrate even if the QEMU userspace stack is made
+> >>>> live migrate-able. It'd be the best to find some mild alternative before
+> >>>> claiming certain setup unmigrate-able.
+> >>> It can still work in a passive way, mgmt layer check the device
+> >>> features and only allow the migration among the vDPA devices that have
+> >>> the same device_feature.
+> >> Right, that is the scenario in concern which I'd like to get support
+> >> for, even though it's passive due to incompleteness in previous CLI
+> >> design (lack of individual device feature provisioning). Once the tool
+> >> is upgraded, vdpa features can be provisioned selectively on the
+> >> destination node, matching those on the source.
+> > This should work, but it probably requires the mgmt layer to collect
+> > and compare features among the nodes.
+> Yes. I know libvirt probably won't support this. But it would benefit
+> other mgmt software implementation, where each node would have to record
+> the initial config attributes in the first place. :)
+>
+> >
+> >>>    Less flexible than feature provisioning.
+> >>>
+> >>>>> If we can mandate the inheriting behaviour, users may be surprised at
+> >>>>> the features in the production environment which are very hard to
+> >>>>> debug.
+> >>>> I'm not against an explicit uAPI to define and guard device_features
+> >>>> inheritance, but on the other hand, wouldn't it be necessary to show the
+> >>>> actual device_features at vdpa dev level if it's not guaranteed to be
+> >>>> the same with that of the parent mgmtdev?
+> >>> I think this is already been done ,or anything I miss?
+> >> The kernel patch is not merged yet, preventing the userspace patch from
+> >> being posted.
+> > I may miss something, any potiner here?
+> First the following rename patch has to get in to the kernel:
+> https://lore.kernel.org/virtualization/1665422823-18364-1-git-send-email-si-wei.liu@oracle.com/
+>
+
+Michael, do you plan to merge this?
+
+> then I can post the related iproute patch to include dev_features to the
+> output of 'vdpa dev show'.
+>
+> This initial config series run independently, though the eventual goal
+> is to get all of migration compatibility attributes packed in the same
+> "initial_config" map.
+>
+> https://lore.kernel.org/virtualization/1666392237-4042-1-git-send-email-si-wei.liu@oracle.com/
+
+Ok.
+
+> >
+> >> While the ideal situation is to allow query of
+> >> device_features after adding a vdpa dev (for e.g. if not 100% inherited
+> >> from the parent mgmtdev), followed by allowing selectively provision
+> >> features individually.
+> > Yes.
+> >
+> >>>> That is even needed before
+> >>>> users are allowed to provision specific device_features IMO...
+> >>>>
+> >>>> (that is the reason why I urged Michael to merge this patch soon before
+> >>>> 6.1 GA:
+> >>>> https://lore.kernel.org/virtualization/1665422823-18364-1-git-send-email-si-wei.liu@oracle.com/,
+> >>>> for which I have a pending iproute patch to expose device_features at
+> >>>> 'vdpa dev show' output).
+> >>> Right.
+> >>>
+> >>>>>> IMHO it's not about whether vdpa core can or should mandate it in a
+> >>>>>> common place or not, it's that (the man page of) the CLI tool should set
+> >>>>>> user's expectation upfront for consumers (for e.g. mgmt software). I.e.
+> >>>>>> in case the parent driver doesn't follow the man page doc, it should be
+> >>>>>> considered as an implementation bug in the individual driver rather than
+> >>>>>> flexibility of its own.
+> >>>>> So for the inheriting, it might be too late to do that:
+> >>>>>
+> >>>>> 1) no facility to mandate the inheriting and even if we had we can't
+> >>>>> fix old kernels
+> >>>> We don't need to fix any old kernel as all drivers there had obeyed the
+> >>>> inheriting rule since day 1. Or is there exception you did see? If so we
+> >>>> should treat it as a bug to fix in driver.
+> >>> I'm not sure it's a bug consider a vDPA device have only a subset
+> >>> feature of what mgmt has.
+> >> For example, F_MQ requires F_CTRL_VQ, but today this validation is only
+> >> done in individual driver. We should consider consolidating it to the
+> >> vdpa core.
+> > This needs some balances, the core actually tries to be devince
+> > agnostic (though it has some net specific code).
+> Yes, this is already the case today. There has been various
+> VIRTIO_ID_NET case switch'es in the vdpa.c code. I think if type
+> specific validation code just limits itself to the netlink API
+> interfacing layer rather than down to the driver API, it might just be
+> okay (as that's already the case).
+
+Yes.
+
+>
+> > One side effect is that it would be very hard for the core to catch up
+> > with the spec development. With the current code, new features could
+> > be added without the notice of the core.
+> I thought at least the vdpa core can capture those validations already
+> defined in the spec. For new development out of spec, driver can be a
+> safe place to start.
+
+That's fine, patches are more than welcomed.
+
+Thanks
+
+>
+>
+> Regards,
+> -Siwei
+>
+> >
+> >> But before that happens, if such validation is missing from
+> >> driver, we should fix those in vendor drivers first.
+> > Yes, that's the way. (E.g virtio-net driver has such validation)
+> >
+> >>>>> 2) no uAPI so there no entity to carry on the semantic
+> >>>> Not against of introducing an explicit uAPI, but what it may end up with
+> >>>> is only some validation in a central place, right?
+> >>> Well, this is what has been already done right now before the feature
+> >>> provisioning, the kernel for anyway needs to validate the illegal
+> >>> input from userspace.
+> >> Right. What I meant is the kernel validation in vdpa_core should be done
+> >> anyway regardless of any new uAPI (for feature inheritance for e.g). I
+> >> guess we are in the same page here.
+> > Great, I think so.
+> >
+> > Thanks
+> >
+> >> Thanks,
+> >> -Siwei
+> >>
+> >>>> Why not do it now
+> >>>> before adding device features provisioning to userspace. Such that it's
+> >>>> functionality complete and correct no matter if device_features is
+> >>>> specified or not.
+> >>> So as discussed before, the kernel has already tried to do validation,
+> >>> if there's any bug, we can fix that. If you meant userspace
+> >>> validation, I'm not sure it is necessary:
+> >>>
+> >>> 1) kernel should do the validation
+> >>> 2) hard to keep forward compatibility, e.g features supported by the
+> >>> mgmt device might not be even known by the userspace.
+> >>>
+> >>> Thanks
+> >>>
+> >>>> Thanks,
+> >>>> -Siwei
+> >>>>
+> >>>>> And this is one of the goals that feature provisioning tries to solve
+> >>>>> so mgmt layer should use feature provisioning instead.
+> >>>>>
+> >>>>>>>> And what is the expected behavior when feature bit mask is off but the
+> >>>>>>>> corresponding config attr (for e.g. mac, mtu, and max_vqp) is set?
+> >>>>>>> It depends totally on the parent. And this "issue" is not introduced
+> >>>>>>> by this feature. Parents can decide to provision MQ by itself even if
+> >>>>>>> max_vqp is not specified.
+> >>>>>> Sorry, maybe I wasn't clear enough. The case I referred to was that the
+> >>>>>> parent is capable of certain feature (for e.g. _F_MQ), the associated
+> >>>>>> config attr (for e.g. max_vqp) is already present in the CLI, but the
+> >>>>>> device_features bit mask doesn't have the corresponding bit set (e.g.
+> >>>>>> the _F_MQ bit). Are you saying that the failure of this apparently
+> >>>>>> invalid/ambiguous/conflicting command can't be predicated and the
+> >>>>>> resulting behavior is totally ruled by the parent driver?
+> >>>>> Ok, I get you. My understanding is that the kernel should do the
+> >>>>> validation at least, it should not trust any configuration that is
+> >>>>> sent from the userspace. This is how it works before the device
+> >>>>> provisioning. I think we can add some validation in the kernel.
+> >>>>>
+> >>>>> Thanks
+> >>>>>
+> >>>>>> Thanks,
+> >>>>>> -Siwei
+> >>>>>>
+> >>>>>>>> I think the previous behavior without device_features is that any config
+> >>>>>>>> attr implies the presence of the specific corresponding feature (_F_MAC,
+> >>>>>>>> _F_MTU, and _F_MQ). Should device_features override the other config
+> >>>>>>>> attribute, or such combination is considered invalid thus should fail?
+> >>>>>>> It follows the current policy, e.g if the parent doesn't support
+> >>>>>>> _F_MQ, we can neither provision _F_MQ nor max_vqp.
+> >>>>>>>
+> >>>>>>> Thanks
+> >>>>>>>
+> >>>>>>>> Thanks,
+> >>>>>>>> -Siwei
+> >>>>>>>>
+> >>>>>>>>> +
+> >>>>>>>>>       .BI mac " MACADDR"
+> >>>>>>>>>       - specifies the mac address for the new vdpa device.
+> >>>>>>>>>       This is applicable only for the network type of vdpa device. This is optional.
+> >>>>>>>>> @@ -127,6 +137,11 @@ vdpa dev add name foo mgmtdev vdpa_sim_net
+> >>>>>>>>>       Add the vdpa device named foo on the management device vdpa_sim_net.
+> >>>>>>>>>       .RE
+> >>>>>>>>>       .PP
+> >>>>>>>>> +vdpa dev add name foo mgmtdev vdpa_sim_net device_features 0x300020000
+> >>>>>>>>> +.RS 4
+> >>>>>>>>> +Add the vdpa device named foo on the management device vdpa_sim_net with device_features of 0x300020000
+> >>>>>>>>> +.RE
+> >>>>>>>>> +.PP
+> >>>>>>>>>       vdpa dev add name foo mgmtdev vdpa_sim_net mac 00:11:22:33:44:55
+> >>>>>>>>>       .RS 4
+> >>>>>>>>>       Add the vdpa device named foo on the management device vdpa_sim_net with mac address of 00:11:22:33:44:55.
+> >>>>>>>>> diff --git a/vdpa/include/uapi/linux/vdpa.h b/vdpa/include/uapi/linux/vdpa.h
+> >>>>>>>>> index 94e4dad1..7c961991 100644
+> >>>>>>>>> --- a/vdpa/include/uapi/linux/vdpa.h
+> >>>>>>>>> +++ b/vdpa/include/uapi/linux/vdpa.h
+> >>>>>>>>> @@ -51,6 +51,7 @@ enum vdpa_attr {
+> >>>>>>>>>           VDPA_ATTR_DEV_QUEUE_INDEX,              /* u32 */
+> >>>>>>>>>           VDPA_ATTR_DEV_VENDOR_ATTR_NAME,         /* string */
+> >>>>>>>>>           VDPA_ATTR_DEV_VENDOR_ATTR_VALUE,        /* u64 */
+> >>>>>>>>> +     VDPA_ATTR_DEV_FEATURES,                 /* u64 */
+> >>>>>>>>>
+> >>>>>>>>>           /* new attributes must be added above here */
+> >>>>>>>>>           VDPA_ATTR_MAX,
+> >>>>>>>>> diff --git a/vdpa/vdpa.c b/vdpa/vdpa.c
+> >>>>>>>>> index b73e40b4..d0ce5e22 100644
+> >>>>>>>>> --- a/vdpa/vdpa.c
+> >>>>>>>>> +++ b/vdpa/vdpa.c
+> >>>>>>>>> @@ -27,6 +27,7 @@
+> >>>>>>>>>       #define VDPA_OPT_VDEV_MTU           BIT(5)
+> >>>>>>>>>       #define VDPA_OPT_MAX_VQP            BIT(6)
+> >>>>>>>>>       #define VDPA_OPT_QUEUE_INDEX                BIT(7)
+> >>>>>>>>> +#define VDPA_OPT_VDEV_FEATURES               BIT(8)
+> >>>>>>>>>
+> >>>>>>>>>       struct vdpa_opts {
+> >>>>>>>>>           uint64_t present; /* flags of present items */
+> >>>>>>>>> @@ -38,6 +39,7 @@ struct vdpa_opts {
+> >>>>>>>>>           uint16_t mtu;
+> >>>>>>>>>           uint16_t max_vqp;
+> >>>>>>>>>           uint32_t queue_idx;
+> >>>>>>>>> +     uint64_t device_features;
+> >>>>>>>>>       };
+> >>>>>>>>>
+> >>>>>>>>>       struct vdpa {
+> >>>>>>>>> @@ -187,6 +189,17 @@ static int vdpa_argv_u32(struct vdpa *vdpa, int argc, char **argv,
+> >>>>>>>>>           return get_u32(result, *argv, 10);
+> >>>>>>>>>       }
+> >>>>>>>>>
+> >>>>>>>>> +static int vdpa_argv_u64_hex(struct vdpa *vdpa, int argc, char **argv,
+> >>>>>>>>> +                          uint64_t *result)
+> >>>>>>>>> +{
+> >>>>>>>>> +     if (argc <= 0 || !*argv) {
+> >>>>>>>>> +             fprintf(stderr, "number expected\n");
+> >>>>>>>>> +             return -EINVAL;
+> >>>>>>>>> +     }
+> >>>>>>>>> +
+> >>>>>>>>> +     return get_u64(result, *argv, 16);
+> >>>>>>>>> +}
+> >>>>>>>>> +
+> >>>>>>>>>       struct vdpa_args_metadata {
+> >>>>>>>>>           uint64_t o_flag;
+> >>>>>>>>>           const char *err_msg;
+> >>>>>>>>> @@ -244,6 +257,10 @@ static void vdpa_opts_put(struct nlmsghdr *nlh, struct vdpa *vdpa)
+> >>>>>>>>>                   mnl_attr_put_u16(nlh, VDPA_ATTR_DEV_NET_CFG_MAX_VQP, opts->max_vqp);
+> >>>>>>>>>           if (opts->present & VDPA_OPT_QUEUE_INDEX)
+> >>>>>>>>>                   mnl_attr_put_u32(nlh, VDPA_ATTR_DEV_QUEUE_INDEX, opts->queue_idx);
+> >>>>>>>>> +     if (opts->present & VDPA_OPT_VDEV_FEATURES) {
+> >>>>>>>>> +             mnl_attr_put_u64(nlh, VDPA_ATTR_DEV_FEATURES,
+> >>>>>>>>> +                             opts->device_features);
+> >>>>>>>>> +     }
+> >>>>>>>>>       }
+> >>>>>>>>>
+> >>>>>>>>>       static int vdpa_argv_parse(struct vdpa *vdpa, int argc, char **argv,
+> >>>>>>>>> @@ -329,6 +346,14 @@ static int vdpa_argv_parse(struct vdpa *vdpa, int argc, char **argv,
+> >>>>>>>>>
+> >>>>>>>>>                           NEXT_ARG_FWD();
+> >>>>>>>>>                           o_found |= VDPA_OPT_QUEUE_INDEX;
+> >>>>>>>>> +             } else if (!strcmp(*argv, "device_features") &&
+> >>>>>>>>> +                        (o_optional & VDPA_OPT_VDEV_FEATURES)) {
+> >>>>>>>>> +                     NEXT_ARG_FWD();
+> >>>>>>>>> +                     err = vdpa_argv_u64_hex(vdpa, argc, argv,
+> >>>>>>>>> +                                             &opts->device_features);
+> >>>>>>>>> +                     if (err)
+> >>>>>>>>> +                             return err;
+> >>>>>>>>> +                     o_found |= VDPA_OPT_VDEV_FEATURES;
+> >>>>>>>>>                   } else {
+> >>>>>>>>>                           fprintf(stderr, "Unknown option \"%s\"\n", *argv);
+> >>>>>>>>>                           return -EINVAL;
+> >>>>>>>>> @@ -615,8 +640,9 @@ static int cmd_mgmtdev(struct vdpa *vdpa, int argc, char **argv)
+> >>>>>>>>>       static void cmd_dev_help(void)
+> >>>>>>>>>       {
+> >>>>>>>>>           fprintf(stderr, "Usage: vdpa dev show [ DEV ]\n");
+> >>>>>>>>> -     fprintf(stderr, "       vdpa dev add name NAME mgmtdev MANAGEMENTDEV [ mac MACADDR ] [ mtu MTU ]\n");
+> >>>>>>>>> -     fprintf(stderr, "                                                    [ max_vqp MAX_VQ_PAIRS ]\n");
+> >>>>>>>>> +     fprintf(stderr, "       vdpa dev add name NAME mgmtdevMANAGEMENTDEV [ device_features DEVICE_FEATURES]\n");
+> >>>>>>>>> +     fprintf(stderr, "                                                   [ mac MACADDR ] [ mtu MTU ]\n");
+> >>>>>>>>> +     fprintf(stderr, "                                                   [ max_vqp MAX_VQ_PAIRS ]\n");
+> >>>>>>>>>           fprintf(stderr, "       vdpa dev del DEV\n");
+> >>>>>>>>>           fprintf(stderr, "Usage: vdpa dev config COMMAND [ OPTIONS ]\n");
+> >>>>>>>>>           fprintf(stderr, "Usage: vdpa dev vstats COMMAND\n");
+> >>>>>>>>> @@ -708,7 +734,7 @@ static int cmd_dev_add(struct vdpa *vdpa, int argc, char **argv)
+> >>>>>>>>>           err = vdpa_argv_parse_put(nlh, vdpa, argc, argv,
+> >>>>>>>>>                                     VDPA_OPT_VDEV_MGMTDEV_HANDLE | VDPA_OPT_VDEV_NAME,
+> >>>>>>>>>                                     VDPA_OPT_VDEV_MAC | VDPA_OPT_VDEV_MTU |
+> >>>>>>>>> -                               VDPA_OPT_MAX_VQP);
+> >>>>>>>>> +                               VDPA_OPT_MAX_VQP | VDPA_OPT_VDEV_FEATURES);
+> >>>>>>>>>           if (err)
+> >>>>>>>>>                   return err;
+> >>>>>>>>>
+>
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
