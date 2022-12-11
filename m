@@ -4,105 +4,100 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E9FCBC00145
-	for <virtualization@archiver.kernel.org>; Thu,  8 Dec 2022 16:48:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3F1D6C4332F
+	for <virtualization@archiver.kernel.org>; Sun, 11 Dec 2022 09:50:27 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 64BE841944;
-	Thu,  8 Dec 2022 16:48:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 64BE841944
+	by smtp4.osuosl.org (Postfix) with ESMTP id 9DB9F40895;
+	Sun, 11 Dec 2022 09:50:26 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9DB9F40895
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=kernel-dk.20210112.gappssmtp.com header.i=@kernel-dk.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=1NsVi2LP
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=solid-run-com.20210112.gappssmtp.com header.i=@solid-run-com.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=PwZx72Ao
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 2lngO_pggXXn; Thu,  8 Dec 2022 16:48:30 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id B8DCD41946;
-	Thu,  8 Dec 2022 16:48:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B8DCD41946
+	with ESMTP id Wc3bqoRiBKCx; Sun, 11 Dec 2022 09:50:25 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id D0CFC4087E;
+	Sun, 11 Dec 2022 09:50:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D0CFC4087E
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 7292EC0033;
-	Thu,  8 Dec 2022 16:48:29 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8B398C0032;
+	Sun, 11 Dec 2022 09:50:24 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id DE3CCC002D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id CAA63C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Dec 2022 16:48:27 +0000 (UTC)
+ Sun, 11 Dec 2022 09:50:22 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id A6064820BC
+ by smtp1.osuosl.org (Postfix) with ESMTP id 986AF81361
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Dec 2022 16:48:27 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A6064820BC
+ Sun, 11 Dec 2022 09:50:22 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 986AF81361
 Authentication-Results: smtp1.osuosl.org;
- dkim=pass (2048-bit key) header.d=kernel-dk.20210112.gappssmtp.com
- header.i=@kernel-dk.20210112.gappssmtp.com header.a=rsa-sha256
- header.s=20210112 header.b=1NsVi2LP
+ dkim=pass (2048-bit key) header.d=solid-run-com.20210112.gappssmtp.com
+ header.i=@solid-run-com.20210112.gappssmtp.com header.a=rsa-sha256
+ header.s=20210112 header.b=PwZx72Ao
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id AQYyzZ049_X6
+ with ESMTP id pNN2epVyenpM
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Dec 2022 16:48:26 +0000 (UTC)
+ Sun, 11 Dec 2022 09:50:22 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B25BE81F38
-Received: from mail-il1-x12d.google.com (mail-il1-x12d.google.com
- [IPv6:2607:f8b0:4864:20::12d])
- by smtp1.osuosl.org (Postfix) with ESMTPS id B25BE81F38
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org F05E781303
+Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com
+ [IPv6:2607:f8b0:4864:20::430])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id F05E781303
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Dec 2022 16:48:26 +0000 (UTC)
-Received: by mail-il1-x12d.google.com with SMTP id d14so1301719ilq.11
+ Sun, 11 Dec 2022 09:50:21 +0000 (UTC)
+Received: by mail-pf1-x430.google.com with SMTP id 65so6615925pfx.9
  for <virtualization@lists.linux-foundation.org>;
- Thu, 08 Dec 2022 08:48:26 -0800 (PST)
+ Sun, 11 Dec 2022 01:50:21 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=kernel-dk.20210112.gappssmtp.com; s=20210112;
- h=content-transfer-encoding:in-reply-to:from:references:cc:to
- :content-language:subject:user-agent:mime-version:date:message-id
- :from:to:cc:subject:date:message-id:reply-to;
- bh=GtTytaGK8EscfaX5sQg3WzTsPcFXdf66H/Qr7gq+ZeU=;
- b=1NsVi2LPvryDN0YAtJX6LCnADQ5OzXCjCNF5Oupz+xOmf6Z5HVHcfdWy5625BkIexO
- UPLI6mwR3tRA0ncoREpcYqAmWRjcQO++s0NBr4mWPc8q07+1woGt+JkoS1J4koa/m34i
- 0uqh9nyJx6KJSXY6iDolAOLSwXgGMoCDTblFvkDBS2H21bc+5TZR9++P+qymHP87IdDt
- i7mJQ0460G0eqY73I96vwKFYE/SxEdk0GsPXjmjpWsjHfHrlC7okE6rvKSRH8b11sXFc
- xVlDw3S4/ZN0X0BptZoILKvSU0kOzZILD05dplubtfBlkbI340vbh9dQoUMNPKAYX6Eb
- z4sg==
+ d=solid-run-com.20210112.gappssmtp.com; s=20210112;
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:from:to:cc:subject:date:message-id:reply-to;
+ bh=Rh5QAklyd4AeYLHpArFINipp6iRCr8KKOQb7s6HGEMI=;
+ b=PwZx72Aog3dMWak7X5RfDIKA0Stm9ImI03XPRB3S+OK2Lm094+5ABxaYH5mTN8ITc5
+ 0rkuCCeyg+P343biweU0dezATwKnk2bf1Z+2szM1asbufJO42JA5QLrD/7aW9moqEqh1
+ J8psuIuFAqWpMvxZIs79Q5sQiBBP/MLRsufX+9mzb/85TVQSqLZs1m4jJbBw41PYdH63
+ 2sAISKQPJzZZyY6Vv26dVFhpDeoTf+OEEynL63DSXBk5gW0MhoguPc2C5t+d4r807v6d
+ IZ8NDA6N6jz3XX613ndUDLeixIu12Z39o4LwE/lGUddlhukJ+k/leJpkPDBVdVgyvLVN
+ LTnA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=content-transfer-encoding:in-reply-to:from:references:cc:to
- :content-language:subject:user-agent:mime-version:date:message-id
- :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
- bh=GtTytaGK8EscfaX5sQg3WzTsPcFXdf66H/Qr7gq+ZeU=;
- b=lWU1eVDZ0TPVRMU6YaxKu8GpjyQ8fubdBN6b8jlNxqEXJrOmaO8IOEmojgaywzqqJy
- TxGrRspEGuitev32qgtcGc3uX4FlRgmOd0L5IyBVAZZkHihgd2rDZeIwWmClcUVdgbgs
- tzxSUKHNyz7iskkllC1Sb2d0EUP0VjQkxYK25GgscVsyMUGkxczuIimn0wEoPH+7IbQt
- skO2xKKc9kDWCPHBUSDVBtwQUXw4xgk1C+H2keXt/oZpg1BPrKdcbx6LnaNKNTovLyc7
- C3SjqJ62ywImoeuVap4WToJs0T2aD9XAihZpGmcqpjxx75gWZTlYjen6K3LL6ik+Szzv
- dbXA==
-X-Gm-Message-State: ANoB5pmasNBatJJ7pqCduevu0odo5PqYrAHfBoCccfZQ8PEZLIkPkPnm
- oUgRwzrqtXvD973XgFbotan2Dw==
-X-Google-Smtp-Source: AA0mqf4Zzqp5ZuBvsh/zTJ1XExTv5sm3H2YTh8G90igsKIvVAiQzO0XoCxhbm7fpoFjKEzpIO4+lgQ==
-X-Received: by 2002:a6b:8f84:0:b0:6e0:2427:f72e with SMTP id
- r126-20020a6b8f84000000b006e02427f72emr5170180iod.55.1670518105458; 
- Thu, 08 Dec 2022 08:48:25 -0800 (PST)
-Received: from [192.168.1.94] ([207.135.234.126])
- by smtp.gmail.com with ESMTPSA id
- n11-20020a056638110b00b00389d74d7e24sm8752485jal.146.2022.12.08.08.48.24
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Thu, 08 Dec 2022 08:48:25 -0800 (PST)
-Message-ID: <4701aded-0464-791e-8b8c-a34c422e8e62@kernel.dk>
-Date: Thu, 8 Dec 2022 09:48:23 -0700
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+ :reply-to;
+ bh=Rh5QAklyd4AeYLHpArFINipp6iRCr8KKOQb7s6HGEMI=;
+ b=hp77tUL4IO0tBo4lHtOt684il2cBMEeqLdbUJWkylnSMmcRXJwTspwjDKfu8INnjMp
+ JXDzHgMiVyIN74GrEGlsfJdSjHFh+K4f2sQUJ2Lg5z3n/k9H7UWNyndrG+aOCsdWi1uc
+ hVPea8gNFbMpjnAqcZZ60g8B13dSNNYfDDxIt6H3hJrVz0WvJThPXOyAR9D+67cpfEg+
+ hcEWYTy67AOdwExcIYUWk04/xm2jaUIw9vuKp5GyB+09qLpyqlLnwQIAx3eyBNPRqBYO
+ hA56IQYHp1Nd8OvpPW34/P7apz+7FpXZ4kURqoN14MLji8MXqvxB8IZcTW9I0ghs6uiu
+ uJpA==
+X-Gm-Message-State: ANoB5pnPbFmL2OvDf6OLw0Y6xuAj9mKO1LisS/IQzQE6SDTaNreOLfrZ
+ RwYT4R5mqKnK003wONiJuLTjwLcCtrWdWaZ5hms4VA==
+X-Google-Smtp-Source: AA0mqf6sTgZzExROP+3AcD990q4QofPnx+7w4Ve/p3V7twkuqcE/V+srS9ihCucVMYKxVIFQ4amS8gQqv9Gu8amMX4A=
+X-Received: by 2002:a63:2226:0:b0:478:54e2:ecb1 with SMTP id
+ i38-20020a632226000000b0047854e2ecb1mr37001807pgi.550.1670752221276; Sun, 11
+ Dec 2022 01:50:21 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:102.0) Gecko/20100101
- Thunderbird/102.5.1
-Subject: Re: [PATCH 1/2] virtio-blk: set req->state to MQ_RQ_COMPLETE after
- polling I/O is finished
-Content-Language: en-US
-To: Stefan Hajnoczi <stefanha@redhat.com>
-References: <20221206141125.93055-1-suwan.kim027@gmail.com>
- <Y5EJ+6qtsy8Twe/q@fedora>
-From: Jens Axboe <axboe@kernel.dk>
-In-Reply-To: <Y5EJ+6qtsy8Twe/q@fedora>
-Cc: linux-block@vger.kernel.org, mst@redhat.com,
- virtualization@lists.linux-foundation.org, hch@infradead.org,
- pbonzini@redhat.com, Suwan Kim <suwan.kim027@gmail.com>
+References: <20221205162035.2261037-1-alvaro.karsz@solid-run.com>
+ <Y5BCQ/9/uhXdu35W@infradead.org>
+ <20221207052001-mutt-send-email-mst@kernel.org>
+ <Y5C/4H7Ettg/DcRz@infradead.org>
+ <20221207152116-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20221207152116-mutt-send-email-mst@kernel.org>
+From: Alvaro Karsz <alvaro.karsz@solid-run.com>
+Date: Sun, 11 Dec 2022 11:49:44 +0200
+Message-ID: <CAJs=3_Bu+tZqQk3JDzP0JfNbPZ8FG7mRNnPE9RrWUs8VOF=FzQ@mail.gmail.com>
+Subject: Re: [PATCH v3] virtio_blk: add VIRTIO_BLK_F_LIFETIME feature support
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org,
+ linux-scsi@vger.kernel.org, linux-nvme@lists.infradead.org,
+ virtualization@lists.linux-foundation.org,
+ Christoph Hellwig <hch@infradead.org>, dm-devel@redhat.com,
+ Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -114,45 +109,21 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gMTIvNy8yMiAyOjQ34oCvUE0sIFN0ZWZhbiBIYWpub2N6aSB3cm90ZToKPiBPbiBUdWUsIERl
-YyAwNiwgMjAyMiBhdCAxMToxMToyNFBNICswOTAwLCBTdXdhbiBLaW0gd3JvdGU6Cj4+IERyaXZl
-ciBzaG91bGQgc2V0IHJlcS0+c3RhdGUgdG8gTVFfUlFfQ09NUExFVEUgYWZ0ZXIgaXQgZmluaXNo
-ZXMgdG8gcHJvY2Vzcwo+PiByZXEuIEJ1dCB2aXJ0aW8tYmxrIGRvZXNuJ3Qgc2V0IE1RX1JRX0NP
-TVBMRVRFIGFmdGVyIHZpcnRibGtfcG9sbCgpIGhhbmRsZXMKPj4gcmVxIGFuZCByZXEtPnN0YXRl
-IHN0aWxsIHJlbWFpbnMgTVFfUlFfSU5fRkxJR0hULiBGb3J0dW5hdGVseSBzbyBmYXIgdGhlcmUK
-Pj4gaXMgbm8gaXNzdWUgYWJvdXQgaXQgYmVjYXVzZSBibGtfbXFfZW5kX3JlcXVlc3RfYmF0Y2go
-KSBzZXRzIHJlcS0+c3RhdGUgdG8KPj4gTVFfUlFfSURMRS4gVGhpcyBwYXRjaCBwcm9wZXJseSBz
-ZXRzIHJlcS0+c3RhdGUgYWZ0ZXIgcG9sbGluZyBJL08gaXMgZmluaXNoZWQuCj4+Cj4+IEZpeGVz
-OiA0ZTA0MDA1MjU2OTEgKCJ2aXJ0aW8tYmxrOiBzdXBwb3J0IHBvbGxpbmcgSS9PIikKPj4gU2ln
-bmVkLW9mZi1ieTogU3V3YW4gS2ltIDxzdXdhbi5raW0wMjdAZ21haWwuY29tPgo+PiAtLS0KPj4g
-IGRyaXZlcnMvYmxvY2svdmlydGlvX2Jsay5jIHwgMSArCj4+ICAxIGZpbGUgY2hhbmdlZCwgMSBp
-bnNlcnRpb24oKykKPj4KPj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvYmxvY2svdmlydGlvX2Jsay5j
-IGIvZHJpdmVycy9ibG9jay92aXJ0aW9fYmxrLmMKPj4gaW5kZXggMTlkYTVkZWZkNzM0Li5jZjY0
-ZDI1Njc4N2UgMTAwNjQ0Cj4+IC0tLSBhL2RyaXZlcnMvYmxvY2svdmlydGlvX2Jsay5jCj4+ICsr
-KyBiL2RyaXZlcnMvYmxvY2svdmlydGlvX2Jsay5jCj4+IEBAIC04MzksNiArODM5LDcgQEAgc3Rh
-dGljIHZvaWQgdmlydGJsa19jb21wbGV0ZV9iYXRjaChzdHJ1Y3QgaW9fY29tcF9iYXRjaCAqaW9i
-KQo+PiAgCXJxX2xpc3RfZm9yX2VhY2goJmlvYi0+cmVxX2xpc3QsIHJlcSkgewo+PiAgCQl2aXJ0
-YmxrX3VubWFwX2RhdGEocmVxLCBibGtfbXFfcnFfdG9fcGR1KHJlcSkpOwo+PiAgCQl2aXJ0Ymxr
-X2NsZWFudXBfY21kKHJlcSk7Cj4+ICsJCWJsa19tcV9zZXRfcmVxdWVzdF9jb21wbGV0ZShyZXEp
-Owo+PiAgCX0KPj4gIAlibGtfbXFfZW5kX3JlcXVlc3RfYmF0Y2goaW9iKTsKPj4gIH0KPiAKPiBU
-aGUgZG9jIGNvbW1lbnQgZm9yIGJsa19tcV9zZXRfcmVxdWVzdF9jb21wbGV0ZSgpIG1lbnRpb25z
-IHRoaXMgYmVpbmcKPiB1c2VkIGluIC0+cXVldWVfcnEoKSwgYnV0IHRoYXQncyBub3QgdGhlIGNh
-c2UgaGVyZS4gRG9lcyB0aGUgZG9jIGNvbW1lbnQKPiBuZWVkIHRvIGJlIHVwZGF0ZWQgaWYgd2Un
-cmUgdXNpbmcgdGhlIGZ1bmN0aW9uIGluIGEgZGlmZmVyZW50IHdheT8KCkxvb2tzIGxpa2UgaXQn
-cyBhIGJpdCBvdXRkYXRlZC4uLgoKPiBJJ20gbm90IGZhbWlsaWFyIGVub3VnaCB3aXRoIHRoZSBM
-aW51eCBibG9jayBBUElzLCBidXQgdGhpcyBmZWVscyB3ZWlyZAo+IHRvIG1lLiBTaG91bGRuJ3Qg
-YmxrX21xX2VuZF9yZXF1ZXN0X2JhdGNoKGlvYikgdGFrZSBjYXJlIG9mIHRoaXMgZm9yIHVzPwo+
-IFdoeSBkb2VzIGl0IHNldCB0aGUgc3RhdGUgdG8gSURMRSBpbnN0ZWFkIG9mIENPTVBMRVRFPwo+
-IAo+IEkgdGhpbmsgSmVucyBjYW4gY29uZmlybSB3aGV0aGVyIHdlIHJlYWxseSB3YW50IGFsbCBk
-cml2ZXJzIHRoYXQgdXNlCj4gcG9sbGluZyBhbmQgaW9fY29tcF9iYXRjaCB0byBtYW51YWxseSBj
-YWxsCj4gYmxrX21xX3NldF9yZXF1ZXN0X2NvbXBsZXRlKCkuCgpTaG91bGQgbm90IGJlIGEgbmVl
-ZCB0byBjYWxsIGJsa19tcV9zZXRfcmVxdWVzdF9jb21wbGV0ZSgpIGRpcmVjdGx5IGluCnRoZSBk
-cml2ZXIgZm9yIHRoaXMuCgotLSAKSmVucyBBeGJvZQoKCl9fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0
-dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4
-Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+> Alvaro could you pls explain the use-case? Christoph has doubts that
+> it's useful. Do you have a device implementing this?
+
+Our HW exposes virtio devices, virtio block included.
+The block device backend can be a eMMC/uSD card.
+
+The HW can report health values (power, temp, current, voltage) and I
+thought that it would be nice to be able to report lifetime values as
+well.
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
