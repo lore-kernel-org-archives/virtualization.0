@@ -1,90 +1,95 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A4610C4167B
-	for <virtualization@archiver.kernel.org>; Mon, 12 Dec 2022 16:30:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 06EE6C4167B
+	for <virtualization@archiver.kernel.org>; Mon, 12 Dec 2022 16:39:07 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 2D4E34074E;
-	Mon, 12 Dec 2022 16:30:23 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2D4E34074E
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=solid-run-com.20210112.gappssmtp.com header.i=@solid-run-com.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=OaaojC/s
+	by smtp3.osuosl.org (Postfix) with ESMTP id 8564F60DFE;
+	Mon, 12 Dec 2022 16:39:07 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8564F60DFE
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=solid-run-com.20210112.gappssmtp.com header.i=@solid-run-com.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=Qcg4chnb
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id g3ECvQyPHkkO; Mon, 12 Dec 2022 16:30:22 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id QmkI4HZOant1; Mon, 12 Dec 2022 16:39:06 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id A483B40101;
-	Mon, 12 Dec 2022 16:30:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A483B40101
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 32D196072A;
+	Mon, 12 Dec 2022 16:39:06 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 32D196072A
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8B87CC0032;
-	Mon, 12 Dec 2022 16:30:21 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E3FE9C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 18C59C0032;
+	Mon, 12 Dec 2022 16:39:06 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7A8FCC002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Dec 2022 16:30:19 +0000 (UTC)
+ Mon, 12 Dec 2022 16:39:04 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id BFE4040256
+ by smtp1.osuosl.org (Postfix) with ESMTP id 47C7F8176F
  for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Dec 2022 16:30:19 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BFE4040256
+ Mon, 12 Dec 2022 16:39:04 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 47C7F8176F
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (2048-bit key) header.d=solid-run-com.20210112.gappssmtp.com
+ header.i=@solid-run-com.20210112.gappssmtp.com header.a=rsa-sha256
+ header.s=20210112 header.b=Qcg4chnb
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 5Qbo0ZJe5VCS
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Lccwff_Z9GN2
  for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Dec 2022 16:30:19 +0000 (UTC)
+ Mon, 12 Dec 2022 16:39:03 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org EDBD240101
-Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com
- [IPv6:2607:f8b0:4864:20::42f])
- by smtp2.osuosl.org (Postfix) with ESMTPS id EDBD240101
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B25AD80ADF
+Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com
+ [IPv6:2607:f8b0:4864:20::1029])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id B25AD80ADF
  for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Dec 2022 16:30:18 +0000 (UTC)
-Received: by mail-pf1-x42f.google.com with SMTP id c7so214632pfc.12
+ Mon, 12 Dec 2022 16:39:03 +0000 (UTC)
+Received: by mail-pj1-x1029.google.com with SMTP id t17so312681pjo.3
  for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Dec 2022 08:30:18 -0800 (PST)
+ Mon, 12 Dec 2022 08:39:03 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=solid-run-com.20210112.gappssmtp.com; s=20210112;
  h=cc:to:subject:message-id:date:from:in-reply-to:references
  :mime-version:from:to:cc:subject:date:message-id:reply-to;
- bh=OUILWEspXMe7ooUig3KmknX9KoRcehzQ+nw7PUyJ1kU=;
- b=OaaojC/sMyai941Icb8QrOqMENAWi28ghc9hDsed00zjgjisK6qVEZu2vOMG8n6FBF
- mRTAFH6tUYD1vvdF+OQzbqW4ejDlJmdO83c0sjR8B6XLmzvRlBgKt6VPAt6yOfgNXXyS
- N5hpWodqaEejfLPFa5uI/+RgmUe+2L5KuDbTZUzGpS0Yy71Zsw9asM92nPSSAqgzID8V
- TZbBBSJDtvX+M6y77IBx8HxMvYUg0YvxvqtzfiXR379RHxM6LHGWjUpvhiicE9ZSZ9m8
- NJUY3oS5uH+mKQyJu3VMfKT0w/YVtgxjW31JMhCJYUkUnNwWQRbj6amimPqgaYKW5WtQ
- qWBg==
+ bh=ehhV0zb8kSbVJbPicNJTUd5tnXvyUTppxVrH8Mn4ijM=;
+ b=Qcg4chnbsG6R8ccYYan8ap4SPziBfhNgFCfHkGMvsmrCfLcwgISGtOsoCExNbNkMoz
+ SETOpz8gbuT/Z7QPSepJA/KfBcJfj8WXVv1ULQuaMg3Wf/+OZO4iyGnriTdfo59nVKXO
+ PvxcdQeDwnshuY69o4sLvalOA8SLaViBMR1vnCtqqch0V5NwCL813GVYn99DBp/QG67l
+ i/JMtq7tdDBH1iC5nf9UWgQWSMVfYrpARubgB1IjRMrvhoJgWFndpsabfDGQtcudsAEc
+ 4CX/IeWRrgez6XsMWEChDDm5T7GfjuUVEVa4GICbYgXdGMCknjqQEAYgiqQk/AXBbDYJ
+ mj5Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=cc:to:subject:message-id:date:from:in-reply-to:references
  :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
  :reply-to;
- bh=OUILWEspXMe7ooUig3KmknX9KoRcehzQ+nw7PUyJ1kU=;
- b=SCqa2D9Wtt9N+v1/E09CprEhfq6R5L64LjkLJl9wPFbu5BRQ7mT0EdtQ0yeNE0jccC
- 6GSpS0XHm2cME0s3M+6xlOMMOe60X9ubF0zyhHHfQQxnHlS0kWs+uVc9RwGoKhcck30L
- Sz10dJQ4tC6yIAVLmFp7gzxjYnE0N4Dgs3zE3cAbFCvMaFCScicekkShn5HUknifG4Xq
- ySjOPOb73VZsJlx/ewBDfmzN0tkpTdo37j3k0HuZyL4a6lTJoYNEehx7gYp/lkZam/FT
- lt0tD9bdyD46xEelKWv/InK6B2phFb4hnSYfjJzWocsYcIXqT2++6O9Dgyftx8qYkNOC
- O4Iw==
-X-Gm-Message-State: ANoB5pnG4jcnb1hKclQYhGtUi+26S/48bZo/Pox0izl/IBT463ri8OfD
- vQJjbtaCn6K2tT0V0AVP7VQmok0JBH8PCqnyj8vprA==
-X-Google-Smtp-Source: AA0mqf7JA3HhSeTurk8iZookol7LHDnbT/F4m7xHYAYV/UuB9gMGq1bbOo6jpRGSGdf/yNJmDF2yJW3rA7g/Yj6tJB4=
-X-Received: by 2002:a05:6a00:10cd:b0:572:5c03:f7ad with SMTP id
- d13-20020a056a0010cd00b005725c03f7admr98862692pfu.17.1670862618084; Mon, 12
- Dec 2022 08:30:18 -0800 (PST)
+ bh=ehhV0zb8kSbVJbPicNJTUd5tnXvyUTppxVrH8Mn4ijM=;
+ b=WiPOjysgN9OGwA6UHBE8tFTNmIjQFBXnVS+MEdw1V4D8IG0wlfvMx0PxcPz4RtiNkj
+ +jcHbcr2tAUmVwOx6ui5sPnfxhzQxPu8pU3maLcEXiWXFctGDph0DLqYHhfRxXpuQMaP
+ F/T3W7BOoKXfzGjov3zJ90RO5BXcL3zcrhgb57duRkfhm0Ps2oLrZ036OQx4bM/Rf5KD
+ gypcRCC1pa6eFLQ/ExJ0ZPa6eCCsn/vxRbMmSOxLse56/jufUPZpUg6c97kezlh9pNNg
+ Vw/PQ1fMMuEG8wX5nqf7n7fqDPzKd71QEje3MPLE1w1Q3vlQ0exkojH7dotziY+3ZVov
+ w8iA==
+X-Gm-Message-State: ANoB5pku5AcifdYH0CQ4OLFRi7NSnEFxQyIfNo8FR/TGX/lKVg4OOSYw
+ HoISIuD12C5AY8UvMpusmTh0hbvwnIj7NGgC615UTw==
+X-Google-Smtp-Source: AA0mqf65BAor0dB27LuDWQIDW98Xa6fxCeLjNlA8eDN4yFyjx2q17O5LBarg8BmiyHDSGuSjFP000d27vqJgexiGzvE=
+X-Received: by 2002:a17:90a:6d62:b0:219:4ee5:ccc9 with SMTP id
+ z89-20020a17090a6d6200b002194ee5ccc9mr49431166pjj.63.1670863142960; Mon, 12
+ Dec 2022 08:39:02 -0800 (PST)
 MIME-Version: 1.0
 References: <20221212142454.3225177-1-alvaro.karsz@solid-run.com>
  <20221212142454.3225177-4-alvaro.karsz@solid-run.com>
  <848cc714-b152-8cec-ce03-9b606f268aef@roeck-us.net>
-In-Reply-To: <848cc714-b152-8cec-ce03-9b606f268aef@roeck-us.net>
+ <CAJs=3_AdgWS23-t6dELgSfz7DS4U0eXuXP_UZ3Fn21VCEwA-4w@mail.gmail.com>
+In-Reply-To: <CAJs=3_AdgWS23-t6dELgSfz7DS4U0eXuXP_UZ3Fn21VCEwA-4w@mail.gmail.com>
 From: Alvaro Karsz <alvaro.karsz@solid-run.com>
-Date: Mon, 12 Dec 2022 18:29:41 +0200
-Message-ID: <CAJs=3_AdgWS23-t6dELgSfz7DS4U0eXuXP_UZ3Fn21VCEwA-4w@mail.gmail.com>
+Date: Mon, 12 Dec 2022 18:38:25 +0200
+Message-ID: <CAJs=3_Dc8z3gSorauZSof8koZV2jME5Y1LPTxj3CVgfAZPWZvA@mail.gmail.com>
 Subject: Re: [PATCH 3/3 v4] virtio: vdpa: new SolidNET DPU driver.
 To: Guenter Roeck <linux@roeck-us.net>
 Cc: Jean Delvare <jdelvare@suse.com>, linux-pci@vger.kernel.org,
@@ -106,113 +111,23 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Guenter,
-Thanks for your comments.
+> solidrun/Makefile:
+> obj-$(CONFIG_SNET_VDPA) += snet_vdpa.o
+> snet_vdpa-$(CONFIG_SNET_VDPA) += snet_main.o
+> #if IS_REACHABLE(CONFIG_HWMON)
+> snet_vdpa-$(CONFIG_SNET_VDPA) += snet_hwmon.o
+> #endif
 
-> This is wrong. It should be possible to build the driver without it, and
-> without forcing everyone to enable hwmon just to get support for this device -
-> even more so since hwmon support is explicitly marked as optional below.
-> Why force people to compile it if it is not mandatory ?
->
->
-> Yes, I know, "select HWMON" is done elsewhere as well, but it is just as wrong
-> there. No one should be forced to enable HWMON support just to get, say, support
-> for the IDT PCIe-switch Non-Transparent Bridge.
-
-
-You have a good point.
-I will remove it from the Kconfig file, and I will add:
-#if IS_REACHABLE(CONFIG_HWMON)
-in relevant places
-
-Something like:
-
+I meant here
 solidrun/Makefile:
 obj-$(CONFIG_SNET_VDPA) += snet_vdpa.o
 snet_vdpa-$(CONFIG_SNET_VDPA) += snet_main.o
-#if IS_REACHABLE(CONFIG_HWMON)
+ifdef CONFIG_HWMON
 snet_vdpa-$(CONFIG_SNET_VDPA) += snet_hwmon.o
-#endif
+endif
 
-solidrun/snet_main.c, snet_vdpa_probe_pf function:
-
-if (PSNET_FLAG_ON(psnet, SNET_CFG_FLAG_HWMON)) {
-#if IS_REACHABLE(CONFIG_HWMON)
-        psnet_create_hwmon(pdev);
-#else
-        SNET_ERR(pdev, "Can't start HWMON, CONFIG_HWMON is not reachable\n");
-#endif
-}
-
-solidrun/snet_vdpa.h, snet_vdpa_probe_pf function:
-#if IS_REACHABLE(CONFIG_HWMON)
-void psnet_create_hwmon(struct pci_dev *pdev);
-#endif
-
-What do you think?
-
-> I do not see why the second include would be needed.
-
-You're right, I'll remove it.
-
->
-> Tpecast seems unnecessary.
-
-I'll remove it.
-
-> Kind of obvious.
-
-Ok, I'll remove the comment.
-
-> Badly misleading indent. No idea why checkpatch doesn't report it.
->
->
-> That makes me wonder: Did you not run checkpatch --strict, or did you choose
-> to ignore what it reports ?
-
-I did run checkpatch (without --strict).
-I tried now with --strict. and I'm not getting any indent
-errors/warnings, this is strange..
-I will fix it.
-
-> FWIW, a _hwmon ending in a hwmon driver device name is redundant.
-> What else would it be ? Why not just use pci_name() ?
-
-I'll change it to "snet_%s", pci_name(pdev)
-
-> devm_hwmon_device_register_with_info() returns an ERR_PTR on error,
-> not NULL.
-
-Ok, I'll fix it.
-
-> I hope you know what you are doing here. This may result in people wondering
-> why hwmon support doesn't work if they expect it to work. No one looks
-> into the kernel log. Besides, ignoring the error doesn't really help
-> much because that error return means that something serious is wrong.
-
-You have a point, but the hwmon is not the "main" functionality of
-this device, so I don't want to fail the entire device because of a
-"side" functionality.
-Now that the SNET vdpa driver doesn't select CONFIG_HWMON, we may have
-a situation when the SNET_CFG_FLAG_HWMON flag is set, but the kernel
-is compiled without CONFIG_HWMON.
-I don't think that I should fail probe in this case.
-
-> Wow, a 5-second hot loop. Not my responsibility to accept or reject this
-> part of the code, but personally I think this is completely unaccceptable.
-
-The SNET DPU may require some time to become ready.
-If the driver is compiled as a module, this is not a problem, but if
-the driver is builtin in the kernel, we may need to wait a little for
-the DPU.
-But you're right, 5 secs is indeed a big number, I'll change it to 2 secs.
-
-> Memory allocation failures are not commonly logged since the low level code
-> already does that.
-
-Right, I'll remove the error log.
-
-Alvaro
+And I'll use
+#ifdef CONFIG_HWMON in solidrun/snet_main.c and solidrun/snet_vdpa.h
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
