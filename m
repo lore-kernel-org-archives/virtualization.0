@@ -4,109 +4,93 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E0731C4332F
-	for <virtualization@archiver.kernel.org>; Mon, 12 Dec 2022 09:25:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A9F59C4332F
+	for <virtualization@archiver.kernel.org>; Mon, 12 Dec 2022 11:54:24 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 6AEDD40571;
-	Mon, 12 Dec 2022 09:25:36 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6AEDD40571
+	by smtp2.osuosl.org (Postfix) with ESMTP id 3C9E240022;
+	Mon, 12 Dec 2022 11:54:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3C9E240022
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=PTcS22Oe
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=solid-run-com.20210112.gappssmtp.com header.i=@solid-run-com.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=XWtaUwLn
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id J0u-zXt8Rs58; Mon, 12 Dec 2022 09:25:35 +0000 (UTC)
+	with ESMTP id e13Ji-lBH27n; Mon, 12 Dec 2022 11:54:23 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id E4E50400F2;
-	Mon, 12 Dec 2022 09:25:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E4E50400F2
+	by smtp2.osuosl.org (Postfix) with ESMTPS id E23F140253;
+	Mon, 12 Dec 2022 11:54:22 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E23F140253
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id BF216C0033;
-	Mon, 12 Dec 2022 09:25:34 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7B602C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A222EC0033;
+	Mon, 12 Dec 2022 11:54:22 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 83B47C002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Dec 2022 09:25:33 +0000 (UTC)
+ Mon, 12 Dec 2022 11:54:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 49F0E606DC
+ by smtp1.osuosl.org (Postfix) with ESMTP id 5DF5E80C1D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Dec 2022 09:25:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 49F0E606DC
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=PTcS22Oe
+ Mon, 12 Dec 2022 11:54:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5DF5E80C1D
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (2048-bit key) header.d=solid-run-com.20210112.gappssmtp.com
+ header.i=@solid-run-com.20210112.gappssmtp.com header.a=rsa-sha256
+ header.s=20210112 header.b=XWtaUwLn
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id RLek3v4ZEu92
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 3HjE0RPkJxKX
  for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Dec 2022 09:25:32 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8859460C1C
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 8859460C1C
+ Mon, 12 Dec 2022 11:54:20 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9910F80C1C
+Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com
+ [IPv6:2607:f8b0:4864:20::532])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 9910F80C1C
  for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Dec 2022 09:25:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1670837131;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=0JyfgukxH8Bj5hg68NAqVbpkGDDDowiV1dBqHPtCnSU=;
- b=PTcS22OeoLpUoxtT8vsG6Hopy+44QTFAa0Uv9j2VFM5+gJnK6MjmuRkr+pxfjui/r/WvMC
- Tfq/QRkemtA0aPVzgrWvPSLudVDxnbkBVsvhAxi2+5UK7/qGzePhRb9tJ5YPaPMGqRQn5g
- VOz+BsvQ570C++Jub3qk8jU27K+VU4E=
-Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com
- [209.85.222.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-452-T2CI38VcPXWJVL_zjOddCw-1; Mon, 12 Dec 2022 04:25:30 -0500
-X-MC-Unique: T2CI38VcPXWJVL_zjOddCw-1
-Received: by mail-qk1-f198.google.com with SMTP id
- i4-20020a05620a248400b006febc1651bbso13317681qkn.4
+ Mon, 12 Dec 2022 11:54:20 +0000 (UTC)
+Received: by mail-pg1-x532.google.com with SMTP id r18so7992696pgr.12
  for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Dec 2022 01:25:30 -0800 (PST)
+ Mon, 12 Dec 2022 03:54:20 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=solid-run-com.20210112.gappssmtp.com; s=20210112;
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:from:to:cc:subject:date:message-id:reply-to;
+ bh=esv0G9bdFPbCR5DXC1je0ygutCJYp678EUugqYxwu84=;
+ b=XWtaUwLnu7+XzTr1fwcSlYnk0hO1TlJKFRRW3rKdfi3rDbkIv3z5PPIBKnX0uuKr9Q
+ C6inSko/ZRhmm+b4iDw1sf3+FPghIyLsPgBz+KLinvP6bC8PlMEIRL7yHHzPUnYxhXMF
+ 3yZPUF6ijYeE+mWuP4sHbC/e5ylPRjgJjmEpVqyaI9G8wSFbMWvn7x5f5AuJHGctw7y2
+ I0gEUKy1G80W8G3q1yOhEU6koGXGUVyrAJoQIyNWcb7+5QPidewxcEbOtRxNQgIKZJfI
+ lQpQZAZ+ZbwxVChZS4AaxscUu/T0v0U7IRD5wcehVy9kro6VcJCDduqzElMGtrWe1fdf
+ c9Aw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=0JyfgukxH8Bj5hg68NAqVbpkGDDDowiV1dBqHPtCnSU=;
- b=2P0xWZF0Vu8MG2N/QlBvytAOhTZ0amlR7PfImie5jZqE8g3hjotZ8y2RPpDsg8Ixlo
- idrnXgAbeWsu/bV8++x+L5Ynpj6CxAfHIlrm8InhmR2ZnymzZHN9Z49XbMndKMku3m4N
- VeidauOmwldnwD8dEFeqFVopwLquZnXbXD4zouX5dnO28NBnHr6AVxghbZR9sYi55VnN
- iYx2/Csrt3dh0UgVg12y3S3ni50szPuvQ3FDiw3rgfQx0ac+aID24wsixAeud+XSBrVm
- uQzs6OgGFymy/Z6M8/21V+u73gEDCBvRh+97sNLONlQyNsP1haafmB/6Y4RGsMqYHlWl
- pntA==
-X-Gm-Message-State: ANoB5pkCgPY4v+D8uiA9uimX+29Mh5AwJq87YQsByFaf2Bx0uRdGdmfS
- 0VMgdMXO72VVvs1/9Z8zixYH1xshi/XQDaf6GuZS5diwoKW9jMZIVZIZn7ZZc4FOLumb8vc4E+O
- Mkiw6e0FotoU+JuchJ6kNs3JfYYr7LRPGXUqythoAyA==
-X-Received: by 2002:a05:6214:e6c:b0:4c7:7257:68a2 with SMTP id
- jz12-20020a0562140e6c00b004c7725768a2mr28389044qvb.15.1670837129720; 
- Mon, 12 Dec 2022 01:25:29 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf4lascigSsPr+SAq9gF053iSTVg49y6qJ3To4iG3pwTTJT3W+tds28QF20QeElvO/N/q72GZg==
-X-Received: by 2002:a05:6214:e6c:b0:4c7:7257:68a2 with SMTP id
- jz12-20020a0562140e6c00b004c7725768a2mr28389027qvb.15.1670837129491; 
- Mon, 12 Dec 2022 01:25:29 -0800 (PST)
-Received: from redhat.com ([185.199.102.21]) by smtp.gmail.com with ESMTPSA id
- bs33-20020a05620a472100b006b61b2cb1d2sm5556345qkb.46.2022.12.12.01.25.25
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 12 Dec 2022 01:25:29 -0800 (PST)
-Date: Mon, 12 Dec 2022 04:25:22 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net] virtio-net: correctly enable callback during
- start_xmit
-Message-ID: <20221212042144-mutt-send-email-mst@kernel.org>
-References: <20221212091029.54390-1-jasowang@redhat.com>
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+ :reply-to;
+ bh=esv0G9bdFPbCR5DXC1je0ygutCJYp678EUugqYxwu84=;
+ b=xWIQ6s3IkQMBnUzkCwYfdHbiThvH9uCUSEHHQqlEna4G43KzOSbY85x7xybLmJv3yd
+ RsJ6U8f0Y+ZmeHnZ2jaSYAdmAHDOzWYvSCrQCX7SzfpUFfzony3n2x2MeWolNhjhuU5q
+ 4WGp/tzLp1n9d35O7Bjg5OiHv7vUlXYHBhTF1FjKPux7tO0DXevZsw7Pd4IJ8LxREVxK
+ GXd7arTS5WJSnBiK2iMERDu8W3Ch4uSZSKLToDsrcAO+fK8l7V7+BEq7/k+zLbcTU6mJ
+ MPO+NzjtyLIvjiQNCBzDb67bJc4c5onHMZJY/CpVMS8jzhCZ1W68Nr6Ry9kYqSHZQzjU
+ aZDw==
+X-Gm-Message-State: ANoB5plEN4oM/zBsgkQhH1ceqB3yKiUtOwdFZa3NlsUJ3ut0w4Jp+UfV
+ YROFk3AIMfZAGTQCFTCv3IGjntd5W/kybdmmmFfR5SRy1bpNq1QC
+X-Google-Smtp-Source: AA0mqf55peot7sRWc8oT/I9pwnXAjDMvc9eELR6pp84PawhE3+MSLn14QEn1q5UBr4iDRocA1StE5rdTco5I+JBFF28=
+X-Received: by 2002:a63:1220:0:b0:478:fbed:3ade with SMTP id
+ h32-20020a631220000000b00478fbed3ademr5455167pgl.255.1670846059057; Mon, 12
+ Dec 2022 03:54:19 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20221212091029.54390-1-jasowang@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
+References: <20221206153941.2348775-1-alvaro.karsz@solid-run.com>
+In-Reply-To: <20221206153941.2348775-1-alvaro.karsz@solid-run.com>
+From: Alvaro Karsz <alvaro.karsz@solid-run.com>
+Date: Mon, 12 Dec 2022 13:53:42 +0200
+Message-ID: <CAJs=3_BkThikqvTZJfZpMv-45tpPx3XbWY5DaeZ8yGnHLOnLAw@mail.gmail.com>
+Subject: Re: [PATCH v3] virtio: vdpa: new SolidNET DPU driver.
+To: virtualization@lists.linux-foundation.org
+Cc: Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>,
+ "Michael S. Tsirkin" <mst@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -123,57 +107,13 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Dec 12, 2022 at 05:10:29PM +0800, Jason Wang wrote:
-> Commit a7766ef18b33("virtio_net: disable cb aggressively") enables
-> virtqueue callback via the following statement:
-> 
->         do {
->            ......
-> 	} while (use_napi && kick &&
->                unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
-> 
-> This will cause a missing call to virtqueue_enable_cb_delayed() when
-> kick is false. Fixing this by removing the checking of the kick from
-> the condition to make sure callback is enabled correctly.
-> 
-> Fixes: a7766ef18b33 ("virtio_net: disable cb aggressively")
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
-> The patch is needed for -stable.
+Hi all,
+I need to fix this version.
+PCIe FLR capability is advertised, but using it may hang the device.
 
-stable rules don't allow for theoretical fixes. Was a problem observed?
+I will create a new version with quirk_no_flr.
 
-> ---
->  drivers/net/virtio_net.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 86e52454b5b5..44d7daf0267b 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -1834,8 +1834,8 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
->  
->  		free_old_xmit_skbs(sq, false);
->  
-> -	} while (use_napi && kick &&
-> -	       unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
-> +	} while (use_napi &&
-> +		 unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
->
-
-A bit more explanation pls.  kick simply means !netdev_xmit_more -
-if it's false we know there will be another packet, then transmissing
-that packet will invoke virtqueue_enable_cb_delayed. No?
-
-
-
-
-  
->  	/* timestamp packet in software */
->  	skb_tx_timestamp(skb);
-> -- 
-> 2.25.1
-
+Alvaro
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
