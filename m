@@ -4,108 +4,107 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6D971C4332F
-	for <virtualization@archiver.kernel.org>; Tue, 13 Dec 2022 06:58:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4A696C4332F
+	for <virtualization@archiver.kernel.org>; Tue, 13 Dec 2022 07:12:43 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id D55BD40400;
-	Tue, 13 Dec 2022 06:58:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D55BD40400
+	by smtp4.osuosl.org (Postfix) with ESMTP id ACB40416CA;
+	Tue, 13 Dec 2022 07:12:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org ACB40416CA
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=G/kna0ll
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=TMLJT1Qk
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id BiNGeSPQgEFo; Tue, 13 Dec 2022 06:58:12 +0000 (UTC)
+	with ESMTP id C3AC0tWgUoPf; Tue, 13 Dec 2022 07:12:41 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id C7B16402B1;
-	Tue, 13 Dec 2022 06:58:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C7B16402B1
+	by smtp4.osuosl.org (Postfix) with ESMTPS id DB8074169E;
+	Tue, 13 Dec 2022 07:12:40 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org DB8074169E
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A09F0C0032;
-	Tue, 13 Dec 2022 06:58:11 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 412A4C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id BEB12C0033;
+	Tue, 13 Dec 2022 07:12:40 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4C13BC002D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 13 Dec 2022 06:58:10 +0000 (UTC)
+ Tue, 13 Dec 2022 07:12:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 1C4CA81C0A
+ by smtp3.osuosl.org (Postfix) with ESMTP id 12D0E605B5
  for <virtualization@lists.linux-foundation.org>;
- Tue, 13 Dec 2022 06:58:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1C4CA81C0A
-Authentication-Results: smtp1.osuosl.org;
+ Tue, 13 Dec 2022 07:12:39 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 12D0E605B5
+Authentication-Results: smtp3.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=G/kna0ll
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=TMLJT1Qk
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id IpotQ9SEkNSu
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id wiKOSNypCVqp
  for <virtualization@lists.linux-foundation.org>;
- Tue, 13 Dec 2022 06:58:09 +0000 (UTC)
+ Tue, 13 Dec 2022 07:12:38 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E937481BD6
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0916660597
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id E937481BD6
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 0916660597
  for <virtualization@lists.linux-foundation.org>;
- Tue, 13 Dec 2022 06:58:08 +0000 (UTC)
+ Tue, 13 Dec 2022 07:12:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1670914687;
+ s=mimecast20190719; t=1670915556;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=TG6nTIySLJL4GzMcoFkoHrZJOcHOyrIknDZjMAhUKq0=;
- b=G/kna0llW/rX0exl6hO8JfMxQcA7Ic27cKyK/YC1OMivds3007l9PkqiXavZnTh9T74k/N
- 2y6Pkr0YFc09zlMPiJ6BcnNB5W7U8522zhSzfvjq2c6M/3p+O/6Rtryr0vR3bX8HW6jZ/D
- AueXsPvH8xsxzUfbLXwh/ZDQ/qaVdgY=
-Received: from mail-oa1-f71.google.com (mail-oa1-f71.google.com
- [209.85.160.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=rMebFWdEdtkJjFFWamjr+NWxVNJ3wKKuSE9Jjikeu1s=;
+ b=TMLJT1Qk99ISEgCbu8CsBZ65p+HHMLIc/IhhjmS2kaViISGHJCyC4QNV+fWJ4aWbmmk1k4
+ YMkjHDhEs8JKEFecyiurV26UTOJOmposYmolEm1wzpjZ1WgTqj4E4vO7sBJfpdOGjmJhv+
+ CFbhj0fibXeDbeQFzE91kX3wK0L7Goo=
+Received: from mail-ot1-f72.google.com (mail-ot1-f72.google.com
+ [209.85.210.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-250-K5OmFS0VMBmH-CoH1XtSGA-1; Tue, 13 Dec 2022 01:58:06 -0500
-X-MC-Unique: K5OmFS0VMBmH-CoH1XtSGA-1
-Received: by mail-oa1-f71.google.com with SMTP id
- 586e51a60fabf-1446f190493so3383681fac.9
+ us-mta-608-XGz90hrYMyyTX-u3n9eNlA-1; Tue, 13 Dec 2022 02:12:35 -0500
+X-MC-Unique: XGz90hrYMyyTX-u3n9eNlA-1
+Received: by mail-ot1-f72.google.com with SMTP id
+ e8-20020a9d63c8000000b006704cedcfe2so8287401otl.19
  for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Dec 2022 22:58:06 -0800 (PST)
+ Mon, 12 Dec 2022 23:12:35 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=cc:to:subject:message-id:date:from:in-reply-to:references
  :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
  :reply-to;
- bh=TG6nTIySLJL4GzMcoFkoHrZJOcHOyrIknDZjMAhUKq0=;
- b=igHypYFQn++ZcX7LyNw3LozmpBGqLle/psGmyNs7+xRBNGZDEA/jqRrJdZLVi9XYbb
- cXd7OcpOWBe9QYdYXHTapaBFHb1J97OS+wLW9pWlW05Ji5cvLIpvKhEn9I/QFIk89chO
- TwVZBGu6kT+7mK7CFKSfiUWZNtVN3EWLzN4D751AovYJT+loi042fsmJOcCNHS20THH1
- 8YSyeAO50iJ7XPIUb7M5f2WnHmXouo87ev6kckQlzkIRkqTTmuF5iKjBs+8yWFdYE/Ri
- RsqTDKoeppIxDii6IKzwDm2PS6dkPIP+JRhaoyciuizoL5o8zqRifmesm+f2CQ2wLWOv
- 78wQ==
-X-Gm-Message-State: ANoB5pl7UhDdolsudEtZQfHk18ppY4Ce+OFTcsNuHwNdSZFSdP/oNDy/
- /hjgjg54LVi+V9G7Ipc4jv0uBUaEMpVqzht7aUg27WUuZzdSIeqMT5if8DWsGF33gGwhZfXlkYi
- nXc8YGfQw32Y5h2GUxitqBqH+4ampzSmCOW/ObGYmI1XI5TY7nDo/UYxhVw==
-X-Received: by 2002:a05:6870:170e:b0:144:a97b:1ae2 with SMTP id
- h14-20020a056870170e00b00144a97b1ae2mr124208oae.35.1670914685837; 
- Mon, 12 Dec 2022 22:58:05 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf4q5+B7Fl7DK/u/JIISxL//DMMmbkyJdDsxO+tjxYnaAJ9f8ZhI/Xt7Ljn+PCpZVIIixCW/Btptl5YKy40YUOc=
-X-Received: by 2002:a05:6870:170e:b0:144:a97b:1ae2 with SMTP id
- h14-20020a056870170e00b00144a97b1ae2mr124202oae.35.1670914685564; Mon, 12 Dec
- 2022 22:58:05 -0800 (PST)
+ bh=rMebFWdEdtkJjFFWamjr+NWxVNJ3wKKuSE9Jjikeu1s=;
+ b=7fhiC3Gu68d+LMiIPKkGTXNMrODCjhzsYFEdioKVO7minJ6EOw+IuxuMtGinb5n7P1
+ 8TWV/PD5/hwnRJdYy6hxg9Pl5ZpfP2SxWI5NKp/NrgVbKWXSz/dcjRQYEE14lKrTUUhw
+ 7vjAPfELycdNqUrnPqBRRjAORPNoKKyZoQASVvAvee3Qc//jNy8GeZ6ydkxqwYD9oqmf
+ G4hVroFCGgphgjT5XANFoQ7UajymWaHV3/69L9DD+XfSJXZpgr0plt75wFoHlqqCYnhT
+ CuWQuo2yExFJlytnUO3Oz8ZPWw5rASJmsZBlFd37Coik9LSbQyfDG8ew0GtXarN1No5P
+ re6g==
+X-Gm-Message-State: ANoB5pk4NJKssEZTo41cgiIkAwivC+AZjENVzS7vscelhZ+xARbUdFQb
+ GEw+1PwSnvB/iNx9VpFglE3JtkAZNMwPhpey4L8mPfRbcx/PowYWgMBgODodsFvnmH5rVZUyrJb
+ 84Miw2U4eiSiFI319tXmY3sqCnov7jl8O+hc8ATtj5Z6wO2i15aQuT/5h2A==
+X-Received: by 2002:a05:6808:114c:b0:35e:7a42:7ab5 with SMTP id
+ u12-20020a056808114c00b0035e7a427ab5mr101805oiu.280.1670915554339; 
+ Mon, 12 Dec 2022 23:12:34 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf7bOxvXY5V4JuTJUsGbVhkXkh2+HEeWmtUf1eSQx3I5QF29ADy9ENjFVggDW3zwY3hcJPkL8/gGz7lS+U6DYgM=
+X-Received: by 2002:a05:6808:114c:b0:35e:7a42:7ab5 with SMTP id
+ u12-20020a056808114c00b0035e7a427ab5mr101800oiu.280.1670915554149; Mon, 12
+ Dec 2022 23:12:34 -0800 (PST)
 MIME-Version: 1.0
-References: <20221212091029.54390-1-jasowang@redhat.com>
- <20221212042144-mutt-send-email-mst@kernel.org>
- <1670902391.9610498-1-xuanzhuo@linux.alibaba.com>
- <CACGkMEu=1CcoNvvV9M+QrG5sLUBoPYkZ3DvUe+pLc1fSvgLuHA@mail.gmail.com>
- <20221213013231-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20221213013231-mutt-send-email-mst@kernel.org>
+References: <20220907060110.4511-1-jasowang@redhat.com>
+ <DM8PR12MB540034620ADF0AE749C2D099AB419@DM8PR12MB5400.namprd12.prod.outlook.com>
+ <CACGkMEvjgyxs3HX_ZzUbMticntqnUxDQJMrr2MqTBwuRB7jCdw@mail.gmail.com>
+ <DM8PR12MB5400209468A07467499B19BDAB419@DM8PR12MB5400.namprd12.prod.outlook.com>
+In-Reply-To: <DM8PR12MB5400209468A07467499B19BDAB419@DM8PR12MB5400.namprd12.prod.outlook.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 13 Dec 2022 14:57:54 +0800
-Message-ID: <CACGkMEukRrOWghcBXiqPrOtNbdjdDJUW7-cg9PsdtsVs1SuCyQ@mail.gmail.com>
-Subject: Re: [PATCH net] virtio-net: correctly enable callback during
- start_xmit
-To: "Michael S. Tsirkin" <mst@redhat.com>
+Date: Tue, 13 Dec 2022 15:12:23 +0800
+Message-ID: <CACGkMEuXbs-2KB28Kft+5jjdQdmMtVTKgjJ26x_U3=tNHvThZw@mail.gmail.com>
+Subject: Re: [PATCH] vdpa: conditionally fill max max queue pair for stats
+To: Eli Cohen <elic@nvidia.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
+Cc: "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ "mst@redhat.com" <mst@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -122,121 +121,115 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Dec 13, 2022 at 2:38 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+On Wed, Sep 7, 2022 at 4:11 PM Eli Cohen <elic@nvidia.com> wrote:
 >
-> On Tue, Dec 13, 2022 at 11:43:36AM +0800, Jason Wang wrote:
-> > On Tue, Dec 13, 2022 at 11:38 AM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
+> > From: Jason Wang <jasowang@redhat.com>
+> > Sent: Wednesday, 7 September 2022 9:53
+> > To: Eli Cohen <elic@nvidia.com>
+> > Cc: mst@redhat.com; virtualization@lists.linux-foundation.org; linux-
+> > kernel@vger.kernel.org
+> > Subject: Re: [PATCH] vdpa: conditionally fill max max queue pair for stats
+> >
+> > On Wed, Sep 7, 2022 at 2:11 PM Eli Cohen <elic@nvidia.com> wrote:
 > > >
-> > > On Mon, 12 Dec 2022 04:25:22 -0500, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > > On Mon, Dec 12, 2022 at 05:10:29PM +0800, Jason Wang wrote:
-> > > > > Commit a7766ef18b33("virtio_net: disable cb aggressively") enables
-> > > > > virtqueue callback via the following statement:
-> > > > >
-> > > > >         do {
-> > > > >            ......
-> > > > >     } while (use_napi && kick &&
-> > > > >                unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
-> > > > >
-> > > > > This will cause a missing call to virtqueue_enable_cb_delayed() when
-> > > > > kick is false. Fixing this by removing the checking of the kick from
-> > > > > the condition to make sure callback is enabled correctly.
-> > > > >
-> > > > > Fixes: a7766ef18b33 ("virtio_net: disable cb aggressively")
-> > > > > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > > > > ---
-> > > > > The patch is needed for -stable.
+> > > > From: Jason Wang <jasowang@redhat.com>
+> > > > Sent: Wednesday, 7 September 2022 9:01
+> > > > To: mst@redhat.com; jasowang@redhat.com; Eli Cohen
+> > <elic@nvidia.com>;
+> > > > virtualization@lists.linux-foundation.org; linux-kernel@vger.kernel.org
+> > > > Subject: [PATCH] vdpa: conditionally fill max max queue pair for stats
 > > > >
-> > > > stable rules don't allow for theoretical fixes. Was a problem observed?
+> > > > For the device without multiqueue feature, we will read 0 as
+> > > > max_virtqueue_pairs from the config.
+> > > If this is the case for other vdpa vendor drivers, shouldn't we fix it there?
+> > After all,
+> > > config->max_virtqueue_pairs should always show valid values.
 > >
-> > Yes, running a pktgen sample script can lead to a tx timeout.
+> > Not for the case when the device doesn't offer MQ. According to the
+> > spec, the max_virtqueue_pairs doesn't exist in this case.
+> >
+> I see, thanks.
 >
-> Since April 2021 and we only noticed now? Are you sure it's the
-> right Fixes tag?
-
-Well, reverting a7766ef18b33 makes pktgen work again.
-
-The reason we doesn't notice is probably because:
-
-1) We don't support BQL, so no bulk dequeuing (skb list) in normal traffic
-2) When burst is enabled for pktgen, it can do bulk xmit via skb list by its own
-
->
-> > > >
-> > > > > ---
-> > > > >  drivers/net/virtio_net.c | 4 ++--
-> > > > >  1 file changed, 2 insertions(+), 2 deletions(-)
-> > > > >
-> > > > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > > > > index 86e52454b5b5..44d7daf0267b 100644
-> > > > > --- a/drivers/net/virtio_net.c
-> > > > > +++ b/drivers/net/virtio_net.c
-> > > > > @@ -1834,8 +1834,8 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
-> > > > >
-> > > > >             free_old_xmit_skbs(sq, false);
-> > > > >
-> > > > > -   } while (use_napi && kick &&
-> > > > > -          unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
-> > > > > +   } while (use_napi &&
-> > > > > +            unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
-> > > > >
-> > > >
-> > > > A bit more explanation pls.  kick simply means !netdev_xmit_more -
-> > > > if it's false we know there will be another packet, then transmissing
-> > > > that packet will invoke virtqueue_enable_cb_delayed. No?
 > > >
-> > > It's just that there may be a next packet, but in fact there may not be.
-> > > For example, the vq is full, and the driver stops the queue.
+> > > > So if we fill
+> > > > VDPA_ATTR_DEV_NET_CFG_MAX_VQP with the value we read from the
+> > > > config
+> > > > we will confuse the user.
+> > > >
+> > > > Fixing this by only filling the value when multiqueue is offered by
+> > > > the device so userspace can assume 1 when the attr is not provided.
+> > > >
+> > > > Fixes: 13b00b135665c("vdpa: Add support for querying vendor
+> > statistics")
+> > > > Cc: Eli Cohen <elic@nvidia.com>
+> > > > Signed-off-by: Jason Wang <jasowang@redhat.com>
+> > > > ---
+> > > >  drivers/vdpa/vdpa.c | 9 ++++-----
+> > > >  1 file changed, 4 insertions(+), 5 deletions(-)
+> > > >
+> > > > diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
+> > > > index c06c02704461..bc328197263f 100644
+> > > > --- a/drivers/vdpa/vdpa.c
+> > > > +++ b/drivers/vdpa/vdpa.c
+> > > > @@ -894,7 +894,6 @@ static int vdpa_fill_stats_rec(struct vdpa_device
+> > > > *vdev, struct sk_buff *msg,
+> > > >  {
+> > > >       struct virtio_net_config config = {};
+> > > >       u64 features;
+> > > > -     u16 max_vqp;
+> > > >       u8 status;
+> > > >       int err;
+> > > >
+> > > > @@ -905,15 +904,15 @@ static int vdpa_fill_stats_rec(struct
+> > vdpa_device
+> > > > *vdev, struct sk_buff *msg,
+> > > >       }
+> > > >       vdpa_get_config_unlocked(vdev, 0, &config, sizeof(config));
+> > > >
+> > > > -     max_vqp = __virtio16_to_cpu(true, config.max_virtqueue_pairs);
+> > > > -     if (nla_put_u16(msg, VDPA_ATTR_DEV_NET_CFG_MAX_VQP,
+> > > > max_vqp))
+> > > > -             return -EMSGSIZE;
+> > > > -
+> > > >       features = vdev->config->get_driver_features(vdev);
+> > > >       if (nla_put_u64_64bit(msg,
+> > > > VDPA_ATTR_DEV_NEGOTIATED_FEATURES,
+> > > >                             features, VDPA_ATTR_PAD))
+> > > >               return -EMSGSIZE;
+> > > >
+> > > > +     err = vdpa_dev_net_mq_config_fill(vdev, msg, features, &config);
+> > > > +     if (err)
+> > > > +             return err;
+> > > > +
+> > >
+> > > So that means that you can't read statistics when MQ is not supported. Is
+> > this worth sacrificing?
 > >
-> > Exactly, when the queue is about to be full we disable tx and wait for
-> > the next tx interrupt to re-enable tx.
-> >
-> > Thanks
+> > vdpa_dev_net_mq_config_fill() will return 0 in the case of !MQ, so it
+> > should still work.
 >
-> OK, it's a good idea to document that.
+> Right, missed that.
+>
+> Reviewed-by: Eli Cohen <elic@nvidia.com>
 
-Will do.
+Michael, I don't see this is merged.
 
-> And we should enable callbacks at that point, not here on data path.
-
-I'm not sure I understand here. Are you suggesting removing the
-!user_napi check here?
-
-                if (!use_napi &&
-                    unlikely(!virtqueue_enable_cb_delayed(sq->vq))) {
-                        /* More just got used, free them then recheck. */
-                        free_old_xmit_skbs(sq, false);
-                        if (sq->vq->num_free >= 2+MAX_SKB_FRAGS) {
-                                netif_start_subqueue(dev, qnum);
-                                virtqueue_disable_cb(sq->vq);
-                        }
-                }
-
-Btw, it doesn't differ too much as kick is always true without pktgen
-and that may even need more comments or make the code even harder to
-read. We need a patch for -stable at least so I prefer to let this
-patch go first and do optimization on top.
+Any comments for this patch?
 
 Thanks
 
+
 >
->
+> >
+> > Thanks
+> >
+> >
 > > >
-> > > Thanks.
-> > >
+> > > >       if (nla_put_u32(msg, VDPA_ATTR_DEV_QUEUE_INDEX, index))
+> > > >               return -EMSGSIZE;
 > > > >
-> > > >
-> > > >
-> > > >
-> > > >
-> > > > >     /* timestamp packet in software */
-> > > > >     skb_tx_timestamp(skb);
-> > > > > --
-> > > > > 2.25.1
-> > > >
-> > > > _______________________________________________
-> > > > Virtualization mailing list
-> > > > Virtualization@lists.linux-foundation.org
-> > > > https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+> > > > --
+> > > > 2.25.1
 > > >
 >
 
