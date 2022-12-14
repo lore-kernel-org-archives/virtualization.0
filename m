@@ -1,102 +1,105 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A0436C4332F
-	for <virtualization@archiver.kernel.org>; Wed, 14 Dec 2022 16:30:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id BFEA7C4332F
+	for <virtualization@archiver.kernel.org>; Wed, 14 Dec 2022 16:31:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 161AF40111;
-	Wed, 14 Dec 2022 16:30:45 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 161AF40111
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Ob3hKkhk
+	by smtp4.osuosl.org (Postfix) with ESMTP id 565FD410DB;
+	Wed, 14 Dec 2022 16:31:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 565FD410DB
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cDCSKc3s
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 0YItGfHafGYh; Wed, 14 Dec 2022 16:30:43 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id nyRis8fUgn23; Wed, 14 Dec 2022 16:31:09 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 1AA9C404B1;
-	Wed, 14 Dec 2022 16:30:43 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1AA9C404B1
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 7965F41830;
+	Wed, 14 Dec 2022 16:31:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7965F41830
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E9514C0033;
-	Wed, 14 Dec 2022 16:30:42 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4A924C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 49976C0033;
+	Wed, 14 Dec 2022 16:31:08 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3CCE2C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 14 Dec 2022 16:30:42 +0000 (UTC)
+ Wed, 14 Dec 2022 16:31:07 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 25D53404B1
+ by smtp1.osuosl.org (Postfix) with ESMTP id 128BF81F39
  for <virtualization@lists.linux-foundation.org>;
- Wed, 14 Dec 2022 16:30:42 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 25D53404B1
+ Wed, 14 Dec 2022 16:31:07 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 128BF81F39
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=cDCSKc3s
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Y_ykzuUygsUr
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 9FfzYSebCB4i
  for <virtualization@lists.linux-foundation.org>;
- Wed, 14 Dec 2022 16:30:41 +0000 (UTC)
+ Wed, 14 Dec 2022 16:31:02 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D9EFD40111
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7AB1181EFA
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id D9EFD40111
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 7AB1181EFA
  for <virtualization@lists.linux-foundation.org>;
- Wed, 14 Dec 2022 16:30:40 +0000 (UTC)
+ Wed, 14 Dec 2022 16:31:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1671035439;
+ s=mimecast20190719; t=1671035461;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=uDSLhjChOzyvO7sWXszZbPlZnPPU1GukY9F9aZWrZdA=;
- b=Ob3hKkhkijtnHdbPCWdJB3GFzyWLr4O1byuN+MucWqNpJoIf/om0nyDqOpXNBw2fs4Kbvn
- FS08Mbw/dUGx6f8k6Q+xzKF7SkVC6i5hSZAZOdvdZCyoqc5UhMkd9njVpiLyOQsB9Z2xWh
- SVnIb2doSmvEpIIKqKyUn6kJ2JpEKyg=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=eNeRnQ41YTwI7Dv9IlQ//H1saK0wcCg2ACIcfcXrP3k=;
+ b=cDCSKc3sQC42VbblfYFB+8h0Oo49GJokUm+GB7G/amdu6Ej31FqXHAQAzPIrChp2QMfRxu
+ C2IY8PunIKtaetdkTRT3Wt4haz0idtwJtMjm8eqX9FRuelEGB39uuTsXFLabOtEz7MMrp4
+ Q9Io9N9N4ygMH+zxxo1c9SCRPPw3phA=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-573-KBJWNxf5OCmTTL5iQ6Pihw-1; Wed, 14 Dec 2022 11:30:38 -0500
-X-MC-Unique: KBJWNxf5OCmTTL5iQ6Pihw-1
-Received: by mail-wm1-f72.google.com with SMTP id
- bi19-20020a05600c3d9300b003cf9d6c4016so918159wmb.8
+ us-mta-633-CuTxhJ5QMk6pCmeXDkmClw-1; Wed, 14 Dec 2022 11:31:00 -0500
+X-MC-Unique: CuTxhJ5QMk6pCmeXDkmClw-1
+Received: by mail-wr1-f69.google.com with SMTP id
+ o8-20020adfba08000000b00241e80f08e0so60509wrg.12
  for <virtualization@lists.linux-foundation.org>;
- Wed, 14 Dec 2022 08:30:37 -0800 (PST)
+ Wed, 14 Dec 2022 08:30:59 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=content-transfer-encoding:mime-version:references:in-reply-to
  :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
  :subject:date:message-id:reply-to;
- bh=uDSLhjChOzyvO7sWXszZbPlZnPPU1GukY9F9aZWrZdA=;
- b=2kNqYKzOCmztNZm8LLe3HPJ1CuxvNCECBUG2vP/EvqMzNCol9hreR8XdiCTL4DlEKb
- 9LRTB7+UC05v/27eR2bPop/rmNPPIH2LPtgIHSqdvhLTu/KsMADj7ADMYKjLyg8MDeJy
- ZcZo+nwpAolX+iP66QVsSB0XdU0QV1lr6jyHrtA6HScRbFSo48XByFCL8UgztJOcXyFQ
- GZiDtnPLwcckUqQe/OrgeH7/xx6MCMD7d58FwN99sRDzMssdDVKWPDUPi6N/iS7krVde
- +WD+YV2gdlXzQwdpy1u+il5XSC1E1B6z7oXdl2iI/c7okDP6VLT1RJ6bOoBOKMO6ApFR
- Xymw==
-X-Gm-Message-State: ANoB5pnhxw0pQ4Suhh2B0z5xa0zHYGwUExQZcvGCKWVyWYKadJTGkJU4
- uUTydlB+SRduTkrURlOlVqmR/7AmM98gLsPxXKofcxgfmKdOhJ6kpBS+IZmZBW8aEUjmTxZC1Rx
- Go9CyaHEL022c7ZgbN2CmUvTtubhS5+dNWEnGuKJJS50MwNAQiz0Llt9RbT9J3CNDFsLV7GrsqQ
- d6U/7fCQZ4llO4Kkxu+Q==
-X-Received: by 2002:a5d:55c4:0:b0:242:19d6:da77 with SMTP id
- i4-20020a5d55c4000000b0024219d6da77mr15384076wrw.15.1671035434315; 
- Wed, 14 Dec 2022 08:30:34 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf64FO5UwTyJyWczFAW3XAofyHe4ZMJGRxWj6B/ZMPYSJWN7NbuJdbyQLq95i6Mag0G2kucxQQ==
-X-Received: by 2002:a5d:55c4:0:b0:242:19d6:da77 with SMTP id
- i4-20020a5d55c4000000b0024219d6da77mr15384042wrw.15.1671035433873; 
- Wed, 14 Dec 2022 08:30:33 -0800 (PST)
+ bh=eNeRnQ41YTwI7Dv9IlQ//H1saK0wcCg2ACIcfcXrP3k=;
+ b=4GPCcB0vYsqTgD8d5M/L3+Fqw++rkLxUzK0vmCYcED+3eJv6ynfcARb4lPAWn0r430
+ t/CHbwQIWYU1+fYdlMfBznzYU6nId8Gi+s1TQZAwccSmsFqSrpLdUhAeUWocC5DZyvdA
+ dtFF9DRdQjKCnXCsmaukWWncbqo1/sajx7aZkvxNbbwhl7T+yCr9qpxUbZZ39ffBrNSh
+ A6+fe3BbPsGTKqFoOrkh7Msh7LYY8GXrW/ZVEH3TwUjzuDhwp5QkNdvdEjHCxO6OiVof
+ cCALU+TVmX/8O9z8XQMDx7X3RAFD9xl7hBH4I/OCFwGiGtOye5p5NWpT6aRnAn+AHYRw
+ 4REw==
+X-Gm-Message-State: ANoB5pnaGjGxmFnb5jbftL9vHEGKgQiCey1KYS13aaXdl0s+1hpgGuWN
+ Pqa5xbUDLKf8jFbqKhYXMKDDLdIAR8ifXL/HKVm21DA00BeZCp+ZWZpigc2h2NraKJwUSG5RjqB
+ jaoeMA/cePXaXM0+TDvzLl1gWeaAdA3OxVUuxekERNkX2MBbaguxiK79KOm5gy81f7KZS5P3xs0
+ FX4Wn5pwO9O+r06LIN8w==
+X-Received: by 2002:a05:600c:3b15:b0:3d0:d177:cac1 with SMTP id
+ m21-20020a05600c3b1500b003d0d177cac1mr19372606wms.36.1671035458617; 
+ Wed, 14 Dec 2022 08:30:58 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf41TbDFZYAxyeY/6/VgR7BHHW22n4sdvEUddOO8zMQQsvGDfuNF6JjoQjUcHxV0WQ+cml5BAg==
+X-Received: by 2002:a05:600c:3b15:b0:3d0:d177:cac1 with SMTP id
+ m21-20020a05600c3b1500b003d0d177cac1mr19372586wms.36.1671035458429; 
+ Wed, 14 Dec 2022 08:30:58 -0800 (PST)
 Received: from step1.redhat.com (host-87-11-6-51.retail.telecomitalia.it.
  [87.11.6.51]) by smtp.gmail.com with ESMTPSA id
- e17-20020adffd11000000b002422816aa25sm3791759wrr.108.2022.12.14.08.30.32
+ c6-20020a05600c0a4600b003d1e3b1624dsm3850323wmq.2.2022.12.14.08.30.56
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 14 Dec 2022 08:30:33 -0800 (PST)
+ Wed, 14 Dec 2022 08:30:57 -0800 (PST)
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: virtualization@lists.linux-foundation.org
-Subject: [RFC PATCH 3/6] vringh: support VA with iotlb
-Date: Wed, 14 Dec 2022 17:30:22 +0100
-Message-Id: <20221214163025.103075-4-sgarzare@redhat.com>
+Subject: [RFC PATCH 5/6] vdpa_sim: use kthread worker
+Date: Wed, 14 Dec 2022 17:30:24 +0100
+Message-Id: <20221214163025.103075-6-sgarzare@redhat.com>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221214163025.103075-1-sgarzare@redhat.com>
 References: <20221214163025.103075-1-sgarzare@redhat.com>
@@ -122,431 +125,87 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-vDPA supports the possibility to use user VA in the iotlb messages.
-So, let's add support for user VA in vringh to use it in the vDPA
-simulators.
+Let's use our own kthread to run device jobs.
+This allows us more flexibility, especially we can attach the kthread
+to the user address space when vDPA uses user's VA.
 
 Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 ---
- include/linux/vringh.h             |   5 +-
- drivers/vdpa/mlx5/core/resources.c |   3 +-
- drivers/vdpa/mlx5/net/mlx5_vnet.c  |   2 +-
- drivers/vdpa/vdpa_sim/vdpa_sim.c   |   4 +-
- drivers/vhost/vringh.c             | 250 +++++++++++++++++++++++------
- 5 files changed, 207 insertions(+), 57 deletions(-)
+ drivers/vdpa/vdpa_sim/vdpa_sim.h |  3 ++-
+ drivers/vdpa/vdpa_sim/vdpa_sim.c | 17 ++++++++++++-----
+ 2 files changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/include/linux/vringh.h b/include/linux/vringh.h
-index 212892cf9822..c70962f16b1f 100644
---- a/include/linux/vringh.h
-+++ b/include/linux/vringh.h
-@@ -32,6 +32,9 @@ struct vringh {
- 	/* Can we get away with weak barriers? */
- 	bool weak_barriers;
- 
-+	/* Use user's VA */
-+	bool use_va;
-+
- 	/* Last available index we saw (ie. where we're up to). */
- 	u16 last_avail_idx;
- 
-@@ -279,7 +282,7 @@ void vringh_set_iotlb(struct vringh *vrh, struct vhost_iotlb *iotlb,
- 		      spinlock_t *iotlb_lock);
- 
- int vringh_init_iotlb(struct vringh *vrh, u64 features,
--		      unsigned int num, bool weak_barriers,
-+		      unsigned int num, bool weak_barriers, bool use_va,
- 		      struct vring_desc *desc,
- 		      struct vring_avail *avail,
- 		      struct vring_used *used);
-diff --git a/drivers/vdpa/mlx5/core/resources.c b/drivers/vdpa/mlx5/core/resources.c
-index 9800f9bec225..e0bab3458b40 100644
---- a/drivers/vdpa/mlx5/core/resources.c
-+++ b/drivers/vdpa/mlx5/core/resources.c
-@@ -233,7 +233,8 @@ static int init_ctrl_vq(struct mlx5_vdpa_dev *mvdev)
- 	if (!mvdev->cvq.iotlb)
- 		return -ENOMEM;
- 
--	vringh_set_iotlb(&mvdev->cvq.vring, mvdev->cvq.iotlb, &mvdev->cvq.iommu_lock);
-+	vringh_set_iotlb(&mvdev->cvq.vring, mvdev->cvq.iotlb,
-+			 &mvdev->cvq.iommu_lock);
- 
- 	return 0;
- }
-diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-index 90913365def4..81ba0867e2c8 100644
---- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-+++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-@@ -2504,7 +2504,7 @@ static int setup_cvq_vring(struct mlx5_vdpa_dev *mvdev)
- 
- 	if (mvdev->actual_features & BIT_ULL(VIRTIO_NET_F_CTRL_VQ))
- 		err = vringh_init_iotlb(&cvq->vring, mvdev->actual_features,
--					MLX5_CVQ_MAX_ENT, false,
-+					MLX5_CVQ_MAX_ENT, false, false,
- 					(struct vring_desc *)(uintptr_t)cvq->desc_addr,
- 					(struct vring_avail *)(uintptr_t)cvq->driver_addr,
- 					(struct vring_used *)(uintptr_t)cvq->device_addr);
+diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.h b/drivers/vdpa/vdpa_sim/vdpa_sim.h
+index 7e6dd366856f..07ef53ea375e 100644
+--- a/drivers/vdpa/vdpa_sim/vdpa_sim.h
++++ b/drivers/vdpa/vdpa_sim/vdpa_sim.h
+@@ -53,7 +53,8 @@ struct vdpasim_dev_attr {
+ struct vdpasim {
+ 	struct vdpa_device vdpa;
+ 	struct vdpasim_virtqueue *vqs;
+-	struct work_struct work;
++	struct kthread_worker *worker;
++	struct kthread_work work;
+ 	struct vdpasim_dev_attr dev_attr;
+ 	/* spinlock to synchronize virtqueue state */
+ 	spinlock_t lock;
 diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-index b20689f8fe89..2e0ee7280aa8 100644
+index 9bde33e38e27..36a1d2e0a6ba 100644
 --- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
 +++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-@@ -67,7 +67,7 @@ static void vdpasim_queue_ready(struct vdpasim *vdpasim, unsigned int idx)
+@@ -11,8 +11,8 @@
+ #include <linux/module.h>
+ #include <linux/device.h>
+ #include <linux/kernel.h>
++#include <linux/kthread.h>
+ #include <linux/slab.h>
+-#include <linux/sched.h>
+ #include <linux/dma-map-ops.h>
+ #include <linux/vringh.h>
+ #include <linux/vdpa.h>
+@@ -245,7 +245,7 @@ static const struct dma_map_ops vdpasim_dma_ops = {
+ static const struct vdpa_config_ops vdpasim_config_ops;
+ static const struct vdpa_config_ops vdpasim_batch_config_ops;
+ 
+-static void vdpasim_work_fn(struct work_struct *work)
++static void vdpasim_work_fn(struct kthread_work *work)
  {
- 	struct vdpasim_virtqueue *vq = &vdpasim->vqs[idx];
+ 	struct vdpasim *vdpasim = container_of(work, struct vdpasim, work);
  
--	vringh_init_iotlb(&vq->vring, vdpasim->features, vq->num, false,
-+	vringh_init_iotlb(&vq->vring, vdpasim->features, vq->num, false, false,
- 			  (struct vring_desc *)(uintptr_t)vq->desc_addr,
- 			  (struct vring_avail *)
- 			  (uintptr_t)vq->driver_addr,
-@@ -87,7 +87,7 @@ static void vdpasim_vq_reset(struct vdpasim *vdpasim,
- 	vq->cb = NULL;
- 	vq->private = NULL;
- 	vringh_init_iotlb(&vq->vring, vdpasim->dev_attr.supported_features,
--			  VDPASIM_QUEUE_MAX, false, NULL, NULL, NULL);
-+			  VDPASIM_QUEUE_MAX, false, false, NULL, NULL, NULL);
+@@ -282,7 +282,13 @@ struct vdpasim *vdpasim_create(struct vdpasim_dev_attr *dev_attr,
+ 	}
  
- 	vq->vring.notify = NULL;
+ 	vdpasim->dev_attr = *dev_attr;
+-	INIT_WORK(&vdpasim->work, vdpasim_work_fn);
++
++	kthread_init_work(&vdpasim->work, vdpasim_work_fn);
++	vdpasim->worker = kthread_create_worker(0, "vDPA sim worker: %s",
++						dev_attr->name);
++	if (IS_ERR(vdpasim->worker))
++		goto err_iommu;
++
+ 	spin_lock_init(&vdpasim->lock);
+ 	spin_lock_init(&vdpasim->iommu_lock);
+ 
+@@ -338,7 +344,7 @@ EXPORT_SYMBOL_GPL(vdpasim_create);
+ 
+ void vdpasim_schedule_work(struct vdpasim *vdpasim)
+ {
+-	schedule_work(&vdpasim->work);
++	kthread_queue_work(vdpasim->worker, &vdpasim->work);
  }
-diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
-index 11f59dd06a74..c1f77dc93482 100644
---- a/drivers/vhost/vringh.c
-+++ b/drivers/vhost/vringh.c
-@@ -1094,15 +1094,99 @@ EXPORT_SYMBOL(vringh_need_notify_kern);
+ EXPORT_SYMBOL_GPL(vdpasim_schedule_work);
  
- #if IS_REACHABLE(CONFIG_VHOST_IOTLB)
+@@ -689,7 +695,8 @@ static void vdpasim_free(struct vdpa_device *vdpa)
+ 	struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
+ 	int i;
  
--static int iotlb_translate(const struct vringh *vrh,
--			   u64 addr, u64 len, u64 *translated,
--			   struct bio_vec iov[],
--			   int iov_size, u32 perm)
-+static int iotlb_translate_va(const struct vringh *vrh,
-+			      u64 addr, u64 len, u64 *translated,
-+			      struct iovec iov[],
-+			      int iov_size, u32 perm)
- {
- 	struct vhost_iotlb_map *map;
- 	struct vhost_iotlb *iotlb = vrh->iotlb;
-+	u64 s = 0, last = addr + len - 1;
-+	int ret = 0;
-+
-+	spin_lock(vrh->iotlb_lock);
-+
-+	while (len > s) {
-+		u64 size;
-+
-+		if (unlikely(ret >= iov_size)) {
-+			ret = -ENOBUFS;
-+			break;
-+		}
-+
-+		map = vhost_iotlb_itree_first(iotlb, addr, last);
-+		if (!map || map->start > addr) {
-+			ret = -EINVAL;
-+			break;
-+		} else if (!(map->perm & perm)) {
-+			ret = -EPERM;
-+			break;
-+		}
-+
-+		size = map->size - addr + map->start;
-+		iov[ret].iov_len = min(len - s, size);
-+		iov[ret].iov_base = (void __user *)(unsigned long)
-+				    (map->addr + addr - map->start);
-+		s += size;
-+		addr += size;
-+		++ret;
-+	}
-+
-+	spin_unlock(vrh->iotlb_lock);
-+
-+	if (translated)
-+		*translated = min(len, s);
-+
-+	return ret;
-+}
-+
-+static inline int copy_from_va(const struct vringh *vrh, void *dst, void *src,
-+			       u64 len, u64 *translated)
-+{
-+	struct iovec iov[16];
-+	struct iov_iter iter;
-+	int ret;
-+
-+	ret = iotlb_translate_va(vrh, (u64)(uintptr_t)src, len, translated, iov,
-+				 ARRAY_SIZE(iov), VHOST_MAP_RO);
-+	if (ret == -ENOBUFS)
-+		ret = ARRAY_SIZE(iov);
-+	else if (ret < 0)
-+		return ret;
-+
-+	iov_iter_init(&iter, READ, iov, ret, *translated);
-+
-+	return copy_from_iter(dst, *translated, &iter);
-+}
-+
-+static inline int copy_to_va(const struct vringh *vrh, void *dst, void *src,
-+			     u64 len, u64 *translated)
-+{
-+	struct iovec iov[16];
-+	struct iov_iter iter;
-+	int ret;
-+
-+	ret = iotlb_translate_va(vrh, (u64)(uintptr_t)dst, len, translated, iov,
-+				 ARRAY_SIZE(iov), VHOST_MAP_WO);
-+	if (ret == -ENOBUFS)
-+		ret = ARRAY_SIZE(iov);
-+	else if (ret < 0)
-+		return ret;
-+
-+	iov_iter_init(&iter, WRITE, iov, ret, *translated);
-+
-+	return copy_to_iter(src, *translated, &iter);
-+}
-+
-+static int iotlb_translate_pa(const struct vringh *vrh,
-+			      u64 addr, u64 len, u64 *translated,
-+			      struct bio_vec iov[],
-+			      int iov_size, u32 perm)
-+{
-+	struct vhost_iotlb_map *map;
-+	struct vhost_iotlb *iotlb = vrh->iotlb;
-+	u64 s = 0, last = addr + len - 1;
- 	int ret = 0;
--	u64 s = 0;
+-	cancel_work_sync(&vdpasim->work);
++	kthread_cancel_work_sync(&vdpasim->work);
++	kthread_destroy_worker(vdpasim->worker);
  
- 	spin_lock(vrh->iotlb_lock);
- 
-@@ -1114,8 +1198,7 @@ static int iotlb_translate(const struct vringh *vrh,
- 			break;
- 		}
- 
--		map = vhost_iotlb_itree_first(iotlb, addr,
--					      addr + len - 1);
-+		map = vhost_iotlb_itree_first(iotlb, addr, last);
- 		if (!map || map->start > addr) {
- 			ret = -EINVAL;
- 			break;
-@@ -1143,28 +1226,61 @@ static int iotlb_translate(const struct vringh *vrh,
- 	return ret;
- }
- 
-+static inline int copy_from_pa(const struct vringh *vrh, void *dst, void *src,
-+			       u64 len, u64 *translated)
-+{
-+	struct bio_vec iov[16];
-+	struct iov_iter iter;
-+	int ret;
-+
-+	ret = iotlb_translate_pa(vrh, (u64)(uintptr_t)src, len, translated, iov,
-+				 ARRAY_SIZE(iov), VHOST_MAP_RO);
-+	if (ret == -ENOBUFS)
-+		ret = ARRAY_SIZE(iov);
-+	else if (ret < 0)
-+		return ret;
-+
-+	iov_iter_bvec(&iter, READ, iov, ret, *translated);
-+
-+	return copy_from_iter(dst, *translated, &iter);
-+}
-+
-+static inline int copy_to_pa(const struct vringh *vrh, void *dst, void *src,
-+			     u64 len, u64 *translated)
-+{
-+	struct bio_vec iov[16];
-+	struct iov_iter iter;
-+	int ret;
-+
-+	ret = iotlb_translate_pa(vrh, (u64)(uintptr_t)dst, len, translated, iov,
-+				 ARRAY_SIZE(iov), VHOST_MAP_WO);
-+	if (ret == -ENOBUFS)
-+		ret = ARRAY_SIZE(iov);
-+	else if (ret < 0)
-+		return ret;
-+
-+	iov_iter_bvec(&iter, WRITE, iov, ret, *translated);
-+
-+	return copy_to_iter(src, *translated, &iter);
-+}
-+
- static inline int copy_from_iotlb(const struct vringh *vrh, void *dst,
- 				  void *src, size_t len)
- {
- 	u64 total_translated = 0;
- 
- 	while (total_translated < len) {
--		struct bio_vec iov[16];
--		struct iov_iter iter;
- 		u64 translated;
- 		int ret;
- 
--		ret = iotlb_translate(vrh, (u64)(uintptr_t)src,
--				      len - total_translated, &translated,
--				      iov, ARRAY_SIZE(iov), VHOST_MAP_RO);
--		if (ret == -ENOBUFS)
--			ret = ARRAY_SIZE(iov);
--		else if (ret < 0)
--			return ret;
--
--		iov_iter_bvec(&iter, READ, iov, ret, translated);
-+		if (vrh->use_va) {
-+			ret = copy_from_va(vrh, dst, src,
-+					   len - total_translated, &translated);
-+		} else {
-+			ret = copy_from_pa(vrh, dst, src,
-+					   len - total_translated, &translated);
-+		}
- 
--		ret = copy_from_iter(dst, translated, &iter);
- 		if (ret < 0)
- 			return ret;
- 
-@@ -1182,22 +1298,17 @@ static inline int copy_to_iotlb(const struct vringh *vrh, void *dst,
- 	u64 total_translated = 0;
- 
- 	while (total_translated < len) {
--		struct bio_vec iov[16];
--		struct iov_iter iter;
- 		u64 translated;
- 		int ret;
- 
--		ret = iotlb_translate(vrh, (u64)(uintptr_t)dst,
--				      len - total_translated, &translated,
--				      iov, ARRAY_SIZE(iov), VHOST_MAP_WO);
--		if (ret == -ENOBUFS)
--			ret = ARRAY_SIZE(iov);
--		else if (ret < 0)
--			return ret;
--
--		iov_iter_bvec(&iter, WRITE, iov, ret, translated);
-+		if (vrh->use_va) {
-+			ret = copy_to_va(vrh, dst, src,
-+					 len - total_translated, &translated);
-+		} else {
-+			ret = copy_to_pa(vrh, dst, src,
-+					 len - total_translated, &translated);
-+		}
- 
--		ret = copy_to_iter(src, translated, &iter);
- 		if (ret < 0)
- 			return ret;
- 
-@@ -1212,20 +1323,36 @@ static inline int copy_to_iotlb(const struct vringh *vrh, void *dst,
- static inline int getu16_iotlb(const struct vringh *vrh,
- 			       u16 *val, const __virtio16 *p)
- {
--	struct bio_vec iov;
--	void *kaddr, *from;
- 	int ret;
- 
- 	/* Atomic read is needed for getu16 */
--	ret = iotlb_translate(vrh, (u64)(uintptr_t)p, sizeof(*p), NULL,
--			      &iov, 1, VHOST_MAP_RO);
--	if (ret < 0)
--		return ret;
-+	if (vrh->use_va) {
-+		struct iovec iov;
-+
-+		ret = iotlb_translate_va(vrh, (u64)(uintptr_t)p, sizeof(*p),
-+					 NULL, &iov, 1, VHOST_MAP_RO);
-+		if (ret < 0)
-+			return ret;
- 
--	kaddr = kmap_atomic(iov.bv_page);
--	from = kaddr + iov.bv_offset;
--	*val = vringh16_to_cpu(vrh, READ_ONCE(*(__virtio16 *)from));
--	kunmap_atomic(kaddr);
-+		ret = __get_user(*val, (__virtio16 *)iov.iov_base);
-+		if (ret)
-+			return ret;
-+
-+		*val = vringh16_to_cpu(vrh, *val);
-+	} else {
-+		struct bio_vec iov;
-+		void *kaddr, *from;
-+
-+		ret = iotlb_translate_pa(vrh, (u64)(uintptr_t)p, sizeof(*p),
-+					 NULL, &iov, 1, VHOST_MAP_RO);
-+		if (ret < 0)
-+			return ret;
-+
-+		kaddr = kmap_atomic(iov.bv_page);
-+		from = kaddr + iov.bv_offset;
-+		*val = vringh16_to_cpu(vrh, READ_ONCE(*(__virtio16 *)from));
-+		kunmap_atomic(kaddr);
-+	}
- 
- 	return 0;
- }
-@@ -1233,20 +1360,36 @@ static inline int getu16_iotlb(const struct vringh *vrh,
- static inline int putu16_iotlb(const struct vringh *vrh,
- 			       __virtio16 *p, u16 val)
- {
--	struct bio_vec iov;
--	void *kaddr, *to;
- 	int ret;
- 
- 	/* Atomic write is needed for putu16 */
--	ret = iotlb_translate(vrh, (u64)(uintptr_t)p, sizeof(*p), NULL,
--			      &iov, 1, VHOST_MAP_WO);
--	if (ret < 0)
--		return ret;
-+	if (vrh->use_va) {
-+		struct iovec iov;
- 
--	kaddr = kmap_atomic(iov.bv_page);
--	to = kaddr + iov.bv_offset;
--	WRITE_ONCE(*(__virtio16 *)to, cpu_to_vringh16(vrh, val));
--	kunmap_atomic(kaddr);
-+		ret = iotlb_translate_va(vrh, (u64)(uintptr_t)p, sizeof(*p),
-+					 NULL, &iov, 1, VHOST_MAP_RO);
-+		if (ret < 0)
-+			return ret;
-+
-+		val = cpu_to_vringh16(vrh, val);
-+
-+		ret = __put_user(val, (__virtio16 *)iov.iov_base);
-+		if (ret)
-+			return ret;
-+	} else {
-+		struct bio_vec iov;
-+		void *kaddr, *to;
-+
-+		ret = iotlb_translate_pa(vrh, (u64)(uintptr_t)p, sizeof(*p), NULL,
-+					 &iov, 1, VHOST_MAP_WO);
-+		if (ret < 0)
-+			return ret;
-+
-+		kaddr = kmap_atomic(iov.bv_page);
-+		to = kaddr + iov.bv_offset;
-+		WRITE_ONCE(*(__virtio16 *)to, cpu_to_vringh16(vrh, val));
-+		kunmap_atomic(kaddr);
-+	}
- 
- 	return 0;
- }
-@@ -1308,6 +1451,7 @@ static inline int putused_iotlb(const struct vringh *vrh,
-  * @features: the feature bits for this ring.
-  * @num: the number of elements.
-  * @weak_barriers: true if we only need memory barriers, not I/O.
-+ * @use_va: true if IOTLB contains user VA
-  * @desc: the userpace descriptor pointer.
-  * @avail: the userpace avail pointer.
-  * @used: the userpace used pointer.
-@@ -1315,11 +1459,13 @@ static inline int putused_iotlb(const struct vringh *vrh,
-  * Returns an error if num is invalid.
-  */
- int vringh_init_iotlb(struct vringh *vrh, u64 features,
--		      unsigned int num, bool weak_barriers,
-+		      unsigned int num, bool weak_barriers, bool use_va,
- 		      struct vring_desc *desc,
- 		      struct vring_avail *avail,
- 		      struct vring_used *used)
- {
-+	vrh->use_va = use_va;
-+
- 	return vringh_init_kern(vrh, features, num, weak_barriers,
- 				desc, avail, used);
- }
+ 	for (i = 0; i < vdpasim->dev_attr.nvqs; i++) {
+ 		vringh_kiov_cleanup(&vdpasim->vqs[i].out_iov);
 -- 
 2.38.1
 
