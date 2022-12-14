@@ -4,99 +4,105 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 60BEBC4332F
-	for <virtualization@archiver.kernel.org>; Wed, 14 Dec 2022 16:30:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4FA80C4332F
+	for <virtualization@archiver.kernel.org>; Wed, 14 Dec 2022 16:30:40 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id E0F0D81E9B;
-	Wed, 14 Dec 2022 16:30:36 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E0F0D81E9B
+	by smtp1.osuosl.org (Postfix) with ESMTP id D5FAF80C52;
+	Wed, 14 Dec 2022 16:30:39 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D5FAF80C52
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=V+qT101C
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=dUQsRdMM
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 1L_Qhnz94Uqy; Wed, 14 Dec 2022 16:30:36 +0000 (UTC)
+	with ESMTP id 9WGnGsqgu-7c; Wed, 14 Dec 2022 16:30:39 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 6B61A81EF2;
-	Wed, 14 Dec 2022 16:30:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6B61A81EF2
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 6100D81EF7;
+	Wed, 14 Dec 2022 16:30:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6100D81EF7
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 251F7C0033;
-	Wed, 14 Dec 2022 16:30:35 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 77FDFC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id AEF39C007F;
+	Wed, 14 Dec 2022 16:30:37 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D4EEFC002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 14 Dec 2022 16:30:33 +0000 (UTC)
+ Wed, 14 Dec 2022 16:30:36 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 6060181E9B
+ by smtp2.osuosl.org (Postfix) with ESMTP id A1AB340BB2
  for <virtualization@lists.linux-foundation.org>;
- Wed, 14 Dec 2022 16:30:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6060181E9B
+ Wed, 14 Dec 2022 16:30:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A1AB340BB2
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=dUQsRdMM
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 3xs1Y6frR7G6
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id kCAtJuUC_or0
  for <virtualization@lists.linux-foundation.org>;
- Wed, 14 Dec 2022 16:30:32 +0000 (UTC)
+ Wed, 14 Dec 2022 16:30:36 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 60E3E80C52
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E305640111
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 60E3E80C52
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id E305640111
  for <virtualization@lists.linux-foundation.org>;
- Wed, 14 Dec 2022 16:30:32 +0000 (UTC)
+ Wed, 14 Dec 2022 16:30:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1671035431;
+ s=mimecast20190719; t=1671035434;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding;
- bh=MvzKkMsF15Ii2v8T6zm7fsybd7ToFL1MzDuE6XhV9TM=;
- b=V+qT101Cch3PYQ3AfepLCnAGvWi20veldxUwzMFigTJNLsR4iE9OJaWByy8PFZxd4lNjdt
- lFUDZ5cSR5hip/uNoxNkRXPe9s4BS9Ix/Eio6h/AdXSOHJ7Bl2mfrjOH0nRphALRw7CGHy
- +lkuMm1FGdlVCYW+5PjtOnWr0noh/yw=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=ntjy4bIssvEAdzLttb0Oirdk6ECvBiYBnXEucLTwyX4=;
+ b=dUQsRdMMADlTjjGMGYWWBAtbujoM/OUV7BATYHHvudiZY7FiCblexoUB00UOOZNoLffUHZ
+ DZViPveJp69iVjuVVXUDUi3cIkzxtRtBYKxVJJ5DbMS5fa11GbazXtOKUjjoVnEkRHFDM8
+ d8Cmgd9pO/IhyNktEFtAibtgFQefAqE=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-602-vflC0dhxMhCtT1GqpAvvVw-1; Wed, 14 Dec 2022 11:30:30 -0500
-X-MC-Unique: vflC0dhxMhCtT1GqpAvvVw-1
-Received: by mail-wm1-f70.google.com with SMTP id
- v188-20020a1cacc5000000b003cf76c4ae66so7420246wme.7
+ us-mta-663-0nNFSM55N8qaRrP7wl558Q-1; Wed, 14 Dec 2022 11:30:33 -0500
+X-MC-Unique: 0nNFSM55N8qaRrP7wl558Q-1
+Received: by mail-wm1-f71.google.com with SMTP id
+ 21-20020a05600c021500b003d227b209e1so3198883wmi.1
  for <virtualization@lists.linux-foundation.org>;
- Wed, 14 Dec 2022 08:30:29 -0800 (PST)
+ Wed, 14 Dec 2022 08:30:33 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=content-transfer-encoding:mime-version:message-id:date:subject:cc
- :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
- :reply-to;
- bh=MvzKkMsF15Ii2v8T6zm7fsybd7ToFL1MzDuE6XhV9TM=;
- b=B6r5bMZVJo7pzmfFJXaQvy3p0kHv1dl/9P8bwwX+9xSOFIeWLn0gJvAqfEP2D+I3bz
- Z9C3mPIl1EsD/iEO79+/6YuVUIPeLcAq7vscob20MU8gtw8ffMRXqmkZcT9s3wEe+Muu
- 5iO37/1nJmI7RflEkroh9lPk4iqBPXpw1eWuAc4/XLA2CBeOaSuIteE8cVHpU4vmHbbK
- YzkWe4OEKWsAVf65LsAcgdVOR5exY3Ri46nxQVX0EeFOxiKBinNFIsbCz0kYaeqkZXHg
- l0xGFL1QtHA+7D+aq1NlkK8GD1ZclamcvhFDj0m4vCMN01kGBe1kogum8qaSuJHC/deZ
- J7WA==
-X-Gm-Message-State: ANoB5pnNVfaQs5ZV4ZUor1DxUuwmFAZsOTWcCMQUZmLOt3mbf1WBo/1Q
- FzEcdSyry3Pyh/3oHtiYxlzGdn5zvUZpx08xJYn2xiBObJjzAp7/dECNkLhSdUUYjnAu4BoWDaJ
- TB43YbJmt/QvTm02Q2dY8/Mi1yPkV/yXx2DPCy80us0sbOb5ax3PgAVtzvUK7hOvh0TiAfd5vJy
- MTnxWC1ugHdegmqYqj/w==
-X-Received: by 2002:a5d:470a:0:b0:242:d4f:96c with SMTP id
- y10-20020a5d470a000000b002420d4f096cmr15025779wrq.0.1671035428474; 
- Wed, 14 Dec 2022 08:30:28 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf4GfaS136t9dUD0TzONcVTtwml5/pPsXD/CEUDFgE57pufF23Sy+4PdxYOWCLOsS1OfTnwS5w==
-X-Received: by 2002:a5d:470a:0:b0:242:d4f:96c with SMTP id
- y10-20020a5d470a000000b002420d4f096cmr15025759wrq.0.1671035428229; 
- Wed, 14 Dec 2022 08:30:28 -0800 (PST)
+ h=content-transfer-encoding:mime-version:references:in-reply-to
+ :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+ :subject:date:message-id:reply-to;
+ bh=ntjy4bIssvEAdzLttb0Oirdk6ECvBiYBnXEucLTwyX4=;
+ b=YWuowOETTQ0jLsonUR4nauGxoe4JfFjCfostGuhTcklrj3tvmVzf3tBptHoAb4tshs
+ U5UeQe1k3WuzNZ5MNb0u4QlV5+PmayMzYV3zHRmFbN4JX8Km3cRuq7ufeKqce300dDbc
+ qHUS5o77FuFOVUGeQVpr4C+rflUxrMc0Qzm/LP5E2/XgGCukQE7fdxIR4nHQ6RPVynXZ
+ Y/FvWwQhUHh6nvCCdbtGkvHS7MifrzbsQWgaiFnMLy32x16aM4wjeDCmJBvJan7D6VGz
+ IAZCaPsnpYCX2ec+3MeCZwij6N6uOKHZ11MBeqQwZMQ01fKZAozgoMABpKHDUtYrKY8K
+ PExQ==
+X-Gm-Message-State: ANoB5pnUfKdlO7Xxb+sOIPS+cvp+RcQM6MIQ3vSGMzeTjABycTy2CTeV
+ Cuqk/Va79BWw6pGWUGt2WwUW/1U6A+xxK4SEwp5DU+P35ah/ncMgWiXW99VTj6OyhEa76g5W0nb
+ e1Ff29eY5UlFvhahC91xlhmmxogglhMTERuloxIZX912Jm60QKtzE0rTxEY0nxZyoBOQiFsl618
+ /DmswUjlAeUy2dB00XCA==
+X-Received: by 2002:a5d:43c8:0:b0:242:659f:9411 with SMTP id
+ v8-20020a5d43c8000000b00242659f9411mr18656576wrr.9.1671035432214; 
+ Wed, 14 Dec 2022 08:30:32 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf749Y7E+BT4q6kPhJknMxXoEgk8H6qeSlLUTLbG1hIMjBAx7MTauP5T5GnuPa8o2ZC6K5qBtA==
+X-Received: by 2002:a5d:43c8:0:b0:242:659f:9411 with SMTP id
+ v8-20020a5d43c8000000b00242659f9411mr18656541wrr.9.1671035431915; 
+ Wed, 14 Dec 2022 08:30:31 -0800 (PST)
 Received: from step1.redhat.com (host-87-11-6-51.retail.telecomitalia.it.
  [87.11.6.51]) by smtp.gmail.com with ESMTPSA id
- e17-20020adffd11000000b002422816aa25sm3791759wrr.108.2022.12.14.08.30.26
+ e17-20020adffd11000000b002422816aa25sm3791759wrr.108.2022.12.14.08.30.30
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 14 Dec 2022 08:30:27 -0800 (PST)
+ Wed, 14 Dec 2022 08:30:31 -0800 (PST)
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: virtualization@lists.linux-foundation.org
-Subject: [RFC PATCH 0/6] vdpa_sim: add support for user VA
-Date: Wed, 14 Dec 2022 17:30:19 +0100
-Message-Id: <20221214163025.103075-1-sgarzare@redhat.com>
+Subject: [RFC PATCH 2/6] vhost-vdpa: use bind_mm device callback
+Date: Wed, 14 Dec 2022 17:30:21 +0100
+Message-Id: <20221214163025.103075-3-sgarzare@redhat.com>
 X-Mailer: git-send-email 2.38.1
+In-Reply-To: <20221214163025.103075-1-sgarzare@redhat.com>
+References: <20221214163025.103075-1-sgarzare@redhat.com>
 MIME-Version: 1.0
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
@@ -119,55 +125,64 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This series adds support for the use of user virtual addresses in the
-vDPA simulator devices.
+When the user call VHOST_SET_OWNER ioctl and the vDPA device
+has `use_va` set to true, let's call the bind_mm callback.
 
-The main reason for this change is to lift the pinning of all guest memory.
-Especially with virtio devices implemented in software.
+In this way we can bind the device to the user address space
+and directly use the user VA.
 
-The next step would be to generalize the code in vdpa-sim to allow the
-implementation of in-kernel software devices. Similar to vhost, but using vDPA
-so we can reuse the same software stack (e.g. in QEMU) for both HW and SW
-devices.
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+---
+ drivers/vhost/vdpa.c | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
-For example, we have never merged vhost-blk, and lately there has been interest.
-So it would be nice to do it directly with vDPA to reuse the same code in the
-VMM for both HW and SW vDPA block devices.
-
-The main problem (addressed by this series) was due to the pinning of all
-guest memory, which thus prevented the overcommit of guest memory.
-
-There are still some TODOs to be fixed, but I would like to have your feedback
-on this RFC.
-
-Thanks,
-Stefano
-
-Note: this series is based on Linux v6.1 + couple of fixes (that I needed to
-run libblkio tests) already posted but not yet merged.
-
-Tree available here: https://gitlab.com/sgarzarella/linux/-/tree/vdpa-sim-use-va
-
-Stefano Garzarella (6):
-  vdpa: add bind_mm callback
-  vhost-vdpa: use bind_mm device callback
-  vringh: support VA with iotlb
-  vdpa_sim: make devices agnostic for work management
-  vdpa_sim: use kthread worker
-  vdpa_sim: add support for user VA
-
- drivers/vdpa/vdpa_sim/vdpa_sim.h     |   7 +-
- include/linux/vdpa.h                 |   8 +
- include/linux/vringh.h               |   5 +-
- drivers/vdpa/mlx5/core/resources.c   |   3 +-
- drivers/vdpa/mlx5/net/mlx5_vnet.c    |   2 +-
- drivers/vdpa/vdpa_sim/vdpa_sim.c     | 132 +++++++++++++-
- drivers/vdpa/vdpa_sim/vdpa_sim_blk.c |   6 +-
- drivers/vdpa/vdpa_sim/vdpa_sim_net.c |   6 +-
- drivers/vhost/vdpa.c                 |  22 +++
- drivers/vhost/vringh.c               | 250 +++++++++++++++++++++------
- 10 files changed, 370 insertions(+), 71 deletions(-)
-
+diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+index b08e07fc7d1f..a775d1a52c77 100644
+--- a/drivers/vhost/vdpa.c
++++ b/drivers/vhost/vdpa.c
+@@ -219,6 +219,17 @@ static int vhost_vdpa_reset(struct vhost_vdpa *v)
+ 	return vdpa_reset(vdpa);
+ }
+ 
++static long vhost_vdpa_bind_mm(struct vhost_vdpa *v)
++{
++	struct vdpa_device *vdpa = v->vdpa;
++	const struct vdpa_config_ops *ops = vdpa->config;
++
++	if (!vdpa->use_va || !ops->bind_mm)
++		return 0;
++
++	return ops->bind_mm(vdpa, v->vdev.mm, current);
++}
++
+ static long vhost_vdpa_get_device_id(struct vhost_vdpa *v, u8 __user *argp)
+ {
+ 	struct vdpa_device *vdpa = v->vdpa;
+@@ -276,6 +287,10 @@ static long vhost_vdpa_set_status(struct vhost_vdpa *v, u8 __user *statusp)
+ 		ret = vdpa_reset(vdpa);
+ 		if (ret)
+ 			return ret;
++
++		ret = vhost_vdpa_bind_mm(v);
++		if (ret)
++			return ret;
+ 	} else
+ 		vdpa_set_status(vdpa, status);
+ 
+@@ -679,6 +694,13 @@ static long vhost_vdpa_unlocked_ioctl(struct file *filep,
+ 		break;
+ 	default:
+ 		r = vhost_dev_ioctl(&v->vdev, cmd, argp);
++		if (!r && cmd == VHOST_SET_OWNER) {
++			r = vhost_vdpa_bind_mm(v);
++			if (r) {
++				vhost_dev_reset_owner(&v->vdev, NULL);
++				break;
++			}
++		}
+ 		if (r == -ENOIOCTLCMD)
+ 			r = vhost_vdpa_vring_ioctl(v, cmd, argp);
+ 		break;
 -- 
 2.38.1
 
