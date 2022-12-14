@@ -1,118 +1,112 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id DAAD9C4332F
-	for <virtualization@archiver.kernel.org>; Wed, 14 Dec 2022 10:58:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 13924C4332F
+	for <virtualization@archiver.kernel.org>; Wed, 14 Dec 2022 11:37:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 5A7C14038D;
-	Wed, 14 Dec 2022 10:58:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5A7C14038D
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=T6CDKCDi
+	by smtp1.osuosl.org (Postfix) with ESMTP id 90FCF81E50;
+	Wed, 14 Dec 2022 11:37:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 90FCF81E50
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=hV7wauMJ
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id jYXOps7Z3epV; Wed, 14 Dec 2022 10:58:56 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 6hTjpizoCESr; Wed, 14 Dec 2022 11:37:54 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id D220B40491;
-	Wed, 14 Dec 2022 10:58:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D220B40491
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 203A481E28;
+	Wed, 14 Dec 2022 11:37:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 203A481E28
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A37DFC0033;
-	Wed, 14 Dec 2022 10:58:55 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 9788CC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id EB267C0032;
+	Wed, 14 Dec 2022 11:37:53 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id DD01FC002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 14 Dec 2022 10:58:54 +0000 (UTC)
+ Wed, 14 Dec 2022 11:37:52 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 5C56760B0B
+ by smtp4.osuosl.org (Postfix) with ESMTP id A9CB14162C
  for <virtualization@lists.linux-foundation.org>;
- Wed, 14 Dec 2022 10:58:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5C56760B0B
-Authentication-Results: smtp3.osuosl.org;
+ Wed, 14 Dec 2022 11:37:52 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A9CB14162C
+Authentication-Results: smtp4.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=T6CDKCDi
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=hV7wauMJ
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id VQAorDGiZJDU
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id HhX8_juJnWvC
  for <virtualization@lists.linux-foundation.org>;
- Wed, 14 Dec 2022 10:58:53 +0000 (UTC)
+ Wed, 14 Dec 2022 11:37:52 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 57C2260B00
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org CEF614161C
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 57C2260B00
+ by smtp4.osuosl.org (Postfix) with ESMTPS id CEF614161C
  for <virtualization@lists.linux-foundation.org>;
- Wed, 14 Dec 2022 10:58:53 +0000 (UTC)
+ Wed, 14 Dec 2022 11:37:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1671015532;
+ s=mimecast20190719; t=1671017870;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=bsm8rypiWXXlAJ/OnIAvVOQDlYOOMt1+SaQ7hOIMf78=;
- b=T6CDKCDihF+0BOz/Fb8yhLYxRctXcgmKlxfotPR6NdPFrwq97drZnM5v/rPOEl4cyi+Sld
- ZIy8QF3Gf6MmtN08vjyCC1Lz2tScKY5/4paDrv9Vx01pLksy9/KaedqbU5WD0VcBAhNvBc
- V0gw1mmL4lIITBIilRRHPeuJFdXw+/k=
+ bh=Xbb/OYb347XWt0aChq9WW/A++3VBOQvZVK9Cr0CpKIU=;
+ b=hV7wauMJcT32u7WGMdTfBsnHQ2QrymfsK3IoF9pWdX+bPIrwOB1+QEH7g/zIcrOI3110Ni
+ 72O50rpltU0L4FGT1gFPmU1BfvHalq3yD+WRtBaG+GXyTrAn6jEYVeghLldtHIJLX1v1O6
+ txlGMuV9KuUkg0FLfUnjPKFG4HLvL8Y=
 Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
  [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-654-aKocp3rSPg6jsYS6AYKVVA-1; Wed, 14 Dec 2022 05:58:50 -0500
-X-MC-Unique: aKocp3rSPg6jsYS6AYKVVA-1
+ us-mta-372-5toDZhrIPeevAwDAJdAy_Q-1; Wed, 14 Dec 2022 06:37:49 -0500
+X-MC-Unique: 5toDZhrIPeevAwDAJdAy_Q-1
 Received: by mail-wm1-f71.google.com with SMTP id
- o5-20020a05600c510500b003cfca1a327fso6251110wms.8
+ b47-20020a05600c4aaf00b003d031aeb1b6so7097904wmp.9
  for <virtualization@lists.linux-foundation.org>;
- Wed, 14 Dec 2022 02:58:50 -0800 (PST)
+ Wed, 14 Dec 2022 03:37:49 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=content-transfer-encoding:mime-version:user-agent:references
- :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
- :from:to:cc:subject:date:message-id:reply-to;
- bh=bsm8rypiWXXlAJ/OnIAvVOQDlYOOMt1+SaQ7hOIMf78=;
- b=RohWkVJAxgednvtfbiktjhx5C3J4XnBW8FPTbkaYOGUiFSmZgbEkbK71pFWCYJ7xzl
- T/ooVKyIFuASDvL5FIJvKW4D8oiTM3DerCHdinATjTBh3sZDmSV/kiPaVPsYBPV0QPIW
- rIb5RSULojuQO9T+fcKpO9Dsp4g4n2zwltHS5nLmi0blZaX52KH2XGoVLWSa/qyGDXLr
- D6hppbiCbCiQ1XBx9tLcLb6UiiQtBvWIEfFIrbXSLSrxfnlfmqMcwi+mK9MC+rbut2XJ
- FSS3Tdxj4PP14JWTD8DUT+EsAR0nGArf7GLf6DYaZbcrDo8cfxwbYZ4bOm15LPqZGe52
- SVzQ==
-X-Gm-Message-State: ANoB5pn2+7RbFbvD5t0UndO+fz1qaxQAF1/xJ14SEw0opuVMJx1Jk0YE
- 2t5Oz8qkJG+rRUl0o+2jH0sce96hw5d5H/WXks3uXtynZg2Zm0z3v09texhiHHf864gpy6samff
- zkpclDXHuZWymGH0ebLC5uu98e8Crc2SlhZk+lccKVw==
-X-Received: by 2002:a05:600c:1c9e:b0:3d2:7a7:5cc6 with SMTP id
- k30-20020a05600c1c9e00b003d207a75cc6mr16127431wms.18.1671015529755; 
- Wed, 14 Dec 2022 02:58:49 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf4GhTuy3yFMob3cVWbwQSim+kT62Pp9g1pSNQfJtskVOvtO6CT9jLknO7unhHjf9Ss6p0OSBw==
-X-Received: by 2002:a05:600c:1c9e:b0:3d2:7a7:5cc6 with SMTP id
- k30-20020a05600c1c9e00b003d207a75cc6mr16127414wms.18.1671015529490; 
- Wed, 14 Dec 2022 02:58:49 -0800 (PST)
-Received: from gerbillo.redhat.com (146-241-97-87.dyn.eolo.it. [146.241.97.87])
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=Xbb/OYb347XWt0aChq9WW/A++3VBOQvZVK9Cr0CpKIU=;
+ b=tANoXAKT2tAsXChFYgm/mcqDQxIytG+3mIbkAw/BgdiJ68v3zpZ60RHptY8ziUP6bJ
+ +NcX9Qftr9YVBDtXx+19+Av3aZDMVrj1Md2exOOXEZuZ8xyg+UCei+8TYoj/QGwZNDOZ
+ SgPeFf326REkBvOcEceTg+f4qnrGYOcbQI8EsmE4sHJxCLiL+myLshoDwfImM5NsKnxO
+ BQbFb0e+ZUzSCAD5ySrfwywCpMoTXzYuBQSciWAW8bKcX0+0hhMfATzfsZBtpFjed0Ge
+ 080f+DtW22CPBiHxRMKhhtN16anZU2dbRSp6Jp+A5xhs5AVJuPx2Nnz/STausXh5OFbE
+ RoWg==
+X-Gm-Message-State: ANoB5pm1VrZBKvV/XQR8TeN5aix4+KmPe6LiGJEw6hhD+ESWEe1r/ARw
+ 065HmSia+iwzNbWVFZHLj9QeAQOFHnQFxaFA9yLSeG2xicOk4YkNGULs3BtvhCTfkXx11atMZ8h
+ /H53bCpbgMd7VTF6V3AIMiU1n5oaZRpJmlsKYnUZfsQ==
+X-Received: by 2002:a05:600c:1e8c:b0:3d2:381f:2db5 with SMTP id
+ be12-20020a05600c1e8c00b003d2381f2db5mr2852486wmb.22.1671017868267; 
+ Wed, 14 Dec 2022 03:37:48 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf7+/bU1un/JpJM4ymOe9NfhDvrRwq4OTL101Vo082S4gqBPPhwQb2YjlTNDwe3J9cq8jj9gYA==
+X-Received: by 2002:a05:600c:1e8c:b0:3d2:381f:2db5 with SMTP id
+ be12-20020a05600c1e8c00b003d2381f2db5mr2852461wmb.22.1671017868013; 
+ Wed, 14 Dec 2022 03:37:48 -0800 (PST)
+Received: from redhat.com (bzq-82-81-161-50.red.bezeqint.net. [82.81.161.50])
  by smtp.gmail.com with ESMTPSA id
- m17-20020a05600c3b1100b003c6b7f5567csm7893601wms.0.2022.12.14.02.58.48
+ g12-20020a05600c4ecc00b003cf9bf5208esm2429840wmq.19.2022.12.14.03.37.46
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 14 Dec 2022 02:58:49 -0800 (PST)
-Message-ID: <4b66f91f23a3eb91c3232bc68f45bdb799217c40.camel@redhat.com>
-Subject: Re: [PATCH net-next v7] virtio/vsock: replace virtio_vsock_pkt with
- sk_buff
-From: Paolo Abeni <pabeni@redhat.com>
-To: Bobby Eshleman <bobby.eshleman@bytedance.com>
-Date: Wed, 14 Dec 2022 11:58:47 +0100
-In-Reply-To: <20221213192843.421032-1-bobby.eshleman@bytedance.com>
-References: <20221213192843.421032-1-bobby.eshleman@bytedance.com>
-User-Agent: Evolution 3.42.4 (3.42.4-2.fc35)
+ Wed, 14 Dec 2022 03:37:47 -0800 (PST)
+Date: Wed, 14 Dec 2022 06:37:44 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Conghui <conghui.chen@intel.com>
+Subject: Re: [PATCH] MAINTAINERS: Update maintainer list for virtio i2c
+Message-ID: <20221214063352-mutt-send-email-mst@kernel.org>
+References: <20221214053631.3225164-1-conghui.chen@intel.com>
 MIME-Version: 1.0
+In-Reply-To: <20221214053631.3225164-1-conghui.chen@intel.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: Bobby Eshleman <bobbyeshleman@gmail.com>,
- Cong Wang <cong.wang@bytedance.com>, Krasnov Arseniy <oxffffaa@gmail.com>,
- Jiang Wang <jiang.wang@bytedance.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>,
- Stefan Hajnoczi <stefanha@redhat.com>, kvm@vger.kernel.org,
- Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
+Content-Disposition: inline
+Cc: asowang@redhat.com, viresh.kumar@linaro.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, wsa@kernel.org,
+ linux-i2c@vger.kernel.org, Jian Jun Chen <jian.jun.chen@intel.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -129,115 +123,45 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, 2022-12-13 at 19:28 +0000, Bobby Eshleman wrote:
-> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-> index 5703775af129..2a5994b029b2 100644
-> --- a/drivers/vhost/vsock.c
-> +++ b/drivers/vhost/vsock.c
-> @@ -51,8 +51,7 @@ struct vhost_vsock {
->  	struct hlist_node hash;
+On Wed, Dec 14, 2022 at 01:36:31PM +0800, Conghui wrote:
+> This updates the maintainer for virtio i2c drvier
+
+I got that, but what is going on here exactly?
+I generally expect a new maintainer to be active in the
+project for a while first.
+I don't see contributions or reviews for this driver or
+for that matter for any virtio or i2c drivers from Jian Jun Chen.
+It looks like you are no longer interested in maintaining
+this? In that case pls just send a patch removing yourself.
+
+Jian Jun Chen, if you are interested in reviewing
+patches please start doing so, you don't need to
+be listed as a maintainer for this to happen.
+Once you do this for a while and write some patches,
+you can become a maintainer, this is not a high bar
+to clear.
+
+> Signed-off-by: Conghui <conghui.chen@intel.com>
+> Acked-by: Jian Jun Chen <jian.jun.chen@intel.com>
+> ---
+>  MAINTAINERS | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index a8c8f6b42436..44747f4641a6 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -21920,7 +21920,7 @@ F:	include/uapi/linux/virtio_snd.h
+>  F:	sound/virtio/*
 >  
->  	struct vhost_work send_pkt_work;
-> -	spinlock_t send_pkt_list_lock;
-> -	struct list_head send_pkt_list;	/* host->guest pending packets */
-> +	struct sk_buff_head send_pkt_queue; /* host->guest pending packets */
->  
->  	atomic_t queued_replies;
->  
-> @@ -108,40 +107,33 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
->  	vhost_disable_notify(&vsock->dev, vq);
->  
->  	do {
-> -		struct virtio_vsock_pkt *pkt;
-> +		struct virtio_vsock_hdr *hdr;
-> +		size_t iov_len, payload_len;
->  		struct iov_iter iov_iter;
-> +		u32 flags_to_restore = 0;
-> +		struct sk_buff *skb;
->  		unsigned out, in;
->  		size_t nbytes;
-> -		size_t iov_len, payload_len;
->  		int head;
-> -		u32 flags_to_restore = 0;
->  
-> -		spin_lock_bh(&vsock->send_pkt_list_lock);
-> -		if (list_empty(&vsock->send_pkt_list)) {
-> -			spin_unlock_bh(&vsock->send_pkt_list_lock);
-> +		spin_lock(&vsock->send_pkt_queue.lock);
-> +		skb = __skb_dequeue(&vsock->send_pkt_queue);
-> +		spin_unlock(&vsock->send_pkt_queue.lock);
-
-Here you use a plain spin_lock(), but every other lock has the _bh()
-variant. A few lines above this functions acquires a mutex, so this is
-process context (and not BH context): I guess you should use _bh()
-here, too.
-
-[...]
-
-> diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
-> index 35d7eedb5e8e..0385df976d41 100644
-> --- a/include/linux/virtio_vsock.h
-> +++ b/include/linux/virtio_vsock.h
-> @@ -3,10 +3,116 @@
->  #define _LINUX_VIRTIO_VSOCK_H
->  
->  #include <uapi/linux/virtio_vsock.h>
-> +#include <linux/bits.h>
->  #include <linux/socket.h>
->  #include <net/sock.h>
->  #include <net/af_vsock.h>
->  
-> +#define VIRTIO_VSOCK_SKB_HEADROOM (sizeof(struct virtio_vsock_hdr))
-> +
-> +enum virtio_vsock_skb_flags {
-> +	VIRTIO_VSOCK_SKB_FLAGS_REPLY		= BIT(0),
-> +	VIRTIO_VSOCK_SKB_FLAGS_TAP_DELIVERED	= BIT(1),
-> +};
-
-It looks like the above enum is not used anymore, you can drop it.
-
-[...]
-
-> @@ -121,20 +108,18 @@ static void vsock_loopback_work(struct work_struct *work)
->  {
->  	struct vsock_loopback *vsock =
->  		container_of(work, struct vsock_loopback, pkt_work);
-> -	LIST_HEAD(pkts);
-> +	struct sk_buff_head pkts;
-> +	struct sk_buff *skb;
-> +
-> +	skb_queue_head_init(&pkts);
->  
->  	spin_lock_bh(&vsock->pkt_list_lock);
-> -	list_splice_init(&vsock->pkt_list, &pkts);
-> +	skb_queue_splice_init(&vsock->pkt_queue, &pkts);
->  	spin_unlock_bh(&vsock->pkt_list_lock);
->  
-> -	while (!list_empty(&pkts)) {
-> -		struct virtio_vsock_pkt *pkt;
-> -
-> -		pkt = list_first_entry(&pkts, struct virtio_vsock_pkt, list);
-> -		list_del_init(&pkt->list);
-> -
-> -		virtio_transport_deliver_tap_pkt(pkt);
-> -		virtio_transport_recv_pkt(&loopback_transport, pkt);
-> +	while ((skb = skb_dequeue(&pkts))) {
-
-Minor nit: since this code has complete ownership of the pkts queue,
-you can use the lockless dequeue variant here:
-
-	while ((skb = __skb_dequeue(&pkts))) {
-
-> +		virtio_transport_deliver_tap_pkt(skb);
-> +		virtio_transport_recv_pkt(&loopback_transport, skb);
->  	}
->  }
->  
-
-Other then that LGTM. @Michael: feel free to take this via your tree,
-once that the above feedback has been addressed, thanks!
-
-Paolo
+>  VIRTIO I2C DRIVER
+> -M:	Conghui Chen <conghui.chen@intel.com>
+> +M:	Jian Jun Chen <jian.jun.chen@intel.com>
+>  M:	Viresh Kumar <viresh.kumar@linaro.org>
+>  L:	linux-i2c@vger.kernel.org
+>  L:	virtualization@lists.linux-foundation.org
+> -- 
+> 2.25.1
 
 _______________________________________________
 Virtualization mailing list
