@@ -1,120 +1,112 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4DF04C4332F
-	for <virtualization@archiver.kernel.org>; Thu, 15 Dec 2022 09:17:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AC2A6C4332F
+	for <virtualization@archiver.kernel.org>; Thu, 15 Dec 2022 09:35:09 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id DABBE418C3;
-	Thu, 15 Dec 2022 09:17:52 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org DABBE418C3
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=dii1xxFM
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id C9XOsgUQ1bxT; Thu, 15 Dec 2022 09:17:51 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id BC50141841;
-	Thu, 15 Dec 2022 09:17:50 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org BC50141841
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8EBC3C0033;
-	Thu, 15 Dec 2022 09:17:50 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E4232C002D
- for <virtualization@lists.linux-foundation.org>;
- Thu, 15 Dec 2022 09:17:48 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id BF59940176
- for <virtualization@lists.linux-foundation.org>;
- Thu, 15 Dec 2022 09:17:48 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BF59940176
+	by smtp2.osuosl.org (Postfix) with ESMTP id 1C83140176;
+	Thu, 15 Dec 2022 09:35:09 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1C83140176
 Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=dii1xxFM
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ZBFdU0cS
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 4XptvNV2UhcU; Thu, 15 Dec 2022 09:35:08 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 8414940C08;
+	Thu, 15 Dec 2022 09:35:07 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8414940C08
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 61976C0033;
+	Thu, 15 Dec 2022 09:35:07 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 51FDFC002D
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 15 Dec 2022 09:35:05 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 2C36240176
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 15 Dec 2022 09:35:05 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2C36240176
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id mqUNzUEw1SYE
+ with ESMTP id 3SBzsCXD8ib7
  for <virtualization@lists.linux-foundation.org>;
- Thu, 15 Dec 2022 09:17:47 +0000 (UTC)
+ Thu, 15 Dec 2022 09:35:04 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 596444015E
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org EF0574015E
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 596444015E
+ by smtp2.osuosl.org (Postfix) with ESMTPS id EF0574015E
  for <virtualization@lists.linux-foundation.org>;
- Thu, 15 Dec 2022 09:17:47 +0000 (UTC)
+ Thu, 15 Dec 2022 09:35:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1671095866;
+ s=mimecast20190719; t=1671096902;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=kmnYYXKDnONXqet/Ba7zchBT/kf22vjnntGXJ6DXVdQ=;
- b=dii1xxFMfbqn9e2U55xY0YIBiNVaJoFnpIH0gkNEQ9ndX2UNL5tfYnsyuV2vwKH6FyP4C7
- yOPaouE6FqYFGqLjTrUxcJxgbVIblym0560rbci9pVe2LYr/58xm65issRV1cd/L2nQ9vO
- AmycSZ1i8NhcU14g71b39nR12vdmrCM=
-Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
- [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=81Hq6t0bBAAS+O4HOr41urE88Cd72754O7sYgGyx03s=;
+ b=ZBFdU0cSqAKx+WcH9lKRVumA9mSHZkBgC8fUSETzvB9j4QpBkv2L05kZUVNfuUnTesoB/K
+ FVXnFGt34/AMcoP7nJLevoFfuCiwhnYoL9Ye2d6v/8+pg3b9d8RDZPLI96vW1fu9DLf9rR
+ GA8eShjx8GtcXQKxxCkzZ2EDK4IEY3U=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-601-9Sraa-SAMHiUy593f5mPfQ-1; Thu, 15 Dec 2022 04:17:45 -0500
-X-MC-Unique: 9Sraa-SAMHiUy593f5mPfQ-1
-Received: by mail-ej1-f69.google.com with SMTP id
- hp16-20020a1709073e1000b007adf5a83df7so13065799ejc.1
+ us-mta-153-jyOID7MQNtWDBv5Z8NxOCQ-1; Thu, 15 Dec 2022 04:35:01 -0500
+X-MC-Unique: jyOID7MQNtWDBv5Z8NxOCQ-1
+Received: by mail-wm1-f72.google.com with SMTP id
+ p14-20020a05600c204e00b003cf4cce4da5so538244wmg.0
  for <virtualization@lists.linux-foundation.org>;
- Thu, 15 Dec 2022 01:17:45 -0800 (PST)
+ Thu, 15 Dec 2022 01:35:01 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=kmnYYXKDnONXqet/Ba7zchBT/kf22vjnntGXJ6DXVdQ=;
- b=ECvgK4PVL9ffTUq2NHiweST6lW/Vzy9tEOISOYssailJ+0Zk7RbVaJ/fVzfsbUPmyG
- ICFM0v1vIGjO6iUXKQTmToI+FCRE2WKCBXM+jf68qha80BLny5nOGRm2WOYMZfHCnFd1
- HOIAuUZmUDJcPRXz70WnkYhWLvBNbWYVnter7Iqkv60d6BL9AKe5gYBgM0Zlzy9eLpgX
- EaaYoobouUZV40qYrkHzq/6oTX74RfPKMixUPmPdbLX4r+2gpebO/EjfdWhKKUxotlky
- KyC5tk4bRPmDyeT30W4ko4n/wGmiV464pqvM5tuomyolfhoUJsQUCTUzvlXwQkknBtjf
- qx7Q==
-X-Gm-Message-State: ANoB5pkgEeWA8yOYZtumsJ3KlplwFu9QwE0vTMMl5gfSLjpAX37p58im
- B8vATy2S0ZB2Yi+NTgUiu92z7lBY4IdMI+L1fARr2quffZtee/jqrKoxTPBPpaeMv8SHT+hze7g
- t1BASHBTZLhOVxsmkqG9frXkbZ2hfzQ+8r8rzz8hLjQ==
-X-Received: by 2002:a17:907:2a57:b0:7c1:52a:e903 with SMTP id
- fe23-20020a1709072a5700b007c1052ae903mr27047752ejc.55.1671095864067; 
- Thu, 15 Dec 2022 01:17:44 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf68zjRqwxW0Rg/EaYapy4hNTOYeUsPj6bIx6WhPOt5SYylioueIx0Qib28ihtqUP9A4/aNQPA==
-X-Received: by 2002:a17:907:2a57:b0:7c1:52a:e903 with SMTP id
- fe23-20020a1709072a5700b007c1052ae903mr27047728ejc.55.1671095863737; 
- Thu, 15 Dec 2022 01:17:43 -0800 (PST)
-Received: from sgarzare-redhat (host-87-11-6-51.retail.telecomitalia.it.
- [87.11.6.51]) by smtp.gmail.com with ESMTPSA id
- 1-20020a170906210100b007c1675d2626sm5440885ejt.96.2022.12.15.01.17.42
+ bh=81Hq6t0bBAAS+O4HOr41urE88Cd72754O7sYgGyx03s=;
+ b=jUY+pm3d4ShUu9DHyso6EhZtkpg/kAuG/Mqpi1wRA8P1f00WS5r8gPa29a6gF3aw6j
+ MCPJDVE2mpQzLz/1v6qFwBB254nyxMizY/edVq9gixzBZLMqWduT5jGIhuLeheBhW1w9
+ LlyXYtB0Sm0ijNoxy8eBmZaBmu29cqeuVZZyYN23pFSAwT8eXPC/XKT4FYG8E4M9e/Uj
+ nhQu/wgFPSQZGxFMUX0EzVrS76wuyZ3dx2mv1LVqAHe7+1eOmKKvzC8VPmg36+fmjkoe
+ Nt3eF4MSuVek34WWSs/t5HOvPjCKMfOChxNKB5g4uciuaRSvdBE5Oo6QXklOvOKRXMqx
+ Znxw==
+X-Gm-Message-State: ANoB5plXKlWft/Q8lfaEOgL44i8BSxBMoNtrlPcOWGMdcyf+2iyf3jkN
+ UcIZxKpWS8zXO8rQFva4T3o4n38pmlYg5oYYaKEWoe5mDck7OaiS4xFNmMJp5vNpC3AgZRFt2hv
+ fa2sWmOXpTwIHlyqAgOAmzyvaQp4h7CfuqbiEz8hM6w==
+X-Received: by 2002:a05:600c:4f48:b0:3cf:76c3:b2e2 with SMTP id
+ m8-20020a05600c4f4800b003cf76c3b2e2mr21438987wmq.35.1671096899531; 
+ Thu, 15 Dec 2022 01:34:59 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf4CHoxsEL13wD3BHfSaLfTzzWcogwYUTAak9uDbxIO6dJ63q+Xxv2aZVTQVgg131D6MsPYvDg==
+X-Received: by 2002:a05:600c:4f48:b0:3cf:76c3:b2e2 with SMTP id
+ m8-20020a05600c4f4800b003cf76c3b2e2mr21438976wmq.35.1671096899307; 
+ Thu, 15 Dec 2022 01:34:59 -0800 (PST)
+Received: from redhat.com ([2a02:14f:179:247f:e426:6c6e:c44d:93b])
+ by smtp.gmail.com with ESMTPSA id
+ n12-20020a05600c3b8c00b003cf78aafdd7sm6804213wms.39.2022.12.15.01.34.57
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 15 Dec 2022 01:17:43 -0800 (PST)
-Date: Thu, 15 Dec 2022 10:17:39 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next v8] virtio/vsock: replace virtio_vsock_pkt with
- sk_buff
-Message-ID: <20221215091739.iuukh5xkoycei7ro@sgarzare-redhat>
-References: <20221215043645.3545127-1-bobby.eshleman@bytedance.com>
- <20221215084757.6bpkciaovrnsxoiu@sgarzare-redhat>
- <20221215040320-mutt-send-email-mst@kernel.org>
+ Thu, 15 Dec 2022 01:34:58 -0800 (PST)
+Date: Thu, 15 Dec 2022 04:34:54 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net V2] virtio-net: correctly enable callback during
+ start_xmit
+Message-ID: <20221215042918-mutt-send-email-mst@kernel.org>
+References: <20221215032719.72294-1-jasowang@redhat.com>
+ <20221215034740-mutt-send-email-mst@kernel.org>
+ <CACGkMEsLeCRDqyuyGzWw+kjYrTVDjUjOw6+xHESPT2D1p03=sQ@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20221215040320-mutt-send-email-mst@kernel.org>
+In-Reply-To: <CACGkMEsLeCRDqyuyGzWw+kjYrTVDjUjOw6+xHESPT2D1p03=sQ@mail.gmail.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Bobby Eshleman <bobbyeshleman@gmail.com>,
- Cong Wang <cong.wang@bytedance.com>, Stefan Hajnoczi <stefanha@redhat.com>,
- Jiang Wang <jiang.wang@bytedance.com>, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- Eric Dumazet <edumazet@google.com>, Krasnov Arseniy <oxffffaa@gmail.com>,
- kvm@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>,
- Bobby Eshleman <bobby.eshleman@bytedance.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, edumazet@google.com,
+ kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -126,164 +118,121 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Dec 15, 2022 at 04:04:53AM -0500, Michael S. Tsirkin wrote:
->On Thu, Dec 15, 2022 at 09:47:57AM +0100, Stefano Garzarella wrote:
->> On Thu, Dec 15, 2022 at 04:36:44AM +0000, Bobby Eshleman wrote:
->> > This commit changes virtio/vsock to use sk_buff instead of
->> > virtio_vsock_pkt. Beyond better conforming to other net code, using
->> > sk_buff allows vsock to use sk_buff-dependent features in the future
->> > (such as sockmap) and improves throughput.
->> >
->> > This patch introduces the following performance changes:
->> >
->> > Tool/Config: uperf w/ 64 threads, SOCK_STREAM
->> > Test Runs: 5, mean of results
->> > Before: commit 95ec6bce2a0b ("Merge branch 'net-ipa-more-endpoints'")
->> >
->> > Test: 64KB, g2h
->> > Before: 21.63 Gb/s
->> > After: 25.59 Gb/s (+18%)
->> >
->> > Test: 16B, g2h
->> > Before: 11.86 Mb/s
->> > After: 17.41 Mb/s (+46%)
->> >
->> > Test: 64KB, h2g
->> > Before: 2.15 Gb/s
->> > After: 3.6 Gb/s (+67%)
->> >
->> > Test: 16B, h2g
->> > Before: 14.38 Mb/s
->> > After: 18.43 Mb/s (+28%)
->> >
->> > Signed-off-by: Bobby Eshleman <bobby.eshleman@bytedance.com>
->> > ---
->> >
->> > Testing: passed vsock_test h2g and g2h
->> > Note2: net-next is closed, but sending out now in case more comments
->> > roll in, as discussed here:
->> > https://lore.kernel.org/all/Y34SoH1nFTXXLWbK@bullseye/
->> >
->> > Changes in v8:
->> > - vhost/vsock: remove unused enum
->> > - vhost/vsock: use spin_lock_bh() instead of spin_lock()
->> > - vsock/loopback: use __skb_dequeue instead of skb_dequeue
->> >
->> > Changes in v7:
->> > - use skb_queue_empty() instead of skb_queue_empty_lockless()
->> >
->> > Changes in v6:
->> > - use skb->cb instead of skb->_skb_refdst
->> > - use lock-free __skb_queue_purge for rx_queue when rx_lock held
->> >
->> > Changes in v5:
->> > - last_skb instead of skb: last_hdr->len = cpu_to_le32(last_skb->len)
->> >
->> > Changes in v4:
->> > - vdso/bits.h -> linux/bits.h
->> > - add virtio_vsock_alloc_skb() helper
->> > - virtio/vsock: rename buf_len -> total_len
->> > - update last_hdr->len
->> > - fix build_skb() for vsockmon (tested)
->> > - add queue helpers
->> > - use spin_{unlock/lock}_bh() instead of spin_lock()/spin_unlock()
->> > - note: I only ran a few g2h tests to check that this change
->> >  had no perf impact. The above data is still from patch
->> >  v3.
->> >
->> > Changes in v3:
->> > - fix seqpacket bug
->> > - use zero in vhost_add_used(..., 0) device doesn't write to buffer
->> > - use xmas tree style declarations
->> > - vsock_hdr() -> virtio_vsock_hdr() and other include file style fixes
->> > - no skb merging
->> > - save space by not using vsock_metadata
->> > - use _skb_refdst instead of skb buffer space for flags
->> > - use skb_pull() to keep track of read bytes instead of using an an
->> >  extra variable 'off' in the skb buffer space
->> > - remove unnecessary sk_allocation assignment
->> > - do not zero hdr needlessly
->> > - introduce virtio_transport_skb_len() because skb->len changes now
->> > - use spin_lock() directly on queue lock instead of sk_buff_head helpers
->> >  which use spin_lock_irqsave() (e.g., skb_dequeue)
->> > - do not reduce buffer size to be page size divisible
->> > - Note: the biggest performance change came from loosening the spinlock
->> >  variation and not reducing the buffer size.
->> >
->> > Changes in v2:
->> > - Use alloc_skb() directly instead of sock_alloc_send_pskb() to minimize
->> >  uAPI changes.
->> > - Do not marshal errors to -ENOMEM for non-virtio implementations.
->> > - No longer a part of the original series
->> > - Some code cleanup and refactoring
->> > - Include performance stats
->> >
->> > drivers/vhost/vsock.c                   | 213 +++++-------
->> > include/linux/virtio_vsock.h            | 126 +++++--
->> > net/vmw_vsock/virtio_transport.c        | 149 +++------
->> > net/vmw_vsock/virtio_transport_common.c | 422 +++++++++++++-----------
->> > net/vmw_vsock/vsock_loopback.c          |  51 +--
->> > 5 files changed, 495 insertions(+), 466 deletions(-)
->> >
->> > diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
->> > index 5703775af129..ee0a00432cb1 100644
->> > --- a/drivers/vhost/vsock.c
->> > +++ b/drivers/vhost/vsock.c
->> > @@ -51,8 +51,7 @@ struct vhost_vsock {
->> > 	struct hlist_node hash;
->> >
->> > 	struct vhost_work send_pkt_work;
->> > -	spinlock_t send_pkt_list_lock;
->> > -	struct list_head send_pkt_list;	/* host->guest pending packets */
->> > +	struct sk_buff_head send_pkt_queue; /* host->guest pending packets */
->> >
->> > 	atomic_t queued_replies;
->> >
->> > @@ -108,40 +107,33 @@ vhost_transport_do_send_pkt(struct vhost_vsock
->> > *vsock,
->> > 	vhost_disable_notify(&vsock->dev, vq);
->> >
->> > 	do {
->> > -		struct virtio_vsock_pkt *pkt;
->> > +		struct virtio_vsock_hdr *hdr;
->> > +		size_t iov_len, payload_len;
->> > 		struct iov_iter iov_iter;
->> > +		u32 flags_to_restore = 0;
->> > +		struct sk_buff *skb;
->> > 		unsigned out, in;
->> > 		size_t nbytes;
->> > -		size_t iov_len, payload_len;
->> > 		int head;
->> > -		u32 flags_to_restore = 0;
->> >
->> > -		spin_lock_bh(&vsock->send_pkt_list_lock);
->> > -		if (list_empty(&vsock->send_pkt_list)) {
->> > -			spin_unlock_bh(&vsock->send_pkt_list_lock);
->> > +		spin_lock_bh(&vsock->send_pkt_queue.lock);
->> > +		skb = __skb_dequeue(&vsock->send_pkt_queue);
->> > +		spin_unlock_bh(&vsock->send_pkt_queue.lock);
->>
->> Sorry for coming late, but I just commented in Paolo's reply.
->> Here I think we can directly use the new virtio_vsock_skb_dequeue().
->
->Yea, pretty late.
->And using that will prevent me from merging this since it's not in my tree yet.
->We can do a cleanup patch on top.
+On Thu, Dec 15, 2022 at 05:15:43PM +0800, Jason Wang wrote:
+> On Thu, Dec 15, 2022 at 5:02 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> >
+> > On Thu, Dec 15, 2022 at 11:27:19AM +0800, Jason Wang wrote:
+> > > Commit a7766ef18b33("virtio_net: disable cb aggressively") enables
+> > > virtqueue callback via the following statement:
+> > >
+> > >         do {
+> > >            ......
+> > >       } while (use_napi && kick &&
+> > >                unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
+> > >
+> > > When NAPI is used and kick is false, the callback won't be enabled
+> > > here. And when the virtqueue is about to be full, the tx will be
+> > > disabled, but we still don't enable tx interrupt which will cause a TX
+> > > hang. This could be observed when using pktgen with burst enabled.
+> > >
+> > > Fixing this by trying to enable tx interrupt after we disable TX when
+> > > we're not using napi or kick is false.
+> > >
+> > > Fixes: a7766ef18b33 ("virtio_net: disable cb aggressively")
+> > > Signed-off-by: Jason Wang <jasowang@redhat.com>
+> > > ---
+> > > The patch is needed for -stable.
+> > > Changes since V1:
+> > > - enable tx interrupt after we disable tx
+> > > ---
+> > >  drivers/net/virtio_net.c | 2 +-
+> > >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > >
+> > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > > index 86e52454b5b5..dcf3a536d78a 100644
+> > > --- a/drivers/net/virtio_net.c
+> > > +++ b/drivers/net/virtio_net.c
+> > > @@ -1873,7 +1873,7 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+> > >        */
+> > >       if (sq->vq->num_free < 2+MAX_SKB_FRAGS) {
+> > >               netif_stop_subqueue(dev, qnum);
+> > > -             if (!use_napi &&
+> > > +             if ((!use_napi || !kick) &&
+> > >                   unlikely(!virtqueue_enable_cb_delayed(sq->vq))) {
+> > >                       /* More just got used, free them then recheck. */
+> > >                       free_old_xmit_skbs(sq, false);
+> >
+> > This will work but the following lines are:
+> >
+> >                        if (sq->vq->num_free >= 2+MAX_SKB_FRAGS) {
+> >                                 netif_start_subqueue(dev, qnum);
+> >                                 virtqueue_disable_cb(sq->vq);
+> >                         }
+> >
+> >
+> > and I thought we are supposed to keep callbacks enabled with napi?
+> 
+> This seems to be the opposite logic of commit a7766ef18b33 that
+> disables callbacks for NAPI.
+> 
+> It said:
+> 
+>     There are currently two cases where we poll TX vq not in response to a
+>     callback: start xmit and rx napi.  We currently do this with callbacks
+>     enabled which can cause extra interrupts from the card.  Used not to be
+>     a big issue as we run with interrupts disabled but that is no longer the
+>     case, and in some cases the rate of spurious interrupts is so high
+>     linux detects this and actually kills the interrupt.
+> 
+> My undersatnding is that it tries to disable callbacks on TX.
 
-Yep, sure!
-Functionally nothing changes, so it's fine with a patch on top.
+I think we want to disable callbacks while polling, yes. here we are not
+polling, and I think we want a callback because otherwise nothing will
+orphan skbs and a socket can be blocked, not transmitting anything - a
+deadlock.
 
-So, for this patch:
+> > One of the ideas of napi is to free on napi callback, not here
+> > immediately.
+> >
+> > I think it is easier to just do a separate branch here. Along the
+> > lines of:
+> >
+> >                 if (use_napi) {
+> >                         if (unlikely(!virtqueue_enable_cb_delayed(sq->vq)))
+> >                                 virtqueue_napi_schedule(napi, vq);
+> 
+> This seems to be a new logic and it causes some delay in processing TX
+> (unnecessary NAPI).
 
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+That's good, we overloaded the queue so we are already going
+too fast, deferring tx so queue has chance to drain
+will allow better batching in the qdisc.
 
-Thanks,
-Stefano
+> >                 } else {
+> >                         ... old code ...
+> >                 }
+> >
+> > also reduces chances of regressions on !napi (which is not well tested)
+> > and keeps callbacks off while we free skbs.
+> 
+> I think my patch doesn't change the logic of !napi? (It checks !napi || kick).
+> 
+> Thanks
+
+I agree it doesn't seem to as written.
+
+> >
+> > No?
+> >
+> >
+> > > --
+> > > 2.25.1
+> >
 
 _______________________________________________
 Virtualization mailing list
