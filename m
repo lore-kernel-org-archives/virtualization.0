@@ -4,100 +4,100 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 72849C4332F
-	for <virtualization@archiver.kernel.org>; Fri, 16 Dec 2022 05:35:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 93899C4332F
+	for <virtualization@archiver.kernel.org>; Fri, 16 Dec 2022 05:43:18 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id D7AA740289;
-	Fri, 16 Dec 2022 05:35:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D7AA740289
+	by smtp2.osuosl.org (Postfix) with ESMTP id 181F4404A1;
+	Fri, 16 Dec 2022 05:43:18 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 181F4404A1
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Jrj9as+m
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=XGIbqKrS
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id pojsPnpBC9qP; Fri, 16 Dec 2022 05:35:53 +0000 (UTC)
+	with ESMTP id 7W8sizIz1xAa; Fri, 16 Dec 2022 05:43:17 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 3691C40327;
-	Fri, 16 Dec 2022 05:35:53 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3691C40327
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 57A724044D;
+	Fri, 16 Dec 2022 05:43:16 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 57A724044D
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0BE01C0033;
-	Fri, 16 Dec 2022 05:35:53 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 87D58C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 358A7C0033;
+	Fri, 16 Dec 2022 05:43:16 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BFE25C002D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Dec 2022 05:35:51 +0000 (UTC)
+ Fri, 16 Dec 2022 05:43:15 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 68B0482036
+ by smtp4.osuosl.org (Postfix) with ESMTP id 85AC041B3D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Dec 2022 05:35:51 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 68B0482036
-Authentication-Results: smtp1.osuosl.org;
+ Fri, 16 Dec 2022 05:43:15 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 85AC041B3D
+Authentication-Results: smtp4.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=Jrj9as+m
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=XGIbqKrS
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id FFAdFBZKiQgE
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id T5VcCrDgxNa7
  for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Dec 2022 05:35:49 +0000 (UTC)
+ Fri, 16 Dec 2022 05:43:14 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5671782019
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 871B24190B
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 5671782019
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 871B24190B
  for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Dec 2022 05:35:49 +0000 (UTC)
+ Fri, 16 Dec 2022 05:43:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1671168948;
+ s=mimecast20190719; t=1671169393;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=15kneUv6xIwsc7YmiaK1y3hzzsO9x/bfH79/junA/Zk=;
- b=Jrj9as+m3IfFXqIQJaYPUe884mspn+Z0RGHRcZVTXRW3bwZ8wttKP8+Ei3LjLwYCQZ2BMi
- CLvWtSUnjLSlHls4QQXNRIyDPfxffRJWJNJUJ9Gelft9kLbwc/xeZcmoaEnHVgNiwvlFeq
- xjKGlM5EQCLNGNaB3KHuDqxpae2ZPvY=
-Received: from mail-oa1-f69.google.com (mail-oa1-f69.google.com
- [209.85.160.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=lR7WnqvDc+rTDFoKYRWuh6MMYqCYo5ZyrUKVWQtJrjg=;
+ b=XGIbqKrS7Z/VZG7W+k/Swl9AVnVx4QkyAFIH2y0cfOqOwXQOCq7a/Bg/42klLOmjfyZ5PZ
+ isFFhxMmoRldT4WMT20ZjvJvjNmq2qHH1oLxDNtxiDLgBdWElgNhvIgUPZbQN18gRcOJWy
+ /PQSTkC5/V41aydmeXQP88MkU8Olbi8=
+Received: from mail-ot1-f70.google.com (mail-ot1-f70.google.com
+ [209.85.210.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-153-qnIMpTLGM_a0K4H-issfjw-1; Fri, 16 Dec 2022 00:35:37 -0500
-X-MC-Unique: qnIMpTLGM_a0K4H-issfjw-1
-Received: by mail-oa1-f69.google.com with SMTP id
- 586e51a60fabf-1441866fa6cso804417fac.22
+ us-mta-586-6vRbPsfiMsySSR4II0O5VA-1; Fri, 16 Dec 2022 00:43:12 -0500
+X-MC-Unique: 6vRbPsfiMsySSR4II0O5VA-1
+Received: by mail-ot1-f70.google.com with SMTP id
+ m12-20020a9d6acc000000b006707706d25dso786901otq.22
  for <virtualization@lists.linux-foundation.org>;
- Thu, 15 Dec 2022 21:35:37 -0800 (PST)
+ Thu, 15 Dec 2022 21:43:11 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=cc:to:subject:message-id:date:from:in-reply-to:references
  :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
  :reply-to;
- bh=15kneUv6xIwsc7YmiaK1y3hzzsO9x/bfH79/junA/Zk=;
- b=GoB8I/yOXpWqpNpjpib3BItDC5UIRq9nP14GLdJlB4/wwTpMpVXhGnVxClGWLTmdc3
- /BpbSS7YDO2IevwvhMag3LAaJoEWTuRj9otKDzwZ317bgqpYQOb8fvpb7W0kFwjqrUGV
- dmPPf55F/FBP9pAvemeAo2jUVuKKPo4oErLDXrwwX+Hu5URVg+0dSflrGTEXT/1t4hPj
- xQKxsqgahqX5bXYM9QwzdB452zhzLuE93FHSP6RnY1SBGCUlYdSI3NLTW8PdiIpQDRBM
- jF2i1SDK+hQQM8nD5NxSuOhegcXeV4sP44u9tAuI6zogU+eBKZTRCrlulZo4npuMb4zm
- x8oQ==
-X-Gm-Message-State: ANoB5pmoPkecdWUrx/v0+OGFO6tQ0hTN/uiDd+y2SQAXEgaR0Q6aeLrH
- WL67lfQnFSjUxdL6HQId9PfTd5jfKZ4S/DOnMokDyNlplNxqff9iO2eQT0ecPLdL1W0TDBok0yp
- DrgmPtCzT0YSeQb/fl8oHaBCfWHUyV05rc+vapjaFH6PR6dUQIkR3tH75iQ==
-X-Received: by 2002:a05:6870:9e8f:b0:144:a97b:1ae2 with SMTP id
- pu15-20020a0568709e8f00b00144a97b1ae2mr333519oab.35.1671168936519; 
- Thu, 15 Dec 2022 21:35:36 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf6vAcuuDYaqibZH4I1Z22WkAii2wf8+1cShP52aqKRcbNLv1gQJ2SoMjC6INmiqsmfRZ4BBxnMALM837rgIiWY=
-X-Received: by 2002:a05:6870:9e8f:b0:144:a97b:1ae2 with SMTP id
- pu15-20020a0568709e8f00b00144a97b1ae2mr333515oab.35.1671168936300; Thu, 15
- Dec 2022 21:35:36 -0800 (PST)
+ bh=lR7WnqvDc+rTDFoKYRWuh6MMYqCYo5ZyrUKVWQtJrjg=;
+ b=qaxWjJH//eiqbMcsJn4t6chICR7pW/ju6YyjaatK0i3LGGYDiQ99DfXnGKqiEyblhS
+ 0sqFEooSzl/d0YTYVpcIT2SvLy7f3M7lxSmayHISC6w8daACs4ywGgud1xv5JrPCmJUI
+ MsjgaS7nMDtjiG6rHHGKDRRxIRMFB+Re5glUn7FQxDAXAKrzSlPS6uk2KExbki2lG8FL
+ NDv2Lz0CGaX4bmiMB9lBlclcXCr+wQ3ZjWgvJRcNHIO6/IEFn5dK47ZYlLNue5/tDQ3V
+ AIHh4tftjEx2xrk1m6JQly5md2lCXJFvCBDEXUmbziP37m8QeOL7lYAYI1e3towaIkJo
+ AZBA==
+X-Gm-Message-State: ANoB5pkpI1//Si/yfxLajH23GBPlNe6zU5RAXeLAFR5mpMotxYeMDfUB
+ awSJd5APBmBeZK6yfYpdH9Cl/FZjol0sVmRtcY0Ux35KCZYlcz40wyYfcaK0PVb4eCrN8AB4NUq
+ nMhYxlQROFP9ivU54e57f0Af7Vx2hFBvb4/reABAfrPIrAKX7MOoiaNDfSw==
+X-Received: by 2002:a4a:94a9:0:b0:480:8f4a:7062 with SMTP id
+ k38-20020a4a94a9000000b004808f4a7062mr31914716ooi.57.1671169391294; 
+ Thu, 15 Dec 2022 21:43:11 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf6ZMswovlmpw7FdDe9VO/33eW2UDQTUjORPwH4EGDIAX/TuiwI9YZfjjWcizpDDlCiCCEf+P97Fy2zif8OL2So=
+X-Received: by 2002:a4a:94a9:0:b0:480:8f4a:7062 with SMTP id
+ k38-20020a4a94a9000000b004808f4a7062mr31914710ooi.57.1671169391057; Thu, 15
+ Dec 2022 21:43:11 -0800 (PST)
 MIME-Version: 1.0
 References: <20221205084127.535-1-xieyongji@bytedance.com>
  <20221205090243.791-1-xieyongji@bytedance.com>
- <20221205090243.791-2-xieyongji@bytedance.com>
-In-Reply-To: <20221205090243.791-2-xieyongji@bytedance.com>
+ <20221205090243.791-3-xieyongji@bytedance.com>
+In-Reply-To: <20221205090243.791-3-xieyongji@bytedance.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 16 Dec 2022 13:35:25 +0800
-Message-ID: <CACGkMEsX1RjU_ncNTY-KbeUY8bxm7X62V_SNO=hMehZRuGQ+CQ@mail.gmail.com>
-Subject: Re: [PATCH v2 08/11] vduse: Add sysfs interface for irq callback
- affinity
+Date: Fri, 16 Dec 2022 13:43:00 +0800
+Message-ID: <CACGkMEuAxEEvShwN8Q_k-FKZODesORn4zJG7UFHD-KS8sQXYjg@mail.gmail.com>
+Subject: Re: [PATCH v2 09/11] vduse: Add enable_irq_wq sysfs interface for
+ virtqueues
 To: Xie Yongji <xieyongji@bytedance.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
@@ -121,249 +121,124 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 On Mon, Dec 5, 2022 at 5:03 PM Xie Yongji <xieyongji@bytedance.com> wrote:
 >
-> Add sysfs interface for each vduse virtqueue to
-> show the affinity and effective affinity for irq
-> callback.
->
-> And we can also use this interface to change the
-> effective affinity which must be a subset of the
-> irq callback affinity mask for the virtqueue. This
-> might be useful for performance tuning when the irq
-> callback affinity mask contains more than one CPU.
->
-> Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-> ---
->  drivers/vdpa/vdpa_user/vduse_dev.c | 148 ++++++++++++++++++++++++++---
->  1 file changed, 137 insertions(+), 11 deletions(-)
->
-> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-> index 6507a78abc9d..c65f84100e30 100644
-> --- a/drivers/vdpa/vdpa_user/vduse_dev.c
-> +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> @@ -61,6 +61,7 @@ struct vduse_virtqueue {
->         int irq_effective_cpu;
->         struct cpumask irq_affinity;
->         spinlock_t irq_affinity_lock;
-> +       struct kobject kobj;
->  };
->
->  struct vduse_dev;
-> @@ -1419,6 +1420,120 @@ static const struct file_operations vduse_dev_fops = {
->         .llseek         = noop_llseek,
->  };
->
-> +static ssize_t irq_cb_affinity_show(struct vduse_virtqueue *vq, char *buf)
-> +{
-> +       return sprintf(buf, "%*pb\n", cpumask_pr_args(&vq->irq_affinity));
-> +}
-> +
-> +static ssize_t irq_cb_effective_affinity_show(struct vduse_virtqueue *vq,
-> +                                             char *buf)
-> +{
-> +       struct cpumask all_mask = CPU_MASK_ALL;
-> +       const struct cpumask *mask = &all_mask;
-> +
-> +       if (vq->irq_effective_cpu != -1)
-> +               mask = get_cpu_mask(vq->irq_effective_cpu);
+> Add enable_irq_wq sysfs interface to control whether
+> use workqueue to inject irq or not. The vhost-vdpa case
+> can benefit from it.
 
-Shouldn't this be vq->irq_affinity?
+Do we have a benchmark result for this?
 
-> +
-> +       return sprintf(buf, "%*pb\n", cpumask_pr_args(mask));
-> +}
-> +
-> +static ssize_t irq_cb_effective_affinity_store(struct vduse_virtqueue *vq,
-> +                                              const char *buf, size_t count)
-> +{
-> +       cpumask_var_t new_value;
-> +       int ret;
-> +
-> +       if (!zalloc_cpumask_var(&new_value, GFP_KERNEL))
-> +               return -ENOMEM;
-> +
-> +       ret = cpumask_parse(buf, new_value);
-> +       if (ret)
-> +               goto free_mask;
-> +
-> +       ret = -EINVAL;
-> +       if (!cpumask_intersects(new_value, &vq->irq_affinity))
-> +               goto free_mask;
-> +
-> +       spin_lock(&vq->irq_affinity_lock);
-> +
-> +       if (vq->irq_effective_cpu != -1)
-> +               per_cpu(vduse_allocated_irq, vq->irq_effective_cpu) -= 1;
-> +
-> +       vq->irq_effective_cpu = cpumask_first(new_value);
-
-Does this mean except for the first cpu, the rest of the mask is unused?
+Or I wonder if we can extend set_vq_cb() by associating an eventfd
+then VDUSE can signal that eventfd directly?
 
 Thanks
 
-> +       per_cpu(vduse_allocated_irq, vq->irq_effective_cpu) += 1;
+>
+> Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
+> ---
+>  drivers/vdpa/vdpa_user/vduse_dev.c | 50 +++++++++++++++++++++++++++++-
+>  1 file changed, 49 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
+> index c65f84100e30..ed06c7afd484 100644
+> --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> @@ -62,6 +62,7 @@ struct vduse_virtqueue {
+>         struct cpumask irq_affinity;
+>         spinlock_t irq_affinity_lock;
+>         struct kobject kobj;
+> +       bool enable_irq_wq;
+>  };
+>
+>  struct vduse_dev;
+> @@ -1013,6 +1014,26 @@ static int vduse_dev_queue_irq_work(struct vduse_dev *dev,
+>         return ret;
+>  }
+>
+> +static int vduse_dev_inject_vq_irq(struct vduse_dev *dev,
+> +                                  struct vduse_virtqueue *vq)
+> +{
+> +       int ret = -EINVAL;
 > +
-> +       spin_unlock(&vq->irq_affinity_lock);
-> +       ret = count;
+> +       down_read(&dev->rwsem);
+> +       if (!(dev->status & VIRTIO_CONFIG_S_DRIVER_OK))
+> +               goto unlock;
 > +
-> +free_mask:
-> +       free_cpumask_var(new_value);
+> +       ret = 0;
+> +       spin_lock_irq(&vq->irq_lock);
+> +       if (vq->ready && vq->cb.callback)
+> +               vq->cb.callback(vq->cb.private);
+> +       spin_unlock_irq(&vq->irq_lock);
+> +unlock:
+> +       up_read(&dev->rwsem);
+> +
 > +       return ret;
 > +}
 > +
-> +struct vq_sysfs_entry {
-> +       struct attribute attr;
-> +       ssize_t (*show)(struct vduse_virtqueue *vq, char *buf);
-> +       ssize_t (*store)(struct vduse_virtqueue *vq, const char *buf,
-> +                        size_t count);
-> +};
-> +
-> +static struct vq_sysfs_entry irq_cb_affinity_attr = __ATTR_RO(irq_cb_affinity);
-> +static struct vq_sysfs_entry irq_cb_effective_affinity_attr =
-> +                                       __ATTR_RW(irq_cb_effective_affinity);
-> +
-> +static struct attribute *vq_attrs[] = {
-> +       &irq_cb_affinity_attr.attr,
-> +       &irq_cb_effective_affinity_attr.attr,
-> +       NULL,
-> +};
-> +ATTRIBUTE_GROUPS(vq);
-> +
-> +static ssize_t vq_attr_show(struct kobject *kobj, struct attribute *attr,
-> +                           char *buf)
-> +{
-> +       struct vduse_virtqueue *vq = container_of(kobj,
-> +                                       struct vduse_virtqueue, kobj);
-> +       struct vq_sysfs_entry *entry = container_of(attr,
-> +                                       struct vq_sysfs_entry, attr);
-> +
-> +       if (!entry->show)
-> +               return -EIO;
-> +
-> +       return entry->show(vq, buf);
-> +}
-> +
-> +static ssize_t vq_attr_store(struct kobject *kobj, struct attribute *attr,
-> +                            const char *buf, size_t count)
-> +{
-> +       struct vduse_virtqueue *vq = container_of(kobj,
-> +                                       struct vduse_virtqueue, kobj);
-> +       struct vq_sysfs_entry *entry = container_of(attr,
-> +                                       struct vq_sysfs_entry, attr);
-> +
-> +       if (!entry->store)
-> +               return -EIO;
-> +
-> +       return entry->store(vq, buf, count);
-> +}
-> +
-> +static const struct sysfs_ops vq_sysfs_ops = {
-> +       .show = vq_attr_show,
-> +       .store = vq_attr_store,
-> +};
-> +
-> +static void vq_release(struct kobject *kobj)
-> +{
-> +       struct vduse_virtqueue *vq = container_of(kobj,
-> +                                       struct vduse_virtqueue, kobj);
-> +       kfree(vq);
-> +}
-> +
-> +static struct kobj_type vq_type = {
-> +       .release        = vq_release,
-> +       .sysfs_ops      = &vq_sysfs_ops,
-> +       .default_groups = vq_groups,
-> +};
-> +
->  static void vduse_dev_deinit_vqs(struct vduse_dev *dev)
+>  static int vduse_dev_dereg_umem(struct vduse_dev *dev,
+>                                 u64 iova, u64 size)
 >  {
->         int i;
-> @@ -1427,13 +1542,13 @@ static void vduse_dev_deinit_vqs(struct vduse_dev *dev)
->                 return;
+> @@ -1278,8 +1299,12 @@ static long vduse_dev_ioctl(struct file *file, unsigned int cmd,
+>                         break;
 >
->         for (i = 0; i < dev->vq_num; i++)
-> -               kfree(dev->vqs[i]);
-> +               kobject_put(&dev->vqs[i]->kobj);
->         kfree(dev->vqs);
->  }
+>                 index = array_index_nospec(index, dev->vq_num);
+> -               ret = vduse_dev_queue_irq_work(dev, &dev->vqs[index]->inject,
+> +               if (dev->vqs[index]->enable_irq_wq)
+> +                       ret = vduse_dev_queue_irq_work(dev,
+> +                                       &dev->vqs[index]->inject,
+>                                         dev->vqs[index]->irq_effective_cpu);
+> +               else
+> +                       ret = vduse_dev_inject_vq_irq(dev, dev->vqs[index]);
+>                 break;
+>         }
+>         case VDUSE_IOTLB_REG_UMEM: {
+> @@ -1420,6 +1445,26 @@ static const struct file_operations vduse_dev_fops = {
+>         .llseek         = noop_llseek,
+>  };
 >
->  static int vduse_dev_init_vqs(struct vduse_dev *dev, u32 vq_align, u32 vq_num)
+> +static ssize_t enable_irq_wq_show(struct vduse_virtqueue *vq, char *buf)
+> +{
+> +       return sprintf(buf, "%d\n", vq->enable_irq_wq);
+> +}
+> +
+> +static ssize_t enable_irq_wq_store(struct vduse_virtqueue *vq,
+> +                                  const char *buf, size_t count)
+> +{
+> +       bool enabled;
+> +       int ret;
+> +
+> +       ret = kstrtobool(buf, &enabled);
+> +       if (ret)
+> +               return ret;
+> +
+> +       vq->enable_irq_wq = enabled;
+> +
+> +       return count;
+> +}
+> +
+>  static ssize_t irq_cb_affinity_show(struct vduse_virtqueue *vq, char *buf)
 >  {
-> -       int i;
-> +       int ret, i;
+>         return sprintf(buf, "%*pb\n", cpumask_pr_args(&vq->irq_affinity));
+> @@ -1480,10 +1525,12 @@ struct vq_sysfs_entry {
+>  static struct vq_sysfs_entry irq_cb_affinity_attr = __ATTR_RO(irq_cb_affinity);
+>  static struct vq_sysfs_entry irq_cb_effective_affinity_attr =
+>                                         __ATTR_RW(irq_cb_effective_affinity);
+> +static struct vq_sysfs_entry enable_irq_wq_attr = __ATTR_RW(enable_irq_wq);
 >
->         dev->vq_align = vq_align;
->         dev->vq_num = vq_num;
-> @@ -1443,8 +1558,10 @@ static int vduse_dev_init_vqs(struct vduse_dev *dev, u32 vq_align, u32 vq_num)
->
->         for (i = 0; i < vq_num; i++) {
->                 dev->vqs[i] = kzalloc(sizeof(*dev->vqs[i]), GFP_KERNEL);
-> -               if (!dev->vqs[i])
-> +               if (!dev->vqs[i]) {
-> +                       ret = -ENOMEM;
->                         goto err;
-> +               }
+>  static struct attribute *vq_attrs[] = {
+>         &irq_cb_affinity_attr.attr,
+>         &irq_cb_effective_affinity_attr.attr,
+> +       &enable_irq_wq_attr.attr,
+>         NULL,
+>  };
+>  ATTRIBUTE_GROUPS(vq);
+> @@ -1565,6 +1612,7 @@ static int vduse_dev_init_vqs(struct vduse_dev *dev, u32 vq_align, u32 vq_num)
 >
 >                 dev->vqs[i]->index = i;
 >                 dev->vqs[i]->irq_effective_cpu = -1;
-> @@ -1454,15 +1571,23 @@ static int vduse_dev_init_vqs(struct vduse_dev *dev, u32 vq_align, u32 vq_num)
->                 spin_lock_init(&dev->vqs[i]->irq_lock);
->                 spin_lock_init(&dev->vqs[i]->irq_affinity_lock);
->                 cpumask_setall(&dev->vqs[i]->irq_affinity);
-> +
-> +               kobject_init(&dev->vqs[i]->kobj, &vq_type);
-> +               ret = kobject_add(&dev->vqs[i]->kobj,
-> +                                 &dev->dev->kobj, "vq%d", i);
-> +               if (ret) {
-> +                       kfree(dev->vqs[i]);
-> +                       goto err;
-> +               }
->         }
->
->         return 0;
->  err:
->         while (i--)
-> -               kfree(dev->vqs[i]);
-> +               kobject_put(&dev->vqs[i]->kobj);
->         kfree(dev->vqs);
->         dev->vqs = NULL;
-> -       return -ENOMEM;
-> +       return ret;
->  }
->
->  static struct vduse_dev *vduse_dev_create(void)
-> @@ -1637,10 +1762,6 @@ static int vduse_create_dev(struct vduse_dev_config *config,
->         dev->config = config_buf;
->         dev->config_size = config->config_size;
->
-> -       ret = vduse_dev_init_vqs(dev, config->vq_align, config->vq_num);
-> -       if (ret)
-> -               goto err_vqs;
-> -
->         ret = idr_alloc(&vduse_idr, dev, 1, VDUSE_DEV_MAX, GFP_KERNEL);
->         if (ret < 0)
->                 goto err_idr;
-> @@ -1654,14 +1775,19 @@ static int vduse_create_dev(struct vduse_dev_config *config,
->                 ret = PTR_ERR(dev->dev);
->                 goto err_dev;
->         }
-> +
-> +       ret = vduse_dev_init_vqs(dev, config->vq_align, config->vq_num);
-> +       if (ret)
-> +               goto err_vqs;
-> +
->         __module_get(THIS_MODULE);
->
->         return 0;
-> +err_vqs:
-> +       device_destroy(vduse_class, MKDEV(MAJOR(vduse_major), dev->minor));
->  err_dev:
->         idr_remove(&vduse_idr, dev->minor);
->  err_idr:
-> -       vduse_dev_deinit_vqs(dev);
-> -err_vqs:
->         vduse_domain_destroy(dev->domain);
->  err_domain:
->         kfree(dev->name);
+> +               dev->vqs[i]->enable_irq_wq = true;
+>                 INIT_WORK(&dev->vqs[i]->inject, vduse_vq_irq_inject);
+>                 INIT_WORK(&dev->vqs[i]->kick, vduse_vq_kick_work);
+>                 spin_lock_init(&dev->vqs[i]->kick_lock);
 > --
 > 2.20.1
 >
