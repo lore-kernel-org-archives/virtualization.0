@@ -4,100 +4,99 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 93899C4332F
-	for <virtualization@archiver.kernel.org>; Fri, 16 Dec 2022 05:43:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id CA67BC4332F
+	for <virtualization@archiver.kernel.org>; Fri, 16 Dec 2022 05:49:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 181F4404A1;
-	Fri, 16 Dec 2022 05:43:18 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 181F4404A1
+	by smtp2.osuosl.org (Postfix) with ESMTP id 5A41D4044D;
+	Fri, 16 Dec 2022 05:49:35 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5A41D4044D
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=XGIbqKrS
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=NcPjp5g8
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 7W8sizIz1xAa; Fri, 16 Dec 2022 05:43:17 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 57A724044D;
-	Fri, 16 Dec 2022 05:43:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 57A724044D
+	with ESMTP id BMJ9sKU--T5C; Fri, 16 Dec 2022 05:49:34 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 7C31540327;
+	Fri, 16 Dec 2022 05:49:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7C31540327
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 358A7C0033;
-	Fri, 16 Dec 2022 05:43:16 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id BFE25C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 45753C0033;
+	Fri, 16 Dec 2022 05:49:33 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 769F8C002D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Dec 2022 05:43:15 +0000 (UTC)
+ Fri, 16 Dec 2022 05:49:32 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 85AC041B3D
+ by smtp1.osuosl.org (Postfix) with ESMTP id 4A11A812D3
  for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Dec 2022 05:43:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 85AC041B3D
-Authentication-Results: smtp4.osuosl.org;
+ Fri, 16 Dec 2022 05:49:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4A11A812D3
+Authentication-Results: smtp1.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=XGIbqKrS
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=NcPjp5g8
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id T5VcCrDgxNa7
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id qjr9qVTr1DeG
  for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Dec 2022 05:43:14 +0000 (UTC)
+ Fri, 16 Dec 2022 05:49:31 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 871B24190B
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4EB6E812C8
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 871B24190B
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 4EB6E812C8
  for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Dec 2022 05:43:14 +0000 (UTC)
+ Fri, 16 Dec 2022 05:49:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1671169393;
+ s=mimecast20190719; t=1671169770;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=lR7WnqvDc+rTDFoKYRWuh6MMYqCYo5ZyrUKVWQtJrjg=;
- b=XGIbqKrS7Z/VZG7W+k/Swl9AVnVx4QkyAFIH2y0cfOqOwXQOCq7a/Bg/42klLOmjfyZ5PZ
- isFFhxMmoRldT4WMT20ZjvJvjNmq2qHH1oLxDNtxiDLgBdWElgNhvIgUPZbQN18gRcOJWy
- /PQSTkC5/V41aydmeXQP88MkU8Olbi8=
-Received: from mail-ot1-f70.google.com (mail-ot1-f70.google.com
- [209.85.210.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=aIxBk+Msm4O13sjTb1QciX+1tHIiARlRWZY6qhgTpxM=;
+ b=NcPjp5g8+wYRBRj/1EBtG+ZZD/iLcpUFJsXkefcfcvDp1A5Dtg96TQKzLV1OSVJDMNcX/m
+ vJfbhvZlYCcxm95OpHB8Y1zhqLmjTt8GHWBphE8fsYkTb02Q8NNyhvlWdG5amiHZ9zRuHe
+ TBAM3BZ551Nhjgd31QHPYeiwBoqBkzU=
+Received: from mail-oi1-f199.google.com (mail-oi1-f199.google.com
+ [209.85.167.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-586-6vRbPsfiMsySSR4II0O5VA-1; Fri, 16 Dec 2022 00:43:12 -0500
-X-MC-Unique: 6vRbPsfiMsySSR4II0O5VA-1
-Received: by mail-ot1-f70.google.com with SMTP id
- m12-20020a9d6acc000000b006707706d25dso786901otq.22
+ us-mta-173-5uXye_dYPvSfR51AhU28OQ-1; Fri, 16 Dec 2022 00:49:29 -0500
+X-MC-Unique: 5uXye_dYPvSfR51AhU28OQ-1
+Received: by mail-oi1-f199.google.com with SMTP id
+ r65-20020acaf344000000b0035a1d791805so401943oih.19
  for <virtualization@lists.linux-foundation.org>;
- Thu, 15 Dec 2022 21:43:11 -0800 (PST)
+ Thu, 15 Dec 2022 21:49:28 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=cc:to:subject:message-id:date:from:in-reply-to:references
  :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
  :reply-to;
- bh=lR7WnqvDc+rTDFoKYRWuh6MMYqCYo5ZyrUKVWQtJrjg=;
- b=qaxWjJH//eiqbMcsJn4t6chICR7pW/ju6YyjaatK0i3LGGYDiQ99DfXnGKqiEyblhS
- 0sqFEooSzl/d0YTYVpcIT2SvLy7f3M7lxSmayHISC6w8daACs4ywGgud1xv5JrPCmJUI
- MsjgaS7nMDtjiG6rHHGKDRRxIRMFB+Re5glUn7FQxDAXAKrzSlPS6uk2KExbki2lG8FL
- NDv2Lz0CGaX4bmiMB9lBlclcXCr+wQ3ZjWgvJRcNHIO6/IEFn5dK47ZYlLNue5/tDQ3V
- AIHh4tftjEx2xrk1m6JQly5md2lCXJFvCBDEXUmbziP37m8QeOL7lYAYI1e3towaIkJo
- AZBA==
-X-Gm-Message-State: ANoB5pkpI1//Si/yfxLajH23GBPlNe6zU5RAXeLAFR5mpMotxYeMDfUB
- awSJd5APBmBeZK6yfYpdH9Cl/FZjol0sVmRtcY0Ux35KCZYlcz40wyYfcaK0PVb4eCrN8AB4NUq
- nMhYxlQROFP9ivU54e57f0Af7Vx2hFBvb4/reABAfrPIrAKX7MOoiaNDfSw==
-X-Received: by 2002:a4a:94a9:0:b0:480:8f4a:7062 with SMTP id
- k38-20020a4a94a9000000b004808f4a7062mr31914716ooi.57.1671169391294; 
- Thu, 15 Dec 2022 21:43:11 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf6ZMswovlmpw7FdDe9VO/33eW2UDQTUjORPwH4EGDIAX/TuiwI9YZfjjWcizpDDlCiCCEf+P97Fy2zif8OL2So=
-X-Received: by 2002:a4a:94a9:0:b0:480:8f4a:7062 with SMTP id
- k38-20020a4a94a9000000b004808f4a7062mr31914710ooi.57.1671169391057; Thu, 15
- Dec 2022 21:43:11 -0800 (PST)
+ bh=aIxBk+Msm4O13sjTb1QciX+1tHIiARlRWZY6qhgTpxM=;
+ b=SCOMQkI+tQ3U81M9gg7G+T90QkzinzmQf9cK1vYYdD82B8I6Mg315I4SI3jU74RAFa
+ 51hLWaHHI993dEZKxMOuUTaO3Ncvq7Rdjwc1P06HEaeKiS6e8icaw0gMzYl58ELr+Bpv
+ JpHwBseKh2rogykOM4p5aRiGE3r/vx19bdEK27T771zDPURs5j5U1nbVnYCxBgC2uWCh
+ Mj2zNFMFqOtMaxnT4hySd/IEtLUorbn0GQvyl42ldB1JgEOq79vHxCDVXKtgCn92iivE
+ ryWSsuEbAT+phfPLY1pvWuPby21yXht/zc/AMhP7sS4p4WQcmXI2qtlheOdD9bUDq3oq
+ UM9Q==
+X-Gm-Message-State: ANoB5plFnM5GGAJ6ApF7za/XBc6lQp5n0SQt3Fy20vE2B027cr4CsGRA
+ jI+y2Vm5qlY85DWRmalp4uDdQ2kvRqoFVcQqS/TUQBBe2iPx+08Smqe6O4MeSZM920dr9Me3Vyt
+ BZW+G+y2xFBN8NWeQ/H22ZhsoqYsWyiXpoq9XlgP0o13hljQ9zKWtyLQ1Jw==
+X-Received: by 2002:a4a:b145:0:b0:49f:449a:5f6c with SMTP id
+ e5-20020a4ab145000000b0049f449a5f6cmr32532769ooo.93.1671169768089; 
+ Thu, 15 Dec 2022 21:49:28 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf7iVK4I0QZcV+xcZthATyPM9UgivZsjcVVMMo/iGffHKjvMHCvCJbHlwV7vNPss8IAsBwI4mYfnX3KBfB6bpFM=
+X-Received: by 2002:a4a:b145:0:b0:49f:449a:5f6c with SMTP id
+ e5-20020a4ab145000000b0049f449a5f6cmr32532762ooo.93.1671169767681; Thu, 15
+ Dec 2022 21:49:27 -0800 (PST)
 MIME-Version: 1.0
 References: <20221205084127.535-1-xieyongji@bytedance.com>
  <20221205090243.791-1-xieyongji@bytedance.com>
- <20221205090243.791-3-xieyongji@bytedance.com>
-In-Reply-To: <20221205090243.791-3-xieyongji@bytedance.com>
+ <20221205090243.791-4-xieyongji@bytedance.com>
+In-Reply-To: <20221205090243.791-4-xieyongji@bytedance.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 16 Dec 2022 13:43:00 +0800
-Message-ID: <CACGkMEuAxEEvShwN8Q_k-FKZODesORn4zJG7UFHD-KS8sQXYjg@mail.gmail.com>
-Subject: Re: [PATCH v2 09/11] vduse: Add enable_irq_wq sysfs interface for
- virtqueues
+Date: Fri, 16 Dec 2022 13:49:16 +0800
+Message-ID: <CACGkMEtsk0R=NXNHaOzHgG+t9g8w5zmqt+J1KdXRGZQcFXWEkA@mail.gmail.com>
+Subject: Re: [PATCH v2 10/11] vduse: Delay iova domain creation
 To: Xie Yongji <xieyongji@bytedance.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
@@ -121,124 +120,236 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 On Mon, Dec 5, 2022 at 5:03 PM Xie Yongji <xieyongji@bytedance.com> wrote:
 >
-> Add enable_irq_wq sysfs interface to control whether
-> use workqueue to inject irq or not. The vhost-vdpa case
-> can benefit from it.
+> Delay creating iova domain until the vduse device is binded
+> to vdpa bus.
 
-Do we have a benchmark result for this?
+s/binded/registered/
 
-Or I wonder if we can extend set_vq_cb() by associating an eventfd
-then VDUSE can signal that eventfd directly?
+Other than this.
+
+Acked-by: Jason Wang <jasowang@redhat.com>
 
 Thanks
 
 >
+> This is a preparation for adding sysfs interface to support
+> specifying bounce buffer size for the iova domain.
+>
 > Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
 > ---
->  drivers/vdpa/vdpa_user/vduse_dev.c | 50 +++++++++++++++++++++++++++++-
->  1 file changed, 49 insertions(+), 1 deletion(-)
+>  drivers/vdpa/vdpa_user/vduse_dev.c | 75 +++++++++++++++++++++---------
+>  1 file changed, 53 insertions(+), 22 deletions(-)
 >
 > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-> index c65f84100e30..ed06c7afd484 100644
+> index ed06c7afd484..bd1ba6c33e09 100644
 > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
 > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> @@ -62,6 +62,7 @@ struct vduse_virtqueue {
->         struct cpumask irq_affinity;
->         spinlock_t irq_affinity_lock;
->         struct kobject kobj;
-> +       bool enable_irq_wq;
+> @@ -112,6 +112,8 @@ struct vduse_dev {
+>         u32 vq_align;
+>         struct vduse_umem *umem;
+>         struct mutex mem_lock;
+> +       unsigned int bounce_size;
+> +       struct mutex domain_lock;
 >  };
 >
->  struct vduse_dev;
-> @@ -1013,6 +1014,26 @@ static int vduse_dev_queue_irq_work(struct vduse_dev *dev,
->         return ret;
->  }
+>  struct vduse_dev_msg {
+> @@ -427,7 +429,7 @@ static void vduse_dev_reset(struct vduse_dev *dev)
+>         struct vduse_iova_domain *domain = dev->domain;
 >
-> +static int vduse_dev_inject_vq_irq(struct vduse_dev *dev,
-> +                                  struct vduse_virtqueue *vq)
-> +{
-> +       int ret = -EINVAL;
-> +
-> +       down_read(&dev->rwsem);
-> +       if (!(dev->status & VIRTIO_CONFIG_S_DRIVER_OK))
+>         /* The coherent mappings are handled in vduse_dev_free_coherent() */
+> -       if (domain->bounce_map)
+> +       if (domain && domain->bounce_map)
+>                 vduse_domain_reset_bounce_map(domain);
+>
+>         down_write(&dev->rwsem);
+> @@ -1045,6 +1047,9 @@ static int vduse_dev_dereg_umem(struct vduse_dev *dev,
+>                 goto unlock;
+>
+>         ret = -EINVAL;
+> +       if (!dev->domain)
 > +               goto unlock;
 > +
-> +       ret = 0;
-> +       spin_lock_irq(&vq->irq_lock);
-> +       if (vq->ready && vq->cb.callback)
-> +               vq->cb.callback(vq->cb.private);
-> +       spin_unlock_irq(&vq->irq_lock);
-> +unlock:
-> +       up_read(&dev->rwsem);
-> +
-> +       return ret;
-> +}
-> +
->  static int vduse_dev_dereg_umem(struct vduse_dev *dev,
->                                 u64 iova, u64 size)
->  {
-> @@ -1278,8 +1299,12 @@ static long vduse_dev_ioctl(struct file *file, unsigned int cmd,
+>         if (dev->umem->iova != iova || size != dev->domain->bounce_size)
+>                 goto unlock;
+>
+> @@ -1071,7 +1076,7 @@ static int vduse_dev_reg_umem(struct vduse_dev *dev,
+>         unsigned long npages, lock_limit;
+>         int ret;
+>
+> -       if (!dev->domain->bounce_map ||
+> +       if (!dev->domain || !dev->domain->bounce_map ||
+>             size != dev->domain->bounce_size ||
+>             iova != 0 || uaddr & ~PAGE_MASK)
+>                 return -EINVAL;
+> @@ -1145,7 +1150,6 @@ static long vduse_dev_ioctl(struct file *file, unsigned int cmd,
+>                 struct vduse_iotlb_entry entry;
+>                 struct vhost_iotlb_map *map;
+>                 struct vdpa_map_file *map_file;
+> -               struct vduse_iova_domain *domain = dev->domain;
+>                 struct file *f = NULL;
+>
+>                 ret = -EFAULT;
+> @@ -1156,8 +1160,13 @@ static long vduse_dev_ioctl(struct file *file, unsigned int cmd,
+>                 if (entry.start > entry.last)
 >                         break;
 >
->                 index = array_index_nospec(index, dev->vq_num);
-> -               ret = vduse_dev_queue_irq_work(dev, &dev->vqs[index]->inject,
-> +               if (dev->vqs[index]->enable_irq_wq)
-> +                       ret = vduse_dev_queue_irq_work(dev,
-> +                                       &dev->vqs[index]->inject,
->                                         dev->vqs[index]->irq_effective_cpu);
-> +               else
-> +                       ret = vduse_dev_inject_vq_irq(dev, dev->vqs[index]);
+> -               spin_lock(&domain->iotlb_lock);
+> -               map = vhost_iotlb_itree_first(domain->iotlb,
+> +               mutex_lock(&dev->domain_lock);
+> +               if (!dev->domain) {
+> +                       mutex_unlock(&dev->domain_lock);
+> +                       break;
+> +               }
+> +               spin_lock(&dev->domain->iotlb_lock);
+> +               map = vhost_iotlb_itree_first(dev->domain->iotlb,
+>                                               entry.start, entry.last);
+>                 if (map) {
+>                         map_file = (struct vdpa_map_file *)map->opaque;
+> @@ -1167,7 +1176,8 @@ static long vduse_dev_ioctl(struct file *file, unsigned int cmd,
+>                         entry.last = map->last;
+>                         entry.perm = map->perm;
+>                 }
+> -               spin_unlock(&domain->iotlb_lock);
+> +               spin_unlock(&dev->domain->iotlb_lock);
+> +               mutex_unlock(&dev->domain_lock);
+>                 ret = -EINVAL;
+>                 if (!f)
+>                         break;
+> @@ -1319,8 +1329,10 @@ static long vduse_dev_ioctl(struct file *file, unsigned int cmd,
+>                                  sizeof(umem.reserved)))
+>                         break;
+>
+> +               mutex_lock(&dev->domain_lock);
+>                 ret = vduse_dev_reg_umem(dev, umem.iova,
+>                                          umem.uaddr, umem.size);
+> +               mutex_unlock(&dev->domain_lock);
 >                 break;
 >         }
->         case VDUSE_IOTLB_REG_UMEM: {
-> @@ -1420,6 +1445,26 @@ static const struct file_operations vduse_dev_fops = {
->         .llseek         = noop_llseek,
->  };
+>         case VDUSE_IOTLB_DEREG_UMEM: {
+> @@ -1334,15 +1346,15 @@ static long vduse_dev_ioctl(struct file *file, unsigned int cmd,
+>                 if (!is_mem_zero((const char *)umem.reserved,
+>                                  sizeof(umem.reserved)))
+>                         break;
+> -
+> +               mutex_lock(&dev->domain_lock);
+>                 ret = vduse_dev_dereg_umem(dev, umem.iova,
+>                                            umem.size);
+> +               mutex_unlock(&dev->domain_lock);
+>                 break;
+>         }
+>         case VDUSE_IOTLB_GET_INFO: {
+>                 struct vduse_iova_info info;
+>                 struct vhost_iotlb_map *map;
+> -               struct vduse_iova_domain *domain = dev->domain;
 >
-> +static ssize_t enable_irq_wq_show(struct vduse_virtqueue *vq, char *buf)
-> +{
-> +       return sprintf(buf, "%d\n", vq->enable_irq_wq);
-> +}
-> +
-> +static ssize_t enable_irq_wq_store(struct vduse_virtqueue *vq,
-> +                                  const char *buf, size_t count)
-> +{
-> +       bool enabled;
-> +       int ret;
-> +
-> +       ret = kstrtobool(buf, &enabled);
-> +       if (ret)
-> +               return ret;
-> +
-> +       vq->enable_irq_wq = enabled;
-> +
-> +       return count;
-> +}
-> +
->  static ssize_t irq_cb_affinity_show(struct vduse_virtqueue *vq, char *buf)
+>                 ret = -EFAULT;
+>                 if (copy_from_user(&info, argp, sizeof(info)))
+> @@ -1356,18 +1368,24 @@ static long vduse_dev_ioctl(struct file *file, unsigned int cmd,
+>                                  sizeof(info.reserved)))
+>                         break;
+>
+> -               spin_lock(&domain->iotlb_lock);
+> -               map = vhost_iotlb_itree_first(domain->iotlb,
+> +               mutex_lock(&dev->domain_lock);
+> +               if (!dev->domain) {
+> +                       mutex_unlock(&dev->domain_lock);
+> +                       break;
+> +               }
+> +               spin_lock(&dev->domain->iotlb_lock);
+> +               map = vhost_iotlb_itree_first(dev->domain->iotlb,
+>                                               info.start, info.last);
+>                 if (map) {
+>                         info.start = map->start;
+>                         info.last = map->last;
+>                         info.capability = 0;
+> -                       if (domain->bounce_map && map->start == 0 &&
+> -                           map->last == domain->bounce_size - 1)
+> +                       if (dev->domain->bounce_map && map->start == 0 &&
+> +                           map->last == dev->domain->bounce_size - 1)
+>                                 info.capability |= VDUSE_IOVA_CAP_UMEM;
+>                 }
+> -               spin_unlock(&domain->iotlb_lock);
+> +               spin_unlock(&dev->domain->iotlb_lock);
+> +               mutex_unlock(&dev->domain_lock);
+>                 if (!map)
+>                         break;
+>
+> @@ -1390,7 +1408,10 @@ static int vduse_dev_release(struct inode *inode, struct file *file)
 >  {
->         return sprintf(buf, "%*pb\n", cpumask_pr_args(&vq->irq_affinity));
-> @@ -1480,10 +1525,12 @@ struct vq_sysfs_entry {
->  static struct vq_sysfs_entry irq_cb_affinity_attr = __ATTR_RO(irq_cb_affinity);
->  static struct vq_sysfs_entry irq_cb_effective_affinity_attr =
->                                         __ATTR_RW(irq_cb_effective_affinity);
-> +static struct vq_sysfs_entry enable_irq_wq_attr = __ATTR_RW(enable_irq_wq);
+>         struct vduse_dev *dev = file->private_data;
 >
->  static struct attribute *vq_attrs[] = {
->         &irq_cb_affinity_attr.attr,
->         &irq_cb_effective_affinity_attr.attr,
-> +       &enable_irq_wq_attr.attr,
->         NULL,
->  };
->  ATTRIBUTE_GROUPS(vq);
-> @@ -1565,6 +1612,7 @@ static int vduse_dev_init_vqs(struct vduse_dev *dev, u32 vq_align, u32 vq_num)
+> -       vduse_dev_dereg_umem(dev, 0, dev->domain->bounce_size);
+> +       mutex_lock(&dev->domain_lock);
+> +       if (dev->domain)
+> +               vduse_dev_dereg_umem(dev, 0, dev->domain->bounce_size);
+> +       mutex_unlock(&dev->domain_lock);
+>         spin_lock(&dev->msg_lock);
+>         /* Make sure the inflight messages can processed after reconncection */
+>         list_splice_init(&dev->recv_list, &dev->send_list);
+> @@ -1647,6 +1668,7 @@ static struct vduse_dev *vduse_dev_create(void)
 >
->                 dev->vqs[i]->index = i;
->                 dev->vqs[i]->irq_effective_cpu = -1;
-> +               dev->vqs[i]->enable_irq_wq = true;
->                 INIT_WORK(&dev->vqs[i]->inject, vduse_vq_irq_inject);
->                 INIT_WORK(&dev->vqs[i]->kick, vduse_vq_kick_work);
->                 spin_lock_init(&dev->vqs[i]->kick_lock);
+>         mutex_init(&dev->lock);
+>         mutex_init(&dev->mem_lock);
+> +       mutex_init(&dev->domain_lock);
+>         spin_lock_init(&dev->msg_lock);
+>         INIT_LIST_HEAD(&dev->send_list);
+>         INIT_LIST_HEAD(&dev->recv_list);
+> @@ -1696,7 +1718,8 @@ static int vduse_destroy_dev(char *name)
+>         idr_remove(&vduse_idr, dev->minor);
+>         kvfree(dev->config);
+>         vduse_dev_deinit_vqs(dev);
+> -       vduse_domain_destroy(dev->domain);
+> +       if (dev->domain)
+> +               vduse_domain_destroy(dev->domain);
+>         kfree(dev->name);
+>         vduse_dev_destroy(dev);
+>         module_put(THIS_MODULE);
+> @@ -1802,11 +1825,7 @@ static int vduse_create_dev(struct vduse_dev_config *config,
+>         if (!dev->name)
+>                 goto err_str;
+>
+> -       dev->domain = vduse_domain_create(VDUSE_IOVA_SIZE - 1,
+> -                                         VDUSE_BOUNCE_SIZE);
+> -       if (!dev->domain)
+> -               goto err_domain;
+> -
+> +       dev->bounce_size = VDUSE_BOUNCE_SIZE;
+>         dev->config = config_buf;
+>         dev->config_size = config->config_size;
+>
+> @@ -1836,8 +1855,6 @@ static int vduse_create_dev(struct vduse_dev_config *config,
+>  err_dev:
+>         idr_remove(&vduse_idr, dev->minor);
+>  err_idr:
+> -       vduse_domain_destroy(dev->domain);
+> -err_domain:
+>         kfree(dev->name);
+>  err_str:
+>         vduse_dev_destroy(dev);
+> @@ -2004,9 +2021,23 @@ static int vdpa_dev_add(struct vdpa_mgmt_dev *mdev, const char *name,
+>         if (ret)
+>                 return ret;
+>
+> +       mutex_lock(&dev->domain_lock);
+> +       if (!dev->domain)
+> +               dev->domain = vduse_domain_create(VDUSE_IOVA_SIZE - 1,
+> +                                                 dev->bounce_size);
+> +       mutex_unlock(&dev->domain_lock);
+> +       if (!dev->domain) {
+> +               put_device(&dev->vdev->vdpa.dev);
+> +               return -ENOMEM;
+> +       }
+> +
+>         ret = _vdpa_register_device(&dev->vdev->vdpa, dev->vq_num);
+>         if (ret) {
+>                 put_device(&dev->vdev->vdpa.dev);
+> +               mutex_lock(&dev->domain_lock);
+> +               vduse_domain_destroy(dev->domain);
+> +               dev->domain = NULL;
+> +               mutex_unlock(&dev->domain_lock);
+>                 return ret;
+>         }
+>
 > --
 > 2.20.1
 >
