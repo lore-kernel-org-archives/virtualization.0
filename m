@@ -1,110 +1,107 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 509B4C4332F
-	for <virtualization@archiver.kernel.org>; Fri, 16 Dec 2022 03:43:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 899AAC4332F
+	for <virtualization@archiver.kernel.org>; Fri, 16 Dec 2022 03:53:01 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id C963382139;
-	Fri, 16 Dec 2022 03:43:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C963382139
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=OYOLlqLA
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Dp9l0UKCMqeR; Fri, 16 Dec 2022 03:43:32 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 5076A82135;
-	Fri, 16 Dec 2022 03:43:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5076A82135
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 14AA9C0033;
-	Fri, 16 Dec 2022 03:43:31 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 5EAA8C002D
- for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Dec 2022 03:43:29 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 26AC440191
- for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Dec 2022 03:43:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 26AC440191
+	by smtp2.osuosl.org (Postfix) with ESMTP id F41A940BC7;
+	Fri, 16 Dec 2022 03:53:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org F41A940BC7
 Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=OYOLlqLA
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=SlnAV/gg
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Nph7MagcinNK
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ceCp4NWMCe90; Fri, 16 Dec 2022 03:53:00 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 85B8C400D1;
+	Fri, 16 Dec 2022 03:52:59 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 85B8C400D1
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5DCF3C0033;
+	Fri, 16 Dec 2022 03:52:59 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9550AC002D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Dec 2022 03:43:28 +0000 (UTC)
+ Fri, 16 Dec 2022 03:52:58 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 62E5582136
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 16 Dec 2022 03:52:58 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 62E5582136
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=SlnAV/gg
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Gmsx_fg7fopr
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 16 Dec 2022 03:52:57 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 22786400D1
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9F6FE82135
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 22786400D1
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 9F6FE82135
  for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Dec 2022 03:43:27 +0000 (UTC)
+ Fri, 16 Dec 2022 03:52:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1671162207;
+ s=mimecast20190719; t=1671162776;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=zfz+hZsu0mSAfvWAnAaAGFxMGv6r+4O1MrzGOXMUmB0=;
- b=OYOLlqLA3thT6abxI5LkqFhaqymNoT28YHyr8DeXX6VfcxQZEF0WD0chM/ZMkPo/nsObWn
- xF1PkxYMnCNLLE1PIJGcHOv3ayTCRDeQj/eXYR9zswBqR62GZ4qu4z0NOCIsfypncCxWac
- qyxzN7XvEhVo1NRPivthAiflwUGzcMI=
-Received: from mail-oa1-f69.google.com (mail-oa1-f69.google.com
- [209.85.160.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=m/mkgsybv+YQLr4xgOo2Mo6CQB2C40n1fNpguX/a6f0=;
+ b=SlnAV/gg79VWjB4Uiha7zu+QbVNn9JOu7Qzctd2/BV7J6pmI2ZiMe51NYIbKntSSOmDWB/
+ j7W4HVgm2AM7f1oe0xsTpaEqnlNo3K4aSjAoJCHn+qbeIKOgY4tTfdsdXcmChWY0ZIHZ3y
+ Mv4L9cvPYeYimUIIWFikz9M2WYyN5NY=
+Received: from mail-oi1-f199.google.com (mail-oi1-f199.google.com
+ [209.85.167.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-190-WnOdohQLOeG8ufbCF2nbNg-1; Thu, 15 Dec 2022 22:43:25 -0500
-X-MC-Unique: WnOdohQLOeG8ufbCF2nbNg-1
-Received: by mail-oa1-f69.google.com with SMTP id
- 586e51a60fabf-143d68edfa1so707190fac.11
+ us-mta-320-ZMiglMhFMNGYdvf_Lcob6A-1; Thu, 15 Dec 2022 22:52:52 -0500
+X-MC-Unique: ZMiglMhFMNGYdvf_Lcob6A-1
+Received: by mail-oi1-f199.google.com with SMTP id
+ t25-20020a056808159900b0035ecfd3fa78so371527oiw.4
  for <virtualization@lists.linux-foundation.org>;
- Thu, 15 Dec 2022 19:43:25 -0800 (PST)
+ Thu, 15 Dec 2022 19:52:52 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=cc:to:subject:message-id:date:from:in-reply-to:references
  :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
  :reply-to;
- bh=zfz+hZsu0mSAfvWAnAaAGFxMGv6r+4O1MrzGOXMUmB0=;
- b=hO2nALXlV5CNk4nduvjXCrfgBRyw1huFQLJVF2Kdv5kxo+8q2TMTtoq1PUAHXz9UgM
- k/X99hEqZlcUIfva7KdbaKf7lLfylgD3oEeCLgL/0K4Z7GBeLeOsh2C1k/o1oPQqs1Vc
- 6eKDYZSAFsEEQom3JBmsXGt6gw8u1m4D9aCBxbXMVeJv1P0SCxzOCWeGdcavnsshjUos
- fCdakcxyN5U2WUM8c8Ar2m20uhfIU28FhZqTlubik39Mes49voD+UCwkflA3HU39woNI
- iOIX2MUk1JScJF/uuBNtxnKx2eIil8rQ+r11eVfhWYfevFpy7wOQDQoqdVRURT8syoc8
- Roug==
-X-Gm-Message-State: ANoB5pm3fQh9dD/eYMQ5teZlYPFp55a/ZoswBW/W7Z4deJ6Ghar8LB1I
- rUz1qdqDTs3MF4lLdhRVY2lyqqE/KwDPi5CGIxZfP8/utX9MivWFAxlep7DS+3u8kGH2CtN30vK
- SUbF1t6Jxy8pyVFANIjjQ9FtrXvTNpJ2n1QFtwwqN3fuwxfs2fhFNeS/EDw==
-X-Received: by 2002:a05:6870:9e8f:b0:144:a97b:1ae2 with SMTP id
- pu15-20020a0568709e8f00b00144a97b1ae2mr319391oab.35.1671162204861; 
- Thu, 15 Dec 2022 19:43:24 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf7OmOp/XpirrXRViBtMxKqtenidH9XAN95sX4U25/bIv5XYq0XBM55D6y7jxPwBaziM5LOxB28ONerqMfvW4eI=
-X-Received: by 2002:a05:6870:9e8f:b0:144:a97b:1ae2 with SMTP id
- pu15-20020a0568709e8f00b00144a97b1ae2mr319384oab.35.1671162204619; Thu, 15
- Dec 2022 19:43:24 -0800 (PST)
+ bh=m/mkgsybv+YQLr4xgOo2Mo6CQB2C40n1fNpguX/a6f0=;
+ b=YMeUQZPhqq42NWqsB7G+A0Ye2V/MbD02fjXn1Ts46EhfDAuh4wgU+saBJZXn1cQkY3
+ Jd3l8X4xceC5aSvqxscylvfih2L/Nvaqm16Xok7oZsetPE+VfsSJkxo48DGgexitithc
+ pL+VKxC6vqHcfdqJ1av8vht3Vz62KpninKNHcv8v8cXoozDAEQPae/Nty2VtstvqJq42
+ MvB3ngy7nJMHD0wkY3JAamh3os1VtwThx+slOxmxRB3SsSXIupHQOUh0VOOi8iJ+4CaJ
+ 7aWS7lJ8165nLdLDPxBBPiQDKbl+H3NULyE4pgsNaU+EmA3eV4V2ObjeNM5CetYDBe/c
+ iPkw==
+X-Gm-Message-State: ANoB5pkPbeZJ+pn0FRd1dPVL390iHGvER4U6RIL4psj4cOUwQ+Dy6nKN
+ ohFbgKr2JW8kJIRatCDrk8axe7LIO4VnM8ZZ+nLA1ztkpC0XIlIgZ4ZSYtusAJIipFSBODftpH/
+ wGVZ0fu0PCYp7AW95otoT/nJ+3Zx4dJ/bT0bjt1uSV/2uh9HyZLU+J8Ef1g==
+X-Received: by 2002:a05:6830:6505:b0:66c:fb5b:4904 with SMTP id
+ cm5-20020a056830650500b0066cfb5b4904mr49171573otb.237.1671162772191; 
+ Thu, 15 Dec 2022 19:52:52 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf7LLJFF2vwjKag+M02bzigSi3YJhDrHkH5IBNXsH5IdjpWSKWW5SLTf7TcNnRRFz54+6GmXg7+X2M1gXN7LlEI=
+X-Received: by 2002:a05:6830:6505:b0:66c:fb5b:4904 with SMTP id
+ cm5-20020a056830650500b0066cfb5b4904mr49171566otb.237.1671162771969; Thu, 15
+ Dec 2022 19:52:51 -0800 (PST)
 MIME-Version: 1.0
-References: <20221215032719.72294-1-jasowang@redhat.com>
- <20221215034740-mutt-send-email-mst@kernel.org>
- <CACGkMEsLeCRDqyuyGzWw+kjYrTVDjUjOw6+xHESPT2D1p03=sQ@mail.gmail.com>
- <20221215042918-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20221215042918-mutt-send-email-mst@kernel.org>
+References: <20221205084127.535-1-xieyongji@bytedance.com>
+ <20221205084127.535-3-xieyongji@bytedance.com>
+In-Reply-To: <20221205084127.535-3-xieyongji@bytedance.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 16 Dec 2022 11:43:13 +0800
-Message-ID: <CACGkMEsbvTQrEp5dmQRHp58Mu=E7f433Xrvsbs4nZMA5R3B6mQ@mail.gmail.com>
-Subject: Re: [PATCH net V2] virtio-net: correctly enable callback during
- start_xmit
-To: "Michael S. Tsirkin" <mst@redhat.com>
+Date: Fri, 16 Dec 2022 11:52:40 +0800
+Message-ID: <CACGkMEvJM4g5EAZiuS_-=uAOZ=LZN=KjNtFmVPXdv=arSVyLXg@mail.gmail.com>
+Subject: Re: [PATCH v2 02/11] vdpa: Add set/get_vq_affinity callbacks in
+ vdpa_config_ops
+To: Xie Yongji <xieyongji@bytedance.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
+Cc: linux-kernel@vger.kernel.org, tglx@linutronix.de,
+ virtualization@lists.linux-foundation.org, hch@lst.de, mst@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -121,140 +118,102 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Dec 15, 2022 at 5:35 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+On Mon, Dec 5, 2022 at 4:43 PM Xie Yongji <xieyongji@bytedance.com> wrote:
 >
-> On Thu, Dec 15, 2022 at 05:15:43PM +0800, Jason Wang wrote:
-> > On Thu, Dec 15, 2022 at 5:02 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > >
-> > > On Thu, Dec 15, 2022 at 11:27:19AM +0800, Jason Wang wrote:
-> > > > Commit a7766ef18b33("virtio_net: disable cb aggressively") enables
-> > > > virtqueue callback via the following statement:
-> > > >
-> > > >         do {
-> > > >            ......
-> > > >       } while (use_napi && kick &&
-> > > >                unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
-> > > >
-> > > > When NAPI is used and kick is false, the callback won't be enabled
-> > > > here. And when the virtqueue is about to be full, the tx will be
-> > > > disabled, but we still don't enable tx interrupt which will cause a TX
-> > > > hang. This could be observed when using pktgen with burst enabled.
-> > > >
-> > > > Fixing this by trying to enable tx interrupt after we disable TX when
-> > > > we're not using napi or kick is false.
-> > > >
-> > > > Fixes: a7766ef18b33 ("virtio_net: disable cb aggressively")
-> > > > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > > > ---
-> > > > The patch is needed for -stable.
-> > > > Changes since V1:
-> > > > - enable tx interrupt after we disable tx
-> > > > ---
-> > > >  drivers/net/virtio_net.c | 2 +-
-> > > >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > > >
-> > > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > > > index 86e52454b5b5..dcf3a536d78a 100644
-> > > > --- a/drivers/net/virtio_net.c
-> > > > +++ b/drivers/net/virtio_net.c
-> > > > @@ -1873,7 +1873,7 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
-> > > >        */
-> > > >       if (sq->vq->num_free < 2+MAX_SKB_FRAGS) {
-> > > >               netif_stop_subqueue(dev, qnum);
-> > > > -             if (!use_napi &&
-> > > > +             if ((!use_napi || !kick) &&
-> > > >                   unlikely(!virtqueue_enable_cb_delayed(sq->vq))) {
-> > > >                       /* More just got used, free them then recheck. */
-> > > >                       free_old_xmit_skbs(sq, false);
-> > >
-> > > This will work but the following lines are:
-> > >
-> > >                        if (sq->vq->num_free >= 2+MAX_SKB_FRAGS) {
-> > >                                 netif_start_subqueue(dev, qnum);
-> > >                                 virtqueue_disable_cb(sq->vq);
-> > >                         }
-> > >
-> > >
-> > > and I thought we are supposed to keep callbacks enabled with napi?
-> >
-> > This seems to be the opposite logic of commit a7766ef18b33 that
-> > disables callbacks for NAPI.
-> >
-> > It said:
-> >
-> >     There are currently two cases where we poll TX vq not in response to a
-> >     callback: start xmit and rx napi.  We currently do this with callbacks
-> >     enabled which can cause extra interrupts from the card.  Used not to be
-> >     a big issue as we run with interrupts disabled but that is no longer the
-> >     case, and in some cases the rate of spurious interrupts is so high
-> >     linux detects this and actually kills the interrupt.
-> >
-> > My undersatnding is that it tries to disable callbacks on TX.
+> This introduces set/get_vq_affinity callbacks in
+> vdpa_config_ops to support interrupt affinity
+> management for vdpa device drivers.
 >
-> I think we want to disable callbacks while polling, yes. here we are not
-> polling, and I think we want a callback because otherwise nothing will
-> orphan skbs and a socket can be blocked, not transmitting anything - a
-> deadlock.
+> Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
 
-I'm not sure how I got here, did you mean a partial revert of
-a7766ef18b33 (the part that disables TX callbacks on start_xmit)?
-
-Btw, I plan to remove non NAPI mode completely, since it was disabled
-by default for years and we don't see any complaint, then we may have
-modern features like BQL and better TCP performance. In that sense we
-may simply keep tx callback open as most of modern NIC did.
-
->
-> > > One of the ideas of napi is to free on napi callback, not here
-> > > immediately.
-> > >
-> > > I think it is easier to just do a separate branch here. Along the
-> > > lines of:
-> > >
-> > >                 if (use_napi) {
-> > >                         if (unlikely(!virtqueue_enable_cb_delayed(sq->vq)))
-> > >                                 virtqueue_napi_schedule(napi, vq);
-> >
-> > This seems to be a new logic and it causes some delay in processing TX
-> > (unnecessary NAPI).
->
-> That's good, we overloaded the queue so we are already going
-> too fast, deferring tx so queue has chance to drain
-> will allow better batching in the qdisc.
-
-I meant, compare to
-
-1) schedule NAPI and poll TX
-
-The current code did
-
-2) poll TX immediately
-
-2) seems faster?
+Acked-by: Jason Wang <jasowang@redhat.com>
 
 Thanks
 
+> ---
+>  drivers/virtio/virtio_vdpa.c | 28 ++++++++++++++++++++++++++++
+>  include/linux/vdpa.h         | 13 +++++++++++++
+>  2 files changed, 41 insertions(+)
 >
-> > >                 } else {
-> > >                         ... old code ...
-> > >                 }
-> > >
-> > > also reduces chances of regressions on !napi (which is not well tested)
-> > > and keeps callbacks off while we free skbs.
-> >
-> > I think my patch doesn't change the logic of !napi? (It checks !napi || kick).
-> >
-> > Thanks
+> diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
+> index 9670cc79371d..08084b49e5a1 100644
+> --- a/drivers/virtio/virtio_vdpa.c
+> +++ b/drivers/virtio/virtio_vdpa.c
+> @@ -330,6 +330,32 @@ static const char *virtio_vdpa_bus_name(struct virtio_device *vdev)
+>         return dev_name(&vdpa->dev);
+>  }
 >
-> I agree it doesn't seem to as written.
+> +static int virtio_vdpa_set_vq_affinity(struct virtqueue *vq,
+> +                                      const struct cpumask *cpu_mask)
+> +{
+> +       struct virtio_vdpa_device *vd_dev = to_virtio_vdpa_device(vq->vdev);
+> +       struct vdpa_device *vdpa = vd_dev->vdpa;
+> +       const struct vdpa_config_ops *ops = vdpa->config;
+> +       unsigned int index = vq->index;
+> +
+> +       if (ops->set_vq_affinity)
+> +               return ops->set_vq_affinity(vdpa, index, cpu_mask);
+> +
+> +       return 0;
+> +}
+> +
+> +static const struct cpumask *
+> +virtio_vdpa_get_vq_affinity(struct virtio_device *vdev, int index)
+> +{
+> +       struct vdpa_device *vdpa = vd_get_vdpa(vdev);
+> +       const struct vdpa_config_ops *ops = vdpa->config;
+> +
+> +       if (ops->get_vq_affinity)
+> +               return ops->get_vq_affinity(vdpa, index);
+> +
+> +       return NULL;
+> +}
+> +
+>  static const struct virtio_config_ops virtio_vdpa_config_ops = {
+>         .get            = virtio_vdpa_get,
+>         .set            = virtio_vdpa_set,
+> @@ -342,6 +368,8 @@ static const struct virtio_config_ops virtio_vdpa_config_ops = {
+>         .get_features   = virtio_vdpa_get_features,
+>         .finalize_features = virtio_vdpa_finalize_features,
+>         .bus_name       = virtio_vdpa_bus_name,
+> +       .set_vq_affinity = virtio_vdpa_set_vq_affinity,
+> +       .get_vq_affinity = virtio_vdpa_get_vq_affinity,
+>  };
 >
-> > >
-> > > No?
-> > >
-> > >
-> > > > --
-> > > > 2.25.1
-> > >
+>  static void virtio_vdpa_release_dev(struct device *_d)
+> diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
+> index 6d0f5e4e82c2..0ff6c9363356 100644
+> --- a/include/linux/vdpa.h
+> +++ b/include/linux/vdpa.h
+> @@ -247,6 +247,15 @@ struct vdpa_map_file {
+>   *                             @vdev: vdpa device
+>   *                             Returns the iova range supported by
+>   *                             the device.
+> + * @set_vq_affinity:           Set the irq affinity of virtqueue (optional)
+> + *                             @vdev: vdpa device
+> + *                             @idx: virtqueue index
+> + *                             @cpu_mask: irq affinity mask
+> + *                             Returns integer: success (0) or error (< 0)
+> + * @get_vq_affinity:           Get the irq affinity of virtqueue (optional)
+> + *                             @vdev: vdpa device
+> + *                             @idx: virtqueue index
+> + *                             Returns the irq affinity mask
+>   * @set_group_asid:            Set address space identifier for a
+>   *                             virtqueue group (optional)
+>   *                             @vdev: vdpa device
+> @@ -331,6 +340,10 @@ struct vdpa_config_ops {
+>                            const void *buf, unsigned int len);
+>         u32 (*get_generation)(struct vdpa_device *vdev);
+>         struct vdpa_iova_range (*get_iova_range)(struct vdpa_device *vdev);
+> +       int (*set_vq_affinity)(struct vdpa_device *vdev, u16 idx,
+> +                              const struct cpumask *cpu_mask);
+> +       const struct cpumask *(*get_vq_affinity)(struct vdpa_device *vdev,
+> +                                                u16 idx);
+>
+>         /* DMA ops */
+>         int (*set_map)(struct vdpa_device *vdev, unsigned int asid,
+> --
+> 2.20.1
 >
 
 _______________________________________________
