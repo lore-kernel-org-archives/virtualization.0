@@ -4,98 +4,98 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 899AAC4332F
-	for <virtualization@archiver.kernel.org>; Fri, 16 Dec 2022 03:53:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8C914C4332F
+	for <virtualization@archiver.kernel.org>; Fri, 16 Dec 2022 03:58:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id F41A940BC7;
-	Fri, 16 Dec 2022 03:53:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org F41A940BC7
+	by smtp2.osuosl.org (Postfix) with ESMTP id 23632400D1;
+	Fri, 16 Dec 2022 03:58:35 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 23632400D1
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=SlnAV/gg
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=K5FGe97I
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ceCp4NWMCe90; Fri, 16 Dec 2022 03:53:00 +0000 (UTC)
+	with ESMTP id WEuJePxY7nl1; Fri, 16 Dec 2022 03:58:34 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 85B8C400D1;
-	Fri, 16 Dec 2022 03:52:59 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 85B8C400D1
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 81D744018A;
+	Fri, 16 Dec 2022 03:58:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 81D744018A
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5DCF3C0033;
-	Fri, 16 Dec 2022 03:52:59 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 9550AC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 595FDC0033;
+	Fri, 16 Dec 2022 03:58:33 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8A960C002D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Dec 2022 03:52:58 +0000 (UTC)
+ Fri, 16 Dec 2022 03:58:31 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 62E5582136
+ by smtp4.osuosl.org (Postfix) with ESMTP id 5C4FD41BAF
  for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Dec 2022 03:52:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 62E5582136
-Authentication-Results: smtp1.osuosl.org;
+ Fri, 16 Dec 2022 03:58:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5C4FD41BAF
+Authentication-Results: smtp4.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=SlnAV/gg
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=K5FGe97I
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Gmsx_fg7fopr
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id EcD4Qapgx1KE
  for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Dec 2022 03:52:57 +0000 (UTC)
+ Fri, 16 Dec 2022 03:58:30 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9F6FE82135
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 69BBD41BAE
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 9F6FE82135
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 69BBD41BAE
  for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Dec 2022 03:52:57 +0000 (UTC)
+ Fri, 16 Dec 2022 03:58:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1671162776;
+ s=mimecast20190719; t=1671163108;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=m/mkgsybv+YQLr4xgOo2Mo6CQB2C40n1fNpguX/a6f0=;
- b=SlnAV/gg79VWjB4Uiha7zu+QbVNn9JOu7Qzctd2/BV7J6pmI2ZiMe51NYIbKntSSOmDWB/
- j7W4HVgm2AM7f1oe0xsTpaEqnlNo3K4aSjAoJCHn+qbeIKOgY4tTfdsdXcmChWY0ZIHZ3y
- Mv4L9cvPYeYimUIIWFikz9M2WYyN5NY=
-Received: from mail-oi1-f199.google.com (mail-oi1-f199.google.com
- [209.85.167.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=ZDZbw5KBbPfiS0aQTncakmGLck0pebaODb2v7fHtSkU=;
+ b=K5FGe97IkNjfXBTxF0LGNcaYuRAQXLRE2YGPtaytDeklxN0OjL/Eg97aGBLesHMsClLcYU
+ mEsqk0VIma13L3cMXeSmNeOecdg96LnFFbEckTrFK8R6tlkKFEiONYgMXuyxlmgfjlh58E
+ 1ZMQ4dcRsWgsTS52NBX3ceQTQTxOy3s=
+Received: from mail-oo1-f70.google.com (mail-oo1-f70.google.com
+ [209.85.161.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-320-ZMiglMhFMNGYdvf_Lcob6A-1; Thu, 15 Dec 2022 22:52:52 -0500
-X-MC-Unique: ZMiglMhFMNGYdvf_Lcob6A-1
-Received: by mail-oi1-f199.google.com with SMTP id
- t25-20020a056808159900b0035ecfd3fa78so371527oiw.4
+ us-mta-481-RCrQ8BLLPCKzn0UN6w8bTg-1; Thu, 15 Dec 2022 22:58:26 -0500
+X-MC-Unique: RCrQ8BLLPCKzn0UN6w8bTg-1
+Received: by mail-oo1-f70.google.com with SMTP id
+ c6-20020a4ad206000000b004a33f36aa4dso644979oos.21
  for <virtualization@lists.linux-foundation.org>;
- Thu, 15 Dec 2022 19:52:52 -0800 (PST)
+ Thu, 15 Dec 2022 19:58:26 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=cc:to:subject:message-id:date:from:in-reply-to:references
  :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
  :reply-to;
- bh=m/mkgsybv+YQLr4xgOo2Mo6CQB2C40n1fNpguX/a6f0=;
- b=YMeUQZPhqq42NWqsB7G+A0Ye2V/MbD02fjXn1Ts46EhfDAuh4wgU+saBJZXn1cQkY3
- Jd3l8X4xceC5aSvqxscylvfih2L/Nvaqm16Xok7oZsetPE+VfsSJkxo48DGgexitithc
- pL+VKxC6vqHcfdqJ1av8vht3Vz62KpninKNHcv8v8cXoozDAEQPae/Nty2VtstvqJq42
- MvB3ngy7nJMHD0wkY3JAamh3os1VtwThx+slOxmxRB3SsSXIupHQOUh0VOOi8iJ+4CaJ
- 7aWS7lJ8165nLdLDPxBBPiQDKbl+H3NULyE4pgsNaU+EmA3eV4V2ObjeNM5CetYDBe/c
- iPkw==
-X-Gm-Message-State: ANoB5pkPbeZJ+pn0FRd1dPVL390iHGvER4U6RIL4psj4cOUwQ+Dy6nKN
- ohFbgKr2JW8kJIRatCDrk8axe7LIO4VnM8ZZ+nLA1ztkpC0XIlIgZ4ZSYtusAJIipFSBODftpH/
- wGVZ0fu0PCYp7AW95otoT/nJ+3Zx4dJ/bT0bjt1uSV/2uh9HyZLU+J8Ef1g==
-X-Received: by 2002:a05:6830:6505:b0:66c:fb5b:4904 with SMTP id
- cm5-20020a056830650500b0066cfb5b4904mr49171573otb.237.1671162772191; 
- Thu, 15 Dec 2022 19:52:52 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf7LLJFF2vwjKag+M02bzigSi3YJhDrHkH5IBNXsH5IdjpWSKWW5SLTf7TcNnRRFz54+6GmXg7+X2M1gXN7LlEI=
-X-Received: by 2002:a05:6830:6505:b0:66c:fb5b:4904 with SMTP id
- cm5-20020a056830650500b0066cfb5b4904mr49171566otb.237.1671162771969; Thu, 15
- Dec 2022 19:52:51 -0800 (PST)
+ bh=ZDZbw5KBbPfiS0aQTncakmGLck0pebaODb2v7fHtSkU=;
+ b=cpzrkx1CAMHEGaM3FIlBeR5TopgBrkUy3YpwOHhivP3OqoHtSBkUrPcowOg7jj5vY3
+ sMsx6Jeb9OM2JYjYO0m0zvgkX6pnOQIPkVt4NBDhDVgDu9t/cYv+n4If7EPI+b5xOTvD
+ whOyg+d0Ec6pZGv560CidKl7A/Lq//SV+lqh45rx9TdZ1LbYVEPOuBqHSAcJOkZZJ672
+ Cljs91fZD7nBRNqkMpt/2VmFV5Ply6iZBSRLkfYJB7du8TiBgBTC/JILLZeU4vwooqBl
+ gWp/M+HnVWufTqwHIPm2XIRCjqM9SXsEhxc1yECgf5xYXl8lZALe5ORpJW8VgzSf+cC6
+ r9hQ==
+X-Gm-Message-State: ANoB5pmwIXkHczZSqCY49K4MspSuyaQXSd3QkEbpFpnzVdD6oocTifPV
+ GTsANpAgUKdunphdr72tnEgWptVKM7bm6KG87IUwqSdldgHmXh9hi6gTo25HN5WwiLVw7IdCHt6
+ sKQaemPo6j4+7mM7l3pVDTQH8dahP4QEHCMHkXFUFzobVCwx9ffY9PDntAQ==
+X-Received: by 2002:a05:6870:9e8f:b0:144:a97b:1ae2 with SMTP id
+ pu15-20020a0568709e8f00b00144a97b1ae2mr321072oab.35.1671163106200; 
+ Thu, 15 Dec 2022 19:58:26 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf7cNko4F3UygPQf9wPv8PFtFKeyAZAHrVVoEXi20rnQdjjtfEEnI4fzMXo4e3lRKZM1aSUXRIBpmnGfmOssvfY=
+X-Received: by 2002:a05:6870:9e8f:b0:144:a97b:1ae2 with SMTP id
+ pu15-20020a0568709e8f00b00144a97b1ae2mr321067oab.35.1671163106015; Thu, 15
+ Dec 2022 19:58:26 -0800 (PST)
 MIME-Version: 1.0
 References: <20221205084127.535-1-xieyongji@bytedance.com>
- <20221205084127.535-3-xieyongji@bytedance.com>
-In-Reply-To: <20221205084127.535-3-xieyongji@bytedance.com>
+ <20221205084127.535-4-xieyongji@bytedance.com>
+In-Reply-To: <20221205084127.535-4-xieyongji@bytedance.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 16 Dec 2022 11:52:40 +0800
-Message-ID: <CACGkMEvJM4g5EAZiuS_-=uAOZ=LZN=KjNtFmVPXdv=arSVyLXg@mail.gmail.com>
-Subject: Re: [PATCH v2 02/11] vdpa: Add set/get_vq_affinity callbacks in
+Date: Fri, 16 Dec 2022 11:58:15 +0800
+Message-ID: <CACGkMEvYpBz6wdOPFvRveT=0AO=g-nzaeJt3y99oqWDLHUs=qw@mail.gmail.com>
+Subject: Re: [PATCH v2 03/11] vdpa: Add set_irq_affinity callback in
  vdpa_config_ops
 To: Xie Yongji <xieyongji@bytedance.com>
 X-Mimecast-Spam-Score: 0
@@ -120,95 +120,68 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 On Mon, Dec 5, 2022 at 4:43 PM Xie Yongji <xieyongji@bytedance.com> wrote:
 >
-> This introduces set/get_vq_affinity callbacks in
-> vdpa_config_ops to support interrupt affinity
-> management for vdpa device drivers.
+> This introduces set_irq_affinity callback in
+> vdpa_config_ops so that vdpa device driver can
+> get the interrupt affinity hint from the virtio
+> device driver. The interrupt affinity hint would
+> be needed by the interrupt affinity spreading
+> mechanism.
 >
 > Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
+> ---
+>  drivers/virtio/virtio_vdpa.c | 4 ++++
+>  include/linux/vdpa.h         | 8 ++++++++
+>  2 files changed, 12 insertions(+)
+>
+> diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
+> index 08084b49e5a1..4731e4616ee0 100644
+> --- a/drivers/virtio/virtio_vdpa.c
+> +++ b/drivers/virtio/virtio_vdpa.c
+> @@ -275,9 +275,13 @@ static int virtio_vdpa_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
+>         struct virtio_vdpa_device *vd_dev = to_virtio_vdpa_device(vdev);
+>         struct vdpa_device *vdpa = vd_get_vdpa(vdev);
+>         const struct vdpa_config_ops *ops = vdpa->config;
+> +       struct irq_affinity default_affd = { 0 };
+>         struct vdpa_callback cb;
+>         int i, err, queue_idx = 0;
+>
+> +       if (ops->set_irq_affinity)
+> +               ops->set_irq_affinity(vdpa, desc ? desc : &default_affd);
 
-Acked-by: Jason Wang <jasowang@redhat.com>
+I wonder if we need to do this in vhost-vDPA. Or it's better to have a
+default affinity by the vDPA parent itself.
+
+(Looking at virtio-pci, it doesn't do something like this).
 
 Thanks
 
-> ---
->  drivers/virtio/virtio_vdpa.c | 28 ++++++++++++++++++++++++++++
->  include/linux/vdpa.h         | 13 +++++++++++++
->  2 files changed, 41 insertions(+)
->
-> diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
-> index 9670cc79371d..08084b49e5a1 100644
-> --- a/drivers/virtio/virtio_vdpa.c
-> +++ b/drivers/virtio/virtio_vdpa.c
-> @@ -330,6 +330,32 @@ static const char *virtio_vdpa_bus_name(struct virtio_device *vdev)
->         return dev_name(&vdpa->dev);
->  }
->
-> +static int virtio_vdpa_set_vq_affinity(struct virtqueue *vq,
-> +                                      const struct cpumask *cpu_mask)
-> +{
-> +       struct virtio_vdpa_device *vd_dev = to_virtio_vdpa_device(vq->vdev);
-> +       struct vdpa_device *vdpa = vd_dev->vdpa;
-> +       const struct vdpa_config_ops *ops = vdpa->config;
-> +       unsigned int index = vq->index;
 > +
-> +       if (ops->set_vq_affinity)
-> +               return ops->set_vq_affinity(vdpa, index, cpu_mask);
-> +
-> +       return 0;
-> +}
-> +
-> +static const struct cpumask *
-> +virtio_vdpa_get_vq_affinity(struct virtio_device *vdev, int index)
-> +{
-> +       struct vdpa_device *vdpa = vd_get_vdpa(vdev);
-> +       const struct vdpa_config_ops *ops = vdpa->config;
-> +
-> +       if (ops->get_vq_affinity)
-> +               return ops->get_vq_affinity(vdpa, index);
-> +
-> +       return NULL;
-> +}
-> +
->  static const struct virtio_config_ops virtio_vdpa_config_ops = {
->         .get            = virtio_vdpa_get,
->         .set            = virtio_vdpa_set,
-> @@ -342,6 +368,8 @@ static const struct virtio_config_ops virtio_vdpa_config_ops = {
->         .get_features   = virtio_vdpa_get_features,
->         .finalize_features = virtio_vdpa_finalize_features,
->         .bus_name       = virtio_vdpa_bus_name,
-> +       .set_vq_affinity = virtio_vdpa_set_vq_affinity,
-> +       .get_vq_affinity = virtio_vdpa_get_vq_affinity,
->  };
->
->  static void virtio_vdpa_release_dev(struct device *_d)
+>         for (i = 0; i < nvqs; ++i) {
+>                 if (!names[i]) {
+>                         vqs[i] = NULL;
 > diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
-> index 6d0f5e4e82c2..0ff6c9363356 100644
+> index 0ff6c9363356..482ff7d0206f 100644
 > --- a/include/linux/vdpa.h
 > +++ b/include/linux/vdpa.h
-> @@ -247,6 +247,15 @@ struct vdpa_map_file {
+> @@ -256,6 +256,12 @@ struct vdpa_map_file {
 >   *                             @vdev: vdpa device
->   *                             Returns the iova range supported by
->   *                             the device.
-> + * @set_vq_affinity:           Set the irq affinity of virtqueue (optional)
+>   *                             @idx: virtqueue index
+>   *                             Returns the irq affinity mask
+> + * @set_irq_affinity:          Pass the irq affinity hint from the virtio
+> + *                             device driver to vdpa driver (optional).
+> + *                             Needed by the interrupt affinity spreading
+> + *                             mechanism.
 > + *                             @vdev: vdpa device
-> + *                             @idx: virtqueue index
-> + *                             @cpu_mask: irq affinity mask
-> + *                             Returns integer: success (0) or error (< 0)
-> + * @get_vq_affinity:           Get the irq affinity of virtqueue (optional)
-> + *                             @vdev: vdpa device
-> + *                             @idx: virtqueue index
-> + *                             Returns the irq affinity mask
+> + *                             @desc: irq affinity hint
 >   * @set_group_asid:            Set address space identifier for a
 >   *                             virtqueue group (optional)
 >   *                             @vdev: vdpa device
-> @@ -331,6 +340,10 @@ struct vdpa_config_ops {
->                            const void *buf, unsigned int len);
->         u32 (*get_generation)(struct vdpa_device *vdev);
->         struct vdpa_iova_range (*get_iova_range)(struct vdpa_device *vdev);
-> +       int (*set_vq_affinity)(struct vdpa_device *vdev, u16 idx,
-> +                              const struct cpumask *cpu_mask);
-> +       const struct cpumask *(*get_vq_affinity)(struct vdpa_device *vdev,
-> +                                                u16 idx);
+> @@ -344,6 +350,8 @@ struct vdpa_config_ops {
+>                                const struct cpumask *cpu_mask);
+>         const struct cpumask *(*get_vq_affinity)(struct vdpa_device *vdev,
+>                                                  u16 idx);
+> +       void (*set_irq_affinity)(struct vdpa_device *vdev,
+> +                                struct irq_affinity *desc);
 >
 >         /* DMA ops */
 >         int (*set_map)(struct vdpa_device *vdev, unsigned int asid,
