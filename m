@@ -1,97 +1,100 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 58E9DC4332F
-	for <virtualization@archiver.kernel.org>; Tue, 20 Dec 2022 12:42:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id EDF7EC4332F
+	for <virtualization@archiver.kernel.org>; Tue, 20 Dec 2022 12:52:45 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id A2BB5415FD;
-	Tue, 20 Dec 2022 12:42:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A2BB5415FD
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=jDlbCVx5
+	by smtp3.osuosl.org (Postfix) with ESMTP id 4E90660C19;
+	Tue, 20 Dec 2022 12:52:45 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4E90660C19
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=TuqQSVhG
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 9KVt07zF9apU; Tue, 20 Dec 2022 12:42:07 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 7DD0D415CF;
-	Tue, 20 Dec 2022 12:42:06 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7DD0D415CF
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id OCRdbazEjNVF; Tue, 20 Dec 2022 12:52:44 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id EDB4F60B92;
+	Tue, 20 Dec 2022 12:52:43 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org EDB4F60B92
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 39EECC0035;
-	Tue, 20 Dec 2022 12:42:06 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 08834C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 25B03C0070;
+	Tue, 20 Dec 2022 12:52:42 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 86200C002D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Dec 2022 12:42:03 +0000 (UTC)
+ Tue, 20 Dec 2022 12:52:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id C2F66415C9
+ by smtp2.osuosl.org (Postfix) with ESMTP id 640304053E
  for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Dec 2022 12:42:02 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C2F66415C9
+ Tue, 20 Dec 2022 12:52:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 640304053E
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=TuqQSVhG
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id HCK8I1s22f2W
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 9TxRM_8OYNKC
  for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Dec 2022 12:42:02 +0000 (UTC)
+ Tue, 20 Dec 2022 12:52:09 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org CD15541571
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 96C29400C0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id CD15541571
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 96C29400C0
  for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Dec 2022 12:42:01 +0000 (UTC)
+ Tue, 20 Dec 2022 12:52:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1671540120;
+ s=mimecast20190719; t=1671540728;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type;
- bh=a9dphcXJKbDgaDzxRRBiVFA9p7kE9yji17UDhT5ug+8=;
- b=jDlbCVx5ASW9WXd/pM0qM3JKtx5JDLczj05mZ/T2tx3j0JEJLNlBevQSTFkX69JY6oVB/1
- b4dITTT2oSk8ueGT+FDcKRgoHHg+EdroInniqMs45LSF6jleOztdCILOUBTeG3O3WVGOx8
- UD/5q+Kq63GELU0sYr2RDhIJh1veFRs=
-Received: from mail-qt1-f198.google.com (mail-qt1-f198.google.com
- [209.85.160.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=k0FAg6XXcHdMfc8oVO4atET5WnhQYSLiwHFy9PK81fE=;
+ b=TuqQSVhGLDXNhqVlsVPL5rU0XOqt3bZpqyBAiEOoM8DzRZrMRgRNoEHvGfeUgt7ykBBTky
+ JRg9YqQLLvZ1j1ye+wkbmkowZ32fUyVdvdI0IAYqCXhPu/SrgU5xNkcMirJLZoYDsAeVxW
+ pq4T5LX7brNwK+8lCyLZEcK9a87Evuc=
+Received: from mail-qv1-f70.google.com (mail-qv1-f70.google.com
+ [209.85.219.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-76-YRCC5mAKPtaP0YWFjzn1kw-1; Tue, 20 Dec 2022 07:41:59 -0500
-X-MC-Unique: YRCC5mAKPtaP0YWFjzn1kw-1
-Received: by mail-qt1-f198.google.com with SMTP id
- k7-20020ac84747000000b003a87ca26200so5434088qtp.6
+ us-mta-618-IdlcA8bCN5yyAb4jiVXxSg-1; Tue, 20 Dec 2022 07:52:07 -0500
+X-MC-Unique: IdlcA8bCN5yyAb4jiVXxSg-1
+Received: by mail-qv1-f70.google.com with SMTP id
+ nt2-20020a0562143c0200b004c74f7ec3afso7014228qvb.2
  for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Dec 2022 04:41:59 -0800 (PST)
+ Tue, 20 Dec 2022 04:52:07 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=content-disposition:mime-version:message-id:subject:cc:to:from:date
  :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
- bh=a9dphcXJKbDgaDzxRRBiVFA9p7kE9yji17UDhT5ug+8=;
- b=HzIFHmvHG4IVsPbVQtgdC3H7oZYCkNzD7wQPvwqNsf+jMpYCab3bau2Ic/a264Sb5Z
- aO+ycBJ1WTmS98CHIOCR5E9GIbX/J9et2YgEuXDWdIum5NBsDlSn8/jSIYjFHLKa3J0d
- ty/kyhxGtDXvfkY6EdIWTpVe8i1pGEf8dKB8swosErB3j30gJAc2/MJD9v0B1xEjMXew
- rbHYcsrsKkNLMmtKVgTVHROLbcfkg7RYeF1OpXw/+FjjqF4le8HdNlIecu7DO32fsxEP
- DCwCRAGqN2LGSlDnE9bNZ4vmne3roSwgH6olMsgR9MrENB/131LG9zzHHkZyyNcFM8Nu
- pHfQ==
-X-Gm-Message-State: AFqh2kqy30AvKeLNjT33usjg9jBLVm9Wun0agxfl8Y84GO3b9RFQs4jY
- HvkM6dWuuJQn/c+kzzMVR/I7MA91ZlHqpKC9I8vWy9gJVPBR5GU6sCHOx9tAncsO8RKSsIvFkWr
- T1OQ7fUaq6jG92tQoTDE+MON0UieypFm9K65O3UabPw==
-X-Received: by 2002:ac8:6904:0:b0:3a9:6b48:a130 with SMTP id
- bt4-20020ac86904000000b003a96b48a130mr25323876qtb.34.1671540119051; 
- Tue, 20 Dec 2022 04:41:59 -0800 (PST)
-X-Google-Smtp-Source: AMrXdXsSZ+R1ipZB7Pp5jlH4N4rO4W1kiXyv4dXazNe/fcZv+aCknM6mHWYUdqpnkHeBoyJ3nTFEpA==
-X-Received: by 2002:ac8:6904:0:b0:3a9:6b48:a130 with SMTP id
- bt4-20020ac86904000000b003a96b48a130mr25323850qtb.34.1671540118802; 
- Tue, 20 Dec 2022 04:41:58 -0800 (PST)
+ bh=k0FAg6XXcHdMfc8oVO4atET5WnhQYSLiwHFy9PK81fE=;
+ b=hwBSxa+SA8BZ02jfsbXqTAQKBoY42qsXBod3Gbcp3DImbwQH6GH9b3qeb2ThruwwbS
+ YI7BIbuN4qXZKOdM4GbYPeCPna6gUVswoMFmARz8qYJL/zBJ55HnmlID1DUUlPm1/NHx
+ OXPyGTB6x0Q0LAQV/Tnmee+miUl01qyHJr2HvoyWZhCWqn1AevHeBc2AUGJ+5M08E1qE
+ zkdnS2FezNZMagCqhW6fuHkZsKN8nrlHIHpcvp8b5YVpTOH35FhB9jazCMnaShFRXs65
+ LsUtUs9n40tqabwyA8/9zhpAbtYo3DdtT74HgRWq2JOOgap/6ft8YU7VVuRopvFMFL86
+ DyEA==
+X-Gm-Message-State: ANoB5pmCQPpM0MMLsdQHxDo0P3qVCjuGX4kM9ah/8dB6oxGcXMszVYQX
+ LpvoSJ60+rgu7V5ilNVFeJ32ROL9+B2Zb2zRyYhyfMjTbXdHsbaxxO4KXLYbKRGDFfEMb8C/ALy
+ ieRFc+gGrBzrRX8womeZQLCaZX1hRl67gGlExrZI3vg==
+X-Received: by 2002:ac8:6bc4:0:b0:3a8:1d3c:47e9 with SMTP id
+ b4-20020ac86bc4000000b003a81d3c47e9mr43531120qtt.48.1671540726782; 
+ Tue, 20 Dec 2022 04:52:06 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf6OPTSizknvCW8hT8hFc92s3UWJz2R3Fi5ZFpNOvn/FDZ7TfsX9i098IAGzf0JLhm5JkP5L8A==
+X-Received: by 2002:ac8:6bc4:0:b0:3a8:1d3c:47e9 with SMTP id
+ b4-20020ac86bc4000000b003a81d3c47e9mr43531096qtt.48.1671540726541; 
+ Tue, 20 Dec 2022 04:52:06 -0800 (PST)
 Received: from redhat.com ([37.19.199.118]) by smtp.gmail.com with ESMTPSA id
- i8-20020a05620a404800b006fbaf9c1b70sm8781028qko.133.2022.12.20.04.41.56
+ r17-20020ac84251000000b003a50ef44a77sm7507788qtm.28.2022.12.20.04.52.04
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 20 Dec 2022 04:41:58 -0800 (PST)
-Date: Tue, 20 Dec 2022 07:41:53 -0500
+ Tue, 20 Dec 2022 04:52:06 -0800 (PST)
+Date: Tue, 20 Dec 2022 07:52:01 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] virtio_blk: temporary variable type tweak
-Message-ID: <20221220124152.523531-1-mst@redhat.com>
+Subject: [PATCH] virtio_blk: zone append in header type tweak
+Message-ID: <20221220125154.564265-1-mst@redhat.com>
 MIME-Version: 1.0
 X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
 X-Mutt-Fcc: =sent
@@ -117,15 +120,11 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-virtblk_result returns blk_status_t which is a bitwise restricted type,
-so we are not supposed to stuff it in a plain int temporary variable.
-All we do with it is pass it on to a function expecting blk_status_t so
-the generated code is ok, but we get warnings from sparse:
+virtio blk returns a 64 bit append_sector in an input buffer,
+in LE format. This field is not tagged as LE correctly, so
+even though the generated code is ok, we get warnings from sparse:
 
-drivers/block/virtio_blk.c:326:36: sparse: sparse: incorrect type in initializer (different base types) @@     expected int status @@
-+got restricted blk_status_t @@
-drivers/block/virtio_blk.c:334:33: sparse: sparse: incorrect type in argument 2 (different base types) @@     expected restricted
-+blk_status_t [usertype] error @@     got int status @@
+drivers/block/virtio_blk.c:332:33: sparse: sparse: cast to restricted __le64
 
 Make sparse happy by using the correct type.
 
@@ -135,18 +134,18 @@ Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 88d8410ecc5e..73cd5db0d7d5 100644
+index 73cd5db0d7d5..dc577e8bfa30 100644
 --- a/drivers/block/virtio_blk.c
 +++ b/drivers/block/virtio_blk.c
-@@ -336,7 +336,7 @@ static blk_status_t virtblk_setup_cmd(struct virtio_device *vdev,
- static inline void virtblk_request_done(struct request *req)
- {
- 	struct virtblk_req *vbr = blk_mq_rq_to_pdu(req);
--	int status = virtblk_result(vbr->status);
-+	blk_status_t status = virtblk_result(vbr->status);
+@@ -104,7 +104,7 @@ struct virtblk_req {
+ 		struct {
+ 			u8 status;
+ 			u8 reserved[7];
+-			u64 append_sector;
++			__le64 append_sector;
+ 		} zone_append_in_hdr;
+ 	};
  
- 	virtblk_unmap_data(req, vbr);
- 	virtblk_cleanup_cmd(req);
 -- 
 MST
 
