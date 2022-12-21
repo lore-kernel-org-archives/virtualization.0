@@ -4,101 +4,102 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B2568C4332F
-	for <virtualization@archiver.kernel.org>; Wed, 21 Dec 2022 03:25:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 073BFC4332F
+	for <virtualization@archiver.kernel.org>; Wed, 21 Dec 2022 03:25:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 405EC40B05;
-	Wed, 21 Dec 2022 03:25:52 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 405EC40B05
+	by smtp2.osuosl.org (Postfix) with ESMTP id 9B68D40B13;
+	Wed, 21 Dec 2022 03:25:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9B68D40B13
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ItIf7A/k
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cIUetd6o
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id tamsl2EM7rCh; Wed, 21 Dec 2022 03:25:51 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id C46BC40B08;
-	Wed, 21 Dec 2022 03:25:50 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C46BC40B08
+	with ESMTP id 9MnQ04p7psgN; Wed, 21 Dec 2022 03:25:54 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 37A7C40B23;
+	Wed, 21 Dec 2022 03:25:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 37A7C40B23
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E7619C007E;
-	Wed, 21 Dec 2022 03:25:49 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 78D4FC0070
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 98190C007D;
+	Wed, 21 Dec 2022 03:25:53 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7A306C0070
  for <virtualization@lists.linux-foundation.org>;
- Wed, 21 Dec 2022 03:24:07 +0000 (UTC)
+ Wed, 21 Dec 2022 03:25:18 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 3A89940B1D
+ by smtp1.osuosl.org (Postfix) with ESMTP id 40C1281FCE
  for <virtualization@lists.linux-foundation.org>;
- Wed, 21 Dec 2022 03:24:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3A89940B1D
+ Wed, 21 Dec 2022 03:25:18 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 40C1281FCE
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=cIUetd6o
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id GhtR13Mn78lg
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id xgKL2uM-Llw5
  for <virtualization@lists.linux-foundation.org>;
- Wed, 21 Dec 2022 03:24:06 +0000 (UTC)
+ Wed, 21 Dec 2022 03:25:17 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9D51040B15
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8865A81FCA
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 9D51040B15
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 8865A81FCA
  for <virtualization@lists.linux-foundation.org>;
- Wed, 21 Dec 2022 03:24:05 +0000 (UTC)
+ Wed, 21 Dec 2022 03:25:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1671593044;
+ s=mimecast20190719; t=1671593116;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=qGspaHzQPxqTwdTzEM+6CxFY6yjXuHAKATnBqhR/cIw=;
- b=ItIf7A/kSmEM080v167pyAImRjonYafxaH8lttBz4NKhzR53v2T1HrS1KaNUWm/YMlFBfS
- oSNi0N55HR6pjh+It/i6xOWLmocd6R6mqCBF4To71/3G7UswBhlmm+somh9y470a1VPmdm
- aq2II+lWqmIBszNOy6mtiVP9dWDhdnQ=
-Received: from mail-oo1-f72.google.com (mail-oo1-f72.google.com
- [209.85.161.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=ApfT1mwALCaiaFHayB6WsCpaiiWJaQan2/3pFowjHO0=;
+ b=cIUetd6oqW4KFiBEjEiFKr7CYywyZrsW5km7kM8USQb51JAUPy4v8wNvPIgkPZeamWHDsU
+ r1mh5llgaJn+5G47H1vmedPRP7AsprWeyAHLfHkM2S6+OPgU1Zi81XOCzFQnHRVTIknVtj
+ ZYFsEEYMaVkyRStkNKDgIJNO0SKLgCg=
+Received: from mail-oo1-f70.google.com (mail-oo1-f70.google.com
+ [209.85.161.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-39-fEBoyeyKOgenLQQ2qvE4vQ-1; Tue, 20 Dec 2022 22:24:03 -0500
-X-MC-Unique: fEBoyeyKOgenLQQ2qvE4vQ-1
-Received: by mail-oo1-f72.google.com with SMTP id
- w18-20020a4a6d52000000b0049f209d84bbso6333688oof.7
+ us-mta-191-zMk3ZrymO0-SEK23AFD56w-1; Tue, 20 Dec 2022 22:25:14 -0500
+X-MC-Unique: zMk3ZrymO0-SEK23AFD56w-1
+Received: by mail-oo1-f70.google.com with SMTP id
+ y25-20020a4a6519000000b004a398cd439bso6323762ooc.5
  for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Dec 2022 19:24:03 -0800 (PST)
+ Tue, 20 Dec 2022 19:25:13 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=cc:to:subject:message-id:date:from:in-reply-to:references
  :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
  :reply-to;
- bh=qGspaHzQPxqTwdTzEM+6CxFY6yjXuHAKATnBqhR/cIw=;
- b=4UmwaqB0kVcHSHdHzRrRjGMeiraByC3+30lB2ipqlnWZFb7Euwao0kNwXVRbgjtQMg
- OZtK3gVJqz4Krecs0UdGfEkCZwEWf/G3JQRWYekjje98u2aTbcstN8CkbAj8VR8RJt8+
- fljMzWjcR0YttIEezgpvbi7/0EjmdbTeNKaQnYhugdY+ylq5IBasDxx18CO6G7Ju3Onm
- VYyEoy6N1qNpFD0Cv1+g8nZZRVPMi+Tk8MQdU1KxptFPnduSaYRyeD5xJwXKAtAwvNMD
- bgrRUPmmhu2B6ypBjeB85MkPEj5w9aaq3ubLMfo2e0iQ2gmn0MBa6WzMf9AtZbd+vJI5
- Xq1Q==
-X-Gm-Message-State: AFqh2kqjcLS6s8bETBz+lA+9JnMF/oSLL9Kha9+XGDPAILml5B2+994K
- eEPswE9VcRNw+Jk98yby2SQc41bpqUQzCpoVKFRDxkbQbGJvOuWN5GwPo/0h2U5vQJMzbBulH4n
- vD7K21Jt1DPieIvdYYpiKb2GkFbnkEqnms5ZdUcPpnayciDV1HxwwHMc/3Q==
-X-Received: by 2002:a9d:7843:0:b0:678:1eb4:3406 with SMTP id
- c3-20020a9d7843000000b006781eb43406mr25004otm.237.1671593042466; 
- Tue, 20 Dec 2022 19:24:02 -0800 (PST)
-X-Google-Smtp-Source: AMrXdXu6qY57e2GgcRHWrfthleF4uh/gauFFEArM3SE5nEJmGcPQ8lmsJLiuqe4JznhtR/YQJA67yWVZFf3UWvSworo=
-X-Received: by 2002:a9d:7843:0:b0:678:1eb4:3406 with SMTP id
- c3-20020a9d7843000000b006781eb43406mr24997otm.237.1671593042237; Tue, 20 Dec
- 2022 19:24:02 -0800 (PST)
+ bh=ApfT1mwALCaiaFHayB6WsCpaiiWJaQan2/3pFowjHO0=;
+ b=YMkYAr2j6iwLii8Q/2k901yau6yADpH57o4szm7nvPcYaG+zGMArP4C+lNI3W27OyT
+ vv11M1Hc1aApaz/AtIgHyR7tLmaTG5isTt20Ror60wpD8pRoYza9wuaI5FPTpbtYp5dH
+ u8/o99HFSX/VIt0+uArn+Z7li736mFmKkCYvN4mmPm6LMYKOT7tc5zLnD9XuAc4DeG8d
+ W5S402KmzpbBbRI9hUWnxSRh2Jz+NWlu7hOivWp/1t7UfknfdNezb1pwFEqdIYeN1jBY
+ q8Fjk9e0rrU+j/ux1mcmQLGlw0gJ2D1GJ2u6dXv1IZWL0gvNkQwcz9XHMT/ZfY6a7xlx
+ 9EHQ==
+X-Gm-Message-State: AFqh2krqYlTzbmMvTeFyk4S3/xdXdF4tQFhUsnuUqNNhan7m9KUGa6+k
+ VgYRQHpM0Hm/cwRcGDydmGvGgqi9Ac5W+v0vyUqGhuhCunDegAmIFTtklfb+WoaQke9elRnPijx
+ UEi9ucWAYf/mfEjQw/B40BJlQqf91NriexfFxVv3dObdjsdOOyddpa93EFw==
+X-Received: by 2002:a05:6870:3d97:b0:144:b22a:38d3 with SMTP id
+ lm23-20020a0568703d9700b00144b22a38d3mr3679oab.280.1671593112829; 
+ Tue, 20 Dec 2022 19:25:12 -0800 (PST)
+X-Google-Smtp-Source: AMrXdXtESDdSkXgg8r/t0XugHs8++IS/w1sAL9QIHZ7vn0P3+2zRKMV14ptsVewitum6DIvaXcMfP4cGF4sg1GCkCXQ=
+X-Received: by 2002:a05:6870:3d97:b0:144:b22a:38d3 with SMTP id
+ lm23-20020a0568703d9700b00144b22a38d3mr3678oab.280.1671593112600; Tue, 20 Dec
+ 2022 19:25:12 -0800 (PST)
 MIME-Version: 1.0
-References: <20221220112340.518841-1-mst@redhat.com>
-In-Reply-To: <20221220112340.518841-1-mst@redhat.com>
+References: <20221220090732.409004-1-alvaro.karsz@solid-run.com>
+In-Reply-To: <20221220090732.409004-1-alvaro.karsz@solid-run.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 21 Dec 2022 11:23:51 +0800
-Message-ID: <CACGkMEvwwBSkeUaOJKYB2VTc0HT60sWfLFSNwcrEzyDWu9Aj2g@mail.gmail.com>
-Subject: Re: [PATCH] virtio-blk: fix probe without CONFIG_BLK_DEV_ZONED
-To: "Michael S. Tsirkin" <mst@redhat.com>
+Date: Wed, 21 Dec 2022 11:25:01 +0800
+Message-ID: <CACGkMEtpYomDhJ+oKhXROA8NPMwWKvLfK2TQRZ30g=o_vW8cQw@mail.gmail.com>
+Subject: Re: [PATCH] virtio: vdpa: explain the dependency of SNET_VDPA on HWMON
+To: Alvaro Karsz <alvaro.karsz@solid-run.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: Jens Axboe <axboe@kernel.dk>, Anders Roxell <anders.roxell@linaro.org>,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- linux-block@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>,
- Paolo Bonzini <pbonzini@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -115,65 +116,47 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Dec 20, 2022 at 7:23 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+On Tue, Dec 20, 2022 at 5:07 PM Alvaro Karsz <alvaro.karsz@solid-run.com> wrote:
 >
-> When building without CONFIG_BLK_DEV_ZONED, VIRTIO_BLK_F_ZONED
-> is excluded from array of driver features.
-> As a result virtio_has_feature panics in virtio_check_driver_offered_feature
-> since that by design verifies that a feature we are checking for
-> is listed in the feature array.
+> Add a comment in Kconfig explaining the
+> "depends on .. && (HWMON || HWMON=n)" part.
 >
-> To fix, replace the call to virtio_has_feature with a stub.
+> This patch should be applied on top of the following patch:
 >
-> Tested-by: Anders Roxell <anders.roxell@linaro.org>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> virtio: vdpa: new SolidNET DPU driver,
+> by Alvaro Karsz alvaro.karsz@solid-run.com
+>
+> Signed-off-by: Alvaro Karsz <alvaro.karsz@solid-run.com>
 
 Acked-by: Jason Wang <jasowang@redhat.com>
 
 Thanks
 
 > ---
->  drivers/block/virtio_blk.c | 11 ++++++++++-
->  1 file changed, 10 insertions(+), 1 deletion(-)
+>  drivers/vdpa/Kconfig | 8 ++++++++
+>  1 file changed, 8 insertions(+)
 >
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index 88b3639f8536..5ea1dc882a80 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-> @@ -760,6 +760,10 @@ static int virtblk_probe_zoned_device(struct virtio_device *vdev,
->         return ret;
->  }
->
-> +static inline bool virtblk_has_zoned_feature(struct virtio_device *vdev)
-> +{
-> +       return virtio_has_feature(vdev, VIRTIO_BLK_F_ZONED);
-> +}
->  #else
->
->  /*
-> @@ -775,6 +779,11 @@ static inline int virtblk_probe_zoned_device(struct virtio_device *vdev,
->  {
->         return -EOPNOTSUPP;
->  }
+> diff --git a/drivers/vdpa/Kconfig b/drivers/vdpa/Kconfig
+> index 79625c7cc46..7396e92b485 100644
+> --- a/drivers/vdpa/Kconfig
+> +++ b/drivers/vdpa/Kconfig
+> @@ -89,6 +89,14 @@ config ALIBABA_ENI_VDPA
+>   config SNET_VDPA
+>         tristate "SolidRun's vDPA driver for SolidNET"
+>         depends on PCI_MSI && PCI_IOV && (HWMON || HWMON=n)
 > +
-> +static inline bool virtblk_has_zoned_feature(struct virtio_device *vdev)
-> +{
-> +       return false;
-> +}
->  #endif /* CONFIG_BLK_DEV_ZONED */
->
->  /* return id (s/n) string for *disk to *id_str
-> @@ -1480,7 +1489,7 @@ static int virtblk_probe(struct virtio_device *vdev)
->         virtblk_update_capacity(vblk, false);
->         virtio_device_ready(vdev);
->
-> -       if (virtio_has_feature(vdev, VIRTIO_BLK_F_ZONED)) {
-> +       if (virtblk_has_zoned_feature(vdev)) {
->                 err = virtblk_probe_zoned_device(vdev, vblk, q);
->                 if (err)
->                         goto out_cleanup_disk;
+> +       # This driver MAY create a HWMON device.
+> +       # Depending on (HWMON || HWMON=n) ensures that:
+> +       # If HWMON=n the driver can be compiled either as a module or built-in.
+> +       # If HWMON=y the driver can be compiled either as a module or built-in.
+> +       # If HWMON=m the driver is forced to be compiled as a module.
+> +       # By doing so, IS_ENABLED can be used instead of IS_REACHABLE
+> +
+>         help
+>           vDPA driver for SolidNET DPU.
+>           With this driver, the VirtIO dataplane can be
 > --
-> MST
+> 2.32.0
 >
 
 _______________________________________________
