@@ -1,109 +1,87 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1B17CC4332F
-	for <virtualization@archiver.kernel.org>; Wed, 21 Dec 2022 12:33:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A02D6C4332F
+	for <virtualization@archiver.kernel.org>; Wed, 21 Dec 2022 12:42:24 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 8CCB441808;
-	Wed, 21 Dec 2022 12:33:40 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8CCB441808
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=M39dWPvr
+	by smtp1.osuosl.org (Postfix) with ESMTP id 29AE481E53;
+	Wed, 21 Dec 2022 12:42:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 29AE481E53
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=hXPp7+hB
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id m-YLXJCFVJN9; Wed, 21 Dec 2022 12:33:39 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id D3129417FC;
-	Wed, 21 Dec 2022 12:33:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D3129417FC
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id GdqlSx25_TLm; Wed, 21 Dec 2022 12:42:22 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 1C7C081E2D;
+	Wed, 21 Dec 2022 12:42:22 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1C7C081E2D
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5EEB6C0071;
-	Wed, 21 Dec 2022 12:33:36 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0EF29C0070
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 23A06C0071;
+	Wed, 21 Dec 2022 12:42:21 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id DE84CC0070
  for <virtualization@lists.linux-foundation.org>;
- Wed, 21 Dec 2022 12:33:27 +0000 (UTC)
+ Wed, 21 Dec 2022 12:42:09 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 2CC3941808
+ by smtp2.osuosl.org (Postfix) with ESMTP id 58FF040382
  for <virtualization@lists.linux-foundation.org>;
- Wed, 21 Dec 2022 12:33:27 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2CC3941808
+ Wed, 21 Dec 2022 12:42:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 58FF040382
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (1024-bit key) header.d=linuxfoundation.org
+ header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg
+ header.b=hXPp7+hB
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 4q2ZYcmL4jdh
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id bUQx0ZGuNcIJ
  for <virtualization@lists.linux-foundation.org>;
- Wed, 21 Dec 2022 12:33:26 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D83AD417FC
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id D83AD417FC
+ Wed, 21 Dec 2022 12:42:04 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5B57F402A8
+Received: from dfw.source.kernel.org (dfw.source.kernel.org
+ [IPv6:2604:1380:4641:c500::1])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 5B57F402A8
  for <virtualization@lists.linux-foundation.org>;
- Wed, 21 Dec 2022 12:33:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1671626004;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=UfwSpMUrbS5QlCiQ/lUZJuhmzHTSBFxV4V+3orKFqcg=;
- b=M39dWPvrUhUZOie2i9qVidkBMX6emZNdOtJkwSl66xRp03wwt//UZeYdCFpbC0UMF+yfJJ
- ZMmdFKMOVk3y7X6l/VwntUhUjsfv3kf9AoE392VMTiRsAMRTVIJ5leLr0Nxkh+HrfGk3iK
- s+AcADEEEvL/AYz9+BlpjXEbsB4sx1Y=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-516-8SBAyABcPCSiTeKyurFUZQ-1; Wed, 21 Dec 2022 07:33:21 -0500
-X-MC-Unique: 8SBAyABcPCSiTeKyurFUZQ-1
-Received: by mail-wr1-f71.google.com with SMTP id
- x1-20020adfbb41000000b002426b33b618so2846525wrg.7
- for <virtualization@lists.linux-foundation.org>;
- Wed, 21 Dec 2022 04:33:21 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=UfwSpMUrbS5QlCiQ/lUZJuhmzHTSBFxV4V+3orKFqcg=;
- b=FZCp9m3m7Vmvswk2tR57sFeR68JLNnAc9f0tamQyfWS+RsALKgW+cQOJrp7mrsb4Qt
- VasQz8+EbWFaIfT1LPujx9gJCY5oM5/R6P61VH44eH7wM7mbYaeMU1+AOsOVCe8nQmZI
- pKDOFvUeFkW94ce4/wklHAgfr9OnN3RYGzLWhLO5pVF/5HPHnw4DareYiKtSGad9DmSO
- W9sUnAmFZsW2CGuZRTmW+6H7MLeGYWopnqLKBtbT50GS6FvhSsnen9wPWug9s5gJeng0
- 5G+h0matZ16XwTWYO3YNvTUa5/1EYB9jPTLILc7/K3TUd8Y+Hz7WVTq0mmlDvOJFTPbS
- B0wQ==
-X-Gm-Message-State: AFqh2kpdtC61u30XZ5Dvdp819O7irTbNaazlkTa493SCQN41cblf2azk
- FgH+6ZUpIw9KUwYc5n3Xcm2ybXwScSqNp8zvztqbF1G9Ze2EMvR7OigaxfcLmGw16/LB2qGkRZl
- CDrFsKml81AykdDmef/JvUKzY0rmAsmWHpD52+QrNKQ==
-X-Received: by 2002:a05:6000:1a41:b0:24b:b74d:8012 with SMTP id
- t1-20020a0560001a4100b0024bb74d8012mr1057876wry.18.1671626000063; 
- Wed, 21 Dec 2022 04:33:20 -0800 (PST)
-X-Google-Smtp-Source: AMrXdXuVlFqxMHdgatYSltTWh5BxABbnsJVuYp/aWATKsyX3UxK/IJnpGpWhs1rYaZCrHl/VIrOKbQ==
-X-Received: by 2002:a05:6000:1a41:b0:24b:b74d:8012 with SMTP id
- t1-20020a0560001a4100b0024bb74d8012mr1057864wry.18.1671625999865; 
- Wed, 21 Dec 2022 04:33:19 -0800 (PST)
-Received: from redhat.com ([2.52.8.61]) by smtp.gmail.com with ESMTPSA id
- d1-20020adffbc1000000b002364c77bcacsm15184456wrs.38.2022.12.21.04.33.18
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 21 Dec 2022 04:33:19 -0800 (PST)
-Date: Wed, 21 Dec 2022 07:33:16 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Alvaro Karsz <alvaro.karsz@solid-run.com>
-Subject: Re: [PATCH] virtio_net: send notification coalescing command only if
- value changed
-Message-ID: <20221221073256-mutt-send-email-mst@kernel.org>
-References: <20221221120618.652074-1-alvaro.karsz@solid-run.com>
+ Wed, 21 Dec 2022 12:42:04 +0000 (UTC)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by dfw.source.kernel.org (Postfix) with ESMTPS id 0C03B6179A;
+ Wed, 21 Dec 2022 12:42:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAC34C433EF;
+ Wed, 21 Dec 2022 12:42:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+ s=korg; t=1671626522;
+ bh=gQUFpEO6Bldd7g3YthL9Gzsvs+Z4eFoaLG9TyOi5QPY=;
+ h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+ b=hXPp7+hBYdB1DUfU5s9xr/o6OB4LsGlmipuTFugx9ufNhcSR3yHDYK74aGJEmekvH
+ BBdojzzMb3poEm32umegR7l+3tWVAUQ8NmB/LGUrYRwdbWezgYNoWNIdpOXks1qiZv
+ cOeHe6ZSkcX61WFsp6lAxE2Q+ORL3R7WQXYYCJy0=
+Date: Wed, 21 Dec 2022 13:41:59 +0100
+From: Greg KH <gregkh@linuxfoundation.org>
+To: Tudor Ambarus <tudor.ambarus@linaro.org>
+Subject: Re: kernel BUG in __skb_gso_segment
+Message-ID: <Y6L/F2Hwm7BRdYj8@kroah.com>
+References: <82b18028-7246-9af9-c992-528a0e77f6ba@linaro.org>
+ <CAF=yD-KEwVnH6PRyxbJZt4iGfKasadYwU_6_V+hHW2s+ZqFNcw@mail.gmail.com>
+ <a13f83f3-737d-1bfe-c9ef-031a6cd4d131@linaro.org>
+ <Y6K3q6Bo3wwC57bK@kroah.com>
+ <fc60e8da-1187-ca2b-1aa8-28e01ea2769a@linaro.org>
 MIME-Version: 1.0
-In-Reply-To: <20221221120618.652074-1-alvaro.karsz@solid-run.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <fc60e8da-1187-ca2b-1aa8-28e01ea2769a@linaro.org>
+Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>, mst@redhat.com,
+ netdev@vger.kernel.org, willemb@google.com,
+ virtualization@lists.linux-foundation.org, edumazet@google.com,
+ syzkaller@googlegroups.com, liuhangbin@gmail.com, joneslee@google.com,
+ kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net,
+ linux-kernel@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -120,86 +98,29 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Dec 21, 2022 at 02:06:18PM +0200, Alvaro Karsz wrote:
-> Don't send a VIRTIO_NET_CTRL_NOTF_COAL_TX_SET or
-> VIRTIO_NET_CTRL_NOTF_COAL_RX_SET command if the coalescing parameters
-> haven't changed.
+On Wed, Dec 21, 2022 at 09:42:59AM +0200, Tudor Ambarus wrote:
 > 
-> Signed-off-by: Alvaro Karsz <alvaro.karsz@solid-run.com>
-
-Why do we bother? Resending needs more code and helps
-reliability ...
-
-> ---
->  drivers/net/virtio_net.c | 48 ++++++++++++++++++++++------------------
->  1 file changed, 27 insertions(+), 21 deletions(-)
 > 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 7723b2a49d8..1d7118de62a 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -2760,31 +2760,37 @@ static int virtnet_send_notf_coal_cmds(struct virtnet_info *vi,
->  	struct virtio_net_ctrl_coal_tx coal_tx;
->  	struct virtio_net_ctrl_coal_rx coal_rx;
->  
-> -	coal_tx.tx_usecs = cpu_to_le32(ec->tx_coalesce_usecs);
-> -	coal_tx.tx_max_packets = cpu_to_le32(ec->tx_max_coalesced_frames);
-> -	sg_init_one(&sgs_tx, &coal_tx, sizeof(coal_tx));
-> -
-> -	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_NOTF_COAL,
-> -				  VIRTIO_NET_CTRL_NOTF_COAL_TX_SET,
-> -				  &sgs_tx))
-> -		return -EINVAL;
-> +	if (ec->tx_coalesce_usecs != vi->tx_usecs ||
-> +	    ec->tx_max_coalesced_frames != vi->tx_max_packets) {
-> +		coal_tx.tx_usecs = cpu_to_le32(ec->tx_coalesce_usecs);
-> +		coal_tx.tx_max_packets = cpu_to_le32(ec->tx_max_coalesced_frames);
-> +		sg_init_one(&sgs_tx, &coal_tx, sizeof(coal_tx));
-> +
-> +		if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_NOTF_COAL,
-> +					  VIRTIO_NET_CTRL_NOTF_COAL_TX_SET,
-> +					  &sgs_tx))
-> +			return -EINVAL;
->  
-> -	/* Save parameters */
-> -	vi->tx_usecs = ec->tx_coalesce_usecs;
-> -	vi->tx_max_packets = ec->tx_max_coalesced_frames;
-> +		/* Save parameters */
-> +		vi->tx_usecs = ec->tx_coalesce_usecs;
-> +		vi->tx_max_packets = ec->tx_max_coalesced_frames;
-> +	}
->  
-> -	coal_rx.rx_usecs = cpu_to_le32(ec->rx_coalesce_usecs);
-> -	coal_rx.rx_max_packets = cpu_to_le32(ec->rx_max_coalesced_frames);
-> -	sg_init_one(&sgs_rx, &coal_rx, sizeof(coal_rx));
-> +	if (ec->rx_coalesce_usecs != vi->rx_usecs ||
-> +	    ec->rx_max_coalesced_frames != vi->rx_max_packets) {
-> +		coal_rx.rx_usecs = cpu_to_le32(ec->rx_coalesce_usecs);
-> +		coal_rx.rx_max_packets = cpu_to_le32(ec->rx_max_coalesced_frames);
-> +		sg_init_one(&sgs_rx, &coal_rx, sizeof(coal_rx));
->  
-> -	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_NOTF_COAL,
-> -				  VIRTIO_NET_CTRL_NOTF_COAL_RX_SET,
-> -				  &sgs_rx))
-> -		return -EINVAL;
-> +		if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_NOTF_COAL,
-> +					  VIRTIO_NET_CTRL_NOTF_COAL_RX_SET,
-> +					  &sgs_rx))
-> +			return -EINVAL;
->  
-> -	/* Save parameters */
-> -	vi->rx_usecs = ec->rx_coalesce_usecs;
-> -	vi->rx_max_packets = ec->rx_max_coalesced_frames;
-> +		/* Save parameters */
-> +		vi->rx_usecs = ec->rx_coalesce_usecs;
-> +		vi->rx_max_packets = ec->rx_max_coalesced_frames;
-> +	}
->  
->  	return 0;
->  }
-> -- 
-> 2.32.0
+> On 21.12.2022 09:37, Greg KH wrote:
+> > On Wed, Dec 21, 2022 at 09:28:16AM +0200, Tudor Ambarus wrote:
+> > > Hi,
+> > > 
+> > > I added Greg KH to the thread, maybe he can shed some light on whether
+> > > new support can be marked as fixes and backported to stable. The rules
+> > > on what kind of patches are accepted into the -stable tree don't mention
+> > > new support:
+> > > https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+> > 
+> > As you say, we don't take new features into older kernels.  Unless they
+> > fix a reported problem, if so, submit the git ids to us and we will be
+> > glad to review them.
+> > 
+> 
+> They do fix a bug. I'm taking care of it. Shall I update
+> Documentation/process/stable-kernel-rules.rst to mention this rule as
+> well?
 
+How exactly would you change it, and why?
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
