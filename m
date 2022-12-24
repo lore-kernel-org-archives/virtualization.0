@@ -1,111 +1,108 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 864E1C4332F
-	for <virtualization@archiver.kernel.org>; Sat, 24 Dec 2022 05:35:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 97F71C4332F
+	for <virtualization@archiver.kernel.org>; Sat, 24 Dec 2022 06:10:54 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id D7720415ED;
-	Sat, 24 Dec 2022 05:35:46 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D7720415ED
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=LiJEpaF6
+	by smtp3.osuosl.org (Postfix) with ESMTP id 03CC560B20;
+	Sat, 24 Dec 2022 06:10:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 03CC560B20
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.a=rsa-sha256 header.s=google header.b=h0YtYQKE
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id SUrugKe-FteR; Sat, 24 Dec 2022 05:35:45 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id F208F415CF;
-	Sat, 24 Dec 2022 05:35:44 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org F208F415CF
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id V7SR03kvp9Ue; Sat, 24 Dec 2022 06:10:53 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 78C0760B0C;
+	Sat, 24 Dec 2022 06:10:52 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 78C0760B0C
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 90D87C0071;
-	Sat, 24 Dec 2022 05:35:44 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 03422C0070
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 54E45C0077;
+	Sat, 24 Dec 2022 06:10:52 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id F0752C0070
  for <virtualization@lists.linux-foundation.org>;
- Sat, 24 Dec 2022 05:35:42 +0000 (UTC)
+ Sat, 24 Dec 2022 06:10:50 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id C0A44400FD
+ by smtp1.osuosl.org (Postfix) with ESMTP id B790C81EE2
  for <virtualization@lists.linux-foundation.org>;
- Sat, 24 Dec 2022 05:35:42 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C0A44400FD
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=LiJEpaF6
+ Sat, 24 Dec 2022 06:10:50 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B790C81EE2
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (1024-bit key) header.d=linux-foundation.org
+ header.i=@linux-foundation.org header.a=rsa-sha256 header.s=google
+ header.b=h0YtYQKE
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 3R1lJdc6yeoW
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id CDr4coSGpxnk
  for <virtualization@lists.linux-foundation.org>;
- Sat, 24 Dec 2022 05:35:42 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D765C400D8
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id D765C400D8
+ Sat, 24 Dec 2022 06:10:50 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CD58481ED8
+Received: from mail-qt1-x82a.google.com (mail-qt1-x82a.google.com
+ [IPv6:2607:f8b0:4864:20::82a])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id CD58481ED8
  for <virtualization@lists.linux-foundation.org>;
- Sat, 24 Dec 2022 05:35:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1671860140;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=9inerhQQEwTB9gS95jFKFAYGecKLrmD2EeG2lXh213o=;
- b=LiJEpaF6lQMHy0O//IMNTPYxdBBSD2OF+ygU2VMGX6xPjetAY6elFj/CtCeem24R05yHZY
- w6UOlV54xP4YUOx1YyAC/BQ/HLcbBhDC25ZcIYGS29P9+3WmActJkTUnbfz/LyBdst7mWY
- 9BM57r5d6KLh9Y+znkrWz+5iWM/hHVE=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-482-HPw7VTcqMCCygTSbbDgjAg-1; Sat, 24 Dec 2022 00:35:38 -0500
-X-MC-Unique: HPw7VTcqMCCygTSbbDgjAg-1
-Received: by mail-ej1-f70.google.com with SMTP id
- hs18-20020a1709073e9200b007c0f9ac75f9so4432436ejc.9
+ Sat, 24 Dec 2022 06:10:49 +0000 (UTC)
+Received: by mail-qt1-x82a.google.com with SMTP id i20so5181379qtw.9
  for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Dec 2022 21:35:38 -0800 (PST)
+ Fri, 23 Dec 2022 22:10:49 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=linux-foundation.org; s=google;
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:from:to:cc:subject:date:message-id:reply-to;
+ bh=3E3YAkwQ1FMGK0G4c+k3cWhSC99qn+AW2e60BpLd48M=;
+ b=h0YtYQKEi5AnsXB7utpqFRidFunGHv4v+XFF72sE8OGP438jrHeRtPo/jQdOSZ1pLE
+ oegIRWAaL4+RlmtvXf3fWwBdtxMDrz9wbhjYKbUArB5tP0fzi7/cIsac8j32oj4Hz6Xj
+ 3+DSLdyaQWX2k4WvvXwK/zYvkz1jN+G7ah7Zc=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=9inerhQQEwTB9gS95jFKFAYGecKLrmD2EeG2lXh213o=;
- b=LZbpY6HalxS/hJpWRsR5HZO1fX7E8cE56kRKlyLe3KlDTXh3GiFwyIhCAkleVqY0wm
- HCUCbvgaxbMwxWcOZIJFF+v/T4e8zmqox8ERQeUU3mvLxSMwYLuclHXkXT0AUspgvnbw
- Q9dDfoT24PviFYA0gc9m2/4K0ox2RVbBa9og6YBquFXm3ySyHHerN4qnDq9mXiMWrGTP
- T0VYlVnR+7+857lC9QNRaeOa0JIRDg0lccBlT7pCQTpG7pQeplhmE+nTcEEWggM3Zccq
- JAZ9p6KywZ+PTs8o6hRGr0JxHmgJSVf649XuIGOEBPtFNtRUBGMBxghxV9xCZPiQdZm8
- omBg==
-X-Gm-Message-State: AFqh2ko6AshKRejSxXkYUBkPx2W2A8dLM3If2PEHAB0zk58NDuLmlRXQ
- 6KUWJc2HPIRw5QMQvddq0i+iWT0CC7miiINfLKGd2bH3A0pmgCUCYTXew7aT+F/rNF0JNSt2Glv
- LUhMeJYMmWB+qEK+cl2KPccGU/FAqaBbX4rmfIuMk4g==
-X-Received: by 2002:a17:906:65a:b0:7c1:7045:1a53 with SMTP id
- t26-20020a170906065a00b007c170451a53mr9229044ejb.15.1671860137872; 
- Fri, 23 Dec 2022 21:35:37 -0800 (PST)
-X-Google-Smtp-Source: AMrXdXud/Fb0wtBmXHI4TVa1R5iStbJI7HVjmtxNzdJlo5vEGwnAH05ulhj4IafppoZeQFZu1DEQKg==
-X-Received: by 2002:a17:906:65a:b0:7c1:7045:1a53 with SMTP id
- t26-20020a170906065a00b007c170451a53mr9229005ejb.15.1671860137631; 
- Fri, 23 Dec 2022 21:35:37 -0800 (PST)
-Received: from redhat.com ([2.55.175.215]) by smtp.gmail.com with ESMTPSA id
- a1-20020a170906684100b007c0f90a9cc5sm2140091ejs.105.2022.12.23.21.35.32
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 23 Dec 2022 21:35:36 -0800 (PST)
-Date: Sat, 24 Dec 2022 00:35:30 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [GIT PULL] virtio,vhost,vdpa: features, fixes, cleanups
-Message-ID: <20221224003445-mutt-send-email-mst@kernel.org>
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+ :reply-to;
+ bh=3E3YAkwQ1FMGK0G4c+k3cWhSC99qn+AW2e60BpLd48M=;
+ b=mCBWTvHOrv81fI0z2LnyAUyvUd4M2deZRGMb0vARirPaA4YN0TplzZsg0s526+10lB
+ VRRcuF56v0SpeN6dmsIN+UOV4sHfLj4EY2rcZmQPxp4TqDSYaxRMVO3p6B9OUVbFQPUP
+ 7XghmDHaPigd0vjj9fEdVTwMPMR9U56CaSTocxkMI6+JAUk7oXDNW4jNfY0oifcUTZm8
+ ki6KW3R9VxsSLIQHP4oOeUjF/YLFDPvp68LUBJJD2nPQhwNhWwPSWsxubEbgLiiX4WAp
+ mtRlyDRMy4NnFHnHKmwM9Z1X/dU7TBzDFf4xmuJKbLlbe84BFcdIicadJIoHHJ+znNVi
+ 751Q==
+X-Gm-Message-State: AFqh2kpD8zJCAwMDV9qCkj77annlB9Oo5lqgk0I7nvy4ynta5KZGitoI
+ FobCgCyKTJvIA0iUq05THwRPTTz/ExdbXcmwBvY=
+X-Google-Smtp-Source: AMrXdXvRxBdA+MKLIbbcsYrRSfX77KIQnMiBbJ6ICu1/txdrFSh21TjdVD/yWYauGJzCCLvsZYGDeg==
+X-Received: by 2002:a05:622a:260c:b0:3a7:e0ba:7c23 with SMTP id
+ ci12-20020a05622a260c00b003a7e0ba7c23mr16743205qtb.60.1671862248142; 
+ Fri, 23 Dec 2022 22:10:48 -0800 (PST)
+Received: from mail-qk1-f181.google.com (mail-qk1-f181.google.com.
+ [209.85.222.181]) by smtp.gmail.com with ESMTPSA id
+ bk2-20020a05620a1a0200b006ff8ac9acfdsm3678862qkb.49.2022.12.23.22.10.46
+ for <virtualization@lists.linux-foundation.org>
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Fri, 23 Dec 2022 22:10:47 -0800 (PST)
+Received: by mail-qk1-f181.google.com with SMTP id pa22so3229865qkn.9
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 23 Dec 2022 22:10:46 -0800 (PST)
+X-Received: by 2002:ae9:ef49:0:b0:6fe:d4a6:dcef with SMTP id
+ d70-20020ae9ef49000000b006fed4a6dcefmr506882qkg.594.1671862246626; Fri, 23
+ Dec 2022 22:10:46 -0800 (PST)
+MIME-Version: 1.0
 References: <20221222144343-mutt-send-email-mst@kernel.org>
  <CAHk-=wi6Gkr7hJz20+xD=pBuTrseccVgNR9ajU7=Bqbrdk1t4g@mail.gmail.com>
  <20221223172549-mutt-send-email-mst@kernel.org>
  <CAHk-=whpdP7X+L8RtGsonthr7Ffug=FhR+TrFe3JUyb5-zaYCA@mail.gmail.com>
-MIME-Version: 1.0
-In-Reply-To: <CAHk-=whpdP7X+L8RtGsonthr7Ffug=FhR+TrFe3JUyb5-zaYCA@mail.gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
+ <20221224003445-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20221224003445-mutt-send-email-mst@kernel.org>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Fri, 23 Dec 2022 22:10:30 -0800
+X-Gmail-Original-Message-ID: <CAHk-=wh_cyzZgYp1pL8MDA6sioB1RndQ_fref=9V+vm9faE7fg@mail.gmail.com>
+Message-ID: <CAHk-=wh_cyzZgYp1pL8MDA6sioB1RndQ_fref=9V+vm9faE7fg@mail.gmail.com>
+Subject: Re: [GIT PULL] virtio,vhost,vdpa: features, fixes, cleanups
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: bobby.eshleman@bytedance.com, kvm@vger.kernel.org, sunnanyong@huawei.com,
  yuancan@huawei.com, virtualization@lists.linux-foundation.org,
  weiyongjun1@huawei.com, elic@nvidia.com, set_pte_at@outlook.com,
@@ -134,31 +131,34 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Dec 23, 2022 at 02:36:46PM -0800, Linus Torvalds wrote:
-> On Fri, Dec 23, 2022 at 2:27 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> >
-> > They were all there, just not as these commits, as I squashed fixups to
-> > avoid bisect breakages with some configs. Did I do wrong?
-> 
-> I am literally looking at the next-20221214 state right now, doing
-> 
->     git log linus/master.. -- drivers/vhost/vsock.c
->     git log linus/master.. -- drivers/vdpa/mlx5/
->     git log --grep="temporary variable type tweak"
-> 
-> and seeing nothing.
-> 
-> So none of these commits - in *any* form - were in linux-next last
-> week as far as I can tell.
-> 
->              Linus
+On Fri, Dec 23, 2022 at 9:35 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+>
+> They were in  next-20221220 though.
 
+So, perfect for the *next* merge window.
 
-They were in  next-20221220 though.
+Do you understand what the word "next" means? We don't call it
+"linux-this", do we?
 
--- 
-MST
+This is not a new rule. Things are supposed to be ready *before* the
+merge window (that's what makes it "next", get it?).
 
+I will also point you to to
+
+  https://lore.kernel.org/lkml/CAHk-=wj_HcgFZNyZHTLJ7qC2613zphKDtLh6ndciwopZRfH0aQ@mail.gmail.com/
+
+where I'm being pretty damn clear about things.
+
+And before you start bleating about "I needed more heads up", never
+mind that this isn't even a new rule, and never mind what that "next"
+word means, let me just point to the 6.1-rc6 notice too:
+
+  https://lore.kernel.org/lkml/CAHk-=wgUZwX8Sbb8Zvm7FxWVfX6CGuE7x+E16VKoqL7Ok9vv7g@mail.gmail.com/
+
+and if the meaning of "next" has eluded you all these years, maybe it
+was high time you learnt. Hmm?
+
+              Linus
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
