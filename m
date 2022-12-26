@@ -4,122 +4,109 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E0E44C4332F
-	for <virtualization@archiver.kernel.org>; Sat, 24 Dec 2022 11:28:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 780B8C3DA79
+	for <virtualization@archiver.kernel.org>; Mon, 26 Dec 2022 03:45:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 5920960A81;
-	Sat, 24 Dec 2022 11:28:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5920960A81
+	by smtp3.osuosl.org (Postfix) with ESMTP id D988F607AA;
+	Mon, 26 Dec 2022 03:45:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D988F607AA
 Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=PC/L7zMi
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cZKDOz9t
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 6vzUsQM-9lLZ; Sat, 24 Dec 2022 11:28:32 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id D4F3260AA7;
-	Sat, 24 Dec 2022 11:28:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D4F3260AA7
+	with ESMTP id ZCk-AEaOlTod; Mon, 26 Dec 2022 03:45:19 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 1480B60746;
+	Mon, 26 Dec 2022 03:45:19 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1480B60746
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 712AAC0032;
-	Sat, 24 Dec 2022 11:28:31 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id EDEB5C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CF26CC0035;
+	Mon, 26 Dec 2022 03:45:18 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 92B94C002D
  for <virtualization@lists.linux-foundation.org>;
- Sat, 24 Dec 2022 11:28:30 +0000 (UTC)
+ Mon, 26 Dec 2022 03:45:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id B39CC4179D
+ by smtp2.osuosl.org (Postfix) with ESMTP id 6DA0C40298
  for <virtualization@lists.linux-foundation.org>;
- Sat, 24 Dec 2022 11:28:30 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B39CC4179D
-Authentication-Results: smtp4.osuosl.org;
+ Mon, 26 Dec 2022 03:45:17 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6DA0C40298
+Authentication-Results: smtp2.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=PC/L7zMi
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=cZKDOz9t
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 8BzOW-C1fgOt
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id aOXNjm7fklzF
  for <virtualization@lists.linux-foundation.org>;
- Sat, 24 Dec 2022 11:28:29 +0000 (UTC)
+ Mon, 26 Dec 2022 03:45:16 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 415A44177D
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1C45640104
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 415A44177D
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 1C45640104
  for <virtualization@lists.linux-foundation.org>;
- Sat, 24 Dec 2022 11:28:28 +0000 (UTC)
+ Mon, 26 Dec 2022 03:45:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1671881307;
+ s=mimecast20190719; t=1672026314;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=JQfHFluJStqMAVjm8YivW74tDU05oCwMWLpLFH2ZJDA=;
- b=PC/L7zMi5Z68Nwwo1wQmGo0FhDSWM1ckLAdTLi8Xbxcfp7E8qUxJZmxx1AQWZjBXafIsv1
- t2WhbVB7+sid5/ouS4laLlj0vFwNUBZzf3RVwCJW05r0JI3082UVTcvip6enG/UT02zBAI
- 5MrbDq3U2+SCRgyPSMWhUjK5SLl5ID4=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=v6UhDCmakXh8a6UllVBzSFIWUqyi4qvcOl3b6DYLJeI=;
+ b=cZKDOz9tviPnLcYqPTlIxw2qUsepAYdi+T0wNAYjXtkVsQtSMlvCwOipjavRXVN6r87kn2
+ F6HYeX2enHMLYo2O1UgpxO2umhhFOT7tfyf5N6udSCyn/RssWz2LA86ky5H14KKM3SdwZC
+ mqrVi7xOW1bFoWTs3eeQivjYi873hYo=
+Received: from mail-ot1-f72.google.com (mail-ot1-f72.google.com
+ [209.85.210.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-306-2XCPHi_dM4GBO-C_-TOM8w-1; Sat, 24 Dec 2022 06:28:25 -0500
-X-MC-Unique: 2XCPHi_dM4GBO-C_-TOM8w-1
-Received: by mail-wm1-f70.google.com with SMTP id
- k42-20020a05600c1caa00b003d971135cd5so1768041wms.4
+ us-mta-85-fwHAzd7bMM6ayfS4F7-Bhw-1; Sun, 25 Dec 2022 22:45:05 -0500
+X-MC-Unique: fwHAzd7bMM6ayfS4F7-Bhw-1
+Received: by mail-ot1-f72.google.com with SMTP id
+ o11-20020a9d6d0b000000b0067074f355b3so5887444otp.23
  for <virtualization@lists.linux-foundation.org>;
- Sat, 24 Dec 2022 03:28:24 -0800 (PST)
+ Sun, 25 Dec 2022 19:45:05 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=JQfHFluJStqMAVjm8YivW74tDU05oCwMWLpLFH2ZJDA=;
- b=iA7kqxV6VZcHnHDfXkVdTzg1+Uh6Vl/APaBI2BTRylg2PsXIcUlNwJziD5Eo33ma2F
- Y+VrzM+w2akeTctWwGfTO+Bpb+TzTAbGtQ6yFN5lpQtXFwfGxAaCG6eNa02X2DPOKO6K
- 7VUx/DF9imcw7xBdS0h9CEsqWekI6e4X2OLWeKLyWfbsVzIyqUkHsMuurbMVJmGmkXsD
- dpLZeACVfcoUife5+n9bzmz313TvNv5YcI3Gx6aJUzhPNi9NXYDQiB8ziraFF3gDXbVL
- AN9YRaHrf/d2q5gpQb7jH43mShtbXqmSfEOnMdYkBGNkEqdo9XOzcscnM9HdGwthkibt
- mRIQ==
-X-Gm-Message-State: AFqh2kqDfOB0c8FfCeQDZ+2KjIvoOTgJBKS5/28ci5NVRCY7xeVePoXp
- Cv5h4L4i8YiN32wF3c38NdFWSE/jSjY55WSyEmxFgqlM3Vx/pXd7JQymXKd3yE4hRcnoOgcAUgX
- JPW6lCQZnE2MrhJ8U/uDg8twXDEhi5ssHEfRIS7LspA==
-X-Received: by 2002:a5d:49c3:0:b0:232:be5c:ec4a with SMTP id
- t3-20020a5d49c3000000b00232be5cec4amr11351837wrs.6.1671881304017; 
- Sat, 24 Dec 2022 03:28:24 -0800 (PST)
-X-Google-Smtp-Source: AMrXdXuzqzQuZiVw3dHitCdMvuaTddTiExV1+yb8w1dPWupnmnSH1RzpFeJq4F8DeQJZG9fQQBe56g==
-X-Received: by 2002:a5d:49c3:0:b0:232:be5c:ec4a with SMTP id
- t3-20020a5d49c3000000b00232be5cec4amr11351824wrs.6.1671881303791; 
- Sat, 24 Dec 2022 03:28:23 -0800 (PST)
-Received: from redhat.com ([2.52.27.62]) by smtp.gmail.com with ESMTPSA id
- h6-20020a056000000600b002423dc3b1a9sm5127678wrx.52.2022.12.24.03.28.17
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sat, 24 Dec 2022 03:28:22 -0800 (PST)
-Date: Sat, 24 Dec 2022 06:28:15 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [GIT PULL] virtio,vhost,vdpa: features, fixes, cleanups
-Message-ID: <20221224061932-mutt-send-email-mst@kernel.org>
-References: <20221222144343-mutt-send-email-mst@kernel.org>
- <CAHk-=wi6Gkr7hJz20+xD=pBuTrseccVgNR9ajU7=Bqbrdk1t4g@mail.gmail.com>
- <20221223172549-mutt-send-email-mst@kernel.org>
- <CAHk-=whpdP7X+L8RtGsonthr7Ffug=FhR+TrFe3JUyb5-zaYCA@mail.gmail.com>
- <20221224003445-mutt-send-email-mst@kernel.org>
- <CAHk-=wh_cyzZgYp1pL8MDA6sioB1RndQ_fref=9V+vm9faE7fg@mail.gmail.com>
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+ :reply-to;
+ bh=v6UhDCmakXh8a6UllVBzSFIWUqyi4qvcOl3b6DYLJeI=;
+ b=vciEYIbJdIiT1ogLzab5vyDAavpOVpR20Ke6WpcPsWKsHO03Clnq1qWRVUTEK9s9fU
+ eS87XZ8hRZ/nw/bTyVtBrAkqN0jTLfUBku7SEZ37ZOBeDWChKRorukMV0wfVy0UM86dh
+ jRgJ8qT/21Z7m6QWmXnmjOTLU+RKEYE5JDiET4NnmlEciHNPTIi21524x+jkuCOx2l24
+ +Ud2wYpj+UrHeJsfpuIisWhr1RbTVy27iijBraofenl8ERHqJ/6MnkQ1laqzlyDa5uOr
+ O7CURRhKaZa1kdPjyJ0fnUdT1j3ZAtySkYwgj/1OyygHh87DN6vmuGIdP6VVpRbf0Ws+
+ 9EKw==
+X-Gm-Message-State: AFqh2kp9zqe2/4sH+WKXtfiqO8846Ml4TOgydptrwRhr/J3JUZYt2ge3
+ ddMq3NPX/makmdQBhV3lDTmWvC01RJUwodYljXiC4fgM9JIjfTLyZqHpny3ODQhLIJaVCGwFLru
+ O9MZ8efZMYtFxPs9fQ+x0pJ0K7xQ8RF2rmiMjkC3CQA7JwmLv0pipDKYQSQ==
+X-Received: by 2002:a9d:7843:0:b0:678:1eb4:3406 with SMTP id
+ c3-20020a9d7843000000b006781eb43406mr1074890otm.237.1672026304541; 
+ Sun, 25 Dec 2022 19:45:04 -0800 (PST)
+X-Google-Smtp-Source: AMrXdXuuFZprgssl3UYeZRNHdhEmv9X+l3MPWp5HXJ8UsDPnAmMUZUZsmZJzzO7LV6M+colYpmnRAcxyg0NMseykUt0=
+X-Received: by 2002:a9d:7843:0:b0:678:1eb4:3406 with SMTP id
+ c3-20020a9d7843000000b006781eb43406mr1074880otm.237.1672026304284; Sun, 25
+ Dec 2022 19:45:04 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <CAHk-=wh_cyzZgYp1pL8MDA6sioB1RndQ_fref=9V+vm9faE7fg@mail.gmail.com>
+References: <20221222060427.21626-1-jasowang@redhat.com>
+ <20221222060427.21626-5-jasowang@redhat.com>
+ <CAJaqyWetutMj=GrR+ieS265_aRr7OhoP+7O5rWgPnP+ZAyxbPg@mail.gmail.com>
+ <CACGkMEvs6QenyQNR0GyJ81PgT-w2fy7Rag-JkJ7xNGdNZLGSfQ@mail.gmail.com>
+ <CAJaqyWfJriGB1aLJ8BWZnnZ+fYrpwpkwxSAmKhzmYE72VWBvEA@mail.gmail.com>
+In-Reply-To: <CAJaqyWfJriGB1aLJ8BWZnnZ+fYrpwpkwxSAmKhzmYE72VWBvEA@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 26 Dec 2022 11:44:53 +0800
+Message-ID: <CACGkMEuZqe8=hmn+SWFb6DZ+8BgTJ5xiaXTMTnz_4Cc0b1E0pg@mail.gmail.com>
+Subject: Re: [RFC PATCH 4/4] virtio-net: sleep instead of busy waiting for cvq
+ command
+To: Eugenio Perez Martin <eperezma@redhat.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: bobby.eshleman@bytedance.com, kvm@vger.kernel.org, sunnanyong@huawei.com,
- yuancan@huawei.com, virtualization@lists.linux-foundation.org,
- weiyongjun1@huawei.com, elic@nvidia.com, set_pte_at@outlook.com,
- m.szyprowski@samsung.com, almasrymina@google.com, sfr@canb.auug.org.au,
- dave@stgolabs.net, anders.roxell@linaro.org, lulu@redhat.com,
- ruanjinjie@huawei.com, rafaelmendsr@gmail.com, pizhenwei@bytedance.com,
- eperezma@redhat.com, angus.chen@jaguarmicro.com, lkft@linaro.org,
- colin.i.king@gmail.com, sammler@google.com, nathan@kernel.org,
- leiyang@redhat.com, harshit.m.mogalapalli@oracle.com, wangjianli@cdjrlc.com,
- gautam.dawar@xilinx.com, pabeni@redhat.com, dengshaomin@cdjrlc.com,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org,
- dmitry.fomichev@wdc.com, wangrong68@huawei.com
+Cc: mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, edumazet@google.com,
+ maxime.coquelin@redhat.com, kuba@kernel.org, pabeni@redhat.com,
+ davem@davemloft.net
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -136,44 +123,151 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Dec 23, 2022 at 10:10:30PM -0800, Linus Torvalds wrote:
-> On Fri, Dec 23, 2022 at 9:35 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+On Fri, Dec 23, 2022 at 4:05 PM Eugenio Perez Martin
+<eperezma@redhat.com> wrote:
+>
+> On Fri, Dec 23, 2022 at 4:04 AM Jason Wang <jasowang@redhat.com> wrote:
 > >
-> > They were in  next-20221220 though.
-> 
-> So, perfect for the *next* merge window.
-> 
-> Do you understand what the word "next" means? We don't call it
-> "linux-this", do we?
-> 
-> This is not a new rule. Things are supposed to be ready *before* the
-> merge window (that's what makes it "next", get it?).
-> 
-> I will also point you to to
-> 
->   https://lore.kernel.org/lkml/CAHk-=wj_HcgFZNyZHTLJ7qC2613zphKDtLh6ndciwopZRfH0aQ@mail.gmail.com/
-> 
-> where I'm being pretty damn clear about things.
-> 
-> And before you start bleating about "I needed more heads up", never
-> mind that this isn't even a new rule, and never mind what that "next"
-> word means, let me just point to the 6.1-rc6 notice too:
-> 
->   https://lore.kernel.org/lkml/CAHk-=wgUZwX8Sbb8Zvm7FxWVfX6CGuE7x+E16VKoqL7Ok9vv7g@mail.gmail.com/
-> 
-> and if the meaning of "next" has eluded you all these years, maybe it
-> was high time you learnt. Hmm?
-> 
->               Linus
+> > On Thu, Dec 22, 2022 at 5:19 PM Eugenio Perez Martin
+> > <eperezma@redhat.com> wrote:
+> > >
+> > > On Thu, Dec 22, 2022 at 7:05 AM Jason Wang <jasowang@redhat.com> wrote:
+> > > >
+> > > > We used to busy waiting on the cvq command this tends to be
+> > > > problematic since:
+> > > >
+> > > > 1) CPU could wait for ever on a buggy/malicous device
+> > > > 2) There's no wait to terminate the process that triggers the cvq
+> > > >    command
+> > > >
+> > > > So this patch switch to use sleep with a timeout (1s) instead of busy
+> > > > polling for the cvq command forever. This gives the scheduler a breath
+> > > > and can let the process can respond to a signal.
+> > > >
+> > > > Signed-off-by: Jason Wang <jasowang@redhat.com>
+> > > > ---
+> > > >  drivers/net/virtio_net.c | 15 ++++++++-------
+> > > >  1 file changed, 8 insertions(+), 7 deletions(-)
+> > > >
+> > > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > > > index 8225496ccb1e..69173049371f 100644
+> > > > --- a/drivers/net/virtio_net.c
+> > > > +++ b/drivers/net/virtio_net.c
+> > > > @@ -405,6 +405,7 @@ static void disable_rx_mode_work(struct virtnet_info *vi)
+> > > >         vi->rx_mode_work_enabled = false;
+> > > >         spin_unlock_bh(&vi->rx_mode_lock);
+> > > >
+> > > > +       virtqueue_wake_up(vi->cvq);
+> > > >         flush_work(&vi->rx_mode_work);
+> > > >  }
+> > > >
+> > > > @@ -1497,6 +1498,11 @@ static bool try_fill_recv(struct virtnet_info *vi, struct receive_queue *rq,
+> > > >         return !oom;
+> > > >  }
+> > > >
+> > > > +static void virtnet_cvq_done(struct virtqueue *cvq)
+> > > > +{
+> > > > +       virtqueue_wake_up(cvq);
+> > > > +}
+> > > > +
+> > > >  static void skb_recv_done(struct virtqueue *rvq)
+> > > >  {
+> > > >         struct virtnet_info *vi = rvq->vdev->priv;
+> > > > @@ -2024,12 +2030,7 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
+> > > >         if (unlikely(!virtqueue_kick(vi->cvq)))
+> > > >                 return vi->ctrl->status == VIRTIO_NET_OK;
+> > > >
+> > > > -       /* Spin for a response, the kick causes an ioport write, trapping
+> > > > -        * into the hypervisor, so the request should be handled immediately.
+> > > > -        */
+> > > > -       while (!virtqueue_get_buf(vi->cvq, &tmp) &&
+> > > > -              !virtqueue_is_broken(vi->cvq))
+> > > > -               cpu_relax();
+> > > > +       virtqueue_wait_for_used(vi->cvq, &tmp);
+> > > >
+> > > >         return vi->ctrl->status == VIRTIO_NET_OK;
+> > > >  }
+> > > > @@ -3524,7 +3525,7 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
+> > > >
+> > > >         /* Parameters for control virtqueue, if any */
+> > > >         if (vi->has_cvq) {
+> > > > -               callbacks[total_vqs - 1] = NULL;
+> > > > +               callbacks[total_vqs - 1] = virtnet_cvq_done;
+> > >
+> > > If we're using CVQ callback, what is the actual use of the timeout?
+> >
+> > Because we can't sleep forever since locks could be held like RTNL_LOCK.
+> >
+>
+> Right, rtnl_lock kind of invalidates it for a general case.
+>
+> But do all of the commands need to take rtnl_lock? For example I see
+> how we could remove it from ctrl_announce,
 
-Yea I really screwed up with this one. High time I learned that "no
-fallout from testing" most likely does not mean "no bugs" but instead
-"you forgot to push to next". Putting procedures in place now to
-check automatically.
+I think not, it's intended to serialize all cvq commands.
 
+> so lack of ack may not be
+> fatal for it.
 
--- 
-MST
+Then there could be more than one cvq commands sent to the device, the
+busy poll logic may not work.
+
+And it's a hint that the device malfunctioned which is something that
+the driver should be aware of.
+
+Thanks
+
+> Assuming a buggy device, we can take some cvq commands
+> out of this fatal situation.
+>
+> This series already improves the current situation and my suggestion
+> (if it's worth it) can be applied on top of it, so it is not a blocker
+> at all.
+>
+> > >
+> > > I'd say there is no right choice neither in the right timeout value
+> > > nor in the action to take.
+> >
+> > In the next version, I tend to put BAD_RING() to prevent future requests.
+> >
+> > > Why not simply trigger the cmd and do all
+> > > the changes at command return?
+> >
+> > I don't get this, sorry.
+> >
+>
+> It's actually expanding the first point so you already answered it :).
+>
+> Thanks!
+>
+> > >
+> > > I suspect the reason is that it complicates the code. For example,
+> > > having the possibility of many in flight commands, races between their
+> > > completion, etc.
+> >
+> > Actually the cvq command was serialized through RTNL_LOCK, so we don't
+> > need to worry about this.
+> >
+> > In the next version I can add ASSERT_RTNL().
+> >
+> > Thanks
+> >
+> > > The virtio standard does not even cover unordered
+> > > used commands if I'm not wrong.
+> > >
+> > > Is there any other fundamental reason?
+> > >
+> > > Thanks!
+> > >
+> > > >                 names[total_vqs - 1] = "control";
+> > > >         }
+> > > >
+> > > > --
+> > > > 2.25.1
+> > > >
+> > >
+> >
+>
 
 _______________________________________________
 Virtualization mailing list
