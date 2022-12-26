@@ -1,90 +1,113 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B671EC46467
-	for <virtualization@archiver.kernel.org>; Mon, 26 Dec 2022 16:55:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B9475C4332F
+	for <virtualization@archiver.kernel.org>; Mon, 26 Dec 2022 23:34:52 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 2A4BF80D1B;
-	Mon, 26 Dec 2022 16:55:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2A4BF80D1B
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=IfbEUfng
+	by smtp3.osuosl.org (Postfix) with ESMTP id 4708260BBE;
+	Mon, 26 Dec 2022 23:34:52 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4708260BBE
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ZflK0ltg
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id fzYrXpsB5sMC; Mon, 26 Dec 2022 16:55:06 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 86lzBkXCZ3kV; Mon, 26 Dec 2022 23:34:51 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 7428380D20;
-	Mon, 26 Dec 2022 16:55:05 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7428380D20
+	by smtp3.osuosl.org (Postfix) with ESMTPS id B407460595;
+	Mon, 26 Dec 2022 23:34:50 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B407460595
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3DF03C0035;
-	Mon, 26 Dec 2022 16:55:05 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 18F13C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8E44EC0032;
+	Mon, 26 Dec 2022 23:34:50 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B4471C002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Dec 2022 16:55:04 +0000 (UTC)
+ Mon, 26 Dec 2022 23:34:48 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id DA62880D20
+ by smtp4.osuosl.org (Postfix) with ESMTP id 9AA2B401DC
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Dec 2022 16:55:03 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DA62880D20
+ Mon, 26 Dec 2022 23:34:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9AA2B401DC
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=ZflK0ltg
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id NHEiBXX35IHG
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id IeKk9C44dJaz
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Dec 2022 16:55:02 +0000 (UTC)
+ Mon, 26 Dec 2022 23:34:47 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4C8A880D1B
-Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 4C8A880D1B
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 22EDF401B1
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 22EDF401B1
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Dec 2022 16:55:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
- d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1672073702; x=1703609702;
- h=date:from:to:cc:subject:message-id:mime-version:
- content-transfer-encoding;
- bh=SfZzdNV19bg9UmQpe6KYIZYymHxtUypJH/O7nO8s6g4=;
- b=IfbEUfngANzZUlBFCHkZQ7VLDTItcvnWfLylVON1zW6/ynexypkKcZn5
- FtXJnLA2x7Ad2WnSCyio1N7SZYCXUBHbypFQHgZKehKWm+gGKYd+dQ3Gb
- Fqo0wXG/KZ4OraqAARtRIAubEa2c1A9qgwrgW87l+nxiqyGf7P/vQp9IO
- 55Tgw5CzkUT/kNcAbNEKpXv+AyHlUoemvpnrcqeHKfsKt+kxhdozEDEG8
- J/JWkl9aRX4/53Vmnqv6Acl3j0IDFv7zACY++Aef0UH7IsuRWG8SRDWx2
- 2ZlqV8Y0pSda4XHSX8fUVM8WOKlX7DAnieJyFh1qWWSKr6kx7SySkftCg Q==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10572"; a="308338536"
-X-IronPort-AV: E=Sophos;i="5.96,276,1665471600"; d="scan'208";a="308338536"
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
- by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 26 Dec 2022 08:55:00 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10572"; a="646205184"
-X-IronPort-AV: E=Sophos;i="5.96,276,1665471600"; d="scan'208";a="646205184"
-Received: from lkp-server01.sh.intel.com (HELO b5d47979f3ad) ([10.239.97.150])
- by orsmga007.jf.intel.com with ESMTP; 26 Dec 2022 08:54:55 -0800
-Received: from kbuild by b5d47979f3ad with local (Exim 4.96)
- (envelope-from <lkp@intel.com>) id 1p9qkZ-000EZN-0D;
- Mon, 26 Dec 2022 16:54:55 +0000
-Date: Tue, 27 Dec 2022 00:54:10 +0800
-From: kernel test robot <lkp@intel.com>
-To: Andrew Morton <akpm@linux-foundation.org>
-Subject: [linux-next:master] BUILD REGRESSION
- c76083fac3bae1a87ae3d005b5cb1cbc761e31d5
-Message-ID: <63a9d1b2.869GAwHafmAB6R7M%lkp@intel.com>
-User-Agent: Heirloom mailx 12.5 6/20/10
+ Mon, 26 Dec 2022 23:34:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1672097685;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=Ng2g0yYWgbxIEbydIqQjZjaHCJ47pT59sGYfx/xB8K8=;
+ b=ZflK0ltgLxrn8+MAjKtVzXDsBcN1zBlpgsOyNtRTWMYT++D867PbbVZfleCSBJTsfca+gJ
+ A++3BXoolMglZEpP8vTlc6UdEUlrdfqlBow334PgJx6T6CkUsAlv3ViPv1cG3yrmyqUIpl
+ bCiPZhu0KSENzrnjnH7nCvU2k+wjJik=
+Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
+ [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-139-mXxyFFjLNT-9PAQC0wqyQg-1; Mon, 26 Dec 2022 18:34:44 -0500
+X-MC-Unique: mXxyFFjLNT-9PAQC0wqyQg-1
+Received: by mail-ed1-f69.google.com with SMTP id
+ g14-20020a056402090e00b0046790cd9082so8284753edz.21
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 26 Dec 2022 15:34:44 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=Ng2g0yYWgbxIEbydIqQjZjaHCJ47pT59sGYfx/xB8K8=;
+ b=jzEjoUFNr41kLjkVd4SnH4WpP9GBG5o13ToXYgC0mdxGZMCbVMp8khVvAOsMo24N+K
+ SYHGV2zBlMabi/AYUsnzekL/93Xo9AWCc+Q9N35Fr8NykCzVb4CYGXLHvoZM1wFSDZIh
+ joa46BBXK9+5zzZ5SDJVjDwD0fKJHKiLLSfzQ7Vtf2mWumFnNO4vjXbCZzX1a1gMDF75
+ qhP9S9c1NXxFRAsguiQn/1yPc2EyR5Bj71yNnqdZa2+GKY9XGaxnjKsQIq/NwWA+HHMu
+ wrfl8icfTP3PuYvoOc0ADi/e6JYCcBBcALEZKkTecWipeNrl+leXCzuBNQsYxIei++cI
+ 5/Cw==
+X-Gm-Message-State: AFqh2koZqOO9NYdabN5W/0/i95f46vHIDgkvpyHpqp8e2JFqH30c4G2m
+ b+HmNZ0CEUQqFI4Lyklbc934uv/zor5RlnqUsoJTqfn8qir/fbnHdLIjVAPO1RlyGHOPUz4ZmJ1
+ C4jXZ/EJd9kKctsA14xT81bPF56X+QjoQYDiE9a3E1g==
+X-Received: by 2002:a17:906:fcc1:b0:7c0:e310:3191 with SMTP id
+ qx1-20020a170906fcc100b007c0e3103191mr23119263ejb.11.1672097683425; 
+ Mon, 26 Dec 2022 15:34:43 -0800 (PST)
+X-Google-Smtp-Source: AMrXdXsIxLGY2K01obTyBFYBUFcxFDUBn2jzDJ0KXH7WGcJg6MHOSb0Gfde2xZleQL0FFlTneSfHXQ==
+X-Received: by 2002:a17:906:fcc1:b0:7c0:e310:3191 with SMTP id
+ qx1-20020a170906fcc100b007c0e3103191mr23119251ejb.11.1672097683222; 
+ Mon, 26 Dec 2022 15:34:43 -0800 (PST)
+Received: from redhat.com ([2.52.151.85]) by smtp.gmail.com with ESMTPSA id
+ d24-20020a50fb18000000b004615f7495e0sm5154391edq.8.2022.12.26.15.34.41
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 26 Dec 2022 15:34:42 -0800 (PST)
+Date: Mon, 26 Dec 2022 18:34:39 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH 3/4] virtio_ring: introduce a per virtqueue waitqueue
+Message-ID: <20221226183348-mutt-send-email-mst@kernel.org>
+References: <20221226074908.8154-1-jasowang@redhat.com>
+ <20221226074908.8154-4-jasowang@redhat.com>
 MIME-Version: 1.0
-Cc: linux-arch@vger.kernel.org, linux-block@vger.kernel.org,
- linux-iio@vger.kernel.org, netdev@vger.kernel.org, speakup@linux-speakup.org,
- linux-cxl@vger.kernel.org, virtualization@lists.linux-foundation.org,
- linux-xfs@vger.kernel.org, Linux Memory Management List <linux-mm@kvack.org>,
- linux-mtd@lists.infradead.org, loongarch@lists.linux.dev,
- linux-arm-msm@vger.kernel.org, linux-fsdevel@vger.kernel.org,
- linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-media@vger.kernel.org
+In-Reply-To: <20221226074908.8154-4-jasowang@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, eperezma@redhat.com,
+ edumazet@google.com, maxime.coquelin@redhat.com, kuba@kernel.org,
+ pabeni@redhat.com, davem@davemloft.net
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -101,230 +124,124 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git master
-branch HEAD: c76083fac3bae1a87ae3d005b5cb1cbc761e31d5  Add linux-next specific files for 20221226
+On Mon, Dec 26, 2022 at 03:49:07PM +0800, Jason Wang wrote:
+> This patch introduces a per virtqueue waitqueue to allow driver to
+> sleep and wait for more used. Two new helpers are introduced to allow
+> driver to sleep and wake up.
+> 
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+> Changes since V1:
+> - check virtqueue_is_broken() as well
+> - use more_used() instead of virtqueue_get_buf() to allow caller to
+>   get buffers afterwards
+> ---
+>  drivers/virtio/virtio_ring.c | 29 +++++++++++++++++++++++++++++
+>  include/linux/virtio.h       |  3 +++
+>  2 files changed, 32 insertions(+)
+> 
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index 5cfb2fa8abee..9c83eb945493 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -13,6 +13,7 @@
+>  #include <linux/dma-mapping.h>
+>  #include <linux/kmsan.h>
+>  #include <linux/spinlock.h>
+> +#include <linux/wait.h>
+>  #include <xen/xen.h>
+>  
+>  #ifdef DEBUG
+> @@ -60,6 +61,7 @@
+>  			"%s:"fmt, (_vq)->vq.name, ##args);	\
+>  		/* Pairs with READ_ONCE() in virtqueue_is_broken(). */ \
+>  		WRITE_ONCE((_vq)->broken, true);		       \
+> +		wake_up_interruptible(&(_vq)->wq);		       \
+>  	} while (0)
+>  #define START_USE(vq)
+>  #define END_USE(vq)
+> @@ -203,6 +205,9 @@ struct vring_virtqueue {
+>  	/* DMA, allocation, and size information */
+>  	bool we_own_ring;
+>  
+> +	/* Wait for buffer to be used */
+> +	wait_queue_head_t wq;
+> +
+>  #ifdef DEBUG
+>  	/* They're supposed to lock for us. */
+>  	unsigned int in_use;
+> @@ -2024,6 +2029,8 @@ static struct virtqueue *vring_create_virtqueue_packed(
+>  	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
+>  		vq->weak_barriers = false;
+>  
+> +	init_waitqueue_head(&vq->wq);
+> +
+>  	err = vring_alloc_state_extra_packed(&vring_packed);
+>  	if (err)
+>  		goto err_state_extra;
+> @@ -2517,6 +2524,8 @@ static struct virtqueue *__vring_new_virtqueue(unsigned int index,
+>  	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
+>  		vq->weak_barriers = false;
+>  
+> +	init_waitqueue_head(&vq->wq);
+> +
+>  	err = vring_alloc_state_extra_split(vring_split);
+>  	if (err) {
+>  		kfree(vq);
+> @@ -2654,6 +2663,8 @@ static void vring_free(struct virtqueue *_vq)
+>  {
+>  	struct vring_virtqueue *vq = to_vvq(_vq);
+>  
+> +	wake_up_interruptible(&vq->wq);
+> +
+>  	if (vq->we_own_ring) {
+>  		if (vq->packed_ring) {
+>  			vring_free_queue(vq->vq.vdev,
+> @@ -2863,4 +2874,22 @@ const struct vring *virtqueue_get_vring(struct virtqueue *vq)
+>  }
+>  EXPORT_SYMBOL_GPL(virtqueue_get_vring);
+>  
+> +int virtqueue_wait_for_used(struct virtqueue *_vq)
+> +{
+> +	struct vring_virtqueue *vq = to_vvq(_vq);
+> +
+> +	/* TODO: Tweak the timeout. */
+> +	return wait_event_interruptible_timeout(vq->wq,
+> +	       virtqueue_is_broken(_vq) || more_used(vq), HZ);
 
-Error/Warning reports:
+There's no good timeout. Let's not even go there, if device goes
+bad it should set the need reset bit.
 
-https://lore.kernel.org/oe-kbuild-all/202212020520.0OkMIno3-lkp@intel.com
-https://lore.kernel.org/oe-kbuild-all/202212041528.4TbQL9ys-lkp@intel.com
-https://lore.kernel.org/oe-kbuild-all/202212051759.cEv6fyHy-lkp@intel.com
-https://lore.kernel.org/oe-kbuild-all/202212061455.6GE7y0jg-lkp@intel.com
-https://lore.kernel.org/oe-kbuild-all/202212080938.RHVtvwt0-lkp@intel.com
-https://lore.kernel.org/oe-kbuild-all/202212090509.NjAl9tbo-lkp@intel.com
-https://lore.kernel.org/oe-kbuild-all/202212242239.hWUlGmm0-lkp@intel.com
-https://lore.kernel.org/oe-kbuild-all/202212250859.uLjFpJy3-lkp@intel.com
 
-Error/Warning: (recently discovered and may have been fixed)
+> +}
+> +EXPORT_SYMBOL_GPL(virtqueue_wait_for_used);
+> +
+> +void virtqueue_wake_up(struct virtqueue *_vq)
+> +{
+> +	struct vring_virtqueue *vq = to_vvq(_vq);
+> +
+> +	wake_up_interruptible(&vq->wq);
+> +}
+> +EXPORT_SYMBOL_GPL(virtqueue_wake_up);
+> +
+>  MODULE_LICENSE("GPL");
+> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+> index dcab9c7e8784..2eb62c774895 100644
+> --- a/include/linux/virtio.h
+> +++ b/include/linux/virtio.h
+> @@ -72,6 +72,9 @@ void *virtqueue_get_buf(struct virtqueue *vq, unsigned int *len);
+>  void *virtqueue_get_buf_ctx(struct virtqueue *vq, unsigned int *len,
+>  			    void **ctx);
+>  
+> +int virtqueue_wait_for_used(struct virtqueue *vq);
+> +void virtqueue_wake_up(struct virtqueue *vq);
+> +
+>  void virtqueue_disable_cb(struct virtqueue *vq);
+>  
+>  bool virtqueue_enable_cb(struct virtqueue *vq);
+> -- 
+> 2.25.1
 
-ERROR: modpost: "input_ff_create_memless" [drivers/hid/hid-betopff.ko] undefined!
-ERROR: modpost: "input_ff_create_memless" [drivers/hid/hid-logitech.ko] undefined!
-ERROR: modpost: "input_ff_create_memless" [drivers/hid/hid-megaworld.ko] undefined!
-ERROR: modpost: "input_ff_create_memless" [drivers/hid/hid-mf.ko] undefined!
-ERROR: modpost: "input_ff_create_memless" [drivers/input/misc/drv260x.ko] undefined!
-ERROR: modpost: "input_ff_create_memless" [drivers/input/misc/drv2665.ko] undefined!
-ERROR: modpost: "input_ff_create_memless" [drivers/input/misc/gpio-vibra.ko] undefined!
-ERROR: modpost: "input_ff_create_memless" [drivers/input/misc/regulator-haptic.ko] undefined!
-ERROR: modpost: "input_ff_create_memless" [drivers/input/misc/sc27xx-vibra.ko] undefined!
-aarch64-linux-ld: ID map text too big or misaligned
-arch/arm/kernel/entry-armv.S:485:5: warning: "CONFIG_ARM_THUMB" is not defined, evaluates to 0 [-Wundef]
-arch/arm64/include/asm/pgtable-hwdef.h:82:64: warning: "PMD_SHIFT" is not defined, evaluates to 0 [-Wundef]
-arch/loongarch/kernel/asm-offsets.c:265:6: warning: no previous prototype for 'output_pbe_defines' [-Wmissing-prototypes]
-drivers/regulator/tps65219-regulator.c:310:32: warning: parameter 'dev' set but not used [-Wunused-but-set-parameter]
-drivers/regulator/tps65219-regulator.c:310:60: warning: parameter 'dev' set but not used [-Wunused-but-set-parameter]
-drivers/regulator/tps65219-regulator.c:370:26: sparse:    int
-drivers/regulator/tps65219-regulator.c:370:26: sparse:    struct regulator_dev *[assigned] rdev
-drivers/regulator/tps65219-regulator.c:370:26: warning: ordered comparison of pointer with integer zero [-Wextra]
-loongarch64-linux-ld: sleep.c:(.text+0x22c): undefined reference to `loongarch_wakeup_start'
-sleep.c:(.text+0x228): undefined reference to `loongarch_wakeup_start'
-
-Unverified Error/Warning (likely false positive, please contact us if interested):
-
-drivers/accessibility/speakup/main.c:1290:26: sparse: sparse: obsolete array initializer, use C99 syntax
-drivers/block/null_blk/zoned.c:769 zone_cond_store() warn: potential spectre issue 'dev->zones' [w] (local cap)
-drivers/block/virtio_blk.c:721:9: sparse:    bad type *
-drivers/block/virtio_blk.c:721:9: sparse:    unsigned int *
-drivers/block/virtio_blk.c:721:9: sparse: sparse: incompatible types in comparison expression (different base types):
-drivers/block/virtio_blk.c:721:9: sparse: sparse: no generic selection for 'restricted __le32 [addressable] virtio_cread_v'
-drivers/block/virtio_blk.c:721:9: sparse: sparse: no generic selection for 'restricted __le32 virtio_cread_v'
-drivers/cxl/core/mbox.c:832:18: sparse: sparse: cast from non-scalar
-drivers/cxl/core/mbox.c:832:18: sparse: sparse: cast to non-scalar
-drivers/i2c/busses/i2c-qcom-geni.c:1028:28: sparse: sparse: symbol 'i2c_master_hub' was not declared. Should it be static?
-drivers/iio/adc/twl6030-gpadc.c:955:16-23: duplicated argument to & or |
-drivers/iio/light/tsl2563.c:751:8-33: WARNING: Threaded IRQ with no primary handler requested without IRQF_ONESHOT (unless it is nested IRQ)
-drivers/media/platform/ti/davinci/vpif.c:483:20: sparse: sparse: cast from non-scalar
-drivers/media/platform/ti/davinci/vpif.c:483:20: sparse: sparse: cast to non-scalar
-drivers/media/test-drivers/visl/visl-video.c:690:22: sparse: sparse: symbol 'visl_qops' was not declared. Should it be static?
-fs/exfat/dir.c:862 exfat_get_dentry_set() warn: missing unwind goto?
-fs/xfs/xfs_iomap.c:86:29: sparse: sparse: symbol 'xfs_iomap_page_ops' was not declared. Should it be static?
-
-Error/Warning ids grouped by kconfigs:
-
-gcc_recent_errors
-|-- alpha-allyesconfig
-|   |-- drivers-regulator-tps65219-regulator.c:warning:ordered-comparison-of-pointer-with-integer-zero
-|   `-- drivers-regulator-tps65219-regulator.c:warning:parameter-dev-set-but-not-used
-|-- arc-allyesconfig
-|   |-- drivers-regulator-tps65219-regulator.c:warning:ordered-comparison-of-pointer-with-integer-zero
-|   `-- drivers-regulator-tps65219-regulator.c:warning:parameter-dev-set-but-not-used
-|-- arc-randconfig-r024-20221225
-|   |-- drivers-regulator-tps65219-regulator.c:warning:ordered-comparison-of-pointer-with-integer-zero
-|   `-- drivers-regulator-tps65219-regulator.c:warning:parameter-dev-set-but-not-used
-|-- arc-randconfig-s041-20221225
-|   `-- fs-xfs-xfs_iomap.c:sparse:sparse:symbol-xfs_iomap_page_ops-was-not-declared.-Should-it-be-static
-|-- arm-allyesconfig
-|   |-- drivers-regulator-tps65219-regulator.c:warning:ordered-comparison-of-pointer-with-integer-zero
-|   `-- drivers-regulator-tps65219-regulator.c:warning:parameter-dev-set-but-not-used
-|-- arm-badge4_defconfig
-|   `-- arch-arm-kernel-entry-armv.S:warning:CONFIG_ARM_THUMB-is-not-defined-evaluates-to
-|-- arm64-allyesconfig
-|   |-- aarch64-linux-ld:ID-map-text-too-big-or-misaligned
-|   |-- drivers-regulator-tps65219-regulator.c:warning:ordered-comparison-of-pointer-with-integer-zero
-|   `-- drivers-regulator-tps65219-regulator.c:warning:parameter-dev-set-but-not-used
-|-- arm64-randconfig-c034-20221225
-|   `-- arch-arm64-include-asm-pgtable-hwdef.h:warning:PMD_SHIFT-is-not-defined-evaluates-to
-|-- csky-randconfig-c033-20221225
-|   |-- drivers-iio-light-tsl2563.c:WARNING:Threaded-IRQ-with-no-primary-handler-requested-without-IRQF_ONESHOT-(unless-it-is-nested-IRQ)
-|   `-- drivers-mtd-ubi-build.c:WARNING:conversion-to-bool-not-needed-here
-|-- i386-allyesconfig
-|   |-- drivers-regulator-tps65219-regulator.c:warning:ordered-comparison-of-pointer-with-integer-zero
-|   `-- drivers-regulator-tps65219-regulator.c:warning:parameter-dev-set-but-not-used
-|-- i386-randconfig-c021-20221226
-|   `-- drivers-iio-light-tsl2563.c:WARNING:Threaded-IRQ-with-no-primary-handler-requested-without-IRQF_ONESHOT-(unless-it-is-nested-IRQ)
-|-- i386-randconfig-m021-20221226
-|   `-- fs-exfat-dir.c-exfat_get_dentry_set()-warn:missing-unwind-goto
-|-- i386-randconfig-s002
-|   `-- fs-xfs-xfs_iomap.c:sparse:sparse:symbol-xfs_iomap_page_ops-was-not-declared.-Should-it-be-static
-|-- ia64-allmodconfig
-|   |-- drivers-regulator-tps65219-regulator.c:warning:ordered-comparison-of-pointer-with-integer-zero
-|   `-- drivers-regulator-tps65219-regulator.c:warning:parameter-dev-set-but-not-used
-|-- loongarch-allyesconfig
-|   `-- arch-loongarch-kernel-asm-offsets.c:warning:no-previous-prototype-for-output_pbe_defines
-|-- loongarch-randconfig-s043-20221225
-|   |-- arch-loongarch-kernel-asm-offsets.c:warning:no-previous-prototype-for-output_pbe_defines
-|   |-- drivers-cxl-core-mbox.c:sparse:sparse:cast-from-non-scalar
-|   |-- drivers-cxl-core-mbox.c:sparse:sparse:cast-to-non-scalar
-|   |-- drivers-i2c-busses-i2c-qcom-geni.c:sparse:sparse:symbol-i2c_master_hub-was-not-declared.-Should-it-be-static
-|   |-- fs-xfs-xfs_iomap.c:sparse:sparse:symbol-xfs_iomap_page_ops-was-not-declared.-Should-it-be-static
-|   |-- loongarch64-linux-ld:sleep.c:(.text):undefined-reference-to-loongarch_wakeup_start
-|   `-- sleep.c:(.text):undefined-reference-to-loongarch_wakeup_start
-|-- m68k-allmodconfig
-|   |-- drivers-regulator-tps65219-regulator.c:warning:ordered-comparison-of-pointer-with-integer-zero
-|   `-- drivers-regulator-tps65219-regulator.c:warning:parameter-dev-set-but-not-used
-clang_recent_errors
-|-- hexagon-buildonly-randconfig-r003-20221225
-|   `-- drivers-regulator-tps65219-regulator.c:warning:parameter-dev-set-but-not-used
-|-- hexagon-randconfig-r002-20221225
-|   `-- drivers-regulator-tps65219-regulator.c:warning:parameter-dev-set-but-not-used
-|-- riscv-randconfig-r021-20221225
-|   `-- drivers-regulator-tps65219-regulator.c:warning:parameter-dev-set-but-not-used
-|-- x86_64-allyesconfig
-|   `-- drivers-regulator-tps65219-regulator.c:warning:parameter-dev-set-but-not-used
-`-- x86_64-randconfig-a003-20221226
-    `-- vmlinux.o:warning:objtool:___ksymtab_gpl-_RNvNtCsfATHBUcknU9_6kernel5print16call_printk_cont:data-relocation-to-ENDBR:_RNvNtCsfATHBUcknU9_6kernel5print16call_printk_cont
-
-elapsed time: 720m
-
-configs tested: 89
-configs skipped: 2
-
-gcc tested configs:
-um                             i386_defconfig
-um                           x86_64_defconfig
-arc                                 defconfig
-alpha                               defconfig
-i386                 randconfig-a012-20221226
-x86_64                    rhel-8.3-kselftests
-arm                                 defconfig
-i386                 randconfig-a011-20221226
-x86_64                          rhel-8.3-func
-i386                                defconfig
-i386                 randconfig-a013-20221226
-x86_64                           rhel-8.3-bpf
-s390                             allmodconfig
-s390                                defconfig
-ia64                             allmodconfig
-i386                 randconfig-a014-20221226
-x86_64                           rhel-8.3-syz
-x86_64                              defconfig
-i386                 randconfig-a016-20221226
-s390                             allyesconfig
-i386                 randconfig-a015-20221226
-x86_64                         rhel-8.3-kunit
-x86_64                           rhel-8.3-kvm
-x86_64                            allnoconfig
-x86_64               randconfig-a014-20221226
-powerpc                           allnoconfig
-x86_64               randconfig-a013-20221226
-x86_64                               rhel-8.3
-arm64                            allyesconfig
-x86_64               randconfig-a011-20221226
-arm                              allyesconfig
-x86_64               randconfig-a012-20221226
-i386                             allyesconfig
-x86_64               randconfig-a015-20221226
-x86_64               randconfig-a016-20221226
-sh                               allmodconfig
-m68k                             allyesconfig
-mips                             allyesconfig
-powerpc                          allmodconfig
-x86_64                           allyesconfig
-m68k                             allmodconfig
-arc                              allyesconfig
-alpha                            allyesconfig
-arm                  randconfig-r046-20221225
-arc                  randconfig-r043-20221225
-arc                  randconfig-r043-20221226
-riscv                randconfig-r042-20221226
-s390                 randconfig-r044-20221226
-x86_64                           alldefconfig
-sh                          lboxre2_defconfig
-arc                               allnoconfig
-sh                             shx3_defconfig
-arm                           tegra_defconfig
-microblaze                          defconfig
-m68k                       m5475evb_defconfig
-m68k                        m5407c3_defconfig
-xtensa                              defconfig
-mips                      maltasmvp_defconfig
-parisc                           alldefconfig
-arm                          badge4_defconfig
-powerpc                     mpc83xx_defconfig
-sh                          rsk7201_defconfig
-sh                 kfr2r09-romimage_defconfig
-powerpc                    klondike_defconfig
-sh                  sh7785lcr_32bit_defconfig
-
-clang tested configs:
-x86_64                          rhel-8.3-rust
-i386                 randconfig-a004-20221226
-i386                 randconfig-a001-20221226
-x86_64               randconfig-a002-20221226
-i386                 randconfig-a003-20221226
-i386                 randconfig-a002-20221226
-x86_64               randconfig-a003-20221226
-x86_64               randconfig-a006-20221226
-i386                 randconfig-a005-20221226
-i386                 randconfig-a006-20221226
-x86_64               randconfig-a001-20221226
-x86_64               randconfig-a004-20221226
-x86_64               randconfig-a005-20221226
-hexagon              randconfig-r045-20221225
-hexagon              randconfig-r041-20221225
-hexagon              randconfig-r041-20221226
-arm                  randconfig-r046-20221226
-s390                 randconfig-r044-20221225
-hexagon              randconfig-r045-20221226
-riscv                randconfig-r042-20221225
-powerpc                     tqm5200_defconfig
-arm                         shannon_defconfig
-arm                         orion5x_defconfig
-arm                           sama7_defconfig
-x86_64                           allyesconfig
-
--- 
-0-DAY CI Kernel Test Service
-https://01.org/lkp
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
