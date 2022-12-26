@@ -1,84 +1,84 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D6A50C46467
-	for <virtualization@archiver.kernel.org>; Mon, 26 Dec 2022 07:49:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0EDA6C4332F
+	for <virtualization@archiver.kernel.org>; Mon, 26 Dec 2022 07:49:47 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 724D340376;
-	Mon, 26 Dec 2022 07:49:39 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 724D340376
+	by smtp3.osuosl.org (Postfix) with ESMTP id B013D60A6A;
+	Mon, 26 Dec 2022 07:49:46 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B013D60A6A
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=PwZkLw+6
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id zk7qvGR4zdkd; Mon, 26 Dec 2022 07:49:45 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 2BC9B607CE;
+	Mon, 26 Dec 2022 07:49:45 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2BC9B607CE
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 04812C0035;
+	Mon, 26 Dec 2022 07:49:45 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9CDA6C002D
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 26 Dec 2022 07:49:43 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 7832E4036F
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 26 Dec 2022 07:49:43 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7832E4036F
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=g07FrQHu
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=PwZkLw+6
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id qpW9_wVD2en1; Mon, 26 Dec 2022 07:49:38 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id E4DA240104;
-	Mon, 26 Dec 2022 07:49:37 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E4DA240104
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C92FAC0035;
-	Mon, 26 Dec 2022 07:49:37 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C163BC002D
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id gF6_lBD-sYTF
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Dec 2022 07:49:36 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 8F47680D6B
- for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Dec 2022 07:49:36 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8F47680D6B
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=g07FrQHu
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Jm4CC3NakxG8
- for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Dec 2022 07:49:36 +0000 (UTC)
+ Mon, 26 Dec 2022 07:49:42 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CC95B80C3B
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org AA0D640359
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id CC95B80C3B
+ by smtp2.osuosl.org (Postfix) with ESMTPS id AA0D640359
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Dec 2022 07:49:35 +0000 (UTC)
+ Mon, 26 Dec 2022 07:49:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1672040974;
+ s=mimecast20190719; t=1672040981;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=H/Y/p/qkj6rtja+GTIriOAzlecVLNXF/oN1BvsWBKKY=;
- b=g07FrQHuFKizmKBDHbtKSII5lRBSZWY/oaSQTCPKwDZaKYy3sOftsoG27E+EH1paIp/Be6
- 2MD8T1Pv5Lir6o8aqUxrueo2rKjGKCxY532Wj09JyV3XHb7jNODO1DMopPcK5+6uVEWgC3
- ZvPUQ5j9o/cvQEdQmCQ1zhJyv9eorDE=
+ bh=cQQAF2roIs1AkbrATZH+Dx5zgxJxII5XuDrBnrFmmR0=;
+ b=PwZkLw+6tAA3JpNNGoYs02e5Tg4oP0LYzuxAa1V1Y4KfXSBg+qu1DN/BZladrz2waNZQgA
+ dGKxn7esXsIVDfTNvxXB8S0vXVmYG1qlSrd11Y2LkelS2U8EaPMe7zLDmwiM8CobrGw8lt
+ DqLcXXQUVFj1Wf6QAS1hRJcOVxciElo=
 Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
  [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-112-Cl6FKtC-O92R4jqHTvdGlQ-1; Mon, 26 Dec 2022 02:49:31 -0500
-X-MC-Unique: Cl6FKtC-O92R4jqHTvdGlQ-1
+ us-mta-198-fpqLXZzLMJGNQN3y84BlPg-1; Mon, 26 Dec 2022 02:49:37 -0500
+X-MC-Unique: fpqLXZzLMJGNQN3y84BlPg-1
 Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com
  [10.11.54.10])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 1DD1A101A521;
- Mon, 26 Dec 2022 07:49:31 +0000 (UTC)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id A4982101A52E;
+ Mon, 26 Dec 2022 07:49:36 +0000 (UTC)
 Received: from localhost.localdomain (ovpn-13-100.pek2.redhat.com
  [10.72.13.100])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 7642D492B00;
- Mon, 26 Dec 2022 07:49:26 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id BE333492B00;
+ Mon, 26 Dec 2022 07:49:31 +0000 (UTC)
 From: Jason Wang <jasowang@redhat.com>
 To: mst@redhat.com,
 	jasowang@redhat.com
-Subject: [PATCH 3/4] virtio_ring: introduce a per virtqueue waitqueue
-Date: Mon, 26 Dec 2022 15:49:07 +0800
-Message-Id: <20221226074908.8154-4-jasowang@redhat.com>
+Subject: [PATCH 4/4] virtio-net: sleep instead of busy waiting for cvq command
+Date: Mon, 26 Dec 2022 15:49:08 +0800
+Message-Id: <20221226074908.8154-5-jasowang@redhat.com>
 In-Reply-To: <20221226074908.8154-1-jasowang@redhat.com>
 References: <20221226074908.8154-1-jasowang@redhat.com>
 MIME-Version: 1.0
@@ -103,115 +103,92 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This patch introduces a per virtqueue waitqueue to allow driver to
-sleep and wait for more used. Two new helpers are introduced to allow
-driver to sleep and wake up.
+We used to busy waiting on the cvq command this tends to be
+problematic since:
+
+1) CPU could wait for ever on a buggy/malicous device
+2) There's no wait to terminate the process that triggers the cvq
+   command
+
+So this patch switch to use virtqueue_wait_for_used() to sleep with a
+timeout (1s) instead of busy polling for the cvq command forever. This
+gives the scheduler a breath and can let the process can respond to
+asignal. If the device doesn't respond in the timeout, break the
+device.
 
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
 Changes since V1:
-- check virtqueue_is_broken() as well
-- use more_used() instead of virtqueue_get_buf() to allow caller to
-  get buffers afterwards
+- break the device when timeout
+- get buffer manually since the virtio core check more_used() instead
 ---
- drivers/virtio/virtio_ring.c | 29 +++++++++++++++++++++++++++++
- include/linux/virtio.h       |  3 +++
- 2 files changed, 32 insertions(+)
+ drivers/net/virtio_net.c | 24 ++++++++++++++++--------
+ 1 file changed, 16 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 5cfb2fa8abee..9c83eb945493 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -13,6 +13,7 @@
- #include <linux/dma-mapping.h>
- #include <linux/kmsan.h>
- #include <linux/spinlock.h>
-+#include <linux/wait.h>
- #include <xen/xen.h>
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index efd9dd55828b..6a2ea64cfcb5 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -405,6 +405,7 @@ static void disable_rx_mode_work(struct virtnet_info *vi)
+ 	vi->rx_mode_work_enabled = false;
+ 	spin_unlock_bh(&vi->rx_mode_lock);
  
- #ifdef DEBUG
-@@ -60,6 +61,7 @@
- 			"%s:"fmt, (_vq)->vq.name, ##args);	\
- 		/* Pairs with READ_ONCE() in virtqueue_is_broken(). */ \
- 		WRITE_ONCE((_vq)->broken, true);		       \
-+		wake_up_interruptible(&(_vq)->wq);		       \
- 	} while (0)
- #define START_USE(vq)
- #define END_USE(vq)
-@@ -203,6 +205,9 @@ struct vring_virtqueue {
- 	/* DMA, allocation, and size information */
- 	bool we_own_ring;
- 
-+	/* Wait for buffer to be used */
-+	wait_queue_head_t wq;
-+
- #ifdef DEBUG
- 	/* They're supposed to lock for us. */
- 	unsigned int in_use;
-@@ -2024,6 +2029,8 @@ static struct virtqueue *vring_create_virtqueue_packed(
- 	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
- 		vq->weak_barriers = false;
- 
-+	init_waitqueue_head(&vq->wq);
-+
- 	err = vring_alloc_state_extra_packed(&vring_packed);
- 	if (err)
- 		goto err_state_extra;
-@@ -2517,6 +2524,8 @@ static struct virtqueue *__vring_new_virtqueue(unsigned int index,
- 	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
- 		vq->weak_barriers = false;
- 
-+	init_waitqueue_head(&vq->wq);
-+
- 	err = vring_alloc_state_extra_split(vring_split);
- 	if (err) {
- 		kfree(vq);
-@@ -2654,6 +2663,8 @@ static void vring_free(struct virtqueue *_vq)
- {
- 	struct vring_virtqueue *vq = to_vvq(_vq);
- 
-+	wake_up_interruptible(&vq->wq);
-+
- 	if (vq->we_own_ring) {
- 		if (vq->packed_ring) {
- 			vring_free_queue(vq->vq.vdev,
-@@ -2863,4 +2874,22 @@ const struct vring *virtqueue_get_vring(struct virtqueue *vq)
++	virtqueue_wake_up(vi->cvq);
+ 	flush_work(&vi->rx_mode_work);
  }
- EXPORT_SYMBOL_GPL(virtqueue_get_vring);
  
-+int virtqueue_wait_for_used(struct virtqueue *_vq)
+@@ -1497,6 +1498,11 @@ static bool try_fill_recv(struct virtnet_info *vi, struct receive_queue *rq,
+ 	return !oom;
+ }
+ 
++static void virtnet_cvq_done(struct virtqueue *cvq)
 +{
-+	struct vring_virtqueue *vq = to_vvq(_vq);
-+
-+	/* TODO: Tweak the timeout. */
-+	return wait_event_interruptible_timeout(vq->wq,
-+	       virtqueue_is_broken(_vq) || more_used(vq), HZ);
++	virtqueue_wake_up(cvq);
 +}
-+EXPORT_SYMBOL_GPL(virtqueue_wait_for_used);
 +
-+void virtqueue_wake_up(struct virtqueue *_vq)
-+{
-+	struct vring_virtqueue *vq = to_vvq(_vq);
-+
-+	wake_up_interruptible(&vq->wq);
-+}
-+EXPORT_SYMBOL_GPL(virtqueue_wake_up);
-+
- MODULE_LICENSE("GPL");
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index dcab9c7e8784..2eb62c774895 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -72,6 +72,9 @@ void *virtqueue_get_buf(struct virtqueue *vq, unsigned int *len);
- void *virtqueue_get_buf_ctx(struct virtqueue *vq, unsigned int *len,
- 			    void **ctx);
+ static void skb_recv_done(struct virtqueue *rvq)
+ {
+ 	struct virtnet_info *vi = rvq->vdev->priv;
+@@ -1984,6 +1990,8 @@ static int virtnet_tx_resize(struct virtnet_info *vi,
+ 	return err;
+ }
  
-+int virtqueue_wait_for_used(struct virtqueue *vq);
-+void virtqueue_wake_up(struct virtqueue *vq);
++static int virtnet_close(struct net_device *dev);
 +
- void virtqueue_disable_cb(struct virtqueue *vq);
+ /*
+  * Send command via the control virtqueue and check status.  Commands
+  * supported by the hypervisor, as indicated by feature bits, should
+@@ -2026,14 +2034,14 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
+ 	if (unlikely(!virtqueue_kick(vi->cvq)))
+ 		return vi->ctrl->status == VIRTIO_NET_OK;
  
- bool virtqueue_enable_cb(struct virtqueue *vq);
+-	/* Spin for a response, the kick causes an ioport write, trapping
+-	 * into the hypervisor, so the request should be handled immediately.
+-	 */
+-	while (!virtqueue_get_buf(vi->cvq, &tmp) &&
+-	       !virtqueue_is_broken(vi->cvq))
+-		cpu_relax();
++	if (virtqueue_wait_for_used(vi->cvq)) {
++		virtqueue_get_buf(vi->cvq, &tmp);
++		return vi->ctrl->status == VIRTIO_NET_OK;
++	}
+ 
+-	return vi->ctrl->status == VIRTIO_NET_OK;
++	netdev_err(vi->dev, "CVQ command timeout, break the virtio device.");
++	virtio_break_device(vi->vdev);
++	return VIRTIO_NET_ERR;
+ }
+ 
+ static int virtnet_set_mac_address(struct net_device *dev, void *p)
+@@ -3526,7 +3534,7 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
+ 
+ 	/* Parameters for control virtqueue, if any */
+ 	if (vi->has_cvq) {
+-		callbacks[total_vqs - 1] = NULL;
++		callbacks[total_vqs - 1] = virtnet_cvq_done;
+ 		names[total_vqs - 1] = "control";
+ 	}
+ 
 -- 
 2.25.1
 
