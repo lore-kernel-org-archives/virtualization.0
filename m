@@ -1,113 +1,101 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 44DF4C10F1B
-	for <virtualization@archiver.kernel.org>; Tue, 27 Dec 2022 07:08:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3F8D5C10F1B
+	for <virtualization@archiver.kernel.org>; Tue, 27 Dec 2022 07:14:05 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 6C62C40866;
-	Tue, 27 Dec 2022 07:08:46 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6C62C40866
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=PxkgSFX/
+	by smtp1.osuosl.org (Postfix) with ESMTP id B64568139B;
+	Tue, 27 Dec 2022 07:14:04 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B64568139B
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=igel-co-jp.20210112.gappssmtp.com header.i=@igel-co-jp.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=JnDgLgH3
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id K0CNsgnsqoSf; Tue, 27 Dec 2022 07:08:45 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 8A2C84081F;
-	Tue, 27 Dec 2022 07:08:44 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8A2C84081F
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id DRctbz0aREza; Tue, 27 Dec 2022 07:14:04 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 4945781385;
+	Tue, 27 Dec 2022 07:14:03 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4945781385
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 64B62C0032;
-	Tue, 27 Dec 2022 07:08:44 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E449EC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1AFE3C0032;
+	Tue, 27 Dec 2022 07:14:03 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E5AF0C002D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Dec 2022 07:08:42 +0000 (UTC)
+ Tue, 27 Dec 2022 07:14:01 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id AB161404ED
+ by smtp2.osuosl.org (Postfix) with ESMTP id B5D2C403A7
  for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Dec 2022 07:08:42 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org AB161404ED
+ Tue, 27 Dec 2022 07:14:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B5D2C403A7
 Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=PxkgSFX/
+ dkim=pass (2048-bit key) header.d=igel-co-jp.20210112.gappssmtp.com
+ header.i=@igel-co-jp.20210112.gappssmtp.com header.a=rsa-sha256
+ header.s=20210112 header.b=JnDgLgH3
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id irhcVxdhE7i4
+ with ESMTP id oFkuLqL6jWIn
  for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Dec 2022 07:08:42 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org EC880403A7
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id EC880403A7
+ Tue, 27 Dec 2022 07:14:01 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1F481400D1
+Received: from mail-vs1-xe33.google.com (mail-vs1-xe33.google.com
+ [IPv6:2607:f8b0:4864:20::e33])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 1F481400D1
  for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Dec 2022 07:08:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1672124920;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=CNSl+0ECi610jkobwQHRDIhZHSbY7C3DN466PQa953c=;
- b=PxkgSFX/sin04JdaPqfAiVHDM+DWPHZ3GrhlnGR96A52XoG0PSG3yGnXXcz0FVzhOWxumS
- tltjR4GqRCzKGwKYj/dtV/Iv1jKbxjV8mZXsmbCWn+wXANTgZ5Va5X02fXnEiYqq/BN6VA
- rr9+VHEXNxK35mDCSdKvlAl83f47boc=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-404-ikvaWWk-MASisn8_mC23Fw-1; Tue, 27 Dec 2022 02:08:39 -0500
-X-MC-Unique: ikvaWWk-MASisn8_mC23Fw-1
-Received: by mail-wm1-f71.google.com with SMTP id
- x10-20020a05600c420a00b003cfa33f2e7cso6560073wmh.2
+ Tue, 27 Dec 2022 07:14:01 +0000 (UTC)
+Received: by mail-vs1-xe33.google.com with SMTP id h26so11924330vsr.5
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Dec 2022 23:08:39 -0800 (PST)
+ Mon, 26 Dec 2022 23:14:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=igel-co-jp.20210112.gappssmtp.com; s=20210112;
+ h=content-transfer-encoding:cc:to:subject:message-id:date:from
+ :in-reply-to:references:mime-version:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=+KQfd0qQa24pmN4jbSpJWNWeqDqVNRsi5GfHHVHb10I=;
+ b=JnDgLgH3KEZYTTFz2OogWOc6UzxCg8sWVfEVHFghkWlpxlqZqelxy06X6jxl+1Qu4U
+ 5XbZ9CYTNySXfjx+Auz3LO7ziUDzSgOCEbwfyVWxcBj6aHAVy30eyInCPVqdjrDhDv5D
+ azzjNfXtFa5kF8SmRD+zMOl+khoViUXeCmhNAe9I72Wjdi9Ui5C8X9geF1uK+l4iH7Yk
+ 3fd4ZsS+OZBcYdUAkNiCfqhm0ZUf8J05J/Y34snl9SUh4i+9ws7mgvc5B0ot+dCwyb9z
+ atFV+c2Hn+RKPH8wgEI+ZMKfo6h7s7HJ5APo3ZeAwVy6CrblZf3x2fXCkVo+ZEQH/TBJ
+ Ytuw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=CNSl+0ECi610jkobwQHRDIhZHSbY7C3DN466PQa953c=;
- b=shC3yxb5HsOborSLVfN9zFVdc4ta/i+wtA5WvQmXZHOHelKHABAOQVdHZTJYdH3pqq
- I2SUE3YAZH2EJ8XpG2YopHd7rs/GUw5jJpnNmTVNMriUgHqSLsfvSj2gl1lV+c7KwB9L
- a6llXTekvy+/xRgmO0n8h7IwCFCbKzVootkDPqhfkIB35C1KzNiqE2wub7MhZWog+V4j
- Fg0nIl8nLpnb3GbeOY6Zh07Fs+WQeXK1BpmmJCSF8xNmfSkVTWRonwzS0D+hO3csfRn6
- X5Vwz5NGdgZblgq3dn0F4ip/BKT1N6yL062s8rH5C1hpHyyV7CARBkmn4Jt8e1l0VPfR
- Fgqw==
-X-Gm-Message-State: AFqh2kqz0idP8uenwRu+4nDfIYXW3m4KEl6LsenEuxtDiyRyIqOij3N5
- 2fmjK4Y8XH7Tsk7Gfub2RW+kw3s2JysoTMWDVnWFrLjJJ0Ju8p/SWSwhlOk9Z8hlCsS/BMMB0Xn
- ofLs293YK+ZRI62aCuV3UJYdFoT5uTEQA/IMqN9VHwA==
-X-Received: by 2002:a05:600c:218f:b0:3d1:fbf9:3bd4 with SMTP id
- e15-20020a05600c218f00b003d1fbf93bd4mr14570198wme.10.1672124918371; 
- Mon, 26 Dec 2022 23:08:38 -0800 (PST)
-X-Google-Smtp-Source: AMrXdXtc99GCoJhnK8zS6H5TFpyy0SjPSOlEw+pD0N2cOTloIwBCRzZwnIIqKPd/kod61jIX+AMcnw==
-X-Received: by 2002:a05:600c:218f:b0:3d1:fbf9:3bd4 with SMTP id
- e15-20020a05600c218f00b003d1fbf93bd4mr14570189wme.10.1672124918163; 
- Mon, 26 Dec 2022 23:08:38 -0800 (PST)
-Received: from redhat.com ([2.52.151.85]) by smtp.gmail.com with ESMTPSA id
- h14-20020a05600c314e00b003d237d60318sm17613983wmo.2.2022.12.26.23.08.36
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 26 Dec 2022 23:08:37 -0800 (PST)
-Date: Tue, 27 Dec 2022 02:08:34 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: "Chen, Jian Jun" <jian.jun.chen@intel.com>
-Subject: Re: [PATCH] MAINTAINERS: Update maintainer list for virtio i2c
-Message-ID: <20221227020812-mutt-send-email-mst@kernel.org>
-References: <20221214053631.3225164-1-conghui.chen@intel.com>
- <20221214063352-mutt-send-email-mst@kernel.org>
- <3557e69a-0c17-0a24-0706-8b48c350b75a@intel.com>
+ h=content-transfer-encoding:cc:to:subject:message-id:date:from
+ :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+ :subject:date:message-id:reply-to;
+ bh=+KQfd0qQa24pmN4jbSpJWNWeqDqVNRsi5GfHHVHb10I=;
+ b=7d5z9SbjaLbgCZYV7QtSPLtBdX6TaGuqZavrntiblIJqjP3XePlzOhbr+82ZlHETgk
+ +S9T8gTg3PUyJKAe/ft+fqyEuX1VzhHsW1ewXUvdyD0HSRffX6XyQoIniDSEwR9E82le
+ cikAQLRW6W7FbsybVUkxL3SRR7rVHWosM7O02onBAhx/K7nDGidvyYW6nznKC4lTEqdj
+ QD/tzGT/FdVBQQRapwWP4FhuDNPLWR/Y3o9o0YO4j5QLNJyJodq5JS5h9P2OKuDz2xPa
+ 4bVdk0kHmCdZsJeeLwIcfOdrcItCQz+HIGFLkOzLH7NihDamEkzwxhfRxSDQDskwUli6
+ bRIg==
+X-Gm-Message-State: AFqh2krBMPAaPPVZMmLDxxFrxZFVzd+Py0OgVDRwXVwsfhIQ/I8hALvG
+ WMoNINsD1VEIBUi5JBbCLlHQpfHn6mrMhtcCI/kdog==
+X-Google-Smtp-Source: AMrXdXveVEzfaCgCX7ll10/TckFbSv+JK5mIYKf8aCht+1Noe74CJXwAERw1BZvxxJVNWvLE//EQJd/v6X6NLOza8Yc=
+X-Received: by 2002:a05:6102:14a7:b0:3b5:1126:2b62 with SMTP id
+ d39-20020a05610214a700b003b511262b62mr2182450vsv.51.1672125239853; Mon, 26
+ Dec 2022 23:13:59 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <3557e69a-0c17-0a24-0706-8b48c350b75a@intel.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: asowang@redhat.com, viresh.kumar@linaro.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, wsa@kernel.org,
- linux-i2c@vger.kernel.org, Conghui <conghui.chen@intel.com>
+References: <20221227022528.609839-1-mie@igel.co.jp>
+ <20221227022528.609839-3-mie@igel.co.jp>
+ <CACGkMEtAaYpuZtS0gx_m931nFzcvqSNK9BhvUZH_tZXTzjgQCg@mail.gmail.com>
+ <20221227020425-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20221227020425-mutt-send-email-mst@kernel.org>
+From: Shunsuke Mie <mie@igel.co.jp>
+Date: Tue, 27 Dec 2022 16:13:49 +0900
+Message-ID: <CANXvt5pXkS=TTOU0+Lkx6CjcV7xvDHRS6FbFikJ4Ww8832sg8g@mail.gmail.com>
+Subject: Re: [RFC PATCH 2/9] vringh: remove vringh_iov and unite to vringh_kiov
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org,
+ Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,63 +107,32 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Dec 27, 2022 at 12:04:10PM +0800, Chen, Jian Jun wrote:
-> 
-> On 12/14/2022 19:37, Michael S. Tsirkin wrote:
-> > On Wed, Dec 14, 2022 at 01:36:31PM +0800, Conghui wrote:
-> > > This updates the maintainer for virtio i2c drvier
-> > I got that, but what is going on here exactly?
-> > I generally expect a new maintainer to be active in the
-> > project for a while first.
-> > I don't see contributions or reviews for this driver or
-> > for that matter for any virtio or i2c drivers from Jian Jun Chen.
-> > It looks like you are no longer interested in maintaining
-> > this? In that case pls just send a patch removing yourself.
-> > 
-> > Jian Jun Chen, if you are interested in reviewing
-> > patches please start doing so, you don't need to
-> > be listed as a maintainer for this to happen.
-> > Once you do this for a while and write some patches,
-> > you can become a maintainer, this is not a high bar
-> > to clear.
-> 
-> Hi Michael,
-> 
-> Yes. I am interested in the virtio I2C maintenance. I have lots of virtio
-> experience in ACRN device model development and was involved in the early
-> phase virtio I2C discussion in ACRN before Jie/Conghui upstream the virtio
-> I2C spec. Sure, I will start to collaborate first.
-
-
-Excellent, thanks a lot!
-
-> > > Signed-off-by: Conghui <conghui.chen@intel.com>
-> > > Acked-by: Jian Jun Chen <jian.jun.chen@intel.com>
-> > > ---
-> > >   MAINTAINERS | 2 +-
-> > >   1 file changed, 1 insertion(+), 1 deletion(-)
-> > > 
-> > > diff --git a/MAINTAINERS b/MAINTAINERS
-> > > index a8c8f6b42436..44747f4641a6 100644
-> > > --- a/MAINTAINERS
-> > > +++ b/MAINTAINERS
-> > > @@ -21920,7 +21920,7 @@ F:	include/uapi/linux/virtio_snd.h
-> > >   F:	sound/virtio/*
-> > >   VIRTIO I2C DRIVER
-> > > -M:	Conghui Chen <conghui.chen@intel.com>
-> > > +M:	Jian Jun Chen <jian.jun.chen@intel.com>
-> > >   M:	Viresh Kumar <viresh.kumar@linaro.org>
-> > >   L:	linux-i2c@vger.kernel.org
-> > >   L:	virtualization@lists.linux-foundation.org
-> > > -- 
-> > > 2.25.1
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+MjAyMuW5tDEy5pyIMjfml6Uo54GrKSAxNjowNSBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRo
+YXQuY29tPjoKPgo+IE9uIFR1ZSwgRGVjIDI3LCAyMDIyIGF0IDAyOjA0OjAzUE0gKzA4MDAsIEph
+c29uIFdhbmcgd3JvdGU6Cj4gPiBPbiBUdWUsIERlYyAyNywgMjAyMiBhdCAxMDoyNSBBTSBTaHVu
+c3VrZSBNaWUgPG1pZUBpZ2VsLmNvLmpwPiB3cm90ZToKPiA+ID4KPiA+ID4gc3RydWN0IHZyaW5n
+aF9pb3YgaXMgZGVmaW5lZCB0byBob2xkIHVzZXJsYW5kIGFkZHJlc3Nlcy4gSG93ZXZlciwgdG8g
+dXNlCj4gPiA+IGNvbW1vbiBmdW5jdGlvbiwgX192cmluZ19pb3YsIGZpbmFsbHkgdGhlIHZyaW5n
+aF9pb3YgY29udmVydHMgdG8gdGhlCj4gPiA+IHZyaW5naF9raW92IHdpdGggc2ltcGxlIGNhc3Qu
+IEl0IGluY2x1ZGVzIGNvbXBpbGUgdGltZSBjaGVjayBjb2RlIHRvIG1ha2UKPiA+ID4gc3VyZSBp
+dCBjYW4gYmUgY2FzdCBjb3JyZWN0bHkuCj4gPiA+Cj4gPiA+IFRvIHNpbXBsaWZ5IHRoZSBjb2Rl
+LCB0aGlzIHBhdGNoIHJlbW92ZXMgdGhlIHN0cnVjdCB2cmluZ2hfaW92IGFuZCB1bmlmaWVzCj4g
+PiA+IEFQSXMgdG8gc3RydWN0IHZyaW5naF9raW92Lgo+ID4gPgo+ID4gPiBTaWduZWQtb2ZmLWJ5
+OiBTaHVuc3VrZSBNaWUgPG1pZUBpZ2VsLmNvLmpwPgo+ID4KPiA+IFdoaWxlIGF0IHRoaXMsIEkg
+d29uZGVyIGlmIHdlIG5lZWQgdG8gZ28gZnVydGhlciwgdGhhdCBpcywgc3dpdGNoIHRvCj4gPiB1
+c2luZyBhbiBpb3YgaXRlcmF0b3IgaW5zdGVhZCBvZiBhIHZyaW5naCBjdXN0b21pemVkIG9uZS4K
+PiA+Cj4gPiBUaGFua3MKPgo+IFBvc3NpYmx5LCBidXQgd2hlbiBkb2luZyBjaGFuZ2VzIGxpa2Ug
+dGhpcyBvbmUgbmVlZHMgdG8gYmUgY2FyZWZ1bAo+IHRvIGF2b2lkIGJyZWFraW5nIGFsbCB0aGUg
+aW5saW5pbmcgdHJpY2tzIHZyaW5naCByZWxpZXMgb24gZm9yCj4gcGVyZm9ybWFuY2UuCkRlZmlu
+aXRlbHksIEknbSBldmFsdWF0aW5nIHRoZSBwZXJmb3JtYW5jZSB1c2luZyB2cmluZ2hfdGVzdC4g
+SSdsbCBhZGQgYQpyZXN1bHQgb2YgdGhlIGV2YWx1YXRpb24uIEJ1dCwgSWYgdGhlcmUgYXJlIG90
+aGVyIGV2YWx1YXRpb24gbWV0aG9kcywgY291bGQgeW91CnBsZWFzZSB0ZWxsIG1lPwo+IC0tCj4g
+TVNUCj4KCkJlc3QsClNodW5zdWtlCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBs
+aXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5v
+cmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
