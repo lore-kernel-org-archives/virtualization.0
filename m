@@ -4,109 +4,64 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E78C3C4332F
-	for <virtualization@archiver.kernel.org>; Mon, 26 Dec 2022 23:38:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id DD390C46467
+	for <virtualization@archiver.kernel.org>; Tue, 27 Dec 2022 02:25:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 673794086B;
-	Mon, 26 Dec 2022 23:38:36 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 673794086B
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=d15TV1CZ
+	by smtp4.osuosl.org (Postfix) with ESMTP id 3BF0D402AF;
+	Tue, 27 Dec 2022 02:25:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3BF0D402AF
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id oYJHEhBGYJny; Mon, 26 Dec 2022 23:38:35 +0000 (UTC)
+	with ESMTP id in2H_eDyGzo8; Tue, 27 Dec 2022 02:25:09 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 8751E403C7;
-	Mon, 26 Dec 2022 23:38:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8751E403C7
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 8D14740132;
+	Tue, 27 Dec 2022 02:25:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8D14740132
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6417CC0032;
-	Mon, 26 Dec 2022 23:38:34 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 6ADE5C0035;
+	Tue, 27 Dec 2022 02:25:08 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id CB5D3C002D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 87501C002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Dec 2022 23:38:33 +0000 (UTC)
+ Tue, 27 Dec 2022 02:25:07 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id AF14860BA2
+ by smtp3.osuosl.org (Postfix) with ESMTP id 5BAA960BC3
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Dec 2022 23:38:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org AF14860BA2
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=d15TV1CZ
+ Tue, 27 Dec 2022 02:25:07 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5BAA960BC3
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id OhA3j0l1TN6e
+ with ESMTP id joWrB49akxRZ
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Dec 2022 23:38:32 +0000 (UTC)
+ Tue, 27 Dec 2022 02:25:06 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 507BA60595
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 507BA60595
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 790C160BA2
+Received: from out30-1.freemail.mail.aliyun.com
+ (out30-1.freemail.mail.aliyun.com [115.124.30.1])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 790C160BA2
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Dec 2022 23:38:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1672097911;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=ezEM/TKhEZZEiA0qvJ103L6FIDKOFYr7NEo4WCCY3ZI=;
- b=d15TV1CZsQW0FLIM61cYRBQQtheP5QSmKgzF0vM5N9wa2MWJQwZD07KIyw9mYRcGowlXgx
- FxmeQ1qTr+XWhY1wCSgyhSpq8iRx/sggkuKSLZ8wz9GdnQDRuKS1WrNM7dJ2l+KddriLev
- eKQa7O7V1/2sIxKeacW05p6rmkVhMSM=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-411-WY28arkDMJGNfnQLdNHE3g-1; Mon, 26 Dec 2022 18:38:29 -0500
-X-MC-Unique: WY28arkDMJGNfnQLdNHE3g-1
-Received: by mail-ej1-f72.google.com with SMTP id
- qa18-20020a170907869200b007df87611618so7954545ejc.1
- for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Dec 2022 15:38:29 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=ezEM/TKhEZZEiA0qvJ103L6FIDKOFYr7NEo4WCCY3ZI=;
- b=4B59s3qY4kr1JLltMz5TydKX/ocVyWEpSSh/TtCWmU9bi4orpVUGwbqvlihacWKL1H
- M9+dgsd6AV5pMsiopA3cuIlOK2d8LdV+XxxrtdvxfFUH0zJk4JcKT+oHlPXTg0yfm+9i
- Z2KOz7D7ed1CYNKWCXaJzlvC2ABfcwGenaGQDXeMTxulXkHXrdBnYSEp2T1cqvCB2oDu
- og/P/SShJgnjDlifzDCDkaEhM2awXrB2Cb8iSsxPGBECchmnC+LkQdprF2yv83CtphUv
- vgGBRr1GlzYx+iZzgg+ELB7lytWW+MCflrbDx5c1MZQeJrhhUnQ8j238MgQIWCorMGzb
- 8SzQ==
-X-Gm-Message-State: AFqh2korjdtilSaPxFWZxxipSSvvn5mpPz3DpFmxnXAjE25TKBvFYn8W
- /O9GSsWHVVcxanVnbpXp0mppiMP7xCVZYl/Jv/8PmLeaF55/nC2BBxpFKJYgsKNz3hjqKGWInxD
- QJUG9zye2OmCpUYVpgQEDtvIAOrE9b9zWy2vojY1bgQ==
-X-Received: by 2002:a17:906:184a:b0:78d:f456:1ed0 with SMTP id
- w10-20020a170906184a00b0078df4561ed0mr21402797eje.33.1672097908810; 
- Mon, 26 Dec 2022 15:38:28 -0800 (PST)
-X-Google-Smtp-Source: AMrXdXtbl7ganWCzrQFMRWt4QOxuXB0jibHQVxPMd+xdjGiQv6CVnMTaniUeiSPcYYhXQnXClNYHAA==
-X-Received: by 2002:a17:906:184a:b0:78d:f456:1ed0 with SMTP id
- w10-20020a170906184a00b0078df4561ed0mr21402774eje.33.1672097908469; 
- Mon, 26 Dec 2022 15:38:28 -0800 (PST)
-Received: from redhat.com ([2.52.151.85]) by smtp.gmail.com with ESMTPSA id
- s10-20020a1709064d8a00b007815ca7ae57sm5362124eju.212.2022.12.26.15.38.26
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 26 Dec 2022 15:38:28 -0800 (PST)
-Date: Mon, 26 Dec 2022 18:38:24 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
+ Tue, 27 Dec 2022 02:25:04 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R691e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046050;
+ MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=11; SR=0;
+ TI=SMTPD_---0VYBb5xz_1672107900; 
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
+ fp:SMTPD_---0VYBb5xz_1672107900) by smtp.aliyun-inc.com;
+ Tue, 27 Dec 2022 10:25:00 +0800
+Message-ID: <1672107557.0142956-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH 4/4] virtio-net: sleep instead of busy waiting for cvq
+ command
+Date: Tue, 27 Dec 2022 10:19:17 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 3/4] virtio_ring: introduce a per virtqueue waitqueue
-Message-ID: <20221226183705-mutt-send-email-mst@kernel.org>
 References: <20221226074908.8154-1-jasowang@redhat.com>
- <20221226074908.8154-4-jasowang@redhat.com>
-MIME-Version: 1.0
-In-Reply-To: <20221226074908.8154-4-jasowang@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ <20221226074908.8154-5-jasowang@redhat.com>
+In-Reply-To: <20221226074908.8154-5-jasowang@redhat.com>
+Cc: mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
  virtualization@lists.linux-foundation.org, eperezma@redhat.com,
- edumazet@google.com, maxime.coquelin@redhat.com, kuba@kernel.org,
+ edumazet@google.com, kuba@kernel.org, maxime.coquelin@redhat.com,
  pabeni@redhat.com, davem@davemloft.net
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
@@ -119,133 +74,116 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Dec 26, 2022 at 03:49:07PM +0800, Jason Wang wrote:
-> This patch introduces a per virtqueue waitqueue to allow driver to
-> sleep and wait for more used. Two new helpers are introduced to allow
-> driver to sleep and wake up.
-> 
+On Mon, 26 Dec 2022 15:49:08 +0800, Jason Wang <jasowang@redhat.com> wrote:
+> We used to busy waiting on the cvq command this tends to be
+> problematic since:
+>
+> 1) CPU could wait for ever on a buggy/malicous device
+> 2) There's no wait to terminate the process that triggers the cvq
+>    command
+>
+> So this patch switch to use virtqueue_wait_for_used() to sleep with a
+> timeout (1s) instead of busy polling for the cvq command forever. This
+
+I don't think that a fixed 1S is a good choice. Some of the DPUs are very
+lazy for cvq handle. In particular, we will also directly break the device.
+
+I think it is necessary to add a Virtio-Net parameter to allow users to define
+this timeout by themselves. Although I don't think this is a good way.
+
+Thanks.
+
+
+> gives the scheduler a breath and can let the process can respond to
+> asignal. If the device doesn't respond in the timeout, break the
+> device.
+>
 > Signed-off-by: Jason Wang <jasowang@redhat.com>
 > ---
 > Changes since V1:
-> - check virtqueue_is_broken() as well
-> - use more_used() instead of virtqueue_get_buf() to allow caller to
->   get buffers afterwards
+> - break the device when timeout
+> - get buffer manually since the virtio core check more_used() instead
 > ---
->  drivers/virtio/virtio_ring.c | 29 +++++++++++++++++++++++++++++
->  include/linux/virtio.h       |  3 +++
->  2 files changed, 32 insertions(+)
-> 
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index 5cfb2fa8abee..9c83eb945493 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -13,6 +13,7 @@
->  #include <linux/dma-mapping.h>
->  #include <linux/kmsan.h>
->  #include <linux/spinlock.h>
-> +#include <linux/wait.h>
->  #include <xen/xen.h>
->  
->  #ifdef DEBUG
-> @@ -60,6 +61,7 @@
->  			"%s:"fmt, (_vq)->vq.name, ##args);	\
->  		/* Pairs with READ_ONCE() in virtqueue_is_broken(). */ \
->  		WRITE_ONCE((_vq)->broken, true);		       \
-> +		wake_up_interruptible(&(_vq)->wq);		       \
->  	} while (0)
->  #define START_USE(vq)
->  #define END_USE(vq)
-> @@ -203,6 +205,9 @@ struct vring_virtqueue {
->  	/* DMA, allocation, and size information */
->  	bool we_own_ring;
->  
-> +	/* Wait for buffer to be used */
-> +	wait_queue_head_t wq;
-> +
->  #ifdef DEBUG
->  	/* They're supposed to lock for us. */
->  	unsigned int in_use;
-> @@ -2024,6 +2029,8 @@ static struct virtqueue *vring_create_virtqueue_packed(
->  	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
->  		vq->weak_barriers = false;
->  
-> +	init_waitqueue_head(&vq->wq);
-> +
->  	err = vring_alloc_state_extra_packed(&vring_packed);
->  	if (err)
->  		goto err_state_extra;
-> @@ -2517,6 +2524,8 @@ static struct virtqueue *__vring_new_virtqueue(unsigned int index,
->  	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
->  		vq->weak_barriers = false;
->  
-> +	init_waitqueue_head(&vq->wq);
-> +
->  	err = vring_alloc_state_extra_split(vring_split);
->  	if (err) {
->  		kfree(vq);
-> @@ -2654,6 +2663,8 @@ static void vring_free(struct virtqueue *_vq)
->  {
->  	struct vring_virtqueue *vq = to_vvq(_vq);
->  
-> +	wake_up_interruptible(&vq->wq);
-> +
->  	if (vq->we_own_ring) {
->  		if (vq->packed_ring) {
->  			vring_free_queue(vq->vq.vdev,
-> @@ -2863,4 +2874,22 @@ const struct vring *virtqueue_get_vring(struct virtqueue *vq)
+>  drivers/net/virtio_net.c | 24 ++++++++++++++++--------
+>  1 file changed, 16 insertions(+), 8 deletions(-)
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index efd9dd55828b..6a2ea64cfcb5 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -405,6 +405,7 @@ static void disable_rx_mode_work(struct virtnet_info *vi)
+>  	vi->rx_mode_work_enabled = false;
+>  	spin_unlock_bh(&vi->rx_mode_lock);
+>
+> +	virtqueue_wake_up(vi->cvq);
+>  	flush_work(&vi->rx_mode_work);
 >  }
->  EXPORT_SYMBOL_GPL(virtqueue_get_vring);
->  
-> +int virtqueue_wait_for_used(struct virtqueue *_vq)
+>
+> @@ -1497,6 +1498,11 @@ static bool try_fill_recv(struct virtnet_info *vi, struct receive_queue *rq,
+>  	return !oom;
+>  }
+>
+> +static void virtnet_cvq_done(struct virtqueue *cvq)
 > +{
-> +	struct vring_virtqueue *vq = to_vvq(_vq);
-> +
-> +	/* TODO: Tweak the timeout. */
-> +	return wait_event_interruptible_timeout(vq->wq,
-> +	       virtqueue_is_broken(_vq) || more_used(vq), HZ);
-
-BTW undocumented that you also make it interruptible.
-So if we get an interrupt then this will fail.
-But device is still going and will later use the buffers.
-
-Same for timeout really.
-
-
-
+> +	virtqueue_wake_up(cvq);
 > +}
-> +EXPORT_SYMBOL_GPL(virtqueue_wait_for_used);
 > +
-> +void virtqueue_wake_up(struct virtqueue *_vq)
-> +{
-> +	struct vring_virtqueue *vq = to_vvq(_vq);
+>  static void skb_recv_done(struct virtqueue *rvq)
+>  {
+>  	struct virtnet_info *vi = rvq->vdev->priv;
+> @@ -1984,6 +1990,8 @@ static int virtnet_tx_resize(struct virtnet_info *vi,
+>  	return err;
+>  }
+>
+> +static int virtnet_close(struct net_device *dev);
 > +
-> +	wake_up_interruptible(&vq->wq);
-> +}
-> +EXPORT_SYMBOL_GPL(virtqueue_wake_up);
-> +
->  MODULE_LICENSE("GPL");
-> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-> index dcab9c7e8784..2eb62c774895 100644
-> --- a/include/linux/virtio.h
-> +++ b/include/linux/virtio.h
-> @@ -72,6 +72,9 @@ void *virtqueue_get_buf(struct virtqueue *vq, unsigned int *len);
->  void *virtqueue_get_buf_ctx(struct virtqueue *vq, unsigned int *len,
->  			    void **ctx);
->  
-> +int virtqueue_wait_for_used(struct virtqueue *vq);
-> +void virtqueue_wake_up(struct virtqueue *vq);
-> +
->  void virtqueue_disable_cb(struct virtqueue *vq);
->  
->  bool virtqueue_enable_cb(struct virtqueue *vq);
-> -- 
+>  /*
+>   * Send command via the control virtqueue and check status.  Commands
+>   * supported by the hypervisor, as indicated by feature bits, should
+> @@ -2026,14 +2034,14 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
+>  	if (unlikely(!virtqueue_kick(vi->cvq)))
+>  		return vi->ctrl->status == VIRTIO_NET_OK;
+>
+> -	/* Spin for a response, the kick causes an ioport write, trapping
+> -	 * into the hypervisor, so the request should be handled immediately.
+> -	 */
+> -	while (!virtqueue_get_buf(vi->cvq, &tmp) &&
+> -	       !virtqueue_is_broken(vi->cvq))
+> -		cpu_relax();
+> +	if (virtqueue_wait_for_used(vi->cvq)) {
+> +		virtqueue_get_buf(vi->cvq, &tmp);
+> +		return vi->ctrl->status == VIRTIO_NET_OK;
+> +	}
+>
+> -	return vi->ctrl->status == VIRTIO_NET_OK;
+> +	netdev_err(vi->dev, "CVQ command timeout, break the virtio device.");
+> +	virtio_break_device(vi->vdev);
+> +	return VIRTIO_NET_ERR;
+>  }
+>
+>  static int virtnet_set_mac_address(struct net_device *dev, void *p)
+> @@ -3526,7 +3534,7 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
+>
+>  	/* Parameters for control virtqueue, if any */
+>  	if (vi->has_cvq) {
+> -		callbacks[total_vqs - 1] = NULL;
+> +		callbacks[total_vqs - 1] = virtnet_cvq_done;
+>  		names[total_vqs - 1] = "control";
+>  	}
+>
+> --
 > 2.25.1
-
+>
+> _______________________________________________
+> Virtualization mailing list
+> Virtualization@lists.linux-foundation.org
+> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
