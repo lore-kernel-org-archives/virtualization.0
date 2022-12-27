@@ -4,95 +4,95 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 07A94C4332F
-	for <virtualization@archiver.kernel.org>; Tue, 27 Dec 2022 02:25:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 65AC8C53210
+	for <virtualization@archiver.kernel.org>; Tue, 27 Dec 2022 02:25:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 8CC90404FC;
-	Tue, 27 Dec 2022 02:25:43 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8CC90404FC
+	by smtp2.osuosl.org (Postfix) with ESMTP id EFE7440527;
+	Tue, 27 Dec 2022 02:25:45 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org EFE7440527
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=igel-co-jp.20210112.gappssmtp.com header.i=@igel-co-jp.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=wbZLVqKZ
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=igel-co-jp.20210112.gappssmtp.com header.i=@igel-co-jp.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=2CQrI3y9
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id u8oRZW-ApYI5; Tue, 27 Dec 2022 02:25:42 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 2CC35404ED;
-	Tue, 27 Dec 2022 02:25:42 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2CC35404ED
+	with ESMTP id suk6OHteWNjr; Tue, 27 Dec 2022 02:25:45 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 5F42C404BA;
+	Tue, 27 Dec 2022 02:25:44 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5F42C404BA
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 08746C0035;
-	Tue, 27 Dec 2022 02:25:42 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 35C06C0035;
+	Tue, 27 Dec 2022 02:25:44 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 2DC81C007B
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 97B60C002D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Dec 2022 02:25:40 +0000 (UTC)
+ Tue, 27 Dec 2022 02:25:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 091F181336
+ by smtp1.osuosl.org (Postfix) with ESMTP id 662C18137E
  for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Dec 2022 02:25:40 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 091F181336
+ Tue, 27 Dec 2022 02:25:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 662C18137E
 Authentication-Results: smtp1.osuosl.org;
  dkim=pass (2048-bit key) header.d=igel-co-jp.20210112.gappssmtp.com
  header.i=@igel-co-jp.20210112.gappssmtp.com header.a=rsa-sha256
- header.s=20210112 header.b=wbZLVqKZ
+ header.s=20210112 header.b=2CQrI3y9
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id T_pKPNLTmb-q
+ with ESMTP id ZTS_KLFfEEZI
  for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Dec 2022 02:25:39 +0000 (UTC)
+ Tue, 27 Dec 2022 02:25:41 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 623F0812E7
-Received: from mail-pl1-x631.google.com (mail-pl1-x631.google.com
- [IPv6:2607:f8b0:4864:20::631])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 623F0812E7
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9D01281314
+Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com
+ [IPv6:2607:f8b0:4864:20::62b])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 9D01281314
  for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Dec 2022 02:25:39 +0000 (UTC)
-Received: by mail-pl1-x631.google.com with SMTP id b2so12027676pld.7
+ Tue, 27 Dec 2022 02:25:41 +0000 (UTC)
+Received: by mail-pl1-x62b.google.com with SMTP id d15so12035295pls.6
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Dec 2022 18:25:39 -0800 (PST)
+ Mon, 26 Dec 2022 18:25:41 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=igel-co-jp.20210112.gappssmtp.com; s=20210112;
  h=content-transfer-encoding:mime-version:references:in-reply-to
  :message-id:date:subject:cc:to:from:from:to:cc:subject:date
  :message-id:reply-to;
- bh=vc9dKkOu9Bxzey4EMEiWLkvY83L8oxqqOyKDYNLTu5g=;
- b=wbZLVqKZnCa58wA2i8a8+KZ6p3B3BKGx6AZ5PJqw+pOt7brvZts5glurkjMa11iFTL
- RqjgkaYA+1yRF5BXn8Ld/InkXNROzQ7xFuLueevxDuXqNWEQgc7qt9MHvWCt2gqQdUPX
- oV+d9kpPZel6sq7QA6S5wG+nBa4rNygSq+Y4dzCgVtqv0Cp4+GptPOCMPkIQ0MGwh7E7
- UGrrRMjFjndiyuydtbO7/txh6wJtnsFynXdAaGl75AIxNvGmnvZs4jsyZJ+Ka/N8tvP+
- wkzUFhNrc9FDCKWp9R2bbGbBvrjLsZQFep1xZ/uI21A9InML4Q9l6dMopWZX7sQNyEU6
- nSmg==
+ bh=5haqsSicJ1y5JAf4DzHeYZjjvPaH/eOCnQ95phXljnc=;
+ b=2CQrI3y9LCx/RRrNUdJU8EApVGWI0esJTePaxBlTM7cbLOWb64WOVFKVPTPXKnkbI9
+ 6xp4P8D5Hmjz6+nF3q95kJgycSRDDHByKChF8H2CrtipRLijEJRFOOLGgiox9RiH2k2S
+ IDCeNI5PeeHoO4vP6MQEI+23PmkpRM7EvKVR2QqxImQWYiUjUZNtDAVjAYoxVE/OF4F8
+ Ba540u1tNN5l1PSh1DgEfxTEH4lyB+l6Iw2zt149mKjROirMIT+ISOI2OhiZxtJe+wBL
+ Y2UwBV0d09p907V7RMOTsUvlggvnaq/Mh/8o99XjnJdZSXnlAurRXwXY187X1DsQvQAQ
+ VqnA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=content-transfer-encoding:mime-version:references:in-reply-to
  :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
  :subject:date:message-id:reply-to;
- bh=vc9dKkOu9Bxzey4EMEiWLkvY83L8oxqqOyKDYNLTu5g=;
- b=dTXkZSvOgDBBRucWbwNq+WCRIGp/9hqyiDHuuyXBoWy1srIxj5vOHFtqXGmwK0uQtZ
- mmzE+avGuSBmyIocboOAb8eLA0m5+Ba/fy/gcXjokO7mzS1yQ21olJMpm7XA/dg57wE4
- OFMvhZRotw1kBpSKl6FzLpG8wK0b/r8/MRpKAMCwr1YVgsy8VXuJVeYIDK24+Q76FjSt
- BpfQ1JGgLf2hJmOJYiE0j3bgKf639CYjuF8XCiIe1mwJIlxsqLBmRRg4aNHD/IbkgDRB
- n7AmRFiCUte+hgG53M0DS+Kvj9KmAb4LcMxGSZPv5UV1sJMwUDbwCwqVgmDFsx+BTwsQ
- HCgw==
-X-Gm-Message-State: AFqh2kpb/Bi26zOYnTdwbc9GId763TklqU46C2Zn/ZK9Evbavzv+fZEi
- raNDJtyI3+coX/NqdjGNGRqS0g==
-X-Google-Smtp-Source: AMrXdXtZe0PP83G04+jg1kuf3vdXwhv44n2Bde+IvwOeyqGGAZ7SMJJgmZfCmhv40gnPTO2AXV5aUw==
-X-Received: by 2002:a05:6a20:3b9c:b0:ac:94a1:8afb with SMTP id
- b28-20020a056a203b9c00b000ac94a18afbmr19088805pzh.13.1672107938858; 
- Mon, 26 Dec 2022 18:25:38 -0800 (PST)
+ bh=5haqsSicJ1y5JAf4DzHeYZjjvPaH/eOCnQ95phXljnc=;
+ b=kal9qp4MGLvARKPNkTZSDUjjh0cOoW2vn35FsaCnQ+2Z8eVVLgQS9RPzCQaRErvkME
+ Cufi4e/0i4Y6dAsSE29pyAusfU6ZrnMSYw5TITJ4IaWzzod9plZ03D+/vM0z4tKp+5yT
+ SjXVhJJrM2jqKZIWBb+Tg1dbnThQpiIV3rtWQ1brWlwlpcNk8BzgRwJG6oppVvaOujAq
+ /EyN1HtxYqPAPa3NBpivEMRsAPnFzxAWtDzc4/nVRkqjaRkWQBQYbXPlebn6tXQEDRLO
+ Zw9GOrhz0nfYnfaUSZVc2Cngss6medLwJfS62OeFFTEN8oXkvD0Jl1SqrNVaIDBuQ+7v
+ eGlg==
+X-Gm-Message-State: AFqh2kq3mXSX2cstjC8knDFnlm4xgwgD26PimdW5CoR250tW6fyE2HBE
+ 2+tDllWe1Rws/sCIGWt5uBiZVg==
+X-Google-Smtp-Source: AMrXdXuBf0YmaVtc2Str53QshIsQ5jNRTxQJluF/BUCseYuqpswPq5ANFNlIIq9O+nFVAMm0wV7D1g==
+X-Received: by 2002:a17:902:da86:b0:191:1987:9f69 with SMTP id
+ j6-20020a170902da8600b0019119879f69mr31083660plx.35.1672107941111; 
+ Mon, 26 Dec 2022 18:25:41 -0800 (PST)
 Received: from tyrell.hq.igel.co.jp (napt.igel.co.jp. [219.106.231.132])
  by smtp.gmail.com with ESMTPSA id
- w15-20020a1709026f0f00b001870dc3b4c0sm2465014plk.74.2022.12.26.18.25.36
+ w15-20020a1709026f0f00b001870dc3b4c0sm2465014plk.74.2022.12.26.18.25.39
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 26 Dec 2022 18:25:38 -0800 (PST)
+ Mon, 26 Dec 2022 18:25:40 -0800 (PST)
 From: Shunsuke Mie <mie@igel.co.jp>
 To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
  Rusty Russell <rusty@rustcorp.com.au>
-Subject: [RFC PATCH 1/9] vringh: fix a typo in comments for vringh_kiov
-Date: Tue, 27 Dec 2022 11:25:23 +0900
-Message-Id: <20221227022528.609839-2-mie@igel.co.jp>
+Subject: [RFC PATCH 2/9] vringh: remove vringh_iov and unite to vringh_kiov
+Date: Tue, 27 Dec 2022 11:25:24 +0900
+Message-Id: <20221227022528.609839-3-mie@igel.co.jp>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20221227022528.609839-1-mie@igel.co.jp>
 References: <20221227022528.609839-1-mie@igel.co.jp>
@@ -116,27 +116,168 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Probably it is a simple copy error from struct vring_iov.
+struct vringh_iov is defined to hold userland addresses. However, to use
+common function, __vring_iov, finally the vringh_iov converts to the
+vringh_kiov with simple cast. It includes compile time check code to make
+sure it can be cast correctly.
 
-Fixes: f87d0fbb5798 ("vringh: host-side implementation of virtio rings.")
+To simplify the code, this patch removes the struct vringh_iov and unifies
+APIs to struct vringh_kiov.
+
 Signed-off-by: Shunsuke Mie <mie@igel.co.jp>
 ---
- include/linux/vringh.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/vhost/vringh.c | 32 ++++++------------------------
+ include/linux/vringh.h | 45 ++++--------------------------------------
+ 2 files changed, 10 insertions(+), 67 deletions(-)
 
-diff --git a/include/linux/vringh.h b/include/linux/vringh.h
-index 212892cf9822..1991a02c6431 100644
---- a/include/linux/vringh.h
-+++ b/include/linux/vringh.h
-@@ -92,7 +92,7 @@ struct vringh_iov {
- };
+diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
+index 828c29306565..aa3cd27d2384 100644
+--- a/drivers/vhost/vringh.c
++++ b/drivers/vhost/vringh.c
+@@ -691,8 +691,8 @@ EXPORT_SYMBOL(vringh_init_user);
+  * calling vringh_iov_cleanup() to release the memory, even on error!
+  */
+ int vringh_getdesc_user(struct vringh *vrh,
+-			struct vringh_iov *riov,
+-			struct vringh_iov *wiov,
++			struct vringh_kiov *riov,
++			struct vringh_kiov *wiov,
+ 			bool (*getrange)(struct vringh *vrh,
+ 					 u64 addr, struct vringh_range *r),
+ 			u16 *head)
+@@ -708,26 +708,6 @@ int vringh_getdesc_user(struct vringh *vrh,
+ 	if (err == vrh->vring.num)
+ 		return 0;
+ 
+-	/* We need the layouts to be the identical for this to work */
+-	BUILD_BUG_ON(sizeof(struct vringh_kiov) != sizeof(struct vringh_iov));
+-	BUILD_BUG_ON(offsetof(struct vringh_kiov, iov) !=
+-		     offsetof(struct vringh_iov, iov));
+-	BUILD_BUG_ON(offsetof(struct vringh_kiov, i) !=
+-		     offsetof(struct vringh_iov, i));
+-	BUILD_BUG_ON(offsetof(struct vringh_kiov, used) !=
+-		     offsetof(struct vringh_iov, used));
+-	BUILD_BUG_ON(offsetof(struct vringh_kiov, max_num) !=
+-		     offsetof(struct vringh_iov, max_num));
+-	BUILD_BUG_ON(sizeof(struct iovec) != sizeof(struct kvec));
+-	BUILD_BUG_ON(offsetof(struct iovec, iov_base) !=
+-		     offsetof(struct kvec, iov_base));
+-	BUILD_BUG_ON(offsetof(struct iovec, iov_len) !=
+-		     offsetof(struct kvec, iov_len));
+-	BUILD_BUG_ON(sizeof(((struct iovec *)NULL)->iov_base)
+-		     != sizeof(((struct kvec *)NULL)->iov_base));
+-	BUILD_BUG_ON(sizeof(((struct iovec *)NULL)->iov_len)
+-		     != sizeof(((struct kvec *)NULL)->iov_len));
+-
+ 	*head = err;
+ 	err = __vringh_iov(vrh, *head, (struct vringh_kiov *)riov,
+ 			   (struct vringh_kiov *)wiov,
+@@ -740,14 +720,14 @@ int vringh_getdesc_user(struct vringh *vrh,
+ EXPORT_SYMBOL(vringh_getdesc_user);
  
  /**
-- * struct vringh_iov - kvec mangler.
-+ * struct vringh_kiov - kvec mangler.
+- * vringh_iov_pull_user - copy bytes from vring_iov.
++ * vringh_iov_pull_user - copy bytes from vring_kiov.
+  * @riov: the riov as passed to vringh_getdesc_user() (updated as we consume)
+  * @dst: the place to copy.
+  * @len: the maximum length to copy.
   *
-  * Mangles kvec in place, and restores it.
-  * Remaining data is iov + i, of used - i elements.
+  * Returns the bytes copied <= len or a negative errno.
+  */
+-ssize_t vringh_iov_pull_user(struct vringh_iov *riov, void *dst, size_t len)
++ssize_t vringh_iov_pull_user(struct vringh_kiov *riov, void *dst, size_t len)
+ {
+ 	return vringh_iov_xfer(NULL, (struct vringh_kiov *)riov,
+ 			       dst, len, xfer_from_user);
+@@ -755,14 +735,14 @@ ssize_t vringh_iov_pull_user(struct vringh_iov *riov, void *dst, size_t len)
+ EXPORT_SYMBOL(vringh_iov_pull_user);
+ 
+ /**
+- * vringh_iov_push_user - copy bytes into vring_iov.
++ * vringh_iov_push_user - copy bytes into vring_kiov.
+  * @wiov: the wiov as passed to vringh_getdesc_user() (updated as we consume)
+  * @src: the place to copy from.
+  * @len: the maximum length to copy.
+  *
+  * Returns the bytes copied <= len or a negative errno.
+  */
+-ssize_t vringh_iov_push_user(struct vringh_iov *wiov,
++ssize_t vringh_iov_push_user(struct vringh_kiov *wiov,
+ 			     const void *src, size_t len)
+ {
+ 	return vringh_iov_xfer(NULL, (struct vringh_kiov *)wiov,
+diff --git a/include/linux/vringh.h b/include/linux/vringh.h
+index 1991a02c6431..733d948e8123 100644
+--- a/include/linux/vringh.h
++++ b/include/linux/vringh.h
+@@ -79,18 +79,6 @@ struct vringh_range {
+ 	u64 offset;
+ };
+ 
+-/**
+- * struct vringh_iov - iovec mangler.
+- *
+- * Mangles iovec in place, and restores it.
+- * Remaining data is iov + i, of used - i elements.
+- */
+-struct vringh_iov {
+-	struct iovec *iov;
+-	size_t consumed; /* Within iov[i] */
+-	unsigned i, used, max_num;
+-};
+-
+ /**
+  * struct vringh_kiov - kvec mangler.
+  *
+@@ -113,44 +101,19 @@ int vringh_init_user(struct vringh *vrh, u64 features,
+ 		     vring_avail_t __user *avail,
+ 		     vring_used_t __user *used);
+ 
+-static inline void vringh_iov_init(struct vringh_iov *iov,
+-				   struct iovec *iovec, unsigned num)
+-{
+-	iov->used = iov->i = 0;
+-	iov->consumed = 0;
+-	iov->max_num = num;
+-	iov->iov = iovec;
+-}
+-
+-static inline void vringh_iov_reset(struct vringh_iov *iov)
+-{
+-	iov->iov[iov->i].iov_len += iov->consumed;
+-	iov->iov[iov->i].iov_base -= iov->consumed;
+-	iov->consumed = 0;
+-	iov->i = 0;
+-}
+-
+-static inline void vringh_iov_cleanup(struct vringh_iov *iov)
+-{
+-	if (iov->max_num & VRINGH_IOV_ALLOCATED)
+-		kfree(iov->iov);
+-	iov->max_num = iov->used = iov->i = iov->consumed = 0;
+-	iov->iov = NULL;
+-}
+-
+ /* Convert a descriptor into iovecs. */
+ int vringh_getdesc_user(struct vringh *vrh,
+-			struct vringh_iov *riov,
+-			struct vringh_iov *wiov,
++			struct vringh_kiov *riov,
++			struct vringh_kiov *wiov,
+ 			bool (*getrange)(struct vringh *vrh,
+ 					 u64 addr, struct vringh_range *r),
+ 			u16 *head);
+ 
+ /* Copy bytes from readable vsg, consuming it (and incrementing wiov->i). */
+-ssize_t vringh_iov_pull_user(struct vringh_iov *riov, void *dst, size_t len);
++ssize_t vringh_iov_pull_user(struct vringh_kiov *riov, void *dst, size_t len);
+ 
+ /* Copy bytes into writable vsg, consuming it (and incrementing wiov->i). */
+-ssize_t vringh_iov_push_user(struct vringh_iov *wiov,
++ssize_t vringh_iov_push_user(struct vringh_kiov *wiov,
+ 			     const void *src, size_t len);
+ 
+ /* Mark a descriptor as used. */
 -- 
 2.25.1
 
