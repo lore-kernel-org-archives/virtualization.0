@@ -1,111 +1,114 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C116DC4332F
-	for <virtualization@archiver.kernel.org>; Wed, 28 Dec 2022 11:44:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E901FC4332F
+	for <virtualization@archiver.kernel.org>; Wed, 28 Dec 2022 11:53:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 4D82360767;
-	Wed, 28 Dec 2022 11:44:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4D82360767
+	by smtp1.osuosl.org (Postfix) with ESMTP id 6C3C38126C;
+	Wed, 28 Dec 2022 11:53:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6C3C38126C
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=U+8GTccb
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id X4MO-M4g-Qls; Wed, 28 Dec 2022 11:53:28 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id DB02C8126B;
+	Wed, 28 Dec 2022 11:53:27 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DB02C8126B
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B29AAC0032;
+	Wed, 28 Dec 2022 11:53:27 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2047CC002D
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 28 Dec 2022 11:53:26 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id EF795607C1
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 28 Dec 2022 11:53:25 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org EF795607C1
 Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cxh0m5rB
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=U+8GTccb
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id VLv0U-1CQFiL; Wed, 28 Dec 2022 11:44:15 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 8E2B060709;
-	Wed, 28 Dec 2022 11:44:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8E2B060709
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 65B7FC0032;
-	Wed, 28 Dec 2022 11:44:14 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A45C0C002D
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id glzRNkHrgUeI
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Dec 2022 11:44:12 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 6B0BE4032E
- for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Dec 2022 11:44:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6B0BE4032E
-Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=cxh0m5rB
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id osZOxAHyuqyn
- for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Dec 2022 11:44:11 +0000 (UTC)
+ Wed, 28 Dec 2022 11:53:23 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 01A124029F
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C175160709
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 01A124029F
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id C175160709
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Dec 2022 11:44:10 +0000 (UTC)
+ Wed, 28 Dec 2022 11:53:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1672227849;
+ s=mimecast20190719; t=1672228402;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=FPjY7Cy1Mg6WKTpNIpPpKalJWxGn29fqfriJCOyIl3w=;
- b=cxh0m5rB6z8TNuvQ9b5/5PMopWWwqkVhI9UBLf4PCJ6xjzYCb6zWK4u9LHQ09H1Usfx0AV
- FXcHls3UE8e2r58lTPtnGYhjBS2XDfBx5n+bkeRq5Vt1AfgRipNl2LZO2vVXVSemxkHUGr
- 9z3c9UoSTrXK1AMzZuwJ8NLovc1L1gg=
-Received: from mail-oa1-f71.google.com (mail-oa1-f71.google.com
- [209.85.160.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=3hQKS1NwOrIIXUtr0/6kNG7P651iOA+L6EemF1Qhqo8=;
+ b=U+8GTccbjgcYJ1xRAfjUU4EpgbfZcepxxTXJhnygOcQIow2KypTWOy/A0gZFApP+J2mP7Y
+ Ld+lRBGyTRfLRMmT9uSpMsGA1JwiGxVbidMy+BgIT9qC3gdfm1lDk336FWLWFWtldlbcrH
+ qR+1R1j5l/P6i6qJNlyBE+QQJc59OtU=
+Received: from mail-oa1-f70.google.com (mail-oa1-f70.google.com
+ [209.85.160.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-66-OIYqX-XnMuqUYilkH-cv0g-1; Wed, 28 Dec 2022 06:44:08 -0500
-X-MC-Unique: OIYqX-XnMuqUYilkH-cv0g-1
-Received: by mail-oa1-f71.google.com with SMTP id
- 586e51a60fabf-1441544a0e5so7496774fac.8
+ us-mta-531-5uNuyQ5BOUGt0AtIv6tGhg-1; Wed, 28 Dec 2022 06:53:20 -0500
+X-MC-Unique: 5uNuyQ5BOUGt0AtIv6tGhg-1
+Received: by mail-oa1-f70.google.com with SMTP id
+ 586e51a60fabf-14fb2bf71e8so5079265fac.9
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Dec 2022 03:44:08 -0800 (PST)
+ Wed, 28 Dec 2022 03:53:20 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
- :reply-to;
- bh=FPjY7Cy1Mg6WKTpNIpPpKalJWxGn29fqfriJCOyIl3w=;
- b=w95tdHJV0/YC8pCIE0K5OHO0cztwiDJNfnjE4uSxePSp/XTnfy+4Sr0EuRpj7kGA/K
- gT3rl5FksViZI+IWjp3aBYx6TTxCHRyh+DFlSKGfcSZ/5cRiCUKeWNIbxJmTmkVYAqkn
- +Baj8VfsinypxBeFkpHP6lj66R7CIg+p44BRg5cCnPvS/jZe55WOMEpri5bv/6pqS8+5
- bcnopnP9QZWt+MPbpwn0a1FrpbpT0muM/jvmOVmfEXZeQlaXzacRl6EaZuZ0uZu276uy
- 0Crq60LBe2AragWwPYcZCHQ8AmecZH2Rg0ZgIbn6jp6ub2bbZ6dEYxMf9vdTJrbUVevd
- SShg==
-X-Gm-Message-State: AFqh2kqGBIl5oTqkGF4zbxxm7+8MUJAHTY/8T6vnRawJMUvFP/C16MkU
- SBhJswWj3MUEb95GLu79eDzRKfyQjmYy4zA85yZa0YljJUsCo1Bb0eEsgOrmzHIfG+PdC+6MvXZ
- I/AJaUuxYSc3QyHGY2uWvQlcBscLekZABfNcUJj092MSd5Y44Kz56k0my2Q==
-X-Received: by 2002:aca:1111:0:b0:35e:7a42:7ab5 with SMTP id
- 17-20020aca1111000000b0035e7a427ab5mr1311569oir.280.1672227847876; 
- Wed, 28 Dec 2022 03:44:07 -0800 (PST)
-X-Google-Smtp-Source: AMrXdXuZET8YtyOHtUA69u8b4mtI9mTXpOsgMPK2i7Rp8Qb9ZkpLhrS/iL2qb8kuQphVO3IvX1F6toQuOlLgFg8gWDI=
-X-Received: by 2002:aca:1111:0:b0:35e:7a42:7ab5 with SMTP id
- 17-20020aca1111000000b0035e7a427ab5mr1311558oir.280.1672227847622; Wed, 28
- Dec 2022 03:44:07 -0800 (PST)
+ h=content-transfer-encoding:cc:to:subject:message-id:date:from
+ :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+ :subject:date:message-id:reply-to;
+ bh=3hQKS1NwOrIIXUtr0/6kNG7P651iOA+L6EemF1Qhqo8=;
+ b=lR2AtNIQPCTlLDe04cd6kajSvAQEjnuHDIqypct7aTuH1kA5khZ9Gw1/oFbUXqy++L
+ jkMlslN1esCoixwwbWlzqVBR1LHhCHMjAjXazZy3EUdIVFSC49tuGbc4vybc+v3QM/+e
+ buSoMNUFGlxaGMbbrk9NcbP+AjdWa9/c1cj7lzIbsBChLhDr1D18F0yb49TqY//06cBA
+ 4fEIZRY3DaBcvWr0ZA+JMVkmDVu3txWGIEwwqBvaQ6ULnM1JQGBWoxwY8JI5TB1yq5g2
+ AT1eJTCn8rMkyH8rbecHZU9SCJ0OXlrtVrJ5orOxtZ9iDtQLkRsr5oVmNqjX4yJ4ONv+
+ /Ovg==
+X-Gm-Message-State: AFqh2krncyZgDgoaQnzQt6R5eAEJ3rQouUlmbK0+0xsjKjIGy1HdpKz8
+ kltncMAn5OQGRcaRU1dHFEh07te2C2fwPjW8oBhuPrKv4Ah3XNmWNOWKNDiiiHC4a8k6rYy218B
+ iPrROqogKYpkcmzuDzPPtJsb5c6TDDmeDe1+7aAGWB4wdB53aXjvo0kbkJA==
+X-Received: by 2002:a9d:7843:0:b0:678:1eb4:3406 with SMTP id
+ c3-20020a9d7843000000b006781eb43406mr1573926otm.237.1672228399900; 
+ Wed, 28 Dec 2022 03:53:19 -0800 (PST)
+X-Google-Smtp-Source: AMrXdXuiaCrxXL5+xhMG7tUHPCIJ4eF/3FYo5UTrnp+O2D9BcfxMWXCf0aeUTDXkBGQmvAAjX9SfrHhS9db4WpzKM1c=
+X-Received: by 2002:a9d:7843:0:b0:678:1eb4:3406 with SMTP id
+ c3-20020a9d7843000000b006781eb43406mr1573914otm.237.1672228399502; Wed, 28
+ Dec 2022 03:53:19 -0800 (PST)
 MIME-Version: 1.0
 References: <20221226074908.8154-1-jasowang@redhat.com>
- <20221226074908.8154-5-jasowang@redhat.com>
- <1672107557.0142956-1-xuanzhuo@linux.alibaba.com>
- <CACGkMEvzhAFj5HCmP--9DKfCAq_4wPNwsmmg4h0Sbv6ra0+DrQ@mail.gmail.com>
- <1672216748.7057884-1-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <1672216748.7057884-1-xuanzhuo@linux.alibaba.com>
+ <20221226074908.8154-4-jasowang@redhat.com>
+ <20221226183705-mutt-send-email-mst@kernel.org>
+ <CACGkMEuNZLJRnWw+XNxJ-to1y8L2GrTrJkk0y0Gwb5H2YhDczQ@mail.gmail.com>
+ <20221227022255-mutt-send-email-mst@kernel.org>
+ <d77bc1ce-b73f-1ba8-f04f-b3bffeb731c3@redhat.com>
+ <20221227043148-mutt-send-email-mst@kernel.org>
+ <0d9f1b89-9374-747b-3fb0-b4b28ad0ace1@redhat.com>
+In-Reply-To: <0d9f1b89-9374-747b-3fb0-b4b28ad0ace1@redhat.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 28 Dec 2022 19:43:56 +0800
-Message-ID: <CACGkMEtr7r25s6Tgsj=fcw3MD3ShLmuuVHvx0WVNiQHyV_G=zw@mail.gmail.com>
-Subject: Re: [PATCH 4/4] virtio-net: sleep instead of busy waiting for cvq
- command
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Date: Wed, 28 Dec 2022 19:53:08 +0800
+Message-ID: <CACGkMEv=+D+Es4sfde_X7F0zspVdy4Rs1Wi9qfCudsznsUrOTQ@mail.gmail.com>
+Subject: Re: [PATCH 3/4] virtio_ring: introduce a per virtqueue waitqueue
+To: "Michael S. Tsirkin" <mst@redhat.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
  virtualization@lists.linux-foundation.org, eperezma@redhat.com,
- edumazet@google.com, kuba@kernel.org, maxime.coquelin@redhat.com,
+ edumazet@google.com, maxime.coquelin@redhat.com, kuba@kernel.org,
  pabeni@redhat.com, davem@davemloft.net
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
@@ -118,163 +121,66 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Dec 28, 2022 at 4:40 PM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
->
-> On Tue, 27 Dec 2022 12:33:53 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> > On Tue, Dec 27, 2022 at 10:25 AM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
-> > >
-> > > On Mon, 26 Dec 2022 15:49:08 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> > > > We used to busy waiting on the cvq command this tends to be
-> > > > problematic since:
-> > > >
-> > > > 1) CPU could wait for ever on a buggy/malicous device
-> > > > 2) There's no wait to terminate the process that triggers the cvq
-> > > >    command
-> > > >
-> > > > So this patch switch to use virtqueue_wait_for_used() to sleep with a
-> > > > timeout (1s) instead of busy polling for the cvq command forever. This
-> > >
-> > > I don't think that a fixed 1S is a good choice.
-> >
-> > Well, it could be tweaked to be a little bit longer.
-> >
-> > One way, as discussed, is to let the device advertise a timeout then
-> > the driver can validate if it's valid and use that timeout. But it
-> > needs extension to the spec.
-> >
-> > > Some of the DPUs are very
-> > > lazy for cvq handle.
-> >
-> > Such design needs to be revisited, cvq (control path) should have a
-> > better priority or QOS than datapath.
-> >
-> > > In particular, we will also directly break the device.
-> >
-> > It's kind of hardening for malicious devices.
->
-> Just based on timeout, it is judged that it is a malicious device. I think it is
-> too arbitrary.
-
-Drivers have very little information to make the decision. So it's
-really a balance.
-
-We can start with a very long timeout like 10 minutes. Otherwise a
-buggy/malicious device will block a lot of important things (reboot,
-modprobe) even if the scheduler is still functional.
-
-Thanks
-
->
-> Thanks.
->
->
-> >
-> > >
-> > > I think it is necessary to add a Virtio-Net parameter to allow users to define
-> > > this timeout by themselves. Although I don't think this is a good way.
-> >
-> > Very hard and unfriendly to the end users.
-> >
-> > Thanks
-> >
-> > >
-> > > Thanks.
-> > >
-> > >
-> > > > gives the scheduler a breath and can let the process can respond to
-> > > > asignal. If the device doesn't respond in the timeout, break the
-> > > > device.
-> > > >
-> > > > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > > > ---
-> > > > Changes since V1:
-> > > > - break the device when timeout
-> > > > - get buffer manually since the virtio core check more_used() instead
-> > > > ---
-> > > >  drivers/net/virtio_net.c | 24 ++++++++++++++++--------
-> > > >  1 file changed, 16 insertions(+), 8 deletions(-)
-> > > >
-> > > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > > > index efd9dd55828b..6a2ea64cfcb5 100644
-> > > > --- a/drivers/net/virtio_net.c
-> > > > +++ b/drivers/net/virtio_net.c
-> > > > @@ -405,6 +405,7 @@ static void disable_rx_mode_work(struct virtnet_info *vi)
-> > > >       vi->rx_mode_work_enabled = false;
-> > > >       spin_unlock_bh(&vi->rx_mode_lock);
-> > > >
-> > > > +     virtqueue_wake_up(vi->cvq);
-> > > >       flush_work(&vi->rx_mode_work);
-> > > >  }
-> > > >
-> > > > @@ -1497,6 +1498,11 @@ static bool try_fill_recv(struct virtnet_info *vi, struct receive_queue *rq,
-> > > >       return !oom;
-> > > >  }
-> > > >
-> > > > +static void virtnet_cvq_done(struct virtqueue *cvq)
-> > > > +{
-> > > > +     virtqueue_wake_up(cvq);
-> > > > +}
-> > > > +
-> > > >  static void skb_recv_done(struct virtqueue *rvq)
-> > > >  {
-> > > >       struct virtnet_info *vi = rvq->vdev->priv;
-> > > > @@ -1984,6 +1990,8 @@ static int virtnet_tx_resize(struct virtnet_info *vi,
-> > > >       return err;
-> > > >  }
-> > > >
-> > > > +static int virtnet_close(struct net_device *dev);
-> > > > +
-> > > >  /*
-> > > >   * Send command via the control virtqueue and check status.  Commands
-> > > >   * supported by the hypervisor, as indicated by feature bits, should
-> > > > @@ -2026,14 +2034,14 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
-> > > >       if (unlikely(!virtqueue_kick(vi->cvq)))
-> > > >               return vi->ctrl->status == VIRTIO_NET_OK;
-> > > >
-> > > > -     /* Spin for a response, the kick causes an ioport write, trapping
-> > > > -      * into the hypervisor, so the request should be handled immediately.
-> > > > -      */
-> > > > -     while (!virtqueue_get_buf(vi->cvq, &tmp) &&
-> > > > -            !virtqueue_is_broken(vi->cvq))
-> > > > -             cpu_relax();
-> > > > +     if (virtqueue_wait_for_used(vi->cvq)) {
-> > > > +             virtqueue_get_buf(vi->cvq, &tmp);
-> > > > +             return vi->ctrl->status == VIRTIO_NET_OK;
-> > > > +     }
-> > > >
-> > > > -     return vi->ctrl->status == VIRTIO_NET_OK;
-> > > > +     netdev_err(vi->dev, "CVQ command timeout, break the virtio device.");
-> > > > +     virtio_break_device(vi->vdev);
-> > > > +     return VIRTIO_NET_ERR;
-> > > >  }
-> > > >
-> > > >  static int virtnet_set_mac_address(struct net_device *dev, void *p)
-> > > > @@ -3526,7 +3534,7 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
-> > > >
-> > > >       /* Parameters for control virtqueue, if any */
-> > > >       if (vi->has_cvq) {
-> > > > -             callbacks[total_vqs - 1] = NULL;
-> > > > +             callbacks[total_vqs - 1] = virtnet_cvq_done;
-> > > >               names[total_vqs - 1] = "control";
-> > > >       }
-> > > >
-> > > > --
-> > > > 2.25.1
-> > > >
-> > > > _______________________________________________
-> > > > Virtualization mailing list
-> > > > Virtualization@lists.linux-foundation.org
-> > > > https://lists.linuxfoundation.org/mailman/listinfo/virtualization
-> > >
-> >
->
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gV2VkLCBEZWMgMjgsIDIwMjIgYXQgMjozNCBQTSBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRo
+YXQuY29tPiB3cm90ZToKPgo+Cj4g5ZyoIDIwMjIvMTIvMjcgMTc6MzgsIE1pY2hhZWwgUy4gVHNp
+cmtpbiDlhpnpgZM6Cj4gPiBPbiBUdWUsIERlYyAyNywgMjAyMiBhdCAwNToxMjo1OFBNICswODAw
+LCBKYXNvbiBXYW5nIHdyb3RlOgo+ID4+IOWcqCAyMDIyLzEyLzI3IDE1OjMzLCBNaWNoYWVsIFMu
+IFRzaXJraW4g5YaZ6YGTOgo+ID4+PiBPbiBUdWUsIERlYyAyNywgMjAyMiBhdCAxMjozMDozNVBN
+ICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+ID4+Pj4+IEJ1dCBkZXZpY2UgaXMgc3RpbGwgZ29p
+bmcgYW5kIHdpbGwgbGF0ZXIgdXNlIHRoZSBidWZmZXJzLgo+ID4+Pj4+Cj4gPj4+Pj4gU2FtZSBm
+b3IgdGltZW91dCByZWFsbHkuCj4gPj4+PiBBdm9pZGluZyBpbmZpbml0ZSB3YWl0L3BvbGwgaXMg
+b25lIG9mIHRoZSBnb2FscywgYW5vdGhlciBpcyB0byBzbGVlcC4KPiA+Pj4+IElmIHdlIHRoaW5r
+IHRoZSB0aW1lb3V0IGlzIGhhcmQsIHdlIGNhbiBzdGFydCBmcm9tIHRoZSB3YWl0Lgo+ID4+Pj4K
+PiA+Pj4+IFRoYW5rcwo+ID4+PiBJZiB0aGUgZ29hbCBpcyB0byBhdm9pZCBkaXNydXB0aW5nIHRy
+YWZmaWMgd2hpbGUgQ1ZRIGlzIGluIHVzZSwKPiA+Pj4gdGhhdCBzb3VuZHMgbW9yZSByZWFzb25h
+YmxlLiBFLmcuIHNvbWVvbmUgaXMgdHVybmluZyBvbiBwcm9taXNjLAo+ID4+PiBhIHNwaWtlIGlu
+IENQVSB1c2FnZSBtaWdodCBiZSB1bndlbGNvbWUuCj4gPj4KPiA+PiBZZXMsIHRoaXMgd291bGQg
+YmUgbW9yZSBvYnZpb3VzIGlzIFVQIGlzIHVzZWQuCj4gPj4KPiA+Pgo+ID4+PiB0aGluZ3Mgd2Ug
+c2hvdWxkIGJlIGNhcmVmdWwgdG8gYWRkcmVzcyB0aGVuOgo+ID4+PiAxLSBkZWJ1Z2dpbmcuIEN1
+cnJlbnRseSBpdCdzIGVhc3kgdG8gc2VlIGEgd2FybmluZyBpZiBDUFUgaXMgc3R1Y2sKPiA+Pj4g
+ICAgICBpbiBhIGxvb3AgZm9yIGEgd2hpbGUsIGFuZCB3ZSBhbHNvIGdldCBhIGJhY2t0cmFjZS4K
+PiA+Pj4gICAgICBFLmcuIHdpdGggdGhpcyAtIGhvdyBkbyB3ZSBrbm93IHdobyBoYXMgdGhlIFJU
+Tkw/Cj4gPj4+ICAgICAgV2UgbmVlZCB0byBpbnRlZ3JhdGUgd2l0aCBrZXJuZWwvd2F0Y2hkb2cu
+YyBmb3IgZ29vZCByZXN1bHRzCj4gPj4+ICAgICAgYW5kIHRvIG1ha2Ugc3VyZSBwb2xpY3kgaXMg
+Y29uc2lzdGVudC4KPiA+Pgo+ID4+IFRoYXQncyBmaW5lLCB3aWxsIGNvbnNpZGVyIHRoaXMuCgpT
+byBhZnRlciBzb21lIGludmVzdGlnYXRpb24sIGl0IHNlZW1zIHRoZSB3YXRjaGRvZy5jIGRvZXNu
+J3QgaGVscC4gVGhlCm9ubHkgZXhwb3J0IGhlbHBlciBpcyB0b3VjaF9zb2Z0bG9ja3VwX3dhdGNo
+ZG9nKCkgd2hpY2ggdHJpZXMgdG8gYXZvaWQKdHJpZ2dlcmluZyB0aGUgbG9ja3VwcyB3YXJuaW5n
+IGZvciB0aGUga25vd24gc2xvdyBwYXRoLgoKQW5kIGJlZm9yZSB0aGUgcGF0Y2gsIHdlIGVuZCB1
+cCB3aXRoIGEgcmVhbCBpbmZpbml0ZSBsb29wIHdoaWNoIGNvdWxkCmJlIGNhdWdodCBieSBSQ1Ug
+c3RhbGwgZGV0ZWN0b3Igd2hpY2ggaXMgbm90IHRoZSBjYXNlIG9mIHRoZSBzbGVlcC4KV2hhdCB3
+ZSBjYW4gZG8gaXMgcHJvYmFibHkgZG8gYSBwZXJpb2RpYyBuZXRkZXZfZXJyKCkuCgpUaGFua3MK
+Cj4gPj4KPiA+Pgo+ID4+PiAyLSBvdmVyaGVhZC4gSW4gYSB2ZXJ5IGNvbW1vbiBzY2VuYXJpbyB3
+aGVuIGRldmljZSBpcyBpbiBoeXBlcnZpc29yLAo+ID4+PiAgICAgIHByb2dyYW1taW5nIHRpbWVy
+cyBldGMgaGFzIGEgdmVyeSBoaWdoIG92ZXJoZWFkLCBhdCBib290dXAKPiA+Pj4gICAgICBsb3Rz
+IG9mIENWUSBjb21tYW5kcyBhcmUgcnVuIGFuZCBzbG93aW5nIGJvb3QgZG93biBpcyBub3Qgbmlj
+ZS4KPiA+Pj4gICAgICBsZXQncyBwb2xsIGZvciBhIGJpdCBiZWZvcmUgd2FpdGluZz8KPiA+Pgo+
+ID4+IFRoZW4gd2UgZ28gYmFjayB0byB0aGUgcXVlc3Rpb24gb2YgY2hvb3NpbmcgYSBnb29kIHRp
+bWVvdXQgZm9yIHBvbGwuIEFuZAo+ID4+IHBvbGwgc2VlbXMgcHJvYmxlbWF0aWMgaW4gdGhlIGNh
+c2Ugb2YgVVAsIHNjaGVkdWxlciBtaWdodCBub3QgaGF2ZSB0aGUKPiA+PiBjaGFuY2UgdG8gcnVu
+Lgo+ID4gUG9sbCBqdXN0IGEgYml0IDopIFNlcmlvdXNseSBJIGRvbid0IGtub3csIGJ1dCBhdCBs
+ZWFzdCBjaGVjayBvbmNlCj4gPiBhZnRlciBraWNrLgo+Cj4KPiBJIHRoaW5rIGl0IGlzIHdoYXQg
+dGhlIGN1cnJlbnQgY29kZSBkaWQgd2hlcmUgdGhlIGNvbmRpdGlvbiB3aWxsIGJlCj4gY2hlY2sg
+YmVmb3JlIHRyeWluZyB0byBzbGVlcCBpbiB0aGUgd2FpdF9ldmVudCgpLgo+Cj4KPiA+Cj4gPj4+
+IDMtIHN1cHJpc2UgcmVtb3ZhbC4gbmVlZCB0byB3YWtlIHVwIHRocmVhZCBpbiBzb21lIHdheS4g
+d2hhdCBhYm91dAo+ID4+PiAgICAgIG90aGVyIGNhc2VzIG9mIGRldmljZSBicmVha2FnZSAtIGlz
+IHRoZXJlIGEgY2hhbmNlIHRoaXMKPiA+Pj4gICAgICBpbnRyb2R1Y2VzIG5ldyBidWdzIGFyb3Vu
+ZCB0aGF0PyBhdCBsZWFzdCBlbnVtZXJhdGUgdGhlbSBwbGVhc2UuCj4gPj4KPiA+PiBUaGUgY3Vy
+cmVudCBjb2RlIGRpZDoKPiA+Pgo+ID4+IDEpIGNoZWNrIGZvciB2cS0+YnJva2VuCj4gPj4gMikg
+d2FrZXVwIGR1cmluZyBCQURfUklORygpCj4gPj4KPiA+PiBTbyB3ZSB3b24ndCBlbmQgdXAgd2l0
+aCBhIG5ldmVyIHdva2UgdXAgcHJvY2VzcyB3aGljaCBzaG91bGQgYmUgZmluZS4KPiA+Pgo+ID4+
+IFRoYW5rcwo+ID4KPiA+IEJUVyBCQURfUklORyBvbiByZW1vdmFsIHdpbGwgdHJpZ2dlciBkZXZf
+ZXJyLiBOb3Qgc3VyZSB0aGF0IGlzIGEgZ29vZAo+ID4gaWRlYSAtIGNhbiBjYXVzZSBjcmFzaGVz
+IGlmIGtlcm5lbCBwYW5pY3Mgb24gZXJyb3IuCj4KPgo+IFllcywgaXQncyBiZXR0ZXIgdG8gdXNl
+IF9fdmlydHF1ZXVlX2JyZWFrKCkgaW5zdGVhZC4KPgo+IEJ1dCBjb25zaWRlciB3ZSB3aWxsIHN0
+YXJ0IGZyb20gYSB3YWl0IGZpcnN0LCBJIHdpbGwgbGltaXQgdGhlIGNoYW5nZXMKPiBpbiB2aXJ0
+aW8tbmV0IHdpdGhvdXQgYm90aGVyaW5nIHZpcnRpbyBjb3JlLgo+Cj4gVGhhbmtzCj4KPgo+ID4K
+PiA+Pj4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZp
+cnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3Vu
+ZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0
+aW5mby92aXJ0dWFsaXphdGlvbg==
